@@ -1,0 +1,327 @@
+/*!
+\page first-plugin.html
+    itle 2. First Plugin
+The best way to learn about writing Qt Creator plugins is to actually start by writing the very first plugin.
+
+There are two ways for writing plugins for Qt Creator:
+\list
+\o \l {Writing plugin inside the source tree.}
+\o \l {Writing plugin outside the source tree.}
+\endlist
+For Writing plugin in the any of the above mentioned way Qt Creator source scould have been compiled.
+
+Lets keep our goals very simple for this one. We are going to provide a plugin for Qt Creator that does nothing. The purpose behind
+this "Do nothing" plugin is to discover the basic classes in Qt Creator and to feel happy when our plugin shows up in the
+"plugin list"
+
+\inlineimage qtc-aboutplugin-2.png
+
+
+    arget {Writing plugin inside the source tree.}
+\section1 2.1 Create a plugin project in Qt Creator
+Create a folder called DoNothing in $$QT_CREATOR_ROOT/src/plugins directory. The entire source code of
+the plugin will be put into this directory.
+
+\bold {Note:}\underline {It may be possible to write and build Qt Creator plugins outside of its source tree, but it is
+much easier to write plugins within the source tree}.
+
+
+Lets first create the \c {DoNothing.pro} file with the following contents
+\code
+TEMPLATE = lib
+TARGET = DoNothing
+
+PROVIDER = FooCompanyInc
+
+include(../../qtcreatorplugin.pri)
+include(../../plugins/coreplugin/coreplugin.pri)
+
+HEADERS += DoNothingPlugin.h
+SOURCES += DoNothingPlugin.cpp
+OTHER_FILES += DoNothing.pluginspec
+\endcode
+
+The project file configures the following aspects of the plugin:
+\list 1
+\o Declares that DoNothing is a library. The output will be DoNothing.dll
+\o Configures DoNothing to make use of settings defined in qtcreatorplugin.pri
+\o Overrides the default destination directory to $$IDE_PLUGIN_PATH/FooCompanyInc. By default the value 
+   will be to $$IDE_PLUGIN_PATH/Nokia
+\o Configures DoNothing to make use of settings defined in coreplugin.pri
+\o Provides information about the .h and .cpp files that make up the plugin
+\endlist
+
+\section1 2.2 Marking the plugin for build
+Edit the \c {$$QT_CREATOR_ROOT/src/plugins/plugins.pro } file and include the following lines at the end of
+the file and save the changes.
+
+\code
+SUBDIRS += plugin_DoNothing
+plugin_DoNothing.subdir = DoNothing
+\endcode
+
+The above lines make sure that the next time we build Qt Creator, the DoNothing plugin is compiled along with the rest
+of Qt Creator plugins.
+
+\section1 2.3 Implementing the plugin
+So far we have only written the project file and marked our plugin for compilation. We now do the actual
+implementation of the plugin. All plugins implement the IPlugin interface. Lets take a look at how the DoNothing plugin
+implements the interface and understand it in stages.
+
+In \c {$$QT_CREATOR_ROOT/src/plugins/DoNothing/DoNothingPluigin.h} enter the following code.
+\code
+#ifndef DONOTHINGPLUGIN_H
+#define DONOTHINGPLUGIN_H
+#include <extensionsystem/iplugin.h>
+
+class DoNothingPlugin : public ExtensionSystem::IPlugin
+{
+public:
+    DoNothingPlugin();
+    ~DoNothingPlugin();
+    void extensionsInitialized();
+    bool initialize(const QStringList & arguments, QString * errorString);
+    void shutdown();
+};
+#endif // DONOTHINGPLUGIN_H
+\endcode
+
+As you can see the DoNothingPlugin class implements the IPlugin interface and nothing else. Lets look at how the
+functions are implemented.
+
+\code
+#include "DoNothingPlugin.h"
+#include <QtPlugin>
+#include <QStringList>
+
+DoNothingPlugin::DoNothingPlugin()
+{
+    // Do nothing
+}
+
+DoNothingPlugin::~DoNothingPlugin()
+{
+    // Do notning
+}   
+\endcode
+Apart from initializing local (non widget and non action) variables; the constructor and destructor don't do much else.
+\code
+
+bool DoNothingPlugin::initialize(const QStringList& args, QString *errMsg)
+{
+    Q_UNUSED(args);
+    Q_UNUSED(errMsg);
+    return true;
+}
+\endcode
+
+The \bold initialize() method is called when Qt Creator wants the plugin to initialize itself. This function is ideally used to
+initialize the internal state of the plugin and register actions/objects with Qt Creator. The function is called after all the
+dependencies of this plugin have been loaded.
+
+Since our plugin really does nothing, we return \bold {true} signifying that the initialization was successful. If the initialization
+was unsuccessful (for some wired reason); the \bold {errMsg} string should be set to a human readable error message.
+
+
+\code
+void DoNothingPlugin::extensionsInitialized()
+{
+    // Do nothing
+}
+\endcode
+
+The \bold extensionsInitialized() method is called after this plugin has been initialized (ie. after initialize() method has been
+called). This method is called on plugins that depend on this plugin first.
+\code
+void DoNothingPlugin::shutdown()
+{
+    // Do nothing
+}
+\endcode
+The \bold shutdown() method is called when the plugin is about to be unloaded.
+\code
+Q_EXPORT_PLUGIN(DoNothingPlugin)
+\endcode
+Finally we export the plugin class by making use of the \bold {Q_EXPORT_PLUGIN()} macro.
+
+\section1 2.4 Writing the pluginspec file
+
+Each plugin should accompany a pluginspec file that provides some meta data about the plugin. For our plugin the
+pluginspec file is as follows
+\code
+<plugin name="DoNothing" version="0.0.1">
+    <vendor>FooCompanyInc</vendor>
+    <copyright>(C) 2009-2010 FooCompanyInc Pvt. Ltd.</copyright>
+    <license>Do anything you want</license>
+    <description>A plugin that does nothing</description>
+    <url>http://www.FooCompanyInc.com</url>
+    <dependencyList>
+        <dependency name="Core"/>
+    </dependencyList>
+</plugin>
+\endcode
+The pluginspec file provides the following fields of information:
+
+\list 1
+\o Name of the plugin, which is also used as the name of the library file that provides the plugin implementation.
+  (In our case DoNothing.dll on Windows, libDoNothing.so on Unix)
+
+\o Version of the plugin
+
+\o Vendor name
+
+\o Copyright
+
+\o License text
+
+\o Description
+
+\o URL of the plugin vendor
+
+\o Dependency List provides all the plugins that this plugin depends on. Qt Creator ensures that dependencies
+   are loaded and initialized before this plugin.
+
+\endlist
+
+\bold {Note:}\underline {The pluginspec file should be in the same directory as the plugin's project file. Just to make things clear, the
+contents of the DoNothing plugin directory is as shown below}
+
+
+\inlineimage qtc-plugindirectory-2.png
+
+
+\section1 2.5 Compiling the plugin
+
+Open a command prompt and move to the Qt Creator build directory (the same build directory you created in the
+previous chapter). Execute the following commands
+\code
+qmake ..\qtcreator.pro -recursive
+nmake
+\endcode
+After nmake returns, you will notice a FooCompanyInc folder within plugins folder whose contents are shown in the image
+below.
+
+\inlineimage qtc-compiledplugin-2.png
+
+
+\section1 2.6 Check out the new plugin
+Launch (or relaunch) Qt Creator and notice that the "Installed Plugins" dialog box now reports that DoNothing plugin
+was infact loaded and initialized.
+
+
+\inlineimage qtc-installedplugin-2.png
+
+
+In the coming chapters we will learn to write more complicated plugins for Qt Creator.
+
+    arget {Writing plugin outside the source tree.}
+\section1 2.7 Building out-of-source plugins
+
+Thus far we have understood how to build plugins within the source tree of Qt Creator. It may not be practical for us to
+use the Qt Creator source tree for plugin development all the time. Suppose that you are the author of a specialized
+library (or application) and you want integrate your product into Qt Creator. Since you are a 3rd party developer you
+cannot expect to have your code in Qt Creator source tree all the time. In this section we will look at how to build
+plugins that are outside the Qt Creator source tree.
+
+\section2 2.7.1 The plugin project file
+
+The whole magic of out-of-source plugin builds lies in the project (.pro) file of your plugin. Lets the DoNothing plugin
+discussed in the previous section and modify (its ".pro" file) so that plugins can be built from a directory outside Qt
+Creator source.
+
+The following table lists out the directory structure
+
+    able
+\header
+\o Description
+\o Directory
+
+ \row 
+ \o   Qt Creator Source Code 
+ \o   C:\\Work\\QtCreator 
+
+ \row
+ \o Qt Creator Build Directory 
+ \o C:\\Work\\QtCreator\\build
+
+ \row
+ \o DoNothing Plugin Source 
+ \o C:\\Work\\Research\\QtCreator\\Plugins\\DoNothing
+
+
+    This directory currently contains
+    \list
+    \o DoNothing.pluginspec
+    \o DoNothing.pro
+    \o DoNothingPlugin.cpp
+    \o DoNothingPlugin.h
+    \endlist
+\row 
+\o Target plugin directory
+\o C:\\Work\\QtCreator\\build\\lib\\qtcreator\\plugins\\FooCompanyInc   
+
+ \endtable
+
+Let's now modify the DoNothing.pro file in C:\\Work\\Research\\QtCreator\\Plugins\\DoNothing as follows.
+
+\code
+QTC_SOURCE = C:/Work/QtCreator/
+QTC_BUILD = C:/Work/QtCreator/build/
+
+TEMPLATE = lib
+TARGET = DoNothing
+
+IDE_SOURCE_TREE = $$QTC_SOURCE
+IDE_BUILD_TREE = $$QTC_BUILD
+
+PROVIDER = FooCompanyInc
+
+LIBS += -L$$IDE_PLUGIN_PATH/Nokia
+
+include($$QTC_SOURCE/src/qtcreatorplugin.pri)
+include($$QTC_SOURCE/src/plugins/coreplugin/coreplugin.pri)
+
+HEADERS = DoNothingPlugin.h
+SOURCES = DoNothingPlugin.cpp
+OTHER_FILES = DoNothingPlugin.pluginspec
+\endcode
+
+The \bold{QTC_SOURCE} and \bold {QTC_BUILD} variables in the project file point to the source and build directories of Qt Creator.
+If you prefer setting these as environment variables, then use \bold{$$(QTC_BUILD)} instead of \bold{$$QTC_BUILD} in the
+project file.
+
+The \bold {IDE_SOURCE_TREE} and \bold {IDE_BUILD_TREE} variables are used by qtcreatorplugin.pri to establish the include
+and library paths.
+
+The \bold {PROVIDER} and \bold {DESTDIR} directories must be set before including qtcreatorplugin.pri. This is because the variables
+will be provided default values are \bold {Nokia} and \bold {$$IDE_BUILD_TREE/lib/qtcreator/plugins/Nokia} otherwise.
+
+By default qtcreatorplugin.pri assumes that all the libs that a plugin may depend on are present inside the \bold {DESTDIR}. If
+our \bold {DESTDIR} is different from the default (Nokia) one, then we will need to explicitly set that. The remaining things are
+just the same.
+
+
+\section2 2.7.2 Compiling the plugin
+
+Once the project file has been created, we make use of the standard qmake and make commands to compile the plugin.
+
+\code
+C:\Work\Research\QtCreator\Plugins\DoNothing>qmake
+C:\Work\Research\QtCreator\Plugins\DoNothing>nmake
+
+Microsoft (R) Program Maintenance Utility Version 8.00.50727.762
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+"C:\Program Files\Microsoft Visual Studio 8\VC\BIN\nmake.exe" -f Makefile.Debug
+Microsoft (R) Program Maintenance Utility Version 8.00.50727.762
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+copy /y "DoNothing.pluginspec"
+"..\..\..\..\QtCreator\build\lib\qtcreator\plugins\FooCompanyInc\DoNothing.pluginspec"
+1 file(s) copied.
+........................................
+mt.exe -nologo -manifest "debug\DoNothingd.intermediate.manifest" -
+outputresource:..\..\..\..\QtCreator\build\lib\qtcreator\plugins\FooCompanyInc\DoNothingd.dll;2
+C:\Work\Research\QtCreator\Plugins\DoNothing>
+\endcode    
+*/

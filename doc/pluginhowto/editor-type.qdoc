@@ -1,0 +1,998 @@
+ï»¿/*!
+    \page editor-type.html
+    \title 10. Adding editor type
+    
+    At the very basic level Qt Creator is a text editor. On top of supporting editing of text files, Qt Creator also allows users
+    to edit UI (Qt Designer) files, QRC (Resource) files, PRO/PRI (Project) files and EXE/DLL/SO (Binary) files.
+    
+    \inlineimage qtc-editor-10.png 
+    
+    
+    In this chapter we will understand how to provide editors for custom file formats, specifically the HTML file format.
+    When we are done, we will be able to load HTML files from the local file system and view/edit them.
+    
+    \inlineimage  qtc-fileformat-10.png
+    
+    \section1 10.1 Core Classes and Interfaces
+    
+    To support a new editor type, we need to
+    \list
+    \o Implement a plugin \bold {(Core::IPlugin} implementation) class that exposes an "editor factory". Chapter 2 in this
+       document provides a detailed description on creating plugins by implementing the \bold {Core::IPlugin interface}.
+    
+    \o Implement the editor factory, \bold {Core::IEditorFactory}, interface. This interface implementation provides
+       methods to help create instances of "editor" object for a specified mime-type.
+    \o Implement the editor, \bold {Core::IEditor}, interface. This interface implementation provides a widget that helps
+       edit a file type (for example: HTML, ODF etc). Editors must provide access to the "file" that it is currently being
+       shown or edited.
+    \o Implement the file, \bold{Core::IFile}, interface to help customize the loading and saving of data into disk files.
+    
+    \endlist
+    
+    In the following subsections, we will take a look at each of the above mentioned core interfaces.
+    
+    \section2  10.1.1 The Core::IFile interface
+    
+    This interface abstracts file operations from the user-interface point of view. It provides virtual methods to load and
+    save files, given a file name. It also helps in understanding the mime-type of file and value of certain flags like “modified”
+    and "read-only". The \bold{Core::IFile} interface is declared as follows in src/plugins/coreplugin/ifile.h
+    
+   \code
+    namespace Core 
+    {
+        class IFile : public QObject
+        {
+            Q_OBJECT
+
+        public:
+            enum ReloadBehavior { AskForReload, ReloadAll, ReloadPermissions, ReloadNone };
+            IFile(QObject *parent = 0) : QObject(parent) {}
+            virtual ~IFile() {}
+            virtual bool save(const QString &fileName = QString()) = 0;
+            virtual QString fileName() const = 0;
+            virtual QString defaultPath() const = 0;
+            virtual QString suggestedFileName() const = 0;
+            virtual QString mimeType() const = 0;
+            virtual bool isModified() const = 0;
+            virtual bool isReadOnly() const = 0;
+            virtual bool isSaveAsAllowed() const = 0;
+            virtual void modified(ReloadBehavior *behavior) = 0;
+            virtual void checkPermissions() {}
+
+        signals:
+            void changed();
+        };
+    } // namespace Core   
+        
+    \endcode
+    
+    You may be wondering: "Why go for another interface called \bold {IFile} when we already have a class called \bold {QFile} that
+    provides the exact same functionality?" Good point. The responses to this question are listed below
+    
+    \list
+    \o  \bold {IFile} has to take care of loading contents of a filename into an editor \bold {(Core::IEditor} interface discussed
+        next). \bold {QFile} on the other hand simply loads contents into a \bold {QByteArray}.
+        
+    \o  \bold {IFile} has to emit the \bold {modified()} signal when the user edits the contents of the file in the editor, but the
+        actual disk-file contents have not been modified. \bold {QFile} emits the \bold {bytesWritten()} signal only when the
+        disk-file contents have been modified.
+        
+    \o  \bold {IFile} has to handle how a modified file, on the disk, is reloaded. \bold {QFile} on the other-hand doesn’t need to
+        handle this.    
+    \endlist
+
+    We will learn more about implementing the \bold {Core::IFile} interface in a future section.
+    
+    \section2 10.1.2 The Core::IEditor interface
+    Implementations of the \bold {Core::IEditor} interface provide editors for different types of files. It is declared as follows
+    in src/plugins/coreplugin/editormanager/ieditor.h.
+    
+    \code
+    namespace Core 
+    {
+        class IContext : public QObject
+        {
+            Q_OBJECT
+            
+        public:
+            IContext(QObject *parent = 0) : QObject(parent) {}
+            virtual ~IContext() {}
+            virtual QList<int> context() const = 0;
+            virtual QWidget *widget() = 0;
+            virtual QString contextHelpId() const { return QString(); }
+        };
+
+        class IEditor : public IContext
+        {
+            Q_OBJECT
+
+        public:
+            IEditor(QObject *parent = 0) : IContext(parent) {}
+            virtual ~IEditor() {}
+            virtual bool createNew(const QString &contents = QString()) = 0;
+            virtual bool open(const QString &fileName = QString()) = 0;
+            virtual IFile *file() = 0;
+            virtual const char *kind() const = 0;
+            virtual QString displayName() const = 0;
+            virtual void setDisplayName(const QString &title) = 0;
+            virtual bool duplicateSupported() const = 0;
+            virtual IEditor *duplicate(QWidget *parent) = 0;
+            virtual QByteArray saveState() const = 0;
+            virtual bool restoreState(const QByteArray &state) = 0;
+            virtual int currentLine() const { return 0; }
+            virtual int currentColumn() const { return 0; }
+            virtual bool isTemporary() const = 0;
+            virtual QToolBar *toolBar() = 0;
+
+        signals:
+            void changed();
+        };
+    } // namespace Core
+    
+    \endcode
+    
+    The \bold {Core::IEditor} interface primary provides access to
+    \list
+    \o An \underline{editor widget}\bold{ (Core::IEditor::widget()} method) that Qt Creator can use to display contents of the
+       file being edited.
+       
+    \o The file \bold {(Core::IEditor::file() } method), which is a \bold {Core::IFile} implementation, that Qt Creator
+       can use to trigger the loading and saving of data from disk-files.
+       
+    \o An optional custom toolbar that Qt Creator can show whenever the editor becomes active.
+    
+    \o The current position of the edit-cursor within the file \bold {(Core::IEditor::currentLine()} and
+       \bold {Core::IEditor::currentColumn())}
+       
+    \o The name that needs to be displayed in the \underline{open-files combo box}.
+    \endlist
+    
+    Take a look at the following screenshot to get a better understanding.
+    
+    \inlineimage qtc-ieditor-10.png 
+    
+    
+    We will understand more about implementing the \bold {Core::IEditor} interface in a future section.
+    
+    
+    \section2 10.1.3 The Core::IEditorFactory interface
+    
+    Implementations of \bold {Core::IEditorFactory} interface provide methods to create instances of Core::IEditor
+    for a supported mime-type. It is declared as follows in src/plugins/coreplugin/editormanager/ieditorfactory.h.
+    
+    \code
+    namespace Core
+    {
+        class IFileFactory : public QObject
+        {
+            Q_OBJECT
+            
+        public:
+            IFileFactory(QObject *parent = 0) : QObject(parent) {}
+            virtual ~IFileFactory() {}
+            virtual QStringList mimeTypes() const = 0;
+            virtual QString kind() const = 0;
+            virtual Core::IFile *open(const QString &fileName) = 0;
+        };
+        
+        class IEditorFactory : public Core::IFileFactory
+        {
+            Q_OBJECT
+            
+        public:
+            IEditorFactory(QObject *parent = 0) : IFileFactory(parent) {}
+            virtual ~IEditorFactory() {}
+            virtual IEditor *createEditor(QWidget *parent) = 0;
+        };
+    } // namespace Core
+    
+    \endcode
+    
+    The \bold {IEditorFactory::mimeType()} method should be implemented to return the mime-type supported by the
+    editor for which the factory is implemented. The \bold {IEditorFactory::createEditor()} method should be
+    implemented to actually create a concrete editor and return the same.
+    
+    \section2 10.1.4 The Core::MimeDatabase class
+    
+    The \bold {Core::MimeDatabase} class keeps track of all the mime-types supported by Qt Creator. It also helps figure out
+    the mime-type of a given file. Take the following code for example:
+    
+    \code
+    #include <coreplugin/mimedatabase.h>
+    Core::ICore* core = Core::ICore::instance();
+    Core::MimeDatabase* mdb = core->mimeDatabase();
+    Core::MimeType type1 = mdb->findByFile( QFileInfo("C:/Temp/sample.html") );
+    
+    qDebug("File Type for sample.html = %s", qPrintable(type1.type()));
+    Core::MimeType type2 = mdb->findByFile( QFileInfo("C:/Temp/TextEdit/Main.cpp") );
+    
+    qDebug("File Type for Main.cpp = %s", qPrintable(type2.type()));
+    Core::MimeType type3 = mdb->findByFile( QFileInfo("C:/Temp/TextEdit/TextEdit.pro") );
+    
+    qDebug("File Type for TextEdit.pro = %s", qPrintable(type3.type()));
+    \endcode
+    
+    When the above code is compiled and executed, we get the following as output.
+    \code
+    File Type for sample.html = text/plain
+    File Type for Main.cpp = text/x-c++src
+    File Type for TextEdit.pro = text/plain
+    \endcode
+    
+    The \bold { Core::MimeDatabase } uses filename suffix, glob patterns and "magic" matchers to figure out the mime-type of
+    a given filename. At this point however, lets not dig into how the mime-database manages to figure out the mime-type
+    from a filename; it is enough if we know that mime-type discovery is possible.
+    
+    The \bold Core::IEditorFactory interface, as described in the previous section, provides an editor \bold{(Core::IEditor}
+    implementation) for a specific mime-type. The following points help us understand how Qt Creator manages to pick the
+    appropriate \bold {Core::IEditorFactory} for a given filename.
+    
+    \list 1
+    \o User selects File -> Open and chooses a file to open
+    
+    \o Qt Creator uses \bold {Core::MimeDatabase} to figure out the mime-type of the selected file
+    
+    \o Qt Creator runs through all \bold {Core::IEditorFactory} implementations and picks the editor-factory that
+       supports the mime-type evaluated in step 2
+    
+    \o Qt Creator asks the selected editor factory to create an editor (Core::IEditor implementation)
+    
+    \o The widget returned by \bold {Core::IEditor::widget()} is then shown in the workspace area of the mainwindow
+    
+    \o The \bold {Core::IEditor::open()} method is then called to open the file selected in step 1.
+    
+    \endlist
+    
+    \section2 10.1.5 Adding a new mime-type
+    
+    If we wanted to support a new editor type, then we need to register the mime-type supported by the new editor with
+    the \bold {Core::MimeDatabase}. Several mechanisms can be used to register a new mime-type. In this chapter we will
+    learn the simplest way to register a new mime-type from an XML file.
+    Suppose that we wanted to register the \bold {text/html} mime-type and associate it with \bold {*.html} filenames. We create an XML
+    file as and save it as \bold {text-html-mimetype.xml}.
+    
+    \code
+    <?xml version="1.0" encoding="UTF-8"?>
+    <mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+    <mime-type type="text/html">
+    <sub-class-of type="text/plain"/>
+    <comment>HTML File</comment>
+    <glob pattern="*.html"/>
+    </mime-type>
+    </mime-info>
+    \endcode
+    
+    We then register the mime-type described in the XML file (above) using the
+    \bold {Core::MimeDatabase::addMimeTypes()} method. Take a look at the code snippet below
+    
+    \code
+    Core::ICore* core = Core::ICore::instance();
+    Core::MimeDatabase* mdb = core->mimeDatabase();
+    QString errMsg;
+    bool success = mdb->addMimeTypes("text-html-mimetype.xml", errMsg);
+    \endcode
+    
+    Once registered, Qt Creator will begin to map all *.html filenames to text/plain mime-type.
+    
+    \section1 10.2 Providing a HTML Editor in Qt Creator
+    
+    Let's implement a plugin for Qt Creator that provides support for viewing and editing HTML files. The following
+    screenshots show the expected results.
+    
+    The user select a HTML file to open using the standard File -> Open menuitem.
+    
+    \inlineimage qtc-menuitem-10.png
+    
+    
+    Upon selecting a HTML file, Qt Creator will show a custom editor as shown below.
+    
+    
+    \inlineimage qtc-customeditor-10.png
+    
+    
+    Notice that the editor has two tabs called "Preview" and "Source" at the bottom edge.
+    
+    
+    \inlineimage qtc-editortabs-10.png
+    
+    
+    Clicking on the "Source" tab shows the HTML code in a \bold { QPlainTextEdit}  widget.
+    
+    \inlineimage qtc-plaintextedit-10.png
+    
+    
+    Users can edit the HTML in this tab, and when he moves back to the "preview" tab the changes are reflected. Users can
+    continue to make use of File -> Save menu item to save changes to the HTML file.
+    
+    For achieving the above we implement the following classes
+    
+    \table
+    \header
+    \o Class
+    \o Interface\\Baseclass
+    \o Description
+     
+      \row
+      \o \c{HtmlEditorWidget}
+      \o \bold {QTabWidget}
+      \o Provides a tab widget with two tabs, one for showing the
+         HTML preview and other for showing the HTML code.
+         
+      \row
+      \o \c{HtmlFile}
+      \o \bold {Core::IFile}
+      \o Implements the \bold {IFile} interface for the file shown in
+         \bold {HtmlEditorWidget}.
+      \row
+      \o \c {HtmlEditor}
+      \o \bold {Core::IEditor}
+      \o Implements the \bold{IEditor} interface for managing the
+         \bold{HtmlEditorWidget} and hooking up an \bold{IFile} with it.
+      \row
+      \o \c {HtmlEditorFactory}
+      \o \bold {Core::IEditorFactory}
+      \o Implements the \bold{IEditorFactory} interface for creating
+         instances of \bold{IEditor} for the "text/html" mime-type.
+      
+      \row
+      \o \c {HtmlEditorPlugin}
+      \o \bold {Core::IPlugin }
+      \o Implements the \bold{IPlugin} interface for hooking all of the
+         above into Qt Creator.   
+    \endtable    
+    
+    For every html file there is an instance each of \bold{HtmlEditorWidget},\bold{HtmlFile} and \bold{HtmlEditor} handling the
+    loading, editing and saving functionality. In our implementation we provide mechanisms to help establish association
+    between instances of the above classes that handle the same file.
+    
+    \section2 10.2.1 Implementing the HTML Editor Widget
+    By default, Qt Creator uses a plain-text editor widget to display the contents of the HTML file being edited. We would
+    like to offer a tabbed widget as editor. One of the tabs shows the HTML preview, the other shows the HTML code. The
+    class \bold {HtmlEditorWidget} is our editor; and it is declared as follows.
+    
+    \code
+    struct HtmlEditorWidgetData;
+    class HtmlEditorWidget : public QTabWidget
+    {
+        Q_OBJECT
+
+    public:
+        HtmlEditorWidget(QWidget* parent = 0);
+        ~HtmlEditorWidget();
+        void setContent(const QByteArray& ba, const QString& path=QString());
+        QByteArray content() const;
+        QString title() const;
+
+    protected slots:
+        void slotCurrentTabChanged(int tab);
+        void slotContentModified();
+
+    signals:
+        void contentModified();
+        void titleChanged(const QString&);
+
+    private:
+        HtmlEditorWidgetData* d;
+    };
+    \endcode
+    
+    The constructor basically creates two different views from \bold{QWebView} and \bold {QPlainTextEdit} and adds them as tabs
+    at the bottom position of the tab widget. We will learn about the signal-slot connections later.
+        
+    \code
+    HtmlEditorWidget::HtmlEditorWidget(QWidget* parent):QTabWidget(parent)
+    {
+        d = new HtmlEditorWidgetData;
+        d->webView = new QWebView;
+        d->textEdit = new QPlainTextEdit;
+
+        addTab(d->webView, "Preview");
+        addTab(d->textEdit, "Source");
+
+        setTabPosition(QTabWidget::South);
+        setTabShape(QTabWidget::Triangular);
+
+        d->textEdit->setFont( QFont("Courier", 12) );
+        connect(this, SIGNAL(currentChanged(int)),this, SLOT(slotCurrentTabChanged(int)));
+        connect(d->textEdit, SIGNAL(textChanged()),this, SLOT(slotContentModified()));
+        connect(d->webView, SIGNAL(titleChanged(QString)),this, SIGNAL(titleChanged(QString)));
+        d->modified = false;
+    }
+    \endcode
+    
+    
+    The destructor does nothing other than deleting the private \bold{"d"} object.
+    
+    \code
+    HtmlEditorWidget::~HtmlEditorWidget()
+    {
+        delete d;
+    }
+    \endcode
+    
+    The setContent method simply sets the contents of html file to \bold{webView} and \bold {textEdit}.
+    
+    \code
+    void HtmlEditorWidget::setContent(const QByteArray& ba, const QString& path)
+    {
+        if(path.isEmpty())
+            d->webView->setHtml(ba);
+        else
+            d->webView->setHtml(ba, "file:///" + path);
+            d->textEdit->setPlainText(ba);
+            d->modified = false;
+            d->path = path;
+    }
+    \endcode
+    
+    The \bold {content} method returns the contents of the \bold {textEdit}.
+    
+    \code
+    QByteArray HtmlEditorWidget::content() const
+    {
+        QString htmlText = d->textEdit->toPlainText();
+        return htmlText.toAscii();
+    }
+    \endcode
+    
+    The \bold {title()} method returns the title from the webView. The string returned from this method will be used in the
+    open-file combo box.
+    
+    \inlineimage qtc-title-10.png
+    
+    \code
+    QString HtmlEditorWidget::title() const
+    {
+        return d->webView->title();
+    }
+    \endcode
+    
+    The following connection made in the constructor of \bold {HtmlEditorWidget} makes sure that when the user moves from
+    "source" to "preview" tab, the HTML content viewed in the preview tab is updated.
+    
+    \code
+    connect(this, SIGNAL(currentChanged(int)),this, SLOT(slotCurrentTabChanged(int)));
+    
+    void HtmlEditorWidget::slotCurrentTabChanged(int tab)
+    {
+        if(tab == 0 && d->modified)
+        setContent( content(), d->path );
+    }
+    \endcode
+    
+    
+    Following connection makes sure that \bold {setContentModified()} slot is called whenever user edits the html source.
+    The slot \bold {setContentModified()} simply sets modified to true and emits the signal "contentModified" We will
+    know the usability of this signal later in the section while understanding \bold {HtmlFile} class.
+    
+    \code
+    connect(d->textEdit, SIGNAL(textChanged()), this, SLOT(slotContentModified()));
+
+    void HtmlEditorWidget::slotContentModified()
+    {
+        d->modified = true;
+        emit contentModified();
+    }
+    \endcode
+    
+    Following connection simply emits \bold {titleChanged()} signal on title change of \bold {webView}. We will know more about
+    this signal later.
+    
+    \code
+    connect(d->webView, SIGNAL(titleChanged(QString)),this, SIGNAL(titleChanged(QString)));
+    \endcode
+    
+    \section2 10.2.2 Implementing the Core::IFile interface
+    
+    We implement the \bold {Core::IFile} interface in the \bold {HtmlFile} class. Apart from implementing the pure virtual
+    functions from \bold {IFile} (introduced in section 5.1.1); the \bold {HtmlFile} class has methods to get/set the modified flag
+    which indicates the modification status of the file contents.
+    
+    \code
+    struct HtmlFileData;
+    class HtmlFile : public Core::IFile
+    {
+        Q_OBJECT
+        
+    public:
+        HtmlFile(HtmlEditor* editor, HtmlEditorWidget* editorWidget);
+        ~HtmlFile();
+        void setModified(bool val=true);
+        // Declare all the virtual functions from IFile here..
+    protected slots:
+        void modified() { setModified(true); }
+    private:
+        HtmlFileData* d;
+    };
+    
+    struct HtmlFileData
+    {
+        HtmlFileData(): mimeType(HtmlEditorConstants::C_HTMLEDITOR_MIMETYPE),editorWidget(0), editor(0), modified(false) { }
+        const QString mimeType;
+        HtmlEditorWidget* editorWidget;
+        HtmlEditor* editor;
+        QString fileName;
+        bool modified;
+    };
+    
+    \endcode
+    
+    In the constructor implementation is simple. It establishes the association between an instance of \bold {HtmlFile} with the
+    corresponding \bold {HtmlEditor} and the \bold {HtmlEditorWidget} instances.
+    
+    \code
+    
+    HtmlFile::HtmlFile(HtmlEditor* editor, HtmlEditorWidget* editorWidget): Core::IFile(editor)
+    {
+        d = new HtmlFileData;
+        d->editor = editor;
+        d->editorWidget = editorWidget;
+    }
+    \endcode
+    
+    The destructor does nothing other than deleting the private \bold {"d"} object.
+    
+    \code
+    HtmlFile::~HtmlFile()
+    {
+        delete d;
+    }
+    \endcode
+    
+    The \bold {setModified()} function stores the modification flag and emits the \bold {changed()} signal.
+    
+    \code
+    
+    void HtmlFile::setModified(bool val)
+    {
+        if(d->modified == val)
+            return;
+        d->modified = val;
+        emit changed();
+    }
+    
+    bool HtmlFile::isModified() const
+    {
+        return d->modified;
+    }
+    
+    \endcode
+    
+    Returns the mime-type handled by this class.
+    
+    \code
+    
+    QString HtmlFile::mimeType() const
+    {
+        return d->mimeType;
+    }
+    \endcode
+    
+    The save method is called when file->save action (Ctrl+s) is triggered. This saves the contents of \bold {HtmlEditorWidget}
+    (the contents shown by plain text editor) in the file as shown below. The modified flag is set to false after the contents
+    are saved into the file.
+    
+    
+    \code
+    bool HtmlFile::save(const QString &fileName)
+    {
+    QFile file(fileName);
+        if(file.open(QFile::WriteOnly))
+        {
+            d->fileName = fileName;
+            QByteArray content = d->editorWidget->content();
+            file.write(content);
+            setModified(false);
+            return true;
+        }
+        return false;
+    }
+    \endcode
+    
+    The \bold {open} method is called when file->open action is triggered. This opens the file and calls the setContent()
+    method of \bold {HtmlEditorWidget}. The display name is set to the title of the html file.
+    
+    \code
+    bool HtmlFile::open(const QString &fileName)
+    {
+        QFile file(fileName);
+        if(file.open(QFile::ReadOnly))
+        {
+            d->fileName = fileName;
+            QString path = QFileInfo(fileName).absolutePath();
+            d->editorWidget->setContent(file.readAll(), path);
+            d->editor->setDisplayName(d->editorWidget->title());
+            return true;
+        }
+        return false;
+    }
+    
+    \endcode
+    
+    The following methods implement the "filename" property.
+    
+    \code
+    void HtmlFile::setFilename(const QString& filename)
+    {
+        d->fileName = filename;
+    }
+    
+    QString HtmlFile::fileName() const
+    {
+        return d->fileName;
+    }
+    \endcode
+    
+    We implement the \bold {defaultPath()},\bold { suggestedFileName()},\bold {fileFilter()} and fileExtension()
+    methods to do nothing at the moment.
+    
+    \code
+    QString HtmlFile::defaultPath() const
+    {
+        return QString();
+    }
+
+    QString HtmlFile::suggestedFileName() const
+    {
+        return QString();
+    }
+
+    QString HtmlFile::fileFilter() const
+    {
+        return QString();
+    }
+
+    QString HtmlFile::fileExtension() const
+    {
+        return QString();
+    }
+    \endcode
+    
+    Since we want to edit the file, we return false in \bold {isReadOnly()} method and true from \bold {isSaveAsAllowed()}
+    method.
+    
+    \code
+    bool HtmlFile::isReadOnly() const
+    {
+        return false;
+    }
+
+    bool HtmlFile::isSaveAsAllowed() const
+    {
+        return true;
+    }
+    \endcode
+    
+    The \bold {modified()} function has to be implemented to customize the way in which the Html editor should handle
+    reloading of a modified file. This function is called if a html-file was modified outside of Qt Creator, while it is being
+    edited. For now we do nothing.
+    
+    \code
+    void HtmlFile::modified(ReloadBehavior* behavior)
+    {
+        Q_UNUSED(behavior);
+    }
+    \endcode
+    
+    \section2 10.2.3 Implementing the Core::IEditor interface
+    
+    The \bold {HtmlEditor} class implements \bold {IEditor} interface to provide an editor widget for html (*.html) files and
+    associate a \bold {HtmlFile} instance with it.
+    
+    
+    \code
+    #include <coreplugin/editormanager/ieditor.h>
+    struct HtmlEditorData;
+    class HtmlEditor : public Core::IEditor
+    {
+        Q_OBJECT
+
+    public:
+        HtmlEditor(HtmlEditorWidget* editorWidget);
+        ~HtmlEditor();
+
+        bool createNew(const QString& contents = QString());
+        QString displayName() const;
+
+        IEditor* duplicate(QWidget* parent);
+        bool duplicateSupported() const;
+        Core::IFile* file();
+
+
+        bool isTemporary() const;
+        const char* kind() const;
+        bool open(const QString& fileName = QString()) ;
+        bool restoreState(const QByteArray& state);
+        QByteArray saveState() const;
+        void setDisplayName(const QString &title);
+        QToolBar* toolBar();
+
+        // From Core::IContext
+        QWidget* widget();
+        QList<int> context() const;
+
+    protected slots:
+        void slotTitleChanged(const QString& title)
+        { setDisplayName(title); }
+
+    private:
+        HtmlEditorData* d;
+    };
+    
+    \endcode    
+    
+    \bold {HtmlEditorData} holds object of \bold {HtmlEditorWidget} and \bold {HtmlFile}. displayName is used as visual
+    description of the document.
+    
+    \code
+    struct HtmlEditorData
+    {
+        HtmlEditorData() : editorWidget(0), file(0) { }
+        HtmlEditorWidget* editorWidget;
+        QString displayName;
+        HtmlFile* file;
+        QList<int> context;
+    };
+    \endcode
+    
+    The constructor creates initializes itself on an \bold {HtmlEditorWidget}. It creates an \bold {HtmlFile} instance so that its
+    association with \bold {HtmlEditor} and widget is set.
+    
+    \code
+    HtmlEditor::HtmlEditor(HtmlEditorWidget* editorWidget): Core::IEditor(editorWidget)
+    {
+        d = new HtmlEditorData;
+        d->editorWidget = editorWidget;
+        d->file = new HtmlFile(this, editorWidget);
+        Core::UniqueIDManager* uidm = Core::UniqueIDManager::instance();
+        d->context << uidm->uniqueIdentifier(HtmlEditorConstants::C_HTMLEDITOR);
+
+        connect(d->editorWidget, SIGNAL(contentModified()),d->file,SLOT(modified()));
+        connect(d->editorWidget, SIGNAL(titleChanged(QString)),this,SLOT(slotTitleChanged(QString)));
+        connect(d->editorWidget, SIGNAL(contentModified()),this,SIGNAL(changed()));
+    }
+    \endcode
+    
+    The destructor does nothing other than deleting the private \bold {'d'} object.
+    
+    \code
+    HtmlEditor::~HtmlEditor()
+    {
+        delete d;
+    }
+    \endcode
+    
+    The following functions are self explanatory.
+    
+    \code
+    QWidget* HtmlEditor::widget()
+    {
+        return d->editorWidget;
+    }
+
+    QList<int> HtmlEditor::context() const
+    {
+        return d->context;
+    }
+
+    Core::IFile* HtmlEditor::file()
+    {
+        return d->file;
+    }
+    \endcode    
+    
+    The \bold {createNew()} method is implemented to reset the contents of the \bold {HtmlEditorWidget} and \bold {HtmlFile}
+    objects. For now we ignore the contents parameter.
+    
+    \code
+    bool HtmlEditor::createNew(const QString& contents)
+    {
+        Q_UNUSED(contents);
+        d->editorWidget->setContent(QByteArray());
+        d->file->setFilename(QString());
+        return true;
+    }
+    \endcode
+    
+    The \bold {open()} method causes the \bold {HtmlFile} to open a given filename. It is assumed that the filename is a HTML
+    filename.
+    
+    \code
+    bool HtmlEditor::open(const QString &fileName)
+    {
+        return d->file->open(fileName);
+    }
+    
+    \endcode
+    
+    The following method returns the \bold {'kind'} of the editor.
+    
+    \code
+    namespace HtmlEditorConstants
+    {
+        const char* const C_HTMLEDITOR_MIMETYPE = "text/html";
+        const char* const C_HTMLEDITOR = "HTML Editor";
+    }
+
+    const char* HtmlEditor::kind() const
+    {
+        return HtmlEditorConstants::C_HTMLEDITOR;
+    }
+        
+    \endcode
+    
+    The string returned by \bold {displayName} is used in the open-file combobox. The following methods help set and fetch the
+    display name.
+    
+    \code
+    QString HtmlEditor::displayName() const
+    {
+        return d->displayName;
+    }
+
+    void HtmlEditor::setDisplayName(const QString& title)
+    {
+        if(d->displayName == title)
+            return;
+        d->displayName = title;
+        emit changed();
+    }
+    \endcode
+    
+    We implement the following methods to do nothing in this example.
+    
+    \code
+    bool HtmlEditor::duplicateSupported() const
+    {
+        return false;
+    }
+    
+    Core::IEditor* HtmlEditor::duplicate(QWidget* parent)
+    {
+        Q_UNUSED(parent);
+        return 0;
+    }
+    
+    QByteArray HtmlEditor::saveState() const
+    {
+        return QByteArray();
+    }
+
+    bool HtmlEditor::restoreState(const QByteArray& state)
+    {
+        Q_UNUSED(state);
+        return false;
+    }
+
+    QToolBar* HtmlEditor::toolBar()
+    {
+        return 0;
+    }
+
+    bool HtmlEditor::isTemporary() const
+    {
+        return false;
+    }
+    \endcode
+    
+    \section2 10.2.4 Implementing the Core::IEditorFactory interface
+    
+    The \bold HtmlEditorFactory class implements the \bold Core::IEditorFactory interface; and is declared as follows.
+    
+    \code
+    #include <coreplugin/editormanager/ieditorfactory.h>
+
+    struct HtmlEditorFactoryData;
+
+    class HtmlEditorFactory : public Core::IEditorFactory
+    {
+        Q_OBJECT
+
+    public:
+        HtmlEditorFactory(HtmlEditorPlugin* owner);
+        ~HtmlEditorFactory();
+        QStringList mimeTypes() const;
+        QString kind() const;
+        Core::IEditor* createEditor(QWidget* parent);
+        Core::IFile* open(const QString &fileName);
+
+    private:
+        HtmlEditorFactoryData* d;
+    };
+    \endcode
+        
+    \bold {HtmlEditorFactoryData} structure holds the private data of the \bold {HtmlEditorFactory} class. Notice that the
+    constructor initializes the mime-types to \bold {HtmlEditorConstants::C_HTMLEDITOR_MYMETYPE}. It also
+    initializes the \bold {kind} of the editor. This kind should be same as \bold{kind} of \bold {HtmlEditor}.  
+    
+    \code
+    namespace HtmlEditorConstants
+    {
+        const char* const C_HTMLEDITOR_MIMETYPE = "text/html";
+        const char* const C_HTMLEDITOR = "HTML Editor";
+    }
+    
+    struct HtmlEditorFactoryData
+    {
+        HtmlEditorFactoryData(): kind(HtmlEditorConstants::C_HTMLEDITOR)
+        {
+            mimeTypes << QString(HtmlEditorConstants::C_HTMLEDITOR_MIMETYPE);
+        }
+
+        QString kind;
+        QStringList mimeTypes;
+    };
+    \endcode
+    
+    The following methods are self-explanatory.
+    
+    \code
+    HtmlEditorFactory::HtmlEditorFactory(HtmlEditorPlugin* owner):Core::IEditorFactory(owner)
+    {
+        d = new HtmlEditorFactoryData;
+    }
+
+    HtmlEditorFactory::~HtmlEditorFactory()
+    {
+        delete d;
+    }
+
+    QStringList HtmlEditorFactory::mimeTypes() const
+    {
+        return d->mimeTypes;
+    }
+
+    QString HtmlEditorFactory::kind() const
+    {
+        return d->kind;
+    }
+    \endcode
+    
+    
+    The \bold {open()} method should be implemented to return the IFile that is currently handling the given filename. If there
+    are none, then a new editor for the file is created and it's IFile is returned. To fully understand this process take a
+    look at the implementation of \bold {Core::EditorManager::openEditor()} method.
+    
+    \code
+    Core::IFile* HtmlEditorFactory::open(const QString& fileName)
+    {
+        Core::EditorManager* em = Core::EditorManager::instance();
+        Core::IEditor* iface = em->openEditor(fileName, d->kind);
+        return iface ? iface->file() : 0;
+    }
+    \endcode    
+
+    This method creates and returns an instance of the \bold {HtmlEditor} class.
+
+    \code
+    Core::IEditor* HtmlEditorFactory::createEditor(QWidget* parent)
+    {
+        HtmlEditorWidget* editorWidget = new HtmlEditorWidget(parent);
+        return new HtmlEditor(editorWidget);
+    }
+    \endcode
+
+    \section2 10.2.5 Implementing the plugin
+    
+    We implement the \bold {HtmlEditorPlugin} plugin class using the same means described in Chapter 2. The only change is
+    the \bold {initialize()} method implementation.
+    
+    \code
+    bool HtmlEditorPlugin::initialize(const QStringList &arguments, QString* errMsg)
+    {
+        Q_UNUSED(arguments);
+        Core::ICore* core = Core::ICore::instance();
+        Core::MimeDatabase* mdb = core->mimeDatabase();
+        if(!mdb->addMimeTypes("text-html-mimetype.xml", errMsg))
+        return false;
+        addAutoReleasedObject(new HtmlEditorFactory(this));
+        return true;
+    }
+    \endcode
+    
+    When the plugin is compiled and Qt Creator is (re)started; we will be able to load HTML files using the newly
+    implemented editor plugin.
+    
+    \inlineimage qtc-htmleditor-10.png
+        
+*/

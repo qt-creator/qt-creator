@@ -1,0 +1,22 @@
+#ifndef {{UPPER_CLASS_NAME}}_H
+#define {{UPPER_CLASS_NAME}}_H
+
+#include <{{BASE_CLASS_NAME}}>
+
+struct {{CLASS_NAME}}Data;
+
+class {{CLASS_NAME}} : public {{BASE_CLASS_NAME}}
+{
+    Q_OBJECT
+
+public:
+    {{CLASS_NAME}}(QObject* parent=0);
+    ~{{CLASS_NAME}}();
+    int rowCount(const QModelIndex& parent) const;
+    QVariant data(const QModelIndex& index, int role) const;
+
+private:
+    {{CLASS_NAME}}Data* d;
+};
+
+#endif // {{UPPER_CLASS_NAME}}_H

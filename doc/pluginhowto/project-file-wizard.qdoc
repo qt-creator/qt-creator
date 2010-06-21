@@ -1,0 +1,667 @@
+ï»¿/*!
+    \page project-file-wizard.html
+    \title 8. Project/File Wizards
+	
+	New projects in Qt Creator can be created by clicking on the "File -> New" menu item and selecting the required project
+	type. Shown below is the new project dialog box.
+	
+	\inlineimage qtc-newprojectdialog-8.png
+	
+	
+	In this chapter we will learn how to add new project types into the dialog box above.
+	
+	\section1 8.1 Core::IWizard interface
+	
+	Qt Creator provides a Core::IWizard interface that can be implemented to support new project types. The interface is
+	defined as follows in \bold {src/plugins/coreplugin/dialogs/iwizard.h}.
+	
+	\code
+    class CORE_EXPORT IWizard : public QObject
+    {
+        Q_OBJECT
+
+    public:
+        enum Kind {FileWizard,ClassWizard,ProjectWizard};
+        virtual Kind kind() const = 0;
+        virtual QIcon icon() const = 0;
+        virtual QString description() const = 0;
+        virtual QString name() const = 0;
+        virtual QString category() const = 0;
+        virtual QString trCategory() const = 0;
+        virtual QStringList runWizard(const QString &path, QWidget *parent) = 0;
+    };
+	
+	\endcode
+	
+	Qt Creator supports the following types of new entities
+	\list
+	\o File
+    \o Class
+	\o Project
+	\endlist
+	
+	\bold {Core::IWizard} has to be implemented to support any of the above project types.
+	
+	\section2 8.1.1 Sample implementation of Core::IWizard
+	Let's implement the \bold {IWizard} interface to support a new project type called "Custom Project". The idea is to see the
+	new project type listed in the new project wizard that shows up on clicking "File -> New".
+	
+	\section3 Step 1: Implementing the Core::IWizard interface
+	Lets create a class called \bold {CustomProjectWizard} and subclass it from \bold {Core::IWizard}.
+	
+	\code
+    class CustomProjectWizard : public Core::IWizard
+    {
+    public:
+        CustomProjectWizard() { }
+        ~CustomProjectWizard() { }
+        Core::IWizard::Kind kind() const;
+        QIcon icon() const;
+        QString description() const;
+        QString name() const;
+        QString category() const;
+        QString trCategory() const;
+        QStringList runWizard(const QString &path, QWidget *parent);
+    };
+
+	\endcode
+	
+	Below we will discuss the implementation of each of the functions.
+	
+	\bold{The kind()} function should be implemented to return the type of "new" project we support in our implementation of
+	\bold {IWizard}. Valid values are \bold {FileWizard},\bold{ClassWizard} and \bold {ProjectWizard}. In our implementation we return
+	\bold{ProjectWizard}.
+	
+	\code
+    Core::IWizard::Kind CustomProjectWizard::kind() const
+    {
+        return IWizard::ProjectWizard;
+    }
+	\endcode
+	
+	The \bold{icon()} implementation must return an icon to use against the project type in the New project dialog box. In our
+	implementation we return the Qt Creator icon itself.
+	
+	\code
+    QIcon CustomProjectWizard::icon() const
+    {
+        return qApp->windowIcon();
+    }
+	\endcode
+	
+	The \bold {description()},\bold {name()} and \bold {category()} methods must return some meta data of the new project/file/class
+	type we are providing in the \bold {IWizard} implementation.
+	
+	\code
+    QString CustomProjectWizard::description() const
+    {
+        return "A custom project";
+    }
+
+    QString CustomProjectWizard::name() const
+    {
+        return "CustomProject";
+    }
+
+    QString CustomProjectWizard::category() const
+    {
+        return "FooCompanyInc";
+    }
+	\endcode
+	
+	The \bold{trCategory()} method should be implemented to return a translated category string. This is the name that is
+	shown on the "New.." dialog box.
+	
+	\code
+    QString CustomProjectWizard::trCategory() const
+    {
+        return tr("FooCompanyInc");
+    }
+	\endcode
+	
+	If the user selects the "CustomProject" category supported by our implementation of \bold{IWizard} and selects Ok in the
+	"New.." dialog box; then the \bold{runWizard()} method is called. This method must be implemented to show a dialog box
+	or \bold{QWizard}, ask questions from the user about the new project/file/class being created and return a list of newly
+	created files. In our implementation of the \bold{IWizard} we will return an empty string list.
+	
+	\code
+    QStringList CustomProjectWizard::runWizard(const QString &path, QWidget *parent)
+    {
+        Q_UNUSED(path);
+        Q_UNUSED(parent);
+        QMessageBox::information(parent, "Custom Wizard Dialog", "Hi there!");
+        return QStringList();
+    }
+	\endcode
+	
+	\section3 Step 2: Providing the wizard from a plugin
+	We implement a custom-project plugin using the same means as described in Chapter 2. The only change is in the
+	\bold{initialize()} method implementation of the plugin.
+	
+	\code
+    bool CustomProjectPlugin::initialize(const QStringList& args, QString *errMsg)
+    {
+        Q_UNUSED(args);
+        Q_UNUSED(errMsg);
+        addAutoReleasedObject(new CustomProjectWizard);
+        return true;
+    }
+	\endcode
+	
+	
+	\section3 Step 3: Testing the plugin
+	Upon compiling the plugin and restarting Qt Creator, we can notice the new project type in the "New.." dialog box. Take
+	a look at the screenshot below.
+	
+	\inlineimage qtc-testplugin-8.png
+	
+	\section1 8.2 Predefined IWizard implementation - Core::BaseFileWizard
+	
+	Qt Creator's core provides a default implementation of the \bold{IWizard} interface in the form of the
+	\bold {Core::BaseFileWizard} class. This class implements provides default implementation of all the methods in the
+	\bold {IWizard} interface and adds some virtual methods of its own. To make use of the class, we need to subclass from it and
+	implement one or more methods.
+	
+	\section2 8.2.1 Core::GeneratedFile and Core::GeneratedFiles
+	
+	Normally a new wizard (\bold{IWizard} implementation) is implemented to allow the user to provide some hints and have
+	one or more files automatically generated. The \bold{Core::GeneratedFile} helps abstract each of the files that need
+	generation. We will learn later on that within subclasses of \bold{Core::BaseFileWizard}, we create an instance of
+	\bold{Core::GeneratedFile} for each file that is automatically generated.
+	
+	The \bold{Core::GeneratedFile} class is defined as follows in \bold{coreplugin/basefilewizard.h}
+	
+	\code
+    class GeneratedFile
+    {
+    public:
+        GeneratedFile();
+        explicit GeneratedFile(const QString &path);
+        GeneratedFile(const GeneratedFile &);
+        GeneratedFile &operator=(const GeneratedFile &);
+        ~GeneratedFile();
+
+        QString path() const;
+        void setPath(const QString &p);
+
+        QString contents() const;
+        void setContents(const QString &c);
+
+        QString editorKind() const;
+        void setEditorKind(const QString &k);
+
+        bool write(QString *errorMessage) const;
+
+    private:
+        QSharedDataPointer<GeneratedFilePrivate> m_d;
+    };
+    
+    typedef QList<GeneratedFile> GeneratedFiles;	
+	
+	\endcode
+	
+	Files that need to be generated by subclasses of \bold {Core::BaseFileWizard} are represented by the
+	\bold {Core::GeneratedFile} class. The class contains three key properties of a file that needs generation
+	
+	\list 1
+	\o Name of the file (with its absolute path).
+	\o The kind of editor needed for editing the file. Some valid values for editor kind are
+		\list a
+		\o \bold{CppEditor::Constants::CPPEDITOR_KIND}
+		\o \bold{GenericProjectManager::Constants::PROJECT_KIND}
+		\o \bold{Git::Constants:: GIT_COMMAND_LOG_EDITOR_KIND}
+		\o \bold {Git::Constants:: C_GIT_COMMAND_LOG_EDITOR}
+	    \endlist
+	\o Contents of the file.
+	\endlist
+	
+	Suppose that we wanted to generate a C++ source file with the following contents
+	
+	\code
+    #include <iostream>
+    int main()
+    {
+        cout << "Hello World\n";
+        return 0;
+    }
+	\endcode
+	
+	We would use \bold{Core::GeneratedFile} for generating the above contents as follows
+	\code
+    #include <coreplugin/basefilewizard.h>
+    #include <cppeditor/cppeditorconstants.h>
+
+    Core::GeneratedFile genFile("C:/Path/To/Source.cpp");
+    genFile.setEditorKind(CppEditor::Constants::CPPEDITOR_KIND);
+    genFile.setContents(
+                            "#include <iostream>\n"
+                            "\n"
+                            "int main()\n"
+                            "{\n"
+                            " cout << \"Hello World\n\";\n"
+                            " \n"
+                            " return 0;\n"
+                            "}
+                      );
+    genFile.write();
+	
+	\endcode
+	
+	\section2 8.2.2 The "Item Model" class wizard
+	
+	Suppose that we wanted to provide a new class wizard that helps automatically generate the skeleton of an item model
+	based on few hints like
+	\list
+	\o  Model Class Name
+	\o  Base Class Name (can be \bold {QAbstractItemModel},\bold QAbstractListModel and
+		\bold{QAbstractTableModel})
+	\o  Header file name and
+    \o  Source file name
+	\endlist
+	
+	Lets implement a plugin that will provide the new "Item Model" class wizard in Qt Creator.
+	
+	\section3 Step 1: Design the class wizard page
+	Lets design a simple page in Qt Designer that accepts hints as described above.
+	
+	\inlineimage qtc-designer-8.png
+	
+	
+	The design is saved as ModelNamePage.ui.
+	\section3 Step 2: Implement the class wizard page
+	
+	Lets import the UI in a Qt/C++ and provide easy to use methods to help fetch information from the page. First we design
+	a structure that captures all the "item model" class hints.
+	
+	\code
+    struct ModelClassParameters
+    {
+        QString className;
+        QString headerFile;
+        QString sourceFile;
+        QString baseClass;
+        QString path;
+    };
+	
+	\endcode
+	
+	Next we declare a wizard page class that imports the UI designed in the previous step and provides methods to access
+	the hints provided by the user in the page.
+	
+	\code
+    #include <QWizardPage>
+    #include "ui_ModelNamePage.h"
+    class ModelNamePage : public QWizardPage
+    {
+        Q_OBJECT
+        
+    public:
+        ModelNamePage(QWidget* parent=0);
+        ~ModelNamePage();
+        void setPath(const QString& path);
+        ModelClassParameters parameters() const;
+    private slots:
+        void on_txtModelClass_textEdited(const QString& txt);
+
+    private:
+        Ui::ModelNamePage ui;
+        QString path;
+    };
+	\endcode
+
+    The constructor and destructor are straight forward and easy to understand.
+    
+	\code
+    ModelNamePage::ModelNamePage(QWidget* parent)
+    :QWizardPage(parent)
+    {
+        setTitle("Enter model class information");
+        setSubTitle("The header and source file names will be derived from the class name");
+        ui.setupUi(this);
+    }
+	
+    ModelNamePage::~ModelNamePage()
+    {
+    }
+	\endcode
+	The \bold{setPath()} method basically stores the path in the private variable.
+	
+	\code
+    void ModelNamePage::setPath(const QString& path)
+    {
+        this->path = path;
+    }
+	\endcode
+	
+	The \bold{on_txtModelClass_textEdited()} slot computes the header and source file names based on the
+	classname.
+	
+	\code
+    void ModelNamePage::on_txtModelClass_textEdited(const QString& txt)
+    {
+        ui.txtHeaderFile->setText(txt + ".h");
+        ui.txtImplFile->setText(txt + ".cpp");
+    }
+	\endcode
+	
+	Finally the \bold{parameters()} method returns all the hints entered by the user in a ModelClassParameters
+	instance.
+	
+	\code
+    ModelClassParameters ModelNamePage::parameters() const
+    {
+        ModelClassParameters params;
+        params.className = ui.txtModelClass->text();
+        params.headerFile = ui.txtHeaderFile->text();
+
+        params.sourceFile = ui.txtImplFile->text();
+        params.baseClass = ui.cmbBaseClass->currentText();
+        params.path = path;
+        return params;
+    }
+	\endcode
+	
+	\section3 Step 3: Subclass Core::BaseFileWizard
+	
+	The\bold {Core::BaseFileWizard} class is defined as follows in \bold{coreplugin/basefilewizard.h}
+	
+	\code
+    class CORE_EXPORT BaseFileWizard : public IWizard
+    {
+    public:    
+        virtual ~BaseFileWizard();
+        
+        // IWizard
+        virtual Kind kind() const;
+        virtual QIcon icon() const;
+        virtual QString description() const;
+        virtual QString name() const;
+        virtual QString category() const;
+        virtual QString trCategory() const;
+        virtual QStringList runWizard(const QString &path, QWidget *parent);
+
+    protected:
+        typedef QList<QWizardPage *> WizardPageList;
+        explicit BaseFileWizard(const BaseFileWizardParameters &parameters,QObject *parent = 0);
+                    
+        virtual QWizard *createWizardDialog(QWidget *parent,const QString &defaultPath,
+                                            const WizardPageList &extensionPages) const = 0;
+                                
+        virtual GeneratedFiles generateFiles(const QWizard *w,QString *errorMessage) const = 0;
+
+        virtual bool postGenerateFiles(const GeneratedFiles &l,QString *errorMessage);
+    };
+	\endcode
+	
+	\underline {\bold{Note: Some methods from the actual BaseFileWizard class are not shown here.}}
+	
+	The \bold{BaseFileWizard} class implements the \bold{IWizard} interface and offers three new functions
+	
+	\list
+	\o  \bold{createWizardDialog} - This function can be over-ridden by subclasses to provide a wizard that the
+		\bold{runWizard()} method is supposed to show.
+        \list 
+	    \o The \bold{parent} parameter should be used as the parent widget of the returned QWizard
+        \o The \bold{defaultPath} parameter should be the default location for generated files
+        \o The \bold{extensionPages} parameter lists out all the pages that should be shown in the wizard by default.
+	    \endlist
+	\o 	\bold{generateFiles} - This method is called after the user is done with the wizard. Implementations of this
+		method must create the required files as instances of \bold{Core::GeneratedFile} class.
+    
+	\o \bold{postGenerateFiles} - This method is called after \bold{generateFiles()} returns. The default
+	   implementation opens the newly generated files; however subclasses can choose to do anything they want.
+	\endlist
+	
+	We subclass the BaseFileWizard as follows for our "item model" wizard
+	
+	\code
+    #include <coreplugin/basefilewizard.h>
+    class ModelClassWizard : public Core::BaseFileWizard
+    {
+        Q_OBJECT
+
+    public:
+        ModelClassWizard(const Core::BaseFileWizardParameters &parameters,
+        QObject *parent = 0);
+        ~ModelClassWizard();
+
+        QWizard *createWizardDialog(QWidget *parent,
+        const QString &defaultPath,
+
+        const WizardPageList &extensionPages) const;
+
+        Core::GeneratedFiles generateFiles(const QWizard *w,
+        QString *errorMessage) const;
+
+    private:
+        QString readFile(const QString& fileName,
+        const QMap<QString,QString>& replacementMap) const;
+    };
+	
+	\endcode
+	
+	The constructor and destructor methods are straight forward and easy to understand.
+	
+	\code
+    ModelClassWizard::ModelClassWizard(
+    const Core::BaseFileWizardParameters &parameters,QObject *parent)
+    : Core::BaseFileWizard(parameters, parent)
+    {
+    }
+    
+    ModelClassWizard::~ModelClassWizard()
+    {
+    }
+	\endcode
+	
+	The \bold{createWizardDialog()} method is implemented to create a \bold{QWizard} with its first page as the
+	\bold{ModelNamePage} class implemented step 2. Other default pages are added as usual.
+	
+	\code
+    QWizard* ModelClassWizard::createWizardDialog(
+    QWidget *parent,
+    const QString &defaultPath,
+    const WizardPageList &extensionPages) const
+    {
+        // Create a wizard
+        QWizard* wizard = new QWizard(parent);
+        wizard->setWindowTitle("Model Class Wizard");
+        
+        // Make our page as first page
+        ModelNamePage* page = new ModelNamePage(wizard);
+        int pageId = wizard->addPage(page);
+        wizard->setProperty("_PageId_", pageId);
+        page->setPath(defaultPath);
+        
+        // Now add the remaining pages
+        foreach (QWizardPage *p, extensionPages)
+        wizard->addPage(p);
+        return wizard;
+    }
+	\endcode
+	
+	The \bold{readFile()} method is implemented to read a file and return its contents as a string. Before returning the file’s
+	contents as string, the function uses the replacement table passed as second parameter to fix the string.
+	
+	\code
+    QString ModelClassWizard::readFile(const QString& fileName, const QMap<QString,QString>&
+    replacementMap) const
+    {
+        QFile file(fileName);
+        file.open(QFile::ReadOnly);
+        QString retStr = file.readAll();
+        QMap<QString,QString>::const_iterator it = replacementMap.begin();
+        QMap<QString,QString>::const_iterator end = replacementMap.end();
+        
+        while(it != end)
+        {
+            retStr.replace(it.key(), it.value());
+            ++it;
+        }
+        return retStr;
+    }
+	\endcode
+	
+	Suppose we have a file (\bold{sample.txt}) whose contents are as follows
+	
+	\code
+    #ifndef {{UPPER_CLASS_NAME}}_H
+    #define {{UPPER_CLASS_NAME}}_H
+    #include <{{BASE_CLASS_NAME}}>
+    struct {{CLASS_NAME}}Data;
+
+    class {{CLASS_NAME}} : public {{BASE_CLASS_NAME}}
+    {
+        Q_OBJECT
+
+    public:
+        {{CLASS_NAME}}(QObject* parent=0);
+        ~{{CLASS_NAME}}();
+        int rowCount(const QModelIndex& parent) const;
+        QVariant data(const QModelIndex& index, int role) const;
+
+    private:
+        {{CLASS_NAME}}Data* d;
+    };
+
+    #endif // {{UPPER_CLASS_NAME}}_H
+	\endcode
+	
+	Lets say we wanted to replace the hints in {{xyz}} with something more appropriate, we could use the following code
+	snippet.
+	
+	\code
+	QMap<QString,QString> replacementMap;
+	replacementMap["{{UPPER_CLASS_NAME}}"] = "LIST_MODEL";
+	replacementMap["{{BASE_CLASS_NAME}}"] = "QAbstractListModel";
+	replacementMap["{{CLASS_NAME}}"] = "ListModel";
+	QString contents = readFile("Sample.txt", replacementTable);
+	\endcode
+	
+	When the above code is executed, the contents string will contain
+	
+	\code
+    #ifndef LIST_MODEL_H
+    #define LIST_MODEL_H
+    #include <QAbstractListModel>
+    struct ListModelData;
+
+    class ListModel : public QAbstractListModel
+    {
+        Q_OBJECT
+
+    public:
+        ListModel(QObject* parent=0);
+        ~ListModel();
+        int rowCount(const QModelIndex& parent) const;
+        QVariant data(const QModelIndex& index, int role) const;
+
+    private:
+        ListModelData* d;
+    };
+    #endif // LIST_MODEL_H
+	\endcode
+	
+	Seems like magic isnt it? ?. We create similar "template"  header and source files for item, list and table model classes
+	and create a resource for use in our project.
+	
+	Now, lets look at the implementation of the \bold{generateFiles()} method. This method basically creates two
+	\bold{Core::GeneratedFile} instances and populates them with appropriate data before returning them in a list.
+	
+	
+	\code
+    Core::GeneratedFiles ModelClassWizard::generateFiles(
+    const QWizard *w,QString *errorMessage) const
+    {
+        Q_UNUSED(errorMessage);
+        Core::GeneratedFiles ret;
+        int pageId = w->property("_PageId_").toInt();
+        ModelNamePage* page = qobject_cast<ModelNamePage*>(w->page(pageId));
+
+        if(!page)
+        return ret;
+        ModelClassParameters params = page->parameters();
+        QMap<QString,QString> replacementMap;
+
+        replacementMap["{{UPPER_CLASS_NAME}}"] = params.className.toUpper();
+        replacementMap["{{BASE_CLASS_NAME}}"] = params.baseClass;
+        replacementMap["{{CLASS_NAME}}"] = params.className;
+        replacementMap["{{CLASS_HEADER}}"] = QFileInfo(params.headerFile).fileName();
+
+        Core::GeneratedFile headerFile(params.path + "/" + params.headerFile);
+        headerFile.setEditorKind(CppEditor::Constants::CPPEDITOR_KIND);
+
+        Core::GeneratedFile sourceFile(params.path + "/" + params.sourceFile);
+        sourceFile.setEditorKind(CppEditor::Constants::CPPEDITOR_KIND);
+
+        if(params.baseClass == "QAbstractItemModel")
+        {
+            headerFile.setContents(readFile(":/CustomProject/ItemModelHeader", replacementMap) );
+            sourceFile.setContents(readFile(":/CustomProject/ItemModelSource", replacementMap) );
+        }
+
+        else if(params.baseClass == "QAbstractTableModel")
+        {
+            headerFile.setContents(readFile(":/CustomProject/TableModelHeader", replacementMap) );
+            sourceFile.setContents(readFile(":/CustomProject/TableModelSource", replacementMap) );
+        }
+
+        else if(params.baseClass == "QAbstractListModel")
+        {
+            headerFile.setContents(readFile(":/CustomProject/ListModelHeader", replacementMap) );
+            sourceFile.setContents(readFile(":/CustomProject/ListModelSource", replacementMap) );
+        }
+
+        ret << headerFile << sourceFile;
+        return ret;
+    }
+	
+	\endcode
+	
+	\section3 Step 4: Implementing the plugin
+	
+	We implement the item model wizard plugin using the same means as described in Chapter 2. The only change is in the
+	\bold {initialize()} method implementation of the plugin.
+	
+	\code
+    bool ItemModelWizard::initialize(const QStringList& args, QString *errMsg)
+    {
+        Q_UNUSED(args);
+        Q_UNUSED(errMsg);
+        Core::BaseFileWizardParameters params;
+        params.setKind(Core::IWizard::ClassWizard);
+        params.setIcon(qApp->windowIcon());
+        params.setDescription("Generates an item-model class");
+        params.setName("Item Model");
+        params.setCategory("FooCompany");
+        params.setTrCategory(tr("FooCompany"));
+        addAutoReleasedObject(new ModelClassWizard(params, this));
+        return true;
+    }
+	\endcode
+	
+	\section3 Step 5: Testing the plugin
+	
+	
+	Upon compiling the plugin and restarting Qt Creator, we can notice the new project type in the "New.." dialog box. The
+	following screenshots showcase the wizard that was just implemented.
+	
+	\inlineimage qtc-newitemmodel-8.png
+	
+	
+	Upon selecting the "Item Model" class wizard, we can see the ModelNamePage in a custom wizard.
+	
+	\inlineimage qtc-customwizardone-8.png
+	
+	
+	We enter the appropriate details and click "Next" Qt Creator then shows us a built-in page to allow addition of the
+	newly generated files into the current project.
+	
+	\inlineimage qtc-customwizardtwo-8.png
+	
+	
+	Upon clicking "Finish", we can notice the newly generated files in the editor.
+	
+	\inlineimage qtc-editor-8.png
+	
+	*/

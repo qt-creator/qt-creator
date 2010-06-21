@@ -1,0 +1,329 @@
+﻿/*!
+    \page qtc-arch.html
+    \title 4. Qt Creator Architecture
+		
+	Every large system has a well defined "system architecture" which if understood well makes it easy for us to find out
+	way in it. Qt Creator is no different. In this chapter we will understand the basic architecture of Qt Creator so that we
+	can continue our understanding of writing plugins.
+	
+	\section1 4.1 Nuts and Bolts of Qt Creator
+	
+	Qt Creator is Nokia's cross-platform IDE. Currently Qt Creator is mainly used for writing Qt/C++ code.
+	The core of Qt Creator is basically only a "plugin loader" All functionality is implemented in plugins.
+	
+	\inlineimage  qtc-pluginmanager-4.png
+	
+	
+	The core "personality"of Qt Creator is implemented in the \bold {Core Plugin (Core::ICore)}. We have already had a brush
+	with the core plugin in the previous chapter. In the rest of this document we will refer to "core plugin" as Core.
+	The plugin manager \bold{(ExtensionSystem::PluginManager)} provides simple means for plugin cooperation that
+	allow plugins to provide hooks for other plugin's extensions.
+	
+	\section1 4.2 What exactly is a plugin?
+	
+	At the most fundamental level plugin is a shared library (DLL file on Windows, SO file on Linux, DYLIB file on Mac). From
+	a developer's point of view plugin is a module that
+	\list 1
+	\o Implements the ExtensionSystem::IPlugin interface in a class. This class will be referred to as "Plugin Class" in the
+	   rest of the document.
+	\o Exports the Plugin Class using the Q_EXPORT_PLUGIN macro
+	\o Provides a pluginspec file that provides some meta information about the plugin
+	\o Registers one or more objects that might be of some interest to other plugins
+	\o Searches for the availability of one or more objects registered by other plugins.
+	\endlist
+	
+	We have already had some experience with the first three aspects listed above, but we have not touched upon the last
+	two.
+	\section2 4.2.1 What are registered objects?
+	
+	 objects are those that land up in the \bold {PluginManager's} object pool. The \bold {allObjects()} method in
+	\bold {PluginManager} returns the object pool as a list of QObject pointers. Shown below is the code that we can use to list
+	all objects in the object-pool in a \bold {QListWidget}.
+	
+	\code
+	#include <extensionsystem/pluginmanager.h>
+	
+	ExtensionSystem::PluginManager* pm = ExtensionSystem::PluginManager::instance();
+	QList<QObject*> objects = pm->allObjects();
+	QListWidget* listWidget = new QListWidget;
+	
+	Q_FOREACH(QObject* obj, objects)
+	{
+            QString objInfo = QString("%1 (%2)").arg(obj->objectName()).arg(obj->metaObject()->className());
+            listWidget->addItem(objInfo);
+	}
+	
+	listWidget->show();
+	\endcode
+	When such a list widget is constructed and shown; you will see a window as shown below.
+	
+    
+	\inlineimage qtc-objectlist-4.png
+	
+	
+	From the class names it is easy to picture the fact that each of those objects came from different plugins. 
+	
+	\bold {\underline {A registered object is an instance of QObject (or one of its subclasses) registered by a plugin and is available in the
+	object-pool for other plugins to make use of}}.
+	
+	\section2 4.2.2 How to "register" an object from a plugin?
+	There are three ways to register an object from a plugin:
+	
+	\list
+	
+	\o \bold {IPlugin::addAutoReleasedObject(QObject*)}
+	\o \bold {IPlugin::addObject(QObject*)}
+	\o \bold {PluginManager::addObject(QObject*)}
+	
+	\endlist
+	
+	
+	The \bold {IPlugin::addObject()} and \bold {IPlugin::addAutoReleasedObject()} essentially call the
+	\bold {PluginManager::addObject()} method. The \bold {IPlugin} methods are only provided for convenience. It is
+	recommended that plugins make use of the \bold {IPlugin} methods for adding objects.
+	
+	The only difference between \bold {addAutoReleasedObject()} and \bold {addObject()} is that objects added using the
+	former method are automatically removed and deleted in the reverse order of registration when the plugin is destroyed.
+	At anytime plugins can make use of the \bold {IPlugin::removeObject(QObject*)} method to remove its object from
+	the object pool.
+	
+	\section2 4.2.3 What objects to register?
+	
+	Plugins can register just about any object. Normally objects that provide some sort of functionality used by other
+	plugin(s) are registered. Functionalities in Qt Creator are defined by means of interfaces. Listed below are some interfaces
+    
+	\list
+	     
+	\o \bold {Core::INavigationWidgetFactory}
+	\o \bold {Core::IEditor}
+	\o \bold {Core::IOptionsPage}
+	\o \bold {Core::IWizard}
+	  
+	\endlist
+	
+	\bold{\underline { C++ developers normally assume interfaces to be classes with all its functions are public pure 
+	virtual functions. In Qt Creator interfaces are subclasses of QObject that offer one or more
+	methods are pure virtual}}.
+	
+	If a plugin has objects that implement an interface, then such an object has to be registered. For example if a plugin
+	implements the \bold{INavigationWidgetFactory} interface in an object and registered it, the Core will automatically use that
+	object to show the widget provided by it as navigation widget. Take a look at the code snippet below. We provide a
+	simple \bold{QTableWidget} as navigation widget via an implementation of \bold {Core::INavigationWidgetFactory}.
+	
+	\code
+    #include <coreplugin/inavigationwidgetfactory.h>
+
+    class NavWidgetFactory : public Core::INavigationWidgetFactory
+    {
+    public:
+        NavWidgetFactory();
+        ~NavWidgetFactory();
+        Core::NavigationView createWidget();
+        QString displayName();
+    };
+
+    #include <QTableWidget>
+
+    NavWidgetFactory::NavWidgetFactory() { }
+    NavWidgetFactory::~NavWidgetFactory() { }
+
+    Core::NavigationView NavWidgetFactory::createWidget()
+    {
+        Core::NavigationView view;
+        view.widget = new QTableWidget(50, 3);
+    }
+
+    QString NavWidgetFactory::displayName()
+    {
+        return "Spreadsheet";
+    }
+
+    bool MyPlugin::initialize(const QStringList& args, QString *errMsg)
+    {
+        Q_UNUSED(args);
+        Q_UNUSED(errMsg);
+        // Provide a navigation widget factory.
+        // Qt Creator's navigation widget will automatically
+        // hook to our INavigationWidgetFactory implementation, which
+        // is the NavWidgetFactory class, and show the QTableWidget
+        // created by it in the navigation panel.
+        addAutoReleasedObject(new NavWidgetFactory);
+        return true;
+    }
+	\endcode
+	
+	The effect of the above code is
+	
+	\inlineimage qtc-codeeffect-4.png
+	
+	\section2 4.2.4 Becoming aware of registered objects
+	
+	Whenever the \bold {PluginManager::addObject()} is used to add an object, it \bold{(PluginManager)} emits the
+	\bold {objectAdded(QObject*)} signal. This signal can be used within our applications to figure out the objects that got
+	added.
+	
+	Obviously a plugin will begin receiving the signal only after it makes a connection to it. That happens only after the
+	plugin is initialized; which also means that the plugin will receive the \bold {objectAdded()} signal only for objects added
+	after the plugin was initialized.
+	
+	Usually the slot that is connected to the objectAdded() signal will look for one or more known interfaces. Suppose that
+	your plugin is looking for the INavigationWidgetFactory interface, the slot connected to objectAdded() will be like the
+	one shown below.
+	
+	\code
+    void Plugin::slotObjectAdded(QObject * obj)
+    {
+        INavigationWidgetFactory *factory = Aggregation::query<INavigationWidgetFactory>(obj);
+
+        if(factory)
+        {
+        // use it here...
+        }
+    }
+	\endcode
+	
+	\section2 4.2.5 Searching for objects
+	
+	Sometimes a plugin might want to search for an object in the application that offers some functionality. We already
+	know by now that
+	
+	\list
+	\o \bold {PluginManager::allObjects()} returns the object pool as a \bold {QList<QObject*>}
+	\o Connecting to \bold {PluginManager::objectAdded()} signal helps in known objects as they get registered
+	\endlist
+	
+	Using both of the above mentioned methods you can look for objects. Lets now understand yet another way to find
+	objects.
+
+	Suppose that you wanted to look for objects that implement the \bold {INavigationWidgetFactory} interface and show it in a
+	\bold {QListWidget}. You can make use of the \bold {PluginManager::getObjects<T>()} method for this purpose. The following code
+	snippet explains this
+	
+	\code
+    ExtensionSystem::PluginManager* pm = ExtensionSystem::PluginManager::instance();
+    QList<Core::INavigationWidgetFactory*> objects = pm->getObjects<Core::INavigationWidgetFactory>();
+    QListWidget* listWidget = new QListWidget();
+
+    Q_FOREACH(Core::INavigationWidgetFactory* obj, objects)
+    {
+        QString objInfo = QString("%1 (%2)").arg(obj->displayName()).arg(obj->metaObject()->className());
+        listWidget->addItem(objInfo);
+    }
+	\endcode
+	
+	When the list widget is shown you will notice that the navigation widgets are shown in the same order as they are
+	shown in the navigation combo box. Take a look at the screenshot below.
+	
+	\inlineimage qtc-nevigationwidget-4.png
+	
+	
+	\section1 4.3 Aggregations
+	
+	Aggregations are provided by the \bold {Aggregation} namespace. It adds functionality for "glueing" \bold {QObjects} of different
+	types together, so you can "cast" between them. Using the classes and methods in this namespace you can bundle
+	related objects into a single entity. Objects that are bundled into an aggregate can be "cast" from the aggregate into the
+	object class type.
+	
+	\section2 4.3.1 Aggregations - the old fashioned way
+	
+	Suppose that you wanted an object that provided implementations of two interfaces. Normally we would go about
+	coding the object like this.
+	
+	\code
+    class Interface1
+    {
+        ....
+    };
+    Q_DECLARE_INTERFACE("Interface1", "Interface1");
+
+    class Interface2
+    {
+        ....
+    };
+    Q_DECLARE_INTERFACE("Interface2", "Interface2");
+
+    class Bundle : public QObject,public Interface1,public Interface2
+    {
+        Q_OBJECT(Interface1 Interface2)
+        ....
+    };
+    Bundle bundle;
+	
+	\endcode
+	
+	Now we can think of \bold {bundle} as an object that provides \bold {Interface1} and \bold {Interface2} implementations. We can
+	make use of casting operators on the bundle object to extract \bold{Interface1} and \bold {Interface2}.
+	
+	\code
+    Interface1* iface1Ptr = qobject_cast<Interface1*>(&bundle);
+    Interface2* iface2Ptr = qobject_cast<Interface2*>(&bundle);
+	\endcode
+	
+	\section2 4.3.2 Aggregations - the Qt Creator way
+	
+	Qt Creator's Aggregation library offers a cleaner way to define interfaces and bundle them into a single object. Instances
+	of Aggregation::Aggregate can be created and objects can be added to it. Each of the objects added to the aggregation
+	can implement an interface. The following code snippet shows how to create an aggregation.
+	
+	\code
+	
+    #include <aggregation/aggregate.h>
+
+    class Interface1 : public QObject
+    {
+        Q_OBJECT
+        
+    public:
+        Interface1() { }
+        ~Interface1() { }
+    };
+
+    class Interface2 : public QObject
+    {
+        Q_OBJECT
+        
+    public:
+        Interface2() { }
+        ~Interface2() { }
+    };
+
+    Aggregation::Aggregate bundle;
+    bundle.add(new Interface1);
+    bundle.add(new Interface2);
+	
+	\endcode
+	
+	The aggregation instance "bundle" now conceptually contains implementations of two interfaces. To extract the
+	interfaces we can make use of the following code
+	
+	\code
+    Interface1* iface1Ptr = Aggregation::query<Interface1>( &bundle );
+    Interface2* iface2Ptr = Aggregation::query<Interface2>( &bundle );
+	\endcode
+	
+	With aggregation you can also several objects of the same interface into a single bundle. For example
+	
+	\code
+    Aggregation::Aggregate bundle;
+    bundle.add(new Interface1);
+    bundle.add(new Interface2);
+    bundle.add(new Interface1);
+    bundle.add(new Interface1);
+    QList<Interface1*> iface1Ptrs = Aggregation::query_all<Interface1>( &bundle );
+	\endcode
+	
+	Another key advantage of Aggregation is that, you can delete any one of the objects in the bundle to delete the whole
+	bundle. Example
+	
+	\code
+    Aggregation::Aggregate* bundle = new Aggregation::Aggregate;
+    bundle->add(new Interface1);
+    bundle->add(new Interface2);
+    Interface1* iface1Ptr = Aggregation::query<Interface1>(bundle);
+    delete iface1Ptr;
+    // deletes the bundle and all objects in it
+    // same as delete bundle
+	\endcode
+	
+	The use of aggregation will become clearer when we deal with real plugin examples in the coming chapters.
+*/

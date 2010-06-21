@@ -1,0 +1,304 @@
+/*!
+\page menu.html
+\title 5. Adding menu and menu-items
+
+In this chapter we will understand how to add entries to existing menus in Qt Creator. We will also learn how to add new
+menu entries. Before moving ahead let's take a look at the menu bar in Qt Creator
+
+\inlineimage qtc-menubar-5.png
+
+
+The menu bar consists of the following set of default menus
+\list
+\o File
+        \list
+        \o New
+        \o Open
+        \o Recent Files
+        \endlist
+\o Edit
+        \list
+        \o Advanced 
+        \endlist
+\o Tools
+\o Window
+        \list
+        \o Panes
+        \endlist
+\o Help
+\endlist
+
+\bold {Note:}\underline{Other menu items like Build and Debug come from plugins. They are not a part of the default menu set}.  
+
+As Qt developers we know that the above menus are shown within a \bold {QMenuBar}; and that there is a \bold {QMenu} associated
+with each of the above menus.
+
+\section1 5.1 Core::ActionManager
+
+The main Qt Creator program is nothing but a plugin loader. All of the functionality provided by Qt Creator is provided
+by the plugins. The main plugin for Qt Creator is called "core" Without core, Qt Creator really doesn't have a personality
+
+One of the key components of the "core" is the \bold {ActionManager}.\bold {ActionManager} is responsible for registration of menus,
+menu-items and keyboard shortcuts. So if we wanted to add a new menu-item or menu, we would have to use
+\bold {ActionManager}. The coming subsections explain this better.
+
+To gain access to the \bold {ActionManager}, the following piece of code can be used.
+\code
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/icore.h>
+Core::ActionManager* am = Core::ICore::instance()->actionManager();
+\endcode
+
+\section1 5.2 Core::ActionContainer
+
+ActionContianer represents menu or menubar in Qt Creator. Instances of ActionContainer are never created directly,
+instead they are accessed using ActionManager::createMenu(), ActionManager::createMenuBar() etc; but more on that
+later.
+There is an ActionContainer associated with each of the default menus in Qt Creator. Fetching ActionContainer for a
+given menu can be done using the following code snippet
+
+\code
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/icore.h>
+
+Core::ActionManager* am = Core::ICore::instance()->actionManager();
+Core::ActionContainer* ac = am->actionContainer( ID );
+\endcode
+The following table lists out the ID to use for each of the menus in Qt Creator. Each of the IDs are defined as \bold {const}
+\bold {char*} static variables within the \bold {Core} namespace.
+
+\table  
+\header
+   \o Menu
+   \o ID
+\row
+   \o File
+   \o Core::Constants::M_FILE
+\row 
+   \o File->New
+   \o Core::Constants::M_FILE_NEW
+\row
+   \o File->Open
+   \o Core::Constants::M_FILE_OPEN
+\row
+   \o Edit
+   \o Core::Constants::M_FILE_RECENTFILES
+\row   
+   \o Edit->Advanced
+   \o Core::Constants::M_EDIT_ADVANCED
+\row
+   \o Tools
+   \o Core::Constants::M_TOOLS
+\row   
+   \o Window
+   \o Core::Constants::M_WINDOW
+\row   
+   \o Window Panes
+   \o Core::Constants::M_WINDOW_PANES
+\row   
+   \o Help
+   \o Core::Constants::M_HELP
+\endtable
+
+So if we want to catch hold of the "Help" menu, we can use the code snippet as follows
+\code
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/icore.h>
+
+Core::ActionManager* am = Core::ICore::instance()->actionManager();
+Core::ActionContainer* ac = am->actionContainer( Core::Constants::M_HELP );
+\endcode
+
+\section1 5.3 Registering menu-items.
+
+The Core::Command class represents an action like a menu item, tool button, or shortcut. You don't create Command
+objects directly, instead use we use ActionManager::registerAction() to register an action and retrieve a Command. The
+Command object represents the user visible action and its properties.
+
+Shown below is the right way to add the "About DoNothing" menu-item from the DoNothing plugin.
+
+\code
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
+#include <coreplugin/icore.h>
+#include <QKeySequence>
+
+bool DoNothingPlugin::initialize(const QStringList& args, QString *errMsg)
+{
+    Q_UNUSED(args);
+    Q_UNUSED(errMsg);
+
+    // Fetch the action manager
+    Core::ActionManager* am = Core::ICore::instance()->actionManager();
+
+    // Create a command for "About DoNothing".
+    Core::Command* cmd = am->registerAction(
+                                new QAction(tr("About DoNothing"),this),
+                                "DoNothingPlugin.AboutDoNothing",
+                                QList<int>() <<Core::Constants::C_GLOBAL_ID
+                             );
+
+    // Add the command to Help menu
+    am->actionContainer(Core::Constants::M_HELP)->addAction(cmd);
+    return true;
+}
+\endcode
+\bold {Warning:}\underline { ac->menu()->addAction("About DoNothing") should never be used when adding menu items to Qt Creator.}
+
+After compiling the changes, we can notice that the "About DoNothing" action shows up in the "Help" menu; but at the
+beginning.
+
+\inlineimage qtc-helpdonothing-5.png
+
+
+If the "About DoNothing" menu item is to be placed in between specified menu item the we will make a small update in the code block
+\code
+bool DoNothingPlugin::initialize(const QStringList& args, QString *errMsg)
+{
+    .....
+    // Add the command to Help menu
+    am->actionContainer(Core::Constants::M_HELP)->addAction(showCmd, Core::Constants::G_HELP_HELP);
+    return true;
+}
+\endcode
+
+The effect of the change in code can be seen in the  image below.
+
+\inlineimage qtc-menuitemposition-5.png
+
+
+When added this way, we will be able to find the "About DoNothing" action in the "Keyboard Shortcuts" dialog box and
+also associate a keyboard shortcut with it.
+
+\inlineimage qtc-options-keyboard-5.png
+
+
+\section1 5.4 Responding to menu-items
+Since menu-items are QActions, we can connect to their triggered(bool) or toggled(bool) signal and respond to
+trigger/toggled events. The code below shows how to do this
+\code
+class DoNothingPlugin : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+
+private slots:
+    void about();
+};
+
+bool DoNothingPlugin::initialize(const QStringList& args, QString *errMsg)
+{
+    ......
+    QAction *action = new QAction(tr("About DoNothing"),this);
+    Core::Command* cmd = am->registerAction(action,
+                                            "DoNothingPlugin.AboutDoNothing",
+                                            QList<int>() << 0);
+    ......
+    connect(action, SIGNAL(triggered(bool)), this, SLOT(about()));
+    return true;
+}
+
+void DoNothingPlugin::about()
+{
+    QMessageBox::information(0, "About DoNothing Plugin",
+    "Seriously dude, this plugin does nothing");
+}
+\endcode
+
+After compiling the changes and clicking on the "About DoNothing" menu-item, we can see the information dialog box
+as shown below.
+
+\inlineimage  qtc-menuresponse-5.png
+
+
+If you wanted the message box to have the Qt Creator main window as its parent, then you can use the following code
+for the about() slot.
+
+\code
+void DoNothingPlugin::about()
+{
+    QMessageBox::information(Core::ICore::instance()->mainWindow(),
+                             "About DoNothing Plugin",
+                             "Seriously dude, this plugin does nothing");
+}   
+\endcode
+
+\section1 5.5 Adding menus
+The procedure for adding menus is the same. Instead of creating a \bold {Core::Command}, we create a \bold {Core::ActionContainer}
+and add it to the \bold {MENU_BAR}. The following code snippet highlights the changes from our previous version.
+\code
+bool DoNothingPlugin::initialize(const QStringList& args, QString *errMsg)
+{
+    Q_UNUSED(args);
+    Q_UNUSED(errMsg);
+
+    // Fetch the action manager
+    Core::ActionManager* am = Core::ICore::instance()->actionManager();
+
+    // Create a DoNothing menu
+    Core::ActionContainer* ac = am->createMenu("DoNothingPlugin.DoNothingMenu");
+    ac->menu()->setTitle("DoNothing");
+
+    // Create a command for "About DoNothing".
+    QAction *action = new QAction(tr("About DoNothing",this));
+    Core::Command* cmd = am->registerAction(action,"DoNothingPlugin.AboutDoNothing",QList<int>() << 0);
+
+    // Add DoNothing menu to the menubar
+    am->actionContainer(Core::Constants::MENU_BAR)->addMenu(ac);
+
+    // Add the "About DoNothing" action to the DoNothing menu
+    ac->addAction(cmd);
+
+    // Connect the action
+    connect(action, SIGNAL(triggered(bool)), this, SLOT(about()));
+    return true;
+}
+\endcode
+After recompiling the changes, you will be able to notice the DoNothing menu as shown in the screenshot below.
+
+\inlineimage qtc-donothingleft-5.png
+
+\section1 5.6 Placing menus and menu-items
+It is possible to insert menus and menu-items anywhere you want. Shown below is a code snippet that inserts the
+"DoNothing" menu before the "Help" menu.
+\code
+bool DoNothingPlugin::initialize(const QStringList& args, QString *errMsg)
+{
+    Q_UNUSED(args);
+    Q_UNUSED(errMsg);
+
+    // Fetch the action manager
+    Core::ActionManager* am = Core::ICore::instance()->actionManager();
+
+    // Create a DoNothing menu
+    Core::ActionContainer* ac = am->createMenu("DoNothingPlugin.DoNothingMenu");
+    ac->menu()->setTitle("DoNothing");
+
+    // Create a command for "About DoNothing".
+    QAction *action = new QAction(tr("About DoNothing"),this);
+    Core::Command* cmd = am->registerAction(action,"DoNothingPlugin.AboutDoNothing",QList<int>() << 0);
+
+    // Insert the "DoNothing" menu between "Window" and "Help".
+    QMenu* windowMenu = am->actionContainer(Core::Constants::M_HELP)->menu();
+    QMenuBar* menuBar = am->actionContainer(Core::Constants::MENU_BAR)->menuBar();
+    menuBar->insertMenu(windowMenu->menuAction(), ac->menu());
+
+    // Add the "About DoNothing" action to the DoNothing menu
+    ac->addAction(cmd);
+
+    // Connect the action
+    connect(action, SIGNAL(triggered(bool)), this, SLOT(about()));
+    return true;
+}
+\endcode
+
+After compiling the changes, we can now notice that change in position of the "DoNothing" menu.
+
+\inlineimage qtc-donothingright-5.png
+
+
+You can use a similar technique for customizing the position of menu-items.
+
+*/

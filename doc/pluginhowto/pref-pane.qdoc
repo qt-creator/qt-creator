@@ -1,0 +1,205 @@
+﻿/*!
+    \page pref-pane.html
+    \title 7. Adding Preferences Pane
+	Preferences dialog in Qt Creator is used to configure the Qt Creator settings. Since Qt Creator is just a plugin loader that
+	loads all the relevant plugins, the preferences dialog shows pages that configure plugins. You can get to it by clicking
+	Tools->Options.
+	
+	\inlineimage qtc-options-7.png
+	
+	
+	Each plugin provides one or more options pages that get shown in the preferences dialog. In the following sub-sections
+	we will learn how to add our own pages to the dialog.
+	
+	\section1 7.1 Core::IOptionsPage interface
+	
+	The Core of Qt Creator exposes an interface called \bold{Core::IOptionsPage}. The interface is defined in
+	plugins/coreplugin/dialogs/ioptionspage.h.
+	
+	\code
+    class CORE_EXPORT IOptionsPage : public QObject
+    {
+        Q_OBJECT
+        
+    public:
+        IOptionsPage( *parent = 0) : QObject(parent) {}
+        virtual ~IOptionsPage() {}
+        virtual QString id() const = 0;
+        virtual QString trName() const = 0;
+        virtual QString category() const = 0;
+        virtual QString trCategory() const = 0;
+        virtual QWidget *createPage(QWidget *parent) = 0;
+        virtual void apply() = 0;
+        virtual void finish() = 0;
+    };
+	\endcode
+	
+	By implementing the above interface and exposing an instance of it, we will be able to register new pages with the
+	preferences dialog.
+	
+	\section1 7.2 Preparing the options-page
+	Let's implement a plugin that shows an options page that lists out all the open and modified files.
+	
+	\section2  Step 1: Implementing the "modified file" list widget
+	The modified file list widget is simply a \bold{QListWidget} that shows all the modified files from the project manager. The
+	class declaration is as follows
+	
+	\code
+    #include <QListWidget>
+    class ModifiedFileListWidget: public QListWidget
+    {
+        Q_OBJECT
+        
+    public:
+        ModifiedFileListWidget(QWidget* parent=0);
+        ~ModifiedFileListWidget();
+    };
+    \endcode
+
+    Within the constructor we populate the list widget with names of the modified pages
+
+    \code
+    #include <coreplugin/filemanager.h>
+    #include <coreplugin/icore.h>
+    #include <coreplugin/ifile.h>
+
+    ModifiedFileListWidget::ModifiedFileListWidget(QWidget* parent):QListWidget(parent)
+    {
+        // Show the list of modified pages
+        Core::FileManager* fm = Core::ICore::instance()->fileManager();
+        QList<Core::IFile*> files = fm->modifiedFiles();
+
+        for(int i=0; i<files.count();i++)
+        this->addItem(files.at(i)->fileName());
+    }
+	\endcode
+	
+	The destructor does nothing.
+	
+	\code
+    ModifiedFileListerPage::~ModifiedFileListerPage()
+    {
+
+    }
+	\endcode
+	
+	\section2 Step 2: Implementing the Core::IOptionsPage interface
+	We implement the \bold {Core::IOptionsPage} interface in a class called \bold {ModifiedFileLister}. The class declaration
+	is as follows
+	
+	\code
+    #include <coreplugin/dialogs/ioptionspage.h>
+    class ModifiedFileLister : public Core::IOptionsPage
+    {
+        Q_OBJECT
+
+    public:
+        ModifiedFileLister(QObject *parent = 0);
+        ~ModifiedFileLister();
+        // IOptionsPage implementation
+        QString id() const;
+        QString trName() const;
+        QString category() const;
+        QString trCategory() const;
+        QWidget *createPage(QWidget *parent);
+        void apply();
+        void finish();
+    };
+	\endcode
+	
+	The constructor and destructor are straightforward and easy to understand.
+	
+	\code
+    ModifiedFileLister::ModifiedFileLister(QObject *parent): IOptionsPage(parent)
+    {
+
+    }
+
+    ModifiedFileLister::~ModifiedFileLister()
+    {
+
+    }
+   	\endcode
+	
+	The \bold{id()} method should be implemented to return a unique identifier for the options page provided by this class. The
+	string will be used internally to \underline{\bold{id}}entify the page.
+	
+	\code
+    QString ModifiedFileLister::id() const
+    {
+        return "ModifiedFiles";
+    }
+	\endcode
+	
+	The \bold {trName()} method should be implemented to return a translated string name that will be shown in the options
+	dialog.
+	
+	\code
+    QString ModifiedFileLister::trName() const
+    {
+        return tr("Modified Files");
+    }
+	\endcode
+	
+	The \bold{category()} and \bold{trCategory()} methods should be implemented to return the group under which we want to
+	show the page. The latter returns the translated version of the string returned by the former.
+	
+	\code
+    QString ModifiedFileLister::category() const
+    {
+        return "Help";
+    }
+
+    QString ModifiedFileLister::trCategory() const
+    {
+        return tr("Help");
+    }
+	\endcode
+	
+	The \bold{createPage()} method should be implemented to return a new instance of the page implemented in step 1.
+	
+	\code
+    QWidget *ModifiedFileLister::createPage(QWidget *parent)
+    {
+        return new ModifiedFileListWidget(parent);
+    }
+	\endcode
+	
+	The methods \bold {apply()} and \bold {finish()} can be implemented to accept the changes made by the user made on the
+	page. In our case we don't have any changes to accept, so we leave the methods empty.
+	
+	\code
+    void ModifiedFileLister::apply()
+    {
+        // Do nothing
+    }
+
+    void ModifiedFileLister::finish()
+    {
+        // Do nothing
+    }
+	\endcode
+	
+	\section2 Step 3: Implementing the modified-file-lister plugin
+	
+	We implement the plugin class similar to the \bold {DoNothingPlugin} class described in Chapter 2. Hence, we only
+	describe the implementation of the initialize method of the \bold {ModifiedFileListerPlugin} class here.
+	
+	\code
+    bool ModifiedFileListerPlugin::initialize(const QStringList& args, QString *errMsg)
+    {
+        Q_UNUSED(args);
+        Q_UNUSED(errMsg);
+        addAutoReleasedObject(new ModifiedFileLister);
+        return true;
+    }
+	\endcode
+	
+	\section2 Step 4: Testing the plugin
+	Upon compiling the plugin and restarting Qt Creator, we can notice in the options dialog the newly added "Modified
+	Files" page.
+	
+	
+	\inlineimage  qtc-testplugin-7.png
+	
+    */

@@ -1,0 +1,537 @@
+/*!
+\page mode.html
+\title 13. Adding a mode
+
+When we are working in Qt Creator then we in one of the six modes below.
+
+\list
+\o Welcome
+\o Edit
+\o Debug
+\o Project
+\o Help
+\o Output
+\endlist
+
+By selecting different modes in Qt creator we can quickly switch between different task spaces, such
+as editing, browsing the Qt Creator manual, setting up the build environment, etc.
+Different modes can be selected either by clicking on the mode selectors or through keyboard shortcuts.
+
+The following figure shows the mode selectors in the Qt Creator.
+
+\inlineimage qtc-modes-13.png 
+
+
+Now in this chapter we are concerned about learning to add a new mode and a "LoggerMode" mode selector will be availble in Qt Creator.
+
+\section1 13.1 Core Classes and Interfaces
+
+To support a new mode we need to 
+\list
+\o Implement a plugin \bold {(ExtensionSystem::IPlugin } implementation) class that exposes the new mode.Chapter 2 in this 
+   document provides a detailed description on creating plugins by implementing the ExtensionSystem::IPlugin interface.
+\o Implement the \bold{(Core::IMode)} interface. This interface allows us to add a new mode in Qt creator
+\endlist
+
+
+\section2 Step 1. Core::IMode interface
+This interface abstracts the creation of a mode, adding an icon to the mode selector, setting the mode priority,
+setting a unique made name. The \bold {Core::IMode} interface is declared as follows in scr/plugins/coreplugin/imode.h
+\code
+namespace Core {
+
+    class CORE_EXPORT IMode : public IContext
+    {
+        Q_OBJECT
+
+    public:
+        IMode(QObject *parent = 0) : IContext(parent) {}
+        virtual ~IMode() {}
+
+        virtual QString name() const = 0;
+        virtual QIcon icon() const = 0;
+        virtual int priority() const = 0;
+        virtual const char *uniqueModeName() const = 0;
+    };
+} // namespace Core
+\endcode
+
+Notice that Core::IMode inherits Core::IContext. Core::IContext is an interface through which
+Qt Creator picks up the widget corresponding to the mode. The Core::IContext interface is declared 
+as follows.
+
+\code
+namespace Core 
+{
+
+    class CORE_EXPORT IContext : public QObject
+    {
+        Q_OBJECT
+
+    public:
+        IContext(QObject *parent = 0) : QObject(parent) {}
+        virtual ~IContext() {}
+
+        virtual QList<int> context() const = 0;
+        virtual QWidget *widget() = 0;
+        virtual QString contextHelpId() const { return QString(); }
+    };
+}
+\endcode
+
+\section1 13.2 Adding a new mode
+Lets add a mode to Qt Creator called "LoggerMode". LoggerMode allows the user (developer) to log the number of hours he/she
+has worked on a project. The following steps explain how the new mode "LoggerMode" is added.
+
+\section2 Step 1. Declaring the LoggerMode class
+We first begin by declaring a class called LoggerMode that implements the Core::IMode interface.
+The class definition is as follows.
+\code
+#include <coreplugin/imode.h>
+
+struct LoggerModeData;
+class LoggerMode : public Core::IMode
+{
+    Q_OBJECT
+
+public:
+    LoggerMode();
+    ~LoggerMode();
+
+    QString name() const;
+    QIcon icon() const;
+    int priority() const;
+    QWidget *widget();
+    const char *uniqueModeName() const;
+    QList<int> context() const;
+    void activated();
+    QString contextHelpId() const { return QLatin1String("Qt Creator"); }
+
+private:
+    LoggerModeData *d;
+};
+\endcode
+
+\section2 Step 2. Implementing the LoggerMode class
+Declaring the private variables of the LoggerMode class.
+\code
+struct LoggerModeData
+{
+    QWidget *m_widget;
+};
+\endcode
+The constructor creates a new blank widget just for now to get started with the mode. 
+The constructor and the destructor are implemented as follows
+\code
+LoggerMode::LoggerMode()
+{
+    d = new LoggerModeData;
+    d->m_widget = new QWidget;
+}
+
+LoggerMode::~LoggerMode()
+{
+    delete d->m_widget;
+    delete d;
+}
+\endcode
+The \bold {name()} method returns a name for the new mode selector.
+\code
+QString LoggerMode::name() const
+{
+    return tr("LoggerMode");
+}
+\endcode
+
+The \bold {icon()} method  returns a logo for the new mode selector.
+\code
+QIcon LoggerMode::icon() const
+{
+    return QIcon(QLatin1String(":/core/images/qtcreator_logo_32.png"));
+}
+\endcode
+
+The \bold {priority()} method is implemented to return a priority for the mode. Modes of higher
+priority are shown above modes of lower priority. The highest priority in Qt Creator is currently
+100 and is associated with the Welcome mode. We return 0 from LoggerMode, becasue we want this
+mode to appear at the end.
+\code
+int LoggerMode::priority() const
+{
+    return 0;
+}
+\endcode
+Thw \bold {widget()} method returns a widget to the new mode.
+\code
+QWidget* LoggerMode::widget()
+{
+    return d->m_widget;
+}
+\endcode
+
+The \bold {uniqueModeName()} returns the name of the mode to the "LoggerMode" Class.
+\code
+const char* LoggerMode::uniqueModeName() const
+{
+    return "LoggerMode" ;
+}
+\endcode
+The \bold {context()} method returns an empty list of integers to tne "LoggerMode" class.
+\code
+QList<int> LoggerMode::context() const
+{
+    return QList<int>();
+}
+\endcode
+
+\section2 Step 3. Implementing the "LoggerMode" plugin
+We implement the "LoggerMode" plugin very similar to the DoNothingPlugin  class described in Chapter 2. 
+Here we only look at the implementation of the initialize() method.
+\code
+bool LoggerModePlugin::initialize(const QStringList& args, QString *errMsg)
+{
+    Q_UNUSED(args);
+    Q_UNUSED(errMsg);
+
+    loggerMode = new LoggerMode;
+    addAutoReleasedObject(loggerMode);
+
+    return true;
+}
+\endcode
+\section2 Step 4. Testing the plugin.
+Upon compiling the plugin and restarting Qt Creator, we can notice the "LoggerMode" mode selector in the Qt creator.
+
+\inlineimage qtc-loggermode-13.png 
+
+\section1 13.3 Adding Functionality to the "LoggerMode"
+The actual function of the "LoggerMode" is to log data in a text file about a project, such as progress , hours worked,
+description etc.
+
+\section2 Step 1. Modifying the "LoggerMode" Class 
+
+To add the functionalities, the LoggerMode class is further modified.
+The code block is given as follows.
+
+\code
+struct LoggerModeData;
+class LoggerMode :public Core::IMode
+{
+    Q_OBJECT
+
+public:
+    LoggerMode();
+    ~LoggerMode();
+     ...
+     ...
+
+protected slots:
+    void addNewStackWidgetPage(const QString projectName);
+    void addItem();
+
+private:
+    ...
+};
+\endcode
+
+The constructor of the \bold {LoggerMode} class is modified as follows.
+\code
+LoggerMode::LoggerMode()
+{
+    d = new LoggerModeData;
+    d->m_widget = new QWidget;
+
+    //Current Projects Label and combobox widget are created.
+
+    d->currentProjectsLabel = new QLabel("Current projects :");
+    d->currentProjectsLabel->setFixedWidth(90);
+    d->currentProjectsCombobox = new QComboBox;
+    d->currentProjectsCombobox->setSizePolicy(QSizePolicy::Preferred,
+                                          QSizePolicy::Preferred);
+
+    //Add Projects Label and combobox widget are created.
+
+    d->addProjectLabel = new QLabel("Add Project :");
+    d->addProjectLabel->setAlignment(Qt::AlignRight);
+    d->addProjectComboBox = new QComboBox;
+    d->addProjectComboBox->setSizePolicy(QSizePolicy::Preferred,
+                                     QSizePolicy::Preferred);
+    d->addProjectComboBox->setEditable(true);
+
+    d->addToProjectButton = new QPushButton(tr("Add Project"));
+    d->addToProjectButton->setFixedWidth(80);
+
+    //Creating a horizontal Layout
+
+    QHBoxLayout *hLayout = new QHBoxLayout;
+    hLayout->addWidget(d->currentProjectsLabel);
+    hLayout->addWidget(d->currentProjectsCombobox);
+    hLayout->addWidget(d->addProjectLabel);
+    hLayout->addWidget(d->addProjectComboBox);
+    hLayout->addWidget(d->addToProjectButton);
+
+    //creating a stackedWidget
+
+    d->stackedWidget = new QStackedWidget;
+
+    //creating a vertical layout
+
+    QVBoxLayout* layout = new QVBoxLayout;
+    layout->addLayout(hLayout);
+    layout->addWidget(d->stackedWidget);
+
+    d->m_widget->setLayout(layout);
+
+    d->addProjectComboBox->addItem("Project 1");
+    d->addProjectComboBox->addItem("Project 2");
+    d->addProjectComboBox->addItem("Project 3");
+
+    connect(d->addToProjectButton,SIGNAL(clicked()),
+            this,SLOT(addItem()));
+
+    connect(d->currentProjectsCombobox, SIGNAL(currentIndexChanged(int)),
+            d->stackedWidget, SLOT(setCurrentIndex(int)));
+}
+
+\endcode
+
+Implementation of the \bold{addNewStackWidgetPage()} slot of \bold {LoggerMode} class
+\code
+void LoggerMode::addNewStackWidgetPage(const QString projectName)
+{
+    d->stackedWidget->addWidget(new LoggerModeWidget(projectName));
+} 
+\endcode
+
+Implementation of the \bold{addItem()} slot of \bold {LoggerMode} class
+\code
+void LoggerMode::addItem()
+{
+    d->currentProjectsCombobox->addItem(d->addProjectComboBox->currentText());
+    addNewStackWidgetPage(d->currentProjectsCombobox->itemText(0));
+}
+\endcode
+
+The effect of the above block of code  can be seen in the following image.
+
+\inlineimage  qtc-loggerpage-13.png
+
+
+\section2 Step 2. Declaration of the "LoggerModeWidget" class
+Reffering to the above image, when ever we select a project from  the \bold {Add Project} combobox and click
+\bold {Add Project} button a new project is added to the \bold {Current projects} list and and a corresponding
+\bold {LoggerModeWidget} is opened, for logging different informations about the project.
+The declaration of the \bold {LoggerModeWidget} class is shown in the following code block.
+
+ \code
+#include <QWidget>
+
+struct LoggerModeWidgetData;
+class LoggerModeWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    LoggerModeWidget(const QString projectName, QWidget* parent = 0);
+    ~LoggerModeWidget();
+
+public slots:
+    void setProjectName(QString name);
+
+protected slots:
+    bool saveToFile();
+    void startTimeLog();
+    void endTimeLog();
+    void updateTime();
+
+private:
+    LoggerModeWidgetData* d;
+};
+\endcode  
+
+\section2 Step 3. Implementing the "LoggerModeWidget" class
+Declaring the private member variables in the structure called  \bold {LoggerModeWidgetData}
+\code
+struct LoggerModeWidgetData
+{
+    QLabel *progressLabel;
+    QLabel *hoursWorkedLabel;
+    QLabel *dateLabel;
+    QLabel *descriptionLabel;
+    QCalendarWidget *calendar;
+    QComboBox *progressComboBox;
+    QLineEdit *hoursWorkedLineEdit;
+    QPushButton *startTimerButton;
+    QPushButton *stopTimerButton;
+    QPushButton *saveButton;
+    QTimer *timer;
+    QTextEdit *textEdit;
+    QString projectName;
+    int totalTime;
+};
+\endcode
+Implementation of the  constructor and destructor of the \bold {LoggerModeWidget} class 
+\code
+LoggerModeWidget::LoggerModeWidget(const QString projectName, QWidget* parent)
+:QWidget(parent)
+{
+    d = new LoggerModeWidgetData;
+    d->projectName = projectName;
+    d->totalTime = 0;
+
+    QStringList percentList;
+    percentList <<"10%" <<"20%" <<"30%" <<"40%" <<"50%"
+                <<"60%" <<"70%" <<"80%" <<"90%" <<"100%" ;
+    d->progressLabel = new QLabel("Progress:");
+    d->hoursWorkedLabel = new QLabel("Hours Worked:");
+    d->dateLabel = new QLabel("Date:");
+    d->descriptionLabel = new QLabel("Description :");
+    d->hoursWorkedLineEdit = new QLineEdit;
+    d->hoursWorkedLineEdit->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    d->progressComboBox = new QComboBox;
+    d->progressComboBox->addItems(percentList);
+    d->progressComboBox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    d->startTimerButton = new QPushButton(tr("Start Timer"));
+    d->startTimerButton->setFixedWidth(80);
+    d->stopTimerButton = new QPushButton(tr("Pause Timer"));
+    d->stopTimerButton->setFixedWidth(80);
+    d->stopTimerButton->setCheckable(true);
+    d->textEdit = new QTextEdit(this);
+    d->textEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    d->calendar = new QCalendarWidget;
+    d->saveButton = new QPushButton(tr("Save To File"));
+    d->saveButton->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+
+    QGroupBox *timeLoggerBox = new QGroupBox(tr("Time Logger"));
+
+    QGridLayout *gLayout = new QGridLayout;
+    gLayout->addWidget(d->dateLabel, 0, 0, 1, 1);
+    gLayout->addWidget(d->calendar, 1, 0, 1, 3);
+    gLayout->addWidget(d->progressLabel, 2, 0, 1, 1);
+    gLayout->addWidget(d->progressComboBox, 2, 1, 1, 1);
+    gLayout->addWidget(d->hoursWorkedLabel, 3, 0, 1, 1);
+    gLayout->addWidget(d->hoursWorkedLineEdit, 3, 1, 1, 1);
+    gLayout->addWidget(d->startTimerButton, 4, 1, 1, 1);
+    gLayout->addWidget(d->stopTimerButton, 4, 2, 1, 1);
+
+    timeLoggerBox->setLayout(gLayout);
+
+    d->timer = new QTimer(this);
+
+    // connection of SIGNALS and SLOTS
+
+    connect(d->timer, SIGNAL(timeout()), this, SLOT(updateTime()));
+    connect(d->startTimerButton,SIGNAL(clicked()),this,SLOT(startTimeLog()));
+    connect(d->stopTimerButton,SIGNAL(clicked()),this,SLOT(endTimeLog()));
+    connect(d->saveButton, SIGNAL(clicked()), this, SLOT(saveToFile()));
+
+    QVBoxLayout *vLayout = new QVBoxLayout;
+    vLayout->addWidget(d->descriptionLabel);
+    vLayout->addWidget(d->textEdit);
+
+    QHBoxLayout * hLayout = new QHBoxLayout;
+    hLayout->addWidget(timeLoggerBox);
+    hLayout->addLayout(vLayout);
+
+    QHBoxLayout *bLayout = new QHBoxLayout;
+    bLayout->addStretch(1);
+    bLayout->addWidget(d->saveButton);
+
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    mainLayout->addLayout(hLayout);
+    mainLayout->addLayout(bLayout);
+    mainLayout->addStretch(1);
+
+}
+
+LoggerModeWidget::~LoggerModeWidget()
+{
+    delete d;
+}
+
+\endcode
+
+The \bold {saveToFile()} slot is used by the "SaveTofile" button to save the contents of the "LoggerModeWidget" to a 
+text file.
+\code
+bool LoggerModeWidget::saveToFile()
+{
+    QString fileName = QFileDialog::getSaveFileName(this);
+    if (fileName.isEmpty())
+        return false;
+
+    QFile file(fileName);
+    if (!file.open(QFile::WriteOnly | QFile::Text)) {
+        QMessageBox::critical(this, tr("Application"),
+                             tr("Unable to open file %1 for writing :\n%2.")
+                             .arg(fileName)
+                             .arg(file.errorString()));
+        return false;
+    }
+
+    QTextStream out(&file);
+
+#ifndef QT_NO_CURSOR
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+#endif
+    out << "Project name : " << d->projectName << "\n";
+    out << "Date         : " << d->calendar->selectedDate().toString() << "\n";
+    out << "Progress     : " << d->progressComboBox->currentText() << "\n";
+    out << "Duration     : " << d->hoursWorkedLineEdit->text() << "\n\n";
+    out << "Description  : " << d->textEdit->toPlainText();
+#ifndef QT_NO_CURSOR
+    QApplication::restoreOverrideCursor();
+#endif
+
+    return true;
+}
+\endcode
+The \bold {startTimeLog()} slot is used by the \bold {Start Timer} button to start the timer.
+\code
+void LoggerModeWidget::startTimeLog()
+{
+    d->totalTime = 0;
+    d->timer->start(1000);
+}
+\endcode
+
+The \bold {endTimeLog()} slot is used by the \bold (Pause Timer } button  to pause and resume the timer.
+\code
+void LoggerModeWidget::endTimeLog()
+{
+    if(d->stopTimerButton->isChecked())
+    {
+        d->stopTimerButton->setText("Continue Timer");
+        d->timer->stop();
+    }
+    else
+    {
+        d->stopTimerButton->setText("Pause Timer");
+        d->timer->start(1000);
+    }
+}
+\endcode
+
+The \bold {updateTime()} slot is used to update the time.
+\code
+void LoggerModeWidget::updateTime()
+{
+    d->totalTime++;
+    QTime time(0,0,0);
+    time = time.addSecs(d->totalTime);
+    d->hoursWorkedLineEdit->setText(time.toString());
+}
+\endcode    
+
+\section1 13.4 Testing the final LoggerMode plugin.
+
+\section2 Step 1. A  "LoggerMode" mode selector can be seen int the Qt Creator.
+\inlineimage qtc-loggermode-13.png
+
+\section2 Step 2. A LoggerMode widget opens with options to "Add Projects"
+\inlineimage  qtc-loggerpage-13.png
+
+\section2 Step 3. The "Add Project" button adds a project to the "Current Project list and opens the the "LoggerModeWidget"
+\inlineimage  qtc-loggermodewidget-13.png
+
+*/

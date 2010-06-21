@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+    <mime-type type="text/html">
+        <sub-class-of type="text/plain"/>
+        <comment>HTML File</comment>
+        <glob pattern="*.html"/>
+    </mime-type>
+</mime-info>

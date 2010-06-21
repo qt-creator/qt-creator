@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/CustomProject">
+        <file alias="ItemModelSource">ItemModelSource.txt</file>
+        <file alias="ItemModelHeader">ItemModelHeader.txt</file>
+    </qresource>
+</RCC>

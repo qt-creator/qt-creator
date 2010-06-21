@@ -1,0 +1,28 @@
+/*!
+    \page index.html
+    \title Qt Creator Plugin HOWTO
+
+    Qt Creator is not only a great developer tool, it is also a tool
+    can accomodate plugins to help......
+
+    Qt Creator plugin development can be understood by going through
+    the following chapters in this manual
+
+    \list 1
+    \o \l {qtcreator-compile.html} {Compiling Qt Creator} 
+    \o \l {first-plugin.html} {First Plugin}
+    \o \l {qtc-project-plugin.html} {Creating plugins using Qt Creator}
+    \o \l {qtc-arch.html} {Qt Creator Architecture}
+    \o \l {menu.html} {Adding menu and menu-items}
+    \o \l {nav-widget.html} {Adding Navigation Widget}
+    \o \l {pref-pane.html} {Adding Preferences Pane}
+    \o \l {project-file-wizard.html} {Project/File Wizards}
+    \o \l {find-filter.html} {Find Filter}
+    \o \l {editor-type.html} {Adding editor type}
+    \o \l {progress.html} {Showing and reacting to progress information}
+    \o \l {vcs.html} {Implementing version control system}
+    \o \l {mode.html} {Adding a mode}
+    \o \l {location-filter.html} {Adding location filter}
+    \o \l {adv-find-filter.html} {Adding "advanced" find filter}
+    \endlist
+*/

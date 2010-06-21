@@ -1,0 +1,171 @@
+﻿/*!
+    \page nav-widget.html
+    \title 6. Adding Navigation Widget
+	
+	Navigation panel in Qt Creator is the area where Project, File System, Bookmark and Open Documents siderbars are
+	shown. Sidebar is one of the widgets in the "Navigation Panel" Take a look at the marked area in the screenshot below.
+
+	\inlineimage qtc-firstnavigation-6.png
+	
+	
+	Qt Creator makes it possible for us to divide the navigation panel into windows and view more than one side bar at the
+	same time. Take a look at the screenshot below.
+	
+	
+	\inlineimage qtc-secondnavigation-6.png
+	
+	
+	In this chapter we will understand how to add a new side bar to Qt Creator.
+	
+	\section1 6.1 Core::INavigationWidgetFactory interface
+	
+	The Core of Qt Creator exposes an interface called Core::INavigationWidgetFactory. The interface is defined as follows in
+	plugins/corelib/inavigationwidgetfactory.h
+	
+	\code
+    class CORE_EXPORT INavigationWidgetFactory : public QObject
+    {
+        Q_OBJECT
+
+    public:
+        INavigationWidgetFactory();
+        virtual ~INavigationWidgetFactory();
+        virtual QString displayName() = 0;
+        virtual QKeySequence activationSequence();
+        virtual NavigationView createWidget() = 0;
+        virtual void saveSettings(int position, QWidget *widget);
+        virtual void restoreSettings(int position, QWidget *widget);
+    };
+	\endcode
+	
+	And NavigationView (the return type of createWidget()) is
+	
+	\code
+    struct NavigationView
+    {
+        QWidget *widget;
+        QList<QToolButton *> doockToolBarWidgets;
+    };
+	
+	\endcode
+	
+	Plugins that provide a navigation siderbar (or widget) must implement this interface. In addition to implementing the
+	interface, the plugin has to use "expose" an instance of that interface using methods described in section 4.2.2.
+	
+	\section1 6.2 Preparing a navigation sidebar (widget)
+	 
+	 Suppose that we wanted to provide a Directory browser as a side bar widget from our plugin.
+	 
+	\section2 Step 1: Let's Implement FileSystemModel such that it will show only one column.
+    
+    The Implementation of FileSystemModel is as follows:
+    \code
+    #include <QFileSystemModel>
+    
+    class FileSystemModel : public QFileSystemModel
+    {
+    public:
+        FileSystemModel(QObject* parent=0);
+        ~FileSystemModel();
+        int columnCount(const QModelIndex &parent = QModelIndex()}const;
+    };
+    \endcode
+    
+    General Constructor and Destructor
+    \code
+    FileSystemModel::FileSyatemModel(QObject *parent)
+        :QFileSystemModel(parent)
+    {
+    }
+
+    FileSystemModel::~FileSystemModel()
+    {
+    }
+    \endcode
+    
+    Implement the virtual function columnCount to return only one column.
+    
+    \code
+    int FileSystemModel::columnCount(const QModelIndex &parent)const
+    {
+        Q_UNUSED(parent)
+        return 1;
+    }
+    \endcode
+    With this FileSystemModel is ready.
+    	
+	\section2 Step 2: Implementing the INavigationWidgetFactory Interface
+    We implement the INavigationWidgetFactory interface in a class whose defination is as follows
+    
+    \code
+    #include<coreplugin/inavigationwidgetfactory.h>
+    
+    class DirNavigationFactory:: public Core::INavigationWidgetFactory
+    {
+    public:
+        DirNavigationFactory(){}
+        ~DirNavigationFactory(){}
+        Core::NavigationView createWidget();
+        QString displayName();
+    };
+    
+    \endcode
+    
+    The createWidget() method is implemented to return an instance of the QTreeView which uses 
+    FileSystemModel that was explained in previous step.
+    \code
+    Core::NavigationView DirNavigationFactory::createWidget()
+    {
+        Core::NavigationView view;
+
+        // Create FileSystemModel and set the defauls path as home path
+        FileSystemModel* model = new FileSystemModel;
+        model->setRootPath(QDir::homePath());
+
+        // Create TreeView and set model
+        QTreeView* tree = new QTreeView;
+        tree->setModel(model);
+
+        view.widget = tree;
+
+        return view;
+    }
+	\endcode
+			
+	The \bold {displayName()} method is implemented to return a descriptive name that Qt Creator should use for showing the
+	side-bar.
+	
+    \code
+    QString DirNavigationFactory::displayName()
+    {
+        return "Dir View";
+    }
+	\endcode
+		
+	With this the \bold {INavigationWidgetFactory} implementation is ready.
+	
+	\section2 Step 3: Implementing the Dir-view plugin
+	We implement the Dir-view plugin class similar to the \bold {DoNothingPlugin} class described in Chapter 2. Hence, we only
+	describe the implementation of the initialize method of the \bold {DirModelPluginPlugin} class here.
+	
+	\code
+    bool DirModelPluginPlugin::initialize(const QStringList& args, QString *errMsg)
+    {
+        Q_UNUSED(args);
+        Q_UNUSED(errMsg);
+        addAutoReleasedObject(new DirNavigationFactory);
+        return true;
+    }
+	\endcode
+	
+	In the \bold {initialize()} method an instance of the \bold {INavigationWidgetFactory} implementation is created and added to the object
+	pool. Once the object is added to the pool, \bold {ExtensionSystem::PluginManager} emits the \bold {objectAdded()} signal, which is
+	then trapped by the Core of Qt Creator. The Core then makes use of our implementation of \bold {INavigationWidgetFactory}
+	interface and places an instance of DirExplorerSideBar in the navigation panel.
+	
+	\section2 Step 4: Testing the plugin
+	Upon compiling the plugin and restarting Qt Creator, we can notice the "Dir View" side bar as shown below.
+	
+	\inlineimage qtc-dirview-6.png
+		 
+*/

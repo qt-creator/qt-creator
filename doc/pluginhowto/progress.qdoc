@@ -1,0 +1,111 @@
+/*!
+    \page progress.html
+    \title 11.Showing and reacting to progress information
+    The progress bars give us the information about the progress status of a current task.We can find 
+    progress bar showing up in the Qt Creator window at the left side. Whenever a task is executed
+    a progress bar pops up showing the progress status until the task is completed.
+    
+    \inlineimage qtc-progressbar-11.png
+    
+    \section1 11.1 Creating a progress bar
+    First we will declare the methods required for implementing a "Progress Bar" widget and then we will attach the widget with "Header Filter" in "Find/Replace" 
+    and see it working according to the search progress status.
+    
+    \section2 Step 1. Modification of "HeaderFilter" class     
+    The "HeaderFilter" class discussed in Chapter 9. is further modified. 
+    So we will now declare the methods required for a  "Progress Bar" in the following block of code.    
+    \code
+    struct HeaderFilterData;
+    class HeaderFilter : public Find::IFindFilter
+    {
+        Q_OBJECT
+    public:
+        HeaderFilter();
+        ~HeaderFilter();
+        ...
+        QWidget *createProgressWidget();
+    
+    private:
+        HeaderFilterData *d;
+    };
+    \endcode
+    
+    Here \bold {createProgressWidget()} is not implemented from Find::IFindFilter. It is a custom function written within HeaderFilter class,
+    which takes up the onus of returning a progress display widget.
+    
+    \section2 Step 2. Implementation of the "HeaderFilter" class
+    The private member variables of the \bold {HeaderFilter} class are declared in the structure \bold {HeaderFilterData}
+    \code
+    struct HeaderFilterData
+    {
+        QFutureWatcher<FileSearchResult> watcher;
+        QLabel *resultLabel;
+        ...
+        ...        
+    };
+    \endcode
+    The \bold {constructor} and the \bold {destructor} are as follows.
+    \code    
+    HeaderFilter::HeaderFilter()
+    {
+        
+        d = new HeaderFilterProgressData;
+        d->watcher.setPendingResultsLimit(1);
+        d->resultLabel = 0 ;
+        ...
+    }
+        
+    HeaderFilter::~HeaderFilter()
+    {
+        delete d;
+    }
+    \endcode
+           
+    The \bold {findAll()} method is further modified to create a progress bar popup the bar while searching
+    is going on.
+    \code
+    void HeaderFilter::findAll(const QString &text,QTextDocument::FindFlags findFlags)
+    {
+        ...
+        ...
+        ...
+        
+        //The "progress" is the instance of FutureProgress class.
+        //The "progress" is the pointer to the progress bar created 
+        //Creates and shows the "progress" bar for searching task.
+        Core::FutureProgress *progress = 
+                Core::ICore::instance()->progressManager()->addTask(d->watcher.future(),
+                                                                   "MySearch",
+                                                                    Find::Constants::TASK_SEARCH,
+                                                                    Core::ProgressManager::KeepOnFinish
+                                                                    );
+                                                                            
+        progress->setWidget(createProgressWidget());
+        connect(progress, SIGNAL(clicked()), d->searchResultWindow(), SLOT(popup()));
+    }
+    \endcode
+
+    The \bold {createProgressWidget()} function creates the progress widget.It shows
+    the number of searched items found below and is placed below the progress bar.
+    \code
+    QWidget *HeaderFilter::createProgressWidget()
+    {
+        d->resultLabel = new QLabel;
+        d->resultLabel->setAlignment(Qt::AlignCenter);
+        QFont f = d->resultLabel->font();
+        f.setBold(true);
+        f.setPointSizeF(StyleHelper::sidebarFontSize());
+        d->resultLabel->setFont(f);
+        d->resultLabel->setPalette(StyleHelper::sidebarFontPalette(d->resultLabel->palette()));
+        d->resultLabel->setText(tr("%1 found").arg(d->searchResultWindow()->numberOfResults()));
+        return d->resultLabel;
+    }
+    \endcode
+     
+    \section2 Step 3.Testing the plugin.       
+    Now its the time to test the plugin. For searching we use our "HeaderFilter" and the searched result is shown in the
+    "Search Results" window and the progress bar pops up while searching.
+    
+    \inlineimage qtc-searchprogress-11.png
+  
+*/

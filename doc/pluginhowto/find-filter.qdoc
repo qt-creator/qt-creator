@@ -1,0 +1,549 @@
+﻿/*!
+    \page find-filter.html
+    \title 9. Find Filter
+    
+	Qt Creator's find dialog box allows users to search for a text or regular expression in opened projects and unloaded disk
+	files. Clicking on "Edit -> Find/Replace -> Find Dialog" shows the find dialog box.
+
+	\inlineimage qtc-finddialog-9.png
+	
+	
+	In the find dialog box the "scope" and  "configuration widget" are extensible. It is possible to add more items to the
+	scope combo box and against every item it is possible to provide a configuration widget that needs to be shown below.
+	Each item in the "scope" combo box is called "find filter" in Qt Creator lingo.
+	
+	\section1 9.1 Find::IFindFilter interface
+	The \underline {find} plugin in Qt Creator exposes an interface called Find::IFindFilter. The interface is declared as follows in
+	the src/plugins/find/ifindfilter.h header.
+	
+	\code
+    class FIND_EXPORT IFindFilter : public QObject
+    {
+        Q_OBJECT
+
+    public:
+        virtual ~IFindFilter() {}
+        virtual QString id() const = 0;
+        virtual QString name() const = 0;
+        virtual bool isEnabled() const = 0;
+        virtual QKeySequence defaultShortcut() const = 0;
+        virtual void findAll(const QString &txt, QTextDocument::FindFlags findFlags) = 0;
+        virtual QWidget *createConfigWidget() { return 0; }
+        virtual void writeSettings(QSettings *settings) { Q_UNUSED(settings); }
+        virtual void readSettings(QSettings *settings) { Q_UNUSED(settings); }
+
+    signals:
+        void changed();
+    };
+	
+	\endcode
+	
+	By implementing the \bold {IFindFilter} interface and adding an instance of it to the object pool, we will be able to add a
+	new find-filter; which means another entry in the  "scope"  combo box of the find dialog box.
+	
+	\section1 9.2 Providing a custom filter
+	
+	Suppose that we wanted to provide a custom filter that will allow us to look for files in the loaded projects that include a
+	given header. In the following steps we will understand how to write a find filter for this.
+	
+	\section2 Step 1: Declaring the HeaderFilter class
+	
+	We first begin by declaring a class called HeaderFilter that implements the Find::IFindFilter interface. The class
+	definition is as follows.
+	\code
+    #include <find/ifindfilter.h>
+    class HeaderFilter : public Find::IFindFilter
+    {
+        Q_OBJECT
+
+    public:
+        HeaderFilter();
+        ~HeaderFilter();
+        QString id() const;
+        QString name() const;
+        bool isEnabled() const;
+        QKeySequence defaultShortcut() const;
+        void findAll(const QString &txt,
+        QTextDocument::FindFlags findFlags);
+        QWidget *createConfigWidget();
+
+    private:
+        HeaderFilterData *d;
+    };
+	\endcode
+	
+	\section2 Step 2: Implementing the HeaderFilter class
+	
+	The constructor and destructors are currently empty. We will fill in more code as we progress with our understanding of
+	the \bold {IFindFilter} interface.
+	
+	\code
+    struct HeaderFilterData
+    {
+
+    };
+
+    HeaderFilter:: HeaderFilter()
+    {
+        d = new HeaderFilterData;
+    }
+
+    HeaderFilter::~ HeaderFilter()
+    {
+        delete d;
+    }
+	
+	\endcode
+	The \bold{id()} method should be implemented to return a unique identifier for the find filter.
+	
+	
+	\code
+    QString HeaderFilter::id() const
+    {
+        return "HeaderFilter";
+    }
+
+	\endcode	
+	
+	The \bold {name()} method should be implemented to return the string that gets shown in the "scope" combo box of the find
+	dialog box.
+	
+	\code
+    QString HeaderFilter::name() const
+    {
+        return tr("Header Filter");
+    }
+	\endcode
+	
+	The \bold {isEnabled()} method should be implemented to return whether the find filter is enabled or not. In our case we
+	would like to show the filter enabled if projects are loaded in Qt Creator, false otherwise. To fully understand the
+	implementation of the function, we must first study the \bold {ProjectExplorer} namespace. For now let's just return true
+	and revisit the function after learning about the \bold {ProjectExplorer} namespace.
+	
+	\code
+    bool HeaderFilter::isEnabled() const
+    {
+        return true;
+    }
+	\endcode
+	
+	The \bold{defaultShortcut()} method should be implemented to return a key-sequence that the user can use to launch
+	the find dialog box with the "header filter" selected in "cope". In our implementation we return an invalid keysequence.
+	
+	\code
+    QKeySequence HeaderFilter::defaultShortcut() const
+    {
+        return QKeySequence();
+    }
+	\endcode
+	
+	The \bold {createConfigWidget()} method should be implemented to return a configuration widget that gets shown at
+	the bottom edge of the find dialog box.
+	
+	
+	\inlineimage qtc-configwidget-9.png
+	
+	
+	For our header-filter; let's return a simple QLabel because we don't want to provide any configuration options.
+	
+	\code
+    QWidget *HeaderFilter::createConfigWidget()
+    {
+        return (new QLabel("This is a header filter"));
+    }
+	\endcode
+	
+	The \bold{findAll()} method should be implemented to perform the actual "find" or "search" operation. We need to
+	understand few key classes in the \bold {ProjectExplorer},\bold {TextEditor},\bold {Find }and \bold {Core::Utils} namespace before
+	attempting to implement the filter. For now implement the method to do nothing.
+	
+	\code
+    void HeaderFilter::findAll(const QString &text,QTextDocument::FindFlags findFlags)
+    {
+        // Do nothing
+    }
+	\endcode
+	
+	
+	\section2 Step 3: Implementing the "header-filter" plugin.
+	
+	We implement the header-filter plugin very similar to the \bold {DoNothingPlugin} class described in Chapter 2. Here we
+	only look at the implementation if the \bold {initialize()} method.
+	
+	\code
+    bool HeaderFilterPlugin::initialize(const QStringList& args,QString *errMsg)
+    {
+        Q_UNUSED(args);
+        Q_UNUSED(errMsg);
+        addAutoReleasedObject(new HeaderFilter);
+        return true;
+    }
+	\endcode
+	
+	\section2 Step 4: Testing the plugin
+	Upon compiling the plugin and restarting Qt Creator, we can notice the "Header Filter" item in the scope combo box of
+	the find dialog box.
+	
+	\inlineimage qtc-testplugin-9.png
+	
+	
+	Currently no "finding" or "searching" is done by our plugin because we have not yet implemented the
+	\bold {HeaderFilter::findAll()} method.
+	
+	\section1 9.3 The ProjectExplorer namespace
+	
+	The \bold {ProjectExplorer} namespace comprises of classes and interfaces that make up the project management
+	system in Qt Creator. This namespace is provided by the \bold {projectexplorer} plugin. Support for project types are provided
+	by plugins. For example
+	
+	\list
+	\o \bold {cmakeprojectmanager} plugin provides implementations of interfaces in \bold {ProjectExplorer} namespace for
+	   supporting CMake projects
+	\o \bold {qt4projectmanager} plugin provides support for Qt 4 projects
+	\o \bold {qmlprojectmanager} plugin provides support for QML projects
+	\endlist
+	
+	\table
+	\header
+	\o Class/Interface
+	\o Description
+	
+	\row 
+	\o \c {ProjectExplorer::IProjectManager} 
+	\o This interface must be implemented to provide support for a kind of
+	   project. Implementations of this interface help load projects into Qt
+	   Creator.
+	
+	\row
+	\o \c {ProjectExplorer::Project} 
+	\o This interface describes a project in terms of
+	   \list
+	   \o A file (Core::IFile) that describes the project.
+       \o A Boolean flag describing whether the project builds an
+		  application or library
+       \o Build steps (ProjectExplorer:: BuildStep) that
+		  need to be performed in order to build and clean the project
+	   \o Run configurations that need to be used for running the
+		  project
+       \o The environment within which the project needs to be run
+       \o The root node in the project explorer panel
+       \o Include paths and macros to be used while building the project
+	   \endlist
+	
+	\row
+	\o \c {ProjectManager::} 
+	\o This class is the implementation of the Core::IPlugin interface for the   
+	
+	\row
+	\o \c {ProjectExplorerPlugin} 
+	\o project explorer plugin. Through this class we can
+       \list  
+	   \o gain access to all the open projects
+       \o gain access the current project
+       \o gain access to the currently selected node (file/folder) in the
+		  project explorer panel
+       \o gain access to the build manager
+		  \bold {(ProjectManager::BuildManager)}
+	   \endlist	  
+	\endtable
+	
+	\section2 9.3.1 Getting a list of open-projects
+	
+	Using the \bold {ProjectManager::ProjectExplorerPlugin} class we can catch hold of all the open-projects in Qt
+	Creator. The following code snippet shows how to do that
+	
+	\code
+    #include <extensionsystem/pluginmanager.h>
+    #include <projectexplorer/projectexplorer.h>
+
+    // Catch hold of the plugin-manager
+    ExtensionSystem::PluginManager* pm = ExtensionSystem::PluginManager::instance();
+
+    // Look for the ProjectExplorerPlugin object
+    ProjectExplorer::ProjectExplorerPlugin* projectExplorerPlugin 
+    = pm->getObject<ProjectExplorer::ProjectExplorerPlugin>();
+
+    // Fetch a list of all open projects
+    QList<ProjectExplorer::Project*> projects = d->projectPlugin->session()->projects();
+	
+	\endcode
+	
+	
+	From the projects list we can gain access to the project file and all the other (source, header, resource etc) files in the
+	project. To gain access to the project file(s) we can
+	
+	\code
+    Q_FOREACH(ProjectExplorer::Project* project, projects)
+    {
+        QString name = project->name();
+        Core::IFile* projectFile = project->file();
+        // Do something with the above. For example:
+        qDebug("Project %s has project file as %s",
+        qPrintable(name),
+        qPrintable(projectFile->fileName()));
+    }
+	\endcode
+	
+	
+	While the above code snippet helps with fetching the project file (CMakeLists.txt, .pro etc..), it doesn't help us fetch all
+	the files associated with the project.
+	
+	\section2 9.3.2 Getting a list of files
+	
+	From the projects list we can get a string-list of all file names associated with the project using the following code
+	snippet.
+	
+	\code
+    // Make a list of files in each project
+    QStringList files;
+
+    Q_FOREACH(ProjectManager::Project* project, projects)
+    files += project->files(Project::AllFiles);
+	\endcode
+	
+	\section2 9.3.3 Enabling the HeaderFilter conditionally
+	
+	Ideally the header-filter should be enabled only if there is atleast one open project. To make this happen, we upgrade
+	the HeaderFilter implementation as follows
+	
+	\code
+    struct HeaderFilterData
+    {
+        ProjectExplorer::ProjectExplorerPlugin* projectExplorer()
+        {
+            if(m_projectPlugin)
+                return m_projectPlugin;
+
+            ExtensionSystem::PluginManager* pm = ExtensionSystem::PluginManager::instance();
+            m_projectPlugin = pm->getObject<ProjectExplorer::ProjectExplorerPlugin>();
+            return m_projectPlugin;
+        }
+
+    private:
+        ProjectExplorer::ProjectExplorerPlugin* m_projectPlugin;
+
+    };
+	
+    bool HeaderFilter::isEnabled() const
+    {
+        QList<ProjectExplorer::Project*> projects = d->projectExplorer()->session()->projects();
+        if(projects.count())
+            return true;
+        return false;
+    }
+		
+    \endcode
+	
+	\section1 9.4 Searching in files
+	
+	In the previous section we understood how to gain access to the file names of all files associated with open projects. We
+	are now in a position to search within files. Let's begin the implementation of the \bold {HeaderFilter::findAll()}
+	method, and understand more concepts as we progress.
+	
+	\code
+    void HeaderFilter::findAll(const QString &text,QTextDocument::FindFlags findFlags)
+    {
+        // Fetch a list of all open projects
+        QList<Project*> projects = d->projectPlugin->session()->projects();
+
+        // Make a list of files in each project
+        QStringList files;
+        Q_FOREACH(Project* project, projects)
+        files += project->files(Project::AllFiles);
+
+        // Remove duplicates
+        files.removeDuplicates();
+
+        // Search for text in "files"
+        // ...
+    }
+	\endcode
+	
+	The number of files that need to be searched can be varying. It may be as little as 1 and as high as 1000 or more! Hence
+	searching for something in files within the \bold {findAll()} method is a bad idea. If the \bold {findAll()} method takes too long
+	then it may cause Qt Creator to appear frozen until searching is finished.
+	
+	The solution to this is
+	\list
+    \o We make use of QtConcurrent and spawn multiple threads to perform the actual searching
+    \o We initialize a QFutureWatcher on the QFuture returned by QtConcurrent to emit signals as and when
+	   search results are generated
+	\o We catch the signals generated by QFutureWatcher and list search results as they come
+	\endlist
+	
+	Qt Creator's core utils library provides a readymade function called \bold {findInFiles()} that looks for a string within a list
+	of files and returns a \bold {QFuture} to monitor search results. The function is declared as follows in src/libs/utils/filesearch.h
+	
+	\code
+    namespace Core {
+    namespace Utils {
+
+    class FileSearchResult
+    {
+    public:
+        QString fileName;
+        int lineNumber;
+        QString matchingLine;
+        int matchStart;
+        int matchLength;
+    };
+	
+        QFuture<FileSearchResult> findInFiles(const QString &searchTerm,const QStringList &files,
+        QTextDocument::FindFlags flags
+    );
+
+        QFuture<FileSearchResult> findInFilesRegExp(const QString &searchTerm,const QStringList &files,
+        QTextDocument::FindFlags flags
+    );
+	
+    } // namespace Utils
+    } // namespace Core
+	\endcode
+	
+	Lets now continue with the implementation of \bold {HeaderFilter::findAll()} by making use of the
+	\bold {findInFiles()} method.
+	
+	\code
+    struct HeaderFilterData
+    {
+        QFutureWatcher<FileSearchResult> watcher;
+
+        ProjectExplorer::ProjectExplorerPlugin* projectExplorer() {
+        ...
+        }
+    };
+	
+    HeaderFilter::HeaderFilter()
+    {
+        d->watcher.setPendingResultsLimit(1);
+        connect(&d->watcher, SIGNAL(resultReadyAt(int)),
+        this, SLOT(displayResult(int)));
+    }
+	
+    void HeaderFilter::findAll(const QString &text,QTextDocument::FindFlags findFlags)
+    {
+        ....
+        // Remove duplicates
+        files.removeDuplicates();
+
+        // Begin searching
+        QString includeline = "#include <" + text + ">";
+        Find::SearchResult *result = d->searchResultWindow()->startNewSearch();
+        
+        // Let the watcher monitor the search results
+        d->watcher.setFuture(QFuture<FileSearchResult>());
+    }
+	
+    void HeaderFilter::displayResult(int index)
+    {
+        // TODO
+    }
+	
+	\endcode
+	
+	In the revised \bold {findAll()} implementation we make use of the \bold {findInFiles()} method to spawn multiple
+	background threads to do all the finding. As search results are generated, the \bold {displayResult(int)} slot is called. In
+	this slot we can now show search results to the user.
+	
+	
+	\section1 9.5 Showing search results
+	
+	The "find" plugin provides an object of class \bold {Find::SearchResultWindow}. This class provides access to the widget
+	that displays search results.
+	
+	\inlineimage qtc-search-9.png
+	
+	
+	We would like to show our search results in the "search result window" as well. To do so, we modify the
+	\bold {HeaderFilter} code as follows
+	
+	\code
+    #include <find/searchresultwindow.h>
+    struct HeaderFilterData
+    {
+        // Method to search and return the search window
+
+        Find::SearchResultWindow* searchResultWindow() 
+        {
+            if(m_searchResultWindow)
+            return m_searchResultWindow;
+
+            ExtensionSystem::PluginManager* pm = ExtensionSystem::PluginManager::instance();
+            m_searchResultWindow = pm->getObject<Find::SearchResultWindow>();
+            return m_searchResultWindow;
+        }
+
+    private:
+        Find::SearchResultWindow *m_searchResultWindow;
+    };
+
+    HeaderFilter::HeaderFilter()
+    {
+        // displayResult(int) is called when every a new
+        // search result is generated
+        connect(&d->watcher, SIGNAL(resultReadyAt(int)),this, SLOT(displayResult(int)));
+    }
+	
+    void HeaderFilter::findAll(const QString &text,QTextDocument::FindFlags findFlags)
+    {
+        ...
+        //When result gets activated it invokes the openEditor function
+        connect(result, SIGNAL(activated(Find::SearchResultItem)),
+        this, SLOT(openEditor(Find::SearchResultItem)));
+
+        d->searchResultWindow()->popup(true);
+        d->watcher.setFuture(Utils::findInFiles(includeline, files, findFlags));
+    }
+	
+    void HeaderFilter::displayResult(int index)
+    {
+        FileSearchResult result = d->watcher.future().resultAt(index);
+
+        d->searchResultWindow()->addResult(result.fileName,
+                                       result.lineNumber,
+                                       result.matchingLine,
+                                       result.matchStart,
+                                       result.matchLength);
+    }
+	
+    void HeaderFilter::openEditor(const QString &fileName, int line, int column)
+    {
+        // TODO
+    }
+	\endcode
+	
+	Whenever the user double clicks on the search results, the \bold {openEditor()} method is called. In that method we should
+	have Qt Creator open the corresponding file and mark the searched text.
+	
+	\section1 9.6 Opening the searched files
+	
+	Without going into too many details about the texteditor plugin, lets just take a look at the function that loads a named
+	file for us and moves the cursor to a specified location. The \bold {BaseTextEditor} class in the \bold {TextEditor} namespace
+	provides a static method called \bold {openEditorAt()} that serves our purpose.
+	
+	\code
+    namespace TextEditor {
+    class BaseTextEditor : public QPlainTextEdit
+    {
+    public:
+        ....
+        static ITextEditor *openEditorAt(const QString &fileName,int line, int column = 0,
+        const QString &editorKind);
+        ....
+    };
+    } // TextEditor namespace
+	\endcode
+	
+	We now update the \bold {HeaderFilter::openEditor()} slot as follows
+	
+	\code
+    #include <texteditor/basetexteditor.h>
+    void HeaderFilter::openEditor(const Find::SearchResultItem &item)
+    {
+        TextEditor::BaseTextEditor::openEditorAt(item.fileName, item.lineNumber, item.index);
+    }
+	\endcode
+	
+	With this the \bold {HeaderFilter} is now complete.
+	
+*/

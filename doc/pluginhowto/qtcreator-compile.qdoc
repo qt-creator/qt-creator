@@ -1,0 +1,25 @@
+﻿/*!
+    \page qtcreator-compile.html
+    \title 1. Compiling Qt Creator
+
+To start with building Qt creator, you need to get the Qt Creator source. The Qt Creator source is avaiable
+from the following locations:
+\list  
+\o  Nokia Website:  \l {http://qt.nokia.com/downloads}
+\o  GIT Repository: \l {http://qt.gitorious.org/qt-creator}
+\endlist
+It is recommended that you build Qt Creator in a separate directory. 
+
+The following steps will guide you to get Qt Creator source compiled:
+\list
+\o  Step 1: Create "build" directory inside main source directory
+\o  Step 2: Run qmake ../qtcreator.pro -recursive command to get makefile.
+\o  Step 3: Finally run make (or mingw32-make or nmake, depending on your platform).
+\endlist
+After successful compilation, you should be able to find \bold {qtcreator.exe} inside \bold {build/bin} directory.
+You can now launch Qt Creator.
+
+\bold {Note:}\underline{It is important that you compile Qt Creator from its sources. Otherwise you wont be able to write
+and test plugins for Qt Creator}.
+
+*/

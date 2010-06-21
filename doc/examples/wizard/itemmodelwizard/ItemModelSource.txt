@@ -1,0 +1,23 @@
+#include <{{CLASS_HEADER}}>
+
+struct {{CLASS_NAME}}Data
+{
+};
+
+{{CLASS_NAME}}::{{CLASS_NAME}}(QObject* parent)
+        :{{BASE_CLASS_NAME}}(parent)
+{
+    d = {{CLASS_NAME}}Data;
+}
+
+{{CLASS_NAME}}::~{{CLASS_NAME}}()
+{
+}
+
+int {{CLASS_NAME}}::rowCount(const QModelIndex& parent) const
+{
+}
+
+QVariant {{CLASS_NAME}}::data(const QModelIndex& index, int role) const
+{
+}
