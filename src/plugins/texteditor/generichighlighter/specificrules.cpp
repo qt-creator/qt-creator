@@ -215,7 +215,8 @@ bool RegExprRule::doMatchSucceed(const QString &text,
 
 // Keyword
 KeywordRule::KeywordRule(const QSharedPointer<HighlightDefinition> &definition) :
-    m_overrideGlobal(false)
+    m_overrideGlobal(false),
+    m_localCaseSensitivity(Qt::CaseSensitive)
 {
     setDefinition(definition);
 }

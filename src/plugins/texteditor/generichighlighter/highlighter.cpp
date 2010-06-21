@@ -65,7 +65,7 @@ Highlighter::Highlighter(QTextDocument *parent) :
 Highlighter::~Highlighter()
 {}
 
-Highlighter::BlockData::BlockData() : m_foldingIndentDelta(0)
+Highlighter::BlockData::BlockData() : m_foldingIndentDelta(0), m_originalObservableState(-1)
 {}
 
 Highlighter::BlockData::~BlockData()

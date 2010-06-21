@@ -69,9 +69,6 @@ public:
     bool isCustomized() const;
 
 private:
-    QString m_style;
-    QColor m_color;
-    QColor m_selectionColor;
     bool m_italic;
     bool m_italicSpecified;
     bool m_bold;
@@ -81,6 +78,9 @@ private:
     bool m_strikedOut;
     bool m_strikedOutSpecified;
     bool m_isCustomized;
+    QString m_style;
+    QColor m_color;
+    QColor m_selectionColor;
 };
 
 } // namespace Internal

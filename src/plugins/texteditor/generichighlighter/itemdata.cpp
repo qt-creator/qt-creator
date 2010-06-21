@@ -34,9 +34,13 @@ using namespace TextEditor;
 using namespace Internal;
 
 ItemData::ItemData() :
+    m_italic(false),
     m_italicSpecified(false),
+    m_bold(false),
     m_boldSpecified(false),
+    m_underlined(false),
     m_underlinedSpecified(false),
+    m_strikedOut(false),
     m_strikedOutSpecified(false),
     m_isCustomized(false)
 {}
