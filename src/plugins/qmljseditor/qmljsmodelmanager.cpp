@@ -90,8 +90,10 @@ void ModelManager::loadQmlTypeDescriptions()
     foreach (const QString &error, errors)
         qWarning() << qPrintable(error);
 
+    // disabled for now: Prefer the xml file until the type dumping functionality
+    // has been moved into Qt.
     // loads the builtin types
-    loadQmlPluginTypes(QString());
+    //loadQmlPluginTypes(QString());
 }
 
 Snapshot ModelManager::snapshot() const
