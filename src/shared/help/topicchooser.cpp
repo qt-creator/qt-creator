@@ -27,44 +27,57 @@
 **
 **************************************************************************/
 
+#include "topicchooser.h"
+
 #include <QtCore/QMap>
 #include <QtCore/QUrl>
 
-#include "topicchooser.h"
+#include <QtGui/QStandardItemModel>
+#include <QtGui/QSortFilterProxyModel>
 
 TopicChooser::TopicChooser(QWidget *parent, const QString &keyword,
         const QMap<QString, QUrl> &links)
     : QDialog(parent)
+    , m_filterModel(new QSortFilterProxyModel(this))
 {
     ui.setupUi(this);
     ui.label->setText(tr("Choose a topic for <b>%1</b>:").arg(keyword));
 
+    QStandardItemModel *model = new QStandardItemModel(this);
+    m_filterModel->setSourceModel(model);
+    m_filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+
     QMap<QString, QUrl>::const_iterator it = links.constBegin();
     for (; it != links.constEnd(); ++it) {
         m_links.append(it.value());
-        ui.listWidget->addItem(it.key());
+        model->appendRow(new QStandardItem(it.key()));
     }
-    
-    if (ui.listWidget->count() != 0)
-        ui.listWidget->setCurrentRow(0);
+
+    ui.listWidget->setModel(m_filterModel);
+    ui.listWidget->setUniformItemSizes(true);
+    ui.listWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+    if (m_filterModel->rowCount() != 0)
+        ui.listWidget->setCurrentIndex(m_filterModel->index(0, 0));
     ui.listWidget->setFocus();
 
     connect(ui.buttonDisplay, SIGNAL(clicked()), this, SLOT(accept()));
     connect(ui.buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
-    connect(ui.listWidget, SIGNAL(itemActivated(QListWidgetItem*)), this,
-        SLOT(accept()));
+    connect(ui.listWidget, SIGNAL(activated(QModelIndex)), this,
+        SLOT(activated(QModelIndex)));
+    connect(ui.lineEdit, SIGNAL(filterChanged(QString)), m_filterModel,
+        SLOT(setFilterFixedString(QString)));
 }
 
 QUrl TopicChooser::link() const
 {
-    QListWidgetItem *item = ui.listWidget->currentItem();
-    if (!item)
-        return QUrl();
+    if (m_activedIndex.isValid())
+        return m_links.at(m_filterModel->mapToSource(m_activedIndex).row());
+    return QUrl();
+}
 
-    if (item->text().isEmpty())
-        return QUrl();
-
-    const int row = ui.listWidget->row(item);
-    Q_ASSERT(row < m_links.count());
-    return m_links.at(row);
+void TopicChooser::activated(const QModelIndex &index)
+{
+    m_activedIndex = index;
+    accept();
 }

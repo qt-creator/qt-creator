@@ -34,9 +34,12 @@
 
 #include <QtCore/QUrl>
 #include <QtCore/QMap>
+#include <QtCore/QModelIndex>
 #include <QtCore/QString>
 
 #include <QtGui/QDialog>
+
+class QSortFilterProxyModel;
 
 class TopicChooser : public QDialog
 {
@@ -48,9 +51,15 @@ public:
 
     QUrl link() const;
 
+private slots:
+    void activated(const QModelIndex &index);
+
 private:
     Ui::TopicChooser ui;
     QList<QUrl> m_links;
+
+    QModelIndex m_activedIndex;
+    QSortFilterProxyModel *m_filterModel;
 };
 
 #endif // TOPICCHOOSER_H
