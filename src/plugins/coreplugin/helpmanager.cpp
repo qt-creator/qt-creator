@@ -220,9 +220,9 @@ QStringList HelpManager::findKeywords(const QString &key, int maxHits) const
                 query.exec(QString::fromLatin1("SELECT DISTINCT Name FROM "
                     "IndexTable WHERE Name LIKE '%%1%'").arg(key));
                 while (query.next()) {
-                    const QString &key = query.value(0).toString();
-                    if (!key.isEmpty()) {
-                        keywords.append(key);
+                    const QString &keyValue = query.value(0).toString();
+                    if (!keyValue.isEmpty()) {
+                        keywords.append(keyValue);
                         if (keywords.count() == maxHits)
                             return keywords;
                     }
