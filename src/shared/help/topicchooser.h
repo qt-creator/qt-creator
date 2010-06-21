@@ -39,7 +39,7 @@
 
 #include <QtGui/QDialog>
 
-class QSortFilterProxyModel;
+QT_FORWARD_DECLARE_CLASS(QSortFilterProxyModel)
 
 class TopicChooser : public QDialog
 {
