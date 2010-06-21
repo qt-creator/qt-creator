@@ -42,6 +42,9 @@
 #include <QtGui/QTextCharFormat>
 
 namespace TextEditor {
+
+struct TabSettings;
+
 namespace Internal {
 
 class Rule;
@@ -72,8 +75,9 @@ public:
         RegionMarker,
         Others
     };
-    void configureFormat(TextFormatId id, const QTextCharFormat &format);
 
+    void configureFormat(TextFormatId id, const QTextCharFormat &format);
+    void setTabSettings(const TabSettings &ts);
     void setDefaultContext(const QSharedPointer<Context> &defaultContext);
 
 protected:
@@ -118,7 +122,9 @@ private:
                      const QSharedPointer<HighlightDefinition> &definition);
     void applyVisualWhitespaceFormat(const QString &text);
 
-    void applyFolding() const;
+    void applyRegionBasedFolding() const;
+    void applyIndentationBasedFolding(const QString &text) const;
+    int neighbouringNonEmptyBlockIndent(QTextBlock block, const bool previous) const;
 
     // Mapping from Kate format strings to format ids.
     struct KateFormatMap
@@ -166,6 +172,8 @@ private:
     static int extractObservableState(const int state);
 
     int m_regionDepth;
+    bool m_indentationBasedFolding;
+    const TabSettings *m_tabSettings;
 
     int m_persistentObservableStatesCounter;
     int m_dynamicContextsCounter;

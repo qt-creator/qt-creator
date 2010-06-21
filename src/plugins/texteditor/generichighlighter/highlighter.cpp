@@ -35,6 +35,7 @@
 #include "highlighterexception.h"
 #include "progressdata.h"
 #include "reuse.h"
+#include "tabsettings.h"
 
 #include <QtCore/QLatin1String>
 #include <QtCore/QLatin1Char>
@@ -54,6 +55,8 @@ const Highlighter::KateFormatMap Highlighter::m_kateFormats;
 Highlighter::Highlighter(QTextDocument *parent) :
     QSyntaxHighlighter(parent),
     m_regionDepth(0),
+    m_indentationBasedFolding(false),
+    m_tabSettings(0),
     m_persistentObservableStatesCounter(PersistentsStart),
     m_dynamicContextsCounter(0),
     m_isBroken(false)
@@ -95,6 +98,12 @@ void  Highlighter::setDefaultContext(const QSharedPointer<Context> &defaultConte
 {
     m_defaultContext = defaultContext;
     m_persistentObservableStates.insert(m_defaultContext->name(), Default);
+    m_indentationBasedFolding = defaultContext->definition()->isIndentationBasedFolding();
+}
+
+void Highlighter::setTabSettings(const TabSettings &ts)
+{
+    m_tabSettings = &ts;
 }
 
 void Highlighter::highlightBlock(const QString &text)
@@ -118,11 +127,14 @@ void Highlighter::highlightBlock(const QString &text)
                                 false);
             m_contexts.clear();
 
-            applyFolding();
+            if (m_indentationBasedFolding) {
+                applyIndentationBasedFolding(text);
+            } else {
+                applyRegionBasedFolding();
 
-            // Takes into the account any change that might have affected the region depth since
-            // the last time the state was set.
-            setCurrentBlockState(computeState(extractObservableState(currentBlockState())));
+                // In the case region depth has changed since the last time the state was set.
+                setCurrentBlockState(computeState(extractObservableState(currentBlockState())));
+            }
         } catch (const HighlighterException &) {
             m_isBroken = true;
         }
@@ -220,24 +232,25 @@ void Highlighter::iterateThroughRules(const QString &text,
         if (rule->matchSucceed(text, length, progress)) {
             atLeastOneMatch = true;
 
-            // Code folding.
-            if (!rule->beginRegion().isEmpty()) {
-                blockData(currentBlockUserData())->m_foldingRegions.push(rule->beginRegion());
-                ++m_regionDepth;
-                if (progress->isOpeningBraceMatchAtFirstNonSpace())
-                    ++blockData(currentBlockUserData())->m_foldingIndentDelta;
-            }
-            if (!rule->endRegion().isEmpty()) {
-                QStack<QString> *currentRegions =
-                    &blockData(currentBlockUserData())->m_foldingRegions;
-                if (!currentRegions->isEmpty() && rule->endRegion() == currentRegions->top()) {
-                    currentRegions->pop();
-                    --m_regionDepth;
-                    if (progress->isClosingBraceMatchAtNonEnd())
-                        --blockData(currentBlockUserData())->m_foldingIndentDelta;
+            if (!m_indentationBasedFolding) {
+                if (!rule->beginRegion().isEmpty()) {
+                    blockData(currentBlockUserData())->m_foldingRegions.push(rule->beginRegion());
+                    ++m_regionDepth;
+                    if (progress->isOpeningBraceMatchAtFirstNonSpace())
+                        ++blockData(currentBlockUserData())->m_foldingIndentDelta;
                 }
+                if (!rule->endRegion().isEmpty()) {
+                    QStack<QString> *currentRegions =
+                        &blockData(currentBlockUserData())->m_foldingRegions;
+                    if (!currentRegions->isEmpty() && rule->endRegion() == currentRegions->top()) {
+                        currentRegions->pop();
+                        --m_regionDepth;
+                        if (progress->isClosingBraceMatchAtNonEnd())
+                            --blockData(currentBlockUserData())->m_foldingIndentDelta;
+                    }
+                }
+                progress->clearBracesMatches();
             }
-            progress->clearBracesMatches();
 
             if (progress->isWillContinueLine()) {
                 createWillContinueBlock();
@@ -524,7 +537,7 @@ int Highlighter::computeState(const int observableState) const
     return m_regionDepth << 12 | observableState;
 }
 
-void Highlighter::applyFolding() const
+void Highlighter::applyRegionBasedFolding() const
 {
     int folding = 0;
     BlockData *data = blockData(currentBlockUserData());
@@ -542,4 +555,39 @@ void Highlighter::applyFolding() const
     }
     data->setFoldingEndIncluded(true);
     data->setFoldingIndent(folding);
+}
+
+void Highlighter::applyIndentationBasedFolding(const QString &text) const
+{
+    BlockData *data = blockData(currentBlockUserData());
+    data->setFoldingEndIncluded(true);
+
+    // If this line is empty, check its neighbours. They all might be part of the same block.
+    if (text.trimmed().isEmpty()) {
+        data->setFoldingIndent(0);
+        const int previousIndent = neighbouringNonEmptyBlockIndent(currentBlock().previous(), true);
+        if (previousIndent > 0) {
+            const int nextIndent = neighbouringNonEmptyBlockIndent(currentBlock().next(), false);
+            if (previousIndent == nextIndent)
+                data->setFoldingIndent(previousIndent);
+        }
+    } else {
+        data->setFoldingIndent(m_tabSettings->indentationColumn(text));
+    }
+}
+
+int Highlighter::neighbouringNonEmptyBlockIndent(QTextBlock block, const bool previous) const
+{
+    while (true) {
+        if (!block.isValid())
+            return 0;
+        if (block.text().trimmed().isEmpty()) {
+            if (previous)
+                block = block.previous();
+            else
+                block = block.next();
+        } else {
+            return m_tabSettings->indentationColumn(block.text());
+        }
+    }
 }

@@ -153,6 +153,17 @@ void PlainTextEditor::setFontSettings(const FontSettings &fs)
     }
 }
 
+void PlainTextEditor::setTabSettings(const TextEditor::TabSettings &ts)
+{
+    BaseTextEditor::setTabSettings(ts);
+
+    if (baseTextDocument()->syntaxHighlighter()) {
+        Highlighter *highlighter =
+            static_cast<Highlighter *>(baseTextDocument()->syntaxHighlighter());
+        highlighter->setTabSettings(ts);
+    }
+}
+
 void PlainTextEditor::fileChanged()
 {
     configure(Core::ICore::instance()->mimeDatabase()->findByFile(file()->fileName()));

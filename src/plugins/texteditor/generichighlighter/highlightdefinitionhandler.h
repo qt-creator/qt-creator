@@ -65,6 +65,7 @@ private:
     void itemDataElementStarted(const QXmlAttributes &atts) const;
     void commentElementStarted(const QXmlAttributes &atts) const;
     void keywordsElementStarted(const QXmlAttributes &atts) const;
+    void foldingElementStarted(const QXmlAttributes &atts) const;
     void ruleElementStarted(const QXmlAttributes &atts, const QSharedPointer<Rule> &rule);
 
     // Specific rules.

@@ -80,6 +80,9 @@ public:
     void setMultiLineCommentRegion(const QString &region);
     const QString &multiLineCommentRegion() const;
 
+    void setIndentationBasedFolding(const QString &indentationBasedFolding);
+    bool isIndentationBasedFolding() const;
+
 private:
     Q_DISABLE_COPY(HighlightDefinition)
 
@@ -109,6 +112,8 @@ private:
     QString m_multiLineCommentRegion;
 
     Qt::CaseSensitivity m_keywordCaseSensitivity;
+
+    bool m_indentationBasedFolding;
 };
 
 } // namespace Internal

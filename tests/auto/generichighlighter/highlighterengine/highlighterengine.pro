@@ -18,7 +18,8 @@ SOURCES += tst_highlighterengine.cpp \
 HEADERS += \
     highlightermock.h \
     basetextdocumentlayout.h \
-    formats.h
+    formats.h \
+    tabsettings.h
 
 INCLUDEPATH += $$GENERICHIGHLIGHTERDIR
 

@@ -27,20 +27,20 @@
 **
 **************************************************************************/
 
-#ifndef BASETEXTDOCUMENTLAYOUT_H
-#define BASETEXTDOCUMENTLAYOUT_H
+#ifndef TABSETTINGS_H
+#define TABSETTINGS_H
 
-#include <QtGui/QTextBlockUserData>
+#include <QString>
 
-// Replaces the "real" basetextdocumentlayout.h file.
+// Replaces the "real" tabsettings.h file.
 
-struct TextBlockUserData : QTextBlockUserData
+namespace TextEditor {
+
+struct TabSettings
 {
-    virtual ~TextBlockUserData(){}
-
-    void setFoldingStartIncluded(const bool) {}
-    void setFoldingEndIncluded(const bool) {}
-    void setFoldingIndent(const int) {}
+    int indentationColumn(const QString &) const { return 0; }
 };
 
-#endif // BASETEXTDOCUMENTLAYOUT_H
+}
+
+#endif // TABSETTINGS_H

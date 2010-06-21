@@ -76,6 +76,7 @@ public:
 public slots:
     virtual void unCommentSelection();
     virtual void setFontSettings(const FontSettings &fs);
+    virtual void setTabSettings(const TextEditor::TabSettings &);
 
 private slots:
     void fileChanged();

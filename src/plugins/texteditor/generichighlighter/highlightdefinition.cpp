@@ -42,7 +42,8 @@ using namespace Internal;
 HighlightDefinition::HighlightDefinition() :
     m_delimiters(QLatin1String(".():!+,-<=>%&/;?[]^{|}~\\*, \t")),
     m_singleLineCommentAfterWhiteSpaces(false),
-    m_keywordCaseSensitivity(Qt::CaseSensitive)
+    m_keywordCaseSensitivity(Qt::CaseSensitive),
+    m_indentationBasedFolding(false)
 {}
 
 HighlightDefinition::~HighlightDefinition()
@@ -165,3 +166,9 @@ void HighlightDefinition::setKeywordsSensitive(const QString &sensitivity)
 
 Qt::CaseSensitivity HighlightDefinition::keywordsSensitive() const
 { return m_keywordCaseSensitivity; }
+
+void HighlightDefinition::setIndentationBasedFolding(const QString &indentationBasedFolding)
+{ m_indentationBasedFolding = toBool(indentationBasedFolding); }
+
+bool HighlightDefinition::isIndentationBasedFolding() const
+{ return m_indentationBasedFolding; }

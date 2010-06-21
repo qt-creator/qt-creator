@@ -103,6 +103,8 @@ namespace {
     static const QLatin1String kLanguage("language");
     static const QLatin1String kExtensions("extensions");
     static const QLatin1String kIncludeAttrib("includeAttrib");
+    static const QLatin1String kFolding("folding");
+    static const QLatin1String kIndentationSensitive("indentationsensitive");
     static const QLatin1String kHash("#");
     static const QLatin1String kDoubleHash("##");
 }
@@ -145,6 +147,8 @@ bool HighlightDefinitionHandler::startElement(const QString &,
         commentElementStarted(atts);
     } else if (qName == kKeywords) {
         keywordsElementStarted(atts);
+    } else if (qName == kFolding) {
+        foldingElementStarted(atts);
     } else if (qName == kDetectChar) {
         detectCharStarted(atts);
     } else if (qName == kDetect2Chars) {
@@ -288,6 +292,11 @@ void HighlightDefinitionHandler::keywordsElementStarted(const QXmlAttributes &at
     m_definition->removeDelimiters(atts.value(kWeakDeliminator));
     m_definition->addDelimiters(atts.value(kAdditionalDeliminator));
     //@todo: wordWrapDelimiters?
+}
+
+void HighlightDefinitionHandler::foldingElementStarted(const QXmlAttributes &atts) const
+{
+    m_definition->setIndentationBasedFolding(atts.value(kIndentationSensitive));
 }
 
 void HighlightDefinitionHandler::detectCharStarted(const QXmlAttributes &atts)
