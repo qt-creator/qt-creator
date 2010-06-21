@@ -88,12 +88,16 @@ void ProFileCache::discardFiles(const QString &prefix)
 
 #define fL1S(s) QString::fromLatin1(s)
 
+namespace { // MSVC2010 doesn't seem to know the semantics of "static" ...
+
 static struct {
     QString strelse;
     QString strfor;
     QString strdefineTest;
     QString strdefineReplace;
 } statics;
+
+}
 
 void ProFileParser::initialize()
 {
