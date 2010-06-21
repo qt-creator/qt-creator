@@ -141,7 +141,7 @@ QString CMakeManager::qtVersionForQMake(const QString &qmakePath)
     QProcess qmake;
     qmake.start(qmakePath, QStringList(QLatin1String("--version")));
     if (!qmake.waitForFinished())
-        return false;
+        return QString();
     QString output = qmake.readAllStandardOutput();
     QRegExp regexp(QLatin1String("(QMake version|Qmake version:)[\\s]*([\\d.]*)"));
     regexp.indexIn(output);
