@@ -107,7 +107,13 @@ void ProFileParser::initialize()
 }
 
 ProFileParser::ProFileParser(ProFileCache *cache, ProFileParserHandler *handler)
-    : m_cache(cache)
+    : m_lineNo(0)
+    , m_state(StNew)
+    , m_markLine(0)
+    , m_canElse(false)
+    , m_invert(false)
+    , m_operator(NoOperator)
+    , m_cache(cache)
     , m_handler(handler)
 {
     // So that single-threaded apps don't have to call initialize() for now.
