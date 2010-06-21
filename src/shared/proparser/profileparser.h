@@ -142,11 +142,6 @@ private:
     friend class ProFileCache;
 };
 
-#if !defined(__GNUC__) || __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 3)
-Q_DECLARE_TYPEINFO(ProFileParser::BlockScope, Q_MOVABLE_TYPE);
-Q_DECLARE_TYPEINFO(ProFileParser::Context, Q_PRIMITIVE_TYPE);
-#endif
-
 class ProFileCache
 {
 public:
@@ -177,5 +172,12 @@ private:
 
     friend class ProFileParser;
 };
+
+QT_END_NAMESPACE
+
+#if !defined(__GNUC__) || __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 3)
+Q_DECLARE_TYPEINFO(ProFileParser::BlockScope, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(ProFileParser::Context, Q_PRIMITIVE_TYPE);
+#endif
 
 #endif // PROFILEPARSER_H

@@ -116,8 +116,6 @@ private:
     friend struct ProFileOption;
 };
 
-Q_DECLARE_TYPEINFO(ProFileEvaluator::FunctionDef, Q_MOVABLE_TYPE);
-
 // This struct is from qmake, but we are not using everything.
 struct ProFileOption
 {
@@ -167,5 +165,7 @@ struct ProFileOption
 };
 
 QT_END_NAMESPACE
+
+Q_DECLARE_TYPEINFO(ProFileEvaluator::FunctionDef, Q_MOVABLE_TYPE);
 
 #endif // PROFILEEVALUATOR_H
