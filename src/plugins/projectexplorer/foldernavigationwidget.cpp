@@ -253,8 +253,7 @@ void FolderNavigationWidget::openItem(const QModelIndex &srcIndex)
     if (fileName == QLatin1String("..")) {
         // cd up: Special behaviour: The fileInfo of ".." is that of the parent directory.
         const QString parentPath = m_fileSystemModel->fileInfo(srcIndex).absoluteFilePath();
-        if (parentPath != QDir::rootPath())
-            setCurrentDirectory(parentPath);
+        setCurrentDirectory(parentPath);
         return;
     }
     if (m_fileSystemModel->isDir(srcIndex)) { // Change to directory
