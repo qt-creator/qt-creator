@@ -87,6 +87,7 @@ public:
     QIcon pendingBreakPointIcon() const  { return m_pendingBreakPointIcon; }
 
     void initializeFromTemplate(BreakHandler *other);
+    void storeToTemplate(BreakHandler *other);
 
 public slots:
     void appendBreakpoint(BreakpointData *data);

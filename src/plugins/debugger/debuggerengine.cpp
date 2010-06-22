@@ -156,6 +156,7 @@ const char *DebuggerEngine::stateName(int s)
 #    undef SN
 }
 
+
 //////////////////////////////////////////////////////////////////////
 //
 // CommandHandler
@@ -165,109 +166,19 @@ const char *DebuggerEngine::stateName(int s)
 class CommandHandler : public QStandardItemModel
 {
 public:
-    CommandHandler(DebuggerEngine *engine) : m_engine(engine) {}
+    explicit CommandHandler(DebuggerEngine *engine) : m_engine(engine) {}
     bool setData(const QModelIndex &index, const QVariant &value, int role);
     QAbstractItemModel *model() { return this; }
 
 private:
-    DebuggerEngine *m_engine;
+    QPointer<DebuggerEngine> m_engine;
 };
 
 bool CommandHandler::setData(const QModelIndex &, const QVariant &value, int role)
 {
-    //qDebug() << "COMMAND: " << role << value;
-
-    switch (role) {
-        case RequestLoadSessionDataRole:
-            m_engine->loadSessionData();
-            return true;
-
-        case RequestSaveSessionDataRole:
-            m_engine->saveSessionData();
-            return true;
-
-        case RequestReloadSourceFilesRole:
-            m_engine->reloadSourceFiles();
-            return true;
-
-        case RequestReloadModulesRole:
-            m_engine->reloadModules();
-            return true;
-
-        case RequestExecContinueRole:
-            m_engine->continueInferior();
-            return true;
-
-        case RequestExecInterruptRole:
-            m_engine->interruptInferior();
-            return true;
-
-        case RequestExecResetRole:
-            //m_engine->exec();
-            return true;
-
-        case RequestExecStepRole:
-            m_engine->executeStepX();
-            return true;
-
-        case RequestExecStepOutRole:
-            m_engine->executeStepOutX();
-            return true;
-
-        case RequestExecNextRole:
-            m_engine->executeStepNextX();
-            return true;
-
-        case RequestExecRunToLineRole:
-            //m_engine->executeRunToLine();
-            QTC_ASSERT(false, /* FIXME ABC */);
-            return true;
-
-        case RequestExecRunToFunctionRole:
-            //m_engine->executeRunToFunction();
-            QTC_ASSERT(false, /* FIXME ABC */);
-            return true;
-
-        case RequestExecReturnFromFunctionRole:
-            m_engine->executeReturnX();
-            return true;
-
-        case RequestExecJumpToLineRole:
-            //m_engine->executeJumpToLine();
-            QTC_ASSERT(false, /* FIXME ABC */);
-            return true;
-
-        case RequestExecWatchRole:
-            //m_engine->exec();
-            QTC_ASSERT(false, /* FIXME ABC */);
-            return true;
-
-        case RequestExecExitRole:
-            m_engine->exitDebugger();
-            return true;
-
-        case RequestExecSnapshotRole:
-            m_engine->makeSnapshot();
-            return true;
-
-        case RequestExecFrameDownRole:
-            m_engine->frameDown();
-            return true;
-
-        case RequestExecFrameUpRole:
-            m_engine->frameUp();
-            return true;
-
-        case RequestOperatedByInstructionTriggeredRole:
-            m_engine->gotoLocation(m_engine->stackHandler()->currentFrame(), true);
-            return true;
-
-        case RequestExecuteCommandRole:
-            m_engine->executeDebuggerCommand(value.toString());
-            return true;
-    }
-
-    return false;
+    QTC_ASSERT(m_engine, return false);
+    m_engine->handleCommand(role, value);
+    return true;
 }
 
 
@@ -336,12 +247,106 @@ DebuggerEngine::~DebuggerEngine()
     //saveSessionData();
 }
 
-/*
-void DebuggerEngine::showStatusMessage(const QString &msg, int timeout)
+void DebuggerEngine::showStatusMessage(const QString &msg, int timeout) const
 {
-    plugin()->showStatusMessage(msg, timeout);
+    showMessage(msg, StatusBar, timeout);
 }
-*/
+
+void DebuggerEngine::handleCommand(int role, const QVariant &value)
+{
+    //qDebug() << "COMMAND: " << role << value;
+
+    switch (role) {
+        case RequestLoadSessionDataRole:
+            loadSessionData();
+            break;
+
+        case RequestSaveSessionDataRole:
+            saveSessionData();
+            break;
+
+        case RequestReloadSourceFilesRole:
+            reloadSourceFiles();
+            break;
+
+        case RequestReloadModulesRole:
+            reloadModules();
+            break;
+
+        case RequestExecContinueRole:
+            continueInferior();
+            break;
+
+        case RequestExecInterruptRole:
+            interruptInferior();
+            break;
+
+        case RequestExecResetRole:
+            //exec();
+            break;
+
+        case RequestExecStepRole:
+            executeStepX();
+            break;
+
+        case RequestExecStepOutRole:
+            executeStepOutX();
+            break;
+
+        case RequestExecNextRole:
+            executeStepNextX();
+            break;
+
+        case RequestExecRunToLineRole:
+            //executeRunToLine();
+            QTC_ASSERT(false, /* FIXME ABC */);
+            break;
+
+        case RequestExecRunToFunctionRole:
+            //executeRunToFunction();
+            QTC_ASSERT(false, /* FIXME ABC */);
+            break;
+
+        case RequestExecReturnFromFunctionRole:
+            executeReturnX();
+            break;
+
+        case RequestExecJumpToLineRole:
+            //executeJumpToLine();
+            QTC_ASSERT(false, /* FIXME ABC */);
+            break;
+
+        case RequestExecWatchRole:
+            //exec();
+            QTC_ASSERT(false, /* FIXME ABC */);
+            break;
+
+        case RequestExecExitRole:
+            exitDebugger();
+            break;
+
+        case RequestExecSnapshotRole:
+            makeSnapshot();
+            break;
+
+        case RequestExecFrameDownRole:
+            frameDown();
+            break;
+
+        case RequestExecFrameUpRole:
+            frameUp();
+            break;
+
+        case RequestOperatedByInstructionTriggeredRole:
+            gotoLocation(stackHandler()->currentFrame(), true);
+            break;
+
+        case RequestExecuteCommandRole:
+            executeDebuggerCommand(value.toString());
+            break;
+    }
+}
+
 
 void DebuggerEngine::showModuleSymbols
     (const QString &moduleName, const Symbols &symbols)
@@ -613,11 +618,6 @@ void DebuggerEngine::executeWatchPointX()
 }
 
 /*
-void DebuggerEngine::executeDebuggerCommand()
-{
-    if (QAction *action = qobject_cast<QAction *>(sender()))
-        executeDebuggerCommand(action->data().toString());
-}
 void DebuggerManager::executeRunToLine()
 {
     ITextEditor *textEditor = d->m_plugin->currentTextEditor();
@@ -682,19 +682,13 @@ void DebuggerManager::executeJumpToLine()
 void DebuggerEngine::handleFinished()
 {
     modulesHandler()->removeAll();
-    //breakHandler()->setAllPending();
     stackHandler()->removeAll();
     threadsHandler()->removeAll();
     watchHandler()->cleanup();
 
     DebuggerEngine *sessionTemplate = plugin()->sessionTemplate();
-    if (sessionTemplate != this) {
-        BreakHandler *handler = sessionTemplate->breakHandler();
-        qDebug() << "MOVING BREAKPOINTS TO SESSION";
-        handler->removeAllBreakpoints();
-        handler->initializeFromTemplate(breakHandler());
-    }
-    breakHandler()->removeAllBreakpoints();
+    QTC_ASSERT(sessionTemplate != this, /**/);
+    breakHandler()->storeToTemplate(sessionTemplate->breakHandler());
 }
 
 const DebuggerStartParameters &DebuggerEngine::startParameters() const

@@ -128,7 +128,6 @@ public:
     void startDebugger(DebuggerRunControl *runControl);
     virtual void startDebugger() {}
     virtual void exitDebugger() {}
-    virtual void abortDebugger() { exitDebugger(); }
     virtual void detachDebugger() {}
     virtual void updateWatchData(const WatchData & /* data */) { }
     virtual void executeStep() {}
@@ -187,8 +186,7 @@ public:
 public slots:
     // Convenience
     void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1) const;
-    void showStatusMessage(const QString &msg, int timeout = -1) const
-        { showMessage(msg, StatusBar, timeout); }
+    void showStatusMessage(const QString &msg, int timeout = -1) const;
 
 public:
     DebuggerPlugin *plugin() const;
@@ -246,6 +244,7 @@ public:
     void notifyInferiorPid(qint64 pid);
     qint64 inferiorPid() const;
     bool isReverseDebugging() const;
+    void handleCommand(int role, const QVariant &value);
 
 public slots:
     void resetLocation();

@@ -116,7 +116,7 @@ public:
 
         BreakHandler *handler = m_data->handler();
         handler->removeBreakpoint(m_data);
-        handler->saveBreakpoints();
+        //handler->saveBreakpoints();
         handler->updateMarkers();
     }
 
@@ -926,14 +926,14 @@ void BreakHandler::removeBreakpoint(int index)
         return;
     removeBreakpointHelper(index);
     emit layoutChanged();
-    saveBreakpoints();
+    //saveBreakpoints();
 }
 
 void BreakHandler::removeBreakpoint(BreakpointData *data)
 {
     removeBreakpointHelper(m_bp.indexOf(data));
     emit layoutChanged();
-    saveBreakpoints();
+    //saveBreakpoints();
 }
 
 void BreakHandler::toggleBreakpointEnabled(BreakpointData *data)
@@ -947,7 +947,7 @@ void BreakHandler::toggleBreakpointEnabled(BreakpointData *data)
         m_enabled.removeAll(data);
         m_disabled.append(data);
     }
-    saveBreakpoints();
+    //saveBreakpoints();
     updateMarkers();
 }
 
@@ -985,7 +985,6 @@ void BreakHandler::saveSessionData()
 
 void BreakHandler::loadSessionData()
 {
-    //resetBreakpoints();
     loadBreakpoints();
     updateMarkers();
 }
@@ -1004,7 +1003,7 @@ void BreakHandler::breakByFunction(const QString &functionName)
     BreakpointData *data = new BreakpointData;
     data->funcName = functionName;
     append(data);
-    saveBreakpoints();
+    //saveBreakpoints();
     updateMarkers();
 }
 
@@ -1012,9 +1011,21 @@ void BreakHandler::initializeFromTemplate(BreakHandler *other)
 {
     //qDebug() << "COPYING BREAKPOINTS INTO NEW SESSION";
     QTC_ASSERT(m_bp.isEmpty(), /**/);
-    foreach (BreakpointData *data, other->m_bp)
+    foreach (BreakpointData *data, other->m_bp) {
         append(data->clone());
+        data->removeMarker();
+    }
     updateMarkers();
+}
+
+void BreakHandler::storeToTemplate(BreakHandler *other)
+{
+    other->removeAllBreakpoints();
+    foreach (BreakpointData *data, m_bp)
+        other->append(data->clone());
+    removeAllBreakpoints();
+    other->updateMarkers();
+    other->saveSessionData();
 }
 
 } // namespace Internal

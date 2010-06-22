@@ -1702,13 +1702,7 @@ void GdbEngine::exitDebugger()
 {
     disconnectDebuggingHelperActions();
     shutdown();
-}
-
-void GdbEngine::abortDebugger()
-{
-    disconnectDebuggingHelperActions();
-    shutdown();
-    gdbProc()->kill();
+    //gdbProc()->kill();
 }
 
 int GdbEngine::currentFrame() const
