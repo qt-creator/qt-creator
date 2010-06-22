@@ -81,7 +81,7 @@ protected:
     virtual void contextMenuEvent(QContextMenuEvent *ev);
 
 private:
-    void setCurrentTitle(const QString &dirName, const QString &fullPath);
+    void setCurrentTitle(QString dirName, const QString &fullPath);
     bool setCurrentDirectory(const QString &directory);
     void openItem(const QModelIndex &srcIndex);
     QModelIndex currentItem() const;
