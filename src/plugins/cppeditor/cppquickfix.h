@@ -41,13 +41,13 @@
 #include <QtCore/QSharedPointer>
 #include <QtGui/QTextCursor>
 
+#include "cpprefactoringchanges.h"
+
 namespace CppTools {
     class CppModelManagerInterface;
 } // end of namespace CppTools
 
 namespace CppEditor {
-class CppRefactoringChanges;
-
 namespace Internal {
 
 class CppQuickFixOperation: public TextEditor::QuickFixOperation
@@ -69,8 +69,7 @@ protected:
     QString fileName() const;
 
     virtual void apply();
-    virtual CppRefactoringChanges *cppRefactoringChanges() const;
-    virtual TextEditor::RefactoringChanges *refactoringChanges() const;
+    virtual CppRefactoringChanges *refactoringChanges() const;
 
     const CPlusPlus::Token &tokenAt(unsigned index) const;
 

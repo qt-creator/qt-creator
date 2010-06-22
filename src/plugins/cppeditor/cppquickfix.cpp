@@ -149,7 +149,7 @@ public:
             changes.insert(endOf(binary), ")");
         }
         replace(&changes, binary->binary_op_token, replacement);
-        cppRefactoringChanges()->changeFile(fileName(), changes);
+        refactoringChanges()->changeFile(fileName(), changes);
     }
 
 private:
@@ -232,7 +232,7 @@ public:
         if (! replacement.isEmpty())
             replace(&changes, binary->binary_op_token, replacement);
 
-        cppRefactoringChanges()->changeFile(fileName(), changes);
+        refactoringChanges()->changeFile(fileName(), changes);
     }
 
 private:
@@ -301,8 +301,8 @@ public:
         changes.insert(start, QLatin1String("!("));
         changes.insert(end, QLatin1String(")"));
 
-        cppRefactoringChanges()->changeFile(fileName(), changes);
-        cppRefactoringChanges()->reindent(fileName(), range(start, end));
+        refactoringChanges()->changeFile(fileName(), changes);
+        refactoringChanges()->reindent(fileName(), range(start, end));
     }
 
 private:
@@ -412,8 +412,8 @@ public:
             prevDeclarator = declarator;
         }
 
-        cppRefactoringChanges()->changeFile(fileName(), changes);
-        cppRefactoringChanges()->reindent(fileName(), range(startOf(declaration->firstToken()),
+        refactoringChanges()->changeFile(fileName(), changes);
+        refactoringChanges()->reindent(fileName(), range(startOf(declaration->firstToken()),
                                                             endOf(declaration->lastToken() - 1)));
     }
 
@@ -476,8 +476,8 @@ public:
         const int end = endOf(_statement->lastToken() - 1);
         changes.insert(end, "\n}");
 
-        cppRefactoringChanges()->changeFile(fileName(), changes);
-        cppRefactoringChanges()->reindent(fileName(), range(start, end));
+        refactoringChanges()->changeFile(fileName(), changes);
+        refactoringChanges()->reindent(fileName(), range(start, end));
     }
 
 private:
@@ -537,8 +537,8 @@ public:
         move(&changes, condition, insertPos);
         changes.insert(insertPos, QLatin1String(";\n"));
 
-        cppRefactoringChanges()->changeFile(fileName(), changes);
-        cppRefactoringChanges()->reindent(fileName(), range(startOf(pattern),
+        refactoringChanges()->changeFile(fileName(), changes);
+        refactoringChanges()->reindent(fileName(), range(startOf(pattern),
                                                             endOf(pattern)));
     }
 
@@ -614,8 +614,8 @@ public:
         copy(&changes, core, insertPos);
         changes.insert(insertPos, QLatin1String(";\n"));
 
-        cppRefactoringChanges()->changeFile(fileName(), changes);
-        cppRefactoringChanges()->reindent(fileName(), range(startOf(pattern),
+        refactoringChanges()->changeFile(fileName(), changes);
+        refactoringChanges()->reindent(fileName(), range(startOf(pattern),
                                                             endOf(pattern)));
     }
 
@@ -729,8 +729,8 @@ public:
                        startOf(condition->right_expression) - lExprEnd);
         changes.insert(endOf(pattern), QLatin1String("\n}"));
 
-        cppRefactoringChanges()->changeFile(fileName(), changes);
-        cppRefactoringChanges()->reindent(fileName(), range(startOf(pattern),
+        refactoringChanges()->changeFile(fileName(), changes);
+        refactoringChanges()->reindent(fileName(), range(startOf(pattern),
                                                             endOf(pattern)));
     }
 
@@ -759,8 +759,8 @@ public:
         const int lExprEnd = endOf(condition->left_expression);
         changes.remove(lExprEnd, startOf(condition->right_expression) - lExprEnd);
 
-        cppRefactoringChanges()->changeFile(fileName(), changes);
-        cppRefactoringChanges()->reindent(fileName(), range(startOf(pattern),
+        refactoringChanges()->changeFile(fileName(), changes);
+        refactoringChanges()->reindent(fileName(), range(startOf(pattern),
                                                             endOf(pattern)));
     }
 
@@ -839,7 +839,7 @@ public:
 
         changes.insert(endOf(stringLiteral), ")");
 
-        cppRefactoringChanges()->changeFile(fileName(), changes);
+        refactoringChanges()->changeFile(fileName(), changes);
     }
 
 private:
@@ -914,7 +914,7 @@ public:
             changes.insert(startOf(stringLiteral), "@");
         }
 
-        cppRefactoringChanges()->changeFile(fileName(), changes);
+        refactoringChanges()->changeFile(fileName(), changes);
     }
 
 private:
@@ -953,14 +953,11 @@ QString CppQuickFixOperation::fileName() const
 
 void CppQuickFixOperation::apply()
 {
-    cppRefactoringChanges()->apply();
+    refactoringChanges()->apply();
 }
 
-CppEditor::CppRefactoringChanges *CppQuickFixOperation::cppRefactoringChanges() const
+CppEditor::CppRefactoringChanges *CppQuickFixOperation::refactoringChanges() const
 { return _refactoringChanges; }
-
-TextEditor::RefactoringChanges *CppQuickFixOperation::refactoringChanges() const
-{ return cppRefactoringChanges(); }
 
 Document::Ptr CppQuickFixOperation::document() const
 { return _document; }
