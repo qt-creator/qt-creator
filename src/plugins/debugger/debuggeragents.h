@@ -73,7 +73,7 @@ struct DisassemblerViewAgentPrivate;
 class DisassemblerViewAgent : public QObject
 {
     Q_OBJECT
-
+    Q_PROPERTY(QString mimeType READ mimeType WRITE setMimeType)
 public:
     // Called from Gui
     explicit DisassemblerViewAgent(DebuggerEngine *engine);
@@ -83,6 +83,11 @@ public:
     const StackFrame &frame() const;
     void resetLocation();
     Q_SLOT void setContents(const QString &contents);
+
+    // Mimetype: "text/a-asm" or some specialized architecture
+    QString mimeType() const;
+    Q_SLOT void setMimeType(const QString &mt);
+
     QString address() const;
     bool contentsCoversAddress(const QString &contents) const;
     void cleanup();

@@ -37,12 +37,15 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/mimedatabase.h>
 #include <coreplugin/icore.h>
 
 #include <texteditor/basetexteditor.h>
+#include <texteditor/plaintexteditor.h>
 #include <texteditor/basetextmark.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/texteditorconstants.h>
+#include <texteditor/basetextdocument.h>
 
 #include <utils/qtcassert.h>
 
@@ -51,7 +54,6 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QTextCursor>
-#include <QtGui/QSyntaxHighlighter>
 
 #include <limits.h>
 
@@ -161,7 +163,8 @@ public:
 
 struct DisassemblerViewAgentPrivate
 {
-    DisassemblerViewAgentPrivate() { tryMixed = true; }
+    DisassemblerViewAgentPrivate();
+    void configureMimeType();
 
     QPointer<TextEditor::ITextEditor> editor;
     StackFrame frame;
@@ -169,31 +172,16 @@ struct DisassemblerViewAgentPrivate
     QPointer<DebuggerEngine> engine;
     LocationMark2 *locationMark;
     QHash<QString, QString> cache;
+    QString mimeType;
 };
 
-/*!
-    \class DisassemblerSyntaxHighlighter
-
-     Simple syntax highlighter to make the disassembler text less prominent.
-*/
-
-class DisassemblerHighlighter : public QSyntaxHighlighter
+DisassemblerViewAgentPrivate::DisassemblerViewAgentPrivate() :
+    editor(0),
+    tryMixed(true),
+    locationMark(new LocationMark2),
+    mimeType(_("text/x-qtcreator-generic-asm"))
 {
-public:
-    DisassemblerHighlighter(QPlainTextEdit *parent)
-        : QSyntaxHighlighter(parent->document())
-    {}
-
-private:
-    void highlightBlock(const QString &text)
-    {
-        if (!text.isEmpty() && text.at(0) != ' ') {
-            QTextCharFormat format;
-            format.setForeground(QColor(128, 128, 128));
-            setFormat(0, text.size(), format);
-        }
-    }
-};
+}
 
 /*!
     \class DisassemblerViewAgent
@@ -206,8 +194,6 @@ private:
 DisassemblerViewAgent::DisassemblerViewAgent(DebuggerEngine *engine)
     : QObject(0), d(new DisassemblerViewAgentPrivate)
 {
-    d->editor = 0;
-    d->locationMark = new LocationMark2();
     d->engine = engine;
 }
 
@@ -271,6 +257,38 @@ void DisassemblerViewAgent::setFrame(const StackFrame &frame, bool tryMixed)
     d->engine->fetchDisassembler(this);
 }
 
+void DisassemblerViewAgentPrivate::configureMimeType()
+{
+    QTC_ASSERT(editor, return);
+
+    TextEditor::BaseTextDocument *doc = qobject_cast<TextEditor::BaseTextDocument *>(editor->file());
+    QTC_ASSERT(doc, return);
+    doc->setMimeType(mimeType);
+
+    TextEditor::PlainTextEditor *pe = qobject_cast<TextEditor::PlainTextEditor *>(editor->widget());
+    QTC_ASSERT(pe, return);
+
+    if (const Core::MimeType mtype = Core::ICore::instance()->mimeDatabase()->findByType(mimeType)) {
+        pe->configure(mtype);
+    } else {
+        qWarning("Assembler mimetype '%s' not found.", qPrintable(mimeType));
+    }
+}
+
+QString DisassemblerViewAgent::mimeType() const
+{
+    return d->mimeType;
+}
+
+void DisassemblerViewAgent::setMimeType(const QString &mt)
+{
+    if (mt == d->mimeType)
+        return;
+    d->mimeType = mt;
+    if (d->editor)
+       d->configureMimeType();
+}
+
 void DisassemblerViewAgent::setContents(const QString &contents)
 {
     QTC_ASSERT(d, return);
@@ -286,18 +304,19 @@ void DisassemblerViewAgent::setContents(const QString &contents)
             editorManager->openEditorWithContents(
                 Core::Constants::K_DEFAULT_TEXT_EDITOR_ID,
                 &titlePattern));
+        QTC_ASSERT(d->editor, return);
         d->editor->setProperty("OpenedByDebugger", true);
         d->editor->setProperty("DisassemblerView", true);
-        QTC_ASSERT(d->editor, return);
-        if ((plainTextEdit = qobject_cast<QPlainTextEdit *>(d->editor->widget())))
-            (void) new DisassemblerHighlighter(plainTextEdit);
+        d->configureMimeType();
     }
 
     editorManager->activateEditor(d->editor);
 
     plainTextEdit = qobject_cast<QPlainTextEdit *>(d->editor->widget());
-    if (plainTextEdit)
+    if (plainTextEdit) {
         plainTextEdit->setPlainText(contents);
+        plainTextEdit->setReadOnly(true);
+    }
 
     d->editor->markableInterface()->removeMark(d->locationMark);
     d->editor->setDisplayName(_("Disassembler (%1)").arg(d->frame.function));
