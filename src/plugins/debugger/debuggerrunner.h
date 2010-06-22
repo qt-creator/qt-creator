@@ -101,6 +101,7 @@ public:
     void startSuccessful();
     void debuggingFinished();
 
+    DebuggerState state() const;
     Internal::DebuggerEngine *engine();
 
     void showMessage(const QString &msg, int channel);

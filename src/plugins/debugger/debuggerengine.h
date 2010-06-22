@@ -122,18 +122,15 @@ public:
     virtual ~DebuggerEngine();
 
     virtual void shutdown() {}
-    virtual void setToolTipExpression(const QPoint &mousePos,
-            TextEditor::ITextEditor *editor, int cursorPos)
-        { Q_UNUSED(mousePos); Q_UNUSED(editor); Q_UNUSED(cursorPos); }
+    virtual void setToolTipExpression(const QPoint & /* mousePos */,
+            TextEditor::ITextEditor * /* editor */, int /* cursorPos */) { }
     void initializeFromTemplate(DebuggerEngine *other);
     void startDebugger(DebuggerRunControl *runControl);
     virtual void startDebugger() {}
     virtual void exitDebugger() {}
     virtual void abortDebugger() { exitDebugger(); }
     virtual void detachDebugger() {}
-    virtual void updateWatchData(const WatchData &data)
-        { Q_UNUSED(data); }
-
+    virtual void updateWatchData(const WatchData & /* data */) { }
     virtual void executeStep() {}
     virtual void executeStepOut()  {}
     virtual void executeNext() {}

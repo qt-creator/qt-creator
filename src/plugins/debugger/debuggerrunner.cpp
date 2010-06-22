@@ -35,6 +35,10 @@
 #include "debuggerplugin.h"
 #include "debuggerstringutils.h"
 
+#ifdef Q_OS_WIN
+#  include "peutils.h"
+#endif
+
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/environment.h>
 #include <projectexplorer/project.h>
@@ -50,6 +54,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QTimer>
+#include <QtCore/QStringList>
 
 #include <QtGui/QAbstractItemView>
 #include <QtGui/QTextDocument>
@@ -257,21 +262,21 @@ DebuggerEngineType DebuggerRunControl::engineForExecutable(const QString &execut
 #ifdef Q_OS_WIN
     // A remote executable?
     if (!executable.endsWith(_(".exe")))
-        return GdbEngineType
+        return GdbEngineType;
 
     // If a file has PDB files, it has been compiled by VS.
     QStringList pdbFiles;
-    if (!getPDBFiles(executable, &pdbFiles, errorMessage)) {
+    if (!getPDBFiles(executable, &pdbFiles, &m_errorMessage)) {
         qWarning("Cannot determine type of executable %s: %s",
                  qPrintable(executable), qPrintable(m_errorMessage));
-        return 0;
+        return NoEngineType;
     }
     if (pdbFiles.empty())
         return GdbEngineType;
 
     // We need the CDB debugger in order to be able to debug VS
     // executables
-    if (checkDebugConfiguration(ToolChain::MSVC, errorMessage, 0, &m_settingsIdHint))
+    if (checkDebugConfiguration(ToolChain::MSVC, &m_errorMessage, 0, &m_settingsIdHint))
         return CdbEngineType;
 #else
     if (m_enabledEngines & GdbEngineType)
@@ -290,10 +295,9 @@ DebuggerEngineType DebuggerRunControl::engineForMode(DebuggerStartMode startMode
 
 #ifdef Q_OS_WIN
     // Preferably Windows debugger for attaching locally.
-    if (startMode != AttachToRemote && cdbEngine)
+    if (startMode != AttachToRemote)
         return CdbEngineType;
-    if (gdbEngine)
-        return GdbEngineType;
+    return GdbEngineType;
     m_errorMessage = msgEngineNotAvailable("Gdb Engine");
     return NoEngineType;
 #else
@@ -333,7 +337,7 @@ void DebuggerRunControl::createEngine(const DebuggerStartParameters &sp)
     if (!engineType)
         engineType = engineForMode(sp.startMode);
 
-    //qDebug() << "USING ENGINE : " << engineType;
+    // qDebug() << "USING ENGINE : " << engineType;
 
     switch (engineType) {
         case GdbEngineType:
@@ -511,6 +515,12 @@ void DebuggerRunControl::debuggingFinished()
 bool DebuggerRunControl::isRunning() const
 {
     return m_running;
+}
+
+DebuggerState DebuggerRunControl::state() const
+{
+    QTC_ASSERT(m_engine, return DebuggerNotReady);
+    return m_engine->state();
 }
 
 Internal::DebuggerEngine *DebuggerRunControl::engine()

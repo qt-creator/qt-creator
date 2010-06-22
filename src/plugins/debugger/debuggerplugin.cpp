@@ -829,8 +829,8 @@ public slots:
     ProjectExplorer::RunControl *createDebugger(const DebuggerStartParameters &sp);
     void startDebugger(ProjectExplorer::RunControl *runControl);
 
-    void setToolTipExpression(const QPoint &mousePos,
-        TextEditor::ITextEditor *editor, int cursorPos)
+    void setToolTipExpression(const QPoint & /* mousePos */,
+        TextEditor::ITextEditor * /* editor */, int /* cursorPos */)
     {
         // FIXME
     }

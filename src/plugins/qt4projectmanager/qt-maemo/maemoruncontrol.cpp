@@ -477,7 +477,7 @@ void MaemoDebugRunControl::stopInternal()
 bool MaemoDebugRunControl::isRunning() const
 {
     return AbstractMaemoRunControl::isRunning()
-        || m_debuggerRunControl->engine()->state() != Debugger::DebuggerNotReady;
+        || m_debuggerRunControl->state() != Debugger::DebuggerNotReady;
 }
 
 void MaemoDebugRunControl::debuggingFinished()

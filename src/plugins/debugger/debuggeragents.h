@@ -68,8 +68,7 @@ private:
     QPointer<DebuggerEngine> m_engine;
 };
 
-
-class DisassemblerViewAgentPrivate;
+struct DisassemblerViewAgentPrivate;
 
 class DisassemblerViewAgent : public QObject
 {
