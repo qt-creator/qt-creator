@@ -36,6 +36,11 @@
 #include <QObject>
 #include <QStringList>
 #include <QSharedPointer>
+#include <QPointer>
+
+namespace ProjectExplorer {
+    class Project;
+}
 
 namespace QmlJS {
 
@@ -44,6 +49,32 @@ class Snapshot;
 class QMLJS_EXPORT ModelManagerInterface: public QObject
 {
     Q_OBJECT
+
+public:
+    class ProjectInfo
+    {
+    public:
+        ProjectInfo()
+        { }
+
+        ProjectInfo(QPointer<ProjectExplorer::Project> project)
+            : project(project)
+        { }
+
+        operator bool() const
+        { return ! project.isNull(); }
+
+        bool isValid() const
+        { return ! project.isNull(); }
+
+        bool isNull() const
+        { return project.isNull(); }
+
+    public: // attributes
+        QPointer<ProjectExplorer::Project> project;
+        QStringList sourceFiles;
+        QStringList importPaths;
+    };
 
 public:
     ModelManagerInterface(QObject *parent = 0);
@@ -55,7 +86,10 @@ public:
     virtual void fileChangedOnDisk(const QString &path) = 0;
     virtual void removeFiles(const QStringList &files) = 0;
 
-    virtual void setProjectImportPaths(const QStringList &importPaths) = 0;
+    virtual QList<ProjectInfo> projectInfos() const = 0;
+    virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const = 0;
+    virtual void updateProjectInfo(const ProjectInfo &pinfo) = 0;
+
     virtual QStringList importPaths() const = 0;
 
 signals:

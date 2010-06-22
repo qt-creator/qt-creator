@@ -104,7 +104,6 @@ public:
 private slots:
     void refreshProjectFile();
     void refreshFiles(const QSet<QString> &added, const QSet<QString> &removed);
-    void refreshImportPaths();
 
 protected:
     bool fromMap(const QVariantMap &map);

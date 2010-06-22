@@ -96,8 +96,6 @@ void QmlProject::parseProject(RefreshOptions options)
                     m_projectItem = qobject_cast<QmlProjectItem*>(component->create());
                     connect(m_projectItem.data(), SIGNAL(qmlFilesChanged(QSet<QString>, QSet<QString>)),
                             this, SLOT(refreshFiles(QSet<QString>, QSet<QString>)));
-                    connect(m_projectItem.data(), SIGNAL(importPathsChanged()), this, SLOT(refreshImportPaths()));
-                    refreshImportPaths();
                 } else {
                     Core::MessageManager *messageManager = Core::ICore::instance()->messageManager();
                     messageManager->printToOutputPane(tr("Error while loading project file!"));
@@ -126,6 +124,11 @@ void QmlProject::refresh(RefreshOptions options)
 
     if (options & Files)
         m_rootNode->refresh();
+
+    QmlJS::ModelManagerInterface::ProjectInfo pinfo(this);
+    pinfo.sourceFiles = files();
+    pinfo.importPaths = importPaths();
+    m_modelManager->updateProjectInfo(pinfo);
 }
 
 QStringList QmlProject::convertToAbsoluteFiles(const QStringList &paths) const
@@ -184,11 +187,6 @@ void QmlProject::refreshFiles(const QSet<QString> &/*added*/, const QSet<QString
     refresh(Files);
     if (!removed.isEmpty())
         m_modelManager->removeFiles(removed.toList());
-}
-
-void QmlProject::refreshImportPaths()
-{
-    m_modelManager->setProjectImportPaths(importPaths());
 }
 
 QString QmlProject::displayName() const

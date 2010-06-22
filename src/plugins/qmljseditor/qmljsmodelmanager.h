@@ -59,11 +59,14 @@ public:
     virtual void fileChangedOnDisk(const QString &path);
     virtual void removeFiles(const QStringList &files);
 
+    virtual QList<ProjectInfo> projectInfos() const;
+    virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const;
+    virtual void updateProjectInfo(const ProjectInfo &pinfo);
+
     void emitDocumentUpdated(QmlJS::Document::Ptr doc);
     void emitLibraryInfoUpdated(const QString &path, const QmlJS::LibraryInfo &info);
     void emitDocumentChangedOnDisk(QmlJS::Document::Ptr doc);
 
-    virtual void setProjectImportPaths(const QStringList &importPaths);
     virtual QStringList importPaths() const;
 
 Q_SIGNALS:
@@ -97,17 +100,22 @@ protected:
     void loadQmlTypeDescriptions();
     void loadQmlPluginTypes(const QString &pluginPath);
 
+    void updateImportPaths();
+
 private:
     static bool matchesMimeType(const Core::MimeType &fileMimeType, const Core::MimeType &knownMimeType);
 
     mutable QMutex m_mutex;
     Core::ICore *m_core;
     QmlJS::Snapshot _snapshot;
-    QStringList m_projectImportPaths;
+    QStringList m_allImportPaths;
     QStringList m_defaultImportPaths;
     QHash<QProcess *, QString> m_runningQmldumps;
 
     QFutureSynchronizer<void> m_synchronizer;
+
+    // project integration
+    QMap<ProjectExplorer::Project *, ProjectInfo> m_projects;
 };
 
 } // namespace Internal

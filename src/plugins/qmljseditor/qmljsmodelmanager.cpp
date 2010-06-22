@@ -39,6 +39,7 @@
 #include <qmljs/qmljsbind.h>
 #include <qmljs/parser/qmldirparser_p.h>
 #include <texteditor/itexteditor.h>
+#include <projectexplorer/project.h>
 
 #include <QDir>
 #include <QFile>
@@ -178,6 +179,33 @@ void ModelManager::removeFiles(const QStringList &files)
 
     foreach (const QString &file, files)
         _snapshot.remove(file);
+}
+
+QList<ModelManager::ProjectInfo> ModelManager::projectInfos() const
+{
+    QMutexLocker locker(&m_mutex);
+
+    return m_projects.values();
+}
+
+ModelManager::ProjectInfo ModelManager::projectInfo(ProjectExplorer::Project *project) const
+{
+    QMutexLocker locker(&m_mutex);
+
+    return m_projects.value(project, ProjectInfo(project));
+}
+
+void ModelManager::updateProjectInfo(const ProjectInfo &pinfo)
+{
+    if (! pinfo.isValid())
+        return;
+
+    {
+        QMutexLocker locker(&m_mutex);
+        m_projects.insert(pinfo.project, pinfo);
+    }
+
+    updateImportPaths();
 }
 
 void ModelManager::emitDocumentChangedOnDisk(Document::Ptr doc)
@@ -400,26 +428,9 @@ bool ModelManager::matchesMimeType(const Core::MimeType &fileMimeType, const Cor
     return false;
 }
 
-void ModelManager::setProjectImportPaths(const QStringList &importPaths)
-{
-    m_projectImportPaths = importPaths;
-
-    // check if any file in the snapshot imports something new in the new paths
-    Snapshot snapshot = _snapshot;
-    QStringList importedFiles;
-    QSet<QString> scannedPaths;
-    foreach (const Document::Ptr &doc, snapshot)
-        findNewLibraryImports(doc, snapshot, this, &importedFiles, &scannedPaths);
-
-    updateSourceFiles(importedFiles, true);
-}
-
 QStringList ModelManager::importPaths() const
 {
-    QStringList paths;
-    paths << m_projectImportPaths;
-    paths << m_defaultImportPaths;
-    return paths;
+    return m_allImportPaths;
 }
 
 static QStringList environmentImportPaths()
@@ -469,6 +480,25 @@ void ModelManager::loadQmlPluginTypes(const QString &pluginPath)
     connect(process, SIGNAL(finished(int)), SLOT(qmlPluginTypeDumpDone(int)));
     process->start(qmldumpPath, QStringList(pluginPath));
     m_runningQmldumps.insert(process, pluginPath);
+}
+
+void ModelManager::updateImportPaths()
+{
+    QMapIterator<ProjectExplorer::Project *, ProjectInfo> it(m_projects);
+    while (it.hasNext()) {
+        it.next();
+        m_allImportPaths += it.value().importPaths;
+    }
+    m_allImportPaths += m_defaultImportPaths;
+
+    // check if any file in the snapshot imports something new in the new paths
+    Snapshot snapshot = _snapshot;
+    QStringList importedFiles;
+    QSet<QString> scannedPaths;
+    foreach (const Document::Ptr &doc, snapshot)
+        findNewLibraryImports(doc, snapshot, this, &importedFiles, &scannedPaths);
+
+    updateSourceFiles(importedFiles, true);
 }
 
 void ModelManager::qmlPluginTypeDumpDone(int exitCode)
