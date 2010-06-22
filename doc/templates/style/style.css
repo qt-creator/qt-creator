@@ -487,9 +487,15 @@
         margin-left: 45px;
     }
 
-    .offline .wrap .content
-    {
+    .wrap .content {
         padding-top: 15px;
+    }
+
+    .wrap .content ol img {
+        vertical-align: middle;
+    }
+    .wrap .content ul img {
+        vertical-align: middle;
     }
 
     .wrap .content h1
@@ -972,16 +978,6 @@
     {
         font: normal 10px/1.2 Verdana;
         background: url(../images/bullet_dn.png) no-repeat 0 5px;
-    }
-
-    .wrap .content .toc ul img
-    {
-        vertically-align: middle;
-    }
-
-    .wrap .content .toc ol img
-    {
-        vertically-align: middle;
     }
 
     .relpage
