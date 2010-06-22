@@ -129,7 +129,6 @@ private:
     void remoteCommand(const QStringList &options, const QStringList &arguments);
 
     void updateState(Internal::DebuggerEngine *engine);
-    void showStatusMessage(const QString &msg, int timeout = -1); // -1 forever
 
     QWidget *mainWindow() const;
 

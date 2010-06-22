@@ -818,6 +818,7 @@ public slots:
 
     void enableReverseDebuggingTriggered(const QVariant &value);
     void languageChanged(const QString &debuggerLanguage);
+    void showStatusMessage(const QString &msg, int timeout = -1);
 
     DebuggerMainWindow *mainWindow()
         { return qobject_cast<DebuggerMainWindow*>
@@ -1732,7 +1733,7 @@ void DebuggerPluginPrivate::attachRemoteTcf()
 void DebuggerPluginPrivate::attachCmdLine()
 {
     if (m_attachRemoteParameters.attachPid) {
-        m_plugin->showStatusMessage(tr("Attaching to PID %1.")
+        showStatusMessage(tr("Attaching to PID %1.")
             .arg(m_attachRemoteParameters.attachPid));
         const QString crashParameter = m_attachRemoteParameters.winCrashEvent
             ? QString::number(m_attachRemoteParameters.winCrashEvent) : QString();
@@ -1741,7 +1742,7 @@ void DebuggerPluginPrivate::attachCmdLine()
         return;
     }
     if (!m_attachRemoteParameters.attachCore.isEmpty()) {
-        m_plugin->showStatusMessage(tr("Attaching to core %1.")
+        showStatusMessage(tr("Attaching to core %1.")
             .arg(m_attachRemoteParameters.attachCore));
         attachCore(m_attachRemoteParameters.attachCore, QString());
     }
@@ -2165,8 +2166,8 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         || m_state == InferiorUnrunnable;
     setBusyCursor(!notbusy);
 
-    // FIXME: for QML
-    //emit m_plugin->stateChanged(m_state);
+    // FIXME: for QML only?
+    emit m_plugin->stateChanged(m_state);
 }
 
 void DebuggerPluginPrivate::resetLocation()
@@ -2320,6 +2321,21 @@ void DebuggerPluginPrivate::executeDebuggerCommand()
         notifyCurrentEngine(RequestExecuteCommandRole, action->data().toString());
 }
 
+void DebuggerPluginPrivate::showStatusMessage(const QString &msg0, int timeout)
+{
+    m_plugin->showMessage(msg0, LogStatus);
+    QString msg = msg0;
+    msg.replace(QLatin1Char('\n'), QString());
+    m_statusLabel->setText(msg);
+    if (timeout > 0) {
+        m_statusTimer.setSingleShot(true);
+        m_statusTimer.start(timeout);
+    } else {
+        m_lastPermanentStatusMessage = msg;
+        m_statusTimer.stop();
+    }
+}
+
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -2456,21 +2472,6 @@ void DebuggerPlugin::clearCppCodeModelSnapshot()
     d->m_codeModelSnapshot = CPlusPlus::Snapshot();
 }
 
-void DebuggerPlugin::showStatusMessage(const QString &msg0, int timeout)
-{
-    showMessage(msg0, LogStatus);
-    QString msg = msg0;
-    msg.replace(QLatin1Char('\n'), QString());
-    d->m_statusLabel->setText(msg);
-    if (timeout > 0) {
-        d->m_statusTimer.setSingleShot(true);
-        d->m_statusTimer.start(timeout);
-    } else {
-        d->m_lastPermanentStatusMessage = msg;
-        d->m_statusTimer.stop();
-    }
-}
-
 void DebuggerPlugin::aboutToShutdown()
 {
     writeSettings();
@@ -2536,7 +2537,7 @@ void DebuggerPlugin::showMessage(const QString &msg, int channel, int timeout)
     QTC_ASSERT(ow, return);
     switch (channel) {
         case StatusBar:
-            showStatusMessage(msg, timeout);
+            d->showStatusMessage(msg, timeout);
             ow->showOutput(LogStatus, msg);
             break;
         case LogMiscInput:
