@@ -76,11 +76,11 @@ void PlainTextEditModifier::replace(int offset, int length, const QString &repla
     const int replacementLength = replacement.length();
 
     if (m_changeSet) {
-        m_changeSet->replace(offset, length, replacement);
+        m_changeSet->replace(offset, offset + length, replacement);
         emit replaced(offset, length, replacementLength);
     } else {
         ChangeSet changeSet;
-        changeSet.replace(offset, length, replacement);
+        changeSet.replace(offset, offset + length, replacement);
         emit replaced(offset, length, replacementLength);
         runRewriting(&changeSet);
     }
@@ -97,18 +97,18 @@ void PlainTextEditModifier::move(const MoveInfo &moveInfo)
 
     if (m_changeSet) {
         m_changeSet->insert(moveInfo.destination, moveInfo.prefixToInsert);
-        m_changeSet->move(moveInfo.objectStart, moveInfo.objectEnd - moveInfo.objectStart, moveInfo.destination);
+        m_changeSet->move(moveInfo.objectStart, moveInfo.objectEnd, moveInfo.destination);
         m_changeSet->insert(moveInfo.destination, moveInfo.suffixToInsert);
-        m_changeSet->remove(moveInfo.objectStart - moveInfo.leadingCharsToRemove, moveInfo.leadingCharsToRemove);
-        m_changeSet->remove(moveInfo.objectEnd, moveInfo.trailingCharsToRemove);
+        m_changeSet->remove(moveInfo.objectStart - moveInfo.leadingCharsToRemove, moveInfo.objectStart);
+        m_changeSet->remove(moveInfo.objectEnd, moveInfo.objectEnd + moveInfo.trailingCharsToRemove);
         emit moved(moveInfo);
     } else {
         ChangeSet changeSet;
         changeSet.insert(moveInfo.destination, moveInfo.prefixToInsert);
-        changeSet.move(moveInfo.objectStart, moveInfo.objectEnd - moveInfo.objectStart, moveInfo.destination);
+        changeSet.move(moveInfo.objectStart, moveInfo.objectEnd, moveInfo.destination);
         changeSet.insert(moveInfo.destination, moveInfo.suffixToInsert);
-        changeSet.remove(moveInfo.objectStart - moveInfo.leadingCharsToRemove, moveInfo.leadingCharsToRemove);
-        changeSet.remove(moveInfo.objectEnd, moveInfo.trailingCharsToRemove);
+        changeSet.remove(moveInfo.objectStart - moveInfo.leadingCharsToRemove, moveInfo.objectStart);
+        changeSet.remove(moveInfo.objectEnd, moveInfo.objectEnd + moveInfo.trailingCharsToRemove);
         emit moved(moveInfo);
         runRewriting(&changeSet);
     }

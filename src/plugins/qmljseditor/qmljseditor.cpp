@@ -880,7 +880,7 @@ void QmlJSTextEditor::renameIdUnderCursor()
         Utils::ChangeSet changeSet;
 
         foreach (const AST::SourceLocation &loc, m_semanticInfo.idLocations.value(id)) {
-            changeSet.replace(loc.offset, loc.length, newId);
+            changeSet.replace(loc.begin(), loc.end(), newId);
         }
 
         QTextCursor tc = textCursor();

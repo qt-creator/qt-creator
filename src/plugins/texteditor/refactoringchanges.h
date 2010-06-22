@@ -43,22 +43,7 @@ namespace TextEditor {
 class TEXTEDITOR_EXPORT RefactoringChanges
 {
 public:
-    struct Range {
-        Range()
-            : begin(0)
-            , end(0)
-        {}
-        Range(int beginPosition, int endPosition)
-            : begin(beginPosition)
-            , end(endPosition)
-        {}
-
-        bool isNull() const
-        { return begin == 0 || end == 0; }
-
-        int begin;
-        int end;
-    };
+    typedef Utils::ChangeSet::Range Range;
 
 public:
     virtual ~RefactoringChanges();

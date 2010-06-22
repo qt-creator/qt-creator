@@ -73,7 +73,7 @@ QStringList RefactoringChanges::apply()
 
             foreach (const Range &range, m_indentRangesByFile.value(fileName, QList<Range>())) {
                 QTextCursor indentCursor = editor->textCursor();
-                indentCursor.setPosition(range.begin);
+                indentCursor.setPosition(range.start);
                 indentCursor.setPosition(range.end, QTextCursor::KeepAnchor);
                 editor->indentInsertedText(indentCursor);
             }
@@ -97,7 +97,7 @@ QStringList RefactoringChanges::apply()
             foreach (const Range &range, m_indentRangesByFile.value(fileName, QList<Range>())) {
                 QTextCursor start = editor->textCursor();
                 QTextCursor end = editor->textCursor();
-                start.setPosition(range.begin);
+                start.setPosition(range.start);
                 end.setPosition(range.end);
                 cursorPairs.append(qMakePair(start, end));
             }
@@ -133,7 +133,7 @@ QStringList RefactoringChanges::apply()
 
             foreach (const Range &range, m_indentRangesByFile.value(fileName, QList<Range>())) {
                 QTextCursor indentCursor = editor->textCursor();
-                indentCursor.setPosition(range.begin);
+                indentCursor.setPosition(range.start);
                 indentCursor.setPosition(range.end, QTextCursor::KeepAnchor);
                 editor->indentInsertedText(indentCursor);
             }

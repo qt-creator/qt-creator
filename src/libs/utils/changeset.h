@@ -77,6 +77,17 @@ public:
         QString text;
     };
 
+    struct Range {
+        Range()
+            : start(0), end(0) {}
+
+        Range(int start, int end)
+            : start(start), end(end) {}
+
+        int start;
+        int end;
+    };
+
 public:
     ChangeSet();
 
@@ -86,12 +97,38 @@ public:
 
     void clear();
 
-    bool replace(int pos, int length, const QString &replacement);
-    bool move(int pos, int length, int to);
+    bool replace(const Range &range, const QString &replacement)
+    { return replace(range.start, range.end, replacement); }
+
+    bool remove(const Range &range)
+    { return remove(range.start, range.end); }
+
+    bool move(const Range &range, int to)
+    { return move(range.start, range.end, to); }
+
+    bool flip(const Range &range1, const Range &range2)
+    { return flip(range1.start, range1.end, range2.start, range2.end); }
+
+    bool copy(const Range &range, int to)
+    { return copy(range.start, range.end, to); }
+
+
+    bool replace(int start, int end, const QString &replacement)
+    { return replace_helper(start, end - start, replacement); }
+
+    bool remove(int start, int end)
+    { return remove_helper(start, end - start); }
+
+    bool move(int start, int end, int to)
+    { return move_helper(start, end - start, to); }
+
+    bool flip(int start1, int end1, int start2, int end2)
+    { return flip_helper(start1, end1 - start1, start2, end2 - start2); }
+
+    bool copy(int start, int end, int to)
+    { return copy_helper(start, end - start, to); }
+
     bool insert(int pos, const QString &text);
-    bool remove(int pos, int length);
-    bool flip(int pos1, int length1, int pos2, int length2);
-    bool copy(int pos, int length, int to);
 
     bool hadErrors();
 
@@ -99,6 +136,12 @@ public:
     void apply(QTextCursor *textCursor);
 
 private:
+    bool replace_helper(int pos, int length, const QString &replacement);
+    bool move_helper(int pos, int length, int to);
+    bool remove_helper(int pos, int length);
+    bool flip_helper(int pos1, int length1, int pos2, int length2);
+    bool copy_helper(int pos, int length, int to);
+
     bool hasOverlap(int pos, int length);
     QString textAt(int pos, int length);
 

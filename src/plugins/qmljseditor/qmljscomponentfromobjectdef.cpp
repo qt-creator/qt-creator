@@ -103,7 +103,7 @@ void ComponentFromObjectDef::createChanges()
     const QString txt = imports + textOf(start, end) + QLatin1String("}\n");
 
     Utils::ChangeSet changes;
-    changes.replace(start, end - start, componentName + QLatin1String(" {\n"));
+    changes.replace(start, end, componentName + QLatin1String(" {\n"));
     qmljsRefactoringChanges()->changeFile(fileName(), changes);
     qmljsRefactoringChanges()->reindent(fileName(), range(start, end + 1));
 

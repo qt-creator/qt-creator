@@ -131,7 +131,7 @@ void ChangeSet::clear()
     m_error = false;
 }
 
-bool ChangeSet::replace(int pos, int length, const QString &replacement)
+bool ChangeSet::replace_helper(int pos, int length, const QString &replacement)
 {
     if (hasOverlap(pos, length))
         m_error = true;
@@ -145,7 +145,7 @@ bool ChangeSet::replace(int pos, int length, const QString &replacement)
     return !m_error;
 }
 
-bool ChangeSet::move(int pos, int length, int to)
+bool ChangeSet::move_helper(int pos, int length, int to)
 {
     if (hasOverlap(pos, length)
         || hasOverlap(to, 0)
@@ -174,7 +174,7 @@ bool ChangeSet::insert(int pos, const QString &text)
     return !m_error;
 }
 
-bool ChangeSet::remove(int pos, int length)
+bool ChangeSet::remove_helper(int pos, int length)
 {
     if (hasOverlap(pos, length))
         m_error = true;
@@ -187,7 +187,7 @@ bool ChangeSet::remove(int pos, int length)
     return !m_error;
 }
 
-bool ChangeSet::flip(int pos1, int length1, int pos2, int length2)
+bool ChangeSet::flip_helper(int pos1, int length1, int pos2, int length2)
 {
     if (hasOverlap(pos1, length1)
         || hasOverlap(pos2, length2)
@@ -204,7 +204,7 @@ bool ChangeSet::flip(int pos1, int length1, int pos2, int length2)
     return !m_error;
 }
 
-bool ChangeSet::copy(int pos, int length, int to)
+bool ChangeSet::copy_helper(int pos, int length, int to)
 {
     if (hasOverlap(pos, length)
         || hasOverlap(to, 0)
@@ -220,27 +220,27 @@ bool ChangeSet::copy(int pos, int length, int to)
     return !m_error;
 }
 
-void ChangeSet::doReplace(const EditOp &replace, QList<EditOp> *replaceList)
+void ChangeSet::doReplace(const EditOp &replace_helper, QList<EditOp> *replaceList)
 {
-    Q_ASSERT(replace.type == EditOp::Replace);
+    Q_ASSERT(replace_helper.type == EditOp::Replace);
 
     {
         QMutableListIterator<EditOp> i(*replaceList);
         while (i.hasNext()) {
             EditOp &c = i.next();
-            if (replace.pos1 <= c.pos1)
-                c.pos1 += replace.text.size();
-            if (replace.pos1 < c.pos1)
-                c.pos1 -= replace.length1;
+            if (replace_helper.pos1 <= c.pos1)
+                c.pos1 += replace_helper.text.size();
+            if (replace_helper.pos1 < c.pos1)
+                c.pos1 -= replace_helper.length1;
         }
     }
 
     if (m_string) {
-        m_string->replace(replace.pos1, replace.length1, replace.text);
+        m_string->replace(replace_helper.pos1, replace_helper.length1, replace_helper.text);
     } else if (m_cursor) {
-        m_cursor->setPosition(replace.pos1);
-        m_cursor->setPosition(replace.pos1 + replace.length1, QTextCursor::KeepAnchor);
-        m_cursor->insertText(replace.text);
+        m_cursor->setPosition(replace_helper.pos1);
+        m_cursor->setPosition(replace_helper.pos1 + replace_helper.length1, QTextCursor::KeepAnchor);
+        m_cursor->insertText(replace_helper.text);
     }
 }
 

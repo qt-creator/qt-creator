@@ -66,6 +66,11 @@ public:
     virtual int match(TextEditor::QuickFixState *state);
 
 protected:
+    using TextEditor::QuickFixOperation::range;
+
+    Utils::ChangeSet::Range range(unsigned tokenIndex) const;
+    Utils::ChangeSet::Range range(CPlusPlus::AST *ast) const;
+
     QString fileName() const;
 
     virtual void apply();
@@ -84,19 +89,6 @@ protected:
 
     using TextEditor::QuickFixOperation::textOf;
     using TextEditor::QuickFixOperation::charAt;
-
-    void move(Utils::ChangeSet *changeSet, unsigned tokenIndex, int to);
-    void move(Utils::ChangeSet *changeSet, const CPlusPlus::AST *ast, int to);
-    void replace(Utils::ChangeSet *changeSet, unsigned tokenIndex,
-                 const QString &replacement);
-    void replace(Utils::ChangeSet *changeSet, const CPlusPlus::AST *ast,
-                 const QString &replacement);
-    void remove(Utils::ChangeSet *changeSet, unsigned tokenIndex);
-    void remove(Utils::ChangeSet *changeSet, const CPlusPlus::AST *ast);
-    void flip(Utils::ChangeSet *changeSet, const CPlusPlus::AST *ast1,
-              const CPlusPlus::AST *ast2);
-    void copy(Utils::ChangeSet *changeSet, unsigned tokenIndex, int to);
-    void copy(Utils::ChangeSet *changeSet, const CPlusPlus::AST *ast, int to);
 
     QString textOf(const CPlusPlus::AST *ast) const;
 
