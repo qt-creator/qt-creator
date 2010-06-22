@@ -103,7 +103,7 @@ QStringList RefactoringChanges::apply()
             }
 
             QTextCursor changeSetCursor = editor->textCursor();
-            Utils::ChangeSet changeSet = m_changesByFile[fileName];
+            Utils::ChangeSet changeSet = m_changesByFile.value(fileName);
             changeSet.apply(&changeSetCursor);
 
             foreach (const CursorPair &cursorPair, cursorPairs) {

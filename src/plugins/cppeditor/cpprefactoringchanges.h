@@ -42,14 +42,14 @@ namespace CppEditor {
 class CPPEDITOR_EXPORT CppRefactoringChanges: public TextEditor::RefactoringChanges
 {
 public:
-    CppRefactoringChanges(const CPlusPlus::Snapshot &snapshot, CppTools::CppModelManagerInterface *modelManager);
+    CppRefactoringChanges(const CPlusPlus::Snapshot &snapshot);
 
     virtual QStringList apply();
 
     const CPlusPlus::Snapshot &snapshot() const
     { return m_snapshot; }
 
-    CPlusPlus::Document::Ptr parsedDocumentForFile(const QString &fileName) const;
+    CPlusPlus::Document::Ptr document(const QString &fileName) const;
 
 private:
     CPlusPlus::Snapshot m_snapshot;

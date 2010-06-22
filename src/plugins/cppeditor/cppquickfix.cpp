@@ -933,8 +933,7 @@ int CppQuickFixOperation::match(TextEditor::QuickFixState *state)
     _document = s->info.doc;
     if (_refactoringChanges)
         delete _refactoringChanges;
-    CPPEditor *cppEditor = qobject_cast<CPPEditor*>(editor());
-    _refactoringChanges = new CppRefactoringChanges(s->info.snapshot, cppEditor->modelManager());
+    _refactoringChanges = new CppRefactoringChanges(s->info.snapshot);
     return match(s->path);
 }
 

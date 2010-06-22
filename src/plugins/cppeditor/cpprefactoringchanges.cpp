@@ -34,13 +34,12 @@ using namespace CppTools;
 using namespace TextEditor;
 using namespace CppEditor;
 
-CppRefactoringChanges::CppRefactoringChanges(const Snapshot &snapshot,
-                                             CppModelManagerInterface *modelManager)
+CppRefactoringChanges::CppRefactoringChanges(const Snapshot &snapshot)
     : m_snapshot(snapshot)
-    , m_modelManager(modelManager)
-    , m_workingCopy(modelManager->workingCopy())
+    , m_modelManager(CppTools::CppModelManagerInterface::instance())
 {
-    Q_ASSERT(modelManager);
+    Q_ASSERT(m_modelManager);
+    m_workingCopy = m_modelManager->workingCopy();
 }
 
 QStringList CppRefactoringChanges::apply()
@@ -50,17 +49,14 @@ QStringList CppRefactoringChanges::apply()
     return changedFiles;
 }
 
-Document::Ptr CppRefactoringChanges::parsedDocumentForFile(const QString &fileName) const
+Document::Ptr CppRefactoringChanges::document(const QString &fileName) const
 {
-    Document::Ptr doc = m_snapshot.document(fileName);
-
     QString source;
+    unsigned editorRevision = 0;
     if (m_workingCopy.contains(fileName)) {
-        QPair<QString, unsigned> workingCopy = m_workingCopy.get(fileName);
-        if (doc && doc->editorRevision() == workingCopy.second)
-            return doc;
-        else
-            source = workingCopy.first;
+        const QPair<QString, unsigned> workingCopy = m_workingCopy.get(fileName);
+        source = workingCopy.first;
+        editorRevision = workingCopy.second;
     } else {
         QFile file(fileName);
         if (! file.open(QFile::ReadOnly))
@@ -71,7 +67,8 @@ Document::Ptr CppRefactoringChanges::parsedDocumentForFile(const QString &fileNa
     }
 
     const QByteArray contents = m_snapshot.preprocessedCode(source, fileName);
-    doc = m_snapshot.documentFromSource(contents, fileName);
+    Document::Ptr doc = m_snapshot.documentFromSource(contents, fileName);
+    doc->setEditorRevision(editorRevision);
     doc->check();
     return doc;
 }
