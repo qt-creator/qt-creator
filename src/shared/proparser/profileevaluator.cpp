@@ -180,8 +180,10 @@ public:
     bool evaluateFileDirect(const QString &fileName, ProFileEvaluatorHandler::EvalFileType type);
     bool evaluateFile(const QString &fileName, ProFileEvaluatorHandler::EvalFileType type);
     bool evaluateFeatureFile(const QString &fileName);
+    enum EvalIntoMode { EvalProOnly, EvalWithDefaults, EvalWithSetup };
     bool evaluateFileInto(const QString &fileName, ProFileEvaluatorHandler::EvalFileType type,
-                          QHash<ProString, ProStringList> *values, FunctionDefs *defs);
+                          QHash<ProString, ProStringList> *values, FunctionDefs *defs,
+                          EvalIntoMode mode); // values are output-only, defs are input-only
 
     static ALWAYS_INLINE VisitReturn returnBool(bool b)
         { return b ? ReturnTrue : ReturnFalse; }
@@ -1150,7 +1152,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
                     qmake_cache = resolvePath(qmake_cache);
                     QHash<ProString, ProStringList> cache_valuemap;
                     if (evaluateFileInto(qmake_cache, ProFileEvaluatorHandler::EvalConfigFile,
-                                         &cache_valuemap, 0)) {
+                                         &cache_valuemap, 0, EvalProOnly)) {
                         if (m_option->qmakespec.isEmpty()) {
                             const ProStringList &vals = cache_valuemap.value(ProString("QMAKESPEC"));
                             if (!vals.isEmpty())
@@ -2097,7 +2099,8 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
                 QHash<ProString, ProStringList> vars;
                 QString fn = resolvePath(expandEnvVars(args.at(0).toQString(m_tmp1)));
                 fn.detach();
-                if (evaluateFileInto(fn, ProFileEvaluatorHandler::EvalAuxFile, &vars, 0))
+                if (evaluateFileInto(fn, ProFileEvaluatorHandler::EvalAuxFile,
+                                     &vars, &m_functionDefs, EvalWithDefaults))
                     ret = vars.value(map(args.at(1)));
             }
             break;
@@ -2377,7 +2380,8 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
                 QHash<ProString, ProStringList> vars;
                 QString fn = resolvePath(expandEnvVars(args.at(0).toQString(m_tmp1)));
                 fn.detach();
-                if (!evaluateFileInto(fn, ProFileEvaluatorHandler::EvalAuxFile, &vars, 0))
+                if (!evaluateFileInto(fn, ProFileEvaluatorHandler::EvalAuxFile,
+                                      &vars, &m_functionDefs, EvalWithDefaults))
                     return ReturnFalse;
                 if (args.count() == 2)
                     return returnBool(vars.contains(args.at(1)));
@@ -2665,7 +2669,8 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
                 ok = evaluateFile(fn, ProFileEvaluatorHandler::EvalIncludeFile);
             } else {
                 QHash<ProString, ProStringList> symbols;
-                if ((ok = evaluateFileInto(fn, ProFileEvaluatorHandler::EvalAuxFile, &symbols, 0))) {
+                if ((ok = evaluateFileInto(fn, ProFileEvaluatorHandler::EvalAuxFile,
+                                           &symbols, 0, EvalWithSetup))) {
                     QHash<ProString, ProStringList> newMap;
                     for (QHash<ProString, ProStringList>::ConstIterator
                             it = m_valuemapStack.top().constBegin(),
@@ -3020,19 +3025,21 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(const QString &fileName)
 
 bool ProFileEvaluator::Private::evaluateFileInto(
         const QString &fileName, ProFileEvaluatorHandler::EvalFileType type,
-        QHash<ProString, ProStringList> *values, FunctionDefs *funcs)
+        QHash<ProString, ProStringList> *values, FunctionDefs *funcs, EvalIntoMode mode)
 {
     ProFileEvaluator visitor(m_option, m_parser, m_handler);
     visitor.d->m_cumulative = false;
-    visitor.d->m_parsePreAndPostFiles = false;
-    visitor.d->m_valuemapStack.top() = *values;
+    visitor.d->m_parsePreAndPostFiles = (mode == EvalWithSetup);
+//    visitor.d->m_valuemapStack.top() = *values;
     if (funcs)
         visitor.d->m_functionDefs = *funcs;
+    if (mode == EvalWithDefaults)
+        visitor.d->evaluateFeatureFile(QLatin1String("default_pre.prf"));
     if (!visitor.d->evaluateFile(fileName, type))
         return false;
     *values = visitor.d->m_valuemapStack.top();
-    if (funcs)
-        *funcs = visitor.d->m_functionDefs;
+//    if (funcs)
+//        *funcs = visitor.d->m_functionDefs;
     return true;
 }
 
