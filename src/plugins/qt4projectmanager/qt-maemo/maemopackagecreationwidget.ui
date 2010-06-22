@@ -23,8 +23,7 @@
    <item>
     <widget class="QCheckBox" name="skipCheckBox">
      <property name="toolTip">
-      <string>Check this if you build the package externally. It still needs to be at the location listed above 
-and the remote executable is assumed to be in the directory mentioned below.</string>
+      <string>Check this if you want the files below to be deployed directly.</string>
      </property>
      <property name="text">
       <string>Skip Packaging Step</string>
@@ -40,7 +39,7 @@ and the remote executable is assumed to be in the directory mentioned below.</st
       </font>
      </property>
      <property name="text">
-      <string>Package contents:</string>
+      <string>Files to deploy:</string>
      </property>
     </widget>
    </item>

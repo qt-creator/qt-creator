@@ -31,6 +31,7 @@
 #define MAEMOPACKAGECONTENTS_H
 
 #include <QtCore/QAbstractTableModel>
+#include <QtCore/QHash>
 #include <QtCore/QList>
 #include <QtCore/QString>
 #include <QtCore/QVariantMap>
@@ -38,27 +39,32 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
+struct MaemoDeployable
+{
+    MaemoDeployable(const QString &localFilePath, const QString &remoteFilePath)
+        : localFilePath(localFilePath), remoteFilePath(remoteFilePath) {}
+
+    bool operator==(const MaemoDeployable &other) const
+    {
+        return localFilePath == other.localFilePath
+            && remoteFilePath == other.remoteFilePath;
+    }
+
+    QString localFilePath;
+    QString remoteFilePath;
+};
+inline uint qHash(const MaemoDeployable &d)
+{
+    return qHash(qMakePair(d.localFilePath, d.remoteFilePath));
+}
+
+
 class MaemoPackageCreationStep;
 
 class MaemoPackageContents : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    struct Deployable
-    {
-        Deployable(const QString &localFilePath, const QString &remoteFilePath)
-            : localFilePath(localFilePath), remoteFilePath(remoteFilePath) {}
-
-        bool operator==(const Deployable &other) const
-        {
-            return localFilePath == other.localFilePath
-                    && remoteFilePath == other.remoteFilePath;
-        }
-
-        QString localFilePath;
-        QString remoteFilePath;
-    };
-
     MaemoPackageContents(MaemoPackageCreationStep *packageStep);
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -66,8 +72,8 @@ public:
     QVariantMap toMap() const;
     void fromMap(const QVariantMap &map);
 
-    Deployable deployableAt(int row) const;
-    bool addDeployable(const Deployable &deployable);
+    MaemoDeployable deployableAt(int row) const;
+    bool addDeployable(const MaemoDeployable &deployable);
     void removeDeployableAt(int row);
     bool isModified() const { return m_modified; }
     void setUnModified() { m_modified = false; }
@@ -85,7 +91,7 @@ private:
 
 private:
     const MaemoPackageCreationStep * const m_packageStep;
-    QList<Deployable> m_deployables;
+    QList<MaemoDeployable> m_deployables;
     bool m_modified;
     mutable QString m_remoteExecutableFilePath;
 };

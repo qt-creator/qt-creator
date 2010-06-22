@@ -65,7 +65,6 @@ MaemoPackageCreationWidget::MaemoPackageCreationWidget(MaemoPackageCreationStep 
 {
     m_ui->setupUi(this);
     m_ui->skipCheckBox->setChecked(!m_step->isPackagingEnabled());
-    m_ui->packageContentsView->setEnabled(m_step->isPackagingEnabled());
     m_ui->packageContentsView->setModel(step->packageContents());
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     connect(step->packageContents(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
@@ -104,8 +103,7 @@ void MaemoPackageCreationWidget::addFile()
     const QString localFile = QFileDialog::getOpenFileName(this, title, baseDir);
     if (localFile.isEmpty())
         return;
-    const MaemoPackageContents::Deployable
-        deployable(QFileInfo(localFile).absoluteFilePath(), "/");
+    const MaemoDeployable deployable(QFileInfo(localFile).absoluteFilePath(), "/");
     MaemoPackageContents * const contents = m_step->packageContents();
     if (!contents->addDeployable(deployable)) {
         QMessageBox::information(this, tr("File already in package"),
@@ -141,7 +139,6 @@ void MaemoPackageCreationWidget::enableOrDisableRemoveButton()
 void MaemoPackageCreationWidget::handleSkipButtonToggled(bool checked)
 {
     m_step->setPackagingEnabled(!checked);
-    m_ui->packageContentsView->setEnabled(m_step->isPackagingEnabled());
 }
 
 } // namespace Internal

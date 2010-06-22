@@ -134,15 +134,18 @@ void MaemoRunConfiguration::addDeployTimesToMap(QVariantMap &map) const
 {
     QVariantList hostList;
     QVariantList fileList;
+    QVariantList remotePathList;
     QVariantList timeList;
-    typedef QMap<DeployablePerHost, QDateTime>::ConstIterator DepIt;
+    typedef QHash<DeployablePerHost, QDateTime>::ConstIterator DepIt;
     for (DepIt it = m_lastDeployed.begin(); it != m_lastDeployed.end(); ++it) {
-        hostList << it.key().first;
+        hostList << it.key().first.localFilePath;
+        remotePathList << it.key().first.remoteFilePath;
         fileList << it.key().second;
         timeList << it.value();
     }
     map.insert(LastDeployedHostsKey, hostList);
     map.insert(LastDeployedFilesKey, fileList);
+    map.insert(LastDeployedRemotePathsKey, remotePathList);
     map.insert(LastDeployedTimesKey, timeList);
 }
 
@@ -165,28 +168,33 @@ void MaemoRunConfiguration::getDeployTimesFromMap(const QVariantMap &map)
 {
     const QVariantList &hostList = map.value(LastDeployedHostsKey).toList();
     const QVariantList &fileList = map.value(LastDeployedFilesKey).toList();
+    const QVariantList &remotePathList
+        = map.value(LastDeployedRemotePathsKey).toList();
     const QVariantList &timeList = map.value(LastDeployedTimesKey).toList();
     const int elemCount
-        = qMin(qMin(hostList.size(), fileList.size()), timeList.size());
+        = qMin(qMin(hostList.size(), fileList.size()),
+            qMin(remotePathList.size(), timeList.size()));
     for (int i = 0; i < elemCount; ++i) {
-        m_lastDeployed.insert(DeployablePerHost(hostList.at(i).toString(),
-            fileList.at(i).toString()), timeList.at(i).toDateTime());
+        const MaemoDeployable d(fileList.at(i).toString(),
+            remotePathList.at(i).toString());
+        m_lastDeployed.insert(DeployablePerHost(d, hostList.at(i).toString()),
+            timeList.at(i).toDateTime());
     }
 }
 
 bool MaemoRunConfiguration::currentlyNeedsDeployment(const QString &host,
-    const QString &file) const
+    const MaemoDeployable &deployable) const
 {
     const QDateTime &lastDeployed
-        = m_lastDeployed.value(DeployablePerHost(host, file));
+        = m_lastDeployed.value(DeployablePerHost(deployable, host));
     return !lastDeployed.isValid()
-        || QFileInfo(file).lastModified() > lastDeployed;
+        || QFileInfo(deployable.localFilePath).lastModified() > lastDeployed;
 }
 
 void MaemoRunConfiguration::setDeployed(const QString &host,
-    const QString &file)
+    const MaemoDeployable &deployable)
 {
-    m_lastDeployed.insert(DeployablePerHost(host, file),
+    m_lastDeployed.insert(DeployablePerHost(deployable, host),
         QDateTime::currentDateTime());
 }
 

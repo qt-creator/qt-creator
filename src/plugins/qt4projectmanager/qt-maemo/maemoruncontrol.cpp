@@ -34,7 +34,6 @@
 
 #include "maemoruncontrol.h"
 
-#include "maemopackagecontents.h"
 #include "maemopackagecreationstep.h"
 #include "maemosshthread.h"
 #include "maemorunconfiguration.h"
@@ -46,6 +45,7 @@
 #include <projectexplorer/toolchain.h>
 #include <utils/qtcassert.h>
 
+#include <QtCore/QCryptographicHash>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QFuture>
@@ -123,24 +123,52 @@ void AbstractMaemoRunControl::startDeployment(bool forDebugging)
     if (m_stoppedByUser) {
         emit finished();
     } else {
+        m_needsInstall = false;
         m_deployables.clear();
-        if (m_runConfig->currentlyNeedsDeployment(m_devConfig.server.host,
-            packageFilePath())) {
-            m_deployables.append(Deployable(packageFileName(),
-                QFileInfo(executableOnHost()).canonicalPath()));
-            m_needsInstall = true;
+        m_remoteLinks.clear();
+        const MaemoPackageCreationStep * const packageStep
+            = m_runConfig->packageStep();
+        if (packageStep->isPackagingEnabled()) {
+            const MaemoDeployable d(packageFilePath(),
+                remoteDir() + '/' + packageFileName());
+            m_needsInstall = addDeployableIfNeeded(d);
         } else {
-            m_needsInstall = false;
+            const MaemoPackageContents * const packageContents
+                = packageStep->packageContents();
+            for (int i = 0; i < packageContents->rowCount(); ++i) {
+                const MaemoDeployable &d = packageContents->deployableAt(i);
+                if (addDeployableIfNeeded(d))
+                    m_needsInstall = true;
+            }
         }
+
         if (forDebugging) {
-            const QFileInfo info(m_runConfig->dumperLib());
-            if (info.exists()
-                && m_runConfig->currentlyNeedsDeployment(m_devConfig.server.host,
-                    info.filePath())) {
-                m_deployables.append(Deployable(info.fileName(), info.canonicalPath()));
+            QFileInfo dumperInfo(m_runConfig->dumperLib());
+            if (dumperInfo.exists()) {
+                const MaemoDeployable d(m_runConfig->dumperLib(),
+                    remoteDir() + '/' + dumperInfo.fileName());
+                m_needsInstall = addDeployableIfNeeded(d);
             }
         }
         deploy();
+    }
+}
+
+bool AbstractMaemoRunControl::addDeployableIfNeeded(const MaemoDeployable &deployable)
+{
+    if (m_runConfig->currentlyNeedsDeployment(m_devConfig.server.host,
+        deployable)) {
+        const QString fileName
+            = QFileInfo(deployable.remoteFilePath).fileName();
+        const QString sftpTargetFilePath = remoteDir() + '/' + fileName + '.'
+            + QCryptographicHash::hash(deployable.remoteFilePath.toUtf8(),
+                  QCryptographicHash::Md5).toHex();
+        m_deployables.append(MaemoDeployable(deployable.localFilePath,
+            sftpTargetFilePath));
+        m_remoteLinks.insert(sftpTargetFilePath, deployable.remoteFilePath);
+        return true;
+    } else {
+        return false;
     }
 }
 
@@ -152,14 +180,11 @@ void AbstractMaemoRunControl::deploy()
     if (!m_deployables.isEmpty()) {
         QList<Core::SftpTransferInfo> deploySpecs;
         QStringList files;
-        foreach (const Deployable &deployable, m_deployables) {
-            const QString srcFilePath
-                = deployable.dir % QDir::separator() % deployable.fileName;
-            const QString tgtFilePath
-                = remoteDir() % QDir::separator() % deployable.fileName;
-            files << srcFilePath;
-            deploySpecs << Core::SftpTransferInfo(srcFilePath,
-                               tgtFilePath.toUtf8(), Core::SftpTransferInfo::Upload);
+        foreach (const MaemoDeployable &deployable, m_deployables) {
+            files << deployable.localFilePath;
+            deploySpecs << Core::SftpTransferInfo(deployable.localFilePath,
+                deployable.remoteFilePath.toUtf8(),
+                Core::SftpTransferInfo::Upload);
         }
         emit appendMessage(this, tr("Files to deploy: %1.").arg(files.join(" ")), false);
         m_sshDeployer.reset(new MaemoSshDeployer(m_devConfig.server, deploySpecs));
@@ -179,9 +204,10 @@ void AbstractMaemoRunControl::deploy()
 
 void AbstractMaemoRunControl::handleFileCopied()
 {
-    Deployable deployable = m_deployables.takeFirst();
+    const MaemoDeployable &deployable = m_deployables.takeFirst();
     m_runConfig->setDeployed(m_devConfig.server.host,
-        deployable.dir + QLatin1Char('/') + deployable.fileName);
+        MaemoDeployable(deployable.localFilePath,
+        m_remoteLinks.value(deployable.remoteFilePath)));
     m_progress.setProgressValue(m_progress.progressValue() + 1);
 }
 
@@ -320,8 +346,21 @@ QString AbstractMaemoRunControl::remoteSudo() const
 
 QString AbstractMaemoRunControl::remoteInstallCommand() const
 {
-    return QString::fromLocal8Bit("%1 dpkg -i %2").arg(remoteSudo())
-        .arg(packageFileName());
+    Q_ASSERT(m_needsInstall);
+    QString cmd;
+    for (QMap<QString, QString>::ConstIterator it = m_remoteLinks.begin();
+    it != m_remoteLinks.end(); ++it) {
+        cmd += QString::fromLocal8Bit("%1 ln -sf %2 %3 && ")
+            .arg(remoteSudo(), it.key(), it.value());
+    }
+    if (m_runConfig->packageStep()->isPackagingEnabled()) {
+        cmd += QString::fromLocal8Bit("%1 dpkg -i %2").arg(remoteSudo())
+            .arg(packageFileName());
+    } else if (!m_remoteLinks.isEmpty()) {
+           return cmd.remove(cmd.length() - 4, 4); // Trailing " && "
+    }
+
+    return cmd;
 }
 
 const QString AbstractMaemoRunControl::targetCmdLinePrefix() const

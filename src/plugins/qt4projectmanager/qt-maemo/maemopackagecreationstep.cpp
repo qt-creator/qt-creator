@@ -186,8 +186,7 @@ bool MaemoPackageCreationStep::createPackage()
     const QDir debianRoot = QDir(buildDir % QLatin1String("/debian/")
                                  % executableFileName().toLower());
     for (int i = 0; i < m_packageContents->rowCount(); ++i) {
-        const MaemoPackageContents::Deployable &d
-            = m_packageContents->deployableAt(i);
+        const MaemoDeployable &d = m_packageContents->deployableAt(i);
         const QString targetFile = debianRoot.path() + '/' + d.remoteFilePath;
         const QString absTargetDir = QFileInfo(targetFile).dir().path();
         const QString relTargetDir = debianRoot.relativeFilePath(absTargetDir);

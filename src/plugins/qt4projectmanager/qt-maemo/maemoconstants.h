@@ -63,6 +63,7 @@ static const QLatin1String SimulatorPathKey(PREFIX ".Simulator");
 static const QLatin1String DeviceIdKey(PREFIX ".DeviceId");
 static const QLatin1String LastDeployedHostsKey(PREFIX ".LastDeployedHosts");
 static const QLatin1String LastDeployedFilesKey(PREFIX ".LastDeployedFiles");
+static const QLatin1String LastDeployedRemotePathsKey(PREFIX ".LastDeployedRemotePaths");
 static const QLatin1String LastDeployedTimesKey(PREFIX ".LastDeployedTimes");
 static const QLatin1String ProFileKey(".ProFile");
 

@@ -58,16 +58,16 @@ MaemoPackageContents::MaemoPackageContents(MaemoPackageCreationStep *packageStep
 {
 }
 
-MaemoPackageContents::Deployable MaemoPackageContents::deployableAt(int row) const
+MaemoDeployable MaemoPackageContents::deployableAt(int row) const
 {
     Q_ASSERT(row >= 0 && row < rowCount());
     return row == 0
-        ? Deployable(m_packageStep->localExecutableFilePath(),
+        ? MaemoDeployable(m_packageStep->localExecutableFilePath(),
                      remoteExecutableFilePath())
         : m_deployables.at(row - 1);
 }
 
-bool MaemoPackageContents::addDeployable(const Deployable &deployable)
+bool MaemoPackageContents::addDeployable(const MaemoDeployable &deployable)
 {
     if (m_deployables.contains(deployable) || deployableAt(0) == deployable)
         return false;
@@ -103,7 +103,7 @@ QVariant MaemoPackageContents::data(const QModelIndex &index, int role) const
     if (!index.isValid() || index.row() >= rowCount())
         return QVariant();
 
-    const Deployable &d = deployableAt(index.row());
+    const MaemoDeployable &d = deployableAt(index.row());
     if (index.column() == 0 && role == Qt::DisplayRole)
         return d.localFilePath;
     if (role == Qt::DisplayRole || role == Qt::EditRole)
@@ -151,7 +151,7 @@ QVariantMap MaemoPackageContents::toMap() const
     map.insert(REMOTE_EXE_KEY, m_remoteExecutableFilePath);
     QStringList localFiles;
     QStringList remoteFiles;
-    foreach (const Deployable &p, m_deployables) {
+    foreach (const MaemoDeployable &p, m_deployables) {
         localFiles << p.localFilePath;
         remoteFiles << p.remoteFilePath;
     }
@@ -170,7 +170,7 @@ void MaemoPackageContents::fromMap(const QVariantMap &map)
         qWarning("%s: serialized data inconsistent", Q_FUNC_INFO);
     const int count = qMin(localFiles.count(), remoteFiles.count());
     for (int i = 0; i < count; ++i)
-        m_deployables << Deployable(localFiles.at(i), remoteFiles.at(i));
+        m_deployables << MaemoDeployable(localFiles.at(i), remoteFiles.at(i));
 }
 
 QString MaemoPackageContents::remoteExecutableFilePath() const

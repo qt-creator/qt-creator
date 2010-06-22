@@ -32,6 +32,7 @@
 
 #include "maemoconstants.h"
 #include "maemodeviceconfigurations.h"
+#include "maemopackagecontents.h"
 
 #include <projectexplorer/runconfiguration.h>
 
@@ -70,8 +71,8 @@ public:
     Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
 
     bool currentlyNeedsDeployment(const QString &host,
-        const QString &file) const;
-    void setDeployed(const QString &host, const QString &file);
+        const MaemoDeployable &deployable) const;
+    void setDeployed(const QString &host, const MaemoDeployable &deployable);
 
     const MaemoPackageCreationStep *packageStep() const;
 
@@ -118,8 +119,8 @@ private:
     MaemoDeviceConfig m_devConfig;
     QStringList m_arguments;
 
-    typedef QPair<QString, QString> DeployablePerHost;
-    QMap<DeployablePerHost, QDateTime> m_lastDeployed;
+    typedef QPair<MaemoDeployable, QString> DeployablePerHost;
+    QHash<DeployablePerHost, QDateTime> m_lastDeployed;
 };
 
     } // namespace Internal

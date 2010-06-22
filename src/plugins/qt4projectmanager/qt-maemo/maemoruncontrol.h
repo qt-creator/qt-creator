@@ -36,6 +36,7 @@
 #define MAEMORUNCONTROL_H
 
 #include "maemodeviceconfigurations.h"
+#include "maemopackagecontents.h"
 
 #include <projectexplorer/runconfiguration.h>
 
@@ -97,6 +98,8 @@ protected:
     const MaemoDeviceConfig m_devConfig;
 
 private:
+    bool addDeployableIfNeeded(const MaemoDeployable &deployable);
+
     virtual void startInternal()=0;
     virtual void stopInternal()=0;
     virtual QString remoteCall() const=0;
@@ -115,14 +118,8 @@ private:
     QScopedPointer<MaemoSshRunner> m_initialCleaner;
     bool m_stoppedByUser;
 
-    struct Deployable
-    {
-        Deployable(const QString &f, const QString &d)
-            : fileName(f), dir(d) {}
-        QString fileName;
-        QString dir;
-    };
-    QList<Deployable> m_deployables;
+    QList<MaemoDeployable> m_deployables;
+    QMap<QString, QString> m_remoteLinks;
     bool m_needsInstall;
 };
 
