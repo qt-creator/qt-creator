@@ -14,7 +14,8 @@ HEADERS += cppplugin.h \
     cppeditorenums.h \
     cppeditor_global.h \
     cppclasswizard.h \
-    cppquickfix.h
+    cppquickfix.h \
+    cpprefactoringchanges.h
 
 SOURCES += cppplugin.cpp \
     cppeditor.cpp \
@@ -22,7 +23,8 @@ SOURCES += cppplugin.cpp \
     cpphoverhandler.cpp \
     cppfilewizard.cpp \
     cppclasswizard.cpp \
-    cppquickfix.cpp
+    cppquickfix.cpp \
+    cpprefactoringchanges.cpp
 
 RESOURCES += cppeditor.qrc
 

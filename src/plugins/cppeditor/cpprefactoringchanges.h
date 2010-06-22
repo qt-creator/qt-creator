@@ -33,16 +33,16 @@
 #include <cplusplus/CppDocument.h>
 
 #include <cpptools/cppmodelmanagerinterface.h>
-#include <cpptools/cpptools_global.h>
+#include <cppeditor/cppeditor_global.h>
 
 #include <texteditor/refactoringchanges.h>
 
-namespace CppTools {
+namespace CppEditor {
 
-class CPPTOOLS_EXPORT CppRefactoringChanges: public TextEditor::RefactoringChanges
+class CPPEDITOR_EXPORT CppRefactoringChanges: public TextEditor::RefactoringChanges
 {
 public:
-    CppRefactoringChanges(const CPlusPlus::Snapshot &snapshot, CppModelManagerInterface *modelManager);
+    CppRefactoringChanges(const CPlusPlus::Snapshot &snapshot, CppTools::CppModelManagerInterface *modelManager);
 
     virtual QStringList apply();
 
@@ -53,10 +53,10 @@ public:
 
 private:
     CPlusPlus::Snapshot m_snapshot;
-    CppModelManagerInterface *m_modelManager;
-    CppModelManagerInterface::WorkingCopy m_workingCopy;
+    CppTools::CppModelManagerInterface *m_modelManager;
+    CppTools::CppModelManagerInterface::WorkingCopy m_workingCopy;
 };
 
-} // namespace CppTools
+} // namespace CppEditor
 
 #endif // CPPREFACTORINGCHANGES_H

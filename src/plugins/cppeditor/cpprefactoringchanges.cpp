@@ -32,6 +32,7 @@
 using namespace CPlusPlus;
 using namespace CppTools;
 using namespace TextEditor;
+using namespace CppEditor;
 
 CppRefactoringChanges::CppRefactoringChanges(const Snapshot &snapshot,
                                              CppModelManagerInterface *modelManager)

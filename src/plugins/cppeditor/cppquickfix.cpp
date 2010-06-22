@@ -47,7 +47,7 @@
 #include <Name.h>
 #include <Literals.h>
 
-#include <cpptools/cpprefactoringchanges.h>
+#include <cppeditor/cpprefactoringchanges.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 
@@ -944,7 +944,7 @@ int CppQuickFixOperation::match(TextEditor::QuickFixState *state)
     if (_refactoringChanges)
         delete _refactoringChanges;
     CPPEditor *cppEditor = qobject_cast<CPPEditor*>(editor());
-    _refactoringChanges = new CppTools::CppRefactoringChanges(s->info.snapshot, cppEditor->modelManager());
+    _refactoringChanges = new CppRefactoringChanges(s->info.snapshot, cppEditor->modelManager());
     return match(s->path);
 }
 
@@ -956,7 +956,7 @@ void CppQuickFixOperation::apply()
     cppRefactoringChanges()->apply();
 }
 
-CppTools::CppRefactoringChanges *CppQuickFixOperation::cppRefactoringChanges() const
+CppEditor::CppRefactoringChanges *CppQuickFixOperation::cppRefactoringChanges() const
 { return _refactoringChanges; }
 
 TextEditor::RefactoringChanges *CppQuickFixOperation::refactoringChanges() const

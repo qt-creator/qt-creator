@@ -43,10 +43,11 @@
 
 namespace CppTools {
     class CppModelManagerInterface;
-    class CppRefactoringChanges;
 } // end of namespace CppTools
 
 namespace CppEditor {
+class CppRefactoringChanges;
+
 namespace Internal {
 
 class CppQuickFixOperation: public TextEditor::QuickFixOperation
@@ -68,7 +69,7 @@ protected:
     QString fileName() const;
 
     virtual void apply();
-    virtual CppTools::CppRefactoringChanges *cppRefactoringChanges() const;
+    virtual CppRefactoringChanges *cppRefactoringChanges() const;
     virtual TextEditor::RefactoringChanges *refactoringChanges() const;
 
     const CPlusPlus::Token &tokenAt(unsigned index) const;
@@ -101,7 +102,7 @@ protected:
     QString textOf(const CPlusPlus::AST *ast) const;
 
 private:
-    CppTools::CppRefactoringChanges *_refactoringChanges;
+    CppRefactoringChanges *_refactoringChanges;
     CPlusPlus::Document::Ptr _document;
     CPlusPlus::AST *_topLevelNode;
 };
