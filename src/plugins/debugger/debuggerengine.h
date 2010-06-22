@@ -216,7 +216,7 @@ public:
     QAbstractItemModel *snapshotModel() const;
     QAbstractItemModel *sourceFilesModel() const;
 
-    void cleanup();
+    void handleFinished();
     bool debuggerActionsEnabled() const;
     static bool debuggerActionsEnabled(DebuggerState state);
     void showModuleSymbols(const QString &moduleName, const Symbols &symbols);

@@ -678,16 +678,23 @@ void DebuggerManager::executeJumpToLine()
 }
 */
 
-void DebuggerEngine::cleanup()
+// Called from RunControl.
+void DebuggerEngine::handleFinished()
 {
-/*
-    FIXME ABS: Still needed?
     modulesHandler()->removeAll();
-    breakHandler()->setAllPending();
+    //breakHandler()->setAllPending();
     stackHandler()->removeAll();
     threadsHandler()->removeAll();
     watchHandler()->cleanup();
-*/
+
+    DebuggerEngine *sessionTemplate = plugin()->sessionTemplate();
+    if (sessionTemplate != this) {
+        BreakHandler *handler = sessionTemplate->breakHandler();
+        qDebug() << "MOVING BREAKPOINTS TO SESSION";
+        handler->removeAllBreakpoints();
+        handler->initializeFromTemplate(breakHandler());
+    }
+    breakHandler()->removeAllBreakpoints();
 }
 
 const DebuggerStartParameters &DebuggerEngine::startParameters() const

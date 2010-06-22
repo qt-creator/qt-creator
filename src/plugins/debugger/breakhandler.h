@@ -56,7 +56,7 @@ public:
     ~BreakHandler();
 
     void removeAllBreakpoints();
-    void setAllPending();
+    //void setAllPending();
     void loadSessionData();
     void saveSessionData();
 

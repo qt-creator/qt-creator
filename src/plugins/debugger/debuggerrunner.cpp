@@ -209,6 +209,15 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration)
     m_enabledEngines = AllEngineTypes;
 }
 
+DebuggerRunControl::~DebuggerRunControl()
+{
+    disconnect();
+    DebuggerEngine *engine = m_engine;
+    m_engine = 0;
+    engine->disconnect();
+    delete engine;
+}
+
 static DebuggerEngineType engineForToolChain(int toolChainType)
 {
     switch (toolChainType) {
@@ -372,11 +381,6 @@ void DebuggerRunControl::createEngine(const DebuggerStartParameters &sp)
     }
 }
 
-DebuggerRunControl::~DebuggerRunControl()
-{
-    delete m_engine;
-}
-
 QString DebuggerRunControl::displayName() const
 {
     QTC_ASSERT(m_engine, return QString());
@@ -481,6 +485,7 @@ void DebuggerRunControl::handleStarted()
 
 void DebuggerRunControl::handleFinished()
 {
+    engine()->handleFinished();
     plugin()->runControlFinished(this);
 }
 

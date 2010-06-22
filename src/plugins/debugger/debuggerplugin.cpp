@@ -2683,6 +2683,7 @@ void DebuggerPlugin::runControlStarted(DebuggerRunControl *runControl)
 void DebuggerPlugin::runControlFinished(DebuggerRunControl *runControl)
 {
     Q_UNUSED(runControl);
+    d->disconnectEngine();
     qDebug() << "RUNCONTROL FINISHED: " << runControl;
 }
 

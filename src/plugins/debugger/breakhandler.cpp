@@ -964,21 +964,18 @@ void BreakHandler::removeAllBreakpoints()
     for (int index = size(); --index >= 0;)
         removeBreakpointHelper(index);
     emit layoutChanged();
-    saveBreakpoints();
+    //saveBreakpoints();
     updateMarkers();
 }
 
+/*
 void BreakHandler::setAllPending()
 {
-    QTC_ASSERT(false, /*ABC*/ return);
-/*
-    loadBreakpoints();
     for (int index = size(); --index >= 0;)
         at(index)->pending = true;
-    saveBreakpoints();
     updateMarkers();
-*/
 }
+*/
 
 void BreakHandler::saveSessionData()
 {
@@ -1016,7 +1013,7 @@ void BreakHandler::initializeFromTemplate(BreakHandler *other)
     //qDebug() << "COPYING BREAKPOINTS INTO NEW SESSION";
     QTC_ASSERT(m_bp.isEmpty(), /**/);
     foreach (BreakpointData *data, other->m_bp)
-        m_bp.append(data->clone());
+        append(data->clone());
     updateMarkers();
 }
 
