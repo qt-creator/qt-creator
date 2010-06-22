@@ -229,7 +229,6 @@ public:
     void executeStepOutX();
     void executeStepNextX();
     void executeReturnX();
-    void executeWatchPointX();
 
     DebuggerState state() const;
 
@@ -258,6 +257,11 @@ public slots:
 
 protected:
     void setState(DebuggerState state, bool forced = false);
+
+private:
+    void executeRunToLine();
+    void executeRunToFunction();
+    void executeJumpToLine();
 
     DebuggerEnginePrivate *d;
 };

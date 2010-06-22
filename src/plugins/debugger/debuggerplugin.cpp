@@ -293,6 +293,8 @@ static QToolButton *toolButton(QAction *action)
 namespace Debugger {
 namespace Internal {
 
+static const char *Role = "ROLE";
+
 // FIXME: Outdated?
 // The createCdbEngine function takes a list of options pages it can add to.
 // This allows for having a "enabled" toggle on the page independently
@@ -851,7 +853,6 @@ public slots:
     void sessionLoaded();
     void aboutToUnloadSession();
     void aboutToSaveSession();
-    void watchPoint() { QTC_ASSERT(false, /**/); } // FIXME
 
     void executeDebuggerCommand();
 
@@ -1044,59 +1045,59 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     QIcon continueIcon = QIcon(":/debugger/images/debugger_continue_small.png");
     continueIcon.addFile(":/debugger/images/debugger_continue.png");
     m_actions.continueAction->setIcon(continueIcon);
-    m_actions.continueAction->setData(RequestExecContinueRole);
+    m_actions.continueAction->setProperty(Role, RequestExecContinueRole);
 
     m_actions.stopAction = new QAction(tr("Interrupt"), this);
     m_actions.stopAction->setIcon(m_interruptIcon);
-    m_actions.stopAction->setData(RequestExecInterruptRole);
+    m_actions.stopAction->setProperty(Role, RequestExecInterruptRole);
 
     m_actions.resetAction = new QAction(tr("Abort Debugging"), this);
-    m_actions.resetAction->setData(RequestExecResetRole);
+    m_actions.resetAction->setProperty(Role, RequestExecResetRole);
     m_actions.resetAction->setToolTip(tr("Aborts debugging and "
         "resets the debugger to the initial state."));
 
     m_actions.nextAction = new QAction(tr("Step Over"), this);
-    m_actions.nextAction->setData(RequestExecNextRole);
+    m_actions.nextAction->setProperty(Role, RequestExecNextRole);
     m_actions.nextAction->setIcon(
         QIcon(":/debugger/images/debugger_stepover_small.png"));
 
     m_actions.stepAction = new QAction(tr("Step Into"), this);
-    m_actions.stepAction->setData(RequestExecStepRole);
+    m_actions.stepAction->setProperty(Role, RequestExecStepRole);
     m_actions.stepAction->setIcon(
         QIcon(":/debugger/images/debugger_stepinto_small.png"));
 
     m_actions.stepOutAction = new QAction(tr("Step Out"), this);
-    m_actions.stepOutAction->setData(RequestExecStepOutRole);
+    m_actions.stepOutAction->setProperty(Role, RequestExecStepOutRole);
     m_actions.stepOutAction->setIcon(
         QIcon(":/debugger/images/debugger_stepout_small.png"));
 
     m_actions.runToLineAction1 = new QAction(tr("Run to Line"), this);
-    m_actions.runToLineAction1->setData(RequestExecRunToLineRole);
+    m_actions.runToLineAction1->setProperty(Role, RequestExecRunToLineRole);
     m_actions.runToLineAction2 = new QAction(tr("Run to Line"), this);
-    m_actions.runToLineAction2->setData(RequestExecRunToLineRole);
+    m_actions.runToLineAction2->setProperty(Role, RequestExecRunToLineRole);
 
     m_actions.runToFunctionAction =
         new QAction(tr("Run to Outermost Function"), this);
-    m_actions.runToFunctionAction->setData(RequestExecRunToFunctionRole);
+    m_actions.runToFunctionAction->setProperty(Role, RequestExecRunToFunctionRole);
 
     m_actions.returnFromFunctionAction =
         new QAction(tr("Immediately Return From Inner Function"), this);
-    m_actions.returnFromFunctionAction->setData(RequestExecReturnFromFunctionRole);
+    m_actions.returnFromFunctionAction->setProperty(Role, RequestExecReturnFromFunctionRole);
 
     m_actions.jumpToLineAction1 = new QAction(tr("Jump to Line"), this);
-    m_actions.jumpToLineAction1->setData(RequestExecJumpToLineRole);
+    m_actions.jumpToLineAction1->setProperty(Role, RequestExecJumpToLineRole);
     m_actions.jumpToLineAction2 = new QAction(tr("Jump to Line"), this);
-    m_actions.jumpToLineAction1->setData(RequestExecJumpToLineRole);
+    m_actions.jumpToLineAction1->setProperty(Role, RequestExecJumpToLineRole);
 
     m_actions.breakAction = new QAction(tr("Toggle Breakpoint"), this);
 
     m_actions.watchAction1 = new QAction(tr("Add to Watch Window"), this);
-    m_actions.watchAction1->setData(RequestExecWatchRole);
+    m_actions.watchAction1->setProperty(Role, RequestExecWatchRole);
     m_actions.watchAction2 = new QAction(tr("Add to Watch Window"), this);
-    m_actions.watchAction2->setData(RequestExecWatchRole);
+    m_actions.watchAction2->setProperty(Role, RequestExecWatchRole);
 
     m_actions.snapshotAction = new QAction(tr("Snapshot"), this);
-    m_actions.snapshotAction->setData(RequestExecSnapshotRole);
+    m_actions.snapshotAction->setProperty(Role, RequestExecSnapshotRole);
     m_actions.snapshotAction->setIcon(
         QIcon(":/debugger/images/debugger_snapshot_small.png"));
 
@@ -1110,14 +1111,15 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
 
     m_actions.frameDownAction =
         new QAction(tr("Move to Called Frame"), this);
-    m_actions.frameDownAction->setData(RequestExecFrameDownRole);
+    m_actions.frameDownAction->setProperty(Role, RequestExecFrameDownRole);
     m_actions.frameUpAction =
         new QAction(tr("Move to Calling Frame"), this);
-    m_actions.frameUpAction->setData(RequestExecFrameUpRole);
+    m_actions.frameUpAction->setProperty(Role, RequestExecFrameUpRole);
 
     m_actions.reverseDirectionAction->setCheckable(false);
     theDebuggerAction(OperateByInstruction)->
-        setData(RequestOperatedByInstructionTriggeredRole);
+        setProperty(Role, RequestOperatedByInstructionTriggeredRole);
+    theDebuggerAction(WatchPoint)->setProperty(Role, RequestWatchPointRole);
 
     connect(m_actions.continueAction, SIGNAL(triggered()), SLOT(onAction()));
     connect(m_actions.nextAction, SIGNAL(triggered()), SLOT(onAction()));
@@ -1138,7 +1140,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     connect(m_actions.resetAction, SIGNAL(triggered()), SLOT(onAction()));
     connect(&m_statusTimer, SIGNAL(timeout()), SLOT(clearStatusMessage()));
 
-    connect(theDebuggerAction(WatchPoint), SIGNAL(triggered()), SLOT(watchPoint()));
+    connect(theDebuggerAction(WatchPoint), SIGNAL(triggered()), SLOT(onAction()));
     connect(theDebuggerAction(ExecuteCommand), SIGNAL(triggered()),
         SLOT(executeDebuggerCommand()));
 
@@ -1251,7 +1253,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
 
     m_detachAction = new QAction(this);
     m_detachAction->setText(tr("Detach Debugger"));
-    m_detachAction->setData(RequestExecDetachRole);
+    m_detachAction->setProperty(Role, RequestExecDetachRole);
     connect(m_detachAction, SIGNAL(triggered()), SLOT(onAction()));
 
     Core::Command *cmd = 0;
@@ -1544,7 +1546,7 @@ void DebuggerPluginPrivate::onAction()
 {
     QAction *act = qobject_cast<QAction *>(sender());
     QTC_ASSERT(act, return);
-    const int role = act->data().toInt();
+    const int role = act->property(Role).toInt();
     notifyCurrentEngine(role);
 }
 

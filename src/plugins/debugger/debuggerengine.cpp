@@ -45,6 +45,9 @@
 #include "threadshandler.h"
 #include "watchhandler.h"
 
+#include <coreplugin/icore.h>
+#include <coreplugin/editormanager/editormanager.h>
+
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/environment.h>
 #include <projectexplorer/project.h>
@@ -55,10 +58,10 @@
 
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 
+#include <texteditor/itexteditor.h>
+
 #include <utils/savedaction.h>
 #include <utils/qtcassert.h>
-
-#include <coreplugin/icore.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -69,14 +72,19 @@
 #include <QtGui/QStandardItemModel>
 #include <QtGui/QAction>
 #include <QtGui/QMessageBox>
+#include <QtGui/QPlainTextEdit>
 #include <QtGui/QPushButton>
+#include <QtGui/QTextBlock>
+#include <QtGui/QTextCursor>
 #include <QtGui/QTextDocument>
 #include <QtGui/QTreeWidget>
 
 
-using namespace ProjectExplorer;
+using namespace Core;
 using namespace Debugger;
 using namespace Debugger::Internal;
+using namespace ProjectExplorer;
+using namespace TextEditor;
 
 
 ///////////////////////////////////////////////////////////////////////
@@ -239,12 +247,10 @@ public:
 DebuggerEngine::DebuggerEngine(const DebuggerStartParameters &startParameters)
   : d(new DebuggerEnginePrivate(this, startParameters))
 {
-    //loadSessionData();
 }
 
 DebuggerEngine::~DebuggerEngine()
 {
-    //saveSessionData();
 }
 
 void DebuggerEngine::showStatusMessage(const QString &msg, int timeout) const
@@ -298,13 +304,11 @@ void DebuggerEngine::handleCommand(int role, const QVariant &value)
             break;
 
         case RequestExecRunToLineRole:
-            //executeRunToLine();
-            QTC_ASSERT(false, /* FIXME ABC */);
+            executeRunToLine();
             break;
 
         case RequestExecRunToFunctionRole:
-            //executeRunToFunction();
-            QTC_ASSERT(false, /* FIXME ABC */);
+            executeRunToFunction();
             break;
 
         case RequestExecReturnFromFunctionRole:
@@ -312,8 +316,7 @@ void DebuggerEngine::handleCommand(int role, const QVariant &value)
             break;
 
         case RequestExecJumpToLineRole:
-            //executeJumpToLine();
-            QTC_ASSERT(false, /* FIXME ABC */);
+            executeJumpToLine();
             break;
 
         case RequestExecWatchRole:
@@ -343,6 +346,12 @@ void DebuggerEngine::handleCommand(int role, const QVariant &value)
 
         case RequestExecuteCommandRole:
             executeDebuggerCommand(value.toString());
+            break;
+
+        case RequestWatchPointRole:
+            //if (QAction *action = qobject_cast<QAction *>(sender()))
+            //    watchPoint(action->data().toPoint());
+            QTC_ASSERT(false, /* FIXME ABC */);
             break;
     }
 }
@@ -523,7 +532,6 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
     theDebuggerAction(OperateByInstruction)
         ->setEnabled(engineCapabilities & DisassemblerCapability);
 
-    //loadSessionData();
     startDebugger();
 }
 
@@ -611,29 +619,30 @@ void DebuggerEngine::executeReturnX()
     executeReturn();
 }
 
-void DebuggerEngine::executeWatchPointX()
+static TextEditor::ITextEditor *currentTextEditor()
 {
-    if (QAction *action = qobject_cast<QAction *>(sender()))
-        watchPoint(action->data().toPoint());
+    EditorManager *editorManager = EditorManager::instance();
+    if (!editorManager)
+        return 0;
+    Core::IEditor *editor = editorManager->currentEditor();
+    return qobject_cast<ITextEditor*>(editor);
 }
 
-/*
-void DebuggerManager::executeRunToLine()
+void DebuggerEngine::executeRunToLine()
 {
-    ITextEditor *textEditor = d->m_plugin->currentTextEditor();
+    ITextEditor *textEditor = currentTextEditor();
     QTC_ASSERT(textEditor, return);
     QString fileName = textEditor->file()->fileName();
+    if (fileName.isEmpty())
+        return;
     int lineNumber = textEditor->currentLine();
-    if (d->m_engine && !fileName.isEmpty()) {
-        STATE_DEBUG(fileName << lineNumber);
-        resetLocation();
-        d->m_engine->executeRunToLine(fileName, lineNumber);
-    }
+    resetLocation();
+    executeRunToLine(fileName, lineNumber);
 }
 
-void DebuggerManager::executeRunToFunction()
+void DebuggerEngine::executeRunToFunction()
 {
-    ITextEditor *textEditor = d->m_plugin->currentTextEditor();
+    ITextEditor *textEditor = currentTextEditor();
     QTC_ASSERT(textEditor, return);
     QString fileName = textEditor->file()->fileName();
     QPlainTextEdit *ed = qobject_cast<QPlainTextEdit*>(textEditor->widget());
@@ -657,26 +666,23 @@ void DebuggerManager::executeRunToFunction()
             }
         }
     }
-    STATE_DEBUG(functionName);
 
-    if (d->m_engine && !functionName.isEmpty()) {
-        resetLocation();
-        d->m_engine->executeRunToFunction(functionName);
-    }
+    if (functionName.isEmpty())
+        return;
+    resetLocation();
+    executeRunToFunction(functionName);
 }
 
-void DebuggerManager::executeJumpToLine()
+void DebuggerEngine::executeJumpToLine()
 {
-    ITextEditor *textEditor = d->m_plugin->currentTextEditor();
+    ITextEditor *textEditor = currentTextEditor();
     QTC_ASSERT(textEditor, return);
     QString fileName = textEditor->file()->fileName();
     int lineNumber = textEditor->currentLine();
-    if (d->m_engine && !fileName.isEmpty()) {
-        STATE_DEBUG(fileName << lineNumber);
-        d->m_engine->executeJumpToLine(fileName, lineNumber);
-    }
+    if (fileName.isEmpty())
+        return;
+    executeJumpToLine(fileName, lineNumber);
 }
-*/
 
 // Called from RunControl.
 void DebuggerEngine::handleFinished()
@@ -907,7 +913,6 @@ void DebuggerEngine::startSuccessful()
 
 void DebuggerEngine::notifyInferiorPid(qint64 pid)
 {
-    //STATE_DEBUG(d->m_inferiorPid << pid);
     if (d->m_inferiorPid == pid)
         return;
     d->m_inferiorPid = pid;
