@@ -772,17 +772,12 @@ public slots:
     void updateWatchersHeader(int section, int, int newSize)
         { m_watchersWindow->header()->resizeSection(section, newSize); }
 
-    void reloadSourceFiles()
-        { notifyCurrentEngine(RequestReloadSourceFilesRole); }
-
     void sourceFilesDockToggled(bool on)
-        { if (on) reloadSourceFiles(); }
-
-    void reloadModules()
-        { notifyCurrentEngine(RequestReloadModulesRole); }
-
+        { if (on) notifyCurrentEngine(RequestReloadSourceFilesRole); }
     void modulesDockToggled(bool on)
-        { if (on) reloadModules(); }
+        { if (on) notifyCurrentEngine(RequestReloadModulesRole); }
+    void registerDockToggled(bool on)
+        { if (on) notifyCurrentEngine(RequestReloadRegistersRole); }
 
     void onAction();
     void setSimpleDockWidgetArrangement(const QString &activeLanguage);
@@ -851,9 +846,7 @@ public slots:
     void resetLocation();
     void gotoLocation(const QString &file, int line, bool setMarker);
 
-    void registerDockToggled(bool on) {} // FIXME
     void clearStatusMessage();
-    void operateByInstructionTriggered() {} // FIXME
 
     void sessionLoaded();
     void aboutToUnloadSession();
@@ -1122,6 +1115,9 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_actions.frameUpAction->setData(RequestExecFrameUpRole);
 
     m_actions.reverseDirectionAction->setCheckable(false);
+    theDebuggerAction(OperateByInstruction)->
+        setData(RequestOperatedByInstructionTriggeredRole);
+
     connect(m_actions.continueAction, SIGNAL(triggered()), SLOT(onAction()));
     connect(m_actions.nextAction, SIGNAL(triggered()), SLOT(onAction()));
     connect(m_actions.stepAction, SIGNAL(triggered()), SLOT(onAction()));
@@ -1146,7 +1142,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
         SLOT(executeDebuggerCommand()));
 
     connect(theDebuggerAction(OperateByInstruction), SIGNAL(triggered()),
-        SLOT(operateByInstructionTriggered()));
+        SLOT(onAction()));
 
     m_plugin->readSettings();
 
@@ -1160,26 +1156,28 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
 
     // Dock widgets
     m_breakDock = m_uiSwitcher->createDockWidget(LANG_CPP, m_breakWindow);
+
     m_modulesDock = m_uiSwitcher->createDockWidget(LANG_CPP, m_modulesWindow,
                                                     Qt::TopDockWidgetArea, false);
-
     connect(m_modulesDock->toggleViewAction(), SIGNAL(toggled(bool)),
-        this, SLOT(reloadModules()), Qt::QueuedConnection);
+        SLOT(modulesDockToggled(bool)), Qt::QueuedConnection);
 
     m_registerDock = m_uiSwitcher->createDockWidget(LANG_CPP, m_registerWindow,
         Qt::TopDockWidgetArea, false);
     connect(m_registerDock->toggleViewAction(), SIGNAL(toggled(bool)),
-        m_registerWindow, SLOT(reloadRegisters()), Qt::QueuedConnection);
+        SLOT(registerDockToggled(bool)), Qt::QueuedConnection);
 
     m_outputDock = m_uiSwitcher->createDockWidget(LANG_CPP, m_outputWindow,
         Qt::TopDockWidgetArea, false);
 
     m_snapshotDock = m_uiSwitcher->createDockWidget(LANG_CPP, m_snapshotWindow);
+
     m_stackDock = m_uiSwitcher->createDockWidget(LANG_CPP, m_stackWindow);
+
     m_sourceFilesDock = m_uiSwitcher->createDockWidget(LANG_CPP,
         m_sourceFilesWindow, Qt::TopDockWidgetArea, false);
     connect(m_sourceFilesDock->toggleViewAction(), SIGNAL(toggled(bool)),
-        this, SLOT(reloadSourceFiles()), Qt::QueuedConnection);
+        SLOT(sourceFilesDockToggled(bool)), Qt::QueuedConnection);
 
     m_threadsDock = m_uiSwitcher->createDockWidget(LANG_CPP, m_threadsWindow);
 

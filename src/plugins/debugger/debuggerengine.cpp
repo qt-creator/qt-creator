@@ -260,6 +260,11 @@ bool CommandHandler::setData
         case RequestExecFrameUpRole:
             m_engine->frameUp();
             return true;
+
+        case RequestOperatedByInstructionTriggeredRole:
+            m_engine->gotoLocation(m_engine->stackHandler()->currentFrame(), true);
+            return true;
+
     }
 
     return false;
@@ -672,12 +677,6 @@ void DebuggerManager::executeJumpToLine()
     }
 }
 */
-
-void DebuggerEngine::operateByInstructionTriggered()
-{
-    StackFrame frame = d->m_stackHandler.currentFrame();
-    gotoLocation(frame, true);
-}
 
 void DebuggerEngine::cleanup()
 {

@@ -236,7 +236,6 @@ public:
     void executeReturnX();
     void executeWatchPointX();
 
-    void operateByInstructionTriggered();
     DebuggerState state() const;
 
     // Dumper stuff (common to cdb and gdb).
