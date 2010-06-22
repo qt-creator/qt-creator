@@ -35,6 +35,7 @@
 #include <QtCore/QFile>
 #include <QtCore/QSet>
 #include <QtGui/QTextBlock>
+#include <QtCore/QDebug>
 
 using namespace TextEditor;
 
@@ -97,7 +98,8 @@ QStringList RefactoringChanges::apply()
             foreach (const Range &range, m_indentRangesByFile.value(fileName, QList<Range>())) {
                 QTextCursor start = editor->textCursor();
                 QTextCursor end = editor->textCursor();
-                start.setPosition(range.start);
+                // ### workaround for moving the textcursor when inserting text at the beginning of the range.
+                start.setPosition(qMax(0, range.start - 1));
                 end.setPosition(range.end);
                 cursorPairs.append(qMakePair(start, end));
             }
