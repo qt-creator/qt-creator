@@ -60,7 +60,6 @@ public:
     QList<ImportInfo> directoryImports() const;
     QList<ImportInfo> libraryImports() const;
 
-    Interpreter::ObjectValue *currentObjectValue() const;
     Interpreter::ObjectValue *idEnvironment() const;
     Interpreter::ObjectValue *rootObjectValue() const;
 

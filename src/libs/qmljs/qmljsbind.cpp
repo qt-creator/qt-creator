@@ -68,11 +68,6 @@ QList<Bind::ImportInfo> Bind::libraryImports() const
     return _libraryImports;
 }
 
-Interpreter::ObjectValue *Bind::currentObjectValue() const
-{
-    return _currentObjectValue;
-}
-
 Interpreter::ObjectValue *Bind::idEnvironment() const
 {
     return _idEnvironment;
