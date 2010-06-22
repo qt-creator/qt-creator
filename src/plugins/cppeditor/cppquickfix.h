@@ -67,6 +67,8 @@ public:
 
 protected:
     using TextEditor::QuickFixOperation::range;
+    using TextEditor::QuickFixOperation::textOf;
+    using TextEditor::QuickFixOperation::charAt;
 
     Utils::ChangeSet::Range range(unsigned tokenIndex) const;
     Utils::ChangeSet::Range range(CPlusPlus::AST *ast) const;
@@ -86,9 +88,6 @@ protected:
 
     bool isCursorOn(unsigned tokenIndex) const;
     bool isCursorOn(const CPlusPlus::AST *ast) const;
-
-    using TextEditor::QuickFixOperation::textOf;
-    using TextEditor::QuickFixOperation::charAt;
 
     QString textOf(const CPlusPlus::AST *ast) const;
 
