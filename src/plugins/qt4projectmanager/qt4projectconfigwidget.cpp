@@ -215,6 +215,11 @@ void Qt4ProjectConfigWidget::qtVersionChanged()
     if (m_ignoreChange)
         return;
 
+    int versionId = m_buildConfiguration->qtVersion()->uniqueId();
+    int comboBoxIndex = m_ui->qtVersionComboBox->findData(QVariant(versionId), Qt::UserRole);
+    if (comboBoxIndex > -1)
+        m_ui->qtVersionComboBox->setCurrentIndex(comboBoxIndex);
+
     updateShadowBuildUi();
     updateImportLabel();
     updateToolChainCombo();
@@ -396,7 +401,6 @@ void Qt4ProjectConfigWidget::importLabelClicked()
 
             // So we got all the information now apply it...
             m_buildConfiguration->setQtVersion(version);
-            // Combo box will be updated at the end
 
             QMakeStep *qmakeStep = m_buildConfiguration->qmakeStep();
             qmakeStep->setUserArguments(additionalArguments);
