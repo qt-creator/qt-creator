@@ -11,4 +11,3 @@ TEMPLATE  = subdirs
 CONFIG   += ordered
 
 SUBDIRS = src share
-unix:!macx:!isEmpty(copydata):SUBDIRS += bin
