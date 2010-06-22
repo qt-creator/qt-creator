@@ -38,6 +38,7 @@ extraimages.HTML        = qt-logo \
                           feedbackground.png \
                           horBar.png \
                           page_bg.png \
+                          page.png \
                           sprites-combined.png \
                           qtcreator-screenshots.png
 

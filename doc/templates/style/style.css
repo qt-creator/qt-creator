@@ -456,7 +456,7 @@
     .wrap .content
     {
         padding: 30px;
-		word-wrap:break-word;
+        word-wrap: break-word;
     }
 
     .wrap .content li
@@ -470,6 +470,21 @@
     .content li:hover
     {
       /*  text-decoration: underline;*/
+    }
+
+    .wrap .content ol li {
+        background:none;
+        font: inherit;
+        margin-bottom:10px;
+        padding-left: 0px
+    }
+
+    .wrap .content ol li {
+        list-style-type:decimal;
+    }
+
+    .wrap .content .descr ol li {
+        margin-left: 45px;
     }
 
     .offline .wrap .content
@@ -676,9 +691,9 @@
     .shortCut-topleft-inactive
     {
         padding-left: 3px;
+        padding-right: 3px;
         background: transparent url( ../images/sprites-combined.png) no-repeat 0px -58px;
         height: 20px;
-        width: 110px;
     }
     .shortCut-topleft-inactive span
     {
@@ -698,7 +713,6 @@
     {
         list-style-type: none;
         float: left;
-        width: 347px;
         margin-left: 100px;
     }
     #shortCut li
@@ -958,6 +972,16 @@
     {
         font: normal 10px/1.2 Verdana;
         background: url(../images/bullet_dn.png) no-repeat 0 5px;
+    }
+
+    .wrap .content .toc ul img
+    {
+        vertically-align: middle;
+    }
+
+    .wrap .content .toc ol img
+    {
+        vertically-align: middle;
     }
 
     .relpage
