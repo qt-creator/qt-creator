@@ -44,6 +44,7 @@
 #include "stackhandler.h"
 #include "threadshandler.h"
 #include "watchhandler.h"
+#include "watchutils.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -312,8 +313,7 @@ void DebuggerEngine::handleCommand(int role, const QVariant &value)
             break;
 
         case RequestExecWatchRole:
-            //exec();
-            QTC_ASSERT(false, /* FIXME ABC */);
+            addToWatchWindow();
             break;
 
         case RequestExecExitRole:
@@ -552,22 +552,6 @@ void DebuggerEngine::breakByFunction(const QString &functionName)
     attemptBreakpointSynchronization();
 }
 
-/*
-void DebuggerEngine::loadSessionData()
-{
-    QTC_ASSERT(isSessionEngine(), return);
-    m_breakHandler.loadSessionData();
-    m_watchHandler.loadSessionData();
-}
-
-void DebuggerEngine::saveSessionData()
-{
-    QTC_ASSERT(isSessionEngine(), return);
-    m_breakHandler.saveSessionData();
-    m_watchHandler.saveSessionData();
-}
-*/
-
 void DebuggerEngine::resetLocation()
 {
     d->m_disassemblerViewAgent.resetLocation();
@@ -687,6 +671,34 @@ void DebuggerEngine::executeJumpToLine()
     if (fileName.isEmpty())
         return;
     executeJumpToLine(fileName, lineNumber);
+}
+
+void DebuggerEngine::addToWatchWindow()
+{
+    // Requires a selection, but that's the only case we want anyway.
+    EditorManager *editorManager = EditorManager::instance();
+    if (!editorManager)
+        return;
+    IEditor *editor = editorManager->currentEditor();
+    if (!editor)
+        return;
+    ITextEditor *textEditor = qobject_cast<ITextEditor*>(editor);
+    if (!textEditor)
+        return;
+    QTextCursor tc;
+    QPlainTextEdit *ptEdit = qobject_cast<QPlainTextEdit*>(editor->widget());
+    if (ptEdit)
+        tc = ptEdit->textCursor();
+    QString exp;
+    if (tc.hasSelection()) {
+        exp = tc.selectedText();
+    } else {
+        int line, column;
+        exp = cppExpressionAt(textEditor, tc.position(), &line, &column);
+    }
+
+    if (!exp.isEmpty())
+        watchHandler()->watchExpression(exp);
 }
 
 // Called from RunControl.

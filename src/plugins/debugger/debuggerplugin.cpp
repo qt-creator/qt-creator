@@ -51,7 +51,6 @@
 #include "threadswindow.h"
 #include "watchwindow.h"
 
-//#include "sessiondata.h"
 #include "watchutils.h"
 #include "breakhandler.h" 
 #include "stackhandler.h"  // FIXME
@@ -2477,55 +2476,6 @@ void DebuggerPlugin::aboutToShutdown()
     //if (d->m_engine)
     //    d->m_engine->shutdown();
 }
-
-void DebuggerPlugin::addToWatchWindow()
-{
-    using namespace Core;
-    using namespace TextEditor;
-    // Requires a selection, but that's the only case we want anyway.
-    EditorManager *editorManager = EditorManager::instance();
-    if (!editorManager)
-        return;
-    IEditor *editor = editorManager->currentEditor();
-    if (!editor)
-        return;
-    ITextEditor *textEditor = qobject_cast<ITextEditor*>(editor);
-    if (!textEditor)
-        return;
-    QTextCursor tc;
-    QPlainTextEdit *ptEdit = qobject_cast<QPlainTextEdit*>(editor->widget());
-    if (ptEdit)
-        tc = ptEdit->textCursor();
-    QString exp;
-    if (tc.hasSelection()) {
-        exp = tc.selectedText();
-    } else {
-        int line, column;
-        exp = cppExpressionAt(textEditor, tc.position(), &line, &column);
-    }
-
-// FIXME:
-//    if (!exp.isEmpty())
-//        d->m_watchHandler->watchExpression(exp);
-}
-
-void DebuggerPlugin::setBusyCursor(bool busy)
-{
-    d->setBusyCursor(busy);
-}
-
-/*
-void DebuggerPlugin::gotoLocation(const StackFrame &frame, bool setMarker)
-{
-    if (theDebuggerBoolSetting(OperateByInstruction) || !frame.isUsable()) {
-        if (setMarker)
-            d->m_plugin->resetLocation();
-        d->m_disassemblerViewAgent->setFrame(frame);
-    } else {
-        d->m_plugin->gotoLocation(frame.file, frame.line, setMarker);
-    }
-}
-*/
 
 void DebuggerPlugin::showMessage(const QString &msg, int channel, int timeout)
 {

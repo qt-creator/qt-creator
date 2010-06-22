@@ -105,11 +105,7 @@ public:
 
 public slots:
     void exitDebugger();  // FIXME: remove
-    void setBusyCursor(bool on);
-    void addToWatchWindow(); // FIXME: use
-
     void clearCppCodeModelSnapshot();
-
     void ensureLogVisible();
     void updateWatchersWindow(bool showWatchers, bool showReturn);
 
