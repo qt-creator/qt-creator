@@ -785,8 +785,6 @@ public slots:
         { if (on) reloadModules(); }
 
     void onAction();
-    void onStatusTimeout();
-
     void setSimpleDockWidgetArrangement(const QString &activeLanguage);
 
     void editorOpened(Core::IEditor *editor);
@@ -837,7 +835,10 @@ public slots:
     void startDebugger(ProjectExplorer::RunControl *runControl);
 
     void setToolTipExpression(const QPoint &mousePos,
-        TextEditor::ITextEditor *editor, int cursorPos);
+        TextEditor::ITextEditor *editor, int cursorPos)
+    {
+        // FIXME
+    }
 
     void dumpLog();
     void cleanupViews();
@@ -850,13 +851,16 @@ public slots:
     void resetLocation();
     void gotoLocation(const QString &file, int line, bool setMarker);
 
-    void registerDockToggled(bool on);
+    void registerDockToggled(bool on) {} // FIXME
     void clearStatusMessage();
-    void operateByInstructionTriggered();
+    void operateByInstructionTriggered() {} // FIXME
 
     void sessionLoaded();
     void aboutToUnloadSession();
     void aboutToSaveSession();
+    void watchPoint() { QTC_ASSERT(false, /**/); } // FIXME
+    void executeDebuggerCommand() { QTC_ASSERT(false, /**/); } // FIXME
+    void executeDebuggerCommand(QString const &) {}
 
 public:
     DebuggerState m_state;
@@ -1137,18 +1141,12 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     connect(m_actions.resetAction, SIGNAL(triggered()), SLOT(onAction()));
     connect(&m_statusTimer, SIGNAL(timeout()), SLOT(clearStatusMessage()));
 
-/*
+    connect(theDebuggerAction(WatchPoint), SIGNAL(triggered()), SLOT(watchPoint()));
     connect(theDebuggerAction(ExecuteCommand), SIGNAL(triggered()),
-SLOT(onAction()));
-        this, SLOT(executeDebuggerCommand()));
-
-    connect(theDebuggerAction(WatchPoint), SIGNAL(triggered()),
-SLOT(onAction()));
-        this, SLOT(watchPoint()));
+        SLOT(executeDebuggerCommand()));
 
     connect(theDebuggerAction(OperateByInstruction), SIGNAL(triggered()),
-        this, SLOT(operateByInstructionTriggered()));
-*/
+        SLOT(operateByInstructionTriggered()));
 
     m_plugin->readSettings();
 
@@ -1899,9 +1897,6 @@ void DebuggerPluginPrivate::showToolTip(ITextEditor *editor, const QPoint &point
     if (state() == DebuggerNotReady)
         return;
     setToolTipExpression(point, editor, pos);
-
-    QTC_ASSERT(false, /* FIXME ABC */);
-    // d->m_engine->setToolTipExpression(mousePos, editor, cursorPos);
 }
 
 ProjectExplorer::RunControl *

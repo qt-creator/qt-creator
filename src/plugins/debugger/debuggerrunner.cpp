@@ -67,11 +67,7 @@ DebuggerEngine *createPdbEngine(const DebuggerStartParameters &);
 DebuggerEngine *createTcfEngine(const DebuggerStartParameters &);
 DebuggerEngine *createQmlEngine(const DebuggerStartParameters &);
 
-#ifdef CDB_ENABLED
-DebuggerEngine *createCdbEngine(const DebuggerStartParameters &);
-#else
-DebuggerEngine *createCdbEngine(const DebuggerStartParameters &) { return 0; }
-#endif
+bool checkGdbConfiguration(int toolChain, QString *errorMsg, QString *settingsPage);
 
 // FIXME: Outdated?
 // The createCdbEngine function takes a list of options pages it can add to.
@@ -79,11 +75,15 @@ DebuggerEngine *createCdbEngine(const DebuggerStartParameters &) { return 0; }
 // of the engine. That's good for not enabling the related ActiveX control
 // unnecessarily.
 
-bool checkGdbConfiguration(int toolChain, QString *errorMsg, QString *settingsPage);
+#ifdef CDB_ENABLED
+DebuggerEngine *createCdbEngine(const DebuggerStartParameters &);
 bool checkCdbConfiguration(int toolChain, QString *errorMsg, QString *settingsPage);
+#else
+DebuggerEngine *createCdbEngine(const DebuggerStartParameters &) { return 0; }
+bool checkCdbConfiguration(int, QString *, QString *) { return false; }
+#endif
 
-}
-
+} // namespace Internal
 
 static QString toolChainName(int toolChainType)
 {

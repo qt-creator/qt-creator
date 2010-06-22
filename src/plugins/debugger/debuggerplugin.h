@@ -106,14 +106,7 @@ public:
 public slots:
     void exitDebugger();  // FIXME: remove
     void setBusyCursor(bool on);
-    void interruptDebuggingRequest();
-    void detachDebugger();
-    void addToWatchWindow();
-
-    void executeDebuggerCommand();
-    void executeDebuggerCommand(const QString &command);
-
-    void watchPoint();
+    void addToWatchWindow(); // FIXME: use
 
     void clearCppCodeModelSnapshot();
 
