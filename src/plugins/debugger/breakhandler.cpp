@@ -173,25 +173,23 @@ BreakpointData::BreakpointData()
     useFullPath = false;
 }
 
-BreakpointData::BreakpointData(const BreakpointData &other)
+BreakpointData *BreakpointData::clone() const
 {
-    //qDebug() << "COPYING BREAKPOINT " << other.toString();
-    pending = true;
-    marker = 0;
-
-    m_handler = other.m_handler;
-    m_markerFileName = other.m_markerFileName;
-    m_markerLineNumber = other.m_markerLineNumber;
-    enabled = other.enabled;
-    type = other.type;
-    fileName = other.fileName;
-    condition = other.condition;
-    ignoreCount = other.ignoreCount;
-    lineNumber = other.lineNumber;
-    address = other.address;
-    threadSpec = other.threadSpec;
-    funcName = other.funcName;
-    useFullPath = other.useFullPath;
+    BreakpointData *data = new BreakpointData();
+    data->m_handler = m_handler;
+    data->m_markerFileName = m_markerFileName;
+    data->m_markerLineNumber = m_markerLineNumber;
+    data->enabled = enabled;
+    data->type = type;
+    data->fileName = fileName;
+    data->condition = condition;
+    data->ignoreCount = ignoreCount;
+    data->lineNumber = lineNumber;
+    data->address = address;
+    data->threadSpec = threadSpec;
+    data->funcName = funcName;
+    data->useFullPath = useFullPath;
+    return data;
 }
 
 BreakpointData::~BreakpointData()
@@ -1016,7 +1014,9 @@ void BreakHandler::breakByFunction(const QString &functionName)
 void BreakHandler::initializeFromTemplate(BreakHandler *other)
 {
     //qDebug() << "COPYING BREAKPOINTS INTO NEW SESSION";
-    m_bp = other->m_bp;
+    QTC_ASSERT(m_bp.isEmpty(), /**/);
+    foreach (BreakpointData *data, other->m_bp)
+        m_bp.append(data->clone());
     updateMarkers();
 }
 

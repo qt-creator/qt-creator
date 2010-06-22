@@ -63,13 +63,13 @@ public:
     bool isSimilarTo(const BreakpointData *needle) const;
     bool conditionsMatch() const;
 
-protected:
+    BreakpointData *clone() const;
     // This copies only the static data.
-    BreakpointData(const BreakpointData &);
 
 private:
     // Intentionally unimplemented.
     // Making it copyable is tricky because of the markers.
+    BreakpointData(const BreakpointData &);
     void operator=(const BreakpointData &);
 
     // Our owner
