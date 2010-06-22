@@ -168,12 +168,13 @@ RunControl *DebuggerRunControlFactory::create
 {
     QTC_ASSERT(mode == ProjectExplorer::Constants::DEBUGMODE, return 0);
     DebuggerStartParameters sp = localStartParameters(runConfiguration);
-    return create(sp);
+    return create(sp, runConfiguration);
 }
 
-RunControl *DebuggerRunControlFactory::create(const DebuggerStartParameters &sp)
+RunControl *DebuggerRunControlFactory::create(const DebuggerStartParameters &sp,
+    RunConfiguration *runConfiguration)
 {
-    DebuggerRunControl *runControl = new DebuggerRunControl;
+    DebuggerRunControl *runControl = new DebuggerRunControl(runConfiguration);
     runControl->setEnabledEngines(m_enabledEngines);
     runControl->createEngine(sp);
     if (!runControl->engine()) {
@@ -200,10 +201,9 @@ QWidget *DebuggerRunControlFactory::createConfigurationWidget(RunConfiguration *
 //
 ////////////////////////////////////////////////////////////////////////
 
-DebuggerRunControl::DebuggerRunControl(QObject *parent)
-    : RunControl(0, ProjectExplorer::Constants::DEBUGMODE)
+DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration)
+    : RunControl(runConfiguration, ProjectExplorer::Constants::DEBUGMODE)
 {
-    Q_UNUSED(parent);
     m_running = false;
     m_engine = 0;
     m_enabledEngines = AllEngineTypes;

@@ -68,7 +68,9 @@ public:
         *runConfiguration);
 
     // This is used by the "Non-Standard" scenarios, e.g. Attach to Core.
-    ProjectExplorer::RunControl *create(const DebuggerStartParameters &sp);
+    // FIXME: What to do in case of a 0 runConfiguration?
+    ProjectExplorer::RunControl *create(const DebuggerStartParameters &sp,
+        ProjectExplorer::RunConfiguration *runConfiguration = 0);
 
 private:
     DebuggerEngineType m_enabledEngines;
@@ -83,7 +85,7 @@ class DEBUGGER_EXPORT DebuggerRunControl
     Q_OBJECT
 
 public:
-    DebuggerRunControl(QObject *parent = 0);
+    DebuggerRunControl(ProjectExplorer::RunConfiguration *runConfiguration);
     ~DebuggerRunControl();
 
     // ProjectExplorer::RunControl
