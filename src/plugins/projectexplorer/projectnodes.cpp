@@ -316,6 +316,8 @@ void ProjectNode::addProjectNodes(const QList<ProjectNode*> &subProjects)
             QTC_ASSERT(!project->parentFolderNode(),
                 qDebug("Project node has already a parent"));
             project->setParentFolderNode(this);
+            project->setProjectNode(this);
+
             foreach (NodesWatcher *watcher, m_watchers)
                 project->registerWatcher(watcher);
             m_subFolderNodes.append(project);
