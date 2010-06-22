@@ -159,7 +159,6 @@ private slots:
     void savePersistentSettings();
     void goToTaskWindow();
 
-    void updateContextMenuActions();
     void addNewFile();
     void addExistingFiles();
     void openFile();
@@ -199,6 +198,7 @@ private slots:
 #endif
 
 private:
+    void updateContextMenuActions(Node *node);
     bool parseArguments(const QStringList &arguments, QString *error);
     void runProjectImpl(Project *pro, QString mode);
     void executeRunConfiguration(RunConfiguration *, const QString &mode);

@@ -1212,7 +1212,7 @@ void ProjectExplorerPlugin::showContextMenu(const QPoint &globalPos, Node *node)
         contextMenu = d->m_sessionContextMenu;
     }
 
-    updateContextMenuActions();
+    updateContextMenuActions(node);
     if (contextMenu && contextMenu->actions().count() > 0) {
         contextMenu->popup(globalPos);
     }
@@ -1884,19 +1884,22 @@ void ProjectExplorerPlugin::goToTaskWindow()
     d->m_buildManager->gotoTaskWindow();
 }
 
-void ProjectExplorerPlugin::updateContextMenuActions()
+void ProjectExplorerPlugin::updateContextMenuActions(Node *node)
 {
     d->m_addExistingFilesAction->setEnabled(false);
     d->m_addNewFileAction->setEnabled(false);
     d->m_removeFileAction->setEnabled(false);
 
-    if (FolderNode *folderNode = qobject_cast<FolderNode*>(d->m_currentNode)) {
-        const bool addFilesEnabled = folderNode->projectNode()->supportedActions().contains(ProjectNode::AddFile);
-        d->m_addExistingFilesAction->setEnabled(addFilesEnabled);
-        d->m_addNewFileAction->setEnabled(addFilesEnabled);
-    } else if (FileNode *fileNode = qobject_cast<FileNode*>(d->m_currentNode)) {
-        const bool removeFileEnabled = fileNode->projectNode()->supportedActions().contains(ProjectNode::RemoveFile);
-        d->m_removeFileAction->setEnabled(removeFileEnabled);
+    if (node->projectNode()) {
+        QList<ProjectNode::ProjectAction> supportedActions = node->projectNode()->supportedActions();
+        if (qobject_cast<FolderNode*>(node)) {
+            const bool addFilesEnabled = supportedActions.contains(ProjectNode::AddFile);
+            d->m_addExistingFilesAction->setEnabled(addFilesEnabled);
+            d->m_addNewFileAction->setEnabled(addFilesEnabled);
+        } else if (qobject_cast<FileNode*>(node)) {
+            const bool removeFileEnabled = supportedActions.contains(ProjectNode::RemoveFile);
+            d->m_removeFileAction->setEnabled(removeFileEnabled);
+        }
     }
 }
 
