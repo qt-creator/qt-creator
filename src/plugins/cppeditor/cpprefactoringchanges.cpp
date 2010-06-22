@@ -42,6 +42,12 @@ CppRefactoringChanges::CppRefactoringChanges(const Snapshot &snapshot)
     m_workingCopy = m_modelManager->workingCopy();
 }
 
+const CPlusPlus::Snapshot &CppRefactoringChanges::snapshot() const
+{
+    return m_snapshot;
+}
+
+
 QStringList CppRefactoringChanges::apply()
 {
     const QStringList changedFiles = TextEditor::RefactoringChanges::apply();
@@ -53,6 +59,8 @@ Document::Ptr CppRefactoringChanges::document(const QString &fileName) const
 {
     QString source;
     unsigned editorRevision = 0;
+    QDateTime lastModified;
+
     if (m_workingCopy.contains(fileName)) {
         const QPair<QString, unsigned> workingCopy = m_workingCopy.get(fileName);
         source = workingCopy.first;
@@ -62,13 +70,19 @@ Document::Ptr CppRefactoringChanges::document(const QString &fileName) const
         if (! file.open(QFile::ReadOnly))
             return Document::Ptr();
 
+        lastModified = QFileInfo(file).lastModified();
         source = QTextStream(&file).readAll(); // ### FIXME read bytes, and remove the convert below
         file.close();
     }
 
     const QByteArray contents = m_snapshot.preprocessedCode(source, fileName);
     Document::Ptr doc = m_snapshot.documentFromSource(contents, fileName);
-    doc->setEditorRevision(editorRevision);
+
+    if (lastModified.isValid())
+        doc->setLastModified(lastModified);
+    else
+        doc->setEditorRevision(editorRevision);
     doc->check();
+
     return doc;
 }

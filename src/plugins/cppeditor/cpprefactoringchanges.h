@@ -46,9 +46,7 @@ public:
 
     virtual QStringList apply();
 
-    const CPlusPlus::Snapshot &snapshot() const
-    { return m_snapshot; }
-
+    const CPlusPlus::Snapshot &snapshot() const;
     CPlusPlus::Document::Ptr document(const QString &fileName) const;
 
 private:
