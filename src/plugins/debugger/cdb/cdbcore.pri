@@ -3,8 +3,6 @@
 
 # FIXME
 CDB_PATH=""
-false {
-
 win32 {
 contains(QMAKE_CXX, cl) {
 
@@ -54,5 +52,3 @@ LIBS+=-lpsapi
 } # exists($$CDB_PATH)
 } # (QMAKE_CXX, cl)
 } # win32
-
-} # false

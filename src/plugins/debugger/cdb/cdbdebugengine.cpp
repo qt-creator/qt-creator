@@ -61,6 +61,7 @@
 #include <texteditor/itexteditor.h>
 #include <utils/savedaction.h>
 #include <utils/checkablemessagebox.h>
+#include <projectexplorer/toolchain.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QTimer>
@@ -206,7 +207,7 @@ void CdbDebugEnginePrivate::cleanStackTrace()
 }
 
 CdbDebugEngine::CdbDebugEngine(const DebuggerStartParameters &startParameters) :
-    DebuggerEngine(startParamters),
+    DebuggerEngine(startParameters),
     m_d(new CdbDebugEnginePrivate(this))
 {
     m_d->m_consoleStubProc.setMode(Utils::ConsoleProcess::Suspend);
@@ -374,8 +375,8 @@ void CdbDebugEngine::startupChecks()
 
 void CdbDebugEngine::startDebugger()
 {
-    QTC_ASSERT(runControl(), return);
-    const DebuggerStartParameters &sp = runControl()->sp();
+    setState(EngineStarting, Q_FUNC_INFO, __LINE__);
+    const DebuggerStartParameters &sp = startParameters();
     if (debugCDBExecution)
         qDebug() << "startDebugger";
     CdbCore::BreakPoint::clearNormalizeFileNameCache();
@@ -514,7 +515,7 @@ void CdbDebugEnginePrivate::processCreatedAttached(ULONG64 processHandle, ULONG6
     // the exception to be delivered to the debugger
     // Also, see special handling in slotModulesLoaded().
     if (m_mode == AttachCrashedExternal) {
-        const QString crashParameter = m_engine->runControl()->sp().crashParameter;
+        const QString crashParameter = m_engine->startParameters().crashParameter;
         if (!crashParameter.isEmpty()) {
             ULONG64 evtNr = crashParameter.toULongLong();
             const HRESULT hr = interfaces().debugControl->SetNotifyEventHandle(evtNr);
@@ -1125,7 +1126,7 @@ bool CdbDebugEnginePrivate::attemptBreakpointSynchronization(QString *errorMessa
     QStringList warnings;
     const bool ok = synchronizeBreakPoints(interfaces().debugControl,
                                            interfaces().debugSymbols,
-                                           breakHandler(),
+                                           m_engine->breakHandler(),
                                            errorMessage, &warnings);
     if (const int warningsCount = warnings.size())
         for (int w = 0; w < warningsCount; w++)
@@ -1255,7 +1256,7 @@ void CdbDebugEngine::slotConsoleStubStarted()
     QString errorMessage;
     if (startAttachDebugger(appPid, AttachExternal, &errorMessage)) {
         m_d->startWatchTimer();
-        runControl()->notifyInferiorPid(appPid);
+        notifyInferiorPid(appPid);
     } else {
         QMessageBox::critical(DebuggerUISwitcher::instance()->mainWindow(), tr("Debugger Error"), errorMessage);
     }
@@ -1630,6 +1631,26 @@ void addCdbOptionPages(QList<Core::IOptionsPage *> *opts)
     // FIXME: HACK (global variable)
     theOptionsPage = new CdbOptionsPage;
     opts->push_back(theOptionsPage);
+}
+
+bool checkCdbConfiguration(int toolChainI, QString *errorMsg, QString *settingsPage)
+{
+    const ProjectExplorer::ToolChain::ToolChainType toolChain = static_cast<ProjectExplorer::ToolChain::ToolChainType>(toolChainI);
+    switch (toolChain) {
+    case ProjectExplorer::ToolChain::MinGW: // Do our best
+    case ProjectExplorer::ToolChain::MSVC:
+    case ProjectExplorer::ToolChain::WINCE:
+    case ProjectExplorer::ToolChain::OTHER:
+    case ProjectExplorer::ToolChain::UNKNOWN:
+    case ProjectExplorer::ToolChain::INVALID:
+        break;
+    default:
+        *errorMsg = CdbDebugEngine::tr("The CDB debug engine does not support the '%1").
+                    arg(ProjectExplorer::ToolChain::toolChainName(toolChain));
+        *settingsPage = CdbOptionsPage::settingsId();
+        return false;
+    }
+    return true;
 }
 
 } // namespace Internal

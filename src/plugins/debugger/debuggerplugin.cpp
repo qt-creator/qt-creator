@@ -960,6 +960,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
 
     m_debugMode = 0;
     m_uiSwitcher = 0;
+    m_state = DebuggerNotReady;
 }
 
 bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *errorMessage)
