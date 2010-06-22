@@ -105,10 +105,6 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4Project *project)
 
     connect(project, SIGNAL(buildDirectoryInitialized()),
             this, SLOT(updateImportLabel()));
-
-    QtVersionManager *vm = QtVersionManager::instance();
-    connect(vm, SIGNAL(qtVersionsChanged(QList<int>)),
-            this, SLOT(qtVersionsChanged()));
 }
 
 Qt4ProjectConfigWidget::~Qt4ProjectConfigWidget()
@@ -196,6 +192,9 @@ void Qt4ProjectConfigWidget::init(ProjectExplorer::BuildConfiguration *bc)
     m_ui->nameLineEdit->setText(m_buildConfiguration->displayName());
 
     qtVersionsChanged();
+    QtVersionManager *vm = QtVersionManager::instance();
+    connect(vm, SIGNAL(qtVersionsChanged(QList<int>)),
+            this, SLOT(qtVersionsChanged()));
 
     bool shadowBuild = m_buildConfiguration->shadowBuild();
     m_ui->shadowBuildCheckBox->setChecked(shadowBuild);
@@ -233,9 +232,6 @@ void Qt4ProjectConfigWidget::configNameEdited(const QString &newName)
 
 void Qt4ProjectConfigWidget::qtVersionsChanged()
 {
-    if (!m_buildConfiguration) // not yet initialized
-        return;
-
     m_ignoreChange = true;
     QtVersionManager *vm = QtVersionManager::instance();
 
