@@ -69,7 +69,8 @@ Document::Ptr CppRefactoringChanges::parsedDocumentForFile(const QString &fileNa
         file.close();
     }
 
-    doc = m_snapshot.documentFromSource(source.toLatin1(), fileName);
+    const QByteArray contents = m_snapshot.preprocessedCode(source, fileName);
+    doc = m_snapshot.documentFromSource(contents, fileName);
     doc->check();
     return doc;
 }
