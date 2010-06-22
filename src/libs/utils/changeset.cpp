@@ -174,6 +174,36 @@ bool ChangeSet::insert(int pos, const QString &text)
     return !m_error;
 }
 
+bool ChangeSet::replace(const Range &range, const QString &replacement)
+{ return replace(range.start, range.end, replacement); }
+
+bool ChangeSet::remove(const Range &range)
+{ return remove(range.start, range.end); }
+
+bool ChangeSet::move(const Range &range, int to)
+{ return move(range.start, range.end, to); }
+
+bool ChangeSet::flip(const Range &range1, const Range &range2)
+{ return flip(range1.start, range1.end, range2.start, range2.end); }
+
+bool ChangeSet::copy(const Range &range, int to)
+{ return copy(range.start, range.end, to); }
+
+bool ChangeSet::replace(int start, int end, const QString &replacement)
+{ return replace_helper(start, end - start, replacement); }
+
+bool ChangeSet::remove(int start, int end)
+{ return remove_helper(start, end - start); }
+
+bool ChangeSet::move(int start, int end, int to)
+{ return move_helper(start, end - start, to); }
+
+bool ChangeSet::flip(int start1, int end1, int start2, int end2)
+{ return flip_helper(start1, end1 - start1, start2, end2 - start2); }
+
+bool ChangeSet::copy(int start, int end, int to)
+{ return copy_helper(start, end - start, to); }
+
 bool ChangeSet::remove_helper(int pos, int length)
 {
     if (hasOverlap(pos, length))
