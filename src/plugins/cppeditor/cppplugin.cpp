@@ -207,6 +207,8 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     m_quickFixCollector = new CppQuickFixCollector;
     addAutoReleasedObject(m_quickFixCollector);
 
+    addAutoReleasedObject(new CppQuickFixFactory);
+
     CppFileWizard::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
 
     wizardParameters.setCategory(QLatin1String(Constants::WIZARD_CATEGORY));

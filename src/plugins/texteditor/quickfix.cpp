@@ -31,7 +31,7 @@
 #include "basetexteditor.h"
 
 #include <coreplugin/ifile.h>
-
+#include <extensionsystem/pluginmanager.h>
 #include <QtGui/QApplication>
 #include <QtGui/QTextBlock>
 
@@ -40,6 +40,7 @@
 using TextEditor::RefactoringChanges;
 using TextEditor::QuickFixOperation;
 using TextEditor::QuickFixCollector;
+using TextEditor::IQuickFixFactory;
 
 QuickFixOperation::QuickFixOperation(TextEditor::BaseTextEditor *editor)
     : _editor(editor)
@@ -183,4 +184,27 @@ void QuickFixCollector::complete(const TextEditor::CompletionItem &item)
 void QuickFixCollector::cleanup()
 {
     _quickFixes.clear();
+}
+
+QList<TextEditor::QuickFixOperation::Ptr> QuickFixCollector::quickFixOperations(TextEditor::BaseTextEditor *editor) const
+{
+    QList<TextEditor::IQuickFixFactory *> factories =
+            ExtensionSystem::PluginManager::instance()->getObjects<TextEditor::IQuickFixFactory>();
+
+    QList<TextEditor::QuickFixOperation::Ptr> quickFixOperations;
+
+    foreach (TextEditor::IQuickFixFactory *factory, factories)
+        quickFixOperations += factory->quickFixOperations(editor);
+
+    return quickFixOperations;
+}
+
+IQuickFixFactory::IQuickFixFactory(QObject *parent)
+    : QObject(parent)
+{
+}
+
+IQuickFixFactory::~IQuickFixFactory()
+{
+
 }

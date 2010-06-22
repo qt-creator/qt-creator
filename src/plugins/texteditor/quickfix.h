@@ -115,11 +115,22 @@ public:
     virtual void cleanup();
 
     virtual TextEditor::QuickFixState *initializeCompletion(TextEditor::ITextEditable *editable) = 0;
-    virtual QList<TextEditor::QuickFixOperation::Ptr> quickFixOperations(TextEditor::BaseTextEditor *editor) const = 0;
+    virtual QList<TextEditor::QuickFixOperation::Ptr> quickFixOperations(TextEditor::BaseTextEditor *editor) const;
 
 private:
     TextEditor::ITextEditable *_editable;
     QList<TextEditor::QuickFixOperation::Ptr> _quickFixes;
+};
+
+class TEXTEDITOR_EXPORT IQuickFixFactory: public QObject
+{
+    Q_OBJECT
+
+public:
+    IQuickFixFactory(QObject *parent = 0);
+    virtual ~IQuickFixFactory();
+
+    virtual QList<QuickFixOperation::Ptr> quickFixOperations(TextEditor::BaseTextEditor *editor) = 0;
 };
 
 } // end of namespace TextEditor

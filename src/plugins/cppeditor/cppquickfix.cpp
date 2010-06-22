@@ -50,6 +50,7 @@
 #include <cppeditor/cpprefactoringchanges.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cppmodelmanagerinterface.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <QtGui/QApplication>
 #include <QtGui/QTextBlock>
@@ -1079,8 +1080,19 @@ TextEditor::QuickFixState *CppQuickFixCollector::initializeCompletion(TextEditor
     return 0;
 }
 
-QList<TextEditor::QuickFixOperation::Ptr> CppQuickFixCollector::quickFixOperations(TextEditor::BaseTextEditor *editor) const
+CppQuickFixFactory::CppQuickFixFactory(QObject *parent)
+    : TextEditor::IQuickFixFactory(parent)
 {
+}
+
+CppQuickFixFactory::~CppQuickFixFactory()
+{
+}
+
+QList<TextEditor::QuickFixOperation::Ptr> CppQuickFixFactory::quickFixOperations(TextEditor::BaseTextEditor *editor)
+{
+    QList<TextEditor::QuickFixOperation::Ptr> quickFixOperations;
+
     QSharedPointer<RewriteLogicalAndOp> rewriteLogicalAndOp(new RewriteLogicalAndOp(editor));
     QSharedPointer<SplitIfStatementOp> splitIfStatementOp(new SplitIfStatementOp(editor));
     QSharedPointer<MoveDeclarationOutOfIfOp> moveDeclarationOutOfIfOp(new MoveDeclarationOutOfIfOp(editor));
@@ -1092,7 +1104,6 @@ QList<TextEditor::QuickFixOperation::Ptr> CppQuickFixCollector::quickFixOperatio
     QSharedPointer<WrapStringLiteral> wrapStringLiteral(new WrapStringLiteral(editor));
     QSharedPointer<CStringToNSString> wrapCString(new CStringToNSString(editor));
 
-    QList<TextEditor::QuickFixOperation::Ptr> quickFixOperations;
     quickFixOperations.append(rewriteLogicalAndOp);
     quickFixOperations.append(splitIfStatementOp);
     quickFixOperations.append(moveDeclarationOutOfIfOp);

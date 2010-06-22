@@ -107,7 +107,20 @@ public:
 
     virtual bool supportsEditor(TextEditor::ITextEditable *editor);
     virtual TextEditor::QuickFixState *initializeCompletion(TextEditor::ITextEditable *editable);
-    virtual QList<TextEditor::QuickFixOperation::Ptr> quickFixOperations(TextEditor::BaseTextEditor *editor) const;
+};
+
+class CppQuickFixFactory: public TextEditor::IQuickFixFactory
+{
+    Q_OBJECT
+
+public:
+    CppQuickFixFactory(QObject *parent = 0);
+    virtual ~CppQuickFixFactory();
+
+    /*
+     * Returns true if this IQuickFixFactory can be used with the given editor.
+     */
+    virtual QList<TextEditor::QuickFixOperation::Ptr> quickFixOperations(TextEditor::BaseTextEditor *editor);
 };
 
 } // end of namespace Internal
