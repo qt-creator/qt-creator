@@ -44,6 +44,7 @@ QT_BEGIN_NAMESPACE
 class QLabel;
 class QPushButton;
 class QTreeWidget;
+class QTreeWidgetItem;
 QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
@@ -86,6 +87,7 @@ public:
         QStringList additionalArguments;
         QString directory;
         bool isExistingBuild;
+        bool isShadowBuild;
     };
 
     explicit TargetSetupPage(QWidget* parent = 0);
@@ -96,7 +98,6 @@ public:
 
     void setImportDirectoryBrowsingEnabled(bool browsing);
     void setImportDirectoryBrowsingLocation(const QString &directory);
-    void setShowLocationInformation(bool location);
     void setPreferMobile(bool mobile);
 
     static QList<ImportInfo> importInfosForKnownQtVersions();
@@ -118,10 +119,12 @@ public slots:
 private slots:
     void itemWasChanged();
     void addShadowBuildLocation();
+    void handleDoubleClicks(QTreeWidgetItem *, int);
 
 private:
     void resetInfos();
     QPair<QIcon, QString> reportIssues(QtVersion *version);
+    void updateVersionItem(QTreeWidgetItem *, int);
 
     QList<ImportInfo> m_infos;
     bool m_preferMobile;

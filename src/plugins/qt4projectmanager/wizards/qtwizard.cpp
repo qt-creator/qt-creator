@@ -240,7 +240,6 @@ int BaseQt4ProjectWizardDialog::addTargetSetupPage(QSet<QString> targets, bool m
     if (!targets.isEmpty())
         infos = TargetSetupPage::filterImportInfos(targets, infos);
     m_targetSetupPage->setImportDirectoryBrowsingEnabled(false);
-    m_targetSetupPage->setShowLocationInformation(false);
     m_targetSetupPage->setPreferMobile(mobile);
 
     if (infos.count() <= 1)

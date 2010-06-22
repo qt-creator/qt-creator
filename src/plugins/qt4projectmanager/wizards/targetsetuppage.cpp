@@ -49,6 +49,14 @@
 
 using namespace Qt4ProjectManager::Internal;
 
+namespace {
+enum Columns {
+    NAME_COLUMN = 0,
+    STATUS_COLUMN,
+    DIRECTORY_COLUMN
+};
+} // namespace
+
 TargetSetupPage::TargetSetupPage(QWidget *parent) :
     QWizardPage(parent),
     m_preferMobile(false),
@@ -60,6 +68,8 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
 
     connect(m_ui->importButton, SIGNAL(clicked()),
             this, SLOT(addShadowBuildLocation()));
+    connect(m_ui->versionTree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),
+            this, SLOT(handleDoubleClicks(QTreeWidgetItem*,int)));
 }
 
 TargetSetupPage::~TargetSetupPage()
@@ -121,10 +131,10 @@ void TargetSetupPage::setImportInfos(const QList<ImportInfo> &infos)
     foreach (const QString &t, targets) {
         QTreeWidgetItem *targetItem = new QTreeWidgetItem(m_ui->versionTree);
         const QString targetName = factory.displayNameForId(t);
-        targetItem->setText(0, targetName);
-        targetItem->setToolTip(0, targetName);
+        targetItem->setText(NAME_COLUMN, targetName);
+        targetItem->setToolTip(NAME_COLUMN, targetName);
         targetItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-        targetItem->setData(0, Qt::UserRole, t);
+        targetItem->setData(NAME_COLUMN, Qt::UserRole, t);
         targetItem->setExpanded(true);
 
         int pos = -1;
@@ -134,21 +144,8 @@ void TargetSetupPage::setImportInfos(const QList<ImportInfo> &infos)
             if (!i.version->supportsTargetId(t))
                 continue;
             QTreeWidgetItem *versionItem = new QTreeWidgetItem(targetItem);
-            QPair<QIcon, QString> issues = reportIssues(i.version);
+            updateVersionItem(versionItem, pos);
 
-            QString toolTip = QLatin1String("<nobr>");
-            toolTip = toolTip.append(i.version->displayName());
-            toolTip.append(tr("<br>using %1", "%1: qmake used (incl. full path)").
-                    arg(QDir::toNativeSeparators(i.version->qmakeCommand())));
-            if (!issues.second.isEmpty())
-                toolTip.append(QString::fromLatin1("<br><br>%1").arg(issues.second));
-
-            // Column 0:
-            versionItem->setToolTip(0, toolTip);
-            versionItem->setIcon(0, issues.first);
-            versionItem->setText(0, i.version->displayName());
-            versionItem->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-            versionItem->setData(0, Qt::UserRole, pos);
             // Prefer imports to creating new builds, but precheck any
             // Qt that exists (if there is no import with that version)
             bool shouldCheck = true;
@@ -160,29 +157,11 @@ void TargetSetupPage::setImportInfos(const QList<ImportInfo> &infos)
                     }
                 }
             }
+
             shouldCheck = shouldCheck && (m_preferMobile == i.version->supportsMobileTarget());
             shouldCheck = shouldCheck || i.isExistingBuild; // always check imports
             shouldCheck = shouldCheck || m_infos.count() == 1; // always check only option
-            versionItem->setCheckState(0, shouldCheck ? Qt::Checked : Qt::Unchecked);
-
-            // Column 1 (status):
-            const QString status = i.isExistingBuild ? tr("Import", "Is this an import of an existing build or a new one?") :
-                                                       tr("New", "Is this an import of an existing build or a new one?");
-            versionItem->setText(1, status);
-            versionItem->setToolTip(1, status);
-
-            // Column 2 (directory):
-            QString dir;
-            if (i.directory.isEmpty()) {
-                if (i.version->supportsShadowBuilds())
-                    dir = QDir::toNativeSeparators(Qt4Target::defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(m_proFilePath), t));
-                else
-                    dir = QDir::toNativeSeparators(Qt4Project::projectDirectory(m_proFilePath));
-            } else {
-                dir = QDir::toNativeSeparators(i.directory);
-            }
-            versionItem->setText(2, dir);
-            versionItem->setToolTip(2, dir);
+            versionItem->setCheckState(NAME_COLUMN, shouldCheck ? Qt::Checked : Qt::Unchecked);
         }
     }
 
@@ -203,7 +182,7 @@ bool TargetSetupPage::hasSelection() const
         QTreeWidgetItem * current = m_ui->versionTree->topLevelItem(i);
         for (int j = 0; j < current->childCount(); ++j) {
             QTreeWidgetItem * child = current->child(j);
-            if (child->checkState(0) == Qt::Checked)
+            if (child->checkState(NAME_COLUMN) == Qt::Checked)
                 return true;
         }
     }
@@ -214,11 +193,11 @@ bool TargetSetupPage::isTargetSelected(const QString &targetid) const
 {
     for (int i = 0; i < m_ui->versionTree->topLevelItemCount(); ++i) {
         QTreeWidgetItem * current = m_ui->versionTree->topLevelItem(i);
-        if (current->data(0, Qt::UserRole).toString() != targetid)
+        if (current->data(NAME_COLUMN, Qt::UserRole).toString() != targetid)
             continue;
         for (int j = 0; j < current->childCount(); ++j) {
             QTreeWidgetItem * child = current->child(j);
-            if (child->checkState(0) == Qt::Checked)
+            if (child->checkState(NAME_COLUMN) == Qt::Checked)
                 return true;
         }
     }
@@ -232,7 +211,7 @@ bool TargetSetupPage::setupProject(Qt4ProjectManager::Qt4Project *project)
 
     for (int i = 0; i < m_ui->versionTree->topLevelItemCount(); ++i) {
         QTreeWidgetItem *current = m_ui->versionTree->topLevelItem(i);
-        QString targetId = current->data(0, Qt::UserRole).toString();
+        QString targetId = current->data(NAME_COLUMN, Qt::UserRole).toString();
 
         QList<BuildConfigurationInfo> targetInfos;
         for (int j = 0; j < current->childCount(); ++j) {
@@ -240,7 +219,7 @@ bool TargetSetupPage::setupProject(Qt4ProjectManager::Qt4Project *project)
             if (child->checkState(0) != Qt::Checked)
                 continue;
 
-            ImportInfo &info = m_infos[child->data(0, Qt::UserRole).toInt()];
+            ImportInfo &info = m_infos[child->data(NAME_COLUMN, Qt::UserRole).toInt()];
 
             // Register temporary Qt version
             if (info.isTemporary) {
@@ -298,11 +277,6 @@ void TargetSetupPage::setImportDirectoryBrowsingLocation(const QString &director
     m_defaultShadowBuildLocation = directory;
 }
 
-void TargetSetupPage::setShowLocationInformation(bool location)
-{
-    m_ui->versionTree->setColumnCount(location ? 3 : 1);
-}
-
 void TargetSetupPage::setPreferMobile(bool mobile)
 {
     m_preferMobile = mobile;
@@ -332,6 +306,7 @@ QList<TargetSetupPage::ImportInfo> TargetSetupPage::importInfosForKnownQtVersion
         ImportInfo info;
         info.isExistingBuild = false;
         info.isTemporary = false;
+        info.isShadowBuild = v->supportsShadowBuilds();
         info.version = v;
         results.append(info);
     }
@@ -376,6 +351,7 @@ TargetSetupPage::recursivelyCheckDirectoryForBuild(const QString &directory, con
     QtVersionManager * vm = QtVersionManager::instance();
     TargetSetupPage::ImportInfo info;
     info.directory = directory;
+    info.isShadowBuild = true;
 
     // This also means we have a build in there
     // First get the qt version
@@ -435,6 +411,17 @@ void TargetSetupPage::addShadowBuildLocation()
     setImportInfos(tmp);
 }
 
+void TargetSetupPage::handleDoubleClicks(QTreeWidgetItem *item, int column)
+{
+    int idx = item->data(NAME_COLUMN, Qt::UserRole).toInt();
+    if (column == DIRECTORY_COLUMN && item->parent()) {
+        if (m_infos[idx].isExistingBuild || !m_infos[idx].version->supportsShadowBuilds())
+            return;
+        m_infos[idx].isShadowBuild = !m_infos[idx].isShadowBuild;
+        updateVersionItem(item, idx);
+    }
+}
+
 void TargetSetupPage::resetInfos()
 {
     m_ui->versionTree->clear();
@@ -477,4 +464,46 @@ QPair<QIcon, QString> TargetSetupPage::reportIssues(Qt4ProjectManager::QtVersion
     if (!text.isEmpty())
         text = QLatin1String("<nobr>") + text;
     return qMakePair(icon, text);
+}
+
+void TargetSetupPage::updateVersionItem(QTreeWidgetItem *versionItem, int index)
+{
+    ImportInfo &info = m_infos[index];
+    QPair<QIcon, QString> issues = reportIssues(info.version);
+
+    QString toolTip = QLatin1String("<nobr>");
+    toolTip = toolTip.append(info.version->displayName());
+    toolTip.append(tr("<br>using %1", "%1: qmake used (incl. full path)").
+            arg(QDir::toNativeSeparators(info.version->qmakeCommand())));
+    if (!issues.second.isEmpty())
+        toolTip.append(QString::fromLatin1("<br><br>%1").arg(issues.second));
+
+    // Column 0:
+    versionItem->setToolTip(NAME_COLUMN, toolTip);
+    versionItem->setIcon(NAME_COLUMN, issues.first);
+    versionItem->setText(NAME_COLUMN, info.version->displayName());
+    versionItem->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+    versionItem->setData(NAME_COLUMN, Qt::UserRole, index);
+
+    // Column 1 (status):
+    const QString status = info.isExistingBuild ?
+                           tr("Import", "Is this an import of an existing build or a new one?") :
+                           tr("New", "Is this an import of an existing build or a new one?");
+    versionItem->setText(STATUS_COLUMN, status);
+    versionItem->setToolTip(STATUS_COLUMN, status);
+
+    // Column 2 (directory):
+    Q_ASSERT(versionItem->parent());
+    QString target = versionItem->parent()->data(NAME_COLUMN, Qt::UserRole).toString();
+    QString dir;
+    if (info.directory.isEmpty()) {
+        if (info.version->supportsShadowBuilds() && info.isShadowBuild)
+            dir = QDir::toNativeSeparators(Qt4Target::defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(m_proFilePath), target));
+        else
+            dir = QDir::toNativeSeparators(Qt4Project::projectDirectory(m_proFilePath));
+    } else {
+        dir = QDir::toNativeSeparators(info.directory);
+    }
+    versionItem->setText(DIRECTORY_COLUMN, dir);
+    versionItem->setToolTip(DIRECTORY_COLUMN, dir);
 }
