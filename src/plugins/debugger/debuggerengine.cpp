@@ -263,14 +263,6 @@ void DebuggerEngine::handleCommand(int role, const QVariant &value)
     //qDebug() << "COMMAND: " << role << value;
 
     switch (role) {
-        case RequestLoadSessionDataRole:
-            loadSessionData();
-            break;
-
-        case RequestSaveSessionDataRole:
-            saveSessionData();
-            break;
-
         case RequestReloadSourceFilesRole:
             reloadSourceFiles();
             break;
@@ -347,6 +339,15 @@ void DebuggerEngine::handleCommand(int role, const QVariant &value)
         case RequestExecuteCommandRole:
             executeDebuggerCommand(value.toString());
             break;
+
+        case RequestToolTipByExpressionRole: {
+            QList<QVariant> list = value.toList();
+            QTC_ASSERT(list.size() == 3, break);
+            setToolTipExpression(list.at(0).value<QPoint>(),
+                (TextEditor::ITextEditor *)(list.at(1).value<quint64>()),
+                list.at(2).toInt()); // Eeks.
+            break;
+        }
 
         case RequestWatchPointRole:
             //if (QAction *action = qobject_cast<QAction *>(sender()))
@@ -551,17 +552,21 @@ void DebuggerEngine::breakByFunction(const QString &functionName)
     attemptBreakpointSynchronization();
 }
 
+/*
 void DebuggerEngine::loadSessionData()
 {
-    d->m_breakHandler.loadSessionData();
-    d->m_watchHandler.loadSessionData();
+    QTC_ASSERT(isSessionEngine(), return);
+    m_breakHandler.loadSessionData();
+    m_watchHandler.loadSessionData();
 }
 
 void DebuggerEngine::saveSessionData()
 {
-    d->m_breakHandler.saveSessionData();
-    d->m_watchHandler.saveSessionData();
+    QTC_ASSERT(isSessionEngine(), return);
+    m_breakHandler.saveSessionData();
+    m_watchHandler.saveSessionData();
 }
+*/
 
 void DebuggerEngine::resetLocation()
 {
@@ -860,10 +865,8 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
 
     plugin()->updateState(this);
 
-    if (d->m_state == DebuggerNotReady) {
-        saveSessionData();
+    if (d->m_state == DebuggerNotReady)
         d->m_runControl->debuggingFinished();
-    }
 }
 
 bool DebuggerEngine::debuggerActionsEnabled() const

@@ -222,9 +222,6 @@ public:
     void breakByFunction(const QString &functionName);
     void breakByFunctionMain();
     
-    void loadSessionData();
-    void saveSessionData();
-
     void executeStepX();
     void executeStepOutX();
     void executeStepNextX();

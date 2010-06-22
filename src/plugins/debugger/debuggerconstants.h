@@ -178,8 +178,6 @@ enum ModelRoles
     RequestExecFrameUpRole,
     RequestExecDetachRole,
     RequestExecExitRole,
-    RequestLoadSessionDataRole,
-    RequestSaveSessionDataRole,
     RequestOperatedByInstructionTriggeredRole,
     RequestExecuteCommandRole,
 
@@ -215,6 +213,7 @@ enum ModelRoles
     LocalsIsWatchpointAtPointerValueRole,
     RequestWatchPointRole,
     RequestToggleWatchRole,
+    RequestToolTipByExpressionRole,
     RequestClearCppCodeModelSnapshotRole,
     RequestAssignValueRole,
     RequestAssignTypeRole,

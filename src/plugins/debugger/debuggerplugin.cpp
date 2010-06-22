@@ -53,6 +53,7 @@
 
 //#include "sessiondata.h"
 #include "watchutils.h"
+#include "breakhandler.h" 
 #include "stackhandler.h"  // FIXME
 #include "watchhandler.h"  // FIXME
 
@@ -707,14 +708,30 @@ static bool isCurrentProjectCppBased()
 
 ///////////////////////////////////////////////////////////////////////
 //
-// DummyEngine
+// SessionEngine
 //
 ///////////////////////////////////////////////////////////////////////
 
-class DummyEngine : public DebuggerEngine
+// This class contains data serving as a template for debugger engines
+// started during a session.
+
+class SessionEngine : public DebuggerEngine
 {
 public:
-    DummyEngine() : DebuggerEngine(DebuggerStartParameters()) {}
+    SessionEngine() : DebuggerEngine(DebuggerStartParameters()) {}
+
+    void loadSessionData()
+    {
+        breakHandler()->loadSessionData();
+        watchHandler()->loadSessionData();
+    }
+
+    void saveSessionData()
+    {
+        watchHandler()->saveSessionData();
+        breakHandler()->saveSessionData();
+    }
+
 };
 
 
@@ -768,7 +785,7 @@ public:
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void notifyCurrentEngine(int role, const QVariant &value = QVariant());
     void connectEngine(DebuggerEngine *engine);
-    void disconnectEngine() { connectEngine(m_dummySessionEngine); }
+    void disconnectEngine() { connectEngine(m_sessionEngine); }
 
 public slots:
     void updateWatchersHeader(int section, int, int newSize)
@@ -811,8 +828,6 @@ public slots:
     void attachCmdLine();
     void attachRemoteTcf();
 
-    void loadSessionData();
-    void saveSessionData();
     void interruptDebuggingRequest();
     void exitDebugger();
 
@@ -831,12 +846,6 @@ public slots:
 
     ProjectExplorer::RunControl *createDebugger(const DebuggerStartParameters &sp);
     void startDebugger(ProjectExplorer::RunControl *runControl);
-
-    void setToolTipExpression(const QPoint & /* mousePos */,
-        TextEditor::ITextEditor * /* editor */, int /* cursorPos */)
-    {
-        // FIXME
-    }
 
     void dumpLog();
     void cleanupViews();
@@ -912,7 +921,7 @@ public:
     QAbstractItemView *m_threadsWindow;
     DebuggerOutputWindow *m_outputWindow;
 
-    DebuggerEngine *m_dummySessionEngine;
+    SessionEngine *m_sessionEngine;
 
     bool m_busy;
     QTimer m_statusTimer;
@@ -955,7 +964,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
     m_threadsWindow = 0;
     m_outputWindow = 0;
 
-    m_dummySessionEngine = 0;
+    m_sessionEngine = 0;
     m_debugMode = 0;
     m_locationMark = 0;
     m_gdbRunningContext = 0;
@@ -1029,7 +1038,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_commandWindow = new QTreeView;
 
     // Session related data
-    m_dummySessionEngine = new DummyEngine;
+    m_sessionEngine = new SessionEngine;
 
     // Debug mode setup
     m_debugMode = new DebugMode(this);
@@ -1898,7 +1907,12 @@ void DebuggerPluginPrivate::showToolTip(ITextEditor *editor, const QPoint &point
         return;
     if (state() == DebuggerNotReady)
         return;
-    setToolTipExpression(point, editor, pos);
+
+    QList<QVariant> list;
+    list.append(point);
+    list.append(quint64(editor));
+    list.append(pos);
+    notifyCurrentEngine(RequestToolTipByExpressionRole, list);
 }
 
 ProjectExplorer::RunControl *
@@ -1919,7 +1933,7 @@ void DebuggerPluginPrivate::startDebugger(ProjectExplorer::RunControl *rc)
 
 void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
 {
-    //if (engine == m_dummySessionEngine)
+    //if (engine == m_sessionEngine)
     //    qDebug() << "CONNECTING DUMMY ENGINE" << engine;
     //else
     //    qDebug() << "CONNECTING ENGINE " << engine;
@@ -2263,8 +2277,7 @@ void DebuggerPluginPrivate::activateDebugMode()
 
 void DebuggerPluginPrivate::sessionLoaded()
 {
-    //qDebug() << "SESSION LOADED";
-    loadSessionData();
+    m_sessionEngine->loadSessionData();
 }
 
 void DebuggerPluginPrivate::aboutToUnloadSession()
@@ -2272,7 +2285,7 @@ void DebuggerPluginPrivate::aboutToUnloadSession()
     // Stop debugging the active project when switching sessions.
     // Note that at startup, session switches may occur, which interfer
     // with command-line debugging startup.
-    // FIXME ABC: Still wanted?
+    // FIXME ABC: Still wanted? Iterate?
     //if (d->m_engine && state() != DebuggerNotReady
     //    && runControl()->sp().startMode == StartInternal)
     //        d->m_engine->shutdown();
@@ -2280,23 +2293,7 @@ void DebuggerPluginPrivate::aboutToUnloadSession()
 
 void DebuggerPluginPrivate::aboutToSaveSession()
 {
-    saveSessionData();
-}
-
-void DebuggerPluginPrivate::loadSessionData()
-{
-    // FIXME: Iterate?
-    //qDebug() << "\nLOADING SESSION DATA...";
-    notifyCurrentEngine(RequestLoadSessionDataRole);
-    //qDebug() << "LOADED SESSION DATA\n";
-}
-
-void DebuggerPluginPrivate::saveSessionData()
-{
-    // FIXME: Iterate?
-    //qDebug() << "\nSAVING SESSION DATA...";
-    notifyCurrentEngine(RequestSaveSessionDataRole);
-    //qDebug() << "SAVED SESSION DATA\n";
+    m_sessionEngine->saveSessionData();
 }
 
 void DebuggerPluginPrivate::interruptDebuggingRequest()
@@ -2358,8 +2355,8 @@ DebuggerPlugin::DebuggerPlugin()
 
 DebuggerPlugin::~DebuggerPlugin()
 {
-    delete d->m_dummySessionEngine;
-    d->m_dummySessionEngine = 0;
+    delete d->m_sessionEngine;
+    d->m_sessionEngine = 0;
 
     theInstance = 0;
     delete DebuggerSettings::instance();
@@ -2692,7 +2689,7 @@ void DebuggerPlugin::runControlFinished(DebuggerRunControl *runControl)
 
 DebuggerEngine *DebuggerPlugin::sessionTemplate()
 {
-    return d->m_dummySessionEngine;
+    return d->m_sessionEngine;
 }
 
 //////////////////////////////////////////////////////////////////////
