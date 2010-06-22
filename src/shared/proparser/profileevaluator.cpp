@@ -179,8 +179,7 @@ public:
     VisitReturn evaluateConditionalFunction(const ProString &function, const ProStringList &args);
     bool evaluateFileDirect(const QString &fileName, ProFileEvaluatorHandler::EvalFileType type);
     bool evaluateFile(const QString &fileName, ProFileEvaluatorHandler::EvalFileType type);
-    bool evaluateFeatureFile(const QString &fileName,
-                             QHash<ProString, ProStringList> *values = 0, FunctionDefs *defs = 0);
+    bool evaluateFeatureFile(const QString &fileName);
     bool evaluateFileInto(const QString &fileName, ProFileEvaluatorHandler::EvalFileType type,
                           QHash<ProString, ProStringList> *values, FunctionDefs *defs);
 
@@ -1127,6 +1126,9 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
                 locker.unlock();
 #endif
 
+                bool cumulative = m_cumulative;
+                m_cumulative = false;
+
                 // ### init QMAKE_QMAKE, QMAKE_SH
                 // ### init QMAKE_EXT_{C,H,CPP,OBJ}
                 // ### init TEMPLATE_PREFIX
@@ -1204,13 +1206,11 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
                     m_option->qmakespec = QDir::cleanPath(qmakespec);
 
                     QString spec = m_option->qmakespec + QLatin1String("/qmake.conf");
-                    if (!evaluateFileInto(spec, ProFileEvaluatorHandler::EvalConfigFile,
-                                          &m_option->base_valuemap, &m_option->base_functions)) {
+                    if (!evaluateFileDirect(spec, ProFileEvaluatorHandler::EvalConfigFile)) {
                         m_handler->configError(
                                 fL1S("Could not read qmake configuration file %1").arg(spec));
                     } else if (!m_option->cachefile.isEmpty()) {
-                        evaluateFileInto(m_option->cachefile, ProFileEvaluatorHandler::EvalConfigFile,
-                                         &m_option->base_valuemap, &m_option->base_functions);
+                        evaluateFileDirect(m_option->cachefile, ProFileEvaluatorHandler::EvalConfigFile);
                     }
                     m_option->qmakespec_name = IoUtils::fileName(m_option->qmakespec).toString();
                     if (m_option->qmakespec_name == QLatin1String("default")) {
@@ -1233,14 +1233,19 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
                     }
                 }
 
-                evaluateFeatureFile(QLatin1String("default_pre.prf"),
-                                    &m_option->base_valuemap, &m_option->base_functions);
+                evaluateFeatureFile(QLatin1String("default_pre.prf"));
+
+                m_option->base_valuemap = m_valuemapStack.top();
+                m_option->base_functions = m_functionDefs;
+
+                m_cumulative = cumulative;
 
 #ifdef PROEVALUATOR_THREAD_SAFE
                 locker.relock();
                 m_option->base_inProgress = false;
                 m_option->cond.wakeAll();
 #endif
+                goto fresh;
             }
 #ifdef PROEVALUATOR_THREAD_SAFE
           }
@@ -1249,6 +1254,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
             m_valuemapStack.top() = m_option->base_valuemap;
             m_functionDefs = m_option->base_functions;
 
+          fresh:
             ProStringList &tgt = m_valuemapStack.top()[ProString("TARGET")];
             if (tgt.isEmpty())
                 tgt.append(ProString(QFileInfo(pro->fileName()).baseName(), NoHash));
@@ -2964,8 +2970,7 @@ bool ProFileEvaluator::Private::evaluateFile(
     return evaluateFileDirect(fileName, type);
 }
 
-bool ProFileEvaluator::Private::evaluateFeatureFile(
-        const QString &fileName, QHash<ProString, ProStringList> *values, FunctionDefs *funcs)
+bool ProFileEvaluator::Private::evaluateFeatureFile(const QString &fileName)
 {
     QString fn = fileName;
     if (!fn.endsWith(QLatin1String(".prf")))
@@ -3003,18 +3008,14 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(
         fn = resolvePath(fn);
     }
 
-    if (values) {
-        return evaluateFileInto(fn, ProFileEvaluatorHandler::EvalFeatureFile, values, funcs);
-    } else {
-        bool cumulative = m_cumulative;
-        m_cumulative = false;
+    bool cumulative = m_cumulative;
+    m_cumulative = false;
 
-        // The path is fully normalized already.
-        bool ok = evaluateFileDirect(fn, ProFileEvaluatorHandler::EvalFeatureFile);
+    // The path is fully normalized already.
+    bool ok = evaluateFileDirect(fn, ProFileEvaluatorHandler::EvalFeatureFile);
 
-        m_cumulative = cumulative;
-        return ok;
-    }
+    m_cumulative = cumulative;
+    return ok;
 }
 
 bool ProFileEvaluator::Private::evaluateFileInto(
