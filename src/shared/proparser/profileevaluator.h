@@ -164,8 +164,8 @@ struct ProFileOption
 #endif
 };
 
-QT_END_NAMESPACE
-
 Q_DECLARE_TYPEINFO(ProFileEvaluator::FunctionDef, Q_MOVABLE_TYPE);
+
+QT_END_NAMESPACE
 
 #endif // PROFILEEVALUATOR_H
