@@ -852,8 +852,8 @@ public slots:
     void aboutToUnloadSession();
     void aboutToSaveSession();
     void watchPoint() { QTC_ASSERT(false, /**/); } // FIXME
-    void executeDebuggerCommand() { QTC_ASSERT(false, /**/); } // FIXME
-    void executeDebuggerCommand(QString const &) {}
+
+    void executeDebuggerCommand();
 
 public:
     DebuggerState m_state;
@@ -2309,6 +2309,12 @@ void DebuggerPluginPrivate::exitDebugger()
     // in turn will handle the cleanup.
     notifyCurrentEngine(RequestExecExitRole);
     m_codeModelSnapshot = CPlusPlus::Snapshot();
+}
+
+void DebuggerPluginPrivate::executeDebuggerCommand()
+{
+    if (QAction *action = qobject_cast<QAction *>(sender()))
+        notifyCurrentEngine(RequestExecuteCommandRole, action->data().toString());
 }
 
 

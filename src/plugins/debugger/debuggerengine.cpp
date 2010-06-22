@@ -173,12 +173,9 @@ private:
     DebuggerEngine *m_engine;
 };
 
-bool CommandHandler::setData
-    (const QModelIndex &index, const QVariant &value, int role)
+bool CommandHandler::setData(const QModelIndex &, const QVariant &value, int role)
 {
     //qDebug() << "COMMAND: " << role << value;
-    Q_UNUSED(index);
-    Q_UNUSED(value);
 
     switch (role) {
         case RequestLoadSessionDataRole:
@@ -265,6 +262,9 @@ bool CommandHandler::setData
             m_engine->gotoLocation(m_engine->stackHandler()->currentFrame(), true);
             return true;
 
+        case RequestExecuteCommandRole:
+            m_engine->executeDebuggerCommand(value.toString());
+            return true;
     }
 
     return false;

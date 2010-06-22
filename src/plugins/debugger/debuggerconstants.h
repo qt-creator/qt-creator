@@ -181,6 +181,7 @@ enum ModelRoles
     RequestLoadSessionDataRole,
     RequestSaveSessionDataRole,
     RequestOperatedByInstructionTriggeredRole,
+    RequestExecuteCommandRole,
 
     // Breakpoints
     BreakpointEnabledRole,
