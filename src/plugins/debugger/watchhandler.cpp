@@ -1226,6 +1226,7 @@ void WatchHandler::watchExpression(const QString &exp)
     m_engine->updateWatchData(data);
     updateWatchersWindow();
     saveWatchers();
+    emitAllChanged();
 }
 
 static void swapEndian(char *d, int nchar)
@@ -1340,13 +1341,14 @@ void WatchHandler::removeWatchExpression(const QString &exp0)
             break;
         }
     }
+    updateWatchersWindow();
+    emitAllChanged();
 }
 
 void WatchHandler::updateWatchersWindow()
 {
-    const bool showWatchers = m_watchers->rowCount(QModelIndex()) > 0;
-    const bool showReturn = m_return->rowCount(QModelIndex()) > 0;
-    plugin()->updateWatchersWindow(showWatchers, showReturn);
+    // Force show/hide of watchers and return view.
+    plugin()->updateState(m_engine);
 }
 
 void WatchHandler::updateWatchers()
@@ -1370,7 +1372,6 @@ void WatchHandler::loadWatchers()
         m_watcherNames[exp.toLatin1()] = watcherCounter++;
 
     //qDebug() << "LOAD WATCHERS: " << m_watchers;
-    //reinitializeWatchersHelper();
 }
 
 QStringList WatchHandler::watchedExpressions() const

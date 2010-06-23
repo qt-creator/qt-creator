@@ -101,12 +101,12 @@ public:
     // This contains per-session data like breakpoints and watched
     // expression. It serves as a template for new engine instantiations.
     Internal::DebuggerEngine *sessionTemplate();
+    void updateState(Internal::DebuggerEngine *engine);
 
 public slots:
     void exitDebugger();  // FIXME: remove
     void clearCppCodeModelSnapshot();
     void ensureLogVisible();
-    void updateWatchersWindow(bool showWatchers, bool showReturn);
 
     // void runTest(const QString &fileName);
     void showMessage(const QString &msg, int channel, int timeout = -1);
@@ -122,8 +122,6 @@ private:
     void aboutToShutdown();
     void extensionsInitialized();
     void remoteCommand(const QStringList &options, const QStringList &arguments);
-
-    void updateState(Internal::DebuggerEngine *engine);
 
     QWidget *mainWindow() const;
 

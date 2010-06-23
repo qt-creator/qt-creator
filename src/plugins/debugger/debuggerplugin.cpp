@@ -52,7 +52,7 @@
 #include "watchwindow.h"
 
 #include "watchutils.h"
-#include "breakhandler.h" 
+#include "breakhandler.h"
 #include "stackhandler.h"
 #include "watchhandler.h"
 
@@ -2072,7 +2072,15 @@ void DebuggerPluginPrivate::setSimpleDockWidgetArrangement(const QString &active
 
 void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 {
+    m_watchersWindow->setVisible(
+        m_watchersWindow->model()->rowCount(QModelIndex()) > 0);
+    m_returnWindow->setVisible(
+        m_returnWindow->model()->rowCount(QModelIndex()) > 0);
+
     QTC_ASSERT(engine, return);
+    if (m_state == engine->state())
+        return;
+
     m_state = engine->state();
     bool actionsEnabled = DebuggerEngine::debuggerActionsEnabled(m_state);
 
@@ -2170,9 +2178,6 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     theDebuggerAction(AutoDerefPointers)->setEnabled(canDeref);
     theDebuggerAction(ExpandStack)->setEnabled(actionsEnabled);
     theDebuggerAction(ExecuteCommand)->setEnabled(m_state == InferiorStopped);
-
-    m_watchersWindow->setVisible(false);
-    m_returnWindow->setVisible(false);
 
     const bool notbusy = m_state == InferiorStopped
         || m_state == DebuggerNotReady
@@ -2563,12 +2568,6 @@ void DebuggerPlugin::extensionsInitialized()
     // Already done in initialize(). FIXME: Move stuff to here?
     //readSettings();
     //d->m_uiSwitcher->initialize();
-}
-
-void DebuggerPlugin::updateWatchersWindow(bool showWatchers, bool showReturn)
-{
-    d->m_watchersWindow->setVisible(showWatchers);
-    d->m_returnWindow->setVisible(showReturn);
 }
 
 QWidget *DebuggerPlugin::mainWindow() const

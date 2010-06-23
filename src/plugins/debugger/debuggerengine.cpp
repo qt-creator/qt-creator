@@ -696,9 +696,10 @@ void DebuggerEngine::addToWatchWindow()
         int line, column;
         exp = cppExpressionAt(textEditor, tc.position(), &line, &column);
     }
-
-    if (!exp.isEmpty())
-        watchHandler()->watchExpression(exp);
+    if (exp.isEmpty())
+        return;
+    watchHandler()->watchExpression(exp);
+    plugin()->updateState(this);
 }
 
 // Called from RunControl.
@@ -860,24 +861,18 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
     //qDebug() << "STATUS CHANGE: FROM " << stateName(d->m_state)
     //        << " TO " << stateName(state);
 
+    DebuggerState oldState = d->m_state;
+    d->m_state = state;
+
     QString msg = _("State changed from %1(%2) to %3(%4).")
-     .arg(stateName(d->m_state)).arg(d->m_state).arg(stateName(state)).arg(state);
-    //if (!((d->m_state == -1 && state == 0) || (d->m_state == 0 && state == 0)))
-    //    qDebug() << msg;
-    if (!forced && !isAllowedTransition(d->m_state, state))
+     .arg(stateName(oldState)).arg(oldState).arg(stateName(state)).arg(state);
+    if (!forced && !isAllowedTransition(oldState, state))
         qDebug() << "UNEXPECTED STATE TRANSITION: " << msg;
 
     showMessage(msg, LogDebug);
-
-    //resetLocation();
-    if (state == d->m_state)
-        return;
-
-    d->m_state = state;
-
     plugin()->updateState(this);
 
-    if (d->m_state == DebuggerNotReady)
+    if (state != oldState && state == DebuggerNotReady)
         d->m_runControl->debuggingFinished();
 }
 
