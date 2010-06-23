@@ -431,25 +431,40 @@ MSVCToolChain::InstallationList MSVCToolChain::installations()
         // 2) Installed MSVCs
         const QSettings vsRegistry(MSVC_RegKey, QSettings::NativeFormat);
         foreach(const QString &vsName, vsRegistry.allKeys()) {
-            if (vsName.contains(QLatin1Char('.'))) { // Scan for version major.minor
+            const int dotPos = vsName.indexOf(QLatin1Char('.'));
+            if (dotPos != -1) { // Scan for version major.minor
                 const QString path = vsRegistry.value(vsName).toString();
+                const int version = vsName.left(dotPos).toInt();
                 // Check existence of various install scripts
                 const QString vcvars32bat = path + QLatin1String("bin\\vcvars32.bat");
                 if (QFileInfo(vcvars32bat).isFile())
                     installs.push_back(Installation(Installation::VS, vsName, Installation::s32, vcvars32bat));
-                // Amd 64 is the preferred 64bit platform
-                const QString vcvarsAmd64bat = path + QLatin1String("bin\\amd64\\vcvarsamd64.bat");
-                if (QFileInfo(vcvarsAmd64bat).isFile())
-                    installs.push_back(Installation(Installation::VS, vsName, Installation::amd64, vcvarsAmd64bat));
-                const QString vcvarsAmd64bat2 = path + QLatin1String("bin\\vcvarsx86_amd64.bat");
-                if (QFileInfo(vcvarsAmd64bat2).isFile())
-                    installs.push_back(Installation(Installation::VS, vsName, Installation::amd64, vcvarsAmd64bat2));
-                const QString vcvars64bat = path + QLatin1String("bin\\vcvars64.bat");
-                if (QFileInfo(vcvars64bat).isFile())
-                    installs.push_back(Installation(Installation::VS, vsName, Installation::s64, vcvars64bat));
-                const QString vcvarsIA64bat = path + QLatin1String("bin\\vcvarsx86_ia64.bat");
-                if (QFileInfo(vcvarsIA64bat).isFile())
-                    installs.push_back(Installation(Installation::VS, vsName, Installation::ia64, vcvarsIA64bat));
+                if (version >= 10) {
+                    // Just one common file
+                    const QString vcvarsAllbat = path + QLatin1String("vcvarsall.bat");
+                    if (QFileInfo(vcvarsAllbat).isFile()) {
+                        installs.push_back(Installation(Installation::VS, vsName, Installation::s32, vcvarsAllbat, QLatin1String("x86")));
+                        installs.push_back(Installation(Installation::VS, vsName, Installation::amd64, vcvarsAllbat, QLatin1String("amd64")));
+                        installs.push_back(Installation(Installation::VS, vsName, Installation::s64, vcvarsAllbat, QLatin1String("x64")));
+                        installs.push_back(Installation(Installation::VS, vsName, Installation::ia64, vcvarsAllbat, QLatin1String("ia64")));
+                    } else {
+                        qWarning("Unable to find MSVC setup script %s in version %d", qPrintable(vcvarsAllbat), version);
+                    }
+                } else {
+                    // Amd 64 is the preferred 64bit platform
+                    const QString vcvarsAmd64bat = path + QLatin1String("bin\\amd64\\vcvarsamd64.bat");
+                    if (QFileInfo(vcvarsAmd64bat).isFile())
+                        installs.push_back(Installation(Installation::VS, vsName, Installation::amd64, vcvarsAmd64bat));
+                    const QString vcvarsAmd64bat2 = path + QLatin1String("bin\\vcvarsx86_amd64.bat");
+                    if (QFileInfo(vcvarsAmd64bat2).isFile())
+                        installs.push_back(Installation(Installation::VS, vsName, Installation::amd64, vcvarsAmd64bat2));
+                    const QString vcvars64bat = path + QLatin1String("bin\\vcvars64.bat");
+                    if (QFileInfo(vcvars64bat).isFile())
+                        installs.push_back(Installation(Installation::VS, vsName, Installation::s64, vcvars64bat));
+                    const QString vcvarsIA64bat = path + QLatin1String("bin\\vcvarsx86_ia64.bat");
+                    if (QFileInfo(vcvarsIA64bat).isFile())
+                        installs.push_back(Installation(Installation::VS, vsName, Installation::ia64, vcvarsIA64bat));
+                }
             }
         }
     }
