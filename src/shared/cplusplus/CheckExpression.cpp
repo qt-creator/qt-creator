@@ -248,15 +248,6 @@ bool CheckExpression::visit(TypeConstructorCallAST *ast)
     return false;
 }
 
-bool CheckExpression::visit(PostfixExpressionAST *ast)
-{
-    FullySpecifiedType exprTy = semantic()->check(ast->base_expression, _scope);
-    for (PostfixListAST *it = ast->postfix_expression_list; it; it = it->next) {
-        accept(it->value); // ### not exactly.
-    }
-    return false;
-}
-
 bool CheckExpression::visit(SizeofExpressionAST *ast)
 {
     FullySpecifiedType exprTy = semantic()->check(ast->expression, _scope);
@@ -348,6 +339,7 @@ bool CheckExpression::visit(CompoundLiteralAST *ast)
 
 bool CheckExpression::visit(CallAST *ast)
 {
+    FullySpecifiedType baseTy = semantic()->check(ast->base_expression, _scope);
     for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
         FullySpecifiedType exprTy = semantic()->check(it->value, _scope);
     }
@@ -356,18 +348,22 @@ bool CheckExpression::visit(CallAST *ast)
 
 bool CheckExpression::visit(ArrayAccessAST *ast)
 {
+    FullySpecifiedType baseTy = semantic()->check(ast->base_expression, _scope);
     FullySpecifiedType exprTy = semantic()->check(ast->expression, _scope);
     return false;
 }
 
-bool CheckExpression::visit(PostIncrDecrAST *)
+bool CheckExpression::visit(PostIncrDecrAST *ast)
 {
+    FullySpecifiedType baseTy = semantic()->check(ast->base_expression, _scope);
     return false;
 }
 
 bool CheckExpression::visit(MemberAccessAST *ast)
 {
-    (void) semantic()->check(ast->member_name, _scope);
+    FullySpecifiedType baseTy = semantic()->check(ast->base_expression, _scope);
+    const Name *memberName = semantic()->check(ast->member_name, _scope);
+    (void) memberName;
     return false;
 }
 

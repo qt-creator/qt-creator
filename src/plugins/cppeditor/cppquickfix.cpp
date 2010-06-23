@@ -783,40 +783,32 @@ public:
 
     virtual int match(const QList<AST *> &path)
     {
+        stringLiteral = 0;
+        isObjCStringLiteral = false;
+
         if (path.isEmpty())
+            return -1; // nothing to do
+
+        stringLiteral = path.last()->asStringLiteral();
+
+        if (! stringLiteral)
             return -1;
 
-        int index = path.size() - 1;
-        stringLiteral = path[index]->asStringLiteral();
+        else if (path.size() > 1) {
+            if (CallAST *call = path.at(path.size() - 2)->asCall()) {
+                if (call->base_expression) {
+                    if (SimpleNameAST *functionName = call->base_expression->asSimpleName()) {
+                        const QByteArray id(tokenAt(functionName->identifier_token).identifier->chars());
 
-        if (!stringLiteral)
-            return -1;
-
-        isObjCStringLiteral = charAt(startOf(stringLiteral)) == QLatin1Char('@');
-
-        // check if it is already wrapped in QLatin1String or -Literal
-        if (index-2 < 0)
-            return index;
-
-        CallAST *call = path[index-1]->asCall();
-        PostfixExpressionAST *postfixExp = path[index-2]->asPostfixExpression();
-        if (call && postfixExp
-            && postfixExp->base_expression
-            && postfixExp->postfix_expression_list
-            && postfixExp->postfix_expression_list->value == call)
-        {
-            NameAST *callName = postfixExp->base_expression->asName();
-            if (!callName)
-                return index;
-
-            QByteArray callNameString(tokenAt(callName->firstToken()).spell());
-            if (callNameString == "QLatin1String"
-                || callNameString == "QLatin1Literal"
-                )
-                return -1;
+                        if (id == "QLatin1String" || id == "QLatin1Literal")
+                            return -1; // skip it
+                    }
+                }
+            }
         }
 
-        return index;
+        isObjCStringLiteral = charAt(startOf(stringLiteral)) == QLatin1Char('@');
+        return path.size() - 1; // very high priority
     }
 
     virtual void createChanges()
@@ -845,7 +837,9 @@ class CStringToNSString: public CppQuickFixOperation
 {
 public:
     CStringToNSString(TextEditor::BaseTextEditor *editor)
-        : CppQuickFixOperation(editor), stringLiteral(0), qlatin1Call(0)
+        : CppQuickFixOperation(editor)
+        , stringLiteral(0)
+        , qlatin1Call(0)
     {}
 
     virtual QString description() const
@@ -855,43 +849,34 @@ public:
 
     virtual int match(const QList<AST *> &path)
     {
+        stringLiteral = 0;
+        qlatin1Call = 0;
+
         if (path.isEmpty())
+            return -1; // nothing to do
+
+        stringLiteral = path.last()->asStringLiteral();
+
+        if (! stringLiteral)
             return -1;
 
-        int index = path.size() - 1;
-        stringLiteral = path[index]->asStringLiteral();
+        else if (charAt(startOf(stringLiteral)) == QLatin1Char('@'))
+            return -1; // it's already an objc string literal.
 
-        if (!stringLiteral)
-            return -1;
+        else if (path.size() > 1) {
+            if (CallAST *call = path.at(path.size() - 2)->asCall()) {
+                if (call->base_expression) {
+                    if (SimpleNameAST *functionName = call->base_expression->asSimpleName()) {
+                        const QByteArray id(tokenAt(functionName->identifier_token).identifier->chars());
 
-        if (charAt(startOf(stringLiteral)) == QLatin1Char('@'))
-            return -1;
-
-        // check if it is already wrapped in QLatin1String or -Literal
-        if (index-2 < 0)
-            return index;
-
-        CallAST *call = path[index-1]->asCall();
-        PostfixExpressionAST *postfixExp = path[index-2]->asPostfixExpression();
-        if (call && postfixExp
-            && postfixExp->base_expression
-            && postfixExp->postfix_expression_list
-            && postfixExp->postfix_expression_list->value == call)
-        {
-            NameAST *callName = postfixExp->base_expression->asName();
-            if (!callName)
-                return index;
-
-            if (!(postfixExp->postfix_expression_list->next)) {
-                QByteArray callNameString(tokenAt(callName->firstToken()).spell());
-                if (callNameString == "QLatin1String"
-                    || callNameString == "QLatin1Literal"
-                    )
-                    qlatin1Call = postfixExp;
+                        if (id == "QLatin1String" || id == "QLatin1Literal")
+                            qlatin1Call = call;
+                    }
+                }
             }
         }
 
-        return index;
+        return path.size() - 1; // very high priority
     }
 
     virtual void createChanges()
@@ -910,7 +895,7 @@ public:
 
 private:
     StringLiteralAST *stringLiteral;
-    PostfixExpressionAST *qlatin1Call;
+    CallAST *qlatin1Call;
 };
 
 } // end of anonymous namespace

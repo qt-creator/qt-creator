@@ -176,7 +176,6 @@ public:
     virtual bool visit(PointerAST *) { return true; }
     virtual bool visit(PointerToMemberAST *) { return true; }
     virtual bool visit(PostIncrDecrAST *) { return true; }
-    virtual bool visit(PostfixExpressionAST *) { return true; }
     virtual bool visit(QualifiedNameAST *) { return true; }
     virtual bool visit(ReferenceAST *) { return true; }
     virtual bool visit(ReturnStatementAST *) { return true; }
@@ -319,7 +318,6 @@ public:
     virtual void endVisit(PointerAST *) { }
     virtual void endVisit(PointerToMemberAST *) { }
     virtual void endVisit(PostIncrDecrAST *) { }
-    virtual void endVisit(PostfixExpressionAST *) { }
     virtual void endVisit(QualifiedNameAST *) { }
     virtual void endVisit(ReferenceAST *) { }
     virtual void endVisit(ReturnStatementAST *) { }

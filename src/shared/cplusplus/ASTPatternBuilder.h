@@ -531,13 +531,6 @@ public:
         return __ast;
     }
 
-    PostfixExpressionAST *PostfixExpression(ExpressionAST *base_expression = 0)
-    {
-        PostfixExpressionAST *__ast = new (&pool) PostfixExpressionAST;
-        __ast->base_expression = base_expression;
-        return __ast;
-    }
-
     PointerToMemberAST *PointerToMember()
     {
         PointerToMemberAST *__ast = new (&pool) PointerToMemberAST;

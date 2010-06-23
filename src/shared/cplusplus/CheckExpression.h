@@ -82,7 +82,6 @@ protected:
     virtual bool visit(TypeidExpressionAST *ast);
     virtual bool visit(TypenameCallExpressionAST *ast);
     virtual bool visit(TypeConstructorCallAST *ast);
-    virtual bool visit(PostfixExpressionAST *ast);
     virtual bool visit(SizeofExpressionAST *ast);
     virtual bool visit(NumericLiteralAST *ast);
     virtual bool visit(BoolLiteralAST *ast);

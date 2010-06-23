@@ -689,14 +689,6 @@ bool TypeConstructorCallAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
-bool PostfixExpressionAST::match0(AST *pattern, ASTMatcher *matcher)
-{
-    if (PostfixExpressionAST *_other = pattern->asPostfixExpression())
-        return matcher->match(this, _other);
-
-    return false;
-}
-
 bool PointerToMemberAST::match0(AST *pattern, ASTMatcher *matcher)
 {
     if (PointerToMemberAST *_other = pattern->asPointerToMember())

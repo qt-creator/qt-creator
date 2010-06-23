@@ -1560,6 +1560,11 @@ bool ASTMatcher::match(CallAST *node, CallAST *pattern)
     (void) node;
     (void) pattern;
 
+    if (! pattern->base_expression)
+        pattern->base_expression = node->base_expression;
+    else if (! AST::match(node->base_expression, pattern->base_expression, this))
+        return false;
+
     pattern->lparen_token = node->lparen_token;
 
     if (! pattern->expression_list)
@@ -1576,6 +1581,11 @@ bool ASTMatcher::match(ArrayAccessAST *node, ArrayAccessAST *pattern)
 {
     (void) node;
     (void) pattern;
+
+    if (! pattern->base_expression)
+        pattern->base_expression = node->base_expression;
+    else if (! AST::match(node->base_expression, pattern->base_expression, this))
+        return false;
 
     pattern->lbracket_token = node->lbracket_token;
 
@@ -1594,6 +1604,11 @@ bool ASTMatcher::match(PostIncrDecrAST *node, PostIncrDecrAST *pattern)
     (void) node;
     (void) pattern;
 
+    if (! pattern->base_expression)
+        pattern->base_expression = node->base_expression;
+    else if (! AST::match(node->base_expression, pattern->base_expression, this))
+        return false;
+
     pattern->incr_decr_token = node->incr_decr_token;
 
     return true;
@@ -1603,6 +1618,11 @@ bool ASTMatcher::match(MemberAccessAST *node, MemberAccessAST *pattern)
 {
     (void) node;
     (void) pattern;
+
+    if (! pattern->base_expression)
+        pattern->base_expression = node->base_expression;
+    else if (! AST::match(node->base_expression, pattern->base_expression, this))
+        return false;
 
     pattern->access_token = node->access_token;
 
@@ -1677,24 +1697,6 @@ bool ASTMatcher::match(TypeConstructorCallAST *node, TypeConstructorCallAST *pat
         return false;
 
     pattern->rparen_token = node->rparen_token;
-
-    return true;
-}
-
-bool ASTMatcher::match(PostfixExpressionAST *node, PostfixExpressionAST *pattern)
-{
-    (void) node;
-    (void) pattern;
-
-    if (! pattern->base_expression)
-        pattern->base_expression = node->base_expression;
-    else if (! AST::match(node->base_expression, pattern->base_expression, this))
-        return false;
-
-    if (! pattern->postfix_expression_list)
-        pattern->postfix_expression_list = node->postfix_expression_list;
-    else if (! AST::match(node->postfix_expression_list, pattern->postfix_expression_list, this))
-        return false;
 
     return true;
 }

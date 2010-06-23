@@ -928,6 +928,8 @@ ParameterDeclarationClauseAST *ParameterDeclarationClauseAST::clone(MemoryPool *
 CallAST *CallAST::clone(MemoryPool *pool) const
 {
     CallAST *ast = new (pool) CallAST;
+    if (base_expression)
+        ast->base_expression = base_expression->clone(pool);
     ast->lparen_token = lparen_token;
     for (ExpressionListAST *iter = expression_list, **ast_iter = &ast->expression_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
@@ -939,6 +941,8 @@ CallAST *CallAST::clone(MemoryPool *pool) const
 ArrayAccessAST *ArrayAccessAST::clone(MemoryPool *pool) const
 {
     ArrayAccessAST *ast = new (pool) ArrayAccessAST;
+    if (base_expression)
+        ast->base_expression = base_expression->clone(pool);
     ast->lbracket_token = lbracket_token;
     if (expression)
         ast->expression = expression->clone(pool);
@@ -949,6 +953,8 @@ ArrayAccessAST *ArrayAccessAST::clone(MemoryPool *pool) const
 PostIncrDecrAST *PostIncrDecrAST::clone(MemoryPool *pool) const
 {
     PostIncrDecrAST *ast = new (pool) PostIncrDecrAST;
+    if (base_expression)
+        ast->base_expression = base_expression->clone(pool);
     ast->incr_decr_token = incr_decr_token;
     return ast;
 }
@@ -956,6 +962,8 @@ PostIncrDecrAST *PostIncrDecrAST::clone(MemoryPool *pool) const
 MemberAccessAST *MemberAccessAST::clone(MemoryPool *pool) const
 {
     MemberAccessAST *ast = new (pool) MemberAccessAST;
+    if (base_expression)
+        ast->base_expression = base_expression->clone(pool);
     ast->access_token = access_token;
     ast->template_token = template_token;
     if (member_name)
@@ -999,17 +1007,6 @@ TypeConstructorCallAST *TypeConstructorCallAST::clone(MemoryPool *pool) const
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
         *ast_iter = new (pool) ExpressionListAST((iter->value) ? iter->value->clone(pool) : 0);
     ast->rparen_token = rparen_token;
-    return ast;
-}
-
-PostfixExpressionAST *PostfixExpressionAST::clone(MemoryPool *pool) const
-{
-    PostfixExpressionAST *ast = new (pool) PostfixExpressionAST;
-    if (base_expression)
-        ast->base_expression = base_expression->clone(pool);
-    for (PostfixListAST *iter = postfix_expression_list, **ast_iter = &ast->postfix_expression_list;
-         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
-        *ast_iter = new (pool) PostfixListAST((iter->value) ? iter->value->clone(pool) : 0);
     return ast;
 }
 

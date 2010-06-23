@@ -83,8 +83,6 @@ protected:
     void ensureNameIsValid(NameAST *ast);
 
     virtual bool visit(MemInitializerAST *ast);
-    virtual bool visit(PostfixExpressionAST *ast);
-    virtual void endVisit(PostfixExpressionAST *);
     virtual bool visit(MemberAccessAST *ast);
     virtual bool visit(QualifiedNameAST *ast);
     virtual bool visit(EnumeratorAST *ast);
@@ -116,7 +114,6 @@ private:
     QByteArray _source;
     Document::Ptr _exprDoc;
     Semantic _sem;
-    QList<PostfixExpressionAST *> _postfixExpressionStack;
     QList<QualifiedNameAST *> _qualifiedNameStack;
     QList<TemplateDeclarationAST *> _templateDeclarationStack;
     QList<int> _references;

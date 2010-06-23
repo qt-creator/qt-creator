@@ -258,7 +258,6 @@ public:
     virtual PostIncrDecrAST *asPostIncrDecr() { return 0; }
     virtual PostfixAST *asPostfix() { return 0; }
     virtual PostfixDeclaratorAST *asPostfixDeclarator() { return 0; }
-    virtual PostfixExpressionAST *asPostfixExpression() { return 0; }
     virtual PtrOperatorAST *asPtrOperator() { return 0; }
     virtual QtEnumDeclarationAST *asQtEnumDeclaration() { return 0; }
     virtual QtFlagsDeclarationAST *asQtFlagsDeclaration() { return 0; }
@@ -375,7 +374,7 @@ public:
     virtual PtrOperatorAST *clone(MemoryPool *pool) const = 0;
 };
 
-class CPLUSPLUS_EXPORT PostfixAST: public AST
+class CPLUSPLUS_EXPORT PostfixAST: public ExpressionAST
 {
 public:
     PostfixAST()
@@ -2503,13 +2502,15 @@ protected:
 class CPLUSPLUS_EXPORT CallAST: public PostfixAST
 {
 public:
+    ExpressionAST *base_expression;
     unsigned lparen_token;
     ExpressionListAST *expression_list;
     unsigned rparen_token;
 
 public:
     CallAST()
-        : lparen_token(0)
+        : base_expression(0)
+        , lparen_token(0)
         , expression_list(0)
         , rparen_token(0)
     {}
@@ -2529,13 +2530,15 @@ protected:
 class CPLUSPLUS_EXPORT ArrayAccessAST: public PostfixAST
 {
 public:
+    ExpressionAST *base_expression;
     unsigned lbracket_token;
     ExpressionAST *expression;
     unsigned rbracket_token;
 
 public:
     ArrayAccessAST()
-        : lbracket_token(0)
+        : base_expression(0)
+        , lbracket_token(0)
         , expression(0)
         , rbracket_token(0)
     {}
@@ -2555,11 +2558,13 @@ protected:
 class CPLUSPLUS_EXPORT PostIncrDecrAST: public PostfixAST
 {
 public:
+    ExpressionAST *base_expression;
     unsigned incr_decr_token;
 
 public:
     PostIncrDecrAST()
-        : incr_decr_token(0)
+        : base_expression(0)
+        , incr_decr_token(0)
     {}
 
     virtual PostIncrDecrAST *asPostIncrDecr() { return this; }
@@ -2577,13 +2582,15 @@ protected:
 class CPLUSPLUS_EXPORT MemberAccessAST: public PostfixAST
 {
 public:
+    ExpressionAST *base_expression;
     unsigned access_token;
     unsigned template_token;
     NameAST *member_name;
 
 public:
     MemberAccessAST()
-        : access_token(0)
+        : base_expression(0)
+        , access_token(0)
         , template_token(0)
         , member_name(0)
     {}
@@ -2680,30 +2687,6 @@ public:
     virtual unsigned lastToken() const;
 
     virtual TypeConstructorCallAST *clone(MemoryPool *pool) const;
-
-protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
-};
-
-class CPLUSPLUS_EXPORT PostfixExpressionAST: public ExpressionAST
-{
-public:
-    ExpressionAST *base_expression;
-    PostfixListAST *postfix_expression_list;
-
-public:
-    PostfixExpressionAST()
-        : base_expression(0)
-        , postfix_expression_list(0)
-    {}
-
-    virtual PostfixExpressionAST *asPostfixExpression() { return this; }
-
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
-
-    virtual PostfixExpressionAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);

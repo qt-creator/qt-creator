@@ -244,16 +244,6 @@ bool ResolveExpression::visit(TypeConstructorCallAST *)
     return false;
 }
 
-bool ResolveExpression::visit(PostfixExpressionAST *ast)
-{
-    accept(ast->base_expression);
-
-    for (PostfixListAST *it = ast->postfix_expression_list; it; it = it->next)
-        accept(it->value);
-
-    return false;
-}
-
 bool ResolveExpression::visit(SizeofExpressionAST *)
 {
     FullySpecifiedType ty(control()->integerType(IntegerType::Int));
@@ -468,8 +458,7 @@ bool ResolveExpression::maybeValidPrototype(Function *funTy, unsigned actualArgu
 
 bool ResolveExpression::visit(CallAST *ast)
 {
-    const QList<LookupItem> baseResults = _results;
-    _results.clear();
+    const QList<LookupItem> baseResults = resolve(ast->base_expression, _scope);
 
     // Compute the types of the actual arguments.
     int actualArgumentCount = 0;
@@ -514,9 +503,7 @@ bool ResolveExpression::visit(CallAST *ast)
 
 bool ResolveExpression::visit(ArrayAccessAST *ast)
 {
-    const QList<LookupItem> baseResults = _results;
-    _results.clear();
-
+    const QList<LookupItem> baseResults = resolve(ast->base_expression, _scope);
     const QList<LookupItem> indexResults = resolve(ast->expression);
 
     const Name *arrayAccessOp = control()->operatorNameId(OperatorNameId::ArrayAccessOp);
@@ -551,8 +538,7 @@ bool ResolveExpression::visit(MemberAccessAST *ast)
 {
     // The candidate types for the base expression are stored in
     // _results.
-    const QList<LookupItem> baseResults = _results;
-    _results.clear();
+    const QList<LookupItem> baseResults = resolve(ast->base_expression, _scope);
 
     // Evaluate the expression-id that follows the access operator.
     const Name *memberName = 0;
@@ -644,8 +630,10 @@ FullySpecifiedType ResolveExpression::instantiate(const Name *className, Symbol 
     return DeprecatedGenTemplateInstance::instantiate(className, candidate, _context.control());
 }
 
-bool ResolveExpression::visit(PostIncrDecrAST *)
+bool ResolveExpression::visit(PostIncrDecrAST *ast)
 {
+    const QList<LookupItem> baseResults = resolve(ast->base_expression, _scope);
+    _results = baseResults;
     return false;
 }
 

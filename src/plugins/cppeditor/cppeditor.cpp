@@ -346,15 +346,11 @@ protected:
         return false;
     }
 
-    virtual bool visit(PostfixExpressionAST *ast)
+    virtual bool visit(MemberAccessAST *ast)
     {
+        // accept only the base expression
         accept(ast->base_expression);
-        for (PostfixListAST *it = ast->postfix_expression_list; it; it = it->next) {
-            PostfixAST *fx = it->value;
-            if (fx->asMemberAccess() != 0)
-                continue; // skip members
-            accept(fx);
-        }
+        // and ignore the member name.
         return false;
     }
 

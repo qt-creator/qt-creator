@@ -4325,28 +4325,26 @@ bool Parser::parsePostfixExpression(ExpressionAST *&node)
 {
     DEBUG_THIS_RULE();
     if (parseCorePostfixExpression(node)) {
-        PostfixListAST *postfix_expressions = 0,
-            **postfix_ptr = &postfix_expressions;
         while (LA()) {
             if (LA() == T_LPAREN) {
                 CallAST *ast = new (_pool) CallAST;
                 ast->lparen_token = consumeToken();
                 parseExpressionList(ast->expression_list);
                 match(T_RPAREN, &ast->rparen_token);
-                *postfix_ptr = new (_pool) PostfixListAST(ast);
-                postfix_ptr = &(*postfix_ptr)->next;
+                ast->base_expression = node;
+                node = ast;
             } else if (LA() == T_LBRACKET) {
                 ArrayAccessAST *ast = new (_pool) ArrayAccessAST;
                 ast->lbracket_token = consumeToken();
                 parseExpression(ast->expression);
                 match(T_RBRACKET, &ast->rbracket_token);
-                *postfix_ptr = new (_pool) PostfixListAST(ast);
-                postfix_ptr = &(*postfix_ptr)->next;
+                ast->base_expression = node;
+                node = ast;
             } else if (LA() == T_PLUS_PLUS || LA() == T_MINUS_MINUS) {
                 PostIncrDecrAST *ast = new (_pool) PostIncrDecrAST;
                 ast->incr_decr_token = consumeToken();
-                *postfix_ptr = new (_pool) PostfixListAST(ast);
-                postfix_ptr = &(*postfix_ptr)->next;
+                ast->base_expression = node;
+                node = ast;
             } else if (LA() == T_DOT || LA() == T_ARROW) {
                 MemberAccessAST *ast = new (_pool) MemberAccessAST;
                 ast->access_token = consumeToken();
@@ -4355,17 +4353,11 @@ bool Parser::parsePostfixExpression(ExpressionAST *&node)
                 if (! parseNameId(ast->member_name))
                     _translationUnit->error(cursor(), "expected unqualified-id before token `%s'",
                                             tok().spell());
-                *postfix_ptr = new (_pool) PostfixListAST(ast);
-                postfix_ptr = &(*postfix_ptr)->next;
+                ast->base_expression = node;
+                node = ast;
             } else break;
         } // while
 
-        if (postfix_expressions) {
-            PostfixExpressionAST *ast = new (_pool) PostfixExpressionAST;
-            ast->base_expression = node;
-            ast->postfix_expression_list = postfix_expressions;
-            node = ast;
-        }
         return true;
     }
     return false;

@@ -194,27 +194,12 @@ bool FindUsages::visit(MemInitializerAST *ast)
     return false;
 }
 
-bool FindUsages::visit(PostfixExpressionAST *ast)
-{
-    _postfixExpressionStack.append(ast);
-    return true;
-}
-
-void FindUsages::endVisit(PostfixExpressionAST *)
-{
-    _postfixExpressionStack.removeLast();
-}
-
 bool FindUsages::visit(MemberAccessAST *ast)
 {
     if (ast->member_name) {
         if (SimpleNameAST *simple = ast->member_name->asSimpleName()) {
             if (identifier(simple->identifier_token) == _id) {
-                Q_ASSERT(! _postfixExpressionStack.isEmpty());
-
-                checkExpression(_postfixExpressionStack.last()->firstToken(),
-                                simple->identifier_token);
-
+                checkExpression(ast->firstToken(), simple->identifier_token);
                 return false;
             }
         }

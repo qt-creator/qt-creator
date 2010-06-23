@@ -287,6 +287,9 @@ unsigned QtInterfacesDeclarationAST::lastToken() const
 
 unsigned ArrayAccessAST::firstToken() const
 {
+    if (base_expression)
+        return base_expression->firstToken();
+
     return lbracket_token;
 }
 
@@ -296,7 +299,9 @@ unsigned ArrayAccessAST::lastToken() const
         return rbracket_token + 1;
     else if (expression)
         return expression->lastToken();
-    return lbracket_token + 1;
+    if (lbracket_token)
+        return lbracket_token + 1;
+    return base_expression->lastToken();
 }
 
 
@@ -474,6 +479,9 @@ unsigned BreakStatementAST::lastToken() const
 
 unsigned CallAST::firstToken() const
 {
+    if (base_expression)
+        return base_expression->firstToken();
+
     return lparen_token;
 }
 
@@ -485,7 +493,10 @@ unsigned CallAST::lastToken() const
     else if (expression_list)
         return expression_list->lastToken();
 
-    return lparen_token + 1;
+    if (lparen_token)
+        return lparen_token + 1;
+
+    return base_expression->lastToken();
 }
 
 
@@ -1183,6 +1194,8 @@ unsigned MemInitializerAST::lastToken() const
 
 unsigned MemberAccessAST::firstToken() const
 {
+    if (base_expression)
+        return base_expression->firstToken();
     return access_token;
 }
 
@@ -1192,7 +1205,9 @@ unsigned MemberAccessAST::lastToken() const
         return member_name->lastToken();
     else if (template_token)
         return template_token + 1;
-    return access_token + 1;
+    else if (access_token)
+        return access_token + 1;
+    return base_expression->lastToken();
 }
 
 
@@ -1488,24 +1503,15 @@ unsigned PointerToMemberAST::lastToken() const
 
 unsigned PostIncrDecrAST::firstToken() const
 {
+    if (base_expression)
+        return base_expression->firstToken();
     return incr_decr_token;
 }
 
 unsigned PostIncrDecrAST::lastToken() const
 {
-    return incr_decr_token + 1;
-}
-
-
-unsigned PostfixExpressionAST::firstToken() const
-{
-    return base_expression->firstToken();
-}
-
-unsigned PostfixExpressionAST::lastToken() const
-{
-    if (postfix_expression_list)
-        return postfix_expression_list->lastToken();
+    if (incr_decr_token)
+        return incr_decr_token + 1;
     return base_expression->lastToken();
 }
 

@@ -680,6 +680,7 @@ void ParameterDeclarationClauseAST::accept0(ASTVisitor *visitor)
 void CallAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
+        accept(base_expression, visitor);
         accept(expression_list, visitor);
     }
     visitor->endVisit(this);
@@ -688,6 +689,7 @@ void CallAST::accept0(ASTVisitor *visitor)
 void ArrayAccessAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
+        accept(base_expression, visitor);
         accept(expression, visitor);
     }
     visitor->endVisit(this);
@@ -696,6 +698,7 @@ void ArrayAccessAST::accept0(ASTVisitor *visitor)
 void PostIncrDecrAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
+        accept(base_expression, visitor);
     }
     visitor->endVisit(this);
 }
@@ -703,6 +706,7 @@ void PostIncrDecrAST::accept0(ASTVisitor *visitor)
 void MemberAccessAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
+        accept(base_expression, visitor);
         accept(member_name, visitor);
     }
     visitor->endVisit(this);
@@ -730,15 +734,6 @@ void TypeConstructorCallAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(type_specifier_list, visitor);
         accept(expression_list, visitor);
-    }
-    visitor->endVisit(this);
-}
-
-void PostfixExpressionAST::accept0(ASTVisitor *visitor)
-{
-    if (visitor->visit(this)) {
-        accept(base_expression, visitor);
-        accept(postfix_expression_list, visitor);
     }
     visitor->endVisit(this);
 }

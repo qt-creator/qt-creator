@@ -115,7 +115,6 @@ public:
     virtual bool match(PointerAST *node, PointerAST *pattern);
     virtual bool match(PointerToMemberAST *node, PointerToMemberAST *pattern);
     virtual bool match(PostIncrDecrAST *node, PostIncrDecrAST *pattern);
-    virtual bool match(PostfixExpressionAST *node, PostfixExpressionAST *pattern);
     virtual bool match(QualifiedNameAST *node, QualifiedNameAST *pattern);
     virtual bool match(ReferenceAST *node, ReferenceAST *pattern);
     virtual bool match(ReturnStatementAST *node, ReturnStatementAST *pattern);

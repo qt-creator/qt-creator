@@ -165,7 +165,6 @@ class PointerToMemberAST;
 class PostIncrDecrAST;
 class PostfixAST;
 class PostfixDeclaratorAST;
-class PostfixExpressionAST;
 class PtrOperatorAST;
 class QtEnumDeclarationAST;
 class QtFlagsDeclarationAST;
