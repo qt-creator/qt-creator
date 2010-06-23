@@ -1314,16 +1314,6 @@ class Dumper:
                     self.putNumChild(0)
                     isHandled = True
 
-                #warn("TARGET: %s " % target)
-                if (not isHandled) and (target == "char"
-                        or target == "signed char" or target == "unsigned char"):
-                    # Display values up to given length directly
-                    #warn("CHAR AUTODEREF: %s" % value.address)
-                    self.putType(item.value.type)
-                    self.putValue(encodeCharArray(value, 100), Hex2EncodedLatin1)
-                    self.putNumChild(0)
-                    isHandled = True
-
             #warn("AUTODEREF: %s" % self.autoDerefPointers)
             #warn("IS HANDLED: %s" % isHandled)
             #warn("RES: %s" % (self.autoDerefPointers and not isHandled))

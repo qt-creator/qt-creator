@@ -420,11 +420,11 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     } else {
         for (int i = 0; i != typeFormatActions.size(); ++i) {
             if (act == typeFormatActions.at(i))
-                setModelData(LocalsTypeFormatRole, 1, mi1);
+                setModelData(LocalsTypeFormatRole, i, mi1);
         }
         for (int i = 0; i != individualFormatActions.size(); ++i) {
             if (act == individualFormatActions.at(i))
-                setModelData(LocalsIndividualFormatRole, 1, mi1);
+                setModelData(LocalsIndividualFormatRole, i, mi1);
         }
     }
 }
