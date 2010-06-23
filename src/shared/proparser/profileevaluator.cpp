@@ -2659,7 +2659,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
                 ok = evaluateFile(fn, ProFileEvaluatorHandler::EvalIncludeFile);
             } else {
                 QHash<ProString, ProStringList> symbols;
-                if ((ok = evaluateFileInto(fn, ProFileEvaluatorHandler::EvalIncludeFile, &symbols, 0))) {
+                if ((ok = evaluateFileInto(fn, ProFileEvaluatorHandler::EvalAuxFile, &symbols, 0))) {
                     QHash<ProString, ProStringList> newMap;
                     for (QHash<ProString, ProStringList>::ConstIterator
                             it = m_valuemapStack.top().constBegin(),
