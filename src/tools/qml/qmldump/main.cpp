@@ -298,7 +298,7 @@ int main(int argc, char *argv[])
         code += "import Qt.labs.particles 4.7;\n";
         code += "import Qt.labs.gestures 4.7;\n";
         code += "import Qt.labs.folderlistmodel 4.7;\n";
-        code += "import org.webkit 1.0;\n";
+        code += "import QtWebKit 1.0;\n";
         code += tyName;
         code += " {}\n";
 
