@@ -360,6 +360,10 @@ unsigned BaseSpecifierAST::firstToken() const
 {
     if (virtual_token && access_specifier_token)
         return std::min(virtual_token, access_specifier_token);
+    if (virtual_token)
+        return virtual_token;
+    if (access_specifier_token)
+        return access_specifier_token;
     return name->firstToken();
 }
 
@@ -368,7 +372,7 @@ unsigned BaseSpecifierAST::lastToken() const
     if (name)
         return name->lastToken();
     else if (virtual_token && access_specifier_token)
-        return std::min(virtual_token, access_specifier_token) + 1;
+        return std::max(virtual_token, access_specifier_token) + 1;
     else if (virtual_token)
         return virtual_token + 1;
     else if (access_specifier_token)
