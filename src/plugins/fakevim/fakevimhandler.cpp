@@ -2453,21 +2453,21 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         else if (input.is('U'))
             m_subsubmode = UpCaseSubSubMode;
         finishMovement();
-    } else if (input.is(Key_PageDown) || input.isControl('f')) {
+    } else if (input.isKey(Key_PageDown) || input.isControl('f')) {
         moveDown(count() * (linesOnScreen() - 2) - cursorLineOnScreen());
         scrollToLineInDocument(cursorLineInDocument());
         handleStartOfLine();
         finishMovement();
-    } else if (input.is(Key_PageUp) || input.isControl('b')) {
+    } else if (input.isKey(Key_PageUp) || input.isControl('b')) {
         moveUp(count() * (linesOnScreen() - 2) + cursorLineOnScreen());
         scrollToLineInDocument(cursorLineInDocument() + linesOnScreen() - 2);
         handleStartOfLine();
         finishMovement();
-    } else if (input.is(Key_Delete)) {
+    } else if (input.isKey(Key_Delete)) {
         setAnchor();
         moveRight(qMin(1, rightDist()));
         removeText(currentRange());
-    } else if (input.is(Key_BracketLeft) || input.is(Key_BracketRight)) {
+    } else if (input.isKey(Key_BracketLeft) || input.isKey(Key_BracketRight)) {
 
     } else if (input.isControl(Key_BracketRight)) {
         handleExCommand("tag");
