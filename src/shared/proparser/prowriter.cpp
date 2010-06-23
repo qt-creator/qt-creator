@@ -183,7 +183,7 @@ void ProWriter::addVarValues(ProFile *profile, QStringList *lines,
     }
 
     // Check if variable item exists as child of root item
-    const ushort *tokPtr = (const ushort *)profile->items().constData();
+    const ushort *tokPtr = profile->tokPtr();
     int lineNo = 0;
     QString tmp;
     const ushort *lastXpr = 0;
@@ -259,7 +259,7 @@ QStringList ProWriter::removeVarValues(ProFile *profile, QStringList *lines,
     QStringList notChanged = values;
 
     QList<int> varLines;
-    findProVariables((const ushort *)profile->items().constData(), vars, &varLines);
+    findProVariables(profile->tokPtr(), vars, &varLines);
 
     QStringList valuesToFind;
     if (valuesAreFiles) {

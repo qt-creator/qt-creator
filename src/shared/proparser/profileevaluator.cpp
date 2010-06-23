@@ -457,9 +457,8 @@ uint ProFileEvaluator::Private::getBlockLen(const ushort *&tokPtr)
 
 ProString ProFileEvaluator::Private::getStr(const ushort *&tokPtr)
 {
-    const QString &str(m_current.pro->items());
     uint len = *tokPtr++;
-    ProString ret(str, tokPtr - (const ushort *)str.constData(), len, NoHash);
+    ProString ret(m_current.pro->items(), tokPtr - m_current.pro->tokPtr(), len, NoHash);
     tokPtr += len;
     return ret;
 }
@@ -468,8 +467,7 @@ ProString ProFileEvaluator::Private::getHashStr(const ushort *&tokPtr)
 {
     uint hash = getBlockLen(tokPtr);
     uint len = *tokPtr++;
-    const QString &str(m_current.pro->items());
-    ProString ret(str, tokPtr - (const ushort *)str.constData(), len, hash);
+    ProString ret(m_current.pro->items(), tokPtr - m_current.pro->tokPtr(), len, hash);
     tokPtr += len;
     return ret;
 }
@@ -914,8 +912,7 @@ void ProFileEvaluator::Private::visitProFunctionDef(
             (tok == TokTestDef
              ? &m_functionDefs.testFunctions
              : &m_functionDefs.replaceFunctions);
-    hash->insert(name, FunctionDef(m_current.pro,
-                                   tokPtr - (const ushort *)m_current.pro->items().constData()));
+    hash->insert(name, FunctionDef(m_current.pro, tokPtr - m_current.pro->tokPtr()));
 }
 
 ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProLoop(
@@ -1283,7 +1280,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
         }
     }
 
-    visitProBlock(pro, (const ushort *)pro->items().constData());
+    visitProBlock(pro, pro->tokPtr());
 
     if (m_profileStack.count() == 1) {
         if (m_parsePreAndPostFiles) {
@@ -2420,7 +2417,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
                 if (!pro)
                     return ReturnFalse;
                 m_locationStack.push(m_current);
-                VisitReturn ret = visitProBlock(pro, (const ushort *)pro->items().constData());
+                VisitReturn ret = visitProBlock(pro, pro->tokPtr());
                 m_current = m_locationStack.pop();
                 pro->deref();
                 return ret;

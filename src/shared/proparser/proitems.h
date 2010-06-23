@@ -190,6 +190,7 @@ public:
     QString directoryName() const { return m_directoryName; }
     const QString &items() const { return m_proitems; }
     QString *itemsRef() { return &m_proitems; }
+    const ushort *tokPtr() const { return (const ushort *)m_proitems.constData(); }
 
     void ref() { m_refCount.ref(); }
     void deref() { if (!m_refCount.deref()) delete this; }

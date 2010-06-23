@@ -81,7 +81,7 @@ public:
             return *this;
         }
         ProFile *pro() const { return m_pro; }
-        const ushort *tokPtr() const { return (const ushort *)m_pro->items().constData() + m_offset; }
+        const ushort *tokPtr() const { return m_pro->tokPtr() + m_offset; }
     private:
         ProFile *m_pro;
         int m_offset;
