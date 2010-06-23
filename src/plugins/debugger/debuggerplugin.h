@@ -83,8 +83,7 @@ public:
     void readSettings();
     void writeSettings() const;
 
-    static ProjectExplorer::RunControl *createDebugger
-        (const DebuggerStartParameters &sp);
+    static DebuggerRunControl *createDebugger(const DebuggerStartParameters &sp);
     static void startDebugger(ProjectExplorer::RunControl *runControl);
 
     QMessageBox *showMessageBox(int icon, const QString &title,

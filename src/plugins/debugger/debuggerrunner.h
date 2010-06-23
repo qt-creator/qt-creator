@@ -42,6 +42,7 @@ class Environment;
 
 namespace Debugger {
 
+class DebuggerRunControl;
 class DebuggerStartParameters;
 
 namespace Internal {
@@ -69,7 +70,7 @@ public:
 
     // This is used by the "Non-Standard" scenarios, e.g. Attach to Core.
     // FIXME: What to do in case of a 0 runConfiguration?
-    ProjectExplorer::RunControl *create(const DebuggerStartParameters &sp,
+    DebuggerRunControl *create(const DebuggerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration = 0);
 
 private:

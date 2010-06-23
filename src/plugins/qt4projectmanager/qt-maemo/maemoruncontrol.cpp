@@ -64,6 +64,7 @@ namespace Internal {
 
 using ProjectExplorer::RunConfiguration;
 using ProjectExplorer::ToolChain;
+using namespace Debugger;
 
 AbstractMaemoRunControl::AbstractMaemoRunControl(RunConfiguration *rc, QString mode)
     : RunControl(rc, mode)
@@ -383,17 +384,17 @@ void MaemoRunControl::handleRemoteOutput(const QString &output)
 MaemoDebugRunControl::MaemoDebugRunControl(RunConfiguration *runConfiguration)
     : AbstractMaemoRunControl(runConfiguration, ProjectExplorer::Constants::DEBUGMODE)
     , m_debuggerRunControl(0)
-    , m_startParams(new Debugger::DebuggerStartParameters)
+    , m_startParams(new DebuggerStartParameters)
 {
 #ifdef USE_GDBSERVER
-    m_startParams->startMode = Debugger::AttachToRemote;
+    m_startParams->startMode = AttachToRemote;
     m_startParams->executable = executableOnHost();
     m_startParams->debuggerCommand = m_runConfig->gdbCmd();
     m_startParams->remoteChannel
         = m_devConfig.server.host % QLatin1Char(':') % gdbServerPort();
     m_startParams->remoteArchitecture = QLatin1String("arm");
 #else
-    m_startParams->startMode = Debugger::StartRemoteGdb;
+    m_startParams->startMode = StartRemoteGdb;
     m_startParams->executable = executableFilePathOnTarget();
     m_startParams->debuggerCommand = QLatin1String("/usr/bin/gdb");
     m_startParams->sshserver = m_devConfig.server;
@@ -405,8 +406,7 @@ MaemoDebugRunControl::MaemoDebugRunControl(RunConfiguration *runConfiguration)
     m_startParams->remoteDumperLib = remoteDir().toUtf8() + '/'
         + QFileInfo(m_runConfig->dumperLib()).fileName().toUtf8();
 
-    m_debuggerRunControl = qobject_cast<Debugger::DebuggerRunControl *>
-        (Debugger::DebuggerPlugin::createDebugger(*m_startParams.data()));
+    m_debuggerRunControl = DebuggerPlugin::createDebugger(*m_startParams.data());
     connect(m_debuggerRunControl, SIGNAL(finished()), this,
         SLOT(debuggingFinished()), Qt::QueuedConnection);
 }
@@ -453,7 +453,7 @@ void MaemoDebugRunControl::handleRemoteOutput(const QString &output)
 
 void MaemoDebugRunControl::startDebugging()
 {
-    Debugger::DebuggerPlugin::startDebugger(m_debuggerRunControl);
+    DebuggerPlugin::startDebugger(m_debuggerRunControl);
 }
 
 void MaemoDebugRunControl::stopInternal()
@@ -464,7 +464,7 @@ void MaemoDebugRunControl::stopInternal()
 bool MaemoDebugRunControl::isRunning() const
 {
     return AbstractMaemoRunControl::isRunning()
-        || m_debuggerRunControl->state() != Debugger::DebuggerNotReady;
+        || m_debuggerRunControl->state() != DebuggerNotReady;
 }
 
 void MaemoDebugRunControl::debuggingFinished()

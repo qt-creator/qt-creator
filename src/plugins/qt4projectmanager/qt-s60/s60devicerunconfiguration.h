@@ -45,6 +45,7 @@ QT_END_NAMESPACE
 
 namespace Debugger {
 class DebuggerStartParameters;
+class DebuggerRunControl;
 }
 
 namespace SymbianUtils {
@@ -245,6 +246,7 @@ private slots:
     void debuggingFinished();
 private:
     QSharedPointer<Debugger::DebuggerStartParameters> m_startParams;
+    Debugger::DebuggerRunControl *m_debuggerRunControl;
     QString m_localExecutableFileName;
 };
 

@@ -843,7 +843,7 @@ public slots:
     QVariant configValue(const QString &name) const
         { return settings()->value(name); }
 
-    ProjectExplorer::RunControl *createDebugger(const DebuggerStartParameters &sp);
+    DebuggerRunControl *createDebugger(const DebuggerStartParameters &sp);
     void startDebugger(ProjectExplorer::RunControl *runControl);
 
     void dumpLog();
@@ -1914,7 +1914,7 @@ void DebuggerPluginPrivate::showToolTip(ITextEditor *editor, const QPoint &point
     notifyCurrentEngine(RequestToolTipByExpressionRole, list);
 }
 
-ProjectExplorer::RunControl *
+DebuggerRunControl *
 DebuggerPluginPrivate::createDebugger(const DebuggerStartParameters &sp)
 {
     return m_debuggerRunControlFactory->create(sp);
@@ -1922,8 +1922,8 @@ DebuggerPluginPrivate::createDebugger(const DebuggerStartParameters &sp)
 
 void DebuggerPluginPrivate::startDebugger(ProjectExplorer::RunControl *rc)
 {
+    QTC_ASSERT(rc, return);
     DebuggerRunControl *runControl = qobject_cast<DebuggerRunControl *>(rc);
-    qDebug() << "START DEBUGGER: " << runControl << rc;
     QTC_ASSERT(runControl, return);
     activateDebugMode();
     connectEngine(runControl->engine());
@@ -2576,7 +2576,7 @@ QWidget *DebuggerPlugin::mainWindow() const
     return d->m_uiSwitcher->mainWindow();
 }
 
-ProjectExplorer::RunControl *
+DebuggerRunControl *
 DebuggerPlugin::createDebugger(const DebuggerStartParameters &sp)
 {
     return instance()->d->createDebugger(sp);

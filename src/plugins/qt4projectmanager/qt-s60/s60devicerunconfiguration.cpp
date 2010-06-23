@@ -886,20 +886,13 @@ void S60DeviceRunControl::printRunFailNotice(const QString &errorMessage) {
 
 // ======== S60DeviceDebugRunControl
 
-S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *runConfiguration, QString mode) :
-    S60DeviceRunControlBase(runConfiguration, mode),
-    m_startParams(new Debugger::DebuggerStartParameters)
+S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *rc, QString mode) :
+    S60DeviceRunControlBase(rc, mode),
+    m_startParams(new Debugger::DebuggerStartParameters),
+    m_debuggerRunControl(0)
 {
     setReleaseDeviceAfterLauncherFinish(true); // Debugger controls device after install
-    Debugger::DebuggerPlugin *dm = Debugger::DebuggerPlugin::instance();
-    S60DeviceRunConfiguration *rc = qobject_cast<S60DeviceRunConfiguration *>(runConfiguration);
-    QTC_ASSERT(dm && rc, return);
-
-    connect(dm, SIGNAL(debuggingFinished()),
-            this, SLOT(debuggingFinished()), Qt::QueuedConnection);
-    connect(dm, SIGNAL(applicationOutputAvailable(QString, bool)),
-            this, SLOT(printApplicationOutput(QString, bool)),
-            Qt::QueuedConnection);
+    QTC_ASSERT(rc, return);
 
     m_startParams->remoteChannel = rc->serialPortName();
     m_startParams->processArgs = rc->commandLineArguments();
@@ -913,19 +906,17 @@ S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *ru
     }
 }
 
+S60DeviceDebugRunControl::~S60DeviceDebugRunControl()
+{
+    // FIXME: Needed? m_debuggerRunControl->deleteLater(); 
+}
+
 void S60DeviceDebugRunControl::stop()
 {
     S60DeviceRunControlBase::stop();
-    Debugger::DebuggerPlugin *dm = Debugger::DebuggerPlugin::instance();
-    QTC_ASSERT(dm, return)
-    // FIXME: ABC: that should use the RunControl present in
-    // handleLauncherFinished
-    if (dm->state() == Debugger::DebuggerNotReady)
-        dm->exitDebugger();
-}
-
-S60DeviceDebugRunControl::~S60DeviceDebugRunControl()
-{
+    QTC_ASSERT(m_debuggerRunControl, return)
+    if (m_debuggerRunControl->state() == Debugger::DebuggerNotReady)
+        m_debuggerRunControl->stop();
 }
 
 void S60DeviceDebugRunControl::initLauncher(const QString &executable, trk::Launcher *launcher)
@@ -949,9 +940,18 @@ void S60DeviceDebugRunControl::handleLauncherFinished()
 {
     using namespace Debugger;
     emit appendMessage(this, tr("Launching debugger..."), false);
-    ProjectExplorer::RunControl *rc
-        = DebuggerPlugin::createDebugger(*m_startParams.data());
-    DebuggerPlugin::startDebugger(rc);
+    QTC_ASSERT(m_debuggerRunControl == 0, /* Should happen only once. */);
+    m_debuggerRunControl = DebuggerPlugin::createDebugger(*m_startParams.data());
+    connect(m_debuggerRunControl,
+            SIGNAL(finished()),
+            SLOT(debuggingFinished()),
+            Qt::QueuedConnection);
+    connect(m_debuggerRunControl,
+            SIGNAL(addToOutputWindowInline(ProjectExplorer::RunControl,QString,bool)),
+            SIGNAL(addToOutputWindowInline(ProjectExplorer::RunControl,QString,bool)),
+            Qt::QueuedConnection);
+
+    DebuggerPlugin::startDebugger(m_debuggerRunControl);
 }
 
 void S60DeviceDebugRunControl::debuggingFinished()

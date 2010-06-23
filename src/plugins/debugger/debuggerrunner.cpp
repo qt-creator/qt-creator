@@ -171,7 +171,7 @@ RunControl *DebuggerRunControlFactory::create
     return create(sp, runConfiguration);
 }
 
-RunControl *DebuggerRunControlFactory::create(const DebuggerStartParameters &sp,
+DebuggerRunControl *DebuggerRunControlFactory::create(const DebuggerStartParameters &sp,
     RunConfiguration *runConfiguration)
 {
     DebuggerRunControl *runControl = new DebuggerRunControl(runConfiguration);
@@ -369,7 +369,7 @@ void DebuggerRunControl::createEngine(const DebuggerStartParameters &sp)
             break;
         default: {
             // Could not find anything suitable.
-            emit debuggingFinished();
+            debuggingFinished();
             // Create Message box with possibility to go to settings
             const QString msg = tr("Cannot debug '%1' (tool chain: '%2'): %3")
                 .arg(sp.executable, toolChainName(sp.toolChainType), m_errorMessage);
