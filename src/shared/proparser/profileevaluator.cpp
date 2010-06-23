@@ -151,7 +151,7 @@ public:
     void visitProFunctionDef(ushort tok, const ProString &name, const ushort *tokPtr);
     void visitProVariable(ushort tok, const ProStringList &curr, const ushort *&tokPtr);
 
-    static inline ProString map(const ProString &var);
+    static inline const ProString &map(const ProString &var);
     QHash<ProString, ProStringList> *findValues(const ProString &variableName,
                                                 QHash<ProString, ProStringList>::Iterator *it);
     ProStringList &valuesRef(const ProString &variableName);
@@ -418,9 +418,10 @@ void ProFileEvaluator::Private::initStatics()
                               ProString(mapInits[i].newname));
 }
 
-ProString ProFileEvaluator::Private::map(const ProString &var)
+const ProString &ProFileEvaluator::Private::map(const ProString &var)
 {
-    return statics.varMap.value(var, var);
+    QHash<ProString, ProString>::ConstIterator it = statics.varMap.constFind(var);
+    return (it != statics.varMap.constEnd()) ? it.value() : var;
 }
 
 
