@@ -2848,8 +2848,8 @@ ProStringList ProFileEvaluator::Private::values(const ProString &variableName) c
         case V__LINE_: //parser line number
             ret = QString::number(m_lineNo);
             break;
-        case V__FILE_: //parser file; qmake is a bit weird here
-            ret = m_profileStack.size() == 1 ? currentFileName() : currentProFile()->displayFileName();
+        case V__FILE_: //parser file
+            ret = currentFileName();
             break;
         case V__DATE_: //current date/time
             ret = QDateTime::currentDateTime().toString();

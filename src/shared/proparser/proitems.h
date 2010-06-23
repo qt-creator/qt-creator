@@ -186,7 +186,6 @@ public:
     explicit ProFile(const QString &fileName);
     ~ProFile();
 
-    QString displayFileName() const { return m_displayFileName; }
     QString fileName() const { return m_fileName; }
     QString directoryName() const { return m_directoryName; }
     const QString &items() const { return m_proitems; }
@@ -199,7 +198,6 @@ private:
     ProItemRefCount m_refCount;
     QString m_proitems;
     QString m_fileName;
-    QString m_displayFileName;
     QString m_directoryName;
 };
 
