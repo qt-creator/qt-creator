@@ -6,7 +6,6 @@
 #include <AST.h>
 #include <ASTVisitor.h>
 #include <TranslationUnit.h>
-#include <CppBindings.h>
 #include <CppDocument.h>
 #include <FindUsages.h>
 #include <Literals.h>
@@ -90,7 +89,6 @@ void tst_FindUsages::inlineMethod()
     QCOMPARE(arg->identifier()->chars(), "arg");
 
     FindUsages findUsages(doc, snapshot);
-    findUsages.setGlobalNamespaceBinding(bind(doc, snapshot));
     findUsages(arg);
     QCOMPARE(findUsages.usages().size(), 2);
     QCOMPARE(findUsages.references().size(), 2);
@@ -150,7 +148,6 @@ void tst_FindUsages::objc_args()
     QCOMPARE(arg->identifier()->chars(), "arg");
 
     FindUsages findUsages(doc, snapshot);
-    findUsages.setGlobalNamespaceBinding(bind(doc, snapshot));
     findUsages(arg);
     QCOMPARE(findUsages.usages().size(), 2);
     QCOMPARE(findUsages.references().size(), 2);
@@ -189,7 +186,6 @@ void tst_FindUsages::qproperty_1()
     QCOMPARE(setX_method->argumentCount(), 1U);
 
     FindUsages findUsages(doc, snapshot);
-    findUsages.setGlobalNamespaceBinding(bind(doc, snapshot));
     findUsages(setX_method);
     QCOMPARE(findUsages.usages().size(), 2);
     QCOMPARE(findUsages.references().size(), 2);

@@ -11,6 +11,7 @@
 #include <Semantic.h>
 #include <Scope.h>
 #include <Symbols.h>
+#include <TokenCache.h>
 #include <CoreTypes.h>
 #include <Names.h>
 #include <Literals.h>
@@ -26,19 +27,20 @@ class tst_Semantic: public QObject
 {
     Q_OBJECT
 
-    Control control;
+    QSharedPointer<Control> control;
 
 public:
     tst_Semantic()
-    { control.setDiagnosticClient(&diag); }
+        : control(new Control)
+    { control->setDiagnosticClient(&diag); }
 
     TranslationUnit *parse(const QByteArray &source,
                            TranslationUnit::ParseMode mode,
                            bool enableObjc,
                            bool qtMocRun)
     {
-        const StringLiteral *fileId = control.findOrInsertStringLiteral("<stdin>");
-        TranslationUnit *unit = new TranslationUnit(&control, fileId);
+        const StringLiteral *fileId = control->findOrInsertStringLiteral("<stdin>");
+        TranslationUnit *unit = new TranslationUnit(control.data(), fileId);
         unit->setSource(source.constData(), source.length());
         unit->setObjCEnabled(enableObjc);
         unit->setQtMocRunEnabled(qtMocRun);
@@ -433,10 +435,10 @@ void tst_Semantic::template_instance_1()
     Declaration *decl = doc->globals->symbolAt(0)->asClass()->memberAt(0)->asDeclaration();
     QVERIFY(decl);
 
-    FullySpecifiedType templArgs[] = { control.integerType(IntegerType::Int) };
-    const Name *templId = control.templateNameId(control.findOrInsertIdentifier("QList"), templArgs, 1);
+    FullySpecifiedType templArgs[] = { control->integerType(IntegerType::Int) };
+    const Name *templId = control->templateNameId(control->findOrInsertIdentifier("QList"), templArgs, 1);
 
-    FullySpecifiedType genTy = DeprecatedGenTemplateInstance::instantiate(templId, decl, &control);
+    FullySpecifiedType genTy = DeprecatedGenTemplateInstance::instantiate(templId, decl, control);
 
     Overview oo;
     oo.setShowReturnTypes(true);
@@ -455,7 +457,8 @@ void tst_Semantic::expression_under_cursor_1()
     QTextCursor tc(&textDocument);
     tc.movePosition(QTextCursor::End);
 
-    ExpressionUnderCursor expressionUnderCursor;
+    TokenCache cache(&textDocument);
+    ExpressionUnderCursor expressionUnderCursor(&cache);
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, QString("bar"));
@@ -471,7 +474,8 @@ void tst_Semantic::bracketed_expression_under_cursor_1()
     QTextCursor tc(&textDocument);
     tc.movePosition(QTextCursor::End);
 
-    ExpressionUnderCursor expressionUnderCursor;
+    TokenCache cache(&textDocument);
+    ExpressionUnderCursor expressionUnderCursor(&cache);
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, QString("i"));
@@ -487,7 +491,8 @@ void tst_Semantic::bracketed_expression_under_cursor_2()
     QTextCursor tc(&textDocument);
     tc.movePosition(QTextCursor::End);
 
-    ExpressionUnderCursor expressionUnderCursor;
+    TokenCache cache(&textDocument);
+    ExpressionUnderCursor expressionUnderCursor(&cache);
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, plainText);
@@ -503,7 +508,8 @@ void tst_Semantic::bracketed_expression_under_cursor_3()
     QTextCursor tc(&textDocument);
     tc.movePosition(QTextCursor::End);
 
-    ExpressionUnderCursor expressionUnderCursor;
+    TokenCache cache(&textDocument);
+    ExpressionUnderCursor expressionUnderCursor(&cache);
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, plainText);
@@ -519,7 +525,8 @@ void tst_Semantic::bracketed_expression_under_cursor_4()
     QTextCursor tc(&textDocument);
     tc.movePosition(QTextCursor::End);
 
-    ExpressionUnderCursor expressionUnderCursor;
+    TokenCache cache(&textDocument);
+    ExpressionUnderCursor expressionUnderCursor(&cache);
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, plainText);
@@ -535,7 +542,8 @@ void tst_Semantic::bracketed_expression_under_cursor_5()
     QTextCursor tc(&textDocument);
     tc.movePosition(QTextCursor::End);
 
-    ExpressionUnderCursor expressionUnderCursor;
+    TokenCache cache(&textDocument);
+    ExpressionUnderCursor expressionUnderCursor(&cache);
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, QString("[receiver message"));
@@ -551,7 +559,8 @@ void tst_Semantic::bracketed_expression_under_cursor_6()
     QTextCursor tc(&textDocument);
     tc.movePosition(QTextCursor::End);
 
-    ExpressionUnderCursor expressionUnderCursor;
+    TokenCache cache(&textDocument);
+    ExpressionUnderCursor expressionUnderCursor(&cache);
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, QString("[receiver msgParam1:1 + i[1] msgParam2"));
@@ -567,7 +576,8 @@ void tst_Semantic::bracketed_expression_under_cursor_7()
     QTextCursor tc(&textDocument);
     tc.movePosition(QTextCursor::End);
 
-    ExpressionUnderCursor expressionUnderCursor;
+    TokenCache cache(&textDocument);
+    ExpressionUnderCursor expressionUnderCursor(&cache);
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, QString("i"));
@@ -583,7 +593,8 @@ void tst_Semantic::bracketed_expression_under_cursor_8()
     QTextCursor tc(&textDocument);
     tc.movePosition(QTextCursor::End);
 
-    ExpressionUnderCursor expressionUnderCursor;
+    TokenCache cache(&textDocument);
+    ExpressionUnderCursor expressionUnderCursor(&cache);
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, plainText);

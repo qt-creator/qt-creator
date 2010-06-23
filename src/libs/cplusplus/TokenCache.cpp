@@ -3,8 +3,8 @@
 
 using namespace CPlusPlus;
 
-TokenCache::TokenCache()
-    : m_doc(0)
+TokenCache::TokenCache(QTextDocument *doc)
+    : m_doc(doc)
     , m_revision(-1)
 {}
 

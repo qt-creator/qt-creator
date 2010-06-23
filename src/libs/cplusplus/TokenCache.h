@@ -17,7 +17,7 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT TokenCache
 {
 public:
-    TokenCache();
+    TokenCache(QTextDocument *doc = 0);
 
     void setDocument(QTextDocument *doc);
 
