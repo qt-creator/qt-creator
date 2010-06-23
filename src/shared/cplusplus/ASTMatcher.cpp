@@ -2725,6 +2725,8 @@ bool ASTMatcher::match(LambdaCaptureAST *node, LambdaCaptureAST *pattern)
     (void) node;
     (void) pattern;
 
+    pattern->default_capture_token = node->default_capture_token;
+
     if (! pattern->capture_list)
         pattern->capture_list = node->capture_list;
     else if (! AST::match(node->capture_list, pattern->capture_list, this))

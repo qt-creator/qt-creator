@@ -1612,6 +1612,7 @@ LambdaIntroducerAST *LambdaIntroducerAST::clone(MemoryPool *pool) const
 LambdaCaptureAST *LambdaCaptureAST::clone(MemoryPool *pool) const
 {
     LambdaCaptureAST *ast = new (pool) LambdaCaptureAST;
+    ast->default_capture_token = default_capture_token;
     for (CaptureListAST *iter = capture_list, **ast_iter = &ast->capture_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
         *ast_iter = new (pool) CaptureListAST((iter->value) ? iter->value->clone(pool) : 0);
