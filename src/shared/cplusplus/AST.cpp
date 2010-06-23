@@ -2518,8 +2518,8 @@ unsigned LambdaIntroducerAST::lastToken() const
 
 unsigned LambdaCaptureAST::firstToken() const
 {
-    if (default_capture)
-        return default_capture;
+    if (default_capture_token)
+        return default_capture_token;
 
     else if (capture_list)
         return capture_list->firstToken();
@@ -2533,8 +2533,8 @@ unsigned LambdaCaptureAST::lastToken() const
     if (capture_list)
         return capture_list->lastToken();
 
-    else if (default_capture)
-        return default_capture + 1;
+    else if (default_capture_token)
+        return default_capture_token + 1;
 
     // assert?
     return 0;

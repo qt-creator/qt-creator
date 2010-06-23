@@ -5722,7 +5722,7 @@ bool Parser::parseLambdaCapture(LambdaCaptureAST *&node)
     }
 
     LambdaCaptureAST *ast = new (_pool) LambdaCaptureAST;
-    ast->default_capture = default_capture;
+    ast->default_capture_token = default_capture;
     ast->capture_list = capture_list;
     node = ast;
 

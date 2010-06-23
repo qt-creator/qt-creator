@@ -4153,12 +4153,12 @@ protected:
 class LambdaCaptureAST: public AST
 {
 public:
-    unsigned default_capture;
+    unsigned default_capture_token;
     CaptureListAST *capture_list;
 
 public:
     LambdaCaptureAST()
-        : default_capture(0)
+        : default_capture_token(0)
         , capture_list(0)
     {}
 
