@@ -1,8 +1,9 @@
 #ifndef TOKENCACHE_H
 #define TOKENCACHE_H
 
+#include "SimpleLexer.h"
+
 #include <CPlusPlusForwardDeclarations.h>
-#include <SimpleLexer.h>
 
 #include <QtCore/QHash>
 #include <QtCore/QList>
