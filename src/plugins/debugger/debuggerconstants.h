@@ -217,6 +217,8 @@ enum ModelRoles
     RequestClearCppCodeModelSnapshotRole,
     RequestAssignValueRole,
     RequestAssignTypeRole,
+    RequestWatchExpressionRole,
+    RequestRemoveWatchExpressionRole,
 
     // Stack
     StackFrameAddressRole,

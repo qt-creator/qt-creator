@@ -253,7 +253,6 @@ public slots:
     void quitDebugger() { exitDebugger(); }
 
 protected:
-    friend class WatchHandler;
     void setState(DebuggerState state, bool forced = false);
 
 private:

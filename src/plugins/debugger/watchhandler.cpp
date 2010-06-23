@@ -184,7 +184,7 @@ void WatchModel::endCycle()
     m_fetchTriggered.clear();
     emit enableUpdates(true);
 }
- 
+
 DebuggerEngine *WatchModel::engine() const
 {
     return m_handler->m_engine;
@@ -744,28 +744,49 @@ bool WatchModel::setData(const QModelIndex &index, const QVariant &value, int ro
             plugin()->clearCppCodeModelSnapshot();
             return true;
         }
+
+        case RequestWatchPointRole: {
+            engine()->watchPoint(value.toPoint());
+            return true;
+        }
     }
 
     WatchItem &data = *watchItem(index);
-    if (role == LocalsExpandedRole) {
-        if (value.toBool()) {
-            // Should already have been triggered by fetchMore()
-            //QTC_ASSERT(m_handler->m_expandedINames.contains(data.iname), /**/);
-            m_handler->m_expandedINames.insert(data.iname);
-        } else {
-            m_handler->m_expandedINames.remove(data.iname);
+
+    switch (role) {
+        case LocalsExpandedRole:
+            if (value.toBool()) {
+                // Should already have been triggered by fetchMore()
+                //QTC_ASSERT(m_handler->m_expandedINames.contains(data.iname), /**/);
+                m_handler->m_expandedINames.insert(data.iname);
+            } else {
+                m_handler->m_expandedINames.remove(data.iname);
+            }
+            break;
+
+        case LocalsTypeFormatRole:
+            m_handler->setFormat(data.type, value.toInt());
+            engine()->updateWatchData(data);
+            break;
+
+        case LocalsIndividualFormatRole: {
+            const int format = value.toInt();
+            if (format == -1) {
+                m_handler->m_individualFormats.remove(data.addr);
+            } else {
+                m_handler->m_individualFormats[data.addr] = format;
+            }
+            engine()->updateWatchData(data);
+            break;
         }
-    } else if (role == LocalsTypeFormatRole) {
-        m_handler->setFormat(data.type, value.toInt());
-        engine()->updateWatchData(data);
-    } else if (role == LocalsIndividualFormatRole) {
-        const int format = value.toInt();
-        if (format == -1) {
-            m_handler->m_individualFormats.remove(data.addr);
-        } else {
-            m_handler->m_individualFormats[data.addr] = format;
-        }
-        engine()->updateWatchData(data);
+
+        case RequestRemoveWatchExpressionRole:
+            m_handler->removeWatchExpression(value.toString());
+            break;
+
+        case RequestWatchExpressionRole:
+            m_handler->watchExpression(value.toString());
+            break;
     }
     emit dataChanged(index, index);
     return true;
@@ -1065,10 +1086,6 @@ WatchHandler::WatchHandler(DebuggerEngine *engine)
     m_watchers = new WatchModel(this, WatchersWatch);
     m_tooltips = new WatchModel(this, TooltipsWatch);
 
-    connect(theDebuggerAction(WatchExpression),
-        SIGNAL(triggered()), this, SLOT(watchExpression()));
-    connect(theDebuggerAction(RemoveWatchExpression),
-        SIGNAL(triggered()), this, SLOT(removeWatchExpression()));
     connect(theDebuggerAction(ShowStdNamespace),
         SIGNAL(triggered()), this, SLOT(emitAllChanged()));
     connect(theDebuggerAction(ShowQtNamespace),
@@ -1198,12 +1215,6 @@ void WatchHandler::removeData(const QByteArray &iname)
         model->destroyItem(item);
 }
 
-void WatchHandler::watchExpression()
-{
-    if (QAction *action = qobject_cast<QAction *>(sender()))
-        watchExpression(action->data().toString());
-}
-
 QByteArray WatchHandler::watcherName(const QByteArray &exp)
 {
     return "watch." + QByteArray::number(m_watcherNames[exp]);
@@ -1321,12 +1332,6 @@ void WatchHandler::showEditValue(const WatchData &data)
     } else {
         QTC_ASSERT(false, qDebug() << "Display format: " << data.editformat);
     }
-}
-
-void WatchHandler::removeWatchExpression()
-{
-    if (QAction *action = qobject_cast<QAction *>(sender()))
-        removeWatchExpression(action->data().toString());
 }
 
 void WatchHandler::removeWatchExpression(const QString &exp0)

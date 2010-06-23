@@ -244,21 +244,6 @@ DebuggerSettings *DebuggerSettings::instance()
     // Locals & Watchers
     //
     item = new SavedAction(instance);
-    item->setTextPattern(tr("Watch Expression \"%1\""));
-    instance->insertItem(WatchExpression, item);
-
-    item = new SavedAction(instance);
-    item->setTextPattern(tr("Remove Watch Expression \"%1\""));
-    instance->insertItem(RemoveWatchExpression, item);
-
-    item = new SavedAction(instance);
-    item->setTextPattern(tr("Watch Expression \"%1\" in Separate Window"));
-    instance->insertItem(WatchExpressionInWindow, item);
-
-    item = new SavedAction(instance);
-    instance->insertItem(WatchPoint, item);
-
-    item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("ShowStandardNamespace"));
     item->setText(tr("Show \"std::\" Namespace in Types"));
     item->setCheckable(true);

@@ -142,10 +142,8 @@ public:
     WatchModel *modelForIName(const QByteArray &iname) const;
 
     void cleanup();
-    Q_SLOT void watchExpression(); // Data passed in action->data().toString()
-    Q_SLOT void watchExpression(const QString &exp);
-    Q_SLOT void removeWatchExpression();
-    Q_SLOT void removeWatchExpression(const QString &exp);
+    void watchExpression(const QString &exp);
+    void removeWatchExpression(const QString &exp);
     Q_SLOT void emitAllChanged();
 
     void beginCycle(); // Called at begin of updateLocals() cycle

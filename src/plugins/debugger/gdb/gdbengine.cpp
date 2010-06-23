@@ -3615,7 +3615,7 @@ void GdbEngine::handleWatchPoint(const GdbResponse &response)
         QString ns = m_dumperHelper.qtNamespace();
         QString type = ns.isEmpty() ? _("QWidget*") : _("'%1QWidget'*").arg(ns);
         QString exp = _("(*(%1)%2)").arg(type).arg(addr);
-        theDebuggerAction(WatchExpression)->trigger(exp);
+        watchHandler()->watchExpression(exp);
     }
 }
 

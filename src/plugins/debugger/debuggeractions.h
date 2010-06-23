@@ -123,10 +123,6 @@ enum DebuggerActionCode
     CreateFullBacktrace,
 
     // Watchers & Locals
-    WatchExpression,
-    WatchExpressionInWindow,
-    RemoveWatchExpression,
-    WatchPoint,
     ShowStdNamespace,
     ShowQtNamespace,
 

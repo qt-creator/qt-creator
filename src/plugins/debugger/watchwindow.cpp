@@ -99,8 +99,8 @@ public:
             model->setData(index, QString(exp + '=' + value), RequestAssignTypeRole);
         } else if (index.column() == 0) {
             // The watcher name column.
-            theDebuggerAction(RemoveWatchExpression)->trigger(exp);
-            theDebuggerAction(WatchExpression)->trigger(value);
+            model->setData(index, exp, RequestRemoveWatchExpressionRole);
+            model->setData(index, value, RequestWatchExpressionRole);
         }
     }
 
@@ -161,14 +161,14 @@ void WatchWindow::keyPressEvent(QKeyEvent *ev)
         QModelIndex idx = currentIndex();
         QModelIndex idx1 = idx.sibling(idx.row(), 0);
         QString exp = idx1.data().toString();
-        theDebuggerAction(RemoveWatchExpression)->trigger(exp);
+        removeWatchExpression(exp);
     } else if (ev->key() == Qt::Key_Return
             && ev->modifiers() == Qt::ControlModifier
             && m_type == LocalsType) {
         QModelIndex idx = currentIndex();
         QModelIndex idx1 = idx.sibling(idx.row(), 0);
         QString exp = model()->data(idx1).toString();
-        theDebuggerAction(WatchExpression)->trigger(exp);
+        watchExpression(exp);
     }
     QTreeView::keyPressEvent(ev);
 }
@@ -194,7 +194,7 @@ void WatchWindow::dragMoveEvent(QDragMoveEvent *ev)
 void WatchWindow::dropEvent(QDropEvent *ev)
 {
     if (ev->mimeData()->hasFormat("text/plain")) {
-        theDebuggerAction(WatchExpression)->trigger(ev->mimeData()->text());
+        watchExpression(ev->mimeData()->text());
         //ev->acceptProposedAction();
         ev->setDropAction(Qt::CopyAction);
         ev->accept();
@@ -313,13 +313,15 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     const bool canSetWatchpoint = engineCapabilities & WatchpointCapability;
     if (canSetWatchpoint && address) {
         actSetWatchPointAtVariableAddress =
-            new QAction(tr("Break on Changes at Object's Address (0x%1)").arg(address, 0, 16), &menu);
+            new QAction(tr("Break on Changes at Object's Address (0x%1)")
+                .arg(address, 0, 16), &menu);
         actSetWatchPointAtVariableAddress->setCheckable(true);
         actSetWatchPointAtVariableAddress->
             setChecked(mi0.data(LocalsIsWatchpointAtAddressRole).toBool());
         if (createPointerActions) {
             actSetWatchPointAtPointerValue =
-                new QAction(tr("Break on Changes at Referenced Address (0x%1)").arg(pointerValue, 0, 16), &menu);
+                new QAction(tr("Break on Changes at Referenced Address (0x%1)")
+                    .arg(pointerValue, 0, 16), &menu);
             actSetWatchPointAtPointerValue->setCheckable(true);
             actSetWatchPointAtPointerValue->
                 setChecked(mi0.data(LocalsIsWatchpointAtPointerValueRole).toBool());
@@ -330,16 +332,17 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         actSetWatchPointAtVariableAddress->setEnabled(false);
     }
 
-    QAction *actWatchOrRemove;
-    if (m_type == LocalsType) {
-        actWatchOrRemove = theDebuggerAction(WatchExpression)->updatedAction(exp);
-        actWatchOrRemove->setEnabled(canHandleWatches);
-    } else {
-        actWatchOrRemove = theDebuggerAction(RemoveWatchExpression)->updatedAction(exp);
-        // Also for the case where the user cleared the expression.
-        actWatchOrRemove->setEnabled(true);
-    }
-    menu.addAction(actWatchOrRemove);
+    QAction *actWatchExpression =
+        new QAction(tr("Watch Expression \"%1\"").arg(exp), &menu);
+    actWatchExpression->setEnabled(canHandleWatches);
+
+    QAction *actRemoveWatchExpression =
+        new QAction(tr("Remove Watch Expression \"%1\"").arg(exp), &menu);
+
+    if (m_type == LocalsType)
+        menu.addAction(actWatchExpression);
+    else
+        menu.addAction(actRemoveWatchExpression);
 
     menu.addAction(actInsertNewWatchItem);
     menu.addAction(actSelectWidgetToWatch);
@@ -388,8 +391,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == actAlwaysAdjustColumnWidth) {
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
     } else if (act == actInsertNewWatchItem) {
-        theDebuggerAction(WatchExpression)
-            ->trigger(WatchHandler::watcherEditPlaceHolder());
+        watchExpression(WatchHandler::watcherEditPlaceHolder());
     } else if (act == actOpenMemoryEditAtVariableAddress) {
         setModelData(RequestShowMemoryRole, address);
     } else if (act == actOpenMemoryEditAtPointerValue) {
@@ -405,6 +407,10 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == actSelectWidgetToWatch) {
         grabMouse(Qt::CrossCursor);
         m_grabbing = true;
+    } else if (act == actWatchExpression) {
+        watchExpression(exp);
+    } else if (act == actRemoveWatchExpression) {
+        removeWatchExpression(exp);
     } else if (act == actClearCodeModelSnapshot) {
         setModelData(RequestClearCppCodeModelSnapshotRole);
     } else if (act == clearTypeFormatAction) {
@@ -446,7 +452,7 @@ bool WatchWindow::event(QEvent *ev)
         QMouseEvent *mev = static_cast<QMouseEvent *>(ev);
         m_grabbing = false;
         releaseMouse();
-        theDebuggerAction(WatchPoint)->trigger(mapToGlobal(mev->pos()));
+        setModelData(RequestWatchPointRole, mapToGlobal(mev->pos()));
     }
     return QTreeView::event(ev);
 }
@@ -496,6 +502,16 @@ void WatchWindow::resetHelper(const QModelIndex &idx)
         //qDebug() << "COLLAPSING " << model()->data(idx, INameRole);
         collapse(idx);
     }
+}
+
+void WatchWindow::watchExpression(const QString &exp)
+{
+    setModelData(RequestWatchExpressionRole, exp);
+}
+
+void WatchWindow::removeWatchExpression(const QString &exp)
+{
+    setModelData(RequestRemoveWatchExpressionRole, exp);
 }
 
 void WatchWindow::setModelData

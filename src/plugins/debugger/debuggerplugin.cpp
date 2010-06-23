@@ -1128,7 +1128,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_actions.reverseDirectionAction->setCheckable(false);
     theDebuggerAction(OperateByInstruction)->
         setProperty(Role, RequestOperatedByInstructionTriggeredRole);
-    theDebuggerAction(WatchPoint)->setProperty(Role, RequestWatchPointRole);
 
     connect(m_actions.continueAction, SIGNAL(triggered()), SLOT(onAction()));
     connect(m_actions.nextAction, SIGNAL(triggered()), SLOT(onAction()));
@@ -1149,7 +1148,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     connect(m_actions.resetAction, SIGNAL(triggered()), SLOT(onAction()));
     connect(&m_statusTimer, SIGNAL(timeout()), SLOT(clearStatusMessage()));
 
-    connect(theDebuggerAction(WatchPoint), SIGNAL(triggered()), SLOT(onAction()));
     connect(theDebuggerAction(ExecuteCommand), SIGNAL(triggered()),
         SLOT(executeDebuggerCommand()));
 
