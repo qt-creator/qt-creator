@@ -410,18 +410,19 @@ MaemoDebugRunControl::MaemoDebugRunControl(RunConfiguration *runConfiguration)
     connect(m_debuggerRunControl, SIGNAL(debuggingFinished()), this,
         SLOT(debuggingFinished()), Qt::QueuedConnection);
 
-/*
-    FIXME:
-
-    connect(m_debuggerManager, SIGNAL(applicationOutputAvailable(QString, bool)),
-            this,
 #ifdef USE_GDBSERVER
-            SLOT(debuggerOutput(QString))
+    connect(m_debuggerRunControl,
+            SIGNAL(addToOutputWindowInline(RunControl,QString,bool)),
+            this,
+            SLOT(handleRemoteOutput(RunControl,QString)),
+            Qt::QueuedConnection);
 #else
-            SLOT(handleRemoteOutput(QString))
+    connect(m_debuggerRunControl,
+            SIGNAL(addToOutputWindowInline(RunControl,QString,bool)),
+            this,
+            SIGNAL(addToOutputWindowInline(RunControl,QString,bool)),
+            Qt::QueuedConnection);
 #endif
-            , Qt::QueuedConnection);
-*/
 }
 
 MaemoDebugRunControl::~MaemoDebugRunControl()
@@ -489,7 +490,7 @@ void MaemoDebugRunControl::debuggingFinished()
 #endif
 }
 
-void MaemoDebugRunControl::debuggerOutput(const QString &output)
+void MaemoDebugRunControl::debuggerOutput(RunControl *, const QString &output)
 {
     emit appendMessage(this, QLatin1String("[gdb says:] ") + output, true);
 }

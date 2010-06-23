@@ -53,8 +53,8 @@
 
 #include "watchutils.h"
 #include "breakhandler.h" 
-#include "stackhandler.h"  // FIXME
-#include "watchhandler.h"  // FIXME
+#include "stackhandler.h"
+#include "watchhandler.h"
 
 #ifdef Q_OS_WIN
 #  include "shared/peutils.h"

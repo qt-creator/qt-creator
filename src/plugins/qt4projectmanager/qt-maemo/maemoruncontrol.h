@@ -156,7 +156,7 @@ public:
 
 private slots:
     virtual void handleRemoteOutput(const QString &output);
-    void debuggerOutput(const QString &output);
+    void debuggerOutput(RunControl *, const QString &output);
     void debuggingFinished();
 
 private:
