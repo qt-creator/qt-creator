@@ -23,7 +23,7 @@ echo "Creating zip archive..."
 git archive --format=zip --prefix=qt-creator-${VERSION}-src/ origin/${VERSION} > qt-creator-${VERSION}-src.zip || exit 1
 echo "Creating documentation..."
 rm -r doc/html
-qmake -r && make docs || exit 1
+qmake -r && make docs_online || exit 1
 cd doc
 cp -r html qt-creator-${VERSION}
 zip -r ../qt-creator-${VERSION}-doc.zip qt-creator-${VERSION}
