@@ -1839,6 +1839,64 @@ void CPPEditor::semanticRehighlight()
     m_semanticHighlighter->rehighlight(currentSource());
 }
 
+static QList<QTextEdit::ExtraSelection> createSelections(QTextDocument *document,
+                                                         const QList<CPlusPlus::Document::DiagnosticMessage> &msgs,
+                                                         const QTextCharFormat &format)
+{
+    QList<QTextEdit::ExtraSelection> selections;
+
+    foreach (const Document::DiagnosticMessage &m, msgs) {
+        QTextCursor cursor(document);
+        cursor.setPosition(document->findBlockByNumber(m.line() - 1).position() + m.column() - 1);
+        cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, m.length());
+
+        QTextEdit::ExtraSelection sel;
+        sel.cursor = cursor;
+        sel.format = format;
+        sel.format.setToolTip(m.text());
+        selections.append(sel);
+    }
+
+    return selections;
+}
+
+static QList<QTextEdit::ExtraSelection> createSelections(QTextDocument *document,
+                                                         const QList<SemanticInfo::Use> &msgs,
+                                                         const QTextCharFormat &format)
+{
+    QList<QTextEdit::ExtraSelection> selections;
+
+    QTextBlock currentBlock = document->firstBlock();
+    unsigned currentLine = 1;
+
+    foreach (const SemanticInfo::Use &use, msgs) {
+        QTextCursor cursor(document);
+
+        if (currentLine != use.line) {
+            int delta = use.line - currentLine;
+
+            if (delta >= 0) {
+                while (delta--)
+                    currentBlock = currentBlock.next();
+            } else {
+                currentBlock = document->findBlockByNumber(use.line - 1);
+            }
+
+            currentLine = use.line;
+        }
+
+        cursor.setPosition(currentBlock.position() + use.column - 1);
+        cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, use.length);
+
+        QTextEdit::ExtraSelection sel;
+        sel.cursor = cursor;
+        sel.format = format;
+        selections.append(sel);
+    }
+
+    return selections;
+}
+
 void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
 {
     if (semanticInfo.revision != editorRevision()) {
@@ -1881,83 +1939,19 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
     }
 
     if (m_lastSemanticInfo.forced || previousSemanticInfo.revision != semanticInfo.revision) {
-        QList<QTextEdit::ExtraSelection> undefinedSymbolSelections;
-        foreach (const Document::DiagnosticMessage &m, semanticInfo.diagnosticMessages) {
-            QTextCursor cursor(document());
-            cursor.setPosition(document()->findBlockByNumber(m.line() - 1).position() + m.column() - 1);
-            cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, m.length());
+        QTextCharFormat diagnosticMessageFormat;
+        diagnosticMessageFormat.setUnderlineColor(Qt::darkYellow); // ### hardcoded
+        diagnosticMessageFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline); // ### hardcoded
+        setExtraSelections(UndefinedSymbolSelection, createSelections(document(),
+                                                                      semanticInfo.diagnosticMessages,
+                                                                      diagnosticMessageFormat));
 
-            QTextEdit::ExtraSelection sel;
-            sel.cursor = cursor;
-            sel.format.setUnderlineColor(Qt::darkYellow); // ### hardcoded
-            sel.format.setUnderlineStyle(QTextCharFormat::WaveUnderline); // ### hardcoded
-            sel.format.setToolTip(m.text());
-            undefinedSymbolSelections.append(sel);
-        }
-
-        setExtraSelections(UndefinedSymbolSelection, undefinedSymbolSelections);
-
-        QTextBlock currentBlock = document()->firstBlock();
-        unsigned currentLine = 1;
-
-        QList<QTextEdit::ExtraSelection> typeSelections;
-
-        foreach (const SemanticInfo::Use &use, semanticInfo.typeUsages) {
-            QTextCursor cursor(document());
-
-            if (currentLine != use.line) {
-                int delta = use.line - currentLine;
-
-                if (delta >= 0) {
-                    while (delta--)
-                        currentBlock = currentBlock.next();
-                } else {
-                    currentBlock = document()->findBlockByNumber(use.line - 1);
-                }
-
-                currentLine = use.line;
-            }
-
-            cursor.setPosition(currentBlock.position() + use.column - 1);
-            cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, use.length);
-
-            QTextEdit::ExtraSelection sel;
-            sel.cursor = cursor;
-            sel.format = m_typeFormat;
-            typeSelections.append(sel);
-        }
-
-        setExtraSelections(TypeSelection, typeSelections);
-
-        // ### extract common parts from the previous loop and the next one
-        QList<QTextEdit::ExtraSelection> objcKeywords;
-        if (isObjCEnabled()) {
-            foreach (const SemanticInfo::Use &use, semanticInfo.objcKeywords) {
-                QTextCursor cursor(document());
-
-                if (currentLine != use.line) {
-                    int delta = use.line - currentLine;
-
-                    if (delta >= 0) {
-                        while (delta--)
-                            currentBlock = currentBlock.next();
-                    } else {
-                        currentBlock = document()->findBlockByNumber(use.line - 1);
-                    }
-
-                    currentLine = use.line;
-                }
-
-                cursor.setPosition(currentBlock.position() + use.column - 1);
-                cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, use.length);
-
-                QTextEdit::ExtraSelection sel;
-                sel.cursor = cursor;
-                sel.format = m_keywordFormat;
-                objcKeywords.append(sel);
-            }
-        }
-        setExtraSelections(ObjCSelection, objcKeywords);
+        setExtraSelections(TypeSelection, createSelections(document(),
+                                                           semanticInfo.typeUsages,
+                                                           m_typeFormat));
+        setExtraSelections(ObjCSelection, createSelections(document(),
+                                                           semanticInfo.objcKeywords,
+                                                           m_keywordFormat));
     }
 
     setExtraSelections(UnusedSymbolSelection, unusedSelections);
