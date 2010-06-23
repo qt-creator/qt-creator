@@ -65,9 +65,26 @@ class ProFileEvaluator
     class Private;
 
 public:
-    struct FunctionDef {
-        QString string;
-        int offset;
+    class FunctionDef {
+    public:
+        FunctionDef(ProFile *pro, int offset) : m_pro(pro), m_offset(offset) { m_pro->ref(); }
+        FunctionDef(const FunctionDef &o) : m_pro(o.m_pro), m_offset(o.m_offset) { m_pro->ref(); }
+        ~FunctionDef() { m_pro->deref(); }
+        FunctionDef &operator=(const FunctionDef &o)
+        {
+            if (this != &o) {
+                m_pro->deref();
+                m_pro = o.m_pro;
+                m_pro->ref();
+                m_offset = o.m_offset;
+            }
+            return *this;
+        }
+        ProFile *pro() const { return m_pro; }
+        const ushort *tokPtr() const { return (const ushort *)m_pro->items().constData() + m_offset; }
+    private:
+        ProFile *m_pro;
+        int m_offset;
     };
 
     struct FunctionDefs {

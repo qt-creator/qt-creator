@@ -126,7 +126,6 @@ public:
     ~Private();
 
     ProFileEvaluator *q;
-    int m_lineNo;                                   // Error reporting
 
     enum VisitReturn {
         ReturnFalse,
@@ -145,6 +144,7 @@ public:
     void skipExpression(const ushort *&tokPtr);
 
     VisitReturn visitProFile(ProFile *pro, ProFileEvaluatorHandler::EvalFileType type);
+    VisitReturn visitProBlock(ProFile *pro, const ushort *tokPtr);
     VisitReturn visitProBlock(const ushort *tokPtr);
     VisitReturn visitProLoop(const ProString &variable, const ushort *exprPtr,
                              const ushort *tokPtr);
@@ -200,8 +200,17 @@ public:
     int m_skipLevel;
     int m_loopLevel; // To report unexpected break() and next()s
     bool m_cumulative;
-    QStack<ProFile*> m_profileStack;                // To handle 'include(a.pri), so we can track back to 'a.pro' when finished with 'a.pri'
-    QStack<QString> m_stringStack;                  // To handle token string refcounting
+
+    struct Location {
+        Location() : pro(0), line(0) {}
+        Location(ProFile *_pro, int _line) : pro(_pro), line(_line) {}
+        ProFile *pro;
+        int line;
+    };
+
+    Location m_current; // Currently evaluated location
+    QStack<Location> m_locationStack; // All execution location changes
+    QStack<ProFile *> m_profileStack; // Includes only
 
     QString m_outputDir;
 
@@ -448,7 +457,7 @@ uint ProFileEvaluator::Private::getBlockLen(const ushort *&tokPtr)
 
 ProString ProFileEvaluator::Private::getStr(const ushort *&tokPtr)
 {
-    const QString &str(m_stringStack.top());
+    const QString &str(m_current.pro->items());
     uint len = *tokPtr++;
     ProString ret(str, tokPtr - (const ushort *)str.constData(), len, NoHash);
     tokPtr += len;
@@ -459,7 +468,7 @@ ProString ProFileEvaluator::Private::getHashStr(const ushort *&tokPtr)
 {
     uint hash = getBlockLen(tokPtr);
     uint len = *tokPtr++;
-    const QString &str(m_stringStack.top());
+    const QString &str(m_current.pro->items());
     ProString ret(str, tokPtr - (const ushort *)str.constData(), len, hash);
     tokPtr += len;
     return ret;
@@ -670,7 +679,7 @@ void ProFileEvaluator::Private::evaluateExpression(
         ushort maskedTok = tok & TokMask;
         switch (maskedTok) {
         case TokLine:
-            m_lineNo = *tokPtr++;
+            m_current.line = *tokPtr++;
             break;
         case TokLiteral:
             addStr(getStr(tokPtr), ret, pending, joined);
@@ -707,7 +716,7 @@ void ProFileEvaluator::Private::skipExpression(const ushort *&pTokPtr)
         ushort tok = *tokPtr++;
         switch (tok) {
         case TokLine:
-            m_lineNo = *tokPtr++;
+            m_current.line = *tokPtr++;
             break;
         case TokValueTerminator:
         case TokFuncTerminator:
@@ -741,6 +750,14 @@ void ProFileEvaluator::Private::skipExpression(const ushort *&pTokPtr)
 }
 
 ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProBlock(
+        ProFile *pro, const ushort *tokPtr)
+{
+    m_current.pro = pro;
+    m_current.line = 0;
+    return visitProBlock(tokPtr);
+}
+
+ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProBlock(
         const ushort *tokPtr)
 {
     ProStringList curr;
@@ -750,7 +767,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProBlock(
     while (ushort tok = *tokPtr++) {
         switch (tok) {
         case TokLine:
-            m_lineNo = *tokPtr++;
+            m_current.line = *tokPtr++;
             continue;
         case TokAssign:
         case TokAppend:
@@ -897,10 +914,8 @@ void ProFileEvaluator::Private::visitProFunctionDef(
             (tok == TokTestDef
              ? &m_functionDefs.testFunctions
              : &m_functionDefs.replaceFunctions);
-    FunctionDef def;
-    def.string = m_stringStack.top();
-    def.offset = tokPtr - (const ushort *)def.string.constData();
-    hash->insert(name, def);
+    hash->insert(name, FunctionDef(m_current.pro,
+                                   tokPtr - (const ushort *)m_current.pro->items().constData()));
 }
 
 ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProLoop(
@@ -1104,7 +1119,6 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
         ProFile *pro, ProFileEvaluatorHandler::EvalFileType type)
 {
     m_handler->aboutToEval(currentProFile(), pro, type);
-    m_lineNo = 0;
     m_profileStack.push(pro);
     if (m_profileStack.count() == 1) {
         // Do this only for the initial profile we visit, since
@@ -1269,9 +1283,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
         }
     }
 
-    m_stringStack.push(pro->items());
-    visitProBlock((const ushort *)pro->items().constData());
-    m_stringStack.pop();
+    visitProBlock(pro, (const ushort *)pro->items().constData());
 
     if (m_profileStack.count() == 1) {
         if (m_parsePreAndPostFiles) {
@@ -1825,13 +1837,12 @@ ProStringList ProFileEvaluator::Private::evaluateFunction(
     bool oki;
     ProStringList ret;
 
-    const ushort *tokPtr = (const ushort *)func.string.constData() + func.offset;
     if (m_valuemapStack.count() >= 100) {
         evalError(fL1S("ran into infinite recursion (depth > 100)."));
         oki = false;
     } else {
         m_valuemapStack.push(QHash<ProString, ProStringList>());
-        m_stringStack.push(func.string);
+        m_locationStack.push(m_current);
         int loopLevel = m_loopLevel;
         m_loopLevel = 0;
 
@@ -1841,12 +1852,12 @@ ProStringList ProFileEvaluator::Private::evaluateFunction(
             m_valuemapStack.top()[ProString(QString::number(i+1))] = argumentsList[i];
         }
         m_valuemapStack.top()[statics.strARGS] = args;
-        oki = (visitProBlock(tokPtr) != ReturnFalse); // True || Return
+        oki = (visitProBlock(func.pro(), func.tokPtr()) != ReturnFalse); // True || Return
         ret = m_returnValue;
         m_returnValue.clear();
 
         m_loopLevel = loopLevel;
-        m_stringStack.pop();
+        m_current = m_locationStack.pop();
         m_valuemapStack.pop();
     }
     if (ok)
@@ -2408,9 +2419,9 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
                                                        args.join(statics.field_sep));
                 if (!pro)
                     return ReturnFalse;
-                m_stringStack.push(pro->items());
-                VisitReturn ret = visitProBlock((const ushort *)pro->items().constData());
-                m_stringStack.pop();
+                m_locationStack.push(m_current);
+                VisitReturn ret = visitProBlock(pro, (const ushort *)pro->items().constData());
+                m_current = m_locationStack.pop();
                 pro->deref();
                 return ret;
             }
@@ -2832,10 +2843,10 @@ ProStringList ProFileEvaluator::Private::values(const ProString &variableName) c
         case V_LITERAL_WHITESPACE: ret = QLatin1String("\t"); break;
         case V_LITERAL_DOLLAR: ret = QLatin1String("$"); break;
         case V_LITERAL_HASH: ret = QLatin1String("#"); break;
-        case V_OUT_PWD: //the outgoing dir
+        case V_OUT_PWD: // the outgoing dir (shadow of _PRO_FILE_PWD_)
             ret = m_outputDir;
             break;
-        case V_PWD: //current working dir (of _FILE_)
+        case V_PWD: // containing directory of most nested project/include file
         case V_IN_PWD:
             ret = currentDirectory();
             break;
@@ -2845,11 +2856,11 @@ ProStringList ProFileEvaluator::Private::values(const ProString &variableName) c
         case V_DIRLIST_SEPARATOR:
             ret = m_option->dirlist_sep;
             break;
-        case V__LINE_: //parser line number
-            ret = QString::number(m_lineNo);
+        case V__LINE_: // currently executed line number
+            ret = QString::number(m_current.line);
             break;
-        case V__FILE_: //parser file
-            ret = currentFileName();
+        case V__FILE_: // currently executed file
+            ret = m_current.pro->fileName();
             break;
         case V__DATE_: //current date/time
             ret = QDateTime::currentDateTime().toString();
@@ -2950,14 +2961,13 @@ ProStringList ProFileEvaluator::Private::values(const ProString &variableName) c
 bool ProFileEvaluator::Private::evaluateFileDirect(
         const QString &fileName, ProFileEvaluatorHandler::EvalFileType type)
 {
-    int lineNo = m_lineNo;
     if (ProFile *pro = m_parser->parsedProFile(fileName, true)) {
+        m_locationStack.push(m_current);
         bool ok = (visitProFile(pro, type) == ReturnTrue);
+        m_current = m_locationStack.pop();
         pro->deref();
-        m_lineNo = lineNo;
         return ok;
     } else {
-        m_lineNo = lineNo;
         return false;
     }
 }
@@ -3046,7 +3056,7 @@ bool ProFileEvaluator::Private::evaluateFileInto(
 void ProFileEvaluator::Private::evalError(const QString &message) const
 {
     if (!m_skipLevel)
-        m_handler->evalError(currentFileName(), m_lineNo, message);
+        m_handler->evalError(m_current.pro->fileName(), m_current.line, message);
 }
 
 
