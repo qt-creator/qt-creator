@@ -259,6 +259,7 @@ private:
     void executeRunToLine();
     void executeRunToFunction();
     void executeJumpToLine();
+    void addToWatchWindow();
 
     DebuggerEnginePrivate *d;
 };

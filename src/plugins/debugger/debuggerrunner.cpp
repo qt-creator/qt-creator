@@ -462,7 +462,6 @@ void DebuggerRunControl::start()
         .arg(toolChainName(sp.toolChainType)), LogStatus);
     showMessage(DebuggerSettings::instance()->dump(), LogDebug);
 
-    plugin()->setBusyCursor(false);
     engine()->startDebugger(this);
 }
 
