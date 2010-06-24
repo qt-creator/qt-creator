@@ -2494,6 +2494,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
                 }
                 if (!quoted && !parens && (isOp || d == ed)) {
                     if (m_cumulative || (orOp != ret)) {
+                        test = test.trimmed();
                         if (isFunc)
                             ret = evaluateConditionalFunction(ProString(test), ProString(argsString, NoHash));
                         else
