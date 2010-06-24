@@ -48,18 +48,11 @@ public:
         Warning
     };
 
-    Task() : type(Unknown), line(-1)
-    { }
+    Task();
     Task(TaskType type_, const QString &description_,
-         const QString &file_, int line_, const QString &category_) :
-        type(type_), description(description_), file(file_), line(line_), category(category_)
-    { }
-    Task(const Task &source) :
-        type(source.type), description(source.description), file(source.file),
-        line(source.line), category(source.category), formats(source.formats)
-    { }
-    ~Task()
-    { }
+         const QString &file_, int line_, const QString &category_);
+    Task(const Task &source);
+    ~Task();
 
     Task &operator=(const Task &source);
 
