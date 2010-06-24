@@ -301,9 +301,9 @@ int ne7ssh::connectWithPassword (const char *host, const int port,
   uint32 currentRecord, z;
   uint32 channelID;
 
-  ne7ssh_connection* con = new ne7ssh_connection (callbackFunc, callbackArg);
 
   if (!lock()) return -1;
+  ne7ssh_connection* con = new ne7ssh_connection (callbackFunc, callbackArg);
   if (!conCount) connections = (ne7ssh_connection**) malloc (sizeof (ne7ssh_connection*));
   else connections = (ne7ssh_connection**) realloc (connections, sizeof (ne7ssh_connection*) * (conCount + 1));
   connections[conCount++] = con;
@@ -354,8 +354,8 @@ int ne7ssh::connectWithKey (const char* host, const int port,
   uint32 currentRecord, z;
   uint32 channelID;
 
-  ne7ssh_connection* con = new ne7ssh_connection (callbackFunc, callbackArg);
   if (!lock()) return -1;
+  ne7ssh_connection* con = new ne7ssh_connection (callbackFunc, callbackArg);
   if (!conCount) connections = (ne7ssh_connection**) malloc (sizeof (ne7ssh_connection*) * (conCount + 1));
   else connections = (ne7ssh_connection**) realloc (connections, sizeof (ne7ssh_connection*) * (conCount + 1));
   connections[conCount++] = con;

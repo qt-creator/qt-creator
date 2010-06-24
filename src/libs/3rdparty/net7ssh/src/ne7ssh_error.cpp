@@ -137,7 +137,11 @@ bool Ne7sshError::push (int32 channel, const char* format, ...)
 
   va_end (args);
 
-  if (!lock()) return false;
+  if (!lock())
+  {
+    free(errStr);
+    return false;
+  }
   if (!memberCount)
   {
     ErrorBuffer = (Error**) malloc (sizeof(Error*));
