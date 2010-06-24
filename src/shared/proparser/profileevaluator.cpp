@@ -3046,6 +3046,7 @@ bool ProFileEvaluator::Private::evaluateFileInto(
     ProFileEvaluator visitor(m_option, m_parser, m_handler);
     visitor.d->m_cumulative = false;
     visitor.d->m_parsePreAndPostFiles = (mode == EvalWithSetup);
+    visitor.d->m_outputDir = m_outputDir;
 //    visitor.d->m_valuemapStack.top() = *values;
     if (funcs)
         visitor.d->m_functionDefs = *funcs;
