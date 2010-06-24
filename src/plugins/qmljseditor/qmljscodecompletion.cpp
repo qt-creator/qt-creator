@@ -71,8 +71,8 @@ namespace {
 
 enum CompletionOrder {
     EnumValueOrder = -5,
-    SnippetOrder = -10,
-    PropertyOrder = -15,
+    SnippetOrder = -15,
+    PropertyOrder = -10,
     SymbolOrder = -20,
     KeywordOrder = -25,
     TypeOrder = -30
