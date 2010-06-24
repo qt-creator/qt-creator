@@ -646,11 +646,11 @@ static ALWAYS_INLINE void addStrList(
                 ret->last().append(list);
             } else {
                 if (!pending) {
-                    pending = true;
                     // Another qmake bizzarity: if nothing is pending and the
                     // first element is empty, it will be eaten
                     if (!list.at(0).isEmpty()) {
                         // The common case
+                        pending = true;
                         *ret += list;
                         return;
                     }
@@ -658,8 +658,10 @@ static ALWAYS_INLINE void addStrList(
                     ret->last().append(list.at(0));
                 }
                 // This is somewhat slow, but a corner case
-                for (int j = 1; j < list.size(); ++j)
+                for (int j = 1; j < list.size(); ++j) {
+                    pending = true;
                     *ret << list.at(j);
+                }
             }
         }
     }
