@@ -172,7 +172,7 @@ Core::GeneratedFiles QmlProjectImportWizard::generateFiles(const QWizard *w,
             << "    }" << endl
             //: Comment added to generated .qmlproject file
             << "    /* " << tr("List of plugin directories passed to QML runtime", "qmlproject Template") << " */" << endl
-            << "    // importPaths: [ \" ../exampleplugin \" ]" << endl
+            << "    // importPaths: [ \"../exampleplugin\" ]" << endl
             << "}" << endl;
     }
     Core::GeneratedFile generatedCreatorFile(creatorFileName);
