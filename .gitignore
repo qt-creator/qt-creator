@@ -65,6 +65,7 @@ lib64/*
 release
 doc/html/*
 doc/api/html/*
+doc/pluginhowto/html/*
 .rcc
 .pch
 
