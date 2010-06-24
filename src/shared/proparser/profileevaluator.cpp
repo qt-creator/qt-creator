@@ -3203,7 +3203,7 @@ bool ProFileEvaluator::accept(ProFile *pro)
 
 QString ProFileEvaluator::propertyValue(const QString &name) const
 {
-    return d->propertyValue(name);
+    return d->propertyValue(name, false);
 }
 
 void ProFileEvaluator::setCumulative(bool on)
