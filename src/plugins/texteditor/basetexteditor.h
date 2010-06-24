@@ -304,8 +304,8 @@ protected:
 
 private slots:
     void editorContentsChange(int position, int charsRemoved, int charsAdded);
-    void memorizeCursorPosition();
-    void restoreCursorPosition();
+    void documentAboutToBeReloaded();
+    void documentReloaded();
     void highlightSearchResults(const QString &txt, Find::IFindSupport::FindFlags findFlags);
     void setFindScope(const QTextCursor &start, const QTextCursor &end, int);
     void currentEditorChanged(Core::IEditor *editor);

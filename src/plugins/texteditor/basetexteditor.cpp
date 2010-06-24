@@ -1598,15 +1598,29 @@ void BaseTextEditor::setBaseTextDocument(BaseTextDocument *doc)
     }
 }
 
-// called before reload
-void BaseTextEditor::memorizeCursorPosition()
+void BaseTextEditor::documentAboutToBeReloaded()
 {
+    //memorize cursor position
     d->m_tempState = saveState();
+
+    // remove extra selections (loads of QTextCursor objects)
+
+    for (int i = 0; i < NExtraSelectionKinds; ++i)
+        d->m_extraSelections[i].clear();
+    QPlainTextEdit::setExtraSelections(QList<QTextEdit::ExtraSelection>());
+
+    // clear all overlays
+    if (d->m_overlay)
+        d->m_overlay->clear();
+    if (d->m_snippetOverlay)
+        d->m_snippetOverlay->clear();
+    if (d->m_searchResultOverlay)
+        d->m_searchResultOverlay->clear();
 }
 
-// called after reload
-void BaseTextEditor::restoreCursorPosition()
+void BaseTextEditor::documentReloaded()
 {
+    // restore cursor position
     restoreState(d->m_tempState);
 }
 
@@ -1914,8 +1928,8 @@ void BaseTextEditorPrivate::setupDocumentSignals(BaseTextDocument *document)
         SLOT(editorContentsChange(int,int,int)), Qt::DirectConnection);
     QObject::connect(document, SIGNAL(changed()), q, SIGNAL(changed()));
     QObject::connect(document, SIGNAL(titleChanged(QString)), q, SLOT(setDisplayName(const QString &)));
-    QObject::connect(document, SIGNAL(aboutToReload()), q, SLOT(memorizeCursorPosition()));
-    QObject::connect(document, SIGNAL(reloaded()), q, SLOT(restoreCursorPosition()));
+    QObject::connect(document, SIGNAL(aboutToReload()), q, SLOT(documentAboutToBeReloaded()));
+    QObject::connect(document, SIGNAL(reloaded()), q, SLOT(documentReloaded()));
     q->slotUpdateExtraAreaWidth();
 }
 
