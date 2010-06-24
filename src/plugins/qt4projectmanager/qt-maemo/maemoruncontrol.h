@@ -37,6 +37,7 @@
 
 #include "maemodeviceconfigurations.h"
 #include "maemopackagecontents.h"
+#include "maemosshthread.h"
 
 #include <projectexplorer/runconfiguration.h>
 
@@ -81,7 +82,7 @@ protected:
     const QString executableFileName() const;
     const QString targetCmdLinePrefix() const;
     QString targetCmdLineSuffix() const;
-    const QString remoteDir() const;
+    const QString uploadDir() const;
     QString packageFileName() const;
     QString packageFilePath() const;
     QString executableFilePathOnTarget() const;
@@ -112,6 +113,7 @@ private:
     bool isDeploying() const;
     QString remoteSudo() const;
     QString remoteInstallCommand() const;
+    QString uploadFilePath(const MaemoDeployable &deployable) const;
 
     QFutureInterface<void> m_progress;
     QScopedPointer<MaemoSshDeployer> m_sshDeployer;
@@ -120,7 +122,7 @@ private:
     QScopedPointer<MaemoSshRunner> m_initialCleaner;
     bool m_stoppedByUser;
 
-    QList<MaemoDeployable> m_deployables;
+    QList<Core::SftpTransferInfo> m_deployables;
     QMap<QString, QString> m_remoteLinks;
     bool m_needsInstall;
 };

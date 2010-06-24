@@ -35,7 +35,6 @@
 #include "maemoruncontrol.h"
 
 #include "maemopackagecreationstep.h"
-#include "maemosshthread.h"
 #include "maemorunconfiguration.h"
 #include "maemopackagecontents.h"
 
@@ -66,6 +65,7 @@ namespace Internal {
 using ProjectExplorer::RunConfiguration;
 using ProjectExplorer::ToolChain;
 using namespace Debugger;
+
 
 AbstractMaemoRunControl::AbstractMaemoRunControl(RunConfiguration *rc, QString mode)
     : RunControl(rc, mode)
@@ -136,7 +136,7 @@ void AbstractMaemoRunControl::startDeployment(bool forDebugging)
         const MaemoPackageCreationStep * const packageStep
             = m_runConfig->packageStep();
         if (packageStep->isPackagingEnabled()) {
-            const MaemoDeployable d(packageFilePath(), remoteDir());
+            const MaemoDeployable d(packageFilePath(), uploadDir());
             m_needsInstall = addDeployableIfNeeded(d);
         } else {
             const MaemoPackageContents * const packageContents
@@ -151,7 +151,7 @@ void AbstractMaemoRunControl::startDeployment(bool forDebugging)
         if (forDebugging) {
             QFileInfo dumperInfo(m_runConfig->dumperLib());
             if (dumperInfo.exists()) {
-                const MaemoDeployable d(m_runConfig->dumperLib(), remoteDir());
+                const MaemoDeployable d(m_runConfig->dumperLib(), uploadDir());
                 m_needsInstall = addDeployableIfNeeded(d);
             }
         }
@@ -164,14 +164,14 @@ bool AbstractMaemoRunControl::addDeployableIfNeeded(const MaemoDeployable &deplo
     if (m_runConfig->currentlyNeedsDeployment(m_devConfig.server.host,
         deployable)) {
         const QString fileName
-            = QFileInfo(deployable.localFilePath).fileName();
+                = QFileInfo(deployable.localFilePath).fileName();
         const QString remoteFilePath = deployable.remoteDir + '/' + fileName;
-        const QString sftpTargetFilePath = remoteDir() + '/' + fileName + '.'
+        const QString uploadFilePath =uploadDir() + '/' + fileName + '.'
             + QCryptographicHash::hash(remoteFilePath.toUtf8(),
                   QCryptographicHash::Md5).toHex();
-        m_deployables.append(MaemoDeployable(deployable.localFilePath,
-            sftpTargetFilePath));
-        m_remoteLinks.insert(sftpTargetFilePath, remoteFilePath); // TODO fix merge mess
+        m_deployables.append(Core::SftpTransferInfo(deployable.localFilePath,
+            uploadFilePath.toUtf8(), Core::SftpTransferInfo::Upload));
+        m_remoteLinks.insert(uploadFilePath, remoteFilePath);
         return true;
     } else {
         return false;
@@ -186,15 +186,11 @@ void AbstractMaemoRunControl::deploy()
     if (!m_deployables.isEmpty()) {
         QList<Core::SftpTransferInfo> deploySpecs;
         QStringList files;
-        foreach (const MaemoDeployable &deployable, m_deployables) {
+        foreach (const Core::SftpTransferInfo &deployable, m_deployables)
             files << deployable.localFilePath;
-            const QString remoteFilePath = deployable.remoteDir + '/' + QFileInfo(deployable.localFilePath).fileName();
-            deploySpecs << Core::SftpTransferInfo(deployable.localFilePath,
-                remoteFilePath.toUtf8(),
-                Core::SftpTransferInfo::Upload);
-        }
-        emit appendMessage(this, tr("Files to deploy: %1.").arg(files.join(" ")), false);
-        m_sshDeployer.reset(new MaemoSshDeployer(m_devConfig.server, deploySpecs));
+        emit appendMessage(this,
+            tr("Files to deploy: %1.").arg(files.join(" ")), false);
+        m_sshDeployer.reset(new MaemoSshDeployer(m_devConfig.server, m_deployables));
         connect(m_sshDeployer.data(), SIGNAL(finished()),
                 this, SLOT(handleDeployThreadFinished()));
         connect(m_sshDeployer.data(), SIGNAL(fileCopied(QString)),
@@ -211,10 +207,16 @@ void AbstractMaemoRunControl::deploy()
 
 void AbstractMaemoRunControl::handleFileCopied()
 {
-    const MaemoDeployable &deployable = m_deployables.takeFirst();
+    const Core::SftpTransferInfo &deployable = m_deployables.takeFirst();
+    const QString remoteDir
+        = QFileInfo(m_remoteLinks.value(QString::fromUtf8(deployable.remoteFilePath)))
+              .dir().path();
+
+    // TODO: This should be done after the linking step, in case the
+    // operation is cancelled directly after the upload.
     m_runConfig->setDeployed(m_devConfig.server.host,
-        MaemoDeployable(deployable.localFilePath,
-        m_remoteLinks.value(deployable.remoteDir))); // TODO fix merge mess
+        MaemoDeployable(deployable.localFilePath, remoteDir));
+
     m_progress.setProgressValue(m_progress.progressValue() + 1);
 }
 
@@ -341,7 +343,7 @@ const QString AbstractMaemoRunControl::executableFileName() const
     return QFileInfo(executableOnHost()).fileName();
 }
 
-const QString AbstractMaemoRunControl::remoteDir() const
+const QString AbstractMaemoRunControl::uploadDir() const
 {
     return homeDirOnDevice(m_devConfig.server.uname);
 }
@@ -445,7 +447,7 @@ MaemoDebugRunControl::MaemoDebugRunControl(RunConfiguration *runConfiguration)
     m_startParams->sysRoot = m_runConfig->sysRoot();
     m_startParams->toolChainType = ToolChain::GCC_MAEMO;
     m_startParams->dumperLibrary = m_runConfig->dumperLib();
-    m_startParams->remoteDumperLib = remoteDir().toUtf8() + '/'
+    m_startParams->remoteDumperLib = uploadDir().toUtf8() + '/'
         + QFileInfo(m_runConfig->dumperLib()).fileName().toUtf8();
 
     m_debuggerRunControl = DebuggerPlugin::createDebugger(*m_startParams.data());
