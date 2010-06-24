@@ -1048,10 +1048,28 @@ void ProFileEvaluator::Private::visitProVariable(
                     m_filevaluemap[currentProFile()][varName] = varVal;
                 }
             } else {
-                // We are greedy for values.
                 zipEmpty(&varVal);
-                valuesRef(varName) += varVal;
-                m_filevaluemap[currentProFile()][varName] += varVal;
+                if (!varVal.isEmpty()) {
+                    // We are greedy for values. But avoid exponential growth.
+                    ProStringList &v = valuesRef(varName);
+                    if (v.isEmpty()) {
+                        v = varVal;
+                    } else {
+                        ProStringList old = v;
+                        v = varVal;
+                        QSet<ProString> has;
+                        has.reserve(v.size());
+                        foreach (const ProString &s, v)
+                            has.insert(s);
+                        v.reserve(v.size() + old.size());
+                        foreach (const ProString &s, old)
+                            if (!has.contains(s))
+                                v << s;
+                    }
+                    // These values will not be used for further processing inside
+                    // the evaluator. Duplicate elimination happens later.
+                    m_filevaluemap[currentProFile()][varName] += varVal;
+                }
             }
             break;
         case TokAppendUnique:    // *=
@@ -3140,7 +3158,7 @@ ProFileEvaluator::TemplateType ProFileEvaluator::templateType() const
 {
     const ProStringList &templ = d->values(statics.strTEMPLATE);
     if (templ.count() >= 1) {
-        const QString &t = templ.last().toQString();
+        const QString &t = templ.at(0).toQString();
         if (!t.compare(QLatin1String("app"), Qt::CaseInsensitive))
             return TT_Application;
         if (!t.compare(QLatin1String("lib"), Qt::CaseInsensitive))
