@@ -183,6 +183,18 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     connect(m_findPreviousAction, SIGNAL(triggered()), this, SLOT(invokeFindPrevious()));
     m_ui.findPreviousButton->setDefaultAction(cmd->action());
 
+    m_findNextSelectedAction = new QAction(tr("Find Next (Selected)"), this);
+    cmd = am->registerAction(m_findNextSelectedAction, Constants::FIND_NEXT_SELECTED, globalcontext);
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+F3")));
+    mfind->addAction(cmd, Constants::G_FIND_ACTIONS);
+    connect(m_findNextSelectedAction, SIGNAL(triggered()), this, SLOT(findNextSelected()));
+
+    m_findPreviousSelectedAction = new QAction(tr("Find Previous (Selected)"), this);
+    cmd = am->registerAction(m_findPreviousSelectedAction, Constants::FIND_PREV_SELECTED, globalcontext);
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+F3")));
+    mfind->addAction(cmd, Constants::G_FIND_ACTIONS);
+    connect(m_findPreviousSelectedAction, SIGNAL(triggered()), this, SLOT(findPreviousSelected()));
+
     m_replaceAction = new QAction(tr("Replace"), this);
     cmd = am->registerAction(m_replaceAction, Constants::REPLACE, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence());
@@ -327,7 +339,10 @@ void FindToolBar::adaptToCandidate()
 
 void FindToolBar::updateFindAction()
 {
-    m_findInDocumentAction->setEnabled(m_currentDocumentFind->candidateIsEnabled());
+    bool enabled = m_currentDocumentFind->candidateIsEnabled();
+    m_findInDocumentAction->setEnabled(enabled);
+    m_findNextSelectedAction->setEnabled(enabled);
+    m_findPreviousSelectedAction->setEnabled(enabled);
 }
 
 void FindToolBar::updateToolBar()
@@ -605,13 +620,13 @@ Core::FindToolBarPlaceHolder *FindToolBar::findToolBarPlaceHolder() const
     return 0;
 }
 
-void FindToolBar::openFind()
+void FindToolBar::openFind(bool focus)
 {
     setBackward(false);
-    openFindToolBar();
+    openFindToolBar(focus);
 }
 
-void FindToolBar::openFindToolBar()
+void FindToolBar::openFindToolBar(bool focus)
 {
     installEventFilters();
     if (!m_currentDocumentFind->candidateIsEnabled())
@@ -627,13 +642,27 @@ void FindToolBar::openFindToolBar()
     holder->setWidget(this);
     holder->setVisible(true);
     setVisible(true);
-    setFocus();
+    if (focus)
+        setFocus();
     QString text = m_currentDocumentFind->currentFindString();
     if (!text.isEmpty())
         setFindText(text);
     m_currentDocumentFind->defineFindScope();
     m_currentDocumentFind->highlightAll(getFindText(), effectiveFindFlags());
-    selectFindText();
+    if (focus)
+        selectFindText();
+}
+
+void FindToolBar::findNextSelected()
+{
+    openFind(false);
+    invokeFindNext();
+}
+
+void FindToolBar::findPreviousSelected()
+{
+    openFind(false);
+    invokeFindPrevious();
 }
 
 bool FindToolBar::focusNextPrevChild(bool next)

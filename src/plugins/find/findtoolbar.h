@@ -60,7 +60,7 @@ public:
     void readSettings();
     void writeSettings();
 
-    void openFindToolBar();
+    void openFindToolBar(bool focus = true);
     void setUseFakeVim(bool on);
 
 public slots:
@@ -84,7 +84,9 @@ private slots:
     void updateFromFindClipboard();
 
     void hideAndResetFocus();
-    void openFind();
+    void openFind(bool focus = true);
+    void findNextSelected();
+    void findPreviousSelected();
     void updateFindAction();
     void updateToolBar();
     void findFlagsChanged();
@@ -121,6 +123,8 @@ private:
     QCompleter *m_findCompleter;
     QCompleter *m_replaceCompleter;
     QAction *m_findInDocumentAction;
+    QAction *m_findNextSelectedAction;
+    QAction *m_findPreviousSelectedAction;
     QAction *m_enterFindStringAction;
     QAction *m_findNextAction;
     QAction *m_findPreviousAction;
