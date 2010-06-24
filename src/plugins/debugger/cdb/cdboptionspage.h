@@ -30,6 +30,8 @@
 #ifndef CDBSETTINGSPAGE_H
 #define CDBSETTINGSPAGE_H
 
+#include "cdboptions.h"
+
 #include <coreplugin/dialogs/ioptionspage.h>
 #include "ui_cdboptionspagewidget.h"
 
@@ -39,8 +41,6 @@
 
 namespace Debugger {
 namespace Internal {
-
-struct CdbOptions;
 
 class CdbOptionsPageWidget : public QWidget
 {
