@@ -1892,18 +1892,20 @@ void ProjectExplorerPlugin::updateContextMenuActions(Node *node)
     d->m_addNewFileAction->setEnabled(false);
     d->m_removeFileAction->setEnabled(false);
 
-    QList<ProjectNode::ProjectAction> actions =
-            d->m_currentNode->projectNode()->supportedActions(node);
+    if (node->projectNode()) {
+        QList<ProjectNode::ProjectAction> actions =
+                d->m_currentNode->projectNode()->supportedActions(node);
 
-    if (qobject_cast<FolderNode*>(d->m_currentNode)) {
-        bool addFilesEnabled = actions.contains(ProjectNode::AddFile);
-        d->m_addExistingFilesAction->setEnabled(addFilesEnabled);
-        d->m_addNewFileAction->setEnabled(addFilesEnabled);
-        d->m_renameFileAction->setEnabled(actions.contains(ProjectNode::Rename));
-    } else if (qobject_cast<FileNode*>(d->m_currentNode)) {
-        bool removeFileEnabled = actions.contains(ProjectNode::RemoveFile);
-        d->m_removeFileAction->setEnabled(removeFileEnabled);
-        d->m_renameFileAction->setEnabled(actions.contains(ProjectNode::Rename));
+        if (qobject_cast<FolderNode*>(d->m_currentNode)) {
+            bool addFilesEnabled = actions.contains(ProjectNode::AddFile);
+            d->m_addExistingFilesAction->setEnabled(addFilesEnabled);
+            d->m_addNewFileAction->setEnabled(addFilesEnabled);
+            d->m_renameFileAction->setEnabled(actions.contains(ProjectNode::Rename));
+        } else if (qobject_cast<FileNode*>(d->m_currentNode)) {
+            bool removeFileEnabled = actions.contains(ProjectNode::RemoveFile);
+            d->m_removeFileAction->setEnabled(removeFileEnabled);
+            d->m_renameFileAction->setEnabled(actions.contains(ProjectNode::Rename));
+        }
     }
 }
 

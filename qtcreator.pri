@@ -68,8 +68,7 @@ macx {
         contains(TEMPLATE, vc.*)|contains(TEMPLATE_PREFIX, vc):vcproj = 1
         IDE_APP_TARGET   = qtcreator
     } else {
-        IDE_APP_WRAPPER  = qtcreator
-        IDE_APP_TARGET   = qtcreator.bin
+        IDE_APP_TARGET   = qtcreator
     }
     IDE_LIBRARY_PATH = $$IDE_BUILD_TREE/$$IDE_LIBRARY_BASENAME/qtcreator
     IDE_PLUGIN_PATH  = $$IDE_LIBRARY_PATH/plugins

@@ -32,6 +32,7 @@
 
 #include "maemoconstants.h"
 #include "maemodeviceconfigurations.h"
+#include "maemopackagecontents.h"
 
 #include <projectexplorer/runconfiguration.h>
 
@@ -69,12 +70,9 @@ public:
     Qt4Target *qt4Target() const;
     Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
 
-    bool currentlyNeedsDeployment(const QString &host) const;
-    void wasDeployed(const QString &host);
-
-    bool hasDebuggingHelpers() const;
-    bool debuggingHelpersNeedDeployment(const QString &host) const;
-    void debuggingHelpersDeployed(const QString &host);
+    bool currentlyNeedsDeployment(const QString &host,
+        const MaemoDeployable &deployable) const;
+    void setDeployed(const QString &host, const MaemoDeployable &deployable);
 
     const MaemoPackageCreationStep *packageStep() const;
 
@@ -94,7 +92,7 @@ public:
     virtual QVariantMap toMap() const;
 
 signals:
-    void deviceConfigurationsUpdated();
+    void deviceConfigurationsUpdated(ProjectExplorer::Target *target);
     void deviceConfigurationChanged(ProjectExplorer::Target *target);
     void targetInformationChanged() const;
 
@@ -109,13 +107,8 @@ private slots:
 private:
     void init();
     const MaemoToolChain *toolchain() const;
-    bool fileNeedsDeployment(const QString &path, const QDateTime &lastDeployed) const;
-    void addDeployTimesToMap(const QString &key,
-                             const QMap<QString, QDateTime> &deployTimes,
-                             QVariantMap &map) const;
-    void getDeployTimesFromMap(const QString &key,
-                               QMap<QString, QDateTime> &deployTimes,
-                               const QVariantMap &map);
+    void addDeployTimesToMap(QVariantMap &map) const;
+    void getDeployTimesFromMap(const QVariantMap &map);
 
     QString m_proFilePath;
     mutable QString m_gdbPath;
@@ -123,9 +116,8 @@ private:
     MaemoDeviceConfig m_devConfig;
     QStringList m_arguments;
 
-    // These map host names to deploy times.
-    QMap<QString, QDateTime> m_lastDeployed;
-    QMap<QString, QDateTime> m_debuggingHelpersLastDeployed;
+    typedef QPair<MaemoDeployable, QString> DeployablePerHost;
+    QHash<DeployablePerHost, QDateTime> m_lastDeployed;
 };
 
     } // namespace Internal

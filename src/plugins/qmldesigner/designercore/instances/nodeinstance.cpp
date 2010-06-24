@@ -134,7 +134,7 @@ Internal::ObjectNodeInstance::Pointer NodeInstance::createInstance(const NodeMet
 
     if (!metaInfo.isValid())
         instance = Internal::DummyNodeInstance::create();
-    else if (metaInfo.isSubclassOf("org.webkit/WebView", 1, 0))
+    else if (metaInfo.isSubclassOf("QtWebKit/WebView", 1, 0))
         instance = Internal::DummyNodeInstance::create();
     else if (metaInfo.isSubclassOf("Qt/QWidget", 4, 7))
         instance = Internal::DummyNodeInstance::create();

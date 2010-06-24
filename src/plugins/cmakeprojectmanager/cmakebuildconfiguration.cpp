@@ -206,7 +206,7 @@ CMakeBuildConfiguration *CMakeBuildConfigurationFactory::create(ProjectExplorer:
                           QString(),
                           &ok);
     if (!ok || buildConfigurationName.isEmpty())
-        return false;
+        return 0;
     CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(cmtarget);
     bc->setDisplayName(buildConfigurationName);
 
@@ -224,7 +224,7 @@ CMakeBuildConfiguration *CMakeBuildConfigurationFactory::create(ProjectExplorer:
                                 bc->environment());
     if (copw.exec() != QDialog::Accepted) {
         delete bc;
-        return false;
+        return 0;
     }
     cmtarget->addBuildConfiguration(bc); // this also makes the name unique
 

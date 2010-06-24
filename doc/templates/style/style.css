@@ -456,7 +456,7 @@
     .wrap .content
     {
         padding: 30px;
-		word-wrap:break-word;
+        word-wrap: break-word;
     }
 
     .wrap .content li
@@ -472,9 +472,30 @@
       /*  text-decoration: underline;*/
     }
 
-    .offline .wrap .content
-    {
+    .wrap .content ol li {
+        background:none;
+        font: inherit;
+        margin-bottom:10px;
+        padding-left: 0px
+    }
+
+    .wrap .content ol li {
+        list-style-type:decimal;
+    }
+
+    .wrap .content .descr ol li {
+        margin-left: 45px;
+    }
+
+    .wrap .content {
         padding-top: 15px;
+    }
+
+    .wrap .content ol img {
+        vertical-align: middle;
+    }
+    .wrap .content ul img {
+        vertical-align: middle;
     }
 
     .wrap .content h1
@@ -676,9 +697,9 @@
     .shortCut-topleft-inactive
     {
         padding-left: 3px;
+        padding-right: 3px;
         background: transparent url( ../images/sprites-combined.png) no-repeat 0px -58px;
         height: 20px;
-        width: 110px;
     }
     .shortCut-topleft-inactive span
     {
@@ -698,7 +719,6 @@
     {
         list-style-type: none;
         float: left;
-        width: 347px;
         margin-left: 100px;
     }
     #shortCut li

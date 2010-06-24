@@ -230,7 +230,8 @@ bool FolderNavigationWidget::setCurrentDirectory(const QString &directory)
     }
     m_listView->setRootIndex(m_filterModel->mapFromSource(index));
     const QDir current(QDir::cleanPath(newDirectory));
-    setCurrentTitle(current.dirName(), current.absolutePath());
+    setCurrentTitle(current.dirName(),
+                    QDir::toNativeSeparators(current.absolutePath()));
     return !directory.isEmpty();
 }
 
@@ -253,8 +254,7 @@ void FolderNavigationWidget::openItem(const QModelIndex &srcIndex)
     if (fileName == QLatin1String("..")) {
         // cd up: Special behaviour: The fileInfo of ".." is that of the parent directory.
         const QString parentPath = m_fileSystemModel->fileInfo(srcIndex).absoluteFilePath();
-        if (parentPath != QDir::rootPath())
-            setCurrentDirectory(parentPath);
+        setCurrentDirectory(parentPath);
         return;
     }
     if (m_fileSystemModel->isDir(srcIndex)) { // Change to directory
@@ -268,8 +268,10 @@ void FolderNavigationWidget::openItem(const QModelIndex &srcIndex)
     editorManager->openEditor(m_fileSystemModel->filePath(srcIndex));
 }
 
-void FolderNavigationWidget::setCurrentTitle(const QString &dirName, const QString &fullPath)
+void FolderNavigationWidget::setCurrentTitle(QString dirName, const QString &fullPath)
 {
+    if (dirName.isEmpty())
+        dirName = fullPath;
     m_title->setText(dirName);
     m_title->setToolTip(fullPath);
 }

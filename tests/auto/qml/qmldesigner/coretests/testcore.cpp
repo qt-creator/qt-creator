@@ -803,10 +803,10 @@ void TestCore::testRewriterImports()
     QVERIFY(!import.hasVersion());
     QVERIFY(!import.hasAlias());
 
-    // import org.webkit 1.0 as Web
+    // import QtWebKit 1.0 as Web
     import = model->imports().at(2);
     QVERIFY(import.isLibraryImport());
-    QCOMPARE(import.url(), QString("org.webkit"));
+    QCOMPARE(import.url(), QString("QtWebKit"));
     QVERIFY(import.hasVersion());
     QCOMPARE(import.version(), QString("1.0"));
     QVERIFY(import.hasAlias());
@@ -835,12 +835,12 @@ void TestCore::testRewriterChangeImports()
     //
     // Add / Remove an import in the model
     //
-    Import webkitImport = Import::createLibraryImport("org.webkit", "1.0");
+    Import webkitImport = Import::createLibraryImport("QtWebKit", "1.0");
     model->addImport(webkitImport);
 
     const QLatin1String qmlWithImport("\n"
                                  "import Qt 4.7\n"
-                                 "import org.webkit 1.0\n"
+                                 "import QtWebKit 1.0\n"
                                  "\n"
                                  "Rectangle {}\n");
     QCOMPARE(textEdit.toPlainText(), qmlWithImport);
@@ -856,12 +856,12 @@ void TestCore::testRewriterChangeImports()
     //
     // Add / Remove an import in the model (with alias)
     //
-    webkitImport = Import::createLibraryImport("org.webkit", "1.0", "Web");
+    webkitImport = Import::createLibraryImport("QtWebKit", "1.0", "Web");
     model->addImport(webkitImport);
 
     const QLatin1String qmlWithAliasImport("\n"
                                  "import Qt 4.7\n"
-                                 "import org.webkit 1.0 as Web\n"
+                                 "import QtWebKit 1.0 as Web\n"
                                  "\n"
                                  "Rectangle {}\n");
     QCOMPARE(textEdit.toPlainText(), qmlWithAliasImport);
@@ -880,12 +880,12 @@ void TestCore::testRewriterChangeImports()
     textEdit.setPlainText(qmlWithImport);
     QCOMPARE(model->imports().size(), 2);
     QCOMPARE(model->imports().first(), Import::createLibraryImport("Qt", "4.7"));
-    QCOMPARE(model->imports().last(), Import::createLibraryImport("org.webkit", "1.0"));
+    QCOMPARE(model->imports().last(), Import::createLibraryImport("QtWebKit", "1.0"));
 
     textEdit.setPlainText(qmlWithAliasImport);
     QCOMPARE(model->imports().size(), 2);
     QCOMPARE(model->imports().first(), Import::createLibraryImport("Qt", "4.7"));
-    QCOMPARE(model->imports().last(), Import::createLibraryImport("org.webkit", "1.0", "Web"));
+    QCOMPARE(model->imports().last(), Import::createLibraryImport("QtWebKit", "1.0", "Web"));
 
     textEdit.setPlainText(qmlString);
     QCOMPARE(model->imports().size(), 1);
@@ -3709,7 +3709,7 @@ void TestCore::testMetaInfo()
     QVERIFY(model->metaInfo().hasNodeMetaInfo("Qt/Item", 4, 7));
 
     // test whether types from plugins are registered
-    QVERIFY(model->metaInfo().hasNodeMetaInfo("org.webkit/WebView", 1, 0));
+    QVERIFY(model->metaInfo().hasNodeMetaInfo("QtWebKit/WebView", 1, 0));
 
     // test whether non-qml type is registered
     QVERIFY(model->metaInfo().hasNodeMetaInfo("QGraphicsObject", 4, 7)); // Qt 4.7 namespace

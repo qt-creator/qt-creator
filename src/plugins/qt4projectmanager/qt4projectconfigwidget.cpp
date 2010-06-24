@@ -105,10 +105,6 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4Project *project)
 
     connect(project, SIGNAL(buildDirectoryInitialized()),
             this, SLOT(updateImportLabel()));
-
-    QtVersionManager *vm = QtVersionManager::instance();
-    connect(vm, SIGNAL(qtVersionsChanged(QList<int>)),
-            this, SLOT(qtVersionsChanged()));
 }
 
 Qt4ProjectConfigWidget::~Qt4ProjectConfigWidget()
@@ -196,6 +192,9 @@ void Qt4ProjectConfigWidget::init(ProjectExplorer::BuildConfiguration *bc)
     m_ui->nameLineEdit->setText(m_buildConfiguration->displayName());
 
     qtVersionsChanged();
+    QtVersionManager *vm = QtVersionManager::instance();
+    connect(vm, SIGNAL(qtVersionsChanged(QList<int>)),
+            this, SLOT(qtVersionsChanged()));
 
     bool shadowBuild = m_buildConfiguration->shadowBuild();
     m_ui->shadowBuildCheckBox->setChecked(shadowBuild);
@@ -215,6 +214,11 @@ void Qt4ProjectConfigWidget::qtVersionChanged()
     if (m_ignoreChange)
         return;
 
+    int versionId = m_buildConfiguration->qtVersion()->uniqueId();
+    int comboBoxIndex = m_ui->qtVersionComboBox->findData(QVariant(versionId), Qt::UserRole);
+    if (comboBoxIndex > -1)
+        m_ui->qtVersionComboBox->setCurrentIndex(comboBoxIndex);
+
     updateShadowBuildUi();
     updateImportLabel();
     updateToolChainCombo();
@@ -228,9 +232,6 @@ void Qt4ProjectConfigWidget::configNameEdited(const QString &newName)
 
 void Qt4ProjectConfigWidget::qtVersionsChanged()
 {
-    if (!m_buildConfiguration) // not yet initialized
-        return;
-
     m_ignoreChange = true;
     QtVersionManager *vm = QtVersionManager::instance();
 
@@ -396,7 +397,6 @@ void Qt4ProjectConfigWidget::importLabelClicked()
 
             // So we got all the information now apply it...
             m_buildConfiguration->setQtVersion(version);
-            // Combo box will be updated at the end
 
             QMakeStep *qmakeStep = m_buildConfiguration->qmakeStep();
             qmakeStep->setUserArguments(additionalArguments);

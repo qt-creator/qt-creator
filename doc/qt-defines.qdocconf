@@ -10,7 +10,8 @@ defines                 = Q_QDOC \
                           Q_BYTE_ORDER \
 			  QT_DEPRECATED \
                           Q_NO_USING_KEYWORD \
-                          __cplusplus
+                          __cplusplus \
+                          qtquick
 
 versionsym              = QT_VERSION_STR
 
@@ -38,6 +39,7 @@ extraimages.HTML        = qt-logo \
                           feedbackground.png \
                           horBar.png \
                           page_bg.png \
+                          page.png \
                           sprites-combined.png \
                           qtcreator-screenshots.png
 

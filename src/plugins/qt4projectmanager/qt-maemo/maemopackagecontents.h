@@ -32,6 +32,7 @@
 
 #include <QtCore/QAbstractTableModel>
 #include <QtCore/QDir>
+#include <QtCore/QHash>
 #include <QtCore/QList>
 #include <QtCore/QScopedPointer>
 #include <QtCore/QString>
@@ -44,6 +45,26 @@ QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
 namespace Internal {
+
+struct MaemoDeployable
+{
+    MaemoDeployable(const QString &localFilePath, const QString &remoteDir)
+        : localFilePath(localFilePath), remoteDir(remoteDir) {}
+
+    bool operator==(const MaemoDeployable &other) const
+    {
+        return localFilePath == other.localFilePath
+            && remoteDir == other.remoteDir;
+    }
+
+    QString localFilePath;
+    QString remoteDir;
+};
+inline uint qHash(const MaemoDeployable &d)
+{
+    return qHash(qMakePair(d.localFilePath, d.remoteDir));
+}
+
 class MaemoPackageCreationStep;
 class ProFileReader;
 
@@ -51,21 +72,6 @@ class MaemoPackageContents : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    struct Deployable
-    {
-        Deployable(const QString &localFilePath, const QString &remoteDir)
-            : localFilePath(localFilePath), remoteDir(remoteDir) {}
-
-        bool operator==(const Deployable &other) const
-        {
-            return localFilePath == other.localFilePath
-                    && remoteDir == other.remoteDir;
-        }
-
-        QString localFilePath;
-        QString remoteDir;
-    };
-
     MaemoPackageContents(MaemoPackageCreationStep *packageStep);
     ~MaemoPackageContents();
 
@@ -73,8 +79,8 @@ public:
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
-    Deployable deployableAt(int row) const;
-    bool addDeployable(const Deployable &deployable, QString *error);
+    MaemoDeployable deployableAt(int row) const;
+    bool addDeployable(const MaemoDeployable &deployable, QString *error);
     bool removeDeployableAt(int row, QString *error);
     bool isModified() const { return m_modified; }
     void setUnModified() { m_modified = false; }
@@ -97,7 +103,7 @@ private:
 
     QString cleanPath(const QString &relFileName) const;
 
-    QString findInstallsElem(const Deployable &deployable) const;
+    QString findInstallsElem(const MaemoDeployable &deployable) const;
     void addFileToProFile(const QString &var, const QString &absFilePath);
     void addValueToProFile(const QString &var, const QString &value) const;
     bool removeFileFromProFile(const QString &var, const QString &absFilePath);
@@ -109,7 +115,7 @@ private:
     const MaemoPackageCreationStep * const m_packageStep;
     QScopedPointer<ProFileOption> m_proFileOption;
     QScopedPointer<ProFileReader> m_proFileReader;
-    mutable QList<Deployable> m_deployables;
+    mutable QList<MaemoDeployable> m_deployables;
     mutable bool m_modified;
     mutable ProFile *m_proFile;
     mutable QStringList m_proFileLines; // TODO: FS watcher

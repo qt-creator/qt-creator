@@ -18,8 +18,12 @@
     and developers to create applications for multiple desktop and mobile device
     platforms.
 
-    For application designers, Qt Creator provides two integrated
-    visual editors, \QD and \QMLD, that you can use to design and develop
+    For application designers, Qt Creator provides integrated
+    visual editors, \QD
+    \if defined(qtquick)
+    and \QMLD,
+    \endif
+    that you can use to design and develop
     application user interfaces.
 
     For application developers,
@@ -4990,7 +4994,7 @@
     is a list of two integers, the first one specifies the actual number
     of children and the second the maximum number of children to print.
 
-    Similarly, using the \SubItem class helps to protect individual items.
+    Similarly, using the \c SubItem class helps to protect individual items.
 
     Example:
     \code
@@ -7267,7 +7271,7 @@
     report them as bugs.
 
     For a list of fixed issues and added features, see the changelog file in
-    the qtcreator\dist folder or the \l{http://bugreports.qt.nokia.com}{Qt Bug Tracker}.
+    the \c{qtcreator\dist} folder or the \l{http://bugreports.qt.nokia.com}{Qt Bug Tracker}.
 
     \section1 General
 

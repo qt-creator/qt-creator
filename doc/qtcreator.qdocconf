@@ -53,6 +53,7 @@ qhp.QtCreator.extraFiles       = \
                           images/feedbackground.png \
                           images/horBar.png \
                           images/page_bg.png \
+                          images/page.png \
                           images/qt-logo.png \
                           images/sprites-combined.png
 

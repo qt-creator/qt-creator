@@ -112,12 +112,12 @@ bool MaemoPackageContents::buildModel() const
         }
 
         if (elem == TargetVar) {
-            m_deployables.prepend(Deployable(m_packageStep->localExecutableFilePath(),
+            m_deployables.prepend(MaemoDeployable(m_packageStep->localExecutableFilePath(),
                 paths.first()));
             targetFound = true;
         } else {
             foreach (const QString &file, files)
-                m_deployables << Deployable(cleanPath(file), paths.first());
+                m_deployables << MaemoDeployable(cleanPath(file), paths.first());
         }
     }
 
@@ -125,7 +125,7 @@ bool MaemoPackageContents::buildModel() const
         const QString remoteDir = proFileNode->projectType() == LibraryTemplate
             ? QLatin1String("/usr/local/lib")
             : QLatin1String("/usr/local/bin");
-        m_deployables.prepend(Deployable(m_packageStep->localExecutableFilePath(),
+        m_deployables.prepend(MaemoDeployable(m_packageStep->localExecutableFilePath(),
             remoteDir));
         QString errorString;
         if (!readProFileContents(&errorString)) {
@@ -144,13 +144,13 @@ bool MaemoPackageContents::buildModel() const
     return true;
 }
 
-MaemoPackageContents::Deployable MaemoPackageContents::deployableAt(int row) const
+MaemoDeployable MaemoPackageContents::deployableAt(int row) const
 {
     Q_ASSERT(row >= 0 && row < rowCount());
     return m_deployables.at(row);
 }
 
-bool MaemoPackageContents::addDeployable(const Deployable &deployable,
+bool MaemoPackageContents::addDeployable(const MaemoDeployable &deployable,
     QString *error)
 {
     if (m_deployables.contains(deployable) || deployableAt(0) == deployable)
@@ -179,7 +179,7 @@ bool MaemoPackageContents::removeDeployableAt(int row, QString *error)
 {
     Q_ASSERT(row > 0 && row < rowCount());
 
-    const Deployable &deployable = deployableAt(row);
+    const MaemoDeployable &deployable = deployableAt(row);
     const QString elemToRemove = findInstallsElem(deployable);
     if (elemToRemove.isEmpty()) {
         *error = tr("Inconsistent model: Deployable not found in  .pro file.");
@@ -231,7 +231,7 @@ QVariant MaemoPackageContents::data(const QModelIndex &index, int role) const
     if (!index.isValid() || index.row() >= rowCount())
         return QVariant();
 
-    const Deployable &d = deployableAt(index.row());
+    const MaemoDeployable &d = deployableAt(index.row());
     if (index.column() == 0 && role == Qt::DisplayRole)
         return d.localFilePath;
     if (role == Qt::DisplayRole || role == Qt::EditRole)
@@ -260,7 +260,7 @@ bool MaemoPackageContents::setData(const QModelIndex &index,
         return false;
     }
 
-    Deployable &deployable = m_deployables[index.row()];
+    MaemoDeployable &deployable = m_deployables[index.row()];
     const QString elemToChange = findInstallsElem(deployable);
     if (elemToChange.isEmpty()) {
         qWarning("Error: Inconsistent model. "
@@ -353,7 +353,7 @@ QString MaemoPackageContents::cleanPath(const QString &relFileName) const
         + relFileName).canonicalFilePath();
 }
 
-QString MaemoPackageContents::findInstallsElem(const Deployable &deployable) const
+QString MaemoPackageContents::findInstallsElem(const MaemoDeployable &deployable) const
 {
     const QStringList elems = m_proFileReader->values(InstallsVar, m_proFile);
     foreach (const QString &elem, elems) {

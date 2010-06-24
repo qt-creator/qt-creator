@@ -89,7 +89,7 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     mainLayout->addRow(tr("Arguments:"), m_argsLineEdit);
 
     resetDeviceConfigurations();
-    connect(m_runConfiguration, SIGNAL(deviceConfigurationsUpdated()),
+    connect(m_runConfiguration, SIGNAL(deviceConfigurationsUpdated(ProjectExplorer::Target *)),
             this, SLOT(resetDeviceConfigurations()));
 
     connect(m_configNameLineEdit, SIGNAL(textEdited(QString)), this,
