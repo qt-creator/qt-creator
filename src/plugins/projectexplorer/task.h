@@ -61,6 +61,8 @@ public:
     ~Task()
     { }
 
+    Task &operator=(const Task &source);
+
     TaskType type;
     QString description;
     QString file;

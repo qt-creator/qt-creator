@@ -32,6 +32,17 @@
 namespace ProjectExplorer
 {
 
+Task &Task::operator=(const Task &source)
+{
+    type = source.type;
+    description = source.description;
+    file = source.file;
+    line = source.line;
+    category = source.category;
+    formats = source.formats;
+    return *this;
+}
+
 //
 // functions
 //
