@@ -273,7 +273,7 @@ static struct {
     QString strforever;
     ProString strTEMPLATE;
     ProString strQMAKE_DIR_SEP;
-    QHash<QString, int> expands;
+    QHash<ProString, int> expands;
     QHash<ProString, int> functions;
     QHash<ProString, int> varList;
     QHash<ProString, ProString> varMap;
@@ -340,7 +340,7 @@ void ProFileEvaluator::Private::initStatics()
         { "replace", E_REPLACE }
     };
     for (unsigned i = 0; i < sizeof(expandInits)/sizeof(expandInits[0]); ++i)
-        statics.expands.insert(QLatin1String(expandInits[i].name), expandInits[i].func);
+        statics.expands.insert(ProString(expandInits[i].name), expandInits[i].func);
 
     static const struct {
         const char * const name;
@@ -1919,7 +1919,13 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
 ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
         const ProString &func, const ProStringList &args)
 {
-    ExpandFunc func_t = ExpandFunc(statics.expands.value(func.toQString(m_tmp1).toLower()));
+    ExpandFunc func_t = ExpandFunc(statics.expands.value(func));
+    if (func_t == 0) {
+        const QString &fn = func.toQString(m_tmp1);
+        const QString &lfn = fn.toLower();
+        if (!fn.isSharedWith(lfn))
+            func_t = ExpandFunc(statics.expands.value(ProString(lfn)));
+    }
 
     ProStringList ret;
 
