@@ -111,6 +111,7 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    Task task(const QModelIndex &index) const;
 
     QStringList categoryIds() const;
     QString categoryDisplayName(const QString &categoryId) const;
@@ -391,9 +392,14 @@ QVariant TaskModel::data(const QModelIndex &index, int role) const
     } else if (role == TaskModel::Icon) {
         return taskTypeIcon(m_tasks.at(index.row()).type);
     } else if (role == TaskModel::Task_t) {
-        return QVariant::fromValue(m_tasks.at(index.row()));
+        return QVariant::fromValue(task(index));
     }
     return QVariant();
+}
+
+Task TaskModel::task(const QModelIndex &index) const
+{
+    return m_tasks.at(index.row());
 }
 
 QStringList TaskModel::categoryIds() const
@@ -634,7 +640,7 @@ void TaskWindow::triggerDefaultHandler(const QModelIndex &index)
         }
     }
     Q_ASSERT(d->m_defaultHandler);
-    Task task(index.data(Internal::TaskModel::Task_t).value<Task>());
+    Task task(d->m_model->task(index));
     if (d->m_defaultHandler->canHandle(task)) {
         d->m_defaultHandler->handle(task);
     } else {
@@ -651,7 +657,7 @@ void TaskWindow::showContextMenu(const QPoint &position)
     d->m_contextMenuIndex = index;
     cleanContextMenu();
 
-    Task task = index.data(Internal::TaskModel::Task_t).value<Task>();
+    Task task = d->m_model->task(index);
 
     QList<ITaskHandler *> handlers = ExtensionSystem::PluginManager::instance()->getObjects<ITaskHandler>();
     foreach(ITaskHandler *handler, handlers) {
@@ -668,7 +674,7 @@ void TaskWindow::showContextMenu(const QPoint &position)
 void TaskWindow::contextMenuEntryTriggered(QAction *action)
 {
     if (action->isEnabled()) {
-        Task task = d->m_contextMenuIndex.data(Internal::TaskModel::Task_t).value<Task>();
+        Task task = d->m_model->task(d->m_contextMenuIndex);
         ITaskHandler *handler = qobject_cast<ITaskHandler*>(action->data().value<QObject*>());
         if (!handler)
             return;
