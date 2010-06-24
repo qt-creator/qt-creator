@@ -71,7 +71,7 @@ public:
                                   const QList<Find::SearchResultItem> &items);
 
 protected:
-    virtual QStringList files() = 0;
+    virtual Utils::FileIterator *files() = 0;
     void writeCommonSettings(QSettings *settings);
     void readCommonSettings(QSettings *settings, const QString &defaultFilter);
     QWidget *createPatternWidget();

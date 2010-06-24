@@ -77,7 +77,7 @@ QKeySequence AllProjectsFind::defaultShortcut() const
     return QKeySequence();
 }
 
-QStringList AllProjectsFind::files()
+Utils::FileIterator *AllProjectsFind::files()
 {
     Q_ASSERT(m_plugin->session());
     QList<QRegExp> filterRegs;
@@ -103,7 +103,7 @@ QStringList AllProjectsFind::files()
         }
     }
     files.removeDuplicates();
-    return files;
+    return new Utils::FileIterator(files);
 }
 
 QWidget *AllProjectsFind::createConfigWidget()

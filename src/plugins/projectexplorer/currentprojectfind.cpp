@@ -75,7 +75,7 @@ QKeySequence CurrentProjectFind::defaultShortcut() const
     return QKeySequence();
 }
 
-QStringList CurrentProjectFind::files()
+Utils::FileIterator *CurrentProjectFind::files()
 {
     Project *project = m_plugin->currentProject();
     Q_ASSERT(project);
@@ -98,7 +98,7 @@ QStringList CurrentProjectFind::files()
         files += project->files(Project::AllFiles);
     }
     files.removeDuplicates();
-    return files;
+    return new Utils::FileIterator(files);
 }
 
 QWidget *CurrentProjectFind::createConfigWidget()

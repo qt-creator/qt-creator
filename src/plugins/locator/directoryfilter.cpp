@@ -36,6 +36,7 @@
 #include <QtGui/QMessageBox>
 
 #include <qtconcurrent/QtConcurrentTools>
+#include <utils/filesearch.h>
 
 using namespace Locator;
 using namespace Locator::Internal;
@@ -181,67 +182,26 @@ void DirectoryFilter::updateOptionButtons()
 
 void DirectoryFilter::refresh(QFutureInterface<void> &future)
 {
-    const int MAX = 360;
-    future.setProgressRange(0, MAX);
-    if (m_directories.count() < 1) {
+    QStringList directories;
+    {
         QMutexLocker locker(&m_lock);
-        files().clear();
-        generateFileNames();
-        future.setProgressValueAndText(MAX, tr("%1 filter update: 0 files").arg(m_name));
-        return;
+        if (m_directories.count() < 1) {
+            files().clear();
+            generateFileNames();
+            future.setProgressRange(0, 1);
+            future.setProgressValueAndText(1, tr("%1 filter update: 0 files").arg(m_name));
+            return;
+        }
+        directories = m_directories;
     }
-    int progress = 0;
-    int MAX_PER = MAX;
+    Utils::SubDirFileIterator it(directories, m_filters);
+    future.setProgressRange(0, it.maxProgress());
     QStringList filesFound;
-    QStack<QDir> dirs;
-    QStack<int> progressValues;
-    QStack<bool> processedValues;
-    { // initialize
-        QMutexLocker locker(&m_lock);
-        MAX_PER = MAX/m_directories.count();
-        foreach (const QString &directoryEntry, m_directories) {
-            if (!directoryEntry.isEmpty()) {
-                dirs.push(QDir(directoryEntry));
-                progressValues.push(MAX_PER);
-                processedValues.push(false);
-            }
-        }
-    }
-    while (!dirs.isEmpty() && !future.isCanceled()) {
+    while (!future.isCanceled() && it.hasNext()) {
+        filesFound << it.next();
         if (future.isProgressUpdateNeeded()) {
-            future.setProgressValueAndText(progress,
+            future.setProgressValueAndText(it.currentProgress(),
                                            tr("%1 filter update: %n files", 0, filesFound.size()).arg(m_name));
-        }
-        QDir dir = dirs.pop();
-        int dirProgressMax = progressValues.pop();
-        bool processed = processedValues.pop();
-        if (dir.exists()) {
-            QStringList subDirs;
-            if (!processed) {
-                subDirs = dir.entryList(QDir::Dirs|QDir::Hidden|QDir::NoDotAndDotDot,
-                    QDir::Name|QDir::IgnoreCase|QDir::LocaleAware);
-            }
-            if (subDirs.isEmpty()) {
-                QStringList fileEntries = dir.entryList(m_filters,
-                    QDir::Files|QDir::Hidden,
-                    QDir::Name|QDir::IgnoreCase|QDir::LocaleAware);
-                foreach (const QString &file, fileEntries)
-                    filesFound.append(dir.path()+ QLatin1Char('/') +file);
-                progress += dirProgressMax;
-            } else {
-                int subProgress = dirProgressMax/(subDirs.size()+1);
-                int selfProgress = subProgress + dirProgressMax%(subDirs.size()+1);
-                dirs.push(dir);
-                progressValues.push(selfProgress);
-                processedValues.push(true);
-                foreach (const QString &directory, subDirs) {
-                    dirs.push(QDir(dir.path()+ QLatin1Char('/') + directory));
-                    progressValues.push(subProgress);
-                    processedValues.push(false);
-                }
-            }
-        } else {
-            progress += dirProgressMax;
         }
     }
 
@@ -249,8 +209,8 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
         QMutexLocker locker(&m_lock);
         files() = filesFound;
         generateFileNames();
-        future.setProgressValue(MAX);
+        future.setProgressValue(it.maxProgress());
     } else {
-        future.setProgressValueAndText(progress, tr("%1 filter update: canceled").arg(m_name));
+        future.setProgressValueAndText(it.currentProgress(), tr("%1 filter update: canceled").arg(m_name));
     }
 }

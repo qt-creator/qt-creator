@@ -64,7 +64,7 @@ public:
     void readSettings(QSettings *settings);
 
 protected:
-    QStringList files();
+    Utils::FileIterator *files();
 
 private:
     ProjectExplorerPlugin *m_plugin;

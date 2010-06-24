@@ -67,12 +67,12 @@ QKeySequence FindInCurrentFile::defaultShortcut() const
     return QKeySequence();
 }
 
-QStringList FindInCurrentFile::files()
+Utils::FileIterator *FindInCurrentFile::files()
 {
     QStringList fileList;
     if (isEnabled())
         fileList << m_currentFile->fileName();
-    return fileList;
+    return new Utils::FileIterator(fileList);
 }
 
 bool FindInCurrentFile::isEnabled() const

@@ -62,7 +62,7 @@ public:
     void readSettings(QSettings *settings);
 
 protected:
-    QStringList files();
+    Utils::FileIterator *files();
 
 private slots:
     void handleFileChange(Core::IEditor *editor);

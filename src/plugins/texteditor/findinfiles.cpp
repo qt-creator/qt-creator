@@ -68,18 +68,10 @@ void FindInFiles::findAll(const QString &txt, QTextDocument::FindFlags findFlags
     BaseFileFind::findAll(txt, findFlags);
 }
 
-QStringList FindInFiles::files()
+Utils::FileIterator *FindInFiles::files()
 {
-    QStringList fileList;
-    QDirIterator it(m_directory->currentText(),
-                    fileNameFilters(),
-                    QDir::Files|QDir::Readable,
-                    QDirIterator::Subdirectories);
-
-    while (it.hasNext())
-        fileList << it.next();
-
-    return fileList;
+    return new Utils::SubDirFileIterator(QStringList() << m_directory->currentText(),
+                                         fileNameFilters());
 }
 
 QWidget *FindInFiles::createConfigWidget()

@@ -70,11 +70,11 @@ namespace {
 
 void runFileSearch(QFutureInterface<FileSearchResult> &future,
                    QString searchTerm,
-                   QStringList files,
+                   FileIterator *files,
                    QTextDocument::FindFlags flags,
                    QMap<QString, QString> fileToContentsMap)
 {
-    future.setProgressRange(0, files.size());
+    future.setProgressRange(0, files->maxProgress());
     int numFilesSearched = 0;
     int numMatches = 0;
 
@@ -95,11 +95,13 @@ void runFileSearch(QFutureInterface<FileSearchResult> &future,
 
     QFile file;
     QBuffer buffer;
-    foreach (const QString &s, files) {
+    while (files->hasNext()) {
+        const QString &s = files->next();
+        future.setProgressRange(0, files->maxProgress());
         if (future.isPaused())
             future.waitForResume();
         if (future.isCanceled()) {
-            future.setProgressValueAndText(numFilesSearched, msgCanceled(searchTerm, numMatches, numFilesSearched));
+            future.setProgressValueAndText(files->currentProgress(), msgCanceled(searchTerm, numMatches, numFilesSearched));
             break;
         }
         QIODevice *device;
@@ -180,20 +182,22 @@ void runFileSearch(QFutureInterface<FileSearchResult> &future,
             firstChunk = false;
         }
         ++numFilesSearched;
-        future.setProgressValueAndText(numFilesSearched, msgFound(searchTerm, numMatches, numFilesSearched, files.size()));
+        if (future.isProgressUpdateNeeded())
+            future.setProgressValueAndText(files->currentProgress(), msgFound(searchTerm, numMatches, numFilesSearched));
         device->close();
     }
     if (!future.isCanceled())
-        future.setProgressValueAndText(numFilesSearched, msgFound(searchTerm, numMatches, numFilesSearched));
+        future.setProgressValueAndText(files->currentProgress(), msgFound(searchTerm, numMatches, numFilesSearched));
+    delete files;
 }
 
 void runFileSearchRegExp(QFutureInterface<FileSearchResult> &future,
                    QString searchTerm,
-                   QStringList files,
+                   FileIterator *files,
                    QTextDocument::FindFlags flags,
                    QMap<QString, QString> fileToContentsMap)
 {
-    future.setProgressRange(0, files.size());
+    future.setProgressRange(0, files->maxProgress());
     int numFilesSearched = 0;
     int numMatches = 0;
     if (flags & QTextDocument::FindWholeWords)
@@ -204,11 +208,13 @@ void runFileSearchRegExp(QFutureInterface<FileSearchResult> &future,
     QFile file;
     QString str;
     QTextStream stream;
-    foreach (const QString &s, files) {
+    while (files->hasNext()) {
+        const QString &s = files->next();
+        future.setProgressRange(0, files->maxProgress());
         if (future.isPaused())
             future.waitForResume();
         if (future.isCanceled()) {
-            future.setProgressValueAndText(numFilesSearched, msgCanceled(searchTerm, numMatches, numFilesSearched));
+            future.setProgressValueAndText(files->currentProgress(), msgCanceled(searchTerm, numMatches, numFilesSearched));
             break;
         }
 
@@ -237,28 +243,30 @@ void runFileSearchRegExp(QFutureInterface<FileSearchResult> &future,
             ++lineNr;
         }
         ++numFilesSearched;
-        future.setProgressValueAndText(numFilesSearched, msgFound(searchTerm, numMatches, numFilesSearched, files.size()));
+        if (future.isProgressUpdateNeeded())
+            future.setProgressValueAndText(files->currentProgress(), msgFound(searchTerm, numMatches, numFilesSearched));
         if (needsToCloseFile)
             file.close();
     }
     if (!future.isCanceled())
-        future.setProgressValueAndText(numFilesSearched, msgFound(searchTerm, numMatches, numFilesSearched));
+        future.setProgressValueAndText(files->currentProgress(), msgFound(searchTerm, numMatches, numFilesSearched));
+    delete files;
 }
 
 } // namespace
 
 
-QFuture<FileSearchResult> Utils::findInFiles(const QString &searchTerm, const QStringList &files,
+QFuture<FileSearchResult> Utils::findInFiles(const QString &searchTerm, FileIterator *files,
     QTextDocument::FindFlags flags, QMap<QString, QString> fileToContentsMap)
 {
-    return QtConcurrent::run<FileSearchResult, QString, QStringList, QTextDocument::FindFlags, QMap<QString, QString> >
+    return QtConcurrent::run<FileSearchResult, QString, FileIterator *, QTextDocument::FindFlags, QMap<QString, QString> >
             (runFileSearch, searchTerm, files, flags, fileToContentsMap);
 }
 
-QFuture<FileSearchResult> Utils::findInFilesRegExp(const QString &searchTerm, const QStringList &files,
+QFuture<FileSearchResult> Utils::findInFilesRegExp(const QString &searchTerm, FileIterator *files,
     QTextDocument::FindFlags flags, QMap<QString, QString> fileToContentsMap)
 {
-    return QtConcurrent::run<FileSearchResult, QString, QStringList, QTextDocument::FindFlags, QMap<QString, QString> >
+    return QtConcurrent::run<FileSearchResult, QString, FileIterator *, QTextDocument::FindFlags, QMap<QString, QString> >
             (runFileSearchRegExp, searchTerm, files, flags, fileToContentsMap);
 }
 
@@ -293,4 +301,134 @@ QString Utils::expandRegExpReplacement(const QString &replaceText, const QString
         }
     }
     return result;
+}
+
+// #pragma mark -- FileIterator
+
+FileIterator::FileIterator()
+    : m_list(QStringList()),
+    m_iterator(0),
+    m_index(0)
+{
+}
+
+FileIterator::FileIterator(const QStringList &fileList)
+    : m_list(fileList),
+    m_iterator(new QStringListIterator(m_list)),
+    m_index(0)
+{
+}
+
+FileIterator::~FileIterator()
+{
+    if (m_iterator)
+        delete m_iterator;
+}
+
+bool FileIterator::hasNext() const
+{
+    Q_ASSERT(m_iterator);
+    return m_iterator->hasNext();
+}
+
+QString FileIterator::next()
+{
+    Q_ASSERT(m_iterator);
+    ++m_index;
+    return m_iterator->next();
+}
+
+int FileIterator::maxProgress() const
+{
+    return m_list.size();
+}
+
+int FileIterator::currentProgress() const
+{
+    return m_index;
+}
+
+// #pragma mark -- SubDirFileIterator
+
+namespace {
+    const int MAX_PROGRESS = 360;
+}
+
+SubDirFileIterator::SubDirFileIterator(const QStringList &directories, const QStringList &filters)
+    : m_filters(filters), m_progress(0)
+{
+    int maxPer = MAX_PROGRESS/directories.count();
+    foreach (const QString &directoryEntry, directories) {
+        if (!directoryEntry.isEmpty()) {
+            m_dirs.push(QDir(directoryEntry));
+            m_progressValues.push(maxPer);
+            m_processedValues.push(false);
+        }
+    }
+}
+
+bool SubDirFileIterator::hasNext() const
+{
+    if (!m_currentFiles.isEmpty())
+        return true;
+    while(!m_dirs.isEmpty() && m_currentFiles.isEmpty()) {
+        QDir dir = m_dirs.pop();
+        int dirProgressMax = m_progressValues.pop();
+        bool processed = m_processedValues.pop();
+        if (dir.exists()) {
+            QStringList subDirs;
+            if (!processed) {
+                subDirs = dir.entryList(QDir::Dirs|QDir::Hidden|QDir::NoDotAndDotDot);
+            }
+            if (subDirs.isEmpty()) {
+                QStringList fileEntries = dir.entryList(m_filters,
+                    QDir::Files|QDir::Hidden);
+                QStringListIterator it(fileEntries);
+                it.toBack();
+                while (it.hasPrevious()) {
+                    const QString &file = it.previous();
+                    m_currentFiles.append(dir.path()+ QLatin1Char('/') +file);
+                }
+                m_progress += dirProgressMax;
+            } else {
+                int subProgress = dirProgressMax/(subDirs.size()+1);
+                int selfProgress = subProgress + dirProgressMax%(subDirs.size()+1);
+                m_dirs.push(dir);
+                m_progressValues.push(selfProgress);
+                m_processedValues.push(true);
+                QStringListIterator it(subDirs);
+                it.toBack();
+                while (it.hasPrevious()) {
+                    const QString &directory = it.previous();
+                    m_dirs.push(QDir(dir.path()+ QLatin1Char('/') + directory));
+                    m_progressValues.push(subProgress);
+                    m_processedValues.push(false);
+                }
+            }
+        } else {
+            m_progress += dirProgressMax;
+        }
+    }
+    if (m_currentFiles.isEmpty()) {
+        m_progress = MAX_PROGRESS;
+        return false;
+    }
+
+    return true;
+}
+
+QString SubDirFileIterator::next()
+{
+    Q_ASSERT(!m_currentFiles.isEmpty());
+    return m_currentFiles.takeFirst();
+}
+
+int SubDirFileIterator::maxProgress() const
+{
+    return MAX_PROGRESS;
+}
+
+int SubDirFileIterator::currentProgress() const
+{
+    return m_progress;
 }
