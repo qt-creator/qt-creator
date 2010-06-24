@@ -2095,7 +2095,7 @@ void GdbEngine::setBreakpointDataFromOutput(BreakpointData *data, const GdbMi &b
         } else if (child.hasName("thread")) {
             data->bpThreadSpec = child.data();
         } else if (child.hasName("type")) {
-            if (child.data() == "breakpoint")
+            if (child.data().contains("reakpoint")) // "breakpoint", "hw breakpoint"
                 data->type = BreakpointData::BreakpointType;
             else // FIXME: Incomplete list of cases.
                 data->type = BreakpointData::WatchpointType;
