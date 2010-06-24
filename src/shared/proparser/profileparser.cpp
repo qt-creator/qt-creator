@@ -290,7 +290,7 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
     m_operator = NoOperator;
     m_markLine = m_lineNo;
     Context context = CtxTest;
-    int parens = 0;
+    int parens = 0; // Braces in value context
     int argc = 0;
     int litCount = 0;
     int expCount = 0;
@@ -650,6 +650,7 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
                         FLUSH_LHS_LITERAL(false);
                         finalizeCond(tokPtr, buf, ptr);
                         flushScopes(tokPtr);
+                      closeScope:
                         if (!m_blockstack.top().braceLevel) {
                             parseError(fL1S("Excess closing brace."));
                         } else if (!--m_blockstack.top().braceLevel
@@ -694,6 +695,20 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
                         litCount = expCount = 0;
                         needSep = 0;
                         goto nextToken;
+                    }
+                } else { // context == CtxValue
+                    if (c == '{') {
+                        ++parens;
+                    } else if (c == '}') {
+                        if (!parens) {
+                            FLUSH_RHS_LITERAL(false);
+                            tokPtr[-1] = litCount ? litCount + expCount : 0;
+                            tokPtr = ptr;
+                            putTok(tokPtr, TokValueTerminator);
+                            context = CtxTest;
+                            goto closeScope;
+                        }
+                        --parens;
                     }
                 }
                 if (putSpace) {
