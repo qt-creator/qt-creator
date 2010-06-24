@@ -170,7 +170,7 @@ void PluginView::updateList()
 
     m_items.append(defaultCollectionItem);
     Qt::CheckState groupState = Qt::Unchecked;
-    int state = parsePluginSpecs(defaultCollectionItem, groupState, defaultCollection->plugins());
+    int state = parsePluginSpecs(defaultCollectionItem, groupState, defaultCollection ? defaultCollection->plugins() : QList<PluginSpec *>());
 
     defaultCollectionItem->setIcon(0, iconForState(state));
     defaultCollectionItem->setData(C_LOAD, Qt::CheckStateRole, QVariant(groupState));
