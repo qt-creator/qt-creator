@@ -1025,9 +1025,9 @@ bool Qt4ProFileNode::evaluate()
 {
     bool parserError = false;
     if (ProFile *pro = m_readerExact->parsedProFile(m_projectFilePath)) {
-        if (!m_readerExact->accept(pro))
+        if (!m_readerExact->accept(pro, ProFileEvaluator::LoadAll))
             parserError = true;
-        if (!m_readerCumulative->accept(pro))
+        if (!m_readerCumulative->accept(pro, ProFileEvaluator::LoadPreFiles))
             parserError = true;
         pro->deref();
     } else {
