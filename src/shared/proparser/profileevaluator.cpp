@@ -143,7 +143,8 @@ public:
     static ALWAYS_INLINE void skipHashStr(const ushort *&tokPtr);
     void skipExpression(const ushort *&tokPtr);
 
-    VisitReturn visitProFile(ProFile *pro, ProFileEvaluatorHandler::EvalFileType type);
+    VisitReturn visitProFile(ProFile *pro, ProFileEvaluatorHandler::EvalFileType type,
+                             ProFileEvaluator::LoadFlags flags);
     VisitReturn visitProBlock(ProFile *pro, const ushort *tokPtr);
     VisitReturn visitProBlock(const ushort *tokPtr);
     VisitReturn visitProLoop(const ProString &variable, const ushort *exprPtr,
@@ -177,8 +178,10 @@ public:
     VisitReturn evaluateConditionalFunction(const ProString &function, const ProString &arguments);
     VisitReturn evaluateConditionalFunction(const ProString &function, const ushort *&tokPtr);
     VisitReturn evaluateConditionalFunction(const ProString &function, const ProStringList &args);
-    bool evaluateFileDirect(const QString &fileName, ProFileEvaluatorHandler::EvalFileType type);
-    bool evaluateFile(const QString &fileName, ProFileEvaluatorHandler::EvalFileType type);
+    bool evaluateFileDirect(const QString &fileName, ProFileEvaluatorHandler::EvalFileType type,
+                            ProFileEvaluator::LoadFlags flags);
+    bool evaluateFile(const QString &fileName, ProFileEvaluatorHandler::EvalFileType type,
+                      ProFileEvaluator::LoadFlags flags);
     bool evaluateFeatureFile(const QString &fileName);
     enum EvalIntoMode { EvalProOnly, EvalWithDefaults, EvalWithSetup };
     bool evaluateFileInto(const QString &fileName, ProFileEvaluatorHandler::EvalFileType type,
@@ -223,7 +226,6 @@ public:
 
     QStringList m_addUserConfigCmdArgs;
     QStringList m_removeUserConfigCmdArgs;
-    bool m_parsePreAndPostFiles;
 
     ProFileOption *m_option;
     ProFileParser *m_parser;
@@ -434,7 +436,6 @@ ProFileEvaluator::Private::Private(ProFileEvaluator *q_, ProFileOption *option,
 
     // Configuration, more or less
     m_cumulative = true;
-    m_parsePreAndPostFiles = true;
 
     // Evaluator state
     m_skipLevel = 0;
@@ -1116,19 +1117,14 @@ void ProFileEvaluator::Private::visitProVariable(
 }
 
 ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
-        ProFile *pro, ProFileEvaluatorHandler::EvalFileType type)
+        ProFile *pro, ProFileEvaluatorHandler::EvalFileType type,
+        ProFileEvaluator::LoadFlags flags)
 {
     m_handler->aboutToEval(currentProFile(), pro, type);
     m_profileStack.push(pro);
-    if (m_profileStack.count() == 1) {
-        // Do this only for the initial profile we visit, since
-        // that is *the* profile. All the other times we reach this function will be due to
-        // include(file) or load(file)
-
-        if (m_parsePreAndPostFiles) {
-
+    if (flags & LoadPreFiles) {
 #ifdef PROEVALUATOR_THREAD_SAFE
-          {
+        {
             QMutexLocker locker(&m_option->mutex);
             if (m_option->base_inProgress) {
                 QThreadPool::globalInstance()->releaseThread();
@@ -1222,11 +1218,14 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
                     m_option->qmakespec = QDir::cleanPath(qmakespec);
 
                     QString spec = m_option->qmakespec + QLatin1String("/qmake.conf");
-                    if (!evaluateFileDirect(spec, ProFileEvaluatorHandler::EvalConfigFile)) {
+                    if (!evaluateFileDirect(spec, ProFileEvaluatorHandler::EvalConfigFile,
+                                            ProFileEvaluator::LoadProOnly)) {
                         m_handler->configError(
                                 fL1S("Could not read qmake configuration file %1").arg(spec));
                     } else if (!m_option->cachefile.isEmpty()) {
-                        evaluateFileDirect(m_option->cachefile, ProFileEvaluatorHandler::EvalConfigFile);
+                        evaluateFileDirect(m_option->cachefile,
+                                           ProFileEvaluatorHandler::EvalConfigFile,
+                                           ProFileEvaluator::LoadProOnly);
                     }
                     m_option->qmakespec_name = IoUtils::fileName(m_option->qmakespec).toString();
                     if (m_option->qmakespec_name == QLatin1String("default")) {
@@ -1264,7 +1263,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
                 goto fresh;
             }
 #ifdef PROEVALUATOR_THREAD_SAFE
-          }
+        }
 #endif
 
             m_valuemapStack.top() = m_option->base_valuemap;
@@ -1280,13 +1279,11 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
                 tmp.append(ProString(add, NoHash));
             foreach (const QString &remove, m_removeUserConfigCmdArgs)
                 removeAll(&tmp, ProString(remove, NoHash));
-        }
     }
 
     visitProBlock(pro, pro->tokPtr());
 
-    if (m_profileStack.count() == 1) {
-        if (m_parsePreAndPostFiles) {
+    if (flags & LoadPostFiles) {
             evaluateFeatureFile(QLatin1String("default_post.prf"));
 
             QSet<QString> processed;
@@ -1307,7 +1304,6 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
                 if (finished)
                     break;
             }
-        }
     }
     m_profileStack.pop();
     m_handler->doneWithEval(currentProFile());
@@ -2683,7 +2679,8 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
             fn.detach();
             bool ok;
             if (parseInto.isEmpty()) {
-                ok = evaluateFile(fn, ProFileEvaluatorHandler::EvalIncludeFile);
+                ok = evaluateFile(fn, ProFileEvaluatorHandler::EvalIncludeFile,
+                                  ProFileEvaluator::LoadProOnly);
             } else {
                 QHash<ProString, ProStringList> symbols;
                 if ((ok = evaluateFileInto(fn, ProFileEvaluatorHandler::EvalAuxFile,
@@ -2965,11 +2962,12 @@ ProStringList ProFileEvaluator::Private::values(const ProString &variableName) c
 }
 
 bool ProFileEvaluator::Private::evaluateFileDirect(
-        const QString &fileName, ProFileEvaluatorHandler::EvalFileType type)
+        const QString &fileName, ProFileEvaluatorHandler::EvalFileType type,
+        ProFileEvaluator::LoadFlags flags)
 {
     if (ProFile *pro = m_parser->parsedProFile(fileName, true)) {
         m_locationStack.push(m_current);
-        bool ok = (visitProFile(pro, type) == ReturnTrue);
+        bool ok = (visitProFile(pro, type, flags) == ReturnTrue);
         m_current = m_locationStack.pop();
         pro->deref();
         return ok;
@@ -2979,7 +2977,8 @@ bool ProFileEvaluator::Private::evaluateFileDirect(
 }
 
 bool ProFileEvaluator::Private::evaluateFile(
-        const QString &fileName, ProFileEvaluatorHandler::EvalFileType type)
+        const QString &fileName, ProFileEvaluatorHandler::EvalFileType type,
+        ProFileEvaluator::LoadFlags flags)
 {
     if (fileName.isEmpty())
         return false;
@@ -2988,7 +2987,7 @@ bool ProFileEvaluator::Private::evaluateFile(
             evalError(fL1S("circular inclusion of %1").arg(fileName));
             return false;
         }
-    return evaluateFileDirect(fileName, type);
+    return evaluateFileDirect(fileName, type, flags);
 }
 
 bool ProFileEvaluator::Private::evaluateFeatureFile(const QString &fileName)
@@ -3033,7 +3032,8 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(const QString &fileName)
     m_cumulative = false;
 
     // The path is fully normalized already.
-    bool ok = evaluateFileDirect(fn, ProFileEvaluatorHandler::EvalFeatureFile);
+    bool ok = evaluateFileDirect(fn, ProFileEvaluatorHandler::EvalFeatureFile,
+                                 ProFileEvaluator::LoadProOnly);
 
     m_cumulative = cumulative;
     return ok;
@@ -3045,14 +3045,14 @@ bool ProFileEvaluator::Private::evaluateFileInto(
 {
     ProFileEvaluator visitor(m_option, m_parser, m_handler);
     visitor.d->m_cumulative = false;
-    visitor.d->m_parsePreAndPostFiles = (mode == EvalWithSetup);
     visitor.d->m_outputDir = m_outputDir;
 //    visitor.d->m_valuemapStack.top() = *values;
     if (funcs)
         visitor.d->m_functionDefs = *funcs;
     if (mode == EvalWithDefaults)
         visitor.d->evaluateFeatureFile(QLatin1String("default_pre.prf"));
-    if (!visitor.d->evaluateFile(fileName, type))
+    if (!visitor.d->evaluateFile(fileName, type,
+            (mode == EvalWithSetup) ? ProFileEvaluator::LoadAll : ProFileEvaluator::LoadProOnly))
         return false;
     *values = visitor.d->m_valuemapStack.top();
 //    if (funcs)
@@ -3196,9 +3196,9 @@ ProFileEvaluator::TemplateType ProFileEvaluator::templateType() const
     return TT_Unknown;
 }
 
-bool ProFileEvaluator::accept(ProFile *pro)
+bool ProFileEvaluator::accept(ProFile *pro, LoadFlags flags)
 {
-    return d->visitProFile(pro, ProFileEvaluatorHandler::EvalProjectFile);
+    return d->visitProFile(pro, ProFileEvaluatorHandler::EvalProjectFile, flags);
 }
 
 QString ProFileEvaluator::propertyValue(const QString &name) const
@@ -3220,11 +3220,6 @@ void ProFileEvaluator::setConfigCommandLineArguments(const QStringList &addUserC
 {
     d->m_addUserConfigCmdArgs = addUserConfigCmdArgs;
     d->m_removeUserConfigCmdArgs = removeUserConfigCmdArgs;
-}
-
-void ProFileEvaluator::setParsePreAndPostFiles(bool on)
-{
-    d->m_parsePreAndPostFiles = on;
 }
 
 QT_END_NAMESPACE

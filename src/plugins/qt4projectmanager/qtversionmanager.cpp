@@ -1335,8 +1335,7 @@ void QtVersion::updateToolChainAndMkspec() const
     ProFileEvaluator evaluator(&option, &parser, &msgHandler);
     if (ProFile *pro = parser.parsedProFile(m_mkspecFullPath + "/qmake.conf")) {
         evaluator.setCumulative(false);
-        evaluator.setParsePreAndPostFiles(false);
-        evaluator.accept(pro);
+        evaluator.accept(pro, ProFileEvaluator::LoadProOnly);
         pro->deref();
     }
 

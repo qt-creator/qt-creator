@@ -113,9 +113,15 @@ public:
     // -nocache, -cache, -spec, QMAKESPEC
     // -set persistent value
     void setConfigCommandLineArguments(const QStringList &addUserConfigCmdArgs, const QStringList &removeUserConfigCmdArgs);
-    void setParsePreAndPostFiles(bool on); // Default is true
 
-    bool accept(ProFile *pro);
+    enum LoadFlag {
+        LoadProOnly = 0,
+        LoadPreFiles = 1,
+        LoadPostFiles = 2,
+        LoadAll = LoadPreFiles|LoadPostFiles
+    };
+    Q_DECLARE_FLAGS(LoadFlags, LoadFlag)
+    bool accept(ProFile *pro, LoadFlags flags = LoadAll);
 
     bool contains(const QString &variableName) const;
     QString value(const QString &variableName) const;
@@ -132,6 +138,8 @@ private:
 
     friend struct ProFileOption;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(ProFileEvaluator::LoadFlags)
 
 // This struct is from qmake, but we are not using everything.
 struct ProFileOption
