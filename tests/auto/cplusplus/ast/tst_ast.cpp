@@ -810,22 +810,20 @@ void tst_AST::normal_array_access()
     ExpressionAST *expr = bodyStatements->next->next->value->asReturnStatement()->expression;
     QVERIFY(expr);
 
-    PostfixExpressionAST *postfixExpr = expr->asPostfixExpression();
-    QVERIFY(postfixExpr);
+    ArrayAccessAST *arrayExpr = expr->asArrayAccess();
+    QVERIFY(arrayExpr);
 
-    {
-        ExpressionAST *lhs = postfixExpr->base_expression;
+    { // check the left-hand side:
+        ExpressionAST *lhs = arrayExpr->base_expression;
         QVERIFY(lhs);
         SimpleNameAST *a = lhs->asSimpleName();
         QVERIFY(a);
         QCOMPARE(QLatin1String(unit->identifier(a->identifier_token)->chars()), QLatin1String("a"));
     }
 
-    {
-        QVERIFY(postfixExpr->postfix_expression_list && !postfixExpr->postfix_expression_list->next);
-        ArrayAccessAST *rhs = postfixExpr->postfix_expression_list->value->asArrayAccess();
-        QVERIFY(rhs && rhs->expression);
-        SimpleNameAST *b = rhs->expression->asSimpleName();
+    { // check the right-hand side:
+        QVERIFY(arrayExpr->expression);
+        SimpleNameAST *b = arrayExpr->expression->asSimpleName();
         QVERIFY(b);
         QCOMPARE(QLatin1String(unit->identifier(b->identifier_token)->chars()), QLatin1String("b"));
     }
@@ -854,11 +852,11 @@ void tst_AST::array_access_with_nested_expression()
     CastExpressionAST *castExpr = expr->asCastExpression();
     QVERIFY(!castExpr);
 
-    PostfixExpressionAST *postfixExpr = expr->asPostfixExpression();
-    QVERIFY(postfixExpr);
+    ArrayAccessAST *arrayExpr = expr->asArrayAccess();
+    QVERIFY(arrayExpr);
 
-    {
-        ExpressionAST *lhs = postfixExpr->base_expression;
+    { // check the LHS:
+        ExpressionAST *lhs = arrayExpr->base_expression;
         QVERIFY(lhs);
         NestedExpressionAST *nested_a = lhs->asNestedExpression();
         QVERIFY(nested_a && nested_a->expression);
@@ -867,11 +865,9 @@ void tst_AST::array_access_with_nested_expression()
         QCOMPARE(QLatin1String(unit->identifier(a->identifier_token)->chars()), QLatin1String("a"));
     }
 
-    {
-        QVERIFY(postfixExpr->postfix_expression_list && !postfixExpr->postfix_expression_list->next);
-        ArrayAccessAST *rhs = postfixExpr->postfix_expression_list->value->asArrayAccess();
-        QVERIFY(rhs && rhs->expression);
-        SimpleNameAST *b = rhs->expression->asSimpleName();
+    { // check the RHS:
+        QVERIFY(arrayExpr->expression);
+        SimpleNameAST *b = arrayExpr->expression->asSimpleName();
         QVERIFY(b);
         QCOMPARE(QLatin1String(unit->identifier(b->identifier_token)->chars()), QLatin1String("b"));
     }
