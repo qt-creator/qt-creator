@@ -815,8 +815,6 @@ public slots:
     void activateDebugMode();
     void toggleBreakpoint();
     void toggleBreakpoint(const QString &fileName, int lineNumber);
-    void breakpointSetRemoveMarginActionTriggered();
-    void breakpointEnableDisableMarginActionTriggered();
     void onModeChanged(Core::IMode *mode);
     void showSettingsDialog();
 
@@ -1785,51 +1783,11 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditor::ITextEditor *editor,
     if (!isDebuggable(editor))
         return;
 
-    BreakpointData *data = 0;
-    QString position;
-    if (editor->property("DisassemblerView").toBool()) {
-        QString fileName = editor->file()->fileName();
-        QString line = editor->contents()
-            .section('\n', lineNumber - 1, lineNumber - 1);
-        position = _("*") + fileName;
-        BreakpointData needle;
-        needle.bpAddress = line.left(line.indexOf(QLatin1Char(' '))).toLatin1();
-        needle.bpLineNumber = "-1";
-        data = m_breakWindow->findSimilarBreakpoint(&needle);
-    } else {
-        QString fileName = editor->file()->fileName();
-        position = fileName + QString(":%1").arg(lineNumber);
-        BreakpointData needle;
-        needle.bpFileName = fileName;
-        needle.bpLineNumber = QByteArray::number(lineNumber);
-        data = m_breakWindow->findSimilarBreakpoint(&needle);
-    }
-
-    if (data) {
-        // existing breakpoint
-        QAction *act = new QAction(tr("Remove Breakpoint"), menu);
-        act->setData(position);
-        connect(act, SIGNAL(triggered()),
-            this, SLOT(breakpointSetRemoveMarginActionTriggered()));
-        menu->addAction(act);
-
-        QAction *act2;
-        if (data->enabled)
-            act2 = new QAction(tr("Disable Breakpoint"), menu);
-        else
-            act2 = new QAction(tr("Enable Breakpoint"), menu);
-        act2->setData(position);
-        connect(act2, SIGNAL(triggered()),
-            this, SLOT(breakpointEnableDisableMarginActionTriggered()));
-        menu->addAction(act2);
-    } else {
-        // non-existing
-        QAction *act = new QAction(tr("Set Breakpoint"), menu);
-        act->setData(position);
-        connect(act, SIGNAL(triggered()),
-            this, SLOT(breakpointSetRemoveMarginActionTriggered()));
-        menu->addAction(act);
-    }
+    QList<QVariant> list;
+    list.append(quint64(editor));
+    list.append(lineNumber);
+    list.append(quint64(menu));
+    notifyCurrentEngine(RequestContextMenuRole, list);
 }
 
 void DebuggerPluginPrivate::toggleBreakpoint()
@@ -1847,31 +1805,6 @@ void DebuggerPluginPrivate::toggleBreakpoint(const QString &fileName, int lineNu
     list.append(fileName);
     list.append(lineNumber);
     notifyCurrentEngine(RequestToggleBreakpointRole, list);
-}
-
-void DebuggerPluginPrivate::breakpointSetRemoveMarginActionTriggered()
-{
-    QAction *act = qobject_cast<QAction *>(sender());
-    QTC_ASSERT(act, return);
-    QString str = act->data().toString();
-    int pos = str.lastIndexOf(':');
-    toggleBreakpoint(str.left(pos), str.mid(pos + 1).toInt());
-}
-
-void DebuggerPluginPrivate::breakpointEnableDisableMarginActionTriggered()
-{
-    QAction *act = qobject_cast<QAction *>(sender());
-    QTC_ASSERT(act, return);
-
-    QString str = act->data().toString();
-    int pos = str.lastIndexOf(':');
-    BreakpointData needle;
-    needle.bpFileName = str.left(pos);
-    needle.bpLineNumber = str.mid(pos + 1).toLatin1();
-    BreakpointData *data = m_breakWindow->findSimilarBreakpoint(&needle);
-    QTC_ASSERT(data, return);
-    data->enabled = !data->enabled;
-    m_breakWindow->updateBreakpoint(data);
 }
 
 void DebuggerPluginPrivate::requestMark(ITextEditor *editor, int lineNumber)

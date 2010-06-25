@@ -411,22 +411,6 @@ void BreakWindow::rowActivated(const QModelIndex &index)
     setModelData(RequestActivateBreakpointRole, index.row());
 }
 
-BreakpointData *BreakWindow::findSimilarBreakpoint(const BreakpointData *needle0)
-{
-    BreakpointData *needle = const_cast<BreakpointData *>(needle0);
-    QVariant v = QVariant::fromValue<BreakpointData *>(needle);
-    setModelData(RequestFindSimilarBreakpointRole, v);
-    QTC_ASSERT(model(), return false);
-    v = model()->data(QModelIndex(), RequestFindSimilarBreakpointRole);
-    return v.value<BreakpointData *>();
-}
-
-void BreakWindow::updateBreakpoint(BreakpointData *data)
-{
-    QVariant v = QVariant::fromValue<BreakpointData *>(data);
-    setModelData(RequestUpdateBreakpointRole, v);
-}
-
 void BreakWindow::setModelData
     (int role, const QVariant &value, const QModelIndex &index)
 {

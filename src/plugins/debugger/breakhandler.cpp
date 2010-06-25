@@ -572,15 +572,6 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
     static const QString empty = QString(QLatin1Char('-'));
 
     switch (role) {
-        case RequestFindSimilarBreakpointRole: {
-            // Complain if data/setData are not used alternately.
-            QTC_ASSERT(m_lastFoundQueried, return false);
-            QVariant value =  QVariant::fromValue(m_lastFound);
-            m_lastFoundQueried = false;
-            m_lastFound = 0; // Reset for "safety".
-            return value;
-        }
-
         case CurrentThreadIdRole:
             QTC_ASSERT(m_engine, return QVariant());
             return m_engine->threadsHandler()->currentThreadId();
@@ -714,16 +705,6 @@ Qt::ItemFlags BreakHandler::flags(const QModelIndex &index) const
 bool BreakHandler::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     switch (role) {
-        case RequestFindSimilarBreakpointRole: {
-            // Complain if data/setData are not used alternately.
-            QTC_ASSERT(!m_lastFoundQueried, return false);
-            BreakpointData *needle = value.value<BreakpointData *>();
-            QTC_ASSERT(needle, return false);
-            m_lastFound = findSimilarBreakpoint(needle);
-            m_lastFoundQueried = true;
-            return true;
-        }
-
         case RequestActivateBreakpointRole: {
             const BreakpointData *data = at(value.toInt());
             QTC_ASSERT(data, return false);
@@ -736,14 +717,6 @@ bool BreakHandler::setData(const QModelIndex &index, const QVariant &value, int 
             BreakpointData *data = at(value.toInt());
             QTC_ASSERT(data, return false);
             removeBreakpoint(data);
-            return true;
-        }
-
-        case RequestUpdateBreakpointRole: {
-            BreakpointData *data = value.value<BreakpointData *>();
-            QTC_ASSERT(data, return false);
-            QTC_ASSERT(m_engine, return false);
-            m_engine->attemptBreakpointSynchronization();
             return true;
         }
 
@@ -884,14 +857,12 @@ void BreakHandler::removeBreakpoint(int index)
         return;
     removeBreakpointHelper(index);
     emit layoutChanged();
-    //saveBreakpoints();
 }
 
 void BreakHandler::removeBreakpoint(BreakpointData *data)
 {
     removeBreakpointHelper(m_bp.indexOf(data));
     emit layoutChanged();
-    //saveBreakpoints();
 }
 
 void BreakHandler::toggleBreakpointEnabled(BreakpointData *data)
@@ -905,7 +876,6 @@ void BreakHandler::toggleBreakpointEnabled(BreakpointData *data)
         m_enabled.removeAll(data);
         m_disabled.append(data);
     }
-    //saveBreakpoints();
     updateMarkers();
 }
 
@@ -913,7 +883,7 @@ void BreakHandler::appendBreakpoint(BreakpointData *data)
 {
     append(data);
     emit layoutChanged();
-    saveBreakpoints();
+    saveBreakpoints();  // FIXME: remove?
     updateMarkers();
 }
 
@@ -922,27 +892,40 @@ void BreakHandler::removeAllBreakpoints()
     for (int index = size(); --index >= 0;)
         removeBreakpointHelper(index);
     emit layoutChanged();
-    //saveBreakpoints();
     updateMarkers();
+}
+
+BreakpointData *BreakHandler::findBreakpoint(const QString &fileName, int lineNumber)
+{
+    foreach (BreakpointData *data, m_bp)
+        if (data->isLocatedAt(fileName, lineNumber))
+            return data;
+    return 0;
 }
 
 void BreakHandler::toggleBreakpoint(const QString &fileName, int lineNumber)
 {
-    for (int index = size(); --index >= 0;) {
-        BreakpointData *data = m_bp.at(index);
-        if (data->isLocatedAt(fileName, lineNumber)) {
-            removeBreakpointHelper(index);
-            emit layoutChanged();
-            return;
-        }
+    BreakpointData *data = findBreakpoint(fileName, lineNumber);
+    if (data) {
+        removeBreakpoint(data);
+    } else {
+        data = new BreakpointData;
+        data->fileName = fileName;
+        data->lineNumber = QByteArray::number(lineNumber);
+        data->pending = true;
+        data->setMarkerFileName(fileName);
+        data->setMarkerLineNumber(lineNumber);
+        appendBreakpoint(data);
+        m_engine->attemptBreakpointSynchronization();
     }
-    BreakpointData *data = new BreakpointData;
-    data->fileName = fileName;
-    data->lineNumber = QByteArray::number(lineNumber);
-    data->pending = true;
-    data->setMarkerFileName(fileName);
-    data->setMarkerLineNumber(lineNumber);
-    appendBreakpoint(data);
+}
+
+void BreakHandler::toggleBreakpointEnabled(const QString &fileName, int lineNumber)
+{
+    BreakpointData *data = findBreakpoint(fileName, lineNumber);
+    QTC_ASSERT(data, return);
+    data->enabled = !data->enabled;
+    data->updateMarker();
     m_engine->attemptBreakpointSynchronization();
 }
 

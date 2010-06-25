@@ -194,9 +194,9 @@ enum ModelRoles
     RequestSynchronizeBreakpointsRole,
     RequestBreakByFunctionRole,
     RequestBreakByFunctionMainRole,
-    RequestFindSimilarBreakpointRole,
-    RequestUpdateBreakpointRole,
     RequestToggleBreakpointRole,
+    RequestToggleBreakpointEnabledRole,
+    RequestContextMenuRole,
 
     // Locals and Watchers
     LocalsINameRole,

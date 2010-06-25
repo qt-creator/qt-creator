@@ -72,6 +72,7 @@
 #include <QtGui/QAbstractItemView>
 #include <QtGui/QStandardItemModel>
 #include <QtGui/QAction>
+#include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QPushButton>
@@ -197,8 +198,10 @@ bool CommandHandler::setData(const QModelIndex &, const QVariant &value, int rol
 //
 //////////////////////////////////////////////////////////////////////
 
-class DebuggerEnginePrivate
+class DebuggerEnginePrivate : public QObject
 {
+    Q_OBJECT
+
 public:
     DebuggerEnginePrivate(DebuggerEngine *engine, const DebuggerStartParameters &sp)
       : m_engine(engine),
@@ -216,6 +219,11 @@ public:
         m_watchHandler(engine),
         m_disassemblerViewAgent(engine)
     {}
+
+public slots:
+    void breakpointSetRemoveMarginActionTriggered();
+    void breakpointEnableDisableMarginActionTriggered();
+    void handleContextMenuRequest(const QVariant &parameters);
 
 public:
     DebuggerEngine *m_engine; // Not owned.
@@ -238,6 +246,85 @@ public:
     DisassemblerViewAgent m_disassemblerViewAgent;
 };
 
+void DebuggerEnginePrivate::breakpointSetRemoveMarginActionTriggered()
+{
+    QAction *act = qobject_cast<QAction *>(sender());
+    QTC_ASSERT(act, return);
+    QList<QVariant> list = act->data().toList();
+    QTC_ASSERT(list.size() == 2, return);
+    const QString fileName = list.at(0).toString();
+    const int lineNumber = list.at(1).toInt();
+    m_breakHandler.toggleBreakpoint(fileName, lineNumber);
+}
+
+void DebuggerEnginePrivate::breakpointEnableDisableMarginActionTriggered()
+{
+    QAction *act = qobject_cast<QAction *>(sender());
+    QTC_ASSERT(act, return);
+    QList<QVariant> list = act->data().toList();
+    QTC_ASSERT(list.size() == 2, return);
+    const QString fileName = list.at(0).toString();
+    const int lineNumber = list.at(1).toInt();
+    m_breakHandler.toggleBreakpointEnabled(fileName, lineNumber);
+}
+
+void DebuggerEnginePrivate::handleContextMenuRequest(const QVariant &parameters)
+{
+    const QList<QVariant> list = parameters.toList();
+    QTC_ASSERT(list.size() == 3, return);
+    TextEditor::ITextEditor *editor = 
+        (TextEditor::ITextEditor *)(list.at(0).value<quint64>());
+    int lineNumber = list.at(1).toInt();
+    QMenu *menu = (QMenu *)(list.at(2).value<quint64>());
+
+    BreakpointData *data = 0;
+    QString position;
+    QString fileName;
+    if (editor->property("DisassemblerView").toBool()) {
+        fileName = editor->file()->fileName();
+        QString line = editor->contents()
+            .section('\n', lineNumber - 1, lineNumber - 1);
+        position = _("*") + fileName;
+        BreakpointData needle;
+        needle.bpAddress = line.left(line.indexOf(QLatin1Char(' '))).toLatin1();
+        needle.bpLineNumber = "-1";
+        data = m_breakHandler.findSimilarBreakpoint(&needle);
+    } else {
+        fileName = editor->file()->fileName();
+        position = fileName + QString(":%1").arg(lineNumber);
+        data = m_breakHandler.findBreakpoint(fileName, lineNumber);
+    }
+
+    QList<QVariant> args;
+    args.append(fileName);
+    args.append(lineNumber);
+
+    if (data) {
+        // existing breakpoint
+        QAction *act = new QAction(tr("Remove Breakpoint"), menu);
+        act->setData(args);
+        connect(act, SIGNAL(triggered()),
+            this, SLOT(breakpointSetRemoveMarginActionTriggered()));
+        menu->addAction(act);
+
+        QAction *act2;
+        if (data->enabled)
+            act2 = new QAction(tr("Disable Breakpoint"), menu);
+        else
+            act2 = new QAction(tr("Enable Breakpoint"), menu);
+        act2->setData(args);
+        connect(act2, SIGNAL(triggered()),
+            this, SLOT(breakpointEnableDisableMarginActionTriggered()));
+        menu->addAction(act2);
+    } else {
+        // non-existing
+        QAction *act = new QAction(tr("Set Breakpoint"), menu);
+        act->setData(args);
+        connect(act, SIGNAL(triggered()),
+            this, SLOT(breakpointSetRemoveMarginActionTriggered()));
+        menu->addAction(act);
+    }
+}
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -340,15 +427,6 @@ void DebuggerEngine::handleCommand(int role, const QVariant &value)
             executeDebuggerCommand(value.toString());
             break;
 
-        case RequestToolTipByExpressionRole: {
-            QList<QVariant> list = value.toList();
-            QTC_ASSERT(list.size() == 3, break);
-            setToolTipExpression(list.at(0).value<QPoint>(),
-                (TextEditor::ITextEditor *)(list.at(1).value<quint64>()),
-                list.at(2).toInt()); // Eeks.
-            break;
-        }
-
         case RequestToggleBreakpointRole: {
             QList<QVariant> list = value.toList();
             QTC_ASSERT(list.size() == 2, break);
@@ -357,8 +435,25 @@ void DebuggerEngine::handleCommand(int role, const QVariant &value)
             breakHandler()->toggleBreakpoint(fileName, lineNumber);
             break;
         }
-    }
 
+        case RequestToolTipByExpressionRole: {
+            QList<QVariant> list = value.toList();
+            QTC_ASSERT(list.size() == 3, break);
+            QPoint point = list.at(0).value<QPoint>();
+            TextEditor::ITextEditor *editor = // Eeks.
+                (TextEditor::ITextEditor *)(list.at(1).value<quint64>());
+            int pos = list.at(2).toInt(); 
+            setToolTipExpression(point, editor, pos);
+            break;
+        }
+
+        case RequestContextMenuRole: {
+            QList<QVariant> list = value.toList();
+            QTC_ASSERT(list.size() == 3, break);
+            d->handleContextMenuRequest(list);
+            break;
+        }
+    }
 }
 
 void DebuggerEngine::showModuleSymbols
@@ -960,3 +1055,5 @@ bool DebuggerEngine::isReverseDebugging() const
 
 } // namespace Internal
 } // namespace Debugger
+
+#include "debuggerengine.moc"
