@@ -36,19 +36,21 @@
 
 using namespace Qt4ProjectManager::Internal;
 
-#define MAX_VARIABLES 55
+#define MAX_VARIABLES 60
 const char *const variables[MAX_VARIABLES] = {
     "CCFLAG",
     "CONFIG",
     "DEFINES",
     "DEF_FILE",
     "DEPENDPATH",
+    "DEPLOYMENT",
     "DESTDIR",
     "DESTDIR_TARGET",
     "DISTFILES",
     "DLLDESTDIR",
     "FORMS",
     "HEADERS",
+    "ICON",
     "INCLUDEPATH",
     "INSTALLS",
     "LEXSOURCES",
@@ -78,6 +80,9 @@ const char *const variables[MAX_VARIABLES] = {
     "STATECHARTS",
     "SUBDIRS",
     "TARGET",
+    "TARGET.CAPABILITY",
+    "TARGET.EPOCHEAPSIZE",
+    "TARGET.UID3",
     "TARGET_EXT",
     "TARGET_x",
     "TARGET_x.y.z",
@@ -173,7 +178,7 @@ void ProFileHighlighter::highlightBlock(const QString &text)
         if (inCommentMode) {
             setFormat(i, 1, m_formats[ProfileCommentFormat]);
         } else {
-            if (c.isLetter() || c == '_' || c == '.') {
+            if (c.isLetter() || c == '_' || c == '.' || c.isDigit()) {
                 buf += c;
                 setFormat(i - buf.length()+1, buf.length(), emptyFormat);
                 if (!buf.isEmpty() && isFunction(buf))
