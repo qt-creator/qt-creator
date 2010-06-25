@@ -39,6 +39,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QDebug>
 
+using namespace Find;
 using namespace Find::Internal;
 
 SearchResultTreeModel::SearchResultTreeModel(QObject *parent)
@@ -295,16 +296,21 @@ int SearchResultTreeModel::addResultFile(const QString &fileName)
     return index;
 }
 
-void SearchResultTreeModel::appendResultLine(int index, int lineNumber, const QString &rowText,
-                                             int searchTermStart, int searchTermLength)
+void SearchResultTreeModel::appendResultLines(const QList<SearchResultItem> &items)
 {
     if (!m_lastAddedResultFile)
         return;
 
     QModelIndex lastFile(createIndex(m_lastAddedResultFile->rowOfItem(), 0, m_lastAddedResultFile));
 
-    beginInsertRows(lastFile, m_lastAddedResultFile->childrenCount(), m_lastAddedResultFile->childrenCount());
-    m_lastAddedResultFile->appendResultLine(index, lineNumber, rowText, searchTermStart, searchTermLength);
+    beginInsertRows(lastFile, m_lastAddedResultFile->childrenCount(), m_lastAddedResultFile->childrenCount() + items.count());
+    foreach (const SearchResultItem &item, items) {
+        m_lastAddedResultFile->appendResultLine(item.index,
+                                                item.lineNumber,
+                                                item.lineText,
+                                                item.searchTermStart,
+                                                item.searchTermLength);
+    }
     endInsertRows();
 
     dataChanged(lastFile, lastFile); // Make sure that the number after the file name gets updated
@@ -314,15 +320,25 @@ void SearchResultTreeModel::appendResultLine(int index, int lineNumber, const QS
  * Adds the search result to the list of results, creating a new file entry when
  * necessary. Returns the insertion index when a new file entry was created.
  */
-int SearchResultTreeModel::addResultLine(int index, const QString &fileName, int lineNumber, const QString &rowText,
-                                         int searchTermStart, int searchTermLength)
+QList<int> SearchResultTreeModel::addResultLines(const QList<SearchResultItem> &items)
 {
-    int insertionIndex = -1;
-    if (!m_lastAddedResultFile || (m_lastAddedResultFile->fileName() != fileName))
-        insertionIndex = addResultFile(fileName);
-
-    appendResultLine(index, lineNumber, rowText, searchTermStart, searchTermLength);
-    return insertionIndex;
+    QList<int> insertedFileIndices;
+    QList<SearchResultItem> itemSet;
+    foreach (const SearchResultItem &item, items) {
+        if (!m_lastAddedResultFile || (m_lastAddedResultFile->fileName() != item.fileName)) {
+            if (!itemSet.isEmpty()) {
+                appendResultLines(itemSet);
+                itemSet.clear();
+            }
+            insertedFileIndices << addResultFile(item.fileName);
+        }
+        itemSet << item;
+    }
+    if (!itemSet.isEmpty()) {
+        appendResultLines(itemSet);
+        itemSet.clear();
+    }
+    return insertedFileIndices;
 }
 
 void SearchResultTreeModel::clear()

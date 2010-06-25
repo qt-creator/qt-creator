@@ -93,7 +93,7 @@ void BaseFileFind::findAll(const QString &txt, QTextDocument::FindFlags findFlag
     emit changed();
     if (m_filterCombo)
         updateComboEntries(m_filterCombo, true);
-    m_watcher.setFuture(QFuture<FileSearchResult>());
+    m_watcher.setFuture(QFuture<FileSearchResultList>());
     SearchResult *result = m_resultWindow->startNewSearch();
     connect(result, SIGNAL(activated(Find::SearchResultItem)), this, SLOT(openEditor(Find::SearchResultItem)));
     m_resultWindow->popup(true);
@@ -115,7 +115,7 @@ void BaseFileFind::replaceAll(const QString &txt, QTextDocument::FindFlags findF
     emit changed();
     if (m_filterCombo)
         updateComboEntries(m_filterCombo, true);
-    m_watcher.setFuture(QFuture<FileSearchResult>());
+    m_watcher.setFuture(QFuture<FileSearchResultList>());
     SearchResult *result = m_resultWindow->startNewSearch(SearchResultWindow::SearchAndReplace);
     connect(result, SIGNAL(activated(Find::SearchResultItem)), this, SLOT(openEditor(Find::SearchResultItem)));
     connect(result, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
@@ -145,13 +145,19 @@ void BaseFileFind::doReplace(const QString &text,
 }
 
 void BaseFileFind::displayResult(int index) {
-    Utils::FileSearchResult result = m_watcher.future().resultAt(index);
-    m_resultWindow->addResult(result.fileName,
-                              result.lineNumber,
-                              result.matchingLine,
-                              result.matchStart,
-                              result.matchLength,
-                              result.regexpCapturedTexts);
+    Utils::FileSearchResultList results = m_watcher.future().resultAt(index);
+    QList<Find::SearchResultItem> items; // this conversion is stupid...
+    foreach (const Utils::FileSearchResult &result, results) {
+        Find::SearchResultItem item;
+        item.fileName = result.fileName;
+        item.lineNumber = result.lineNumber;
+        item.lineText = result.matchingLine;
+        item.searchTermLength = result.matchLength;
+        item.searchTermStart = result.matchStart;
+        item.userData = result.regexpCapturedTexts;
+        items << item;
+    }
+    m_resultWindow->addResults(items);
     if (m_resultLabel)
         m_resultLabel->setText(tr("%1 found").arg(m_resultWindow->numberOfResults()));
 }

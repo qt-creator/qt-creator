@@ -53,7 +53,7 @@ struct FIND_EXPORT SearchResultItem
     QString lineText;
     int searchTermStart;
     int searchTermLength;
-    int index;
+    int index; // SearchResultWindow sets the index
     QVariant userData;
     // whatever information we also need here
 };
@@ -109,6 +109,7 @@ public:
     // search result object only lives till next startnewsearch call
     SearchResult *startNewSearch(SearchMode searchOrSearchAndReplace = SearchOnly);
 
+    void addResults(QList<SearchResultItem> &items);
 public slots:
     void clearContents();
     void addResult(const QString &fileName, int lineNumber, const QString &lineText,

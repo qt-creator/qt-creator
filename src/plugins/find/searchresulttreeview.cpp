@@ -66,14 +66,13 @@ void SearchResultTreeView::clear()
     m_model->clear();
 }
 
-void SearchResultTreeView::appendResultLine(int index, const QString &fileName, int lineNumber, const QString &rowText,
-                                            int searchTermStart, int searchTermLength)
+void SearchResultTreeView::appendResultLines(const QList<SearchResultItem> &items)
 {
-    int insertionIndex = m_model->addResultLine(index, fileName, lineNumber, rowText,
-                                                searchTermStart, searchTermLength);
-
-    if (m_autoExpandResults && insertionIndex != -1)
-        setExpanded(model()->index(insertionIndex, 0), true);
+    const QList<int> &insertedFileIndices = m_model->addResultLines(items);
+    if (m_autoExpandResults && !insertedFileIndices.isEmpty()) {
+        foreach (int index, insertedFileIndices)
+            setExpanded(model()->index(index, 0), true);
+    }
 }
 
 void SearchResultTreeView::emitJumpToSearchResult(const QModelIndex &index)

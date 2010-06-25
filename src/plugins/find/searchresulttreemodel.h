@@ -30,6 +30,8 @@
 #ifndef SEARCHRESULTTREEMODEL_H
 #define SEARCHRESULTTREEMODEL_H
 
+#include "searchresultwindow.h"
+
 #include <QtCore/QAbstractItemModel>
 #include <QtGui/QFont>
 
@@ -63,18 +65,17 @@ public:
     QModelIndex next(const QModelIndex &idx) const;
     QModelIndex prev(const QModelIndex &idx) const;
 
+    QList<int> addResultLines(const QList<SearchResultItem> &items);
+
 signals:
     void jumpToSearchResult(const QString &fileName, int lineNumber,
                             int searchTermStart, int searchTermLength);
 
 public slots:
     void clear();
-    int addResultLine(int index, const QString &fileName, int lineNumber, const QString &rowText,
-                      int searchTermStart, int searchTermLength);
 
 private:
-    void appendResultLine(int index, int lineNumber, const QString &rowText,
-                          int searchTermStart, int searchTermLength);
+    void appendResultLines(const QList<SearchResultItem> &items);
     int addResultFile(const QString &fileName);
     QVariant data(const SearchResultTextRow *row, int role) const;
     QVariant data(const SearchResultFile *file, int role) const;

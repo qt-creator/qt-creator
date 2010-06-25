@@ -30,6 +30,8 @@
 #ifndef SEARCHRESULTTREEVIEW_H
 #define SEARCHRESULTTREEVIEW_H
 
+#include "searchresultwindow.h"
+
 #include <QtGui/QTreeView>
 
 namespace Find {
@@ -48,14 +50,13 @@ public:
     void setTextEditorFont(const QFont &font);
 
     SearchResultTreeModel *model() const;
+    void appendResultLines(const QList<SearchResultItem> &items);
 
 signals:
     void jumpToSearchResult(int index, bool checked);
 
 public slots:
     void clear();
-    void appendResultLine(int index, const QString &fileName, int lineNumber, const QString &lineText,
-                          int searchTermStart, int searchTermLength);
     void emitJumpToSearchResult(const QModelIndex &index);
 
 protected:

@@ -101,10 +101,12 @@ public:
     QStringList regexpCapturedTexts;
 };
 
-QTCREATOR_UTILS_EXPORT QFuture<FileSearchResult> findInFiles(const QString &searchTerm, FileIterator *files,
+typedef QList<FileSearchResult> FileSearchResultList;
+
+QTCREATOR_UTILS_EXPORT QFuture<FileSearchResultList> findInFiles(const QString &searchTerm, FileIterator *files,
     QTextDocument::FindFlags flags, QMap<QString, QString> fileToContentsMap = QMap<QString, QString>());
 
-QTCREATOR_UTILS_EXPORT QFuture<FileSearchResult> findInFilesRegExp(const QString &searchTerm, FileIterator *files,
+QTCREATOR_UTILS_EXPORT QFuture<FileSearchResultList> findInFilesRegExp(const QString &searchTerm, FileIterator *files,
     QTextDocument::FindFlags flags, QMap<QString, QString> fileToContentsMap = QMap<QString, QString>());
 
 QTCREATOR_UTILS_EXPORT QString expandRegExpReplacement(const QString &replaceText, const QStringList &capturedTexts);

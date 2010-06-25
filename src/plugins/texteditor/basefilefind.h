@@ -92,7 +92,7 @@ private:
     QWidget *createProgressWidget();
 
     Find::SearchResultWindow *m_resultWindow;
-    QFutureWatcher<Utils::FileSearchResult> m_watcher;
+    QFutureWatcher<Utils::FileSearchResultList> m_watcher;
     bool m_isSearching;
     QLabel *m_resultLabel;
     QStringListModel m_filterStrings;

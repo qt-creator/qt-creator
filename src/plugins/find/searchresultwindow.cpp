@@ -89,7 +89,9 @@ struct SearchResultWindowPrivate {
 };
 
 SearchResultWindowPrivate::SearchResultWindowPrivate()
-    : m_currentSearch(0), m_isShowingReplaceUI(false),  m_focusReplaceEdit(false)
+    : m_currentSearch(0),
+    m_isShowingReplaceUI(false),
+    m_focusReplaceEdit(false)
 {
 }
 
@@ -294,9 +296,6 @@ void SearchResultWindow::handleJumpToSearchResult(int index, bool /* checked */)
 void SearchResultWindow::addResult(const QString &fileName, int lineNumber, const QString &rowText,
     int searchTermStart, int searchTermLength, const QVariant &userData)
 {
-    //qDebug()<<"###"<<fileName;
-    d->m_widget->setCurrentWidget(d->m_searchResultTreeView);
-    int index = d->m_items.size();
     SearchResultItem item;
     item.fileName = fileName;
     item.lineNumber = lineNumber;
@@ -304,10 +303,21 @@ void SearchResultWindow::addResult(const QString &fileName, int lineNumber, cons
     item.searchTermStart = searchTermStart;
     item.searchTermLength = searchTermLength;
     item.userData = userData;
-    item.index = index;
-    d->m_items.append(item);
-    d->m_searchResultTreeView->appendResultLine(index, fileName, lineNumber, rowText, searchTermStart, searchTermLength);
-    if (index == 0) {
+    addResults(QList<SearchResultItem>() << item);
+}
+
+void SearchResultWindow::addResults(QList<SearchResultItem> &items)
+{
+    int index = d->m_items.size();
+    bool firstItems = (index == 0);
+    for (int i = 0; i < items.size(); ++i) {
+        items[i].index = index;
+        ++index;
+    }
+
+    d->m_items << items;
+    d->m_searchResultTreeView->appendResultLines(items);
+    if (firstItems) {
         d->m_replaceTextEdit->setEnabled(true);
         // We didn't have an item before, set the focus to the search widget
         d->m_focusReplaceEdit = true;
