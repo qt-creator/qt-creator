@@ -334,7 +334,7 @@ QString Shortcut::defaultText() const
     return m_defaultText;
 }
 
-bool Shortcut::setCurrentContext(const Context &context)
+bool Shortcut::setCurrentContext(const Core::Context &context)
 {
     foreach (int ctxt, m_context) {
         if (context.contains(ctxt)) {
