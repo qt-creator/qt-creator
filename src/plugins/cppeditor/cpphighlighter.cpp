@@ -362,7 +362,7 @@ void CppHighlighter::highlightWord(QStringRef word, int position, int length)
 
     if (word.length() > 2 && word.at(0) == QLatin1Char('Q')) {
         if (word.at(1) == QLatin1Char('_') // Q_
-            || word.at(1) == QLatin1Char('T') && word.at(2) == QLatin1Char('_')) { // QT_
+            || (word.at(1) == QLatin1Char('T') && word.at(2) == QLatin1Char('_'))) { // QT_
             for (int i = 1; i < word.length(); ++i) {
                 const QChar &ch = word.at(i);
                 if (! (ch.isUpper() || ch == QLatin1Char('_')))
