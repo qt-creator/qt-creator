@@ -248,8 +248,7 @@ public:
         ~QmlComponentChain();
 
         QList<QmlComponentChain *> instantiatingComponents;
-        const ObjectValue *rootObject;
-        const ObjectValue *ids;
+        Document::Ptr document;
 
         void add(QList<const ObjectValue *> *list) const;
         void clear();

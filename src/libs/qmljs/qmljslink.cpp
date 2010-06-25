@@ -112,10 +112,7 @@ void Link::makeComponentChain(
     }
 
     // build this component scope
-    if (bind->rootObjectValue())
-        target->rootObject = bind->rootObjectValue();
-
-    target->ids = bind->idEnvironment();
+    target->document = doc;
 }
 
 void Link::linkImports()

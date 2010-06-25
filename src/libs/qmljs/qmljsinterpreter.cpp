@@ -30,6 +30,7 @@
 #include "qmljsinterpreter.h"
 #include "qmljsevaluate.h"
 #include "qmljslink.h"
+#include "qmljsbind.h"
 #include "qmljsscopebuilder.h"
 #include "qmljscomponentversion.h"
 #include "parser/qmljsast_p.h"
@@ -1353,7 +1354,6 @@ ScopeChain::ScopeChain()
 }
 
 ScopeChain::QmlComponentChain::QmlComponentChain()
-    : rootObject(0), ids(0)
 {
 }
 
@@ -1366,8 +1366,7 @@ void ScopeChain::QmlComponentChain::clear()
 {
     qDeleteAll(instantiatingComponents);
     instantiatingComponents.clear();
-    rootObject = 0;
-    ids = 0;
+    document = Document::Ptr(0);
 }
 
 void ScopeChain::QmlComponentChain::add(QList<const ObjectValue *> *list) const
@@ -1375,9 +1374,12 @@ void ScopeChain::QmlComponentChain::add(QList<const ObjectValue *> *list) const
     foreach (QmlComponentChain *parent, instantiatingComponents)
         parent->add(list);
 
-    if (rootObject)
-        list->append(rootObject);
-    if (ids)
+    if (!document)
+        return;
+
+    if (ObjectValue *root = document->bind()->rootObjectValue())
+        list->append(root);
+    if (ObjectValue *ids = document->bind()->idEnvironment())
         list->append(ids);
 }
 
@@ -1393,11 +1395,18 @@ void ScopeChain::update()
             parent->add(&_all);
     }
 
-    if (qmlComponentScope.rootObject && ! qmlScopeObjects.contains(qmlComponentScope.rootObject))
-        _all += qmlComponentScope.rootObject;
+    ObjectValue *root = 0;
+    ObjectValue *ids = 0;
+    if (qmlComponentScope.document) {
+        root = qmlComponentScope.document->bind()->rootObjectValue();
+        ids = qmlComponentScope.document->bind()->idEnvironment();
+    }
+
+    if (root && !qmlScopeObjects.contains(root))
+        _all += root;
     _all += qmlScopeObjects;
-    if (qmlComponentScope.ids)
-        _all += qmlComponentScope.ids;
+    if (ids)
+        _all += ids;
     if (qmlTypes)
         _all += qmlTypes;
     _all += jsScopes;
