@@ -30,23 +30,21 @@
 #include "designmodecontext.h"
 #include "qmldesignerconstants.h"
 #include "designmodewidget.h"
-#include <coreplugin/uniqueidmanager.h>
+
 #include <QWidget>
 
 namespace QmlDesigner {
 namespace Internal {
 
-DesignModeContext::DesignModeContext(DesignModeWidget *widget) : IContext(widget),
-    m_widget(widget)
+DesignModeContext::DesignModeContext(DesignModeWidget *widget)
+  : IContext(widget),
+    m_widget(widget),
+    m_context(Constants::C_FORMEDITOR, Constants::C_QT_QUICK_TOOLS_MENU)
 {
-    Core::UniqueIDManager *uuidManager = Core::UniqueIDManager::instance();
-    m_context << uuidManager->uniqueIdentifier(Constants::C_FORMEDITOR)
-              << uuidManager->uniqueIdentifier(Constants::C_QT_QUICK_TOOLS_MENU);
 }
 
 DesignModeContext::~DesignModeContext()
 {
-
 }
 
 Core::Context DesignModeContext::context() const

@@ -32,7 +32,6 @@
 #include "resourceeditorplugin.h"
 #include "resourceeditorconstants.h"
 
-#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/editormanager/editormanager.h>
 
@@ -45,10 +44,9 @@ using namespace ResourceEditor::Constants;
 ResourceEditorFactory::ResourceEditorFactory(ResourceEditorPlugin *plugin) :
     Core::IEditorFactory(plugin),
     m_mimeTypes(QStringList(QLatin1String("application/vnd.nokia.xml.qt.resource"))),
+    m_context(ResourceEditor::Constants::C_RESOURCEEDITOR),
     m_plugin(plugin)
 {
-    m_context += Core::UniqueIDManager::instance()
-                 ->uniqueIdentifier(QLatin1String(ResourceEditor::Constants::C_RESOURCEEDITOR));
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
     iconProvider->registerIconOverlayForSuffix(QIcon(":/resourceeditor/images/qt_qrc.png"),
                                                QLatin1String("qrc"));

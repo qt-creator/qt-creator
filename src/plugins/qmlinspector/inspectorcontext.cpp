@@ -34,8 +34,6 @@
 #include "components/objecttree.h"
 #include <coreplugin/icore.h>
 
-#include <coreplugin/uniqueidmanager.h>
-
 #include <QWidget>
 #include <QDebug>
 
@@ -43,10 +41,11 @@
 namespace Qml {
 namespace Internal {
 
-InspectorContext::InspectorContext(QWidget *widget) : IContext(widget),
-    m_widget(widget)
+InspectorContext::InspectorContext(QWidget *widget)
+  : IContext(widget),
+    m_widget(widget),
+    m_context(Constants::C_INSPECTOR)
 {
-    m_context << Core::UniqueIDManager::instance()->uniqueIdentifier(Constants::C_INSPECTOR);
 }
 
 InspectorContext::~InspectorContext()

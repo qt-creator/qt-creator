@@ -46,7 +46,6 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
@@ -174,8 +173,7 @@ FormEditorW::FormEditorW() :
     m_fwm = qobject_cast<qdesigner_internal::QDesignerFormWindowManager*>(m_formeditor->formWindowManager());
     QTC_ASSERT(m_fwm, return);
 
-    Core::UniqueIDManager *idMan = Core::UniqueIDManager::instance();
-    m_contexts << idMan->uniqueIdentifier(QLatin1String(Designer::Constants::C_FORMEDITOR));
+    m_contexts.add(Designer::Constants::C_FORMEDITOR);
 
     setupActions();
 
@@ -331,11 +329,8 @@ void FormEditorW::fullInit()
     layout->addWidget(m_editorWidget);
     m_modeWidget->setLayout(layout);
 
-    Core::UniqueIDManager *idMan = Core::UniqueIDManager::instance();
-    int editorManagerContext = idMan->uniqueIdentifier(QLatin1String(Core::Constants::C_EDITORMANAGER));
-
     Core::Context designerContexts = m_contexts;
-    designerContexts.append(Core::Context(editorManagerContext));
+    designerContexts.add(Core::Constants::C_EDITORMANAGER);
     m_context = new DesignerContext(designerContexts, m_modeWidget, this);
     m_core->addContextObject(m_context);
 

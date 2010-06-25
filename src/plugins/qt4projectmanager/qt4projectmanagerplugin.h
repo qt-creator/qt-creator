@@ -86,14 +86,13 @@ private:
     ProFileEditorFactory *m_proFileEditorFactory;
     Qt4Manager *m_qt4ProjectManager;
 
-    int m_projectContext;
-
     QAction *m_runQMakeAction;
     QAction *m_runQMakeActionContextMenu;
     QAction *m_buildSubProjectContextMenu;
     QAction *m_rebuildSubProjectContextMenu;
     QAction *m_cleanSubProjectContextMenu;
     GettingStartedWelcomePage *m_welcomePage;
+    int m_projectContext;
 };
 
 } // namespace Internal

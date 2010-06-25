@@ -43,7 +43,6 @@
 #include <coreplugin/editortoolbar.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
@@ -267,15 +266,9 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     connect(m_d->m_core, SIGNAL(contextAboutToChange(Core::IContext *)),
             this, SLOT(handleContextChange(Core::IContext *)));
 
-    UniqueIDManager *uidm = m_d->m_core->uniqueIDManager();
-    const Context gc = Context(Constants::C_GLOBAL_ID);
-    const Context editManagerContext =
-            Context(uidm->uniqueIdentifier(Constants::C_EDITORMANAGER));
-
+    const Context editManagerContext(Constants::C_EDITORMANAGER);
     // combined context for edit & design modes
-    const Context editDesignContext =
-            Context(uidm->uniqueIdentifier(Constants::C_EDITORMANAGER),
-                    uidm->uniqueIdentifier(Constants::C_DESIGN_MODE));
+    const Context editDesignContext(Constants::C_EDITORMANAGER, Constants::C_DESIGN_MODE);
 
     ActionManager *am = m_d->m_core->actionManager();
     ActionContainer *mfile = am->actionContainer(Constants::M_FILE);
@@ -478,11 +471,7 @@ EditorManager::~EditorManager()
 
 void EditorManager::init()
 {
-    QList<int> context;
-    context << m_d->m_core->uniqueIDManager()->uniqueIdentifier("QtCreator.OpenDocumentsView");
-
     m_d->m_coreListener = new EditorClosingCoreListener(this);
-
     pluginManager()->addObject(m_d->m_coreListener);
 
     m_d->m_openEditorsFactory = new OpenEditorsViewFactory();

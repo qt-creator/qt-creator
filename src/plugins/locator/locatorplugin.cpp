@@ -45,7 +45,6 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/settingsdatabase.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
@@ -106,8 +105,7 @@ bool LocatorPlugin::initialize(const QStringList &, QString *)
     m_locatorWidget->setEnabled(false);
     Core::StatusBarWidget *view = new Core::StatusBarWidget;
     view->setWidget(m_locatorWidget);
-    view->setContext(Core::Context(core->uniqueIDManager()
-        ->uniqueIdentifier(QLatin1String("LocatorWidget"))));
+    view->setContext(Core::Context("LocatorWidget"));
     view->setPosition(Core::StatusBarWidget::First);
     addAutoReleasedObject(view);
 

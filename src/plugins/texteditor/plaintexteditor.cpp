@@ -43,7 +43,6 @@
 #include "fontsettings.h"
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 
@@ -56,11 +55,9 @@ using namespace TextEditor;
 using namespace TextEditor::Internal;
 
 PlainTextEditorEditable::PlainTextEditorEditable(PlainTextEditor *editor)
-  : BaseTextEditorEditable(editor)
+  : BaseTextEditorEditable(editor),
+    m_context(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, TextEditor::Constants::C_TEXTEDITOR)
 {
-    Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
-    m_context << uidm->uniqueIdentifier(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
-    m_context << uidm->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
 }
 
 PlainTextEditor::PlainTextEditor(QWidget *parent)

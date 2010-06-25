@@ -384,7 +384,7 @@ OutputWindow::OutputWindow(QWidget *parent)
 
     static uint usedIds = 0;
     Core::ICore *core = Core::ICore::instance();
-    Core::Context context(core->uniqueIDManager()->uniqueIdentifier(QString(Constants::C_APP_OUTPUT) + QString().setNum(usedIds++)));
+    Core::Context context(Constants::C_APP_OUTPUT, usedIds++);
     m_outputWindowContext = new Core::BaseContext(this, context);
     core->addContextObject(m_outputWindowContext);
 

@@ -47,7 +47,6 @@
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <utils/qtcassert.h>
 #include <texteditor/basetexteditor.h>
 
@@ -83,7 +82,7 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_m
     Q_UNUSED(error_message)
 
     // Create the globalcontext list to register actions accordingly
-    Core::Context globalcontext(UniqueIDManager::instance()->uniqueIdentifier(Core::Constants::C_GLOBAL));
+    Core::Context globalcontext(Core::Constants::C_GLOBAL);
 
     // Create the settings Page
     m_settings->fromSettings(Core::ICore::instance()->settings());

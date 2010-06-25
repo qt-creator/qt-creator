@@ -50,7 +50,6 @@
 #  include <projectexplorer/projectexplorerconstants.h>
 #  include <projectexplorer/session.h>
 #  include <coreplugin/icore.h>
-#  include <coreplugin/uniqueidmanager.h>
 #  include <coreplugin/mimedatabase.h>
 #  include <coreplugin/editormanager/editormanager.h>
 #  include <coreplugin/progressmanager/progressmanager.h>
@@ -957,16 +956,18 @@ void CppModelManager::editorAboutToClose(Core::IEditor *editor)
 
 bool CppModelManager::isCppEditor(Core::IEditor *editor) const
 {
-    Core::UniqueIDManager *uidm = m_core->uniqueIDManager();
-    const int uid = uidm->uniqueIdentifier(ProjectExplorer::Constants::LANG_CXX);
-    return editor->context().contains(uid);
+    return editor->context().contains(ProjectExplorer::Constants::LANG_CXX);
 }
 
 TokenCache *CppModelManager::tokenCache(TextEditor::ITextEditor *editor) const
-{ return editorSupport(editor)->tokenCache(); }
+{
+    return editorSupport(editor)->tokenCache();
+}
 
 void CppModelManager::emitDocumentUpdated(Document::Ptr doc)
-{ emit documentUpdated(doc); }
+{
+    emit documentUpdated(doc);
+}
 
 void CppModelManager::onDocumentUpdated(Document::Ptr doc)
 {

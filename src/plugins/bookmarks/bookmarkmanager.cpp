@@ -36,7 +36,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <texteditor/basetexteditor.h>
@@ -298,9 +297,10 @@ void BookmarkView::gotoBookmark(const QModelIndex &index)
 ////
 
 BookmarkContext::BookmarkContext(BookmarkView *widget)
-    : Core::IContext(widget), m_bookmarkView(widget)
+    : Core::IContext(widget),
+      m_bookmarkView(widget),
+      m_context(Constants::BOOKMARKS_CONTEXT)
 {
-    m_context << UniqueIDManager::instance()->uniqueIdentifier(Constants::BOOKMARKS_CONTEXT);
 }
 
 Context BookmarkContext::context() const

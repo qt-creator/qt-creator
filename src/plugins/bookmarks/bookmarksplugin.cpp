@@ -35,7 +35,6 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
@@ -69,8 +68,7 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
 {
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = core->actionManager();
-    Core::UniqueIDManager *uidm = core->uniqueIDManager();
-    Core::Context textcontext(uidm->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR));
+    Core::Context textcontext(TextEditor::Constants::C_TEXTEDITOR);
     Core::Context globalcontext(Core::Constants::C_GLOBAL_ID);
 
     Core::ActionContainer *mtools =

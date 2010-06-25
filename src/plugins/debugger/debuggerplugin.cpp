@@ -82,7 +82,6 @@
 #include <coreplugin/navigationwidget.h>
 #include <coreplugin/outputpane.h>
 #include <coreplugin/rightpane.h>
-#include <coreplugin/uniqueidmanager.h>
 
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/CppDocument.h>
@@ -980,15 +979,12 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     ICore *core = ICore::instance();
     QTC_ASSERT(core, return false);
 
-    Core::UniqueIDManager *uidm = core->uniqueIDManager();
-    QTC_ASSERT(uidm, return false);
-
     Core::ActionManager *am = core->actionManager();
     QTC_ASSERT(am, return false);
 
     const Core::Context globalcontext(CC::C_GLOBAL_ID);
-    const Core::Context cppDebuggercontext(uidm->uniqueIdentifier(C_CPPDEBUGGER));
-    const Core::Context cppeditorcontext(uidm->uniqueIdentifier(CppEditor::Constants::C_CPPEDITOR));
+    const Core::Context cppDebuggercontext(C_CPPDEBUGGER);
+    const Core::Context cppeditorcontext(CppEditor::Constants::C_CPPEDITOR);
 
     m_stopIcon = QIcon(_(":/debugger/images/debugger_stop_small.png"));
     m_stopIcon.addFile(":/debugger/images/debugger_stop.png");
@@ -1206,17 +1202,15 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
         errorMessage->clear();
     }
 
-    m_gdbRunningContext = Core::Context(uidm->uniqueIdentifier(Constants::GDBRUNNING));
+    m_gdbRunningContext = Core::Context(Constants::GDBRUNNING);
 
     // Register factory of DebuggerRunControl.
     m_debuggerRunControlFactory = new DebuggerRunControlFactory
         (m_plugin, DebuggerEngineType(cmdLineEnabledEngines));
     m_plugin->addAutoReleasedObject(m_debuggerRunControlFactory);
 
-    m_debugMode->setContext(Core::Context(
-        uidm->uniqueIdentifier(CC::C_EDITORMANAGER),
-        uidm->uniqueIdentifier(C_DEBUGMODE),
-        uidm->uniqueIdentifier(CC::C_NAVIGATION_PANE)));
+    m_debugMode->setContext(
+        Core::Context(CC::C_EDITORMANAGER, C_DEBUGMODE, CC::C_NAVIGATION_PANE));
 
     m_reverseToolButton = 0;
 

@@ -47,7 +47,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/mimedatabase.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <locator/commandlocator.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
@@ -268,8 +267,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     m_menuAction = mperforce->menu()->menuAction();
 
     Core::Context globalcontext(Core::Constants::C_GLOBAL_ID);
-    Core::Context perforcesubmitcontext(
-        Core::UniqueIDManager::instance()->uniqueIdentifier(Constants::PERFORCESUBMITEDITOR_CONTEXT));
+    Core::Context perforcesubmitcontext(Constants::PERFORCESUBMITEDITOR_CONTEXT);
 
     Core::Command *command;
 

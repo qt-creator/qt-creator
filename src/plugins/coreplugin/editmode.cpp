@@ -117,10 +117,9 @@ QString EditMode::id() const
 
 Context EditMode::context() const
 {
-    static Context contexts(
-        UniqueIDManager::instance()->uniqueIdentifier(Constants::C_EDIT_MODE),
-        UniqueIDManager::instance()->uniqueIdentifier(Constants::C_EDITORMANAGER) ,
-        UniqueIDManager::instance()->uniqueIdentifier(Constants::C_NAVIGATION_PANE));
+    static Context contexts(Constants::C_EDIT_MODE,
+                            Constants::C_EDITORMANAGER,
+                            Constants::C_NAVIGATION_PANE);
     return contexts;
 }
 

@@ -38,7 +38,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/mimedatabase.h>
 #include <texteditor/basetextdocument.h>
 #include <texteditor/plaintexteditor.h>
@@ -75,9 +74,8 @@ FormWindowEditor::FormWindowEditor(Internal::DesignerXmlEditor *editor,
     Core::IEditor(parent),
     d(new FormWindowEditorPrivate(editor, form))
 {
-    Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
-    d->m_context << uidm->uniqueIdentifier(QLatin1String(Designer::Constants::K_DESIGNER_XML_EDITOR_ID))
-                 << uidm->uniqueIdentifier(QLatin1String(Designer::Constants::C_DESIGNER_XML_EDITOR));
+    d->m_context.add(Designer::Constants::K_DESIGNER_XML_EDITOR_ID);
+    d->m_context.add(Designer::Constants::C_DESIGNER_XML_EDITOR);
     connect(form, SIGNAL(changed()), this, SIGNAL(changed()));
     // Revert to saved/load externally modified files
     connect(&(d->m_file), SIGNAL(reload(QString)), this, SLOT(slotOpen(QString)));

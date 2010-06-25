@@ -53,7 +53,6 @@
 #include <coreplugin/modemanager.h>
 #include <coreplugin/designmode.h>
 #include <coreplugin/mimedatabase.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/basetextdocument.h>
 #include <texteditor/fontsettings.h>
@@ -575,11 +574,9 @@ int SemanticInfo::revision() const
 QmlJSEditorEditable::QmlJSEditorEditable(QmlJSTextEditor *editor)
     : BaseTextEditorEditable(editor)
 {
-
-    Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
-    m_context << uidm->uniqueIdentifier(QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
-    m_context << uidm->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
-    m_context << uidm->uniqueIdentifier(QmlDesigner::Constants::C_QT_QUICK_TOOLS_MENU);
+    m_context.add(QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
+    m_context.add(TextEditor::Constants::C_TEXTEDITOR);
+    m_context.add(QmlDesigner::Constants::C_QT_QUICK_TOOLS_MENU);
 }
 
 // Use preferred mode from Bauhaus settings

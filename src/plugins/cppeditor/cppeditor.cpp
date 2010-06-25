@@ -61,7 +61,6 @@
 #include <cpptools/cpptoolsconstants.h>
 
 #include <coreplugin/icore.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -588,10 +587,9 @@ struct FindCanonicalSymbol
 CPPEditorEditable::CPPEditorEditable(CPPEditor *editor)
     : BaseTextEditorEditable(editor)
 {
-    Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
-    m_context << uidm->uniqueIdentifier(CppEditor::Constants::C_CPPEDITOR);
-    m_context << uidm->uniqueIdentifier(ProjectExplorer::Constants::LANG_CXX);
-    m_context << uidm->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
+    m_context.add(CppEditor::Constants::C_CPPEDITOR);
+    m_context.add(ProjectExplorer::Constants::LANG_CXX);
+    m_context.add(TextEditor::Constants::C_TEXTEDITOR);
 }
 
 CPPEditor::CPPEditor(QWidget *parent)

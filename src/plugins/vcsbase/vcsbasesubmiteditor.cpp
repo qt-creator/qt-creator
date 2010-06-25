@@ -93,12 +93,12 @@ struct VCSBaseSubmitEditorPrivate
     QString m_displayName;
     QString m_checkScriptWorkingDirectory;
     VCSBase::Internal::SubmitEditorFile *m_file;
-    Core::Context m_contexts;
 
     QPointer<QAction> m_diffAction;
     QPointer<QAction> m_submitAction;
 
     Internal::NickNameDialog *m_nickNameDialog;
+    Core::Context m_contexts;
 };
 
 VCSBaseSubmitEditorPrivate::VCSBaseSubmitEditorPrivate(const VCSBaseSubmitEditorParameters *parameters,
@@ -108,9 +108,9 @@ VCSBaseSubmitEditorPrivate::VCSBaseSubmitEditorPrivate(const VCSBaseSubmitEditor
     m_toolWidget(0),
     m_parameters(parameters),
     m_file(new VCSBase::Internal::SubmitEditorFile(QLatin1String(m_parameters->mimeType), q)),
-    m_nickNameDialog(0)
+    m_nickNameDialog(0),
+    m_contexts(m_parameters->context)
 {
-    m_contexts << Core::UniqueIDManager::instance()->uniqueIdentifier(m_parameters->context);
 }
 
 VCSBaseSubmitEditor::VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *parameters,

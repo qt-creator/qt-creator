@@ -62,7 +62,7 @@ public:
     QString id() const;
     bool isTemporary() const { return false; }
 private:
-    Core::Context m_context;
+    const Core::Context m_context;
 };
 
 class ProFileEditor : public TextEditor::BaseTextEditor

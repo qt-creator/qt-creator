@@ -37,7 +37,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
@@ -54,11 +53,10 @@ using namespace Qt4ProjectManager::Internal;
 //
 
 ProFileEditorEditable::ProFileEditorEditable(ProFileEditor *editor)
-    : BaseTextEditorEditable(editor)
+  : BaseTextEditorEditable(editor),
+    m_context(Qt4ProjectManager::Constants::C_PROFILEEDITOR,
+              TextEditor::Constants::C_TEXTEDITOR)
 {
-    Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
-    m_context << uidm->uniqueIdentifier(Qt4ProjectManager::Constants::C_PROFILEEDITOR);
-    m_context << uidm->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
 //    m_contexts << uidm->uniqueIdentifier(Qt4ProjectManager::Constants::PROJECT_KIND);
 }
 

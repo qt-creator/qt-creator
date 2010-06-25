@@ -33,7 +33,6 @@
 #include "cmakeeditorfactory.h"
 #include "cmakeprojectconstants.h"
 
-#include <coreplugin/uniqueidmanager.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
@@ -49,12 +48,10 @@ using namespace CMakeProjectManager::Internal;
 //
 
 CMakeEditorEditable::CMakeEditorEditable(CMakeEditor *editor)
-    : BaseTextEditorEditable(editor)
-{
-    Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
-    m_context << uidm->uniqueIdentifier(CMakeProjectManager::Constants::C_CMAKEEDITOR);
-    m_context << uidm->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
-}
+  : BaseTextEditorEditable(editor),
+    m_context(CMakeProjectManager::Constants::C_CMAKEEDITOR,
+              TextEditor::Constants::C_TEXTEDITOR)
+{ }
 
 Core::Context CMakeEditorEditable::context() const
 {

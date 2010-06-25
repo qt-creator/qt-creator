@@ -44,7 +44,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/mimedatabase.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -116,8 +115,7 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     m_lineNumberFilter = new LineNumberFilter;
     addAutoReleasedObject(m_lineNumberFilter);
 
-    int contextId = core->uniqueIDManager()->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
-    Core::Context context(contextId);
+    Core::Context context(TextEditor::Constants::C_TEXTEDITOR);
     Core::ActionManager *am = core->actionManager();
 
     // Add shortcut for invoking automatic completion

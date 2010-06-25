@@ -35,24 +35,22 @@
 #include "settingspage.h"
 #include "designmodecontext.h"
 
-#include <coreplugin/designmode.h>
 #include <qmljseditor/qmljseditorconstants.h>
 
-#include <coreplugin/modemanager.h>
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/command.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/icontext.h>
-#include <coreplugin/dialogs/iwizard.h>
-#include <coreplugin/editormanager/ieditorfactory.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/mimedatabase.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/editormanager/openeditorsmodel.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/designmode.h>
+#include <coreplugin/dialogs/iwizard.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditorfactory.h>
+#include <coreplugin/editormanager/openeditorsmodel.h>
+#include <coreplugin/icontext.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/mimedatabase.h>
 #include <coreplugin/modemanager.h>
+
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/qtcassert.h>
@@ -119,8 +117,7 @@ bool BauhausPlugin::initialize(const QStringList & /*arguments*/, QString *error
 {
     Core::ICore *core = Core::ICore::instance();
 
-    const int uid = core->uniqueIDManager()->uniqueIdentifier(QLatin1String(QmlDesigner::Constants::C_FORMEDITOR));
-    const Core::Context switchContext(core->uniqueIDManager()->uniqueIdentifier(QmlJSEditor::Constants::C_QMLJSEDITOR_ID));
+    const Core::Context switchContext(QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
 
     Core::ActionManager *am = core->actionManager();
 
@@ -163,8 +160,7 @@ void BauhausPlugin::createDesignModeWidget()
 
     m_context = new DesignModeContext(m_mainWidget);
     creatorCore->addContextObject(m_context);
-    Core::UniqueIDManager *uuidManager = Core::UniqueIDManager::instance();
-    Core::Context formEditorContext(uuidManager->uniqueIdentifier(Constants::C_FORMEDITOR));
+    Core::Context formEditorContext(Constants::C_FORMEDITOR);
 
     // Revert to saved
     actionManager->registerAction(m_revertToSavedAction,
@@ -279,8 +275,8 @@ void BauhausPlugin::contextChanged(Core::IContext *context, const Core::Context 
 {
     Q_UNUSED(context)
 
-    foreach (int additionalContext, additionalContexts) {
-        if (m_context->context().contains(additionalContext)) {
+    foreach (int additionalContext, additionalContexts.d) {
+        if (m_context->context().d.contains(additionalContext)) {
             m_isActive = true;
             m_mainWidget->showEditor(m_editorManager->currentEditor());
             return;

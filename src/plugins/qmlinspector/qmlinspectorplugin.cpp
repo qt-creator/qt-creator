@@ -26,6 +26,7 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
+
 #include "qmlinspectorconstants.h"
 #include "qmlinspector.h"
 #include "qmlinspectorplugin.h"
@@ -47,7 +48,6 @@
 #include <projectexplorer/project.h>
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 
@@ -100,8 +100,7 @@ bool QmlInspectorPlugin::initialize(const QStringList &arguments, QString *error
     ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
     Debugger::DebuggerUISwitcher *uiSwitcher = pluginManager->getObject<Debugger::DebuggerUISwitcher>();
 
-    uiSwitcher->addLanguage(Qml::Constants::LANG_QML,
-                            Core::Context(core->uniqueIDManager()->uniqueIdentifier(Constants::C_INSPECTOR)));
+    uiSwitcher->addLanguage(Qml::Constants::LANG_QML, Core::Context(Constants::C_INSPECTOR));
     m_inspector = new QmlInspector;
     m_inspector->createDockWidgets();
     addObject(m_inspector);

@@ -38,7 +38,6 @@
 #include <locator/locatormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
@@ -53,7 +52,7 @@
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 
-TextEditorActionHandler::TextEditorActionHandler(const QString &context,
+TextEditorActionHandler::TextEditorActionHandler(const char *context,
                                                  uint optionalActions)
   : QObject(Core::ICore::instance()),
     m_undoAction(0),
@@ -91,10 +90,9 @@ TextEditorActionHandler::TextEditorActionHandler(const QString &context,
     m_joinLinesAction(0),
     m_optionalActions(optionalActions),
     m_currentEditor(0),
+    m_contextId(context),
     m_initialized(false)
 {
-    m_contextId << Core::UniqueIDManager::instance()->uniqueIdentifier(context);
-
     connect(Core::ICore::instance()->editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)),
         this, SLOT(updateCurrentEditor(Core::IEditor*)));
 }

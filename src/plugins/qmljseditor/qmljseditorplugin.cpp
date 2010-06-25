@@ -110,9 +110,8 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     m_modelManager = new ModelManager(this);
     addAutoReleasedObject(m_modelManager);
 
-    Core::Context context;
-    context << core->uniqueIDManager()->uniqueIdentifier(QmlJSEditor::Constants::C_QMLJSEDITOR_ID)
-            << core->uniqueIDManager()->uniqueIdentifier(QmlDesigner::Constants::C_QT_QUICK_TOOLS_MENU);
+    Core::Context context(QmlJSEditor::Constants::C_QMLJSEDITOR_ID,
+                          QmlDesigner::Constants::C_QT_QUICK_TOOLS_MENU);
 
     m_editor = new QmlJSEditorFactory(this);
     addObject(m_editor);
@@ -140,7 +139,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     mtools->addMenu(menuQtQuick);
     m_actionPreview = new QAction("&Preview", this);
 
-    Core::Context toolsMenuContext(core->uniqueIDManager()->uniqueIdentifier(QmlDesigner::Constants::C_QT_QUICK_TOOLS_MENU));
+    Core::Context toolsMenuContext(QmlDesigner::Constants::C_QT_QUICK_TOOLS_MENU);
     Core::Command *cmd = addToolAction(m_actionPreview,  am, toolsMenuContext,
                    QLatin1String("QtQuick.Preview"), menuQtQuick, tr("Ctrl+Alt+R"));
     connect(cmd->action(), SIGNAL(triggered()), SLOT(openPreview()));

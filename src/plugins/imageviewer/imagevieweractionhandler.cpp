@@ -38,7 +38,6 @@
 #include <QtGui/QAction>
 
 #include <coreplugin/icore.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -50,6 +49,10 @@ enum SupportedActions { ZoomIn = 0, ZoomOut, OriginalSize, FitToScreen, Backgrou
 
 struct ImageViewerActionHandlerPrivate
 {
+    ImageViewerActionHandlerPrivate()
+        : context(Constants::IMAGEVIEWER_ID)
+    {}
+
     QPointer<QAction> actionZoomIn;
     QPointer<QAction> actionZoomOut;
     QPointer<QAction> actionOriginalSize;
@@ -65,9 +68,6 @@ ImageViewerActionHandler::ImageViewerActionHandler(QObject *parent) :
     QObject(parent),
     d_ptr(new ImageViewerActionHandlerPrivate)
 {
-    d_ptr->context << Core::ICore::instance()->uniqueIDManager()
-            ->uniqueIdentifier(Constants::IMAGEVIEWER_ID);
-
     d_ptr->signalMapper = new QSignalMapper(this);
     connect(d_ptr->signalMapper, SIGNAL(mapped(int)), SLOT(actionTriggered(int)));
 }

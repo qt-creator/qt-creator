@@ -32,7 +32,7 @@
 
 using namespace Core;
 
-UniqueIDManager* UniqueIDManager::m_instance = 0;
+UniqueIDManager *UniqueIDManager::m_instance = 0;
 
 UniqueIDManager::UniqueIDManager()
 {
@@ -63,4 +63,28 @@ int UniqueIDManager::uniqueIdentifier(const QString &id)
 QString UniqueIDManager::stringForUniqueIdentifier(int uid)
 {
     return m_uniqueIdentifiers.key(uid);
+}
+
+// FIXME: Move to some better place.
+#include "icontext.h"
+
+static int toId(const char *id)
+{
+    return UniqueIDManager::instance()->uniqueIdentifier(QLatin1String(id));
+}
+
+Context::Context(const char *id, int offset)
+{
+    d.append(UniqueIDManager::instance()
+        -> uniqueIdentifier(QString(id) + QString::number(offset)));
+}
+
+void Context::add(const char *id)
+{
+    d.append(toId(id));
+}
+
+bool Context::contains(const char *id) const
+{
+    return d.contains(toId(id));
 }

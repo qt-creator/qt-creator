@@ -336,8 +336,8 @@ QString Shortcut::defaultText() const
 
 bool Shortcut::setCurrentContext(const Core::Context &context)
 {
-    foreach (int ctxt, m_context) {
-        if (context.contains(ctxt)) {
+    foreach (int ctxt, m_context.d) {
+        if (context.d.contains(ctxt)) {
             if (!m_shortcut->isEnabled()) {
                 m_shortcut->setEnabled(true);
                 emit activeStateChanged();
@@ -487,10 +487,10 @@ static inline QString msgActionWarning(QAction *newAction, int k, QAction *oldAc
 
 void Action::addOverrideAction(QAction *action, const Core::Context &context)
 {
-    if (context.isEmpty()) {
+    if (context.d.isEmpty()) {
         m_contextActionMap.insert(0, action);
     } else {
-        for (int i=0; i<context.size(); ++i) {
+        for (int i = 0; i < context.size(); ++i) {
             int k = context.at(i);
             if (m_contextActionMap.contains(k))
                 qWarning("%s", qPrintable(msgActionWarning(action, k, m_contextActionMap.value(k, 0))));

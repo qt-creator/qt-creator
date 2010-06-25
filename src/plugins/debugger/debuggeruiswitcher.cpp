@@ -42,7 +42,6 @@
 
 #include <coreplugin/modemanager.h>
 #include <coreplugin/basemode.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -140,7 +139,7 @@ DebuggerUISwitcher::DebuggerUISwitcher(Core::BaseMode *mode, QObject* parent) :
 
     d->m_languageActionGroup->setExclusive(true);
 
-    d->m_globalContext << Core::Constants::C_GLOBAL_ID;
+    d->m_globalContext.add(Core::Constants::C_GLOBAL_ID);
 
     DebuggerUISwitcherPrivate::m_instance = this;
 }

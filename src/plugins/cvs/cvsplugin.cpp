@@ -48,7 +48,6 @@
 #include <coreplugin/filemanager.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/mimedatabase.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
@@ -257,7 +256,7 @@ bool CVSPlugin::initialize(const QStringList & /*arguments */, QString *errorMes
     toolsContainer->addMenu(cvsMenu);
     m_menuAction = cvsMenu->menu()->menuAction();
 
-    Core::Context globalcontext(core->uniqueIDManager()->uniqueIdentifier(C_GLOBAL));
+    Core::Context globalcontext(C_GLOBAL);
 
     Core::Command *command;
 
@@ -379,8 +378,7 @@ bool CVSPlugin::initialize(const QStringList & /*arguments */, QString *errorMes
     m_commandLocator->appendCommand(command);
 
     // Actions of the submit editor
-    Core::Context cvscommitcontext;
-    cvscommitcontext << Core::UniqueIDManager::instance()->uniqueIdentifier(Constants::CVSCOMMITEDITOR);
+    Core::Context cvscommitcontext(Constants::CVSCOMMITEDITOR);
 
     m_submitCurrentLogAction = new QAction(VCSBase::VCSBaseSubmitEditor::submitIcon(), tr("Commit"), this);
     command = ami->registerAction(m_submitCurrentLogAction, Constants::SUBMIT_CURRENT, cvscommitcontext);

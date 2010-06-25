@@ -34,7 +34,6 @@
 #include "vcsbaseconstants.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/ifile.h>
 #include <coreplugin/iversioncontrol.h>
 #include <extensionsystem/pluginmanager.h>
@@ -99,11 +98,9 @@ VCSBaseEditorEditable::VCSBaseEditorEditable(VCSBaseEditor *editor,
                                              const VCSBaseEditorParameters *type)  :
     BaseTextEditorEditable(editor),
     m_id(type->id),
+    m_context(type->context, TextEditor::Constants::C_TEXTEDITOR),
     m_temporary(false)
 {
-    Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
-    m_context << uidm->uniqueIdentifier(QLatin1String(type->context))
-              << uidm->uniqueIdentifier(QLatin1String(TextEditor::Constants::C_TEXTEDITOR));
 }
 
 Core::Context VCSBaseEditorEditable::context() const

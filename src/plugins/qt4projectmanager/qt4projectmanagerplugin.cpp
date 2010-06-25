@@ -60,7 +60,6 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -173,9 +172,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
             am->actionContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT);
 
     //register actions
-    m_projectContext = core->uniqueIDManager()->
-        uniqueIdentifier(Qt4ProjectManager::Constants::PROJECT_ID);
-    Core::Context context(m_projectContext);
+    Core::Context context(Qt4ProjectManager::Constants::PROJECT_ID);
     Core::Command *command;
 
     QIcon qmakeIcon(QLatin1String(":/qt4projectmanager/images/run_qmake.png"));

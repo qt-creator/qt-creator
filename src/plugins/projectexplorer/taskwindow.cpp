@@ -38,7 +38,6 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QDir>
@@ -98,7 +97,7 @@ public:
     virtual QWidget *widget();
 private:
     QWidget *m_taskList;
-    Core::Context m_context;
+    const Core::Context m_context;
 };
 
 class TaskModel : public QAbstractItemModel
@@ -1000,10 +999,10 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
 }
 
 TaskWindowContext::TaskWindowContext(QWidget *widget)
-    : Core::IContext(widget), m_taskList(widget)
+  : Core::IContext(widget),
+    m_taskList(widget),
+    m_context(Core::Constants::C_PROBLEM_PANE)
 {
-    Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
-    m_context << uidm->uniqueIdentifier(Core::Constants::C_PROBLEM_PANE);
 }
 
 Core::Context TaskWindowContext::context() const

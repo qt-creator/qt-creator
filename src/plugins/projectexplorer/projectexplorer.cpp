@@ -80,7 +80,6 @@
 #include <coreplugin/mainwindow.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/modemanager.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
@@ -265,7 +264,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     d->m_proWindow = new ProjectWindow;
 
     Core::Context globalcontext(Core::Constants::C_GLOBAL_ID);
-    Core::Context pecontext(core->uniqueIDManager()->uniqueIdentifier(Constants::C_PROJECTEXPLORER));
+    Core::Context pecontext(Constants::C_PROJECTEXPLORER);
 
     d->m_projectsMode = new Core::BaseMode;
     d->m_projectsMode->setDisplayName(tr("Projects"));
@@ -1312,12 +1311,12 @@ void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node 
         Core::Context newContext;
 
         if (d->m_currentProject) {
-            oldContext.append(d->m_currentProject->projectManager()->projectContext());
-            oldContext.append(d->m_currentProject->projectManager()->projectLanguage());
+            oldContext.d.append(d->m_currentProject->projectManager()->projectContext());
+            oldContext.d.append(d->m_currentProject->projectManager()->projectLanguage());
         }
         if (project) {
-            newContext.append(project->projectManager()->projectContext());
-            newContext.append(project->projectManager()->projectLanguage());
+            newContext.d.append(project->projectManager()->projectContext());
+            newContext.d.append(project->projectManager()->projectLanguage());
         }
 
         core->updateAdditionalContexts(oldContext, newContext);

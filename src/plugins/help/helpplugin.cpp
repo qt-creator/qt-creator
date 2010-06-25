@@ -59,7 +59,6 @@
 #include <coreplugin/modemanager.h>
 #include <coreplugin/rightpane.h>
 #include <coreplugin/sidebar.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/styledbar.h>
@@ -121,7 +120,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     Q_UNUSED(error)
     m_core = Core::ICore::instance();
     Core::Context globalcontext(Core::Constants::C_GLOBAL_ID);
-    Core::Context modecontext(m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_MODE_HELP));
+    Core::Context modecontext(Constants::C_MODE_HELP);
 
     const QString &locale = qApp->property("qtc_locale").toString();
     if (!locale.isEmpty()) {
@@ -342,7 +341,7 @@ void HelpPlugin::setupUi()
 {
     // side bar widgets and shortcuts
     Core::ActionManager *am = m_core->actionManager();
-    Core::Context modecontext(m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_MODE_HELP));
+    Core::Context modecontext(Constants::C_MODE_HELP);
 
     IndexWindow *indexWindow = new IndexWindow();
     indexWindow->setWindowTitle(tr(SB_INDEX));
@@ -520,12 +519,12 @@ void HelpPlugin::createRightPaneContextViewer()
     Aggregation::Aggregate *agg = new Aggregation::Aggregate();
     agg->add(m_helpViewerForSideBar);
     agg->add(new HelpViewerFindSupport(m_helpViewerForSideBar));
-    m_core->addContextObject(new Core::BaseContext(m_helpViewerForSideBar,Core::Context(
-        m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_HELP_SIDEBAR)), this));
+    m_core->addContextObject(new Core::BaseContext(m_helpViewerForSideBar,
+        Core::Context(Constants::C_HELP_SIDEBAR), this));
 
     QAction *copy = new QAction(this);
     Core::Command *cmd = m_core->actionManager()->registerAction(copy, Core::Constants::COPY,
-        Core::Context(m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_HELP_SIDEBAR)));
+        Core::Context(Constants::C_HELP_SIDEBAR));
     copy->setText(cmd->action()->text());
     copy->setIcon(cmd->action()->icon());
 

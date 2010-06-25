@@ -31,7 +31,6 @@
 #include "genericprojectmanager.h"
 #include "genericprojectconstants.h"
 
-#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditoractionhandler.h>
@@ -102,11 +101,9 @@ Core::IFile *ProjectFilesFactory::open(const QString &fileName)
 ////////////////////////////////////////////////////////////////////////////////////////
 
 ProjectFilesEditable::ProjectFilesEditable(ProjectFilesEditor *editor)
-    : TextEditor::BaseTextEditorEditable(editor)
-{
-    Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
-    m_context << uidm->uniqueIdentifier(Constants::C_FILESEDITOR);
-}
+  : TextEditor::BaseTextEditorEditable(editor),
+    m_context(Constants::C_FILESEDITOR)
+{ }
 
 ProjectFilesEditable::~ProjectFilesEditable()
 { }

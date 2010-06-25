@@ -46,7 +46,6 @@
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/filemanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 
@@ -207,7 +206,7 @@ QStringList MercurialPlugin::standardArguments() const
 
 void MercurialPlugin::createMenu()
 {
-    Core::Context context(core->uniqueIDManager()->uniqueIdentifier(QLatin1String(Core::Constants::C_GLOBAL)));
+    Core::Context context(Core::Constants::C_GLOBAL);
 
     // Create menu item for Mercurial
     mercurialContainer = actionManager->createMenu(QLatin1String("Mercurial.MercurialMenu"));
@@ -534,7 +533,7 @@ void MercurialPlugin::outgoing()
 
 void MercurialPlugin::createSubmitEditorActions()
 {
-    Core::Context context(core->uniqueIDManager()->uniqueIdentifier(QLatin1String(Constants::COMMIT_ID)));
+    Core::Context context(Constants::COMMIT_ID);
     Core::Command *command;
 
     editorCommit = new QAction(VCSBase::VCSBaseSubmitEditor::submitIcon(), tr("Commit"), this);

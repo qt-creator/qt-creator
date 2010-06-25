@@ -48,7 +48,7 @@ PlainTextEditorFactory::PlainTextEditorFactory(QObject *parent)
   : Core::IEditorFactory(parent)
 {
     m_actionHandler = new TextEditorActionHandler(
-        QLatin1String(TextEditor::Constants::C_TEXTEDITOR),
+        TextEditor::Constants::C_TEXTEDITOR,
         TextEditorActionHandler::Format |
         TextEditorActionHandler::UnCommentSelection |
         TextEditorActionHandler::UnCollapseAll);

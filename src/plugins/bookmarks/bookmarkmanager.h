@@ -165,7 +165,7 @@ public:
     virtual QWidget *widget();
 private:
     BookmarkView *m_bookmarkView;
-    Core::Context m_context;
+    const Core::Context m_context;
 };
 
 class BookmarkViewFactory : public Core::INavigationWidgetFactory

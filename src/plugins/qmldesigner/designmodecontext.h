@@ -57,8 +57,8 @@ public:
     QString contextHelpId() const;
 
 private:
-    Core::Context m_context;
     DesignModeWidget *m_widget;
+    const Core::Context m_context;
 };
 
 }

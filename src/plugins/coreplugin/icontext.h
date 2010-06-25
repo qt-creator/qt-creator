@@ -31,6 +31,8 @@
 #define ICONTEXT_H
 
 #include <coreplugin/core_global.h>
+
+#include <QtCore/QList>
 #include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE
@@ -39,13 +41,23 @@ QT_END_NAMESPACE
 
 namespace Core {
 
-class CORE_EXPORT Context : public QList<int>
+class CORE_EXPORT Context
 {
 public:
     Context() {}
-    explicit Context(int c1) { append(c1); }
-    Context(int c1, int c2) { append(c1); append(c2); }
-    Context(int c1, int c2, int c3) { append(c1); append(c2); append(c3); }
+
+    explicit Context(const char *c1) { add(c1); }
+    Context(const char *c1, const char *c2) { add(c1); add(c2); }
+    Context(const char *c1, const char *c2, const char *c3) { add(c1); add(c2); add(c3); }
+    Context(const char *base, int offset);
+    void add(const char *c);
+    bool contains(const char *c) const;
+    bool contains(int c) const { return d.contains(c); }
+    int size() const { return d.size(); }
+    bool isEmpty() const { return d.isEmpty(); }
+    int at(int i) const { return d.at(i); }
+public:
+    QList<int> d;
 };
 
 class CORE_EXPORT IContext : public QObject

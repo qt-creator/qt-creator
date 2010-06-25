@@ -393,7 +393,7 @@ void ShortcutSettings::markPossibleCollisions(ShortcutItem *item)
             continue;
         }
 
-        foreach (int context, currentItem->m_cmd->context()) {
+        foreach (int context, currentItem->m_cmd->context().d) {
 
             // conflict if context is identical, OR if one
             // of the contexts is the global context

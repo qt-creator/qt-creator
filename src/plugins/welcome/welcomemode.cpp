@@ -34,7 +34,6 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/uniqueidmanager.h>
 
 #include <utils/styledbar.h>
 #include <utils/welcomemodetreewidget.h>
@@ -150,8 +149,7 @@ QString WelcomeMode::id() const
 
 Core::Context WelcomeMode::context() const
 {
-    static Core::Context contexts =
-            Core::Context(Core::UniqueIDManager::instance()->uniqueIdentifier(Core::Constants::C_WELCOME_MODE));
+    static Core::Context contexts(Core::Constants::C_WELCOME_MODE);
     return contexts;
 }
 

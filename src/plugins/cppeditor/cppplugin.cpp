@@ -231,7 +231,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     wizardParameters.setId(QLatin1String("C.Header"));
     addAutoReleasedObject(new CppFileWizard(wizardParameters, Header, core));
 
-    Core::Context context(core->uniqueIDManager()->uniqueIdentifier(CppEditor::Constants::C_CPPEDITOR));
+    Core::Context context(CppEditor::Constants::C_CPPEDITOR);
 
     Core::ActionManager *am = core->actionManager();
     Core::ActionContainer *contextMenu= am->createMenu(CppEditor::Constants::M_CONTEXT);

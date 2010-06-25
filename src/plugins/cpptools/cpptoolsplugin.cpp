@@ -43,7 +43,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
@@ -80,7 +79,6 @@ enum { debug = 0 };
 CppToolsPlugin *CppToolsPlugin::m_instance = 0;
 
 CppToolsPlugin::CppToolsPlugin() :
-    m_context(-1),
     m_modelManager(0),
     m_fileSettings(new CppFileSettings)
 {
@@ -131,8 +129,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     mtools->addMenu(mcpptools);
 
     // Actions
-    m_context = core->uniqueIDManager()->uniqueIdentifier(CppEditor::Constants::C_CPPEDITOR);
-    Core::Context context(m_context);
+    Core::Context context(CppEditor::Constants::C_CPPEDITOR);
 
     QAction *switchAction = new QAction(tr("Switch Header/Source"), this);
     Core::Command *command = am->registerAction(switchAction, Constants::SWITCH_HEADER_SOURCE, context);

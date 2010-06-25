@@ -49,7 +49,6 @@
 #include <coreplugin/filemanager.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/mimedatabase.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
@@ -304,8 +303,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     subversionMenu->menu()->setTitle(tr("&Subversion"));
     toolsContainer->addMenu(subversionMenu);
     m_menuAction = subversionMenu->menu()->menuAction();
-    Core::Context globalcontext(core->uniqueIDManager()->uniqueIdentifier(C_GLOBAL));
-
+    Core::Context globalcontext(C_GLOBAL);
     Core::Command *command;
 
     m_diffCurrentAction = new Utils::ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
@@ -456,8 +454,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     m_commandLocator->appendCommand(command);
 
     // Actions of the submit editor
-    Core::Context svncommitcontext;
-    svncommitcontext << Core::UniqueIDManager::instance()->uniqueIdentifier(Constants::SUBVERSIONCOMMITEDITOR);
+    Core::Context svncommitcontext(Constants::SUBVERSIONCOMMITEDITOR);
 
     m_submitCurrentLogAction = new QAction(VCSBase::VCSBaseSubmitEditor::submitIcon(), tr("Commit"), this);
     command = ami->registerAction(m_submitCurrentLogAction, Constants::SUBMIT_CURRENT, svncommitcontext);

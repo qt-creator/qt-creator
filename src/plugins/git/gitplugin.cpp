@@ -45,7 +45,6 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/filemanager.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
@@ -282,8 +281,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     m_core = Core::ICore::instance();
     m_gitClient = new GitClient(this);
     // Create the globalcontext list to register actions accordingly
-    Core::Context globalcontext;
-    globalcontext << m_core->uniqueIDManager()->uniqueIdentifier(Core::Constants::C_GLOBAL);
+    Core::Context globalcontext(Core::Constants::C_GLOBAL);
 
     // Create the settings Page
     addAutoReleasedObject(new SettingsPage());
@@ -493,8 +491,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     }
 
     // Submit editor
-    Core::Context submitContext;
-    submitContext.push_back(m_core->uniqueIDManager()->uniqueIdentifier(QLatin1String(Constants::C_GITSUBMITEDITOR)));
+    Core::Context submitContext(Constants::C_GITSUBMITEDITOR);
     m_submitCurrentAction = new QAction(VCSBase::VCSBaseSubmitEditor::submitIcon(), tr("Commit"), this);
     Core::Command *command = actionManager->registerAction(m_submitCurrentAction, Constants::SUBMIT_CURRENT, submitContext);
     connect(m_submitCurrentAction, SIGNAL(triggered()), this, SLOT(submitCurrentLog()));

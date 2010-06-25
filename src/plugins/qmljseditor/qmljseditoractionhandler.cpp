@@ -43,8 +43,7 @@ namespace QmlJSEditor {
 namespace Internal {
 
 QmlJSEditorActionHandler::QmlJSEditorActionHandler()
-  : TextEditor::TextEditorActionHandler(QLatin1String(QmlJSEditor::Constants::C_QMLJSEDITOR_ID),
-                                        Format)
+  : TextEditor::TextEditorActionHandler(QmlJSEditor::Constants::C_QMLJSEDITOR_ID, Format)
 {
 }
 

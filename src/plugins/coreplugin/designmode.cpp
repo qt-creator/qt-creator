@@ -31,7 +31,6 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/openeditorsmodel.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -136,8 +135,7 @@ DesignMode::~DesignMode()
 
 Context DesignMode::context() const
 {
-    static Context contexts(
-        Core::UniqueIDManager::instance()->uniqueIdentifier(Constants::C_DESIGN_MODE));
+    static Context contexts(Constants::C_DESIGN_MODE);
     return contexts;
 }
 
@@ -269,7 +267,7 @@ void DesignMode::updateContext(Core::IMode *newMode, Core::IMode *oldMode)
 
 void DesignMode::setActiveContext(const Context &context)
 {
-    if (d->m_activeContext == context)
+    if (d->m_activeContext.d == context.d)
         return;
 
     if (ModeManager::instance()->currentMode() == this)

@@ -47,7 +47,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/ifile.h>
 #include <coreplugin/mimedatabase.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <find/ifindsupport.h>
 #include <texteditor/fontsettings.h>
@@ -291,11 +290,10 @@ class BinEditorInterface : public Core::IEditor
 public:
     BinEditorInterface(BinEditor *editor)
     {
-        Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
         m_editor = editor;
         m_file = new BinEditorFile(m_editor);
-        m_context << uidm->uniqueIdentifier(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
-        m_context << uidm->uniqueIdentifier(Constants::C_BINEDITOR);
+        m_context.add(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
+        m_context.add(Constants::C_BINEDITOR);
         m_cursorPositionLabel = new Utils::LineColumnLabel;
 
         QHBoxLayout *l = new QHBoxLayout;
@@ -436,8 +434,7 @@ void BinEditorPlugin::initializeEditor(BinEditor *editor)
     QObject::connect(editor, SIGNAL(modificationChanged(bool)), editorInterface, SIGNAL(changed()));
     editor->setEditorInterface(editorInterface);
 
-    Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
-    m_context << uidm->uniqueIdentifier(Constants::C_BINEDITOR);
+    m_context.add(Constants::C_BINEDITOR);
     if (!m_undoAction) {
         m_undoAction      = registerNewAction(QLatin1String(Core::Constants::UNDO),
                                               this, SLOT(undoAction()),

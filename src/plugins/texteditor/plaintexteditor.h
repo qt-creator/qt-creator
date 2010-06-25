@@ -59,7 +59,7 @@ public:
     virtual QString id() const;
 
 private:
-    Core::Context m_context;
+    const Core::Context m_context;
 };
 
 class TEXTEDITOR_EXPORT PlainTextEditor : public BaseTextEditor

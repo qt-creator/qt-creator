@@ -36,7 +36,6 @@
 #include "ui_imageviewertoolbar.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <utils/qtcassert.h>
@@ -51,6 +50,10 @@ namespace Internal {
 
 struct ImageViewerPrivate
 {
+    ImageViewerPrivate()
+        : context(Constants::IMAGEVIEWER_ID)
+    {}
+
     Core::Context context;
     QString displayName;
     ImageViewerFile *file;
@@ -64,8 +67,6 @@ ImageViewer::ImageViewer(QWidget *parent)
     d_ptr(new ImageViewerPrivate)
 {
     d_ptr->file = new ImageViewerFile(this);
-    d_ptr->context << Core::ICore::instance()->uniqueIDManager()
-            ->uniqueIdentifier(Constants::IMAGEVIEWER_ID);
 
     d_ptr->imageView = new ImageView();
 
