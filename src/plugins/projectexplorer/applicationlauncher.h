@@ -99,6 +99,7 @@ private:
 #else
     QTextCodec *m_outputCodec;
     QTextCodec::ConverterState m_outputCodecState;
+    QTextCodec::ConverterState m_errorCodecState;
 #endif
 };
 
