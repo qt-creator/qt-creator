@@ -34,7 +34,6 @@
 
 #include <coreplugin/editormanager/ieditor.h>
 
-#include <QtCore/QList>
 #include <QtGui/QAbstractItemView>
 
 QT_BEGIN_NAMESPACE
@@ -91,8 +90,6 @@ class VCSBASE_EXPORT VCSBaseSubmitEditor : public Core::IEditor
     Q_PROPERTY(bool lineWrap READ lineWrap WRITE setLineWrap DESIGNABLE true)
     Q_PROPERTY(int lineWrapWidth READ lineWrapWidth WRITE setLineWrapWidth DESIGNABLE true)
     Q_PROPERTY(QString checkScriptWorkingDirectory READ checkScriptWorkingDirectory WRITE setCheckScriptWorkingDirectory DESIGNABLE true)
-public:
-    typedef QList<int> Context;
 
 protected:
     explicit VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *parameters,
