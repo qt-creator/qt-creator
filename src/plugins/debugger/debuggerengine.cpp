@@ -515,6 +515,7 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
     QTC_ASSERT(sessionTemplate != this, startFailed(); return);
 
     breakHandler()->initializeFromTemplate(sessionTemplate->breakHandler());
+    watchHandler()->initializeFromTemplate(sessionTemplate->watchHandler());
 
     d->m_runControl = runControl;
 
@@ -699,7 +700,6 @@ void DebuggerEngine::addToWatchWindow()
     if (exp.isEmpty())
         return;
     watchHandler()->watchExpression(exp);
-    plugin()->updateState(this);
 }
 
 // Called from RunControl.
@@ -713,6 +713,7 @@ void DebuggerEngine::handleFinished()
     DebuggerEngine *sessionTemplate = plugin()->sessionTemplate();
     QTC_ASSERT(sessionTemplate != this, /**/);
     breakHandler()->storeToTemplate(sessionTemplate->breakHandler());
+    watchHandler()->storeToTemplate(sessionTemplate->watchHandler());
 }
 
 const DebuggerStartParameters &DebuggerEngine::startParameters() const

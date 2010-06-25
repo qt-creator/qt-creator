@@ -667,6 +667,9 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             int pos = type.indexOf("::Q");
             if (pos >= 0 && type.count(':') == 2)
                 type = type.mid(pos + 2);
+            pos = type.indexOf('<');
+            if (pos >= 0)
+                type = type.left(pos);
             return m_handler->m_reportedTypeFormats.value(type);
         }
 
@@ -1083,7 +1086,6 @@ void WatchModel::formatRequests(QByteArray *out, const WatchItem *item) const
 WatchHandler::WatchHandler(DebuggerEngine *engine)
 {
     m_engine = engine;
-    m_expandPointers = true;
     m_inChange = false;
 
     m_return = new WatchModel(this, ReturnWatch);
@@ -1235,11 +1237,10 @@ void WatchHandler::watchExpression(const QString &exp)
     if (exp.isEmpty() || exp == watcherEditPlaceHolder())
         data.setAllUnneeded();
     data.iname = watcherName(data.exp);
-    if (m_engine && m_engine->isSynchroneous())
+    if (m_engine->isSynchroneous() && !m_engine->isSessionEngine())
         m_engine->updateWatchData(data);
     else
         insertData(data);
-    m_engine->updateWatchData(data);
     updateWatchersWindow();
     saveWatchers();
     emitAllChanged();
@@ -1351,8 +1352,8 @@ void WatchHandler::removeWatchExpression(const QString &exp0)
             break;
         }
     }
-    updateWatchersWindow();
     emitAllChanged();
+    updateWatchersWindow();
 }
 
 void WatchHandler::updateWatchersWindow()
@@ -1434,14 +1435,17 @@ void WatchHandler::saveTypeFormats()
 
 void WatchHandler::saveSessionData()
 {
+    QTC_ASSERT(m_engine->isSessionEngine(), return);
     saveWatchers();
     saveTypeFormats();
 }
 
 void WatchHandler::loadSessionData()
 {
+    QTC_ASSERT(m_engine->isSessionEngine(), return);
     loadWatchers();
     loadTypeFormats();
+
     foreach (const QByteArray &exp, m_watcherNames.keys()) {
         WatchData data;
         data.iname = watcherName(exp);
@@ -1450,7 +1454,23 @@ void WatchHandler::loadSessionData()
         data.exp = exp;
         insertData(data);
     }
+    updateWatchersWindow();
 }
+
+void WatchHandler::initializeFromTemplate(WatchHandler *other)
+{
+    m_watcherNames = other->m_watcherNames;
+    m_typeFormats = other->m_typeFormats;
+    m_individualFormats = other->m_individualFormats;
+}
+
+void WatchHandler::storeToTemplate(WatchHandler *other)
+{
+    other->m_watcherNames = m_watcherNames;
+    other->m_typeFormats = m_typeFormats;
+    other->m_individualFormats = m_individualFormats;
+}
+
 
 WatchModel *WatchHandler::model(WatchType type) const
 {

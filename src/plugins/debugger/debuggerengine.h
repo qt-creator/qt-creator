@@ -181,6 +181,7 @@ public:
     virtual unsigned debuggerCapabilities() const { return 0; }
 
     virtual bool isSynchroneous() const { return false; }
+    virtual bool isSessionEngine() const { return false; }
     virtual QString qtNamespace() const { return QString(); }
 
 public slots:

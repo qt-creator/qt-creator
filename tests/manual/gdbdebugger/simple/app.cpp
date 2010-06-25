@@ -1347,7 +1347,7 @@ QVariant testQVariant3()
     return QVariant("xxx");
 }
 
-QVector<int> testQVector()
+void testQVector()
 {
     QVector<int> big(10000);
 
@@ -1367,8 +1367,6 @@ QVector<int> testQVector()
     QVector<bool> vec;
     vec.append(true);
     vec.append(false);
-
-    return big;
 }
 
 QVector<QList<int> > testQVectorOfQList()

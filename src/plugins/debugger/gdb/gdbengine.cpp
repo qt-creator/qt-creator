@@ -1532,12 +1532,14 @@ void GdbEngine::handleHasPython(const GdbResponse &response)
         foreach (const GdbMi &dumper, dumpers.children()) {
             QString type = _(dumper.findChild("type").data());
             QStringList formats(tr("Raw structure"));
-            formats.append(_(dumper.findChild("formats").data()).split(_(",")));
+            QString reported = _(dumper.findChild("formats").data());
+            formats.append(reported.split(_(","), QString::SkipEmptyParts));
             watchHandler()->addTypeFormats(type, formats);
         }
     } else {
         m_hasPython = false;
-        if (m_gdbAdapter->dumperHandling() == AbstractGdbAdapter::DumperLoadedByGdbPreload
+        if (m_gdbAdapter->dumperHandling()
+                    == AbstractGdbAdapter::DumperLoadedByGdbPreload
                 && checkDebuggingHelpersClassic()) {
             QByteArray cmd = "set environment ";
             cmd += Debugger::Constants::Internal::LD_PRELOAD_ENV_VAR;

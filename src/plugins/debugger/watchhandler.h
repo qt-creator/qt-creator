@@ -156,6 +156,9 @@ public:
     void loadSessionData();
     void saveSessionData();
 
+    void initializeFromTemplate(WatchHandler *other);
+    void storeToTemplate(WatchHandler *other);
+
     bool isExpandedIName(const QByteArray &iname) const
         { return m_expandedINames.contains(iname); }
     QSet<QByteArray> expandedINames() const
@@ -184,7 +187,6 @@ private:
     void setFormat(const QString &type, int format);
     void updateWatchersWindow();
 
-    bool m_expandPointers;
     bool m_inChange;
 
     // QWidgets and QProcesses taking care of special displays.

@@ -719,6 +719,8 @@ class SessionEngine : public DebuggerEngine
 public:
     SessionEngine() : DebuggerEngine(DebuggerStartParameters()) {}
 
+    bool isSessionEngine() const { return true; }
+
     void loadSessionData()
     {
         breakHandler()->loadSessionData();

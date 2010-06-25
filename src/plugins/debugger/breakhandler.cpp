@@ -979,12 +979,14 @@ void BreakHandler::setAllPending()
 
 void BreakHandler::saveSessionData()
 {
+    QTC_ASSERT(m_engine->isSessionEngine(), return);
     saveBreakpoints();
     updateMarkers();
 }
 
 void BreakHandler::loadSessionData()
 {
+    QTC_ASSERT(m_engine->isSessionEngine(), return);
     loadBreakpoints();
     updateMarkers();
 }

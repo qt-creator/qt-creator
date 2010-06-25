@@ -795,6 +795,7 @@ class SetupCommand(gdb.Command):
             if key.startswith("qdump__"):
                 name = key[7:]
                 qqDumpers[name] = value
+                qqFormats[name] = qqFormats.get(name, "");
             elif key.startswith("qform__"):
                 name = key[7:]
                 formats = ""
