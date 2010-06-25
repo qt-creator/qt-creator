@@ -72,6 +72,7 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/findplaceholder.h>
+#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/icorelistener.h>
 #include <coreplugin/manhattanstyle.h>
@@ -877,7 +878,7 @@ public:
 
     QString m_previousMode;
     TextEditor::BaseTextMark *m_locationMark;
-    int m_gdbRunningContext;
+    Core::Context m_gdbRunningContext;
     AttachRemoteParameters m_attachRemoteParameters;
 
     QAction *m_startExternalAction;
@@ -968,7 +969,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
     m_sessionEngine = 0;
     m_debugMode = 0;
     m_locationMark = 0;
-    m_gdbRunningContext = 0;
+    m_gdbRunningContext = Core::Context(0);
 
     m_debugMode = 0;
     m_uiSwitcher = 0;
@@ -987,20 +988,9 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     Core::ActionManager *am = core->actionManager();
     QTC_ASSERT(am, return false);
 
-    const QList<int> globalcontext = QList<int>()
-        << CC::C_GLOBAL_ID;
-
-    const QList<int> cppcontext = QList<int>()
-        << uidm->uniqueIdentifier(PE::LANG_CXX);
-
-    const QList<int> cppDebuggercontext = QList<int>()
-        << uidm->uniqueIdentifier(C_CPPDEBUGGER);
-
-    const QList<int> cppeditorcontext = QList<int>()
-        << uidm->uniqueIdentifier(CppEditor::Constants::C_CPPEDITOR);
-
-    const QList<int> texteditorcontext = QList<int>()
-        << uidm->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
+    const Core::Context globalcontext(CC::C_GLOBAL_ID);
+    const Core::Context cppDebuggercontext(uidm->uniqueIdentifier(C_CPPDEBUGGER));
+    const Core::Context cppeditorcontext(uidm->uniqueIdentifier(CppEditor::Constants::C_CPPEDITOR));
 
     m_stopIcon = QIcon(_(":/debugger/images/debugger_stop_small.png"));
     m_stopIcon.addFile(":/debugger/images/debugger_stop.png");
@@ -1218,18 +1208,17 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
         errorMessage->clear();
     }
 
-    m_gdbRunningContext = uidm->uniqueIdentifier(Constants::GDBRUNNING);
+    m_gdbRunningContext = Core::Context(uidm->uniqueIdentifier(Constants::GDBRUNNING));
 
     // Register factory of DebuggerRunControl.
     m_debuggerRunControlFactory = new DebuggerRunControlFactory
         (m_plugin, DebuggerEngineType(cmdLineEnabledEngines));
     m_plugin->addAutoReleasedObject(m_debuggerRunControlFactory);
 
-    QList<int> context;
-    context.append(uidm->uniqueIdentifier(CC::C_EDITORMANAGER));
-    context.append(uidm->uniqueIdentifier(C_DEBUGMODE));
-    context.append(uidm->uniqueIdentifier(CC::C_NAVIGATION_PANE));
-    m_debugMode->setContext(context);
+    m_debugMode->setContext(Core::Context(
+        uidm->uniqueIdentifier(CC::C_EDITORMANAGER),
+        uidm->uniqueIdentifier(C_DEBUGMODE),
+        uidm->uniqueIdentifier(CC::C_NAVIGATION_PANE)));
 
     m_reverseToolButton = 0;
 
@@ -1271,7 +1260,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
         am->actionContainer(PE::M_DEBUG_STARTDEBUGGING);
 
     cmd = am->registerAction(m_actions.continueAction,
-        PE::DEBUG, QList<int>() << m_gdbRunningContext);
+        PE::DEBUG, m_gdbRunningContext);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_startExternalAction,
@@ -2096,9 +2085,9 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     const bool startIsContinue = (m_state == InferiorStopped);
     ICore *core = ICore::instance();
     if (startIsContinue)
-        core->updateAdditionalContexts(QList<int>(), QList<int>() << m_gdbRunningContext);
+        core->updateAdditionalContexts(Core::Context(), m_gdbRunningContext);
     else
-        core->updateAdditionalContexts(QList<int>() << m_gdbRunningContext, QList<int>());
+        core->updateAdditionalContexts(m_gdbRunningContext, Core::Context());
 
     const bool started = m_state == InferiorRunning
         || m_state == InferiorRunningRequested

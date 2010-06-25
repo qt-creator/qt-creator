@@ -58,7 +58,7 @@ public:
     int priority() const { return m_priority; }
     QWidget *widget() { return m_widget; }
     QString id() const { return m_id; }
-    QList<int> context() const { return m_context; }
+    Context context() const { return m_context; }
     QString contextHelpId() const { return m_helpId; }
 
     void setDisplayName(const QString &name) { m_displayName = name; }
@@ -67,7 +67,7 @@ public:
     void setWidget(QWidget *widget) { m_widget = widget; }
     void setId(const QString &id) { m_id = id; }
     void setContextHelpId(const QString &helpId) { m_helpId = helpId; }
-    void setContext(const QList<int> &context) { m_context = context; }
+    void setContext(const Context &context) { m_context = context; }
 
 private:
     QString m_displayName;
@@ -76,7 +76,7 @@ private:
     QWidget *m_widget;
     QString m_id;
     QString m_helpId;
-    QList<int> m_context;
+    Context m_context;
 };
 
 } // namespace Core

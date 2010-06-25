@@ -52,7 +52,7 @@ public:
     explicit ImageViewer(QWidget *parent = 0);
     ~ImageViewer();
 
-    QList<int> context() const;
+    Core::Context context() const;
     QWidget *widget();
 
     bool createNew(const QString &contents = QString());

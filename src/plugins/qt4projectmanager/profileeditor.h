@@ -55,14 +55,14 @@ class ProFileEditorEditable : public TextEditor::BaseTextEditorEditable
 {
 public:
     ProFileEditorEditable(ProFileEditor *);
-    QList<int> context() const;
+    Core::Context context() const;
 
     bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate(QWidget *parent);
     QString id() const;
     bool isTemporary() const { return false; }
 private:
-    QList<int> m_context;
+    Core::Context m_context;
 };
 
 class ProFileEditor : public TextEditor::BaseTextEditor

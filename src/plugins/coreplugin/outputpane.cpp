@@ -282,8 +282,7 @@ void OutputPaneManager::init()
 {
     ActionManager *am = Core::ICore::instance()->actionManager();
     ActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
-    QList<int> globalcontext;
-    globalcontext.append(Core::Constants::C_GLOBAL_ID);
+    Context globalcontext = Context(Core::Constants::C_GLOBAL_ID);
 
     // Window->Output Panes
     ActionContainer *mpanes = am->createMenu(Constants::M_WINDOW_PANES);
@@ -357,7 +356,7 @@ void OutputPaneManager::init()
         actionId.remove(QLatin1Char(' '));
         QAction *action = new QAction(outPane->displayName(), this);
 
-        Command *cmd = am->registerAction(action, actionId, QList<int>() << Constants::C_GLOBAL_ID);
+        Command *cmd = am->registerAction(action, actionId, Context(Constants::C_GLOBAL_ID));
 
         mpanes->addAction(cmd, "Coreplugin.OutputPane.PanesGroup");
         m_actions.insert(cmd->action(), idx);

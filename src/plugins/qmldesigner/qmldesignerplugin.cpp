@@ -120,10 +120,7 @@ bool BauhausPlugin::initialize(const QStringList & /*arguments*/, QString *error
     Core::ICore *core = Core::ICore::instance();
 
     const int uid = core->uniqueIDManager()->uniqueIdentifier(QLatin1String(QmlDesigner::Constants::C_FORMEDITOR));
-    const QList<int> context = QList<int>() << uid;
-
-    const QList<int> switchContext = QList<int>() << uid
-                                     << core->uniqueIDManager()->uniqueIdentifier(QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
+    const Core::Context switchContext(core->uniqueIDManager()->uniqueIdentifier(QmlJSEditor::Constants::C_QMLJSEDITOR_ID));
 
     Core::ActionManager *am = core->actionManager();
 
@@ -167,7 +164,7 @@ void BauhausPlugin::createDesignModeWidget()
     m_context = new DesignModeContext(m_mainWidget);
     creatorCore->addContextObject(m_context);
     Core::UniqueIDManager *uuidManager = Core::UniqueIDManager::instance();
-    QList<int> formEditorContext = QList<int> () << uuidManager->uniqueIdentifier(Constants::C_FORMEDITOR);
+    Core::Context formEditorContext(uuidManager->uniqueIdentifier(Constants::C_FORMEDITOR));
 
     // Revert to saved
     actionManager->registerAction(m_revertToSavedAction,
@@ -263,8 +260,8 @@ void BauhausPlugin::createDesignModeWidget()
     connect(m_editorManager, SIGNAL(editorsClosed(QList<Core::IEditor*>)),
             this, SLOT(textEditorsClosed(QList<Core::IEditor*>)));
 
-    connect(creatorCore, SIGNAL(contextChanged(Core::IContext*,QList<int>)),
-            this, SLOT(contextChanged(Core::IContext*,QList<int>)));
+    connect(creatorCore, SIGNAL(contextChanged(Core::IContext*,Core::Context)),
+            this, SLOT(contextChanged(Core::IContext*,Core::Context)));
 
 }
 
@@ -278,11 +275,11 @@ void BauhausPlugin::updateEditor(Core::IEditor *editor)
     }
 }
 
-void BauhausPlugin::contextChanged(Core::IContext *context, const QList<int> &additionalContexts)
+void BauhausPlugin::contextChanged(Core::IContext *context, const Core::Context &additionalContexts)
 {
     Q_UNUSED(context)
 
-    foreach(int additionalContext, additionalContexts) {
+    foreach (int additionalContext, additionalContexts) {
         if (m_context->context().contains(additionalContext)) {
             m_isActive = true;
             m_mainWidget->showEditor(m_editorManager->currentEditor());

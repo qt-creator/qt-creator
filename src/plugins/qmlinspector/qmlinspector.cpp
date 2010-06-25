@@ -462,7 +462,7 @@ void QmlInspector::createDockWidgets()
     Core::ActionManager *am = core->actionManager();
     Core::ActionContainer *mstart = am->actionContainer(ProjectExplorer::Constants::M_DEBUG_STARTDEBUGGING);
     Core::Command *cmd = am->registerAction(m_simultaneousDebugAction, Constants::M_DEBUG_SIMULTANEOUSLY,
-                                            QList<int>() << m_context->context());
+                                            m_context->context());
     cmd->setAttribute(Core::Command::CA_Hide);
     mstart->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
 

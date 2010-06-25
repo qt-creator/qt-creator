@@ -91,7 +91,7 @@ public:
     virtual  QString preferredMode() const;
 
     // IContext
-    virtual QList<int> context() const;
+    virtual Core::Context context() const;
     virtual QWidget *widget();
 
     // For uic code model support

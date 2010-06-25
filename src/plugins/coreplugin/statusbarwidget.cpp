@@ -36,7 +36,7 @@ using namespace Core;
 StatusBarWidget::StatusBarWidget(QObject *parent)
         : IContext(parent),
     m_widget(0),
-    m_context(QList<int>()),
+    m_context(),
     m_defaultPosition(StatusBarWidget::First)
 {
 }
@@ -46,7 +46,7 @@ StatusBarWidget::~StatusBarWidget()
     delete m_widget;
 }
 
-QList<int> StatusBarWidget::context() const
+Context StatusBarWidget::context() const
 {
     return m_context;
 }
@@ -68,7 +68,7 @@ QWidget *StatusBarWidget::setWidget(QWidget *widget)
     return oldWidget;
 }
 
-void StatusBarWidget::setContext(const QList<int> &context)
+void StatusBarWidget::setContext(const Context &context)
 {
     m_context = context;
 }

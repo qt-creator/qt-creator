@@ -57,7 +57,7 @@ struct ImageViewerActionHandlerPrivate
     QPointer<QAction> actionBackground;
     QPointer<QAction> actionOutline;
 
-    QList<int> context;
+    Core::Context context;
     QPointer<QSignalMapper> signalMapper;
 };
 
@@ -126,7 +126,7 @@ void ImageViewerActionHandler::createActions()
 }
 
 QAction *ImageViewerActionHandler::registerNewAction(int actionId, const QString &id,
-                           const QString &title, const QList<int> &context, const QKeySequence &key)
+                           const QString &title, const Core::Context &context, const QKeySequence &key)
 {
     Core::ActionManager *actionManager = Core::ICore::instance()->actionManager();
     Core::Command *command = 0;

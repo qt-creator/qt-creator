@@ -218,15 +218,15 @@ static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
 
 static inline Core::Command *createSeparator(QObject *parent,
                                              Core::ActionManager *ami,
-                                             const char*id,
-                                             const QList<int> &globalcontext)
+                                             const char *id,
+                                             const Core::Context &globalcontext)
 {
     QAction *tmpaction = new QAction(parent);
     tmpaction->setSeparator(true);
     return ami->registerAction(tmpaction, id, globalcontext);
 }
 
-bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString * errorMessage)
+bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *errorMessage)
 {
     typedef VCSBase::VCSEditorFactory<PerforceEditor> PerforceEditorFactory;
     typedef VCSBase::VCSSubmitEditorFactory<PerforceSubmitEditor> PerforceSubmitEditorFactory;
@@ -267,12 +267,9 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString * e
     mtools->addMenu(mperforce);
     m_menuAction = mperforce->menu()->menuAction();
 
-    QList<int> globalcontext;
-    globalcontext << Core::Constants::C_GLOBAL_ID;
-
-    QList<int> perforcesubmitcontext;
-    perforcesubmitcontext << Core::UniqueIDManager::instance()->
-            uniqueIdentifier(Constants::PERFORCESUBMITEDITOR_CONTEXT);
+    Core::Context globalcontext(Core::Constants::C_GLOBAL_ID);
+    Core::Context perforcesubmitcontext(
+        Core::UniqueIDManager::instance()->uniqueIdentifier(Constants::PERFORCESUBMITEDITOR_CONTEXT));
 
     Core::Command *command;
 

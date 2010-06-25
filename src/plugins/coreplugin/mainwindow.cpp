@@ -112,7 +112,7 @@ MainWindow::MainWindow() :
     EventFilteringMainWindow(),
     m_coreImpl(new CoreImpl(this)),
     m_uniqueIDManager(new UniqueIDManager()),
-    m_globalContext(QList<int>() << Constants::C_GLOBAL_ID),
+    m_globalContext(Constants::C_GLOBAL_ID),
     m_additionalContexts(m_globalContext),
     // keep this in sync with main() in app/main.cpp
     m_settings(new QSettings(QSettings::IniFormat, QSettings::UserScope,
@@ -493,7 +493,7 @@ void MainWindow::registerDefaultContainers()
 
 static Command *createSeparator(ActionManager *am, QObject *parent,
                                 const QString &name,
-                                const QList<int> &context)
+                                const Context &context)
 {
     QAction *tmpaction = new QAction(parent);
     tmpaction->setSeparator(true);
@@ -1196,7 +1196,7 @@ void MainWindow::writeSettings()
     m_navigationWidget->saveSettings(m_settings);
 }
 
-void MainWindow::updateAdditionalContexts(const QList<int> &remove, const QList<int> &add)
+void MainWindow::updateAdditionalContexts(const Context &remove, const Context &add)
 {
     foreach (const int context, remove) {
         if (context == 0)
@@ -1225,14 +1225,14 @@ bool MainWindow::hasContext(int context) const
 
 void MainWindow::updateContext()
 {
-    QList<int> contexts;
+    Context contexts;
 
     if (m_activeContext)
         contexts += m_activeContext->context();
 
     contexts += m_additionalContexts;
 
-    QList<int> uniquecontexts;
+    Context uniquecontexts;
     for (int i = 0; i < contexts.size(); ++i) {
         const int c = contexts.at(i);
         if (!uniquecontexts.contains(c))

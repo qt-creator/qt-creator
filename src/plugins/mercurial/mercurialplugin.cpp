@@ -207,7 +207,7 @@ QStringList MercurialPlugin::standardArguments() const
 
 void MercurialPlugin::createMenu()
 {
-    QList<int> context = QList<int>()<< core->uniqueIDManager()->uniqueIdentifier(QLatin1String(Core::Constants::C_GLOBAL));
+    Core::Context context(core->uniqueIDManager()->uniqueIdentifier(QLatin1String(Core::Constants::C_GLOBAL)));
 
     // Create menu item for Mercurial
     mercurialContainer = actionManager->createMenu(QLatin1String("Mercurial.MercurialMenu"));
@@ -230,7 +230,7 @@ void MercurialPlugin::createMenu()
     m_menuAction = mercurialContainer->menu()->menuAction();
 }
 
-void MercurialPlugin::createFileActions(const QList<int> &context)
+void MercurialPlugin::createFileActions(const Core::Context &context)
 {
     Core::Command *command;
 
@@ -335,7 +335,7 @@ void MercurialPlugin::statusCurrentFile()
     m_client->status(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
-void MercurialPlugin::createDirectoryActions(const QList<int> &context)
+void MercurialPlugin::createDirectoryActions(const Core::Context &context)
 {
     QAction *action;
     Core::Command *command;
@@ -403,7 +403,7 @@ void MercurialPlugin::statusMulti()
     m_client->status(state.topLevel());
 }
 
-void MercurialPlugin::createRepositoryActions(const QList<int> &context)
+void MercurialPlugin::createRepositoryActions(const Core::Context &context)
 {
     QAction *action = new QAction(tr("Pull..."), this);
     m_repositoryActionList.append(action);
@@ -534,7 +534,7 @@ void MercurialPlugin::outgoing()
 
 void MercurialPlugin::createSubmitEditorActions()
 {
-    QList<int> context = QList<int>()<< core->uniqueIDManager()->uniqueIdentifier(QLatin1String(Constants::COMMIT_ID));
+    Core::Context context(core->uniqueIDManager()->uniqueIdentifier(QLatin1String(Constants::COMMIT_ID)));
     Core::Command *command;
 
     editorCommit = new QAction(VCSBase::VCSBaseSubmitEditor::submitIcon(), tr("Commit"), this);
@@ -677,7 +677,7 @@ void MercurialPlugin::deleteCommitLog()
     }
 }
 
-void MercurialPlugin::createRepositoryManagementActions(const QList<int> &context)
+void MercurialPlugin::createRepositoryManagementActions(const Core::Context &context)
 {
     //TODO create menu for these options
     Q_UNUSED(context);
@@ -689,14 +689,14 @@ void MercurialPlugin::createRepositoryManagementActions(const QList<int> &contex
     //    mercurialContainer->addAction(command);
 }
 
-void MercurialPlugin::createLessUsedActions(const QList<int> &context)
+void MercurialPlugin::createLessUsedActions(const Core::Context &context)
 {
     //TODO create menue for these options
     Q_UNUSED(context);
     return;
 }
 
-void MercurialPlugin::createSeparator(const QList<int> &context, const QString &id)
+void MercurialPlugin::createSeparator(const Core::Context &context, const QString &id)
 {
     QAction *action = new QAction(this);
     action->setSeparator(true);

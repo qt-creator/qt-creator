@@ -264,11 +264,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     d->m_proWindow = new ProjectWindow;
 
-    QList<int> globalcontext;
-    globalcontext.append(Core::Constants::C_GLOBAL_ID);
-
-    QList<int> pecontext;
-    pecontext << core->uniqueIDManager()->uniqueIdentifier(Constants::C_PROJECTEXPLORER);
+    Core::Context globalcontext(Core::Constants::C_GLOBAL_ID);
+    Core::Context pecontext(core->uniqueIDManager()->uniqueIdentifier(Constants::C_PROJECTEXPLORER));
 
     d->m_projectsMode = new Core::BaseMode;
     d->m_projectsMode->setDisplayName(tr("Projects"));
@@ -276,7 +273,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     d->m_projectsMode->setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Project.png")));
     d->m_projectsMode->setPriority(Constants::P_MODE_SESSION);
     d->m_projectsMode->setWidget(d->m_proWindow);
-    d->m_projectsMode->setContext(QList<int>() << pecontext);
+    d->m_projectsMode->setContext(pecontext);
     d->m_projectsMode->setEnabled(session()->startupProject());
     d->m_projectsMode->setContextHelpId(QLatin1String("Managing Projects"));
     addAutoReleasedObject(d->m_projectsMode);
@@ -1311,8 +1308,8 @@ void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node 
 
     bool projectChanged = false;
     if (d->m_currentProject != project) {
-        QList<int> oldContext;
-        QList<int> newContext;
+        Core::Context oldContext;
+        Core::Context newContext;
 
         if (d->m_currentProject) {
             oldContext.append(d->m_currentProject->projectManager()->projectContext());

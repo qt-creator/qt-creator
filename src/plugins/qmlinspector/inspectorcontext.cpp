@@ -54,7 +54,7 @@ InspectorContext::~InspectorContext()
 
 }
 
-QList<int> InspectorContext::context() const
+Core::Context InspectorContext::context() const
 {
     return m_context;
 }

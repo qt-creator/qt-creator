@@ -51,13 +51,13 @@ public:
     DesignModeContext(DesignModeWidget *widget);
     ~DesignModeContext();
 
-    QList<int> context() const;
+    Core::Context context() const;
     QWidget *widget();
 
     QString contextHelpId() const;
 
 private:
-    QList<int> m_context;
+    Core::Context m_context;
     DesignModeWidget *m_widget;
 };
 

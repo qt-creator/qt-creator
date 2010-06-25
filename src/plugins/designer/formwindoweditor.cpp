@@ -53,13 +53,14 @@
 
 namespace Designer {
 
-struct FormWindowEditorPrivate {
+struct FormWindowEditorPrivate
+{
     explicit FormWindowEditorPrivate(Internal::DesignerXmlEditor *editor,
                                      QDesignerFormWindowInterface *form);
 
     TextEditor::PlainTextEditorEditable m_textEditable;
     Internal::FormWindowFile m_file;
-    QList<int> m_context;
+    Core::Context m_context;
 };
 
 FormWindowEditorPrivate::FormWindowEditorPrivate(Internal::DesignerXmlEditor *editor,
@@ -221,7 +222,7 @@ bool FormWindowEditor::restoreState(const QByteArray &state)
     return d->m_textEditable.restoreState(state);
 }
 
-QList<int> FormWindowEditor::context() const
+Core::Context FormWindowEditor::context() const
 {
     return d->m_context;
 }

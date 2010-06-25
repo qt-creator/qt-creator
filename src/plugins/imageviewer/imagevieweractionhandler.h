@@ -31,11 +31,15 @@
 #ifndef IMAGEVIEWERACTIONHANDLER_H
 #define IMAGEVIEWERACTIONHANDLER_H
 
-#include <QObject>
+#include "coreplugin/icontext.h"
+
+#include <QtCore/QObject>
 #include <QtCore/QScopedPointer>
 
-QT_FORWARD_DECLARE_CLASS(QAction)
-QT_FORWARD_DECLARE_CLASS(QKeySequence)
+QT_BEGIN_NAMESPACE
+class QAction;
+class QKeySequence;
+QT_END_NAMESPACE
 
 namespace ImageViewer {
 namespace Internal {
@@ -65,7 +69,7 @@ protected:
       \return Created and registered action, 0 if something goes wrong
      */
     QAction *registerNewAction(int actionId, const QString &id, const QString &title,
-                               const QList<int> &context, const QKeySequence &key);
+                               const Core::Context &context, const QKeySequence &key);
 
 private:
     QScopedPointer<struct ImageViewerActionHandlerPrivate> d_ptr;

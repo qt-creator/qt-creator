@@ -59,13 +59,13 @@ public:
 
     void registerDesignWidget(QWidget *widget,
                               const QStringList &mimeTypes,
-                              const QList<int> &context);
+                              const Context &context);
     void unregisterDesignWidget(QWidget *widget);
 
     QStringList registeredMimeTypes() const;
 
     // IContext
-    QList<int> context() const;
+    Context context() const;
     QWidget *widget();
 
     // IMode
@@ -83,7 +83,7 @@ private slots:
     void updateContext(Core::IMode *newMode, Core::IMode *oldMode);
 
 private:
-    void setActiveContext(const QList<int> &context);
+    void setActiveContext(const Context &context);
 
     DesignModePrivate *d;
     friend class Internal::DesignModeCoreListener;

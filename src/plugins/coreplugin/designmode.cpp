@@ -87,7 +87,7 @@ bool DesignModeCoreListener::coreAboutToClose()
 struct DesignEditorInfo {
     int widgetIndex;
     QStringList mimeTypes;
-    QList<int> context;
+    Context context;
     QWidget *widget;
 };
 
@@ -101,7 +101,7 @@ struct DesignModePrivate {
 
     EditorManager *m_editorManager;
     QStackedWidget *m_stackWidget;
-    QList<int> m_activeContext;
+    Context m_activeContext;
 };
 
 DesignModePrivate::DesignModePrivate(DesignMode *q, EditorManager *editorManager) :
@@ -134,10 +134,10 @@ DesignMode::~DesignMode()
     delete d;
 }
 
-QList<int> DesignMode::context() const
+Context DesignMode::context() const
 {
-    static QList<int> contexts = QList<int>() <<
-        Core::UniqueIDManager::instance()->uniqueIdentifier(Constants::C_DESIGN_MODE);
+    static Context contexts(
+        Core::UniqueIDManager::instance()->uniqueIdentifier(Constants::C_DESIGN_MODE));
     return contexts;
 }
 
@@ -181,7 +181,7 @@ QStringList DesignMode::registeredMimeTypes() const
   */
 void DesignMode::registerDesignWidget(QWidget *widget,
                                       const QStringList &mimeTypes,
-                                      const QList<int> &context)
+                                      const Context &context)
 {
     int index = d->m_stackWidget->addWidget(widget);
 
@@ -235,7 +235,7 @@ void DesignMode::currentEditorChanged(Core::IEditor *editor)
         disconnect(d->m_currentEditor.data(), SIGNAL(changed()), this, SLOT(updateActions()));
 
     if (!mimeEditorAvailable) {
-        setActiveContext(QList<int>());
+        setActiveContext(Context());
         if (core->modeManager()->currentMode() == this)
             core->modeManager()->activateMode(Core::Constants::MODE_EDIT);
         setEnabled(false);
@@ -260,14 +260,14 @@ void DesignMode::updateContext(Core::IMode *newMode, Core::IMode *oldMode)
 {
     if (newMode == this) {
         // Apply active context
-        Core::ICore::instance()->updateAdditionalContexts(QList<int>(), d->m_activeContext);
+        Core::ICore::instance()->updateAdditionalContexts(Context(), d->m_activeContext);
     } else if (oldMode == this) {
         // Remove active context
-        Core::ICore::instance()->updateAdditionalContexts(d->m_activeContext, QList<int>());
+        Core::ICore::instance()->updateAdditionalContexts(d->m_activeContext, Context());
     }
 }
 
-void DesignMode::setActiveContext(const QList<int> &context)
+void DesignMode::setActiveContext(const Context &context)
 {
     if (d->m_activeContext == context)
         return;

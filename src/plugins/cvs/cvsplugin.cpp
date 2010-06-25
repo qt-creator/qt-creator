@@ -204,8 +204,8 @@ static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
 
 static inline Core::Command *createSeparator(QObject *parent,
                                              Core::ActionManager *ami,
-                                             const char*id,
-                                             const QList<int> &globalcontext)
+                                             const char *id,
+                                             const Core::Context &globalcontext)
 {
     QAction *tmpaction = new QAction(parent);
     tmpaction->setSeparator(true);
@@ -257,8 +257,7 @@ bool CVSPlugin::initialize(const QStringList & /*arguments */, QString *errorMes
     toolsContainer->addMenu(cvsMenu);
     m_menuAction = cvsMenu->menu()->menuAction();
 
-    QList<int> globalcontext;
-    globalcontext << core->uniqueIDManager()->uniqueIdentifier(C_GLOBAL);
+    Core::Context globalcontext(core->uniqueIDManager()->uniqueIdentifier(C_GLOBAL));
 
     Core::Command *command;
 
@@ -380,7 +379,7 @@ bool CVSPlugin::initialize(const QStringList & /*arguments */, QString *errorMes
     m_commandLocator->appendCommand(command);
 
     // Actions of the submit editor
-    QList<int> cvscommitcontext;
+    Core::Context cvscommitcontext;
     cvscommitcontext << Core::UniqueIDManager::instance()->uniqueIdentifier(Constants::CVSCOMMITEDITOR);
 
     m_submitCurrentLogAction = new QAction(VCSBase::VCSBaseSubmitEditor::submitIcon(), tr("Commit"), this);

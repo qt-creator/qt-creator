@@ -145,7 +145,7 @@ public:
     virtual QString id() const;
 
     virtual QWidget *toolBar();
-    virtual QList<int> context() const;
+    virtual Core::Context context() const;
     virtual QWidget *widget();
 
     virtual QByteArray saveState() const;

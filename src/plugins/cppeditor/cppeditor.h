@@ -169,7 +169,7 @@ class CPPEditorEditable : public TextEditor::BaseTextEditorEditable
     Q_OBJECT
 public:
     CPPEditorEditable(CPPEditor *);
-    QList<int> context() const;
+    Core::Context context() const;
 
     bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate(QWidget *parent);
@@ -179,7 +179,7 @@ public:
     virtual bool open(const QString & fileName);
 
 private:
-    QList<int> m_context;
+    Core::Context m_context;
 };
 
 class CPPEditor : public TextEditor::BaseTextEditor

@@ -115,12 +115,12 @@ QString EditMode::id() const
     return QLatin1String(Constants::MODE_EDIT);
 }
 
-QList<int> EditMode::context() const
+Context EditMode::context() const
 {
-    static QList<int> contexts = QList<int>() <<
-        UniqueIDManager::instance()->uniqueIdentifier(Constants::C_EDIT_MODE) <<
-        UniqueIDManager::instance()->uniqueIdentifier(Constants::C_EDITORMANAGER) <<
-        UniqueIDManager::instance()->uniqueIdentifier(Constants::C_NAVIGATION_PANE);
+    static Context contexts(
+        UniqueIDManager::instance()->uniqueIdentifier(Constants::C_EDIT_MODE),
+        UniqueIDManager::instance()->uniqueIdentifier(Constants::C_EDITORMANAGER) ,
+        UniqueIDManager::instance()->uniqueIdentifier(Constants::C_NAVIGATION_PANE));
     return contexts;
 }
 

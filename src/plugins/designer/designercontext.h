@@ -44,16 +44,16 @@ class DesignerContext : public Core::IContext
 {
     Q_DISABLE_COPY(DesignerContext)
 public:
-    explicit DesignerContext(const QList<int> contexts,
+    explicit DesignerContext(const Core::Context &contexts,
                              QWidget *widget,
                              QObject *parent = 0);
 
-    virtual QList<int> context() const;
+    virtual Core::Context context() const;
     virtual QWidget *widget();
     virtual QString contextHelpId() const;
 
 private:
-    const QList<int> m_context;
+    const Core::Context m_context;
     QWidget *m_widget;
 };
 

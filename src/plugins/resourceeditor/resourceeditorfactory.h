@@ -31,6 +31,7 @@
 #define RRESOURCEEDITORFACTORY_H
 
 #include <coreplugin/editormanager/ieditorfactory.h>
+#include <coreplugin/icontext.h>
 
 #include <QtCore/QStringList>
 
@@ -44,8 +45,6 @@ class ResourceEditorFactory : public Core::IEditorFactory
     Q_OBJECT
 
 public:
-    typedef QList<int> Context;
-
     explicit ResourceEditorFactory(ResourceEditorPlugin *plugin);
 
     virtual QStringList mimeTypes() const;
@@ -58,7 +57,7 @@ public:
 
 private:
     const QStringList m_mimeTypes;
-    Context m_context;
+    Core::Context m_context;
 
     ResourceEditorPlugin *m_plugin;
 };

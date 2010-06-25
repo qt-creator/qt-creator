@@ -250,7 +250,7 @@ EditorManager *EditorManager::m_instance = 0;
 
 static Command *createSeparator(ActionManager *am, QObject *parent,
                                 const QString &name,
-                                const QList<int> &context)
+                                const Context &context)
 {
     QAction *tmpaction = new QAction(parent);
     tmpaction->setSeparator(true);
@@ -267,14 +267,15 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     connect(m_d->m_core, SIGNAL(contextAboutToChange(Core::IContext *)),
             this, SLOT(handleContextChange(Core::IContext *)));
 
-    const QList<int> gc =  QList<int>() << Constants::C_GLOBAL_ID;
-    const QList<int> editManagerContext =
-            QList<int>() << m_d->m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_EDITORMANAGER);
+    UniqueIDManager *uidm = m_d->m_core->uniqueIDManager();
+    const Context gc = Context(Constants::C_GLOBAL_ID);
+    const Context editManagerContext =
+            Context(uidm->uniqueIdentifier(Constants::C_EDITORMANAGER));
 
     // combined context for edit & design modes
-    const QList<int> editDesignContext =
-            QList<int>() << m_d->m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_EDITORMANAGER)
-                         << m_d->m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_DESIGN_MODE);
+    const Context editDesignContext =
+            Context(uidm->uniqueIdentifier(Constants::C_EDITORMANAGER),
+                    uidm->uniqueIdentifier(Constants::C_DESIGN_MODE));
 
     ActionManager *am = m_d->m_core->actionManager();
     ActionContainer *mfile = am->actionContainer(Constants::M_FILE);

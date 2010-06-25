@@ -30,6 +30,7 @@
 #include "navigationwidget.h"
 
 #include "icore.h"
+#include "icontext.h"
 #include "coreconstants.h"
 #include "inavigationwidgetfactory.h"
 #include "modemanager.h"
@@ -347,8 +348,8 @@ void NavigationWidget::objectAdded(QObject * obj)
 
     ICore *core = ICore::instance();
     ActionManager *am = core->actionManager();
-    QList<int> navicontext = QList<int>() << core->uniqueIDManager()->
-        uniqueIdentifier(Core::Constants::C_NAVIGATION_PANE);
+    Context navicontext(core->uniqueIDManager()->
+        uniqueIdentifier(Core::Constants::C_NAVIGATION_PANE));
 
     QString id = factory->id();
     QShortcut *shortcut = new QShortcut(this);

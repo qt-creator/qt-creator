@@ -119,7 +119,7 @@ static inline QIcon designerIcon(const QString &iconName)
 // Create a menu separator
 static inline QAction *createSeparator(QObject *parent,
                                  Core::ActionManager *am,
-                                 const QList<int> &context,
+                                 const Core::Context &context,
                                  Core::ActionContainer *container,
                                  const QString &name = QString(),
                                  const QString &group = QString())
@@ -220,7 +220,7 @@ FormEditorW::~FormEditorW()
 // Add an actioon to toggle the view state of a dock window
 void FormEditorW::addDockViewAction(Core::ActionManager *am,
                                     Core::ActionContainer *viewMenu,
-                                    int index, const QList<int> &context,
+                                    int index, const Core::Context &context,
                                     const QString &title, const QString &id)
 {
     if (const QDockWidget *dw = m_editorWidget->designerDockWidgets()[index]) {
@@ -334,7 +334,9 @@ void FormEditorW::fullInit()
     Core::UniqueIDManager *idMan = Core::UniqueIDManager::instance();
     int editorManagerContext = idMan->uniqueIdentifier(QLatin1String(Core::Constants::C_EDITORMANAGER));
 
-    m_context = new DesignerContext(QList<int>() << m_contexts << editorManagerContext, m_modeWidget, this);
+    Core::Context designerContexts = m_contexts;
+    designerContexts.append(Core::Context(editorManagerContext));
+    m_context = new DesignerContext(designerContexts, m_modeWidget, this);
     m_core->addContextObject(m_context);
 
     m_designMode->registerDesignWidget(m_modeWidget, QStringList(QLatin1String(FORM_MIMETYPE)), m_contexts);
@@ -625,7 +627,7 @@ void FormEditorW::bindShortcut(Core::Command *command, QAction *action)
 
 // Create an action to activate a designer tool
 QAction *FormEditorW::createEditModeAction(QActionGroup *ag,
-                                     const QList<int> &context,
+                                     const Core::Context &context,
                                      Core::ActionManager *am,
                                      Core::ActionContainer *medit,
                                      const QString &actionName,
@@ -651,7 +653,7 @@ QAction *FormEditorW::createEditModeAction(QActionGroup *ag,
 
 // Create a tool action
 Core::Command *FormEditorW::addToolAction(QAction *a, Core::ActionManager *am,
-                                          const QList<int> &context, const QString &name,
+                                          const Core::Context &context, const QString &name,
                                           Core::ActionContainer *c1, const QString &keySequence)
 {
     Core::Command *command = am->registerAction(a, name, context);

@@ -55,7 +55,7 @@ public:
     InspectorContext(QWidget *widget);
     ~InspectorContext();
 
-    QList<int> context() const;
+    Core::Context context() const;
     QWidget *widget();
 
     QString contextHelpId() const;
@@ -67,7 +67,7 @@ public slots:
     void setContextHelpId(const QString &helpId);
 
 private:
-    QList<int> m_context;
+    Core::Context m_context;
     QWidget *m_widget;
     QString m_contextHelpId;
 

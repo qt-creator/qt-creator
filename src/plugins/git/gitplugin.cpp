@@ -174,7 +174,7 @@ static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
 };
 
 static Core::Command *createSeparator(Core::ActionManager *am,
-                                       const QList<int> &context,
+                                       const Core::Context &context,
                                        const QString &id,
                                        QObject *parent)
 {
@@ -187,7 +187,7 @@ static Core::Command *createSeparator(Core::ActionManager *am,
 ParameterActionCommandPair
         GitPlugin::createParameterAction(Core::ActionManager *am, Core::ActionContainer *ac,
                                          const QString &defaultText, const QString &parameterText,
-                                         const QString &id, const QList<int> &context,
+                                         const QString &id, const Core::Context &context,
                                          bool addToLocator)
 {
     Utils::ParameterAction *action = new Utils::ParameterAction(defaultText, parameterText,
@@ -205,7 +205,7 @@ ParameterActionCommandPair
 ParameterActionCommandPair
         GitPlugin::createFileAction(Core::ActionManager *am, Core::ActionContainer *ac,
                                     const QString &defaultText, const QString &parameterText,
-                                    const QString &id, const QList<int> &context, bool addToLocator,
+                                    const QString &id, const Core::Context &context, bool addToLocator,
                                     const char *pluginSlot)
 {
     const ParameterActionCommandPair rc = createParameterAction(am, ac, defaultText, parameterText, id, context, addToLocator);
@@ -218,7 +218,7 @@ ParameterActionCommandPair
 ParameterActionCommandPair
         GitPlugin::createProjectAction(Core::ActionManager *am, Core::ActionContainer *ac,
                                        const QString &defaultText, const QString &parameterText,
-                                       const QString &id, const QList<int> &context, bool addToLocator,
+                                       const QString &id, const Core::Context &context, bool addToLocator,
                                        const char *pluginSlot)
 {
     const ParameterActionCommandPair rc = createParameterAction(am, ac, defaultText, parameterText, id, context, addToLocator);
@@ -231,7 +231,7 @@ ParameterActionCommandPair
 ActionCommandPair
         GitPlugin::createRepositoryAction(Core::ActionManager *am, Core::ActionContainer *ac,
                                           const QString &text, const QString &id,
-                                          const QList<int> &context, bool addToLocator)
+                                          const Core::Context &context, bool addToLocator)
 {
     QAction  *action = new QAction(text, this);
     Core::Command *command = am->registerAction(action, id, context);
@@ -246,7 +246,7 @@ ActionCommandPair
 ActionCommandPair
         GitPlugin::createRepositoryAction(Core::ActionManager *am, Core::ActionContainer *ac,
                                           const QString &text, const QString &id,
-                                          const QList<int> &context, bool addToLocator,
+                                          const Core::Context &context, bool addToLocator,
                                           const char *pluginSlot)
 {
     const ActionCommandPair rc = createRepositoryAction(am, ac, text, id, context, addToLocator);
@@ -259,7 +259,7 @@ ActionCommandPair
 ActionCommandPair
         GitPlugin::createRepositoryAction(Core::ActionManager *am, Core::ActionContainer *ac,
                                           const QString &text, const QString &id,
-                                          const QList<int> &context, bool addToLocator,
+                                          const Core::Context &context, bool addToLocator,
                                           GitClientMemberFunc func)
 {
     // Set the member func as data and connect to generic slot
@@ -282,7 +282,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     m_core = Core::ICore::instance();
     m_gitClient = new GitClient(this);
     // Create the globalcontext list to register actions accordingly
-    QList<int> globalcontext;
+    Core::Context globalcontext;
     globalcontext << m_core->uniqueIDManager()->uniqueIdentifier(Core::Constants::C_GLOBAL);
 
     // Create the settings Page
@@ -493,7 +493,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     }
 
     // Submit editor
-    QList<int> submitContext;
+    Core::Context submitContext;
     submitContext.push_back(m_core->uniqueIDManager()->uniqueIdentifier(QLatin1String(Constants::C_GITSUBMITEDITOR)));
     m_submitCurrentAction = new QAction(VCSBase::VCSBaseSubmitEditor::submitIcon(), tr("Commit"), this);
     Core::Command *command = actionManager->registerAction(m_submitCurrentAction, Constants::SUBMIT_CURRENT, submitContext);

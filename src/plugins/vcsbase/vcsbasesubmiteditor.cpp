@@ -93,7 +93,7 @@ struct VCSBaseSubmitEditorPrivate
     QString m_displayName;
     QString m_checkScriptWorkingDirectory;
     VCSBase::Internal::SubmitEditorFile *m_file;
-    QList<int> m_contexts;
+    Core::Context m_contexts;
 
     QPointer<QAction> m_diffAction;
     QPointer<QAction> m_submitAction;
@@ -377,7 +377,7 @@ QWidget *VCSBaseSubmitEditor::toolBar()
     return m_d->m_toolWidget;
 }
 
-QList<int> VCSBaseSubmitEditor::context() const
+Core::Context VCSBaseSubmitEditor::context() const
 {
     return m_d->m_contexts;
 }

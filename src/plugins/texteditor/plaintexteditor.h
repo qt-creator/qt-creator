@@ -51,7 +51,7 @@ class TEXTEDITOR_EXPORT PlainTextEditorEditable : public BaseTextEditorEditable
     Q_OBJECT
 public:
     PlainTextEditorEditable(PlainTextEditor *);
-    QList<int> context() const;
+    Core::Context context() const;
 
     bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate(QWidget *parent);
@@ -59,7 +59,7 @@ public:
     virtual QString id() const;
 
 private:
-    QList<int> m_context;
+    Core::Context m_context;
 };
 
 class TEXTEDITOR_EXPORT PlainTextEditor : public BaseTextEditor

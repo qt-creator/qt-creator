@@ -90,7 +90,7 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
     Core::ActionManager * const actionManager = core->actionManager();
     int const contextId = core->uniqueIDManager()->uniqueIdentifier(
             Constants::C_RESOURCEEDITOR);
-    const QList<int> context = QList<int>() << contextId;
+    const Core::Context context(contextId);
     m_undoAction = new QAction(tr("&Undo"), this);
     m_redoAction = new QAction(tr("&Redo"), this);
     actionManager->registerAction(m_undoAction, Core::Constants::UNDO, context);

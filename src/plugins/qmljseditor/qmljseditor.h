@@ -64,7 +64,7 @@ class QmlJSEditorEditable : public TextEditor::BaseTextEditorEditable
 
 public:
     QmlJSEditorEditable(QmlJSTextEditor *);
-    QList<int> context() const;
+    Core::Context context() const;
 
     bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate(QWidget *parent);
@@ -74,7 +74,7 @@ public:
     virtual QString preferredMode() const;
 
 private:
-    QList<int> m_context;
+    Core::Context m_context;
 };
 
 struct Declaration
@@ -204,8 +204,6 @@ class QmlJSTextEditor : public TextEditor::BaseTextEditor
     Q_OBJECT
 
 public:
-    typedef QList<int> Context;
-
     QmlJSTextEditor(QWidget *parent = 0);
     ~QmlJSTextEditor();
 
@@ -262,7 +260,7 @@ private:
 
     SemanticHighlighter::Source currentSource(bool force = false);
 
-    const Context m_context;
+    const Core::Context m_context;
 
     QTimer *m_updateDocumentTimer;
     QTimer *m_updateUsesTimer;

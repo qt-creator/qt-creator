@@ -1724,7 +1724,7 @@ void CPPEditor::keyPressEvent(QKeyEvent *e)
     finishRename();
 }
 
-QList<int> CPPEditorEditable::context() const
+Core::Context CPPEditorEditable::context() const
 {
     return m_context;
 }

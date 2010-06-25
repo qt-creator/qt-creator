@@ -66,7 +66,7 @@ QString ResourceEditorFile::mimeType() const
 }
 
 
-ResourceEditorW::ResourceEditorW(const QList<int> &context,
+ResourceEditorW::ResourceEditorW(const Core::Context &context,
                                ResourceEditorPlugin *plugin,
                                QWidget *parent)
         : m_context(context),

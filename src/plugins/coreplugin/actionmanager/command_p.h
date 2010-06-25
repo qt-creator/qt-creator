@@ -60,19 +60,19 @@ public:
 
     QAction *action() const;
     QShortcut *shortcut() const;
-    QList<int> context() const;
+    Context context() const;
 
 
     void setAttribute(CommandAttribute attr);
     void removeAttribute(CommandAttribute attr);
     bool hasAttribute(CommandAttribute attr) const;
 
-    virtual bool setCurrentContext(const QList<int> &context) = 0;
+    virtual bool setCurrentContext(const Context &context) = 0;
 
     QString stringWithAppendedShortcut(const QString &str) const;
 
 protected:
-    QList<int> m_context;
+    Context m_context;
     QString m_category;
     int m_attributes;
     int m_id;
@@ -98,9 +98,9 @@ public:
     void setShortcut(QShortcut *shortcut);
     QShortcut *shortcut() const;
 
-    void setContext(const QList<int> &context);
-    QList<int> context() const;
-    bool setCurrentContext(const QList<int> &context);
+    void setContext(const Context &context);
+    Context context() const;
+    bool setCurrentContext(const Context &context);
 
     bool isActive() const;
 private:
@@ -126,9 +126,9 @@ public:
     void setLocations(const QList<CommandLocation> &locations);
     QList<CommandLocation> locations() const;
 
-    bool setCurrentContext(const QList<int> &context);
+    bool setCurrentContext(const Context &context);
     bool isActive() const;
-    void addOverrideAction(QAction *action, const QList<int> &context);
+    void addOverrideAction(QAction *action, const Context &context);
 
 protected:
     void updateToolTipWithKeySequence();

@@ -48,6 +48,7 @@ QT_END_NAMESPACE
 namespace Core {
 
 class ActionManager;
+class Context;
 class EditorManager;
 class FileManager;
 class HelpManager;
@@ -111,7 +112,7 @@ public:
     virtual IContext *currentContextObject() const = 0;
     // Adds and removes additional active contexts, these contexts are appended
     // to the currently active contexts.
-    virtual void updateAdditionalContexts(const QList<int> &remove, const QList<int> &add) = 0;
+    virtual void updateAdditionalContexts(const Context &remove, const Context &add) = 0;
     virtual bool hasContext(int context) const = 0;
     virtual void addContextObject(IContext *context) = 0;
     virtual void removeContextObject(IContext *context) = 0;
@@ -125,7 +126,7 @@ signals:
     void optionsDialogRequested();
     void coreAboutToClose();
     void contextAboutToChange(Core::IContext *context);
-    void contextChanged(Core::IContext *context, const QList<int> &additionalContexts);
+    void contextChanged(Core::IContext *context, const Core::Context &additionalContexts);
 };
 
 } // namespace Core

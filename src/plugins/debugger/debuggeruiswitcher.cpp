@@ -87,9 +87,9 @@ struct DebuggerUISwitcherPrivate
     Internal::DebuggerMainWindow *m_mainWindow;
 
     // global context
-    QList<int> m_globalContext;
+    Core::Context m_globalContext;
 
-    QHash<int, QList<int> > m_contextsForLanguage;
+    QHash<int, Core::Context> m_contextsForLanguage;
 
     QActionGroup *m_languageActionGroup;
 
@@ -213,9 +213,7 @@ void DebuggerUISwitcher::createViewsMenuItems()
 {
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = core->actionManager();
-
-    QList<int> globalcontext;
-    globalcontext << Core::Constants::C_GLOBAL_ID;
+    Core::Context globalcontext(Core::Constants::C_GLOBAL_ID);
 
     QMenu *mLang = d->m_languageMenu->menu();
     mLang->setTitle(tr("&Languages"));
@@ -237,7 +235,7 @@ DebuggerUISwitcher *DebuggerUISwitcher::instance()
     return DebuggerUISwitcherPrivate::m_instance;
 }
 
-void DebuggerUISwitcher::addLanguage(const QString &langName, const QList<int> &context)
+void DebuggerUISwitcher::addLanguage(const QString &langName, const Core::Context &context)
 {
     //qDebug() << "ADD UI LANGUAGE: " << langName;
     d->m_toolBars.insert(langName, 0);
@@ -310,8 +308,8 @@ void DebuggerUISwitcher::changeDebuggerUI(const QString &langName)
         QHashIterator<int, Core::Command *> iter(d->m_menuCommands);
 
         Core::ICore *core = Core::ICore::instance();
-        const QList<int> &oldContexts = d->m_contextsForLanguage.value(d->m_activeLanguage);
-        const QList<int> &newContexts = d->m_contextsForLanguage.value(langId);
+        const Core::Context &oldContexts = d->m_contextsForLanguage.value(d->m_activeLanguage);
+        const Core::Context &newContexts = d->m_contextsForLanguage.value(langId);
         core->updateAdditionalContexts(oldContexts, newContexts);
 
         d->m_activeLanguage = langId;
@@ -401,7 +399,7 @@ QDockWidget *DebuggerUISwitcher::createDockWidget(const QString &langName,
     if (d->m_languages.indexOf(langName) != d->m_activeLanguage)
         dockWidget->hide();
 
-    QList<int> langContext = d->m_contextsForLanguage.value(d->m_languages.indexOf(langName));
+    Core::Context langContext = d->m_contextsForLanguage.value(d->m_languages.indexOf(langName));
 
     Core::ActionManager *am = Core::ICore::instance()->actionManager();
     QAction *action = dockWidget->toggleViewAction();

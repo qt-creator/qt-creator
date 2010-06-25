@@ -82,7 +82,7 @@ public:
 
     // Adds and removes additional active contexts, these contexts are appended
     // to the currently active contexts.
-    void updateAdditionalContexts(const QList<int> &remove, const QList<int> &add);
+    void updateAdditionalContexts(const Context &remove, const Context &add);
     bool hasContext(int context) const;
     void addContextObject(IContext *context);
     void removeContextObject(IContext *context);

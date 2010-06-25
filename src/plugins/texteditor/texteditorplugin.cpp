@@ -117,7 +117,7 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     addAutoReleasedObject(m_lineNumberFilter);
 
     int contextId = core->uniqueIDManager()->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
-    QList<int> context = QList<int>() << contextId;
+    Core::Context context(contextId);
     Core::ActionManager *am = core->actionManager();
 
     // Add shortcut for invoking automatic completion

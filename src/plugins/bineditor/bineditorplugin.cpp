@@ -319,7 +319,7 @@ public:
 
     QWidget *widget() { return m_editor; }
 
-    QList<int> context() const { return m_context; }
+    Core::Context context() const { return m_context; }
 
     bool createNew(const QString & /* contents */ = QString()) {
         m_editor->setData(QByteArray());
@@ -354,7 +354,7 @@ private:
     BinEditor *m_editor;
     QString m_displayName;
     BinEditorFile *m_file;
-    QList<int> m_context;
+    Core::Context m_context;
     QToolBar *m_toolBar;
     Utils::LineColumnLabel *m_cursorPositionLabel;
 };

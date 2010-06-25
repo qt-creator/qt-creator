@@ -62,7 +62,7 @@ ProFileEditorEditable::ProFileEditorEditable(ProFileEditor *editor)
 //    m_contexts << uidm->uniqueIdentifier(Qt4ProjectManager::Constants::PROJECT_KIND);
 }
 
-QList<int> ProFileEditorEditable::context() const
+Core::Context ProFileEditorEditable::context() const
 {
     return m_context;
 }

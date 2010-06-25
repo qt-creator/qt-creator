@@ -303,7 +303,7 @@ BookmarkContext::BookmarkContext(BookmarkView *widget)
     m_context << UniqueIDManager::instance()->uniqueIdentifier(Constants::BOOKMARKS_CONTEXT);
 }
 
-QList<int> BookmarkContext::context() const
+Context BookmarkContext::context() const
 {
     return m_context;
 }
@@ -321,7 +321,7 @@ BookmarkManager::BookmarkManager() :
     m_bookmarkIcon(QLatin1String(":/bookmarks/images/bookmark.png")),
     m_selectionModel(new QItemSelectionModel(this, this))
 {
-    connect(Core::ICore::instance(), SIGNAL(contextChanged(Core::IContext*,QList<int>)),
+    connect(Core::ICore::instance(), SIGNAL(contextChanged(Core::IContext*,Core::Context)),
             this, SLOT(updateActionStatus()));
 
     connect(ProjectExplorerPlugin::instance()->session(), SIGNAL(sessionLoaded()),

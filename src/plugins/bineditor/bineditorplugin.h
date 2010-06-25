@@ -69,7 +69,7 @@ private slots:
     void updateCurrentEditor(Core::IContext *object);
 
 private:
-    QList<int> m_context;
+    Core::Context m_context;
     QAction *registerNewAction(const QString &id, const QString &title = QString());
     QAction *registerNewAction(const QString &id, QObject *receiver, const char *slot,
                                const QString &title = QString());

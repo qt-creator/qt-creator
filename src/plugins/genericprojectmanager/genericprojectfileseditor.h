@@ -79,7 +79,7 @@ public:
     ProjectFilesEditable(ProjectFilesEditor *editor);
     virtual ~ProjectFilesEditable();
 
-    virtual QList<int> context() const;
+    virtual Core::Context context() const;
     virtual QString id() const;
 
     virtual bool duplicateSupported() const;
@@ -88,7 +88,7 @@ public:
     virtual bool isTemporary() const { return false; }
 
 private:
-    QList<int> m_context;
+    Core::Context m_context;
 };
 
 class ProjectFilesEditor: public TextEditor::BaseTextEditor

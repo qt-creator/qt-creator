@@ -57,7 +57,8 @@
 
 namespace Core {
 
-struct ModeManagerPrivate {
+struct ModeManagerPrivate
+{
     explicit ModeManagerPrivate(Internal::MainWindow *mainWindow,
                                 Internal::FancyTabWidget *modeStack,
                                 ModeManager *q);
@@ -70,7 +71,7 @@ struct ModeManagerPrivate {
     QVector<IMode*> m_modes;
     QVector<Command*> m_modeShortcuts;
     QSignalMapper *m_signalMapper;
-    QList<int> m_addedContexts;
+    Context m_addedContexts;
     int m_oldCurrent;
 };
 
@@ -178,7 +179,7 @@ void ModeManager::objectAdded(QObject *obj)
     const QString shortcutId = QLatin1String("QtCreator.Mode.") + mode->id();
     QShortcut *shortcut = new QShortcut(d->m_mainWindow);
     shortcut->setWhatsThis(tr("Switch to <b>%1</b> mode").arg(mode->displayName()));
-    Command *cmd = am->registerShortcut(shortcut, shortcutId, QList<int>() << Constants::C_GLOBAL_ID);
+    Command *cmd = am->registerShortcut(shortcut, shortcutId, Context(Constants::C_GLOBAL_ID));
 
     d->m_modeShortcuts.insert(index, cmd);
     connect(cmd, SIGNAL(keySequenceChanged()), this, SLOT(updateModeToolTip()));

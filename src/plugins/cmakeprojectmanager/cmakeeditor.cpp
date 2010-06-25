@@ -56,7 +56,7 @@ CMakeEditorEditable::CMakeEditorEditable(CMakeEditor *editor)
     m_context << uidm->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
 }
 
-QList<int> CMakeEditorEditable::context() const
+Core::Context CMakeEditorEditable::context() const
 {
     return m_context;
 }

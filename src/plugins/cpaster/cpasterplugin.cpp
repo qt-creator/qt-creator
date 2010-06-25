@@ -83,8 +83,7 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_m
     Q_UNUSED(error_message)
 
     // Create the globalcontext list to register actions accordingly
-    QList<int> globalcontext;
-    globalcontext << UniqueIDManager::instance()->uniqueIdentifier(Core::Constants::C_GLOBAL);
+    Core::Context globalcontext(UniqueIDManager::instance()->uniqueIdentifier(Core::Constants::C_GLOBAL));
 
     // Create the settings Page
     m_settings->fromSettings(Core::ICore::instance()->settings());

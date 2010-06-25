@@ -30,6 +30,7 @@
 #include "command_p.h"
 
 #include "icore.h"
+#include "icontext.h"
 #include "uniqueidmanager.h"
 
 #include <QtCore/QDebug>
@@ -238,7 +239,7 @@ QShortcut *CommandPrivate::shortcut() const
     return 0;
 }
 
-QList<int> CommandPrivate::context() const
+Core::Context CommandPrivate::context() const
 {
     return m_context;
 }
@@ -295,12 +296,12 @@ QShortcut *Shortcut::shortcut() const
     return m_shortcut;
 }
 
-void Shortcut::setContext(const QList<int> &context)
+void Shortcut::setContext(const Core::Context &context)
 {
     m_context = context;
 }
 
-QList<int> Shortcut::context() const
+Core::Context Shortcut::context() const
 {
     return m_context;
 }
@@ -333,7 +334,7 @@ QString Shortcut::defaultText() const
     return m_defaultText;
 }
 
-bool Shortcut::setCurrentContext(const QList<int> &context)
+bool Shortcut::setCurrentContext(const Context &context)
 {
     foreach (int ctxt, m_context) {
         if (context.contains(ctxt)) {
@@ -431,7 +432,7 @@ QKeySequence Action::keySequence() const
     return m_action->shortcut();
 }
 
-bool Action::setCurrentContext(const QList<int> &context)
+bool Action::setCurrentContext(const Core::Context &context)
 {
     m_context = context;
 
@@ -484,7 +485,7 @@ static inline QString msgActionWarning(QAction *newAction, int k, QAction *oldAc
     return msg;
 }
 
-void Action::addOverrideAction(QAction *action, const QList<int> &context)
+void Action::addOverrideAction(QAction *action, const Core::Context &context)
 {
     if (context.isEmpty()) {
         m_contextActionMap.insert(0, action);

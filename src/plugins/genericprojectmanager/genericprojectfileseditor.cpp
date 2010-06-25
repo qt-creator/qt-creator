@@ -111,7 +111,7 @@ ProjectFilesEditable::ProjectFilesEditable(ProjectFilesEditor *editor)
 ProjectFilesEditable::~ProjectFilesEditable()
 { }
 
-QList<int> ProjectFilesEditable::context() const
+Core::Context ProjectFilesEditable::context() const
 {
     return m_context;
 }

@@ -121,10 +121,10 @@ QStringList CppEditorFactory::mimeTypes() const
 ///////////////////////////////// CppPlugin //////////////////////////////////
 
 static inline
-        Core::Command *createSeparator(Core::ActionManager *am,
-                                       QObject *parent,
-                                       const QList<int> &context,
-                                       const char *id)
+Core::Command *createSeparator(Core::ActionManager *am,
+                               QObject *parent,
+                               Core::Context &context,
+                               const char *id)
 {
     QAction *separator = new QAction(parent);
     separator->setSeparator(true);
@@ -231,8 +231,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     wizardParameters.setId(QLatin1String("C.Header"));
     addAutoReleasedObject(new CppFileWizard(wizardParameters, Header, core));
 
-    QList<int> context;
-    context << core->uniqueIDManager()->uniqueIdentifier(CppEditor::Constants::C_CPPEDITOR);
+    Core::Context context(core->uniqueIDManager()->uniqueIdentifier(CppEditor::Constants::C_CPPEDITOR));
 
     Core::ActionManager *am = core->actionManager();
     Core::ActionContainer *contextMenu= am->createMenu(CppEditor::Constants::M_CONTEXT);
@@ -274,8 +273,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     cppToolsMenu->addAction(cmd);
 
     // Update context in global context
-    QList<int> globalContext;
-    globalContext.append(Core::Constants::C_GLOBAL_ID);
+    Core::Context globalContext(Core::Constants::C_GLOBAL_ID);
     cppToolsMenu->addAction(createSeparator(am, this, globalContext, CppEditor::Constants::SEPARATOR2));
     m_updateCodeModelAction = new QAction(tr("Update Code Model"), this);
     cmd = am->registerAction(m_updateCodeModelAction, QLatin1String(Constants::UPDATE_CODEMODEL), globalContext);

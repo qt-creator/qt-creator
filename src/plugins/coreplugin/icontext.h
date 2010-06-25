@@ -39,6 +39,15 @@ QT_END_NAMESPACE
 
 namespace Core {
 
+class CORE_EXPORT Context : public QList<int>
+{
+public:
+    Context() {}
+    explicit Context(int c1) { append(c1); }
+    Context(int c1, int c2) { append(c1); append(c2); }
+    Context(int c1, int c2, int c3) { append(c1); append(c2); append(c3); }
+};
+
 class CORE_EXPORT IContext : public QObject
 {
     Q_OBJECT
@@ -46,7 +55,7 @@ public:
     IContext(QObject *parent = 0) : QObject(parent) {}
     virtual ~IContext() {}
 
-    virtual QList<int> context() const = 0;
+    virtual Context context() const = 0;
     virtual QWidget *widget() = 0;
     virtual QString contextHelpId() const { return QString(); }
 };
@@ -54,20 +63,20 @@ public:
 class BaseContext : public Core::IContext
 {
 public:
-    BaseContext(QWidget *widget, const QList<int> &context, QObject *parent = 0)
+    BaseContext(QWidget *widget, const Context &context, QObject *parent = 0)
         : Core::IContext(parent),
         m_widget(widget),
         m_context(context)
     {
     }
 
-    QList<int> context() const { return m_context; }
+    Context context() const { return m_context; }
 
     QWidget *widget() { return m_widget; }
 
 private:
     QWidget *m_widget;
-    QList<int> m_context;
+    Context m_context;
 };
 
 } // namespace Core

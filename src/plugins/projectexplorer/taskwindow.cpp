@@ -94,11 +94,11 @@ class TaskWindowContext : public Core::IContext
 {
 public:
     TaskWindowContext(QWidget *widget);
-    virtual QList<int> context() const;
+    virtual Core::Context context() const;
     virtual QWidget *widget();
 private:
     QWidget *m_taskList;
-    QList<int> m_context;
+    Core::Context m_context;
 };
 
 class TaskModel : public QAbstractItemModel
@@ -1006,7 +1006,7 @@ TaskWindowContext::TaskWindowContext(QWidget *widget)
     m_context << uidm->uniqueIdentifier(Core::Constants::C_PROBLEM_PANE);
 }
 
-QList<int> TaskWindowContext::context() const
+Core::Context TaskWindowContext::context() const
 {
     return m_context;
 }

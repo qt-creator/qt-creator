@@ -175,7 +175,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     //register actions
     m_projectContext = core->uniqueIDManager()->
         uniqueIdentifier(Qt4ProjectManager::Constants::PROJECT_ID);
-    QList<int> context = QList<int>() << m_projectContext;
+    Core::Context context(m_projectContext);
     Core::Command *command;
 
     QIcon qmakeIcon(QLatin1String(":/qt4projectmanager/images/run_qmake.png"));
@@ -225,7 +225,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     connect(m_projectExplorer, SIGNAL(currentProjectChanged(ProjectExplorer::Project *)),
             this, SLOT(currentProjectChanged()));
 
-    Core::ActionContainer *contextMenu= am->createMenu(Qt4ProjectManager::Constants::M_CONTEXT);
+    Core::ActionContainer *contextMenu = am->createMenu(Qt4ProjectManager::Constants::M_CONTEXT);
 
     Core::Command *cmd;
 

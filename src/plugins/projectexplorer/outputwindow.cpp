@@ -82,8 +82,7 @@ OutputPane::OutputPane()
 
     // Stop
     Core::ActionManager *am = Core::ICore::instance()->actionManager();
-    QList<int> globalcontext;
-    globalcontext.append(Core::Constants::C_GLOBAL_ID);
+    Core::Context globalcontext(Core::Constants::C_GLOBAL_ID);
 
     m_stopAction = new QAction(QIcon(Constants::ICON_STOP), tr("Stop"), this);
     m_stopAction->setToolTip(tr("Stop"));
@@ -385,8 +384,7 @@ OutputWindow::OutputWindow(QWidget *parent)
 
     static uint usedIds = 0;
     Core::ICore *core = Core::ICore::instance();
-    QList<int> context;
-    context << core->uniqueIDManager()->uniqueIdentifier(QString(Constants::C_APP_OUTPUT) + QString().setNum(usedIds++));
+    Core::Context context(core->uniqueIDManager()->uniqueIdentifier(QString(Constants::C_APP_OUTPUT) + QString().setNum(usedIds++)));
     m_outputWindowContext = new Core::BaseContext(this, context);
     core->addContextObject(m_outputWindowContext);
 

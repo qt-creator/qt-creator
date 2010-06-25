@@ -33,13 +33,14 @@
 #include "debugger_global.h"
 
 #include <QtCore/QObject>
+#include <QtCore/QMultiHash>
 
 QT_FORWARD_DECLARE_CLASS(QDockWidget);
-#include <QtCore/QMultiHash>
 
 namespace Core {
     class ActionContainer;
     class Command;
+    class Context;
     class BaseMode;
     class IMode;
 }
@@ -68,7 +69,7 @@ public:
     static DebuggerUISwitcher *instance();
 
     // debuggable languages are registered with this function.
-    void addLanguage(const QString &langName, const QList<int> &context);
+    void addLanguage(const QString &langName, const Core::Context &context);
 
     // debugger toolbars are registered  with this function
     void setToolbar(const QString &langName, QWidget *widget);

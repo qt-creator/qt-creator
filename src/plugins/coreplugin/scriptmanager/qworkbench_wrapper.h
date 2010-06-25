@@ -46,12 +46,12 @@ class CorePrototype : public QObject, public QScriptable
 {
     Q_OBJECT
 
-    Q_PROPERTY(Core::MessageManager* messageManager READ messageManager DESIGNABLE false SCRIPTABLE true STORED false)
-    Q_PROPERTY(Core::FileManager* fileManager READ fileManager DESIGNABLE false SCRIPTABLE true STORED false)
-    Q_PROPERTY(Core::EditorManager* editorManager READ editorManager DESIGNABLE false SCRIPTABLE true STORED false)
+    Q_PROPERTY(Core::MessageManager *messageManager READ messageManager DESIGNABLE false SCRIPTABLE true STORED false)
+    Q_PROPERTY(Core::FileManager *fileManager READ fileManager DESIGNABLE false SCRIPTABLE true STORED false)
+    Q_PROPERTY(Core::EditorManager *editorManager READ editorManager DESIGNABLE false SCRIPTABLE true STORED false)
 
-    Q_PROPERTY(QMainWindow* mainWindow READ mainWindow DESIGNABLE false SCRIPTABLE true STORED false)
-    Q_PROPERTY(QSettings* settings READ settings DESIGNABLE false SCRIPTABLE true STORED false)
+    Q_PROPERTY(QMainWindow *mainWindow READ mainWindow DESIGNABLE false SCRIPTABLE true STORED false)
+    Q_PROPERTY(QSettings *settings READ settings DESIGNABLE false SCRIPTABLE true STORED false)
 
 public:
     typedef Core::ICore ICore;
@@ -66,7 +66,7 @@ public:
     QSettings *settings() const;
 
 public slots:
-    void updateAdditionalContexts(const QList<int> &remove, const QList<int> &add);
+    void updateAdditionalContexts(const Context &remove, const Context &add);
     QString toString() const;
 
 private:

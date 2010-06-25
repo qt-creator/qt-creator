@@ -161,11 +161,11 @@ class BookmarkContext : public Core::IContext
 {
 public:
     BookmarkContext(BookmarkView *widget);
-    virtual QList<int> context() const;
+    virtual Core::Context context() const;
     virtual QWidget *widget();
 private:
     BookmarkView *m_bookmarkView;
-    QList<int> m_context;
+    Core::Context m_context;
 };
 
 class BookmarkViewFactory : public Core::INavigationWidgetFactory

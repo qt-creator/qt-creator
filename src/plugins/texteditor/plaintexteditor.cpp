@@ -83,7 +83,7 @@ PlainTextEditor::PlainTextEditor(QWidget *parent)
 PlainTextEditor::~PlainTextEditor()
 {}
 
-QList<int> PlainTextEditorEditable::context() const
+Core::Context PlainTextEditorEditable::context() const
 {
     return m_context;
 }

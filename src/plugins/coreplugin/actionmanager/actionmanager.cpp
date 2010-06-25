@@ -265,7 +265,7 @@ bool ActionManagerPrivate::hasContext(int context) const
     return m_context.contains(context);
 }
 
-void ActionManagerPrivate::setContext(const QList<int> &context)
+void ActionManagerPrivate::setContext(const Context &context)
 {
     // here are possibilities for speed optimization if necessary:
     // let commands (de-)register themselves for contexts
@@ -276,9 +276,9 @@ void ActionManagerPrivate::setContext(const QList<int> &context)
         it.value()->setCurrentContext(m_context);
 }
 
-bool ActionManagerPrivate::hasContext(QList<int> context) const
+bool ActionManagerPrivate::hasContext(const Context &context) const
 {
-    for (int i=0; i<m_context.count(); ++i) {
+    for (int i = 0; i < m_context.count(); ++i) {
         if (context.contains(m_context.at(i)))
             return true;
     }
@@ -321,7 +321,7 @@ ActionContainer *ActionManagerPrivate::createMenuBar(const QString &id)
     return mbc;
 }
 
-Command *ActionManagerPrivate::registerAction(QAction *action, const QString &id, const QList<int> &context)
+Command *ActionManagerPrivate::registerAction(QAction *action, const QString &id, const Context &context)
 {
     Action *a = 0;
     Command *c = registerOverridableAction(action, id, false);
@@ -377,7 +377,7 @@ Command *ActionManagerPrivate::registerOverridableAction(QAction *action, const 
     return a;
 }
 
-Command *ActionManagerPrivate::registerShortcut(QShortcut *shortcut, const QString &id, const QList<int> &context)
+Command *ActionManagerPrivate::registerShortcut(QShortcut *shortcut, const QString &id, const Context &context)
 {
     Shortcut *sc = 0;
     int uid = UniqueIDManager::instance()->uniqueIdentifier(id);
@@ -404,7 +404,7 @@ Command *ActionManagerPrivate::registerShortcut(QShortcut *shortcut, const QStri
     sc->setShortcut(shortcut);
 
     if (context.isEmpty())
-        sc->setContext(QList<int>() << 0);
+        sc->setContext(Context(0));
     else
         sc->setContext(context);
 

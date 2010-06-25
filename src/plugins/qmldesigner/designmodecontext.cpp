@@ -49,7 +49,7 @@ DesignModeContext::~DesignModeContext()
 
 }
 
-QList<int> DesignModeContext::context() const
+Core::Context DesignModeContext::context() const
 {
     return m_context;
 }

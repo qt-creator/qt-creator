@@ -80,7 +80,7 @@ QSettings *CorePrototype::settings() const
      return callee()->settings();
 }
 
-void CorePrototype::updateAdditionalContexts(const QList<int> &remove, const QList<int> &add)
+void CorePrototype::updateAdditionalContexts(const Context &remove, const Context &add)
 {
     callee()->updateAdditionalContexts(remove, add);
 }

@@ -58,7 +58,7 @@ public:
     int priority() const;
     QWidget* widget();
     QString id() const;
-    QList<int> context() const;
+    Context context() const;
 
 private slots:
     void grabEditorManager(Core::IMode *mode);

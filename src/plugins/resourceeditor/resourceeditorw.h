@@ -51,8 +51,6 @@ class ResourceEditorFile
     Q_OBJECT
 
 public:
-    typedef QList<int> Context;
-
     ResourceEditorFile(ResourceEditorW *parent = 0);
 
     //IFile
@@ -78,9 +76,7 @@ class ResourceEditorW : public Core::IEditor
     Q_OBJECT
 
 public:
-    typedef QList<int> Context;
-
-    ResourceEditorW(const Context &context,
+    ResourceEditorW(const Core::Context &context,
                    ResourceEditorPlugin *plugin,
                    QWidget *parent = 0);
     ~ResourceEditorW();
@@ -99,7 +95,7 @@ public:
     bool restoreState(const QByteArray &/*state*/) { return true; }
 
     // ContextInterface
-    Context context() const { return m_context; }
+    Core::Context context() const { return m_context; }
     QWidget *widget();
 
     void setSuggestedFileName(const QString &fileName);
@@ -114,7 +110,7 @@ private:
     const QString m_fileFilter;
     QString m_displayName;
     QString m_suggestedName;
-    const Context m_context;
+    const Core::Context m_context;
     QPointer<SharedTools::QrcEditor> m_resourceEditor;
     ResourceEditorFile *m_resourceFile;
     ResourceEditorPlugin *m_plugin;

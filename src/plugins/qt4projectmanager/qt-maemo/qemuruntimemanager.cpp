@@ -39,6 +39,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/icontext.h>
 #include <coreplugin/modemanager.h>
 
 #include <projectexplorer/projectexplorer.h>
@@ -84,7 +85,7 @@ QemuRuntimeManager::QemuRuntimeManager(QObject *parent)
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *actionManager = core->actionManager();
     Core::Command *qemuCommand = actionManager->registerAction(m_qemuAction,
-        "MaemoEmulator", QList<int>() << Core::Constants::C_GLOBAL_ID);
+        "MaemoEmulator", Core::Context(Core::Constants::C_GLOBAL_ID));
     qemuCommand->setAttribute(Core::Command::CA_UpdateText);
     qemuCommand->setAttribute(Core::Command::CA_UpdateIcon);
 

@@ -32,6 +32,7 @@
 #include "textfindconstants.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -129,10 +130,8 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     // need to make sure QStringList is registered as metatype
     QMetaTypeId<QStringList>::qt_metatype_id();
 
-    //register actions
-    QList<int> globalcontext;
-    globalcontext << Core::Constants::C_GLOBAL_ID;
-
+    // register actions
+    Core::Context globalcontext(Core::Constants::C_GLOBAL_ID);
     Core::ActionManager *am = Core::ICore::instance()->actionManager();
     Core::ActionContainer *mfind = am->actionContainer(Constants::M_FIND);
     Core::Command *cmd;

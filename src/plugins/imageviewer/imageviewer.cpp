@@ -51,7 +51,7 @@ namespace Internal {
 
 struct ImageViewerPrivate
 {
-    QList<int> context;
+    Core::Context context;
     QString displayName;
     ImageViewerFile *file;
     ImageView *imageView;
@@ -109,7 +109,7 @@ ImageViewer::~ImageViewer()
     delete d_ptr->toolbar;
 }
 
-QList<int> ImageViewer::context() const
+Core::Context ImageViewer::context() const
 {
     return d_ptr->context;
 }

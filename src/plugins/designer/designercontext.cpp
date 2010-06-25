@@ -43,7 +43,7 @@ enum { debug = 0 };
 namespace Designer {
 namespace Internal {
 
-DesignerContext::DesignerContext(const QList<int> contexts,
+DesignerContext::DesignerContext(const Core::Context &contexts,
                                  QWidget *widget,
                                  QObject *parent) :
     Core::IContext(parent),
@@ -52,7 +52,7 @@ DesignerContext::DesignerContext(const QList<int> contexts,
 {
 }
 
-QList<int> DesignerContext::context() const
+Core::Context DesignerContext::context() const
 {
     return m_context;
 }

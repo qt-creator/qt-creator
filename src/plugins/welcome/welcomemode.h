@@ -60,7 +60,7 @@ public:
     int priority() const;
     QWidget *widget();
     QString id() const;
-    QList<int> context() const;
+    Core::Context context() const;
     void activated();
     QString contextHelpId() const { return QLatin1String("Qt Creator Manual"); }
     void initPlugins();

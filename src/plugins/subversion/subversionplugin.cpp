@@ -252,7 +252,7 @@ static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
 static inline Core::Command *createSeparator(QObject *parent,
                                              Core::ActionManager *ami,
                                              const char*id,
-                                             const QList<int> &globalcontext)
+                                             const Core::Context &globalcontext)
 {
     QAction *tmpaction = new QAction(parent);
     tmpaction->setSeparator(true);
@@ -304,8 +304,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     subversionMenu->menu()->setTitle(tr("&Subversion"));
     toolsContainer->addMenu(subversionMenu);
     m_menuAction = subversionMenu->menu()->menuAction();
-    QList<int> globalcontext;
-    globalcontext << core->uniqueIDManager()->uniqueIdentifier(C_GLOBAL);
+    Core::Context globalcontext(core->uniqueIDManager()->uniqueIdentifier(C_GLOBAL));
 
     Core::Command *command;
 
@@ -457,7 +456,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     m_commandLocator->appendCommand(command);
 
     // Actions of the submit editor
-    QList<int> svncommitcontext;
+    Core::Context svncommitcontext;
     svncommitcontext << Core::UniqueIDManager::instance()->uniqueIdentifier(Constants::SUBVERSIONCOMMITEDITOR);
 
     m_submitCurrentLogAction = new QAction(VCSBase::VCSBaseSubmitEditor::submitIcon(), tr("Commit"), this);

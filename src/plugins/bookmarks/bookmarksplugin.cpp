@@ -69,13 +69,9 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
 {
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = core->actionManager();
-
-    QList<int> context = QList<int>() << core->uniqueIDManager()->
-        uniqueIdentifier(Constants::BOOKMARKS_CONTEXT);
-    QList<int> textcontext, globalcontext;
-    textcontext << core->uniqueIDManager()->
-        uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
-    globalcontext << Core::Constants::C_GLOBAL_ID;
+    Core::UniqueIDManager *uidm = core->uniqueIDManager();
+    Core::Context textcontext(uidm->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR));
+    Core::Context globalcontext(Core::Constants::C_GLOBAL_ID);
 
     Core::ActionContainer *mtools =
         am->actionContainer(Core::Constants::M_TOOLS);

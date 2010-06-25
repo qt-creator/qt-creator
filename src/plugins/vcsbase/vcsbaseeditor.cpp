@@ -76,7 +76,7 @@ class VCSBaseEditorEditable : public TextEditor::BaseTextEditorEditable
 public:
     VCSBaseEditorEditable(VCSBaseEditor *,
                           const VCSBaseEditorParameters *type);
-    QList<int> context() const;
+    Core::Context context() const;
 
     bool duplicateSupported() const { return false; }
     Core::IEditor *duplicate(QWidget * /*parent*/) { return 0; }
@@ -91,7 +91,7 @@ signals:
 
 private:
     QString m_id;
-    QList<int> m_context;
+    Core::Context m_context;
     bool m_temporary;
 };
 
@@ -106,7 +106,7 @@ VCSBaseEditorEditable::VCSBaseEditorEditable(VCSBaseEditor *editor,
               << uidm->uniqueIdentifier(QLatin1String(TextEditor::Constants::C_TEXTEDITOR));
 }
 
-QList<int> VCSBaseEditorEditable::context() const
+Core::Context VCSBaseEditorEditable::context() const
 {
     return m_context;
 }

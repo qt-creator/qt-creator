@@ -31,6 +31,7 @@
 #define MAINWINDOW_H
 
 #include "core_global.h"
+#include "icontext.h"
 #include "dialogs/iwizard.h"
 
 #include "eventfilteringmainwindow.h"
@@ -117,7 +118,7 @@ public:
     IContext * currentContextObject() const;
     QStatusBar *statusBar() const;
 
-    void updateAdditionalContexts(const QList<int> &remove, const QList<int> &add);
+    void updateAdditionalContexts(const Context &remove, const Context &add);
     bool hasContext(int context) const;
 
     void setSuppressNavigationWidget(bool suppress);
@@ -178,8 +179,8 @@ private:
 
     CoreImpl *m_coreImpl;
     UniqueIDManager *m_uniqueIDManager;
-    QList<int> m_globalContext;
-    QList<int> m_additionalContexts;
+    Context m_globalContext;
+    Context m_additionalContexts;
     QSettings *m_settings;
     QSettings *m_globalSettings;
     SettingsDatabase *m_settingsDatabase;

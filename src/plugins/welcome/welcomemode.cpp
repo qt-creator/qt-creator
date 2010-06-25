@@ -148,10 +148,10 @@ QString WelcomeMode::id() const
     return QLatin1String(Core::Constants::MODE_WELCOME);
 }
 
-QList<int> WelcomeMode::context() const
+Core::Context WelcomeMode::context() const
 {
-    static QList<int> contexts = QList<int>()
-                                 << Core::UniqueIDManager::instance()->uniqueIdentifier(Core::Constants::C_WELCOME_MODE);
+    static Core::Context contexts =
+            Core::Context(Core::UniqueIDManager::instance()->uniqueIdentifier(Core::Constants::C_WELCOME_MODE));
     return contexts;
 }
 

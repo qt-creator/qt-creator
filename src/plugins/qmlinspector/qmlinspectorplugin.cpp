@@ -101,7 +101,7 @@ bool QmlInspectorPlugin::initialize(const QStringList &arguments, QString *error
     Debugger::DebuggerUISwitcher *uiSwitcher = pluginManager->getObject<Debugger::DebuggerUISwitcher>();
 
     uiSwitcher->addLanguage(Qml::Constants::LANG_QML,
-                            QList<int>() << core->uniqueIDManager()->uniqueIdentifier(Constants::C_INSPECTOR));
+                            Core::Context(core->uniqueIDManager()->uniqueIdentifier(Constants::C_INSPECTOR)));
     m_inspector = new QmlInspector;
     m_inspector->createDockWidgets();
     addObject(m_inspector);

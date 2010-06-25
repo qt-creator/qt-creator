@@ -33,6 +33,7 @@
 #include "mercurialsettings.h"
 
 #include <vcsbase/vcsbaseplugin.h>
+#include <coreplugin/icontext.h>
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QHash>
@@ -139,12 +140,12 @@ private:
     //methods
     void createMenu();
     void createSubmitEditorActions();
-    void createSeparator(const QList<int> &context, const QString &id);
-    void createFileActions(const QList<int> &context);
-    void createDirectoryActions(const QList<int> &context);
-    void createRepositoryActions(const QList<int> &context);
-    void createRepositoryManagementActions(const QList<int> &context);
-    void createLessUsedActions(const QList<int> &context);
+    void createSeparator(const Core::Context &context, const QString &id);
+    void createFileActions(const Core::Context &context);
+    void createDirectoryActions(const Core::Context &context);
+    void createRepositoryActions(const Core::Context &context);
+    void createRepositoryManagementActions(const Core::Context &context);
+    void createLessUsedActions(const Core::Context &context);
     void deleteCommitLog();
 
     //Variables

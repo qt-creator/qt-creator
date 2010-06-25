@@ -31,6 +31,7 @@
 #define ACTIONMANAGERPRIVATE_H
 
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/icontext.h>
 
 #include <QtCore/QMap>
 #include <QtCore/QHash>
@@ -64,7 +65,7 @@ public:
     explicit ActionManagerPrivate(MainWindow *mainWnd);
     ~ActionManagerPrivate();
 
-    void setContext(const QList<int> &context);
+    void setContext(const Context &context);
     static ActionManagerPrivate *instance();
 
     void saveSettings(QSettings *settings);
@@ -85,19 +86,19 @@ public:
     ActionContainer *createMenuBar(const QString &id);
 
     Command *registerAction(QAction *action, const QString &id,
-        const QList<int> &context);
+        const Context &context);
     Command *registerShortcut(QShortcut *shortcut, const QString &id,
-        const QList<int> &context);
+        const Context &context);
 
     Core::Command *command(const QString &id) const;
     Core::ActionContainer *actionContainer(const QString &id) const;
 
 private:
-    bool hasContext(QList<int> context) const;
+    bool hasContext(const Context &context) const;
     Command *registerOverridableAction(QAction *action, const QString &id,
         bool checkUnique);
 
-    static ActionManagerPrivate* m_instance;
+    static ActionManagerPrivate *m_instance;
     QList<int> m_defaultGroups;
 
     typedef QHash<int, CommandPrivate *> IdCmdMap;
@@ -109,7 +110,7 @@ private:
 //    typedef QMap<int, int> GlobalGroupMap;
 //    GlobalGroupMap m_globalgroups;
 //
-    QList<int> m_context;
+    Context m_context;
 
     MainWindow *m_mainWnd;
 };

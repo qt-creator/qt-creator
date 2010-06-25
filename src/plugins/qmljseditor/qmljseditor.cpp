@@ -713,7 +713,7 @@ bool QmlJSEditorEditable::open(const QString &fileName)
     return b;
 }
 
-QmlJSTextEditor::Context QmlJSEditorEditable::context() const
+Core::Context QmlJSEditorEditable::context() const
 {
     return m_context;
 }

@@ -178,7 +178,7 @@ private:
 
     uint m_optionalActions;
     QPointer<BaseTextEditor> m_currentEditor;
-    QList<int> m_contextId;
+    Core::Context m_contextId;
     bool m_initialized;
 };
 

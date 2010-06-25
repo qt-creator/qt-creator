@@ -42,6 +42,7 @@ class QAction;
 QT_END_NAMESPACE
 
 namespace Core {
+    class Context;
     class IContext;
     class IWizard;
     class ICore;
@@ -85,7 +86,7 @@ private slots:
     void textEditorsClosed(QList<Core::IEditor *> editors);
     void updateActions(Core::IEditor* editor);
     void updateEditor(Core::IEditor *editor);
-    void contextChanged(Core::IContext *context, const QList<int> &additionalContexts);
+    void contextChanged(Core::IContext *context, const Core::Context &additionalContexts);
 
 private:
     void createDesignModeWidget();

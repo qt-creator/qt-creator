@@ -30,11 +30,13 @@
 #ifndef FORMEDITORW_H
 #define FORMEDITORW_H
 
+#include "designerconstants.h"
+
+#include "coreplugin/icontext.h"
+
+#include <QtCore/QMap>
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
-#include <QtCore/QMap>
-
-#include "designerconstants.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -136,11 +138,11 @@ private:
 
     void setupActions();
     void setupViewActions();
-    inline void addDockViewAction(Core::ActionManager *am,
-                                  Core::ActionContainer *viewMenu,
-                                  int index,
-                                  const QList<int> &context,
-                                  const QString &title, const QString &id);
+    void addDockViewAction(Core::ActionManager *am,
+                           Core::ActionContainer *viewMenu,
+                           int index,
+                           const Core::Context &context,
+                           const QString &title, const QString &id);
 
     Core::ActionContainer *createPreviewStyleMenu(Core::ActionManager *am,
                                                    QActionGroup *actionGroup);
@@ -148,7 +150,7 @@ private:
     void critical(const QString &errorMessage);
     void bindShortcut(Core::Command *command, QAction *action);
     QAction *createEditModeAction(QActionGroup *ag,
-                                         const QList<int> &context,
+                                         const Core::Context &context,
                                          Core::ActionManager *am,
                                          Core::ActionContainer *medit,
                                          const QString &actionName,
@@ -157,7 +159,7 @@ private:
                                          const QString &iconName = QString(),
                                          const QString &keySequence = QString());
     Core::Command *addToolAction(QAction *a, Core::ActionManager *am,
-                                 const QList<int> &context, const QString &name,
+                                 const Core::Context &context, const QString &name,
                                  Core::ActionContainer *c1, const QString &keySequence = QString());
     QToolBar *createEditorToolBar() const;
 
@@ -184,7 +186,7 @@ private:
     QSignalMapper *m_shortcutMapper;
 
     DesignerContext *m_context;
-    QList<int> m_contexts;
+    Core::Context m_contexts;
 
     QStringList m_toolActionIds;
     QWidget *m_modeWidget;

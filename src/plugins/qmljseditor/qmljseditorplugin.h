@@ -31,6 +31,7 @@
 #define QMLJSEDITORPLUGIN_H
 
 #include <extensionsystem/iplugin.h>
+#include <coreplugin/icontext.h>
 #include <QtCore/QPointer>
 
 QT_FORWARD_DECLARE_CLASS(QAction)
@@ -93,7 +94,7 @@ private Q_SLOTS:
     void quickFixNow();
 
 private:
-    Core::Command *addToolAction(QAction *a, Core::ActionManager *am, const QList<int> &context, const QString &name,
+    Core::Command *addToolAction(QAction *a, Core::ActionManager *am, Core::Context &context, const QString &name,
                                  Core::ActionContainer *c1, const QString &keySequence);
 
     static QmlJSEditorPlugin *m_instance;

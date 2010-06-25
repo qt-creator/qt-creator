@@ -191,7 +191,7 @@ QStatusBar *CoreImpl::statusBar() const
     return m_mainwindow->statusBar();
 }
 
-void CoreImpl::updateAdditionalContexts(const QList<int> &remove, const QList<int> &add)
+void CoreImpl::updateAdditionalContexts(const Context &remove, const Context &add)
 {
     m_mainwindow->updateAdditionalContexts(remove, add);
 }
