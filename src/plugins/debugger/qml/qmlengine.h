@@ -30,14 +30,13 @@
 #ifndef DEBUGGER_QMLENGINE_H
 #define DEBUGGER_QMLENGINE_H
 
+#include "debuggerengine.h"
+
 #include <QtCore/QByteArray>
 #include <QtCore/QHash>
-#include <QtCore/QMap>
 #include <QtCore/QObject>
 #include <QtCore/QPoint>
-#include <QtCore/QProcess>
 #include <QtCore/QQueue>
-#include <QtCore/QSet>
 #include <QtCore/QTimer>
 #include <QtCore/QVariant>
 
@@ -47,9 +46,6 @@ QT_BEGIN_NAMESPACE
 class QTcpSocket;
 QT_END_NAMESPACE
 
-#include "debuggerengine.h"
-
-
 namespace Debugger {
 namespace Internal {
 
@@ -57,13 +53,16 @@ class ScriptAgent;
 class WatchData;
 class QmlResponse;
 
-class QmlEngine : public DebuggerEngine
+class DEBUGGER_EXPORT QmlEngine : public DebuggerEngine
 {
     Q_OBJECT
 
 public:
     explicit QmlEngine(const DebuggerStartParameters &startParameters);
     ~QmlEngine();
+
+    void messageReceived(const QByteArray &message);
+    using DebuggerEngine::setState;
 
 private:
     // DebuggerEngine implementation
@@ -118,7 +117,8 @@ private:
     void handleRunControlGetChildren(const QmlResponse &response, const QVariant &);
     void handleSysMonitorGetChildren(const QmlResponse &response, const QVariant &);
 
-private:
+    unsigned int debuggerCapabilities() const;
+
     Q_SLOT void startDebugging();
 
     typedef void (QmlEngine::*QmlCommandCallback)
@@ -159,6 +159,9 @@ private:
     QTcpSocket *m_socket;
     QByteArray m_inbuffer;
     QList<QByteArray> m_services;
+
+signals:
+    void sendMessage(const QByteArray &);
 };
 
 } // namespace Internal

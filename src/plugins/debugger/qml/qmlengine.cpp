@@ -204,18 +204,25 @@ void QmlEngine::startDebugger()
     qDebug() << "STARTING QML ENGINE";
     setState(InferiorRunningRequested);
     showStatusMessage(tr("Running requested..."), 5000);
-    const DebuggerStartParameters &sp = startParameters();
+/*    const DebuggerStartParameters &sp = startParameters();
     const int pos = sp.remoteChannel.indexOf(QLatin1Char(':'));
     const QString host = sp.remoteChannel.left(pos);
     const quint16 port = sp.remoteChannel.mid(pos + 1).toInt();
     //QTimer::singleShot(0, this, SLOT(runInferior()));
-    m_socket->connectToHost(host, port);
+    m_socket->connectToHost(host, port); */
     startSuccessful();
+    setState(InferiorRunning); // FIXME
 }
 
 void QmlEngine::continueInferior()
 {
     SDEBUG("QmlEngine::continueInferior()");
+    QByteArray reply;
+    QDataStream rs(&reply, QIODevice::WriteOnly);
+    rs << QByteArray("CONTINUE");
+    sendMessage(reply);
+    setState(InferiorRunningRequested);
+    setState(InferiorRunning);
 }
 
 void QmlEngine::runInferior()
@@ -224,32 +231,59 @@ void QmlEngine::runInferior()
 
 void QmlEngine::interruptInferior()
 {
-    XSDEBUG("QmlEngine::interruptInferior()");
+    QByteArray reply;
+    QDataStream rs(&reply, QIODevice::WriteOnly);
+    rs << QByteArray("INTERRUPT");
+    sendMessage(reply);
 }
 
 void QmlEngine::executeStep()
 {
-    //SDEBUG("QmlEngine::executeStep()");
+    SDEBUG("QmlEngine::executeStep()");
+    QByteArray reply;
+    QDataStream rs(&reply, QIODevice::WriteOnly);
+    rs << QByteArray("STEPINTO");
+    sendMessage(reply);
+    setState(InferiorRunningRequested);
+    setState(InferiorRunning);
 }
 
 void QmlEngine::executeStepI()
 {
-    //SDEBUG("QmlEngine::executeStepI()");
+    SDEBUG("QmlEngine::executeStepI()");
+    QByteArray reply;
+    QDataStream rs(&reply, QIODevice::WriteOnly);
+    rs << QByteArray("STEPINTO");
+    sendMessage(reply);
+    setState(InferiorRunningRequested);
+    setState(InferiorRunning);
 }
 
 void QmlEngine::executeStepOut()
 {
-    //SDEBUG("QmlEngine::executeStepOut()");
+    SDEBUG("QmlEngine::executeStepOut()");
+    QByteArray reply;
+    QDataStream rs(&reply, QIODevice::WriteOnly);
+    rs << QByteArray("STEPOUT");
+    sendMessage(reply);
+    setState(InferiorRunningRequested);
+    setState(InferiorRunning);
 }
 
 void QmlEngine::executeNext()
 {
-    //SDEBUG("QmlEngine::nextExec()");
+    QByteArray reply;
+    QDataStream rs(&reply, QIODevice::WriteOnly);
+    rs << QByteArray("STEPOVER");
+    sendMessage(reply);
+    setState(InferiorRunningRequested);
+    setState(InferiorRunning);
+    SDEBUG("QmlEngine::nextExec()");
 }
 
 void QmlEngine::executeNextI()
 {
-    //SDEBUG("QmlEngine::executeNextI()");
+    SDEBUG("QmlEngine::executeNextI()");
 }
 
 void QmlEngine::executeRunToLine(const QString &fileName, int lineNumber)
@@ -275,6 +309,8 @@ void QmlEngine::executeJumpToLine(const QString &fileName, int lineNumber)
 void QmlEngine::activateFrame(int index)
 {
     Q_UNUSED(index)
+    qDebug() << Q_FUNC_INFO << index;
+    gotoLocation(stackHandler()->frames().value(index), true);
 }
 
 void QmlEngine::selectThread(int index)
@@ -284,6 +320,22 @@ void QmlEngine::selectThread(int index)
 
 void QmlEngine::attemptBreakpointSynchronization()
 {
+    BreakHandler *handler = breakHandler();
+    //bool updateNeeded = false;
+    QSet< QPair<QString, qint32> > breakList;
+    for (int index = 0; index != handler->size(); ++index) {
+        BreakpointData *data = handler->at(index);
+        breakList << qMakePair(data->fileName, data->lineNumber.toInt());
+    }
+
+    {
+    QByteArray reply;
+    QDataStream rs(&reply, QIODevice::WriteOnly);
+    rs << QByteArray("BREAKPOINTS");
+    rs << breakList;
+    //qDebug() << Q_FUNC_INFO << breakList;
+    sendMessage(reply);
+    }
 }
 
 void QmlEngine::loadSymbols(const QString &moduleName)
@@ -521,10 +573,26 @@ void QmlEngine::updateLocals()
 {
 }
 
-void QmlEngine::updateWatchData(const WatchData &)
+void QmlEngine::updateWatchData(const WatchData &data)
 {
     //watchHandler()->rebuildModel();
     showStatusMessage(tr("Stopped."), 5000);
+
+    if (!data.name.isEmpty()) {
+        QByteArray reply;
+        QDataStream rs(&reply, QIODevice::WriteOnly);
+        rs << QByteArray("EXEC");
+        rs << data.iname << data.name;
+        sendMessage(reply);
+    }
+
+    {
+        QByteArray reply;
+        QDataStream rs(&reply, QIODevice::WriteOnly);
+        rs << QByteArray("WATCH_EXPRESSIONS");
+        rs << watchHandler()->watchedExpressions();
+        sendMessage(reply);
+    }
 }
 
 void QmlEngine::updateSubItem(const WatchData &data0)
@@ -536,6 +604,143 @@ void QmlEngine::updateSubItem(const WatchData &data0)
 DebuggerEngine *createQmlEngine(const DebuggerStartParameters &sp)
 {
     return new QmlEngine(sp);
+}
+
+unsigned QmlEngine::debuggerCapabilities() const
+{
+    return AddWatcherCapability;
+    /*ReverseSteppingCapability | SnapshotCapability
+        | AutoDerefPointersCapability | DisassemblerCapability
+        | RegisterCapability | ShowMemoryCapability
+        | JumpToLineCapability | ReloadModuleCapability
+        | ReloadModuleSymbolsCapability | BreakOnThrowAndCatchCapability
+        | ReturnFromFunctionCapability
+        | CreateFullBacktraceCapability
+        | WatchpointCapability
+        | AddWatcherCapability;*/
+}
+
+static void updateWatchDataFromVariant(const QVariant &value,  WatchData &data)
+{
+    switch (value.userType()) {
+        case QVariant::Bool:
+            data.setType(QLatin1String("Bool"), false);
+            data.setValue(value.toBool() ? QLatin1String("true") : QLatin1String("false"));
+            data.setHasChildren(false);
+            break;
+        case QVariant::Date:
+        case QVariant::DateTime:
+        case QVariant::Time:
+            data.setType(QLatin1String("Date"), false);
+            data.setValue(value.toDateTime().toString());
+            data.setHasChildren(false);
+            break;
+        /*} else if (ob.isError()) {
+            data.setType(QLatin1String("Error"), false);
+            data.setValue(QString(QLatin1Char(' ')));
+        } else if (ob.isFunction()) {
+            data.setType(QLatin1String("Function"), false);
+            data.setValue(QString(QLatin1Char(' ')));*/
+        case QVariant::Invalid:{
+            const QString nullValue = QLatin1String("<null>");
+            data.setType(nullValue, false);
+            data.setValue(nullValue);
+            break;}
+        case QVariant::UInt:
+        case QVariant::Int:
+        case QVariant::Double:
+        //FIXME FLOAT
+            data.setType(QLatin1String("Number"), false);
+            data.setValue(QString::number(value.toDouble()));
+            data.setHasChildren(false);
+            break;
+/*                } else if (ob.isObject()) {
+            data.setType(QLatin1String("Object"), false);
+            data.setValue(QString(QLatin1Char(' ')));
+        } else if (ob.isQMetaObject()) {
+            data.setType(QLatin1String("QMetaObject"), false);
+            data.setValue(QString(QLatin1Char(' ')));
+        } else if (ob.isQObject()) {
+            data.setType(QLatin1String("QObject"), false);
+            data.setValue(QString(QLatin1Char(' ')));
+        } else if (ob.isRegExp()) {
+            data.setType(QLatin1String("RegExp"), false);
+            data.setValue(ob.toRegExp().pattern());
+        } else if (ob.isString()) {*/
+        case QVariant::String:
+            data.setType(QLatin1String("String"), false);
+            data.setValue(value.toString());
+/*                } else if (ob.isVariant()) {
+            data.setType(QLatin1String("Variant"), false);
+            data.setValue(QString(QLatin1Char(' ')));
+        } else if (ob.isUndefined()) {
+            data.setType(QLatin1String("<undefined>"), false);
+            data.setValue(QLatin1String("<unknown>"));
+            data.setHasChildren(false);
+        } else {*/
+        default:{
+            const QString unknown = QLatin1String("<unknown>");
+            data.setType(unknown, false);
+            data.setValue(unknown);
+            data.setHasChildren(false);
+        }
+    }
+}
+
+void QmlEngine::messageReceived(const QByteArray &message)
+{
+    QByteArray rwData = message;
+    QDataStream stream(&rwData, QIODevice::ReadOnly);
+
+    QByteArray command;
+    stream >> command;
+
+    if(command == "STOPPED") {
+        QList<QPair<QString, QPair<QString, qint32> > > backtrace;
+        QList<QPair<QString, QVariant> > watches;
+        stream >> backtrace >> watches;
+
+        QList<StackFrame> stackFrames;
+        typedef QPair<QString, QPair<QString, qint32> > Iterator;
+        foreach (const Iterator &it, backtrace) {
+            StackFrame frame;
+            frame.file = it.second.first;
+            frame.line = it.second.second;
+            frame.function = it.first;
+            stackFrames << frame;
+        }
+
+        gotoLocation(stackFrames.value(0), true);
+        stackHandler()->setFrames(stackFrames);
+
+        watchHandler()->beginCycle();
+
+        typedef QPair<QString, QVariant > Iterator2;
+        foreach (const Iterator2 &it, watches) {
+            WatchData data;
+            data.name = it.first;
+            data.exp = it.first.toUtf8();
+            data.iname = watchHandler()->watcherName(data.exp);
+            updateWatchDataFromVariant(it.second,  data);
+            watchHandler()->insertData(data);
+        }
+
+        watchHandler()->endCycle();
+
+        setState(InferiorStopping);
+        setState(InferiorStopped);
+    } else if (command == "RESULT") {
+        WatchData data;
+        QVariant variant;
+        stream >> data.iname >> data.name >> variant;
+        data.exp = data.name.toUtf8();
+        updateWatchDataFromVariant(variant,  data);
+        qDebug() << Q_FUNC_INFO << this << data.name << data.iname << variant;
+        watchHandler()->insertData(data);
+    } else {
+        qDebug() << Q_FUNC_INFO << "Unknown command: " << command;
+    }
+
 }
 
 } // namespace Internal

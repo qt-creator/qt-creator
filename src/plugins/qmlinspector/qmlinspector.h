@@ -26,6 +26,7 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
+
 #ifndef QMLINSPECTORMODE_H
 #define QMLINSPECTORMODE_H
 
@@ -38,12 +39,11 @@
 #include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE
-
 class QDockWidget;
-class QToolButton;
+class QLabel;
 class QLineEdit;
 class QSpinBox;
-class QLabel;
+class QToolButton;
 
 class QDeclarativeEngineDebug;
 class QDeclarativeDebugConnection;
@@ -110,8 +110,8 @@ public:
 
     static QmlInspector *instance();
     bool canEditProperty(const QString &propertyType);
-    QDeclarativeDebugExpressionQuery *executeExpression(int objectDebugId, const QString &objectId,
-                                                        const QString &propertyName, const QVariant &value);
+    QDeclarativeDebugExpressionQuery *executeExpression(int objectDebugId,
+        const QString &objectId, const QString &propertyName, const QVariant &value);
 
 signals:
     void statusMessage(const QString &text);
@@ -135,10 +135,12 @@ private slots:
 
 private:
     void updateMenuActions();
-    Debugger::DebuggerRunControl *createDebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig,
-                                                           const QString &executableFile = QString(),
-                                                           const QString &executableArguments = QString());
-    QString executeDebuggerRunControl(Debugger::DebuggerRunControl *debuggableRunControl, ProjectExplorer::Environment *environment);
+    Debugger::DebuggerRunControl *createDebuggerRunControl(
+        ProjectExplorer::RunConfiguration *runConfig,
+        const QString &executableFile = QString(),
+        const QString &executableArguments = QString());
+    QString executeDebuggerRunControl(Debugger::DebuggerRunControl *debuggableRunControl,
+        ProjectExplorer::Environment *environment);
     QString attachToQmlViewerAsExternalApp(ProjectExplorer::Project *project);
     QString attachToExternalCppAppWithQml(ProjectExplorer::Project *project);
 
@@ -185,6 +187,7 @@ private:
     bool m_connectionInitialized;
     bool m_simultaneousCppAndQmlDebugMode;
     DebugMode m_debugMode;
+    Debugger::DebuggerRunControl *m_debuggerRunControl;
 
     static QmlInspector *m_instance;
 };

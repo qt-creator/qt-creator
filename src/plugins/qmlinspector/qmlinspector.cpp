@@ -44,7 +44,10 @@
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggeruiswitcher.h>
+#include <debugger/watchdata.h>
+#include <debugger/watchhandler.h>
 
+#include <utils/qtcassert.h>
 #include <utils/styledbar.h>
 #include <utils/fancymainwindow.h>
 
@@ -77,11 +80,19 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <private/qdeclarativedebug_p.h>
+#include <private/qdeclarativedebugclient_p.h>
+
+#include "debugger/qml/qmlengine.h"
+//#include "debugger/debuggermanager.h"
+#include "debugger/stackframe.h"
+#include "debugger/stackhandler.h"
+
 
 #include <QtCore/QDebug>
 #include <QtCore/QStringList>
 #include <QtCore/QTimer>
 #include <QtCore/QtPlugin>
+#include <QtCore/QDateTime>
 
 #include <QtGui/QToolButton>
 #include <QtGui/QToolBar>
@@ -97,6 +108,40 @@
 #include <QtNetwork/QHostAddress>
 
 using namespace Qml;
+
+using namespace Debugger;
+using namespace Debugger::Internal;
+
+class DebuggerClient : public QDeclarativeDebugClient
+{
+    Q_OBJECT
+
+public:
+    DebuggerClient(QDeclarativeDebugConnection *client, QmlEngine *engine)
+        : QDeclarativeDebugClient(QLatin1String("Debugger"), client)
+        , connection(client), engine(engine)
+    {
+        QObject::connect(engine, SIGNAL(sendMessage(QByteArray)),
+            this, SLOT(slotSendMessage(QByteArray)));
+        setEnabled(true);
+    }
+
+    void messageReceived(const QByteArray &data)
+    {
+        engine->messageReceived(data);
+    }
+
+
+    QDeclarativeDebugConnection *connection;
+    QmlEngine *engine;
+
+public slots:
+    void slotSendMessage(const QByteArray &message)
+    {
+        QDeclarativeDebugClient::sendMessage(message);
+    }
+};
+
 
 namespace Qml {
 
@@ -266,10 +311,17 @@ bool QmlInspector::connectToViewer()
     emit statusMessage(tr("[Inspector] set to connect to debug server %1:%2").arg(host).arg(port));
     m_conn->connectToHost(host, port);
     // blocks until connected; if no connection is available, will fail immediately
-    if (m_conn->waitForConnected())
-        return true;
 
-    return false;
+    if (!m_conn->waitForConnected())
+        return false;
+
+    QTC_ASSERT(m_debuggerRunControl, return false);
+    QmlEngine *engine = qobject_cast<QmlEngine *>(m_debuggerRunControl->engine());
+    QTC_ASSERT(engine, return false);
+
+    (void) new DebuggerClient(m_conn, engine);
+
+    return true;
 }
 
 void QmlInspector::disconnectFromViewer()
@@ -542,7 +594,7 @@ QString QmlInspector::attachToQmlViewerAsExternalApp(ProjectExplorer::Project *p
     customEnv.set(QmlProjectManager::Constants::E_QML_DEBUG_SERVER_PORT, QString::number(m_settings.externalPort()));
 
     Debugger::DebuggerRunControl *debuggableRunControl =
-            createDebuggerRunControl(runConfig, dlg.qmlViewerPath(), dlg.qmlViewerArguments());
+     createDebuggerRunControl(runConfig, dlg.qmlViewerPath(), dlg.qmlViewerArguments());
 
     return executeDebuggerRunControl(debuggableRunControl, &customEnv);
 }
@@ -855,6 +907,7 @@ QmlInspector *QmlInspector::instance()
     return m_instance;
 }
 
-} // Qml
+}
+
 
 #include "qmlinspector.moc"

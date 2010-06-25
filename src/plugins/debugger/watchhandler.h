@@ -176,6 +176,8 @@ public:
 
     void addTypeFormats(const QString &type, const QStringList &formats);
 
+    QByteArray watcherName(const QByteArray &exp);
+
 private:
     friend class WatchModel;
 
@@ -194,7 +196,6 @@ private:
     EditHandlers m_editHandlers;
 
     QHash<QByteArray, int> m_watcherNames;
-    QByteArray watcherName(const QByteArray &exp);
     QHash<QString, int> m_typeFormats;
     QHash<QByteArray, int> m_individualFormats; // Indexed by iname.
     QHash<QString, QStringList> m_reportedTypeFormats;

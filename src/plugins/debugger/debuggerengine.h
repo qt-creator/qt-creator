@@ -112,8 +112,8 @@ class WatchHandler;
 
 class DebuggerEnginePrivate;
 
-
-class DebuggerEngine : public QObject
+// FIXME: DEBUGGER_EXPORT?
+class DEBUGGER_EXPORT DebuggerEngine : public QObject
 {
     Q_OBJECT
 
