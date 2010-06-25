@@ -158,7 +158,7 @@ public:
     ProStringList &valuesRef(const ProString &variableName);
     ProStringList valuesDirect(const ProString &variableName) const;
     ProStringList values(const ProString &variableName) const;
-    QString propertyValue(const QString &val, bool complain = true) const;
+    QString propertyValue(const QString &val, bool complain) const;
 
     static ProStringList split_value_list(const QString &vals);
     bool isActiveConfig(const QString &config, bool regex = false);
@@ -694,7 +694,7 @@ void ProFileEvaluator::Private::evaluateExpression(
             break;
         case TokProperty:
             addStr(ProString(propertyValue(
-                    getStr(tokPtr).toQString(m_tmp1)), NoHash), ret, pending, joined);
+                    getStr(tokPtr).toQString(m_tmp1), true), NoHash), ret, pending, joined);
             break;
         case TokEnvVar:
             addStrList(split_value_list(QString::fromLocal8Bit(qgetenv(
@@ -1322,7 +1322,7 @@ QStringList ProFileEvaluator::Private::qmakeMkspecPaths() const
         foreach (const QString &it, QString::fromLocal8Bit(qmakepath).split(m_option->dirlist_sep))
             ret << QDir::cleanPath(it) + concat;
 
-    QString builtIn = propertyValue(QLatin1String("QT_INSTALL_DATA")) + concat;
+    QString builtIn = propertyValue(QLatin1String("QT_INSTALL_DATA"), false) + concat;
     if (!ret.contains(builtIn))
         ret << builtIn;
 
@@ -1400,10 +1400,10 @@ QStringList ProFileEvaluator::Private::qmakeFeaturePaths() const
     }
 
     foreach (const QString &concat_it, concat)
-        feature_roots << (propertyValue(QLatin1String("QT_INSTALL_PREFIX")) +
+        feature_roots << (propertyValue(QLatin1String("QT_INSTALL_PREFIX"), false) +
                           mkspecs_concat + concat_it);
     foreach (const QString &concat_it, concat)
-        feature_roots << (propertyValue(QLatin1String("QT_INSTALL_DATA")) +
+        feature_roots << (propertyValue(QLatin1String("QT_INSTALL_DATA"), false) +
                           mkspecs_concat + concat_it);
 
     for (int i = 0; i < feature_roots.count(); ++i)
@@ -1639,7 +1639,7 @@ ProStringList ProFileEvaluator::Private::expandVariableReferences(
                     replacement = split_value_list(QString::fromLocal8Bit(qgetenv(
                             var.toQString(m_tmp1).toLocal8Bit().constData())));
                 } else if (var_type == PROPERTY) {
-                    replacement << ProString(propertyValue(var.toQString(m_tmp1)), NoHash);
+                    replacement << ProString(propertyValue(var.toQString(m_tmp1), true), NoHash);
                 } else if (var_type == FUNCTION) {
                     replacement += evaluateExpandFunction(var, args);
                 } else if (var_type == VAR) {
