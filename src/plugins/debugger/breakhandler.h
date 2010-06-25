@@ -110,7 +110,6 @@ private:
     void markerUpdated(BreakpointMarker *, int lineNumber);
     void loadBreakpoints();
     void saveBreakpoints();
-    void resetBreakpoints();
     void removeBreakpointHelper(int index);
 
     const QIcon m_breakpointIcon;

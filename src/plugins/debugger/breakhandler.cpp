@@ -545,34 +545,6 @@ void BreakHandler::loadBreakpoints()
     //qDebug() << "LOADED BREAKPOINTS" << this << list.size();
 }
 
-void BreakHandler::resetBreakpoints()
-{
-    for (int index = size(); --index >= 0;) {
-        BreakpointData *data = at(index);
-        data->pending = true;
-        data->bpMultiple = false;
-        data->bpEnabled = true;
-        data->bpNumber.clear();
-        data->bpFuncName.clear();
-        data->bpFileName.clear();
-        data->bpLineNumber.clear();
-        data->bpCorrectedLineNumber.clear();
-        data->bpCondition.clear();
-        data->bpIgnoreCount.clear();
-        data->bpThreadSpec.clear();
-        data->bpAddress.clear();
-        // Keep marker data if it was primary.
-        if (data->markerFileName() != data->fileName)
-            data->setMarkerFileName(QString());
-        if (data->markerLineNumber() != data->lineNumber.toInt())
-            data->setMarkerLineNumber(0);
-    }
-    m_enabled.clear();
-    m_disabled.clear();
-    m_removed.clear();
-    m_inserted.clear();
-}
-
 void BreakHandler::updateMarkers()
 {
     for (int index = 0; index != size(); ++index)
@@ -981,7 +953,6 @@ void BreakHandler::saveSessionData()
 {
     QTC_ASSERT(m_engine->isSessionEngine(), return);
     saveBreakpoints();
-    updateMarkers();
 }
 
 void BreakHandler::loadSessionData()
