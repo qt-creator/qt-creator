@@ -208,9 +208,7 @@ public:
 private:
     void insertProperty(const QString &name, const Interpreter::Value *value)
     {
-        if (_context->lookupMode() == Interpreter::Context::JSLookup ||
-                ! dynamic_cast<const Interpreter::ASTVariableReference *>(value))
-            _properties.insert(name, value);
+        _properties.insert(name, value);
     }
 
     virtual bool processProperty(const QString &name, const Interpreter::Value *value)
