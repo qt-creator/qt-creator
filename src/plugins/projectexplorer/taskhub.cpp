@@ -132,6 +132,11 @@ void TaskHub::taskMarkClicked(unsigned int id)
     emit showTask(id);
 }
 
+void TaskHub::showTaskInEditor(unsigned int id)
+{
+    emit openTask(id);
+}
+
 void TaskHub::setCategoryVisibility(const Core::Id &categoryId, bool visible)
 {
     emit categoryVisibilityChanged(categoryId, visible);

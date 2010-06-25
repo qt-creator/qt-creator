@@ -37,6 +37,7 @@
 #include "projectexplorerconstants.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
+#include "taskhub.h"
 
 #include <coreplugin/icontext.h>
 #include <find/basetextfind.h>
@@ -59,10 +60,50 @@ namespace {
 const int MAX_LINECOUNT = 50000;
 }
 
+namespace ProjectExplorer {
+namespace Internal {
+
+class CompileOutputTextEdit : public Core::OutputWindow
+{
+public:
+    CompileOutputTextEdit(const Core::Context &context) : Core::OutputWindow(context)
+    {
+    }
+
+    void addTask(const Task &task, int blocknumber)
+    {
+        m_taskids.insert(blocknumber, task.taskId);
+    }
+
+    void clearTasks()
+    {
+        m_taskids.clear();
+    }
+
+protected:
+     void mouseDoubleClickEvent(QMouseEvent *ev)
+     {
+        int line = cursorForPosition(ev->pos()).block().blockNumber();
+        if (unsigned taskid = m_taskids.value(line, 0)) {
+            ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+            TaskHub *hub = pm->getObject<TaskHub>();
+            hub->showTaskInEditor(taskid);
+        } else {
+            QPlainTextEdit::mouseDoubleClickEvent(ev);
+        }
+    }
+
+private:
+    QHash<int, unsigned int> m_taskids;   //Map blocknumber to taskId
+};
+
+} // namespace Internal
+} // namespace ProjectExplorer
+
 CompileOutputWindow::CompileOutputWindow(BuildManager * /*bm*/)
 {
     Core::Context context(Constants::C_COMPILE_OUTPUT);
-    m_outputWindow = new Core::OutputWindow(context);
+    m_outputWindow = new CompileOutputTextEdit(context);
     m_outputWindow->setWindowTitle(tr("Compile Output"));
     m_outputWindow->setWindowIcon(QIcon(QLatin1String(Constants::ICON_WINDOW)));
     m_outputWindow->setReadOnly(true);
@@ -148,6 +189,7 @@ void CompileOutputWindow::appendText(const QString &text, ProjectExplorer::Build
 void CompileOutputWindow::clearContents()
 {
     m_outputWindow->clear();
+    m_outputWindow->clearTasks();
     m_taskPositions.clear();
 }
 
@@ -191,7 +233,9 @@ void CompileOutputWindow::registerPositionOf(const Task &task)
     int blocknumber = m_outputWindow->blockCount();
     if (blocknumber > MAX_LINECOUNT)
         return;
+
     m_taskPositions.insert(task.taskId, blocknumber);
+    m_outputWindow->addTask(task, blocknumber);
 }
 
 bool CompileOutputWindow::knowsPositionOf(const Task &task)

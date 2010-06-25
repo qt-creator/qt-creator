@@ -306,6 +306,8 @@ TaskWindow::TaskWindow(TaskHub *taskhub) : d(new TaskWindowPrivate)
             this, SLOT(popup(bool)));
     connect(d->m_taskHub, SIGNAL(showTask(uint)),
             this, SLOT(showTask(uint)));
+    connect(d->m_taskHub, SIGNAL(openTask(uint)),
+            this, SLOT(openTask(uint)));
 }
 
 TaskWindow::~TaskWindow()
@@ -396,6 +398,14 @@ void TaskWindow::showTask(unsigned int id)
     QModelIndex sourceIdx = d->m_model->index(sourceRow, 0);
     QModelIndex filterIdx = d->m_filter->mapFromSource(sourceIdx);
     d->m_listview->setCurrentIndex(filterIdx);
+}
+
+void TaskWindow::openTask(unsigned int id)
+{
+    int sourceRow = d->m_model->rowForId(id);
+    QModelIndex sourceIdx = d->m_model->index(sourceRow, 0);
+    QModelIndex filterIdx = d->m_filter->mapFromSource(sourceIdx);
+    triggerDefaultHandler(filterIdx);
 }
 
 void TaskWindow::triggerDefaultHandler(const QModelIndex &index)
