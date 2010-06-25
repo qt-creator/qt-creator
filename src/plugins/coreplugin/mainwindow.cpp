@@ -1198,21 +1198,21 @@ void MainWindow::writeSettings()
 
 void MainWindow::updateAdditionalContexts(const Context &remove, const Context &add)
 {
-    foreach (const int context, remove.d) {
+    foreach (const int context, remove) {
         if (context == 0)
             continue;
 
-        int index = m_additionalContexts.d.indexOf(context);
+        int index = m_additionalContexts.indexOf(context);
         if (index != -1)
-            m_additionalContexts.d.removeAt(index);
+            m_additionalContexts.removeAt(index);
     }
 
-    foreach (const int context, add.d) {
+    foreach (const int context, add) {
         if (context == 0)
             continue;
 
-        if (!m_additionalContexts.d.contains(context))
-            m_additionalContexts.d.prepend(context);
+        if (!m_additionalContexts.contains(context))
+            m_additionalContexts.prepend(context);
     }
 
     updateContext();
@@ -1228,15 +1228,15 @@ void MainWindow::updateContext()
     Context contexts;
 
     if (m_activeContext)
-        contexts.d += m_activeContext->context().d;
+        contexts.add(m_activeContext->context());
 
-    contexts.d += m_additionalContexts.d;
+    contexts.add(m_additionalContexts);
 
     Context uniquecontexts;
-    for (int i = 0; i < contexts.d.size(); ++i) {
-        const int c = contexts.d.at(i);
-        if (!uniquecontexts.d.contains(c))
-            uniquecontexts.d << c;
+    for (int i = 0; i < contexts.size(); ++i) {
+        const int c = contexts.at(i);
+        if (!uniquecontexts.contains(c))
+            uniquecontexts.add(c);
     }
 
     m_actionManager->setContext(uniquecontexts);

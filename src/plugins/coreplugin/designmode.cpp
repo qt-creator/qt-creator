@@ -267,7 +267,7 @@ void DesignMode::updateContext(Core::IMode *newMode, Core::IMode *oldMode)
 
 void DesignMode::setActiveContext(const Context &context)
 {
-    if (d->m_activeContext.d == context.d)
+    if (d->m_activeContext == context)
         return;
 
     if (ModeManager::instance()->currentMode() == this)

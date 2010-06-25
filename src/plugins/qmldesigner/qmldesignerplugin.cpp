@@ -275,8 +275,8 @@ void BauhausPlugin::contextChanged(Core::IContext *context, const Core::Context 
 {
     Q_UNUSED(context)
 
-    foreach (int additionalContext, additionalContexts.d) {
-        if (m_context->context().d.contains(additionalContext)) {
+    foreach (int additionalContext, additionalContexts) {
+        if (m_context->context().contains(additionalContext)) {
             m_isActive = true;
             m_mainWidget->showEditor(m_editorManager->currentEditor());
             return;

@@ -56,7 +56,19 @@ public:
     int size() const { return d.size(); }
     bool isEmpty() const { return d.isEmpty(); }
     int at(int i) const { return d.at(i); }
-public:
+
+    // FIXME: Make interface slimmer.
+    typedef QList<int>::const_iterator const_iterator;
+    const_iterator begin() const { return d.begin(); }
+    const_iterator end() const { return d.end(); }
+    int indexOf(int c) const { return d.indexOf(c); }
+    void removeAt(int i) { d.removeAt(i); }
+    void prepend(int c) { d.prepend(c); }
+    void add(const Context &c) { d += c.d; }
+    void add(int c) { d.append(c); }
+    bool operator==(const Context &c) { return d == c.d; }
+
+private:
     QList<int> d;
 };
 

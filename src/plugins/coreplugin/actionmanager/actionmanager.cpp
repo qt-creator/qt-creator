@@ -250,7 +250,7 @@ QList<Command *> ActionManagerPrivate::commands() const
 {
     // transform list of CommandPrivate into list of Command
     QList<Command *> result;
-    foreach(Command *cmd, m_idCmdMap.values())
+    foreach (Command *cmd, m_idCmdMap.values())
         result << cmd;
     return result;
 }
@@ -262,7 +262,7 @@ QList<ActionContainerPrivate *> ActionManagerPrivate::containers() const
 
 bool ActionManagerPrivate::hasContext(int context) const
 {
-    return m_context.d.contains(context);
+    return m_context.contains(context);
 }
 
 void ActionManagerPrivate::setContext(const Context &context)
@@ -278,8 +278,8 @@ void ActionManagerPrivate::setContext(const Context &context)
 
 bool ActionManagerPrivate::hasContext(const Context &context) const
 {
-    for (int i = 0; i < m_context.d.count(); ++i) {
-        if (context.d.contains(m_context.d.at(i)))
+    for (int i = 0; i < m_context.size(); ++i) {
+        if (context.contains(m_context.at(i)))
             return true;
     }
     return false;
@@ -403,7 +403,7 @@ Command *ActionManagerPrivate::registerShortcut(QShortcut *shortcut, const QStri
     shortcut->setParent(m_mainWnd);
     sc->setShortcut(shortcut);
 
-    if (context.d.isEmpty())
+    if (context.isEmpty())
         sc->setContext(Context(0));
     else
         sc->setContext(context);
