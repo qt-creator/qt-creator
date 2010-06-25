@@ -50,7 +50,7 @@ public:
     void setTextEditorFont(const QFont &font);
 
     SearchResultTreeModel *model() const;
-    void appendResultLines(const QList<SearchResultItem> &items);
+    void appendResultLines(const QList<Find::SearchResultItem> &items);
 
 signals:
     void jumpToSearchResult(int index, bool checked);

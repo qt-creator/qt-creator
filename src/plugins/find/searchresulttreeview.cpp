@@ -66,7 +66,7 @@ void SearchResultTreeView::clear()
     m_model->clear();
 }
 
-void SearchResultTreeView::appendResultLines(const QList<SearchResultItem> &items)
+void SearchResultTreeView::appendResultLines(const QList<Find::SearchResultItem> &items)
 {
     const QList<int> &insertedFileIndices = m_model->addResultLines(items);
     if (m_autoExpandResults && !insertedFileIndices.isEmpty()) {
