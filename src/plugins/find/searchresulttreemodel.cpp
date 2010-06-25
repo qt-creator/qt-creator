@@ -245,10 +245,11 @@ QVariant SearchResultTreeModel::data(const SearchResultFile *file, int role) con
         break;
     }
     case Qt::DisplayRole: {
-        QString result = QDir::toNativeSeparators(file->fileName());
-        result += QLatin1String(" (");
-        result += QString::number(file->childrenCount());
-        result +=  QLatin1Char(')');
+        const QString result =
+                QDir::toNativeSeparators(file->fileName())
+                + QString::fromLatin1(" (")
+                + QString::number(file->childrenCount())
+                + QLatin1Char(')');
         return QVariant(result);
     }
     case ItemDataRoles::FileNameRole:
