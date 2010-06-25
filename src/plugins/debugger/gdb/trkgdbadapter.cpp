@@ -48,6 +48,8 @@
 
 #include <QtCore/QTimer>
 #include <QtCore/QDir>
+#include <QtNetwork/QTcpServer>
+#include <QtNetwork/QTcpSocket>
 
 #ifdef Q_OS_WIN
 #  include <windows.h>
@@ -62,48 +64,13 @@
 
 #define TrkCB(s) TrkCallback(this, &TrkGdbAdapter::s)
 
-//#define DEBUG_MEMORY  1
-#if DEBUG_MEMORY
-#   define MEMORY_DEBUG(s) qDebug() << s
-#else
-#   define MEMORY_DEBUG(s)
-#endif
-#define MEMORY_DEBUGX(s) qDebug() << s
-
 using namespace trk;
 
 namespace Debugger {
 namespace Internal {
-
-enum { KnownRegisters = RegisterPSGdb + 1};
+using namespace Symbian;
 
 static inline void appendByte(QByteArray *ba, trk::byte b) { ba->append(b); }
-
-static const char *registerNames[KnownRegisters] =
-{
-    "A1", "A2", "A3", "A4",
-    0, 0, 0, 0,
-    0, 0, 0, "AP",
-    "IP", "SP", "LR", "PC",
-    "PSTrk", 0, 0, 0,
-    0, 0, 0, 0,
-    0, "PSGdb"
-};
-
-static QByteArray dumpRegister(uint n, uint value)
-{
-    QByteArray ba;
-    ba += ' ';
-    if (n < KnownRegisters && registerNames[n]) {
-        ba += registerNames[n];
-    } else {
-        ba += '#';
-        ba += QByteArray::number(n);
-    }
-    ba += '=';
-    ba += hexxNumber(value);
-    return ba;
-}
 
 static void appendRegister(QByteArray *ba, uint regno, uint value)
 {
@@ -111,123 +78,6 @@ static void appendRegister(QByteArray *ba, uint regno, uint value)
     ba->append(':');
     ba->append(hexNumber(swapEndian(value), 8));
     ba->append(';');
-}
-
-QDebug operator<<(QDebug d, MemoryRange range)
-{
-    return d << QString("[%1,%2] (size %3) ")
-        .arg(range.from, 0, 16).arg(range.to, 0, 16).arg(range.size());
-}
-
-///////////////////////////////////////////////////////////////////////////
-//
-// MemoryRange
-//
-///////////////////////////////////////////////////////////////////////////
-
-MemoryRange::MemoryRange(uint f, uint t)
-    : from(f), to(t)
-{
-    QTC_ASSERT(f <= t, qDebug() << "F: " << f << " T: " << t);
-}
-
-bool MemoryRange::intersects(const MemoryRange &other) const
-{
-    Q_UNUSED(other);
-    QTC_ASSERT(false, /**/);
-    return false; // FIXME
-}
-
-void MemoryRange::operator-=(const MemoryRange &other)
-{
-    if (from == 0 && to == 0)
-        return;
-    MEMORY_DEBUG("      SUB: "  << *this << " - " << other);
-    if (other.from <= from && to <= other.to) {
-        from = to = 0;
-        return;
-    }
-    if (other.from <= from && other.to <= to) {
-        from = qMax(from, other.to);
-        return;
-    }
-    if (from <= other.from && to <= other.to) {
-        to = qMin(other.from, to);
-        return;
-    }
-    // This would split the range.
-    QTC_ASSERT(false, qDebug() << "Memory::operator-() not handled for: "
-        << *this << " - " << other);
-}
-
-bool MemoryRange::isReadOnly() const
-{
-    return from >= 0x70000000 && to < 0x80000000;
-}
-
-///////////////////////////////////////////////////////////////////////////
-//
-// Snapshot
-//
-///////////////////////////////////////////////////////////////////////////
-
-void Snapshot::reset()
-{
-    for (Memory::Iterator it = memory.begin(); it != memory.end(); ++it) {
-        if (it.key().isReadOnly()) {
-            MEMORY_DEBUG("KEEPING READ-ONLY RANGE" << it.key());
-        } else {
-            it = memory.erase(it);
-        }
-    }
-    for (int i = 0; i < RegisterCount; ++i)
-        registers[i] = 0;
-    registerValid = false;
-    wantedMemory = MemoryRange();
-    lineFromAddress = 0;
-    lineToAddress = 0;
-}
-
-void Snapshot::fullReset()
-{
-    memory.clear();
-    reset();
-}
-
-void Snapshot::insertMemory(const MemoryRange &range, const QByteArray &ba)
-{
-    QTC_ASSERT(range.size() == uint(ba.size()),
-        qDebug() << "RANGE: " << range << " BA SIZE: " << ba.size(); return);
-
-    MEMORY_DEBUG("INSERT: " << range);
-    // Try to combine with existing chunk.
-    Snapshot::Memory::iterator it = memory.begin();
-    Snapshot::Memory::iterator et = memory.end();
-    for ( ; it != et; ++it) {
-        if (range.from == it.key().to) {
-            MEMORY_DEBUG("COMBINING " << it.key() << " AND " << range);
-            QByteArray data = *it;
-            data.append(ba);
-            const MemoryRange res(it.key().from, range.to);
-            memory.remove(it.key());
-            MEMORY_DEBUG(" TO(1)  " << res);
-            insertMemory(res, data);
-            return;
-        }
-        if (it.key().from == range.to) {
-            MEMORY_DEBUG("COMBINING " << range << " AND " << it.key());
-            QByteArray data = ba;
-            data.append(*it);
-            const MemoryRange res(range.from, it.key().to);
-            memory.remove(it.key());
-            MEMORY_DEBUG(" TO(2)  " << res);
-            insertMemory(res, data);
-            return;
-        }
-    }
-
-    // Not combinable, add chunk.
-    memory.insert(range, ba);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -385,8 +235,8 @@ QByteArray TrkGdbAdapter::trkStepRangeMessage()
         from = pc;
         to = pc;
     }
-
-    //qDebug() << "USING" << int(option) << (option == 1 ? " INTO " : " OVER");
+    logMessage(QString::fromLatin1("Stepping from 0x%1 to 0x%2 (current PC=0x%3), option 0x%4").
+               arg(from, 0, 16).arg(to, 0, 16).arg(pc).arg(option, 0, 16));
     QByteArray ba;
     ba.reserve(17);
     appendByte(&ba, option);
@@ -431,10 +281,10 @@ void TrkGdbAdapter::slotEmitDelayedInferiorStartFailed()
 }
 
 
-void TrkGdbAdapter::logMessage(const QString &msg)
+void TrkGdbAdapter::logMessage(const QString &msg, int logChannel)
 {
-    if (m_verbose)
-        showMessage("TRK LOG: " + msg);
+    if (m_verbose || logChannel != LogDebug)
+        showMessage("TRK LOG: " + msg, logChannel);
 }
 
 //
@@ -478,7 +328,7 @@ void TrkGdbAdapter::readGdbServerCommand()
         }
 
         if (code == '-') {
-            logMessage("NAK: Retransmission requested");
+            logMessage("NAK: Retransmission requested", LogError);
             // This seems too harsh.
             //emit adapterCrashed("Communication problem encountered.");
             continue;
@@ -492,14 +342,14 @@ void TrkGdbAdapter::readGdbServerCommand()
 
         if (code != '$') {
             logMessage("Broken package (2) " + quoteUnprintableLatin1(ba)
-                + hexNumber(code));
+                + hexNumber(code), LogError);
             continue;
         }
 
         int pos = ba.indexOf('#');
         if (pos == -1) {
             logMessage("Invalid checksum format in "
-                + quoteUnprintableLatin1(ba));
+                + quoteUnprintableLatin1(ba), LogError);
             continue;
         }
 
@@ -507,7 +357,7 @@ void TrkGdbAdapter::readGdbServerCommand()
         uint checkSum = ba.mid(pos + 1, 2).toUInt(&ok, 16);
         if (!ok) {
             logMessage("Invalid checksum format 2 in "
-                + quoteUnprintableLatin1(ba));
+                + quoteUnprintableLatin1(ba), LogError);
             return;
         }
 
@@ -518,7 +368,7 @@ void TrkGdbAdapter::readGdbServerCommand()
 
         if (sum != checkSum) {
             logMessage(QString("ERROR: Packet checksum wrong: %1 %2 in "
-                + quoteUnprintableLatin1(ba)).arg(checkSum).arg(sum));
+                + quoteUnprintableLatin1(ba)).arg(checkSum).arg(sum), LogError);
         }
 
         QByteArray cmd = ba.left(pos);
@@ -531,17 +381,17 @@ bool TrkGdbAdapter::sendGdbServerPacket(const QByteArray &packet, bool doFlush)
 {
     if (!m_gdbConnection) {
         logMessage(_("Cannot write to gdb: No connection (%1)")
-            .arg(_(packet)));
+            .arg(_(packet)), LogError);
         return false;
     }
     if (m_gdbConnection->state() != QAbstractSocket::ConnectedState) {
         logMessage(_("Cannot write to gdb: Not connected (%1)")
-            .arg(_(packet)));
+            .arg(_(packet)), LogError);
         return false;
     }
     if (m_gdbConnection->write(packet) == -1) {
         logMessage(_("Cannot write to gdb: %1 (%2)")
-            .arg(m_gdbConnection->errorString()).arg(_(packet)));
+            .arg(m_gdbConnection->errorString()).arg(_(packet)), LogError);
         return false;
     }
     if (doFlush)
@@ -612,6 +462,18 @@ QByteArray TrkGdbAdapter::trkBreakpointMessage(uint addr, uint len, bool armMode
     appendInt(&ba, m_session.pid);
     appendInt(&ba, 0xFFFFFFFF);
     return ba;
+}
+
+static QByteArray msgStepRangeReceived(unsigned from, unsigned to, bool over)
+{
+    QByteArray rc = "Stepping range received for step ";
+    rc += over ? "over" : "into";
+    rc += " (0x";
+    rc += QByteArray::number(from, 16);
+    rc += " to 0x";
+    rc += QByteArray::number(to, 16);
+    rc += ')';
+    return rc;
 }
 
 void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
@@ -701,7 +563,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         m_snapshot.lineFromAddress = cmd.mid(8, pos - 8).toUInt(0, 16);
         m_snapshot.lineToAddress = cmd.mid(pos + 1).toUInt(0, 16);
         m_snapshot.stepOver = false;
-        sendGdbServerMessage("", "Stepping range received for Step Into");
+        sendGdbServerMessage("", msgStepRangeReceived(m_snapshot.lineFromAddress, m_snapshot.lineToAddress, m_snapshot.stepOver));
     }
 
     else if (cmd.startsWith("salnext,")) {
@@ -711,7 +573,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         m_snapshot.lineFromAddress = cmd.mid(8, pos - 8).toUInt(0, 16);
         m_snapshot.lineToAddress = cmd.mid(pos + 1).toUInt(0, 16);
         m_snapshot.stepOver = true;
-        sendGdbServerMessage("", "Stepping range received for Step Over");
+        sendGdbServerMessage("", msgStepRangeReceived(m_snapshot.lineFromAddress, m_snapshot.lineToAddress, m_snapshot.stepOver));
     }
 
     else if (cmd.startsWith("Hc")) {
@@ -969,8 +831,8 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
     }
 
     else if (cmd == "s" || cmd.startsWith("vCont;s")) {
-        logMessage(msgGdbPacket(QLatin1String("Step range")));
-        logMessage("  from " + hexxNumber(m_snapshot.registers[RegisterPC]));
+        logMessage(msgGdbPacket(QString::fromLatin1("Step range from 0x%1").
+                                arg(m_snapshot.registers[RegisterPC], 0, 16)));
         sendGdbServerAck();
         //m_snapshot.reset();
         m_running = true;
@@ -1012,9 +874,9 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         const uint len = cmd.mid(pos + 1).toUInt(&ok2, 16);
         if (!ok1) {
             logMessage("MISPARSED ADDRESS FROM " + cmd +
-                " (" + cmd.mid(3, pos - 3) + ")");
+                " (" + cmd.mid(3, pos - 3) + ")", LogError);
         } else if (!ok2) {
-            logMessage("MISPARSED BREAKPOINT SIZE FROM " + cmd);
+            logMessage("MISPARSED BREAKPOINT SIZE FROM " + cmd, LogError);
         } else {
             //qDebug() << "ADDR: " << hexNumber(addr) << " LEN: " << len;
             logMessage(_("Inserting breakpoint at 0x%1, %2")
@@ -1036,7 +898,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         const uint bp = m_session.addressToBP[addr];
         if (bp == 0) {
             logMessage(_("NO RECORDED BP AT 0x%1, %2")
-                .arg(addr, 0, 16).arg(len));
+                .arg(addr, 0, 16).arg(len), LogError);
             sendGdbServerMessage("E00");
         } else {
             m_session.addressToBP.remove(addr);
@@ -1061,7 +923,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
                 if (ok1 && ok2) {
                     const QString msg = _("Read of OS auxiliary "
                         "vector (%1, %2) not implemented.").arg(offset).arg(length);
-                    logMessage(msgGdbPacket(msg));
+                    logMessage(msgGdbPacket(msg), LogWarning);
                     sendGdbServerMessage("E20", msg.toLatin1());
                     handled = true;
                 }
@@ -1071,13 +933,13 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         if (!handled) {
             const QString msg = QLatin1String("FIXME unknown 'XFER'-request: ")
                 + QString::fromAscii(cmd);
-            logMessage(msgGdbPacket(msg));
+            logMessage(msgGdbPacket(msg), LogWarning);
             sendGdbServerMessage("E20", msg.toLatin1());
         }
     } // qPart/qXfer
     else {
         logMessage(msgGdbPacket(QLatin1String("FIXME unknown: ")
-            + QString::fromAscii(cmd)));
+            + QString::fromAscii(cmd)), LogWarning);
     }
 }
 
@@ -1098,7 +960,7 @@ void TrkGdbAdapter::sendTrkAck(trk::byte token)
 
 void TrkGdbAdapter::handleTrkError(const QString &msg)
 {
-    logMessage("## TRK ERROR: " + msg);
+    logMessage("## TRK ERROR: " + msg, LogError);
     emit adapterCrashed("TRK problem encountered:\n" + msg);
 }
 
@@ -1110,8 +972,7 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
         // It looks like those messages _must not_ be acknowledged.
         // If we do so, TRK will complain about wrong sequencing.
         //sendTrkAck(result.token);
-        logMessage(QLatin1String("APPLICATION OUTPUT: ") +
-            QString::fromAscii(result.data));
+        logMessage(QString::fromAscii(result.data), AppOutput);
         sendGdbServerMessage("O" + result.data.toHex());
         return;
     }
@@ -1125,7 +986,7 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             QString logMsg;
             QTextStream(&logMsg) << prefix << "NAK: for token=" << result.token
                 << " ERROR: " << errorMessage(result.data.at(0)) << ' ' << str;
-            logMessage(logMsg);
+            logMessage(logMsg, LogError);
             break;
         }
         case TrkNotifyStopped: {  // 0x90 Notified Stopped
@@ -1176,14 +1037,14 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
         case TrkNotifyException: { // 0x91 Notify Exception (obsolete)
             showMessage(_("RESET SNAPSHOT (NOTIFY EXCEPTION)"));
             m_snapshot.reset();
-            logMessage(prefix + "NOTE: EXCEPTION  " + str);
+            logMessage(prefix + "NOTE: EXCEPTION  " + str, AppError);
             sendTrkAck(result.token);
             break;
         }
         case 0x92: { //
             showMessage(_("RESET SNAPSHOT (NOTIFY INTERNAL ERROR)"));
             m_snapshot.reset();
-            logMessage(prefix + "NOTE: INTERNAL ERROR: " + str);
+            logMessage(prefix + "NOTE: INTERNAL ERROR: " + str, LogError);
             sendTrkAck(result.token);
             break;
         }
@@ -1279,7 +1140,7 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             break;
         }
         default: {
-            logMessage(prefix + "INVALID: " + str);
+            logMessage(prefix + "INVALID: " + str, LogError);
             break;
         }
     }
@@ -1329,7 +1190,7 @@ void TrkGdbAdapter::handleReadRegisters(const TrkResult &result)
     // [80 0B 00   00 00 00 00   C9 24 FF BC   00 00 00 00   00
     //  60 00 00   00 00 00 00   78 67 79 70   00 00 00 00   00...]
     if (result.errorCode()) {
-        logMessage("ERROR: " + result.errorString());
+        logMessage("ERROR: " + result.errorString(), LogError);
         return;
     }
     const char *data = result.data.data() + 1; // Skip ok byte
@@ -1342,7 +1203,7 @@ void TrkGdbAdapter::handleWriteRegister(const TrkResult &result)
 {
     logMessage("       RESULT: " + result.toString() + result.cookie.toString());
     if (result.errorCode()) {
-        logMessage("ERROR: " + result.errorString());
+        logMessage("ERROR: " + result.errorString(), LogError);
         sendGdbServerMessage("E01");
         return;
     }
@@ -1449,7 +1310,7 @@ QByteArray TrkGdbAdapter::memoryReadLogMessage(uint addr, const QByteArray &ba) 
 void TrkGdbAdapter::handleReadMemoryBuffered(const TrkResult &result)
 {
     if (extractShort(result.data.data() + 1) + 3 != result.data.size())
-        logMessage("\n BAD MEMORY RESULT: " + result.data.toHex() + "\n");
+        logMessage("\n BAD MEMORY RESULT: " + result.data.toHex() + "\n", LogError);
     const MemoryRange range = result.cookie.value<MemoryRange>();
     if (const int errorCode = result.errorCode()) {
         logMessage(_("TEMPORARY: ") + msgMemoryReadError(errorCode, range.from));
@@ -1467,7 +1328,7 @@ void TrkGdbAdapter::handleReadMemoryBuffered(const TrkResult &result)
 void TrkGdbAdapter::handleReadMemoryUnbuffered(const TrkResult &result)
 {
     if (extractShort(result.data.data() + 1) + 3 != result.data.size())
-        logMessage("\n BAD MEMORY RESULT: " + result.data.toHex() + "\n");
+        logMessage("\n BAD MEMORY RESULT: " + result.data.toHex() + "\n", LogError);
     const MemoryRange range = result.cookie.value<MemoryRange>();
     if (const int errorCode = result.errorCode()) {
         logMessage(_("TEMPORARY: ") + msgMemoryReadError(errorCode, range.from));
@@ -1587,7 +1448,7 @@ void TrkGdbAdapter::reportReadMemoryBuffered(const TrkResult &result)
 void TrkGdbAdapter::handleStep(const TrkResult &result)
 {
     if (result.errorCode()) {
-        logMessage("ERROR: " + result.errorString() + " in handleStep");
+        logMessage("ERROR: " + result.errorString() + " in handleStep", LogError);
 
         // Try fallback with Continue.
         showMessage("FALLBACK TO 'CONTINUE'");
@@ -1612,7 +1473,7 @@ void TrkGdbAdapter::handleAndReportSetBreakpoint(const TrkResult &result)
     //    Error: 0x00
     // [80 09 00 00 00 00 0A]
     if (result.errorCode()) {
-        logMessage("ERROR WHEN SETTING BREAKPOINT: " + result.errorString());
+        logMessage("ERROR WHEN SETTING BREAKPOINT: " + result.errorString(), LogError);
         sendGdbServerMessage("E21");
         return;
     }
@@ -1629,7 +1490,7 @@ void TrkGdbAdapter::handleClearBreakpoint(const TrkResult &result)
 {
     logMessage("CLEAR BREAKPOINT ");
     if (result.errorCode()) {
-        logMessage("ERROR: " + result.errorString());
+        logMessage("ERROR: " + result.errorString(), LogError);
         //return;
     }
     sendGdbServerMessage("OK");
@@ -1785,7 +1646,7 @@ void TrkGdbAdapter::startAdapter()
         if (message.isEmpty()) {
             emit adapterStartFailed(QString(), QString());
         } else {
-            logMessage(message);
+            logMessage(message, LogError);
             emit adapterStartFailed(message, QString());
         }
         return;
@@ -1798,7 +1659,7 @@ void TrkGdbAdapter::startAdapter()
     if (!m_gdbServer->listen(QHostAddress(gdbServerIP()), gdbServerPort())) {
         QString msg = QString("Unable to start the gdb server at %1: %2.")
             .arg(m_gdbServerName).arg(m_gdbServer->errorString());
-        logMessage(msg);
+        logMessage(msg, LogError);
         emit adapterStartFailed(msg, QString());
         return;
     }
@@ -1831,7 +1692,7 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
     //logMessage("       RESULT: " + result.toString());
     // [80 08 00   00 00 01 B5   00 00 01 B6   78 67 40 00   00 40 00 00]
     if (result.errorCode()) {
-        logMessage("ERROR: " + result.errorString());
+        logMessage("ERROR: " + result.errorString(), LogError);
         QString msg = _("Cannot start executable \"%1\" on the device:\n%2")
             .arg(m_remoteExecutable).arg(result.errorString());
         // Delay cleanup as not to close a trk device from its read handler,
@@ -1854,7 +1715,7 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
 
     const QByteArray symbolFile = m_symbolFile.toLocal8Bit();
     if (symbolFile.isEmpty()) {
-        logMessage(_("WARNING: No symbol file available."));
+        logMessage(_("WARNING: No symbol file available."), LogWarning);
     } else {
         // Does not seem to be necessary anymore.
         // FIXME: Startup sequence can be streamlined now as we do not
@@ -1942,7 +1803,7 @@ void TrkGdbAdapter::handleDirectWrite1(const TrkResult &response)
     scratch = m_session.dataseg + 512;
     logMessage("DIRECT WRITE1: " + response.toString());
     if (const int errorCode = response.errorCode()) {
-        logMessage("ERROR: " + response.errorString() + "in handleDirectWrite1");
+        logMessage("ERROR: " + response.errorString() + "in handleDirectWrite1", LogError);
     } else {
         oldMem = response.data.mid(3);
         oldPC = m_snapshot.registers[RegisterPC];
@@ -1987,7 +1848,7 @@ void TrkGdbAdapter::handleDirectWrite2(const TrkResult &response)
 {
     logMessage("DIRECT WRITE2: " + response.toString());
     if (const int errorCode = response.errorCode()) {
-        logMessage("ERROR: " + response.errorString() + "in handleDirectWrite1");
+        logMessage("ERROR: " + response.errorString() + "in handleDirectWrite1", LogError);
     } else {
         // Check
         sendTrkMessage(0x10, TrkCB(handleDirectWrite3),
@@ -1999,7 +1860,7 @@ void TrkGdbAdapter::handleDirectWrite3(const TrkResult &response)
 {
     logMessage("DIRECT WRITE3: " + response.toString());
     if (const int errorCode = response.errorCode()) {
-        logMessage("ERROR: " + response.errorString() + "in handleDirectWrite1");
+        logMessage("ERROR: " + response.errorString() + "in handleDirectWrite1", LogError);
     } else {
         // Set PC
         sendTrkMessage(0x13, TrkCB(handleDirectWrite4),
@@ -2013,7 +1874,7 @@ void TrkGdbAdapter::handleDirectWrite4(const TrkResult &response)
 return;
     logMessage("DIRECT WRITE4: " + response.toString());
     if (const int errorCode = response.errorCode()) {
-        logMessage("ERROR: " + response.errorString() + "in handleDirectWrite1");
+        logMessage("ERROR: " + response.errorString() + "in handleDirectWrite1", LogError);
     } else {
         QByteArray ba1;
         appendByte(&ba1, 0x11); // options "step over"
@@ -2029,7 +1890,7 @@ void TrkGdbAdapter::handleDirectWrite5(const TrkResult &response)
 {
     logMessage("DIRECT WRITE5: " + response.toString());
     if (const int errorCode = response.errorCode()) {
-        logMessage("ERROR: " + response.errorString() + "in handleDirectWrite1");
+        logMessage("ERROR: " + response.errorString() + "in handleDirectWrite1", LogError);
     } else {
         // Restore PC
         sendTrkMessage(0x13, TrkCB(handleDirectWrite6),
@@ -2041,7 +1902,7 @@ void TrkGdbAdapter::handleDirectWrite6(const TrkResult &response)
 {
     logMessage("DIRECT WRITE6: " + response.toString());
     if (const int errorCode = response.errorCode()) {
-        logMessage("ERROR: " + response.errorString() + "in handleDirectWrite1");
+        logMessage("ERROR: " + response.errorString() + "in handleDirectWrite1", LogError);
     } else {
         // Restore memory
         sendTrkMessage(0x11, TrkCB(handleDirectWrite7),
@@ -2053,7 +1914,7 @@ void TrkGdbAdapter::handleDirectWrite7(const TrkResult &response)
 {
     logMessage("DIRECT WRITE7: " + response.toString());
     if (const int errorCode = response.errorCode()) {
-        logMessage("ERROR: " + response.errorString() + "in handleDirectWrite1");
+        logMessage("ERROR: " + response.errorString() + "in handleDirectWrite1", LogError);
     } else {
         // Check
         sendTrkMessage(0x10, TrkCB(handleDirectWrite8),
@@ -2065,7 +1926,7 @@ void TrkGdbAdapter::handleDirectWrite8(const TrkResult &response)
 {
     logMessage("DIRECT WRITE8: " + response.toString());
     if (const int errorCode = response.errorCode()) {
-        logMessage("ERROR: " + response.errorString() + "in handleDirectWrite1");
+        logMessage("ERROR: " + response.errorString() + "in handleDirectWrite1", LogError);
     } else {
         // Re-read registers
         sendTrkMessage(0x12,

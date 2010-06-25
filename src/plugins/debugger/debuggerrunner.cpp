@@ -338,6 +338,10 @@ void DebuggerRunControl::createEngine(const DebuggerStartParameters &sp)
     else
         engineType = engineForToolChain(sp.toolChainType);
 
+    // Fixme: 1 of 3 testing hacks.
+    if (sp.processArgs.size() >= 5 && sp.processArgs.at(0) == _("@tcf@"))
+        engineType = GdbEngineType;
+
     if (engineType == NoEngineType
             && sp.startMode != AttachToRemote
             && !sp.executable.isEmpty())

@@ -33,19 +33,24 @@
 #include "abstractgdbadapter.h"
 
 #include "trkutils.h"
-#include "trkdevice.h"
-#include "launcher.h"
-#include "abstractgdbprocess.h"
+#include "callback.h"
+#include "symbian.h"
 
-#include <QtCore/QHash>
 #include <QtCore/QPointer>
 #include <QtCore/QSharedPointer>
-#include <QtCore/QQueue>
-#include <QtCore/QString>
 #include <QtCore/QStringList>
+#include <QtCore/QHash>
 
-#include <QtNetwork/QTcpServer>
-#include <QtNetwork/QTcpSocket>
+QT_BEGIN_NAMESPACE
+class QTcpServer;
+class QTcpSocket;
+QT_END_NAMESPACE
+
+namespace trk {
+struct TrkResult;
+struct TrkMessage;
+class TrkDevice;
+}
 
 namespace SymbianUtils {
 class SymbianDevice;
@@ -54,80 +59,8 @@ class SymbianDevice;
 namespace Debugger {
 namespace Internal {
 
-enum CodeMode
-{
-    ArmMode = 0,
-    ThumbMode,
-};
-
-enum TargetConstants
-{
-    RegisterCount = 17,
-    RegisterSP = 13, // Stack Pointer
-    RegisterLR = 14, // Return address
-    RegisterPC = 15, // Program counter
-    RegisterPSGdb = 25, // gdb's view of the world
-    RegisterPSTrk = 16, // TRK's view of the world
-
-    MemoryChunkSize = 256
-};
-
-struct MemoryRange
-{
-    MemoryRange() : from(0), to(0) {}
-    MemoryRange(uint f, uint t);
-    void operator-=(const MemoryRange &other);
-    bool intersects(const MemoryRange &other) const;
-    quint64 hash() const { return (quint64(from) << 32) + to; }
-    bool operator==(const MemoryRange &other) const { return hash() == other.hash(); }
-    bool operator<(const MemoryRange &other) const { return hash() < other.hash(); }
-    uint size() const { return to - from; }
-    bool isReadOnly() const;
-
-    uint from; // Inclusive.
-    uint to;   // Exclusive.
-};
-
-struct Snapshot
-{
-    Snapshot() { reset(); }
-
-    void reset(); // Leaves read-only memory cache alive.
-    void fullReset(); // Also removes read-only memory cache.
-    void insertMemory(const MemoryRange &range, const QByteArray &ba);
-
-    uint registers[RegisterCount];
-    bool registerValid;
-    typedef QMap<MemoryRange, QByteArray> Memory;
-    Memory memory;
-
-    // Current state.
-    MemoryRange wantedMemory;
-
-    // For next step.
-    uint lineFromAddress;
-    uint lineToAddress;
-    bool stepOver;
-};
-
-
-struct Breakpoint
-{
-    Breakpoint(uint offset_ = 0)
-    {
-        number = 0;
-        offset = offset_;
-        mode = ArmMode;
-    }
-    uint offset;
-    ushort number;
-    CodeMode mode;
-};
-
-struct GdbResult
-{
-    QByteArray data;
-};
+struct MemoryRange;
+struct GdbResult;
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -264,21 +197,6 @@ private:
     QSharedPointer<trk::TrkDevice> m_trkDevice;
     QString m_adapterFailMessage;
 
-    //
-    // Gdb
-    //
-    struct GdbCommand
-    {
-        GdbCommand() : flags(0), callback(GdbCallback()), callbackName(0) {}
-
-        int flags;
-        GdbCallback callback;
-        const char *callbackName;
-        QString command;
-        QVariant cookie;
-        //QTime postTime;
-    };
-
     Q_SLOT void handleGdbConnection();
     Q_SLOT void readGdbServerCommand();
     void readGdbResponse();
@@ -291,7 +209,7 @@ private:
     bool sendGdbServerPacket(const QByteArray &packet, bool doFlush);
     void tryAnswerGdbMemoryRequest(bool buffered);
 
-    void logMessage(const QString &msg);  // triggers output() if m_verbose
+    void logMessage(const QString &msg, int logChannel = LogDebug);  // triggers output() if m_verbose
     Q_SLOT void trkLogMessage(const QString &msg);
 
     QPointer<QTcpServer> m_gdbServer;
@@ -299,11 +217,9 @@ private:
     QByteArray m_gdbReadBuffer;
     bool m_gdbAckMode;
 
-    QHash<int, GdbCommand> m_gdbCookieForToken;
-
     // Debuggee state
     trk::Session m_session; // global-ish data (process id, target information)
-    Snapshot m_snapshot; // local-ish data (memory and registers)
+    Symbian::Snapshot m_snapshot; // local-ish data (memory and registers)
     QString m_remoteExecutable;
     QStringList m_remoteArguments;
     QString m_symbolFile;
@@ -314,7 +230,5 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-Q_DECLARE_METATYPE(Debugger::Internal::MemoryRange);
 
 #endif // DEBUGGER_TRKGDBADAPTER_H

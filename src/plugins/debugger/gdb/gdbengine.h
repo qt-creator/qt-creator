@@ -99,6 +99,7 @@ private:
     friend class RemoteGdbServerAdapter;
     friend class RemotePlainGdbAdapter;
     friend class TrkGdbAdapter;
+    friend class TcfTrkGdbAdapter;
 
 private: ////////// General Interface //////////
 

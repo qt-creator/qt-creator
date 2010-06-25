@@ -43,6 +43,7 @@
 #include "remotegdbserveradapter.h"
 #include "remoteplaingdbadapter.h"
 #include "trkgdbadapter.h"
+#include "tcftrkgdbadapter.h"
 
 #include "watchutils.h"
 #include "debuggeractions.h"
@@ -1745,14 +1746,13 @@ AbstractGdbAdapter *GdbEngine::createAdapter()
         case ProjectExplorer::ToolChain::RVCT_ARMV6:
         case ProjectExplorer::ToolChain::RVCT_ARMV5_GNUPOC:
         case ProjectExplorer::ToolChain::GCCE_GNUPOC:
+            // fixme: 1 of 3 testing hacks
+            if (sp.processArgs.size() >= 5 && sp.processArgs.at(0) == _("@tcf@"))
+                return new TcfTrkGdbAdapter(this);
             return new TrkGdbAdapter(this);
         default:
             break;
     }
-
-    // @todo: remove testing hack
-    if (sp.processArgs.size() == 3 && sp.processArgs.at(0) == _("@sym@"))
-        return new TrkGdbAdapter(this);
 
     switch (sp.startMode) {
         case AttachCore:

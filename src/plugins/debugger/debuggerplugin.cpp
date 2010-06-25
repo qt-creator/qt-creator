@@ -1585,6 +1585,10 @@ void DebuggerPluginPrivate::startExternalApplication()
     sp.breakAtMain = dlg.breakAtMain();
     if (!dlg.executableArguments().isEmpty())
         sp.processArgs = dlg.executableArguments().split(QLatin1Char(' '));
+    // Fixme: 1 of 3 testing hacks.
+    if (!sp.processArgs.isEmpty()
+        && (sp.processArgs.front() == _("@tcf@") || sp.processArgs.front() == _("@sym@")))
+        sp.toolChainType = ProjectExplorer::ToolChain::RVCT_ARMV5;
 
     startDebugger(m_debuggerRunControlFactory->create(sp));
 }

@@ -570,8 +570,6 @@ bool StartExternalDialog::breakAtMain() const
     return m_ui->checkBoxBreakAtMain->isChecked();
 }
 
-
-
 ///////////////////////////////////////////////////////////////////////
 //
 // StartRemoteDialog

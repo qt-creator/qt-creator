@@ -131,6 +131,49 @@ QString Session::deviceDescription(unsigned verbose) const
     return msg.arg(formatTrkVersion(trkAppVersion));
 }
 
+QString Session::toString() const
+{
+    QString rc;
+    QTextStream str(&rc);
+    str << "Session: " << deviceDescription(false) << '\n'
+            << "pid: " << pid <<  " thread: " << tid << ' ';
+    str.setIntegerBase(16);
+    str << " code: 0x" << codeseg << " data: 0x" << dataseg << '\n';
+    if (const int libCount = libraries.size()) {
+        str << "Libraries:\n";
+        for (int i = 0; i < libCount; i++)
+            str << " #" << i << ' ' << libraries.at(i).name
+                << " code: 0x" << libraries.at(i).codeseg
+                << " data: 0x" << libraries.at(i).dataseg << '\n';
+    }
+    if (const int moduleCount = modules.size()) {
+        str << "Modules:\n";
+        for (int i = 0; i < moduleCount; i++)
+            str << " #" << i << ' ' << modules.at(i) << '\n';
+    }
+    str.setIntegerBase(10);
+    str <<  "Current thread: " << currentThread << '\n';
+    if (const int threadCount = threads.size()) {
+        str << "Threads:\n";
+        for (int i = 0; i < threadCount; i++)
+            str << " #" << i << ' ' << threads.at(i);
+    }
+
+    if (!addressToBP.isEmpty()) {
+        typedef QHash<uint, uint>::const_iterator BP_ConstIterator;
+        str << "Breakpoints:\n";
+        const BP_ConstIterator cend = addressToBP.constEnd();
+        for (BP_ConstIterator it = addressToBP.constBegin(); it != cend; ++it) {
+            str.setIntegerBase(16);
+            str << "  0x" << it.key();
+            str.setIntegerBase(10);
+            str << ' ' << it.value() << '\n';
+        }
+    }
+
+    return rc;
+}
+
 // --------------
 
 QByteArray decode7d(const QByteArray &ba)

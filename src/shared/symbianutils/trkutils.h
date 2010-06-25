@@ -175,6 +175,7 @@ struct SYMBIANUTILS_EXPORT Session
     Session();
     void reset();
     QString deviceDescription(unsigned verbose) const;
+    QString toString() const;
 
     // Trk feedback
     byte cpuMajor;
