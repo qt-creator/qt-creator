@@ -74,9 +74,10 @@ void runFileSearch(QFutureInterface<FileSearchResultList> &future,
                    QTextDocument::FindFlags flags,
                    QMap<QString, QString> fileToContentsMap)
 {
-    future.setProgressRange(0, files->maxProgress());
     int numFilesSearched = 0;
     int numMatches = 0;
+    future.setProgressRange(0, files->maxProgress());
+    future.setProgressValueAndText(files->currentProgress(), msgFound(searchTerm, numMatches, numFilesSearched));
 
     bool caseInsensitive = !(flags & QTextDocument::FindCaseSensitively);
     bool wholeWord = (flags & QTextDocument::FindWholeWords);
@@ -95,10 +96,9 @@ void runFileSearch(QFutureInterface<FileSearchResultList> &future,
 
     QFile file;
     QBuffer buffer;
+    FileSearchResultList results;
     while (files->hasNext()) {
-        FileSearchResultList results;
         const QString &s = files->next();
-        future.setProgressRange(0, files->maxProgress());
         if (future.isPaused())
             future.waitForResume();
         if (future.isCanceled()) {
@@ -182,12 +182,20 @@ void runFileSearch(QFutureInterface<FileSearchResultList> &future,
             }
             firstChunk = false;
         }
-        if (!results.isEmpty())
-            future.reportResult(results);
         ++numFilesSearched;
-        if (future.isProgressUpdateNeeded())
+        if (future.isProgressUpdateNeeded()) {
+            if (!results.isEmpty()) {
+                future.reportResult(results);
+                results.clear();
+            }
+            future.setProgressRange(0, files->maxProgress());
             future.setProgressValueAndText(files->currentProgress(), msgFound(searchTerm, numMatches, numFilesSearched));
+        }
         device->close();
+    }
+    if (!results.isEmpty()) {
+        future.reportResult(results);
+        results.clear();
     }
     if (!future.isCanceled())
         future.setProgressValueAndText(files->currentProgress(), msgFound(searchTerm, numMatches, numFilesSearched));
@@ -200,9 +208,10 @@ void runFileSearchRegExp(QFutureInterface<FileSearchResultList> &future,
                    QTextDocument::FindFlags flags,
                    QMap<QString, QString> fileToContentsMap)
 {
-    future.setProgressRange(0, files->maxProgress());
     int numFilesSearched = 0;
     int numMatches = 0;
+    future.setProgressRange(0, files->maxProgress());
+    future.setProgressValueAndText(files->currentProgress(), msgFound(searchTerm, numMatches, numFilesSearched));
     if (flags & QTextDocument::FindWholeWords)
         searchTerm = QString::fromLatin1("\\b%1\\b").arg(searchTerm);
     const Qt::CaseSensitivity caseSensitivity = (flags & QTextDocument::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive;
@@ -211,10 +220,9 @@ void runFileSearchRegExp(QFutureInterface<FileSearchResultList> &future,
     QFile file;
     QString str;
     QTextStream stream;
+    FileSearchResultList results;
     while (files->hasNext()) {
-        FileSearchResultList results;
         const QString &s = files->next();
-        future.setProgressRange(0, files->maxProgress());
         if (future.isPaused())
             future.waitForResume();
         if (future.isCanceled()) {
@@ -247,12 +255,21 @@ void runFileSearchRegExp(QFutureInterface<FileSearchResultList> &future,
             }
             ++lineNr;
         }
-        future.reportResult(results);
         ++numFilesSearched;
-        if (future.isProgressUpdateNeeded())
+        if (future.isProgressUpdateNeeded()) {
+            if (!results.isEmpty()) {
+                future.reportResult(results);
+                results.clear();
+            }
+            future.setProgressRange(0, files->maxProgress());
             future.setProgressValueAndText(files->currentProgress(), msgFound(searchTerm, numMatches, numFilesSearched));
+        }
         if (needsToCloseFile)
             file.close();
+    }
+    if (!results.isEmpty()) {
+        future.reportResult(results);
+        results.clear();
     }
     if (!future.isCanceled())
         future.setProgressValueAndText(files->currentProgress(), msgFound(searchTerm, numMatches, numFilesSearched));
@@ -357,13 +374,13 @@ int FileIterator::currentProgress() const
 // #pragma mark -- SubDirFileIterator
 
 namespace {
-    const int MAX_PROGRESS = 360;
+    const int MAX_PROGRESS = 1000;
 }
 
 SubDirFileIterator::SubDirFileIterator(const QStringList &directories, const QStringList &filters)
     : m_filters(filters), m_progress(0)
 {
-    int maxPer = MAX_PROGRESS/directories.count();
+    qreal maxPer = MAX_PROGRESS/directories.count();
     foreach (const QString &directoryEntry, directories) {
         if (!directoryEntry.isEmpty()) {
             m_dirs.push(QDir(directoryEntry));
@@ -379,7 +396,7 @@ bool SubDirFileIterator::hasNext() const
         return true;
     while(!m_dirs.isEmpty() && m_currentFiles.isEmpty()) {
         QDir dir = m_dirs.pop();
-        int dirProgressMax = m_progressValues.pop();
+        qreal dirProgressMax = m_progressValues.pop();
         bool processed = m_processedValues.pop();
         if (dir.exists()) {
             QStringList subDirs;
@@ -397,10 +414,9 @@ bool SubDirFileIterator::hasNext() const
                 }
                 m_progress += dirProgressMax;
             } else {
-                int subProgress = dirProgressMax/(subDirs.size()+1);
-                int selfProgress = subProgress + dirProgressMax%(subDirs.size()+1);
+                qreal subProgress = dirProgressMax/(subDirs.size()+1);
                 m_dirs.push(dir);
-                m_progressValues.push(selfProgress);
+                m_progressValues.push(subProgress);
                 m_processedValues.push(true);
                 QStringListIterator it(subDirs);
                 it.toBack();
@@ -436,5 +452,5 @@ int SubDirFileIterator::maxProgress() const
 
 int SubDirFileIterator::currentProgress() const
 {
-    return m_progress;
+    return qMin(qRound(m_progress), MAX_PROGRESS);
 }

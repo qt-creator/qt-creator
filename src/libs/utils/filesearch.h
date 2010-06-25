@@ -72,9 +72,9 @@ public:
 private:
     QStringList m_filters;
     mutable QStack<QDir> m_dirs;
-    mutable QStack<int> m_progressValues;
+    mutable QStack<qreal> m_progressValues;
     mutable QStack<bool> m_processedValues;
-    mutable int m_progress;
+    mutable qreal m_progress;
     mutable QStringList m_currentFiles;
 };
 
