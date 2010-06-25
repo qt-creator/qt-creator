@@ -1385,7 +1385,6 @@ QList<const ObjectValue *> ScopeChain::all() const
 
 Context::Context(Engine *engine)
     : _engine(engine),
-      _lookupMode(JSLookup),
       _qmlScopeObjectIndex(-1),
       _qmlScopeObjectSet(false)
 {
@@ -1410,16 +1409,6 @@ ScopeChain &Context::scopeChain()
     return _scopeChain;
 }
 
-Context::LookupMode Context::lookupMode() const
-{
-    return _lookupMode;
-}
-
-void Context::setLookupMode(LookupMode lookupMode)
-{
-    _lookupMode = lookupMode;
-}
-
 const ObjectValue *Context::typeEnvironment(const QmlJS::Document *doc) const
 {
     return _typeEnvironments.value(doc->fileName(), 0);
@@ -1437,9 +1426,7 @@ const Value *Context::lookup(const QString &name)
         const ObjectValue *scope = scopes.at(index);
 
         if (const Value *member = scope->lookupMember(name, this)) {
-            if (_lookupMode == JSLookup || ! dynamic_cast<const ASTVariableReference *>(member)) {
-                return member;
-            }
+            return member;
         }
     }
 

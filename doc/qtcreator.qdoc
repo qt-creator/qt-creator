@@ -18,10 +18,10 @@
     and developers to create applications for multiple desktop and mobile device
     platforms.
 
-    For application designers, Qt Creator provides an integrated
-    visual editor, \QD,
+    For application designers, Qt Creator provides integrated
+    visual editors, \QD
     \if defined(qtquick)
-    and \QMLD
+    and \QMLD,
     \endif
     that you can use to design and develop
     application user interfaces.

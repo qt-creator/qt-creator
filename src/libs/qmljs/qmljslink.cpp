@@ -54,8 +54,6 @@ void Link::initializeScopeChain()
     QHash<Document *, ScopeChain::QmlComponentChain *> componentScopes;
 
     if (_doc->qmlProgram()) {
-        _context->setLookupMode(Context::QmlLookup);
-
         scopeChain.qmlComponentScope.clear();
         componentScopes.insert(_doc.data(), &scopeChain.qmlComponentScope);
         makeComponentChain(_doc, &scopeChain.qmlComponentScope, &componentScopes);
