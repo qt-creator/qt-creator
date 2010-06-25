@@ -360,6 +360,7 @@ void DesignModeWidget::readSettings()
     if (settings->contains("MainSplitter")) {
         const QByteArray splitterState = settings->value("MainSplitter").toByteArray();
         m_mainSplitter->restoreState(splitterState);
+        m_mainSplitter->setOpaqueResize(); // force opaque resize since it used to be off
     }
     settings->endGroup();
 }
@@ -697,7 +698,6 @@ void DesignModeWidget::setup()
     m_mainSplitter->addWidget(m_rightSideBar);
 
     // Finishing touches:
-    m_mainSplitter->setOpaqueResize(false);
     m_mainSplitter->setStretchFactor(1, 1);
     m_mainSplitter->setSizes(QList<int>() << 150 << 300 << 150);
 
