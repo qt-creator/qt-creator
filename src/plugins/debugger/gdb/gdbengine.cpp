@@ -1525,6 +1525,16 @@ void GdbEngine::handleHasPython(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
         m_hasPython = true;
+        GdbMi contents = response.data.findChild("consolestreamoutput");
+        GdbMi data;
+        data.fromStringMultiple(contents.data());
+        const GdbMi dumpers = data.findChild("dumpers");
+        foreach (const GdbMi &dumper, dumpers.children()) {
+            QString type = _(dumper.findChild("type").data());
+            QStringList formats(tr("Raw structure"));
+            formats.append(_(dumper.findChild("formats").data()).split(_(",")));
+            watchHandler()->addTypeFormats(type, formats);
+        }
     } else {
         m_hasPython = false;
         if (m_gdbAdapter->dumperHandling() == AbstractGdbAdapter::DumperLoadedByGdbPreload
@@ -4125,7 +4135,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
             "\"python execfile('" + dumperSourcePath + "gdbmacros.py')\"",
         NonCriticalResponse);
 
-    postCommand("-interpreter-exec console \"help bb\"",
+    postCommand("-interpreter-exec console \"bbsetup\"",
         CB(handleHasPython));
 
     return true;

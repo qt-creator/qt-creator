@@ -36,12 +36,8 @@
 #include <QtCore/QObject>
 #include <QtCore/QHash>
 #include <QtCore/QSet>
+#include <QtCore/QStringList>
 #include <QtCore/QAbstractItemModel>
-#include <QtScript/QScriptValue>
-
-QT_BEGIN_NAMESPACE
-class QDebug;
-QT_END_NAMESPACE
 
 namespace Debugger {
 namespace Internal {
@@ -49,6 +45,7 @@ namespace Internal {
 class DebuggerEngine;
 class WatchItem;
 class WatchHandler;
+class WatchData;
 
 enum WatchType
 {
@@ -174,6 +171,8 @@ public:
     static QString watcherEditPlaceHolder();
     int format(const QByteArray &iname) const;
 
+    void addTypeFormats(const QString &type, const QStringList &formats);
+
 private:
     friend class WatchModel;
 
@@ -195,7 +194,8 @@ private:
     QHash<QByteArray, int> m_watcherNames;
     QByteArray watcherName(const QByteArray &exp);
     QHash<QString, int> m_typeFormats;
-    QHash<QByteArray, int> m_individualFormats;
+    QHash<QByteArray, int> m_individualFormats; // Indexed by iname.
+    QHash<QString, QStringList> m_reportedTypeFormats;
 
     // Items expanded in the Locals & Watchers view.
     QSet<QByteArray> m_expandedINames; 

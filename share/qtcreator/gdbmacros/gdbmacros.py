@@ -66,7 +66,7 @@ def qdump__QAbstractItem(d, item):
                         rr = call(m, "rowCount(child)")
                         cc = call(m, "columnCount(child)")
                         d.putNumChild(rr * cc)
-                        d.putField("value",
+                        d.putValue(
                             call(m, "data(child, Qt::DisplayRole).toString())"), 6)
 
             #with SubItem(d):
@@ -424,6 +424,8 @@ def qdump__QList(d, item):
                     d.putItem(Item(pp, item.iname, i))
                 p += 1
 
+def qdump__QImage():
+    return "Normal,Displayed";
 
 def qdump__QImage(d, item):
     painters = item.value["painters"]
@@ -436,7 +438,6 @@ def qdump__QImage(d, item):
         d.putValue("(%dx%d)" % (d_ptr["width"], d_ptr["height"]))
     bits = d_ptr["data"]
     nbytes = d_ptr["nbytes"]
-    d.putField("typeformats", "Normal,Displayed");
     d.putNumChild(0)
     #d.putNumChild(1)
     if d.isExpanded(item):
@@ -447,9 +448,9 @@ def qdump__QImage(d, item):
                 d.putNumChild(0)
                 d.putValue("size: %s bytes" % nbytes);
     format = d.itemFormat(item)
-    if format == 0:
+    if format == 1:
         d.putDisplay(StopDisplay)
-    elif format == 1:
+    elif format == 2:
         if False:
             # Take four bytes at a time, this is critical for performance.
             # In fact, even four at a time is too slow beyond 100x100 or so.
@@ -1458,15 +1459,16 @@ def qdump__QSizeF(d, item):
 def qdump__QStack(d, item):
     qdump__QVector(d, item)
 
+def qform__QString():
+    return "Inline,Separate Window";
 
 def qdump__QString(d, item):
     d.putStringValue(item.value)
     d.putNumChild(0)
-    d.putField("typeformats", "Normal,Displayed");
     format = d.itemFormat(item)
-    if format == 0:
+    if format == 1:
         d.putDisplay(StopDisplay)
-    elif format == 1:
+    elif format == 2:
         d.putField("editformat", 2)
         str = encodeString(item.value)
         d.putField("editvalue", str)

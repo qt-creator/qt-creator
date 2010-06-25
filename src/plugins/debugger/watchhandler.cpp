@@ -613,7 +613,8 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
                         return QVariant(QLatin1Char('*') + item->parent->name);
                     return data.name;
                 case 1: {
-                    int format = m_handler->m_individualFormats.value(data.addr, -1);
+                    int format =
+                        m_handler->m_individualFormats.value(data.iname, -1);
                     if (format == -1)
                         format = m_handler->m_typeFormats.value(data.type, -1);
                     return truncateValue(formattedValue(data, format));
@@ -650,26 +651,30 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
         case LocalsExpandedRole:
             return m_handler->m_expandedINames.contains(data.iname);
 
-        case LocalsTypeFormatListRole:
-            if (!data.typeFormats.isEmpty())
-                return data.typeFormats.split(',');
+        case LocalsTypeFormatListRole: {
             if (isIntType(data.type))
                 return QStringList() << tr("decimal") << tr("hexadecimal")
                     << tr("binary") << tr("octal");
             if (data.type.endsWith(QLatin1Char('*')))
                 return QStringList()
-                    << tr("Bald pointer")
+                    << tr("Raw pointer")
                     << tr("Latin1 string")
                     << tr("UTF8 string")
                     << tr("UTF16 string")
                     << tr("UCS4 string");
-            break;
+            // Hack: Compensate for namespaces.
+            QString type = data.type;
+            int pos = type.indexOf("::Q");
+            if (pos >= 0 && type.count(':') == 2)
+                type = type.mid(pos + 2);
+            return m_handler->m_reportedTypeFormats.value(type);
+        }
 
         case LocalsTypeFormatRole:
             return m_handler->m_typeFormats.value(data.type, -1);
 
         case LocalsIndividualFormatRole:
-            return m_handler->m_individualFormats.value(data.addr, -1);
+            return m_handler->m_individualFormats.value(data.iname, -1);
 
         case LocalsRawValueRole:
             return data.value;
@@ -772,9 +777,9 @@ bool WatchModel::setData(const QModelIndex &index, const QVariant &value, int ro
         case LocalsIndividualFormatRole: {
             const int format = value.toInt();
             if (format == -1) {
-                m_handler->m_individualFormats.remove(data.addr);
+                m_handler->m_individualFormats.remove(data.iname);
             } else {
-                m_handler->m_individualFormats[data.addr] = format;
+                m_handler->m_individualFormats[data.iname] = format;
             }
             engine()->updateWatchData(data);
             break;
@@ -1503,7 +1508,7 @@ int WatchHandler::format(const QByteArray &iname) const
 {
     int result = -1;
     if (const WatchData *item = findItem(iname)) {
-        int result = m_individualFormats.value(iname, -1);
+        int result = m_individualFormats.value(item->iname, -1);
         if (result == -1)
             result = m_typeFormats.value(item->type, -1);
     }
@@ -1559,6 +1564,11 @@ QByteArray WatchHandler::individualFormatRequests() const
         ba.chop(1);
     }
     return ba;
+}
+
+void WatchHandler::addTypeFormats(const QString &type, const QStringList &formats)
+{
+    m_reportedTypeFormats.insert(type, formats);
 }
 
 } // namespace Internal

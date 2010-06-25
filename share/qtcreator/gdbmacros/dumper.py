@@ -773,12 +773,55 @@ class Item:
 
 #######################################################################
 #
+# SetupCommand
+#
+#######################################################################
+
+# This is a mapping from 'type name' to 'display alternatives'.
+
+qqDumpers = {}
+qqFormats = {}
+
+
+class SetupCommand(gdb.Command):
+    """Setup Creator Pretty Printing"""
+
+    def __init__(self):
+        super(SetupCommand, self).__init__("bbsetup", gdb.COMMAND_OBSCURE)
+
+    def invoke(self, args, from_tty):
+        module = sys.modules[__name__]
+        for key, value in module.__dict__.items():
+            if key.startswith("qdump__"):
+                name = key[7:]
+                qqDumpers[name] = value
+            elif key.startswith("qform__"):
+                name = key[7:]
+                formats = ""
+                try:
+                    formats = value()
+                except:
+                    pass
+                qqFormats[name] = formats
+        result = "dumpers=["
+        # Too early: ns = qtNamespace()
+        for key, value in qqFormats.items():
+            result += '{type="%s",formats="%s"},' % (key, value)
+        result += ']'
+        #result += '],namespace="%s"' % ns
+        print(result)
+
+SetupCommand()
+
+
+#######################################################################
+#
 # FrameCommand
 #
 #######################################################################
 
 class FrameCommand(gdb.Command):
-    """Do fancy stuff. Usage bb --verbose expandedINames"""
+    """Do fancy stuff."""
 
     def __init__(self):
         super(FrameCommand, self).__init__("bb", gdb.COMMAND_OBSCURE)
@@ -846,7 +889,6 @@ class Dumper:
         self.currentValueEncoding = None
         self.currentType = None
         self.currentTypePriority = -100
-        self.dumpers = ""
         self.typeformats = {}
         self.formats = {}
         self.expandedINames = ""
@@ -890,28 +932,6 @@ class Dumper:
         #warn("VARIABLES: %s" % varList)
         #warn("EXPANDED INAMES: %s" % self.expandedINames)
         module = sys.modules[__name__]
-        self.dumpers = {}
-
-        if False:
-            for key, value in module.__dict__.items():
-                if key.startswith("qdump__"):
-                    self.dumpers += '"' + key[7:] + '",'
-            output = "dumpers=[%s]," % self.dumpers
-            #output += "qtversion=[%d,%d,%d]"
-            #output += "qtversion=[4,6,0],"
-            output += "namespace=\"%s\"," % qtNamespace()
-            output += "dumperversion=\"2.0\","
-            output += "sizes=[],"
-            output += "expressions=[]"
-            output += "]"
-            print output
-            return
-
-
-        if self.useFancy:
-            for key, value in module.__dict__.items():
-                if key.startswith("qdump__"):
-                    self.dumpers[key[7:]] = value
 
         #
         # Locals
@@ -1184,7 +1204,7 @@ class Dumper:
             self.putNumChild(0)
 
     def itemFormat(self, item):
-        format = self.formats.get(str(cleanAddress(item.value.address)))
+        format = self.formats.get(item.iname)
         if format is None:
             format = self.typeformats.get(stripClassTag(str(item.value.type)))
         return format
@@ -1224,6 +1244,7 @@ class Dumper:
 
         value = item.value
         type = value.type
+        format = self.itemFormat(item)
 
         if type.code == gdb.TYPE_CODE_REF:
             try:
@@ -1243,62 +1264,66 @@ class Dumper:
             type.strip_typedefs().unqualified()).replace("::", "__")
 
         #warn(" STRIPPED: %s" % strippedType)
-        #warn(" DUMPERS: %s" % self.dumpers)
-        #warn(" DUMPERS: %s" % (strippedType in self.dumpers))
+        #warn(" DUMPERS: %s" % (strippedType in qqDumpers))
 
         if isSimpleType(type.unqualified()):
             #warn("IS SIMPLE: %s " % type)
+            #self.putAddress(value.address)
             self.putType(item.value.type)
             self.putValue(value)
             self.putNumChild(0)
 
-        elif strippedType in self.dumpers:
+        elif ((format is None) or (format >= 1)) and strippedType in qqDumpers:
             #warn("IS DUMPABLE: %s " % type)
+            #self.putAddress(value.address)
             self.putType(item.value.type)
-            self.dumpers[strippedType](self, item)
+            qqDumpers[strippedType](self, item)
             #warn(" RESULT: %s " % self.output)
 
         elif type.code == gdb.TYPE_CODE_ENUM:
             #warn("GENERIC ENUM: %s" % value)
+            #self.putAddress(value.address)
             self.putType(item.value.type)
             self.putValue(value)
             self.putNumChild(0)
 
 
         elif type.code == gdb.TYPE_CODE_PTR:
+            warn("POINTER: %s" % format)
             isHandled = False
-
-            format = self.itemFormat(item)
 
             if not format is None:
                 self.putAddress(value.address)
                 self.putType(item.value.type)
-                self.putNumChild(0)
                 isHandled = True
+                if format == 0:
+                    # Bald pointer.
+                    self.putPointerValue(value.address)
+                    self.putNumChild(1)
+                elif format == 1 or format == 2:
+                    # Latin1 or UTF-8
+                    f = select(format == 1, Hex2EncodedLatin1, Hex2EncodedUtf8)
+                    self.putValue(encodeCharArray(value, 100), f)
+                    self.putNumChild(0)
+                elif format == 3:
+                    # UTF-16.
+                    self.putValue(encodeChar2Array(value, 100), Hex4EncodedBigEndian)
+                    self.putNumChild(0)
+                elif format == 4:
+                    # UCS-4:
+                    self.putValue(encodeChar4Array(value, 100), Hex8EncodedBigEndian)
+                    self.putNumChild(0)
 
-            if format == 0:
-                # Bald pointer.
-                self.putPointerValue(value.address)
-            elif format == 1 or format == 2:
-                # Latin1 or UTF-8
-                f = select(format == 1, Hex2EncodedLatin1, Hex2EncodedUtf8)
-                self.putValue(encodeCharArray(value, 100), f)
-            elif format == 3:
-                # UTF-16.
-                self.putValue(encodeChar2Array(value, 100), Hex4EncodedBigEndian)
-            elif format == 4:
-                # UCS-4:
-                self.putValue(encodeChar4Array(value, 100), Hex8EncodedBigEndian)
-
-            strippedType = str(type.strip_typedefs()) \
-                .replace("(anonymous namespace)", "")
-            if (not isHandled) and strippedType.find("(") != -1:
-                # A function pointer.
-                self.putValue(str(item.value))
-                self.putAddress(value.address)
-                self.putType(item.value.type)
-                self.putNumChild(0)
-                isHandled = True
+            if (not isHandled):
+                strippedType = str(type.strip_typedefs()) \
+                    .replace("(anonymous namespace)", "")
+                if strippedType.find("(") != -1:
+                    # A function pointer.
+                    self.putValue(str(item.value))
+                    self.putAddress(value.address)
+                    self.putType(item.value.type)
+                    self.putNumChild(0)
+                    isHandled = True
 
             if (not isHandled) and self.useFancy:
                 if isNull(value):

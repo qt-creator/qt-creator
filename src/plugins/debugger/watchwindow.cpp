@@ -231,7 +231,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         if (alternativeFormats.isEmpty()) {
             typeFormatMenu.setEnabled(false);
         } else {
-            clearTypeFormatAction = typeFormatMenu.addAction(tr("Clear"));
+            clearTypeFormatAction = typeFormatMenu.addAction(tr("Automatic"));
             clearTypeFormatAction->setEnabled(typeFormat != -1);
             clearTypeFormatAction->setCheckable(true);
             clearTypeFormatAction->setChecked(typeFormat == -1);
@@ -254,13 +254,14 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QMenu individualFormatMenu;
     QList<QAction *> individualFormatActions;
     QAction *clearIndividualFormatAction = 0;
-    if (idx.isValid() && address) {
+    if (idx.isValid()) {
         individualFormatMenu.setTitle(
-            tr("Change Format for Object at 0x%1").arg(address, 0, 16));
+            tr("Change Format for Object Named \"%1\"").arg(mi0.data().toString()));
         if (alternativeFormats.isEmpty()) {
             individualFormatMenu.setEnabled(false);
         } else {
-            clearIndividualFormatAction = individualFormatMenu.addAction(tr("Clear"));
+            clearIndividualFormatAction
+                = individualFormatMenu.addAction(tr("Automatic"));
             clearIndividualFormatAction->setEnabled(individualFormat != -1);
             clearIndividualFormatAction->setCheckable(true);
             clearIndividualFormatAction->setChecked(individualFormat == -1);
@@ -302,10 +303,12 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     if (canShowMemory && address)
         actOpenMemoryEditAtVariableAddress =
-            new QAction(tr("Open Memory Editor at Object's Address (0x%1)").arg(address, 0, 16), &menu);
+            new QAction(tr("Open Memory Editor at Object's Address (0x%1)")
+                .arg(address, 0, 16), &menu);
     if (createPointerActions)
         actOpenMemoryEditAtPointerValue =
-            new QAction(tr("Open Memory Editor at Referenced Address (0x%1)").arg(pointerValue, 0, 16), &menu);
+            new QAction(tr("Open Memory Editor at Referenced Address (0x%1)")
+                .arg(pointerValue, 0, 16), &menu);
     menu.addSeparator();
 
     QAction *actSetWatchPointAtVariableAddress = 0;
