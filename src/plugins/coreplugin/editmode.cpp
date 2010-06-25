@@ -31,7 +31,6 @@
 #include "editormanager.h"
 #include "coreconstants.h"
 #include "modemanager.h"
-#include "uniqueidmanager.h"
 #include "minisplitter.h"
 #include "findplaceholder.h"
 #include "outputpane.h"

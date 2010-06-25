@@ -35,7 +35,6 @@
 #include "minisplitter.h"
 #include "openeditorswindow.h"
 #include "stackededitorgroup.h"
-#include "uniqueidmanager.h"
 #include "actionmanager/actionmanager.h"
 
 #include <utils/qtcassert.h>
@@ -62,9 +61,8 @@ EditorSplitter::~EditorSplitter()
 
 void EditorSplitter::registerActions()
 {
-    QList<int> gc = QList<int>() << Constants::C_GLOBAL_ID;
-    const QList<int> editorManagerContext =
-            QList<int>() << ICore::instance()->uniqueIDManager()->uniqueIdentifier(Constants::C_EDITORMANAGER);
+    const Context gc(Constants::C_GLOBAL_ID);
+    const Context editorManagerContext(Constants::C_EDITORMANAGER);
 
     ActionManager *am = ICore::instance()->actionManager();
     ActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);

@@ -31,7 +31,6 @@
 
 #include "coreconstants.h"
 #include "mainwindow.h"
-#include "uniqueidmanager.h"
 #include "statusbarwidget.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>

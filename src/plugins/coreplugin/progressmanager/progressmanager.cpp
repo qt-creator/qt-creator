@@ -31,7 +31,6 @@
 #include "progressview.h"
 #include "coreconstants.h"
 #include "icore.h"
-#include "uniqueidmanager.h"
 
 #include <utils/qtcassert.h>
 

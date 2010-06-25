@@ -39,7 +39,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/mimedatabase.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
