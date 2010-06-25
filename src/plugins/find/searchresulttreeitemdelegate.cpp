@@ -48,7 +48,7 @@ SearchResultTreeItemDelegate::SearchResultTreeItemDelegate(QObject *parent)
 
 void SearchResultTreeItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    if (index.model()->data(index, ItemDataRoles::TypeRole).toString().compare("file") == 0) {
+    if (index.model()->data(index, ItemDataRoles::TypeRole).toString().compare(QLatin1String("file")) == 0) {
         QItemDelegate::paint(painter, option, index);
     } else {
         painter->save();
@@ -92,7 +92,7 @@ int SearchResultTreeItemDelegate::drawLineNumber(QPainter *painter, const QStyle
     int lineNumber = index.model()->data(index, ItemDataRoles::ResultLineNumberRole).toInt();
     int lineNumberDigits = (int)floor(log10((double)lineNumber)) + 1;
     int minimumLineNumberDigits = qMax((int)m_minimumLineNumberDigits, lineNumberDigits);
-    int fontWidth = painter->fontMetrics().width(QString(minimumLineNumberDigits, '0'));
+    int fontWidth = painter->fontMetrics().width(QString(minimumLineNumberDigits, QLatin1Char('0')));
     int lineNumberAreaWidth = lineNumberAreaHorizontalPadding + fontWidth + lineNumberAreaHorizontalPadding;
     QRect lineNumberAreaRect(option.rect);
     lineNumberAreaRect.setWidth(lineNumberAreaWidth);

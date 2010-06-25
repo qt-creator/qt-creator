@@ -77,7 +77,7 @@ void SearchResultTreeView::appendResultLines(const QList<Find::SearchResultItem>
 
 void SearchResultTreeView::emitJumpToSearchResult(const QModelIndex &index)
 {
-    if (model()->data(index, ItemDataRoles::TypeRole).toString().compare("row") != 0)
+    if (model()->data(index, ItemDataRoles::TypeRole).toString().compare(QLatin1String("row")) != 0)
         return;
 
     int position = model()->data(index, ItemDataRoles::ResultIndexRole).toInt();

@@ -113,7 +113,7 @@ SearchResultWindow::SearchResultWindow() : d(new SearchResultWindowPrivate)
     d->m_expandCollapseToolButton = new QToolButton(d->m_widget);
     d->m_expandCollapseToolButton->setAutoRaise(true);
     d->m_expandCollapseToolButton->setCheckable(true);
-    d->m_expandCollapseToolButton->setIcon(QIcon(":/find/images/expand.png"));
+    d->m_expandCollapseToolButton->setIcon(QIcon(QLatin1String(":/find/images/expand.png")));
     d->m_expandCollapseToolButton->setToolTip(tr("Expand All"));
 
     d->m_replaceLabel = new QLabel(tr("Replace with:"), d->m_widget);

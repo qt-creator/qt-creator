@@ -48,7 +48,7 @@ SearchResultTreeModel::SearchResultTreeModel(QObject *parent)
     , m_showReplaceUI(false)
 {
     m_rootItem = new SearchResultTreeItem;
-    m_textEditorFont = QFont("Courier");
+    m_textEditorFont = QFont(QLatin1String("Courier"));
 }
 
 SearchResultTreeModel::~SearchResultTreeModel()
@@ -212,7 +212,7 @@ QVariant SearchResultTreeModel::data(const SearchResultTextRow *row, int role) c
         result = row->searchTermLength();
         break;
     case ItemDataRoles::TypeRole:
-        result = "row";
+        result = QLatin1String("row");
         break;
     case ItemDataRoles::FileNameRole:
         {
