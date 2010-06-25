@@ -47,8 +47,8 @@ public:
 
     BreakpointData *findSimilarBreakpoint(const BreakpointData *needle);
     void updateBreakpoint(BreakpointData *data);
-    void appendBreakpoint(BreakpointData *data);
-    void removeBreakpoint(BreakpointData *data);
+    //void appendBreakpoint(BreakpointData *data);
+    //void removeBreakpoint(BreakpointData *data);
     QVariant modelData(int role, int index);
 
 public slots:

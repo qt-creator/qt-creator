@@ -372,10 +372,12 @@ BreakHandler::BreakHandler(DebuggerEngine *engine)
     m_disabledBreakpointIcon(_(":/debugger/images/breakpoint_disabled_16.png")),
     m_pendingBreakPointIcon(_(":/debugger/images/breakpoint_pending_16.png")),
     m_watchpointIcon(_(":/debugger/images/watchpoint.png")),
-    m_engine(engine),  // Possibly 0 for the dummy engine "handling" session data.
+    m_engine(engine),
     m_lastFound(0),
     m_lastFoundQueried(false)
-{}
+{
+    QTC_ASSERT(m_engine, /**/);
+}
 
 BreakHandler::~BreakHandler()
 {
@@ -737,27 +739,11 @@ bool BreakHandler::setData(const QModelIndex &index, const QVariant &value, int 
             return true;
         }
 
-        case RequestRemoveBreakpointRole: {
-            BreakpointData *data = value.value<BreakpointData *>();
-            QTC_ASSERT(data, return false);
-            removeBreakpoint(data);
-            return true;
-        }
-
-        case RequestAppendBreakpointRole: {
-            BreakpointData *data = value.value<BreakpointData *>();
-            QTC_ASSERT(data, return false);
-            appendBreakpoint(data);
-            if (m_engine)
-                m_engine->attemptBreakpointSynchronization();
-            return true;
-        }
-
         case RequestUpdateBreakpointRole: {
             BreakpointData *data = value.value<BreakpointData *>();
             QTC_ASSERT(data, return false);
-            if (m_engine)
-                m_engine->attemptBreakpointSynchronization();
+            QTC_ASSERT(m_engine, return false);
+            m_engine->attemptBreakpointSynchronization();
             return true;
         }
 
@@ -940,14 +926,25 @@ void BreakHandler::removeAllBreakpoints()
     updateMarkers();
 }
 
-/*
-void BreakHandler::setAllPending()
+void BreakHandler::toggleBreakpoint(const QString &fileName, int lineNumber)
 {
-    for (int index = size(); --index >= 0;)
-        at(index)->pending = true;
-    updateMarkers();
+    for (int index = size(); --index >= 0;) {
+        BreakpointData *data = m_bp.at(index);
+        if (data->isLocatedAt(fileName, lineNumber)) {
+            removeBreakpointHelper(index);
+            emit layoutChanged();
+            return;
+        }
+    }
+    BreakpointData *data = new BreakpointData;
+    data->fileName = fileName;
+    data->lineNumber = QByteArray::number(lineNumber);
+    data->pending = true;
+    data->setMarkerFileName(fileName);
+    data->setMarkerLineNumber(lineNumber);
+    appendBreakpoint(data);
+    m_engine->attemptBreakpointSynchronization();
 }
-*/
 
 void BreakHandler::saveSessionData()
 {

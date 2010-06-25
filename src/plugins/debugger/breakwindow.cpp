@@ -421,18 +421,6 @@ BreakpointData *BreakWindow::findSimilarBreakpoint(const BreakpointData *needle0
     return v.value<BreakpointData *>();
 }
 
-void BreakWindow::appendBreakpoint(BreakpointData *data)
-{
-    QVariant v = QVariant::fromValue<BreakpointData *>(data);
-    setModelData(RequestAppendBreakpointRole, v);
-}
-
-void BreakWindow::removeBreakpoint(BreakpointData *data)
-{
-    QVariant v = QVariant::fromValue<BreakpointData *>(data);
-    setModelData(RequestRemoveBreakpointRole, v);
-}
-
 void BreakWindow::updateBreakpoint(BreakpointData *data)
 {
     QVariant v = QVariant::fromValue<BreakpointData *>(data);

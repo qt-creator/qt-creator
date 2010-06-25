@@ -1843,21 +1843,10 @@ void DebuggerPluginPrivate::toggleBreakpoint()
 
 void DebuggerPluginPrivate::toggleBreakpoint(const QString &fileName, int lineNumber)
 {
-    BreakpointData needle;
-    needle.bpFileName = fileName;
-    needle.bpLineNumber.setNum(lineNumber);
-    BreakpointData *data = m_breakWindow->findSimilarBreakpoint(&needle);
-    if (data) {
-        m_breakWindow->removeBreakpoint(data);
-    } else {
-        data = new BreakpointData;
-        data->fileName = fileName;
-        data->lineNumber = QByteArray::number(lineNumber);
-        data->pending = true;
-        data->setMarkerFileName(fileName);
-        data->setMarkerLineNumber(lineNumber);
-        m_breakWindow->appendBreakpoint(data);
-    }
+    QList<QVariant> list;
+    list.append(fileName);
+    list.append(lineNumber);
+    notifyCurrentEngine(RequestToggleBreakpointRole, list);
 }
 
 void DebuggerPluginPrivate::breakpointSetRemoveMarginActionTriggered()

@@ -56,7 +56,6 @@ public:
     ~BreakHandler();
 
     void removeAllBreakpoints();
-    //void setAllPending();
     void loadSessionData();
     void saveSessionData();
 
@@ -88,6 +87,7 @@ public:
 
     void initializeFromTemplate(BreakHandler *other);
     void storeToTemplate(BreakHandler *other);
+    void toggleBreakpoint(const QString &fileName, int lineNumber);
 
 public slots:
     void appendBreakpoint(BreakpointData *data);

@@ -349,14 +349,17 @@ void DebuggerEngine::handleCommand(int role, const QVariant &value)
             break;
         }
 
-        case RequestWatchPointRole:
-            //if (QAction *action = qobject_cast<QAction *>(sender()))
-            //    watchPoint(action->data().toPoint());
-            QTC_ASSERT(false, /* FIXME ABC */);
+        case RequestToggleBreakpointRole: {
+            QList<QVariant> list = value.toList();
+            QTC_ASSERT(list.size() == 2, break);
+            const QString fileName = list.at(0).toString();
+            const int lineNumber = list.at(1).toInt();
+            breakHandler()->toggleBreakpoint(fileName, lineNumber);
             break;
+        }
     }
-}
 
+}
 
 void DebuggerEngine::showModuleSymbols
     (const QString &moduleName, const Symbols &symbols)

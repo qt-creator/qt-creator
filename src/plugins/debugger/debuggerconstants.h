@@ -190,14 +190,13 @@ enum ModelRoles
     BreakpointIgnoreCountRole,
     BreakpointThreadSpecRole,
     RequestActivateBreakpointRole,
-    RequestRemoveBreakpointRole,
     RequestRemoveBreakpointByIndexRole,
     RequestSynchronizeBreakpointsRole,
     RequestBreakByFunctionRole,
     RequestBreakByFunctionMainRole,
     RequestFindSimilarBreakpointRole,
-    RequestAppendBreakpointRole,
     RequestUpdateBreakpointRole,
+    RequestToggleBreakpointRole,
 
     // Locals and Watchers
     LocalsINameRole,
