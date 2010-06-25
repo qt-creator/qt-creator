@@ -34,7 +34,6 @@
 
 #include <coreplugin/baseview.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/uniqueidmanager.h>
 
 #include <QtCore/QtPlugin>
 
@@ -63,10 +62,10 @@ bool RegExpPlugin::initialize(const QStringList &arguments, QString *errorMessag
     Settings settings;
     settings.fromQSettings(core->settings());
     m_regexpWindow->setSettings(settings);
-    const int plugId = core->uniqueIDManager()->uniqueIdentifier(QLatin1String("RegExpPlugin"));
     addAutoReleasedObject(new Core::BaseView("TextEditor.RegExpWindow",
                                              m_regexpWindow,
-                                             QList<int>() << plugId,
+                                             Core::Contect("RegExpPlugin"),
+                                             plugId,
                                              Qt::RightDockWidgetArea));
     return true;
 }
