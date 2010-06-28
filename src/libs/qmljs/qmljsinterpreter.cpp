@@ -694,6 +694,7 @@ private:
         }
 
         FakeMetaMethod method(name, type);
+        method.setMethodType(FakeMetaMethod::Slot);
 
         while (_xml.readNextStartElement()) {
             if (_xml.name() == QLatin1String("param")) {
