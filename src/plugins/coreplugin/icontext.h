@@ -46,6 +46,7 @@ class CORE_EXPORT Context
 public:
     Context() {}
 
+    explicit Context(int c1) { d.append(c1); } // For C_GLOBAL_ID. FIXME: Sanitize.
     explicit Context(const char *c1) { add(c1); }
     Context(const char *c1, const char *c2) { add(c1); add(c2); }
     Context(const char *c1, const char *c2, const char *c3) { add(c1); add(c2); add(c3); }

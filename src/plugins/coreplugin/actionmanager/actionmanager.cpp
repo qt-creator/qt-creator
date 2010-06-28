@@ -265,6 +265,15 @@ bool ActionManagerPrivate::hasContext(int context) const
     return m_context.contains(context);
 }
 
+QDebug operator<<(QDebug in, const Context &context)
+{
+    UniqueIDManager *uidm = UniqueIDManager::instance();
+    in << "CONTEXT: ";
+    foreach (int c, context)
+        in << "   " << c << uidm->stringForUniqueIdentifier(c);
+    return in;
+}
+
 void ActionManagerPrivate::setContext(const Context &context)
 {
     // here are possibilities for speed optimization if necessary:
