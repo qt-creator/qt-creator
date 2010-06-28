@@ -2942,7 +2942,7 @@
 
         \image qmldesigner-new-project-location.png "Introduction and Project Location dialog"
 
-        \o In the \gui{Name} field, type \bold {Hello World}.
+        \o In the \gui{Name} field, type \bold {HelloWorld}.
 
         \o In the \gui {Create in} field, enter the path for the project files. For example,
         \c {C:\Qt\examples}, and then click \gui{Next}.
