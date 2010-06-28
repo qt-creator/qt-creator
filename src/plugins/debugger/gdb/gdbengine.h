@@ -174,7 +174,7 @@ private: ////////// Gdb Command Management //////////
         // Trigger watch model rebuild when no such commands are pending anymore.
         RebuildWatchModel = 4,
         WatchUpdate = Discardable | RebuildWatchModel,
-        // We can live without recieving an answer.
+        // We can live without receiving an answer.
         NonCriticalResponse = 8,
         // Callback expects GdbResultRunning instead of GdbResultDone.
         RunRequest = 16,
