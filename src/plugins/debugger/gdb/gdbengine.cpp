@@ -829,6 +829,8 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
     ++currentToken();
     cmd.postTime = QTime::currentTime();
     m_cookieForToken[currentToken()] = cmd;
+    if (cmd.flags & ConsoleCommand)
+        cmd.command = "-interpreter-exec console \"" + cmd.command + '"';
     cmd.command = QByteArray::number(currentToken()) + cmd.command;
     showMessage(_(cmd.command), LogInput);
 
@@ -3917,6 +3919,9 @@ void GdbEngine::handleFetchDisassemblerByCli(const GdbResponse &response)
 
     if (response.resultClass == GdbResultDone) {
         // Apple's gdb produces MI output even for CLI commands.
+        // FIXME: Check whether wrapping this into -interpreter-exec console
+        // (i.e. usgind the 'ConsoleCommand' GdbCommandFlag makes a
+        // difference.
         GdbMi lines = response.data.findChild("asm_insns");
         if (lines.isValid()) {
             ac.agent->setContents(parseDisassembler(lines));
@@ -4133,15 +4138,12 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
         }
     }
 
-    postCommand("-interpreter-exec console "
-            "\"python execfile('" + dumperSourcePath + "dumper.py')\"",
-        NonCriticalResponse);
-    postCommand("-interpreter-exec console "
-            "\"python execfile('" + dumperSourcePath + "gdbmacros.py')\"",
-        NonCriticalResponse);
-
-    postCommand("-interpreter-exec console \"bbsetup\"",
-        CB(handleHasPython));
+    postCommand("python execfile('" + dumperSourcePath + "dumper.py')",
+        ConsoleCommand|NonCriticalResponse);
+    postCommand("python execfile('" + dumperSourcePath + "gdbmacros.py')",
+        ConsoleCommand|NonCriticalResponse);
+    postCommand("bbsetup",
+        ConsoleCommand,CB(handleHasPython));
 
     return true;
 }
@@ -4306,7 +4308,8 @@ bool GdbEngine::hasPython() const
 
 void GdbEngine::createFullBacktrace()
 {
-    postCommand("thread apply all bt", NeedsStop, CB(handleCreateFullBacktrace));
+    postCommand("thread apply all bt full",
+        NeedsStop|ConsoleCommand, CB(handleCreateFullBacktrace));
 }
 
 void GdbEngine::handleCreateFullBacktrace(const GdbResponse &response)

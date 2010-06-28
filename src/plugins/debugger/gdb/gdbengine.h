@@ -186,6 +186,8 @@ private: ////////// Gdb Command Management //////////
         RebuildBreakpointModel = 128,
         // This command needs to be send immediately.
         Immediate = 256,
+        // This is a command that needs to be wrapped into -interpreter-exec console
+        ConsoleCommand = 512,
     };
     Q_DECLARE_FLAGS(GdbCommandFlags, GdbCommandFlag)
     private:
