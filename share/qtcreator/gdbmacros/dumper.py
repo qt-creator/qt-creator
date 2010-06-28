@@ -745,6 +745,12 @@ def encodeString(value):
         p += 1
     return s
 
+def stripTypedefs(typeobj):
+    type = typeobj
+    while type.code == gdb.TYPE_CODE_TYPEDEF:
+        type = type.strip_typedefs().unqualified()
+    return type
+
 #######################################################################
 #
 # Item
@@ -1211,33 +1217,34 @@ class Dumper:
         if type.code == gdb.TYPE_CODE_TYPEDEF:
             type = type.target()
 
-        strippedType = self.stripNamespaceFromType(
-            type.strip_typedefs().unqualified()).replace("::", "__")
+        typedefStrippedType = stripTypedefs(type);
+        nsStrippedType = self.stripNamespaceFromType(
+            typedefStrippedType).replace("::", "__")
 
-        #warn(" STRIPPED: %s" % strippedType)
+        #warn(" STRIPPED: %s" % nsStrippedType)
         #warn(" DUMPERS: %s" % self.dumpers)
-        #warn(" DUMPERS: %s" % (strippedType in self.dumpers))
+        #warn(" DUMPERS: %s" % (nsStrippedType in self.dumpers))
 
-        if isSimpleType(type.unqualified()):
+        if isSimpleType(typedefStrippedType):
             #warn("IS SIMPLE: %s " % type)
             self.putType(item.value.type)
             self.putValue(value)
             self.putNumChild(0)
 
-        elif strippedType in self.dumpers:
+        elif nsStrippedType in self.dumpers:
             #warn("IS DUMPABLE: %s " % type)
             self.putType(item.value.type)
-            self.dumpers[strippedType](self, item)
+            self.dumpers[nsStrippedType](self, item)
             #warn(" RESULT: %s " % self.output)
 
-        elif type.code == gdb.TYPE_CODE_ENUM:
+        elif typedefStrippedType.code == gdb.TYPE_CODE_ENUM:
             #warn("GENERIC ENUM: %s" % value)
             self.putType(item.value.type)
             self.putValue(value)
             self.putNumChild(0)
 
 
-        elif type.code == gdb.TYPE_CODE_PTR:
+        elif typedefStrippedType.code == gdb.TYPE_CODE_PTR:
             isHandled = False
 
             format = self.itemFormat(item)
@@ -1262,9 +1269,9 @@ class Dumper:
                 # UCS-4:
                 self.putValue(encodeChar4Array(value, 100), Hex8EncodedBigEndian)
 
-            strippedType = str(type.strip_typedefs()) \
+            anonStrippedType = str(typedefStrippedType) \
                 .replace("(anonymous namespace)", "")
-            if (not isHandled) and strippedType.find("(") != -1:
+            if (not isHandled) and anonStrippedType.find("(") != -1:
                 # A function pointer.
                 self.putValue(str(item.value))
                 self.putAddress(value.address)
@@ -1279,7 +1286,7 @@ class Dumper:
                     self.putNumChild(0)
                     isHandled = True
 
-                target = str(type.target().strip_typedefs().unqualified())
+                target = str(stripTypedefs(type.target()))
                 if (not isHandled) and target == "void":
                     self.putType(item.value.type)
                     self.putValue(str(value))
@@ -1324,7 +1331,7 @@ class Dumper:
                               Item(item.value.dereference(), item.iname, "*", "*"))
                 self.putPointerValue(value.address)
 
-        elif str(type).startswith("<anon"):
+        elif str(typedefStrippedType).startswith("<anon"):
             # Anonymous union. We need a dummy name to distinguish
             # multiple anonymous unions in the struct.
             self.putType(item.value.type)
@@ -1341,7 +1348,7 @@ class Dumper:
 
             # Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=10953
             #fields = value.type.fields()
-            fields = value.type.strip_typedefs().fields()
+            fields = stripTypedefs(value.type).fields()
 
             self.putType(item.value.type)
             try:
