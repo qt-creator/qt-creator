@@ -4483,14 +4483,10 @@
     \note Populating the cache might take a long time on a slow network
     connection.
 
-
-    \omit In v2.1 and later:
-
     \note The first time you start debugging by using the
     Debugging tools for Windows, Qt Creator prompts you to add the Symbol
     Server.
 
-    \endomit
 */
 
 /*!
