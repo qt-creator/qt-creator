@@ -242,8 +242,7 @@ private:
 
     virtual bool processSlot(const QString &name, const Interpreter::Value *value)
     {
-        if (! _globalCompletion)
-            insertProperty(name, value);
+        insertProperty(name, value);
         return true;
     }
 
