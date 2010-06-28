@@ -68,6 +68,7 @@ private slots:
     void removeFile();
     void enableOrDisableRemoveButton();
     void handleSkipButtonToggled(bool checked);
+    void versionInfoChanged();
 
 private:
     MaemoPackageCreationStep * const m_step;

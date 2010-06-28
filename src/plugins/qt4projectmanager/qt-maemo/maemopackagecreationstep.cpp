@@ -59,7 +59,11 @@
 #include <QtCore/QStringBuilder>
 #include <QtGui/QWidget>
 
-namespace { const QLatin1String PackagingEnabledKey("Packaging Enabled"); }
+namespace {
+    const QLatin1String PackagingEnabledKey("Packaging Enabled");
+    const QLatin1String DefaultVersionNumber("0.0.1");
+    const QLatin1String VersionNumberKey("Version Number");
+}
 
 using namespace ProjectExplorer::Constants;
 using ProjectExplorer::BuildConfiguration;
@@ -72,7 +76,8 @@ namespace Internal {
 MaemoPackageCreationStep::MaemoPackageCreationStep(BuildConfiguration *buildConfig)
     : ProjectExplorer::BuildStep(buildConfig, CreatePackageId),
       m_packageContents(new MaemoPackageContents(this)),
-      m_packagingEnabled(true)
+      m_packagingEnabled(true),
+      m_versionString(DefaultVersionNumber)
 {
 }
 
@@ -80,10 +85,9 @@ MaemoPackageCreationStep::MaemoPackageCreationStep(BuildConfiguration *buildConf
     MaemoPackageCreationStep *other)
     : BuildStep(buildConfig, other),
       m_packageContents(new MaemoPackageContents(this)),
-      m_packagingEnabled(other->m_packagingEnabled)
-
+      m_packagingEnabled(other->m_packagingEnabled),
+      m_versionString(other->m_versionString)
 {
-
 }
 
 bool MaemoPackageCreationStep::init()
@@ -95,12 +99,14 @@ QVariantMap MaemoPackageCreationStep::toMap() const
 {
     QVariantMap map(ProjectExplorer::BuildStep::toMap());
     map.insert(PackagingEnabledKey, m_packagingEnabled);
+    map.insert(VersionNumberKey, m_versionString);
     return map;
 }
 
 bool MaemoPackageCreationStep::fromMap(const QVariantMap &map)
 {
     m_packagingEnabled = map.value(PackagingEnabledKey, true).toBool();
+    m_versionString = map.value(VersionNumberKey, DefaultVersionNumber).toString();
     return ProjectExplorer::BuildStep::fromMap(map);
 }
 
@@ -160,9 +166,10 @@ bool MaemoPackageCreationStep::createPackage()
 
     if (!QFileInfo(buildDir + QLatin1String("/debian")).exists()) {
         const QString command = QLatin1String("dh_make -s -n -p ")
-            % executableFileName().toLower() % versionString();
+            % executableFileName().toLower() % QLatin1Char('_') % versionString();
         if (!runCommand(buildProc, command))
             return false;
+
         QFile rulesFile(buildDir + QLatin1String("/debian/rules"));
         if (!rulesFile.open(QIODevice::ReadWrite)) {
             raiseError(tr("Packaging Error: Cannot open file '%1'.")
@@ -183,6 +190,17 @@ bool MaemoPackageCreationStep::createPackage()
             raiseError(tr("Packaging Error: Cannot write file '%1'.")
                        .arg(nativePath(rulesFile)));
             return false;
+        }
+    }
+
+    {
+        QFile changeLog(buildDir + QLatin1String("/debian/changelog"));
+        if (changeLog.open(QIODevice::ReadWrite)) {
+            QString content = QString::fromUtf8(changeLog.readAll());
+            content.replace(QRegExp("\\([a-zA-Z0-9_\\.]+\\)"),
+                QLatin1Char('(') % versionString() % QLatin1Char(')'));
+            changeLog.resize(0);
+            changeLog.write(content.toUtf8());
         }
     }
 
@@ -313,12 +331,17 @@ QString MaemoPackageCreationStep::packageFilePath() const
 {
     QFileInfo execInfo(localExecutableFilePath());
     return execInfo.path() % QDir::separator() % execInfo.fileName().toLower()
-        % versionString() % QLatin1String("_armel.deb");
+        % QLatin1Char('_') % versionString() % QLatin1String("_armel.deb");
 }
 
 QString MaemoPackageCreationStep::versionString() const
 {
-    return QLatin1String("_0.1");
+    return m_versionString;
+}
+
+void MaemoPackageCreationStep::setVersionString(const QString &version)
+{
+    m_versionString = version;
 }
 
 QString MaemoPackageCreationStep::nativePath(const QFile &file) const

@@ -72,6 +72,9 @@ public:
     bool isPackagingEnabled() const { return m_packagingEnabled; }
     void setPackagingEnabled(bool enabled) { m_packagingEnabled = enabled; }
 
+    QString versionString() const;
+    void setVersionString(const QString &version);
+
 private:
     MaemoPackageCreationStep(ProjectExplorer::BuildConfiguration *buildConfig,
                              MaemoPackageCreationStep *other);
@@ -90,7 +93,6 @@ private:
     QString targetRoot() const;
     QString nativePath(const QFile &file) const;
     bool packagingNeeded() const;
-    QString versionString() const;
     void raiseError(const QString &shortMsg,
                     const QString &detailedMsg = QString());
 
@@ -98,6 +100,7 @@ private:
 
     MaemoPackageContents *const m_packageContents;
     bool m_packagingEnabled;
+    QString m_versionString;
 };
 
 } // namespace Internal
