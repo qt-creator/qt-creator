@@ -28,7 +28,6 @@
 **************************************************************************/
 
 #include "qmlinspectorconstants.h"
-#include "qmlinspector.h"
 #include "qmlinspectorplugin.h"
 
 #include <debugger/debuggeruiswitcher.h>
@@ -60,39 +59,41 @@
 
 #include <QtCore/QDebug>
 
+using namespace QmlInspector::Internal;
+using namespace QmlInspector::Constants;
 
-using namespace Qml;
-
-
-static QToolButton *createToolButton(QAction *action)
+namespace {
+QToolButton *createToolButton(QAction *action)
 {
     QToolButton *button = new QToolButton;
     button->setDefaultAction(action);
     return button;
 }
+} // end of anonymous namespace
 
 QmlInspectorPlugin::QmlInspectorPlugin()
-    : m_inspector(0)
 {
-
+    qDebug() << Q_FUNC_INFO;
 }
 
 QmlInspectorPlugin::~QmlInspectorPlugin()
 {
-    removeObject(m_inspector);
-    delete m_inspector;
-    m_inspector = 0;
+    qDebug() << Q_FUNC_INFO;
 }
 
 void QmlInspectorPlugin::aboutToShutdown()
 {
-    m_inspector->shutdown();
+    qDebug() << Q_FUNC_INFO;
 }
 
 bool QmlInspectorPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
     Q_UNUSED(arguments);
     Q_UNUSED(errorString);
+
+    qDebug() << Q_FUNC_INFO;
+
+#if 0
     Core::ICore *core = Core::ICore::instance();
     connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
             SLOT(prepareDebugger(Core::IMode*)));
@@ -104,12 +105,16 @@ bool QmlInspectorPlugin::initialize(const QStringList &arguments, QString *error
     m_inspector = new QmlInspector;
     m_inspector->createDockWidgets();
     addObject(m_inspector);
+#endif
 
     return true;
 }
 
 void QmlInspectorPlugin::extensionsInitialized()
 {
+    qDebug() << Q_FUNC_INFO;
+
+#if 0
     ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
     Debugger::DebuggerUISwitcher *uiSwitcher = pluginManager->getObject<Debugger::DebuggerUISwitcher>();
 
@@ -136,10 +141,17 @@ void QmlInspectorPlugin::extensionsInitialized()
     configBarLayout->addStretch();
 
     uiSwitcher->setToolbar(Qml::Constants::LANG_QML, configBar);
+#endif
 }
 
 void QmlInspectorPlugin::activateDebuggerForProject(ProjectExplorer::Project *project, const QString &runMode)
 {
+    Q_UNUSED(project);
+    Q_UNUSED(runMode);
+
+    qDebug() << Q_FUNC_INFO;
+
+#if 0
     if (runMode == ProjectExplorer::Constants::DEBUGMODE) {
         // FIXME we probably want to activate the debugger for other projects than QmlProjects,
         // if they contain Qml files. Some kind of options should exist for this behavior.
@@ -147,11 +159,15 @@ void QmlInspectorPlugin::activateDebuggerForProject(ProjectExplorer::Project *pr
         if (qmlproj && m_inspector->setDebugConfigurationDataFromProject(qmlproj))
             m_inspector->startQmlProjectDebugger();
     }
-
+#endif
 }
 
 void QmlInspectorPlugin::prepareDebugger(Core::IMode *mode)
 {
+    Q_UNUSED(mode);
+    qDebug() << Q_FUNC_INFO;
+
+#if 0
     if (mode->id() != Debugger::Constants::MODE_DEBUG)
         return;
 
@@ -163,12 +179,19 @@ void QmlInspectorPlugin::prepareDebugger(Core::IMode *mode)
         Debugger::DebuggerUISwitcher *uiSwitcher = pluginManager->getObject<Debugger::DebuggerUISwitcher>();
         uiSwitcher->setActiveLanguage(Qml::Constants::LANG_QML);
     }
+#endif
 }
 
 void QmlInspectorPlugin::setDockWidgetArrangement(const QString &activeLanguage)
 {
+    Q_UNUSED(activeLanguage);
+
+    qDebug() << Q_FUNC_INFO;
+
+#if 0
     if (activeLanguage == Qml::Constants::LANG_QML || activeLanguage.isEmpty())
         m_inspector->setSimpleDockWidgetArrangement();
+#endif
 }
 
 

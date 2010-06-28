@@ -37,28 +37,25 @@ QT_BEGIN_NAMESPACE
 class QWidget;
 QT_END_NAMESPACE
 
-namespace Qml {
+namespace QmlInspector {
 namespace Internal {
 
 class ObjectPropertiesView;
 class ObjectTree;
 class DesignModeWidget;
 
-/**
-  * Bauhaus Design mode context object
-  */
 class InspectorContext : public Core::IContext
 {
     Q_OBJECT
 
 public:
     InspectorContext(QWidget *widget);
-    ~InspectorContext();
+    virtual ~InspectorContext();
 
-    Core::Context context() const;
-    QWidget *widget();
-
-    QString contextHelpId() const;
+    // Core::IContext interface
+    virtual Core::Context context() const;
+    virtual QWidget *widget();
+    virtual QString contextHelpId() const;
 
     static QString contextHelpIdForProperty(const QString &itemName, const QString &propName);
     static QString contextHelpIdForItem(const QString &itemName);
@@ -67,13 +64,12 @@ public slots:
     void setContextHelpId(const QString &helpId);
 
 private:
-    Core::Context m_context;
     QWidget *m_widget;
+    Core::Context m_context;
     QString m_contextHelpId;
-
 };
 
 } // Internal
-} // Qml
+} // QmlInspector
 
 #endif // DESIGNMODECONTEXT_H

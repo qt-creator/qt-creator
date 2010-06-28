@@ -35,7 +35,7 @@
 #include <QtCore/QPointer>
 #include <QtCore/QTimer>
 
-QT_FORWARD_DECLARE_CLASS(QStringList);
+QT_FORWARD_DECLARE_CLASS(QStringList)
 
 namespace Core {
     class IMode;
@@ -45,8 +45,8 @@ namespace ProjectExplorer {
     class Project;
 }
 
-namespace Qml {
-    class QmlInspector;
+namespace QmlInspector {
+namespace Internal {
 
 class QmlInspectorPlugin : public ExtensionSystem::IPlugin
 {
@@ -54,7 +54,7 @@ class QmlInspectorPlugin : public ExtensionSystem::IPlugin
 
 public:
     QmlInspectorPlugin();
-    ~QmlInspectorPlugin();
+    virtual ~QmlInspectorPlugin();
 
     virtual bool initialize(const QStringList &arguments, QString *errorString);
     virtual void extensionsInitialized();
@@ -66,11 +66,9 @@ public slots:
 
 private slots:
     void prepareDebugger(Core::IMode *mode);
-
-private:
-    QmlInspector *m_inspector;
 };
 
-} // Qml
+} // end of namespace Internal
+} // end of namespace QmlInspector
 
 #endif // QMLINSPECTORPLUGIN_H

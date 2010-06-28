@@ -29,9 +29,7 @@
 #ifndef QMLINSPECTORCONSTANTS_H
 #define QMLINSPECTORCONSTANTS_H
 
-#include <QString>
-
-namespace Qml {
+namespace QmlInspector {
     namespace Constants {
         const char * const RUN = "QmlInspector.Run";
         const char * const STOP = "QmlInspector.Stop";
@@ -51,8 +49,7 @@ namespace Qml {
         const char * const S_SHOW_UNWATCHABLE_PROPERTIES = "ShowUninspectableItem";
         const char * const S_GROUP_PROPERTIES_BY_ITEM_TYPE = "GroupPropertiesByItemType";
 
-    };
-
-};
+    }
+}
 
 #endif

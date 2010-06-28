@@ -30,27 +30,22 @@
 #include "inspectorcontext.h"
 #include "qmlinspectorconstants.h"
 
-#include "components/objectpropertiesview.h"
-#include "components/objecttree.h"
 #include <coreplugin/icore.h>
+#include <QtGui/QWidget>
+#include <QtCore/QDebug>
 
-#include <QWidget>
-#include <QDebug>
-
-
-namespace Qml {
-namespace Internal {
+using namespace QmlInspector::Internal;
+using namespace QmlInspector::Constants;
 
 InspectorContext::InspectorContext(QWidget *widget)
   : IContext(widget),
     m_widget(widget),
-    m_context(Constants::C_INSPECTOR)
+    m_context(C_INSPECTOR)
 {
 }
 
 InspectorContext::~InspectorContext()
 {
-
 }
 
 Core::Context InspectorContext::context() const
@@ -83,8 +78,5 @@ QString InspectorContext::contextHelpIdForProperty(const QString &itemName, cons
 QString InspectorContext::contextHelpIdForItem(const QString &itemName)
 {
     return QString("QML.").append(itemName);
-}
-
-}
 }
 
