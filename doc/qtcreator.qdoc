@@ -706,6 +706,9 @@
 
     \endlist
 
+    For more information on using the \QMLD visual editor, see
+    \l{Developing Qt Quick Applications}.
+
     \endif
 
 */
@@ -713,7 +716,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-qml-application.html
+    \previouspage creator-project-managing-sessions.html
     \page creator-editor-using.html
     \nextpage creator-editor-finding.html
 
