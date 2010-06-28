@@ -406,10 +406,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // "open with" submenu
     Core::ActionContainer * const openWith =
             am->createMenu(ProjectExplorer::Constants::M_OPENFILEWITHCONTEXT);
+    openWith->setEmptyAction(Core::ActionContainer::EA_None);
     d->m_openWithMenu = openWith->menu();
     d->m_openWithMenu->setTitle(tr("Open With"));
 
-    connect(mfilec->menu(), SIGNAL(aboutToShow()), this, SLOT(populateOpenWithMenu()));
     connect(d->m_openWithMenu, SIGNAL(triggered(QAction *)),
             this, SLOT(openWithMenuTriggered(QAction *)));
 
@@ -1206,6 +1206,7 @@ void ProjectExplorerPlugin::showContextMenu(const QPoint &globalPos, Node *node)
             contextMenu = d->m_folderMenu;
             break;
         case FileNodeType:
+            populateOpenWithMenu();
             contextMenu = d->m_fileMenu;
             break;
         default:
