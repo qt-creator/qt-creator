@@ -162,6 +162,13 @@ public:
                                      const QByteArray &id,
                                      const QVariant &cookie = QVariant());
 
+    // Non-standard: Remove executable from settings.
+    // Probably needs to be called after stopping. This command has no response.
+    void sendSettingsRemoveExecutableCommand(const QString &binaryIn,
+                                             unsigned uid,
+                                             const QStringList &additionalLibraries = QStringList(),
+                                             const QVariant &cookie = QVariant());
+
     void sendRunControlSuspendCommand(const TcfTrkCallback &callBack,
                                       const QByteArray &id,
                                       const QVariant &cookie = QVariant());

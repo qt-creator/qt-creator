@@ -1128,19 +1128,27 @@ void TcfTrkGdbAdapter::write(const QByteArray &data)
     m_gdbProc.write(data);
 }
 
-
 void TcfTrkGdbAdapter::cleanup()
 {
     delete m_gdbServer;
     m_gdbServer = 0;
     if (!m_trkIODevice.isNull()) {
-        if (QAbstractSocket *socket = qobject_cast<QAbstractSocket *>(m_trkIODevice.data())) {
-            if (socket->state() == QAbstractSocket::ConnectedState)
-                socket->disconnect();
-        } else {
-            m_trkIODevice->close();
+                QAbstractSocket *socket = qobject_cast<QAbstractSocket *>(m_trkIODevice.data());
+        const bool isOpen = socket ? socket->state() == QAbstractSocket::ConnectedState : m_trkIODevice->isOpen();
+        if (isOpen) { // Not sure if that is required: Remove Trk's context?
+            if (!m_remoteExecutable.isEmpty() && m_uid) {
+                m_trkDevice->sendSettingsRemoveExecutableCommand(m_remoteExecutable, m_uid);
+                m_uid = 0;
+            }
         }
-    }
+        if (isOpen) {
+            if (socket) {
+                socket->disconnect();
+            } else {
+                m_trkIODevice->close();
+            }
+        }
+    } //!m_trkIODevice.isNull()
 }
 
 void TcfTrkGdbAdapter::shutdown()
