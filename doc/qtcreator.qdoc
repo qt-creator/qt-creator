@@ -47,7 +47,7 @@
     \list
        \o \l{Introducing Qt Creator}
        \o \l{Operating Systems and Supported Platforms}
-       \o \l{Quick Tour}
+       \o \l{Qt Creator User Interface}
        \o \l{Getting Started}
            \list
                \o \l{Building and Running an Example Application}
@@ -57,16 +57,6 @@
                \o \l{Creating a Qt Quick Application}
                \endif
            \endlist
-       \o \l{Using the Editor}
-            \list
-                \o \l{Finding and Replacing}
-                \o \l{Refactoring}
-                \o \l{Searching With the Locator}
-                \o \l{Pasting and Fetching Code Snippets}
-                \o \l{Configuring the Editor}
-                \o \l{Using FakeVim Mode}
-                \o \l{Using an External Editor}
-            \endlist
        \o \l{Managing Projects}
             \list
                 \o \l{Creating a Project}
@@ -77,6 +67,36 @@
                 \o \l{Setting Up Development Environment for Symbian}
                 \o \l{Managing Sessions}
             \endlist
+       \o \l{Using the Editor}
+            \list
+                \o \l{Finding and Replacing}
+                \o \l{Refactoring}
+                \o \l{Searching With the Locator}
+                \o \l{Pasting and Fetching Code Snippets}
+                \o \l{Configuring the Editor}
+                \o \l{Using FakeVim Mode}
+                \o \l{Using an External Editor}
+            \endlist
+       \o \l{Developing Application UI}
+       \list
+           \o \l{Optimizing Applications for Mobile Devices}
+           \o \l{Adding Qt Designer Plugins}
+           \if defined(qtquick)
+           \o \l{Developing Qt Quick Applications}
+                \list
+                    \o \l {Creating Qt Quick Projects}
+                    \o \l {Designing Application UI}
+                    \o \l {Creating Components}
+                    \o \l {Creating Buttons}
+                    \o \l {Creating Scalable Buttons and Borders}
+                    \o \l {Creating Screens}
+                    \o \l {Creating List Views}
+                    \o \l {Animating Screens}
+                    \o \l {Adding User Interaction Methods}
+                    \o \l {Implementing Application Logic}
+                \endlist
+           \endif
+       \endlist
        \o \l{Building and Running Applications}
             \list
                 \o \l{Building for Multiple Targets}
@@ -85,11 +105,7 @@
                 \o \l{Specifying Editor Settings}
                 \o \l{Specifying Dependencies}
             \endlist
-       \if defined(qtquick)
-       \o \l{Developing Qt Quick Applications}
-       \endif
-       \o \l{Optimizing Applications for Mobile Devices}
-       \o \l{Using the Maemo Emulator}
+
        \o \l{Debugging}
             \list
             \o \l {Debugging Qt Applications}
@@ -108,8 +124,10 @@
                 \endlist
             \endif
             \endlist
+       \o \l{Using the Maemo Emulator}
        \o \l{Using Version Control Systems}
-       \o \l{Adding Qt Designer Plugins}
+
+       \o \l{Getting Help}
        \o \l{Tips and Tricks}
        \o \l{Keyboard Shortcuts}
        \o \l{Known Issues}
@@ -476,8 +494,24 @@
 
     \image qtcreator-compile-pane.png
 
+    \section1 Navigating with Keyboard
 
-    \section1 Getting Help
+    Qt Creator caters not only to developers who are used to using the mouse,
+    but also to developers who are more comfortable with the keyboard. A wide
+    range of \l{keyboard-shortcuts}{keyboard} and
+    \l{Searching With the Locator}{navigation} shortcuts are available to help
+    speed up the process of developing your application.
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-version-control.html
+    \page creator-help.html
+    \nextpage creator-tips.html
+
+    \title Getting Help
 
     Qt Creator comes fully integrated with Qt documentation and
     examples using the Qt Help plugin.
@@ -494,7 +528,7 @@
            \gui Help mode, select \gui Tools > \gui Options... > \gui Help.
     \endlist
 
-    \section2 Adding External Documentation
+    \section1 Adding External Documentation
 
     You can display external documentation in the \gui Help mode.
     To augment or replace the documentation that ships with Qt Creator and Qt:
@@ -508,7 +542,7 @@
            \gui Options... > \gui Help > \gui Documentation > \gui Add.
     \endlist
 
-    \section2 Using Documentation Filters
+    \section1 Using Documentation Filters
 
     You can filter the documents displayed in the \gui Help mode to find
     relevant information faster. Select from a list of filters in the
@@ -549,17 +583,16 @@
 
     To remove filters, select them in \gui Filters, and click \gui Remove.
 
-    \section1 Navigating with Keyboard
+*/
 
-    Qt Creator caters not only to developers who are used to using the mouse,
-    but also to developers who are more comfortable with the keyboard. A wide
-    range of \l{keyboard-shortcuts}{keyboard} and
-    \l{Searching With the Locator}{navigation} shortcuts are available to help
-    speed up the process of developing your application.
 
-    \if defined(qtquick)
+/*!
+    \contentspage index.html
+    \previouspage creator-editor-external.html
+    \page creator-design-mode.html
+    \nextpage creator-usability.html
 
-    \section1 Developing Application UI
+    \title Developing Application UI
 
     To help you design the user interface of your application, two visual
     editors are integrated into Qt Creator:
@@ -988,7 +1021,7 @@
     \contentspage index.html
     \previouspage creator-editor-fakevim.html
     \page creator-editor-external.html
-    \nextpage creator-project-managing.html
+    \nextpage creator-design-mode.html
 
     \title Using an External Editor
 
@@ -1352,7 +1385,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-editor-external.html
+    \previouspage creator-qml-application.html
     \page creator-project-managing.html
     \nextpage creator-project-creating.html
 
@@ -1913,7 +1946,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-project-managing-sessions.html
+    \previouspage quick-application-logic.html
     \page creator-building-running.html
     \nextpage creator-building-targets.html
 
@@ -2502,7 +2535,7 @@
     \contentspage index.html
     \previouspage creator-editor-settings.html
     \page creator-build-dependencies.html
-    \nextpage creator-visual-editor.html
+    \nextpage creator-debugging.html
 
     \title Specifying Dependencies
 
@@ -2861,7 +2894,7 @@
     \contentspage index.html
     \previouspage creator-mobile-example.html
     \page creator-qml-application.html
-    \nextpage creator-editor-using.html
+    \nextpage creator-project-managing.html
 
     \title Creating a Qt Quick Application
 
@@ -3329,9 +3362,9 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-qml-inspector.html
+    \previouspage creator-maemo-emulator.html
     \page creator-version-control.html
-    \nextpage adding-plugins.html
+    \nextpage creator-help.html
 
     \title Using Version Control Systems
 
@@ -3840,7 +3873,7 @@
     \contentspage index.html
     \previouspage creator-developing-symbian.html
     \page creator-project-managing-sessions.html
-    \nextpage creator-building-running.html
+    \nextpage creator-editor-using.html
 
     \title Managing Sessions
 
@@ -3879,7 +3912,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-maemo-emulator.html
+    \previouspage creator-build-dependencies.html
     \page creator-debugging.html
     \nextpage creator-debugging-cpp.html
 
@@ -3991,7 +4024,7 @@
     \contentspage index.html
     \previouspage creator-debugging-qml.html
     \page creator-qml-inspector.html
-    \nextpage creator-version-control.html
+    \nextpage creator-maemo-emulator.html
 
     \title Using the QML Inspector
 
@@ -5306,9 +5339,9 @@
 /*!
 
     \contentspage index.html
-    \previouspage creator-build-dependencies.html
+    \previouspage adding-plugins.html
     \page creator-visual-editor.html
-    \nextpage creator-usability.html
+    \nextpage quick-projects.html
 
     \title Developing Qt Quick Applications
 
@@ -5323,6 +5356,22 @@
 
     You can use the code editor (\gui Edit mode) or the visual editor
     (\gui Design mode) to develop Qt Quick applications.
+    The following sections describe typical tasks you can do with Qt Creator.
+
+    \list
+
+        \o \l {Creating Qt Quick Projects}
+        \o \l {Designing Application UI}
+        \o \l {Creating Components}
+        \o \l {Creating Buttons}
+        \o \l {Creating Scalable Buttons and Borders}
+        \o \l {Creating Screens}
+        \o \l {Creating List Views}
+        \o \l {Animating Screens}
+        \o \l {Adding User Interaction Methods}
+        \o \l {Implementing Application Logic}
+
+    \endlist
 
     \note The \QMLD visual editor is provided as an experimental plugin that you must
     enable to be able to edit QML files in the \gui Design mode. Enabling the
@@ -5332,7 +5381,17 @@
     \gui {Help > About Plugins... > Qt Quick > QmlDesigner}. You must restart Qt Creator
     to enable or disable the visual editor.
 
-    \section1 Creating Qt Quick Projects
+*/
+
+
+/*!
+
+    \contentspage index.html
+    \previouspage creator-visual-editor.html
+    \page quick-projects.html
+    \nextpage quick-ui.html
+
+    \title Creating Qt Quick Projects
 
     Select \gui {File > New File or Project > Qt Quick Project > Qt QML Application}.
 
@@ -5360,11 +5419,31 @@
     To import a QML project to Qt Creator, select
     \gui {File > New File or Project > Qt Quick Project > Import Existing Qt QML Directory}.
 
-    \section1 Designing Application UI
+*/
+
+
+/*!
+
+    \contentspage index.html
+    \previouspage quick-projects.html
+    \page quick-ui.html
+    \nextpage quick-components.html
+
+    \title Designing Application UI
 
     One .qml file can define a component, screen, or the whole application.
 
-    \section2 Creating Components
+*/
+
+
+/*!
+
+    \contentspage index.html
+    \previouspage quick-ui.html
+    \page quick-components.html
+    \nextpage quick-buttons.html
+
+    \title Creating Components
 
     A QML component provides a way of defining a new type that you can re-use in other QML
     files. A component is like a black box; it interacts with the outside world
@@ -5400,7 +5479,17 @@
 
     The following sections describe some use cases for the QML elements.
 
-    \section3 Creating Buttons
+*/
+
+
+/*!
+
+    \contentspage index.html
+    \previouspage quick-components.html
+    \page quick-buttons.html
+    \nextpage quick-scalable-image.html
+
+    \title Creating Buttons
 
     To create a button component:
 
@@ -5465,7 +5554,17 @@
     use the \l{http://doc.qt.nokia.com/4.7-snapshot/qml-borderimage.html}{Border Image}
     element.
 
-    \section3 Creating Scalable Buttons and Borders
+*/
+
+
+/*!
+
+    \contentspage index.html
+    \previouspage quick-buttons.html
+    \page quick-scalable-image.html
+    \nextpage quick-screens.html
+
+    \title Creating Scalable Buttons and Borders
 
     You can use the \l{http://doc.qt.nokia.com/4.7-snapshot/qml-borderimage.html}{Border Image}
     element to display an image, such as a PNG file, as a border and a background.
@@ -5616,7 +5715,17 @@
 
         \endlist
 
-    \section2 Creating Screens
+*/
+
+
+/*!
+
+    \contentspage index.html
+    \previouspage quick-scalable-image.html
+    \page quick-screens.html
+    \nextpage quick-list-views.html
+
+    \title Creating Screens
 
     You can use the \gui Library items and your own components to create screens.
 
@@ -5652,7 +5761,17 @@
 
     \endlist
 
-    \section3 Creating List Views
+*/
+
+
+/*!
+
+    \contentspage index.html
+    \previouspage quick-screens.html
+    \page quick-list-views.html
+    \nextpage quick-animations.html
+
+    \title Creating List Views
 
     You use list views and list models to create lists. You use delegates to handle list items.
     Typically, the list model is provided by a QAbstractListModel C++ model object,
@@ -5762,7 +5881,17 @@
 
     \endlist
 
-    \section2 Navigating Between Screens
+*/
+
+
+/*!
+
+    \contentspage index.html
+    \previouspage quick-list-views.html
+    \page quick-animations.html
+    \nextpage quick-user-interaction.html
+
+    \title Animating Screens
 
     To make movement between states smooth, you can specify transitions.
     You can use different types of animated transitions. For example, you can animate changes
@@ -5773,9 +5902,21 @@
     You can use the \c ParallelAnimation element to start several animations at the same time.
     Or use the \c SequentialAnimation element to run them one after another.
 
+    You can use the code editor to specify transitions. For more information, see
+    \l{http://doc.qt.nokia.com/4.7-snapshot/qml-transition.html}{QML Transition Element}.
+
+*/
 
 
-    \section2 Adding User Interaction Methods
+
+/*!
+
+    \contentspage index.html
+    \previouspage quick-animations.html
+    \page quick-user-interaction.html
+    \nextpage quick-application-logic.html
+
+    \title Adding User Interaction Methods
 
     You can add the following basic interaction methods to scenes:
 
@@ -5799,7 +5940,17 @@
     For instance, the \gui {MouseArea} element has signal handlers to handle mouse press,
     release, and click.
 
-    \section1 Implementing Application Logic
+*/
+
+
+/*!
+
+    \contentspage index.html
+    \previouspage quick-user-interaction.html
+    \page quick-application-logic.html
+    \nextpage creator-building-running.html
+
+    \title Implementing Application Logic
 
     A user interface is only a part of an application, and not really useful by itself.
     You can use Qt or JavaScript to implement the application logic. For more information on
@@ -6273,9 +6424,9 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-usability.html
+    \previouspage creator-qml-inspector.html
     \page creator-maemo-emulator.html
-    \nextpage creator-debugging.html
+    \nextpage creator-version-control.html
 
     \title Using the Maemo Emulator
 
@@ -6522,9 +6673,9 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-version-control.html
+    \previouspage creator-usability.html
     \page adding-plugins.html
-    \nextpage creator-tips.html
+    \nextpage creator-visual-editor.html
 
     \title Adding Qt Designer Plugins
 
@@ -6577,9 +6728,9 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-visual-editor.html
+    \previouspage creator-design-mode.html
     \page creator-usability.html
-    \nextpage creator-maemo-emulator.html
+    \nextpage adding-plugins.html
 
     \title Optimizing Applications for Mobile Devices
 
@@ -6668,7 +6819,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage adding-plugins.html
+    \previouspage creator-help.html
     \page creator-tips.html
     \nextpage creator-keyboard-shortcuts.html
 
