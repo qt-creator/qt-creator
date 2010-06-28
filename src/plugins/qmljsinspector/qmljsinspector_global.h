@@ -26,30 +26,15 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-#ifndef QMLINSPECTORCONSTANTS_H
-#define QMLINSPECTORCONSTANTS_H
+#ifndef QMLINSPECTOR_GLOBAL_H
+#define QMLINSPECTOR_GLOBAL_H
 
-namespace QmlInspector {
-    namespace Constants {
-        const char * const RUN = "QmlInspector.Run";
-        const char * const STOP = "QmlInspector.Stop";
+#include <QtCore/QtGlobal>
 
-        const char * const C_INSPECTOR = "QmlInspector";
-        const char * const COMPLETE_THIS = "QmlInspector.CompleteThis";
-
-        const char * const M_DEBUG_SIMULTANEOUSLY = "QmlInspector.Menu.SimultaneousDebug";
-
-        const char * const LANG_QML = "QML";
-
-        // settings
-        const char * const S_QML_INSPECTOR    = "QML.Inspector";
-        const char * const S_EXTERNALPORT_KEY = "ExternalPort";
-        const char * const S_EXTERNALURL_KEY  = "ExternalUrl";
-        const char * const S_SHOW_UNINSPECTABLE_ITEMS  = "ShowUninspectableProperties";
-        const char * const S_SHOW_UNWATCHABLE_PROPERTIES = "ShowUninspectableItem";
-        const char * const S_GROUP_PROPERTIES_BY_ITEM_TYPE = "GroupPropertiesByItemType";
-
-    }
-}
-
+#if defined(QMLJSINSPECTOR_LIBRARY)
+#  define QMLINSPECTOR_EXPORT Q_DECL_EXPORT
+#else
+#  define QMLINSPECTOR_EXPORT Q_DECL_IMPORT
 #endif
+
+#endif // QMLINSPECTOR_GLOBAL_H

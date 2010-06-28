@@ -26,15 +26,28 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-#ifndef QMLINSPECTOR_GLOBAL_H
-#define QMLINSPECTOR_GLOBAL_H
+#include "qmljsdebuggerclient.h"
 
-#include <QtCore/QtGlobal>
+using namespace QmlJSInspector::Internal;
 
-#if defined(QMLINSPECTOR_LIBRARY)
-#  define QMLINSPECTOR_EXPORT Q_DECL_EXPORT
-#else
-#  define QMLINSPECTOR_EXPORT Q_DECL_IMPORT
-#endif
+DebuggerClient::DebuggerClient(QDeclarativeDebugConnection *client, Debugger::Internal::QmlEngine *engine)
+    : QDeclarativeDebugClient(QLatin1String("Debugger"), client)
+    , connection(client), engine(engine)
+{
+    connect(engine, SIGNAL(sendMessage(QByteArray)), this, SLOT(slotSendMessage(QByteArray)));
+    setEnabled(true);
+}
 
-#endif // QMLINSPECTOR_GLOBAL_H
+DebuggerClient::~DebuggerClient()
+{
+}
+
+void DebuggerClient::messageReceived(const QByteArray &data)
+{
+    engine->messageReceived(data);
+}
+
+void DebuggerClient::slotSendMessage(const QByteArray &message)
+{
+    QDeclarativeDebugClient::sendMessage(message);
+}

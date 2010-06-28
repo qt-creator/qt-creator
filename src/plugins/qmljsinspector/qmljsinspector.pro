@@ -1,23 +1,27 @@
 TEMPLATE = lib
-TARGET = QmlInspector
-
+TARGET = QmlJSInspector
 INCLUDEPATH += .
 DEPENDPATH += .
+QT += declarative
 
 include(../../private_headers.pri)
 
-DEFINES += QMLINSPECTOR_LIBRARY
+DEFINES += QMLJSINSPECTOR_LIBRARY
 
-HEADERS += qmlinspectorplugin.h \
-           qmlinspectorconstants.h \
-           qmlinspector_global.h \
-           inspectorcontext.h \
+HEADERS += \
+qmljsdebuggerclient.h \
+qmljsinspector_global.h \
+qmljsinspectorconstants.h \
+qmljsinspectorcontext.h \
+qmljsinspectorplugin.h
 
-SOURCES += qmlinspectorplugin.cpp \
-           inspectorcontext.cpp
+SOURCES += \
+qmljsdebuggerclient.cpp \
+qmljsinspectorcontext.cpp \
+qmljsinspectorplugin.cpp
 
-OTHER_FILES += QmlInspector.pluginspec
-RESOURCES += qmlinspector.qrc
+OTHER_FILES += QmlJSInspector.pluginspec
+RESOURCES += qmljsinspector.qrc
 
 include(../../qtcreatorplugin.pri)
 include(../../plugins/projectexplorer/projectexplorer.pri)

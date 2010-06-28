@@ -43,10 +43,10 @@ contains(QT_CONFIG, declarative) {
     include(../private_headers.pri)
     exists($${QT_PRIVATE_HEADERS}/QtDeclarative/private/qdeclarativecontext_p.h) {
         SUBDIRS += plugin_qmldesigner \
-                   plugin_qmlinspector
+                   plugin_qmljsinspector
     } else {
         warning()
-        warning("QmlDesigner and QmlInspector plugins have been disabled")
+        warning("QmlDesigner and QmlJSInspector plugins have been disabled")
         warning("The plugins depend on on private headers from QtDeclarative module.")
         warning("To enable them, pass 'QT_PRIVATE_HEADERS=$QTDIR/include' to qmake, where $QTDIR is the source directory of qt.")
         warning()
@@ -200,12 +200,10 @@ plugin_qmldesigner.depends = plugin_coreplugin
 plugin_qmldesigner.depends += plugin_texteditor
 plugin_qmldesigner.depends += plugin_qmljseditor
 
-plugin_qmlinspector.subdir = qmlinspector
-plugin_qmlinspector.depends += plugin_projectexplorer
-plugin_qmlinspector.depends += plugin_cppeditor
-plugin_qmlinspector.depends += plugin_qmlprojectmanager
-plugin_qmlinspector.depends += plugin_debugger
-plugin_qmlinspector.depends += plugin_cpptools
+plugin_qmljsinspector.subdir = qmljsinspector
+plugin_qmljsinspector.depends += plugin_projectexplorer
+plugin_qmljsinspector.depends += plugin_qmlprojectmanager
+plugin_qmljsinspector.depends += plugin_debugger
 
 plugin_mercurial.subdir = mercurial
 plugin_mercurial.depends = plugin_vcsbase

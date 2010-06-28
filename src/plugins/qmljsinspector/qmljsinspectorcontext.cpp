@@ -27,49 +27,56 @@
 **
 **************************************************************************/
 
-#ifndef INSPECTORCONTEXT_H
-#define INSPECTORCONTEXT_H
+#include "qmljsinspectorcontext.h"
+#include "qmljsinspectorconstants.h"
 
-#include <coreplugin/icontext.h>
-#include <QList>
+#include <coreplugin/icore.h>
+#include <QtGui/QWidget>
+#include <QtCore/QDebug>
 
-QT_BEGIN_NAMESPACE
-class QWidget;
-QT_END_NAMESPACE
+using namespace QmlJSInspector::Internal;
+using namespace QmlJSInspector::Constants;
 
-namespace QmlInspector {
-namespace Internal {
-
-class ObjectPropertiesView;
-class ObjectTree;
-class DesignModeWidget;
-
-class InspectorContext : public Core::IContext
+InspectorContext::InspectorContext(QWidget *widget)
+  : IContext(widget),
+    m_widget(widget),
+    m_context(C_INSPECTOR)
 {
-    Q_OBJECT
+}
 
-public:
-    InspectorContext(QWidget *widget);
-    virtual ~InspectorContext();
+InspectorContext::~InspectorContext()
+{
+}
 
-    // Core::IContext interface
-    virtual Core::Context context() const;
-    virtual QWidget *widget();
-    virtual QString contextHelpId() const;
+Core::Context InspectorContext::context() const
+{
+    return m_context;
+}
 
-    static QString contextHelpIdForProperty(const QString &itemName, const QString &propName);
-    static QString contextHelpIdForItem(const QString &itemName);
+QWidget *InspectorContext::widget()
+{
+    return m_widget;
+}
 
-public slots:
-    void setContextHelpId(const QString &helpId);
+void InspectorContext::setContextHelpId(const QString &helpId)
+{
+    m_contextHelpId = helpId;
+}
 
-private:
-    QWidget *m_widget;
-    Core::Context m_context;
-    QString m_contextHelpId;
-};
+QString InspectorContext::contextHelpId() const
+{
+    return m_contextHelpId;
+}
 
-} // Internal
-} // QmlInspector
+QString InspectorContext::contextHelpIdForProperty(const QString &itemName, const QString &propName)
+{
+    // TODO this functionality is not supported yet as we don't have help id's for
+    // properties.
+    return QString("QML.").append(itemName).append(".").append(propName);
+}
 
-#endif // DESIGNMODECONTEXT_H
+QString InspectorContext::contextHelpIdForItem(const QString &itemName)
+{
+    return QString("QML.").append(itemName);
+}
+

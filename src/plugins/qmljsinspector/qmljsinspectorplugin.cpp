@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#include "qmlinspectorconstants.h"
-#include "qmlinspectorplugin.h"
+#include "qmljsinspectorconstants.h"
+#include "qmljsinspectorplugin.h"
 
 #include <debugger/debuggeruiswitcher.h>
 #include <debugger/debuggerconstants.h>
@@ -59,8 +59,8 @@
 
 #include <QtCore/QDebug>
 
-using namespace QmlInspector::Internal;
-using namespace QmlInspector::Constants;
+using namespace QmlJSInspector::Internal;
+using namespace QmlJSInspector::Constants;
 
 namespace {
 QToolButton *createToolButton(QAction *action)

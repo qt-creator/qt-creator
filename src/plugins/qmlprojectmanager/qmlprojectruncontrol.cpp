@@ -41,7 +41,7 @@
 
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggeruiswitcher.h>
-#include <qmlinspector/qmlinspectorconstants.h>
+#include <qmljsinspector/qmljsinspectorconstants.h>
 
 #include <QDir>
 #include <QLabel>
@@ -86,7 +86,7 @@ void QmlRunControl::start()
 
     // FIXME this line should be refactored out in order to remove the dependency between
     // debugger and qmlprojectmanager, because debugger also relies on cpptools.
-    Debugger::DebuggerUISwitcher::instance()->setActiveLanguage(QmlInspector::Constants::LANG_QML);
+    Debugger::DebuggerUISwitcher::instance()->setActiveLanguage(QmlJSInspector::Constants::LANG_QML);
 
     emit started();
     emit appendMessage(this, tr("Starting %1 %2").arg(QDir::toNativeSeparators(m_executable),

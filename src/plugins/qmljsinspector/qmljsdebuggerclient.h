@@ -26,49 +26,38 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-#ifndef QMLINSPECTORPLUGIN_H
-#define QMLINSPECTORPLUGIN_H
+#ifndef QMLJSDEBUGGERCLIENT_H
+#define QMLJSDEBUGGERCLIENT_H
 
-#include <extensionsystem/iplugin.h>
+#include <debugger/qml/qmlengine.h>
+#include <debugger/stackframe.h>
+#include <debugger/stackhandler.h>
+#include <debugger/debuggerrunner.h>
+#include <private/qdeclarativedebugclient_p.h> // QML private API
 
-#include <QtCore/QObject>
-#include <QtCore/QPointer>
-#include <QtCore/QTimer>
-
-QT_FORWARD_DECLARE_CLASS(QStringList)
-
-namespace Core {
-    class IMode;
-}
-
-namespace ProjectExplorer {
-    class Project;
-}
-
-namespace QmlInspector {
+namespace QmlJSInspector {
 namespace Internal {
 
-class QmlInspectorPlugin : public ExtensionSystem::IPlugin
+class DebuggerClient : public QDeclarativeDebugClient
 {
     Q_OBJECT
 
 public:
-    QmlInspectorPlugin();
-    virtual ~QmlInspectorPlugin();
+    DebuggerClient(QDeclarativeDebugConnection *client, Debugger::Internal::QmlEngine *engine);
+    virtual ~DebuggerClient();
 
-    virtual bool initialize(const QStringList &arguments, QString *errorString);
-    virtual void extensionsInitialized();
-    virtual void aboutToShutdown();
+public: // attributes
+    QDeclarativeDebugConnection *connection;
+    Debugger::Internal::QmlEngine *engine;
 
-public slots:
-    void activateDebuggerForProject(ProjectExplorer::Project *project, const QString &runMode);
-    void setDockWidgetArrangement(const QString &activeLanguage);
+private Q_SLOTS:
+    void slotSendMessage(const QByteArray &message);
 
-private slots:
-    void prepareDebugger(Core::IMode *mode);
+protected:
+    virtual void messageReceived(const QByteArray &data);
 };
 
-} // end of namespace Internal
-} // end of namespace QmlInspector
+} // Internal
+} // QmlJSInspector
 
-#endif // QMLINSPECTORPLUGIN_H
+#endif // QMLJSDEBUGGERCLIENT_H
