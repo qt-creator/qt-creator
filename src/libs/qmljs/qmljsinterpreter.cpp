@@ -2609,34 +2609,42 @@ void Engine::initializePrototypes()
     _objectCtor = new ObjectCtor(this);
     _objectCtor->setPrototype(_functionPrototype);
     _objectCtor->setProperty("prototype", _objectPrototype);
+    _objectCtor->setReturnValue(newObject());
 
     _functionCtor = new FunctionCtor(this);
     _functionCtor->setPrototype(_functionPrototype);
     _functionCtor->setProperty("prototype", _functionPrototype);
+    _functionCtor->setReturnValue(newFunction());
 
     _arrayCtor = new ArrayCtor(this);
     _arrayCtor->setPrototype(_functionPrototype);
     _arrayCtor->setProperty("prototype", _arrayPrototype);
+    _arrayCtor->setReturnValue(newArray());
 
     _stringCtor = new StringCtor(this);
     _stringCtor->setPrototype(_functionPrototype);
     _stringCtor->setProperty("prototype", _stringPrototype);
+    _stringCtor->setReturnValue(stringValue());
 
     _booleanCtor = new BooleanCtor(this);
     _booleanCtor->setPrototype(_functionPrototype);
     _booleanCtor->setProperty("prototype", _booleanPrototype);
+    _booleanCtor->setReturnValue(booleanValue());
 
     _numberCtor = new NumberCtor(this);
     _numberCtor->setPrototype(_functionPrototype);
     _numberCtor->setProperty("prototype", _numberPrototype);
+    _numberCtor->setReturnValue(numberValue());
 
     _dateCtor = new DateCtor(this);
     _dateCtor->setPrototype(_functionPrototype);
     _dateCtor->setProperty("prototype", _datePrototype);
+    _dateCtor->setReturnValue(_datePrototype);
 
     _regexpCtor = new RegExpCtor(this);
     _regexpCtor->setPrototype(_functionPrototype);
     _regexpCtor->setProperty("prototype", _regexpPrototype);
+    _regexpCtor->setReturnValue(_regexpPrototype);
 
     addFunction(_objectCtor, "getPrototypeOf", 1);
     addFunction(_objectCtor, "getOwnPropertyDescriptor", 2);
