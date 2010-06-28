@@ -107,6 +107,8 @@ public:
 
     void startRunControl(RunControl *runControl, const QString &mode);
 
+    static QStringList projectFilePatterns();
+
 signals:
     void aboutToShowContextMenu(ProjectExplorer::Project *project,
                                 ProjectExplorer::Node *node);
@@ -123,6 +125,7 @@ signals:
 
 public slots:
     void setStartupProject(ProjectExplorer::Project *project = 0);
+    void openOpenProjectDialog();
 
 private slots:
     void buildStateChanged(ProjectExplorer::Project * pro);

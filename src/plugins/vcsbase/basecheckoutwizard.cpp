@@ -128,9 +128,7 @@ static inline QString msgNoProjectFiles(const QDir &dir, const QStringList &patt
 // Try to find the project files in a project directory with some smartness
 static QFileInfoList findProjectFiles(const QDir &projectDir, QString *errorMessage)
 {
-    // Hardcoded: Find *.pro/Cmakefiles
-    QStringList projectFilePatterns;
-    projectFilePatterns << QLatin1String("*.pro") << QLatin1String("CMakeLists.txt");
+    const QStringList projectFilePatterns = ProjectExplorer::ProjectExplorerPlugin::projectFilePatterns();
     // Project directory
     QFileInfoList projectFiles = projectDir.entryInfoList(projectFilePatterns, QDir::Files|QDir::NoDotAndDotDot|QDir::Readable);
     if (!projectFiles.empty())

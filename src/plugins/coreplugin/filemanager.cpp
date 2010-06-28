@@ -677,7 +677,7 @@ QString FileManager::getSaveAsFileName(IFile *file)
 }
 
 /*!
-    \fn QString FileManager::getOpenFileNames(const QStringList &filters, QString *selectedFilter) const
+    \fn QString FileManager::getOpenFileNames(const QStringList &filters, const QString &path, QString *selectedFilter) const
 
     Asks the user for a set of file names to be opened.
 */

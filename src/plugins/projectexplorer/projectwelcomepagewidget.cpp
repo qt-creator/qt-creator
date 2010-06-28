@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "projectwelcomepagewidget.h"
+#include "projectexplorer.h"
 #include "ui_projectwelcomepagewidget.h"
 
 #include <coreplugin/coreconstants.h>
@@ -92,7 +93,8 @@ ProjectWelcomePageWidget::ProjectWelcomePageWidget(QWidget *parent) :
     connect(ui->projTreeWidget, SIGNAL(activated(QString)), SLOT(slotProjectClicked(QString)));
     connect(ui->createNewProjectButton, SIGNAL(clicked()), SLOT(slotCreateNewProject()));
     connect(ui->openProjectButton, SIGNAL(clicked()),
-            Core::ICore::instance()->mainWindow(), SLOT(openProject()));
+            ProjectExplorer::ProjectExplorerPlugin::instance(),
+            SLOT(openOpenProjectDialog()));
     connect(ui->manageSessionsButton, SIGNAL(clicked()), SIGNAL(manageSessions()));
 
     ui->createNewProjectButton->setIcon(
