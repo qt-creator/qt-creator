@@ -11,11 +11,20 @@ General
 
 Editing
 
+  * FakeVim: Fix issues with non-letter keys on non-US keyboards
+  * FakeVim: Fix performance of find/replace
+
 C++ Support
 
 Project support
 
 Debugging
+
+   * Fix display of certain structures within containers
+   * Fix display of typedefs of typedefs of simple types such as qulonglong
+   * Fix behaviour of 'step' and 'next' when a lower frame was selected
+   * Fix std::string display for objects with (the legal) ref count -1
+   * Improve gdb version string parsing
 
 QML/JS Support
    * New QmlDesigner
