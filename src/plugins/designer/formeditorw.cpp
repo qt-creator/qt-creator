@@ -51,6 +51,8 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/minisplitter.h>
+#include <coreplugin/outputpane.h>
 #include <texteditor/texteditorsettings.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
@@ -328,7 +330,12 @@ void FormEditorW::fullInit()
     layout->setMargin(0);
     layout->setSpacing(0);
     layout->addWidget(m_toolBar);
-    layout->addWidget(m_editorWidget);
+    // Avoid mode switch to 'Edit' mode when the application started by
+    // 'Run' in 'Design' mode emits output.
+    Core::MiniSplitter *splitter = new Core::MiniSplitter(Qt::Vertical);
+    splitter->addWidget(m_editorWidget);
+    splitter->addWidget(new Core::OutputPanePlaceHolder(m_designMode, splitter));
+    layout->addWidget(splitter);
     m_modeWidget->setLayout(layout);
 
     Core::UniqueIDManager *idMan = Core::UniqueIDManager::instance();
