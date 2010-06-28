@@ -2,7 +2,7 @@ TEMPLATE = lib
 TARGET = QmlJSInspector
 INCLUDEPATH += .
 DEPENDPATH += .
-QT += declarative
+QT += declarative network
 
 include(../../private_headers.pri)
 
@@ -13,12 +13,14 @@ qmljsdebuggerclient.h \
 qmljsinspector_global.h \
 qmljsinspectorconstants.h \
 qmljsinspectorcontext.h \
-qmljsinspectorplugin.h
+qmljsinspectorplugin.h \
+qmljsclientproxy.h
 
 SOURCES += \
 qmljsdebuggerclient.cpp \
 qmljsinspectorcontext.cpp \
-qmljsinspectorplugin.cpp
+qmljsinspectorplugin.cpp \
+qmljsclientproxy.cpp
 
 OTHER_FILES += QmlJSInspector.pluginspec
 RESOURCES += qmljsinspector.qrc
