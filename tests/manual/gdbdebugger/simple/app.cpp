@@ -1669,11 +1669,17 @@ FooVector fooVector()
     return f;
 }
 
+namespace ns {
+    typedef unsigned long long vl;
+    typedef vl verylong;
+};
+
 void testStuff()
 {
-    FooVector const &f = fooVector();
-    int i = f.size();
-    Q_UNUSED(i);
+    ns::vl j = 1000;
+    ns::verylong k = 1000;
+    ++j;
+    ++k;
 }
 
 void testPassByReferenceHelper(Foo &f)

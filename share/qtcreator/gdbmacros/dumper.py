@@ -755,6 +755,13 @@ def encodeString(value):
         p += 1
     return s
 
+def stripTypedefs(typeobj):
+    type = typeobj
+    while type.code == gdb.TYPE_CODE_TYPEDEF:
+        type = type.strip_typedefs().unqualified()
+    return type
+
+
 #######################################################################
 #
 # Item
@@ -1236,6 +1243,7 @@ class Dumper:
         #warn("REAL INAME: %s " % item.iname)
         #warn("REAL NAME: %s " % name)
         #warn("REAL TYPE: %s " % item.value.type)
+        #warn("REAL CODE: %s " % item.value.type.code)
         #warn("REAL VALUE: %s " % item.value)
         #try:
         #    warn("REAL VALUE: %s " % item.value)
@@ -1261,27 +1269,28 @@ class Dumper:
         if type.code == gdb.TYPE_CODE_TYPEDEF:
             type = type.target()
 
-        strippedType = self.stripNamespaceFromType(
-            type.strip_typedefs().unqualified()).replace("::", "__")
+        typedefStrippedType = stripTypedefs(type)
+        nsStrippedType = self.stripNamespaceFromType(typedefStrippedType)\
+            .replace("::", "__")
 
-        #warn(" STRIPPED: %s" % strippedType)
-        #warn(" DUMPERS: %s" % (strippedType in qqDumpers))
+        #warn(" STRIPPED: %s" % nsStrippedType)
+        #warn(" DUMPERS: %s" % (nsStrippedType in qqDumpers))
 
-        if isSimpleType(type.unqualified()):
+        if isSimpleType(typedefStrippedType):
             #warn("IS SIMPLE: %s " % type)
             #self.putAddress(value.address)
             self.putType(item.value.type)
             self.putValue(value)
             self.putNumChild(0)
 
-        elif ((format is None) or (format >= 1)) and strippedType in qqDumpers:
+        elif ((format is None) or (format >= 1)) and nsStrippedType in qqDumpers:
             #warn("IS DUMPABLE: %s " % type)
             #self.putAddress(value.address)
             self.putType(item.value.type)
-            qqDumpers[strippedType](self, item)
+            qqDumpers[nsStrippedType](self, item)
             #warn(" RESULT: %s " % self.output)
 
-        elif type.code == gdb.TYPE_CODE_ENUM:
+        elif typedefStrippedType.code == gdb.TYPE_CODE_ENUM:
             #warn("GENERIC ENUM: %s" % value)
             #self.putAddress(value.address)
             self.putType(item.value.type)
@@ -1289,7 +1298,7 @@ class Dumper:
             self.putNumChild(0)
 
 
-        elif type.code == gdb.TYPE_CODE_PTR:
+        elif typedefStrippedType.code == gdb.TYPE_CODE_PTR:
             warn("POINTER: %s" % format)
             isHandled = False
 
@@ -1316,9 +1325,9 @@ class Dumper:
                     self.putNumChild(0)
 
             if (not isHandled):
-                strippedType = str(type.strip_typedefs()) \
+                anonStrippedType = str(typedefStrippedType) \
                     .replace("(anonymous namespace)", "")
-                if strippedType.find("(") != -1:
+                if anonStrippedType.find("(") != -1:
                     # A function pointer.
                     self.putValue(str(item.value))
                     self.putAddress(value.address)
@@ -1333,8 +1342,8 @@ class Dumper:
                     self.putNumChild(0)
                     isHandled = True
 
-                target = str(type.target().strip_typedefs().unqualified())
-                if (not isHandled) and target == "void":
+                target = stripTypedefs(type.target())
+                if (not isHandled) and target.code == TYPE_CODE_VOID:
                     self.putType(item.value.type)
                     self.putValue(str(value))
                     self.putNumChild(0)
@@ -1424,7 +1433,7 @@ class Dumper:
 
     def putFields(self, item, innerType = None):
             value = item.value
-            fields = value.type.strip_typedefs().fields()
+            fields = stripTypedefs(value.type).fields()
             baseNumber = 0
             for field in fields:
                 #warn("FIELD: %s" % field)
