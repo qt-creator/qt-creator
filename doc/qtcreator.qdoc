@@ -334,12 +334,31 @@
     \page creator-quick-tour.html
     \nextpage creator-getting-started.html
 
-    \title Quick Tour
-
-    The figure below shows some of the components of Qt Creator in
-    \gui{Edit} mode.
+    \title Qt Creator User Interface
 
     \image qtcreator-breakdown.png
+
+    When you start Qt Creator, it opens to the \gui Welcome mode, where you can:
+
+    \list
+
+        \o Open tutorials and example projects
+
+        \o View tips and hints on using Qt Creator
+
+        \o Create and open projects
+
+        \o Send feedback to the development team
+
+        \o Open recent sessions and projects
+
+        \o Read news from the Qt labs
+
+        \o Ask for support
+
+    \endlist
+
+    You can use the mode selector to change to another Qt Creator mode.
 
     Qt Creator has been localized into several languages. If the system language
     is one of the supported languages, it is automatically selected. To change
@@ -354,12 +373,14 @@
     executed, and debugging your applications. To change modes, click the
     icons, or use the \l{keyboard-shortcuts}{corresponding keyboard shortcut}.
 
+    You can use Qt Creator in the following modes:
+
     \list
-        \o \gui Welcome mode for opening recent sessions and projects.
         \o \gui{\l{Using the Editor}{Edit}} mode for editing project and source files.
         \if defined(qtquick)
         \o \gui{\l{Developing Application UI}{Design}} mode for designing and developing
-           application user interfaces.
+           application user interfaces. This mode is available for UI files (.ui or
+           .qml).
         \else
         \o \gui{\l{Using Qt Designer}{Design}} mode for designing and developing
            application user interfaces.
@@ -367,7 +388,7 @@
         \o \gui{\l{Debugging}{Debug}} mode for inspecting the state of your program while
            debugging.
         \o \gui{\l{Managing Projects}{Projects}} mode for configuring project building and
-           execution.
+           execution. This mode is available when a project is open.
         \o \gui{\l{Getting Help}{Help}} mode for viewing Qt documentation.
     \endlist
 
@@ -378,6 +399,7 @@
 
     \section1 Browsing Project Contents
 
+    The sidebar is available in the \gui Edit and \gui Debug modes.
     Use the sidebar to browse files, projects and bookmarks.
     \image qtcreator-sidebar.png
 
