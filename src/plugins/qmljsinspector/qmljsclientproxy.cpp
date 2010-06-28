@@ -186,6 +186,9 @@ bool ClientProxy::isUnconnected() const
 
 void ClientProxy::setSelectedItemByObjectId(int engineId, const QDeclarativeDebugObjectReference &objectRef)
 {
+#ifdef __GNUC__
+#  warning implement ClientProxy::setSelectedItemByObjectId
+#endif
     qDebug() << "TODO:" << Q_FUNC_INFO;
 #if 0
     if (isConnected())
@@ -217,6 +220,9 @@ QDeclarativeDebugExpressionQuery *ClientProxy::setBindingForObject(int objectDeb
                                                                    const QVariant &value,
                                                                    bool isLiteralValue)
 {
+#ifdef __GNUC__
+#  warning implement ClientProxy::setBindingForObject
+#endif
     qDebug() << "TODO:" << Q_FUNC_INFO;
 #if 0
     if (propertyName == QLatin1String("id") || objectDebugId == -1)
@@ -290,6 +296,10 @@ void ClientProxy::objectTreeFetched(QDeclarativeDebugQuery::State state)
 
 void ClientProxy::reloadQmlViewer(int engineId)
 {
+#ifdef __GNUC__
+#  warning implement ClientProxy::reloadQmlViewer
+#endif
+    Q_UNUSED(engineId);
     qDebug() << "TODO:" << Q_FUNC_INFO;
 #if 0
     if (m_client && m_conn->isConnected()) {
