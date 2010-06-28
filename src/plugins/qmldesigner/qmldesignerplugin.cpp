@@ -117,7 +117,8 @@ bool BauhausPlugin::initialize(const QStringList & /*arguments*/, QString *error
 {
     Core::ICore *core = Core::ICore::instance();
 
-    const Core::Context switchContext(QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
+    const Core::Context switchContext(QmlDesigner::Constants::C_FORMEDITOR,
+        QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
 
     Core::ActionManager *am = core->actionManager();
 
