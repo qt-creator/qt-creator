@@ -455,7 +455,7 @@ def qdump__QImage(d, item):
             # Take four bytes at a time, this is critical for performance.
             # In fact, even four at a time is too slow beyond 100x100 or so.
             d.putField("editformat", 1)  # Magic marker for direct "QImage" data.
-            d.beginItem("editvalue")
+            d.put('%s="' % name)
             d.put("%08x" % int(d_ptr["width"]))
             d.put("%08x" % int(d_ptr["height"]))
             d.put("%08x" % int(d_ptr["format"]))
@@ -463,7 +463,7 @@ def qdump__QImage(d, item):
             for i in xrange(nbytes / 4):
                 d.put("%08x" % int(p.dereference()))
                 p += 1
-            d.endItem()
+            d.put('",')
         else:
             # Write to an external file. Much faster ;-(
             file = tempfile.mkstemp(prefix="gdbpy_")
@@ -1708,6 +1708,10 @@ def qdump__QVector(d, item):
     d.putNumChild(size)
     if d.isExpanded(item):
         p = gdb.Value(p_ptr["array"]).cast(innerType.pointer())
+        charPtr = lookupType("char").pointer()
+        d.putField("size", size)
+        d.putField("addrbase", cleanAddress(p))
+        d.putField("addrstep", (p+1).cast(charPtr) - p.cast(charPtr))
         with Children(d, [size, 2000], innerType):
             for i in d.childRange():
                 d.putItem(Item(p.dereference(), item.iname, i))

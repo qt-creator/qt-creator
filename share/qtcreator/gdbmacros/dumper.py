@@ -204,15 +204,15 @@ class SubItem:
         if self.d.passExceptions and not exType is None:
             showException("SUBITEM", exType, exValue, exTraceBack)
         try:
-            #warn("TYPE CURRENT: %s" % self.d.currentType)
+            #warn("TYPE VALUE: %s" % self.d.currentValue)
             type = stripClassTag(str(self.d.currentType))
             #warn("TYPE: '%s'  DEFAULT: '%s'" % (type, self.d.currentChildType))
             if len(type) > 0 and type != self.d.currentChildType:
                 self.d.put('type="%s",' % type) # str(type.unqualified()) ?
             if not self.d.currentValueEncoding is None:
-                self.d.putField("valueencoded", self.d.currentValueEncoding)
+                self.d.put('valueencoded="%d",', self.d.currentValueEncoding)
             if not self.d.currentValue is None:
-                self.d.putField("value", self.d.currentValue)
+                self.d.put('value="%s",' % self.d.currentValue)
         except:
             pass
         self.d.put('},')
@@ -838,6 +838,9 @@ class FrameCommand(gdb.Command):
         if args.startswith("options:profile,"):
             import cProfile
             cProfile.run('bb("%s")' % args, "/tmp/bbprof")
+            # Examine with:
+            # import bstats
+            # pstats.Stats('bbprof').sort_stats('time').print_stats()
         else:
             bb(args)
 
@@ -970,13 +973,14 @@ class Dumper:
                 pass
             except:
                 # Locals with failing memory access.
+                # FIXME: Isn't this taken care off by the SubItem destructor?
                 with SubItem(self):
                     self.put('iname="%s",' % item.iname)
                     self.put('name="%s",' % item.name)
                     self.put('addr="<not accessible>",')
-                    self.put('value="<not accessible>",')
-                    self.put('type="%s",' % item.value.type)
                     self.put('numchild="0"');
+                    self.putValue("<not accessible>")
+                    self.putType(item.value.type)
                 continue
 
             type = item.value.type
@@ -1022,8 +1026,8 @@ class Dumper:
                         self.put('iname="%s",' % item.iname)
                         self.put('name="%s",' % item.name)
                         self.put('addr="<optimized out>",')
-                        self.put('value="<optimized out>",')
-                        self.put('type="%s"' % item.value.type)
+                        self.putValue("<optimized out>")
+                        self.putType(item.value.type)
 
         #
         # Watchers
@@ -1050,9 +1054,9 @@ class Dumper:
         if exp.startswith("[") and exp.endswith("]"):
             #warn("EVAL: EXP: %s" % exp)
             with SubItem(d):
-                self.putField("iname", iname)
-                self.putField("name", escapedExp)
-                self.putField("exp", escapedExp)
+                self.put('iname="%s",', iname)
+                self.put('name="%s",', escapedExp)
+                self.put('exp="%s",', escapedExp)
                 try:
                     list = eval(exp)
                     self.putValue("")
@@ -1074,12 +1078,14 @@ class Dumper:
             return
 
         with SubItem(self):
-            self.putField("iname", iname)
-            self.putField("name", escapedExp)
-            self.putField("exp", escapedExp)
+            self.put('iname="%s",' % iname)
+            self.put('name="%s",' % escapedExp)
+            self.put('exp="%s",' % escapedExp)
             handled = False
             if exp == "<Edit>" or len(exp) == 0:
-                self.put('value=" ",type=" ",numchild="0",')
+                self.putValue(" ")
+                self.putType(" ")
+                self.putNumChild(0)
             else:
                 try:
                     value = parseAndEvaluate(exp)
@@ -1088,7 +1094,7 @@ class Dumper:
                         self.putAddress(value.address)
                     self.putItemHelper(item)
                 except RuntimeError:
-                    self.put('value="<invalid>",type="<unknown>",numchild="0",')
+                    pass
 
 
     def put(self, value):
@@ -1097,18 +1103,13 @@ class Dumper:
     def putField(self, name, value):
         self.put('%s="%s",' % (name, value))
 
-    def beginItem(self, name):
-        self.put('%s="' % name)
-
-    def endItem(self):
-        self.put('",')
-
     def childRange(self):
         return xrange(qmin(self.currentMaxNumChilds, self.currentNumChilds))
 
     # convenience
     def putItemCount(self, count):
-        self.put('value="<%s items>",' % count)
+        # This needs to override the default value, so don't use 'put' directly.
+        self.putValue('<%s items>' % count)
 
     def putEllipsis(self):
         self.put('{name="<incomplete>",value="",type="",numchild="0"},')
@@ -1140,11 +1141,9 @@ class Dumper:
             lookupType("unsigned long")), None, -1)
 
     def putStringValue(self, value):
-        if value is None:
-            self.put('value="<not available>",')
-        else:
+        if not value is None:
             str = encodeString(value)
-            self.put('valueencoded="%d",value="%s",' % (Hex4EncodedLittleEndian, str))
+            self.putValue(str, Hex4EncodedLittleEndian)
 
     def putDisplay(self, format, value = None, cmd = None):
         self.put('editformat="%s",' % format)
@@ -1266,9 +1265,6 @@ class Dumper:
                 value = item.value
                 type = value.type
 
-        if type.code == gdb.TYPE_CODE_TYPEDEF:
-            type = type.target()
-
         typedefStrippedType = stripTypedefs(type)
         nsStrippedType = self.stripNamespaceFromType(typedefStrippedType)\
             .replace("::", "__")
@@ -1283,7 +1279,9 @@ class Dumper:
             self.putValue(value)
             self.putNumChild(0)
 
-        elif ((format is None) or (format >= 1)) and nsStrippedType in qqDumpers:
+        elif self.useFancy \
+                and ((format is None) or (format >= 1)) \
+                and (nsStrippedType in qqDumpers):
             #warn("IS DUMPABLE: %s " % type)
             #self.putAddress(value.address)
             self.putType(item.value.type)
@@ -1299,7 +1297,7 @@ class Dumper:
 
 
         elif typedefStrippedType.code == gdb.TYPE_CODE_PTR:
-            warn("POINTER: %s" % format)
+            #warn("POINTER: %s" % format)
             isHandled = False
 
             if not format is None:
@@ -1421,8 +1419,8 @@ class Dumper:
                     charptr = lookupType("unsigned char").pointer()
                     addr1 = (baseptr+1).cast(charptr)
                     addr0 = baseptr.cast(charptr)
-                    self.putField("addrbase", cleanAddress(addr0))
-                    self.putField("addrstep", addr1 - addr0)
+                    self.put('addrbase="%s",', cleanAddress(addr0))
+                    self.put('addrstep="%s",', addr1 - addr0)
 
                 innerType = None
                 if len(fields) == 1 and fields[0].name is None:
@@ -1465,7 +1463,7 @@ class Dumper:
                         item.iname, "@%d" % baseNumber, field.name)
                     baseNumber += 1
                     with SubItem(self):
-                        self.putField("iname", child.iname)
+                        self.put('iname="%s",', child.iname)
                         self.putItemHelper(child)
                 elif len(field.name) == 0:
                     # Anonymous union. We need a dummy name to distinguish
@@ -1497,14 +1495,14 @@ class Dumper:
                 iname = "%s.%s" % (item.iname, name)
                 child = Item(item.value, iname, None, name)
                 with SubItem(self):
-                    self.putField("name", name)
-                    self.putField("value", " ")
+                    self.put('name="%s",', name)
+                    self.putValue(" ")
                     if str(field.type).endswith("<anonymous union>"):
-                        self.putField("type", "<anonymous union>")
+                        self.putType("<anonymous union>")
                     elif str(field.type).endswith("<anonymous struct>"):
-                        self.putField("type", "<anonymous struct>")
+                        self.putType("<anonymous struct>")
                     else:
-                        self.putField("type", field.type)
+                        self.putType(field.type)
                     with Children(self, 1):
                         self.listAnonymous(child, name, field.type)
 

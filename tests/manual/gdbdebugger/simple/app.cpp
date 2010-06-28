@@ -1350,6 +1350,16 @@ QVariant testQVariant3()
 void testQVector()
 {
     QVector<int> big(10000);
+    big[1] = 1;
+    big[2] = 2;
+    big[3] = 3;
+    big[4] = 4;
+    big[5] = 5;
+    big[9] = 9;
+    big.append(1);
+    big.append(1);
+    big.append(1);
+    big.append(1);
 
     QVector<Foo *> plist;
     plist.append(new Foo(1));
@@ -1816,7 +1826,7 @@ int main(int argc, char *argv[])
 #    endif
     testQStringList();
     testStruct();
-    testQThread();
+    // testQThread();
     testQVariant1();
     testQVariant2();
     testQVariant3();
