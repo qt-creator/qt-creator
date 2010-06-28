@@ -103,6 +103,8 @@ public:
     Internal::DebuggerEngine *sessionTemplate();
     void updateState(Internal::DebuggerEngine *engine);
 
+    bool isRegisterViewVisible() const;
+
 public slots:
     void exitDebugger();  // FIXME: remove
     void clearCppCodeModelSnapshot();

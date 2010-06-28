@@ -3079,6 +3079,9 @@ void GdbEngine::activateSnapshot2()
 
 void GdbEngine::reloadRegisters()
 {
+    if (!plugin()->isRegisterViewVisible())
+        return;
+
     if (state() != InferiorStopped && state() != InferiorUnrunnable)
         return;
     if (!m_registerNamesListed) {

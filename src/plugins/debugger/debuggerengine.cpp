@@ -359,6 +359,10 @@ void DebuggerEngine::handleCommand(int role, const QVariant &value)
             reloadModules();
             break;
 
+        case RequestReloadRegistersRole:
+            reloadRegisters();
+            break;
+
         case RequestExecContinueRole:
             continueInferior();
             break;

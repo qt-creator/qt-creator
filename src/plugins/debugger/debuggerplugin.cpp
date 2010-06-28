@@ -2548,6 +2548,11 @@ DebuggerEngine *DebuggerPlugin::sessionTemplate()
     return d->m_sessionEngine;
 }
 
+bool DebuggerPlugin::isRegisterViewVisible() const
+{
+    return d->m_registerDock->toggleViewAction()->isChecked();
+}
+
 //////////////////////////////////////////////////////////////////////
 //
 // Testing
