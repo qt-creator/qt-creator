@@ -107,9 +107,9 @@ VCSBaseSubmitEditorPrivate::VCSBaseSubmitEditorPrivate(const VCSBaseSubmitEditor
     m_widget(editorWidget),
     m_toolWidget(0),
     m_parameters(parameters),
-    m_file(new VCSBase::Internal::SubmitEditorFile(QLatin1String(m_parameters->mimeType), q)),
+    m_file(new VCSBase::Internal::SubmitEditorFile(QLatin1String(parameters->mimeType), q)),
     m_nickNameDialog(0),
-    m_contexts(m_parameters->context)
+    m_contexts(parameters->context)
 {
 }
 
