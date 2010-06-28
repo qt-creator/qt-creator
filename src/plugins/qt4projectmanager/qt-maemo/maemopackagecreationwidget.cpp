@@ -77,6 +77,12 @@ MaemoPackageCreationWidget::MaemoPackageCreationWidget(MaemoPackageCreationStep 
     m_ui->packageContentsView->resizeColumnsToContents();
     m_ui->packageContentsView->horizontalHeader()->setStretchLastSection(true);
     enableOrDisableRemoveButton();
+
+    const QStringList list = m_step->versionString().split(QLatin1Char('.'),
+        QString::SkipEmptyParts);
+    m_ui->major->setValue(list.value(0, QLatin1String("0")).toInt());
+    m_ui->minor->setValue(list.value(1, QLatin1String("0")).toInt());
+    m_ui->patch->setValue(list.value(2, QLatin1String("0")).toInt());
 }
 
 void MaemoPackageCreationWidget::init()
@@ -139,6 +145,13 @@ void MaemoPackageCreationWidget::enableOrDisableRemoveButton()
 void MaemoPackageCreationWidget::handleSkipButtonToggled(bool checked)
 {
     m_step->setPackagingEnabled(!checked);
+}
+
+void MaemoPackageCreationWidget::versionInfoChanged()
+{
+    m_step->setVersionString(m_ui->major->text() + QLatin1Char('.')
+        + m_ui->minor->text() + QLatin1Char('.') + m_ui->patch->text());
+    emit updateSummary();
 }
 
 } // namespace Internal
