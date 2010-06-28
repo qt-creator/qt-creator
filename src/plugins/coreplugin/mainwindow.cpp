@@ -693,19 +693,19 @@ void MainWindow::registerDefaultActions()
 #ifdef Q_WS_MAC
     // Minimize Action
     m_minimizeAction = new QAction(tr("Minimize"), this);
-    cmd = am->registerAction(m_minimizeAction, Constants::MINIMIZE_WINDOW, m_globalContext);
+    cmd = am->registerAction(m_minimizeAction, Constants::MINIMIZE_WINDOW, globalContext);
     cmd->setDefaultKeySequence(QKeySequence("Ctrl+M"));
     mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
     connect(m_minimizeAction, SIGNAL(triggered()), this, SLOT(showMinimized()));
 
     // Zoom Action
     m_zoomAction = new QAction(tr("Zoom"), this);
-    cmd = am->registerAction(m_zoomAction, Constants::ZOOM_WINDOW, m_globalContext);
+    cmd = am->registerAction(m_zoomAction, Constants::ZOOM_WINDOW, globalContext);
     mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
     connect(m_zoomAction, SIGNAL(triggered()), this, SLOT(showMaximized()));
 
     // Window separator
-    cmd = createSeparator(am, this, QLatin1String("QtCreator.Window.Sep.Size"), m_globalContext);
+    cmd = createSeparator(am, this, QLatin1String("QtCreator.Window.Sep.Size"), globalContext);
     mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
 #endif
 
@@ -766,7 +766,7 @@ void MainWindow::registerDefaultActions()
     connect(tmpaction, SIGNAL(triggered()), this,  SLOT(aboutPlugins()));
     // About Qt Action
 //    tmpaction = new QAction(tr("About &Qt..."), this);
-//    cmd = am->registerAction(tmpaction, Constants:: ABOUT_QT, m_globalContext);
+//    cmd = am->registerAction(tmpaction, Constants:: ABOUT_QT, globalContext);
 //    mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
 //    tmpaction->setEnabled(true);
 //    connect(tmpaction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
