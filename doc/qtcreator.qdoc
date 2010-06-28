@@ -626,8 +626,6 @@
 
     The integration includes project management and code completion.
 
-    \endif
-
     \section1 Using Qt Designer
 
     Qt Creator automatically opens all .ui files in \QD.
@@ -1510,10 +1508,7 @@
     \title Creating a Project
 
     You use wizards to create and import several types of projects and files, such
-    as Qt GUI or console applications.
-    \if defined(qtquick)
-    and Qt Quick applications
-    \endif
+    as Qt GUI or console applications and Qt Quick applications.
     You can also use
     wizards to add individual files to your projects. For example, you can create
     the following types of files:
