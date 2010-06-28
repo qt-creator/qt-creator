@@ -119,7 +119,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     Q_UNUSED(arguments)
     Q_UNUSED(error)
     m_core = Core::ICore::instance();
-    Core::Context globalcontext(Core::Constants::C_GLOBAL_ID);
+    Core::Context globalcontext(Core::Constants::C_GLOBAL);
     Core::Context modecontext(Constants::C_MODE_HELP);
 
     const QString &locale = qApp->property("qtc_locale").toString();

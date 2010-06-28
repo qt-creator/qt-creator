@@ -93,7 +93,6 @@ const char * const M_HELP                = "QtCreator.Menu.Help";
 
 //contexts
 const char * const C_GLOBAL              = "Global Context";
-const int          C_GLOBAL_ID           = 0;
 const char * const C_WELCOME_MODE        = "Core.WelcomeMode";
 const char * const C_EDIT_MODE           = "Core.EditMode";
 const char * const C_DESIGN_MODE         = "Core.DesignMode";

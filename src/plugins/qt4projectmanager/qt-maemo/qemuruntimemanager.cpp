@@ -85,7 +85,7 @@ QemuRuntimeManager::QemuRuntimeManager(QObject *parent)
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *actionManager = core->actionManager();
     Core::Command *qemuCommand = actionManager->registerAction(m_qemuAction,
-        "MaemoEmulator", Core::Context(Core::Constants::C_GLOBAL_ID));
+        "MaemoEmulator", Core::Context(Core::Constants::C_GLOBAL));
     qemuCommand->setAttribute(Core::Command::CA_UpdateText);
     qemuCommand->setAttribute(Core::Command::CA_UpdateIcon);
 

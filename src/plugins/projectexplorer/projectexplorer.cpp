@@ -263,7 +263,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     d->m_proWindow = new ProjectWindow;
 
-    Core::Context globalcontext(Core::Constants::C_GLOBAL_ID);
+    Core::Context globalcontext(Core::Constants::C_GLOBAL);
     Core::Context pecontext(Constants::C_PROJECTEXPLORER);
 
     d->m_projectsMode = new Core::BaseMode;

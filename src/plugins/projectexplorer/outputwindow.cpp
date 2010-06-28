@@ -82,7 +82,7 @@ OutputPane::OutputPane()
 
     // Stop
     Core::ActionManager *am = Core::ICore::instance()->actionManager();
-    Core::Context globalcontext(Core::Constants::C_GLOBAL_ID);
+    Core::Context globalcontext(Core::Constants::C_GLOBAL);
 
     m_stopAction = new QAction(QIcon(Constants::ICON_STOP), tr("Stop"), this);
     m_stopAction->setToolTip(tr("Stop"));

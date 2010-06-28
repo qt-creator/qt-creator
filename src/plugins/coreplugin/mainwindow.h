@@ -179,7 +179,6 @@ private:
 
     CoreImpl *m_coreImpl;
     UniqueIDManager *m_uniqueIDManager;
-    Context m_globalContext;
     Context m_additionalContexts;
     QSettings *m_settings;
     QSettings *m_globalSettings;

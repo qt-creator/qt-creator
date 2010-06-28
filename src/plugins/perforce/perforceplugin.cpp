@@ -266,7 +266,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     mtools->addMenu(mperforce);
     m_menuAction = mperforce->menu()->menuAction();
 
-    Core::Context globalcontext(Core::Constants::C_GLOBAL_ID);
+    Core::Context globalcontext(Core::Constants::C_GLOBAL);
     Core::Context perforcesubmitcontext(Constants::PERFORCESUBMITEDITOR_CONTEXT);
 
     Core::Command *command;

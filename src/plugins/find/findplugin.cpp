@@ -192,7 +192,7 @@ void FindPlugin::setupMenu()
     mfind->appendGroup(Constants::G_FIND_FILTERS);
     mfind->appendGroup(Constants::G_FIND_FLAGS);
     mfind->appendGroup(Constants::G_FIND_ACTIONS);
-    Core::Context globalcontext(Core::Constants::C_GLOBAL_ID);
+    Core::Context globalcontext(Core::Constants::C_GLOBAL);
     Core::Command *cmd;
     QAction *separator;
     separator = new QAction(this);
@@ -220,7 +220,7 @@ void FindPlugin::setupFilterMenuItems()
     QList<IFindFilter*> findInterfaces =
         ExtensionSystem::PluginManager::instance()->getObjects<IFindFilter>();
     Core::Command *cmd;
-    Core::Context globalcontext(Core::Constants::C_GLOBAL_ID);
+    Core::Context globalcontext(Core::Constants::C_GLOBAL);
 
     Core::ActionContainer *mfindadvanced = am->actionContainer(Constants::M_FIND_ADVANCED);
     d->m_filterActions.clear();

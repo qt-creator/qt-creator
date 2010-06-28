@@ -97,7 +97,7 @@ namespace {
         QAction *myAction = new QAction(tr("My Action"), this);
         Core::Command *cmd = am->registerAction(myAction,
                                                  "myplugin.myaction",
-                                                 QList<int>() << C_GLOBAL_ID);
+                                                 Core::Context(C_GLOBAL));
         cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+u")));
         connect(myAction, SIGNAL(triggered()), this, SLOT(performMyAction()));
     \endcode

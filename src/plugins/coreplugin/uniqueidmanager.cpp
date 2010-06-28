@@ -37,7 +37,6 @@ UniqueIDManager *UniqueIDManager::m_instance = 0;
 UniqueIDManager::UniqueIDManager()
 {
     m_instance = this;
-    m_uniqueIdentifiers.insert(Constants::C_GLOBAL, Constants::C_GLOBAL_ID);
 }
 
 UniqueIDManager::~UniqueIDManager()

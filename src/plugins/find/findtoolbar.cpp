@@ -131,7 +131,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     QMetaTypeId<QStringList>::qt_metatype_id();
 
     // register actions
-    Core::Context globalcontext(Core::Constants::C_GLOBAL_ID);
+    Core::Context globalcontext(Core::Constants::C_GLOBAL);
     Core::ActionManager *am = Core::ICore::instance()->actionManager();
     Core::ActionContainer *mfind = am->actionContainer(Constants::M_FIND);
     Core::Command *cmd;

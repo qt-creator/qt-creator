@@ -982,7 +982,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     Core::ActionManager *am = core->actionManager();
     QTC_ASSERT(am, return false);
 
-    const Core::Context globalcontext(CC::C_GLOBAL_ID);
+    const Core::Context globalcontext(CC::C_GLOBAL);
     const Core::Context cppDebuggercontext(C_CPPDEBUGGER);
     const Core::Context cppeditorcontext(CppEditor::Constants::C_CPPEDITOR);
 

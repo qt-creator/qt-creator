@@ -111,7 +111,7 @@ bool LocatorPlugin::initialize(const QStringList &, QString *)
 
     const QString actionId = QLatin1String("QtCreator.Locate");
     QAction *action = new QAction(m_locatorWidget->windowIcon(), m_locatorWidget->windowTitle(), this);
-    Core::Command *cmd = core->actionManager()->registerAction(action, actionId, Core::Context(Core::Constants::C_GLOBAL_ID));
+    Core::Command *cmd = core->actionManager()->registerAction(action, actionId, Core::Context(Core::Constants::C_GLOBAL));
     cmd->setDefaultKeySequence(QKeySequence("Ctrl+K"));
     connect(action, SIGNAL(triggered()), this, SLOT(openLocator()));
 

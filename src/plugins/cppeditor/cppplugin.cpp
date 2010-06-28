@@ -272,7 +272,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     cppToolsMenu->addAction(cmd);
 
     // Update context in global context
-    Core::Context globalContext(Core::Constants::C_GLOBAL_ID);
+    Core::Context globalContext(Core::Constants::C_GLOBAL);
     cppToolsMenu->addAction(createSeparator(am, this, globalContext, CppEditor::Constants::SEPARATOR2));
     m_updateCodeModelAction = new QAction(tr("Update Code Model"), this);
     cmd = am->registerAction(m_updateCodeModelAction, QLatin1String(Constants::UPDATE_CODEMODEL), globalContext);

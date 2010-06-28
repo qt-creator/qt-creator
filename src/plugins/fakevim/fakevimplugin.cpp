@@ -587,7 +587,7 @@ bool FakeVimPluginPrivate::initialize()
     Core::ActionManager *actionManager = Core::ICore::instance()->actionManager();
     QTC_ASSERT(actionManager, return false);
 
-    Core::Context globalcontext(Core::Constants::C_GLOBAL_ID);
+    Core::Context globalcontext(Core::Constants::C_GLOBAL);
 
     m_fakeVimOptionsPage = new FakeVimOptionPage;
     q->addObject(m_fakeVimOptionsPage);

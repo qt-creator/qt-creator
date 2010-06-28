@@ -69,7 +69,7 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = core->actionManager();
     Core::Context textcontext(TextEditor::Constants::C_TEXTEDITOR);
-    Core::Context globalcontext(Core::Constants::C_GLOBAL_ID);
+    Core::Context globalcontext(Core::Constants::C_GLOBAL);
 
     Core::ActionContainer *mtools =
         am->actionContainer(Core::Constants::M_TOOLS);
