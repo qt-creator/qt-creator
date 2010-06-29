@@ -35,6 +35,10 @@
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/icontext.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QFile>
@@ -47,6 +51,7 @@
 #include <QtGui/QStackedWidget>
 #include <QtGui/QLabel>
 #include <QtGui/QFont>
+#include <QtGui/QAction>
 
 static const char SETTINGSKEYSECTIONNAME[] = "SearchResults";
 static const char SETTINGSKEYEXPANDRESULTS[] = "ExpandResults";
@@ -183,7 +188,8 @@ namespace Internal {
 
         Internal::SearchResultTreeView *m_searchResultTreeView;
         QListWidget *m_noMatchesFoundDisplay;
-        QToolButton *m_expandCollapseToolButton;
+        QToolButton *m_expandCollapseButton;
+        QAction *m_expandCollapseAction;
         QLabel *m_replaceLabel;
         QLineEdit *m_replaceTextEdit;
         QToolButton *m_replaceButton;
@@ -223,11 +229,16 @@ SearchResultWindow::SearchResultWindow() : d(new SearchResultWindowPrivate)
     d->m_noMatchesFoundDisplay->setFrameStyle(QFrame::NoFrame);
     d->m_widget->addWidget(d->m_noMatchesFoundDisplay);
 
-    d->m_expandCollapseToolButton = new QToolButton(d->m_widget);
-    d->m_expandCollapseToolButton->setAutoRaise(true);
-    d->m_expandCollapseToolButton->setCheckable(true);
-    d->m_expandCollapseToolButton->setIcon(QIcon(QLatin1String(":/find/images/expand.png")));
-    d->m_expandCollapseToolButton->setToolTip(tr("Expand All"));
+    d->m_expandCollapseButton = new QToolButton(d->m_widget);
+    d->m_expandCollapseButton->setAutoRaise(true);
+
+    d->m_expandCollapseAction = new QAction(tr("Expand All"), this);
+    d->m_expandCollapseAction->setCheckable(true);
+    d->m_expandCollapseAction->setIcon(QIcon(QLatin1String(":/find/images/expand.png")));
+    Core::Command *cmd = Core::ICore::instance()->actionManager()->registerAction(
+            d->m_expandCollapseAction, QLatin1String("Find.ExpandAll"),
+            Core::Context(Core::Constants::C_GLOBAL));
+    d->m_expandCollapseButton->setDefaultAction(cmd->action());
 
     d->m_replaceLabel = new QLabel(tr("Replace with:"), d->m_widget);
     d->m_replaceLabel->setContentsMargins(12, 0, 5, 0);
@@ -241,7 +252,7 @@ SearchResultWindow::SearchResultWindow() : d(new SearchResultWindowPrivate)
 
     connect(d->m_searchResultTreeView, SIGNAL(jumpToSearchResult(int,bool)),
             this, SLOT(handleJumpToSearchResult(int,bool)));
-    connect(d->m_expandCollapseToolButton, SIGNAL(toggled(bool)), this, SLOT(handleExpandCollapseToolButton(bool)));
+    connect(d->m_expandCollapseAction, SIGNAL(toggled(bool)), this, SLOT(handleExpandCollapseToolButton(bool)));
     connect(d->m_replaceTextEdit, SIGNAL(returnPressed()), this, SLOT(handleReplaceButton()));
     connect(d->m_replaceButton, SIGNAL(clicked()), this, SLOT(handleReplaceButton()));
 
@@ -318,7 +329,7 @@ QWidget *SearchResultWindow::outputWidget(QWidget *)
 
 QList<QWidget*> SearchResultWindow::toolBarWidgets() const
 {
-    return QList<QWidget*>() << d->m_expandCollapseToolButton << d->m_replaceLabel << d->m_replaceTextEdit << d->m_replaceButton;
+    return QList<QWidget*>() << d->m_expandCollapseButton << d->m_replaceLabel << d->m_replaceTextEdit << d->m_replaceButton;
 }
 
 SearchResult *SearchResultWindow::startNewSearch(SearchMode searchOrSearchAndReplace)
@@ -455,7 +466,7 @@ void SearchResultWindow::readSettings()
     QSettings *s = Core::ICore::instance()->settings();
     if (s) {
         s->beginGroup(QLatin1String(SETTINGSKEYSECTIONNAME));
-        d->m_expandCollapseToolButton->setChecked(s->value(QLatin1String(SETTINGSKEYEXPANDRESULTS), d->m_initiallyExpand).toBool());
+        d->m_expandCollapseAction->setChecked(s->value(QLatin1String(SETTINGSKEYEXPANDRESULTS), d->m_initiallyExpand).toBool());
         s->endGroup();
     }
 }
@@ -465,7 +476,7 @@ void SearchResultWindow::writeSettings()
     QSettings *s = Core::ICore::instance()->settings();
     if (s) {
         s->beginGroup(QLatin1String(SETTINGSKEYSECTIONNAME));
-        s->setValue(QLatin1String(SETTINGSKEYEXPANDRESULTS), d->m_expandCollapseToolButton->isChecked());
+        s->setValue(QLatin1String(SETTINGSKEYEXPANDRESULTS), d->m_expandCollapseAction->isChecked());
         s->endGroup();
     }
 }
