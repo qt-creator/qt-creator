@@ -44,7 +44,8 @@ enum Roles
     ResultLineNumberRole,
     SearchTermStartRole,
     SearchTermLengthRole,
-    RowOfItem // The ?-th child of its parent is this this item
+    RowOfItem, // The ?-th child of its parent is this this item
+    TextRole // for files == FileNameRole, for results == ResultLineRole
 };
 
 } // namespace Internal

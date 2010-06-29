@@ -31,7 +31,9 @@
 #include "searchresulttreemodel.h"
 #include "searchresulttreeitems.h"
 #include "searchresulttreeview.h"
+#include "ifindsupport.h"
 
+#include <aggregation/aggregate.h>
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 
@@ -52,6 +54,8 @@ static const char SETTINGSKEYEXPANDRESULTS[] = "ExpandResults";
 
 namespace Find {
 
+namespace Internal {
+
     class WideEnoughLineEdit : public QLineEdit {
         Q_OBJECT
     public:
@@ -70,30 +74,136 @@ namespace Find {
         void updateGeometry() { QLineEdit::updateGeometry(); }
     };
 
+    class SearchResultFindSupport : public IFindSupport
+    {
+        Q_OBJECT
+    public:
+        SearchResultFindSupport(SearchResultTreeView *view)
+            : m_view(view)
+        {
+        }
 
-struct SearchResultWindowPrivate {
-    SearchResultWindowPrivate();
+        bool supportsReplace() const { return false; }
 
-    Internal::SearchResultTreeView *m_searchResultTreeView;
-    QListWidget *m_noMatchesFoundDisplay;
-    QToolButton *m_expandCollapseToolButton;
-    QLabel *m_replaceLabel;
-    QLineEdit *m_replaceTextEdit;
-    QToolButton *m_replaceButton;
-    static const bool m_initiallyExpand = false;
-    QStackedWidget *m_widget;
-    SearchResult *m_currentSearch;
-    QList<SearchResultItem> m_items;
-    bool m_isShowingReplaceUI;
-    bool m_focusReplaceEdit;
-};
+        IFindSupport::FindFlags supportedFindFlags() const
+        {
+            return IFindSupport::FindBackward | IFindSupport::FindCaseSensitively
+                    | IFindSupport::FindRegularExpression | IFindSupport::FindWholeWords;
+        }
 
-SearchResultWindowPrivate::SearchResultWindowPrivate()
-    : m_currentSearch(0),
-    m_isShowingReplaceUI(false),
-    m_focusReplaceEdit(false)
-{
+        void resetIncrementalSearch()
+        {
+            m_incrementalFindStart = QModelIndex();
+        }
+
+        void clearResults() { }
+
+        QString currentFindString() const
+        {
+            return QString();
+        }
+
+        QString completedFindString() const
+        {
+            return QString();
+        }
+
+        void highlightAll(const QString &txt, IFindSupport::FindFlags findFlags)
+        {
+            Q_UNUSED(txt)
+            Q_UNUSED(findFlags)
+            return;
+        }
+
+        IFindSupport::Result findIncremental(const QString &txt, IFindSupport::FindFlags findFlags)
+        {
+            if (!m_incrementalFindStart.isValid())
+                m_incrementalFindStart = m_view->currentIndex();
+            m_view->setCurrentIndex(m_incrementalFindStart);
+            return find(txt, findFlags);
+        }
+
+        IFindSupport::Result findStep(const QString &txt, IFindSupport::FindFlags findFlags)
+        {
+            IFindSupport::Result result = find(txt, findFlags);
+            if (result == IFindSupport::Found)
+                m_incrementalFindStart = m_view->currentIndex();
+            return result;
+        }
+
+        IFindSupport::Result find(const QString &txt, IFindSupport::FindFlags findFlags)
+        {
+            if (txt.isEmpty())
+                return IFindSupport::NotFound;
+            QModelIndex index;
+            if (findFlags & IFindSupport::FindRegularExpression) {
+                bool sensitive = (findFlags & IFindSupport::FindCaseSensitively);
+                index = m_view->model()->find(QRegExp(txt, (sensitive ? Qt::CaseSensitive : Qt::CaseInsensitive)),
+                                      m_view->currentIndex(),
+                                      IFindSupport::textDocumentFlagsForFindFlags(findFlags));
+            } else {
+                index = m_view->model()->find(txt, m_view->currentIndex(),
+                                      IFindSupport::textDocumentFlagsForFindFlags(findFlags));
+            }
+            if (index.isValid()) {
+                m_view->setCurrentIndex(index);
+                m_view->scrollTo(index);
+                if (index.parent().isValid())
+                    m_view->expand(index.parent());
+                return IFindSupport::Found;
+            }
+            return IFindSupport::NotFound;
+        }
+
+        bool replaceStep(const QString &before, const QString &after,
+            IFindSupport::FindFlags findFlags)
+        {
+            Q_UNUSED(before)
+            Q_UNUSED(after)
+            Q_UNUSED(findFlags)
+            return false;
+        }
+
+        int replaceAll(const QString &before, const QString &after,
+            IFindSupport::FindFlags findFlags)
+        {
+            Q_UNUSED(before)
+            Q_UNUSED(after)
+            Q_UNUSED(findFlags)
+            return 0;
+        }
+
+    private:
+        SearchResultTreeView *m_view;
+        QModelIndex m_incrementalFindStart;
+    };
+
+    struct SearchResultWindowPrivate {
+        SearchResultWindowPrivate();
+
+        Internal::SearchResultTreeView *m_searchResultTreeView;
+        QListWidget *m_noMatchesFoundDisplay;
+        QToolButton *m_expandCollapseToolButton;
+        QLabel *m_replaceLabel;
+        QLineEdit *m_replaceTextEdit;
+        QToolButton *m_replaceButton;
+        static const bool m_initiallyExpand = false;
+        QStackedWidget *m_widget;
+        SearchResult *m_currentSearch;
+        QList<SearchResultItem> m_items;
+        bool m_isShowingReplaceUI;
+        bool m_focusReplaceEdit;
+    };
+
+    SearchResultWindowPrivate::SearchResultWindowPrivate()
+        : m_currentSearch(0),
+        m_isShowingReplaceUI(false),
+        m_focusReplaceEdit(false)
+    {
+    }
 }
+
+using namespace Find::Internal;
 
 SearchResultWindow::SearchResultWindow() : d(new SearchResultWindowPrivate)
 {
@@ -104,6 +214,9 @@ SearchResultWindow::SearchResultWindow() : d(new SearchResultWindowPrivate)
     d->m_searchResultTreeView->setFrameStyle(QFrame::NoFrame);
     d->m_searchResultTreeView->setAttribute(Qt::WA_MacShowFocusRect, false);
     d->m_widget->addWidget(d->m_searchResultTreeView);
+    Aggregation::Aggregate * agg = new Aggregation::Aggregate;
+    agg->add(d->m_searchResultTreeView);
+    agg->add(new SearchResultFindSupport(d->m_searchResultTreeView));
 
     d->m_noMatchesFoundDisplay = new QListWidget(d->m_widget);
     d->m_noMatchesFoundDisplay->addItem(tr("No matches found!"));

@@ -36,6 +36,8 @@
 #include <QtGui/QFontMetrics>
 #include <QtGui/QColor>
 #include <QtGui/QPalette>
+#include <QtGui/QTextDocument>
+#include <QtGui/QTextCursor>
 #include <QtCore/QDir>
 #include <QtCore/QDebug>
 
@@ -195,6 +197,7 @@ QVariant SearchResultTreeModel::data(const SearchResultTextRow *row, int role) c
     case Qt::FontRole:
         result = m_textEditorFont;
         break;
+    case ItemDataRoles::TextRole:
     case ItemDataRoles::ResultLineRole:
     case Qt::DisplayRole:
         result = row->rowText();
@@ -252,6 +255,7 @@ QVariant SearchResultTreeModel::data(const SearchResultFile *file, int role) con
                 + QLatin1Char(')');
         return QVariant(result);
     }
+    case ItemDataRoles::TextRole:
     case ItemDataRoles::FileNameRole:
     case Qt::ToolTipRole:
         return QVariant(QDir::toNativeSeparators(file->fileName()));
@@ -349,7 +353,7 @@ void SearchResultTreeModel::clear()
     reset();
 }
 
-QModelIndex SearchResultTreeModel::next(const QModelIndex &idx) const
+QModelIndex SearchResultTreeModel::next(const QModelIndex &idx, bool includeTopLevel) const
 {
     QModelIndex parent = idx.parent();
     if (parent.isValid()) {
@@ -367,6 +371,8 @@ QModelIndex SearchResultTreeModel::next(const QModelIndex &idx) const
                 // Wrap around
                 nextParent = index(0,0);
             }
+            if (includeTopLevel)
+                return nextParent;
             return nextParent.child(0, 0);
         }
     } else {
@@ -376,7 +382,7 @@ QModelIndex SearchResultTreeModel::next(const QModelIndex &idx) const
     return QModelIndex();
 }
 
-QModelIndex SearchResultTreeModel::prev(const QModelIndex &idx) const
+QModelIndex SearchResultTreeModel::prev(const QModelIndex &idx, bool includeTopLevel) const
 {
     QModelIndex parent = idx.parent();
     if (parent.isValid()) {
@@ -385,6 +391,8 @@ QModelIndex SearchResultTreeModel::prev(const QModelIndex &idx) const
             // Same parent
             return index(row - 1, 0, parent);
         } else {
+            if (includeTopLevel)
+                return parent;
             // Prev parent
             int parentRow = parent.row();
             QModelIndex prevParent;
@@ -399,10 +407,56 @@ QModelIndex SearchResultTreeModel::prev(const QModelIndex &idx) const
     } else {
         // We are on a top level item
         int row = idx.row();
+        QModelIndex prevParent;
         if (row > 0) {
-            QModelIndex prevParent = index(row - 1, 0);
-            return prevParent.child(rowCount(prevParent) ,0);
+            prevParent = index(row - 1, 0);
+        } else {
+            // wrap around
+            prevParent = index(rowCount() -1, 0);
         }
+        return prevParent.child(rowCount(prevParent) -1,0);
     }
     return QModelIndex();
+}
+
+QModelIndex SearchResultTreeModel::find(const QRegExp &expr, const QModelIndex &index, QTextDocument::FindFlags flags)
+{
+    QModelIndex resultIndex;
+    QModelIndex currentIndex = index;
+    bool backward = (flags & QTextDocument::FindBackward);
+
+    do {
+        if (backward)
+            currentIndex = prev(currentIndex, true);
+        else
+            currentIndex = next(currentIndex, true);
+        if (currentIndex.isValid()) {
+            const QString &text = data(currentIndex, ItemDataRoles::TextRole).toString();
+            if (expr.indexIn(text) != -1)
+                resultIndex = currentIndex;
+        }
+    } while (!resultIndex.isValid() && currentIndex.isValid() && currentIndex != index);
+    return resultIndex;
+}
+
+QModelIndex SearchResultTreeModel::find(const QString &term, const QModelIndex &index, QTextDocument::FindFlags flags)
+{
+    QModelIndex resultIndex;
+    QModelIndex currentIndex = index;
+    bool backward = (flags & QTextDocument::FindBackward);
+    flags = (flags & (~QTextDocument::FindBackward)); // backward is handled by us ourselves
+
+    do {
+        if (backward)
+            currentIndex = prev(currentIndex, true);
+        else
+            currentIndex = next(currentIndex, true);
+        if (currentIndex.isValid()) {
+            const QString &text = data(currentIndex, ItemDataRoles::TextRole).toString();
+            QTextDocument doc(text);
+            if (!doc.find(term, 0, flags).isNull())
+                resultIndex = currentIndex;
+        }
+    } while (!resultIndex.isValid() && currentIndex.isValid() && currentIndex != index);
+    return resultIndex;
 }

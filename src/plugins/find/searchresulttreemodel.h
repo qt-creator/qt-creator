@@ -33,7 +33,9 @@
 #include "searchresultwindow.h"
 
 #include <QtCore/QAbstractItemModel>
+#include <QtCore/QRegExp>
 #include <QtGui/QFont>
+#include <QtGui/QTextDocument>
 
 namespace Find {
 namespace Internal {
@@ -62,10 +64,13 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
-    QModelIndex next(const QModelIndex &idx) const;
-    QModelIndex prev(const QModelIndex &idx) const;
+    QModelIndex next(const QModelIndex &idx, bool includeTopLevel = false) const;
+    QModelIndex prev(const QModelIndex &idx, bool includeTopLevel = false) const;
 
     QList<int> addResultLines(const QList<SearchResultItem> &items);
+
+    QModelIndex find(const QRegExp &expr, const QModelIndex &index, QTextDocument::FindFlags flags);
+    QModelIndex find(const QString &term, const QModelIndex &index, QTextDocument::FindFlags flags);
 
 signals:
     void jumpToSearchResult(const QString &fileName, int lineNumber,
