@@ -48,6 +48,7 @@ namespace ProjectExplorer {
 namespace QmlJSInspector {
 namespace Internal {
 
+class ClientProxy;
 class Inspector;
 
 class InspectorPlugin : public ExtensionSystem::IPlugin
@@ -59,6 +60,9 @@ public:
     virtual ~InspectorPlugin();
 
     static InspectorPlugin *instance();
+
+    ClientProxy *clientProxy() const;
+    Inspector *inspector() const;
 
     // ExtensionSystem::IPlugin interface
     virtual bool initialize(const QStringList &arguments, QString *errorString);
@@ -73,6 +77,7 @@ private slots:
     void prepareDebugger(Core::IMode *mode);
 
 private:
+    ClientProxy *_clientProxy;
     Inspector *_inspector;
 };
 

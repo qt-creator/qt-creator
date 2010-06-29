@@ -29,6 +29,7 @@
 
 #include "qmljsinspectorconstants.h"
 #include "qmljsinspectorplugin.h"
+#include "qmljsinspector.h"
 #include "qmljsclientproxy.h"
 
 #include <debugger/debuggeruiswitcher.h>
@@ -84,12 +85,28 @@ InspectorPlugin::InspectorPlugin()
     Q_ASSERT(! g_instance);
     g_instance = this;
 
-    (void) new ClientProxy(this);
+    _clientProxy = new ClientProxy(this);
+    _inspector = new Inspector(this);
 }
 
 InspectorPlugin::~InspectorPlugin()
 {
     qDebug() << Q_FUNC_INFO;
+}
+
+ClientProxy *InspectorPlugin::clientProxy() const
+{
+    return _clientProxy;
+}
+
+InspectorPlugin *InspectorPlugin::instance()
+{
+    return g_instance;
+}
+
+Inspector *InspectorPlugin::inspector() const
+{
+    return _inspector;
 }
 
 void InspectorPlugin::aboutToShutdown()
@@ -111,10 +128,13 @@ bool InspectorPlugin::initialize(const QStringList &arguments, QString *errorStr
     Debugger::DebuggerUISwitcher *uiSwitcher = pluginManager->getObject<Debugger::DebuggerUISwitcher>();
 
     uiSwitcher->addLanguage(LANG_QML, Core::Context(C_INSPECTOR));
+
+#ifdef __GNUC__
+#  warning set up the QML/JS Inspector UI
+#endif
+
 #if 0
-    m_inspector = new QmlInspector;
-    m_inspector->createDockWidgets();
-    addObject(m_inspector);
+    _inspector->createDockWidgets();
 #endif
 
     return true;
@@ -159,6 +179,10 @@ void InspectorPlugin::activateDebuggerForProject(ProjectExplorer::Project *proje
     qDebug() << Q_FUNC_INFO;
 
     if (runMode == QLatin1String(ProjectExplorer::Constants::DEBUGMODE)) {
+#ifdef __GNUC__
+#  warning start a QML/JS debugging session using the information stored in the current project
+#endif
+
 #if 0
         // FIXME we probably want to activate the debugger for other projects than QmlProjects,
         // if they contain Qml files. Some kind of options should exist for this behavior.
