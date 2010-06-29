@@ -36,16 +36,18 @@
 #include <qmlprojectmanager/qmlproject.h>
 #include <qmljseditor/qmljseditorconstants.h>
 
-#include <coreplugin/modemanager.h>
-#include <projectexplorer/projectexplorer.h>
 #include <extensionsystem/pluginmanager.h>
-#include <coreplugin/icore.h>
 
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/project.h>
 
+#include <coreplugin/modemanager.h>
+#include <coreplugin/imode.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/icontext.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -63,17 +65,23 @@ using namespace QmlJSInspector::Internal;
 using namespace QmlJSInspector::Constants;
 
 namespace {
+
+QmlInspectorPlugin *g_instance = 0; // the global QML/JS inspector instance
+
 QToolButton *createToolButton(QAction *action)
 {
     QToolButton *button = new QToolButton;
     button->setDefaultAction(action);
     return button;
 }
+
 } // end of anonymous namespace
 
 QmlInspectorPlugin::QmlInspectorPlugin()
 {
     qDebug() << Q_FUNC_INFO;
+    Q_ASSERT(! g_instance);
+    g_instance = this;
 }
 
 QmlInspectorPlugin::~QmlInspectorPlugin()
@@ -93,15 +101,14 @@ bool QmlInspectorPlugin::initialize(const QStringList &arguments, QString *error
 
     qDebug() << Q_FUNC_INFO;
 
-#if 0
-    Core::ICore *core = Core::ICore::instance();
     connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
             SLOT(prepareDebugger(Core::IMode*)));
 
     ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
     Debugger::DebuggerUISwitcher *uiSwitcher = pluginManager->getObject<Debugger::DebuggerUISwitcher>();
 
-    uiSwitcher->addLanguage(Qml::Constants::LANG_QML, Core::Context(Constants::C_INSPECTOR));
+    uiSwitcher->addLanguage(LANG_QML, Core::Context(C_INSPECTOR));
+#if 0
     m_inspector = new QmlInspector;
     m_inspector->createDockWidgets();
     addObject(m_inspector);
@@ -114,14 +121,12 @@ void QmlInspectorPlugin::extensionsInitialized()
 {
     qDebug() << Q_FUNC_INFO;
 
-#if 0
     ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
     Debugger::DebuggerUISwitcher *uiSwitcher = pluginManager->getObject<Debugger::DebuggerUISwitcher>();
 
     connect(uiSwitcher, SIGNAL(dockArranged(QString)), SLOT(setDockWidgetArrangement(QString)));
 
-    ProjectExplorer::ProjectExplorerPlugin *pex = ProjectExplorer::ProjectExplorerPlugin::instance();
-    if (pex) {
+    if (ProjectExplorer::ProjectExplorerPlugin *pex = ProjectExplorer::ProjectExplorerPlugin::instance()) {
         connect(pex, SIGNAL(aboutToExecuteProject(ProjectExplorer::Project*, QString)),
                 SLOT(activateDebuggerForProject(ProjectExplorer::Project*, QString)));
     }
@@ -140,8 +145,7 @@ void QmlInspectorPlugin::extensionsInitialized()
 
     configBarLayout->addStretch();
 
-    uiSwitcher->setToolbar(Qml::Constants::LANG_QML, configBar);
-#endif
+    uiSwitcher->setToolbar(LANG_QML, configBar);
 }
 
 void QmlInspectorPlugin::activateDebuggerForProject(ProjectExplorer::Project *project, const QString &runMode)
@@ -151,35 +155,31 @@ void QmlInspectorPlugin::activateDebuggerForProject(ProjectExplorer::Project *pr
 
     qDebug() << Q_FUNC_INFO;
 
+    if (runMode == QLatin1String(ProjectExplorer::Constants::DEBUGMODE)) {
 #if 0
-    if (runMode == ProjectExplorer::Constants::DEBUGMODE) {
         // FIXME we probably want to activate the debugger for other projects than QmlProjects,
         // if they contain Qml files. Some kind of options should exist for this behavior.
         QmlProjectManager::QmlProject *qmlproj = qobject_cast<QmlProjectManager::QmlProject*>(project);
         if (qmlproj && m_inspector->setDebugConfigurationDataFromProject(qmlproj))
             m_inspector->startQmlProjectDebugger();
-    }
 #endif
+    }
 }
 
 void QmlInspectorPlugin::prepareDebugger(Core::IMode *mode)
 {
-    Q_UNUSED(mode);
     qDebug() << Q_FUNC_INFO;
 
-#if 0
-    if (mode->id() != Debugger::Constants::MODE_DEBUG)
+    if (mode->id() != QLatin1String(Debugger::Constants::MODE_DEBUG))
         return;
 
     ProjectExplorer::ProjectExplorerPlugin *pex = ProjectExplorer::ProjectExplorerPlugin::instance();
 
-    if (pex->startupProject() && pex->startupProject()->id() == "QmlProjectManager.QmlProject")
-    {
+    if (pex->startupProject() && pex->startupProject()->id() == QLatin1String("QmlProjectManager.QmlProject")) {
         ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
         Debugger::DebuggerUISwitcher *uiSwitcher = pluginManager->getObject<Debugger::DebuggerUISwitcher>();
-        uiSwitcher->setActiveLanguage(Qml::Constants::LANG_QML);
+        uiSwitcher->setActiveLanguage(LANG_QML);
     }
-#endif
 }
 
 void QmlInspectorPlugin::setDockWidgetArrangement(const QString &activeLanguage)

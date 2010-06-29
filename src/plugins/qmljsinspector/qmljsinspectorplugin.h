@@ -56,6 +56,9 @@ public:
     QmlInspectorPlugin();
     virtual ~QmlInspectorPlugin();
 
+    static QmlInspectorPlugin *instance();
+
+    // ExtensionSystem::IPlugin interface
     virtual bool initialize(const QStringList &arguments, QString *errorString);
     virtual void extensionsInitialized();
     virtual void aboutToShutdown();
