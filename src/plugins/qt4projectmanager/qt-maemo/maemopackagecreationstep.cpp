@@ -45,6 +45,7 @@
 #include "maemopackagecreationwidget.h"
 #include "maemopackagecontents.h"
 #include "maemotoolchain.h"
+#include "profilewrapper.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qt4buildconfiguration.h>
@@ -89,6 +90,8 @@ MaemoPackageCreationStep::MaemoPackageCreationStep(BuildConfiguration *buildConf
       m_versionString(other->m_versionString)
 {
 }
+
+MaemoPackageCreationStep::~MaemoPackageCreationStep() {}
 
 bool MaemoPackageCreationStep::init()
 {
@@ -362,6 +365,18 @@ void MaemoPackageCreationStep::raiseError(const QString &shortMsg,
     emit addOutput(detailedMsg.isNull() ? shortMsg : detailedMsg, textCharFormat);
     emit addTask(Task(Task::Error, shortMsg, QString(), -1,
                       TASK_CATEGORY_BUILDSYSTEM));
+}
+
+QSharedPointer<ProFileWrapper> MaemoPackageCreationStep::proFileWrapper() const
+{
+    if (!m_proFileWrapper) {
+        const Qt4ProFileNode * const proFileNode = qt4BuildConfiguration()
+            ->qt4Target()->qt4Project()->rootProjectNode();
+        m_proFileWrapper = QSharedPointer<ProFileWrapper>(
+            new ProFileWrapper(proFileNode->path()));
+    }
+
+    return m_proFileWrapper;
 }
 
 const QLatin1String MaemoPackageCreationStep::CreatePackageId("Qt4ProjectManager.MaemoPackageCreationStep");

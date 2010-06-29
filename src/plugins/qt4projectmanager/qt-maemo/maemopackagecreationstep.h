@@ -44,6 +44,8 @@
 
 #include <projectexplorer/buildstep.h>
 
+#include <QtCore/QSharedPointer>
+
 QT_BEGIN_NAMESPACE
 class QFile;
 class QProcess;
@@ -54,6 +56,7 @@ namespace Internal {
 
 class MaemoPackageContents;
 class MaemoToolChain;
+class ProFileWrapper;
 class Qt4BuildConfiguration;
 
 class MaemoPackageCreationStep : public ProjectExplorer::BuildStep
@@ -62,12 +65,14 @@ class MaemoPackageCreationStep : public ProjectExplorer::BuildStep
     friend class MaemoPackageCreationFactory;
 public:
     MaemoPackageCreationStep(ProjectExplorer::BuildConfiguration *buildConfig);
+    ~MaemoPackageCreationStep();
 
     QString packageFilePath() const;
     QString localExecutableFilePath() const;
     QString executableFileName() const;
     MaemoPackageContents *packageContents() const { return m_packageContents; }
     const Qt4BuildConfiguration *qt4BuildConfiguration() const;
+    QSharedPointer<ProFileWrapper> proFileWrapper() const;
 
     bool isPackagingEnabled() const { return m_packagingEnabled; }
     void setPackagingEnabled(bool enabled) { m_packagingEnabled = enabled; }
@@ -101,6 +106,7 @@ private:
     MaemoPackageContents *const m_packageContents;
     bool m_packagingEnabled;
     QString m_versionString;
+    mutable QSharedPointer<ProFileWrapper> m_proFileWrapper;
 };
 
 } // namespace Internal

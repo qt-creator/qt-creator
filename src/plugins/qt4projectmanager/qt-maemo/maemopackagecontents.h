@@ -31,17 +31,9 @@
 #define MAEMOPACKAGECONTENTS_H
 
 #include <QtCore/QAbstractTableModel>
-#include <QtCore/QDir>
 #include <QtCore/QHash>
 #include <QtCore/QList>
-#include <QtCore/QScopedPointer>
 #include <QtCore/QString>
-#include <QtCore/QStringList>
-
-QT_BEGIN_NAMESPACE
-class ProFile;
-struct ProFileOption;
-QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -75,8 +67,6 @@ public:
     MaemoPackageContents(MaemoPackageCreationStep *packageStep);
     ~MaemoPackageContents();
 
-    bool init();
-
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
     MaemoDeployable deployableAt(int row) const;
@@ -98,29 +88,13 @@ private:
 
     bool buildModel() const;
     void resetProFileContents() const;
-    bool readProFileContents(QString *error) const;
-    bool writeProFileContents(QString *error) const;
-
-    QString cleanPath(const QString &relFileName) const;
 
     QString findInstallsElem(const MaemoDeployable &deployable) const;
-    void addFileToProFile(const QString &var, const QString &absFilePath);
-    void addValueToProFile(const QString &var, const QString &value) const;
-    bool removeFileFromProFile(const QString &var, const QString &absFilePath);
-    bool removeValueFromProFile(const QString &var, const QString &value);
-
-    enum ParseType { ParseFromFile, ParseFromLines };
-    void parseProFile(ParseType type) const;
 
     const MaemoPackageCreationStep * const m_packageStep;
-    QScopedPointer<ProFileOption> m_proFileOption;
-    QScopedPointer<ProFileReader> m_proFileReader;
     mutable QList<MaemoDeployable> m_deployables;
     mutable bool m_modified;
-    mutable ProFile *m_proFile;
-    mutable QStringList m_proFileLines; // TODO: FS watcher
-    mutable QString m_proFileName;
-    mutable QDir m_proDir;
+    mutable bool m_initialized;
 };
 
 } // namespace Qt4ProjectManager
