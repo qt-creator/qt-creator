@@ -43,8 +43,8 @@ namespace Internal {
 
 InspectorContext::InspectorContext(QWidget *widget)
   : IContext(widget),
-    m_widget(widget),
-    m_context(Constants::C_INSPECTOR)
+    m_context(Constants::C_INSPECTOR),
+    m_widget(widget)
 {
 }
 
