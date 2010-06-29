@@ -170,4 +170,36 @@ QList<SimpleToken> SimpleLexer::operator()(const QString &text, int state)
     return tokens;
 }
 
+int SimpleLexer::tokenAt(const QList<SimpleToken> &tokens, int offset)
+{
+    for (int index = tokens.size() - 1; index >= 0; --index) {
+        const SimpleToken &tk = tokens.at(index);
+        if (tk.position() <= offset && tk.end() >= offset)
+            return index;
+    }
 
+    return -1;
+}
+
+SimpleToken SimpleLexer::tokenAt(const QString &text,
+                                 int offset,
+                                 int state,
+                                 bool qtMocRunEnabled)
+{
+    SimpleLexer tokenize;
+    tokenize.setQtMocRunEnabled(qtMocRunEnabled);
+    const QList<SimpleToken> tokens = tokenize(text, state);
+    const int tokenIdx = tokenAt(tokens, offset);
+    return (tokenIdx == -1) ? SimpleToken() : tokens.at(tokenIdx);
+}
+
+int SimpleLexer::tokenBefore(const QList<SimpleToken> &tokens, int offset)
+{
+    for (int index = tokens.size() - 1; index >= 0; --index) {
+        const SimpleToken &tk = tokens.at(index);
+        if (tk.position() <= offset)
+            return index;
+    }
+
+    return -1;
+}

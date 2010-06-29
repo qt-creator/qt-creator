@@ -746,7 +746,7 @@ QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
             tc.movePosition(QTextCursor::EndOfWord);
 
         // Fetch the expression's code.
-        CPlusPlus::ExpressionUnderCursor expressionUnderCursor(modelManager->tokenCache(editor));
+        CPlusPlus::ExpressionUnderCursor expressionUnderCursor;
         expr = expressionUnderCursor(tc);
         *column = tc.positionInBlock();
         *line = tc.blockNumber();

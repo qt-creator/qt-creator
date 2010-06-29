@@ -44,7 +44,6 @@ namespace Core {
 
 namespace CPlusPlus {
     class LookupContext;
-    class TokenCache;
 }
 
 namespace ProjectExplorer {
@@ -144,8 +143,6 @@ public:
     virtual void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context) = 0;
 
     virtual void findMacroUsages(const CPlusPlus::Macro &macro) = 0;
-
-    virtual CPlusPlus::TokenCache *tokenCache(TextEditor::ITextEditor *editor) const = 0;
 
 Q_SIGNALS:
     void documentUpdated(CPlusPlus::Document::Ptr doc);

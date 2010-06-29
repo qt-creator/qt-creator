@@ -43,12 +43,11 @@ namespace CPlusPlus {
 
 class BackwardsScanner;
 class SimpleToken;
-class TokenCache;
 
 class CPLUSPLUS_EXPORT ExpressionUnderCursor
 {
 public:
-    ExpressionUnderCursor(TokenCache *tokenCache);
+    ExpressionUnderCursor();
     ~ExpressionUnderCursor();
 
     QString operator()(const QTextCursor &cursor);
@@ -60,7 +59,6 @@ private:
     bool isAccessToken(const SimpleToken &tk);
 
 private:
-    TokenCache *_tokenCache;
     bool _jumpedComma;
 };
 

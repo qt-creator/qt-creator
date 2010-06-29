@@ -452,8 +452,7 @@ QIcon CppCodeCompletion::iconForSymbol(Symbol *symbol) const
 /*
   Searches backwards for an access operator.
 */
-static int startOfOperator(TokenCache *tokenCache,
-                           TextEditor::ITextEditable *editor,
+static int startOfOperator(TextEditor::ITextEditable *editor,
                            int pos, unsigned *kind,
                            bool wantFunctionCall)
 {
@@ -546,14 +545,19 @@ static int startOfOperator(TokenCache *tokenCache,
     }
 
     if (completionKind == T_COMMA) {
-        ExpressionUnderCursor expressionUnderCursor(tokenCache);
+        ExpressionUnderCursor expressionUnderCursor;
         if (expressionUnderCursor.startOfFunctionCall(tc) == -1) {
             completionKind = T_EOF_SYMBOL;
             start = pos;
         }
     }
 
-    const SimpleToken tk = tokenCache->tokenUnderCursor(tc);
+    SimpleLexer tokenize;
+    tokenize.setQtMocRunEnabled(true);
+    tokenize.setSkipComments(false);
+    const QList<SimpleToken> &tokens = tokenize(tc.block().text());
+    const int tokenIdx = SimpleLexer::tokenAt(tokens, tc.positionInBlock());
+    const SimpleToken &tk = (tokenIdx == -1) ? SimpleToken() : tokens.at(tokenIdx);
 
     if (completionKind == T_DOXY_COMMENT && !(tk.is(T_DOXY_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))) {
         completionKind = T_EOF_SYMBOL;
@@ -573,7 +577,6 @@ static int startOfOperator(TokenCache *tokenCache,
         start = pos;
     }
     else if (completionKind == T_LPAREN) {
-        const QList<SimpleToken> &tokens = tokenCache->tokensForBlock(tc.block());
         int i = 0;
         for (; i < tokens.size(); ++i) {
             const SimpleToken &token = tokens.at(i);
@@ -595,11 +598,12 @@ static int startOfOperator(TokenCache *tokenCache,
     // Check for include preprocessor directive
     else if (completionKind == T_STRING_LITERAL || completionKind == T_ANGLE_STRING_LITERAL || completionKind == T_SLASH) {
         bool include = false;
-        const QList<SimpleToken> &tokens = tokenCache->tokensForBlock(tc.block());
         if (tokens.size() >= 3) {
             if (tokens.at(0).is(T_POUND) && tokens.at(1).is(T_IDENTIFIER) && (tokens.at(2).is(T_STRING_LITERAL) ||
                                                                               tokens.at(2).is(T_ANGLE_STRING_LITERAL))) {
-                QString directive = tokenCache->text(tc.block(), 1);
+                const SimpleToken &directiveToken = tokens.at(1);
+                QString directive = tc.block().text().mid(directiveToken.position(),
+                                                          directiveToken.length());
                 if (directive == QLatin1String("include") ||
                     directive == QLatin1String("include_next") ||
                     directive == QLatin1String("import")) {
@@ -632,10 +636,9 @@ int CppCodeCompletion::startPosition() const
 bool CppCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
 {
     const int pos = editor->position();
-    TokenCache *tokenCache = m_manager->tokenCache(editor);
     unsigned token = T_EOF_SYMBOL;
 
-    if (startOfOperator(tokenCache, editor, pos, &token, /*want function call=*/ true) != pos) {
+    if (startOfOperator(editor, pos, &token, /*want function call=*/ true) != pos) {
         if (token == T_POUND) {
             if (TextEditor::BaseTextEditor *edit = qobject_cast<TextEditor::BaseTextEditor *>(editor->widget())) {
                 QTextCursor tc(edit->document());
@@ -683,8 +686,7 @@ int CppCodeCompletion::startCompletionHelper(TextEditor::ITextEditable *editor)
     while (editor->characterAt(endOfOperator - 1).isSpace())
         --endOfOperator;
 
-    TokenCache *tokenCache = m_manager->tokenCache(editor);
-    int endOfExpression = startOfOperator(tokenCache, editor, endOfOperator,
+    int endOfExpression = startOfOperator(editor, endOfOperator,
                                           &m_completionOperator,
                                           /*want function call =*/ true);
 
@@ -725,7 +727,7 @@ int CppCodeCompletion::startCompletionHelper(TextEditor::ITextEditable *editor)
         return m_startPosition;
     }
 
-    ExpressionUnderCursor expressionUnderCursor(m_manager->tokenCache(editor));
+    ExpressionUnderCursor expressionUnderCursor;
     QTextCursor tc(edit->document());
 
     if (m_completionOperator == T_COMMA) {
@@ -822,8 +824,7 @@ int CppCodeCompletion::startCompletionInternal(TextEditor::BaseTextEditor *edit,
             QTextCursor tc(edit->document());
             tc.setPosition(index);
 
-            TokenCache *tokenCache = m_manager->tokenCache(edit->editableInterface());
-            ExpressionUnderCursor expressionUnderCursor(tokenCache);
+            ExpressionUnderCursor expressionUnderCursor;
             const QString baseExpression = expressionUnderCursor(tc);
 
             // Resolve the type of this expression
@@ -1079,8 +1080,7 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &r
 
             QTextCursor tc(edit->document());
             tc.setPosition(endOfExpression);
-            TokenCache *tokenCache = m_manager->tokenCache(m_editor);
-            BackwardsScanner bs(tokenCache, tc);
+            BackwardsScanner bs(tc);
             const int startToken = bs.startToken();
             const int lineStartToken = bs.startOfLine(startToken);
             // make sure the required tokens are actually available

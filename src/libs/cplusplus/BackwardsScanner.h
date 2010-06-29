@@ -36,15 +36,12 @@
 
 namespace CPlusPlus {
 
-class TokenCache;
-
 class CPLUSPLUS_EXPORT BackwardsScanner
 {
     enum { MAX_BLOCK_COUNT = 10 };
 
 public:
-    BackwardsScanner(TokenCache *cache,
-                     const QTextCursor &cursor,
+    BackwardsScanner(const QTextCursor &cursor,
                      int maxBlockCount = MAX_BLOCK_COUNT,
                      const QString &suffix = QString());
 
@@ -71,15 +68,17 @@ public:
 
     int size() const;
 
+    static int previousBlockState(const QTextBlock &block);
+
 private:
     const SimpleToken &fetchToken(int tokenIndex);
 
 private:
-    TokenCache *_tokenCache;
     QList<SimpleToken> _tokens;
     int _offset;
     int _blocksTokenized;
     QTextBlock _block;
+    SimpleLexer _tokenize;
     QString _text;
     int _maxBlockCount;
     int _startToken;

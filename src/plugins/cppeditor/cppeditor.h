@@ -48,7 +48,6 @@ QT_END_NAMESPACE
 namespace CPlusPlus {
 class OverviewModel;
 class Symbol;
-class TokenCache;
 }
 
 namespace CppTools {
@@ -199,8 +198,6 @@ public:
 
     virtual void paste(); // reimplemented from BaseTextEditor
     virtual void cut(); // reimplemented from BaseTextEditor
-
-    CPlusPlus::TokenCache *tokenCache() const;
 
     CppTools::CppModelManagerInterface *modelManager() const;
 

@@ -126,6 +126,11 @@ public:
     int state() const
     { return _lastState; }
 
+    static int tokenAt(const QList<SimpleToken> &tokens, int offset);
+    static SimpleToken tokenAt(const QString &text, int offset, int state, bool qtMocRunEnabled = false);
+
+    static int tokenBefore(const QList<SimpleToken> &tokens, int offset);
+
 private:
     int _lastState;
     bool _skipComments: 1;
