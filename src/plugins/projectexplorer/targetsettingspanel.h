@@ -35,6 +35,11 @@
 #include <QtGui/QStackedWidget>
 #include <QtGui/QWidget>
 
+QT_BEGIN_NAMESPACE
+class QAction;
+class QMenu;
+QT_END_NAMESPACE
+
 namespace ProjectExplorer {
 
 class Target;
@@ -55,8 +60,8 @@ public:
 
 private slots:
     void currentTargetChanged(int targetIndex, int subIndex);
-    void addTarget();
     void removeTarget();
+    void addTarget(QAction *);
     void targetAdded(ProjectExplorer::Target *target);
     void removedTarget(ProjectExplorer::Target *target);
     void activeTargetChanged(ProjectExplorer::Target *target);
@@ -70,6 +75,7 @@ private:
     QWidget *m_noTargetLabel;
     PanelsWidget *m_panelWidgets[2];
     QList<Target *> m_targets;
+    QMenu *m_addMenu;
 };
 
 } // namespace Internal

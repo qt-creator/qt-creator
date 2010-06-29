@@ -4,6 +4,10 @@
 #include <QtGui/QWidget>
 #include <QtGui/QPixmap>
 
+QT_BEGIN_NAMESPACE
+class QMenu;
+QT_END_NAMESPACE
+
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -40,9 +44,9 @@ public slots:
     void setCurrentSubIndex(int subindex);
     void setAddButtonEnabled(bool enabled);
     void setRemoveButtonEnabled(bool enabled);
+    void setAddButtonMenu(QMenu *menu);
 
 signals:
-    void addButtonClicked();
     void removeButtonClicked();
     // This signal is emited whenever the target pointed to by the indices
     // has changed.
@@ -66,6 +70,8 @@ private:
     int m_currentTargetIndex;
     bool m_addButtonEnabled;
     bool m_removeButtonEnabled;
+
+    QMenu *m_addButtonMenu;
 };
 
 } // namespace Internal
