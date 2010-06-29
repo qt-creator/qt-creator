@@ -30,6 +30,7 @@
 #define QMLJSINSPECTORPLUGIN_H
 
 #include <extensionsystem/iplugin.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
@@ -61,6 +62,7 @@ public:
 
     static InspectorPlugin *instance();
 
+    QmlJS::ModelManagerInterface *modelManager() const;
     ClientProxy *clientProxy() const;
     Inspector *inspector() const;
 

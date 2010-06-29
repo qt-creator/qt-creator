@@ -94,6 +94,11 @@ InspectorPlugin::~InspectorPlugin()
     qDebug() << Q_FUNC_INFO;
 }
 
+QmlJS::ModelManagerInterface *InspectorPlugin::modelManager() const
+{
+    return ExtensionSystem::PluginManager::instance()->getObject<QmlJS::ModelManagerInterface>();
+}
+
 ClientProxy *InspectorPlugin::clientProxy() const
 {
     return _clientProxy;
