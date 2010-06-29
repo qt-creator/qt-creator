@@ -30,6 +30,10 @@
 #include "qmljsinspector.h"
 #include "qmljsclientproxy.h"
 #include "qmljsinspectorcontext.h"
+#include "qmljsdelta.h"
+
+#include <qmljs/qmljsmodelmanagerinterface.h>
+#include <qmljs/qmljsdocument.h>
 
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggerconstants.h>
@@ -96,6 +100,7 @@
 
 #include <QtNetwork/QHostAddress>
 
+using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJSInspector::Internal;
 using namespace Debugger::Internal;
@@ -604,3 +609,13 @@ bool Inspector::addQuotesForData(const QVariant &value) const
     return false;
 }
 
+void Inspector::documentUpdated(QmlJS::Document::Ptr doc)
+{
+    Core::ICore *core = Core::ICore::instance();
+    const int dbgcontext = core->uniqueIDManager()->uniqueIdentifier(Debugger::Constants::C_DEBUGMODE);
+
+    if (! core->hasContext(dbgcontext))
+        return;
+
+    qDebug() << "TODO: compute the delta changes for:" << doc->fileName();
+}

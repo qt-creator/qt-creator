@@ -174,6 +174,12 @@ void InspectorPlugin::extensionsInitialized()
     configBarLayout->addStretch();
 
     uiSwitcher->setToolbar(LANG_QML, configBar);
+
+    if (QmlJS::ModelManagerInterface *m = InspectorPlugin::instance()->modelManager()) {
+        connect(m, SIGNAL(documentUpdated(QmlJS::Document::Ptr)),
+                _inspector, SLOT(documentUpdated(QmlJS::Document::Ptr)));
+    }
+
 }
 
 void InspectorPlugin::activateDebuggerForProject(ProjectExplorer::Project *project, const QString &runMode)

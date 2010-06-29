@@ -114,6 +114,8 @@ private slots:
     void disconnectWidgets();
     void disconnected();
 
+    void documentUpdated(QmlJS::Document::Ptr doc);
+
 private:
     Debugger::DebuggerRunControl *createDebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig,
                                                            const QString &executableFile = QString(),
