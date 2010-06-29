@@ -44,6 +44,7 @@ class QDesignerFormWindowInterface;
 
 class QAction;
 class QActionGroup;
+class QMenu;
 class QSignalMapper;
 class QSettings;
 class QToolBar;
@@ -122,6 +123,7 @@ private slots:
     void currentEditorChanged(Core::IEditor *editor);
     void toolChanged(int);
     void print();
+    void setPreviewMenuEnabled(bool e);
 
     void updateShortcut(QObject *command);
     void closeFormEditorsForXmlEditors(QList<Core::IEditor*> editors);
@@ -179,6 +181,7 @@ private:
     QAction *m_actionPrint;
     QAction *m_actionPreview;
     QActionGroup *m_actionGroupPreviewInStyle;
+    QMenu *m_previewInStyleMenu;
     QAction *m_actionAboutPlugins;
     QAction *m_modeActionSeparator;
     QSignalMapper *m_shortcutMapper;
