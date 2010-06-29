@@ -41,7 +41,8 @@ SimpleLexer::SimpleLexer()
     : _lastState(0),
       _skipComments(false),
       _qtMocRunEnabled(true),
-      _objCEnabled(false)
+      _objCEnabled(false),
+      _endedJoined(false)
 {
 }
 
@@ -78,6 +79,11 @@ void SimpleLexer::setSkipComments(bool skipComments)
     _skipComments = skipComments;
 }
 
+bool SimpleLexer::endedJoined() const
+{
+    return _endedJoined;
+}
+
 QList<Token> SimpleLexer::operator()(const QString &text, int state)
 {
     QList<Token> tokens;
@@ -103,8 +109,10 @@ QList<Token> SimpleLexer::operator()(const QString &text, int state)
     for (;;) {
         Token tk;
         lex(&tk);
-        if (tk.is(T_EOF_SYMBOL))
+        if (tk.is(T_EOF_SYMBOL)) {
+            _endedJoined = tk.joined();
             break;
+        }
 
         QStringRef spell = text.midRef(lex.tokenOffset(), lex.tokenLength());
         lex.setScanAngleStringLiteralTokens(false);
