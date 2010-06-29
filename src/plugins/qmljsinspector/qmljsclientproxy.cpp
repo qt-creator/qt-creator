@@ -49,6 +49,7 @@ ClientProxy::ClientProxy(QObject *parent) :
     m_objectTreeQuery(0),
     m_debuggerRunControl(0)
 {
+    Q_ASSERT(! m_instance);
     m_instance = this;
 }
 
@@ -72,7 +73,8 @@ bool ClientProxy::connectToViewer(const QString &host, quint16 port)
 
         emit aboutToDisconnect();
 
-        delete m_client; m_client = 0;
+        delete m_client;
+        m_client = 0;
     }
 
     if (m_conn) {
@@ -185,6 +187,9 @@ bool ClientProxy::isUnconnected() const
 
 void ClientProxy::setSelectedItemByObjectId(int engineId, const QDeclarativeDebugObjectReference &objectRef)
 {
+    Q_UNUSED(engineId);
+    Q_UNUSED(objectRef);
+
 #ifdef __GNUC__
 #  warning implement ClientProxy::setSelectedItemByObjectId
 #endif
@@ -219,20 +224,13 @@ QDeclarativeDebugExpressionQuery *ClientProxy::setBindingForObject(int objectDeb
                                                                    const QVariant &value,
                                                                    bool isLiteralValue)
 {
-#ifdef __GNUC__
-#  warning implement ClientProxy::setBindingForObject
-#endif
-    qDebug() << "TODO:" << Q_FUNC_INFO;
-#if 0
+    qDebug() << Q_FUNC_INFO;
+
     if (propertyName == QLatin1String("id") || objectDebugId == -1)
         return 0;
 
     qDebug() << "executeBinding():" << objectDebugId << propertyName << value << "isLiteral:" << isLiteralValue;
-
     return m_client->setBindingForObject(objectDebugId, propertyName, value.toString(), isLiteralValue, 0);
-#else
-    return 0;
-#endif
 }
 
 void ClientProxy::queryEngineContext(int id)
@@ -249,8 +247,8 @@ void ClientProxy::queryEngineContext(int id)
     if (!m_contextQuery->isWaiting())
         contextChanged();
     else
-        QObject::connect(m_contextQuery, SIGNAL(stateChanged(QDeclarativeDebugQuery::State)),
-                         this, SLOT(contextChanged()));
+        connect(m_contextQuery, SIGNAL(stateChanged(QDeclarativeDebugQuery::State)),
+                this, SLOT(contextChanged()));
 }
 
 void ClientProxy::contextChanged()
@@ -264,7 +262,8 @@ void ClientProxy::contextChanged()
             m_rootObject = m_contextQuery->rootContext().objects().first();
         }
 
-        delete m_contextQuery; m_contextQuery = 0;
+        delete m_contextQuery;
+        m_contextQuery = 0;
 
         m_objectTreeQuery = m_client->queryObjectRecursive(m_rootObject, this);
         if (!m_objectTreeQuery->isWaiting()) {
@@ -320,7 +319,7 @@ void ClientProxy::reloadEngines()
     if (!m_engineQuery->isWaiting())
         updateEngineList();
     else
-        QObject::connect(m_engineQuery, SIGNAL(stateChanged(QDeclarativeDebugQuery::State)),
+        connect(m_engineQuery, SIGNAL(stateChanged(QDeclarativeDebugQuery::State)),
                          this, SLOT(updateEngineList()));
 }
 
@@ -332,7 +331,8 @@ QList<QDeclarativeDebugEngineReference> ClientProxy::engines() const
 void ClientProxy::updateEngineList()
 {
     m_engines = m_engineQuery->engines();
-    delete m_engineQuery; m_engineQuery = 0;
+    delete m_engineQuery;
+    m_engineQuery = 0;
 
     emit enginesChanged();
 }

@@ -53,6 +53,7 @@ class ClientProxy : public QObject
 
 public:
     static ClientProxy *instance();
+
     QDeclarativeDebugExpressionQuery *setBindingForObject(int objectDebugId,
                                                           const QString &propertyName,
                                                           const QVariant &value,
