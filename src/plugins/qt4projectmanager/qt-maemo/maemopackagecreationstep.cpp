@@ -148,7 +148,7 @@ bool MaemoPackageCreationStep::createPackage()
     env.insert(key, path % QLatin1String("madbin") % colon % env.value(key));
     env.insert(QLatin1String("PERL5LIB"), path % QLatin1String("madlib/perl5"));
 
-    const QString buildDir = QFileInfo(localExecutableFilePath()).absolutePath();
+    const QString buildDir = buildDirectory();
     env.insert(QLatin1String("PWD"), buildDir);
 
     const QRegExp envPattern(QLatin1String("([^=]+)=[\"']?([^;\"']+)[\"']? ;.*"));
@@ -288,6 +288,13 @@ QString MaemoPackageCreationStep::localExecutableFilePath() const
         + QLatin1Char('/') + ti.target));
 }
 
+QString MaemoPackageCreationStep::buildDirectory() const
+{
+    const TargetInformation &ti = qt4BuildConfiguration()->qt4Target()
+        ->qt4Project()->rootProjectNode()->targetInformation();
+    return ti.valid ? ti.buildDir : QString();
+}
+
 QString MaemoPackageCreationStep::executableFileName() const
 {
     return QFileInfo(localExecutableFilePath()).fileName();
@@ -326,8 +333,7 @@ bool MaemoPackageCreationStep::packagingNeeded() const
 
 QString MaemoPackageCreationStep::packageFilePath() const
 {
-    QFileInfo execInfo(localExecutableFilePath());
-    return execInfo.path() % QDir::separator() % execInfo.fileName().toLower()
+    return buildDirectory() % QDir::separator() % executableFileName().toLower()
         % QLatin1Char('_') % versionString() % QLatin1String("_armel.deb");
 }
 
