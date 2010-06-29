@@ -44,7 +44,7 @@ void TestProject::testFileFilter()
         QDeclarativeComponent component(&engine);
         component.setData(projectFile.toUtf8(), QUrl());
         if (!component.isReady())
-            qDebug() << component.errorsString();
+            qDebug() << component.errorString();
         QVERIFY(component.isReady());
 
         QmlProjectItem *project = qobject_cast<QmlProjectItem*>(component.create());
@@ -74,7 +74,7 @@ void TestProject::testFileFilter()
         QDeclarativeComponent component(&engine);
         component.setData(projectFile.toUtf8(), QUrl());
         if (!component.isReady())
-            qDebug() << component.errorsString();
+            qDebug() << component.errorString();
         QVERIFY(component.isReady());
 
         QmlProjectItem *project = qobject_cast<QmlProjectItem*>(component.create());
@@ -133,7 +133,7 @@ void TestProject::testFileFilter()
         QDeclarativeComponent component(&engine);
         component.setData(projectFile.toUtf8(), QUrl());
         if (!component.isReady())
-            qDebug() << component.errorsString();
+            qDebug() << component.errorString();
         QVERIFY(component.isReady());
 
         QmlProjectItem *project = qobject_cast<QmlProjectItem*>(component.create());
@@ -165,7 +165,7 @@ void TestProject::testFileFilter()
         QDeclarativeComponent component(&engine);
         component.setData(projectFile.toUtf8(), QUrl());
         if (!component.isReady())
-            qDebug() << component.errorsString();
+            qDebug() << component.errorString();
         QVERIFY(component.isReady());
 
         QmlProjectItem *project = qobject_cast<QmlProjectItem*>(component.create());
@@ -194,7 +194,7 @@ void TestProject::testFileFilter()
         QDeclarativeComponent component(&engine);
         component.setData(projectFile.toUtf8(), QUrl());
         if (!component.isReady())
-            qDebug() << component.errorsString();
+            qDebug() << component.errorString();
         QVERIFY(component.isReady());
 
         QmlProjectItem *project = qobject_cast<QmlProjectItem*>(component.create());
@@ -228,7 +228,7 @@ void TestProject::testMatchesFile()
     QDeclarativeComponent component(&engine);
     component.setData(projectFile.toUtf8(), QUrl());
     if (!component.isReady())
-        qDebug() << component.errorsString();
+        qDebug() << component.errorString();
     QVERIFY(component.isReady());
 
     QmlProjectItem *project = qobject_cast<QmlProjectItem*>(component.create());
@@ -259,7 +259,7 @@ void TestProject::testLibraryPaths()
         QDeclarativeComponent component(&engine);
         component.setData(projectFile.toUtf8(), QUrl());
         if (!component.isReady())
-            qDebug() << component.errorsString();
+            qDebug() << component.errorString();
         QVERIFY(component.isReady());
 
         QmlProjectItem *project = qobject_cast<QmlProjectItem*>(component.create());
