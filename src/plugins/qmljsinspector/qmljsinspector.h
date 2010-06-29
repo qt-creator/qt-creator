@@ -30,21 +30,127 @@
 #ifndef QMLJSINSPECTOR_H
 #define QMLJSINSPECTOR_H
 
-#include <QObject>
+#include "qmljsprivateapi.h"
+
+#include <coreplugin/basemode.h>
+#include <qmlprojectmanager/qmlprojectrunconfiguration.h>
+
+#include <qmljs/qmljsdocument.h>
+#include <qmljs/parser/qmljsastfwd_p.h>
+
+#include <QtGui/QAction>
+#include <QtCore/QObject>
+
+namespace ProjectExplorer {
+    class Project;
+    class Environment;
+}
+
+namespace Core {
+    class IContext;
+}
+
+namespace Debugger {
+    class DebuggerRunControl;
+}
 
 namespace QmlJSInspector {
 namespace Internal {
+
+class ClientProxy;
+class InspectorContext;
+
+const int MaxConnectionAttempts = 50;
+const int ConnectionAttemptDefaultInterval = 75;
+// used when debugging with c++ - connection can take a lot of time
+const int ConnectionAttemptSimultaneousInterval = 500;
 
 class Inspector : public QObject
 {
     Q_OBJECT
 
 public:
+    enum DebugMode {
+        StandaloneMode,
+        CppProjectWithQmlEngines,
+        QmlProjectWithCppPlugins
+    };
+
     Inspector(QObject *parent = 0);
-    virtual ~Inspector();
+    ~Inspector();
+
+    void shutdown();
+
+    bool connectToViewer(); // using host, port from widgets
+
+    // returns false if project is not debuggable.
+    bool setDebugConfigurationDataFromProject(ProjectExplorer::Project *projectToDebug);
+    void startQmlProjectDebugger();
+
+    QDeclarativeDebugExpressionQuery *executeExpression(int objectDebugId, const QString &objectId,
+                                                        const QString &propertyName, const QVariant &value);
+
+    QDeclarativeDebugExpressionQuery *setBindingForObject(int objectDebugId, const QString &objectId,
+                                                     const QString &propertyName, const QVariant &value,
+                                                     bool isLiteralValue);
+
+signals:
+    void statusMessage(const QString &text);
+
+public slots:
+    void setSimpleDockWidgetArrangement();
+    void reloadQmlViewer();
+
+private slots:
+    void gotoObjectReferenceDefinition(const QDeclarativeDebugObjectReference &obj);
+    void simultaneouslyDebugQmlCppApplication();
+
+    void debuggerStateChanged(int newState);
+    void pollInspector();
+
+    void setSelectedItemsByObjectReference(QList<QDeclarativeDebugObjectReference> objectReferences);
+    void changeSelectedItem(int engineId, const QDeclarativeDebugObjectReference &object);
+
+    void updateMenuActions();
+    void connected(QDeclarativeEngineDebug *client);
+    void aboutToReloadEngines();
+    void updateEngineList();
+
+    void disconnectWidgets();
+    void disconnected();
+
+private:
+    Debugger::DebuggerRunControl *createDebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig,
+                                                           const QString &executableFile = QString(),
+                                                           const QString &executableArguments = QString());
+
+    QString executeDebuggerRunControl(Debugger::DebuggerRunControl *debuggableRunControl,
+                                      ProjectExplorer::Environment *environment);
+
+    QString attachToQmlViewerAsExternalApp(ProjectExplorer::Project *project);
+    QString attachToExternalCppAppWithQml(ProjectExplorer::Project *project);
+
+    bool addQuotesForData(const QVariant &value) const;
+    void resetViews();
+
+private:
+    QWeakPointer<QDeclarativeEngineDebug> m_client;
+    InspectorContext *m_context;
+
+    QTimer *m_connectionTimer;
+    int m_connectionAttempts;
+
+    QmlProjectManager::QmlProjectRunConfigurationDebugData m_runConfigurationDebugData;
+
+    // simultaneous debug mode stuff
+    int m_cppDebuggerState;
+    bool m_connectionInitialized;
+    bool m_simultaneousCppAndQmlDebugMode;
+    DebugMode m_debugMode;
+    ClientProxy *m_clientProxy;
 };
 
-} // namespace Internal
-} // namespace QmlJSInspector
+} // Internal
+} // QmlJSInspector
 
-#endif // QMLJSINSPECTOR_H
+#endif
