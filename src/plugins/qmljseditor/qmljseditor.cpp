@@ -82,15 +82,6 @@ using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJSEditor::Internal;
 
-static int blockBraceDepth(const QTextBlock &block)
-{
-    int state = block.userState();
-    if (state == -1)
-        return 0;
-
-    return (state >> 8) & 0xFF;
-}
-
 static int blockStartState(const QTextBlock &block)
 {
     int state = block.userState();
