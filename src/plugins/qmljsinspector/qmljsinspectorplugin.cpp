@@ -183,13 +183,12 @@ void InspectorPlugin::activateDebuggerForProject(ProjectExplorer::Project *proje
 #  warning start a QML/JS debugging session using the information stored in the current project
 #endif
 
-#if 0
         // FIXME we probably want to activate the debugger for other projects than QmlProjects,
         // if they contain Qml files. Some kind of options should exist for this behavior.
-        QmlProjectManager::QmlProject *qmlproj = qobject_cast<QmlProjectManager::QmlProject*>(project);
-        if (qmlproj && m_inspector->setDebugConfigurationDataFromProject(qmlproj))
-            m_inspector->startQmlProjectDebugger();
-#endif
+        if (QmlProjectManager::QmlProject *qmlproj = qobject_cast<QmlProjectManager::QmlProject*>(project)) {
+            if (_inspector->setDebugConfigurationDataFromProject(qmlproj))
+                _inspector->startQmlProjectDebugger();
+        }
     }
 }
 

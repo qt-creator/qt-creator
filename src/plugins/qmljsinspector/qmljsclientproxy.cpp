@@ -64,10 +64,11 @@ bool ClientProxy::connectToViewer(const QString &host, quint16 port)
 
     qDebug() << Q_FUNC_INFO;
     if (m_client) {
-        disconnect(m_client, SIGNAL(propertyDumpReceived(QDeclarativeDebugPropertyDump)),
-                   this,     SIGNAL(propertyDumpReceived(QDeclarativeDebugPropertyDump)));
+#warning disconnect selectedItemsChanged here
+#if 0
         disconnect(m_client, SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
                    this,     SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)));
+#endif
 
         emit aboutToDisconnect();
 
@@ -151,12 +152,12 @@ void ClientProxy::connectionStateChanged()
                 m_client = new QDeclarativeEngineDebug(m_conn, this);
                 emit connected(m_client);
 
-                connect(m_client,
-                        SIGNAL(propertyDumpReceived(QDeclarativeDebugPropertyDump)),
-                        SIGNAL(propertyDumpReceived(QDeclarativeDebugPropertyDump)));
+#warning add support for selectedItemsChanged here
+#if 0
                 connect(m_client,
                         SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
                         SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)));
+#endif
             }
 
             reloadEngines();

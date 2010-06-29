@@ -164,14 +164,15 @@ void Inspector::updateEngineList()
 {
     qDebug() << Q_FUNC_INFO;
 
-    QList<QDeclarativeDebugEngineReference> engines = m_clientProxy->engines();
+    const QList<QDeclarativeDebugEngineReference> engines = m_clientProxy->engines();
+
+#warning update the QML engines combo
 
     if (engines.isEmpty())
         qWarning("qmldebugger: no engines found!");
-
-#warning update the QML engines combo
-    if (engines.count() > 0) {
-        m_clientProxy->queryEngineContext(engines.at(0).debugId());
+    else {
+        const QDeclarativeDebugEngineReference engine = engines.first();
+        m_clientProxy->queryEngineContext(engine.debugId());
     }
 }
 
@@ -542,14 +543,6 @@ void Inspector::setSelectedItemsByObjectReference(QList<QDeclarativeDebugObjectR
         gotoObjectReferenceDefinition(objectReferences.first());
 }
 
-#if 0
-void QmlInspector::handlePropertyDump(const QDeclarativeDebugPropertyDump &dump)
-{
-    qDebug() << Q_FUNC_INFO;
-    m_rewriter->mapObjectToQml(dump.object());
-}
-#endif
-
 void Inspector::gotoObjectReferenceDefinition(const QDeclarativeDebugObjectReference &obj)
 {
     Q_UNUSED(obj);
@@ -586,7 +579,7 @@ QDeclarativeDebugExpressionQuery *Inspector::executeExpression(int objectDebugId
     if (objectId.length()) {
         QString quoteWrappedValue = value.toString();
         if (addQuotesForData(value))
-            quoteWrappedValue = QString("'%1'").arg(quoteWrappedValue);
+            quoteWrappedValue = QString("'%1'").arg(quoteWrappedValue); // ### FIXME this code is wrong!
 
         QString constructedExpression = objectId + "." + propertyName + "=" + quoteWrappedValue;
         return m_client.data()->queryExpressionResult(objectDebugId, constructedExpression, this);

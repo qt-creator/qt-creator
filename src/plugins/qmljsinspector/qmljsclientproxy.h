@@ -37,7 +37,6 @@ QT_FORWARD_DECLARE_CLASS(QUrl)
 QT_FORWARD_DECLARE_CLASS(QDeclarativeEngineDebug)
 QT_FORWARD_DECLARE_CLASS(QDeclarativeDebugConnection)
 QT_FORWARD_DECLARE_CLASS(QDeclarativeDebugExpressionQuery)
-QT_FORWARD_DECLARE_CLASS(QDeclarativeDebugPropertyDump)
 
 namespace Debugger {
     class DebuggerRunControl;
@@ -79,7 +78,6 @@ signals:
     void aboutToReloadEngines();
     void enginesChanged();
 
-    void propertyDumpReceived(const QDeclarativeDebugPropertyDump &propertyDump);
     void selectedItemsChanged(const QList<QDeclarativeDebugObjectReference> &selectedItems);
 
     void connected(QDeclarativeEngineDebug *client);
