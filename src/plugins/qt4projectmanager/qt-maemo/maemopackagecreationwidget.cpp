@@ -83,6 +83,7 @@ MaemoPackageCreationWidget::MaemoPackageCreationWidget(MaemoPackageCreationStep 
     m_ui->major->setValue(list.value(0, QLatin1String("0")).toInt());
     m_ui->minor->setValue(list.value(1, QLatin1String("0")).toInt());
     m_ui->patch->setValue(list.value(2, QLatin1String("0")).toInt());
+    versionInfoChanged();   // workaround for missing minor and patch update notifications
 }
 
 void MaemoPackageCreationWidget::init()
