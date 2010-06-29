@@ -29,6 +29,7 @@
 
 #include "qmljsinspectorconstants.h"
 #include "qmljsinspectorplugin.h"
+#include "qmljsclientproxy.h"
 
 #include <debugger/debuggeruiswitcher.h>
 #include <debugger/debuggerconstants.h>
@@ -66,7 +67,7 @@ using namespace QmlJSInspector::Constants;
 
 namespace {
 
-QmlInspectorPlugin *g_instance = 0; // the global QML/JS inspector instance
+InspectorPlugin *g_instance = 0; // the global QML/JS inspector instance
 
 QToolButton *createToolButton(QAction *action)
 {
@@ -77,24 +78,26 @@ QToolButton *createToolButton(QAction *action)
 
 } // end of anonymous namespace
 
-QmlInspectorPlugin::QmlInspectorPlugin()
+InspectorPlugin::InspectorPlugin()
 {
     qDebug() << Q_FUNC_INFO;
     Q_ASSERT(! g_instance);
     g_instance = this;
+
+    (void) new ClientProxy(this);
 }
 
-QmlInspectorPlugin::~QmlInspectorPlugin()
+InspectorPlugin::~InspectorPlugin()
 {
     qDebug() << Q_FUNC_INFO;
 }
 
-void QmlInspectorPlugin::aboutToShutdown()
+void InspectorPlugin::aboutToShutdown()
 {
     qDebug() << Q_FUNC_INFO;
 }
 
-bool QmlInspectorPlugin::initialize(const QStringList &arguments, QString *errorString)
+bool InspectorPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
     Q_UNUSED(arguments);
     Q_UNUSED(errorString);
@@ -117,7 +120,7 @@ bool QmlInspectorPlugin::initialize(const QStringList &arguments, QString *error
     return true;
 }
 
-void QmlInspectorPlugin::extensionsInitialized()
+void InspectorPlugin::extensionsInitialized()
 {
     qDebug() << Q_FUNC_INFO;
 
@@ -148,7 +151,7 @@ void QmlInspectorPlugin::extensionsInitialized()
     uiSwitcher->setToolbar(LANG_QML, configBar);
 }
 
-void QmlInspectorPlugin::activateDebuggerForProject(ProjectExplorer::Project *project, const QString &runMode)
+void InspectorPlugin::activateDebuggerForProject(ProjectExplorer::Project *project, const QString &runMode)
 {
     Q_UNUSED(project);
     Q_UNUSED(runMode);
@@ -166,7 +169,7 @@ void QmlInspectorPlugin::activateDebuggerForProject(ProjectExplorer::Project *pr
     }
 }
 
-void QmlInspectorPlugin::prepareDebugger(Core::IMode *mode)
+void InspectorPlugin::prepareDebugger(Core::IMode *mode)
 {
     qDebug() << Q_FUNC_INFO;
 
@@ -182,7 +185,7 @@ void QmlInspectorPlugin::prepareDebugger(Core::IMode *mode)
     }
 }
 
-void QmlInspectorPlugin::setDockWidgetArrangement(const QString &activeLanguage)
+void InspectorPlugin::setDockWidgetArrangement(const QString &activeLanguage)
 {
     Q_UNUSED(activeLanguage);
 
@@ -195,4 +198,4 @@ void QmlInspectorPlugin::setDockWidgetArrangement(const QString &activeLanguage)
 }
 
 
-Q_EXPORT_PLUGIN(QmlInspectorPlugin)
+Q_EXPORT_PLUGIN(InspectorPlugin)

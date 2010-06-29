@@ -26,57 +26,19 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-#ifndef QMLJSINSPECTORPLUGIN_H
-#define QMLJSINSPECTORPLUGIN_H
 
-#include <extensionsystem/iplugin.h>
+#include "qmljsinspector.h"
+#include "qmljsinspectorconstants.h"
+#include "qmljsinspectorplugin.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QPointer>
-#include <QtCore/QTimer>
+using namespace QmlJSInspector::Internal;
+using namespace QmlJSInspector::Constants;
 
-QT_FORWARD_DECLARE_CLASS(QStringList)
-
-namespace Core {
-    class IMode;
-}
-
-namespace ProjectExplorer {
-    class Project;
-}
-
-namespace QmlJSInspector {
-namespace Internal {
-
-class Inspector;
-
-class InspectorPlugin : public ExtensionSystem::IPlugin
+Inspector::Inspector(QObject *parent)
+    : QObject(parent)
 {
-    Q_OBJECT
+}
 
-public:
-    InspectorPlugin();
-    virtual ~InspectorPlugin();
-
-    static InspectorPlugin *instance();
-
-    // ExtensionSystem::IPlugin interface
-    virtual bool initialize(const QStringList &arguments, QString *errorString);
-    virtual void extensionsInitialized();
-    virtual void aboutToShutdown();
-
-public slots:
-    void activateDebuggerForProject(ProjectExplorer::Project *project, const QString &runMode);
-    void setDockWidgetArrangement(const QString &activeLanguage);
-
-private slots:
-    void prepareDebugger(Core::IMode *mode);
-
-private:
-    Inspector *_inspector;
-};
-
-} // end of namespace Internal
-} // end of QmlJSInspector
-
-#endif // QMLINSPECTORPLUGIN_H
+Inspector::~Inspector()
+{
+}

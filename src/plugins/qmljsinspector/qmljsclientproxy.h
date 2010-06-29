@@ -46,7 +46,7 @@ namespace Debugger {
 namespace QmlJSInspector {
 namespace Internal {
 
-class QmlInspectorPlugin;
+class InspectorPlugin;
 
 class ClientProxy : public QObject
 {
@@ -119,7 +119,7 @@ private:
     QList<QDeclarativeDebugEngineReference> m_engines;
 
     Debugger::DebuggerRunControl *m_debuggerRunControl;
-    friend class QmlJSInspector::Internal::QmlInspectorPlugin;
+    friend class QmlJSInspector::Internal::InspectorPlugin;
 };
 
 } // namespace Internal
