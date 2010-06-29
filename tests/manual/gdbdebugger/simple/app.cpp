@@ -187,10 +187,17 @@ private:
     QHash<QObject *, Map::iterator> h;
 };
 
-class X : virtual public Foo
+class X : public Foo
 {
 public:
     X() {
+    }
+};
+
+class XX : virtual public Foo
+{
+public:
+    XX() {
     }
 };
 
@@ -201,13 +208,24 @@ public:
     }
 };
 
+class D : public X, public Y
+{
+    int diamond;
+};
+
 void testArray()
 {
-    X xxx;
+#if 1
+    X x;
+    XX xx;
+    D diamond;
+    Foo *f = &xx;
+    Foo ff;
     double d[3][3];
     for (int i = 0; i != 3; ++i)
         for (int j = 0; j != 3; ++j)
             d[i][j] = i + j;
+#endif
 
     char c[20];
     c[0] = 'a';
@@ -215,11 +233,12 @@ void testArray()
     c[2] = 'c';
     c[3] = 'd';
 
-    QString x[20];
-    x[0] = "a";
-    x[1] = "b";
-    x[2] = "c";
-    x[3] = "d";
+#if 1
+    QString s[20];
+    s[0] = "a";
+    s[1] = "b";
+    s[2] = "c";
+    s[3] = "d";
 
     Foo foo[10];
     //for (int i = 0; i != sizeof(foo)/sizeof(foo[0]); ++i) {
@@ -227,6 +246,7 @@ void testArray()
         foo[i].a = i;
         foo[i].doit();
     }
+#endif
 }
 
 #ifndef Q_CC_RVCT

@@ -114,11 +114,8 @@ static const char winPythonVersionC[] = "python2.5";
 
 #define CB(callback) &GdbEngine::callback, STRINGIFY(callback)
 
-QByteArray GdbEngine::tooltipINameForExpression(const QByteArray &exp)
+QByteArray GdbEngine::tooltipIName()
 {
-    // FIXME: 'exp' can contain illegal characters
-    //return "tooltip." + exp;
-    Q_UNUSED(exp)
     return "tooltip.x";
 }
 
@@ -3204,10 +3201,17 @@ QPoint GdbEngine::m_toolTipPos;
 
 bool GdbEngine::showToolTip()
 {
+    QByteArray iname = tooltipIName();
+
+    if (!theDebuggerBoolSetting(UseToolTipsInMainEditor)) {
+        watchHandler()->removeData(iname);
+        return true;
+    }
+
     WatchModel *model = watchHandler()->model(TooltipsWatch);
-    QByteArray iname = tooltipINameForExpression(m_toolTipExpression.toLatin1());
     WatchItem *item = model->findItem(iname, model->rootItem());
     if (!item) {
+        watchHandler()->removeData(iname);
         hideDebuggerToolTip();
         return false;
     }
@@ -3301,7 +3305,7 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos,
     WatchData toolTip;
     toolTip.exp = exp.toLatin1();
     toolTip.name = exp;
-    toolTip.iname = tooltipINameForExpression(toolTip.exp);
+    toolTip.iname = tooltipIName();
     watchHandler()->removeData(toolTip.iname);
     watchHandler()->insertData(toolTip);
 }

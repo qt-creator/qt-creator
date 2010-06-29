@@ -61,8 +61,7 @@ void GdbEngine::updateLocalsPython(const QByteArray &varList)
 
     QByteArray watchers;
     if (!m_toolTipExpression.isEmpty())
-        watchers += m_toolTipExpression.toLatin1()
-            + '#' + tooltipINameForExpression(m_toolTipExpression.toLatin1());
+        watchers += m_toolTipExpression.toLatin1() + '#' + tooltipIName();
 
     QHash<QByteArray, int> watcherNames = handler->watcherNames();
     QHashIterator<QByteArray, int> it(watcherNames);

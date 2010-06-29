@@ -520,7 +520,7 @@ private: ////////// View & Data Stuff //////////
 
     static QString m_toolTipExpression;
     static QPoint m_toolTipPos;
-    static QByteArray tooltipINameForExpression(const QByteArray &exp);
+    static QByteArray tooltipIName();
 };
 
 } // namespace Internal
