@@ -55,10 +55,10 @@ public:
     QString text(int index) const;
     QStringRef textRef(int index) const;
     // 1-based
-    SimpleToken LA(int index) const;
+    Token LA(int index) const;
 
     // n-la token is [startToken - n]
-    SimpleToken operator[](int index) const; // ### deprecate
+    Token operator[](int index) const; // ### deprecate
 
     QString indentationString(int index) const;
 
@@ -71,10 +71,10 @@ public:
     static int previousBlockState(const QTextBlock &block);
 
 private:
-    const SimpleToken &fetchToken(int tokenIndex);
+    const Token &fetchToken(int tokenIndex);
 
 private:
-    QList<SimpleToken> _tokens;
+    QList<Token> _tokens;
     int _offset;
     int _blocksTokenized;
     QTextBlock _block;

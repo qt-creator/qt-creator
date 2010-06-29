@@ -1221,14 +1221,14 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
     SimpleLexer tokenize;
     tokenize.setQtMocRunEnabled(true);
     const QString blockText = cursor.block().text();
-    const QList<SimpleToken> tokens = tokenize(blockText, BackwardsScanner::previousBlockState(cursor.block()));
+    const QList<Token> tokens = tokenize(blockText, BackwardsScanner::previousBlockState(cursor.block()));
 
     bool recognizedQtMethod = false;
 
     for (int i = 0; i < tokens.size(); ++i) {
-        const SimpleToken &tk = tokens.at(i);
+        const Token &tk = tokens.at(i);
 
-        if (column >= tk.begin() && column <= tk.end()) {
+        if (((unsigned) column) >= tk.begin() && ((unsigned) column) <= tk.end()) {
             if (i >= 2 && tokens.at(i).is(T_IDENTIFIER) && tokens.at(i - 1).is(T_LPAREN)
                 && (tokens.at(i - 2).is(T_SIGNAL) || tokens.at(i - 2).is(T_SLOT))) {
 
@@ -1269,7 +1269,7 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
 
     if (! recognizedQtMethod) {
         const QTextBlock block = tc.block();
-        const SimpleToken tk = SimpleLexer::tokenAt(block.text(), cursor.positionInBlock(), BackwardsScanner::previousBlockState(block), true);
+        const Token tk = SimpleLexer::tokenAt(block.text(), cursor.positionInBlock(), BackwardsScanner::previousBlockState(block), true);
 
         beginOfToken = block.position() + tk.begin();
         endOfToken = block.position() + tk.end();
@@ -1431,11 +1431,11 @@ bool CPPEditor::contextAllowsAutoParentheses(const QTextCursor &cursor,
 
 bool CPPEditor::contextAllowsElectricCharacters(const QTextCursor &cursor) const
 {
-    const SimpleToken tk = SimpleLexer::tokenAt(cursor.block().text(), cursor.positionInBlock(), BackwardsScanner::previousBlockState(cursor.block()));
+    const Token tk = SimpleLexer::tokenAt(cursor.block().text(), cursor.positionInBlock(), BackwardsScanner::previousBlockState(cursor.block()));
 
     // XXX Duplicated from CPPEditor::isInComment to avoid tokenizing twice
     if (tk.isComment()) {
-        const int pos = cursor.selectionEnd() - cursor.block().position();
+        const unsigned pos = cursor.selectionEnd() - cursor.block().position();
 
         if (pos == tk.end()) {
             if (tk.is(T_CPP_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))
@@ -1452,7 +1452,7 @@ bool CPPEditor::contextAllowsElectricCharacters(const QTextCursor &cursor) const
     else if (tk.is(T_STRING_LITERAL) || tk.is(T_WIDE_STRING_LITERAL)
         || tk.is(T_CHAR_LITERAL) || tk.is(T_WIDE_CHAR_LITERAL)) {
 
-        const int pos = cursor.selectionEnd() - cursor.block().position();
+        const unsigned pos = cursor.selectionEnd() - cursor.block().position();
         if (pos <= tk.end())
             return false;
     }
@@ -1462,10 +1462,10 @@ bool CPPEditor::contextAllowsElectricCharacters(const QTextCursor &cursor) const
 
 bool CPPEditor::isInComment(const QTextCursor &cursor) const
 {
-    const SimpleToken tk = SimpleLexer::tokenAt(cursor.block().text(), cursor.positionInBlock(), BackwardsScanner::previousBlockState(cursor.block()));
+    const Token tk = SimpleLexer::tokenAt(cursor.block().text(), cursor.positionInBlock(), BackwardsScanner::previousBlockState(cursor.block()));
 
     if (tk.isComment()) {
-        const int pos = cursor.selectionEnd() - cursor.block().position();
+        const unsigned pos = cursor.selectionEnd() - cursor.block().position();
 
         if (pos == tk.end()) {
             if (tk.is(T_CPP_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))
@@ -1520,7 +1520,7 @@ void CPPEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedCha
     const int tokenCount = tk.startToken();
 
     if (tokenCount != 0) {
-        const SimpleToken firstToken = tk[0];
+        const Token firstToken = tk[0];
 
         if (firstToken.is(T_COLON)) {
             const int previousLineIndent = indentationColumn(ts, tk, -1);
@@ -1556,8 +1556,8 @@ void CPPEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedCha
         }
 
         const QString spell = tk.text(tokenIndex);
-        if (tk[tokenIndex].followsNewline() && (spell.startsWith(QLatin1String("QT_")) ||
-                                                spell.startsWith(QLatin1String("Q_")))) {
+        if (tk[tokenIndex].newline() && (spell.startsWith(QLatin1String("QT_")) ||
+                                         spell.startsWith(QLatin1String("Q_")))) {
             const int indent = indentationColumn(ts, tk, tokenIndex);
             ts.indentLine(block, indent);
             return;

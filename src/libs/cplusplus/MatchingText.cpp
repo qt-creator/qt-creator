@@ -152,7 +152,7 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
     const int startToken = tk.startToken();
     int index = startToken;
 
-    const SimpleToken &token = tk[index - 1];
+    const Token &token = tk[index - 1];
 
     if (text.at(0) == QLatin1Char('"') && (token.is(T_STRING_LITERAL) || token.is(T_WIDE_STRING_LITERAL))) {
         if (text.length() != 1)
@@ -220,7 +220,7 @@ QString MatchingText::insertParagraphSeparator(const QTextCursor &tc) const
 
     --index; // consume the `{'
 
-    const SimpleToken &token = tk[index - 1];
+    const Token &token = tk[index - 1];
 
     if (token.is(T_STRING_LITERAL) && tk[index - 2].is(T_EXTERN)) {
         // recognized extern "C"
@@ -230,7 +230,7 @@ QString MatchingText::insertParagraphSeparator(const QTextCursor &tc) const
         int i = index - 1;
 
         forever {
-            const SimpleToken &current = tk[i - 1];
+            const Token &current = tk[i - 1];
 
             if (current.is(T_EOF_SYMBOL))
                 break;
@@ -290,7 +290,7 @@ QString MatchingText::insertParagraphSeparator(const QTextCursor &tc) const
         }
 
         // look at the token before the matched brace
-        const SimpleToken &tokenBeforeBrace = tk[lparenIndex - 1];
+        const Token &tokenBeforeBrace = tk[lparenIndex - 1];
 
         if (tokenBeforeBrace.is(T_IF)) {
             // recognized an if statement

@@ -319,9 +319,9 @@ void FunctionArgumentWidget::updateArgumentHighlight()
     int argnr = 0;
     int parcount = 0;
     SimpleLexer tokenize;
-    QList<SimpleToken> tokens = tokenize(str);
+    QList<Token> tokens = tokenize(str);
     for (int i = 0; i < tokens.count(); ++i) {
-        const SimpleToken &tk = tokens.at(i);
+        const Token &tk = tokens.at(i);
         if (tk.is(T_LPAREN))
             ++parcount;
         else if (tk.is(T_RPAREN))
@@ -555,9 +555,9 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
     SimpleLexer tokenize;
     tokenize.setQtMocRunEnabled(true);
     tokenize.setSkipComments(false);
-    const QList<SimpleToken> &tokens = tokenize(tc.block().text());
+    const QList<Token> &tokens = tokenize(tc.block().text());
     const int tokenIdx = SimpleLexer::tokenAt(tokens, tc.positionInBlock());
-    const SimpleToken &tk = (tokenIdx == -1) ? SimpleToken() : tokens.at(tokenIdx);
+    const Token &tk = (tokenIdx == -1) ? Token() : tokens.at(tokenIdx);
 
     if (completionKind == T_DOXY_COMMENT && !(tk.is(T_DOXY_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))) {
         completionKind = T_EOF_SYMBOL;
@@ -579,11 +579,11 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
     else if (completionKind == T_LPAREN) {
         int i = 0;
         for (; i < tokens.size(); ++i) {
-            const SimpleToken &token = tokens.at(i);
-            if (token.position() == tk.position()) {
+            const Token &token = tokens.at(i);
+            if (token.begin() == tk.begin()) {
                 if (i == 0) // no token on the left, but might be on a previous line
                     break;
-                const SimpleToken &previousToken = tokens.at(i - 1);
+                const Token &previousToken = tokens.at(i - 1);
                 if (previousToken.is(T_IDENTIFIER) || previousToken.is(T_GREATER)
                     || previousToken.is(T_SIGNAL) || previousToken.is(T_SLOT))
                     break;
@@ -601,8 +601,8 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
         if (tokens.size() >= 3) {
             if (tokens.at(0).is(T_POUND) && tokens.at(1).is(T_IDENTIFIER) && (tokens.at(2).is(T_STRING_LITERAL) ||
                                                                               tokens.at(2).is(T_ANGLE_STRING_LITERAL))) {
-                const SimpleToken &directiveToken = tokens.at(1);
-                QString directive = tc.block().text().mid(directiveToken.position(),
+                const Token &directiveToken = tokens.at(1);
+                QString directive = tc.block().text().mid(directiveToken.begin(),
                                                           directiveToken.length());
                 if (directive == QLatin1String("include") ||
                     directive == QLatin1String("include_next") ||

@@ -42,7 +42,6 @@ QT_END_NAMESPACE
 namespace CPlusPlus {
 
 class BackwardsScanner;
-class SimpleToken;
 
 class CPLUSPLUS_EXPORT ExpressionUnderCursor
 {
@@ -56,7 +55,7 @@ public:
 private:
     int startOfExpression(BackwardsScanner &tk, int index);
     int startOfExpression_helper(BackwardsScanner &tk, int index);
-    bool isAccessToken(const SimpleToken &tk);
+    bool isAccessToken(const Token &tk);
 
 private:
     bool _jumpedComma;

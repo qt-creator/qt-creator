@@ -56,7 +56,7 @@ int ExpressionUnderCursor::startOfExpression(BackwardsScanner &tk, int index)
     index = startOfExpression_helper(tk, index);
 
     if (_jumpedComma) {
-        const SimpleToken &tok = tk[index - 1];
+        const Token &tok = tk[index - 1];
 
         switch (tok.kind()) {
         case T_COMMA:
@@ -204,7 +204,7 @@ int ExpressionUnderCursor::startOfExpression_helper(BackwardsScanner &tk, int in
     return index;
 }
 
-bool ExpressionUnderCursor::isAccessToken(const SimpleToken &tk)
+bool ExpressionUnderCursor::isAccessToken(const Token &tk)
 {
     switch (tk.kind()) {
     case T_COLON_COLON:
@@ -237,12 +237,12 @@ int ExpressionUnderCursor::startOfFunctionCall(const QTextCursor &cursor) const
     int index = scanner.startToken();
 
     forever {
-        const SimpleToken &tk = scanner[index - 1];
+        const Token &tk = scanner[index - 1];
 
         if (tk.is(T_EOF_SYMBOL))
             break;
         else if (tk.is(T_LPAREN))
-            return scanner.startPosition() + tk.position();
+            return scanner.startPosition() + tk.begin();
         else if (tk.is(T_RPAREN)) {
             int matchingBrace = scanner.startOfMatchingBrace(index);
 
