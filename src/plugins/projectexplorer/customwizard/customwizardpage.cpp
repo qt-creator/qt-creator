@@ -155,7 +155,7 @@ QWidget *CustomWizardFieldPage::registerTextEdit(const QString &fieldName,
 } // QTextEdit
 
 QWidget *CustomWizardFieldPage::registerPathChooser(const QString &fieldName,
-                                                 const CustomWizardField &field)
+                                                 const CustomWizardField & /*field*/)
 {
     Utils::PathChooser *pathChooser = new Utils::PathChooser;
     registerField(fieldName, pathChooser, "path", SIGNAL(changed(QString)));
