@@ -1373,8 +1373,8 @@ class Dumper:
                     charptr = gdb.lookup_type("unsigned char").pointer()
                     addr1 = (baseptr+1).cast(charptr)
                     addr0 = baseptr.cast(charptr)
-                    self.putField("addrbase", cleanAddress(addr0))
-                    self.putField("addrstep", addr1 - addr0)
+                    self.putField("addrbase" % cleanAddress(addr0))
+                    self.putField("addrstep" % (addr1 - addr0))
 
                 innerType = None
                 if len(fields) == 1 and fields[0].name is None:
