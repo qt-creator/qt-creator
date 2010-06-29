@@ -48,9 +48,9 @@ namespace Internal {
   */
 
 InternalNode::InternalNode() :
-    m_valid(false),
     m_majorVersion(0),
-    m_minorVersion(0)
+    m_minorVersion(0),
+    m_valid(false)
 {
 }
 
