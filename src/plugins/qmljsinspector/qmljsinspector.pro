@@ -16,14 +16,16 @@ qmljsinspectorconstants.h \
 qmljsinspectorcontext.h \
 qmljsinspectorplugin.h \
 qmljsclientproxy.h \
-qmljsinspector.h
+qmljsinspector.h \
+qmljsdelta.h
 
 SOURCES += \
 qmljsdebuggerclient.cpp \
 qmljsinspectorcontext.cpp \
 qmljsinspectorplugin.cpp \
 qmljsclientproxy.cpp \
-qmljsinspector.cpp
+qmljsinspector.cpp \
+qmljsdelta.cpp
 
 OTHER_FILES += QmlJSInspector.pluginspec
 RESOURCES += qmljsinspector.qrc
