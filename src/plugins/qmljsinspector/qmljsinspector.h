@@ -60,11 +60,6 @@ namespace Internal {
 class ClientProxy;
 class InspectorContext;
 
-const int MaxConnectionAttempts = 50;
-const int ConnectionAttemptDefaultInterval = 75;
-// used when debugging with c++ - connection can take a lot of time
-const int ConnectionAttemptSimultaneousInterval = 500;
-
 class Inspector : public QObject
 {
     Q_OBJECT
@@ -76,12 +71,12 @@ public:
         QmlProjectWithCppPlugins
     };
 
+public:
     Inspector(QObject *parent = 0);
-    ~Inspector();
-
-    void shutdown();
+    virtual ~Inspector();
 
     bool connectToViewer(); // using host, port from widgets
+    void shutdown();
 
     // returns false if project is not debuggable.
     bool setDebugConfigurationDataFromProject(ProjectExplorer::Project *projectToDebug);
@@ -91,8 +86,8 @@ public:
                                                         const QString &propertyName, const QVariant &value);
 
     QDeclarativeDebugExpressionQuery *setBindingForObject(int objectDebugId, const QString &objectId,
-                                                     const QString &propertyName, const QVariant &value,
-                                                     bool isLiteralValue);
+                                                          const QString &propertyName, const QVariant &value,
+                                                          bool isLiteralValue);
 
 signals:
     void statusMessage(const QString &text);
@@ -135,14 +130,10 @@ private:
 
 private:
     QWeakPointer<QDeclarativeEngineDebug> m_client;
+    QmlProjectManager::QmlProjectRunConfigurationDebugData m_runConfigurationDebugData;
     InspectorContext *m_context;
-
     QTimer *m_connectionTimer;
     int m_connectionAttempts;
-
-    QmlProjectManager::QmlProjectRunConfigurationDebugData m_runConfigurationDebugData;
-
-    // simultaneous debug mode stuff
     int m_cppDebuggerState;
     bool m_connectionInitialized;
     bool m_simultaneousCppAndQmlDebugMode;

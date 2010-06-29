@@ -97,9 +97,16 @@
 #include <QtNetwork/QHostAddress>
 
 using namespace QmlJS::AST;
-
 using namespace QmlJSInspector::Internal;
 using namespace Debugger::Internal;
+
+enum {
+    MaxConnectionAttempts = 50,
+    ConnectionAttemptDefaultInterval = 75,
+
+    // used when debugging with c++ - connection can take a lot of time
+    ConnectionAttemptSimultaneousInterval = 500
+};
 
 Inspector::Inspector(QObject *parent)
     : QObject(parent),
