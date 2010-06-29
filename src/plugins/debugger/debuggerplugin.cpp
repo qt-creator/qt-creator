@@ -1524,9 +1524,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     // UI Switcher
     connect(m_uiSwitcher, SIGNAL(languageChanged(QString)),
         this, SLOT(languageChanged(QString)));
-    m_uiSwitcher->initialize();
-    m_watchersWindow->setVisible(false);
-    m_returnWindow->setVisible(false);
 
     disconnectEngine();
     return true;
@@ -1961,6 +1958,8 @@ void DebuggerPluginPrivate::setSimpleDockWidgetArrangement(const QString &active
             }
         }
 
+        mw->splitDockWidget(mw->toolBarDockWidget(), m_stackDock, Qt::Vertical);
+        mw->splitDockWidget(m_stackDock, m_watchDock, Qt::Horizontal);
         mw->tabifyDockWidget(m_watchDock, m_breakDock);
         mw->tabifyDockWidget(m_watchDock, m_modulesDock);
         mw->tabifyDockWidget(m_watchDock, m_registerDock);
@@ -2464,6 +2463,10 @@ void DebuggerPlugin::remoteCommand(const QStringList &options, const QStringList
 
 void DebuggerPlugin::extensionsInitialized()
 {
+    d->m_uiSwitcher->initialize();
+    d->m_watchersWindow->setVisible(false);
+    d->m_returnWindow->setVisible(false);
+
     // time gdb -i mi -ex 'debuggerplugin.cpp:800' -ex r -ex q bin/qtcreator.bin
     const QByteArray env = qgetenv("QTC_DEBUGGER_TEST");
     //qDebug() << "EXTENSIONS INITIALIZED:" << env;
@@ -2472,11 +2475,6 @@ void DebuggerPlugin::extensionsInitialized()
     if (d->m_attachRemoteParameters.attachPid
             || !d->m_attachRemoteParameters.attachCore.isEmpty())
         QTimer::singleShot(0, d, SLOT(attachCmdLine()));
-
-    //qDebug() << "EXTENSIONS INITIALIZED";
-    // Already done in initialize(). FIXME: Move stuff to here?
-    //readSettings();
-    //d->m_uiSwitcher->initialize();
 }
 
 QWidget *DebuggerPlugin::mainWindow() const

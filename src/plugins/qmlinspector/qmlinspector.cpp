@@ -770,6 +770,7 @@ void QmlInspector::setSimpleDockWidgetArrangement()
             dockWidget->show();
         }
     }
+    mainWindow->splitDockWidget(mainWindow->toolBarDockWidget(), m_propertyWatcherDock, Qt::Vertical);
     //mainWindow->tabifyDockWidget(m_frameRateDock, m_propertyWatcherDock);
     mainWindow->tabifyDockWidget(m_propertyWatcherDock, m_expressionQueryDock);
     mainWindow->tabifyDockWidget(m_propertyWatcherDock, m_inspectorOutputDock);
