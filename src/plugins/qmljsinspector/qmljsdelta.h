@@ -41,7 +41,21 @@ namespace Internal {
 class Delta
 {
 public:
+    struct Change {
+        Change(): script(0), isLiteral(false) {}
+
+        QmlJS::AST::UiScriptBinding *script;
+        bool isLiteral;
+        QDeclarativeDebugObjectReference ref;
+    };
+
+public:
     void operator()(QmlJS::Document::Ptr doc, QmlJS::Document::Ptr previousDoc);
+
+    QList<Change> changes() const;
+
+    QmlJS::Document::Ptr document() const;
+    QmlJS::Document::Ptr previousDocument() const;
 
 private:
     void updateScriptBinding(const QDeclarativeDebugObjectReference &objectReference,
@@ -51,6 +65,11 @@ private:
 
     bool compare(QmlJS::AST::UiQualifiedId *id, QmlJS::AST::UiQualifiedId *other);
     QmlJS::AST::UiObjectMemberList *objectMembers(QmlJS::AST::UiObjectMember *object);
+
+private:
+    QmlJS::Document::Ptr _doc;
+    QmlJS::Document::Ptr _previousDoc;
+    QList<Change> _changes;
 };
 
 } // namespace Internal

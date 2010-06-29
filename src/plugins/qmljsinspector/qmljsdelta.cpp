@@ -331,6 +331,10 @@ static QString propertyName(UiQualifiedId *id)
 
 void Delta::operator()(Document::Ptr doc, Document::Ptr previousDoc)
 {
+    _doc = doc;
+    _previousDoc = previousDoc;
+    _changes.clear();
+
     const QUrl url = QUrl::fromLocalFile(doc->fileName());
     ScriptBindingParser bindingParser(doc, ClientProxy::instance()->objectReferences(url));
     bindingParser.process();
@@ -399,18 +403,26 @@ void Delta::operator()(Document::Ptr doc, Document::Ptr previousDoc)
 }
 
 void Delta::updateScriptBinding(const QDeclarativeDebugObjectReference &objectReference,
-                                UiScriptBinding *scriptBinding, const QString &propertyName, const QString &scriptCode)
+                                UiScriptBinding *scriptBinding,
+                                const QString &propertyName,
+                                const QString &scriptCode)
 {
     qDebug() << "update script:" << propertyName << scriptCode << scriptBinding;
 
     QVariant expr = scriptCode;
     //qDebug() << "   " << scriptBinding->statement->kind << typeid(*scriptBinding->statement).name();
 
-    bool isLiteral = isLiteralValue(scriptBinding);
+    const bool isLiteral = isLiteralValue(scriptBinding);
     if (isLiteral)
         expr = castToLiteral(scriptCode, scriptBinding);
 
-    ClientProxy::instance()->setBindingForObject(objectReference.debugId(), propertyName, expr, isLiteral);
+    Change change;
+    change.script = scriptBinding;
+    change.ref = objectReference;
+    change.isLiteral = isLiteral;
+    _changes.append(change);
+
+    ClientProxy::instance()->setBindingForObject(objectReference.debugId(), propertyName, expr, isLiteral); // ### remove
 }
 
 bool Delta::compare(UiQualifiedId *id, UiQualifiedId *other)
@@ -436,4 +448,19 @@ UiObjectMemberList *Delta::objectMembers(UiObjectMember *object)
         return binding->initializer->members;
 
     return 0;
+}
+
+Document::Ptr Delta::document() const
+{
+    return _doc;
+}
+
+Document::Ptr Delta::previousDocument() const
+{
+    return _previousDoc;
+}
+
+QList<Delta::Change> Delta::changes() const
+{
+    return _changes;
 }
