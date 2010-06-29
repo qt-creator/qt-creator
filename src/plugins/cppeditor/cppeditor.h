@@ -292,7 +292,6 @@ private:
 
     CppTools::CppModelManagerInterface *m_modelManager;
 
-    QList<int> m_contexts;
     QComboBox *m_methodCombo;
     CPlusPlus::OverviewModel *m_overviewModel;
     QSortFilterProxyModel *m_proxyModel;
