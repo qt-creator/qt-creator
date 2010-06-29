@@ -496,10 +496,10 @@ void Inspector::debuggerStateChanged(int newState)
 
 void Inspector::reloadQmlViewer()
 {
-    qDebug() << "TODO:" << Q_FUNC_INFO;
-    int currentEngineId = 0;
+    qDebug() << Q_FUNC_INFO;
+    qDebug() << "TODO: set up the current engine id and restart the viewer";
 #warning set up the current engine id
-    m_clientProxy->reloadQmlViewer(currentEngineId);
+    // m_clientProxy->reloadQmlViewer(currentEngineId);
 }
 
 void Inspector::setSimpleDockWidgetArrangement()
