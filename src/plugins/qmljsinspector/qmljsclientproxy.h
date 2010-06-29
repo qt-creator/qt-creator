@@ -30,9 +30,8 @@
 #define QMLJSCLIENTPROXY_H
 
 #include "qmljsinspectorplugin.h"
-
-#include <private/qdeclarativedebug_p.h>
-#include <QObject>
+#include "qmljsprivateapi.h"
+#include <QtCore/QObject>
 
 QT_FORWARD_DECLARE_CLASS(QUrl)
 QT_FORWARD_DECLARE_CLASS(QDeclarativeEngineDebug)

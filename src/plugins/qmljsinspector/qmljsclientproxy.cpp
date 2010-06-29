@@ -28,11 +28,9 @@
 **************************************************************************/
 #include "qmljsclientproxy.h"
 #include "qmljsdebuggerclient.h"
+#include "qmljsprivateapi.h"
 
 #include <utils/qtcassert.h>
-
-#include <private/qdeclarativedebug_p.h>
-#include <private/qdeclarativedebugclient_p.h>
 
 #include <QUrl>
 #include <QAbstractSocket>

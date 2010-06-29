@@ -9,6 +9,7 @@ include(../../private_headers.pri)
 DEFINES += QMLJSINSPECTOR_LIBRARY
 
 HEADERS += \
+qmljsprivateapi.h \
 qmljsdebuggerclient.h \
 qmljsinspector_global.h \
 qmljsinspectorconstants.h \

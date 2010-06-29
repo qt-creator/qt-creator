@@ -26,38 +26,10 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-#ifndef QMLJSDEBUGGERCLIENT_H
-#define QMLJSDEBUGGERCLIENT_H
+#ifndef QMLJSPRIVATEAPI_H
+#define QMLJSPRIVATEAPI_H
 
-#include "qmljsprivateapi.h"
-#include <debugger/qml/qmlengine.h>
-#include <debugger/stackframe.h>
-#include <debugger/stackhandler.h>
-#include <debugger/debuggerrunner.h>
+#include <private/qdeclarativedebug_p.h>
+#include <private/qdeclarativedebugclient_p.h>
 
-namespace QmlJSInspector {
-namespace Internal {
-
-class DebuggerClient : public QDeclarativeDebugClient
-{
-    Q_OBJECT
-
-public:
-    DebuggerClient(QDeclarativeDebugConnection *client, Debugger::Internal::QmlEngine *engine);
-    virtual ~DebuggerClient();
-
-public: // attributes
-    QDeclarativeDebugConnection *connection;
-    Debugger::Internal::QmlEngine *engine;
-
-private Q_SLOTS:
-    void slotSendMessage(const QByteArray &message);
-
-protected:
-    virtual void messageReceived(const QByteArray &data);
-};
-
-} // Internal
-} // QmlJSInspector
-
-#endif // QMLJSDEBUGGERCLIENT_H
+#endif // QMLJSPRIVATEAPI_H
