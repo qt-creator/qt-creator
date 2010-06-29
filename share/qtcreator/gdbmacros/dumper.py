@@ -1419,8 +1419,8 @@ class Dumper:
                     charptr = lookupType("unsigned char").pointer()
                     addr1 = (baseptr+1).cast(charptr)
                     addr0 = baseptr.cast(charptr)
-                    self.put('addrbase="%s",', cleanAddress(addr0))
-                    self.put('addrstep="%s",', addr1 - addr0)
+                    self.put('addrbase="%s",' % cleanAddress(addr0))
+                    self.put('addrstep="%s",' % (addr1 - addr0))
 
                 innerType = None
                 if len(fields) == 1 and fields[0].name is None:
