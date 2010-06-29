@@ -227,11 +227,13 @@ void testArray()
             d[i][j] = i + j;
 #endif
 
+#if 1
     char c[20];
     c[0] = 'a';
     c[1] = 'b';
     c[2] = 'c';
     c[3] = 'd';
+#endif
 
 #if 1
     QString s[20];
@@ -239,7 +241,17 @@ void testArray()
     s[1] = "b";
     s[2] = "c";
     s[3] = "d";
+#endif
 
+#if 1
+    QByteArray b[20];
+    b[0] = "a";
+    b[1] = "b";
+    b[2] = "c";
+    b[3] = "d";
+#endif
+
+#if 1
     Foo foo[10];
     //for (int i = 0; i != sizeof(foo)/sizeof(foo[0]); ++i) {
     for (int i = 0; i < 5; ++i) {

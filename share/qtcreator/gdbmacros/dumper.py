@@ -210,7 +210,7 @@ class SubItem:
             if len(type) > 0 and type != self.d.currentChildType:
                 self.d.put('type="%s",' % type) # str(type.unqualified()) ?
             if not self.d.currentValueEncoding is None:
-                self.d.put('valueencoded="%d",', self.d.currentValueEncoding)
+                self.d.put('valueencoded="%d",' % self.d.currentValueEncoding)
             if not self.d.currentValue is None:
                 self.d.put('value="%s",' % self.d.currentValue)
         except:
@@ -1106,7 +1106,7 @@ class Dumper:
     def childRange(self):
         return xrange(qmin(self.currentMaxNumChilds, self.currentNumChilds))
 
-    # convenience
+    # Convenience function.
     def putItemCount(self, count):
         # This needs to override the default value, so don't use 'put' directly.
         self.putValue('<%s items>' % count)
@@ -1129,7 +1129,7 @@ class Dumper:
             self.put('numchild="%s",' % numchild)
 
     def putValue(self, value, encoding = None, priority = 0):
-        # higher priority values override lower ones 
+        # Higher priority values override lower ones.
         if priority >= self.currentValuePriority:
             self.currentValue = value
             self.currentValuePriority = priority
@@ -1155,7 +1155,7 @@ class Dumper:
 
     def putByteArrayValue(self, value):
         str = encodeByteArray(value)
-        self.put('valueencoded="%d",value="%s",' % (Hex2EncodedLatin1, str))
+        self.putValue(str, Hex2EncodedLatin1)
 
     def putName(self, name):
         self.put('name="%s",' % name)
@@ -1341,7 +1341,7 @@ class Dumper:
                     isHandled = True
 
                 target = stripTypedefs(type.target())
-                if (not isHandled) and target.code == TYPE_CODE_VOID:
+                if (not isHandled) and target.code == gdb.TYPE_CODE_VOID:
                     self.putType(item.value.type)
                     self.putValue(str(value))
                     self.putNumChild(0)
@@ -1463,7 +1463,7 @@ class Dumper:
                         item.iname, "@%d" % baseNumber, field.name)
                     baseNumber += 1
                     with SubItem(self):
-                        self.put('iname="%s",', child.iname)
+                        self.put('iname="%s",' % child.iname)
                         self.putItemHelper(child)
                 elif len(field.name) == 0:
                     # Anonymous union. We need a dummy name to distinguish
