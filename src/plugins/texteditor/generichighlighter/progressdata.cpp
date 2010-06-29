@@ -38,9 +38,9 @@ ProgressData::ProgressData() :
     m_offset(0),
     m_savedOffset(-1),
     m_onlySpacesSoFar(true),
-    m_willContinueLine(false),
     m_openingBraceMatchAtFirstNonSpace(false),
-    m_closingBraceMatchAtNonEnd(false)
+    m_closingBraceMatchAtNonEnd(false),
+    m_willContinueLine(false)
 {}
 
 void ProgressData::setOffset(const int offset)
