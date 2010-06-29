@@ -336,9 +336,12 @@ void Delta::operator()(Document::Ptr doc, Document::Ptr previousDoc)
     _changes.clear();
 
     const QUrl url = QUrl::fromLocalFile(doc->fileName());
-    ScriptBindingParser bindingParser(doc, ClientProxy::instance()->objectReferences(url));
+    const QList<QDeclarativeDebugObjectReference> references = ClientProxy::instance()->objectReferences(url);
+
+    ScriptBindingParser bindingParser(doc, references);
     bindingParser.process();
-    ScriptBindingParser previousBindingParser(previousDoc, ClientProxy::instance()->objectReferences(url));
+
+    ScriptBindingParser previousBindingParser(previousDoc, references);
     previousBindingParser.process();
 
     QHash<UiObjectMember *, UiObjectMember *> preservedObjects;
