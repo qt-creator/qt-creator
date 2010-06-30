@@ -315,6 +315,7 @@ private: ////////// Inferior Management //////////
     void handleExecuteStep(const GdbResponse &response);
     void handleExecuteNext(const GdbResponse &response);
     void handleExecuteReturn(const GdbResponse &response);
+    void handleExecuteJumpToLine(const GdbResponse &response);
 
     qint64 inferiorPid() const { return m_manager->inferiorPid(); }
     void handleInferiorPidChanged(qint64 pid) { manager()->notifyInferiorPidChanged(pid); }
