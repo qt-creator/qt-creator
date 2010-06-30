@@ -33,6 +33,7 @@
 #include "idebuggerengine.h"
 #include "debuggermanager.h" // only for StartParameters
 #include "gdbmi.h"
+#include "stackframe.h"
 #include "watchutils.h"
 
 #include <QtCore/QByteArray>
@@ -307,7 +308,6 @@ private: ////////// Inferior Management //////////
 
     virtual void executeRunToLine(const QString &fileName, int lineNumber);
     virtual void executeRunToFunction(const QString &functionName);
-//    void handleExecRunToFunction(const GdbResponse &response);
     virtual void executeJumpToLine(const QString &fileName, int lineNumber);
     virtual void executeReturn();
 
@@ -316,6 +316,8 @@ private: ////////// Inferior Management //////////
     void handleExecuteNext(const GdbResponse &response);
     void handleExecuteReturn(const GdbResponse &response);
     void handleExecuteJumpToLine(const GdbResponse &response);
+    void handleExecuteRunToLine(const GdbResponse &response);
+    //void handleExecuteRunToFunction(const GdbResponse &response);
 
     qint64 inferiorPid() const { return m_manager->inferiorPid(); }
     void handleInferiorPidChanged(qint64 pid) { manager()->notifyInferiorPidChanged(pid); }
@@ -529,6 +531,9 @@ private: ////////// Convenience Functions //////////
     static QString m_toolTipExpression;
     static QPoint m_toolTipPos;
     static QByteArray tooltipINameForExpression(const QByteArray &exp);
+
+    // HACK:
+    StackFrame m_targetFrame;
 };
 
 } // namespace Internal
