@@ -926,7 +926,10 @@ int CppQuickFixOperation::match(TextEditor::QuickFixState *state)
 Utils::ChangeSet::Range CppQuickFixOperation::range(unsigned tokenIndex) const
 {
     const CPlusPlus::Token &token = tokenAt(tokenIndex);
-    return Utils::ChangeSet::Range(token.begin(), token.end());
+    unsigned line, column;
+    _document->translationUnit()->getPosition(token.begin(), &line, &column);
+    const int start = editor()->document()->findBlockByNumber(line - 1).position() + column - 1;
+    return Utils::ChangeSet::Range(start, start + token.length());
 }
 
 Utils::ChangeSet::Range CppQuickFixOperation::range(CPlusPlus::AST *ast) const
