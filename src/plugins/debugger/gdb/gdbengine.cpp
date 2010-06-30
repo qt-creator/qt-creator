@@ -972,15 +972,12 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
         || response->resultClass == ((cmd.flags & RunRequest) ? GdbResultRunning :
                                   (cmd.flags & ExitRequest) ? GdbResultExit :
                                   GdbResultDone)
-        // Happens with some incarnations of gdb 6.8:
+        // Happens with some incarnations of gdb 6.8 for "run to line"
+        || (response->resultClass == GdbResultDone && cmd.command == "continue")
+        // Happens with some incarnations of gdb 6.8 for "jump to line"
         || (response->resultClass == GdbResultDone && cmd.command.startsWith("jump"));
 
-    if (isExpectedResult) {
-        if (cmd.callback)
-            (this->*cmd.callback)(*response);
-        else if (cmd.adapterCallback)
-            (m_gdbAdapter->*cmd.adapterCallback)(*response);
-    } else {
+    if (!isExpectedResult) {
 #ifdef Q_OS_WIN
         // Ignore spurious 'running' responses to 'attach'
         const bool warning = !(startParameters().startMode == AttachExternal
@@ -995,6 +992,11 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
             showMessage(_(rsp));
         }
     }
+
+    if (cmd.callback)
+        (this->*cmd.callback)(*response);
+    else if (cmd.adapterCallback)
+        (m_gdbAdapter->*cmd.adapterCallback)(*response);
 
     if (cmd.flags & RebuildWatchModel) {
         --m_pendingWatchRequests;
@@ -1103,21 +1105,41 @@ void GdbEngine::handleExecuteJumpToLine(const GdbResponse &response)
     }
 }
 
-//void GdbEngine::handleExecRunToFunction(const GdbResponse &response)
-//{
-//    // FIXME: remove this special case as soon as there's a real
-//    // reason given when the temporary breakpoint is hit.
-//    // reight now we get:
-//    // 14*stopped,thread-id="1",frame={addr="0x0000000000403ce4",
-//    // func="foo",args=[{name="str",value="@0x7fff0f450460"}],
-//    // file="main.cpp",fullname="/tmp/g/main.cpp",line="37"}
-//    QTC_ASSERT(state() == InferiorStopping, qDebug() << state())
-//    setState(InferiorStopped);
-//    showStatusMessage(tr("Function reached. Stopped"));
-//    GdbMi frame = response.data.findChild("frame");
-//    StackFrame f = parseStackFrame(frame, 0);
-//    gotoLocation(f, true);
-//}
+void GdbEngine::handleExecuteRunToLine(const GdbResponse &response)
+{
+    if (response.resultClass == GdbResultRunning) {
+        // All is fine. Waiting for the temporary breakpoint to be hit.
+    } else if (response.resultClass == GdbResultDone) {
+        // This happens on old gdb. Trigger the effect of a '*stopped'.
+        // >&"continue\n"
+        // >~"Continuing.\n"
+        //>~"testArray () at ../simple/app.cpp:241\n"
+        //>~"241\t    s[1] = \"b\";\n"
+        //>122^done
+        gotoLocation(m_targetFrame, true);
+        showStatusMessage(tr("Target line hit. Stopped"));
+        setState(InferiorStopped);
+        handleStop1(response);
+    }
+}
+
+/*
+void GdbEngine::handleExecuteRunToFunction(const GdbResponse &response)
+{
+    // FIXME: remove this special case as soon as there's a real
+    // reason given when the temporary breakpoint is hit.
+    // reight now we get:
+    // 14*stopped,thread-id="1",frame={addr="0x0000000000403ce4",
+    // func="foo",args=[{name="str",value="@0x7fff0f450460"}],
+    // file="main.cpp",fullname="/tmp/g/main.cpp",line="37"}
+    QTC_ASSERT(state() == InferiorStopping, qDebug() << state())
+    setState(InferiorStopped);
+    showStatusMessage(tr("Function reached. Stopped"));
+    GdbMi frame = response.data.findChild("frame");
+    StackFrame f = parseStackFrame(frame, 0);
+    gotoLocation(f, true);
+}
+*/
 
 static bool isExitedReason(const QByteArray &reason)
 {
@@ -1943,10 +1965,12 @@ void GdbEngine::executeRunToLine(const QString &fileName, int lineNumber)
     setState(InferiorRunningRequested);
     showStatusMessage(tr("Run to line %1 requested...").arg(lineNumber), 5000);
 #if 1
+    m_targetFrame.file = fileName;
+    m_targetFrame.line = lineNumber;
     QByteArray loc = '"' + breakLocation(fileName).toLocal8Bit() + '"' + ':'
         + QByteArray::number(lineNumber);
     postCommand("tbreak " + loc);
-    postCommand("continue", RunRequest);
+    postCommand("continue", RunRequest, CB(handleExecuteRunToLine));
 #else
     // Seems to jump to unpredicatable places. Observed in the manual
     // tests in the Foo::Foo() constructor with both gdb 6.8 and 7.1.
@@ -1963,7 +1987,7 @@ void GdbEngine::executeRunToFunction(const QString &functionName)
     postCommand("-break-insert -t " + functionName.toLatin1());
     continueInferiorInternal();
     //setState(InferiorRunningRequested);
-    //postCommand("-exec-continue", handleExecRunToFunction);
+    //postCommand("-exec-continue", handleExecuteRunToFunction);
     showStatusMessage(tr("Run to function %1 requested...").arg(functionName), 5000);
 }
 
@@ -1989,7 +2013,7 @@ void GdbEngine::executeJumpToLine(const QString &fileName, int lineNumber)
     //setBreakpoint();
     //postCommand("jump " + loc);
 #else
-    gotoLocation(frame,  true);
+    gotoLocation(frame, true);
     setBreakpoint(fileName, lineNumber);
     setState(InferiorRunningRequested);
     postCommand("jump " + loc, RunRequest);
