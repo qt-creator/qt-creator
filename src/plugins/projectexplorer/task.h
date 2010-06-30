@@ -51,11 +51,8 @@ public:
     Task();
     Task(TaskType type_, const QString &description_,
          const QString &file_, int line_, const QString &category_);
-    Task(const Task &source);
-    ~Task();
 
-    Task &operator=(const Task &source);
-
+    unsigned int taskId;
     TaskType type;
     QString description;
     QString file;
@@ -70,6 +67,8 @@ public:
     // doesn't work if you split it up, nor are our parsers
     // anywhere near being that good
     QList<QTextLayout::FormatRange> formats;
+private:
+    static unsigned int s_nextId;
 };
 
 bool operator==(const Task &t1, const Task &t2);

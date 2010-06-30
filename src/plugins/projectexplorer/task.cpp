@@ -32,31 +32,19 @@
 namespace ProjectExplorer
 {
 
-Task::Task() : type(Unknown), line(-1)
-{ }
+unsigned int Task::s_nextId = 0;
+
+Task::Task() : taskId(s_nextId), type(Unknown), line(-1)
+{
+    ++s_nextId;
+}
 
 Task::Task(TaskType type_, const QString &description_,
            const QString &file_, int line_, const QString &category_) :
-    type(type_), description(description_), file(file_), line(line_), category(category_)
-{ }
-
-Task::Task(const Task &source) :
-    type(source.type), description(source.description), file(source.file),
-    line(source.line), category(source.category), formats(source.formats)
-{ }
-
-Task::~Task()
-{ }
-
-Task &Task::operator=(const Task &source)
+    taskId(s_nextId), type(type_), description(description_), file(file_),
+    line(line_), category(category_)
 {
-    type = source.type;
-    description = source.description;
-    file = source.file;
-    line = source.line;
-    category = source.category;
-    formats = source.formats;
-    return *this;
+    ++s_nextId;
 }
 
 //
@@ -64,19 +52,12 @@ Task &Task::operator=(const Task &source)
 //
 bool operator==(const Task &t1, const Task &t2)
 {
-    return t1.type == t2.type
-            && t1.line == t2.line
-            && t1.description == t2.description
-            && t1.file == t2.file
-            && t1.category == t2.category;
+    return t1.taskId == t2.taskId;
 }
 
 uint qHash(const Task &task)
 {
-    return static_cast<int>(task.type) +
-           task.line +
-           qHash(task.file) +
-           qHash(task.category);
+    return task.taskId;
 }
 
 } // namespace ProjectExplorer
