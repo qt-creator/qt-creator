@@ -436,7 +436,6 @@ void DebuggerOutputWindow::showInput(int channel, const QString &input)
     cursor.movePosition(QTextCursor::End);
     m_inputText->setTextCursor(cursor);
     m_inputText->ensureCursorVisible();
-    showOutput(LogInput, input);
 }
 
 void DebuggerOutputWindow::clearContents()

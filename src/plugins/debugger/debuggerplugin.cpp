@@ -2397,16 +2397,16 @@ void DebuggerPlugin::showMessage(const QString &msg, int channel, int timeout)
     QTC_ASSERT(ow, return);
     switch (channel) {
         case StatusBar:
+            // This will append to ow's output pane, too.
             d->showStatusMessage(msg, timeout);
-            ow->showOutput(LogStatus, msg);
             break;
         case LogMiscInput:
             ow->showInput(LogMisc, msg);
             ow->showOutput(LogMisc, msg);
             break;
         case LogInput:
-            ow->showInput(channel, msg);
-            ow->showOutput(channel, msg);
+            ow->showInput(LogInput, msg);
+            ow->showOutput(LogInput, msg);
             break;
         default:
             ow->showOutput(channel, msg);

@@ -461,10 +461,9 @@ void DebuggerRunControl::start()
     }
 
     plugin()->activateDebugMode();
-
-    showMessage(tr("Starting debugger for tool chain '%1'...")
-        .arg(toolChainName(sp.toolChainType)), LogStatus);
-    showMessage(DebuggerSettings::instance()->dump(), LogDebug);
+    plugin()->showMessage(tr("Starting debugger for tool chain '%1'...")
+        .arg(toolChainName(sp.toolChainType)), StatusBar);
+    plugin()->showMessage(DebuggerSettings::instance()->dump(), LogDebug);
 
     engine()->startDebugger(this);
 }
