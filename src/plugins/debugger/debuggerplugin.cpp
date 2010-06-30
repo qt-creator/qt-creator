@@ -1082,7 +1082,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_actions.jumpToLineAction1 = new QAction(tr("Jump to Line"), this);
     m_actions.jumpToLineAction1->setProperty(Role, RequestExecJumpToLineRole);
     m_actions.jumpToLineAction2 = new QAction(tr("Jump to Line"), this);
-    m_actions.jumpToLineAction1->setProperty(Role, RequestExecJumpToLineRole);
+    m_actions.jumpToLineAction2->setProperty(Role, RequestExecJumpToLineRole);
 
     m_actions.breakAction = new QAction(tr("Toggle Breakpoint"), this);
 
