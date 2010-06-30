@@ -33,6 +33,8 @@
 #include <QtCore/QMap>
 #include <QtCore/QByteArray>
 #include <QtCore/QMetaType>
+#include <QtCore/QVector>
+#include <QtCore/QPair>
 
 QT_BEGIN_NAMESPACE
 class QDebug;
@@ -48,7 +50,8 @@ QT_END_NAMESPACE
 
 namespace Debugger {
 namespace Internal {
-
+class RegisterHandler;
+class ThreadsHandler;
 struct GdbResult {
     QByteArray data;
 };
@@ -100,17 +103,62 @@ inline bool isReadOnly(const MemoryRange &mr)
     return  mr.from >= 0x70000000 && mr.to < 0x80000000;
 }
 
+// Snapshot thread with cached registers
+struct Thread {
+    explicit Thread(unsigned id = 0);
+
+    void resetRegisters();
+    // Gdb helpers for reporting values
+    QByteArray gdbReportRegisters() const;
+    QByteArray gdbRegisterLogMessage(bool verbose) const;
+    QByteArray gdbReportSingleRegister(unsigned i) const;
+    QByteArray gdbSingleRegisterLogMessage(unsigned i) const;
+
+    uint id;
+    uint registers[RegisterCount];
+    bool registerValid;
+    QString state; // Stop reason, for qsThreadExtraInfo
+};
+
 struct Snapshot
 {
-    Snapshot() { reset(); }
+    Snapshot();
 
-    void reset(); // Leaves read-only memory cache alive.
-    void fullReset(); // Also removes read-only memory cache.
+    void reset(); // Leaves read-only memory cache and threads alive.
+    void resetMemory(); // Completely clears memory, leaves threads alive.
+    void fullReset(); // Clear everything.
     void insertMemory(const MemoryRange &range, const QByteArray &ba);
     QString toString() const;
 
-    uint registers[RegisterCount];
-    bool registerValid;
+    // Helpers to format gdb query packets
+    QByteArray gdbQsThreadInfo() const;
+    QByteArray gdbQThreadExtraInfo(const QByteArray &cmd) const;
+    // Format a gdb T05 stop message with thread and register set
+    QByteArray gdbStopMessage(uint threadId, bool reportThreadId) const;
+    // Format a log message for memory access with some smartness about registers
+    QByteArray memoryReadLogMessage(uint addr, uint threadId, bool verbose, const QByteArray &ba) const;
+    // Gdb command parse helpers: 'salnext'
+    void parseGdbStepRange(const QByteArray &cmd, bool stepOver);
+
+    void addThread(uint threadId);
+    void removeThread(uint threadId);
+    int indexOfThread(uint threadId) const;
+    // Access registers by thread
+    const uint *registers(uint threadId) const;
+    uint *registers(uint threadId);
+    uint registerValue(uint threadId, uint index);
+    void setRegisterValue(uint threadId, uint index, uint value);
+    bool registersValid(uint threadId) const;
+    void setRegistersValid(uint threadId, bool e);
+    void setThreadState(uint threadId, const QString&);
+
+    // Debugger view helpers: Synchronize registers of thread with register handler.
+    void syncRegisters(uint threadId, RegisterHandler *handler) const;
+    // Debugger view helpers: Synchronize threads with threads handler.
+    void syncThreads(ThreadsHandler *handler) const;
+
+    QVector<Thread> threadInfo;
+
     typedef QMap<MemoryRange, QByteArray> Memory;
     Memory memory;
 
@@ -136,7 +184,21 @@ struct Breakpoint
     CodeMode mode;
 };
 
+// Gdb helpers
+extern const char *gdbQSupported;
+extern const char *gdbArchitectureXml;
+
+QVector<QByteArray> gdbStartupSequence();
+
 } // namespace Symbian
+
+// Generic gdb server helpers: read 'm','X' commands.
+QPair<quint64, unsigned> parseGdbReadMemoryRequest(const QByteArray &cmd);
+// Parse 'register write' ('P') request, return register number/value
+QPair<uint, uint> parseGdbWriteRegisterWriteRequest(const QByteArray &cmd);
+// Parse 'set breakpoint' ('Z0') request, return address/length
+QPair<quint64, unsigned> parseGdbSetBreakpointRequest(const QByteArray &cmd);
+
 } // namespace Internal
 } // namespace Debugger
 

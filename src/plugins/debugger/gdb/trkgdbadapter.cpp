@@ -72,19 +72,19 @@ using namespace Symbian;
 
 static inline void appendByte(QByteArray *ba, trk::byte b) { ba->append(b); }
 
-static void appendRegister(QByteArray *ba, uint regno, uint value)
-{
-    ba->append(hexNumber(regno, 2));
-    ba->append(':');
-    ba->append(hexNumber(swapEndian(value), 8));
-    ba->append(';');
-}
-
 ///////////////////////////////////////////////////////////////////////////
 //
 // TrkGdbAdapter
 //
 ///////////////////////////////////////////////////////////////////////////
+
+/* Thread handling:
+ * TRK does not report thread creation/termination. So, if we receive
+ * a stop in a different thread, we store an additional thread in snapshot.
+ * When continuing in trkContinueAll(), we delete this thread, since we cannot
+ * know whether it will exist at the next stop.
+ * Also note that threads continue running in Symbian even if one crashes.
+ * TODO: Stop all threads once one stops? */
 
 TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine) :
     AbstractGdbAdapter(engine),
@@ -156,11 +156,11 @@ uint TrkGdbAdapter::gdbServerPort() const
     return m_gdbServerName.mid(pos + 1).toUInt();
 }
 
-QByteArray TrkGdbAdapter::trkContinueMessage()
+QByteArray TrkGdbAdapter::trkContinueMessage(uint threadId)
 {
     QByteArray ba;
     appendInt(&ba, m_session.pid);
-    appendInt(&ba, m_session.tid);
+    appendInt(&ba, threadId);
     return ba;
 }
 
@@ -222,7 +222,7 @@ QByteArray TrkGdbAdapter::trkStepRangeMessage()
     //qDebug() << "STEP ON " << hexxNumber(m_snapshot.registers[RegisterPC]);
     uint from = m_snapshot.lineFromAddress;
     uint to = m_snapshot.lineToAddress;
-    uint pc = m_snapshot.registers[RegisterPC];
+    const uint pc = m_snapshot.registerValue(m_session.tid, RegisterPC);
     trk::byte option = 0x01; // Step into.
     if (m_snapshot.stepOver)
         option = 0x11;  // Step over.
@@ -265,7 +265,7 @@ QByteArray TrkGdbAdapter::trkInterruptMessage()
     // We choose 2, as 1 does not seem to work.
     appendByte(&ba, 2);
     appendInt(&ba, m_session.pid);
-    appendInt(&ba, m_session.tid); // threadID: 4 bytes Variable number of bytes.
+    appendInt(&ba, m_session.mainTid); // threadID: 4 bytes Variable number of bytes.
     return ba;
 }
 
@@ -504,26 +504,22 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
     else if (cmd == "c") {
         logMessage(msgGdbPacket(QLatin1String("Continue")));
         sendGdbServerAck();
-        QByteArray ba;
-        appendByte(&ba, 0); // options
-        appendInt(&ba, 0); // start address
-        appendInt(&ba, 0); // end address
-        appendInt(&ba, m_session.pid);
-        appendInt(&ba, m_session.tid);
-        sendTrkMessage(0x18, TrkCallback(), ba);
+        m_running = true;
+        trkContinueAll("gdb 'c'");
     }
 
     else if (cmd.startsWith('C')) {
         logMessage(msgGdbPacket(QLatin1String("Continue with signal")));
         // C sig[;addr] Continue with signal sig (hex signal number)
         //Reply: See section D.3 Stop Reply Packets, for the reply specifications.
+        //TODO: Meaning of the message is not clear.
         sendGdbServerAck();
         bool ok = false;
-        uint signalNumber = cmd.mid(1).toUInt(&ok, 16);
-        QByteArray ba;
-        appendInt(&ba, m_session.pid);
-        appendInt(&ba, m_session.tid);
-        sendTrkMessage(0x18, TrkCB(handleSignalContinue), ba, signalNumber);
+        const uint signalNumber = cmd.mid(1).toUInt(&ok, 16);
+        logMessage(QString::fromLatin1("Not implemented 'Continue with signal' %1: ").arg(signalNumber), LogWarning);
+        sendGdbServerMessage("O" + QByteArray("Console output").toHex());
+        sendGdbServerMessage("W81"); // "Process exited with result 1
+        trkContinueAll("gdb 'C'");
     }
 
     else if (cmd.startsWith('D')) {
@@ -533,7 +529,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
 
     else if (cmd == "g") {
         // Read general registers.
-        if (m_snapshot.registerValid) {
+        if (m_snapshot.registersValid(m_session.tid)) {
             //qDebug() << "Using cached register contents";
             logMessage(msgGdbPacket(QLatin1String("Read registers")));
             sendGdbServerAck();
@@ -550,7 +546,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
     else if (cmd == "gg") {
         // Force re-reading general registers for debugging purpose.
         sendGdbServerAck();
-        m_snapshot.registerValid = false;
+        m_snapshot.setRegistersValid(m_session.tid, false);
         sendTrkMessage(0x12,
             TrkCB(handleAndReportReadRegisters),
             trkReadRegistersMessage());
@@ -559,41 +555,25 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
     else if (cmd.startsWith("salstep,")) {
         // Receive address range for current line for future use when stepping.
         sendGdbServerAck();
-        int pos = cmd.indexOf(',', 8);
-        m_snapshot.lineFromAddress = cmd.mid(8, pos - 8).toUInt(0, 16);
-        m_snapshot.lineToAddress = cmd.mid(pos + 1).toUInt(0, 16);
-        m_snapshot.stepOver = false;
+        m_snapshot.parseGdbStepRange(cmd, false);
         sendGdbServerMessage("", msgStepRangeReceived(m_snapshot.lineFromAddress, m_snapshot.lineToAddress, m_snapshot.stepOver));
     }
 
     else if (cmd.startsWith("salnext,")) {
         // Receive address range for current line for future use when stepping.
         sendGdbServerAck();
-        int pos = cmd.indexOf(',', 8);
-        m_snapshot.lineFromAddress = cmd.mid(8, pos - 8).toUInt(0, 16);
-        m_snapshot.lineToAddress = cmd.mid(pos + 1).toUInt(0, 16);
-        m_snapshot.stepOver = true;
+        m_snapshot.parseGdbStepRange(cmd, true);
         sendGdbServerMessage("", msgStepRangeReceived(m_snapshot.lineFromAddress, m_snapshot.lineToAddress, m_snapshot.stepOver));
     }
 
     else if (cmd.startsWith("Hc")) {
-        logMessage(msgGdbPacket(QLatin1String("Set thread & continue")));
-        // Set thread for subsequent operations (`m', `M', `g', `G', et.al.).
-        // for step and continue operations
-        //$Hc-1#09
         sendGdbServerAck();
-        sendGdbServerMessage("OK", "Set current thread for step & continue");
+        gdbSetCurrentThread(cmd, "Set current thread for step & continue ");
     }
 
     else if (cmd.startsWith("Hg")) {
-        logMessage(msgGdbPacket(QLatin1String("Set thread")));
-        // Set thread for subsequent operations (`m', `M', `g', `G', et.al.).
-        // for 'other operations.  0 - any thread
-        //$Hg0#df
         sendGdbServerAck();
-        m_session.currentThread = cmd.mid(2).toUInt(0, 16);
-        sendGdbServerMessage("OK", "Set current thread "
-            + QByteArray::number(m_session.currentThread));
+        gdbSetCurrentThread(cmd, "Set current thread ");
     }
 
     else if (cmd == "k" || cmd.startsWith("vKill")) {
@@ -607,21 +587,9 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         logMessage(msgGdbPacket(QLatin1String("Read memory")));
         // m addr,length
         sendGdbServerAck();
-        uint addr = 0, len = 0;
-        do {
-            const int pos = cmd.indexOf(',');
-            if (pos == -1)
-                break;
-            bool ok;
-            addr = cmd.mid(1, pos - 1).toUInt(&ok, 16);
-            if (!ok)
-                break;
-            len = cmd.mid(pos + 1).toUInt(&ok, 16);
-            if (!ok)
-                break;
-        } while (false);
-        if (len) {
-            readMemory(addr, len, m_bufferedMemoryRead);
+        const QPair<quint64, unsigned> addrLength = parseGdbReadMemoryRequest(cmd);
+        if (addrLength.second) {
+            readMemory(addrLength.first, addrLength.second, m_bufferedMemoryRead);
         } else {
             sendGdbServerMessage("E20", "Error " + cmd);
         }
@@ -634,23 +602,11 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         sendGdbServerAck();
         bool ok = false;
         const uint registerNumber = cmd.mid(1).toUInt(&ok, 16);
-        if (m_snapshot.registerValid) {
-            QByteArray logMsg = "Read Register";
-            if (registerNumber == RegisterPSGdb) {
-                QByteArray ba;
-                appendInt(&ba, m_snapshot.registers[RegisterPSTrk], LittleEndian);
-                logMsg += dumpRegister(registerNumber, m_snapshot.registers[RegisterPSTrk]);
-                sendGdbServerMessage(ba.toHex(), logMsg);
-            } else if (registerNumber < 16) {
-                QByteArray ba;
-                appendInt(&ba, m_snapshot.registers[registerNumber], LittleEndian);
-                logMsg += dumpRegister(registerNumber, m_snapshot.registers[registerNumber]);
-                sendGdbServerMessage(ba.toHex(), logMsg);
-            } else {
-                sendGdbServerMessage("0000", "read single unknown register #"
-                    + QByteArray::number(registerNumber));
-                //sendGdbServerMessage("E01", "read single unknown register");
-            }
+        const int threadIndex = m_snapshot.indexOfThread(m_session.tid);
+        QTC_ASSERT(threadIndex != -1, return)
+        const Symbian::Thread &thread =  m_snapshot.threadInfo[threadIndex];
+        if (thread.registerValid) {
+            sendGdbServerMessage(thread.gdbReportSingleRegister(registerNumber), thread.gdbSingleRegisterLogMessage(registerNumber));
         } else {
             //qDebug() << "Fetching single register";
             sendTrkMessage(0x12,
@@ -663,15 +619,10 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         logMessage(msgGdbPacket(QLatin1String("write register")));
         // $Pe=70f96678#d3
         sendGdbServerAck();
-        int pos = cmd.indexOf('=');
-        QByteArray regName = cmd.mid(1, pos - 1);
-        QByteArray valueName = cmd.mid(pos + 1);
-        bool ok = false;
-        const uint registerNumber = regName.toUInt(&ok, 16);
-        const uint value = swapEndian(valueName.toUInt(&ok, 16));
+        const QPair<uint, uint> regnumValue = parseGdbWriteRegisterWriteRequest(cmd);
         // FIXME: Assume all goes well.
-        m_snapshot.registers[registerNumber] = value;
-        QByteArray ba = trkWriteRegisterMessage(registerNumber, value);
+        m_snapshot.setRegisterValue(m_session.tid, regnumValue.first, regnumValue.second);
+        QByteArray ba = trkWriteRegisterMessage(regnumValue.first, regnumValue.second);
         sendTrkMessage(0x13, TrkCB(handleWriteRegister), ba, "Write register");
         // Note that App TRK refuses to write registers 13 and 14
     }
@@ -698,21 +649,14 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         //$qSupported#37
         //$qSupported:multiprocess+#c6
         //logMessage("Handling 'qSupported'");
-        sendGdbServerAck();
-        // Increase buffer size for qXfer::libraries XML response
-        sendGdbServerMessage(
-            "PacketSize=20000;"
-            "QPassSignals+;"
-            "QStartNoAckMode+;"
-            "qXfer:libraries:read+;"
-            //"qXfer:auxv:read+;"
-            "qXfer:features:read+");
+        sendGdbServerAck(); 
+        sendGdbServerMessage(Symbian::gdbQSupported);
     }
 
     else if (cmd.startsWith("qThreadExtraInfo")) {
         // $qThreadExtraInfo,1f9#55
         sendGdbServerAck();
-        sendGdbServerMessage(QByteArray("Nothing special").toHex());
+        sendGdbServerMessage(m_snapshot.gdbQThreadExtraInfo(cmd));
     }
 
     else if (cmd == "qfDllInfo") {
@@ -722,21 +666,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         // http://sourceware.org/ml/gdb/2007-05/msg00038.html
         // Name=hexname,TextSeg=textaddr[,DataSeg=dataaddr]
         sendGdbServerAck();
-        if (!m_session.libraries.isEmpty()) {
-            QByteArray response(1, 'm');
-            // FIXME: Limit packet length by using qsDllInfo packages?
-            for (int i = 0; i != m_session.libraries.size(); ++i) {
-                if (i)
-                    response += ';';
-                const Library &lib = m_session.libraries.at(i);
-                response += "Name=" + lib.name.toHex()
-                            + ",TextSeg=" + hexNumber(lib.codeseg)
-                            + ",DataSeg=" + hexNumber(lib.dataseg);
-            }
-            sendGdbServerMessage(response, "library information transferred");
-        } else {
-            sendGdbServerMessage(QByteArray(1, 'l'), "library information transfer finished");
-        }
+        sendGdbServerMessage(m_session.gdbQsDllInfo(), "library information transferred");
     }
 
     else if (cmd == "qsDllInfo") {
@@ -772,23 +702,13 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
     else if (cmd.startsWith("qXfer:features:read:target.xml:")) {
         //  $qXfer:features:read:target.xml:0,7ca#46...Ack
         sendGdbServerAck();
-        //sendGdbServerMessage("l<target><architecture>symbianelf</architecture></target>");
-        sendGdbServerMessage("l<target><architecture>arm</architecture></target>");
-        //sendGdbServerMessage("l<target><architecture>arm-none-symbianelf</architecture></target>");
+        sendGdbServerMessage(Symbian::gdbArchitectureXml);
     }
 
     else if (cmd == "qfThreadInfo") {
         // That's the _first_ query package.
         sendGdbServerAck();
-        if (!m_session.threads.isEmpty()) {
-            QByteArray response(1, 'm');
-            // FIXME: Limit packet length by using qsThreadInfo packages?
-            qDebug()  << "CURRENT THREAD: " << m_session.tid;
-            response += hexNumber(m_session.tid);
-            sendGdbServerMessage(response, "thread information transferred");
-        } else {
-            sendGdbServerMessage(QByteArray(1, 'l'), "thread information transfer finished");
-        }
+        sendGdbServerMessage(m_snapshot.gdbQsThreadInfo(), "thread information transferred");
     }
 
     else if (cmd == "qsThreadInfo") {
@@ -798,20 +718,8 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
     }
 
     else if (cmd.startsWith("qXfer:libraries:read")) {
-        //qDebug() << "COMMAND: " << cmd;
         sendGdbServerAck();
-        QByteArray response = "l<library-list>";
-        for (int i = 0; i != m_session.libraries.size(); ++i) {
-            const Library &lib = m_session.libraries.at(i);
-            response += "<library name=\"" + lib.name + "\">";
-            //response += "<segment address=\"0x" + hexNumber(lib.codeseg) + "\"/>";
-            response += "<section address=\"0x" + hexNumber(lib.codeseg) + "\"/>";
-            response += "<section address=\"0x" + hexNumber(lib.dataseg) + "\"/>";
-            response += "<section address=\"0x" + hexNumber(lib.dataseg) + "\"/>";
-            response += "</library>";
-        }
-        response += "</library-list>";
-        sendGdbServerMessage(response, "library information transferred");
+        sendGdbServerMessage(m_session.gdbLibraryList(), "library information transferred");
     }
 
     else if (cmd == "QStartNoAckMode") {
@@ -832,8 +740,9 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
     }
 
     else if (cmd == "s" || cmd.startsWith("vCont;s")) {
+        const uint pc = m_snapshot.registerValue(m_session.tid, RegisterPC);
         logMessage(msgGdbPacket(QString::fromLatin1("Step range from 0x%1").
-                                arg(m_snapshot.registers[RegisterPC], 0, 16)));
+                                arg(pc, 0, 16)));
         sendGdbServerAck();
         //m_snapshot.reset();
         m_running = true;
@@ -860,7 +769,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         sendGdbServerAck();
         //m_snapshot.reset();
         m_running = true;
-        sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
+        trkContinueAll("gdb 'vCont;c'");
     }
 
     else if (cmd.startsWith("Z0,") || cmd.startsWith("Z1,")) {
@@ -868,22 +777,16 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         sendGdbServerAck();
         logMessage(msgGdbPacket(QLatin1String("Insert breakpoint")));
         // $Z0,786a4ccc,4#99
-        const int pos = cmd.lastIndexOf(',');
-        bool ok1 = false;
-        bool ok2 = false;
-        const uint addr = cmd.mid(3, pos - 3).toUInt(&ok1, 16);
-        const uint len = cmd.mid(pos + 1).toUInt(&ok2, 16);
-        if (!ok1) {
-            logMessage("MISPARSED ADDRESS FROM " + cmd +
-                " (" + cmd.mid(3, pos - 3) + ")", LogError);
-        } else if (!ok2) {
-            logMessage("MISPARSED BREAKPOINT SIZE FROM " + cmd, LogError);
-        } else {
+        const QPair<quint64, unsigned> addrLen = parseGdbSetBreakpointRequest(cmd);
+        if (addrLen.first) {
             //qDebug() << "ADDR: " << hexNumber(addr) << " LEN: " << len;
             logMessage(_("Inserting breakpoint at 0x%1, %2")
-                .arg(addr, 0, 16).arg(len));
-            const QByteArray ba = trkBreakpointMessage(addr, len, len == 4);
-            sendTrkMessage(0x1B, TrkCB(handleAndReportSetBreakpoint), ba, addr);
+                .arg(addrLen.first, 0, 16).arg(addrLen.second));
+            const bool armMode = addrLen.second == 4;
+            const QByteArray ba = trkBreakpointMessage(addrLen.first, addrLen.second, armMode);
+            sendTrkMessage(0x1B, TrkCB(handleAndReportSetBreakpoint), ba, QVariant(addrLen.first));
+        } else {
+            logMessage("MISPARSED BREAKPOINT '" + cmd + "')", LogError);
         }
     }
 
@@ -944,6 +847,56 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
     }
 }
 
+void TrkGdbAdapter::gdbSetCurrentThread(const QByteArray &cmd, const char *why)
+{
+    // Thread ID from Hg/Hc commands: '-1': All, '0': arbitrary, else hex thread id.
+    const QByteArray id = cmd.mid(2);
+    const int threadId = id == "-1" ? -1 : id.toInt(0, 16);
+    const QByteArray message = QByteArray(why) + QByteArray::number(threadId);
+    logMessage(msgGdbPacket(QString::fromLatin1(message)));
+    // Set thread for subsequent operations (`m', `M', `g', `G', et.al.).
+    // for 'other operations.  0 - any thread
+    //$Hg0#df
+    m_session.tid = threadId <= 0 ? m_session.mainTid : uint(threadId);
+    sendGdbServerMessage("OK", message);
+}
+
+void TrkGdbAdapter::trkContinueAll(const char *why)
+{
+    if (why)
+        logMessage(QString::fromLatin1("Continuing %1 threads (%2)").
+                   arg(m_snapshot.threadInfo.size()).arg(QString::fromLatin1(why)));
+
+    // Starting from the last one, continue all threads.
+    QTC_ASSERT(!m_snapshot.threadInfo.isEmpty(), return; );
+    trkContinueNext(m_snapshot.threadInfo.size() - 1);
+}
+
+void TrkGdbAdapter::trkContinueNext(int threadIndex)
+{
+    const uint threadId = m_snapshot.threadInfo.at(threadIndex).id;
+    logMessage(QString::fromLatin1("Continuing thread 0x%1 of %2").
+               arg(threadId,0, 16).arg(m_snapshot.threadInfo.size()));
+    sendTrkMessage(0x18, TrkCallback(this, &TrkGdbAdapter::handleTrkContinueNext),
+                   trkContinueMessage(threadId), QVariant(threadIndex));
+}
+
+void TrkGdbAdapter::handleTrkContinueNext(const TrkResult &result)
+{
+    const int index = result.cookie.toInt();    
+    if (result.errorCode()) {
+        logMessage("Error continuing thread: " + result.errorString(), LogError);
+        return;
+    }
+    // Remove the thread (unless main) if it is continued since we
+    // do not get thread creation/deletion events
+    QTC_ASSERT(index < m_snapshot.threadInfo.size(), return; );
+    if (m_snapshot.threadInfo.at(index).id != m_session.mainTid)
+        m_snapshot.threadInfo.remove(index);
+    if (index > 0 && m_running) // Stopped in-between
+        trkContinueNext(index - 1);
+}
+
 void TrkGdbAdapter::sendTrkMessage(trk::byte code, TrkCallback callback,
     const QByteArray &data, const QVariant &cookie)
 {
@@ -1000,6 +953,12 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             uint tid;
             trk::Launcher::parseNotifyStopped(result.data, &pid, &tid, &addr, &reason);
             const QString msg = trk::Launcher::msgStopped(pid, tid, addr, reason);
+            // Unknown thread: Add.
+            m_session.tid = tid;            
+            if (m_snapshot.indexOfThread(tid) == -1)
+                m_snapshot.addThread(tid);            
+            m_snapshot.setThreadState(tid, reason);
+
             logMessage(prefix + msg);
             showMessage(msg, LogMisc);
             sendTrkAck(result.token);
@@ -1054,8 +1013,7 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
         case 0xa0: { // Notify Created
             // Sending this ACK does not seem to make a difference. Why?
             //sendTrkAck(result.token);
-            showMessage(_("RESET SNAPSHOT (NOTIFY CREATED)"));
-            m_snapshot.fullReset();
+            m_snapshot.resetMemory();
             const char *data = result.data.data();
             const trk::byte error = result.data.at(0);
             // type: 1 byte; for dll item, this value is 2.
@@ -1081,6 +1039,8 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             lib.codeseg = codeseg;
             lib.dataseg = dataseg;
             m_session.libraries.append(lib);
+            if (tid && tid != unsigned(-1) && m_snapshot.indexOfThread(tid) == -1)
+                m_snapshot.addThread(tid);
             logMessage(logMsg);
             // This lets gdb trigger a register update etc.
             // With CS gdb 6.4 we get a non-standard $qfDllInfo#7f+ request
@@ -1103,7 +1063,7 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             // to continue. The debugger can safely assume that the
             // thread resumption will be handled by the agent itself.
             if (tid != unsigned(-1))
-                sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
+                sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(m_session.mainTid), "CONTINUE");
             break;
         }
         case 0xa1: { // NotifyDeleted
@@ -1195,9 +1155,11 @@ void TrkGdbAdapter::handleReadRegisters(const TrkResult &result)
         return;
     }
     const char *data = result.data.data() + 1; // Skip ok byte
+    uint *registers = m_snapshot.registers(m_session.tid);
+    QTC_ASSERT(registers, return;)
     for (int i = 0; i < RegisterCount; ++i)
-        m_snapshot.registers[i] = extractInt(data + 4 * i);
-    m_snapshot.registerValid = true;
+        registers[i] = extractInt(data + 4 * i);
+    m_snapshot.setRegistersValid(m_session.tid, true);
 }
 
 void TrkGdbAdapter::handleWriteRegister(const TrkResult &result)
@@ -1213,19 +1175,10 @@ void TrkGdbAdapter::handleWriteRegister(const TrkResult &result)
 
 void TrkGdbAdapter::reportRegisters()
 {
-    QByteArray ba;
-    for (int i = 0; i < 16; ++i) {
-        const uint reg = swapEndian(m_snapshot.registers[i]);
-        ba += hexNumber(reg, 8);
-    }
-    QByteArray logMsg = "REGISTER CONTENTS: ";
-    if (m_verbose > 1) {
-        for (int i = 0; i < RegisterCount; ++i) {
-            logMsg += dumpRegister(i, m_snapshot.registers[i]);
-            logMsg += ' ';
-        }
-    }
-    sendGdbServerMessage(ba, logMsg);
+    const int threadIndex = m_snapshot.indexOfThread(m_session.tid);
+    QTC_ASSERT(threadIndex != -1, return);
+    const Symbian::Thread &thread = m_snapshot.threadInfo.at(threadIndex);
+    sendGdbServerMessage(thread.gdbReportRegisters(), thread.gdbRegisterLogMessage(m_verbose));
 }
 
 void TrkGdbAdapter::handleAndReportReadRegisters(const TrkResult &result)
@@ -1237,37 +1190,19 @@ void TrkGdbAdapter::handleAndReportReadRegisters(const TrkResult &result)
 void TrkGdbAdapter::handleAndReportReadRegister(const TrkResult &result)
 {
     handleReadRegisters(result);
-    uint registerNumber = result.cookie.toUInt();
-    QByteArray logMsg = "Read Register";
-    if (registerNumber == RegisterPSGdb) {
-        QByteArray ba;
-        appendInt(&ba, m_snapshot.registers[RegisterPSTrk], LittleEndian);
-        logMsg += dumpRegister(registerNumber, m_snapshot.registers[RegisterPSTrk]);
-        sendGdbServerMessage(ba.toHex(), logMsg);
-    } else if (registerNumber < 16) {
-        QByteArray ba;
-        appendInt(&ba, m_snapshot.registers[registerNumber], LittleEndian);
-        logMsg += dumpRegister(registerNumber, m_snapshot.registers[registerNumber]);
-        sendGdbServerMessage(ba.toHex(), logMsg);
-    } else {
-        sendGdbServerMessage("0000", "read single unknown register #"
-            + QByteArray::number(registerNumber));
-        //sendGdbServerMessage("E01", "read single unknown register");
-    }
+    const uint registerNumber = result.cookie.toUInt();
+    const int threadIndex = m_snapshot.indexOfThread(m_session.tid);
+    QTC_ASSERT(threadIndex != -1, return);
+    const Symbian::Thread &thread = m_snapshot.threadInfo.at(threadIndex);
+    sendGdbServerMessage(thread.gdbReportSingleRegister(registerNumber), thread.gdbSingleRegisterLogMessage(registerNumber));
 }
 
 void TrkGdbAdapter::handleAndReportReadRegistersAfterStop(const TrkResult &result)
 {
-    handleReadRegisters(result);
-    QByteArray ba = "T05";
-    for (int i = 0; i < 16; ++i)
-        appendRegister(&ba, i, m_snapshot.registers[i]);
-    // FIXME: those are not understood by gdb 6.4
-    //for (int i = 16; i < 25; ++i)
-    //    appendRegister(&ba, i, 0x0);
-    appendRegister(&ba, RegisterPSGdb, m_snapshot.registers[RegisterPSTrk]);
-    //qDebug() << "TrkGdbAdapter::handleAndReportReadRegistersAfterStop" << ba;
-    sendGdbServerMessage(ba, "Registers");
+    handleReadRegisters(result);    
+    const bool reportThread = m_session.tid != m_session.mainTid;
+    sendGdbServerMessage(m_snapshot.gdbStopMessage(m_session.tid, reportThread),
+                         "Stopped with registers in thread " + QByteArray::number(m_session.tid, 16));
 }
 
 static QString msgMemoryReadError(int code, uint addr, uint len = 0)
@@ -1275,37 +1210,6 @@ static QString msgMemoryReadError(int code, uint addr, uint len = 0)
     const QString lenS = len ? QString::number(len) : QLatin1String("<unknown>");
     return _("Memory read error %1 at: 0x%2 %3")
         .arg(code).arg(addr, 0 ,16).arg(lenS);
-}
-
-// Format log message for memory access with some smartness about registers
-QByteArray TrkGdbAdapter::memoryReadLogMessage(uint addr, const QByteArray &ba) const
-{
-    QByteArray logMsg = "memory contents";
-    if (m_verbose > 1) {
-        logMsg += " addr: " + hexxNumber(addr);
-        // indicate dereferencing of registers
-        if (ba.size() == 4) {
-            if (addr == m_snapshot.registers[RegisterPC]) {
-                logMsg += "[PC]";
-            } else if (addr == m_snapshot.registers[RegisterPSTrk]) {
-                logMsg += "[PSTrk]";
-            } else if (addr == m_snapshot.registers[RegisterSP]) {
-                logMsg += "[SP]";
-            } else if (addr == m_snapshot.registers[RegisterLR]) {
-                logMsg += "[LR]";
-            } else if (addr > m_snapshot.registers[RegisterSP] &&
-                    (addr - m_snapshot.registers[RegisterSP]) < 10240) {
-                logMsg += "[SP+"; // Stack area ...stack seems to be top-down
-                logMsg += QByteArray::number(addr - m_snapshot.registers[RegisterSP]);
-                logMsg += ']';
-            }
-        }
-        logMsg += " length ";
-        logMsg += QByteArray::number(ba.size());
-        logMsg += " :";
-        logMsg += stringFromArray(ba, 16).toAscii();
-    }
-    return logMsg;
 }
 
 void TrkGdbAdapter::handleReadMemoryBuffered(const TrkResult &result)
@@ -1377,7 +1281,8 @@ void TrkGdbAdapter::tryAnswerGdbMemoryRequest(bool buffered)
                 int offset = wanted.from - it.key().from;
                 int len = wanted.to - wanted.from;
                 QByteArray ba = it.value().mid(offset, len);
-                sendGdbServerMessage(ba.toHex(), memoryReadLogMessage(wanted.from, ba));
+                sendGdbServerMessage(ba.toHex(),
+                                     m_snapshot.memoryReadLogMessage(wanted.from, m_session.tid, m_verbose, ba));
                 return;
             }
         }
@@ -1453,7 +1358,7 @@ void TrkGdbAdapter::handleStep(const TrkResult &result)
 
         // Try fallback with Continue.
         showMessage("FALLBACK TO 'CONTINUE'");
-        sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
+        trkContinueAll("Step failed");
         //sendGdbServerMessage("S05", "Stepping finished");
 
         // Doing nothing as below does not work as gdb seems to insist on
@@ -1495,15 +1400,6 @@ void TrkGdbAdapter::handleClearBreakpoint(const TrkResult &result)
         //return;
     }
     sendGdbServerMessage("OK");
-}
-
-void TrkGdbAdapter::handleSignalContinue(const TrkResult &result)
-{
-    uint signalNumber = result.cookie.toUInt();
-    logMessage("   HANDLE SIGNAL CONTINUE: " + stringFromArray(result.data));
-    logMessage("NUMBER" + QString::number(signalNumber));
-    sendGdbServerMessage("O" + QByteArray("Console output").toHex());
-    sendGdbServerMessage("W81"); // "Process exited with result 1
 }
 
 void TrkGdbAdapter::handleSupportMask(const TrkResult &result)
@@ -1688,7 +1584,7 @@ void TrkGdbAdapter::startInferior()
 
 void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
 {
-    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
+    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());    
     //  40 00 00]
     //logMessage("       RESULT: " + result.toString());
     // [80 08 00   00 00 01 B5   00 00 01 B6   78 67 40 00   00 40 00 00]
@@ -1701,11 +1597,14 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
         emitDelayedInferiorStartFailed(msg);
         return;
     }
+    showMessage(_("RESET SNAPSHOT (NOTIFY CREATED)"));
+    m_snapshot.fullReset();
     const char *data = result.data.data();
     m_session.pid = extractInt(data + 1);
-    m_session.tid = extractInt(data + 5);
+    m_session.mainTid = m_session.tid = extractInt(data + 5);
     m_session.codeseg = extractInt(data + 9);
     m_session.dataseg = extractInt(data + 13);
+    m_snapshot.addThread(m_session.mainTid);
     const QString startMsg =
         tr("Process started, PID: 0x%1, thread id: 0x%2, "
            "code segment: 0x%3, data segment: 0x%4.")
@@ -1725,17 +1624,10 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
         //    + QByteArray::number(m_session.codeseg));
         m_engine->postCommand("symbol-file \"" + symbolFile + "\"");
     }
-    m_engine->postCommand("set breakpoint always-inserted on");
-    m_engine->postCommand("set breakpoint auto-hw on");
-    m_engine->postCommand("set trust-readonly-sections on"); // No difference?
-    m_engine->postCommand("set displaced-stepping on"); // No difference?
+    foreach(const QByteArray &s, Symbian::gdbStartupSequence())
+        m_engine->postCommand(s);
     //m_engine->postCommand("set remotelogfile /tmp/gdb-remotelog");
     //m_engine->postCommand("set debug remote 1"); // FIXME: Make an option.
-    m_engine->postCommand("set mem inaccessible-by-default");
-    m_engine->postCommand("mem 0x00400000 0x70000000 cache");
-    m_engine->postCommand("mem 0x70000000 0x80000000 cache ro");
-    // FIXME: replace with  stack-cache for newer gdb?
-    m_engine->postCommand("set remotecache on");  // "info dcache" to check
     m_engine->postCommand("target remote " + gdbServerName().toLatin1(),
         CB(handleTargetRemote));
 }
@@ -1807,7 +1699,7 @@ void TrkGdbAdapter::handleDirectWrite1(const TrkResult &response)
         logMessage("ERROR: " + response.errorString() + "in handleDirectWrite1", LogError);
     } else {
         oldMem = response.data.mid(3);
-        oldPC = m_snapshot.registers[RegisterPC];
+        oldPC = m_snapshot.registerValue(m_session.tid, RegisterPC);
         logMessage("READ MEM: " + oldMem.toHex());
         //qDebug("READ MEM: " + oldMem.toHex());
         QByteArray ba;
@@ -1870,8 +1762,8 @@ void TrkGdbAdapter::handleDirectWrite3(const TrkResult &response)
 }
 
 void TrkGdbAdapter::handleDirectWrite4(const TrkResult &response)
-{
-    m_snapshot.registers[RegisterPC] = scratch + 4;
+{    
+    m_snapshot.setRegisterValue(m_session.tid, RegisterPC, scratch + 4);
 return;
     logMessage("DIRECT WRITE4: " + response.toString());
     if (const int errorCode = response.errorCode()) {
@@ -1950,8 +1842,8 @@ void TrkGdbAdapter::directStep(uint addr)
 {
     // Write PC:
     qDebug() << "ADDR: " << addr;
-    oldPC = m_snapshot.registers[RegisterPC];
-    m_snapshot.registers[RegisterPC] = addr;
+    oldPC = m_snapshot.registerValue(m_session.tid, RegisterPC);
+    m_snapshot.setRegisterValue(m_session.tid, RegisterPC, addr);
     QByteArray ba = trkWriteRegisterMessage(RegisterPC, addr);
     sendTrkMessage(0x13, TrkCB(handleDirectStep1), ba, "Write PC");
 }
@@ -1960,9 +1852,10 @@ void TrkGdbAdapter::handleDirectStep1(const TrkResult &result)
 {
     logMessage("HANDLE DIRECT STEP1: " + stringFromArray(result.data));
     QByteArray ba;
+    const uint pc = oldPC = m_snapshot.registerValue(m_session.tid, RegisterPC);
     appendByte(&ba, 0x11); // options "step over"
-    appendInt(&ba, m_snapshot.registers[RegisterPC]);
-    appendInt(&ba, m_snapshot.registers[RegisterPC]);
+    appendInt(&ba, pc);
+    appendInt(&ba, pc);
     appendInt(&ba, m_session.pid);
     appendInt(&ba, m_session.tid);
     sendTrkMessage(0x19, TrkCB(handleDirectStep2), ba, "Direct step");
@@ -1971,8 +1864,8 @@ void TrkGdbAdapter::handleDirectStep1(const TrkResult &result)
 void TrkGdbAdapter::handleDirectStep2(const TrkResult &result)
 {
     logMessage("HANDLE DIRECT STEP2: " + stringFromArray(result.data));
-    m_snapshot.registers[RegisterPC] = oldPC;
-    QByteArray ba = trkWriteRegisterMessage(RegisterPC, oldPC);
+    m_snapshot.setRegisterValue(m_session.tid, RegisterPC, oldPC);
+        QByteArray ba = trkWriteRegisterMessage(RegisterPC, oldPC);
     sendTrkMessage(0x13, TrkCB(handleDirectStep3), ba, "Write PC");
 }
 
@@ -2001,36 +1894,12 @@ void TrkGdbAdapter::shutdown()
 
 void TrkGdbAdapter::trkReloadRegisters()
 {
-    // Take advantage of direct access to cached register values.
-    QTC_ASSERT(m_snapshot.registerValid, /**/);
-    RegisterHandler *handler = m_engine->registerHandler();
-    Registers registers = handler->registers();
-
-    QTC_ASSERT(registers.size() >= 26,
-        qDebug() << "HAVE: " << registers.size(); return);
-    for (int i = 0; i < 16; ++i) {
-        Register &reg = registers[i];
-        QString value = hexxNumber(m_snapshot.registers[i]);
-        reg.changed = (value != reg.value);
-        if (reg.changed)
-            reg.value = value;
-    }
-    Register &reg = registers[25];
-    QString value = hexxNumber(m_snapshot.registers[16]);
-    reg.changed = (value != reg.value);
-    if (reg.changed)
-        reg.value = value;
-    handler->setRegisters(registers);
+    m_snapshot.syncRegisters(m_session.tid, m_engine->registerHandler());
 }
 
 void TrkGdbAdapter::trkReloadThreads()
 {
-    // Take advantage of direct access to cached register values.
-    QTC_ASSERT(m_snapshot.registerValid, /**/);
-    Threads threads;
-    foreach (const Session::Thread &thread, m_session.threads)
-        threads.append(thread);
-    m_engine->threadsHandler()->setThreads(threads);
+    m_snapshot.syncThreads(m_engine->threadsHandler());
 }
 
 } // namespace Internal

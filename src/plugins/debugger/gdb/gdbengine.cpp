@@ -2761,8 +2761,8 @@ void GdbEngine::selectThread(int index)
     threadsHandler()->setCurrentThread(index);
     Threads threads = threadsHandler()->threads();
     QTC_ASSERT(index < threads.size(), return);
-    int id = threads.at(index).id;
-    showStatusMessage(tr("Retrieving data for stack view..."), 10000);
+    const int id = threads.at(index).id;
+    showStatusMessage(tr("Retrieving data for stack view thread 0x%1...").arg(id, 0, 16), 10000);
     postCommand("-thread-select " + QByteArray::number(id), CB(handleStackSelectThread));
 }
 

@@ -133,6 +133,9 @@ private:
         const QVariant &cookie = QVariant());
     Q_SLOT void handleTrkResult(const trk::TrkResult &data);
     Q_SLOT void handleTrkError(const QString &msg);
+    void trkContinueAll(const char *why);
+    void handleTrkContinueNext(const TrkResult &result);
+    void trkContinueNext(int threadIndex);
 
     // convenience messages
     void sendTrkAck(trk::byte token);
@@ -140,7 +143,6 @@ private:
     void handleCpuType(const TrkResult &result);
     void handleCreateProcess(const TrkResult &result);
     void handleClearBreakpoint(const TrkResult &result);
-    void handleSignalContinue(const TrkResult &result);
     void handleStop(const TrkResult &result);
     void handleSupportMask(const TrkResult &result);
     void handleTrkVersionsStartGdb(const TrkResult &result);
@@ -153,7 +155,6 @@ private:
     void handleAndReportReadRegister(const TrkResult &result);
     void handleAndReportReadRegistersAfterStop(const TrkResult &result);
     void reportRegisters();
-    QByteArray memoryReadLogMessage(uint addr, const QByteArray &ba) const;
     void handleAndReportSetBreakpoint(const TrkResult &result);
     void handleReadMemoryBuffered(const TrkResult &result);
     void handleReadMemoryUnbuffered(const TrkResult &result);
@@ -161,6 +162,7 @@ private:
     void handleReadRegisters(const TrkResult &result);
     void handleWriteRegister(const TrkResult &result);
     void reportToGdb(const TrkResult &result);
+    void gdbSetCurrentThread(const QByteArray &cmd, const char *why);
     //void reportReadMemoryBuffered(const TrkResult &result);
     //void reportReadMemoryUnbuffered(const TrkResult &result);
 
@@ -182,7 +184,7 @@ private:
     void handleDirectWrite8(const TrkResult &response);
     void handleDirectWrite9(const TrkResult &response);
 
-    QByteArray trkContinueMessage();
+    QByteArray trkContinueMessage(uint threadId);
     QByteArray trkReadRegistersMessage();
     QByteArray trkWriteRegisterMessage(trk::byte reg, uint value);
     QByteArray trkReadMemoryMessage(const MemoryRange &range);
