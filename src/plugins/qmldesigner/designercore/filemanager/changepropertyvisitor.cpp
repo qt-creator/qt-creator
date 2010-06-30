@@ -58,6 +58,7 @@ bool ChangePropertyVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
     const quint32 objectStart = ast->firstSourceLocation().offset;
 
     if (objectStart == m_parentLocation) {
+        // FIXME: change this to use the QmlJS::Rewriter class
         replaceInMembers(ast->initializer, m_name);
         return false;
     }
@@ -73,6 +74,7 @@ bool ChangePropertyVisitor::visit(QmlJS::AST::UiObjectBinding *ast)
     const quint32 objectStart = ast->qualifiedTypeNameId->identifierToken.offset;
 
     if (objectStart == m_parentLocation) {
+        // FIXME: change this to use the QmlJS::Rewriter class
         replaceInMembers(ast->initializer, m_name);
         return false;
     }
@@ -80,6 +82,7 @@ bool ChangePropertyVisitor::visit(QmlJS::AST::UiObjectBinding *ast)
     return !didRewriting();
 }
 
+// FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 void ChangePropertyVisitor::replaceInMembers(UiObjectInitializer *initializer,
                                              const QString &propertyName)
 {
@@ -125,6 +128,7 @@ void ChangePropertyVisitor::replaceInMembers(UiObjectInitializer *initializer,
     }
 }
 
+// FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 void ChangePropertyVisitor::replaceMemberValue(UiObjectMember *propertyMember, bool needsSemicolon)
 {
     QString replacement = m_value;
@@ -164,6 +168,7 @@ void ChangePropertyVisitor::replaceMemberValue(UiObjectMember *propertyMember, b
     setDidRewriting(true);
 }
 
+// FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 bool ChangePropertyVisitor::isMatchingPropertyMember(const QString &propName,
                                                      UiObjectMember *member)
 {
@@ -180,6 +185,7 @@ bool ChangePropertyVisitor::isMatchingPropertyMember(const QString &propName,
     }
 }
 
+// FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 bool ChangePropertyVisitor::nextMemberOnSameLine(UiObjectMemberList *members)
 {
     if (members && members->next && members->next->member) {
@@ -189,6 +195,7 @@ bool ChangePropertyVisitor::nextMemberOnSameLine(UiObjectMemberList *members)
     }
 }
 
+// FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 void ChangePropertyVisitor::insertIntoArray(QmlJS::AST::UiArrayBinding *ast)
 {
     if (!ast)

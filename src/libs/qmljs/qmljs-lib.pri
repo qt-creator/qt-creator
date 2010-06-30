@@ -5,6 +5,7 @@ contains(CONFIG, dll) {
 }
 
 include(parser/parser.pri)
+include(../utils/utils.pri)
 
 DEPENDPATH += $$PWD
 INCLUDEPATH += $$PWD/..
@@ -20,7 +21,8 @@ HEADERS += \
     $$PWD/qmljscheck.h \
     $$PWD/qmljsscopebuilder.h \
     $$PWD/qmljslineinfo.h \
-    $$PWD/qmljscompletioncontextfinder.h
+    $$PWD/qmljscompletioncontextfinder.h \
+    $$PWD/qmljsrewriter.h
 
 SOURCES += \
     $$PWD/qmljsbind.cpp \
@@ -32,7 +34,8 @@ SOURCES += \
     $$PWD/qmljscheck.cpp \
     $$PWD/qmljsscopebuilder.cpp \
     $$PWD/qmljslineinfo.cpp \
-    $$PWD/qmljscompletioncontextfinder.cpp
+    $$PWD/qmljscompletioncontextfinder.cpp \
+    $$PWD/qmljsrewriter.cpp
 
 OTHER_FILES += \
     $$PWD/parser/qmljs.g

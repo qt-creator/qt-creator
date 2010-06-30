@@ -70,6 +70,7 @@ bool AddObjectVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
     return !didRewriting();
 }
 
+// FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 void AddObjectVisitor::insertInto(QmlJS::AST::UiObjectInitializer *ast)
 {
     UiObjectMemberList *insertAfter = searchMemberToInsertAfter(ast->members, m_propertyOrder);
