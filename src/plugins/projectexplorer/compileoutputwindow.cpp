@@ -29,12 +29,17 @@
 
 #include "compileoutputwindow.h"
 #include "buildmanager.h"
+#include "showoutputtaskhandler.h"
+#include "task.h"
 
 #include <find/basetextfind.h>
 #include <aggregation/aggregate.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <QtGui/QKeyEvent>
 #include <QtGui/QIcon>
+#include <QtGui/QTextBlock>
+#include <QtGui/QTextCursor>
 #include <QtGui/QTextEdit>
 #include <QtGui/QScrollBar>
 #include <QtGui/QPlainTextEdit>
@@ -54,6 +59,15 @@ CompileOutputWindow::CompileOutputWindow(BuildManager * /*bm*/)
     agg->add(new Find::BaseTextFind(m_textEdit));
 
     qRegisterMetaType<QTextCharFormat>("QTextCharFormat");
+
+    m_handler = new ShowOutputTaskHandler(this);
+    ExtensionSystem::PluginManager::instance()->addObject(m_handler);
+}
+
+CompileOutputWindow::~CompileOutputWindow()
+{
+    ExtensionSystem::PluginManager::instance()->removeObject(m_handler);
+    delete m_handler;
 }
 
 bool CompileOutputWindow::hasFocus()
@@ -91,6 +105,7 @@ void CompileOutputWindow::appendText(const QString &text, const QTextCharFormat 
 void CompileOutputWindow::clearContents()
 {
     m_textEdit->clear();
+    m_taskPositions.clear();
 }
 
 void CompileOutputWindow::visibilityChanged(bool b)
@@ -127,4 +142,23 @@ void CompileOutputWindow::goToPrev()
 bool CompileOutputWindow::canNavigate()
 {
     return false;
+}
+
+void CompileOutputWindow::registerPositionOf(const Task &task)
+{
+    QTextBlock block(m_textEdit->textCursor().block());
+    m_taskPositions.insert(task.taskId, block.position() + block.length() + 1);
+}
+
+bool CompileOutputWindow::knowsPositionOf(const Task &task)
+{
+    return (m_taskPositions.contains(task.taskId));
+}
+
+void CompileOutputWindow::showPositionOf(const Task &task)
+{
+    int position = m_taskPositions.value(task.taskId);
+    QTextCursor newCursor(m_textEdit->document()->findBlock(position));
+    newCursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    m_textEdit->setTextCursor(newCursor);
 }

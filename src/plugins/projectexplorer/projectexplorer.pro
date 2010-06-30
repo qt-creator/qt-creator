@@ -20,6 +20,7 @@ HEADERS += projectexplorer.h \
     itaskhandler.h \
     copytaskhandler.h \
     showineditortaskhandler.h \
+    showoutputtaskhandler.h \
     vcsannotatetaskhandler.h \
     taskwindow.h \
     outputwindow.h \
@@ -100,6 +101,7 @@ SOURCES += projectexplorer.cpp \
     task.cpp \
     copytaskhandler.cpp \
     showineditortaskhandler.cpp \
+    showoutputtaskhandler.cpp \
     vcsannotatetaskhandler.cpp \
     taskwindow.cpp \
     outputwindow.cpp \

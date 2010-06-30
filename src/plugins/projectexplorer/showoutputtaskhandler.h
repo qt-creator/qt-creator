@@ -27,65 +27,32 @@
 **
 **************************************************************************/
 
-#ifndef COMPILEOUTPUTWINDOW_H
-#define COMPILEOUTPUTWINDOW_H
+#ifndef PROJECTEXPLORER_SHOWOUTPUTTASKHANDLER_H
+#define PROJECTEXPLORER_SHOWOUTPUTTASKHANDLER_H
 
-#include <coreplugin/ioutputpane.h>
+#include "projectexplorer_export.h"
 
-#include <QtCore/QHash>
-
-#include <QtGui/QColor>
-#include <QtGui/QTextCharFormat>
-
-QT_BEGIN_NAMESPACE
-class QPlainTextEdit;
-QT_END_NAMESPACE
+#include "itaskhandler.h"
 
 namespace ProjectExplorer {
-
-class BuildManager;
-class Task;
-
 namespace Internal {
 
-class ShowOutputTaskHandler;
+class CompileOutputWindow;
 
-class CompileOutputWindow : public Core::IOutputPane
+class PROJECTEXPLORER_EXPORT ShowOutputTaskHandler : public ITaskHandler
 {
-    Q_OBJECT
-
 public:
-    CompileOutputWindow(BuildManager *bm);
-    ~CompileOutputWindow();
+    ShowOutputTaskHandler(CompileOutputWindow *);
 
-    QWidget *outputWidget(QWidget *);
-    QList<QWidget*> toolBarWidgets() const { return QList<QWidget *>(); }
-    QString displayName() const { return tr("Compile Output"); }
-    int priorityInStatusBar() const;
-    void clearContents();
-    void visibilityChanged(bool visible);
-    void appendText(const QString &text, const QTextCharFormat &textCharFormat);
-    bool canFocus();
-    bool hasFocus();
-    void setFocus();
-
-    bool canNext();
-    bool canPrevious();
-    void goToNext();
-    void goToPrev();
-    bool canNavigate();
-
-    void registerPositionOf(const Task &task);
-    bool knowsPositionOf(const Task &task);
-    void showPositionOf(const Task &task);
+    bool canHandle(const Task &);
+    void handle(const Task &task);
+    QAction *createAction(QObject *parent = 0);
 
 private:
-    QPlainTextEdit *m_textEdit;
-    QHash<unsigned int, int> m_taskPositions;
-    ShowOutputTaskHandler * m_handler;
+    CompileOutputWindow * m_window;
 };
 
 } // namespace Internal
 } // namespace ProjectExplorer
 
-#endif // COMPILEOUTPUTWINDOW_H
+#endif // PROJECTEXPLORER_SHOWOUTPUTTASKHANDLER_H
