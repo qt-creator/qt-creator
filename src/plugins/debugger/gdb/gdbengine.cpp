@@ -967,10 +967,20 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
 
     response->cookie = cmd.cookie;
 
-    if (response->resultClass != GdbResultError &&
-        response->resultClass != ((cmd.flags & RunRequest) ? GdbResultRunning :
+    bool isExpectedResult =
+           response->resultClass == GdbResultError
+        || response->resultClass == ((cmd.flags & RunRequest) ? GdbResultRunning :
                                   (cmd.flags & ExitRequest) ? GdbResultExit :
-                                  GdbResultDone)) {
+                                  GdbResultDone)
+        // Happens with some incarnations of gdb 6.8:
+        || (response->resultClass == GdbResultDone && cmd.command.startsWith("jump"));
+
+    if (isExpectedResult) {
+        if (cmd.callback)
+            (this->*cmd.callback)(*response);
+        else if (cmd.adapterCallback)
+            (m_gdbAdapter->*cmd.adapterCallback)(*response);
+    } else {
 #ifdef Q_OS_WIN
         // Ignore spurious 'running' responses to 'attach'
         const bool warning = !(startParameters().startMode == AttachExternal
@@ -984,11 +994,6 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
             qWarning() << rsp << " AT " __FILE__ ":" STRINGIFY(__LINE__);
             showMessage(_(rsp));
         }
-    } else {
-        if (cmd.callback)
-            (this->*cmd.callback)(*response);
-        else if (cmd.adapterCallback)
-            (m_gdbAdapter->*cmd.adapterCallback)(*response);
     }
 
     if (cmd.flags & RebuildWatchModel) {
@@ -1086,32 +1091,17 @@ void GdbEngine::handleQuerySources(const GdbResponse &response)
     }
 }
 
-#if 0
-void GdbEngine::handleExecJumpToLine(const GdbResponse &response)
+void GdbEngine::handleExecuteJumpToLine(const GdbResponse &response)
 {
-    // FIXME: remove this special case as soon as 'jump'
-    // is supported by MI
-    // "&"jump /home/apoenitz/dev/work/test1/test1.cpp:242"
-    // ~"Continuing at 0x4058f3."
-    // ~"run1 (argc=1, argv=0x7fffb213a478) at test1.cpp:242"
-    // ~"242\t x *= 2;"
-    //109^done"
-    setState(InferiorStopped);
-    showStatusMessage(tr("Jumped. Stopped"));
-    QByteArray output = response.data.findChild("logstreamoutput").data();
-    if (output.isEmpty())
-        return;
-    int idx1 = output.indexOf(' ') + 1;
-    if (idx1 > 0) {
-        int idx2 = output.indexOf(':', idx1);
-        if (idx2 > 0) {
-            QString file = QString::fromLocal8Bit(output.mid(idx1, idx2 - idx1));
-            int line = output.mid(idx2 + 1).toInt();
-            gotoLocation(file, line, true);
-        }
+    if (response.resultClass == GdbResultRunning) {
+        // All is fine. Waiting for the temporary breakpoint to be hit.
+    } else if (response.resultClass == GdbResultDone) {
+        // This happens on old gdb. Trigger the effect of a '*stopped'.
+        showStatusMessage(tr("Jumped. Stopped"));
+        setState(InferiorStopped);
+        handleStop1(response);
     }
 }
-#endif
 
 //void GdbEngine::handleExecRunToFunction(const GdbResponse &response)
 //{
@@ -1988,7 +1978,7 @@ void GdbEngine::executeJumpToLine(const QString &fileName, int lineNumber)
         + QByteArray::number(lineNumber);
     postCommand("tbreak " + loc);
     setState(InferiorRunningRequested);
-    postCommand("jump " + loc, RunRequest);
+    postCommand("jump " + loc, RunRequest, CB(handleExecuteJumpToLine));
     // will produce something like
     //  &"jump \"/home/apoenitz/dev/work/test1/test1.cpp\":242"
     //  ~"Continuing at 0x4058f3."
