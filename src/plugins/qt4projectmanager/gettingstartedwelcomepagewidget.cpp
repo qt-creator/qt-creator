@@ -34,6 +34,7 @@
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/mainwindow.h>
+#include <projectexplorer/projectexplorer.h>
 
 #include <utils/pathchooser.h>
 
@@ -92,7 +93,9 @@ GettingStartedWelcomePageWidget::GettingStartedWelcomePageWidget(QWidget *parent
 
     connect(ui->nextTipBtn, SIGNAL(clicked()), this, SLOT(slotNextTip()));
     connect(ui->prevTipBtn, SIGNAL(clicked()), this, SLOT(slotPrevTip()));
-    connect(ui->openProjectButton, SIGNAL(clicked()), Core::ICore::instance()->mainWindow(), SLOT(openProject()));
+    connect(ui->openProjectButton, SIGNAL(clicked()),
+            ProjectExplorer::ProjectExplorerPlugin::instance(),
+            SLOT(openOpenProjectDialog()));
     connect(ui->createNewProjectButton, SIGNAL(clicked()), this, SLOT(slotCreateNewProject()));
 
     ui->createNewProjectButton->setIcon(

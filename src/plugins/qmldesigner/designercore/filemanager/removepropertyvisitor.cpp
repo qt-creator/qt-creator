@@ -48,6 +48,7 @@ RemovePropertyVisitor::RemovePropertyVisitor(QmlDesigner::TextModifier &modifier
 bool RemovePropertyVisitor::visit(QmlJS::AST::UiObjectBinding *ast)
 {
     if (ast->firstSourceLocation().offset == parentLocation) {
+        // FIXME: change this to use the QmlJS::Rewriter class
         removeFrom(ast->initializer);
     }
 
@@ -57,12 +58,14 @@ bool RemovePropertyVisitor::visit(QmlJS::AST::UiObjectBinding *ast)
 bool RemovePropertyVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
     if (ast->firstSourceLocation().offset == parentLocation) {
+        // FIXME: change this to use the QmlJS::Rewriter class
         removeFrom(ast->initializer);
     }
 
     return !didRewriting();
 }
 
+// FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 void RemovePropertyVisitor::removeFrom(QmlJS::AST::UiObjectInitializer *ast)
 {
     QString prefix;
@@ -88,6 +91,7 @@ void RemovePropertyVisitor::removeFrom(QmlJS::AST::UiObjectInitializer *ast)
     }
 }
 
+// FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 void RemovePropertyVisitor::removeGroupedProperty(UiObjectDefinition *ast)
 {
     int dotIdx = propertyName.indexOf(QLatin1Char('.'));
@@ -115,6 +119,7 @@ void RemovePropertyVisitor::removeGroupedProperty(UiObjectDefinition *ast)
         removeMember(wanted);
 }
 
+// FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 void RemovePropertyVisitor::removeMember(UiObjectMember *member)
 {
     int start = member->firstSourceLocation().offset;
@@ -126,6 +131,7 @@ void RemovePropertyVisitor::removeMember(UiObjectMember *member)
     setDidRewriting(true);
 }
 
+// FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 bool RemovePropertyVisitor::memberNameMatchesPropertyName(const QString &propertyName, UiObjectMember *ast)
 {
     if (UiPublicMember *publicMember = cast<UiPublicMember*>(ast))

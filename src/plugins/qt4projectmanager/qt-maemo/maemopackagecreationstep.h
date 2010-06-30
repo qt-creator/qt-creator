@@ -100,6 +100,7 @@ private:
     bool packagingNeeded() const;
     void raiseError(const QString &shortMsg,
                     const QString &detailedMsg = QString());
+    QString buildDirectory() const;
 
     static const QLatin1String CreatePackageId;
 

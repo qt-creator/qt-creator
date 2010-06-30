@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>596</width>
-    <height>336</height>
+    <height>352</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -409,8 +409,8 @@
    <slot>userNameEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>335</x>
-     <y>228</y>
+     <x>419</x>
+     <y>269</y>
     </hint>
     <hint type="destinationlabel">
      <x>422</x>
@@ -425,8 +425,8 @@
    <slot>passwordEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>335</x>
-     <y>254</y>
+     <x>419</x>
+     <y>300</y>
     </hint>
     <hint type="destinationlabel">
      <x>423</x>
@@ -505,8 +505,8 @@
    <slot>keyFileEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>335</x>
-     <y>273</y>
+     <x>419</x>
+     <y>321</y>
     </hint>
     <hint type="destinationlabel">
      <x>257</x>
@@ -521,8 +521,8 @@
    <slot>keyFileEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>335</x>
-     <y>273</y>
+     <x>419</x>
+     <y>321</y>
     </hint>
     <hint type="destinationlabel">
      <x>257</x>
@@ -542,7 +542,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>428</x>
-     <y>367</y>
+     <y>351</y>
     </hint>
    </hints>
   </connection>
@@ -558,7 +558,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>510</x>
-     <y>458</y>
+     <y>351</y>
     </hint>
    </hints>
   </connection>
@@ -574,7 +574,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>525</x>
-     <y>408</y>
+     <y>351</y>
     </hint>
    </hints>
   </connection>
@@ -601,12 +601,108 @@
    <slot>showGenerateSshKeyDialog()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>403</x>
-     <y>107</y>
+     <x>585</x>
+     <y>131</y>
     </hint>
     <hint type="destinationlabel">
      <x>358</x>
-     <y>-11</y>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>timeoutSpinBox</sender>
+   <signal>editingFinished()</signal>
+   <receiver>MaemoSettingsWidget</receiver>
+   <slot>timeoutEditingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>199</x>
+     <y>227</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>6</x>
+     <y>333</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>timeoutSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MaemoSettingsWidget</receiver>
+   <slot>timeoutEditingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>178</x>
+     <y>224</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>gdbServerPortSpinBox</sender>
+   <signal>editingFinished()</signal>
+   <receiver>MaemoSettingsWidget</receiver>
+   <slot>gdbServerPortEditingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>375</x>
+     <y>190</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>593</x>
+     <y>184</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>gdbServerPortSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MaemoSettingsWidget</receiver>
+   <slot>gdbServerPortEditingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>395</x>
+     <y>197</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>590</x>
+     <y>251</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sshPortSpinBox</sender>
+   <signal>editingFinished()</signal>
+   <receiver>MaemoSettingsWidget</receiver>
+   <slot>sshPortEditingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>228</x>
+     <y>200</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>4</x>
+     <y>211</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sshPortSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MaemoSettingsWidget</receiver>
+   <slot>sshPortEditingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>243</x>
+     <y>197</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>3</x>
+     <y>136</y>
     </hint>
    </hints>
   </connection>

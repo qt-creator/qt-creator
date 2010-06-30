@@ -699,8 +699,9 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         //$qSupported:multiprocess+#c6
         //logMessage("Handling 'qSupported'");
         sendGdbServerAck();
+        // Increase buffer size for qXfer::libraries XML response
         sendGdbServerMessage(
-            "PacketSize=7cf;"
+            "PacketSize=20000;"
             "QPassSignals+;"
             "QStartNoAckMode+;"
             "qXfer:libraries:read+;"

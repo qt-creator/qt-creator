@@ -409,10 +409,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // "open with" submenu
     Core::ActionContainer * const openWith =
             am->createMenu(ProjectExplorer::Constants::M_OPENFILEWITHCONTEXT);
+    openWith->setEmptyAction(Core::ActionContainer::EA_None);
     d->m_openWithMenu = openWith->menu();
     d->m_openWithMenu->setTitle(tr("Open With"));
 
-    connect(mfilec->menu(), SIGNAL(aboutToShow()), this, SLOT(populateOpenWithMenu()));
     connect(d->m_openWithMenu, SIGNAL(triggered(QAction *)),
             this, SLOT(openWithMenuTriggered(QAction *)));
 
@@ -1011,13 +1011,18 @@ bool ProjectExplorerPlugin::openProject(const QString &fileName)
     return false;
 }
 
+static inline QList<IProjectManager*> allProjectManagers()
+{
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    return pm->getObjects<IProjectManager>();
+}
+
 QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileNames)
 {
     if (debug)
         qDebug() << "ProjectExplorerPlugin - opening projects " << fileNames;
 
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    QList<IProjectManager*> projectManagers = pm->getObjects<IProjectManager>();
+    const QList<IProjectManager*> projectManagers = allProjectManagers();
 
     QList<Project*> openedPro;
     foreach (const QString &fileName, fileNames) {
@@ -1206,6 +1211,7 @@ void ProjectExplorerPlugin::showContextMenu(const QPoint &globalPos, Node *node)
             contextMenu = d->m_folderMenu;
             break;
         case FileNodeType:
+            populateOpenWithMenu();
             contextMenu = d->m_fileMenu;
             break;
         default:
@@ -2188,6 +2194,30 @@ void ProjectExplorerPlugin::setProjectExplorerSettings(const Internal::ProjectEx
 Internal::ProjectExplorerSettings ProjectExplorerPlugin::projectExplorerSettings() const
 {
     return d->m_projectExplorerSettings;
+}
+
+QStringList ProjectExplorerPlugin::projectFilePatterns()
+{
+    QStringList patterns;
+    const Core::MimeDatabase *mdb = Core::ICore::instance()->mimeDatabase();
+    foreach(const IProjectManager *pm, allProjectManagers())
+        if (const Core::MimeType mt = mdb->findByType(pm->mimeType()))
+            foreach(const QRegExp &re, mt.globPatterns())
+                patterns += re.pattern();
+    return patterns;
+}
+
+void ProjectExplorerPlugin::openOpenProjectDialog()
+{
+    Core::FileManager *fileMananger = Core::ICore::instance()->fileManager();
+    const QString projectPatterns = ProjectExplorerPlugin::projectFilePatterns().join(QString(QLatin1Char(' ')));
+    QString projectFilesFilter = tr("Projects (%1)").arg(projectPatterns);
+    const QString allFilesFilter = tr("All Files (*)");
+    const QString filters = allFilesFilter + QLatin1String(";;") + projectFilesFilter;
+    const QString path = fileMananger->useProjectsDirectory() ? fileMananger->projectsDirectory() : QString();
+    const QStringList files = fileMananger->getOpenFileNames(filters, path, &projectFilesFilter);
+    if (!files.isEmpty())
+        Core::ICore::instance()->openFiles(files);
 }
 
 Q_EXPORT_PLUGIN(ProjectExplorerPlugin)

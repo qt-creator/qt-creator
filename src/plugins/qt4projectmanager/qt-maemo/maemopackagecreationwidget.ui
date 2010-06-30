@@ -23,7 +23,7 @@
       <string>Check this if you want the files below to be deployed directly.</string>
      </property>
      <property name="text">
-      <string>Skip Packaging Step</string>
+      <string>Skip packaging step</string>
      </property>
     </widget>
    </item>

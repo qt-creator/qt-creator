@@ -557,7 +557,10 @@ bool GitClient::synchronousReset(const QString &workingDirectory,
     outputWindow()->append(output);
     // Note that git exits with 1 even if the operation is successful
     // Assume real failure if the output does not contain "foo.cpp modified"
-    if (!rc && !output.contains(QLatin1String("modified"))) {
+    // or "Unstaged changes after reset" (git 1.7.0).
+    if (!rc &&
+        (!output.contains(QLatin1String("modified"))
+         && !output.contains(QLatin1String("Unstaged changes after reset")))) {
         const QString stdErr = commandOutputFromLocal8Bit(errorText);
         const QString msg = files.isEmpty() ?
                             tr("Unable to reset %1: %2").arg(workingDirectory, stdErr) :
@@ -1413,17 +1416,35 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
 {
     if (Git::Constants::debug)
         qDebug() << "GitClient::addAndCommit:" << repositoryDirectory << checkedFiles << origCommitFiles;
+    const QString renamedSeparator = QLatin1String(" -> ");
 
     // Do we need to reset any files that had been added before
     // (did the user uncheck any previously added files)
-    const QSet<QString> resetFiles = origCommitFiles.toSet().subtract(checkedFiles.toSet());
-    if (!resetFiles.empty())
-        if (!synchronousReset(repositoryDirectory, resetFiles.toList()))
+    // Split up  renamed files ('foo.cpp -> foo2.cpp').
+    QStringList resetFiles = origCommitFiles.toSet().subtract(checkedFiles.toSet()).toList();
+    for (QStringList::iterator it = resetFiles.begin(); it != resetFiles.end(); ++it) {
+        const int renamedPos = it->indexOf(renamedSeparator);
+        if (renamedPos != -1) {
+            const QString newFile = it->mid(renamedPos + renamedSeparator.size());
+            it->truncate(renamedPos);
+            it = resetFiles.insert(++it, newFile);
+        }
+    }
+
+    if (!resetFiles.isEmpty())
+        if (!synchronousReset(repositoryDirectory, resetFiles))
             return false;
 
     // Re-add all to make sure we have the latest changes, but only add those that aren't marked
-    // for deletion
+    // for deletion. Purge out renamed files ('foo.cpp -> foo2.cpp').
     QStringList addFiles = checkedFiles.toSet().subtract(origDeletedFiles.toSet()).toList();
+    for (QStringList::iterator it = addFiles.begin(); it != addFiles.end(); ) {
+        if (it->contains(renamedSeparator)) {
+            it = addFiles.erase(it);
+        } else {
+            ++it;
+        }
+    }
     if (!addFiles.isEmpty())
         if (!synchronousAdd(repositoryDirectory, false, addFiles))
             return false;

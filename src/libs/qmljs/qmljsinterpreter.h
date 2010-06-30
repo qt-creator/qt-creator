@@ -271,21 +271,12 @@ private:
 class QMLJS_EXPORT Context
 {
 public:
-    enum LookupMode {
-        JSLookup,
-        QmlLookup
-    };
-
-public:
     Context(Engine *engine);
     ~Context();
 
     Engine *engine() const;
     const ScopeChain &scopeChain() const;
     ScopeChain &scopeChain();
-
-    LookupMode lookupMode() const;
-    void setLookupMode(LookupMode lookupMode);
 
     const ObjectValue *typeEnvironment(const Document *doc) const;
     void setTypeEnvironment(const Document *doc, const ObjectValue *typeEnvironment);
@@ -307,7 +298,6 @@ private:
     typedef QHash<QString, const Value *> Properties;
 
     Engine *_engine;
-    LookupMode _lookupMode;
     QHash<const ObjectValue *, Properties> _properties;
     QHash<QString, const ObjectValue *> _typeEnvironments;
     QSet<QString> _documentsImportingPlugins;

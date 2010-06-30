@@ -761,7 +761,6 @@ def stripTypedefs(typeobj):
         type = type.strip_typedefs().unqualified()
     return type
 
-
 #######################################################################
 #
 # Item
@@ -1377,7 +1376,7 @@ class Dumper:
                             self.putAddress(item.value)
                 self.putPointerValue(value.address)
 
-        elif str(type).startswith("<anon"):
+        elif str(typedefStrippedType).startswith("<anon"):
             # Anonymous union. We need a dummy name to distinguish
             # multiple anonymous unions in the struct.
             self.putType(item.value.type)
@@ -1394,7 +1393,7 @@ class Dumper:
 
             # Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=10953
             #fields = value.type.fields()
-            fields = value.type.strip_typedefs().fields()
+            fields = stripTypedefs(value.type).fields()
 
             self.putType(item.value.type)
             try:

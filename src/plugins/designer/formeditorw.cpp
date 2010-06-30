@@ -50,6 +50,8 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/minisplitter.h>
+#include <coreplugin/outputpane.h>
 #include <texteditor/texteditorsettings.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
@@ -149,6 +151,7 @@ FormEditorW::FormEditorW() :
     m_actionPrint(0),
     m_actionPreview(0),
     m_actionGroupPreviewInStyle(0),
+    m_previewInStyleMenu(0),
     m_actionAboutPlugins(0),
     m_shortcutMapper(new QSignalMapper(this)),
     m_context(0),
@@ -326,7 +329,12 @@ void FormEditorW::fullInit()
     layout->setMargin(0);
     layout->setSpacing(0);
     layout->addWidget(m_toolBar);
-    layout->addWidget(m_editorWidget);
+    // Avoid mode switch to 'Edit' mode when the application started by
+    // 'Run' in 'Design' mode emits output.
+    Core::MiniSplitter *splitter = new Core::MiniSplitter(Qt::Vertical);
+    splitter->addWidget(m_editorWidget);
+    splitter->addWidget(new Core::OutputPanePlaceHolder(m_designMode, splitter));
+    layout->addWidget(splitter);
     m_modeWidget->setLayout(layout);
 
     Core::Context designerContexts = m_contexts;
@@ -523,7 +531,10 @@ void FormEditorW::setupActions()
 
     // Preview in style...
     m_actionGroupPreviewInStyle = m_fwm->actionGroupPreviewInStyle();
-    mformtools->addMenu(createPreviewStyleMenu(am, m_actionGroupPreviewInStyle));
+    Core::ActionContainer *previewAC = createPreviewStyleMenu(am, m_actionGroupPreviewInStyle);
+    m_previewInStyleMenu = previewAC->menu();
+    mformtools->addMenu(previewAC);
+    setPreviewMenuEnabled(false);
 
     // Form settings
     createSeparator(this, am, m_contexts,  medit, QLatin1String("FormEditor.Edit.Separator2"), Core::Constants::G_EDIT_OTHER);
@@ -596,6 +607,12 @@ Core::ActionContainer *FormEditorW::createPreviewStyleMenu(Core::ActionManager *
         menuPreviewStyle->addAction(command);
     }
     return menuPreviewStyle;
+}
+
+void FormEditorW::setPreviewMenuEnabled(bool e)
+{
+    m_actionPreview->setEnabled(e);
+    m_previewInStyleMenu->setEnabled(e);
 }
 
 void FormEditorW::saveSettings(QSettings *s)
@@ -721,8 +738,7 @@ void FormEditorW::activeFormWindowChanged(QDesignerFormWindowInterface *afw)
         qDebug() << Q_FUNC_INFO << afw << " of " << m_fwm->formWindowCount();
 
     m_fwm->closeAllPreviews();
-    m_actionPreview->setEnabled(afw != 0);
-    m_actionGroupPreviewInStyle->setEnabled(afw != 0);
+    setPreviewMenuEnabled(afw != 0);
 }
 
 EditorData FormEditorW::activeEditor() const
