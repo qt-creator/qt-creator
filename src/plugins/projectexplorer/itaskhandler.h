@@ -37,7 +37,6 @@
 
 QT_BEGIN_NAMESPACE
 class QAction;
-class QObject;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
