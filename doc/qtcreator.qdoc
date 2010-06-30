@@ -14,21 +14,9 @@
 
     \section1 Version 2.1 (Draft)
 
-    Qt Creator provides integrated tools for both application designers
-    and developers to create applications for multiple desktop and mobile device
-    platforms.
-
-    For application designers, Qt Creator provides integrated
-    visual editors, \QD
-    \if defined(qtquick)
-    and \QMLD,
-    \endif
-    that you can use to design and develop
-    application user interfaces.
-
-    For application developers,
     Qt Creator provides a cross-platform, complete integrated development
-    environment (IDE) that is available for Linux,
+    environment (IDE) for application developers to create applications for
+    multiple desktop and mobile device platforms. It is available for Linux,
     Mac OS X and Windows operating systems. For more information, see
     \l{Operating Systems and Supported Platforms}.
 
@@ -145,95 +133,103 @@
 
   \title Introducing Qt Creator
 
-  Qt Creator provides you with tools to design and develop user interfaces and
-  complex applications for multiple desktop and mobile
-  platforms.
+    Qt Creator provides you with tools to design and develop
+    complex applications for multiple desktop and mobile platforms.
 
-  \section1 Designing User Interfaces
+    \image qtcreator-overview.png "Qt Creator overview"
 
-  \if defined(qtquick)
+    \section1 Why Do You Need Projects?
 
-  Qt Creator provides two integrated visual editors, \QD and \QMLD.
+    A \e project is a central concept in Qt Creator that might seem unnecessary
+    at the first glance. However, to be able to build and run applications,
+    Qt Creator needs the same
+    information as a compiler would need. This information is specified in the
+    project build and run settings.
 
-  \endif
+    Creating a project allows you to:
 
-  \QD is a tool for designing and building graphical user interfaces (GUIs) from
-  Qt widgets. You can compose and customize your widgets or dialogs and test
-  them using different styles and resolutions.
+        \list
 
-  Widgets and forms created with \QD are integrated seamlessly with programmed code,
-  using the Qt signals and slots mechanism, that lets you easily assign behavior to
-  graphical elements. All properties set in \QD can be changed dynamically within the code.
-  Furthermore, features like widget promotion and custom plugins allow you to use your
-  own widgets with \QD.
+            \o Group files together
 
-    \if defined(qtquick)
+            \o Add custom build steps
 
-  UIs that use widgets are clearly structured and enforce a platform look and feel,
-  which makes them useful for traditional applications. However, they are static, and
-  do not fully make use of the large high-resolution screens, touch input, and significant
-  graphics power that are becoming common in portable consumer devices, such as mobile
-  phones, media players, set-top boxes, and netbooks.
+            \o Include forms and resource files
 
-  \QMLD allows you to easily develop animations by using a declarative programming
-  language called \l {http://doc.qt.nokia.com/4.7-snapshot/declarativeui.html}{QML}.
-  In QML, a user interface is specified as a tree of objects with properties.
+            \o Specify settings for running applications
 
-  You use a visual editor to create items, screens, and applications, as well as define changes
-  in their state. \QMLD generates the necessary code for you.
+        \endlist
 
-  \note The visual \QMLD editor is provided as an experimental plugin that you must
-  enable to be able to edit QML files in the \gui Design mode. Enabling the
-  visual editor can negatively affect the overall stability of Qt Creator.
+    You can either create a project from scratch or import an existing
+    project. Qt Creator generates all the necessary files, depending on the type of
+    project you create. For example, if you choose to create a graphical user
+    interface (GUI) application, Qt Creator generates an empty .ui file
+    that you can modify with the integrated \QD.
 
-  You can edit the code in the code editor to add transitions from one state to another,
-  and interaction to specify user actions that change the states. You
-  can use Qt or JavaScript to implement the application logic.
+    Qt Creator is integrated with cross-platform systems for build automation: qmake and
+    CMake. In addition, you can import generic projects that do not use qmake or CMake,
+    and specify that Qt Creator ignores your build system.
 
-  \endif
+    \section1 Coding Applications
 
-  \section1 Coding Applications
+    As an IDE, Qt Creator differs from a text editor in that it knows how to build and run
+    applications. It understands the C++ and QML languages as code, not just as plain text. This allows
+    it to:
 
-  As an IDE, Qt Creator differs from a text editor in that it knows how to build and run
-  applications. It understands the code as code, not just as plain text. This allows
-  it to:
-  \list
-      \o Enable you to write well formatted code
-      \o Anticipate what you are going to write and complete the code
-      \o Display inline error and warning messages
-      \o Enable you to semantically navigate to classes, functions, and symbols
-      \o Provide you with context-sensitive help on classes, functions, and symbols
-      \o Rename symbols in an intelligent way, so that other symbols with the same name
+    \list
+
+        \o Enable you to write well formatted code
+
+        \o Anticipate what you are going to write and complete the code
+
+        \o Display inline error and warning messages
+
+        \o Enable you to semantically navigate to classes, functions, and symbols
+
+        \o Provide you with context-sensitive help on classes, functions, and symbols
+
+        \o Rename symbols in an intelligent way, so that other symbols with the same name
          that belong to other scopes are not renamed
-      \o Show you the locations in code where a function is declared or called
-   \endlist
 
-      \section1 Why Do You Need Projects?
+        \o Show you the locations in code where a function is declared or called
 
-      To be able to build and run applications, Qt Creator needs the same
-      information as a compiler would need. This information is specified in the
-      project build and run settings.
+    \endlist
 
-      Creating a project allows you to:
-      \list
-      \o Group files together
-      \o Add custom build steps
-      \o Include forms and resource files
-      \o Specify settings for running applications
-      \endlist
+    \section1 Using Integrated Tools
 
-      You can either create a project from scratch or import an existing
-      project. Qt Creator generates all the necessary files, depending on the type of
-      project you create. For example, if you choose to create a graphical user
-      interface (GUI) application, Qt Creator generates an empty .ui file
-      that you can modify with the integrated \QD.
+    The following tools have been integrated with Qt Creator:
 
-      \if defined(qtquick)
+    \list
 
-      If you choose to create a Qt Quick application, Qt Creator generates a .qml file
-      that you can modify with the \QMLD visual editor and the code editor.
+        \o \QD for designing and building graphical user interfaces (GUIs) from
+        Qt widgets.
 
-      \endif
+        \o \e Qt Simulator for testing Qt applications that are intended
+        for mobile devices in an environment similar to that of the device.
+
+        \o \e {Version control systems} for accessing your project repositories.
+
+        \o \e {Debugger plugin} for accessing external native debuggers,
+        such as the GNU Symbolic Debugger (gdb), the Microsoft Console Debugger (CDB),
+        and an internal Java Script debugger, to debug the C++ language.
+
+        \o \e {QML inspector plugin} for debugging the QML language.
+
+    \endlist
+
+    \section1 Deploying Applications
+
+    Qt Creator provides support for building and running Qt applications for
+    desktop environment and mobile devices. Build settings allow you to quickly
+    switch between build targets.
+
+    When you build an application for a mobile device target with a device
+    connected to the development PC, Qt Creator generates an installation package,
+    installs in on the device, and executes it.
+
+    You can publish the installation packages on the Ovi Store. For Symbian devices,
+    the packages must be signed.
+
 */
 
 /*!
@@ -616,13 +612,31 @@
 
     \title Developing Application UI
 
-    To help you design the user interface of your application, two visual
-    editors are integrated into Qt Creator:
+    You can use the integrated \QD to design and build graphical user interfaces (GUIs) from
+    Qt widgets. You can compose and customize your widgets or dialogs and test
+    them using different styles and resolutions.
 
-    \list
-    \o \QD
-    \o \QMLD
-    \endlist
+    Widgets and forms created with \QD are integrated seamlessly with programmed code,
+    using the Qt signals and slots mechanism, that lets you easily assign behavior to
+    graphical elements. All properties set in \QD can be changed dynamically within the code.
+    Furthermore, features like widget promotion and custom plugins allow you to use your
+    own widgets with \QD.
+
+    \if defined(qtquick)
+
+    UIs that use widgets are clearly structured and enforce a platform look and feel,
+    which makes them useful for traditional applications. However, they are static, and
+    do not fully make use of the large high-resolution screens, touch input, and significant
+    graphics power that are becoming common in portable consumer devices, such as mobile
+    phones, media players, set-top boxes, and netbooks.
+
+    You can easily develop animations by using a declarative programming
+    language called \l {http://doc.qt.nokia.com/4.7-snapshot/declarativeui.html}{QML}.
+    In QML, a user interface is specified as a tree of objects with properties.
+    You can edit QML code in the code editor. You
+    can use Qt or JavaScript to implement the application logic.
+
+    \endif
 
     The integration includes project management and code completion.
 
@@ -2587,9 +2601,6 @@
     \title Getting Started
 
     This section contains examples that illustrate how to use Qt Creator
-    \if defined(qtquick)
-    and the integrated design tools, \QD and \QMLD,
-    \endif
     to create, build, and run simple
     applications:
 
