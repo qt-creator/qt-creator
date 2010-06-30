@@ -3,11 +3,28 @@
 #include <prowriter.h>
 #include <qt4projectmanager/profilereader.h>
 
+#include <QtCore/QCryptographicHash>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 
 namespace Qt4ProjectManager {
 namespace Internal {
+
+namespace {
+    QString pathVar(const QString &var)
+    {
+        return var + QLatin1String(".path");
+    }
+
+    QString filesVar(const QString &var)
+    {
+        return var + QLatin1String(".files");
+    }
+
+    const QLatin1String InstallsVar("INSTALLS");
+    const QLatin1String TargetVar("target");
+}
+
 
 ProFileWrapper::ProFileWrapper(const QString &proFileName)
     : m_proFileName(proFileName), m_proDir(QFileInfo(m_proFileName).dir()),
@@ -17,6 +34,100 @@ ProFileWrapper::ProFileWrapper(const QString &proFileName)
 }
 
 ProFileWrapper::~ProFileWrapper() {}
+
+
+ProFileWrapper::InstallsList ProFileWrapper::installs() const
+{
+    InstallsList list;
+
+    const QStringList &elemList = varValues(InstallsVar);
+    foreach (const QString &elem, elemList) {
+        const QStringList &paths = varValues(pathVar(elem));
+        if (paths.count() != 1) {
+            qWarning("Error: Variable %s has %d values.",
+                qPrintable(pathVar(elem)), paths.count());
+            continue;
+        }
+
+        const QStringList &files = varValues(filesVar(elem));
+
+        if (elem == TargetVar) {
+            if (!list.targetPath.isEmpty()) {
+                qWarning("Error: More than one target in INSTALLS list.");
+                continue;
+            }
+            list.targetPath = paths.first();
+        } else {
+            if (files.isEmpty()) {
+                qWarning("Error: Variable %s has no RHS.",
+                    qPrintable(filesVar(elem)));
+                continue;
+            }
+            list.normalElems << InstallsElem(elem, paths.first(), files);
+        }
+    }
+
+    return list;
+}
+
+bool ProFileWrapper::addInstallsElem(const QString &path,
+    const QString &absFilePath, const QString &var)
+{
+    QString varName = var;
+    if (varName.isEmpty()) {
+        QCryptographicHash elemHash(QCryptographicHash::Md5);
+        elemHash.addData(absFilePath.toUtf8());
+        varName = QString::fromAscii(elemHash.result().toHex());
+    }
+
+    // TODO: Use lower-level calls here to make operation atomic.
+    if (varName != TargetVar && !addFile(filesVar(varName), absFilePath))
+        return false;
+    return addVarValue(pathVar(varName), path)
+        && addVarValue(InstallsVar, varName);
+}
+
+bool ProFileWrapper::addInstallsTarget(const QString &path)
+{
+    return addInstallsElem(path, QString(), TargetVar);
+}
+
+bool ProFileWrapper::removeInstallsElem(const QString &path,
+    const QString &file)
+{
+    const InstallsElem &elem = findInstallsElem(path, file);
+    if (elem.varName.isEmpty())
+        return false;
+
+    // TODO: Use lower-level calls here to make operation atomic.
+    if (elem.varName != TargetVar && !removeFile(filesVar(elem.varName), file))
+        return false;
+    if (elem.files.count() <= 1) {
+        if (!removeVarValue(pathVar(elem.varName), path))
+            return false;
+        if (!removeVarValue(InstallsVar, elem.varName))
+            return false;
+    }
+    return true;
+}
+
+bool ProFileWrapper::replaceInstallPath(const QString &oldPath,
+    const QString &file, const QString &newPath)
+{
+    const InstallsElem &elem = findInstallsElem(oldPath, file);
+    if (elem.varName.isEmpty())
+        return false;
+
+    // Simple case: Variable has only one file, so just replace the path.
+    if (elem.varName == TargetVar || elem.files.count() == 1)
+        return replaceVarValue(pathVar(elem.varName), oldPath, newPath);
+
+    // Complicated case: Variable has other files, so remove our file from it
+    // and introduce a new one.
+    if (!removeInstallsElem(oldPath, file))
+        return false;
+    return addInstallsElem(newPath, file);
+}
 
 QStringList ProFileWrapper::varValues(const QString &var) const
 {
@@ -153,6 +264,25 @@ bool ProFileWrapper::readProFileContents()
         return false;
     m_proFileContents = proFileContents.split('\n');
     return true;
+}
+
+ProFileWrapper::InstallsElem ProFileWrapper::findInstallsElem(const QString &path,
+    const QString &file) const
+{
+    const QStringList &elems = varValues(InstallsVar);
+    foreach (const QString &elem, elems) {
+        const QStringList &elemPaths = varValues(pathVar(elem));
+        if (elemPaths.count() != 1 || elemPaths.first() != path)
+            continue;
+        if (elem == TargetVar)
+            return InstallsElem(elem, path, QStringList());
+        const QStringList &elemFiles = varValues(filesVar(elem));
+        foreach (const QString &elemFile, elemFiles) {
+            if (absFilePath(elemFile) == file)
+                return InstallsElem(elem, path, elemFiles);
+        }
+    }
+    return InstallsElem(QString(), QString(), QStringList());
 }
 
 } // namespace Internal

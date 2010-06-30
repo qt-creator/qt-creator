@@ -87,9 +87,6 @@ private:
                          int role = Qt::EditRole);
 
     bool buildModel() const;
-    void resetProFileContents() const;
-
-    QString findInstallsElem(const MaemoDeployable &deployable) const;
 
     const MaemoPackageCreationStep * const m_packageStep;
     mutable QList<MaemoDeployable> m_deployables;

@@ -41,21 +41,6 @@
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 
-namespace {
-    QString pathVar(const QString &var)
-    {
-        return var + QLatin1String(".path");
-    }
-
-    QString filesVar(const QString &var)
-    {
-        return var + QLatin1String(".files");
-    }
-
-    const QLatin1String InstallsVar("INSTALLS");
-    const QLatin1String TargetVar("target");
-}
-
 namespace Qt4ProjectManager {
 namespace Internal {
 
@@ -77,35 +62,8 @@ bool MaemoPackageContents::buildModel() const
     m_deployables.clear();
     QSharedPointer<ProFileWrapper> proFileWrapper
         = m_packageStep->proFileWrapper();
-    const QStringList &elemList = proFileWrapper->varValues(InstallsVar);
-    bool targetFound = false;
-    foreach (const QString &elem, elemList) {
-        const QStringList &paths = proFileWrapper->varValues(pathVar(elem));
-        if (paths.count() != 1) {
-            qWarning("Error: Variable %s has %d values.",
-                qPrintable(pathVar(elem)), paths.count());
-            continue;
-        }
-
-        const QStringList &files = proFileWrapper->varValues(filesVar(elem));
-        if (files.isEmpty() && elem != TargetVar) {
-            qWarning("Error: Variable %s has no RHS.",
-                qPrintable(filesVar(elem)));
-            continue;
-        }
-
-        if (elem == TargetVar) {
-            m_deployables.prepend(MaemoDeployable(m_packageStep->localExecutableFilePath(),
-                paths.first()));
-            targetFound = true;
-        } else {
-            foreach (const QString &file, files)
-                m_deployables << MaemoDeployable(
-                    proFileWrapper->absFilePath(file), paths.first());
-        }
-    }
-
-    if (!targetFound) {
+    const ProFileWrapper::InstallsList &installs = proFileWrapper->installs();
+    if (installs.targetPath.isEmpty()) {
         const Qt4ProFileNode * const proFileNode
             = m_packageStep->qt4BuildConfiguration()->qt4Target()
                 ->qt4Project()->rootProjectNode();
@@ -114,16 +72,23 @@ bool MaemoPackageContents::buildModel() const
             : QLatin1String("/usr/local/bin");
         m_deployables.prepend(MaemoDeployable(m_packageStep->localExecutableFilePath(),
             remoteDir));
-
-        if (!proFileWrapper->addVarValue(pathVar(TargetVar), remoteDir)
-            || !proFileWrapper->addVarValue(InstallsVar, TargetVar)) {
+        if (!proFileWrapper->addInstallsTarget(remoteDir)) {
             qWarning("Error updating .pro file.");
             return false;
+        }
+    } else {
+        m_deployables.prepend(MaemoDeployable(m_packageStep->localExecutableFilePath(),
+            installs.targetPath));
+    }
+    foreach (const ProFileWrapper::InstallsElem &elem, installs.normalElems) {
+        foreach (const QString &file, elem.files) {
+            m_deployables << MaemoDeployable(proFileWrapper->absFilePath(file),
+                elem.path);
         }
     }
 
     m_initialized = true;
-    m_modified = true;
+    m_modified = true; // ???
     return true;
 }
 
@@ -140,14 +105,12 @@ bool MaemoPackageContents::addDeployable(const MaemoDeployable &deployable,
         *error = tr("File already in list.");
         return false;
     }
-    const QSharedPointer<ProFileWrapper> proFileWrapper
-        = m_packageStep->proFileWrapper();
-    QCryptographicHash elemHash(QCryptographicHash::Md5);
-    elemHash.addData(deployable.localFilePath.toUtf8());
-    const QString elemName = QString::fromAscii(elemHash.result().toHex());
-    proFileWrapper->addFile(filesVar(elemName), deployable.localFilePath);
-    proFileWrapper->addVarValue(pathVar(elemName), deployable.remoteDir);
-    proFileWrapper->addVarValue(InstallsVar, elemName);
+
+    if (!m_packageStep->proFileWrapper()->addInstallsElem(deployable.remoteDir,
+        deployable.localFilePath)) {
+        *error = tr("Failed to update .pro file.");
+        return false;
+    }
 
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     m_deployables << deployable;
@@ -160,32 +123,14 @@ bool MaemoPackageContents::removeDeployableAt(int row, QString *error)
     Q_ASSERT(row > 0 && row < rowCount());
 
     const MaemoDeployable &deployable = deployableAt(row);
-    const QString elemToRemove = findInstallsElem(deployable);
-    if (elemToRemove.isEmpty()) {
-        *error = tr("Inconsistent model: Deployable not found in  .pro file.");
-        return false;
-    }
-
-    const QString &filesVarName = filesVar(elemToRemove);
-    QSharedPointer<ProFileWrapper> proFileWrapper
-        = m_packageStep->proFileWrapper();
-    const bool isOnlyElem
-        = proFileWrapper->varValues(filesVarName).count() == 1;
-    bool success
-        = proFileWrapper->removeFile(filesVarName, deployable.localFilePath);
-    if (success && isOnlyElem) {
-        success = proFileWrapper->removeVarValue(pathVar(elemToRemove),
-            deployable.remoteDir);
-        if (success)
-            success = proFileWrapper->removeVarValue(InstallsVar, elemToRemove);
-    }
-    if (!success) {
-        *error = tr("Could not remove deployable from .pro file.");
+    if (!m_packageStep->proFileWrapper()
+        ->removeInstallsElem(deployable.remoteDir, deployable.localFilePath)) {
+        *error = tr("Could not update .pro file.");
         return false;
     }
 
     beginRemoveRows(QModelIndex(), row, row);
-    m_deployables.removeAt(row - 1);
+    m_deployables.removeAt(row);
     endRemoveRows();
     return true;
 }
@@ -230,19 +175,10 @@ bool MaemoPackageContents::setData(const QModelIndex &index,
         return false;
 
     MaemoDeployable &deployable = m_deployables[index.row()];
-    const QString elemToChange = findInstallsElem(deployable);
-    if (elemToChange.isEmpty()) {
-        qWarning("Error: Inconsistent model. "
-            "INSTALLS element not found in .pro file");
-        return false;
-    }
-
     const QString &newRemoteDir = value.toString();
-    QSharedPointer<ProFileWrapper> proFileWrapper
-        = m_packageStep->proFileWrapper();
-    if (!proFileWrapper->replaceVarValue(pathVar(elemToChange),
-        deployable.remoteDir, newRemoteDir)) {
-        qWarning("Error: Could not change remote path in .pro file.");
+    if (!m_packageStep->proFileWrapper()->replaceInstallPath(deployable.remoteDir,
+        deployable.localFilePath, newRemoteDir)) {
+        qWarning("Error: Could not update .pro file");
         return false;
     }
 
@@ -263,26 +199,6 @@ QString MaemoPackageContents::remoteExecutableFilePath() const
 {
     return buildModel() ? deployableAt(0).remoteDir + '/'
         + m_packageStep->executableFileName() : QString();
-}
-
-QString MaemoPackageContents::findInstallsElem(const MaemoDeployable &deployable) const
-{
-    QSharedPointer<ProFileWrapper> proFileWrapper
-        = m_packageStep->proFileWrapper();
-    const QStringList &elems = proFileWrapper->varValues(InstallsVar);
-    foreach (const QString &elem, elems) {
-        const QStringList elemPaths = proFileWrapper->varValues(pathVar(elem));
-        if (elemPaths.count() != 1 || elemPaths.first() != deployable.remoteDir)
-            continue;
-        if (elem == TargetVar)
-            return elem;
-        const QStringList elemFiles = proFileWrapper->varValues(filesVar(elem));
-        foreach (const QString &file, elemFiles) {
-            if (proFileWrapper->absFilePath(file) == deployable.localFilePath)
-                return elem;
-        }
-    }
-    return QString();
 }
 
 } // namespace Qt4ProjectManager
