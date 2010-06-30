@@ -22,6 +22,7 @@ HEADERS += \
     $$PWD/qmljsscopebuilder.h \
     $$PWD/qmljslineinfo.h \
     $$PWD/qmljscompletioncontextfinder.h \
+    $$PWD/qmljspropertyreader.h \
     $$PWD/qmljsrewriter.h
 
 SOURCES += \
@@ -35,6 +36,7 @@ SOURCES += \
     $$PWD/qmljsscopebuilder.cpp \
     $$PWD/qmljslineinfo.cpp \
     $$PWD/qmljscompletioncontextfinder.cpp \
+    $$PWD/qmljspropertyreader.cpp \
     $$PWD/qmljsrewriter.cpp
 
 OTHER_FILES += \
