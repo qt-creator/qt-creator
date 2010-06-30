@@ -1377,6 +1377,13 @@ def qdump__QRectF(d, item):
             d.putItem(Item(h, None, None, "h"))
 
 
+def qdump__QRegion(d, item):
+    d.putValue(" ")
+    d.putNumChild(1)
+    if d.isExpanded(item):
+        with Children(d):
+            d.putCallItem("rects", item, "rects()")
+
 def qdump__QSet(d, item):
 
     def hashDataFirstNode(value):

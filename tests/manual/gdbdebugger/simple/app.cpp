@@ -60,6 +60,7 @@
 #include <QtGui/QLabel>
 #include <QtGui/QPainter>
 #include <QtGui/QPainterPath>
+#include <QtGui/QRegion>
 #include <QtGui/QStandardItemModel>
 
 #include <QtNetwork/QHostAddress>
@@ -802,6 +803,15 @@ void testQPixmap()
     int i = 1;
     Q_UNUSED(i);
 }
+
+void testQRegion()
+{
+    QRegion region;
+    region += QRect(100, 100, 200, 200);
+    region += QRect(300, 300, 400, 500);
+    region += QRect(500, 500, 600, 600);
+}
+
 
 void testPlugin()
 {
@@ -1793,6 +1803,7 @@ int main(int argc, char *argv[])
     //testWCout0();
     //testWCout();
     testColor();
+    testQRegion();
     testStuff();
     testPeekAndPoke3();
     testFunctionPointer();
