@@ -161,11 +161,16 @@ bool MaemoPackageCreationStep::createPackage()
             env.insert(envPattern.cap(1), envPattern.cap(2));
     } while (!line.isEmpty());
     
-    QProcess buildProc;
-    buildProc.setProcessEnvironment(env);
-    buildProc.setWorkingDirectory(buildDir);
-    buildProc.start("cd " + buildDir);
-    buildProc.waitForFinished();
+
+    m_buildProc.reset(new QProcess);
+    connect(m_buildProc.data(), SIGNAL(readyReadStandardOutput()), this,
+        SLOT(handleBuildOutput()));
+    connect(m_buildProc.data(), SIGNAL(readyReadStandardError()), this,
+        SLOT(handleBuildOutput()));
+    m_buildProc->setProcessEnvironment(env);
+    m_buildProc->setWorkingDirectory(buildDir);
+    m_buildProc->start("cd " + buildDir);
+    m_buildProc->waitForFinished();
 
     // cache those two since we can change the version number during packaging
     // and might fail later to modify, copy, remove etc. the generated package
@@ -175,7 +180,7 @@ bool MaemoPackageCreationStep::createPackage()
     if (!QFileInfo(buildDir + QLatin1String("/debian")).exists()) {
         const QString command = QLatin1String("dh_make -s -n -p ")
             % executableFileName().toLower() % QLatin1Char('_') % versionString();
-        if (!runCommand(buildProc, command))
+        if (!runCommand(command))
             return false;
 
         QFile rulesFile(buildDir + QLatin1String("/debian/rules"));
@@ -213,7 +218,7 @@ bool MaemoPackageCreationStep::createPackage()
         }
     }
 
-    if (!runCommand(buildProc, "dpkg-buildpackage -nc -uc -us"))
+    if (!runCommand(QLatin1String("dpkg-buildpackage -nc -uc -us")))
         return false;
 
     // Workaround for non-working dh_builddeb --destdir=.
@@ -244,7 +249,7 @@ bool MaemoPackageCreationStep::createPackage()
     return true;
 }
 
-bool MaemoPackageCreationStep::runCommand(QProcess &proc, const QString &command)
+bool MaemoPackageCreationStep::runCommand(const QString &command)
 {
     QTextCharFormat textCharFormat;
     emit addOutput(tr("Package Creation: Running command '%1'.").arg(command), textCharFormat);
@@ -252,28 +257,39 @@ bool MaemoPackageCreationStep::runCommand(QProcess &proc, const QString &command
 #ifdef Q_OS_WIN
     perl = maddeRoot() + QLatin1String("/bin/perl.exe ");
 #endif
-    proc.start(perl + maddeRoot() % QLatin1String("/madbin/") % command);
-    if (!proc.waitForStarted()) {
+    m_buildProc->start(perl + maddeRoot() % QLatin1String("/madbin/") % command);
+    if (!m_buildProc->waitForStarted()) {
         raiseError(tr("Packaging failed."),
             tr("Packaging error: Could not start command '%1'. Reason: %2")
-            .arg(command).arg(proc.errorString()));
+            .arg(command).arg(m_buildProc->errorString()));
         return false;
     }
-    proc.write("\n"); // For dh_make
-    proc.waitForFinished(-1);
-    if (proc.error() != QProcess::UnknownError || proc.exitCode() != 0) {
+    m_buildProc->write("\n"); // For dh_make
+    m_buildProc->waitForFinished(-1);
+    if (m_buildProc->error() != QProcess::UnknownError || m_buildProc->exitCode() != 0) {
         QString mainMessage = tr("Packaging Error: Command '%1' failed.")
             .arg(command);
-        if (proc.error() != QProcess::UnknownError)
-            mainMessage += tr(" Reason: %1").arg(proc.errorString());
+        if (m_buildProc->error() != QProcess::UnknownError)
+            mainMessage += tr(" Reason: %1").arg(m_buildProc->errorString());
         else
-            mainMessage += tr("Exit code: %1").arg(proc.exitCode());
-        raiseError(mainMessage, mainMessage + QLatin1Char('\n')
-                   + tr("Output was: ") + proc.readAllStandardError()
-                   + QLatin1Char('\n') + proc.readAllStandardOutput());
+            mainMessage += tr("Exit code: %1").arg(m_buildProc->exitCode());
+        raiseError(mainMessage);
         return false;
     }
     return true;
+}
+
+void MaemoPackageCreationStep::handleBuildOutput()
+{
+    const QByteArray &stdOut = m_buildProc->readAllStandardOutput();
+    QTextCharFormat textCharFormat;
+    if (!stdOut.isEmpty())
+        emit addOutput(QString::fromLocal8Bit(stdOut), textCharFormat);
+    const QByteArray &errorOut = m_buildProc->readAllStandardError();
+    if (!errorOut.isEmpty()) {
+        textCharFormat.setForeground(QBrush(QColor("red")));
+        emit addOutput(QString::fromLocal8Bit(errorOut), textCharFormat);
+    }
 }
 
 const Qt4BuildConfiguration *MaemoPackageCreationStep::qt4BuildConfiguration() const
