@@ -928,8 +928,8 @@ bool MainWindow::showOptionsDialog(const QString &category,
     emit m_coreImpl->optionsDialogRequested();
     if (!parent)
         parent = this;
-    SettingsDialog dlg(parent, category, page);
-    return dlg.execDialog();
+    SettingsDialog *dialog = SettingsDialog::getSettingsDialog(parent, category, page);
+    return dialog->execDialog();
 }
 
 void MainWindow::saveAll()

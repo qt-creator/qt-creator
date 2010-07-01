@@ -34,6 +34,8 @@
 
 #include <QtCore/QList>
 #include <QtCore/QSet>
+#include <QtCore/QPointer>
+#include <QtCore/QEventLoop>
 #include <QtGui/QDialog>
 
 QT_BEGIN_NAMESPACE
@@ -59,13 +61,15 @@ class SettingsDialog : public QDialog
     Q_OBJECT
 
 public:
-    SettingsDialog(QWidget *parent,
-                   const QString &initialCategory = QString(),
-                   const QString &initialPage = QString());
-    ~SettingsDialog();
 
-    // Run the dialog and return true if 'Ok' was chosen or 'Apply' was invoked
-    // at least once
+    // Returns a settings dialog. This makes sure that always only
+    // a single settings dialog instance is running.
+    // The dialog will be deleted automatically on close.
+    static SettingsDialog *getSettingsDialog(QWidget *parent,
+                               const QString &initialCategory = QString(),
+                               const QString &initialPage = QString());
+    // Run the dialog and wait for it to finish.
+    // Returns if the changes have been applied.
     bool execDialog();
 
     virtual QSize sizeHint() const;
@@ -82,8 +86,12 @@ private slots:
     void filter(const QString &text);
 
 private:
+    SettingsDialog(QWidget *parent);
+    ~SettingsDialog();
+
     void createGui();
     void showCategory(int index);
+    void showPage(const QString &categoryId, const QString &pageId);
     void updateEnabledTabs(Category *category, const QString &searchText);
 
     const QList<Core::IOptionsPage*> m_pages;
@@ -91,13 +99,16 @@ private:
     QSet<Core::IOptionsPage*> m_visitedPages;
     QSortFilterProxyModel *m_proxyModel;
     CategoryModel *m_model;
-    bool m_applied;
     QString m_currentCategory;
     QString m_currentPage;
     QStackedLayout *m_stackedLayout;
     Utils::FilterLineEdit *m_filterLineEdit;
     QListView *m_categoryList;
     QLabel *m_headerLabel;
+    bool m_running;
+    bool m_applied;
+    QList<QEventLoop *> m_eventLoops;
+    static QPointer<SettingsDialog> m_instance;
 };
 
 } // namespace Internal
