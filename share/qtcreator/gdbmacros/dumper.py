@@ -1399,7 +1399,14 @@ class Dumper:
 
             # Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=10953
             #fields = value.type.fields()
-            fields = stripTypedefs(value.type).fields()
+
+            # Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=11777
+            #fields = stripTypedefs(value.type).fields()
+
+            # This seems to work.
+            type = stripTypedefs(type)
+            type = lookupType(str(type))
+            fields = type.fields()
 
             self.putType(item.value.type)
             try:
@@ -1436,7 +1443,10 @@ class Dumper:
 
     def putFields(self, item, innerType = None):
             value = item.value
-            fields = stripTypedefs(value.type).fields()
+            type = stripTypedefs(value.type)
+            # http://sourceware.org/bugzilla/show_bug.cgi?id=11777
+            type = lookupType(str(type))
+            fields = stripTypedefs(type).fields()
             baseNumber = 0
             for field in fields:
                 #warn("FIELD: %s" % field)
@@ -1447,9 +1457,9 @@ class Dumper:
                     continue  # A static class member(?).
 
                 if field.name is None:
-                    innerType = value.type.target()
+                    innerType = type.target()
                     p = value.cast(innerType.pointer())
-                    for i in xrange(value.type.sizeof / innerType.sizeof):
+                    for i in xrange(type.sizeof / innerType.sizeof):
                         self.putItem(Item(p.dereference(), item.iname, i, None))
                         p = p + 1
                     continue
