@@ -58,6 +58,11 @@ qhp.QtCreator.extraFiles       = \
                           images/qt-logo.png \
                           images/sprites-combined.png
 
+qhp.QtCreator.subprojects = manual
+qhp.QtCreator.subprojects.manual.title = Qt Creator Manual
+qhp.QtCreator.subprojects.manual.indexTitle = Qt Creator Manual
+qhp.QtCreator.subprojects.manual.type = manual
+
 # macros.qdocconf
 
 macro.aring.HTML        = "&aring;"
