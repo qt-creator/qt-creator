@@ -47,7 +47,6 @@
 #include <Names.h>
 #include <Scope.h>
 #include <BackwardsScanner.h>
-#include <TokenCache.h>
 
 #include <utils/changeset.h>
 
@@ -849,14 +848,14 @@ static QString createConstructor(ClassSpecifierAST *classAST)
     return result;
 }
 
-bool checkGenerated(TokenCache *tokenCache, const QTextCursor &cursor, int *doxyStart)
+bool checkGenerated(const QTextCursor &cursor, int *doxyStart)
 {
-    BackwardsScanner tokens(tokenCache, cursor);
-    SimpleToken prevToken = tokens.LA(1);
+    BackwardsScanner tokens(cursor);
+    Token prevToken = tokens.LA(1);
     if (prevToken.kind() != T_DOXY_COMMENT && prevToken.kind() != T_CPP_DOXY_COMMENT)
         return false;
 
-    *doxyStart = tokens.startPosition() + prevToken.position();
+    *doxyStart = tokens.startPosition() + prevToken.begin();
 
     return tokens.text(tokens.startToken() - 1).contains(QLatin1String("\\generated"));
 }
@@ -977,8 +976,6 @@ void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
 
     QList<GenInfo> todo;
 
-    TokenCache tokenCache;
-    tokenCache.setDocument(&cpp_document);
     TranslationUnitAST *xUnit = AST_cpp_document->translationUnit()->ast()->asTranslationUnit();
     for (DeclarationListAST *iter = xUnit->declaration_list; iter; iter = iter->next) {
         if (FunctionDefinitionAST *funDef = iter->value->asFunctionDefinition()) {
@@ -995,7 +992,7 @@ void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
                 const int start = cpp_document.findBlockByNumber(line - 1).position() + column - 1;
                 cursor.setPosition(start);
                 int doxyStart = start;
-                const bool isGenerated = checkGenerated(&tokenCache, cursor, &doxyStart);
+                const bool isGenerated = checkGenerated(cursor, &doxyStart);
 
                 AST_cpp_document->translationUnit()->getTokenEndPosition(funDef->lastToken() - 1, &line, &column);
                 int end = cpp_document.findBlockByNumber(line - 1).position() + column - 1;
