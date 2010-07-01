@@ -2098,31 +2098,19 @@ void ProjectExplorerPlugin::populateOpenWithMenu(QMenu *menu, const QString &fil
         const ExternalEditorList externalEditors = core->editorManager()->externalEditors(mt, false);
         anyMatches = !factories.empty() || !externalEditors.empty();
         if (anyMatches) {
-            const QList<Core::IEditor *> editorsOpenForFile = core->editorManager()->editorsForFileName(fileName);
             // Add all suitable editors
             foreach (Core::IEditorFactory *editorFactory, factories) {
                 // Add action to open with this very editor factory
                 QString const actionTitle = editorFactory->displayName();
                 QAction * const action = menu->addAction(actionTitle);
                 action->setData(qVariantFromValue(editorFactory));
-                // File already open in an editor -> only enable that entry since
-                // we currently do not support opening a file in two editors at once
-                if (!editorsOpenForFile.isEmpty()) {
-                    bool enabled = false;
-                    foreach (Core::IEditor * const openEditor, editorsOpenForFile) {
-                        if (editorFactory->id() == openEditor->id())
-                            enabled = true;
-                        break;
-                    }
-                    action->setEnabled(enabled);
-                }
-            } // for editor factories
+            }
             // Add all suitable external editors
             foreach (Core::IExternalEditor *externalEditor, externalEditors) {
                 QAction * const action = menu->addAction(externalEditor->displayName());
                 action->setData(qVariantFromValue(externalEditor));
             }
-        } // matches
+        }
     }
     menu->setEnabled(anyMatches);
 }
@@ -2146,6 +2134,18 @@ void ProjectExplorerPlugin::openEditorFromAction(QAction *action, const QString 
     const QVariant data = action->data();
     if (qVariantCanConvert<Core::IEditorFactory *>(data)) {
         Core::IEditorFactory *factory = qVariantValue<Core::IEditorFactory *>(data);
+
+        // close any open editors that have this file open, but have a different type.
+        QList<Core::IEditor *> editorsOpenForFile = em->editorsForFileName(fileName);
+        if (!editorsOpenForFile.isEmpty()) {
+            foreach (Core::IEditor *openEditor, editorsOpenForFile) {
+                if (factory->id() == openEditor->id())
+                    editorsOpenForFile.removeAll(openEditor);
+            }
+            if (!em->closeEditors(editorsOpenForFile)) // don't open if cancel was pressed
+                return;
+        }
+
         em->openEditor(fileName, factory->id());
         em->ensureEditorManagerVisible();
         return;
