@@ -44,6 +44,7 @@
 
 #include <projectexplorer/buildstep.h>
 
+#include <QtCore/QScopedPointer>
 #include <QtCore/QSharedPointer>
 
 QT_BEGIN_NAMESPACE
@@ -80,6 +81,9 @@ public:
     QString versionString() const;
     void setVersionString(const QString &version);
 
+private slots:
+    void handleBuildOutput();
+
 private:
     MaemoPackageCreationStep(ProjectExplorer::BuildConfiguration *buildConfig,
                              MaemoPackageCreationStep *other);
@@ -92,7 +96,7 @@ private:
     virtual bool fromMap(const QVariantMap &map);
 
     bool createPackage();
-    bool runCommand(QProcess &proc, const QString &command);
+    bool runCommand(const QString &command);
     const MaemoToolChain *maemoToolChain() const;
     QString maddeRoot() const;
     QString targetRoot() const;
@@ -108,6 +112,7 @@ private:
     bool m_packagingEnabled;
     QString m_versionString;
     mutable QSharedPointer<ProFileWrapper> m_proFileWrapper;
+    QScopedPointer<QProcess> m_buildProc;
 };
 
 } // namespace Internal
