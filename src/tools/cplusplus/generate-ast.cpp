@@ -1045,7 +1045,7 @@ void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
             info.end = documentEnd;
 
         if (info.remove) {
-            changes.remove(info.start, info.end - info.start);
+            changes.remove(info.start, info.end);
             return;
         }
 
@@ -1063,7 +1063,7 @@ void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
             generateLastToken(os, className, fields);
         }
 
-        changes.replace(info.start, info.end - info.start, method);
+        changes.replace(info.start, info.end, method);
     }
 
     QTextCursor tc(&cpp_document);
