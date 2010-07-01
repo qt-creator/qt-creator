@@ -39,13 +39,8 @@ using namespace QmlJSInspector::Constants;
 
 InspectorContext::InspectorContext(QWidget *widget)
   : IContext(widget),
-<<<<<<< HEAD:src/plugins/qmljsinspector/qmljsinspectorcontext.cpp
     m_widget(widget),
     m_context(C_INSPECTOR)
-=======
-    m_context(Constants::C_INSPECTOR),
-    m_widget(widget)
->>>>>>> 6dc4a039f2cb50a02a0e15265548547b94a6dc9d:src/plugins/qmlinspector/inspectorcontext.cpp
 {
 }
 
