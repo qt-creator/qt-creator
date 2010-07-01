@@ -1298,8 +1298,15 @@ class Dumper:
         elif typedefStrippedType.code == gdb.TYPE_CODE_PTR:
             #warn("POINTER: %s" % format)
             isHandled = False
+            target = stripTypedefs(type.target())
 
-            if not format is None:
+            if (not isHandled) and target.code == gdb.TYPE_CODE_VOID:
+                self.putType(item.value.type)
+                self.putValue(str(value))
+                self.putNumChild(0)
+                isHandled = True
+
+            if (not isHandled) and (not format is None):
                 self.putAddress(value.address)
                 self.putType(item.value.type)
                 isHandled = True
@@ -1339,8 +1346,7 @@ class Dumper:
                     self.putNumChild(0)
                     isHandled = True
 
-                target = stripTypedefs(type.target())
-                if (not isHandled) and target.code == gdb.TYPE_CODE_VOID:
+                if (not isHandled):
                     self.putType(item.value.type)
                     self.putValue(str(value))
                     self.putNumChild(0)

@@ -1384,6 +1384,9 @@ def qdump__QRegion(d, item):
         with Children(d):
             d.putCallItem("rects", item, "rects()")
 
+# qt_rgn might be 0
+# gdb.parse_and_eval("region")["d"].dereference()["qt_rgn"].dereference()
+
 def qdump__QSet(d, item):
 
     def hashDataFirstNode(value):
