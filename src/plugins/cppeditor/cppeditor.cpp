@@ -121,79 +121,14 @@ public:
     }
 };
 
-class FindScope: protected SymbolVisitor
-{
-    TranslationUnit *_unit;
-    Scope *_scope;
-    unsigned _line;
-    unsigned _column;
-
-public:
-    Scope *operator()(unsigned line, unsigned column,
-                      Symbol *root, TranslationUnit *unit)
-    {
-        _unit = unit;
-        _scope = 0;
-        _line = line;
-        _column = column;
-        accept(root);
-        return _scope;
-    }
-
-private:
-    using SymbolVisitor::visit;
-
-    virtual bool preVisit(Symbol *)
-    { return ! _scope; }
-
-    virtual bool visit(Block *block)
-    { return processScope(block->members()); }
-
-    virtual bool visit(Function *function)
-    { return processScope(function->members()); }
-
-    virtual bool visit(ObjCMethod *method)
-    { return processScope(method->members()); }
-
-    bool processScope(Scope *scope)
-    {
-        if (_scope || ! scope)
-            return false;
-
-        for (unsigned i = 0; i < scope->symbolCount(); ++i) {
-            accept(scope->symbolAt(i));
-
-            if (_scope)
-                return false;
-        }
-
-        unsigned startOffset = scope->owner()->startOffset();
-        unsigned endOffset = scope->owner()->endOffset();
-
-        unsigned startLine, startColumn;
-        unsigned endLine, endColumn;
-
-        _unit->getPosition(startOffset, &startLine, &startColumn);
-        _unit->getPosition(endOffset, &endLine, &endColumn);
-
-        if (_line > startLine || (_line == startLine && _column >= startColumn)) {
-            if (_line < endLine || (_line == endLine && _column < endColumn)) {
-                _scope = scope;
-            }
-        }
-
-        return false;
-    }
-};
-
 class FindLocalUses: protected ASTVisitor
 {
     Scope *_functionScope;
-    FindScope findScope;
+    Document::Ptr _doc;
 
 public:
-    FindLocalUses(TranslationUnit *translationUnit)
-        : ASTVisitor(translationUnit), hasD(false), hasQ(false)
+    FindLocalUses(Document::Ptr doc)
+        : ASTVisitor(doc->translationUnit()), _doc(doc), hasD(false), hasQ(false)
     { }
 
     // local and external uses.
@@ -269,9 +204,7 @@ protected:
         unsigned line, column;
         getTokenStartPosition(tokenIdx, &line, &column);
 
-        Scope *scope = findScope(line, column,
-                                 _functionScope->owner(),
-                                 translationUnit());
+        Scope *scope = _doc->scopeAt(line, column);
 
         while (scope) {
             if (scope->isFunctionScope()) {
@@ -311,9 +244,7 @@ protected:
         unsigned line, column;
         getTokenStartPosition(ast->firstToken(), &line, &column);
 
-        Scope *scope = findScope(line, column,
-                                 _functionScope->owner(),
-                                 translationUnit());
+        Scope *scope = _doc->scopeAt(line, column);
 
         while (scope) {
             if (scope->isFunctionScope()) {
@@ -2179,7 +2110,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     FunctionDefinitionUnderCursor functionDefinitionUnderCursor(translationUnit);
     DeclarationAST *currentFunctionDefinition = functionDefinitionUnderCursor(ast, source.line, source.column);
 
-    FindLocalUses useTable(translationUnit);
+    FindLocalUses useTable(doc);
     useTable(currentFunctionDefinition);
 
     SemanticInfo semanticInfo;
