@@ -36,14 +36,20 @@
 #include <QtCore/QHash>
 #include <QtCore/QObject>
 #include <QtCore/QPoint>
+#include <QtCore/QProcess>
 #include <QtCore/QQueue>
 #include <QtCore/QTimer>
 #include <QtCore/QVariant>
 
 #include <QtNetwork/QAbstractSocket>
+#include <QtNetwork/QTcpSocket>
 
 QT_BEGIN_NAMESPACE
 class QTcpSocket;
+class QDeclarativeDebugConnection;
+class QDeclarativeEngineDebug;
+class QDeclarativeDebugEnginesQuery;
+class QDeclarativeDebugRootContextQuery;
 QT_END_NAMESPACE
 
 namespace Debugger {
@@ -52,6 +58,8 @@ namespace Internal {
 class ScriptAgent;
 class WatchData;
 class QmlResponse;
+class CanvasFrameRate;
+class QmlDebuggerClient;
 
 class DEBUGGER_EXPORT QmlEngine : public DebuggerEngine
 {
@@ -120,7 +128,22 @@ private:
     unsigned int debuggerCapabilities() const;
 
     Q_SLOT void startDebugging();
+    void setupConnection();
 
+    void sendMessage(const QByteArray &msg);
+
+private slots:
+    void handleProcFinished(int, QProcess::ExitStatus status);
+    void handleProcError(QProcess::ProcessError error);
+    void readProcStandardOutput();
+    void readProcStandardError();
+
+    void connectionError();
+    void connectionConnected();
+    void connectionStateChanged();
+
+private:
+    QString errorMessage(QProcess::ProcessError error);
     typedef void (QmlEngine::*QmlCommandCallback)
         (const QmlResponse &record, const QVariant &cookie);
 
@@ -159,9 +182,13 @@ private:
     QTcpSocket *m_socket;
     QByteArray m_inbuffer;
     QList<QByteArray> m_services;
+    QProcess m_proc;
 
-signals:
-    void sendMessage(const QByteArray &);
+    QDeclarativeDebugConnection *m_conn;
+    QmlDebuggerClient *m_client;
+    QDeclarativeDebugEnginesQuery *m_engineQuery;
+    QDeclarativeDebugRootContextQuery *m_contextQuery;
+    CanvasFrameRate *m_frameRate;
 };
 
 } // namespace Internal

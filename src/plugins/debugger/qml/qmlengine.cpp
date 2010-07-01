@@ -30,6 +30,7 @@
 #include "qmlengine.h"
 
 #include "debuggerconstants.h"
+#include "debuggerplugin.h"
 #include "debuggerdialogs.h"
 #include "debuggerstringutils.h"
 
@@ -39,6 +40,10 @@
 #include "stackhandler.h"
 #include "watchhandler.h"
 #include "watchutils.h"
+
+#include "canvasframerate.h"
+
+#include <projectexplorer/environment.h>
 
 #include <utils/qtcassert.h>
 
@@ -55,6 +60,10 @@
 #include <QtGui/QToolTip>
 
 #include <QtNetwork/QTcpSocket>
+#include <QtNetwork/QHostAddress>
+
+#include <private/qdeclarativedebug_p.h>
+#include <private/qdeclarativedebugclient_p.h>
 
 #define DEBUG_QML 1
 #if DEBUG_QML
@@ -99,6 +108,36 @@ QString QmlEngine::QmlCommand::toString() const
 
 ///////////////////////////////////////////////////////////////////////
 //
+// QmlDebuggerClient
+//
+///////////////////////////////////////////////////////////////////////
+
+class QmlDebuggerClient : public QDeclarativeDebugClient
+{
+    Q_OBJECT
+
+public:
+    QmlDebuggerClient(QDeclarativeDebugConnection *connection, QmlEngine *engine)
+        : QDeclarativeDebugClient(QLatin1String("Debugger"), connection)
+        , m_connection(connection), m_engine(engine)
+    {
+        setEnabled(true);
+    }
+
+    void messageReceived(const QByteArray &data)
+    {
+        m_engine->messageReceived(data);
+    }
+
+
+    QDeclarativeDebugConnection *m_connection;
+    QmlEngine *m_engine;
+};
+
+
+
+///////////////////////////////////////////////////////////////////////
+//
 // QmlEngine
 //
 ///////////////////////////////////////////////////////////////////////
@@ -108,6 +147,13 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters)
 {
     m_congestion = 0;
     m_inAir = 0;
+
+    m_conn = 0;
+    m_client = 0;
+    m_engineQuery = 0;
+    m_contextQuery = 0;
+
+    m_frameRate = 0;
 
     m_sendTimer.setSingleShot(true);
     m_sendTimer.setInterval(100); // ms
@@ -128,6 +174,7 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters)
     //connect(m_socket, SIGNAL(proxyAuthenticationRequired(QNetworkProxy, QAuthenticator *)))
     //connect(m_socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
     //    thism SLOT(socketStateChanged(QAbstractSocket::SocketState)));
+
 }
 
 QmlEngine::~QmlEngine()
@@ -153,8 +200,9 @@ void QmlEngine::socketReadyRead()
 
 void QmlEngine::socketConnected()
 {
+    qDebug() << "SOCKET CONNECTED.";
     showStatusMessage("Socket connected.");
-    m_socket->waitForConnected(2000);
+    //m_socket->waitForConnected(2000);
     //sendCommand("Locator", "redirect", "ID");
 }
 
@@ -168,6 +216,7 @@ void QmlEngine::socketError(QAbstractSocket::SocketError)
     QString msg = tr("%1.").arg(m_socket->errorString());
     //QMessageBox::critical(q->mainWindow(), tr("Error"), msg);
     showStatusMessage(msg);
+    qDebug() << "SOCKET ERROR: " << msg;
     exitDebugger();
 }
 
@@ -199,19 +248,95 @@ void QmlEngine::exitDebugger()
     SDEBUG("QmlEngine::exitDebugger()");
 }
 
+const int serverPort = 3768;
+
 void QmlEngine::startDebugger()
 {
-    qDebug() << "STARTING QML ENGINE";
-    setState(InferiorRunningRequested);
-    showStatusMessage(tr("Running requested..."), 5000);
-/*    const DebuggerStartParameters &sp = startParameters();
+    QTC_ASSERT(state() == DebuggerNotReady, setState(DebuggerNotReady));
+    setState(EngineStarting);
+    const DebuggerStartParameters &sp = startParameters();
     const int pos = sp.remoteChannel.indexOf(QLatin1Char(':'));
     const QString host = sp.remoteChannel.left(pos);
     const quint16 port = sp.remoteChannel.mid(pos + 1).toInt();
+    qDebug() << "STARTING QML ENGINE" <<  host << port << sp.remoteChannel
+        << sp.executable << sp.processArgs << sp.workingDirectory;
+  
+    ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment(); // empty env by default
+    env.set("QML_DEBUG_SERVER_PORT", QString::number(serverPort));
+
+    connect(&m_proc, SIGNAL(error(QProcess::ProcessError)),
+        SLOT(handleProcError(QProcess::ProcessError)));
+    connect(&m_proc, SIGNAL(finished(int, QProcess::ExitStatus)),
+        SLOT(handleProcFinished(int, QProcess::ExitStatus)));
+    connect(&m_proc, SIGNAL(readyReadStandardOutput()),
+        SLOT(readProcStandardOutput()));
+    connect(&m_proc, SIGNAL(readyReadStandardError()),
+        SLOT(readProcStandardError()));
+
+    setState(AdapterStarting);
+    m_proc.setEnvironment(env.toStringList());
+    m_proc.setWorkingDirectory(sp.workingDirectory);
+    m_proc.start(sp.executable, sp.processArgs);
+
     //QTimer::singleShot(0, this, SLOT(runInferior()));
-    m_socket->connectToHost(host, port); */
+
+    if (!m_proc.waitForStarted()) {
+        setState(AdapterStartFailed);
+        startFailed();
+        return;
+    }
+    qDebug() << "PROC STARTED.";
+    //m_socket->connectToHost(host, port);
+    //startSuccessful();
+    //showStatusMessage(tr("Running requested..."), 5000);
+    //setState(InferiorRunning); // FIXME
+
+    setState(AdapterStarted);
+    setState(InferiorStarting);
+
+    //m_frameRate = new CanvasFrameRate(0);
+    //m_frameRate->show();
+}
+
+void QmlEngine::setupConnection()
+{
+    QTC_ASSERT(m_conn == 0, /**/);
+    m_conn = new QDeclarativeDebugConnection(this);
+
+    connect(m_conn, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
+            SLOT(connectionStateChanged()));
+    connect(m_conn, SIGNAL(error(QAbstractSocket::SocketError)),
+            SLOT(connectionError()));
+    connect(m_conn, SIGNAL(connected()),
+            SLOT(connectionConnected()));
+
+    QTC_ASSERT(m_client == 0, /**/);
+    m_client = new QmlDebuggerClient(m_conn, this);
+
+    //m_objectTreeWidget->setEngineDebug(m_client);
+    //m_propertiesWidget->setEngineDebug(m_client);
+    //m_watchTableModel->setEngineDebug(m_client);
+    //m_expressionWidget->setEngineDebug(m_client);
+
+    //   resetViews();
+    //   m_frameRateWidget->reset(m_conn);
+    //   reloadEngines();
+
+    QHostAddress ha(QHostAddress::LocalHost);
+
+    qDebug() << "CONNECTING TO " << ha.toString() << serverPort;
+    m_conn->connectToHost(ha, serverPort);
+
+    if (!m_conn->waitForConnected()) {
+        qDebug() << "CONNECTION FAILED";
+        setState(InferiorStartFailed);
+        startFailed();
+        return;
+    }
+
+    qDebug() << "CONNECTION SUCCESSFUL";
+    setState(InferiorRunning);
     startSuccessful();
-    setState(InferiorRunning); // FIXME
 }
 
 void QmlEngine::continueInferior()
@@ -231,6 +356,7 @@ void QmlEngine::runInferior()
 
 void QmlEngine::interruptInferior()
 {
+    qDebug() << "INTERRUPT";
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
     rs << QByteArray("INTERRUPT");
@@ -503,6 +629,12 @@ void QmlEngine::handleSendTimer()
 */
 }
 
+void QmlEngine::sendMessage(const QByteArray &msg)
+{
+    QTC_ASSERT(m_client, return);
+    m_client->sendMessage(msg);
+}
+
 void QmlEngine::sendCommandNow(const QmlCommand &cmd)
 {
     ++m_inAir;
@@ -743,5 +875,131 @@ void QmlEngine::messageReceived(const QByteArray &message)
 
 }
 
+QString QmlEngine::errorMessage(QProcess::ProcessError error)
+{
+    switch (error) {
+        case QProcess::FailedToStart:
+            return tr("The Gdb process failed to start. Either the "
+                "invoked program is missing, or you may have insufficient "
+                "permissions to invoke the program.");
+        case QProcess::Crashed:
+            return tr("The Gdb process crashed some time after starting "
+                "successfully.");
+        case QProcess::Timedout:
+            return tr("The last waitFor...() function timed out. "
+                "The state of QProcess is unchanged, and you can try calling "
+                "waitFor...() again.");
+        case QProcess::WriteError:
+            return tr("An error occurred when attempting to write "
+                "to the Gdb process. For example, the process may not be running, "
+                "or it may have closed its input channel.");
+        case QProcess::ReadError:
+            return tr("An error occurred when attempting to read from "
+                "the Gdb process. For example, the process may not be running.");
+        default:
+            return tr("An unknown error in the Gdb process occurred. ");
+    }
+}
+
+void QmlEngine::handleProcError(QProcess::ProcessError error)
+{
+    showMessage(_("HANDLE QML ERROR"));
+    switch (error) {
+    case QProcess::Crashed:
+        break; // will get a processExited() as well
+    // impossible case QProcess::FailedToStart:
+    case QProcess::ReadError:
+    case QProcess::WriteError:
+    case QProcess::Timedout:
+    default:
+        m_proc.kill();
+        setState(EngineShuttingDown, true);
+        plugin()->showMessageBox(QMessageBox::Critical, tr("Gdb I/O Error"),
+                       errorMessage(error));
+        break;
+    }
+}
+
+void QmlEngine::handleProcFinished(int code, QProcess::ExitStatus type)
+{
+    showMessage(_("QML VIEWER PROCESS FINISHED, status %1, code %2").arg(type).arg(code));
+    setState(DebuggerNotReady, true);
+}
+
+void QmlEngine::readProcStandardError()
+{
+    qDebug() << "STD ERR" << m_proc.readAllStandardError();
+    if (!m_conn)
+        setupConnection();
+}
+
+void QmlEngine::readProcStandardOutput()
+{
+    qDebug() << "STD ERR" << m_proc.readAllStandardOutput();
+}
+
+void QmlEngine::connectionStateChanged()
+{
+    QTC_ASSERT(m_conn, return);
+    QAbstractSocket::SocketState state = m_conn->state();
+    qDebug() << "CONNECTION STATE: " << state;
+    switch (state) {
+        case QAbstractSocket::UnconnectedState:
+        {
+            showStatusMessage(tr("[QmlEngine] disconnected.\n\n"));
+
+            delete m_engineQuery;
+            m_engineQuery = 0;
+            delete m_contextQuery;
+            m_contextQuery = 0;
+
+//            resetViews();
+
+//            updateMenuActions();
+
+            break;
+        }
+        case QAbstractSocket::HostLookupState:
+            showStatusMessage(tr("[QmlEngine] resolving host..."));
+            break;
+        case QAbstractSocket::ConnectingState:
+            showStatusMessage(tr("[QmlEngine] connecting to debug server..."));
+            break;
+        case QAbstractSocket::ConnectedState:
+            showStatusMessage(tr("[QmlEngine] connected.\n"));
+            //setupConnection()
+            break;
+        case QAbstractSocket::ClosingState:
+            showStatusMessage(tr("[QmlEngine] closing..."));
+            break;
+        case QAbstractSocket::BoundState:
+            showStatusMessage(tr("[QmlEngine] bound state"));
+            break;
+        case QAbstractSocket::ListeningState:
+            showStatusMessage(tr("[QmlEngine] listening state"));
+            break;
+        default:
+            showStatusMessage(tr("[QmlEngine] unknown state: %1").arg(state));
+            break;
+    }
+}
+
+void QmlEngine::connectionError()
+{
+    QTC_ASSERT(m_conn, return);
+    showStatusMessage(tr("[QmlEngine] error: (%1) %2", "%1=error code, %2=error message")
+            .arg(m_conn->error()).arg(m_conn->errorString()));
+}
+
+void QmlEngine::connectionConnected()
+{
+    QTC_ASSERT(m_conn, return);
+    showStatusMessage(tr("[QmlEngine] error: (%1) %2", "%1=error code, %2=error message")
+            .arg(m_conn->error()).arg(m_conn->errorString()));
+}
+
+
 } // namespace Internal
 } // namespace Debugger
+
+#include "qmlengine.moc"
