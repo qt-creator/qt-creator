@@ -1354,6 +1354,8 @@ void QmlJSTextEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
     appendExtraSelectionsForMessages(&selections, doc->diagnosticMessages(), document());
     appendExtraSelectionsForMessages(&selections, m_semanticInfo.semanticMessages, document());
     setExtraSelections(CodeWarningsSelection, selections);
+
+    emit semanticInfoUpdated(semanticInfo);
 }
 
 void QmlJSTextEditor::onCursorPositionChanged()

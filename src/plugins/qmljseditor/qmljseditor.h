@@ -218,6 +218,9 @@ public slots:
     void followSymbolUnderCursor();
     virtual void setFontSettings(const TextEditor::FontSettings &);
 
+signals:
+    void semanticInfoUpdated(const QmlJSEditor::Internal::SemanticInfo &semanticInfo);
+
 private slots:
     void onDocumentUpdated(QmlJS::Document::Ptr doc);
     void modificationChanged(bool);
