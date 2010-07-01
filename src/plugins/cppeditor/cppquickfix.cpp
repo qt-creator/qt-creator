@@ -773,41 +773,56 @@ class WrapStringLiteral: public CppQuickFixOperation
 {
 public:
     WrapStringLiteral(TextEditor::BaseTextEditor *editor)
-        : CppQuickFixOperation(editor), stringLiteral(0), isObjCStringLiteral(false)
+        : CppQuickFixOperation(editor), literal(0), type(TypeNone)
     {}
+
+    enum Type { TypeString, TypeObjCString, TypeChar, TypeNone };
 
     virtual QString description() const
     {
+        if (type == TypeChar)
+            return QApplication::translate("CppTools::QuickFix", "Enclose in QLatin1Char(...)");
         return QApplication::translate("CppTools::QuickFix", "Enclose in QLatin1String(...)");
     }
 
     virtual int match(const QList<AST *> &path)
     {
-        stringLiteral = 0;
-        isObjCStringLiteral = false;
+        literal = 0;
+        type = TypeNone;
 
         if (path.isEmpty())
             return -1; // nothing to do
 
-        stringLiteral = path.last()->asStringLiteral();
+        literal = path.last()->asStringLiteral();
 
-        if (! stringLiteral)
-            return -1;
+        if (! literal) {
+            literal = path.last()->asNumericLiteral();
+            if (!literal || !tokenAt(literal->asNumericLiteral()->literal_token).is(T_CHAR_LITERAL))
+                return -1;
+            else
+                type = TypeChar;
+        } else {
+            type = TypeString;
+        }
 
-        else if (path.size() > 1) {
+        if (path.size() > 1) {
             if (CallAST *call = path.at(path.size() - 2)->asCall()) {
                 if (call->base_expression) {
                     if (SimpleNameAST *functionName = call->base_expression->asSimpleName()) {
                         const QByteArray id(tokenAt(functionName->identifier_token).identifier->chars());
 
-                        if (id == "QLatin1String" || id == "QLatin1Literal")
+                        if ((type == TypeString && (id == "QLatin1String" || id == "QLatin1Literal"))
+                                || (type == TypeChar && id == "QLatin1Char"))
                             return -1; // skip it
                     }
                 }
             }
         }
 
-        isObjCStringLiteral = charAt(startOf(stringLiteral)) == QLatin1Char('@');
+        if (type == TypeString) {
+            if (charAt(startOf(literal)) == QLatin1Char('@'))
+                type = TypeObjCString;
+        }
         return path.size() - 1; // very high priority
     }
 
@@ -815,22 +830,23 @@ public:
     {
         ChangeSet changes;
 
-        const int startPos = startOf(stringLiteral);
-        const QLatin1String replacement("QLatin1String(");
+        const int startPos = startOf(literal);
+        QLatin1String replacement = (type == TypeChar ? QLatin1String("QLatin1Char(")
+            : QLatin1String("QLatin1String("));
 
-        if (isObjCStringLiteral)
+        if (type == TypeObjCString)
             changes.replace(startPos, startPos + 1, replacement);
         else
             changes.insert(startPos, replacement);
 
-        changes.insert(endOf(stringLiteral), ")");
+        changes.insert(endOf(literal), ")");
 
         refactoringChanges()->changeFile(fileName(), changes);
     }
 
 private:
-    StringLiteralAST *stringLiteral;
-    bool isObjCStringLiteral;
+    ExpressionAST *literal;
+    Type type;
 };
 
 class CStringToNSString: public CppQuickFixOperation
