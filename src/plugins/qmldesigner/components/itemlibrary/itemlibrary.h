@@ -54,7 +54,6 @@ public Q_SLOTS:
     void setSearchFilter(const QString &searchFilter);
     void updateModel();
     void updateSearch();
-    void clearLineEditFocus();
 
     void setResourcePath(const QString &resourcePath);
 

@@ -46,19 +46,25 @@ QTCREATOR_UTILS_EXPORT Utils::ReloadPromptAnswer
 
     if (modified)
         msg = QCoreApplication::translate("Utils::reloadPrompt",
-                                          "The unsaved file %1 has been changed outside Qt Creator. Do you want to reload it and discard your changes?").arg(QDir::toNativeSeparators(fileName));
+                                          "The unsaved file <i>%1</i> has been changed outside Qt Creator. Do you want to reload it and discard your changes?");
     else
         msg = QCoreApplication::translate("Utils::reloadPrompt",
-                                          "The file %1 has changed outside Qt Creator. Do you want to reload it?").arg(QDir::toNativeSeparators(fileName));
-    return reloadPrompt(title, msg, parent);
+                                          "The file <i>%1</i> has changed outside Qt Creator. Do you want to reload it?");
+    msg = msg.arg(QFileInfo(fileName).fileName());
+    return reloadPrompt(title, msg, QDir::toNativeSeparators(fileName), parent);
 }
 
 QTCREATOR_UTILS_EXPORT Utils::ReloadPromptAnswer
-    Utils::reloadPrompt(const QString &title, const QString &prompt, QWidget *parent)
+    Utils::reloadPrompt(const QString &title, const QString &prompt, const QString &details, QWidget *parent)
 {
-    switch (QMessageBox::question(parent, title, prompt,
-                                  QMessageBox::Yes|QMessageBox::YesToAll|QMessageBox::No|QMessageBox::NoToAll,
-                                  QMessageBox::YesToAll)) {
+    QMessageBox msg(parent);
+    msg.setStandardButtons(QMessageBox::Yes|QMessageBox::YesToAll|QMessageBox::No|QMessageBox::NoToAll);
+    msg.setDefaultButton(QMessageBox::YesToAll);
+    msg.setWindowTitle(title);
+    msg.setText(prompt);
+    msg.setDetailedText(details);
+
+    switch (msg.exec()) {
     case QMessageBox::Yes:
         return  ReloadCurrent;
     case QMessageBox::YesToAll:

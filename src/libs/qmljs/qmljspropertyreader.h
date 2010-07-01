@@ -27,27 +27,45 @@
 **
 **************************************************************************/
 
-#ifndef RELOADPROMPTUTILS_H
-#define RELOADPROMPTUTILS_H
+#ifndef QMLJSPROPERTYREADER_H
+#define QMLJSPROPERTYREADER_H
 
-#include "utils_global.h"
+#include <qmljs/qmljs_global.h>
+#include <qmljs/parser/qmljsastfwd_p.h>
 
-QT_BEGIN_NAMESPACE
-class QString;
-class QWidget;
-QT_END_NAMESPACE
+#include <QHash>
+#include <QVariant>
+#include <QString>
+#include <QStringList>
 
-namespace Utils {
+namespace QmlJS {
 
-enum ReloadPromptAnswer { ReloadCurrent, ReloadAll, ReloadSkipCurrent, ReloadNone };
+class Document;
 
-QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &fileName, bool modified, QWidget *parent);
-QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &title, const QString &prompt, const QString &details, QWidget *parent);
+class QMLJS_EXPORT PropertyReader
+{
+public:
 
-enum FileDeletedPromptAnswer { FileDeletedClose, FileDeletedSaveAs, FileDeletedSave };
+    PropertyReader(Document *doc, AST::UiObjectInitializer *ast);
 
-QTCREATOR_UTILS_EXPORT FileDeletedPromptAnswer fileDeletedPrompt(const QString &fileName, QWidget *parent);
+    bool hasProperty(const QString &propertyName) const
+    { return m_properties.contains(propertyName); }
 
-} // namespace Utils
+    QVariant readProperty(const QString &propertyName) const
+    {
+        if (hasProperty(propertyName))
+            return m_properties.value(propertyName);
+        else
+            return QVariant();
+    }
 
-#endif // RELOADPROMPTUTILS_H
+    QStringList properties() const
+    { return m_properties.keys(); }
+
+private:
+    QHash<QString, QVariant> m_properties;
+};
+
+} //QmlJS
+
+#endif // QMLJSPROPERTYREADER_H

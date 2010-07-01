@@ -39,10 +39,12 @@
 #include <qdeclarative.h>
 #include <propertyeditorvalue.h>
 #include <qmlitemnode.h>
+#include <QDialog>
 
 QT_BEGIN_NAMESPACE
 class QtColorButton;
 class QToolButton;
+class QDoubleSpinBox;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -144,7 +146,7 @@ public:
     int hue() const { return m_color.hsvHue(); }
 
 signals:
-    void hueChanged();
+    void hueChanged(int hue);
 
 protected:
     void paintEvent(QPaintEvent *);
@@ -213,6 +215,68 @@ private:
     bool m_create;
     bool m_active;
     bool m_dragOff;
+};
+
+class BauhausColorDialog : public QFrame {
+
+    Q_OBJECT
+
+    Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)               
+
+public:
+    BauhausColorDialog(QWidget *parent = 0);
+
+    QColor color() const { return m_color; }
+    void setColor(const QColor &color)
+    {
+        if (color == m_color)
+            return;
+
+        m_color = color;
+        setupWidgets();
+        emit colorChanged();
+    }
+
+public slots:
+    void changeColor(const QColor &color) { setColor(color); }
+    void spinBoxChanged();
+    void onColorBoxChanged();
+    void onHueChanged(int newHue)
+    {
+        if (m_blockUpdate)
+            return;
+
+        if (m_color.hsvHue() == newHue)
+            return;
+        m_color.setHsv(newHue, m_color.hsvSaturation(), m_color.value());
+         setupWidgets();
+        emit colorChanged();
+    }
+    void onAccept()
+    {
+        emit accepted(m_color);
+    }
+
+signals:
+  void colorChanged();
+  void accepted(const QColor &color);
+  void rejected();
+
+protected:
+  void setupWidgets();
+
+private:    
+    ColorBox *m_colorBox;
+    HueControl *m_hueControl;
+
+    QDoubleSpinBox *m_rSpinBox;
+    QDoubleSpinBox *m_gSpinBox;
+    QDoubleSpinBox *m_bSpinBox;
+    QDoubleSpinBox *m_alphaSpinBox;
+
+    QColor m_color;
+    bool m_blockUpdate;
+
 };
 
 

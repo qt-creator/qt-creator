@@ -24,6 +24,7 @@ HEADERS += \
     $$PWD/qmljscompletioncontextfinder.h \
     $$PWD/qmljscomponentversion.h \
     $$PWD/qmljsmodelmanagerinterface.h \
+    $$PWD/qmljspropertyreader.h \
     $$PWD/qmljsrewriter.h
 
 SOURCES += \
@@ -39,6 +40,7 @@ SOURCES += \
     $$PWD/qmljscompletioncontextfinder.cpp \
     $$PWD/qmljscomponentversion.cpp \
     $$PWD/qmljsmodelmanagerinterface.cpp \
+    $$PWD/qmljspropertyreader.cpp \
     $$PWD/qmljsrewriter.cpp
 
 OTHER_FILES += \

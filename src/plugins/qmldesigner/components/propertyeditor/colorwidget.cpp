@@ -43,6 +43,11 @@
 #include <QToolButton>
 #include <QGradient>
 #include <QPainter>
+#include <QDoubleSpinBox>
+#include <QGridLayout>
+#include <QPushButton>
+#include <QDialogButtonBox>
+#include <QGraphicsEffect>
 
 static inline int clamp(int x, int lower, int upper)
 {
@@ -151,7 +156,7 @@ void HueControl::setCurrent(int y)
     m_color.setHsv((y * 359)/120, m_color.hsvSaturation(), m_color.value());
     m_color.setAlpha(oldAlpha);
     update(); // redraw pointer
-    emit hueChanged();
+    emit hueChanged(m_color.hsvHue());
 }
 
 void HueControl::setHue(int newHue)
@@ -160,7 +165,7 @@ void HueControl::setHue(int newHue)
         return;
     m_color.setHsv(newHue, m_color.hsvSaturation(), m_color.value());
     update();
-    emit hueChanged();
+    emit hueChanged(m_color.hsvHue());
 }
 
 void HueControl::paintEvent(QPaintEvent *event)
@@ -752,6 +757,107 @@ void GradientLine::setCurrentIndex(int i)
     setActiveColor(m_colorList.at(i));
     emit activeColorChanged();
     update();
+}
+
+BauhausColorDialog::BauhausColorDialog(QWidget *parent) : QFrame(parent )
+{
+
+    setFrameStyle(QFrame::NoFrame);
+    setFrameShape(QFrame::StyledPanel);
+    setFrameShadow(QFrame::Sunken);
+
+    QGraphicsDropShadowEffect *dropShadowEffect = new QGraphicsDropShadowEffect;
+    dropShadowEffect->setBlurRadius(6);
+    dropShadowEffect->setOffset(2, 2);
+    setGraphicsEffect(dropShadowEffect);
+    setAutoFillBackground(true);
+
+    m_hueControl = new HueControl(this);
+    m_colorBox = new ColorBox(this);
+
+    m_rSpinBox = new QDoubleSpinBox(this);
+    m_gSpinBox = new QDoubleSpinBox(this);
+    m_bSpinBox = new QDoubleSpinBox(this);
+    m_alphaSpinBox = new QDoubleSpinBox(this);
+
+    QGridLayout *gridLayout = new QGridLayout(this);
+    setLayout(gridLayout);
+
+    gridLayout->addWidget(m_colorBox, 0, 0, 4, 1);
+    gridLayout->addWidget(m_hueControl, 0, 1, 4, 1);
+
+    gridLayout->addWidget(new QLabel("R", this), 0, 2, 1, 1);
+    gridLayout->addWidget(new QLabel("G", this), 1, 2, 1, 1);
+    gridLayout->addWidget(new QLabel("B", this), 2, 2, 1, 1);
+    gridLayout->addWidget(new QLabel("A", this), 3, 2, 1, 1);
+
+    gridLayout->addWidget(m_rSpinBox, 0, 3, 1, 1);
+    gridLayout->addWidget(m_gSpinBox, 1, 3, 1, 1);
+    gridLayout->addWidget(m_bSpinBox, 2, 3, 1, 1);
+    gridLayout->addWidget(m_alphaSpinBox, 3, 3, 1, 1);
+
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(this);
+
+    QPushButton *cancelButton = buttonBox->addButton(QDialogButtonBox::Cancel);
+    QPushButton *applyButton = buttonBox->addButton(QDialogButtonBox::Apply);
+
+    gridLayout->addWidget(buttonBox, 4, 0, 2, 1);    
+
+    resize(sizeHint());
+
+    connect(m_colorBox, SIGNAL(colorChanged()), this, SLOT(onColorBoxChanged()));
+    connect(m_alphaSpinBox, SIGNAL(valueChanged(double)), this, SLOT(spinBoxChanged()));
+    connect(m_rSpinBox, SIGNAL(valueChanged(double)), this, SLOT(spinBoxChanged()));
+    connect(m_gSpinBox, SIGNAL(valueChanged(double)), this, SLOT(spinBoxChanged()));
+    connect(m_bSpinBox, SIGNAL(valueChanged(double)), this, SLOT(spinBoxChanged()));
+    connect(m_hueControl, SIGNAL(hueChanged(int)), this, SLOT(onHueChanged(int)));
+
+    connect(applyButton, SIGNAL(pressed()), this, SLOT(onAccept()));
+    connect(cancelButton, SIGNAL(pressed()), this, SIGNAL(rejected()));
+
+    m_alphaSpinBox->setMaximum(1);
+    m_rSpinBox->setMaximum(1);
+    m_gSpinBox->setMaximum(1);
+    m_bSpinBox->setMaximum(1);
+    m_alphaSpinBox->setSingleStep(0.1);
+    m_rSpinBox->setSingleStep(0.1);
+    m_gSpinBox->setSingleStep(0.1);
+    m_bSpinBox->setSingleStep(0.1);
+
+    m_blockUpdate = false;
+
+}
+
+void BauhausColorDialog::spinBoxChanged()
+{
+    if (m_blockUpdate)
+        return;
+    QColor newColor;
+    newColor.setAlphaF(m_alphaSpinBox->value());
+    newColor.setRedF(m_rSpinBox->value());
+    newColor.setGreenF(m_gSpinBox->value());
+    newColor.setBlueF(m_bSpinBox->value());
+    setColor(newColor);
+}
+
+void BauhausColorDialog::onColorBoxChanged()
+{
+    if (m_blockUpdate)
+        return;
+
+    setColor(m_colorBox->color());
+}
+
+void BauhausColorDialog::setupWidgets()
+{
+    m_blockUpdate = true;
+    m_hueControl->setHue(m_color.hsvHue());
+    m_alphaSpinBox->setValue(m_color.alphaF());
+    m_rSpinBox->setValue(m_color.redF());
+    m_gSpinBox->setValue(m_color.greenF());
+    m_bSpinBox->setValue(m_color.blueF());
+    m_colorBox->setColor(m_color);
+    m_blockUpdate = false;
 }
 
 }
