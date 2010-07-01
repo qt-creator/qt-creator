@@ -185,7 +185,7 @@ ItemLibrary::ItemLibrary(QWidget *parent) :
     lineEditLayout->addWidget(m_d->m_lineEdit, 1, 1, 1, 1);
     lineEditLayout->addItem(new QSpacerItem(5, 5, QSizePolicy::Fixed, QSizePolicy::Fixed), 1, 2);
     connect(m_d->m_lineEdit, SIGNAL(filterChanged(QString)), this, SLOT(setSearchFilter(QString)));
-    connect(m_d->m_lineEdit, SIGNAL(buttonClicked()), this, SLOT(clearLineEditFocus()));
+    connect(m_d->m_lineEdit, SIGNAL(buttonClicked(Utils::FancyLineEdit::Side)), this, SLOT(clearLineEditFocus()));
 
     m_d->m_stackedWidget = new QStackedWidget(this);
     m_d->m_stackedWidget->addWidget(m_d->m_itemsView);

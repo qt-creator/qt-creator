@@ -65,6 +65,7 @@ bool RemoveUIObjectMemberVisitor::visit(QmlJS::AST::UiObjectBinding *ast) { retu
 bool RemoveUIObjectMemberVisitor::visit(QmlJS::AST::UiScriptBinding *ast) { return visitObjectMember(ast); }
 bool RemoveUIObjectMemberVisitor::visit(QmlJS::AST::UiArrayBinding *ast) { return visitObjectMember(ast); }
 
+// FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 bool RemoveUIObjectMemberVisitor::visitObjectMember(QmlJS::AST::UiObjectMember *ast)
 {
     const quint32 memberStart = ast->firstSourceLocation().offset;
@@ -106,6 +107,7 @@ UiArrayBinding *RemoveUIObjectMemberVisitor::containingArray() const
     return 0;
 }
 
+// FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 void RemoveUIObjectMemberVisitor::extendToLeadingOrTrailingComma(QmlJS::AST::UiArrayBinding *parentArray,
                                                                  QmlJS::AST::UiObjectMember *ast,
                                                                  int &start,

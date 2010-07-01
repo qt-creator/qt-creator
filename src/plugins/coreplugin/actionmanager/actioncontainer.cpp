@@ -390,8 +390,10 @@ bool MenuActionContainer::updateInternal()
         return true;
 
     bool hasitems = false;
+    QList<QAction *> actions = m_menu->actions();
 
     foreach (ActionContainer *container, subContainers()) {
+        actions.removeAll(container->menu()->menuAction());
         if (container == this) {
             qWarning() << Q_FUNC_INFO << "container" << (this->menu() ? this->menu()->title() : "") <<  "contains itself as subcontainer";
             continue;
@@ -403,7 +405,17 @@ bool MenuActionContainer::updateInternal()
     }
     if (!hasitems) {
         foreach (Command *command, commands()) {
+            actions.removeAll(command->action());
             if (command->isActive()) {
+                hasitems = true;
+                break;
+            }
+        }
+    }
+    if (!hasitems) {
+        // look if there were actions added that we don't control and check if they are enabled
+        foreach (const QAction *action, actions) {
+            if (!action->isSeparator() && action->isEnabled()) {
                 hasitems = true;
                 break;
             }

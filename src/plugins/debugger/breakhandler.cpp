@@ -694,12 +694,12 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
 
 Qt::ItemFlags BreakHandler::flags(const QModelIndex &index) const
 {
-    switch (index.column()) {
-        //case 0:
-        //    return Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
-        default:
+//    switch (index.column()) {
+//        //case 0:
+//        //    return Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
+//        default:
             return QAbstractTableModel::flags(index);
-    }
+//    }
 }
 
 bool BreakHandler::setData(const QModelIndex &index, const QVariant &value, int role)

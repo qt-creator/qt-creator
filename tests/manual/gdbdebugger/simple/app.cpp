@@ -60,6 +60,7 @@
 #include <QtGui/QLabel>
 #include <QtGui/QPainter>
 #include <QtGui/QPainterPath>
+#include <QtGui/QRegion>
 #include <QtGui/QStandardItemModel>
 
 #include <QtNetwork/QHostAddress>
@@ -187,10 +188,17 @@ private:
     QHash<QObject *, Map::iterator> h;
 };
 
-class X : virtual public Foo
+class X : public Foo
 {
 public:
     X() {
+    }
+};
+
+class XX : virtual public Foo
+{
+public:
+    XX() {
     }
 };
 
@@ -201,32 +209,57 @@ public:
     }
 };
 
+class D : public X, public Y
+{
+    int diamond;
+};
+
 void testArray()
 {
-    X xxx;
+#if 1
+    X x;
+    XX xx;
+    D diamond;
+    Foo *f = &xx;
+    Foo ff;
     double d[3][3];
     for (int i = 0; i != 3; ++i)
         for (int j = 0; j != 3; ++j)
             d[i][j] = i + j;
+#endif
 
+#if 1
     char c[20];
     c[0] = 'a';
     c[1] = 'b';
     c[2] = 'c';
     c[3] = 'd';
+#endif
 
-    QString x[20];
-    x[0] = "a";
-    x[1] = "b";
-    x[2] = "c";
-    x[3] = "d";
+#if 1
+    QString s[20];
+    s[0] = "a";
+    s[1] = "b";
+    s[2] = "c";
+    s[3] = "d";
+#endif
 
+#if 1
+    QByteArray b[20];
+    b[0] = "a";
+    b[1] = "b";
+    b[2] = "c";
+    b[3] = "d";
+#endif
+
+#if 1
     Foo foo[10];
     //for (int i = 0; i != sizeof(foo)/sizeof(foo[0]); ++i) {
     for (int i = 0; i < 5; ++i) {
         foo[i].a = i;
         foo[i].doit();
     }
+#endif
 }
 
 #ifndef Q_CC_RVCT
@@ -770,6 +803,18 @@ void testQPixmap()
     int i = 1;
     Q_UNUSED(i);
 }
+
+void testQRegion()
+{
+    QRegion region;
+    region += QRect(100, 100, 200, 200);
+    region += QRect(300, 300, 400, 500);
+    region += QRect(500, 500, 600, 600);
+    region += QRect(500, 500, 600, 600);
+    region += QRect(500, 500, 600, 600);
+    region += QRect(500, 500, 600, 600);
+}
+
 
 void testPlugin()
 {
@@ -1761,6 +1806,7 @@ int main(int argc, char *argv[])
     //testWCout0();
     //testWCout();
     testColor();
+    testQRegion();
     testStuff();
     testPeekAndPoke3();
     testFunctionPointer();

@@ -42,13 +42,12 @@ namespace {
 
 GccParser::GccParser()
 {
-    m_regExp.setPattern(QString::fromLatin1(FILE_PATTERN) + QLatin1String("(\\d+):(\\d+:)?\\s(#?(warning|error|note):?\\s)(.+)$"));
+    m_regExp.setPattern(QString::fromLatin1(FILE_PATTERN) + QLatin1String("(\\d+):(\\d+:)?\\s((fatal |#)?(warning|error|note):?\\s)(.+)$"));
     m_regExp.setMinimal(true);
 
     m_regExpIncluded.setPattern("^.*from\\s([^:]+):(\\d+)(,|:)$");
     m_regExpIncluded.setMinimal(true);
 
-    // treat ld (and gold) as part of gcc for simplicity
     // optional path with trailing slash
     // optional arm-linux-none-thingy
     // name of executable
@@ -99,12 +98,12 @@ void GccParser::stdError(const QString &line)
         QString filename = m_regExp.cap(1);
         int lineno = m_regExp.cap(3).toInt();
         Task task(Task::Unknown,
-                  m_regExp.cap(7) /* description */,
+                  m_regExp.cap(8) /* description */,
                   filename, lineno,
                   Constants::TASK_CATEGORY_COMPILE);
-        if (m_regExp.cap(6) == QLatin1String("warning"))
+        if (m_regExp.cap(7) == QLatin1String("warning"))
             task.type = Task::Warning;
-        else if (m_regExp.cap(6) == QLatin1String("error") ||
+        else if (m_regExp.cap(7) == QLatin1String("error") ||
                  task.description.startsWith(QLatin1String("undefined reference to")))
             task.type = Task::Error;
 
@@ -477,6 +476,17 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                  << Task(Task::Warning,
                          QLatin1String("unused parameter v"),
                          QLatin1String("../../scriptbug/main.cpp"), 5,
+                         Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+
+    QTest::newRow("gcc 4.5 fatal error")
+            << QString::fromLatin1("/home/code/test.cpp:54:38: fatal error: test.moc: No such file or directory")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << ( QList<ProjectExplorer::Task>()
+                 << Task(Task::Error,
+                         QLatin1String("test.moc: No such file or directory"),
+                         QLatin1String("/home/code/test.cpp"), 54,
                          Constants::TASK_CATEGORY_COMPILE))
             << QString();
 }

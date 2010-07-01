@@ -109,6 +109,7 @@ public:
 
     // internal public for FlatModel
     void renameFile(Node *node, const QString &to);
+    static QStringList projectFilePatterns();
 
 signals:
     void aboutToShowContextMenu(ProjectExplorer::Project *project,
@@ -126,6 +127,7 @@ signals:
 
 public slots:
     void setStartupProject(ProjectExplorer::Project *project = 0);
+    void openOpenProjectDialog();
 
 private slots:
     void buildStateChanged(ProjectExplorer::Project * pro);

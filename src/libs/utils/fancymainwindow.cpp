@@ -39,7 +39,7 @@
 
 static const char lockedKeyC[] = "Locked";
 static const char stateKeyC[] = "State";
-static const int settingsVersion = 1;
+static const int settingsVersion = 2;
 
 namespace Utils {
 
@@ -55,6 +55,7 @@ struct FancyMainWindowPrivate {
     QAction *m_toggleLockedAction;
     QAction *m_menuSeparator2;
     QAction *m_resetLayoutAction;
+    QDockWidget *m_toolBarDockWidget;
 };
 
 FancyMainWindowPrivate::FancyMainWindowPrivate(FancyMainWindow *q) :
@@ -62,7 +63,8 @@ FancyMainWindowPrivate::FancyMainWindowPrivate(FancyMainWindow *q) :
     m_menuSeparator1(new QAction(q)),
     m_toggleLockedAction(new QAction(FancyMainWindow::tr("Locked"), q)),
     m_menuSeparator2(new QAction(q)),
-    m_resetLayoutAction(new QAction(FancyMainWindow::tr("Reset to Default Layout") ,q))
+    m_resetLayoutAction(new QAction(FancyMainWindow::tr("Reset to Default Layout") ,q)),
+    m_toolBarDockWidget(0)
 {
     m_toggleLockedAction->setCheckable(true);
     m_toggleLockedAction->setChecked(m_locked);
@@ -281,6 +283,16 @@ void FancyMainWindow::setDockActionsVisible(bool v)
     d->m_menuSeparator1->setVisible(v);
     d->m_menuSeparator2->setVisible(v);
     d->m_resetLayoutAction->setVisible(v);
+}
+
+QDockWidget *FancyMainWindow::toolBarDockWidget() const
+{
+    return d->m_toolBarDockWidget;
+}
+
+void FancyMainWindow::setToolBarDockWidget(QDockWidget *dock)
+{
+    d->m_toolBarDockWidget = dock;
 }
 
 } // namespace Utils

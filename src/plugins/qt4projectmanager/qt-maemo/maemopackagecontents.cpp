@@ -31,32 +31,15 @@
 
 #include "maemopackagecreationstep.h"
 #include "maemotoolchain.h"
+#include "profilewrapper.h"
 
-#include <qt4projectmanager/profilereader.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4target.h>
 
-#include <prowriter.h>
-
 #include <QtCore/QCryptographicHash>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
-
-namespace {
-    QString pathVar(const QString &var)
-    {
-        return var + QLatin1String(".path");
-    }
-
-    QString filesVar(const QString &var)
-    {
-        return var + QLatin1String(".files");
-    }
-
-    const QLatin1String InstallsVar("INSTALLS");
-    const QLatin1String TargetVar("target");
-}
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -64,83 +47,48 @@ namespace Internal {
 MaemoPackageContents::MaemoPackageContents(MaemoPackageCreationStep *packageStep)
     : QAbstractTableModel(packageStep),
       m_packageStep(packageStep),
-      m_proFileOption(new ProFileOption),
-      m_proFileReader(new ProFileReader(m_proFileOption.data())),
       m_modified(false),
-      m_proFile(0)
+      m_initialized(false)
 {
 }
 
 MaemoPackageContents::~MaemoPackageContents() {}
 
-bool MaemoPackageContents::init()
-{
-    return m_proFile ? true : buildModel();
-}
-
 bool MaemoPackageContents::buildModel() const
 {
+    if (m_initialized)
+        return true;
+
     m_deployables.clear();
-    const Qt4ProFileNode * const proFileNode = m_packageStep
-        ->qt4BuildConfiguration()->qt4Target()->qt4Project()->rootProjectNode();
-    if (m_proFileName.isEmpty()) {
-        m_proFileName = proFileNode->path();
-        m_proDir = QFileInfo(m_proFileName).dir();
-    }
-
-    resetProFileContents();
-    if (!m_proFile)
-        return false;
-
-    const QStringList elemList = m_proFileReader->values(InstallsVar, m_proFile);
-    bool targetFound = false;
-    foreach (const QString &elem, elemList) {
-        const QStringList paths
-            = m_proFileReader->values(pathVar(elem), m_proFile);
-        if (paths.count() != 1) {
-            qWarning("Error: Variable %s has %d values.",
-                qPrintable(pathVar(elem)), paths.count());
-            continue;
-        }
-
-        const QStringList files
-            = m_proFileReader->values(filesVar(elem), m_proFile);
-        if (files.isEmpty() && elem != TargetVar) {
-            qWarning("Error: Variable %s has no RHS.",
-                qPrintable(filesVar(elem)));
-            continue;
-        }
-
-        if (elem == TargetVar) {
-            m_deployables.prepend(MaemoDeployable(m_packageStep->localExecutableFilePath(),
-                paths.first()));
-            targetFound = true;
-        } else {
-            foreach (const QString &file, files)
-                m_deployables << MaemoDeployable(cleanPath(file), paths.first());
-        }
-    }
-
-    if (!targetFound) {
+    QSharedPointer<ProFileWrapper> proFileWrapper
+        = m_packageStep->proFileWrapper();
+    const ProFileWrapper::InstallsList &installs = proFileWrapper->installs();
+    if (installs.targetPath.isEmpty()) {
+        const Qt4ProFileNode * const proFileNode
+            = m_packageStep->qt4BuildConfiguration()->qt4Target()
+                ->qt4Project()->rootProjectNode();
         const QString remoteDir = proFileNode->projectType() == LibraryTemplate
             ? QLatin1String("/usr/local/lib")
             : QLatin1String("/usr/local/bin");
         m_deployables.prepend(MaemoDeployable(m_packageStep->localExecutableFilePath(),
             remoteDir));
-        QString errorString;
-        if (!readProFileContents(&errorString)) {
-            qWarning("Error reading .pro file: %s", qPrintable(errorString));
+        if (!proFileWrapper->addInstallsTarget(remoteDir)) {
+            qWarning("Error updating .pro file.");
             return false;
         }
-        addValueToProFile(pathVar(TargetVar), remoteDir);
-        addValueToProFile(InstallsVar, TargetVar);
-        if (!writeProFileContents(&errorString)) {
-            qWarning("Error writing .pro file: %s", qPrintable(errorString));
-            return false;
+    } else {
+        m_deployables.prepend(MaemoDeployable(m_packageStep->localExecutableFilePath(),
+            installs.targetPath));
+    }
+    foreach (const ProFileWrapper::InstallsElem &elem, installs.normalElems) {
+        foreach (const QString &file, elem.files) {
+            m_deployables << MaemoDeployable(proFileWrapper->absFilePath(file),
+                elem.path);
         }
     }
 
-    m_modified = true;
+    m_initialized = true;
+    m_modified = true; // ???
     return true;
 }
 
@@ -153,21 +101,16 @@ MaemoDeployable MaemoPackageContents::deployableAt(int row) const
 bool MaemoPackageContents::addDeployable(const MaemoDeployable &deployable,
     QString *error)
 {
-    if (m_deployables.contains(deployable) || deployableAt(0) == deployable)
+    if (m_deployables.contains(deployable)) {
+        *error = tr("File already in list.");
         return false;
+    }
 
-    if (!readProFileContents(error))
+    if (!m_packageStep->proFileWrapper()->addInstallsElem(deployable.remoteDir,
+        deployable.localFilePath)) {
+        *error = tr("Failed to update .pro file.");
         return false;
-
-    QCryptographicHash elemHash(QCryptographicHash::Md5);
-    elemHash.addData(deployable.localFilePath.toUtf8());
-    const QString elemName = QString::fromAscii(elemHash.result().toHex());
-    addFileToProFile(filesVar(elemName), deployable.localFilePath);
-    addValueToProFile(pathVar(elemName), deployable.remoteDir);
-    addValueToProFile(InstallsVar, elemName);
-
-    if (!writeProFileContents(error))
-        return false;
+    }
 
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     m_deployables << deployable;
@@ -180,44 +123,21 @@ bool MaemoPackageContents::removeDeployableAt(int row, QString *error)
     Q_ASSERT(row > 0 && row < rowCount());
 
     const MaemoDeployable &deployable = deployableAt(row);
-    const QString elemToRemove = findInstallsElem(deployable);
-    if (elemToRemove.isEmpty()) {
-        *error = tr("Inconsistent model: Deployable not found in  .pro file.");
+    if (!m_packageStep->proFileWrapper()
+        ->removeInstallsElem(deployable.remoteDir, deployable.localFilePath)) {
+        *error = tr("Could not update .pro file.");
         return false;
     }
-
-    if (!readProFileContents(error))
-        return false;
-
-    const QString filesVarName = filesVar(elemToRemove);
-    const bool isOnlyElem
-        = m_proFileReader->values(filesVarName, m_proFile).count() == 1;
-    bool success
-        = removeFileFromProFile(filesVarName, deployable.localFilePath);
-    if (success && isOnlyElem) {
-        success = removeValueFromProFile(pathVar(elemToRemove),
-            deployable.remoteDir);
-        if (success)
-            success = removeValueFromProFile(InstallsVar, elemToRemove);
-    }
-    if (!success) {
-        *error = tr("Could not remove deployable from .pro file.");
-        return false;
-    }
-
-    if (!writeProFileContents(error))
-        return false;
 
     beginRemoveRows(QModelIndex(), row, row);
-    m_deployables.removeAt(row - 1);
+    m_deployables.removeAt(row);
     endRemoveRows();
     return true;
 }
 
 int MaemoPackageContents::rowCount(const QModelIndex &parent) const
 {
-    if (!m_proFile)
-        buildModel();
+    buildModel();
     return parent.isValid() ? 0 : m_deployables.count();
 }
 
@@ -254,29 +174,11 @@ bool MaemoPackageContents::setData(const QModelIndex &index,
         || role != Qt::EditRole)
         return false;
 
-    QString error;
-    if (!readProFileContents(&error)) {
-        qWarning("%s", qPrintable(error));
-        return false;
-    }
-
     MaemoDeployable &deployable = m_deployables[index.row()];
-    const QString elemToChange = findInstallsElem(deployable);
-    if (elemToChange.isEmpty()) {
-        qWarning("Error: Inconsistent model. "
-            "INSTALLS element not found in .pro file");
-        return false;
-    }
-    const QString pathElem = pathVar(elemToChange);
-    if (!removeValueFromProFile(pathElem, deployable.remoteDir)) {
-        qWarning("Error: Could not change remote path in .pro file.");
-        return false;
-    }
     const QString &newRemoteDir = value.toString();
-    addValueToProFile(pathElem, newRemoteDir);
-
-    if (!writeProFileContents(&error)) {
-        qWarning("%s", qPrintable(error));
+    if (!m_packageStep->proFileWrapper()->replaceInstallPath(deployable.remoteDir,
+        deployable.localFilePath, newRemoteDir)) {
+        qWarning("Error: Could not update .pro file");
         return false;
     }
 
@@ -295,148 +197,8 @@ QVariant MaemoPackageContents::headerData(int section,
 
 QString MaemoPackageContents::remoteExecutableFilePath() const
 {
-    if (!m_proFile)
-        buildModel();
-    return deployableAt(0).remoteDir + '/' + m_packageStep->executableFileName();
-}
-
-bool MaemoPackageContents::readProFileContents(QString *error) const
-{
-    if (!m_proFileLines.isEmpty())
-        return true;
-
-    QFile proFileOnDisk(m_proFileName);
-    if (!proFileOnDisk.open(QIODevice::ReadOnly)) {
-        *error = tr("Project file '%1' could not be opened for reading.")
-            .arg(m_proFileName);
-        return false;
-    }
-    const QString proFileContents
-        = QString::fromLatin1(proFileOnDisk.readAll());
-    if (proFileOnDisk.error() != QFile::NoError) {
-        *error = tr("Project file '%1' could not be read.")
-            .arg(m_proFileName);
-        return false;
-    }
-    m_proFileLines = proFileContents.split('\n');
-    return true;
-}
-
-bool MaemoPackageContents::writeProFileContents(QString *error) const
-{
-    QFile proFileOnDisk(m_proFileName);
-    if (!proFileOnDisk.open(QIODevice::WriteOnly)) {
-        *error = tr("Project file '%1' could not be opened for writing.")
-            .arg(m_proFileName);
-        resetProFileContents();
-        return false;
-    }
-
-    // TODO: Disconnect and reconnect FS watcher here.
-    proFileOnDisk.write(m_proFileLines.join("\n").toLatin1());
-    proFileOnDisk.close();
-    if (proFileOnDisk.error() != QFile::NoError) {
-        *error = tr("Project file '%1' could not be written.")
-            .arg(m_proFileName);
-        resetProFileContents();
-        return false;
-    }
-    m_modified = true;
-    return true;
-}
-
-QString MaemoPackageContents::cleanPath(const QString &relFileName) const
-{
-    // I'd rather use QDir::cleanPath(), but that doesn't work well
-    // enough for redundant ".." dirs.
-    return QFileInfo(m_proFile->directoryName() + '/'
-        + relFileName).canonicalFilePath();
-}
-
-QString MaemoPackageContents::findInstallsElem(const MaemoDeployable &deployable) const
-{
-    const QStringList elems = m_proFileReader->values(InstallsVar, m_proFile);
-    foreach (const QString &elem, elems) {
-        const QStringList elemPaths
-            = m_proFileReader->values(pathVar(elem), m_proFile);
-        if (elemPaths.count() != 1 || elemPaths.first() != deployable.remoteDir)
-            continue;
-        if (elem == TargetVar)
-            return elem;
-        const QStringList elemFiles
-            = m_proFileReader->values(filesVar(elem), m_proFile);
-        foreach (const QString &file, elemFiles) {
-            if (cleanPath(file) == deployable.localFilePath)
-                return elem;
-        }
-    }
-    return QString();
-}
-
-void MaemoPackageContents::addFileToProFile(const QString &var,
-    const QString &absFilePath)
-{
-    ProWriter::addFiles(m_proFile, &m_proFileLines, m_proDir,
-        QStringList(absFilePath), var);
-    parseProFile(ParseFromLines);
-}
-
-void MaemoPackageContents::addValueToProFile(const QString &var,
-    const QString &value) const
-{
-    ProWriter::addVarValues(m_proFile, &m_proFileLines, m_proDir,
-        QStringList(value), var);
-    parseProFile(ParseFromLines);
-}
-
-bool MaemoPackageContents::removeFileFromProFile(const QString &var,
-    const QString &absFilePath)
-{
-    const bool success = ProWriter::removeFiles(m_proFile, &m_proFileLines,
-        m_proDir, QStringList(absFilePath),
-        QStringList(var)).isEmpty();
-    if (success)
-        parseProFile(ParseFromLines);
-    else
-        resetProFileContents();
-    return success;
-}
-
-bool MaemoPackageContents::removeValueFromProFile(const QString &var,
-    const QString &value)
-{
-    const bool success = ProWriter::removeVarValues(m_proFile,
-        &m_proFileLines, m_proDir, QStringList(value),
-        QStringList(var)).isEmpty();
-    if (success)
-        parseProFile(ParseFromLines);
-    else
-        resetProFileContents();
-    return success;
-}
-
-void MaemoPackageContents::parseProFile(ParseType type) const
-{
-    if (type == ParseFromLines) {
-        m_proFile = m_proFileReader->parsedProFile(m_proFileName, false,
-            m_proFileLines.join("\n"));
-    } else {
-        m_proFile = 0;
-        if (ProFile *pro = m_proFileReader->parsedProFile(m_proFileName)) {
-            if (m_proFileReader->accept(pro))
-                m_proFile = pro;
-            pro->deref();
-        }
-    }
-}
-
-void MaemoPackageContents::resetProFileContents() const
-{
-    m_proFileLines.clear();
-    parseProFile(ParseFromFile);
-    if (!m_proFile)
-        qWarning("Fatal: Could not parse .pro file '%s'.",
-            qPrintable(m_proFileName));
+    return buildModel() ? deployableAt(0).remoteDir + '/'
+        + m_packageStep->executableFileName() : QString();
 }
 
 } // namespace Qt4ProjectManager

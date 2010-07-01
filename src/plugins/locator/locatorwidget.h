@@ -43,7 +43,7 @@ class QTreeView;
 QT_END_NAMESPACE
 
 namespace Utils {
-    class FancyLineEdit;
+    class FilterLineEdit;
 }
 
 namespace Locator {
@@ -86,7 +86,7 @@ private:
     QMenu *m_filterMenu;
     QAction *m_refreshAction;
     QAction *m_configureAction;
-    Utils::FancyLineEdit *m_fileLineEdit;
+    Utils::FilterLineEdit *m_fileLineEdit;
 };
 
 } // namespace Internal

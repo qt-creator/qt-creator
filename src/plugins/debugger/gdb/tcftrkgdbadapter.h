@@ -116,15 +116,15 @@ private:
     void handleAndReportReadRegistersAfterStop(const tcftrk::TcfTrkCommandResult &result);
     void handleAndReportSetBreakpoint(const tcftrk::TcfTrkCommandResult &result);
     void handleClearBreakpoint(const tcftrk::TcfTrkCommandResult &result);
-    void handleSignalContinue(const tcftrk::TcfTrkCommandResult &result);
     void readMemory(uint addr, uint len, bool buffered);
     void handleReadMemoryBuffered(const tcftrk::TcfTrkCommandResult &result);
     void handleReadMemoryUnbuffered(const tcftrk::TcfTrkCommandResult &result);
     void handleWriteMemory(const tcftrk::TcfTrkCommandResult &result);
     void tryAnswerGdbMemoryRequest(bool buffered);
     inline void sendMemoryGetCommand(const MemoryRange &range, bool buffered);
+    void addThread(unsigned id);
     inline QByteArray mainThreadContextId() const;
-    QByteArray memoryReadLogMessage(uint addr, const QByteArray &ba) const;
+    inline QByteArray currentThreadContextId() const;
 
     AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
 
@@ -157,6 +157,7 @@ private:
         const QByteArray &logNote = QByteArray());
     void sendGdbServerAck();
     bool sendGdbServerPacket(const QByteArray &packet, bool doFlush);
+    void gdbSetCurrentThread(const QByteArray &cmd, const char *why);
 
     void logMessage(const QString &msg, int channel = LogDebug);  // triggers output() if m_verbose
     Q_SLOT void trkLogMessage(const QString &msg);

@@ -318,12 +318,14 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
 
     if (!m_helpId.isEmpty() && !helpLinks.isEmpty()) {
         if (showF1) {
-            m_toolTip = QString(QLatin1String("<table><tr><td valign=middle><nobr>%1</td>"
+            // we need the original width without escape sequences
+            const int width = QFontMetrics(QToolTip::font()).width(m_toolTip);
+            m_toolTip = QString(QLatin1String("<table><tr><td valign=middle width=%2>%1</td>"
                                               "<td><img src=\":/cppeditor/images/f1.png\"></td></tr></table>"))
-                        .arg(Qt::escape(m_toolTip));
+                        .arg(Qt::escape(m_toolTip)).arg(width);
         }
         editor->setContextHelpId(m_helpId);
     } else if (!m_toolTip.isEmpty() && Qt::mightBeRichText(m_toolTip)) {
-        m_toolTip = QString(QLatin1String("<nobr>%1")).arg(Qt::escape(m_toolTip));
+        m_toolTip = QString(QLatin1String("<nobr>%1</nobr>")).arg(Qt::escape(m_toolTip));
     }
 }

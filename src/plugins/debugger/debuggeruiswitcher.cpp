@@ -332,6 +332,7 @@ QWidget *DebuggerUISwitcher::createMainWindow(Core::BaseMode *mode)
 {
     d->m_mainWindow = new DebuggerMainWindow(this);
     d->m_mainWindow->setDocumentMode(true);
+    d->m_mainWindow->setDockNestingEnabled(true);
     connect(d->m_mainWindow, SIGNAL(resetLayout()),
             this, SLOT(resetDebuggerLayout()));
 
@@ -359,6 +360,15 @@ QWidget *DebuggerUISwitcher::createMainWindow(Core::BaseMode *mode)
     debugToolBarLayout->addStretch();
     debugToolBarLayout->addWidget(new Utils::StyledSeparator);
 
+    QDockWidget *dock = new QDockWidget(tr("Debugger Toolbar"));
+    dock->setObjectName(QLatin1String("Debugger Toolbar"));
+    dock->setWidget(debugToolBar);
+    dock->setFeatures(QDockWidget::NoDockWidgetFeatures);
+    dock->setAllowedAreas(Qt::BottomDockWidgetArea);
+    dock->setTitleBarWidget(new QWidget(dock));
+    d->m_mainWindow->addDockWidget(Qt::BottomDockWidgetArea, dock);
+    d->m_mainWindow->setToolBarDockWidget(dock);
+
     QWidget *centralWidget = new QWidget;
     d->m_mainWindow->setCentralWidget(centralWidget);
 
@@ -367,7 +377,6 @@ QWidget *DebuggerUISwitcher::createMainWindow(Core::BaseMode *mode)
     centralLayout->setMargin(0);
     centralLayout->setSpacing(0);
     centralLayout->addWidget(documentAndRightPane);
-    centralLayout->addWidget(debugToolBar);
     centralLayout->setStretch(0, 1);
     centralLayout->setStretch(1, 0);
 
@@ -473,9 +482,12 @@ void DebuggerUISwitcher::initialize()
     emit dockArranged(QString());
     readSettings();
 
-    if (d->m_activeLanguage == -1) {
-        changeDebuggerUI(d->m_languages.first());
-    }
+    const QString &activeLang = (d->m_activeLanguage != -1
+                                 ? d->m_languages.at(d->m_activeLanguage)
+                                     : d->m_languages.first());
+    d->m_activeLanguage = -1; // enforce refresh
+    changeDebuggerUI(activeLang);
+
     hideInactiveWidgets();
     d->m_mainWindow->setDockActionsVisible(false);
 }

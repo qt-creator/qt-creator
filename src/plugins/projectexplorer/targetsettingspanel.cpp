@@ -29,7 +29,6 @@
 
 #include "targetsettingspanel.h"
 
-#include "addtargetdialog.h"
 #include "buildsettingspropertiespage.h"
 #include "project.h"
 #include "projectwindow.h"
@@ -41,6 +40,7 @@
 
 #include <QtCore/QCoreApplication>
 #include <QtGui/QLabel>
+#include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
 #include <QtGui/QVBoxLayout>
 
@@ -62,6 +62,8 @@ TargetSettingsPanelWidget::TargetSettingsPanelWidget(Project *project) :
 
     m_panelWidgets[0] = 0;
     m_panelWidgets[1] = 0;
+
+    m_addMenu = new QMenu(this);
 
     setupUi();
 
@@ -124,10 +126,12 @@ void TargetSettingsPanelWidget::setupUi()
     connect(m_selector, SIGNAL(currentChanged(int,int)),
             this, SLOT(currentTargetChanged(int,int)));
 
-    connect(m_selector, SIGNAL(addButtonClicked()),
-            this, SLOT(addTarget()));
     connect(m_selector, SIGNAL(removeButtonClicked()),
             this, SLOT(removeTarget()));
+
+    m_selector->setAddButtonMenu(m_addMenu);
+    connect(m_addMenu, SIGNAL(triggered(QAction*)),
+            this, SLOT(addTarget(QAction*)));
 
     updateTargetAddAndRemoveButtons();
 }
@@ -192,10 +196,13 @@ void TargetSettingsPanelWidget::currentTargetChanged(int targetIndex, int subInd
     m_project->setActiveTarget(target);
 }
 
-void TargetSettingsPanelWidget::addTarget()
+void TargetSettingsPanelWidget::addTarget(QAction *action)
 {
-    AddTargetDialog dialog(m_project);
-    dialog.exec();
+    QString id = action->data().toString();
+    Target *target(m_project->targetFactory()->create(m_project, id));
+    if (!target)
+        return;
+    m_project->addTarget(target);
 }
 
 void TargetSettingsPanelWidget::removeTarget()
@@ -257,6 +264,23 @@ void TargetSettingsPanelWidget::updateTargetAddAndRemoveButtons()
     if (!m_selector)
         return;
 
-    m_selector->setAddButtonEnabled(m_project->possibleTargetIds().count() > 0);
+    m_addMenu->clear();
+
+    foreach (const QString &id, m_project->possibleTargetIds()) {
+        QString displayName = m_project->targetFactory()->displayNameForId(id);
+        QAction *action = new QAction(displayName, m_addMenu);
+        action->setData(QVariant(id));
+        bool added = false;
+        foreach(QAction *existing, m_addMenu->actions()) {
+            if (existing->text() > action->text()) {
+                m_addMenu->insertAction(existing, action);
+                added = true;
+            }
+        }
+
+        if (!added)
+            m_addMenu->addAction(action);
+    }
+    m_selector->setAddButtonEnabled(!m_addMenu->actions().isEmpty());
     m_selector->setRemoveButtonEnabled(m_project->targets().count() > 1);
 }

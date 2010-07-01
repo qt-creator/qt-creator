@@ -140,9 +140,12 @@ QtColorButton_CW::QtColorButton_CW(QObject *parent) :
 QWidget *FancyLineEdit_CW::createWidget(QWidget *parent)
 {
     Utils::FancyLineEdit *fle = new Utils::FancyLineEdit(parent);
+    fle->setButtonVisible(Utils::FancyLineEdit::Left, true);
+    fle->setButtonPixmap(Utils::FancyLineEdit::Left,
+            fle->style()->standardIcon(QStyle::SP_ArrowRight).pixmap(16));
     QMenu *menu = new QMenu(fle);
-    menu->addAction("Test");
-    fle->setMenu(menu);
+    menu->addAction(QLatin1String("Example"));
+    fle->setButtonMenu(Utils::FancyLineEdit::Left, menu);
     return fle;
 }
 

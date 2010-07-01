@@ -4,6 +4,7 @@
 #include <utils/stylehelper.h>
 
 #include <QtGui/QPainter>
+#include <QtGui/QMenu>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QFontMetrics>
 
@@ -23,7 +24,8 @@ TargetSelector::TargetSelector(QWidget *parent) :
     m_targetremovebuttondisabled(QLatin1String(":/projectexplorer/images/targetremovebutton_disabled.png")),
     m_currentTargetIndex(-1),
     m_addButtonEnabled(true),
-    m_removeButtonEnabled(false)
+    m_removeButtonEnabled(false),
+    m_addButtonMenu(0)
 {
     QFont f = font();
     f.setPixelSize(10);
@@ -94,6 +96,11 @@ void TargetSelector::setRemoveButtonEnabled(bool enabled)
     m_removeButtonEnabled = enabled;
 }
 
+void TargetSelector::setAddButtonMenu(QMenu *menu)
+{
+    m_addButtonMenu = menu;
+}
+
 void TargetSelector::setCurrentSubIndex(int subindex)
 {
     if (subindex < 0 ||
@@ -148,8 +155,8 @@ void TargetSelector::mousePressEvent(QMouseEvent *event)
     } else if (event->x() > ADDBUTTON_WIDTH + (targetWidth() + 1) * m_targets.size()) {
         // check for add button
         event->accept();
-        if (m_addButtonEnabled)
-            emit addButtonClicked();
+        if (m_addButtonEnabled && m_addButtonMenu)
+            m_addButtonMenu->popup(mapToGlobal(event->pos()));
     } else {
         // find the clicked target button
         int x = ADDBUTTON_WIDTH;

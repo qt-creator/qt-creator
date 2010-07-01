@@ -5,6 +5,10 @@
 
 #include <QWidget>
 
+QT_BEGIN_NAMESPACE
+class QMenu;
+QT_END_NAMESPACE
+
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -36,10 +40,10 @@ public slots:
     void setCurrentIndex(int index);
     void setCurrentSubIndex(int index);
     void setAddButtonEnabled(bool enabled);
+    void setAddButtonMenu(QMenu *menu);
     void setRemoveButtonEnabled(bool enabled);
 
 signals:
-    void addButtonClicked();
     void removeButtonClicked();
     void currentChanged(int targetIndex, int subIndex);
 

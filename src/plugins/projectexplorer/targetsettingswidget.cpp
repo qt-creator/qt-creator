@@ -15,8 +15,6 @@ TargetSettingsWidget::TargetSettingsWidget(QWidget *parent) :
         "background-image: url(:/projectexplorer/images/targetseparatorbackground.png);"
         "}"));
     m_targetSelector->raise();
-    connect(m_targetSelector, SIGNAL(addButtonClicked()),
-            this, SIGNAL(addButtonClicked()));
     connect(m_targetSelector, SIGNAL(removeButtonClicked()),
             this, SIGNAL(removeButtonClicked()));
     connect(m_targetSelector, SIGNAL(currentChanged(int,int)),
@@ -73,6 +71,11 @@ void TargetSettingsWidget::setCurrentSubIndex(int index)
 void TargetSettingsWidget::setAddButtonEnabled(bool enabled)
 {
     m_targetSelector->setAddButtonEnabled(enabled);
+}
+
+void TargetSettingsWidget::setAddButtonMenu(QMenu *menu)
+{
+    m_targetSelector->setAddButtonMenu(menu);
 }
 
 void TargetSettingsWidget::setRemoveButtonEnabled(bool enabled)

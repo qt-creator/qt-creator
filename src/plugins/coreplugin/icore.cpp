@@ -249,7 +249,7 @@
 */
 
 /*!
-    \fn void ICore::updateAdditionalContexts(const QList<int> &remove, const QList<int> &add)
+    \fn void ICore::updateAdditionalContexts(const Core::Context &remove, const Core::Context &add)
     \brief Change the currently active additional contexts.
 
     Removes the list of additional contexts specified by \a remove and adds the
@@ -340,7 +340,7 @@
 */
 
 /*!
-    \fn void ICore::contextChanged(Core::IContext *context, const QList<int> &additionalContexts)
+    \fn void ICore::contextChanged(Core::IContext *context, const Core::Context &additionalContexts)
     \brief Sent just after a new \a context became the current context
     (meaning that its widget got focus), or if the additional context ids changed.
 */

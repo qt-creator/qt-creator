@@ -176,6 +176,10 @@ struct SYMBIANUTILS_EXPORT Session
     void reset();
     QString deviceDescription(unsigned verbose) const;
     QString toString() const;
+    // Answer to qXfer::libraries
+    QByteArray gdbLibraryList() const;
+    // Answer to qsDllInfo, can be sent chunk-wise.
+    QByteArray gdbQsDllInfo(int start = 0, int count = -1) const;
 
     // Trk feedback
     byte cpuMajor;
@@ -187,6 +191,7 @@ struct SYMBIANUTILS_EXPORT Session
     byte extended2TypeSize;
     TrkAppVersion trkAppVersion;
     uint pid;
+    uint mainTid;
     uint tid;
     uint codeseg;
     uint dataseg;
@@ -195,12 +200,7 @@ struct SYMBIANUTILS_EXPORT Session
     typedef QList<Library> Libraries;
     Libraries libraries;
 
-    typedef uint Thread;
-    typedef QList<Thread> Threads;
-    Threads threads;
-
     // Gdb request
-    uint currentThread;
     QStringList modules;
 };
 

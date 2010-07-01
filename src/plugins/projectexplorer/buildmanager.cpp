@@ -282,6 +282,7 @@ void BuildManager::showBuildResults()
 
 void BuildManager::addToTaskWindow(const ProjectExplorer::Task &task)
 {
+    m_outputWindow->registerPositionOf(task);
     m_taskWindow->addTask(task);
 }
 

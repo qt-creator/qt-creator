@@ -27,52 +27,39 @@
 **
 **************************************************************************/
 
-#include "addtargetdialog.h"
+#include "showoutputtaskhandler.h"
 
-#include "ui_addtargetdialog.h"
+#include "projectexplorerconstants.h"
+#include "task.h"
 
-#include "project.h"
+#include "compileoutputwindow.h"
 
-using namespace ProjectExplorer;
+#include <QtGui/QAction>
+
 using namespace ProjectExplorer::Internal;
 
-AddTargetDialog::AddTargetDialog(Project *project, QWidget *parent) :
-    QDialog(parent),
-    m_project(project),
-    ui(new Ui::AddTargetDialog)
+ShowOutputTaskHandler::ShowOutputTaskHandler(CompileOutputWindow *window) :
+    ITaskHandler(QLatin1String(Constants::SHOW_TASK_OUTPUT)),
+    m_window(window)
 {
-    ui->setupUi(this);
-
-    foreach (const QString &id, m_project->possibleTargetIds()) {
-        for (int i = 0; i <= ui->targetComboBox->count(); ++i) {
-            const QString displayName = m_project->targetFactory()->displayNameForId(id);
-            if (i == ui->targetComboBox->count() ||
-                ui->targetComboBox->itemText(i) > displayName) {
-                ui->targetComboBox->insertItem(i, displayName, id);
-                break;
-            }
-        }
-    }
-    ui->targetComboBox->setCurrentIndex(0);
-
-    connect(ui->buttonBox, SIGNAL(accepted()),
-            this, SLOT(accept()));
+    Q_ASSERT(m_window);
 }
 
-AddTargetDialog::~AddTargetDialog()
+bool ShowOutputTaskHandler::canHandle(const ProjectExplorer::Task &task)
 {
-    delete ui;
+    return m_window->knowsPositionOf(task);
 }
 
-void AddTargetDialog::accept()
+void ShowOutputTaskHandler::handle(const ProjectExplorer::Task &task)
 {
-    int index = ui->targetComboBox->currentIndex();
-    QString id(ui->targetComboBox->itemData(index).toString());
-    Target *target(m_project->targetFactory()->create(m_project, id));
-    if (!target)
-        return;
-    m_project->addTarget(target);
-
-    done(QDialog::Accepted);
+    Q_ASSERT(canHandle(task));
+    m_window->popup(); // popup first as this does move the visible area!
+    m_window->showPositionOf(task);
 }
 
+QAction *ShowOutputTaskHandler::createAction(QObject *parent)
+{
+    QAction *outputAction = new QAction(tr("Show &Output"), parent);
+    outputAction->setToolTip(tr("Show output generating this issue."));
+    return outputAction;
+}

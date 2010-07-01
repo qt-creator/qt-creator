@@ -82,9 +82,10 @@ void addRow(const FullySpecifiedType &f, QString result, QString name = QString(
 
 void tst_TypePrettyPrinter::basic_data()
 {
-    Control c;
-    TranslationUnit t(&c, 0);
-    unit = &t;
+    // seems it now works without a translation unit
+//    Control c;
+//    TranslationUnit t(&c, 0);
+//    unit = 0;
 
     QTest::addColumn<FullySpecifiedType>("type");
     QTest::addColumn<QString>("name");

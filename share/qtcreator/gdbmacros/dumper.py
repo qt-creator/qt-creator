@@ -210,7 +210,7 @@ class SubItem:
             if len(type) > 0 and type != self.d.currentChildType:
                 self.d.put('type="%s",' % type) # str(type.unqualified()) ?
             if not self.d.currentValueEncoding is None:
-                self.d.put('valueencoded="%d",', self.d.currentValueEncoding)
+                self.d.put('valueencoded="%d",' % self.d.currentValueEncoding)
             if not self.d.currentValue is None:
                 self.d.put('value="%s",' % self.d.currentValue)
         except:
@@ -761,7 +761,6 @@ def stripTypedefs(typeobj):
         type = type.strip_typedefs().unqualified()
     return type
 
-
 #######################################################################
 #
 # Item
@@ -1106,7 +1105,7 @@ class Dumper:
     def childRange(self):
         return xrange(qmin(self.currentMaxNumChilds, self.currentNumChilds))
 
-    # convenience
+    # Convenience function.
     def putItemCount(self, count):
         # This needs to override the default value, so don't use 'put' directly.
         self.putValue('<%s items>' % count)
@@ -1129,7 +1128,7 @@ class Dumper:
             self.put('numchild="%s",' % numchild)
 
     def putValue(self, value, encoding = None, priority = 0):
-        # higher priority values override lower ones 
+        # Higher priority values override lower ones.
         if priority >= self.currentValuePriority:
             self.currentValue = value
             self.currentValuePriority = priority
@@ -1155,7 +1154,7 @@ class Dumper:
 
     def putByteArrayValue(self, value):
         str = encodeByteArray(value)
-        self.put('valueencoded="%d",value="%s",' % (Hex2EncodedLatin1, str))
+        self.putValue(str, Hex2EncodedLatin1)
 
     def putName(self, name):
         self.put('name="%s",' % name)
@@ -1299,8 +1298,15 @@ class Dumper:
         elif typedefStrippedType.code == gdb.TYPE_CODE_PTR:
             #warn("POINTER: %s" % format)
             isHandled = False
+            target = stripTypedefs(type.target())
 
-            if not format is None:
+            if (not isHandled) and target.code == gdb.TYPE_CODE_VOID:
+                self.putType(item.value.type)
+                self.putValue(str(value))
+                self.putNumChild(0)
+                isHandled = True
+
+            if (not isHandled) and (not format is None):
                 self.putAddress(value.address)
                 self.putType(item.value.type)
                 isHandled = True
@@ -1340,8 +1346,7 @@ class Dumper:
                     self.putNumChild(0)
                     isHandled = True
 
-                target = stripTypedefs(type.target())
-                if (not isHandled) and target.code == TYPE_CODE_VOID:
+                if (not isHandled):
                     self.putType(item.value.type)
                     self.putValue(str(value))
                     self.putNumChild(0)
@@ -1377,7 +1382,7 @@ class Dumper:
                             self.putAddress(item.value)
                 self.putPointerValue(value.address)
 
-        elif str(type).startswith("<anon"):
+        elif str(typedefStrippedType).startswith("<anon"):
             # Anonymous union. We need a dummy name to distinguish
             # multiple anonymous unions in the struct.
             self.putType(item.value.type)
@@ -1394,7 +1399,14 @@ class Dumper:
 
             # Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=10953
             #fields = value.type.fields()
-            fields = value.type.strip_typedefs().fields()
+
+            # Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=11777
+            #fields = stripTypedefs(value.type).fields()
+
+            # This seems to work.
+            type = stripTypedefs(type)
+            type = lookupType(str(type))
+            fields = type.fields()
 
             self.putType(item.value.type)
             try:
@@ -1419,8 +1431,8 @@ class Dumper:
                     charptr = lookupType("unsigned char").pointer()
                     addr1 = (baseptr+1).cast(charptr)
                     addr0 = baseptr.cast(charptr)
-                    self.put('addrbase="%s",', cleanAddress(addr0))
-                    self.put('addrstep="%s",', addr1 - addr0)
+                    self.put('addrbase="%s",' % cleanAddress(addr0))
+                    self.put('addrstep="%s",' % (addr1 - addr0))
 
                 innerType = None
                 if len(fields) == 1 and fields[0].name is None:
@@ -1431,7 +1443,10 @@ class Dumper:
 
     def putFields(self, item, innerType = None):
             value = item.value
-            fields = stripTypedefs(value.type).fields()
+            type = stripTypedefs(value.type)
+            # http://sourceware.org/bugzilla/show_bug.cgi?id=11777
+            type = lookupType(str(type))
+            fields = stripTypedefs(type).fields()
             baseNumber = 0
             for field in fields:
                 #warn("FIELD: %s" % field)
@@ -1442,9 +1457,9 @@ class Dumper:
                     continue  # A static class member(?).
 
                 if field.name is None:
-                    innerType = value.type.target()
+                    innerType = type.target()
                     p = value.cast(innerType.pointer())
-                    for i in xrange(value.type.sizeof / innerType.sizeof):
+                    for i in xrange(type.sizeof / innerType.sizeof):
                         self.putItem(Item(p.dereference(), item.iname, i, None))
                         p = p + 1
                     continue
@@ -1463,7 +1478,7 @@ class Dumper:
                         item.iname, "@%d" % baseNumber, field.name)
                     baseNumber += 1
                     with SubItem(self):
-                        self.put('iname="%s",', child.iname)
+                        self.put('iname="%s",' % child.iname)
                         self.putItemHelper(child)
                 elif len(field.name) == 0:
                     # Anonymous union. We need a dummy name to distinguish

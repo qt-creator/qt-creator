@@ -65,11 +65,11 @@ void Session::reset()
     extended1TypeSize = 0;
     extended2TypeSize = 0;
     pid = 0;
+    mainTid = 0;
     tid = 0;
     codeseg = 0;
     dataseg = 0;
 
-    currentThread = 0;
     libraries.clear();
     trkAppVersion.reset();
 }
@@ -131,12 +131,60 @@ QString Session::deviceDescription(unsigned verbose) const
     return msg.arg(formatTrkVersion(trkAppVersion));
 }
 
+QByteArray Session::gdbLibraryList() const
+{
+    const int count = libraries.size();
+    QByteArray response = "l<library-list>";
+    for (int i = 0; i != count; ++i) {
+        const trk::Library &lib = libraries.at(i);
+        response += "<library name=\"";
+        response += lib.name;
+        response += "\">";
+        response += "<section address=\"0x";
+        response += trk::hexNumber(lib.codeseg);
+        response += "\"/>";
+        response += "<section address=\"0x";
+        response += trk::hexNumber(lib.dataseg);
+        response += "\"/>";
+        response += "<section address=\"0x";
+        response += trk::hexNumber(lib.dataseg);
+        response += "\"/>";
+        response += "</library>";
+    }
+    response += "</library-list>";
+    return response;
+}
+
+QByteArray Session::gdbQsDllInfo(int start, int count) const
+{
+    // Happens with  gdb 6.4.50.20060226-cvs / CodeSourcery.
+    // Never made it into FSF gdb that got qXfer:libraries:read instead.
+    // http://sourceware.org/ml/gdb/2007-05/msg00038.html
+    // Name=hexname,TextSeg=textaddr[,DataSeg=dataaddr]
+    const int libraryCount = libraries.size();
+    const int end = count < 0 ? libraryCount : qMin(libraryCount, start + count);
+    QByteArray response(1, end == libraryCount ? 'l' : 'm');
+    for (int i = start; i < end; ++i) {
+        if (i != start)
+            response += ';';
+        const Library &lib = libraries.at(i);
+        response += "Name=";
+        response += lib.name.toHex();
+        response += ",TextSeg=";
+        response += hexNumber(lib.codeseg);
+        response += ",DataSeg=";
+        response += hexNumber(lib.dataseg);
+    }
+    return response;
+}
+
 QString Session::toString() const
 {
     QString rc;
     QTextStream str(&rc);
     str << "Session: " << deviceDescription(false) << '\n'
-            << "pid: " << pid <<  " thread: " << tid << ' ';
+            << "pid: " << pid <<  "main thread: " << mainTid
+            << " current thread: " << tid << ' ';
     str.setIntegerBase(16);
     str << " code: 0x" << codeseg << " data: 0x" << dataseg << '\n';
     if (const int libCount = libraries.size()) {
@@ -152,13 +200,6 @@ QString Session::toString() const
             str << " #" << i << ' ' << modules.at(i) << '\n';
     }
     str.setIntegerBase(10);
-    str <<  "Current thread: " << currentThread << '\n';
-    if (const int threadCount = threads.size()) {
-        str << "Threads:\n";
-        for (int i = 0; i < threadCount; i++)
-            str << " #" << i << ' ' << threads.at(i);
-    }
-
     if (!addressToBP.isEmpty()) {
         typedef QHash<uint, uint>::const_iterator BP_ConstIterator;
         str << "Breakpoints:\n";

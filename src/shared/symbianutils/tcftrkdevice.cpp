@@ -36,6 +36,7 @@
 #include <QtCore/QQueue>
 #include <QtCore/QTextStream>
 #include <QtCore/QDateTime>
+#include <QtCore/QFileInfo>
 
 enum { debug = 0 };
 
@@ -686,6 +687,23 @@ void TcfTrkDevice::sendProcessTerminateCommand(const TcfTrkCallback &callBack,
     JsonInputStream str(data);
     str << id;
     sendTcfTrkMessage(MessageWithReply, ProcessesService, "terminate", data, callBack, cookie);
+}
+
+// Non-standard: Remove executable from settings
+void TcfTrkDevice::sendSettingsRemoveExecutableCommand(const QString &binaryIn,
+                                                       unsigned uid,
+                                                       const QStringList &additionalLibraries,
+                                                       const QVariant &cookie)
+{
+    QByteArray setData;
+    JsonInputStream setStr(setData);
+    setStr << "" << '\0'
+            << '[' << "removedExecutables" << ',' << "removedLibraries" << ']'
+            << '\0' << '['
+                << '{' << QFileInfo(binaryIn).fileName() << ':' << QString::number(uid, 16) << '}' << ','
+                << additionalLibraries
+            << ']';
+    sendTcfTrkMessage(MessageWithoutReply, SettingsService, "set", setData, TcfTrkCallback(), cookie);
 }
 
 void TcfTrkDevice::sendRunControlResumeCommand(const TcfTrkCallback &callBack,

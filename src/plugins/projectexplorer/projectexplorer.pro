@@ -20,6 +20,7 @@ HEADERS += projectexplorer.h \
     itaskhandler.h \
     copytaskhandler.h \
     showineditortaskhandler.h \
+    showoutputtaskhandler.h \
     vcsannotatetaskhandler.h \
     taskwindow.h \
     outputwindow.h \
@@ -80,7 +81,6 @@ HEADERS += projectexplorer.h \
     targetselector.h \
     targetsettingswidget.h \
     doubletabwidget.h \
-    addtargetdialog.h \
     buildenvironmentwidget.h \
     buildconfigdialog.h \
     ldparser.h \
@@ -101,6 +101,7 @@ SOURCES += projectexplorer.cpp \
     task.cpp \
     copytaskhandler.cpp \
     showineditortaskhandler.cpp \
+    showoutputtaskhandler.cpp \
     vcsannotatetaskhandler.cpp \
     taskwindow.cpp \
     outputwindow.cpp \
@@ -154,7 +155,6 @@ SOURCES += projectexplorer.cpp \
     targetselector.cpp \
     targetsettingswidget.cpp \
     doubletabwidget.cpp \
-    addtargetdialog.cpp \
     buildenvironmentwidget.cpp \
     buildconfigdialog.cpp \
     ldparser.cpp \
@@ -171,8 +171,7 @@ FORMS += processstep.ui \
     projectexplorersettingspage.ui \
     projectwelcomepagewidget.ui \
     targetsettingswidget.ui \
-    doubletabwidget.ui \
-    addtargetdialog.ui
+    doubletabwidget.ui
 
 equals(TEST, 1) {
     SOURCES += \

@@ -27,38 +27,32 @@
 **
 **************************************************************************/
 
-#ifndef ADDTARGETDIALOG_H
-#define ADDTARGETDIALOG_H
+#ifndef PROJECTEXPLORER_SHOWOUTPUTTASKHANDLER_H
+#define PROJECTEXPLORER_SHOWOUTPUTTASKHANDLER_H
 
-#include <QDialog>
+#include "projectexplorer_export.h"
+
+#include "itaskhandler.h"
 
 namespace ProjectExplorer {
-
-class Project;
-
 namespace Internal {
 
-namespace Ui {
-class AddTargetDialog;
-}
+class CompileOutputWindow;
 
-class AddTargetDialog : public QDialog
+class PROJECTEXPLORER_EXPORT ShowOutputTaskHandler : public ITaskHandler
 {
-    Q_OBJECT
-
 public:
-    explicit AddTargetDialog(Project *project, QWidget *parent = 0);
-    ~AddTargetDialog();
+    ShowOutputTaskHandler(CompileOutputWindow *);
 
-private slots:
-    void accept();
+    bool canHandle(const Task &);
+    void handle(const Task &task);
+    QAction *createAction(QObject *parent = 0);
 
 private:
-    Project *m_project;
-    Ui::AddTargetDialog *ui;
+    CompileOutputWindow * m_window;
 };
 
 } // namespace Internal
 } // namespace ProjectExplorer
 
-#endif // ADDTARGETDIALOG_H
+#endif // PROJECTEXPLORER_SHOWOUTPUTTASKHANDLER_H

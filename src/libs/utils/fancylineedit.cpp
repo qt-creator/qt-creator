@@ -44,7 +44,7 @@
 
 enum { margin = 6 };
 
-#define ICONBUTTON_SIZE 18
+#define ICONBUTTON_HEIGHT 18
 #define FADE_TIME 160
 
 namespace Utils {
@@ -56,41 +56,47 @@ public:
 
     virtual bool eventFilter(QObject *obj, QEvent *event);
 
-    const QString m_leftLabelStyleSheet;
-    const QString m_rightLabelStyleSheet;
-
     FancyLineEdit  *m_lineEdit;
-    QPixmap m_pixmap;
-    QMenu *m_menu;
-    FancyLineEdit::Side m_side;
-    bool m_useLayoutDirection;
-    bool m_menuTabFocusTrigger;
-    bool m_autoHideIcon;
-    IconButton *m_iconbutton;
+    QPixmap m_pixmap[2];
+    QMenu *m_menu[2];
+    bool m_menuTabFocusTrigger[2];
+    IconButton *m_iconbutton[2];
+    bool m_iconEnabled[2];
 };
 
 
 FancyLineEditPrivate::FancyLineEditPrivate(FancyLineEdit *parent) :
     QObject(parent),
-    m_lineEdit(parent),
-    m_menu(0),
-    m_side(FancyLineEdit::Left),
-    m_useLayoutDirection(false),
-    m_menuTabFocusTrigger(false),
-    m_autoHideIcon(false),
-    m_iconbutton(new IconButton(parent))
+    m_lineEdit(parent)
 {
+    for (int i = 0; i < 2; ++i) {
+        m_menu[i] = 0;
+        m_menuTabFocusTrigger[i] = false;
+        m_iconbutton[i] = new IconButton(parent);
+        m_iconbutton[i]->installEventFilter(this);
+        m_iconbutton[i]->hide();
+        m_iconbutton[i]->setAutoHide(false);
+        m_iconEnabled[i] = false;
+    }
 }
 
 bool FancyLineEditPrivate::eventFilter(QObject *obj, QEvent *event)
 {
-    if (obj != m_iconbutton)
+    int buttonIndex = -1;
+    for (int i = 0; i < 2; ++i) {
+        if (obj == m_iconbutton[i]) {
+            buttonIndex = i;
+            break;
+        }
+    }
+    if (buttonIndex == -1)
         return QObject::eventFilter(obj, event);
     switch (event->type()) {
     case QEvent::FocusIn:
-        if (m_menuTabFocusTrigger && m_menu) {
+        if (m_menuTabFocusTrigger[buttonIndex] && m_menu[buttonIndex]) {
             m_lineEdit->setFocus();
-            m_menu->exec(m_iconbutton->mapToGlobal(m_iconbutton->rect().center()));
+            m_menu[buttonIndex]->exec(m_iconbutton[buttonIndex]->mapToGlobal(
+                    m_iconbutton[buttonIndex]->rect().center()));
             return true;
         }
     default:
@@ -105,29 +111,21 @@ FancyLineEdit::FancyLineEdit(QWidget *parent) :
     QLineEdit(parent),
     m_d(new FancyLineEditPrivate(this))
 {
-    // KDE has custom icons for this. Notice that icon namings are counter intuitive
-    // If these icons are not avaiable we use the freedesktop standard name before
-    // falling back to a bundled resource
-    QIcon icon = QIcon::fromTheme(layoutDirection() == Qt::LeftToRight ?
-                     QLatin1String("edit-clear-locationbar-rtl") :
-                     QLatin1String("edit-clear-locationbar-ltr"),
-                     QIcon::fromTheme("edit-clear", QIcon(QLatin1String(":/core/images/editclear.png"))));
-
-    m_d->m_iconbutton->installEventFilter(m_d);
-    m_d->m_iconbutton->setIcon(icon);
-
     ensurePolished();
-    setSide(Left);
+    updateMargins();
 
-    connect(this, SIGNAL(textChanged(QString)), this, SLOT(checkButton(QString)));
-    connect(m_d->m_iconbutton, SIGNAL(clicked()), this, SLOT(iconClicked()));
+    connect(this, SIGNAL(textChanged(QString)), this, SLOT(checkButtons(QString)));
+    connect(m_d->m_iconbutton[Left], SIGNAL(clicked()), this, SLOT(iconClicked()));
+    connect(m_d->m_iconbutton[Right], SIGNAL(clicked()), this, SLOT(iconClicked()));
 }
 
-void FancyLineEdit::checkButton(const QString &text)
+void FancyLineEdit::checkButtons(const QString &text)
 {
-    if (autoHideIcon()) {
-        if (m_oldText.isEmpty() || text.isEmpty())
-            m_d->m_iconbutton->animateShow(!text.isEmpty());
+    if (m_oldText.isEmpty() || text.isEmpty()) {
+        for (int i = 0; i < 2; ++i) {
+            if (m_d->m_iconbutton[i]->hasAutoHide())
+                m_d->m_iconbutton[i]->animateShow(!text.isEmpty());
+        }
         m_oldText = text;
     }
 }
@@ -136,127 +134,147 @@ FancyLineEdit::~FancyLineEdit()
 {
 }
 
-void FancyLineEdit::setSide(Side side)
+void FancyLineEdit::setButtonVisible(Side side, bool visible)
 {
-    m_d->m_side = side;
+    m_d->m_iconbutton[side]->setVisible(visible);
+    m_d->m_iconEnabled[side] = visible;
+    updateMargins();
+}
 
-    Side iconpos = side;
-    if (layoutDirection() == Qt::RightToLeft)
-        iconpos = (side == Left ? Right : Left);
-
-    // Make room for icon
-
-    // Let the style determine minimum height for our widget
-    QSize size(ICONBUTTON_SIZE + 6, ICONBUTTON_SIZE + 2);
-
-    // Note KDE does not reserve space for the highlight color
-    if (style()->inherits("OxygenStyle")) {
-        size = size.expandedTo(QSize(24, 0));
-    }
-
-    QMargins margins;
-    if (iconpos == Right)
-        margins.setRight(size.width());
-    else
-        margins.setLeft(size.width());
-
-    setTextMargins(margins);
+bool FancyLineEdit::isButtonVisible(Side side) const
+{
+    return m_d->m_iconEnabled[side];
 }
 
 void FancyLineEdit::iconClicked()
 {
-    if (m_d->m_menu) {
-        m_d->m_menu->exec(QCursor::pos());
+    IconButton *button = qobject_cast<IconButton *>(sender());
+    int index = -1;
+    for (int i = 0; i < 2; ++i)
+        if (m_d->m_iconbutton[i] == button)
+            index = i;
+    if (index == -1)
+        return;
+    if (m_d->m_menu[index]) {
+        m_d->m_menu[index]->exec(QCursor::pos());
     } else {
-        emit buttonClicked();
+        emit buttonClicked((Side)index);
+        if (index == Left)
+            emit leftButtonClicked();
+        else if (index == Right)
+            emit rightButtonClicked();
     }
 }
 
-FancyLineEdit::Side FancyLineEdit::side() const
+void FancyLineEdit::updateMargins()
 {
-    return  m_d->m_side;
+    bool leftToRight = (layoutDirection() == Qt::LeftToRight);
+    Side realLeft = (leftToRight ? Left : Right);
+    Side realRight = (leftToRight ? Right : Left);
+
+    int leftMargin = m_d->m_iconbutton[realLeft]->pixmap().width() + 8;
+    int rightMargin = m_d->m_iconbutton[realRight]->pixmap().width() + 8;
+    // Note KDE does not reserve space for the highlight color
+    if (style()->inherits("OxygenStyle")) {
+        leftMargin = qMax(24, leftMargin);
+        rightMargin = qMax(24, rightMargin);
+    }
+
+    QMargins margins((m_d->m_iconEnabled[realLeft] ? leftMargin : 0), 0,
+                     (m_d->m_iconEnabled[realRight] ? rightMargin : 0), 0);
+
+    setTextMargins(margins);
+}
+
+void FancyLineEdit::updateButtonPositions()
+{
+    QRect contentRect = rect();
+    for (int i = 0; i < 2; ++i) {
+        Side iconpos = (Side)i;
+        if (layoutDirection() == Qt::RightToLeft)
+            iconpos = (iconpos == Left ? Right : Left);
+
+        if (iconpos == FancyLineEdit::Right) {
+            const int iconoffset = textMargins().right() + 4;
+            m_d->m_iconbutton[i]->setGeometry(contentRect.adjusted(width() - iconoffset, 0, 0, 0));
+        } else {
+            const int iconoffset = textMargins().left() + 4;
+            m_d->m_iconbutton[i]->setGeometry(contentRect.adjusted(0, 0, -width() + iconoffset, 0));
+        }
+    }
 }
 
 void FancyLineEdit::resizeEvent(QResizeEvent *)
 {
-    QRect contentRect = rect();
-    Side iconpos = m_d->m_side;
-    if (layoutDirection() == Qt::RightToLeft)
-        iconpos = (iconpos == Left ? Right : Left);
-
-    if (iconpos == FancyLineEdit::Right) {
-        const int iconoffset = textMargins().right() + 4;
-        m_d->m_iconbutton->setGeometry(contentRect.adjusted(width() - iconoffset, 0, 0, 0));
-    } else {
-        const int iconoffset = textMargins().left() + 4;
-        m_d->m_iconbutton->setGeometry(contentRect.adjusted(0, 0, -width() + iconoffset, 0));
-    }
+    updateButtonPositions();
 }
 
-void FancyLineEdit::setPixmap(const QPixmap &pixmap)
+void FancyLineEdit::setButtonPixmap(Side side, const QPixmap &buttonPixmap)
 {
-    m_d->m_iconbutton->setIcon(pixmap);
-    updateGeometry();
+    m_d->m_iconbutton[side]->setPixmap(buttonPixmap);
+    updateMargins();
+    updateButtonPositions();
+    update();
 }
 
-QPixmap FancyLineEdit::pixmap() const
+QPixmap FancyLineEdit::buttonPixmap(Side side) const
 {
-    return m_d->m_pixmap;
+    return m_d->m_pixmap[side];
 }
 
-void FancyLineEdit::setMenu(QMenu *menu)
+void FancyLineEdit::setButtonMenu(Side side, QMenu *buttonMenu)
 {
-     m_d->m_menu = menu;
-     m_d->m_iconbutton->setIconOpacity(1.0);
+     m_d->m_menu[side] = buttonMenu;
+     m_d->m_iconbutton[side]->setIconOpacity(1.0);
  }
 
-QMenu *FancyLineEdit::menu() const
+QMenu *FancyLineEdit::buttonMenu(Side side) const
 {
-    return  m_d->m_menu;
+    return  m_d->m_menu[side];
 }
 
-bool FancyLineEdit::hasMenuTabFocusTrigger() const
+bool FancyLineEdit::hasMenuTabFocusTrigger(Side side) const
 {
-    return m_d->m_menuTabFocusTrigger;
+    return m_d->m_menuTabFocusTrigger[side];
 }
 
-void FancyLineEdit::setMenuTabFocusTrigger(bool v)
+void FancyLineEdit::setMenuTabFocusTrigger(Side side, bool v)
 {
-    if (m_d->m_menuTabFocusTrigger == v)
+    if (m_d->m_menuTabFocusTrigger[side] == v)
         return;
 
-    m_d->m_menuTabFocusTrigger = v;
-    m_d->m_iconbutton->setFocusPolicy(v ? Qt::TabFocus : Qt::NoFocus);
+    m_d->m_menuTabFocusTrigger[side] = v;
+    m_d->m_iconbutton[side]->setFocusPolicy(v ? Qt::TabFocus : Qt::NoFocus);
 }
 
-bool FancyLineEdit::autoHideIcon() const
+bool FancyLineEdit::hasAutoHideButton(Side side) const
 {
-    return m_d->m_autoHideIcon;
+    return m_d->m_iconbutton[side]->hasAutoHide();
 }
 
-void FancyLineEdit::setAutoHideIcon(bool h)
+void FancyLineEdit::setAutoHideButton(Side side, bool h)
 {
-    m_d->m_autoHideIcon = h;
+    m_d->m_iconbutton[side]->setAutoHide(h);
     if (h)
-        m_d->m_iconbutton->setIconOpacity(text().isEmpty() ?  0.0 : 1.0);
+        m_d->m_iconbutton[side]->setIconOpacity(text().isEmpty() ?  0.0 : 1.0);
     else
-        m_d->m_iconbutton->setIconOpacity(1.0);
+        m_d->m_iconbutton[side]->setIconOpacity(1.0);
 }
 
-void FancyLineEdit::setButtonToolTip(const QString &tip)
+void FancyLineEdit::setButtonToolTip(Side side, const QString &tip)
 {
-    m_d->m_iconbutton->setToolTip(tip);
+    m_d->m_iconbutton[side]->setToolTip(tip);
 }
 
-void FancyLineEdit::setButtonFocusPolicy(Qt::FocusPolicy policy)
+void FancyLineEdit::setButtonFocusPolicy(Side side, Qt::FocusPolicy policy)
 {
-    m_d->m_iconbutton->setFocusPolicy(policy);
+    m_d->m_iconbutton[side]->setFocusPolicy(policy);
 }
 
 // IconButton - helper class to represent a clickable icon
 
 IconButton::IconButton(QWidget *parent)
-    : QAbstractButton(parent)
+    : QAbstractButton(parent), m_autoHide(false)
 {
     setCursor(Qt::ArrowCursor);
     setFocusPolicy(Qt::NoFocus);
@@ -270,15 +288,13 @@ void IconButton::paintEvent(QPaintEvent *)
     QIcon::Mode state = QIcon::Disabled;
     if (isEnabled())
         state = isDown() ? QIcon::Selected : QIcon::Normal;
-    QPixmap iconpixmap = icon().pixmap(QSize(ICONBUTTON_SIZE, ICONBUTTON_SIZE),
-                                       state, QIcon::Off);
-    QRect pixmapRect = QRect(0, 0, iconpixmap.width(), iconpixmap.height());
+    QRect pixmapRect = QRect(0, 0, m_pixmap.width(), m_pixmap.height());
     pixmapRect.moveCenter(rect().center());
 
-    if (static_cast<FancyLineEdit*>(parentWidget())->autoHideIcon())
+    if (m_autoHide)
         painter.setOpacity(m_iconOpacity);
 
-    painter.drawPixmap(pixmapRect, iconpixmap);
+    painter.drawPixmap(pixmapRect, m_pixmap);
 }
 
 void IconButton::animateShow(bool visible)

@@ -78,7 +78,7 @@ static void initializeMetaTypeSystem(const QString &resourcePath)
                                                              QDir::Files,
                                                              QDir::Name);
 
-    const QStringList errors = QmlJS::Interpreter::MetaTypeSystem::load(xmlFiles);
+    const QStringList errors = QmlJS::Interpreter::CppQmlTypesLoader::load(xmlFiles);
     foreach (const QString &error, errors)
         qWarning() << qPrintable(error);
 }

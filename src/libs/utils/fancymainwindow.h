@@ -76,6 +76,10 @@ public:
     // Overwritten to add locked/reset.
     virtual QMenu *createPopupMenu();
 
+
+    QDockWidget *toolBarDockWidget() const;
+    void setToolBarDockWidget(QDockWidget *dock);
+
 signals:
     // Emitted by resetLayoutAction(). Connect to a slot
     // restoring the default layout.

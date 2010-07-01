@@ -43,6 +43,7 @@ QT_END_NAMESPACE
 namespace Find {
 namespace Internal {
     class SearchResultTreeView;
+    struct SearchResultWindowPrivate;
 }
 class SearchResultWindow;
 
@@ -69,7 +70,6 @@ signals:
     friend class SearchResultWindow;
 };
 
-struct SearchResultWindowPrivate;
 class FIND_EXPORT SearchResultWindow : public Core::IOutputPane
 {
     Q_OBJECT
@@ -128,7 +128,7 @@ private:
     void writeSettings();
     QList<SearchResultItem> checkedItems() const;
 
-    SearchResultWindowPrivate *d;
+    Internal::SearchResultWindowPrivate *d;
 };
 
 } // namespace Find

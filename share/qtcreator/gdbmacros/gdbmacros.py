@@ -1377,6 +1377,22 @@ def qdump__QRectF(d, item):
             d.putItem(Item(h, None, None, "h"))
 
 
+def qdump__QRegion(d, item):
+    p = item.value["d"].dereference()["qt_rgn"]
+    if isNull(p):
+        d.putValue("<empty>")
+        d.putNumChild(0)
+    else:
+        n = str(p.dereference()["numRects"])
+        d.putItemCount(n)
+        d.putNumChild(n)
+        if d.isExpanded(item):
+            with Children(d):
+                d.putFields(Item(p.dereference(), item.iname))
+
+# qt_rgn might be 0
+# gdb.parse_and_eval("region")["d"].dereference()["qt_rgn"].dereference()
+
 def qdump__QSet(d, item):
 
     def hashDataFirstNode(value):

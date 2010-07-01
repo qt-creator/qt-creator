@@ -45,6 +45,7 @@
 #include "maemopackagecreationwidget.h"
 #include "maemopackagecontents.h"
 #include "maemotoolchain.h"
+#include "profilewrapper.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qt4buildconfiguration.h>
@@ -89,6 +90,8 @@ MaemoPackageCreationStep::MaemoPackageCreationStep(BuildConfiguration *buildConf
       m_versionString(other->m_versionString)
 {
 }
+
+MaemoPackageCreationStep::~MaemoPackageCreationStep() {}
 
 bool MaemoPackageCreationStep::init()
 {
@@ -147,7 +150,7 @@ bool MaemoPackageCreationStep::createPackage()
     env.insert(key, path % QLatin1String("madbin") % colon % env.value(key));
     env.insert(QLatin1String("PERL5LIB"), path % QLatin1String("madlib/perl5"));
 
-    const QString buildDir = QFileInfo(localExecutableFilePath()).absolutePath();
+    const QString buildDir = buildDirectory();
     env.insert(QLatin1String("PWD"), buildDir);
 
     const QRegExp envPattern(QLatin1String("([^=]+)=[\"']?([^;\"']+)[\"']? ;.*"));
@@ -163,6 +166,11 @@ bool MaemoPackageCreationStep::createPackage()
     buildProc.setWorkingDirectory(buildDir);
     buildProc.start("cd " + buildDir);
     buildProc.waitForFinished();
+
+    // cache those two since we can change the version number during packaging
+    // and might fail later to modify, copy, remove etc. the generated package
+    const QString version = versionString();
+    const QString pkgFilePath = packageFilePath();
 
     if (!QFileInfo(buildDir + QLatin1String("/debian")).exists()) {
         const QString command = QLatin1String("dh_make -s -n -p ")
@@ -194,11 +202,12 @@ bool MaemoPackageCreationStep::createPackage()
     }
 
     {
+        QFile::remove(buildDir + QLatin1String("/debian/files"));
         QFile changeLog(buildDir + QLatin1String("/debian/changelog"));
         if (changeLog.open(QIODevice::ReadWrite)) {
             QString content = QString::fromUtf8(changeLog.readAll());
             content.replace(QRegExp("\\([a-zA-Z0-9_\\.]+\\)"),
-                QLatin1Char('(') % versionString() % QLatin1Char(')'));
+                QLatin1Char('(') % version % QLatin1Char(')'));
             changeLog.resize(0);
             changeLog.write(content.toUtf8());
         }
@@ -209,7 +218,7 @@ bool MaemoPackageCreationStep::createPackage()
 
     // Workaround for non-working dh_builddeb --destdir=.
     if (!QDir(buildDir).isRoot()) {
-        const QString packageFileName = QFileInfo(packageFilePath()).fileName();
+        const QString packageFileName = QFileInfo(pkgFilePath).fileName();
         const QString changesFileName = QFileInfo(packageFileName)
             .completeBaseName() + QLatin1String(".changes");
         const QString packageSourceDir = buildDir + QLatin1String("/../");
@@ -219,9 +228,9 @@ bool MaemoPackageCreationStep::createPackage()
             = packageSourceDir + changesFileName;
         const QString changesTargetFilePath
             = buildDir + QLatin1Char('/') + changesFileName;
-        QFile::remove(packageFilePath());
+        QFile::remove(pkgFilePath);
         QFile::remove(changesTargetFilePath);
-        if (!QFile::rename(packageSourceFilePath, packageFilePath())
+        if (!QFile::rename(packageSourceFilePath, pkgFilePath)
             || !QFile::rename(changesSourceFilePath, changesTargetFilePath)) {
             raiseError(tr("Packaging failed."),
                 tr("Could not move package files from %1 to %2.")
@@ -282,6 +291,13 @@ QString MaemoPackageCreationStep::localExecutableFilePath() const
         + QLatin1Char('/') + executableFileName()));
 }
 
+QString MaemoPackageCreationStep::buildDirectory() const
+{
+    const TargetInformation &ti = qt4BuildConfiguration()->qt4Target()
+        ->qt4Project()->rootProjectNode()->targetInformation();
+    return ti.valid ? ti.buildDir : QString();
+}
+
 QString MaemoPackageCreationStep::executableFileName() const
 {
     const Qt4Project * const project
@@ -329,8 +345,7 @@ bool MaemoPackageCreationStep::packagingNeeded() const
 
 QString MaemoPackageCreationStep::packageFilePath() const
 {
-    QFileInfo execInfo(localExecutableFilePath());
-    return execInfo.path() % QDir::separator() % execInfo.fileName().toLower()
+    return buildDirectory() % QDir::separator() % executableFileName().toLower()
         % QLatin1Char('_') % versionString() % QLatin1String("_armel.deb");
 }
 
@@ -356,6 +371,18 @@ void MaemoPackageCreationStep::raiseError(const QString &shortMsg,
     emit addOutput(detailedMsg.isNull() ? shortMsg : detailedMsg, textCharFormat);
     emit addTask(Task(Task::Error, shortMsg, QString(), -1,
                       TASK_CATEGORY_BUILDSYSTEM));
+}
+
+QSharedPointer<ProFileWrapper> MaemoPackageCreationStep::proFileWrapper() const
+{
+    if (!m_proFileWrapper) {
+        const Qt4ProFileNode * const proFileNode = qt4BuildConfiguration()
+            ->qt4Target()->qt4Project()->rootProjectNode();
+        m_proFileWrapper = QSharedPointer<ProFileWrapper>(
+            new ProFileWrapper(proFileNode->path()));
+    }
+
+    return m_proFileWrapper;
 }
 
 const QLatin1String MaemoPackageCreationStep::CreatePackageId("Qt4ProjectManager.MaemoPackageCreationStep");

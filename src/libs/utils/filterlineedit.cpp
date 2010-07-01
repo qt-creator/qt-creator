@@ -35,11 +35,20 @@ FilterLineEdit::FilterLineEdit(QWidget *parent) :
    FancyLineEdit(parent),
    m_lastFilterText(text())
 {
-    setSide(Utils::FancyLineEdit::Right);
+    // KDE has custom icons for this. Notice that icon namings are counter intuitive
+    // If these icons are not avaiable we use the freedesktop standard name before
+    // falling back to a bundled resource
+    QIcon icon = QIcon::fromTheme(layoutDirection() == Qt::LeftToRight ?
+                     QLatin1String("edit-clear-locationbar-rtl") :
+                     QLatin1String("edit-clear-locationbar-ltr"),
+                     QIcon::fromTheme("edit-clear", QIcon(QLatin1String(":/core/images/editclear.png"))));
+
+    setButtonPixmap(Right, icon.pixmap(16));
+    setButtonVisible(Right, true);
     setPlaceholderText(tr("Filter"));
-    setButtonToolTip(tr("Clear text"));
-    setAutoHideIcon(true);
-    connect(this, SIGNAL(buttonClicked()), this, SLOT(clear()));
+    setButtonToolTip(Right, tr("Clear text"));
+    setAutoHideButton(Right, true);
+    connect(this, SIGNAL(rightButtonClicked()), this, SLOT(clear()));
     connect(this, SIGNAL(textChanged(QString)), this, SLOT(slotTextChanged()));
 }
 

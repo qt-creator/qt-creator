@@ -31,8 +31,10 @@
 #define DEBUGGER_GDBENGINE_H
 
 #include "debuggerengine.h"
+
 #include "gdbmi.h"
 #include "localgdbprocess.h"
+#include "stackframe.h"
 #include "watchutils.h"
 
 #include <QtCore/QByteArray>
@@ -303,7 +305,6 @@ private: ////////// Inferior Management //////////
 
     virtual void executeRunToLine(const QString &fileName, int lineNumber);
     virtual void executeRunToFunction(const QString &functionName);
-//    void handleExecRunToFunction(const GdbResponse &response);
     virtual void executeJumpToLine(const QString &fileName, int lineNumber);
     virtual void executeReturn();
 
@@ -311,6 +312,9 @@ private: ////////// Inferior Management //////////
     void handleExecuteStep(const GdbResponse &response);
     void handleExecuteNext(const GdbResponse &response);
     void handleExecuteReturn(const GdbResponse &response);
+    void handleExecuteJumpToLine(const GdbResponse &response);
+    void handleExecuteRunToLine(const GdbResponse &response);
+    //void handleExecuteRunToFunction(const GdbResponse &response);
 
     void maybeHandleInferiorPidChanged(const QString &pid);
     void handleInfoProc(const GdbResponse &response);
@@ -520,7 +524,10 @@ private: ////////// View & Data Stuff //////////
 
     static QString m_toolTipExpression;
     static QPoint m_toolTipPos;
-    static QByteArray tooltipINameForExpression(const QByteArray &exp);
+    static QByteArray tooltipIName();
+
+    // HACK:
+    StackFrame m_targetFrame;
 };
 
 } // namespace Internal

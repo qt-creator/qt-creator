@@ -31,6 +31,9 @@
 #define COMPILEOUTPUTWINDOW_H
 
 #include <coreplugin/ioutputpane.h>
+
+#include <QtCore/QHash>
+
 #include <QtGui/QColor>
 #include <QtGui/QTextCharFormat>
 
@@ -41,8 +44,11 @@ QT_END_NAMESPACE
 namespace ProjectExplorer {
 
 class BuildManager;
+class Task;
 
 namespace Internal {
+
+class ShowOutputTaskHandler;
 
 class CompileOutputWindow : public Core::IOutputPane
 {
@@ -50,6 +56,8 @@ class CompileOutputWindow : public Core::IOutputPane
 
 public:
     CompileOutputWindow(BuildManager *bm);
+    ~CompileOutputWindow();
+
     QWidget *outputWidget(QWidget *);
     QList<QWidget*> toolBarWidgets() const { return QList<QWidget *>(); }
     QString displayName() const { return tr("Compile Output"); }
@@ -67,8 +75,14 @@ public:
     void goToPrev();
     bool canNavigate();
 
+    void registerPositionOf(const Task &task);
+    bool knowsPositionOf(const Task &task);
+    void showPositionOf(const Task &task);
+
 private:
     QPlainTextEdit *m_textEdit;
+    QHash<unsigned int, int> m_taskPositions;
+    ShowOutputTaskHandler * m_handler;
 };
 
 } // namespace Internal

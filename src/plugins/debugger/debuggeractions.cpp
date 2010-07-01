@@ -155,9 +155,14 @@ QString DebuggerSettings::dump() const
     ts << "Debugger settings: ";
     foreach (SavedAction *item, m_items) {
         QString key = item->settingsKey();
-        if (!key.isEmpty())
-            ts << '\n' << key << ": " << item->value().toString()
-               << "  (default: " << item->defaultValue().toString() << ")";
+        if (!key.isEmpty()) {
+            const QString current = item->value().toString();
+            const QString default_ = item->defaultValue().toString();
+            ts << '\n' << key << ": " << current 
+               << "  (default: " << default_ << ")";
+            if (current != default_)
+                ts <<  "  ***";
+        }
     }
     return out;
 }

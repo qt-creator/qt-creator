@@ -44,15 +44,22 @@ class IconButton: public QAbstractButton
 {
     Q_OBJECT
     Q_PROPERTY(float iconOpacity READ iconOpacity WRITE setIconOpacity)
+    Q_PROPERTY(bool autoHide READ hasAutoHide WRITE setAutoHide)
 public:
     IconButton(QWidget *parent = 0);
     void paintEvent(QPaintEvent *event);
+    void setPixmap(const QPixmap &pixmap) { m_pixmap = pixmap; update(); }
+    QPixmap pixmap() const { return m_pixmap; }
     float iconOpacity() { return m_iconOpacity; }
     void setIconOpacity(float value) { m_iconOpacity = value; update(); }
     void animateShow(bool visible);
 
+    void setAutoHide(bool hide) { m_autoHide = hide; }
+    bool hasAutoHide() const { return m_autoHide; }
 private:
     float m_iconOpacity;
+    bool m_autoHide;
+    QPixmap m_pixmap;
 };
 
 
@@ -68,50 +75,49 @@ class QTCREATOR_UTILS_EXPORT FancyLineEdit : public QLineEdit
     Q_DISABLE_COPY(FancyLineEdit)
     Q_OBJECT
     Q_ENUMS(Side)
-    Q_PROPERTY(QPixmap pixmap READ pixmap WRITE setPixmap DESIGNABLE true)
-    Q_PROPERTY(Side side READ side WRITE setSide DESIGNABLE true)
-    Q_PROPERTY(bool menuTabFocusTrigger READ hasMenuTabFocusTrigger WRITE setMenuTabFocusTrigger  DESIGNABLE true)
-    Q_PROPERTY(bool autoHideIcon READ autoHideIcon WRITE setAutoHideIcon DESIGNABLE true)
 
 public:
-    enum Side {Left, Right};
+    enum Side {Left = 0, Right = 1};
 
     explicit FancyLineEdit(QWidget *parent = 0);
     ~FancyLineEdit();
 
-    QPixmap pixmap() const;
+    QPixmap buttonPixmap(Side side) const;
+    void setButtonPixmap(Side side, const QPixmap &pixmap);
 
-    void setMenu(QMenu *menu);
-    QMenu *menu() const;
+    QMenu *buttonMenu(Side side) const;
+    void setButtonMenu(Side side, QMenu *menu);
 
-    void setSide(Side side);
-    Side side() const;
+    void setButtonVisible(Side side, bool visible);
+    bool isButtonVisible(Side side) const;
 
-    void setButtonToolTip(const QString &);
-    void setButtonFocusPolicy(Qt::FocusPolicy policy);
+    void setButtonToolTip(Side side, const QString &);
+    void setButtonFocusPolicy(Side side, Qt::FocusPolicy policy);
 
     // Set whether tabbing in will trigger the menu.
-    bool hasMenuTabFocusTrigger() const;
-    void setMenuTabFocusTrigger(bool v);
+    void setMenuTabFocusTrigger(Side side, bool v);
+    bool hasMenuTabFocusTrigger(Side side) const;
 
     // Set if icon should be hidden when text is empty
-    bool autoHideIcon() const;
-    void setAutoHideIcon(bool h);
+    void setAutoHideButton(Side side, bool h);
+    bool hasAutoHideButton(Side side) const;
 
 signals:
-    void buttonClicked();
+    void buttonClicked(Utils::FancyLineEdit::Side side);
+    void leftButtonClicked();
+    void rightButtonClicked();
 
-public slots:
-    void setPixmap(const QPixmap &pixmap);
-    void checkButton(const QString &);
+private slots:
+    void checkButtons(const QString &);
     void iconClicked();
 
 protected:
     virtual void resizeEvent(QResizeEvent *e);
 
 private:
+    void updateMargins();
+    void updateButtonPositions();
     friend class Utils::FancyLineEditPrivate;
-    bool isSideStored() const;
 
     FancyLineEditPrivate *m_d;
     QString m_oldText;

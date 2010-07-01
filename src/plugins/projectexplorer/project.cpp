@@ -234,6 +234,8 @@ QString Project::projectDirectory() const
 
 QString Project::projectDirectory(const QString &proFile)
 {
+    if (proFile.isEmpty())
+        return QString();
     QFileInfo info(proFile);
     return info.absoluteDir().path();
 }
