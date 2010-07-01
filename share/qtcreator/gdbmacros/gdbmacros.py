@@ -1378,11 +1378,17 @@ def qdump__QRectF(d, item):
 
 
 def qdump__QRegion(d, item):
-    d.putValue(" ")
-    d.putNumChild(1)
-    if d.isExpanded(item):
-        with Children(d):
-            d.putCallItem("rects", item, "rects()")
+    p = item.value["d"].dereference()["qt_rgn"]
+    if isNull(p):
+        d.putValue("<empty>")
+        d.putNumChild(0)
+    else:
+        n = str(p.dereference()["numRects"])
+        d.putItemCount(n)
+        d.putNumChild(n)
+        if d.isExpanded(item):
+            with Children(d):
+                d.putFields(Item(p.dereference(), item.iname))
 
 # qt_rgn might be 0
 # gdb.parse_and_eval("region")["d"].dereference()["qt_rgn"].dereference()

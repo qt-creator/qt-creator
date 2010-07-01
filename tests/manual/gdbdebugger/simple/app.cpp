@@ -810,6 +810,9 @@ void testQRegion()
     region += QRect(100, 100, 200, 200);
     region += QRect(300, 300, 400, 500);
     region += QRect(500, 500, 600, 600);
+    region += QRect(500, 500, 600, 600);
+    region += QRect(500, 500, 600, 600);
+    region += QRect(500, 500, 600, 600);
 }
 
 
