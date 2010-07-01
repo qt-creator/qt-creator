@@ -46,7 +46,7 @@ QT_END_NAMESPACE
 #include <coreplugin/modemanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/fileiconprovider.h>
-#include <utils/fancylineedit.h>
+#include <utils/filterlineedit.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QFileInfo>
@@ -266,7 +266,7 @@ LocatorWidget::LocatorWidget(LocatorPlugin *qop) :
      m_filterMenu(new QMenu(this)),
      m_refreshAction(new QAction(tr("Refresh"), this)),
      m_configureAction(new QAction(tr("Configure..."), this)),
-     m_fileLineEdit(new Utils::FancyLineEdit)
+     m_fileLineEdit(new Utils::FilterLineEdit)
 {
     // Explicitly hide the completion list popup.
     m_completionList->hide();
@@ -287,12 +287,13 @@ LocatorWidget::LocatorWidget(LocatorPlugin *qop) :
 
     setWindowIcon(QIcon(":/locator/images/locator.png"));
     QPixmap image(Core::Constants::ICON_MAGNIFIER);
-    m_fileLineEdit->setPixmap(image);
+    m_fileLineEdit->setButtonPixmap(Utils::FancyLineEdit::Left, image);
     m_fileLineEdit->setPlaceholderText(tr("Type to locate"));
-    m_fileLineEdit->setButtonToolTip(tr("Options"));
+    m_fileLineEdit->setButtonToolTip(Utils::FancyLineEdit::Left, tr("Options"));
     m_fileLineEdit->setFocusPolicy(Qt::ClickFocus);
+    m_fileLineEdit->setButtonVisible(Utils::FancyLineEdit::Left, true);
     // We set click focus since otherwise you will always get two popups
-    m_fileLineEdit->setButtonFocusPolicy(Qt::ClickFocus);
+    m_fileLineEdit->setButtonFocusPolicy(Utils::FancyLineEdit::Left, Qt::ClickFocus);
     m_fileLineEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
 
     m_fileLineEdit->installEventFilter(this);
@@ -306,11 +307,11 @@ LocatorWidget::LocatorWidget(LocatorPlugin *qop) :
     m_filterMenu->addAction(m_refreshAction);
     m_filterMenu->addAction(m_configureAction);
 
-    m_fileLineEdit->setMenu( m_filterMenu);
+    m_fileLineEdit->setButtonMenu(Utils::FancyLineEdit::Left, m_filterMenu);
 
     connect(m_refreshAction, SIGNAL(triggered()), m_locatorPlugin, SLOT(refresh()));
     connect(m_configureAction, SIGNAL(triggered()), this, SLOT(showConfigureDialog()));
-    connect(m_fileLineEdit, SIGNAL(textEdited(const QString&)),
+    connect(m_fileLineEdit, SIGNAL(textChanged(const QString&)),
         this, SLOT(showPopup()));
     connect(m_completionList, SIGNAL(activated(QModelIndex)),
             this, SLOT(acceptCurrentEntry()));

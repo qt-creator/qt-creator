@@ -27,7 +27,7 @@ linux-*{
 
 INCLUDEPATH += ../../../src/libs
 macx {
-    LIBS += -L../../../bin/QtCreator.app/Contents/PlugIns
+    LIBS += -L"../../../bin/Qt Creator.app/Contents/PlugIns"
     CONFIG(debug, debug|release):LIBS += -lUtils_debug
     else:LIBS += -lUtils
 } else:win32 {

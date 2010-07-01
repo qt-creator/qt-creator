@@ -40,7 +40,7 @@
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="Utils::FancyLineEdit" name="findEdit"/>
+    <widget class="Utils::FilterLineEdit" name="findEdit"/>
    </item>
    <item row="0" column="2">
     <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -100,7 +100,7 @@
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="QLineEdit" name="replaceEdit"/>
+   <widget class="Utils::FilterLineEdit" name="replaceEdit"/>
    </item>
    <item row="1" column="2">
     <layout class="QHBoxLayout" name="horizontalLayout">
@@ -162,9 +162,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Utils::FancyLineEdit</class>
+   <class>Utils::FilterLineEdit</class>
    <extends>QLineEdit</extends>
-   <header location="global">utils/fancylineedit.h</header>
+   <header location="global">utils/filterlineedit.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

@@ -97,9 +97,11 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     m_ui.findEdit->setCompleter(m_findCompleter);
     m_ui.replaceEdit->setCompleter(m_replaceCompleter);
 
-    m_ui.findEdit->setSide(Utils::FancyLineEdit::Right);
     QMenu *lineEditMenu = new QMenu(m_ui.findEdit);
-    m_ui.findEdit->setMenu(lineEditMenu);
+    m_ui.findEdit->setButtonMenu(Utils::FancyLineEdit::Left, lineEditMenu);
+    m_ui.findEdit->setButtonVisible(Utils::FancyLineEdit::Left, true);
+    m_ui.findEdit->setPlaceholderText(QString());
+    m_ui.replaceEdit->setPlaceholderText(QString());
 
     connect(m_ui.findEdit, SIGNAL(textChanged(const QString&)), this, SLOT(invokeFindIncremental()));
     connect(m_ui.findEdit, SIGNAL(returnPressed()), this, SLOT(invokeFindEnter()));
@@ -503,27 +505,33 @@ void FindToolBar::updateIcons()
     bool casesensitive = effectiveFlags & IFindSupport::FindCaseSensitively;
     bool wholewords = effectiveFlags & IFindSupport::FindWholeWords;
     bool regexp = effectiveFlags & IFindSupport::FindRegularExpression;
-    QPixmap pixmap(17, 17);
+    int width = 0;
+    if (casesensitive) width += 6;
+    if (wholewords) width += 6;
+    if (regexp) width += 6;
+    if (width == 0) width = 18;
+    --width;
+    QPixmap pixmap(width, 17);
     pixmap.fill(Qt::transparent);
     QPainter painter(&pixmap);
-    int x = 16;
+    int x = 0;
 
     if (casesensitive) {
-        painter.drawPixmap(x - 10, 0, m_casesensitiveIcon);
-        x -= 6;
+        painter.drawPixmap(x - 6, 0, m_casesensitiveIcon);
+        x += 6;
     }
     if (wholewords) {
-        painter.drawPixmap(x - 10, 0, m_wholewordsIcon);
-        x -= 6;
+        painter.drawPixmap(x - 6, 0, m_wholewordsIcon);
+        x += 6;
     }
     if (regexp) {
-        painter.drawPixmap(x - 10, 0, m_regexpIcon);
+        painter.drawPixmap(x - 6, 0, m_regexpIcon);
     }
     if (!casesensitive && !wholewords && !regexp) {
         QPixmap mag(Core::Constants::ICON_MAGNIFIER);
         painter.drawPixmap(0, (pixmap.height() - mag.height()) / 2, mag);
     }
-    m_ui.findEdit->setPixmap(pixmap);
+    m_ui.findEdit->setButtonPixmap(Utils::FancyLineEdit::Left, pixmap);
 }
 
 IFindSupport::FindFlags FindToolBar::effectiveFindFlags()

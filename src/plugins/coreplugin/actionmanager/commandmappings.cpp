@@ -70,11 +70,10 @@ QWidget *CommandMappings::createPage(QWidget *parent)
     QWidget *w = new QWidget(parent);
     m_page->setupUi(w);
     m_page->resetButton->setIcon(QPixmap(Constants::ICON_RESET));
-    m_page->targetEdit->setSide(Utils::FancyLineEdit::Right);
-    m_page->targetEdit->setAutoHideIcon(true);
+    m_page->targetEdit->setAutoHideButton(Utils::FancyLineEdit::Right, true);
     m_page->targetEdit->installEventFilter(this);
 
-    connect(m_page->targetEdit, SIGNAL(buttonClicked()),
+    connect(m_page->targetEdit, SIGNAL(buttonClicked(Utils::FancyLineEdit::Side)),
         this, SLOT(removeTargetIdentifier()));
     connect(m_page->resetButton, SIGNAL(clicked()),
         this, SLOT(resetTargetIdentifier()));
