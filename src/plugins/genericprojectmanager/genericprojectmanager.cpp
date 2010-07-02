@@ -33,7 +33,6 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
@@ -44,9 +43,8 @@ using namespace GenericProjectManager::Internal;
 
 Manager::Manager()
 {
-    Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
     m_projectContext  = Core::Context(GenericProjectManager::Constants::PROJECTCONTEXT);
-    m_projectLanguage = uidm->uniqueIdentifier(ProjectExplorer::Constants::LANG_CXX);
+    m_projectLanguage = Core::Context(ProjectExplorer::Constants::LANG_CXX);
 }
 
 Manager::~Manager()
@@ -55,7 +53,7 @@ Manager::~Manager()
 Core::Context Manager::projectContext() const
 { return m_projectContext; }
 
-int Manager::projectLanguage() const
+Core::Context Manager::projectLanguage() const
 { return m_projectLanguage; }
 
 QString Manager::mimeType() const

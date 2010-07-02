@@ -48,7 +48,7 @@ public:
     IProjectManager() {}
 
     virtual Core::Context projectContext() const = 0; //TODO move into project
-    virtual int projectLanguage() const = 0; //TODO move into project
+    virtual Core::Context projectLanguage() const = 0; //TODO move into project
 
     virtual QString mimeType() const = 0;
     virtual Project *openProject(const QString &fileName) = 0;

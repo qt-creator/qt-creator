@@ -170,10 +170,9 @@ Core::Context Qt4Manager::projectContext() const
      return m_plugin->projectContext();
 }
 
-int Qt4Manager::projectLanguage() const
+Core::Context Qt4Manager::projectLanguage() const
 {
-    return Core::UniqueIDManager::instance()->
-           uniqueIdentifier(QLatin1String(ProjectExplorer::Constants::LANG_CXX));
+    return Core::Context(ProjectExplorer::Constants::LANG_CXX);
 }
 
 QString Qt4Manager::mimeType() const
