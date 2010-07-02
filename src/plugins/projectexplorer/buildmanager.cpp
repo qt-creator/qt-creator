@@ -100,6 +100,9 @@ BuildManager::BuildManager(ProjectExplorerPlugin *parent)
     connect(m_taskWindow, SIGNAL(tasksChanged()),
             this, SLOT(updateTaskCount()));
 
+    connect(m_taskWindow, SIGNAL(tasksCleared()),
+            this,SIGNAL(tasksCleared()));
+
     connect(&m_progressWatcher, SIGNAL(canceled()),
             this, SLOT(cancel()));
     connect(&m_progressWatcher, SIGNAL(finished()),
@@ -283,6 +286,7 @@ void BuildManager::showBuildResults()
 void BuildManager::addToTaskWindow(const ProjectExplorer::Task &task)
 {
     m_taskWindow->addTask(task);
+    emit taskAdded(task);
 }
 
 void BuildManager::addToOutputWindow(const QString &string, const QTextCharFormat &format)

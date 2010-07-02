@@ -591,6 +591,7 @@ void TaskWindow::clearTasks(const QString &categoryId)
 
     updateActions();
     emit tasksChanged();
+    emit tasksCleared();
     navigateStateChanged();
 }
 

@@ -129,6 +129,7 @@ public:
 
 signals:
     void tasksChanged();
+    void tasksCleared();
 
 private slots:
     void showTaskInFile(const QModelIndex &index);
