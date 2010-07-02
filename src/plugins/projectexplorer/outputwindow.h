@@ -93,11 +93,11 @@ public slots:
     void projectRemoved();
     void coreAboutToClose();
 
-    void appendApplicationOutput(RunControl *rc, const QString &out,
+    void appendApplicationOutput(ProjectExplorer::RunControl *rc, const QString &out,
                                  bool onStdErr);
-    void appendApplicationOutputInline(RunControl *rc, const QString &out,
+    void appendApplicationOutputInline(ProjectExplorer::RunControl *rc, const QString &out,
                                        bool onStdErr);
-    void appendMessage(RunControl *rc, const QString &out, bool isError);
+    void appendMessage(ProjectExplorer::RunControl *rc, const QString &out, bool isError);
 
 private slots:
     void reRunRunControl();

@@ -947,8 +947,8 @@ void S60DeviceDebugRunControl::handleLauncherFinished()
             SLOT(debuggingFinished()),
             Qt::QueuedConnection);
     connect(m_debuggerRunControl,
-            SIGNAL(addToOutputWindowInline(ProjectExplorer::RunControl,QString,bool)),
-            SIGNAL(addToOutputWindowInline(ProjectExplorer::RunControl,QString,bool)),
+            SIGNAL(addToOutputWindowInline(ProjectExplorer::RunControl*,QString,bool)),
+            SIGNAL(addToOutputWindowInline(ProjectExplorer::RunControl*,QString,bool)),
             Qt::QueuedConnection);
 
     DebuggerPlugin::startDebugger(m_debuggerRunControl);

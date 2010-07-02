@@ -1264,12 +1264,12 @@ void ProjectExplorerPlugin::startRunControl(RunControl *runControl, const QStrin
     if (projectExplorerSettings().cleanOldAppOutput)
         d->m_outputPane->clearContents();
 
-    connect(runControl, SIGNAL(addToOutputWindow(RunControl *, const QString &, bool)),
-            d->m_outputPane, SLOT(appendApplicationOutput(RunControl*,const QString &, bool)));
-    connect(runControl, SIGNAL(addToOutputWindowInline(RunControl *, const QString &, bool)),
-            d->m_outputPane, SLOT(appendApplicationOutputInline(RunControl*,const QString &, bool)));
-    connect(runControl, SIGNAL(appendMessage(RunControl*,QString,bool)),
-            d->m_outputPane, SLOT(appendMessage(RunControl *, const QString &, bool)));
+    connect(runControl, SIGNAL(addToOutputWindow(ProjectExplorer::RunControl*,QString,bool)),
+            d->m_outputPane, SLOT(appendApplicationOutput(ProjectExplorer::RunControl*,QString, bool)));
+    connect(runControl, SIGNAL(addToOutputWindowInline(ProjectExplorer::RunControl*,QString,bool)),
+            d->m_outputPane, SLOT(appendApplicationOutputInline(ProjectExplorer::RunControl*,QString,bool)));
+    connect(runControl, SIGNAL(appendMessage(ProjectExplorer::RunControl*,QString,bool)),
+            d->m_outputPane, SLOT(appendMessage(ProjectExplorer::RunControl*,QString,bool)));
 
     connect(runControl, SIGNAL(finished()),
             this, SLOT(runControlFinished()));

@@ -457,8 +457,8 @@ MaemoDebugRunControl::MaemoDebugRunControl(RunConfiguration *runConfiguration)
 
 MaemoDebugRunControl::~MaemoDebugRunControl()
 {
-    disconnect(SIGNAL(addToOutputWindow(RunControl*,QString, bool)));
-    disconnect(SIGNAL(addToOutputWindowInline(RunControl*,QString, bool)));
+    disconnect(SIGNAL(addToOutputWindow(ProjectExplorer::RunControl*,QString, bool)));
+    disconnect(SIGNAL(addToOutputWindowInline(ProjectExplorer::RunControl*,QString, bool)));
     stop();
 }
 
