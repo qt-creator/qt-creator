@@ -119,6 +119,7 @@ public slots:
 private slots:
     void itemWasChanged();
     void addShadowBuildLocation();
+    void uncheckAll();
     void handleDoubleClicks(QTreeWidgetItem *, int);
 
 private:

@@ -68,6 +68,8 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
 
     connect(m_ui->importButton, SIGNAL(clicked()),
             this, SLOT(addShadowBuildLocation()));
+    connect(m_ui->uncheckButton, SIGNAL(clicked()),
+            this, SLOT(uncheckAll()));
     connect(m_ui->versionTree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),
             this, SLOT(handleDoubleClicks(QTreeWidgetItem*,int)));
 }
@@ -286,7 +288,7 @@ void TargetSetupPage::setProFilePath(const QString &path)
 {
     m_proFilePath = path;
     if (!m_proFilePath.isEmpty()) {
-        m_ui->descriptionLabel->setText(tr("Qt Creator can set up the following targets for project <b>%1</b>:",
+        m_ui->descriptionLabel->setText(tr("Qt Creator can set up the following targets for<br>project <b>%1</b>:",
                                            "%1: Project name").arg(QFileInfo(m_proFilePath).baseName()));
     }
     // Force regeneration of tree widget contents:
@@ -409,6 +411,17 @@ void TargetSetupPage::addShadowBuildLocation()
     }
     tmp.append(m_infos);
     setImportInfos(tmp);
+}
+
+void TargetSetupPage::uncheckAll()
+{
+    for (int i = 0; i < m_ui->versionTree->topLevelItemCount(); ++i) {
+        QTreeWidgetItem *current = m_ui->versionTree->topLevelItem(i);
+        for (int j = 0; j < current->childCount(); ++j) {
+            QTreeWidgetItem *child = current->child(j);
+            child->setCheckState(0, Qt::Unchecked);
+        }
+    }
 }
 
 void TargetSetupPage::handleDoubleClicks(QTreeWidgetItem *item, int column)
