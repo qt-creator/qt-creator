@@ -131,8 +131,7 @@ Q_SIGNALS:
 
     void lazyDataRequested(Core::IEditor *editor, quint64 block, bool synchronous);
     void newWindowRequested(quint64 address);
-    void startOfRangeReached(Core::IEditor *editor);
-    void endOfRangeReached(Core::IEditor *editor);
+    void newRangeRequested(Core::IEditor *, quint64 address);
 
 protected:
     void scrollContentsBy(int dx, int dy);
@@ -213,6 +212,7 @@ private:
 
     void setupJumpToMenuAction(QMenu *menu, QAction *actionHere, QAction *actionNew,
                                quint64 addr);
+    void jumpToAddress(quint64 address);
 
     struct BinEditorEditCommand {
         int position;

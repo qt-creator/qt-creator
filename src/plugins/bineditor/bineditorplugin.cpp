@@ -179,10 +179,8 @@ public:
         m_editor = parent;
         connect(m_editor, SIGNAL(lazyDataRequested(Core::IEditor *, quint64, bool)),
             this, SLOT(provideData(Core::IEditor *, quint64)));
-        connect(m_editor, SIGNAL(startOfRangeReached(Core::IEditor*)),
-            this, SLOT(handleStartOfRangeReached()));
-        connect(m_editor, SIGNAL(endOfRangeReached(Core::IEditor*)),
-            this, SLOT(handleEndOfRangeReached()));
+        connect(m_editor, SIGNAL(newRangeRequested(Core::IEditor*,quint64)),
+            this, SLOT(provideNewRange(Core::IEditor*,quint64)));
     }
     ~BinEditorFile() {}
 
@@ -202,7 +200,8 @@ public:
 
     bool open(const QString &fileName, quint64 offset = 0) {
         QFile file(fileName);
-        if (file.open(QIODevice::ReadOnly)) {
+        if (offset < static_cast<quint64>(file.size())
+            && file.open(QIODevice::ReadOnly)) {
             m_fileName = fileName;
             qint64 maxRange = 64 * 1024 * 1024;
             if (file.isSequential() && file.size() <= maxRange) {
@@ -233,20 +232,8 @@ private slots:
         }
     }
 
-    void handleStartOfRangeReached()
-    {
-        if (m_editor->baseAddress() != 0) {
-            open(m_fileName, m_editor->baseAddress());
-        }
-    }
-
-    void handleEndOfRangeReached()
-    {
-        const quint64 currentEndAdress
-            = m_editor->baseAddress() + m_editor->dataSize();
-        if (currentEndAdress
-            < static_cast<quint64>(QFileInfo(m_fileName).size()))
-            open(m_fileName, currentEndAdress);
+    void provideNewRange(Core::IEditor *, quint64 offset) {
+        open(m_fileName, offset);
     }
 
 public:

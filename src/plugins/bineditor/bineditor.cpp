@@ -453,9 +453,10 @@ void BinEditor::scrollContentsBy(int dx, int dy)
         const QScrollBar * const scrollBar = verticalScrollBar();
         const int scrollPos = scrollBar->value();
         if (dy <= 0 && scrollPos == scrollBar->maximum())
-            emit endOfRangeReached(editorInterface());
+            emit newRangeRequested(editorInterface(),
+                baseAddress() + dataSize());
         else if (dy >= 0 && scrollPos == scrollBar->minimum())
-            emit startOfRangeReached(editorInterface());
+            emit newRangeRequested(editorInterface(), baseAddress());
     }
 }
 
@@ -1025,7 +1026,8 @@ bool BinEditor::event(QEvent *e) {
             if (m_inLazyMode) {
                 const QScrollBar * const scrollBar = verticalScrollBar();
                 if (scrollBar->value() >= scrollBar->maximum() - 1) {
-                    emit endOfRangeReached(editorInterface());
+                    emit newRangeRequested(editorInterface(),
+                        baseAddress() + dataSize());
                     return true;
                 }
             }
@@ -1303,9 +1305,9 @@ void BinEditor::contextMenuEvent(QContextMenuEvent *event)
     else if (action == &copyHexAction)
         copy(false);
     else if (action == &jumpToBeAddressHere)
-        setCursorPosition(beAddress - m_baseAddr);
+        jumpToAddress(beAddress);
     else if (action == &jumpToLeAddressHere)
-        setCursorPosition(leAddress - m_baseAddr);
+        jumpToAddress(leAddress);
     else if (action == &jumpToBeAddressNewWindow)
         emit newWindowRequested(beAddress);
     else if (action == &jumpToLeAddressNewWindow)
@@ -1321,10 +1323,16 @@ void BinEditor::setupJumpToMenuAction(QMenu *menu, QAction *actionHere,
                         .arg(QString::number(addr, 16)));
     menu->addAction(actionHere);
     menu->addAction(actionNew);
-    if (addr < m_baseAddr || addr >= m_baseAddr + m_size)
-        actionHere->setEnabled(false);
     if (!m_canRequestNewWindow)
         actionNew->setEnabled(false);
+}
+
+void BinEditor::jumpToAddress(quint64 address)
+{
+    if (address >= m_baseAddr && address < m_baseAddr + m_data.size())
+        setCursorPosition(address - m_baseAddr);
+    else
+        emit newRangeRequested(editorInterface(), address);
 }
 
 void BinEditor::setNewWindowRequestAllowed()
