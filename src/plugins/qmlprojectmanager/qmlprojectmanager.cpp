@@ -48,14 +48,14 @@ namespace Internal {
 Manager::Manager()
 {
     Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
-    m_projectContext  = uidm->uniqueIdentifier(QmlProjectManager::Constants::PROJECTCONTEXT);
+    m_projectContext  = Core::Context(QmlProjectManager::Constants::PROJECTCONTEXT);
     m_projectLanguage = uidm->uniqueIdentifier(QmlProjectManager::Constants::LANG_QML);
 }
 
 Manager::~Manager()
 { }
 
-int Manager::projectContext() const
+Core::Context Manager::projectContext() const
 { return m_projectContext; }
 
 int Manager::projectLanguage() const

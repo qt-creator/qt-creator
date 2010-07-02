@@ -52,7 +52,7 @@ class CMakeManager : public ProjectExplorer::IProjectManager
 public:
     CMakeManager(CMakeSettingsPage *cmakeSettingsPage);
 
-    virtual int projectContext() const;
+    virtual Core::Context projectContext() const;
     virtual int projectLanguage() const;
 
     virtual ProjectExplorer::Project *openProject(const QString &fileName);
@@ -76,7 +76,7 @@ public:
 private:
     static QString qtVersionForQMake(const QString &qmakePath);
     static QPair<QString, QString> findQtDir(const ProjectExplorer::Environment &env);
-    int m_projectContext;
+    Core::Context m_projectContext;
     int m_projectLanguage;
     CMakeSettingsPage *m_settingsPage;
 };

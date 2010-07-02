@@ -45,14 +45,14 @@ using namespace GenericProjectManager::Internal;
 Manager::Manager()
 {
     Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
-    m_projectContext  = uidm->uniqueIdentifier(GenericProjectManager::Constants::PROJECTCONTEXT);
+    m_projectContext  = Core::Context(GenericProjectManager::Constants::PROJECTCONTEXT);
     m_projectLanguage = uidm->uniqueIdentifier(ProjectExplorer::Constants::LANG_CXX);
 }
 
 Manager::~Manager()
 { }
 
-int Manager::projectContext() const
+Core::Context Manager::projectContext() const
 { return m_projectContext; }
 
 int Manager::projectLanguage() const

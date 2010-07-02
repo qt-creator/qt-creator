@@ -165,7 +165,7 @@ void Qt4Manager::uiEditorContentsChanged()
     m_dirty = true;
 }
 
-int Qt4Manager::projectContext() const
+Core::Context Qt4Manager::projectContext() const
 {
      return m_plugin->projectContext();
 }

@@ -46,7 +46,7 @@ public:
     Manager();
     virtual ~Manager();
 
-    virtual int projectContext() const;
+    virtual Core::Context projectContext() const;
     virtual int projectLanguage() const;
 
     virtual QString mimeType() const;
@@ -58,7 +58,7 @@ public:
     void unregisterProject(QmlProject *project);
 
 private:
-    int m_projectContext;
+    Core::Context m_projectContext;
     int m_projectLanguage;
     QList<QmlProject *> m_projects;
 };
