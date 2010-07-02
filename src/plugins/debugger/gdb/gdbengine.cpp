@@ -2963,8 +2963,8 @@ void GdbEngine::handleThreadInfo(const GdbResponse &response)
             threads.append(thread);
         }
         threadsHandler()->setThreads(threads);
-        int currentIndex = response.data.findChild("current-thread-id").data().toInt();
-        threadsHandler()->setCurrentThread(currentIndex);
+        const int currentThreadId = response.data.findChild("current-thread-id").data().toInt();
+        threadsHandler()->setCurrentThreadId(currentThreadId);
     } else {
         // Fall back for older versions: Try to get at least a list
         // of running threads.
@@ -2974,24 +2974,18 @@ void GdbEngine::handleThreadInfo(const GdbResponse &response)
 
 void GdbEngine::handleThreadListIds(const GdbResponse &response)
 {
-    int id = response.cookie.toInt();
+    const int id = response.cookie.toInt();
     // "72^done,{thread-ids={thread-id="2",thread-id="1"},number-of-threads="2"}
     // In gdb 7.1+ additionally: current-thread-id="1"
     const QList<GdbMi> items = response.data.findChild("thread-ids").children();
     Threads threads;
-    int currentIndex = -1;
     for (int index = 0, n = items.size(); index != n; ++index) {
         ThreadData thread;
         thread.id = items.at(index).data().toInt();
         threads.append(thread);
-        if (thread.id == id) {
-            //qDebug() << "SETTING INDEX TO:" << index << " ID:"
-            // << id << " RECOD:" << response.toString();
-            currentIndex = index;
-        }
     }
     threadsHandler()->setThreads(threads);
-    threadsHandler()->setCurrentThread(currentIndex);
+    threadsHandler()->setCurrentThreadId(id);
 }
 
 

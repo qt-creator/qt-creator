@@ -97,7 +97,10 @@ public:
     explicit ThreadsHandler(DebuggerEngine *engine);
 
     int currentThreadId() const;
+    void setCurrentThreadId(int id);
     void setCurrentThread(int index);
+    int indexOf(int threadId) const;
+
     void selectThread(int index);
     void setThreads(const Threads &threads);
     void removeAll();

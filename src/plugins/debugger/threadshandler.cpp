@@ -187,6 +187,25 @@ void ThreadsHandler::setCurrentThread(int index)
     emit dataChanged(i, i);
 }
 
+void ThreadsHandler::setCurrentThreadId(int id)
+{
+    const int index = indexOf(id);
+    if (index != -1) {
+        setCurrentThread(index);
+    } else {
+        qWarning("ThreadsHandler::setCurrentThreadId: No such thread %d.", id);
+    }
+}
+
+int ThreadsHandler::indexOf(int threadId) const
+{
+    const int count = m_threads.size();
+    for(int i = 0; i < count; i++)
+        if (m_threads.at(i).id == threadId)
+            return i;
+    return -1;
+}
+
 void ThreadsHandler::setThreads(const Threads &threads)
 {
     m_threads = threads;
