@@ -33,20 +33,20 @@
 #include "utils_global.h"
 
 #include <QtGui/QLineEdit>
-#include <QtGui/QPaintEvent>
 #include <QtGui/QAbstractButton>
 
 namespace Utils {
 
 class FancyLineEditPrivate;
 
-class IconButton: public QAbstractButton
+class QTCREATOR_UTILS_EXPORT IconButton: public QAbstractButton
 {
     Q_OBJECT
     Q_PROPERTY(float iconOpacity READ iconOpacity WRITE setIconOpacity)
     Q_PROPERTY(bool autoHide READ hasAutoHide WRITE setAutoHide)
+    Q_PROPERTY(QPixmap pixmap READ pixmap WRITE setPixmap)
 public:
-    IconButton(QWidget *parent = 0);
+    explicit IconButton(QWidget *parent = 0);
     void paintEvent(QPaintEvent *event);
     void setPixmap(const QPixmap &pixmap) { m_pixmap = pixmap; update(); }
     QPixmap pixmap() const { return m_pixmap; }

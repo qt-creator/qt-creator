@@ -30,14 +30,12 @@
 #ifndef DETAILSBUTTON_H
 #define DETAILSBUTTON_H
 
-#include <QtGui/QAbstractButton>
-#include <QtGui/QToolButton>
-#include <QtGui/QPixmap>
-#include <QtGui/QPainter>
-#include <QtGui/QGraphicsOpacityEffect>
-#include <QtCore/QPropertyAnimation>
-
 #include "utils_global.h"
+
+#include <QtGui/QAbstractButton>
+#include <QtGui/QPixmap>
+
+QT_FORWARD_DECLARE_CLASS(QGraphicsOpacityEffect)
 
 namespace Utils {
 
@@ -50,11 +48,9 @@ protected:
     QGraphicsOpacityEffect *m_opacityEffect;
 };
 
-
 class QTCREATOR_UTILS_EXPORT DetailsButton : public QAbstractButton
 {
     Q_OBJECT
-
     Q_PROPERTY(float fader READ fader WRITE setFader)
 
 public:
@@ -74,5 +70,5 @@ private:
     QPixmap m_uncheckedPixmap;
     float m_fader;
 };
-}
+} // namespace Utils
 #endif // DETAILSBUTTON_H

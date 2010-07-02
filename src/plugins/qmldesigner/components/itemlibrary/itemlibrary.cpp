@@ -42,6 +42,7 @@
 #include <QTabBar>
 #include <QImageReader>
 #include <QMimeData>
+#include <QWheelEvent>
 
 #include <QDeclarativeView>
 #include <QDeclarativeItem>

@@ -33,7 +33,8 @@
 #include "utils_global.h"
 
 #include <QtGui/QWidget>
-#include <QtGui/QAbstractButton>
+
+QT_FORWARD_DECLARE_CLASS(QAbstractButton)
 
 namespace Utils {
 

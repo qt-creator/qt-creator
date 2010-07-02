@@ -32,6 +32,7 @@
 #include <QtCore/QEvent>
 #include <QtCore/QDebug>
 #include <QtCore/QString>
+#include <QtCore/QPropertyAnimation>
 #include <QtGui/QApplication>
 #include <QtGui/QMenu>
 #include <QtGui/QMouseEvent>
@@ -39,8 +40,7 @@
 #include <QtGui/QAbstractButton>
 #include <QtGui/QPainter>
 #include <QtGui/QStyle>
-#include <QtCore/QPropertyAnimation>
-
+#include <QtGui/QPaintEvent>
 
 enum { margin = 6 };
 
