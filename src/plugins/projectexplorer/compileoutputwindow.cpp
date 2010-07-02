@@ -92,6 +92,10 @@ QWidget *CompileOutputWindow::outputWidget(QWidget *)
 
 void CompileOutputWindow::appendText(const QString &text, const QTextCharFormat &textCharFormat)
 {
+    if (m_textEdit->document()->blockCount() > 10000)
+        return;
+    bool shouldScroll = (m_textEdit->verticalScrollBar()->value() ==
+                         m_textEdit->verticalScrollBar()->maximum());
     QString textWithNewline = text;
     if (!textWithNewline.endsWith("\n"))
         textWithNewline.append("\n");
@@ -99,7 +103,17 @@ void CompileOutputWindow::appendText(const QString &text, const QTextCharFormat 
     cursor.movePosition(QTextCursor::End);
     cursor.beginEditBlock();
     cursor.insertText(textWithNewline, textCharFormat);
+
+    if (m_textEdit->document()->blockCount() > 10000) {
+        QTextCharFormat tmp;
+        tmp.setFontWeight(QFont::Bold);
+        cursor.insertText(tr("Additional output omitted\n"), tmp);
+    }
+
     cursor.endEditBlock();
+
+    if (shouldScroll)
+        m_textEdit->setTextCursor(cursor);
 }
 
 void CompileOutputWindow::clearContents()
