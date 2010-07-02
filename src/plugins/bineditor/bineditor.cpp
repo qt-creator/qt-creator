@@ -150,6 +150,7 @@ void BinEditor::init()
     horizontalScrollBar()->setPageStep(viewport()->width());
     verticalScrollBar()->setRange(0, m_numLines - m_numVisibleLines);
     verticalScrollBar()->setPageStep(m_numVisibleLines);
+    ensureCursorVisible();
 }
 
 
@@ -393,7 +394,10 @@ bool BinEditor::save(const QString &oldFileName, const QString &newFileName)
             if (output.write(it.value()) < m_blockSize)
                 return false;
         }
-        if (size % m_blockSize != 0 && !output.resize(size))
+
+        // We may have padded the displayed data, so we have to make sure
+        // changes to that area are not actually written back to disk.
+        if (!output.resize(size))
             return false;
     } else {
         QFile output(newFileName);
@@ -445,6 +449,14 @@ void BinEditor::resizeEvent(QResizeEvent *)
 void BinEditor::scrollContentsBy(int dx, int dy)
 {
     viewport()->scroll(isRightToLeft() ? -dx : dx, dy * m_lineHeight);
+    if (m_inLazyMode) {
+        const QScrollBar * const scrollBar = verticalScrollBar();
+        const int scrollPos = scrollBar->value();
+        if (dy <= 0 && scrollPos == scrollBar->maximum())
+            emit endOfRangeReached(editorInterface());
+        else if (dy >= 0 && scrollPos == scrollBar->minimum())
+            emit startOfRangeReached(editorInterface());
+    }
 }
 
 void BinEditor::changeEvent(QEvent *e)
@@ -1009,6 +1021,15 @@ bool BinEditor::event(QEvent *e) {
             ensureCursorVisible();
             e->accept();
             return true;
+        case Qt::Key_Down:
+            if (m_inLazyMode) {
+                const QScrollBar * const scrollBar = verticalScrollBar();
+                if (scrollBar->value() >= scrollBar->maximum() - 1) {
+                    emit endOfRangeReached(editorInterface());
+                    return true;
+                }
+            }
+            break;
         default:;
         }
     }

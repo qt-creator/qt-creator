@@ -179,6 +179,10 @@ public:
         m_editor = parent;
         connect(m_editor, SIGNAL(lazyDataRequested(Core::IEditor *, quint64, bool)),
             this, SLOT(provideData(Core::IEditor *, quint64)));
+        connect(m_editor, SIGNAL(startOfRangeReached(Core::IEditor*)),
+            this, SLOT(handleStartOfRangeReached()));
+        connect(m_editor, SIGNAL(endOfRangeReached(Core::IEditor*)),
+            this, SLOT(handleEndOfRangeReached()));
     }
     ~BinEditorFile() {}
 
@@ -196,15 +200,15 @@ public:
         }
     }
 
-    bool open(const QString &fileName) {
+    bool open(const QString &fileName, quint64 offset = 0) {
         QFile file(fileName);
         if (file.open(QIODevice::ReadOnly)) {
             m_fileName = fileName;
-            if (file.isSequential() && file.size() <= 64 * 1024 * 1024) {
+            qint64 maxRange = 64 * 1024 * 1024;
+            if (file.isSequential() && file.size() <= maxRange) {
                 m_editor->setData(file.readAll());
             } else {
-                m_editor->setLazyData(0, qMin(file.size(),
-                                              static_cast<qint64>(INT_MAX-16)));
+                m_editor->setLazyData(offset, maxRange);
                 m_editor->editorInterface()->
                         setDisplayName(QFileInfo(fileName).fileName());
             }
@@ -221,12 +225,30 @@ private slots:
             int blockSize = m_editor->lazyDataBlockSize();
             file.seek(block * blockSize);
             QByteArray data = file.read(blockSize);
-            if (data.size() != blockSize)
-                data.resize(blockSize);
+            const int dataSize = data.size();
+            if (dataSize != blockSize)
+                data += QByteArray(blockSize - dataSize, 0);
             m_editor->addLazyData(block, data);
             file.close();
         }
     }
+
+    void handleStartOfRangeReached()
+    {
+        if (m_editor->baseAddress() != 0) {
+            open(m_fileName, m_editor->baseAddress());
+        }
+    }
+
+    void handleEndOfRangeReached()
+    {
+        const quint64 currentEndAdress
+            = m_editor->baseAddress() + m_editor->dataSize();
+        if (currentEndAdress
+            < static_cast<quint64>(QFileInfo(m_fileName).size()))
+            open(m_fileName, currentEndAdress);
+    }
+
 public:
 
     void setFilename(const QString &filename) {

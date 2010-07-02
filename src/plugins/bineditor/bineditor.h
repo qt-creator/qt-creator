@@ -66,6 +66,7 @@ public:
     QByteArray data() const;
 
     inline int dataSize() const { return m_size; }
+    quint64 baseAddress() const { return m_baseAddr; }
 
     inline bool inLazyMode() const { return m_inLazyMode; }
     Q_INVOKABLE void setLazyData(quint64 startAddr, int range, int blockSize = 4096);
@@ -130,6 +131,8 @@ Q_SIGNALS:
 
     void lazyDataRequested(Core::IEditor *editor, quint64 block, bool synchronous);
     void newWindowRequested(quint64 address);
+    void startOfRangeReached(Core::IEditor *editor);
+    void endOfRangeReached(Core::IEditor *editor);
 
 protected:
     void scrollContentsBy(int dx, int dy);
