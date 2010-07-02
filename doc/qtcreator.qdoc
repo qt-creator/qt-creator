@@ -41,9 +41,7 @@
                \o \l{Building and Running an Example Application}
                \o \l{Creating a Qt C++ Application}
                \o \l{Creating a Mobile Application with Nokia Qt SDK}
-               \if defined(qtquick)
                \o \l{Creating a Qt Quick Application}
-               \endif
            \endlist
        \o \l{Managing Projects}
             \list
@@ -369,14 +367,9 @@
 
     \list
         \o \gui{\l{Using the Editor}{Edit}} mode for editing project and source files.
-        \if defined(qtquick)
         \o \gui{\l{Developing Application UI}{Design}} mode for designing and developing
            application user interfaces. This mode is available for UI files (.ui or
            .qml).
-        \else
-        \o \gui{\l{Using Qt Designer}{Design}} mode for designing and developing
-           application user interfaces.
-        \endif
         \o \gui{\l{Debugging}{Debug}} mode for inspecting the state of your program while
            debugging.
         \o \gui{\l{Managing Projects}{Projects}} mode for configuring project building and
@@ -618,8 +611,6 @@
     Furthermore, features like widget promotion and custom plugins allow you to use your
     own widgets with \QD.
 
-    \if defined(qtquick)
-
     UIs that use widgets are clearly structured and enforce a platform look and feel,
     which makes them useful for traditional applications. However, they are static, and
     do not fully make use of the large high-resolution screens, touch input, and significant
@@ -631,8 +622,6 @@
     In QML, a user interface is specified as a tree of objects with properties.
     You can edit QML code in the code editor. You
     can use Qt or JavaScript to implement the application logic.
-
-    \endif
 
     The integration includes project management and code completion.
 
@@ -672,8 +661,6 @@
 
     For more information on \QD, see
     \l{http://doc.qt.nokia.com/4.7-snapshot/designer-manual.html}{Qt Designer Manual}.
-
-    \if defined(qtquick)
 
     \section1 Using Qt Quick Designer
 
@@ -837,15 +824,9 @@
     Qt Creator understands the code as code, not just as plain text. This
     allows it to help you to write well formatted code and to anticipate
     what you are going to write and complete the code.
-    \if defined(qtquick)
     The code completion differs somewhat depending on whether you write Qt code or QML code.
-    \endif
-
-    \if defined(qtquick)
 
     \section2 Completing Qt Code
-
-    \endif
 
     As you write code, Qt Creator provides a list of context-sensitive
     suggestions to the statement currently under your cursor.
@@ -922,8 +903,6 @@
             \i  A namespace
     \endtable
 
-    \if defined(qtquick)
-
     \section2 Completing QML Code
 
     As you write QML code, Qt Creator suggests properties, IDs, and code
@@ -933,8 +912,6 @@
     move between the fields and specify values for them.
 
     \image qmldesigner-code-completion.png "Completing QML code"
-
-    \endif
 
     \section1 Using Bookmarks
 
@@ -1364,12 +1341,8 @@
 
     \section1 Renaming Symbols
 
-    \if defined(qtquick)
-
     The functions used to rename symbols depends on whether you are
     writing C++ or QML code. For QML, you can only rename IDs.
-
-    \endif
 
     To rename a specific symbol in a Qt project:
     \list 1
@@ -1395,8 +1368,6 @@
     The instances of the symbol are highlighted in code and you can edit the
     symbol. All instances of the local symbol are changed as you type.
 
-    \if defined(qtquick)
-
     To rename an ID in a Qt Quick project:
 
     \list 1
@@ -1408,7 +1379,6 @@
 
    \endlist
 
-   \endif
 */
 
 /*!
@@ -1526,12 +1496,8 @@
         \o Qt resource files, which allow you to store binary files in the
         application executable
 
-        \if defined(qtquick)
-
         \o \QD forms and Qt QML files, which specify parts of application user
         interfaces
-
-        \endif
 
         \o C++ class, source, or header files
 
@@ -2444,10 +2410,8 @@
     Qt Creator automatically creates run configurations for your project.
     To view and modify the settings, select \gui {Projects > Run}.
 
-    \if defined(qtquick)
     The settings to specify depend on the type of the project: qmake project
     or Qt Quick project.
-    \endif
 
     Click \gui Add to add run settings for a project and \gui Remove to remove
     the current settings.
@@ -2537,8 +2501,6 @@
 
     \image qmldesigner-run-settings.png "Run settings for Qt Quick projects"
 
-    \endif
-
 */
 
 
@@ -2602,9 +2564,7 @@
         \o \l{Building and Running an Example Application}
         \o \l{Creating a Qt C++ Application}
         \o \l{Creating a Mobile Application with Nokia Qt SDK}
-        \if defined(qtquick)
         \o \l{Creating a Qt Quick Application}
-        \endif
     \endlist
 
 */
