@@ -92,11 +92,44 @@ typeCache = {}
 
 def lookupType(typestring):
     type = typeCache.get(typestring)
-    #warn("LOOKUP: %s -> %s" % (typestring, type))
+    #warn("LOOKUP 1: %s -> %s" % (typestring, type))
     if type is None:
-        type = gdb.lookup_type(typestring)
+        ts = typestring
+        while True:
+            #WARN("ts: '%s'" % ts)
+            if ts.startswith("class "):
+                ts = ts[6:]
+            elif ts.startswith("struct "):
+                ts = ts[7:]
+            elif ts.startswith("const "):
+                ts = ts[6:]
+            elif ts.startswith("volatile "):
+                ts = ts[9:]
+            elif ts.startswith("const "):
+                ts = ts[6:]
+            elif ts.startswith("volatile "):
+                ts = ts[9:]
+            elif ts.endswith("const"):
+                ts = ts[-5:]
+            elif ts.endswith("volatile"):
+                ts = ts[-8:]
+            else:
+                break
+        try:
+            #warn("LOOKING UP '%s'" % ts)
+            type = gdb.lookup_type(ts)
+        except:
+            # Can throw "RuntimeError: No type named class Foo."
+            #warn("LOOKING UP '%s' FAILED" % ts)
+            pass
+        #warn("  RESULT: '%s'" % type)
+        #if not type is None:
+        #    warn("  FIELDS: '%s'" % type.fields())
         typeCache[typestring] = type
     return type
+
+def cleanType(type):
+    return lookupType(str(type))
 
 def cleanAddress(addr):
     if addr is None:
@@ -595,6 +628,10 @@ def stripClassTag(type):
         return type[6:]
     elif type.startswith("struct "):
         return type[7:]
+    elif type.startswith("const "):
+        return type[6:]
+    elif type.startswith("volatile "):
+        return type[9:]
     return type
 
 def checkPointerRange(p, n):
@@ -755,11 +792,26 @@ def encodeString(value):
         p += 1
     return s
 
-def stripTypedefs(typeobj):
-    type = typeobj
+def stripTypedefs(type):
+    type = type.unqualified()
     while type.code == gdb.TYPE_CODE_TYPEDEF:
         type = type.strip_typedefs().unqualified()
     return type
+
+def extractFields(type):
+    # Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=10953:
+    #fields = value.type.fields()
+    # Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=11777:
+    #fields = stripTypedefs(value.type).fields()
+    # This seems to work.
+    #warn("TYPE 0: %s" % type)
+    type = stripTypedefs(type)
+    #warn("TYPE 1: %s" % type)
+    type = lookupType(str(type))
+    #warn("TYPE 2: %s" % type)
+    fields = type.fields()
+    #warn("FIELDS: %s" % fields)
+    return fields
 
 #######################################################################
 #
@@ -1296,17 +1348,26 @@ class Dumper:
 
 
         elif typedefStrippedType.code == gdb.TYPE_CODE_PTR:
-            #warn("POINTER: %s" % format)
+            warn("POINTER: %s" % format)
             isHandled = False
             target = stripTypedefs(type.target())
 
+            if (not isHandled) and isNull(value):
+                warn("NULL POINTER")
+                self.putType(item.value.type)
+                self.putValue("0x0")
+                self.putNumChild(0)
+                isHandled = True
+
             if (not isHandled) and target.code == gdb.TYPE_CODE_VOID:
+                warn("VOID POINTER: %s" % format)
                 self.putType(item.value.type)
                 self.putValue(str(value))
                 self.putNumChild(0)
                 isHandled = True
 
             if (not isHandled) and (not format is None):
+                warn("SPECIAL FORMAT POINTER: %s" % format)
                 self.putAddress(value.address)
                 self.putType(item.value.type)
                 isHandled = True
@@ -1328,27 +1389,12 @@ class Dumper:
                     self.putValue(encodeChar4Array(value, 100), Hex8EncodedBigEndian)
                     self.putNumChild(0)
 
-            if (not isHandled):
-                anonStrippedType = str(typedefStrippedType) \
-                    .replace("(anonymous namespace)", "")
-                if anonStrippedType.find("(") != -1:
+            if (not isHandled) and (str(typedefStrippedType) 
+                    .replace("(anonymous namespace)", "").find("(") != -1):
                     # A function pointer.
                     self.putValue(str(item.value))
                     self.putAddress(value.address)
                     self.putType(item.value.type)
-                    self.putNumChild(0)
-                    isHandled = True
-
-            if (not isHandled) and self.useFancy:
-                if isNull(value):
-                    self.putValue("0x0")
-                    self.putType(item.value.type)
-                    self.putNumChild(0)
-                    isHandled = True
-
-                if (not isHandled):
-                    self.putType(item.value.type)
-                    self.putValue(str(value))
                     self.putNumChild(0)
                     isHandled = True
 
@@ -1357,7 +1403,7 @@ class Dumper:
             #warn("RES: %s" % (self.autoDerefPointers and not isHandled))
             if (not isHandled) and (self.autoDerefPointers or name == "this"):
                 ## Generic pointer type.
-                #warn("GENERIC AUTODEREF POINTER: %s" % value.address)
+                warn("GENERIC AUTODEREF POINTER: %s" % value.address)
                 innerType = item.value.type.target()
                 self.putType(innerType)
                 savedCurrentChildType = self.currentChildType
@@ -1392,21 +1438,11 @@ class Dumper:
                 self.listAnonymous(item, "#%d" % self.anonNumber, type)
 
         else:
-            #warn("GENERIC STRUCT: %s" % item.value.type)
+            warn("GENERIC STRUCT: %s" % item.value.type)
             #warn("INAME: %s " % item.iname)
             #warn("INAMES: %s " % self.expandedINames)
             #warn("EXPANDED: %s " % (item.iname in self.expandedINames))
-
-            # Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=10953
-            #fields = value.type.fields()
-
-            # Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=11777
-            #fields = stripTypedefs(value.type).fields()
-
-            # This seems to work.
-            type = stripTypedefs(type)
-            type = lookupType(str(type))
-            fields = type.fields()
+            fields = extractFields(type)
 
             self.putType(item.value.type)
             try:
@@ -1444,9 +1480,7 @@ class Dumper:
     def putFields(self, item, innerType = None):
             value = item.value
             type = stripTypedefs(value.type)
-            # http://sourceware.org/bugzilla/show_bug.cgi?id=11777
-            type = lookupType(str(type))
-            fields = stripTypedefs(type).fields()
+            fields = extractFields(type)
             baseNumber = 0
             for field in fields:
                 #warn("FIELD: %s" % field)
