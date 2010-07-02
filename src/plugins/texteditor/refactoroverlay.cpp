@@ -6,11 +6,11 @@
 
 using namespace TextEditor::Internal;
 
-RefactorOverlay::RefactorOverlay(BaseTextEditor *editor) :
+RefactorOverlay::RefactorOverlay(TextEditor::BaseTextEditor *editor) :
     QObject(editor),
     m_editor(editor),
     m_maxWidth(0),
-    m_icon(":/texteditor/images/refactormarker.png")
+    m_icon(QLatin1String(":/texteditor/images/refactormarker.png"))
 {
 }
 

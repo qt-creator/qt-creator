@@ -52,7 +52,7 @@ namespace Internal {
     class BaseTextEditorPrivate;
     class TextEditorOverlay;
     class RefactorOverlay;
-    class RefactorMarker;
+    struct RefactorMarker;
     typedef QList<RefactorMarker> RefactorMarkers;
 
 }

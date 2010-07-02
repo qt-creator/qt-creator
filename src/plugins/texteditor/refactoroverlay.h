@@ -24,7 +24,7 @@ class  TEXTEDITOR_EXPORT RefactorOverlay : public QObject
 {
     Q_OBJECT
 public:
-    explicit RefactorOverlay(BaseTextEditor *editor);
+    explicit RefactorOverlay(TextEditor::BaseTextEditor *editor);
 
     bool isEmpty() const { return m_markers.isEmpty(); }
     void paint(QPainter *painter, const QRect &clip);
