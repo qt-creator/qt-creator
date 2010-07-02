@@ -172,7 +172,7 @@ void GitCommand::run()
 
     // Special hack: Always produce output for diff
     if (ok && stdOut.isEmpty() && m_jobs.front().arguments.at(0) == QLatin1String("diff")) {
-        stdOut += "The file does not differ from HEAD";
+        stdOut += "No difference to HEAD";
     } else {
         // @TODO: Remove, see below
         if (ok && m_jobs.front().arguments.at(0) == QLatin1String("status"))
