@@ -43,7 +43,7 @@ class DebuggerClient : public QDeclarativeDebugClient
     Q_OBJECT
 
 public:
-    DebuggerClient(QDeclarativeDebugConnection *client, Debugger::Internal::QmlEngine *engine);
+    DebuggerClient(QDeclarativeDebugConnection *client);
     virtual ~DebuggerClient();
 
 public: // attributes

@@ -117,7 +117,6 @@ private:
     QDeclarativeDebugObjectReference m_rootObject;
     QList<QDeclarativeDebugEngineReference> m_engines;
 
-    Debugger::DebuggerRunControl *m_debuggerRunControl;
     friend class QmlJSInspector::Internal::InspectorPlugin;
 };
 

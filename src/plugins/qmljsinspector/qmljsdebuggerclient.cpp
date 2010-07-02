@@ -28,12 +28,32 @@
 **************************************************************************/
 #include "qmljsdebuggerclient.h"
 
+#include <extensionsystem/pluginmanager.h>
+#include <utils/qtcassert.h>
+
 using namespace QmlJSInspector::Internal;
 
-DebuggerClient::DebuggerClient(QDeclarativeDebugConnection *client, Debugger::Internal::QmlEngine *engine)
+DebuggerClient::DebuggerClient(QDeclarativeDebugConnection* client)
     : QDeclarativeDebugClient(QLatin1String("Debugger"), client)
-    , connection(client), engine(engine)
+    , connection(client)
 {
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    const QList<Debugger::DebuggerRunControlFactory *> factories = pm->getObjects<Debugger::DebuggerRunControlFactory>();
+    ProjectExplorer::RunControl *runControl = 0;
+
+    Debugger::DebuggerStartParameters sp;
+    sp.startMode = Debugger::StartExternal;
+    sp.executable = "qmlviewer"; //FIXME
+    runControl = factories.first()->create(sp);
+    Debugger::DebuggerRunControl* debuggerRunControl = qobject_cast<Debugger::DebuggerRunControl *>(runControl);
+
+    QTC_ASSERT(debuggerRunControl, return );
+    engine = qobject_cast<Debugger::Internal::QmlEngine *>(debuggerRunControl->engine());
+    QTC_ASSERT(engine, return );
+
+    engine->Debugger::Internal::DebuggerEngine::startDebugger(debuggerRunControl);
+    engine->startSuccessful();
+
     connect(engine, SIGNAL(sendMessage(QByteArray)), this, SLOT(slotSendMessage(QByteArray)));
     setEnabled(true);
 }

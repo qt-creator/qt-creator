@@ -31,7 +31,6 @@
 #include "qmljsprivateapi.h"
 
 #include <utils/qtcassert.h>
-#include <extensionsystem/pluginmanager.h>
 
 #include <QUrl>
 #include <QAbstractSocket>
@@ -47,8 +46,7 @@ ClientProxy::ClientProxy(QObject *parent) :
     m_client(0),
     m_engineQuery(0),
     m_contextQuery(0),
-    m_objectTreeQuery(0),
-    m_debuggerRunControl(0)
+    m_objectTreeQuery(0)
 {
     Q_ASSERT(! m_instance);
     m_instance = this;
@@ -157,24 +155,7 @@ void ClientProxy::connectionStateChanged()
 #endif
             }
 
-            {
-                ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-                const QList<Debugger::DebuggerRunControlFactory *> factories = pm->getObjects<Debugger::DebuggerRunControlFactory>();
-                ProjectExplorer::RunControl *runControl = 0;
-
-                Debugger::DebuggerStartParameters sp;
-                sp.startMode = Debugger::StartExternal;
-                sp.executable = "qmlviewer"; //FIXME
-                runControl = factories.first()->create(sp);
-                m_debuggerRunControl = qobject_cast<Debugger::DebuggerRunControl *>(runControl);
-
-                QTC_ASSERT(m_debuggerRunControl, return );
-                Debugger::Internal::QmlEngine *engine = qobject_cast<Debugger::Internal::QmlEngine *>(m_debuggerRunControl->engine());
-                QTC_ASSERT(engine, return );
-                (void) new DebuggerClient(m_conn, engine);
-                engine->Debugger::Internal::DebuggerEngine::startDebugger(m_debuggerRunControl);
-                engine->startSuccessful();
-            }
+            (void) new DebuggerClient(m_conn);
 
             reloadEngines();
 
