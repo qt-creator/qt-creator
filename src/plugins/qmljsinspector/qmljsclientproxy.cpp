@@ -31,6 +31,7 @@
 #include "qmljsprivateapi.h"
 
 #include <utils/qtcassert.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <QUrl>
 #include <QAbstractSocket>
@@ -97,12 +98,6 @@ bool ClientProxy::connectToViewer(const QString &host, quint16 port)
     if (!m_conn->waitForConnected())
         return false;
 
-//  ### commented out as the code resulted in asserts
-//    QTC_ASSERT(m_debuggerRunControl, return false);
-//    Debugger::Internal::QmlEngine *engine = qobject_cast<Debugger::Internal::QmlEngine *>(m_debuggerRunControl->engine());
-//    QTC_ASSERT(engine, return false);
-//    (void) new DebuggerClient(m_conn, engine);
-
     return true;
 }
 
@@ -160,6 +155,25 @@ void ClientProxy::connectionStateChanged()
                         SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
                         SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)));
 #endif
+            }
+
+            {
+                ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+                const QList<Debugger::DebuggerRunControlFactory *> factories = pm->getObjects<Debugger::DebuggerRunControlFactory>();
+                ProjectExplorer::RunControl *runControl = 0;
+
+                Debugger::DebuggerStartParameters sp;
+                sp.startMode = Debugger::StartExternal;
+                sp.executable = "qmlviewer"; //FIXME
+                runControl = factories.first()->create(sp);
+                m_debuggerRunControl = qobject_cast<Debugger::DebuggerRunControl *>(runControl);
+
+                QTC_ASSERT(m_debuggerRunControl, return );
+                Debugger::Internal::QmlEngine *engine = qobject_cast<Debugger::Internal::QmlEngine *>(m_debuggerRunControl->engine());
+                QTC_ASSERT(engine, return );
+                (void) new DebuggerClient(m_conn, engine);
+                engine->Debugger::Internal::DebuggerEngine::startDebugger(m_debuggerRunControl);
+                engine->startSuccessful();
             }
 
             reloadEngines();
