@@ -59,7 +59,8 @@ SOURCES += texteditorplugin.cpp \
     generichighlighter/managedefinitionsdialog.cpp \
     generichighlighter/highlightdefinitionmetadata.cpp \
     generichighlighter/definitiondownloader.cpp \
-    refactoringchanges.cpp
+    refactoringchanges.cpp \
+    refactoroverlay.cpp
 
 HEADERS += texteditorplugin.h \
     textfilewizard.h \
@@ -121,7 +122,8 @@ HEADERS += texteditorplugin.h \
     generichighlighter/managedefinitionsdialog.h \
     generichighlighter/highlightdefinitionmetadata.h \
     generichighlighter/definitiondownloader.h \
-    refactoringchanges.h
+    refactoringchanges.h \
+    refactoroverlay.h
 
 FORMS += behaviorsettingspage.ui \
     displaysettingspage.ui \

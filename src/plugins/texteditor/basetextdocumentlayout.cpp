@@ -512,4 +512,22 @@ void BaseTextDocumentLayout::doFoldOrUnfold(const QTextBlock& block, bool unfold
     setFolded(block, !unfold);
 }
 
+void BaseTextDocumentLayout::setRequiredWidth(int width)
+{
+    int oldw = m_requiredWidth;
+    m_requiredWidth = width;
+    int dw = QPlainTextDocumentLayout::documentSize().width();
+    if (oldw > dw || width > dw)
+        emitDocumentSizeChanged();
+}
+
+
+QSizeF BaseTextDocumentLayout::documentSize() const
+{
+    QSizeF size = QPlainTextDocumentLayout::documentSize();
+    size.setWidth(qMax((qreal)m_requiredWidth, size.width()));
+    return size;
+}
+
+
 

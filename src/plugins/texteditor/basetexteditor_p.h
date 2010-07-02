@@ -35,6 +35,7 @@
 #include "displaysettings.h"
 #include "texteditoroverlay.h"
 #include "fontsettings.h"
+#include "refactoroverlay.h"
 
 #include <utils/changeset.h>
 
@@ -198,6 +199,8 @@ public:
     void snippetTabOrBacktab(bool forward);
     QTextCharFormat m_occurrencesFormat;
     QTextCharFormat m_occurrenceRenameFormat;
+
+    RefactorOverlay *m_refactorOverlay;
 
     QBasicTimer foldedBlockTimer;
     int visibleFoldedBlockNumber;

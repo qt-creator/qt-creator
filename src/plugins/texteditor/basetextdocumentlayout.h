@@ -159,6 +159,11 @@ public:
     void emitDocumentSizeChanged() { emit documentSizeChanged(documentSize()); }
     int lastSaveRevision;
     bool hasMarks;
+
+    int m_requiredWidth;
+    void setRequiredWidth(int width);
+
+    QSizeF documentSize() const;
 };
 
 } // namespace TextEditor

@@ -51,6 +51,10 @@ namespace TextEditor {
 namespace Internal {
     class BaseTextEditorPrivate;
     class TextEditorOverlay;
+    class RefactorOverlay;
+    class RefactorMarker;
+    typedef QList<RefactorMarker> RefactorMarkers;
+
 }
 
 class ITextMarkable;
@@ -315,6 +319,7 @@ private:
     Internal::BaseTextEditorPrivate *d;
     friend class Internal::BaseTextEditorPrivate;
     friend class Internal::TextEditorOverlay;
+    friend class Internal::RefactorOverlay;
 
 public:
     QWidget *extraArea() const;
@@ -347,6 +352,13 @@ public:
     void setExtraSelections(ExtraSelectionKind kind, const QList<QTextEdit::ExtraSelection> &selections);
     QList<QTextEdit::ExtraSelection> extraSelections(ExtraSelectionKind kind) const;
     QString extraSelectionTooltip(int pos) const;
+
+
+    void setRefactorMarkers(const Internal::RefactorMarkers &markers);
+signals:
+    void refactorMarkerClicked(const Internal::RefactorMarker &marker);
+
+public:
 
     struct BlockRange
     {
@@ -516,6 +528,7 @@ private slots:
     void _q_highlightBlocks();
     void slotSelectionChanged();
     void _q_animateUpdate(int position, QPointF lastPos, QRectF rect);
+    void doFoo();
 };
 
 

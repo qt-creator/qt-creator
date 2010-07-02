@@ -81,6 +81,8 @@
 #include <QtGui/QInputDialog>
 #include <QtGui/QMenu>
 
+//#define DO_FOO
+
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 
@@ -189,6 +191,7 @@ BaseTextEditor::BaseTextEditor(QWidget *parent)
     d->m_overlay = new TextEditorOverlay(this);
     d->m_snippetOverlay = new TextEditorOverlay(this);
     d->m_searchResultOverlay = new TextEditorOverlay(this);
+    d->m_refactorOverlay = new RefactorOverlay(this);
 
     d->setupDocumentSignals(d->m_document);
     d->setupDocumentSignals(d->m_document);
@@ -216,6 +219,10 @@ BaseTextEditor::BaseTextEditor(QWidget *parent)
 //     (void) new QShortcut(tr("CTRL+L"), this, SLOT(centerCursor()), 0, Qt::WidgetShortcut);
 //     (void) new QShortcut(tr("F9"), this, SLOT(slotToggleMark()), 0, Qt::WidgetShortcut);
 //     (void) new QShortcut(tr("F11"), this, SLOT(slotToggleBlockVisible()));
+
+#ifdef DO_FOO
+    (void) new QShortcut(tr("CTRL+D"), this, SLOT(doFoo()));
+#endif
 
 
     // parentheses matcher
@@ -1610,12 +1617,10 @@ void BaseTextEditor::documentAboutToBeReloaded()
     QPlainTextEdit::setExtraSelections(QList<QTextEdit::ExtraSelection>());
 
     // clear all overlays
-    if (d->m_overlay)
-        d->m_overlay->clear();
-    if (d->m_snippetOverlay)
-        d->m_snippetOverlay->clear();
-    if (d->m_searchResultOverlay)
-        d->m_searchResultOverlay->clear();
+    d->m_overlay->clear();
+    d->m_snippetOverlay->clear();
+    d->m_searchResultOverlay->clear();
+    d->m_refactorOverlay->clear();
 }
 
 void BaseTextEditor::documentReloaded()
@@ -1867,6 +1872,7 @@ BaseTextEditorPrivate::BaseTextEditorPrivate()
     m_overlay(0),
     m_snippetOverlay(0),
     m_searchResultOverlay(0),
+    m_refactorOverlay(0),
     visibleFoldedBlockNumber(-1),
     suggestedVisibleFoldedBlockNumber(-1),
     m_mouseOnFoldedMarker(false),
@@ -2000,6 +2006,12 @@ bool BaseTextEditor::viewportEvent(QEvent *event)
         if (QApplication::keyboardModifiers() & Qt::ControlModifier)
             return true; // eat tooltip event when control is pressed
         const QPoint &pos = he->pos();
+
+        RefactorMarker refactorMarker = d->m_refactorOverlay->markerAt(pos);
+        if (refactorMarker.isValid() && !refactorMarker.tooltip.isEmpty()) {
+            QToolTip::showText(he->globalPos(), refactorMarker.tooltip, viewport(), refactorMarker.rect);
+            return true;
+        }
 
         // Allow plugins to show tooltips
         const QTextCursor &c = cursorForPosition(pos);
@@ -2763,16 +2775,19 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
         d->m_animator->draw(&painter, cursorRect(cursor).topLeft());
     }
 
-    if (d->m_overlay && d->m_overlay->isVisible())
+    if (d->m_overlay->isVisible())
         d->m_overlay->paint(&painter, e->rect());
 
-    if (d->m_snippetOverlay && d->m_snippetOverlay->isVisible())
+    if (d->m_snippetOverlay->isVisible())
         d->m_snippetOverlay->paint(&painter, e->rect());
 
     if (!d->m_searchResultOverlay->isEmpty()) {
         d->m_searchResultOverlay->paint(&painter, e->rect());
         d->m_searchResultOverlay->clear();
     }
+
+    if (!d->m_refactorOverlay->isEmpty())
+        d->m_refactorOverlay->paint(&painter, e->rect());
 
     // draw the cursor last, on top of everything
     if (cursor_layout) {
@@ -3373,11 +3388,13 @@ void BaseTextEditor::mouseMoveEvent(QMouseEvent *e)
             d->foldedBlockTimer.start(40, this);
         }
 
+        const RefactorMarker refactorMarker = d->m_refactorOverlay->markerAt(e->pos());
+
         // Update the mouse cursor
-        if (collapsedBlock.isValid() && !d->m_mouseOnFoldedMarker) {
+        if ((collapsedBlock.isValid() || refactorMarker.isValid()) && !d->m_mouseOnFoldedMarker) {
             d->m_mouseOnFoldedMarker = true;
             viewport()->setCursor(Qt::PointingHandCursor);
-        } else if (!collapsedBlock.isValid() && d->m_mouseOnFoldedMarker) {
+        } else if (!collapsedBlock.isValid() && !refactorMarker.isValid() && d->m_mouseOnFoldedMarker) {
             d->m_mouseOnFoldedMarker = false;
             viewport()->setCursor(Qt::IBeamCursor);
         }
@@ -3420,10 +3437,16 @@ void BaseTextEditor::mousePressEvent(QMouseEvent *e)
             viewport()->setCursor(Qt::IBeamCursor);
         }
 
-        updateLink(e);
+        RefactorMarker refactorMarker = d->m_refactorOverlay->markerAt(e->pos());
+        if (refactorMarker.isValid()) {
+            qDebug() << "refactorMarkerClicked" << refactorMarker.cursor.position();
+            emit refactorMarkerClicked(refactorMarker);
+        } else {
+            updateLink(e);
 
-        if (d->m_currentLink.isValid())
-            d->m_linkPressed = true;
+            if (d->m_currentLink.isValid())
+                d->m_linkPressed = true;
+        }
     }
 
 #ifdef Q_OS_LINUX
@@ -5387,4 +5410,26 @@ QString BaseTextEditorEditable::contextHelpId() const
         emit const_cast<BaseTextEditorEditable*>(this)->contextHelpIdRequested(e->editableInterface(),
                                                                                e->textCursor().position());
     return m_contextHelpId;
+}
+
+
+void BaseTextEditor::setRefactorMarkers(const Internal::RefactorMarkers &markers)
+{
+    foreach (const Internal::RefactorMarker &marker, d->m_refactorOverlay->markers())
+        requestBlockUpdate(marker.cursor.block());
+    d->m_refactorOverlay->setMarkers(markers);
+    foreach (const Internal::RefactorMarker &marker, markers)
+        requestBlockUpdate(marker.cursor.block());
+}
+
+void BaseTextEditor::doFoo() {
+#ifdef DO_FOO
+    qDebug() << Q_FUNC_INFO;
+    RefactorMarkers markers = d->m_refactorOverlay->markers();
+    RefactorMarker marker;
+    marker.tooltip = "Hello World";
+    marker.cursor = textCursor();
+    markers += marker;
+    setRefactorMarkers(markers);
+#endif
 }
