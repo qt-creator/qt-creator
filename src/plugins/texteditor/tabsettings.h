@@ -65,10 +65,11 @@ struct TEXTEDITOR_EXPORT TabSettings
     QString indentationString(int startColumn, int targetColumn, const QTextBlock &currentBlock = QTextBlock()) const;
     QString indentationString(const QString &text) const;
     int indentationColumn(const QString &text) const;
+    int maximumPadding(const QString &text) const;
 
     bool cursorIsAtBeginningOfLine(const QTextCursor &cursor) const;
 
-    void indentLine(QTextBlock block, int newIndent) const;
+    void indentLine(QTextBlock block, int newIndent, int padding = 0) const;
     void reindentLine(QTextBlock block, int delta) const;
 
     int trailingWhitespaces(const QString &text) const;
