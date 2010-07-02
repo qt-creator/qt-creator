@@ -1620,7 +1620,8 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
 
 void GdbEngine::shutdown()
 {
-    showMessage(_("INITIATE GDBENGINE SHUTDOWN"));
+    showMessage(_("INITIATE GDBENGINE SHUTDOWN IN STATE %1, PROC: %2")
+        .arg(state()).arg(gdbProc()->state()));
     if (m_progress) {
         m_progress->setProgressValue(90);
         m_progress->reportCanceled();
@@ -1726,7 +1727,19 @@ void GdbEngine::exitDebugger()
 {
     disconnectDebuggingHelperActions();
     shutdown();
-    //gdbProc()->kill();
+}
+
+void GdbEngine::quitDebugger()
+{
+    // FIXME: The problem here is that the "kill" send in the shutdown()
+    // procedure might not receive a response anymore.  So we need a way
+    // to force it down. On the other hand, there could be an answer,
+    // and regular the inferior shutdown procedure could take a while.
+    // And the RunControl::stop() is called synchroneously.
+    disconnectDebuggingHelperActions();
+    shutdown();
+    initializeVariables();
+    setState(DebuggerNotReady);
 }
 
 int GdbEngine::currentFrame() const

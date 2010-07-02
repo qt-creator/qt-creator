@@ -186,7 +186,7 @@ private:
 
 bool CommandHandler::setData(const QModelIndex &, const QVariant &value, int role)
 {
-    QTC_ASSERT(m_engine, return false);
+    QTC_ASSERT(m_engine, qDebug() << value << role; return false);
     m_engine->handleCommand(role, value);
     return true;
 }

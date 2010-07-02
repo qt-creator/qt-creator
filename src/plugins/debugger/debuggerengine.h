@@ -251,7 +251,7 @@ public slots:
     void startSuccessful();
     void startFailed();
     void raiseApplication();
-    void quitDebugger() { exitDebugger(); }
+    virtual void quitDebugger() { exitDebugger(); } // called by DebuggerRunControl
 
 protected:
     void setState(DebuggerState state, bool forced = false);

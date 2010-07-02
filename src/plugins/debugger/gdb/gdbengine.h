@@ -108,6 +108,7 @@ private: ////////// General Interface //////////
     virtual void startDebugger();
     virtual unsigned debuggerCapabilities() const;
     virtual void exitDebugger();
+    virtual void quitDebugger();
     virtual void detachDebugger();
     virtual void shutdown();
 
