@@ -363,8 +363,8 @@ public:
 
 public slots:
     void updateCursorPosition(int position) {
-        m_cursorPositionLabel->setText(m_editor->addressString((uint)position),
-                                       m_editor->addressString((uint)m_editor->data().size()));
+        m_cursorPositionLabel->setText(m_editor->addressString(m_editor->baseAddress() + position),
+            m_editor->addressString(m_editor->baseAddress() + m_editor->data().size()));
     }
 
 private:
