@@ -93,18 +93,6 @@ public:
     QByteArray data;
 };
 
-///////////////////////////////////////////////////////////////////////
-//
-// QmlCommand
-//
-///////////////////////////////////////////////////////////////////////
-
-
-QString QmlEngine::QmlCommand::toString() const
-{
-    return quoteUnprintableLatin1(command);
-}
-
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -135,6 +123,32 @@ public:
 };
 
 
+class QmlFrameRateClient : public QDeclarativeDebugClient
+{
+    Q_OBJECT
+
+public:
+    QmlFrameRateClient(QDeclarativeDebugConnection *connection, QmlEngine *engine)
+        : QDeclarativeDebugClient(QLatin1String("CanvasFrameRate"), connection)
+        , m_connection(connection), m_engine(engine)
+    {
+        setEnabled(true);
+    }
+
+    void messageReceived(const QByteArray &data)
+    {
+        Q_UNUSED(data);
+        // FIXME
+        //qDebug() << "CANVAS FRAME RATE: " << data.size();
+        //m_engine->messageReceived(data);
+    }
+
+
+    QDeclarativeDebugConnection *m_connection;
+    QmlEngine *m_engine;
+};
+
+
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -145,79 +159,16 @@ public:
 QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters)
     : DebuggerEngine(startParameters)
 {
-    m_congestion = 0;
-    m_inAir = 0;
-
     m_conn = 0;
     m_client = 0;
     m_engineQuery = 0;
     m_contextQuery = 0;
 
     m_frameRate = 0;
-
-    m_sendTimer.setSingleShot(true);
-    m_sendTimer.setInterval(100); // ms
-    connect(&m_sendTimer, SIGNAL(timeout()), this, SLOT(handleSendTimer()));
-
-    m_socket = new QTcpSocket(this);
-    connect(m_socket, SIGNAL(connected()), this, SLOT(socketConnected()));
-    connect(m_socket, SIGNAL(disconnected()), this, SLOT(socketDisconnected()));
-    connect(m_socket, SIGNAL(error(QAbstractSocket::SocketError)),
-        this, SLOT(socketError(QAbstractSocket::SocketError)));
-
-    //void aboutToClose ()
-    //void bytesWritten ( qint64 bytes )
-    //void readChannelFinished ()
-    connect(m_socket, SIGNAL(readyRead()), this, SLOT(socketReadyRead()));
-
-    //connect(m_socket, SIGNAL(hostFound())
-    //connect(m_socket, SIGNAL(proxyAuthenticationRequired(QNetworkProxy, QAuthenticator *)))
-    //connect(m_socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
-    //    thism SLOT(socketStateChanged(QAbstractSocket::SocketState)));
-
 }
 
 QmlEngine::~QmlEngine()
 {
-}
-
-void QmlEngine::socketReadyRead()
-{
-    //XSDEBUG("QmlEngine::socketReadyRead()");
-    m_inbuffer.append(m_socket->readAll());
-    int pos = 0;
-    while (1) {
-        // the  "\3" is followed by either "\1" or "\2"
-        int next = m_inbuffer.indexOf("\3", pos);
-        //qDebug() << "pos: " << pos << "next: " << next;
-        if (next == -1)
-            break;
-        handleResponse(m_inbuffer.mid(pos, next - pos));
-        pos = next + 2;
-    }
-    m_inbuffer.clear();
-}
-
-void QmlEngine::socketConnected()
-{
-    qDebug() << "SOCKET CONNECTED.";
-    showStatusMessage("Socket connected.");
-    //m_socket->waitForConnected(2000);
-    //sendCommand("Locator", "redirect", "ID");
-}
-
-void QmlEngine::socketDisconnected()
-{
-    XSDEBUG("FIXME:  QmlEngine::socketDisconnected()");
-}
-
-void QmlEngine::socketError(QAbstractSocket::SocketError)
-{
-    QString msg = tr("%1.").arg(m_socket->errorString());
-    //QMessageBox::critical(q->mainWindow(), tr("Error"), msg);
-    showStatusMessage(msg);
-    qDebug() << "SOCKET ERROR: " << msg;
-    exitDebugger();
 }
 
 void QmlEngine::executeDebuggerCommand(const QString &command)
@@ -230,16 +181,13 @@ void QmlEngine::executeDebuggerCommand(const QString &command)
     cmd.replace("\\0", null);
     cmd.replace("\\1", "\1");
     cmd.replace("\\3", "\3");
-    QmlCommand tcf;
-    tcf.command = cmd;
-    enqueueCommand(tcf);
+    //QmlCommand tcf;
+    //tcf.command = cmd;
+    //enqueueCommand(tcf);
 }
 
 void QmlEngine::shutdown()
 {
-    m_congestion = 0;
-    m_inAir = 0;
-    m_services.clear();
     exitDebugger();
 }
 
@@ -278,19 +226,11 @@ void QmlEngine::startDebugger()
     m_proc.setWorkingDirectory(sp.workingDirectory);
     m_proc.start(sp.executable, sp.processArgs);
 
-    //QTimer::singleShot(0, this, SLOT(runInferior()));
-
     if (!m_proc.waitForStarted()) {
         setState(AdapterStartFailed);
         startFailed();
         return;
     }
-    qDebug() << "PROC STARTED.";
-    //m_socket->connectToHost(host, port);
-    //startSuccessful();
-    //showStatusMessage(tr("Running requested..."), 5000);
-    //setState(InferiorRunning); // FIXME
-
     setState(AdapterStarted);
     setState(InferiorStarting);
 
@@ -312,6 +252,7 @@ void QmlEngine::setupConnection()
 
     QTC_ASSERT(m_client == 0, /**/);
     m_client = new QmlDebuggerClient(m_conn, this);
+    (void) new QmlFrameRateClient(m_conn, this);
 
     //m_objectTreeWidget->setEngineDebug(m_client);
     //m_propertiesWidget->setEngineDebug(m_client);
@@ -482,192 +423,10 @@ void QmlEngine::requestModuleSymbols(const QString &moduleName)
     Q_UNUSED(moduleName)
 }
 
-
-void QmlEngine::handleResponse(const QByteArray &response)
-{
-    Q_UNUSED(response);
-/*
-    static QTime lastTime;
-
-    //showMessage(_("            "), currentTime(), LogTime);
-    QList<QByteArray> parts = response.split('\0');
-    if (parts.size() < 2 || !parts.last().isEmpty()) {
-        SDEBUG("WRONG RESPONSE PACKET LAYOUT" << parts);
-        //if (response.isEmpty())
-            acknowledgeResult();
-        return;
-    }
-    parts.removeLast(); // always empty
-    QByteArray tag = parts.at(0);
-    int n = parts.size();
-    if (n == 2 && tag == "N") { // unidentified command
-        int token = parts.at(1).toInt();
-        QmlCommand tcf = m_cookieForToken[token];
-        SDEBUG("COMMAND NOT RECOGNIZED FOR TOKEN" << token << tcf.toString());
-        showDebuggerOutput(LogOutput, QString::number(token) + "^"
-               + "NOT RECOQNIZED: " + quoteUnprintableLatin1(response));
-        acknowledgeResult();
-    } else if (n == 2 && tag == "F") { // flow control
-        m_congestion = parts.at(1).toInt();
-        SDEBUG("CONGESTION: " << m_congestion);
-    } else if (n == 4 && tag == "R") { // result data
-        acknowledgeResult();
-        int token = parts.at(1).toInt();
-        QByteArray message = parts.at(2);
-        QmlResponse data(parts.at(3));
-        showDebuggerOutput(LogOutput, QString("%1^%2%3").arg(token)
-            .arg(quoteUnprintableLatin1(response))
-            .arg(QString::fromUtf8(data.toString())));
-        QmlCommand tcf = m_cookieForToken[token];
-        QmlResponse result(data);
-        SDEBUG("GOOD RESPONSE: " << quoteUnprintableLatin1(response));
-        if (tcf.callback)
-            (this->*(tcf.callback))(result, tcf.cookie);
-    } else if (n == 3 && tag == "P") { // progress data (partial result)
-        //int token = parts.at(1).toInt();
-        QByteArray data = parts.at(2);
-        SDEBUG(_("\nTCF PARTIAL:") << quoteUnprintableLatin1(response));
-    } else if (n == 4 && tag == "E") { // an event
-        QByteArray service = parts.at(1);
-        QByteArray eventName = parts.at(2);
-        QmlResponse data(parts.at(3));
-        if (eventName != "peerHeartBeat")
-            SDEBUG(_("\nTCF EVENT:") << quoteUnprintableLatin1(response)
-                << data.toString());
-        if (service == "Locator" && eventName == "Hello") {
-            m_services.clear();
-            foreach (const QmlResponse &service, data.children())
-                m_services.append(service.data());
-            QTimer::singleShot(0, this, SLOT(startDebugging()));
-        }
-    } else {
-        SDEBUG("UNKNOWN RESPONSE PACKET:"
-            << quoteUnprintableLatin1(response) << parts);
-    }
-*/
-}
-
-void QmlEngine::startDebugging()
-{
-    qDebug() << "START";
-}
-
-void QmlEngine::postCommand(const QByteArray &cmd,
-    QmlCommandCallback callback, const char *callbackName)
-{
-    Q_UNUSED(cmd);
-    Q_UNUSED(callback);
-    Q_UNUSED(callbackName);
-/*
-    static int token = 20;
-    ++token;
-
-    //const char marker_eom = -1;
-    //const char marker_eos = -2;
-    //const char marker_null = -3;
-
-    QByteArray ba = "C";
-    ba.append('\0');
-    ba.append(QByteArray::number(token));
-    ba.append('\0');
-    ba.append(cmd);
-    ba.append('\0');
-    ba.append('\3');
-    ba.append('\1');
-
-    QmlCommand tcf;
-    tcf.command = ba;
-    tcf.callback = callback;
-    tcf.callbackName = callbackName;
-    tcf.token = token;
-
-    m_cookieForToken[token] = tcf;
-
-    enqueueCommand(tcf);
-*/
-}
-
-// Congestion control does not seem to work that way. Basically it's
-// already too late when we get a flow control packet
-void QmlEngine::enqueueCommand(const QmlCommand &cmd)
-{
-    Q_UNUSED(cmd);
-/*
-#ifdef USE_CONGESTION_CONTROL
-    // congestion controled
-    if (m_congestion <= 0 && m_sendQueue.isEmpty()) {
-        //SDEBUG("DIRECT SEND" << cmd.toString());
-        sendCommandNow(cmd);
-    } else {
-        SDEBUG("QUEUE " << cmd.toString());
-        m_sendQueue.enqueue(cmd);
-        m_sendTimer.start();
-    }
-#else
-    // synchrounously
-    if (m_inAir == 0)
-        sendCommandNow(cmd);
-    else
-        m_sendQueue.enqueue(cmd);
-#endif
-*/
-}
-
-void QmlEngine::handleSendTimer()
-{
-/*
-    QTC_ASSERT(!m_sendQueue.isEmpty(), return);
-
-    if (m_congestion > 0) {
-        // not ready...
-        SDEBUG("WAITING FOR CONGESTION TO GO DOWN...");
-        m_sendTimer.start();
-    } else {
-        // go!
-        sendCommandNow(m_sendQueue.dequeue());
-    }
-*/
-}
-
 void QmlEngine::sendMessage(const QByteArray &msg)
 {
     QTC_ASSERT(m_client, return);
     m_client->sendMessage(msg);
-}
-
-void QmlEngine::sendCommandNow(const QmlCommand &cmd)
-{
-    ++m_inAir;
-    int result = m_socket->write(cmd.command);
-    Q_UNUSED(result)
-    m_socket->flush();
-    showMessage(QString::number(cmd.token) + " " + cmd.toString(), LogInput);
-    SDEBUG("SEND " <<  cmd.toString()); //<< " " << QString::number(result));
-}
-
-void QmlEngine::acknowledgeResult()
-{
-#if !defined(USE_CONGESTION_CONTROL)
-    QTC_ASSERT(m_inAir == 1, /**/);
-    m_inAir = 0;
-    if (!m_sendQueue.isEmpty())
-        sendCommandNow(m_sendQueue.dequeue());
-#endif
-}
-
-void QmlEngine::handleRunControlSuspend(const QmlResponse &data, const QVariant &)
-{
-    SDEBUG("HANDLE RESULT" << data.toString());
-}
-
-void QmlEngine::handleRunControlGetChildren(const QmlResponse &data, const QVariant &)
-{
-    SDEBUG("HANDLE RUN CONTROL GET CHILDREN" << data.toString());
-}
-
-void QmlEngine::handleSysMonitorGetChildren(const QmlResponse &data, const QVariant &)
-{
-    SDEBUG("HANDLE RUN CONTROL GET CHILDREN" << data.toString());
 }
 
 
@@ -827,19 +586,25 @@ void QmlEngine::messageReceived(const QByteArray &message)
     QByteArray command;
     stream >> command;
 
-    if(command == "STOPPED") {
+    qDebug() << "RECEIVED COMMAND: " << command;
+
+    showMessage(_("RECEIVED RESPONSE" + command));
+    if (command == "STOPPED") {
+        setState(InferiorStopping);
+        setState(InferiorStopped);
+
         QList<QPair<QString, QPair<QString, qint32> > > backtrace;
         QList<QPair<QString, QVariant> > watches;
         stream >> backtrace >> watches;
 
-        QList<StackFrame> stackFrames;
+        StackFrames stackFrames;
         typedef QPair<QString, QPair<QString, qint32> > Iterator;
         foreach (const Iterator &it, backtrace) {
             StackFrame frame;
             frame.file = it.second.first;
             frame.line = it.second.second;
             frame.function = it.first;
-            stackFrames << frame;
+            stackFrames.append(frame);
         }
 
         gotoLocation(stackFrames.value(0), true);
@@ -859,8 +624,6 @@ void QmlEngine::messageReceived(const QByteArray &message)
 
         watchHandler()->endCycle();
 
-        setState(InferiorStopping);
-        setState(InferiorStopped);
     } else if (command == "RESULT") {
         WatchData data;
         QVariant variant;

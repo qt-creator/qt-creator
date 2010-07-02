@@ -99,7 +99,7 @@ private:
     void attemptBreakpointSynchronization();
 
     void assignValueInDebugger(const QString &expr, const QString &value);
-    void executeDebuggerCommand(const QString & command);
+    void executeDebuggerCommand(const QString &command);
 
     void loadSymbols(const QString &moduleName);
     void loadAllSymbols();
@@ -115,21 +115,9 @@ private:
     void updateLocals();
     void updateSubItem(const WatchData &data);
 
-    Q_SLOT void socketConnected();
-    Q_SLOT void socketDisconnected();
-    Q_SLOT void socketError(QAbstractSocket::SocketError);
-    Q_SLOT void socketReadyRead();
-
-    void handleResponse(const QByteArray &ba);
-    void handleRunControlSuspend(const QmlResponse &response, const QVariant &);
-    void handleRunControlGetChildren(const QmlResponse &response, const QVariant &);
-    void handleSysMonitorGetChildren(const QmlResponse &response, const QVariant &);
-
     unsigned int debuggerCapabilities() const;
 
-    Q_SLOT void startDebugging();
     void setupConnection();
-
     void sendMessage(const QByteArray &msg);
 
 private slots:
@@ -144,44 +132,6 @@ private slots:
 
 private:
     QString errorMessage(QProcess::ProcessError error);
-    typedef void (QmlEngine::*QmlCommandCallback)
-        (const QmlResponse &record, const QVariant &cookie);
-
-    struct QmlCommand
-    {
-        QmlCommand() : flags(0), token(-1), callback(0), callbackName(0) {}
-
-        QString toString() const;
-
-        int flags;
-        int token;
-        QmlCommandCallback callback;
-        const char *callbackName;
-        QByteArray command;
-        QVariant cookie;
-    };
-
-    void postCommand(const QByteArray &cmd,
-        QmlCommandCallback callback = 0, const char *callbackName = 0);
-    void sendCommandNow(const QmlCommand &command);
-
-    QHash<int, QmlCommand> m_cookieForToken;
-
-    QQueue<QmlCommand> m_sendQueue;
-    
-    // timer based congestion control. does not seem to work well.
-    void enqueueCommand(const QmlCommand &command);
-    Q_SLOT void handleSendTimer();
-    int m_congestion;
-    QTimer m_sendTimer;
-
-    // synchrounous communication
-    void acknowledgeResult();
-    int m_inAir;
-
-    QTcpSocket *m_socket;
-    QByteArray m_inbuffer;
-    QList<QByteArray> m_services;
     QProcess m_proc;
 
     QDeclarativeDebugConnection *m_conn;
