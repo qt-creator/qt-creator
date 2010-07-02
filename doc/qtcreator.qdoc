@@ -73,12 +73,8 @@
            \o \l{Developing Qt Quick Applications}
                 \list
                     \o \l {Creating Qt Quick Projects}
-                    \o \l {Designing Application UI}
                     \o \l {Creating Components}
-                    \o \l {Creating Buttons}
-                    \o \l {Creating Scalable Buttons and Borders}
                     \o \l {Creating Screens}
-                    \o \l {Creating List Views}
                     \o \l {Animating Screens}
                     \o \l {Adding User Interaction Methods}
                     \o \l {Implementing Application Logic}
@@ -719,11 +715,6 @@
     the base state.
 
     \endlist
-
-    For more information on using the \QMLD visual editor, see
-    \l{Developing Qt Quick Applications}.
-
-    \endif
 
 */
 
@@ -2516,16 +2507,19 @@
 
     \image qmldesigner-run-custom-exe.png "Run settings for custom executables"
 
-    \if defined(qtquick)
-
     \section1 Specifying Run Settings for Qt Quick Projects
 
     Select run settings in the \gui {Run configuration} field. The settings
-    are specified automatically and, usually, you do not need to change them:
+    are specified automatically and, you mostly need to change them if you
+    develop applications that use both C++ and QML:
 
     \list
 
         \o \gui {QML Viewer} is the path to the \QQV executable.
+        Qt Creator ships with a specific version of \QQV and imported
+        modules, which is used by default. If you develop applications
+        that use both C++ and QML, you must select the \QQV version
+        shipped with your Qt version here.
 
         \o \gui {QML Viewer arguments} sets arguments for running \QQV.
         The \c{-I <directory>} argument searches for C++ or QML plugins from
@@ -2921,7 +2915,6 @@
 
 
 /*!
-    \if defined(qtquick)
     \contentspage index.html
     \previouspage creator-mobile-example.html
     \page creator-qml-application.html
@@ -2932,19 +2925,12 @@
     \note This tutorial assumes that you are familiar with the \l {http://doc.qt.nokia.com/4.7-snapshot/declarativeui.html}
     {QML declarative language}.
 
-    \note The Qt Quick specific features and the QDeclarative help are based on a
-    preview version of the QtDeclarative package. Update Qt Creator when Qt 4.7 is
-    released.
-
-    This tutorial describes how to use Qt Creator to create a small animated
+    This tutorial describes how to use Qt Creator to create a small
     Qt Quick application, Hello World.
 
-    \image qmldesigner-helloworld.png "Hello World"
+    \image qmldesigner-helloworld-edited.png "Hello World"
 
     \section1 Creating the Hello World Project
-
-    \note Create the project with the \gui{Help} mode active so that you can follow
-    these instructions while you work.
 
     \list 1
 
@@ -2976,141 +2962,79 @@
         \o HelloWorld.qml
     \endlist
 
+    The \gui Projects pane in the \gui Sidebar displays the project files:
+
     \image qmldesigner-new-project-contents.png "HelloWorld project contents"
 
     The .qmlproject file defines that all QML, JavaScript, and image files in
-    the project folder belong to the project. The .qml file contains some example
-    code that specifies the screen size (200x200) and a label that contains
+    the project folder belong to the project.
+
+    The .qml file contains the following example code that specifies a rectangle
+    and a label that contains
     the text \bold {Hello World}.
 
-    \section1 Designing the User Interface
+    \code
 
-    \list 1
+    import Qt 4.7
 
-        \o In the \gui{Edit} mode, double-click the HelloWorld.qml file in
-         the \gui{Projects} pane to open it in the code editor.
+    Rectangle {
+        width: 200
+        height: 200
+        Text {
+            x: 66
+            y: 93
+            text: "Hello World"
+        }
+    }
 
-        \o To set the screen size to that of some Symbian devices in portrait
-        mode, for example, change the \c width to \bold 240 and \c height to \bold 320.
+    \endcode
 
-        \image qmldesigner-helloworld-screen-size.png "Setting the screen size"
+    Your application is now ready.
 
-        \o Click \gui{Design} to design the UI in the visual editor.
+    \section1 Running the Application
 
-        \note The visual \QMLD editor is provided as an experimental plugin that you must
-        enable to be able to edit QML files in the \gui Design mode. Enabling the
-        visual editor can negatively affect the overall stability of Qt Creator.
+    Press \key {Ctrl+R} to run the application in the QML Viewer.
 
-        \o Restart Qt Creator to enable the visual editor.
 
-        \o Drag and drop a \gui {Rectangle} from the \gui {Library} pane to the
-        scene.
 
-        \image qmldesigner-helloworld-widget-add.png "Add component to Hello World"
+    \image qmldesigner-helloworld.png "Hello World"
 
-        \o Edit the \gui {Properties} of the component to turn it into a red ball:
+    \section1 Changing Hello World Properties
 
-        \list a
+    To experiment with QML and to try some of the code editor features, change the
+    properties of the rectangle and text. Move the cursor on \gui Rectangle and
+    press \key F1 to get help on the available properties. Try adding a \gui color
+    property to the \gui Rectangle. When you start to type,
+    the code completion feature of the code editor suggests properties, IDs, and
+    code snippets to complete the code. Select an item in the list and press
+    \key Tab or \key Enter to complete the code.
 
-            \o In the \gui {Colors} section, click the color picker to select a red
-            color.
+    The code editor checks the code syntax and underlines syntax errors.
+    Move the cursor over an error to display detailed information about it.
 
-            \o In the \gui {Radius} field, use the slider to set the radius value
-            to \bold 50.
+    The following code illustrates how to set the backround color
+    to light steel blue and the text color to white:
 
-            \image qmldesigner-helloworld-widget-edit.png "Edit the component"
+    \code
 
-        \endlist
+    import Qt 4.7
 
-        \o To create a blue ball, press \key {Ctrl+C} and \key {Ctrl+V} to copy
-        and paste the red one, and then change its color to blue.
+    Rectangle {
+        width: 200
+        height: 200
+        color: "lightsteelblue"
+        Text {
+            x: 66
+            y: 93
+            text: "Hello World"
+            color: "white"
+        }
+    }
 
-        \image qmldesigner-helloworld-base-state.png "Hello World first view"
+    \endcode
 
-        The first view of your application is now ready.
+    \image qmldesigner-helloworld-edited.png "Hello World in blue and white"
 
-        \note You can use graphical design tools to create nice images and
-        copy them to the projects folder to display them in the \gui {Library}
-        pane in \gui {Resources}.
-
-        \o In the \gui State pane, click the plus sign to add another view, or \e state
-        to the application.
-
-        \o Modify the state by dragging and dropping the widgets to switch their
-        places.
-
-        \image qmldesigner-helloworld-state1.png "Hello World second view"
-
-    \endlist
-
-    \section1 Animating the Scene
-
-    Animate the scene so that the widgets appear to switch places
-    on the screen.
-
-    \list 1
-
-        \o Click \gui {Edit} to open HelloWorld.qml in the code editor.
-
-        \o Add the following code to create a transition:
-
-        \code
-            transitions: [
-            Transition {
-                NumberAnimation { properties: "x, y"; duration: 500 }
-            }
-        \endcode
-
-        \note The code editor completes the code for you as you type.
-
-        \o  Click the \inlineimage qtcreator-run.png
-        button to check that the application can be built and run.
-
-    \endlist
-
-    \section1 Adding Interaction
-
-    Add interaction to the scene to allow users to click on the screen to start
-    the animation.
-
-    \list 1
-
-        \o Click \gui{Design} to open HelloWorld.qml in the visual editor.
-
-        \o Drag and drop a \gui {Mouse Area} from the \gui {Library} to the scene.
-
-        \o In the \gui {Properties} pane, \gui {Geometry} tab, click the
-        \inlineimage qmldesigner-anchor-fill-screen.png
-        button to make the mouse region cover the whole screen.
-
-        \o In the code editor, use data binding to add a \c when statement to
-        the states sections, as illustrated by the following code:
-
-        \code
-
-        states: [
-            State {
-                name: "State1"
-                when: mousearea1.pressed
-        \endcode
-
-    \endlist
-
-    \section1 Building and Running the Application
-
-    \list 1
-
-        \o Press \key {Ctrl+R} to build and run the application.
-
-        \o Click the screen and keep the mouse button pressed down to run the
-        animation.
-
-    \endlist
-
-    \note In the \gui {QML Viewer}, select \gui {Skin} and select a mobile device
-    type to view the application as on a mobile device.
-
-    \endif
 */
 
 
@@ -5381,23 +5305,15 @@
     \l {http://doc.qt.nokia.com/4.7-snapshot/qdeclarativeexamples.html} {QML examples and demos}
     to learn how to use various aspects of QML.
 
-    \note The Qt Quick specific features and the QDeclarative help are based on a
-    preview version of the QtDeclarative package. Update Qt Creator when Qt 4.7 is
-    released.
-
-    You can use the code editor (\gui Edit mode) or the visual editor
-    (\gui Design mode) to develop Qt Quick applications.
+    You can use the code editor (\l{Using the Editor}{Edit mode}) or the visual editor
+    (\l{Using Qt Quick Designer}{Design mode}) to develop Qt Quick applications.
     The following sections describe typical tasks you can do with Qt Creator.
 
     \list
 
         \o \l {Creating Qt Quick Projects}
-        \o \l {Designing Application UI}
         \o \l {Creating Components}
-        \o \l {Creating Buttons}
-        \o \l {Creating Scalable Buttons and Borders}
         \o \l {Creating Screens}
-        \o \l {Creating List Views}
         \o \l {Animating Screens}
         \o \l {Adding User Interaction Methods}
         \o \l {Implementing Application Logic}
@@ -5426,7 +5342,9 @@
 
     Select \gui {File > New File or Project > Qt Quick Project > Qt QML Application}.
 
-    \QMLD creates the following files:
+    \image qmldesigner-new-project.png "New File or Project dialog"
+
+    Qt Creator creates the following files:
 
     \list
 
@@ -5441,7 +5359,7 @@
 
     The \c import statement in the beginning of the .qml file specifies the
     \l {http://doc.qt.nokia.com/4.7-snapshot/qdeclarativemodules.html} {Qt modules}
-    to import to \QMLD. Each Qt module contains a set of default elements.
+    to import. Each Qt module contains a set of default elements.
     Specify a version to get the features you want.
 
     To use JavaScript and image files in the application, copy them to the
@@ -5449,20 +5367,6 @@
 
     To import a QML project to Qt Creator, select
     \gui {File > New File or Project > Qt Quick Project > Import Existing Qt QML Directory}.
-
-*/
-
-
-/*!
-
-    \contentspage index.html
-    \previouspage quick-projects.html
-    \page quick-ui.html
-    \nextpage quick-components.html
-
-    \title Designing Application UI
-
-    One .qml file can define a component, screen, or the whole application.
 
 */
 
@@ -5481,8 +5385,7 @@
     through properties, signals, and slots, and is generally defined in its own QML file.
     You can import components to screens and applications.
 
-    You can use the \gui Library items to create components. Drag and drop
-    the following QML elements to the editor and modify their properties in the \gui Properties pane:
+    You can create the following QML components:
 
     \list
 
@@ -5506,246 +5409,6 @@
 
     \endlist
 
-    You can use QML to add properties for a component in the code editor.
-
-    The following sections describe some use cases for the QML elements.
-
-*/
-
-
-/*!
-
-    \contentspage index.html
-    \previouspage quick-components.html
-    \page quick-buttons.html
-    \nextpage quick-scalable-image.html
-
-    \title Creating Buttons
-
-    To create a button component:
-
-    \list 1
-
-        \o Select \gui {File > New File or Project > Qt > Qt QML File} to create a QML file
-        called Button.qml (for example).
-
-        \note Components are listed in the \gui Library pane only if the filename begins
-        with a capital letter.
-
-        \o Double-click the file to open it in the code editor.
-
-        \o Click \gui {Design} to edit the file in the visual editor.
-
-        \o Drag and drop a \gui Rectangle from the \gui Library pane to the scene.
-
-        \o In the \gui Properties pane, modify the appearance of the button.
-
-        \list a
-
-        \o In the \gui Color field, select the button color.
-
-        \o In the \gui Radius field, use
-        the slider to set the radius of the rectangle and produce rounded corners for the button.
-
-        \endlist
-
-        \o Drag and drop a \gui {Text} item on top of the \gui Rectangle. This creates a
-        nested element where \gui Rectangle is the parent element of \gui Text. Elements
-        are positioned relative to their parents.
-
-        \o In the \gui Properties pane, edit the properties of the \gui Text item.
-
-        \list a
-
-        \o In the \gui Text field, type \bold Button.
-
-        You can select the text color, font, size, and style in the \gui Font section.
-
-        \o In the \gui Alignment field, select the center button to align the text to the
-        center of the button.
-
-        \o Click \gui {Geometry}, and then click the
-        \inlineimage qmldesigner-anchor-fill-screen.png
-        button to anchor the text to the whole button area.
-
-        \endlist
-
-        \o Click \gui Edit to edit the \c width and \c height properties of the button
-        to fit the button size.
-
-        \o Press \key {Ctrl+S} to save the button.
-
-        \image qmldesigner-button.png "Button component"
-
-        \o Click the \gui Run button to view the button in \QQV.
-
-    \endlist
-
-    To create a graphical button that scales beautifully without using vector graphics,
-    use the \l{http://doc.qt.nokia.com/4.7-snapshot/qml-borderimage.html}{Border Image}
-    element.
-
-*/
-
-
-/*!
-
-    \contentspage index.html
-    \previouspage quick-buttons.html
-    \page quick-scalable-image.html
-    \nextpage quick-screens.html
-
-    \title Creating Scalable Buttons and Borders
-
-    You can use the \l{http://doc.qt.nokia.com/4.7-snapshot/qml-borderimage.html}{Border Image}
-    element to display an image, such as a PNG file, as a border and a background.
-
-    Use two Border Image elements and suitable graphics to make it look like the button
-    is pushed down when it is clicked. One of the Border Image elements is visible by default.
-    You can specify that it is hidden and the other one becomes visible when the mouse is clicked.
-
-    Add a MouseArea that covers the whole area and emits the clicked signal (\c {parent.clicked()})
-    when it detects a mouse click.
-
-    You can add text to the button and set it up as a property. The text can then be initialized
-    from the outside, making the button a reusable UI component. The font size is also available in case
-    the default size is too big. You can scale down the button text and use smooth text rendering
-    for some extra quality.
-
-    \image qmldesigner-borderimage.png "Graphical button"
-
-    To create a graphical button:
-
-    \list 1
-
-        \o Select \gui {File > New File or Project > Qt > Qt QML File} to create a QML file
-        called Button.qml (for example).
-
-        \o Double-click the file to open it in the code editor.
-
-        \o Replace the \gui Rectangle with an \gui Item, as illustrated by the
-        following code snippet:
-
-        \code
-
-        Item {
-
-        }
-
-        \endcode
-
-        \o Click \gui {Design} to edit the file in the visual editor.
-
-        \o Drag and drop two \gui BorderImage items from the \gui Library pane to
-        the scene.
-
-        \o Drag and drop a \gui Text item to the scene.
-
-        \o Drag and drop a \gui MouseArea to the screen.
-
-        \o Click \gui Edit to specify properties for the \gui Item, as
-        illustrated by the following code snippet:
-
-        \code
-
-        property string text: ""
-        property int fontSize: 44
-
-        signal clicked
-
-        \endcode
-
-        \o In the \gui Navigator view, select \gui borderimage1 to specify
-        settings for it in the \gui Properties pane:
-
-        \list a
-
-            \o In the \gui Source field, select the image file for the
-            button, for example button_up.png.
-
-            \o In the \gui Left, \gui Right, \gui Top, and \gui Bottom fields,
-            enter 32 to set the margins for the image.
-
-            \o Click \gui {Geometry}, and then click the
-            \inlineimage qmldesigner-anchor-fill-screen.png
-            button to anchor the border image to the \gui Item.
-
-            \o Click \gui Advanced, and select \gui {Set Expression} in the menu
-            next to the \gui Visibility check box.
-
-            \o Enter the following expression to specify that the image is visible
-            when the mouse is not pressed down: \c {!mousearea1.pressed}.
-
-        \endlist
-
-        \o Select \gui borderimage2 to specify similar settings for it:
-
-        \list a
-
-            \o In the \gui Source field, select the image file for the
-            button when it is clicked, for example button_down.png.
-
-            \o In the \gui Left, \gui Right, \gui Top, and \gui Bottom fields,
-            enter 32 to set the margins for the image.
-
-            \o Click \gui {Geometry}, and then click the
-            \inlineimage qmldesigner-anchor-fill-screen.png
-            button to anchor the border image to the \gui Item.
-
-            \o Click \gui Advanced, and set the following epression for
-            \gui Visibility, to specify that the the image is visible
-            when the mouse is pressed down: \c {mousearea1.pressed}.
-
-        \endlist
-
-
-        \o Select \gui Text to specify font size and color, and text
-        scaling and rendering:
-
-        \list a
-
-            \o In the \gui Color field, use the color picker to select
-            the font color, or enter a value in the field.
-
-            \o In the \gui Text field, select \gui {Set Expression} and
-            enter a pointer to the \c {text} property that you specified
-            earlier: \c {parent.txt}.
-
-            \o In the \gui Size field, select \gui {Pixel} to specify
-            the font size in pixels. By default, the size is specified in
-            points.
-
-            \o In the \gui Size field, select \gui {Set Expression} and
-            enter a pointer to the \c {fontSize} property that you specified
-            earlier.
-
-            \o Select the \gui Smooth check box to enable smooth text
-            rendering.
-
-            \o Click \gui {Geometry}, and then click the
-            \inlineimage qmldesigner-center-in.png "Anchor buttons"
-            buttons to inherit the vertical and horizontal centering from
-            the parent.
-
-            \o Click \gui Advanced to specify scaling for the text in the
-            \gui Scale field.
-
-            \o Select \gui {Set Expression} and enter the following expression:
-            \c {if (!mousearea1.pressed) { 1 } else { 0.95 }}.
-
-            \note You can enter long and complicated expressions also in the
-            code editor.
-
-        \endlist
-
-        \o In the code editor, add to the \c MouseArea item
-        a pointer to the \c clicked expression that you added earlier:
-        \c {onClicked: parent.clicked()}.
-
-        \o Click the \gui Run button to view the button in \QQV.
-
-        \endlist
-
 */
 
 
@@ -5758,7 +5421,7 @@
 
     \title Creating Screens
 
-    You can use the \gui Library items and your own components to create screens.
+    You can use predefined QML elements and your own components to create screens.
 
     You can create the following types of views to organize items provided by
     \l{http://doc.qt.nokia.com/4.7-snapshot/qdeclarativemodels.html}{data models}:
@@ -5778,139 +5441,7 @@
 
     QML states typically describe user interface configurations, such as the UI elements,
     their properties and behavior and the available actions. For example, you can use
-    states to create two screens:
-
-    \list 1
-
-        \o Use the \gui Library items, resources and your own components to create a screen.
-        For example, drag and drop the button component from the \gui Library pane to the screen.
-
-        \o In the \gui State pane, click the plus sign to add another view, or \e state
-        to the application.
-
-        \o Modify the second state of the screen to create a new screen.
-
-    \endlist
-
-*/
-
-
-/*!
-
-    \contentspage index.html
-    \previouspage quick-screens.html
-    \page quick-list-views.html
-    \nextpage quick-animations.html
-
-    \title Creating List Views
-
-    You use list views and list models to create lists. You use delegates to handle list items.
-    Typically, the list model is provided by a QAbstractListModel C++ model object,
-    but you can also create it in QML.
-
-    \list 1
-
-        \o Select \gui {File > New File or Project > Qt > Qt QML File} to create a QML file
-        called ListView.qml (for example).
-
-        \o Double-click the file to open it in the code editor.
-
-        \o Add a list model that contains the data to be shown on the list, as
-        illustrated by the following code snippet:
-
-        \code
-
-        import Qt 4.7
-
-            Rectangle {
-                width: 360
-                height: 640
-
-            ListModel {
-                id: myListModel
-                ListElement {
-                   item_index: 0
-                   item_name: "Item 1"
-                   item_description: "Description 1"
-            }
-            ListElement {
-                item_index: 1
-                item_name: "Item 2"
-                item_description: "Description 2"
-            }
-            ListElement {
-                item_index: 2
-                item_name: "Item 3"
-                item_description: "Description 3"
-            }
-        }
-
-        \endcode
-
-        \o Add a delegate that draws each item in the list.
-
-        \code
-
-        Component {
-            id: myListDelegate
-            Item {
-                id: wrapper
-                width: parent.width
-                height: 40
-                Column {
-                    x: 5; y: 5
-                    Text { text: '<b>Name:</b> ' + item_name }
-                    Text { text: '<b>Descriptionr:</b> ' + item_description }
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: myList.currentIndex = item_index
-                }
-            }
-        }
-
-        \endcode
-
-        You can use a separate delegate to hilight the currently selected item.
-
-        \code
-
-        Component {
-            id: myListHilight
-            Rectangle {
-                width: parent.width
-                height: 40
-                color: "lightsteelblue"
-                radius: 5
-                SpringFollow on y {
-                    to: myList.currentItem.y
-                    spring: 3
-                    damping: 0.2
-                }
-            }
-        }
-
-        \endcode
-
-        \o Add the list view, as illustrated by the following code snippet:
-
-        \code
-
-        ListView {
-            id: myList
-            width: parent.width; height: parent.height
-            model: myListModel
-            delegate: myListDelegate
-            highlight: myListHilight
-            focus: true
-            }
-        }
-
-        \endcode
-
-        \o Click the \gui Run button to view the list view in \QQV.
-
-    \endlist
+    states to create two screens.
 
 */
 
@@ -5964,12 +5495,6 @@
         enables simple mouse handling.
 
     \endlist
-
-    To add interaction methods, drag and drop a \gui {Focus Scope} or \gui {Mouse Area}
-    to the screen. In the code editor, add signal handlers to execute when users select
-    the scope or area. Signal handlers allow actions to be taken in response to an event.
-    For instance, the \gui {MouseArea} element has signal handlers to handle mouse press,
-    release, and click.
 
 */
 
