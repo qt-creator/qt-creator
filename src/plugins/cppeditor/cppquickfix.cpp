@@ -1048,6 +1048,184 @@ private:
     CallAST *qlatin1Call;
 };
 
+/*
+  Base class for converting numeric literals between decimal, octal and hex.
+  Does the base check for the specific ones and parses the number.
+  Test cases:
+    0xFA0Bu;
+    0X856A;
+    298.3;
+    199;
+    074;
+    199L;
+    074L;
+    -199;
+    -017;
+    0783; // invalid octal
+    0; // border case, allow only hex<->decimal
+*/
+class ConvertNumericLiteral: public CppQuickFixOperation
+{
+public:
+    ConvertNumericLiteral(TextEditor::BaseTextEditor *editor)
+        : CppQuickFixOperation(editor)
+    {}
+
+    virtual int match(const QList<AST *> &path)
+    {
+        literal = 0;
+
+        if (path.isEmpty())
+            return -1; // nothing to do
+
+        literal = path.last()->asNumericLiteral();
+
+        if (! literal)
+            return -1;
+
+        Token token = tokenAt(literal->asNumericLiteral()->literal_token);
+        if (!token.is(T_NUMERIC_LITERAL))
+            return -1;
+        numeric = token.number;
+        if (numeric->isDouble() || numeric->isFloat())
+            return -1;
+
+        // remove trailing L or U and stuff
+        const char * const spell = numeric->chars();
+        numberLength = numeric->size();
+        while (numberLength > 0 && (spell[numberLength-1] < '0' || spell[numberLength-1] > 'F'))
+            --numberLength;
+        if (numberLength < 1)
+            return -1;
+
+        // convert to number
+        bool valid;
+        value = QString::fromUtf8(spell).left(numberLength).toULong(&valid, 0);
+        if (!valid) // e.g. octal with digit > 7
+            return -1;
+
+        return path.size() - 1; // very high priority
+    }
+
+    virtual void createChanges()
+    {
+        ChangeSet changes;
+        int start = startOf(literal);
+        changes.replace(start, start + numberLength, replacement);
+        refactoringChanges()->changeFile(fileName(), changes);
+    }
+
+protected:
+    NumericLiteralAST *literal;
+    const NumericLiteral *numeric;
+    ulong value;
+    int numberLength;
+    QString replacement;
+};
+
+/*
+  Convert integer literal to hex representation.
+  Replace
+    32
+    040
+  With
+    0x20
+
+*/
+class ConvertNumericToHex: public ConvertNumericLiteral
+{
+public:
+    ConvertNumericToHex(TextEditor::BaseTextEditor *editor)
+        : ConvertNumericLiteral(editor)
+    {}
+
+    virtual QString description() const
+    {
+        return QApplication::translate("CppTools::QuickFix", "Convert to Hexadecimal");
+    }
+
+    virtual int match(const QList<AST *> &path)
+    {
+        int ret = ConvertNumericLiteral::match(path);
+        if (ret != -1 && !numeric->isHex()) {
+            replacement.sprintf("0x%lX", value);
+            return ret;
+        }
+        return -1;
+    }
+
+};
+
+/*
+  Convert integer literal to octal representation.
+  Replace
+    32
+    0x20
+  With
+    040
+*/
+class ConvertNumericToOctal: public ConvertNumericLiteral
+{
+public:
+    ConvertNumericToOctal(TextEditor::BaseTextEditor *editor)
+        : ConvertNumericLiteral(editor)
+    {}
+
+    virtual QString description() const
+    {
+        return QApplication::translate("CppTools::QuickFix", "Convert to Octal");
+    }
+
+    virtual int match(const QList<AST *> &path)
+    {
+        int ret = ConvertNumericLiteral::match(path);
+        if (ret != -1 && value != 0) {
+            const char * const str = numeric->chars();
+            if (numberLength > 1 && str[0] == '0' && str[1] != 'x' && str[1] != 'X')
+                return -1;
+            replacement.sprintf("0%lo", value);
+            return ret;
+        }
+        return -1;
+    }
+
+};
+
+/*
+  Convert integer literal to decimal representation.
+  Replace
+    0x20
+    040
+  With
+    32
+*/
+class ConvertNumericToDecimal: public ConvertNumericLiteral
+{
+public:
+    ConvertNumericToDecimal(TextEditor::BaseTextEditor *editor)
+        : ConvertNumericLiteral(editor)
+    {}
+
+    virtual QString description() const
+    {
+        return QApplication::translate("CppTools::QuickFix", "Convert to Decimal");
+    }
+
+    virtual int match(const QList<AST *> &path)
+    {
+        int ret = ConvertNumericLiteral::match(path);
+        if (ret != -1 && (value != 0 || numeric->isHex())) {
+            const char * const str = numeric->chars();
+            if (numberLength > 1 && str[0] != '0')
+                return -1;
+            replacement.sprintf("%lu", value);
+            return ret;
+        }
+        return -1;
+    }
+
+};
+
 } // end of anonymous namespace
 
 
@@ -1242,6 +1420,9 @@ QList<TextEditor::QuickFixOperation::Ptr> CppQuickFixFactory::quickFixOperations
     QSharedPointer<WrapStringLiteral> wrapStringLiteral(new WrapStringLiteral(editor));
     QSharedPointer<CStringToNSString> wrapCString(new CStringToNSString(editor));
     QSharedPointer<TranslateStringLiteral> translateCString(new TranslateStringLiteral(editor));
+    QSharedPointer<ConvertNumericToHex> convertNumericToHex(new ConvertNumericToHex(editor));
+    QSharedPointer<ConvertNumericToOctal> convertNumericToOctal(new ConvertNumericToOctal(editor));
+    QSharedPointer<ConvertNumericToDecimal> convertNumericToDecimal(new ConvertNumericToDecimal(editor));
 
     quickFixOperations.append(rewriteLogicalAndOp);
     quickFixOperations.append(splitIfStatementOp);
@@ -1253,6 +1434,9 @@ QList<TextEditor::QuickFixOperation::Ptr> CppQuickFixFactory::quickFixOperations
     quickFixOperations.append(flipBinaryOp);
     quickFixOperations.append(wrapStringLiteral);
     quickFixOperations.append(translateCString);
+    quickFixOperations.append(convertNumericToHex);
+    quickFixOperations.append(convertNumericToOctal);
+    quickFixOperations.append(convertNumericToDecimal);
 
     if (editor->mimeType() == CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)
         quickFixOperations.append(wrapCString);
