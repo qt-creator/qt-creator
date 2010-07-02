@@ -63,7 +63,19 @@ struct StackFrame {
     ULONG64 address;
 };
 
+struct Thread {
+    explicit Thread(unsigned long id = 0, unsigned long sysId = 0);
+    QString toString() const;
+
+    unsigned long id;
+    unsigned long systemId;
+    quint64 dataOffset; // Only for current.
+};
+
+inline bool operator<(const Thread &t1, const Thread &t2) { return t1.id < t2.id; }
+
 QDebug operator<<(QDebug d, const StackFrame &);
+QDebug operator<<(QDebug d, const Thread &);
 
 /* Context representing a break point stack consisting of several frames.
  * Maintains an on-demand constructed list of SymbolGroupContext
@@ -87,9 +99,6 @@ public:
     };
     static SpecialFunction specialFunction(const QString &module, const QString &function);
 
-    // A map of thread id, stack frame
-    typedef QMap<unsigned long, StackFrame> ThreadIdFrameMap;
-
     enum { maxFrames = 100 };
 
     ~StackTraceContext();
@@ -112,10 +121,10 @@ public:
     QString toString() const;
 
     // Thread helpers: Retrieve a list of thread ids. Also works when running.
-    static inline bool getThreadIds(const CdbCore::ComInterfaces &cif,
-                                    QVector<ULONG> *threadIds,
-                                    ULONG *currentThreadId,
-                                    QString *errorMessage);
+    static bool getThreadList(const CdbCore::ComInterfaces &cif,
+                              QVector<Thread> *threads,
+                              ULONG *currentThreadId,
+                              QString *errorMessage);
 
     // Retrieve detailed information about a threads in stopped state.
     // Potentially changes current thread id.
@@ -124,13 +133,13 @@ public:
                                              StackFrame *topFrame,
                                              QString *errorMessage);
 
-    // Retrieve detailed information about all threads, works in stopped state.
-    static bool getThreads(const CdbCore::ComInterfaces &cif,
-                           ThreadIdFrameMap *threads,
-                           ULONG *currentThreadId,
-                           QString *errorMessage);
-
-    static QString formatThreads(const ThreadIdFrameMap &threads);
+    // Get the stack traces for threads in stopped state (only, fails when running).
+    // Potentially changes and restores current thread.
+    static bool getStoppedThreadFrames(const CdbCore::ComInterfaces &cif,
+                                       ULONG currentThreadId,
+                                       const QVector<Thread> &threads,
+                                       QVector<StackFrame> *frames,
+                                       QString *errorMessage);
 
 protected:
     virtual SymbolGroupContext *createSymbolGroup(const ComInterfaces &cif,

@@ -194,6 +194,7 @@ void CdbDebugEnginePrivate::clearForRun()
     cleanStackTrace();
     m_stoppedReason = StoppedOther;
     m_stoppedMessage.clear();
+    m_engine->threadsHandler()->notifyRunning();
 }
 
 void CdbDebugEnginePrivate::cleanStackTrace()
@@ -1331,7 +1332,13 @@ void CdbDebugEnginePrivate::handleDebugEvent()
         if (m_engine->state() != InferiorStopping)
             m_engine->setState(InferiorStopping, Q_FUNC_INFO, __LINE__);
         m_engine->setState(InferiorStopped, Q_FUNC_INFO, __LINE__);
-        m_eventThreadId = updateThreadList();
+        // Indicate artifical thread that is created when interrupting as such,
+        // else use stop message with cleaned newlines and blanks.
+        const QString currentThreadState =
+                m_interrupted ? CdbDebugEngine::tr("<interrupt thread>") :
+                (m_stoppedReason == StoppedBreakpoint ? CdbDebugEngine::tr("Breakpoint") :
+                                                        m_stoppedMessage.simplified() );
+        m_eventThreadId = updateThreadList(currentThreadState);
         m_interruptArticifialThreadId = m_interrupted ? m_eventThreadId : -1;
         // Get thread to stop and its index. If avoidable, do not use
         // the artifical thread that is created when interrupting,
@@ -1406,7 +1413,7 @@ bool CdbDebugEnginePrivate::setCDBThreadId(unsigned long threadId, QString *erro
     return true;
 }
 
-ULONG CdbDebugEnginePrivate::updateThreadList()
+ULONG CdbDebugEnginePrivate::updateThreadList(const QString &currentThreadState)
 {
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << m_hDebuggeeProcess;
@@ -1415,8 +1422,23 @@ ULONG CdbDebugEnginePrivate::updateThreadList()
     ULONG currentThreadId;
     QString errorMessage;
     // When interrupting, an artifical thread with a breakpoint is created.
-    if (!CdbStackTraceContext::getThreads(interfaces(), &threads, &currentThreadId, &errorMessage))
+    const bool stopped = m_engine->state() == InferiorStopped;
+    if (!CdbStackTraceContext::getThreads(interfaces(),
+                                          stopped,
+                                          &threads, &currentThreadId,
+                                          &errorMessage))
         m_engine->warning(errorMessage);
+    // Indicate states 'stopped' or current thread state.
+    // Do not indicate 'running' since we can't know if it is suspended.
+    if (stopped) {
+        const QString state = CdbDebugEngine::tr("stopped");
+        const bool hasCurrentState = !currentThreadState.isEmpty();
+        const int count = threads.size();
+        for (int i= 0; i < count; i++) {
+            threads[i].state = hasCurrentState && threads.at(i).id == currentThreadId ?
+                               currentThreadState : state;
+        }
+    }
     m_engine->threadsHandler()->setThreads(threads);
     return currentThreadId;
 }

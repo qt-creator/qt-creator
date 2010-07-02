@@ -2966,7 +2966,7 @@ void GdbEngine::handleThreadInfo(const GdbResponse &response)
             const GdbMi frame = item.findChild("frame");
             ThreadData thread;
             thread.id = item.findChild("id").data().toInt();
-            thread.targetId = item.findChild("target-id").data().toInt();
+            thread.targetId = QString::fromAscii(item.findChild("target-id").data());
             thread.core = QString::fromLatin1(item.findChild("core").data());
             thread.state = QString::fromLatin1(item.findChild("state").data());
             thread.address = frame.findChild("addr").data().toULongLong(&ok, 0);

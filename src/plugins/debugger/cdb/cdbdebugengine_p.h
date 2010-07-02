@@ -76,7 +76,7 @@ public:
     void setDebuggeeHandles(HANDLE hDebuggeeProcess,  HANDLE hDebuggeeThread);
 
     bool isDebuggeeRunning() const { return isWatchTimerRunning(); }
-    ULONG updateThreadList();
+    ULONG updateThreadList(const QString &currentThreadState = QString());
     bool setCDBThreadId(unsigned long threadId, QString *errorMessage);
     void updateStackTrace();
     void updateModules();

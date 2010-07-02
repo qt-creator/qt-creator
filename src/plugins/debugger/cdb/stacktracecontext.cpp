@@ -35,6 +35,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QDebug>
 #include <QtCore/QTextStream>
+#include <QtCore/QScopedArrayPointer>
 
 enum { debug = 0 };
 
@@ -72,6 +73,27 @@ void StackFrame::format(QTextStream &str) const
     str.setIntegerBase(16);
     str << " 0x" << address;
     str.setIntegerBase(10);
+}
+
+Thread::Thread(unsigned long i, unsigned long si) :
+        id(i), systemId(si), dataOffset(0)
+{
+}
+
+QString Thread::toString() const
+{
+    QString rc;
+    QTextStream str(&rc);
+    str << "Thread id " << id << " System id " << systemId << " Data at 0x";
+    str.setIntegerBase(16);
+    str << dataOffset;
+    return rc;
+}
+
+QDebug operator<<(QDebug d, const Thread &t)
+{
+    d.nospace() << t.toString();
+    return d;
 }
 
 // Check for special functions
@@ -347,20 +369,21 @@ static inline QString msgGetThreadsFailed(const QString &why)
     return QString::fromLatin1("Unable to determine the thread information: %1").arg(why);
 }
 
-bool StackTraceContext::getThreadIds(const CdbCore::ComInterfaces &cif,
-                                     QVector<ULONG> *threadIds,
-                                     ULONG *currentThreadId,
-                                     QString *errorMessage)
+bool StackTraceContext::getThreadList(const CdbCore::ComInterfaces &cif,
+                                      QVector<Thread> *threads,
+                                      ULONG *currentThreadId,
+                                      QString *errorMessage)
 {
-    threadIds->clear();
+    threads->clear();
     ULONG threadCount;
     *currentThreadId = 0;
+    // Get count
     HRESULT hr= cif.debugSystemObjects->GetNumberThreads(&threadCount);
     if (FAILED(hr)) {
         *errorMessage= msgGetThreadsFailed(CdbCore::msgComFailed("GetNumberThreads", hr));
         return false;
     }
-    // Get ids and index of current
+    // Get index of current
     if (!threadCount)
         return true;
     hr = cif.debugSystemObjects->GetCurrentThreadId(currentThreadId);
@@ -368,59 +391,56 @@ bool StackTraceContext::getThreadIds(const CdbCore::ComInterfaces &cif,
         *errorMessage= msgGetThreadsFailed(CdbCore::msgComFailed("GetCurrentThreadId", hr));
         return false;
     }
-    threadIds->resize(threadCount);
-    hr = cif.debugSystemObjects->GetThreadIdsByIndex(0, threadCount, &(*threadIds->begin()), 0);
+    // Get Identifiers
+    threads->reserve(threadCount);
+    QScopedArrayPointer<ULONG> ids(new ULONG[threadCount]);
+    QScopedArrayPointer<ULONG> systemIds(new ULONG[threadCount]);
+    hr = cif.debugSystemObjects->GetThreadIdsByIndex(0, threadCount, ids.data(), systemIds.data());
     if (FAILED(hr)) {
         *errorMessage= msgGetThreadsFailed(CdbCore::msgComFailed("GetThreadIdsByIndex", hr));
         return false;
     }
+    // Create entries
+    for (ULONG i= 0; i < threadCount ; i++) {
+        threads->push_back(Thread(ids[i], systemIds[i]));
+        if (ids[i] ==  *currentThreadId) { // More info for current
+            ULONG64 offset;
+            if (SUCCEEDED(cif.debugSystemObjects->GetCurrentThreadDataOffset(&offset)))
+                threads->back().dataOffset = offset;
+        }
+    }
     return true;
 }
 
-bool StackTraceContext::getThreads(const CdbCore::ComInterfaces &cif,
-                                   ThreadIdFrameMap *threads,
-                                   ULONG *currentThreadId,
-                                   QString *errorMessage)
+bool StackTraceContext::getStoppedThreadFrames(const CdbCore::ComInterfaces &cif,
+                                               ULONG currentThreadId,
+                                               const QVector<Thread> &threads,
+                                               QVector<StackFrame> *frames,
+                                               QString *errorMessage)
 {
-    threads->clear();
-    QVector<ULONG> threadIds;
-    if (!getThreadIds(cif, &threadIds, currentThreadId, errorMessage))
-        return false;
-    if (threadIds.isEmpty())
+    frames->clear();
+    if (threads.isEmpty())
         return true;
+    frames->reserve(threads.size());
 
-    const int threadCount = threadIds.size();
+    const int threadCount = threads.size();
     for (int i = 0; i < threadCount; i++) {
-        const ULONG id = threadIds.at(i);
         StackFrame frame;
-        if (!getStoppedThreadState(cif, id, &frame, errorMessage)) {
+        if (!getStoppedThreadState(cif, threads.at(i).id, &frame, errorMessage)) {
             qWarning("%s\n", qPrintable(*errorMessage));
             errorMessage->clear();
         }
-        threads->insert(id, frame);
+        frames->append(frame);
     }
     // Restore thread id
-    if (threadIds.back() != *currentThreadId) {
-        const HRESULT hr = cif.debugSystemObjects->SetCurrentThreadId(*currentThreadId);
+    if (threads.back().id != currentThreadId) {
+        const HRESULT hr = cif.debugSystemObjects->SetCurrentThreadId(currentThreadId);
         if (FAILED(hr)) {
             *errorMessage= msgGetThreadsFailed(CdbCore::msgComFailed("SetCurrentThreadId", hr));
             return false;
         }
     }
     return true;
-}
-
-QString StackTraceContext::formatThreads(const ThreadIdFrameMap &threads)
-{
-    QString rc;
-    QTextStream str(&rc);
-    const ThreadIdFrameMap::const_iterator cend = threads.constEnd();
-    for (ThreadIdFrameMap::const_iterator it = threads.constBegin(); it != cend; ++it) {
-        str << '#' << it.key() << ' ';
-        it.value().format(str);
-        str << '\n';
-    }
-    return rc;
 }
 
 QDebug operator<<(QDebug d, const StackTraceContext &t)
