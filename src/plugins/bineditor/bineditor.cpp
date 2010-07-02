@@ -439,6 +439,7 @@ void BinEditor::setLazyData(quint64 startAddr, int range, int blockSize)
     init();
 
     setCursorPosition(startAddr - m_baseAddr);
+    viewport()->update();
 }
 
 void BinEditor::resizeEvent(QResizeEvent *)
@@ -926,11 +927,6 @@ int BinEditor::cursorPosition() const
 void BinEditor::setCursorPosition(int pos, MoveMode moveMode)
 {
     pos = qMin(m_size-1, qMax(0, pos));
-    if (pos == m_cursorPosition
-        && (m_anchorPosition == m_cursorPosition || moveMode == KeepAnchor)
-        && !m_lowNibble)
-        return;
-
     int oldCursorPosition = m_cursorPosition;
 
     bool hasSelection = m_anchorPosition != m_cursorPosition;

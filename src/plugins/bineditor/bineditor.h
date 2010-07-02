@@ -85,6 +85,7 @@ public:
 
     int cursorPosition() const;
     void setCursorPosition(int pos, MoveMode moveMode = MoveAnchor);
+    void jumpToAddress(quint64 address);
 
     void setModified(bool);
     bool isModified() const;
@@ -212,7 +213,6 @@ private:
 
     void setupJumpToMenuAction(QMenu *menu, QAction *actionHere, QAction *actionNew,
                                quint64 addr);
-    void jumpToAddress(quint64 address);
 
     struct BinEditorEditCommand {
         int position;

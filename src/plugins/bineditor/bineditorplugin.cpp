@@ -36,10 +36,13 @@
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
+#include <QtCore/QRegExp>
 #include <QtGui/QMenu>
 #include <QtGui/QAction>
 #include <QtGui/QMainWindow>
 #include <QtGui/QHBoxLayout>
+#include <QtGui/QLineEdit>
+#include <QtGui/QRegExpValidator>
 #include <QtGui/QToolBar>
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -54,7 +57,6 @@
 #include <find/ifindsupport.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
-#include <utils/linecolumnlabel.h>
 #include <utils/reloadpromptutils.h>
 
 using namespace BINEditor;
@@ -301,21 +303,29 @@ public:
         m_file = new BinEditorFile(m_editor);
         m_context << uidm->uniqueIdentifier(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
         m_context << uidm->uniqueIdentifier(Constants::C_BINEDITOR);
-        m_cursorPositionLabel = new Utils::LineColumnLabel;
+        m_addressEdit = new QLineEdit;
+        QRegExpValidator * const addressValidator
+            = new QRegExpValidator(QRegExp(QLatin1String("[0-9a-fA-F]{1,16}")),
+                m_addressEdit);
+        m_addressEdit->setValidator(addressValidator);
 
         QHBoxLayout *l = new QHBoxLayout;
         QWidget *w = new QWidget;
         l->setMargin(0);
         l->setContentsMargins(0, 0, 5, 0);
         l->addStretch(1);
-        l->addWidget(m_cursorPositionLabel);
+        l->addWidget(m_addressEdit);
         w->setLayout(l);
 
         m_toolBar = new QToolBar;
         m_toolBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
         m_toolBar->addWidget(w);
 
-        connect(m_editor, SIGNAL(cursorPositionChanged(int)), this, SLOT(updateCursorPosition(int)));
+        connect(m_editor, SIGNAL(cursorPositionChanged(int)), this,
+            SLOT(updateCursorPosition(int)));
+        connect(m_addressEdit, SIGNAL(editingFinished()), this,
+            SLOT(jumpToAddress()));
+        updateCursorPosition(m_editor->cursorPosition());
     }
     ~BinEditorInterface() {
         delete m_editor;
@@ -348,10 +358,14 @@ public:
 
     bool isTemporary() const { return false; }
 
-public slots:
+private slots:
     void updateCursorPosition(int position) {
-        m_cursorPositionLabel->setText(m_editor->addressString(m_editor->baseAddress() + position),
-            m_editor->addressString(m_editor->baseAddress() + m_editor->data().size()));
+        m_addressEdit->setText(QString::number(m_editor->baseAddress() + position, 16));
+    }
+
+    void jumpToAddress() {
+        m_editor->jumpToAddress(m_addressEdit->text().toULongLong(0, 16));
+        updateCursorPosition(m_editor->cursorPosition());
     }
 
 private:
@@ -360,7 +374,7 @@ private:
     BinEditorFile *m_file;
     QList<int> m_context;
     QToolBar *m_toolBar;
-    Utils::LineColumnLabel *m_cursorPositionLabel;
+    QLineEdit *m_addressEdit;
 };
 
 
