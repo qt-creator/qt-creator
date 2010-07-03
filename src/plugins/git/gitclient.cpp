@@ -950,7 +950,7 @@ bool GitClient::synchronousBranchCmd(const QString &workingDirectory, QStringLis
     QByteArray errorText;
     const bool rc = fullySynchronousGit(workingDirectory, branchArgs, &outputText, &errorText);
     if (!rc) {
-        *errorMessage = tr("Unable to run a 'git branch' command in %1: %2").arg(workingDirectory, commandOutputFromLocal8Bit(errorText));
+        *errorMessage = tr("Unable to run a 'git branch' command in %1: %2").arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
         return false;
     }
     *output = commandOutputFromLocal8Bit(outputText);
@@ -972,7 +972,7 @@ bool GitClient::synchronousShow(const QString &workingDirectory, const QString &
     QByteArray errorText;
     const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText);
     if (!rc) {
-        *errorMessage = tr("Unable to run 'git show' in %1: %2").arg(workingDirectory, commandOutputFromLocal8Bit(errorText));
+        *errorMessage = tr("Unable to run 'git show' in %1: %2").arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
         return false;
     }
     *output = commandOutputFromLocal8Bit(outputText);
@@ -992,7 +992,7 @@ bool GitClient::synchronousCleanList(const QString &workingDirectory,
     QByteArray errorText;
     const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText);
     if (!rc) {
-        *errorMessage = tr("Unable to run 'git clean' in %1: %2").arg(workingDirectory, commandOutputFromLocal8Bit(errorText));
+        *errorMessage = tr("Unable to run 'git clean' in %1: %2").arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
         return false;
     }
     // Filter files that git would remove
