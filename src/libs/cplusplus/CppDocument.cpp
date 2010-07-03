@@ -94,7 +94,7 @@ protected:
                 unsigned endLine, endColumn;
                 _unit->getPosition(symbol->endOffset(), &endLine, &endColumn);
 
-                if (_line < endLine || (_line == endLine && _column < endColumn))
+                if (_line < endLine || (_line == endLine && _column <= endColumn))
                     _scope = scope;
             }
         }
@@ -147,6 +147,7 @@ protected:
     virtual bool visit(ObjCMethod *symbol)
     { return process(symbol); }
 };
+
 
 class DocumentDiagnosticClient : public DiagnosticClient
 {

@@ -809,10 +809,6 @@ int CppCodeCompletion::startCompletionHelper(TextEditor::ITextEditable *editor)
     Core::IFile *file = editor->file();
     QString fileName = file->fileName();
 
-    int line = 0, column = 0;
-    edit->convertPosition(editor->position(), &line, &column);
-    // qDebug() << "line:" << line << "column:" << column;
-
     if (m_completionOperator == T_DOXY_COMMENT) {
         for (int i = 1; i < T_DOXY_LAST_TAG; ++i) {
             TextEditor::CompletionItem item(this);
@@ -860,10 +856,12 @@ int CppCodeCompletion::startCompletionHelper(TextEditor::ITextEditable *editor)
     }
 
     QString expression;
+    int startOfExpression = editor->position();
     tc.setPosition(endOfExpression);
 
     if (m_completionOperator) {
         expression = expressionUnderCursor(tc);
+        startOfExpression = endOfExpression - expression.length();
 
         if (m_completionOperator == T_LPAREN) {
             if (expression.endsWith(QLatin1String("SIGNAL")))
@@ -877,11 +875,18 @@ int CppCodeCompletion::startCompletionHelper(TextEditor::ITextEditable *editor)
                 expression.clear();
                 m_completionOperator = T_EOF_SYMBOL;
                 m_startPosition = startOfName;
+                startOfExpression = editor->position();
             }
         }
+    } else if (expression.isEmpty()) {
+        while (startOfExpression > 0 && editor->characterAt(startOfExpression).isSpace())
+            --startOfExpression;
     }
 
-    //qDebug() << "***** expression:" << expression;
+    int line = 0, column = 0;
+    edit->convertPosition(startOfExpression, &line, &column);
+//    qDebug() << "***** line:" << line << "column:" << column;
+//    qDebug() << "***** expression:" << expression;
     return startCompletionInternal(edit, fileName, line, column, expression, endOfExpression);
 }
 
@@ -1168,26 +1173,8 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &r
 
         // find a scope that encloses the current location, starting from the lastVisibileSymbol
         // and moving outwards
-        Scope *sc = 0;
-        if (typeOfExpression.scope())
-            sc = typeOfExpression.scope();
-        else if (context.thisDocument())
-            sc = context.thisDocument()->globalSymbols();
 
-        while (sc && sc->enclosingScope()) {
-            unsigned startLine, startColumn;
-            context.thisDocument()->translationUnit()->getPosition(sc->owner()->startOffset(), &startLine, &startColumn);
-            unsigned endLine, endColumn;
-            context.thisDocument()->translationUnit()->getPosition(sc->owner()->endOffset(), &endLine, &endColumn);
-
-            if (startLine <= line && line <= endLine) {
-                if ((startLine != line || startColumn <= column)
-                    && (endLine != line || column <= endColumn))
-                    break;
-            }
-
-            sc = sc->enclosingScope();
-        }
+        Scope *sc = context.thisDocument()->scopeAt(line, column);
 
         if (sc && (sc->isClassScope() || sc->isNamespaceScope())) {
             // It may still be a function call. If the whole line parses as a function
