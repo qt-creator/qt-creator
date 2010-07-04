@@ -102,7 +102,6 @@ const char *const variables[] = {
 
 const char *const functions[] = {
     "basename",
-    "CONFIG",
     "contains",
     "count",
     "dirname",
