@@ -36,8 +36,7 @@
 
 using namespace Qt4ProjectManager::Internal;
 
-#define MAX_VARIABLES 60
-const char *const variables[MAX_VARIABLES] = {
+const char *const variables[] = {
     "CCFLAG",
     "CONFIG",
     "DEFINES",
@@ -100,8 +99,7 @@ const char *const variables[MAX_VARIABLES] = {
     0
 };
 
-#define MAX_FUNCTIONS 22
-const char *const functions[MAX_FUNCTIONS] = {
+const char *const functions[] = {
     "basename",
     "CONFIG",
     "contains",
@@ -145,7 +143,7 @@ static bool operator<(const char *kw, const KeywordHelper &helper)
 static bool isVariable(const QString &word)
 {
     const char *const *start = &variables[0];
-    const char *const *end = &variables[MAX_VARIABLES - 1];
+    const char *const *end = &variables[sizeof variables / sizeof variables[0] - 1];
     const char *const *kw = qBinaryFind(start, end, KeywordHelper(word));
     return *kw != 0;
 }
@@ -153,7 +151,7 @@ static bool isVariable(const QString &word)
 static bool isFunction(const QString &word)
 {
     const char *const *start = &functions[0];
-    const char *const *end = &functions[MAX_FUNCTIONS - 1];
+    const char *const *end = &functions[sizeof functions / sizeof functions[0] - 1];
     const char *const *kw = qBinaryFind(start, end, KeywordHelper(word));
     return *kw != 0;
 }
