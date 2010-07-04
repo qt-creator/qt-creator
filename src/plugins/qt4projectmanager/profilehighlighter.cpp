@@ -55,6 +55,7 @@ const char *const variables[] = {
     "LEXSOURCES",
     "LIBS",
     "MAKEFILE",
+    "MOBILITY",
     "MOC_DIR",
     "OBJECTIVE_HEADERS",
     "OBJECTIVE_SOURCES",
