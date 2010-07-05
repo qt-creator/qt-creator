@@ -29,9 +29,10 @@ public:
     virtual ~CodeFormatter();
 
     int indentFor(const QTextBlock &block);
-    void invalidateCache(QTextDocument *document);
 
     void setTabSize(int tabSize);
+
+    static void invalidateCache(QTextDocument *document);
 
 protected:
     virtual void onEnter(int newState, int *indentDepth, int *savedIndentDepth) const = 0;

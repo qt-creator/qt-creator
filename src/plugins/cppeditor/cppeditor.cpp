@@ -58,6 +58,7 @@
 
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <cpptools/cpptoolsconstants.h>
+#include <cpptools/cppcodeformatter.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -1427,90 +1428,35 @@ bool CPPEditor::isInComment(const QTextCursor &cursor) const
     return false;
 }
 
-// Indent a code line based on previous
-static void indentCPPBlock(const CPPEditor::TabSettings &ts,
-    const QTextBlock &block,
-    const TextEditor::TextBlockIterator &programBegin,
-    const TextEditor::TextBlockIterator &programEnd,
-    QChar typedChar)
-{
-    typedef SharedTools::Indenter Indenter;
-    Indenter &indenter = Indenter::instance();
-    indenter.setIndentSize(ts.m_indentSize);
-    indenter.setTabSize(ts.m_tabSize);
-    indenter.setIndentBraces(ts.m_indentBraces);
-    indenter.setDoubleIndentBlocks(ts.m_doubleIndentBlocks);
-
-    const TextEditor::TextBlockIterator current(block);
-    const int indent = indenter.indentForBottomLine(current, programBegin, programEnd, typedChar);
-    ts.indentLine(block, indent);
-}
-
-static int indentationColumn(const TextEditor::TabSettings &tabSettings,
-                             const BackwardsScanner &scanner,
-                             int index)
-{
-    return tabSettings.indentationColumn(scanner.indentationString(index));
-}
-
 void CPPEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar)
 {
-    QTextCursor tc(block);
-    tc.movePosition(QTextCursor::EndOfBlock);
+    Q_UNUSED(doc)
+    Q_UNUSED(typedChar)
 
     const TabSettings &ts = tabSettings();
+    CppTools::QtStyleCodeFormatter codeFormatter;
 
-    BackwardsScanner tk(tc, 400);
-    const int tokenCount = tk.startToken();
-
-    if (tokenCount != 0) {
-        const Token firstToken = tk[0];
-
-        if (firstToken.is(T_COLON)) {
-            const int previousLineIndent = indentationColumn(ts, tk, -1);
-            ts.indentLine(block, previousLineIndent + ts.m_indentSize);
-            return;
-        } else if ((firstToken.is(T_PUBLIC) || firstToken.is(T_PROTECTED) || firstToken.is(T_PRIVATE) ||
-                    firstToken.is(T_Q_SIGNALS) || firstToken.is(T_Q_SLOTS)) &&
-                    tk.size() > 1 && tk[1].is(T_COLON)) {
-            const int startOfBlock = tk.startOfBlock(0);
-            if (startOfBlock != 0) {
-                const int indent = indentationColumn(ts, tk, startOfBlock);
-                ts.indentLine(block, indent);
-                return;
-            }
-        } else if (firstToken.is(T_CASE) || firstToken.is(T_DEFAULT)) {
-            const int startOfBlock = tk.startOfBlock(0);
-            if (startOfBlock != 0) {
-                const int indent = indentationColumn(ts, tk, startOfBlock);
-                ts.indentLine(block, indent);
-                return;
-            }
-            return;
-        }
+    codeFormatter.setIndentSize(ts.m_indentSize);
+    codeFormatter.setTabSize(ts.m_tabSize);
+    if (ts.m_indentBraces && ts.m_doubleIndentBlocks) { // gnu style
+        codeFormatter.setIndentSubstatementBraces(true);
+        codeFormatter.setIndentSubstatementStatements(true);
+        codeFormatter.setIndentDeclarationBraces(false);
+        codeFormatter.setIndentDeclarationMembers(true);
+    } else if (ts.m_indentBraces) { // whitesmiths style
+        codeFormatter.setIndentSubstatementBraces(true);
+        codeFormatter.setIndentSubstatementStatements(false);
+        codeFormatter.setIndentDeclarationBraces(true);
+        codeFormatter.setIndentDeclarationMembers(false);
+    } else { // default Qt style
+        codeFormatter.setIndentSubstatementBraces(false);
+        codeFormatter.setIndentSubstatementStatements(true);
+        codeFormatter.setIndentDeclarationBraces(false);
+        codeFormatter.setIndentDeclarationMembers(true);
     }
 
-    if ((tokenCount == 0 || tk[0].isNot(T_POUND)) && typedChar.isNull() && (tk[-1].is(T_IDENTIFIER) || tk[-1].is(T_RPAREN))) {
-        int tokenIndex = -1;
-        if (tk[-1].is(T_RPAREN)) {
-            const int matchingBrace = tk.startOfMatchingBrace(0);
-            if (matchingBrace != 0 && tk[matchingBrace - 1].is(T_IDENTIFIER)) {
-                tokenIndex = matchingBrace - 1;
-            }
-        }
-
-        const QString spell = tk.text(tokenIndex);
-        if (tk[tokenIndex].newline() && (spell.startsWith(QLatin1String("QT_")) ||
-                                         spell.startsWith(QLatin1String("Q_")))) {
-            const int indent = indentationColumn(ts, tk, tokenIndex);
-            ts.indentLine(block, indent);
-            return;
-        }
-    }
-
-    const TextEditor::TextBlockIterator begin(doc->begin());
-    const TextEditor::TextBlockIterator end(block.next());
-    indentCPPBlock(ts, block, begin, end, typedChar);
+    const int depth = codeFormatter.indentFor(block);
+    ts.indentLine(block, depth);
 }
 
 bool CPPEditor::event(QEvent *e)
@@ -1724,6 +1670,13 @@ void CPPEditor::setFontSettings(const TextEditor::FontSettings &fs)
     // only set the background, we do not want to modify foreground properties set by the syntax highlighter or the link
     m_occurrencesFormat.clearForeground();
     m_occurrenceRenameFormat.clearForeground();
+}
+
+void CPPEditor::setTabSettings(const TextEditor::TabSettings &ts)
+{
+    CppTools::CodeFormatter::invalidateCache(document());
+
+    TextEditor::BaseTextEditor::setTabSettings(ts);
 }
 
 void CPPEditor::unCommentSelection()

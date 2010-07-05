@@ -208,6 +208,7 @@ public:
 
 public Q_SLOTS:
     virtual void setFontSettings(const TextEditor::FontSettings &);
+    virtual void setTabSettings(const TextEditor::TabSettings &);
     void setSortedMethodOverview(bool sort);
     void switchDeclarationDefinition();
     void jumpToDefinition();
