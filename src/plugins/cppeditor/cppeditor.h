@@ -32,6 +32,8 @@
 
 #include "cppeditorenums.h"
 #include "cppquickfix.h"
+#include "cppsemanticinfo.h"
+
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/LookupContext.h>
 #include <texteditor/basetexteditor.h>
@@ -62,39 +64,6 @@ namespace CppEditor {
 namespace Internal {
 
 class CPPEditor;
-class SemanticHighlighter;
-
-class SemanticInfo
-{
-public:
-    struct Use {
-        unsigned line;
-        unsigned column;
-        unsigned length;
-
-        Use(unsigned line = 0, unsigned column = 0, unsigned length = 0)
-            : line(line), column(column), length(length) {}
-    };
-
-    typedef QHash<CPlusPlus::Symbol *, QList<Use> > LocalUseMap;
-    typedef QHashIterator<CPlusPlus::Symbol *, QList<Use> > LocalUseIterator;
-
-    SemanticInfo()
-        : revision(0), hasQ(false), hasD(false), forced(false)
-    { }
-
-    unsigned revision;
-    bool hasQ: 1;
-    bool hasD: 1;
-    bool forced: 1;
-    CPlusPlus::Snapshot snapshot; // ### remove
-    CPlusPlus::Document::Ptr doc; // ### remove
-    CPlusPlus::LookupContext context;
-    LocalUseMap localUses; // ### rename
-    QList<Use> typeUsages;
-    QList<Use> objcKeywords;
-    QList<CPlusPlus::Document::DiagnosticMessage> diagnosticMessages;
-};
 
 class SemanticHighlighter: public QThread
 {
