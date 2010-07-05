@@ -2062,11 +2062,9 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
         if (TranslationUnit *unit = doc->translationUnit()) {
             CheckUndefinedSymbols checkUndefinedSymbols(unit, context);
             diagnosticMessages = checkUndefinedSymbols(unit->ast());
-            typeUsages.clear();
-            foreach (const CheckUndefinedSymbols::Use &use, checkUndefinedSymbols.typeUsages()) // ### remove me
-                typeUsages.append(SemanticInfo::Use(use.line, use.column, use.length));
+            typeUsages = checkUndefinedSymbols.typeUsages();
 
-            FindObjCKeywords findObjCKeywords(unit);
+            FindObjCKeywords findObjCKeywords(unit); // ### remove me
             objcKeywords = findObjCKeywords();
         }
     }

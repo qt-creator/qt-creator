@@ -30,6 +30,8 @@
 #ifndef CPLUSPLUS_CHECKUNDEFINEDSYMBOLS_H
 #define CPLUSPLUS_CHECKUNDEFINEDSYMBOLS_H
 
+#include "cppsemanticinfo.h"
+
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/LookupContext.h>
 #include <ASTVisitor.h>
@@ -45,14 +47,7 @@ public:
 
     QList<Document::DiagnosticMessage> operator()(AST *ast);
 
-    struct Use { // ### remove me
-        unsigned line;
-        unsigned column;
-        unsigned length;
-
-        Use(unsigned line = 0, unsigned column = 0, unsigned length = 0)
-            : line(line), column(column), length(length) {}
-    };
+    typedef CppEditor::Internal::SemanticInfo::Use Use;
 
     QList<Use> typeUsages() const;
 
