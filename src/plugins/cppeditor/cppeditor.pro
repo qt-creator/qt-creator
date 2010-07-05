@@ -15,7 +15,8 @@ HEADERS += cppplugin.h \
     cppeditor_global.h \
     cppclasswizard.h \
     cppquickfix.h \
-    cpprefactoringchanges.h
+    cpprefactoringchanges.h \
+    cppcheckundefinedsymbols.h
 
 SOURCES += cppplugin.cpp \
     cppeditor.cpp \
@@ -24,7 +25,8 @@ SOURCES += cppplugin.cpp \
     cppfilewizard.cpp \
     cppclasswizard.cpp \
     cppquickfix.cpp \
-    cpprefactoringchanges.cpp
+    cpprefactoringchanges.cpp \
+    cppcheckundefinedsymbols.cpp
 
 RESOURCES += cppeditor.qrc
 

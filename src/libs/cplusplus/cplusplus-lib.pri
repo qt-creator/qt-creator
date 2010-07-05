@@ -38,7 +38,6 @@ HEADERS += \
     $$PWD/ASTPath.h \
     $$PWD/DeprecatedGenTemplateInstance.h \
     $$PWD/FindUsages.h \
-    $$PWD/CheckUndefinedSymbols.h \
     $$PWD/DependencyTable.h \
     $$PWD/PreprocessorClient.h \
     $$PWD/PreprocessorEnvironment.h \
@@ -64,7 +63,6 @@ SOURCES += \
     $$PWD/ASTPath.cpp \
     $$PWD/DeprecatedGenTemplateInstance.cpp \
     $$PWD/FindUsages.cpp \
-    $$PWD/CheckUndefinedSymbols.cpp \
     $$PWD/DependencyTable.cpp \
     $$PWD/PreprocessorClient.cpp \
     $$PWD/PreprocessorEnvironment.cpp \

@@ -29,7 +29,6 @@
 
 #include <cplusplus/pp.h>
 #include <cplusplus/Overview.h>
-#include <cplusplus/CheckUndefinedSymbols.h>
 
 #include "cppmodelmanager.h"
 #ifndef ICHECK_BUILD

@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#include "CheckUndefinedSymbols.h"
-#include "Overview.h"
+#include "cppcheckundefinedsymbols.h"
+#include <cplusplus/Overview.h>
 
 #include <Names.h>
 #include <Literals.h>

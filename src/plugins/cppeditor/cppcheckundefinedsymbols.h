@@ -30,14 +30,14 @@
 #ifndef CPLUSPLUS_CHECKUNDEFINEDSYMBOLS_H
 #define CPLUSPLUS_CHECKUNDEFINEDSYMBOLS_H
 
-#include "CppDocument.h"
-#include "LookupContext.h"
+#include <cplusplus/CppDocument.h>
+#include <cplusplus/LookupContext.h>
 #include <ASTVisitor.h>
 #include <QtCore/QSet>
 
 namespace CPlusPlus {
 
-class CPLUSPLUS_EXPORT CheckUndefinedSymbols: protected ASTVisitor
+class CheckUndefinedSymbols: protected ASTVisitor
 {
 public:
     CheckUndefinedSymbols(TranslationUnit *unit, const LookupContext &context);

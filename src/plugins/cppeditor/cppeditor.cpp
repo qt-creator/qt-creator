@@ -31,6 +31,8 @@
 #include "cppeditorconstants.h"
 #include "cppplugin.h"
 #include "cpphighlighter.h"
+#include "cppcheckundefinedsymbols.h"
+
 #include "cppquickfix.h"
 #include <cpptools/cpptoolsplugin.h>
 
@@ -54,7 +56,6 @@
 #include <cplusplus/MatchingText.h>
 #include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/FastPreprocessor.h>
-#include <cplusplus/CheckUndefinedSymbols.h>
 
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <cpptools/cpptoolsconstants.h>
