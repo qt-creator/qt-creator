@@ -40,6 +40,8 @@ private Q_SLOTS:
     void memberInitializer();
     void templates();
     void operatorOverloads();
+    void gnuStyle();
+    void whitesmithsStyle();
 };
 
 struct Line {
@@ -73,12 +75,19 @@ QString concatLines(QList<Line> lines)
     return result;
 }
 
-void checkIndent(QList<Line> data)
+void checkIndent(QList<Line> data, int style = 0)
 {
     QString text = concatLines(data);
     QTextDocument document(text);
     QtStyleCodeFormatter formatter;
-    formatter.setDocument(&document);
+    if (style == 1) {// gnu
+        formatter.setIndentSubstatementBraces(true);
+    } else if (style == 2) { // whitesmiths
+        formatter.setIndentSubstatementStatements(false);
+        formatter.setIndentSubstatementBraces(true);
+        formatter.setIndentDeclarationMembers(false);
+        formatter.setIndentDeclarationBraces(true);
+    }
 
     int i = 0;
     foreach (const Line &l, data) {
@@ -594,6 +603,10 @@ void tst_CodeFormatter::braceList()
          << Line("void foo () {")
          << Line("    int[] a = { foo, bar, ")
          << Line("            car };")
+         << Line("    int[] a = {")
+         << Line("        a, b,")
+         << Line("        c")
+         << Line("    };")
          << Line("    int k;")
          ;
     checkIndent(data);
@@ -687,6 +700,46 @@ void tst_CodeFormatter::operatorOverloads()
          << Line("};")
          ;
     checkIndent(data);
+}
+
+void tst_CodeFormatter::gnuStyle()
+{
+    QList<Line> data;
+    data << Line("struct S")
+         << Line("{")
+         << Line("    void foo()")
+         << Line("    {")
+         << Line("        if (a)")
+         << Line("            {")
+         << Line("                fpp;")
+         << Line("            }")
+         << Line("        if (b) {")
+         << Line("            fpp;")
+         << Line("        }")
+         << Line("    }")
+         << Line("};")
+         ;
+    checkIndent(data, 1);
+}
+
+void tst_CodeFormatter::whitesmithsStyle()
+{
+    QList<Line> data;
+    data << Line("struct S")
+         << Line("    {")
+         << Line("    void foo()")
+         << Line("        {")
+         << Line("        if (a)")
+         << Line("            {")
+         << Line("            fpp;")
+         << Line("            }")
+         << Line("        if (b) {")
+         << Line("            fpp;")
+         << Line("            }")
+         << Line("        }")
+         << Line("    };")
+         ;
+    checkIndent(data, 2);
 }
 
 QTEST_APPLESS_MAIN(tst_CodeFormatter)
