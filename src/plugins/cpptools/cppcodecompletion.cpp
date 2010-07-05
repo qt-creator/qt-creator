@@ -556,8 +556,8 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
     tokenize.setQtMocRunEnabled(true);
     tokenize.setSkipComments(false);
     const QList<Token> &tokens = tokenize(tc.block().text());
-    const int tokenIdx = SimpleLexer::tokenAt(tokens, tc.positionInBlock());
-    const Token &tk = (tokenIdx == -1) ? Token() : tokens.at(tokenIdx);
+    const int tokenIdx = SimpleLexer::tokenAt(tokens, qMax(0, tc.positionInBlock() - 1)); // get the token at the left of the cursor
+    const Token tk = (tokenIdx == -1) ? Token() : tokens.at(tokenIdx);
 
     if (completionKind == T_DOXY_COMMENT && !(tk.is(T_DOXY_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))) {
         completionKind = T_EOF_SYMBOL;
@@ -577,22 +577,20 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
         start = pos;
     }
     else if (completionKind == T_LPAREN) {
-        int i = 0;
-        for (; i < tokens.size(); ++i) {
-            const Token &token = tokens.at(i);
-            if (token.begin() == tk.begin()) {
-                if (i == 0) // no token on the left, but might be on a previous line
-                    break;
-                const Token &previousToken = tokens.at(i - 1);
-                if (previousToken.is(T_IDENTIFIER) || previousToken.is(T_GREATER)
-                    || previousToken.is(T_SIGNAL) || previousToken.is(T_SLOT))
-                    break;
-            }
-        }
+        if (tokenIdx > 0) {
+            const Token &previousToken = tokens.at(tokenIdx - 1); // look at the token at the left of T_LPAREN
+            switch (previousToken.kind()) {
+            case T_IDENTIFIER:
+            case T_GREATER:
+            case T_SIGNAL:
+            case T_SLOT:
+                break; // good
 
-        if (i == tokens.size()) {
-            completionKind = T_EOF_SYMBOL;
-            start = pos;
+            default:
+                // that's a bad token :)
+                completionKind = T_EOF_SYMBOL;
+                start = pos;
+            }
         }
     }
     // Check for include preprocessor directive
