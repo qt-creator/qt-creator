@@ -73,7 +73,8 @@ namespace CVS {
 
 static inline QString msgCannotFindTopLevel(const QString &f)
 {
-    return CVSPlugin::tr("Cannot find repository for '%1'").arg(f);
+    return CVSPlugin::tr("Cannot find repository for '%1'").
+            arg(QDir::toNativeSeparators(f));
 }
 
 static inline QString msgLogParsingFailed()

@@ -156,7 +156,8 @@ void OutputWindowPlainTextEdit::contextMenuEvent(QContextMenuEvent *event)
             fi = QFileInfo(repository + QLatin1Char('/') + token);
         if (fi.isFile())  {
             menu->addSeparator();
-            openAction = menu->addAction(VCSBaseOutputWindow::tr("Open \"%1\"").arg(fi.fileName()));
+            openAction = menu->addAction(VCSBaseOutputWindow::tr("Open \"%1\"").
+                                         arg(QDir::toNativeSeparators(fi.fileName())));
             openAction->setData(fi.absoluteFilePath());
         }
     }
@@ -397,10 +398,11 @@ QString VCSBaseOutputWindow::msgExecutionLogEntry(const QString &workingDir,
                                                   const QStringList &arguments)
 {
     const QString args = formatArguments(arguments);
+    const QString nativeExecutable = QDir::toNativeSeparators(executable);
     if (workingDir.isEmpty())
-        return tr("Executing: %1 %2\n").arg(executable, args);
+        return tr("Executing: %1 %2\n").arg(nativeExecutable, args);
     return tr("Executing in %1: %2 %3\n").
-            arg(QDir::toNativeSeparators(workingDir), executable, args);
+            arg(QDir::toNativeSeparators(workingDir), nativeExecutable, args);
 }
 
 void VCSBaseOutputWindow::appendCommand(const QString &text)

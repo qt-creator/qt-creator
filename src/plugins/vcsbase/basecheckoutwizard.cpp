@@ -159,7 +159,8 @@ QString BaseCheckoutWizard::openProject(const QString &path, QString *errorMessa
     // Search the directory for project files
     const QDir dir(path);
     if (!dir.exists()) {
-        *errorMessage = tr("'%1' does not exist.").arg(path); // Should not happen
+        *errorMessage = tr("'%1' does not exist.").
+                        arg(QDir::toNativeSeparators(path)); // Should not happen
         return QString();
     }
     QFileInfoList projectFiles = findProjectFiles(dir, errorMessage);
@@ -168,7 +169,8 @@ QString BaseCheckoutWizard::openProject(const QString &path, QString *errorMessa
     // Open. Do not use a busy cursor here as additional wizards might pop up
     const QString projectFile = projectFiles.front().absoluteFilePath();
     if (!pe->openProject(projectFile)) {
-        *errorMessage = tr("Unable to open the project '%1'.").arg(projectFile);
+        *errorMessage = tr("Unable to open the project '%1'.").
+                        arg(QDir::toNativeSeparators(projectFile));
         return QString();
     }
     return projectFile;

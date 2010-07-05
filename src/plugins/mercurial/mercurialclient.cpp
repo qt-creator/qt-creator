@@ -187,7 +187,8 @@ static inline QString msgParentRevisionFailed(const QString &workingDirectory,
                                               const QString &revision,
                                               const QString &why)
 {
-    return MercurialClient::tr("Unable to find parent revisions of %1 in %2: %3").arg(revision, workingDirectory, why);
+    return MercurialClient::tr("Unable to find parent revisions of %1 in %2: %3").
+            arg(revision, QDir::toNativeSeparators(workingDirectory), why);
 }
 
 static inline QString msgParseParentsOutputFailed(const QString &output)
@@ -526,7 +527,8 @@ void MercurialClient::outgoing(const QString &repositoryRoot)
     args << QLatin1String("outgoing") << QLatin1String("-g") << QLatin1String("-p");
 
     const QString kind = QLatin1String(Constants::DIFFLOG);
-    const QString title = tr("Hg outgoing %1").arg(repositoryRoot);
+    const QString title = tr("Hg outgoing %1").
+                          arg(QDir::toNativeSeparators(repositoryRoot));
 
     VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, repositoryRoot, true,
                                                      "outgoing", repositoryRoot);

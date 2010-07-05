@@ -41,6 +41,7 @@
 #include <QtCore/QProcessEnvironment>
 #include <QtCore/QString>
 #include <QtCore/QDebug>
+#include <QtCore/QDir>
 
 using namespace Mercurial::Internal;
 using namespace Mercurial;
@@ -151,7 +152,8 @@ void MercurialJobRunner::run()
 
 QString MercurialJobRunner::msgStartFailed(const QString &binary, const QString &why)
 {
-    return tr("Unable to start mercurial process '%1': %2").arg(binary, why);
+    return tr("Unable to start mercurial process '%1': %2").
+            arg(QDir::toNativeSeparators(binary), why);
 }
 
 QString MercurialJobRunner::msgTimeout(int timeoutSeconds)

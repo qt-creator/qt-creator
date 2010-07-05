@@ -32,6 +32,7 @@
 #include <vcsbaseplugin.h>
 
 #include <QtCore/QDebug>
+#include <QtCore/QDir>
 #include <utils/synchronousprocess.h>
 
 enum { debug = 0 };
@@ -111,7 +112,8 @@ void ProcessCheckoutJob::slotError(QProcess::ProcessError error)
 {
     switch (error) {
     case QProcess::FailedToStart:
-        emit failed(tr("Unable to start %1: %2").arg(d->binary, d->process->errorString()));
+        emit failed(tr("Unable to start %1: %2").
+                    arg(QDir::toNativeSeparators(d->binary), d->process->errorString()));
         break;
     default:
         emit failed(d->process->errorString());

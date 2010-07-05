@@ -1089,7 +1089,9 @@ PerforceResponse PerforcePlugin::fullySynchronousProcess(const QString &workingD
         if (process.write(stdInput) == -1) {
             Utils::SynchronousProcess::stopProcess(process);
             response.error = true;
-            response.message = tr("Unable to write input data to process %1: %2").arg(m_settings.p4Command(), process.errorString());
+            response.message = tr("Unable to write input data to process %1: %2").
+                               arg(QDir::toNativeSeparators(m_settings.p4Command()),
+                                   process.errorString());
             return response;
         }
         process.closeWriteChannel();
@@ -1403,7 +1405,8 @@ static inline QString msgWhereFailed(const QString & file, const QString &why)
 {
     //: Failed to run p4 "where" to resolve a Perforce file name to a local
     //: file system name.
-    return PerforcePlugin::tr("Error running \"where\" on %1: %2").arg(file, why);
+    return PerforcePlugin::tr("Error running \"where\" on %1: %2").
+            arg(QDir::toNativeSeparators(file), why);
 }
 
 // Map a perforce name "//xx" to its real name in the file system
@@ -1458,7 +1461,9 @@ PerforceVersionControl *PerforcePlugin::perforceVersionControl() const
 void PerforcePlugin::slotTopLevelFound(const QString &t)
 {
     m_settings.setTopLevel(t);
-    VCSBase::VCSBaseOutputWindow::instance()->appendSilently(tr("Perforce repository: %1").arg(t));
+    const QString msg = tr("Perforce repository: %1").
+                        arg(QDir::toNativeSeparators(t));
+    VCSBase::VCSBaseOutputWindow::instance()->appendSilently(msg);
     if (Perforce::Constants::debug)
         qDebug() << "P4: " << t;
 }

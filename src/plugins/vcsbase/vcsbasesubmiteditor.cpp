@@ -549,9 +549,11 @@ bool VCSBaseSubmitEditor::checkSubmitMessage(QString *errorMessage) const
 
 static inline QString msgCheckScript(const QString &workingDir, const QString &cmd)
 {
+    const QString nativeCmd = QDir::toNativeSeparators(cmd);
     return workingDir.isEmpty() ?
-           VCSBaseSubmitEditor::tr("Executing %1").arg(cmd) :
-           VCSBaseSubmitEditor::tr("Executing [%1] %2").arg(workingDir, cmd);
+           VCSBaseSubmitEditor::tr("Executing %1").arg(nativeCmd) :
+           VCSBaseSubmitEditor::tr("Executing [%1] %2").
+           arg(QDir::toNativeSeparators(workingDir), nativeCmd);
 }
 
 bool VCSBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript, QString *errorMessage) const
@@ -564,7 +566,9 @@ bool VCSBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
     QTemporaryFile messageFile(tempFilePattern);
     messageFile.setAutoRemove(true);
     if (!messageFile.open()) {
-        *errorMessage = tr("Unable to open '%1': %2").arg(messageFile.fileName(), messageFile.errorString());
+        *errorMessage = tr("Unable to open '%1': %2").
+                        arg(QDir::toNativeSeparators(messageFile.fileName()),
+                            messageFile.errorString());
         return false;
     }
     const QString messageFileName = messageFile.fileName();
@@ -586,11 +590,13 @@ bool VCSBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
     QByteArray stdErrData;
     if (!Utils::SynchronousProcess::readDataFromProcess(checkProcess, 30000, &stdOutData, &stdErrData, false)) {
         Utils::SynchronousProcess::stopProcess(checkProcess);
-        *errorMessage = tr("The check script '%1' timed out.").arg(checkScript);
+        *errorMessage = tr("The check script '%1' timed out.").
+                        arg(QDir::toNativeSeparators(checkScript));
         return false;
     }
     if (checkProcess.exitStatus() != QProcess::NormalExit) {
-        *errorMessage = tr("The check script '%1' crashed").arg(checkScript);
+        *errorMessage = tr("The check script '%1' crashed").
+                        arg(QDir::toNativeSeparators(checkScript));
         return false;
     }
     if (!stdOutData.isEmpty())
@@ -600,7 +606,8 @@ bool VCSBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
         outputWindow->appendSilently(stdErr);
     const int exitCode = checkProcess.exitCode();
     if (exitCode != 0) {
-        const QString exMessage = tr("The check script returned exit code %1.").arg(exitCode);
+        const QString exMessage = tr("The check script returned exit code %1.").
+                                  arg(exitCode);
         outputWindow->appendError(exMessage);
         *errorMessage = stdErr;
         if (errorMessage->isEmpty())

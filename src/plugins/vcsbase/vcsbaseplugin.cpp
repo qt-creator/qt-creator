@@ -542,7 +542,10 @@ void VCSBasePlugin::promptToDeleteCurrentFile()
     QTC_ASSERT(state.hasFile(), return)
     const bool rc = Core::ICore::instance()->vcsManager()->promptToDelete(versionControl(), state.currentFile());
     if (!rc)
-        QMessageBox::warning(0, tr("Version Control"), tr("The file '%1' could not be deleted.").arg(state.currentFile()), QMessageBox::Ok);
+        QMessageBox::warning(0, tr("Version Control"),
+                             tr("The file '%1' could not be deleted.").
+                             arg(QDir::toNativeSeparators(state.currentFile())),
+                             QMessageBox::Ok);
 }
 
 static inline bool ask(QWidget *parent, const QString &title, const QString &question, bool defaultValue = true)
@@ -576,12 +579,15 @@ void VCSBasePlugin::createRepository()
     } while (true);
     // Create
     const bool rc = d->m_versionControl->vcsCreateRepository(directory);
+    const QString nativeDir = QDir::toNativeSeparators(directory);
     if (rc) {
         QMessageBox::information(mw, tr("Repository created"),
-                                 tr("A version control repository has been created in %1.").arg(directory));
+                                 tr("A version control repository has been created in %1.").
+                                 arg(nativeDir));
     } else {
         QMessageBox::warning(mw, tr("Repository creation failed"),
-                                 tr("A version control repository could not be created in %1.").arg(directory));
+                                 tr("A version control repository could not be created in %1.").
+                                 arg(nativeDir));
     }
 }
 

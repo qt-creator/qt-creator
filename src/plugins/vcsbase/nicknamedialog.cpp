@@ -32,6 +32,7 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
+#include <QtCore/QDir>
 #include <QtGui/QPushButton>
 #include <QtGui/QStandardItemModel>
 #include <QtGui/QSortFilterProxyModel>
@@ -230,7 +231,8 @@ bool NickNameDialog::populateModelFromMailCapFile(const QString &fileName,
         return true;
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly|QIODevice::Text)) {
-         *errorMessage = tr("Cannot open '%1': %2").arg(fileName, file.errorString());
+         *errorMessage = tr("Cannot open '%1': %2").
+                         arg(QDir::toNativeSeparators(fileName), file.errorString());
          return false;
     }
     // Split into lines and read
@@ -241,7 +243,9 @@ bool NickNameDialog::populateModelFromMailCapFile(const QString &fileName,
         if (entry.parse(lines.at(i))) {
             model->appendRow(entry.toModelRow());
         } else {
-            qWarning("%s: Invalid mail cap entry at line %d: '%s'\n", qPrintable(fileName), i + 1, qPrintable(lines.at(i)));
+            qWarning("%s: Invalid mail cap entry at line %d: '%s'\n",
+                     qPrintable(QDir::toNativeSeparators(fileName)),
+                     i + 1, qPrintable(lines.at(i)));
         }
     }
     model->sort(0);

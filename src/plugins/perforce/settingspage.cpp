@@ -71,7 +71,7 @@ void SettingsPageWidget::slotTest()
 
 void SettingsPageWidget::testSucceeded(const QString &repo)
 {
-    setStatusText(tr("Test succeeded (%1).").arg(repo));
+    setStatusText(tr("Test succeeded (%1).").arg(QDir::toNativeSeparators(repo)));
 }
 
 Settings SettingsPageWidget::settings() const

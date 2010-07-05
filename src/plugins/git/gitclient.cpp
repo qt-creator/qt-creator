@@ -488,7 +488,8 @@ bool GitClient::synchronousAdd(const QString &workingDirectory,
     const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
     if (!rc) {
         const QString errorMessage = tr("Unable to add %n file(s) to %1: %2", 0, files.size()).
-                                     arg(workingDirectory, commandOutputFromLocal8Bit(errorText));
+                                     arg(QDir::toNativeSeparators(workingDirectory),
+                                     commandOutputFromLocal8Bit(errorText));
         outputWindow()->appendError(errorMessage);
     }
     return rc;
@@ -510,7 +511,7 @@ bool GitClient::synchronousDelete(const QString &workingDirectory,
     const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
     if (!rc) {
         const QString errorMessage = tr("Unable to remove %n file(s) from %1: %2", 0, files.size()).
-                                     arg(workingDirectory, commandOutputFromLocal8Bit(errorText));
+                                     arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
         outputWindow()->appendError(errorMessage);
     }
     return rc;
@@ -563,8 +564,9 @@ bool GitClient::synchronousReset(const QString &workingDirectory,
          && !output.contains(QLatin1String("Unstaged changes after reset")))) {
         const QString stdErr = commandOutputFromLocal8Bit(errorText);
         const QString msg = files.isEmpty() ?
-                            tr("Unable to reset %1: %2").arg(workingDirectory, stdErr) :
-                            tr("Unable to reset %n file(s) in %1: %2", 0, files.size()).arg(workingDirectory, stdErr);
+                            tr("Unable to reset %1: %2").arg(QDir::toNativeSeparators(workingDirectory), stdErr) :
+                            tr("Unable to reset %n file(s) in %1: %2", 0, files.size()).
+                            arg(QDir::toNativeSeparators(workingDirectory), stdErr);
         if (errorMessage) {
             *errorMessage = msg;
         } else {
@@ -727,7 +729,7 @@ bool GitClient::synchronousShortDescriptions(const QString &workingDirectory, co
 
 static inline QString msgCannotDetermineBranch(const QString &workingDirectory, const QString &why)
 {
-    return GitClient::tr("Unable to retrieve branch of %1: %2").arg(workingDirectory, why);
+    return GitClient::tr("Unable to retrieve branch of %1: %2").arg(QDir::toNativeSeparators(workingDirectory), why);
 }
 
 // Retrieve head revision/branch
@@ -749,7 +751,7 @@ bool GitClient::synchronousTopRevision(const QString &workingDirectory,
             arguments << QLatin1String("log") << QLatin1String(noColorOption)
                     <<  QLatin1String("--max-count=1") << QLatin1String("--pretty=format:%H");
             if (!fullySynchronousGit(workingDirectory, arguments, &outputTextData, &errorText)) {
-                errorMessage =  tr("Unable to retrieve top revision of %1: %2").arg(workingDirectory, commandOutputFromLocal8Bit(errorText));
+                errorMessage =  tr("Unable to retrieve top revision of %1: %2").arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
                 break;
             }
             *revision = commandOutputFromLocal8Bit(outputTextData);
@@ -899,7 +901,9 @@ bool GitClient::executeSynchronousStash(const QString &workingDirectory,
         arguments << QLatin1String("save") << message;
     const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
     if (!rc) {
-        const QString msg = tr("Unable stash in %1: %2").arg(workingDirectory, commandOutputFromLocal8Bit(errorText));
+        const QString msg = tr("Unable stash in %1: %2").
+                            arg(QDir::toNativeSeparators(workingDirectory),
+                                commandOutputFromLocal8Bit(errorText));
         if (errorMessage) {
             *errorMessage = msg;
         } else {
@@ -1691,9 +1695,12 @@ bool GitClient::synchronousStashRestore(const QString &workingDirectory,
     const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
     if (!rc) {
         const QString stdErr = commandOutputFromLocal8Bit(errorText);
+        const QString nativeWorkingDir = QDir::toNativeSeparators(workingDirectory);
         const QString msg = branch.isEmpty() ?
-                            tr("Unable to restore stash %1: %2").arg(workingDirectory, stdErr) :
-                            tr("Unable to restore stash %1 to branch %2: %3").arg(workingDirectory, branch, stdErr);
+                            tr("Unable to restore stash %1: %2").
+                            arg(nativeWorkingDir, stdErr) :
+                            tr("Unable to restore stash %1 to branch %2: %3").
+                            arg(nativeWorkingDir, branch, stdErr);
         if (errorMessage) {
             *errorMessage = msg;
         } else {
@@ -1723,9 +1730,12 @@ bool GitClient::synchronousStashRemove(const QString &workingDirectory,
     const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
     if (!rc) {
         const QString stdErr = commandOutputFromLocal8Bit(errorText);
+        const QString nativeWorkingDir = QDir::toNativeSeparators(workingDirectory);
         const QString msg = stash.isEmpty() ?
-                            tr("Unable to remove stashes of %1: %2").arg(workingDirectory, stdErr) :
-                            tr("Unable to remove stash %1 of %2: %3").arg(stash, workingDirectory, stdErr);
+                            tr("Unable to remove stashes of %1: %2").
+                            arg(nativeWorkingDir, stdErr) :
+                            tr("Unable to remove stash %1 of %2: %3").
+                            arg(stash, nativeWorkingDir, stdErr);
         if (errorMessage) {
             *errorMessage = msg;
         } else {
@@ -1764,7 +1774,9 @@ bool GitClient::synchronousStashList(const QString &workingDirectory,
     QByteArray errorText;
     const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
     if (!rc) {
-        const QString msg = tr("Unable retrieve stash list of %1: %2").arg(workingDirectory, commandOutputFromLocal8Bit(errorText));
+        const QString msg = tr("Unable retrieve stash list of %1: %2").
+                            arg(QDir::toNativeSeparators(workingDirectory),
+                                commandOutputFromLocal8Bit(errorText));
         if (errorMessage) {
             *errorMessage = msg;
         } else {
