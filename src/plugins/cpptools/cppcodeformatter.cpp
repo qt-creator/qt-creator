@@ -38,8 +38,8 @@ using namespace TextEditor;
 using namespace CppTools::Internal;
 
 CodeFormatter::CodeFormatter()
-    : m_document(0)
-    , m_indentDepth(0)
+    : m_indentDepth(0)
+    , m_tabSize(4)
 {
 }
 
@@ -47,9 +47,9 @@ CodeFormatter::~CodeFormatter()
 {
 }
 
-void CodeFormatter::setDocument(QTextDocument *document)
+void CodeFormatter::setTabSize(int tabSize)
 {
-    m_document = document;
+    m_tabSize = tabSize;
 }
 
 void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
@@ -59,6 +59,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
     bool endedJoined = false;
     const int lexerState = tokenizeBlock(block, &endedJoined);
     m_tokenIndex = 0;
+    m_newStates.clear();
 
     if (tokenAt(0).kind() == T_POUND) {
         enter(cpp_macro_start);
@@ -84,7 +85,8 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
 
         case namespace_start:
             switch (kind) {
-            case T_LBRACE:      turnInto(namespace_open); break;
+            case T_LBRACE:      enter(namespace_open); break;
+            case T_RBRACE:      leave(); break;
             } break;
 
         case namespace_open:
@@ -92,7 +94,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
                 break;
             switch (kind) {
             case T_NAMESPACE:   enter(namespace_start); break;
-            case T_RBRACE:      leave(); break;
+            case T_RBRACE:      leave(); continue; // always nested in namespace_start
             case T_STRUCT:
             case T_UNION:
             case T_CLASS:       enter(class_start); break;
@@ -103,14 +105,14 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
         case class_start:
             switch (kind) {
             case T_SEMICOLON:   leave(); break;
-            case T_LBRACE:      turnInto(class_open); break;
+            case T_LBRACE:      enter(class_open); break;
             } break;
 
         case class_open:
             if (tryDeclaration())
                 break;
             switch (kind) {
-            case T_RBRACE:      leave(); break;
+            case T_RBRACE:      leave(); continue; // always nested in class_start
             case T_STRUCT:
             case T_UNION:
             case T_CLASS:       enter(class_start); break;
@@ -121,13 +123,19 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
         case enum_start:
             switch (kind) {
             case T_SEMICOLON:   leave(); break;
-            case T_LBRACE:      turnInto(brace_list_open); break;
+            case T_LBRACE:      enter(enum_open); break;
+            } break;
+
+        case enum_open:
+            switch (kind) {
+            case T_RBRACE:      leave(); continue; // always nested in enum_start
+            case T_LBRACE:      enter(brace_list_open); break;
             } break;
 
         case brace_list_open:
             switch (kind) {
             case T_RBRACE:      leave(); break;
-            case T_LBRACE:      enter(brace_list_open); break; // ### Other, nested brace list?
+            case T_LBRACE:      enter(brace_list_open); break;
             } break;
 
         case using_start:
@@ -156,10 +164,11 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             if (tryExpression(true))
                 break;
             switch (kind) {
+            case T_RBRACE:
             case T_SEMICOLON:   leave(true); break;
             case T_EQUAL:       enter(initializer); break;
-            case T_LBRACE:      turnInto(defun_open); break;
-            case T_COLON:       turnInto(member_init_open); break;
+            case T_LBRACE:      enter(defun_open); break;
+            case T_COLON:       enter(member_init_open); break;
             case T_OPERATOR:    enter(operator_declaration); break;
             } break;
 
@@ -211,14 +220,14 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
         case member_init_open:
             switch (kind) {
             case T_LBRACE:      turnInto(defun_open); break;
-            case T_SEMICOLON:   leave(); break; // ### so we don't break completely if it's a bitfield or ternary
+            case T_SEMICOLON:   leave(); continue; // so we don't break completely if it's a bitfield or ternary
             } break;
 
         case defun_open:
             if (tryStatement())
                 break;
             switch (kind) {
-            case T_RBRACE:      leave(); break;
+            case T_RBRACE:      leave(); continue; // always nested in declaration_start
             } break;
 
         case switch_statement:
@@ -437,9 +446,6 @@ int CodeFormatter::indentFor(const QTextBlock &block)
 {
 //    qDebug() << "indenting for" << block.blockNumber() + 1;
 
-    Q_ASSERT(m_document);
-    Q_ASSERT(m_document == block.document());
-
     requireStatesUntil(block);
     correctIndentation(block);
     return m_indentDepth;
@@ -448,7 +454,7 @@ int CodeFormatter::indentFor(const QTextBlock &block)
 void CodeFormatter::requireStatesUntil(const QTextBlock &endBlock)
 {
     QStack<State> previousState = initialState();
-    QTextBlock it = m_document->firstBlock();
+    QTextBlock it = endBlock.document()->firstBlock();
     for (; it.isValid() && it != endBlock; it = it.next()) {
         TextBlockUserData *userData = BaseTextDocumentLayout::userData(it);
         CppCodeFormatterData *cppData = static_cast<CppCodeFormatterData *>(userData->codeFormatterData());
@@ -478,14 +484,19 @@ CodeFormatter::State CodeFormatter::state(int belowTop) const
         return State();
 }
 
+const QVector<CodeFormatter::State> &CodeFormatter::newStatesThisLine() const
+{
+    return m_newStates;
+}
+
 int CodeFormatter::tokenIndex() const
 {
     return m_tokenIndex;
 }
 
-int CodeFormatter::tokenIndexFromEnd() const
+int CodeFormatter::tokenCount() const
 {
-    return m_tokens.size() - 1 - m_tokenIndex;
+    return m_tokens.size();
 }
 
 const CPlusPlus::Token &CodeFormatter::currentToken() const
@@ -493,9 +504,12 @@ const CPlusPlus::Token &CodeFormatter::currentToken() const
     return m_currentToken;
 }
 
-void CodeFormatter::invalidateCache()
+void CodeFormatter::invalidateCache(QTextDocument *document)
 {
-    QTextBlock it = m_document->firstBlock();
+    if (!document)
+        return;
+
+    QTextBlock it = document->firstBlock();
     for (; it.isValid(); it = it.next()) {
         TextBlockUserData *userData = BaseTextDocumentLayout::userData(it);
         CppCodeFormatterData *cppData = static_cast<CppCodeFormatterData *>(userData->codeFormatterData());
@@ -509,7 +523,9 @@ void CodeFormatter::enter(int newState)
 {
     int savedIndentDepth = m_indentDepth;
     onEnter(newState, &m_indentDepth, &savedIndentDepth);
-    m_currentState.push(State(newState, savedIndentDepth));
+    State s(newState, savedIndentDepth);
+    m_currentState.push(s);
+    m_newStates.push(s);
 }
 
 void CodeFormatter::leave(bool statementDone)
@@ -517,6 +533,9 @@ void CodeFormatter::leave(bool statementDone)
     Q_ASSERT(m_currentState.size() > 1);
     if (m_currentState.top().type == topmost_intro)
         return;
+
+    if (m_newStates.size() > 0)
+        m_newStates.pop();
 
     // restore indent depth
     State poppedState = m_currentState.pop();
@@ -710,6 +729,24 @@ const Token &CodeFormatter::tokenAt(int idx) const
         return m_tokens.at(idx);
 }
 
+int CodeFormatter::column(int index) const
+{
+    int col = 0;
+    if (index > m_currentLine.length())
+        index = m_currentLine.length();
+
+    const QChar tab = QLatin1Char('\t');
+
+    for (int i = 0; i < index; i++) {
+        if (m_currentLine[i] == tab) {
+            col = ((col / m_tabSize) + 1) * m_tabSize;
+        } else {
+            col++;
+        }
+    }
+    return col;
+}
+
 QStringRef CodeFormatter::currentTokenText() const
 {
     return m_currentLine.midRef(m_currentToken.begin(), m_currentToken.length());
@@ -794,24 +831,45 @@ void CodeFormatter::dump()
 
 QtStyleCodeFormatter::QtStyleCodeFormatter()
     : m_indentSize(4)
+    , m_indentSubstatementBraces(false)
+    , m_indentSubstatementStatements(true)
+    , m_indentDeclarationBraces(false)
+    , m_indentDeclarationMembers(true)
 {
 }
 
 void QtStyleCodeFormatter::setIndentSize(int size)
 {
-    if (size != m_indentSize) {
-        m_indentSize = size;
-        invalidateCache();
-    }
+    m_indentSize = size;
+}
+
+void QtStyleCodeFormatter::setIndentSubstatementBraces(bool onOff)
+{
+    m_indentSubstatementBraces = onOff;
+}
+
+void QtStyleCodeFormatter::setIndentSubstatementStatements(bool onOff)
+{
+    m_indentSubstatementStatements = onOff;
+}
+
+void QtStyleCodeFormatter::setIndentDeclarationBraces(bool onOff)
+{
+    m_indentDeclarationBraces = onOff;
+}
+
+void QtStyleCodeFormatter::setIndentDeclarationMembers(bool onOff)
+{
+    m_indentDeclarationMembers = onOff;
 }
 
 void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedIndentDepth) const
 {
     const State &parentState = state();
     const Token &tk = currentToken();
-    const int tokenPosition = tk.begin();
+    const int tokenPosition = column(tk.begin());
     const bool firstToken = (tokenIndex() == 0);
-    const bool lastToken = (tokenIndexFromEnd() == 0);
+    const bool lastToken = (tokenIndex() == tokenCount() - 1);
 
     switch (newState) {
     case namespace_start:
@@ -865,26 +923,58 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
         break;
 
     case member_init_open:
+        // undo the continuation indent of the parent
+        *savedIndentDepth = parentState.savedIndentDepth;
+
         if (firstToken)
             *indentDepth = tokenPosition + tk.length() + 1;
         else
-            *indentDepth += m_indentSize;
+            *indentDepth = *savedIndentDepth + m_indentSize;
         break;
 
-    case defun_open:
-    case class_open:
     case case_cont:
         *indentDepth += m_indentSize;
         break;
 
-    case substatement_open:
-        if (parentState.type != switch_statement)
+    case class_open:
+    case enum_open:
+    case defun_open:
+        // undo the continuation indent of the parent
+        *savedIndentDepth = parentState.savedIndentDepth;
+
+        if (firstToken)
+            *savedIndentDepth = tokenPosition;
+
+        *indentDepth = *savedIndentDepth;
+
+        if (m_indentDeclarationMembers)
             *indentDepth += m_indentSize;
+        break;
+
+    case substatement_open:
+        if (firstToken) {
+            *savedIndentDepth = tokenPosition;
+            *indentDepth = *savedIndentDepth;
+        } else if (m_indentSubstatementBraces && !m_indentSubstatementStatements) {
+            // ### The preceding check is quite arbitrary.
+            // It actually needs another flag to determine whether the closing curly
+            // should be indented or not
+            *indentDepth = *savedIndentDepth += m_indentSize;
+        }
+
+        if (m_indentSubstatementStatements) {
+            if (parentState.type != switch_statement)
+                *indentDepth += m_indentSize;
+        }
         break;
 
     case brace_list_open:
         if (parentState.type != initializer)
             *indentDepth = parentState.savedIndentDepth + m_indentSize;
+        else if (lastToken) {
+            *savedIndentDepth = state(1).savedIndentDepth;
+            *indentDepth = *savedIndentDepth + m_indentSize;
+        }
         break;
 
     case block_open:
@@ -984,16 +1074,27 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
         }
         break;
     case T_LBRACE: {
+        if (topState.type == case_cont) {
+            *indentDepth = topState.savedIndentDepth;
         // function definition - argument list is expression state
-        if (topState.type == case_cont)
-            *indentDepth = topState.savedIndentDepth;
-        else if (topState.type == expression && previousState.type == declaration_start)
+        } else if (topState.type == expression && previousState.type == declaration_start) {
             *indentDepth = previousState.savedIndentDepth;
-        else if (topState.type != defun_open
-                && topState.type != substatement_open
-                && topState.type != block_open
-                && !topWasMaybeElse)
+            if (m_indentDeclarationBraces)
+                *indentDepth += m_indentSize;
+        } else if (topState.type == class_start) {
             *indentDepth = topState.savedIndentDepth;
+            if (m_indentDeclarationBraces)
+                *indentDepth += m_indentSize;
+        } else if (topState.type == substatement) {
+            *indentDepth = topState.savedIndentDepth;
+            if (m_indentSubstatementBraces)
+                *indentDepth += m_indentSize;
+        } else if (topState.type != defun_open
+                && topState.type != block_open
+                && !topWasMaybeElse) {
+            *indentDepth = topState.savedIndentDepth;
+        }
+
         break;
     }
     case T_RBRACE: {
@@ -1008,7 +1109,8 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
                     || type == class_open
                     || type == brace_list_open
                     || type == namespace_open
-                    || type == block_open) {
+                    || type == block_open
+                    || type == enum_open) {
                 *indentDepth = state(i).savedIndentDepth;
                 break;
             }

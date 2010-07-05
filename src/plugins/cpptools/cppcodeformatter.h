@@ -28,9 +28,11 @@ public:
     CodeFormatter();
     virtual ~CodeFormatter();
 
-    void setDocument(QTextDocument *document);
-
     int indentFor(const QTextBlock &block);
+
+    void setTabSize(int tabSize);
+
+    static void invalidateCache(QTextDocument *document);
 
 protected:
     virtual void onEnter(int newState, int *indentDepth, int *savedIndentDepth) const = 0;
@@ -58,7 +60,8 @@ protected:
         member_init_open, // After ':' that starts a member initialization list.
 
         enum_start, // After 'enum'
-        brace_list_open, // Open brace of an enum or static array list.
+        enum_open, // Brace that opens a enum declaration.
+        brace_list_open, // Open brace nested inside an enum or for a static array list.
 
         namespace_start, // after the namespace token, before the opening brace.
         namespace_open, // Brace that opens a C++ namespace block.
@@ -125,14 +128,14 @@ protected:
     };
 
     State state(int belowTop = 0) const;
+    const QVector<State> &newStatesThisLine() const;
     int tokenIndex() const;
-    int tokenIndexFromEnd() const;
+    int tokenCount() const;
     const CPlusPlus::Token &currentToken() const;
     const CPlusPlus::Token &tokenAt(int idx) const;
+    int column(int position) const;
 
     bool isBracelessState(int type) const;
-
-    void invalidateCache();
 
 private:
     void requireStatesUntil(const QTextBlock &block);
@@ -159,10 +162,9 @@ private:
 private:
     static QStack<State> initialState();
 
-    QPointer<QTextDocument> m_document;
-
     QStack<State> m_beginState;
     QStack<State> m_currentState;
+    QStack<State> m_newStates;
 
     QList<CPlusPlus::Token> m_tokens;
     QString m_currentLine;
@@ -171,6 +173,8 @@ private:
 
     // should store indent level and padding instead
     int m_indentDepth;
+
+    int m_tabSize;
 
     friend class Internal::CppCodeFormatterData;
 };
@@ -182,12 +186,21 @@ public:
 
     void setIndentSize(int size);
 
+    void setIndentSubstatementBraces(bool onOff);
+    void setIndentSubstatementStatements(bool onOff);
+    void setIndentDeclarationBraces(bool onOff);
+    void setIndentDeclarationMembers(bool onOff);
+
 protected:
     virtual void onEnter(int newState, int *indentDepth, int *savedIndentDepth) const;
     virtual void adjustIndent(const QList<CPlusPlus::Token> &tokens, int lexerState, int *indentDepth) const;
 
 private:
     int m_indentSize;
+    bool m_indentSubstatementBraces;
+    bool m_indentSubstatementStatements;
+    bool m_indentDeclarationBraces;
+    bool m_indentDeclarationMembers;
 };
 
 } // namespace CppTools
