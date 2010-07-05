@@ -330,21 +330,37 @@ QList<TargetSetupPage::ImportInfo> TargetSetupPage::filterImportInfos(const QSet
 }
 
 QList<TargetSetupPage::ImportInfo>
+TargetSetupPage::scanDefaultProjectDirectories(Qt4ProjectManager::Qt4Project *project)
+{
+    // Source directory:
+    QList<ImportInfo> importVersions = TargetSetupPage::recursivelyCheckDirectoryForBuild(project->projectDirectory(),
+                                                                                          project->file()->fileName());
+    QtVersionManager *vm = QtVersionManager::instance();
+    foreach(const QString &id, vm->supportedTargetIds()) {
+        QString location = Qt4Target::defaultShadowBuildDirectory(project->defaultTopLevelBuildDirectory(), id);
+        importVersions.append(TargetSetupPage::recursivelyCheckDirectoryForBuild(location,
+                                                                                 project->file()->fileName()));
+    }
+    return importVersions;
+}
+
+QList<TargetSetupPage::ImportInfo>
 TargetSetupPage::recursivelyCheckDirectoryForBuild(const QString &directory, const QString &proFile, int maxdepth)
 {
     QList<ImportInfo> results;
 
-    if (maxdepth <= 0)
+    if (maxdepth <= 0 || directory.isEmpty())
         return results;
 
     // Check for in-source builds first:
     QString qmakeBinary = QtVersionManager::findQMakeBinaryFromMakefile(directory);
+    QDir dir(directory);
 
     // Recurse into subdirectories:
     if (qmakeBinary.isNull() || !QtVersionManager::makefileIsFor(directory, proFile)) {
-        QStringList subDirs = QDir(directory).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+        QStringList subDirs = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
         foreach (QString subDir, subDirs)
-            results.append(recursivelyCheckDirectoryForBuild(QDir::cleanPath(directory + QChar('/') + subDir),
+            results.append(recursivelyCheckDirectoryForBuild(dir.absoluteFilePath(subDir),
                                                              proFile, maxdepth - 1));
         return results;
     }
@@ -352,8 +368,8 @@ TargetSetupPage::recursivelyCheckDirectoryForBuild(const QString &directory, con
     // Shiny fresh directory with a Makefile...
     QtVersionManager * vm = QtVersionManager::instance();
     TargetSetupPage::ImportInfo info;
-    info.directory = directory;
-    info.isShadowBuild = true;
+    info.directory = dir.absolutePath();
+    info.isShadowBuild = (dir.absolutePath() != QFileInfo(proFile).absolutePath());
 
     // This also means we have a build in there
     // First get the qt version
@@ -500,8 +516,10 @@ void TargetSetupPage::updateVersionItem(QTreeWidgetItem *versionItem, int index)
 
     // Column 1 (status):
     const QString status = info.isExistingBuild ?
-                           tr("Import", "Is this an import of an existing build or a new one?") :
-                           tr("New", "Is this an import of an existing build or a new one?");
+                           //: Is this an import of an existing build or a new one?
+                           tr("Import") :
+                           //: Is this an import of an existing build or a new one?
+                           tr("New");
     versionItem->setText(STATUS_COLUMN, status);
     versionItem->setToolTip(STATUS_COLUMN, status);
 
