@@ -44,7 +44,12 @@ QList<AST *> ASTPath::operator()(int line, int column)
     _nodes.clear();
     _line = line + 1;
     _column = column + 1;
-    accept(_doc->translationUnit()->ast());
+
+    if (_doc) {
+        if (TranslationUnit *unit = _doc->translationUnit())
+            accept(unit->ast());
+    }
+
     return _nodes;
 }
 
