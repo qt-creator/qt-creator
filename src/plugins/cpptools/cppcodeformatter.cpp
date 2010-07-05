@@ -39,11 +39,17 @@ using namespace CppTools::Internal;
 
 CodeFormatter::CodeFormatter()
     : m_indentDepth(0)
+    , m_tabSize(4)
 {
 }
 
 CodeFormatter::~CodeFormatter()
 {
+}
+
+void CodeFormatter::setTabSize(int tabSize)
+{
+    m_tabSize = tabSize;
 }
 
 void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
@@ -723,6 +729,24 @@ const Token &CodeFormatter::tokenAt(int idx) const
         return m_tokens.at(idx);
 }
 
+int CodeFormatter::column(int index) const
+{
+    int col = 0;
+    if (index > m_currentLine.length())
+        index = m_currentLine.length();
+
+    const QChar tab = QLatin1Char('\t');
+
+    for (int i = 0; i < index; i++) {
+        if (m_currentLine[i] == tab) {
+            col = ((col / m_tabSize) + 1) * m_tabSize;
+        } else {
+            col++;
+        }
+    }
+    return col;
+}
+
 QStringRef CodeFormatter::currentTokenText() const
 {
     return m_currentLine.midRef(m_currentToken.begin(), m_currentToken.length());
@@ -843,7 +867,7 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
 {
     const State &parentState = state();
     const Token &tk = currentToken();
-    const int tokenPosition = tk.begin();
+    const int tokenPosition = column(tk.begin());
     const bool firstToken = (tokenIndex() == 0);
     const bool lastToken = (tokenIndex() == tokenCount() - 1);
 

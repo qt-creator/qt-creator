@@ -31,6 +31,8 @@ public:
     int indentFor(const QTextBlock &block);
     void invalidateCache(QTextDocument *document);
 
+    void setTabSize(int tabSize);
+
 protected:
     virtual void onEnter(int newState, int *indentDepth, int *savedIndentDepth) const = 0;
     virtual void adjustIndent(const QList<CPlusPlus::Token> &tokens, int lexerState, int *indentDepth) const = 0;
@@ -130,6 +132,7 @@ protected:
     int tokenCount() const;
     const CPlusPlus::Token &currentToken() const;
     const CPlusPlus::Token &tokenAt(int idx) const;
+    int column(int position) const;
 
     bool isBracelessState(int type) const;
 
@@ -169,6 +172,8 @@ private:
 
     // should store indent level and padding instead
     int m_indentDepth;
+
+    int m_tabSize;
 
     friend class Internal::CppCodeFormatterData;
 };
