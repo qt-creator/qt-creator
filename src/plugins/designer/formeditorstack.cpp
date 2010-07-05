@@ -129,8 +129,8 @@ bool FormEditorStack::removeFormWindowEditor(Core::IEditor *xmlEditor)
     const int i = indexOf(xmlEditor);
     if (i == -1) // Fail silently as this is invoked for all editors.
         return false;
-    removeWidget(m_formEditors[i].widgetHost->widget());
-    delete m_formEditors[i].widgetHost;
+    removeWidget(m_formEditors[i].widgetHost);
+    m_formEditors[i].widgetHost->deleteLater();
     m_formEditors.removeAt(i);
     return true;
 }
