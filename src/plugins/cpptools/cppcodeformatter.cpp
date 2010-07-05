@@ -794,6 +794,7 @@ void CodeFormatter::dump()
 
 QtStyleCodeFormatter::QtStyleCodeFormatter()
     : m_indentSize(4)
+    , m_style(QtStyle)
 {
 }
 
@@ -801,6 +802,14 @@ void QtStyleCodeFormatter::setIndentSize(int size)
 {
     if (size != m_indentSize) {
         m_indentSize = size;
+        invalidateCache();
+    }
+}
+
+void QtStyleCodeFormatter::setCompoundStyle(CompoundStyle style)
+{
+    if (style != m_style) {
+        m_style = style;
         invalidateCache();
     }
 }
@@ -878,6 +887,8 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
         break;
 
     case substatement_open:
+        if (m_style == WhitesmithsStyle)
+            break;
         if (parentState.type != switch_statement)
             *indentDepth += m_indentSize;
         break;
@@ -908,6 +919,9 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
         // undo the continuation indent of the parent
         *indentDepth = parentState.savedIndentDepth;
         *savedIndentDepth = *indentDepth;
+        // these styles want to indent braces
+        if (m_style == GnuStyle || m_style == WhitesmithsStyle)
+            *savedIndentDepth += m_indentSize;
         break;
 
     case maybe_else: {

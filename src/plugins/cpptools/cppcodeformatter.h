@@ -182,12 +182,20 @@ public:
 
     void setIndentSize(int size);
 
+    enum CompoundStyle {
+        QtStyle, // don't indent braces, add indent for contained statements
+        WhitesmithsStyle, // add indent for braces, don't for the contained statements
+        GnuStyle // add indent for braces and again for contained statements
+    };
+    void setCompoundStyle(CompoundStyle style);
+
 protected:
     virtual void onEnter(int newState, int *indentDepth, int *savedIndentDepth) const;
     virtual void adjustIndent(const QList<CPlusPlus::Token> &tokens, int lexerState, int *indentDepth) const;
 
 private:
     int m_indentSize;
+    CompoundStyle m_style;
 };
 
 } // namespace CppTools
