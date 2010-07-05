@@ -69,7 +69,8 @@ ClassNamePage::ClassNamePage(QWidget *parent) :
     m_newClassWidget->setBaseClassChoices(QStringList() << QString()
             << QLatin1String("QObject")
             << QLatin1String("QWidget")
-            << QLatin1String("QMainWindow"));
+            << QLatin1String("QMainWindow")
+            << QLatin1String("QDeclarativeItem"));
     m_newClassWidget->setBaseClassEditable(true);
     m_newClassWidget->setFormInputVisible(false);
     m_newClassWidget->setNamespacesEnabled(true);
@@ -256,6 +257,13 @@ bool CppClassWizard::generateHeaderAndSource(const CppClassWizardParameters &par
     case Utils::NewClassWidget::ClassInheritsQWidget:
         parentQObjectClass = QLatin1String("QWidget");
         defineQObjectMacro = true;
+        break;
+    case Utils::NewClassWidget::ClassInheritsQDeclarativeItem:
+        parentQObjectClass = QLatin1String("QDeclarativeItem");
+        defineQObjectMacro = true;
+        break;
+    case Utils::NewClassWidget::NoClassType:
+    case Utils::NewClassWidget::SharedDataClass:
         break;
     }
     const QString baseClass = params.baseClass.isEmpty()

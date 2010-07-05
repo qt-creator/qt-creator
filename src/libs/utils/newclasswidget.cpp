@@ -407,6 +407,9 @@ static inline NewClassWidget::ClassType classTypeForBaseClass(const QString &bas
     if (baseClass == QLatin1String("QWidget") || baseClass == QLatin1String("QMainWindow")
         || baseClass == QLatin1String("QDialog"))
         return NewClassWidget::ClassInheritsQWidget;
+    // Declarative Items
+    if (baseClass == QLatin1String("QDeclarativeItem"))
+        return NewClassWidget::ClassInheritsQDeclarativeItem;
     return NewClassWidget::NoClassType;
 }
 
