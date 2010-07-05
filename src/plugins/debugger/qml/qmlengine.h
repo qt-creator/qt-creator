@@ -32,6 +32,10 @@
 
 #include "debuggerengine.h"
 
+#include "private/qdeclarativedebug_p.h"
+#include "private/qdeclarativedebugclient_p.h"
+#include "private/qdeclarativeenginedebug_p.h"
+
 #include <QtCore/QByteArray>
 #include <QtCore/QHash>
 #include <QtCore/QObject>
@@ -43,6 +47,7 @@
 
 #include <QtNetwork/QAbstractSocket>
 #include <QtNetwork/QTcpSocket>
+
 
 QT_BEGIN_NAMESPACE
 class QTcpSocket;
@@ -74,6 +79,7 @@ public:
 
 private:
     // DebuggerEngine implementation
+    bool isSynchroneous() const { return true; }
     void executeStep();
     void executeStepOut();
     void executeNext();
@@ -130,15 +136,93 @@ private slots:
     void connectionConnected();
     void connectionStateChanged();
 
+    void reloadEngines();
+    void enginesChanged();
+    void queryEngineContext(const QDeclarativeDebugEngineReference& engine);
+    void contextChanged();
+
+    void reloadObject(const QDeclarativeDebugObjectReference &object);
+    void objectFetched(QDeclarativeDebugQuery::State state);
+
 private:
+    void objectFetched(QDeclarativeDebugObjectQuery *query, QDeclarativeDebugQuery::State state);
+    void contextChanged(QDeclarativeDebugRootContextQuery *query);
+    void enginesChanged(QDeclarativeDebugEnginesQuery *query);
+
+    void buildTree(const QDeclarativeDebugObjectReference &obj, const QByteArray &iname);
+
     QString errorMessage(QProcess::ProcessError error);
     QProcess m_proc;
 
     QDeclarativeDebugConnection *m_conn;
+    QDeclarativeEngineDebug *m_engineDebugInterface;
     QmlDebuggerClient *m_client;
+    CanvasFrameRate *m_frameRate;
+
+    enum DebugMode {
+        StandaloneMode,
+        CppProjectWithQmlEngines,
+        QmlProjectWithCppPlugins
+    };
+
+    QList<QDeclarativeDebugWatch *> m_watches;
+
+#if 0
+    void createDockWidgets();
+    bool connectToViewer(); // using host, port from widgets
+
+    // returns false if project is not debuggable.
+    bool setDebugConfigurationDataFromProject(ProjectExplorer::Project *projectToDebug);
+    void startQmlProjectDebugger();
+
+    bool canEditProperty(const QString &propertyType);
+    QDeclarativeDebugExpressionQuery *executeExpression(int objectDebugId,
+        const QString &objectId, const QString &propertyName, const QVariant &value);
+
+public slots:
+    void disconnectFromViewer();
+    void setSimpleDockWidgetArrangement();
+
+private slots:
+    void treeObjectActivated(const QDeclarativeDebugObjectReference &obj);
+    void simultaneouslyDebugQmlCppApplication();
+
+private:
+    void updateMenuActions();
+    QString attachToQmlViewerAsExternalApp(ProjectExplorer::Project *project);
+    QString attachToExternalCppAppWithQml(ProjectExplorer::Project *project);
+
+    bool addQuotesForData(const QVariant &value) const;
+    void resetViews();
+
     QDeclarativeDebugEnginesQuery *m_engineQuery;
     QDeclarativeDebugRootContextQuery *m_contextQuery;
-    CanvasFrameRate *m_frameRate;
+
+    Internal::ObjectTree *m_objectTreeWidget;
+    Internal::ObjectPropertiesView *m_propertiesWidget;
+    Internal::WatchTableModel *m_watchTableModel;
+    Internal::WatchTableView *m_watchTableView;
+    Internal::CanvasFrameRate *m_frameRateWidget;
+    Internal::ExpressionQueryWidget *m_expressionWidget;
+
+    Internal::EngineComboBox *m_engineComboBox;
+
+    QDockWidget *m_objectTreeDock;
+    QDockWidget *m_frameRateDock;
+    QDockWidget *m_expressionQueryDock;
+    QDockWidget *m_propertyWatcherDock;
+    QDockWidget *m_inspectorOutputDock;
+
+    Internal::InspectorSettings m_settings;
+    QmlProjectManager::QmlProjectRunConfigurationDebugData m_runConfigurationDebugData;
+
+    QStringList m_editablePropertyTypes;
+
+    // simultaneous debug mode stuff
+    int m_cppDebuggerState;
+    bool m_connectionInitialized;
+    bool m_simultaneousCppAndQmlDebugMode;
+#endif
 };
 
 } // namespace Internal
