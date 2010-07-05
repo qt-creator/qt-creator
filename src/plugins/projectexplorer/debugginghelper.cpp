@@ -116,20 +116,25 @@ QString DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(const QStrin
     if (!Core::ICore::instance())
         return QString();
     const QString dumperSourcePath = Core::ICore::instance()->resourcePath() + QLatin1String("/gdbmacros/");
-    QDateTime lastModified = QFileInfo(dumperSourcePath + "gdbmacros.cpp").lastModified();
+    QDateTime sourcesModified = QFileInfo(dumperSourcePath + "gdbmacros.cpp").lastModified();
     // We pretend that the lastmodified of gdbmacros.cpp is 5 minutes before what the file system says
     // Because afer a installation from the package the modified dates of gdbmacros.cpp
     // and the actual library are close to each other, but not deterministic in one direction
-    lastModified = lastModified.addSecs(-300);
+    sourcesModified = sourcesModified.addSecs(-300);
 
+    // look for the newest helper library in the different locations
+    QString newestHelper;
+    QDateTime newestHelperModified = sourcesModified; // prevent using one that's older than the sources
     QFileInfo fileInfo;
     foreach(const QString &directory, debuggingHelperLibraryDirectories(qtInstallData)) {
         if (getHelperFileInfoFor(directory, &fileInfo)) {
-            if (fileInfo.lastModified() >= lastModified)
-                return fileInfo.filePath();
+            if (fileInfo.lastModified() > newestHelperModified) {
+                newestHelper = fileInfo.filePath();
+                newestHelperModified = fileInfo.lastModified();
+            }
         }
     }
-    return QString();
+    return newestHelper;
 }
 
 // Copy helper source files to a target directory, replacing older files.
