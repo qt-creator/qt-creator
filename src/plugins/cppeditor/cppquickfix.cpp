@@ -33,6 +33,7 @@
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/ResolveExpression.h>
+#include <cplusplus/Overview.h>
 
 #include <TranslationUnit.h>
 #include <ASTVisitor.h>
@@ -849,6 +850,139 @@ private:
     Type type;
 };
 
+/*
+  Replace
+    "abcd"
+  With
+    tr("abcd") or
+    QCoreApplication::translate("CONTEXT", "abcd")
+*/
+class TranslateStringLiteral: public CppQuickFixOperation
+{
+public:
+    TranslateStringLiteral(TextEditor::BaseTextEditor *editor)
+        : CppQuickFixOperation(editor), m_literal(0)
+    { }
+
+    enum TranslationOption { unknown, useTr, useQCoreApplicationTranslate };
+
+    virtual QString description() const
+    {
+        return QApplication::translate("CppTools::QuickFix", "Mark as translateable");
+    }
+
+    virtual int match(const QList<AST *> &path)
+    {
+        // Initialize
+        m_literal = 0;
+        m_option = unknown;
+        m_context.clear();
+
+        if (path.isEmpty())
+            return -1; // nothing to do
+
+        m_literal = path.last()->asStringLiteral();
+        if (!m_literal)
+            return -1; // nothing to do
+
+        if (path.size() > 1) {
+            if (CallAST *call = path.at(path.size() - 2)->asCall()) {
+                if (call->base_expression) {
+                    if (SimpleNameAST *functionName = call->base_expression->asSimpleName()) {
+                        const QByteArray id(tokenAt(functionName->identifier_token).identifier->chars());
+
+                        if (id == "tr" || id == "trUtf8"
+                            || id == "QApplication::translate"
+                            || id == "QCoreApplication::translate")
+                            return -1; // skip it
+                    }
+                }
+            }
+            for (int i = path.size() - 1; i >= 0; --i)
+            {
+                if (FunctionDefinitionAST *definition = path.at(i)->asFunctionDefinition()) {
+                    Function *function = definition->symbol;
+                    LookupContext context(document(), snapshot());
+
+                    ClassOrNamespace *b = context.lookupType(function);
+                    if (b) {
+                        QList<ClassOrNamespace *> todo;
+                        todo.append(b);
+                        QSet<ClassOrNamespace *> done;
+                        while(!todo.isEmpty()) {
+                            ClassOrNamespace *current = todo.first();
+                            todo.removeFirst();
+                            if (done.contains(current))
+                                continue;
+                            done.insert(current);
+                            foreach (Symbol *s, current->symbols()) {
+                                if (Class *klass = s->asClass()) {
+                                    if (strcmp(klass->name()->identifier()->chars(),
+                                               "QObject") == 0) {
+                                        m_option = useTr;
+                                        return path.size() - 1;
+                                    }
+                                }
+                            }
+                            todo.append(current->usings());
+                        }
+                    }
+                    // We need to do a QCA::translate, so we need a context.
+                    // Use fully qualified class name:
+                    QList<ClassOrNamespace *> stack;
+                    if (b) {
+                        stack.append(b);
+                        while (b->parent()) {
+                            b = b->parent();
+                            stack.prepend(b);
+                        }
+                    }
+                    foreach(ClassOrNamespace *current, stack) {
+                        foreach(Symbol *s, current->symbols()) {
+                            if (!s || !s->name() || !s->name()->identifier()
+                                || !s->name()->identifier()->chars()) {
+                                continue;
+                            }
+                            m_context += s->name()->identifier()->chars();
+                            m_context.append("::");
+                        }
+                    }
+                    if (m_context.size() >= 2)
+                        m_context.chop(2);
+                    else if (m_context.isEmpty())
+                        m_context.append("GLOBAL");
+                }
+            }
+        }
+
+        m_option = useQCoreApplicationTranslate;
+        return path.size() - 1; // very high priority
+    }
+
+    virtual void createChanges()
+    {
+        ChangeSet changes;
+
+        const int startPos = startOf(m_literal);
+        QByteArray replacement("tr(");
+        if (m_option == useQCoreApplicationTranslate) {
+            replacement = ("QCoreApplication::translate(\"");
+            replacement += m_context;
+            replacement += "\", ";
+        }
+
+        changes.insert(startPos, replacement);
+        changes.insert(endOf(m_literal), ")");
+
+        refactoringChanges()->changeFile(fileName(), changes);
+    }
+
+private:
+    ExpressionAST *m_literal;
+    TranslationOption m_option;
+    QByteArray m_context;
+};
+
 class CStringToNSString: public CppQuickFixOperation
 {
 public:
@@ -1107,6 +1241,7 @@ QList<TextEditor::QuickFixOperation::Ptr> CppQuickFixFactory::quickFixOperations
     QSharedPointer<FlipBinaryOp> flipBinaryOp(new FlipBinaryOp(editor));
     QSharedPointer<WrapStringLiteral> wrapStringLiteral(new WrapStringLiteral(editor));
     QSharedPointer<CStringToNSString> wrapCString(new CStringToNSString(editor));
+    QSharedPointer<TranslateStringLiteral> translateCString(new TranslateStringLiteral(editor));
 
     quickFixOperations.append(rewriteLogicalAndOp);
     quickFixOperations.append(splitIfStatementOp);
@@ -1117,6 +1252,7 @@ QList<TextEditor::QuickFixOperation::Ptr> CppQuickFixFactory::quickFixOperations
     quickFixOperations.append(useInverseOp);
     quickFixOperations.append(flipBinaryOp);
     quickFixOperations.append(wrapStringLiteral);
+    quickFixOperations.append(translateCString);
 
     if (editor->mimeType() == CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)
         quickFixOperations.append(wrapCString);
