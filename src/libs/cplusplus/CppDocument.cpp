@@ -703,25 +703,17 @@ public:
 };
 } // end of anonymous namespace
 
-Symbol *Snapshot::findMatchingDefinition(Symbol *symbol) const
+Symbol *Snapshot::findMatchingDefinition(Symbol *declaration) const
 {
-    if (! symbol->identifier())
+    if (! (declaration && declaration->identifier()))
         return 0;
 
-    Document::Ptr thisDocument = document(QString::fromUtf8(symbol->fileName(), symbol->fileNameLength()));
+    Document::Ptr thisDocument = document(QString::fromUtf8(declaration->fileName(), declaration->fileNameLength()));
     if (! thisDocument) {
-        qWarning() << "undefined document:" << symbol->fileName();
+        qWarning() << "undefined document:" << declaration->fileName();
         return 0;
     }
 
-    LookupContext thisContext(thisDocument, *this);
-    const QList<Symbol *> declarationCandidates = thisContext.lookup(symbol->name(), symbol->scope());
-    if (declarationCandidates.isEmpty()) {
-        qWarning() << "unresolved declaration:" << symbol->fileName() << symbol->line() << symbol->column();
-        return 0;
-    }
-
-    Symbol *declaration = declarationCandidates.first();
     Function *declarationTy = declaration->type()->asFunctionType();
     if (! declarationTy) {
         qWarning() << "not a function:" << declaration->fileName() << declaration->line() << declaration->column();

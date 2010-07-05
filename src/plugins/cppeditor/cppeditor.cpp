@@ -1238,7 +1238,20 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
     const QList<LookupItem> resolvedSymbols = typeOfExpression(expression, scope, TypeOfExpression::Preprocess);
 
     if (!resolvedSymbols.isEmpty()) {
-        const LookupItem result = skipForwardDeclarations(resolvedSymbols);
+        LookupItem result = skipForwardDeclarations(resolvedSymbols);
+
+        foreach (const LookupItem &r, resolvedSymbols) {
+            if (Symbol *d = r.declaration()) {
+                if (d->isDeclaration() || d->isFunction()) {
+                    if (file()->fileName() == QString::fromUtf8(d->fileName(), d->fileNameLength())) {
+                        if (unsigned(line) == d->line() && unsigned(column) >= d->column()) { // ### TODO: check the end
+                            result = r; // take the symbol under cursor.
+                            break;
+                        }
+                    }
+                }
+            }
+        }
 
         if (Symbol *symbol = result.declaration()) {
             Symbol *def = 0;
