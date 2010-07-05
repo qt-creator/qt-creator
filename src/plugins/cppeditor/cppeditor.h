@@ -41,6 +41,7 @@
 #include <QtCore/QThread>
 #include <QtCore/QMutex>
 #include <QtCore/QWaitCondition>
+#include <QtCore/QFutureWatcher>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -224,6 +225,7 @@ private Q_SLOTS:
 
     void semanticRehighlight();
     void updateSemanticInfo(const CppEditor::Internal::SemanticInfo &semanticInfo);
+    void highlightTypeUsages();
 
     void performQuickFix(int index);
 
@@ -282,6 +284,10 @@ private:
     QList<TextEditor::QuickFixOperation::Ptr> m_quickFixes;
     bool m_objcEnabled;
     bool m_initialized;
+
+    QFuture<SemanticInfo::Use> m_highlighter;
+    QFutureWatcher<SemanticInfo::Use> m_highlightWatcher;
+    unsigned m_highlighteRevision; // the editor revision that requested the highlight
 };
 
 

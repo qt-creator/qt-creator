@@ -60,11 +60,9 @@ public:
     bool hasQ: 1;
     bool hasD: 1;
     bool forced: 1;
-    CPlusPlus::Snapshot snapshot; // ### remove
-    CPlusPlus::Document::Ptr doc; // ### remove
-    CPlusPlus::LookupContext context;
-    LocalUseMap localUses; // ### rename
-    QList<Use> typeUsages;
+    CPlusPlus::Snapshot snapshot;
+    CPlusPlus::Document::Ptr doc;
+    LocalUseMap localUses;
     QList<Use> objcKeywords;
     QList<CPlusPlus::Document::DiagnosticMessage> diagnosticMessages;
 };

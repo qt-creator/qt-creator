@@ -66,6 +66,7 @@ class CppQuickFixState: public TextEditor::QuickFixState
 {
 public:
     QList<CPlusPlus::AST *> path;
+    Snapshot snapshot;
     SemanticInfo info;
 };
 
@@ -1236,7 +1237,7 @@ int CppQuickFixOperation::match(TextEditor::QuickFixState *state)
     _document = s->info.doc;
     if (_refactoringChanges)
         delete _refactoringChanges;
-    _refactoringChanges = new CppRefactoringChanges(s->info.snapshot);
+    _refactoringChanges = new CppRefactoringChanges(s->snapshot);
     return match(s->path);
 }
 
@@ -1377,6 +1378,7 @@ TextEditor::QuickFixState *CppQuickFixCollector::initializeCompletion(TextEditor
                 CppQuickFixState *state = new CppQuickFixState;
                 state->path = path;
                 state->info = info;
+                state->snapshot = CppTools::CppModelManagerInterface::instance()->snapshot();
                 return state;
             }
         }
