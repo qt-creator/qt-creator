@@ -929,27 +929,16 @@ public:
                     }
                     // We need to do a QCA::translate, so we need a context.
                     // Use fully qualified class name:
-                    QList<ClassOrNamespace *> stack;
-                    if (b) {
-                        stack.append(b);
-                        while (b->parent()) {
-                            b = b->parent();
-                            stack.prepend(b);
-                        }
+
+                    Overview oo;
+                    foreach (const Name *n, LookupContext::fullyQualifiedName(function)) {
+                        if (! m_context.isEmpty())
+                            m_context.append(QLatin1String("::"));
+
+                        m_context.append(oo.prettyName(n));
                     }
-                    foreach(ClassOrNamespace *current, stack) {
-                        foreach(Symbol *s, current->symbols()) {
-                            if (!s || !s->name() || !s->name()->identifier()
-                                || !s->name()->identifier()->chars()) {
-                                continue;
-                            }
-                            m_context += s->name()->identifier()->chars();
-                            m_context.append("::");
-                        }
-                    }
-                    if (m_context.size() >= 2)
-                        m_context.chop(2);
-                    else if (m_context.isEmpty())
+
+                    if (m_context.isEmpty())
                         m_context.append("GLOBAL");
                 }
             }
@@ -964,15 +953,15 @@ public:
         ChangeSet changes;
 
         const int startPos = startOf(m_literal);
-        QByteArray replacement("tr(");
+        QString replacement("tr(");
         if (m_option == useQCoreApplicationTranslate) {
-            replacement = ("QCoreApplication::translate(\"");
+            replacement = QLatin1String("QCoreApplication::translate(\"");
             replacement += m_context;
-            replacement += "\", ";
+            replacement += QLatin1String("\", ");
         }
 
         changes.insert(startPos, replacement);
-        changes.insert(endOf(m_literal), ")");
+        changes.insert(endOf(m_literal), QLatin1String(")"));
 
         refactoringChanges()->changeFile(fileName(), changes);
     }
@@ -980,7 +969,7 @@ public:
 private:
     ExpressionAST *m_literal;
     TranslationOption m_option;
-    QByteArray m_context;
+    QString  m_context;
 };
 
 class CStringToNSString: public CppQuickFixOperation
