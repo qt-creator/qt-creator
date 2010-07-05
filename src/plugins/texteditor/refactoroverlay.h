@@ -37,7 +37,7 @@ public:
     RefactorMarker markerAt(const QPoint &pos) const;
 
 private:
-    void paintMarker(const RefactorMarker& marker, int position, QPainter *painter, const QRect &clip);
+    void paintMarker(const RefactorMarker& marker, QPainter *painter, const QRect &clip);
     RefactorMarkers m_markers;
     BaseTextEditor *m_editor;
     int m_maxWidth;
