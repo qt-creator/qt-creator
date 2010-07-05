@@ -68,7 +68,8 @@ void RefactorOverlay::paintMarker(const RefactorMarker& marker, int position,
     QSize sz = icon.actualSize(QSize(INT_MAX, r.height()));
 
     int x = r.right() + position * sz.width();
-    marker.rect = QRect(x, r.bottom() - sz.height(), sz.width(), sz.height()).translated(-offset.toPoint());
+    marker.rect = QRect(x, r.bottom() + 1 - sz.height(), sz.width(), sz.height());
+
     icon.paint(painter, marker.rect);
     m_maxWidth = qMax((qreal)m_maxWidth, x + sz.width() - offset.x());
 }
