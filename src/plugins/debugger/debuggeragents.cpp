@@ -110,6 +110,9 @@ void MemoryViewAgent::createBinEditor(quint64 addr)
             this, SLOT(fetchLazyData(Core::IEditor *, quint64,bool)));
         connect(editor->widget(), SIGNAL(newWindowRequested(quint64)),
             this, SLOT(createBinEditor(quint64)));
+        connect(editor->widget(),
+            SIGNAL(newRangeRequested(Core::IEditor *, quint64)), this,
+            SLOT(provideNewRange(Core::IEditor*,quint64)));
         m_editors << editor;
         editorManager->activateEditor(editor);
         QMetaObject::invokeMethod(editor->widget(), "setNewWindowRequestAllowed");
@@ -139,6 +142,13 @@ void MemoryViewAgent::addLazyData(QObject *editorToken, quint64 addr,
         QMetaObject::invokeMethod(editor->widget(), "addLazyData",
             Q_ARG(quint64, addr / BinBlockSize), Q_ARG(QByteArray, ba));
     }
+}
+
+void MemoryViewAgent::provideNewRange(Core::IEditor *editor, quint64 address)
+{
+    QMetaObject::invokeMethod(editor->widget(), "setLazyData",
+        Q_ARG(quint64, address), Q_ARG(int, 1024 * 1024),
+        Q_ARG(int, BinBlockSize));
 }
 
 

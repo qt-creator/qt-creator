@@ -58,11 +58,11 @@ public:
 public slots:
     // Called from Engine
     void addLazyData(QObject *editorToken, quint64 addr, const QByteArray &data);
-    // Called from Editor
-    void fetchLazyData(Core::IEditor *, quint64 block, bool sync);
 
 private:
     Q_SLOT void createBinEditor(quint64 startAddr);
+    Q_SLOT void fetchLazyData(Core::IEditor *, quint64 block, bool sync);
+    Q_SLOT void provideNewRange(Core::IEditor *editor, quint64 address);
 
     QList<QPointer<Core::IEditor> > m_editors;
     QPointer<DebuggerEngine> m_engine;

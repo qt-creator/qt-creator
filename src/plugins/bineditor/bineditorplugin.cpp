@@ -34,10 +34,13 @@
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
+#include <QtCore/QRegExp>
 #include <QtGui/QMenu>
 #include <QtGui/QAction>
 #include <QtGui/QMainWindow>
 #include <QtGui/QHBoxLayout>
+#include <QtGui/QLineEdit>
+#include <QtGui/QRegExpValidator>
 #include <QtGui/QToolBar>
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -51,7 +54,6 @@
 #include <find/ifindsupport.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
-#include <utils/linecolumnlabel.h>
 #include <utils/reloadpromptutils.h>
 
 using namespace BINEditor;
@@ -176,6 +178,8 @@ public:
         m_editor = parent;
         connect(m_editor, SIGNAL(lazyDataRequested(Core::IEditor *, quint64, bool)),
             this, SLOT(provideData(Core::IEditor *, quint64)));
+        connect(m_editor, SIGNAL(newRangeRequested(Core::IEditor*,quint64)),
+            this, SLOT(provideNewRange(Core::IEditor*,quint64)));
     }
     ~BinEditorFile() {}
 
@@ -199,15 +203,16 @@ public:
         emit changed();
     }
 
-    bool open(const QString &fileName) {
+    bool open(const QString &fileName, quint64 offset = 0) {
         QFile file(fileName);
-        if (file.open(QIODevice::ReadOnly)) {
+        if (offset < static_cast<quint64>(file.size())
+            && file.open(QIODevice::ReadOnly)) {
             m_fileName = fileName;
-            if (file.isSequential() && file.size() <= 64 * 1024 * 1024) {
+            qint64 maxRange = 64 * 1024 * 1024;
+            if (file.isSequential() && file.size() <= maxRange) {
                 m_editor->setData(file.readAll());
             } else {
-                m_editor->setLazyData(0, qMin(file.size(),
-                                              static_cast<qint64>(INT_MAX-16)));
+                m_editor->setLazyData(offset, maxRange);
                 m_editor->editorInterface()->
                         setDisplayName(QFileInfo(fileName).fileName());
             }
@@ -224,12 +229,18 @@ private slots:
             int blockSize = m_editor->lazyDataBlockSize();
             file.seek(block * blockSize);
             QByteArray data = file.read(blockSize);
-            if (data.size() != blockSize)
-                data.resize(blockSize);
+            const int dataSize = data.size();
+            if (dataSize != blockSize)
+                data += QByteArray(blockSize - dataSize, 0);
             m_editor->addLazyData(block, data);
             file.close();
         }
     }
+
+    void provideNewRange(Core::IEditor *, quint64 offset) {
+        open(m_fileName, offset);
+    }
+
 public:
 
     void setFilename(const QString &filename) {
@@ -294,22 +305,30 @@ public:
         m_file = new BinEditorFile(m_editor);
         m_context.add(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
         m_context.add(Constants::C_BINEDITOR);
-        m_cursorPositionLabel = new Utils::LineColumnLabel;
+        m_addressEdit = new QLineEdit;
+        QRegExpValidator * const addressValidator
+            = new QRegExpValidator(QRegExp(QLatin1String("[0-9a-fA-F]{1,16}")),
+                m_addressEdit);
+        m_addressEdit->setValidator(addressValidator);
 
         QHBoxLayout *l = new QHBoxLayout;
         QWidget *w = new QWidget;
         l->setMargin(0);
         l->setContentsMargins(0, 0, 5, 0);
         l->addStretch(1);
-        l->addWidget(m_cursorPositionLabel);
+        l->addWidget(m_addressEdit);
         w->setLayout(l);
 
         m_toolBar = new QToolBar;
         m_toolBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
         m_toolBar->addWidget(w);
 
-        connect(m_editor, SIGNAL(cursorPositionChanged(int)), this, SLOT(updateCursorPosition(int)));
+        connect(m_editor, SIGNAL(cursorPositionChanged(int)), this,
+            SLOT(updateCursorPosition(int)));
         connect(m_file, SIGNAL(changed()), this, SIGNAL(changed()));
+        connect(m_addressEdit, SIGNAL(editingFinished()), this,
+            SLOT(jumpToAddress()));
+        updateCursorPosition(m_editor->cursorPosition());
     }
     ~BinEditorInterface() {
         delete m_editor;
@@ -342,10 +361,14 @@ public:
 
     bool isTemporary() const { return false; }
 
-public slots:
+private slots:
     void updateCursorPosition(int position) {
-        m_cursorPositionLabel->setText(m_editor->addressString((uint)position),
-                                       m_editor->addressString((uint)m_editor->data().size()));
+        m_addressEdit->setText(QString::number(m_editor->baseAddress() + position, 16));
+    }
+
+    void jumpToAddress() {
+        m_editor->jumpToAddress(m_addressEdit->text().toULongLong(0, 16));
+        updateCursorPosition(m_editor->cursorPosition());
     }
 
 private:
@@ -354,7 +377,7 @@ private:
     BinEditorFile *m_file;
     Core::Context m_context;
     QToolBar *m_toolBar;
-    Utils::LineColumnLabel *m_cursorPositionLabel;
+    QLineEdit *m_addressEdit;
 };
 
 

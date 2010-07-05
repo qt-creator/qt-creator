@@ -245,12 +245,12 @@ const char * const NEXT_KEY                 = "F6";
 const char * const REVERSE_KEY              = "";
 const char * const RUN_TO_LINE_KEY          = "Shift+F8";
 const char * const RUN_TO_FUNCTION_KEY      = "Ctrl+F6";
-const char * const JUMP_TO_LINE_KEY         = "Alt+D,Alt+L";
+const char * const JUMP_TO_LINE_KEY         = "Ctrl+D,Ctrl+L";
 const char * const TOGGLE_BREAK_KEY         = "F8";
-const char * const BREAK_BY_FUNCTION_KEY    = "Alt+D,Alt+F";
-const char * const BREAK_AT_MAIN_KEY        = "Alt+D,Alt+M";
-const char * const ADD_TO_WATCH_KEY         = "Alt+D,Alt+W";
-const char * const SNAPSHOT_KEY             = "Alt+D,Alt+S";
+const char * const BREAK_BY_FUNCTION_KEY    = "Ctrl+D,Ctrl+F";
+const char * const BREAK_AT_MAIN_KEY        = "Ctrl+D,Ctrl+M";
+const char * const ADD_TO_WATCH_KEY         = "Ctrl+D,Ctrl+W";
+const char * const SNAPSHOT_KEY             = "Ctrl+D,Ctrl+S";
 #else
 const char * const INTERRUPT_KEY            = "Shift+F5";
 const char * const RESET_KEY                = "Ctrl+Shift+F5";
@@ -265,7 +265,7 @@ const char * const TOGGLE_BREAK_KEY         = "F9";
 const char * const BREAK_BY_FUNCTION_KEY    = "";
 const char * const BREAK_AT_MAIN_KEY        = "";
 const char * const ADD_TO_WATCH_KEY         = "Ctrl+Alt+Q";
-const char * const SNAPSHOT_KEY             = "Alt+D,Alt+S";
+const char * const SNAPSHOT_KEY             = "Ctrl+D,Ctrl+S";
 #endif
 
 } // namespace Constants
@@ -1400,7 +1400,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     cmd = am->registerAction(m_actions.watchAction1,
         Constants::ADD_TO_WATCH1, cppeditorcontext);
     cmd->action()->setEnabled(true);
-    //cmd->setDefaultKeySequence(QKeySequence(tr("ALT+D,ALT+W")));
+    //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+W")));
     m_uiSwitcher->addMenuAction(cmd, Constants::LANG_CPP);
 
 

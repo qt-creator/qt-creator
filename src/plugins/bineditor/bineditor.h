@@ -66,6 +66,7 @@ public:
     QByteArray data() const;
 
     inline int dataSize() const { return m_size; }
+    quint64 baseAddress() const { return m_baseAddr; }
 
     inline bool inLazyMode() const { return m_inLazyMode; }
     Q_INVOKABLE void setLazyData(quint64 startAddr, int range, int blockSize = 4096);
@@ -84,6 +85,7 @@ public:
 
     int cursorPosition() const;
     void setCursorPosition(int pos, MoveMode moveMode = MoveAnchor);
+    void jumpToAddress(quint64 address);
 
     void setModified(bool);
     bool isModified() const;
@@ -130,6 +132,7 @@ Q_SIGNALS:
 
     void lazyDataRequested(Core::IEditor *editor, quint64 block, bool synchronous);
     void newWindowRequested(quint64 address);
+    void newRangeRequested(Core::IEditor *, quint64 address);
 
 protected:
     void scrollContentsBy(int dx, int dy);

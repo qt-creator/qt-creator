@@ -150,6 +150,7 @@ void BinEditor::init()
     horizontalScrollBar()->setPageStep(viewport()->width());
     verticalScrollBar()->setRange(0, m_numLines - m_numVisibleLines);
     verticalScrollBar()->setPageStep(m_numVisibleLines);
+    ensureCursorVisible();
 }
 
 
@@ -393,7 +394,10 @@ bool BinEditor::save(const QString &oldFileName, const QString &newFileName)
             if (output.write(it.value()) < m_blockSize)
                 return false;
         }
-        if (size % m_blockSize != 0 && !output.resize(size))
+
+        // We may have padded the displayed data, so we have to make sure
+        // changes to that area are not actually written back to disk.
+        if (!output.resize(size))
             return false;
     } else {
         QFile output(newFileName);
@@ -435,6 +439,7 @@ void BinEditor::setLazyData(quint64 startAddr, int range, int blockSize)
     init();
 
     setCursorPosition(startAddr - m_baseAddr);
+    viewport()->update();
 }
 
 void BinEditor::resizeEvent(QResizeEvent *)
@@ -445,6 +450,15 @@ void BinEditor::resizeEvent(QResizeEvent *)
 void BinEditor::scrollContentsBy(int dx, int dy)
 {
     viewport()->scroll(isRightToLeft() ? -dx : dx, dy * m_lineHeight);
+    if (m_inLazyMode) {
+        const QScrollBar * const scrollBar = verticalScrollBar();
+        const int scrollPos = scrollBar->value();
+        if (dy <= 0 && scrollPos == scrollBar->maximum())
+            emit newRangeRequested(editorInterface(),
+                baseAddress() + dataSize());
+        else if (dy >= 0 && scrollPos == scrollBar->minimum())
+            emit newRangeRequested(editorInterface(), baseAddress());
+    }
 }
 
 void BinEditor::changeEvent(QEvent *e)
@@ -913,11 +927,6 @@ int BinEditor::cursorPosition() const
 void BinEditor::setCursorPosition(int pos, MoveMode moveMode)
 {
     pos = qMin(m_size-1, qMax(0, pos));
-    if (pos == m_cursorPosition
-        && (m_anchorPosition == m_cursorPosition || moveMode == KeepAnchor)
-        && !m_lowNibble)
-        return;
-
     int oldCursorPosition = m_cursorPosition;
 
     bool hasSelection = m_anchorPosition != m_cursorPosition;
@@ -1009,6 +1018,16 @@ bool BinEditor::event(QEvent *e) {
             ensureCursorVisible();
             e->accept();
             return true;
+        case Qt::Key_Down:
+            if (m_inLazyMode) {
+                const QScrollBar * const scrollBar = verticalScrollBar();
+                if (scrollBar->value() >= scrollBar->maximum() - 1) {
+                    emit newRangeRequested(editorInterface(),
+                        baseAddress() + dataSize());
+                    return true;
+                }
+            }
+            break;
         default:;
         }
     }
@@ -1282,9 +1301,9 @@ void BinEditor::contextMenuEvent(QContextMenuEvent *event)
     else if (action == &copyHexAction)
         copy(false);
     else if (action == &jumpToBeAddressHere)
-        setCursorPosition(beAddress - m_baseAddr);
+        jumpToAddress(beAddress);
     else if (action == &jumpToLeAddressHere)
-        setCursorPosition(leAddress - m_baseAddr);
+        jumpToAddress(leAddress);
     else if (action == &jumpToBeAddressNewWindow)
         emit newWindowRequested(beAddress);
     else if (action == &jumpToLeAddressNewWindow)
@@ -1300,10 +1319,16 @@ void BinEditor::setupJumpToMenuAction(QMenu *menu, QAction *actionHere,
                         .arg(QString::number(addr, 16)));
     menu->addAction(actionHere);
     menu->addAction(actionNew);
-    if (addr < m_baseAddr || addr >= m_baseAddr + m_size)
-        actionHere->setEnabled(false);
     if (!m_canRequestNewWindow)
         actionNew->setEnabled(false);
+}
+
+void BinEditor::jumpToAddress(quint64 address)
+{
+    if (address >= m_baseAddr && address < m_baseAddr + m_data.size())
+        setCursorPosition(address - m_baseAddr);
+    else
+        emit newRangeRequested(editorInterface(), address);
 }
 
 void BinEditor::setNewWindowRequestAllowed()
