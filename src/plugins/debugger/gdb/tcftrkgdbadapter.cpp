@@ -598,8 +598,11 @@ void TcfTrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
     else if (cmd == "k" || cmd.startsWith("vKill")) {
         // Kill inferior process
         logMessage(msgGdbPacket(QLatin1String("kill")));
-        m_trkDevice->sendProcessTerminateCommand(TcfTrkCallback(),
-                                                 m_tcfProcessId);
+        // Requires id of main thread to terminate.
+        // Note that calling 'Settings|set|removeExecutable' crashes TCF TRK,
+        // so, it is apparently not required.
+        m_trkDevice->sendRunControlTerminateCommand(TcfTrkCallback(),
+                                                    mainThreadContextId());
     }
 
     else if (cmd.startsWith('m')) {
@@ -1066,12 +1069,6 @@ void TcfTrkGdbAdapter::cleanup()
     if (!m_trkIODevice.isNull()) {
                 QAbstractSocket *socket = qobject_cast<QAbstractSocket *>(m_trkIODevice.data());
         const bool isOpen = socket ? socket->state() == QAbstractSocket::ConnectedState : m_trkIODevice->isOpen();
-        if (isOpen) { // Not sure if that is required: Remove Trk's context?
-            if (!m_remoteExecutable.isEmpty() && m_uid) {
-                m_trkDevice->sendSettingsRemoveExecutableCommand(m_remoteExecutable, m_uid);
-                m_uid = 0;
-            }
-        }
         if (isOpen) {
             if (socket) {
                 socket->disconnect();

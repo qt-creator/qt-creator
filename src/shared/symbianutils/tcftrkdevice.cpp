@@ -689,6 +689,16 @@ void TcfTrkDevice::sendProcessTerminateCommand(const TcfTrkCallback &callBack,
     sendTcfTrkMessage(MessageWithReply, ProcessesService, "terminate", data, callBack, cookie);
 }
 
+void TcfTrkDevice::sendRunControlTerminateCommand(const TcfTrkCallback &callBack,
+                                                  const QByteArray &id,
+                                                  const QVariant &cookie)
+{
+    QByteArray data;
+    JsonInputStream str(data);
+    str << id;
+    sendTcfTrkMessage(MessageWithReply, RunControlService, "terminate", data, callBack, cookie);
+}
+
 // Non-standard: Remove executable from settings
 void TcfTrkDevice::sendSettingsRemoveExecutableCommand(const QString &binaryIn,
                                                        unsigned uid,
