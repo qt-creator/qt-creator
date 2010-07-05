@@ -169,6 +169,9 @@ private:
     QByteArray dataMid(int from, int length) const;
     QByteArray blockData(int block) const;
 
+    QPoint offsetToPos(int offset);
+    void asIntegers(int offset, int count, quint64 &beValue, quint64 &leValue);
+
     int m_unmodifiedState;
     int m_readOnly;
     int m_margin;
