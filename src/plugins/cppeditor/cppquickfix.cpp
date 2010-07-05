@@ -443,7 +443,7 @@ public:
         // show when we're on the 'if' of an if statement
         int index = path.size() - 1;
         IfStatementAST *ifStatement = path.at(index)->asIfStatement();
-        if (ifStatement && isCursorOn(ifStatement->if_token)
+        if (ifStatement && isCursorOn(ifStatement->if_token) && ifStatement->statement
             && ! ifStatement->statement->asCompoundStatement()) {
             _statement = ifStatement->statement;
             return index;
