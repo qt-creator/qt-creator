@@ -848,6 +848,7 @@ public slots:
 
     void dumpLog();
     void cleanupViews();
+    void setInitialState();
 
     void fontSettingsChanged(const TextEditor::FontSettings &settings);
     DebuggerState state() const { return m_state; }
@@ -1526,6 +1527,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
         this, SLOT(languageChanged(QString)));
 
     disconnectEngine();
+    setInitialState();
+
     return true;
 }
 
@@ -1976,6 +1979,54 @@ void DebuggerPluginPrivate::setSimpleDockWidgetArrangement(const QString &active
     } else {
         //qDebug() << "SETTING SIMPLE QML ARRANGEMENT" << activeLanguage;
     }
+}
+
+void DebuggerPluginPrivate::setInitialState()
+{
+    m_watchersWindow->setVisible(false);
+    m_returnWindow->setVisible(false);
+    setBusyCursor(false);
+    m_actions.reverseDirectionAction->setChecked(false);
+    m_actions.reverseDirectionAction->setEnabled(false);
+    hideDebuggerToolTip();
+
+    m_startExternalAction->setEnabled(true);
+    m_attachExternalAction->setEnabled(true);
+#ifdef Q_OS_WIN
+    m_attachCoreAction->setEnabled(false);
+#else
+    m_attachCoreAction->setEnabled(true);
+#endif
+    m_startRemoteAction->setEnabled(true);
+    m_detachAction->setEnabled(false);
+
+    m_actions.watchAction1->setEnabled(true);
+    m_actions.watchAction2->setEnabled(true);
+    m_actions.breakAction->setEnabled(true);
+    m_actions.snapshotAction->setEnabled(false);
+    theDebuggerAction(OperateByInstruction)->setEnabled(false);
+
+    m_actions.stopAction->setIcon(m_stopIcon);
+    m_actions.stopAction->setText(tr("Stop Debugger"));
+    m_actions.stopAction->setEnabled(false);
+    m_actions.resetAction->setEnabled(false);
+
+    m_actions.stepAction->setEnabled(false);
+    m_actions.stepOutAction->setEnabled(false);
+    m_actions.runToLineAction1->setEnabled(false);
+    m_actions.runToLineAction2->setEnabled(false);
+    m_actions.runToFunctionAction->setEnabled(false);
+    m_actions.returnFromFunctionAction->setEnabled(false);
+    m_actions.jumpToLineAction1->setEnabled(false);
+    m_actions.jumpToLineAction2->setEnabled(false);
+    m_actions.nextAction->setEnabled(false);
+
+    theDebuggerAction(RecheckDebuggingHelpers)->setEnabled(false);
+    theDebuggerAction(AutoDerefPointers)->setEnabled(true);
+    theDebuggerAction(ExpandStack)->setEnabled(false);
+    theDebuggerAction(ExecuteCommand)->setEnabled(m_state == InferiorStopped);
+
+    //emit m_plugin->stateChanged(m_state);
 }
 
 void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
