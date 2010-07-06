@@ -2644,14 +2644,18 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         removeAutomaticIndentation();
         moveUp(count() * (linesOnScreen() - 2));
         m_lastInsertion.clear();
-    } else if (input.isKey(Key_Tab) && hasConfig(ConfigExpandTab)) {
+    } else if (input.isKey(Key_Tab)) {
         m_justAutoIndented = 0;
-        const int ts = config(ConfigTabStop).toInt();
-        const int col = logicalCursorColumn();
-        QString str = QString(ts - col % ts, ' ');
-        m_lastInsertion.append(str);
-        insertText(str);
-        setTargetColumn();
+        if (hasConfig(ConfigExpandTab)) {
+            const int ts = config(ConfigTabStop).toInt();
+            const int col = logicalCursorColumn();
+            QString str = QString(ts - col % ts, ' ');
+            m_lastInsertion.append(str);
+            insertText(str);
+            setTargetColumn();
+        } else {
+            insertInInsertMode(input.raw());
+        }
     } else if (input.isControl('d')) {
         // remove one level of indentation from the current line
         int shift = config(ConfigShiftWidth).toInt();
