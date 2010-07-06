@@ -789,6 +789,21 @@ def stripTypedefs(typeobj):
         type = type.strip_typedefs().unqualified()
     return type
 
+def extractFields(type):
+    # Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=10953:
+    #fields = value.type.fields()
+    # Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=11777:
+    #fields = stripTypedefs(value.type).fields()
+    # This seems to work.
+    #warn("TYPE 0: %s" % type)
+    type = stripTypedefs(type)
+    #warn("TYPE 1: %s" % type)
+    type = lookupType(str(type))
+    #warn("TYPE 2: %s" % type)
+    fields = type.fields()
+    #warn("FIELDS: %s" % fields)
+    return fields
+
 #######################################################################
 #
 # Item
@@ -1383,10 +1398,7 @@ class Dumper:
             #warn("INAME: %s " % item.iname)
             #warn("INAMES: %s " % self.expandedINames)
             #warn("EXPANDED: %s " % (item.iname in self.expandedINames))
-
-            # Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=10953
-            #fields = value.type.fields()
-            fields = stripTypedefs(value.type).fields()
+            fields = extractFields(type)
 
             self.putType(item.value.type)
             try:
@@ -1423,7 +1435,8 @@ class Dumper:
 
     def putFields(self, item, innerType = None):
             value = item.value
-            fields = value.type.strip_typedefs().fields()
+            type = stripTypedefs(value.type)
+            fields = extractFields(type)
             baseNumber = 0
             for field in fields:
                 #warn("FIELD: %s" % field)
@@ -1434,9 +1447,9 @@ class Dumper:
                     continue  # A static class member(?).
 
                 if field.name is None:
-                    innerType = value.type.target()
+                    innerType = type.target()
                     p = value.cast(innerType.pointer())
-                    for i in xrange(value.type.sizeof / innerType.sizeof):
+                    for i in xrange(type.sizeof / innerType.sizeof):
                         self.putItem(Item(p.dereference(), item.iname, i, None))
                         p = p + 1
                     continue
