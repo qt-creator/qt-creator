@@ -50,6 +50,7 @@ public:
     bool openDesignMode;
     int itemSpacing;
     int snapMargin;
+    bool enableContextPane;
 };
 
 inline bool operator==(const DesignerSettings &s1, const DesignerSettings &s2)
