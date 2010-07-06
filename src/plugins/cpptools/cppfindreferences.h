@@ -85,8 +85,6 @@ private:
     Find::SearchResultWindow *_resultWindow;
     QFutureWatcher<CPlusPlus::Usage> m_watcher;
     CPlusPlus::DependencyTable m_deps;
-    QFuture<CPlusPlus::DependencyTable> m_depsFuture;
-    QTimer *m_updateDependencyTableTimer;
 };
 
 } // end of namespace Internal
