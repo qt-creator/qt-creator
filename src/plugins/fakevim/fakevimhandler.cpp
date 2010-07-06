@@ -3611,13 +3611,13 @@ void FakeVimHandler::Private::shiftRegionRight(int repeat)
     if (hasConfig(ConfigStartOfLine))
         targetPos = firstPositionInLine(beginLine);
 
-    int len = config(ConfigShiftWidth).toInt() * repeat;
-    QString indent(len, ' ');
-
+    const int sw = config(ConfigShiftWidth).toInt();
     beginEditBlock(targetPos);
     for (int line = beginLine; line <= endLine; ++line) {
-        setPosition(firstPositionInLine(line));
-        m_tc.insertText(indent);
+        QString data = lineContents(line);
+        const Column col = indentation(data);
+        data = tabExpand(col.logical + sw * repeat) + data.mid(col.physical);
+        setLineContents(line, data);
     }
     endEditBlock();
 
