@@ -120,7 +120,7 @@ public slots:
 private slots:
     void itemWasChanged();
     void addShadowBuildLocation();
-    void uncheckAll();
+    void toggleAll();
     void handleDoubleClicks(QTreeWidgetItem *, int);
 
 private:
@@ -130,6 +130,7 @@ private:
 
     QList<ImportInfo> m_infos;
     bool m_preferMobile;
+    bool m_toggleWillCheck;
     QString m_proFilePath;
     QString m_defaultShadowBuildLocation;
 

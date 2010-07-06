@@ -60,6 +60,7 @@ enum Columns {
 TargetSetupPage::TargetSetupPage(QWidget *parent) :
     QWizardPage(parent),
     m_preferMobile(false),
+    m_toggleWillCheck(false),
     m_ui(new Ui::TargetSetupPage)
 {
     m_ui->setupUi(this);
@@ -69,7 +70,7 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
     connect(m_ui->importButton, SIGNAL(clicked()),
             this, SLOT(addShadowBuildLocation()));
     connect(m_ui->uncheckButton, SIGNAL(clicked()),
-            this, SLOT(uncheckAll()));
+            this, SLOT(toggleAll()));
     connect(m_ui->versionTree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),
             this, SLOT(handleDoubleClicks(QTreeWidgetItem*,int)));
 }
@@ -429,15 +430,19 @@ void TargetSetupPage::addShadowBuildLocation()
     setImportInfos(tmp);
 }
 
-void TargetSetupPage::uncheckAll()
+void TargetSetupPage::toggleAll()
 {
     for (int i = 0; i < m_ui->versionTree->topLevelItemCount(); ++i) {
         QTreeWidgetItem *current = m_ui->versionTree->topLevelItem(i);
         for (int j = 0; j < current->childCount(); ++j) {
             QTreeWidgetItem *child = current->child(j);
-            child->setCheckState(0, Qt::Unchecked);
+            child->setCheckState(0, m_toggleWillCheck ? Qt::Checked : Qt::Unchecked);
         }
     }
+    m_toggleWillCheck = !m_toggleWillCheck;
+    m_ui->uncheckButton->setText(m_toggleWillCheck ? tr("check all") : tr("uncheck all"));
+    m_ui->uncheckButton->setToolTip(m_toggleWillCheck
+                                    ? tr("Check all Qt versions") : tr("Uncheck all Qt versions"));
 }
 
 void TargetSetupPage::handleDoubleClicks(QTreeWidgetItem *item, int column)
