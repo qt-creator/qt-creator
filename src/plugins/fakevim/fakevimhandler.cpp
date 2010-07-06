@@ -422,6 +422,15 @@ public:
 
     int key() const { return m_key; }
 
+    QChar raw() const
+    {
+        if (m_key == Key_Tab)
+            return '\t';
+        if (m_key == Key_Return)
+            return '\n';
+        return m_key;
+    }
+
     QDebug dump(QDebug ts) const
     {
         return ts << m_key << '-' << m_modifiers << '-'
@@ -709,6 +718,7 @@ public:
     void selectQuotedStringTextObject(bool inner, int type);
 
     Q_SLOT void importSelection();
+    void insertInInsertMode(const QString &text);
 
 public:
     QTextEdit *m_textedit;
@@ -862,6 +872,7 @@ public:
     void setupCharClass();
     int charClass(QChar c, bool simple) const;
     signed char m_charClass[256];
+    bool m_ctrlVActive;
 
     static struct GlobalData
     {
@@ -925,6 +936,7 @@ void FakeVimHandler::Private::init()
     m_cursorWidth = EDITOR(cursorWidth());
     m_justAutoIndented = 0;
     m_rangemode = RangeCharMode;
+    m_ctrlVActive = false;
 
     setupCharClass();
 }
@@ -2551,6 +2563,11 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         g.dotCommand += QChar(27);
         enterCommandMode();
         m_submode = NoSubMode;
+        m_ctrlVActive = false;
+    } else if (m_ctrlVActive) {
+        insertInInsertMode(input.raw());
+    } else if (input.isControl('v')) {
+        m_ctrlVActive = true;
     } else if (input.isKey(Key_Insert)) {
         if (m_mode == ReplaceMode)
             m_mode = InsertMode;
@@ -2656,29 +2673,34 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
     //} else if (key >= control('a') && key <= control('z')) {
     //    // ignore these
     } else if (!input.text().isEmpty()) {
-        joinPreviousEditBlock();
-        m_justAutoIndented = 0;
-        const QString text = input.text();
-        m_lastInsertion.append(text);
-        insertText(text);
-        if (hasConfig(ConfigSmartIndent) && isElectricCharacter(text.at(0))) {
-            const QString leftText = m_tc.block().text()
-                   .left(m_tc.position() - 1 - m_tc.block().position());
-            if (leftText.simplified().isEmpty()) {
-                Range range(position(), position(), m_rangemode);
-                indentText(range, text.at(0));
-            }
-        }
-
-        if (!g.inReplay)
-            emit q->completionRequested();
-        setTargetColumn();
-        endEditBlock();
+        insertInInsertMode(input.text());
     } else {
         return EventUnhandled;
     }
     updateMiniBuffer();
     return EventHandled;
+}
+
+void FakeVimHandler::Private::insertInInsertMode(const QString &text)
+{
+    joinPreviousEditBlock();
+    m_justAutoIndented = 0;
+    m_lastInsertion.append(text);
+    insertText(text);
+    if (hasConfig(ConfigSmartIndent) && isElectricCharacter(text.at(0))) {
+        const QString leftText = m_tc.block().text()
+               .left(m_tc.position() - 1 - m_tc.block().position());
+        if (leftText.simplified().isEmpty()) {
+            Range range(position(), position(), m_rangemode);
+            indentText(range, text.at(0));
+        }
+    }
+
+    if (!g.inReplay)
+        emit q->completionRequested();
+    setTargetColumn();
+    endEditBlock();
+    m_ctrlVActive = false;
 }
 
 EventResult FakeVimHandler::Private::handleExMode(const Input &input)
@@ -2687,6 +2709,12 @@ EventResult FakeVimHandler::Private::handleExMode(const Input &input)
         m_commandBuffer.clear();
         enterCommandMode();
         updateMiniBuffer();
+        m_ctrlVActive = false;
+    } else if (m_ctrlVActive) {
+        m_commandBuffer += input.raw();
+        m_ctrlVActive = false;
+    } else if (input.isControl('v')) {
+        m_ctrlVActive = true;
     } else if (input.isBackspace()) {
         if (m_commandBuffer.isEmpty()) {
             m_commandPrefix.clear();
@@ -2716,9 +2744,6 @@ EventResult FakeVimHandler::Private::handleExMode(const Input &input)
     } else if (input.isKey(Key_Down) || input.isKey(Key_PageDown)) {
         g.commandHistory.down();
         m_commandBuffer = g.commandHistory.current();
-        updateMiniBuffer();
-    } else if (input.isKey(Key_Tab)) {
-        m_commandBuffer += QChar(9);
         updateMiniBuffer();
     } else if (!input.text().isEmpty()) {
         m_commandBuffer += input.text();
