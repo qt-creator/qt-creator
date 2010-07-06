@@ -229,18 +229,18 @@ void ProWriter::addVarValues(ProFile *profile, QStringList *lines,
 }
 
 static void findProVariables(const ushort *tokPtr, const QStringList &vars,
-                             QList<int> *proVars)
+                             QList<int> *proVars, const uint firstLine = 0)
 {
-    int lineNo = 0;
+    int lineNo = firstLine;
     QString tmp;
     const ushort *lastXpr = 0;
     while (ushort tok = *tokPtr++) {
         if (tok == TokBranch) {
             uint blockLen = getBlockLen(tokPtr);
-            findProVariables(tokPtr, vars, proVars);
+            findProVariables(tokPtr, vars, proVars, lineNo);
             tokPtr += blockLen;
             blockLen = getBlockLen(tokPtr);
-            findProVariables(tokPtr, vars, proVars);
+            findProVariables(tokPtr, vars, proVars, lineNo);
             tokPtr += blockLen;
         } else if (tok == TokAssign || tok == TokAppend || tok == TokAppendUnique) {
             if (getLiteral(lastXpr, tokPtr - 1, tmp) && vars.contains(tmp))
