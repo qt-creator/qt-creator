@@ -232,6 +232,11 @@ struct Column
     int logical; // Column on screen.
 };
 
+QDebug operator<<(QDebug ts, const Column &col)
+{
+    return ts << "(p: " << col.physical << ", l: " << col.logical << ")";
+}
+
 struct CursorPosition
 {
     // for jump history
@@ -2619,11 +2624,11 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
             if (col.logical <= ind.logical && col.logical
                     && startsWithWhitespace(data, col.physical)) {
                 const int ts = config(ConfigTabStop).toInt();
-                const int newcol = col.logical - 1 - (col.logical - 1) % ts;
-                data.remove(0, col.physical);
-                setLineContents(line, tabExpand(newcol).append(data));
+                const int newl = col.logical - 1 - (col.logical - 1) % ts;
+                const QString prefix = tabExpand(newl);
+                setLineContents(line, prefix + data.mid(col.physical));
                 moveToStartOfLine();
-                moveRight(newcol);
+                moveRight(prefix.size());
                 m_lastInsertion.clear(); // FIXME
             } else {
                 m_tc.deletePreviousChar();
@@ -4303,10 +4308,12 @@ void FakeVimHandler::Private::setLineContents(int line, const QString &contents)
 {
     QTextBlock block = m_tc.document()->findBlockByNumber(line - 1);
     QTextCursor tc = m_tc;
-    tc.setPosition(block.position());
-    tc.setPosition(block.position() + block.length() - 1, KeepAnchor);
+    const int begin = block.position();
+    const int len = block.length();
+    tc.setPosition(begin);
+    tc.setPosition(begin + len - 1, KeepAnchor);
     tc.removeSelectedText();
-    fixMarks(block.position(), block.length() - contents.size());
+    fixMarks(begin, contents.size() + 1 - len);
     tc.insertText(contents);
 }
 
