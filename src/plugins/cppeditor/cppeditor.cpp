@@ -1512,14 +1512,9 @@ bool CPPEditor::isInComment(const QTextCursor &cursor) const
     return false;
 }
 
-void CPPEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar)
+static CppTools::QtStyleCodeFormatter setupCodeFormatter(const TextEditor::TabSettings &ts)
 {
-    Q_UNUSED(doc)
-    Q_UNUSED(typedChar)
-
-    const TabSettings &ts = tabSettings();
     CppTools::QtStyleCodeFormatter codeFormatter;
-
     codeFormatter.setIndentSize(ts.m_indentSize);
     codeFormatter.setTabSize(ts.m_tabSize);
     if (ts.m_indentBraces && ts.m_doubleIndentBlocks) { // gnu style
@@ -1538,10 +1533,44 @@ void CPPEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedCha
         codeFormatter.setIndentDeclarationBraces(false);
         codeFormatter.setIndentDeclarationMembers(true);
     }
+    return codeFormatter;
+}
+
+void CPPEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar)
+{
+    Q_UNUSED(doc)
+    Q_UNUSED(typedChar)
+
+    const TabSettings &ts = tabSettings();
+    CppTools::QtStyleCodeFormatter codeFormatter = setupCodeFormatter(ts);
 
     codeFormatter.updateStateUntil(block);
     const int depth = codeFormatter.indentFor(block);
     ts.indentLine(block, depth);
+}
+
+void CPPEditor::indent(QTextDocument *doc, const QTextCursor &cursor, QChar typedChar)
+{
+    Q_UNUSED(doc)
+    Q_UNUSED(typedChar)
+
+    maybeClearSomeExtraSelections(cursor);
+    if (cursor.hasSelection()) {
+        QTextBlock block = doc->findBlock(cursor.selectionStart());
+        const QTextBlock end = doc->findBlock(cursor.selectionEnd()).next();
+
+        const TabSettings &ts = tabSettings();
+        CppTools::QtStyleCodeFormatter codeFormatter = setupCodeFormatter(ts);
+        codeFormatter.updateStateUntil(block);
+
+        do {
+            ts.indentLine(block, codeFormatter.indentFor(block));
+            codeFormatter.updateLineStateChange(block);
+            block = block.next();
+        } while (block.isValid() && block != end);
+    } else {
+        indentBlock(doc, cursor.block(), typedChar);
+    }
 }
 
 bool CPPEditor::event(QEvent *e)

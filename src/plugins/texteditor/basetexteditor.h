@@ -476,6 +476,8 @@ protected:
      */
     virtual bool openLink(const Link &link);
 
+    void maybeClearSomeExtraSelections(const QTextCursor &cursor);
+
 protected slots:
     virtual void slotUpdateExtraAreaWidth();
     virtual void slotModificationChanged(bool);
@@ -499,8 +501,6 @@ private:
     void saveCurrentCursorPositionForNavigation();
     void updateHighlights();
     void updateCurrentLineHighlight();
-
-    void maybeClearSomeExtraSelections(const QTextCursor &cursor);
 
     void drawFoldingMarker(QPainter *painter, const QPalette &pal,
                            const QRect &rect,
