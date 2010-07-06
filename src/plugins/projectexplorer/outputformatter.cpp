@@ -63,26 +63,24 @@ void OutputFormatter::setPlainTextEdit(QPlainTextEdit *plainText)
 
 void OutputFormatter::appendApplicationOutput(const QString &text, bool onStdErr)
 {
-    gotoEnd();
-
-    if (onStdErr)
-        setFormat(StdErrFormat);
-    else
-        setFormat(StdOutFormat);
-
-    plainTextEdit()->insertPlainText(text);
+    append(text, onStdErr ? StdErrFormat : StdOutFormat);
 }
 
 void OutputFormatter::appendMessage(const QString &text, bool isError)
 {
-    gotoEnd();
+    append(text, isError ? ErrorMessageFormat : NormalMessageFormat);
+}
 
-    if (isError)
-        setFormat(ErrorMessageFormat);
-    else
-        setFormat(NormalMessageFormat);
+void OutputFormatter::append(const QString &text, Format format)
+{
+    append(text, m_formats[format]);
+}
 
-    plainTextEdit()->insertPlainText(text);
+void OutputFormatter::append(const QString &text, const QTextCharFormat &format)
+{
+    QTextCursor cursor(m_plainTextEdit->document());
+    cursor.movePosition(QTextCursor::End);
+    cursor.insertText(text, format);
 }
 
 void OutputFormatter::mousePressEvent(QMouseEvent * /*e*/)
@@ -118,15 +116,4 @@ void OutputFormatter::initFormats()
     // StdErrFormat
     m_formats[StdErrFormat].setFont(font);
     m_formats[StdErrFormat].setForeground(QColor(200, 0, 0));
-}
-
-void OutputFormatter::setFormat(Format theFormat) const
-{
-    if (m_formats)
-        plainTextEdit()->setCurrentCharFormat(m_formats[theFormat]);
-}
-
-void OutputFormatter::gotoEnd() const
-{
-    plainTextEdit()->moveCursor(QTextCursor::End);
 }

@@ -496,8 +496,7 @@ void OutputWindow::appendMessage(const QString &out, bool isError)
 
 bool OutputWindow::isScrollbarAtBottom() const
 {
-    return blockBoundingRect(document()->lastBlock()).bottom() + contentOffset().y()
-            <= viewport()->rect().bottom();
+    return verticalScrollBar()->value() == verticalScrollBar()->maximum();
 }
 
 void OutputWindow::scrollToBottom()
