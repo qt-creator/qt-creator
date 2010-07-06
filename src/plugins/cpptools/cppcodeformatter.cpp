@@ -937,18 +937,23 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
 
     case class_open:
     case enum_open:
-    case defun_open:
+    case defun_open: {
         // undo the continuation indent of the parent
         *savedIndentDepth = parentState.savedIndentDepth;
 
-        if (firstToken)
+        bool followedByData = (!lastToken && !tokenAt(tokenIndex() + 1).isComment());
+        if (firstToken || followedByData)
             *savedIndentDepth = tokenPosition;
 
         *indentDepth = *savedIndentDepth;
 
-        if (m_indentDeclarationMembers)
+        if (followedByData) {
+            *indentDepth = column(tokenAt(tokenIndex() + 1).begin());
+        } else if (m_indentDeclarationMembers) {
             *indentDepth += m_indentSize;
+        }
         break;
+    }
 
     case substatement_open:
         if (firstToken) {
