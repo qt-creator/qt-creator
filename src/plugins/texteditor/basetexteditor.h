@@ -500,6 +500,8 @@ private:
     void updateHighlights();
     void updateCurrentLineHighlight();
 
+    void maybeClearSomeExtraSelections(const QTextCursor &cursor);
+
     void drawFoldingMarker(QPainter *painter, const QPalette &pal,
                            const QRect &rect,
                            bool expanded,

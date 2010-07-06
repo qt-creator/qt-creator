@@ -3654,6 +3654,7 @@ const DisplaySettings &BaseTextEditor::displaySettings() const
 void BaseTextEditor::indentOrUnindent(bool doIndent)
 {
     QTextCursor cursor = textCursor();
+    maybeClearSomeExtraSelections(cursor);
     cursor.beginEditBlock();
 
     int pos = cursor.position();
@@ -4076,6 +4077,7 @@ void BaseTextEditor::indentBlock(QTextDocument *, QTextBlock, QChar)
 
 void BaseTextEditor::indent(QTextDocument *doc, const QTextCursor &cursor, QChar typedChar)
 {
+    maybeClearSomeExtraSelections(cursor);
     if (cursor.hasSelection()) {
         QTextBlock block = doc->findBlock(cursor.selectionStart());
         const QTextBlock end = doc->findBlock(cursor.selectionEnd()).next();
@@ -4090,6 +4092,7 @@ void BaseTextEditor::indent(QTextDocument *doc, const QTextCursor &cursor, QChar
 
 void BaseTextEditor::reindent(QTextDocument *doc, const QTextCursor &cursor)
 {
+    maybeClearSomeExtraSelections(cursor);
     if (cursor.hasSelection()) {
         QTextBlock block = doc->findBlock(cursor.selectionStart());
         const QTextBlock end = doc->findBlock(cursor.selectionEnd()).next();
@@ -4620,6 +4623,26 @@ void BaseTextEditor::setExtraSelections(ExtraSelectionKind kind, const QList<QTe
 QList<QTextEdit::ExtraSelection> BaseTextEditor::extraSelections(ExtraSelectionKind kind) const
 {
     return d->m_extraSelections[kind];
+}
+
+void BaseTextEditor::maybeClearSomeExtraSelections(const QTextCursor &cursor)
+{
+    const int smallSelectionSize = 50 * 50;
+    if (cursor.selectionEnd() - cursor.selectionStart() < smallSelectionSize)
+        return;
+
+    d->m_extraSelections[TypeSelection].clear();
+    d->m_extraSelections[UndefinedSymbolSelection].clear();
+    d->m_extraSelections[ObjCSelection].clear();
+    d->m_extraSelections[CodeWarningsSelection].clear();
+
+    QList<QTextEdit::ExtraSelection> all;
+    for (int i = 0; i < NExtraSelectionKinds; ++i) {
+        if (i == CodeSemanticsSelection || i == SnippetPlaceholderSelection)
+            continue;
+        all += d->m_extraSelections[i];
+    }
+    QPlainTextEdit::setExtraSelections(all);
 }
 
 QString BaseTextEditor::extraSelectionTooltip(int pos) const
