@@ -89,6 +89,8 @@ protected:
     unsigned startOfTemplateDeclaration(TemplateDeclarationAST *ast) const;
     Scope *findScope(AST *ast) const;
 
+    void flush();
+
 private:
     Document::Ptr _doc;
     LookupContext _context;
@@ -97,6 +99,7 @@ private:
     QSet<QByteArray> _potentialTypes;
     QList<ScopedSymbol *> _scopes;
     QList<TemplateDeclarationAST *> _templateDeclarationStack;
+    QVector<Use> _typeUsages;
     QFutureInterface<Use> *_future;
 };
 

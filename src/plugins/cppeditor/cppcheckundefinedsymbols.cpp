@@ -278,8 +278,10 @@ void CheckUndefinedSymbols::runFunctor(QFutureInterface<Use> &future)
     _future = &future;
     _diagnosticMessages.clear();
 
-    if (_doc->translationUnit())
+    if (_doc->translationUnit()) {
         accept(_doc->translationUnit()->ast());
+        flush();
+    }
 }
 
 bool CheckUndefinedSymbols::warning(unsigned line, unsigned column, const QString &text, unsigned length)
@@ -464,7 +466,10 @@ void CheckUndefinedSymbols::endVisit(TemplateDeclarationAST *)
 
 void CheckUndefinedSymbols::addTypeUsage(const Use &use)
 {
-    _future->reportResult(use); // ### TODO: compress
+    _typeUsages.append(use);
+
+    if (_typeUsages.size() == 50)
+        flush();
 }
 
 void CheckUndefinedSymbols::addTypeUsage(ClassOrNamespace *b, NameAST *ast)
@@ -547,4 +552,13 @@ Scope *CheckUndefinedSymbols::findScope(AST *ast) const
         scope = _doc->globalSymbols();
 
     return scope;
+}
+
+void CheckUndefinedSymbols::flush()
+{
+    if (_typeUsages.isEmpty())
+        return;
+
+    _future->reportResults(_typeUsages);
+    _typeUsages.clear();
 }
