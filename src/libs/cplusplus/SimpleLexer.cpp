@@ -161,7 +161,7 @@ int SimpleLexer::tokenBefore(const QList<Token> &tokens, unsigned offset)
 {
     for (int index = tokens.size() - 1; index >= 0; --index) {
         const Token &tk = tokens.at(index);
-        if (tk.begin() <= offset)
+        if (tk.begin() < offset)
             return index;
     }
 

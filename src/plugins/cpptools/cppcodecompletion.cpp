@@ -554,9 +554,10 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
 
     SimpleLexer tokenize;
     tokenize.setQtMocRunEnabled(true);
+    tokenize.setObjCEnabled(true);
     tokenize.setSkipComments(false);
-    const QList<Token> &tokens = tokenize(tc.block().text());
-    const int tokenIdx = SimpleLexer::tokenAt(tokens, qMax(0, tc.positionInBlock() - 1)); // get the token at the left of the cursor
+    const QList<Token> &tokens = tokenize(tc.block().text(), BackwardsScanner::previousBlockState(tc.block()));
+    const int tokenIdx = SimpleLexer::tokenBefore(tokens, qMax(0, tc.positionInBlock() - 1)); // get the token at the left of the cursor
     const Token tk = (tokenIdx == -1) ? Token() : tokens.at(tokenIdx);
 
     if (completionKind == T_DOXY_COMMENT && !(tk.is(T_DOXY_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))) {
