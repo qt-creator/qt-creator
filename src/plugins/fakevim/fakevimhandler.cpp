@@ -621,19 +621,21 @@ public:
 
     // The following use all zero-based counting.
     int cursorLineOnScreen() const;
-    int cursorLineInDocument() const;
-    int physicalCursorColumnInDocument() const; // as stored in the data
-    int logicalCursorColumnInDocument() const; // as visible on screen
-    Column cursorColumnInDocument() const; // as visible on screen
-    int firstVisibleLineInDocument() const;
-    void scrollToLineInDocument(int line);
+    int cursorLine() const;
+    int physicalCursorColumn() const; // as stored in the data
+    int logicalCursorColumn() const; // as visible on screen
+    int physicalToLogicalColumn(int physical, const QString &text) const;
+    int logicalToPhysicalColumn(int logical, const QString &text) const;
+    Column cursorColumn() const; // as visible on screen
+    int firstVisibleLine() const;
+    void scrollToLine(int line);
     void scrollUp(int count);
     void scrollDown(int count) { scrollUp(-count); }
 
     CursorPosition cursorPosition() const
-        { return CursorPosition(position(), firstVisibleLineInDocument()); }
+        { return CursorPosition(position(), firstVisibleLine()); }
     void setCursorPosition(const CursorPosition &p)
-        { setPosition(p.position); scrollToLineInDocument(p.scrollLine); }
+        { setPosition(p.position); scrollToLine(p.scrollLine); }
 
     // Helper functions for indenting/
     bool isElectricCharacter(QChar c) const;
@@ -645,7 +647,7 @@ public:
     void moveToFirstNonBlankOnLine();
     void moveToTargetColumn();
     void setTargetColumn() {
-        m_targetColumn = leftDist();
+        m_targetColumn = logicalCursorColumn();
         m_visualTargetColumn = m_targetColumn;
         //qDebug() << "TARGET: " << m_targetColumn;
     }
@@ -997,7 +999,7 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
         if (m_mode == InsertMode) {
             int dist = m_tc.position() - m_oldPosition;
             // Try to compensate for code completion
-            if (dist > 0 && dist <= physicalCursorColumnInDocument()) {
+            if (dist > 0 && dist <= physicalCursorColumn()) {
                 Range range(m_oldPosition, m_tc.position());
                 m_lastInsertion.append(selectText(range));
             }
@@ -1552,10 +1554,10 @@ void FakeVimHandler::Private::updateMiniBuffer()
     emit q->commandBufferChanged(msg);
 
     int linesInDoc = linesInDocument();
-    int l = cursorLineInDocument();
+    int l = cursorLine();
     QString status;
     const QString pos = QString::fromLatin1("%1,%2")
-        .arg(l + 1).arg(physicalCursorColumnInDocument() + 1);
+        .arg(l + 1).arg(physicalCursorColumn() + 1);
     // FIXME: physical "-" logical
     if (linesInDoc != 0) {
         status = FakeVimHandler::tr("%1%2%").arg(pos, -10).arg(l * 100 / linesInDoc, 4);
@@ -1753,7 +1755,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         setDotCommand("%1==", count());
         finishMovement();
     } else if (m_submode == ZSubMode) {
-        //qDebug() << "Z_MODE " << cursorLineInDocument() << linesOnScreen();
+        //qDebug() << "Z_MODE " << cursorLine() << linesOnScreen();
         if (input.isReturn() || input.is('t')) {
             // Cursor line to top of window.
             if (!m_mvcount.isEmpty())
@@ -2061,7 +2063,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         // FIXME: this should use the "scroll" option, and "count"
         moveDown(linesOnScreen() / 2);
         handleStartOfLine();
-        scrollToLineInDocument(cursorLineInDocument() - sline);
+        scrollToLine(cursorLine() - sline);
         finishMovement();
     } else if (input.is('e') || input.isShift(Key_Right)) {
         m_movetype = MoveInclusive;
@@ -2283,7 +2285,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         enterInsertMode();
     } else if (input.is('S')) {
         if (!isVisualMode()) {
-            const int line = cursorLineInDocument() + 1;
+            const int line = cursorLine() + 1;
             setAnchor(firstPositionInLine(line));
             setPosition(lastPositionInLine(line + count() - 1));
         }
@@ -2317,7 +2319,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         // FIXME: this should use the "scroll" option, and "count"
         moveUp(linesOnScreen() / 2);
         handleStartOfLine();
-        scrollToLineInDocument(cursorLineInDocument() - sline);
+        scrollToLine(cursorLine() - sline);
         finishMovement();
     } else if (input.is('v')) {
         enterVisualMode(VisualCharMode);
@@ -2455,12 +2457,12 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         finishMovement();
     } else if (input.isKey(Key_PageDown) || input.isControl('f')) {
         moveDown(count() * (linesOnScreen() - 2) - cursorLineOnScreen());
-        scrollToLineInDocument(cursorLineInDocument());
+        scrollToLine(cursorLine());
         handleStartOfLine();
         finishMovement();
     } else if (input.isKey(Key_PageUp) || input.isControl('b')) {
         moveUp(count() * (linesOnScreen() - 2) + cursorLineOnScreen());
-        scrollToLineInDocument(cursorLineInDocument() + linesOnScreen() - 2);
+        scrollToLine(cursorLine() + linesOnScreen() - 2);
         handleStartOfLine();
         finishMovement();
     } else if (input.isKey(Key_Delete)) {
@@ -2593,8 +2595,8 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         joinPreviousEditBlock();
         m_justAutoIndented = 0;
         if (!m_lastInsertion.isEmpty() || hasConfig(ConfigBackspace, "start")) {
-            const int line = cursorLineInDocument() + 1;
-            const Column col = cursorColumnInDocument();
+            const int line = cursorLine() + 1;
+            const Column col = cursorColumn();
             QString data = lineContents(line);
             const Column ind = indentation(data);
             if (col.logical <= ind.logical && col.logical
@@ -2628,7 +2630,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
     } else if (input.isKey(Key_Tab) && hasConfig(ConfigExpandTab)) {
         m_justAutoIndented = 0;
         const int ts = config(ConfigTabStop).toInt();
-        const int col = logicalCursorColumnInDocument();
+        const int col = logicalCursorColumn();
         QString str = QString(ts - col % ts, ' ');
         m_lastInsertion.append(str);
         insertText(str);
@@ -2637,7 +2639,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         // remove one level of indentation from the current line
         int shift = config(ConfigShiftWidth).toInt();
         int tab = config(ConfigTabStop).toInt();
-        int line = cursorLineInDocument() + 1;
+        int line = cursorLine() + 1;
         int pos = firstPositionInLine(line);
         QString text = lineContents(line);
         int amount = 0;
@@ -2810,14 +2812,14 @@ int FakeVimHandler::Private::readLineCode(QString &cmd)
     cmd = cmd.mid(1);
     if (c == '.') {
         if (cmd.isEmpty())
-            return cursorLineInDocument() + 1;
+            return cursorLine() + 1;
         QChar c1 = cmd.at(0);
         if (c1 == '+' || c1 == '-') {
             // Repeat for things like  .+4
             cmd = cmd.mid(1);
-            return cursorLineInDocument() + readLineCode(cmd);
+            return cursorLine() + readLineCode(cmd);
         }
-        return cursorLineInDocument() + 1;
+        return cursorLine() + 1;
     }
     if (c == '$')
         return linesInDocument();
@@ -2837,11 +2839,11 @@ int FakeVimHandler::Private::readLineCode(QString &cmd)
     }
     if (c == '-') {
         int n = readLineCode(cmd);
-        return cursorLineInDocument() + 1 - (n == -1 ? 1 : n);
+        return cursorLine() + 1 - (n == -1 ? 1 : n);
     }
     if (c == '+') {
         int n = readLineCode(cmd);
-        return cursorLineInDocument() + 1 + (n == -1 ? 1 : n);
+        return cursorLine() + 1 + (n == -1 ? 1 : n);
     }
     if (c == '\'' && !cmd.isEmpty()) {
         int pos = mark(cmd.at(0).unicode());
@@ -3440,7 +3442,7 @@ void FakeVimHandler::Private::search(const SearchData &sd)
     QString needle = sd.needle;
     vimPatternToQtPattern(&needle, &flags);
 
-    const int oldLine = cursorLineInDocument() - cursorLineOnScreen();
+    const int oldLine = cursorLine() - cursorLineOnScreen();
 
     int startPos = position();
     if (sd.mustMove)
@@ -3474,8 +3476,8 @@ void FakeVimHandler::Private::search(const SearchData &sd)
     EDITOR(setTextCursor(m_tc));
 
     // Making this unconditional feels better, but is not "vim like".
-    if (oldLine != cursorLineInDocument() - cursorLineOnScreen())
-        scrollToLineInDocument(cursorLineInDocument() - linesOnScreen() / 2);
+    if (oldLine != cursorLine() - cursorLineOnScreen())
+        scrollToLine(cursorLine() - linesOnScreen() / 2);
 
     if (incSearch && sd.highlightCursor) {
         m_searchCursor = m_tc;
@@ -3642,14 +3644,19 @@ void FakeVimHandler::Private::shiftRegionLeft(int repeat)
 void FakeVimHandler::Private::moveToTargetColumn()
 {
     const QTextBlock &block = m_tc.block();
-    int col = m_tc.position() - block.position();
-    if (col == m_targetColumn && m_targetColumn < block.length() - 2)
+    //Column column = cursorColumn();
+    //int logical = logical
+    int maxcol = block.length() - 2;
+    if (m_targetColumn == -1) {
+        m_tc.setPosition(block.position() + qMax(0, maxcol), MoveAnchor);
         return;
-    //qDebug() << "CORRECTING COLUMN FROM: " << col << "TO" << m_targetColumn;
-    if (m_targetColumn == -1 || m_targetColumn >= block.length() - 2)
-        m_tc.setPosition(block.position() + qMax(0, block.length() - 2), MoveAnchor);
+    }
+    int physical = logicalToPhysicalColumn(m_targetColumn, block.text());
+    //qDebug() << "CORRECTING COLUMN FROM: " << logical << "TO" << m_targetColumn;
+    if (physical >= maxcol)
+        m_tc.setPosition(block.position() + qMax(0, maxcol), MoveAnchor);
     else
-        m_tc.setPosition(block.position() + m_targetColumn, MoveAnchor);
+        m_tc.setPosition(block.position() + physical, MoveAnchor);
 }
 
 /* if simple is given:
@@ -3851,39 +3858,62 @@ int FakeVimHandler::Private::columnsOnScreen() const
     return EDITOR(width()) / rect.width();
 }
 
-int FakeVimHandler::Private::cursorLineInDocument() const
+int FakeVimHandler::Private::cursorLine() const
 {
     return m_tc.block().blockNumber();
 }
 
-int FakeVimHandler::Private::physicalCursorColumnInDocument() const
+int FakeVimHandler::Private::physicalCursorColumn() const
 {
     return m_tc.position() - m_tc.block().position();
 }
 
-int FakeVimHandler::Private::logicalCursorColumnInDocument() const
+int FakeVimHandler::Private::physicalToLogicalColumn
+    (const int physical, const QString &line) const
 {
-    const int ncols = physicalCursorColumnInDocument();
-    const QString line = m_tc.block().text();
     const int ts = config(ConfigTabStop).toInt();
-    int physical = 0;
+    int p = 0;
     int logical = 0;
-    while (physical < ncols) {
-        QChar c = line.at(physical);
-        if (c == QLatin1Char(' '))
-            ++logical;
-        else if (c == QLatin1Char('\t'))
+    while (p < physical) {
+        QChar c = line.at(p);
+        //if (c == QLatin1Char(' '))
+        //    ++logical;
+        //else
+        if (c == QLatin1Char('\t'))
             logical += ts - logical % ts;
         else
-            break;
-        ++physical;
+            ++logical;
+            //break;
+        ++p;
     }
     return logical;
 }
 
-Column FakeVimHandler::Private::cursorColumnInDocument() const
+int FakeVimHandler::Private::logicalToPhysicalColumn
+    (const int logical, const QString &line) const
 {
-    return Column(physicalCursorColumnInDocument(), logicalCursorColumnInDocument());
+    const int ts = config(ConfigTabStop).toInt();
+    int physical = 0;
+    for (int l = 0; l < logical && physical < line.size(); ++physical) {
+        QChar c = line.at(physical);
+        if (c == QLatin1Char('\t'))
+            l += ts - l % ts;
+        else
+            ++l;
+    }
+    return physical;
+}
+
+int FakeVimHandler::Private::logicalCursorColumn() const
+{
+    const int physical = physicalCursorColumn();
+    const QString line = m_tc.block().text();
+    return physicalToLogicalColumn(physical, line);
+}
+
+Column FakeVimHandler::Private::cursorColumn() const
+{
+    return Column(physicalCursorColumn(), logicalCursorColumn());
 }
 
 int FakeVimHandler::Private::linesInDocument() const
@@ -3897,30 +3927,30 @@ int FakeVimHandler::Private::linesInDocument() const
     return doc->lastBlock().length() <= 1 ? count - 1 : count;
 }
 
-void FakeVimHandler::Private::scrollToLineInDocument(int line)
+void FakeVimHandler::Private::scrollToLine(int line)
 {
     // FIXME: works only for QPlainTextEdit
     QScrollBar *scrollBar = EDITOR(verticalScrollBar());
     //qDebug() << "SCROLL: " << scrollBar->value() << line;
     scrollBar->setValue(line);
-    //QTC_ASSERT(firstVisibleLineInDocument() == line, /**/);
+    //QTC_ASSERT(firstVisibleLine() == line, /**/);
 }
 
-int FakeVimHandler::Private::firstVisibleLineInDocument() const
+int FakeVimHandler::Private::firstVisibleLine() const
 {
     QScrollBar *scrollBar = EDITOR(verticalScrollBar());
-    if (0 && scrollBar->value() != cursorLineInDocument() - cursorLineOnScreen()) {
+    if (0 && scrollBar->value() != cursorLine() - cursorLineOnScreen()) {
         qDebug() << "SCROLLBAR: " << scrollBar->value()
-            << "CURSORLINE IN DOC" << cursorLineInDocument()
+            << "CURSORLINE IN DOC" << cursorLine()
             << "CURSORLINE ON SCREEN" << cursorLineOnScreen();
     }
     //return scrollBar->value();
-    return cursorLineInDocument() - cursorLineOnScreen();
+    return cursorLine() - cursorLineOnScreen();
 }
 
 void FakeVimHandler::Private::scrollUp(int count)
 {
-    scrollToLineInDocument(cursorLineInDocument() - cursorLineOnScreen() - count);
+    scrollToLine(cursorLine() - cursorLineOnScreen() - count);
 }
 
 int FakeVimHandler::Private::lastPositionInDocument() const
