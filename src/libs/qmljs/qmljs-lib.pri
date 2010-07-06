@@ -22,6 +22,7 @@ HEADERS += \
     $$PWD/qmljsscopebuilder.h \
     $$PWD/qmljslineinfo.h \
     $$PWD/qmljscompletioncontextfinder.h \
+    $$PWD/qmljsicontextpane.h \
     $$PWD/qmljspropertyreader.h \
     $$PWD/qmljsrewriter.h
 
