@@ -1,13 +1,11 @@
 from __future__ import with_statement
-#Note: Keep name-type-value-numchild-extra order
-
-#return
 
 import sys
 import gdb
 import base64
 import __builtin__
 import os
+
 
 # Fails on Windows.
 try:
@@ -128,6 +126,9 @@ def lookupType(typestring):
         typeCache[typestring] = type
     return type
 
+def cleanType(type):
+    return lookupType(str(type))
+
 def cleanAddress(addr):
     if addr is None:
         return "<no address>"
@@ -240,9 +241,9 @@ class SubItem:
             if len(type) > 0 and type != self.d.currentChildType:
                 self.d.put('type="%s",' % type) # str(type.unqualified()) ?
             if not self.d.currentValueEncoding is None:
-                self.d.putField("valueencoded", self.d.currentValueEncoding)
+                self.d.put('valueencoded="%d",' % self.d.currentValueEncoding)
             if not self.d.currentValue is None:
-                self.d.putField("value", self.d.currentValue)
+                self.d.put('value="%s",' % self.d.currentValue)
         except:
             pass
         self.d.put('},')
@@ -423,6 +424,8 @@ def listOfLocals(varList):
     hasBlock = 'block' in __builtin__.dir(frame)
 
     items = []
+    #warn("HAS BLOCK: %s" % hasBlock);
+    #warn("IS GOOD GDB: %s" % isGoodGdb());
     if hasBlock and isGoodGdb():
         #warn("IS GOOD: %s " % varList)
         try:
@@ -783,8 +786,8 @@ def encodeString(value):
         p += 1
     return s
 
-def stripTypedefs(typeobj):
-    type = typeobj
+def stripTypedefs(type):
+    type = type.unqualified()
     while type.code == gdb.TYPE_CODE_TYPEDEF:
         type = type.strip_typedefs().unqualified()
     return type
@@ -822,12 +825,56 @@ class Item:
 
 #######################################################################
 #
+# SetupCommand
+#
+#######################################################################
+
+# This is a mapping from 'type name' to 'display alternatives'.
+
+qqDumpers = {}
+qqFormats = {}
+
+
+class SetupCommand(gdb.Command):
+    """Setup Creator Pretty Printing"""
+
+    def __init__(self):
+        super(SetupCommand, self).__init__("bbsetup", gdb.COMMAND_OBSCURE)
+
+    def invoke(self, args, from_tty):
+        module = sys.modules[__name__]
+        for key, value in module.__dict__.items():
+            if key.startswith("qdump__"):
+                name = key[7:]
+                qqDumpers[name] = value
+                qqFormats[name] = qqFormats.get(name, "");
+            elif key.startswith("qform__"):
+                name = key[7:]
+                formats = ""
+                try:
+                    formats = value()
+                except:
+                    pass
+                qqFormats[name] = formats
+        result = "dumpers=["
+        # Too early: ns = qtNamespace()
+        for key, value in qqFormats.items():
+            result += '{type="%s",formats="%s"},' % (key, value)
+        result += ']'
+        #result += '],namespace="%s"' % ns
+        print(result)
+
+SetupCommand()
+
+
+#######################################################################
+#
 # FrameCommand
 #
 #######################################################################
 
 class FrameCommand(gdb.Command):
-    """Do fancy stuff. Usage bb --verbose expandedINames"""
+    """Do fancy stuff."""
 
     def __init__(self):
         super(FrameCommand, self).__init__("bb", gdb.COMMAND_OBSCURE)
@@ -1109,15 +1156,16 @@ class Dumper:
     def childRange(self):
         return xrange(qmin(self.currentMaxNumChilds, self.currentNumChilds))
 
-    # convenience
+    # Convenience function.
     def putItemCount(self, count):
-        self.put('value="<%s items>",' % count)
+        # This needs to override the default value, so don't use 'put' directly.
+        self.putValue('<%s items>' % count)
 
     def putEllipsis(self):
         self.put('{name="<incomplete>",value="",type="",numchild="0"},')
 
     def putType(self, type, priority = 0):
-        # higher priority values override lower ones 
+        # Higher priority values override lower ones.
         if priority >= self.currentTypePriority:
             self.currentType = type
             self.currentTypePriority = priority
@@ -1131,7 +1179,7 @@ class Dumper:
             self.put('numchild="%s",' % numchild)
 
     def putValue(self, value, encoding = None, priority = 0):
-        # higher priority values override lower ones 
+        # Higher priority values override lower ones.
         if priority >= self.currentValuePriority:
             self.currentValue = value
             self.currentValuePriority = priority
@@ -1266,9 +1314,6 @@ class Dumper:
             except RuntimeError:
                 value = item.value
                 type = value.type
-
-        if type.code == gdb.TYPE_CODE_TYPEDEF:
-            type = type.target()
 
         typedefStrippedType = stripTypedefs(type);
         nsStrippedType = self.stripNamespaceFromType(
@@ -1423,8 +1468,8 @@ class Dumper:
                     charptr = lookupType("unsigned char").pointer()
                     addr1 = (baseptr+1).cast(charptr)
                     addr0 = baseptr.cast(charptr)
-                    self.putField("addrbase" % cleanAddress(addr0))
-                    self.putField("addrstep" % (addr1 - addr0))
+                    self.put('addrbase="%s",' % cleanAddress(addr0))
+                    self.put('addrstep="%s",' % (addr1 - addr0))
 
                 innerType = None
                 if len(fields) == 1 and fields[0].name is None:
@@ -1468,7 +1513,7 @@ class Dumper:
                         item.iname, "@%d" % baseNumber, field.name)
                     baseNumber += 1
                     with SubItem(self):
-                        self.putField("iname", child.iname)
+                        self.put('iname="%s",' % child.iname)
                         self.putItemHelper(child)
                 elif len(field.name) == 0:
                     # Anonymous union. We need a dummy name to distinguish
