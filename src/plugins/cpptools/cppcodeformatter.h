@@ -28,7 +28,13 @@ public:
     CodeFormatter();
     virtual ~CodeFormatter();
 
+    // updates all states up until block if necessary
+    // it is safe to call indentFor on block afterwards
     void updateStateUntil(const QTextBlock &block);
+
+    // calculates the state change introduced by changing a single line
+    void updateLineStateChange(const QTextBlock &block);
+
     int indentFor(const QTextBlock &block);
 
     void setTabSize(int tabSize);

@@ -89,17 +89,17 @@ void checkIndent(QList<Line> data, int style = 0)
         formatter.setIndentDeclarationBraces(true);
     }
 
-    formatter.updateStateUntil(document.lastBlock());
-
     int i = 0;
     foreach (const Line &l, data) {
+        QTextBlock b = document.findBlockByLineNumber(i);
         if (l.expectedIndent != -1) {
-            int actualIndent = formatter.indentFor(document.findBlockByLineNumber(i));
+            int actualIndent = formatter.indentFor(b);
             if (actualIndent != l.expectedIndent) {
                 QFAIL(QString("Wrong indent in line %1 with text '%2', expected indent %3, got %4").arg(
                         QString::number(i+1), l.line, QString::number(l.expectedIndent), QString::number(actualIndent)).toLatin1().constData());
             }
         }
+        formatter.updateLineStateChange(b);
         ++i;
     }
 }

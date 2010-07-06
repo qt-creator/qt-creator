@@ -455,6 +455,8 @@ void CodeFormatter::updateStateUntil(const QTextBlock &endBlock)
 {
     QStack<State> previousState = initialState();
     QTextBlock it = endBlock.document()->firstBlock();
+
+    // find the first block that needs recalculation
     for (; it.isValid() && it != endBlock; it = it.next()) {
         TextBlockUserData *userData = BaseTextDocumentLayout::userData(it);
         CppCodeFormatterData *cppData = static_cast<CppCodeFormatterData *>(userData->codeFormatterData());
@@ -469,9 +471,46 @@ void CodeFormatter::updateStateUntil(const QTextBlock &endBlock)
 
         previousState = cppData->m_endState;
     }
+
+    if (it == endBlock)
+        return;
+
+    // update everthing until endBlock
     for (; it.isValid() && it != endBlock; it = it.next()) {
-        //qDebug() << "recalc line" << it.blockNumber() + 1;
         recalculateStateAfter(it);
+    }
+
+    // invalidate everything below by marking the state in endBlock as invalid
+    TextBlockUserData *userData = BaseTextDocumentLayout::userData(endBlock);
+    CppCodeFormatterData *cppData = static_cast<CppCodeFormatterData *>(userData->codeFormatterData());
+    if (cppData)
+        cppData->setBlockRevision(-1);
+}
+
+void CodeFormatter::updateLineStateChange(const QTextBlock &block)
+{
+    if (!block.isValid())
+        return;
+
+    QStack<State> oldEndState;
+
+    TextBlockUserData *userData = BaseTextDocumentLayout::userData(block);
+    CppCodeFormatterData *cppData = static_cast<CppCodeFormatterData *>(userData->codeFormatterData());
+    if (cppData)
+        oldEndState = cppData->m_endState;
+
+    recalculateStateAfter(block);
+
+    if (oldEndState.isEmpty() || oldEndState != cppData->m_endState) {
+        // invalidate everything below by marking the next block's state as invalid
+        QTextBlock next = block.next();
+        if (!next.isValid())
+            return;
+
+        userData = BaseTextDocumentLayout::userData(next);
+        cppData = static_cast<CppCodeFormatterData *>(userData->codeFormatterData());
+        if (cppData)
+            cppData->setBlockRevision(-1);
     }
 }
 
