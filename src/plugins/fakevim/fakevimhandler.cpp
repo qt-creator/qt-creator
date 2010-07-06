@@ -2035,22 +2035,25 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         m_opcount = m_mvcount;
         m_mvcount.clear();
         m_submode = DeleteSubMode;
-    } else if ((input.is('d') || input.is('x')) && isVisualCharMode()) {
-        leaveVisualMode();
-        m_submode = DeleteSubMode;
-        finishMovement();
-    } else if ((input.is('d') || input.is('x')) && isVisualLineMode()) {
-        leaveVisualMode();
-        m_rangemode = RangeLineMode;
-        yankText(currentRange(), m_register);
-        removeText(currentRange());
-        handleStartOfLine();
-    } else if ((input.is('d') || input.is('x')) && isVisualBlockMode()) {
-        leaveVisualMode();
-        m_rangemode = RangeBlockMode;
-        yankText(currentRange(), m_register);
-        removeText(currentRange());
-        setPosition(qMin(position(), anchor()));
+    } else if ((input.is('d') || input.is('x') || input.isKey(Key_Delete))
+            && isVisualMode()) {
+        if (isVisualCharMode()) {
+            leaveVisualMode();
+            m_submode = DeleteSubMode;
+            finishMovement();
+        } else if (isVisualLineMode()) {
+            leaveVisualMode();
+            m_rangemode = RangeLineMode;
+            yankText(currentRange(), m_register);
+            removeText(currentRange());
+            handleStartOfLine();
+        } else if (isVisualBlockMode()) {
+            leaveVisualMode();
+            m_rangemode = RangeBlockMode;
+            yankText(currentRange(), m_register);
+            removeText(currentRange());
+            setPosition(qMin(position(), anchor()));
+        }
     } else if (input.is('D') && isNoVisualMode()) {
         if (atEndOfLine())
             moveLeft();
@@ -2486,6 +2489,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         setAnchor();
         moveRight(qMin(1, rightDist()));
         removeText(currentRange());
+        if (atEndOfLine())
+            moveLeft();
     } else if (input.isKey(Key_BracketLeft) || input.isKey(Key_BracketRight)) {
 
     } else if (input.isControl(Key_BracketRight)) {
