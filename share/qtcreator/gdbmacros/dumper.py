@@ -1346,26 +1346,26 @@ class Dumper:
 
 
         elif typedefStrippedType.code == gdb.TYPE_CODE_PTR:
-            warn("POINTER: %s" % format)
+            #warn("POINTER: %s" % format)
             isHandled = False
             target = stripTypedefs(type.target())
 
             if (not isHandled) and isNull(value):
-                warn("NULL POINTER")
+                #warn("NULL POINTER")
                 self.putType(item.value.type)
                 self.putValue("0x0")
                 self.putNumChild(0)
                 isHandled = True
 
             if (not isHandled) and target.code == gdb.TYPE_CODE_VOID:
-                warn("VOID POINTER: %s" % format)
+                #warn("VOID POINTER: %s" % format)
                 self.putType(item.value.type)
                 self.putValue(str(value))
                 self.putNumChild(0)
                 isHandled = True
 
             if (not isHandled) and (not format is None):
-                warn("SPECIAL FORMAT POINTER: %s" % format)
+                #warn("SPECIAL FORMAT POINTER: %s" % format)
                 self.putAddress(value.address)
                 self.putType(item.value.type)
                 isHandled = True
@@ -1401,7 +1401,7 @@ class Dumper:
             #warn("RES: %s" % (self.autoDerefPointers and not isHandled))
             if (not isHandled) and (self.autoDerefPointers or name == "this"):
                 ## Generic pointer type.
-                warn("GENERIC AUTODEREF POINTER: %s" % value.address)
+                #warn("GENERIC AUTODEREF POINTER: %s" % value.address)
                 innerType = item.value.type.target()
                 self.putType(innerType)
                 savedCurrentChildType = self.currentChildType
@@ -1436,7 +1436,7 @@ class Dumper:
                 self.listAnonymous(item, "#%d" % self.anonNumber, type)
 
         else:
-            warn("GENERIC STRUCT: %s" % item.value.type)
+            #warn("GENERIC STRUCT: %s" % item.value.type)
             #warn("INAME: %s " % item.iname)
             #warn("INAMES: %s " % self.expandedINames)
             #warn("EXPANDED: %s " % (item.iname in self.expandedINames))
