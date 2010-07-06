@@ -185,7 +185,7 @@ S60CreatePackageStepFactory::~S60CreatePackageStepFactory()
 
 bool S60CreatePackageStepFactory::canCreate(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, const QString &id) const
 {
-    if (type != ProjectExplorer::BuildStep::Build)
+    if (type != ProjectExplorer::BuildStep::Deploy)
         return false;
     if (parent->target()->id() != Constants::S60_DEVICE_TARGET_ID)
         return false;
@@ -230,7 +230,7 @@ ProjectExplorer::BuildStep *S60CreatePackageStepFactory::restore(ProjectExplorer
 
 QStringList S60CreatePackageStepFactory::availableCreationIds(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type) const
 {
-    if (type != ProjectExplorer::BuildStep::Build)
+    if (type != ProjectExplorer::BuildStep::Deploy)
         return QStringList();
     if (parent->target()->id() == Constants::S60_DEVICE_TARGET_ID)
         return QStringList() << QLatin1String(SIGN_BS_ID);

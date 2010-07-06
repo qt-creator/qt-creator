@@ -413,8 +413,11 @@ bool BuildManager::buildQueueAppend(QList<BuildStep *> steps)
 void BuildManager::buildProjects(const QList<BuildConfiguration *> &configurations)
 {
     QList<BuildStep *> steps;
-    foreach(BuildConfiguration *bc, configurations)
+    foreach(BuildConfiguration *bc, configurations) {
         steps.append(bc->steps(BuildStep::Build));
+        // TODO: Verify that this is indeed what we want.
+        steps.append(bc->steps(BuildStep::Deploy));
+    }
 
     bool success = buildQueueAppend(steps);
     if (!success) {

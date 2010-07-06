@@ -75,6 +75,7 @@ public:
     enum Type {
         Build = 0,
         Clean,
+        Deploy,
         LastStepType
     };
     Q_ENUMS(Type)

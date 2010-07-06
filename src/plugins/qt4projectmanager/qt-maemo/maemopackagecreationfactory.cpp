@@ -105,22 +105,25 @@ BuildStep *MaemoPackageCreationFactory::restore(BuildConfiguration *parent,
 }
 
 bool MaemoPackageCreationFactory::canClone(BuildConfiguration *parent,
-                                           BuildStep::Type type, BuildStep *product) const
+                                           ProjectExplorer::BuildStep::Type type,
+                                           BuildStep *product) const
 {
     return canCreateInternally(parent, type, product->id());
 }
 
 BuildStep *MaemoPackageCreationFactory::clone(BuildConfiguration *parent,
-                                              BuildStep::Type type, BuildStep *product)
+                                              ProjectExplorer::BuildStep::Type type,
+                                              BuildStep *product)
 {
     Q_ASSERT(canClone(parent, type, product));
     return new MaemoPackageCreationStep(parent, static_cast<MaemoPackageCreationStep *>(product));
 }
 
 bool MaemoPackageCreationFactory::canCreateInternally(BuildConfiguration *parent,
-                                                      BuildStep::Type type, const QString &id) const
+                                                      ProjectExplorer::BuildStep::Type type,
+                                                      const QString &id) const
 {
-    return type == ProjectExplorer::BuildStep::Build
+    return type == ProjectExplorer::BuildStep::Deploy
         && id == MaemoPackageCreationStep::CreatePackageId
         && parent->target()->id() == Constants::MAEMO_DEVICE_TARGET_ID;
 }

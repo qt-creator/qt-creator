@@ -283,9 +283,9 @@ Qt4BuildConfiguration *Qt4Target::addQt4BuildConfiguration(QString displayName, 
 
     if (id() == Constants::S60_DEVICE_TARGET_ID) {
         S60CreatePackageStep *packageStep = new S60CreatePackageStep(bc);
-        bc->insertStep(ProjectExplorer::BuildStep::Build, 2, packageStep);
+        bc->insertStep(ProjectExplorer::BuildStep::Deploy, 2, packageStep);
     } else if (id() == Constants::MAEMO_DEVICE_TARGET_ID) {
-        bc->insertStep(ProjectExplorer::BuildStep::Build, 2, new MaemoPackageCreationStep(bc));
+        bc->insertStep(ProjectExplorer::BuildStep::Deploy, 2, new MaemoPackageCreationStep(bc));
     }
 
     MakeStep* cleanStep = new MakeStep(bc);
