@@ -6,7 +6,7 @@
 #include <QToolButton>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
-#include <Qlabel>
+#include <QLabel>
 #include <QMouseEvent>
 #include <QGridLayout>
 #include <QToolButton>

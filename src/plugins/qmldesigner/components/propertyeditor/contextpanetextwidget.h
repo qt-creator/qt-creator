@@ -4,9 +4,11 @@
 #include <QWidget>
 #include <QVariant>
 
+QT_BEGIN_NAMESPACE
 namespace Ui {
     class ContextPaneTextWidget;
 }
+QT_END_NAMESPACE
 
 namespace QmlJS {
     class PropertyReader;
