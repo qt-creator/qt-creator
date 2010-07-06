@@ -84,7 +84,7 @@ void MaemoPackageCreationWidget::init()
 
 QString MaemoPackageCreationWidget::summaryText() const
 {
-    return tr("<b>Create Package:</b> ") + m_step->packageFilePath();
+    return tr("<b>Create Package:</b> ") + QDir::toNativeSeparators(m_step->packageFilePath());
 }
 
 QString MaemoPackageCreationWidget::displayName() const
