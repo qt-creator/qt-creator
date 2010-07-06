@@ -235,7 +235,7 @@ private:
 };
 #endif
 
-class CppPreprocessor: public CPlusPlus::Client
+class CPPTOOLS_EXPORT CppPreprocessor: public CPlusPlus::Client
 {
 public:
 #ifndef ICHECK_BUILD

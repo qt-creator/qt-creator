@@ -1,21 +1,25 @@
-include(../../../../../src/plugins/qmldesigner/config.pri)
-include(../../../../../src/plugins/qmldesigner/components/propertyeditor/propertyeditor.pri)
+include(../../../../../qtcreator.pri)
+include($$IDE_SOURCE_TREE/src/plugins/qmldesigner/config.pri)
+# include($$IDE_SOURCE_TREE/src/plugins/qmldesigner/components/propertyeditor/propertyeditor.pri)
 
 QT += testlib \
     script \
     declarative
-DESTDIR = $$DESIGNER_BINARY_DIRECTORY
-include(../../../../../src/plugins/qmldesigner/designercore/designercore.pri)
-include(../../../../../src/libs/qmljs/qmljs-lib.pri)
-HEADERS+=../../../../../src/libs/utils/changeset.h
-SOURCES+=../../../../../src/libs/utils/changeset.cpp
-INCLUDEPATH+=../../../../../src/libs
-DEFINES+=QTCREATOR_UTILS_STATIC_LIB QML_BUILD_STATIC_LIB
+# DESTDIR = $$DESIGNER_BINARY_DIRECTORY
+include($$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore/designercore.pri)
+include($$IDE_SOURCE_TREE/src/libs/qmljs/qmljs-lib.pri)
+HEADERS+=$$IDE_SOURCE_TREE/src/libs/utils/changeset.h
+SOURCES+=$$IDE_SOURCE_TREE/src/libs/utils/changeset.cpp
+INCLUDEPATH+=$$IDE_SOURCE_TREE/src/libs
+#DEFINES+=QTCREATOR_UTILS_STATIC_LIB QML_BUILD_STATIC_LIB
 
-DEPENDPATH += ../../../../../src/plugins/qmldesigner/core/include
 DEPENDPATH += ..
+DEPENDPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore
+INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore/include
+INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore
 
 TARGET = tst_propertyeditor
+
 CONFIG += console
 CONFIG -= app_bundle
 TEMPLATE = app

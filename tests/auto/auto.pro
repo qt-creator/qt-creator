@@ -7,7 +7,7 @@ SUBDIRS += \
 #    profilereader \
     aggregation \
     changeset \
-    icheckbuild \
+#    icheckbuild \
     generichighlighter
 
 contains (QT_CONFIG, declarative) {

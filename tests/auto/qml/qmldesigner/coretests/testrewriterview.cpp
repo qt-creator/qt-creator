@@ -27,10 +27,9 @@
 **
 **************************************************************************/
 
-#include "abstractproperty.h"
-#include "nodeproperty.h"
 #include "testrewriterview.h"
 #include <QObject>
+#include <nodeproperty.h>
 
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
