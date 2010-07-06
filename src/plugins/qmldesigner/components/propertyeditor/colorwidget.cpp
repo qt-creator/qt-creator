@@ -124,28 +124,29 @@ void ColorButton::paintEvent(QPaintEvent *event)
     else
         p.setBrush(Qt::transparent);
 
-    p.setPen(QColor(0x444444));
-    p.drawRect(r.translated(1, 1));
-    p.setPen(QColor(0x101010));
-    p.drawRect(r);
-    p.setPen(QColor(255, 255, 255, 40));
-    p.drawRect(r.adjusted(1, 1, -1, -1));
+    if (color.value() > 80)
+        p.setPen(QColor(0x444444));
+    else
+        p.setPen(QColor(0x9e9e9e));
+    p.drawRect(r.translated(1, 1));   
 
-    p.setRenderHint(QPainter::Antialiasing, true);
-    QVector<QPointF> points;
-    if (isChecked()) {
-        points.append(QPointF(2, 3));
-        points.append(QPointF(8, 3));
-        points.append(QPointF(5, 9));
-    } else {
-        points.append(QPointF(8, 6));
-        points.append(QPointF(2, 9));
-        points.append(QPointF(2, 3));
+    if (m_showArrow) {
+        p.setRenderHint(QPainter::Antialiasing, true);
+        QVector<QPointF> points;
+        if (isChecked()) {
+            points.append(QPointF(2, 3));
+            points.append(QPointF(8, 3));
+            points.append(QPointF(5, 9));
+        } else {
+            points.append(QPointF(8, 6));
+            points.append(QPointF(2, 9));
+            points.append(QPointF(2, 3));
+        }
+        p.translate(0.5, 0.5);
+        p.setBrush(QColor(0xaaaaaa));
+        p.setPen(QColor(0x444444));
+        p.drawPolygon(points);
     }
-    p.translate(0.5, 0.5);
-    p.setBrush(QColor(0xaaaaaa));
-    p.setPen(QColor(0x444444));
-    p.drawPolygon(points);
 }
 
 
@@ -189,24 +190,19 @@ void HueControl::paintEvent(QPaintEvent *event)
         }
     }
 
-    p.setPen(QColor(0x404040));
-    p.drawRect(QRect(1, 1, width() - 1, height() - 1).adjusted(10, 5, -20, -5));
+    //p.setPen(QColor(0x404040));
+    //p.drawRect(QRect(1, 1, width() - 1, height() - 1).adjusted(10, 5, -20, -5));
 
-    p.drawPixmap(10, 5, m_cache);
+    p.drawPixmap(0, 5, m_cache);
 
     QVector<QPointF> points;
 
     int y = m_color.hueF() * 120 + 5;
 
-    points.append(QPointF(15, y));
-    points.append(QPointF(25, y + 5));
-    points.append(QPointF(25, y - 5));
+    points.append(QPointF(5, y));
+    points.append(QPointF(15, y + 5));
+    points.append(QPointF(15, y - 5));
 
-    p.setBrush(Qt::NoBrush);
-    p.setPen(QColor(0x101010));
-    p.drawRect(QRect(0, 0, width() - 1, height() - 1).adjusted(10, 5, -20, -5));
-    p.setPen(QColor(255, 255, 255, 60));
-    p.drawRect(QRect(1, 1, width() - 3, height() - 3).adjusted(10, 5, -20, -5));
 
     p.setRenderHint(QPainter::Antialiasing, true);
     p.translate(0.5, 1.5);
@@ -364,15 +360,6 @@ void ColorBox::paintEvent(QPaintEvent *event)
                 chacheP.drawPoint(x ,y);
             }
     }
-
-    p.setBrush(Qt::NoBrush);
-    p.setPen(QColor(0x505050));
-    QRect r(0, 0, width() -1, height() - 1);
-    p.drawRect(r.adjusted(6, 6, -2, -2));
-    p.setPen(QColor(0x404040));
-    p.drawRect(r.adjusted(5, 5, -3, -3));
-    p.setPen(QColor(0x101010));
-    p.drawRect(r.adjusted(4, 4, -4, -4));
     p.drawPixmap(5, 5, m_cache);
 
     int x = clamp(m_color.hsvSaturationF() * 120, 0, 119) + 5;
@@ -384,8 +371,6 @@ void ColorBox::paintEvent(QPaintEvent *event)
     p.drawLine(x, 5, x, y-1);
     p.drawLine(x, y+1, x, height()-7);
 
-    p.setPen(QColor(255, 255, 255, 60));
-    p.drawRect(r.adjusted(5, 5, -5, -5));
 }
 
 void ColorBox::mousePressEvent(QMouseEvent *e)
@@ -775,33 +760,59 @@ BauhausColorDialog::BauhausColorDialog(QWidget *parent) : QFrame(parent )
     m_hueControl = new HueControl(this);
     m_colorBox = new ColorBox(this);
 
+    QWidget *colorFrameWidget = new QWidget(this);
+    QVBoxLayout* vBox = new QVBoxLayout(colorFrameWidget);
+    colorFrameWidget->setLayout(vBox);
+    vBox->setSpacing(0);
+    vBox->setMargin(0);
+    vBox->setContentsMargins(0,5,0,28);
+
+    m_beforeColorWidget = new QFrame(colorFrameWidget);
+    m_beforeColorWidget->setFixedSize(30, 18);
+    m_beforeColorWidget->setAutoFillBackground(true);
+    //m_beforeColorWidget->setFrameShape(QFrame::StyledPanel);
+    m_currentColorWidget = new QFrame(colorFrameWidget);
+    m_currentColorWidget->setFixedSize(30, 18);
+    m_currentColorWidget->setAutoFillBackground(true);
+    //m_currentColorWidget->setFrameShape(QFrame::StyledPanel);
+
+    vBox->addWidget(m_beforeColorWidget);
+    vBox->addWidget(m_currentColorWidget);
+
+
     m_rSpinBox = new QDoubleSpinBox(this);
     m_gSpinBox = new QDoubleSpinBox(this);
     m_bSpinBox = new QDoubleSpinBox(this);
     m_alphaSpinBox = new QDoubleSpinBox(this);
 
     QGridLayout *gridLayout = new QGridLayout(this);
+    gridLayout->setSpacing(4);
+    gridLayout->setVerticalSpacing(4);
+    gridLayout->setMargin(4);
     setLayout(gridLayout);
 
     gridLayout->addWidget(m_colorBox, 0, 0, 4, 1);
     gridLayout->addWidget(m_hueControl, 0, 1, 4, 1);
 
-    gridLayout->addWidget(new QLabel("R", this), 0, 2, 1, 1);
-    gridLayout->addWidget(new QLabel("G", this), 1, 2, 1, 1);
-    gridLayout->addWidget(new QLabel("B", this), 2, 2, 1, 1);
-    gridLayout->addWidget(new QLabel("A", this), 3, 2, 1, 1);
+    gridLayout->addWidget(colorFrameWidget, 0, 2, 2, 1);
 
-    gridLayout->addWidget(m_rSpinBox, 0, 3, 1, 1);
-    gridLayout->addWidget(m_gSpinBox, 1, 3, 1, 1);
-    gridLayout->addWidget(m_bSpinBox, 2, 3, 1, 1);
-    gridLayout->addWidget(m_alphaSpinBox, 3, 3, 1, 1);
+
+    gridLayout->addWidget(new QLabel("R", this), 0, 3, 1, 1);
+    gridLayout->addWidget(new QLabel("G", this), 1, 3, 1, 1);
+    gridLayout->addWidget(new QLabel("B", this), 2, 3, 1, 1);
+    gridLayout->addWidget(new QLabel("A", this), 3, 3, 1, 1);
+
+    gridLayout->addWidget(m_rSpinBox, 0, 4, 1, 1);
+    gridLayout->addWidget(m_gSpinBox, 1, 4, 1, 1);
+    gridLayout->addWidget(m_bSpinBox, 2, 4, 1, 1);
+    gridLayout->addWidget(m_alphaSpinBox, 3, 4, 1, 1);
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(this);
 
     QPushButton *cancelButton = buttonBox->addButton(QDialogButtonBox::Cancel);
     QPushButton *applyButton = buttonBox->addButton(QDialogButtonBox::Apply);
 
-    gridLayout->addWidget(buttonBox, 4, 0, 2, 1);    
+    gridLayout->addWidget(buttonBox, 4, 0, 1, 2);
 
     resize(sizeHint());
 
@@ -826,6 +837,14 @@ BauhausColorDialog::BauhausColorDialog(QWidget *parent) : QFrame(parent )
 
     m_blockUpdate = false;
 
+}
+
+void BauhausColorDialog::setupColor(const QColor &color)
+{
+    QPalette pal = m_beforeColorWidget->palette();
+    pal.setColor(QPalette::Background, color);
+    m_beforeColorWidget->setPalette(pal);
+    setColor(color);
 }
 
 void BauhausColorDialog::spinBoxChanged()
@@ -857,6 +876,9 @@ void BauhausColorDialog::setupWidgets()
     m_gSpinBox->setValue(m_color.greenF());
     m_bSpinBox->setValue(m_color.blueF());
     m_colorBox->setColor(m_color);
+    QPalette pal = m_currentColorWidget->palette();
+    pal.setColor(QPalette::Background, m_color);
+    m_currentColorWidget->setPalette(pal);
     m_blockUpdate = false;
 }
 

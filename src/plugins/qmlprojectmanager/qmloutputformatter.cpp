@@ -46,15 +46,7 @@ QmlOutputFormatter::QmlOutputFormatter(QObject *parent)
 
 void QmlOutputFormatter::appendApplicationOutput(const QString &text, bool onStdErr)
 {
-    gotoEnd();
-
-    if (onStdErr)
-        setFormat(StdErrFormat);
-    else
-        setFormat(StdOutFormat);
-
-    QTextCharFormat normalFormat = plainTextEdit()->currentCharFormat();
-    QTextCharFormat linkFormat = normalFormat;
+    QTextCharFormat linkFormat;
     linkFormat.setForeground(plainTextEdit()->palette().link().color());
     linkFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
     linkFormat.setAnchor(true);
@@ -64,17 +56,15 @@ void QmlOutputFormatter::appendApplicationOutput(const QString &text, bool onStd
     while (m_qmlError.indexIn(text, index) != -1) {
         const int matchPos = m_qmlError.pos(1);
         const QString leader = text.mid(index, matchPos - index);
-        plainTextEdit()->insertPlainText(leader);
+        append(leader, onStdErr ? StdErrFormat : StdOutFormat);
 
         const QString matched = m_qmlError.cap(1);
         linkFormat.setAnchorHref(matched);
-        plainTextEdit()->setCurrentCharFormat(linkFormat);
-        plainTextEdit()->insertPlainText(matched);
-        plainTextEdit()->setCurrentCharFormat(normalFormat);
+        append(matched, linkFormat);
 
         index = matchPos + m_qmlError.matchedLength() - 1;
     }
-    plainTextEdit()->insertPlainText(text.mid(index));
+    append(text.mid(index), onStdErr ? StdErrFormat : StdOutFormat);
 }
 
 void QmlOutputFormatter::mousePressEvent(QMouseEvent * /*e*/)

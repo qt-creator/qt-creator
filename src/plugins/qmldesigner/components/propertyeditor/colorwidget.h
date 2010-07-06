@@ -55,14 +55,17 @@ Q_OBJECT
 
 Q_PROPERTY(QString color READ color WRITE setColor NOTIFY colorChanged)
 Q_PROPERTY(bool noColor READ noColor WRITE setNoColor)
+Q_PROPERTY(bool showArrow READ showArrow WRITE setShowArrow)
 
 public:
-    ColorButton(QWidget *parent = 0) : QToolButton (parent), m_colorString("#ffffff"), m_noColor(false) {}
+    ColorButton(QWidget *parent = 0) : QToolButton (parent), m_colorString("#ffffff"), m_noColor(false), m_showArrow(true) {}
 
     void setColor(const QString &colorStr);
     QString color() const { return m_colorString; }
     bool noColor() const { return m_noColor; }
     void setNoColor(bool f) { m_noColor = f; update(); }
+    bool showArrow() const { return m_showArrow; }
+    void setShowArrow(bool b) { m_showArrow = b; }
 
 signals:
     void colorChanged();
@@ -72,6 +75,7 @@ protected:
 private:
     QString m_colorString;
     bool m_noColor;
+    bool m_showArrow;
 };
 
 class ColorBox : public QWidget
@@ -138,7 +142,7 @@ public:
 
     HueControl(QWidget *parent = 0) : QWidget(parent), m_color(Qt::white), m_mousePressed(false)
     {
-        setFixedWidth(40);
+        setFixedWidth(28);
         setFixedHeight(130);
     }
 
@@ -227,6 +231,9 @@ public:
     BauhausColorDialog(QWidget *parent = 0);
 
     QColor color() const { return m_color; }
+
+    void setupColor(const QColor &color);
+
     void setColor(const QColor &color)
     {
         if (color == m_color)
@@ -265,7 +272,9 @@ signals:
 protected:
   void setupWidgets();
 
-private:    
+private:
+    QFrame *m_beforeColorWidget;
+    QFrame *m_currentColorWidget;
     ColorBox *m_colorBox;
     HueControl *m_hueControl;
 

@@ -316,7 +316,7 @@ struct InternalNode
 #endif
             QStringListIterator it(parts);
             InternalNode *currentNode = this;
-            QString path = (isRelative ? projectDir : "");
+            QString path = (isRelative ? projectDirWithSeparator : "");
             while (it.hasNext()) {
                 const QString &key = it.next();
                 if (it.hasNext()) { // key is directory

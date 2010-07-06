@@ -1164,7 +1164,7 @@ class Dumper:
         self.put('{name="<incomplete>",value="",type="",numchild="0"},')
 
     def putType(self, type, priority = 0):
-        # higher priority values override lower ones 
+        # Higher priority values override lower ones.
         if priority >= self.currentTypePriority:
             self.currentType = type
             self.currentTypePriority = priority

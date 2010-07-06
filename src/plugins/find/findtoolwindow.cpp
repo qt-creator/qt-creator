@@ -36,6 +36,7 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QStringListModel>
 #include <QtGui/QCompleter>
+#include <QtGui/QKeyEvent>
 
 using namespace Find;
 using namespace Find::Internal;
@@ -56,6 +57,7 @@ FindToolWindow::FindToolWindow(FindPlugin *plugin)
     connect(m_ui.searchTerm, SIGNAL(textChanged(QString)), this, SLOT(updateButtonStates()));
     m_findCompleter->setModel(m_plugin->findCompletionModel());
     m_ui.searchTerm->setCompleter(m_findCompleter);
+    m_ui.searchTerm->installEventFilter(this);
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);
     layout->setSpacing(0);
@@ -66,6 +68,17 @@ FindToolWindow::FindToolWindow(FindPlugin *plugin)
 FindToolWindow::~FindToolWindow()
 {
     qDeleteAll(m_configWidgets);
+}
+
+bool FindToolWindow::eventFilter(QObject *obj, QEvent *event)
+{
+    if (obj == m_ui.searchTerm && event->type() == QEvent::KeyPress) {
+        QKeyEvent *ke = static_cast<QKeyEvent *>(event);
+        if (ke->key() == Qt::Key_Down) {
+            m_findCompleter->complete();
+        }
+    }
+    return QDialog::eventFilter(obj, event);
 }
 
 void FindToolWindow::updateButtonStates()

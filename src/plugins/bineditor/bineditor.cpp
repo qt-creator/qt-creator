@@ -40,10 +40,12 @@
 #include <QtGui/QAction>
 #include <QtGui/QClipboard>
 #include <QtGui/QFontMetrics>
+#include <QtGui/QHelpEvent>
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
 #include <QtGui/QPainter>
 #include <QtGui/QScrollBar>
+#include <QtGui/QToolTip>
 #include <QtGui/QWheelEvent>
 
 using namespace BINEditor;
@@ -1030,7 +1032,64 @@ bool BinEditor::event(QEvent *e) {
             break;
         default:;
         }
+    } else if (e->type() == QEvent::ToolTip) {
+        bool hide = true;
+        int selStart = selectionStart();
+        int selEnd = selectionEnd();
+        int byteCount = selEnd - selStart;
+        if (byteCount <= 0) {
+            selStart = m_cursorPosition;
+            selEnd = selStart + 1;
+            byteCount = 1;
+        }
+        if (byteCount <= 8) {
+            const QPoint &startPoint = offsetToPos(selStart);
+            const QPoint &endPoint = offsetToPos(selEnd);
+            const QPoint expandedEndPoint
+                = QPoint(endPoint.x(), endPoint.y() + m_lineHeight);
+            const QRect selRect(startPoint, expandedEndPoint);
+            const QHelpEvent * const helpEvent = static_cast<QHelpEvent *>(e);
+            const QPoint &mousePos = helpEvent->pos();
+            if (selRect.contains(mousePos)) {
+                quint64 beValue, leValue;
+                asIntegers(selStart, byteCount, beValue, leValue);
+                QString leSigned;
+                QString beSigned;
+                switch (byteCount) {
+                case 8: case 7: case 6: case 5:
+                    leSigned = QString::number(static_cast<qint64>(leValue));
+                    beSigned = QString::number(static_cast<qint64>(beValue));
+                    break;
+                case 4: case 3:
+                    leSigned = QString::number(static_cast<qint32>(leValue));
+                    beSigned = QString::number(static_cast<qint32>(beValue));
+                    break;
+                case 2:
+                    leSigned = QString::number(static_cast<qint16>(leValue));
+                    beSigned = QString::number(static_cast<qint16>(beValue));
+                    break;
+                case 1:
+                    leSigned = QString::number(static_cast<qint8>(leValue));
+                    beSigned = QString::number(static_cast<qint8>(beValue));
+                    break;
+                }
+                hide = false;
+                QToolTip::showText(helpEvent->globalPos(),
+                    tr("Decimal unsigned value (little endian): %1\n"
+                       "Decimal unsigned value (big endian): %2\n"
+                       "Decimal signed value (little endian): %3\n"
+                       "Decimal signed value (big endian): %4")
+                       .arg(QString::number(leValue))
+                       .arg(QString::number(beValue))
+                       .arg(leSigned).arg(beSigned));
+            }
+        }
+        if (hide)
+            QToolTip::hideText();
+        e->accept();
+        return true;
     }
+
     return QAbstractScrollArea::event(e);
 }
 
@@ -1271,13 +1330,7 @@ void BinEditor::contextMenuEvent(QContextMenuEvent *event)
     quint64 beAddress = 0;
     quint64 leAddress = 0;
     if (byteCount <= 8) {
-        const QByteArray &data = dataMid(selStart, byteCount);
-        for (int pos = 0; pos < byteCount; ++pos) {
-            const quint64 val = static_cast<quint64>(data.at(pos)) & 0xff;
-            beAddress += val << (pos * 8);
-            leAddress += val << ((byteCount - pos - 1) * 8);
-        }
-
+        asIntegers(selStart, byteCount, beAddress, leAddress);
         setupJumpToMenuAction(&contextMenu, &jumpToBeAddressHere,
                               &jumpToBeAddressNewWindow, beAddress);
 
@@ -1334,4 +1387,23 @@ void BinEditor::jumpToAddress(quint64 address)
 void BinEditor::setNewWindowRequestAllowed()
 {
     m_canRequestNewWindow = true;
+}
+
+QPoint BinEditor::offsetToPos(int offset)
+{
+    const int x = m_labelWidth + (offset % 16) * m_columnWidth;
+    const int y = (offset / 16) * m_lineHeight;
+    return QPoint(x, y);
+}
+
+void BinEditor::asIntegers(int offset, int count, quint64 &beValue,
+    quint64 &leValue)
+{
+    beValue = leValue = 0;
+    const QByteArray &data = dataMid(offset, count);
+    for (int pos = 0; pos < count; ++pos) {
+        const quint64 val = static_cast<quint64>(data.at(pos)) & 0xff;
+        beValue += val << (pos * 8);
+        leValue += val << ((count - pos - 1) * 8);
+    }
 }

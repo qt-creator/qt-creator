@@ -24,6 +24,7 @@ HEADERS += \
     $$PWD/qmljscompletioncontextfinder.h \
     $$PWD/qmljscomponentversion.h \
     $$PWD/qmljsmodelmanagerinterface.h \
+    $$PWD/qmljsicontextpane.h \
     $$PWD/qmljspropertyreader.h \
     $$PWD/qmljsrewriter.h
 

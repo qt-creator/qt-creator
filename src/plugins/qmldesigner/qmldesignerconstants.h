@@ -61,6 +61,7 @@ const char * const QML_DESIGNER_SETTINGS_GROUP = "Designer";
 const char * const QML_OPENDESIGNMODE_SETTINGS_KEY = "OpenDesignMode";
 const char * const QML_ITEMSPACING_KEY = "ItemSpacing";
 const char * const QML_SNAPMARGIN_KEY = "SnapMargin";
+const char * const QML_CONTEXTPANE_KEY = "ContextPaneEnabled";
 enum { QML_OPENDESIGNMODE_DEFAULT = 0 }; // 0 for text mode, 1 for design mode
 
 const char * const SETTINGS_CATEGORY_QML_ICON = ":/core/images/category_qml.png";
