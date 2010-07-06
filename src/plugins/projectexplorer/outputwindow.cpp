@@ -487,7 +487,10 @@ void OutputWindow::appendApplicationOutputInline(const QString &out, bool onStdE
 void OutputWindow::appendMessage(const QString &out, bool isError)
 {
     setMaximumBlockCount(MaxBlockCount);
+    const bool atBottom = isScrollbarAtBottom();
     m_formatter->appendMessage(doNewlineEnfocement(out), isError);
+    if (atBottom)
+        scrollToBottom();
     enableUndoRedo();
 }
 
