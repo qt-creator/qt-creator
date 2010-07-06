@@ -27,46 +27,54 @@
 **
 **************************************************************************/
 
-#ifndef QMLTASKMANAGER_H
-#define QMLTASKMANAGER_H
+#include "taskhub.h"
+#include <QtCore/QMetaType>
 
-#include <projectexplorer/task.h>
-#include <qmljs/qmljsdocument.h>
+using namespace ProjectExplorer;
 
-#include <QtCore/QObject>
-#include <QtCore/QList>
-#include <QtCore/QMap>
-#include <QtCore/QString>
-
-namespace ProjectExplorer {
-class TaskHub;
-} // namespace ProjectExplorer
-
-namespace QmlProjectManager {
-namespace Internal {
-
-class QmlTaskManager : public QObject
+TaskHub::TaskHub()
+    : m_errorIcon(QLatin1String(":/projectexplorer/images/compile_error.png")),
+      m_warningIcon(QLatin1String(":/projectexplorer/images/compile_warning.png"))
 {
-    Q_OBJECT
-public:
-    QmlTaskManager(QObject *parent = 0);
+    qRegisterMetaType<ProjectExplorer::Task>("ProjectExplorer::Task");
+    qRegisterMetaType<QList<ProjectExplorer::Task> >("QList<ProjectExplorer::Task>");
+}
 
-    static QmlTaskManager *instance();
+TaskHub::~TaskHub()
+{
 
-public slots:
-    void documentChangedOnDisk(QmlJS::Document::Ptr doc);
-    void documentsRemoved(const QStringList path);
+}
 
-private:
-    void insertTask(const QString &fileName, const ProjectExplorer::Task &task);
-    void removeTasksForFile(const QString &fileName);
+void TaskHub::addCategory(const QString &categoryId, const QString &displayName)
+{
+    emit categoryAdded(categoryId, displayName);
+}
 
-private:
-    ProjectExplorer::TaskHub *m_taskHub;
-    QMap<QString, QList<ProjectExplorer::Task> > m_docsWithTasks;
-};
+void TaskHub::addTask(const Task &task)
+{
+    emit taskAdded(task);
+}
 
-} // Internal
-} // QmlProjectManager
+void TaskHub::clearTasks(const QString &categoryId)
+{
+    emit tasksCleared(categoryId);
+}
 
-#endif // QMLTASKMANAGER_H
+void TaskHub::removeTask(const Task &task)
+{
+    emit taskRemoved(task);
+}
+
+QIcon TaskHub::taskTypeIcon(Task::TaskType t) const
+{
+    switch (t) {
+    case Task::Warning:
+        return m_warningIcon;
+    case Task::Error:
+        return m_errorIcon;
+    case Task::Unknown:
+        break;
+    }
+    return QIcon();
+}
+

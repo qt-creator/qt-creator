@@ -31,7 +31,7 @@
 #include "qmlprojectconstants.h"
 
 #include <extensionsystem/pluginmanager.h>
-#include <projectexplorer/taskwindow.h>
+#include <projectexplorer/taskhub.h>
 
 #include <QDebug>
 
@@ -40,22 +40,15 @@ namespace Internal {
 
 QmlTaskManager::QmlTaskManager(QObject *parent) :
         QObject(parent),
-        m_taskWindow(0)
+        m_taskHub(0)
 {
+    m_taskHub = ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::TaskHub>();
 }
 
 QmlTaskManager *QmlTaskManager::instance()
 {
     ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
     return pluginManager->getObject<QmlTaskManager>();
-}
-
-void QmlTaskManager::setTaskWindow(ProjectExplorer::TaskWindow *taskWindow)
-{
-    Q_ASSERT(taskWindow);
-    m_taskWindow = taskWindow;
-
-    m_taskWindow->addCategory(Constants::TASK_CATEGORY_QML, tr("QML"));
 }
 
 void QmlTaskManager::documentChangedOnDisk(QmlJS::Document::Ptr doc)
@@ -85,7 +78,7 @@ void QmlTaskManager::insertTask(const QString &fileName, const ProjectExplorer::
     QList<ProjectExplorer::Task> tasks = m_docsWithTasks.value(fileName);
     tasks.append(task);
     m_docsWithTasks.insert(fileName, tasks);
-    m_taskWindow->addTask(task);
+    m_taskHub->addTask(task);
 }
 
 void QmlTaskManager::removeTasksForFile(const QString &fileName)
@@ -93,7 +86,7 @@ void QmlTaskManager::removeTasksForFile(const QString &fileName)
     if (m_docsWithTasks.contains(fileName)) {
         const QList<ProjectExplorer::Task> tasks = m_docsWithTasks.value(fileName);
         foreach (const ProjectExplorer::Task &task, tasks)
-            m_taskWindow->removeTask(task);
+            m_taskHub->removeTask(task);
         m_docsWithTasks.remove(fileName);
     }
 }

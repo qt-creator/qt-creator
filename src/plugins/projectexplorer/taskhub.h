@@ -27,46 +27,39 @@
 **
 **************************************************************************/
 
-#ifndef QMLTASKMANAGER_H
-#define QMLTASKMANAGER_H
+#ifndef TASKHUB_H
+#define TASKHUB_H
 
-#include <projectexplorer/task.h>
-#include <qmljs/qmljsdocument.h>
-
+#include "task.h"
+#include "projectexplorer_export.h"
 #include <QtCore/QObject>
-#include <QtCore/QList>
-#include <QtCore/QMap>
-#include <QtCore/QString>
+#include <QtGui/QIcon>
 
 namespace ProjectExplorer {
-class TaskHub;
-} // namespace ProjectExplorer
+class Task;
 
-namespace QmlProjectManager {
-namespace Internal {
-
-class QmlTaskManager : public QObject
+class PROJECTEXPLORER_EXPORT TaskHub : public QObject
 {
     Q_OBJECT
 public:
-    QmlTaskManager(QObject *parent = 0);
+    TaskHub();
+    virtual ~TaskHub();
 
-    static QmlTaskManager *instance();
+    void addCategory(const QString &categoryId, const QString &displayName);
+    void addTask(const Task &task);
+    void clearTasks(const QString &categoryId = QString());
+    void removeTask(const Task &task);
 
-public slots:
-    void documentChangedOnDisk(QmlJS::Document::Ptr doc);
-    void documentsRemoved(const QStringList path);
-
+    // TODO now there are two places for icons
+    QIcon taskTypeIcon(ProjectExplorer::Task::TaskType t) const;
+signals:
+    void categoryAdded(const QString &categoryId, const QString &displayName);
+    void taskAdded(const ProjectExplorer::Task &task);
+    void taskRemoved(const ProjectExplorer::Task &task);
+    void tasksCleared(const QString &categoryId);
 private:
-    void insertTask(const QString &fileName, const ProjectExplorer::Task &task);
-    void removeTasksForFile(const QString &fileName);
-
-private:
-    ProjectExplorer::TaskHub *m_taskHub;
-    QMap<QString, QList<ProjectExplorer::Task> > m_docsWithTasks;
+    const QIcon m_errorIcon;
+    const QIcon m_warningIcon;
 };
-
-} // Internal
-} // QmlProjectManager
-
-#endif // QMLTASKMANAGER_H
+} // namespace ProjectExplorer
+#endif // TASKHUB_H

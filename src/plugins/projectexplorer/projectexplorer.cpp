@@ -72,6 +72,7 @@
 #include "buildconfiguration.h"
 #include "buildconfigdialog.h"
 #include "miniprojecttargetselector.h"
+#include "taskhub.h"
 
 #include <coreplugin/basemode.h>
 #include <coreplugin/coreconstants.h>
@@ -236,6 +237,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 {
     if (!parseArguments(arguments, error))
         return false;
+    addObject(this);
+
+    addAutoReleasedObject(new TaskHub);
 
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = core->actionManager();
@@ -243,7 +247,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     d->m_welcomePage = new ProjectWelcomePage;
     connect(d->m_welcomePage, SIGNAL(manageSessions()), this, SLOT(showSessionManager()));
     addObject(d->m_welcomePage);
-    addObject(this);
 
     connect(core->fileManager(), SIGNAL(currentFileChanged(QString)),
             this, SLOT(setCurrentFile(QString)));
@@ -899,6 +902,8 @@ void ProjectExplorerPlugin::extensionsInitialized()
     // class factories
     foreach(Core::IWizard *cpw, ProjectExplorer::CustomWizard::createWizards())
         addAutoReleasedObject(cpw);
+
+    d->m_buildManager->extensionsInitialized();
 }
 
 void ProjectExplorerPlugin::aboutToShutdown()
@@ -1888,11 +1893,6 @@ void ProjectExplorerPlugin::invalidateProject(Project *project)
 
     disconnect(project, SIGNAL(fileListChanged()), this, SIGNAL(fileListChanged()));
     updateActions();
-}
-
-void ProjectExplorerPlugin::goToTaskWindow()
-{
-    d->m_buildManager->gotoTaskWindow();
 }
 
 void ProjectExplorerPlugin::updateContextMenuActions(Node *node)

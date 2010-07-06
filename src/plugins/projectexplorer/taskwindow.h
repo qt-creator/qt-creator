@@ -30,10 +30,8 @@
 #ifndef TASKWINDOW_H
 #define TASKWINDOW_H
 
-#include "projectexplorer_export.h"
-
+#include "task.h"
 #include <coreplugin/ioutputpane.h>
-
 #include <QtGui/QIcon>
 
 QT_BEGIN_NAMESPACE
@@ -42,23 +40,19 @@ class QModelIndex;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
-class Task;
+class TaskHub;
+
+namespace Internal {
 class TaskWindowPrivate;
 
 // Show build issues (warnings or errors) and open the editor on click.
-class PROJECTEXPLORER_EXPORT TaskWindow : public Core::IOutputPane
+class TaskWindow : public Core::IOutputPane
 {
     Q_OBJECT
 
 public:
-    TaskWindow();
+    TaskWindow(ProjectExplorer::TaskHub *taskHub);
     virtual ~TaskWindow();
-
-    void addCategory(const QString &categoryId, const QString &displayName);
-
-    void addTask(const Task &task);
-    void removeTask(const Task &task);
-    void clearTasks(const QString &categoryId = QString());
 
     int taskCount() const;
     int errorTaskCount() const;
@@ -82,12 +76,15 @@ public:
     void goToNext();
     void goToPrev();
 
-    QIcon taskTypeIcon(int t) const;
-
 signals:
     void tasksChanged();
 
 private slots:
+    void addCategory(const QString &categoryId, const QString &displayName);
+    void addTask(const ProjectExplorer::Task &task);
+    void removeTask(const ProjectExplorer::Task &task);
+    void clearTasks(const QString &categoryId);
+
     void triggerDefaultHandler(const QModelIndex &index);
     void showContextMenu(const QPoint &position);
     void contextMenuEntryTriggered(QAction *);
@@ -102,6 +99,7 @@ private:
     TaskWindowPrivate *d;
 };
 
-} //namespace ProjectExplorer
+} // namespace Internal
+} // namespace ProjectExplorer
 
 #endif // TASKWINDOW_H

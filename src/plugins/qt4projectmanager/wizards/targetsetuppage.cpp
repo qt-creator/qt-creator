@@ -37,6 +37,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/task.h>
+#include <projectexplorer/taskhub.h>
 #include <utils/qtcassert.h>
 
 #include <QtGui/QFileDialog>
@@ -471,9 +472,9 @@ QPair<QIcon, QString> TargetSetupPage::reportIssues(Qt4ProjectManager::QtVersion
     if (m_proFilePath.isEmpty())
         return qMakePair(QIcon(), QString());
 
-    const ProjectExplorer::TaskWindow *taskWindow = ExtensionSystem::PluginManager::instance()
-                                              ->getObject<ProjectExplorer::TaskWindow>();
-    QTC_ASSERT(taskWindow, return qMakePair(QIcon(), QString()));
+    const ProjectExplorer::TaskHub *taskHub = ExtensionSystem::PluginManager::instance()
+                                              ->getObject<ProjectExplorer::TaskHub>();
+    QTC_ASSERT(taskHub, return qMakePair(QIcon(), QString()));
 
     QList<ProjectExplorer::Task> issues = version->reportIssues(m_proFilePath);
 
@@ -486,11 +487,11 @@ QPair<QIcon, QString> TargetSetupPage::reportIssues(Qt4ProjectManager::QtVersion
         // set severity:
         QString severity;
         if (t.type == ProjectExplorer::Task::Error) {
-            icon = taskWindow->taskTypeIcon(t.type);
+            icon = taskHub->taskTypeIcon(t.type);
             severity = tr("<b>Error:</b> ", "Severity is Task::Error");
         } else if (t.type == ProjectExplorer::Task::Warning) {
                if (icon.isNull())
-                   icon = taskWindow->taskTypeIcon(t.type);
+                   icon = taskHub->taskTypeIcon(t.type);
                severity = tr("<b>Warning:</b> ", "Severity is Task::Warning");
         }
         text.append(severity + t.description);

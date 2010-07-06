@@ -32,6 +32,7 @@
 #include "itaskhandler.h"
 #include "projectexplorerconstants.h"
 #include "task.h"
+#include "taskhub.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -476,8 +477,6 @@ bool TaskFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceP
     return accept;
 }
 
-} // namespace Internal
-
 /////
 // TaskWindow
 /////
@@ -495,6 +494,7 @@ public:
     QToolButton *m_filterWarningsButton;
     QToolButton *m_categoriesButton;
     QMenu *m_categoriesMenu;
+    TaskHub *m_taskHub;
 };
 
 static QToolButton *createFilterButton(QIcon icon, const QString &toolTip,
@@ -511,7 +511,7 @@ static QToolButton *createFilterButton(QIcon icon, const QString &toolTip,
     return button;
 }
 
-TaskWindow::TaskWindow() : d(new TaskWindowPrivate)
+TaskWindow::TaskWindow(TaskHub *taskhub) : d(new TaskWindowPrivate)
 {
     d->m_defaultHandler = 0;
 
@@ -530,6 +530,8 @@ TaskWindow::TaskWindow() : d(new TaskWindowPrivate)
     d->m_listview->setAttribute(Qt::WA_MacShowFocusRect, false);
 
     d->m_taskWindowContext = new Internal::TaskWindowContext(d->m_listview);
+    d->m_taskHub = taskhub;
+
     Core::ICore::instance()->addContextObject(d->m_taskWindowContext);
 
     connect(d->m_listview->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
@@ -549,9 +551,9 @@ TaskWindow::TaskWindow() : d(new TaskWindowPrivate)
     connect(d->m_listview, SIGNAL(customContextMenuRequested(QPoint)),
             this, SLOT(showContextMenu(QPoint)));
 
-    d->m_filterWarningsButton = createFilterButton(taskTypeIcon(Task::Warning),
-                                                tr("Show Warnings"),
-                                                this, SLOT(setShowWarnings(bool)));
+    d->m_filterWarningsButton = createFilterButton(d->m_model->taskTypeIcon(Task::Warning),
+                                                   tr("Show Warnings"),
+                                                   this, SLOT(setShowWarnings(bool)));
 
     d->m_categoriesMenu = new QMenu;
     connect(d->m_categoriesMenu, SIGNAL(aboutToShow()), this, SLOT(updateCategoriesMenu()));
@@ -564,8 +566,14 @@ TaskWindow::TaskWindow() : d(new TaskWindowPrivate)
     d->m_categoriesButton->setPopupMode(QToolButton::InstantPopup);
     d->m_categoriesButton->setMenu(d->m_categoriesMenu);
 
-    qRegisterMetaType<ProjectExplorer::Task>("ProjectExplorer::Task");
-    qRegisterMetaType<QList<ProjectExplorer::Task> >("QList<ProjectExplorer::Task>");
+    connect(d->m_taskHub, SIGNAL(categoryAdded(QString, QString)),
+            this, SLOT(addCategory(QString, QString)));
+    connect(d->m_taskHub, SIGNAL(taskAdded(ProjectExplorer::Task)),
+            this, SLOT(addTask(ProjectExplorer::Task)));
+    connect(d->m_taskHub, SIGNAL(taskRemoved(ProjectExplorer::Task)),
+            this, SLOT(removeTask(ProjectExplorer::Task)));
+    connect(d->m_taskHub, SIGNAL(tasksCleared(QString)),
+            this, SLOT(clearTasks(QString)));
 }
 
 TaskWindow::~TaskWindow()
@@ -747,7 +755,9 @@ int TaskWindow::priorityInStatusBar() const
 
 void TaskWindow::clearContents()
 {
-    clearTasks();
+    // clear all tasks in all displays
+    // Yeah we are that special
+    d->m_taskHub->clearTasks(QString());
 }
 
 bool TaskWindow::hasFocus()
@@ -819,12 +829,6 @@ bool TaskWindow::canNavigate()
     return true;
 }
 
-QIcon TaskWindow::taskTypeIcon(int t) const
-{
-    return d->m_model->taskTypeIcon(static_cast<Task::TaskType>(t));
-}
-
-namespace Internal {
 /////
 // Delegate
 /////

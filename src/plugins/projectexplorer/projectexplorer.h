@@ -162,7 +162,6 @@ private slots:
     void runProject();
     void runProjectContextMenu();
     void savePersistentSettings();
-    void goToTaskWindow();
 
     void addNewFile();
     void addExistingFiles();
