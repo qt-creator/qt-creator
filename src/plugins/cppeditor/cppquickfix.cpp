@@ -46,6 +46,7 @@
 #include <Symbol.h>
 #include <Symbols.h>
 #include <Name.h>
+#include <Names.h>
 #include <Literals.h>
 
 #include <cppeditor/cpprefactoringchanges.h>
@@ -813,7 +814,8 @@ public:
                     if (SimpleNameAST *functionName = call->base_expression->asSimpleName()) {
                         const QByteArray id(tokenAt(functionName->identifier_token).identifier->chars());
 
-                        if ((type == TypeString && (id == "QLatin1String" || id == "QLatin1Literal"))
+                        if (id == "QT_TRANSLATE_NOOP" || id == "tr" || id == "trUtf8"
+                                || (type == TypeString && (id == "QLatin1String" || id == "QLatin1Literal"))
                                 || (type == TypeChar && id == "QLatin1Char"))
                             return -1; // skip it
                     }
@@ -856,7 +858,8 @@ private:
     "abcd"
   With
     tr("abcd") or
-    QCoreApplication::translate("CONTEXT", "abcd")
+    QCoreApplication::translate("CONTEXT", "abcd") or
+    QT_TRANSLATE_NOOP("GLOBAL", "abcd")
 */
 class TranslateStringLiteral: public CppQuickFixOperation
 {
@@ -865,7 +868,7 @@ public:
         : CppQuickFixOperation(editor), m_literal(0)
     { }
 
-    enum TranslationOption { unknown, useTr, useQCoreApplicationTranslate };
+    enum TranslationOption { unknown, useTr, useQCoreApplicationTranslate, useMacro };
 
     virtual QString description() const
     {
@@ -880,73 +883,69 @@ public:
         m_context.clear();
 
         if (path.isEmpty())
-            return -1; // nothing to do
+            return -1;
 
         m_literal = path.last()->asStringLiteral();
         if (!m_literal)
-            return -1; // nothing to do
+            return -1; // No string, nothing to do
 
-        if (path.size() > 1) {
+        // Do we already have a translation markup?
+        if (path.size() >= 2) {
             if (CallAST *call = path.at(path.size() - 2)->asCall()) {
                 if (call->base_expression) {
                     if (SimpleNameAST *functionName = call->base_expression->asSimpleName()) {
                         const QByteArray id(tokenAt(functionName->identifier_token).identifier->chars());
 
                         if (id == "tr" || id == "trUtf8"
-                            || id == "QApplication::translate"
-                            || id == "QCoreApplication::translate")
+                                || id == "translate"
+                                || id == "QT_TRANSLATE_NOOP"
+                                || id == "QLatin1String" || id == "QLatin1Literal")
                             return -1; // skip it
                     }
                 }
             }
-            for (int i = path.size() - 1; i >= 0; --i)
-            {
-                if (FunctionDefinitionAST *definition = path.at(i)->asFunctionDefinition()) {
-                    Function *function = definition->symbol;
-                    LookupContext context(document(), snapshot());
+        }
 
-                    ClassOrNamespace *b = context.lookupType(function);
-                    if (b) {
-                        QList<ClassOrNamespace *> todo;
-                        todo.append(b);
-                        QSet<ClassOrNamespace *> done;
-                        while(!todo.isEmpty()) {
-                            ClassOrNamespace *current = todo.first();
-                            todo.removeFirst();
-                            if (done.contains(current))
-                                continue;
-                            done.insert(current);
-                            foreach (Symbol *s, current->symbols()) {
-                                if (Class *klass = s->asClass()) {
-                                    if (strcmp(klass->name()->identifier()->chars(),
-                                               "QObject") == 0) {
-                                        m_option = useTr;
-                                        return path.size() - 1;
-                                    }
-                                }
-                            }
-                            todo.append(current->usings());
+        LookupContext context(document(), snapshot());
+        QSharedPointer<Control> control = context.control();
+        const Name *trName = control->nameId(control->findOrInsertIdentifier("tr"));
+
+        // Check whether we are in a method:
+        for (int i = path.size() - 1; i >= 0; --i)
+        {
+            if (FunctionDefinitionAST *definition = path.at(i)->asFunctionDefinition()) {
+                Function *function = definition->symbol;
+                ClassOrNamespace *b = context.lookupType(function);
+                if (b) {
+                    // Do we have a tr method?
+                    foreach(Symbol *s, b->find(trName)) {
+                        if (s->type()->isFunctionType()) {
+                            m_option = useTr;
+                            // no context required for tr
+                            return path.size() - 1;
                         }
                     }
-                    // We need to do a QCA::translate, so we need a context.
-                    // Use fully qualified class name:
-
-                    Overview oo;
-                    foreach (const Name *n, LookupContext::fullyQualifiedName(function)) {
-                        if (! m_context.isEmpty())
-                            m_context.append(QLatin1String("::"));
-
-                        m_context.append(oo.prettyName(n));
-                    }
-
-                    if (m_context.isEmpty())
-                        m_context.append("GLOBAL");
                 }
+                // We need to do a QCA::translate, so we need a context.
+                // Use fully qualified class name:
+                Overview oo;
+                foreach (const Name *n, LookupContext::fullyQualifiedName(function)) {
+                    if (!m_context.isEmpty())
+                        m_context.append(QLatin1String("::"));
+                    m_context.append(oo.prettyName(n));
+                }
+                // ... or global if none available!
+                if (m_context.isEmpty())
+                    m_context = QLatin1String("GLOBAL");
+                m_option = useQCoreApplicationTranslate;
+                return path.size() - 1;
             }
         }
 
-        m_option = useQCoreApplicationTranslate;
-        return path.size() - 1; // very high priority
+        // We need to use Q_TRANSLATE_NOOP
+        m_context = QLatin1String("GLOBAL");
+        m_option = useMacro;
+        return path.size() - 1;
     }
 
     virtual void createChanges()
@@ -954,11 +953,13 @@ public:
         ChangeSet changes;
 
         const int startPos = startOf(m_literal);
-        QString replacement("tr(");
+        QString replacement(QLatin1String("tr("));
         if (m_option == useQCoreApplicationTranslate) {
-            replacement = QLatin1String("QCoreApplication::translate(\"");
-            replacement += m_context;
-            replacement += QLatin1String("\", ");
+            replacement = QLatin1String("QCoreApplication::translate(\"")
+                          + m_context + QLatin1String("\", ");
+        } else if (m_option == useMacro) {
+            replacement = QLatin1String("QT_TRANSLATE_NOOP(\"")
+                    + m_context + QLatin1String("\", ");
         }
 
         changes.insert(startPos, replacement);
@@ -970,7 +971,7 @@ public:
 private:
     ExpressionAST *m_literal;
     TranslationOption m_option;
-    QString  m_context;
+    QString m_context;
 };
 
 class CStringToNSString: public CppQuickFixOperation
