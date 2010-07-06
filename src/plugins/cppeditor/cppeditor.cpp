@@ -1563,11 +1563,14 @@ void CPPEditor::indent(QTextDocument *doc, const QTextCursor &cursor, QChar type
         CppTools::QtStyleCodeFormatter codeFormatter = setupCodeFormatter(ts);
         codeFormatter.updateStateUntil(block);
 
+        QTextCursor tc = textCursor();
+        tc.beginEditBlock();
         do {
             ts.indentLine(block, codeFormatter.indentFor(block));
             codeFormatter.updateLineStateChange(block);
             block = block.next();
         } while (block.isValid() && block != end);
+        tc.endEditBlock();
     } else {
         indentBlock(doc, cursor.block(), typedChar);
     }
