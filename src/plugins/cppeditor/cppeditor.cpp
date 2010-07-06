@@ -1539,6 +1539,7 @@ void CPPEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedCha
         codeFormatter.setIndentDeclarationMembers(true);
     }
 
+    codeFormatter.updateStateUntil(block);
     const int depth = codeFormatter.indentFor(block);
     ts.indentLine(block, depth);
 }

@@ -89,6 +89,8 @@ void checkIndent(QList<Line> data, int style = 0)
         formatter.setIndentDeclarationBraces(true);
     }
 
+    formatter.updateStateUntil(document.lastBlock());
+
     int i = 0;
     foreach (const Line &l, data) {
         if (l.expectedIndent != -1) {

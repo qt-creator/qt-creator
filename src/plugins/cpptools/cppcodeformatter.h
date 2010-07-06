@@ -28,6 +28,7 @@ public:
     CodeFormatter();
     virtual ~CodeFormatter();
 
+    void updateStateUntil(const QTextBlock &block);
     int indentFor(const QTextBlock &block);
 
     void setTabSize(int tabSize);
@@ -138,7 +139,6 @@ protected:
     bool isBracelessState(int type) const;
 
 private:
-    void requireStatesUntil(const QTextBlock &block);
     void recalculateStateAfter(const QTextBlock &block);
     void storeBlockState(const QTextBlock &block);
     void restoreBlockState(const QTextBlock &block);

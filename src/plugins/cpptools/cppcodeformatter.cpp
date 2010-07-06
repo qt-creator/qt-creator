@@ -446,12 +446,12 @@ int CodeFormatter::indentFor(const QTextBlock &block)
 {
 //    qDebug() << "indenting for" << block.blockNumber() + 1;
 
-    requireStatesUntil(block);
+    restoreBlockState(block.previous());
     correctIndentation(block);
     return m_indentDepth;
 }
 
-void CodeFormatter::requireStatesUntil(const QTextBlock &endBlock)
+void CodeFormatter::updateStateUntil(const QTextBlock &endBlock)
 {
     QStack<State> previousState = initialState();
     QTextBlock it = endBlock.document()->firstBlock();
@@ -473,7 +473,6 @@ void CodeFormatter::requireStatesUntil(const QTextBlock &endBlock)
         //qDebug() << "recalc line" << it.blockNumber() + 1;
         recalculateStateAfter(it);
     }
-    restoreBlockState(endBlock.previous());
 }
 
 CodeFormatter::State CodeFormatter::state(int belowTop) const
