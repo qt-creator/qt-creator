@@ -135,6 +135,8 @@ public slots:
 
 public:
     void addCurrentPositionToNavigationHistory(IEditor *editor = 0, const QByteArray &saveState = QByteArray());
+    void cutForwardNavigationHistory();
+
     inline QList<EditLocation> editorHistory() const { return m_editorHistory; }
 
     void copyNavigationHistoryFrom(EditorView* other);

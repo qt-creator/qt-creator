@@ -1066,7 +1066,6 @@ template <class EditorFactoryLike>
 IEditor *EditorManager::createEditor(const QString &editorId,
                                      const QString &fileName)
 {
-    typedef QList<IEditorFactory*> FactoryList;
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << editorId << fileName;
 
@@ -1592,6 +1591,12 @@ OpenEditorsModel *EditorManager::openedEditorsModel() const
 void EditorManager::addCurrentPositionToNavigationHistory(IEditor *editor, const QByteArray &saveState)
 {
     currentEditorView()->addCurrentPositionToNavigationHistory(editor, saveState);
+    updateActions();
+}
+
+void EditorManager::cutForwardNavigationHistory()
+{
+    currentEditorView()->cutForwardNavigationHistory();
     updateActions();
 }
 

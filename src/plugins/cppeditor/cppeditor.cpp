@@ -1791,6 +1791,7 @@ bool CPPEditor::openCppEditorAt(const Link &link)
 
     if (baseTextDocument()->fileName() == link.fileName) {
         Core::EditorManager *editorManager = Core::EditorManager::instance();
+        editorManager->cutForwardNavigationHistory();
         editorManager->addCurrentPositionToNavigationHistory();
         gotoLine(link.line, link.column);
         setFocus();

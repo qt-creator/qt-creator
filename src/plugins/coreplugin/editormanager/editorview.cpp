@@ -379,13 +379,19 @@ void EditorView::addCurrentPositionToNavigationHistory(IEditor *editor, const QB
 
     while (m_navigationHistory.size() >= 30) {
         if (m_currentNavigationHistoryPosition > 15) {
-            m_navigationHistory.takeFirst();
+            m_navigationHistory.removeFirst();
             --m_currentNavigationHistoryPosition;
         } else {
-            m_navigationHistory.takeLast();
+            m_navigationHistory.removeLast();
         }
     }
     updateNavigatorActions();
+}
+
+void EditorView::cutForwardNavigationHistory()
+{
+    while (m_currentNavigationHistoryPosition < m_navigationHistory.size() - 1)
+        m_navigationHistory.removeLast();
 }
 
 void EditorView::updateNavigatorActions()

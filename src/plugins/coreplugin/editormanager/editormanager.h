@@ -145,6 +145,7 @@ public:
     QList<IEditor*> editorsForFiles(QList<IFile*> files) const;
     //QList<EditorGroup *> editorGroups() const;
     void addCurrentPositionToNavigationHistory(IEditor *editor = 0, const QByteArray &saveState = QByteArray());
+    void cutForwardNavigationHistory();
 
     bool saveEditor(IEditor *editor);
 

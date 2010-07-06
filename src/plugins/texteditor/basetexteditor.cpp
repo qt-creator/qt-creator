@@ -145,6 +145,7 @@ ITextEditor *BaseTextEditor::openEditorAt(const QString &fileName,
                                           bool *newEditor)
 {
     Core::EditorManager *editorManager = Core::EditorManager::instance();
+    editorManager->cutForwardNavigationHistory();
     editorManager->addCurrentPositionToNavigationHistory();
     Core::IEditor *editor = editorManager->openEditor(fileName, editorKind,
             Core::EditorManager::IgnoreNavigationHistory, newEditor);
