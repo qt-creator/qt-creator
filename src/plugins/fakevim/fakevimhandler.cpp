@@ -2650,7 +2650,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
     } else if (input.isKey(Key_Tab) && hasConfig(ConfigExpandTab)) {
         m_justAutoIndented = 0;
         const int ts = config(ConfigTabStop).toInt();
-        const int col = physicalCursorColumnInDocument();
+        const int col = logicalCursorColumnInDocument();
         QString str = QString(ts - col % ts, ' ');
         m_lastInsertion.append(str);
         insertText(str);
