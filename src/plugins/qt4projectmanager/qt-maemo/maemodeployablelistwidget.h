@@ -39,40 +39,40 @@
 **
 ****************************************************************************/
 
-#ifndef MAEMOPACKAGECREATIONWIDGET_H
-#define MAEMOPACKAGECREATIONWIDGET_H
+#ifndef MAEMODEPLOYABLELISTWIDGET_H
+#define MAEMODEPLOYABLELISTWIDGET_H
 
-#include <projectexplorer/buildstep.h>
+#include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
-namespace Ui { class MaemoPackageCreationWidget; }
+namespace Ui {
+    class MaemoDeployableListWidget;
+}
 QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
 namespace Internal {
+class MaemoDeployableListModel;
 
-class MaemoPackageCreationStep;
-
-class MaemoPackageCreationWidget : public ProjectExplorer::BuildStepConfigWidget
+class MaemoDeployableListWidget : public QWidget
 {
     Q_OBJECT
-public:
-    MaemoPackageCreationWidget(MaemoPackageCreationStep *step);
 
-    virtual void init();
-    virtual QString summaryText() const;
-    virtual QString displayName() const;
+public:
+    MaemoDeployableListWidget(QWidget *parent, MaemoDeployableListModel *model);
+    ~MaemoDeployableListWidget();
 
 private slots:
-    void handleSkipButtonToggled(bool checked);
-    void versionInfoChanged();
+    void addFile();
+    void removeFile();
+    void enableOrDisableRemoveButton();
 
 private:
-    MaemoPackageCreationStep * const m_step;
-    Ui::MaemoPackageCreationWidget * const m_ui;
+    Ui::MaemoDeployableListWidget *m_ui;
+    MaemoDeployableListModel * const m_model;
 };
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
 
-#endif // MAEMOPACKAGECREATIONWIDGET_H
+#endif // MAEMODEPLOYABLELISTWIDGET_H

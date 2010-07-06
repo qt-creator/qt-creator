@@ -42,7 +42,9 @@
 #include "maemopackagecreationwidget.h"
 #include "ui_maemopackagecreationwidget.h"
 
-#include "maemopackagecontents.h"
+#include "maemodeployablelistmodel.h"
+#include "maemodeployablelistwidget.h"
+#include "maemodeployables.h"
 #include "maemopackagecreationstep.h"
 #include "maemotoolchain.h"
 
@@ -50,10 +52,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
-
-#include <QtCore/QFileInfo>
-#include <QtGui/QFileDialog>
-#include <QtGui/QMessageBox>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -64,27 +62,20 @@ MaemoPackageCreationWidget::MaemoPackageCreationWidget(MaemoPackageCreationStep 
       m_ui(new Ui::MaemoPackageCreationWidget)
 {
     m_ui->setupUi(this);
-    m_ui->packageContentsView->setWordWrap(false);
     m_ui->skipCheckBox->setChecked(!m_step->isPackagingEnabled());
-    m_ui->packageContentsView->setModel(step->packageContents());
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    connect(step->packageContents(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-            m_ui->packageContentsView, SLOT(resizeColumnsToContents()));
-    connect(step->packageContents(), SIGNAL(rowsInserted(QModelIndex, int, int)),
-            m_ui->packageContentsView, SLOT(resizeColumnsToContents()));
-    connect(m_ui->packageContentsView->selectionModel(),
-            SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this,
-            SLOT(enableOrDisableRemoveButton()));
-    m_ui->packageContentsView->resizeColumnsToContents();
-    m_ui->packageContentsView->horizontalHeader()->setStretchLastSection(true);
-    enableOrDisableRemoveButton();
-
     const QStringList list = m_step->versionString().split(QLatin1Char('.'),
         QString::SkipEmptyParts);
     m_ui->major->setValue(list.value(0, QLatin1String("0")).toInt());
     m_ui->minor->setValue(list.value(1, QLatin1String("0")).toInt());
     m_ui->patch->setValue(list.value(2, QLatin1String("0")).toInt());
     versionInfoChanged();   // workaround for missing minor and patch update notifications
+    for (int i = 0; i < step->deployables()->modelCount(); ++i) {
+        MaemoDeployableListModel * const model
+            = step->deployables()->modelAt(i);
+        m_ui->tabWidget->addTab(new MaemoDeployableListWidget(this, model),
+            model->projectName());
+    }
 }
 
 void MaemoPackageCreationWidget::init()
@@ -99,56 +90,6 @@ QString MaemoPackageCreationWidget::summaryText() const
 QString MaemoPackageCreationWidget::displayName() const
 {
     return m_step->displayName();
-}
-
-void MaemoPackageCreationWidget::addFile()
-{
-    const Qt4BuildConfiguration * const bc
-        = static_cast<Qt4BuildConfiguration *>(m_step->buildConfiguration());
-    QTC_ASSERT(bc, return);
-    const QString title = tr("Choose a local file");
-    const QString baseDir = bc->target()->project()->projectDirectory();
-    const QString localFile = QFileDialog::getOpenFileName(this, title, baseDir); // TODO: Support directories?
-    if (localFile.isEmpty())
-        return;
-    const MaemoDeployable
-        deployable(QDir::toNativeSeparators(QFileInfo(localFile).absoluteFilePath()),
-        "/");
-    MaemoPackageContents * const contents = m_step->packageContents();
-    QString errorString;
-    if (!contents->addDeployable(deployable, &errorString)) {
-        QMessageBox::information(this, tr("Error adding file"), errorString);
-    } else {
-        const QModelIndex newIndex
-            = contents->index(contents->rowCount() - 1, 1);
-        m_ui->packageContentsView->selectionModel()->clear();
-        m_ui->packageContentsView->scrollTo(newIndex);
-        m_ui->packageContentsView->edit(newIndex);
-    }
-}
-
-void MaemoPackageCreationWidget::removeFile()
-{
-    const QModelIndexList selectedRows
-        = m_ui->packageContentsView->selectionModel()->selectedRows();
-    if (selectedRows.isEmpty())
-        return;
-    const int row = selectedRows.first().row();
-    if (row != 0) {
-        QString errorString;
-        if (!m_step->packageContents()->removeDeployableAt(row, &errorString)) {
-            QMessageBox::information(this, tr("Error removing file"),
-                errorString);
-        }
-    }
-}
-
-void MaemoPackageCreationWidget::enableOrDisableRemoveButton()
-{
-    const QModelIndexList selectedRows
-        = m_ui->packageContentsView->selectionModel()->selectedRows();
-    m_ui->removeFileButton->setEnabled(!selectedRows.isEmpty()
-                                       && selectedRows.first().row() != 0);
 }
 
 void MaemoPackageCreationWidget::handleSkipButtonToggled(bool checked)

@@ -27,12 +27,10 @@
 **
 **************************************************************************/
 
-#ifndef MAEMOPACKAGECONTENTS_H
-#define MAEMOPACKAGECONTENTS_H
+#ifndef MAEMODEPLOYABLE_H
+#define MAEMODEPLOYABLE_H
 
-#include <QtCore/QAbstractTableModel>
 #include <QtCore/QHash>
-#include <QtCore/QList>
 #include <QtCore/QString>
 
 namespace Qt4ProjectManager {
@@ -52,49 +50,13 @@ struct MaemoDeployable
     QString localFilePath;
     QString remoteDir;
 };
+
 inline uint qHash(const MaemoDeployable &d)
 {
     return qHash(qMakePair(d.localFilePath, d.remoteDir));
 }
 
-class MaemoPackageCreationStep;
-class ProFileReader;
-
-class MaemoPackageContents : public QAbstractTableModel
-{
-    Q_OBJECT
-public:
-    MaemoPackageContents(MaemoPackageCreationStep *packageStep);
-    ~MaemoPackageContents();
-
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-
-    MaemoDeployable deployableAt(int row) const;
-    bool addDeployable(const MaemoDeployable &deployable, QString *error);
-    bool removeDeployableAt(int row, QString *error);
-    bool isModified() const { return m_modified; }
-    void setUnModified() { m_modified = false; }
-    QString remoteExecutableFilePath() const;
-
-private:
-    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    virtual QVariant data(const QModelIndex &index,
-                          int role = Qt::DisplayRole) const;
-    virtual QVariant headerData(int section, Qt::Orientation orientation,
-                                int role = Qt::DisplayRole) const;
-    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
-    virtual bool setData(const QModelIndex &index, const QVariant &value,
-                         int role = Qt::EditRole);
-
-    bool buildModel() const;
-
-    const MaemoPackageCreationStep * const m_packageStep;
-    mutable QList<MaemoDeployable> m_deployables;
-    mutable bool m_modified;
-    mutable bool m_initialized;
-};
-
 } // namespace Qt4ProjectManager
 } // namespace Internal
 
-#endif // MAEMOPACKAGECONTENTS_H
+#endif // MAEMODEPLOYABLE_H

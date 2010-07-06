@@ -34,9 +34,9 @@
 
 #include "maemoruncontrol.h"
 
+#include "maemodeployables.h"
 #include "maemopackagecreationstep.h"
 #include "maemorunconfiguration.h"
-#include "maemopackagecontents.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -139,10 +139,11 @@ void AbstractMaemoRunControl::startDeployment(bool forDebugging)
             const MaemoDeployable d(packageFilePath(), uploadDir());
             m_needsInstall = addDeployableIfNeeded(d);
         } else {
-            const MaemoPackageContents * const packageContents
-                = packageStep->packageContents();
-            for (int i = 0; i < packageContents->rowCount(); ++i) {
-                const MaemoDeployable &d = packageContents->deployableAt(i);
+            const MaemoDeployables * const deployables
+                = packageStep->deployables();
+            const int deployableCount = deployables->deployableCount();
+            for (int i = 0; i < deployableCount; ++i) {
+                const MaemoDeployable &d = deployables->deployableAt(i);
                 if (addDeployableIfNeeded(d))
                     m_needsInstall = true;
             }
@@ -237,7 +238,10 @@ QString AbstractMaemoRunControl::packageFilePath() const
 
 QString AbstractMaemoRunControl::executableFilePathOnTarget() const
 {
-    return m_runConfig->packageStep()->packageContents()->remoteExecutableFilePath();
+    // TODO: The local executable is known directly by us (from RunConfiguration::target(),
+    // so we must not rely on the packaging step for this information (which will
+    // no longer provide it, anyway)/
+    return m_runConfig->packageStep()->deployables()->remoteExecutableFilePath(m_runConfig->packageStep()->localExecutableFilePath());
 }
 
 bool AbstractMaemoRunControl::isCleaning() const

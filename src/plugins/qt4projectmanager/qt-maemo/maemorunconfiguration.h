@@ -32,7 +32,7 @@
 
 #include "maemoconstants.h"
 #include "maemodeviceconfigurations.h"
-#include "maemopackagecontents.h"
+#include "maemodeployable.h"
 
 #include <projectexplorer/runconfiguration.h>
 

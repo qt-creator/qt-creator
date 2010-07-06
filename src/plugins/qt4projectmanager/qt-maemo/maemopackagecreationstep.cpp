@@ -43,7 +43,7 @@
 
 #include "maemoconstants.h"
 #include "maemopackagecreationwidget.h"
-#include "maemopackagecontents.h"
+#include "maemodeployables.h"
 #include "maemotoolchain.h"
 #include "profilewrapper.h"
 
@@ -52,9 +52,6 @@
 #include <qt4project.h>
 #include <qt4target.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
 #include <QtCore/QProcess>
 #include <QtCore/QProcessEnvironment>
 #include <QtCore/QStringBuilder>
@@ -76,7 +73,7 @@ namespace Internal {
 
 MaemoPackageCreationStep::MaemoPackageCreationStep(BuildConfiguration *buildConfig)
     : ProjectExplorer::BuildStep(buildConfig, CreatePackageId),
-      m_packageContents(new MaemoPackageContents(this)),
+      m_deployables(new MaemoDeployables(this)),
       m_packagingEnabled(true),
       m_versionString(DefaultVersionNumber)
 {
@@ -85,13 +82,16 @@ MaemoPackageCreationStep::MaemoPackageCreationStep(BuildConfiguration *buildConf
 MaemoPackageCreationStep::MaemoPackageCreationStep(BuildConfiguration *buildConfig,
     MaemoPackageCreationStep *other)
     : BuildStep(buildConfig, other),
-      m_packageContents(new MaemoPackageContents(this)),
+      m_deployables(new MaemoDeployables(this)),
       m_packagingEnabled(other->m_packagingEnabled),
       m_versionString(other->m_versionString)
 {
 }
 
-MaemoPackageCreationStep::~MaemoPackageCreationStep() {}
+MaemoPackageCreationStep::~MaemoPackageCreationStep()
+{
+    delete m_deployables;
+}
 
 bool MaemoPackageCreationStep::init()
 {
@@ -245,7 +245,7 @@ bool MaemoPackageCreationStep::createPackage()
     }
 
     emit addOutput(tr("Package created."), textCharFormat);
-    m_packageContents->setUnModified();
+    m_deployables->setUnmodified();
     return true;
 }
 
@@ -346,12 +346,13 @@ QString MaemoPackageCreationStep::targetRoot() const
 bool MaemoPackageCreationStep::packagingNeeded() const
 {
     QFileInfo packageInfo(packageFilePath());
-    if (!packageInfo.exists() || m_packageContents->isModified())
+    if (!packageInfo.exists() || m_deployables->isModified())
         return true;
 
-    for (int i = 0; i < m_packageContents->rowCount(); ++i) {
+    const int deployableCount = m_deployables->deployableCount();
+    for (int i = 0; i < deployableCount; ++i) {
         if (packageInfo.lastModified()
-            <= QFileInfo(m_packageContents->deployableAt(i).localFilePath)
+            <= QFileInfo(m_deployables->deployableAt(i).localFilePath)
                .lastModified())
             return true;
     }
@@ -387,18 +388,6 @@ void MaemoPackageCreationStep::raiseError(const QString &shortMsg,
     emit addOutput(detailedMsg.isNull() ? shortMsg : detailedMsg, textCharFormat);
     emit addTask(Task(Task::Error, shortMsg, QString(), -1,
                       TASK_CATEGORY_BUILDSYSTEM));
-}
-
-QSharedPointer<ProFileWrapper> MaemoPackageCreationStep::proFileWrapper() const
-{
-    if (!m_proFileWrapper) {
-        const Qt4ProFileNode * const proFileNode = qt4BuildConfiguration()
-            ->qt4Target()->qt4Project()->rootProjectNode();
-        m_proFileWrapper = QSharedPointer<ProFileWrapper>(
-            new ProFileWrapper(proFileNode->path()));
-    }
-
-    return m_proFileWrapper;
 }
 
 const QLatin1String MaemoPackageCreationStep::CreatePackageId("Qt4ProjectManager.MaemoPackageCreationStep");

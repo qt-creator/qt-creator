@@ -55,7 +55,7 @@ QT_END_NAMESPACE
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class MaemoPackageContents;
+class MaemoDeployables;
 class MaemoToolChain;
 class ProFileWrapper;
 class Qt4BuildConfiguration;
@@ -71,9 +71,8 @@ public:
     QString packageFilePath() const;
     QString localExecutableFilePath() const;
     QString executableFileName() const;
-    MaemoPackageContents *packageContents() const { return m_packageContents; }
+    MaemoDeployables *deployables() const { return m_deployables; }
     const Qt4BuildConfiguration *qt4BuildConfiguration() const;
-    QSharedPointer<ProFileWrapper> proFileWrapper() const;
 
     bool isPackagingEnabled() const { return m_packagingEnabled; }
     void setPackagingEnabled(bool enabled) { m_packagingEnabled = enabled; }
@@ -108,10 +107,9 @@ private:
 
     static const QLatin1String CreatePackageId;
 
-    MaemoPackageContents *const m_packageContents;
+    MaemoDeployables * const m_deployables;
     bool m_packagingEnabled;
     QString m_versionString;
-    mutable QSharedPointer<ProFileWrapper> m_proFileWrapper;
     QScopedPointer<QProcess> m_buildProc;
 };
 

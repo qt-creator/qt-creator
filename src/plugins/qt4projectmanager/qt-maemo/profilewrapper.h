@@ -53,6 +53,7 @@ public:
         const QString &newValue);
 
     QString absFilePath(const QString &relFilePath) const;
+    QString projectDir() const { return m_proDir.path(); }
 
 private:
     enum ParseType { ParseFromFile, ParseFromLines };

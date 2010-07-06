@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MaemoDeployableListWidget</class>
+ <widget class="QWidget" name="MaemoDeployableListWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>491</width>
+    <height>289</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <widget class="QTableView" name="deployablesView">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>1</horstretch>
+       <verstretch>1</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>400</width>
+       <height>200</height>
+      </size>
+     </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::SingleSelection</enum>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
+     <property name="showGrid">
+      <bool>false</bool>
+     </property>
+     <attribute name="horizontalHeaderVisible">
+      <bool>true</bool>
+     </attribute>
+     <attribute name="horizontalHeaderCascadingSectionResizes">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="verticalHeaderVisible">
+      <bool>false</bool>
+     </attribute>
+    </widget>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QToolButton" name="addFileButton">
+       <property name="toolTip">
+        <string>Add File to Package</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../coreplugin/core.qrc">
+         <normaloff>:/core/images/plus.png</normaloff>:/core/images/plus.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="removeFileButton">
+       <property name="toolTip">
+        <string>Remove File from Package</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../coreplugin/core.qrc">
+         <normaloff>:/core/images/minus.png</normaloff>:/core/images/minus.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../../coreplugin/core.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>addFileButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MaemoDeployableListWidget</receiver>
+   <slot>addFile()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>475</x>
+     <y>32</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>488</x>
+     <y>242</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>removeFileButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MaemoDeployableListWidget</receiver>
+   <slot>removeFile()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>456</x>
+     <y>66</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>490</x>
+     <y>182</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>addFile()</slot>
+  <slot>removeFile()</slot>
+ </slots>
+</ui>

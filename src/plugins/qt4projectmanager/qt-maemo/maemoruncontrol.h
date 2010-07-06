@@ -36,7 +36,7 @@
 #define MAEMORUNCONTROL_H
 
 #include "maemodeviceconfigurations.h"
-#include "maemopackagecontents.h"
+#include "maemodeployable.h"
 #include "maemosshthread.h"
 
 #include <projectexplorer/runconfiguration.h>
