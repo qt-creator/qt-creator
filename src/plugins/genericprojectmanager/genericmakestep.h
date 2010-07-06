@@ -114,26 +114,26 @@ public:
     virtual ~GenericMakeStepFactory();
 
     virtual bool canCreate(ProjectExplorer::BuildConfiguration *parent,
-                           ProjectExplorer::StepType type,
+                           ProjectExplorer::BuildStep::Type type,
                            const QString &id) const;
     virtual ProjectExplorer::BuildStep *create(ProjectExplorer::BuildConfiguration *parent,
-                                               ProjectExplorer::StepType type,
+                                               ProjectExplorer::BuildStep::Type type,
                                                const QString &id);
     virtual bool canClone(ProjectExplorer::BuildConfiguration *parent,
-                          ProjectExplorer::StepType type,
+                          ProjectExplorer::BuildStep::Type type,
                           ProjectExplorer::BuildStep *source) const;
     virtual ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildConfiguration *parent,
-                                              ProjectExplorer::StepType type,
+                                              ProjectExplorer::BuildStep::Type type,
                                               ProjectExplorer::BuildStep *source);
     virtual bool canRestore(ProjectExplorer::BuildConfiguration *parent,
-                            ProjectExplorer::StepType type,
+                            ProjectExplorer::BuildStep::Type type,
                             const QVariantMap &map) const;
     virtual ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildConfiguration *parent,
-                                                ProjectExplorer::StepType type,
+                                                ProjectExplorer::BuildStep::Type type,
                                                 const QVariantMap &map);
 
     virtual QStringList availableCreationIds(ProjectExplorer::BuildConfiguration *bc,
-                                             ProjectExplorer::StepType type) const;
+                                             ProjectExplorer::BuildStep::Type type) const;
     virtual QString displayNameForId(const QString &id) const;
 };
 

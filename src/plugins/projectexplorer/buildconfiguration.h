@@ -53,10 +53,10 @@ public:
     // ctors are protected
     virtual ~BuildConfiguration();
 
-    QList<BuildStep *> steps(StepType type) const;
-    void insertStep(StepType type, int position, BuildStep *step);
-    bool removeStep(StepType type, int position);
-    void moveStepUp(StepType type, int position);
+    QList<BuildStep *> steps(BuildStep::Type type) const;
+    void insertStep(BuildStep::Type type, int position, BuildStep *step);
+    bool removeStep(BuildStep::Type type, int position);
+    void moveStepUp(BuildStep::Type type, int position);
 
     virtual QString buildDirectory() const = 0;
 
@@ -85,7 +85,7 @@ protected:
     virtual bool fromMap(const QVariantMap &map);
 
 private:
-    QList<BuildStep *> m_steps[LastStepType];
+    QList<BuildStep *> m_steps[BuildStep::LastStepType];
     Target *m_target;
 
     bool m_clearSystemEnvironment;

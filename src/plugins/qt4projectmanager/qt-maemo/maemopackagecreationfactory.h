@@ -53,34 +53,34 @@ public:
     MaemoPackageCreationFactory(QObject *parent);
 
     virtual QStringList availableCreationIds(ProjectExplorer::BuildConfiguration *parent,
-                                             ProjectExplorer::StepType type) const;
+                                             ProjectExplorer::BuildStep::Type type) const;
     virtual QString displayNameForId(const QString &id) const;
 
     virtual bool canCreate(ProjectExplorer::BuildConfiguration *parent,
-                           ProjectExplorer::StepType type,
+                           ProjectExplorer::BuildStep::Type type,
                            const QString &id) const;
     virtual ProjectExplorer::BuildStep *
             create(ProjectExplorer::BuildConfiguration *parent,
-                   ProjectExplorer::StepType type, const QString &id);
+                   ProjectExplorer::BuildStep::Type type, const QString &id);
 
     virtual bool canRestore(ProjectExplorer::BuildConfiguration *parent,
-                            ProjectExplorer::StepType type,
+                            ProjectExplorer::BuildStep::Type type,
                             const QVariantMap &map) const;
     virtual ProjectExplorer::BuildStep *
             restore(ProjectExplorer::BuildConfiguration *parent,
-                    ProjectExplorer::StepType type, const QVariantMap &map);
+                    ProjectExplorer::BuildStep::Type type, const QVariantMap &map);
 
     virtual bool canClone(ProjectExplorer::BuildConfiguration *parent,
-                          ProjectExplorer::StepType type,
+                          ProjectExplorer::BuildStep::Type type,
                           ProjectExplorer::BuildStep *product) const;
     virtual ProjectExplorer::BuildStep *
             clone(ProjectExplorer::BuildConfiguration *parent,
-                  ProjectExplorer::StepType type,
+                  ProjectExplorer::BuildStep::Type type,
                   ProjectExplorer::BuildStep *product);
 
 private:
     bool canCreateInternally(ProjectExplorer::BuildConfiguration *parent,
-                             ProjectExplorer::StepType type,
+                             ProjectExplorer::BuildStep::Type type,
                              const QString &id) const;
 };
 

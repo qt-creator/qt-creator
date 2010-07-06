@@ -398,7 +398,7 @@ void Qt4BuildConfiguration::getConfigCommandLineArguments(QStringList *addedUser
 QMakeStep *Qt4BuildConfiguration::qmakeStep() const
 {
     QMakeStep *qs = 0;
-    foreach(BuildStep *bs, steps(ProjectExplorer::Build))
+    foreach(BuildStep *bs, steps(ProjectExplorer::BuildStep::Build))
         if ((qs = qobject_cast<QMakeStep *>(bs)) != 0)
             return qs;
     return 0;
@@ -407,7 +407,7 @@ QMakeStep *Qt4BuildConfiguration::qmakeStep() const
 MakeStep *Qt4BuildConfiguration::makeStep() const
 {
     MakeStep *qs = 0;
-    foreach(BuildStep *bs, steps(ProjectExplorer::Build))
+    foreach(BuildStep *bs, steps(ProjectExplorer::BuildStep::Build))
         if ((qs = qobject_cast<MakeStep *>(bs)) != 0)
             return qs;
     return 0;

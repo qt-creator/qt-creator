@@ -276,22 +276,22 @@ Qt4BuildConfiguration *Qt4Target::addQt4BuildConfiguration(QString displayName, 
     bc->setDisplayName(displayName);
 
     QMakeStep *qmakeStep = new QMakeStep(bc);
-    bc->insertStep(ProjectExplorer::Build, 0, qmakeStep);
+    bc->insertStep(ProjectExplorer::BuildStep::Build, 0, qmakeStep);
 
     MakeStep *makeStep = new MakeStep(bc);
-    bc->insertStep(ProjectExplorer::Build, 1, makeStep);
+    bc->insertStep(ProjectExplorer::BuildStep::Build, 1, makeStep);
 
     if (id() == Constants::S60_DEVICE_TARGET_ID) {
         S60CreatePackageStep *packageStep = new S60CreatePackageStep(bc);
-        bc->insertStep(ProjectExplorer::Build, 2, packageStep);
+        bc->insertStep(ProjectExplorer::BuildStep::Build, 2, packageStep);
     } else if (id() == Constants::MAEMO_DEVICE_TARGET_ID) {
-        bc->insertStep(ProjectExplorer::Build, 2, new MaemoPackageCreationStep(bc));
+        bc->insertStep(ProjectExplorer::BuildStep::Build, 2, new MaemoPackageCreationStep(bc));
     }
 
     MakeStep* cleanStep = new MakeStep(bc);
     cleanStep->setClean(true);
     cleanStep->setUserArguments(QStringList() << "clean");
-    bc->insertStep(ProjectExplorer::Clean, 0, cleanStep);
+    bc->insertStep(ProjectExplorer::BuildStep::Clean, 0, cleanStep);
     if (!additionalArguments.isEmpty())
         qmakeStep->setUserArguments(additionalArguments);
 

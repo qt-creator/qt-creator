@@ -427,16 +427,16 @@ QMakeStepFactory::~QMakeStepFactory()
 {
 }
 
-bool QMakeStepFactory::canCreate(BuildConfiguration *parent, ProjectExplorer::StepType type, const QString &id) const
+bool QMakeStepFactory::canCreate(BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, const QString &id) const
 {
-    if (type != ProjectExplorer::Build)
+    if (type != ProjectExplorer::BuildStep::Build)
         return false;
     if (!qobject_cast<Qt4BuildConfiguration *>(parent))
         return false;
     return (id == QLatin1String(QMAKE_BS_ID));
 }
 
-ProjectExplorer::BuildStep *QMakeStepFactory::create(BuildConfiguration *parent, ProjectExplorer::StepType type,const QString &id)
+ProjectExplorer::BuildStep *QMakeStepFactory::create(BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type,const QString &id)
 {
     if (!canCreate(parent, type, id))
         return 0;
@@ -445,12 +445,12 @@ ProjectExplorer::BuildStep *QMakeStepFactory::create(BuildConfiguration *parent,
     return new QMakeStep(bc);
 }
 
-bool QMakeStepFactory::canClone(BuildConfiguration *parent, ProjectExplorer::StepType type, BuildStep *source) const
+bool QMakeStepFactory::canClone(BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, BuildStep *source) const
 {
     return canCreate(parent, type, source->id());
 }
 
-ProjectExplorer::BuildStep *QMakeStepFactory::clone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::StepType type, ProjectExplorer::BuildStep *source)
+ProjectExplorer::BuildStep *QMakeStepFactory::clone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, ProjectExplorer::BuildStep *source)
 {
     if (!canClone(parent, type, source))
         return 0;
@@ -459,13 +459,13 @@ ProjectExplorer::BuildStep *QMakeStepFactory::clone(ProjectExplorer::BuildConfig
     return new QMakeStep(bc, qobject_cast<QMakeStep *>(source));
 }
 
-bool QMakeStepFactory::canRestore(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::StepType type, const QVariantMap &map) const
+bool QMakeStepFactory::canRestore(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, const QVariantMap &map) const
 {
     QString id(ProjectExplorer::idFromMap(map));
     return canCreate(parent, type, id);
 }
 
-ProjectExplorer::BuildStep *QMakeStepFactory::restore(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::StepType type, const QVariantMap &map)
+ProjectExplorer::BuildStep *QMakeStepFactory::restore(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, const QVariantMap &map)
 {
     if (!canRestore(parent, type, map))
         return 0;
@@ -478,9 +478,9 @@ ProjectExplorer::BuildStep *QMakeStepFactory::restore(ProjectExplorer::BuildConf
     return 0;
 }
 
-QStringList QMakeStepFactory::availableCreationIds(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::StepType type) const
+QStringList QMakeStepFactory::availableCreationIds(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type) const
 {
-    if (type == Build)
+    if (type == ProjectExplorer::BuildStep::Build)
         if (Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(parent))
             if (!bc->qmakeStep())
                 return QStringList() << QLatin1String(QMAKE_BS_ID);

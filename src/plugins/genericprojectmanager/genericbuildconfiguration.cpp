@@ -174,7 +174,7 @@ BuildConfiguration *GenericBuildConfigurationFactory::create(ProjectExplorer::Ta
     bc->setDisplayName(buildConfigurationName);
 
     GenericMakeStep *makeStep = new GenericMakeStep(bc);
-    bc->insertStep(ProjectExplorer::Build, 0, makeStep);
+    bc->insertStep(ProjectExplorer::BuildStep::Build, 0, makeStep);
     makeStep->setBuildTarget("all", /* on = */ true);
 
     target->addBuildConfiguration(bc); // also makes the name unique...

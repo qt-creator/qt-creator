@@ -414,7 +414,7 @@ void BuildManager::buildProjects(const QList<BuildConfiguration *> &configuratio
 {
     QList<BuildStep *> steps;
     foreach(BuildConfiguration *bc, configurations)
-        steps.append(bc->steps(Build));
+        steps.append(bc->steps(BuildStep::Build));
 
     bool success = buildQueueAppend(steps);
     if (!success) {
@@ -431,7 +431,7 @@ void BuildManager::cleanProjects(const QList<BuildConfiguration *> &configuratio
 {
     QList<BuildStep *> steps;
     foreach(BuildConfiguration *bc, configurations)
-        steps.append(bc->steps(Clean));
+        steps.append(bc->steps(BuildStep::Clean));
 
     bool success = buildQueueAppend(steps);
     if (!success) {

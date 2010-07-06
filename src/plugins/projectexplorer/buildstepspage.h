@@ -67,7 +67,7 @@ class BuildStepsPage : public BuildConfigWidget
     Q_OBJECT
 
 public:
-    explicit BuildStepsPage(Target *target, StepType type);
+    explicit BuildStepsPage(Target *target, BuildStep::Type type);
     virtual ~BuildStepsPage();
 
     QString displayName() const;
@@ -88,7 +88,7 @@ private:
 
     BuildConfiguration * m_configuration;
     QHash<QAction *, QPair<QString, ProjectExplorer::IBuildStepFactory *> > m_addBuildStepHash;
-    StepType m_type;
+    BuildStep::Type m_type;
 
     QList<BuildStepsWidgetStruct> m_buildSteps;
 

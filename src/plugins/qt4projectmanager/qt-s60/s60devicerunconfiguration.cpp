@@ -369,7 +369,7 @@ bool S60DeviceRunConfiguration::runSmartInstaller() const
 {
     BuildConfiguration *bc = target()->activeBuildConfiguration();
     QTC_ASSERT(bc, return false);
-    QList<BuildStep *> steps = bc->steps(Build);
+    QList<BuildStep *> steps = bc->steps(ProjectExplorer::BuildStep::Build);
     foreach (const BuildStep *step, steps) {
         if (const S60CreatePackageStep *packageStep = qobject_cast<const S60CreatePackageStep *>(step)) {
             return packageStep->createsSmartInstaller();

@@ -46,15 +46,15 @@ public:
     ProcessStepFactory();
     ~ProcessStepFactory();
 
-    virtual QStringList availableCreationIds(BuildConfiguration *parent, StepType type) const;
+    virtual QStringList availableCreationIds(BuildConfiguration *parent, BuildStep::Type type) const;
     virtual QString displayNameForId(const QString &id) const;
 
-    virtual bool canCreate(BuildConfiguration *parent, StepType type, const QString &id) const;
-    virtual BuildStep *create(BuildConfiguration *parent, StepType type, const QString &id);
-    virtual bool canRestore(BuildConfiguration *parent, StepType type, const QVariantMap &map) const;
-    virtual BuildStep *restore(BuildConfiguration *parent, StepType type, const QVariantMap &map);
-    virtual bool canClone(BuildConfiguration *parent, StepType type, BuildStep *product) const;
-    virtual BuildStep *clone(BuildConfiguration *parent, StepType type, BuildStep *product);
+    virtual bool canCreate(BuildConfiguration *parent, BuildStep::Type type, const QString &id) const;
+    virtual BuildStep *create(BuildConfiguration *parent, BuildStep::Type type, const QString &id);
+    virtual bool canRestore(BuildConfiguration *parent, BuildStep::Type type, const QVariantMap &map) const;
+    virtual BuildStep *restore(BuildConfiguration *parent, BuildStep::Type type, const QVariantMap &map);
+    virtual bool canClone(BuildConfiguration *parent, BuildStep::Type type, BuildStep *product) const;
+    virtual BuildStep *clone(BuildConfiguration *parent, BuildStep::Type type, BuildStep *product);
 };
 
 class ProcessStep : public ProjectExplorer::AbstractProcessStep

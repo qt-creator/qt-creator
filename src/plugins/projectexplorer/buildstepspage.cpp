@@ -50,7 +50,7 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-BuildStepsPage::BuildStepsPage(Target *target, StepType type) :
+BuildStepsPage::BuildStepsPage(Target *target, BuildStep::Type type) :
     BuildConfigWidget(),
     m_type(type),
     m_addButton(0)
@@ -83,7 +83,7 @@ void BuildStepsPage::updateSummary()
 
 QString BuildStepsPage::displayName() const
 {
-    if (m_type == Build)
+    if (m_type == BuildStep::Build)
         return tr("Build Steps");
     else
         return tr("Clean Steps");
@@ -295,7 +295,7 @@ void BuildStepsPage::setupUi()
     QHBoxLayout *hboxLayout = new QHBoxLayout();
     hboxLayout->setContentsMargins(0, 4, 0, 0);
     m_addButton = new QPushButton(this);
-    m_addButton->setText(m_type == Clean ? tr("Add Clean Step") :  tr("Add Build Step"));
+    m_addButton->setText(m_type == BuildStep::Clean ? tr("Add Clean Step") :  tr("Add Build Step"));
     m_addButton->setMenu(new QMenu(this));
     hboxLayout->addWidget(m_addButton);
 
