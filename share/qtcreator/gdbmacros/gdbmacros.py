@@ -27,7 +27,7 @@ def qdump__QByteArray(d, item):
     d.putNumChild(size)
 
     if d.isExpanded(item):
-        innerType = gdb.lookup_type("char")
+        innerType = lookupType("char")
         with Children(d, [size, 1000], innerType):
             data = d_ptr['data']
             p = gdb.Value(data.cast(innerType.pointer()))
@@ -57,7 +57,7 @@ def qdump__QAbstractItem(d, item):
     d.putNumChild(rowCount * columnCount)
     if d.isExpanded(item):
         with Children(d):
-            innerType = gdb.lookup_type(d.ns + "QAbstractItem")
+            innerType = lookupType(d.ns + "QAbstractItem")
             for row in xrange(rowCount):
                 for column in xrange(columnCount):
                     with SubItem(d):
@@ -202,7 +202,7 @@ def qdump__QFileInfo(d, item):
     d.putStringValue(call(item.value, "filePath()"))
     d.putNumChild(3)
     if d.isExpanded(item):
-        with Children(d, 10, gdb.lookup_type(d.ns + "QString")):
+        with Children(d, 10, lookupType(d.ns + "QString")):
             d.putCallItem("absolutePath", item, "absolutePath()")
             d.putCallItem("absoluteFilePath", item, "absoluteFilePath()")
             d.putCallItem("canonicalPath", item, "canonicalPath()")
@@ -397,7 +397,7 @@ def qdump__QList(d, item):
         # in the frontend.
         # So as first approximation only do the 'isLarge' check:
         isInternal = innerSize <= d_ptr.type.sizeof and d.isMovableType(innerType)
-        dummyType = gdb.lookup_type("void").pointer().pointer()
+        dummyType = lookupType("void").pointer().pointer()
         innerTypePointer = innerType.pointer()
         p = gdb.Value(array).cast(dummyType) + begin
         if innerTypeIsPointer:
@@ -449,7 +449,7 @@ def qdump__QImage(d, item):
             d.put("%08x" % int(d_ptr["width"]))
             d.put("%08x" % int(d_ptr["height"]))
             d.put("%08x" % int(d_ptr["format"]))
-            p = bits.cast(gdb.lookup_type("unsigned int").pointer())
+            p = bits.cast(lookupType("unsigned int").pointer())
             for i in xrange(nbytes / 4):
                 d.put("%08x" % int(p.dereference()))
                 p += 1
@@ -458,7 +458,7 @@ def qdump__QImage(d, item):
             # Write to an external file. Much faster ;-(
             file = tempfile.mkstemp(prefix="gdbpy_")
             filename = file[1].replace("\\", "\\\\")
-            p = bits.cast(gdb.lookup_type("unsigned char").pointer())
+            p = bits.cast(lookupType("unsigned char").pointer())
             gdb.execute("dump binary memory %s %s %s" %
                 (filename, cleanAddress(p), cleanAddress(p + nbytes)))
             d.putDisplay(DisplayImage, " %d %d %d %s"
@@ -485,7 +485,7 @@ def qdump__QLocale(d, item):
     d.putStringValue(call(item.value, "name()"))
     d.putNumChild(8)
     if d.isExpanded(item):
-        with Children(d, 1, gdb.lookup_type(d.ns + "QChar"), 0):
+        with Children(d, 1, lookupType(d.ns + "QChar"), 0):
             d.putCallItem("country", item, "country()")
             d.putCallItem("language", item, "language()")
             d.putCallItem("measurementSystem", item, "measurementSystem()")
@@ -539,9 +539,9 @@ def qdump__QMap(d, item):
         # QMapPayloadNode is QMapNode except for the 'forward' member, so
         # its size is most likely the offset of the 'forward' member therein.
         # Or possibly 2 * sizeof(void *)
-        nodeType = gdb.lookup_type(d.ns + "QMapNode<%s, %s>" % (keyType, valueType))
-        payloadSize = nodeType.sizeof - 2 * gdb.lookup_type("void").pointer().sizeof
-        charPtr = gdb.lookup_type("char").pointer()
+        nodeType = lookupType(d.ns + "QMapNode<%s, %s>" % (keyType, valueType))
+        payloadSize = nodeType.sizeof - 2 * lookupType("void").pointer().sizeof
+        charPtr = lookupType("char").pointer()
 
         innerType = select(isSimpleKey and isSimpleValue, valueType, nodeType)
 
@@ -592,7 +592,7 @@ def qdump__QObject(d, item):
     #    superData = superData.dereference()["d"]["superdata"]
     #    warn("SUPERDATA: %s" % superData)
 
-    privateType = gdb.lookup_type(d.ns + "QObjectPrivate").pointer()
+    privateType = lookupType(d.ns + "QObjectPrivate").pointer()
     d_ptr = item.value["d_ptr"]["d"].cast(privateType).dereference()
     #warn("D_PTR: %s " % d_ptr)
     objectName = d_ptr["objectName"]
@@ -662,7 +662,7 @@ def qdump__QObject(d, item):
                            #    type = type[type.find('"') + 1 : type.rfind('"')]
                            #    type = type.replace("Q", d.ns + "Q") # HACK!
                            #    data = call(item.value, "constData()")
-                           #    tdata = data.cast(gdb.lookup_type(type).pointer()).dereference()
+                           #    tdata = data.cast(lookupType(type).pointer()).dereference()
                            #    d.putValue("(%s)" % tdata.type)
                            #    d.putType(tdata.type)
                            #    d.putNumChild(1)
@@ -1420,7 +1420,7 @@ def qdump__QStringList(d, item):
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded(item):
-        innerType = gdb.lookup_type(d.ns + "QString")
+        innerType = lookupType(d.ns + "QString")
         ptr = gdb.Value(d_ptr["array"]).cast(innerType.pointer())
         ptr += d_ptr["begin"]
         with Children(d, [size, 1000], innerType):
@@ -1580,11 +1580,11 @@ def qdumpHelper__QVariant(d, value):
         inner = d.ns + "QQuadernion"
 
     if len(inner):
-        innerType = gdb.lookup_type(inner)
-        sizePD = gdb.lookup_type(d.ns + 'QVariant::Private::Data').sizeof
+        innerType = lookupType(inner)
+        sizePD = lookupType(d.ns + 'QVariant::Private::Data').sizeof
         if innerType.sizeof > sizePD:
-            sizePS = gdb.lookup_type(d.ns + 'QVariant::PrivateShared').sizeof
-            val = (sizePS + data.cast(gdb.lookup_type('char').pointer())) \
+            sizePS = lookupType(d.ns + 'QVariant::PrivateShared').sizeof
+            val = (sizePS + data.cast(lookupType('char').pointer())) \
                 .cast(innerType.pointer()).dereference()
         else:
             val = data.cast(innerType)
@@ -1600,7 +1600,7 @@ def qdump__QVariant(d, item):
     #warn("VARIANT DATA: '%s' '%s' '%s': " % (val, inner, innert))
 
     if len(inner): 
-        innerType = gdb.lookup_type(inner)
+        innerType = lookupType(inner)
         # FIXME: Why "shared"?
         if innerType.sizeof > item.value["d"]["data"].type.sizeof:
             v = item.value["d"]["data"]["shared"]["ptr"] \
@@ -1617,7 +1617,7 @@ def qdump__QVariant(d, item):
         type = type[type.find('"') + 1 : type.rfind('"')]
         type = type.replace("Q", d.ns + "Q") # HACK!
         data = call(item.value, "constData()")
-        tdata = data.cast(gdb.lookup_type(type).pointer()).dereference()
+        tdata = data.cast(lookupType(type).pointer()).dereference()
         d.putType("%sQVariant (%s)" % (d.ns, tdata.type))
         d.putNumChild(1)
         if d.isExpanded(item):
@@ -1812,7 +1812,7 @@ def qdump__std__string(d, item):
     data = item.value["_M_dataplus"]["_M_p"]
     baseType = item.value.type.unqualified().strip_typedefs()
     charType = baseType.template_argument(0)
-    repType = gdb.lookup_type("%s::_Rep" % baseType).pointer()
+    repType = lookupType("%s::_Rep" % baseType).pointer()
     rep = (data.cast(repType) - 1).dereference()
     size = rep['_M_length']
     alloc = rep['_M_capacity']
