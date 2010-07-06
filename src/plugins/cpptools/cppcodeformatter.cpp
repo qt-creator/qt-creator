@@ -1006,6 +1006,8 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
         while (isBracelessState(state(outermostBraceless).type))
             ++outermostBraceless;
         *indentDepth = state(outermostBraceless - 1).savedIndentDepth;
+        // this is where the else should go, if one appears - aligned to if_statement
+        *savedIndentDepth = state().savedIndentDepth;
     }   break;
 
     case for_statement_paren_open:
