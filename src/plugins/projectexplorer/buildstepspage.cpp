@@ -143,7 +143,6 @@ void BuildStepsPage::updateAddBuildStepMenu()
     m_addBuildStepHash.clear();
     menu->clear();
     if (!map.isEmpty()) {
-        QStringList names;
         QMap<QString, QPair<QString, IBuildStepFactory *> >::const_iterator it, end;
         end = map.constEnd();
         for (it = map.constBegin(); it != end; ++it) {
