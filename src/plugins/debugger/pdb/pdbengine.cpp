@@ -140,6 +140,7 @@ void PdbEngine::exitDebugger()
 
 void PdbEngine::startDebugger()
 {
+    setState(EngineStarting);
     setState(AdapterStarting);
 
     m_scriptFileName = QFileInfo(startParameters().executable).absoluteFilePath();
@@ -151,11 +152,6 @@ void PdbEngine::startDebugger()
         startFailed();
         return;
     }
-    setState(AdapterStarted);
-    setState(InferiorStarting);
-    setState(InferiorRunningRequested);
-    showStatusMessage(tr("Running requested..."), 5000);
-
     m_pdbProc.disconnect(); // From any previous runs
 
     m_pdb = _("/usr/bin/python");
@@ -196,9 +192,6 @@ void PdbEngine::startDebugger()
         startFailed();
         return;
     }
-
-    emit startSuccessful();
-    setState(InferiorRunning);
     attemptBreakpointSynchronization();
 
     showMessage(_("PDB STARTED, INITIALIZING IT"));
@@ -206,6 +199,13 @@ void PdbEngine::startDebugger()
         Core::ICore::instance()->resourcePath().toLocal8Bit() + "/gdbmacros/";
     postCommand("execfile('" + dumperSourcePath + "pdumper.py')",
         CB(handleLoadDumper));
+
+    setState(AdapterStarted);
+    setState(InferiorStarting);
+    setState(InferiorRunningRequested);
+    showStatusMessage(tr("Running requested..."), 5000);
+
+    emit startSuccessful();
 }
 
 void PdbEngine::runInferior()

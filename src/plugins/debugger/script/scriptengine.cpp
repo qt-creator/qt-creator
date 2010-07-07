@@ -34,6 +34,7 @@
 #include "breakhandler.h"
 #include "debuggerconstants.h"
 #include "debuggerdialogs.h"
+#include "debuggerstringutils.h"
 #include "moduleshandler.h"
 #include "registerhandler.h"
 #include "stackhandler.h"
@@ -230,7 +231,7 @@ void ScriptEngine::exitDebugger()
 
 void ScriptEngine::startDebugger()
 {
-    qDebug() << "STARTING SCRIPT DEBUGGER";
+    showMessage(_("STARTING SCRIPT DEBUGGER"), LogMisc);
     QTC_ASSERT(state() == DebuggerNotReady, setState(DebuggerNotReady));
     setState(EngineStarting);
     setState(AdapterStarting);
@@ -251,7 +252,7 @@ void ScriptEngine::startDebugger()
     setState(InferiorStarting);
 
     m_scriptFileName = QFileInfo(startParameters().executable).absoluteFilePath();
-    qDebug() << "SCRIPT FILE: " << m_scriptFileName;
+    showMessage(_("SCRIPT FILE: ") + m_scriptFileName);
     QFile scriptFile(m_scriptFileName);
     if (!scriptFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
         showMessage(QString::fromLatin1("Cannot open %1: %2").
