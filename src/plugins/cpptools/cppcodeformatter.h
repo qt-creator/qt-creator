@@ -39,11 +39,29 @@ public:
 
     void setTabSize(int tabSize);
 
-    static void invalidateCache(QTextDocument *document);
+    void invalidateCache(QTextDocument *document);
 
 protected:
     virtual void onEnter(int newState, int *indentDepth, int *savedIndentDepth) const = 0;
     virtual void adjustIndent(const QList<CPlusPlus::Token> &tokens, int lexerState, int *indentDepth) const = 0;
+
+    class State;
+    class BlockData
+    {
+    public:
+        BlockData();
+
+        QStack<State> m_beginState;
+        QStack<State> m_endState;
+        int m_indentDepth;
+        int m_blockRevision;
+    };
+
+    virtual void saveBlockData(QTextBlock *block, const BlockData &data) const = 0;
+    virtual bool loadBlockData(const QTextBlock &block, BlockData *data) const = 0;
+
+    virtual void saveLexerState(QTextBlock *block, int state) const = 0;
+    virtual int loadLexerState(const QTextBlock &block) const = 0;
 
 protected:
     enum StateType {
@@ -146,8 +164,8 @@ protected:
 
 private:
     void recalculateStateAfter(const QTextBlock &block);
-    void storeBlockState(const QTextBlock &block);
-    void restoreBlockState(const QTextBlock &block);
+    void saveCurrentState(const QTextBlock &block);
+    void restoreCurrentState(const QTextBlock &block);
 
     QStringRef currentTokenText() const;
 
@@ -200,6 +218,12 @@ public:
 protected:
     virtual void onEnter(int newState, int *indentDepth, int *savedIndentDepth) const;
     virtual void adjustIndent(const QList<CPlusPlus::Token> &tokens, int lexerState, int *indentDepth) const;
+
+    virtual void saveBlockData(QTextBlock *block, const BlockData &data) const;
+    virtual bool loadBlockData(const QTextBlock &block, BlockData *data) const;
+
+    virtual void saveLexerState(QTextBlock *block, int state) const;
+    virtual int loadLexerState(const QTextBlock &block) const;
 
 private:
     int m_indentSize;

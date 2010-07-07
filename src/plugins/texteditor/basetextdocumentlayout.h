@@ -57,14 +57,7 @@ struct TEXTEDITOR_EXPORT Parenthesis
 class TEXTEDITOR_EXPORT CodeFormatterData
 {
 public:
-    CodeFormatterData(int blockRevision);
     virtual ~CodeFormatterData();
-
-    int blockRevision() const { return m_blockRevision; }
-    void setBlockRevision(int revision) { m_blockRevision = revision; }
-
-private:
-    int m_blockRevision;
 };
 
 class TEXTEDITOR_EXPORT TextBlockUserData : public QTextBlockUserData

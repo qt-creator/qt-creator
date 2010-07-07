@@ -31,11 +31,6 @@
 
 using namespace TextEditor;
 
-CodeFormatterData::CodeFormatterData(int blockRevision)
-    : m_blockRevision(blockRevision)
-{
-}
-
 CodeFormatterData::~CodeFormatterData()
 {
 }

@@ -10,32 +10,15 @@
 #include <QtGui/QTextCursor>
 #include <QtGui/QTextBlock>
 
-namespace CppTools {
-namespace Internal {
-    class CppCodeFormatterData: public TextEditor::CodeFormatterData
-    {
-    public:
-        CppCodeFormatterData(int blockRevision,
-                             const QStack<CodeFormatter::State> &beginState,
-                             const QStack<CodeFormatter::State> &endState,
-                             int indentDepth)
-            : CodeFormatterData(blockRevision)
-            , m_beginState(beginState)
-            , m_endState(endState)
-            , m_indentDepth(indentDepth)
-        {}
-
-        QStack<CodeFormatter::State> m_beginState;
-        QStack<CodeFormatter::State> m_endState;
-        int m_indentDepth;
-    };
-}
-}
-
 using namespace CPlusPlus;
 using namespace CppTools;
 using namespace TextEditor;
 using namespace CppTools::Internal;
+
+CodeFormatter::BlockData::BlockData()
+    : m_blockRevision(-1)
+{
+}
 
 CodeFormatter::CodeFormatter()
     : m_indentDepth(0)
@@ -54,7 +37,7 @@ void CodeFormatter::setTabSize(int tabSize)
 
 void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
 {
-    restoreBlockState(block.previous());
+    restoreCurrentState(block.previous());
 
     bool endedJoined = false;
     const int lexerState = tokenizeBlock(block, &endedJoined);
@@ -420,14 +403,14 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
     if (topState == cpp_macro && endedJoined)
         turnInto(cpp_macro_cont);
 
-    storeBlockState(block);
+    saveCurrentState(block);
 }
 
 int CodeFormatter::indentFor(const QTextBlock &block)
 {
 //    qDebug() << "indenting for" << block.blockNumber() + 1;
 
-    restoreBlockState(block.previous());
+    restoreCurrentState(block.previous());
     correctIndentation(block);
     return m_indentDepth;
 }
@@ -439,18 +422,17 @@ void CodeFormatter::updateStateUntil(const QTextBlock &endBlock)
 
     // find the first block that needs recalculation
     for (; it.isValid() && it != endBlock; it = it.next()) {
-        TextBlockUserData *userData = BaseTextDocumentLayout::userData(it);
-        CppCodeFormatterData *cppData = static_cast<CppCodeFormatterData *>(userData->codeFormatterData());
-        if (!cppData)
+        BlockData blockData;
+        if (!loadBlockData(it, &blockData))
             break;
-        if (cppData->blockRevision() != it.revision())
+        if (blockData.m_blockRevision != it.revision())
             break;
-        if (previousState != cppData->m_beginState)
+        if (previousState != blockData.m_beginState)
             break;
-        if (TextBlockUserData::lexerState(it) == -1)
+        if (loadLexerState(it) == -1)
             break;
 
-        previousState = cppData->m_endState;
+        previousState = blockData.m_endState;
     }
 
     if (it == endBlock)
@@ -462,10 +444,10 @@ void CodeFormatter::updateStateUntil(const QTextBlock &endBlock)
     }
 
     // invalidate everything below by marking the state in endBlock as invalid
-    TextBlockUserData *userData = BaseTextDocumentLayout::userData(endBlock);
-    CppCodeFormatterData *cppData = static_cast<CppCodeFormatterData *>(userData->codeFormatterData());
-    if (cppData)
-        cppData->setBlockRevision(-1);
+    if (it.isValid()) {
+        BlockData invalidBlockData;
+        saveBlockData(&it, invalidBlockData);
+    }
 }
 
 void CodeFormatter::updateLineStateChange(const QTextBlock &block)
@@ -473,26 +455,18 @@ void CodeFormatter::updateLineStateChange(const QTextBlock &block)
     if (!block.isValid())
         return;
 
-    QStack<State> oldEndState;
-
-    TextBlockUserData *userData = BaseTextDocumentLayout::userData(block);
-    CppCodeFormatterData *cppData = static_cast<CppCodeFormatterData *>(userData->codeFormatterData());
-    if (cppData)
-        oldEndState = cppData->m_endState;
+    BlockData blockData;
+    if (loadBlockData(block, &blockData) && blockData.m_blockRevision == block.revision())
+        return;
 
     recalculateStateAfter(block);
 
-    if (oldEndState.isEmpty() || oldEndState != cppData->m_endState) {
-        // invalidate everything below by marking the next block's state as invalid
-        QTextBlock next = block.next();
-        if (!next.isValid())
-            return;
+    // invalidate everything below by marking the next block's state as invalid
+    QTextBlock next = block.next();
+    if (!next.isValid())
+        return;
 
-        userData = BaseTextDocumentLayout::userData(next);
-        cppData = static_cast<CppCodeFormatterData *>(userData->codeFormatterData());
-        if (cppData)
-            cppData->setBlockRevision(-1);
-    }
+    saveBlockData(&next, BlockData());
 }
 
 CodeFormatter::State CodeFormatter::state(int belowTop) const
@@ -528,13 +502,10 @@ void CodeFormatter::invalidateCache(QTextDocument *document)
     if (!document)
         return;
 
+    BlockData invalidBlockData;
     QTextBlock it = document->firstBlock();
     for (; it.isValid(); it = it.next()) {
-        TextBlockUserData *userData = BaseTextDocumentLayout::userData(it);
-        CppCodeFormatterData *cppData = static_cast<CppCodeFormatterData *>(userData->codeFormatterData());
-        if (!cppData)
-            break;
-        cppData->setBlockRevision(-1);
+        saveBlockData(&it, invalidBlockData);
     }
 }
 
@@ -795,25 +766,29 @@ void CodeFormatter::turnInto(int newState)
     enter(newState);
 }
 
-void CodeFormatter::storeBlockState(const QTextBlock &block)
+void CodeFormatter::saveCurrentState(const QTextBlock &block)
 {
     if (!block.isValid())
         return;
 
-    TextBlockUserData *userData = BaseTextDocumentLayout::userData(block);
-    userData->setCodeFormatterData(
-            new CppCodeFormatterData(block.revision(), m_beginState, m_currentState, m_indentDepth));
+    BlockData blockData;
+    blockData.m_blockRevision = block.revision();
+    blockData.m_beginState = m_beginState;
+    blockData.m_endState = m_currentState;
+    blockData.m_indentDepth = m_indentDepth;
+
+    QTextBlock saveableBlock(block);
+    saveBlockData(&saveableBlock, blockData);
 }
 
-void CodeFormatter::restoreBlockState(const QTextBlock &block)
+void CodeFormatter::restoreCurrentState(const QTextBlock &block)
 {
     if (block.isValid()) {             
-        TextBlockUserData *userData = BaseTextDocumentLayout::userData(block);
-        CppCodeFormatterData *oldData = static_cast<CppCodeFormatterData *>(userData->codeFormatterData());
-        if (oldData) {
-            m_currentState = oldData->m_endState;
+        BlockData blockData;
+        if (loadBlockData(block, &blockData)) {
+            m_indentDepth = blockData.m_indentDepth;
+            m_currentState = blockData.m_endState;
             m_beginState = m_currentState;
-            m_indentDepth = oldData->m_indentDepth;
             return;
         }
     }
@@ -833,7 +808,7 @@ QStack<CodeFormatter::State> CodeFormatter::initialState()
 
 int CodeFormatter::tokenizeBlock(const QTextBlock &block, bool *endedJoined)
 {
-    int startState = TextBlockUserData::lexerState(block.previous());
+    int startState = loadLexerState(block.previous());
     if (block.blockNumber() == 0)
         startState = 0;
     Q_ASSERT(startState != -1);
@@ -864,6 +839,17 @@ void CodeFormatter::dump()
         qDebug() << s.type << s.savedIndentDepth;
     }
     qDebug() << "Current indent depth:" << m_indentDepth;
+}
+
+
+namespace CppTools {
+namespace Internal {
+    class CppCodeFormatterData: public TextEditor::CodeFormatterData
+    {
+    public:
+        CodeFormatter::BlockData m_data;
+    };
+}
 }
 
 QtStyleCodeFormatter::QtStyleCodeFormatter()
@@ -898,6 +884,40 @@ void QtStyleCodeFormatter::setIndentDeclarationBraces(bool onOff)
 void QtStyleCodeFormatter::setIndentDeclarationMembers(bool onOff)
 {
     m_indentDeclarationMembers = onOff;
+}
+
+void QtStyleCodeFormatter::saveBlockData(QTextBlock *block, const BlockData &data) const
+{
+    TextBlockUserData *userData = BaseTextDocumentLayout::userData(*block);
+    CppCodeFormatterData *cppData = static_cast<CppCodeFormatterData *>(userData->codeFormatterData());
+    if (!cppData) {
+        cppData = new CppCodeFormatterData;
+        userData->setCodeFormatterData(cppData);
+    }
+    cppData->m_data = data;
+}
+
+bool QtStyleCodeFormatter::loadBlockData(const QTextBlock &block, BlockData *data) const
+{
+    TextBlockUserData *userData = BaseTextDocumentLayout::testUserData(block);
+    if (!userData)
+        return false;
+    CppCodeFormatterData *cppData = static_cast<CppCodeFormatterData *>(userData->codeFormatterData());
+    if (!cppData)
+        return false;
+
+    *data = cppData->m_data;
+    return true;
+}
+
+void QtStyleCodeFormatter::saveLexerState(QTextBlock *block, int state) const
+{
+    TextBlockUserData::setLexerState(*block, state);
+}
+
+int QtStyleCodeFormatter::loadLexerState(const QTextBlock &block) const
+{
+    return TextBlockUserData::lexerState(block);
 }
 
 void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedIndentDepth) const

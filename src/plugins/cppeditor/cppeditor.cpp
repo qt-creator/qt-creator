@@ -1791,7 +1791,8 @@ void CPPEditor::setFontSettings(const TextEditor::FontSettings &fs)
 
 void CPPEditor::setTabSettings(const TextEditor::TabSettings &ts)
 {
-    CppTools::CodeFormatter::invalidateCache(document());
+    CppTools::QtStyleCodeFormatter formatter;
+    formatter.invalidateCache(document());
 
     TextEditor::BaseTextEditor::setTabSettings(ts);
 }
