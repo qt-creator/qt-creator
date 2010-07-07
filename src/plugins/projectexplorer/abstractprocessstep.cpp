@@ -201,7 +201,7 @@ void AbstractProcessStep::processStarted()
 {
     QTextCharFormat textCharFormat;
     textCharFormat.setForeground(Qt::blue);
-    emit addOutput(tr("Starting: \"%1\" %2\n").arg(m_command, m_arguments.join(" ")), textCharFormat);
+    emit addOutput(tr("Starting: \"%1\" %2\n").arg(QDir::toNativeSeparators(m_command), m_arguments.join(" ")), textCharFormat);
 }
 
 void AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus status)
@@ -209,15 +209,15 @@ void AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus sta
     QTextCharFormat textCharFormat;
     if (status == QProcess::NormalExit && exitCode == 0) {
         textCharFormat.setForeground(Qt::blue);
-        emit addOutput(tr("The process \"%1\" exited normally.").arg(m_command), textCharFormat);
+        emit addOutput(tr("The process \"%1\" exited normally.").arg(QDir::toNativeSeparators(m_command)), textCharFormat);
     } else if (status == QProcess::NormalExit) {
         textCharFormat.setForeground(Qt::red);
         textCharFormat.setFontWeight(QFont::Bold);
-        emit addOutput(tr("The process \"%1\" exited with code %2.").arg(m_command, QString::number(m_process->exitCode())), textCharFormat);
+        emit addOutput(tr("The process \"%1\" exited with code %2.").arg(QDir::toNativeSeparators(m_command), QString::number(m_process->exitCode())), textCharFormat);
     } else {
         textCharFormat.setForeground(Qt::red);
         textCharFormat.setFontWeight(QFont::Bold);
-        emit addOutput(tr("The process \"%1\" crashed.").arg(m_command), textCharFormat);
+        emit addOutput(tr("The process \"%1\" crashed.").arg(QDir::toNativeSeparators(m_command)), textCharFormat);
     }
 }
 
@@ -226,7 +226,7 @@ void AbstractProcessStep::processStartupFailed()
     QTextCharFormat textCharFormat;
     textCharFormat.setForeground(Qt::red);
     textCharFormat.setFontWeight(QFont::Bold);
-    emit addOutput(tr("Could not start process \"%1\"").arg(m_command), textCharFormat);
+    emit addOutput(tr("Could not start process \"%1\"").arg(QDir::toNativeSeparators(m_command)), textCharFormat);
 }
 
 bool AbstractProcessStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
