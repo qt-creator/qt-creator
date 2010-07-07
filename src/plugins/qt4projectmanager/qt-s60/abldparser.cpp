@@ -62,7 +62,8 @@ void AbldParser::stdOutput(const QString &line)
                           TASK_CATEGORY_BUILDSYSTEM));
         return;
     }
-    if (lne.startsWith(QLatin1String("FATAL ERROR:"))) {
+    if (lne.startsWith(QLatin1String("FATAL ERROR:")) ||
+        lne.startsWith(QLatin1String("Error :"))) {
         emit addTask(Task(Task::Error,
                           lne /* description */,
                           QString() /* filename */,
@@ -88,6 +89,14 @@ void AbldParser::stdOutput(const QString &line)
             task.type = Task::Error;
 
         emit addTask(task);
+        return;
+    }
+
+    if (lne.startsWith(QLatin1String("SIS creation failed!"))) {
+        m_waitingForStdOutContinuation = false;
+        emit addTask(Task(Task::Error,
+                          line, QString(), -1,
+                          TASK_CATEGORY_BUILDSYSTEM));
         return;
     }
 
