@@ -45,7 +45,7 @@ Document::Document(const QString &fileName)
     , _ast(0)
     , _bind(0)
     , _isQmlDocument(false)
-    , _documentRevision(0)
+    , _editorRevision(0)
     , _parsedCorrectly(false)
     , _fileName(QDir::cleanPath(fileName))
 {
@@ -133,14 +133,14 @@ void Document::setSource(const QString &source)
     _source = source;
 }
 
-int Document::documentRevision() const
+int Document::editorRevision() const
 {
-    return _documentRevision;
+    return _editorRevision;
 }
 
-void Document::setDocumentRevision(int revision)
+void Document::setEditorRevision(int revision)
 {
-    _documentRevision = revision;
+    _editorRevision = revision;
 }
 
 QString Document::fileName() const
@@ -364,7 +364,7 @@ Document::Ptr Snapshot::documentFromSource(const QString &code,
     Document::Ptr newDoc = Document::create(fileName);
 
     if (Document::Ptr thisDocument = document(fileName)) {
-        newDoc->_documentRevision = thisDocument->_documentRevision;
+        newDoc->_editorRevision = thisDocument->_editorRevision;
     }
 
     newDoc->setSource(code);

@@ -558,7 +558,7 @@ AST::Node *SemanticInfo::nodeUnderCursor(int pos) const
 int SemanticInfo::revision() const
 {
     if (document)
-        return document->documentRevision();
+        return document->editorRevision();
 
     return 0;
 }
@@ -767,7 +767,7 @@ static void appendExtraSelectionsForMessages(
 void QmlJSTextEditor::onDocumentUpdated(QmlJS::Document::Ptr doc)
 {
     if (file()->fileName() != doc->fileName()
-            || doc->documentRevision() != document()->revision()) {
+            || doc->editorRevision() != document()->revision()) {
         // didn't get the currently open, or an up to date document.
         // trigger a semantic rehighlight anyway, after a time
         m_semanticRehighlightTimer->start();
@@ -1468,7 +1468,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     if (! doc) {
         snapshot = source.snapshot;
         doc = snapshot.documentFromSource(source.code, source.fileName);
-        doc->setDocumentRevision(source.revision);
+        doc->setEditorRevision(source.revision);
         doc->parse();
     }
 
