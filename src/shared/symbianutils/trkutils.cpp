@@ -40,6 +40,25 @@
 
 namespace trk {
 
+Library::Library() : codeseg(0), dataseg(0), pid(0)
+{
+}
+
+Library::Library(const TrkResult &result) : codeseg(0), dataseg(0), pid(0)
+{
+    if (result.data.size() < 20) {
+        qWarning("Invalid trk creation notification received.");
+        return;
+    }
+
+    const char *data = result.data.constData();
+    pid = extractInt(data + 2);
+    codeseg = extractInt(data + 10);
+    dataseg = extractInt(data + 14);
+    const uint len = extractShort(data + 18);
+    name = result.data.mid(20, len);
+}
+
 TrkAppVersion::TrkAppVersion()
 {
     reset();
@@ -260,18 +279,15 @@ SYMBIANUTILS_EXPORT QString stringFromArray(const QByteArray &ba, int maxLen)
     QString ascii;
     const int size = maxLen == -1 ? ba.size() : qMin(ba.size(), maxLen);
     for (int i = 0; i < size; ++i) {
-        //if (i == 5 || i == ba.size() - 2)
-        //    str += "  ";
-        int c = byte(ba.at(i));
-        str += QString("%1 ").arg(c, 2, 16, QChar('0'));
-        if (i >= 8 && i < ba.size() - 2)
-            ascii += QChar(c).isPrint() ? QChar(c) : QChar('.');
+        const int c = byte(ba.at(i));
+        str += QString::fromAscii("%1 ").arg(c, 2, 16, QChar('0'));
+        ascii += QChar(c).isPrint() ? QChar(c) : QChar('.');
     }
     if (size != ba.size()) {
-        str += "...";
-        ascii += "...";
+        str += QLatin1String("...");
+        ascii += QLatin1String("...");
     }
-    return str + "  " + ascii;
+    return str + QLatin1String("  ") + ascii;
 }
 
 SYMBIANUTILS_EXPORT QByteArray hexNumber(uint n, int digits)

@@ -164,18 +164,7 @@ QByteArray TrkGdbAdapter::trkContinueMessage(uint threadId)
     return ba;
 }
 
-QByteArray TrkGdbAdapter::trkReadRegistersMessage()
-{
-    QByteArray ba;
-    appendByte(&ba, 0); // Register set, only 0 supported
-    appendShort(&ba, 0);
-    appendShort(&ba, RegisterCount - 1); // last register
-    appendInt(&ba, m_session.pid);
-    appendInt(&ba, m_session.tid);
-    return ba;
-}
-
-   QByteArray TrkGdbAdapter::trkWriteRegisterMessage(trk::byte reg, uint value)
+QByteArray TrkGdbAdapter::trkWriteRegisterMessage(trk::byte reg, uint value)
 {
     QByteArray ba;
     appendByte(&ba, 0); // ?
@@ -187,21 +176,9 @@ QByteArray TrkGdbAdapter::trkReadRegistersMessage()
     return ba;
 }
 
-QByteArray TrkGdbAdapter::trkReadMemoryMessage(uint from, uint len)
-{
-    QByteArray ba;
-    ba.reserve(11);
-    appendByte(&ba, 0x08); // Options, FIXME: why?
-    appendShort(&ba, len);
-    appendInt(&ba, from);
-    appendInt(&ba, m_session.pid);
-    appendInt(&ba, m_session.tid);
-    return ba;
-}
-
 QByteArray TrkGdbAdapter::trkReadMemoryMessage(const MemoryRange &range)
 {
-    return trkReadMemoryMessage(range.from, range.size());
+    return trk::Launcher::readMemoryMessage(m_session.pid, m_session.tid, range.from, range.size());
 }
 
 QByteArray TrkGdbAdapter::trkWriteMemoryMessage(uint addr, const QByteArray &data)
@@ -539,7 +516,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
             sendGdbServerAck();
             sendTrkMessage(0x12,
                 TrkCB(handleAndReportReadRegisters),
-                trkReadRegistersMessage());
+                Launcher::readRegistersMessage(m_session.pid, m_session.tid));
         }
     }
 
@@ -549,7 +526,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         m_snapshot.setRegistersValid(m_session.tid, false);
         sendTrkMessage(0x12,
             TrkCB(handleAndReportReadRegisters),
-            trkReadRegistersMessage());
+            Launcher::readRegistersMessage(m_session.pid, m_session.tid));
     }
 
     else if (cmd.startsWith("salstep,")) {
@@ -611,7 +588,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
             //qDebug() << "Fetching single register";
             sendTrkMessage(0x12,
                 TrkCB(handleAndReportReadRegister),
-                trkReadRegistersMessage(), registerNumber);
+                Launcher::readRegistersMessage(m_session.pid, m_session.tid), registerNumber);
         }
     }
 
@@ -978,7 +955,7 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             //qDebug() << "Auto-fetching registers";
             sendTrkMessage(0x12,
                 TrkCB(handleAndReportReadRegistersAfterStop),
-                trkReadRegistersMessage());
+                Launcher::readRegistersMessage(m_session.pid, m_session.tid));
 #            else
             // As a source-line step typically consists of
             // several instruction steps, better avoid the multiple
@@ -1018,27 +995,19 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             const trk::byte error = result.data.at(0);
             // type: 1 byte; for dll item, this value is 2.
             const trk::byte type = result.data.at(1);
-            const uint pid = extractInt(data + 2);
             const uint tid = extractInt(data + 6);
-            const uint codeseg = extractInt(data + 10);
-            const uint dataseg = extractInt(data + 14);
-            const uint len = extractShort(data + 18);
-            const QByteArray name = result.data.mid(20, len); // library name
-            m_session.modules += QString::fromAscii(name);
+            const Library lib = Library(result);
+            m_session.libraries.push_back(lib);
+            m_session.modules += QString::fromAscii(lib.name);
             QString logMsg;
             QTextStream str(&logMsg);
             str << prefix << " NOTE: LIBRARY LOAD: token=" << result.token;
             if (error)
                 str << " ERROR: " << int(error);
-            str << " TYPE: " << int(type) << " PID: " << pid << " TID:   " <<  tid;
-            str << " CODE: " << hexxNumber(codeseg);
-            str << " DATA: " << hexxNumber(dataseg);
-            str << " NAME: '" << name << '\'';
-            Library lib;
-            lib.name = name;
-            lib.codeseg = codeseg;
-            lib.dataseg = dataseg;
-            m_session.libraries.append(lib);
+            str << " TYPE: " << int(type) << " PID: " << lib.pid << " TID:   " <<  tid;
+            str << " CODE: " << hexxNumber(lib.codeseg);
+            str << " DATA: " << hexxNumber(lib.dataseg);
+            str << " NAME: '" << lib.name << '\'';
             if (tid && tid != unsigned(-1) && m_snapshot.indexOfThread(tid) == -1)
                 m_snapshot.addThread(tid);
             logMessage(logMsg);
@@ -1365,7 +1334,7 @@ void TrkGdbAdapter::handleStep(const TrkResult &result)
         // making some progress through a 'step'.
         //sendTrkMessage(0x12,
         //    TrkCB(handleAndReportReadRegistersAfterStop),
-        //    trkReadRegistersMessage());
+        //    Launcher::readRegistersMessage(m_session.pid, m_session.tid));
         return;
     }
     // The gdb server response is triggered later by the Stop Reply packet.
@@ -1681,7 +1650,7 @@ void TrkGdbAdapter::write(const QByteArray &data)
     if (data.startsWith("@@")) {
         // Read data
         sendTrkMessage(0x10, TrkCB(handleDirectWrite1),
-           trkReadMemoryMessage(m_session.dataseg, 12));
+                       Launcher::readMemoryMessage(m_session.pid, m_session.tid, m_session.dataseg, 12));
         return;
     }
     m_gdbProc.write(data);
@@ -1745,7 +1714,7 @@ void TrkGdbAdapter::handleDirectWrite2(const TrkResult &response)
     } else {
         // Check
         sendTrkMessage(0x10, TrkCB(handleDirectWrite3),
-            trkReadMemoryMessage(scratch, 12));
+            trk::Launcher::readMemoryMessage(m_session.pid, m_session.tid, scratch, 12));
     }
 }
 
@@ -1811,7 +1780,8 @@ void TrkGdbAdapter::handleDirectWrite7(const TrkResult &response)
     } else {
         // Check
         sendTrkMessage(0x10, TrkCB(handleDirectWrite8),
-            trkReadMemoryMessage(scratch, 8));
+                       trk::Launcher::readMemoryMessage(m_session.pid, m_session.tid,
+                                                        scratch, 8));
     }
 }
 
@@ -1824,7 +1794,7 @@ void TrkGdbAdapter::handleDirectWrite8(const TrkResult &response)
         // Re-read registers
         sendTrkMessage(0x12,
             TrkCB(handleAndReportReadRegistersAfterStop),
-            trkReadRegistersMessage());
+            Launcher::readRegistersMessage(m_session.pid, m_session.tid));
     }
 }
 

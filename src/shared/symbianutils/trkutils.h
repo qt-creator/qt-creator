@@ -44,6 +44,7 @@ QT_END_NAMESPACE
 namespace trk {
 
 typedef unsigned char byte;
+struct TrkResult;
 
 enum Command {
     //meta commands
@@ -123,6 +124,20 @@ enum Command {
     TrkDSPositionFile = 0xd4
 };
 
+enum DSOSItemTypes {
+    kDSOSProcessItem = 0x0000,
+    kDSOSThreadItem = 0x0001,
+    kDSOSDLLItem = 0x0002,
+    kDSOSAppItem = 0x0003,
+    kDSOSMemBlockItem = 0x0004,
+    kDSOSProcAttachItem = 0x0005,
+    kDSOSThreadAttachItem = 0x0006,
+    kDSOSProcAttach2Item = 0x0007,
+    kDSOSProcRunItem = 0x0008,
+    /* 0x0009 - 0x00ff reserved for general expansion */
+    /* 0x0100 - 0xffff available for target-specific use */
+};
+
 enum SerialMultiplexor {
     MuxRaw = 0,
     MuxTextTrace = 0x0102,
@@ -152,11 +167,14 @@ SYMBIANUTILS_EXPORT void appendString(QByteArray *ba, const QByteArray &str, End
 
 struct SYMBIANUTILS_EXPORT Library
 {
-    Library() {}
+    Library();
+    explicit Library(const TrkResult &r);
 
     QByteArray name;
     uint codeseg;
     uint dataseg;
+     //library addresses are valid for a given process (depending on memory model, they might be loaded at the same address in all processes or not)
+    uint pid;
 };
 
 struct SYMBIANUTILS_EXPORT TrkAppVersion

@@ -200,6 +200,7 @@ void TcfTrkGdbAdapter::handleTcfTrkRunControlModuleLoadContextSuspendedEvent(con
         library.name = minfo.name;
         library.codeseg = minfo.codeAddress;
         library.dataseg = minfo.dataAddress;
+        library.pid = tcftrk::RunControlContext::processIdFromTcdfId(se.id());
         m_session.libraries.push_back(library);
     } else {
         const int index = m_session.modules.indexOf(moduleName);
