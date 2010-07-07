@@ -11,6 +11,7 @@
 #include <texteditor/basetexteditor.h>
 #include <texteditor/tabsettings.h>
 #include <colorwidget.h>
+#include <QDebug>
 
 using namespace QmlJS;
 using namespace AST;
@@ -66,22 +67,40 @@ void QmlContextPane::apply(TextEditor::BaseTextEditorEditable *editor, Document:
     if (!Internal::BauhausPlugin::pluginInstance()->settings().enableContextPane)
         return;
 
+    if (doc.isNull())
+        return;
+
+    if (update && editor != m_editor)
+        return; //do not update for different editor
+
     setEnabled(doc->isParsedCorrectly());
     m_editor = editor;
     contextWidget()->setParent(editor->widget()->parentWidget());
     contextWidget()->colorDialog()->setParent(editor->widget()->parentWidget());
 
-    if (UiObjectDefinition *objectMember = cast<UiObjectDefinition*>(node)) {
+    if (cast<UiObjectDefinition*>(node) || cast<UiObjectBinding*>(node)) {
+        UiObjectDefinition *objectDefinition = cast<UiObjectDefinition*>(node);
+        UiObjectBinding *objectBinding = cast<UiObjectBinding*>(node);
 
-        QString name = objectMember->qualifiedTypeNameId->name->asString();
+        QString name;
+        quint32 offset;
+        quint32 end;
+        UiObjectInitializer *initializer;
+        if (objectDefinition) {
+            name = objectDefinition->qualifiedTypeNameId->name->asString();
+            initializer = objectDefinition->initializer;
+            offset = objectDefinition->firstSourceLocation().offset;
+            end = objectDefinition->lastSourceLocation().end();
+        } else if (objectBinding) {
+            name = objectBinding->qualifiedTypeNameId->name->asString();
+            initializer = objectBinding->initializer;
+            offset = objectBinding->firstSourceLocation().offset;
+            end = objectBinding->lastSourceLocation().end();
+        }
         if (name.contains("Text")) {
-
             m_node = 0;
-            PropertyReader propertyReader(doc.data(), objectMember->initializer);
+            PropertyReader propertyReader(doc.data(), initializer);
             QTextCursor tc(editor->editor()->document());
-            const quint32 offset = objectMember->firstSourceLocation().offset;
-            const quint32 end = objectMember->lastSourceLocation().end();
-            QString name = objectMember->qualifiedTypeNameId->name->asString();
             tc.setPosition(offset); 
             QPoint p1 = editor->editor()->mapToParent(editor->editor()->viewport()->mapToParent(editor->editor()->cursorRect(tc).topLeft()) - QPoint(0, contextWidget()->height() + 10));
             tc.setPosition(end);
@@ -112,37 +131,46 @@ void QmlContextPane::apply(TextEditor::BaseTextEditorEditable *editor, Document:
 
 void QmlContextPane::setProperty(const QString &propertyName, const QVariant &value)
 {
+
     QString stringValue = value.toString();
     if (value.type() == QVariant::Color)
-        stringValue = QChar('\"') + value.toString() + QChar('\"');    
+        stringValue = QChar('\"') + value.toString() + QChar('\"');
 
-    if (UiObjectDefinition *objectMember = cast<UiObjectDefinition*>(m_node)) {
+    if (cast<UiObjectDefinition*>(m_node) || cast<UiObjectBinding*>(m_node)) {
+        UiObjectDefinition *objectDefinition = cast<UiObjectDefinition*>(m_node);
+        UiObjectBinding *objectBinding = cast<UiObjectBinding*>(m_node);
 
+        UiObjectInitializer *initializer;
+        if (objectDefinition)
+            initializer = objectDefinition->initializer;
+        else if (objectBinding)
+            initializer = objectBinding->initializer;
 
         Utils::ChangeSet changeSet;
         Rewriter rewriter(m_doc->source(), &changeSet, m_propertyOrder);
 
         int line = 1;
 
-        PropertyReader propertyReader(m_doc.data(), objectMember->initializer);
+        PropertyReader propertyReader(m_doc.data(), initializer);
         if (propertyReader.hasProperty(propertyName)) {
-            rewriter.changeProperty(objectMember->initializer, propertyName, stringValue, Rewriter::ScriptBinding);
+            rewriter.changeProperty(initializer, propertyName, stringValue, Rewriter::ScriptBinding);
         } else {
-            rewriter.addBinding(objectMember->initializer, propertyName, stringValue, Rewriter::ScriptBinding);
+            rewriter.addBinding(initializer, propertyName, stringValue, Rewriter::ScriptBinding);
             int column;
             m_editor->convertPosition(changeSet.operationList().first().pos1, &line, &column); //get line
         }
 
         QTextCursor tc(m_editor->editor()->document());
+        tc.beginEditBlock();
         int cursorPostion = tc.position();
         tc.beginEditBlock();
         changeSet.apply(&tc);
+
         if (line > 0) {
             TextEditor::TabSettings ts = m_editor->editor()->tabSettings();
             QmlJSIndenter indenter;
             indenter.setTabSize(ts.m_tabSize);
             indenter.setIndentSize(ts.m_indentSize);
-
             QTextBlock start = m_editor->editor()->document()->findBlockByLineNumber(line);
             QTextBlock end = m_editor->editor()->document()->findBlockByLineNumber(line);
 
@@ -151,17 +179,29 @@ void QmlContextPane::setProperty(const QString &propertyName, const QVariant &va
         }
         tc.endEditBlock();
         tc.setPosition(cursorPostion);
+
+        tc.endEditBlock();
+        tc.setPosition(cursorPostion);
     }
 }
 
 void QmlContextPane::removeProperty(const QString &propertyName)
 {
-    if (UiObjectDefinition *objectMember = cast<UiObjectDefinition*>(m_node)) {
-        PropertyReader propertyReader(m_doc.data(), objectMember->initializer);
+    if (cast<UiObjectDefinition*>(m_node) || cast<UiObjectBinding*>(m_node)) {
+        UiObjectDefinition *objectDefinition = cast<UiObjectDefinition*>(m_node);
+        UiObjectBinding *objectBinding = cast<UiObjectBinding*>(m_node);
+
+        UiObjectInitializer *initializer;
+        if (objectDefinition)
+            initializer = objectDefinition->initializer;
+        else if (objectBinding)
+            initializer = objectBinding->initializer;
+
+        PropertyReader propertyReader(m_doc.data(), initializer);
         if (propertyReader.hasProperty(propertyName)) {
             Utils::ChangeSet changeSet;
             Rewriter rewriter(m_doc->source(), &changeSet, m_propertyOrder);
-            rewriter.removeProperty(objectMember->initializer, propertyName);
+            rewriter.removeProperty(initializer, propertyName);
             QTextCursor tc(m_editor->editor()->document());
             changeSet.apply(&tc);
         }
@@ -181,6 +221,7 @@ void QmlContextPane::onPropertyChanged(const QString &name, const QVariant &valu
         return;
     if (!m_doc)
         return;
+
     setProperty(name, value);
     m_doc.clear(); //the document is outdated
 }
