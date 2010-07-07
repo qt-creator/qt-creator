@@ -31,9 +31,11 @@
 
 #include "qt4projectmanagerconstants.h"
 #include "qt4buildconfiguration.h"
+#include "abldparser.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/gnumakeparser.h>
 
 using namespace Qt4ProjectManager::Internal;
 
@@ -109,6 +111,11 @@ bool S60CreatePackageStep::init()
              << QLatin1String("QT_SIS_KEY=") + QDir::toNativeSeparators(customKeyPath());
     }
     setArguments(args); // overwrite any stuff done in make step
+
+    ProjectExplorer::GnuMakeParser *parser = new ProjectExplorer::GnuMakeParser;
+    parser->appendOutputParser(new Qt4ProjectManager::AbldParser);
+    setOutputParser(parser);
+
     return true;
 }
 
