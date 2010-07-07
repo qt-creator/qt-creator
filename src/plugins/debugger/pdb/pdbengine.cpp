@@ -202,16 +202,18 @@ void PdbEngine::startDebugger()
 
     setState(AdapterStarted);
     setState(InferiorStarting);
-    setState(InferiorRunningRequested);
-    showStatusMessage(tr("Running requested..."), 5000);
-
     emit startSuccessful();
+    showStatusMessage(tr("Running requested..."), 5000);
+    setState(InferiorRunningRequested);
+    setState(InferiorRunning);
 }
 
 void PdbEngine::runInferior()
 {
     SDEBUG("PdbEngine::runInferior()");
-    // FIXME: setState(InferiorRunning);
+    QTC_ASSERT(false, /**/); // FIXME:
+    setState(InferiorRunningRequested);
+    setState(InferiorRunning);
 }
 
 void PdbEngine::interruptInferior()
@@ -678,14 +680,13 @@ void PdbEngine::handleResponse(const QByteArray &response0)
 void PdbEngine::handleUpdateAll(const PdbResponse &response)
 {
     Q_UNUSED(response);
+    setState(InferiorStopping);
+    setState(InferiorStopped);
     updateAll();
 }
 
 void PdbEngine::updateAll()
 {
-    setState(InferiorStopping);
-    setState(InferiorStopped);
-
     WatchHandler *handler = watchHandler();
 
     QByteArray watchers;
