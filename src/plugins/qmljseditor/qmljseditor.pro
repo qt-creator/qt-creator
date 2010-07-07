@@ -26,7 +26,8 @@ HEADERS += \
     qmljscomponentfromobjectdef.h \
     qmljsoutline.h \
     qmloutlinemodel.h \
-    qmltaskmanager.h
+    qmltaskmanager.h \
+    qmljseditorcodeformatter.h
 
 SOURCES += \
     qmljscodecompletion.cpp \
@@ -46,7 +47,8 @@ SOURCES += \
     qmljsoutline.cpp \
     qmloutlinemodel.cpp \
     qmltaskmanager.cpp \
-    qmljsquickfixes.cpp
+    qmljsquickfixes.cpp \
+    qmljseditorcodeformatter.cpp
 
 RESOURCES += qmljseditor.qrc
 OTHER_FILES += QmlJSEditor.pluginspec QmlJSEditor.mimetypes.xml

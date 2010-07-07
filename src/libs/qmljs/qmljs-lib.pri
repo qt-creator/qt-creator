@@ -56,6 +56,11 @@ OTHER_FILES += \
     $$PWD/parser/qmljs.g
 
 contains(QT, gui) {
-    SOURCES += $$PWD/qmljsindenter.cpp
-    HEADERS += $$PWD/qmljsindenter.h
+    SOURCES += \
+        $$PWD/qmljsindenter.cpp \
+        $$PWD/qmljscodeformatter.cpp
+
+    HEADERS += \
+        $$PWD/qmljsindenter.h \
+        $$PWD/qmljscodeformatter.h
 }

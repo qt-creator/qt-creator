@@ -1,3 +1,3 @@
 TEMPLATE = subdirs
 
-SUBDIRS += lookup
+SUBDIRS += lookup codeformatter

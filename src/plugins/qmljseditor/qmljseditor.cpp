@@ -33,8 +33,8 @@
 #include "qmljseditorplugin.h"
 #include "qmljsmodelmanager.h"
 #include "qmloutlinemodel.h"
+#include "qmljseditorcodeformatter.h"
 
-#include <qmljs/qmljsindenter.h>
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljscheck.h>
 #include <qmljs/qmljsdocument.h>
@@ -1276,15 +1276,25 @@ bool QmlJSTextEditor::isClosingBrace(const QList<Token> &tokens) const
     return false;
 }
 
+static QmlJSEditor::QtStyleCodeFormatter setupCodeFormatter(const TextEditor::TabSettings &ts)
+{
+    QmlJSEditor::QtStyleCodeFormatter codeFormatter;
+    codeFormatter.setIndentSize(ts.m_indentSize);
+    codeFormatter.setTabSize(ts.m_tabSize);
+    return codeFormatter;
+}
+
 void QmlJSTextEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar)
 {
-    TextEditor::TabSettings ts = tabSettings();
-    QmlJSIndenter indenter;
-    indenter.setTabSize(ts.m_tabSize);
-    indenter.setIndentSize(ts.m_indentSize);
+    Q_UNUSED(doc)
+    Q_UNUSED(typedChar)
 
-    const int indent = indenter.indentForBottomLine(doc->begin(), block.next(), typedChar);
-    ts.indentLine(block, indent);
+    const TextEditor::TabSettings &ts = tabSettings();
+    QmlJSEditor::QtStyleCodeFormatter codeFormatter = setupCodeFormatter(ts);
+
+    codeFormatter.updateStateUntil(block);
+    const int depth = codeFormatter.indentFor(block);
+    ts.indentLine(block, depth);
 }
 
 TextEditor::BaseTextEditorEditable *QmlJSTextEditor::createEditableInterface()
