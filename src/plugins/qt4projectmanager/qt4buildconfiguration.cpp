@@ -556,6 +556,14 @@ QString Qt4BuildConfiguration::extractSpecFromArgumentList(const QStringList &li
     return parsedSpec;
 }
 
+ProjectExplorer::IOutputParser *Qt4BuildConfiguration::createOutputParser() const
+{
+    ToolChain *tc = toolChain();
+    if (tc)
+        return toolChain()->outputParser();
+    return 0;
+}
+
 /*!
   \class Qt4BuildConfigurationFactory
 */

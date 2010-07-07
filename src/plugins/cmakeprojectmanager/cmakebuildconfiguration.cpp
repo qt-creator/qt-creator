@@ -153,6 +153,13 @@ void CMakeBuildConfiguration::setMsvcVersion(const QString &msvcVersion)
     emit msvcVersionChanged();
 }
 
+ProjectExplorer::IOutputParser *CMakeBuildConfiguration::createOutputParser() const
+{
+    if (m_toolChain)
+        return m_toolChain->outputParser();
+    return 0;
+}
+
 /*!
   \class CMakeBuildConfigurationFactory
 */

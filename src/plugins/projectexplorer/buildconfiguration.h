@@ -44,6 +44,7 @@
 namespace ProjectExplorer {
 
 class Target;
+class IOutputParser;
 
 class PROJECTEXPLORER_EXPORT BuildConfiguration : public ProjectConfiguration
 {
@@ -72,6 +73,13 @@ public:
     void setUseSystemEnvironment(bool b);
 
     virtual QVariantMap toMap() const;
+
+    // Creates a suitable outputparser for custom build steps
+    // (based on the toolchain)
+    // TODO this is not great API
+    // it's mainly so that custom build systems are better integrated
+    // with the generic project manager
+    virtual IOutputParser *createOutputParser() const = 0;
 
 signals:
     void environmentChanged();

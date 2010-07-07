@@ -94,7 +94,7 @@ bool ProcessStep::init()
     AbstractProcessStep::setCommand(m_command);
     AbstractProcessStep::setEnabled(m_enabled);
     AbstractProcessStep::setArguments(m_arguments);
-    setOutputParser(0);
+    setOutputParser(buildConfiguration()->createOutputParser());
     return AbstractProcessStep::init();
 }
 
