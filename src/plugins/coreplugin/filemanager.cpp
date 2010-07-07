@@ -1009,7 +1009,7 @@ QString FileManager::currentFile() const
 QString FileManager::fileDialogInitialDirectory() const
 {
     if (!d->m_currentFile.isEmpty())
-        return QFileInfo(d->m_currentFile).absolutePath();
+        return QFileInfo(d->m_currentFile).absoluteFilePath();
     return d->m_lastVisitedDirectory;
 }
 
