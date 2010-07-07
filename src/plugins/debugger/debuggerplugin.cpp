@@ -1384,7 +1384,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
 
 
     cmd = am->registerAction(m_actions.breakAction,
-        Constants::TOGGLE_BREAK, cppeditorcontext);
+        Constants::TOGGLE_BREAK, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::TOGGLE_BREAK_KEY));
     m_uiSwitcher->addMenuAction(cmd, Constants::LANG_CPP);
     connect(m_actions.breakAction, SIGNAL(triggered()),
