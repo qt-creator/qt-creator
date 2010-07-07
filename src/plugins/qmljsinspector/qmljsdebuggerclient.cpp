@@ -34,7 +34,7 @@
 using namespace QmlJSInspector::Internal;
 
 DebuggerClient::DebuggerClient(QDeclarativeDebugConnection* client)
-    : QDeclarativeDebugClient(QLatin1String("Debugger"), client)
+    : QDeclarativeDebugClient(QLatin1String("JSDebugger"), client)
     , connection(client)
 {
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
