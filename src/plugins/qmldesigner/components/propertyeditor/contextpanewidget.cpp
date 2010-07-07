@@ -48,9 +48,13 @@ ContextPaneWidget::ContextPaneWidget(QWidget *parent) : QFrame(parent), m_curren
     setAutoFillBackground(true);
     setContextMenuPolicy(Qt::ActionsContextMenu);
 
+    QAction *resetAction = new QAction(tr("Reset position"), this);
+    addAction(resetAction);
+    connect(resetAction, SIGNAL(triggered()), this, SLOT(onResetPosition()));
+
     QAction *disableAction = new QAction(tr("Disable permanently"), this);
     addAction(disableAction);
-    connect(disableAction, SIGNAL(triggered()), this, SLOT(onDisable()));
+    connect(disableAction, SIGNAL(triggered()), this, SLOT(onDisable())); 
 }
 
 ContextPaneWidget::~ContextPaneWidget()
@@ -80,6 +84,7 @@ void ContextPaneWidget::rePosition(const QPoint &position, const QPoint &alterna
     else
         move(alternative);
 
+    m_originalPos = pos();
     if (m_xPos > 0)
         move(m_xPos, pos().y());
 }
@@ -196,6 +201,12 @@ void ContextPaneWidget::onDisable()
     Internal::BauhausPlugin::pluginInstance()->setSettings(designerSettings);
     hide();
     colorDialog()->hide();
+}
+
+void  ContextPaneWidget::onResetPosition()
+{
+    move(m_originalPos);
+    m_xPos = -1;
 }
 
 QWidget* ContextPaneWidget::createFontWidget()

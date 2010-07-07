@@ -41,6 +41,7 @@ signals:
 
 private slots:
     void onDisable();
+    void onResetPosition();
 
 protected:
     QWidget *createFontWidget();
@@ -57,6 +58,7 @@ private:
     QWeakPointer<BauhausColorDialog> m_bauhausColorDialog;
     QString m_colorName;
     int m_xPos;
+    QPoint m_originalPos;
 };
 
 } //QmlDesigner
