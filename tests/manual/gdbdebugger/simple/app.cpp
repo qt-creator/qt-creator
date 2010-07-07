@@ -515,7 +515,7 @@ void testFunction()
     func.max = 8;
 }
 
-void testIO()
+void testOutput()
 {
     qDebug() << "qDebug() 1";
     qDebug() << "qDebug() 2";
@@ -531,6 +531,18 @@ void testIO()
     std::cerr << "std::cerr 2\n";
     std::cerr << "std::cerr 3\n";
     std::cerr << "std::cerr <foo & bar>\n";
+}
+
+void testInput()
+{
+#if 0
+    // This works only when "Run in terminal" is selected
+    // in the Run Configuration.
+    int i;
+    std::cin >> i;
+    int j;
+    std::cin >> j;
+#endif
 }
 
 void testQLinkedList()
@@ -1875,7 +1887,8 @@ int main(int argc, char *argv[])
     testFunction();
     testQImage();
     testNoArgumentName(1, 2, 3);
-    testIO();
+    testInput();
+    testOutput();
     testHidden();
     testArray();
     testCatchThrow();
