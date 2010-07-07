@@ -535,6 +535,10 @@ void HelpPlugin::createRightPaneContextViewer()
     connect(copy, SIGNAL(triggered()), m_helpViewerForSideBar, SLOT(copy()));
     connect(next, SIGNAL(triggered()), m_helpViewerForSideBar, SLOT(forward()));
     connect(previous, SIGNAL(triggered()), m_helpViewerForSideBar, SLOT(backward()));
+
+    // force setup, as we might have never switched to full help mode
+    // thus the help engine might still run without collection file setup
+    m_helpManager->setupGuiHelpEngine();
 }
 
 void HelpPlugin::activateHelpMode()
