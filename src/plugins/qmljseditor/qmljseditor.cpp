@@ -660,7 +660,7 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     connect(m_semanticHighlighter, SIGNAL(changed(QmlJSEditor::Internal::SemanticInfo)),
             this, SLOT(updateSemanticInfo(QmlJSEditor::Internal::SemanticInfo)));
 
-    setRequestMarkEnabled(false);
+    setRequestMarkEnabled(true);
 }
 
 QmlJSTextEditor::~QmlJSTextEditor()
