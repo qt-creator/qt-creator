@@ -64,10 +64,11 @@ void ContextPaneTextWidget::setProperties(QmlJS::PropertyReader *propertyReader)
     } else if (!propertyReader->hasProperty(QLatin1String("font.pixelSize"))) {
         ui->fontSizeSpinBox->setValue(8);
         ui->fontSizeSpinBox->setIsPointSize(true);
-        if (m_fontSizeTimer > 0) {
-            killTimer(m_fontSizeTimer);
-            m_fontSizeTimer = -1;
-        }
+    }
+
+    if (m_fontSizeTimer > 0) {
+        killTimer(m_fontSizeTimer);
+        m_fontSizeTimer = -1;
     }
 
     if (propertyReader->hasProperty(QLatin1String("font.pixelSize"))) {
@@ -131,11 +132,11 @@ void ContextPaneTextWidget::setProperties(QmlJS::PropertyReader *propertyReader)
 
     if (propertyReader->hasProperty(QLatin1String("verticalAlignment"))) {
         QString alignment = propertyReader->readProperty(QLatin1String("verticalAlignment")).toString();
-        ui->bottomAlignmentButton->setChecked(true);
+        ui->topAlignmentButton->setChecked(true);
         if (alignment == QLatin1String("Text.AlignVCenter") || alignment == QLatin1String("AlignVCenter"))
             ui->centerVAlignmentButton->setChecked(true);
-        else if (alignment == QLatin1String("Text.AlignTop") || alignment == QLatin1String("AlignTop"))
-            ui->topAlignmentButton->setChecked(true);
+        else if (alignment == QLatin1String("Text.AlignBottom") || alignment == QLatin1String("AlignBottom"))
+            ui->bottomAlignmentButton->setChecked(true);
     } else {
         ui->topAlignmentButton->setChecked(true);
     }
@@ -212,7 +213,7 @@ void ContextPaneTextWidget::onColorDialogCancled()
 
 void ContextPaneTextWidget::onFontSizeChanged(int)
 {  
-    if (m_fontSizeTimer)
+    if (m_fontSizeTimer > 0)
         killTimer(m_fontSizeTimer);
     m_fontSizeTimer = startTimer(200);
 }
@@ -304,7 +305,7 @@ void ContextPaneTextWidget::onVerticalAlignmentChanged()
         alignment = QLatin1String("Text.AlignBottom");
     if (m_verticalAlignment != alignment) {
         m_verticalAlignment = alignment;
-        if (alignment == QLatin1String("Text.AlignBottom"))
+        if (alignment == QLatin1String("Text.AlignTop"))
             emit removeProperty(QLatin1String("verticalAlignment"));
         else
             emit propertyChanged(QLatin1String("verticalAlignment"), alignment);
