@@ -665,30 +665,31 @@ def qdump__QObject(d, item):
             if d.isExpandedIName(item.iname + ".properties"):
                 with Children(d, [propertyCount, 500]):
                     # Dynamic properties.
-                    dummyType = lookupType("void").pointer().pointer()
-                    namesType = lookupType(d.ns + "QByteArray")
-                    valuesBegin = values["d"]["begin"]
-                    valuesEnd = values["d"]["end"]
-                    valuesArray = values["d"]["array"]
-                    valuesType = lookupType(d.ns + "QVariant")
-                    p = namesArray.cast(dummyType) + namesBegin
-                    q = valuesArray.cast(dummyType) + valuesBegin
-                    for i in xrange(dynamicPropertyCount):
-                        with SubItem(d):
-                            pp = p.cast(namesType.pointer()).dereference();
-                            d.putField("key", encodeByteArray(pp))
-                            d.putField("keyencoded", Hex2EncodedLatin1)
-                            qq = q.cast(valuesType.pointer().pointer())
-                            qq = qq.dereference();
-                            d.putField("addr", cleanAddress(qq))
-                            d.putField("exp", "*('%sQVariant'*)%s"
-                                 % (d.ns, cleanAddress(qq)))
-                            name = "%s.properties.%d" % (item.iname, i)
-                            t = qdump__QVariant(d, Item(qq, name))
-                            # Override the "QVariant (foo)" output
-                            d.putType(t, d.currentTypePriority + 1)
-                        p += 1
-                        q += 1
+                    if dynamicPropertyCount != 0:
+                        dummyType = lookupType("void").pointer().pointer()
+                        namesType = lookupType(d.ns + "QByteArray")
+                        valuesBegin = values["d"]["begin"]
+                        valuesEnd = values["d"]["end"]
+                        valuesArray = values["d"]["array"]
+                        valuesType = lookupType(d.ns + "QVariant")
+                        p = namesArray.cast(dummyType) + namesBegin
+                        q = valuesArray.cast(dummyType) + valuesBegin
+                        for i in xrange(dynamicPropertyCount):
+                            with SubItem(d):
+                                pp = p.cast(namesType.pointer()).dereference();
+                                d.putField("key", encodeByteArray(pp))
+                                d.putField("keyencoded", Hex2EncodedLatin1)
+                                qq = q.cast(valuesType.pointer().pointer())
+                                qq = qq.dereference();
+                                d.putField("addr", cleanAddress(qq))
+                                d.putField("exp", "*('%sQVariant'*)%s"
+                                     % (d.ns, cleanAddress(qq)))
+                                name = "%s.properties.%d" % (item.iname, i)
+                                t = qdump__QVariant(d, Item(qq, name))
+                                # Override the "QVariant (foo)" output
+                                d.putType(t, d.currentTypePriority + 1)
+                            p += 1
+                            q += 1
 
                     # Static properties.
                     propertyData = metaData[7]
