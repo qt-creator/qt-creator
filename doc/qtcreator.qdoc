@@ -198,13 +198,33 @@
 
     \section2 UI Designer
 
-    You can use \QD to compose and customize widgets or dialogs and test
-    them using different styles and resolutions. Widgets and forms created with \QD are
-    integrated seamlessly with programmed code,
+    Qt Creator provides two integrated visual editors, \QD and \QMLD.
+
+    \QD is a tool for designing and building graphical user interfaces (GUIs) from
+    Qt widgets. You can compose and customize your widgets or dialogs and test
+    them using different styles and resolutions.
+
+    Widgets and forms created with \QD are integrated seamlessly with programmed code,
     using the Qt signals and slots mechanism, that lets you easily assign behavior to
     graphical elements. All properties set in \QD can be changed dynamically within the code.
     Furthermore, features like widget promotion and custom plugins allow you to use your
     own widgets with \QD.
+
+    UIs that use widgets are clearly structured and enforce a platform look and feel,
+    which makes them useful for traditional applications. However, they are static, and
+    do not fully make use of the large high-resolution screens, touch input, and significant
+    graphics power that are becoming common in portable consumer devices, such as mobile
+    phones, media players, set-top boxes, and netbooks.
+
+    \QMLD allows you to easily develop animations by using a declarative programming
+    language called \l {http://doc.qt.nokia.com/4.7-snapshot/declarativeui.html}{QML}.
+    In QML, a user interface is specified as a tree of objects with properties.
+
+    You use a visual editor to create items, screens, and applications, as well as define changes
+    in their state, transitions from one state to another, and user actions that change the
+    states. \QMLD generates the necessary code for you.
+
+    You can use Qt or JavaScript to implement the application logic.
 
       \section1 Languages
 
