@@ -595,8 +595,10 @@ bool ScriptEngine::checkForBreakCondition(bool byFunction)
     // Update breakpoints
     const QString functionName = info.functionName();
     const QString fileName = info.fileName();
-    const int lineNumber = byFunction? info.functionStartLineNumber() : info.lineNumber();
-    SDEBUG("checkForBreakCondition" << byFunction << functionName << lineNumber << fileName);
+    const int lineNumber = byFunction
+        ? info.functionStartLineNumber() : info.lineNumber();
+    SDEBUG("checkForBreakCondition" << byFunction << functionName
+        << lineNumber << fileName);
     if (m_stopOnNextLine) {
         // Interrupt inferior
         m_stopOnNextLine = false;
@@ -609,7 +611,11 @@ bool ScriptEngine::checkForBreakCondition(bool byFunction)
         if (!data)
             return false;
 
-        // we just run into a breakpoint
+        // Skip disabled breakpoint.
+        if (!data->enabled)
+            return false;
+
+        // We just run into a breakpoint.
         //SDEBUG("RESOLVING BREAKPOINT AT " << fileName << lineNumber);
         data->bpLineNumber = QByteArray::number(lineNumber);
         data->bpFileName = fileName;
