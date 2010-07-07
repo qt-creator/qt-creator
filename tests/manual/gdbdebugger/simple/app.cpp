@@ -791,6 +791,42 @@ void testQObject(int &argc, char *argv[])
 #endif
 }
 
+class Sender : public QObject
+{
+    Q_OBJECT
+public:
+    Sender() { setObjectName("Sender"); }
+    void doEmit() { emit aSignal(); }
+signals:
+    void aSignal();
+};
+
+class Receiver : public QObject
+{
+    Q_OBJECT
+public:
+    Receiver() { setObjectName("Receiver"); }
+public slots:
+    void aSlot() {
+        QObject *s = sender();
+        if (s) {
+            qDebug() << "SENDER: " << s;
+        } else {
+            qDebug() << "NO SENDER";
+        }
+    }
+};
+
+void testSignalSlot(int &argc, char *argv[])
+{
+    QApplication app(argc, argv);
+    Sender sender;
+    Receiver receiver;
+    QObject::connect(&sender, SIGNAL(aSignal()), &receiver, SLOT(aSlot()));
+    sender.doEmit();
+};
+
+
 void testQPixmap()
 {
     QImage im(QSize(200, 200), QImage::Format_RGB32);
@@ -1822,6 +1858,7 @@ int main(int argc, char *argv[])
     testObject1();
     testVector1();
     testQHash1();
+    testSignalSlot(argc, argv);
 
     QString hallo = "hallo";
     QStringList list;

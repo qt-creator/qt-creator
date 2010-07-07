@@ -799,6 +799,28 @@ def qdump__QObject(d, item):
                             d.putType(" ")
                             d.putValue(extractCString(metaStringData, offset))
 
+        # Active connection
+        with SubItem(d):
+            d.putName("currentSender")
+            d.putType(" ")
+            sender = d_ptr["currentSender"]
+            d.putValue(cleanAddress(sender))
+            if isNull(sender):
+                d.putNumChild(0)
+            else:
+                d.putNumChild(1)
+                iname = item.iname + ".currentSender"
+                if d.isExpandedIName(iname):
+                    with Children(d):
+                        # Sending object
+                        d.putItem(Item(sender["sender"], iname, "object", "object"))
+                        # Signal in sending object
+                        with SubItem(d):
+                            d.putName("signal")
+                            d.putValue(sender["signal"])
+                            d.putType(" ");
+                            d.putNumChild(0)
+
 # QObject
 
 #   static const uint qt_meta_data_QObject[] = {

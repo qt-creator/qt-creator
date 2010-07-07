@@ -260,6 +260,7 @@ void QmlEngine::startDebugger()
         return;
     }
     setState(AdapterStarted);
+    startSuccessful();
     setState(InferiorStarting);
 
     //m_frameRate = new CanvasFrameRate(0);
@@ -306,8 +307,8 @@ void QmlEngine::setupConnection()
     }
 
     qDebug() << "CONNECTION SUCCESSFUL";
+    setState(InferiorRunningRequested);
     setState(InferiorRunning);
-    startSuccessful();
 
     reloadEngines();
 }
