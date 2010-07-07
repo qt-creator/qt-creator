@@ -145,7 +145,7 @@ int TabSettings::indentationColumn(const QString &text) const
 
 int TabSettings::maximumPadding(const QString &text) const
 {
-    int fns = columnAt(text, firstNonSpace(text));
+    int fns = firstNonSpace(text);
     int i = fns;
     while (i > 0) {
         if (text.at(i-1) != QLatin1Char(' '))
