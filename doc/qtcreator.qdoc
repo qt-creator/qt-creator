@@ -2790,6 +2790,17 @@
         \o In the \gui Properties pane, change the \gui objectName to
         \bold batteryLevelBar.
 
+        \o Right-click the \gui BatteryIndicator object and select
+        \gui {Lay Out > Lay Out Horizontally} to ensure that the battery
+        indicator widget size is adjusted correctly on Maemo devices.
+
+        To adjust widget size correctly on Qt Simulator, remove the condition
+        from the main.cpp file (displayed in the following code snippet) and just
+        leave the \c {w.showMaximized();} line:
+
+        \snippet examples/batteryindicator/main.cpp 0
+
+
     \endlist
 
     \section1 Completing the Header File
