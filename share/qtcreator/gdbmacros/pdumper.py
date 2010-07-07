@@ -145,7 +145,8 @@ class qdebug:
                     self.put("children=[")
                     self.dumpValue(k, "key", "%s.%d.k" % (iname, i))
                     self.dumpValue(v, "value", "%s.%d.v" % (iname, i))
-                    self.put("]},")
+                    self.put("]")
+                self.put("},")
                 i += 1
             self.put("]")
         elif tt == "class":
