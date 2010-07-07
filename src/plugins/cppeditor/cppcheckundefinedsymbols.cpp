@@ -258,11 +258,11 @@ protected:
 CheckUndefinedSymbols::Future CheckUndefinedSymbols::go(Document::Ptr doc, const LookupContext &context)
 {
     Q_ASSERT(doc);
-    return QtConcurrent::run(&CheckUndefinedSymbols::runFunctor, new CheckUndefinedSymbols(doc, context));
+    return (new CheckUndefinedSymbols(doc, context))->start();
 }
 
 CheckUndefinedSymbols::CheckUndefinedSymbols(Document::Ptr doc, const LookupContext &context)
-    : ASTVisitor(doc->translationUnit()), _doc(doc), _context(context), _future(0)
+    : ASTVisitor(doc->translationUnit()), _doc(doc), _context(context)
 {
     _fileName = doc->fileName();
     CollectTypes collectTypes(doc, context.snapshot());
@@ -273,9 +273,16 @@ CheckUndefinedSymbols::CheckUndefinedSymbols(Document::Ptr doc, const LookupCont
 CheckUndefinedSymbols::~CheckUndefinedSymbols()
 { }
 
-void CheckUndefinedSymbols::runFunctor(QFutureInterface<Use> &future)
+void CheckUndefinedSymbols::run()
 {
-    _future = &future;
+    if (! isCanceled())
+        runFunctor();
+
+    reportFinished();
+}
+
+void CheckUndefinedSymbols::runFunctor()
+{
     _diagnosticMessages.clear();
 
     if (_doc->translationUnit()) {
@@ -306,7 +313,7 @@ bool CheckUndefinedSymbols::warning(AST *ast, const QString &text)
 
 bool CheckUndefinedSymbols::preVisit(AST *)
 {
-    if (_future->isCanceled())
+    if (isCanceled())
         return false;
 
     return true;
@@ -559,6 +566,6 @@ void CheckUndefinedSymbols::flush()
     if (_typeUsages.isEmpty())
         return;
 
-    _future->reportResults(_typeUsages);
+    reportResults(_typeUsages);
     _typeUsages.clear();
 }

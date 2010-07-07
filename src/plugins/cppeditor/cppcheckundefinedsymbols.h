@@ -41,14 +41,17 @@
 
 namespace CPlusPlus {
 
-class CheckUndefinedSymbols: protected ASTVisitor
+class CheckUndefinedSymbols:
+        protected ASTVisitor,
+        public QtConcurrent::RunFunctionTaskBase<CppEditor::Internal::SemanticInfo::Use>
 {
 public:
     virtual ~CheckUndefinedSymbols();
 
     typedef CppEditor::Internal::SemanticInfo::Use Use;
 
-    void runFunctor(QFutureInterface<Use> &future);
+    virtual void run();
+    void runFunctor();
 
     typedef QFuture<Use> Future;
     static Future go(Document::Ptr doc, const LookupContext &context);
@@ -100,7 +103,6 @@ private:
     QList<ScopedSymbol *> _scopes;
     QList<TemplateDeclarationAST *> _templateDeclarationStack;
     QVector<Use> _typeUsages;
-    QFutureInterface<Use> *_future;
 };
 
 } // end of namespace CPlusPlus
