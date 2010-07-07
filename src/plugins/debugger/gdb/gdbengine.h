@@ -525,7 +525,7 @@ private: ////////// View & Data Stuff //////////
 
     static QString m_toolTipExpression;
     static QPoint m_toolTipPos;
-    static QByteArray tooltipIName();
+    static QByteArray tooltipIName(const QString &exp);
 
     // HACK:
     StackFrame m_targetFrame;

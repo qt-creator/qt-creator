@@ -114,9 +114,9 @@ static const char winPythonVersionC[] = "python2.5";
 
 #define CB(callback) &GdbEngine::callback, STRINGIFY(callback)
 
-QByteArray GdbEngine::tooltipIName()
+QByteArray GdbEngine::tooltipIName(const QString &exp)
 {
-    return "tooltip.x";
+    return "tooltip." + exp.toLatin1().toHex();
 }
 
 static bool stateAcceptsGdbCommands(DebuggerState state)
@@ -3222,7 +3222,7 @@ QPoint GdbEngine::m_toolTipPos;
 
 bool GdbEngine::showToolTip()
 {
-    QByteArray iname = tooltipIName();
+    QByteArray iname = tooltipIName(m_toolTipExpression);
 
     if (!theDebuggerBoolSetting(UseToolTipsInMainEditor)) {
         watchHandler()->removeData(iname);
@@ -3257,8 +3257,10 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos,
     m_toolTipPos = mousePos;
     int line, column;
     QString exp = cppExpressionAt(editor, cursorPos, &line, &column);
-    if (exp == m_toolTipExpression)
+    if (!exp.isEmpty() && exp == m_toolTipExpression) {
+        showToolTip();
         return;
+    }
 
     m_toolTipExpression = exp;
 
@@ -3326,7 +3328,7 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos,
     WatchData toolTip;
     toolTip.exp = exp.toLatin1();
     toolTip.name = exp;
-    toolTip.iname = tooltipIName();
+    toolTip.iname = tooltipIName(exp);
     watchHandler()->removeData(toolTip.iname);
     watchHandler()->insertData(toolTip);
 }
