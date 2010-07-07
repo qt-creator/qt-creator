@@ -84,7 +84,7 @@ public:
     };
 
     int cursorPosition() const;
-    void setCursorPosition(int pos, MoveMode moveMode = MoveAnchor);
+    Q_INVOKABLE void setCursorPosition(int pos, MoveMode moveMode = MoveAnchor);
     void jumpToAddress(quint64 address);
 
     void setModified(bool);
@@ -133,6 +133,8 @@ Q_SIGNALS:
     void lazyDataRequested(Core::IEditor *editor, quint64 block, bool synchronous);
     void newWindowRequested(quint64 address);
     void newRangeRequested(Core::IEditor *, quint64 address);
+    void startOfFileRequested(Core::IEditor *);
+    void endOfFileRequested(Core::IEditor *);
 
 protected:
     void scrollContentsBy(int dx, int dy);

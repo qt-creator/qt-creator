@@ -46,6 +46,7 @@
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
+#include <QtCore/QMetaObject>
 
 #include <QtGui/QMessageBox>
 #include <QtGui/QPlainTextEdit>
@@ -70,6 +71,8 @@ namespace Internal {
     the Gui for showing raw memory from the inferior. After creation
     it handles communication between the engine and the bineditor.
 */
+
+namespace { const int DataRange = 1024 * 1024; }
 
 MemoryViewAgent::MemoryViewAgent(DebuggerManager *manager, quint64 addr)
     : QObject(manager), m_engine(manager->currentEngine()), m_manager(manager)
@@ -108,11 +111,15 @@ void MemoryViewAgent::createBinEditor(quint64 addr)
         connect(editor->widget(),
             SIGNAL(newRangeRequested(Core::IEditor *, quint64)), this,
             SLOT(provideNewRange(Core::IEditor*,quint64)));
+        connect(editor->widget(), SIGNAL(startOfFileRequested(Core::IEditor *)),
+            this, SLOT(handleStartOfFileRequested(Core::IEditor*)));
+        connect(editor->widget(), SIGNAL(endOfFileRequested(Core::IEditor *)),
+            this, SLOT(handleEndOfFileRequested(Core::IEditor*)));
         m_editors << editor;
         editorManager->activateEditor(editor);
         QMetaObject::invokeMethod(editor->widget(), "setNewWindowRequestAllowed");
         QMetaObject::invokeMethod(editor->widget(), "setLazyData",
-            Q_ARG(quint64, addr), Q_ARG(int, 1024 * 1024), Q_ARG(int, BinBlockSize));
+            Q_ARG(quint64, addr), Q_ARG(int, DataRange), Q_ARG(int, BinBlockSize));
     } else {
         m_manager->showMessageBox(QMessageBox::Warning,
             tr("No memory viewer available"),
@@ -143,9 +150,25 @@ void MemoryViewAgent::addLazyData(QObject *editorToken, quint64 addr,
 void MemoryViewAgent::provideNewRange(Core::IEditor *editor, quint64 address)
 {
     QMetaObject::invokeMethod(editor->widget(), "setLazyData",
-        Q_ARG(quint64, address), Q_ARG(int, 1024 * 1024),
+        Q_ARG(quint64, address), Q_ARG(int, DataRange),
         Q_ARG(int, BinBlockSize));
 }
+
+// Since we are not dealing with files, we take these signals to mean
+// "move to start/end of range". This seems to make more sense than
+// jumping to the start or end of the address space, respectively.
+void MemoryViewAgent::handleStartOfFileRequested(Core::IEditor *editor)
+{
+    QMetaObject::invokeMethod(editor->widget(),
+        "setCursorPosition", Q_ARG(int, 0));
+}
+
+void MemoryViewAgent::handleEndOfFileRequested(Core::IEditor *editor)
+{
+    QMetaObject::invokeMethod(editor->widget(),
+        "setCursorPosition", Q_ARG(int, DataRange - 1));
+}
+
 
 
 ///////////////////////////////////////////////////////////////////////

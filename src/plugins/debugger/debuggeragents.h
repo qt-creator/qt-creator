@@ -64,6 +64,8 @@ private:
     Q_SLOT void createBinEditor(quint64 startAddr);
     Q_SLOT void fetchLazyData(Core::IEditor *, quint64 block, bool sync);
     Q_SLOT void provideNewRange(Core::IEditor *editor, quint64 address);
+    Q_SLOT void handleStartOfFileRequested(Core::IEditor *editor);
+    Q_SLOT void handleEndOfFileRequested(Core::IEditor *editor);
 
     QPointer<IDebuggerEngine> m_engine;
     QList<QPointer<Core::IEditor> > m_editors;
