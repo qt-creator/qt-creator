@@ -49,6 +49,7 @@ enum { debug = 0 };
 namespace ProjectExplorer {
 namespace Internal {
 
+// ----------- TextFieldComboBox
 TextFieldComboBox::TextFieldComboBox(QWidget *parent) :
     QComboBox(parent)
 {
@@ -61,6 +62,29 @@ void TextFieldComboBox::setText(const QString &s)
     const int index = findText(s);
     if (index != -1 && index != currentIndex())
         setCurrentIndex(index);
+}
+
+// -------------- TextCheckBox
+TextFieldCheckBox::TextFieldCheckBox(const QString &text, QWidget *parent) :
+        QCheckBox(text, parent),
+        m_trueText(QLatin1String("true")), m_falseText(QLatin1String("false"))
+{
+    connect(this, SIGNAL(stateChanged(int)), this, SLOT(slotStateChanged(int)));
+}
+
+QString TextFieldCheckBox::text() const
+{
+    return isChecked() ? m_trueText : m_falseText;
+}
+
+void TextFieldCheckBox::setText(const QString &s)
+{
+    setChecked(s == m_trueText);
+}
+
+void TextFieldCheckBox::slotStateChanged(int cs)
+{
+    emit textChanged(cs == Qt::Checked ? m_trueText : m_falseText);
 }
 
 // --------------- CustomWizardFieldPage
@@ -107,6 +131,7 @@ void CustomWizardFieldPage::addField(const CustomWizardField &field)\
     QString fieldName = field.name;
     if (field.mandatory)
         fieldName += QLatin1Char('*');
+    bool spansRow = false;
     // Check known classes: QComboBox
     const QString className = field.controlAttributes.value(QLatin1String("class"));
     QWidget *fieldWidget = 0;
@@ -116,10 +141,17 @@ void CustomWizardFieldPage::addField(const CustomWizardField &field)\
         fieldWidget = registerTextEdit(fieldName, field);
     } else if (className == QLatin1String("Utils::PathChooser")) {
         fieldWidget = registerPathChooser(fieldName, field);
+    } else if (className == QLatin1String("QCheckBox")) {
+        fieldWidget = registerCheckBox(fieldName, field.description, field);
+        spansRow = true; // Do not create a label for the checkbox.
     } else {
         fieldWidget = registerLineEdit(fieldName, field);
     }
-    addRow(field.description, fieldWidget);
+    if (spansRow) {
+        m_formLayout->addRow(fieldWidget);
+    } else {
+        addRow(field.description, fieldWidget);
+    }
 }
 
 QWidget *CustomWizardFieldPage::registerComboBox(const QString &fieldName,
@@ -161,6 +193,23 @@ QWidget *CustomWizardFieldPage::registerPathChooser(const QString &fieldName,
     registerField(fieldName, pathChooser, "path", SIGNAL(changed(QString)));
     return pathChooser;
 } // Utils::PathChooser
+
+QWidget *CustomWizardFieldPage::registerCheckBox(const QString &fieldName,
+                                                 const QString &fieldDescription,
+                                                 const CustomWizardField &field)
+{
+    typedef CustomWizardField::ControlAttributeMap::const_iterator AttributeMapConstIt;
+
+    TextFieldCheckBox *checkBox = new TextFieldCheckBox(fieldDescription);
+    const AttributeMapConstIt trueTextIt = field.controlAttributes.constFind(QLatin1String("truevalue"));
+    if (trueTextIt != field.controlAttributes.constEnd()) // Also set empty texts
+        checkBox->setTrueText(trueTextIt.value());
+    const AttributeMapConstIt falseTextIt = field.controlAttributes.constFind(QLatin1String("falsevalue"));
+    if (falseTextIt != field.controlAttributes.constEnd()) // Also set empty texts
+        checkBox->setFalseText(falseTextIt.value());
+    registerField(fieldName, checkBox, "text", SIGNAL(textChanged(QString)));
+    return checkBox;
+}
 
 QWidget *CustomWizardFieldPage::registerLineEdit(const QString &fieldName,
                                                  const CustomWizardField &field)
