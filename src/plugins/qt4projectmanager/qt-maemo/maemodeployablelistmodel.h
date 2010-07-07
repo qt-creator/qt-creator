@@ -40,14 +40,15 @@
 
 namespace Qt4ProjectManager {
 namespace Internal {
-class MaemoPackageCreationStep;
 class ProFileWrapper;
+class Qt4ProFileNode;
 
 class MaemoDeployableListModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    MaemoDeployableListModel(MaemoPackageCreationStep *packageStep);
+    MaemoDeployableListModel(const Qt4ProFileNode *proFileNode,
+        QObject *parent);
     ~MaemoDeployableListModel();
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -72,13 +73,12 @@ private:
     virtual bool setData(const QModelIndex &index, const QVariant &value,
                          int role = Qt::EditRole);
 
-    bool buildModel() const;
+    bool buildModel();
 
-    const MaemoPackageCreationStep * const m_packageStep;
-    mutable QList<MaemoDeployable> m_deployables;
+    const Qt4ProFileNode * const m_proFileNode;
+    QList<MaemoDeployable> m_deployables;
     mutable bool m_modified;
-    mutable bool m_initialized;
-    mutable QScopedPointer<ProFileWrapper> m_proFileWrapper;
+    QScopedPointer<ProFileWrapper> m_proFileWrapper;
 };
 
 } // namespace Qt4ProjectManager

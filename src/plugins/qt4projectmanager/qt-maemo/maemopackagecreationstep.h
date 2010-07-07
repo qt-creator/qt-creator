@@ -69,8 +69,6 @@ public:
     ~MaemoPackageCreationStep();
 
     QString packageFilePath() const;
-    QString localExecutableFilePath() const;
-    QString executableFileName() const;
     MaemoDeployables *deployables() const { return m_deployables; }
     const Qt4BuildConfiguration *qt4BuildConfiguration() const;
 
@@ -104,6 +102,7 @@ private:
     void raiseError(const QString &shortMsg,
                     const QString &detailedMsg = QString());
     QString buildDirectory() const;
+    QString projectName() const;
 
     static const QLatin1String CreatePackageId;
 

@@ -12,3 +12,10 @@ CONFIG   += ordered
 
 SUBDIRS = src share
 WITH_TESTS:SUBDIRS += tests
+
+
+target.path += \
+    /usr/local/bin
+
+INSTALLS += \
+    target

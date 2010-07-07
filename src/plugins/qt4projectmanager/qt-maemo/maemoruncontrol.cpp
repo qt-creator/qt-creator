@@ -238,10 +238,9 @@ QString AbstractMaemoRunControl::packageFilePath() const
 
 QString AbstractMaemoRunControl::executableFilePathOnTarget() const
 {
-    // TODO: The local executable is known directly by us (from RunConfiguration::target(),
-    // so we must not rely on the packaging step for this information (which will
-    // no longer provide it, anyway)/
-    return m_runConfig->packageStep()->deployables()->remoteExecutableFilePath(m_runConfig->packageStep()->localExecutableFilePath());
+    const MaemoDeployables * const deployables
+        = m_runConfig->packageStep()->deployables();
+    return deployables->remoteExecutableFilePath(m_runConfig->executable());
 }
 
 bool AbstractMaemoRunControl::isCleaning() const

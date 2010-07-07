@@ -179,7 +179,7 @@ bool MaemoPackageCreationStep::createPackage()
 
     if (!QFileInfo(buildDir + QLatin1String("/debian")).exists()) {
         const QString command = QLatin1String("dh_make -s -n -p ")
-            % executableFileName().toLower() % QLatin1Char('_') % versionString();
+            % projectName() % QLatin1Char('_') % versionString();
         if (!runCommand(command))
             return false;
 
@@ -297,35 +297,15 @@ const Qt4BuildConfiguration *MaemoPackageCreationStep::qt4BuildConfiguration() c
     return static_cast<Qt4BuildConfiguration *>(buildConfiguration());
 }
 
-QString MaemoPackageCreationStep::localExecutableFilePath() const
-{
-    const TargetInformation &ti = qt4BuildConfiguration()->qt4Target()
-        ->qt4Project()->rootProjectNode()->targetInformation();
-    if (!ti.valid)
-        return QString();
-    return QDir::toNativeSeparators(QDir::cleanPath(ti.workingDir
-        + QLatin1Char('/') + executableFileName()));
-}
-
 QString MaemoPackageCreationStep::buildDirectory() const
 {
-    const TargetInformation &ti = qt4BuildConfiguration()->qt4Target()
-        ->qt4Project()->rootProjectNode()->targetInformation();
-    return ti.valid ? ti.buildDir : QString();
+    return qt4BuildConfiguration()->buildDirectory();
 }
 
-QString MaemoPackageCreationStep::executableFileName() const
+QString MaemoPackageCreationStep::projectName() const
 {
-    const Qt4Project * const project
-        = qt4BuildConfiguration()->qt4Target()->qt4Project();
-    const TargetInformation &ti
-        = project->rootProjectNode()->targetInformation();
-    if (!ti.valid)
-        return QString();
-
-    return project->rootProjectNode()->projectType() == LibraryTemplate
-        ? QLatin1String("lib") + ti.target + QLatin1String(".so")
-        : ti.target;
+    return qt4BuildConfiguration()->qt4Target()->qt4Project()
+        ->rootProjectNode()->displayName().toLower();
 }
 
 const MaemoToolChain *MaemoPackageCreationStep::maemoToolChain() const
@@ -362,7 +342,7 @@ bool MaemoPackageCreationStep::packagingNeeded() const
 
 QString MaemoPackageCreationStep::packageFilePath() const
 {
-    return buildDirectory() % '/' % executableFileName().toLower()
+    return buildDirectory() % '/' % projectName()
         % QLatin1Char('_') % versionString() % QLatin1String("_armel.deb");
 }
 

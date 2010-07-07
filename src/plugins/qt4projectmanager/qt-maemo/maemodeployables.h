@@ -51,6 +51,7 @@ namespace Qt4ProjectManager {
 namespace Internal {
 class MaemoDeployableListModel;
 class MaemoPackageCreationStep;
+class Qt4ProFileNode;
 
 class MaemoDeployables : public QObject
 {
@@ -65,8 +66,15 @@ public:
     int modelCount() const { return m_listModels.count(); }
     MaemoDeployableListModel *modelAt(int i) const { return m_listModels.at(i); }
 
+signals:
+    void modelsCreated();
+
 private:
+    Q_SLOT void createModels();
+    void createModels(const Qt4ProFileNode *proFileNode);
+
     QList<MaemoDeployableListModel *> m_listModels;
+    MaemoPackageCreationStep * const m_packagingStep;
 };
 
 } // namespace Qt4ProjectManager

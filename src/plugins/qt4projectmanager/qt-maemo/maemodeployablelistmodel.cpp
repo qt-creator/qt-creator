@@ -29,51 +29,33 @@
 
 #include "maemodeployablelistmodel.h"
 
-#include "maemopackagecreationstep.h"
-#include "maemotoolchain.h"
 #include "profilewrapper.h"
 
-#include <qt4projectmanager/qt4buildconfiguration.h>
-#include <qt4projectmanager/qt4project.h>
-#include <qt4projectmanager/qt4target.h>
+#include <qt4projectmanager/qt4nodes.h>
 
 #include <QtCore/QCryptographicHash>
-#include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-MaemoDeployableListModel::MaemoDeployableListModel(MaemoPackageCreationStep *packageStep)
-    : QAbstractTableModel(packageStep),
-      m_packageStep(packageStep),
-      m_modified(false),
-      m_initialized(false)
+MaemoDeployableListModel::MaemoDeployableListModel(const Qt4ProFileNode *proFileNode,
+    QObject *parent)
+    : QAbstractTableModel(parent), m_proFileNode(proFileNode), m_modified(false)
 {
+    buildModel();
 }
 
 MaemoDeployableListModel::~MaemoDeployableListModel() {}
 
-bool MaemoDeployableListModel::buildModel() const
+bool MaemoDeployableListModel::buildModel()
 {
-    if (m_initialized)
-        return true;
-
     m_deployables.clear();
 
-    // TODO: The pro file path comes from the outside.
-    if (!m_proFileWrapper) {
-        const Qt4ProFileNode * const proFileNode = m_packageStep
-            ->qt4BuildConfiguration()->qt4Target()->qt4Project()
-            ->rootProjectNode();
-        m_proFileWrapper.reset(new ProFileWrapper(proFileNode->path()));
-    }
+    m_proFileWrapper.reset(new ProFileWrapper(m_proFileNode->path()));
     const ProFileWrapper::InstallsList &installs = m_proFileWrapper->installs();
     if (installs.targetPath.isEmpty()) {
-        const Qt4ProFileNode * const proFileNode
-            = m_packageStep->qt4BuildConfiguration()->qt4Target()
-                ->qt4Project()->rootProjectNode();
-        const QString remoteDir = proFileNode->projectType() == LibraryTemplate
+        const QString remoteDir = m_proFileNode->projectType() == LibraryTemplate
             ? QLatin1String("/usr/local/lib")
             : QLatin1String("/usr/local/bin");
         m_deployables.prepend(MaemoDeployable(localExecutableFilePath(),
@@ -93,7 +75,6 @@ bool MaemoDeployableListModel::buildModel() const
         }
     }
 
-    m_initialized = true;
     m_modified = true; // ???
     return true;
 }
@@ -143,7 +124,6 @@ bool MaemoDeployableListModel::removeDeployableAt(int row, QString *error)
 
 int MaemoDeployableListModel::rowCount(const QModelIndex &parent) const
 {
-    buildModel();
     return parent.isValid() ? 0 : m_deployables.count();
 }
 
@@ -203,26 +183,41 @@ QVariant MaemoDeployableListModel::headerData(int section,
 
 QString MaemoDeployableListModel::localExecutableFilePath() const
 {
-    // TODO: This information belongs to this class.
-    return m_packageStep->localExecutableFilePath();
+    const TargetInformation &ti = m_proFileNode->targetInformation();
+    if (!ti.valid)
+        return QString();
+
+    const bool isLib = m_proFileNode->projectType() == LibraryTemplate;
+    bool isStatic;
+    QString fileName;
+    if (isLib) {
+        fileName += QLatin1String("lib");
+        const QStringList &config
+            = m_proFileWrapper->varValues(QLatin1String("CONFIG"));
+        isStatic = config.contains(QLatin1String("static"))
+            || config.contains(QLatin1String("staticlib"))
+            || config.contains(QLatin1String("plugin"));
+    }
+    fileName += ti.target;
+    if (isLib)
+        fileName += QLatin1String(isStatic ? ".a" : ".so");
+    return ti.buildDir + '/' + fileName;
 }
 
 QString MaemoDeployableListModel::remoteExecutableFilePath() const
 {
-    return buildModel() ? deployableAt(0).remoteDir + '/'
-        + m_packageStep->executableFileName() : QString();
+    return deployableAt(0).remoteDir + '/'
+        + QFileInfo(localExecutableFilePath()).fileName();
 }
 
 QString MaemoDeployableListModel::projectName() const
 {
-    // TODO: This must return our own sub project name.
-    return m_packageStep->qt4BuildConfiguration()->qt4Target()->qt4Project()
-        ->rootProjectNode()->displayName();
+    return m_proFileNode->displayName();
 }
 
 QString MaemoDeployableListModel::projectDir() const
 {
-    return m_proFileWrapper->projectDir();
+    return m_proFileNode->path();
 }
 
 } // namespace Qt4ProjectManager

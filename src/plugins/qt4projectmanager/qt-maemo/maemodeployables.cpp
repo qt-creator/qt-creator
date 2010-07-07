@@ -42,16 +42,55 @@
 #include "maemodeployables.h"
 
 #include "maemodeployablelistmodel.h"
+#include "maemopackagecreationstep.h"
+
+#include <qt4projectmanager/qt4buildconfiguration.h>
+#include <qt4projectmanager/qt4nodes.h>
+#include <qt4projectmanager/qt4project.h>
+#include <qt4projectmanager/qt4target.h>
+
+#include <QtCore/QTimer>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
 MaemoDeployables::MaemoDeployables(MaemoPackageCreationStep *packagingStep)
+    : m_packagingStep(packagingStep)
 {
-    // TODO: Enumerate sub projects and create one list model for each app or lib template.
-    // Their constructurs will then take this object as parent and the
-    // project node
-    m_listModels << new MaemoDeployableListModel(packagingStep);
+    QTimer::singleShot(0, this, SLOT(createModels()));
+}
+
+void MaemoDeployables::createModels()
+{
+    const Qt4ProFileNode *rootNode = m_packagingStep->qt4BuildConfiguration()
+        ->qt4Target()->qt4Project()->rootProjectNode();
+    createModels(rootNode);
+    emit modelsCreated();
+}
+
+void MaemoDeployables::createModels(const Qt4ProFileNode *proFileNode)
+{
+    const Qt4ProjectType type = proFileNode->projectType() ;
+    switch (type) {
+    case ApplicationTemplate:
+    case LibraryTemplate:
+    case ScriptTemplate:
+        m_listModels << new MaemoDeployableListModel(proFileNode, this);
+        break;
+    case SubDirsTemplate: {
+        const QList<ProjectExplorer::ProjectNode *> &subProjects
+            = proFileNode->subProjectNodes();
+        foreach (const ProjectExplorer::ProjectNode *subProject, subProjects) {
+            const Qt4ProFileNode * const qt4SubProject
+                = qobject_cast<const Qt4ProFileNode *>(subProject);
+            if (qt4SubProject && !qt4SubProject->path()
+                .endsWith(QLatin1String(".pri")))
+                createModels(qt4SubProject);
+        }
+    }
+    default:
+        break;
+    }
 }
 
 void MaemoDeployables::setUnmodified()

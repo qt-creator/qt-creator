@@ -136,6 +136,9 @@ QStringList ProFileWrapper::varValues(const QString &var) const
 
 bool ProFileWrapper::addVarValue(const QString &var, const QString &value)
 {
+    if (varValues(var).contains(value))
+        return true;
+
     if (!readProFileContents())
         return false;
     ProWriter::addVarValues(m_proFile, &m_proFileContents, m_proDir,

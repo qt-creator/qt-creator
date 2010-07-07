@@ -81,7 +81,6 @@ MaemoDeployableListWidget::~MaemoDeployableListWidget()
 
 void MaemoDeployableListWidget::addFile()
 {
-    // TODO: Make all this stuff subproject-specific.
     const QString title = tr("Choose a local file");
     const QString localFile = QFileDialog::getOpenFileName(this, title, m_model->projectDir()); // TODO: Support directories.
     if (localFile.isEmpty())

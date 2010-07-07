@@ -69,12 +69,13 @@ MaemoPackageCreationWidget::MaemoPackageCreationWidget(MaemoPackageCreationStep 
     m_ui->major->setValue(list.value(0, QLatin1String("0")).toInt());
     m_ui->minor->setValue(list.value(1, QLatin1String("0")).toInt());
     m_ui->patch->setValue(list.value(2, QLatin1String("0")).toInt());
-    versionInfoChanged();   // workaround for missing minor and patch update notifications
-    for (int i = 0; i < step->deployables()->modelCount(); ++i) {
-        MaemoDeployableListModel * const model
-            = step->deployables()->modelAt(i);
-        m_ui->tabWidget->addTab(new MaemoDeployableListWidget(this, model),
-            model->projectName());
+    versionInfoChanged();
+
+    if (step->deployables()->modelCount() > 0) {
+        handleModelsCreated();
+    } else {
+        connect(m_step->deployables(), SIGNAL(modelsCreated()), this,
+            SLOT(handleModelsCreated()));
     }
 }
 
@@ -102,6 +103,16 @@ void MaemoPackageCreationWidget::versionInfoChanged()
     m_step->setVersionString(m_ui->major->text() + QLatin1Char('.')
         + m_ui->minor->text() + QLatin1Char('.') + m_ui->patch->text());
     emit updateSummary();
+}
+
+void MaemoPackageCreationWidget::handleModelsCreated()
+{
+    for (int i = 0; i < m_step->deployables()->modelCount(); ++i) {
+        MaemoDeployableListModel * const model
+            = m_step->deployables()->modelAt(i);
+        m_ui->tabWidget->addTab(new MaemoDeployableListWidget(this, model),
+            model->projectName());
+    }
 }
 
 } // namespace Internal

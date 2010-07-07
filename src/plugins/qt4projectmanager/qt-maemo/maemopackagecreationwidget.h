@@ -66,6 +66,7 @@ public:
 private slots:
     void handleSkipButtonToggled(bool checked);
     void versionInfoChanged();
+    void handleModelsCreated();
 
 private:
     MaemoPackageCreationStep * const m_step;
