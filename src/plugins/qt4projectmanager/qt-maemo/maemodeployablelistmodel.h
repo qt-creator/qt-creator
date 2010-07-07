@@ -48,7 +48,7 @@ class MaemoDeployableListModel : public QAbstractTableModel
     Q_OBJECT
 public:
     MaemoDeployableListModel(const Qt4ProFileNode *proFileNode,
-        QObject *parent);
+        const QString &qConfigFile, QObject *parent);
     ~MaemoDeployableListModel();
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -78,7 +78,7 @@ private:
     const Qt4ProFileNode * const m_proFileNode;
     QList<MaemoDeployable> m_deployables;
     mutable bool m_modified;
-    QScopedPointer<ProFileWrapper> m_proFileWrapper;
+    const QScopedPointer<ProFileWrapper> m_proFileWrapper;
 };
 
 } // namespace Qt4ProjectManager

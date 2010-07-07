@@ -40,8 +40,11 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 MaemoDeployableListModel::MaemoDeployableListModel(const Qt4ProFileNode *proFileNode,
-    QObject *parent)
-    : QAbstractTableModel(parent), m_proFileNode(proFileNode), m_modified(false)
+    const QString &qConfigFile, QObject *parent)
+    : QAbstractTableModel(parent),
+      m_proFileNode(proFileNode),
+      m_modified(false),
+      m_proFileWrapper(new ProFileWrapper(m_proFileNode->path(), qConfigFile))
 {
     buildModel();
 }
@@ -52,7 +55,6 @@ bool MaemoDeployableListModel::buildModel()
 {
     m_deployables.clear();
 
-    m_proFileWrapper.reset(new ProFileWrapper(m_proFileNode->path()));
     const ProFileWrapper::InstallsList &installs = m_proFileWrapper->installs();
     if (installs.targetPath.isEmpty()) {
         const QString remoteDir = m_proFileNode->projectType() == LibraryTemplate

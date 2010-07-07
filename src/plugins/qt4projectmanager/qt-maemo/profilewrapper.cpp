@@ -26,10 +26,12 @@ namespace {
 }
 
 
-ProFileWrapper::ProFileWrapper(const QString &proFileName)
+ProFileWrapper::ProFileWrapper(const QString &proFileName,
+    const QString &qConfigFile)
     : m_proFileName(proFileName), m_proDir(QFileInfo(m_proFileName).dir()),
       m_proFileOption(new ProFileOption)
 {
+    m_proFileOption->cachefile = qConfigFile;
     parseProFile(ParseFromFile);
 }
 
@@ -210,7 +212,9 @@ QString ProFileWrapper::absFilePath(const QString &relFilePath) const
 {
     // I'd rather use QDir::cleanPath(), but that doesn't work well
     // enough for redundant ".." dirs.
-    return QFileInfo(m_proFile->directoryName() + '/' + relFilePath)
+    QFileInfo fi(relFilePath);
+    return fi.isAbsolute() ? fi.canonicalFilePath()
+        : QFileInfo(m_proFile->directoryName() + '/' + relFilePath)
         .canonicalFilePath();
 }
 

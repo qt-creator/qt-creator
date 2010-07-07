@@ -43,6 +43,7 @@
 
 #include "maemodeployablelistmodel.h"
 #include "maemopackagecreationstep.h"
+#include "maemotoolchain.h"
 
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4nodes.h>
@@ -74,9 +75,12 @@ void MaemoDeployables::createModels(const Qt4ProFileNode *proFileNode)
     switch (type) {
     case ApplicationTemplate:
     case LibraryTemplate:
-    case ScriptTemplate:
-        m_listModels << new MaemoDeployableListModel(proFileNode, this);
+    case ScriptTemplate: {
+        const QString qConfigFile = m_packagingStep->maemoToolChain()->sysrootRoot()
+            + QLatin1String("/usr/share/qt/mkspecs/qconfig.pri");
+        m_listModels << new MaemoDeployableListModel(proFileNode, qConfigFile, this);
         break;
+    }
     case SubDirsTemplate: {
         const QList<ProjectExplorer::ProjectNode *> &subProjects
             = proFileNode->subProjectNodes();

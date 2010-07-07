@@ -71,6 +71,7 @@ public:
     QString packageFilePath() const;
     MaemoDeployables *deployables() const { return m_deployables; }
     const Qt4BuildConfiguration *qt4BuildConfiguration() const;
+    const MaemoToolChain *maemoToolChain() const;
 
     bool isPackagingEnabled() const { return m_packagingEnabled; }
     void setPackagingEnabled(bool enabled) { m_packagingEnabled = enabled; }
@@ -94,7 +95,6 @@ private:
 
     bool createPackage();
     bool runCommand(const QString &command);
-    const MaemoToolChain *maemoToolChain() const;
     QString maddeRoot() const;
     QString targetRoot() const;
     QString nativePath(const QFile &file) const;
