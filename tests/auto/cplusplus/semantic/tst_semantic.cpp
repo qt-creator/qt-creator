@@ -11,7 +11,6 @@
 #include <Semantic.h>
 #include <Scope.h>
 #include <Symbols.h>
-#include <TokenCache.h>
 #include <CoreTypes.h>
 #include <Names.h>
 #include <Literals.h>
@@ -457,8 +456,7 @@ void tst_Semantic::expression_under_cursor_1()
     QTextCursor tc(&textDocument);
     tc.movePosition(QTextCursor::End);
 
-    TokenCache cache(&textDocument);
-    ExpressionUnderCursor expressionUnderCursor(&cache);
+    ExpressionUnderCursor expressionUnderCursor;
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, QString("bar"));
@@ -474,8 +472,7 @@ void tst_Semantic::bracketed_expression_under_cursor_1()
     QTextCursor tc(&textDocument);
     tc.movePosition(QTextCursor::End);
 
-    TokenCache cache(&textDocument);
-    ExpressionUnderCursor expressionUnderCursor(&cache);
+    ExpressionUnderCursor expressionUnderCursor;
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, QString("i"));
@@ -491,8 +488,7 @@ void tst_Semantic::bracketed_expression_under_cursor_2()
     QTextCursor tc(&textDocument);
     tc.movePosition(QTextCursor::End);
 
-    TokenCache cache(&textDocument);
-    ExpressionUnderCursor expressionUnderCursor(&cache);
+    ExpressionUnderCursor expressionUnderCursor;
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, plainText);
@@ -508,8 +504,7 @@ void tst_Semantic::bracketed_expression_under_cursor_3()
     QTextCursor tc(&textDocument);
     tc.movePosition(QTextCursor::End);
 
-    TokenCache cache(&textDocument);
-    ExpressionUnderCursor expressionUnderCursor(&cache);
+    ExpressionUnderCursor expressionUnderCursor;
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, plainText);
@@ -525,8 +520,7 @@ void tst_Semantic::bracketed_expression_under_cursor_4()
     QTextCursor tc(&textDocument);
     tc.movePosition(QTextCursor::End);
 
-    TokenCache cache(&textDocument);
-    ExpressionUnderCursor expressionUnderCursor(&cache);
+    ExpressionUnderCursor expressionUnderCursor;
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, plainText);
@@ -542,8 +536,7 @@ void tst_Semantic::bracketed_expression_under_cursor_5()
     QTextCursor tc(&textDocument);
     tc.movePosition(QTextCursor::End);
 
-    TokenCache cache(&textDocument);
-    ExpressionUnderCursor expressionUnderCursor(&cache);
+    ExpressionUnderCursor expressionUnderCursor;
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, QString("[receiver message"));
@@ -559,8 +552,7 @@ void tst_Semantic::bracketed_expression_under_cursor_6()
     QTextCursor tc(&textDocument);
     tc.movePosition(QTextCursor::End);
 
-    TokenCache cache(&textDocument);
-    ExpressionUnderCursor expressionUnderCursor(&cache);
+    ExpressionUnderCursor expressionUnderCursor;
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, QString("[receiver msgParam1:1 + i[1] msgParam2"));
@@ -576,8 +568,7 @@ void tst_Semantic::bracketed_expression_under_cursor_7()
     QTextCursor tc(&textDocument);
     tc.movePosition(QTextCursor::End);
 
-    TokenCache cache(&textDocument);
-    ExpressionUnderCursor expressionUnderCursor(&cache);
+    ExpressionUnderCursor expressionUnderCursor;
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, QString("i"));
@@ -593,8 +584,7 @@ void tst_Semantic::bracketed_expression_under_cursor_8()
     QTextCursor tc(&textDocument);
     tc.movePosition(QTextCursor::End);
 
-    TokenCache cache(&textDocument);
-    ExpressionUnderCursor expressionUnderCursor(&cache);
+    ExpressionUnderCursor expressionUnderCursor;
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, plainText);
