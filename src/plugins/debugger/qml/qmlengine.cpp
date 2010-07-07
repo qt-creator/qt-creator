@@ -106,10 +106,17 @@ class QmlDebuggerClient : public QDeclarativeDebugClient
 
 public:
     QmlDebuggerClient(QDeclarativeDebugConnection *connection, QmlEngine *engine)
-        : QDeclarativeDebugClient(QLatin1String("Debugger"), connection)
+        : QDeclarativeDebugClient(QLatin1String("QDeclarativeEngine"), connection)
         , m_connection(connection), m_engine(engine)
     {
         setEnabled(true);
+    }
+
+    void sendMessage(const QByteArray &msg)
+    {
+        QTC_ASSERT(isConnected(), /**/);
+        qDebug() << "SENDING: " << quoteUnprintableLatin1(msg);
+        QDeclarativeDebugClient::sendMessage(msg);
     }
 
     void messageReceived(const QByteArray &data)
@@ -615,7 +622,7 @@ void QmlEngine::messageReceived(const QByteArray &message)
 
     qDebug() << "RECEIVED COMMAND: " << command;
 
-    showMessage(_("RECEIVED RESPONSE" + command));
+    showMessage(_("RECEIVED RESPONSE: ") + quoteUnprintableLatin1(message));
     if (command == "STOPPED") {
         setState(InferiorStopping);
         setState(InferiorStopped);
@@ -726,14 +733,18 @@ void QmlEngine::handleProcFinished(int code, QProcess::ExitStatus type)
 
 void QmlEngine::readProcStandardError()
 {
-    qDebug() << "STD ERR" << m_proc.readAllStandardError();
+    QString msg = QString::fromUtf8(m_proc.readAllStandardError());
     if (!m_conn)
         setupConnection();
+    qDebug() << "STD ERR" << msg;
+    showMessage(msg, AppError);
 }
 
 void QmlEngine::readProcStandardOutput()
 {
-    qDebug() << "STD ERR" << m_proc.readAllStandardOutput();
+    QString msg = QString::fromUtf8(m_proc.readAllStandardOutput());
+    qDebug() << "STD OUT" << msg;
+    showMessage(msg, AppOutput);
 }
 
 void QmlEngine::connectionStateChanged()
@@ -1359,7 +1370,7 @@ void QmlEngine::enginesChanged(QDeclarativeDebugEnginesQuery *query)
     //m_engineComboBox->clearEngines();
     QList<QDeclarativeDebugEngineReference> engines = query->engines();
     if (engines.isEmpty())
-        qWarning("qmldebugger: no engines found!");
+        qWarning("QMLDEBUGGER: NO ENGINES FOUND!");
 
     //m_engineComboBox->setEnabled(true);
 
