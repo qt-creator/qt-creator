@@ -132,7 +132,8 @@ protected:
         initializer, // after a '=' in a declaration start
     };
 
-    struct State {
+    class State {
+    public:
         State()
             : savedIndentDepth(0)
             , type(0)
