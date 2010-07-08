@@ -101,13 +101,13 @@
    <item row="1" column="0">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Text Editor Helper</string>
+      <string>Quick Toolbars</string>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <widget class="QCheckBox" name="textEditHelperCheckBox">
         <property name="text">
-         <string>enable</string>
+         <string>Text Quick Toolbar</string>
         </property>
        </widget>
       </item>
