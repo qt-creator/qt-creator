@@ -256,10 +256,20 @@ bool ClientProxy::setBindingForObject(int objectDebugId,
     qDebug() << Q_FUNC_INFO;
 
     if (propertyName == QLatin1String("id") || objectDebugId == -1)
+        return false;
+
+    qDebug() << "setBindingForObject():" << objectDebugId << propertyName << value << "isLiteral:" << isLiteralValue;
+
+    return m_client->setBindingForObject(objectDebugId, propertyName, value.toString(), isLiteralValue);
+}
+
+bool ClientProxy::setMethodBodyForObject(int objectDebugId, const QString &methodName, const QString &methodBody)
+{
+    if (objectDebugId == -1)
         return 0;
 
-    qDebug() << "executeBinding():" << objectDebugId << propertyName << value << "isLiteral:" << isLiteralValue;
-    return m_client->setBindingForObject(objectDebugId, propertyName, value.toString(), isLiteralValue);
+    qDebug() << "setMethodBodyForObject():" << objectDebugId << methodName;
+    return m_client->setMethodBody(objectDebugId, methodName, methodBody);
 }
 
 void ClientProxy::queryEngineContext(int id)

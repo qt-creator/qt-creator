@@ -42,8 +42,9 @@ contains(QT_CONFIG, declarative) {
 
     include(../private_headers.pri)
     exists($${QT_PRIVATE_HEADERS}/QtDeclarative/private/qdeclarativecontext_p.h) {
-        SUBDIRS += plugin_qmldesigner \
-                   plugin_qmljsinspector
+        # ### disabled because it contains same files as qmlviewer, so slower to use locator
+        # plugin_qmldesigner \
+        SUBDIRS += plugin_qmljsinspector
     } else {
         warning()
         warning("QmlDesigner and QmlJSInspector plugins have been disabled")
