@@ -216,6 +216,7 @@ public:
     QList<Symbol *> lookup(const Name *name, Scope *scope) const;
     ClassOrNamespace *lookupType(const Name *name, Scope *scope) const;
     ClassOrNamespace *lookupType(Symbol *symbol) const;
+    ClassOrNamespace *lookupParent(Symbol *symbol) const;
 
     /// \internal
     QSharedPointer<CreateBindings> bindings() const;
@@ -226,6 +227,9 @@ public:
     QSharedPointer<Control> control() const; // ### deprecate
 
     static QList<const Name *> fullyQualifiedName(Symbol *symbol);
+
+    const Name *minimalName(const Name *name, Scope *source,
+                            ClassOrNamespace *target) const;
 
 private:
     // The current expression.

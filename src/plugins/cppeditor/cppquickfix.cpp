@@ -29,6 +29,7 @@
 
 #include "cppquickfix.h"
 #include "cppeditor.h"
+#include "cppdeclfromdef.h"
 
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/CppDocument.h>
@@ -1546,6 +1547,7 @@ QList<TextEditor::QuickFixOperation::Ptr> CppQuickFixFactory::quickFixOperations
     QSharedPointer<ConvertNumericToOctal> convertNumericToOctal(new ConvertNumericToOctal(editor));
     QSharedPointer<ConvertNumericToDecimal> convertNumericToDecimal(new ConvertNumericToDecimal(editor));
     QSharedPointer<CompleteSwitchCaseStatement> completeSwitchCaseStatement(new CompleteSwitchCaseStatement(editor));
+    QSharedPointer<DeclFromDef> declFromDef(new DeclFromDef(editor));
 
     quickFixOperations.append(rewriteLogicalAndOp);
     quickFixOperations.append(splitIfStatementOp);
@@ -1561,6 +1563,7 @@ QList<TextEditor::QuickFixOperation::Ptr> CppQuickFixFactory::quickFixOperations
     quickFixOperations.append(convertNumericToOctal);
     quickFixOperations.append(convertNumericToDecimal);
     quickFixOperations.append(completeSwitchCaseStatement);
+    quickFixOperations.append(declFromDef);
 
     if (editor->mimeType() == CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)
         quickFixOperations.append(wrapCString);

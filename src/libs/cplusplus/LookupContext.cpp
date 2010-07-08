@@ -138,6 +138,43 @@ QList<const Name *> LookupContext::fullyQualifiedName(Symbol *symbol)
     return names;
 }
 
+const Name *LookupContext::minimalName(const Name *name,
+                                       Scope *source,
+                                       ClassOrNamespace *target) const
+{
+    Q_ASSERT(name);
+    Q_ASSERT(source);
+    Q_ASSERT(target);
+
+    QList<Symbol *> symbols = lookup(name, source);
+    if (symbols.isEmpty())
+        return 0;
+
+    Symbol *canonicalSymbol = symbols.first();
+    std::vector<const Name *> fqNames = fullyQualifiedName(canonicalSymbol).toVector().toStdVector();
+    if (const QualifiedNameId *qId = name->asQualifiedNameId())
+        fqNames.push_back(qId->nameAt(qId->nameCount() - 1));
+    else
+        fqNames.push_back(name);
+
+    const QualifiedNameId *lastWorking = 0;
+    for (unsigned i = 0; i < fqNames.size(); ++i) {
+        const QualifiedNameId *newName = control()->qualifiedNameId(&fqNames[i],
+                                                                    fqNames.size() - i);
+        QList<Symbol *> candidates = target->lookup(newName);
+        if (candidates.contains(canonicalSymbol))
+            lastWorking = newName;
+        else
+            break;
+    }
+
+    if (lastWorking && lastWorking->nameCount() == 1)
+        return lastWorking->nameAt(0);
+    else
+        return lastWorking;
+}
+
+
 QSharedPointer<CreateBindings> LookupContext::bindings() const
 {
     if (! _bindings)
@@ -278,6 +315,19 @@ QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
     }
 
     return candidates;
+}
+
+ClassOrNamespace *LookupContext::lookupParent(Symbol *symbol) const
+{
+    QList<const Name *> fqName = fullyQualifiedName(symbol);
+    ClassOrNamespace *binding = globalNamespace();
+    foreach (const Name *name, fqName) {
+        binding = binding->findType(name);
+        if (!binding)
+            return 0;
+    }
+
+    return binding;
 }
 
 ClassOrNamespace::ClassOrNamespace(CreateBindings *factory, ClassOrNamespace *parent)

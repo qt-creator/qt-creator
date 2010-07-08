@@ -39,6 +39,11 @@
 
 using namespace TextEditor;
 
+RefactoringChanges::RefactoringChanges()
+    : m_lineToShow(0)
+    , m_columnToShow(0)
+{}
+
 RefactoringChanges::~RefactoringChanges()
 {}
 
@@ -149,12 +154,20 @@ QStringList RefactoringChanges::apply()
         // ###
     }
 
+    if (!m_fileNameToShow.isEmpty()) {
+        Core::EditorManager *editorManager = Core::EditorManager::instance();
+        BaseTextEditor *editor = editorForFile(m_fileNameToShow);
+        editorManager->activateEditor(editor->editableInterface());
+        if (m_lineToShow != -1)
+            editor->gotoLine(m_lineToShow + 1, m_columnToShow + 1);
+    }
+
     return changed.toList();
 }
 
 int RefactoringChanges::positionInFile(const QString &fileName, int line, int column) const
 {
-    if (BaseTextEditor *editor = editorForFile(fileName)) {
+    if (BaseTextEditor *editor = editorForFile(fileName, true)) {
         return editor->document()->findBlockByNumber(line).position() + column;
     } else {
         return -1;
@@ -190,4 +203,11 @@ BaseTextEditor *RefactoringChanges::editorForNewFile(const QString &fileName)
         return 0;
     f.close();
     return editorForFile(fileName, true);
+}
+
+void RefactoringChanges::openEditor(const QString &fileName, int line, int column)
+{
+    m_fileNameToShow = fileName;
+    m_lineToShow = line;
+    m_columnToShow = column;
 }
