@@ -255,9 +255,10 @@ void ScriptEngine::startEngine()
     if (!scriptFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
         showMessage(QString::fromLatin1("Cannot open %1: %2").
           arg(m_scriptFileName, scriptFile.errorString()), LogError);
-        startFailed();
+        notifyEngineStartFailed();
         return;
     }
+    notifyEngineStarted();
     QTextStream stream(&scriptFile);
     m_scriptContents = stream.readAll();
     scriptFile.close();
@@ -266,7 +267,6 @@ void ScriptEngine::startEngine()
     showStatusMessage(tr("Running requested..."), 5000);
     showMessage(QLatin1String("Running: ") + m_scriptFileName, LogMisc);
     QTimer::singleShot(0, this, SLOT(runInferior()));
-    startSuccessful();
 }
 
 void ScriptEngine::continueInferior()

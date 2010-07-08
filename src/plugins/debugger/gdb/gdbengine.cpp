@@ -4205,7 +4205,7 @@ void GdbEngine::handleAdapterStartFailed(const QString &msg, const QString &sett
 
 void GdbEngine::handleAdapterStarted()
 {
-    setState(EngineStarted);
+    notifyEngineStarted();
     if (m_progress)
         m_progress->setProgressValue(25);
     showMessage(_("ADAPTER SUCCESSFULLY STARTED"));
@@ -4217,7 +4217,6 @@ void GdbEngine::handleAdapterStarted()
 
 void GdbEngine::handleInferiorPrepared()
 {
-    startSuccessful();
     const QByteArray qtInstallPath = startParameters().qtInstallPath.toLocal8Bit();
     if (!qtInstallPath.isEmpty()) {
         QByteArray qtBuildPath;

@@ -155,8 +155,10 @@ void TcfEngine::socketReadyRead()
 void TcfEngine::socketConnected()
 {
     showStatusMessage("Socket connected.");
-    m_socket->waitForConnected(2000);
-    //sendCommand("Locator", "redirect", "ID");
+    if (m_socket->waitForConnected(2000))
+        notifyEngineStarted();
+    else
+        notifyEngineStartFailed();
 }
 
 void TcfEngine::socketDisconnected()
@@ -211,7 +213,6 @@ void TcfEngine::startEngine()
     const quint16 port = sp.remoteChannel.mid(pos + 1).toInt();
     //QTimer::singleShot(0, this, SLOT(runInferior()));
     m_socket->connectToHost(host, port);
-    emit startSuccessful();
 }
 
 void TcfEngine::continueInferior()

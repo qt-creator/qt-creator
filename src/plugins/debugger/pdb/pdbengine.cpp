@@ -148,7 +148,7 @@ void PdbEngine::startEngine()
         //showMessage("STARTING " +m_scriptFileName + "FAILED");
         showMessage(QString::fromLatin1("Cannot open %1: %2").
                    arg(m_scriptFileName, scriptFile.errorString()), LogError);
-        startFailed();
+        notifyEngineStartFailed();
         return;
     }
     m_pdbProc.disconnect(); // From any previous runs
@@ -188,9 +188,10 @@ void PdbEngine::startEngine()
             Core::ICore::instance()->showWarningWithOptions(title, msg);
         }
         shutdown();
-        startFailed();
+        notifyEngineStartFailed();
         return;
     }
+    notifyEngineStarted();
     attemptBreakpointSynchronization();
 
     showMessage(_("PDB STARTED, INITIALIZING IT"));
@@ -199,9 +200,7 @@ void PdbEngine::startEngine()
     postCommand("execfile('" + dumperSourcePath + "pdumper.py')",
         CB(handleLoadDumper));
 
-    setState(EngineStarted);
     setState(InferiorStarting);
-    emit startSuccessful();
     showStatusMessage(tr("Running requested..."), 5000);
     setState(InferiorRunningRequested);
     setState(InferiorRunning);

@@ -387,7 +387,7 @@ void CdbEngine::startEngine()
         warning(QLatin1String("Internal error: Attempt to start debugger while another process is being debugged."));
         setState(EngineStartFailed, Q_FUNC_INFO, __LINE__);
         setState(DebuggerNotReady, Q_FUNC_INFO, __LINE__);
-        emit startFailed();
+        notifyEngineStartFailed();
         return;
     }
     switch (sp.startMode) {
@@ -396,7 +396,7 @@ void CdbEngine::startEngine()
         warning(QLatin1String("Internal error: Mode not supported."));
         setState(EngineStartFailed, Q_FUNC_INFO, __LINE__);
         setState(DebuggerNotReady, Q_FUNC_INFO, __LINE__);
-        emit startFailed();
+        notifyEngineStartFailed();
         break;
     default:
         break;
@@ -470,11 +470,11 @@ void CdbEngine::startEngine()
     if (rc) {
         if (needWatchTimer)
             m_d->startWatchTimer();
-        startSuccessful();
+        notifyEngineStarted();
     } else {
         warning(errorMessage);
         setState(InferiorStartFailed, Q_FUNC_INFO, __LINE__);
-        startFailed();
+        notifyEngineStartFailed();
     }
 }
 

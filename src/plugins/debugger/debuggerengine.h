@@ -248,13 +248,13 @@ public slots:
     void openFile(const QString &fileName, int lineNumber = -1);
     void gotoLocation(const QString &fileName, int lineNumber, bool setMarker);
     void gotoLocation(const StackFrame &frame, bool setMarker);
-    void startSuccessful();
-    void startFailed();
     void raiseApplication();
     virtual void quitDebugger() { exitDebugger(); } // called by DebuggerRunControl
 
 protected:
     void setState(DebuggerState state, bool forced = false);
+    void notifyEngineStarted();
+    void notifyEngineStartFailed();
 
 private:
     void executeRunToLine();

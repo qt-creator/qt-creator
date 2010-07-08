@@ -608,12 +608,12 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
 
 void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
 {
-    QTC_ASSERT(runControl, startFailed(); return);
-    QTC_ASSERT(!d->m_runControl, startFailed(); return);
+    QTC_ASSERT(runControl, notifyEngineStartFailed(); return);
+    QTC_ASSERT(!d->m_runControl, notifyEngineStartFailed(); return);
 
     DebuggerEngine *sessionTemplate = plugin()->sessionTemplate();
-    QTC_ASSERT(sessionTemplate, startFailed(); return);
-    QTC_ASSERT(sessionTemplate != this, startFailed(); return);
+    QTC_ASSERT(sessionTemplate, notifyEngineStartFailed(); return);
+    QTC_ASSERT(sessionTemplate != this, notifyEngineStartFailed(); return);
 
     breakHandler()->initializeFromTemplate(sessionTemplate->breakHandler());
     watchHandler()->initializeFromTemplate(sessionTemplate->watchHandler());
@@ -956,6 +956,18 @@ static bool isAllowedTransition(int from, int to)
     return false;
 }
 
+void DebuggerEngine::notifyEngineStarted()
+{
+    QTC_ASSERT(state() == EngineStarting, /**/);
+    setState(EngineStarted);
+}
+
+void DebuggerEngine::notifyEngineStartFailed()
+{
+    QTC_ASSERT(state() == EngineStarting, /**/);
+    setState(EngineStartFailed);
+}
+
 void DebuggerEngine::setState(DebuggerState state, bool forced)
 {
     //qDebug() << "STATUS CHANGE: FROM " << stateName(d->m_state)
@@ -972,8 +984,16 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
     showMessage(msg, LogDebug);
     plugin()->updateState(this);
 
-    if (state != oldState && state == DebuggerNotReady)
-        d->m_runControl->debuggingFinished();
+    if (state != oldState) {
+        if (state == DebuggerNotReady) {
+            d->m_runControl->debuggingFinished();
+        } else if (state == EngineStarted) {
+            d->m_runControl->startSuccessful();
+        } else if (state == EngineStartFailed) {
+            d->m_runControl->debuggingFinished();
+            d->m_runControl->startFailed();
+        }
+    }
 }
 
 bool DebuggerEngine::debuggerActionsEnabled() const
@@ -1006,18 +1026,6 @@ bool DebuggerEngine::debuggerActionsEnabled(DebuggerState state)
         break;
     }
     return false;
-}
-
-void DebuggerEngine::startFailed()
-{
-    // The concrete engines themselves are responsible for changing state.
-    QTC_ASSERT(state() == DebuggerNotReady, setState(DebuggerNotReady));
-    d->m_runControl->startFailed();
-}
-
-void DebuggerEngine::startSuccessful()
-{
-    d->m_runControl->startSuccessful();
 }
 
 void DebuggerEngine::notifyInferiorPid(qint64 pid)
