@@ -43,6 +43,7 @@ public slots:
 signals:
     void animationSpeedChanged(qreal slowdownFactor = 1.0f);
 
+    void reloadSelected();
     void colorPickerSelected();
     void selectToolSelected();
     void marqueeSelectToolSelected();

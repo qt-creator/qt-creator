@@ -167,6 +167,8 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     uiSwitcher->setToolbar(QmlJSInspector::Constants::LANG_QML, configBar);
     setEnabled(false);
 
+    connect(m_reloadAction, SIGNAL(triggered()), SIGNAL(reloadSelected()));
+
     connect(m_colorPickerAction, SIGNAL(triggered()), SLOT(activateColorPickerOnClick()));
 
     connect(m_playAction, SIGNAL(triggered()), SLOT(activatePlayOnClick()));

@@ -85,9 +85,6 @@
 #include <QtCore/QtPlugin>
 #include <QtCore/QDateTime>
 
-#include <QtGui/QToolButton>
-#include <QtGui/QToolBar>
-#include <QtGui/QBoxLayout>
 #include <QtGui/QLabel>
 #include <QtGui/QDockWidget>
 #include <QtGui/QAction>
@@ -127,6 +124,10 @@ Inspector::Inspector(QObject *parent)
     m_context = new InspectorContext(contextWidget);
 
     m_textPreview = new QmlJSLiveTextPreview(this);
+
+    connect(m_textPreview,
+            SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
+            SLOT(changeSelectedItems(QList<QDeclarativeDebugObjectReference>)));
 
     connect(m_clientProxy, SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
             SLOT(setSelectedItemsByObjectReference(QList<QDeclarativeDebugObjectReference>)));

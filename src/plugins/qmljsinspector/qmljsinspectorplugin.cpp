@@ -165,6 +165,7 @@ void InspectorPlugin::extensionsInitialized()
     connect(_clientProxy, SIGNAL(connected(QDeclarativeEngineDebug*)), m_toolbar, SLOT(enable()));
     connect(_clientProxy, SIGNAL(disconnected()), m_toolbar, SLOT(disable()));
 
+    connect(m_toolbar, SIGNAL(reloadSelected()), _clientProxy, SLOT(reloadQmlViewer()));
     connect(m_toolbar, SIGNAL(animationSpeedChanged(qreal)), _clientProxy, SLOT(setAnimationSpeed(qreal)));
     connect(m_toolbar, SIGNAL(colorPickerSelected()), _clientProxy, SLOT(changeToColorPickerTool()));
     connect(m_toolbar, SIGNAL(zoomToolSelected()), _clientProxy, SLOT(changeToZoomTool()));
