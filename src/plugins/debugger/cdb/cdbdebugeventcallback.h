@@ -37,12 +37,12 @@
 namespace Debugger {
 namespace Internal {
 
-class CdbDebugEngine;
+class CdbEngine;
 
 class CdbDebugEventCallback : public CdbCore::DebugEventCallbackBase
 {
 public:
-    explicit CdbDebugEventCallback(CdbDebugEngine* dbg);
+    explicit CdbDebugEventCallback(CdbEngine* dbg);
 
     // IDebugEventCallbacks.
 
@@ -117,7 +117,7 @@ public:
         );
 
 private:
-    CdbDebugEngine *m_pEngine;
+    CdbEngine *m_pEngine;
 };
 
 // Event handler logs exceptions to the debugger window
@@ -127,7 +127,7 @@ class CdbExceptionLoggerEventCallback : public CdbCore::DebugEventCallbackBase
 public:
     CdbExceptionLoggerEventCallback(int logChannel,
                                     bool skipNonFatalExceptions,
-                                    CdbDebugEngine *engine);
+                                    CdbEngine *engine);
 
     STDMETHOD(GetInterestMask)(
         THIS_
@@ -147,7 +147,7 @@ public:
 private:
     const int m_logChannel;
     const bool m_skipNonFatalExceptions;
-    CdbDebugEngine *m_engine;
+    CdbEngine *m_engine;
     QList<ULONG> m_exceptionCodes;
     QStringList m_exceptionMessages;
 };

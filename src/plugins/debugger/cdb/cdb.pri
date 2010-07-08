@@ -3,8 +3,8 @@ include(cdbcore.pri)
 !isEmpty(CDB_PATH) {
 
 HEADERS += \
-    $$PWD/cdbdebugengine.h \
-    $$PWD/cdbdebugengine_p.h \
+    $$PWD/cdbengine.h \
+    $$PWD/cdbengine_p.h \
     $$PWD/cdbdebugeventcallback.h \
     $$PWD/cdbdebugoutput.h \
     $$PWD/cdbsymbolgroupcontext.h \
@@ -20,7 +20,7 @@ HEADERS += \
     $$PWD/cdbexceptionutils.h
 
 SOURCES += \
-    $$PWD/cdbdebugengine.cpp \
+    $$PWD/cdbengine.cpp \
     $$PWD/cdbdebugeventcallback.cpp \
     $$PWD/cdbdebugoutput.cpp \
     $$PWD/cdbsymbolgroupcontext.cpp \
@@ -52,8 +52,8 @@ HEADERS += \
     $$PWD/breakpoint.h
 
 HEADERS += \
-    $$PWD/cdbdebugengine.h \
-    $$PWD/cdbdebugengine_p.h \
+    $$PWD/cdbengine.h \
+    $$PWD/cdbengine_p.h \
     $$PWD/cdbdebugeventcallback.h \
     $$PWD/cdbdebugoutput.h \
     $$PWD/cdbsymbolgroupcontext.h \
@@ -77,7 +77,7 @@ SOURCES += \
 #    $$PWD/breakpoint.cpp
 
 SOURCES += \
-#    $$PWD/cdbdebugengine.cpp \
+#    $$PWD/cdbengine.cpp \
 #    $$PWD/cdbdebugeventcallback.cpp \
     $$PWD/cdbdebugoutput.cpp \
 #    $$PWD/cdbsymbolgroupcontext.cpp \

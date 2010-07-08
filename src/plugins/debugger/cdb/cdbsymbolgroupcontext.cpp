@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "cdbsymbolgroupcontext.h"
-#include "cdbdebugengine_p.h"
+#include "cdbengine_p.h"
 #include "cdbdumperhelper.h"
 #include "watchhandler.h"
 #include "watchutils.h"

@@ -29,8 +29,8 @@
 
 #include "cdbdumperhelper.h"
 #include "cdbmodules.h"
-#include "cdbdebugengine.h"
-#include "cdbdebugengine_p.h"
+#include "cdbengine.h"
+#include "cdbengine_p.h"
 #include "cdbdebugoutput.h"
 #include "cdbdebugeventcallback.h"
 #include "cdbsymbolgroupcontext.h"
@@ -100,7 +100,7 @@ namespace Internal {
 // the QtCored4.pdb file to be present as we need "qstrdup"
 // as dummy symbol. This is ok ATM since dumpers only
 // make sense for Qt apps.
-static bool debuggeeLoadLibrary(CdbDebugEngine *cdbEngine,
+static bool debuggeeLoadLibrary(CdbEngine *cdbEngine,
                                 CdbCore::CoreEngine *engine,
                                 unsigned long threadId,
                                 const QString &moduleName,
@@ -295,7 +295,7 @@ void CdbDumperInitThread ::run()
 
 // ------------------- CdbDumperHelper
 
-CdbDumperHelper::CdbDumperHelper(CdbDebugEngine *engine,
+CdbDumperHelper::CdbDumperHelper(CdbEngine *engine,
                                  CdbCore::CoreEngine *coreEngine) :
     m_tryInjectLoad(true),
     m_msgDisabled(QLatin1String("Dumpers are disabled")),

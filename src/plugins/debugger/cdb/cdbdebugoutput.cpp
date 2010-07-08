@@ -29,7 +29,7 @@
 
 #include "cdbdebugoutput.h"
 #include "debuggerrunner.h"
-#include "cdbdebugengine_p.h"
+#include "cdbengine_p.h"
 #include "cdbcom.h"
 
 namespace Debugger {

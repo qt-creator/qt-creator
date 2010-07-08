@@ -31,7 +31,7 @@
 
 #include "cdbsymbolgroupcontext.h"
 #include "cdbdumperhelper.h"
-#include "cdbdebugengine_p.h"
+#include "cdbengine_p.h"
 #include "debuggeractions.h"
 #include "debuggerplugin.h"
 #include "watchutils.h"

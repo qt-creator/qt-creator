@@ -45,7 +45,7 @@ namespace Debugger {
 namespace Internal {
 
 class CdbDumperInitThread;
-class CdbDebugEngine;
+class CdbEngine;
 
 /* For code clarity, all the stuff related to custom dumpers goes here.
  * "Custom dumper" is a library compiled against the current
@@ -85,7 +85,7 @@ public:
         Initialized, // List of types, etc. retrieved
     };
 
-    explicit CdbDumperHelper(CdbDebugEngine *engine,
+    explicit CdbDumperHelper(CdbEngine *engine,
                              CdbCore::CoreEngine *coreEngine);
     ~CdbDumperHelper();
 
@@ -139,7 +139,7 @@ private:
     const QString m_msgDisabled;
     const QString m_msgNotInScope;
     State m_state;
-    CdbDebugEngine *m_engine;
+    CdbEngine *m_engine;
     CdbCore::CoreEngine *m_coreEngine;
 
     QString m_library;
