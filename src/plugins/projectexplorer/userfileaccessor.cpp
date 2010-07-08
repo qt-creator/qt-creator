@@ -277,7 +277,7 @@ QVariantMap UserFileAccessor::restoreSettings(Project *project)
                                                    "The hostname for this computer is %2. \n\n"
                                                    "The .user settings files contain machine specific settings. "
                                                    "They should not be copied to a different environment. \n\n"
-                                                   "Still load the settigns file?").arg(hostname, QHostInfo::localHostName()),
+                                                   "Still load the settings file?").arg(hostname, QHostInfo::localHostName()),
                            QMessageBox::Yes | QMessageBox::No,
                            Core::ICore::instance()->mainWindow());
         msgBox.setDefaultButton(QMessageBox::No);
