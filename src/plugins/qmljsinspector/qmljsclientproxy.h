@@ -55,10 +55,10 @@ class ClientProxy : public QObject
 public:
     static ClientProxy *instance();
 
-    QDeclarativeDebugExpressionQuery *setBindingForObject(int objectDebugId,
-                                                          const QString &propertyName,
-                                                          const QVariant &value,
-                                                          bool isLiteralValue);
+    bool setBindingForObject(int objectDebugId,
+                             const QString &propertyName,
+                             const QVariant &value,
+                             bool isLiteralValue);
 
     // returns the object references for the given url.
     QList<QDeclarativeDebugObjectReference> objectReferences(const QUrl &url = QUrl()) const;

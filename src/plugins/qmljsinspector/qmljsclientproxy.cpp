@@ -248,10 +248,10 @@ QList<QDeclarativeDebugObjectReference> ClientProxy::objectReferences(const QUrl
     return result;
 }
 
-QDeclarativeDebugExpressionQuery *ClientProxy::setBindingForObject(int objectDebugId,
-                                                                   const QString &propertyName,
-                                                                   const QVariant &value,
-                                                                   bool isLiteralValue)
+bool ClientProxy::setBindingForObject(int objectDebugId,
+                                      const QString &propertyName,
+                                      const QVariant &value,
+                                      bool isLiteralValue)
 {
     qDebug() << Q_FUNC_INFO;
 
@@ -259,7 +259,7 @@ QDeclarativeDebugExpressionQuery *ClientProxy::setBindingForObject(int objectDeb
         return 0;
 
     qDebug() << "executeBinding():" << objectDebugId << propertyName << value << "isLiteral:" << isLiteralValue;
-    return m_client->setBindingForObject(objectDebugId, propertyName, value.toString(), isLiteralValue, 0);
+    return m_client->setBindingForObject(objectDebugId, propertyName, value.toString(), isLiteralValue);
 }
 
 void ClientProxy::queryEngineContext(int id)
