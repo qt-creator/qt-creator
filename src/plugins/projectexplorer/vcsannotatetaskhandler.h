@@ -46,6 +46,8 @@ namespace Internal {
 
 class PROJECTEXPLORER_EXPORT VcsAnnotateTaskHandler : public ITaskHandler
 {
+    Q_OBJECT
+
 public:
     VcsAnnotateTaskHandler();
 

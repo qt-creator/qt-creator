@@ -39,6 +39,8 @@ namespace Internal {
 
 class PROJECTEXPLORER_EXPORT CopyTaskHandler : public ITaskHandler
 {
+    Q_OBJECT
+
 public:
     CopyTaskHandler();
 
