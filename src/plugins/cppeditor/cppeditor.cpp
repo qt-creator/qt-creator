@@ -189,6 +189,32 @@ public:
     }
 };
 
+class OverviewProxyModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+public:
+    OverviewProxyModel(CPlusPlus::OverviewModel *sourceModel, QObject *parent) :
+        QSortFilterProxyModel(parent),
+        m_sourceModel(sourceModel)
+    {
+        setSourceModel(m_sourceModel);
+    }
+
+    bool filterAcceptsRow(int sourceRow,const QModelIndex &sourceParent) const
+    {
+        // ignore generated symbols, e.g. by macro expansion (Q_OBJECT)
+        const QModelIndex sourceIndex = m_sourceModel->index(sourceRow, 0, sourceParent);
+        CPlusPlus::Symbol *symbol = m_sourceModel->symbolFromIndex(sourceIndex);
+        if (symbol && symbol->isGenerated())
+            return false;
+
+        return QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent);
+    }
+private:
+    CPlusPlus::OverviewModel *m_sourceModel;
+};
+
+
 class FindLocalUses: protected ASTVisitor
 {
     Scope *_functionScope;
@@ -653,8 +679,7 @@ void CPPEditor::createToolBar(CPPEditorEditable *editable)
     m_methodCombo->setMaxVisibleItems(20);
 
     m_overviewModel = new OverviewModel(this);
-    m_proxyModel = new QSortFilterProxyModel(this);
-    m_proxyModel->setSourceModel(m_overviewModel);
+    m_proxyModel = new OverviewProxyModel(m_overviewModel, this);
     if (CppPlugin::instance()->sortedMethodOverview())
         m_proxyModel->sort(0, Qt::AscendingOrder);
     else
@@ -2189,3 +2214,5 @@ QModelIndex CPPEditor::indexForPosition(int line, int column, const QModelIndex 
 
     return lastIndex;
 }
+
+#include "cppeditor.moc"

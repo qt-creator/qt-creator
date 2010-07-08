@@ -22,10 +22,12 @@ class CppOutlineFilterModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 public:
-    CppOutlineFilterModel(QObject *parent);
+    CppOutlineFilterModel(CPlusPlus::OverviewModel *sourceModel, QObject *parent);
     // QSortFilterProxyModel
     bool filterAcceptsRow(int sourceRow,
                           const QModelIndex &sourceParent) const;
+private:
+    CPlusPlus::OverviewModel *m_sourceModel;
 };
 
 class CppOutlineWidget : public TextEditor::IOutlineWidget

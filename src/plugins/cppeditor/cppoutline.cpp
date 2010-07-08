@@ -30,9 +30,11 @@ CppOutlineTreeView::CppOutlineTreeView(QWidget *parent) :
     setExpandsOnDoubleClick(false);
 }
 
-CppOutlineFilterModel::CppOutlineFilterModel(QObject *parent) :
-    QSortFilterProxyModel(parent)
+CppOutlineFilterModel::CppOutlineFilterModel(CPlusPlus::OverviewModel *sourceModel, QObject *parent) :
+    QSortFilterProxyModel(parent),
+    m_sourceModel(sourceModel)
 {
+    setSourceModel(m_sourceModel);
 }
 
 bool CppOutlineFilterModel::filterAcceptsRow(int sourceRow,
@@ -42,6 +44,12 @@ bool CppOutlineFilterModel::filterAcceptsRow(int sourceRow,
     if (!sourceParent.isValid() && sourceRow == 0) {
         return false;
     }
+    // ignore generated symbols, e.g. by macro expansion (Q_OBJECT)
+    const QModelIndex sourceIndex = m_sourceModel->index(sourceRow, 0, sourceParent);
+    CPlusPlus::Symbol *symbol = m_sourceModel->symbolFromIndex(sourceIndex);
+    if (symbol && symbol->isGenerated())
+        return false;
+
     return QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent);
 }
 
@@ -51,7 +59,7 @@ CppOutlineWidget::CppOutlineWidget(CPPEditor *editor) :
     m_editor(editor),
     m_treeView(new CppOutlineTreeView(this)),
     m_model(m_editor->overviewModel()),
-    m_proxyModel(new CppOutlineFilterModel(this)),
+    m_proxyModel(new CppOutlineFilterModel(m_model, this)),
     m_enableCursorSync(true),
     m_blockCursorSync(false)
 {
@@ -61,7 +69,6 @@ CppOutlineWidget::CppOutlineWidget(CPPEditor *editor) :
     layout->addWidget(m_treeView);
     setLayout(layout);
 
-    m_proxyModel->setSourceModel(m_model);
     m_treeView->setModel(m_proxyModel);
 
     connect(m_model, SIGNAL(modelReset()), this, SLOT(modelUpdated()));
