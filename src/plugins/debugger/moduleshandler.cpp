@@ -52,7 +52,8 @@ namespace Debugger {
 namespace Internal {
 
 class ModulesModel : public QAbstractItemModel
-{
+{   // Needs tr - context.
+    Q_OBJECT
 public:
     explicit ModulesModel(ModulesHandler *parent, DebuggerEngine *engine);
 
@@ -256,3 +257,5 @@ Modules ModulesHandler::modules() const
 
 } // namespace Internal
 } // namespace Debugger
+
+#include "moduleshandler.moc"

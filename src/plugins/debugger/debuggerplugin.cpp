@@ -378,7 +378,7 @@ class DebugMode : public Core::BaseMode
 public:
     DebugMode(QObject *parent = 0) : BaseMode(parent)
     {
-        setDisplayName(tr("Debug"));
+        setDisplayName(QCoreApplication::translate("Debugger::Internal::DebugMode", "Debug"));
         setId(MODE_DEBUG);
         setIcon(QIcon(":/fancyactionbar/images/mode_Debug.png"));
         setPriority(P_MODE_DEBUG);
@@ -535,7 +535,8 @@ static inline bool oxygenStyle()
 }
 
 class DebuggingHelperOptionPage : public Core::IOptionsPage
-{
+{   // Needs tr - context
+    Q_OBJECT
 public:
     DebuggingHelperOptionPage() {}
 
@@ -2689,17 +2690,21 @@ bool DebuggerListener::coreAboutToClose()
     }
 
     const QString question = cleanTermination ?
-        tr("A debugging session is still in progress.\n"
+        QCoreApplication::translate("Debugger::Internal::DebuggerListener",
+           "A debugging session is still in progress.\n"
            "Would you like to terminate it?") :
-        tr("A debugging session is still in progress. "
+        QCoreApplication::translate("Debugger::Internal::DebuggerListener",
+           "A debugging session is still in progress. "
            "Terminating the session in the current"
            " state (%1) can leave the target in an inconsistent state."
            " Would you still like to terminate it?")
         .arg(_(DebuggerEngine::stateName(plugin->state())));
 
-    QMessageBox::StandardButton answer =
+    const QString title
+            = QCoreApplication::translate("Debugger::Internal::DebuggerListener",
+                                          "Close Debugging Session");                                                          QMessageBox::StandardButton answer =
         QMessageBox::question(DebuggerUISwitcher::instance()->mainWindow(),
-            tr("Close Debugging Session"), question,
+            title, question,
             QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 
     if (answer != QMessageBox::Yes)
