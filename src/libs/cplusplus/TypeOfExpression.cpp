@@ -79,11 +79,20 @@ QList<LookupItem> TypeOfExpression::operator()(const QString &expression,
 
     Document::Ptr expressionDoc = documentForExpression(code);
     expressionDoc->check();
-    m_ast = extractExpressionAST(expressionDoc);
+    return this->operator ()(extractExpressionAST(expressionDoc),
+                             expressionDoc,
+                             scope);
+}
+
+QList<LookupItem> TypeOfExpression::operator()(ExpressionAST *expression,
+                                               Document::Ptr document,
+                                               Scope *scope)
+{
+    m_ast = expression;
 
     m_scope = scope;
 
-    m_lookupContext = LookupContext(expressionDoc, m_thisDocument, m_snapshot);
+    m_lookupContext = LookupContext(document, m_thisDocument, m_snapshot);
     m_lookupContext.setBindings(m_bindings);
 
     ResolveExpression resolve(m_lookupContext);

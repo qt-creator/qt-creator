@@ -34,6 +34,7 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/ResolveExpression.h>
 #include <cplusplus/Overview.h>
+#include <cplusplus/TypeOfExpression.h>
 
 #include <TranslationUnit.h>
 #include <ASTVisitor.h>
@@ -1217,6 +1218,135 @@ public:
 
 };
 
+/*
+  Adds missing case statements for "switch (enumVariable)"
+*/
+class CompleteSwitchCaseStatement: public CppQuickFixOperation
+{
+public:
+    CompleteSwitchCaseStatement(TextEditor::BaseTextEditor *editor)
+        : CppQuickFixOperation(editor)
+    {}
+
+    virtual QString description() const
+    {
+        return QApplication::translate("CppTools::QuickFix", "Complete Switch Statement");
+    }
+
+    virtual int match(const QList<AST *> &path)
+    {
+        if (path.isEmpty())
+            return -1; // nothing to do
+
+        // look for switch statement
+        for (int depth = path.size()-1; depth >= 0; --depth) {
+            AST *ast = path.at(depth);
+            SwitchStatementAST *switchStatement = ast->asSwitchStatement();
+            if (switchStatement) {
+                if (!isCursorOn(switchStatement->switch_token) || !switchStatement->statement)
+                    return -1;
+                compoundStatement = switchStatement->statement->asCompoundStatement();
+                if (!compoundStatement) // we ignore pathologic case "switch (t) case A: ;"
+                    return -1;
+                // look if the condition's type is an enum
+                if (Enum *e = conditionEnum(switchStatement)) {
+                    // check the possible enum values
+                    values.clear();
+                    Overview prettyPrint;
+                    for (unsigned i = 0; i < e->memberCount(); ++i) {
+                        if (Declaration *decl = e->memberAt(i)->asDeclaration()) {
+                            values << prettyPrint(decl->name());
+                        }
+                    }
+                    // Get the used values
+                    CaseStatementCollector caseValues(document()->translationUnit());
+                    QStringList usedValues = caseValues(switchStatement);
+                    // save the values that would be added
+                    foreach (const QString &usedValue, usedValues)
+                        values.removeAll(usedValue);
+                    if (values.isEmpty())
+                        return -1;
+                    return depth;
+                }
+                return -1;
+            }
+        }
+
+        return -1;
+    }
+
+    virtual void createChanges()
+    {
+        ChangeSet changes;
+        int start = endOf(compoundStatement->lbrace_token);
+        changes.insert(start, QLatin1String("\ncase ")
+                       + values.join(QLatin1String(":\nbreak;\ncase "))
+                       + QLatin1String(":\nbreak;"));
+        refactoringChanges()->changeFile(fileName(), changes);
+        refactoringChanges()->reindent(fileName(), range(compoundStatement));
+    }
+
+protected:
+    Enum *conditionEnum(SwitchStatementAST *statement)
+    {
+        Block *block = statement->symbol;
+        Scope *scope = document()->scopeAt(block->line(), block->column());
+        TypeOfExpression typeOfExpression;
+        typeOfExpression.init(document(), snapshot());
+        const QList<LookupItem> results = typeOfExpression(statement->condition,
+                                                           document(),
+                                                           scope);
+        foreach (LookupItem result, results) {
+            FullySpecifiedType fst = result.type();
+            if (Enum *e = result.declaration()->type()->asEnumType())
+                return e;
+            if (NamedType *namedType = fst->asNamedType()) {
+                QList<Symbol *> candidates =
+                        typeOfExpression.context().lookup(namedType->name(), scope);
+                foreach (Symbol *candidate, candidates) {
+                    if (Enum *e = candidate->asEnum()) {
+                        return e;
+                    }
+                }
+            }
+        }
+        return 0;
+    }
+    class CaseStatementCollector : public ASTVisitor
+    {
+    public:
+        CaseStatementCollector(TranslationUnit *unit) : ASTVisitor(unit) {}
+        QStringList operator ()(AST *ast)
+        {
+            values.clear();
+            foundCaseStatementLevel = false;
+            accept(ast);
+            return values;
+        }
+
+        bool preVisit(AST *ast) {
+            if (CaseStatementAST *cs = ast->asCaseStatement()) {
+                foundCaseStatementLevel = true;
+                if (SimpleNameAST *sm = cs->expression->asSimpleName()) {
+                    Overview prettyPrint;
+                    values << prettyPrint(sm->name);
+                }
+                return true;
+            } else if (foundCaseStatementLevel) {
+                return false;
+            }
+            return true;
+        }
+
+        bool foundCaseStatementLevel;
+        QStringList values;
+    };
+
+protected:
+    CompoundStatementAST *compoundStatement;
+    QStringList values;
+};
+
 } // end of anonymous namespace
 
 
@@ -1415,6 +1545,7 @@ QList<TextEditor::QuickFixOperation::Ptr> CppQuickFixFactory::quickFixOperations
     QSharedPointer<ConvertNumericToHex> convertNumericToHex(new ConvertNumericToHex(editor));
     QSharedPointer<ConvertNumericToOctal> convertNumericToOctal(new ConvertNumericToOctal(editor));
     QSharedPointer<ConvertNumericToDecimal> convertNumericToDecimal(new ConvertNumericToDecimal(editor));
+    QSharedPointer<CompleteSwitchCaseStatement> completeSwitchCaseStatement(new CompleteSwitchCaseStatement(editor));
 
     quickFixOperations.append(rewriteLogicalAndOp);
     quickFixOperations.append(splitIfStatementOp);
@@ -1429,6 +1560,7 @@ QList<TextEditor::QuickFixOperation::Ptr> CppQuickFixFactory::quickFixOperations
     quickFixOperations.append(convertNumericToHex);
     quickFixOperations.append(convertNumericToOctal);
     quickFixOperations.append(convertNumericToDecimal);
+    quickFixOperations.append(completeSwitchCaseStatement);
 
     if (editor->mimeType() == CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)
         quickFixOperations.append(wrapCString);

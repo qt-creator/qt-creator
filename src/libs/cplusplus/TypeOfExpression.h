@@ -82,6 +82,22 @@ public:
                                  Scope *scope,
                                  PreprocessMode mode = NoPreprocess);
 
+    /**
+     * Returns a list of possible fully specified types associated with the
+     * given expression AST from the given document.
+     *
+     * NOTE: The fully specified types only stay valid for as long as this
+     * expression evaluator instance still exists, and no new call to evaluate
+     * has been made!
+     *
+     * @param expression        The expression to evaluate.
+     * @param document          The document in which the expression lives.
+     * @param scope             The scope enclosing the expression.
+     */
+    QList<LookupItem> operator()(ExpressionAST *expression,
+                                 Document::Ptr document,
+                                 Scope *scope);
+
     QString preprocess(const QString &expression) const;
 
     /**
