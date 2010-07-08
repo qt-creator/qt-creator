@@ -246,7 +246,7 @@ void ScriptEngine::startEngine()
     m_stopOnNextLine = false;
     m_scriptEngine->abortEvaluation();
 
-    setState(EngineStarted);
+    notifyEngineStarted();
     setState(InferiorStarting);
 
     m_scriptFileName = QFileInfo(startParameters().executable).absoluteFilePath();
@@ -258,7 +258,6 @@ void ScriptEngine::startEngine()
         notifyEngineStartFailed();
         return;
     }
-    notifyEngineStarted();
     QTextStream stream(&scriptFile);
     m_scriptContents = stream.readAll();
     scriptFile.close();
