@@ -35,6 +35,7 @@
 #include "cppfilewizard.h"
 #include "cpphoverhandler.h"
 #include "cppquickfix.h"
+#include "cppoutline.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -202,6 +203,8 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
 
     addAutoReleasedObject(new CppEditorFactory(this));
     addAutoReleasedObject(new CppHoverHandler);
+    addAutoReleasedObject(new CppOutlineWidgetFactory);
+
 
     m_quickFixCollector = new CppQuickFixCollector;
     addAutoReleasedObject(m_quickFixCollector);
