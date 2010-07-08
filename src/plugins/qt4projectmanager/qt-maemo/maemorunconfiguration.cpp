@@ -278,8 +278,7 @@ QString MaemoRunConfiguration::executable() const
     if (!ti.valid)
         return QString();
 
-    return QDir::toNativeSeparators(QDir::cleanPath(ti.workingDir
-        + QLatin1Char('/') + ti.target));
+    return QDir::cleanPath(ti.workingDir + QLatin1Char('/') + ti.target);
 }
 
 QString MaemoRunConfiguration::runtimeGdbServerPort() const
