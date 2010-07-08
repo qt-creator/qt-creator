@@ -33,12 +33,10 @@
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/parser/qmljsast_p.h>
-#include <qmljs/qmljsbind.h>
 #include <qmljs/qmljsinterpreter.h>
+#include <qmljs/qmljslookupcontext.h>
 #include <qmljs/qmljsscanner.h>
-#include <qmljs/qmljsevaluate.h>
 #include <qmljs/qmljscompletioncontextfinder.h>
-#include <qmljs/qmljslink.h>
 #include <qmljs/qmljsscopebuilder.h>
 
 #include <texteditor/basetexteditor.h>
@@ -689,13 +687,9 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     const QIcon symbolIcon = iconForColor(Qt::darkCyan);
     const QIcon keywordIcon = iconForColor(Qt::darkYellow);
 
-    Interpreter::Engine interp;
-    Interpreter::Context context(&interp);
-    Link link(&context, document, snapshot, m_modelManager->importPaths());
-
-    // Set up the current scope chain.
-    ScopeBuilder scopeBuilder(document, &context);
-    scopeBuilder.push(semanticInfo.astPath(editor->position()));
+    const QList<AST::Node *> path = semanticInfo.astPath(editor->position());
+    LookupContext::Ptr lookupContext = LookupContext::create(document, snapshot, path);
+    Interpreter::Context *context = lookupContext->context();
 
     // Search for the operator that triggered the completion.
     QChar completionOperator;
@@ -708,7 +702,7 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
     const Interpreter::ObjectValue *qmlScopeType = 0;
     if (contextFinder.isInQmlContext())
-         qmlScopeType = context.lookupType(document.data(), contextFinder.qmlObjectTypeName());
+         qmlScopeType = context->lookupType(document.data(), contextFinder.qmlObjectTypeName());
 
     if (completionOperator.isSpace() || completionOperator.isNull() || isDelimiter(completionOperator) ||
             (completionOperator == QLatin1Char('(') && m_startPosition != editor->position())) {
@@ -721,7 +715,7 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             doGlobalCompletion = false;
             doJsKeywordCompletion = false;
 
-            EnumerateProperties enumerateProperties(&context);
+            EnumerateProperties enumerateProperties(context);
             enumerateProperties.setGlobalCompletion(true);
             enumerateProperties.setEnumerateGeneratedSlots(true);
 
@@ -733,11 +727,11 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             m_completions.append(idPropertyCompletion);
 
             addCompletionsPropertyLhs(enumerateProperties(qmlScopeType), symbolIcon, PropertyOrder);
-            addCompletions(enumerateProperties(context.scopeChain().qmlTypes), symbolIcon, TypeOrder);
+            addCompletions(enumerateProperties(context->scopeChain().qmlTypes), symbolIcon, TypeOrder);
 
-            if (ScopeBuilder::isPropertyChangesObject(&context, qmlScopeType)
-                    && context.scopeChain().qmlScopeObjects.size() == 2) {
-                addCompletions(enumerateProperties(context.scopeChain().qmlScopeObjects.first()), symbolIcon, SymbolOrder);
+            if (ScopeBuilder::isPropertyChangesObject(context, qmlScopeType)
+                    && context->scopeChain().qmlScopeObjects.size() == 2) {
+                addCompletions(enumerateProperties(context->scopeChain().qmlScopeObjects.first()), symbolIcon, SymbolOrder);
             }
         }
 
@@ -748,7 +742,7 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
                 const Interpreter::Value *value = qmlScopeType;
                 foreach (const QString &name, contextFinder.bindingPropertyName()) {
                     if (const Interpreter::ObjectValue *objectValue = value->asObjectValue()) {
-                        value = objectValue->property(name, &context);
+                        value = objectValue->property(name, context);
                         if (!value)
                             break;
                     } else {
@@ -772,7 +766,7 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
         if (doGlobalCompletion) {
             // It's a global completion.
-            EnumerateProperties enumerateProperties(&context);
+            EnumerateProperties enumerateProperties(context);
             enumerateProperties.setGlobalCompletion(true);
             addCompletions(enumerateProperties(), symbolIcon, SymbolOrder);
         }
@@ -813,14 +807,13 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         QmlJS::AST::ExpressionNode *expression = expressionUnderCursor(tc);
 
         if (expression != 0 && ! isLiteral(expression)) {
-            Evaluate evaluate(&context);
-
             // Evaluate the expression under cursor.
-            const Interpreter::Value *value = interp.convertToObject(evaluate(expression));
+            Interpreter::Engine *interp = lookupContext->engine();
+            const Interpreter::Value *value = interp->convertToObject(lookupContext->evaluate(expression));
             //qDebug() << "type:" << interp.typeId(value);
 
             if (value && completionOperator == QLatin1Char('.')) { // member completion
-                EnumerateProperties enumerateProperties(&context);
+                EnumerateProperties enumerateProperties(context);
                 if (contextFinder.isInLhsOfBinding() && qmlScopeType && expressionUnderCursor.text().at(0).isLower())
                     addCompletionsPropertyLhs(enumerateProperties(value), symbolIcon, PropertyOrder);
                 else

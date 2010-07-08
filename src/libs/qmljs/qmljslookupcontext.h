@@ -27,24 +27,46 @@
 **
 **************************************************************************/
 
-#include "qmljsmodelmanagerinterface.h"
+#ifndef QMLJSLOOKUPCONTEXT_H
+#define QMLJSLOOKUPCONTEXT_H
 
-using namespace QmlJS;
+#include "qmljsdocument.h"
+#include "parser/qmljsastfwd_p.h"
 
-static ModelManagerInterface *g_instance = 0;
+#include <QtCore/QSharedPointer>
+#include <QtCore/QScopedPointer>
 
-ModelManagerInterface::ModelManagerInterface(QObject *parent)
-    : QObject(parent)
-{
-    Q_ASSERT(! g_instance);
-    g_instance = this;
+namespace QmlJS {
+
+class LookupContextData;
+
+namespace Interpreter {
+class Value;
+class Engine;
+class Context;
 }
 
-ModelManagerInterface::~ModelManagerInterface()
+class QMLJS_EXPORT LookupContext
 {
-}
+    LookupContext(const Document::Ptr doc, const Snapshot &snapshot, const QList<AST::Node *> &path);
 
-ModelManagerInterface *ModelManagerInterface::instance()
-{
-    return g_instance;
-}
+public:
+    ~LookupContext();
+
+    typedef QSharedPointer<LookupContext> Ptr;
+
+    static Ptr create(const Document::Ptr doc, const Snapshot &snapshot,
+                      const QList<AST::Node *> &path);
+
+    const Interpreter::Value *evaluate(AST::Node *node) const;
+    Interpreter::Engine *engine() const;
+    Interpreter::Context *context() const;
+
+private:
+    QScopedPointer<LookupContextData> d;
+};
+
+} // end of namespace QmlJS
+
+#endif // QMLJSLOOKUPCONTEXT_H
+
