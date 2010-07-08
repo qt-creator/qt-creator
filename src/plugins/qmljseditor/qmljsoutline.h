@@ -1,7 +1,7 @@
 #ifndef QMLJSOUTLINE_H
 #define QMLJSOUTLINE_H
 
-#include <qmljseditor.h>
+#include "qmljseditor.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/inavigationwidgetfactory.h>
