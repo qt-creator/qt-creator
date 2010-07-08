@@ -60,7 +60,8 @@ SOURCES += texteditorplugin.cpp \
     generichighlighter/highlightdefinitionmetadata.cpp \
     generichighlighter/definitiondownloader.cpp \
     refactoringchanges.cpp \
-    refactoroverlay.cpp
+    refactoroverlay.cpp \
+    outlinefactory.cpp
 
 HEADERS += texteditorplugin.h \
     textfilewizard.h \
@@ -123,7 +124,9 @@ HEADERS += texteditorplugin.h \
     generichighlighter/highlightdefinitionmetadata.h \
     generichighlighter/definitiondownloader.h \
     refactoringchanges.h \
-    refactoroverlay.h
+    refactoroverlay.h \
+    outlinefactory.h \
+    ioutlinewidget.h
 
 FORMS += behaviorsettingspage.ui \
     displaysettingspage.ui \
