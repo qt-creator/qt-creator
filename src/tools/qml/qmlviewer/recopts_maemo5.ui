@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>RecordingOptions</class>
+ <widget class="QDialog" name="RecordingOptions">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>469</width>
+    <height>142</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Video options</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout" columnstretch="0,2,0">
+   <property name="sizeConstraint">
+    <enum>QLayout::SetMinAndMaxSize</enum>
+   </property>
+   <property name="leftMargin">
+    <number>16</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>16</number>
+   </property>
+   <property name="bottomMargin">
+    <number>8</number>
+   </property>
+   <property name="horizontalSpacing">
+    <number>16</number>
+   </property>
+   <property name="verticalSpacing">
+    <number>0</number>
+   </property>
+   <item row="0" column="1">
+    <widget class="QLineEdit" name="file"/>
+   </item>
+   <item row="0" column="2" rowspan="3">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>72</width>
+       <height>56</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Size</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QComboBox" name="sizeCombo">
+     <item>
+      <property name="text">
+       <string/>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>VGA</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>QVGA</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>720p</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="2" column="0" rowspan="2">
+    <widget class="QLabel" name="rateLabel">
+     <property name="text">
+      <string>Rate</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1" rowspan="2">
+    <widget class="QComboBox" name="rateCombo">
+     <item>
+      <property name="text">
+       <string>60 Hz</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>50 Hz</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>25 Hz</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>24 Hz</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>20 Hz</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>15 Hz</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>10 Hz</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <widget class="QLineEdit" name="args"/>
+   </item>
+   <item row="4" column="1">
+    <widget class="QComboBox" name="profile"/>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="profileLabel">
+     <property name="text">
+      <string>Profile</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0" colspan="2">
+    <widget class="QLabel" name="warning">
+     <property name="text">
+      <string notr="true">warning</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="2" rowspan="3">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QPushButton" name="pickfile">
+     <property name="text">
+      <string>File</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QPushButton" name="ffmpegHelp">
+     <property name="text">
+      <string>Options</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>RecordingOptions</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>258</x>
+     <y>424</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>60</x>
+     <y>219</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>RecordingOptions</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>258</x>
+     <y>424</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>92</x>
+     <y>219</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>profile</sender>
+   <signal>activated(int)</signal>
+   <receiver>RecordingOptions</receiver>
+   <slot>pickProfile(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>92</x>
+     <y>329</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>48</x>
+     <y>194</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>args</sender>
+   <signal>textEdited(QString)</signal>
+   <receiver>RecordingOptions</receiver>
+   <slot>storeCustomArgs(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>128</x>
+     <y>357</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>102</x>
+     <y>189</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <signal>filePicked(QString)</signal>
+  <signal>argumentsPicked(QString)</signal>
+  <slot>pickFile()</slot>
+  <slot>pickProfile(int)</slot>
+  <slot>storeCustomArgs(QString)</slot>
+ </slots>
+</ui>

@@ -1,0 +1,193 @@
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+** Commercial Usage
+**
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
+**
+** GNU Lesser General Public License Usage
+**
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at http://qt.nokia.com/contact.
+**
+**************************************************************************/
+
+#include "abstractformeditortool.h"
+#include "qdeclarativedesignview.h"
+
+#include <private/qdeclarativecontext_p.h>
+#include <QDeclarativeEngine>
+
+#include <QtDebug>
+#include <QGraphicsItem>
+#include <QDeclarativeItem>
+
+namespace QmlViewer {
+
+AbstractFormEditorTool::AbstractFormEditorTool(QDeclarativeDesignView *editorView)
+    : QObject(editorView), m_view(editorView)
+{
+}
+
+
+AbstractFormEditorTool::~AbstractFormEditorTool()
+{
+
+}
+
+QDeclarativeDesignView* AbstractFormEditorTool::view() const
+{
+    return m_view;
+}
+
+QGraphicsScene* AbstractFormEditorTool::scene() const
+{
+    return view()->scene();
+}
+
+void AbstractFormEditorTool::setItems(const QList<QGraphicsItem*> &itemList)
+{
+    m_itemList = itemList;
+    selectedItemsChanged(m_itemList);
+}
+
+QList<QGraphicsItem*> AbstractFormEditorTool::items() const
+{
+    return m_itemList;
+}
+
+bool AbstractFormEditorTool::topItemIsMovable(const QList<QGraphicsItem*> & itemList)
+{
+    QGraphicsItem *firstSelectableItem = topMovableGraphicsItem(itemList);
+    if (firstSelectableItem == 0)
+        return false;
+
+    QDeclarativeItem *declarativeItem = dynamic_cast<QDeclarativeItem*>(firstSelectableItem->toGraphicsObject());
+
+    if (declarativeItem != 0)
+        return true;
+
+    return false;
+
+}
+
+bool AbstractFormEditorTool::topSelectedItemIsMovable(const QList<QGraphicsItem*> &itemList)
+{
+    QList<QGraphicsItem*> selectedItems = view()->selectedItems();
+
+    foreach (QGraphicsItem *item, itemList) {
+        QDeclarativeItem *declarativeItem = toQDeclarativeItem(item);
+        if (declarativeItem
+            && selectedItems.contains(declarativeItem)
+            /*&& (declarativeItem->qmlItemNode().hasShowContent() || selectNonContentItems)*/)
+            return true;
+    }
+
+    return false;
+
+}
+
+bool AbstractFormEditorTool::topItemIsResizeHandle(const QList<QGraphicsItem*> &/*itemList*/)
+{
+    return false;
+}
+
+QDeclarativeItem *AbstractFormEditorTool::toQDeclarativeItem(QGraphicsItem *item)
+{
+    return dynamic_cast<QDeclarativeItem*>(item->toGraphicsObject());
+}
+
+QGraphicsItem *AbstractFormEditorTool::topMovableGraphicsItem(const QList<QGraphicsItem*> &itemList)
+{
+    foreach (QGraphicsItem *item, itemList) {
+        if (item->flags().testFlag(QGraphicsItem::ItemIsMovable))
+            return item;
+    }
+    return 0;
+}
+
+QDeclarativeItem *AbstractFormEditorTool::topMovableDeclarativeItem(const QList<QGraphicsItem*> &itemList)
+{
+    foreach (QGraphicsItem *item, itemList) {
+        QDeclarativeItem *declarativeItem = toQDeclarativeItem(item);
+        if (declarativeItem /*&& (declarativeItem->qmlItemNode().hasShowContent())*/)
+            return declarativeItem;
+    }
+
+    return 0;
+}
+
+QList<QGraphicsObject*> AbstractFormEditorTool::toGraphicsObjectList(const QList<QGraphicsItem*> &itemList)
+{
+    QList<QGraphicsObject*> gfxObjects;
+    foreach(QGraphicsItem *item, itemList) {
+        QGraphicsObject *obj = item->toGraphicsObject();
+        if (obj)
+            gfxObjects << obj;
+    }
+
+    return gfxObjects;
+}
+
+QList<QObject*> AbstractFormEditorTool::toObjectList(const QList<QGraphicsItem*> &itemList)
+{
+    QList<QObject*> objects;
+    foreach(QGraphicsItem *item, itemList) {
+        QObject *obj = item->toGraphicsObject();
+        if (obj)
+            objects << obj;
+    }
+
+    return objects;
+}
+
+QString AbstractFormEditorTool::titleForItem(const QGraphicsItem *item)
+{
+    QString className("QGraphicsItem");
+    QString objectStringId;
+
+    const QGraphicsObject *gfxObject = item->toGraphicsObject();
+    if (gfxObject) {
+        className = gfxObject->metaObject()->className();
+        className.replace(QRegExp("_QMLTYPE_\\d+"), "");
+
+        const QDeclarativeItem *declarativeItem = qobject_cast<const QDeclarativeItem*>(gfxObject);
+        if (declarativeItem) {
+            //QDeclarativeData *ddata = QDeclarativeData::get(declarativeItem);
+            //ddata->context->findObjectId(declarativeItem);
+
+            QDeclarativeContext *context = QDeclarativeEngine::contextForObject(declarativeItem);
+            if (context) {
+                QDeclarativeContextData *cdata = QDeclarativeContextData::get(context);
+                if (cdata)
+                    objectStringId = cdata->findObjectId(declarativeItem);
+            }
+        }
+
+        if (objectStringId.isEmpty())
+            objectStringId = gfxObject->objectName();
+
+        if (!objectStringId.isEmpty())
+            return tr("%1 (%2)").arg(objectStringId, className);
+    }
+
+    return tr("(%1, type %2)").arg(className, QString::number(item->type()));
+}
+
+
+}

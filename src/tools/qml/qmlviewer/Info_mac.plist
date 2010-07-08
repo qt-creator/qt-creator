@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist SYSTEM "file://localhost/System/Library/DTDs/PropertyList.dtd">
+<plist version="0.1">
+<dict>
+	<key>CFBundleIconFile</key>
+	<string>@ICON@</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.nokia.qt.qml</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+        <key>CFBundleGetInfoString</key>
+	<string>Created by Qt/QMake</string>
+	<key>CFBundleSignature</key>
+	<string>@TYPEINFO@</string>
+	<key>CFBundleExecutable</key>
+	<string>@EXECUTABLE@</string>
+</dict>
+</plist>

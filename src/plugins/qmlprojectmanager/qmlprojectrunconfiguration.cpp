@@ -96,18 +96,28 @@ void QmlProjectRunConfiguration::ctor()
 
     setDisplayName(tr("QML Viewer", "QMLRunConfiguration display name."));
 
-    // prepend creator/bin dir to search path (only useful for special creator-qml package)
-    const QString searchPath = QCoreApplication::applicationDirPath()
-                               + Utils::SynchronousProcess::pathSeparator()
-                               + QString(qgetenv("PATH"));
-
 #ifdef Q_OS_MAC
     const QString qmlViewerName = QLatin1String("QMLViewer");
 #else
     const QString qmlViewerName = QLatin1String("qmlviewer");
 #endif
 
-    m_qmlViewerDefaultPath = Utils::SynchronousProcess::locateBinary(searchPath, qmlViewerName);
+    if (m_qmlViewerDefaultPath.isEmpty()) {
+        QDir qmlviewerExecutable(QCoreApplication::applicationDirPath());
+#ifndef Q_OS_WIN
+        m_qmlViewerDefaultPath = qmlviewerExecutable.absoluteFilePath(qmlViewerName);
+#else
+        m_qmlViewerDefaultPath = qmlviewerExecutable.absoluteFilePath(QString("%1.exe").arg(qmlViewerName));
+#endif
+        QFileInfo qmlviewerFileInfo(m_qmlViewerDefaultPath);
+        if (!qmlviewerFileInfo.exists()) {
+            qWarning() << "QmlProjectRunConfiguration::ctor(): qmlviewer executable does not exist at" << m_qmlViewerDefaultPath;
+            m_qmlViewerDefaultPath.clear();
+        } else if (!qmlviewerFileInfo.isFile()) {
+            qWarning() << "QmlProjectRunConfiguration::ctor(): " << m_qmlViewerDefaultPath << " is not a file";
+            m_qmlViewerDefaultPath.clear();
+        }
+    }
 }
 
 QmlProjectRunConfiguration::~QmlProjectRunConfiguration()
