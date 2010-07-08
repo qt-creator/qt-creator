@@ -130,12 +130,16 @@ void JSDebuggerAgent::positionChange(qint64 scriptId,
     // check breakpoints
     if (!breakpointList.isEmpty()) {
         QHash<qint64, QString>::const_iterator it = filenames.constFind(scriptId);
-        if (it != filenames.constEnd()) {
-            QPair<QString, qint32> key = qMakePair(*it, lineNumber);
-            if (breakpointList.contains(key)) {
-                stopped();
-                return;
-            }
+        if (it == filenames.constEnd()) {
+            // It is possible that the scripts are loaded before the agent is attached
+            QString filename = QUrl(QScriptContextInfo(engine()->currentContext()).fileName()).toLocalFile();
+            QPair<QString, qint32> key = qMakePair(filename, lineNumber);
+            it = filenames.insert(scriptId, filename);
+        }
+        QPair<QString, qint32> key = qMakePair(*it, lineNumber);
+        if (breakpointList.contains(key)) {
+            stopped();
+            return;
         }
     }
 
