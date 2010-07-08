@@ -229,7 +229,7 @@ void ScriptEngine::exitDebugger()
     setState(DebuggerNotReady);
 }
 
-void ScriptEngine::startDebugger()
+void ScriptEngine::startEngine()
 {
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     showMessage(_("STARTING SCRIPT DEBUGGER"), LogMisc);

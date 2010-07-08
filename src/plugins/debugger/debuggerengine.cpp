@@ -636,7 +636,7 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
         ->setEnabled(engineCapabilities & DisassemblerCapability);
 
     setState(EngineStarting);
-    startDebugger();
+    startEngine();
 }
 
 void DebuggerEngine::breakByFunctionMain()

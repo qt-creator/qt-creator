@@ -126,7 +126,7 @@ public:
             TextEditor::ITextEditor * /* editor */, int /* cursorPos */) { }
     void initializeFromTemplate(DebuggerEngine *other);
     void startDebugger(DebuggerRunControl *runControl);
-    virtual void startDebugger() {}
+    virtual void startEngine() {}
     virtual void exitDebugger() {}
     virtual void detachDebugger() {}
     virtual void updateWatchData(const WatchData & /* data */) { }

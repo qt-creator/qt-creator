@@ -138,7 +138,7 @@ void PdbEngine::exitDebugger()
     setState(DebuggerNotReady);
 }
 
-void PdbEngine::startDebugger()
+void PdbEngine::startEngine()
 {
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
 

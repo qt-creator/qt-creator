@@ -226,7 +226,7 @@ void QmlEngine::exitDebugger()
 
 const int serverPort = 3768;
 
-void QmlEngine::startDebugger()
+void QmlEngine::startEngine()
 {
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     const DebuggerStartParameters &sp = startParameters();

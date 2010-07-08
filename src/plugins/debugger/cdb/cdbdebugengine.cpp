@@ -374,7 +374,7 @@ void CdbDebugEngine::startupChecks()
     syncDebuggerPaths();
 }
 
-void CdbDebugEngine::startDebugger()
+void CdbDebugEngine::startEngine()
 {
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     const DebuggerStartParameters &sp = startParameters();

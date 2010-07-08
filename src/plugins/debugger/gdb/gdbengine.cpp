@@ -1759,7 +1759,7 @@ AbstractGdbAdapter *GdbEngine::createAdapter()
     }
 }
 
-void GdbEngine::startDebugger()
+void GdbEngine::startEngine()
 {
     //qDebug() << "GDB START DEBUGGER";
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
