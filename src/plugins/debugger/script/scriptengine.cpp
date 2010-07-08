@@ -248,7 +248,7 @@ void ScriptEngine::startDebugger()
     m_stopOnNextLine = false;
     m_scriptEngine->abortEvaluation();
 
-    setState(AdapterStarted);
+    setState(EngineStarted);
     setState(InferiorStarting);
 
     m_scriptFileName = QFileInfo(startParameters().executable).absoluteFilePath();

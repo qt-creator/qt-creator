@@ -700,7 +700,7 @@ void QmlInspector::debuggerStateChanged(int newState)
                 m_connectionInitialized = false;
                 break;
             }
-        case Debugger::AdapterStartFailed:
+        case Debugger::EngineStartFailed:
         case Debugger::InferiorStartFailed:
             emit statusMessage(QString(tr("Debugging failed: could not start C++ debugger.")));
             break;

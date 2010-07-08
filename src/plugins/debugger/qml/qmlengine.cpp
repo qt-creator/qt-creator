@@ -255,11 +255,11 @@ void QmlEngine::startDebugger()
     m_proc.start(sp.executable, sp.processArgs);
 
     if (!m_proc.waitForStarted()) {
-        setState(AdapterStartFailed);
+        setState(EngineStartFailed);
         startFailed();
         return;
     }
-    setState(AdapterStarted);
+    setState(EngineStarted);
     startSuccessful();
     setState(InferiorStarting);
 

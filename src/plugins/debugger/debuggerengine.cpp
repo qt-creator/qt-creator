@@ -145,8 +145,8 @@ const char *DebuggerEngine::stateName(int s)
         SN(DebuggerNotReady)
         SN(EngineStarting)
         SN(AdapterStarting)
-        SN(AdapterStarted)
-        SN(AdapterStartFailed)
+        SN(EngineStarted)
+        SN(EngineStartFailed)
         SN(InferiorStarting)
         SN(InferiorStartFailed)
         SN(InferiorRunningRequested)
@@ -912,10 +912,10 @@ static bool isAllowedTransition(int from, int to)
         return to == AdapterStarting || to == DebuggerNotReady;
 
     case AdapterStarting:
-        return to == AdapterStarted || to == AdapterStartFailed;
-    case AdapterStarted:
+        return to == EngineStarted || to == EngineStartFailed;
+    case EngineStarted:
         return to == InferiorStarting || to == EngineShuttingDown;
-    case AdapterStartFailed:
+    case EngineStartFailed:
         return to == DebuggerNotReady;
 
     case InferiorStarting:
@@ -997,8 +997,8 @@ bool DebuggerEngine::debuggerActionsEnabled(DebuggerState state)
     case DebuggerNotReady:
     case EngineStarting:
     case AdapterStarting:
-    case AdapterStarted:
-    case AdapterStartFailed:
+    case EngineStarted:
+    case EngineStartFailed:
     case InferiorStartFailed:
     case InferiorRunningRequested_Kill:
     case InferiorStopping_Kill:

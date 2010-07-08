@@ -386,7 +386,7 @@ void CdbDebugEngine::startDebugger()
     m_d->checkVersion();
     if (m_d->m_hDebuggeeProcess) {
         warning(QLatin1String("Internal error: Attempt to start debugger while another process is being debugged."));
-        setState(AdapterStartFailed, Q_FUNC_INFO, __LINE__);
+        setState(EngineStartFailed, Q_FUNC_INFO, __LINE__);
         setState(DebuggerNotReady, Q_FUNC_INFO, __LINE__);
         emit startFailed();
         return;
@@ -395,7 +395,7 @@ void CdbDebugEngine::startDebugger()
     case AttachCore:
     case AttachToRemote:
         warning(QLatin1String("Internal error: Mode not supported."));
-        setState(AdapterStartFailed, Q_FUNC_INFO, __LINE__);
+        setState(EngineStartFailed, Q_FUNC_INFO, __LINE__);
         setState(DebuggerNotReady, Q_FUNC_INFO, __LINE__);
         emit startFailed();
         break;
@@ -405,7 +405,7 @@ void CdbDebugEngine::startDebugger()
     m_d->m_mode = sp.startMode;
     m_d->clearDisplay();
     m_d->m_inferiorStartupComplete = false;
-    setState(AdapterStarted, Q_FUNC_INFO, __LINE__);
+    setState(EngineStarted, Q_FUNC_INFO, __LINE__);
     // Options
     QString errorMessage;
     if (!m_d->setBreakOnThrow(theDebuggerBoolSetting(BreakOnThrow), &errorMessage))

@@ -182,7 +182,7 @@ void PdbEngine::startDebugger()
     if (!m_pdbProc.waitForStarted()) {
         const QString msg = tr("Unable to start pdb '%1': %2")
             .arg(m_pdb, m_pdbProc.errorString());
-        setState(AdapterStartFailed);
+        setState(EngineStartFailed);
         showMessage(_("ADAPTER START FAILED"));
         if (!msg.isEmpty()) {
             const QString title = tr("Adapter start failed");
@@ -200,7 +200,7 @@ void PdbEngine::startDebugger()
     postCommand("execfile('" + dumperSourcePath + "pdumper.py')",
         CB(handleLoadDumper));
 
-    setState(AdapterStarted);
+    setState(EngineStarted);
     setState(InferiorStarting);
     emit startSuccessful();
     showStatusMessage(tr("Running requested..."), 5000);

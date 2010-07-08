@@ -157,45 +157,92 @@
 #endif
 
 // Note: the Debugger process itself and any helper processes like
-// gdbserver, the trk client etc are referred to as 'Adapter',
+// gdbserver, the trk client etc are referred to as 'Engine',
 // whereas the debugged process is referred to as 'Inferior'.
 //
-//              0 == DebuggerNotReady
-//                          |
-//                    EngineStarting
-//                          |
-//                    AdapterStarting --> AdapterStartFailed --> 0
-//                          |
-//                    AdapterStarted ------------------------------------.
-//                          |                                            v
-//                   InferiorStarting ----> InferiorStartFailed -------->|
-//                          |                                            |
-//         (core)           |     (attach) (term) (remote)               |
-//      .-----------------<-|->------------------.                       |
-//      |                   v                    |                       |
-//  InferiorUnrunnable      | (plain)            |                       |
-//      |                   | (trk)              |                       |
-//      |                   |                    |                       |
-//      |    .--> InferiorRunningRequested       |                       |
-//      |    |              |                    |                       |
-//      |    |       InferiorRunning             |                       |
-//      |    |              |                    |                       |
-//      |    |       InferiorStopping            |                       |
-//      |    |              |                    |                       |
-//      |    '------ InferiorStopped <-----------'                       |
-//      |                   |                                            v
-//      |          InferiorShuttingDown  ->  InferiorShutdownFailed ---->|
-//      |                   |                                            |
-//      |            InferiorShutDown                                    |
-//      |                   |                                            |
-//      '-------->  EngineShuttingDown  <--------------------------------'
-//                          |
-//                          0
+// Transitions marked by '---' are done in the individual engines.
+// Transitions marked by '+-+' are done in the base DebuggerEngine.
+// The GdbEngine->startEngine() function is described in more detail below.
 //
-// Allowed actions:
-//    [R] :  Run
-//    [C] :  Continue
-//    [N] :  Step, Next
+//                   DebuggerNotReady
+//                          +
+//                          +
+//                    EngineStarting
+//                          +
+//                          +
+//            (calls *Engine->startEngine())
+//                          |      |
+//                          |      `---> EngineStartFailed
+//                          |                   +
+//                          |    [calls RunControl->startFailed]
+//                          |                   +
+//                          |             DebuggerNotReady
+//                          v
+//                    EngineStarted
+//                          +
+//           [calls RunControl->StartSuccessful]
+//                          +
+//            (calls *Engine->startInferior())
+//                          |       |
+//                          |       ` ----> InferiorStartFailed +-+-+-+->.
+//                          |                                            +
+//                          v                                            +
+//                   InferiorStarted                                     +
+//                          +
+//            (calls *Engine->runInferior())                             +
+//                          |                                            +
+//         (core)           |     (attach) (term) (remote) (script)      +
+//      .-----------------<-|->------------------.                       +
+//      |                   v                    |                       +
+//  InferiorUnrunnable      | (plain)            |                       +
+//      |                   | (trk)              |                       +
+//      |                   |                    |                       +
+//      |    .--> InferiorRunningRequested       |                       +
+//      |    |              |                    |                       +
+//      |    |       InferiorRunning             |                       +
+//      |    |              |                    |                       +
+//      |    |       InferiorStopping            |                       +
+//      |    |              |                    |                       +
+//      |    '------ InferiorStopped <-----------'                       +
+//      |                   |                                            v
+//      |          InferiorShuttingDown  ->  InferiorShutdownFailed ---->+
+//      |                   |                                            +
+//      |            InferiorShutDown                                    +
+//      |                   |                                            +
+//      '-------->  EngineShuttingDown  <-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+'
+//                          |
+//                   DebuggerNotReady
+//
+
+// GdbEngine specific startup. All happens in EngineStarting state
+//
+// Transitions marked by '---' are done in the individual adapters.
+// Transitions marked by '+-+' are done in the GdbEngine.
+
+//                  GdbEngine::startEngine()
+//                          +
+//                          +
+//            (calls *Adapter->startAdapter())
+//                          |      |
+//                          |      `---> handleAdapterStartFailed()
+//                          |                   +
+//                          |             EngineStartFailed
+//                          |
+//                 handleAdapterStarted()
+//                          +
+//            (calls *Adapter->prepareInferior())
+//                          |      |
+//                          |      `---> handleAdapterStartFailed()
+//                          |                   +
+//                          |             EngineStartFailed
+//                          |
+//                 handleInferiorPrepared()
+//                          +
+//                     EngineStarted
+
+
+
+
 
 using namespace Core;
 using namespace Debugger;
@@ -2629,8 +2676,8 @@ bool DebuggerListener::coreAboutToClose()
     switch (plugin->state()) {
     case DebuggerNotReady:
         return true;
-    case AdapterStarted:     // Most importantly, terminating a running
-    case AdapterStartFailed: // debuggee can cause problems.
+    case EngineStarted:     // Most importantly, terminating a running
+    case EngineStartFailed: // debuggee can cause problems.
     case InferiorUnrunnable:
     case InferiorStartFailed:
     case InferiorStopped:
