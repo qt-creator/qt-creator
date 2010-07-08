@@ -60,7 +60,6 @@ CoreGdbAdapter::CoreGdbAdapter(GdbEngine *engine, QObject *parent)
 void CoreGdbAdapter::startAdapter()
 {
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
-    setState(AdapterStarting);
     showMessage(_("TRYING TO START ADAPTER"));
 
     if (!m_engine->startGdb())

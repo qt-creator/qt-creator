@@ -330,7 +330,7 @@ void TcfTrkGdbAdapter::startGdb()
 void TcfTrkGdbAdapter::tcftrkDeviceError(const QString  &errorString)
 {
     logMessage(errorString);
-    if (state() == AdapterStarting) {
+    if (state() == EngineStarting) {
         emit adapterStartFailed(errorString, QString());
     } else {
         emit adapterCrashed(errorString);
@@ -949,7 +949,6 @@ void TcfTrkGdbAdapter::startAdapter()
     m_symbolFile.replace(QLatin1Char('\\'), QLatin1Char('/'));
     // Start
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
-    setState(AdapterStarting);
     showMessage(_("TRYING TO START ADAPTER"));
     logMessage(QLatin1String("### Starting TcfTrkGdbAdapter"));
 

@@ -122,7 +122,6 @@ QByteArray GdbEngine::tooltipIName(const QString &exp)
 static bool stateAcceptsGdbCommands(DebuggerState state)
 {
     switch (state) {
-    case AdapterStarting:
     case EngineStarted:
     case EngineStartFailed:
     case InferiorUnrunnable:
@@ -142,7 +141,7 @@ static bool stateAcceptsGdbCommands(DebuggerState state)
     case EngineStarting:
     case InferiorStopFailed:
     case EngineShuttingDown:
-        break;
+        return false;
     }
     return false;
 }
@@ -1629,13 +1628,12 @@ void GdbEngine::shutdown()
     }
     switch (state()) {
     case DebuggerNotReady: // Nothing to do! :)
-    case EngineStarting: // We can't get here, really
     case InferiorShuttingDown: // Will auto-trigger further shutdown steps
     case EngineShuttingDown: // Do not disturb! :)
     case InferiorRunningRequested_Kill:
     case InferiorStopping_Kill:
         break;
-    case AdapterStarting: // GDB is up, adapter is "doing something"
+    case EngineStarting: // GDB is up, adapter is "doing something"
         setState(EngineStartFailed);
         m_gdbAdapter->shutdown();
         // fall-through
@@ -3085,7 +3083,6 @@ void GdbEngine::activateSnapshot2()
     // Otherwise the stack data might be stale.
     // See http://sourceware.org/bugzilla/show_bug.cgi?id=1124.
     setState(EngineStarting);
-    setState(AdapterStarting);
     postCommand("set stack-cache off");
     handleAdapterStarted();
 }

@@ -85,7 +85,6 @@ AbstractGdbAdapter::DumperHandling RemoteGdbServerAdapter::dumperHandling() cons
 void RemoteGdbServerAdapter::startAdapter()
 {
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
-    setState(AdapterStarting);
     showMessage(_("TRYING TO START ADAPTER"));
 
     // FIXME: make asynchroneous

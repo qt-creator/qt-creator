@@ -249,7 +249,6 @@ void QmlEngine::startDebugger()
     connect(&m_proc, SIGNAL(readyReadStandardError()),
         SLOT(readProcStandardError()));
 
-    setState(AdapterStarting);
     m_proc.setEnvironment(env.toStringList());
     m_proc.setWorkingDirectory(sp.workingDirectory);
     m_proc.start(sp.executable, sp.processArgs);

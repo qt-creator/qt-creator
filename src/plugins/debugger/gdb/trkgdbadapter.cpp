@@ -1502,7 +1502,6 @@ void TrkGdbAdapter::startAdapter()
     m_symbolFile.replace(QLatin1Char('\\'), QLatin1Char('/'));
     // Start
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
-    setState(AdapterStarting);
     showMessage(_("TRYING TO START ADAPTER"));
     logMessage(QLatin1String("### Starting TrkGdbAdapter"));
 

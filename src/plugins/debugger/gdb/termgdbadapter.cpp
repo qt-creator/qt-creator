@@ -82,7 +82,6 @@ AbstractGdbAdapter::DumperHandling TermGdbAdapter::dumperHandling() const
 void TermGdbAdapter::startAdapter()
 {
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
-    setState(AdapterStarting);
     showMessage(_("TRYING TO START ADAPTER"));
 
 // Currently, adapters are not re-used
@@ -112,7 +111,7 @@ void TermGdbAdapter::startAdapter()
 
 void TermGdbAdapter::handleInferiorStarted()
 {
-    QTC_ASSERT(state() == AdapterStarting, qDebug() << state());
+    QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     emit adapterStarted();
 }
 
@@ -173,7 +172,7 @@ void TermGdbAdapter::stubMessage(const QString &msg, bool)
 void TermGdbAdapter::stubExited()
 {
     showMessage(_("STUB EXITED"));
-    if (state() != AdapterStarting // From previous instance
+    if (state() != EngineStarting // From previous instance
         && state() != EngineShuttingDown && state() != DebuggerNotReady)
         emit adapterCrashed(QString());
 }

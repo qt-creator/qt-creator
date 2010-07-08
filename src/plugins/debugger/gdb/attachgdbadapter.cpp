@@ -57,7 +57,6 @@ AttachGdbAdapter::AttachGdbAdapter(GdbEngine *engine, QObject *parent)
 void AttachGdbAdapter::startAdapter()
 {
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
-    setState(AdapterStarting);
     showMessage(_("TRYING TO START ADAPTER"));
 
     if (!m_engine->startGdb())

@@ -234,7 +234,6 @@ void ScriptEngine::startDebugger()
     showMessage(_("STARTING SCRIPT DEBUGGER"), LogMisc);
     QTC_ASSERT(state() == DebuggerNotReady, setState(DebuggerNotReady));
     setState(EngineStarting);
-    setState(AdapterStarting);
     if (m_scriptEngine.isNull())
         m_scriptEngine = Core::ICore::instance()->scriptManager()->scriptEngine();
     if (!m_scriptAgent)

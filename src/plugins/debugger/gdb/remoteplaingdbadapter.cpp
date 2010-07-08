@@ -47,7 +47,6 @@ RemotePlainGdbAdapter::RemotePlainGdbAdapter(GdbEngine *engine,
 void RemotePlainGdbAdapter::startAdapter()
 {
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
-    setState(AdapterStarting);
     showMessage(QLatin1String("TRYING TO START ADAPTER"));
 
     if (!startParameters().workingDirectory.isEmpty())
