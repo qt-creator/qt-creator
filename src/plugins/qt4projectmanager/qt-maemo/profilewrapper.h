@@ -21,6 +21,8 @@ public:
     ProFileWrapper(const QString &proFileName, const QString &qConfigFile);
     ~ProFileWrapper();
 
+    void reload();
+
     struct InstallsElem {
         InstallsElem(QString v, QString p, QStringList f)
             : varName(v), path(p), files(f) {}

@@ -37,6 +37,10 @@ ProFileWrapper::ProFileWrapper(const QString &proFileName,
 
 ProFileWrapper::~ProFileWrapper() {}
 
+void ProFileWrapper::reload()
+{
+    parseProFile(ParseFromFile);
+}
 
 ProFileWrapper::InstallsList ProFileWrapper::installs() const
 {
