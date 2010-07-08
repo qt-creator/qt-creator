@@ -932,12 +932,24 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
     case statement_with_condition:
     case for_statement:
     case switch_statement:
-    case declaration_start:
     case if_statement:
     case return_statement:
         if (firstToken)
             *savedIndentDepth = tokenPosition;
         *indentDepth = *savedIndentDepth + 2*m_indentSize;
+        break;
+
+    case declaration_start:
+        if (firstToken)
+            *savedIndentDepth = tokenPosition;
+        // continuation indent in function bodies only, to not indent
+        // after the return type in "void\nfoo() {}"
+        for (int i = 0; state(i).type != topmost_intro; ++i) {
+            if (state(i).type == defun_open) {
+                *indentDepth = *savedIndentDepth + 2*m_indentSize;
+                break;
+            }
+        }
         break;
 
     case arglist_open:

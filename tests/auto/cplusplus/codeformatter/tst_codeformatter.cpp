@@ -43,6 +43,7 @@ private Q_SLOTS:
     void gnuStyle();
     void whitesmithsStyle();
     void singleLineEnum();
+    void functionReturnType();
 };
 
 struct Line {
@@ -758,13 +759,29 @@ void tst_CodeFormatter::whitesmithsStyle()
 
 void tst_CodeFormatter::singleLineEnum()
 {
-    enum { a, b};
     QList<Line> data;
     data << Line("enum { foo, bar, car = 2 };")
          << Line("void blah() {")
          << Line("    enum { foo, bar, car = 2 };")
          << Line("    int i;")
          << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::functionReturnType()
+{
+    QList<Line> data;
+    data
+         << Line("void")
+         << Line("foo(int) {}")
+         << Line("")
+         << Line("const QList<int> &")
+         << Line("A::foo() {}")
+         << Line("")
+         << Line("template <class T>")
+         << Line("const QList<QMap<T, T> > &")
+         << Line("A::B::foo() {}")
          ;
     checkIndent(data);
 }
