@@ -850,8 +850,6 @@ void EngineComboBox::clearEngines()
     clear();
 }
 
-} // Internal
-
 
 bool QmlEngine::setDebugConfigurationDataFromProject(ProjectExplorer::Project *projectToDebug)
 {
