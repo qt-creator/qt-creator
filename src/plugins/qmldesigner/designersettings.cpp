@@ -52,7 +52,7 @@ void DesignerSettings::fromSettings(QSettings *settings)
     snapMargin = settings->value(
             QLatin1String(QmlDesigner::Constants::QML_SNAPMARGIN_KEY), QVariant(0)).toInt();
     enableContextPane = settings->value(
-            QLatin1String(QmlDesigner::Constants::QML_CONTEXTPANE_KEY), QVariant(0)).toBool();
+            QLatin1String(QmlDesigner::Constants::QML_CONTEXTPANE_KEY), QVariant(1)).toBool();
 
     settings->endGroup();
     settings->endGroup();
