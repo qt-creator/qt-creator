@@ -635,6 +635,7 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
     theDebuggerAction(OperateByInstruction)
         ->setEnabled(engineCapabilities & DisassemblerCapability);
 
+    setState(EngineStarting);
     startDebugger();
 }
 

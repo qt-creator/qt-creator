@@ -228,8 +228,7 @@ const int serverPort = 3768;
 
 void QmlEngine::startDebugger()
 {
-    QTC_ASSERT(state() == DebuggerNotReady, setState(DebuggerNotReady));
-    setState(EngineStarting);
+    QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     const DebuggerStartParameters &sp = startParameters();
     const int pos = sp.remoteChannel.indexOf(QLatin1Char(':'));
     const QString host = sp.remoteChannel.left(pos);

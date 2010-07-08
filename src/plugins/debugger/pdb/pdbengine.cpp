@@ -140,7 +140,7 @@ void PdbEngine::exitDebugger()
 
 void PdbEngine::startDebugger()
 {
-    setState(EngineStarting);
+    QTC_ASSERT(state() == EngineStarting, qDebug() << state());
 
     m_scriptFileName = QFileInfo(startParameters().executable).absoluteFilePath();
     QFile scriptFile(m_scriptFileName);

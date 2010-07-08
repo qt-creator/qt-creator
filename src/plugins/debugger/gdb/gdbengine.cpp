@@ -1762,8 +1762,7 @@ AbstractGdbAdapter *GdbEngine::createAdapter()
 void GdbEngine::startDebugger()
 {
     //qDebug() << "GDB START DEBUGGER";
-    QTC_ASSERT(state() == DebuggerNotReady, setState(DebuggerNotReady));
-    setState(EngineStarting);
+    QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     QTC_ASSERT(m_debuggingHelperState == DebuggingHelperUninitialized, /**/);
     QTC_ASSERT(m_gdbAdapter == 0, /**/);
 

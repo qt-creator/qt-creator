@@ -376,13 +376,12 @@ void CdbDebugEngine::startupChecks()
 
 void CdbDebugEngine::startDebugger()
 {
-    setState(EngineStarting, Q_FUNC_INFO, __LINE__);
+    QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     const DebuggerStartParameters &sp = startParameters();
     if (debugCDBExecution)
         qDebug() << "startDebugger";
     CdbCore::BreakPoint::clearNormalizeFileNameCache();
     startupChecks();
-    setState(AdapterStarting, Q_FUNC_INFO, __LINE__);
     m_d->checkVersion();
     if (m_d->m_hDebuggeeProcess) {
         warning(QLatin1String("Internal error: Attempt to start debugger while another process is being debugged."));
