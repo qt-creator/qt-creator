@@ -150,7 +150,7 @@ QList<Token> Scanner::operator()(const QString &text, int startState)
             }
         }
 
-        if (_scanComments)
+        if (_scanComments && start != -1)
             tokens.append(Token(start, index - start, Token::Comment));
     }
 
