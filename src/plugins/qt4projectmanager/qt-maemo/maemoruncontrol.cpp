@@ -202,7 +202,7 @@ void AbstractMaemoRunControl::deploy()
         m_sshDeployer->start();
     } else {
         m_progress.reportFinished();
-        startExecution();
+        startExecutionIfPossible();
     }
 }
 
@@ -246,6 +246,16 @@ QString AbstractMaemoRunControl::executableFilePathOnTarget() const
 bool AbstractMaemoRunControl::isCleaning() const
 {
     return m_initialCleaner && m_initialCleaner->isRunning();
+}
+
+void AbstractMaemoRunControl::startExecutionIfPossible()
+{
+    if (executableFilePathOnTarget().isEmpty()) {
+        handleError(tr("Cannot run: No remote executable set."));
+        emit finished();
+    } else {
+        startExecution();
+    }
 }
 
 void AbstractMaemoRunControl::startExecution()
@@ -315,7 +325,7 @@ void AbstractMaemoRunControl::handleDeployThreadFinished()
         emit finished();
     } else {
         m_progress.reportFinished();
-        startExecution();
+        startExecutionIfPossible();
     }
 }
 

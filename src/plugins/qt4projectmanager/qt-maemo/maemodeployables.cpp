@@ -139,7 +139,7 @@ QString MaemoDeployables::remoteExecutableFilePath(const QString &localExecutabl
         if (model->localExecutableFilePath() == localExecutableFilePath)
             return model->remoteExecutableFilePath();
     }
-    Q_ASSERT(!"Invalid local executable!");
+    qWarning("No remote executable specified!");
     return QString();
 }
 

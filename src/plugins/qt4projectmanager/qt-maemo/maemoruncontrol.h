@@ -109,6 +109,7 @@ private:
 
     void startInitialCleanup();
     void killRemoteProcesses(const QStringList &apps, bool initialCleanup);
+    void startExecutionIfPossible();
     bool isCleaning() const;
     bool isDeploying() const;
     QString remoteSudo() const;
