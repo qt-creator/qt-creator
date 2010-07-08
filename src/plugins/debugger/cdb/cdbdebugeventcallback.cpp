@@ -28,9 +28,9 @@
 **************************************************************************/
 
 #include "cdbdebugeventcallback.h"
-#include "cdbdebugengine.h"
+#include "cdbengine.h"
 #include "cdbexceptionutils.h"
-#include "cdbdebugengine_p.h"
+#include "cdbengine_p.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QTextStream>
@@ -41,7 +41,7 @@ namespace Internal {
 
 // ---------- CdbDebugEventCallback
 
-CdbDebugEventCallback::CdbDebugEventCallback(CdbDebugEngine *dbg) :
+CdbDebugEventCallback::CdbDebugEventCallback(CdbEngine *dbg) :
     m_pEngine(dbg)
 {
 }
@@ -206,7 +206,7 @@ STDMETHODIMP CdbDebugEventCallback::SystemError(
 
 // -----------ExceptionLoggerEventCallback
 CdbExceptionLoggerEventCallback::CdbExceptionLoggerEventCallback(int logChannel,
-         bool skipNonFatalExceptions, CdbDebugEngine *engine) :
+         bool skipNonFatalExceptions, CdbEngine *engine) :
     m_logChannel(logChannel),
     m_skipNonFatalExceptions(skipNonFatalExceptions),
     m_engine(engine)

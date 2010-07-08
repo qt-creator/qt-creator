@@ -80,6 +80,8 @@ public:
     ModelManagerInterface(QObject *parent = 0);
     virtual ~ModelManagerInterface();
 
+    static ModelManagerInterface *instance();
+
     virtual QmlJS::Snapshot snapshot() const = 0;
     virtual void updateSourceFiles(const QStringList &files,
                                    bool emitDocumentOnDiskChanged) = 0;

@@ -47,7 +47,6 @@
 #include <Names.h>
 #include <Scope.h>
 #include <BackwardsScanner.h>
-#include <TokenCache.h>
 
 #include <utils/changeset.h>
 
@@ -736,6 +735,138 @@ protected:
     }
 };
 
+class GenerateDumpers: protected ASTVisitor
+{
+    QTextStream out;
+
+public:
+    GenerateDumpers(QFile *file, TranslationUnit *unit)
+        : ASTVisitor(unit), out(file)
+    { }
+
+    static void go(const QString &fileName, TranslationUnit *unit)
+    {
+        QFile file(fileName);
+        if (! file.open(QFile::WriteOnly)) {
+            std::cerr << "Cannot open dumpers file." << std::endl;
+            return;
+        }
+
+        GenerateDumpers d(&file, unit);
+        d.out << copyrightHeader
+                << generatedHeader
+                << endl;
+
+
+        d.accept(unit->ast());
+
+        file.close();
+    }
+
+protected:
+    using ASTVisitor::visit;
+
+    QMap<QByteArray, ClassSpecifierAST *> classMap;
+
+    QByteArray id_cast(NameAST *name)
+    {
+        if (! name)
+            return QByteArray();
+
+        const Identifier *id = identifier(name->asSimpleName()->identifier_token);
+
+        return QByteArray::fromRawData(id->chars(), id->size());
+    }
+
+    void visitMembers(Class *klass)
+    {
+        for (unsigned i = 0; i < klass->memberCount(); ++i) {
+            Symbol *member = klass->memberAt(i);
+            if (! member->name())
+                continue;
+
+            const Identifier *id = member->name()->identifier();
+
+            if (! id)
+                continue;
+
+            const QByteArray memberName = QByteArray::fromRawData(id->chars(), id->size());
+            if (member->type().isUnsigned() && memberName.endsWith("_token")) {
+                out << "    if (ast->" << memberName << ")" << endl;
+                out << "        terminal(ast->" << memberName << ", ast);" << endl;
+            } else if (PointerType *ptrTy = member->type()->asPointerType()) {
+                if (NamedType *namedTy = ptrTy->elementType()->asNamedType()) {
+                    QByteArray typeName = namedTy->name()->identifier()->chars();
+
+                    if (typeName.endsWith("ListAST")) {
+                        out << "    for (" << typeName << " *iter = ast->" << memberName << "; iter; iter = iter->next)" << endl
+                            << "        nonterminal(iter->value);" << endl;
+                    } else if (typeName.endsWith("AST")) {
+                        out << "    nonterminal(ast->" << memberName << ");" << endl;
+                    }
+                }
+            }
+        }
+
+        for (unsigned i = 0; i < klass->baseClassCount(); ++i) {
+            const QByteArray baseClassName = klass->baseClassAt(i)->identifier()->chars();
+
+            if (ClassSpecifierAST *baseClassSpec = classMap.value(baseClassName, 0)) {
+                visitMembers(baseClassSpec->symbol);
+            }
+        }
+    }
+
+    bool checkMethod(Symbol *cloneMethod) const
+    {
+        Declaration *decl = cloneMethod->asDeclaration();
+        if (! decl)
+            return false;
+
+        Function *funTy = decl->type()->asFunctionType();
+        if (! funTy)
+            return false;
+
+        else if (funTy->isPureVirtual())
+            return false;
+
+        return true;
+    }
+
+    virtual bool visit(ClassSpecifierAST *ast)
+    {
+        Class *klass = ast->symbol;
+        const QByteArray className = id_cast(ast->name);
+        if (! className.endsWith("AST"))
+            return false;
+
+        const Identifier *clone_id = control()->findOrInsertIdentifier("clone");
+        Symbol *cloneMethod = klass->members()->lookat(clone_id);
+        for (; cloneMethod; cloneMethod = cloneMethod->next()) {
+            if (cloneMethod->identifier() != clone_id)
+                continue;
+
+            if (checkMethod(cloneMethod))
+                break;
+        }
+
+        if (! cloneMethod)
+            return true;
+
+        classMap.insert(className, ast);
+
+        out << "virtual bool visit(" << className.constData() << " *ast)" << endl
+            << "{" << endl;
+
+        visitMembers(klass);
+
+        out << "    return false;" << endl
+            << "}" << endl << endl;
+
+        return false;
+    }
+};
+
 class RemoveCastMethods: protected ASTVisitor
 {
 public:
@@ -849,14 +980,14 @@ static QString createConstructor(ClassSpecifierAST *classAST)
     return result;
 }
 
-bool checkGenerated(TokenCache *tokenCache, const QTextCursor &cursor, int *doxyStart)
+bool checkGenerated(const QTextCursor &cursor, int *doxyStart)
 {
-    BackwardsScanner tokens(tokenCache, cursor);
-    SimpleToken prevToken = tokens.LA(1);
+    BackwardsScanner tokens(cursor);
+    Token prevToken = tokens.LA(1);
     if (prevToken.kind() != T_DOXY_COMMENT && prevToken.kind() != T_CPP_DOXY_COMMENT)
         return false;
 
-    *doxyStart = tokens.startPosition() + prevToken.position();
+    *doxyStart = tokens.startPosition() + prevToken.begin();
 
     return tokens.text(tokens.startToken() - 1).contains(QLatin1String("\\generated"));
 }
@@ -977,8 +1108,6 @@ void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
 
     QList<GenInfo> todo;
 
-    TokenCache tokenCache;
-    tokenCache.setDocument(&cpp_document);
     TranslationUnitAST *xUnit = AST_cpp_document->translationUnit()->ast()->asTranslationUnit();
     for (DeclarationListAST *iter = xUnit->declaration_list; iter; iter = iter->next) {
         if (FunctionDefinitionAST *funDef = iter->value->asFunctionDefinition()) {
@@ -995,7 +1124,7 @@ void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
                 const int start = cpp_document.findBlockByNumber(line - 1).position() + column - 1;
                 cursor.setPosition(start);
                 int doxyStart = start;
-                const bool isGenerated = checkGenerated(&tokenCache, cursor, &doxyStart);
+                const bool isGenerated = checkGenerated(cursor, &doxyStart);
 
                 AST_cpp_document->translationUnit()->getTokenEndPosition(funDef->lastToken() - 1, &line, &column);
                 int end = cpp_document.findBlockByNumber(line - 1).position() + column - 1;
@@ -1045,7 +1174,7 @@ void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
             info.end = documentEnd;
 
         if (info.remove) {
-            changes.remove(info.start, info.end - info.start);
+            changes.remove(info.start, info.end);
             return;
         }
 
@@ -1063,7 +1192,7 @@ void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
             generateLastToken(os, className, fields);
         }
 
-        changes.replace(info.start, info.end - info.start, method);
+        changes.replace(info.start, info.end, method);
     }
 
     QTextCursor tc(&cpp_document);
@@ -1096,7 +1225,7 @@ void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
     }
 }
 
-QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir)
+QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir, const QString &dumpersFile)
 {
     QStringList astDerivedClasses;
 
@@ -1195,6 +1324,9 @@ QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir)
     cg4(AST_h_document->translationUnit()->ast());
 
     generateAST_cpp(snapshot, cplusplusDir);
+
+    if (!dumpersFile.isEmpty())
+        GenerateDumpers::go(dumpersFile, AST_h_document->translationUnit());
 
     return astDerivedClasses;
 }
@@ -1396,8 +1528,9 @@ int main(int argc, char *argv[])
     QStringList files = app.arguments();
     files.removeFirst();
 
-    if (files.isEmpty()) {
+    if (files.size() != 1 && files.size() != 2) {
         std::cerr << "Usage: cplusplus [path to C++ front-end]" << std::endl;
+        std::cerr << "   or: cplusplus [path to C++ front-end] [dumpers file name]" << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -1408,8 +1541,12 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
+    QString dumpersFile;
+    if (files.size() == 2)
+        dumpersFile = files.last();
+
     Snapshot snapshot;
-    QStringList astDerivedClasses = generateAST_H(snapshot, cplusplusDir);
+    QStringList astDerivedClasses = generateAST_H(snapshot, cplusplusDir, dumpersFile);
     astDerivedClasses.sort();
     generateASTFwd_h(snapshot, cplusplusDir, astDerivedClasses);
 

@@ -84,8 +84,8 @@ public:
 
     Bind *bind() const;
 
-    int documentRevision() const;
-    void setDocumentRevision(int documentRevision);
+    int editorRevision() const;
+    void setEditorRevision(int revision);
 
     QString fileName() const;
     QString path() const;
@@ -101,7 +101,7 @@ private:
     AST::Node *_ast;
     Bind *_bind;
     bool _isQmlDocument;
-    int _documentRevision;
+    int _editorRevision;
     bool _parsedCorrectly;
     QList<QmlJS::DiagnosticMessage> _diagnosticMessages;
     QString _fileName;

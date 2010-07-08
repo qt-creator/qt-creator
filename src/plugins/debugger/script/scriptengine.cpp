@@ -34,6 +34,7 @@
 #include "breakhandler.h"
 #include "debuggerconstants.h"
 #include "debuggerdialogs.h"
+#include "debuggerstringutils.h"
 #include "moduleshandler.h"
 #include "registerhandler.h"
 #include "stackhandler.h"
@@ -228,12 +229,10 @@ void ScriptEngine::exitDebugger()
     setState(DebuggerNotReady);
 }
 
-void ScriptEngine::startDebugger()
+void ScriptEngine::startEngine()
 {
-    qDebug() << "STARTING SCRIPT DEBUGGER";
-    QTC_ASSERT(state() == DebuggerNotReady, setState(DebuggerNotReady));
-    setState(EngineStarting);
-    setState(AdapterStarting);
+    QTC_ASSERT(state() == EngineStarting, qDebug() << state());
+    showMessage(_("STARTING SCRIPT DEBUGGER"), LogMisc);
     if (m_scriptEngine.isNull())
         m_scriptEngine = Core::ICore::instance()->scriptManager()->scriptEngine();
     if (!m_scriptAgent)
@@ -247,11 +246,11 @@ void ScriptEngine::startDebugger()
     m_stopOnNextLine = false;
     m_scriptEngine->abortEvaluation();
 
-    setState(AdapterStarted);
+    setState(EngineStarted);
     setState(InferiorStarting);
 
     m_scriptFileName = QFileInfo(startParameters().executable).absoluteFilePath();
-    qDebug() << "SCRIPT FILE: " << m_scriptFileName;
+    showMessage(_("SCRIPT FILE: ") + m_scriptFileName);
     QFile scriptFile(m_scriptFileName);
     if (!scriptFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
         showMessage(QString::fromLatin1("Cannot open %1: %2").
@@ -595,8 +594,10 @@ bool ScriptEngine::checkForBreakCondition(bool byFunction)
     // Update breakpoints
     const QString functionName = info.functionName();
     const QString fileName = info.fileName();
-    const int lineNumber = byFunction? info.functionStartLineNumber() : info.lineNumber();
-    SDEBUG("checkForBreakCondition" << byFunction << functionName << lineNumber << fileName);
+    const int lineNumber = byFunction
+        ? info.functionStartLineNumber() : info.lineNumber();
+    SDEBUG("checkForBreakCondition" << byFunction << functionName
+        << lineNumber << fileName);
     if (m_stopOnNextLine) {
         // Interrupt inferior
         m_stopOnNextLine = false;
@@ -609,7 +610,11 @@ bool ScriptEngine::checkForBreakCondition(bool byFunction)
         if (!data)
             return false;
 
-        // we just run into a breakpoint
+        // Skip disabled breakpoint.
+        if (!data->enabled)
+            return false;
+
+        // We just run into a breakpoint.
         //SDEBUG("RESOLVING BREAKPOINT AT " << fileName << lineNumber);
         data->bpLineNumber = QByteArray::number(lineNumber);
         data->bpFileName = fileName;

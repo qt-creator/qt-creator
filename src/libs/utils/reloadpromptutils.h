@@ -42,7 +42,7 @@ namespace Utils {
 enum ReloadPromptAnswer { ReloadCurrent, ReloadAll, ReloadSkipCurrent, ReloadNone };
 
 QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &fileName, bool modified, QWidget *parent);
-QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &title, const QString &prompt, QWidget *parent);
+QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &title, const QString &prompt, const QString &details, QWidget *parent);
 
 enum FileDeletedPromptAnswer { FileDeletedClose, FileDeletedSaveAs, FileDeletedSave };
 

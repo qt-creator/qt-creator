@@ -1,5 +1,5 @@
 DEFINES+=CPLUSPLUS_BUILD_STATIC_LIB
-INCLUDEPATH += $$PWD/../../../../src/shared/cplusplus
-INCLUDEPATH += $$PWD/../../../../src/libs/cplusplus
-DEPENDPATH  += $$INCLUDEPATH .
-LIBS += -L$$PWD -lCPlusPlusTestSupport
+include(../../../../qtcreator.pri)
+INCLUDEPATH += $$IDE_SOURCE_TREE/src/libs/cplusplus
+INCLUDEPATH += $$IDE_SOURCE_TREE/src/shared/cplusplus
+LIBS += -L$$OUT_PWD/../shared -lCPlusPlusTestSupport

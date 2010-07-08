@@ -37,6 +37,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/task.h>
+#include <projectexplorer/taskhub.h>
 #include <utils/qtcassert.h>
 
 #include <QtGui/QFileDialog>
@@ -60,6 +61,7 @@ enum Columns {
 TargetSetupPage::TargetSetupPage(QWidget *parent) :
     QWizardPage(parent),
     m_preferMobile(false),
+    m_toggleWillCheck(false),
     m_ui(new Ui::TargetSetupPage)
 {
     m_ui->setupUi(this);
@@ -68,6 +70,8 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
 
     connect(m_ui->importButton, SIGNAL(clicked()),
             this, SLOT(addShadowBuildLocation()));
+    connect(m_ui->uncheckButton, SIGNAL(clicked()),
+            this, SLOT(toggleAll()));
     connect(m_ui->versionTree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),
             this, SLOT(handleDoubleClicks(QTreeWidgetItem*,int)));
 }
@@ -286,7 +290,7 @@ void TargetSetupPage::setProFilePath(const QString &path)
 {
     m_proFilePath = path;
     if (!m_proFilePath.isEmpty()) {
-        m_ui->descriptionLabel->setText(tr("Qt Creator can set up the following targets for project <b>%1</b>:",
+        m_ui->descriptionLabel->setText(tr("Qt Creator can set up the following targets for<br>project <b>%1</b>:",
                                            "%1: Project name").arg(QFileInfo(m_proFilePath).baseName()));
     }
     // Force regeneration of tree widget contents:
@@ -328,21 +332,37 @@ QList<TargetSetupPage::ImportInfo> TargetSetupPage::filterImportInfos(const QSet
 }
 
 QList<TargetSetupPage::ImportInfo>
+TargetSetupPage::scanDefaultProjectDirectories(Qt4ProjectManager::Qt4Project *project)
+{
+    // Source directory:
+    QList<ImportInfo> importVersions = TargetSetupPage::recursivelyCheckDirectoryForBuild(project->projectDirectory(),
+                                                                                          project->file()->fileName());
+    QtVersionManager *vm = QtVersionManager::instance();
+    foreach(const QString &id, vm->supportedTargetIds()) {
+        QString location = Qt4Target::defaultShadowBuildDirectory(project->defaultTopLevelBuildDirectory(), id);
+        importVersions.append(TargetSetupPage::recursivelyCheckDirectoryForBuild(location,
+                                                                                 project->file()->fileName()));
+    }
+    return importVersions;
+}
+
+QList<TargetSetupPage::ImportInfo>
 TargetSetupPage::recursivelyCheckDirectoryForBuild(const QString &directory, const QString &proFile, int maxdepth)
 {
     QList<ImportInfo> results;
 
-    if (maxdepth <= 0)
+    if (maxdepth <= 0 || directory.isEmpty())
         return results;
 
     // Check for in-source builds first:
     QString qmakeBinary = QtVersionManager::findQMakeBinaryFromMakefile(directory);
+    QDir dir(directory);
 
     // Recurse into subdirectories:
     if (qmakeBinary.isNull() || !QtVersionManager::makefileIsFor(directory, proFile)) {
-        QStringList subDirs = QDir(directory).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+        QStringList subDirs = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
         foreach (QString subDir, subDirs)
-            results.append(recursivelyCheckDirectoryForBuild(QDir::cleanPath(directory + QChar('/') + subDir),
+            results.append(recursivelyCheckDirectoryForBuild(dir.absoluteFilePath(subDir),
                                                              proFile, maxdepth - 1));
         return results;
     }
@@ -350,8 +370,8 @@ TargetSetupPage::recursivelyCheckDirectoryForBuild(const QString &directory, con
     // Shiny fresh directory with a Makefile...
     QtVersionManager * vm = QtVersionManager::instance();
     TargetSetupPage::ImportInfo info;
-    info.directory = directory;
-    info.isShadowBuild = true;
+    info.directory = dir.absolutePath();
+    info.isShadowBuild = (dir.absolutePath() != QFileInfo(proFile).absolutePath());
 
     // This also means we have a build in there
     // First get the qt version
@@ -411,6 +431,21 @@ void TargetSetupPage::addShadowBuildLocation()
     setImportInfos(tmp);
 }
 
+void TargetSetupPage::toggleAll()
+{
+    for (int i = 0; i < m_ui->versionTree->topLevelItemCount(); ++i) {
+        QTreeWidgetItem *current = m_ui->versionTree->topLevelItem(i);
+        for (int j = 0; j < current->childCount(); ++j) {
+            QTreeWidgetItem *child = current->child(j);
+            child->setCheckState(0, m_toggleWillCheck ? Qt::Checked : Qt::Unchecked);
+        }
+    }
+    m_toggleWillCheck = !m_toggleWillCheck;
+    m_ui->uncheckButton->setText(m_toggleWillCheck ? tr("check all") : tr("uncheck all"));
+    m_ui->uncheckButton->setToolTip(m_toggleWillCheck
+                                    ? tr("Check all Qt versions") : tr("Uncheck all Qt versions"));
+}
+
 void TargetSetupPage::handleDoubleClicks(QTreeWidgetItem *item, int column)
 {
     int idx = item->data(NAME_COLUMN, Qt::UserRole).toInt();
@@ -437,9 +472,9 @@ QPair<QIcon, QString> TargetSetupPage::reportIssues(Qt4ProjectManager::QtVersion
     if (m_proFilePath.isEmpty())
         return qMakePair(QIcon(), QString());
 
-    const ProjectExplorer::TaskWindow *taskWindow = ExtensionSystem::PluginManager::instance()
-                                              ->getObject<ProjectExplorer::TaskWindow>();
-    QTC_ASSERT(taskWindow, return qMakePair(QIcon(), QString()));
+    const ProjectExplorer::TaskHub *taskHub = ExtensionSystem::PluginManager::instance()
+                                              ->getObject<ProjectExplorer::TaskHub>();
+    QTC_ASSERT(taskHub, return qMakePair(QIcon(), QString()));
 
     QList<ProjectExplorer::Task> issues = version->reportIssues(m_proFilePath);
 
@@ -452,11 +487,11 @@ QPair<QIcon, QString> TargetSetupPage::reportIssues(Qt4ProjectManager::QtVersion
         // set severity:
         QString severity;
         if (t.type == ProjectExplorer::Task::Error) {
-            icon = taskWindow->taskTypeIcon(t.type);
+            icon = taskHub->taskTypeIcon(t.type);
             severity = tr("<b>Error:</b> ", "Severity is Task::Error");
         } else if (t.type == ProjectExplorer::Task::Warning) {
                if (icon.isNull())
-                   icon = taskWindow->taskTypeIcon(t.type);
+                   icon = taskHub->taskTypeIcon(t.type);
                severity = tr("<b>Warning:</b> ", "Severity is Task::Warning");
         }
         text.append(severity + t.description);
@@ -487,8 +522,10 @@ void TargetSetupPage::updateVersionItem(QTreeWidgetItem *versionItem, int index)
 
     // Column 1 (status):
     const QString status = info.isExistingBuild ?
-                           tr("Import", "Is this an import of an existing build or a new one?") :
-                           tr("New", "Is this an import of an existing build or a new one?");
+                           //: Is this an import of an existing build or a new one?
+                           tr("Import") :
+                           //: Is this an import of an existing build or a new one?
+                           tr("New");
     versionItem->setText(STATUS_COLUMN, status);
     versionItem->setToolTip(STATUS_COLUMN, status);
 

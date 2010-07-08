@@ -36,6 +36,7 @@
 #include "qmljshoverhandler.h"
 #include "qmljsmodelmanager.h"
 #include "qmlfilewizard.h"
+#include "qmljsoutline.h"
 #include "qmljspreviewrunner.h"
 #include "qmljsquickfix.h"
 
@@ -175,6 +176,8 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
 
     m_quickFixCollector = new QmlJSQuickFixCollector;
     addAutoReleasedObject(m_quickFixCollector);
+
+    addAutoReleasedObject(new QmlJSOutlineWidgetFactory);
 
     return true;
 }

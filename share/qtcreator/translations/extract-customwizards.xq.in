@@ -5,5 +5,5 @@ where empty($files)
 return
 for $file in $files
     let $doc := doc($file)
-    for $text in ($doc/*:wizard/*:description, $doc/*:wizard/*:displayname, $doc/*:wizard/*:displaycategory, $doc/*:wizard/*:fieldpagetitle, $doc/*:wizard/*:fields/*:field/*:fielddescription)
+    for $text in ($doc/*:wizard/*:description, $doc/*:wizard/*:displayname, $doc/*:wizard/*:displaycategory, $doc/*:wizard/*:fieldpagetitle, $doc/*:wizard/*:fields/*:field/*:fielddescription, $doc/*:wizard/*:fields/*:field/*:fieldcontrol/*:comboentries/*:comboentry/*:comboentrytext)
         return fn:concat($prefix, data($text), $suffix)

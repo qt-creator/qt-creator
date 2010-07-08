@@ -316,7 +316,7 @@ struct InternalNode
 #endif
             QStringListIterator it(parts);
             InternalNode *currentNode = this;
-            QString path = (isRelative ? projectDir : "");
+            QString path = (isRelative ? projectDirWithSeparator : "");
             while (it.hasNext()) {
                 const QString &key = it.next();
                 if (it.hasNext()) { // key is directory
@@ -888,21 +888,21 @@ QStringList Qt4PriFileNode::varNames(FileType type)
     return vars;
 }
 
-Qt4ProFileNode *Qt4ProFileNode::findProFileFor(const QString &fileName)
+const Qt4ProFileNode *Qt4ProFileNode::findProFileFor(const QString &fileName) const
 {
     if (fileName == path())
         return this;
     foreach (ProjectNode *pn, subProjectNodes())
         if (Qt4ProFileNode *qt4ProFileNode = qobject_cast<Qt4ProFileNode *>(pn))
-            if (Qt4ProFileNode *result = qt4ProFileNode->findProFileFor(fileName))
+            if (const Qt4ProFileNode *result = qt4ProFileNode->findProFileFor(fileName))
                 return result;
     return 0;
 }
 
-TargetInformation Qt4ProFileNode::targetInformation(const QString &fileName)
+TargetInformation Qt4ProFileNode::targetInformation(const QString &fileName) const
 {
     TargetInformation result;
-    Qt4ProFileNode *qt4ProFileNode = findProFileFor(fileName);
+    const Qt4ProFileNode *qt4ProFileNode = findProFileFor(fileName);
     if (!qt4ProFileNode)
         return result;
 
@@ -1596,7 +1596,7 @@ TargetInformation Qt4ProFileNode::targetInformation(ProFileReader *reader) const
     return result;
 }
 
-TargetInformation Qt4ProFileNode::targetInformation()
+TargetInformation Qt4ProFileNode::targetInformation() const
 {
     return m_qt4targetInformation;
 }

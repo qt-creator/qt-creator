@@ -466,9 +466,9 @@ void ParseManager::getElements(QList<FUNCTIONITEM*> &functionlist
                             }
                         }
 #if 0
-                        The code for Q_DECLARE_FLAGS was wrong. It's optional, and only does a typedef.
+                        /*The code for Q_DECLARE_FLAGS was wrong. It's optional, and only does a typedef.
                         That means, if you do the typedef yourself and not use Q_DECLARE_FLAGS, that *is* valid.
-                        Meaning, if one would want to do a check like the ones in this app, one has to check the defined types in the class scope.
+                        Meaning, if one would want to do a check like the ones in this app, one has to check the defined types in the class scope.*/
                         else {
                             /****************
                             Q_DECLARE_FLAGS

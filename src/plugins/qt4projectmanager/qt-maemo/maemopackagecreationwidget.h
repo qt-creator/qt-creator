@@ -64,11 +64,9 @@ public:
     virtual QString displayName() const;
 
 private slots:
-    void addFile();
-    void removeFile();
-    void enableOrDisableRemoveButton();
     void handleSkipButtonToggled(bool checked);
     void versionInfoChanged();
+    void handleModelsCreated();
 
 private:
     MaemoPackageCreationStep * const m_step;

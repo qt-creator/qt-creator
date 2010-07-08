@@ -57,14 +57,14 @@ public:
     explicit MakeStepFactory(QObject *parent = 0);
     virtual ~MakeStepFactory();
 
-    bool canCreate(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::StepType type, const QString &id) const;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::StepType type, const QString &id);
-    bool canClone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::StepType type, ProjectExplorer::BuildStep *source) const;
-    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::StepType type, ProjectExplorer::BuildStep *source);
-    bool canRestore(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::StepType type, const QVariantMap &map) const;
-    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::StepType type, const QVariantMap &map);
+    bool canCreate(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, const QString &id) const;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, const QString &id);
+    bool canClone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, ProjectExplorer::BuildStep *source) const;
+    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, ProjectExplorer::BuildStep *source);
+    bool canRestore(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, const QVariantMap &map) const;
+    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, const QVariantMap &map);
 
-    QStringList availableCreationIds(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::StepType type) const;
+    QStringList availableCreationIds(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type) const;
     QString displayNameForId(const QString &id) const;
 };
 } //namespace Internal

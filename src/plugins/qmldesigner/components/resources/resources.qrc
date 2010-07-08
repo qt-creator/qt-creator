@@ -102,6 +102,22 @@
         <file>images/button-pressed-right.png</file>
         <file>images/button-normal-left.png</file>
         <file>images/button-normal-middle.png</file>
-        <file>images/button-normal-right.png</file>
+        <file>images/button-normal-right.png</file>        
+        <file>images/alignmentbottom-h-icon.png</file>
+        <file>images/alignmentbottom-icon.png</file>
+        <file>images/alignmentcenterh-h-icon.png</file>
+        <file>images/alignmentcenterh-icon.png</file>
+        <file>images/alignmentleft-h-icon.png</file>
+        <file>images/alignmentleft-icon.png</file>
+        <file>images/alignmentmiddle-h-icon.png</file>
+        <file>images/alignmentmiddle-icon.png</file>
+        <file>images/alignmentright-h-icon.png</file>
+        <file>images/alignmentright-icon.png</file>
+        <file>images/alignmenttop-h-icon.png</file>
+        <file>images/alignmenttop-icon.png</file>
+        <file>images/underline-h-icon.png</file>
+        <file>images/strikeout-h-icon.png</file>
+        <file>images/italic-h-icon.png</file>
+        <file>images/bold-h-icon.png</file>        
     </qresource>
 </RCC>

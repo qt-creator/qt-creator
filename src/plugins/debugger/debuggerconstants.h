@@ -80,10 +80,9 @@ enum DebuggerState
     DebuggerNotReady,          // Debugger not started
 
     EngineStarting,            // Engine starts
+    EngineStarted,
+    EngineStartFailed,
 
-    AdapterStarting,
-    AdapterStarted,
-    AdapterStartFailed,
     InferiorUnrunnable,         // Used in the core dump adapter
     InferiorStarting,
     // InferiorStarted,         // Use InferiorRunningRequested or InferiorStopped

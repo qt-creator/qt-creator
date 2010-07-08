@@ -52,17 +52,16 @@ using namespace CMakeProjectManager::Internal;
 CMakeManager::CMakeManager(CMakeSettingsPage *cmakeSettingsPage)
     : m_settingsPage(cmakeSettingsPage)
 {
-    Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
-    m_projectContext = uidm->uniqueIdentifier(CMakeProjectManager::Constants::PROJECTCONTEXT);
-    m_projectLanguage = uidm->uniqueIdentifier(ProjectExplorer::Constants::LANG_CXX);
+    m_projectContext = Core::Context(CMakeProjectManager::Constants::PROJECTCONTEXT);
+    m_projectLanguage = Core::Context(ProjectExplorer::Constants::LANG_CXX);
 }
 
-int CMakeManager::projectContext() const
+Core::Context CMakeManager::projectContext() const
 {
     return m_projectContext;
 }
 
-int CMakeManager::projectLanguage() const
+Core::Context CMakeManager::projectLanguage() const
 {
     return m_projectLanguage;
 }

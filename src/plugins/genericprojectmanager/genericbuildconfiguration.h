@@ -57,6 +57,8 @@ public:
 
     QVariantMap toMap() const;
 
+    ProjectExplorer::IOutputParser *createOutputParser() const;
+
 protected:
     GenericBuildConfiguration(GenericTarget *parent, GenericBuildConfiguration *source);
     GenericBuildConfiguration(GenericTarget *parent, const QString &id);

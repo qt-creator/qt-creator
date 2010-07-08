@@ -68,16 +68,11 @@ void CppEditorSupport::setTextEditor(TextEditor::ITextEditor *textEditor)
     _textEditor = textEditor;
 
     if (_textEditor) {
-        if (TextEditor::BaseTextEditor *ed = qobject_cast<TextEditor::BaseTextEditor *>(_textEditor->widget()))
-            _tokenCache.setDocument(ed->document());
-    } else {
-        return;
+        connect(_textEditor, SIGNAL(contentsChanged()), this, SIGNAL(contentsChanged()));
+        connect(this, SIGNAL(contentsChanged()), this, SLOT(updateDocument()));
+
+        updateDocument();
     }
-
-    connect(_textEditor, SIGNAL(contentsChanged()), this, SIGNAL(contentsChanged()));
-    connect(this, SIGNAL(contentsChanged()), this, SLOT(updateDocument()));
-
-    updateDocument();
 }
 
 QString CppEditorSupport::contents()
@@ -98,11 +93,6 @@ unsigned CppEditorSupport::editorRevision() const
     }
 
     return 0;
-}
-
-TokenCache *CppEditorSupport::tokenCache()
-{
-    return &_tokenCache;
 }
 
 int CppEditorSupport::updateDocumentInterval() const

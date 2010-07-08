@@ -39,7 +39,7 @@
 #include <QtCore/QString>
 
 namespace ProjectExplorer {
-class TaskWindow;
+class TaskHub;
 } // namespace ProjectExplorer
 
 namespace QmlProjectManager {
@@ -50,8 +50,6 @@ class QmlTaskManager : public QObject
     Q_OBJECT
 public:
     QmlTaskManager(QObject *parent = 0);
-
-    void setTaskWindow(ProjectExplorer::TaskWindow *taskWindow);
 
     static QmlTaskManager *instance();
 
@@ -64,7 +62,7 @@ private:
     void removeTasksForFile(const QString &fileName);
 
 private:
-    ProjectExplorer::TaskWindow *m_taskWindow;
+    ProjectExplorer::TaskHub *m_taskHub;
     QMap<QString, QList<ProjectExplorer::Task> > m_docsWithTasks;
 };
 

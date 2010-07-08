@@ -62,6 +62,8 @@ public:
 
     QVariantMap toMap() const;
 
+    ProjectExplorer::IOutputParser *createOutputParser() const;
+
 signals:
     void msvcVersionChanged();
 

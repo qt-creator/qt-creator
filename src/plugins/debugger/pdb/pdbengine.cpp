@@ -138,9 +138,9 @@ void PdbEngine::exitDebugger()
     setState(DebuggerNotReady);
 }
 
-void PdbEngine::startDebugger()
+void PdbEngine::startEngine()
 {
-    setState(AdapterStarting);
+    QTC_ASSERT(state() == EngineStarting, qDebug() << state());
 
     m_scriptFileName = QFileInfo(startParameters().executable).absoluteFilePath();
     QFile scriptFile(m_scriptFileName);
@@ -151,11 +151,6 @@ void PdbEngine::startDebugger()
         startFailed();
         return;
     }
-    setState(AdapterStarted);
-    setState(InferiorStarting);
-    setState(InferiorRunningRequested);
-    showStatusMessage(tr("Running requested..."), 5000);
-
     m_pdbProc.disconnect(); // From any previous runs
 
     m_pdb = _("/usr/bin/python");
@@ -186,7 +181,7 @@ void PdbEngine::startDebugger()
     if (!m_pdbProc.waitForStarted()) {
         const QString msg = tr("Unable to start pdb '%1': %2")
             .arg(m_pdb, m_pdbProc.errorString());
-        setState(AdapterStartFailed);
+        setState(EngineStartFailed);
         showMessage(_("ADAPTER START FAILED"));
         if (!msg.isEmpty()) {
             const QString title = tr("Adapter start failed");
@@ -196,9 +191,6 @@ void PdbEngine::startDebugger()
         startFailed();
         return;
     }
-
-    emit startSuccessful();
-    setState(InferiorRunning);
     attemptBreakpointSynchronization();
 
     showMessage(_("PDB STARTED, INITIALIZING IT"));
@@ -206,12 +198,21 @@ void PdbEngine::startDebugger()
         Core::ICore::instance()->resourcePath().toLocal8Bit() + "/gdbmacros/";
     postCommand("execfile('" + dumperSourcePath + "pdumper.py')",
         CB(handleLoadDumper));
+
+    setState(EngineStarted);
+    setState(InferiorStarting);
+    emit startSuccessful();
+    showStatusMessage(tr("Running requested..."), 5000);
+    setState(InferiorRunningRequested);
+    setState(InferiorRunning);
 }
 
 void PdbEngine::runInferior()
 {
     SDEBUG("PdbEngine::runInferior()");
-    // FIXME: setState(InferiorRunning);
+    QTC_ASSERT(false, /**/); // FIXME:
+    setState(InferiorRunningRequested);
+    setState(InferiorRunning);
 }
 
 void PdbEngine::interruptInferior()
@@ -678,14 +679,13 @@ void PdbEngine::handleResponse(const QByteArray &response0)
 void PdbEngine::handleUpdateAll(const PdbResponse &response)
 {
     Q_UNUSED(response);
+    setState(InferiorStopping);
+    setState(InferiorStopped);
     updateAll();
 }
 
 void PdbEngine::updateAll()
 {
-    setState(InferiorStopping);
-    setState(InferiorStopped);
-
     WatchHandler *handler = watchHandler();
 
     QByteArray watchers;

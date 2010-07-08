@@ -1,23 +1,23 @@
-CREATORDIR=$$PWD/../../../../..
+include(../../../../../qtcreator.pri)
 
-include($$CREATORDIR/src/plugins/qmldesigner/config.pri)
+include($$IDE_SOURCE_TREE/src/plugins/qmldesigner/config.pri)
+
 QT += testlib \
     script \
     declarative
 
-include($$CREATORDIR/src/plugins/qmldesigner/designercore/designercore.pri)
-include($$CREATORDIR/src/libs/qmljs/qmljs-lib.pri)
-HEADERS+=$$CREATORDIR/src/libs/utils/changeset.h
-SOURCES+=$$CREATORDIR/src/libs/utils/changeset.cpp
-
-INCLUDEPATH+=$$CREATORDIR/src/libs
-
-DEFINES+=QTCREATOR_UTILS_STATIC_LIB QML_BUILD_STATIC_LIB QTCREATOR_TEST
+# DEFINES+=QTCREATOR_UTILS_STATIC_LIB QML_BUILD_STATIC_LIB
 DEFINES+=QTCREATORDIR=\\\"$$CREATORDIR\\\"
-DEFINES+=QT_CREATOR
+DEFINES+=QT_CREATOR QTCREATOR_TEST
 
 DEPENDPATH += ..
-DEPENDPATH += $$CREATORDIR/src/plugins/qmldesigner/designercore/include
+DEPENDPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore
+INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore/include
+INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore
+
+include($$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore/designercore.pri)
+include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
+include($$IDE_SOURCE_TREE/src/libs/qmljs/qmljs.pri)
 
 TARGET = tst_qmldesigner_core
 

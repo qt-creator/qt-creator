@@ -28,7 +28,6 @@
 **************************************************************************/
 #include "MatchingText.h"
 #include "BackwardsScanner.h"
-#include "TokenCache.h"
 
 #include <Token.h>
 
@@ -75,10 +74,6 @@ static bool isCompleteCharLiteral(const BackwardsScanner &tk, int index)
 
     return false;
 }
-
-MatchingText::MatchingText(TokenCache *tokenCache)
-    : _tokenCache(tokenCache)
-{ }
 
 bool MatchingText::shouldInsertMatchingText(const QTextCursor &tc)
 {
@@ -153,11 +148,11 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
     if (text.isEmpty() || !shouldInsertMatchingText(la))
         return QString();
 
-    BackwardsScanner tk(_tokenCache, tc, MAX_NUM_LINES, textToProcess.left(*skippedChars));
+    BackwardsScanner tk(tc, MAX_NUM_LINES, textToProcess.left(*skippedChars));
     const int startToken = tk.startToken();
     int index = startToken;
 
-    const SimpleToken &token = tk[index - 1];
+    const Token &token = tk[index - 1];
 
     if (text.at(0) == QLatin1Char('"') && (token.is(T_STRING_LITERAL) || token.is(T_WIDE_STRING_LITERAL))) {
         if (text.length() != 1)
@@ -213,7 +208,7 @@ bool MatchingText::shouldInsertNewline(const QTextCursor &tc) const
 
 QString MatchingText::insertParagraphSeparator(const QTextCursor &tc) const
 {
-    BackwardsScanner tk(_tokenCache, tc, MAX_NUM_LINES);
+    BackwardsScanner tk(tc, MAX_NUM_LINES);
     int index = tk.startToken();
 
     if (tk[index - 1].isNot(T_LBRACE))
@@ -225,7 +220,7 @@ QString MatchingText::insertParagraphSeparator(const QTextCursor &tc) const
 
     --index; // consume the `{'
 
-    const SimpleToken &token = tk[index - 1];
+    const Token &token = tk[index - 1];
 
     if (token.is(T_STRING_LITERAL) && tk[index - 2].is(T_EXTERN)) {
         // recognized extern "C"
@@ -235,7 +230,7 @@ QString MatchingText::insertParagraphSeparator(const QTextCursor &tc) const
         int i = index - 1;
 
         forever {
-            const SimpleToken &current = tk[i - 1];
+            const Token &current = tk[i - 1];
 
             if (current.is(T_EOF_SYMBOL))
                 break;
@@ -295,7 +290,7 @@ QString MatchingText::insertParagraphSeparator(const QTextCursor &tc) const
         }
 
         // look at the token before the matched brace
-        const SimpleToken &tokenBeforeBrace = tk[lparenIndex - 1];
+        const Token &tokenBeforeBrace = tk[lparenIndex - 1];
 
         if (tokenBeforeBrace.is(T_IF)) {
             // recognized an if statement

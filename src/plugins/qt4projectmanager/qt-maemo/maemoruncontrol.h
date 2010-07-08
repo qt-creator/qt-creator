@@ -36,7 +36,7 @@
 #define MAEMORUNCONTROL_H
 
 #include "maemodeviceconfigurations.h"
-#include "maemopackagecontents.h"
+#include "maemodeployable.h"
 #include "maemosshthread.h"
 
 #include <projectexplorer/runconfiguration.h>
@@ -109,6 +109,7 @@ private:
 
     void startInitialCleanup();
     void killRemoteProcesses(const QStringList &apps, bool initialCleanup);
+    void startExecutionIfPossible();
     bool isCleaning() const;
     bool isDeploying() const;
     QString remoteSudo() const;

@@ -1,4 +1,6 @@
-QT       -= core
+QT       = core
+%NETWORK%QT += network
+
 CONFIG   += console
 CONFIG   -= app_bundle
 

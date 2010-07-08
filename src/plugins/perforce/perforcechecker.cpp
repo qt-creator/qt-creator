@@ -35,6 +35,7 @@
 #include <QtCore/QRegExp>
 #include <QtCore/QTimer>
 #include <QtCore/QFileInfo>
+#include <QtCore/QDir>
 
 #include <QtGui/QApplication>
 #include <QtGui/QCursor>
@@ -108,7 +109,8 @@ void PerforceChecker::slotTimeOut()
         return;
     m_timedOut = true;
     Utils::SynchronousProcess::stopProcess(m_process);
-    emitFailed(tr("\"%1\" timed out after %2ms.").arg(m_binary).arg(m_timeOutMS));
+    emitFailed(tr("\"%1\" timed out after %2ms.").
+               arg(m_binary).arg(m_timeOutMS));
 }
 
 void PerforceChecker::slotError(QProcess::ProcessError error)
@@ -117,7 +119,8 @@ void PerforceChecker::slotError(QProcess::ProcessError error)
         return;
     switch (error) {
     case QProcess::FailedToStart:
-        emitFailed(tr("Unable to launch \"%1\": %2").arg(m_binary, m_process.errorString()));
+        emitFailed(tr("Unable to launch \"%1\": %2").
+                   arg(QDir::toNativeSeparators(m_binary), m_process.errorString()));
         break;
     case QProcess::Crashed: // Handled elsewhere
     case QProcess::Timedout:
@@ -136,12 +139,13 @@ void PerforceChecker::slotFinished(int exitCode, QProcess::ExitStatus exitStatus
         return;
     switch (exitStatus) {
     case QProcess::CrashExit:
-        emitFailed(tr("\"%1\" crashed.").arg(m_binary));
+        emitFailed(tr("\"%1\" crashed.").arg(QDir::toNativeSeparators(m_binary)));
         break;
     case QProcess::NormalExit:
         if (exitCode) {
             const QString stdErr = QString::fromLocal8Bit(m_process.readAllStandardError());
-            emitFailed(tr("\"%1\" terminated with exit code %2: %3").arg(m_binary).arg(exitCode).arg(stdErr));
+            emitFailed(tr("\"%1\" terminated with exit code %2: %3").
+                       arg(QDir::toNativeSeparators(m_binary)).arg(exitCode).arg(stdErr));
         } else {
             parseOutput(QString::fromLocal8Bit(m_process.readAllStandardOutput()));
         }
@@ -178,7 +182,8 @@ void PerforceChecker::parseOutput(const QString &response)
     if (fi.exists()) {
         emitSucceeded(repositoryRoot);
     } else {
-        emitFailed(tr("The repository \"%1\" does not exist.").arg(repositoryRoot));
+        emitFailed(tr("The repository \"%1\" does not exist.").
+                   arg(QDir::toNativeSeparators(repositoryRoot)));
     }
 }
 

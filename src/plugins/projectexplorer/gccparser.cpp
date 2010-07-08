@@ -489,6 +489,32 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                          QLatin1String("/home/code/test.cpp"), 54,
                          Constants::TASK_CATEGORY_COMPILE))
             << QString();
+
+    QTest::newRow("QTCREATORBUG-597")
+            << QString::fromLatin1("debug/qplotaxis.o: In function `QPlotAxis':\n"
+                                   "M:\\Development\\x64\\QtPlot/qplotaxis.cpp:26: undefined reference to `vtable for QPlotAxis'\n"
+                                   "M:\\Development\\x64\\QtPlot/qplotaxis.cpp:26: undefined reference to `vtable for QPlotAxis'\n"
+                                   "collect2: ld returned 1 exit status")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << ( QList<ProjectExplorer::Task>()
+                << Task(Task::Unknown,
+                        QLatin1String("In function `QPlotAxis':"),
+                        QLatin1String("debug/qplotaxis.o"), -1,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Error,
+                        QLatin1String("undefined reference to `vtable for QPlotAxis'"),
+                        QLatin1String("M:\\Development\\x64\\QtPlot/qplotaxis.cpp"), 26,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Error,
+                        QLatin1String("undefined reference to `vtable for QPlotAxis'"),
+                        QLatin1String("M:\\Development\\x64\\QtPlot/qplotaxis.cpp"), 26,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Error,
+                        QLatin1String("collect2: ld returned 1 exit status"),
+                        QString(), -1,
+                        Constants::TASK_CATEGORY_COMPILE))
+            << QString();
 }
 
 void ProjectExplorerPlugin::testGccOutputParsers()

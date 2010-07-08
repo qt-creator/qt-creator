@@ -510,7 +510,7 @@ void DebuggerRunControl::stop()
 {
     m_running = false;
     QTC_ASSERT(m_engine, return);
-    m_engine->exitDebugger();
+    m_engine->quitDebugger();
 }
 
 void DebuggerRunControl::debuggingFinished()

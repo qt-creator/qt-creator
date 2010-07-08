@@ -157,45 +157,92 @@
 #endif
 
 // Note: the Debugger process itself and any helper processes like
-// gdbserver, the trk client etc are referred to as 'Adapter',
+// gdbserver, the trk client etc are referred to as 'Engine',
 // whereas the debugged process is referred to as 'Inferior'.
 //
-//              0 == DebuggerNotReady
-//                          |
-//                    EngineStarting
-//                          |
-//                    AdapterStarting --> AdapterStartFailed --> 0
-//                          |
-//                    AdapterStarted ------------------------------------.
-//                          |                                            v
-//                   InferiorStarting ----> InferiorStartFailed -------->|
-//                          |                                            |
-//         (core)           |     (attach) (term) (remote)               |
-//      .-----------------<-|->------------------.                       |
-//      |                   v                    |                       |
-//  InferiorUnrunnable      | (plain)            |                       |
-//      |                   | (trk)              |                       |
-//      |                   |                    |                       |
-//      |    .--> InferiorRunningRequested       |                       |
-//      |    |              |                    |                       |
-//      |    |       InferiorRunning             |                       |
-//      |    |              |                    |                       |
-//      |    |       InferiorStopping            |                       |
-//      |    |              |                    |                       |
-//      |    '------ InferiorStopped <-----------'                       |
-//      |                   |                                            v
-//      |          InferiorShuttingDown  ->  InferiorShutdownFailed ---->|
-//      |                   |                                            |
-//      |            InferiorShutDown                                    |
-//      |                   |                                            |
-//      '-------->  EngineShuttingDown  <--------------------------------'
-//                          |
-//                          0
+// Transitions marked by '---' are done in the individual engines.
+// Transitions marked by '+-+' are done in the base DebuggerEngine.
+// The GdbEngine->startEngine() function is described in more detail below.
 //
-// Allowed actions:
-//    [R] :  Run
-//    [C] :  Continue
-//    [N] :  Step, Next
+//                   DebuggerNotReady
+//                          +
+//                          +
+//                    EngineStarting
+//                          +
+//                          +
+//            (calls *Engine->startEngine())
+//                          |      |
+//                          |      `---> EngineStartFailed
+//                          |                   +
+//                          |    [calls RunControl->startFailed]
+//                          |                   +
+//                          |             DebuggerNotReady
+//                          v
+//                    EngineStarted
+//                          +
+//           [calls RunControl->StartSuccessful]
+//                          +
+//            (calls *Engine->startInferior())
+//                          |       |
+//                          |       ` ----> InferiorStartFailed +-+-+-+->.
+//                          |                                            +
+//                          v                                            +
+//                   InferiorStarted                                     +
+//                          +
+//            (calls *Engine->runInferior())                             +
+//                          |                                            +
+//         (core)           |     (attach) (term) (remote) (script)      +
+//      .-----------------<-|->------------------.                       +
+//      |                   v                    |                       +
+//  InferiorUnrunnable      | (plain)            |                       +
+//      |                   | (trk)              |                       +
+//      |                   |                    |                       +
+//      |    .--> InferiorRunningRequested       |                       +
+//      |    |              |                    |                       +
+//      |    |       InferiorRunning             |                       +
+//      |    |              |                    |                       +
+//      |    |       InferiorStopping            |                       +
+//      |    |              |                    |                       +
+//      |    '------ InferiorStopped <-----------'                       +
+//      |                   |                                            v
+//      |          InferiorShuttingDown  ->  InferiorShutdownFailed ---->+
+//      |                   |                                            +
+//      |            InferiorShutDown                                    +
+//      |                   |                                            +
+//      '-------->  EngineShuttingDown  <-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+'
+//                          |
+//                   DebuggerNotReady
+//
+
+// GdbEngine specific startup. All happens in EngineStarting state
+//
+// Transitions marked by '---' are done in the individual adapters.
+// Transitions marked by '+-+' are done in the GdbEngine.
+
+//                  GdbEngine::startEngine()
+//                          +
+//                          +
+//            (calls *Adapter->startAdapter())
+//                          |      |
+//                          |      `---> handleAdapterStartFailed()
+//                          |                   +
+//                          |             EngineStartFailed
+//                          |
+//                 handleAdapterStarted()
+//                          +
+//            (calls *Adapter->prepareInferior())
+//                          |      |
+//                          |      `---> handleAdapterStartFailed()
+//                          |                   +
+//                          |             EngineStartFailed
+//                          |
+//                 handleInferiorPrepared()
+//                          +
+//                     EngineStarted
+
+
+
+
 
 using namespace Core;
 using namespace Debugger;
@@ -245,12 +292,12 @@ const char * const NEXT_KEY                 = "F6";
 const char * const REVERSE_KEY              = "";
 const char * const RUN_TO_LINE_KEY          = "Shift+F8";
 const char * const RUN_TO_FUNCTION_KEY      = "Ctrl+F6";
-const char * const JUMP_TO_LINE_KEY         = "Alt+D,Alt+L";
+const char * const JUMP_TO_LINE_KEY         = "Ctrl+D,Ctrl+L";
 const char * const TOGGLE_BREAK_KEY         = "F8";
-const char * const BREAK_BY_FUNCTION_KEY    = "Alt+D,Alt+F";
-const char * const BREAK_AT_MAIN_KEY        = "Alt+D,Alt+M";
-const char * const ADD_TO_WATCH_KEY         = "Alt+D,Alt+W";
-const char * const SNAPSHOT_KEY             = "Alt+D,Alt+S";
+const char * const BREAK_BY_FUNCTION_KEY    = "Ctrl+D,Ctrl+F";
+const char * const BREAK_AT_MAIN_KEY        = "Ctrl+D,Ctrl+M";
+const char * const ADD_TO_WATCH_KEY         = "Ctrl+D,Ctrl+W";
+const char * const SNAPSHOT_KEY             = "Ctrl+D,Ctrl+S";
 #else
 const char * const INTERRUPT_KEY            = "Shift+F5";
 const char * const RESET_KEY                = "Ctrl+Shift+F5";
@@ -265,7 +312,7 @@ const char * const TOGGLE_BREAK_KEY         = "F9";
 const char * const BREAK_BY_FUNCTION_KEY    = "";
 const char * const BREAK_AT_MAIN_KEY        = "";
 const char * const ADD_TO_WATCH_KEY         = "Ctrl+Alt+Q";
-const char * const SNAPSHOT_KEY             = "Alt+D,Alt+S";
+const char * const SNAPSHOT_KEY             = "Ctrl+D,Ctrl+S";
 #endif
 
 } // namespace Constants
@@ -331,7 +378,7 @@ class DebugMode : public Core::BaseMode
 public:
     DebugMode(QObject *parent = 0) : BaseMode(parent)
     {
-        setDisplayName(tr("Debug"));
+        setDisplayName(QCoreApplication::translate("Debugger::Internal::DebugMode", "Debug"));
         setId(MODE_DEBUG);
         setIcon(QIcon(":/fancyactionbar/images/mode_Debug.png"));
         setPriority(P_MODE_DEBUG);
@@ -488,7 +535,8 @@ static inline bool oxygenStyle()
 }
 
 class DebuggingHelperOptionPage : public Core::IOptionsPage
-{
+{   // Needs tr - context
+    Q_OBJECT
 public:
     DebuggingHelperOptionPage() {}
 
@@ -848,6 +896,7 @@ public slots:
 
     void dumpLog();
     void cleanupViews();
+    void setInitialState();
 
     void fontSettingsChanged(const TextEditor::FontSettings &settings);
     DebuggerState state() const { return m_state; }
@@ -1383,7 +1432,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
 
 
     cmd = am->registerAction(m_actions.breakAction,
-        Constants::TOGGLE_BREAK, cppeditorcontext);
+        Constants::TOGGLE_BREAK, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::TOGGLE_BREAK_KEY));
     m_uiSwitcher->addMenuAction(cmd, Constants::LANG_CPP);
     connect(m_actions.breakAction, SIGNAL(triggered()),
@@ -1400,7 +1449,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     cmd = am->registerAction(m_actions.watchAction1,
         Constants::ADD_TO_WATCH1, cppeditorcontext);
     cmd->action()->setEnabled(true);
-    //cmd->setDefaultKeySequence(QKeySequence(tr("ALT+D,ALT+W")));
+    //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+W")));
     m_uiSwitcher->addMenuAction(cmd, Constants::LANG_CPP);
 
 
@@ -1526,6 +1575,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
         this, SLOT(languageChanged(QString)));
 
     disconnectEngine();
+    setInitialState();
+
     return true;
 }
 
@@ -1976,6 +2027,54 @@ void DebuggerPluginPrivate::setSimpleDockWidgetArrangement(const QString &active
     } else {
         //qDebug() << "SETTING SIMPLE QML ARRANGEMENT" << activeLanguage;
     }
+}
+
+void DebuggerPluginPrivate::setInitialState()
+{
+    m_watchersWindow->setVisible(false);
+    m_returnWindow->setVisible(false);
+    setBusyCursor(false);
+    m_actions.reverseDirectionAction->setChecked(false);
+    m_actions.reverseDirectionAction->setEnabled(false);
+    hideDebuggerToolTip();
+
+    m_startExternalAction->setEnabled(true);
+    m_attachExternalAction->setEnabled(true);
+#ifdef Q_OS_WIN
+    m_attachCoreAction->setEnabled(false);
+#else
+    m_attachCoreAction->setEnabled(true);
+#endif
+    m_startRemoteAction->setEnabled(true);
+    m_detachAction->setEnabled(false);
+
+    m_actions.watchAction1->setEnabled(true);
+    m_actions.watchAction2->setEnabled(true);
+    m_actions.breakAction->setEnabled(true);
+    m_actions.snapshotAction->setEnabled(false);
+    theDebuggerAction(OperateByInstruction)->setEnabled(false);
+
+    m_actions.stopAction->setIcon(m_stopIcon);
+    m_actions.stopAction->setText(tr("Stop Debugger"));
+    m_actions.stopAction->setEnabled(false);
+    m_actions.resetAction->setEnabled(false);
+
+    m_actions.stepAction->setEnabled(false);
+    m_actions.stepOutAction->setEnabled(false);
+    m_actions.runToLineAction1->setEnabled(false);
+    m_actions.runToLineAction2->setEnabled(false);
+    m_actions.runToFunctionAction->setEnabled(false);
+    m_actions.returnFromFunctionAction->setEnabled(false);
+    m_actions.jumpToLineAction1->setEnabled(false);
+    m_actions.jumpToLineAction2->setEnabled(false);
+    m_actions.nextAction->setEnabled(false);
+
+    theDebuggerAction(RecheckDebuggingHelpers)->setEnabled(false);
+    theDebuggerAction(AutoDerefPointers)->setEnabled(true);
+    theDebuggerAction(ExpandStack)->setEnabled(false);
+    theDebuggerAction(ExecuteCommand)->setEnabled(m_state == InferiorStopped);
+
+    //emit m_plugin->stateChanged(m_state);
 }
 
 void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
@@ -2578,8 +2677,8 @@ bool DebuggerListener::coreAboutToClose()
     switch (plugin->state()) {
     case DebuggerNotReady:
         return true;
-    case AdapterStarted:     // Most importantly, terminating a running
-    case AdapterStartFailed: // debuggee can cause problems.
+    case EngineStarted:     // Most importantly, terminating a running
+    case EngineStartFailed: // debuggee can cause problems.
     case InferiorUnrunnable:
     case InferiorStartFailed:
     case InferiorStopped:
@@ -2591,17 +2690,21 @@ bool DebuggerListener::coreAboutToClose()
     }
 
     const QString question = cleanTermination ?
-        tr("A debugging session is still in progress.\n"
+        QCoreApplication::translate("Debugger::Internal::DebuggerListener",
+           "A debugging session is still in progress.\n"
            "Would you like to terminate it?") :
-        tr("A debugging session is still in progress. "
+        QCoreApplication::translate("Debugger::Internal::DebuggerListener",
+           "A debugging session is still in progress. "
            "Terminating the session in the current"
            " state (%1) can leave the target in an inconsistent state."
            " Would you still like to terminate it?")
         .arg(_(DebuggerEngine::stateName(plugin->state())));
 
-    QMessageBox::StandardButton answer =
+    const QString title
+            = QCoreApplication::translate("Debugger::Internal::DebuggerListener",
+                                          "Close Debugging Session");                                                          QMessageBox::StandardButton answer =
         QMessageBox::question(DebuggerUISwitcher::instance()->mainWindow(),
-            tr("Close Debugging Session"), question,
+            title, question,
             QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 
     if (answer != QMessageBox::Yes)

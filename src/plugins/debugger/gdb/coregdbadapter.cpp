@@ -60,13 +60,12 @@ CoreGdbAdapter::CoreGdbAdapter(GdbEngine *engine, QObject *parent)
 void CoreGdbAdapter::startAdapter()
 {
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
-    setState(AdapterStarting);
     showMessage(_("TRYING TO START ADAPTER"));
 
     if (!m_engine->startGdb())
         return;
 
-    emit adapterStarted();
+    m_engine->handleAdapterStarted();
 }
 
 void CoreGdbAdapter::startInferior()
@@ -162,7 +161,7 @@ void CoreGdbAdapter::handleTargetCore(const GdbResponse &response)
     } else {
         QString msg = tr("Attach to core \"%1\" failed:\n").arg(startParameters().coreFile)
             + QString::fromLocal8Bit(response.data.findChild("msg").data());
-        emit inferiorStartFailed(msg);
+        m_engine->handleInferiorStartFailed(msg);
     }
 }
 

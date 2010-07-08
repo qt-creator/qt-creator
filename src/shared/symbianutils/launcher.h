@@ -30,6 +30,7 @@
 #define LAUNCHER_H
 
 #include "trkdevice.h"
+#include "trkutils.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QVariant>
@@ -109,6 +110,9 @@ public:
     // Create Trk message to start a process.
     static QByteArray startProcessMessage(const QString &executable,
                                           const QStringList &arguments);
+    // Create Trk message to read memory
+    static QByteArray readMemoryMessage(uint pid, uint tid, uint from, uint len);
+    static QByteArray readRegistersMessage(uint pid, uint tid);
     // Parse a TrkNotifyStopped message
     static bool parseNotifyStopped(const QByteArray &a,
                                    uint *pid, uint *tid, uint *address,
@@ -136,12 +140,18 @@ signals:
     void copyProgress(int percent);
     void stateChanged(int);
     void processStopped(uint pc, uint pid, uint tid, const QString& reason);
+    void processResumed(uint pid, uint tid);
+    void libraryLoaded(const trk::Library &lib);
+    void libraryUnloaded(const trk::Library &lib);
+    void registersAndCallStackReadComplete(const QList<uint>& registers, const QByteArray& stack);
     // Emitted by the destructor, for releasing devices of SymbianDeviceManager by name
     void destroyed(const QString &serverName);
 
 public slots:
     void terminate();
     void resumeProcess(uint pid, uint tid);
+    //can be used to obtain traceback after a breakpoint / exception
+    void getRegistersAndCallStack(uint pid, uint tid);
 
 private slots:
     void handleResult(const trk::TrkResult &data);
@@ -169,6 +179,8 @@ private:
     void handleStop(const TrkResult &result);
     void handleSupportMask(const TrkResult &result);
     void handleTrkVersion(const TrkResult &result);
+    void handleReadRegisters(const TrkResult &result);
+    void handleReadStack(const TrkResult &result);
 
     void copyFileToRemote();
     void copyFileFromRemote();

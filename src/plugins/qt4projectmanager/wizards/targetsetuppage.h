@@ -104,6 +104,7 @@ public:
     static QList<ImportInfo> filterImportInfos(const QSet<QString> &validTargets,
                                                const QList<ImportInfo> &infos);
 
+    static QList<ImportInfo> scanDefaultProjectDirectories(Qt4Project *project);
     static QList<ImportInfo> recursivelyCheckDirectoryForBuild(const QString &directory,
                                                                const QString &proFile, int maxdepth = 3);
 
@@ -119,6 +120,7 @@ public slots:
 private slots:
     void itemWasChanged();
     void addShadowBuildLocation();
+    void toggleAll();
     void handleDoubleClicks(QTreeWidgetItem *, int);
 
 private:
@@ -128,6 +130,7 @@ private:
 
     QList<ImportInfo> m_infos;
     bool m_preferMobile;
+    bool m_toggleWillCheck;
     QString m_proFilePath;
     QString m_defaultShadowBuildLocation;
 

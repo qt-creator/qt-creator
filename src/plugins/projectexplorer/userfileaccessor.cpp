@@ -32,6 +32,8 @@
 #include "buildconfiguration.h"
 #include "persistentsettings.h"
 #include "project.h"
+#include "projectexplorer.h"
+#include "projectexplorersettings.h"
 #include "target.h"
 #include "toolchain.h"
 
@@ -49,7 +51,7 @@ using namespace ProjectExplorer;
 
 namespace {
 const char * const USER_FILE_VERSION  = "ProjectExplorer.Project.Updater.FileVersion";
-const char * const USER_FILE_HOSTNAME = "ProjectExplorer.Project.Updater.Hostname";
+const char * const USER_FILE_ENVIRONMENT_ID = "ProjectExplorer.Project.Updater.EnvironmentId";
 const char * const WAS_UPDATED        = "ProjectExplorer.Project.Updater.DidUpdate";
 const char * const PROJECT_FILE_POSTFIX(".user");
 
@@ -148,6 +150,23 @@ public:
     QVariantMap update(Project *project, const QVariantMap &map);
 };
 
+// Version 4 reflects the introduction of deploy steps
+class Version4Handler : public UserFileVersionHandler
+{
+public:
+    int userFileVersion() const
+    {
+        return 4;
+    }
+
+    QString displayUserFileVersion() const
+    {
+        return QLatin1String("2.2pre1");
+    }
+
+    QVariantMap update(Project *project, const QVariantMap &map);
+};
+
 //
 // Helper functions:
 //
@@ -218,6 +237,7 @@ UserFileAccessor::UserFileAccessor() :
     addVersionHandler(new Version1Handler);
     addVersionHandler(new Version2Handler);
     addVersionHandler(new Version3Handler);
+    addVersionHandler(new Version4Handler);
 }
 
 UserFileAccessor::~UserFileAccessor()
@@ -246,20 +266,22 @@ QVariantMap UserFileAccessor::restoreSettings(Project *project)
         return QVariantMap();
     }
 
-    // Verify hostname
-    const QString hostname = map.value(QLatin1String(USER_FILE_HOSTNAME)).toString();
-    if (!hostname.isEmpty() && hostname != QHostInfo::localHostName()) {
-        // Ask the user
+    // Verify environment Id:
+    QUuid fileEnvironmentId(map.value(QLatin1String(USER_FILE_ENVIRONMENT_ID)).toString());
+    if (!fileEnvironmentId.isNull()
+        && fileEnvironmentId != ProjectExplorerPlugin::instance()->projectExplorerSettings().environmentId) {
         // TODO tr, casing check
         QMessageBox msgBox(QMessageBox::Question,
                            QApplication::translate("ProjectExplorer::UserFileAccessor",
-                                                   "Project Settings File from a different Host?"),
+                                                   "Project Settings File from a different Environment?"),
                            QApplication::translate("ProjectExplorer::UserFileAccessor",
-                                                   "Qt Creator has found a .user settings file from a host %1. "
-                                                   "The hostname for this computer is %2. \n\n"
-                                                   "The .user settings files contain machine specific settings. "
-                                                   "They should not be copied to a different environment. \n\n"
-                                                   "Still load the settigns file?").arg(hostname, QHostInfo::localHostName()),
+                                                   "Qt Creator has found a .user settings file which was "
+                                                   "created for another development setup, maybe "
+                                                   "originating from another machine.\n\n"
+                                                   "The .user settings files contain environment specific "
+                                                   "settings. They should not be copied to a different "
+                                                   "environment. \n\n"
+                                                   "Do you still want to load the settings file?"),
                            QMessageBox::Yes | QMessageBox::No,
                            Core::ICore::instance()->mainWindow());
         msgBox.setDefaultButton(QMessageBox::No);
@@ -297,7 +319,8 @@ bool UserFileAccessor::saveSettings(Project *project, const QVariantMap &map)
         writer.saveValue(i.key(), i.value());
 
     writer.saveValue(QLatin1String(USER_FILE_VERSION), m_lastVersion + 1);
-    writer.saveValue(QLatin1String(USER_FILE_HOSTNAME), QHostInfo::localHostName());
+    writer.saveValue(QLatin1String(USER_FILE_ENVIRONMENT_ID),
+                     ProjectExplorerPlugin::instance()->projectExplorerSettings().environmentId.toString());
 
     return writer.save(fileNameFor(project->file()->fileName()), "QtCreatorProject");
 }
@@ -1007,6 +1030,81 @@ QVariantMap Version3Handler::update(Project *, const QVariantMap &map)
             newTarget.insert(key, buildConfig);
         }
         result.insert(targetKey, newTarget);
+    }
+    return result;
+}
+
+
+// -------------------------------------------------------------------------
+// Version4Handler
+// -------------------------------------------------------------------------
+
+// Move packaging steps from build steps into deploy steps
+QVariantMap Version4Handler::update(Project *, const QVariantMap &map)
+{
+    QVariantMap result;
+    QMapIterator<QString, QVariant> it(map);
+    while (it.hasNext()) {
+        it.next();
+        const QString &globalKey = it.key();
+        // check for target info
+        if (!globalKey.startsWith(QLatin1String("ProjectExplorer.Project.Target."))) {
+            result.insert(globalKey, it.value());
+            continue;
+        }
+        const QVariantMap &originalTarget = it.value().toMap();
+        // check for symbian and maemo device target
+        if (originalTarget.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"))
+                != QLatin1String("Qt4ProjectManager.Target.S60DeviceTarget")
+            && originalTarget.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"))
+                != QLatin1String("Qt4ProjectManager.Target.MaemoDeviceTarget"))
+        {
+            result.insert(globalKey, originalTarget);
+            continue;
+        }
+
+        QVariantMap newTarget;
+        QMapIterator<QString, QVariant> targetIt(originalTarget);
+        while (targetIt.hasNext()) {
+            targetIt.next();
+            const QString &targetKey = targetIt.key();
+            if (!targetKey.startsWith(QLatin1String("ProjectExplorer.Target.BuildConfiguration."))) {
+                newTarget.insert(targetKey, targetIt.value());
+                continue;
+            }
+
+            bool movedBs = false;
+            const QVariantMap &originalBc = targetIt.value().toMap();
+            QVariantMap newBc;
+            QMapIterator<QString, QVariant> bcIt(originalBc);
+            while(bcIt.hasNext()) {
+                bcIt.next();
+                const QString &bcKey = bcIt.key();
+                if (!bcKey.startsWith(QLatin1String("ProjectExplorer.BuildConfiguration.BuildStep."))) {
+                    newBc.insert(bcKey, bcIt.value());
+                    continue;
+                }
+
+                const QVariantMap &buildStep = bcIt.value().toMap();
+                if ((buildStep.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id")).toString() ==
+                        QLatin1String("Qt4ProjectManager.S60SignBuildStep"))
+                    || (buildStep.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id")).toString() ==
+                        QLatin1String("Qt4ProjectManager.MaemoPackageCreationStep"))) {
+                    movedBs = true;
+                    newBc.insert(QLatin1String("ProjectExplorer.BuildConfiguration.DeployStep.0"), buildStep);
+                } else {
+                    newBc.insert(bcKey, buildStep);
+                }
+            }
+            if (movedBs) {
+                // adjust counts:
+                newBc.insert(QLatin1String("ProjectExplorer.BuildConfiguration.DeployStepsCount"), 1);
+                newBc.insert(QLatin1String("ProjectExplorer.BuildConfiguration.BuildStepsCount"),
+                        newBc.value(QLatin1String("ProjectExplorer.BuildConfiguration.BuildStepsCount")).toInt() - 1);
+            }
+            newTarget.insert(targetKey, newBc);
+        }
+        result.insert(globalKey, newTarget);
     }
     return result;
 }

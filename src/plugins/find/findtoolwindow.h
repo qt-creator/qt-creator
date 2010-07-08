@@ -57,6 +57,9 @@ public:
     void readSettings();
     void writeSettings();
 
+protected:
+    bool eventFilter(QObject *obj, QEvent *event);
+
 private slots:
     void search();
     void replace();

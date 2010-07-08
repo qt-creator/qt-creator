@@ -200,6 +200,7 @@ void TcfTrkGdbAdapter::handleTcfTrkRunControlModuleLoadContextSuspendedEvent(con
         library.name = minfo.name;
         library.codeseg = minfo.codeAddress;
         library.dataseg = minfo.dataAddress;
+        library.pid = tcftrk::RunControlContext::processIdFromTcdfId(se.id());
         m_session.libraries.push_back(library);
     } else {
         const int index = m_session.modules.indexOf(moduleName);
@@ -251,13 +252,13 @@ void TcfTrkGdbAdapter::handleTargetRemote(const GdbResponse &record)
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (record.resultClass == GdbResultDone) {
         setState(InferiorStopped);
-        emit inferiorPrepared();
+        m_engine->handleInferiorPrepared();
         if (debug)
             qDebug() << "handleTargetRemote" << m_session.toString();
     } else {
         QString msg = tr("Connecting to TRK server adapter failed:\n")
             + QString::fromLocal8Bit(record.data.findChild("msg").data());
-        emit inferiorStartFailed(msg);
+        m_engine->handleInferiorStartFailed(msg);
     }
 }
 
@@ -323,16 +324,16 @@ void TcfTrkGdbAdapter::startGdb()
         cleanup();
         return;
     }
-    emit adapterStarted();
+    m_engine->handleAdapterStarted();
 }
 
 void TcfTrkGdbAdapter::tcftrkDeviceError(const QString  &errorString)
 {
     logMessage(errorString);
-    if (state() == AdapterStarting) {
-        emit adapterStartFailed(errorString, QString());
+    if (state() == EngineStarting) {
+        m_engine->handleAdapterStartFailed(errorString, QString());
     } else {
-        emit adapterCrashed(errorString);
+        m_engine->handleAdapterCrashed(errorString);
     }
 }
 
@@ -598,8 +599,11 @@ void TcfTrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
     else if (cmd == "k" || cmd.startsWith("vKill")) {
         // Kill inferior process
         logMessage(msgGdbPacket(QLatin1String("kill")));
-        m_trkDevice->sendProcessTerminateCommand(TcfTrkCallback(),
-                                                 m_tcfProcessId);
+        // Requires id of main thread to terminate.
+        // Note that calling 'Settings|set|removeExecutable' crashes TCF TRK,
+        // so, it is apparently not required.
+        m_trkDevice->sendRunControlTerminateCommand(TcfTrkCallback(),
+                                                    mainThreadContextId());
     }
 
     else if (cmd.startsWith('m')) {
@@ -931,21 +935,21 @@ void TcfTrkGdbAdapter::startAdapter()
     if (debug)
         qDebug() << parameters.processArgs;
     // Fixme: 1 of 3 testing hacks.
-    if (parameters.processArgs.size() >= 5 && parameters.processArgs.at(0) == _("@tcf@")) {
-        m_remoteExecutable = parameters.processArgs.at(1);
-        m_uid = parameters.processArgs.at(2).toUInt(0, 16);
-        m_symbolFile = parameters.processArgs.at(3);
-        tcfTrkAddress = parameters.processArgs.at(4);
-        m_remoteArguments.clear();
-    } else {
-        emit adapterStartFailed(_("Parameter error"), QString());
+    if (parameters.processArgs.size() < 5 || parameters.processArgs.at(0) != _("@tcf@")) {
+        m_engine->handleAdapterStartFailed(_("Parameter error"), QString());
+        return;
     }
+
+    m_remoteExecutable = parameters.processArgs.at(1);
+    m_uid = parameters.processArgs.at(2).toUInt(0, 16);
+    m_symbolFile = parameters.processArgs.at(3);
+    tcfTrkAddress = parameters.processArgs.at(4);
+    m_remoteArguments.clear();
 
     // Unixish gdbs accept only forward slashes
     m_symbolFile.replace(QLatin1Char('\\'), QLatin1Char('/'));
     // Start
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
-    setState(AdapterStarting);
     showMessage(_("TRYING TO START ADAPTER"));
     logMessage(QLatin1String("### Starting TcfTrkGdbAdapter"));
 
@@ -957,7 +961,7 @@ void TcfTrkGdbAdapter::startAdapter()
         QString msg = QString("Unable to start the gdb server at %1: %2.")
             .arg(m_gdbServerName).arg(m_gdbServer->errorString());
         logMessage(msg, LogError);
-        emit adapterStartFailed(msg, QString());
+        m_engine->handleAdapterStartFailed(msg, QString());
         return;
     }
 
@@ -1001,7 +1005,7 @@ void TcfTrkGdbAdapter::handleCreateProcess(const tcftrk::TcfTrkCommandResult &re
     if (!result) {
         const QString errorMessage = result.errorString();
         logMessage(QString::fromLatin1("Failed to start process: %1").arg(errorMessage), LogError);
-        emit inferiorStartFailed(result.errorString());
+        m_engine->handleInferiorStartFailed(result.errorString());
         return;
     }
     QTC_ASSERT(!result.values.isEmpty(), return);
@@ -1066,12 +1070,6 @@ void TcfTrkGdbAdapter::cleanup()
     if (!m_trkIODevice.isNull()) {
                 QAbstractSocket *socket = qobject_cast<QAbstractSocket *>(m_trkIODevice.data());
         const bool isOpen = socket ? socket->state() == QAbstractSocket::ConnectedState : m_trkIODevice->isOpen();
-        if (isOpen) { // Not sure if that is required: Remove Trk's context?
-            if (!m_remoteExecutable.isEmpty() && m_uid) {
-                m_trkDevice->sendSettingsRemoveExecutableCommand(m_remoteExecutable, m_uid);
-                m_uid = 0;
-            }
-        }
         if (isOpen) {
             if (socket) {
                 socket->disconnect();

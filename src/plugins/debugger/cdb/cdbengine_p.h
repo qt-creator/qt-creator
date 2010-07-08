@@ -48,7 +48,7 @@ class WatchHandler;
 class CdbStackTraceContext;
 class CdbSymbolGroupContext;
 
-class CdbDebugEnginePrivate : public CdbCore::CoreEngine
+class CdbEnginePrivate : public CdbCore::CoreEngine
 {
     Q_OBJECT
 public:
@@ -67,8 +67,8 @@ public:
         StoppedOther
     };
 
-    explicit CdbDebugEnginePrivate(CdbDebugEngine* engine);
-    ~CdbDebugEnginePrivate();
+    explicit CdbEnginePrivate(CdbEngine* engine);
+    ~CdbEnginePrivate();
     bool init(QString *errorMessage);
 
     void checkVersion();
@@ -76,7 +76,7 @@ public:
     void setDebuggeeHandles(HANDLE hDebuggeeProcess,  HANDLE hDebuggeeThread);
 
     bool isDebuggeeRunning() const { return isWatchTimerRunning(); }
-    ULONG updateThreadList();
+    ULONG updateThreadList(const QString &currentThreadState = QString());
     bool setCDBThreadId(unsigned long threadId, QString *errorMessage);
     void updateStackTrace();
     void updateModules();
@@ -125,7 +125,7 @@ public:
 
     QSharedPointer<CdbDumperHelper> m_dumper;
 
-    CdbDebugEngine *m_engine;
+    CdbEngine *m_engine;
     CdbStackTraceContext *m_currentStackTrace;
     EditorToolTipCache m_editorToolTipCache;
 

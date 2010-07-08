@@ -75,6 +75,7 @@ public:
 
     // get threads in stopped state
     static bool getThreads(const CdbCore::ComInterfaces &cif,
+                           bool stopped,
                            Threads *threads,
                            ULONG *currentThreadId,
                            QString *errorMessage);

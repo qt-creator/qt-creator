@@ -50,7 +50,7 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-BuildStepsPage::BuildStepsPage(Target *target, StepType type) :
+BuildStepsPage::BuildStepsPage(Target *target, BuildStep::Type type) :
     BuildConfigWidget(),
     m_type(type),
     m_addButton(0)
@@ -83,10 +83,16 @@ void BuildStepsPage::updateSummary()
 
 QString BuildStepsPage::displayName() const
 {
-    if (m_type == Build)
+    switch(m_type) {
+    case BuildStep::Build:
         return tr("Build Steps");
-    else
+    case BuildStep::Deploy:
+        return tr("Deploy Steps");
+    case BuildStep::Clean:
         return tr("Clean Steps");
+    default:
+        return tr("Unknown Steps");
+    }
 }
 
 void BuildStepsPage::init(BuildConfiguration *bc)
@@ -143,7 +149,6 @@ void BuildStepsPage::updateAddBuildStepMenu()
     m_addBuildStepHash.clear();
     menu->clear();
     if (!map.isEmpty()) {
-        QStringList names;
         QMap<QString, QPair<QString, IBuildStepFactory *> >::const_iterator it, end;
         end = map.constEnd();
         for (it = map.constBegin(); it != end; ++it) {
@@ -296,7 +301,19 @@ void BuildStepsPage::setupUi()
     QHBoxLayout *hboxLayout = new QHBoxLayout();
     hboxLayout->setContentsMargins(0, 4, 0, 0);
     m_addButton = new QPushButton(this);
-    m_addButton->setText(m_type == Clean ? tr("Add Clean Step") :  tr("Add Build Step"));
+    switch (m_type) {
+    case BuildStep::Clean:
+        m_addButton->setText(tr("Add Clean Step"));
+        break;
+    case BuildStep::Build:
+        m_addButton->setText(tr("Add Build Step"));
+        break;
+    case BuildStep::Deploy:
+        m_addButton->setText(tr("Add Deploy Step"));
+        break;
+    default:
+        m_addButton->setText(tr("Add Step"));
+    }
     m_addButton->setMenu(new QMenu(this));
     hboxLayout->addWidget(m_addButton);
 

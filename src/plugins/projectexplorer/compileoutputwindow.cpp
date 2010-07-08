@@ -47,6 +47,10 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
+namespace {
+const int MAX_LINECOUNT = 10000;
+}
+
 CompileOutputWindow::CompileOutputWindow(BuildManager * /*bm*/)
 {
     m_textEdit = new QPlainTextEdit();
@@ -92,6 +96,10 @@ QWidget *CompileOutputWindow::outputWidget(QWidget *)
 
 void CompileOutputWindow::appendText(const QString &text, const QTextCharFormat &textCharFormat)
 {
+    if (m_textEdit->document()->blockCount() > MAX_LINECOUNT)
+        return;
+    bool shouldScroll = (m_textEdit->verticalScrollBar()->value() ==
+                         m_textEdit->verticalScrollBar()->maximum());
     QString textWithNewline = text;
     if (!textWithNewline.endsWith("\n"))
         textWithNewline.append("\n");
@@ -99,7 +107,17 @@ void CompileOutputWindow::appendText(const QString &text, const QTextCharFormat 
     cursor.movePosition(QTextCursor::End);
     cursor.beginEditBlock();
     cursor.insertText(textWithNewline, textCharFormat);
+
+    if (m_textEdit->document()->blockCount() > MAX_LINECOUNT) {
+        QTextCharFormat tmp;
+        tmp.setFontWeight(QFont::Bold);
+        cursor.insertText(tr("Additional output omitted\n"), tmp);
+    }
+
     cursor.endEditBlock();
+
+    if (shouldScroll)
+        m_textEdit->setTextCursor(cursor);
 }
 
 void CompileOutputWindow::clearContents()
@@ -146,8 +164,10 @@ bool CompileOutputWindow::canNavigate()
 
 void CompileOutputWindow::registerPositionOf(const Task &task)
 {
-    QTextBlock block(m_textEdit->textCursor().block());
-    m_taskPositions.insert(task.taskId, block.position() + block.length() + 1);
+    int blocknumber = m_textEdit->blockCount();
+    if (blocknumber > MAX_LINECOUNT)
+        return;
+    m_taskPositions.insert(task.taskId, blocknumber - 1);
 }
 
 bool CompileOutputWindow::knowsPositionOf(const Task &task)
@@ -158,7 +178,7 @@ bool CompileOutputWindow::knowsPositionOf(const Task &task)
 void CompileOutputWindow::showPositionOf(const Task &task)
 {
     int position = m_taskPositions.value(task.taskId);
-    QTextCursor newCursor(m_textEdit->document()->findBlock(position));
+    QTextCursor newCursor(m_textEdit->document()->findBlockByNumber(position));
     newCursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
     m_textEdit->setTextCursor(newCursor);
 }

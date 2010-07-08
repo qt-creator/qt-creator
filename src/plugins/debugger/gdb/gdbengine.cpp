@@ -114,17 +114,17 @@ static const char winPythonVersionC[] = "python2.5";
 
 #define CB(callback) &GdbEngine::callback, STRINGIFY(callback)
 
-QByteArray GdbEngine::tooltipIName()
+QByteArray GdbEngine::tooltipIName(const QString &exp)
 {
-    return "tooltip.x";
+    return "tooltip." + exp.toLatin1().toHex();
 }
 
 static bool stateAcceptsGdbCommands(DebuggerState state)
 {
     switch (state) {
-    case AdapterStarting:
-    case AdapterStarted:
-    case AdapterStartFailed:
+    case EngineStarting:
+    case EngineStarted:
+    case EngineStartFailed:
     case InferiorUnrunnable:
     case InferiorStarting:
     case InferiorStartFailed:
@@ -139,10 +139,9 @@ static bool stateAcceptsGdbCommands(DebuggerState state)
     case InferiorShutdownFailed:
         return true;
     case DebuggerNotReady:
-    case EngineStarting:
     case InferiorStopFailed:
     case EngineShuttingDown:
-        break;
+        return false;
     }
     return false;
 }
@@ -192,23 +191,6 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters)
             this, SLOT(createFullBacktrace()));
 }
 
-void GdbEngine::connectDebuggingHelperActions()
-{
-    connect(theDebuggerAction(UseDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
-            this, SLOT(setUseDebuggingHelpers(QVariant)));
-    connect(theDebuggerAction(DebugDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
-            this, SLOT(setDebugDebuggingHelpersClassic(QVariant)));
-    connect(theDebuggerAction(RecheckDebuggingHelpers), SIGNAL(triggered()),
-            this, SLOT(recheckDebuggingHelperAvailabilityClassic()));
-}
-
-void GdbEngine::disconnectDebuggingHelperActions()
-{
-    disconnect(theDebuggerAction(UseDebuggingHelpers), 0, this, 0);
-    disconnect(theDebuggerAction(DebugDebuggingHelpers), 0, this, 0);
-    disconnect(theDebuggerAction(RecheckDebuggingHelpers), 0, this, 0);
-}
-
 DebuggerStartMode GdbEngine::startMode() const
 {
     return startParameters().startMode;
@@ -231,20 +213,6 @@ GdbEngine::~GdbEngine()
         disconnect(gdbProc(), 0, this, 0);
     delete m_gdbAdapter;
     m_gdbAdapter = 0;
-}
-
-void GdbEngine::connectAdapter()
-{
-    connect(m_gdbAdapter, SIGNAL(adapterStarted()),
-        this, SLOT(handleAdapterStarted()));
-    connect(m_gdbAdapter, SIGNAL(adapterStartFailed(QString,QString)),
-        this, SLOT(handleAdapterStartFailed(QString,QString)));
-    connect(m_gdbAdapter, SIGNAL(inferiorPrepared()),
-        this, SLOT(handleInferiorPrepared()));
-    connect(m_gdbAdapter, SIGNAL(inferiorStartFailed(QString)),
-        this, SLOT(handleInferiorStartFailed(QString)));
-    connect(m_gdbAdapter, SIGNAL(adapterCrashed(QString)),
-        this, SLOT(handleAdapterCrashed(QString)));
 }
 
 void GdbEngine::initializeVariables()
@@ -768,7 +736,7 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
     } else if ((cmd.flags & NeedsStop)
             || !m_commandsToRunOnTemporaryBreak.isEmpty()) {
         if (state() == InferiorStopped || state() == InferiorUnrunnable
-            || state() == InferiorStarting || state() == AdapterStarted) {
+            || state() == InferiorStarting || state() == EngineStarted) {
             // Can be safely sent now.
             flushCommand(cmd);
         } else {
@@ -1620,7 +1588,8 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
 
 void GdbEngine::shutdown()
 {
-    showMessage(_("INITIATE GDBENGINE SHUTDOWN"));
+    showMessage(_("INITIATE GDBENGINE SHUTDOWN IN STATE %1, PROC: %2")
+        .arg(state()).arg(gdbProc()->state()));
     if (m_progress) {
         m_progress->setProgressValue(90);
         m_progress->reportCanceled();
@@ -1628,17 +1597,16 @@ void GdbEngine::shutdown()
     }
     switch (state()) {
     case DebuggerNotReady: // Nothing to do! :)
-    case EngineStarting: // We can't get here, really
     case InferiorShuttingDown: // Will auto-trigger further shutdown steps
     case EngineShuttingDown: // Do not disturb! :)
     case InferiorRunningRequested_Kill:
     case InferiorStopping_Kill:
         break;
-    case AdapterStarting: // GDB is up, adapter is "doing something"
-        setState(AdapterStartFailed);
+    case EngineStarting: // GDB is up, adapter is "doing something"
+        setState(EngineStartFailed);
         m_gdbAdapter->shutdown();
         // fall-through
-    case AdapterStartFailed: // Adapter "did something", but it did not help
+    case EngineStartFailed: // Adapter "did something", but it did not help
         if (gdbProc()->state() == QProcess::Running) {
             m_commandsToRunOnTemporaryBreak.clear();
             postCommand("-gdb-exit", GdbEngine::ExitRequest, CB(handleGdbExit));
@@ -1654,7 +1622,7 @@ void GdbEngine::shutdown()
         postCommand(m_gdbAdapter->inferiorShutdownCommand(),
                     NeedsStop | LosesChild, CB(handleInferiorShutdown));
         break;
-    case AdapterStarted: // We can't get here, really
+    case EngineStarted: // We can't get here, really
     case InferiorStartFailed:
     case InferiorShutDown:
     case InferiorShutdownFailed: // Whatever
@@ -1724,9 +1692,19 @@ void GdbEngine::detachDebugger()
 
 void GdbEngine::exitDebugger()
 {
-    disconnectDebuggingHelperActions();
     shutdown();
-    //gdbProc()->kill();
+}
+
+void GdbEngine::quitDebugger()
+{
+    // FIXME: The problem here is that the "kill" send in the shutdown()
+    // procedure might not receive a response anymore.  So we need a way
+    // to force it down. On the other hand, there could be an answer,
+    // and regular the inferior shutdown procedure could take a while.
+    // And the RunControl::stop() is called synchroneously.
+    shutdown();
+    initializeVariables();
+    setState(DebuggerNotReady);
 }
 
 int GdbEngine::currentFrame() const
@@ -1781,11 +1759,10 @@ AbstractGdbAdapter *GdbEngine::createAdapter()
     }
 }
 
-void GdbEngine::startDebugger()
+void GdbEngine::startEngine()
 {
     //qDebug() << "GDB START DEBUGGER";
-    QTC_ASSERT(state() == DebuggerNotReady, setState(DebuggerNotReady));
-    setState(EngineStarting);
+    QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     QTC_ASSERT(m_debuggingHelperState == DebuggingHelperUninitialized, /**/);
     QTC_ASSERT(m_gdbAdapter == 0, /**/);
 
@@ -1798,10 +1775,15 @@ void GdbEngine::startDebugger()
 
     m_gdbAdapter = createAdapter();
     //qDebug() << "CREATED ADAPTER: " << m_gdbAdapter;
-    connectAdapter();
 
-    if (m_gdbAdapter->dumperHandling() != AbstractGdbAdapter::DumperNotAvailable)
-        connectDebuggingHelperActions();
+    if (m_gdbAdapter->dumperHandling() != AbstractGdbAdapter::DumperNotAvailable) {
+        connect(theDebuggerAction(UseDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
+                this, SLOT(setUseDebuggingHelpers(QVariant)));
+        connect(theDebuggerAction(DebugDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
+                this, SLOT(setDebugDebuggingHelpersClassic(QVariant)));
+        connect(theDebuggerAction(RecheckDebuggingHelpers), SIGNAL(triggered()),
+                this, SLOT(recheckDebuggingHelperAvailabilityClassic()));
+    }
 
     m_progress->setProgressValue(20);
     QTC_ASSERT(state() == EngineStarting, /**/);
@@ -2953,7 +2935,7 @@ void GdbEngine::handleThreadInfo(const GdbResponse &response)
             const GdbMi frame = item.findChild("frame");
             ThreadData thread;
             thread.id = item.findChild("id").data().toInt();
-            thread.targetId = item.findChild("target-id").data().toInt();
+            thread.targetId = QString::fromAscii(item.findChild("target-id").data());
             thread.core = QString::fromLatin1(item.findChild("core").data());
             thread.state = QString::fromLatin1(item.findChild("state").data());
             thread.address = frame.findChild("addr").data().toULongLong(&ok, 0);
@@ -2963,8 +2945,8 @@ void GdbEngine::handleThreadInfo(const GdbResponse &response)
             threads.append(thread);
         }
         threadsHandler()->setThreads(threads);
-        int currentIndex = response.data.findChild("current-thread-id").data().toInt();
-        threadsHandler()->setCurrentThread(currentIndex);
+        const int currentThreadId = response.data.findChild("current-thread-id").data().toInt();
+        threadsHandler()->setCurrentThreadId(currentThreadId);
     } else {
         // Fall back for older versions: Try to get at least a list
         // of running threads.
@@ -2974,24 +2956,18 @@ void GdbEngine::handleThreadInfo(const GdbResponse &response)
 
 void GdbEngine::handleThreadListIds(const GdbResponse &response)
 {
-    int id = response.cookie.toInt();
+    const int id = response.cookie.toInt();
     // "72^done,{thread-ids={thread-id="2",thread-id="1"},number-of-threads="2"}
     // In gdb 7.1+ additionally: current-thread-id="1"
     const QList<GdbMi> items = response.data.findChild("thread-ids").children();
     Threads threads;
-    int currentIndex = -1;
     for (int index = 0, n = items.size(); index != n; ++index) {
         ThreadData thread;
         thread.id = items.at(index).data().toInt();
         threads.append(thread);
-        if (thread.id == id) {
-            //qDebug() << "SETTING INDEX TO:" << index << " ID:"
-            // << id << " RECOD:" << response.toString();
-            currentIndex = index;
-        }
     }
     threadsHandler()->setThreads(threads);
-    threadsHandler()->setCurrentThread(currentIndex);
+    threadsHandler()->setCurrentThreadId(id);
 }
 
 
@@ -3078,7 +3054,6 @@ void GdbEngine::activateSnapshot2()
     // Otherwise the stack data might be stale.
     // See http://sourceware.org/bugzilla/show_bug.cgi?id=1124.
     setState(EngineStarting);
-    setState(AdapterStarting);
     postCommand("set stack-cache off");
     handleAdapterStarted();
 }
@@ -3215,7 +3190,7 @@ QPoint GdbEngine::m_toolTipPos;
 
 bool GdbEngine::showToolTip()
 {
-    QByteArray iname = tooltipIName();
+    QByteArray iname = tooltipIName(m_toolTipExpression);
 
     if (!theDebuggerBoolSetting(UseToolTipsInMainEditor)) {
         watchHandler()->removeData(iname);
@@ -3250,8 +3225,10 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos,
     m_toolTipPos = mousePos;
     int line, column;
     QString exp = cppExpressionAt(editor, cursorPos, &line, &column);
-    if (exp == m_toolTipExpression)
+    if (!exp.isEmpty() && exp == m_toolTipExpression) {
+        showToolTip();
         return;
+    }
 
     m_toolTipExpression = exp;
 
@@ -3319,7 +3296,7 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos,
     WatchData toolTip;
     toolTip.exp = exp.toLatin1();
     toolTip.name = exp;
-    toolTip.iname = tooltipIName();
+    toolTip.iname = tooltipIName(exp);
     watchHandler()->removeData(toolTip.iname);
     watchHandler()->insertData(toolTip);
 }
@@ -4198,7 +4175,7 @@ void GdbEngine::handleGdbFinished(int code, QProcess::ExitStatus type)
     } else if (state() == EngineShuttingDown) {
         showMessage(_("GOING TO SHUT DOWN ADAPTER"));
         m_gdbAdapter->shutdown();
-    } else if (state() != AdapterStartFailed) {
+    } else if (state() != EngineStartFailed) {
         QString msg = tr("The gdb process exited unexpectedly (%1).")
           .arg((type == QProcess::CrashExit)
               ? tr("crashed") : tr("code %1").arg(code));
@@ -4212,7 +4189,7 @@ void GdbEngine::handleGdbFinished(int code, QProcess::ExitStatus type)
 
 void GdbEngine::handleAdapterStartFailed(const QString &msg, const QString &settingsIdHint)
 {
-    setState(AdapterStartFailed);
+    setState(EngineStartFailed);
     showMessage(_("ADAPTER START FAILED"));
     if (!msg.isEmpty()) {
         const QString title = tr("Adapter start failed");
@@ -4228,7 +4205,7 @@ void GdbEngine::handleAdapterStartFailed(const QString &msg, const QString &sett
 
 void GdbEngine::handleAdapterStarted()
 {
-    setState(AdapterStarted);
+    setState(EngineStarted);
     if (m_progress)
         m_progress->setProgressValue(25);
     showMessage(_("ADAPTER SUCCESSFULLY STARTED"));
@@ -4277,7 +4254,7 @@ void GdbEngine::startInferiorPhase2()
 void GdbEngine::handleInferiorStartFailed(const QString &msg)
 {
     showStatusMessage(tr("Failed to start application: ") + msg);
-    if (state() == AdapterStartFailed) {
+    if (state() == EngineStartFailed) {
         showMessage(_("INFERIOR START FAILED, BUT ADAPTER DIED ALREADY"));
         return; // Adapter crashed meanwhile, so this notification is meaningless.
     }
@@ -4296,7 +4273,7 @@ void GdbEngine::handleAdapterCrashed(const QString &msg)
     // Don't bother with state transitions - this can happen in any state and
     // the end result is always the same, so it makes little sense to find a
     // "path" which does not assert.
-    setState(AdapterStartFailed, true);
+    setState(EngineStartFailed, true);
 
     // No point in being friendly here ...
     gdbProc()->kill();

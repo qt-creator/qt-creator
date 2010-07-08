@@ -43,7 +43,7 @@
 
 #include "maemoconstants.h"
 #include "maemopackagecreationwidget.h"
-#include "maemopackagecontents.h"
+#include "maemodeployables.h"
 #include "maemotoolchain.h"
 #include "profilewrapper.h"
 
@@ -52,9 +52,6 @@
 #include <qt4project.h>
 #include <qt4target.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
 #include <QtCore/QProcess>
 #include <QtCore/QProcessEnvironment>
 #include <QtCore/QStringBuilder>
@@ -76,7 +73,7 @@ namespace Internal {
 
 MaemoPackageCreationStep::MaemoPackageCreationStep(BuildConfiguration *buildConfig)
     : ProjectExplorer::BuildStep(buildConfig, CreatePackageId),
-      m_packageContents(new MaemoPackageContents(this)),
+      m_deployables(new MaemoDeployables(this)),
       m_packagingEnabled(true),
       m_versionString(DefaultVersionNumber)
 {
@@ -85,13 +82,16 @@ MaemoPackageCreationStep::MaemoPackageCreationStep(BuildConfiguration *buildConf
 MaemoPackageCreationStep::MaemoPackageCreationStep(BuildConfiguration *buildConfig,
     MaemoPackageCreationStep *other)
     : BuildStep(buildConfig, other),
-      m_packageContents(new MaemoPackageContents(this)),
+      m_deployables(new MaemoDeployables(this)),
       m_packagingEnabled(other->m_packagingEnabled),
       m_versionString(other->m_versionString)
 {
 }
 
-MaemoPackageCreationStep::~MaemoPackageCreationStep() {}
+MaemoPackageCreationStep::~MaemoPackageCreationStep()
+{
+    delete m_deployables;
+}
 
 bool MaemoPackageCreationStep::init()
 {
@@ -161,11 +161,16 @@ bool MaemoPackageCreationStep::createPackage()
             env.insert(envPattern.cap(1), envPattern.cap(2));
     } while (!line.isEmpty());
     
-    QProcess buildProc;
-    buildProc.setProcessEnvironment(env);
-    buildProc.setWorkingDirectory(buildDir);
-    buildProc.start("cd " + buildDir);
-    buildProc.waitForFinished();
+
+    m_buildProc.reset(new QProcess);
+    connect(m_buildProc.data(), SIGNAL(readyReadStandardOutput()), this,
+        SLOT(handleBuildOutput()));
+    connect(m_buildProc.data(), SIGNAL(readyReadStandardError()), this,
+        SLOT(handleBuildOutput()));
+    m_buildProc->setProcessEnvironment(env);
+    m_buildProc->setWorkingDirectory(buildDir);
+    m_buildProc->start("cd " + buildDir);
+    m_buildProc->waitForFinished();
 
     // cache those two since we can change the version number during packaging
     // and might fail later to modify, copy, remove etc. the generated package
@@ -174,8 +179,8 @@ bool MaemoPackageCreationStep::createPackage()
 
     if (!QFileInfo(buildDir + QLatin1String("/debian")).exists()) {
         const QString command = QLatin1String("dh_make -s -n -p ")
-            % executableFileName().toLower() % QLatin1Char('_') % versionString();
-        if (!runCommand(buildProc, command))
+            % projectName() % QLatin1Char('_') % versionString();
+        if (!runCommand(command))
             return false;
 
         QFile rulesFile(buildDir + QLatin1String("/debian/rules"));
@@ -213,7 +218,7 @@ bool MaemoPackageCreationStep::createPackage()
         }
     }
 
-    if (!runCommand(buildProc, "dpkg-buildpackage -nc -uc -us"))
+    if (!runCommand(QLatin1String("dpkg-buildpackage -nc -uc -us")))
         return false;
 
     // Workaround for non-working dh_builddeb --destdir=.
@@ -240,11 +245,11 @@ bool MaemoPackageCreationStep::createPackage()
     }
 
     emit addOutput(tr("Package created."), textCharFormat);
-    m_packageContents->setUnModified();
+    m_deployables->setUnmodified();
     return true;
 }
 
-bool MaemoPackageCreationStep::runCommand(QProcess &proc, const QString &command)
+bool MaemoPackageCreationStep::runCommand(const QString &command)
 {
     QTextCharFormat textCharFormat;
     emit addOutput(tr("Package Creation: Running command '%1'.").arg(command), textCharFormat);
@@ -252,28 +257,39 @@ bool MaemoPackageCreationStep::runCommand(QProcess &proc, const QString &command
 #ifdef Q_OS_WIN
     perl = maddeRoot() + QLatin1String("/bin/perl.exe ");
 #endif
-    proc.start(perl + maddeRoot() % QLatin1String("/madbin/") % command);
-    if (!proc.waitForStarted()) {
+    m_buildProc->start(perl + maddeRoot() % QLatin1String("/madbin/") % command);
+    if (!m_buildProc->waitForStarted()) {
         raiseError(tr("Packaging failed."),
             tr("Packaging error: Could not start command '%1'. Reason: %2")
-            .arg(command).arg(proc.errorString()));
+            .arg(command).arg(m_buildProc->errorString()));
         return false;
     }
-    proc.write("\n"); // For dh_make
-    proc.waitForFinished(-1);
-    if (proc.error() != QProcess::UnknownError || proc.exitCode() != 0) {
+    m_buildProc->write("\n"); // For dh_make
+    m_buildProc->waitForFinished(-1);
+    if (m_buildProc->error() != QProcess::UnknownError || m_buildProc->exitCode() != 0) {
         QString mainMessage = tr("Packaging Error: Command '%1' failed.")
             .arg(command);
-        if (proc.error() != QProcess::UnknownError)
-            mainMessage += tr(" Reason: %1").arg(proc.errorString());
+        if (m_buildProc->error() != QProcess::UnknownError)
+            mainMessage += tr(" Reason: %1").arg(m_buildProc->errorString());
         else
-            mainMessage += tr("Exit code: %1").arg(proc.exitCode());
-        raiseError(mainMessage, mainMessage + QLatin1Char('\n')
-                   + tr("Output was: ") + proc.readAllStandardError()
-                   + QLatin1Char('\n') + proc.readAllStandardOutput());
+            mainMessage += tr("Exit code: %1").arg(m_buildProc->exitCode());
+        raiseError(mainMessage);
         return false;
     }
     return true;
+}
+
+void MaemoPackageCreationStep::handleBuildOutput()
+{
+    const QByteArray &stdOut = m_buildProc->readAllStandardOutput();
+    QTextCharFormat textCharFormat;
+    if (!stdOut.isEmpty())
+        emit addOutput(QString::fromLocal8Bit(stdOut), textCharFormat);
+    const QByteArray &errorOut = m_buildProc->readAllStandardError();
+    if (!errorOut.isEmpty()) {
+        textCharFormat.setForeground(QBrush(QColor("red")));
+        emit addOutput(QString::fromLocal8Bit(errorOut), textCharFormat);
+    }
 }
 
 const Qt4BuildConfiguration *MaemoPackageCreationStep::qt4BuildConfiguration() const
@@ -281,35 +297,15 @@ const Qt4BuildConfiguration *MaemoPackageCreationStep::qt4BuildConfiguration() c
     return static_cast<Qt4BuildConfiguration *>(buildConfiguration());
 }
 
-QString MaemoPackageCreationStep::localExecutableFilePath() const
-{
-    const TargetInformation &ti = qt4BuildConfiguration()->qt4Target()
-        ->qt4Project()->rootProjectNode()->targetInformation();
-    if (!ti.valid)
-        return QString();
-    return QDir::toNativeSeparators(QDir::cleanPath(ti.workingDir
-        + QLatin1Char('/') + executableFileName()));
-}
-
 QString MaemoPackageCreationStep::buildDirectory() const
 {
-    const TargetInformation &ti = qt4BuildConfiguration()->qt4Target()
-        ->qt4Project()->rootProjectNode()->targetInformation();
-    return ti.valid ? ti.buildDir : QString();
+    return qt4BuildConfiguration()->buildDirectory();
 }
 
-QString MaemoPackageCreationStep::executableFileName() const
+QString MaemoPackageCreationStep::projectName() const
 {
-    const Qt4Project * const project
-        = qt4BuildConfiguration()->qt4Target()->qt4Project();
-    const TargetInformation &ti
-        = project->rootProjectNode()->targetInformation();
-    if (!ti.valid)
-        return QString();
-
-    return project->rootProjectNode()->projectType() == LibraryTemplate
-        ? QLatin1String("lib") + ti.target + QLatin1String(".so")
-        : ti.target;
+    return qt4BuildConfiguration()->qt4Target()->qt4Project()
+        ->rootProjectNode()->displayName().toLower();
 }
 
 const MaemoToolChain *MaemoPackageCreationStep::maemoToolChain() const
@@ -330,12 +326,13 @@ QString MaemoPackageCreationStep::targetRoot() const
 bool MaemoPackageCreationStep::packagingNeeded() const
 {
     QFileInfo packageInfo(packageFilePath());
-    if (!packageInfo.exists() || m_packageContents->isModified())
+    if (!packageInfo.exists() || m_deployables->isModified())
         return true;
 
-    for (int i = 0; i < m_packageContents->rowCount(); ++i) {
+    const int deployableCount = m_deployables->deployableCount();
+    for (int i = 0; i < deployableCount; ++i) {
         if (packageInfo.lastModified()
-            <= QFileInfo(m_packageContents->deployableAt(i).localFilePath)
+            <= QFileInfo(m_deployables->deployableAt(i).localFilePath)
                .lastModified())
             return true;
     }
@@ -345,7 +342,7 @@ bool MaemoPackageCreationStep::packagingNeeded() const
 
 QString MaemoPackageCreationStep::packageFilePath() const
 {
-    return buildDirectory() % QDir::separator() % executableFileName().toLower()
+    return buildDirectory() % '/' % projectName()
         % QLatin1Char('_') % versionString() % QLatin1String("_armel.deb");
 }
 
@@ -371,18 +368,6 @@ void MaemoPackageCreationStep::raiseError(const QString &shortMsg,
     emit addOutput(detailedMsg.isNull() ? shortMsg : detailedMsg, textCharFormat);
     emit addTask(Task(Task::Error, shortMsg, QString(), -1,
                       TASK_CATEGORY_BUILDSYSTEM));
-}
-
-QSharedPointer<ProFileWrapper> MaemoPackageCreationStep::proFileWrapper() const
-{
-    if (!m_proFileWrapper) {
-        const Qt4ProFileNode * const proFileNode = qt4BuildConfiguration()
-            ->qt4Target()->qt4Project()->rootProjectNode();
-        m_proFileWrapper = QSharedPointer<ProFileWrapper>(
-            new ProFileWrapper(proFileNode->path()));
-    }
-
-    return m_proFileWrapper;
 }
 
 const QLatin1String MaemoPackageCreationStep::CreatePackageId("Qt4ProjectManager.MaemoPackageCreationStep");

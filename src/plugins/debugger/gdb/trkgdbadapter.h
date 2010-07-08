@@ -185,10 +185,8 @@ private:
     void handleDirectWrite9(const TrkResult &response);
 
     QByteArray trkContinueMessage(uint threadId);
-    QByteArray trkReadRegistersMessage();
     QByteArray trkWriteRegisterMessage(trk::byte reg, uint value);
     QByteArray trkReadMemoryMessage(const MemoryRange &range);
-    QByteArray trkReadMemoryMessage(uint addr, uint len);
     QByteArray trkWriteMemoryMessage(uint addr, const QByteArray &date);
     QByteArray trkBreakpointMessage(uint addr, uint len, bool armMode = true);
     QByteArray trkStepRangeMessage();

@@ -34,6 +34,8 @@
 #include "designmodewidget.h"
 #include "settingspage.h"
 #include "designmodecontext.h"
+#include "qmlcontextpane.h"
+
 
 #include <qmljseditor/qmljseditorconstants.h>
 
@@ -144,6 +146,8 @@ bool BauhausPlugin::initialize(const QStringList & /*arguments*/, QString *error
     addAutoReleasedObject(new SettingsPage);
 
     m_settings.fromSettings(core->settings());
+
+    addAutoReleasedObject(new QmlContextPane);
 
     error_message->clear();
 

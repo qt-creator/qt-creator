@@ -173,9 +173,9 @@ public:
     QString runMode() const;
 
 signals:
-    void addToOutputWindow(RunControl *, const QString &line, bool onStdErr);
-    void addToOutputWindowInline(RunControl *, const QString &line, bool onStdErr);
-    void appendMessage(RunControl *, const QString &error, bool isError);
+    void addToOutputWindow(ProjectExplorer::RunControl *, const QString &line, bool onStdErr);
+    void addToOutputWindowInline(ProjectExplorer::RunControl *, const QString &line, bool onStdErr);
+    void appendMessage(ProjectExplorer::RunControl *, const QString &error, bool isError);
     void started();
     void finished();
 

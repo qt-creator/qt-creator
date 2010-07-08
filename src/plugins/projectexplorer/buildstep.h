@@ -39,10 +39,6 @@
 
 namespace ProjectExplorer {
 
-enum StepType { Build = 0,
-                Clean = 1,
-                LastStepType = 2};
-
 class BuildConfiguration;
 
 /*
@@ -76,6 +72,14 @@ protected:
     BuildStep(BuildConfiguration *bc, BuildStep *bs);
 
 public:
+    enum Type {
+        Build = 0,
+        Clean,
+        Deploy,
+        LastStepType
+    };
+    Q_ENUMS(Type)
+
     virtual ~BuildStep();
 
     // This function is run in the gui thread,
@@ -122,17 +126,17 @@ public:
     virtual ~IBuildStepFactory();
 
     // used to show the list of possible additons to a target, returns a list of types
-    virtual QStringList availableCreationIds(BuildConfiguration *parent, StepType type) const = 0;
+    virtual QStringList availableCreationIds(BuildConfiguration *parent, BuildStep::Type type) const = 0;
     // used to translate the types to names to display to the user
     virtual QString displayNameForId(const QString &id) const = 0;
 
-    virtual bool canCreate(BuildConfiguration *parent, StepType type, const QString &id) const = 0;
-    virtual BuildStep *create(BuildConfiguration *parent, StepType type, const QString &id) = 0;
+    virtual bool canCreate(BuildConfiguration *parent, BuildStep::Type type, const QString &id) const = 0;
+    virtual BuildStep *create(BuildConfiguration *parent, BuildStep::Type type, const QString &id) = 0;
     // used to recreate the runConfigurations when restoring settings
-    virtual bool canRestore(BuildConfiguration *parent, StepType type, const QVariantMap &map) const = 0;
-    virtual BuildStep *restore(BuildConfiguration *parent, StepType type, const QVariantMap &map) = 0;
-    virtual bool canClone(BuildConfiguration *parent, StepType type, BuildStep *product) const = 0;
-    virtual BuildStep *clone(BuildConfiguration *parent, StepType type, BuildStep *product) = 0;
+    virtual bool canRestore(BuildConfiguration *parent, BuildStep::Type type, const QVariantMap &map) const = 0;
+    virtual BuildStep *restore(BuildConfiguration *parent, BuildStep::Type type, const QVariantMap &map) = 0;
+    virtual bool canClone(BuildConfiguration *parent, BuildStep::Type type, BuildStep *product) const = 0;
+    virtual BuildStep *clone(BuildConfiguration *parent, BuildStep::Type type, BuildStep *product) = 0;
 };
 
 class PROJECTEXPLORER_EXPORT BuildConfigWidget

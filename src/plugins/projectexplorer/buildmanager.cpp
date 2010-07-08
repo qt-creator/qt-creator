@@ -38,6 +38,7 @@
 #include "projectexplorersettings.h"
 #include "target.h"
 #include "taskwindow.h"
+#include "taskhub.h"
 #include "buildconfiguration.h"
 
 #include <coreplugin/icore.h>
@@ -91,11 +92,9 @@ BuildManager::BuildManager(ProjectExplorerPlugin *parent)
     m_outputWindow = new CompileOutputWindow(this);
     pm->addObject(m_outputWindow);
 
-    m_taskWindow = new TaskWindow;
+    m_taskHub = pm->getObject<TaskHub>();
+    m_taskWindow = new TaskWindow(m_taskHub);
     pm->addObject(m_taskWindow);
-
-    m_taskWindow->addCategory(Constants::TASK_CATEGORY_COMPILE, tr("Compile", "Category for compiler isses listened under 'Build Issues'"));
-    m_taskWindow->addCategory(Constants::TASK_CATEGORY_BUILDSYSTEM, tr("Build System", "Category for build system isses listened under 'Build Issues'"));
 
     connect(m_taskWindow, SIGNAL(tasksChanged()),
             this, SLOT(updateTaskCount()));
@@ -104,6 +103,12 @@ BuildManager::BuildManager(ProjectExplorerPlugin *parent)
             this, SLOT(cancel()));
     connect(&m_progressWatcher, SIGNAL(finished()),
             this, SLOT(finish()));
+}
+
+void BuildManager::extensionsInitialized()
+{
+    m_taskHub->addCategory(Constants::TASK_CATEGORY_COMPILE, tr("Compile", "Category for compiler isses listened under 'Build Issues'"));
+    m_taskHub->addCategory(Constants::TASK_CATEGORY_BUILDSYSTEM, tr("Build System", "Category for build system isses listened under 'Build Issues'"));
 }
 
 BuildManager::~BuildManager()
@@ -155,7 +160,7 @@ void BuildManager::cancel()
                    this, SLOT(addToOutputWindow(QString, QTextCharFormat)));
         decrementActiveBuildSteps(m_currentBuildStep->buildConfiguration()->target()->project());
 
-        m_progressFutureInterface->setProgressValueAndText(m_progress*100, "Build canceled"); //TODO NBS fix in qtconcurrent
+        m_progressFutureInterface->setProgressValueAndText(m_progress*100, tr("Build canceled")); //TODO NBS fix in qtconcurrent
         clearBuildQueue();
     }
     return;
@@ -231,11 +236,6 @@ bool BuildManager::tasksAvailable() const
     return m_taskWindow->taskCount() > 0;
 }
 
-void BuildManager::gotoTaskWindow()
-{
-    m_taskWindow->popup(true);
-}
-
 void BuildManager::startBuildQueue()
 {
     if (m_buildQueue.isEmpty()) {
@@ -248,8 +248,8 @@ void BuildManager::startBuildQueue()
         m_progressFutureInterface = new QFutureInterface<void>;
         m_progressWatcher.setFuture(m_progressFutureInterface->future());
         m_outputWindow->clearContents();
-        m_taskWindow->clearTasks(Constants::TASK_CATEGORY_COMPILE);
-        m_taskWindow->clearTasks(Constants::TASK_CATEGORY_BUILDSYSTEM);
+        m_taskHub->clearTasks(Constants::TASK_CATEGORY_COMPILE);
+        m_taskHub->clearTasks(Constants::TASK_CATEGORY_BUILDSYSTEM);
         progressManager->setApplicationLabel("");
         Core::FutureProgress *progress = progressManager->addTask(m_progressFutureInterface->future(),
               tr("Build"),
@@ -283,7 +283,8 @@ void BuildManager::showBuildResults()
 void BuildManager::addToTaskWindow(const ProjectExplorer::Task &task)
 {
     m_outputWindow->registerPositionOf(task);
-    m_taskWindow->addTask(task);
+    // Distribute to all others
+    m_taskHub->addTask(task);
 }
 
 void BuildManager::addToOutputWindow(const QString &string, const QTextCharFormat &format)
@@ -413,8 +414,11 @@ bool BuildManager::buildQueueAppend(QList<BuildStep *> steps)
 void BuildManager::buildProjects(const QList<BuildConfiguration *> &configurations)
 {
     QList<BuildStep *> steps;
-    foreach(BuildConfiguration *bc, configurations)
-        steps.append(bc->steps(Build));
+    foreach(BuildConfiguration *bc, configurations) {
+        steps.append(bc->steps(BuildStep::Build));
+        // TODO: Verify that this is indeed what we want.
+        steps.append(bc->steps(BuildStep::Deploy));
+    }
 
     bool success = buildQueueAppend(steps);
     if (!success) {
@@ -431,7 +435,7 @@ void BuildManager::cleanProjects(const QList<BuildConfiguration *> &configuratio
 {
     QList<BuildStep *> steps;
     foreach(BuildConfiguration *bc, configurations)
-        steps.append(bc->steps(Clean));
+        steps.append(bc->steps(BuildStep::Clean));
 
     bool success = buildQueueAppend(steps);
     if (!success) {

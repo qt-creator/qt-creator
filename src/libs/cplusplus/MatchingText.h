@@ -40,8 +40,6 @@ class TokenCache;
 class CPLUSPLUS_EXPORT MatchingText
 {
 public:
-    MatchingText(TokenCache *tokenCache);
-
     static bool shouldInsertMatchingText(const QTextCursor &tc);
     static bool shouldInsertMatchingText(QChar lookAhead);
 
@@ -51,8 +49,6 @@ public:
 
 private:
     bool shouldInsertNewline(const QTextCursor &tc) const;
-
-    TokenCache *_tokenCache;
 };
 
 } // end of namespace CPlusPlus

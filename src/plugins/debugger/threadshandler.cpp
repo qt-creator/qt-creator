@@ -32,6 +32,7 @@
 #include "debuggerconstants.h"
 #include "debuggerengine.h"
 
+#include <QtCore/QTextStream>
 
 namespace Debugger {
 namespace Internal {
@@ -56,6 +57,56 @@ void ThreadData::notifyRunning()
     frameLevel = -1;
     state.clear();
     lineNumber = -1;
+}
+
+
+int id;
+QString targetId;
+QString core;
+
+// State information when stopped
+void notifyRunning(); // Clear state information
+
+int frameLevel;
+quint64 address;
+QString function;
+QString fileName;
+QString state;
+int lineNumber;
+
+static inline QString threadToolTip(const ThreadData &thread)
+{
+    const char tableRowStartC[] = "<tr><td>";
+    const char tableRowSeparatorC[] = "</td><td>";
+    const char tableRowEndC[] = "</td>";
+    QString rc;
+    QTextStream str(&rc);
+    str << "<html><head/><body><table>"
+        << tableRowStartC << ThreadsHandler::tr("Thread&nbsp;id:")
+        << tableRowSeparatorC << thread.id << tableRowEndC;
+    if (!thread.targetId.isEmpty())
+        str << tableRowStartC << ThreadsHandler::tr("Target&nbsp;id:")
+        << tableRowSeparatorC << thread.targetId << tableRowEndC;
+    if (!thread.state.isEmpty())
+        str << tableRowStartC << ThreadsHandler::tr("State:")
+        << tableRowSeparatorC << thread.state << tableRowEndC;
+    if (!thread.core.isEmpty())
+        str << tableRowStartC << ThreadsHandler::tr("Core:")
+        << tableRowSeparatorC << thread.core << tableRowEndC;
+
+    if (thread.address) {        
+        str << tableRowStartC << ThreadsHandler::tr("Stopped&nbsp;at:")
+                << tableRowSeparatorC;
+        if (!thread.function.isEmpty())
+            str << thread.function << "<br>";
+        if (!thread.fileName.isEmpty())
+            str << thread.fileName << ':' << thread.lineNumber << "<br>";
+        str.setIntegerBase(16);
+        str << "0x" << thread.address;
+        str.setIntegerBase(10);
+    }
+    str << "</table></body></html>";
+    return rc;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -92,7 +143,8 @@ QVariant ThreadsHandler::data(const QModelIndex &index, int role) const
         return QVariant();
     const ThreadData &thread = m_threads.at(row);
 
-    if (role == Qt::DisplayRole) {
+    switch (role) {
+    case Qt::DisplayRole:
         switch (index.column()) {
         case ThreadData::IdColumn:
             return thread.id;
@@ -112,21 +164,15 @@ QVariant ThreadsHandler::data(const QModelIndex &index, int role) const
         case ThreadData::StateColumn:
             return thread.state;
         }
-    } else if (role == Qt::ToolTipRole) {
-        if (thread.address == 0)
-            return tr("Thread: %1").arg(thread.id);
-        // Stopped
-        if (thread.fileName.isEmpty())
-            return tr("Thread: %1 at %2 (0x%3)").arg(thread.id)
-                .arg(thread.function).arg(thread.address, 0, 16);
-        return tr("Thread: %1 at %2, %3:%4 (0x%5)").
-                arg(thread.id).arg(thread.function, thread.fileName)
-                .arg(thread.lineNumber).arg(thread.address, 0, 16);
-    } else if (role == Qt::DecorationRole && index.column() == 0) {
-        // Return icon that indicates whether this is the active stack frame
-        return (index.row() == m_currentIndex) ? m_positionIcon : m_emptyIcon;
+    case Qt::ToolTipRole:
+        return threadToolTip(thread);
+    case Qt::DecorationRole: // Return icon that indicates whether this is the active stack frame
+        if (index.column() == 0)
+            return (index.row() == m_currentIndex) ? m_positionIcon : m_emptyIcon;
+        break;
+    default:
+        break;
     }
-
     return QVariant();
 }
 
@@ -185,6 +231,25 @@ void ThreadsHandler::setCurrentThread(int index)
     // Emit changed for new frame
     i = ThreadsHandler::index(m_currentIndex, 0);
     emit dataChanged(i, i);
+}
+
+void ThreadsHandler::setCurrentThreadId(int id)
+{
+    const int index = indexOf(id);
+    if (index != -1) {
+        setCurrentThread(index);
+    } else {
+        qWarning("ThreadsHandler::setCurrentThreadId: No such thread %d.", id);
+    }
+}
+
+int ThreadsHandler::indexOf(int threadId) const
+{
+    const int count = m_threads.size();
+    for(int i = 0; i < count; i++)
+        if (m_threads.at(i).id == threadId)
+            return i;
+    return -1;
 }
 
 void ThreadsHandler::setThreads(const Threads &threads)

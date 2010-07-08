@@ -30,6 +30,8 @@
 #ifndef PROJECTEXPLORERSETTINGS_H
 #define PROJECTEXPLORERSETTINGS_H
 
+#include <QtCore/QUuid>
+
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -44,6 +46,10 @@ struct ProjectExplorerSettings
     bool showCompilerOutput;
     bool cleanOldAppOutput;
     bool useJom;
+    // Add a UUid which is used to identify the development environment.
+    // This is used to warn the user when he is trying to open a .user file that was created
+    // somewhere else (which might lead to unexpected results).
+    QUuid environmentId;
 };
 
 inline bool operator==(const ProjectExplorerSettings &p1, const ProjectExplorerSettings &p2)

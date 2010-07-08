@@ -30,7 +30,6 @@
 #ifndef TESTVIEW_H
 #define TESTVIEW_H
 
-#include <modelnode.h>
 #include <qmlmodelview.h>
 #include <QVariant>
 #include <QStringList>

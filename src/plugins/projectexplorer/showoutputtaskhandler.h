@@ -41,6 +41,8 @@ class CompileOutputWindow;
 
 class PROJECTEXPLORER_EXPORT ShowOutputTaskHandler : public ITaskHandler
 {
+    Q_OBJECT
+
 public:
     ShowOutputTaskHandler(CompileOutputWindow *);
 

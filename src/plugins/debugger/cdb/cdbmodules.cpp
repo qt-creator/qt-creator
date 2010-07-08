@@ -29,7 +29,7 @@
 
 #include "cdbmodules.h"
 #include "moduleshandler.h"
-#include "cdbdebugengine_p.h"
+#include "cdbengine_p.h"
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QRegExp>

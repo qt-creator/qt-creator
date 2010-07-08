@@ -118,8 +118,6 @@ StringLiteral::~StringLiteral()
 
 ////////////////////////////////////////////////////////////////////////////////
 enum {
-    NumericLiteralIsChar,
-    NumericLiteralIsWideChar,
     NumericLiteralIsInt,
     NumericLiteralIsFloat,
     NumericLiteralIsDouble,
@@ -133,11 +131,7 @@ NumericLiteral::NumericLiteral(const char *chars, unsigned size)
 {
     f._type = NumericLiteralIsInt;
 
-    if (chars[0] == '\'') {
-        f._type = NumericLiteralIsChar;
-    } else if (size > 1 && chars[0] == 'L' && chars[1] == '\'') {
-        f._type = NumericLiteralIsWideChar;
-    } else if (size > 1 && chars[0] == '0' && (chars[1] == 'x' || chars[1] == 'X')) {
+    if (size > 1 && chars[0] == '0' && (chars[1] == 'x' || chars[1] == 'X')) {
         f._isHex = true;
     } else {
         const char *begin = chars;
@@ -191,12 +185,6 @@ bool NumericLiteral::isHex() const
 
 bool NumericLiteral::isUnsigned() const
 { return f._isUnsigned; }
-
-bool NumericLiteral::isChar() const
-{ return f._type == NumericLiteralIsChar; }
-
-bool NumericLiteral::isWideChar() const
-{ return f._type == NumericLiteralIsWideChar; }
 
 bool NumericLiteral::isInt() const
 { return f._type == NumericLiteralIsInt; }

@@ -34,7 +34,6 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/ifile.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/messagemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
@@ -47,18 +46,17 @@ namespace Internal {
 
 Manager::Manager()
 {
-    Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
-    m_projectContext  = uidm->uniqueIdentifier(QmlProjectManager::Constants::PROJECTCONTEXT);
-    m_projectLanguage = uidm->uniqueIdentifier(QmlProjectManager::Constants::LANG_QML);
+    m_projectContext  = Core::Context(QmlProjectManager::Constants::PROJECTCONTEXT);
+    m_projectLanguage = Core::Context(QmlProjectManager::Constants::LANG_QML);
 }
 
 Manager::~Manager()
 { }
 
-int Manager::projectContext() const
+Core::Context Manager::projectContext() const
 { return m_projectContext; }
 
-int Manager::projectLanguage() const
+Core::Context Manager::projectLanguage() const
 { return m_projectLanguage; }
 
 QString Manager::mimeType() const

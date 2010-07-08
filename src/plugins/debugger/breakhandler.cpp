@@ -742,14 +742,14 @@ bool BreakHandler::setData(const QModelIndex &index, const QVariant &value, int 
         case BreakpointEnabledRole:
             if (data->enabled != value.toBool()) {
                 toggleBreakpointEnabled(data);
-                layoutChanged();
+                emit layoutChanged();
             }
             return true;
 
         case BreakpointUseFullPathRole:
             if (data->useFullPath != value.toBool()) {
                 data->useFullPath = value.toBool();
-                layoutChanged();
+                emit layoutChanged();
             }
             return true;
 
@@ -757,21 +757,21 @@ bool BreakHandler::setData(const QModelIndex &index, const QVariant &value, int 
             QString val = value.toString();
             if (data->funcName != val) {
                 data->funcName = val;
-                layoutChanged();
+                emit layoutChanged();
             }
             return true;
 
             QString val = value.toString();
             if (data->fileName != val) {
                 data->fileName = val;
-                layoutChanged();
+                emit layoutChanged();
             }
             return true;
 
             QByteArray val = value.toString().toLatin1();
             if (data->lineNumber != val) {
                 data->lineNumber = val;
-                layoutChanged();
+                emit layoutChanged();
             }
             return true;
         */
@@ -779,7 +779,7 @@ bool BreakHandler::setData(const QModelIndex &index, const QVariant &value, int 
                 QByteArray val = value.toString().toLatin1();
                 if (val != data->condition) {
                     data->condition = val;
-                    layoutChanged();
+                    emit layoutChanged();
                 }
             }
             return true;
@@ -788,7 +788,7 @@ bool BreakHandler::setData(const QModelIndex &index, const QVariant &value, int 
                 QByteArray val = value.toString().toLatin1();
                 if (val != data->ignoreCount) {
                     data->ignoreCount = val;
-                    layoutChanged();
+                    emit layoutChanged();
                 }
             }
             return true;
@@ -797,7 +797,7 @@ bool BreakHandler::setData(const QModelIndex &index, const QVariant &value, int 
                 QByteArray val = value.toString().toLatin1();
                 if (val != data->threadSpec) {
                     data->threadSpec = val;
-                    layoutChanged();
+                    emit layoutChanged();
                 }
             }
             return true;

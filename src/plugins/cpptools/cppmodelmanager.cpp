@@ -29,7 +29,6 @@
 
 #include <cplusplus/pp.h>
 #include <cplusplus/Overview.h>
-#include <cplusplus/CheckUndefinedSymbols.h>
 
 #include "cppmodelmanager.h"
 #ifndef ICHECK_BUILD
@@ -957,11 +956,6 @@ void CppModelManager::editorAboutToClose(Core::IEditor *editor)
 bool CppModelManager::isCppEditor(Core::IEditor *editor) const
 {
     return editor->context().contains(ProjectExplorer::Constants::LANG_CXX);
-}
-
-TokenCache *CppModelManager::tokenCache(TextEditor::ITextEditor *editor) const
-{
-    return editorSupport(editor)->tokenCache();
 }
 
 void CppModelManager::emitDocumentUpdated(Document::Ptr doc)

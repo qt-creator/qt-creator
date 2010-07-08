@@ -44,13 +44,14 @@ namespace ProjectExplorer {
 namespace Internal {
     class CompileOutputWindow;
     class BuildProgressFuture;
+    class TaskWindow;
 }
 
 class BuildStep;
 class Project;
 class ProjectExplorerPlugin;
 class BuildConfiguration;
-class TaskWindow;
+class TaskHub;
 
 class PROJECTEXPLORER_EXPORT BuildManager
   : public QObject
@@ -65,11 +66,11 @@ public:
     BuildManager(ProjectExplorerPlugin *parent);
     ~BuildManager();
 
+    void extensionsInitialized();
+
     bool isBuilding() const;
 
     bool tasksAvailable() const;
-    //shows with focus
-    void gotoTaskWindow();
 
     void buildProject(BuildConfiguration *bc);
     void buildProjects(const QList<BuildConfiguration *> &configurations);
@@ -114,7 +115,8 @@ private:
     void decrementActiveBuildSteps(Project *pro);
 
     Internal::CompileOutputWindow *m_outputWindow;
-    TaskWindow *m_taskWindow;
+    TaskHub *m_taskHub;
+    Internal::TaskWindow *m_taskWindow;
 
     QList<BuildStep *> m_buildQueue;
     QStringList m_configurations; // the corresponding configuration to the m_buildQueue

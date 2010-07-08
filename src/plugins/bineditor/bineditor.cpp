@@ -40,10 +40,12 @@
 #include <QtGui/QAction>
 #include <QtGui/QClipboard>
 #include <QtGui/QFontMetrics>
+#include <QtGui/QHelpEvent>
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
 #include <QtGui/QPainter>
 #include <QtGui/QScrollBar>
+#include <QtGui/QToolTip>
 #include <QtGui/QWheelEvent>
 
 using namespace BINEditor;
@@ -150,6 +152,7 @@ void BinEditor::init()
     horizontalScrollBar()->setPageStep(viewport()->width());
     verticalScrollBar()->setRange(0, m_numLines - m_numVisibleLines);
     verticalScrollBar()->setPageStep(m_numVisibleLines);
+    ensureCursorVisible();
 }
 
 
@@ -393,7 +396,10 @@ bool BinEditor::save(const QString &oldFileName, const QString &newFileName)
             if (output.write(it.value()) < m_blockSize)
                 return false;
         }
-        if (size % m_blockSize != 0 && !output.resize(size))
+
+        // We may have padded the displayed data, so we have to make sure
+        // changes to that area are not actually written back to disk.
+        if (!output.resize(size))
             return false;
     } else {
         QFile output(newFileName);
@@ -435,6 +441,7 @@ void BinEditor::setLazyData(quint64 startAddr, int range, int blockSize)
     init();
 
     setCursorPosition(startAddr - m_baseAddr);
+    viewport()->update();
 }
 
 void BinEditor::resizeEvent(QResizeEvent *)
@@ -445,6 +452,15 @@ void BinEditor::resizeEvent(QResizeEvent *)
 void BinEditor::scrollContentsBy(int dx, int dy)
 {
     viewport()->scroll(isRightToLeft() ? -dx : dx, dy * m_lineHeight);
+    if (m_inLazyMode) {
+        const QScrollBar * const scrollBar = verticalScrollBar();
+        const int scrollPos = scrollBar->value();
+        if (dy <= 0 && scrollPos == scrollBar->maximum())
+            emit newRangeRequested(editorInterface(),
+                baseAddress() + dataSize());
+        else if (dy >= 0 && scrollPos == scrollBar->minimum())
+            emit newRangeRequested(editorInterface(), baseAddress());
+    }
 }
 
 void BinEditor::changeEvent(QEvent *e)
@@ -913,11 +929,6 @@ int BinEditor::cursorPosition() const
 void BinEditor::setCursorPosition(int pos, MoveMode moveMode)
 {
     pos = qMin(m_size-1, qMax(0, pos));
-    if (pos == m_cursorPosition
-        && (m_anchorPosition == m_cursorPosition || moveMode == KeepAnchor)
-        && !m_lowNibble)
-        return;
-
     int oldCursorPosition = m_cursorPosition;
 
     bool hasSelection = m_anchorPosition != m_cursorPosition;
@@ -1009,9 +1020,76 @@ bool BinEditor::event(QEvent *e) {
             ensureCursorVisible();
             e->accept();
             return true;
+        case Qt::Key_Down:
+            if (m_inLazyMode) {
+                const QScrollBar * const scrollBar = verticalScrollBar();
+                if (scrollBar->value() >= scrollBar->maximum() - 1) {
+                    emit newRangeRequested(editorInterface(),
+                        baseAddress() + dataSize());
+                    return true;
+                }
+            }
+            break;
         default:;
         }
+    } else if (e->type() == QEvent::ToolTip) {
+        bool hide = true;
+        int selStart = selectionStart();
+        int selEnd = selectionEnd();
+        int byteCount = selEnd - selStart;
+        if (byteCount <= 0) {
+            selStart = m_cursorPosition;
+            selEnd = selStart + 1;
+            byteCount = 1;
+        }
+        if (byteCount <= 8) {
+            const QPoint &startPoint = offsetToPos(selStart);
+            const QPoint &endPoint = offsetToPos(selEnd);
+            const QPoint expandedEndPoint
+                = QPoint(endPoint.x(), endPoint.y() + m_lineHeight);
+            const QRect selRect(startPoint, expandedEndPoint);
+            const QHelpEvent * const helpEvent = static_cast<QHelpEvent *>(e);
+            const QPoint &mousePos = helpEvent->pos();
+            if (selRect.contains(mousePos)) {
+                quint64 beValue, leValue;
+                asIntegers(selStart, byteCount, beValue, leValue);
+                QString leSigned;
+                QString beSigned;
+                switch (byteCount) {
+                case 8: case 7: case 6: case 5:
+                    leSigned = QString::number(static_cast<qint64>(leValue));
+                    beSigned = QString::number(static_cast<qint64>(beValue));
+                    break;
+                case 4: case 3:
+                    leSigned = QString::number(static_cast<qint32>(leValue));
+                    beSigned = QString::number(static_cast<qint32>(beValue));
+                    break;
+                case 2:
+                    leSigned = QString::number(static_cast<qint16>(leValue));
+                    beSigned = QString::number(static_cast<qint16>(beValue));
+                    break;
+                case 1:
+                    leSigned = QString::number(static_cast<qint8>(leValue));
+                    beSigned = QString::number(static_cast<qint8>(beValue));
+                    break;
+                }
+                hide = false;
+                QToolTip::showText(helpEvent->globalPos(),
+                    tr("Decimal unsigned value (little endian): %1\n"
+                       "Decimal unsigned value (big endian): %2\n"
+                       "Decimal signed value (little endian): %3\n"
+                       "Decimal signed value (big endian): %4")
+                       .arg(QString::number(leValue))
+                       .arg(QString::number(beValue))
+                       .arg(leSigned).arg(beSigned));
+            }
+        }
+        if (hide)
+            QToolTip::hideText();
+        e->accept();
+        return true;
     }
+
     return QAbstractScrollArea::event(e);
 }
 
@@ -1252,13 +1330,7 @@ void BinEditor::contextMenuEvent(QContextMenuEvent *event)
     quint64 beAddress = 0;
     quint64 leAddress = 0;
     if (byteCount <= 8) {
-        const QByteArray &data = dataMid(selStart, byteCount);
-        for (int pos = 0; pos < byteCount; ++pos) {
-            const quint64 val = static_cast<quint64>(data.at(pos)) & 0xff;
-            beAddress += val << (pos * 8);
-            leAddress += val << ((byteCount - pos - 1) * 8);
-        }
-
+        asIntegers(selStart, byteCount, beAddress, leAddress);
         setupJumpToMenuAction(&contextMenu, &jumpToBeAddressHere,
                               &jumpToBeAddressNewWindow, beAddress);
 
@@ -1282,9 +1354,9 @@ void BinEditor::contextMenuEvent(QContextMenuEvent *event)
     else if (action == &copyHexAction)
         copy(false);
     else if (action == &jumpToBeAddressHere)
-        setCursorPosition(beAddress - m_baseAddr);
+        jumpToAddress(beAddress);
     else if (action == &jumpToLeAddressHere)
-        setCursorPosition(leAddress - m_baseAddr);
+        jumpToAddress(leAddress);
     else if (action == &jumpToBeAddressNewWindow)
         emit newWindowRequested(beAddress);
     else if (action == &jumpToLeAddressNewWindow)
@@ -1300,13 +1372,38 @@ void BinEditor::setupJumpToMenuAction(QMenu *menu, QAction *actionHere,
                         .arg(QString::number(addr, 16)));
     menu->addAction(actionHere);
     menu->addAction(actionNew);
-    if (addr < m_baseAddr || addr >= m_baseAddr + m_size)
-        actionHere->setEnabled(false);
     if (!m_canRequestNewWindow)
         actionNew->setEnabled(false);
+}
+
+void BinEditor::jumpToAddress(quint64 address)
+{
+    if (address >= m_baseAddr && address < m_baseAddr + m_data.size())
+        setCursorPosition(address - m_baseAddr);
+    else
+        emit newRangeRequested(editorInterface(), address);
 }
 
 void BinEditor::setNewWindowRequestAllowed()
 {
     m_canRequestNewWindow = true;
+}
+
+QPoint BinEditor::offsetToPos(int offset)
+{
+    const int x = m_labelWidth + (offset % 16) * m_columnWidth;
+    const int y = (offset / 16) * m_lineHeight;
+    return QPoint(x, y);
+}
+
+void BinEditor::asIntegers(int offset, int count, quint64 &beValue,
+    quint64 &leValue)
+{
+    beValue = leValue = 0;
+    const QByteArray &data = dataMid(offset, count);
+    for (int pos = 0; pos < count; ++pos) {
+        const quint64 val = static_cast<quint64>(data.at(pos)) & 0xff;
+        beValue += val << (pos * 8);
+        leValue += val << ((count - pos - 1) * 8);
+    }
 }

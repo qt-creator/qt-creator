@@ -29,7 +29,7 @@
 
 #include "cdbassembler.h"
 #include "cdbdebugoutput.h"
-#include "cdbdebugengine_p.h"
+#include "cdbengine_p.h"
 #include "cdbsymbolgroupcontext.h"
 
 #include "registerhandler.h"

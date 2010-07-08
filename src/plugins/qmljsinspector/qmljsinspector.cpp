@@ -451,7 +451,7 @@ void Inspector::debuggerStateChanged(int newState)
                 m_connectionInitialized = false;
                 break;
             }
-        case Debugger::AdapterStartFailed:
+        case Debugger::EngineStartFailed:
         case Debugger::InferiorStartFailed:
             emit statusMessage(tr("Debugging failed: could not start C++ debugger."));
             break;
@@ -522,6 +522,7 @@ void Inspector::setSimpleDockWidgetArrangement()
             dockWidget->show();
         }
     }
+    mainWindow->splitDockWidget(mainWindow->toolBarDockWidget(), m_propertyWatcherDock, Qt::Vertical);
     //mainWindow->tabifyDockWidget(m_frameRateDock, m_propertyWatcherDock);
     mainWindow->tabifyDockWidget(m_propertyWatcherDock, m_expressionQueryDock);
     mainWindow->tabifyDockWidget(m_propertyWatcherDock, m_inspectorOutputDock);

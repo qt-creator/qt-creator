@@ -34,9 +34,9 @@
 
 #include "maemoruncontrol.h"
 
+#include "maemodeployables.h"
 #include "maemopackagecreationstep.h"
 #include "maemorunconfiguration.h"
-#include "maemopackagecontents.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -139,10 +139,11 @@ void AbstractMaemoRunControl::startDeployment(bool forDebugging)
             const MaemoDeployable d(packageFilePath(), uploadDir());
             m_needsInstall = addDeployableIfNeeded(d);
         } else {
-            const MaemoPackageContents * const packageContents
-                = packageStep->packageContents();
-            for (int i = 0; i < packageContents->rowCount(); ++i) {
-                const MaemoDeployable &d = packageContents->deployableAt(i);
+            const MaemoDeployables * const deployables
+                = packageStep->deployables();
+            const int deployableCount = deployables->deployableCount();
+            for (int i = 0; i < deployableCount; ++i) {
+                const MaemoDeployable &d = deployables->deployableAt(i);
                 if (addDeployableIfNeeded(d))
                     m_needsInstall = true;
             }
@@ -201,7 +202,7 @@ void AbstractMaemoRunControl::deploy()
         m_sshDeployer->start();
     } else {
         m_progress.reportFinished();
-        startExecution();
+        startExecutionIfPossible();
     }
 }
 
@@ -237,12 +238,24 @@ QString AbstractMaemoRunControl::packageFilePath() const
 
 QString AbstractMaemoRunControl::executableFilePathOnTarget() const
 {
-    return m_runConfig->packageStep()->packageContents()->remoteExecutableFilePath();
+    const MaemoDeployables * const deployables
+        = m_runConfig->packageStep()->deployables();
+    return deployables->remoteExecutableFilePath(m_runConfig->executable());
 }
 
 bool AbstractMaemoRunControl::isCleaning() const
 {
     return m_initialCleaner && m_initialCleaner->isRunning();
+}
+
+void AbstractMaemoRunControl::startExecutionIfPossible()
+{
+    if (executableFilePathOnTarget().isEmpty()) {
+        handleError(tr("Cannot run: No remote executable set."));
+        emit finished();
+    } else {
+        startExecution();
+    }
 }
 
 void AbstractMaemoRunControl::startExecution()
@@ -312,7 +325,7 @@ void AbstractMaemoRunControl::handleDeployThreadFinished()
         emit finished();
     } else {
         m_progress.reportFinished();
-        startExecution();
+        startExecutionIfPossible();
     }
 }
 
@@ -457,8 +470,8 @@ MaemoDebugRunControl::MaemoDebugRunControl(RunConfiguration *runConfiguration)
 
 MaemoDebugRunControl::~MaemoDebugRunControl()
 {
-    disconnect(SIGNAL(addToOutputWindow(RunControl*,QString, bool)));
-    disconnect(SIGNAL(addToOutputWindowInline(RunControl*,QString, bool)));
+    disconnect(SIGNAL(addToOutputWindow(ProjectExplorer::RunControl*,QString, bool)));
+    disconnect(SIGNAL(addToOutputWindowInline(ProjectExplorer::RunControl*,QString, bool)));
     stop();
 }
 

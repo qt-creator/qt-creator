@@ -14,16 +14,14 @@ HEADERS += \
     $$PWD/ExpressionUnderCursor.h \
     $$PWD/BackwardsScanner.h \
     $$PWD/MatchingText.h \
-    $$PWD/OverviewModel.h \
-    $$PWD/TokenCache.h
+    $$PWD/OverviewModel.h
 
 SOURCES += \
     $$PWD/Icons.cpp \
     $$PWD/ExpressionUnderCursor.cpp \
     $$PWD/BackwardsScanner.cpp \
     $$PWD/MatchingText.cpp \
-    $$PWD/OverviewModel.cpp \
-    $$PWD/TokenCache.cpp
+    $$PWD/OverviewModel.cpp
 }
 
 HEADERS += \
@@ -40,7 +38,6 @@ HEADERS += \
     $$PWD/ASTPath.h \
     $$PWD/DeprecatedGenTemplateInstance.h \
     $$PWD/FindUsages.h \
-    $$PWD/CheckUndefinedSymbols.h \
     $$PWD/DependencyTable.h \
     $$PWD/PreprocessorClient.h \
     $$PWD/PreprocessorEnvironment.h \
@@ -66,7 +63,6 @@ SOURCES += \
     $$PWD/ASTPath.cpp \
     $$PWD/DeprecatedGenTemplateInstance.cpp \
     $$PWD/FindUsages.cpp \
-    $$PWD/CheckUndefinedSymbols.cpp \
     $$PWD/DependencyTable.cpp \
     $$PWD/PreprocessorClient.cpp \
     $$PWD/PreprocessorEnvironment.cpp \

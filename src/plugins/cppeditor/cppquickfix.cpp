@@ -33,6 +33,7 @@
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/ResolveExpression.h>
+#include <cplusplus/Overview.h>
 
 #include <TranslationUnit.h>
 #include <ASTVisitor.h>
@@ -45,6 +46,7 @@
 #include <Symbol.h>
 #include <Symbols.h>
 #include <Name.h>
+#include <Names.h>
 #include <Literals.h>
 
 #include <cppeditor/cpprefactoringchanges.h>
@@ -65,6 +67,7 @@ class CppQuickFixState: public TextEditor::QuickFixState
 {
 public:
     QList<CPlusPlus::AST *> path;
+    Snapshot snapshot;
     SemanticInfo info;
 };
 
@@ -442,7 +445,7 @@ public:
         // show when we're on the 'if' of an if statement
         int index = path.size() - 1;
         IfStatementAST *ifStatement = path.at(index)->asIfStatement();
-        if (ifStatement && isCursorOn(ifStatement->if_token)
+        if (ifStatement && isCursorOn(ifStatement->if_token) && ifStatement->statement
             && ! ifStatement->statement->asCompoundStatement()) {
             _statement = ifStatement->statement;
             return index;
@@ -773,41 +776,57 @@ class WrapStringLiteral: public CppQuickFixOperation
 {
 public:
     WrapStringLiteral(TextEditor::BaseTextEditor *editor)
-        : CppQuickFixOperation(editor), stringLiteral(0), isObjCStringLiteral(false)
+        : CppQuickFixOperation(editor), literal(0), type(TypeNone)
     {}
+
+    enum Type { TypeString, TypeObjCString, TypeChar, TypeNone };
 
     virtual QString description() const
     {
+        if (type == TypeChar)
+            return QApplication::translate("CppTools::QuickFix", "Enclose in QLatin1Char(...)");
         return QApplication::translate("CppTools::QuickFix", "Enclose in QLatin1String(...)");
     }
 
     virtual int match(const QList<AST *> &path)
     {
-        stringLiteral = 0;
-        isObjCStringLiteral = false;
+        literal = 0;
+        type = TypeNone;
 
         if (path.isEmpty())
             return -1; // nothing to do
 
-        stringLiteral = path.last()->asStringLiteral();
+        literal = path.last()->asStringLiteral();
 
-        if (! stringLiteral)
-            return -1;
+        if (! literal) {
+            literal = path.last()->asNumericLiteral();
+            if (!literal || !tokenAt(literal->asNumericLiteral()->literal_token).is(T_CHAR_LITERAL))
+                return -1;
+            else
+                type = TypeChar;
+        } else {
+            type = TypeString;
+        }
 
-        else if (path.size() > 1) {
+        if (path.size() > 1) {
             if (CallAST *call = path.at(path.size() - 2)->asCall()) {
                 if (call->base_expression) {
                     if (SimpleNameAST *functionName = call->base_expression->asSimpleName()) {
                         const QByteArray id(tokenAt(functionName->identifier_token).identifier->chars());
 
-                        if (id == "QLatin1String" || id == "QLatin1Literal")
+                        if (id == "QT_TRANSLATE_NOOP" || id == "tr" || id == "trUtf8"
+                                || (type == TypeString && (id == "QLatin1String" || id == "QLatin1Literal"))
+                                || (type == TypeChar && id == "QLatin1Char"))
                             return -1; // skip it
                     }
                 }
             }
         }
 
-        isObjCStringLiteral = charAt(startOf(stringLiteral)) == QLatin1Char('@');
+        if (type == TypeString) {
+            if (charAt(startOf(literal)) == QLatin1Char('@'))
+                type = TypeObjCString;
+        }
         return path.size() - 1; // very high priority
     }
 
@@ -815,22 +834,144 @@ public:
     {
         ChangeSet changes;
 
-        const int startPos = startOf(stringLiteral);
-        const QLatin1String replacement("QLatin1String(");
+        const int startPos = startOf(literal);
+        QLatin1String replacement = (type == TypeChar ? QLatin1String("QLatin1Char(")
+            : QLatin1String("QLatin1String("));
 
-        if (isObjCStringLiteral)
+        if (type == TypeObjCString)
             changes.replace(startPos, startPos + 1, replacement);
         else
             changes.insert(startPos, replacement);
 
-        changes.insert(endOf(stringLiteral), ")");
+        changes.insert(endOf(literal), ")");
 
         refactoringChanges()->changeFile(fileName(), changes);
     }
 
 private:
-    StringLiteralAST *stringLiteral;
-    bool isObjCStringLiteral;
+    ExpressionAST *literal;
+    Type type;
+};
+
+/*
+  Replace
+    "abcd"
+  With
+    tr("abcd") or
+    QCoreApplication::translate("CONTEXT", "abcd") or
+    QT_TRANSLATE_NOOP("GLOBAL", "abcd")
+*/
+class TranslateStringLiteral: public CppQuickFixOperation
+{
+public:
+    TranslateStringLiteral(TextEditor::BaseTextEditor *editor)
+        : CppQuickFixOperation(editor), m_literal(0)
+    { }
+
+    enum TranslationOption { unknown, useTr, useQCoreApplicationTranslate, useMacro };
+
+    virtual QString description() const
+    {
+        return QApplication::translate("CppTools::QuickFix", "Mark as translateable");
+    }
+
+    virtual int match(const QList<AST *> &path)
+    {
+        // Initialize
+        m_literal = 0;
+        m_option = unknown;
+        m_context.clear();
+
+        if (path.isEmpty())
+            return -1;
+
+        m_literal = path.last()->asStringLiteral();
+        if (!m_literal)
+            return -1; // No string, nothing to do
+
+        // Do we already have a translation markup?
+        if (path.size() >= 2) {
+            if (CallAST *call = path.at(path.size() - 2)->asCall()) {
+                if (call->base_expression) {
+                    if (SimpleNameAST *functionName = call->base_expression->asSimpleName()) {
+                        const QByteArray id(tokenAt(functionName->identifier_token).identifier->chars());
+
+                        if (id == "tr" || id == "trUtf8"
+                                || id == "translate"
+                                || id == "QT_TRANSLATE_NOOP"
+                                || id == "QLatin1String" || id == "QLatin1Literal")
+                            return -1; // skip it
+                    }
+                }
+            }
+        }
+
+        LookupContext context(document(), snapshot());
+        QSharedPointer<Control> control = context.control();
+        const Name *trName = control->nameId(control->findOrInsertIdentifier("tr"));
+
+        // Check whether we are in a method:
+        for (int i = path.size() - 1; i >= 0; --i)
+        {
+            if (FunctionDefinitionAST *definition = path.at(i)->asFunctionDefinition()) {
+                Function *function = definition->symbol;
+                ClassOrNamespace *b = context.lookupType(function);
+                if (b) {
+                    // Do we have a tr method?
+                    foreach(Symbol *s, b->find(trName)) {
+                        if (s->type()->isFunctionType()) {
+                            m_option = useTr;
+                            // no context required for tr
+                            return path.size() - 1;
+                        }
+                    }
+                }
+                // We need to do a QCA::translate, so we need a context.
+                // Use fully qualified class name:
+                Overview oo;
+                foreach (const Name *n, LookupContext::fullyQualifiedName(function)) {
+                    if (!m_context.isEmpty())
+                        m_context.append(QLatin1String("::"));
+                    m_context.append(oo.prettyName(n));
+                }
+                // ... or global if none available!
+                if (m_context.isEmpty())
+                    m_context = QLatin1String("GLOBAL");
+                m_option = useQCoreApplicationTranslate;
+                return path.size() - 1;
+            }
+        }
+
+        // We need to use Q_TRANSLATE_NOOP
+        m_context = QLatin1String("GLOBAL");
+        m_option = useMacro;
+        return path.size() - 1;
+    }
+
+    virtual void createChanges()
+    {
+        ChangeSet changes;
+
+        const int startPos = startOf(m_literal);
+        QString replacement(QLatin1String("tr("));
+        if (m_option == useQCoreApplicationTranslate) {
+            replacement = QLatin1String("QCoreApplication::translate(\"")
+                          + m_context + QLatin1String("\", ");
+        } else if (m_option == useMacro) {
+            replacement = QLatin1String("QT_TRANSLATE_NOOP(\"")
+                    + m_context + QLatin1String("\", ");
+        }
+
+        changes.insert(startPos, replacement);
+        changes.insert(endOf(m_literal), QLatin1String(")"));
+
+        refactoringChanges()->changeFile(fileName(), changes);
+    }
+
+private:
+    ExpressionAST *m_literal;
+    TranslationOption m_option;
+    QString m_context;
 };
 
 class CStringToNSString: public CppQuickFixOperation
@@ -898,6 +1039,184 @@ private:
     CallAST *qlatin1Call;
 };
 
+/*
+  Base class for converting numeric literals between decimal, octal and hex.
+  Does the base check for the specific ones and parses the number.
+  Test cases:
+    0xFA0Bu;
+    0X856A;
+    298.3;
+    199;
+    074;
+    199L;
+    074L;
+    -199;
+    -017;
+    0783; // invalid octal
+    0; // border case, allow only hex<->decimal
+*/
+class ConvertNumericLiteral: public CppQuickFixOperation
+{
+public:
+    ConvertNumericLiteral(TextEditor::BaseTextEditor *editor)
+        : CppQuickFixOperation(editor)
+    {}
+
+    virtual int match(const QList<AST *> &path)
+    {
+        literal = 0;
+
+        if (path.isEmpty())
+            return -1; // nothing to do
+
+        literal = path.last()->asNumericLiteral();
+
+        if (! literal)
+            return -1;
+
+        Token token = tokenAt(literal->asNumericLiteral()->literal_token);
+        if (!token.is(T_NUMERIC_LITERAL))
+            return -1;
+        numeric = token.number;
+        if (numeric->isDouble() || numeric->isFloat())
+            return -1;
+
+        // remove trailing L or U and stuff
+        const char * const spell = numeric->chars();
+        numberLength = numeric->size();
+        while (numberLength > 0 && (spell[numberLength-1] < '0' || spell[numberLength-1] > 'F'))
+            --numberLength;
+        if (numberLength < 1)
+            return -1;
+
+        // convert to number
+        bool valid;
+        value = QString::fromUtf8(spell).left(numberLength).toULong(&valid, 0);
+        if (!valid) // e.g. octal with digit > 7
+            return -1;
+
+        return path.size() - 1; // very high priority
+    }
+
+    virtual void createChanges()
+    {
+        ChangeSet changes;
+        int start = startOf(literal);
+        changes.replace(start, start + numberLength, replacement);
+        refactoringChanges()->changeFile(fileName(), changes);
+    }
+
+protected:
+    NumericLiteralAST *literal;
+    const NumericLiteral *numeric;
+    ulong value;
+    int numberLength;
+    QString replacement;
+};
+
+/*
+  Convert integer literal to hex representation.
+  Replace
+    32
+    040
+  With
+    0x20
+
+*/
+class ConvertNumericToHex: public ConvertNumericLiteral
+{
+public:
+    ConvertNumericToHex(TextEditor::BaseTextEditor *editor)
+        : ConvertNumericLiteral(editor)
+    {}
+
+    virtual QString description() const
+    {
+        return QApplication::translate("CppTools::QuickFix", "Convert to Hexadecimal");
+    }
+
+    virtual int match(const QList<AST *> &path)
+    {
+        int ret = ConvertNumericLiteral::match(path);
+        if (ret != -1 && !numeric->isHex()) {
+            replacement.sprintf("0x%lX", value);
+            return ret;
+        }
+        return -1;
+    }
+
+};
+
+/*
+  Convert integer literal to octal representation.
+  Replace
+    32
+    0x20
+  With
+    040
+*/
+class ConvertNumericToOctal: public ConvertNumericLiteral
+{
+public:
+    ConvertNumericToOctal(TextEditor::BaseTextEditor *editor)
+        : ConvertNumericLiteral(editor)
+    {}
+
+    virtual QString description() const
+    {
+        return QApplication::translate("CppTools::QuickFix", "Convert to Octal");
+    }
+
+    virtual int match(const QList<AST *> &path)
+    {
+        int ret = ConvertNumericLiteral::match(path);
+        if (ret != -1 && value != 0) {
+            const char * const str = numeric->chars();
+            if (numberLength > 1 && str[0] == '0' && str[1] != 'x' && str[1] != 'X')
+                return -1;
+            replacement.sprintf("0%lo", value);
+            return ret;
+        }
+        return -1;
+    }
+
+};
+
+/*
+  Convert integer literal to decimal representation.
+  Replace
+    0x20
+    040
+  With
+    32
+*/
+class ConvertNumericToDecimal: public ConvertNumericLiteral
+{
+public:
+    ConvertNumericToDecimal(TextEditor::BaseTextEditor *editor)
+        : ConvertNumericLiteral(editor)
+    {}
+
+    virtual QString description() const
+    {
+        return QApplication::translate("CppTools::QuickFix", "Convert to Decimal");
+    }
+
+    virtual int match(const QList<AST *> &path)
+    {
+        int ret = ConvertNumericLiteral::match(path);
+        if (ret != -1 && (value != 0 || numeric->isHex())) {
+            const char * const str = numeric->chars();
+            if (numberLength > 1 && str[0] != '0')
+                return -1;
+            replacement.sprintf("%lu", value);
+            return ret;
+        }
+        return -1;
+    }
+
+};
+
 } // end of anonymous namespace
 
 
@@ -919,7 +1238,7 @@ int CppQuickFixOperation::match(TextEditor::QuickFixState *state)
     _document = s->info.doc;
     if (_refactoringChanges)
         delete _refactoringChanges;
-    _refactoringChanges = new CppRefactoringChanges(s->info.snapshot);
+    _refactoringChanges = new CppRefactoringChanges(s->snapshot);
     return match(s->path);
 }
 
@@ -1060,6 +1379,7 @@ TextEditor::QuickFixState *CppQuickFixCollector::initializeCompletion(TextEditor
                 CppQuickFixState *state = new CppQuickFixState;
                 state->path = path;
                 state->info = info;
+                state->snapshot = CppTools::CppModelManagerInterface::instance()->snapshot();
                 return state;
             }
         }
@@ -1091,6 +1411,10 @@ QList<TextEditor::QuickFixOperation::Ptr> CppQuickFixFactory::quickFixOperations
     QSharedPointer<FlipBinaryOp> flipBinaryOp(new FlipBinaryOp(editor));
     QSharedPointer<WrapStringLiteral> wrapStringLiteral(new WrapStringLiteral(editor));
     QSharedPointer<CStringToNSString> wrapCString(new CStringToNSString(editor));
+    QSharedPointer<TranslateStringLiteral> translateCString(new TranslateStringLiteral(editor));
+    QSharedPointer<ConvertNumericToHex> convertNumericToHex(new ConvertNumericToHex(editor));
+    QSharedPointer<ConvertNumericToOctal> convertNumericToOctal(new ConvertNumericToOctal(editor));
+    QSharedPointer<ConvertNumericToDecimal> convertNumericToDecimal(new ConvertNumericToDecimal(editor));
 
     quickFixOperations.append(rewriteLogicalAndOp);
     quickFixOperations.append(splitIfStatementOp);
@@ -1101,6 +1425,10 @@ QList<TextEditor::QuickFixOperation::Ptr> CppQuickFixFactory::quickFixOperations
     quickFixOperations.append(useInverseOp);
     quickFixOperations.append(flipBinaryOp);
     quickFixOperations.append(wrapStringLiteral);
+    quickFixOperations.append(translateCString);
+    quickFixOperations.append(convertNumericToHex);
+    quickFixOperations.append(convertNumericToOctal);
+    quickFixOperations.append(convertNumericToDecimal);
 
     if (editor->mimeType() == CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)
         quickFixOperations.append(wrapCString);

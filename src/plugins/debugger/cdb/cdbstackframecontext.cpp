@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "cdbstackframecontext.h"
-#include "cdbdebugengine_p.h"
+#include "cdbengine_p.h"
 #include "cdbsymbolgroupcontext.h"
 #include "cdbdumperhelper.h"
 #include "debuggeractions.h"

@@ -130,9 +130,13 @@ QList<Token> Scanner::operator()(const QString &text, int startState)
     int index = 0;
 
     if (_state == MultiLineComment) {
-        const int start = index;
+        int start = -1;
         while (index < text.length()) {
             const QChar ch = text.at(index);
+
+            if (start == -1 && !ch.isSpace())
+                start = index;
+
             QChar la;
             if (index + 1 < text.length())
                 la = text.at(index + 1);
@@ -146,7 +150,7 @@ QList<Token> Scanner::operator()(const QString &text, int startState)
             }
         }
 
-        if (_scanComments)
+        if (_scanComments && start != -1)
             tokens.append(Token(start, index - start, Token::Comment));
     }
 

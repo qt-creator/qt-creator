@@ -51,6 +51,7 @@ class ICore;
 
 namespace QmlJS {
     class ModelManagerInterface;
+    class IContextPane;
 }
 
 namespace QmlJSEditor {
@@ -222,6 +223,9 @@ public slots:
     void followSymbolUnderCursor();
     virtual void setFontSettings(const TextEditor::FontSettings &);
 
+signals:
+    void semanticInfoUpdated(const QmlJSEditor::Internal::SemanticInfo &semanticInfo);
+
 private slots:
     void onDocumentUpdated(QmlJS::Document::Ptr doc);
     void modificationChanged(bool);
@@ -242,9 +246,12 @@ private slots:
     void semanticRehighlight();
     void forceSemanticRehighlight();
     void updateSemanticInfo(const QmlJSEditor::Internal::SemanticInfo &semanticInfo);
+    void onCursorPositionChanged();
 
 protected:
     void contextMenuEvent(QContextMenuEvent *e);
+    bool event(QEvent *e);
+    void wheelEvent(QWheelEvent *event);
     TextEditor::BaseTextEditorEditable *createEditableInterface();
     void createToolBar(QmlJSEditorEditable *editable);
     TextEditor::BaseTextEditor::Link findLinkAt(const QTextCursor &cursor, bool resolveTarget = true);
@@ -279,6 +286,9 @@ private:
 
     SemanticHighlighter *m_semanticHighlighter;
     SemanticInfo m_semanticInfo;
+
+    QmlJS::IContextPane *m_contextPane;
+    int m_oldCurserPosition;
 };
 
 } // namespace Internal

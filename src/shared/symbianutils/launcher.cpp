@@ -46,6 +46,33 @@
 
 namespace trk {
 
+struct CrashReportState {
+    CrashReportState();
+    void clear();
+
+    typedef uint Thread;
+    typedef QList<Thread> Threads;
+    Threads threads;
+
+    QList<uint> registers;
+    QByteArray stack;
+    uint sp;
+    uint fetchingStackPID;
+    uint fetchingStackTID;
+};
+
+CrashReportState::CrashReportState()
+{
+    clear();
+}
+
+void CrashReportState::clear()
+{
+    threads.clear();
+    stack.clear();
+    sp = fetchingStackPID = fetchingStackTID = 0;
+}
+
 struct LauncherPrivate {
     struct CopyState {
         QString sourceFileName;
@@ -74,6 +101,7 @@ struct LauncherPrivate {
     int m_verbose;
     Launcher::Actions m_startupActions;
     bool m_closeDevice;
+    CrashReportState m_crashReportState;
 };
 
 LauncherPrivate::LauncherPrivate(const TrkDevicePtr &d) :
@@ -190,6 +218,7 @@ void Launcher::setCloseDevice(bool c)
 bool Launcher::startServer(QString *errorMessage)
 {
     errorMessage->clear();
+    d->m_crashReportState.clear();
     if (d->m_verbose) {
         QString msg;
         QTextStream str(&msg);
@@ -404,52 +433,54 @@ void Launcher::handleResult(const TrkResult &result)
 
         // target->host OS notification
         case TrkNotifyCreated: { // Notify Created
-            /*
-            const char *data = result.data.data();
-            byte error = result.data.at(0);
-            byte type = result.data.at(1); // type: 1 byte; for dll item, this value is 2.
-            uint pid = extractInt(data + 2); //  ProcessID: 4 bytes;
-            uint tid = extractInt(data + 6); //threadID: 4 bytes
-            uint codeseg = extractInt(data + 10); //code address: 4 bytes; code base address for the library
-            uint dataseg = extractInt(data + 14); //data address: 4 bytes; data base address for the library
-            uint len = extractShort(data + 18); //length: 2 bytes; length of the library name string to follow
-            QByteArray name = result.data.mid(20, len); // name: library name
-
-            logMessage(prefix + "NOTE: LIBRARY LOAD: " + str);
-            logMessage(prefix + "TOKEN: " + result.token);
-            logMessage(prefix + "ERROR: " + int(error));
-            logMessage(prefix + "TYPE:  " + int(type));
-            logMessage(prefix + "PID:   " + pid);
-            logMessage(prefix + "TID:   " + tid);
-            logMessage(prefix + "CODE:  " + codeseg);
-            logMessage(prefix + "DATA:  " + dataseg);
-            logMessage(prefix + "LEN:   " + len);
-            logMessage(prefix + "NAME:  " + name);
-            */
 
             if (result.data.size() < 10)
                 break;
+            const char *data = result.data.constData();
+            const byte error = result.data.at(0);
+            Q_UNUSED(error)
+            const byte type = result.data.at(1); // type: 1 byte; for dll item, this value is 2.
+            const uint tid = extractInt(data + 6); //threadID: 4 bytes
+            Q_UNUSED(tid)
+            if (type == kDSOSDLLItem && result.data.size() >=20) {
+                const Library lib = Library(result);
+                d->m_session.libraries.push_back(lib);
+                emit libraryLoaded(lib);
+            }
             QByteArray ba;
             ba.append(result.data.mid(2, 8));
             d->m_device->sendTrkMessage(TrkContinue, TrkCallback(), ba, "CONTINUE");
-            //d->m_device->sendTrkAck(result.token)
             break;
         }
         case TrkNotifyDeleted: { // NotifyDeleted
             const ushort itemType = (unsigned char)result.data.at(1);
-            const ushort len = result.data.size() > 12 ? extractShort(result.data.data() + 10) : ushort(0);
+            const uint pid = result.data.size() >= 6 ? extractShort(result.data.constData() + 2) : 0;
+            const uint tid = result.data.size() >= 10 ? extractShort(result.data.constData() + 6) : 0;
+            Q_UNUSED(tid)
+            const ushort len = result.data.size() > 12 ? extractShort(result.data.constData() + 10) : ushort(0);
             const QString name = len ? QString::fromAscii(result.data.mid(12, len)) : QString();
             logMessage(QString::fromLatin1("%1 %2 UNLOAD: %3").
                        arg(QString::fromAscii(prefix)).arg(itemType ? QLatin1String("LIB") : QLatin1String("PROCESS")).
                        arg(name));
             d->m_device->sendTrkAck(result.token);
-            if (itemType == 0 // process
+            if (itemType == kDSOSProcessItem // process
                 && result.data.size() >= 10
                 && d->m_session.pid == extractInt(result.data.data() + 6)) {
                     if (d->m_startupActions & ActionDownload)
                         copyFileFromRemote();
                     else
                         disconnectTrk();
+            }
+            else if (itemType == kDSOSDLLItem && len) {
+                // Remove libraries of process.
+                for (QList<Library>::iterator it = d->m_session.libraries.begin(); it != d->m_session.libraries.end(); ) {
+                    if ((*it).pid == pid && (*it).name == name) {
+                        emit libraryUnloaded(*it);
+                        it = d->m_session.libraries.erase(it);
+                    } else {
+                        ++it;
+                    }
+                }
             }
             break;
         }
@@ -696,6 +727,15 @@ void Launcher::handleCreateProcess(const TrkResult &result)
         logMessage(msg);
     }
     emit applicationRunning(d->m_session.pid);
+    //create a "library" entry for the executable which launched the process
+    Library lib;
+    lib.pid = d->m_session.pid;
+    lib.codeseg = d->m_session.codeseg;
+    lib.dataseg = d->m_session.dataseg;
+    lib.name = d->m_fileName.toUtf8();
+    d->m_session.libraries << lib;
+    emit libraryLoaded(lib);
+
     QByteArray ba;
     appendInt(&ba, d->m_session.pid);
     appendInt(&ba, d->m_session.tid);
@@ -847,6 +887,30 @@ QByteArray Launcher::startProcessMessage(const QString &executable,
     return ba;
 }
 
+QByteArray Launcher::readMemoryMessage(uint pid, uint tid, uint from, uint len)
+{
+    QByteArray ba;
+    ba.reserve(11);
+    ba.append(char(0x8)); // Options, FIXME: why?
+    appendShort(&ba, len);
+    appendInt(&ba, from);
+    appendInt(&ba, pid);
+    appendInt(&ba, tid);
+    return ba;
+}
+
+QByteArray Launcher::readRegistersMessage(uint pid, uint tid)
+{
+    QByteArray ba;
+    ba.reserve(15);
+    ba.append(char(0)); // Register set, only 0 supported
+    appendShort(&ba, 0); //R0
+    appendShort(&ba, 16); // last register CPSR
+    appendInt(&ba, pid);
+    appendInt(&ba, tid);
+    return ba;
+}
+
 void Launcher::startInferiorIfNeeded()
 {
     emit startingApplication();
@@ -896,6 +960,65 @@ void Launcher::releaseToDeviceManager(Launcher *launcher)
     device->disconnect(launcher);
     launcher->disconnect(sdm);
     sdm->releaseDevice(launcher->trkServerName());
+}
+
+void Launcher::getRegistersAndCallStack(uint pid, uint tid)
+{
+    d->m_device->sendTrkMessage(TrkReadRegisters,
+                                TrkCallback(this, &Launcher::handleReadRegisters),
+                                Launcher::readRegistersMessage(pid, tid));
+    d->m_crashReportState.fetchingStackPID = pid;
+    d->m_crashReportState.fetchingStackTID = tid;
+}
+
+void Launcher::handleReadRegisters(const TrkResult &result)
+{
+    if(result.errorCode() || result.data.size() < (17*4)) {
+        terminate();
+        return;
+    }
+    const char* data = result.data.constData() + 1;
+    d->m_crashReportState.registers.clear();
+    d->m_crashReportState.stack.clear();
+    for (int i=0;i<17;i++) {
+        uint r = extractInt(data);
+        data += 4;
+        d->m_crashReportState.registers.append(r);
+    }
+    d->m_crashReportState.sp = d->m_crashReportState.registers.at(13);
+
+    const ushort len = 1024 - (d->m_crashReportState.sp % 1024); //read to 1k boundary first
+    const QByteArray ba = Launcher::readMemoryMessage(d->m_crashReportState.fetchingStackPID,
+                                                      d->m_crashReportState.fetchingStackTID,
+                                                      d->m_crashReportState.sp,
+                                                      len);
+    d->m_device->sendTrkMessage(TrkReadMemory, TrkCallback(this, &Launcher::handleReadStack), ba);
+    d->m_crashReportState.sp += len;
+}
+
+void Launcher::handleReadStack(const TrkResult &result)
+{
+    if (result.errorCode()) {
+        //error implies memory fault when reaching end of stack
+        emit registersAndCallStackReadComplete(d->m_crashReportState.registers, d->m_crashReportState.stack);
+        return;
+    }
+
+    const uint len = extractShort(result.data.constData() + 1);
+    d->m_crashReportState.stack.append(result.data.mid(3, len));
+
+    if (d->m_crashReportState.sp - d->m_crashReportState.registers.at(13) > 0x10000) {
+        //read enough stack, stop here
+        emit registersAndCallStackReadComplete(d->m_crashReportState.registers, d->m_crashReportState.stack);
+        return;
+    }
+    //read 1k more
+    const QByteArray ba = Launcher::readMemoryMessage(d->m_crashReportState.fetchingStackPID,
+                                                      d->m_crashReportState.fetchingStackTID,
+                                                      d->m_crashReportState.sp,
+                                                      1024);
+    d->m_device->sendTrkMessage(TrkReadMemory, TrkCallback(this, &Launcher::handleReadStack), ba);
+    d->m_crashReportState.sp += 1024;
 }
 
 } // namespace trk

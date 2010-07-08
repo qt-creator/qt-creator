@@ -188,10 +188,10 @@ CMakeTarget *CMakeTargetFactory::create(ProjectExplorer::Project *parent, const 
     bc->setDisplayName("all");
 
     // Now create a standard build configuration
-    bc->insertStep(ProjectExplorer::Build, 0, new MakeStep(bc));
+    bc->insertStep(ProjectExplorer::BuildStep::Build, 0, new MakeStep(bc));
 
     MakeStep *cleanMakeStep = new MakeStep(bc);
-    bc->insertStep(ProjectExplorer::Clean, 0, cleanMakeStep);
+    bc->insertStep(ProjectExplorer::BuildStep::Clean, 0, cleanMakeStep);
     cleanMakeStep->setAdditionalArguments(QStringList() << "clean");
     cleanMakeStep->setClean(true);
 

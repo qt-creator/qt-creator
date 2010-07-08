@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "cdbexceptionutils.h"
-#include "cdbdebugengine_p.h"
+#include "cdbengine_p.h"
 #include "stacktracecontext.h"
 
 #include <QtCore/QString>

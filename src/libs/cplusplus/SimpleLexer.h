@@ -39,73 +39,6 @@ namespace CPlusPlus {
 class SimpleLexer;
 class Token;
 
-class CPLUSPLUS_EXPORT SimpleToken
-{
-public:
-    SimpleToken(const Token &token);
-
-    SimpleToken()
-        : _kind(0)
-        , _flags(0)
-        , _position(0)
-        , _length(0)
-    { }
-
-    inline int kind() const
-    { return _kind; }
-
-    inline int position() const
-    { return _position; }
-
-    inline int length() const
-    { return _length; }
-
-    inline int begin() const
-    { return _position; }
-
-    inline int end() const
-    { return _position + _length; }
-
-    inline bool followsNewline() const
-    { return f._newline; }
-
-    inline bool followsWhitespace() const
-    { return f._whitespace; }
-
-    inline bool is(int k) const    { return _kind == k; }
-    inline bool isNot(int k) const { return _kind != k; }
-
-    bool isLiteral() const;
-    bool isOperator() const;
-    bool isKeyword() const;
-    bool isComment() const;
-    bool isObjCAtKeyword() const;
-    bool isObjCTypeQualifier() const { return f._objcTypeQualifier; }
-
-    const char *name() const;
-
-    // internal
-    inline void setPosition(int position)
-    { _position = position; }
-
-public:
-    short _kind;
-    union {
-        short _flags;
-
-        struct {
-            unsigned _newline: 1;
-            unsigned _whitespace: 1;
-            unsigned _objcTypeQualifier: 1;
-        } f;
-    };
-
-    int _position;
-    int _length;
-
-    friend class SimpleLexer;
-};
-
 class CPLUSPLUS_EXPORT SimpleLexer
 {
 public:
@@ -121,16 +54,27 @@ public:
     bool objCEnabled() const;
     void setObjCEnabled(bool onoff);
 
-    QList<SimpleToken> operator()(const QString &text, int state = 0);
+    bool endedJoined() const;
+
+    QList<Token> operator()(const QString &text, int state = 0);
 
     int state() const
     { return _lastState; }
+
+    static int tokenAt(const QList<Token> &tokens, unsigned offset);
+    static Token tokenAt(const QString &text,
+                         unsigned offset,
+                         int state,
+                         bool qtMocRunEnabled = false);
+
+    static int tokenBefore(const QList<Token> &tokens, unsigned offset);
 
 private:
     int _lastState;
     bool _skipComments: 1;
     bool _qtMocRunEnabled: 1;
     bool _objCEnabled: 1;
+    bool _endedJoined: 1;
 };
 
 } // end of namespace CPlusPlus

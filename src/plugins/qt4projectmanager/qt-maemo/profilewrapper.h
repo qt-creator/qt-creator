@@ -18,8 +18,10 @@ class ProFileReader;
 class ProFileWrapper
 {
 public:
-    ProFileWrapper(const QString &proFileName);
+    ProFileWrapper(const QString &proFileName, const QString &qConfigFile);
     ~ProFileWrapper();
+
+    void reload();
 
     struct InstallsElem {
         InstallsElem(QString v, QString p, QStringList f)
@@ -65,7 +67,7 @@ private:
     const QString m_proFileName;
     const QDir m_proDir;
     mutable QStringList m_proFileContents;
-    QScopedPointer<ProFileOption> m_proFileOption;
+    const QScopedPointer<ProFileOption> m_proFileOption;
     mutable QScopedPointer<ProFileReader> m_proFileReader;
     mutable ProFile *m_proFile;
 };

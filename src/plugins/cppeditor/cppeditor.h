@@ -32,6 +32,8 @@
 
 #include "cppeditorenums.h"
 #include "cppquickfix.h"
+#include "cppsemanticinfo.h"
+
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/LookupContext.h>
 #include <texteditor/basetexteditor.h>
@@ -39,6 +41,7 @@
 #include <QtCore/QThread>
 #include <QtCore/QMutex>
 #include <QtCore/QWaitCondition>
+#include <QtCore/QFutureWatcher>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -48,7 +51,6 @@ QT_END_NAMESPACE
 namespace CPlusPlus {
 class OverviewModel;
 class Symbol;
-class TokenCache;
 }
 
 namespace CppTools {
@@ -63,39 +65,6 @@ namespace CppEditor {
 namespace Internal {
 
 class CPPEditor;
-class SemanticHighlighter;
-
-class SemanticInfo
-{
-public:
-    struct Use {
-        unsigned line;
-        unsigned column;
-        unsigned length;
-
-        Use(unsigned line = 0, unsigned column = 0, unsigned length = 0)
-            : line(line), column(column), length(length) {}
-    };
-
-    typedef QHash<CPlusPlus::Symbol *, QList<Use> > LocalUseMap;
-    typedef QHashIterator<CPlusPlus::Symbol *, QList<Use> > LocalUseIterator;
-
-    SemanticInfo()
-        : revision(0), hasQ(false), hasD(false), forced(false)
-    { }
-
-    unsigned revision;
-    bool hasQ: 1;
-    bool hasD: 1;
-    bool forced: 1;
-    CPlusPlus::Snapshot snapshot; // ### remove
-    CPlusPlus::Document::Ptr doc; // ### remove
-    CPlusPlus::LookupContext context;
-    LocalUseMap localUses; // ### rename
-    QList<Use> typeUsages;
-    QList<Use> objcKeywords;
-    QList<CPlusPlus::Document::DiagnosticMessage> diagnosticMessages;
-};
 
 class SemanticHighlighter: public QThread
 {
@@ -200,8 +169,6 @@ public:
     virtual void paste(); // reimplemented from BaseTextEditor
     virtual void cut(); // reimplemented from BaseTextEditor
 
-    CPlusPlus::TokenCache *tokenCache() const;
-
     CppTools::CppModelManagerInterface *modelManager() const;
 
     virtual void setMimeType(const QString &mt);
@@ -211,6 +178,7 @@ public:
 
 public Q_SLOTS:
     virtual void setFontSettings(const TextEditor::FontSettings &);
+    virtual void setTabSettings(const TextEditor::TabSettings &);
     void setSortedMethodOverview(bool sort);
     void switchDeclarationDefinition();
     void jumpToDefinition();
@@ -257,6 +225,7 @@ private Q_SLOTS:
 
     void semanticRehighlight();
     void updateSemanticInfo(const CppEditor::Internal::SemanticInfo &semanticInfo);
+    void highlightTypeUsages();
 
     void performQuickFix(int index);
 
@@ -268,6 +237,7 @@ private:
     bool sortedMethodOverview() const;
     CPlusPlus::Symbol *findDefinition(CPlusPlus::Symbol *symbol, const CPlusPlus::Snapshot &snapshot);
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
+    virtual void indent(QTextDocument *doc, const QTextCursor &cursor, QChar typedChar);
 
     TextEditor::ITextEditor *openCppEditorAt(const QString &fileName, int line,
                                              int column = 0);
@@ -315,6 +285,10 @@ private:
     QList<TextEditor::QuickFixOperation::Ptr> m_quickFixes;
     bool m_objcEnabled;
     bool m_initialized;
+
+    QFuture<SemanticInfo::Use> m_highlighter;
+    QFutureWatcher<SemanticInfo::Use> m_highlightWatcher;
+    unsigned m_highlighteRevision; // the editor revision that requested the highlight
 };
 
 

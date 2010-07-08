@@ -51,7 +51,18 @@ Custom class wizard example configuration file. -->
             <fielddescription xml:lang="de">Klassenname:</fielddescription>
         </field>
         <field name="Datatype">
-            <fieldcontrol class="QComboBox" combochoices="QString,int" defaultindex="0" />
+            <fieldcontrol class="QComboBox" defaultindex="0">
+	        <comboentries>
+		    <comboentry value="QString">
+		        <comboentrytext>class QString</comboentrytext>
+		        <comboentrytext xml:lang="de">Klasse QString</comboentrytext>
+		    </comboentry>
+		    <comboentry value="int">
+		        <comboentrytext>Integer</comboentrytext>
+		        <comboentrytext xml:lang="de">Ganzzahlwert</comboentrytext>
+		    </comboentry>
+	        </comboentries>
+	    </fieldcontrol>
             <fielddescription>Data type:</fielddescription>
             <fielddescription xml:lang="de">Datentyp:</fielddescription>
         </field>

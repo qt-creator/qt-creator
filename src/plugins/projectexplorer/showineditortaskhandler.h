@@ -39,6 +39,8 @@ namespace Internal {
 
 class PROJECTEXPLORER_EXPORT ShowInEditorTaskHandler : public ITaskHandler
 {
+    Q_OBJECT
+
 public:
     ShowInEditorTaskHandler();
 

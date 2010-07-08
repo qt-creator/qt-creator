@@ -44,6 +44,7 @@
 namespace ProjectExplorer {
 
 class Target;
+class IOutputParser;
 
 class PROJECTEXPLORER_EXPORT BuildConfiguration : public ProjectConfiguration
 {
@@ -53,10 +54,10 @@ public:
     // ctors are protected
     virtual ~BuildConfiguration();
 
-    QList<BuildStep *> steps(StepType type) const;
-    void insertStep(StepType type, int position, BuildStep *step);
-    bool removeStep(StepType type, int position);
-    void moveStepUp(StepType type, int position);
+    QList<BuildStep *> steps(BuildStep::Type type) const;
+    void insertStep(BuildStep::Type type, int position, BuildStep *step);
+    bool removeStep(BuildStep::Type type, int position);
+    void moveStepUp(BuildStep::Type type, int position);
 
     virtual QString buildDirectory() const = 0;
 
@@ -73,6 +74,13 @@ public:
 
     virtual QVariantMap toMap() const;
 
+    // Creates a suitable outputparser for custom build steps
+    // (based on the toolchain)
+    // TODO this is not great API
+    // it's mainly so that custom build systems are better integrated
+    // with the generic project manager
+    virtual IOutputParser *createOutputParser() const = 0;
+
 signals:
     void environmentChanged();
     void buildDirectoryChanged();
@@ -85,7 +93,7 @@ protected:
     virtual bool fromMap(const QVariantMap &map);
 
 private:
-    QList<BuildStep *> m_steps[LastStepType];
+    QList<BuildStep *> m_steps[BuildStep::LastStepType];
     Target *m_target;
 
     bool m_clearSystemEnvironment;

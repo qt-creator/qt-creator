@@ -71,6 +71,11 @@
      </item>
      <item>
       <property name="text">
+       <string>Inherits QDeclarativeItem</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
        <string>Based on QSharedData</string>
       </property>
      </item>
@@ -175,7 +180,7 @@
     </widget>
    </item>
    <item row="8" column="1">
-    <widget class="Utils::PathChooser" name="pathChooser" native="true"/>
+    <widget class="Utils::PathChooser" name="pathChooser"/>
    </item>
   </layout>
  </widget>

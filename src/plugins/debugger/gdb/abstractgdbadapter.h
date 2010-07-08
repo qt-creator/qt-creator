@@ -85,24 +85,6 @@ public:
     virtual void trkReloadRegisters() {}
     virtual void trkReloadThreads() {}
 
-signals:
-    void adapterStarted();
-
-    // Something went wrong with the adapter *before* adapterStarted() was emitted.
-    // Make sure to clean up everything before emitting this signal.
-    void adapterStartFailed(const QString &msg, const QString &settingsIdHint);
-
-    // Something went wrong with the adapter *after* adapterStarted() was emitted.
-    // Make sure to clean up everything before emitting this signal.
-    void adapterCrashed(const QString &msg);
-
-    // This triggers the initial breakpoint synchronization and causes
-    // startInferiorPhase2() being called once done.
-    void inferiorPrepared();
-
-    // The adapter is still running just fine, but it failed to acquire a debuggee.
-    void inferiorStartFailed(const QString &msg);
-
 protected:
     DebuggerState state() const
         { return m_engine->state(); }

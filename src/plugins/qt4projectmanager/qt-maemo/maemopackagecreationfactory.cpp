@@ -48,7 +48,6 @@
 #include <qt4projectmanagerconstants.h>
 
 using ProjectExplorer::BuildConfiguration;
-using ProjectExplorer::StepType;
 using ProjectExplorer::BuildStep;
 
 namespace Qt4ProjectManager {
@@ -61,7 +60,7 @@ MaemoPackageCreationFactory::MaemoPackageCreationFactory(QObject *parent)
 }
 
 QStringList MaemoPackageCreationFactory::availableCreationIds(BuildConfiguration *,
-                StepType) const
+                                                              BuildStep::Type) const
 {
     return QStringList();
 }
@@ -72,26 +71,28 @@ QString MaemoPackageCreationFactory::displayNameForId(const QString &) const
 }
 
 bool MaemoPackageCreationFactory::canCreate(BuildConfiguration *,
-         StepType, const QString &) const
+                                            BuildStep::Type, const QString &) const
 {
     return false;
 }
 
 BuildStep *MaemoPackageCreationFactory::create(BuildConfiguration *,
-               StepType, const QString &)
+                                               BuildStep::Type, const QString &)
 {
     Q_ASSERT(false);
     return 0;
 }
 
 bool MaemoPackageCreationFactory::canRestore(BuildConfiguration *parent,
-         StepType type, const QVariantMap &map) const
+                                             BuildStep::Type type,
+                                             const QVariantMap &map) const
 {
     return canCreateInternally(parent, type, ProjectExplorer::idFromMap(map));
 }
 
 BuildStep *MaemoPackageCreationFactory::restore(BuildConfiguration *parent,
-               StepType type, const QVariantMap &map)
+                                                BuildStep::Type type,
+                                                const QVariantMap &map)
 {
     Q_ASSERT(canRestore(parent, type, map));
     MaemoPackageCreationStep * const step
@@ -104,22 +105,25 @@ BuildStep *MaemoPackageCreationFactory::restore(BuildConfiguration *parent,
 }
 
 bool MaemoPackageCreationFactory::canClone(BuildConfiguration *parent,
-         StepType type, BuildStep *product) const
+                                           ProjectExplorer::BuildStep::Type type,
+                                           BuildStep *product) const
 {
     return canCreateInternally(parent, type, product->id());
 }
 
 BuildStep *MaemoPackageCreationFactory::clone(BuildConfiguration *parent,
-               StepType type, BuildStep *product)
+                                              ProjectExplorer::BuildStep::Type type,
+                                              BuildStep *product)
 {
     Q_ASSERT(canClone(parent, type, product));
     return new MaemoPackageCreationStep(parent, static_cast<MaemoPackageCreationStep *>(product));
 }
 
 bool MaemoPackageCreationFactory::canCreateInternally(BuildConfiguration *parent,
-         StepType type, const QString &id) const
+                                                      ProjectExplorer::BuildStep::Type type,
+                                                      const QString &id) const
 {
-    return type == ProjectExplorer::Build
+    return type == ProjectExplorer::BuildStep::Deploy
         && id == MaemoPackageCreationStep::CreatePackageId
         && parent->target()->id() == Constants::MAEMO_DEVICE_TARGET_ID;
 }

@@ -54,6 +54,11 @@ struct TEXTEDITOR_EXPORT Parenthesis
     int pos;
 };
 
+class TEXTEDITOR_EXPORT CodeFormatterData
+{
+public:
+    virtual ~CodeFormatterData();
+};
 
 class TEXTEDITOR_EXPORT TextBlockUserData : public QTextBlockUserData
 {
@@ -64,7 +69,9 @@ public:
           m_ifdefedOut(false),
           m_foldingIndent(0),
           m_foldingStartIncluded(false),
-          m_foldingEndIncluded(false){}
+          m_foldingEndIncluded(false),
+          m_codeFormatterData(0)
+    {}
     ~TextBlockUserData();
 
     inline TextMarks marks() const { return m_marks; }
@@ -106,6 +113,11 @@ public:
     void setFoldingEndIncluded(bool included) { m_foldingEndIncluded = included; }
     bool foldingEndIncluded() const { return m_foldingEndIncluded; }
 
+    static int lexerState(const QTextBlock &block);
+    static void setLexerState(QTextBlock block, int state);
+
+    CodeFormatterData *codeFormatterData() const { return m_codeFormatterData; }
+    void setCodeFormatterData(CodeFormatterData *data);
 
 private:
     TextMarks m_marks;
@@ -115,6 +127,7 @@ private:
     uint m_foldingStartIncluded : 1;
     uint m_foldingEndIncluded : 1;
     Parentheses m_parentheses;
+    CodeFormatterData *m_codeFormatterData;
 };
 
 
@@ -159,6 +172,11 @@ public:
     void emitDocumentSizeChanged() { emit documentSizeChanged(documentSize()); }
     int lastSaveRevision;
     bool hasMarks;
+
+    int m_requiredWidth;
+    void setRequiredWidth(int width);
+
+    QSizeF documentSize() const;
 };
 
 } // namespace TextEditor

@@ -30,42 +30,26 @@
 #ifndef MAEMOPACKAGECONTENTS_H
 #define MAEMOPACKAGECONTENTS_H
 
+#include "maemodeployable.h"
+
 #include <QtCore/QAbstractTableModel>
 #include <QtCore/QHash>
 #include <QtCore/QList>
+#include <QtCore/QScopedPointer>
 #include <QtCore/QString>
 
 namespace Qt4ProjectManager {
 namespace Internal {
+class ProFileWrapper;
+class Qt4ProFileNode;
 
-struct MaemoDeployable
-{
-    MaemoDeployable(const QString &localFilePath, const QString &remoteDir)
-        : localFilePath(localFilePath), remoteDir(remoteDir) {}
-
-    bool operator==(const MaemoDeployable &other) const
-    {
-        return localFilePath == other.localFilePath
-            && remoteDir == other.remoteDir;
-    }
-
-    QString localFilePath;
-    QString remoteDir;
-};
-inline uint qHash(const MaemoDeployable &d)
-{
-    return qHash(qMakePair(d.localFilePath, d.remoteDir));
-}
-
-class MaemoPackageCreationStep;
-class ProFileReader;
-
-class MaemoPackageContents : public QAbstractTableModel
+class MaemoDeployableListModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    MaemoPackageContents(MaemoPackageCreationStep *packageStep);
-    ~MaemoPackageContents();
+    MaemoDeployableListModel(const Qt4ProFileNode *proFileNode,
+        const QString &qConfigFile, QObject *parent);
+    ~MaemoDeployableListModel();
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
@@ -74,7 +58,10 @@ public:
     bool removeDeployableAt(int row, QString *error);
     bool isModified() const { return m_modified; }
     void setUnModified() { m_modified = false; }
+    QString localExecutableFilePath() const;
     QString remoteExecutableFilePath() const;
+    QString projectName() const;
+    QString projectDir() const;
 
 private:
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -86,12 +73,12 @@ private:
     virtual bool setData(const QModelIndex &index, const QVariant &value,
                          int role = Qt::EditRole);
 
-    bool buildModel() const;
+    bool buildModel();
 
-    const MaemoPackageCreationStep * const m_packageStep;
-    mutable QList<MaemoDeployable> m_deployables;
+    const Qt4ProFileNode * const m_proFileNode;
+    QList<MaemoDeployable> m_deployables;
     mutable bool m_modified;
-    mutable bool m_initialized;
+    const QScopedPointer<ProFileWrapper> m_proFileWrapper;
 };
 
 } // namespace Qt4ProjectManager

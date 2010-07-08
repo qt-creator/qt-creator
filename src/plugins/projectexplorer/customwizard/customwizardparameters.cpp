@@ -58,6 +58,9 @@ static const char displayCategoryElementC[] = "displaycategory";
 static const char fieldPageTitleElementC[] = "fieldpagetitle";
 static const char fieldsElementC[] = "fields";
 static const char fieldElementC[] = "field";
+static const char comboEntriesElementC[] = "comboentries";
+static const char comboEntryElementC[] = "comboentry";
+static const char comboEntryTextElementC[] = "comboentrytext";
 
 static const char fieldDescriptionElementC[] = "fielddescription";
 static const char fieldNameAttributeC[] = "name";
@@ -77,6 +80,11 @@ enum ParseState {
     ParseWithinWizard,
     ParseWithinFields,
     ParseWithinField,
+    ParseWithinFieldDescription,
+    ParseWithinFieldControl,
+    ParseWithinComboEntries,
+    ParseWithinComboEntry,
+    ParseWithinComboEntryText,
     ParseWithinFiles,
     ParseWithinFile,
     ParseError
@@ -96,6 +104,17 @@ void CustomWizardField::clear()
     name.clear();
     description.clear();
     controlAttributes.clear();
+}
+
+// Attribute map keys for combo entries
+QString CustomWizardField::comboEntryValueKey(int i)
+{
+    return QLatin1String("comboValue") + QString::number(i);
+}
+
+QString CustomWizardField::comboEntryTextKey(int i)
+{
+    return QLatin1String("comboText") + QString::number(i);
 }
 
 CustomWizardFile::CustomWizardFile() :
@@ -148,7 +167,7 @@ static inline bool skipOverElementText(QXmlStreamReader &reader)
 // Assign the element text to the string passed on if the language matches,
 // that is, the element has no language attribute or there is an exact match.
 // If there is no match, skip over the element text.
-static inline void assignLanguageElementText(QXmlStreamReader &reader,
+static inline bool assignLanguageElementText(QXmlStreamReader &reader,
                                              const QString &desiredLanguage,
                                              QString *target)
 {
@@ -156,18 +175,21 @@ static inline void assignLanguageElementText(QXmlStreamReader &reader,
     if (elementLanguage.isEmpty()) {
         // Try to find a translation for our built-in Wizards
         *target = QCoreApplication::translate("ProjectExplorer::CustomWizard", reader.readElementText().toLatin1().constData());
-    } else if (elementLanguage == desiredLanguage) {
-        *target = reader.readElementText();
-    } else {
-        // Language mismatch: forward to end element.
-        skipOverElementText(reader);
+        return true;
     }
+    if (elementLanguage == desiredLanguage) {
+        *target = reader.readElementText();
+        return true;
+    }
+    // Language mismatch: forward to end element.
+    skipOverElementText(reader);
+    return false;
 }
 
 // Copy&paste from above to call a setter of BaseFileParameters.
 // Implementation of a sophisticated mem_fun pattern is left
 // as an exercise to the reader.
-static inline void assignLanguageElementText(QXmlStreamReader &reader,
+static inline bool assignLanguageElementText(QXmlStreamReader &reader,
                                              const QString &desiredLanguage,
                                              Core::BaseFileWizardParameters *bp,
                                              void (Core::BaseFileWizardParameters::*setter)(const QString &))
@@ -177,12 +199,15 @@ static inline void assignLanguageElementText(QXmlStreamReader &reader,
         // Try to find a translation for our built-in Wizards
         const QString translated = QCoreApplication::translate("ProjectExplorer::CustomWizard", reader.readElementText().toLatin1().constData());
         (bp->*setter)(translated);
-    } else if (elementLanguage == desiredLanguage) {
-        (bp->*setter)(reader.readElementText());
-    } else {
-        // Language mismatch: forward to end element.
-        skipOverElementText(reader);
+        return true;
     }
+    if (elementLanguage == desiredLanguage) {
+        (bp->*setter)(reader.readElementText());
+        return true;
+    }
+    // Language mismatch: forward to end element.
+    skipOverElementText(reader);
+    return false;
 }
 
 // Read level sub-elements of "wizard"
@@ -226,24 +251,12 @@ static bool parseCustomProjectElement(QXmlStreamReader &reader,
     return false;
 }
 
-// Read sub-elements of "fields"
-static bool parseFieldElement(QXmlStreamReader &reader,
-                              const QString &language,
-                              CustomWizardField *m)
+static inline QMap<QString, QString> attributesToStringMap(const QXmlStreamAttributes &attributes)
 {
-    const QStringRef elementName = reader.name();
-    if (elementName == QLatin1String(fieldDescriptionElementC)) {
-        assignLanguageElementText(reader, language, &m->description);
-        return true;
-    }
-    // Copy widget control attributes
-    if (elementName == QLatin1String(fieldControlElementC)) {
-        foreach(const QXmlStreamAttribute &attribute, reader.attributes())
-            m->controlAttributes.insert(attribute.name().toString(), attribute.value().toString());
-        skipOverElementText(reader);
-        return true;
-    }
-    return false;
+    QMap<QString, QString> rc;
+    foreach(const QXmlStreamAttribute &attribute, attributes)
+        rc.insert(attribute.name().toString(), attribute.value().toString());
+    return rc;
 }
 
 // Switch parser state depending on opening element name.
@@ -264,11 +277,30 @@ static ParseState nextOpeningState(ParseState in, const QStringRef &name)
         if (name == QLatin1String(fieldElementC))
             return ParseWithinField;
         break;
+    case ParseWithinField:
+        if (name == QLatin1String(fieldDescriptionElementC))
+            return ParseWithinFieldDescription;
+        if (name == QLatin1String(fieldControlElementC))
+            return ParseWithinFieldControl;
+        break;
+    case ParseWithinFieldControl:
+        if (name == QLatin1String(comboEntriesElementC))
+            return ParseWithinComboEntries;
+        break;
+    case ParseWithinComboEntries:
+        if (name == QLatin1String(comboEntryElementC))
+            return ParseWithinComboEntry;
+        break;
+    case ParseWithinComboEntry:
+        if (name == QLatin1String(comboEntryTextElementC))
+            return ParseWithinComboEntryText;
+        break;
     case ParseWithinFiles:
         if (name == QLatin1String(fileElementC))
             return ParseWithinFile;
         break;
-    case ParseWithinField:
+    case ParseWithinFieldDescription: // No subelements
+    case ParseWithinComboEntryText:
     case ParseWithinFile:
     case ParseError:
         break;
@@ -301,6 +333,26 @@ static ParseState nextClosingState(ParseState in, const QStringRef &name)
     case ParseWithinFile:
         if (name == QLatin1String(fileElementC))
             return ParseWithinFiles;
+        break;
+    case ParseWithinFieldDescription:
+        if (name == QLatin1String(fieldDescriptionElementC))
+            return ParseWithinField;
+        break;
+    case ParseWithinFieldControl:
+        if (name == QLatin1String(fieldControlElementC))
+            return ParseWithinField;
+        break;
+    case ParseWithinComboEntries:
+        if (name == QLatin1String(comboEntriesElementC))
+            return ParseWithinFieldControl;
+        break;
+    case ParseWithinComboEntry:
+        if (name == QLatin1String(comboEntryElementC))
+            return ParseWithinComboEntries;
+        break;
+    case ParseWithinComboEntryText:
+        if (name == QLatin1String(comboEntryTextElementC))
+            return ParseWithinComboEntry;
         break;
     case ParseError:
         break;
@@ -373,6 +425,7 @@ bool CustomWizardParameters::parse(QIODevice &device,
                                    Core::BaseFileWizardParameters *bp,
                                    QString *errorMessage)
 {
+    int comboEntryCount = 0;
     QXmlStreamReader reader(&device);
     QXmlStreamReader::TokenType token = QXmlStreamReader::EndDocument;
     ParseState state = ParseBeginning;
@@ -391,8 +444,6 @@ bool CustomWizardParameters::parse(QIODevice &device,
             do {
                 // Read out subelements applicable to current state
                 if (state == ParseWithinWizard && parseCustomProjectElement(reader, configFileFullPath, language, this, bp))
-                    break;
-                if (state == ParseWithinField && parseFieldElement(reader, language, &field))
                     break;
                 // switch to next state
                 state = nextOpeningState(state, reader.name());
@@ -413,6 +464,29 @@ bool CustomWizardParameters::parse(QIODevice &device,
                     field.name = attributeValue(reader, fieldNameAttributeC);
                     field.mandatory = booleanAttributeValue(reader, fieldMandatoryAttributeC);
                     break;
+                case ParseWithinFieldDescription:
+                    assignLanguageElementText(reader, language, &field.description);
+                    state = ParseWithinField; // The above reads away the end tag, set state.
+                    break;
+                case ParseWithinFieldControl: // Copy widget control attributes
+                    field.controlAttributes = attributesToStringMap(reader.attributes());
+                    break;
+                case ParseWithinComboEntries:
+                    break;
+                case ParseWithinComboEntry: // Combo entry with 'value' attribute
+                    field.controlAttributes.insert(CustomWizardField::comboEntryValueKey(comboEntryCount),
+                                                   attributeValue(reader, "value"));
+                    break;
+                case ParseWithinComboEntryText: {
+
+                        // This reads away the end tag, set state here.
+                        QString text;
+                        if (assignLanguageElementText(reader, language, &text))
+                            field.controlAttributes.insert(CustomWizardField::comboEntryTextKey(comboEntryCount),
+                                                           text);
+                        state = ParseWithinComboEntry;
+                }
+                     break;
                 case ParseWithinFile: { // file attribute
                         CustomWizardFile file;
                         file.source = attributeValue(reader, fileNameSourceAttributeC);
@@ -435,14 +509,20 @@ bool CustomWizardParameters::parse(QIODevice &device,
             break;
         case QXmlStreamReader::EndElement:
             state = nextClosingState(state, reader.name());
-            if (state == ParseError) {
+            switch (state) {
+            case ParseError:
                 *errorMessage = msgError(reader, configFileFullPath,
                                          QString::fromLatin1("Unexpected end element %1").arg(reader.name().toString()));
                 return false;
-            }
-            if (state == ParseWithinFields) { // Leaving a field element
+            case ParseWithinFields:  // Leaving a field element
                 fields.push_back(field);
                 field.clear();
+                break;
+            case ParseWithinComboEntries:
+                comboEntryCount++;
+                break;
+            default:
+                break;
             }
             break;
         default:

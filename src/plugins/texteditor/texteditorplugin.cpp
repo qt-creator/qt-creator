@@ -40,6 +40,7 @@
 #include "plaintexteditor.h"
 #include "storagesettings.h"
 #include "manager.h"
+#include "outlinefactory.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -144,6 +145,9 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     connect(Core::ICore::instance(), SIGNAL(coreOpened()),
             Manager::instance(), SLOT(registerMimeTypes()));
 
+    m_outlineFactory = new OutlineFactory;
+    addAutoReleasedObject(m_outlineFactory);
+
     return true;
 }
 
@@ -151,7 +155,11 @@ void TextEditorPlugin::extensionsInitialized()
 {
     m_editorFactory->actionHandler()->initializeActions();
 
-    m_searchResultWindow = ExtensionSystem::PluginManager::instance()->getObject<Find::SearchResultWindow>();
+    ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
+
+    m_searchResultWindow = pluginManager->getObject<Find::SearchResultWindow>();
+
+    m_outlineFactory->setWidgetFactories(pluginManager->getObjects<TextEditor::IOutlineWidgetFactory>());
 
     connect(m_settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
             this, SLOT(updateSearchResultsFont(TextEditor::FontSettings)));
@@ -162,6 +170,7 @@ void TextEditorPlugin::extensionsInitialized()
         ExtensionSystem::PluginManager::instance()->getObject<Find::SearchResultWindow>()));
     addAutoReleasedObject(new FindInCurrentFile(
         ExtensionSystem::PluginManager::instance()->getObject<Find::SearchResultWindow>()));
+
 }
 
 void TextEditorPlugin::initializeEditor(PlainTextEditor *editor)

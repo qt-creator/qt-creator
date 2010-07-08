@@ -20,11 +20,15 @@ HEADERS += \
     $$PWD/qmljslink.h \
     $$PWD/qmljscheck.h \
     $$PWD/qmljsscopebuilder.h \
+    $$PWD/qmljslookupcontext.h \
     $$PWD/qmljslineinfo.h \
     $$PWD/qmljscompletioncontextfinder.h \
     $$PWD/qmljscomponentversion.h \
     $$PWD/qmljsmodelmanagerinterface.h \
-    $$PWD/qmljsrewriter.h
+    $$PWD/qmljsicontextpane.h \
+    $$PWD/qmljspropertyreader.h \
+    $$PWD/qmljsrewriter.h \
+    $$PWD/qmljsicons.h
 
 SOURCES += \
     $$PWD/qmljsbind.cpp \
@@ -35,11 +39,17 @@ SOURCES += \
     $$PWD/qmljslink.cpp \
     $$PWD/qmljscheck.cpp \
     $$PWD/qmljsscopebuilder.cpp \
+    $$PWD/qmljslookupcontext.cpp \
     $$PWD/qmljslineinfo.cpp \
     $$PWD/qmljscompletioncontextfinder.cpp \
     $$PWD/qmljscomponentversion.cpp \
     $$PWD/qmljsmodelmanagerinterface.cpp \
-    $$PWD/qmljsrewriter.cpp
+    $$PWD/qmljspropertyreader.cpp \
+    $$PWD/qmljsrewriter.cpp \
+    $$PWD/qmljsicons.cpp
+
+RESOURCES += \
+    $$PWD/qmljs.qrc
 
 OTHER_FILES += \
     $$PWD/parser/qmljs.g

@@ -144,9 +144,8 @@ const char *DebuggerEngine::stateName(int s)
     switch (s) {
         SN(DebuggerNotReady)
         SN(EngineStarting)
-        SN(AdapterStarting)
-        SN(AdapterStarted)
-        SN(AdapterStartFailed)
+        SN(EngineStarted)
+        SN(EngineStartFailed)
         SN(InferiorStarting)
         SN(InferiorStartFailed)
         SN(InferiorRunningRequested)
@@ -186,7 +185,7 @@ private:
 
 bool CommandHandler::setData(const QModelIndex &, const QVariant &value, int role)
 {
-    QTC_ASSERT(m_engine, return false);
+    QTC_ASSERT(m_engine, qDebug() << value << role; return false);
     m_engine->handleCommand(role, value);
     return true;
 }
@@ -636,7 +635,8 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
     theDebuggerAction(OperateByInstruction)
         ->setEnabled(engineCapabilities & DisassemblerCapability);
 
-    startDebugger();
+    setState(EngineStarting);
+    startEngine();
 }
 
 void DebuggerEngine::breakByFunctionMain()
@@ -909,13 +909,10 @@ static bool isAllowedTransition(int from, int to)
         return to == EngineStarting || to == DebuggerNotReady;
 
     case EngineStarting:
-        return to == AdapterStarting || to == DebuggerNotReady;
-
-    case AdapterStarting:
-        return to == AdapterStarted || to == AdapterStartFailed;
-    case AdapterStarted:
+        return to == EngineStarted || to == EngineStartFailed;
+    case EngineStarted:
         return to == InferiorStarting || to == EngineShuttingDown;
-    case AdapterStartFailed:
+    case EngineStartFailed:
         return to == DebuggerNotReady;
 
     case InferiorStarting:
@@ -996,9 +993,8 @@ bool DebuggerEngine::debuggerActionsEnabled(DebuggerState state)
         return true;
     case DebuggerNotReady:
     case EngineStarting:
-    case AdapterStarting:
-    case AdapterStarted:
-    case AdapterStartFailed:
+    case EngineStarted:
+    case EngineStartFailed:
     case InferiorStartFailed:
     case InferiorRunningRequested_Kill:
     case InferiorStopping_Kill:

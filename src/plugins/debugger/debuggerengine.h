@@ -126,7 +126,7 @@ public:
             TextEditor::ITextEditor * /* editor */, int /* cursorPos */) { }
     void initializeFromTemplate(DebuggerEngine *other);
     void startDebugger(DebuggerRunControl *runControl);
-    virtual void startDebugger() {}
+    virtual void startEngine() {}
     virtual void exitDebugger() {}
     virtual void detachDebugger() {}
     virtual void updateWatchData(const WatchData & /* data */) { }
@@ -251,7 +251,7 @@ public slots:
     void startSuccessful();
     void startFailed();
     void raiseApplication();
-    void quitDebugger() { exitDebugger(); }
+    virtual void quitDebugger() { exitDebugger(); } // called by DebuggerRunControl
 
 protected:
     void setState(DebuggerState state, bool forced = false);

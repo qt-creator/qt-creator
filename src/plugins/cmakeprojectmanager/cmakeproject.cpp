@@ -521,7 +521,7 @@ bool CMakeProject::fromMap(const QVariantMap &map)
 
     if (!hasUserFile && hasBuildTarget("all")) {
         MakeStep *makeStep = qobject_cast<MakeStep *>(
-                activeTarget()->activeBuildConfiguration()->steps(ProjectExplorer::Build).at(0));
+                activeTarget()->activeBuildConfiguration()->steps(ProjectExplorer::BuildStep::Build).at(0));
         Q_ASSERT(makeStep);
         makeStep->setBuildTarget("all", true);
     }

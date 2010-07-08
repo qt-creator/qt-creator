@@ -48,7 +48,6 @@ class ProjectLoadWizard : public QWizard
 public:
     ProjectLoadWizard(Qt4Project *project, QWidget * parent = 0, Qt::WindowFlags flags = 0);
     virtual ~ProjectLoadWizard();
-    virtual int nextId() const;
     virtual void done(int result);
     void execDialog();
 

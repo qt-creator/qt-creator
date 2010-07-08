@@ -27,78 +27,65 @@
 **
 **************************************************************************/
 
-#include "maemopackagecontents.h"
+#include "maemodeployablelistmodel.h"
 
-#include "maemopackagecreationstep.h"
-#include "maemotoolchain.h"
 #include "profilewrapper.h"
 
-#include <qt4projectmanager/qt4buildconfiguration.h>
-#include <qt4projectmanager/qt4project.h>
-#include <qt4projectmanager/qt4target.h>
+#include <qt4projectmanager/qt4nodes.h>
 
 #include <QtCore/QCryptographicHash>
-#include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-MaemoPackageContents::MaemoPackageContents(MaemoPackageCreationStep *packageStep)
-    : QAbstractTableModel(packageStep),
-      m_packageStep(packageStep),
+MaemoDeployableListModel::MaemoDeployableListModel(const Qt4ProFileNode *proFileNode,
+    const QString &qConfigFile, QObject *parent)
+    : QAbstractTableModel(parent),
+      m_proFileNode(proFileNode),
       m_modified(false),
-      m_initialized(false)
+      m_proFileWrapper(new ProFileWrapper(m_proFileNode->path(), qConfigFile))
 {
+    buildModel();
 }
 
-MaemoPackageContents::~MaemoPackageContents() {}
+MaemoDeployableListModel::~MaemoDeployableListModel() {}
 
-bool MaemoPackageContents::buildModel() const
+bool MaemoDeployableListModel::buildModel()
 {
-    if (m_initialized)
-        return true;
-
     m_deployables.clear();
-    QSharedPointer<ProFileWrapper> proFileWrapper
-        = m_packageStep->proFileWrapper();
-    const ProFileWrapper::InstallsList &installs = proFileWrapper->installs();
+
+    const ProFileWrapper::InstallsList &installs = m_proFileWrapper->installs();
     if (installs.targetPath.isEmpty()) {
-        const Qt4ProFileNode * const proFileNode
-            = m_packageStep->qt4BuildConfiguration()->qt4Target()
-                ->qt4Project()->rootProjectNode();
-        const QString remoteDir = proFileNode->projectType() == LibraryTemplate
+        const QString remoteDir = m_proFileNode->projectType() == LibraryTemplate
             ? QLatin1String("/usr/local/lib")
             : QLatin1String("/usr/local/bin");
-        m_deployables.prepend(MaemoDeployable(m_packageStep->localExecutableFilePath(),
+        m_deployables.prepend(MaemoDeployable(localExecutableFilePath(),
             remoteDir));
-        if (!proFileWrapper->addInstallsTarget(remoteDir)) {
+        if (!m_proFileWrapper->addInstallsTarget(remoteDir))
             qWarning("Error updating .pro file.");
-            return false;
-        }
     } else {
-        m_deployables.prepend(MaemoDeployable(m_packageStep->localExecutableFilePath(),
+        m_deployables.prepend(MaemoDeployable(localExecutableFilePath(),
             installs.targetPath));
     }
     foreach (const ProFileWrapper::InstallsElem &elem, installs.normalElems) {
         foreach (const QString &file, elem.files) {
-            m_deployables << MaemoDeployable(proFileWrapper->absFilePath(file),
+            m_deployables << MaemoDeployable(m_proFileWrapper->absFilePath(file),
                 elem.path);
         }
     }
 
-    m_initialized = true;
     m_modified = true; // ???
     return true;
 }
 
-MaemoDeployable MaemoPackageContents::deployableAt(int row) const
+MaemoDeployable MaemoDeployableListModel::deployableAt(int row) const
 {
     Q_ASSERT(row >= 0 && row < rowCount());
     return m_deployables.at(row);
 }
 
-bool MaemoPackageContents::addDeployable(const MaemoDeployable &deployable,
+bool MaemoDeployableListModel::addDeployable(const MaemoDeployable &deployable,
     QString *error)
 {
     if (m_deployables.contains(deployable)) {
@@ -106,7 +93,7 @@ bool MaemoPackageContents::addDeployable(const MaemoDeployable &deployable,
         return false;
     }
 
-    if (!m_packageStep->proFileWrapper()->addInstallsElem(deployable.remoteDir,
+    if (!m_proFileWrapper->addInstallsElem(deployable.remoteDir,
         deployable.localFilePath)) {
         *error = tr("Failed to update .pro file.");
         return false;
@@ -118,13 +105,13 @@ bool MaemoPackageContents::addDeployable(const MaemoDeployable &deployable,
     return true;
 }
 
-bool MaemoPackageContents::removeDeployableAt(int row, QString *error)
+bool MaemoDeployableListModel::removeDeployableAt(int row, QString *error)
 {
     Q_ASSERT(row > 0 && row < rowCount());
 
     const MaemoDeployable &deployable = deployableAt(row);
-    if (!m_packageStep->proFileWrapper()
-        ->removeInstallsElem(deployable.remoteDir, deployable.localFilePath)) {
+    if (!m_proFileWrapper->removeInstallsElem(deployable.remoteDir,
+        deployable.localFilePath)) {
         *error = tr("Could not update .pro file.");
         return false;
     }
@@ -135,18 +122,17 @@ bool MaemoPackageContents::removeDeployableAt(int row, QString *error)
     return true;
 }
 
-int MaemoPackageContents::rowCount(const QModelIndex &parent) const
+int MaemoDeployableListModel::rowCount(const QModelIndex &parent) const
 {
-    buildModel();
     return parent.isValid() ? 0 : m_deployables.count();
 }
 
-int MaemoPackageContents::columnCount(const QModelIndex &parent) const
+int MaemoDeployableListModel::columnCount(const QModelIndex &parent) const
 {
     return parent.isValid() ? 0 : 2;
 }
 
-QVariant MaemoPackageContents::data(const QModelIndex &index, int role) const
+QVariant MaemoDeployableListModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() >= rowCount())
         return QVariant();
@@ -159,15 +145,15 @@ QVariant MaemoPackageContents::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-Qt::ItemFlags MaemoPackageContents::flags(const QModelIndex &index) const
+Qt::ItemFlags MaemoDeployableListModel::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags parentFlags = QAbstractTableModel::flags(index);
-    if (index.column() == 1)
-        return parentFlags | Qt::ItemIsEditable;
+//    if (index.column() == 1)
+//        return parentFlags | Qt::ItemIsEditable;
     return parentFlags;
 }
 
-bool MaemoPackageContents::setData(const QModelIndex &index,
+bool MaemoDeployableListModel::setData(const QModelIndex &index,
                                    const QVariant &value, int role)
 {
     if (!index.isValid() || index.row() >= rowCount() || index.column() != 1
@@ -176,7 +162,7 @@ bool MaemoPackageContents::setData(const QModelIndex &index,
 
     MaemoDeployable &deployable = m_deployables[index.row()];
     const QString &newRemoteDir = value.toString();
-    if (!m_packageStep->proFileWrapper()->replaceInstallPath(deployable.remoteDir,
+    if (!m_proFileWrapper->replaceInstallPath(deployable.remoteDir,
         deployable.localFilePath, newRemoteDir)) {
         qWarning("Error: Could not update .pro file");
         return false;
@@ -187,7 +173,7 @@ bool MaemoPackageContents::setData(const QModelIndex &index,
     return true;
 }
 
-QVariant MaemoPackageContents::headerData(int section,
+QVariant MaemoDeployableListModel::headerData(int section,
              Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Vertical || role != Qt::DisplayRole)
@@ -195,10 +181,43 @@ QVariant MaemoPackageContents::headerData(int section,
     return section == 0 ? tr("Local File Path") : tr("Remote Directory");
 }
 
-QString MaemoPackageContents::remoteExecutableFilePath() const
+QString MaemoDeployableListModel::localExecutableFilePath() const
 {
-    return buildModel() ? deployableAt(0).remoteDir + '/'
-        + m_packageStep->executableFileName() : QString();
+    const TargetInformation &ti = m_proFileNode->targetInformation();
+    if (!ti.valid)
+        return QString();
+
+    const bool isLib = m_proFileNode->projectType() == LibraryTemplate;
+    bool isStatic;
+    QString fileName;
+    if (isLib) {
+        fileName += QLatin1String("lib");
+        const QStringList &config
+            = m_proFileWrapper->varValues(QLatin1String("CONFIG"));
+        isStatic = config.contains(QLatin1String("static"))
+            || config.contains(QLatin1String("staticlib"))
+            || config.contains(QLatin1String("plugin"));
+    }
+    fileName += ti.target;
+    if (isLib)
+        fileName += QLatin1String(isStatic ? ".a" : ".so");
+    return ti.buildDir + '/' + fileName;
+}
+
+QString MaemoDeployableListModel::remoteExecutableFilePath() const
+{
+    return deployableAt(0).remoteDir + '/'
+        + QFileInfo(localExecutableFilePath()).fileName();
+}
+
+QString MaemoDeployableListModel::projectName() const
+{
+    return m_proFileNode->displayName();
+}
+
+QString MaemoDeployableListModel::projectDir() const
+{
+    return QFileInfo(m_proFileNode->path()).dir().path();
 }
 
 } // namespace Qt4ProjectManager

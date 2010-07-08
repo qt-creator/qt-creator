@@ -50,6 +50,7 @@ const char * const BUILD_DIRECTORY_KEY("GenericProjectManager.GenericBuildConfig
 GenericBuildConfiguration::GenericBuildConfiguration(GenericTarget *parent)
     : BuildConfiguration(parent, QLatin1String(GENERIC_BC_ID))
 {
+
 }
 
 GenericBuildConfiguration::GenericBuildConfiguration(GenericTarget *parent, const QString &id)
@@ -116,6 +117,14 @@ GenericTarget *GenericBuildConfiguration::genericTarget() const
     return static_cast<GenericTarget *>(target());
 }
 
+ProjectExplorer::IOutputParser *GenericBuildConfiguration::createOutputParser() const
+{
+    ProjectExplorer::ToolChain *tc = genericTarget()->genericProject()->toolChain();
+    if (tc)
+        return tc->outputParser();
+    return 0;
+}
+
 
 /*!
   \class GenericBuildConfigurationFactory
@@ -174,7 +183,7 @@ BuildConfiguration *GenericBuildConfigurationFactory::create(ProjectExplorer::Ta
     bc->setDisplayName(buildConfigurationName);
 
     GenericMakeStep *makeStep = new GenericMakeStep(bc);
-    bc->insertStep(ProjectExplorer::Build, 0, makeStep);
+    bc->insertStep(ProjectExplorer::BuildStep::Build, 0, makeStep);
     makeStep->setBuildTarget("all", /* on = */ true);
 
     target->addBuildConfiguration(bc); // also makes the name unique...

@@ -52,6 +52,7 @@
 #include "qt-maemo/maemomanager.h"
 #include "qt-s60/s60manager.h"
 
+#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/buildmanager.h>
@@ -93,6 +94,7 @@ Qt4ProjectManagerPlugin::~Qt4ProjectManagerPlugin()
 bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
+    m_projectContext = Core::Context(Qt4ProjectManager::Constants::PROJECT_ID);
 
     ProFileParser::initialize();
     ProFileEvaluator::initialize();
@@ -172,18 +174,17 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
             am->actionContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT);
 
     //register actions
-    Core::Context context(Qt4ProjectManager::Constants::PROJECT_ID);
     Core::Command *command;
 
     QIcon qmakeIcon(QLatin1String(":/qt4projectmanager/images/run_qmake.png"));
     qmakeIcon.addFile(QLatin1String(":/qt4projectmanager/images/run_qmake_small.png"));
     m_runQMakeAction = new QAction(qmakeIcon, tr("Run qmake"), this);
-    command = am->registerAction(m_runQMakeAction, Constants::RUNQMAKE, context);
+    command = am->registerAction(m_runQMakeAction, Constants::RUNQMAKE, m_projectContext);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_PROJECT);
     connect(m_runQMakeAction, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(runQMake()));
 
     m_runQMakeActionContextMenu = new QAction(qmakeIcon, tr("Run qmake"), this);
-    command = am->registerAction(m_runQMakeActionContextMenu, Constants::RUNQMAKECONTEXTMENU, context);
+    command = am->registerAction(m_runQMakeActionContextMenu, Constants::RUNQMAKECONTEXTMENU, m_projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
@@ -192,7 +193,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     QIcon buildIcon(ProjectExplorer::Constants::ICON_BUILD);
     buildIcon.addFile(ProjectExplorer::Constants::ICON_BUILD_SMALL);
     m_buildSubProjectContextMenu = new QAction(buildIcon, tr("Build"), this);
-    command = am->registerAction(m_buildSubProjectContextMenu, Constants::BUILDSUBDIR, context);
+    command = am->registerAction(m_buildSubProjectContextMenu, Constants::BUILDSUBDIR, m_projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     connect(m_buildSubProjectContextMenu, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(buildSubDirContextMenu()));
@@ -200,7 +201,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     QIcon rebuildIcon(ProjectExplorer::Constants::ICON_REBUILD);
     rebuildIcon.addFile(ProjectExplorer::Constants::ICON_REBUILD_SMALL);
     m_rebuildSubProjectContextMenu = new QAction(rebuildIcon, tr("Rebuild"), this);
-    command = am->registerAction(m_rebuildSubProjectContextMenu, Constants::REBUILDSUBDIR, context);
+    command = am->registerAction(m_rebuildSubProjectContextMenu, Constants::REBUILDSUBDIR, m_projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     connect(m_rebuildSubProjectContextMenu, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(rebuildSubDirContextMenu()));
@@ -208,7 +209,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     QIcon cleanIcon(ProjectExplorer::Constants::ICON_CLEAN);
     cleanIcon.addFile(ProjectExplorer::Constants::ICON_CLEAN_SMALL);
     m_cleanSubProjectContextMenu = new QAction(cleanIcon, tr("Clean"), this);
-    command = am->registerAction(m_cleanSubProjectContextMenu, Constants::CLEANSUBDIR, context);
+    command = am->registerAction(m_cleanSubProjectContextMenu, Constants::CLEANSUBDIR, m_projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     connect(m_cleanSubProjectContextMenu, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(cleanSubDirContextMenu()));

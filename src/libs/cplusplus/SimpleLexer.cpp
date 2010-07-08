@@ -37,52 +37,12 @@
 
 using namespace CPlusPlus;
 
-SimpleToken::SimpleToken(const Token &token)
-    : _kind(token.f.kind)
-    , _flags(0)
-    , _position(token.begin())
-    , _length(token.f.length)
-{
-    f._whitespace = token.f.whitespace;
-    f._newline = token.f.newline;
-}
-
-bool SimpleToken::isLiteral() const
-{
-    return _kind >= T_FIRST_LITERAL && _kind <= T_LAST_LITERAL;
-}
-
-bool SimpleToken::isOperator() const
-{
-    return _kind >= T_FIRST_OPERATOR && _kind <= T_LAST_OPERATOR;
-}
-
-bool SimpleToken::isKeyword() const
-{
-    return _kind >= T_FIRST_KEYWORD && _kind < T_FIRST_QT_KEYWORD;
-}
-
-bool SimpleToken::isComment() const
-{
-    return _kind == T_COMMENT || _kind == T_DOXY_COMMENT ||
-            _kind == T_CPP_COMMENT || _kind == T_CPP_DOXY_COMMENT;
-}
-
-bool SimpleToken::isObjCAtKeyword() const
-{
-    return _kind >= T_FIRST_OBJC_AT_KEYWORD && _kind <= T_LAST_OBJC_AT_KEYWORD;
-}
-
-const char *SimpleToken::name() const
-{
-    return Token::name(_kind);
-}
-
 SimpleLexer::SimpleLexer()
     : _lastState(0),
       _skipComments(false),
       _qtMocRunEnabled(true),
-      _objCEnabled(false)
+      _objCEnabled(false),
+      _endedJoined(false)
 {
 }
 
@@ -119,9 +79,14 @@ void SimpleLexer::setSkipComments(bool skipComments)
     _skipComments = skipComments;
 }
 
-QList<SimpleToken> SimpleLexer::operator()(const QString &text, int state)
+bool SimpleLexer::endedJoined() const
 {
-    QList<SimpleToken> tokens;
+    return _endedJoined;
+}
+
+QList<Token> SimpleLexer::operator()(const QString &text, int state)
+{
+    QList<Token> tokens;
 
     const QByteArray bytes = text.toLatin1();
     const char *firstChar = bytes.constData();
@@ -131,6 +96,7 @@ QList<SimpleToken> SimpleLexer::operator()(const QString &text, int state)
     lex.setQtMocRunEnabled(_qtMocRunEnabled);
     lex.setObjCEnabled(_objCEnabled);
     lex.setStartWithNewline(true);
+    lex.setObjCEnabled(_objCEnabled);
 
     if (! _skipComments)
         lex.setScanCommentTokens(true);
@@ -143,31 +109,61 @@ QList<SimpleToken> SimpleLexer::operator()(const QString &text, int state)
     for (;;) {
         Token tk;
         lex(&tk);
-        if (tk.is(T_EOF_SYMBOL))
+        if (tk.is(T_EOF_SYMBOL)) {
+            _endedJoined = tk.joined();
             break;
+        }
 
         QStringRef spell = text.midRef(lex.tokenOffset(), lex.tokenLength());
-        SimpleToken simpleTk(tk);
         lex.setScanAngleStringLiteralTokens(false);
 
         if (tk.f.newline && tk.is(T_POUND))
             inPreproc = true;
-        else if (inPreproc && tokens.size() == 1 && simpleTk.is(T_IDENTIFIER) &&
+        else if (inPreproc && tokens.size() == 1 && tk.is(T_IDENTIFIER) &&
                  spell == QLatin1String("include"))
             lex.setScanAngleStringLiteralTokens(true);
         else if (_objCEnabled
-                 && inPreproc && tokens.size() == 1 && simpleTk.is(T_IDENTIFIER) &&
+                 && inPreproc && tokens.size() == 1 && tk.is(T_IDENTIFIER) &&
                  spell == QLatin1String("import"))
             lex.setScanAngleStringLiteralTokens(true);
 
-        if (_objCEnabled && tk.is(T_IDENTIFIER))
-            simpleTk.f._objcTypeQualifier = (classifyObjectiveCContextKeyword(firstChar + tk.offset, tk.f.length) != Token_identifier);
-
-        tokens.append(simpleTk);
+        tokens.append(tk);
     }
 
     _lastState = lex.state();
     return tokens;
 }
 
+int SimpleLexer::tokenAt(const QList<Token> &tokens, unsigned offset)
+{
+    for (int index = tokens.size() - 1; index >= 0; --index) {
+        const Token &tk = tokens.at(index);
+        if (tk.begin() <= offset && tk.end() >= offset)
+            return index;
+    }
 
+    return -1;
+}
+
+Token SimpleLexer::tokenAt(const QString &text,
+                           unsigned offset,
+                           int state,
+                           bool qtMocRunEnabled)
+{
+    SimpleLexer tokenize;
+    tokenize.setQtMocRunEnabled(qtMocRunEnabled);
+    const QList<Token> tokens = tokenize(text, state);
+    const int tokenIdx = tokenAt(tokens, offset);
+    return (tokenIdx == -1) ? Token() : tokens.at(tokenIdx);
+}
+
+int SimpleLexer::tokenBefore(const QList<Token> &tokens, unsigned offset)
+{
+    for (int index = tokens.size() - 1; index >= 0; --index) {
+        const Token &tk = tokens.at(index);
+        if (tk.begin() <= offset)
+            return index;
+    }
+
+    return -1;
+}

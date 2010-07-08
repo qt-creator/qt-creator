@@ -127,7 +127,7 @@ void Rewriter::addBinding(AST::UiObjectInitializer *ast,
         newPropertyTemplate.prepend(QLatin1Char('\n'));
     }
 
-    m_changeSet->replace(endOfPreviousMember.end(), 0,
+    m_changeSet->insert(endOfPreviousMember.end(),
                          newPropertyTemplate.arg(propertyName, propertyValue));
 }
 
@@ -302,7 +302,7 @@ void Rewriter::replaceMemberValue(UiObjectMember *propertyMember,
     if (needsSemicolon)
         replacement += ';';
 
-    m_changeSet->replace(startOffset, endOffset - startOffset, replacement);
+    m_changeSet->replace(startOffset, endOffset, replacement);
 }
 
 bool Rewriter::isMatchingPropertyMember(const QString &propertyName,
@@ -343,7 +343,7 @@ void Rewriter::insertIntoArray(UiArrayBinding *ast, const QString &newValue)
         return;
 
     const int insertionPoint = lastMember->lastSourceLocation().end();
-    m_changeSet->replace(insertionPoint, 0, QLatin1String(",\n") + newValue);
+    m_changeSet->insert(insertionPoint, QLatin1String(",\n") + newValue);
 }
 
 void Rewriter::removeProperty(UiObjectInitializer *ast, const QString &propertyName)
@@ -406,7 +406,7 @@ void Rewriter::removeMember(UiObjectMember *member)
 
     includeSurroundingWhitespace(start, end);
 
-    m_changeSet->replace(start, end - start, QLatin1String(""));
+    m_changeSet->replace(start, end, QLatin1String(""));
 }
 
 bool Rewriter::includeSurroundingWhitespace(int &start, int &end) const
@@ -558,7 +558,7 @@ void Rewriter::appendToArrayBinding(UiArrayBinding *arrayBinding,
 
     const int insertionPoint = lastMember->lastSourceLocation().end();
 
-    m_changeSet->replace(insertionPoint, 0, QLatin1String(",\n") + content);
+    m_changeSet->insert(insertionPoint, QLatin1String(",\n") + content);
 }
 
 void Rewriter::addObject(UiObjectInitializer *ast, const QString &content)
@@ -575,7 +575,7 @@ void Rewriter::addObject(UiObjectInitializer *ast, const QString &content)
     }
 
     textToInsert += content;
-    m_changeSet->replace(insertionPoint, 0, QLatin1String("\n") + textToInsert);
+    m_changeSet->insert(insertionPoint, QLatin1String("\n") + textToInsert);
 }
 
 void Rewriter::removeObjectMember(UiObjectMember *member, UiObjectMember *parent)
@@ -590,7 +590,7 @@ void Rewriter::removeObjectMember(UiObjectMember *member, UiObjectMember *parent
     }
 
     includeLeadingEmptyLine(start);
-    m_changeSet->replace(start, end - start, QLatin1String(""));
+    m_changeSet->replace(start, end, QLatin1String(""));
 }
 
 void Rewriter::extendToLeadingOrTrailingComma(UiArrayBinding *parentArray,

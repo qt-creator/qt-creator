@@ -507,14 +507,16 @@ void OutputWindow::appendApplicationOutputInline(const QString &out, bool onStdE
 void OutputWindow::appendMessage(const QString &out, bool isError)
 {
     setMaximumBlockCount(MaxBlockCount);
+    const bool atBottom = isScrollbarAtBottom();
     m_formatter->appendMessage(doNewlineEnfocement(out), isError);
+    if (atBottom)
+        scrollToBottom();
     enableUndoRedo();
 }
 
 bool OutputWindow::isScrollbarAtBottom() const
 {
-    return blockBoundingRect(document()->lastBlock()).bottom() + contentOffset().y()
-            <= viewport()->rect().bottom();
+    return verticalScrollBar()->value() == verticalScrollBar()->maximum();
 }
 
 void OutputWindow::scrollToBottom()

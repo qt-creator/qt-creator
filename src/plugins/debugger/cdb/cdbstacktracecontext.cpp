@@ -31,7 +31,7 @@
 
 #include "cdbsymbolgroupcontext.h"
 #include "cdbdumperhelper.h"
-#include "cdbdebugengine_p.h"
+#include "cdbengine_p.h"
 #include "debuggeractions.h"
 #include "debuggerplugin.h"
 #include "watchutils.h"
@@ -115,32 +115,45 @@ QList<StackFrame> CdbStackTraceContext::stackFrames() const
 }
 
 bool CdbStackTraceContext::getThreads(const CdbCore::ComInterfaces &cif,
+                                      bool stopped,
                                       Threads *threads,
                                       ULONG *currentThreadId,
                                       QString *errorMessage)
 {
+
+    QVector<CdbCore::Thread> coreThreads;
+    if (!CdbCore::StackTraceContext::getThreadList(cif, &coreThreads, currentThreadId, errorMessage))
+        return false;
+    // Get frames only if stopped.
+    QVector<CdbCore::StackFrame> frames;
+    if (stopped)
+        if (!CdbCore::StackTraceContext::getStoppedThreadFrames(cif, *currentThreadId,
+                                                                coreThreads, &frames, errorMessage))
+        return false;
     // Convert from Core data structures
     threads->clear();
-    ThreadIdFrameMap threadMap;
-    if (!CdbCore::StackTraceContext::getThreads(cif, &threadMap,
-                                               currentThreadId, errorMessage))
-        return false;
-    const QChar slash = QLatin1Char('/');
-    const ThreadIdFrameMap::const_iterator cend = threadMap.constEnd();
-    for (ThreadIdFrameMap::const_iterator it = threadMap.constBegin(); it != cend; ++it) {
-        ThreadData data(it.key());
-        const CdbCore::StackFrame &coreFrame = it.value();
-        data.address = coreFrame.address;
-        data.function = coreFrame.function;
-        data.lineNumber = coreFrame.line;
-        // Basename only for brevity
-        const int slashPos = coreFrame.fileName.lastIndexOf(slash);
-        data.fileName = slashPos == -1 ? coreFrame.fileName : coreFrame.fileName.mid(slashPos + 1);
+    const int count = coreThreads.size();
+    if (!count)
+        return true;
+    threads->reserve(count);
+    const QChar slash(QLatin1Char('/'));
+    for (int i = 0; i < count; i++) {
+        const CdbCore::Thread &coreThread = coreThreads.at(i);
+        ThreadData data(coreThread.id);
+        data.targetId = QLatin1String("0x") + QString::number(coreThread.systemId);
+        if (stopped) {
+            const CdbCore::StackFrame &coreFrame = frames.at(i);
+            data.address = coreFrame.address;
+            data.function = coreFrame.function;
+            data.lineNumber = coreFrame.line;
+            // Basename only for brevity
+            const int slashPos = coreFrame.fileName.lastIndexOf(slash);
+            data.fileName = slashPos == -1 ? coreFrame.fileName : coreFrame.fileName.mid(slashPos + 1);
+        }
         threads->push_back(data);
     }
     return true;
 }
-
 
 } // namespace Internal
 } // namespace Debugger

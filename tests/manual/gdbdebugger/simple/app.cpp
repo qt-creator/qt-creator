@@ -515,7 +515,7 @@ void testFunction()
     func.max = 8;
 }
 
-void testIO()
+void testOutput()
 {
     qDebug() << "qDebug() 1";
     qDebug() << "qDebug() 2";
@@ -531,6 +531,18 @@ void testIO()
     std::cerr << "std::cerr 2\n";
     std::cerr << "std::cerr 3\n";
     std::cerr << "std::cerr <foo & bar>\n";
+}
+
+void testInput()
+{
+#if 0
+    // This works only when "Run in terminal" is selected
+    // in the Run Configuration.
+    int i;
+    std::cin >> i;
+    int j;
+    std::cin >> j;
+#endif
 }
 
 void testQLinkedList()
@@ -790,6 +802,42 @@ void testQObject(int &argc, char *argv[])
     app.exec();
 #endif
 }
+
+class Sender : public QObject
+{
+    Q_OBJECT
+public:
+    Sender() { setObjectName("Sender"); }
+    void doEmit() { emit aSignal(); }
+signals:
+    void aSignal();
+};
+
+class Receiver : public QObject
+{
+    Q_OBJECT
+public:
+    Receiver() { setObjectName("Receiver"); }
+public slots:
+    void aSlot() {
+        QObject *s = sender();
+        if (s) {
+            qDebug() << "SENDER: " << s;
+        } else {
+            qDebug() << "NO SENDER";
+        }
+    }
+};
+
+void testSignalSlot(int &argc, char *argv[])
+{
+    QApplication app(argc, argv);
+    Sender sender;
+    Receiver receiver;
+    QObject::connect(&sender, SIGNAL(aSignal()), &receiver, SLOT(aSlot()));
+    sender.doEmit();
+};
+
 
 void testQPixmap()
 {
@@ -1822,6 +1870,7 @@ int main(int argc, char *argv[])
     testObject1();
     testVector1();
     testQHash1();
+    testSignalSlot(argc, argv);
 
     QString hallo = "hallo";
     QStringList list;
@@ -1838,7 +1887,8 @@ int main(int argc, char *argv[])
     testFunction();
     testQImage();
     testNoArgumentName(1, 2, 3);
-    testIO();
+    testInput();
+    testOutput();
     testHidden();
     testArray();
     testCatchThrow();

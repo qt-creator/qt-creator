@@ -40,17 +40,16 @@ namespace Internal {
 class DisassemblerViewAgent;
 class CdbDebugEventCallback;
 class CdbDebugOutput;
-class CdbDebugEnginePrivate;
+class CdbEnginePrivate;
 struct CdbOptions;
 
-class CdbDebugEngine : public DebuggerEngine
+class CdbEngine : public DebuggerEngine
 {
-    Q_DISABLE_COPY(CdbDebugEngine)
     Q_OBJECT
-    explicit CdbDebugEngine(const DebuggerStartParameters &sp);
+    explicit CdbEngine(const DebuggerStartParameters &sp);
 
 public:
-    ~CdbDebugEngine();
+    ~CdbEngine();
 
     // Factory function that returns 0 if the debug engine library cannot be found.
     static DebuggerEngine *create(const DebuggerStartParameters &sp,
@@ -58,7 +57,7 @@ public:
 
     virtual void shutdown();
     virtual void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
-    virtual void startDebugger();
+    virtual void startEngine();
     virtual void exitDebugger();
     virtual void detachDebugger();
     virtual void updateWatchData(const WatchData &data);
@@ -115,9 +114,9 @@ private:
     QString editorToolTip(const QString &exp, const QString &function);
     bool step(unsigned long executionStatus);
 
-    CdbDebugEnginePrivate *m_d;
+    CdbEnginePrivate *m_d;
 
-    friend class CdbDebugEnginePrivate;
+    friend class CdbEnginePrivate;
     friend class CdbDebugEventCallback;
     friend class CdbDebugOutput;
 };

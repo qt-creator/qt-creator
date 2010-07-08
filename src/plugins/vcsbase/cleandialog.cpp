@@ -65,13 +65,15 @@ static void removeFileRecursion(const QFileInfo &f, QString *errorMessage)
             removeFileRecursion(fi, errorMessage);
         QDir parent = f.absoluteDir();
         if (!parent.rmdir(f.fileName()))
-            errorMessage->append(VCSBase::CleanDialog::tr("The directory %1 could not be deleted.").arg(f.absoluteFilePath()));
+            errorMessage->append(VCSBase::CleanDialog::tr("The directory %1 could not be deleted.").
+                                 arg(QDir::toNativeSeparators(f.absoluteFilePath())));
         return;
     }
     if (!QFile::remove(f.absoluteFilePath())) {
         if (!errorMessage->isEmpty())
             errorMessage->append(QLatin1Char('\n'));
-        errorMessage->append(VCSBase::CleanDialog::tr("The file %1 could not be deleted.").arg(f.absoluteFilePath()));
+        errorMessage->append(VCSBase::CleanDialog::tr("The file %1 could not be deleted.").
+                             arg(QDir::toNativeSeparators(f.absoluteFilePath())));
     }
 }
 
@@ -107,7 +109,8 @@ void CleanFilesTask::run()
         removeFileRecursion(QFileInfo(name), &m_errorMessage);
     if (!m_errorMessage.isEmpty()) {
         // Format and emit error.
-        const QString msg = CleanDialog::tr("There were errors when cleaning the repository %1:").arg(m_repository);
+        const QString msg = CleanDialog::tr("There were errors when cleaning the repository %1:").
+                            arg(QDir::toNativeSeparators(m_repository));
         m_errorMessage.insert(0, QLatin1Char('\n'));
         m_errorMessage.insert(0, msg);
         emit error(m_errorMessage);
@@ -157,7 +160,8 @@ CleanDialog::~CleanDialog()
 void CleanDialog::setFileList(const QString &workingDirectory, const QStringList &l)
 {
     d->m_workingDirectory = workingDirectory;
-    d->ui.groupBox->setTitle(tr("Repository: %1").arg(workingDirectory));
+    d->ui.groupBox->setTitle(tr("Repository: %1").
+                             arg(QDir::toNativeSeparators(workingDirectory)));
     if (const int oldRowCount = d->m_filesModel->rowCount())
         d->m_filesModel->removeRows(0, oldRowCount);
 
@@ -235,7 +239,8 @@ bool CleanDialog::promptToDelete()
             Qt::QueuedConnection);
 
     QFuture<void> task = QtConcurrent::run(cleanTask, &CleanFilesTask::run);
-    const QString taskName = tr("Cleaning %1").arg(d->m_workingDirectory);
+    const QString taskName = tr("Cleaning %1").
+                             arg(QDir::toNativeSeparators(d->m_workingDirectory));
     Core::ICore::instance()->progressManager()->addTask(task, taskName,
                                                         QLatin1String("VCSBase.cleanRepository"));
     return true;

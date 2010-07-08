@@ -72,6 +72,7 @@
 #include "buildconfiguration.h"
 #include "buildconfigdialog.h"
 #include "miniprojecttargetselector.h"
+#include "taskhub.h"
 
 #include <coreplugin/basemode.h>
 #include <coreplugin/coreconstants.h>
@@ -236,6 +237,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 {
     if (!parseArguments(arguments, error))
         return false;
+    addObject(this);
+
+    addAutoReleasedObject(new TaskHub);
 
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = core->actionManager();
@@ -243,7 +247,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     d->m_welcomePage = new ProjectWelcomePage;
     connect(d->m_welcomePage, SIGNAL(manageSessions()), this, SLOT(showSessionManager()));
     addObject(d->m_welcomePage);
-    addObject(this);
 
     connect(core->fileManager(), SIGNAL(currentFileChanged(QString)),
             this, SLOT(setCurrentFile(QString)));
@@ -750,6 +753,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         d->m_projectExplorerSettings.showCompilerOutput = s->value("ProjectExplorer/Settings/ShowCompilerOutput", false).toBool();
         d->m_projectExplorerSettings.cleanOldAppOutput = s->value("ProjectExplorer/Settings/CleanOldAppOutput", false).toBool();
         d->m_projectExplorerSettings.useJom = s->value("ProjectExplorer/Settings/UseJom", true).toBool();
+        d->m_projectExplorerSettings.environmentId = QUuid(s->value("ProjectExplorer/Settings/EnvironmentId").toString());
+        if (d->m_projectExplorerSettings.environmentId.isNull())
+            d->m_projectExplorerSettings.environmentId = QUuid::createUuid();
     }
 
     connect(d->m_sessionManagerAction, SIGNAL(triggered()), this, SLOT(showSessionManager()));
@@ -899,6 +905,8 @@ void ProjectExplorerPlugin::extensionsInitialized()
     // class factories
     foreach(Core::IWizard *cpw, ProjectExplorer::CustomWizard::createWizards())
         addAutoReleasedObject(cpw);
+
+    d->m_buildManager->extensionsInitialized();
 }
 
 void ProjectExplorerPlugin::aboutToShutdown()
@@ -995,6 +1003,7 @@ void ProjectExplorerPlugin::savePersistentSettings()
         s->setValue("ProjectExplorer/Settings/ShowCompilerOutput", d->m_projectExplorerSettings.showCompilerOutput);
         s->setValue("ProjectExplorer/Settings/CleanOldAppOutput", d->m_projectExplorerSettings.cleanOldAppOutput);
         s->setValue("ProjectExplorer/Settings/UseJom", d->m_projectExplorerSettings.useJom);
+        s->setValue("ProjectExplorer/Settings/EnvironmentId", d->m_projectExplorerSettings.environmentId.toString());
     }
 }
 
@@ -1223,7 +1232,7 @@ void ProjectExplorerPlugin::showContextMenu(const QPoint &globalPos, Node *node)
         contextMenu = d->m_sessionContextMenu;
     }
 
-    updateContextMenuActions(d->m_currentNode);
+    updateContextMenuActions(node);
     if (contextMenu && contextMenu->actions().count() > 0) {
         contextMenu->popup(globalPos);
     }
@@ -1264,12 +1273,12 @@ void ProjectExplorerPlugin::startRunControl(RunControl *runControl, const QStrin
     if (projectExplorerSettings().cleanOldAppOutput)
         d->m_outputPane->clearContents();
 
-    connect(runControl, SIGNAL(addToOutputWindow(RunControl *, const QString &, bool)),
-            d->m_outputPane, SLOT(appendApplicationOutput(RunControl*,const QString &, bool)));
-    connect(runControl, SIGNAL(addToOutputWindowInline(RunControl *, const QString &, bool)),
-            d->m_outputPane, SLOT(appendApplicationOutputInline(RunControl*,const QString &, bool)));
-    connect(runControl, SIGNAL(appendMessage(RunControl*,QString,bool)),
-            d->m_outputPane, SLOT(appendMessage(RunControl *, const QString &, bool)));
+    connect(runControl, SIGNAL(addToOutputWindow(ProjectExplorer::RunControl*,QString,bool)),
+            d->m_outputPane, SLOT(appendApplicationOutput(ProjectExplorer::RunControl*,QString, bool)));
+    connect(runControl, SIGNAL(addToOutputWindowInline(ProjectExplorer::RunControl*,QString,bool)),
+            d->m_outputPane, SLOT(appendApplicationOutputInline(ProjectExplorer::RunControl*,QString,bool)));
+    connect(runControl, SIGNAL(appendMessage(ProjectExplorer::RunControl*,QString,bool)),
+            d->m_outputPane, SLOT(appendMessage(ProjectExplorer::RunControl*,QString,bool)));
 
     connect(runControl, SIGNAL(finished()),
             this, SLOT(runControlFinished()));
@@ -1890,11 +1899,6 @@ void ProjectExplorerPlugin::invalidateProject(Project *project)
     updateActions();
 }
 
-void ProjectExplorerPlugin::goToTaskWindow()
-{
-    d->m_buildManager->gotoTaskWindow();
-}
-
 void ProjectExplorerPlugin::updateContextMenuActions(Node *node)
 {
     d->m_addExistingFilesAction->setEnabled(false);
@@ -2098,31 +2102,19 @@ void ProjectExplorerPlugin::populateOpenWithMenu(QMenu *menu, const QString &fil
         const ExternalEditorList externalEditors = core->editorManager()->externalEditors(mt, false);
         anyMatches = !factories.empty() || !externalEditors.empty();
         if (anyMatches) {
-            const QList<Core::IEditor *> editorsOpenForFile = core->editorManager()->editorsForFileName(fileName);
             // Add all suitable editors
             foreach (Core::IEditorFactory *editorFactory, factories) {
                 // Add action to open with this very editor factory
                 QString const actionTitle = editorFactory->displayName();
                 QAction * const action = menu->addAction(actionTitle);
                 action->setData(qVariantFromValue(editorFactory));
-                // File already open in an editor -> only enable that entry since
-                // we currently do not support opening a file in two editors at once
-                if (!editorsOpenForFile.isEmpty()) {
-                    bool enabled = false;
-                    foreach (Core::IEditor * const openEditor, editorsOpenForFile) {
-                        if (editorFactory->id() == openEditor->id())
-                            enabled = true;
-                        break;
-                    }
-                    action->setEnabled(enabled);
-                }
-            } // for editor factories
+            }
             // Add all suitable external editors
             foreach (Core::IExternalEditor *externalEditor, externalEditors) {
                 QAction * const action = menu->addAction(externalEditor->displayName());
                 action->setData(qVariantFromValue(externalEditor));
             }
-        } // matches
+        }
     }
     menu->setEnabled(anyMatches);
 }
@@ -2146,6 +2138,18 @@ void ProjectExplorerPlugin::openEditorFromAction(QAction *action, const QString 
     const QVariant data = action->data();
     if (qVariantCanConvert<Core::IEditorFactory *>(data)) {
         Core::IEditorFactory *factory = qVariantValue<Core::IEditorFactory *>(data);
+
+        // close any open editors that have this file open, but have a different type.
+        QList<Core::IEditor *> editorsOpenForFile = em->editorsForFileName(fileName);
+        if (!editorsOpenForFile.isEmpty()) {
+            foreach (Core::IEditor *openEditor, editorsOpenForFile) {
+                if (factory->id() == openEditor->id())
+                    editorsOpenForFile.removeAll(openEditor);
+            }
+            if (!em->closeEditors(editorsOpenForFile)) // don't open if cancel was pressed
+                return;
+        }
+
         em->openEditor(fileName, factory->id());
         em->ensureEditorManagerVisible();
         return;

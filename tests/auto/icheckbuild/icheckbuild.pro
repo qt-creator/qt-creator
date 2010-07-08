@@ -1,25 +1,20 @@
-REL_PATH_TO_SRC = ../../../src
+include(../../../qtcreator.pri)
+include($$IDE_SOURCE_TREE/src/libs/cplusplus/cplusplus.pri)
+include($$IDE_SOURCE_TREE/src/plugins/cpptools/cpptools.pri)
 
 QT += testlib
 
-SOURCES += \
-        tst_icheckbuild.cpp
-
 DEFINES += ICHECK_BUILD ICHECK_APP_BUILD
 
-INCLUDEPATH += . \
-    $$REL_PATH_TO_SRC/../ \
-    $$REL_PATH_TO_SRC/global \
-    $$REL_PATH_TO_SRC/plugins \
-    $$REL_PATH_TO_SRC/libs \
-    $$REL_PATH_TO_SRC/shared/cplusplus \
-    $$REL_PATH_TO_SRC/libs/cplusplus
+INCLUDEPATH += $$IDE_SOURCE_TREE/src/libs/cplusplus
+INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins
+LIBS += $$IDE_SOURCE_TREE/lib/qtcreator/plugins
 
 TARGET=tst_$$TARGET
 
-include(./ichecklib.pri)
-HEADERS += ./ichecklib.h \
-           ./ichecklib_global.h \
-           ./parsemanager.h
-SOURCES += ./ichecklib.cpp \
-           ./parsemanager.cpp
+HEADERS += ichecklib.h \
+           ichecklib_global.h \
+           parsemanager.h
+SOURCES += ichecklib.cpp \
+           parsemanager.cpp \
+           tst_icheckbuild.cpp

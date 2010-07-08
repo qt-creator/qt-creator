@@ -143,6 +143,18 @@ int TabSettings::indentationColumn(const QString &text) const
     return columnAt(text, firstNonSpace(text));
 }
 
+int TabSettings::maximumPadding(const QString &text) const
+{
+    int fns = firstNonSpace(text);
+    int i = fns;
+    while (i > 0) {
+        if (text.at(i-1) != QLatin1Char(' '))
+            break;
+        --i;
+    }
+    return fns - i;
+}
+
 
 int TabSettings::trailingWhitespaces(const QString &text) const
 {
@@ -286,7 +298,7 @@ QString TabSettings::indentationString(int startColumn, int targetColumn, const 
     return s;
 }
 
-void TabSettings::indentLine(QTextBlock block, int newIndent) const
+void TabSettings::indentLine(QTextBlock block, int newIndent, int padding) const
 {
     const QString text = block.text();
     const int oldBlockLength = text.size();
@@ -295,8 +307,15 @@ void TabSettings::indentLine(QTextBlock block, int newIndent) const
     if (indentationColumn(text) == newIndent)
         return;
 
-    const QString indentString = indentationString(0, newIndent, block);
-    newIndent = indentString.length();
+    QString indentString;
+
+    if (!m_spacesForTabs && m_tabSize == m_indentSize) {
+        // user likes tabs for spaces and uses tabs for indentation, preserve padding
+        indentString = indentationString(0, newIndent - padding, block);
+        indentString += QString(padding, QLatin1Char(' '));
+    } else {
+        indentString = indentationString(0, newIndent, block);
+    }
 
     if (oldBlockLength == indentString.length() && text == indentString)
         return;
@@ -321,8 +340,15 @@ void TabSettings::reindentLine(QTextBlock block, int delta) const
     if (oldIndent == newIndent)
         return;
 
-    const QString indentString = indentationString(0, newIndent, block);
-    newIndent = indentString.length();
+    QString indentString;
+    if (!m_spacesForTabs && m_tabSize == m_indentSize) {
+        // user likes tabs for spaces and uses tabs for indentation, preserve padding
+        int padding = qMin(maximumPadding(text), newIndent);
+        indentString = indentationString(0, newIndent - padding, block);
+        indentString += QString(padding, QLatin1Char(' '));
+    } else {
+        indentString = indentationString(0, newIndent, block);
+    }
 
     if (oldBlockLength == indentString.length() && text == indentString)
         return;

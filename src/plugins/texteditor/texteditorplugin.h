@@ -47,6 +47,7 @@ namespace Internal {
 
 class LineNumberFilter;
 class PlainTextEditorFactory;
+class OutlineFactory;
 
 class TextEditorPlugin : public ExtensionSystem::IPlugin
 {
@@ -79,6 +80,7 @@ private:
     PlainTextEditorFactory *m_editorFactory;
     LineNumberFilter *m_lineNumberFilter;
     Find::SearchResultWindow *m_searchResultWindow;
+    OutlineFactory *m_outlineFactory;
 };
 
 } // namespace Internal

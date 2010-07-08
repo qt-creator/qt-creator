@@ -39,10 +39,12 @@
 #include <qdeclarative.h>
 #include <propertyeditorvalue.h>
 #include <qmlitemnode.h>
+#include <QDialog>
 
 QT_BEGIN_NAMESPACE
 class QtColorButton;
 class QToolButton;
+class QDoubleSpinBox;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -53,14 +55,17 @@ Q_OBJECT
 
 Q_PROPERTY(QString color READ color WRITE setColor NOTIFY colorChanged)
 Q_PROPERTY(bool noColor READ noColor WRITE setNoColor)
+Q_PROPERTY(bool showArrow READ showArrow WRITE setShowArrow)
 
 public:
-    ColorButton(QWidget *parent = 0) : QToolButton (parent), m_colorString("#ffffff"), m_noColor(false) {}
+    ColorButton(QWidget *parent = 0) : QToolButton (parent), m_colorString("#ffffff"), m_noColor(false), m_showArrow(true) {}
 
     void setColor(const QString &colorStr);
     QString color() const { return m_colorString; }
     bool noColor() const { return m_noColor; }
     void setNoColor(bool f) { m_noColor = f; update(); }
+    bool showArrow() const { return m_showArrow; }
+    void setShowArrow(bool b) { m_showArrow = b; }
 
 signals:
     void colorChanged();
@@ -70,6 +75,7 @@ protected:
 private:
     QString m_colorString;
     bool m_noColor;
+    bool m_showArrow;
 };
 
 class ColorBox : public QWidget
@@ -136,7 +142,7 @@ public:
 
     HueControl(QWidget *parent = 0) : QWidget(parent), m_color(Qt::white), m_mousePressed(false)
     {
-        setFixedWidth(40);
+        setFixedWidth(28);
         setFixedHeight(130);
     }
 
@@ -144,7 +150,7 @@ public:
     int hue() const { return m_color.hsvHue(); }
 
 signals:
-    void hueChanged();
+    void hueChanged(int hue);
 
 protected:
     void paintEvent(QPaintEvent *);
@@ -213,6 +219,73 @@ private:
     bool m_create;
     bool m_active;
     bool m_dragOff;
+};
+
+class BauhausColorDialog : public QFrame {
+
+    Q_OBJECT
+
+    Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)               
+
+public:
+    BauhausColorDialog(QWidget *parent = 0);
+
+    QColor color() const { return m_color; }
+
+    void setupColor(const QColor &color);
+
+    void setColor(const QColor &color)
+    {
+        if (color == m_color)
+            return;
+
+        m_color = color;
+        setupWidgets();
+        emit colorChanged();
+    }
+
+public slots:
+    void changeColor(const QColor &color) { setColor(color); }
+    void spinBoxChanged();
+    void onColorBoxChanged();
+    void onHueChanged(int newHue)
+    {
+        if (m_blockUpdate)
+            return;
+
+        if (m_color.hsvHue() == newHue)
+            return;
+        m_color.setHsv(newHue, m_color.hsvSaturation(), m_color.value());
+         setupWidgets();
+        emit colorChanged();
+    }
+    void onAccept()
+    {
+        emit accepted(m_color);
+    }
+
+signals:
+  void colorChanged();
+  void accepted(const QColor &color);
+  void rejected();
+
+protected:
+  void setupWidgets();
+
+private:
+    QFrame *m_beforeColorWidget;
+    QFrame *m_currentColorWidget;
+    ColorBox *m_colorBox;
+    HueControl *m_hueControl;
+
+    QDoubleSpinBox *m_rSpinBox;
+    QDoubleSpinBox *m_gSpinBox;
+    QDoubleSpinBox *m_bSpinBox;
+    QDoubleSpinBox *m_alphaSpinBox;
+
+    QColor m_color;
+    bool m_blockUpdate;
+
 };
 
 

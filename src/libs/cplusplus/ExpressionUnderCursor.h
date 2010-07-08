@@ -42,13 +42,11 @@ QT_END_NAMESPACE
 namespace CPlusPlus {
 
 class BackwardsScanner;
-class SimpleToken;
-class TokenCache;
 
 class CPLUSPLUS_EXPORT ExpressionUnderCursor
 {
 public:
-    ExpressionUnderCursor(TokenCache *tokenCache);
+    ExpressionUnderCursor();
     ~ExpressionUnderCursor();
 
     QString operator()(const QTextCursor &cursor);
@@ -57,10 +55,9 @@ public:
 private:
     int startOfExpression(BackwardsScanner &tk, int index);
     int startOfExpression_helper(BackwardsScanner &tk, int index);
-    bool isAccessToken(const SimpleToken &tk);
+    bool isAccessToken(const Token &tk);
 
 private:
-    TokenCache *_tokenCache;
     bool _jumpedComma;
 };
 

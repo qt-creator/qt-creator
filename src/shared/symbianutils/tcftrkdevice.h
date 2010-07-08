@@ -158,6 +158,11 @@ public:
                                  const QStringList &additionalLibraries = QStringList(),
                                  const QVariant &cookie = QVariant());
 
+    // Preferred over Processes:Terminate by TCF TRK.
+    void sendRunControlTerminateCommand(const TcfTrkCallback &callBack,
+                                        const QByteArray &id,
+                                        const QVariant &cookie = QVariant());
+
     void sendProcessTerminateCommand(const TcfTrkCallback &callBack,
                                      const QByteArray &id,
                                      const QVariant &cookie = QVariant());

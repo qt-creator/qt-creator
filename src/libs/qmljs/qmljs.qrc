@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/qmljs">
+        <file>images/element.png</file>
+        <file>images/property.png</file>
+    </qresource>
+</RCC>

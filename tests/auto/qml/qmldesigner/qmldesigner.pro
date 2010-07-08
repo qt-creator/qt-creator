@@ -1,5 +1,5 @@
 TEMPLATE = subdirs
 
 SUBDIRS += coretests
-SUBDIRS += propertyeditortests
+# SUBDIRS += propertyeditortests
 SUBDIRS += bauhaustests

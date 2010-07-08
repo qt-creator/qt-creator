@@ -133,6 +133,9 @@ private:
     QList<TextEditor::CompletionItem> removeDuplicates(const QList<TextEditor::CompletionItem> &items);
 
 private:
+    void completeObjCMsgSend(CPlusPlus::ClassOrNamespace *binding,
+                             bool staticClassAccess);
+    bool tryObjCCompletion(TextEditor::BaseTextEditor *edit);
     bool objcKeywordsWanted() const;
 
     static QStringList preprocessorCompletions;

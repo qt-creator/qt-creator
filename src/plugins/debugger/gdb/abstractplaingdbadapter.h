@@ -36,7 +36,8 @@ namespace Debugger {
 namespace Internal {
 
 class AbstractPlainGdbAdapter : public AbstractGdbAdapter
-{
+{   // Needs tr - context
+    Q_OBJECT
 public:
     AbstractPlainGdbAdapter(GdbEngine *engine, QObject *parent = 0);
 

@@ -31,12 +31,20 @@
 
 using namespace QmlJS;
 
+static ModelManagerInterface *g_instance = 0;
+
 ModelManagerInterface::ModelManagerInterface(QObject *parent)
     : QObject(parent)
 {
+    Q_ASSERT(! g_instance);
+    g_instance = this;
 }
 
 ModelManagerInterface::~ModelManagerInterface()
 {
 }
 
+ModelManagerInterface *ModelManagerInterface::instance()
+{
+    return g_instance;
+}

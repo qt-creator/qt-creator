@@ -37,11 +37,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <debugger/debuggerconstants.h>
 #include <extensionsystem/pluginmanager.h>
-#include <qmljs/qmljsbind.h>
-#include <qmljs/qmljsevaluate.h>
+#include <qmljs/qmljslookupcontext.h>
 #include <qmljs/qmljsinterpreter.h>
-#include <qmljs/qmljslink.h>
-#include <qmljs/qmljsscopebuilder.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
@@ -151,17 +148,11 @@ void HoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int p
         if (node && !(AST::cast<AST::StringLiteral *>(node) != 0 || AST::cast<AST::NumericLiteral *>(node) != 0)) {
             QList<AST::Node *> astPath = semanticInfo.astPath(pos);
 
-            Interpreter::Engine interp;
-            Interpreter::Context context(&interp);
-            Link link(&context, qmlDocument, snapshot, m_modelManager->importPaths());
-            ScopeBuilder scopeBuilder(qmlDocument, &context);
-            scopeBuilder.push(astPath);
-
-            Evaluate check(&context);
-            const Interpreter::Value *value = check(node);
+            LookupContext::Ptr lookupContext = LookupContext::create(qmlDocument, snapshot, astPath);
+            const Interpreter::Value *value = lookupContext->evaluate(node);
 
             QStringList baseClasses;
-            m_toolTip = prettyPrint(value, &context, &baseClasses);
+            m_toolTip = prettyPrint(value, lookupContext->context(), &baseClasses);
 
             foreach (const QString &baseClass, baseClasses) {
                 QString helpId = QLatin1String("QML.");
@@ -193,7 +184,7 @@ void HoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int p
 }
 
 QString HoverHandler::prettyPrint(const QmlJS::Interpreter::Value *value, QmlJS::Interpreter::Context *context,
-                                     QStringList *baseClasses) const
+                                  QStringList *baseClasses) const
 {
     if (! value)
         return QString();

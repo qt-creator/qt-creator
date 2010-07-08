@@ -254,9 +254,9 @@ public:
     QString uiDirectory() const;
     static QString uiHeaderFile(const QString &uiDir, const QString &formFile);
 
-    Qt4ProFileNode *findProFileFor(const QString &string);
-    TargetInformation targetInformation(const QString &fileName);
-    TargetInformation targetInformation();
+    const Qt4ProFileNode *findProFileFor(const QString &string) const;
+    TargetInformation targetInformation(const QString &fileName) const;
+    TargetInformation targetInformation() const;
 
     void update();
     void scheduleUpdate();

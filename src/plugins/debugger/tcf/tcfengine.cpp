@@ -200,8 +200,9 @@ void TcfEngine::exitDebugger()
     SDEBUG("TcfEngine::exitDebugger()");
 }
 
-void TcfEngine::startDebugger()
+void TcfEngine::startEngine()
 {
+    QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     setState(InferiorRunningRequested);
     showStatusMessage(tr("Running requested..."), 5000);
     const DebuggerStartParameters &sp = startParameters();

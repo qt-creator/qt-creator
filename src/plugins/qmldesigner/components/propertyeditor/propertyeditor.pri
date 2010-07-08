@@ -19,7 +19,10 @@ SOURCES += propertyeditor.cpp \
     siblingcombobox.cpp \
     propertyeditortransaction.cpp \
     propertyeditorcontextobject.cpp \
-    declarativewidgetview.cpp
+    declarativewidgetview.cpp \
+    contextpanewidget.cpp \
+    contextpanetextwidget.cpp \
+    fontsizespinbox.cpp
 
 HEADERS += propertyeditor.h \
     qmlanchorbindingproxy.h \
@@ -40,7 +43,11 @@ HEADERS += propertyeditor.h \
     propertyeditortransaction.h \
     designerpropertymap.h \
     propertyeditorcontextobject.h \
-    declarativewidgetview.h
+    declarativewidgetview.h \
+    contextpanewidget.h \
+    contextpanetextwidget.h \
+    fontsizespinbox.h
 QT += declarative
 RESOURCES += propertyeditor.qrc
-FORMS += behaviordialog.ui
+FORMS += behaviordialog.ui \
+         contextpanetext.ui

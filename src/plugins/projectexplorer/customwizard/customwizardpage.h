@@ -31,6 +31,7 @@
 #define CUSTOMPROJECTWIZARDDIALOG_H
 
 #include <QtGui/QComboBox>
+#include <QtGui/QCheckBox>
 #include <QtGui/QWizardPage>
 #include <QtCore/QSharedPointer>
 
@@ -52,18 +53,57 @@ struct CustomWizardParameters;
 struct CustomWizardContext;
 
 // A non-editable combo for text editing purposes that plays
-// with QWizard::registerField (providing a settable text property).
+// with QWizard::registerField (providing a settable 'text' property).
+// Allows for a separation of values to be used for wizard fields replacement
+// and display texts.
 class TextFieldComboBox : public QComboBox {
     Q_PROPERTY(QString text READ text WRITE setText)
     Q_OBJECT
 public:
     explicit TextFieldComboBox(QWidget *parent = 0);
 
-    QString text() const { return currentText(); }
+    QString text() const;
     void setText(const QString &s);
+
+    void setItems(const QStringList &displayTexts, const QStringList &values);
 
 signals:
     void text4Changed(const QString &); // Do not conflict with Qt 3 compat signal.
+
+private slots:
+    void slotCurrentIndexChanged(int);
+
+private:
+    inline QString valueAt(int) const;
+};
+
+// A Checkbox that plays with QWizard::registerField (providing a settable
+// 'text' property containing predefined strings for 'true'/'false').
+class TextFieldCheckBox : public QCheckBox {
+    Q_PROPERTY(QString text READ text WRITE setText)
+    Q_PROPERTY(QString trueText READ trueText WRITE setTrueText)
+    Q_PROPERTY(QString falseText READ falseText WRITE setFalseText)
+    Q_OBJECT
+public:
+    explicit TextFieldCheckBox(const QString &text, QWidget *parent = 0);
+
+    QString text() const;
+    void setText(const QString &s);
+
+    void setTrueText(const QString &t)  { m_trueText = t;    }
+    QString trueText() const            { return m_trueText; }
+    void setFalseText(const QString &t) { m_falseText = t; }
+    QString falseText() const              { return m_falseText; }
+
+signals:
+    void textChanged(const QString &);
+
+private slots:
+    void slotStateChanged(int);
+
+private:
+    QString m_trueText;
+    QString m_falseText;
 };
 
 // A simple custom wizard page presenting the fields to be used
@@ -105,6 +145,9 @@ private:
     QWidget *registerComboBox(const QString &fieldName, const CustomWizardField &field);
     QWidget *registerTextEdit(const QString &fieldName, const CustomWizardField &field);
     QWidget *registerPathChooser(const QString &fieldName, const CustomWizardField &field);
+    QWidget *registerCheckBox(const QString &fieldName,
+                              const QString &fieldDescription,
+                              const CustomWizardField &field);
     void addField(const CustomWizardField &f);
 
     const QSharedPointer<CustomWizardContext> m_context;

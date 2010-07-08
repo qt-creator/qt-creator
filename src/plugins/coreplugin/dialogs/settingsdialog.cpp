@@ -63,6 +63,8 @@ const int categoryIconSize = 24;
 namespace Core {
 namespace Internal {
 
+QPointer<SettingsDialog> SettingsDialog::m_instance = 0;
+
 // ----------- Category model
 
 class Category {
@@ -253,18 +255,20 @@ static inline QList<Core::IOptionsPage*> sortedOptionsPages()
     return rc;
 }
 
-SettingsDialog::SettingsDialog(QWidget *parent, const QString &categoryId,
-                               const QString &pageId) :
+SettingsDialog::SettingsDialog(QWidget *parent) :
     QDialog(parent),
     m_pages(sortedOptionsPages()),
     m_proxyModel(new CategoryFilterModel(this)),
     m_model(new CategoryModel(this)),
-    m_applied(false),
     m_stackedLayout(new QStackedLayout),
     m_filterLineEdit(new Utils::FilterLineEdit),
     m_categoryList(new CategoryListView),
-    m_headerLabel(new QLabel)
+    m_headerLabel(new QLabel),
+    m_running(false),
+    m_applied(false)
 {
+    m_applied = false;
+
     createGui();
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 #ifdef Q_OS_MAC
@@ -275,31 +279,16 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &categoryId,
 
     m_model->setPages(m_pages);
 
-    QString initialCategory = categoryId;
-    QString initialPage = pageId;
-    if (initialCategory.isEmpty() && initialPage.isEmpty()) {
-        QSettings *settings = ICore::instance()->settings();
-        initialCategory = settings->value(QLatin1String(categoryKeyC), QVariant(QString())).toString();
-        initialPage = settings->value(QLatin1String(pageKeyC), QVariant(QString())).toString();
-    }
-
-    int initialCategoryIndex = -1;
-    int initialPageIndex = -1;
-
     // Create the tab widgets with the pages in each category
     const QList<Category*> &categories = m_model->categories();
     for (int i = 0; i < categories.size(); ++i) {
         Category *category = categories.at(i);
-        if (category->id == initialCategory)
-            initialCategoryIndex = i;
 
         QTabWidget *tabWidget = new QTabWidget;
         for (int j = 0; j < category->pages.size(); ++j) {
             IOptionsPage *page = category->pages.at(j);
             QWidget *widget = page->createPage(0);
             tabWidget->addTab(widget, page->displayName());
-            if (initialCategoryIndex == i && page->id() == initialPage)
-                initialPageIndex = j;
         }
 
         connect(tabWidget, SIGNAL(currentChanged(int)),
@@ -319,18 +308,46 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &categoryId,
     connect(m_categoryList->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
             this, SLOT(currentChanged(QModelIndex)));
 
+    // The order of the slot connection matters here, the filter slot
+    // opens the matching page after the model has filtered.
+    connect(m_filterLineEdit, SIGNAL(filterChanged(QString)),
+                m_proxyModel, SLOT(setFilterFixedString(QString)));
+    connect(m_filterLineEdit, SIGNAL(filterChanged(QString)), this, SLOT(filter(QString)));
+    m_categoryList->setFocus();
+    setAttribute(Qt::WA_DeleteOnClose);
+}
+
+void SettingsDialog::showPage(const QString &categoryId, const QString &pageId)
+{
+    // handle the case of "show last page"
+    QString initialCategory = categoryId;
+    QString initialPage = pageId;
+    if (initialCategory.isEmpty() && initialPage.isEmpty()) {
+        QSettings *settings = ICore::instance()->settings();
+        initialCategory = settings->value(QLatin1String(categoryKeyC), QVariant(QString())).toString();
+        initialPage = settings->value(QLatin1String(pageKeyC), QVariant(QString())).toString();
+    }
+
+    int initialCategoryIndex = -1;
+    int initialPageIndex = -1;
+    const QList<Category*> &categories = m_model->categories();
+    for (int i = 0; i < categories.size(); ++i) {
+        Category *category = categories.at(i);
+        if (category->id == initialCategory) {
+            initialCategoryIndex = i;
+            for (int j = 0; j < category->pages.size(); ++j) {
+                IOptionsPage *page = category->pages.at(j);
+                if (page->id() == initialPage)
+                    initialPageIndex = j;
+            }
+        }
+    }
     if (initialCategoryIndex != -1) {
         const QModelIndex modelIndex = m_proxyModel->mapFromSource(m_model->index(initialCategoryIndex));
         m_categoryList->setCurrentIndex(modelIndex);
         if (initialPageIndex != -1)
             categories.at(initialCategoryIndex)->tabWidget->setCurrentIndex(initialPageIndex);
     }
-
-    // The order of the slot connection matters here, the filter slot
-    // opens the matching page after the model has filtered.
-    connect(m_filterLineEdit, SIGNAL(filterChanged(QString)),
-                m_proxyModel, SLOT(setFilterFixedString(QString)));
-    connect(m_filterLineEdit, SIGNAL(filterChanged(QString)), this, SLOT(filter(QString)));
 }
 
 void SettingsDialog::createGui()
@@ -464,19 +481,20 @@ void SettingsDialog::apply()
     m_applied = true;
 }
 
-bool SettingsDialog::execDialog()
-{
-    m_categoryList->setFocus();
-    m_applied = false;
-    exec();
-    return m_applied;
-}
-
 void SettingsDialog::done(int val)
 {
     QSettings *settings = ICore::instance()->settings();
     settings->setValue(QLatin1String(categoryKeyC), m_currentCategory);
     settings->setValue(QLatin1String(pageKeyC), m_currentPage);
+
+    // exit all additional event loops, see comment in execDialog()
+    QListIterator<QEventLoop *> it(m_eventLoops);
+    it.toBack();
+    while (it.hasPrevious()) {
+        QEventLoop *loop = it.previous();
+        loop->exit();
+    }
+
     QDialog::done(val);
 }
 
@@ -487,6 +505,39 @@ QSize SettingsDialog::sizeHint() const
 {
     return minimumSize();
 }
+
+SettingsDialog *SettingsDialog::getSettingsDialog(QWidget *parent,
+                           const QString &initialCategory,
+                           const QString &initialPage)
+{
+    if (!m_instance) {
+        m_instance = new SettingsDialog(parent);
+    }
+    m_instance->showPage(initialCategory, initialPage);
+    return m_instance;
+}
+
+bool SettingsDialog::execDialog()
+{
+    if (!m_running) {
+        m_running = true;
+        exec();
+    } else {
+        // exec dialog is called while the instance is already running
+        // this can happen when a event triggers a code path that wants to
+        // show the settings dialog again
+        // e.g. when starting the debugger (with non-built debugging helpers),
+        // and manually opening the settings dialog, after the debugger hit
+        // a break point it will complain about missing helper, and offer the
+        // option to open the settings dialog.
+        // Keep the UI running by creating another event loop.
+        QEventLoop *loop = new QEventLoop(this);
+        m_eventLoops.append(loop);
+        loop->exec();
+    }
+    return m_applied;
+}
+
 
 } // namespace Internal
 } // namespace Core

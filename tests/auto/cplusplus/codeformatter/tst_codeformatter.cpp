@@ -1,0 +1,792 @@
+#include <QtTest>
+#include <QObject>
+#include <QList>
+#include <QTextDocument>
+#include <QTextBlock>
+
+#include <cpptools/cppcodeformatter.h>
+using namespace CppTools;
+
+class tst_CodeFormatter: public QObject
+{
+    Q_OBJECT
+
+private Q_SLOTS:
+    void ifStatementWithoutBraces1();
+    void ifStatementWithoutBraces2();
+    void ifStatementWithBraces1();
+    void ifStatementWithBraces2();
+    void ifStatementMixed();
+    void ifStatementAndComments();
+    void ifStatementLongCondition();
+    void strayElse();
+    void macrosNoSemicolon();
+    void oneLineIf();
+    void doWhile();
+    void closingCurlies();
+    void ifdefedInsideIf();
+    void ifdefs();
+    void preprocessorContinuation();
+    void cStyleComments();
+    void cppStyleComments();
+    void expressionContinuation();
+    void classAccess();
+    void ternary();
+    void objcAtDeclarations();
+    void braceList();
+    void bug1();
+    void bug2();
+    void switch1();
+    void memberInitializer();
+    void templates();
+    void operatorOverloads();
+    void gnuStyle();
+    void whitesmithsStyle();
+    void singleLineEnum();
+    void functionReturnType();
+};
+
+struct Line {
+    Line(QString l)
+        : line(l)
+    {
+        for (int i = 0; i < l.size(); ++i) {
+            if (!l.at(i).isSpace()) {
+                expectedIndent = i;
+                return;
+            }
+        }
+        expectedIndent = l.size();
+    }
+
+    Line(QString l, int expect)
+        : line(l), expectedIndent(expect)
+    {}
+
+    QString line;
+    int expectedIndent;
+};
+
+QString concatLines(QList<Line> lines)
+{
+    QString result;
+    foreach (const Line &l, lines) {
+        result += l.line;
+        result += "\n";
+    }
+    return result;
+}
+
+void checkIndent(QList<Line> data, int style = 0)
+{
+    QString text = concatLines(data);
+    QTextDocument document(text);
+    QtStyleCodeFormatter formatter;
+    if (style == 1) {// gnu
+        formatter.setIndentSubstatementBraces(true);
+    } else if (style == 2) { // whitesmiths
+        formatter.setIndentSubstatementStatements(false);
+        formatter.setIndentSubstatementBraces(true);
+        formatter.setIndentDeclarationMembers(false);
+        formatter.setIndentDeclarationBraces(true);
+    }
+
+    int i = 0;
+    foreach (const Line &l, data) {
+        QTextBlock b = document.findBlockByLineNumber(i);
+        if (l.expectedIndent != -1) {
+            int actualIndent = formatter.indentFor(b);
+            if (actualIndent != l.expectedIndent) {
+                QFAIL(QString("Wrong indent in line %1 with text '%2', expected indent %3, got %4").arg(
+                        QString::number(i+1), l.line, QString::number(l.expectedIndent), QString::number(actualIndent)).toLatin1().constData());
+            }
+        }
+        formatter.updateLineStateChange(b);
+        ++i;
+    }
+}
+
+void tst_CodeFormatter::ifStatementWithoutBraces1()
+{
+    QList<Line> data;
+    data << Line("void foo() {")
+         << Line("    if (a)")
+         << Line("        if (b)")
+         << Line("            foo;")
+         << Line("        else if (c)")
+         << Line("            foo;")
+         << Line("        else")
+         << Line("            if (d)")
+         << Line("                foo;")
+         << Line("            else")
+         << Line("                while (e)")
+         << Line("                    bar;")
+         << Line("    else")
+         << Line("        foo;")         
+         << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::ifStatementWithoutBraces2()
+{
+    QList<Line> data;
+    data << Line("void foo() {")
+         << Line("    if (a)")
+         << Line("        if (b)")
+         << Line("            foo;")
+         << Line("    if (a) b();")
+         << Line("    if (a) b(); else")
+         << Line("        foo;")
+         << Line("    if (a)")
+         << Line("        if (b)")
+         << Line("            foo;")
+         << Line("        else if (c)")
+         << Line("            foo;")
+         << Line("        else")
+         << Line("            if (d)")
+         << Line("                foo;")
+         << Line("            else")
+         << Line("                while (e)")
+         << Line("                    bar;")
+         << Line("    else")
+         << Line("        foo;")
+         << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::ifStatementWithBraces1()
+{
+    QList<Line> data;
+    data << Line("void foo() {")
+         << Line("    if (a) {")
+         << Line("        if (b) {")
+         << Line("            foo;")
+         << Line("        } else if (c) {")
+         << Line("            foo;")
+         << Line("        } else {")
+         << Line("            if (d) {")
+         << Line("                foo;")
+         << Line("            } else {")
+         << Line("                foo;")
+         << Line("            }")
+         << Line("        }")
+         << Line("    } else {")
+         << Line("        foo;")
+         << Line("    }")
+         << Line("}");
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::ifStatementWithBraces2()
+{
+    QList<Line> data;
+    data << Line("void foo()")
+         << Line("{")
+         << Line("    if (a)")
+         << Line("    {")
+         << Line("        if (b)")
+         << Line("        {")
+         << Line("            foo;")
+         << Line("        }")
+         << Line("        else if (c)")
+         << Line("        {")
+         << Line("            foo;")
+         << Line("        }")
+         << Line("        else")
+         << Line("        {")
+         << Line("            if (d)")
+         << Line("            {")
+         << Line("                foo;")
+         << Line("            }")
+         << Line("            else")
+         << Line("            {")
+         << Line("                foo;")
+         << Line("            }")
+         << Line("        }")
+         << Line("    }")
+         << Line("    else")
+         << Line("    {")
+         << Line("        foo;")
+         << Line("    }")
+         << Line("}");
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::ifStatementMixed()
+{
+    QList<Line> data;
+    data << Line("void foo()")
+         << Line("{")
+         << Line("    if (foo)")
+         << Line("        if (bar)")
+         << Line("        {")
+         << Line("            foo;")
+         << Line("        }")
+         << Line("        else")
+         << Line("            if (car)")
+         << Line("            {}")
+         << Line("            else doo;")
+         << Line("    else abc;")
+         << Line("}");
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::ifStatementAndComments()
+{
+    QList<Line> data;
+    data << Line("void foo()")
+         << Line("{")
+         << Line("    if (foo)")
+         << Line("        ; // bla")
+         << Line("    else if (bar)")
+         << Line("        ;")
+         << Line("    if (foo)")
+         << Line("        ; /* bla")
+         << Line("      bla */")
+         << Line("    else if (bar)")
+         << Line("        // foobar")
+         << Line("        ;")
+         << Line("    else if (bar)")
+         << Line("        /* bla")
+         << Line("  bla */")
+         << Line("        ;")
+         << Line("}");
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::ifStatementLongCondition()
+{
+    QList<Line> data;
+    data << Line("void foo()")
+         << Line("{")
+         << Line("    if (foo &&")
+         << Line("            bar")
+         << Line("            || (a + b > 4")
+         << Line("                && foo(bar)")
+         << Line("                )")
+         << Line("            ) {")
+         << Line("        foo;")
+         << Line("    }")
+         << Line("}");
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::strayElse()
+{
+    QList<Line> data;
+    data << Line("void foo()")
+         << Line("{")
+         << Line("    while( true ) {}")
+         << Line("    else", -1)
+         << Line("    else {", -1)
+         << Line("    }", -1)
+         << Line("}");
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::macrosNoSemicolon()
+{
+    QList<Line> data;
+    data << Line("QT_DECLARE_METATYPE(foo)")
+         << Line("int i;")
+         << Line("Q_BLABLA")
+         << Line("int i;")
+         << Line("Q_BLABLA;")
+         << Line("int i;")
+         << Line("Q_BLABLA();")
+         << Line("int i;")
+         << Line("Q_PROPERTY(abc)")
+         << Line("QDOC_PROPERTY(abc)")
+         << Line("void foo() {")
+         << Line("    QT_DECLARE_METATYPE(foo)")
+         << Line("    int i;")
+         << Line("    Q_BLABLA")
+         << Line("    int i;")
+         << Line("    Q_BLABLA;")
+         << Line("    int i;")
+         << Line("    Q_BLABLA();")
+         << Line("    Q_PROPERTY(abc)")
+         << Line("    QDOC_PROPERTY(abc)")
+         << Line("    int i;")
+         << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::oneLineIf()
+{
+    QList<Line> data;
+    data << Line("class F {")
+         << Line("    void foo()")
+         << Line("    { if (showIt) show(); }")
+         << Line("};")
+         ;
+    checkIndent(data);
+
+}
+
+void tst_CodeFormatter::doWhile()
+{
+    QList<Line> data;
+    data << Line("void foo() {")
+         << Line("    do { if (c) foo; } while(a);")
+         << Line("    do {")
+         << Line("        if(a);")
+         << Line("    } while(a);")
+         << Line("    do")
+         << Line("        foo;")
+         << Line("    while(a);")
+         << Line("    do foo; while(a);")
+         << Line("};")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::closingCurlies()
+{
+    QList<Line> data;
+    data << Line("void foo() {")
+         << Line("    if (a)")
+         << Line("        if (b) {")
+         << Line("            foo;")
+         << Line("        }")
+         << Line("    {")
+         << Line("        foo();")
+         << Line("    }")
+         << Line("    foo();")
+         << Line("    {")
+         << Line("        foo();")
+         << Line("    }")
+         << Line("    while (a) {")
+         << Line("        if (a);")
+         << Line("    }")
+         << Line("};")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::ifdefedInsideIf()
+{
+    QList<Line> data;
+    data << Line("void foo() {")
+         << Line("    if (a) {")
+         << Line("#ifndef Q_WS_WINCE")
+         << Line("        if (b) {")
+         << Line("#else")
+         << Line("        if (c) {")
+         << Line("#endif")
+         << Line("        }")
+         << Line("    } else if (d) {")
+         << Line("    }")
+         << Line("    if (a)")
+         << Line("        ;")
+         << Line("    else if (type == Qt::Dialog || type == Qt::Sheet)")
+         << Line("#ifndef Q_WS_WINCE")
+         << Line("        flags |= Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowContextHelpButtonHint | Qt::WindowCloseButtonHint;")
+         << Line("#else")
+         << Line("        bar;")
+         << Line("#endif")
+         << Line("};")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::ifdefs()
+{
+    QList<Line> data;
+    data << Line("#ifdef FOO")
+         << Line("#include <bar>")
+         << Line("void foo()")
+         << Line("{")
+         << Line("    if (bar)")
+         << Line("#if 1")
+         << Line("        foo;")
+         << Line("    else")
+         << Line("#endif")
+         << Line("        foo;")
+         << Line("}")
+         << Line("#endif")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::preprocessorContinuation()
+{
+    QList<Line> data;
+    data << Line("#define x \\")
+         << Line("    foo(x) + \\")
+         << Line("    bar(x)")
+         << Line("int i;")
+         << Line("void foo() {")
+         << Line("#define y y")
+         << Line("#define x \\")
+         << Line("    foo(x) + \\")
+         << Line("    bar(x)")
+         << Line("    int j;")
+         << Line("};")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::cStyleComments()
+{
+    QList<Line> data;
+    data << Line("/*")
+         << Line("  ")
+         << Line("      foo")
+         << Line("      ")
+         << Line("   foo")
+         << Line("   ")
+         << Line("*/")
+         << Line("void foo() {")
+         << Line("    /*")
+         << Line("      ")
+         << Line("   foo")
+         << Line("   ")
+         << Line("    */")
+         << Line("    /* bar */")
+         << Line("}")
+         << Line("struct s {")
+         << Line("    /* foo */")
+         << Line("    /*")
+         << Line("      ")
+         << Line("   foo")
+         << Line("   ")
+         << Line("    */")
+         << Line("    /* bar */")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::cppStyleComments()
+{
+    QList<Line> data;
+    data << Line("// abc")
+         << Line("class C {  ")
+         << Line("    // ghij")
+         << Line("    // def")
+         << Line("    // ghij")
+         << Line("    int i; // hik")
+         << Line("    // doo")
+         << Line("} // ba")
+         << Line("// ba")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::expressionContinuation()
+{
+    QList<Line> data;
+    data << Line("void foo() {")
+         << Line("    return (a <= b &&")
+         << Line("            c <= d);")
+         << Line("    return (qMax <= qMin() &&")
+         << Line("            qMax(r1.top(), r2.top()) <= qMin(r1.bottom(), r2.bottom()));")
+         << Line("    return a")
+         << Line("            == b && c == d;")
+         << Line("    return a ==")
+         << Line("            b && c == d;")
+         << Line("    return a == b")
+         << Line("            && c == d;")
+         << Line("    return a == b &&")
+         << Line("            c == d;")
+         << Line("    return a == b && c")
+         << Line("            == d;")
+         << Line("    return a == b && c ==")
+         << Line("            d;")
+         << Line("    return a == b && c == d;")
+         << Line("    qDebug() << foo")
+         << Line("             << bar << moose")
+         << Line("             << bar +")
+         << Line("                foo - blah(1)")
+         << Line("             << '?'")
+         << Line("             << \"\\n\";")
+         << Line("    i += foo(")
+         << Line("                bar,")
+         << Line("                2);")
+         << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::classAccess()
+{
+    QList<Line> data;
+    data << Line("class foo {")
+         << Line("    int i;")
+         << Line("public:")
+         << Line("    class bar {")
+         << Line("    private:")
+         << Line("        int i;")
+         << Line("    public:")
+         << Line("    private slots:")
+         << Line("        void foo();")
+         << Line("    public Q_SLOTS:")
+         << Line("    Q_SIGNALS:")
+         << Line("    };")
+         << Line("    float f;")
+         << Line("private:")
+         << Line("    void bar(){}")
+         << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::ternary()
+{
+    QList<Line> data;
+    data << Line("void foo() {")
+         << Line("    int i = a ? b : c;")
+         << Line("    foo += a_bigger_condition ?")
+         << Line("                b")
+         << Line("              : c;")
+         << Line("    int i = a ?")
+         << Line("                b : c;")
+         << Line("    int i = a ? b")
+         << Line("              : c +")
+         << Line("                2;")
+         << Line("    int i = (a ? b : c) + (foo")
+         << Line("                           bar);")
+         << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::bug1()
+{
+    QList<Line> data;
+    data << Line("void foo() {")
+         << Line("    if (attribute < int(8*sizeof(uint))) {")
+         << Line("        if (on)")
+         << Line("            data->widget_attributes |= (1<<attribute);")
+         << Line("        else")
+         << Line("            data->widget_attributes &= ~(1<<attribute);")
+         << Line("    } else {")
+         << Line("        const int x = attribute - 8*sizeof(uint);")
+         << Line("    }")
+         << Line("    int i;")
+         << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::bug2()
+{
+    QList<Line> data;
+    data << Line("void foo() {")
+         << Line("    const int sourceY = foo(")
+         << Line("                bar(")
+         << Line("                    car(a,")
+         << Line("                        b),")
+         << Line("                    b),")
+         << Line("                foo);")
+         << Line("    const int sourceY =")
+         << Line("            foo(")
+         << Line("                bar(a,")
+         << Line("                    b),")
+         << Line("                b);")
+         << Line("    int j;")
+         << Line("    const int sourceY =")
+         << Line("            (direction == DirectionEast || direction == DirectionWest) ?")
+         << Line("                (sourceRect.top() + (sourceRect.bottom() - sourceRect.top()) / 2)")
+         << Line("              : (direction == DirectionSouth ? sourceRect.bottom() : sourceRect.top());")
+         << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::braceList()
+{
+    QList<Line> data;
+    data << Line("enum Foo {")
+         << Line("    a,")
+         << Line("    b,")
+         << Line("};")
+         << Line("enum Foo { a = 2,")
+         << Line("           a = 3,")
+         << Line("           b = 4")
+         << Line("         };")
+         << Line("void foo () {")
+         << Line("    int[] a = { foo, bar, ")
+         << Line("            car };")
+         << Line("    int[] a = {")
+         << Line("        a, b,")
+         << Line("        c")
+         << Line("    };")
+         << Line("    int k;")
+         ;
+    checkIndent(data);
+
+}
+
+void tst_CodeFormatter::objcAtDeclarations()
+{
+    QList<Line> data;
+    data << Line("@class Forwarded;")
+         << Line("@protocol Forwarded;")
+         << Line("int i;")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::switch1()
+{
+    QList<Line> data;
+    data << Line("void foo() {")
+         << Line("    switch (a) {")
+         << Line("    case 1:")
+         << Line("        foo;")
+         << Line("        if (a);")
+         << Line("    case 2:")
+         << Line("    case 3: {")
+         << Line("        foo;")
+         << Line("    }")
+         << Line("    case 4:")
+         << Line("    {")
+         << Line("        foo;")
+         << Line("    }")
+         << Line("    case bar:")
+         << Line("        break;")
+         << Line("    }")
+         << Line("    case 4:")
+         << Line("    {")
+         << Line("        if (a) {")
+         << Line("        }")
+         << Line("    }")
+         << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::memberInitializer()
+{
+    QList<Line> data;
+    data << Line("void foo()")
+         << Line("    : baR()")
+         << Line("    , m_member(23)")
+         << Line("{")
+         << Line("}")
+         << Line("class Foo {")
+         << Line("    Foo()")
+         << Line("        : baR(),")
+         << Line("          moo(barR)")
+         << Line("    {}")
+         << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::templates()
+{
+    QList<Line> data;
+    data << Line("template <class T, typename F, int i>")
+         << Line("class Foo {")
+         << Line("private:")
+         << Line("};")
+         << Line("template <class T,")
+         << Line("          typename F, int i")
+         << Line("          >")
+         << Line("class Foo {")
+         << Line("private:")
+         << Line("};")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::operatorOverloads()
+{
+    QList<Line> data;
+    data << Line("struct S {")
+         << Line("    void operator()() {")
+         << Line("        foo;")
+         << Line("    }")
+         << Line("    void operator<<() {")
+         << Line("        foo;")
+         << Line("    }")
+         << Line("};")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::gnuStyle()
+{
+    QList<Line> data;
+    data << Line("struct S")
+         << Line("{")
+         << Line("    void foo()")
+         << Line("    {")
+         << Line("        if (a)")
+         << Line("            {")
+         << Line("                fpp;")
+         << Line("            }")
+         << Line("        else if (b)")
+         << Line("            {")
+         << Line("                fpp;")
+         << Line("            }")
+         << Line("        else")
+         << Line("            {")
+         << Line("            }")
+         << Line("        if (b) {")
+         << Line("            fpp;")
+         << Line("        }")
+         << Line("    }")
+         << Line("};")
+         ;
+    checkIndent(data, 1);
+}
+
+void tst_CodeFormatter::whitesmithsStyle()
+{
+    QList<Line> data;
+    data << Line("struct S")
+         << Line("    {")
+         << Line("    void foo()")
+         << Line("        {")
+         << Line("        if (a)")
+         << Line("            {")
+         << Line("            fpp;")
+         << Line("            }")
+         << Line("        if (b) {")
+         << Line("            fpp;")
+         << Line("            }")
+         << Line("        }")
+         << Line("    };")
+         ;
+    checkIndent(data, 2);
+}
+
+void tst_CodeFormatter::singleLineEnum()
+{
+    QList<Line> data;
+    data << Line("enum { foo, bar, car = 2 };")
+         << Line("void blah() {")
+         << Line("    enum { foo, bar, car = 2 };")
+         << Line("    int i;")
+         << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::functionReturnType()
+{
+    QList<Line> data;
+    data
+         << Line("void")
+         << Line("foo(int) {}")
+         << Line("")
+         << Line("const QList<int> &")
+         << Line("A::foo() {}")
+         << Line("")
+         << Line("template <class T>")
+         << Line("const QList<QMap<T, T> > &")
+         << Line("A::B::foo() {}")
+         ;
+    checkIndent(data);
+}
+
+QTEST_APPLESS_MAIN(tst_CodeFormatter)
+#include "tst_codeformatter.moc"
+
+

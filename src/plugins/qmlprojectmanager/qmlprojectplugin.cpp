@@ -46,7 +46,7 @@
 
 #include <texteditor/texteditoractionhandler.h>
 
-#include <projectexplorer/taskwindow.h>
+#include <projectexplorer/taskhub.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <QtCore/QtPlugin>
@@ -89,15 +89,14 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
 
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
     iconProvider->registerIconOverlayForSuffix(QIcon(":/qmlproject/images/qmlproject.png"), "qmlproject");
-
     return true;
 }
 
 void QmlProjectPlugin::extensionsInitialized()
 {
     ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
-    ProjectExplorer::TaskWindow *taskWindow = pluginManager->getObject<ProjectExplorer::TaskWindow>();
-    m_qmlTaskManager->setTaskWindow(taskWindow);
+    ProjectExplorer::TaskHub *taskHub = pluginManager->getObject<ProjectExplorer::TaskHub>();
+    taskHub->addCategory(Constants::TASK_CATEGORY_QML, tr("QML"));
 
     QmlJS::ModelManagerInterface *modelManager = pluginManager->getObject<QmlJS::ModelManagerInterface>();
     Q_ASSERT(modelManager);

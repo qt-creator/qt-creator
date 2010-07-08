@@ -44,6 +44,7 @@
 
 #include <projectexplorer/buildstep.h>
 
+#include <QtCore/QScopedPointer>
 #include <QtCore/QSharedPointer>
 
 QT_BEGIN_NAMESPACE
@@ -54,7 +55,7 @@ QT_END_NAMESPACE
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class MaemoPackageContents;
+class MaemoDeployables;
 class MaemoToolChain;
 class ProFileWrapper;
 class Qt4BuildConfiguration;
@@ -68,17 +69,18 @@ public:
     ~MaemoPackageCreationStep();
 
     QString packageFilePath() const;
-    QString localExecutableFilePath() const;
-    QString executableFileName() const;
-    MaemoPackageContents *packageContents() const { return m_packageContents; }
+    MaemoDeployables *deployables() const { return m_deployables; }
     const Qt4BuildConfiguration *qt4BuildConfiguration() const;
-    QSharedPointer<ProFileWrapper> proFileWrapper() const;
+    const MaemoToolChain *maemoToolChain() const;
 
     bool isPackagingEnabled() const { return m_packagingEnabled; }
     void setPackagingEnabled(bool enabled) { m_packagingEnabled = enabled; }
 
     QString versionString() const;
     void setVersionString(const QString &version);
+
+private slots:
+    void handleBuildOutput();
 
 private:
     MaemoPackageCreationStep(ProjectExplorer::BuildConfiguration *buildConfig,
@@ -92,8 +94,7 @@ private:
     virtual bool fromMap(const QVariantMap &map);
 
     bool createPackage();
-    bool runCommand(QProcess &proc, const QString &command);
-    const MaemoToolChain *maemoToolChain() const;
+    bool runCommand(const QString &command);
     QString maddeRoot() const;
     QString targetRoot() const;
     QString nativePath(const QFile &file) const;
@@ -101,13 +102,14 @@ private:
     void raiseError(const QString &shortMsg,
                     const QString &detailedMsg = QString());
     QString buildDirectory() const;
+    QString projectName() const;
 
     static const QLatin1String CreatePackageId;
 
-    MaemoPackageContents *const m_packageContents;
+    MaemoDeployables * const m_deployables;
     bool m_packagingEnabled;
     QString m_versionString;
-    mutable QSharedPointer<ProFileWrapper> m_proFileWrapper;
+    QScopedPointer<QProcess> m_buildProc;
 };
 
 } // namespace Internal

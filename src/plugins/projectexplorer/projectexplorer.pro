@@ -88,7 +88,8 @@ HEADERS += projectexplorer.h \
     outputformatter.h \
     runconfigurationmodel.h \
     buildconfigurationmodel.h \
-    abstractprocessstep.h
+    abstractprocessstep.h \
+    taskhub.h
 SOURCES += projectexplorer.cpp \
     projectwindow.cpp \
     buildmanager.cpp \
@@ -161,7 +162,8 @@ SOURCES += projectexplorer.cpp \
     linuxiccparser.cpp \
     outputformatter.cpp \
     runconfigurationmodel.cpp \
-    buildconfigurationmodel.cpp
+    buildconfigurationmodel.cpp \
+    taskhub.cpp
 FORMS += processstep.ui \
     editorsettingspropertiespage.ui \
     runsettingspropertiespage.ui \

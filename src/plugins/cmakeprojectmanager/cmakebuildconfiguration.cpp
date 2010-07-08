@@ -153,6 +153,13 @@ void CMakeBuildConfiguration::setMsvcVersion(const QString &msvcVersion)
     emit msvcVersionChanged();
 }
 
+ProjectExplorer::IOutputParser *CMakeBuildConfiguration::createOutputParser() const
+{
+    if (m_toolChain)
+        return m_toolChain->outputParser();
+    return 0;
+}
+
 /*!
   \class CMakeBuildConfigurationFactory
 */
@@ -211,10 +218,10 @@ CMakeBuildConfiguration *CMakeBuildConfigurationFactory::create(ProjectExplorer:
     bc->setDisplayName(buildConfigurationName);
 
     MakeStep *makeStep = new MakeStep(bc);
-    bc->insertStep(ProjectExplorer::Build, 0, makeStep);
+    bc->insertStep(ProjectExplorer::BuildStep::Build, 0, makeStep);
 
     MakeStep *cleanMakeStep = new MakeStep(bc);
-    bc->insertStep(ProjectExplorer::Clean, 0, cleanMakeStep);
+    bc->insertStep(ProjectExplorer::BuildStep::Clean, 0, cleanMakeStep);
     cleanMakeStep->setAdditionalArguments(QStringList() << "clean");
     cleanMakeStep->setClean(true);
 

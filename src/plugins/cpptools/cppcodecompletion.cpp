@@ -319,9 +319,9 @@ void FunctionArgumentWidget::updateArgumentHighlight()
     int argnr = 0;
     int parcount = 0;
     SimpleLexer tokenize;
-    QList<SimpleToken> tokens = tokenize(str);
+    QList<Token> tokens = tokenize(str);
     for (int i = 0; i < tokens.count(); ++i) {
-        const SimpleToken &tk = tokens.at(i);
+        const Token &tk = tokens.at(i);
         if (tk.is(T_LPAREN))
             ++parcount;
         else if (tk.is(T_RPAREN))
@@ -452,8 +452,7 @@ QIcon CppCodeCompletion::iconForSymbol(Symbol *symbol) const
 /*
   Searches backwards for an access operator.
 */
-static int startOfOperator(TokenCache *tokenCache,
-                           TextEditor::ITextEditable *editor,
+static int startOfOperator(TextEditor::ITextEditable *editor,
                            int pos, unsigned *kind,
                            bool wantFunctionCall)
 {
@@ -546,14 +545,20 @@ static int startOfOperator(TokenCache *tokenCache,
     }
 
     if (completionKind == T_COMMA) {
-        ExpressionUnderCursor expressionUnderCursor(tokenCache);
+        ExpressionUnderCursor expressionUnderCursor;
         if (expressionUnderCursor.startOfFunctionCall(tc) == -1) {
             completionKind = T_EOF_SYMBOL;
             start = pos;
         }
     }
 
-    const SimpleToken tk = tokenCache->tokenUnderCursor(tc);
+    SimpleLexer tokenize;
+    tokenize.setQtMocRunEnabled(true);
+    tokenize.setObjCEnabled(true);
+    tokenize.setSkipComments(false);
+    const QList<Token> &tokens = tokenize(tc.block().text(), BackwardsScanner::previousBlockState(tc.block()));
+    const int tokenIdx = SimpleLexer::tokenBefore(tokens, qMax(0, tc.positionInBlock() - 1)); // get the token at the left of the cursor
+    const Token tk = (tokenIdx == -1) ? Token() : tokens.at(tokenIdx);
 
     if (completionKind == T_DOXY_COMMENT && !(tk.is(T_DOXY_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))) {
         completionKind = T_EOF_SYMBOL;
@@ -573,33 +578,31 @@ static int startOfOperator(TokenCache *tokenCache,
         start = pos;
     }
     else if (completionKind == T_LPAREN) {
-        const QList<SimpleToken> &tokens = tokenCache->tokensForBlock(tc.block());
-        int i = 0;
-        for (; i < tokens.size(); ++i) {
-            const SimpleToken &token = tokens.at(i);
-            if (token.position() == tk.position()) {
-                if (i == 0) // no token on the left, but might be on a previous line
-                    break;
-                const SimpleToken &previousToken = tokens.at(i - 1);
-                if (previousToken.is(T_IDENTIFIER) || previousToken.is(T_GREATER)
-                    || previousToken.is(T_SIGNAL) || previousToken.is(T_SLOT))
-                    break;
-            }
-        }
+        if (tokenIdx > 0) {
+            const Token &previousToken = tokens.at(tokenIdx - 1); // look at the token at the left of T_LPAREN
+            switch (previousToken.kind()) {
+            case T_IDENTIFIER:
+            case T_GREATER:
+            case T_SIGNAL:
+            case T_SLOT:
+                break; // good
 
-        if (i == tokens.size()) {
-            completionKind = T_EOF_SYMBOL;
-            start = pos;
+            default:
+                // that's a bad token :)
+                completionKind = T_EOF_SYMBOL;
+                start = pos;
+            }
         }
     }
     // Check for include preprocessor directive
     else if (completionKind == T_STRING_LITERAL || completionKind == T_ANGLE_STRING_LITERAL || completionKind == T_SLASH) {
         bool include = false;
-        const QList<SimpleToken> &tokens = tokenCache->tokensForBlock(tc.block());
         if (tokens.size() >= 3) {
             if (tokens.at(0).is(T_POUND) && tokens.at(1).is(T_IDENTIFIER) && (tokens.at(2).is(T_STRING_LITERAL) ||
                                                                               tokens.at(2).is(T_ANGLE_STRING_LITERAL))) {
-                QString directive = tokenCache->text(tc.block(), 1);
+                const Token &directiveToken = tokens.at(1);
+                QString directive = tc.block().text().mid(directiveToken.begin(),
+                                                          directiveToken.length());
                 if (directive == QLatin1String("include") ||
                     directive == QLatin1String("include_next") ||
                     directive == QLatin1String("import")) {
@@ -632,10 +635,9 @@ int CppCodeCompletion::startPosition() const
 bool CppCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
 {
     const int pos = editor->position();
-    TokenCache *tokenCache = m_manager->tokenCache(editor);
     unsigned token = T_EOF_SYMBOL;
 
-    if (startOfOperator(tokenCache, editor, pos, &token, /*want function call=*/ true) != pos) {
+    if (startOfOperator(editor, pos, &token, /*want function call=*/ true) != pos) {
         if (token == T_POUND) {
             if (TextEditor::BaseTextEditor *edit = qobject_cast<TextEditor::BaseTextEditor *>(editor->widget())) {
                 QTextCursor tc(edit->document());
@@ -665,6 +667,119 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     return index;
 }
 
+void CppCodeCompletion::completeObjCMsgSend(ClassOrNamespace *binding,
+                                            bool staticClassAccess)
+{
+    QList<Scope*> memberScopes;
+    foreach (Symbol *s, binding->symbols()) {
+        if (ObjCClass *c = s->asObjCClass())
+            memberScopes.append(c->members());
+    }
+
+    foreach (Scope *scope, memberScopes) {
+        for (unsigned i = 0; i < scope->symbolCount(); ++i) {
+            Symbol *symbol = scope->symbolAt(i);
+
+            if (ObjCMethod *method = symbol->type()->asObjCMethodType()) {
+                if (method->isStatic() == staticClassAccess) {
+                    Overview oo;
+                    const SelectorNameId *selectorName =
+                            method->name()->asSelectorNameId();
+                    QString text;
+                    QString data;
+                    if (selectorName->hasArguments()) {
+                        for (unsigned i = 0; i < selectorName->nameCount(); ++i) {
+                            if (i > 0)
+                                text += QLatin1Char(' ');
+                            Symbol *arg = method->argumentAt(i);
+                            text += selectorName->nameAt(i)->identifier()->chars();
+                            text += QLatin1Char(':');
+                            text += QChar::ObjectReplacementCharacter;
+                            text += QLatin1Char('(');
+                            text += oo(arg->type());
+                            text += QLatin1Char(')');
+                            text += oo(arg->name());
+                            text += QChar::ObjectReplacementCharacter;
+                        }
+                    } else {
+                        text = selectorName->identifier()->chars();
+                    }
+                    data = text;
+
+                    if (!text.isEmpty()) {
+                        TextEditor::CompletionItem item(this);
+                        item.text = text;
+                        item.data = QVariant::fromValue(data);
+                        m_completions.append(item);
+                    }
+                }
+            }
+        }
+    }
+}
+
+bool CppCodeCompletion::tryObjCCompletion(TextEditor::BaseTextEditor *edit)
+{
+    Q_ASSERT(edit);
+
+    int end = m_editor->position();
+    while (m_editor->characterAt(end).isSpace())
+        ++end;
+    if (m_editor->characterAt(end) != QLatin1Char(']'))
+        return false;
+
+    QTextCursor tc(edit->document());
+    tc.setPosition(end);
+    BackwardsScanner tokens(tc);
+    if (tokens[tokens.startToken() - 1].isNot(T_RBRACKET))
+        return false;
+
+    const int start = tokens.startOfMatchingBrace(tokens.startToken());
+    if (start == tokens.startToken())
+        return false;
+
+    const int startPos = tokens[start].begin() + tokens.startPosition();
+    const QString expr = m_editor->textAt(startPos, m_editor->position() - startPos);
+
+    const Snapshot snapshot = m_manager->snapshot();
+    Document::Ptr thisDocument = snapshot.document(m_editor->file()->fileName());
+    if (! thisDocument)
+        return false;
+
+    typeOfExpression.init(thisDocument, snapshot);
+    int line = 0, column = 0;
+    edit->convertPosition(m_editor->position(), &line, &column);
+    Scope *scope = thisDocument->scopeAt(line, column);
+    if (!scope)
+        return false;
+
+    const QList<LookupItem> items = typeOfExpression(expr, scope);
+    LookupContext lookupContext(thisDocument, snapshot);
+
+    foreach (const LookupItem &item, items) {
+        FullySpecifiedType ty = item.type().simplified();
+        if (ty->isPointerType()) {
+            ty = ty->asPointerType()->elementType().simplified();
+
+            if (NamedType *namedTy = ty->asNamedType()) {
+                ClassOrNamespace *binding = lookupContext.lookupType(namedTy->name(), item.scope());
+                completeObjCMsgSend(binding, false);
+            }
+        } else {
+            if (ObjCClass *clazz = ty->asObjCClassType()) {
+                ClassOrNamespace *binding = lookupContext.lookupType(clazz->name(), item.scope());
+                completeObjCMsgSend(binding, true);
+            }
+        }
+    }
+
+    if (m_completions.isEmpty())
+        return false;
+
+    m_startPosition = m_editor->position();
+    return true;
+}
+
 int CppCodeCompletion::startCompletionHelper(TextEditor::ITextEditable *editor)
 {
     TextEditor::BaseTextEditor *edit = qobject_cast<TextEditor::BaseTextEditor *>(editor->widget());
@@ -672,6 +787,11 @@ int CppCodeCompletion::startCompletionHelper(TextEditor::ITextEditable *editor)
         return -1;
 
     m_editor = editor;
+
+    if (m_objcEnabled) {
+        if (tryObjCCompletion(edit))
+            return m_startPosition;
+    }
 
     const int startOfName = findStartOfName();
     m_startPosition = startOfName;
@@ -683,17 +803,12 @@ int CppCodeCompletion::startCompletionHelper(TextEditor::ITextEditable *editor)
     while (editor->characterAt(endOfOperator - 1).isSpace())
         --endOfOperator;
 
-    TokenCache *tokenCache = m_manager->tokenCache(editor);
-    int endOfExpression = startOfOperator(tokenCache, editor, endOfOperator,
+    int endOfExpression = startOfOperator(editor, endOfOperator,
                                           &m_completionOperator,
                                           /*want function call =*/ true);
 
     Core::IFile *file = editor->file();
     QString fileName = file->fileName();
-
-    int line = 0, column = 0;
-    edit->convertPosition(editor->position(), &line, &column);
-    // qDebug() << "line:" << line << "column:" << column;
 
     if (m_completionOperator == T_DOXY_COMMENT) {
         for (int i = 1; i < T_DOXY_LAST_TAG; ++i) {
@@ -725,7 +840,7 @@ int CppCodeCompletion::startCompletionHelper(TextEditor::ITextEditable *editor)
         return m_startPosition;
     }
 
-    ExpressionUnderCursor expressionUnderCursor(m_manager->tokenCache(editor));
+    ExpressionUnderCursor expressionUnderCursor;
     QTextCursor tc(edit->document());
 
     if (m_completionOperator == T_COMMA) {
@@ -742,10 +857,12 @@ int CppCodeCompletion::startCompletionHelper(TextEditor::ITextEditable *editor)
     }
 
     QString expression;
+    int startOfExpression = editor->position();
     tc.setPosition(endOfExpression);
 
     if (m_completionOperator) {
         expression = expressionUnderCursor(tc);
+        startOfExpression = endOfExpression - expression.length();
 
         if (m_completionOperator == T_LPAREN) {
             if (expression.endsWith(QLatin1String("SIGNAL")))
@@ -759,11 +876,18 @@ int CppCodeCompletion::startCompletionHelper(TextEditor::ITextEditable *editor)
                 expression.clear();
                 m_completionOperator = T_EOF_SYMBOL;
                 m_startPosition = startOfName;
+                startOfExpression = editor->position();
             }
         }
+    } else if (expression.isEmpty()) {
+        while (startOfExpression > 0 && editor->characterAt(startOfExpression).isSpace())
+            --startOfExpression;
     }
 
-    //qDebug() << "***** expression:" << expression;
+    int line = 0, column = 0;
+    edit->convertPosition(startOfExpression, &line, &column);
+//    qDebug() << "***** line:" << line << "column:" << column;
+//    qDebug() << "***** expression:" << expression;
     return startCompletionInternal(edit, fileName, line, column, expression, endOfExpression);
 }
 
@@ -822,8 +946,7 @@ int CppCodeCompletion::startCompletionInternal(TextEditor::BaseTextEditor *edit,
             QTextCursor tc(edit->document());
             tc.setPosition(index);
 
-            TokenCache *tokenCache = m_manager->tokenCache(edit->editableInterface());
-            ExpressionUnderCursor expressionUnderCursor(tokenCache);
+            ExpressionUnderCursor expressionUnderCursor;
             const QString baseExpression = expressionUnderCursor(tc);
 
             // Resolve the type of this expression
@@ -1051,26 +1174,8 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &r
 
         // find a scope that encloses the current location, starting from the lastVisibileSymbol
         // and moving outwards
-        Scope *sc = 0;
-        if (typeOfExpression.scope())
-            sc = typeOfExpression.scope();
-        else if (context.thisDocument())
-            sc = context.thisDocument()->globalSymbols();
 
-        while (sc && sc->enclosingScope()) {
-            unsigned startLine, startColumn;
-            context.thisDocument()->translationUnit()->getPosition(sc->owner()->startOffset(), &startLine, &startColumn);
-            unsigned endLine, endColumn;
-            context.thisDocument()->translationUnit()->getPosition(sc->owner()->endOffset(), &endLine, &endColumn);
-
-            if (startLine <= line && line <= endLine) {
-                if ((startLine != line || startColumn <= column)
-                    && (endLine != line || column <= endColumn))
-                    break;
-            }
-
-            sc = sc->enclosingScope();
-        }
+        Scope *sc = context.thisDocument()->scopeAt(line, column);
 
         if (sc && (sc->isClassScope() || sc->isNamespaceScope())) {
             // It may still be a function call. If the whole line parses as a function
@@ -1079,8 +1184,7 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &r
 
             QTextCursor tc(edit->document());
             tc.setPosition(endOfExpression);
-            TokenCache *tokenCache = m_manager->tokenCache(m_editor);
-            BackwardsScanner bs(tokenCache, tc);
+            BackwardsScanner bs(tc);
             const int startToken = bs.startToken();
             const int lineStartToken = bs.startOfLine(startToken);
             // make sure the required tokens are actually available

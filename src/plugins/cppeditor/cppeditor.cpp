@@ -31,6 +31,8 @@
 #include "cppeditorconstants.h"
 #include "cppplugin.h"
 #include "cpphighlighter.h"
+#include "cppcheckundefinedsymbols.h"
+
 #include "cppquickfix.h"
 #include <cpptools/cpptoolsplugin.h>
 
@@ -54,11 +56,10 @@
 #include <cplusplus/MatchingText.h>
 #include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/FastPreprocessor.h>
-#include <cplusplus/CheckUndefinedSymbols.h>
-#include <cplusplus/TokenCache.h>
 
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <cpptools/cpptoolsconstants.h>
+#include <cpptools/cppcodeformatter.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -103,6 +104,72 @@ enum {
 using namespace CPlusPlus;
 using namespace CppEditor::Internal;
 
+static QList<QTextEdit::ExtraSelection> createSelections(QTextDocument *document,
+                                                         const QList<CPlusPlus::Document::DiagnosticMessage> &msgs,
+                                                         const QTextCharFormat &format)
+{
+    QList<QTextEdit::ExtraSelection> selections;
+
+    foreach (const Document::DiagnosticMessage &m, msgs) {
+        const int pos = document->findBlockByNumber(m.line() - 1).position() + m.column() - 1;
+        if (pos < 0)
+            continue;
+
+        QTextCursor cursor(document);
+        cursor.setPosition(pos);
+        cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, m.length());
+
+        QTextEdit::ExtraSelection sel;
+        sel.cursor = cursor;
+        sel.format = format;
+        sel.format.setToolTip(m.text());
+        selections.append(sel);
+    }
+
+    return selections;
+}
+
+static QList<QTextEdit::ExtraSelection> createSelections(QTextDocument *document,
+                                                         const QList<SemanticInfo::Use> &msgs,
+                                                         const QTextCharFormat &format)
+{
+    QList<QTextEdit::ExtraSelection> selections;
+
+    QTextBlock currentBlock = document->firstBlock();
+    unsigned currentLine = 1;
+
+    foreach (const SemanticInfo::Use &use, msgs) {
+        QTextCursor cursor(document);
+
+        if (currentLine != use.line) {
+            int delta = use.line - currentLine;
+
+            if (delta >= 0) {
+                while (delta--)
+                    currentBlock = currentBlock.next();
+            } else {
+                currentBlock = document->findBlockByNumber(use.line - 1);
+            }
+
+            currentLine = use.line;
+        }
+
+        const int pos = currentBlock.position() + use.column - 1;
+        if (pos < 0)
+            continue;
+
+        cursor.setPosition(pos);
+        cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, use.length);
+
+        QTextEdit::ExtraSelection sel;
+        sel.cursor = cursor;
+        sel.format = format;
+        selections.append(sel);
+    }
+
+    return selections;
+}
+
 namespace {
 
 class OverviewTreeView : public QTreeView
@@ -122,79 +189,14 @@ public:
     }
 };
 
-class FindScope: protected SymbolVisitor
-{
-    TranslationUnit *_unit;
-    Scope *_scope;
-    unsigned _line;
-    unsigned _column;
-
-public:
-    Scope *operator()(unsigned line, unsigned column,
-                      Symbol *root, TranslationUnit *unit)
-    {
-        _unit = unit;
-        _scope = 0;
-        _line = line;
-        _column = column;
-        accept(root);
-        return _scope;
-    }
-
-private:
-    using SymbolVisitor::visit;
-
-    virtual bool preVisit(Symbol *)
-    { return ! _scope; }
-
-    virtual bool visit(Block *block)
-    { return processScope(block->members()); }
-
-    virtual bool visit(Function *function)
-    { return processScope(function->members()); }
-
-    virtual bool visit(ObjCMethod *method)
-    { return processScope(method->members()); }
-
-    bool processScope(Scope *scope)
-    {
-        if (_scope || ! scope)
-            return false;
-
-        for (unsigned i = 0; i < scope->symbolCount(); ++i) {
-            accept(scope->symbolAt(i));
-
-            if (_scope)
-                return false;
-        }
-
-        unsigned startOffset = scope->owner()->startOffset();
-        unsigned endOffset = scope->owner()->endOffset();
-
-        unsigned startLine, startColumn;
-        unsigned endLine, endColumn;
-
-        _unit->getPosition(startOffset, &startLine, &startColumn);
-        _unit->getPosition(endOffset, &endLine, &endColumn);
-
-        if (_line > startLine || (_line == startLine && _column >= startColumn)) {
-            if (_line < endLine || (_line == endLine && _column < endColumn)) {
-                _scope = scope;
-            }
-        }
-
-        return false;
-    }
-};
-
 class FindLocalUses: protected ASTVisitor
 {
     Scope *_functionScope;
-    FindScope findScope;
+    Document::Ptr _doc;
 
 public:
-    FindLocalUses(TranslationUnit *translationUnit)
-        : ASTVisitor(translationUnit), hasD(false), hasQ(false)
+    FindLocalUses(Document::Ptr doc)
+        : ASTVisitor(doc->translationUnit()), _doc(doc), hasD(false), hasQ(false)
     { }
 
     // local and external uses.
@@ -270,9 +272,7 @@ protected:
         unsigned line, column;
         getTokenStartPosition(tokenIdx, &line, &column);
 
-        Scope *scope = findScope(line, column,
-                                 _functionScope->owner(),
-                                 translationUnit());
+        Scope *scope = _doc->scopeAt(line, column);
 
         while (scope) {
             if (scope->isFunctionScope()) {
@@ -312,9 +312,7 @@ protected:
         unsigned line, column;
         getTokenStartPosition(ast->firstToken(), &line, &column);
 
-        Scope *scope = findScope(line, column,
-                                 _functionScope->owner(),
-                                 translationUnit());
+        Scope *scope = _doc->scopeAt(line, column);
 
         while (scope) {
             if (scope->isFunctionScope()) {
@@ -530,7 +528,7 @@ struct FindCanonicalSymbol
     SemanticInfo info;
 
     FindCanonicalSymbol(CPPEditor *editor, const SemanticInfo &info)
-        : editor(editor), expressionUnderCursor(editor->tokenCache()), info(info)
+        : editor(editor), info(info)
     {
         typeOfExpression.init(info.doc, info.snapshot);
     }
@@ -618,6 +616,9 @@ CPPEditor::CPPEditor(QWidget *parent)
         connect(m_modelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
                 this, SLOT(onDocumentUpdated(CPlusPlus::Document::Ptr)));
     }
+
+    m_highlighteRevision = 0;
+    connect(&m_highlightWatcher, SIGNAL(finished()), SLOT(highlightTypeUsages()));
 }
 
 CPPEditor::~CPPEditor()
@@ -722,11 +723,6 @@ void CPPEditor::cut()
     startRename();
     BaseTextEditor::cut();
     finishRename();
-}
-
-TokenCache *CPPEditor::tokenCache() const
-{
-    return m_modelManager->tokenCache(editableInterface());
 }
 
 CppTools::CppModelManagerInterface *CPPEditor::modelManager() const
@@ -907,10 +903,11 @@ void CPPEditor::markSymbols(Symbol *canonicalSymbol, const SemanticInfo &info)
 
     QList<QTextEdit::ExtraSelection> selections;
 
-    if (canonicalSymbol) {
+    if (info.doc && canonicalSymbol) {
         TranslationUnit *unit = info.doc->translationUnit();
 
-        const QList<int> references = m_modelManager->references(canonicalSymbol, info.context);
+        LookupContext context(info.doc, info.snapshot);
+        const QList<int> references = m_modelManager->references(canonicalSymbol, context);
         foreach (int index, references) {
             unsigned line, column;
             unit->getTokenPosition(index, &line, &column);
@@ -1100,6 +1097,7 @@ void CPPEditor::updateMethodBoxToolTip()
 void CPPEditor::updateUses()
 {
     m_updateUsesTimer->start();
+    m_highlighter.cancel();
 }
 
 void CPPEditor::updateUsesNow()
@@ -1108,6 +1106,18 @@ void CPPEditor::updateUsesNow()
         return;
 
     semanticRehighlight();
+}
+
+void CPPEditor::highlightTypeUsages()
+{
+    if (editorRevision() != m_highlighteRevision)
+        return; // outdated
+
+    else if (m_highlighter.isCanceled())
+        return; // aborted
+
+    const QList<SemanticInfo::Use> typeUsages = m_highlighter.results();
+    setExtraSelections(TypeSelection, createSelections(document(), typeUsages, m_typeFormat));
 }
 
 void CPPEditor::switchDeclarationDefinition()
@@ -1227,14 +1237,14 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
     SimpleLexer tokenize;
     tokenize.setQtMocRunEnabled(true);
     const QString blockText = cursor.block().text();
-    const QList<SimpleToken> tokens = tokenize(blockText, TokenCache::previousBlockState(cursor.block()));
+    const QList<Token> tokens = tokenize(blockText, BackwardsScanner::previousBlockState(cursor.block()));
 
     bool recognizedQtMethod = false;
 
     for (int i = 0; i < tokens.size(); ++i) {
-        const SimpleToken &tk = tokens.at(i);
+        const Token &tk = tokens.at(i);
 
-        if (column >= tk.begin() && column <= tk.end()) {
+        if (((unsigned) column) >= tk.begin() && ((unsigned) column) <= tk.end()) {
             if (i >= 2 && tokens.at(i).is(T_IDENTIFIER) && tokens.at(i - 1).is(T_LPAREN)
                 && (tokens.at(i - 2).is(T_SIGNAL) || tokens.at(i - 2).is(T_SLOT))) {
 
@@ -1275,7 +1285,7 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
 
     if (! recognizedQtMethod) {
         const QTextBlock block = tc.block();
-        const SimpleToken tk = tokenCache()->tokenUnderCursor(tc);
+        const Token tk = SimpleLexer::tokenAt(block.text(), cursor.positionInBlock(), BackwardsScanner::previousBlockState(block), true);
 
         beginOfToken = block.position() + tk.begin();
         endOfToken = block.position() + tk.end();
@@ -1305,7 +1315,7 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
         return link;
 
     // Evaluate the type of the expression under the cursor
-    ExpressionUnderCursor expressionUnderCursor(tokenCache());
+    ExpressionUnderCursor expressionUnderCursor;
     const QString expression = expressionUnderCursor(tc);
 
     TypeOfExpression typeOfExpression;
@@ -1313,7 +1323,20 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
     const QList<LookupItem> resolvedSymbols = typeOfExpression(expression, scope, TypeOfExpression::Preprocess);
 
     if (!resolvedSymbols.isEmpty()) {
-        const LookupItem result = skipForwardDeclarations(resolvedSymbols);
+        LookupItem result = skipForwardDeclarations(resolvedSymbols);
+
+        foreach (const LookupItem &r, resolvedSymbols) {
+            if (Symbol *d = r.declaration()) {
+                if (d->isDeclaration() || d->isFunction()) {
+                    if (file()->fileName() == QString::fromUtf8(d->fileName(), d->fileNameLength())) {
+                        if (unsigned(line) == d->line() && unsigned(column) >= d->column()) { // ### TODO: check the end
+                            result = r; // take the symbol under cursor.
+                            break;
+                        }
+                    }
+                }
+            }
+        }
 
         if (Symbol *symbol = result.declaration()) {
             Symbol *def = 0;
@@ -1408,13 +1431,13 @@ bool CPPEditor::isElectricCharacter(QChar ch) const
 QString CPPEditor::insertMatchingBrace(const QTextCursor &tc, const QString &text,
                                        QChar la, int *skippedChars) const
 {
-    MatchingText m(tokenCache());
+    MatchingText m;
     return m.insertMatchingBrace(tc, text, la, skippedChars);
 }
 
 QString CPPEditor::insertParagraphSeparator(const QTextCursor &tc) const
 {
-    MatchingText m(tokenCache());
+    MatchingText m;
     return m.insertParagraphSeparator(tc);
 }
 
@@ -1437,11 +1460,11 @@ bool CPPEditor::contextAllowsAutoParentheses(const QTextCursor &cursor,
 
 bool CPPEditor::contextAllowsElectricCharacters(const QTextCursor &cursor) const
 {
-    const SimpleToken tk = tokenCache()->tokenUnderCursor(cursor);
+    const Token tk = SimpleLexer::tokenAt(cursor.block().text(), cursor.positionInBlock(), BackwardsScanner::previousBlockState(cursor.block()));
 
     // XXX Duplicated from CPPEditor::isInComment to avoid tokenizing twice
     if (tk.isComment()) {
-        const int pos = cursor.selectionEnd() - cursor.block().position();
+        const unsigned pos = cursor.selectionEnd() - cursor.block().position();
 
         if (pos == tk.end()) {
             if (tk.is(T_CPP_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))
@@ -1458,7 +1481,7 @@ bool CPPEditor::contextAllowsElectricCharacters(const QTextCursor &cursor) const
     else if (tk.is(T_STRING_LITERAL) || tk.is(T_WIDE_STRING_LITERAL)
         || tk.is(T_CHAR_LITERAL) || tk.is(T_WIDE_CHAR_LITERAL)) {
 
-        const int pos = cursor.selectionEnd() - cursor.block().position();
+        const unsigned pos = cursor.selectionEnd() - cursor.block().position();
         if (pos <= tk.end())
             return false;
     }
@@ -1468,10 +1491,10 @@ bool CPPEditor::contextAllowsElectricCharacters(const QTextCursor &cursor) const
 
 bool CPPEditor::isInComment(const QTextCursor &cursor) const
 {
-    const SimpleToken tk = tokenCache()->tokenUnderCursor(cursor);
+    const Token tk = SimpleLexer::tokenAt(cursor.block().text(), cursor.positionInBlock(), BackwardsScanner::previousBlockState(cursor.block()));
 
     if (tk.isComment()) {
-        const int pos = cursor.selectionEnd() - cursor.block().position();
+        const unsigned pos = cursor.selectionEnd() - cursor.block().position();
 
         if (pos == tk.end()) {
             if (tk.is(T_CPP_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))
@@ -1489,90 +1512,68 @@ bool CPPEditor::isInComment(const QTextCursor &cursor) const
     return false;
 }
 
-// Indent a code line based on previous
-static void indentCPPBlock(const CPPEditor::TabSettings &ts,
-    const QTextBlock &block,
-    const TextEditor::TextBlockIterator &programBegin,
-    const TextEditor::TextBlockIterator &programEnd,
-    QChar typedChar)
+static CppTools::QtStyleCodeFormatter setupCodeFormatter(const TextEditor::TabSettings &ts)
 {
-    typedef SharedTools::Indenter Indenter;
-    Indenter &indenter = Indenter::instance();
-    indenter.setIndentSize(ts.m_indentSize);
-    indenter.setTabSize(ts.m_tabSize);
-    indenter.setIndentBraces(ts.m_indentBraces);
-    indenter.setDoubleIndentBlocks(ts.m_doubleIndentBlocks);
-
-    const TextEditor::TextBlockIterator current(block);
-    const int indent = indenter.indentForBottomLine(current, programBegin, programEnd, typedChar);
-    ts.indentLine(block, indent);
-}
-
-static int indentationColumn(const TextEditor::TabSettings &tabSettings,
-                             const BackwardsScanner &scanner,
-                             int index)
-{
-    return tabSettings.indentationColumn(scanner.indentationString(index));
+    CppTools::QtStyleCodeFormatter codeFormatter;
+    codeFormatter.setIndentSize(ts.m_indentSize);
+    codeFormatter.setTabSize(ts.m_tabSize);
+    if (ts.m_indentBraces && ts.m_doubleIndentBlocks) { // gnu style
+        codeFormatter.setIndentSubstatementBraces(true);
+        codeFormatter.setIndentSubstatementStatements(true);
+        codeFormatter.setIndentDeclarationBraces(false);
+        codeFormatter.setIndentDeclarationMembers(true);
+    } else if (ts.m_indentBraces) { // whitesmiths style
+        codeFormatter.setIndentSubstatementBraces(true);
+        codeFormatter.setIndentSubstatementStatements(false);
+        codeFormatter.setIndentDeclarationBraces(true);
+        codeFormatter.setIndentDeclarationMembers(false);
+    } else { // default Qt style
+        codeFormatter.setIndentSubstatementBraces(false);
+        codeFormatter.setIndentSubstatementStatements(true);
+        codeFormatter.setIndentDeclarationBraces(false);
+        codeFormatter.setIndentDeclarationMembers(true);
+    }
+    return codeFormatter;
 }
 
 void CPPEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar)
 {
-    QTextCursor tc(block);
-    tc.movePosition(QTextCursor::EndOfBlock);
+    Q_UNUSED(doc)
+    Q_UNUSED(typedChar)
 
     const TabSettings &ts = tabSettings();
+    CppTools::QtStyleCodeFormatter codeFormatter = setupCodeFormatter(ts);
 
-    BackwardsScanner tk(tokenCache(), tc, 400);
-    const int tokenCount = tk.startToken();
+    codeFormatter.updateStateUntil(block);
+    const int depth = codeFormatter.indentFor(block);
+    ts.indentLine(block, depth);
+}
 
-    if (tokenCount != 0) {
-        const SimpleToken firstToken = tk[0];
+void CPPEditor::indent(QTextDocument *doc, const QTextCursor &cursor, QChar typedChar)
+{
+    Q_UNUSED(doc)
+    Q_UNUSED(typedChar)
 
-        if (firstToken.is(T_COLON)) {
-            const int previousLineIndent = indentationColumn(ts, tk, -1);
-            ts.indentLine(block, previousLineIndent + ts.m_indentSize);
-            return;
-        } else if ((firstToken.is(T_PUBLIC) || firstToken.is(T_PROTECTED) || firstToken.is(T_PRIVATE) ||
-                    firstToken.is(T_Q_SIGNALS) || firstToken.is(T_Q_SLOTS)) &&
-                    tk.size() > 1 && tk[1].is(T_COLON)) {
-            const int startOfBlock = tk.startOfBlock(0);
-            if (startOfBlock != 0) {
-                const int indent = indentationColumn(ts, tk, startOfBlock);
-                ts.indentLine(block, indent);
-                return;
-            }
-        } else if (firstToken.is(T_CASE) || firstToken.is(T_DEFAULT)) {
-            const int startOfBlock = tk.startOfBlock(0);
-            if (startOfBlock != 0) {
-                const int indent = indentationColumn(ts, tk, startOfBlock);
-                ts.indentLine(block, indent);
-                return;
-            }
-            return;
-        }
+    maybeClearSomeExtraSelections(cursor);
+    if (cursor.hasSelection()) {
+        QTextBlock block = doc->findBlock(cursor.selectionStart());
+        const QTextBlock end = doc->findBlock(cursor.selectionEnd()).next();
+
+        const TabSettings &ts = tabSettings();
+        CppTools::QtStyleCodeFormatter codeFormatter = setupCodeFormatter(ts);
+        codeFormatter.updateStateUntil(block);
+
+        QTextCursor tc = textCursor();
+        tc.beginEditBlock();
+        do {
+            ts.indentLine(block, codeFormatter.indentFor(block));
+            codeFormatter.updateLineStateChange(block);
+            block = block.next();
+        } while (block.isValid() && block != end);
+        tc.endEditBlock();
+    } else {
+        indentBlock(doc, cursor.block(), typedChar);
     }
-
-    if ((tokenCount == 0 || tk[0].isNot(T_POUND)) && typedChar.isNull() && (tk[-1].is(T_IDENTIFIER) || tk[-1].is(T_RPAREN))) {
-        int tokenIndex = -1;
-        if (tk[-1].is(T_RPAREN)) {
-            const int matchingBrace = tk.startOfMatchingBrace(0);
-            if (matchingBrace != 0 && tk[matchingBrace - 1].is(T_IDENTIFIER)) {
-                tokenIndex = matchingBrace - 1;
-            }
-        }
-
-        const QString spell = tk.text(tokenIndex);
-        if (tk[tokenIndex].followsNewline() && (spell.startsWith(QLatin1String("QT_")) ||
-                                                spell.startsWith(QLatin1String("Q_")))) {
-            const int indent = indentationColumn(ts, tk, tokenIndex);
-            ts.indentLine(block, indent);
-            return;
-        }
-    }
-
-    const TextEditor::TextBlockIterator begin(doc->begin());
-    const TextEditor::TextBlockIterator end(block.next());
-    indentCPPBlock(ts, block, begin, end, typedChar);
 }
 
 bool CPPEditor::event(QEvent *e)
@@ -1788,6 +1789,14 @@ void CPPEditor::setFontSettings(const TextEditor::FontSettings &fs)
     m_occurrenceRenameFormat.clearForeground();
 }
 
+void CPPEditor::setTabSettings(const TextEditor::TabSettings &ts)
+{
+    CppTools::QtStyleCodeFormatter formatter;
+    formatter.invalidateCache(document());
+
+    TextEditor::BaseTextEditor::setTabSettings(ts);
+}
+
 void CPPEditor::unCommentSelection()
 {
     Utils::unCommentSelection(this);
@@ -1816,6 +1825,7 @@ bool CPPEditor::openCppEditorAt(const Link &link)
 
     if (baseTextDocument()->fileName() == link.fileName) {
         Core::EditorManager *editorManager = Core::EditorManager::instance();
+        editorManager->cutForwardNavigationHistory();
         editorManager->addCurrentPositionToNavigationHistory();
         gotoLine(link.line, link.column);
         setFocus();
@@ -1831,64 +1841,6 @@ bool CPPEditor::openCppEditorAt(const Link &link)
 void CPPEditor::semanticRehighlight()
 {
     m_semanticHighlighter->rehighlight(currentSource());
-}
-
-static QList<QTextEdit::ExtraSelection> createSelections(QTextDocument *document,
-                                                         const QList<CPlusPlus::Document::DiagnosticMessage> &msgs,
-                                                         const QTextCharFormat &format)
-{
-    QList<QTextEdit::ExtraSelection> selections;
-
-    foreach (const Document::DiagnosticMessage &m, msgs) {
-        QTextCursor cursor(document);
-        cursor.setPosition(document->findBlockByNumber(m.line() - 1).position() + m.column() - 1);
-        cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, m.length());
-
-        QTextEdit::ExtraSelection sel;
-        sel.cursor = cursor;
-        sel.format = format;
-        sel.format.setToolTip(m.text());
-        selections.append(sel);
-    }
-
-    return selections;
-}
-
-static QList<QTextEdit::ExtraSelection> createSelections(QTextDocument *document,
-                                                         const QList<SemanticInfo::Use> &msgs,
-                                                         const QTextCharFormat &format)
-{
-    QList<QTextEdit::ExtraSelection> selections;
-
-    QTextBlock currentBlock = document->firstBlock();
-    unsigned currentLine = 1;
-
-    foreach (const SemanticInfo::Use &use, msgs) {
-        QTextCursor cursor(document);
-
-        if (currentLine != use.line) {
-            int delta = use.line - currentLine;
-
-            if (delta >= 0) {
-                while (delta--)
-                    currentBlock = currentBlock.next();
-            } else {
-                currentBlock = document->findBlockByNumber(use.line - 1);
-            }
-
-            currentLine = use.line;
-        }
-
-        cursor.setPosition(currentBlock.position() + use.column - 1);
-        cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, use.length);
-
-        QTextEdit::ExtraSelection sel;
-        sel.cursor = cursor;
-        sel.format = format;
-        selections.append(sel);
-    }
-
-    return selections;
 }
 
 void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
@@ -1936,16 +1888,26 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
         QTextCharFormat diagnosticMessageFormat;
         diagnosticMessageFormat.setUnderlineColor(Qt::darkYellow); // ### hardcoded
         diagnosticMessageFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline); // ### hardcoded
+
         setExtraSelections(UndefinedSymbolSelection, createSelections(document(),
                                                                       semanticInfo.diagnosticMessages,
                                                                       diagnosticMessageFormat));
 
-        setExtraSelections(TypeSelection, createSelections(document(),
-                                                           semanticInfo.typeUsages,
-                                                           m_typeFormat));
+        m_highlighter.cancel();
+
+        if (semanticInfo.doc) {
+            LookupContext context(semanticInfo.doc, semanticInfo.snapshot);
+            CheckUndefinedSymbols::Future f = CheckUndefinedSymbols::go(semanticInfo.doc, context);
+            m_highlighter = f;
+            m_highlighteRevision = semanticInfo.revision;
+            m_highlightWatcher.setFuture(m_highlighter);
+        }
+
+#if 0 // ### TODO: enable objc semantic highlighting
         setExtraSelections(ObjCSelection, createSelections(document(),
                                                            semanticInfo.objcKeywords,
                                                            m_keywordFormat));
+#endif
     }
 
     setExtraSelections(UnusedSymbolSelection, unusedSelections);
@@ -2152,9 +2114,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
         snapshot = m_lastSemanticInfo.snapshot; // ### TODO: use the new snapshot.
         doc = m_lastSemanticInfo.doc;
         diagnosticMessages = m_lastSemanticInfo.diagnosticMessages;
-        typeUsages = m_lastSemanticInfo.typeUsages;
         objcKeywords = m_lastSemanticInfo.objcKeywords;
-        context = m_lastSemanticInfo.context;
         m_mutex.unlock();
     }
 
@@ -2165,18 +2125,18 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
         doc = snapshot.documentFromSource(preprocessedCode, source.fileName);
         doc->check();
 
+#if 0
         context = LookupContext(doc, snapshot);
 
         if (TranslationUnit *unit = doc->translationUnit()) {
             CheckUndefinedSymbols checkUndefinedSymbols(unit, context);
             diagnosticMessages = checkUndefinedSymbols(unit->ast());
-            typeUsages.clear();
-            foreach (const CheckUndefinedSymbols::Use &use, checkUndefinedSymbols.typeUsages()) // ### remove me
-                typeUsages.append(SemanticInfo::Use(use.line, use.column, use.length));
+            typeUsages = checkUndefinedSymbols.typeUsages();
 
-            FindObjCKeywords findObjCKeywords(unit);
+            FindObjCKeywords findObjCKeywords(unit); // ### remove me
             objcKeywords = findObjCKeywords();
         }
+#endif
     }
 
     TranslationUnit *translationUnit = doc->translationUnit();
@@ -2185,7 +2145,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     FunctionDefinitionUnderCursor functionDefinitionUnderCursor(translationUnit);
     DeclarationAST *currentFunctionDefinition = functionDefinitionUnderCursor(ast, source.line, source.column);
 
-    FindLocalUses useTable(translationUnit);
+    FindLocalUses useTable(doc);
     useTable(currentFunctionDefinition);
 
     SemanticInfo semanticInfo;
@@ -2197,9 +2157,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     semanticInfo.hasD = useTable.hasD;
     semanticInfo.forced = source.force;
     semanticInfo.diagnosticMessages = diagnosticMessages;
-    semanticInfo.typeUsages = typeUsages;
     semanticInfo.objcKeywords = objcKeywords;
-    semanticInfo.context = context;
 
     return semanticInfo;
 }

@@ -57,7 +57,7 @@
 
 namespace CPlusPlus {
 
-class TemplateParameters
+class CPLUSPLUS_EXPORT TemplateParameters
 {
 public:
     TemplateParameters(Scope *scope);

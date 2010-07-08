@@ -30,11 +30,6 @@
 #include "testview.h"
 
 #include <QtDebug>
-#include <modelnode.h>
-#include <model.h>
-#include <modelnode.h>
-#include <nodeabstractproperty.h>
-#include <nodelistproperty.h>
 #include <qtestcase.h>
 
 TestView::TestView(QObject *parent)

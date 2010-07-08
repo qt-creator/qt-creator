@@ -124,6 +124,9 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
           m_currentItemLocked(0)
 {
     m_model = new FlatModel(m_explorer->session()->sessionNode(), this);
+    Project *pro = m_explorer->session()->startupProject();
+    if (pro)
+        m_model->setStartupProject(pro->rootProjectNode());
     NodesWatcher *watcher = new NodesWatcher(this);
     m_explorer->session()->sessionNode()->registerWatcher(watcher);
 

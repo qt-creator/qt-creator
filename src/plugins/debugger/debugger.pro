@@ -7,6 +7,7 @@ TARGET = Debugger
 
 include(../../qtcreatorplugin.pri)
 include(debugger_dependencies.pri)
+include(../../private_headers.pri)
 
 DEFINES += DEBUGGER_LIBRARY
 

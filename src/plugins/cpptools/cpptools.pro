@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET = CppTools
 include(../../qtcreatorplugin.pri)
-include(../../plugins/locator/locator.pri)
+include($$IDE_SOURCE_TREE/src/plugins/locator/locator.pri)
 include(cpptools_dependencies.pri)
 
 # DEFINES += QT_NO_CAST_FROM_ASCII
@@ -23,7 +23,8 @@ HEADERS += completionsettingspage.h \
     searchsymbols.h \
     cppdoxygen.h \
     cppfilesettingspage.h \
-    cppfindreferences.h
+    cppfindreferences.h \
+    cppcodeformatter.h
 
 SOURCES += completionsettingspage.cpp \
     cppclassesfilter.cpp \
@@ -38,7 +39,8 @@ SOURCES += completionsettingspage.cpp \
     cppdoxygen.cpp \
     cppfilesettingspage.cpp \
     abstracteditorsupport.cpp \
-    cppfindreferences.cpp
+    cppfindreferences.cpp \
+    cppcodeformatter.cpp
 
 FORMS += completionsettingspage.ui \
     cppfilesettingspage.ui

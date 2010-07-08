@@ -108,7 +108,10 @@ unsigned BaseSpecifierAST::firstToken() const
         return virtual_token;
     if (access_specifier_token)
         return access_specifier_token;
-    return name->firstToken();
+    if (name)
+        name->firstToken();
+    // assert?
+    return 0;
 }
 
 unsigned BaseSpecifierAST::lastToken() const

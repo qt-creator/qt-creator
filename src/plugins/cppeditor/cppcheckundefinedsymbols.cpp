@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#include "CheckUndefinedSymbols.h"
-#include "Overview.h"
+#include "cppcheckundefinedsymbols.h"
+#include <cplusplus/Overview.h>
 
 #include <Names.h>
 #include <Literals.h>
@@ -38,8 +38,11 @@
 #include <AST.h>
 #include <SymbolVisitor.h>
 
-#include <QCoreApplication>
-#include <QDebug>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QThreadPool>
+#include <QtCore/QDebug>
+
+#include <qtconcurrent/runextensions.h>
 
 using namespace CPlusPlus;
 
@@ -252,11 +255,17 @@ protected:
 
 } // end of anonymous namespace
 
-CheckUndefinedSymbols::CheckUndefinedSymbols(TranslationUnit *unit, const LookupContext &context)
-    : ASTVisitor(unit), _context(context)
+CheckUndefinedSymbols::Future CheckUndefinedSymbols::go(Document::Ptr doc, const LookupContext &context)
 {
-    _fileName = context.thisDocument()->fileName();
-    CollectTypes collectTypes(context.thisDocument(), context.snapshot());
+    Q_ASSERT(doc);
+    return (new CheckUndefinedSymbols(doc, context))->start();
+}
+
+CheckUndefinedSymbols::CheckUndefinedSymbols(Document::Ptr doc, const LookupContext &context)
+    : ASTVisitor(doc->translationUnit()), _doc(doc), _context(context)
+{
+    _fileName = doc->fileName();
+    CollectTypes collectTypes(doc, context.snapshot());
     _potentialTypes = collectTypes.types();
     _scopes = collectTypes.scopes();
 }
@@ -264,11 +273,22 @@ CheckUndefinedSymbols::CheckUndefinedSymbols(TranslationUnit *unit, const Lookup
 CheckUndefinedSymbols::~CheckUndefinedSymbols()
 { }
 
-QList<Document::DiagnosticMessage> CheckUndefinedSymbols::operator()(AST *ast)
+void CheckUndefinedSymbols::run()
+{
+    if (! isCanceled())
+        runFunctor();
+
+    reportFinished();
+}
+
+void CheckUndefinedSymbols::runFunctor()
 {
     _diagnosticMessages.clear();
-    accept(ast);
-    return _diagnosticMessages;
+
+    if (_doc->translationUnit()) {
+        accept(_doc->translationUnit()->ast());
+        flush();
+    }
 }
 
 bool CheckUndefinedSymbols::warning(unsigned line, unsigned column, const QString &text, unsigned length)
@@ -291,6 +311,14 @@ bool CheckUndefinedSymbols::warning(AST *ast, const QString &text)
     return false;
 }
 
+bool CheckUndefinedSymbols::preVisit(AST *)
+{
+    if (isCanceled())
+        return false;
+
+    return true;
+}
+
 bool CheckUndefinedSymbols::visit(NamespaceAST *ast)
 {
     if (ast->identifier_token) {
@@ -299,7 +327,7 @@ bool CheckUndefinedSymbols::visit(NamespaceAST *ast)
             unsigned line, column;
             getTokenStartPosition(ast->identifier_token, &line, &column);
             Use use(line, column, tok.length());
-            _typeUsages.append(use);
+            addTypeUsage(use);
         }
     }
 
@@ -329,7 +357,7 @@ void CheckUndefinedSymbols::checkNamespace(NameAST *name)
     unsigned line, column;
     getTokenStartPosition(name->firstToken(), &line, &column);
 
-    Scope *enclosingScope = _context.thisDocument()->scopeAt(line, column);
+    Scope *enclosingScope = _doc->scopeAt(line, column);
     if (ClassOrNamespace *b = _context.lookupType(name->name, enclosingScope)) {
         foreach (Symbol *s, b->symbols()) {
             if (s->isNamespace())
@@ -443,6 +471,14 @@ void CheckUndefinedSymbols::endVisit(TemplateDeclarationAST *)
     _templateDeclarationStack.takeFirst();
 }
 
+void CheckUndefinedSymbols::addTypeUsage(const Use &use)
+{
+    _typeUsages.append(use);
+
+    if (_typeUsages.size() == 50)
+        flush();
+}
+
 void CheckUndefinedSymbols::addTypeUsage(ClassOrNamespace *b, NameAST *ast)
 {
     if (! b)
@@ -459,8 +495,8 @@ void CheckUndefinedSymbols::addTypeUsage(ClassOrNamespace *b, NameAST *ast)
     unsigned line, column;
     getTokenStartPosition(startToken, &line, &column);
     const unsigned length = tok.length();
-    Use use(line, column, length);
-    _typeUsages.append(use);
+    const Use use(line, column, length);
+    addTypeUsage(use);
     //qDebug() << "added use" << oo(ast->name) << line << column << length;
 }
 
@@ -486,17 +522,12 @@ void CheckUndefinedSymbols::addTypeUsage(const QList<Symbol *> &candidates, Name
         else if (c->isTypedef() || c->isNamespace() ||
                  c->isClass() || c->isEnum() ||
                  c->isForwardClassDeclaration() || c->isTypenameArgument()) {
-            Use use(line, column, length);
-            _typeUsages.append(use);
+            const Use use(line, column, length);
+            addTypeUsage(use);
             //qDebug() << "added use" << oo(ast->name) << line << column << length;
             break;
         }
     }
-}
-
-QList<CheckUndefinedSymbols::Use> CheckUndefinedSymbols::typeUsages() const
-{
-    return _typeUsages;
 }
 
 unsigned CheckUndefinedSymbols::startOfTemplateDeclaration(TemplateDeclarationAST *ast) const
@@ -525,7 +556,16 @@ Scope *CheckUndefinedSymbols::findScope(AST *ast) const
     }
 
     if (! scope)
-        scope = _context.thisDocument()->globalSymbols();
+        scope = _doc->globalSymbols();
 
     return scope;
+}
+
+void CheckUndefinedSymbols::flush()
+{
+    if (_typeUsages.isEmpty())
+        return;
+
+    reportResults(_typeUsages);
+    _typeUsages.clear();
 }

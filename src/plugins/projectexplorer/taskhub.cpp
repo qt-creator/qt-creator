@@ -1,0 +1,80 @@
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+** Commercial Usage
+**
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
+**
+** GNU Lesser General Public License Usage
+**
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at http://qt.nokia.com/contact.
+**
+**************************************************************************/
+
+#include "taskhub.h"
+#include <QtCore/QMetaType>
+
+using namespace ProjectExplorer;
+
+TaskHub::TaskHub()
+    : m_errorIcon(QLatin1String(":/projectexplorer/images/compile_error.png")),
+      m_warningIcon(QLatin1String(":/projectexplorer/images/compile_warning.png"))
+{
+    qRegisterMetaType<ProjectExplorer::Task>("ProjectExplorer::Task");
+    qRegisterMetaType<QList<ProjectExplorer::Task> >("QList<ProjectExplorer::Task>");
+}
+
+TaskHub::~TaskHub()
+{
+
+}
+
+void TaskHub::addCategory(const QString &categoryId, const QString &displayName)
+{
+    emit categoryAdded(categoryId, displayName);
+}
+
+void TaskHub::addTask(const Task &task)
+{
+    emit taskAdded(task);
+}
+
+void TaskHub::clearTasks(const QString &categoryId)
+{
+    emit tasksCleared(categoryId);
+}
+
+void TaskHub::removeTask(const Task &task)
+{
+    emit taskRemoved(task);
+}
+
+QIcon TaskHub::taskTypeIcon(Task::TaskType t) const
+{
+    switch (t) {
+    case Task::Warning:
+        return m_warningIcon;
+    case Task::Error:
+        return m_errorIcon;
+    case Task::Unknown:
+        break;
+    }
+    return QIcon();
+}
+

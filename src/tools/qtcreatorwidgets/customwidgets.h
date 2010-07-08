@@ -122,6 +122,16 @@ public:
     explicit PathChooser_CW(QObject *parent = 0);
 };
 
+class IconButton_CW :
+    public QObject,
+    public CustomWidget<Utils::IconButton>
+{
+    Q_OBJECT
+    Q_INTERFACES(QDesignerCustomWidgetInterface)
+public:
+    explicit IconButton_CW(QObject *parent = 0);
+};
+
 class FancyLineEdit_CW :
     public QObject,
     public CustomWidget<Utils::FancyLineEdit>

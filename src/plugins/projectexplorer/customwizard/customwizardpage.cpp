@@ -49,18 +49,69 @@ enum { debug = 0 };
 namespace ProjectExplorer {
 namespace Internal {
 
+// ----------- TextFieldComboBox
 TextFieldComboBox::TextFieldComboBox(QWidget *parent) :
     QComboBox(parent)
 {
     setEditable(false);
-    connect(this, SIGNAL(currentIndexChanged(QString)), this, SIGNAL(textChanged(QString)));
+    connect(this, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(slotCurrentIndexChanged(int)));
+}
+
+QString TextFieldComboBox::text() const
+{
+    return valueAt(currentIndex());
 }
 
 void TextFieldComboBox::setText(const QString &s)
 {
-    const int index = findText(s);
+    const int index = findData(QVariant(s), Qt::UserRole);
     if (index != -1 && index != currentIndex())
         setCurrentIndex(index);
+}
+
+void TextFieldComboBox::slotCurrentIndexChanged(int i)
+{
+    emit text4Changed(valueAt(i));
+}
+
+void TextFieldComboBox::setItems(const QStringList &displayTexts,
+                                 const QStringList &values)
+{
+    QTC_ASSERT(displayTexts.size() == values.size(), return)
+    clear();
+    addItems(displayTexts);
+    const int count = values.count();
+    for (int i = 0; i < count; i++)
+        setItemData(i, QVariant(values.at(i)), Qt::UserRole);
+}
+
+QString TextFieldComboBox::valueAt(int i) const
+{
+    return i >= 0 && i < count() ? itemData(i, Qt::UserRole).toString() : QString();
+}
+
+// -------------- TextCheckBox
+TextFieldCheckBox::TextFieldCheckBox(const QString &text, QWidget *parent) :
+        QCheckBox(text, parent),
+        m_trueText(QLatin1String("true")), m_falseText(QLatin1String("false"))
+{
+    connect(this, SIGNAL(stateChanged(int)), this, SLOT(slotStateChanged(int)));
+}
+
+QString TextFieldCheckBox::text() const
+{
+    return isChecked() ? m_trueText : m_falseText;
+}
+
+void TextFieldCheckBox::setText(const QString &s)
+{
+    setChecked(s == m_trueText);
+}
+
+void TextFieldCheckBox::slotStateChanged(int cs)
+{
+    emit textChanged(cs == Qt::Checked ? m_trueText : m_falseText);
 }
 
 // --------------- CustomWizardFieldPage
@@ -107,6 +158,7 @@ void CustomWizardFieldPage::addField(const CustomWizardField &field)\
     QString fieldName = field.name;
     if (field.mandatory)
         fieldName += QLatin1Char('*');
+    bool spansRow = false;
     // Check known classes: QComboBox
     const QString className = field.controlAttributes.value(QLatin1String("class"));
     QWidget *fieldWidget = 0;
@@ -116,10 +168,47 @@ void CustomWizardFieldPage::addField(const CustomWizardField &field)\
         fieldWidget = registerTextEdit(fieldName, field);
     } else if (className == QLatin1String("Utils::PathChooser")) {
         fieldWidget = registerPathChooser(fieldName, field);
+    } else if (className == QLatin1String("QCheckBox")) {
+        fieldWidget = registerCheckBox(fieldName, field.description, field);
+        spansRow = true; // Do not create a label for the checkbox.
     } else {
         fieldWidget = registerLineEdit(fieldName, field);
     }
-    addRow(field.description, fieldWidget);
+    if (spansRow) {
+        m_formLayout->addRow(fieldWidget);
+    } else {
+        addRow(field.description, fieldWidget);
+    }
+}
+
+// Return the list of values and display texts for combo
+static void comboChoices(const CustomWizardField::ControlAttributeMap &controlAttributes,
+                  QStringList *values, QStringList *displayTexts)
+{
+    typedef CustomWizardField::ControlAttributeMap::ConstIterator AttribMapConstIt;
+
+    values->clear();
+    displayTexts->clear();
+    // Pre 2.2 Legacy: "combochoices" attribute with a comma-separated list, for
+    // display == value.
+    const AttribMapConstIt attribConstEnd = controlAttributes.constEnd();
+    const AttribMapConstIt choicesIt = controlAttributes.constFind(QLatin1String("combochoices"));
+    if (choicesIt != attribConstEnd) {
+        const QString &choices = choicesIt.value();
+        if (!choices.isEmpty())
+            *values = *displayTexts = choices.split(QLatin1Char(','));
+        return;
+    }
+    // From 2.2 on: Separate lists of value and text. Add all values found.
+    for (int i = 0; ; i++) {
+        const QString valueKey = CustomWizardField::comboEntryValueKey(i);
+        const AttribMapConstIt valueIt = controlAttributes.constFind(valueKey);
+        if (valueIt == attribConstEnd)
+            break;
+        values->push_back(valueIt.value());
+        const QString textKey = CustomWizardField::comboEntryTextKey(i);
+        displayTexts->push_back(controlAttributes.value(textKey));
+    }
 }
 
 QWidget *CustomWizardFieldPage::registerComboBox(const QString &fieldName,
@@ -127,10 +216,10 @@ QWidget *CustomWizardFieldPage::registerComboBox(const QString &fieldName,
 {
     TextFieldComboBox *combo = new TextFieldComboBox;
     do { // Set up items and current index
-        const QString choices = field.controlAttributes.value(QLatin1String("combochoices"));
-        if (choices.isEmpty())
-            break;
-        combo->addItems(choices.split(QLatin1Char(',')));
+        QStringList values;
+        QStringList displayTexts;
+        comboChoices(field.controlAttributes, &values, &displayTexts);
+        combo->setItems(displayTexts, values);
         bool ok;
         const QString currentIndexS = field.controlAttributes.value(QLatin1String("defaultindex"));
         if (currentIndexS.isEmpty())
@@ -161,6 +250,25 @@ QWidget *CustomWizardFieldPage::registerPathChooser(const QString &fieldName,
     registerField(fieldName, pathChooser, "path", SIGNAL(changed(QString)));
     return pathChooser;
 } // Utils::PathChooser
+
+QWidget *CustomWizardFieldPage::registerCheckBox(const QString &fieldName,
+                                                 const QString &fieldDescription,
+                                                 const CustomWizardField &field)
+{
+    typedef CustomWizardField::ControlAttributeMap::const_iterator AttributeMapConstIt;
+
+    TextFieldCheckBox *checkBox = new TextFieldCheckBox(fieldDescription);
+    const bool defaultValue = field.controlAttributes.value(QLatin1String("defaultvalue")) == QLatin1String("true");
+    checkBox->setChecked(defaultValue);
+    const AttributeMapConstIt trueTextIt = field.controlAttributes.constFind(QLatin1String("truevalue"));
+    if (trueTextIt != field.controlAttributes.constEnd()) // Also set empty texts
+        checkBox->setTrueText(trueTextIt.value());
+    const AttributeMapConstIt falseTextIt = field.controlAttributes.constFind(QLatin1String("falsevalue"));
+    if (falseTextIt != field.controlAttributes.constEnd()) // Also set empty texts
+        checkBox->setFalseText(falseTextIt.value());
+    registerField(fieldName, checkBox, "text", SIGNAL(textChanged(QString)));
+    return checkBox;
+}
 
 QWidget *CustomWizardFieldPage::registerLineEdit(const QString &fieldName,
                                                  const CustomWizardField &field)

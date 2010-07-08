@@ -29,19 +29,20 @@
 
 #include "detailsbutton.h"
 
+#include <utils/stylehelper.h>
+
 #include <QtGui/QPaintEvent>
 #include <QtGui/QPainter>
 #include <QtGui/QStyleOption>
+#include <QtGui/QGraphicsOpacityEffect>
 #include <QtCore/QPropertyAnimation>
-
-#include <utils/stylehelper.h>
 
 using namespace Utils;
 
-FadingPanel::FadingPanel(QWidget *parent) : QWidget(parent), m_opacityEffect(0)
-
+FadingPanel::FadingPanel(QWidget *parent) :
+    QWidget(parent),
+    m_opacityEffect(new QGraphicsOpacityEffect)
 {
-    m_opacityEffect = new QGraphicsOpacityEffect;
     m_opacityEffect->setOpacity(0);
     setGraphicsEffect(m_opacityEffect);
 

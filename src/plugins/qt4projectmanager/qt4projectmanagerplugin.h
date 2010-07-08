@@ -31,6 +31,7 @@
 #define QT4PROJECTMANAGERPLUGIN_H
 
 #include <extensionsystem/iplugin.h>
+#include <coreplugin/icontext.h>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -66,7 +67,7 @@ public:
     bool initialize(const QStringList &arguments, QString *error_message);
     void extensionsInitialized();
 
-    int projectContext() const { return m_projectContext; }
+    Core::Context projectContext() const { return m_projectContext; }
 
 private slots:
     void updateContextMenu(ProjectExplorer::Project *project,
@@ -92,7 +93,7 @@ private:
     QAction *m_rebuildSubProjectContextMenu;
     QAction *m_cleanSubProjectContextMenu;
     GettingStartedWelcomePage *m_welcomePage;
-    int m_projectContext;
+    Core::Context m_projectContext;
 };
 
 } // namespace Internal

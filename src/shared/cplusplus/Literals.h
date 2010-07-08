@@ -104,8 +104,6 @@ public:
     NumericLiteral(const char *chars, unsigned size);
     virtual ~NumericLiteral();
 
-    bool isChar() const;
-    bool isWideChar() const;
     bool isInt() const;
     bool isFloat() const;
     bool isDouble() const;

@@ -254,32 +254,36 @@ bool ResolveExpression::visit(SizeofExpressionAST *)
 
 bool ResolveExpression::visit(NumericLiteralAST *ast)
 {
-    Type *type = 0;
-    const NumericLiteral *literal = numericLiteral(ast->literal_token);
+    const Token &tk = tokenAt(ast->literal_token);
 
-    if (literal->isChar())
+    Type *type = 0;
+    bool isUnsigned = false;
+
+    if (tk.is(T_CHAR_LITERAL))
         type = control()->integerType(IntegerType::Char);
-    else if (literal->isWideChar())
+    else if (tk.is(T_WIDE_CHAR_LITERAL))
         type = control()->integerType(IntegerType::WideChar);
-    else if (literal->isInt())
-        type = control()->integerType(IntegerType::Int);
-    else if (literal->isLong())
-        type = control()->integerType(IntegerType::Long);
-    else if (literal->isLongLong())
-        type = control()->integerType(IntegerType::LongLong);
-    else if (literal->isFloat())
-        type = control()->floatType(FloatType::Float);
-    else if (literal->isDouble())
-        type = control()->floatType(FloatType::Double);
-    else if (literal->isLongDouble())
-        type = control()->floatType(FloatType::LongDouble);
-    else
-        type = control()->integerType(IntegerType::Int);
+    else if (const NumericLiteral *literal = numericLiteral(ast->literal_token)) {
+        isUnsigned = literal->isUnsigned();
+
+        if (literal->isInt())
+            type = control()->integerType(IntegerType::Int);
+        else if (literal->isLong())
+            type = control()->integerType(IntegerType::Long);
+        else if (literal->isLongLong())
+            type = control()->integerType(IntegerType::LongLong);
+        else if (literal->isFloat())
+            type = control()->floatType(FloatType::Float);
+        else if (literal->isDouble())
+            type = control()->floatType(FloatType::Double);
+        else if (literal->isLongDouble())
+            type = control()->floatType(FloatType::LongDouble);
+        else
+            type = control()->integerType(IntegerType::Int);
+    }
 
     FullySpecifiedType ty(type);
-    if (literal->isUnsigned())
-        ty.setUnsigned(true);
-
+    ty.setUnsigned(isUnsigned);
     addResult(ty, _scope);
     return false;
 }

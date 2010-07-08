@@ -41,6 +41,7 @@ class QTCREATOR_UTILS_EXPORT QtColorButton : public QToolButton
     Q_OBJECT
     Q_PROPERTY(bool backgroundCheckered READ isBackgroundCheckered WRITE setBackgroundCheckered)
     Q_PROPERTY(bool alphaAllowed READ isAlphaAllowed WRITE setAlphaAllowed)
+    Q_PROPERTY(QColor color READ color WRITE setColor)
 public:
     QtColorButton(QWidget *parent = 0);
     ~QtColorButton();

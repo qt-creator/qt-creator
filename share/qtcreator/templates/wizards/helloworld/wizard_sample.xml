@@ -29,9 +29,9 @@
 **
 **************************************************************************/
 
-Custom project wizard configuration example file. Note that by convention, 
+Custom project wizard configuration example file. Note that by convention,
 the project file goes last.
-The "class" and "firstpage" attributes specify that it is a Qt 4 wizard and 
+The "class" and "firstpage" attributes specify that it is a Qt 4 wizard and
 leave room for the Qt 4 target page.
 -->
 <wizard version="1" kind="project"
@@ -54,6 +54,12 @@ leave room for the Qt 4 target page.
                           defaulttext="Hello world from project  '%ProjectName:c%'!" />
             <fielddescription>Hello world message:</fielddescription>
             <fielddescription xml:lang="de">Hallo-Welt-Nachricht:</fielddescription>
+        </field>
+	<!-- Comment out network in profile according to user's wishes -->
+        <field name="NETWORK">
+            <fieldcontrol class="QCheckBox" truevalue="" falsevalue="# "/>
+            <fielddescription>Include network module</fielddescription>
+            <fielddescription xml:lang="de">Netzwerk-Modul verwenden</fielddescription>
         </field>
     </fields>
 </wizard>

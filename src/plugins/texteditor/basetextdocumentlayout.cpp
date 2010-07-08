@@ -31,6 +31,10 @@
 
 using namespace TextEditor;
 
+CodeFormatterData::~CodeFormatterData()
+{
+}
+
 TextBlockUserData::~TextBlockUserData()
 {
     TextMarks marks = m_marks;
@@ -38,6 +42,9 @@ TextBlockUserData::~TextBlockUserData()
     foreach (ITextMark *mrk, marks) {
         mrk->removedFromEditor();
     }
+
+    if (m_codeFormatterData)
+        delete m_codeFormatterData;
 }
 
 int TextBlockUserData::braceDepthDelta() const
@@ -359,6 +366,35 @@ TextBlockUserData::MatchType TextBlockUserData::matchCursorForward(QTextCursor *
     return NoMatch;
 }
 
+int TextBlockUserData::lexerState(const QTextBlock &block)
+{
+    if (!block.isValid())
+        return -1;
+
+    int data = block.userState();
+    if (data == -1)
+        return -1;
+    return data & 0xFF;
+}
+
+void TextBlockUserData::setLexerState(QTextBlock block, int state)
+{
+    if (!block.isValid())
+        return;
+
+    int data = block.userState();
+    if (data == -1)
+        data = 0;
+    block.setUserState((data & ~0xFF) | (state & 0xFF));
+}
+
+void TextBlockUserData::setCodeFormatterData(CodeFormatterData *data)
+{
+    if (m_codeFormatterData)
+        delete m_codeFormatterData;
+
+    m_codeFormatterData = data;
+}
 
 BaseTextDocumentLayout::BaseTextDocumentLayout(QTextDocument *doc)
     :QPlainTextDocumentLayout(doc) {
@@ -512,4 +548,19 @@ void BaseTextDocumentLayout::doFoldOrUnfold(const QTextBlock& block, bool unfold
     setFolded(block, !unfold);
 }
 
+void BaseTextDocumentLayout::setRequiredWidth(int width)
+{
+    int oldw = m_requiredWidth;
+    m_requiredWidth = width;
+    int dw = QPlainTextDocumentLayout::documentSize().width();
+    if (oldw > dw || width > dw)
+        emitDocumentSizeChanged();
+}
 
+
+QSizeF BaseTextDocumentLayout::documentSize() const
+{
+    QSizeF size = QPlainTextDocumentLayout::documentSize();
+    size.setWidth(qMax((qreal)m_requiredWidth, size.width()));
+    return size;
+}

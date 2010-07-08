@@ -42,6 +42,7 @@
 #include <QTabBar>
 #include <QImageReader>
 #include <QMimeData>
+#include <QWheelEvent>
 
 #include <QDeclarativeView>
 #include <QDeclarativeItem>
@@ -185,7 +186,6 @@ ItemLibrary::ItemLibrary(QWidget *parent) :
     lineEditLayout->addWidget(m_d->m_lineEdit, 1, 1, 1, 1);
     lineEditLayout->addItem(new QSpacerItem(5, 5, QSizePolicy::Fixed, QSizePolicy::Fixed), 1, 2);
     connect(m_d->m_lineEdit, SIGNAL(filterChanged(QString)), this, SLOT(setSearchFilter(QString)));
-    connect(m_d->m_lineEdit, SIGNAL(buttonClicked(Utils::FancyLineEdit::Side)), this, SLOT(clearLineEditFocus()));
 
     m_d->m_stackedWidget = new QStackedWidget(this);
     m_d->m_stackedWidget->addWidget(m_d->m_itemsView);
@@ -284,11 +284,6 @@ void ItemLibrary::updateModel()
 void ItemLibrary::updateSearch()
 {
     setSearchFilter(m_d->m_lineEdit->text());
-}
-
-void ItemLibrary::clearLineEditFocus()
-{
-    m_d->m_lineEdit->clearFocus();
 }
 
 void ItemLibrary::setResourcePath(const QString &resourcePath)

@@ -30,35 +30,37 @@
 #ifndef CPLUSPLUS_CHECKUNDEFINEDSYMBOLS_H
 #define CPLUSPLUS_CHECKUNDEFINEDSYMBOLS_H
 
-#include "CppDocument.h"
-#include "LookupContext.h"
+#include "cppsemanticinfo.h"
+
+#include <cplusplus/CppDocument.h>
+#include <cplusplus/LookupContext.h>
 #include <ASTVisitor.h>
 #include <QtCore/QSet>
+#include <QtCore/QFuture>
+#include <QtCore/QtConcurrentRun>
 
 namespace CPlusPlus {
 
-class CPLUSPLUS_EXPORT CheckUndefinedSymbols: protected ASTVisitor
+class CheckUndefinedSymbols:
+        protected ASTVisitor,
+        public QtConcurrent::RunFunctionTaskBase<CppEditor::Internal::SemanticInfo::Use>
 {
 public:
-    CheckUndefinedSymbols(TranslationUnit *unit, const LookupContext &context);
     virtual ~CheckUndefinedSymbols();
 
-    QList<Document::DiagnosticMessage> operator()(AST *ast);
+    typedef CppEditor::Internal::SemanticInfo::Use Use;
 
-    struct Use { // ### remove me
-        unsigned line;
-        unsigned column;
-        unsigned length;
+    virtual void run();
+    void runFunctor();
 
-        Use(unsigned line = 0, unsigned column = 0, unsigned length = 0)
-            : line(line), column(column), length(length) {}
-    };
-
-    QList<Use> typeUsages() const;
+    typedef QFuture<Use> Future;
+    static Future go(Document::Ptr doc, const LookupContext &context);
 
 protected:
     using ASTVisitor::visit;
     using ASTVisitor::endVisit;
+
+    CheckUndefinedSymbols(Document::Ptr doc, const LookupContext &context);
 
     bool warning(unsigned line, unsigned column, const QString &text, unsigned length = 0);
     bool warning(AST *ast, const QString &text);
@@ -67,6 +69,9 @@ protected:
     void checkNamespace(NameAST *name);
     void addTypeUsage(ClassOrNamespace *b, NameAST *ast);
     void addTypeUsage(const QList<Symbol *> &candidates, NameAST *ast);
+    void addTypeUsage(const Use &use);
+
+    virtual bool preVisit(AST *);
 
     virtual bool visit(NamespaceAST *);
     virtual bool visit(UsingDirectiveAST *);
@@ -87,14 +92,17 @@ protected:
     unsigned startOfTemplateDeclaration(TemplateDeclarationAST *ast) const;
     Scope *findScope(AST *ast) const;
 
+    void flush();
+
 private:
+    Document::Ptr _doc;
     LookupContext _context;
     QString _fileName;
     QList<Document::DiagnosticMessage> _diagnosticMessages;
     QSet<QByteArray> _potentialTypes;
     QList<ScopedSymbol *> _scopes;
-    QList<Use> _typeUsages;
     QList<TemplateDeclarationAST *> _templateDeclarationStack;
+    QVector<Use> _typeUsages;
 };
 
 } // end of namespace CPlusPlus

@@ -74,7 +74,7 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
 
 void MaemoRunConfiguration::init()
 {
-    setDisplayName(tr("New Maemo Run Configuration"));
+    setDisplayName(QFileInfo(m_proFilePath).completeBaseName());
 
     updateDeviceConfigurations();
     connect(&MaemoDeviceConfigurations::instance(), SIGNAL(updated()), this,
@@ -228,7 +228,7 @@ const QString MaemoRunConfiguration::gdbCmd() const
 const MaemoPackageCreationStep *MaemoRunConfiguration::packageStep() const
 {
     const QList<ProjectExplorer::BuildStep *> &buildSteps
-        = activeQt4BuildConfiguration()->steps(ProjectExplorer::Build);
+        = activeQt4BuildConfiguration()->steps(ProjectExplorer::BuildStep::Deploy);
     for (int i = buildSteps.count() - 1; i >= 0; --i) {
         const MaemoPackageCreationStep * const pStep
             = qobject_cast<MaemoPackageCreationStep *>(buildSteps.at(i));

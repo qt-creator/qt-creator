@@ -49,6 +49,10 @@ struct CustomWizardField {
     CustomWizardField();
     void clear();
 
+    // Attribute map keys for combo entries
+    static QString comboEntryValueKey(int i);
+    static QString comboEntryTextKey(int i);
+
     QString description;
     QString name;
     ControlAttributeMap controlAttributes;

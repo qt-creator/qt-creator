@@ -2,8 +2,9 @@ TEMPLATE = lib
 TARGET = CppEditor
 DEFINES += CPPEDITOR_LIBRARY
 include(../../qtcreatorplugin.pri)
-include(../../libs/utils/utils.pri)
-include(../../shared/indenter/indenter.pri)
+include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
+include($$IDE_SOURCE_TREE/src/shared/indenter/indenter.pri)
+include($$IDE_SOURCE_TREE/src/libs/cplusplus/cplusplus.pri)
 include(cppeditor_dependencies.pri)
 HEADERS += cppplugin.h \
     cppeditor.h \
@@ -15,7 +16,10 @@ HEADERS += cppplugin.h \
     cppeditor_global.h \
     cppclasswizard.h \
     cppquickfix.h \
-    cpprefactoringchanges.h
+    cpprefactoringchanges.h \
+    cppcheckundefinedsymbols.h \
+    cppsemanticinfo.h \
+    cppoutline.h
 
 SOURCES += cppplugin.cpp \
     cppeditor.cpp \
@@ -24,7 +28,10 @@ SOURCES += cppplugin.cpp \
     cppfilewizard.cpp \
     cppclasswizard.cpp \
     cppquickfix.cpp \
-    cpprefactoringchanges.cpp
+    cpprefactoringchanges.cpp \
+    cppcheckundefinedsymbols.cpp \
+    cppsemanticinfo.cpp \
+    cppoutline.cpp
 
 RESOURCES += cppeditor.qrc
 

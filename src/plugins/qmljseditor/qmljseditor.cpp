@@ -41,6 +41,7 @@
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljslink.h>
 #include <qmljs/qmljsscopebuilder.h>
+#include <qmljs/qmljsicontextpane.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsengine_p.h>
@@ -557,7 +558,7 @@ AST::Node *SemanticInfo::nodeUnderCursor(int pos) const
 int SemanticInfo::revision() const
 {
     if (document)
-        return document->documentRevision();
+        return document->editorRevision();
 
     return 0;
 }
@@ -610,7 +611,8 @@ QString QmlJSEditorEditable::preferredMode() const
 QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     TextEditor::BaseTextEditor(parent),
     m_methodCombo(0),
-    m_modelManager(0)
+    m_modelManager(0),
+    m_contextPane(0)
 {
     qRegisterMetaType<QmlJSEditor::Internal::SemanticInfo>("QmlJSEditor::Internal::SemanticInfo");
 
@@ -643,6 +645,10 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     baseTextDocument()->setSyntaxHighlighter(new Highlighter(document()));
 
     m_modelManager = ExtensionSystem::PluginManager::instance()->getObject<ModelManagerInterface>();
+    m_contextPane = ExtensionSystem::PluginManager::instance()->getObject<QmlJS::IContextPane>();
+    if (m_contextPane)
+        connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(onCursorPositionChanged()));
+    m_oldCurserPosition = -1;
 
     if (m_modelManager) {
         m_semanticHighlighter->setModelManager(m_modelManager);
@@ -654,7 +660,7 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     connect(m_semanticHighlighter, SIGNAL(changed(QmlJSEditor::Internal::SemanticInfo)),
             this, SLOT(updateSemanticInfo(QmlJSEditor::Internal::SemanticInfo)));
 
-    setRequestMarkEnabled(false);
+    setRequestMarkEnabled(true);
 }
 
 QmlJSTextEditor::~QmlJSTextEditor()
@@ -761,7 +767,7 @@ static void appendExtraSelectionsForMessages(
 void QmlJSTextEditor::onDocumentUpdated(QmlJS::Document::Ptr doc)
 {
     if (file()->fileName() != doc->fileName()
-            || doc->documentRevision() != document()->revision()) {
+            || doc->editorRevision() != document()->revision()) {
         // didn't get the currently open, or an up to date document.
         // trigger a semantic rehighlight anyway, after a time
         m_semanticRehighlightTimer->start();
@@ -1161,6 +1167,29 @@ void QmlJSTextEditor::contextMenuEvent(QContextMenuEvent *e)
     menu->deleteLater();
 }
 
+bool QmlJSTextEditor::event(QEvent *e)
+{
+    switch (e->type()) {
+    case QEvent::ShortcutOverride:
+        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape && m_contextPane) {
+            m_contextPane->apply(editableInterface(),  m_semanticInfo.document, 0, false);
+        }
+        break;
+    default:
+        break;
+    }
+
+    return BaseTextEditor::event(e);
+}
+
+
+void QmlJSTextEditor::wheelEvent(QWheelEvent *event)
+{
+    BaseTextEditor::wheelEvent(event);
+    if (m_contextPane)
+        m_contextPane->apply(editableInterface(),  m_semanticInfo.document, m_semanticInfo.declaringMember(position()), true);
+}
+
 void QmlJSTextEditor::unCommentSelection()
 {
     Utils::unCommentSelection(this);
@@ -1383,6 +1412,9 @@ void QmlJSTextEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
     FindIdDeclarations updateIds;
     m_semanticInfo.idLocations = updateIds(doc);
 
+    if (m_contextPane) {
+        m_contextPane->setEnabled(doc->isParsedCorrectly());
+    }
     if (doc->isParsedCorrectly()) {
         FindDeclarations findDeclarations;
         m_semanticInfo.declarations = findDeclarations(doc->ast());
@@ -1396,6 +1428,13 @@ void QmlJSTextEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
         m_methodCombo->clear();
         m_methodCombo->addItems(items);
         updateMethodBoxIndex();
+        if (m_contextPane) {
+            Node *newNode = m_semanticInfo.declaringMember(position());
+            if (newNode) {
+                m_contextPane->apply(editableInterface(), doc, newNode, true);
+                m_oldCurserPosition = position();
+            }
+        }
     }
 
     // update warning/error extra selections
@@ -1403,6 +1442,19 @@ void QmlJSTextEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
     appendExtraSelectionsForMessages(&selections, doc->diagnosticMessages(), document());
     appendExtraSelectionsForMessages(&selections, m_semanticInfo.semanticMessages, document());
     setExtraSelections(CodeWarningsSelection, selections);
+
+    emit semanticInfoUpdated(semanticInfo);
+}
+
+void QmlJSTextEditor::onCursorPositionChanged()
+{
+    if (m_contextPane) {
+        Node *newNode = m_semanticInfo.declaringMember(position());
+        Node *oldNode = m_semanticInfo.declaringMember(m_oldCurserPosition);
+        if (oldNode != newNode)
+            m_contextPane->apply(editableInterface(), m_semanticInfo.document, newNode, false);
+        m_oldCurserPosition = position();
+    }
 }
 
 SemanticHighlighter::Source QmlJSTextEditor::currentSource(bool force)
@@ -1506,7 +1558,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     if (! doc) {
         snapshot = source.snapshot;
         doc = snapshot.documentFromSource(source.code, source.fileName);
-        doc->setDocumentRevision(source.revision);
+        doc->setEditorRevision(source.revision);
         doc->parse();
     }
 
