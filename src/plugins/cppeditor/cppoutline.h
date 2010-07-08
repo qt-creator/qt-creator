@@ -39,12 +39,10 @@ public:
 
 private slots:
     void modelUpdated();
-    void updateSelectionInTree();
+    void updateSelectionInTree(const QModelIndex &index);
     void updateSelectionInText(const QItemSelection &selection);
 
 private:
-    QModelIndex indexForPosition(const QModelIndex &rootIndex, int line, int column);
-    bool positionInsideSymbol(unsigned cursorLine, unsigned cursorColumn, CPlusPlus::Symbol *symbol) const;
     bool syncCursor();
 
 private:

@@ -42,6 +42,7 @@
 #include <QtCore/QMutex>
 #include <QtCore/QWaitCondition>
 #include <QtCore/QFutureWatcher>
+#include <QtCore/QModelIndex>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -165,7 +166,9 @@ public:
     unsigned editorRevision() const;
     bool isOutdated() const;
     SemanticInfo semanticInfo() const;
+
     CPlusPlus::OverviewModel *overviewModel() const;
+    QModelIndex overviewModelIndex() const;
 
     virtual void paste(); // reimplemented from BaseTextEditor
     virtual void cut(); // reimplemented from BaseTextEditor
@@ -176,6 +179,9 @@ public:
 
     void setObjCEnabled(bool onoff);
     bool isObjCEnabled() const;
+
+Q_SIGNALS:
+    void overviewModelIndexChanged(const QModelIndex &index);
 
 public Q_SLOTS:
     virtual void setFontSettings(const TextEditor::FontSettings &);
@@ -259,12 +265,15 @@ private:
     bool openLink(const Link &link) { return openCppEditorAt(link); }
     bool openCppEditorAt(const Link &);
 
+    QModelIndex indexForPosition(int line, int column, const QModelIndex &rootIndex = QModelIndex());
+
     static Link linkToSymbol(CPlusPlus::Symbol *symbol);
 
     CppTools::CppModelManagerInterface *m_modelManager;
 
     QComboBox *m_methodCombo;
     CPlusPlus::OverviewModel *m_overviewModel;
+    QModelIndex m_overviewModelIndex;
     QSortFilterProxyModel *m_proxyModel;
     QAction *m_sortAction;
     QTimer *m_updateMethodBoxTimer;

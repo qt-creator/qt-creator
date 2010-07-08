@@ -1070,20 +1070,17 @@ void CPPEditor::updateMethodBoxIndexNow()
     int line = 0, column = 0;
     convertPosition(position(), &line, &column);
 
-    QModelIndex lastIndex;
+    QModelIndex m_overviewModelIndex = indexForPosition(line, column);
+    emit overviewModelIndexChanged(m_overviewModelIndex);
 
-    const int rc = m_overviewModel->rowCount();
-    for (int row = 0; row < rc; ++row) {
-        const QModelIndex index = m_overviewModel->index(row, 0, QModelIndex());
-        Symbol *symbol = m_overviewModel->symbolFromIndex(index);
-        if (symbol && symbol->line() > unsigned(line))
-            break;
-        lastIndex = index;
-    }
+    // ComboBox only let's you select top level indexes!
+    QModelIndex comboIndex = indexForPosition(line, column);
+    while (comboIndex.parent().isValid())
+        comboIndex = comboIndex.parent();
 
-    if (lastIndex.isValid()) {
+    if (comboIndex.isValid()) {
         bool blocked = m_methodCombo->blockSignals(true);
-        m_methodCombo->setCurrentIndex(m_proxyModel->mapFromSource(lastIndex).row());
+        m_methodCombo->setCurrentIndex(m_proxyModel->mapFromSource(comboIndex).row());
         updateMethodBoxToolTip();
         (void) m_methodCombo->blockSignals(blocked);
     }
@@ -1420,6 +1417,11 @@ SemanticInfo CPPEditor::semanticInfo() const
 CPlusPlus::OverviewModel *CPPEditor::overviewModel() const
 {
     return m_overviewModel;
+}
+
+QModelIndex CPPEditor::overviewModelIndex() const
+{
+    return m_overviewModelIndex;
 }
 
 bool CPPEditor::isElectricCharacter(QChar ch) const
@@ -2165,4 +2167,25 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     semanticInfo.objcKeywords = objcKeywords;
 
     return semanticInfo;
+}
+
+QModelIndex CPPEditor::indexForPosition(int line, int column, const QModelIndex &rootIndex)
+{
+    QModelIndex lastIndex = rootIndex;
+
+    const int rowCount = m_overviewModel->rowCount(rootIndex);
+    for (int row = 0; row < rowCount; ++row) {
+        const QModelIndex index = m_overviewModel->index(row, 0, rootIndex);
+        Symbol *symbol = m_overviewModel->symbolFromIndex(index);
+        if (symbol && symbol->line() > unsigned(line))
+            break;
+        lastIndex = index;
+    }
+
+    if (lastIndex != rootIndex) {
+        // recurse
+        lastIndex = indexForPosition(line, column, lastIndex);
+    }
+
+    return lastIndex;
 }
