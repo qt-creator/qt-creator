@@ -32,6 +32,8 @@
 #include "buildconfiguration.h"
 #include "persistentsettings.h"
 #include "project.h"
+#include "projectexplorer.h"
+#include "projectexplorersettings.h"
 #include "target.h"
 #include "toolchain.h"
 
@@ -49,7 +51,7 @@ using namespace ProjectExplorer;
 
 namespace {
 const char * const USER_FILE_VERSION  = "ProjectExplorer.Project.Updater.FileVersion";
-const char * const USER_FILE_HOSTNAME = "ProjectExplorer.Project.Updater.Hostname";
+const char * const USER_FILE_ENVIRONMENT_ID = "ProjectExplorer.Project.Updater.EnvironmentId";
 const char * const WAS_UPDATED        = "ProjectExplorer.Project.Updater.DidUpdate";
 const char * const PROJECT_FILE_POSTFIX(".user");
 
@@ -264,20 +266,22 @@ QVariantMap UserFileAccessor::restoreSettings(Project *project)
         return QVariantMap();
     }
 
-    // Verify hostname
-    const QString hostname = map.value(QLatin1String(USER_FILE_HOSTNAME)).toString();
-    if (!hostname.isEmpty() && hostname != QHostInfo::localHostName()) {
-        // Ask the user
+    // Verify environment Id:
+    QUuid fileEnvironmentId(map.value(QLatin1String(USER_FILE_ENVIRONMENT_ID)).toString());
+    if (!fileEnvironmentId.isNull()
+        && fileEnvironmentId != ProjectExplorerPlugin::instance()->projectExplorerSettings().environmentId) {
         // TODO tr, casing check
         QMessageBox msgBox(QMessageBox::Question,
                            QApplication::translate("ProjectExplorer::UserFileAccessor",
-                                                   "Project Settings File from a different Host?"),
+                                                   "Project Settings File from a different Environment?"),
                            QApplication::translate("ProjectExplorer::UserFileAccessor",
-                                                   "Qt Creator has found a .user settings file from a host %1. "
-                                                   "The hostname for this computer is %2. \n\n"
-                                                   "The .user settings files contain machine specific settings. "
-                                                   "They should not be copied to a different environment. \n\n"
-                                                   "Still load the settings file?").arg(hostname, QHostInfo::localHostName()),
+                                                   "Qt Creator has found a .user settings file which was "
+                                                   "created for another development setup, maybe "
+                                                   "originating from another machine.\n\n"
+                                                   "The .user settings files contain environment specific "
+                                                   "settings. They should not be copied to a different "
+                                                   "environment. \n\n"
+                                                   "Do you still want to load the settings file?"),
                            QMessageBox::Yes | QMessageBox::No,
                            Core::ICore::instance()->mainWindow());
         msgBox.setDefaultButton(QMessageBox::No);
@@ -315,7 +319,8 @@ bool UserFileAccessor::saveSettings(Project *project, const QVariantMap &map)
         writer.saveValue(i.key(), i.value());
 
     writer.saveValue(QLatin1String(USER_FILE_VERSION), m_lastVersion + 1);
-    writer.saveValue(QLatin1String(USER_FILE_HOSTNAME), QHostInfo::localHostName());
+    writer.saveValue(QLatin1String(USER_FILE_ENVIRONMENT_ID),
+                     ProjectExplorerPlugin::instance()->projectExplorerSettings().environmentId.toString());
 
     return writer.save(fileNameFor(project->file()->fileName()), "QtCreatorProject");
 }

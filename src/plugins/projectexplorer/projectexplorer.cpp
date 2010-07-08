@@ -753,6 +753,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         d->m_projectExplorerSettings.showCompilerOutput = s->value("ProjectExplorer/Settings/ShowCompilerOutput", false).toBool();
         d->m_projectExplorerSettings.cleanOldAppOutput = s->value("ProjectExplorer/Settings/CleanOldAppOutput", false).toBool();
         d->m_projectExplorerSettings.useJom = s->value("ProjectExplorer/Settings/UseJom", true).toBool();
+        d->m_projectExplorerSettings.environmentId = QUuid(s->value("ProjectExplorer/Settings/EnvironmentId").toString());
+        if (d->m_projectExplorerSettings.environmentId.isNull())
+            d->m_projectExplorerSettings.environmentId = QUuid::createUuid();
     }
 
     connect(d->m_sessionManagerAction, SIGNAL(triggered()), this, SLOT(showSessionManager()));
@@ -1000,6 +1003,7 @@ void ProjectExplorerPlugin::savePersistentSettings()
         s->setValue("ProjectExplorer/Settings/ShowCompilerOutput", d->m_projectExplorerSettings.showCompilerOutput);
         s->setValue("ProjectExplorer/Settings/CleanOldAppOutput", d->m_projectExplorerSettings.cleanOldAppOutput);
         s->setValue("ProjectExplorer/Settings/UseJom", d->m_projectExplorerSettings.useJom);
+        s->setValue("ProjectExplorer/Settings/EnvironmentId", d->m_projectExplorerSettings.environmentId.toString());
     }
 }
 
