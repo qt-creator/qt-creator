@@ -72,16 +72,8 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
 
         switch (m_currentState.top().type) {
         case topmost_intro:
-            if (tryDeclaration())
-                break;
-            switch (kind) {
-            case T_NAMESPACE:   enter(namespace_start); break;
-            case T_STRUCT:
-            case T_UNION:
-            case T_CLASS:       enter(class_start); break;
-            case T_ENUM:        enter(enum_start); break;
-            case T_USING:       enter(using_start); break;
-            } break;
+            tryDeclaration();
+            break;
 
         case namespace_start:
             switch (kind) {
@@ -93,13 +85,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             if (tryDeclaration())
                 break;
             switch (kind) {
-            case T_NAMESPACE:   enter(namespace_start); break;
             case T_RBRACE:      leave(); continue; // always nested in namespace_start
-            case T_STRUCT:
-            case T_UNION:
-            case T_CLASS:       enter(class_start); break;
-            case T_ENUM:        enter(enum_start); break;
-            case T_USING:       enter(using_start); break;
             } break;
 
         case class_start:
@@ -113,11 +99,6 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
                 break;
             switch (kind) {
             case T_RBRACE:      leave(); continue; // always nested in class_start
-            case T_STRUCT:
-            case T_UNION:
-            case T_CLASS:       enter(class_start); break;
-            case T_ENUM:        enter(enum_start); break;
-            case T_USING:       enter(using_start); break;
             } break;
 
         case enum_start:
@@ -702,6 +683,24 @@ bool CodeFormatter::tryDeclaration()
 
     case T_TEMPLATE:
         enter(template_start);
+        return true;
+
+    case T_NAMESPACE:
+        enter(namespace_start);
+        return true;
+
+    case T_STRUCT:
+    case T_UNION:
+    case T_CLASS:
+        enter(class_start);
+        return true;
+
+    case T_ENUM:
+        enter(enum_start);
+        return true;
+
+    case T_USING:
+        enter(using_start);
         return true;
 
     default:

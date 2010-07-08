@@ -42,6 +42,7 @@ private Q_SLOTS:
     void operatorOverloads();
     void gnuStyle();
     void whitesmithsStyle();
+    void singleLineEnum();
 };
 
 struct Line {
@@ -753,6 +754,19 @@ void tst_CodeFormatter::whitesmithsStyle()
          << Line("    };")
          ;
     checkIndent(data, 2);
+}
+
+void tst_CodeFormatter::singleLineEnum()
+{
+    enum { a, b};
+    QList<Line> data;
+    data << Line("enum { foo, bar, car = 2 };")
+         << Line("void blah() {")
+         << Line("    enum { foo, bar, car = 2 };")
+         << Line("    int i;")
+         << Line("}")
+         ;
+    checkIndent(data);
 }
 
 QTEST_APPLESS_MAIN(tst_CodeFormatter)
