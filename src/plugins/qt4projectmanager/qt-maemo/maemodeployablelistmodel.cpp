@@ -219,7 +219,7 @@ QString MaemoDeployableListModel::projectName() const
 
 QString MaemoDeployableListModel::projectDir() const
 {
-    return m_proFileNode->path();
+    return QFileInfo(m_proFileNode->path()).dir().path();
 }
 
 } // namespace Qt4ProjectManager

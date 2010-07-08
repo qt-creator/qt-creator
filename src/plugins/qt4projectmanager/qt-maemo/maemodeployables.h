@@ -51,6 +51,7 @@ namespace Qt4ProjectManager {
 namespace Internal {
 class MaemoDeployableListModel;
 class MaemoPackageCreationStep;
+class Qt4NodesWatcher;
 class Qt4ProFileNode;
 
 class MaemoDeployables : public QObject
@@ -75,6 +76,7 @@ private:
 
     QList<MaemoDeployableListModel *> m_listModels;
     MaemoPackageCreationStep * const m_packagingStep;
+    Qt4NodesWatcher *m_proFilesWatcher;
 };
 
 } // namespace Qt4ProjectManager

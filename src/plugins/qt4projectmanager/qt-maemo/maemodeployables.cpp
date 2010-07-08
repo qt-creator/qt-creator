@@ -56,16 +56,24 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 MaemoDeployables::MaemoDeployables(MaemoPackageCreationStep *packagingStep)
-    : m_packagingStep(packagingStep)
+    : m_packagingStep(packagingStep), m_proFilesWatcher(0)
 {
     QTimer::singleShot(0, this, SLOT(createModels()));
 }
 
 void MaemoDeployables::createModels()
 {
-    const Qt4ProFileNode *rootNode = m_packagingStep->qt4BuildConfiguration()
+    m_listModels.clear();
+    Qt4ProFileNode *rootNode = m_packagingStep->qt4BuildConfiguration()
         ->qt4Target()->qt4Project()->rootProjectNode();
     createModels(rootNode);
+    if (!m_proFilesWatcher) {
+        m_proFilesWatcher = new Qt4NodesWatcher(this);
+        connect(m_proFilesWatcher,
+            SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
+            this, SLOT(createModels()));
+        rootNode->registerWatcher(m_proFilesWatcher);
+    }
     emit modelsCreated();
 }
 

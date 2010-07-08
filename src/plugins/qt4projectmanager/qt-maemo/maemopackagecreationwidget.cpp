@@ -71,12 +71,9 @@ MaemoPackageCreationWidget::MaemoPackageCreationWidget(MaemoPackageCreationStep 
     m_ui->patch->setValue(list.value(2, QLatin1String("0")).toInt());
     versionInfoChanged();
 
-    if (step->deployables()->modelCount() > 0) {
-        handleModelsCreated();
-    } else {
-        connect(m_step->deployables(), SIGNAL(modelsCreated()), this,
-            SLOT(handleModelsCreated()));
-    }
+    connect(m_step->deployables(), SIGNAL(modelsCreated()), this,
+        SLOT(handleModelsCreated()));
+    handleModelsCreated();
 }
 
 void MaemoPackageCreationWidget::init()
@@ -107,6 +104,7 @@ void MaemoPackageCreationWidget::versionInfoChanged()
 
 void MaemoPackageCreationWidget::handleModelsCreated()
 {
+    m_ui->tabWidget->clear();
     for (int i = 0; i < m_step->deployables()->modelCount(); ++i) {
         MaemoDeployableListModel * const model
             = m_step->deployables()->modelAt(i);
