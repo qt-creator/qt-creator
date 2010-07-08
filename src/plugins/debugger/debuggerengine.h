@@ -252,9 +252,11 @@ public slots:
     virtual void quitDebugger() { exitDebugger(); } // called by DebuggerRunControl
 
 protected:
-    void setState(DebuggerState state, bool forced = false);
     void notifyEngineStarted();
     void notifyEngineStartFailed();
+
+//private: // FIXME. State transitions 
+    void setState(DebuggerState state, bool forced = false);
 
 private:
     void executeRunToLine();

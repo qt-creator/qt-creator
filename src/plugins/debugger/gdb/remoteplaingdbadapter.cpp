@@ -37,8 +37,7 @@
 namespace Debugger {
 namespace Internal {
 
-RemotePlainGdbAdapter::RemotePlainGdbAdapter(GdbEngine *engine,
-                                               QObject *parent)
+RemotePlainGdbAdapter::RemotePlainGdbAdapter(GdbEngine *engine, QObject *parent)
     : AbstractPlainGdbAdapter(engine, parent),
       m_gdbProc(engine->startParameters().connParams, this)
 {

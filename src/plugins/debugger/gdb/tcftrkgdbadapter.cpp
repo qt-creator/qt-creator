@@ -72,7 +72,9 @@ static const char* tcfTrkSimpleRegisterNamesC[] =
 
 namespace Debugger {
 namespace Internal {
+
 using namespace Symbian;
+using namespace tcftrk;
 
 static inline QString startMsg(const trk::Session &session)
 {
@@ -85,7 +87,8 @@ static inline QString startMsg(const trk::Session &session)
 /* -------------- TcfTrkGdbAdapter:
  * Startup-sequence:
  *  - startAdapter connects both sockets/devices
- *  - In the TCF Locator Event, gdb is started and adapterStarted is emitted.
+ *  - In the TCF Locator Event, gdb is started and the engine is notified
+ *    that the adapter has started.
  *  - Engine calls startInferior(), which starts the process.
  *  - Initial TCF module load suspended event is emitted (process is suspended).
  *    In the event handler, gdb is connected to the remote target. In the
@@ -105,7 +108,7 @@ static inline QString startMsg(const trk::Session &session)
 TcfTrkGdbAdapter::TcfTrkGdbAdapter(GdbEngine *engine) :
     AbstractGdbAdapter(engine),
     m_running(false),
-    m_trkDevice(new tcftrk::TcfTrkDevice(this)),
+    m_trkDevice(new TcfTrkDevice(this)),
     m_gdbAckMode(true),
     m_uid(0),
     m_verbose(0),
@@ -188,10 +191,10 @@ uint TcfTrkGdbAdapter::gdbServerPort() const
     return m_gdbServerName.mid(pos + 1).toUInt();
 }
 
-void TcfTrkGdbAdapter::handleTcfTrkRunControlModuleLoadContextSuspendedEvent(const tcftrk::TcfTrkRunControlModuleLoadContextSuspendedEvent &se)
+void TcfTrkGdbAdapter::handleTcfTrkRunControlModuleLoadContextSuspendedEvent(const TcfTrkRunControlModuleLoadContextSuspendedEvent &se)
 {
     m_snapshot.resetMemory();
-    const tcftrk::ModuleLoadEventInfo &minfo = se.info();
+    const ModuleLoadEventInfo &minfo = se.info();
     // Register in session, keep modules and libraries in sync.
     const QString moduleName = QString::fromUtf8(minfo.name);
     if (true || minfo.loaded) { // TODO: Preliminary TCF Trk Versions always have Loaded=false?
@@ -200,7 +203,7 @@ void TcfTrkGdbAdapter::handleTcfTrkRunControlModuleLoadContextSuspendedEvent(con
         library.name = minfo.name;
         library.codeseg = minfo.codeAddress;
         library.dataseg = minfo.dataAddress;
-        library.pid = tcftrk::RunControlContext::processIdFromTcdfId(se.id());
+        library.pid = RunControlContext::processIdFromTcdfId(se.id());
         m_session.libraries.push_back(library);
     } else {
         const int index = m_session.modules.indexOf(moduleName);
@@ -262,40 +265,40 @@ void TcfTrkGdbAdapter::handleTargetRemote(const GdbResponse &record)
     }
 }
 
-void TcfTrkGdbAdapter::tcftrkEvent(const tcftrk::TcfTrkEvent &e)
+void TcfTrkGdbAdapter::tcftrkEvent(const TcfTrkEvent &e)
 {
     if (debug)
         qDebug() << e.toString() << m_session.toString() << m_snapshot.toString();
     logMessage(e.toString());
 
     switch (e.type()) {
-    case tcftrk::TcfTrkEvent::LocatorHello:
+    case TcfTrkEvent::LocatorHello:
         m_trkDevice->sendLoggingAddListenerCommand(TcfTrkCallback());
         startGdb(); // Commands are only accepted after hello
         break;
-    case tcftrk::TcfTrkEvent::RunControlModuleLoadSuspended: // A module was loaded
-        handleTcfTrkRunControlModuleLoadContextSuspendedEvent(static_cast<const tcftrk::TcfTrkRunControlModuleLoadContextSuspendedEvent &>(e));
+    case TcfTrkEvent::RunControlModuleLoadSuspended: // A module was loaded
+        handleTcfTrkRunControlModuleLoadContextSuspendedEvent(static_cast<const TcfTrkRunControlModuleLoadContextSuspendedEvent &>(e));
         break;
-    case tcftrk::TcfTrkEvent::RunControlContextAdded: // Thread/process added
-        foreach(const tcftrk::RunControlContext &rc, static_cast<const tcftrk::TcfTrkRunControlContextAddedEvent &>(e).contexts())
-            if (rc.type() == tcftrk::RunControlContext::Thread)
+    case TcfTrkEvent::RunControlContextAdded: // Thread/process added
+        foreach(const RunControlContext &rc, static_cast<const TcfTrkRunControlContextAddedEvent &>(e).contexts())
+            if (rc.type() == RunControlContext::Thread)
                 addThread(rc.threadId());
         break;
-    case tcftrk::TcfTrkEvent::RunControlContextRemoved: // Thread/process removed
-        foreach(const QByteArray &id, static_cast<const tcftrk::TcfTrkRunControlContextRemovedEvent &>(e).ids())
-            switch (tcftrk::RunControlContext::typeFromTcfId(id)) {
-            case tcftrk::RunControlContext::Thread:
-                m_snapshot.removeThread(tcftrk::RunControlContext::threadIdFromTcdfId(id));
+    case TcfTrkEvent::RunControlContextRemoved: // Thread/process removed
+        foreach(const QByteArray &id, static_cast<const TcfTrkRunControlContextRemovedEvent &>(e).ids())
+            switch (RunControlContext::typeFromTcfId(id)) {
+            case RunControlContext::Thread:
+                m_snapshot.removeThread(RunControlContext::threadIdFromTcdfId(id));
                 break;
-            case tcftrk::RunControlContext::Process:
+            case RunControlContext::Process:
                 sendGdbServerMessage("W00", "Process exited");
                 break;
         }
         break;
-    case tcftrk::TcfTrkEvent::RunControlSuspended: {
+    case TcfTrkEvent::RunControlSuspended: {
             // Thread suspended/stopped
-            const tcftrk::TcfTrkRunControlContextSuspendedEvent &se = static_cast<const tcftrk::TcfTrkRunControlContextSuspendedEvent &>(e);
-            const unsigned threadId = tcftrk::RunControlContext::threadIdFromTcdfId(se.id());
+            const TcfTrkRunControlContextSuspendedEvent &se = static_cast<const TcfTrkRunControlContextSuspendedEvent &>(e);
+            const unsigned threadId = RunControlContext::threadIdFromTcdfId(se.id());
             const QString reason = QString::fromUtf8(se.reasonID());
             showMessage(QString::fromLatin1("Reset snapshot (Thread 0x%1 stopped: '%2')").
                         arg(threadId, 0, 16).arg(reason));
@@ -986,7 +989,6 @@ void TcfTrkGdbAdapter::startInferior()
     m_trkDevice->sendProcessStartCommand(TcfTrkCallback(this, &TcfTrkGdbAdapter::handleCreateProcess),
                                          m_remoteExecutable, m_uid, m_remoteArguments,
                                          QString(), true);
-
 }
 
 void TcfTrkGdbAdapter::addThread(unsigned id)
@@ -1002,7 +1004,7 @@ void TcfTrkGdbAdapter::addThread(unsigned id)
     }
 }
 
-void TcfTrkGdbAdapter::handleCreateProcess(const tcftrk::TcfTrkCommandResult &result)
+void TcfTrkGdbAdapter::handleCreateProcess(const TcfTrkCommandResult &result)
 {
     if (debug)
         qDebug() << "ProcessCreated: " << result.toString();
@@ -1014,12 +1016,12 @@ void TcfTrkGdbAdapter::handleCreateProcess(const tcftrk::TcfTrkCommandResult &re
     }
     QTC_ASSERT(!result.values.isEmpty(), return);
 
-    tcftrk::RunControlContext ctx;
+    RunControlContext ctx;
     ctx.parse(result.values.front());
     logMessage(ctx.toString());
 
     m_session.pid = ctx.processId();
-    m_tcfProcessId = tcftrk::RunControlContext::tcfId(m_session.pid);
+    m_tcfProcessId = RunControlContext::tcfId(m_session.pid);
     if (const unsigned threadId = ctx.threadId())
         addThread(threadId);
     // See ModuleLoadSuspendedEvent for the rest.
@@ -1072,7 +1074,7 @@ void TcfTrkGdbAdapter::cleanup()
     delete m_gdbServer;
     m_gdbServer = 0;
     if (!m_trkIODevice.isNull()) {
-                QAbstractSocket *socket = qobject_cast<QAbstractSocket *>(m_trkIODevice.data());
+        QAbstractSocket *socket = qobject_cast<QAbstractSocket *>(m_trkIODevice.data());
         const bool isOpen = socket ? socket->state() == QAbstractSocket::ConnectedState : m_trkIODevice->isOpen();
         if (isOpen) {
             if (socket) {
@@ -1100,7 +1102,7 @@ void TcfTrkGdbAdapter::trkReloadThreads()
     m_snapshot.syncThreads(m_engine->threadsHandler());
 }
 
-void TcfTrkGdbAdapter::handleWriteRegister(const tcftrk::TcfTrkCommandResult &result)
+void TcfTrkGdbAdapter::handleWriteRegister(const TcfTrkCommandResult &result)
 {
     const int registerNumber = result.cookie.toInt();
     if (result) {
@@ -1119,34 +1121,34 @@ void TcfTrkGdbAdapter::reportRegisters()
     sendGdbServerMessage(thread.gdbReportRegisters(), thread.gdbRegisterLogMessage(m_verbose));
 }
 
-void TcfTrkGdbAdapter::handleReadRegisters(const tcftrk::TcfTrkCommandResult &result)
+void TcfTrkGdbAdapter::handleReadRegisters(const TcfTrkCommandResult &result)
 {
     logMessage("       REGISTER RESULT: " + result.toString());
     if (!result) {
         logMessage("ERROR: " + result.errorString(), LogError);
         return;
     }
-    if (result.values.isEmpty() || result.values.front().type() != tcftrk::JsonValue::Array) {
+    if (result.values.isEmpty() || result.values.front().type() != JsonValue::Array) {
         logMessage(_("Format error in register message: ") + result.toString(), LogError);
         return;
     }
     unsigned i = result.cookie.toUInt();
     uint *registers = m_snapshot.registers(m_session.tid);
     QTC_ASSERT(registers, return;)
-    foreach (const tcftrk::JsonValue &jr, result.values.front().children())
+    foreach (const JsonValue &jr, result.values.front().children())
         registers[i++] = jr.data().toUInt(0, 16);
     m_snapshot.setRegistersValid(m_session.tid, true);
     if (debug)
         qDebug() << "handleReadRegisters: " << m_snapshot.toString();
 }
 
-void TcfTrkGdbAdapter::handleAndReportReadRegisters(const tcftrk::TcfTrkCommandResult &result)
+void TcfTrkGdbAdapter::handleAndReportReadRegisters(const TcfTrkCommandResult &result)
 {
     handleReadRegisters(result);
     reportRegisters();
 }
 
-void TcfTrkGdbAdapter::handleAndReportReadRegister(const tcftrk::TcfTrkCommandResult &result)
+void TcfTrkGdbAdapter::handleAndReportReadRegister(const TcfTrkCommandResult &result)
 {
     handleReadRegisters(result);
     const uint registerNumber = result.cookie.toUInt();
@@ -1156,7 +1158,7 @@ void TcfTrkGdbAdapter::handleAndReportReadRegister(const tcftrk::TcfTrkCommandRe
     sendGdbServerMessage(thread.gdbReportSingleRegister(registerNumber), thread.gdbSingleRegisterLogMessage(registerNumber));
 }
 
-void TcfTrkGdbAdapter::handleAndReportReadRegistersAfterStop(const tcftrk::TcfTrkCommandResult &result)
+void TcfTrkGdbAdapter::handleAndReportReadRegistersAfterStop(const TcfTrkCommandResult &result)
 {
     handleReadRegisters(result);
     handleReadRegisters(result);
@@ -1165,7 +1167,7 @@ void TcfTrkGdbAdapter::handleAndReportReadRegistersAfterStop(const tcftrk::TcfTr
                          "Stopped with registers in thread " + QByteArray::number(m_session.tid, 16));
 }
 
-void TcfTrkGdbAdapter::handleAndReportSetBreakpoint(const tcftrk::TcfTrkCommandResult &result)
+void TcfTrkGdbAdapter::handleAndReportSetBreakpoint(const TcfTrkCommandResult &result)
 {
     if (result) {
         sendGdbServerMessage("OK");
@@ -1175,7 +1177,7 @@ void TcfTrkGdbAdapter::handleAndReportSetBreakpoint(const tcftrk::TcfTrkCommandR
     }
 }
 
-void TcfTrkGdbAdapter::handleClearBreakpoint(const tcftrk::TcfTrkCommandResult &result)
+void TcfTrkGdbAdapter::handleClearBreakpoint(const TcfTrkCommandResult &result)
 {
     logMessage("CLEAR BREAKPOINT ");
     if (!result)
@@ -1211,11 +1213,11 @@ void TcfTrkGdbAdapter::sendMemoryGetCommand(const MemoryRange &range, bool buffe
     m_trkDevice->sendMemoryGetCommand(cb, currentThreadContextId(), range.from, range.size(), cookie);
 }
 
-void TcfTrkGdbAdapter::handleReadMemoryBuffered(const tcftrk::TcfTrkCommandResult &result)
+void TcfTrkGdbAdapter::handleReadMemoryBuffered(const TcfTrkCommandResult &result)
 {
     QTC_ASSERT(qVariantCanConvert<MemoryRange>(result.cookie), return);
 
-    const QByteArray memory = tcftrk::TcfTrkDevice::parseMemoryGet(result);
+    const QByteArray memory = TcfTrkDevice::parseMemoryGet(result);
     const MemoryRange range = result.cookie.value<MemoryRange>();
 
     if (unsigned(memory.size()) != range.size()) {
@@ -1229,11 +1231,11 @@ void TcfTrkGdbAdapter::handleReadMemoryBuffered(const tcftrk::TcfTrkCommandResul
     tryAnswerGdbMemoryRequest(true);
 }
 
-void TcfTrkGdbAdapter::handleReadMemoryUnbuffered(const tcftrk::TcfTrkCommandResult &result)
+void TcfTrkGdbAdapter::handleReadMemoryUnbuffered(const TcfTrkCommandResult &result)
 {
     QTC_ASSERT(qVariantCanConvert<MemoryRange>(result.cookie), return);
 
-    const QByteArray memory = tcftrk::TcfTrkDevice::parseMemoryGet(result);
+    const QByteArray memory = TcfTrkDevice::parseMemoryGet(result);
     const MemoryRange range = result.cookie.value<MemoryRange>();
 
     if (unsigned(memory.size()) != range.size()) {
@@ -1309,7 +1311,7 @@ void TcfTrkGdbAdapter::tryAnswerGdbMemoryRequest(bool buffered)
     }
 }
 
-void TcfTrkGdbAdapter::handleWriteMemory(const tcftrk::TcfTrkCommandResult &result)
+void TcfTrkGdbAdapter::handleWriteMemory(const TcfTrkCommandResult &result)
 {
     if (result) {
         sendGdbServerMessage("OK", "Write memory");
@@ -1321,12 +1323,12 @@ void TcfTrkGdbAdapter::handleWriteMemory(const tcftrk::TcfTrkCommandResult &resu
 
 QByteArray TcfTrkGdbAdapter::mainThreadContextId() const
 {
-    return tcftrk::RunControlContext::tcfId(m_session.pid, m_session.mainTid);
+    return RunControlContext::tcfId(m_session.pid, m_session.mainTid);
 }
 
 QByteArray TcfTrkGdbAdapter::currentThreadContextId() const
 {
-    return tcftrk::RunControlContext::tcfId(m_session.pid, m_session.tid);
+    return RunControlContext::tcfId(m_session.pid, m_session.tid);
 }
 
 void TcfTrkGdbAdapter::sendTrkContinue()
@@ -1352,9 +1354,9 @@ void TcfTrkGdbAdapter::sendTrkStepRange()
         to = pc;
     }
     // TODO: Step range does not seem to work yet?
-    const tcftrk::RunControlResumeMode mode = (from == to && to == pc) ?
-          (m_snapshot.stepOver ? tcftrk::RM_STEP_OVER       : tcftrk::RM_STEP_INTO) :
-          (m_snapshot.stepOver ? tcftrk::RM_STEP_OVER_RANGE : tcftrk::RM_STEP_INTO_RANGE);
+    const RunControlResumeMode mode = (from == to && to == pc) ?
+          (m_snapshot.stepOver ? RM_STEP_OVER       : RM_STEP_INTO) :
+          (m_snapshot.stepOver ? RM_STEP_OVER_RANGE : RM_STEP_INTO_RANGE);
 
     logMessage(QString::fromLatin1("Stepping from 0x%1 to 0x%2 (current PC=0x%3), mode %4").
                arg(from, 0, 16).arg(to, 0, 16).arg(pc).arg(int(mode)));
@@ -1363,7 +1365,7 @@ void TcfTrkGdbAdapter::sendTrkStepRange()
                                              mode, 1, from, to);
 }
 
-void TcfTrkGdbAdapter::handleStep(const tcftrk::TcfTrkCommandResult &result)
+void TcfTrkGdbAdapter::handleStep(const TcfTrkCommandResult &result)
 {
 
     if (!result) { // Try fallback with Continue.

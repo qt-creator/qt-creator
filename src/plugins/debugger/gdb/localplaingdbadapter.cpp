@@ -90,8 +90,8 @@ void LocalPlainGdbAdapter::startAdapter()
         return;
     }
 
-    m_engine->handleAdapterStarted();
     checkForReleaseBuild();
+    m_engine->handleAdapterStarted();
 }
 
 void LocalPlainGdbAdapter::checkForReleaseBuild()
