@@ -62,10 +62,8 @@ bool MaemoDeployableListModel::buildModel()
             : QLatin1String("/usr/local/bin");
         m_deployables.prepend(MaemoDeployable(localExecutableFilePath(),
             remoteDir));
-        if (!m_proFileWrapper->addInstallsTarget(remoteDir)) {
+        if (!m_proFileWrapper->addInstallsTarget(remoteDir))
             qWarning("Error updating .pro file.");
-            return false;
-        }
     } else {
         m_deployables.prepend(MaemoDeployable(localExecutableFilePath(),
             installs.targetPath));
@@ -150,8 +148,8 @@ QVariant MaemoDeployableListModel::data(const QModelIndex &index, int role) cons
 Qt::ItemFlags MaemoDeployableListModel::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags parentFlags = QAbstractTableModel::flags(index);
-    if (index.column() == 1)
-        return parentFlags | Qt::ItemIsEditable;
+//    if (index.column() == 1)
+//        return parentFlags | Qt::ItemIsEditable;
     return parentFlags;
 }
 

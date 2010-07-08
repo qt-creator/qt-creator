@@ -60,6 +60,8 @@ MaemoDeployableListWidget::MaemoDeployableListWidget(QWidget *parent,
     : QWidget(parent), m_ui(new Ui::MaemoDeployableListWidget), m_model(model)
 {
     m_ui->setupUi(this);
+    m_ui->addFileButton->hide();
+    m_ui->removeFileButton->hide();
     m_ui->deployablesView->setWordWrap(false);
     m_ui->deployablesView->setModel(m_model);
     connect(m_model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
