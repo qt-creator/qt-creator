@@ -223,7 +223,7 @@ void QmlEngine::exitDebugger()
 
 const int serverPort = 3768;
 
-void QmlEngine::startEngine()
+void QmlEngine::setupEngine()
 {
  #if 0
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
@@ -255,7 +255,7 @@ void QmlEngine::startEngine()
         return;
     }
 #endif
-    notifyEngineStarted();
+    notifyEngineStartOk();
     //m_frameRate = new CanvasFrameRate(0);
     //m_frameRate->show();
 }
@@ -300,7 +300,7 @@ void QmlEngine::setupConnection()
     }
  #endif
 
-    notifyEngineStarted();
+    notifyEngineStartOk();
     qDebug() << "CONNECTION SUCCESSFUL";
     setState(InferiorRunningRequested);
     setState(InferiorRunning);
@@ -318,10 +318,6 @@ void QmlEngine::continueInferior()
     sendMessage(reply);
     setState(InferiorRunningRequested);
     setState(InferiorRunning);
-}
-
-void QmlEngine::runInferior()
-{
 }
 
 void QmlEngine::interruptInferior()
@@ -1263,7 +1259,7 @@ void QmlEngine::debuggerStateChanged(int newState)
                 break;
             }
         case Debugger::AdapterStartFailed:
-        case Debugger::InferiorStartFailed:
+        case Debugger::InferiorSetupFailed:
             emit statusMessage(QString(tr("Debugging failed: could not start C++ debugger.")));
             break;
         case Debugger::InferiorRunningRequested:

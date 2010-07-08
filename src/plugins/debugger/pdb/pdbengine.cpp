@@ -138,7 +138,7 @@ void PdbEngine::exitDebugger()
     setState(DebuggerNotReady);
 }
 
-void PdbEngine::startEngine()
+void PdbEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
 
@@ -172,7 +172,7 @@ void PdbEngine::startEngine()
 
     // We will stop immediatly, so setup a proper callback.
     PdbCommand cmd;
-    cmd.callback = &PdbEngine::handleUpdateAll;
+    cmd.callback = &PdbEngine::handleFirstCommand;
     m_commands.enqueue(cmd);
 
     m_pdbProc.start(m_pdb, gdbArgs);
@@ -191,7 +191,12 @@ void PdbEngine::startEngine()
         notifyEngineStartFailed();
         return;
     }
-    notifyEngineStarted();
+    notifyEngineStartOk();
+}
+
+void PdbEngine::setupInferior()
+{
+    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
     attemptBreakpointSynchronization();
 
     showMessage(_("PDB STARTED, INITIALIZING IT"));
@@ -199,19 +204,13 @@ void PdbEngine::startEngine()
         Core::ICore::instance()->resourcePath().toLocal8Bit() + "/gdbmacros/";
     postCommand("execfile('" + dumperSourcePath + "pdumper.py')",
         CB(handleLoadDumper));
-
-    setState(InferiorStarting);
-    showStatusMessage(tr("Running requested..."), 5000);
-    setState(InferiorRunningRequested);
-    setState(InferiorRunning);
 }
 
-void PdbEngine::runInferior()
+void PdbEngine::runEngine()
 {
-    SDEBUG("PdbEngine::runInferior()");
-    QTC_ASSERT(false, /**/); // FIXME:
-    setState(InferiorRunningRequested);
-    setState(InferiorRunning);
+    showStatusMessage(tr("Running requested..."), 5000);
+    SDEBUG("PdbEngine::runEngine()");
+    continueInferior();
 }
 
 void PdbEngine::interruptInferior()
@@ -675,6 +674,11 @@ void PdbEngine::handleResponse(const QByteArray &response0)
     qDebug() << "COULD NOT PARSE RESPONSE: '" << response << "'";
 }
 
+void PdbEngine::handleFirstCommand(const PdbResponse &response)
+{
+    Q_UNUSED(response);
+}
+
 void PdbEngine::handleUpdateAll(const PdbResponse &response)
 {
     Q_UNUSED(response);
@@ -803,7 +807,8 @@ void PdbEngine::handleLoadDumper(const PdbResponse &response)
 {
     Q_UNUSED(response);
     //qDebug() << " DUMPERS LOADED '" << response.data << "'";
-    continueInferior();
+    //continueInferior();
+    notifyInferiorSetupOk();
 }
 
 unsigned PdbEngine::debuggerCapabilities() const

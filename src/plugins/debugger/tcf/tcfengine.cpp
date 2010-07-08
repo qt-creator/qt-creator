@@ -156,7 +156,7 @@ void TcfEngine::socketConnected()
 {
     showStatusMessage("Socket connected.");
     if (m_socket->waitForConnected(2000))
-        notifyEngineStarted();
+        notifyEngineStartOk();
     else
         notifyEngineStartFailed();
 }
@@ -202,7 +202,7 @@ void TcfEngine::exitDebugger()
     SDEBUG("TcfEngine::exitDebugger()");
 }
 
-void TcfEngine::startEngine()
+void TcfEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     setState(InferiorRunningRequested);
@@ -211,17 +211,12 @@ void TcfEngine::startEngine()
     const int pos = sp.remoteChannel.indexOf(QLatin1Char(':'));
     const QString host = sp.remoteChannel.left(pos);
     const quint16 port = sp.remoteChannel.mid(pos + 1).toInt();
-    //QTimer::singleShot(0, this, SLOT(runInferior()));
     m_socket->connectToHost(host, port);
 }
 
 void TcfEngine::continueInferior()
 {
     SDEBUG("TcfEngine::continueInferior()");
-}
-
-void TcfEngine::runInferior()
-{
 }
 
 void TcfEngine::interruptInferior()

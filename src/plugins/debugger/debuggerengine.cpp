@@ -146,8 +146,9 @@ const char *DebuggerEngine::stateName(int s)
         SN(EngineStarting)
         SN(EngineStarted)
         SN(EngineStartFailed)
-        SN(InferiorStarting)
-        SN(InferiorStartFailed)
+        SN(InferiorSettingUp)
+        SN(InferiorSetupFailed)
+        SN(InferiorSetupOk)
         SN(InferiorRunningRequested)
         SN(InferiorRunningRequested_Kill)
         SN(InferiorRunning)
@@ -223,6 +224,10 @@ public slots:
     void breakpointSetRemoveMarginActionTriggered();
     void breakpointEnableDisableMarginActionTriggered();
     void handleContextMenuRequest(const QVariant &parameters);
+
+    void doSetupInferior();
+    void doRunEngine();
+    void doShutdown();
 
 public:
     DebuggerEngine *m_engine; // Not owned.
@@ -636,7 +641,7 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
         ->setEnabled(engineCapabilities & DisassemblerCapability);
 
     setState(EngineStarting);
-    startEngine();
+    setupEngine();
 }
 
 void DebuggerEngine::breakByFunctionMain()
@@ -910,16 +915,18 @@ static bool isAllowedTransition(int from, int to)
 
     case EngineStarting:
         return to == EngineStarted || to == EngineStartFailed;
-    case EngineStarted:
-        return to == InferiorStarting || to == EngineShuttingDown;
     case EngineStartFailed:
         return to == DebuggerNotReady;
+    case EngineStarted:
+        return to == InferiorSettingUp || to == EngineShuttingDown;
 
-    case InferiorStarting:
-        return to == InferiorRunningRequested || to == InferiorStopped
-            || to == InferiorStartFailed || to == InferiorUnrunnable;
-    case InferiorStartFailed:
+    case InferiorSettingUp:
+        return to == InferiorSetupOk || to == InferiorSetupFailed;
+    case InferiorSetupFailed:
         return to == EngineShuttingDown;
+    case InferiorSetupOk:
+        return to == InferiorRunningRequested || to == InferiorStopped
+            || to == InferiorUnrunnable;
 
     case InferiorRunningRequested:
         return to == InferiorRunning || to == InferiorStopped
@@ -956,16 +963,66 @@ static bool isAllowedTransition(int from, int to)
     return false;
 }
 
-void DebuggerEngine::notifyEngineStarted()
-{
-    QTC_ASSERT(state() == EngineStarting, /**/);
-    setState(EngineStarted);
-}
-
 void DebuggerEngine::notifyEngineStartFailed()
 {
-    QTC_ASSERT(state() == EngineStarting, /**/);
+    QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     setState(EngineStartFailed);
+    d->m_runControl->debuggingFinished();
+    d->m_runControl->startFailed();
+    QTimer::singleShot(0, this, SLOT(doShutdown()));
+}
+
+void DebuggerEngine::notifyEngineStartOk()
+{
+    QTC_ASSERT(state() == EngineStarting, qDebug() << state());
+    setState(EngineStarted);
+    d->m_runControl->startSuccessful();
+    QTimer::singleShot(0, d, SLOT(doSetupInferior()));
+}
+
+void DebuggerEnginePrivate::doSetupInferior()
+{
+    QTC_ASSERT(m_state == EngineStarted, qDebug() << m_state);
+    m_engine->setState(InferiorSettingUp);
+    m_engine->setupInferior();
+}
+
+// Default implemention, can be overridden.
+void DebuggerEngine::setupInferior()
+{
+    QTC_ASSERT(state() == EngineStarted, qDebug() << state());
+    notifyInferiorSetupOk();
+}
+
+void DebuggerEngine::notifyInferiorSetupFailed()
+{
+    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
+    setState(InferiorSetupFailed);
+    QTimer::singleShot(0, d, SLOT(doShutdown()));
+}
+
+void DebuggerEngine::notifyInferiorSetupOk()
+{
+    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
+    setState(InferiorSetupOk);
+    QTimer::singleShot(0, d, SLOT(doRunEngine()));
+}
+
+void DebuggerEnginePrivate::doRunEngine()
+{
+    QTC_ASSERT(m_state == InferiorSetupOk, qDebug() << m_state);
+    m_engine->runEngine();
+}
+
+// Default implemention, can be overridden.
+void DebuggerEngine::runEngine()
+{
+    QTC_ASSERT(state() == InferiorSetupOk, qDebug() << state());
+}
+
+void DebuggerEnginePrivate::doShutdown()
+{
+    m_engine->shutdown();
 }
 
 void DebuggerEngine::setState(DebuggerState state, bool forced)
@@ -987,11 +1044,6 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
     if (state != oldState) {
         if (state == DebuggerNotReady) {
             d->m_runControl->debuggingFinished();
-        } else if (state == EngineStarted) {
-            d->m_runControl->startSuccessful();
-        } else if (state == EngineStartFailed) {
-            d->m_runControl->debuggingFinished();
-            d->m_runControl->startFailed();
         }
     }
 }
@@ -1004,7 +1056,7 @@ bool DebuggerEngine::debuggerActionsEnabled() const
 bool DebuggerEngine::debuggerActionsEnabled(DebuggerState state)
 {
     switch (state) {
-    case InferiorStarting:
+    case InferiorSettingUp:
     case InferiorRunningRequested:
     case InferiorRunning:
     case InferiorUnrunnable:
@@ -1015,7 +1067,8 @@ bool DebuggerEngine::debuggerActionsEnabled(DebuggerState state)
     case EngineStarting:
     case EngineStarted:
     case EngineStartFailed:
-    case InferiorStartFailed:
+    case InferiorSetupOk:
+    case InferiorSetupFailed:
     case InferiorRunningRequested_Kill:
     case InferiorStopping_Kill:
     case InferiorStopFailed:
@@ -1023,7 +1076,7 @@ bool DebuggerEngine::debuggerActionsEnabled(DebuggerState state)
     case InferiorShutDown:
     case InferiorShutdownFailed:
     case EngineShuttingDown:
-        break;
+        return false;
     }
     return false;
 }

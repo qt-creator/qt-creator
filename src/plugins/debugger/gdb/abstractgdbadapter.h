@@ -64,8 +64,8 @@ public:
     virtual void write(const QByteArray &data);
 
     virtual void startAdapter() = 0;
-    virtual void startInferior() = 0;
-    virtual void startInferiorPhase2();
+    virtual void setupInferior() = 0;
+    virtual void runAdapter();
     virtual void interruptInferior() = 0;
     virtual void shutdown();
     virtual const char *inferiorShutdownCommand() const;
@@ -76,7 +76,7 @@ public:
     static QString msgGdbStopFailed(const QString &why);
     static QString msgInferiorStopFailed(const QString &why);
     static QString msgAttachedToStoppedInferior();
-    static QString msgInferiorStarted();
+    static QString msgInferiorSetupOk();
     static QString msgInferiorRunning();
     static QString msgConnectRemoteServerFailed(const QString &why);
 

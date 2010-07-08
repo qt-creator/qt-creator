@@ -41,8 +41,8 @@ class AbstractPlainGdbAdapter : public AbstractGdbAdapter
 public:
     AbstractPlainGdbAdapter(GdbEngine *engine, QObject *parent = 0);
 
-    virtual void startInferior();
-    virtual void startInferiorPhase2();
+    virtual void setupInferior();
+    virtual void runAdapter();
 
 protected:
     void handleInfoTarget(const GdbResponse &response);

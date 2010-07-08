@@ -112,15 +112,15 @@ public:
 private:
     void startAdapter();
     bool initializeDevice(const QString &remoteChannel, QString *errorMessage);
-    void startInferior();
-    void startInferiorPhase2();
+    void setupInferior();
+    void runAdapter();
     void interruptInferior();
     void shutdown();
     AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
 
     void cleanup();
-    void emitDelayedInferiorStartFailed(const QString &msg);
-    Q_SLOT void slotEmitDelayedInferiorStartFailed();
+    void emitDelayedInferiorSetupFailed(const QString &msg);
+    Q_SLOT void slotEmitDelayedInferiorSetupFailed();
 
     void handleTargetRemote(const GdbResponse &response);
 

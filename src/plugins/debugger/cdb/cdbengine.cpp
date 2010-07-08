@@ -374,7 +374,7 @@ void CdbEngine::startupChecks()
     syncDebuggerPaths();
 }
 
-void CdbEngine::startEngine()
+void CdbEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     const DebuggerStartParameters &sp = startParameters();
@@ -385,8 +385,6 @@ void CdbEngine::startEngine()
     m_d->checkVersion();
     if (m_d->m_hDebuggeeProcess) {
         warning(QLatin1String("Internal error: Attempt to start debugger while another process is being debugged."));
-        setState(EngineStartFailed, Q_FUNC_INFO, __LINE__);
-        setState(DebuggerNotReady, Q_FUNC_INFO, __LINE__);
         notifyEngineStartFailed();
         return;
     }
@@ -394,8 +392,6 @@ void CdbEngine::startEngine()
     case AttachCore:
     case AttachToRemote:
         warning(QLatin1String("Internal error: Mode not supported."));
-        setState(EngineStartFailed, Q_FUNC_INFO, __LINE__);
-        setState(DebuggerNotReady, Q_FUNC_INFO, __LINE__);
         notifyEngineStartFailed();
         break;
     default:
@@ -404,7 +400,6 @@ void CdbEngine::startEngine()
     m_d->m_mode = sp.startMode;
     m_d->clearDisplay();
     m_d->m_inferiorStartupComplete = false;
-    setState(EngineStarted, Q_FUNC_INFO, __LINE__);
     // Options
     QString errorMessage;
     if (!m_d->setBreakOnThrow(theDebuggerBoolSetting(BreakOnThrow), &errorMessage))
@@ -426,10 +421,19 @@ void CdbEngine::startEngine()
         }
     }
     m_d->m_dumper->reset(dumperLibName, dumperEnabled);
+    notifyEngineStartOk();
+}
 
-    setState(InferiorStarting, Q_FUNC_INFO, __LINE__);
+void CdbEngine::setupInferior()
+{
+    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
+    notifyInferiorSetupOk();
+}
+
+void CdbEngine::runEngine()
+{
+    QTC_ASSERT(m_state == InferiorSetupOk, qDebug() << m_state);
     showStatusMessage("Starting Debugger", messageTimeOut);
-
     bool rc = false;
     bool needWatchTimer = false;
     m_d->clearForRun();
@@ -470,11 +474,10 @@ void CdbEngine::startEngine()
     if (rc) {
         if (needWatchTimer)
             m_d->startWatchTimer();
-        notifyEngineStarted();
+        notifyInferiorSetupOk();
     } else {
         warning(errorMessage);
-        setState(InferiorStartFailed, Q_FUNC_INFO, __LINE__);
-        notifyEngineStartFailed();
+        notifyInferiorSetupFailed();
     }
 }
 

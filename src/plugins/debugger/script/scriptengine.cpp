@@ -65,7 +65,7 @@
 #include <QtScript/QScriptValue>
 #include <QtScript/QScriptValueIterator>
 
-// #define DEBUG_SCRIPT 1
+#define DEBUG_SCRIPT 1
 #if DEBUG_SCRIPT
 #   define SDEBUG(s) qDebug() << s
 #else
@@ -229,7 +229,7 @@ void ScriptEngine::exitDebugger()
     setState(DebuggerNotReady);
 }
 
-void ScriptEngine::startEngine()
+void ScriptEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     showMessage(_("STARTING SCRIPT DEBUGGER"), LogMisc);
@@ -246,9 +246,12 @@ void ScriptEngine::startEngine()
     m_stopOnNextLine = false;
     m_scriptEngine->abortEvaluation();
 
-    notifyEngineStarted();
-    setState(InferiorStarting);
+    notifyEngineStartOk();
+}
 
+void ScriptEngine::setupInferior()
+{
+    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
     m_scriptFileName = QFileInfo(startParameters().executable).absoluteFilePath();
     showMessage(_("SCRIPT FILE: ") + m_scriptFileName);
     QFile scriptFile(m_scriptFileName);
@@ -262,10 +265,7 @@ void ScriptEngine::startEngine()
     m_scriptContents = stream.readAll();
     scriptFile.close();
     attemptBreakpointSynchronization();
-    setState(InferiorRunningRequested);
-    showStatusMessage(tr("Running requested..."), 5000);
-    showMessage(QLatin1String("Running: ") + m_scriptFileName, LogMisc);
-    QTimer::singleShot(0, this, SLOT(runInferior()));
+    notifyInferiorSetupOk();
 }
 
 void ScriptEngine::continueInferior()
@@ -322,9 +322,13 @@ bool ScriptEngine::importExtensions()
     return failExtensions.isEmpty();
 }
 
-void ScriptEngine::runInferior()
+void ScriptEngine::runEngine()
 {
-    SDEBUG("ScriptEngine::runInferior()");
+    QTC_ASSERT(state() == InferiorSetupOk, qDebug() << state());
+    setState(InferiorRunningRequested);
+    showStatusMessage(tr("Running requested..."), 5000);
+    showMessage(QLatin1String("Running: ") + m_scriptFileName, LogMisc);
+    SDEBUG("ScriptEngine::runEngine()");
     importExtensions();
     setState(InferiorRunning);
     const QScriptValue result = m_scriptEngine->evaluate(m_scriptContents, m_scriptFileName);

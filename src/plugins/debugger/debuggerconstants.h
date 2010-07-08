@@ -80,13 +80,13 @@ enum DebuggerState
     DebuggerNotReady,          // Debugger not started
 
     EngineStarting,            // Engine starts
-    EngineStarted,
     EngineStartFailed,
+    EngineStarted,
 
     InferiorUnrunnable,         // Used in the core dump adapter
-    InferiorStarting,
-    // InferiorStarted,         // Use InferiorRunningRequested or InferiorStopped
-    InferiorStartFailed,
+    InferiorSettingUp,
+    InferiorSetupFailed,
+    InferiorSetupOk,
 
     InferiorRunningRequested,   // Debuggee requested to run
     InferiorRunningRequested_Kill, // Debuggee requested to run, but want to kill it

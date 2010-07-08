@@ -104,8 +104,8 @@ public:
 
 private:
     void startAdapter();
-    void startInferior();
-    void startInferiorPhase2();
+    void setupInferior();
+    void runAdapter();
     void interruptInferior();
     void shutdown();
     void handleWriteRegister(const tcftrk::TcfTrkCommandResult &result);

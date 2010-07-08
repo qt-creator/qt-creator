@@ -53,8 +53,8 @@ public:
     virtual DumperHandling dumperHandling() const;
 
     void startAdapter();
-    void startInferior();
-    void startInferiorPhase2();
+    void setupInferior();
+    void runAdapter();
     void interruptInferior();
     void shutdown();
     AbstractGdbProcess *gdbProc() { return &m_gdbProc; }

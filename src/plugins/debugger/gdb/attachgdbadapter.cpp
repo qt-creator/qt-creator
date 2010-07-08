@@ -65,9 +65,9 @@ void AttachGdbAdapter::startAdapter()
     m_engine->handleAdapterStarted();
 }
 
-void AttachGdbAdapter::startInferior()
+void AttachGdbAdapter::setupInferior()
 {
-    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
+    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
     const qint64 pid = startParameters().attachPID;
     m_engine->postCommand("attach " + QByteArray::number(pid), CB(handleAttach));
     // Task 254674 does not want to remove them
@@ -76,7 +76,7 @@ void AttachGdbAdapter::startInferior()
 
 void AttachGdbAdapter::handleAttach(const GdbResponse &response)
 {
-    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
+    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
         setState(InferiorStopped);
         showMessage(_("INFERIOR ATTACHED"));
@@ -85,7 +85,7 @@ void AttachGdbAdapter::handleAttach(const GdbResponse &response)
         m_engine->updateAll();
     } else {
         QString msg = QString::fromLocal8Bit(response.data.findChild("msg").data());
-        m_engine->handleInferiorStartFailed(msg);
+        m_engine->handleInferiorSetupFailed(msg);
     }
 }
 

@@ -54,14 +54,16 @@ class CoreGdbAdapter : public AbstractGdbAdapter
 public:
     CoreGdbAdapter(GdbEngine *engine, QObject *parent = 0);
 
-    virtual DumperHandling dumperHandling() const { return DumperNotAvailable; }
+private:
+    DumperHandling dumperHandling() const { return DumperNotAvailable; }
 
     void startAdapter();
-    void startInferior();
+    void setupInferior();
+    void runAdapter();
     void interruptInferior();
+
     AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
 
-private:
     void loadExeAndSyms();
     void loadCoreFile();
     void handleFileExecAndSymbols(const GdbResponse &response);

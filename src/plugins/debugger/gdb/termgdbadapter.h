@@ -56,8 +56,8 @@ public:
     virtual DumperHandling dumperHandling() const;
 
     void startAdapter();
-    void startInferior();
-    void startInferiorPhase2();
+    void setupInferior();
+    void runAdapter();
     void interruptInferior();
     AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
 
@@ -67,7 +67,7 @@ private:
     void handleEntryPoint(const GdbResponse &response);
 #endif
 
-    Q_SLOT void handleInferiorStarted();
+    Q_SLOT void handleInferiorSetupOk();
     Q_SLOT void stubExited();
     Q_SLOT void stubMessage(const QString &msg, bool isError);
 

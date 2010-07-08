@@ -125,11 +125,48 @@ public:
     virtual void setToolTipExpression(const QPoint & /* mousePos */,
             TextEditor::ITextEditor * /* editor */, int /* cursorPos */) { }
     void initializeFromTemplate(DebuggerEngine *other);
+
+    virtual void updateWatchData(const WatchData & /* data */) { }
     void startDebugger(DebuggerRunControl *runControl);
-    virtual void startEngine() {}
+    virtual bool isSessionEngine() const { return false; }
+
+    virtual void watchPoint(const QPoint &) {}
+    virtual void fetchMemory(MemoryViewAgent *, QObject *,
+            quint64 addr, quint64 length);
+    virtual void fetchDisassembler(DisassemblerViewAgent *) {}
+    virtual void activateFrame(int index) { Q_UNUSED(index); }
+
+    virtual void reloadModules() {}
+    virtual void loadSymbols(const QString &moduleName)
+        { Q_UNUSED(moduleName); }
+    virtual void loadAllSymbols() {}
+    virtual void requestModuleSymbols(const QString &moduleName)
+        { Q_UNUSED(moduleName); }
+
+    virtual void reloadRegisters() {}
+    virtual void reloadSourceFiles() {}
+    virtual void reloadFullStack() {}
+
+    virtual void setRegisterValue(int regnr, const QString &value);
+    virtual void addOptionPages(QList<Core::IOptionsPage*> *) const {}
+    virtual unsigned debuggerCapabilities() const { return 0; }
+
+    virtual bool isSynchroneous() const { return false; }
+    virtual QString qtNamespace() const { return QString(); }
+
+    virtual void makeSnapshot() {}
+    virtual void activateSnapshot(int index) { Q_UNUSED(index); }
+
+    virtual void attemptBreakpointSynchronization() {}
+    virtual void selectThread(int index) { Q_UNUSED(index); }
+
+    virtual void assignValueInDebugger(const QString &expr, const QString &value)
+        { Q_UNUSED(expr); Q_UNUSED(value); }
+
+protected:
+    virtual void setupEngine() {}
     virtual void exitDebugger() {}
     virtual void detachDebugger() {}
-    virtual void updateWatchData(const WatchData & /* data */) { }
     virtual void executeStep() {}
     virtual void executeStepOut()  {}
     virtual void executeNext() {}
@@ -146,43 +183,11 @@ public:
         { Q_UNUSED(functionName); }
     virtual void executeJumpToLine(const QString &fileName, int lineNumber)
         { Q_UNUSED(fileName); Q_UNUSED(lineNumber); }
-    virtual void assignValueInDebugger(const QString &expr, const QString &value)
-        { Q_UNUSED(expr); Q_UNUSED(value); }
     virtual void executeDebuggerCommand(const QString &command)
         { Q_UNUSED(command); }
 
-    virtual void activateFrame(int index) { Q_UNUSED(index); }
     virtual void frameUp();
     virtual void frameDown();
-    virtual void selectThread(int index) { Q_UNUSED(index); }
-
-    virtual void makeSnapshot() {}
-    virtual void activateSnapshot(int index) { Q_UNUSED(index); }
-
-    virtual void attemptBreakpointSynchronization() {}
-
-    virtual void reloadModules() {}
-    virtual void loadSymbols(const QString &moduleName)
-        { Q_UNUSED(moduleName); }
-    virtual void loadAllSymbols() {}
-    virtual void requestModuleSymbols(const QString &moduleName)
-        { Q_UNUSED(moduleName); }
-
-    virtual void reloadRegisters() {}
-    virtual void reloadSourceFiles() {}
-    virtual void reloadFullStack() {}
-
-    virtual void watchPoint(const QPoint &) {}
-    virtual void fetchMemory(MemoryViewAgent *, QObject *,
-            quint64 addr, quint64 length);
-    virtual void fetchDisassembler(DisassemblerViewAgent *) {}
-    virtual void setRegisterValue(int regnr, const QString &value);
-    virtual void addOptionPages(QList<Core::IOptionsPage*> *) const {}
-    virtual unsigned debuggerCapabilities() const { return 0; }
-
-    virtual bool isSynchroneous() const { return false; }
-    virtual bool isSessionEngine() const { return false; }
-    virtual QString qtNamespace() const { return QString(); }
 
 public slots:
     // Convenience
@@ -252,8 +257,14 @@ public slots:
     virtual void quitDebugger() { exitDebugger(); } // called by DebuggerRunControl
 
 protected:
-    void notifyEngineStarted();
+    void notifyEngineStartOk();
     void notifyEngineStartFailed();
+
+    void notifyInferiorSetupOk();
+    void notifyInferiorSetupFailed();
+
+    virtual void setupInferior();
+    virtual void runEngine();
 
 //private: // FIXME. State transitions 
     void setState(DebuggerState state, bool forced = false);
@@ -264,6 +275,7 @@ private:
     void executeJumpToLine();
     void addToWatchWindow();
 
+    friend class DebuggerEnginePrivate;
     DebuggerEnginePrivate *d;
 };
 

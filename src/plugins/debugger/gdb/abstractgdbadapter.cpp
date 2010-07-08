@@ -52,7 +52,7 @@ void AbstractGdbAdapter::shutdown()
 {
 }
 
-void AbstractGdbAdapter::startInferiorPhase2()
+void AbstractGdbAdapter::runAdapter()
 {
     qDebug() << "START INFERIOR PHASE 2";
 }
@@ -82,7 +82,7 @@ QString AbstractGdbAdapter::msgInferiorStopFailed(const QString &why)
     return tr("Application process could not be stopped:\n%1").arg(why);
 }
 
-QString AbstractGdbAdapter::msgInferiorStarted()
+QString AbstractGdbAdapter::msgInferiorSetupOk()
 {
     return tr("Application started");
 }

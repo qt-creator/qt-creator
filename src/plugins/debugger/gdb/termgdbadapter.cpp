@@ -60,7 +60,7 @@ TermGdbAdapter::TermGdbAdapter(GdbEngine *engine, QObject *parent)
 #endif
 
     connect(&m_stubProc, SIGNAL(processMessage(QString, bool)), SLOT(stubMessage(QString, bool)));
-    connect(&m_stubProc, SIGNAL(processStarted()), SLOT(handleInferiorStarted()));
+    connect(&m_stubProc, SIGNAL(processStarted()), SLOT(handleInferiorSetupOk()));
     connect(&m_stubProc, SIGNAL(wrapperStopped()), SLOT(stubExited()));
 }
 
@@ -109,15 +109,15 @@ void TermGdbAdapter::startAdapter()
     }
 }
 
-void TermGdbAdapter::handleInferiorStarted()
+void TermGdbAdapter::handleInferiorSetupOk()
 {
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     m_engine->handleAdapterStarted();
 }
 
-void TermGdbAdapter::startInferior()
+void TermGdbAdapter::setupInferior()
 {
-    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
+    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
     const qint64 attachedPID = m_stubProc.applicationPID();
     m_engine->notifyInferiorPid(attachedPID);
     m_engine->postCommand("attach " + QByteArray::number(attachedPID),
@@ -126,7 +126,7 @@ void TermGdbAdapter::startInferior()
 
 void TermGdbAdapter::handleStubAttached(const GdbResponse &response)
 {
-    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
+    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
         setState(InferiorStopped);
         showMessage(_("INFERIOR ATTACHED"));
@@ -136,11 +136,11 @@ void TermGdbAdapter::handleStubAttached(const GdbResponse &response)
 #endif
     } else if (response.resultClass == GdbResultError) {
         QString msg = QString::fromLocal8Bit(response.data.findChild("msg").data());
-        m_engine->handleInferiorStartFailed(msg);
+        m_engine->handleInferiorSetupFailed(msg);
     }
 }
 
-void TermGdbAdapter::startInferiorPhase2()
+void TermGdbAdapter::runAdapter()
 {
     m_engine->continueInferiorInternal();
 }

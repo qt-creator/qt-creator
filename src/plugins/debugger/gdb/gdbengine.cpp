@@ -126,8 +126,9 @@ static bool stateAcceptsGdbCommands(DebuggerState state)
     case EngineStarted:
     case EngineStartFailed:
     case InferiorUnrunnable:
-    case InferiorStarting:
-    case InferiorStartFailed:
+    case InferiorSettingUp:
+    case InferiorSetupFailed:
+    case InferiorSetupOk:
     case InferiorRunningRequested:
     case InferiorRunningRequested_Kill:
     case InferiorRunning:
@@ -736,7 +737,7 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
     } else if ((cmd.flags & NeedsStop)
             || !m_commandsToRunOnTemporaryBreak.isEmpty()) {
         if (state() == InferiorStopped || state() == InferiorUnrunnable
-            || state() == InferiorStarting || state() == EngineStarted) {
+            || state() == InferiorSettingUp || state() == EngineStarted) {
             // Can be safely sent now.
             flushCommand(cmd);
         } else {
@@ -1162,7 +1163,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
 {
     // This is gdb 7+'s initial *stopped in response to attach.
     // For consistency, we just discard it.
-    if (state() == InferiorStarting)
+    if (state() == InferiorSettingUp)
         return;
 
     const QByteArray reason = data.findChild("reason").data();
@@ -1623,7 +1624,8 @@ void GdbEngine::shutdown()
                     NeedsStop | LosesChild, CB(handleInferiorShutdown));
         break;
     case EngineStarted: // We can't get here, really
-    case InferiorStartFailed:
+    case InferiorSetupOk:
+    case InferiorSetupFailed:
     case InferiorShutDown:
     case InferiorShutdownFailed: // Whatever
     case InferiorUnrunnable:
@@ -1631,8 +1633,8 @@ void GdbEngine::shutdown()
         postCommand("-gdb-exit", GdbEngine::ExitRequest, CB(handleGdbExit));
         setState(EngineShuttingDown); // Do it after posting the command!
         break;
-    case InferiorStarting: // This may take some time, so just short-circuit it
-        setState(InferiorStartFailed);
+    case InferiorSettingUp: // This may take some time, so just short-circuit it
+        setState(InferiorSetupFailed);
         // fall-through
     case InferiorStopFailed: // Tough luck, I guess. But unreachable as of now anyway.
         setState(EngineShuttingDown);
@@ -1759,7 +1761,7 @@ AbstractGdbAdapter *GdbEngine::createAdapter()
     }
 }
 
-void GdbEngine::startEngine()
+void GdbEngine::setupEngine()
 {
     //qDebug() << "GDB START DEBUGGER";
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
@@ -1805,7 +1807,7 @@ unsigned GdbEngine::debuggerCapabilities() const
 
 void GdbEngine::continueInferiorInternal()
 {
-    QTC_ASSERT(state() == InferiorStopped || state() == InferiorStarting,
+    QTC_ASSERT(state() == InferiorStopped || state() == InferiorSettingUp,
                qDebug() << state());
     setState(InferiorRunningRequested);
     postCommand("-exec-continue", RunRequest, CB(handleExecuteContinue));
@@ -2451,7 +2453,7 @@ void GdbEngine::attemptBreakpointSynchronization()
     showMessage(_("ATTEMPT BREAKPOINT SYNC"));
 
     switch (state()) {
-    case InferiorStarting:
+    case InferiorSettingUp:
     case InferiorRunningRequested:
     case InferiorRunning:
     case InferiorStopping:
@@ -4205,14 +4207,17 @@ void GdbEngine::handleAdapterStartFailed(const QString &msg, const QString &sett
 
 void GdbEngine::handleAdapterStarted()
 {
-    notifyEngineStarted();
     if (m_progress)
         m_progress->setProgressValue(25);
     showMessage(_("ADAPTER SUCCESSFULLY STARTED"));
+    notifyEngineStartOk();
+}
 
+void GdbEngine::setupInferior()
+{
+    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
     showStatusMessage(tr("Starting inferior..."));
-    setState(InferiorStarting);
-    m_gdbAdapter->startInferior();
+    m_gdbAdapter->setupInferior();
 }
 
 void GdbEngine::handleInferiorPrepared()
@@ -4237,20 +4242,26 @@ void GdbEngine::handleInferiorPrepared()
     attemptBreakpointSynchronization();
 
     if (m_cookieForToken.isEmpty()) {
-        startInferiorPhase2();
+        finishInferiorSetup();
     } else {
         QTC_ASSERT(m_commandsDoneCallback == 0, /**/);
-        m_commandsDoneCallback = &GdbEngine::startInferiorPhase2;
+        m_commandsDoneCallback = &GdbEngine::finishInferiorSetup;
     }
 }
 
-void GdbEngine::startInferiorPhase2()
+void GdbEngine::finishInferiorSetup()
 {
     showMessage(_("BREAKPOINTS SET, CONTINUING INFERIOR STARTUP"));
-    m_gdbAdapter->startInferiorPhase2();
+    notifyInferiorSetupOk();
 }
 
-void GdbEngine::handleInferiorStartFailed(const QString &msg)
+void GdbEngine::runEngine()
+{
+    showMessage(_("RUN ENGINE"));
+    m_gdbAdapter->runAdapter();
+}
+
+void GdbEngine::handleInferiorSetupFailed(const QString &msg)
 {
     showStatusMessage(tr("Failed to start application: ") + msg);
     if (state() == EngineStartFailed) {
@@ -4259,8 +4270,7 @@ void GdbEngine::handleInferiorStartFailed(const QString &msg)
     }
     showMessage(_("INFERIOR START FAILED"));
     showMessageBox(QMessageBox::Critical, tr("Failed to start application"), msg);
-    setState(InferiorStartFailed);
-    shutdown();
+    notifyInferiorSetupFailed();
 }
 
 void GdbEngine::handleAdapterCrashed(const QString &msg)
@@ -4272,7 +4282,7 @@ void GdbEngine::handleAdapterCrashed(const QString &msg)
     // Don't bother with state transitions - this can happen in any state and
     // the end result is always the same, so it makes little sense to find a
     // "path" which does not assert.
-    setState(EngineStartFailed, true);
+    notifyEngineStartFailed();
 
     // No point in being friendly here ...
     gdbProc()->kill();

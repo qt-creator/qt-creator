@@ -74,11 +74,10 @@ private:
 
     void shutdown();
     void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
-    void startEngine();
+    void setupEngine();
     void exitDebugger();
 
     void continueInferior();
-    Q_SLOT void runInferior();
     void interruptInferior();
 
     void executeRunToLine(const QString &fileName, int lineNumber);

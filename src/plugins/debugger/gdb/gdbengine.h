@@ -105,7 +105,10 @@ private:
 
 private: ////////// General Interface //////////
 
-    virtual void startEngine();
+    virtual void setupEngine();
+    virtual void setupInferior();
+    virtual void runEngine();
+
     virtual unsigned debuggerCapabilities() const;
     virtual void exitDebugger();
     virtual void quitDebugger();
@@ -129,23 +132,24 @@ private: ////////// Gdb Process Management //////////
     bool startGdb(const QStringList &args = QStringList(),
                   const QString &gdb = QString(),
                   const QString &settingsIdHint = QString());
-    void startInferiorPhase2();
-
     void handleInferiorShutdown(const GdbResponse &response);
     void handleGdbExit(const GdbResponse &response);
 
     void handleAdapterStarted();
+
     // Something went wrong with the adapter *before* adapterStarted() was emitted.
     // Make sure to clean up everything before emitting this signal.
     void handleAdapterStartFailed(const QString &msg,
         const QString &settingsIdHint = QString());
 
     // This triggers the initial breakpoint synchronization and causes
-    // startInferiorPhase2() being called once done.
+    // finishInferiorSetup() being called once done.
     void handleInferiorPrepared();
+    // This notifies the base of a successful inferior setup.
+    void finishInferiorSetup();
 
     // The adapter is still running just fine, but it failed to acquire a debuggee.
-    void handleInferiorStartFailed(const QString &msg);
+    void handleInferiorSetupFailed(const QString &msg);
 
     // Something went wrong with the adapter *after* adapterStarted() was emitted.
     // Make sure to clean up everything before emitting this signal.

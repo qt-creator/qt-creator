@@ -53,7 +53,7 @@ public:
     virtual DumperHandling dumperHandling() const { return DumperLoadedByGdb; }
 
     void startAdapter();
-    void startInferior();
+    void setupInferior();
     void interruptInferior();
     const char *inferiorShutdownCommand() const { return "detach"; }
     AbstractGdbProcess *gdbProc() { return &m_gdbProc; }

@@ -57,7 +57,9 @@ public:
 
     virtual void shutdown();
     virtual void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
-    virtual void startEngine();
+    virtual void setupEngine();
+    virtual void setupInferior();
+    virtual void runEngine();
     virtual void exitDebugger();
     virtual void detachDebugger();
     virtual void updateWatchData(const WatchData &data);

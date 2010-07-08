@@ -89,7 +89,7 @@ static inline QString startMsg(const trk::Session &session)
  *  - startAdapter connects both sockets/devices
  *  - In the TCF Locator Event, gdb is started and the engine is notified
  *    that the adapter has started.
- *  - Engine calls startInferior(), which starts the process.
+ *  - Engine calls setupInferior(), which starts the process.
  *  - Initial TCF module load suspended event is emitted (process is suspended).
  *    In the event handler, gdb is connected to the remote target. In the
  *    gdb answer to conntect remote, inferiorStartPrepared() is emitted.
@@ -220,7 +220,7 @@ void TcfTrkGdbAdapter::handleTcfTrkRunControlModuleLoadContextSuspendedEvent(con
     // Handle resume.
     if (se.info().requireResume) {
         // If it is the first, resumable load event (.exe), make
-        // gdb connect to remote target and resume in startInferior2(),
+        // gdb connect to remote target and resume in setupInferior2(),
         if (m_firstModuleResumableEvent) {
             m_firstModuleResumableEvent = false;
             m_session.codeseg = minfo.codeAddress;
@@ -252,7 +252,7 @@ void TcfTrkGdbAdapter::handleTcfTrkRunControlModuleLoadContextSuspendedEvent(con
 
 void TcfTrkGdbAdapter::handleTargetRemote(const GdbResponse &record)
 {
-    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
+    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
     if (record.resultClass == GdbResultDone) {
         setState(InferiorStopped);
         m_engine->handleInferiorPrepared();
@@ -261,7 +261,7 @@ void TcfTrkGdbAdapter::handleTargetRemote(const GdbResponse &record)
     } else {
         QString msg = tr("Connecting to TRK server adapter failed:\n")
             + QString::fromLocal8Bit(record.data.findChild("msg").data());
-        m_engine->handleInferiorStartFailed(msg);
+        m_engine->handleInferiorSetupFailed(msg);
     }
 }
 
@@ -983,9 +983,9 @@ void TcfTrkGdbAdapter::startAdapter()
     tcfTrkSocket->connectToHost(tcfTrkAddress, tcfTrkPort);
 }
 
-void TcfTrkGdbAdapter::startInferior()
+void TcfTrkGdbAdapter::setupInferior()
 {
-    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
+    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
     m_trkDevice->sendProcessStartCommand(TcfTrkCallback(this, &TcfTrkGdbAdapter::handleCreateProcess),
                                          m_remoteExecutable, m_uid, m_remoteArguments,
                                          QString(), true);
@@ -1011,7 +1011,7 @@ void TcfTrkGdbAdapter::handleCreateProcess(const TcfTrkCommandResult &result)
     if (!result) {
         const QString errorMessage = result.errorString();
         logMessage(QString::fromLatin1("Failed to start process: %1").arg(errorMessage), LogError);
-        m_engine->handleInferiorStartFailed(result.errorString());
+        m_engine->handleInferiorSetupFailed(result.errorString());
         return;
     }
     QTC_ASSERT(!result.values.isEmpty(), return);
@@ -1029,7 +1029,7 @@ void TcfTrkGdbAdapter::handleCreateProcess(const TcfTrkCommandResult &result)
     m_session.dataseg = 0;
 }
 
-void TcfTrkGdbAdapter::startInferiorPhase2()
+void TcfTrkGdbAdapter::runAdapter()
 {
     m_engine->continueInferiorInternal();
 }

@@ -246,15 +246,15 @@ QByteArray TrkGdbAdapter::trkInterruptMessage()
     return ba;
 }
 
-void TrkGdbAdapter::emitDelayedInferiorStartFailed(const QString &msg)
+void TrkGdbAdapter::emitDelayedInferiorSetupFailed(const QString &msg)
 {
     m_adapterFailMessage = msg;
-    QTimer::singleShot(0, this, SLOT(slotEmitDelayedInferiorStartFailed()));
+    QTimer::singleShot(0, this, SLOT(slotEmitDelayedInferiorSetupFailed()));
 }
 
-void TrkGdbAdapter::slotEmitDelayedInferiorStartFailed()
+void TrkGdbAdapter::slotEmitDelayedInferiorSetupFailed()
 {
-    m_engine->handleInferiorStartFailed(m_adapterFailMessage);
+    m_engine->handleInferiorSetupFailed(m_adapterFailMessage);
 }
 
 
@@ -626,7 +626,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         //$qSupported#37
         //$qSupported:multiprocess+#c6
         //logMessage("Handling 'qSupported'");
-        sendGdbServerAck(); 
+        sendGdbServerAck();
         sendGdbServerMessage(Symbian::gdbQSupported);
     }
 
@@ -860,7 +860,7 @@ void TrkGdbAdapter::trkContinueNext(int threadIndex)
 
 void TrkGdbAdapter::handleTrkContinueNext(const TrkResult &result)
 {
-    const int index = result.cookie.toInt();    
+    const int index = result.cookie.toInt();
     if (result.errorCode()) {
         logMessage("Error continuing thread: " + result.errorString(), LogError);
         return;
@@ -931,9 +931,9 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             trk::Launcher::parseNotifyStopped(result.data, &pid, &tid, &addr, &reason);
             const QString msg = trk::Launcher::msgStopped(pid, tid, addr, reason);
             // Unknown thread: Add.
-            m_session.tid = tid;            
+            m_session.tid = tid;
             if (m_snapshot.indexOfThread(tid) == -1)
-                m_snapshot.addThread(tid);            
+                m_snapshot.addThread(tid);
             m_snapshot.setThreadState(tid, reason);
 
             logMessage(prefix + msg);
@@ -1168,7 +1168,7 @@ void TrkGdbAdapter::handleAndReportReadRegister(const TrkResult &result)
 
 void TrkGdbAdapter::handleAndReportReadRegistersAfterStop(const TrkResult &result)
 {
-    handleReadRegisters(result);    
+    handleReadRegisters(result);
     const bool reportThread = m_session.tid != m_session.mainTid;
     sendGdbServerMessage(m_snapshot.gdbStopMessage(m_session.tid, reportThread),
                          "Stopped with registers in thread " + QByteArray::number(m_session.tid, 16));
@@ -1543,16 +1543,16 @@ void TrkGdbAdapter::startAdapter()
     sendTrkMessage(0x04, TrkCB(handleTrkVersionsStartGdb)); // Versions
 }
 
-void TrkGdbAdapter::startInferior()
+void TrkGdbAdapter::setupInferior()
 {
-    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
+    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
     sendTrkMessage(0x40, TrkCB(handleCreateProcess),
                    trk::Launcher::startProcessMessage(m_remoteExecutable, m_remoteArguments));
 }
 
 void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
 {
-    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());    
+    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
     //  40 00 00]
     //logMessage("       RESULT: " + result.toString());
     // [80 08 00   00 00 01 B5   00 00 01 B6   78 67 40 00   00 40 00 00]
@@ -1562,7 +1562,7 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
             .arg(m_remoteExecutable).arg(result.errorString());
         // Delay cleanup as not to close a trk device from its read handler,
         // which blocks.
-        emitDelayedInferiorStartFailed(msg);
+        emitDelayedInferiorSetupFailed(msg);
         return;
     }
     showMessage(_("RESET SNAPSHOT (NOTIFY CREATED)"));
@@ -1602,18 +1602,18 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
 
 void TrkGdbAdapter::handleTargetRemote(const GdbResponse &record)
 {
-    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
+    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
     if (record.resultClass == GdbResultDone) {
         setState(InferiorStopped);
         m_engine->handleInferiorPrepared();
     } else {
         QString msg = tr("Connecting to TRK server adapter failed:\n")
             + QString::fromLocal8Bit(record.data.findChild("msg").data());
-        m_engine->handleInferiorStartFailed(msg);
+        m_engine->handleInferiorSetupFailed(msg);
     }
 }
 
-void TrkGdbAdapter::startInferiorPhase2()
+void TrkGdbAdapter::runAdapter()
 {
     m_engine->continueInferiorInternal();
 }
@@ -1730,7 +1730,7 @@ void TrkGdbAdapter::handleDirectWrite3(const TrkResult &response)
 }
 
 void TrkGdbAdapter::handleDirectWrite4(const TrkResult &response)
-{    
+{
     m_snapshot.setRegisterValue(m_session.tid, RegisterPC, scratch + 4);
 return;
     logMessage("DIRECT WRITE4: " + response.toString());

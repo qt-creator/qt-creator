@@ -162,7 +162,7 @@
 //
 // Transitions marked by '---' are done in the individual engines.
 // Transitions marked by '+-+' are done in the base DebuggerEngine.
-// The GdbEngine->startEngine() function is described in more detail below.
+// The GdbEngine->setupEngine() function is described in more detail below.
 //
 //                   DebuggerNotReady
 //                          +
@@ -170,7 +170,11 @@
 //                    EngineStarting
 //                          +
 //                          +
-//            (calls *Engine->startEngine())
+//            (calls *Engine->setupEngine())
+//                          |      |
+//                     {notify-  {notify-
+//                      Engine-   Engine-
+//                      StartOk}  StartFailed}
 //                          |      |
 //                          |      `---> EngineStartFailed
 //                          |                   +
@@ -182,14 +186,18 @@
 //                          +
 //           [calls RunControl->StartSuccessful]
 //                          +
-//            (calls *Engine->startInferior())
+//            (calls *Engine->setupInferior())
 //                          |       |
-//                          |       ` ----> InferiorStartFailed +-+-+-+->.
+//                     {notify-   {notify-
+//                      Inferior- Inferior-
+//                      SetupOk}  SetupFailed}
+//                          |       |
+//                          |       ` ----> InferiorSetupFailed +-+-+-+->.
 //                          |                                            +
 //                          v                                            +
-//                   InferiorStarted                                     +
-//                          +
-//            (calls *Engine->runInferior())                             +
+//                   InferiorSetupOk                                     +
+//                          +                                            +
+//            (calls *Engine->runEngine())                               +
 //                          |                                            +
 //         (core)           |     (attach) (term) (remote) (script)      +
 //      .-----------------<-|->------------------.                       +
@@ -219,7 +227,7 @@
 // Transitions marked by '---' are done in the individual adapters.
 // Transitions marked by '+-+' are done in the GdbEngine.
 
-//                  GdbEngine::startEngine()
+//                  GdbEngine::setupEngine()
 //                          +
 //                          +
 //            (calls *Adapter->startAdapter())
@@ -2681,7 +2689,7 @@ bool DebuggerListener::coreAboutToClose()
     case EngineStarted:     // Most importantly, terminating a running
     case EngineStartFailed: // debuggee can cause problems.
     case InferiorUnrunnable:
-    case InferiorStartFailed:
+    case InferiorSetupFailed:
     case InferiorStopped:
     case InferiorShutDown:
         cleanTermination = true;
