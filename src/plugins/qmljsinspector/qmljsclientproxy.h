@@ -60,6 +60,8 @@ public:
                              const QVariant &value,
                              bool isLiteralValue);
 
+    bool setMethodBodyForObject(int objectDebugId, const QString &methodName, const QString &methodBody);
+
     // returns the object references for the given url.
     QList<QDeclarativeDebugObjectReference> objectReferences(const QUrl &url = QUrl()) const;
     QDeclarativeDebugObjectReference objectReferenceForId(int debugId) const;

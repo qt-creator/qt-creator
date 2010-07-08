@@ -66,6 +66,8 @@ public:
     QString header(UiObjectMember *member) const;
 
     QString scriptCode(UiScriptBinding *script) const;
+    QString methodName(UiSourceElement *source) const;
+    QString methodCode(UiSourceElement *source) const;
 
 protected:
     QDeclarativeDebugObjectReference objectReference(const QString &id) const;
@@ -112,14 +114,21 @@ private:
                              QmlJS::AST::UiScriptBinding *scriptBinding,
                              const QString &propertyName,
                              const QString &scriptCode);
+    void updateMethodBody(const QDeclarativeDebugObjectReference &objectReference,
+                            UiScriptBinding *scriptBinding,
+                            const QString &methodName,
+                            const QString &methodBody);
 
+    bool compare(UiSourceElement *source, UiSourceElement *other);
     bool compare(QmlJS::AST::UiQualifiedId *id, QmlJS::AST::UiQualifiedId *other);
     QmlJS::AST::UiObjectMemberList *objectMembers(QmlJS::AST::UiObjectMember *object);
+    QDeclarativeDebugObjectReference objectReferenceForUiObject(const ScriptBindingParser &bindingParser, UiObjectMember *object);
 
 private:
     QmlJS::Document::Ptr _doc;
     QmlJS::Document::Ptr _previousDoc;
     QList<Change> _changes;
+    QUrl _url;
 };
 
 } // namespace Internal

@@ -32,6 +32,7 @@
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 
+#include <typeinfo>
 #include <QtCore/QDebug>
 
 using namespace QmlJS;
@@ -72,6 +73,29 @@ QString ScriptBindingParser::scriptCode(UiScriptBinding *script) const
         return doc->source().mid(begin, end - begin);
     }
 
+    return QString();
+}
+
+
+QString ScriptBindingParser::methodName(UiSourceElement *source) const
+{
+    if (source) {
+        if (FunctionDeclaration *declaration = cast<FunctionDeclaration*>(source->sourceElement)) {
+            return declaration->name->asString();
+        }
+    }
+    return QString();
+}
+
+QString ScriptBindingParser::methodCode(UiSourceElement *source) const
+{
+    if (source) {
+        if (FunctionDeclaration *declaration = cast<FunctionDeclaration*>(source->sourceElement)) {
+            const int begin = declaration->lbraceToken.begin() + 1;
+            const int end = declaration->rbraceToken.end() - 1;
+            return doc->source().mid(begin, end - begin);
+        }
+    }
     return QString();
 }
 
@@ -287,14 +311,33 @@ static QString propertyName(UiQualifiedId *id)
     return s;
 }
 
+QDeclarativeDebugObjectReference Delta::objectReferenceForUiObject(const ScriptBindingParser &bindingParser, UiObjectMember *object)
+{
+    if (UiScriptBinding *idBinding = bindingParser.id(object)) {
+        if (ExpressionStatement *s = cast<ExpressionStatement *>(idBinding->statement)) {
+            if (IdentifierExpression *idExpr = cast<IdentifierExpression *>(s->expression)) {
+                const QString idString = idExpr->name->asString();
+
+                const QList<QDeclarativeDebugObjectReference> refs = ClientProxy::instance()->objectReferences(_url);
+                foreach (const QDeclarativeDebugObjectReference &ref, refs) {
+                    if (ref.idString() == idString)
+                        return ref;
+                }
+            }
+        }
+    }
+    return QDeclarativeDebugObjectReference();
+}
+
+
 void Delta::operator()(Document::Ptr doc, Document::Ptr previousDoc)
 {
     _doc = doc;
     _previousDoc = previousDoc;
     _changes.clear();
 
-    const QUrl url = QUrl::fromLocalFile(doc->fileName());
-    const QList<QDeclarativeDebugObjectReference> references = ClientProxy::instance()->objectReferences(url);
+    _url = QUrl::fromLocalFile(doc->fileName());
+    const QList<QDeclarativeDebugObjectReference> references = ClientProxy::instance()->objectReferences(_url);
 
     ScriptBindingParser bindingParser(doc, references);
     bindingParser.process();
@@ -334,33 +377,54 @@ void Delta::operator()(Document::Ptr doc, Document::Ptr previousDoc)
 
                             if (scriptCode != previousScriptCode) {
                                 const QString property = propertyName(script->qualifiedId);
-                                qDebug() << "property:" << qPrintable(property) << scriptCode;
 
-                                if (UiScriptBinding *idBinding = bindingParser.id(object)) {
-                                    if (ExpressionStatement *s = cast<ExpressionStatement *>(idBinding->statement)) {
-                                        if (IdentifierExpression *idExpr = cast<IdentifierExpression *>(s->expression)) {
-                                            const QString idString = idExpr->name->asString();
-                                            qDebug() << "the enclosing object id is:" << idString;
-
-                                            const QList<QDeclarativeDebugObjectReference> refs = ClientProxy::instance()->objectReferences(url);
-                                            foreach (const QDeclarativeDebugObjectReference &ref, refs) {
-                                                if (ref.idString() == idString) {
-                                                    updateScriptBinding(ref, script, property, scriptCode);
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
+                                QDeclarativeDebugObjectReference ref = objectReferenceForUiObject(bindingParser, object);
+                                if (ref.debugId() != -1)
+                                    updateScriptBinding(ref, script, property, scriptCode);
                             }
                         }
                     }
                 }
+            } else if (UiSourceElement *uiSource = cast<UiSourceElement*>(objectMemberIt->member)) {
+
+                for (UiObjectMemberList *previousObjectMemberIt = objectMembers(previousObject);
+                     previousObjectMemberIt; previousObjectMemberIt = previousObjectMemberIt->next)
+                {
+                    if (UiSourceElement *previousSource = cast<UiSourceElement*>(previousObjectMemberIt->member)) {
+                        if (compare(uiSource, previousSource))
+                        {
+                            const QString methodCode = bindingParser.methodCode(uiSource);
+                            const QString previousMethodCode = previousBindingParser.methodCode(previousSource);
+
+                            if (methodCode != previousMethodCode) {
+                                const QString methodName = bindingParser.methodName(uiSource);
+                                qDebug() << methodName << methodCode;
+                                QDeclarativeDebugObjectReference ref = objectReferenceForUiObject(bindingParser, object);
+                                if (ref.debugId() != -1)
+                                    updateMethodBody(ref, script, methodName, methodCode);
+                            }
+                        }
+                    }
+                }
+
             }
         }
 
     }
+}
+
+void Delta::updateMethodBody(const QDeclarativeDebugObjectReference &objectReference,
+                               UiScriptBinding *scriptBinding,
+                               const QString &methodName,
+                               const QString &methodBody)
+{
+    Change change;
+    change.script = scriptBinding;
+    change.ref = objectReference;
+    change.isLiteral = false;
+    _changes.append(change);
+
+    ClientProxy::instance()->setMethodBodyForObject(objectReference.debugId(), methodName, methodBody); // ### remove
 }
 
 void Delta::updateScriptBinding(const QDeclarativeDebugObjectReference &objectReference,
@@ -371,7 +435,6 @@ void Delta::updateScriptBinding(const QDeclarativeDebugObjectReference &objectRe
     qDebug() << "update script:" << propertyName << scriptCode << scriptBinding;
 
     QVariant expr = scriptCode;
-    //qDebug() << "   " << scriptBinding->statement->kind << typeid(*scriptBinding->statement).name();
 
     const bool isLiteral = isLiteralValue(scriptBinding);
     if (isLiteral)
@@ -395,6 +458,27 @@ bool Delta::compare(UiQualifiedId *id, UiQualifiedId *other)
         if (id->name && other->name) {
             if (id->name->asString() == other->name->asString())
                 return compare(id->next, other->next);
+        }
+    }
+
+    return false;
+}
+
+bool Delta::compare(UiSourceElement *source, UiSourceElement *other)
+{
+    if (source == other)
+        return true;
+
+    else if (source && other) {
+        if (source->sourceElement && other->sourceElement) {
+            FunctionDeclaration *decl = cast<FunctionDeclaration*>(source->sourceElement);
+            FunctionDeclaration *otherDecl = cast<FunctionDeclaration*>(other->sourceElement);
+            if (decl && otherDecl
+                && decl->name && otherDecl->name
+                && decl->name->asString() == otherDecl->name->asString())
+            {
+                    return true;
+            }
         }
     }
 

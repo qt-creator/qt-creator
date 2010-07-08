@@ -42,12 +42,12 @@ void QmlJSLiveTextPreview::updateDocuments()
         return;
 
     m_snapshot = modelManager()->snapshot();
+    setEditor(Core::EditorManager::instance()->currentEditor());
 
     // initial update
     foreach (QmlJS::Document::Ptr doc, m_snapshot) {
         documentChanged(doc);
     }
-
     connect(modelManager(), SIGNAL(documentChangedOnDisk(QmlJS::Document::Ptr)),
             SLOT(documentChanged(QmlJS::Document::Ptr)));
 }
@@ -108,10 +108,10 @@ void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
     Core::ICore *core = Core::ICore::instance();
     const int dbgcontext = core->uniqueIDManager()->uniqueIdentifier(Debugger::Constants::C_DEBUGMODE);
 
-    if (! core->hasContext(dbgcontext))
+    if (!core->hasContext(dbgcontext))
         return;
 
-    if (doc && m_previousDoc) {
+    if (doc && m_previousDoc && doc->fileName() == m_previousDoc->fileName()) {
         qDebug() << "Doc, prevDoc:" << doc->fileName() << m_previousDoc->fileName();
 
         Delta delta;
