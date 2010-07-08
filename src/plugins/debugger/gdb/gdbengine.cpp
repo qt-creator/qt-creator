@@ -122,6 +122,7 @@ QByteArray GdbEngine::tooltipIName(const QString &exp)
 static bool stateAcceptsGdbCommands(DebuggerState state)
 {
     switch (state) {
+    case EngineStarting:
     case EngineStarted:
     case EngineStartFailed:
     case InferiorUnrunnable:
@@ -138,7 +139,6 @@ static bool stateAcceptsGdbCommands(DebuggerState state)
     case InferiorShutdownFailed:
         return true;
     case DebuggerNotReady:
-    case EngineStarting:
     case InferiorStopFailed:
     case EngineShuttingDown:
         return false;
@@ -191,23 +191,6 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters)
             this, SLOT(createFullBacktrace()));
 }
 
-void GdbEngine::connectDebuggingHelperActions()
-{
-    connect(theDebuggerAction(UseDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
-            this, SLOT(setUseDebuggingHelpers(QVariant)));
-    connect(theDebuggerAction(DebugDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
-            this, SLOT(setDebugDebuggingHelpersClassic(QVariant)));
-    connect(theDebuggerAction(RecheckDebuggingHelpers), SIGNAL(triggered()),
-            this, SLOT(recheckDebuggingHelperAvailabilityClassic()));
-}
-
-void GdbEngine::disconnectDebuggingHelperActions()
-{
-    disconnect(theDebuggerAction(UseDebuggingHelpers), 0, this, 0);
-    disconnect(theDebuggerAction(DebugDebuggingHelpers), 0, this, 0);
-    disconnect(theDebuggerAction(RecheckDebuggingHelpers), 0, this, 0);
-}
-
 DebuggerStartMode GdbEngine::startMode() const
 {
     return startParameters().startMode;
@@ -230,20 +213,6 @@ GdbEngine::~GdbEngine()
         disconnect(gdbProc(), 0, this, 0);
     delete m_gdbAdapter;
     m_gdbAdapter = 0;
-}
-
-void GdbEngine::connectAdapter()
-{
-    connect(m_gdbAdapter, SIGNAL(adapterStarted()),
-        this, SLOT(handleAdapterStarted()));
-    connect(m_gdbAdapter, SIGNAL(adapterStartFailed(QString,QString)),
-        this, SLOT(handleAdapterStartFailed(QString,QString)));
-    connect(m_gdbAdapter, SIGNAL(inferiorPrepared()),
-        this, SLOT(handleInferiorPrepared()));
-    connect(m_gdbAdapter, SIGNAL(inferiorStartFailed(QString)),
-        this, SLOT(handleInferiorStartFailed(QString)));
-    connect(m_gdbAdapter, SIGNAL(adapterCrashed(QString)),
-        this, SLOT(handleAdapterCrashed(QString)));
 }
 
 void GdbEngine::initializeVariables()
@@ -1723,7 +1692,6 @@ void GdbEngine::detachDebugger()
 
 void GdbEngine::exitDebugger()
 {
-    disconnectDebuggingHelperActions();
     shutdown();
 }
 
@@ -1734,7 +1702,6 @@ void GdbEngine::quitDebugger()
     // to force it down. On the other hand, there could be an answer,
     // and regular the inferior shutdown procedure could take a while.
     // And the RunControl::stop() is called synchroneously.
-    disconnectDebuggingHelperActions();
     shutdown();
     initializeVariables();
     setState(DebuggerNotReady);
@@ -1809,10 +1776,15 @@ void GdbEngine::startDebugger()
 
     m_gdbAdapter = createAdapter();
     //qDebug() << "CREATED ADAPTER: " << m_gdbAdapter;
-    connectAdapter();
 
-    if (m_gdbAdapter->dumperHandling() != AbstractGdbAdapter::DumperNotAvailable)
-        connectDebuggingHelperActions();
+    if (m_gdbAdapter->dumperHandling() != AbstractGdbAdapter::DumperNotAvailable) {
+        connect(theDebuggerAction(UseDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
+                this, SLOT(setUseDebuggingHelpers(QVariant)));
+        connect(theDebuggerAction(DebugDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
+                this, SLOT(setDebugDebuggingHelpersClassic(QVariant)));
+        connect(theDebuggerAction(RecheckDebuggingHelpers), SIGNAL(triggered()),
+                this, SLOT(recheckDebuggingHelperAvailabilityClassic()));
+    }
 
     m_progress->setProgressValue(20);
     QTC_ASSERT(state() == EngineStarting, /**/);

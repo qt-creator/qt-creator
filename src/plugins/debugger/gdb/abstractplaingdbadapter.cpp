@@ -69,14 +69,14 @@ void AbstractPlainGdbAdapter::handleFileExecAndSymbols(const GdbResponse &respon
             if (m_engine->m_gdbVersion < 70000)
                 m_engine->postCommand("info target", CB(handleInfoTarget));
         }
-        emit inferiorPrepared();
+        m_engine->handleInferiorPrepared();
     } else {
         QByteArray ba = response.data.findChild("msg").data();
         QString msg = fromLocalEncoding(ba);
         // Extend the message a bit in unknown cases.
         if (!ba.endsWith("File format not recognized"))
             msg = tr("Starting executable failed:\n") + msg;
-        emit inferiorStartFailed(msg);
+        m_engine->handleInferiorStartFailed(msg);
     }
 }
 
@@ -100,7 +100,7 @@ void AbstractPlainGdbAdapter::handleExecRun(const GdbResponse &response)
         QString msg = fromLocalEncoding(response.data.findChild("msg").data());
         //QTC_ASSERT(status() == InferiorRunning, /**/);
         //interruptInferior();
-        emit inferiorStartFailed(msg);
+        m_engine->handleInferiorStartFailed(msg);
     }
 }
 
@@ -118,10 +118,10 @@ void AbstractPlainGdbAdapter::handleInfoTarget(const GdbResponse &response)
             m_engine->postCommand("tbreak *0x" + needle.cap(1).toAscii());
             // Do nothing here - inferiorPrepared handles the sequencing.
         } else {
-            emit inferiorStartFailed(_("Parsing start address failed"));
+            m_engine->handleInferiorStartFailed(_("Parsing start address failed"));
         }
     } else if (response.resultClass == GdbResultError) {
-        emit inferiorStartFailed(_("Fetching start address failed"));
+        m_engine->handleInferiorStartFailed(_("Fetching start address failed"));
     }
 }
 

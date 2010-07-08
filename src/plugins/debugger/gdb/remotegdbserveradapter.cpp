@@ -101,7 +101,7 @@ void RemoteGdbServerAdapter::startAdapter()
         // FIXME: cleanup missing
         return;
 
-    emit adapterStarted();
+    m_engine->handleAdapterStarted();
 }
 
 void RemoteGdbServerAdapter::uploadProcError(QProcess::ProcessError error)
@@ -202,7 +202,7 @@ void RemoteGdbServerAdapter::handleFileExecAndSymbols(const GdbResponse &respons
     } else {
         QString msg = tr("Starting remote executable failed:\n");
         msg += QString::fromLocal8Bit(response.data.findChild("msg").data());
-        emit inferiorStartFailed(msg);
+        m_engine->handleInferiorStartFailed(msg);
     }
 }
 
@@ -214,12 +214,12 @@ void RemoteGdbServerAdapter::handleTargetRemote(const GdbResponse &record)
         // gdb server will stop the remote application itself.
         showMessage(_("INFERIOR STARTED"));
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
-        emit inferiorPrepared();
+        m_engine->handleInferiorPrepared();
     } else {
         // 16^error,msg="hd:5555: Connection timed out."
         QString msg = msgConnectRemoteServerFailed(
             QString::fromLocal8Bit(record.data.findChild("msg").data()));
-        emit inferiorStartFailed(msg);
+        m_engine->handleInferiorStartFailed(msg);
     }
 }
 

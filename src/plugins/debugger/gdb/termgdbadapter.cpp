@@ -99,7 +99,7 @@ void TermGdbAdapter::startAdapter()
     if (!m_stubProc.start(startParameters().executable,
                          startParameters().processArgs)) {
         // Error message for user is delivered via a signal.
-        emit adapterStartFailed(QString(), QString());
+        m_engine->handleAdapterStartFailed(QString(), QString());
         return;
     }
 
@@ -112,7 +112,7 @@ void TermGdbAdapter::startAdapter()
 void TermGdbAdapter::handleInferiorStarted()
 {
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
-    emit adapterStarted();
+    m_engine->handleAdapterStarted();
 }
 
 void TermGdbAdapter::startInferior()
@@ -130,13 +130,13 @@ void TermGdbAdapter::handleStubAttached(const GdbResponse &response)
     if (response.resultClass == GdbResultDone) {
         setState(InferiorStopped);
         showMessage(_("INFERIOR ATTACHED"));
-        emit inferiorPrepared();
+        m_engine->handleInferiorPrepared();
 #ifdef Q_OS_LINUX
         m_engine->postCommand("-stack-list-frames 0 0", CB(handleEntryPoint));
 #endif
     } else if (response.resultClass == GdbResultError) {
         QString msg = QString::fromLocal8Bit(response.data.findChild("msg").data());
-        emit inferiorStartFailed(msg);
+        m_engine->handleInferiorStartFailed(msg);
     }
 }
 
@@ -174,7 +174,7 @@ void TermGdbAdapter::stubExited()
     showMessage(_("STUB EXITED"));
     if (state() != EngineStarting // From previous instance
         && state() != EngineShuttingDown && state() != DebuggerNotReady)
-        emit adapterCrashed(QString());
+        m_engine->handleAdapterCrashed(QString());
 }
 
 } // namespace Internal

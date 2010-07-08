@@ -74,7 +74,7 @@ void LocalPlainGdbAdapter::startAdapter()
     QStringList gdbArgs;
 
     if (!m_outputCollector.listen()) {
-        emit adapterStartFailed(tr("Cannot set up communication with child process: %1")
+        m_engine->handleAdapterStartFailed(tr("Cannot set up communication with child process: %1")
                 .arg(m_outputCollector.errorString()), QString());
         return;
     }
@@ -90,7 +90,7 @@ void LocalPlainGdbAdapter::startAdapter()
         return;
     }
 
-    emit adapterStarted();
+    m_engine->handleAdapterStarted();
     checkForReleaseBuild();
 }
 

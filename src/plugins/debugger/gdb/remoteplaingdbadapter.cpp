@@ -55,7 +55,7 @@ void RemotePlainGdbAdapter::startAdapter()
         m_gdbProc.setEnvironment(startParameters().environment);
 
     if (m_engine->startGdb(QStringList(), m_engine->startParameters().debuggerCommand))
-        emit adapterStarted();
+        m_engine->handleAdapterStarted();
 }
 
 void RemotePlainGdbAdapter::interruptInferior()

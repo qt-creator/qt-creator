@@ -62,7 +62,7 @@ void AttachGdbAdapter::startAdapter()
     if (!m_engine->startGdb())
         return;
 
-    emit adapterStarted();
+    m_engine->handleAdapterStarted();
 }
 
 void AttachGdbAdapter::startInferior()
@@ -81,11 +81,11 @@ void AttachGdbAdapter::handleAttach(const GdbResponse &response)
         setState(InferiorStopped);
         showMessage(_("INFERIOR ATTACHED"));
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
-        emit inferiorPrepared();
+        m_engine->handleInferiorPrepared();
         m_engine->updateAll();
     } else {
         QString msg = QString::fromLocal8Bit(response.data.findChild("msg").data());
-        emit inferiorStartFailed(msg);
+        m_engine->handleInferiorStartFailed(msg);
     }
 }
 

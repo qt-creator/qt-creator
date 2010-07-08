@@ -254,7 +254,7 @@ void TrkGdbAdapter::emitDelayedInferiorStartFailed(const QString &msg)
 
 void TrkGdbAdapter::slotEmitDelayedInferiorStartFailed()
 {
-    emit inferiorStartFailed(m_adapterFailMessage);
+    m_engine->handleInferiorStartFailed(m_adapterFailMessage);
 }
 
 
@@ -892,7 +892,7 @@ void TrkGdbAdapter::sendTrkAck(trk::byte token)
 void TrkGdbAdapter::handleTrkError(const QString &msg)
 {
     logMessage("## TRK ERROR: " + msg, LogError);
-    emit adapterCrashed("TRK problem encountered:\n" + msg);
+    m_engine->handleAdapterCrashed("TRK problem encountered:\n" + msg);
 }
 
 void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
@@ -1409,7 +1409,7 @@ void TrkGdbAdapter::slotStartGdb()
         cleanup();
         return;
     }
-    emit adapterStarted();
+    m_engine->handleAdapterStarted();
 }
 
 void TrkGdbAdapter::handleDisconnect(const TrkResult & /*result*/)
@@ -1440,7 +1440,7 @@ void TrkGdbAdapter::trkDeviceRemoved(const SymbianUtils::SymbianDevice &dev)
     if (state() != DebuggerNotReady && !m_trkDevice.isNull() && m_trkDevice->port() == dev.portName()) {
         const QString message = QString::fromLatin1("Device '%1' has been disconnected.").arg(dev.friendlyName());
         logMessage(message);
-        emit adapterCrashed(message);
+        m_engine->handleAdapterCrashed(message);
     }
 }
 
@@ -1509,10 +1509,10 @@ void TrkGdbAdapter::startAdapter()
     QString message;
     if (!initializeDevice(parameters.remoteChannel, &message)) {
         if (message.isEmpty()) {
-            emit adapterStartFailed(QString(), QString());
+            m_engine->handleAdapterStartFailed(QString(), QString());
         } else {
             logMessage(message, LogError);
-            emit adapterStartFailed(message, QString());
+            m_engine->handleAdapterStartFailed(message, QString());
         }
         return;
     }
@@ -1525,7 +1525,7 @@ void TrkGdbAdapter::startAdapter()
         QString msg = QString("Unable to start the gdb server at %1: %2.")
             .arg(m_gdbServerName).arg(m_gdbServer->errorString());
         logMessage(msg, LogError);
-        emit adapterStartFailed(msg, QString());
+        m_engine->handleAdapterStartFailed(msg, QString());
         return;
     }
 
@@ -1605,11 +1605,11 @@ void TrkGdbAdapter::handleTargetRemote(const GdbResponse &record)
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (record.resultClass == GdbResultDone) {
         setState(InferiorStopped);
-        emit inferiorPrepared();
+        m_engine->handleInferiorPrepared();
     } else {
         QString msg = tr("Connecting to TRK server adapter failed:\n")
             + QString::fromLocal8Bit(record.data.findChild("msg").data());
-        emit inferiorStartFailed(msg);
+        m_engine->handleInferiorStartFailed(msg);
     }
 }
 

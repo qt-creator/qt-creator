@@ -126,7 +126,6 @@ private: ////////// General State //////////
 private: ////////// Gdb Process Management //////////
 
     AbstractGdbAdapter *createAdapter();
-    void connectAdapter();
     bool startGdb(const QStringList &args = QStringList(),
                   const QString &gdb = QString(),
                   const QString &settingsIdHint = QString());
@@ -135,22 +134,29 @@ private: ////////// Gdb Process Management //////////
     void handleInferiorShutdown(const GdbResponse &response);
     void handleGdbExit(const GdbResponse &response);
 
+    void handleAdapterStarted();
+    // Something went wrong with the adapter *before* adapterStarted() was emitted.
+    // Make sure to clean up everything before emitting this signal.
+    void handleAdapterStartFailed(const QString &msg,
+        const QString &settingsIdHint = QString());
+
+    // This triggers the initial breakpoint synchronization and causes
+    // startInferiorPhase2() being called once done.
+    void handleInferiorPrepared();
+
+    // The adapter is still running just fine, but it failed to acquire a debuggee.
+    void handleInferiorStartFailed(const QString &msg);
+
+    // Something went wrong with the adapter *after* adapterStarted() was emitted.
+    // Make sure to clean up everything before emitting this signal.
+    void handleAdapterCrashed(const QString &msg);
+
 private slots:
     void handleGdbFinished(int, QProcess::ExitStatus status);
     void handleGdbError(QProcess::ProcessError error);
     void readGdbStandardOutput();
     void readGdbStandardError();
     void readDebugeeOutput(const QByteArray &data);
-
-    void handleAdapterStarted();
-    void handleAdapterStartFailed(const QString &msg,
-        const QString &settingsIdHint = QString());
-
-    void handleInferiorPrepared();
-
-    void handleInferiorStartFailed(const QString &msg);
-
-    void handleAdapterCrashed(const QString &msg);
 
 private:
     QTextCodec *m_outputCodec;
@@ -505,8 +511,6 @@ private: ////////// View & Data Stuff //////////
     void tryLoadDebuggingHelpersClassic();
     void tryQueryDebuggingHelpersClassic();
     Q_SLOT void recheckDebuggingHelperAvailabilityClassic();
-    void connectDebuggingHelperActions();
-    void disconnectDebuggingHelperActions();
     Q_SLOT void setDebugDebuggingHelpersClassic(const QVariant &on);
     Q_SLOT void setUseDebuggingHelpers(const QVariant &on);
 
