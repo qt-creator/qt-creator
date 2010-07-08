@@ -71,8 +71,8 @@ JSDebuggerAgent::~JSDebuggerAgent()
 void JSDebuggerAgent::scriptLoad(qint64 id, const QString & program,
                                       const QString &fileName, int )
 {
+    Q_UNUSED(program);
     filenames.insert(id, QUrl(fileName).toLocalFile());
-    programs.insert(id, program);
 }
 
 /*!
@@ -155,7 +155,6 @@ void JSDebuggerAgent::positionChange(qint64 scriptId,
             break;
         //fallthough
     case SteppingIntoState:
-        qDebug() << programs.value(scriptId);
         stopped();
         break;
     }

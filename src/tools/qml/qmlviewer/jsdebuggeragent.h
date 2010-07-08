@@ -116,7 +116,6 @@ private:
 
     QEventLoop loop;
     QHash <qint64, QString> filenames;
-    QHash <qint64, QString> programs;
     QSet< QPair<QString, qint32> > breakpointList;
     QStringList watchExpressions;
 
