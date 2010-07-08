@@ -266,7 +266,7 @@ void tst_CodeFormatter::ifStatementLongCondition()
          << Line("            || (a + b > 4")
          << Line("                && foo(bar)")
          << Line("                )")
-         << Line("    ) {")
+         << Line("            ) {")
          << Line("        foo;")
          << Line("    }")
          << Line("}");

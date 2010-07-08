@@ -1194,11 +1194,13 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
         }
         break;
     }
-    case T_RPAREN:
-        if (topState.type == condition_open) {
-            *indentDepth = previousState.savedIndentDepth;
-        }
-        break;
+    // Disabled for now, see QTCREATORBUG-1825. It makes extending if conditions
+    // awkward: inserting a newline just before the ) shouldn't align to 'if'.
+    //case T_RPAREN:
+    //    if (topState.type == condition_open) {
+    //        *indentDepth = previousState.savedIndentDepth;
+    //    }
+    //    break;
     case T_DEFAULT:
     case T_CASE:
         for (int i = 0; state(i).type != topmost_intro; ++i) {
