@@ -114,6 +114,7 @@ public:
 
 public slots:
     void setDesignModeBehavior(bool value);
+    void setDebugMode(bool on);
     void sceneResized(QSize size);
     bool open(const QString&);
     void openFile();

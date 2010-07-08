@@ -226,6 +226,7 @@ int main(int argc, char ** argv)
     bool useNativeFileBrowser = true;
     bool experimentalGestures = false;
     bool designModeBehavior = false;
+    bool debuggerModeBehavior = false;
 
     WarningsConfig warningsConfig = DefaultWarnings;
     bool sizeToView = true;
@@ -332,6 +333,8 @@ int main(int argc, char ** argv)
             experimentalGestures = true;
         } else if (arg == "-designmode") {
             designModeBehavior = true;
+        } else if (arg == "-debugger") {
+            debuggerModeBehavior = true;
         } else if (arg[0] != '-') {
             fileName = arg;
         } else if (1 || arg == "-help") {
@@ -406,6 +409,7 @@ int main(int argc, char ** argv)
         viewer->enableExperimentalGestures();
 
     viewer->setDesignModeBehavior(designModeBehavior);
+    viewer->setDebugMode(debuggerModeBehavior);
 
     foreach (QString lib, imports)
         viewer->addLibraryPath(lib);

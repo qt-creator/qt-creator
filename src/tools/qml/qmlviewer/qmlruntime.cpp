@@ -62,6 +62,7 @@
 #include "qdeclarative.h"
 #include <QAbstractAnimation>
 #include <private/qabstractanimation_p.h>
+#include <private/qdeclarativeengine_p.h>
 
 #include <QSettings>
 #include <QXmlStreamReader>
@@ -101,6 +102,7 @@
 #endif
 
 #include <qdeclarativetester.h>
+#include "jsdebuggeragent.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -633,6 +635,15 @@ void QDeclarativeViewer::setDesignModeBehavior(bool value)
     canvas->setDesignModeBehavior(value);
     canvas->toolbar()->setEnabled(value);
 }
+
+void QDeclarativeViewer::setDebugMode(bool on)
+{
+    //if (on)
+    {
+        new JSDebuggerAgent(QDeclarativeEnginePrivate::getScriptEngine(canvas->engine()));
+    }
+}
+
 
 void QDeclarativeViewer::enableExperimentalGestures()
 {

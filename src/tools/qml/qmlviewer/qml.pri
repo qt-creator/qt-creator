@@ -14,14 +14,17 @@ HEADERS += $$PWD/qmlruntime.h \
            $$PWD/deviceorientation.h \
            $$PWD/loggerwidget.h \
            $$PWD/qdeclarativedesigndebugserver.h \
-           $$PWD/qdeclarativedesignview.h
+           $$PWD/qdeclarativedesignview.h \
+           $$PWD/jsdebuggeragent.h
+
 
 SOURCES += $$PWD/qmlruntime.cpp \
            $$PWD/proxysettings.cpp \
            $$PWD/qdeclarativetester.cpp \
            $$PWD/loggerwidget.cpp \
            $$PWD/qdeclarativedesigndebugserver.cpp \
-           $$PWD/qdeclarativedesignview.cpp
+           $$PWD/qdeclarativedesignview.cpp \
+           $$PWD/jsdebuggeragent.cpp
 
 
 RESOURCES += $$PWD/qmlruntime.qrc
