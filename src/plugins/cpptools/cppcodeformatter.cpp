@@ -427,7 +427,8 @@ void CodeFormatter::updateStateUntil(const QTextBlock &endBlock)
             break;
         if (blockData.m_blockRevision != it.revision())
             break;
-        if (previousState != blockData.m_beginState)
+        if (previousState.isEmpty() || blockData.m_beginState.isEmpty()
+                || previousState != blockData.m_beginState)
             break;
         if (loadLexerState(it) == -1)
             break;
