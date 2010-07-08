@@ -37,11 +37,7 @@ public:
     void updateDocuments();
 
     void setActiveObject(const QDeclarativeDebugObjectReference &object);
-
     void mapObjectToQml(const QDeclarativeDebugObjectReference &object);
-
-public slots:
-    void setCurrentEngineId(int id);
 
 signals:
     void selectedItemsChanged(const QList<QDeclarativeDebugObjectReference> &objects);
