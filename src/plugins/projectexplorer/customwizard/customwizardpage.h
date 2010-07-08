@@ -54,17 +54,27 @@ struct CustomWizardContext;
 
 // A non-editable combo for text editing purposes that plays
 // with QWizard::registerField (providing a settable 'text' property).
+// Allows for a separation of values to be used for wizard fields replacement
+// and display texts.
 class TextFieldComboBox : public QComboBox {
     Q_PROPERTY(QString text READ text WRITE setText)
     Q_OBJECT
 public:
     explicit TextFieldComboBox(QWidget *parent = 0);
 
-    QString text() const { return currentText(); }
+    QString text() const;
     void setText(const QString &s);
+
+    void setItems(const QStringList &displayTexts, const QStringList &values);
 
 signals:
     void text4Changed(const QString &); // Do not conflict with Qt 3 compat signal.
+
+private slots:
+    void slotCurrentIndexChanged(int);
+
+private:
+    inline QString valueAt(int) const;
 };
 
 // A Checkbox that plays with QWizard::registerField (providing a settable

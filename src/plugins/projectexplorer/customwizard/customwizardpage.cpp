@@ -54,14 +54,41 @@ TextFieldComboBox::TextFieldComboBox(QWidget *parent) :
     QComboBox(parent)
 {
     setEditable(false);
-    connect(this, SIGNAL(currentIndexChanged(QString)), this, SIGNAL(textChanged(QString)));
+    connect(this, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(slotCurrentIndexChanged(int)));
+}
+
+QString TextFieldComboBox::text() const
+{
+    return valueAt(currentIndex());
 }
 
 void TextFieldComboBox::setText(const QString &s)
 {
-    const int index = findText(s);
+    const int index = findData(QVariant(s), Qt::UserRole);
     if (index != -1 && index != currentIndex())
         setCurrentIndex(index);
+}
+
+void TextFieldComboBox::slotCurrentIndexChanged(int i)
+{
+    emit text4Changed(valueAt(i));
+}
+
+void TextFieldComboBox::setItems(const QStringList &displayTexts,
+                                 const QStringList &values)
+{
+    QTC_ASSERT(displayTexts.size() == values.size(), return)
+    clear();
+    addItems(displayTexts);
+    const int count = values.count();
+    for (int i = 0; i < count; i++)
+        setItemData(i, QVariant(values.at(i)), Qt::UserRole);
+}
+
+QString TextFieldComboBox::valueAt(int i) const
+{
+    return i >= 0 && i < count() ? itemData(i, Qt::UserRole).toString() : QString();
 }
 
 // -------------- TextCheckBox
@@ -154,15 +181,45 @@ void CustomWizardFieldPage::addField(const CustomWizardField &field)\
     }
 }
 
+// Return the list of values and display texts for combo
+static void comboChoices(const CustomWizardField::ControlAttributeMap &controlAttributes,
+                  QStringList *values, QStringList *displayTexts)
+{
+    typedef CustomWizardField::ControlAttributeMap::ConstIterator AttribMapConstIt;
+
+    values->clear();
+    displayTexts->clear();
+    // Pre 2.2 Legacy: "combochoices" attribute with a comma-separated list, for
+    // display == value.
+    const AttribMapConstIt attribConstEnd = controlAttributes.constEnd();
+    const AttribMapConstIt choicesIt = controlAttributes.constFind(QLatin1String("combochoices"));
+    if (choicesIt != attribConstEnd) {
+        const QString &choices = choicesIt.value();
+        if (!choices.isEmpty())
+            *values = *displayTexts = choices.split(QLatin1Char(','));
+        return;
+    }
+    // From 2.2 on: Separate lists of value and text. Add all values found.
+    for (int i = 0; ; i++) {
+        const QString valueKey = CustomWizardField::comboEntryValueKey(i);
+        const AttribMapConstIt valueIt = controlAttributes.constFind(valueKey);
+        if (valueIt == attribConstEnd)
+            break;
+        values->push_back(valueIt.value());
+        const QString textKey = CustomWizardField::comboEntryTextKey(i);
+        displayTexts->push_back(controlAttributes.value(textKey));
+    }
+}
+
 QWidget *CustomWizardFieldPage::registerComboBox(const QString &fieldName,
                                                  const CustomWizardField &field)
 {
     TextFieldComboBox *combo = new TextFieldComboBox;
     do { // Set up items and current index
-        const QString choices = field.controlAttributes.value(QLatin1String("combochoices"));
-        if (choices.isEmpty())
-            break;
-        combo->addItems(choices.split(QLatin1Char(',')));
+        QStringList values;
+        QStringList displayTexts;
+        comboChoices(field.controlAttributes, &values, &displayTexts);
+        combo->setItems(displayTexts, values);
         bool ok;
         const QString currentIndexS = field.controlAttributes.value(QLatin1String("defaultindex"));
         if (currentIndexS.isEmpty())
@@ -201,6 +258,8 @@ QWidget *CustomWizardFieldPage::registerCheckBox(const QString &fieldName,
     typedef CustomWizardField::ControlAttributeMap::const_iterator AttributeMapConstIt;
 
     TextFieldCheckBox *checkBox = new TextFieldCheckBox(fieldDescription);
+    const bool defaultValue = field.controlAttributes.value(QLatin1String("defaultvalue")) == QLatin1String("true");
+    checkBox->setChecked(defaultValue);
     const AttributeMapConstIt trueTextIt = field.controlAttributes.constFind(QLatin1String("truevalue"));
     if (trueTextIt != field.controlAttributes.constEnd()) // Also set empty texts
         checkBox->setTrueText(trueTextIt.value());
