@@ -83,7 +83,9 @@ MaemoPackageCreationWidget::MaemoPackageCreationWidget(MaemoPackageCreationStep 
     m_ui->major->setValue(list.value(0, QLatin1String("0")).toInt());
     m_ui->minor->setValue(list.value(1, QLatin1String("0")).toInt());
     m_ui->patch->setValue(list.value(2, QLatin1String("0")).toInt());
-    versionInfoChanged();   // workaround for missing minor and patch update notifications
+
+    versionInfoChanged();
+    handleSkipButtonToggled(m_ui->skipCheckBox->isChecked());
 }
 
 void MaemoPackageCreationWidget::init()
@@ -145,6 +147,9 @@ void MaemoPackageCreationWidget::enableOrDisableRemoveButton()
 
 void MaemoPackageCreationWidget::handleSkipButtonToggled(bool checked)
 {
+    m_ui->major->setEnabled(!checked);
+    m_ui->minor->setEnabled(!checked);
+    m_ui->patch->setEnabled(!checked);
     m_step->setPackagingEnabled(!checked);
 }
 
