@@ -1404,7 +1404,7 @@ bool CdbEnginePrivate::setCDBThreadId(unsigned long threadId, QString *errorMess
     hr = interfaces().debugSystemObjects->SetCurrentThreadId(threadId);
     if (FAILED(hr)) {
         *errorMessage = QString::fromLatin1("Failed to change to from thread %1 to %2: SetCurrentThreadId() failed: %3").
-                        arg(currentThreadId).arg(threadId).arg(CdbCore::msgEngineComResult(hr));
+                        arg(currentThreadId).arg(threadId).arg(CdbCore::msgDebugEngineComResult(hr));
         return false;
     }
     const QString msg = CdbEngine::tr("Changing threads: %1 -> %2").arg(currentThreadId).arg(threadId);
