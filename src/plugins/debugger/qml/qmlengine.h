@@ -124,6 +124,7 @@ private:
     unsigned int debuggerCapabilities() const;
 
     void setupConnection();
+signals:
     void sendMessage(const QByteArray &msg);
 
 private slots:

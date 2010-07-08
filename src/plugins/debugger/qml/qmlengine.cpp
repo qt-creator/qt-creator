@@ -81,7 +81,6 @@
 namespace Debugger {
 namespace Internal {
 
-
 class QmlResponse
 {
 public:
@@ -92,7 +91,6 @@ public:
 
     QByteArray data;
 };
-
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -154,7 +152,6 @@ public:
     QDeclarativeDebugConnection *m_connection;
     QmlEngine *m_engine;
 };
-
 
 
 ///////////////////////////////////////////////////////////////////////
@@ -228,6 +225,7 @@ const int serverPort = 3768;
 
 void QmlEngine::startEngine()
 {
+ #if 0
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     const DebuggerStartParameters &sp = startParameters();
     const int pos = sp.remoteChannel.indexOf(QLatin1Char(':'));
@@ -257,16 +255,19 @@ void QmlEngine::startEngine()
         startFailed();
         return;
     }
+#endif
     setState(EngineStarted);
     startSuccessful();
     setState(InferiorStarting);
 
     //m_frameRate = new CanvasFrameRate(0);
     //m_frameRate->show();
+    setState(InferiorRunning);
 }
 
 void QmlEngine::setupConnection()
 {
+    #if 0 //the qmlviewer right now connected using QmlJSInspector::InternalInspectorPlugin::ClientProxy
     QTC_ASSERT(m_conn == 0, /**/);
     m_conn = new QDeclarativeDebugConnection(this);
 
@@ -303,12 +304,14 @@ void QmlEngine::setupConnection()
         startFailed();
         return;
     }
+ #endif
 
     qDebug() << "CONNECTION SUCCESSFUL";
     setState(InferiorRunningRequested);
     setState(InferiorRunning);
 
-    reloadEngines();
+//    reloadEngines();
+
 }
 
 void QmlEngine::continueInferior()
@@ -454,11 +457,13 @@ void QmlEngine::requestModuleSymbols(const QString &moduleName)
     Q_UNUSED(moduleName)
 }
 
+#if 0 //this is currently a signal connected to the QmlJSInspector::Internal::DebuggerClient
 void QmlEngine::sendMessage(const QByteArray &msg)
 {
     QTC_ASSERT(m_client, return);
     m_client->sendMessage(msg);
 }
+#endif
 
 
 //////////////////////////////////////////////////////////////////////
