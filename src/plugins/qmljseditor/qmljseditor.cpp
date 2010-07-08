@@ -845,6 +845,94 @@ void QmlJSTextEditor::updateUsesNow()
     }
 
     setExtraSelections(CodeSemanticsSelection, selections);
+
+    setSelectedElement();
+}
+
+class SelectedElement: protected Visitor
+{
+    unsigned cursorPosition;
+    UiObjectMember *selectedMember;
+
+public:
+    SelectedElement()
+        : cursorPosition(0), selectedMember(0) {}
+
+    UiObjectMember *operator()(Node *root, unsigned position)
+    {
+        cursorPosition = position;
+        selectedMember = 0;
+        Node::accept(root, this);
+        return selectedMember;
+    }
+
+protected:
+    UiObjectInitializer *initializer(UiObjectMember *member) const
+    {
+        if (UiObjectDefinition *def = cast<UiObjectDefinition *>(member))
+            return def->initializer;
+        else if (UiObjectBinding *binding = cast<UiObjectBinding *>(member))
+            return binding->initializer;
+        return 0;
+    }
+
+    bool isIdBinding(UiObjectMember *member) const
+    {
+        if (UiScriptBinding *script = cast<UiScriptBinding *>(member)) {
+            if (! script->qualifiedId)
+                return false;
+            else if (! script->qualifiedId->name)
+                return false;
+            else if (script->qualifiedId->next)
+                return false;
+
+            const QString propertyName = script->qualifiedId->name->asString();
+
+            if (propertyName == QLatin1String("id"))
+                return true;
+        }
+
+        return false;
+    }
+
+    virtual void postVisit(Node *ast)
+    {
+        if (selectedMember)
+            return; // nothing to do, we already have the result.
+
+        if (UiObjectMember *member = ast->uiObjectMemberCast()) {
+            unsigned begin = member->firstSourceLocation().begin();
+            unsigned end = member->lastSourceLocation().end();
+
+            if (cursorPosition >= begin && cursorPosition <= end) {
+                if (UiObjectInitializer *init = initializer(member)) {
+                    for (UiObjectMemberList *it = init->members; it; it = it->next) {
+                        if (isIdBinding(it->member)) {
+                            selectedMember = member;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+};
+
+void QmlJSTextEditor::setSelectedElement()
+{
+    QTextCursor tc = textCursor();
+    tc.movePosition(QTextCursor::StartOfWord);
+    tc.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+    QString wordAtCursor = tc.selectedText();
+
+    int offset = -1;
+    if (Document::Ptr doc = m_semanticInfo.document) {
+        SelectedElement selectedMember;
+        if (UiObjectMember *m = selectedMember(doc->qmlProgram(), textCursor().position())) {
+            offset = m->firstSourceLocation().begin();
+        }
+    }
+    emit selectedElementChanged(offset, wordAtCursor);
 }
 
 void QmlJSTextEditor::updateMethodBoxToolTip()

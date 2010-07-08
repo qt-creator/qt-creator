@@ -17,7 +17,10 @@ qmljsinspectorcontext.h \
 qmljsinspectorplugin.h \
 qmljsclientproxy.h \
 qmljsinspector.h \
-qmljsdelta.h
+qmljsdelta.h \
+qmlinspectortoolbar.h \
+qmljslivetextpreview.h \
+qmljsdesigndebugclient.h
 
 SOURCES += \
 qmljsdebuggerclient.cpp \
@@ -25,7 +28,10 @@ qmljsinspectorcontext.cpp \
 qmljsinspectorplugin.cpp \
 qmljsclientproxy.cpp \
 qmljsinspector.cpp \
-qmljsdelta.cpp
+qmljsdelta.cpp \
+qmlinspectortoolbar.cpp \
+qmljslivetextpreview.cpp \
+qmljsdesigndebugclient.cpp
 
 OTHER_FILES += QmlJSInspector.pluginspec
 RESOURCES += qmljsinspector.qrc

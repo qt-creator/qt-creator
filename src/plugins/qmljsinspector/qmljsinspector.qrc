@@ -1,6 +1,13 @@
 <RCC>
-    <qresource prefix="/qmlinspector" >
-        <file>images/logo.png</file>
+    <qresource prefix="/qml">
+        <file>images/color-picker.png</file>
+        <file>images/from-qml.png</file>
+        <file>images/pause.png</file>
+        <file>images/reload.png</file>
+        <file>images/play.png</file>
+        <file>images/select.png</file>
+        <file>images/to-qml.png</file>
+        <file>images/select-marquee.png</file>
+        <file>images/zoom.png</file>
     </qresource>
 </RCC>
-

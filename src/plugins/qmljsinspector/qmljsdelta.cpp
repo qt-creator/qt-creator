@@ -38,84 +38,42 @@ using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJSInspector::Internal;
 
-namespace {
+UiObjectMember *ScriptBindingParser::parent(UiScriptBinding *script) const
+{ return _parent.value(script); }
 
-class ScriptBindingParser : protected Visitor
+UiScriptBinding *ScriptBindingParser::id(UiObjectMember *parent) const
+{ return _id.value(parent); }
+
+QList<UiScriptBinding *> ScriptBindingParser::ids() const
+{ return _id.values(); }
+
+QString ScriptBindingParser::header(UiObjectMember *member) const
 {
-    QList<UiObjectMember *> objectStack;
-    QHash<UiScriptBinding *, UiObjectMember *> _parent;
-    QHash<UiObjectMember *, UiScriptBinding *> _id;
-    QHash<UiScriptBinding *, QDeclarativeDebugObjectReference> _idBindings;
-
-public:
-
-    QmlJS::Document::Ptr doc;
-    QList<UiScriptBinding *> scripts;
-
-    ScriptBindingParser(Document::Ptr doc, const QList<QDeclarativeDebugObjectReference> &objectReferences = QList<QDeclarativeDebugObjectReference>());
-    void process();
-
-    UiObjectMember *parent(UiScriptBinding *script) const
-    { return _parent.value(script); }
-
-    UiScriptBinding *id(UiObjectMember *parent) const
-    { return _id.value(parent); }
-
-    QList<UiScriptBinding *> ids() const
-    { return _id.values(); }
-
-    QDeclarativeDebugObjectReference objectReferenceForPosition(const QUrl &url, int line, int col) const;
-
-    QDeclarativeDebugObjectReference objectReferenceForScriptBinding(UiScriptBinding *binding) const;
-
-    QDeclarativeDebugObjectReference objectReferenceForOffset(unsigned int offset);
-
-    QString header(UiObjectMember *member) const
-    {
-        if (member) {
-            if (UiObjectDefinition *def = cast<UiObjectDefinition *>(member)) {
-                const int begin = def->firstSourceLocation().begin();
-                const int end = def->initializer->lbraceToken.begin();
-                return doc->source().mid(begin, end - begin);
-            } else if (UiObjectBinding *binding = cast<UiObjectBinding *>(member)) {
-                const int begin = binding->firstSourceLocation().begin();
-                const int end = binding->initializer->lbraceToken.begin();
-                return doc->source().mid(begin, end - begin);
-            }
-        }
-
-        return QString();
-    }
-
-    QString scriptCode(UiScriptBinding *script) const
-    {
-        if (script) {
-            const int begin = script->statement->firstSourceLocation().begin();
-            const int end = script->statement->lastSourceLocation().end();
+    if (member) {
+        if (UiObjectDefinition *def = cast<UiObjectDefinition *>(member)) {
+            const int begin = def->firstSourceLocation().begin();
+            const int end = def->initializer->lbraceToken.begin();
+            return doc->source().mid(begin, end - begin);
+        } else if (UiObjectBinding *binding = cast<UiObjectBinding *>(member)) {
+            const int begin = binding->firstSourceLocation().begin();
+            const int end = binding->initializer->lbraceToken.begin();
             return doc->source().mid(begin, end - begin);
         }
-
-        return QString();
     }
 
-protected:
-    QDeclarativeDebugObjectReference objectReference(const QString &id) const;
+    return QString();
+}
 
-    virtual bool visit(UiObjectDefinition *ast);
-    virtual void endVisit(UiObjectDefinition *);
-    virtual bool visit(UiObjectBinding *ast);
-    virtual void endVisit(UiObjectBinding *);
-    virtual bool visit(UiScriptBinding *ast);
+QString ScriptBindingParser::scriptCode(UiScriptBinding *script) const
+{
+    if (script) {
+        const int begin = script->statement->firstSourceLocation().begin();
+        const int end = script->statement->lastSourceLocation().end();
+        return doc->source().mid(begin, end - begin);
+    }
 
-private:
-    QList<QDeclarativeDebugObjectReference> objectReferences;
-    QDeclarativeDebugObjectReference m_foundObjectReference;
-    unsigned int m_searchElementOffset;
-
-};
-
-
-} // end of anonymous namespace
+    return QString();
+}
 
 static bool isLiteralValue(ExpressionNode *expr)
 {

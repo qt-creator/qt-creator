@@ -31,6 +31,7 @@
 #include "qmljsinspectorplugin.h"
 #include "qmljsinspector.h"
 #include "qmljsclientproxy.h"
+#include "qmlinspectortoolbar.h"
 
 #include <debugger/debuggeruiswitcher.h>
 #include <debugger/debuggerconstants.h>
@@ -87,6 +88,7 @@ InspectorPlugin::InspectorPlugin()
 
     _clientProxy = new ClientProxy(this);
     _inspector = new Inspector(this);
+    m_toolbar = new QmlInspectorToolbar(this);
 }
 
 InspectorPlugin::~InspectorPlugin()
@@ -158,28 +160,23 @@ void InspectorPlugin::extensionsInitialized()
         connect(pex, SIGNAL(aboutToExecuteProject(ProjectExplorer::Project*, QString)),
                 SLOT(activateDebuggerForProject(ProjectExplorer::Project*, QString)));
     }
+    m_toolbar->createActions(Core::Context(C_INSPECTOR));
 
-    QWidget *configBar = new QWidget;
-    configBar->setProperty("topBorder", true);
+    connect(_clientProxy, SIGNAL(connected(QDeclarativeEngineDebug*)), m_toolbar, SLOT(enable()));
+    connect(_clientProxy, SIGNAL(disconnected()), m_toolbar, SLOT(disable()));
 
-    QHBoxLayout *configBarLayout = new QHBoxLayout(configBar);
-    configBarLayout->setMargin(0);
-    configBarLayout->setSpacing(5);
+    connect(m_toolbar, SIGNAL(animationSpeedChanged(qreal)), _clientProxy, SLOT(setAnimationSpeed(qreal)));
+    connect(m_toolbar, SIGNAL(colorPickerSelected()), _clientProxy, SLOT(changeToColorPickerTool()));
+    connect(m_toolbar, SIGNAL(zoomToolSelected()), _clientProxy, SLOT(changeToZoomTool()));
+    connect(m_toolbar, SIGNAL(selectToolSelected()), _clientProxy, SLOT(changeToSelectTool()));
+    connect(m_toolbar, SIGNAL(marqueeSelectToolSelected()), _clientProxy, SLOT(changeToSelectMarqueeTool()));
 
-    Core::ICore *core = Core::ICore::instance();
-    Core::ActionManager *am = core->actionManager();
-    configBarLayout->addWidget(createToolButton(am->command(ProjectExplorer::Constants::DEBUG)->action()));
-    configBarLayout->addWidget(createToolButton(am->command(ProjectExplorer::Constants::STOP)->action()));
+    connect(_clientProxy, SIGNAL(colorPickerActivated()), m_toolbar, SLOT(activateColorPicker()));
+    connect(_clientProxy, SIGNAL(selectToolActivated()), m_toolbar, SLOT(activateSelectTool()));
+    connect(_clientProxy, SIGNAL(selectMarqueeToolActivated()), m_toolbar, SLOT(activateMarqueeSelectTool()));
+    connect(_clientProxy, SIGNAL(zoomToolActivated()), m_toolbar, SLOT(activateZoomTool()));
 
-    configBarLayout->addStretch();
-
-    uiSwitcher->setToolbar(LANG_QML, configBar);
-
-    if (QmlJS::ModelManagerInterface *m = InspectorPlugin::instance()->modelManager()) {
-        connect(m, SIGNAL(documentUpdated(QmlJS::Document::Ptr)),
-                _inspector, SLOT(documentUpdated(QmlJS::Document::Ptr)));
-    }
-
+    connect(_clientProxy, SIGNAL(animationSpeedChanged(qreal)), m_toolbar, SLOT(changeAnimationSpeed(qreal)));
 }
 
 void InspectorPlugin::activateDebuggerForProject(ProjectExplorer::Project *project, const QString &runMode)

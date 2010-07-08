@@ -30,6 +30,8 @@
 #ifndef QMLJSEDITOR_H
 #define QMLJSEDITOR_H
 
+#include "qmljseditor_global.h"
+
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsscanner.h>
 #include <texteditor/basetexteditor.h>
@@ -199,7 +201,7 @@ private:
     QmlJS::ModelManagerInterface *m_modelManager;
 };
 
-class QmlJSTextEditor : public TextEditor::BaseTextEditor
+class QMLJSEDITOR_EXPORT QmlJSTextEditor : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
 
@@ -212,6 +214,9 @@ public:
     SemanticInfo semanticInfo() const;
     int documentRevision() const;
     bool isOutdated() const;
+
+signals:
+    void selectedElementChanged(int offset, const QString &wordAtCursor);
 
 public slots:
     void followSymbolUnderCursor();
@@ -256,6 +261,7 @@ private:
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
     bool isClosingBrace(const QList<QmlJS::Token> &tokens) const;
 
+    void setSelectedElement();
     QString wordUnderCursor() const;
 
     SemanticHighlighter::Source currentSource(bool force = false);

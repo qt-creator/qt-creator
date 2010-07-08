@@ -46,6 +46,7 @@ namespace QmlJSInspector {
 namespace Internal {
 
 class InspectorPlugin;
+class QmlJSDesignDebugClient;
 
 class ClientProxy : public QObject
 {
@@ -60,12 +61,13 @@ public:
                                                           bool isLiteralValue);
 
     // returns the object references for the given url.
-    QList<QDeclarativeDebugObjectReference> objectReferences(const QUrl &url) const;
+    QList<QDeclarativeDebugObjectReference> objectReferences(const QUrl &url = QUrl()) const;
+    QDeclarativeDebugObjectReference objectReferenceForId(int debugId) const;
 
     bool isConnected() const;
     bool isUnconnected() const;
 
-    void setSelectedItemByObjectId(int engineId, const QDeclarativeDebugObjectReference &objectRef);
+    void setSelectedItemsByObjectId(const QList<QDeclarativeDebugObjectReference> &objectRefs);
 
     bool connectToViewer(const QString &host, quint16 port);
     void disconnectFromViewer();
@@ -85,9 +87,21 @@ signals:
     void aboutToDisconnect();
     void disconnected();
 
+    void colorPickerActivated();
+    void selectToolActivated();
+    void selectMarqueeToolActivated();
+    void zoomToolActivated();
+    void animationSpeedChanged(qreal slowdownFactor);
+
 public slots:
     void queryEngineContext(int id);
-    void reloadQmlViewer(int engineId);
+    void reloadQmlViewer();
+
+    void setAnimationSpeed(qreal slowdownFactor = 1.0f);
+    void changeToColorPickerTool();
+    void changeToZoomTool();
+    void changeToSelectTool();
+    void changeToSelectMarqueeTool();
 
 private slots:
     void contextChanged();
@@ -100,6 +114,7 @@ private slots:
 private:
     void reloadEngines();
     QList<QDeclarativeDebugObjectReference> objectReferences(const QUrl &url, const QDeclarativeDebugObjectReference &objectRef) const;
+    QDeclarativeDebugObjectReference objectReferenceForId(int debugId, const QDeclarativeDebugObjectReference &ref) const;
 
 private:
     explicit ClientProxy(QObject *parent = 0);
@@ -109,6 +124,7 @@ private:
 
     QDeclarativeDebugConnection *m_conn;
     QDeclarativeEngineDebug *m_client;
+    QmlJSDesignDebugClient *m_designClient;
 
     QDeclarativeDebugEnginesQuery *m_engineQuery;
     QDeclarativeDebugRootContextQuery *m_contextQuery;

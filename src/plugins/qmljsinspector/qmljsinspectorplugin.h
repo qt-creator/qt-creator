@@ -49,6 +49,7 @@ namespace ProjectExplorer {
 namespace QmlJSInspector {
 namespace Internal {
 
+class QmlInspectorToolbar;
 class ClientProxy;
 class Inspector;
 
@@ -79,8 +80,12 @@ private slots:
     void prepareDebugger(Core::IMode *mode);
 
 private:
+    void createActions();
+
+private:
     ClientProxy *_clientProxy;
     Inspector *_inspector;
+    QmlInspectorToolbar *m_toolbar;
 };
 
 } // end of namespace Internal

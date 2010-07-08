@@ -59,6 +59,7 @@ namespace Internal {
 
 class ClientProxy;
 class InspectorContext;
+class QmlJSLiveTextPreview;
 
 class Inspector : public QObject
 {
@@ -104,7 +105,7 @@ private slots:
     void pollInspector();
 
     void setSelectedItemsByObjectReference(QList<QDeclarativeDebugObjectReference> objectReferences);
-    void changeSelectedItem(int engineId, const QDeclarativeDebugObjectReference &object);
+    void changeSelectedItems(const QList<QDeclarativeDebugObjectReference> &objects);
 
     void updateMenuActions();
     void connected(QDeclarativeEngineDebug *client);
@@ -113,8 +114,6 @@ private slots:
 
     void disconnectWidgets();
     void disconnected();
-
-    void documentUpdated(QmlJS::Document::Ptr doc);
 
 private:
     Debugger::DebuggerRunControl *createDebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig,
@@ -141,6 +140,9 @@ private:
     bool m_simultaneousCppAndQmlDebugMode;
     DebugMode m_debugMode;
     ClientProxy *m_clientProxy;
+
+    // Qml/JS integration
+    QmlJSLiveTextPreview *m_textPreview;
 };
 
 } // Internal

@@ -30,26 +30,49 @@
 #define QMLJSINSPECTORCONSTANTS_H
 
 namespace QmlJSInspector {
-    namespace Constants {
-        const char * const RUN = "QmlInspector.Run";
-        const char * const STOP = "QmlInspector.Stop";
+namespace Constants {
 
-        const char * const C_INSPECTOR = "QmlInspector";
-        const char * const COMPLETE_THIS = "QmlInspector.CompleteThis";
+const char * const RUN = "QmlInspector.Run";
+const char * const STOP = "QmlInspector.Stop";
 
-        const char * const M_DEBUG_SIMULTANEOUSLY = "QmlInspector.Menu.SimultaneousDebug";
+const char * const C_INSPECTOR = "QmlInspector";
+const char * const COMPLETE_THIS = "QmlInspector.CompleteThis";
 
-        const char * const LANG_QML = "QML";
+const char * const M_DEBUG_SIMULTANEOUSLY = "QmlInspector.Menu.SimultaneousDebug";
 
-        // settings
-        const char * const S_QML_INSPECTOR    = "QML.Inspector";
-        const char * const S_EXTERNALPORT_KEY = "ExternalPort";
-        const char * const S_EXTERNALURL_KEY  = "ExternalUrl";
-        const char * const S_SHOW_UNINSPECTABLE_ITEMS  = "ShowUninspectableProperties";
-        const char * const S_SHOW_UNWATCHABLE_PROPERTIES = "ShowUninspectableItem";
-        const char * const S_GROUP_PROPERTIES_BY_ITEM_TYPE = "GroupPropertiesByItemType";
+const char * const LANG_QML = "QML";
 
-    }
-}
+const char * const RELOAD_ACTION = "QmlInspector.Reload";
+const char * const PLAY_ACTION = "QmlInspector.Play";
+const char * const PAUSE_ACTION = "QmlInspector.Pause";
+const char * const SELECT_ACTION = "QmlInspector.Select";
+const char * const SELECT_MARQUEE_ACTION = "QmlInspector.SelectMarquee";
+const char * const ZOOM_ACTION = "QmlInspector.Zoom";
+const char * const COLOR_PICKER_ACTION = "QmlInspector.ColorPicker";
+const char * const TO_QML_ACTION = "QmlInspector.ToQml";
+const char * const FROM_QML_ACTION = "QmlInspector.FromQml";
+
+// settings
+const char * const S_QML_INSPECTOR    = "QML.Inspector";
+const char * const S_EXTERNALPORT_KEY = "ExternalPort";
+const char * const S_EXTERNALURL_KEY  = "ExternalUrl";
+const char * const S_SHOW_UNINSPECTABLE_ITEMS  = "ShowUninspectableProperties";
+const char * const S_SHOW_UNWATCHABLE_PROPERTIES = "ShowUninspectableItem";
+const char * const S_GROUP_PROPERTIES_BY_ITEM_TYPE = "GroupPropertiesByItemType";
+
+const char * const ARG_DESIGNMODE = "-designmode";
+
+enum DesignTool {
+    NoTool = 0,
+    SelectionToolMode = 1,
+    MarqueeSelectionToolMode = 2,
+    MoveToolMode = 3,
+    ResizeToolMode = 4,
+    ColorPickerMode = 5,
+    ZoomMode = 6
+};
+
+} // namespace Constants
+} // namespace Qml
 
 #endif

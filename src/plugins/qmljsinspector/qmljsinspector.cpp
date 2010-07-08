@@ -31,6 +31,8 @@
 #include "qmljsclientproxy.h"
 #include "qmljsinspectorcontext.h"
 #include "qmljsdelta.h"
+#include "qmljslivetextpreview.h"
+#include "qmljsprivateapi.h"
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsdocument.h>
@@ -77,9 +79,6 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <private/qdeclarativedebug_p.h>
-#include <private/qdeclarativedebugclient_p.h>
-
 #include <QtCore/QDebug>
 #include <QtCore/QStringList>
 #include <QtCore/QTimer>
@@ -125,7 +124,9 @@ Inspector::Inspector(QObject *parent)
 
 #warning set up the context widget
     QWidget *contextWidget = 0;
-    m_context = new Internal::InspectorContext(contextWidget);
+    m_context = new InspectorContext(contextWidget);
+
+    m_textPreview = new QmlJSLiveTextPreview(this);
 
     connect(m_clientProxy, SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
             SLOT(setSelectedItemsByObjectReference(QList<QDeclarativeDebugObjectReference>)));
@@ -181,14 +182,9 @@ void Inspector::updateEngineList()
     }
 }
 
-void Inspector::changeSelectedItem(int engineId, const QDeclarativeDebugObjectReference &objectRef)
+void Inspector::changeSelectedItems(const QList<QDeclarativeDebugObjectReference> &objects)
 {
-    Q_UNUSED(engineId);
-    Q_UNUSED(objectRef);
-
-    qDebug() << "TODO:" << Q_FUNC_INFO;
-
-#warning implement setSelectedItemByObjectId
+    m_clientProxy->setSelectedItemsByObjectId(objects);
 }
 
 void Inspector::shutdown()
@@ -206,7 +202,7 @@ void Inspector::pollInspector()
     const quint16 port = quint16(m_runConfigurationDebugData.serverPort);
 
     if (m_clientProxy->connectToViewer(host, port)) {
-#warning get the QML/JS documents from the snapshot here
+        m_textPreview->updateDocuments();
         m_connectionTimer->stop();
         m_connectionAttempts = 0;
     } else if (m_connectionAttempts == MaxConnectionAttempts) {
@@ -498,13 +494,9 @@ void Inspector::debuggerStateChanged(int newState)
     updateMenuActions();
 }
 
-
 void Inspector::reloadQmlViewer()
 {
-    qDebug() << Q_FUNC_INFO;
-    qDebug() << "TODO: set up the current engine id and restart the viewer";
-#warning set up the current engine id
-    // m_clientProxy->reloadQmlViewer(currentEngineId);
+    m_clientProxy->reloadQmlViewer();
 }
 
 void Inspector::setSimpleDockWidgetArrangement()
@@ -561,10 +553,6 @@ void Inspector::gotoObjectReferenceDefinition(const QDeclarativeDebugObjectRefer
         return;
 
     qDebug() << Q_FUNC_INFO << "selecting" << obj.className() << obj.debugId() << obj.source().url();
-#warning update the rewriter
-#if 0
-    m_rewriter->setActiveObject(obj);
-#endif
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     Core::IEditor *editor = editorManager->openEditor(fileName, QString(), Core::EditorManager::NoModeSwitch);
@@ -607,15 +595,4 @@ bool Inspector::addQuotesForData(const QVariant &value) const
     }
 
     return false;
-}
-
-void Inspector::documentUpdated(QmlJS::Document::Ptr doc)
-{
-    Core::ICore *core = Core::ICore::instance();
-    const int dbgcontext = core->uniqueIDManager()->uniqueIdentifier(Debugger::Constants::C_DEBUGMODE);
-
-    if (! core->hasContext(dbgcontext))
-        return;
-
-    qDebug() << "TODO: compute the delta changes for:" << doc->fileName();
 }

@@ -29,6 +29,7 @@
 #include "qmljsclientproxy.h"
 #include "qmljsdebuggerclient.h"
 #include "qmljsprivateapi.h"
+#include "qmljsdesigndebugclient.h"
 
 #include <utils/qtcassert.h>
 
@@ -44,6 +45,7 @@ ClientProxy::ClientProxy(QObject *parent) :
     QObject(parent),
     m_conn(0),
     m_client(0),
+    m_designClient(0),
     m_engineQuery(0),
     m_contextQuery(0),
     m_objectTreeQuery(0)
@@ -63,17 +65,29 @@ bool ClientProxy::connectToViewer(const QString &host, quint16 port)
         return false;
 
     qDebug() << Q_FUNC_INFO;
-    if (m_client) {
-#warning disconnect selectedItemsChanged here
-#if 0
-        disconnect(m_client, SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
-                   this,     SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)));
-#endif
+    if (m_designClient) {
+
+        disconnect(m_designClient, SIGNAL(currentObjectsChanged(QList<QDeclarativeDebugObjectReference>)),
+                            this, SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)));
+        disconnect(m_designClient,
+                   SIGNAL(colorPickerActivated()), this, SIGNAL(colorPickerActivated()));
+        disconnect(m_designClient,
+                   SIGNAL(zoomToolActivated()), this, SIGNAL(zoomToolActivated()));
+        disconnect(m_designClient,
+                   SIGNAL(selectToolActivated()), this, SIGNAL(selectToolActivated()));
+        disconnect(m_designClient,
+                   SIGNAL(selectMarqueeToolActivated()), this, SIGNAL(selectMarqueeToolActivated()));
+        disconnect(m_designClient,
+
+                   SIGNAL(animationSpeedChanged(qreal)), this, SIGNAL(animationSpeedChanged(qreal)));
 
         emit aboutToDisconnect();
 
         delete m_client;
         m_client = 0;
+
+        delete m_designClient;
+        m_designClient = 0;
     }
 
     if (m_conn) {
@@ -145,14 +159,23 @@ void ClientProxy::connectionStateChanged()
             if (!m_client) {
                 qDebug() << "CREATING ENGINE";
                 m_client = new QDeclarativeEngineDebug(m_conn, this);
+                m_designClient = new QmlJSDesignDebugClient(m_conn, this);
                 emit connected(m_client);
 
-#warning add support for selectedItemsChanged here
-#if 0
-                connect(m_client,
-                        SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
+                connect(m_designClient,
+                        SIGNAL(currentObjectsChanged(QList<QDeclarativeDebugObjectReference>)),
                         SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)));
-#endif
+                connect(m_designClient,
+                        SIGNAL(colorPickerActivated()), SIGNAL(colorPickerActivated()));
+                connect(m_designClient,
+                        SIGNAL(zoomToolActivated()), SIGNAL(zoomToolActivated()));
+                connect(m_designClient,
+                        SIGNAL(selectToolActivated()), SIGNAL(selectToolActivated()));
+                connect(m_designClient,
+                        SIGNAL(selectMarqueeToolActivated()), SIGNAL(selectMarqueeToolActivated()));
+                connect(m_designClient,
+                        SIGNAL(animationSpeedChanged(qreal)), SIGNAL(animationSpeedChanged(qreal)));
+
             }
 
             (void) new DebuggerClient(m_conn);
@@ -180,19 +203,30 @@ bool ClientProxy::isUnconnected() const
     return (!m_conn || m_conn->state() == QAbstractSocket::UnconnectedState);
 }
 
-void ClientProxy::setSelectedItemByObjectId(int engineId, const QDeclarativeDebugObjectReference &objectRef)
+void ClientProxy::setSelectedItemsByObjectId(const QList<QDeclarativeDebugObjectReference> &objectRefs)
 {
-    Q_UNUSED(engineId);
-    Q_UNUSED(objectRef);
+    if (isConnected() && m_designClient)
+        m_designClient->setSelectedItemsByObjectId(objectRefs);
+}
 
-#ifdef __GNUC__
-#  warning implement ClientProxy::setSelectedItemByObjectId
-#endif
-    qDebug() << "TODO:" << Q_FUNC_INFO;
-#if 0
-    if (isConnected())
-        m_client->setSelectedItemByObjectId(engineId, objectRef);
-#endif
+QDeclarativeDebugObjectReference ClientProxy::objectReferenceForId(int debugId) const
+{
+    return objectReferenceForId(debugId, m_rootObject);
+}
+
+QDeclarativeDebugObjectReference ClientProxy::objectReferenceForId(int debugId,
+                                                                   const QDeclarativeDebugObjectReference &objectRef) const
+{
+    if (objectRef.debugId() == debugId)
+        return objectRef;
+
+    foreach(const QDeclarativeDebugObjectReference &child, objectRef.children()) {
+        QDeclarativeDebugObjectReference result = objectReferenceForId(debugId, child);
+        if (result.debugId() == debugId)
+            return result;
+    }
+
+    return QDeclarativeDebugObjectReference();
 }
 
 QList<QDeclarativeDebugObjectReference> ClientProxy::objectReferences(const QUrl &url) const
@@ -287,19 +321,41 @@ void ClientProxy::objectTreeFetched(QDeclarativeDebugQuery::State state)
     emit objectTreeUpdated(m_rootObject);
 }
 
-void ClientProxy::reloadQmlViewer(int engineId)
+void ClientProxy::reloadQmlViewer()
 {
-#ifdef __GNUC__
-#  warning implement ClientProxy::reloadQmlViewer
-#endif
-    Q_UNUSED(engineId);
-    qDebug() << "TODO:" << Q_FUNC_INFO;
-#if 0
-    if (m_client && m_conn->isConnected()) {
-        m_client->reloadQmlViewer(engineId);
-    }
-#endif
+    if (m_designClient && m_conn->isConnected())
+        m_designClient->reloadViewer();
 }
+
+void ClientProxy::setAnimationSpeed(qreal slowdownFactor)
+{
+    if (m_designClient && m_conn->isConnected())
+        m_designClient->setAnimationSpeed(slowdownFactor);
+}
+
+void ClientProxy::changeToColorPickerTool()
+{
+    if (m_designClient && m_conn->isConnected())
+        m_designClient->changeToColorPickerTool();
+}
+
+void ClientProxy::changeToZoomTool()
+{
+    if (m_designClient && m_conn->isConnected())
+        m_designClient->changeToZoomTool();
+}
+void ClientProxy::changeToSelectTool()
+{
+    if (m_designClient && m_conn->isConnected())
+        m_designClient->changeToSelectTool();
+}
+
+void ClientProxy::changeToSelectMarqueeTool()
+{
+    if (m_designClient && m_conn->isConnected())
+        m_designClient->changeToSelectMarqueeTool();
+}
+
 
 void ClientProxy::reloadEngines()
 {

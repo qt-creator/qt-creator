@@ -33,10 +33,60 @@
 #include "qmljsprivateapi.h"
 
 #include <qmljs/qmljsdocument.h>
+#include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
+#include <qmljs/parser/qmljsast_p.h>
+
+using namespace QmlJS;
+using namespace QmlJS::AST;
 
 namespace QmlJSInspector {
 namespace Internal {
+
+class ScriptBindingParser : protected Visitor
+{
+public:
+    QmlJS::Document::Ptr doc;
+    QList<UiScriptBinding *> scripts;
+
+    ScriptBindingParser(Document::Ptr doc,
+                        const QList<QDeclarativeDebugObjectReference> &objectReferences = QList<QDeclarativeDebugObjectReference>());
+    void process();
+
+    UiObjectMember *parent(UiScriptBinding *script) const;
+    UiScriptBinding *id(UiObjectMember *parent) const;
+    QList<UiScriptBinding *> ids() const;
+
+    QDeclarativeDebugObjectReference objectReferenceForPosition(const QUrl &url, int line, int col) const;
+
+    QDeclarativeDebugObjectReference objectReferenceForScriptBinding(UiScriptBinding *binding) const;
+
+    QDeclarativeDebugObjectReference objectReferenceForOffset(unsigned int offset);
+
+    QString header(UiObjectMember *member) const;
+
+    QString scriptCode(UiScriptBinding *script) const;
+
+protected:
+    QDeclarativeDebugObjectReference objectReference(const QString &id) const;
+
+    virtual bool visit(UiObjectDefinition *ast);
+    virtual void endVisit(UiObjectDefinition *);
+    virtual bool visit(UiObjectBinding *ast);
+    virtual void endVisit(UiObjectBinding *);
+    virtual bool visit(UiScriptBinding *ast);
+
+private:
+    QList<UiObjectMember *> objectStack;
+    QHash<UiScriptBinding *, UiObjectMember *> _parent;
+    QHash<UiObjectMember *, UiScriptBinding *> _id;
+    QHash<UiScriptBinding *, QDeclarativeDebugObjectReference> _idBindings;
+
+    QList<QDeclarativeDebugObjectReference> objectReferences;
+    QDeclarativeDebugObjectReference m_foundObjectReference;
+    unsigned int m_searchElementOffset;
+};
+
 
 class Delta
 {
