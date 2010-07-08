@@ -1417,6 +1417,11 @@ SemanticInfo CPPEditor::semanticInfo() const
     return m_lastSemanticInfo;
 }
 
+CPlusPlus::OverviewModel *CPPEditor::overviewModel() const
+{
+    return m_overviewModel;
+}
+
 bool CPPEditor::isElectricCharacter(QChar ch) const
 {
     if (ch == QLatin1Char('{') ||

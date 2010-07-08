@@ -38,7 +38,7 @@ public:
     virtual void setCursorSynchronization(bool syncWithCursor);
 
 private slots:
-    void updateOutline(CPlusPlus::Document::Ptr document);
+    void modelUpdated();
     void updateSelectionInTree();
     void updateSelectionInText(const QItemSelection &selection);
 
@@ -52,7 +52,6 @@ private:
     CppOutlineTreeView *m_treeView;
     CPlusPlus::OverviewModel *m_model;
     CppOutlineFilterModel *m_proxyModel;
-    CPlusPlus::Document::Ptr m_document;
 
     bool m_enableCursorSync;
     bool m_blockCursorSync;

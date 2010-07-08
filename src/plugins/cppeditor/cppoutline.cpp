@@ -6,8 +6,9 @@
 #include <coreplugin/ifile.h>
 #include <cplusplus/OverviewModel.h>
 
-#include <QtGui/QVBoxLayout>
 #include <QtCore/QDebug>
+#include <QtGui/QVBoxLayout>
+#include <QtCore/QTimer>
 
 using namespace CppEditor::Internal;
 
@@ -49,7 +50,7 @@ CppOutlineWidget::CppOutlineWidget(CPPEditor *editor) :
     TextEditor::IOutlineWidget(),
     m_editor(editor),
     m_treeView(new CppOutlineTreeView(this)),
-    m_model(new CPlusPlus::OverviewModel(this)),
+    m_model(m_editor->overviewModel()),
     m_proxyModel(new CppOutlineFilterModel(this)),
     m_enableCursorSync(true),
     m_blockCursorSync(false)
@@ -63,14 +64,8 @@ CppOutlineWidget::CppOutlineWidget(CPPEditor *editor) :
     m_proxyModel->setSourceModel(m_model);
     m_treeView->setModel(m_proxyModel);
 
-    CppTools::CppModelManagerInterface *modelManager = CppTools::CppModelManagerInterface::instance();
-
-    connect(modelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
-            this, SLOT(updateOutline(CPlusPlus::Document::Ptr)));
-
-    if (modelManager->snapshot().contains(editor->file()->fileName())) {
-        updateOutline(modelManager->snapshot().document(editor->file()->fileName()));
-    }
+    connect(m_model, SIGNAL(modelReset()), this, SLOT(modelUpdated()));
+    modelUpdated();
 
     connect(m_editor, SIGNAL(cursorPositionChanged()),
             this, SLOT(updateSelectionInTree()));
@@ -85,18 +80,10 @@ void CppOutlineWidget::setCursorSynchronization(bool syncWithCursor)
         updateSelectionInTree();
 }
 
-void CppOutlineWidget::updateOutline(CPlusPlus::Document::Ptr document)
+void CppOutlineWidget::modelUpdated()
 {
-    m_document = document;
-    if (document && m_editor
-            && (document->fileName() == m_editor->file()->fileName())
-            && (document->editorRevision() == m_editor->editorRevision())) {
-        if (debug)
-            qDebug() << "CppOutline - rebuilding model";
-        m_model->rebuild(document);
-        m_treeView->expandAll();
-        updateSelectionInTree();
-    }
+    m_treeView->expandAll();
+    updateSelectionInTree();
 }
 
 void CppOutlineWidget::updateSelectionInTree()
@@ -130,7 +117,8 @@ void CppOutlineWidget::updateSelectionInText(const QItemSelection &selection)
         if (symbol) {
             m_blockCursorSync = true;
             unsigned line, column;
-            m_document->translationUnit()->getPosition(symbol->startOffset(), &line, &column);
+
+            m_model->document()->translationUnit()->getPosition(symbol->startOffset(), &line, &column);
 
             if (debug)
                 qDebug() << "CppOutline - moving cursor to" << line << column - 1;
@@ -161,9 +149,9 @@ QModelIndex CppOutlineWidget::indexForPosition(const QModelIndex &rootIndex, int
 
 bool CppOutlineWidget::positionInsideSymbol(unsigned cursorLine, unsigned cursorColumn, CPlusPlus::Symbol *symbol) const
 {
-    if (!m_document)
+    if (!m_model->document())
         return false;
-    CPlusPlus::TranslationUnit *translationUnit = m_document->translationUnit();
+    CPlusPlus::TranslationUnit *translationUnit = m_model->document()->translationUnit();
 
     unsigned symbolStartLine = -1;
     unsigned symbolStartColumn = -1;

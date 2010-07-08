@@ -165,6 +165,7 @@ public:
     unsigned editorRevision() const;
     bool isOutdated() const;
     SemanticInfo semanticInfo() const;
+    CPlusPlus::OverviewModel *overviewModel() const;
 
     virtual void paste(); // reimplemented from BaseTextEditor
     virtual void cut(); // reimplemented from BaseTextEditor
