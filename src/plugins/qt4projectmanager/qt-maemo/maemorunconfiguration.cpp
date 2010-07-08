@@ -74,7 +74,7 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
 
 void MaemoRunConfiguration::init()
 {
-    setDisplayName(tr("New Maemo Run Configuration"));
+    setDisplayName(QFileInfo(m_proFilePath).completeBaseName());
 
     updateDeviceConfigurations();
     connect(&MaemoDeviceConfigurations::instance(), SIGNAL(updated()), this,

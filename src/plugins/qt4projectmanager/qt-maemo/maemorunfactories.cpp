@@ -49,7 +49,7 @@ using namespace ProjectExplorer;
 
 namespace {
 
-QString targetFromId(const QString &id)
+QString pathFromId(const QString &id)
 {
     if (!id.startsWith(MAEMO_RC_ID_PREFIX))
         return QString();
@@ -75,7 +75,7 @@ bool MaemoRunConfigurationFactory::canCreate(Target *parent,
         || target->id() != QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID)) {
         return false;
     }
-    return id == MAEMO_RC_ID || id.startsWith(MAEMO_RC_ID_PREFIX);
+    return target->qt4Project()->hasApplicationProFile(pathFromId(id));
 }
 
 bool MaemoRunConfigurationFactory::canRestore(Target *parent,
@@ -103,8 +103,7 @@ QStringList MaemoRunConfigurationFactory::availableCreationIds(Target *parent) c
 
 QString MaemoRunConfigurationFactory::displayNameForId(const QString &id) const
 {
-    Q_UNUSED(id)
-    return tr("New Maemo Run Configuration");
+    return QFileInfo(pathFromId(id)).completeBaseName();
 }
 
 RunConfiguration *MaemoRunConfigurationFactory::create(Target *parent,
@@ -113,7 +112,7 @@ RunConfiguration *MaemoRunConfigurationFactory::create(Target *parent,
     if (!canCreate(parent, id))
         return 0;
     Qt4Target *pqt4parent = static_cast<Qt4Target *>(parent);
-    return new MaemoRunConfiguration(pqt4parent, targetFromId(id));
+    return new MaemoRunConfiguration(pqt4parent, pathFromId(id));
 
 }
 
