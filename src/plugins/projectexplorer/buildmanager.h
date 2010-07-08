@@ -74,6 +74,8 @@ public:
 
     void buildProject(BuildConfiguration *bc);
     void buildProjects(const QList<BuildConfiguration *> &configurations);
+    void deployProject(BuildConfiguration *bc);
+    void deployProjects(const QList<BuildConfiguration *> &configurations);
     void cleanProject(BuildConfiguration *configuration);
     void cleanProjects(const QList<BuildConfiguration *> &configurations);
     bool isBuilding(Project *p);

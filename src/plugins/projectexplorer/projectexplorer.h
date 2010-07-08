@@ -140,6 +140,10 @@ private slots:
     void rebuildProject();
     void rebuildProjectContextMenu();
     void rebuildSession();
+    void deployProjectOnly();
+    void deployProject();
+    void deployProjectContextMenu();
+    void deploySession();
     void cleanProjectOnly();
     void cleanProject();
     void cleanProjectContextMenu();
@@ -182,6 +186,7 @@ private slots:
     void runControlFinished();
 
     void startupProjectChanged(); // Calls updateRunAction
+    void updateDeployActions();
     void updateRunActions();
 
     void loadProject(const QString &project) { openProject(project); }
@@ -207,6 +212,8 @@ private:
     void runProjectImpl(Project *pro, QString mode);
     void executeRunConfiguration(RunConfiguration *, const QString &mode);
     bool hasBuildSettings(Project *pro);
+    bool hasDeploySettings(Project *pro);
+
     bool showBuildConfigDialog();
 
     void setCurrent(Project *project, QString filePath, Node *node);

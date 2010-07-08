@@ -65,7 +65,8 @@ void ProjectExplorerSettingsWidget::setJomVisible(bool v)
 ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
 {
     ProjectExplorerSettings pes;
-    pes.buildBeforeRun = m_ui.buildProjectBeforeRunCheckBox->isChecked();
+    pes.buildBeforeDeploy = m_ui.buildProjectBeforeDeployCheckBox->isChecked();
+    pes.deployBeforeRun = m_ui.deployProjectBeforeRunCheckBox->isChecked();
     pes.saveBeforeBuild = m_ui.saveAllFilesCheckBox->isChecked();
     pes.showCompilerOutput = m_ui.showCompileOutputCheckBox->isChecked();
     pes.cleanOldAppOutput = m_ui.cleanOldAppOutputCheckBox->isChecked();
@@ -75,7 +76,8 @@ ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
 
 void ProjectExplorerSettingsWidget::setSettings(const ProjectExplorerSettings  &pes) const
 {
-    m_ui.buildProjectBeforeRunCheckBox->setChecked(pes.buildBeforeRun);
+    m_ui.buildProjectBeforeDeployCheckBox->setChecked(pes.buildBeforeDeploy);
+    m_ui.deployProjectBeforeRunCheckBox->setChecked(pes.deployBeforeRun);
     m_ui.saveAllFilesCheckBox->setChecked(pes.saveBeforeBuild);
     m_ui.showCompileOutputCheckBox->setChecked(pes.showCompilerOutput);
     m_ui.cleanOldAppOutputCheckBox->setChecked(pes.cleanOldAppOutput);

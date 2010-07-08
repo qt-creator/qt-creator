@@ -414,11 +414,25 @@ bool BuildManager::buildQueueAppend(QList<BuildStep *> steps)
 void BuildManager::buildProjects(const QList<BuildConfiguration *> &configurations)
 {
     QList<BuildStep *> steps;
-    foreach(BuildConfiguration *bc, configurations) {
+    foreach(BuildConfiguration *bc, configurations)
         steps.append(bc->steps(BuildStep::Build));
-        // TODO: Verify that this is indeed what we want.
-        steps.append(bc->steps(BuildStep::Deploy));
+
+    bool success = buildQueueAppend(steps);
+    if (!success) {
+        m_outputWindow->popup(false);
+        return;
     }
+
+    if (ProjectExplorerPlugin::instance()->projectExplorerSettings().showCompilerOutput)
+        m_outputWindow->popup(false);
+    startBuildQueue();
+}
+
+void BuildManager::deployProjects(const QList<BuildConfiguration *> &configurations)
+{
+    QList<BuildStep *> steps;
+    foreach(BuildConfiguration *bc, configurations)
+        steps.append(bc->steps(BuildStep::Deploy));
 
     bool success = buildQueueAppend(steps);
     if (!success) {
@@ -451,6 +465,11 @@ void BuildManager::cleanProjects(const QList<BuildConfiguration *> &configuratio
 void BuildManager::buildProject(BuildConfiguration *configuration)
 {
     buildProjects(QList<BuildConfiguration *>() << configuration);
+}
+
+void BuildManager::deployProject(BuildConfiguration *configuration)
+{
+    deployProjects(QList<BuildConfiguration *>() << configuration);
 }
 
 void BuildManager::cleanProject(BuildConfiguration *configuration)
