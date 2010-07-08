@@ -26,7 +26,8 @@ HEADERS += \
     $$PWD/qmljsmodelmanagerinterface.h \
     $$PWD/qmljsicontextpane.h \
     $$PWD/qmljspropertyreader.h \
-    $$PWD/qmljsrewriter.h
+    $$PWD/qmljsrewriter.h \
+    $$PWD/qmljsicons.h
 
 SOURCES += \
     $$PWD/qmljsbind.cpp \
@@ -42,7 +43,11 @@ SOURCES += \
     $$PWD/qmljscomponentversion.cpp \
     $$PWD/qmljsmodelmanagerinterface.cpp \
     $$PWD/qmljspropertyreader.cpp \
-    $$PWD/qmljsrewriter.cpp
+    $$PWD/qmljsrewriter.cpp \
+    $$PWD/qmljsicons.cpp
+
+RESOURCES += \
+    $$PWD/qmljs.qrc
 
 OTHER_FILES += \
     $$PWD/parser/qmljs.g
