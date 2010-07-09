@@ -673,7 +673,7 @@ void CPPEditor::createToolBar(CPPEditorEditable *editable)
     m_methodCombo->setModel(m_proxyModel);
 
     m_methodCombo->setContextMenuPolicy(Qt::ActionsContextMenu);
-    m_sortAction = new QAction(tr("Sort alphabetically"), m_methodCombo);
+    m_sortAction = new QAction(tr("Sort Alphabetically"), m_methodCombo);
     m_sortAction->setCheckable(true);
     m_sortAction->setChecked(sortedMethodOverview());
     connect(m_sortAction, SIGNAL(toggled(bool)), CppPlugin::instance(), SLOT(setSortedMethodOverview(bool)));
