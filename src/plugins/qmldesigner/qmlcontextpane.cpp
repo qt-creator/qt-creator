@@ -198,11 +198,13 @@ void QmlContextPane::setProperty(const QString &propertyName, const QVariant &va
             QmlJSIndenter indenter;
             indenter.setTabSize(ts.m_tabSize);
             indenter.setIndentSize(ts.m_indentSize);
-            QTextBlock start = m_editor->editor()->document()->findBlockByLineNumber(line);
-            QTextBlock end = m_editor->editor()->document()->findBlockByLineNumber(line);
+            QTextBlock start = m_editor->editor()->document()->findBlockByNumber(line);
+            QTextBlock end = m_editor->editor()->document()->findBlockByNumber(line);
 
-            const int indent = indenter.indentForBottomLine(m_editor->editor()->document()->begin(), end.next(), QChar::Null);
-            ts.indentLine(start, indent);
+            if (end.isValid()) {
+                const int indent = indenter.indentForBottomLine(m_editor->editor()->document()->begin(), end.next(), QChar::Null);
+                ts.indentLine(start, indent);
+            }
         }
         tc.endEditBlock();
         tc.setPosition(cursorPostion);
