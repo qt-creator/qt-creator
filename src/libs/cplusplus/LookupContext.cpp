@@ -432,7 +432,6 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
             else if (s->name()->isQualifiedNameId())
                 continue; // skip qualified ids.
 
-#if 0
             if (templateId && (s->isDeclaration() || s->isFunction())) {
 
                 FullySpecifiedType ty = DeprecatedGenTemplateInstance::instantiate(templateId, s, _control);
@@ -457,7 +456,6 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
                     continue;
                 }
             }
-#endif
 
             result->append(s);
         }
