@@ -44,6 +44,8 @@
 
 #include <projectexplorer/buildstep.h>
 
+#include <QtCore/QScopedPointer>
+
 QT_BEGIN_NAMESPACE
 class QFile;
 class QProcess;
@@ -62,6 +64,7 @@ class MaemoPackageCreationStep : public ProjectExplorer::BuildStep
     friend class MaemoPackageCreationFactory;
 public:
     MaemoPackageCreationStep(ProjectExplorer::BuildConfiguration *buildConfig);
+    ~MaemoPackageCreationStep();
 
     QString packageFilePath() const;
     QString localExecutableFilePath() const;
@@ -73,6 +76,9 @@ public:
 
     QString versionString() const;
     void setVersionString(const QString &version);
+
+private slots:
+    void handleBuildOutput();
 
 private:
     MaemoPackageCreationStep(ProjectExplorer::BuildConfiguration *buildConfig,
@@ -86,8 +92,8 @@ private:
     virtual bool fromMap(const QVariantMap &map);
 
     bool createPackage();
-    bool runCommand(QProcess &proc, const QString &command);
     const Qt4BuildConfiguration *qt4BuildConfiguration() const;
+    bool runCommand(const QString &command);
     const MaemoToolChain *maemoToolChain() const;
     QString maddeRoot() const;
     QString targetRoot() const;
@@ -102,6 +108,7 @@ private:
     MaemoPackageContents *const m_packageContents;
     bool m_packagingEnabled;
     QString m_versionString;
+    QScopedPointer<QProcess> m_buildProc;
 };
 
 } // namespace Internal

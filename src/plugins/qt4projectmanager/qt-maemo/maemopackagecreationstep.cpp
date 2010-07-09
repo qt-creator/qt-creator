@@ -90,6 +90,8 @@ MaemoPackageCreationStep::MaemoPackageCreationStep(BuildConfiguration *buildConf
 {
 }
 
+MaemoPackageCreationStep::~MaemoPackageCreationStep() {}
+
 bool MaemoPackageCreationStep::init()
 {
     return true;
@@ -142,9 +144,9 @@ bool MaemoPackageCreationStep::createPackage()
     QString colon = QLatin1String(":");
 #ifdef Q_OS_WIN
     colon = QLatin1String(";");
-    env.insert(key, targetRoot() % "/bin" % colon % env.value(key));
     env.insert(key, path % QLatin1String("bin") % colon % env.value(key));
 #endif
+    env.insert(key, targetRoot() % "/bin" % colon % env.value(key));
     env.insert(key, path % QLatin1String("madbin") % colon % env.value(key));
     env.insert(QLatin1String("PERL5LIB"), path % QLatin1String("madlib/perl5"));
 
@@ -159,14 +161,21 @@ bool MaemoPackageCreationStep::createPackage()
             env.insert(envPattern.cap(1), envPattern.cap(2));
     } while (!line.isEmpty());
     
-    QProcess buildProc;
-    buildProc.setProcessEnvironment(env);
-    buildProc.setWorkingDirectory(buildDir);
+
+    m_buildProc.reset(new QProcess);
+    connect(m_buildProc.data(), SIGNAL(readyReadStandardOutput()), this,
+        SLOT(handleBuildOutput()));
+    connect(m_buildProc.data(), SIGNAL(readyReadStandardError()), this,
+        SLOT(handleBuildOutput()));
+    m_buildProc->setProcessEnvironment(env);
+    m_buildProc->setWorkingDirectory(buildDir);
+    m_buildProc->start("cd " + buildDir);
+    m_buildProc->waitForFinished();
 
     if (!QFileInfo(buildDir + QLatin1String("/debian")).exists()) {
         const QString command = QLatin1String("dh_make -s -n -p ")
             % executableFileName().toLower() % QLatin1Char('_') % versionString();
-        if (!runCommand(buildProc, command))
+        if (!runCommand(command))
             return false;
 
         QFile rulesFile(buildDir + QLatin1String("/debian/rules"));
@@ -178,6 +187,11 @@ bool MaemoPackageCreationStep::createPackage()
 
         QByteArray rulesContents = rulesFile.readAll();
         rulesContents.replace("DESTDIR", "INSTALL_ROOT");
+
+        // Would be the right solution, but does not work (on Windows),
+        // because dpkg-genchanges doesn't know about it (and can't be told).
+        // rulesContents.replace("dh_builddeb", "dh_builddeb --destdir=.");
+
         rulesFile.resize(0);
         rulesFile.write(rulesContents);
         if (rulesFile.error() != QFile::NoError) {
@@ -198,43 +212,30 @@ bool MaemoPackageCreationStep::createPackage()
         }
     }
 
-    if (!runCommand(buildProc, QLatin1String("dh_installdirs")))
+    if (!runCommand(QLatin1String("dpkg-buildpackage -nc -uc -us")))
         return false;
-    
-    const QDir debianRoot = QDir(buildDir % QLatin1String("/debian/")
-                                 % executableFileName().toLower());
-    for (int i = 0; i < m_packageContents->rowCount(); ++i) {
-        const MaemoDeployable &d = m_packageContents->deployableAt(i);
-        const QString targetFile = debianRoot.path() + '/' + d.remoteFilePath;
-        const QString absTargetDir = QFileInfo(targetFile).dir().path();
-        const QString relTargetDir = debianRoot.relativeFilePath(absTargetDir);
-        if (!debianRoot.exists(relTargetDir)
-            && !debianRoot.mkpath(relTargetDir)) {
-            raiseError(tr("Packaging Error: Could not create directory '%1'.")
-                       .arg(QDir::toNativeSeparators(absTargetDir)));
-            return false;
-        }
-        if (QFile::exists(targetFile) && !QFile::remove(targetFile)) {
-            raiseError(tr("Packaging Error: Could not replace file '%1'.")
-                       .arg(QDir::toNativeSeparators(targetFile)));
-            return false;
-        }
 
-        if (!QFile::copy(d.localFilePath, targetFile)) {
-            raiseError(tr("Packaging Error: Could not copy '%1' to '%2'.")
-                       .arg(QDir::toNativeSeparators(d.localFilePath))
-                       .arg(QDir::toNativeSeparators(targetFile)));
+    // Workaround for non-working dh_builddeb --destdir=.
+    if (!QDir(buildDir).isRoot()) {
+        const QString packageFileName = QFileInfo(packageFilePath()).fileName();
+        const QString changesFileName = QFileInfo(packageFileName)
+            .completeBaseName() + QLatin1String(".changes");
+        const QString packageSourceDir = buildDir + QLatin1String("/../");
+        const QString packageSourceFilePath
+            = packageSourceDir + packageFileName;
+        const QString changesSourceFilePath
+            = packageSourceDir + changesFileName;
+        const QString changesTargetFilePath
+            = buildDir + QLatin1Char('/') + changesFileName;
+        QFile::remove(packageFilePath());
+        QFile::remove(changesTargetFilePath);
+        if (!QFile::rename(packageSourceFilePath, packageFilePath())
+            || !QFile::rename(changesSourceFilePath, changesTargetFilePath)) {
+            raiseError(tr("Packaging failed."),
+                tr("Could not move package files from %1 to %2.")
+                .arg(packageSourceDir, buildDir));
             return false;
         }
-    }
-
-    const QStringList commands = QStringList() << QLatin1String("dh_link")
-        << QLatin1String("dh_fixperms") << QLatin1String("dh_installdeb")
-        << QLatin1String("dh_shlibdeps") << QLatin1String("dh_gencontrol")
-        << QLatin1String("dh_md5sums") << QLatin1String("dh_builddeb --destdir=.");
-    foreach (const QString &command, commands) {
-        if (!runCommand(buildProc, command))
-            return false;
     }
 
     emit addOutput(tr("Package created."), textCharFormat);
@@ -242,7 +243,7 @@ bool MaemoPackageCreationStep::createPackage()
     return true;
 }
 
-bool MaemoPackageCreationStep::runCommand(QProcess &proc, const QString &command)
+bool MaemoPackageCreationStep::runCommand(const QString &command)
 {
     QTextCharFormat textCharFormat;
     emit addOutput(tr("Package Creation: Running command '%1'.").arg(command), textCharFormat);
@@ -250,26 +251,39 @@ bool MaemoPackageCreationStep::runCommand(QProcess &proc, const QString &command
 #ifdef Q_OS_WIN
     perl = maddeRoot() + QLatin1String("/bin/perl.exe ");
 #endif
-    proc.start(perl + maddeRoot() % QLatin1String("/madbin/") % command);
-    if (!proc.waitForStarted()) {
+    m_buildProc->start(perl + maddeRoot() % QLatin1String("/madbin/") % command);
+    if (!m_buildProc->waitForStarted()) {
         raiseError(tr("Packaging failed."),
             tr("Packaging error: Could not start command '%1'. Reason: %2")
-            .arg(command).arg(proc.errorString()));
+            .arg(command).arg(m_buildProc->errorString()));
         return false;
     }
-    proc.write("\n"); // For dh_make
-    proc.waitForFinished(-1);
-    if (proc.error() != QProcess::UnknownError || proc.exitCode() != 0) {
+    m_buildProc->write("\n"); // For dh_make
+    m_buildProc->waitForFinished(-1);
+    if (m_buildProc->error() != QProcess::UnknownError || m_buildProc->exitCode() != 0) {
         QString mainMessage = tr("Packaging Error: Command '%1' failed.")
             .arg(command);
-        if (proc.error() != QProcess::UnknownError)
-            mainMessage += tr(" Reason: %1").arg(proc.errorString());
-        raiseError(mainMessage, mainMessage + QLatin1Char('\n')
-                   + tr("Output was: ") + proc.readAllStandardError()
-                   + QLatin1Char('\n') + proc.readAllStandardOutput());
+        if (m_buildProc->error() != QProcess::UnknownError)
+            mainMessage += tr(" Reason: %1").arg(m_buildProc->errorString());
+        else
+            mainMessage += tr("Exit code: %1").arg(m_buildProc->exitCode());
+        raiseError(mainMessage);
         return false;
     }
     return true;
+}
+
+void MaemoPackageCreationStep::handleBuildOutput()
+{
+    const QByteArray &stdOut = m_buildProc->readAllStandardOutput();
+    QTextCharFormat textCharFormat;
+    if (!stdOut.isEmpty())
+        emit addOutput(QString::fromLocal8Bit(stdOut), textCharFormat);
+    const QByteArray &errorOut = m_buildProc->readAllStandardError();
+    if (!errorOut.isEmpty()) {
+        textCharFormat.setForeground(QBrush(QColor("red")));
+        emit addOutput(QString::fromLocal8Bit(errorOut), textCharFormat);
+    }
 }
 
 const Qt4BuildConfiguration *MaemoPackageCreationStep::qt4BuildConfiguration() const
