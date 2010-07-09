@@ -8,6 +8,9 @@
 #include <qmljs/qmljspropertyreader.h>
 #include <qmljs/qmljsrewriter.h>
 #include <qmljs/qmljsindenter.h>
+#include <qmljs/qmljslookupcontext.h>
+#include <qmljs/qmljsinterpreter.h>
+#include <qmljs/qmljsbind.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/tabsettings.h>
 #include <colorwidget.h>
@@ -62,7 +65,7 @@ QmlContextPane::~QmlContextPane()
         m_widget.clear();
 }
 
-void QmlContextPane::apply(TextEditor::BaseTextEditorEditable *editor, Document::Ptr doc,  Node *node, bool update)
+void QmlContextPane::apply(TextEditor::BaseTextEditorEditable *editor, Document::Ptr doc, const QmlJS::Snapshot &snapshot, AST::Node *node, bool update)
 {
     if (!Internal::BauhausPlugin::pluginInstance()->settings().enableContextPane)
         return;
@@ -72,6 +75,15 @@ void QmlContextPane::apply(TextEditor::BaseTextEditorEditable *editor, Document:
 
     if (update && editor != m_editor)
         return; //do not update for different editor
+
+    LookupContext::Ptr lookupContext = LookupContext::create(doc, snapshot, QList<Node*>());
+    const Interpreter::ObjectValue *scopeObject = doc->bind()->findQmlObject(node);
+
+    QStringList prototypes;
+    while (scopeObject) {
+        prototypes.append(scopeObject->className());
+        scopeObject =  scopeObject->prototype(lookupContext->context());
+    }
 
     setEnabled(doc->isParsedCorrectly());
     m_editor = editor;

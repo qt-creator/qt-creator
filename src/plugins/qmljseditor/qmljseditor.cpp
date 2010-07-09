@@ -1085,7 +1085,7 @@ bool QmlJSTextEditor::event(QEvent *e)
     switch (e->type()) {
     case QEvent::ShortcutOverride:
         if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape && m_contextPane) {
-            m_contextPane->apply(editableInterface(),  m_semanticInfo.document, 0, false);
+            m_contextPane->apply(editableInterface(),  m_semanticInfo.document, m_semanticInfo.snapshot, 0, false);
         }
         break;
     default:
@@ -1100,7 +1100,7 @@ void QmlJSTextEditor::wheelEvent(QWheelEvent *event)
 {
     BaseTextEditor::wheelEvent(event);
     if (m_contextPane)
-        m_contextPane->apply(editableInterface(),  m_semanticInfo.document, m_semanticInfo.declaringMember(position()), true);
+        m_contextPane->apply(editableInterface(),  m_semanticInfo.document, m_semanticInfo.snapshot, m_semanticInfo.declaringMember(position()), true);
 }
 
 void QmlJSTextEditor::unCommentSelection()
@@ -1344,7 +1344,7 @@ void QmlJSTextEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
         if (m_contextPane) {
             Node *newNode = m_semanticInfo.declaringMember(position());
             if (newNode) {
-                m_contextPane->apply(editableInterface(), doc, newNode, true);
+                m_contextPane->apply(editableInterface(), doc, m_semanticInfo.snapshot, newNode, true);
                 m_oldCurserPosition = position();
             }
         }
@@ -1361,11 +1361,13 @@ void QmlJSTextEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
 
 void QmlJSTextEditor::onCursorPositionChanged()
 {
+
+
     if (m_contextPane) {
         Node *newNode = m_semanticInfo.declaringMember(position());
         Node *oldNode = m_semanticInfo.declaringMember(m_oldCurserPosition);
         if (oldNode != newNode)
-            m_contextPane->apply(editableInterface(), m_semanticInfo.document, newNode, false);
+            m_contextPane->apply(editableInterface(), m_semanticInfo.document, m_semanticInfo.snapshot, newNode, false);
         m_oldCurserPosition = position();
     }
 }

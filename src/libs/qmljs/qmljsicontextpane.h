@@ -52,7 +52,7 @@ class QMLJS_EXPORT IContextPane : public QObject
 public:
     IContextPane(QObject *parent = 0) : QObject(parent) {}
     virtual ~IContextPane() {}
-    virtual void apply(TextEditor::BaseTextEditorEditable *editor, Document::Ptr doc, AST::Node *node, bool update) = 0;
+    virtual void apply(TextEditor::BaseTextEditorEditable *editor, Document::Ptr doc, const QmlJS::Snapshot &snapshot, AST::Node *node, bool update) = 0;
     virtual void setEnabled(bool) = 0;
 };
 
