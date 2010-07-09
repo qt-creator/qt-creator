@@ -14,6 +14,8 @@
 
 namespace QmlViewer {
 
+const qreal MaxOpacity = 0.5f;
+
 SubcomponentEditorTool::SubcomponentEditorTool(QDeclarativeDesignView *view)
     : AbstractFormEditorTool(view),
     m_animIncrement(0.05f),
@@ -43,8 +45,6 @@ bool SubcomponentEditorTool::containsCursor(const QPoint &mousePos) const
 {
     if (!m_currentContext.size())
         return false;
-
-    qDebug() << __FUNCTION__ << m_currentContext.top();
 
     QPointF scenePos = view()->mapToScene(mousePos);
     QRectF itemRect = m_currentContext.top()->boundingRect() | m_currentContext.top()->childrenBoundingRect();
@@ -98,11 +98,11 @@ void SubcomponentEditorTool::itemsAboutToRemoved(const QList<QGraphicsItem*> &/*
 void SubcomponentEditorTool::animate()
 {
     if (m_animIncrement > 0) {
-        if (m_mask->opacity() + m_animIncrement < 0.5f) {
+        if (m_mask->opacity() + m_animIncrement < MaxOpacity) {
             m_mask->setOpacity(m_mask->opacity() + m_animIncrement);
         } else {
             m_animTimer->stop();
-            m_mask->setOpacity(0.5f);
+            m_mask->setOpacity(MaxOpacity);
         }
     } else {
         if (m_mask->opacity() + m_animIncrement > 0) {
@@ -171,6 +171,29 @@ void SubcomponentEditorTool::setCurrentItem(QGraphicsItem* contextItem)
     }
 }
 
+QGraphicsItem *SubcomponentEditorTool::firstChildOfContext(QGraphicsItem *item) const
+{
+    if (!item)
+        return 0;
+
+    if (isDirectChildOfContext(item))
+        return item;
+
+    QGraphicsItem *parent = item->parentItem();
+    while (parent) {
+        if (isDirectChildOfContext(parent))
+            return parent;
+        parent = parent->parentItem();
+    }
+
+    return 0;
+}
+
+bool SubcomponentEditorTool::isChildOfContext(QGraphicsItem *item) const
+{
+    return (firstChildOfContext(item) != 0);
+}
+
 bool SubcomponentEditorTool::isDirectChildOfContext(QGraphicsItem *item) const
 {
     return (item->parentItem() == m_currentContext.top());
@@ -212,7 +235,7 @@ QGraphicsObject *SubcomponentEditorTool::popContext()
     QGraphicsObject *popped = m_currentContext.pop();
     if (m_currentContext.size() > 1) {
         m_mask->setCurrentItem(m_currentContext.top());
-        m_mask->setOpacity(0.5f);
+        m_mask->setOpacity(MaxOpacity);
         m_mask->setVisible(true);
     }
 

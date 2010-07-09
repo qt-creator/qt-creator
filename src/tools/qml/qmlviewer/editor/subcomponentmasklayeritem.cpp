@@ -13,8 +13,9 @@ SubcomponentMaskLayerItem::SubcomponentMaskLayerItem(QDeclarativeDesignView *vie
 {
     m_borderRect->setRect(0,0,0,0);
     m_borderRect->setPen(QPen(QColor(60, 60, 60), 1));
+    m_borderRect->setData(Constants::EditorItemDataKey, QVariant(true));
 
-    setBrush(QBrush(Qt::black));
+    setBrush(QBrush(QColor(160,160,160)));
     setPen(Qt::NoPen);
 }
 

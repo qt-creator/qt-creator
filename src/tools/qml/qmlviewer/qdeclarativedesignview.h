@@ -39,6 +39,8 @@ public:
     void highlightBoundingRect(QGraphicsItem *item);
 
     bool mouseInsideContextItem() const;
+    bool isEditorItem(QGraphicsItem *item) const;
+
     QList<QGraphicsItem*> selectableItems(const QPoint &pos) const;
     QList<QGraphicsItem*> selectableItems(const QPointF &scenePos) const;
     QList<QGraphicsItem*> selectableItems(const QRectF &sceneRect, Qt::ItemSelectionMode selectionMode) const;
@@ -71,6 +73,7 @@ Q_SIGNALS:
     void executionPaused();
 
 protected:
+    void leaveEvent(QEvent *);
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
@@ -88,7 +91,8 @@ private Q_SLOTS:
 private:
     void createToolbar();
     void changeToSelectTool();
-    QList<QGraphicsItem*> filteredItemList(QList<QGraphicsItem*> &itemlist) const;
+    QList<QGraphicsItem*> filterForCurrentContext(QList<QGraphicsItem*> &itemlist) const;
+    QList<QGraphicsItem*> filterForSelection(QList<QGraphicsItem*> &itemlist) const;
 
 private:
     QPointF m_cursorPos;

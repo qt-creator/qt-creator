@@ -36,10 +36,12 @@
 
 namespace QmlViewer {
 
+class QDeclarativeDesignView;
+
 class SelectionIndicator
 {
 public:
-    SelectionIndicator(LayerItem *layerItem);
+    SelectionIndicator(QDeclarativeDesignView* editorView, LayerItem *layerItem);
     ~SelectionIndicator();
 
     void show();
@@ -51,8 +53,12 @@ public:
     void updateItems(const QList<QGraphicsObject*> &itemList);
 
 private:
+    QPolygonF addBoundingRectToPolygon(QGraphicsItem *item, QPolygonF &polygon);
+
+private:
     QHash<QGraphicsItem*, QGraphicsPolygonItem *> m_indicatorShapeHash;
     QWeakPointer<LayerItem> m_layerItem;
+    QDeclarativeDesignView *m_view;
 
 };
 

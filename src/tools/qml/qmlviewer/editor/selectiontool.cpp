@@ -54,7 +54,7 @@ SelectionTool::SelectionTool(QDeclarativeDesignView *editorView)
     m_rubberbandSelectionMode(false),
     m_rubberbandSelectionManipulator(editorView->manipulatorLayer(), editorView),
     m_singleSelectionManipulator(editorView),
-    m_selectionIndicator(editorView->manipulatorLayer()),
+    m_selectionIndicator(editorView, editorView->manipulatorLayer()),
     //m_resizeIndicator(editorView->manipulatorLayer()),
     m_selectOnlyContentItems(true)
 {
@@ -166,10 +166,6 @@ void SelectionTool::createContextMenu(QList<QGraphicsItem*> itemList, QPoint glo
     QMenu contextMenu;
     connect(&contextMenu, SIGNAL(hovered(QAction*)), this, SLOT(contextMenuElementHovered(QAction*)));
 
-//    QList<QGraphicsItem*> sortedList;
-//    for(int i = itemList.length(); i>= 0; i--) {
-//    }
-
     m_contextMenuItemList = itemList;
 
     contextMenu.addAction("Items");
@@ -276,13 +272,12 @@ void SelectionTool::hoverMoveEvent(QMouseEvent * event)
 //            view()->changeTool(Constants::MoveToolMode);
     }
 
-    QList<QGraphicsItem*> selectableItemList = view()->selectableItems(event->pos());
+    QList<QGraphicsItem*> selectableItemList = view()->items(event->pos());
     if (!selectableItemList.isEmpty()) {
         QGraphicsItem *topSelectableItem = 0;
         foreach(QGraphicsItem* item, selectableItemList)
         {
-            if (item
-                && item->type() != Constants::EditorItemType
+            if (!view()->isEditorItem(item)
                 /*&& !item->qmlItemNode().isRootNode()
                 && (QGraphicsItem->qmlItemNode().hasShowContent() || !m_selectOnlyContentItems)*/)
             {
@@ -292,7 +287,10 @@ void SelectionTool::hoverMoveEvent(QMouseEvent * event)
         }
 
         view()->highlightBoundingRect(topSelectableItem);
+    } else {
+        view()->clearHighlightBoundingRect();
     }
+
 }
 
 void SelectionTool::mouseReleaseEvent(QMouseEvent *event)
@@ -341,8 +339,9 @@ void SelectionTool::keyPressEvent(QKeyEvent *event)
         case Qt::Key_Right:
         case Qt::Key_Up:
         case Qt::Key_Down:
-            view()->changeTool(Constants::MoveToolMode);
-            view()->currentTool()->keyPressEvent(event);
+            // disabled for now, cannot move stuff yet.
+            //view()->changeTool(Constants::MoveToolMode);
+            //view()->currentTool()->keyPressEvent(event);
             break;
     }
 }

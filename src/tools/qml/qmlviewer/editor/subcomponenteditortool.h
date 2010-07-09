@@ -37,13 +37,17 @@ public:
 
     bool containsCursor(const QPoint &mousePos) const;
     bool itemIsChildOfQmlSubComponent(QGraphicsItem *item) const;
+
+    bool isChildOfContext(QGraphicsItem *item) const;
     bool isDirectChildOfContext(QGraphicsItem *item) const;
+    QGraphicsItem *firstChildOfContext(QGraphicsItem *item) const;
 
     void setCurrentItem(QGraphicsItem *contextObject);
 
     void pushContext(QGraphicsObject *contextItem);
     QGraphicsObject *popContext();
     QGraphicsObject *currentRootItem() const;
+
 
 signals:
     void exitContextRequested();

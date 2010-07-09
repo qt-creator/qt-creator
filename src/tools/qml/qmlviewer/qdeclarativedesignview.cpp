@@ -67,6 +67,15 @@ void QDeclarativeDesignView::reloadView()
     emit reloadRequested();
 }
 
+void QDeclarativeDesignView::leaveEvent(QEvent *event)
+{
+    if (!designModeBehavior()) {
+        QDeclarativeView::leaveEvent(event);
+        return;
+    }
+    clearHighlightBoundingRect();
+}
+
 void QDeclarativeDesignView::mousePressEvent(QMouseEvent *event)
 {
     if (!designModeBehavior()) {
@@ -140,6 +149,12 @@ void QDeclarativeDesignView::keyReleaseEvent(QKeyEvent *event)
     case Qt::Key_M:
         changeToMarqueeSelectTool();
         break;
+    case Qt::Key_I:
+        changeToColorPickerTool();
+        break;
+    case Qt::Key_Z:
+        changeToZoomTool();
+        break;
     case Qt::Key_Enter:
     case Qt::Key_Return:
         if (!selectedItems().isEmpty())
@@ -171,12 +186,17 @@ void QDeclarativeDesignView::mouseDoubleClickEvent(QMouseEvent *event)
         return;
     }
     QGraphicsItem *itemToEnter = 0;
-    QList<QGraphicsItem*> itemList = selectableItems(event->pos());
+    QList<QGraphicsItem*> itemList = items(event->pos());
+    filterForSelection(itemList);
+
     if (selectedItems().isEmpty() && !itemList.isEmpty()) {
         itemToEnter = itemList.first();
     } else if (!selectedItems().isEmpty() && !itemList.isEmpty()) {
         itemToEnter = itemList.first();
     }
+
+    if (itemToEnter)
+        itemToEnter = m_subcomponentEditorTool->firstChildOfContext(itemToEnter);
 
     m_subcomponentEditorTool->setCurrentItem(itemToEnter);
     m_subcomponentEditorTool->mouseDoubleClickEvent(event);
@@ -251,8 +271,13 @@ void QDeclarativeDesignView::highlightBoundingRect(QGraphicsItem *item)
 {
     if (!item)
         return;
+    QGraphicsItem *itemToHighlight = m_subcomponentEditorTool->firstChildOfContext(item);
 
-    m_boundingRectHighlighter->highlight(item->toGraphicsObject());
+    if (itemToHighlight) {
+        m_boundingRectHighlighter->highlight(itemToHighlight->toGraphicsObject());
+    } else {
+        clearHighlightBoundingRect();
+    }
 }
 
 bool QDeclarativeDesignView::mouseInsideContextItem() const
@@ -263,20 +288,20 @@ bool QDeclarativeDesignView::mouseInsideContextItem() const
 QList<QGraphicsItem*> QDeclarativeDesignView::selectableItems(const QPointF &scenePos) const
 {
     QList<QGraphicsItem*> itemlist = scene()->items(scenePos);
-    return filteredItemList(itemlist);
+    return filterForCurrentContext(itemlist);
 }
 
 QList<QGraphicsItem*> QDeclarativeDesignView::selectableItems(const QPoint &pos) const
 {
     QList<QGraphicsItem*> itemlist = items(pos);
-    return filteredItemList(itemlist);
+    return filterForCurrentContext(itemlist);
 }
 
 QList<QGraphicsItem*> QDeclarativeDesignView::selectableItems(const QRectF &sceneRect, Qt::ItemSelectionMode selectionMode) const
 {
     QList<QGraphicsItem*> itemlist = scene()->items(sceneRect, selectionMode);
 
-    return filteredItemList(itemlist);
+    return filterForCurrentContext(itemlist);
 }
 
 void QDeclarativeDesignView::changeToSingleSelectTool()
@@ -369,13 +394,12 @@ void QDeclarativeDesignView::continueExecution(qreal slowdownFactor)
 void QDeclarativeDesignView::pauseExecution()
 {
     QUnifiedTimer *timer = QUnifiedTimer::instance();
-    m_slowdownFactor = 0;
-    timer->setSlowdownFactor(m_slowdownFactor);
+    timer->setSlowdownFactor(0);
     timer->setSlowModeEnabled(true);
     m_executionPaused = true;
 
     emit executionPaused();
-    qmlDesignDebugServer()->setAnimationSpeed(m_slowdownFactor);
+    qmlDesignDebugServer()->setAnimationSpeed(0);
 }
 
 void QDeclarativeDesignView::applyChangesFromClient()
@@ -388,20 +412,46 @@ LayerItem *QDeclarativeDesignView::manipulatorLayer() const
     return m_manipulatorLayer;
 }
 
-QList<QGraphicsItem*> QDeclarativeDesignView::filteredItemList(QList<QGraphicsItem*> &itemlist) const
+QList<QGraphicsItem*> QDeclarativeDesignView::filterForSelection(QList<QGraphicsItem*> &itemlist) const
 {
     foreach(QGraphicsItem *item, itemlist) {
-        if (item->type() == Constants::EditorItemType
-         || item->type() == Constants::ResizeHandleItemType
-         || !m_subcomponentEditorTool->isDirectChildOfContext(item))
-        {
+        if (isEditorItem(item) || !m_subcomponentEditorTool->isChildOfContext(item))
             itemlist.removeOne(item);
-        }
     }
 
     return itemlist;
 }
 
+QList<QGraphicsItem*> QDeclarativeDesignView::filterForCurrentContext(QList<QGraphicsItem*> &itemlist) const
+{
+    foreach(QGraphicsItem *item, itemlist) {
+
+        if (isEditorItem(item) || !m_subcomponentEditorTool->isDirectChildOfContext(item)) {
+            int index = itemlist.indexOf(item);
+
+            // if we're a child, but not directly, replace with the parent that is directly in context.
+            if (QGraphicsItem *contextParent = m_subcomponentEditorTool->firstChildOfContext(item)) {
+                if (index >= 0) {
+                    itemlist.replace(index, contextParent);
+                } else {
+                    itemlist.append(contextParent);
+                }
+            } else {
+                itemlist.removeAt(index);
+            }
+        }
+
+    }
+
+    return itemlist;
+}
+
+bool QDeclarativeDesignView::isEditorItem(QGraphicsItem *item) const
+{
+    return (item->type() == Constants::EditorItemType
+         || item->type() == Constants::ResizeHandleItemType
+         || item->data(Constants::EditorItemDataKey).toBool());
+}
 
 void QDeclarativeDesignView::onStatusChanged(QDeclarativeView::Status status)
 {

@@ -25,6 +25,8 @@ static const int DragStartDistance = 20;
 
 static const double ZoomSnapDelta = 0.04;
 
+static const int EditorItemDataKey = 1000;
+
 enum GraphicsItemTypes {
     EditorItemType = 0xEAAA,
     ResizeHandleItemType = 0xEAEA

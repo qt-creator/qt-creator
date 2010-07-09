@@ -87,13 +87,17 @@ void BoundingRectHighlighter::highlight(QGraphicsObject* item)
         polygonItemEdge = m_highlightPolygonEdge;
     }
 
-    QPolygonF boundingRectInSceneSpace(item->mapToScene(item->boundingRect()));
-    QPolygonF boundingRectInLayerItemSpace = mapFromScene(boundingRectInSceneSpace);
-    polygonItem->setPolygon(boundingRectInLayerItemSpace);
-    polygonItem->setFlag(QGraphicsItem::ItemIsSelectable, false);
+    QRectF itemAndChildRect = item->boundingRect() | item->childrenBoundingRect();
 
+    QPolygonF boundingRectInSceneSpace(item->mapToScene(itemAndChildRect));
+    QPolygonF boundingRectInLayerItemSpace = mapFromScene(boundingRectInSceneSpace);
+    QRectF bboxRect = boundingRectInLayerItemSpace.boundingRect();
     QRectF edgeRect = boundingRectInLayerItemSpace.boundingRect();
     edgeRect.adjust(-1, -1, 1, 1);
+
+    polygonItem->setPolygon(QPolygonF(bboxRect));
+    polygonItem->setFlag(QGraphicsItem::ItemIsSelectable, false);
+
     polygonItemEdge->setPolygon(QPolygonF(edgeRect));
     polygonItemEdge->setFlag(QGraphicsItem::ItemIsSelectable, false);
 

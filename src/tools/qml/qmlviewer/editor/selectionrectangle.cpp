@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "selectionrectangle.h"
+#include "qmlviewerconstants.h"
 
 #include <QPen>
 #include <QGraphicsScene>
@@ -37,8 +38,15 @@
 
 namespace QmlViewer {
 
+class SelectionRectShape : public QGraphicsRectItem
+{
+public:
+    SelectionRectShape(QGraphicsItem *parent = 0) : QGraphicsRectItem(parent) {}
+    int type() const { return Constants::EditorItemType; }
+};
+
 SelectionRectangle::SelectionRectangle(LayerItem *layerItem)
-    : m_controlShape(new QGraphicsRectItem(layerItem)),
+    : m_controlShape(new SelectionRectShape(layerItem)),
     m_layerItem(layerItem)
 {
     m_controlShape->setPen(QPen(Qt::black));

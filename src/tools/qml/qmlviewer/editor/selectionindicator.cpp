@@ -28,6 +28,8 @@
 **************************************************************************/
 
 #include "selectionindicator.h"
+#include "qdeclarativedesignview.h"
+#include "qmlviewerconstants.h"
 
 #include <QPen>
 #include <cmath>
@@ -35,8 +37,8 @@
 
 namespace QmlViewer {
 
-SelectionIndicator::SelectionIndicator(LayerItem *layerItem)
-    : m_layerItem(layerItem)
+SelectionIndicator::SelectionIndicator(QDeclarativeDesignView *editorView, LayerItem *layerItem)
+    : m_layerItem(layerItem), m_view(editorView)
 {
 }
 
@@ -77,26 +79,40 @@ void SelectionIndicator::clear()
 //
 //}
 
+QPolygonF SelectionIndicator::addBoundingRectToPolygon(QGraphicsItem *item, QPolygonF &polygon)
+{
+    polygon = polygon.united(item->mapToScene(item->boundingRect()));
+    foreach(QGraphicsItem *child, item->childItems()) {
+        if (!m_view->isEditorItem(child))
+            addBoundingRectToPolygon(child, polygon);
+    }
+    return polygon;
+}
+
 void SelectionIndicator::setItems(const QList<QGraphicsObject*> &itemList)
 {
     clear();
 
+    // set selections to also all children if they are not editor items
+
     foreach (QGraphicsItem *item, itemList) {
         QGraphicsPolygonItem *newSelectionIndicatorGraphicsItem = new QGraphicsPolygonItem(m_layerItem.data());
         m_indicatorShapeHash.insert(item, newSelectionIndicatorGraphicsItem);
-        QPolygonF boundingRectInSceneSpace(item->mapToScene(item->boundingRect()));
 
-        QPolygonF boundingRectInLayerItemSpace = m_layerItem->mapFromScene(boundingRectInSceneSpace);
-        newSelectionIndicatorGraphicsItem->setPolygon(boundingRectInLayerItemSpace);
-        newSelectionIndicatorGraphicsItem->setFlag(QGraphicsItem::ItemIsSelectable, false);
+        QPolygonF boundingShapeInSceneSpace;
+        addBoundingRectToPolygon(item, boundingShapeInSceneSpace);
+
+        QPolygonF boundingRectInLayerItemSpace = m_layerItem->mapFromScene(boundingShapeInSceneSpace);
+
 
         QPen pen;
         pen.setColor(QColor(108, 141, 221));
+        newSelectionIndicatorGraphicsItem->setData(Constants::EditorItemDataKey, QVariant(true));
+        newSelectionIndicatorGraphicsItem->setFlag(QGraphicsItem::ItemIsSelectable, false);
+        newSelectionIndicatorGraphicsItem->setPolygon(boundingRectInLayerItemSpace);
         newSelectionIndicatorGraphicsItem->setPen(pen);
     }
 }
-
-
 
 void SelectionIndicator::updateItems(const QList<QGraphicsObject*> &itemList)
 {
