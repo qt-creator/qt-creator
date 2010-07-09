@@ -105,6 +105,7 @@ void CppOutlineWidget::updateSelectionInTree(const QModelIndex &index)
         qDebug() << "CppOutline - updating selection due to cursor move";
 
     m_treeView->selectionModel()->select(proxyIndex, QItemSelectionModel::ClearAndSelect);
+    m_treeView->scrollTo(proxyIndex);
     m_blockCursorSync = false;
 }
 

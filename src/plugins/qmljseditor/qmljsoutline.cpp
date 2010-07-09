@@ -337,6 +337,7 @@ void QmlJSOutlineWidget::updateSelectionInTree()
 
     m_blockCursorSync = true;
     m_treeView->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
+    m_treeView->scrollTo(index);
     m_blockCursorSync = false;
 }
 
