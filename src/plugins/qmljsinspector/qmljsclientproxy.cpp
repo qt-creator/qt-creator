@@ -64,7 +64,6 @@ bool ClientProxy::connectToViewer(const QString &host, quint16 port)
     if (m_conn && m_conn->state() != QAbstractSocket::UnconnectedState)
         return false;
 
-    qDebug() << Q_FUNC_INFO;
     if (m_designClient) {
 
         disconnect(m_designClient, SIGNAL(currentObjectsChanged(QList<QDeclarativeDebugObjectReference>)),
@@ -157,7 +156,6 @@ void ClientProxy::connectionStateChanged()
             emit connectionStatusMessage(tr("[Inspector] connected.\n"));
 
             if (!m_client) {
-                qDebug() << "CREATING ENGINE";
                 m_client = new QDeclarativeEngineDebug(m_conn, this);
                 m_designClient = new QmlJSDesignDebugClient(m_conn, this);
                 emit connected(m_client);
@@ -253,12 +251,10 @@ bool ClientProxy::setBindingForObject(int objectDebugId,
                                       const QVariant &value,
                                       bool isLiteralValue)
 {
-    qDebug() << Q_FUNC_INFO;
-
     if (propertyName == QLatin1String("id") || objectDebugId == -1)
         return false;
 
-    qDebug() << "setBindingForObject():" << objectDebugId << propertyName << value << "isLiteral:" << isLiteralValue;
+//    qDebug() << "setBindingForObject():" << objectDebugId << propertyName << value << "isLiteral:" << isLiteralValue;
 
     return m_client->setBindingForObject(objectDebugId, propertyName, value.toString(), isLiteralValue);
 }
@@ -268,7 +264,7 @@ bool ClientProxy::setMethodBodyForObject(int objectDebugId, const QString &metho
     if (objectDebugId == -1)
         return 0;
 
-    qDebug() << "setMethodBodyForObject():" << objectDebugId << methodName;
+//    qDebug() << "setMethodBodyForObject():" << objectDebugId << methodName;
     return m_client->setMethodBody(objectDebugId, methodName, methodBody);
 }
 
