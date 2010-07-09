@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "customwizardparameters.h"
+#include "customwizardpreprocessor.h"
 
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/icore.h>
@@ -642,6 +643,25 @@ void CustomWizardContext::reset()
                             mdb->preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)));
     baseReplacements.insert(QLatin1String("CppHeaderSuffix"),
                             mdb->preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)));
+}
+
+QString CustomWizardContext::processFile(const FieldReplacementMap &fm, QString in)
+{
+
+    if (in.isEmpty())
+        return in;
+
+    if (!fm.isEmpty())
+        replaceFields(fm, &in);
+
+    QString out;
+    QString errorMessage;
+    if (!customWizardPreprocess(in, &out, &errorMessage)) {
+        qWarning("Error preprocessing custom widget file: %s\nFile:\n%s",
+                 qPrintable(errorMessage), qPrintable(in));
+        return QString();
+    }
+    return out;
 }
 
 } // namespace Internal

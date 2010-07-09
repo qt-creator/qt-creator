@@ -55,11 +55,17 @@ leave room for the Qt 4 target page.
             <fielddescription>Hello world message:</fielddescription>
             <fielddescription xml:lang="de">Hallo-Welt-Nachricht:</fielddescription>
         </field>
-	<!-- Comment out network in profile according to user's wishes -->
+	<!-- Checkbox technique 1: Comment out network in profile according to user's wishes -->
         <field name="NETWORK">
             <fieldcontrol class="QCheckBox" truevalue="" falsevalue="# "/>
             <fielddescription>Include network module</fielddescription>
             <fielddescription xml:lang="de">Netzwerk-Modul verwenden</fielddescription>
+        </field>
+	<!-- Checkbox technique 2: Use preprocessor for profile according to user's wishes -->
+        <field name="SCRIPT">
+            <fieldcontrol class="QCheckBox"/>
+            <fielddescription>Include script module</fielddescription>
+            <fielddescription xml:lang="de">Script-Modul verwenden</fielddescription>
         </field>
     </fields>
 </wizard>
