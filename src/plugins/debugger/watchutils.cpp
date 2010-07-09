@@ -693,8 +693,8 @@ QString decodeData(const QByteArray &ba, int encoding)
                 decodedBa[i + 1] = c;
             }
             //qDebug() << quoteUnprintableLatin1(decodedBa) << "\n\n";
-            return doubleQuote + QString::fromUcs4(reinterpret_cast<const uint *>
-                (decodedBa.data()), decodedBa.size() / 4) + doubleQuote;
+            return doubleQuote + QString::fromUtf16(reinterpret_cast<const ushort *>
+                (decodedBa.data()), decodedBa.size() / 2) + doubleQuote;
         }
     }
     qDebug() << "ENCODING ERROR: " << encoding;
