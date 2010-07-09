@@ -121,6 +121,12 @@ void QmlContextPane::apply(TextEditor::BaseTextEditorEditable *editor, Document:
         if (line1 > -1 && line2 > -1)
             reg = m_editor->editor()->translatedLineRegion(line1 - 1, line2);
 
+        QRect rect;
+        rect.setHeight(m_widget->height() + 10);
+        rect.setWidth(reg.boundingRect().width() - reg.boundingRect().left());
+        rect.moveTo(reg.boundingRect().topLeft());
+        reg = reg.intersect(rect);
+
         if (name.contains("Text")) {
             m_node = 0;
             PropertyReader propertyReader(doc.data(), initializer);
