@@ -371,7 +371,7 @@ void CheckUndefinedSymbols::checkNamespace(NameAST *name)
 
 void CheckUndefinedSymbols::checkName(NameAST *ast)
 {
-    if (ast->name) {
+    if (ast && ast->name) {
         if (const Identifier *ident = ast->name->identifier()) {
             const QByteArray id = QByteArray::fromRawData(ident->chars(), ident->size());
             if (_potentialTypes.contains(id)) {
