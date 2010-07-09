@@ -400,6 +400,7 @@ BaseTextDocumentLayout::BaseTextDocumentLayout(QTextDocument *doc)
     :QPlainTextDocumentLayout(doc) {
     lastSaveRevision = 0;
     hasMarks = 0;
+    m_requiredWidth = 0;
 }
 
 BaseTextDocumentLayout::~BaseTextDocumentLayout()
