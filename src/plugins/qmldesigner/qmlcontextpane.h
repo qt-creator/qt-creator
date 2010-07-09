@@ -28,7 +28,7 @@ class QmlContextPane : public QmlJS::IContextPane
 public:
    QmlContextPane(QObject *parent = 0);
    ~QmlContextPane();
-   void apply(TextEditor::BaseTextEditorEditable *editor, QmlJS::Document::Ptr doc, QmlJS::AST::Node *node, bool update);
+   void apply(TextEditor::BaseTextEditorEditable *editor, QmlJS::Document::Ptr doc, const QmlJS::Snapshot &snapshot, QmlJS::AST::Node *node, bool update);
    void setProperty(const QString &propertyName, const QVariant &value);
    void removeProperty(const QString &propertyName);
    void setEnabled(bool);

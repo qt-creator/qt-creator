@@ -178,13 +178,17 @@ void ContextPaneWidget::mouseReleaseEvent(QMouseEvent *event)
 void ContextPaneWidget::mouseMoveEvent(QMouseEvent * event)
 {
     if (event->buttons() &&  Qt::LeftButton) {
-
+        if (pos().x() < 10  && event->pos().x() < -20)
+            return;
         if (m_oldPos != QPoint(-1, -1)) {
             QPoint diff = event->globalPos() - m_oldPos;
-            move(pos() + diff);
-            if (m_bauhausColorDialog)
-                m_bauhausColorDialog->move(m_bauhausColorDialog->pos() + diff);
-            m_xPos = pos().x();
+            if (m_bauhausColorDialog) {
+                QPoint newPos = pos() + diff;
+                if (newPos.x() > 0 && newPos.y() > 0 && (newPos.x() + width()) < parentWidget()->width() && (newPos.y() + height()) < parentWidget()->height()) {
+                    m_bauhausColorDialog->move(m_bauhausColorDialog->pos() + diff);
+                    move(newPos);
+                }
+            }
         } else {
             m_opacityEffect = new QGraphicsOpacityEffect;
             setGraphicsEffect(m_opacityEffect);
