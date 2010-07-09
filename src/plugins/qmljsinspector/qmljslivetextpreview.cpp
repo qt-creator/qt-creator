@@ -60,7 +60,7 @@ void QmlJSLiveTextPreview::changeSelectedElement(int offset, const QString &word
     ClientProxy *clientProxy = ClientProxy::instance();
     QUrl url = QUrl::fromLocalFile(m_currentEditor.data()->file()->fileName());
     QmlJS::Document::Ptr doc = modelManager()->snapshot().document(m_currentEditor.data()->file()->fileName());
-    ScriptBindingParser info(doc, clientProxy->objectReferences(url));
+    //ScriptBindingParser info(doc, clientProxy->objectReferences(url));
 
     QDeclarativeDebugObjectReference objectRef;
 
@@ -72,9 +72,10 @@ void QmlJSLiveTextPreview::changeSelectedElement(int offset, const QString &word
         }
     }
 
+   /* FIXME
     if (objectRef.debugId() == -1 && offset >= 0) {
         objectRef = info.objectReferenceForOffset(offset);
-    }
+    }*/
 
     if (objectRef.debugId() != -1)
         emit selectedItemsChanged(QList<QDeclarativeDebugObjectReference>() << objectRef);
@@ -96,20 +97,28 @@ void QmlJSLiveTextPreview::setEditor(Core::IEditor *editor)
     }
 }
 
+
 void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
-{    
+{
+   /* FIXME
     Core::ICore *core = Core::ICore::instance();
     const int dbgcontext = core->uniqueIDManager()->uniqueIdentifier(Debugger::Constants::C_DEBUGMODE);
 
     if (!core->hasContext(dbgcontext))
         return;
+    */
 
     if (doc && m_previousDoc && doc->fileName() == m_previousDoc->fileName()) {
+
+        if (m_debugIds.isEmpty())
+            m_debugIds = m_initialTable.value(doc->fileName());
         Delta delta;
-        delta(doc, m_previousDoc);
+        m_debugIds = delta(m_previousDoc, doc,  m_debugIds);
         m_previousDoc = doc;
+
     }
 }
+
 
 } // namespace Internal
 } // namespace QmlJSInspector

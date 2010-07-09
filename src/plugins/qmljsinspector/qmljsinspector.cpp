@@ -101,6 +101,11 @@ using namespace QmlJS::AST;
 using namespace QmlJSInspector::Internal;
 using namespace Debugger::Internal;
 
+
+
+
+
+
 enum {
     MaxConnectionAttempts = 50,
     ConnectionAttemptDefaultInterval = 75,
@@ -138,12 +143,14 @@ Inspector::Inspector(QObject *parent)
     connect(m_clientProxy, SIGNAL(aboutToReloadEngines()), SLOT(aboutToReloadEngines()));
     connect(m_clientProxy, SIGNAL(enginesChanged()), SLOT(updateEngineList()));
     connect(m_clientProxy, SIGNAL(aboutToDisconnect()), SLOT(disconnectWidgets()));
+    connect(m_clientProxy, SIGNAL(objectTreeUpdated(QDeclarativeDebugObjectReference)),SLOT(objectTreeUpdated(QDeclarativeDebugObjectReference)));
 
     connect(Debugger::DebuggerPlugin::instance(),
             SIGNAL(stateChanged(int)), this, SLOT(debuggerStateChanged(int)));
 
     connect(m_connectionTimer, SIGNAL(timeout()), SLOT(pollInspector()));
 }
+
 
 Inspector::~Inspector()
 {
@@ -562,3 +569,68 @@ bool Inspector::addQuotesForData(const QVariant &value) const
 
     return false;
 }
+
+/*!
+   Associates the UiObjectMember* to their QDeclarativeDebugObjectReference.
+ */
+class MapObjectWithDebugReference : public Visitor
+{
+    public:
+        virtual void endVisit(UiObjectDefinition *ast) ;
+        virtual void endVisit(UiObjectBinding *ast) ;
+
+        QDeclarativeDebugObjectReference root;
+        QString filename;
+        QHash<UiObjectMember *, QList<QDeclarativeDebugObjectReference> > result;
+    private:
+        void processRecursive(const QDeclarativeDebugObjectReference &object, UiObjectMember *ast);
+};
+
+void MapObjectWithDebugReference::endVisit(UiObjectDefinition* ast)
+{
+    if (ast->qualifiedTypeNameId->name->asString().at(0).isUpper())
+        processRecursive(root, ast);
+}
+void MapObjectWithDebugReference::endVisit(UiObjectBinding* ast)
+{
+    if (ast->qualifiedId->name->asString().at(0).isUpper())
+        processRecursive(root, ast);
+}
+
+void MapObjectWithDebugReference::processRecursive(const QDeclarativeDebugObjectReference& object, UiObjectMember* ast)
+{
+    // If this is too slow, it can be speed up by indexing
+    // the QDeclarativeDebugObjectReference by filename/loc in a fist pass
+
+    SourceLocation loc = ast->firstSourceLocation();
+    if (object.source().lineNumber() == int(loc.startLine) && object.source().url().toLocalFile() == filename) {
+        result[ast] += object;
+    }
+
+    foreach (const QDeclarativeDebugObjectReference &it, object.children()) {
+        processRecursive(it, ast);
+    }
+}
+
+void QmlJSInspector::Internal::Inspector::objectTreeUpdated(const QDeclarativeDebugObjectReference &ref)
+{
+    QmlJS::ModelManagerInterface *m = QmlJS::ModelManagerInterface::instance();
+    Snapshot snapshot = m->snapshot();
+    QHash<QString, QHash<UiObjectMember *, QList< QDeclarativeDebugObjectReference> > > allDebugIds;
+    foreach(const Document::Ptr &doc, snapshot) {
+        if (!doc->qmlProgram())
+            continue;
+        MapObjectWithDebugReference visitor;
+        visitor.root = ref;
+        QString filename = doc->fileName();
+        visitor.filename = filename;
+        doc->qmlProgram()->accept(&visitor);
+        allDebugIds[filename] = visitor.result;
+    }
+
+    //FIXME
+    m_textPreview->m_initialTable = allDebugIds;
+    m_textPreview->m_debugIds.clear();
+}
+
+

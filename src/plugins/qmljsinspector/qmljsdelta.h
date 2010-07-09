@@ -43,53 +43,6 @@ using namespace QmlJS::AST;
 namespace QmlJSInspector {
 namespace Internal {
 
-class ScriptBindingParser : protected Visitor
-{
-public:
-    QmlJS::Document::Ptr doc;
-    QList<UiScriptBinding *> scripts;
-
-    ScriptBindingParser(Document::Ptr doc,
-                        const QList<QDeclarativeDebugObjectReference> &objectReferences = QList<QDeclarativeDebugObjectReference>());
-    void process();
-
-    UiObjectMember *parent(UiScriptBinding *script) const;
-    UiScriptBinding *id(UiObjectMember *parent) const;
-    QList<UiScriptBinding *> ids() const;
-
-    QDeclarativeDebugObjectReference objectReferenceForPosition(const QUrl &url, int line, int col) const;
-
-    QDeclarativeDebugObjectReference objectReferenceForScriptBinding(UiScriptBinding *binding) const;
-
-    QDeclarativeDebugObjectReference objectReferenceForOffset(unsigned int offset);
-
-    QString header(UiObjectMember *member) const;
-
-    QString scriptCode(UiScriptBinding *script) const;
-    QString methodName(UiSourceElement *source) const;
-    QString methodCode(UiSourceElement *source) const;
-
-protected:
-    QDeclarativeDebugObjectReference objectReference(const QString &id) const;
-
-    virtual bool visit(UiObjectDefinition *ast);
-    virtual void endVisit(UiObjectDefinition *);
-    virtual bool visit(UiObjectBinding *ast);
-    virtual void endVisit(UiObjectBinding *);
-    virtual bool visit(UiScriptBinding *ast);
-
-private:
-    QList<UiObjectMember *> objectStack;
-    QHash<UiScriptBinding *, UiObjectMember *> _parent;
-    QHash<UiObjectMember *, UiScriptBinding *> _id;
-    QHash<UiScriptBinding *, QDeclarativeDebugObjectReference> _idBindings;
-
-    QList<QDeclarativeDebugObjectReference> objectReferences;
-    QDeclarativeDebugObjectReference m_foundObjectReference;
-    unsigned int m_searchElementOffset;
-};
-
-
 class Delta
 {
 public:
@@ -102,14 +55,15 @@ public:
     };
 
 public:
-    void operator()(QmlJS::Document::Ptr doc, QmlJS::Document::Ptr previousDoc);
+    typedef QHash< UiObjectMember*, QList<QDeclarativeDebugObjectReference > > DebugIdMap;
+    DebugIdMap operator()(Document::Ptr doc1, Document::Ptr doc2, const DebugIdMap& debugIds);
 
     QList<Change> changes() const;
 
     QmlJS::Document::Ptr document() const;
     QmlJS::Document::Ptr previousDocument() const;
 
-private:
+public:
     void updateScriptBinding(const QDeclarativeDebugObjectReference &objectReference,
                              QmlJS::AST::UiScriptBinding *scriptBinding,
                              const QString &propertyName,
@@ -119,10 +73,9 @@ private:
                             const QString &methodName,
                             const QString &methodBody);
 
-    bool compare(UiSourceElement *source, UiSourceElement *other);
-    bool compare(QmlJS::AST::UiQualifiedId *id, QmlJS::AST::UiQualifiedId *other);
-    QmlJS::AST::UiObjectMemberList *objectMembers(QmlJS::AST::UiObjectMember *object);
-    QDeclarativeDebugObjectReference objectReferenceForUiObject(const ScriptBindingParser &bindingParser, UiObjectMember *object);
+    static bool compare(UiSourceElement *source, UiSourceElement *other);
+    static bool compare(QmlJS::AST::UiQualifiedId *id, QmlJS::AST::UiQualifiedId *other);
+    static QmlJS::AST::UiObjectMemberList *objectMembers(QmlJS::AST::UiObjectMember *object);
 
 private:
     QmlJS::Document::Ptr _doc;

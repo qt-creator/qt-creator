@@ -72,6 +72,8 @@ public:
         QmlProjectWithCppPlugins
     };
 
+    QHash< QString, QList< QPair< QmlJS::AST::UiObjectMember*, int > > > m_initialTable;
+
 public:
     Inspector(QObject *parent = 0);
     virtual ~Inspector();
@@ -114,6 +116,8 @@ private slots:
 
     void disconnectWidgets();
     void disconnected();
+
+    void objectTreeUpdated(const QDeclarativeDebugObjectReference &ref);
 
 private:
     Debugger::DebuggerRunControl *createDebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig,

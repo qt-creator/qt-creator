@@ -31,6 +31,7 @@ namespace Internal {
 class QmlJSLiveTextPreview : public QObject
 {
     Q_OBJECT
+
 public:
     explicit QmlJSLiveTextPreview(QObject *parent = 0);
     static QmlJS::ModelManagerInterface *modelManager();
@@ -38,6 +39,9 @@ public:
 
     void setActiveObject(const QDeclarativeDebugObjectReference &object);
     void mapObjectToQml(const QDeclarativeDebugObjectReference &object);
+
+    QHash<QString, QHash<QmlJS::AST::UiObjectMember *, QList< QDeclarativeDebugObjectReference> > > m_initialTable;
+    QHash< QmlJS::AST::UiObjectMember*, QList<QDeclarativeDebugObjectReference > > m_debugIds;
 
 signals:
     void selectedItemsChanged(const QList<QDeclarativeDebugObjectReference> &objects);

@@ -39,55 +39,172 @@ using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJSInspector::Internal;
 
-UiObjectMember *ScriptBindingParser::parent(UiScriptBinding *script) const
-{ return _parent.value(script); }
-
-UiScriptBinding *ScriptBindingParser::id(UiObjectMember *parent) const
-{ return _id.value(parent); }
-
-QList<UiScriptBinding *> ScriptBindingParser::ids() const
-{ return _id.values(); }
-
-QString ScriptBindingParser::header(UiObjectMember *member) const
+/*!
+    Build a hash of the parents
+ */
+struct BuildParentHash : public Visitor
 {
-    if (member) {
-        if (UiObjectDefinition *def = cast<UiObjectDefinition *>(member)) {
-            const int begin = def->firstSourceLocation().begin();
-            const int end = def->initializer->lbraceToken.begin();
-            return doc->source().mid(begin, end - begin);
-        } else if (UiObjectBinding *binding = cast<UiObjectBinding *>(member)) {
-            const int begin = binding->firstSourceLocation().begin();
-            const int end = binding->initializer->lbraceToken.begin();
-            return doc->source().mid(begin, end - begin);
-        }
-    }
+    virtual void postVisit(Node* );
+    virtual bool preVisit(Node* );
+    QHash<UiObjectMember *, UiObjectMember *> parent;
+private:
+    QList<UiObjectMember *> stack;
+};
 
-    return QString();
+bool BuildParentHash::preVisit(Node* ast)
+{
+    if (ast->uiObjectMemberCast()) {
+        stack.append(ast->uiObjectMemberCast());
+    }
+    return true;
 }
 
-QString ScriptBindingParser::scriptCode(UiScriptBinding *script) const
+
+void BuildParentHash::postVisit(Node* ast)
+{
+    if (ast->uiObjectMemberCast()) {
+        stack.removeLast();
+        if (!stack.isEmpty()) {
+            parent.insert(ast->uiObjectMemberCast(), stack.last());
+        }
+    }
+}
+
+QString label(UiObjectMember *member, Document::Ptr doc)
+{
+    QString str;
+    if(!member)
+        return str;
+
+    if (UiObjectDefinition* foo = cast<UiObjectDefinition *>(member)) {
+        quint32 start = foo->firstSourceLocation().begin();
+        quint32 end = foo->initializer->lbraceToken.begin();
+        str = doc->source().mid(start, end-start);
+    } else if(UiObjectBinding *foo = cast<UiObjectBinding *>(member)) {
+        quint32 start = foo->firstSourceLocation().begin();
+        quint32 end = foo->initializer->lbraceToken.begin();
+        str = doc->source().mid(start, end-start);
+    } else if(cast<UiArrayBinding *>(member)) {
+        //TODO
+    } else {
+        quint32 start = member->firstSourceLocation().begin();
+        quint32 end = member->lastSourceLocation().end();
+        str = doc->source().mid(start, end-start);
+    }
+    return str;
+}
+
+struct FindObjectMemberWithLabel : public Visitor
+{
+    virtual void endVisit(UiObjectDefinition *ast) ;
+    virtual void endVisit(UiObjectBinding *ast) ;
+
+    QList<UiObjectMember *> found;
+    QString cmp;
+    Document::Ptr doc;
+};
+
+void FindObjectMemberWithLabel::endVisit(UiObjectDefinition* ast)
+{
+    if (label(ast, doc) == cmp)
+        found.append(ast);
+}
+void FindObjectMemberWithLabel::endVisit(UiObjectBinding* ast)
+{
+    if (label(ast, doc) == cmp)
+        found.append(ast);
+}
+
+struct Map {
+    typedef UiObjectMember*T;
+    QHash<T, T> way1;
+    QHash<T, T> way2;
+    void insert(T t1, T t2) {
+        way1.insert(t1,t2);
+        way2.insert(t2,t1);
+    }
+    int count() { return way1.count(); }
+    void operator+=(const Map &other) {
+        way1.unite(other.way1);
+        way2.unite(other.way2);
+    }
+    bool contains(T t1, T t2) {
+        return way1.value(t1) == t2;
+    }
+};
+
+QList<UiObjectMember *> children(UiObjectMember *ast)
+{
+    QList<UiObjectMember *> ret;
+    if (UiObjectDefinition* foo = cast<UiObjectDefinition *>(ast)) {
+        UiObjectMemberList* list = foo->initializer->members;
+        while (list) {
+            ret.append(list->member);
+            list = list->next;
+        }
+    }
+    return ret;
+}
+
+Map MatchFragment(UiObjectMember *x, UiObjectMember *y, const Map &M, Document::Ptr doc1, Document::Ptr doc2) {
+    Map M2;
+    if (M.way1.contains(x))
+        return M2;
+    if (M.way2.contains(y))
+        return M2;
+    if(label(x, doc1) != label(y, doc2))
+        return M2;
+    M2.insert(x, y);
+    const QList<UiObjectMember *> list1 = children(x);
+    const QList<UiObjectMember *> list2 = children(y);
+    for (int i = 0; i < qMin(list1.count(), list2.count()); i++) {
+        M2 += MatchFragment(list1[i], list2[i], M, doc1, doc2);
+    }
+    return M2;
+}
+
+Map Mapping(Document::Ptr doc1, Document::Ptr doc2)
+{
+    Map M;
+    QList<UiObjectMember *> todo;
+    todo.append(doc1->qmlProgram()->members->member);
+    while(!todo.isEmpty()) {
+        UiObjectMember *x = todo.takeFirst();
+        todo += children(x);
+
+        if (M.way1.contains(x))
+            continue;
+
+        //If this is too slow, we could use some sort of indexing
+        FindObjectMemberWithLabel v3;
+        v3.cmp = label(x, doc1);
+        v3.doc = doc2;
+        doc2->qmlProgram()->accept(&v3);
+        Map M2;
+        foreach (UiObjectMember *y, v3.found) {
+            if (M.way2.contains(y))
+                continue;
+            Map M3 = MatchFragment(x, y, M, doc1, doc2);
+            if (M3.count() > M2.count())
+                M2 = M3;
+        }
+        M += M2;
+    }
+    return M;
+}
+
+
+static QString _scriptCode(UiScriptBinding *script, Document::Ptr doc)
 {
     if (script) {
         const int begin = script->statement->firstSourceLocation().begin();
         const int end = script->statement->lastSourceLocation().end();
         return doc->source().mid(begin, end - begin);
     }
-
     return QString();
 }
 
-
-QString ScriptBindingParser::methodName(UiSourceElement *source) const
-{
-    if (source) {
-        if (FunctionDeclaration *declaration = cast<FunctionDeclaration*>(source->sourceElement)) {
-            return declaration->name->asString();
-        }
-    }
-    return QString();
-}
-
-QString ScriptBindingParser::methodCode(UiSourceElement *source) const
+static QString _methodCode(UiSourceElement *source, Document::Ptr doc)
 {
     if (source) {
         if (FunctionDeclaration *declaration = cast<FunctionDeclaration*>(source->sourceElement)) {
@@ -97,6 +214,132 @@ QString ScriptBindingParser::methodCode(UiSourceElement *source) const
         }
     }
     return QString();
+}
+
+
+static QString _propertyName(UiQualifiedId *id)
+{
+    QString s;
+
+    for (; id; id = id->next) {
+        if (! id->name)
+            return QString();
+
+        s += id->name->asString();
+
+        if (id->next)
+            s += QLatin1Char('.');
+    }
+
+    return s;
+}
+
+static QString _methodName(UiSourceElement *source)
+{
+    if (source) {
+        if (FunctionDeclaration *declaration = cast<FunctionDeclaration*>(source->sourceElement)) {
+            return declaration->name->asString();
+        }
+    }
+    return QString();
+}
+
+
+
+Delta::DebugIdMap Delta::operator()(Document::Ptr doc1, Document::Ptr doc2, const DebugIdMap &debugIds)
+{
+    QHash< UiObjectMember*, QList<QDeclarativeDebugObjectReference > > newDebuggIds;
+
+    Map M = Mapping(doc1, doc2);
+
+    BuildParentHash parents2;
+    doc2->qmlProgram()->accept(&parents2);
+    BuildParentHash parents1;
+    doc1->qmlProgram()->accept(&parents1);
+
+    QList<UiObjectMember *> todo;
+    todo.append(doc2->qmlProgram()->members->member);
+    //UiObjectMemberList *list = 0;
+    while(!todo.isEmpty()) {
+        UiObjectMember *y = todo.takeFirst();
+        todo += children(y);
+        if (!M.way2.contains(y)) {
+            qDebug () << "insert " << label(y, doc2) << " to " << label(parents2.parent.value(y), doc2);
+            continue;
+        }
+        UiObjectMember *x = M.way2[y];
+
+
+//--8<---------------------------------------------------------------------------------------
+        if (debugIds.contains(x)) {
+            newDebuggIds[y] = debugIds[x];
+
+            UiObjectMember *object = y;
+            UiObjectMember *previousObject = x;
+
+            for (UiObjectMemberList *objectMemberIt = objectMembers(object); objectMemberIt; objectMemberIt = objectMemberIt->next) {
+                if (UiScriptBinding *script = cast<UiScriptBinding *>(objectMemberIt->member)) {
+                    for (UiObjectMemberList *previousObjectMemberIt = Delta::objectMembers(previousObject); previousObjectMemberIt; previousObjectMemberIt = previousObjectMemberIt->next) {
+                        if (UiScriptBinding *previousScript = cast<UiScriptBinding *>(previousObjectMemberIt->member)) {
+                            if (compare(script->qualifiedId, previousScript->qualifiedId)) {
+                                const QString scriptCode = _scriptCode(script, doc2);
+                                const QString previousScriptCode = _scriptCode(previousScript, doc1);
+
+                                if (scriptCode != previousScriptCode) {
+                                    const QString property = _propertyName(script->qualifiedId);
+                                    foreach (const QDeclarativeDebugObjectReference &ref, debugIds[x]) {
+                                        if (ref.debugId() != -1)
+                                            updateScriptBinding(ref, script, property, scriptCode);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else if (UiSourceElement *uiSource = cast<UiSourceElement*>(objectMemberIt->member)) {
+                    for (UiObjectMemberList *previousObjectMemberIt = objectMembers(previousObject);
+                    previousObjectMemberIt; previousObjectMemberIt = previousObjectMemberIt->next)
+                    {
+                        if (UiSourceElement *previousSource = cast<UiSourceElement*>(previousObjectMemberIt->member)) {
+                            if (compare(uiSource, previousSource))
+                            {
+                                const QString methodCode = _methodCode(uiSource, doc2);
+                                const QString previousMethodCode = _methodCode(previousSource, doc1);
+
+                                if (methodCode != previousMethodCode) {
+                                    const QString methodName = _methodName(uiSource);
+                                    foreach (const QDeclarativeDebugObjectReference &ref, debugIds[x]) {
+                                        if (ref.debugId() != -1)
+                                            updateMethodBody(ref, script, methodName, methodCode);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+//--8<--------------------------------------------------------------------------------------------------
+
+        //qDebug() << "match "<< label(x, doc1) << "with parent " << label(parents1.parent.value(x), doc1)
+        //     << " to "<< label(y, doc2) << "with parent " << label(parents2.parent.value(y), doc2);
+        if (!M.contains(parents1.parent.value(x),parents2.parent.value(y))) {
+            qDebug () << "move " << label(y, doc2) << " from " << label(parents1.parent.value(x), doc1)
+            << " to " << label(parents2.parent.value(y), doc2);
+            continue;
+        }
+    }
+
+    todo.append(doc1->qmlProgram()->members->member);
+    while(!todo.isEmpty()) {
+        UiObjectMember *x = todo.takeFirst();
+        todo += children(x);
+        if (!M.way1.contains(x)) {
+            qDebug () << "remove " << label(x, doc1);
+            continue;
+        }
+    }
+    return newDebuggIds;
 }
 
 static bool isLiteralValue(ExpressionNode *expr)
@@ -189,227 +432,6 @@ static QVariant castToLiteral(const QString &expression, UiScriptBinding *script
     }
 
     return castedExpression;
-}
-
-ScriptBindingParser::ScriptBindingParser(QmlJS::Document::Ptr doc,
-                                         const QList<QDeclarativeDebugObjectReference> &objectReferences)
-    : doc(doc), objectReferences(objectReferences), m_searchElementOffset(-1)
-{
-
-}
-
-void ScriptBindingParser::process()
-{
-    if (!doc.isNull() && doc->qmlProgram())
-        doc->qmlProgram()->accept(this);
-}
-
-QDeclarativeDebugObjectReference ScriptBindingParser::objectReferenceForOffset(unsigned int offset)
-{
-    m_searchElementOffset = offset;
-    if (!doc.isNull() && doc->qmlProgram())
-        doc->qmlProgram()->accept(this);
-
-    return m_foundObjectReference;
-}
-
-QDeclarativeDebugObjectReference ScriptBindingParser::objectReference(const QString &id) const
-{
-    foreach (const QDeclarativeDebugObjectReference &ref, objectReferences) {
-        if (ref.idString() == id)
-            return ref;
-    }
-
-    return QDeclarativeDebugObjectReference();
-}
-
-
-QDeclarativeDebugObjectReference ScriptBindingParser::objectReferenceForPosition(const QUrl &url, int line, int col) const
-{
-    foreach (const QDeclarativeDebugObjectReference &ref, objectReferences) {
-        if (ref.source().lineNumber() == line
-         && ref.source().columnNumber() == col
-         && ref.source().url() == url)
-        {
-            return ref;
-        }
-    }
-
-    return QDeclarativeDebugObjectReference();
-}
-
-bool ScriptBindingParser::visit(UiObjectDefinition *ast)
-{
-    objectStack.append(ast);
-    return true;
-}
-
-void ScriptBindingParser::endVisit(UiObjectDefinition *)
-{
-    objectStack.removeLast();
-}
-
-bool ScriptBindingParser::visit(UiObjectBinding *ast)
-{
-    objectStack.append(ast);
-    return true;
-}
-
-void ScriptBindingParser::endVisit(UiObjectBinding *)
-{
-    objectStack.removeLast();
-}
-
-bool ScriptBindingParser::visit(UiScriptBinding *ast)
-{
-    scripts.append(ast);
-    _parent[ast] = objectStack.back();
-
-    if (ast->qualifiedId && ast->qualifiedId->name && ! ast->qualifiedId->next) {
-        const QString bindingName = ast->qualifiedId->name->asString();
-
-        if (bindingName == QLatin1String("id")) {
-            _id[objectStack.back()] = ast;
-
-            if (ExpressionStatement *s = cast<ExpressionStatement *>(ast->statement)) {
-                if (IdentifierExpression *id = cast<IdentifierExpression *>(s->expression)) {
-                    if (id->name) {
-                        _idBindings.insert(ast, objectReference(id->name->asString()));
-
-                        if (parent(ast)->firstSourceLocation().offset == m_searchElementOffset)
-                            m_foundObjectReference = objectReference(id->name->asString());
-                    }
-                }
-            }
-        }
-    }
-
-    return true;
-}
-
-QDeclarativeDebugObjectReference ScriptBindingParser::objectReferenceForScriptBinding(UiScriptBinding *binding) const
-{
-    return _idBindings.value(binding);
-}
-
-// Delta
-
-static QString propertyName(UiQualifiedId *id)
-{
-    QString s;
-
-    for (; id; id = id->next) {
-        if (! id->name)
-            return QString();
-
-        s += id->name->asString();
-
-        if (id->next)
-            s += QLatin1Char('.');
-    }
-
-    return s;
-}
-
-QDeclarativeDebugObjectReference Delta::objectReferenceForUiObject(const ScriptBindingParser &bindingParser, UiObjectMember *object)
-{
-    if (UiScriptBinding *idBinding = bindingParser.id(object)) {
-        if (ExpressionStatement *s = cast<ExpressionStatement *>(idBinding->statement)) {
-            if (IdentifierExpression *idExpr = cast<IdentifierExpression *>(s->expression)) {
-                const QString idString = idExpr->name->asString();
-
-                const QList<QDeclarativeDebugObjectReference> refs = ClientProxy::instance()->objectReferences(_url);
-                foreach (const QDeclarativeDebugObjectReference &ref, refs) {
-                    if (ref.idString() == idString)
-                        return ref;
-                }
-            }
-        }
-    }
-    return QDeclarativeDebugObjectReference();
-}
-
-
-void Delta::operator()(Document::Ptr doc, Document::Ptr previousDoc)
-{
-    _doc = doc;
-    _previousDoc = previousDoc;
-    _changes.clear();
-
-    _url = QUrl::fromLocalFile(doc->fileName());
-    const QList<QDeclarativeDebugObjectReference> references = ClientProxy::instance()->objectReferences(_url);
-
-    ScriptBindingParser bindingParser(doc, references);
-    bindingParser.process();
-
-    ScriptBindingParser previousBindingParser(previousDoc, references);
-    previousBindingParser.process();
-
-    QHash<UiObjectMember *, UiObjectMember *> preservedObjects;
-
-    foreach (UiScriptBinding *id, bindingParser.ids()) {
-        UiObjectMember *parent = bindingParser.parent(id);
-        const QString idCode = bindingParser.scriptCode(id);
-
-        foreach (UiScriptBinding *otherId, previousBindingParser.ids()) {
-            const QString otherIdCode = previousBindingParser.scriptCode(otherId);
-
-            if (idCode == otherIdCode) {
-                preservedObjects.insert(parent, previousBindingParser.parent(otherId));
-            }
-        }
-    }
-
-    QHashIterator<UiObjectMember *, UiObjectMember *> it(preservedObjects);
-    while (it.hasNext()) {
-        it.next();
-
-        UiObjectMember *object = it.key();
-        UiObjectMember *previousObject = it.value();
-
-        for (UiObjectMemberList *objectMemberIt = objectMembers(object); objectMemberIt; objectMemberIt = objectMemberIt->next) {
-            if (UiScriptBinding *script = cast<UiScriptBinding *>(objectMemberIt->member)) {
-                for (UiObjectMemberList *previousObjectMemberIt = objectMembers(previousObject); previousObjectMemberIt; previousObjectMemberIt = previousObjectMemberIt->next) {
-                    if (UiScriptBinding *previousScript = cast<UiScriptBinding *>(previousObjectMemberIt->member)) {
-                        if (compare(script->qualifiedId, previousScript->qualifiedId)) {
-                            const QString scriptCode = bindingParser.scriptCode(script);
-                            const QString previousScriptCode = previousBindingParser.scriptCode(previousScript);
-
-                            if (scriptCode != previousScriptCode) {
-                                const QString property = propertyName(script->qualifiedId);
-
-                                QDeclarativeDebugObjectReference ref = objectReferenceForUiObject(bindingParser, object);
-                                if (ref.debugId() != -1)
-                                    updateScriptBinding(ref, script, property, scriptCode);
-                            }
-                        }
-                    }
-                }
-            } else if (UiSourceElement *uiSource = cast<UiSourceElement*>(objectMemberIt->member)) {
-
-                for (UiObjectMemberList *previousObjectMemberIt = objectMembers(previousObject);
-                     previousObjectMemberIt; previousObjectMemberIt = previousObjectMemberIt->next)
-                {
-                    if (UiSourceElement *previousSource = cast<UiSourceElement*>(previousObjectMemberIt->member)) {
-                        if (compare(uiSource, previousSource))
-                        {
-                            const QString methodCode = bindingParser.methodCode(uiSource);
-                            const QString previousMethodCode = previousBindingParser.methodCode(previousSource);
-
-                            if (methodCode != previousMethodCode) {
-                                const QString methodName = bindingParser.methodName(uiSource);
-                                QDeclarativeDebugObjectReference ref = objectReferenceForUiObject(bindingParser, object);
-                                if (ref.debugId() != -1)
-                                    updateMethodBody(ref, script, methodName, methodCode);
-                            }
-                        }
-                    }
-                }
-
-            }
-        }
-
-    }
 }
 
 void Delta::updateMethodBody(const QDeclarativeDebugObjectReference &objectReference,
