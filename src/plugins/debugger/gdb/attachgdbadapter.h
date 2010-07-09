@@ -50,15 +50,17 @@ class AttachGdbAdapter : public AbstractGdbAdapter
 public:
     AttachGdbAdapter(GdbEngine *engine, QObject *parent = 0);
 
-    virtual DumperHandling dumperHandling() const { return DumperLoadedByGdb; }
+private:
+    DumperHandling dumperHandling() const { return DumperLoadedByGdb; }
 
     void startAdapter();
     void setupInferior();
+    void runEngine();
     void interruptInferior();
-    const char *inferiorShutdownCommand() const { return "detach"; }
-    AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
+    void shutdownInferior();
+    void shutdownAdapter();
 
-private:
+    AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
     void handleAttach(const GdbResponse &response);
 
     LocalGdbProcess m_gdbProc;

@@ -39,16 +39,19 @@ namespace Internal {
 class RemotePlainGdbAdapter : public AbstractPlainGdbAdapter
 {
     Q_OBJECT
-    friend class RemoteGdbProcess;
+
 public:
+    friend class RemoteGdbProcess;
     RemotePlainGdbAdapter(GdbEngine *engine, QObject *parent = 0);
 
-    virtual void startAdapter();
-    virtual void interruptInferior();
-    virtual AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
-    virtual DumperHandling dumperHandling() const { return DumperLoadedByGdbPreload; }
-
 private:
+    void startAdapter();
+    void interruptInferior();
+    void shutdownInferior();
+    void shutdownAdapter();
+    AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
+    DumperHandling dumperHandling() const { return DumperLoadedByGdbPreload; }
+
     virtual QByteArray execFilePath() const;
     virtual bool infoTargetNecessary() const;
     virtual QByteArray toLocalEncoding(const QString &s) const;

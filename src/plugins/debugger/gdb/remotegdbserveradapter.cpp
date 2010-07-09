@@ -84,7 +84,7 @@ AbstractGdbAdapter::DumperHandling RemoteGdbServerAdapter::dumperHandling() cons
 
 void RemoteGdbServerAdapter::startAdapter()
 {
-    QTC_ASSERT(state() == EngineSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("TRYING TO START ADAPTER"));
 
     // FIXME: make asynchroneous
@@ -156,7 +156,7 @@ void RemoteGdbServerAdapter::readUploadStandardError()
 
 void RemoteGdbServerAdapter::setupInferior()
 {
-    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
 
     m_engine->postCommand("set architecture "
         + startParameters().remoteArchitecture.toLatin1());
@@ -181,14 +181,14 @@ void RemoteGdbServerAdapter::setupInferior()
 
 void RemoteGdbServerAdapter::handleSetTargetAsync(const GdbResponse &response)
 {
-    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     if (response.resultClass == GdbResultError)
         qDebug() << "Adapter too old: does not support asynchronous mode.";
 }
 
 void RemoteGdbServerAdapter::handleFileExecAndSymbols(const GdbResponse &response)
 {
-    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
         //m_breakHandler->clearBreakMarkers();
 
@@ -202,15 +202,15 @@ void RemoteGdbServerAdapter::handleFileExecAndSymbols(const GdbResponse &respons
     } else {
         QString msg = tr("Starting remote executable failed:\n");
         msg += QString::fromLocal8Bit(response.data.findChild("msg").data());
-        m_engine->handleInferiorSetupFailed(msg);
+        m_engine->notifyInferiorSetupFailed(msg);
     }
 }
 
 void RemoteGdbServerAdapter::handleTargetRemote(const GdbResponse &record)
 {
-    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     if (record.resultClass == GdbResultDone) {
-        setState(InferiorStopped);
+        setState(InferiorStopOk);
         // gdb server will stop the remote application itself.
         showMessage(_("INFERIOR STARTED"));
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
@@ -219,11 +219,11 @@ void RemoteGdbServerAdapter::handleTargetRemote(const GdbResponse &record)
         // 16^error,msg="hd:5555: Connection timed out."
         QString msg = msgConnectRemoteServerFailed(
             QString::fromLocal8Bit(record.data.findChild("msg").data()));
-        m_engine->handleInferiorSetupFailed(msg);
+        m_engine->notifyInferiorSetupFailed(msg);
     }
 }
 
-void RemoteGdbServerAdapter::runAdapter()
+void RemoteGdbServerAdapter::runEngine()
 {
     m_engine->continueInferiorInternal();
 }
@@ -235,9 +235,14 @@ void RemoteGdbServerAdapter::interruptInferior()
     m_engine->postCommand("-exec-interrupt", GdbEngine::Immediate);
 }
 
-void RemoteGdbServerAdapter::shutdown()
+void RemoteGdbServerAdapter::shutdownInferior()
 {
-    // FIXME: cleanup missing
+    m_engine->defaultInferiorShutdown("kill");
+}
+
+void RemoteGdbServerAdapter::shutdownAdapter()
+{
+    m_engine->notifyAdapterShutdownOk();
 }
 
 } // namespace Internal

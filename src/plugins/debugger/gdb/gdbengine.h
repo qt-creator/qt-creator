@@ -110,10 +110,10 @@ private: ////////// General Interface //////////
     virtual void runEngine();
 
     virtual unsigned debuggerCapabilities() const;
-    virtual void exitDebugger();
     virtual void quitDebugger();
     virtual void detachDebugger();
-    virtual void shutdown();
+    virtual void shutdownEngine();
+    virtual void shutdownInferior();
 
     virtual void executeDebuggerCommand(const QString &command);
     virtual QString qtNamespace() const { return m_dumperHelper.qtNamespace(); }
@@ -136,6 +136,7 @@ private: ////////// Gdb Process Management //////////
     void handleGdbExit(const GdbResponse &response);
 
     void handleAdapterStarted();
+    void defaultInferiorShutdown(const char *cmd);
 
     // Something went wrong with the adapter *before* adapterStarted() was emitted.
     // Make sure to clean up everything before emitting this signal.
@@ -149,7 +150,10 @@ private: ////////// Gdb Process Management //////////
     void finishInferiorSetup();
 
     // The adapter is still running just fine, but it failed to acquire a debuggee.
-    void handleInferiorSetupFailed(const QString &msg);
+    void notifyInferiorSetupFailed(const QString &msg);
+
+    void notifyAdapterShutdownOk();
+    void notifyAdapterShutdownFailed();
 
     // Something went wrong with the adapter *after* adapterStarted() was emitted.
     // Make sure to clean up everything before emitting this signal.
@@ -530,6 +534,7 @@ private: ////////// View & Data Stuff //////////
         int buttons = 0);
     QMainWindow *mainWindow() const;
     AbstractGdbProcess *gdbProc() const;
+    void showExecutionError(const QString &message);
 
     static QString m_toolTipExpression;
     static QPoint m_toolTipPos;

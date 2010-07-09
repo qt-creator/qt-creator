@@ -155,14 +155,11 @@ void TcfEngine::socketReadyRead()
 void TcfEngine::socketConnected()
 {
     showStatusMessage("Socket connected.");
-    if (m_socket->waitForConnected(2000))
-        notifyEngineSetupOk();
-    else
-        notifyEngineSetupFailed();
 }
 
 void TcfEngine::socketDisconnected()
 {
+    showStatusMessage("Socket disconnected.");
     XSDEBUG("FIXME:  TcfEngine::socketDisconnected()");
 }
 
@@ -171,7 +168,7 @@ void TcfEngine::socketError(QAbstractSocket::SocketError)
     QString msg = tr("%1.").arg(m_socket->errorString());
     //QMessageBox::critical(q->mainWindow(), tr("Error"), msg);
     showStatusMessage(msg);
-    exitDebugger();
+    notifyEngineIll();
 }
 
 void TcfEngine::executeDebuggerCommand(const QString &command)
@@ -189,29 +186,46 @@ void TcfEngine::executeDebuggerCommand(const QString &command)
     enqueueCommand(tcf);
 }
 
-void TcfEngine::shutdown()
-{
-    m_congestion = 0;
-    m_inAir = 0;
-    m_services.clear();
-    exitDebugger(); 
-}
-
-void TcfEngine::exitDebugger()
-{
-    SDEBUG("TcfEngine::exitDebugger()");
-}
-
 void TcfEngine::setupEngine()
 {
-    QTC_ASSERT(state() == EngineSettingUp, qDebug() << state());
-    setState(InferiorRunningRequested);
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showStatusMessage(tr("Running requested..."), 5000);
     const DebuggerStartParameters &sp = startParameters();
     const int pos = sp.remoteChannel.indexOf(QLatin1Char(':'));
     const QString host = sp.remoteChannel.left(pos);
     const quint16 port = sp.remoteChannel.mid(pos + 1).toInt();
     m_socket->connectToHost(host, port);
+    if (m_socket->waitForConnected())
+        notifyEngineSetupOk();
+    else
+        notifyEngineSetupFailed();
+}
+
+void TcfEngine::setupInferior()
+{
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
+    notifyInferiorSetupOk();
+}
+
+void TcfEngine::runEngine()
+{
+    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
+    //notifyEngineRunOk(); 
+}
+
+void TcfEngine::shutdownInferior()
+{
+    QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
+    notifyInferiorShutdownOk();
+}
+
+void TcfEngine::shutdownEngine()
+{
+    QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
+    m_congestion = 0;
+    m_inAir = 0;
+    m_services.clear();
+    notifyEngineShutdownOk();
 }
 
 void TcfEngine::continueInferior()

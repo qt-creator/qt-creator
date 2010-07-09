@@ -65,10 +65,11 @@ public:
 
     virtual void startAdapter() = 0;
     virtual void setupInferior() = 0;
-    virtual void runAdapter();
+    virtual void runEngine() = 0;
     virtual void interruptInferior() = 0;
-    virtual void shutdown();
-    virtual const char *inferiorShutdownCommand() const;
+    virtual void shutdownInferior() = 0;
+    virtual void shutdownAdapter() = 0;
+    //virtual const char *inferiorShutdownCommand() const;
     virtual AbstractGdbProcess *gdbProc() = 0;
 
     virtual DumperHandling dumperHandling() const = 0;
@@ -77,7 +78,7 @@ public:
     static QString msgInferiorStopFailed(const QString &why);
     static QString msgAttachedToStoppedInferior();
     static QString msgInferiorSetupOk();
-    static QString msgInferiorRunning();
+    static QString msgInferiorRunOk();
     static QString msgConnectRemoteServerFailed(const QString &why);
 
     // Trk specific stuff

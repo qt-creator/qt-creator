@@ -36,13 +36,15 @@ namespace Debugger {
 namespace Internal {
 
 class AbstractPlainGdbAdapter : public AbstractGdbAdapter
-{   // Needs tr - context
+{
+    // Needs tr - context
     Q_OBJECT
+
 public:
     AbstractPlainGdbAdapter(GdbEngine *engine, QObject *parent = 0);
 
-    virtual void setupInferior();
-    virtual void runAdapter();
+    void setupInferior();
+    void runEngine();
 
 protected:
     void handleInfoTarget(const GdbResponse &response);

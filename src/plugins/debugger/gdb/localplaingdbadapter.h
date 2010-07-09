@@ -52,14 +52,17 @@ class LocalPlainGdbAdapter : public AbstractPlainGdbAdapter
 public:
     LocalPlainGdbAdapter(GdbEngine *engine, QObject *parent = 0);
 
-    virtual DumperHandling dumperHandling() const;
-
+private:
     void startAdapter();
+    void setupInferior();
+    void runEngine();
     void interruptInferior();
-    void shutdown();
+    void shutdownInferior();
+    void shutdownAdapter();
+
+    DumperHandling dumperHandling() const;
     AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
 
-private:
     virtual QByteArray execFilePath() const;
     virtual bool infoTargetNecessary() const;
     virtual QByteArray toLocalEncoding(const QString &s) const;

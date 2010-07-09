@@ -65,7 +65,7 @@
 #include <QtScript/QScriptValue>
 #include <QtScript/QScriptValueIterator>
 
-#define DEBUG_SCRIPT 1
+//#define DEBUG_SCRIPT 1
 #if DEBUG_SCRIPT
 #   define SDEBUG(s) qDebug() << s
 #else
@@ -101,34 +101,44 @@ public:
         int baseLineNumber);
     void scriptUnload(qint64 id);
 
+    void showMessage(const QString &msg);
+
 private:
     void maybeBreakNow(bool byFunction);
 
     ScriptEngine *q;
+    int m_depth;
+    int m_contextDepth;
 };
 
 ScriptAgent::ScriptAgent(ScriptEngine *debugger, QScriptEngine *script)
-  : QScriptEngineAgent(script), q(debugger)
+  : QScriptEngineAgent(script), q(debugger), m_depth(0), m_contextDepth(0)
 {}
+
+void ScriptAgent::showMessage(const QString &msg)
+{
+    SDEBUG(msg);
+    q->showMessage(msg, LogMisc);
+}
 
 void ScriptAgent::contextPop()
 {
-    SDEBUG("ScriptAgent::contextPop: ");
+    //showMessage(_("ContextPop: %1").arg(m_contextDepth));
+    --m_contextDepth;
 }
 
 void ScriptAgent::contextPush()
 {
-    SDEBUG("ScriptAgent::contextPush: ");
+    ++m_contextDepth;
+    //showMessage(_("ContextPush: %1 ").arg(m_contextDepth));
 }
 
 void ScriptAgent::exceptionCatch(qint64 scriptId, const QScriptValue & exception)
 {
     Q_UNUSED(scriptId)
     Q_UNUSED(exception)
-    const QString msg = QString::fromLatin1("An exception was caught on %1: '%2'").
-                        arg(scriptId).arg(exception.toString());
-    SDEBUG(msg);
-    q->showMessage(msg, LogMisc);
+    showMessage(_("An exception was caught on %1: '%2'").
+                   arg(scriptId).arg(exception.toString()));
 }
 
 void ScriptAgent::exceptionThrow(qint64 scriptId, const QScriptValue &exception,
@@ -137,16 +147,15 @@ void ScriptAgent::exceptionThrow(qint64 scriptId, const QScriptValue &exception,
     Q_UNUSED(scriptId)
     Q_UNUSED(exception)
     Q_UNUSED(hasHandler)
-    const QString msg = QString::fromLatin1("An exception occurred on %1: '%2'").
-                        arg(scriptId).arg(exception.toString());
-    SDEBUG(msg);
-    q->showMessage(msg, LogMisc);
+    showMessage(_("An exception occurred on %1: '%2'").
+                   arg(scriptId).arg(exception.toString()));
 }
 
 void ScriptAgent::functionEntry(qint64 scriptId)
 {
     Q_UNUSED(scriptId)
-    q->showMessage(QString::fromLatin1("Function entry occurred on %1").arg(scriptId), LogMisc);
+    ++m_depth;
+    //showMessage(_("Function entry occurred on %1, depth: %2").arg(scriptId));
     q->checkForBreakCondition(true);
 }
 
@@ -154,17 +163,17 @@ void ScriptAgent::functionExit(qint64 scriptId, const QScriptValue &returnValue)
 {
     Q_UNUSED(scriptId)
     Q_UNUSED(returnValue)
-    const QString msg = QString::fromLatin1("Function exit occurred on %1: '%2'").arg(scriptId).arg(returnValue.toString());
-    SDEBUG(msg);
-    q->showMessage(msg, LogMisc);
+    --m_depth;
+    //showMessage(_("Function exit occurred on %1: '%2'").
+    //              arg(scriptId).arg(returnValue.toString()));
 }
 
 void ScriptAgent::positionChange(qint64 scriptId, int lineNumber, int columnNumber)
 {
-    SDEBUG("ScriptAgent::position: " << lineNumber);
     Q_UNUSED(scriptId)
     Q_UNUSED(lineNumber)
     Q_UNUSED(columnNumber)
+    //showMessage(_("Position: %1").arg(lineNumber));
     q->checkForBreakCondition(false);
 }
 
@@ -175,14 +184,13 @@ void ScriptAgent::scriptLoad(qint64 scriptId, const QString &program,
     Q_UNUSED(program)
     Q_UNUSED(fileName)
     Q_UNUSED(baseLineNumber)
-    q->showMessage(QString::fromLatin1("Loaded: %1 id: %2")
-        .arg(fileName).arg(scriptId), LogMisc);
+    showMessage(_("Loaded: %1 id: %2").arg(fileName).arg(scriptId));
 }
 
 void ScriptAgent::scriptUnload(qint64 scriptId)
 {
     Q_UNUSED(scriptId)
-    SDEBUG("ScriptAgent::scriptUnload: " << scriptId);
+    showMessage(_("Unload script id %1 ").arg(scriptId));
 }
 
 
@@ -207,37 +215,36 @@ void ScriptEngine::executeDebuggerCommand(const QString &command)
     XSDEBUG("FIXME:  ScriptEngine::executeDebuggerCommand()");
 }
 
-void ScriptEngine::shutdown()
+void ScriptEngine::shutdownInferior()
 {
-    exitDebugger();
-}
-
-void ScriptEngine::exitDebugger()
-{
-    if (state() == DebuggerNotReady)
-        return;
-    SDEBUG("ScriptEngine::exitDebugger()");
+    QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
+    SDEBUG("ScriptEngine::shutdownInferior()");
+    m_scriptEngine->setAgent(0);
+    //m_scriptAgent.reset(0);
     m_stopped = false;
     m_stopOnNextLine = false;
     if (m_scriptEngine->isEvaluating())
         m_scriptEngine->abortEvaluation();
-    setState(InferiorShuttingDown);
-    setState(InferiorShutDown);
+    notifyInferiorShutdownOk();
+}
 
-    setState(EngineShuttingDown);
+void ScriptEngine::shutdownEngine()
+{
+    QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
     m_scriptEngine->setAgent(0);
-    setState(DebuggerNotReady);
+    notifyEngineShutdownOk();
 }
 
 void ScriptEngine::setupEngine()
 {
-    QTC_ASSERT(state() == EngineSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("STARTING SCRIPT DEBUGGER"), LogMisc);
     if (m_scriptEngine.isNull())
         m_scriptEngine = Core::ICore::instance()->scriptManager()->scriptEngine();
-    if (!m_scriptAgent)
-        m_scriptAgent.reset(new ScriptAgent(this, m_scriptEngine.data()));
+    QTC_ASSERT(!m_scriptAgent, /**/);
+    m_scriptAgent.reset(new ScriptAgent(this, m_scriptEngine.data()));
     m_scriptEngine->setAgent(m_scriptAgent.data());
+    //m_scriptEngine->setAgent(new ScriptAgent(this, m_scriptEngine.data()));
     /* Keep the gui alive (have the engine call processEvents() while the script
      * is run in the foreground). */
     m_scriptEngine->setProcessEventsInterval(1 /*ms*/);
@@ -251,12 +258,12 @@ void ScriptEngine::setupEngine()
 
 void ScriptEngine::setupInferior()
 {
-    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     m_scriptFileName = QFileInfo(startParameters().executable).absoluteFilePath();
     showMessage(_("SCRIPT FILE: ") + m_scriptFileName);
     QFile scriptFile(m_scriptFileName);
     if (!scriptFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
-        showMessage(QString::fromLatin1("Cannot open %1: %2").
+        showMessage(_("Cannot open %1: %2").
           arg(m_scriptFileName, scriptFile.errorString()), LogError);
         notifyEngineSetupFailed();
         return;
@@ -270,6 +277,8 @@ void ScriptEngine::setupInferior()
 
 void ScriptEngine::continueInferior()
 {
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    notifyInferiorRunRequested();
     SDEBUG("ScriptEngine::continueInferior()");
     m_stopped = false;
     m_stopOnNextLine = false;
@@ -280,7 +289,7 @@ static const char *qtExtensionsC[] = {
     "qt.sql", "qt.opengl", "qt.webkit", "qt.xmlpatterns", "qt.uitools"
 };
 
-bool ScriptEngine::importExtensions()
+void ScriptEngine::importExtensions()
 {
     SDEBUG("ScriptEngine::importExtensions()");
     QStringList extensions;
@@ -288,11 +297,11 @@ bool ScriptEngine::importExtensions()
     for (int  e = 0; e < extCount; e++)
         extensions.append(QLatin1String(qtExtensionsC[e]));
     if (m_scriptEngine->importedExtensions().contains(extensions.front()))
-        return true;
+        return; // true;
     QDir dir(QLatin1String("/home/apoenitz/dev/qtscriptgenerator"));
     if (!dir.cd(QLatin1String("plugins"))) {
         fprintf(stderr, "plugins folder does not exist -- did you build the bindings?\n");
-        return false;
+        return; // false;
     }
     QStringList paths = qApp->libraryPaths();
     paths <<  dir.absolutePath();
@@ -319,45 +328,43 @@ bool ScriptEngine::importExtensions()
                      qPrintable(failExtensions.join(QLatin1String(", "))), qPrintable(dir.absolutePath()));
         }
     }
-    return failExtensions.isEmpty();
+    return; // failExtensions.isEmpty();
 }
 
 void ScriptEngine::runEngine()
 {
-    QTC_ASSERT(state() == InferiorSetupOk, qDebug() << state());
-    setState(InferiorRunningRequested);
+    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
+    SDEBUG("ScriptEngine::runEngine()");
+    notifyEngineRunAndInferiorRunOk();
     showStatusMessage(tr("Running requested..."), 5000);
     showMessage(QLatin1String("Running: ") + m_scriptFileName, LogMisc);
-    SDEBUG("ScriptEngine::runEngine()");
     importExtensions();
-    setState(InferiorRunning);
     const QScriptValue result = m_scriptEngine->evaluate(m_scriptContents, m_scriptFileName);
-    setState(InferiorStopping);
-    setState(InferiorStopped);
     QString msg;
     if (m_scriptEngine->hasUncaughtException()) {
-        msg = QString::fromLatin1("An exception occurred during execution at line: %1\n%2\n")
+        msg = _("An exception occurred during execution at line: %1\n%2\n")
             .arg(m_scriptEngine->uncaughtExceptionLineNumber())
             .arg(m_scriptEngine->uncaughtException().toString());
         msg += m_scriptEngine->uncaughtExceptionBacktrace()
             .join(QString(QLatin1Char('\n')));
     } else {
-        msg = QString::fromLatin1("Evaluation returns '%1'")
-            .arg(result.toString());
+        msg = _("Evaluation returns '%1'").arg(result.toString());
     }
     showMessage(msg, LogMisc);
-    exitDebugger();
+    showMessage(_("This was the outermost function."));
+    notifyInferiorExited();
 }
 
 void ScriptEngine::interruptInferior()
 {
-    m_stopped = false;
     m_stopOnNextLine = true;
     XSDEBUG("ScriptEngine::interruptInferior()");
 }
 
 void ScriptEngine::executeStep()
 {
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    notifyInferiorRunRequested();
     //SDEBUG("ScriptEngine::stepExec()");
     m_stopped = false;
     m_stopOnNextLine = true;
@@ -365,6 +372,8 @@ void ScriptEngine::executeStep()
 
 void ScriptEngine::executeStepI()
 {
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    notifyInferiorRunRequested();
     //SDEBUG("ScriptEngine::stepIExec()");
     m_stopped = false;
     m_stopOnNextLine = true;
@@ -372,6 +381,8 @@ void ScriptEngine::executeStepI()
 
 void ScriptEngine::executeStepOut()
 {
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    notifyInferiorRunRequested();
     //SDEBUG("ScriptEngine::stepOutExec()");
     m_stopped = false;
     m_stopOnNextLine = true;
@@ -379,6 +390,8 @@ void ScriptEngine::executeStepOut()
 
 void ScriptEngine::executeNext()
 {
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    notifyInferiorRunRequested();
     //SDEBUG("ScriptEngine::nextExec()");
     m_stopped = false;
     m_stopOnNextLine = true;
@@ -386,6 +399,8 @@ void ScriptEngine::executeNext()
 
 void ScriptEngine::executeNextI()
 {
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    notifyInferiorRunRequested();
     //SDEBUG("ScriptEngine::nextIExec()");
     m_stopped = false;
     m_stopOnNextLine = true;
@@ -393,6 +408,8 @@ void ScriptEngine::executeNextI()
 
 void ScriptEngine::executeRunToLine(const QString &fileName, int lineNumber)
 {
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    notifyInferiorRunRequested();
     Q_UNUSED(fileName)
     Q_UNUSED(lineNumber)
     SDEBUG("FIXME:  ScriptEngine::runToLineExec()");
@@ -400,12 +417,16 @@ void ScriptEngine::executeRunToLine(const QString &fileName, int lineNumber)
 
 void ScriptEngine::executeRunToFunction(const QString &functionName)
 {
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    notifyInferiorRunRequested();
     Q_UNUSED(functionName)
     XSDEBUG("FIXME:  ScriptEngine::runToFunctionExec()");
 }
 
 void ScriptEngine::executeJumpToLine(const QString &fileName, int lineNumber)
 {
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    notifyInferiorRunRequested();
     Q_UNUSED(fileName)
     Q_UNUSED(lineNumber)
     XSDEBUG("FIXME:  ScriptEngine::jumpToLineExec()");
@@ -481,7 +502,7 @@ void ScriptEngine::setToolTipExpression(const QPoint &mousePos,
     Q_UNUSED(editor)
     Q_UNUSED(cursorPos)
 
-    if (state() != InferiorStopped) {
+    if (state() != InferiorStopOk) {
         //SDEBUG("SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED");
         return;
     }
@@ -537,7 +558,7 @@ void ScriptEngine::setToolTipExpression(const QPoint &mousePos,
     }
 
 #if 0
-    //if (m_manager->status() != InferiorStopped)
+    //if (m_manager->status() != InferiorStopOk)
     //    return;
 
     // FIXME: 'exp' can contain illegal characters
@@ -591,6 +612,11 @@ static BreakpointData *findBreakPointByFileName(BreakHandler *handler,
 
 bool ScriptEngine::checkForBreakCondition(bool byFunction)
 {
+    // FIXME: Should that ever happen after setAgent(0) in shutdownInferior()?
+    // In practice, it does, so chicken out.
+    if (targetState() == DebuggerFinished)
+        return false;
+
     const QScriptContext *context = m_scriptEngine->currentContext();
     const QScriptContextInfo info(context);
 
@@ -599,7 +625,7 @@ bool ScriptEngine::checkForBreakCondition(bool byFunction)
     const QString fileName = info.fileName();
     const int lineNumber = byFunction
         ? info.functionStartLineNumber() : info.lineNumber();
-    SDEBUG("checkForBreakCondition" << byFunction << functionName
+    SDEBUG(Q_FUNC_INFO << byFunction << functionName
         << lineNumber << fileName);
     if (m_stopOnNextLine) {
         // Interrupt inferior
@@ -627,8 +653,7 @@ bool ScriptEngine::checkForBreakCondition(bool byFunction)
         data->pending = false;
         data->updateMarker();
     }
-    setState(InferiorStopping);
-    setState(InferiorStopped);
+    notifyInferiorSpontaneousStop();
     SDEBUG("Stopped at " << lineNumber << fileName);
     showStatusMessage(tr("Stopped at %1:%2.").arg(fileName).arg(lineNumber), 5000);
 
@@ -644,7 +669,7 @@ void ScriptEngine::updateLocals()
 {
     QScriptContext *context = m_scriptEngine->currentContext();
     watchHandler()->beginCycle();
-    //SDEBUG("UPDATE LOCALS");
+    SDEBUG(Q_FUNC_INFO);
 
     //
     // Build stack
@@ -674,24 +699,22 @@ void ScriptEngine::updateLocals()
 
     WatchData data;
     data.iname = "local";
-    data.name = QString::fromLatin1(data.iname);
+    data.name = _(data.iname);
     data.scriptValue = context->activationObject();
     watchHandler()->beginCycle();
     updateSubItem(data);
     watchHandler()->endCycle();
-    // FIXME: Use an extra thread. This here is evil
+    // FIXME: Use an extra thread. This here is evil.
     m_stopped = true;
     showStatusMessage(tr("Stopped."), 5000);
     while (m_stopped) {
         //SDEBUG("LOOPING");
         QApplication::processEvents();
     }
-    setState(InferiorRunningRequested);
-    setState(InferiorRunning);
     // Clear any exceptions occurred during locals evaluation.
     m_scriptEngine->clearExceptions();
     m_scriptEngine->setAgent(m_scriptAgent.data());
-    SDEBUG("Continuing");
+    notifyInferiorRunOk();
 }
 
 void ScriptEngine::updateWatchData(const WatchData &data)
@@ -713,7 +736,7 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
 {
     WatchData data = data0;
     QList<WatchData> children;
-    SDEBUG("\nUPDATE SUBITEM: " << data.toString() << data.scriptValue.toString());
+    //SDEBUG("\nUPDATE SUBITEM: " << data.toString() << data.scriptValue.toString());
     QTC_ASSERT(data.isValid(), return);
 
     if (data.isTypeNeeded() || data.isValueNeeded()) {

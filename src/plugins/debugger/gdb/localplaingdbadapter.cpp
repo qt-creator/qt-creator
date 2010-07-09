@@ -68,7 +68,7 @@ AbstractGdbAdapter::DumperHandling LocalPlainGdbAdapter::dumperHandling() const
 
 void LocalPlainGdbAdapter::startAdapter()
 {
-    QTC_ASSERT(state() == EngineSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("TRYING TO START ADAPTER"));
 
     QStringList gdbArgs;
@@ -92,6 +92,28 @@ void LocalPlainGdbAdapter::startAdapter()
 
     checkForReleaseBuild();
     m_engine->handleAdapterStarted();
+}
+
+void LocalPlainGdbAdapter::setupInferior()
+{
+    AbstractPlainGdbAdapter::setupInferior();
+}
+
+void LocalPlainGdbAdapter::runEngine()
+{
+    AbstractPlainGdbAdapter::runEngine();
+}
+
+void LocalPlainGdbAdapter::shutdownInferior()
+{
+    m_engine->defaultInferiorShutdown("kill");
+}
+
+void LocalPlainGdbAdapter::shutdownAdapter()
+{
+    showMessage(_("PLAIN ADAPTER SHUTDOWN %1").arg(state()));
+    m_outputCollector.shutdown();
+    m_engine->notifyAdapterShutdownOk();
 }
 
 void LocalPlainGdbAdapter::checkForReleaseBuild()
@@ -128,14 +150,10 @@ void LocalPlainGdbAdapter::interruptInferior()
         return;
     }
 
-    if (!interruptProcess(attachedPID))
+    if (!interruptProcess(attachedPID)) {
         showMessage(_("CANNOT INTERRUPT %1").arg(attachedPID));
-}
-
-void LocalPlainGdbAdapter::shutdown()
-{
-    showMessage(_("PLAIN ADAPTER SHUTDOWN %1").arg(state()));
-    m_outputCollector.shutdown();
+        m_engine->notifyInferiorStopFailed();
+    }
 }
 
 QByteArray LocalPlainGdbAdapter::execFilePath() const

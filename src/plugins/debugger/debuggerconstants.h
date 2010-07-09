@@ -79,29 +79,34 @@ enum DebuggerState
 {
     DebuggerNotReady,          // Debugger not started
 
-    EngineSettingUp,            // Engine starts
+    EngineSetupRequested,      // Engine starts
     EngineSetupFailed,
     EngineSetupOk,
 
-    InferiorUnrunnable,         // Used in the core dump adapter
-    InferiorSettingUp,
+    InferiorSetupRequested,
     InferiorSetupFailed,
-    InferiorSetupOk,
 
-    InferiorRunningRequested,   // Debuggee requested to run
-    InferiorRunningRequested_Kill, // Debuggee requested to run, but want to kill it
-    InferiorRunning,            // Debuggee running
+    EngineRunRequested,
+    EngineRunFailed,
+    InferiorUnrunnable,        // Used in the core dump adapter
 
-    InferiorStopping,           // Debuggee running, stop requested
-    InferiorStopping_Kill,      // Debuggee running, stop requested, want to kill it
-    InferiorStopped,            // Debuggee stopped
-    InferiorStopFailed,         // Debuggee not stopped, will kill debugger
+    InferiorRunRequested,      // Debuggee requested to run
+    InferiorRunOk,             // Debuggee running
+    InferiorRunFailed,         // Debuggee running
 
-    InferiorShuttingDown,
-    InferiorShutDown,
+    InferiorStopRequested,     // Debuggee running, stop requested
+    InferiorStopOk,            // Debuggee stopped
+    InferiorStopFailed,        // Debuggee not stopped, will kill debugger
+
+    InferiorShutdownRequested,
+    InferiorShutdownOk,
     InferiorShutdownFailed,
 
-    EngineShuttingDown
+    EngineShutdownRequested,
+    EngineShutdownOk,
+    EngineShutdownFailed,
+
+    DebuggerFinished
 };
 
 enum DebuggerStartMode
@@ -139,21 +144,21 @@ enum LogChannel
 {
     LogInput,                // Used for user input
     LogMiscInput,            // Used for misc stuff in the input pane
-    LogOutput,               
-    LogWarning,              
-    LogError,                
+    LogOutput,
+    LogWarning,
+    LogError,
     LogStatus,               // Used for status changed messages
     LogTime,                 // Used for time stamp messages
-    LogDebug,                
-    LogMisc,                 
-    AppOutput,               
-    AppError,                
+    LogDebug,
+    LogMisc,
+    AppOutput,
+    AppError,
     AppStuff,
     StatusBar                // LogStatus and also put to the status bar
-};                           
-                             
-enum ModelRoles              
-{                            
+};
+
+enum ModelRoles
+{
     DisplaySourceRole = 32,  // Qt::UserRole
 
     EngineStateRole,

@@ -252,16 +252,15 @@ void TcfTrkGdbAdapter::handleTcfTrkRunControlModuleLoadContextSuspendedEvent(con
 
 void TcfTrkGdbAdapter::handleTargetRemote(const GdbResponse &record)
 {
-    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     if (record.resultClass == GdbResultDone) {
-        setState(InferiorStopped);
         m_engine->handleInferiorPrepared();
         if (debug)
             qDebug() << "handleTargetRemote" << m_session.toString();
     } else {
         QString msg = tr("Connecting to TRK server adapter failed:\n")
             + QString::fromLocal8Bit(record.data.findChild("msg").data());
-        m_engine->handleInferiorSetupFailed(msg);
+        m_engine->notifyInferiorSetupFailed(msg);
     }
 }
 
@@ -337,7 +336,7 @@ void TcfTrkGdbAdapter::startGdb()
 void TcfTrkGdbAdapter::tcftrkDeviceError(const QString  &errorString)
 {
     logMessage(errorString);
-    if (state() == EngineSettingUp) {
+    if (state() == EngineSetupRequested) {
         m_engine->handleAdapterStartFailed(errorString, QString());
     } else {
         m_engine->handleAdapterCrashed(errorString);
@@ -956,7 +955,7 @@ void TcfTrkGdbAdapter::startAdapter()
     // Unixish gdbs accept only forward slashes
     m_symbolFile.replace(QLatin1Char('\\'), QLatin1Char('/'));
     // Start
-    QTC_ASSERT(state() == EngineSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("TRYING TO START ADAPTER"));
     logMessage(QLatin1String("### Starting TcfTrkGdbAdapter"));
 
@@ -985,7 +984,7 @@ void TcfTrkGdbAdapter::startAdapter()
 
 void TcfTrkGdbAdapter::setupInferior()
 {
-    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     m_trkDevice->sendProcessStartCommand(TcfTrkCallback(this, &TcfTrkGdbAdapter::handleCreateProcess),
                                          m_remoteExecutable, m_uid, m_remoteArguments,
                                          QString(), true);
@@ -1011,7 +1010,7 @@ void TcfTrkGdbAdapter::handleCreateProcess(const TcfTrkCommandResult &result)
     if (!result) {
         const QString errorMessage = result.errorString();
         logMessage(QString::fromLatin1("Failed to start process: %1").arg(errorMessage), LogError);
-        m_engine->handleInferiorSetupFailed(result.errorString());
+        m_engine->notifyInferiorSetupFailed(result.errorString());
         return;
     }
     QTC_ASSERT(!result.values.isEmpty(), return);
@@ -1029,8 +1028,10 @@ void TcfTrkGdbAdapter::handleCreateProcess(const TcfTrkCommandResult &result)
     m_session.dataseg = 0;
 }
 
-void TcfTrkGdbAdapter::runAdapter()
+void TcfTrkGdbAdapter::runEngine()
 {
+    m_engine->notifyInferiorStopOk();
+    // Trigger the initial "continue" manually.
     m_engine->continueInferiorInternal();
 }
 
@@ -1086,9 +1087,15 @@ void TcfTrkGdbAdapter::cleanup()
     } //!m_trkIODevice.isNull()
 }
 
-void TcfTrkGdbAdapter::shutdown()
+void TcfTrkGdbAdapter::shutdownInferior()
+{
+    m_engine->defaultInferiorShutdown("kill");
+}
+
+void TcfTrkGdbAdapter::shutdownAdapter()
 {
     cleanup();
+    m_engine->notifyAdapterShutdownOk();
 }
 
 void TcfTrkGdbAdapter::trkReloadRegisters()

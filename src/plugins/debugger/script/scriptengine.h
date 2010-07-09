@@ -68,13 +68,13 @@ private:
     void executeStepI();
     void executeNextI();
 
-    void shutdown();
     void setToolTipExpression(const QPoint &mousePos,
         TextEditor::ITextEditor *editor, int cursorPos);
     void setupEngine();
     void setupInferior();
     void runEngine();
-    void exitDebugger();
+    void shutdownInferior();
+    void shutdownEngine();
 
     void continueInferior();
     void interruptInferior();
@@ -108,7 +108,7 @@ private:
 private:
     friend class ScriptAgent;
 
-    bool importExtensions();
+    void importExtensions();
 
     QSharedPointer<QScriptEngine> m_scriptEngine;
     QString m_scriptContents;

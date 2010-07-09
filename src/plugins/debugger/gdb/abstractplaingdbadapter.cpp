@@ -49,7 +49,7 @@ AbstractPlainGdbAdapter::AbstractPlainGdbAdapter(GdbEngine *engine,
 
 void AbstractPlainGdbAdapter::setupInferior()
 {
-    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     if (!startParameters().processArgs.isEmpty()) {
         QString args = startParameters().processArgs.join(_(" "));
         m_engine->postCommand("-exec-arguments " + toLocalEncoding(args));
@@ -60,7 +60,7 @@ void AbstractPlainGdbAdapter::setupInferior()
 
 void AbstractPlainGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
 {
-    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
         if (infoTargetNecessary()) {
             // Old gdbs do not announce the PID for programs without pthreads.
@@ -76,31 +76,33 @@ void AbstractPlainGdbAdapter::handleFileExecAndSymbols(const GdbResponse &respon
         // Extend the message a bit in unknown cases.
         if (!ba.endsWith("File format not recognized"))
             msg = tr("Starting executable failed:\n") + msg;
-        m_engine->handleInferiorSetupFailed(msg);
+        m_engine->notifyInferiorSetupFailed(msg);
     }
 }
 
-void AbstractPlainGdbAdapter::runAdapter()
+void AbstractPlainGdbAdapter::runEngine()
 {
-    setState(InferiorRunningRequested);
+    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
     m_engine->postCommand("-exec-run", GdbEngine::RunRequest, CB(handleExecRun));
 }
 
 void AbstractPlainGdbAdapter::handleExecRun(const GdbResponse &response)
 {
+    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
     if (response.resultClass == GdbResultRunning) {
-        QTC_ASSERT(state() == InferiorRunning, qDebug() << state());
+        m_engine->notifyEngineRunAndInferiorRunOk();
+        //showStatusMessage(tr("Running..."));
         showMessage(_("INFERIOR STARTED"));
         showMessage(msgInferiorSetupOk(), StatusBar);
         // FIXME: That's the wrong place for it.
         if (theDebuggerBoolSetting(EnableReverseDebugging))
             m_engine->postCommand("target record");
     } else {
-        QTC_ASSERT(state() == InferiorRunningRequested, qDebug() << state());
         QString msg = fromLocalEncoding(response.data.findChild("msg").data());
-        //QTC_ASSERT(status() == InferiorRunning, /**/);
+        //QTC_ASSERT(status() == InferiorRunOk, /**/);
         //interruptInferior();
-        m_engine->handleInferiorSetupFailed(msg);
+        showMessage(msg);
+        m_engine->notifyEngineRunFailed();
     }
 }
 
@@ -118,10 +120,10 @@ void AbstractPlainGdbAdapter::handleInfoTarget(const GdbResponse &response)
             m_engine->postCommand("tbreak *0x" + needle.cap(1).toAscii());
             // Do nothing here - inferiorPrepared handles the sequencing.
         } else {
-            m_engine->handleInferiorSetupFailed(_("Parsing start address failed"));
+            m_engine->notifyInferiorSetupFailed(_("Parsing start address failed"));
         }
     } else if (response.resultClass == GdbResultError) {
-        m_engine->handleInferiorSetupFailed(_("Fetching start address failed"));
+        m_engine->notifyInferiorSetupFailed(_("Fetching start address failed"));
     }
 }
 

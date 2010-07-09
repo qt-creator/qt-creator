@@ -118,29 +118,26 @@ void PdbEngine::postCommand(const QByteArray &command,
     m_pdbProc.write(cmd.command + "\n");
 }
 
-void PdbEngine::shutdown()
+void PdbEngine::shutdownInferior()
 {
-    exitDebugger();
+    QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
+    notifyInferiorShutdownOk();
 }
 
-void PdbEngine::exitDebugger()
+void PdbEngine::shutdownEngine()
 {
-    if (state() == DebuggerNotReady)
-        return;
-    SDEBUG("PdbEngine::exitDebugger()");
+    QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
+    SDEBUG("PdbEngine::shutdownEngine()");
     m_pdbProc.kill();
     //if (m_scriptEngine->isEvaluating())
     //    m_scriptEngine->abortEvaluation();
-    setState(InferiorShuttingDown);
-    setState(InferiorShutDown);
-    setState(EngineShuttingDown);
     //m_scriptEngine->setAgent(0);
-    setState(DebuggerNotReady);
+    notifyEngineShutdownOk();
 }
 
 void PdbEngine::setupEngine()
 {
-    QTC_ASSERT(state() == EngineSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
 
     m_scriptFileName = QFileInfo(startParameters().executable).absoluteFilePath();
     QFile scriptFile(m_scriptFileName);
@@ -187,7 +184,6 @@ void PdbEngine::setupEngine()
             const QString title = tr("Adapter start failed");
             Core::ICore::instance()->showWarningWithOptions(title, msg);
         }
-        shutdown();
         notifyEngineSetupFailed();
         return;
     }
@@ -196,7 +192,7 @@ void PdbEngine::setupEngine()
 
 void PdbEngine::setupInferior()
 {
-    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     attemptBreakpointSynchronization();
 
     showMessage(_("PDB STARTED, INITIALIZING IT"));
@@ -215,54 +211,54 @@ void PdbEngine::runEngine()
 
 void PdbEngine::interruptInferior()
 {
-    setState(InferiorStopped);
+    setState(InferiorStopOk);
 }
 
 void PdbEngine::executeStep()
 {
     resetLocation();
-    setState(InferiorRunningRequested);
-    setState(InferiorRunning);
+    setState(InferiorRunRequested);
+    setState(InferiorRunOk);
     postCommand("step", CB(handleUpdateAll));
 }
 
 void PdbEngine::executeStepI()
 {
     resetLocation();
-    setState(InferiorRunningRequested);
-    setState(InferiorRunning);
+    setState(InferiorRunRequested);
+    setState(InferiorRunOk);
     postCommand("step", CB(handleUpdateAll));
 }
 
 void PdbEngine::executeStepOut()
 {
     resetLocation();
-    setState(InferiorRunningRequested);
-    setState(InferiorRunning);
+    setState(InferiorRunRequested);
+    setState(InferiorRunOk);
     postCommand("finish", CB(handleUpdateAll));
 }
 
 void PdbEngine::executeNext()
 {
     resetLocation();
-    setState(InferiorRunningRequested);
-    setState(InferiorRunning);
+    setState(InferiorRunRequested);
+    setState(InferiorRunOk);
     postCommand("next", CB(handleUpdateAll));
 }
 
 void PdbEngine::executeNextI()
 {
     resetLocation();
-    setState(InferiorRunningRequested);
-    setState(InferiorRunning);
+    setState(InferiorRunRequested);
+    setState(InferiorRunOk);
     postCommand("next", CB(handleUpdateAll));
 }
 
 void PdbEngine::continueInferior()
 {
     resetLocation();
-    setState(InferiorRunningRequested);
-    setState(InferiorRunning);
+    setState(InferiorRunRequested);
+    setState(InferiorRunOk);
     // Callback will be triggered e.g. when breakpoint is hit.
     postCommand("continue", CB(handleUpdateAll));
 }
@@ -290,7 +286,7 @@ void PdbEngine::executeJumpToLine(const QString &fileName, int lineNumber)
 void PdbEngine::activateFrame(int frameIndex)
 {
     resetLocation();
-    if (state() != InferiorStopped && state() != InferiorUnrunnable)
+    if (state() != InferiorStopOk && state() != InferiorUnrunnable)
         return;
 
     StackHandler *handler = stackHandler();
@@ -460,7 +456,7 @@ void PdbEngine::setToolTipExpression(const QPoint &mousePos,
     Q_UNUSED(editor)
     Q_UNUSED(cursorPos)
 
-    if (state() != InferiorStopped) {
+    if (state() != InferiorStopOk) {
         //SDEBUG("SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED");
         return;
     }
@@ -516,7 +512,7 @@ void PdbEngine::setToolTipExpression(const QPoint &mousePos,
     }
 
 #if 0
-    //if (status() != InferiorStopped)
+    //if (status() != InferiorStopOk)
     //    return;
 
     // FIXME: 'exp' can contain illegal characters
@@ -566,7 +562,7 @@ void PdbEngine::handlePdbError(QProcess::ProcessError error)
     case QProcess::Timedout:
     default:
         m_pdbProc.kill();
-        setState(EngineShuttingDown, true);
+        setState(EngineShutdownRequested, true);
         plugin()->showMessageBox(QMessageBox::Critical, tr("Pdb I/O Error"),
                        errorMessage(error));
         break;
@@ -665,8 +661,8 @@ void PdbEngine::handleResponse(const QByteArray &response0)
             frame.line = lineNumber;
             if (frame.line > 0 && QFileInfo(frame.file).exists()) {
                 gotoLocation(frame, true);
-                setState(InferiorStopping);
-                setState(InferiorStopped);
+                setState(InferiorStopRequested);
+                setState(InferiorStopOk);
                 return;
             }
         }
@@ -682,8 +678,8 @@ void PdbEngine::handleFirstCommand(const PdbResponse &response)
 void PdbEngine::handleUpdateAll(const PdbResponse &response)
 {
     Q_UNUSED(response);
-    setState(InferiorStopping);
-    setState(InferiorStopped);
+    setState(InferiorStopRequested);
+    setState(InferiorStopOk);
     updateAll();
 }
 

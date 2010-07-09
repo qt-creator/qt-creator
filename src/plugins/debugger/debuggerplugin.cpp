@@ -162,91 +162,148 @@
 //
 // Transitions marked by '---' are done in the individual engines.
 // Transitions marked by '+-+' are done in the base DebuggerEngine.
+// Transitions marked by '*' are done asynchronously.
 // The GdbEngine->setupEngine() function is described in more detail below.
 //
-//                   DebuggerNotReady
-//                          +
-//                          +
-//                    EngineSettingUp
-//                          +
-//                          +
-//            (calls *Engine->setupEngine())
-//                          |      |
-//                     {notify-  {notify-
-//                      Engine-   Engine-
-//                      StartOk}  StartFailed}
-//                          |      |
-//                          |      `---> EngineSetupFailed
-//                          |                   +
-//                          |    [calls RunControl->startFailed]
-//                          |                   +
-//                          |             DebuggerNotReady
-//                          v
-//                    EngineSetupOk
-//                          +
-//           [calls RunControl->StartSuccessful]
-//                          +
-//            (calls *Engine->setupInferior())
-//                          |       |
-//                     {notify-   {notify-
-//                      Inferior- Inferior-
-//                      SetupOk}  SetupFailed}
-//                          |       |
-//                          |       ` ----> InferiorSetupFailed +-+-+-+->.
-//                          |                                            +
-//                          v                                            +
-//                   InferiorSetupOk                                     +
-//                          +                                            +
-//            (calls *Engine->runEngine())                               +
-//                          |                                            +
-//         (core)           |     (attach) (term) (remote) (script)      +
-//      .-----------------<-|->------------------.                       +
-//      |                   v                    |                       +
-//  InferiorUnrunnable      | (plain)            |                       +
-//      |                   | (trk)              |                       +
-//      |                   |                    |                       +
-//      |    .--> InferiorRunningRequested       |                       +
-//      |    |              |                    |                       +
-//      |    |       InferiorRunning             |                       +
-//      |    |              |                    |                       +
-//      |    |       InferiorStopping            |                       +
-//      |    |              |                    |                       +
-//      |    '------ InferiorStopped <-----------'                       +
-//      |                   |                                            v
-//      |          InferiorShuttingDown  ->  InferiorShutdownFailed ---->+
-//      |                   |                                            +
-//      |            InferiorShutDown                                    +
-//      |                   |                                            +
-//      '-------->  EngineShuttingDown  <-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+'
-//                          |
-//                   DebuggerNotReady
+//                        DebuggerNotReady
+//                               +
+//                      EngineSetupRequested
+//                               +
+//                  (calls *Engine->setupEngine())
+//                            |      |
+//                       {notify-  {notify-
+//                        Engine-   Engine-
+//                        SetupOk}  SetupFailed}
+//                            |      |
+//                            |      `---> EngineSetupFailed
+//                            |                   +
+//                            |    [calls RunControl->startFailed]
+//                            |                   +
+//                            |             DebuggerNotReady
+//                            v
+//                      EngineSetupOk
+//                            +
+//             [calls RunControl->StartSuccessful]
+//                            +
+//                  InferiorSetupRequested
+//                            +
+//             (calls *Engine->setupInferior())
+//                         |       |
+//                         |       |
+//                    {notify-   {notify-
+//                     Inferior- Inferior-
+//                     SetupOk}  SetupFailed}
+//                         +       +
+//                         +       ` +-+-> InferiorSetupFailed +-+-+-+-+-+->.
+//                         +                                                +
+//                         +                                                +
+//                  EngineRunRequested                                      +
+//                         +                                                +
+//                 (calls *Engine->runEngine())                             +
+//               /       |            |        \                            +
+//             /         |            |          \                          +
+//            | (core)   | (attach)   |           |                         +
+//            |          |            |           |                         +
+//      {notify-    {notifyER&- {notifyER&-  {notify-                       +
+//      Inferior-     Inferior-   Inferior-  RunEngine-                     +
+//     Unrunnable}     StopOk}     RunOk}     Failed}                       +
+//           +           +            +           +                         +
+//   InferiorUnrunnable  +     InferiorRunOk      +                         +
+//                       +                        +                         +
+//                InferiorStopOk            EngineRunFailed                 +
+//                                                +                         v
+//                                                 `-+-+-+-+-+-+-+-+-+-+-+>-+
+//                                                                          +
+//    .--- #SpontaneousStop@InferiorRunOk#                                  +
+//    |                                                                     +
+//    |                                                                     +
+//    |         #Interupt@InferiorRunOk#                                    +
+//    |                    +                                                +
+//    |             InferiorStopRequested                                   +
+//    |                    +                                                +
+//    |              (calls *Engine->                                       +
+//    |             interruptInferior())                                    +
+//    |                |            |                                       +
+//  {notify-        {notify-    {notify-                                    +
+// Sponta.Inf.       Inferior-   Inferior-                                  +
+//   StopOk}         StopOk}    StopFailed}                                 +
+//     +              +             +                                       +
+//      +            +              +                                       +
+//      InferiorStopOk              +                                       +
+//                                  +                                       +
+//                                  +                                       +
+//                                  +                                       +
+//        #Stop@InferiorUnrunnable# +                                       +
+//          #Creator Close Event#   +                                       +
+//                        +         +                                       +
+//                InferiorShutdownRequested                                 +
+//                            +                                             +
+//           (calls *Engine->shutdownInferior())                            +
+//                         |        |                                       +
+//                    {notify-   {notify-                                   +
+//                     Inferior- Inferior-                                  +
+//                  ShutdownOk}  ShutdownFailed}                            +
+//                         +        +                                       +
+//                         +        +                                       +
+//  #Inferior exited#      +        +                                       +
+//         |               +        +                                       +
+//   {notifyInferior-      +        +                                       +
+//      Exited}            +        +                                       +
+//           +             +        +                                       +
+//            +            +        +                                       +
+//             +           +        +                                       +
+//            InferiorShutdownOk InferiorShutdownFailed                     +
+//                      *          *                                        +
+//                  EngineShutdownRequested                                 +
+//                            +                                             +
+//           (calls *Engine->shutdownEngine())  <+-+-+-+-+-+-+-+-+-+-+-+-+-+' 
+//                         |        |                                        
+//                    {notify-   {notify-                                    
+//                    Inferior-  Inferior-                                   
+//                  ShutdownOk}  ShutdownFailed}                             
+//                         +       +                                         
+//            EngineShutdownOk  EngineShutdownFailed                         
+//                         *       *
+//                     DebuggerFinished
 //
 
-// GdbEngine specific startup. All happens in EngineSettingUp state
+
+//(attach)    | (plain)
+//(term)      | (trk)  
+//(remote)    |        
+//(script)    |        
+//(pdb)       |        
+
+// GdbEngine specific startup. All happens in EngineSetupRequested state
 //
 // Transitions marked by '---' are done in the individual adapters.
 // Transitions marked by '+-+' are done in the GdbEngine.
-
+//
 //                  GdbEngine::setupEngine()
-//                          +
 //                          +
 //            (calls *Adapter->startAdapter())
 //                          |      |
 //                          |      `---> handleAdapterStartFailed()
 //                          |                   +
-//                          |             EngineSetupFailed
+//                          |             {notifyEngineSetupFailed}
 //                          |
 //                 handleAdapterStarted()
 //                          +
+//                 {notifyEngineSetupOk}
+//
+//
+//
+//                GdbEngine::setupInferior()
+//                          +      
 //            (calls *Adapter->prepareInferior())
 //                          |      |
-//                          |      `---> handleAdapterStartFailed()
+//                          |      `---> handlePrepareInferiorFailed()
 //                          |                   +
-//                          |             EngineSetupFailed
+//                          |             {notifyInferiorSetupFailed}
 //                          |
-//                 handleInferiorPrepared()
+//                handleInferiorPrepared()
 //                          +
-//                     EngineSetupOk
+//                {notifyInferiorSetupOk}  
 
 
 
@@ -774,6 +831,12 @@ class SessionEngine : public DebuggerEngine
 {
 public:
     SessionEngine() : DebuggerEngine(DebuggerStartParameters()) {}
+
+    void setupEngine() {}
+    void setupInferior() {}
+    void runEngine() {}
+    void shutdownEngine() {}
+    void shutdownInferior() {}
 
     bool isSessionEngine() const { return true; }
 
@@ -2080,7 +2143,7 @@ void DebuggerPluginPrivate::setInitialState()
     theDebuggerAction(RecheckDebuggingHelpers)->setEnabled(false);
     theDebuggerAction(AutoDerefPointers)->setEnabled(true);
     theDebuggerAction(ExpandStack)->setEnabled(false);
-    theDebuggerAction(ExecuteCommand)->setEnabled(m_state == InferiorStopped);
+    theDebuggerAction(ExecuteCommand)->setEnabled(m_state == InferiorStopOk);
 
     //emit m_plugin->stateChanged(m_state);
 }
@@ -2099,7 +2162,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     m_state = engine->state();
     bool actionsEnabled = DebuggerEngine::debuggerActionsEnabled(m_state);
 
-    //if (m_state == InferiorStopped)
+    //if (m_state == InferiorStopOk)
     //    resetLocation();
     //qDebug() << "PLUGIN SET STATE: " << m_state;
 
@@ -2108,20 +2171,20 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         cleanupViews();
     }
 
-    const bool startIsContinue = (m_state == InferiorStopped);
+    const bool startIsContinue = (m_state == InferiorStopOk);
     ICore *core = ICore::instance();
     if (startIsContinue)
         core->updateAdditionalContexts(Core::Context(), m_gdbRunningContext);
     else
         core->updateAdditionalContexts(m_gdbRunningContext, Core::Context());
 
-    const bool started = m_state == InferiorRunning
-        || m_state == InferiorRunningRequested
-        || m_state == InferiorStopping
-        || m_state == InferiorStopped;
+    const bool started = m_state == InferiorRunOk
+        || m_state == InferiorRunRequested
+        || m_state == InferiorStopRequested
+        || m_state == InferiorStopOk;
 
-    const bool starting = m_state == EngineSettingUp;
-    //const bool running = m_state == InferiorRunning;
+    const bool starting = m_state == EngineSetupRequested;
+    //const bool running = m_state == InferiorRunOk;
 
     m_startExternalAction->setEnabled(!started && !starting);
     m_attachExternalAction->setEnabled(!started && !starting);
@@ -2132,21 +2195,21 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 #endif
     m_startRemoteAction->setEnabled(!started && !starting);
 
-    const bool detachable = m_state == InferiorStopped
+    const bool detachable = m_state == InferiorStopOk
         && engine->startParameters().startMode != AttachCore;
     m_detachAction->setEnabled(detachable);
 
-    const bool stoppable = m_state == InferiorRunning
-        || m_state == InferiorRunningRequested
-        || m_state == InferiorStopping
-        || m_state == InferiorStopped
+    const bool stoppable = m_state == InferiorRunOk
+        || m_state == InferiorRunRequested
+        || m_state == InferiorStopRequested
+        || m_state == InferiorStopOk
         || m_state == InferiorUnrunnable;
 
-    const bool running = m_state == InferiorRunning;
+    const bool running = m_state == InferiorRunOk;
 // FIXME ABC
 //    if (running)
 //        threadsHandler()->notifyRunning();
-    const bool stopped = m_state == InferiorStopped;
+    const bool stopped = m_state == InferiorStopOk;
 
     if (stopped)
         QApplication::alert(mainWindow(), 3000);
@@ -2192,9 +2255,9 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         && (m_capabilities & AutoDerefPointersCapability);
     theDebuggerAction(AutoDerefPointers)->setEnabled(canDeref);
     theDebuggerAction(ExpandStack)->setEnabled(actionsEnabled);
-    theDebuggerAction(ExecuteCommand)->setEnabled(m_state == InferiorStopped);
+    theDebuggerAction(ExecuteCommand)->setEnabled(m_state == InferiorStopOk);
 
-    const bool notbusy = m_state == InferiorStopped
+    const bool notbusy = m_state == InferiorStopOk
         || m_state == DebuggerNotReady
         || m_state == InferiorUnrunnable;
     setBusyCursor(!notbusy);
@@ -2317,7 +2380,7 @@ void DebuggerPluginPrivate::aboutToSaveSession()
 
 void DebuggerPluginPrivate::interruptDebuggingRequest()
 {
-    if (state() == InferiorRunning)
+    if (state() == InferiorRunOk)
         notifyCurrentEngine(RequestExecInterruptRole);
     else
         exitDebugger();
@@ -2690,8 +2753,8 @@ bool DebuggerListener::coreAboutToClose()
     case EngineSetupFailed: // debuggee can cause problems.
     case InferiorUnrunnable:
     case InferiorSetupFailed:
-    case InferiorStopped:
-    case InferiorShutDown:
+    case InferiorStopOk:
+    case InferiorShutdownOk:
         cleanTermination = true;
         break;
     default:

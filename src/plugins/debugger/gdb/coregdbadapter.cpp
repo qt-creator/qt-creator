@@ -59,7 +59,7 @@ CoreGdbAdapter::CoreGdbAdapter(GdbEngine *engine, QObject *parent)
 
 void CoreGdbAdapter::startAdapter()
 {
-    QTC_ASSERT(state() == EngineSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("TRYING TO START ADAPTER"));
 
     if (!m_engine->startGdb())
@@ -70,7 +70,7 @@ void CoreGdbAdapter::startAdapter()
 
 void CoreGdbAdapter::setupInferior()
 {
-    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     m_executable = startParameters().executable;
     if (m_executable.isEmpty()) {
 #ifdef EXE_FROM_CORE
@@ -103,7 +103,7 @@ void CoreGdbAdapter::loadExeAndSyms()
 
 void CoreGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
 {
-    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
         showMessage(tr("Symbols found."), StatusBar);
     } else {
@@ -124,7 +124,7 @@ void CoreGdbAdapter::loadCoreFile()
 
 void CoreGdbAdapter::handleTargetCore(const GdbResponse &response)
 {
-    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
 #ifdef EXE_FROM_CORE
         if (m_round == 1) {
@@ -160,21 +160,31 @@ void CoreGdbAdapter::handleTargetCore(const GdbResponse &response)
     } else {
         QString msg = tr("Attach to core \"%1\" failed:\n").arg(startParameters().coreFile)
             + QString::fromLocal8Bit(response.data.findChild("msg").data());
-        m_engine->handleInferiorSetupFailed(msg);
+        m_engine->notifyInferiorSetupFailed(msg);
     }
 }
 
-void CoreGdbAdapter::runAdapter()
+void CoreGdbAdapter::runEngine()
 {
-    QTC_ASSERT(state() == InferiorSetupOk, qDebug() << state());
-    setState(InferiorUnrunnable);
+    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
+    m_engine->notifyInferiorUnrunnable();
     m_engine->updateAll();
 }
 
 void CoreGdbAdapter::interruptInferior()
 {
-    // A core should never 'run'
+    // A core never runs, so this cannot be called.
     QTC_ASSERT(false, /**/);
+}
+
+void CoreGdbAdapter::shutdownInferior()
+{
+    m_engine->notifyInferiorShutdownOk();
+}
+
+void CoreGdbAdapter::shutdownAdapter()
+{
+    m_engine->notifyAdapterShutdownOk();
 }
 
 } // namespace Internal

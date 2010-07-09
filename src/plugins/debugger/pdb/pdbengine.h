@@ -69,15 +69,14 @@ private:
     void executeStepI();
     void executeNextI();
 
-    void shutdown();
-    void setToolTipExpression(const QPoint &mousePos,
-        TextEditor::ITextEditor *editor, int cursorPos);
-
     void setupEngine();
     void setupInferior();
     void runEngine();
+    void shutdownInferior();
+    void shutdownEngine();
 
-    void exitDebugger();
+    void setToolTipExpression(const QPoint &mousePos,
+        TextEditor::ITextEditor *editor, int cursorPos);
 
     void continueInferior();
     void interruptInferior();
@@ -92,7 +91,7 @@ private:
     void attemptBreakpointSynchronization();
 
     void assignValueInDebugger(const QString &expr, const QString &value);
-    void executeDebuggerCommand(const QString & command);
+    void executeDebuggerCommand(const QString &command);
 
     void loadSymbols(const QString &moduleName);
     void loadAllSymbols();

@@ -88,6 +88,13 @@ using namespace Debugger::Internal;
 using namespace ProjectExplorer;
 using namespace TextEditor;
 
+//#define DEBUG_STATE 1
+#if DEBUG_STATE
+#   define SDEBUG(s) qDebug() << s
+#else
+#   define SDEBUG(s)
+#endif
+# define XSDEBUG(s) qDebug() << s
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -143,24 +150,27 @@ const char *DebuggerEngine::stateName(int s)
 #    define SN(x) case x: return #x;
     switch (s) {
         SN(DebuggerNotReady)
-        SN(EngineSettingUp)
+        SN(EngineSetupRequested)
         SN(EngineSetupOk)
         SN(EngineSetupFailed)
-        SN(InferiorSettingUp)
+        SN(EngineRunFailed)
+        SN(InferiorSetupRequested)
         SN(InferiorSetupFailed)
-        SN(InferiorSetupOk)
-        SN(InferiorRunningRequested)
-        SN(InferiorRunningRequested_Kill)
-        SN(InferiorRunning)
+        SN(EngineRunRequested)
+        SN(InferiorRunRequested)
+        SN(InferiorRunOk)
+        SN(InferiorRunFailed)
         SN(InferiorUnrunnable)
-        SN(InferiorStopping)
-        SN(InferiorStopping_Kill)
-        SN(InferiorStopped)
+        SN(InferiorStopRequested)
+        SN(InferiorStopOk)
         SN(InferiorStopFailed)
-        SN(InferiorShuttingDown)
-        SN(InferiorShutDown)
+        SN(InferiorShutdownRequested)
+        SN(InferiorShutdownOk)
         SN(InferiorShutdownFailed)
-        SN(EngineShuttingDown)
+        SN(EngineShutdownRequested)
+        SN(EngineShutdownOk)
+        SN(EngineShutdownFailed)
+        SN(DebuggerFinished)
     }
     return "<unknown>";
 #    undef SN
@@ -208,6 +218,7 @@ public:
         m_runControl(0),
         m_startParameters(sp),
         m_state(DebuggerNotReady),
+        m_lastGoodState(DebuggerNotReady),
         m_breakHandler(engine),
         m_commandHandler(engine),
         m_modulesHandler(engine),
@@ -227,15 +238,27 @@ public slots:
 
     void doSetupInferior();
     void doRunEngine();
-    void doShutdown();
+    void doShutdownEngine();
+    void doShutdownInferior();
     void doInterruptInferior();
+    void doFinishDebugger();
 
 public:
+    DebuggerState state() const { return m_state; }
+
     DebuggerEngine *m_engine; // Not owned.
     DebuggerRunControl *m_runControl;  // Not owned.
 
     DebuggerStartParameters m_startParameters;
+
+    // The current state.
     DebuggerState m_state;
+
+    // The state we had before something unexpected happend.
+    DebuggerState m_lastGoodState;
+
+    // The state we are aiming for.
+    DebuggerState m_targetState;
 
     qint64 m_inferiorPid;
 
@@ -277,7 +300,7 @@ void DebuggerEnginePrivate::handleContextMenuRequest(const QVariant &parameters)
 {
     const QList<QVariant> list = parameters.toList();
     QTC_ASSERT(list.size() == 3, return);
-    TextEditor::ITextEditor *editor = 
+    TextEditor::ITextEditor *editor =
         (TextEditor::ITextEditor *)(list.at(0).value<quint64>());
     int lineNumber = list.at(1).toInt();
     QMenu *menu = (QMenu *)(list.at(2).value<quint64>());
@@ -413,7 +436,7 @@ void DebuggerEngine::handleCommand(int role, const QVariant &value)
             break;
 
         case RequestExecExitRole:
-            exitDebugger();
+            d->doShutdownInferior();
             break;
 
         case RequestExecSnapshotRole:
@@ -451,7 +474,7 @@ void DebuggerEngine::handleCommand(int role, const QVariant &value)
             QPoint point = list.at(0).value<QPoint>();
             TextEditor::ITextEditor *editor = // Eeks.
                 (TextEditor::ITextEditor *)(list.at(1).value<quint64>());
-            int pos = list.at(2).toInt(); 
+            int pos = list.at(2).toInt();
             setToolTipExpression(point, editor, pos);
             break;
         }
@@ -626,7 +649,7 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
 
     d->m_runControl = runControl;
 
-    QTC_ASSERT(state() == DebuggerNotReady, setState(DebuggerNotReady));
+    QTC_ASSERT(state() == DebuggerNotReady, qDebug() << state());
 
     d->m_inferiorPid = d->m_startParameters.attachPID > 0
         ? d->m_startParameters.attachPID : 0;
@@ -641,7 +664,7 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
     theDebuggerAction(OperateByInstruction)
         ->setEnabled(engineCapabilities & DisassemblerCapability);
 
-    setState(EngineSettingUp);
+    setState(EngineSetupRequested);
     setupEngine();
 }
 
@@ -905,59 +928,74 @@ DebuggerState DebuggerEngine::state() const
     return d->m_state;
 }
 
-static bool isAllowedTransition(int from, int to)
+DebuggerState DebuggerEngine::lastGoodState() const
+{
+    return d->m_lastGoodState;
+}
+
+DebuggerState DebuggerEngine::targetState() const
+{
+    return d->m_targetState;
+}
+
+static bool isAllowedTransition(DebuggerState from, DebuggerState to)
 {
     switch (from) {
-    case -1:
-        return to == DebuggerNotReady;
-
     case DebuggerNotReady:
-        return to == EngineSettingUp || to == DebuggerNotReady;
+        return to == EngineSetupRequested || to == DebuggerNotReady;
 
-    case EngineSettingUp:
+    case EngineSetupRequested:
         return to == EngineSetupOk || to == EngineSetupFailed;
     case EngineSetupFailed:
         return to == DebuggerNotReady;
     case EngineSetupOk:
-        return to == InferiorSettingUp || to == EngineShuttingDown;
+        return to == InferiorSetupRequested || to == EngineShutdownRequested;
 
-    case InferiorSettingUp:
-        return to == InferiorSetupOk || to == InferiorSetupFailed;
+    case InferiorSetupRequested:
+        return to == EngineRunRequested || to == InferiorSetupFailed;
     case InferiorSetupFailed:
-        return to == EngineShuttingDown;
-    case InferiorSetupOk:
-        return to == InferiorRunningRequested || to == InferiorStopped
-            || to == InferiorUnrunnable;
+        return to == EngineShutdownRequested;
 
-    case InferiorRunningRequested:
-        return to == InferiorRunning || to == InferiorStopped
-            || to == InferiorRunningRequested_Kill;
-    case InferiorRunningRequested_Kill:
-        return to == InferiorRunning || to == InferiorStopped;
-    case InferiorRunning:
-        return to == InferiorStopping;
+    case EngineRunRequested:
+        return to == InferiorRunRequested || to == InferiorStopRequested
+            || to == InferiorUnrunnable || to == EngineRunFailed;
 
-    case InferiorStopping:
-        return to == InferiorStopped || to == InferiorStopFailed
-            || to == InferiorStopping_Kill;
-    case InferiorStopping_Kill:
-        return to == InferiorStopped || to == InferiorStopFailed;
-    case InferiorStopped:
-        return to == InferiorRunningRequested || to == InferiorShuttingDown;
+    case EngineRunFailed:
+        return to == InferiorShutdownRequested;
+
+    case InferiorRunRequested:
+        return to == InferiorRunOk || to == InferiorRunFailed;
+    case InferiorRunFailed:
+        return to == InferiorStopOk;
+    case InferiorRunOk:
+        return to == InferiorStopRequested || to == InferiorStopOk;
+
+    case InferiorStopRequested:
+        return to == InferiorStopOk || to == InferiorStopFailed;
+    case InferiorStopOk:
+        return to == InferiorRunRequested || to == InferiorShutdownRequested
+            || to == InferiorStopOk;
     case InferiorStopFailed:
-        return to == EngineShuttingDown;
+        return to == EngineShutdownRequested;
 
     case InferiorUnrunnable:
-        return to == EngineShuttingDown;
-    case InferiorShuttingDown:
-        return to == InferiorShutDown || to == InferiorShutdownFailed;
-    case InferiorShutDown:
-        return to == EngineShuttingDown;
+        return to == InferiorShutdownRequested;
+    case InferiorShutdownRequested:
+        return to == InferiorShutdownOk || to == InferiorShutdownFailed;
+    case InferiorShutdownOk:
+        return to == EngineShutdownRequested;
     case InferiorShutdownFailed:
-        return to == EngineShuttingDown;
+        return to == EngineShutdownRequested;
 
-    case EngineShuttingDown:
-        return to == DebuggerNotReady;
+    case EngineShutdownRequested:
+        return to == EngineShutdownOk;
+    case EngineShutdownOk:
+        return to == DebuggerFinished;
+    case EngineShutdownFailed:
+        return to == DebuggerFinished;
+
+    case DebuggerFinished:
+        return false;
     }
 
     qDebug() << "UNKNOWN STATE:" << from;
@@ -966,16 +1004,17 @@ static bool isAllowedTransition(int from, int to)
 
 void DebuggerEngine::notifyEngineSetupFailed()
 {
-    QTC_ASSERT(state() == EngineSettingUp, qDebug() << state());
+    SDEBUG(Q_FUNC_INFO);
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     setState(EngineSetupFailed);
-    d->m_runControl->debuggingFinished();
     d->m_runControl->startFailed();
-    QTimer::singleShot(0, this, SLOT(doShutdown()));
+    QTimer::singleShot(0, d, SLOT(doShutdownEngine()));
 }
 
 void DebuggerEngine::notifyEngineSetupOk()
 {
-    QTC_ASSERT(state() == EngineSettingUp, qDebug() << state());
+    SDEBUG(Q_FUNC_INFO);
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     setState(EngineSetupOk);
     d->m_runControl->startSuccessful();
     QTimer::singleShot(0, d, SLOT(doSetupInferior()));
@@ -983,88 +1022,296 @@ void DebuggerEngine::notifyEngineSetupOk()
 
 void DebuggerEnginePrivate::doSetupInferior()
 {
-    QTC_ASSERT(m_state == EngineSetupOk, qDebug() << m_state);
-    m_engine->setState(InferiorSettingUp);
+    SDEBUG(Q_FUNC_INFO);
+    QTC_ASSERT(state() == EngineSetupOk, qDebug() << state());
+    m_engine->setState(InferiorSetupRequested);
     m_engine->setupInferior();
 }
 
+#if 0
 // Default implemention, can be overridden.
 void DebuggerEngine::setupInferior()
 {
     QTC_ASSERT(state() == EngineSetupOk, qDebug() << state());
     notifyInferiorSetupOk();
 }
+#endif
 
 void DebuggerEngine::notifyInferiorSetupFailed()
 {
-    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
+    SDEBUG(Q_FUNC_INFO);
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     setState(InferiorSetupFailed);
-    QTimer::singleShot(0, d, SLOT(doShutdown()));
+    QTimer::singleShot(0, d, SLOT(doShutdownEngine()));
 }
 
 void DebuggerEngine::notifyInferiorSetupOk()
 {
-    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
-    setState(InferiorSetupOk);
+    SDEBUG(Q_FUNC_INFO);
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
+    setState(EngineRunRequested);
     QTimer::singleShot(0, d, SLOT(doRunEngine()));
 }
 
 void DebuggerEnginePrivate::doRunEngine()
 {
-    QTC_ASSERT(m_state == InferiorSetupOk, qDebug() << m_state);
+    SDEBUG(Q_FUNC_INFO);
+    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
     m_engine->runEngine();
 }
 
+#if 0
 // Default implemention, can be overridden.
 void DebuggerEngine::runEngine()
 {
-    QTC_ASSERT(state() == InferiorSetupOk, qDebug() << state());
+    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
+}
+#endif
+
+void DebuggerEngine::notifyInferiorUnrunnable()
+{
+    SDEBUG(Q_FUNC_INFO);
+    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
+    setState(InferiorUnrunnable);
 }
 
-void DebuggerEngine::notifyInferiorRunning()
+void DebuggerEngine::notifyEngineRunFailed()
 {
-    QTC_ASSERT(m_state == InferiorRunningRequested, qDebug() << m_state);
-    setState(InferiorRunning);
+    SDEBUG(Q_FUNC_INFO);
+    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
+    setState(EngineRunFailed);
+    QTimer::singleShot(0, d, SLOT(doShutdownInferior()));
 }
 
-void DebuggerEngine::notifyInferiorStopped()
+void DebuggerEngine::notifyEngineRunAndInferiorRunOk()
 {
-    QTC_ASSERT(m_state == InferiorRunningStoppint, qDebug() << m_state);
-    setState(InferiorStopped);
+    SDEBUG(Q_FUNC_INFO);
+    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
+    setState(InferiorRunRequested);
+    notifyInferiorRunOk();
+}
+
+void DebuggerEngine::notifyEngineRunAndInferiorStopOk()
+{
+    SDEBUG(Q_FUNC_INFO);
+    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
+    setState(InferiorStopRequested);
+    notifyInferiorStopOk();
+}
+
+void DebuggerEngine::notifyInferiorRunRequested()
+{
+    SDEBUG(Q_FUNC_INFO);
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    setState(InferiorRunRequested);
+}
+
+void DebuggerEngine::notifyInferiorRunOk()
+{
+    SDEBUG(Q_FUNC_INFO);
+    QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
+    setState(InferiorRunOk);
+}
+
+/*
+void DebuggerEngine::notifyInferiorSpontaneousRun()
+{
+    SDEBUG(Q_FUNC_INFO);
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    setState(InferiorRunRequested);
+    setState(InferiorRunOk);
+}
+*/
+
+void DebuggerEngine::notifyInferiorRunFailed()
+{
+    XSDEBUG(Q_FUNC_INFO);
+    qDebug() << "NOTIFY_INFERIOR_RUN_FAILED";
+    QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
+    setState(InferiorRunFailed);
+    setState(InferiorStopOk);
+    if (isDying()) {
+        QTimer::singleShot(0, d, SLOT(doShutdownInferior()));
+    }
+}
+
+void DebuggerEngine::notifyInferiorStopOk()
+{
+    SDEBUG(Q_FUNC_INFO);
+    if (isDying()) {
+        showMessage(_("STOPPED WHILE DYING. CONTINUING SHUTDOWN."));
+        setState(InferiorStopOk);
+        QTimer::singleShot(0, d, SLOT(doShutdownInferior()));
+    } else {
+        QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state());
+        setState(InferiorStopOk);
+    }
+}
+
+void DebuggerEngine::notifyInferiorSpontaneousStop()
+{
+    SDEBUG(Q_FUNC_INFO);
+    QTC_ASSERT(state() == InferiorRunOk, qDebug() << state());
+    setState(InferiorStopOk);
+}
+
+void DebuggerEngine::notifyInferiorStopFailed()
+{
+    SDEBUG(Q_FUNC_INFO);
+    QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state());
+    setState(InferiorStopFailed);
+    QTimer::singleShot(0, d, SLOT(doShutdownEngine()));
 }
 
 void DebuggerEnginePrivate::doInterruptInferior()
 {
-    QTC_ASSERT(m_state == InferiorRunning, qDebug() << m_state);
+    SDEBUG(Q_FUNC_INFO);
+    QTC_ASSERT(state() == InferiorRunOk, qDebug() << state());
+    m_engine->setState(InferiorStopRequested);
     m_engine->interruptInferior();
 }
 
-void DebuggerEnginePrivate::doShutdown()
+void DebuggerEnginePrivate::doShutdownInferior()
 {
-    m_engine->shutdown();
+    SDEBUG(Q_FUNC_INFO);
+    qDebug() << "DO_SHUTDOWN_INFERIOR";
+    m_engine->resetLocation();
+    m_targetState = DebuggerFinished;
+    m_engine->setState(InferiorShutdownRequested);
+    m_engine->shutdownInferior();
+}
+
+void DebuggerEngine::notifyInferiorShutdownOk()
+{
+    SDEBUG(Q_FUNC_INFO);
+    QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
+    showMessage(_("INFERIOR SUCCESSFULLY SHUT DOWN"));
+    d->m_lastGoodState = DebuggerNotReady; // A "neutral" value.
+    setState(InferiorShutdownOk);
+    QTimer::singleShot(0, d, SLOT(doShutdownEngine()));
+}
+
+void DebuggerEngine::notifyInferiorShutdownFailed()
+{
+    SDEBUG(Q_FUNC_INFO);
+    QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
+    showMessage(_("INFERIOR SHUTDOWN FAILED"));
+    setState(InferiorShutdownFailed);
+    QTimer::singleShot(0, d, SLOT(doShutdownEngine()));
+}
+
+void DebuggerEngine::notifyInferiorIll()
+{
+    SDEBUG(Q_FUNC_INFO);
+    // This can be issued in almost any state. The inferior could still be
+    // alive as some previous notifications might have been bogus.
+    qDebug() << "SOMETHING IS WRONG WITH THE INFERIOR";
+    d->m_targetState = DebuggerFinished;
+    d->m_lastGoodState = d->m_state;
+    if (state() == InferiorRunRequested) {
+        // We asked for running, but did not see a response.
+        // Assume the inferior is dead.
+        // FIXME: Use timeout?
+        setState(InferiorRunFailed);
+        setState(InferiorStopOk);
+    }
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    QTimer::singleShot(0, d, SLOT(doShutdownInferior()));
+}
+
+void DebuggerEnginePrivate::doShutdownEngine()
+{
+    SDEBUG(Q_FUNC_INFO);
+    QTC_ASSERT(state() == InferiorShutdownOk
+        || state() == InferiorShutdownFailed, qDebug() << state());
+    m_targetState = DebuggerFinished;
+    m_engine->setState(EngineShutdownRequested);
+    m_engine->shutdownEngine();
+}
+
+void DebuggerEngine::notifyEngineShutdownOk()
+{
+    SDEBUG(Q_FUNC_INFO);
+    QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
+    showMessage(_("ENGINE SUCCESSFULLY SHUT DOWN"));
+    setState(EngineShutdownOk);
+    QTimer::singleShot(0, d, SLOT(doFinishDebugger()));
+}
+
+void DebuggerEngine::notifyEngineShutdownFailed()
+{
+    SDEBUG(Q_FUNC_INFO);
+    showMessage(_("ENGINE SHUTDOWN FAILED"));
+    QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
+    setState(EngineShutdownFailed);
+    QTimer::singleShot(0, d, SLOT(doFinishDebugger()));
+}
+
+void DebuggerEnginePrivate::doFinishDebugger()
+{
+    SDEBUG(Q_FUNC_INFO);
+    QTC_ASSERT(state() == EngineShutdownOk
+        || state() == EngineShutdownFailed, qDebug() << state());
+    m_engine->resetLocation();
+    m_engine->setState(DebuggerFinished);
+    m_runControl->debuggingFinished();
+}
+
+void DebuggerEngine::notifyEngineIll()
+{
+    SDEBUG(Q_FUNC_INFO);
+    qDebug() << "SOMETHING IS WRONG WITH THE ENGINE";
+    d->m_targetState = DebuggerFinished;
+    d->m_lastGoodState = d->m_state;
+    if (state() == InferiorStopOk) {
+        QTimer::singleShot(0, d, SLOT(doShutdownInferior()));
+    } else {
+        QTimer::singleShot(0, d, SLOT(doShutdownEngine()));
+    }
+}
+
+void DebuggerEngine::notifyEngineSpontaneousShutdown()
+{
+    SDEBUG(Q_FUNC_INFO);
+    qDebug() << "THE ENGINE SUDDENLY DIED";
+    setState(EngineShutdownOk, true);
+    QTimer::singleShot(0, d, SLOT(doFinishDebugger()));
+}
+
+void DebuggerEngine::notifyInferiorExited()
+{
+    XSDEBUG("NOTIFY_INFERIOR_EXIT");
+    resetLocation();
+
+    // This can be issued in almost any state. We assume, though,
+    // that at this point of time the inferior is not running anymore,
+    // even if stop notification were not issued or got lost.
+    if (state() == InferiorRunOk) {
+        setState(InferiorStopRequested);
+        setState(InferiorStopOk);
+    }
+    setState(InferiorShutdownRequested);
+    setState(InferiorShutdownOk);
+    QTimer::singleShot(0, d, SLOT(doShutdownEngine()));
 }
 
 void DebuggerEngine::setState(DebuggerState state, bool forced)
 {
-    //qDebug() << "STATUS CHANGE: FROM " << stateName(d->m_state)
-    //        << " TO " << stateName(state);
+    SDEBUG(Q_FUNC_INFO);
+    qDebug() << "STATUS CHANGE: FROM " << stateName(d->m_state)
+            << " TO " << stateName(state);
 
     DebuggerState oldState = d->m_state;
     d->m_state = state;
 
-    QString msg = _("State changed from %1(%2) to %3(%4).")
-     .arg(stateName(oldState)).arg(oldState).arg(stateName(state)).arg(state);
+    QString msg = _("State changed%5 from %1(%2) to %3(%4).")
+     .arg(stateName(oldState)).arg(oldState).arg(stateName(state)).arg(state)
+     .arg(forced ? " BY FORCE" : "");
     if (!forced && !isAllowedTransition(oldState, state))
         qDebug() << "UNEXPECTED STATE TRANSITION: " << msg;
 
     showMessage(msg, LogDebug);
     plugin()->updateState(this);
-
-    if (state != oldState) {
-        if (state == DebuggerNotReady) {
-            d->m_runControl->debuggingFinished();
-        }
-    }
 }
 
 bool DebuggerEngine::debuggerActionsEnabled() const
@@ -1075,26 +1322,29 @@ bool DebuggerEngine::debuggerActionsEnabled() const
 bool DebuggerEngine::debuggerActionsEnabled(DebuggerState state)
 {
     switch (state) {
-    case InferiorSettingUp:
-    case InferiorRunningRequested:
-    case InferiorRunning:
+    case InferiorSetupRequested:
+    case InferiorRunOk:
     case InferiorUnrunnable:
-    case InferiorStopping:
-    case InferiorStopped:
+    case InferiorStopOk:
         return true;
+    case InferiorStopRequested:
+    case InferiorRunRequested:
+    case InferiorRunFailed:
     case DebuggerNotReady:
-    case EngineSettingUp:
+    case EngineSetupRequested:
     case EngineSetupOk:
     case EngineSetupFailed:
-    case InferiorSetupOk:
+    case EngineRunRequested:
+    case EngineRunFailed:
     case InferiorSetupFailed:
-    case InferiorRunningRequested_Kill:
-    case InferiorStopping_Kill:
     case InferiorStopFailed:
-    case InferiorShuttingDown:
-    case InferiorShutDown:
+    case InferiorShutdownRequested:
+    case InferiorShutdownOk:
     case InferiorShutdownFailed:
-    case EngineShuttingDown:
+    case EngineShutdownRequested:
+    case EngineShutdownOk:
+    case EngineShutdownFailed:
+    case DebuggerFinished:
         return false;
     }
     return false;
@@ -1131,6 +1381,13 @@ void DebuggerEngine::openFile(const QString &fileName, int lineNumber)
 bool DebuggerEngine::isReverseDebugging() const
 {
     return plugin()->isReverseDebugging();
+}
+
+// called by DebuggerRunControl
+void DebuggerEngine::quitDebugger()
+{
+    qDebug() << "QUIT_DEBUGGER";
+    shutdownInferior();
 }
 
 } // namespace Internal

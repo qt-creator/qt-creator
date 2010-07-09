@@ -45,7 +45,7 @@ RemotePlainGdbAdapter::RemotePlainGdbAdapter(GdbEngine *engine, QObject *parent)
 
 void RemotePlainGdbAdapter::startAdapter()
 {
-    QTC_ASSERT(state() == EngineSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(QLatin1String("TRYING TO START ADAPTER"));
 
     if (!startParameters().workingDirectory.isEmpty())
@@ -85,6 +85,16 @@ QString RemotePlainGdbAdapter::fromLocalEncoding(const QByteArray &b) const
 void RemotePlainGdbAdapter::handleApplicationOutput(const QByteArray &output)
 {
     showMessage(QString::fromUtf8(output), AppOutput);
+}
+
+void RemotePlainGdbAdapter::shutdownInferior()
+{
+    m_engine->defaultInferiorShutdown("kill");
+}
+
+void RemotePlainGdbAdapter::shutdownAdapter()
+{
+    m_engine->notifyAdapterShutdownOk();
 }
 
 } // namespace Internal

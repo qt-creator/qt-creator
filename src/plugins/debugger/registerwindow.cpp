@@ -170,7 +170,7 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QAction *actReload = menu.addAction(tr("Reload Register Listing"));
     actReload->setEnabled((engineCapabilities & RegisterCapability)
-        && (state == InferiorStopped || state == InferiorUnrunnable));
+        && (state == InferiorStopOk || state == InferiorUnrunnable));
 
     menu.addSeparator();
 

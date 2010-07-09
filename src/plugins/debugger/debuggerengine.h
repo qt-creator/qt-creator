@@ -121,7 +121,6 @@ public:
     DebuggerEngine(const DebuggerStartParameters &sp);
     virtual ~DebuggerEngine();
 
-    virtual void shutdown() {}
     virtual void setToolTipExpression(const QPoint & /* mousePos */,
             TextEditor::ITextEditor * /* editor */, int /* cursorPos */) { }
     void initializeFromTemplate(DebuggerEngine *other);
@@ -164,8 +163,6 @@ public:
         { Q_UNUSED(expr); Q_UNUSED(value); }
 
 protected:
-    virtual void setupEngine() {}
-    virtual void exitDebugger() {}
     virtual void detachDebugger() {}
     virtual void executeStep() {}
     virtual void executeStepOut()  {}
@@ -229,6 +226,9 @@ public:
     void executeReturnX();
 
     DebuggerState state() const;
+    DebuggerState lastGoodState() const;
+    DebuggerState targetState() const;
+    bool isDying() const { return targetState() == DebuggerFinished; }
 
     // Dumper stuff (common to cdb and gdb).
     bool qtDumperLibraryEnabled() const;
@@ -251,24 +251,46 @@ public:
     void openFile(const QString &fileName, int lineNumber = -1);
     void gotoLocation(const QString &fileName, int lineNumber, bool setMarker);
     void gotoLocation(const StackFrame &frame, bool setMarker);
-    void raiseApplication();
-    virtual void quitDebugger() { exitDebugger(); } // called by DebuggerRunControl
+    Q_SLOT void raiseApplication();
+    virtual void quitDebugger(); // called by DebuggerRunControl
 
 protected:
     void notifyEngineSetupOk();
     void notifyEngineSetupFailed();
+    void notifyEngineRunFailed();
 
     void notifyInferiorSetupOk();
     void notifyInferiorSetupFailed();
 
-    void notifyInferiorRunning();
-    void notifyInferiorStopped();
+    void notifyEngineRunAndInferiorRunOk();
+    void notifyEngineRunAndInferiorStopOk();
+    void notifyInferiorUnrunnable(); // Called by CoreAdapter.
+    //void notifyInferiorSpontaneousRun();
 
-    // Called to initiate shutdown.
+    void notifyInferiorRunRequested();
+    void notifyInferiorRunOk();
+    void notifyInferiorRunFailed();
+
+    void notifyInferiorStopOk();
+    void notifyInferiorSpontaneousStop();
+    void notifyInferiorStopFailed();
+    void notifyInferiorExited();
+
+    void notifyInferiorShutdownOk();
+    void notifyInferiorShutdownFailed();
+
+    void notifyEngineSpontaneousShutdown();
+    void notifyEngineShutdownOk();
+    void notifyEngineShutdownFailed();
+
     void notifyInferiorIll();
+    void notifyEngineIll();
 
-    virtual void setupInferior();
-    virtual void runEngine();
+    virtual void setupEngine() = 0;
+    virtual void setupInferior() = 0;
+    virtual void runEngine() = 0;
+    virtual void shutdownInferior() = 0;
+    virtual void shutdownEngine() = 0;
 
 //private: // FIXME. State transitions 
     void setState(DebuggerState state, bool forced = false);

@@ -574,7 +574,7 @@ void GdbEngine::updateAllClassic()
 {
     PRECONDITION;
     PENDING_DEBUG("UPDATING ALL\n");
-    QTC_ASSERT(state() == InferiorUnrunnable || state() == InferiorStopped, /**/);
+    QTC_ASSERT(state() == InferiorUnrunnable || state() == InferiorStopOk, /**/);
     tryLoadDebuggingHelpersClassic();
     reloadModulesInternal();
     postCommand("-stack-list-frames", WatchUpdate,

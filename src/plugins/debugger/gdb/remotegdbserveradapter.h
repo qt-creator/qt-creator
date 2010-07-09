@@ -50,16 +50,18 @@ class RemoteGdbServerAdapter : public AbstractGdbAdapter
 public:
     RemoteGdbServerAdapter(GdbEngine *engine, int toolChainType, QObject *parent = 0);
 
-    virtual DumperHandling dumperHandling() const;
+private:
+    DumperHandling dumperHandling() const;
 
     void startAdapter();
     void setupInferior();
-    void runAdapter();
+    void runEngine();
     void interruptInferior();
-    void shutdown();
+    void shutdownInferior();
+    void shutdownAdapter();
+
     AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
 
-private:
     Q_SLOT void readUploadStandardOutput();
     Q_SLOT void readUploadStandardError();
     Q_SLOT void uploadProcError(QProcess::ProcessError error);

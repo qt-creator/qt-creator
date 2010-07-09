@@ -81,7 +81,7 @@ AbstractGdbAdapter::DumperHandling TermGdbAdapter::dumperHandling() const
 
 void TermGdbAdapter::startAdapter()
 {
-    QTC_ASSERT(state() == EngineSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("TRYING TO START ADAPTER"));
 
 // Currently, adapters are not re-used
@@ -111,13 +111,13 @@ void TermGdbAdapter::startAdapter()
 
 void TermGdbAdapter::handleInferiorSetupOk()
 {
-    QTC_ASSERT(state() == EngineSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     m_engine->handleAdapterStarted();
 }
 
 void TermGdbAdapter::setupInferior()
 {
-    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     const qint64 attachedPID = m_stubProc.applicationPID();
     m_engine->notifyInferiorPid(attachedPID);
     m_engine->postCommand("attach " + QByteArray::number(attachedPID),
@@ -126,9 +126,8 @@ void TermGdbAdapter::setupInferior()
 
 void TermGdbAdapter::handleStubAttached(const GdbResponse &response)
 {
-    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
-        setState(InferiorStopped);
         showMessage(_("INFERIOR ATTACHED"));
         m_engine->handleInferiorPrepared();
 #ifdef Q_OS_LINUX
@@ -136,12 +135,15 @@ void TermGdbAdapter::handleStubAttached(const GdbResponse &response)
 #endif
     } else if (response.resultClass == GdbResultError) {
         QString msg = QString::fromLocal8Bit(response.data.findChild("msg").data());
-        m_engine->handleInferiorSetupFailed(msg);
+        m_engine->notifyInferiorSetupFailed(msg);
     }
 }
 
-void TermGdbAdapter::runAdapter()
+void TermGdbAdapter::runEngine()
 {
+    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
+    m_engine->notifyEngineRunAndInferiorStopOk();
+    m_engine->notifyInferiorRunRequested();
     m_engine->continueInferiorInternal();
 }
 
@@ -171,10 +173,23 @@ void TermGdbAdapter::stubMessage(const QString &msg, bool)
 
 void TermGdbAdapter::stubExited()
 {
+    if (state() == EngineShutdownRequested || state() == DebuggerFinished) {
+        showMessage(_("STUB EXITED EXPECTEDLY"));
+        return;
+    }
     showMessage(_("STUB EXITED"));
-    if (state() != EngineSettingUp // From previous instance
-        && state() != EngineShuttingDown && state() != DebuggerNotReady)
-        m_engine->handleAdapterCrashed(QString());
+    qDebug() << "STUB EXITED IN STATE: " << state();
+    m_engine->notifyEngineIll();
+}
+
+void TermGdbAdapter::shutdownInferior()
+{
+    m_engine->defaultInferiorShutdown("kill");
+}
+
+void TermGdbAdapter::shutdownAdapter()
+{
+    m_engine->notifyAdapterShutdownOk();
 }
 
 } // namespace Internal

@@ -196,7 +196,7 @@ void GdbEngine::updateAllPython()
 {
     PRECONDITION;
     //PENDING_DEBUG("UPDATING ALL\n");
-    QTC_ASSERT(state() == InferiorUnrunnable || state() == InferiorStopped, /**/);
+    QTC_ASSERT(state() == InferiorUnrunnable || state() == InferiorStopOk, /**/);
     reloadModulesInternal();
     postCommand("-stack-list-frames", CB(handleStackListFrames),
         QVariant::fromValue<StackCookie>(StackCookie(false, true)));

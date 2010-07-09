@@ -56,7 +56,7 @@ AttachGdbAdapter::AttachGdbAdapter(GdbEngine *engine, QObject *parent)
 
 void AttachGdbAdapter::startAdapter()
 {
-    QTC_ASSERT(state() == EngineSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("TRYING TO START ADAPTER"));
 
     if (!m_engine->startGdb())
@@ -67,34 +67,52 @@ void AttachGdbAdapter::startAdapter()
 
 void AttachGdbAdapter::setupInferior()
 {
-    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     const qint64 pid = startParameters().attachPID;
     m_engine->postCommand("attach " + QByteArray::number(pid), CB(handleAttach));
     // Task 254674 does not want to remove them
     //qq->breakHandler()->removeAllBreakpoints();
 }
 
+void AttachGdbAdapter::runEngine()
+{
+    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
+    m_engine->notifyInferiorStopOk();
+}
+
 void AttachGdbAdapter::handleAttach(const GdbResponse &response)
 {
-    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
-        setState(InferiorStopped);
         showMessage(_("INFERIOR ATTACHED"));
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
         m_engine->handleInferiorPrepared();
         m_engine->updateAll();
     } else {
         QString msg = QString::fromLocal8Bit(response.data.findChild("msg").data());
-        m_engine->handleInferiorSetupFailed(msg);
+        m_engine->notifyInferiorSetupFailed(msg);
     }
 }
 
 void AttachGdbAdapter::interruptInferior()
 {
+    QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state(); return);
     const qint64 pid = startParameters().attachPID;
     QTC_ASSERT(pid > 0, return);
-    if (!interruptProcess(pid))
+    if (!interruptProcess(pid)) {
         showMessage(_("CANNOT INTERRUPT %1").arg(pid));
+        m_engine->notifyInferiorStopFailed();
+    }
+}
+
+void AttachGdbAdapter::shutdownInferior()
+{
+    m_engine->defaultInferiorShutdown("detach");
+}
+
+void AttachGdbAdapter::shutdownAdapter()
+{
+    m_engine->notifyAdapterShutdownOk();
 }
 
 } // namespace Internal

@@ -113,9 +113,10 @@ private:
     void startAdapter();
     bool initializeDevice(const QString &remoteChannel, QString *errorMessage);
     void setupInferior();
-    void runAdapter();
+    void runEngine();
     void interruptInferior();
-    void shutdown();
+    void shutdownInferior();
+    void shutdownAdapter();
     AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
 
     void cleanup();

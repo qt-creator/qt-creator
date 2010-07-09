@@ -232,9 +232,14 @@ void CdbEngine::setState(DebuggerState state, const char *func, int line)
     DebuggerEngine::setState(state);
 }
 
-void CdbEngine::shutdown()
+void CdbEngine::shutdownInferior()
 {
-    exitDebugger();
+    notifyInferiorShutdownOk();
+}
+
+void CdbEngine::shutdownEngine()
+{
+    m_d->endDebugging();
 }
 
 QString CdbEngine::editorToolTip(const QString &exp, const QString &function)
@@ -376,7 +381,7 @@ void CdbEngine::startupChecks()
 
 void CdbEngine::setupEngine()
 {
-    QTC_ASSERT(state() == EngineSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     const DebuggerStartParameters &sp = startParameters();
     if (debugCDBExecution)
         qDebug() << "startDebugger";
@@ -426,7 +431,7 @@ void CdbEngine::setupEngine()
 
 void CdbEngine::setupInferior()
 {
-    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     notifyInferiorSetupOk();
 }
 
@@ -499,7 +504,7 @@ bool CdbEngine::startAttachDebugger(qint64 pid, DebuggerStartMode sm, QString *e
 
 void CdbEnginePrivate::processCreatedAttached(ULONG64 processHandle, ULONG64 initialThreadHandle)
 {
-    m_engine->setState(InferiorRunningRequested, Q_FUNC_INFO, __LINE__);
+    m_engine->setState(InferiorRunRequested, Q_FUNC_INFO, __LINE__);
     setDebuggeeHandles(reinterpret_cast<HANDLE>(processHandle), reinterpret_cast<HANDLE>(initialThreadHandle));
     ULONG currentThreadId;
     if (SUCCEEDED(interfaces().debugSystemObjects->GetThreadIdByHandle(initialThreadHandle, &currentThreadId))) {
@@ -526,7 +531,7 @@ void CdbEnginePrivate::processCreatedAttached(ULONG64 processHandle, ULONG64 ini
                 m_engine->warning(QString::fromLatin1("Handshake failed on event #%1: %2").arg(evtNr).arg(CdbCore::msgComFailed("SetNotifyEventHandle", hr)));
         }
     }
-    m_engine->setState(InferiorRunning, Q_FUNC_INFO, __LINE__);
+    m_engine->setState(InferiorRunOk, Q_FUNC_INFO, __LINE__);
     if (debugCDBExecution)
         qDebug() << "<processCreatedAttached";
 }
@@ -534,13 +539,13 @@ void CdbEnginePrivate::processCreatedAttached(ULONG64 processHandle, ULONG64 ini
 void CdbEngine::processTerminated(unsigned long exitCode)
 {
     showMessage(tr("The process exited with exit code %1.").arg(exitCode));
-    if (state() != InferiorStopping)
-        setState(InferiorStopping, Q_FUNC_INFO, __LINE__);
-    setState(InferiorStopped, Q_FUNC_INFO, __LINE__);
-    setState(InferiorShuttingDown, Q_FUNC_INFO, __LINE__);
+    if (state() != InferiorStopRequested)
+        setState(InferiorStopRequested, Q_FUNC_INFO, __LINE__);
+    setState(InferiorStopOk, Q_FUNC_INFO, __LINE__);
+    setState(InferiorShutdownRequested, Q_FUNC_INFO, __LINE__);
     m_d->setDebuggeeHandles(0, 0);
     m_d->clearForRun();
-    setState(InferiorShutDown, Q_FUNC_INFO, __LINE__);
+    setState(InferiorShutdownOk, Q_FUNC_INFO, __LINE__);
     // Avoid calls from event handler.
     QTimer::singleShot(0, this, SLOT(quitDebugger()));
 }
@@ -548,7 +553,7 @@ void CdbEngine::processTerminated(unsigned long exitCode)
 bool CdbEnginePrivate::endInferior(EndInferiorAction action, QString *errorMessage)
 {
     // Process must be stopped in order to terminate
-    m_engine->setState(InferiorShuttingDown, Q_FUNC_INFO, __LINE__); // pretend it is shutdown
+    m_engine->setState(InferiorShutdownRequested, Q_FUNC_INFO, __LINE__); // pretend it is shutdown
     const bool wasRunning = isDebuggeeRunning();
     if (wasRunning) {
         interruptInterferiorProcess(errorMessage);
@@ -577,7 +582,7 @@ bool CdbEnginePrivate::endInferior(EndInferiorAction action, QString *errorMessa
     // Perform cleanup even when failed..no point clinging to the process
     setDebuggeeHandles(0, 0);
     killWatchTimer();
-    m_engine->setState(success ? InferiorShutDown : InferiorShutdownFailed, Q_FUNC_INFO, __LINE__);
+    m_engine->setState(success ? InferiorShutdownOk : InferiorShutdownFailed, Q_FUNC_INFO, __LINE__);
     return success;
 }
 
@@ -594,7 +599,7 @@ void CdbEnginePrivate::endDebugging(EndDebuggingMode em)
         return;
     // Do we need to stop the process?
     QString errorMessage;
-    if (oldState != InferiorShutDown && m_hDebuggeeProcess) {
+    if (oldState != InferiorShutdownOk && m_hDebuggeeProcess) {
         EndInferiorAction action;
         switch (em) {
         case EndDebuggingAuto:
@@ -618,7 +623,7 @@ void CdbEnginePrivate::endDebugging(EndDebuggingMode em)
         errorMessage.clear();
     }
     // Clean up resources (open files, etc.)
-    m_engine->setState(EngineShuttingDown, Q_FUNC_INFO, __LINE__);
+    m_engine->setState(EngineShutdownRequested, Q_FUNC_INFO, __LINE__);
     clearForRun();
     const bool endedCleanly = endSession(&errorMessage);
     m_engine->setState(DebuggerNotReady, Q_FUNC_INFO, __LINE__);
@@ -626,11 +631,6 @@ void CdbEnginePrivate::endDebugging(EndDebuggingMode em)
         errorMessage = QString::fromLatin1("There were errors trying to end debugging:\n%1").arg(errorMessage);
         m_engine->showMessage(errorMessage, LogError);
     }
-}
-
-void CdbEngine::exitDebugger()
-{
-    m_d->endDebugging();
 }
 
 void CdbEngine::detachDebugger()
@@ -712,15 +712,15 @@ bool CdbEnginePrivate::executeContinueCommand(const QString &command)
         qDebug() << Q_FUNC_INFO << command;
     clearForRun();
     updateCodeLevel(); // Step by instruction
-    m_engine->setState(InferiorRunningRequested, Q_FUNC_INFO, __LINE__);
+    m_engine->setState(InferiorRunRequested, Q_FUNC_INFO, __LINE__);
     m_engine->showMessage(CdbEngine::tr("Continuing with '%1'...").arg(command));
     QString errorMessage;
     const bool success = executeDebuggerCommand(command, &errorMessage);
     if (success) {
-        m_engine->setState(InferiorRunning, Q_FUNC_INFO, __LINE__);
+        m_engine->setState(InferiorRunOk, Q_FUNC_INFO, __LINE__);
         startWatchTimer();
     } else {
-        m_engine->setState(InferiorStopped, Q_FUNC_INFO, __LINE__);
+        m_engine->setState(InferiorStopOk, Q_FUNC_INFO, __LINE__);
         m_engine->warning(CdbEngine::tr("Unable to continue: %1").arg(errorMessage));
     }
     return success;
@@ -772,7 +772,7 @@ bool CdbEngine::step(unsigned long executionStatus)
                             || threadsHandler()->threads().size() == 1;
     m_d->clearForRun(); // clears thread ids
     m_d->updateCodeLevel(); // Step by instruction or source line
-    setState(InferiorRunningRequested, Q_FUNC_INFO, __LINE__);
+    setState(InferiorRunRequested, Q_FUNC_INFO, __LINE__);
     bool success = false;
     if (sameThread && executionStatus != CdbExtendedExecutionStatusStepOut) { // Step event-triggering thread, use fast API
         const HRESULT hr = m_d->interfaces().debugControl->SetExecutionStatus(executionStatus);
@@ -806,9 +806,9 @@ bool CdbEngine::step(unsigned long executionStatus)
         if (executionStatus == DEBUG_STATUS_STEP_INTO || executionStatus == DEBUG_STATUS_REVERSE_STEP_INTO)
             m_d->m_breakEventMode = CdbEnginePrivate::BreakEventIgnoreOnce;
         m_d->startWatchTimer();
-        setState(InferiorRunning, Q_FUNC_INFO, __LINE__);
+        setState(InferiorRunOk, Q_FUNC_INFO, __LINE__);
     } else {
-        setState(InferiorStopped, Q_FUNC_INFO, __LINE__);
+        setState(InferiorStopOk, Q_FUNC_INFO, __LINE__);
     }
     if (debugCDBExecution)
         qDebug() << "<step samethread" << sameThread << "succeeded" << success;
@@ -879,7 +879,7 @@ bool CdbEnginePrivate::continueInferior(QString *errorMessage)
         return true;
     }
     // Request continue
-    m_engine->setState(InferiorRunningRequested, Q_FUNC_INFO, __LINE__);
+    m_engine->setState(InferiorRunRequested, Q_FUNC_INFO, __LINE__);
     bool success = false;
     do {
         clearForRun();
@@ -895,9 +895,9 @@ bool CdbEnginePrivate::continueInferior(QString *errorMessage)
         success = true;
     } while (false);
     if (success) {
-        m_engine->setState(InferiorRunning, Q_FUNC_INFO, __LINE__);
+        m_engine->setState(InferiorRunOk, Q_FUNC_INFO, __LINE__);
     } else {
-        m_engine->setState(InferiorStopped, Q_FUNC_INFO, __LINE__); // No RunningRequestFailed?
+        m_engine->setState(InferiorStopOk, Q_FUNC_INFO, __LINE__); // No RunningRequestFailed?
     }
     return true;
 }
@@ -922,7 +922,7 @@ void CdbEnginePrivate::slotModulesLoaded()
     // spawned by the debug handler and inherits the handles,
     // the event handling does not work reliably (that is, the crash
     // event is not delivered). In that case, force a break
-    if (m_mode == AttachCrashedExternal && m_engine->state() != InferiorStopped)
+    if (m_mode == AttachCrashedExternal && m_engine->state() != InferiorStopOk)
         QTimer::singleShot(10, m_engine, SLOT(slotBreakAttachToCrashed()));
 }
 
@@ -930,7 +930,7 @@ void CdbEngine::slotBreakAttachToCrashed()
 {
     // Force a break when attaching to crashed process (if Creator was not spawned
     // from handler).
-    if (state() != InferiorStopped) {
+    if (state() != InferiorStopOk) {
         showMessage(QLatin1String("Forcing break..."));
         m_d->m_dumper->disable();
         interruptInferior();
@@ -943,7 +943,7 @@ void CdbEngine::interruptInferior()
         return;
 
     QString errorMessage;
-    setState(InferiorStopping, Q_FUNC_INFO, __LINE__);
+    setState(InferiorStopRequested, Q_FUNC_INFO, __LINE__);
     if (!m_d->interruptInterferiorProcess(&errorMessage)) {
         setState(InferiorStopFailed, Q_FUNC_INFO, __LINE__);
         warning(msgFunctionFailed(Q_FUNC_INFO, errorMessage));
@@ -1022,7 +1022,7 @@ void CdbEngine::activateFrame(int frameIndex)
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << frameIndex;
 
-    if (state() != InferiorStopped) {
+    if (state() != InferiorStopOk) {
         qWarning("WARNING %s: invoked while debuggee is running\n", Q_FUNC_INFO);
         return;
     }
@@ -1237,7 +1237,7 @@ void CdbEngine::requestModuleSymbols(const QString &moduleName)
 
 void CdbEngine::reloadRegisters()
 {
-    if (state() != InferiorStopped)
+    if (state() != InferiorStopOk)
         return;
     const int intBase = 10;
     if (debugCDB)
@@ -1272,7 +1272,7 @@ void CdbEngine::slotConsoleStubMessage(const QString &msg, bool)
 
 void CdbEngine::slotConsoleStubTerminated()
 {
-    exitDebugger();
+    shutdownEngine();
 }
 
 void CdbEngine::warning(const QString &msg)
@@ -1331,9 +1331,9 @@ void CdbEnginePrivate::handleDebugEvent()
     case BreakEventHandle: {
         // If this is triggered by breakpoint/crash: Set state to stopping
         // to avoid warnings as opposed to interrupt inferior
-        if (m_engine->state() != InferiorStopping)
-            m_engine->setState(InferiorStopping, Q_FUNC_INFO, __LINE__);
-        m_engine->setState(InferiorStopped, Q_FUNC_INFO, __LINE__);
+        if (m_engine->state() != InferiorStopRequested)
+            m_engine->setState(InferiorStopRequested, Q_FUNC_INFO, __LINE__);
+        m_engine->setState(InferiorStopOk, Q_FUNC_INFO, __LINE__);
         // Indicate artifical thread that is created when interrupting as such,
         // else use stop message with cleaned newlines and blanks.
         const QString currentThreadState =
@@ -1424,7 +1424,7 @@ ULONG CdbEnginePrivate::updateThreadList(const QString &currentThreadState)
     ULONG currentThreadId;
     QString errorMessage;
     // When interrupting, an artifical thread with a breakpoint is created.
-    const bool stopped = m_engine->state() == InferiorStopped;
+    const bool stopped = m_engine->state() == InferiorStopOk;
     if (!CdbStackTraceContext::getThreads(interfaces(),
                                           stopped,
                                           &threads, &currentThreadId,

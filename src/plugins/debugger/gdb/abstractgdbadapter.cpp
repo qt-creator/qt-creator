@@ -39,7 +39,7 @@ namespace Debugger {
 namespace Internal {
 
 AbstractGdbAdapter::AbstractGdbAdapter(GdbEngine *engine, QObject *parent)
-        : QObject(parent), m_engine(engine)
+  : QObject(parent), m_engine(engine)
 {
 }
 
@@ -48,19 +48,20 @@ AbstractGdbAdapter::~AbstractGdbAdapter()
     disconnect();
 }
 
-void AbstractGdbAdapter::shutdown()
-{
-}
+//void AbstractGdbAdapter::shutdown()
+//{
+//}
 
-void AbstractGdbAdapter::runAdapter()
-{
-    qDebug() << "START INFERIOR PHASE 2";
-}
+//void AbstractGdbAdapter::runEngine()
+//{
+//}
 
+/*
 const char *AbstractGdbAdapter::inferiorShutdownCommand() const
 {
     return "kill";
 }
+*/
 
 void AbstractGdbAdapter::write(const QByteArray &data)
 {
@@ -87,7 +88,7 @@ QString AbstractGdbAdapter::msgInferiorSetupOk()
     return tr("Application started");
 }
 
-QString AbstractGdbAdapter::msgInferiorRunning()
+QString AbstractGdbAdapter::msgInferiorRunOk()
 {
     return tr("Application running");
 }

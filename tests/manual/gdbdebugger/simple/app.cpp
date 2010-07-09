@@ -1779,10 +1779,25 @@ namespace ns {
 
 void testStuff()
 {
+    typedef unsigned short wchar;
+    wchar *str = new wchar[10];
+    str[2] = 0;
+    str[1] = 'B';
+    str[0] = 'A';
+    str[0] = 'A';
+    str[0] = 'A';
+    str[0] = 'A';
+    QString foo = "foo";
+    wchar *f = (wchar*)foo.utf16();
+    str[0] = 'A';
+    str[0] = 'A';
+    str[0] = 'A';
+    /*
     ns::vl j = 1000;
     ns::verylong k = 1000;
     ++j;
     ++k;
+    */
 }
 
 void testPassByReferenceHelper(Foo &f)
@@ -1854,6 +1869,7 @@ int main(int argc, char *argv[])
     //testWCout0();
     //testWCout();
     testColor();
+    return 0;
     testQRegion();
     testStuff();
     testPeekAndPoke3();

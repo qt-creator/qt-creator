@@ -53,15 +53,18 @@ public:
     TermGdbAdapter(GdbEngine *engine, QObject *parent = 0);
     ~TermGdbAdapter();
 
-    virtual DumperHandling dumperHandling() const;
+private:
+    DumperHandling dumperHandling() const;
 
     void startAdapter();
     void setupInferior();
-    void runAdapter();
+    void runEngine();
     void interruptInferior();
+    void shutdownInferior();
+    void shutdownAdapter();
+
     AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
 
-private:
     void handleStubAttached(const GdbResponse &response);
 #ifdef Q_OS_LINUX
     void handleEntryPoint(const GdbResponse &response);

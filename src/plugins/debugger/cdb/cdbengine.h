@@ -55,12 +55,12 @@ public:
     static DebuggerEngine *create(const DebuggerStartParameters &sp,
                                    QString *errorMessage);
 
-    virtual void shutdown();
     virtual void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
     virtual void setupEngine();
     virtual void setupInferior();
     virtual void runEngine();
-    virtual void exitDebugger();
+    virtual void shutdownInferior();
+    virtual void shutdownEngine();
     virtual void detachDebugger();
     virtual void updateWatchData(const WatchData &data);
     virtual unsigned debuggerCapabilities() const;

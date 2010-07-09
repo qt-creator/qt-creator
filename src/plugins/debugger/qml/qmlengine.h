@@ -86,10 +86,13 @@ private:
     void executeStepI();
     void executeNextI();
 
-    void shutdown();
-    void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
     void setupEngine();
-    void exitDebugger();
+    void setupInferior();
+    void runEngine();
+    void shutdownInferior();
+    void shutdownEngine();
+
+    void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
 
     void continueInferior();
     void interruptInferior();

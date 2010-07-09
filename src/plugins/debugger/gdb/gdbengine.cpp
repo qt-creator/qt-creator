@@ -122,26 +122,29 @@ QByteArray GdbEngine::tooltipIName(const QString &exp)
 static bool stateAcceptsGdbCommands(DebuggerState state)
 {
     switch (state) {
-    case EngineSettingUp:
+    case EngineSetupRequested:
     case EngineSetupOk:
     case EngineSetupFailed:
     case InferiorUnrunnable:
-    case InferiorSettingUp:
+    case InferiorSetupRequested:
     case InferiorSetupFailed:
-    case InferiorSetupOk:
-    case InferiorRunningRequested:
-    case InferiorRunningRequested_Kill:
-    case InferiorRunning:
-    case InferiorStopping:
-    case InferiorStopping_Kill:
-    case InferiorStopped:
-    case InferiorShuttingDown:
-    case InferiorShutDown:
+    case EngineRunRequested:
+    case InferiorRunRequested:
+    case InferiorRunOk:
+    case InferiorStopRequested:
+    case InferiorStopOk:
+    case InferiorShutdownRequested:
+    case EngineShutdownRequested:
+    case InferiorShutdownOk:
     case InferiorShutdownFailed:
         return true;
     case DebuggerNotReady:
     case InferiorStopFailed:
-    case EngineShuttingDown:
+    case EngineRunFailed:
+    case InferiorRunFailed:
+    case EngineShutdownOk:
+    case EngineShutdownFailed:
+    case DebuggerFinished:
         return false;
     }
     return false;
@@ -532,13 +535,14 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                     m_progress->setProgressValue(100);
                     m_progress->reportFinished();
                 }
-                if (state() == InferiorStopped) { // Result of manual command.
-                    resetLocation();
-                    setTokenBarrier();
-                    setState(InferiorRunningRequested);
-                }
-                setState(InferiorRunning);
-                showStatusMessage(tr("Running..."));
+                // FIXME: Handle this in the individual result handlers.
+                //if (state() == InferiorStopOk) { // Result of manual command.
+                //    resetLocation();
+                //    setTokenBarrier();
+                //    setState(InferiorRunRequested);
+                //}
+                //setState(InferiorRunOk);
+                //showStatusMessage(tr("Running..."));
                 response.resultClass = GdbResultRunning;
             } else if (resultClass == "connected") {
                 response.resultClass = GdbResultConnected;
@@ -635,11 +639,8 @@ void GdbEngine::readGdbStandardOutput()
 
 void GdbEngine::interruptInferior()
 {
-    QTC_ASSERT(state() == InferiorRunning, qDebug() << state(); return);
-
-    setState(InferiorStopping);
+    QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state(); return);
     showStatusMessage(tr("Stop requested..."), 5000);
-
     showMessage(_("TRYING TO INTERRUPT INFERIOR"));
     m_gdbAdapter->interruptInferior();
 }
@@ -649,7 +650,8 @@ void GdbEngine::interruptInferiorTemporarily()
     interruptInferior();
     foreach (const GdbCommand &cmd, m_commandsToRunOnTemporaryBreak) {
         if (cmd.flags & LosesChild) {
-            setState(InferiorStopping_Kill);
+            notifyInferiorIll();
+            //setState(InferiorStopRequested_Kill);
             break;
         }
     }
@@ -736,35 +738,39 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
         flushCommand(cmd);
     } else if ((cmd.flags & NeedsStop)
             || !m_commandsToRunOnTemporaryBreak.isEmpty()) {
-        if (state() == InferiorStopped || state() == InferiorUnrunnable
-            || state() == InferiorSettingUp || state() == EngineSetupOk) {
+        if (state() == InferiorStopOk || state() == InferiorUnrunnable
+            || state() == InferiorSetupRequested || state() == EngineSetupOk
+            || state() == InferiorShutdownRequested) {
             // Can be safely sent now.
             flushCommand(cmd);
         } else {
             // Queue the commands that we cannot send at once.
             showMessage(_("QUEUING COMMAND " + cmd.command));
             m_commandsToRunOnTemporaryBreak.append(cmd);
-            if (state() == InferiorStopping) {
-                if (cmd.flags & LosesChild)
-                    setState(InferiorStopping_Kill);
+            if (state() == InferiorStopRequested) {
+                if (cmd.flags & LosesChild) {
+                    notifyInferiorIll();
+                    //setState(InferiorStopRequested_Kill);
+                }
                 showMessage(_("CHILD ALREADY BEING INTERRUPTED. STILL HOPING."));
                 // Calling shutdown() here breaks all situations where two
                 // NeedsStop commands are issued in quick succession.
-            } else if (state() == InferiorStopping_Kill) {
-                showMessage(_("CHILD ALREADY BEING INTERRUPTED (KILL PENDING)"));
-                // FIXME
-                shutdown();
-            } else if (state() == InferiorRunningRequested) {
-                if (cmd.flags & LosesChild)
-                    setState(InferiorRunningRequested_Kill);
-                showMessage(_("RUNNING REQUESTED; POSTPONING INTERRUPT"));
-            } else if (state() == InferiorRunningRequested_Kill) {
-                showMessage(_("RUNNING REQUESTED; POSTPONING INTERRUPT (KILL PENDING)"));
-            } else if (state() == InferiorRunning) {
+            //} else if (state() == InferiorStopRequested_Kill) {
+            //    showMessage(_("CHILD ALREADY BEING INTERRUPTED (KILL PENDING)"));
+            //    // FIXME
+            //    shutdown();
+            //} else if (state() == InferiorRunRequested) {
+            //    if (cmd.flags & LosesChild)
+            //        setState(InferiorRunRequested_Kill);
+            //    showMessage(_("RUNNING REQUESTED; POSTPONING INTERRUPT"));
+            //} else if (state() == InferiorRunRequested_Kill) {
+            //    showMessage(_("RUNNING REQUESTED; POSTPONING INTERRUPT (KILL PENDING)"));
+            } else if (state() == InferiorRunOk) {
                 showStatusMessage(tr("Stopping temporarily"), 1000);
                 interruptInferiorTemporarily();
             } else {
-                qDebug() << "ATTEMPTING TO QUEUE COMMAND IN INAPPROPRIATE STATE" << state();
+                qDebug() << "ATTEMPTING TO QUEUE COMMAND "
+                    << cmd.command << "IN INAPPROPRIATE STATE" << state();
             }
         }
     } else if (!cmd.command.isEmpty()) {
@@ -804,8 +810,8 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
 
     m_commandTimer->start();
 
-    if (cmd.flags & LosesChild)
-        setState(InferiorShuttingDown);
+    //if (cmd.flags & LosesChild)
+    //    setState(InferiorShutdownRequested);
 }
 
 int GdbEngine::commandTimeoutTime() const
@@ -883,34 +889,32 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
                 showMessageBox(QMessageBox::Critical,
                     tr("Executable failed"), QString::fromLocal8Bit(msg));
                 showStatusMessage(tr("Process failed to start"));
-                shutdown();
+                //shutdown();
+                notifyInferiorIll();
             } else if (msg == "\"finish\" not meaningful in the outermost frame.") {
                 // Handle a case known to appear on gdb 6.4 symbianelf when
                 // the stack is cut due to access to protected memory.
-                showMessage(_("APPLYING WORKAROUND #2"));
-                setState(InferiorStopping);
-                setState(InferiorStopped);
+                //showMessage(_("APPLYING WORKAROUND #2"));
+                notifyInferiorStopOk();
             } else if (msg.startsWith("Cannot find bounds of current function")) {
                 // Happens when running "-exec-next" in a function for which
                 // there is no debug information. Divert to "-exec-next-step"
                 showMessage(_("APPLYING WORKAROUND #3"));
-                setState(InferiorStopping);
-                setState(InferiorStopped);
+                notifyInferiorStopOk();
                 executeNextI();
             } else if (msg.startsWith("Couldn't get registers: No such process.")) {
                 // Happens on archer-tromey-python 6.8.50.20090910-cvs
                 // There might to be a race between a process shutting down
                 // and library load messages.
                 showMessage(_("APPLYING WORKAROUND #4"));
-                setState(InferiorStopping);
-                setState(InferiorStopped);
-                setState(InferiorShuttingDown);
-                setState(InferiorShutDown);
-                showStatusMessage(tr("Executable failed: %1")
-                    .arg(QString::fromLocal8Bit(msg)));
-                shutdown();
-                showMessageBox(QMessageBox::Critical,
-                    tr("Executable failed"), QString::fromLocal8Bit(msg));
+                notifyInferiorStopOk();
+                //setState(InferiorShutdownRequested);
+                //setState(InferiorShutdownOk);
+                //showStatusMessage(tr("Executable failed: %1")
+                //    .arg(QString::fromLocal8Bit(msg)));
+                //shutdown();
+                //showMessageBox(QMessageBox::Critical,
+                //    tr("Executable failed"), QString::fromLocal8Bit(msg));
             } else {
                 showMessageBox(QMessageBox::Critical,
                     tr("Executable failed"), QString::fromLocal8Bit(msg));
@@ -993,7 +997,7 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
     // was postponed.
     // This is done after the command callbacks so the running-requesting commands
     // can assert on the right state.
-    if (state() == InferiorRunning && !m_commandsToRunOnTemporaryBreak.isEmpty())
+    if (state() == InferiorRunOk && !m_commandsToRunOnTemporaryBreak.isEmpty())
         interruptInferiorTemporarily();
 
     // Continue only if there are no commands wire anymore, so this will
@@ -1069,7 +1073,7 @@ void GdbEngine::handleExecuteJumpToLine(const GdbResponse &response)
     } else if (response.resultClass == GdbResultDone) {
         // This happens on old gdb. Trigger the effect of a '*stopped'.
         showStatusMessage(tr("Jumped. Stopped"));
-        setState(InferiorStopped);
+        setState(InferiorStopOk);
         handleStop1(response);
     }
 }
@@ -1087,7 +1091,7 @@ void GdbEngine::handleExecuteRunToLine(const GdbResponse &response)
         //>122^done
         gotoLocation(m_targetFrame, true);
         showStatusMessage(tr("Target line hit. Stopped"));
-        setState(InferiorStopped);
+        setState(InferiorStopOk);
         handleStop1(response);
     }
 }
@@ -1101,8 +1105,8 @@ void GdbEngine::handleExecuteRunToFunction(const GdbResponse &response)
     // 14*stopped,thread-id="1",frame={addr="0x0000000000403ce4",
     // func="foo",args=[{name="str",value="@0x7fff0f450460"}],
     // file="main.cpp",fullname="/tmp/g/main.cpp",line="37"}
-    QTC_ASSERT(state() == InferiorStopping, qDebug() << state())
-    setState(InferiorStopped);
+    QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state())
+    setState(InferiorStopOk);
     showStatusMessage(tr("Function reached. Stopped"));
     GdbMi frame = response.data.findChild("frame");
     StackFrame f = parseStackFrame(frame, 0);
@@ -1163,20 +1167,16 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
 {
     // This is gdb 7+'s initial *stopped in response to attach.
     // For consistency, we just discard it.
-    if (state() == InferiorSettingUp)
+    if (state() == InferiorSetupRequested)
         return;
 
     const QByteArray reason = data.findChild("reason").data();
 
     if (isExitedReason(reason)) {
-        if (state() == InferiorRunning) {
-            setState(InferiorStopping);
-        } else {
-            // The user triggered a stop, but meanwhile the app simply exited ...
-            QTC_ASSERT(state() == InferiorStopping || state() == InferiorStopping_Kill,
-                       qDebug() << state());
-        }
-        setState(InferiorStopped);
+        //   // The user triggered a stop, but meanwhile the app simply exited ...
+        //    QTC_ASSERT(state() == InferiorStopRequested
+        //            /*|| state() == InferiorStopRequested_Kill*/,
+        //               qDebug() << state());
         QString msg;
         if (reason == "exited") {
             msg = tr("Application exited with exit code %1")
@@ -1188,34 +1188,36 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
             msg = tr("Application exited normally");
         }
         showStatusMessage(msg);
-        setState(InferiorShuttingDown);
-        setState(InferiorShutDown);
-        shutdown();
+        notifyInferiorExited();
         return;
     }
 
     if (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
-        QTC_ASSERT(state() == InferiorStopping || state() == InferiorStopping_Kill,
-                   qDebug() << state())
-        setState(InferiorStopped);
+        QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state())
+        //setState(InferiorStopOk);
         flushQueuedCommands();
-        if (state() == InferiorStopped) {
+        if (state() == InferiorStopOk) {
             QTC_ASSERT(m_commandsDoneCallback == 0, /**/);
             m_commandsDoneCallback = &GdbEngine::autoContinueInferior;
         } else {
-            QTC_ASSERT(state() == InferiorShuttingDown, qDebug() << state())
+            QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state())
         }
         return;
     }
 
-    if (state() == InferiorRunning) {
+    if (state() == InferiorRunOk) {
         // Stop triggered by a breakpoint or otherwise not directly
         // initiated by the user.
-        setState(InferiorStopping);
+        notifyInferiorSpontaneousStop();
+    } else if (state() == InferiorRunRequested) {
+        // Stop triggered by somethin like "-exec-step\n"
+        // "&"Cannot access memory at address 0xbfffedd4\n"
+        // In this case a proper response 94^error,msg="" will follow and
+        // be handled in the result handler.
     } else {
-        QTC_ASSERT(state() == InferiorStopping, qDebug() << state());
+        QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state());
+        notifyInferiorStopOk();
     }
-    setState(InferiorStopped);
 
 #if 0 // See http://vladimir_prus.blogspot.com/2007/12/debugger-stories-pending-breakpoints.html
     // Due to LD_PRELOADing the dumpers, these events can occur even before
@@ -1534,34 +1536,36 @@ void GdbEngine::handleHasPython(const GdbResponse &response)
     }
 }
 
+void GdbEngine::showExecutionError(const QString &message)
+{
+    showMessageBox(QMessageBox::Critical, tr("Execution Error"),
+       tr("Cannot continue debugged process:\n") + message);
+}
+
 void GdbEngine::handleExecuteContinue(const GdbResponse &response)
 {
+    QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
     if (response.resultClass == GdbResultRunning) {
-        // The "running" state is picked up in handleResponse()
-        QTC_ASSERT(state() == InferiorRunning, /**/);
-    } else {
-        if (state() == InferiorRunningRequested_Kill) {
-            setState(InferiorStopped);
-            shutdown();
+        notifyInferiorRunOk();
+        return;
+    }
+    QByteArray msg = response.data.findChild("msg").data();
+    if (msg.startsWith("Cannot find bounds of current function")
+        || msg.startsWith("\"finish\" not meaningful in the outermost frame")) {
+        notifyInferiorRunFailed();
+        if (isDying())
             return;
-        }
-        QTC_ASSERT(state() == InferiorRunningRequested, /**/);
-        setState(InferiorStopped);
-        QByteArray msg = response.data.findChild("msg").data();
-        if (msg.startsWith("Cannot find bounds of current function")
-            || msg.startsWith("\"finish\" not meaningful in the outermost frame")) {
-            if (!m_commandsToRunOnTemporaryBreak.isEmpty())
-                flushQueuedCommands();
-            showStatusMessage(tr("Stopped."), 5000);
-            reloadStack(true);
-            //showStatusMessage(tr("No debug information available. "
-            //  "Leaving function..."));
-            //executeStepOut();
-        } else {
-            showMessageBox(QMessageBox::Critical, tr("Execution Error"),
-               tr("Cannot continue debugged process:\n") + QString::fromLocal8Bit(msg));
-            shutdown();
-        }
+        if (!m_commandsToRunOnTemporaryBreak.isEmpty())
+            flushQueuedCommands();
+        QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+        showStatusMessage(tr("Stopped."), 5000);
+        reloadStack(true);
+        //showStatusMessage(tr("No debug information available. "
+        //  "Leaving function..."));
+        //executeStepOut();
+    } else {
+        showExecutionError(QString::fromLocal8Bit(msg));
+        notifyInferiorIll();
     }
 }
 
@@ -1587,114 +1591,142 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
 }
 #endif
 
-void GdbEngine::shutdown()
+void GdbEngine::shutdownInferior()
 {
+    QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
+    m_commandsToRunOnTemporaryBreak.clear();
+    m_gdbAdapter->shutdownInferior();
+}
+
+void GdbEngine::defaultInferiorShutdown(const char *cmd)
+{
+    QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
+    postCommand(cmd, NeedsStop | LosesChild, CB(handleInferiorShutdown));
+}
+
+void GdbEngine::handleInferiorShutdown(const GdbResponse &response)
+{
+    QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
+    if (response.resultClass == GdbResultDone) {
+        notifyInferiorShutdownOk();
+        return;
+    }
+    QByteArray ba = response.data.findChild("msg").data();
+    if (ba.contains(": No such file or directory.")) {
+        // This happens when someone removed the binary behind our back.
+        // It is not really an error from a user's point of view.
+        showMessage(_("NOTE: " + ba));
+        notifyInferiorShutdownOk();
+        return;
+    }
+    showMessageBox(QMessageBox::Critical,
+        tr("Failed to shut down application"),
+        AbstractGdbAdapter::msgInferiorStopFailed(QString::fromLocal8Bit(ba)));
+    notifyInferiorShutdownFailed();
+}
+
+void GdbEngine::shutdownEngine()
+{
+    m_gdbAdapter->shutdownAdapter();
+}
+
+void GdbEngine::notifyAdapterShutdownFailed()
+{
+    showMessage(_("ADAPTER SHUTDOWN FAILED"));
+    QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
+    notifyEngineShutdownFailed();
+}
+
+void GdbEngine::notifyAdapterShutdownOk()
+{
+    QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
     showMessage(_("INITIATE GDBENGINE SHUTDOWN IN STATE %1, PROC: %2")
-        .arg(state()).arg(gdbProc()->state()));
+        .arg(lastGoodState()).arg(gdbProc()->state()));
     if (m_progress) {
         m_progress->setProgressValue(90);
         m_progress->reportCanceled();
         m_progress->reportFinished();
     }
-    switch (state()) {
-    case DebuggerNotReady: // Nothing to do! :)
-    case InferiorShuttingDown: // Will auto-trigger further shutdown steps
-    case EngineShuttingDown: // Do not disturb! :)
-    case InferiorRunningRequested_Kill:
-    case InferiorStopping_Kill:
-        break;
-    case EngineSettingUp: // GDB is up, adapter is "doing something"
-        setState(EngineSetupFailed);
-        m_gdbAdapter->shutdown();
-        // fall-through
-    case EngineSetupFailed: // Adapter "did something", but it did not help
-        if (gdbProc()->state() == QProcess::Running) {
-            m_commandsToRunOnTemporaryBreak.clear();
-            postCommand("-gdb-exit", GdbEngine::ExitRequest, CB(handleGdbExit));
-        } else {
-            setState(DebuggerNotReady);
-        }
-        break;
-    case InferiorRunningRequested:
-    case InferiorRunning:
-    case InferiorStopping:
-    case InferiorStopped:
-        m_commandsToRunOnTemporaryBreak.clear();
-        postCommand(m_gdbAdapter->inferiorShutdownCommand(),
-                    NeedsStop | LosesChild, CB(handleInferiorShutdown));
-        break;
-    case EngineSetupOk: // We can't get here, really
-    case InferiorSetupOk:
-    case InferiorSetupFailed:
-    case InferiorShutDown:
-    case InferiorShutdownFailed: // Whatever
-    case InferiorUnrunnable:
-        m_commandsToRunOnTemporaryBreak.clear();
-        postCommand("-gdb-exit", GdbEngine::ExitRequest, CB(handleGdbExit));
-        setState(EngineShuttingDown); // Do it after posting the command!
-        break;
-    case InferiorSettingUp: // This may take some time, so just short-circuit it
-        setState(InferiorSetupFailed);
-        // fall-through
-    case InferiorStopFailed: // Tough luck, I guess. But unreachable as of now anyway.
-        setState(EngineShuttingDown);
-        gdbProc()->kill();
-        break;
-    }
-}
 
-void GdbEngine::handleInferiorShutdown(const GdbResponse &response)
-{
-    QTC_ASSERT(state() == InferiorShuttingDown, qDebug() << state());
-    if (response.resultClass == GdbResultDone) {
-        showMessage(_("INFERIOR SUCCESSFULLY SHUT DOWN"));
-        setState(InferiorShutDown);
-    } else {
-        QByteArray ba = response.data.findChild("msg").data();
-        if (ba.contains(": No such file or directory.")) {
-            // This happens when someone removed the binary behind our back.
-            // It is not really an error from a user's point of view.
-            showMessage(_("INFERIOR SUCCESSFULLY SHUT DOWN"));
-            showMessage(_("NOTE: " + ba));
-            setState(InferiorShutDown);
-        } else {
-            showMessage(_("INFERIOR SHUTDOWN FAILED"));
-            setState(InferiorShutdownFailed);
-            showMessageBox(QMessageBox::Critical,
-                tr("Failed to shut down application"),
-                m_gdbAdapter->msgInferiorStopFailed(QString::fromLocal8Bit(ba)));
-        }
-    }
-    shutdown(); // re-iterate...
+    m_commandsDoneCallback = 0;
+    postCommand("-gdb-exit", GdbEngine::ExitRequest, CB(handleGdbExit));
 }
 
 void GdbEngine::handleGdbExit(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultExit) {
         showMessage(_("GDB CLAIMS EXIT; WAITING"));
-        m_commandsDoneCallback = 0;
         // Don't set state here, this will be handled in handleGdbFinished()
+        //notifyEngineShutdownOk();
     } else {
         QString msg = m_gdbAdapter->msgGdbStopFailed(
             QString::fromLocal8Bit(response.data.findChild("msg").data()));
+        qDebug() << (_("GDB WON'T EXIT (%1); KILLING IT").arg(msg));
         showMessage(_("GDB WON'T EXIT (%1); KILLING IT").arg(msg));
         gdbProc()->kill();
     }
 }
 
+#if 0
+    switch (lastGoodState()) {
+    case DebuggerNotReady: // Neutral.
+        notifyEngineShutdownOk();
+        break;
+    case DebuggerFinished: // Should not happen.
+    case EngineRunFailed: // Should not happen.
+    case InferiorRunRequested:
+    case InferiorRunOk:
+    case InferiorStopRequested:
+    case InferiorStopOk:
+        QTC_ASSERT(false, qDebug() << lastGoodState());
+        notifyEngineShutdownOk();
+        break;
+    case InferiorShutdownRequested: // Will auto-trigger further shutdown steps
+    case EngineShutdownRequested: // Do not disturb! :)
+    case EngineShutdownOk:
+    case EngineShutdownFailed:
+    //case InferiorRunRequested_Kill:
+    //case InferiorStopRequested_Kill:
+        QTC_ASSERT(false, qDebug() << lastGoodState());
+        notifyEngineShutdownOk();
+        break;
+    case EngineSetupRequested: // GDB is up, adapter is "doing something"
+        m_gdbAdapter->shutdownAdapter();
+        // fall-through
+    case EngineSetupFailed: // Adapter "did something", but it did not help
+        if (gdbProc()->state() == QProcess::Running) {
+            m_commandsToRunOnTemporaryBreak.clear();
+            postCommand("-gdb-exit", GdbEngine::ExitRequest, CB(handleGdbExit));
+        } else {
+            gdbProc()->kill();
+        }
+        break;
+
+    case EngineSetupOk: // We can't get here, really
+    case EngineRunRequested:
+    case InferiorSetupFailed:
+    case InferiorShutdownOk:
+    case InferiorShutdownFailed: // Whatever
+    case InferiorUnrunnable:
+        m_commandsToRunOnTemporaryBreak.clear();
+        postCommand("-gdb-exit", GdbEngine::ExitRequest, CB(handleGdbExit));
+        break;
+    case InferiorSetupRequested: // This may take some time, so just short-circuit it
+        setState(InferiorSetupFailed);
+        gdbProc()->kill();
+        break;
+    case InferiorStopFailed: // Tough luck, I guess. But unreachable as of now anyway.
+        gdbProc()->kill();
+        break;
+    }
+#endif
+
 void GdbEngine::detachDebugger()
 {
-    QTC_ASSERT(state() == InferiorStopped, /**/);
-    QTC_ASSERT(startMode() != AttachCore, /**/);
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    QTC_ASSERT(startMode() != AttachCore, qDebug() << startMode());
     postCommand("detach");
-    setState(InferiorShuttingDown);
-    setState(InferiorShutDown);
-    shutdown();
-}
-
-void GdbEngine::exitDebugger()
-{
-    shutdown();
+    notifyInferiorExited();
 }
 
 void GdbEngine::quitDebugger()
@@ -1704,7 +1736,7 @@ void GdbEngine::quitDebugger()
     // to force it down. On the other hand, there could be an answer,
     // and regular the inferior shutdown procedure could take a while.
     // And the RunControl::stop() is called synchroneously.
-    shutdown();
+    shutdownEngine();
     initializeVariables();
     setState(DebuggerNotReady);
 }
@@ -1764,7 +1796,7 @@ AbstractGdbAdapter *GdbEngine::createAdapter()
 void GdbEngine::setupEngine()
 {
     //qDebug() << "GDB START DEBUGGER";
-    QTC_ASSERT(state() == EngineSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     QTC_ASSERT(m_debuggingHelperState == DebuggingHelperUninitialized, /**/);
     QTC_ASSERT(m_gdbAdapter == 0, /**/);
 
@@ -1788,7 +1820,7 @@ void GdbEngine::setupEngine()
     }
 
     m_progress->setProgressValue(20);
-    QTC_ASSERT(state() == EngineSettingUp, /**/);
+    QTC_ASSERT(state() == EngineSetupRequested, /**/);
     m_gdbAdapter->startAdapter();
 }
 
@@ -1807,9 +1839,9 @@ unsigned GdbEngine::debuggerCapabilities() const
 
 void GdbEngine::continueInferiorInternal()
 {
-    QTC_ASSERT(state() == InferiorStopped || state() == InferiorSettingUp,
-               qDebug() << state());
-    setState(InferiorRunningRequested);
+    QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
+    //QTC_ASSERT(state() == InferiorStopOk || state() == InferiorSetupRequested,
+    //           qDebug() << state());
     postCommand("-exec-continue", RunRequest, CB(handleExecuteContinue));
 }
 
@@ -1821,17 +1853,19 @@ void GdbEngine::autoContinueInferior()
 
 void GdbEngine::continueInferior()
 {
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     resetLocation();
     setTokenBarrier();
+    notifyInferiorRunRequested();
     continueInferiorInternal();
     showStatusMessage(tr("Running requested..."), 5000);
 }
 
 void GdbEngine::executeStep()
 {
-    QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     setTokenBarrier();
-    setState(InferiorRunningRequested);
+    notifyInferiorRunRequested();
     showStatusMessage(tr("Step requested..."), 5000);
     if (m_gdbAdapter->isTrkAdapter() && stackHandler()->stackSize() > 0)
         postCommand("sal step," + stackHandler()->topAddress().toLatin1());
@@ -1843,36 +1877,30 @@ void GdbEngine::executeStep()
 
 void GdbEngine::handleExecuteStep(const GdbResponse &response)
 {
+    QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
     if (response.resultClass == GdbResultRunning) {
-        // The "running" state is picked up in handleResponse().
-        QTC_ASSERT(state() == InferiorRunning, /**/);
-    } else {
-        if (state() == InferiorRunningRequested_Kill) {
-            setState(InferiorStopped);
-            shutdown();
+        notifyInferiorRunOk();
+        return;
+    }
+    QByteArray msg = response.data.findChild("msg").data();
+    if (msg.startsWith("Cannot find bounds of current function")) {
+        notifyInferiorRunFailed();
+        if (isDying())
             return;
-        }
-        QTC_ASSERT(state() == InferiorRunningRequested, /**/);
-        setState(InferiorStopped);
-        QByteArray msg = response.data.findChild("msg").data();
-        if (msg.startsWith("Cannot find bounds of current function")) {
-            if (!m_commandsToRunOnTemporaryBreak.isEmpty())
-                flushQueuedCommands();
-            executeStepI(); // Fall back to instruction-wise stepping.
-        } else {
-            showMessageBox(QMessageBox::Critical, tr("Execution Error"),
-                tr("Cannot continue debugged process:\n")
-                    + QString::fromLocal8Bit(msg));
-            shutdown();
-        }
+        if (!m_commandsToRunOnTemporaryBreak.isEmpty())
+            flushQueuedCommands();
+        executeStepI(); // Fall back to instruction-wise stepping.
+    } else {
+        showExecutionError(QString::fromLocal8Bit(msg));
+        notifyInferiorIll();
     }
 }
 
 void GdbEngine::executeStepI()
 {
-    QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     setTokenBarrier();
-    setState(InferiorRunningRequested);
+    notifyInferiorRunRequested();
     showStatusMessage(tr("Step by instruction requested..."), 5000);
     if (isReverseDebugging())
         postCommand("reverse-stepi", RunRequest, CB(handleExecuteContinue));
@@ -1882,19 +1910,19 @@ void GdbEngine::executeStepI()
 
 void GdbEngine::executeStepOut()
 {
-    QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     postCommand("-stack-select-frame 0");
     setTokenBarrier();
-    setState(InferiorRunningRequested);
+    notifyInferiorRunRequested();
     showStatusMessage(tr("Finish function requested..."), 5000);
     postCommand("-exec-finish", RunRequest, CB(handleExecuteContinue));
 }
 
 void GdbEngine::executeNext()
 {
-    QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     setTokenBarrier();
-    setState(InferiorRunningRequested);
+    notifyInferiorRunRequested();
     showStatusMessage(tr("Step next requested..."), 5000);
     if (m_gdbAdapter->isTrkAdapter() && stackHandler()->stackSize() > 0)
         postCommand("sal next," + stackHandler()->topAddress().toLatin1());
@@ -1906,35 +1934,31 @@ void GdbEngine::executeNext()
 
 void GdbEngine::handleExecuteNext(const GdbResponse &response)
 {
+    QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
     if (response.resultClass == GdbResultRunning) {
-        // The "running" state is picked up in handleResponse()
-        QTC_ASSERT(state() == InferiorRunning, /**/);
-    } else {
-        if (state() == InferiorRunningRequested_Kill) {
-            setState(InferiorStopped);
-            shutdown();
-            return;
-        }
-        QTC_ASSERT(state() == InferiorRunningRequested, /**/);
-        setState(InferiorStopped);
-        QByteArray msg = response.data.findChild("msg").data();
-        if (msg.startsWith("Cannot find bounds of current function")) {
-            if (!m_commandsToRunOnTemporaryBreak.isEmpty())
-                flushQueuedCommands();
+        notifyInferiorRunOk();
+        return;
+    }
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    QByteArray msg = response.data.findChild("msg").data();
+    if (msg.startsWith("Cannot find bounds of current function")) {
+        if (!m_commandsToRunOnTemporaryBreak.isEmpty())
+            flushQueuedCommands();
+        notifyInferiorRunFailed();
+        if (!isDying())
             executeNextI(); // Fall back to instruction-wise stepping.
-        } else {
-            showMessageBox(QMessageBox::Critical, tr("Execution Error"),
-               tr("Cannot continue debugged process:\n") + QString::fromLocal8Bit(msg));
-            shutdown();
-        }
+    } else {
+        showMessageBox(QMessageBox::Critical, tr("Execution Error"),
+           tr("Cannot continue debugged process:\n") + QString::fromLocal8Bit(msg));
+        notifyInferiorIll();
     }
 }
 
 void GdbEngine::executeNextI()
 {
-    QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     setTokenBarrier();
-    setState(InferiorRunningRequested);
+    notifyInferiorRunRequested();
     showStatusMessage(tr("Step next instruction requested..."), 5000);
     if (isReverseDebugging())
         postCommand("reverse-nexti", RunRequest, CB(handleExecuteContinue));
@@ -1944,9 +1968,9 @@ void GdbEngine::executeNextI()
 
 void GdbEngine::executeRunToLine(const QString &fileName, int lineNumber)
 {
-    QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     setTokenBarrier();
-    setState(InferiorRunningRequested);
+    notifyInferiorRunRequested();
     showStatusMessage(tr("Run to line %1 requested...").arg(lineNumber), 5000);
 #if 1
     m_targetFrame.file = fileName;
@@ -1966,18 +1990,18 @@ void GdbEngine::executeRunToLine(const QString &fileName, int lineNumber)
 
 void GdbEngine::executeRunToFunction(const QString &functionName)
 {
-    QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     setTokenBarrier();
     postCommand("-break-insert -t " + functionName.toLatin1());
-    continueInferiorInternal();
-    //setState(InferiorRunningRequested);
-    //postCommand("-exec-continue", handleExecuteRunToFunction);
     showStatusMessage(tr("Run to function %1 requested...").arg(functionName), 5000);
+    notifyInferiorRunRequested();
+    continueInferiorInternal();
+    //postCommand("-exec-continue", handleExecuteRunToFunction);
 }
 
 void GdbEngine::executeJumpToLine(const QString &fileName, int lineNumber)
 {
-    QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     StackFrame frame;
     frame.file = fileName;
     frame.line = lineNumber;
@@ -1985,7 +2009,7 @@ void GdbEngine::executeJumpToLine(const QString &fileName, int lineNumber)
     QByteArray loc = '"' + breakLocation(fileName).toLocal8Bit() + '"' + ':'
         + QByteArray::number(lineNumber);
     postCommand("tbreak " + loc);
-    setState(InferiorRunningRequested);
+    notifyInferiorRunRequested();
     postCommand("jump " + loc, RunRequest, CB(handleExecuteJumpToLine));
     // will produce something like
     //  &"jump \"/home/apoenitz/dev/work/test1/test1.cpp\":242"
@@ -1999,16 +2023,16 @@ void GdbEngine::executeJumpToLine(const QString &fileName, int lineNumber)
 #else
     gotoLocation(frame, true);
     setBreakpoint(fileName, lineNumber);
-    setState(InferiorRunningRequested);
+    notifyInferiorRunRequested();
     postCommand("jump " + loc, RunRequest);
 #endif
 }
 
 void GdbEngine::executeReturn()
 {
-    QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     setTokenBarrier();
-    setState(InferiorRunningRequested);
+    notifyInferiorRunRequested();
     showStatusMessage(tr("Immediate return from function requested..."), 5000);
     postCommand("-exec-finish", RunRequest, CB(handleExecuteReturn));
 }
@@ -2016,9 +2040,13 @@ void GdbEngine::executeReturn()
 void GdbEngine::handleExecuteReturn(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
+        notifyInferiorStopOk();
         updateAll();
+        return;
     }
+    notifyInferiorRunFailed();
 }
+
 /*!
     \fn void GdbEngine::setTokenBarrier()
     \brief Discard the results of all pending watch-updating commands.
@@ -2453,11 +2481,11 @@ void GdbEngine::attemptBreakpointSynchronization()
     showMessage(_("ATTEMPT BREAKPOINT SYNC"));
 
     switch (state()) {
-    case InferiorSettingUp:
-    case InferiorRunningRequested:
-    case InferiorRunning:
-    case InferiorStopping:
-    case InferiorStopped:
+    case InferiorSetupRequested:
+    case InferiorRunRequested:
+    case InferiorRunOk:
+    case InferiorStopRequested:
+    case InferiorStopOk:
         break;
     default:
         //qDebug() << "attempted breakpoint sync in state" << state();
@@ -2468,7 +2496,7 @@ void GdbEngine::attemptBreakpointSynchronization()
     // For best results, we rely on an up-to-date fullname mapping.
     // The listing completion will retrigger us, so no futher action is needed.
     if (m_sourcesListOutdated && theDebuggerBoolSetting(UsePreciseBreakpoints)) {
-        if (state() == InferiorRunning) {
+        if (state() == InferiorRunOk) {
             // FIXME: this is a hack
             // The hack solves the problem that we want both commands
             // (reloadSourceFiles and reloadBreakList) to be executed
@@ -2641,7 +2669,7 @@ void GdbEngine::requestModuleSymbols(const QString &moduleName)
 
 void GdbEngine::reloadModules()
 {
-    if (state() == InferiorRunning || state() == InferiorStopped)
+    if (state() == InferiorRunOk || state() == InferiorStopOk)
         reloadModulesInternal();
 }
 
@@ -2717,7 +2745,7 @@ void GdbEngine::invalidateSourcesList()
 
 void GdbEngine::reloadSourceFiles()
 {
-    if ((state() == InferiorRunning || state() == InferiorStopped)
+    if ((state() == InferiorRunOk || state() == InferiorStopOk)
         && !m_sourcesListUpdating)
         reloadSourceFilesInternal();
 }
@@ -2752,7 +2780,7 @@ void GdbEngine::selectThread(int index)
 
 void GdbEngine::handleStackSelectThread(const GdbResponse &)
 {
-    QTC_ASSERT(state() == InferiorUnrunnable || state() == InferiorStopped, /**/);
+    QTC_ASSERT(state() == InferiorUnrunnable || state() == InferiorStopOk, /**/);
     //qDebug("FIXME: StackHandler::handleOutput: SelectThread");
     showStatusMessage(tr("Retrieving data for stack view..."), 3000);
     reloadRegisters();
@@ -2842,7 +2870,7 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
         // Immediately leave bogus frames.
         if (targetFrame == -1 && isBogus) {
             setTokenBarrier();
-            setState(InferiorRunningRequested);
+            notifyInferiorRunRequested();
             postCommand("-exec-finish", RunRequest, CB(handleExecuteContinue));
             showStatusMessage(tr("Jumping out of bogus frame..."), 1000);
             return;
@@ -2890,7 +2918,7 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
 void GdbEngine::activateFrame(int frameIndex)
 {
     resetLocation();
-    if (state() != InferiorStopped && state() != InferiorUnrunnable)
+    if (state() != InferiorStopOk && state() != InferiorUnrunnable)
         return;
 
     StackHandler *handler = stackHandler();
@@ -3020,7 +3048,7 @@ void GdbEngine::activateSnapshot(int index)
 
     if (state() == InferiorUnrunnable) {
         // All is well. We are looking at another core file.
-        setState(EngineShuttingDown);
+        setState(EngineShutdownRequested);
         setState(DebuggerNotReady);
         activateSnapshot2();
     } else if (state() != DebuggerNotReady) {
@@ -3044,9 +3072,9 @@ void GdbEngine::activateSnapshot(int index)
 void GdbEngine::handleActivateSnapshot(const GdbResponse &response)
 {
     Q_UNUSED(response);
-    setState(InferiorShuttingDown);
-    setState(InferiorShutDown);
-    setState(EngineShuttingDown);
+    setState(InferiorShutdownRequested);
+    setState(InferiorShutdownOk);
+    setState(EngineShutdownRequested);
     setState(DebuggerNotReady);
     activateSnapshot2();
 }
@@ -3055,7 +3083,7 @@ void GdbEngine::activateSnapshot2()
 {
     // Otherwise the stack data might be stale.
     // See http://sourceware.org/bugzilla/show_bug.cgi?id=1124.
-    setState(EngineSettingUp);
+    setState(EngineSetupRequested);
     postCommand("set stack-cache off");
     handleAdapterStarted();
 }
@@ -3072,7 +3100,7 @@ void GdbEngine::reloadRegisters()
     if (!plugin()->isRegisterViewVisible())
         return;
 
-    if (state() != InferiorStopped && state() != InferiorUnrunnable)
+    if (state() != InferiorStopOk && state() != InferiorUnrunnable)
         return;
     if (!m_registerNamesListed) {
         postCommand("-data-list-register-names", CB(handleRegisterListNames));
@@ -3214,7 +3242,7 @@ bool GdbEngine::showToolTip()
 void GdbEngine::setToolTipExpression(const QPoint &mousePos,
     TextEditor::ITextEditor *editor, int cursorPos)
 {
-    if (state() != InferiorStopped || !isCppEditor(editor)) {
+    if (state() != InferiorStopOk || !isCppEditor(editor)) {
         //qDebug() << "SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED/Non Cpp editor";
         return;
     }
@@ -4152,7 +4180,7 @@ bool GdbEngine::checkDebuggingHelpers()
 
 void GdbEngine::handleGdbError(QProcess::ProcessError error)
 {
-    showMessage(_("HANDLE GDB ERROR"));
+    showMessage(_("HANDLE GDB ERROR: ") + errorMessage(error));
     switch (error) {
     case QProcess::Crashed:
         break; // will get a processExited() as well
@@ -4161,8 +4189,8 @@ void GdbEngine::handleGdbError(QProcess::ProcessError error)
     case QProcess::WriteError:
     case QProcess::Timedout:
     default:
-        gdbProc()->kill();
-        setState(EngineShuttingDown, true);
+        //gdbProc()->kill();
+        //setState(EngineShutdownRequested, true);
         showMessageBox(QMessageBox::Critical, tr("Gdb I/O Error"),
                        errorMessage(error));
         break;
@@ -4171,27 +4199,40 @@ void GdbEngine::handleGdbError(QProcess::ProcessError error)
 
 void GdbEngine::handleGdbFinished(int code, QProcess::ExitStatus type)
 {
+    //qDebug() << "GDB PROCESS FINISHED";
     showMessage(_("GDB PROCESS FINISHED, status %1, code %2").arg(type).arg(code));
+/*
     if (!m_gdbAdapter) {
         showMessage(_("NO ADAPTER PRESENT"));
-    } else if (state() == EngineShuttingDown) {
+    } else if (state() == EngineShutdownRequested) {
         showMessage(_("GOING TO SHUT DOWN ADAPTER"));
-        m_gdbAdapter->shutdown();
+        //m_gdbAdapter->shutdownEngine();  FIXME AAA
     } else if (state() != EngineSetupFailed) {
+        showStatusMessage(msg);
+        //m_gdbAdapter->shutdownEngine();
+    }
+    initializeVariables();
+*/
+    if (state() == EngineShutdownRequested) {
+        notifyEngineShutdownOk();
+    } else if (state() == InferiorRunOk) {
+        // This could either be a real gdb crash or a quickly exited inferior
+        // in the terminal adapter. In this case the stub proc will die soon,
+        // too, so there's no need to act here.
+        showMessage(_("The gdb process exited somewhat unexpectedly."));
+        notifyEngineSpontaneousShutdown();
+    } else {
         QString msg = tr("The gdb process exited unexpectedly (%1).")
           .arg((type == QProcess::CrashExit)
               ? tr("crashed") : tr("code %1").arg(code));
         showMessageBox(QMessageBox::Critical, tr("Unexpected Gdb Exit"), msg);
-        showStatusMessage(msg);
-        m_gdbAdapter->shutdown();
+        notifyEngineSpontaneousShutdown();
     }
-    initializeVariables();
-    setState(DebuggerNotReady, true);
 }
 
 void GdbEngine::handleAdapterStartFailed(const QString &msg, const QString &settingsIdHint)
 {
-    setState(EngineSetupFailed);
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("ADAPTER START FAILED"));
     if (!msg.isEmpty()) {
         const QString title = tr("Adapter start failed");
@@ -4202,11 +4243,12 @@ void GdbEngine::handleAdapterStartFailed(const QString &msg, const QString &sett
                 _(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY), settingsIdHint);
         }
     }
-    shutdown();
+    notifyEngineSetupFailed();
 }
 
 void GdbEngine::handleAdapterStarted()
 {
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     if (m_progress)
         m_progress->setProgressValue(25);
     showMessage(_("ADAPTER SUCCESSFULLY STARTED"));
@@ -4215,13 +4257,14 @@ void GdbEngine::handleAdapterStarted()
 
 void GdbEngine::setupInferior()
 {
-    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
-    showStatusMessage(tr("Starting inferior..."));
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
+    showStatusMessage(tr("Setting up inferior..."));
     m_gdbAdapter->setupInferior();
 }
 
 void GdbEngine::handleInferiorPrepared()
 {
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     const QByteArray qtInstallPath = startParameters().qtInstallPath.toLocal8Bit();
     if (!qtInstallPath.isEmpty()) {
         QByteArray qtBuildPath;
@@ -4251,17 +4294,19 @@ void GdbEngine::handleInferiorPrepared()
 
 void GdbEngine::finishInferiorSetup()
 {
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     showMessage(_("BREAKPOINTS SET, CONTINUING INFERIOR STARTUP"));
     notifyInferiorSetupOk();
 }
 
 void GdbEngine::runEngine()
 {
+    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
     showMessage(_("RUN ENGINE"));
-    m_gdbAdapter->runAdapter();
+    m_gdbAdapter->runEngine();
 }
 
-void GdbEngine::handleInferiorSetupFailed(const QString &msg)
+void GdbEngine::notifyInferiorSetupFailed(const QString &msg)
 {
     showStatusMessage(tr("Failed to start application: ") + msg);
     if (state() == EngineSetupFailed) {
@@ -4270,7 +4315,7 @@ void GdbEngine::handleInferiorSetupFailed(const QString &msg)
     }
     showMessage(_("INFERIOR START FAILED"));
     showMessageBox(QMessageBox::Critical, tr("Failed to start application"), msg);
-    notifyInferiorSetupFailed();
+    DebuggerEngine::notifyInferiorSetupFailed();
 }
 
 void GdbEngine::handleAdapterCrashed(const QString &msg)

@@ -207,18 +207,31 @@ void QmlEngine::executeDebuggerCommand(const QString &command)
     //enqueueCommand(tcf);
 }
 
-void QmlEngine::shutdown()
+void QmlEngine::setupInferior()
 {
-    exitDebugger();
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
+    attemptBreakpointSynchronization();
+    notifyInferiorSetupOk();
+}
 
+void QmlEngine::runEngine()
+{
+    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
+    //notifyEngineRunOk(); 
+}
+
+void QmlEngine::shutdownInferior()
+{
+    QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
+    notifyInferiorShutdownOk();
+}
+
+void QmlEngine::shutdownEngine()
+{
+    QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
     //m_objectTreeWidget->saveSettings(m_settings);
     //m_propertiesWidget->saveSettings(m_settings);
     //m_settings.saveSettings(Core::ICore::instance()->settings());
-}
-
-void QmlEngine::exitDebugger()
-{
-    SDEBUG("QmlEngine::exitDebugger()");
 }
 
 const int serverPort = 3768;
@@ -226,7 +239,7 @@ const int serverPort = 3768;
 void QmlEngine::setupEngine()
 {
  #if 0
-    QTC_ASSERT(state() == EngineStarting, qDebug() << state());
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     const DebuggerStartParameters &sp = startParameters();
     const int pos = sp.remoteChannel.indexOf(QLatin1Char(':'));
     const QString host = sp.remoteChannel.left(pos);
@@ -302,8 +315,8 @@ void QmlEngine::setupConnection()
 
     notifyEngineSetupOk();
     qDebug() << "CONNECTION SUCCESSFUL";
-    setState(InferiorRunningRequested);
-    setState(InferiorRunning);
+    setState(InferiorRunRequested);
+    setState(InferiorRunOk);
 
 //    reloadEngines();
 
@@ -316,8 +329,8 @@ void QmlEngine::continueInferior()
     QDataStream rs(&reply, QIODevice::WriteOnly);
     rs << QByteArray("CONTINUE");
     sendMessage(reply);
-    setState(InferiorRunningRequested);
-    setState(InferiorRunning);
+    setState(InferiorRunRequested);
+    setState(InferiorRunOk);
 }
 
 void QmlEngine::interruptInferior()
@@ -336,8 +349,8 @@ void QmlEngine::executeStep()
     QDataStream rs(&reply, QIODevice::WriteOnly);
     rs << QByteArray("STEPINTO");
     sendMessage(reply);
-    setState(InferiorRunningRequested);
-    setState(InferiorRunning);
+    setState(InferiorRunRequested);
+    setState(InferiorRunOk);
 }
 
 void QmlEngine::executeStepI()
@@ -347,8 +360,8 @@ void QmlEngine::executeStepI()
     QDataStream rs(&reply, QIODevice::WriteOnly);
     rs << QByteArray("STEPINTO");
     sendMessage(reply);
-    setState(InferiorRunningRequested);
-    setState(InferiorRunning);
+    setState(InferiorRunRequested);
+    setState(InferiorRunOk);
 }
 
 void QmlEngine::executeStepOut()
@@ -358,8 +371,8 @@ void QmlEngine::executeStepOut()
     QDataStream rs(&reply, QIODevice::WriteOnly);
     rs << QByteArray("STEPOUT");
     sendMessage(reply);
-    setState(InferiorRunningRequested);
-    setState(InferiorRunning);
+    setState(InferiorRunRequested);
+    setState(InferiorRunOk);
 }
 
 void QmlEngine::executeNext()
@@ -368,8 +381,8 @@ void QmlEngine::executeNext()
     QDataStream rs(&reply, QIODevice::WriteOnly);
     rs << QByteArray("STEPOVER");
     sendMessage(reply);
-    setState(InferiorRunningRequested);
-    setState(InferiorRunning);
+    setState(InferiorRunRequested);
+    setState(InferiorRunOk);
     SDEBUG("QmlEngine::nextExec()");
 }
 
@@ -619,8 +632,8 @@ void QmlEngine::messageReceived(const QByteArray &message)
 
     showMessage(_("RECEIVED RESPONSE: ") + quoteUnprintableLatin1(message));
     if (command == "STOPPED") {
-        setState(InferiorStopping);
-        setState(InferiorStopped);
+        setState(InferiorStopRequested);
+        setState(InferiorStopOk);
 
         QList<QPair<QString, QPair<QString, qint32> > > backtrace;
         QList<QPair<QString, QVariant> > watches;
@@ -713,7 +726,7 @@ void QmlEngine::handleProcError(QProcess::ProcessError error)
     case QProcess::Timedout:
     default:
         m_proc.kill();
-        setState(EngineShuttingDown, true);
+        setState(EngineShutdownRequested, true);
         plugin()->showMessageBox(QMessageBox::Critical, tr("Gdb I/O Error"),
                        errorMessage(error));
         break;
@@ -1253,7 +1266,7 @@ void QmlEngine::debuggerStateChanged(int newState)
     if (m_simultaneousCppAndQmlDebugMode) {
 
         switch(newState) {
-        case Debugger::EngineSettingUp:
+        case Debugger::EngineSetupRequested:
             {
                 m_connectionInitialized = false;
                 break;
@@ -1262,9 +1275,9 @@ void QmlEngine::debuggerStateChanged(int newState)
         case Debugger::InferiorSetupFailed:
             emit statusMessage(QString(tr("Debugging failed: could not start C++ debugger.")));
             break;
-        case Debugger::InferiorRunningRequested:
+        case Debugger::InferiorRunRequested:
             {
-                if (m_cppDebuggerState == Debugger::InferiorStopped) {
+                if (m_cppDebuggerState == Debugger::InferiorStopOk) {
                     // re-enable UI again
                     m_objectTreeWidget->setEnabled(true);
                     m_propertiesWidget->setEnabled(true);
@@ -1272,7 +1285,7 @@ void QmlEngine::debuggerStateChanged(int newState)
                 }
                 break;
             }
-        case Debugger::InferiorRunning:
+        case Debugger::InferiorRunOk:
             {
                 if (!m_connectionInitialized) {
                     m_connectionInitialized = true;
@@ -1281,14 +1294,14 @@ void QmlEngine::debuggerStateChanged(int newState)
                 }
                 break;
             }
-        case Debugger::InferiorStopped:
+        case Debugger::InferiorStopOk:
             {
                 m_objectTreeWidget->setEnabled(false);
                 m_propertiesWidget->setEnabled(false);
                 m_expressionWidget->setEnabled(false);
                 break;
             }
-        case Debugger::EngineShuttingDown:
+        case Debugger::EngineShutdownRequested:
             {
                 m_connectionInitialized = false;
                 // here it's safe to enable the debugger windows again -

@@ -254,7 +254,7 @@ void TrkGdbAdapter::emitDelayedInferiorSetupFailed(const QString &msg)
 
 void TrkGdbAdapter::slotEmitDelayedInferiorSetupFailed()
 {
-    m_engine->handleInferiorSetupFailed(m_adapterFailMessage);
+    m_engine->notifyInferiorSetupFailed(m_adapterFailMessage);
 }
 
 
@@ -1501,7 +1501,7 @@ void TrkGdbAdapter::startAdapter()
     // Unixish gdbs accept only forward slashes
     m_symbolFile.replace(QLatin1Char('\\'), QLatin1Char('/'));
     // Start
-    QTC_ASSERT(state() == EngineSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("TRYING TO START ADAPTER"));
     logMessage(QLatin1String("### Starting TrkGdbAdapter"));
 
@@ -1545,14 +1545,14 @@ void TrkGdbAdapter::startAdapter()
 
 void TrkGdbAdapter::setupInferior()
 {
-    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     sendTrkMessage(0x40, TrkCB(handleCreateProcess),
                    trk::Launcher::startProcessMessage(m_remoteExecutable, m_remoteArguments));
 }
 
 void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
 {
-    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     //  40 00 00]
     //logMessage("       RESULT: " + result.toString());
     // [80 08 00   00 00 01 B5   00 00 01 B6   78 67 40 00   00 40 00 00]
@@ -1602,18 +1602,18 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
 
 void TrkGdbAdapter::handleTargetRemote(const GdbResponse &record)
 {
-    QTC_ASSERT(state() == InferiorSettingUp, qDebug() << state());
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     if (record.resultClass == GdbResultDone) {
-        setState(InferiorStopped);
+        setState(InferiorStopOk);
         m_engine->handleInferiorPrepared();
     } else {
         QString msg = tr("Connecting to TRK server adapter failed:\n")
             + QString::fromLocal8Bit(record.data.findChild("msg").data());
-        m_engine->handleInferiorSetupFailed(msg);
+        m_engine->notifyInferiorSetupFailed(msg);
     }
 }
 
-void TrkGdbAdapter::runAdapter()
+void TrkGdbAdapter::runEngine()
 {
     m_engine->continueInferiorInternal();
 }
@@ -1856,7 +1856,12 @@ void TrkGdbAdapter::cleanup()
     m_gdbServer = 0;
 }
 
-void TrkGdbAdapter::shutdown()
+void TrkGdbAdapter::shutdownInferior()
+{
+    m_engine->defaultInferiorShutdown("kill");
+}
+
+void TrkGdbAdapter::shutdownAdapter()
 {
     cleanup();
 }

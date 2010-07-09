@@ -36,3 +36,7 @@ function cube(a)
 }
 
 var a = cube(3);
+a += 1
+a += 1
+a += 1
+a += 1
