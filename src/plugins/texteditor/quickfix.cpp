@@ -171,7 +171,7 @@ void QuickFixCollector::completions(QList<TextEditor::CompletionItem> *quickFixI
     }
 }
 
-void QuickFixCollector::complete(const TextEditor::CompletionItem &item)
+void QuickFixCollector::fix(const TextEditor::CompletionItem &item)
 {
     const int index = item.data.toInt();
 

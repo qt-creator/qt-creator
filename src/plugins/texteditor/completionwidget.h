@@ -61,6 +61,8 @@ public:
     void setCompletionItems(const QList<TextEditor::CompletionItem> &completionitems);
     void showCompletions(int startPos);
 
+    QChar typedChar() const;
+
 signals:
     void itemSelected(const TextEditor::CompletionItem &item);
     void completionListClosed();
@@ -115,6 +117,7 @@ private:
     CompletionSupport *m_support;
     QPointer<CompletionInfoFrame> m_infoFrame;
     QTimer m_infoTimer;
+    QChar m_typedChar;
 };
 
 } // namespace Internal

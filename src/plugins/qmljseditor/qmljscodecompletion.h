@@ -68,7 +68,8 @@ public:
     virtual bool triggersCompletion(TextEditor::ITextEditable *editor);
     virtual int startCompletion(TextEditor::ITextEditable *editor);
     virtual void completions(QList<TextEditor::CompletionItem> *completions);
-    virtual void complete(const TextEditor::CompletionItem &item);
+    virtual bool typedCharCompletes(const TextEditor::CompletionItem &item, QChar typedChar);
+    virtual void complete(const TextEditor::CompletionItem &item, QChar typedChar);
     virtual bool partiallyComplete(const QList<TextEditor::CompletionItem> &completionItems);
     virtual QList<TextEditor::CompletionItem> getCompletions();
 

@@ -1723,7 +1723,33 @@ QList<TextEditor::CompletionItem> CppCodeCompletion::getCompletions()
     return completionItems;
 }
 
-void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
+bool CppCodeCompletion::typedCharCompletes(const TextEditor::CompletionItem &item, QChar typedChar)
+{
+    if (item.data.canConvert<QString>()) // snippet
+        return false;
+
+    if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT)
+        return typedChar == QLatin1Char('(')
+                || typedChar == QLatin1Char(',');
+
+    if (m_completionOperator == T_STRING_LITERAL || m_completionOperator == T_ANGLE_STRING_LITERAL)
+        return typedChar == QLatin1Char('/')
+                && item.text.endsWith(QLatin1Char('/'));
+
+    if (item.data.value<Symbol *>())
+        return typedChar == QLatin1Char(':')
+                || typedChar == QLatin1Char(';')
+                || typedChar == QLatin1Char('.')
+                || typedChar == QLatin1Char(',')
+                || typedChar == QLatin1Char('(');
+
+    if (item.data.canConvert<CompleteFunctionDeclaration>())
+        return typedChar == QLatin1Char('(');
+
+    return false;
+}
+
+void CppCodeCompletion::complete(const TextEditor::CompletionItem &item, QChar typedChar)
 {
     Symbol *symbol = 0;
 
@@ -1749,10 +1775,15 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
     if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT) {
         toInsert = item.text;
         extraChars += QLatin1Char(')');
+
+        if (typedChar == QLatin1Char('(')) // Eat the opening parenthesis
+            typedChar = QChar();
     } else if (m_completionOperator == T_STRING_LITERAL || m_completionOperator == T_ANGLE_STRING_LITERAL) {
         toInsert = item.text;
         if (!toInsert.endsWith(QLatin1Char('/')))
             extraChars += QLatin1Char((m_completionOperator == T_ANGLE_STRING_LITERAL) ? '>' : '"');
+        else if (typedChar == QLatin1Char('/')) // Eat the slash
+            typedChar = QChar();
     } else {
         toInsert = item.text;
 
@@ -1768,7 +1799,7 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
                 if (! function->hasReturnType() && (function->identity() && !function->identity()->isDestructorNameId())) {
                     // Don't insert any magic, since the user might have just wanted to select the class
 
-                } else if (function->templateParameterCount() != 0) {
+                } else if (function->templateParameterCount() != 0 && typedChar != QLatin1Char('(')) {
                     // If there are no arguments, then we need the template specification
                     if (function->argumentCount() == 0) {
                         extraChars += QLatin1Char('<');
@@ -1777,38 +1808,63 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
                     if (completionSettings().m_spaceAfterFunctionName)
                         extraChars += QLatin1Char(' ');
                     extraChars += QLatin1Char('(');
+                    if (typedChar == QLatin1Char('('))
+                        typedChar = QChar();
 
                     // If the function doesn't return anything, automatically place the semicolon,
                     // unless we're doing a scope completion (then it might be function definition).
-                    bool endWithSemicolon = function->returnType()->isVoidType() && m_completionOperator != T_COLON_COLON;
+                    const QChar characterAtCursor = m_editor->characterAt(m_editor->position());
+                    bool endWithSemicolon = typedChar == QLatin1Char(';')
+                            || (function->returnType()->isVoidType() && m_completionOperator != T_COLON_COLON);
+                    const QChar semicolon = typedChar.isNull() ? QLatin1Char(';') : typedChar;
+
+                    if (endWithSemicolon && characterAtCursor == semicolon) {
+                        endWithSemicolon = false;
+                        typedChar = QChar();
+                    }
 
                     // If the function takes no arguments, automatically place the closing parenthesis
                     if (item.duplicateCount == 0 && ! function->hasArguments()) {
                         extraChars += QLatin1Char(')');
-                        if (endWithSemicolon)
-                            extraChars += QLatin1Char(';');
+                        if (endWithSemicolon) {
+                            extraChars += semicolon;
+                            typedChar = QChar();
+                        }
                     } else if (autoParenthesesEnabled) {
                         const QChar lookAhead = m_editor->characterAt(m_editor->position() + 1);
                         if (MatchingText::shouldInsertMatchingText(lookAhead)) {
                             extraChars += QLatin1Char(')');
                             --cursorOffset;
                             if (endWithSemicolon) {
-                                extraChars += QLatin1Char(';');
+                                extraChars += semicolon;
                                 --cursorOffset;
+                                typedChar = QChar();
                             }
                         }
+                        // TODO: When an opening parenthesis exists, the "semicolon" should really be
+                        // inserted after the matching closing parenthesis.
                     }
                 }
             }
         }
 
         if (autoInsertBrackets && item.data.canConvert<CompleteFunctionDeclaration>()) {
+            if (typedChar == QLatin1Char('('))
+                typedChar = QChar();
+
             // everything from the closing parenthesis on are extra chars, to
             // make sure an auto-inserted ")" gets replaced by ") const" if necessary
             int closingParen = toInsert.lastIndexOf(QLatin1Char(')'));
             extraChars = toInsert.mid(closingParen);
             toInsert.truncate(closingParen);
         }
+    }
+
+    // Append an unhandled typed character, adjusting cursor offset when it had been adjusted before
+    if (!typedChar.isNull()) {
+        extraChars += typedChar;
+        if (cursorOffset != 0)
+            --cursorOffset;
     }
 
     // Avoid inserting characters that are already there
@@ -1836,7 +1892,7 @@ bool CppCodeCompletion::partiallyComplete(const QList<TextEditor::CompletionItem
     if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT) {
         return false;
     } else if (completionItems.count() == 1) {
-        complete(completionItems.first());
+        complete(completionItems.first(), QChar());
         return true;
     } else if (m_completionOperator != T_LPAREN) {
         return TextEditor::ICompletionCollector::partiallyComplete(completionItems);

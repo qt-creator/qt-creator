@@ -67,7 +67,7 @@ CompletionSupport::CompletionSupport()
 
 void CompletionSupport::performCompletion(const CompletionItem &item)
 {
-    item.collector->complete(item);
+    item.collector->complete(item, m_completionList->typedChar());
     m_checkCompletionTrigger = true;
 }
 

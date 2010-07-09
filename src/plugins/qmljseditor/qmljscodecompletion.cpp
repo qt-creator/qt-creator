@@ -878,8 +878,19 @@ void CodeCompletion::completions(QList<TextEditor::CompletionItem> *completions)
     }
 }
 
-void CodeCompletion::complete(const TextEditor::CompletionItem &item)
+bool CodeCompletion::typedCharCompletes(const TextEditor::CompletionItem &item, QChar typedChar)
 {
+    if (item.data.canConvert<QString>()) // snippet
+        return false;
+
+    return (item.text.endsWith(QLatin1String(": ")) && typedChar == QLatin1Char(':'))
+            || (item.text.endsWith(QLatin1Char('.')) && typedChar == QLatin1Char('.'));
+}
+
+void CodeCompletion::complete(const TextEditor::CompletionItem &item, QChar typedChar)
+{
+    Q_UNUSED(typedChar) // Currently always included in the completion item when used
+
     QString toInsert = item.text;
 
     if (QmlJSTextEditor *edit = qobject_cast<QmlJSTextEditor *>(m_editor->widget())) {
@@ -895,7 +906,7 @@ void CodeCompletion::complete(const TextEditor::CompletionItem &item)
     QString replacableChars;
     if (toInsert.endsWith(QLatin1String(": ")))
         replacableChars = QLatin1String(": ");
-    else if (toInsert.endsWith(QLatin1String(".")))
+    else if (toInsert.endsWith(QLatin1Char('.')))
         replacableChars = QLatin1String(".");
 
     int replacedLength = 0;
@@ -924,7 +935,7 @@ bool CodeCompletion::partiallyComplete(const QList<TextEditor::CompletionItem> &
         const TextEditor::CompletionItem item = completionItems.first();
 
         if (!item.data.canConvert<QString>()) {
-            complete(item);
+            complete(item, QChar());
             return true;
         }
     }

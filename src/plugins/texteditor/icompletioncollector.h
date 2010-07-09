@@ -111,9 +111,19 @@ public:
      */
     virtual void completions(QList<CompletionItem> *completions) = 0;
 
-    /* This method should complete the given completion item.
+    /**
+     * This method should return true when the given typed character should cause
+     * the selected completion item to be completed.
      */
-    virtual void complete(const CompletionItem &item) = 0;
+    virtual bool typedCharCompletes(const CompletionItem &item, QChar typedChar) = 0;
+
+    /**
+     * This method should complete the given completion item.
+     *
+     * \param typedChar Non-null when completion was triggered by typing a
+     *                  character. Possible values depend on typedCharCompletes()
+     */
+    virtual void complete(const CompletionItem &item, QChar typedChar) = 0;
 
     /* This method gives the completion collector a chance to partially complete
      * based on a set of items. The general use case is to complete the common
@@ -152,6 +162,17 @@ class TEXTEDITOR_EXPORT IQuickFixCollector : public ICompletionCollector
 public:
     IQuickFixCollector(QObject *parent = 0) : ICompletionCollector(parent) {}
     virtual ~IQuickFixCollector() {}
+
+    virtual bool typedCharCompletes(const CompletionItem &, QChar)
+    { return false; }
+
+    virtual void fix(const TextEditor::CompletionItem &item) = 0;
+
+    virtual void complete(const CompletionItem &item, QChar typedChar)
+    {
+        Q_UNUSED(typedChar)
+        fix(item);
+    }
 
     virtual bool triggersCompletion(TextEditor::ITextEditable *)
     { return false; }

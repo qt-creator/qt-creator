@@ -78,7 +78,8 @@ public:
     int startCompletion(TextEditor::ITextEditable *editor);
     void completions(QList<TextEditor::CompletionItem> *completions);
 
-    void complete(const TextEditor::CompletionItem &item);
+    bool typedCharCompletes(const TextEditor::CompletionItem &item, QChar typedChar);
+    void complete(const TextEditor::CompletionItem &item, QChar typedChar);
     bool partiallyComplete(const QList<TextEditor::CompletionItem> &completionItems);
     void cleanup();
 
