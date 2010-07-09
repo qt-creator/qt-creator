@@ -39,7 +39,7 @@ using namespace QmlJSEditor;
 using namespace QmlJS;
 
 Highlighter::Highlighter(QTextDocument *parent)
-    : QSyntaxHighlighter(parent),
+    : TextEditor::SyntaxHighlighter(parent),
       m_qmlEnabled(true),
       m_inMultilineComment(false)
 {

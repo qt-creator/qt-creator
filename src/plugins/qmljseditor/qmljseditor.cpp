@@ -60,6 +60,7 @@
 #include <texteditor/textblockiterator.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
+#include <texteditor/syntaxhighlighter.h>
 #include <qmldesigner/qmldesignerconstants.h>
 #include <utils/changeset.h>
 #include <utils/uncommentselection.h>

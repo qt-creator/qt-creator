@@ -157,7 +157,7 @@ static bool isFunction(const QString &word)
 }
 
 ProFileHighlighter::ProFileHighlighter(QTextDocument *document) :
-    QSyntaxHighlighter(document)
+    TextEditor::SyntaxHighlighter(document)
 {
 }
 

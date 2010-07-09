@@ -32,6 +32,7 @@
 #include "basetextdocumentlayout.h"
 #include "basetexteditor.h"
 #include "storagesettings.h"
+#include "syntaxhighlighter.h"
 
 #include <QtCore/QFile>
 #include <QtCore/QDir>
@@ -357,7 +358,7 @@ void BaseTextDocument::reload(ReloadFlag flag, ChangeType type)
     }
 }
 
-void BaseTextDocument::setSyntaxHighlighter(QSyntaxHighlighter *highlighter)
+void BaseTextDocument::setSyntaxHighlighter(SyntaxHighlighter *highlighter)
 {
     if (m_highlighter)
         delete m_highlighter;

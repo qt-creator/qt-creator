@@ -39,6 +39,7 @@
 #include "tabsettings.h"
 #include "texteditorconstants.h"
 #include "texteditorplugin.h"
+#include "syntaxhighlighter.h"
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -4940,7 +4941,7 @@ void BaseTextEditor::setDisplaySettings(const DisplaySettings &ds)
     setCenterOnScroll(ds.m_centerCursorOnScroll);
 
     if (d->m_displaySettings.m_visualizeWhitespace != ds.m_visualizeWhitespace) {
-        if (QSyntaxHighlighter *highlighter = baseTextDocument()->syntaxHighlighter())
+        if (SyntaxHighlighter *highlighter = baseTextDocument()->syntaxHighlighter())
             highlighter->rehighlight();
         QTextOption option =  document()->defaultTextOption();
         if (ds.m_visualizeWhitespace)

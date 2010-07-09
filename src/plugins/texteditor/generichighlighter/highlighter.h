@@ -31,6 +31,7 @@
 #define HIGHLIGHTER_H
 
 #include "basetextdocumentlayout.h"
+#include <texteditor/syntaxhighlighter.h>
 
 #include <QtCore/QString>
 #include <QtCore/QVector>
@@ -52,8 +53,10 @@ class Context;
 class HighlightDefinition;
 class ProgressData;
 
-class Highlighter : public QSyntaxHighlighter
+class Highlighter : public TextEditor::SyntaxHighlighter
 {
+    Q_OBJECT
+
 public:
     Highlighter(QTextDocument *parent = 0);
     virtual ~Highlighter();

@@ -30,6 +30,7 @@
 #ifndef CMAKEHIGHLIGHTER_H
 #define CMAKEHIGHLIGHTER_H
 
+#include <texteditor/syntaxhighlighter.h>
 #include <QtCore/QtAlgorithms>
 #include <QtGui/QSyntaxHighlighter>
 #include <QtGui/QTextCharFormat>
@@ -40,7 +41,7 @@ namespace Internal {
 /* This is a simple syntax highlighter for CMake files.
  * It highlights variables, commands, strings and comments.
  * Multi-line strings and variables inside strings are also recognized. */
-class CMakeHighlighter : public QSyntaxHighlighter
+class CMakeHighlighter : public TextEditor::SyntaxHighlighter
 {
     Q_OBJECT
 public:

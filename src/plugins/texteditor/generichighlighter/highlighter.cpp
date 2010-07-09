@@ -53,7 +53,7 @@ namespace {
 const Highlighter::KateFormatMap Highlighter::m_kateFormats;
 
 Highlighter::Highlighter(QTextDocument *parent) :
-    QSyntaxHighlighter(parent),
+    TextEditor::SyntaxHighlighter(parent),
     m_regionDepth(0),
     m_indentationBasedFolding(false),
     m_tabSettings(0),
