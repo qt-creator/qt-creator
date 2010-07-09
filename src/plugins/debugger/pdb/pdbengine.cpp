@@ -140,7 +140,7 @@ void PdbEngine::exitDebugger()
 
 void PdbEngine::setupEngine()
 {
-    QTC_ASSERT(state() == EngineStarting, qDebug() << state());
+    QTC_ASSERT(state() == EngineSettingUp, qDebug() << state());
 
     m_scriptFileName = QFileInfo(startParameters().executable).absoluteFilePath();
     QFile scriptFile(m_scriptFileName);
@@ -148,7 +148,7 @@ void PdbEngine::setupEngine()
         //showMessage("STARTING " +m_scriptFileName + "FAILED");
         showMessage(QString::fromLatin1("Cannot open %1: %2").
                    arg(m_scriptFileName, scriptFile.errorString()), LogError);
-        notifyEngineStartFailed();
+        notifyEngineSetupFailed();
         return;
     }
     m_pdbProc.disconnect(); // From any previous runs
@@ -181,17 +181,17 @@ void PdbEngine::setupEngine()
     if (!m_pdbProc.waitForStarted()) {
         const QString msg = tr("Unable to start pdb '%1': %2")
             .arg(m_pdb, m_pdbProc.errorString());
-        setState(EngineStartFailed);
+        setState(EngineSetupFailed);
         showMessage(_("ADAPTER START FAILED"));
         if (!msg.isEmpty()) {
             const QString title = tr("Adapter start failed");
             Core::ICore::instance()->showWarningWithOptions(title, msg);
         }
         shutdown();
-        notifyEngineStartFailed();
+        notifyEngineSetupFailed();
         return;
     }
-    notifyEngineStartOk();
+    notifyEngineSetupOk();
 }
 
 void PdbEngine::setupInferior()

@@ -1501,7 +1501,7 @@ void TrkGdbAdapter::startAdapter()
     // Unixish gdbs accept only forward slashes
     m_symbolFile.replace(QLatin1Char('\\'), QLatin1Char('/'));
     // Start
-    QTC_ASSERT(state() == EngineStarting, qDebug() << state());
+    QTC_ASSERT(state() == EngineSettingUp, qDebug() << state());
     showMessage(_("TRYING TO START ADAPTER"));
     logMessage(QLatin1String("### Starting TrkGdbAdapter"));
 

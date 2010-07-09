@@ -231,7 +231,7 @@ void ScriptEngine::exitDebugger()
 
 void ScriptEngine::setupEngine()
 {
-    QTC_ASSERT(state() == EngineStarting, qDebug() << state());
+    QTC_ASSERT(state() == EngineSettingUp, qDebug() << state());
     showMessage(_("STARTING SCRIPT DEBUGGER"), LogMisc);
     if (m_scriptEngine.isNull())
         m_scriptEngine = Core::ICore::instance()->scriptManager()->scriptEngine();
@@ -246,7 +246,7 @@ void ScriptEngine::setupEngine()
     m_stopOnNextLine = false;
     m_scriptEngine->abortEvaluation();
 
-    notifyEngineStartOk();
+    notifyEngineSetupOk();
 }
 
 void ScriptEngine::setupInferior()
@@ -258,7 +258,7 @@ void ScriptEngine::setupInferior()
     if (!scriptFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
         showMessage(QString::fromLatin1("Cannot open %1: %2").
           arg(m_scriptFileName, scriptFile.errorString()), LogError);
-        notifyEngineStartFailed();
+        notifyEngineSetupFailed();
         return;
     }
     QTextStream stream(&scriptFile);

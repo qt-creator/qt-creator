@@ -167,7 +167,7 @@
 //                   DebuggerNotReady
 //                          +
 //                          +
-//                    EngineStarting
+//                    EngineSettingUp
 //                          +
 //                          +
 //            (calls *Engine->setupEngine())
@@ -176,13 +176,13 @@
 //                      Engine-   Engine-
 //                      StartOk}  StartFailed}
 //                          |      |
-//                          |      `---> EngineStartFailed
+//                          |      `---> EngineSetupFailed
 //                          |                   +
 //                          |    [calls RunControl->startFailed]
 //                          |                   +
 //                          |             DebuggerNotReady
 //                          v
-//                    EngineStarted
+//                    EngineSetupOk
 //                          +
 //           [calls RunControl->StartSuccessful]
 //                          +
@@ -222,7 +222,7 @@
 //                   DebuggerNotReady
 //
 
-// GdbEngine specific startup. All happens in EngineStarting state
+// GdbEngine specific startup. All happens in EngineSettingUp state
 //
 // Transitions marked by '---' are done in the individual adapters.
 // Transitions marked by '+-+' are done in the GdbEngine.
@@ -234,7 +234,7 @@
 //                          |      |
 //                          |      `---> handleAdapterStartFailed()
 //                          |                   +
-//                          |             EngineStartFailed
+//                          |             EngineSetupFailed
 //                          |
 //                 handleAdapterStarted()
 //                          +
@@ -242,11 +242,11 @@
 //                          |      |
 //                          |      `---> handleAdapterStartFailed()
 //                          |                   +
-//                          |             EngineStartFailed
+//                          |             EngineSetupFailed
 //                          |
 //                 handleInferiorPrepared()
 //                          +
-//                     EngineStarted
+//                     EngineSetupOk
 
 
 
@@ -2120,7 +2120,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         || m_state == InferiorStopping
         || m_state == InferiorStopped;
 
-    const bool starting = m_state == EngineStarting;
+    const bool starting = m_state == EngineSettingUp;
     //const bool running = m_state == InferiorRunning;
 
     m_startExternalAction->setEnabled(!started && !starting);
@@ -2686,8 +2686,8 @@ bool DebuggerListener::coreAboutToClose()
     switch (plugin->state()) {
     case DebuggerNotReady:
         return true;
-    case EngineStarted:     // Most importantly, terminating a running
-    case EngineStartFailed: // debuggee can cause problems.
+    case EngineSetupOk:     // Most importantly, terminating a running
+    case EngineSetupFailed: // debuggee can cause problems.
     case InferiorUnrunnable:
     case InferiorSetupFailed:
     case InferiorStopped:

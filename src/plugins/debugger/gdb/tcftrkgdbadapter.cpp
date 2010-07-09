@@ -337,7 +337,7 @@ void TcfTrkGdbAdapter::startGdb()
 void TcfTrkGdbAdapter::tcftrkDeviceError(const QString  &errorString)
 {
     logMessage(errorString);
-    if (state() == EngineStarting) {
+    if (state() == EngineSettingUp) {
         m_engine->handleAdapterStartFailed(errorString, QString());
     } else {
         m_engine->handleAdapterCrashed(errorString);
@@ -956,7 +956,7 @@ void TcfTrkGdbAdapter::startAdapter()
     // Unixish gdbs accept only forward slashes
     m_symbolFile.replace(QLatin1Char('\\'), QLatin1Char('/'));
     // Start
-    QTC_ASSERT(state() == EngineStarting, qDebug() << state());
+    QTC_ASSERT(state() == EngineSettingUp, qDebug() << state());
     showMessage(_("TRYING TO START ADAPTER"));
     logMessage(QLatin1String("### Starting TcfTrkGdbAdapter"));
 

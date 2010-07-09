@@ -143,9 +143,9 @@ const char *DebuggerEngine::stateName(int s)
 #    define SN(x) case x: return #x;
     switch (s) {
         SN(DebuggerNotReady)
-        SN(EngineStarting)
-        SN(EngineStarted)
-        SN(EngineStartFailed)
+        SN(EngineSettingUp)
+        SN(EngineSetupOk)
+        SN(EngineSetupFailed)
         SN(InferiorSettingUp)
         SN(InferiorSetupFailed)
         SN(InferiorSetupOk)
@@ -228,6 +228,7 @@ public slots:
     void doSetupInferior();
     void doRunEngine();
     void doShutdown();
+    void doInterruptInferior();
 
 public:
     DebuggerEngine *m_engine; // Not owned.
@@ -372,7 +373,7 @@ void DebuggerEngine::handleCommand(int role, const QVariant &value)
             break;
 
         case RequestExecInterruptRole:
-            interruptInferior();
+            d->doInterruptInferior();
             break;
 
         case RequestExecResetRole:
@@ -613,12 +614,12 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
 
 void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
 {
-    QTC_ASSERT(runControl, notifyEngineStartFailed(); return);
-    QTC_ASSERT(!d->m_runControl, notifyEngineStartFailed(); return);
+    QTC_ASSERT(runControl, notifyEngineSetupFailed(); return);
+    QTC_ASSERT(!d->m_runControl, notifyEngineSetupFailed(); return);
 
     DebuggerEngine *sessionTemplate = plugin()->sessionTemplate();
-    QTC_ASSERT(sessionTemplate, notifyEngineStartFailed(); return);
-    QTC_ASSERT(sessionTemplate != this, notifyEngineStartFailed(); return);
+    QTC_ASSERT(sessionTemplate, notifyEngineSetupFailed(); return);
+    QTC_ASSERT(sessionTemplate != this, notifyEngineSetupFailed(); return);
 
     breakHandler()->initializeFromTemplate(sessionTemplate->breakHandler());
     watchHandler()->initializeFromTemplate(sessionTemplate->watchHandler());
@@ -640,7 +641,7 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
     theDebuggerAction(OperateByInstruction)
         ->setEnabled(engineCapabilities & DisassemblerCapability);
 
-    setState(EngineStarting);
+    setState(EngineSettingUp);
     setupEngine();
 }
 
@@ -911,13 +912,13 @@ static bool isAllowedTransition(int from, int to)
         return to == DebuggerNotReady;
 
     case DebuggerNotReady:
-        return to == EngineStarting || to == DebuggerNotReady;
+        return to == EngineSettingUp || to == DebuggerNotReady;
 
-    case EngineStarting:
-        return to == EngineStarted || to == EngineStartFailed;
-    case EngineStartFailed:
+    case EngineSettingUp:
+        return to == EngineSetupOk || to == EngineSetupFailed;
+    case EngineSetupFailed:
         return to == DebuggerNotReady;
-    case EngineStarted:
+    case EngineSetupOk:
         return to == InferiorSettingUp || to == EngineShuttingDown;
 
     case InferiorSettingUp:
@@ -963,26 +964,26 @@ static bool isAllowedTransition(int from, int to)
     return false;
 }
 
-void DebuggerEngine::notifyEngineStartFailed()
+void DebuggerEngine::notifyEngineSetupFailed()
 {
-    QTC_ASSERT(state() == EngineStarting, qDebug() << state());
-    setState(EngineStartFailed);
+    QTC_ASSERT(state() == EngineSettingUp, qDebug() << state());
+    setState(EngineSetupFailed);
     d->m_runControl->debuggingFinished();
     d->m_runControl->startFailed();
     QTimer::singleShot(0, this, SLOT(doShutdown()));
 }
 
-void DebuggerEngine::notifyEngineStartOk()
+void DebuggerEngine::notifyEngineSetupOk()
 {
-    QTC_ASSERT(state() == EngineStarting, qDebug() << state());
-    setState(EngineStarted);
+    QTC_ASSERT(state() == EngineSettingUp, qDebug() << state());
+    setState(EngineSetupOk);
     d->m_runControl->startSuccessful();
     QTimer::singleShot(0, d, SLOT(doSetupInferior()));
 }
 
 void DebuggerEnginePrivate::doSetupInferior()
 {
-    QTC_ASSERT(m_state == EngineStarted, qDebug() << m_state);
+    QTC_ASSERT(m_state == EngineSetupOk, qDebug() << m_state);
     m_engine->setState(InferiorSettingUp);
     m_engine->setupInferior();
 }
@@ -990,7 +991,7 @@ void DebuggerEnginePrivate::doSetupInferior()
 // Default implemention, can be overridden.
 void DebuggerEngine::setupInferior()
 {
-    QTC_ASSERT(state() == EngineStarted, qDebug() << state());
+    QTC_ASSERT(state() == EngineSetupOk, qDebug() << state());
     notifyInferiorSetupOk();
 }
 
@@ -1018,6 +1019,24 @@ void DebuggerEnginePrivate::doRunEngine()
 void DebuggerEngine::runEngine()
 {
     QTC_ASSERT(state() == InferiorSetupOk, qDebug() << state());
+}
+
+void DebuggerEngine::notifyInferiorRunning()
+{
+    QTC_ASSERT(m_state == InferiorRunningRequested, qDebug() << m_state);
+    setState(InferiorRunning);
+}
+
+void DebuggerEngine::notifyInferiorStopped()
+{
+    QTC_ASSERT(m_state == InferiorRunningStoppint, qDebug() << m_state);
+    setState(InferiorStopped);
+}
+
+void DebuggerEnginePrivate::doInterruptInferior()
+{
+    QTC_ASSERT(m_state == InferiorRunning, qDebug() << m_state);
+    m_engine->interruptInferior();
 }
 
 void DebuggerEnginePrivate::doShutdown()
@@ -1064,9 +1083,9 @@ bool DebuggerEngine::debuggerActionsEnabled(DebuggerState state)
     case InferiorStopped:
         return true;
     case DebuggerNotReady:
-    case EngineStarting:
-    case EngineStarted:
-    case EngineStartFailed:
+    case EngineSettingUp:
+    case EngineSetupOk:
+    case EngineSetupFailed:
     case InferiorSetupOk:
     case InferiorSetupFailed:
     case InferiorRunningRequested_Kill:

@@ -122,9 +122,9 @@ QByteArray GdbEngine::tooltipIName(const QString &exp)
 static bool stateAcceptsGdbCommands(DebuggerState state)
 {
     switch (state) {
-    case EngineStarting:
-    case EngineStarted:
-    case EngineStartFailed:
+    case EngineSettingUp:
+    case EngineSetupOk:
+    case EngineSetupFailed:
     case InferiorUnrunnable:
     case InferiorSettingUp:
     case InferiorSetupFailed:
@@ -737,7 +737,7 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
     } else if ((cmd.flags & NeedsStop)
             || !m_commandsToRunOnTemporaryBreak.isEmpty()) {
         if (state() == InferiorStopped || state() == InferiorUnrunnable
-            || state() == InferiorSettingUp || state() == EngineStarted) {
+            || state() == InferiorSettingUp || state() == EngineSetupOk) {
             // Can be safely sent now.
             flushCommand(cmd);
         } else {
@@ -1603,11 +1603,11 @@ void GdbEngine::shutdown()
     case InferiorRunningRequested_Kill:
     case InferiorStopping_Kill:
         break;
-    case EngineStarting: // GDB is up, adapter is "doing something"
-        setState(EngineStartFailed);
+    case EngineSettingUp: // GDB is up, adapter is "doing something"
+        setState(EngineSetupFailed);
         m_gdbAdapter->shutdown();
         // fall-through
-    case EngineStartFailed: // Adapter "did something", but it did not help
+    case EngineSetupFailed: // Adapter "did something", but it did not help
         if (gdbProc()->state() == QProcess::Running) {
             m_commandsToRunOnTemporaryBreak.clear();
             postCommand("-gdb-exit", GdbEngine::ExitRequest, CB(handleGdbExit));
@@ -1623,7 +1623,7 @@ void GdbEngine::shutdown()
         postCommand(m_gdbAdapter->inferiorShutdownCommand(),
                     NeedsStop | LosesChild, CB(handleInferiorShutdown));
         break;
-    case EngineStarted: // We can't get here, really
+    case EngineSetupOk: // We can't get here, really
     case InferiorSetupOk:
     case InferiorSetupFailed:
     case InferiorShutDown:
@@ -1764,7 +1764,7 @@ AbstractGdbAdapter *GdbEngine::createAdapter()
 void GdbEngine::setupEngine()
 {
     //qDebug() << "GDB START DEBUGGER";
-    QTC_ASSERT(state() == EngineStarting, qDebug() << state());
+    QTC_ASSERT(state() == EngineSettingUp, qDebug() << state());
     QTC_ASSERT(m_debuggingHelperState == DebuggingHelperUninitialized, /**/);
     QTC_ASSERT(m_gdbAdapter == 0, /**/);
 
@@ -1788,7 +1788,7 @@ void GdbEngine::setupEngine()
     }
 
     m_progress->setProgressValue(20);
-    QTC_ASSERT(state() == EngineStarting, /**/);
+    QTC_ASSERT(state() == EngineSettingUp, /**/);
     m_gdbAdapter->startAdapter();
 }
 
@@ -3055,7 +3055,7 @@ void GdbEngine::activateSnapshot2()
 {
     // Otherwise the stack data might be stale.
     // See http://sourceware.org/bugzilla/show_bug.cgi?id=1124.
-    setState(EngineStarting);
+    setState(EngineSettingUp);
     postCommand("set stack-cache off");
     handleAdapterStarted();
 }
@@ -4177,7 +4177,7 @@ void GdbEngine::handleGdbFinished(int code, QProcess::ExitStatus type)
     } else if (state() == EngineShuttingDown) {
         showMessage(_("GOING TO SHUT DOWN ADAPTER"));
         m_gdbAdapter->shutdown();
-    } else if (state() != EngineStartFailed) {
+    } else if (state() != EngineSetupFailed) {
         QString msg = tr("The gdb process exited unexpectedly (%1).")
           .arg((type == QProcess::CrashExit)
               ? tr("crashed") : tr("code %1").arg(code));
@@ -4191,7 +4191,7 @@ void GdbEngine::handleGdbFinished(int code, QProcess::ExitStatus type)
 
 void GdbEngine::handleAdapterStartFailed(const QString &msg, const QString &settingsIdHint)
 {
-    setState(EngineStartFailed);
+    setState(EngineSetupFailed);
     showMessage(_("ADAPTER START FAILED"));
     if (!msg.isEmpty()) {
         const QString title = tr("Adapter start failed");
@@ -4210,7 +4210,7 @@ void GdbEngine::handleAdapterStarted()
     if (m_progress)
         m_progress->setProgressValue(25);
     showMessage(_("ADAPTER SUCCESSFULLY STARTED"));
-    notifyEngineStartOk();
+    notifyEngineSetupOk();
 }
 
 void GdbEngine::setupInferior()
@@ -4264,7 +4264,7 @@ void GdbEngine::runEngine()
 void GdbEngine::handleInferiorSetupFailed(const QString &msg)
 {
     showStatusMessage(tr("Failed to start application: ") + msg);
-    if (state() == EngineStartFailed) {
+    if (state() == EngineSetupFailed) {
         showMessage(_("INFERIOR START FAILED, BUT ADAPTER DIED ALREADY"));
         return; // Adapter crashed meanwhile, so this notification is meaningless.
     }
@@ -4282,7 +4282,7 @@ void GdbEngine::handleAdapterCrashed(const QString &msg)
     // Don't bother with state transitions - this can happen in any state and
     // the end result is always the same, so it makes little sense to find a
     // "path" which does not assert.
-    notifyEngineStartFailed();
+    notifyEngineSetupFailed();
 
     // No point in being friendly here ...
     gdbProc()->kill();

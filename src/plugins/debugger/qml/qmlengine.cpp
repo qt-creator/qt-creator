@@ -251,11 +251,11 @@ void QmlEngine::setupEngine()
     m_proc.start(sp.executable, sp.processArgs);
 
     if (!m_proc.waitForStarted()) {
-        notifyEngineStartFailed();
+        notifyEngineSetupFailed();
         return;
     }
 #endif
-    notifyEngineStartOk();
+    notifyEngineSetupOk();
     //m_frameRate = new CanvasFrameRate(0);
     //m_frameRate->show();
 }
@@ -295,12 +295,12 @@ void QmlEngine::setupConnection()
 
     if (!m_conn->waitForConnected()) {
         qDebug() << "CONNECTION FAILED";
-        notifyEngineStartFailed();
+        notifyEngineSetupFailed();
         return;
     }
  #endif
 
-    notifyEngineStartOk();
+    notifyEngineSetupOk();
     qDebug() << "CONNECTION SUCCESSFUL";
     setState(InferiorRunningRequested);
     setState(InferiorRunning);
@@ -1253,7 +1253,7 @@ void QmlEngine::debuggerStateChanged(int newState)
     if (m_simultaneousCppAndQmlDebugMode) {
 
         switch(newState) {
-        case Debugger::EngineStarting:
+        case Debugger::EngineSettingUp:
             {
                 m_connectionInitialized = false;
                 break;

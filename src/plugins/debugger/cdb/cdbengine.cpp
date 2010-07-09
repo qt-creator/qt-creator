@@ -376,7 +376,7 @@ void CdbEngine::startupChecks()
 
 void CdbEngine::setupEngine()
 {
-    QTC_ASSERT(state() == EngineStarting, qDebug() << state());
+    QTC_ASSERT(state() == EngineSettingUp, qDebug() << state());
     const DebuggerStartParameters &sp = startParameters();
     if (debugCDBExecution)
         qDebug() << "startDebugger";
@@ -385,14 +385,14 @@ void CdbEngine::setupEngine()
     m_d->checkVersion();
     if (m_d->m_hDebuggeeProcess) {
         warning(QLatin1String("Internal error: Attempt to start debugger while another process is being debugged."));
-        notifyEngineStartFailed();
+        notifyEngineSetupFailed();
         return;
     }
     switch (sp.startMode) {
     case AttachCore:
     case AttachToRemote:
         warning(QLatin1String("Internal error: Mode not supported."));
-        notifyEngineStartFailed();
+        notifyEngineSetupFailed();
         break;
     default:
         break;
@@ -421,7 +421,7 @@ void CdbEngine::setupEngine()
         }
     }
     m_d->m_dumper->reset(dumperLibName, dumperEnabled);
-    notifyEngineStartOk();
+    notifyEngineSetupOk();
 }
 
 void CdbEngine::setupInferior()

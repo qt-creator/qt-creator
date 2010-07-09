@@ -79,9 +79,9 @@ enum DebuggerState
 {
     DebuggerNotReady,          // Debugger not started
 
-    EngineStarting,            // Engine starts
-    EngineStartFailed,
-    EngineStarted,
+    EngineSettingUp,            // Engine starts
+    EngineSetupFailed,
+    EngineSetupOk,
 
     InferiorUnrunnable,         // Used in the core dump adapter
     InferiorSettingUp,

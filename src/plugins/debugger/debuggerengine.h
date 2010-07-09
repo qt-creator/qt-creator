@@ -189,11 +189,6 @@ protected:
     virtual void frameUp();
     virtual void frameDown();
 
-public slots:
-    // Convenience
-    void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1) const;
-    void showStatusMessage(const QString &msg, int timeout = -1) const;
-
 public:
     DebuggerPlugin *plugin() const;
     const DebuggerStartParameters &startParameters() const;
@@ -248,7 +243,10 @@ public:
     bool isReverseDebugging() const;
     void handleCommand(int role, const QVariant &value);
 
-public slots:
+    // Convenience
+    void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1) const;
+    void showStatusMessage(const QString &msg, int timeout = -1) const;
+
     void resetLocation();
     void openFile(const QString &fileName, int lineNumber = -1);
     void gotoLocation(const QString &fileName, int lineNumber, bool setMarker);
@@ -257,11 +255,17 @@ public slots:
     virtual void quitDebugger() { exitDebugger(); } // called by DebuggerRunControl
 
 protected:
-    void notifyEngineStartOk();
-    void notifyEngineStartFailed();
+    void notifyEngineSetupOk();
+    void notifyEngineSetupFailed();
 
     void notifyInferiorSetupOk();
     void notifyInferiorSetupFailed();
+
+    void notifyInferiorRunning();
+    void notifyInferiorStopped();
+
+    // Called to initiate shutdown.
+    void notifyInferiorIll();
 
     virtual void setupInferior();
     virtual void runEngine();

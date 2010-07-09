@@ -156,9 +156,9 @@ void TcfEngine::socketConnected()
 {
     showStatusMessage("Socket connected.");
     if (m_socket->waitForConnected(2000))
-        notifyEngineStartOk();
+        notifyEngineSetupOk();
     else
-        notifyEngineStartFailed();
+        notifyEngineSetupFailed();
 }
 
 void TcfEngine::socketDisconnected()
@@ -204,7 +204,7 @@ void TcfEngine::exitDebugger()
 
 void TcfEngine::setupEngine()
 {
-    QTC_ASSERT(state() == EngineStarting, qDebug() << state());
+    QTC_ASSERT(state() == EngineSettingUp, qDebug() << state());
     setState(InferiorRunningRequested);
     showStatusMessage(tr("Running requested..."), 5000);
     const DebuggerStartParameters &sp = startParameters();

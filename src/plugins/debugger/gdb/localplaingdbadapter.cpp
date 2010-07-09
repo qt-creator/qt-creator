@@ -68,7 +68,7 @@ AbstractGdbAdapter::DumperHandling LocalPlainGdbAdapter::dumperHandling() const
 
 void LocalPlainGdbAdapter::startAdapter()
 {
-    QTC_ASSERT(state() == EngineStarting, qDebug() << state());
+    QTC_ASSERT(state() == EngineSettingUp, qDebug() << state());
     showMessage(_("TRYING TO START ADAPTER"));
 
     QStringList gdbArgs;
