@@ -419,8 +419,6 @@ bool Rewriter::includeSurroundingWhitespace(int &start, int &end) const
 
         while (c.isSpace()) {
             ++end;
-
-            
             if (c.unicode() == 10) {
                 paragraphFound = true;
                 break;
@@ -434,18 +432,23 @@ bool Rewriter::includeSurroundingWhitespace(int &start, int &end) const
         includeStartingWhitespace = paragraphFound;
     }
 
+    paragraphFound = false;
     if (includeStartingWhitespace) {
         while (start > 0) {
             const QChar c = m_originalText.at(start - 1);
 
-            if (!c.isSpace())
+            if (c.unicode() == 10) {
+                paragraphFound = true;
                 break;
-            else if (c.unicode() == 10)
+            }
+            if (!c.isSpace())
                 break;
 
             --start;
         }
     }
+    if (!paragraphFound) //keep the line ending
+        --end;
 
     return paragraphFound;
 }
