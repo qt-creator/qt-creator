@@ -119,7 +119,7 @@ Inspector::Inspector(QObject *parent)
 {
     m_clientProxy = ClientProxy::instance();
 
-#warning set up the context widget
+//#warning set up the context widget
     QWidget *contextWidget = 0;
     m_context = new InspectorContext(contextWidget);
 
@@ -147,33 +147,27 @@ Inspector::Inspector(QObject *parent)
 
 Inspector::~Inspector()
 {
-    qDebug() << Q_FUNC_INFO;
 }
 
 void Inspector::disconnectWidgets()
 {
-    qDebug() << Q_FUNC_INFO;
 }
 
 void Inspector::disconnected()
 {
-    qDebug() << Q_FUNC_INFO;
     resetViews();
     updateMenuActions();
 }
 
 void Inspector::aboutToReloadEngines()
 {
-    qDebug() << Q_FUNC_INFO;
 }
 
 void Inspector::updateEngineList()
 {
-    qDebug() << Q_FUNC_INFO;
-
     const QList<QDeclarativeDebugEngineReference> engines = m_clientProxy->engines();
 
-#warning update the QML engines combo
+//#warning update the QML engines combo
 
     if (engines.isEmpty())
         qWarning("qmldebugger: no engines found!");
@@ -190,13 +184,11 @@ void Inspector::changeSelectedItems(const QList<QDeclarativeDebugObjectReference
 
 void Inspector::shutdown()
 {
-    qDebug() << Q_FUNC_INFO;
-#warning save the inspector settings here
+//#warning save the inspector settings here
 }
 
 void Inspector::pollInspector()
 {
-    qDebug() << Q_FUNC_INFO;
     ++m_connectionAttempts;
 
     const QString host = m_runConfigurationDebugData.serverAddress;
@@ -219,7 +211,6 @@ void Inspector::pollInspector()
 
 bool Inspector::setDebugConfigurationDataFromProject(ProjectExplorer::Project *projectToDebug)
 {
-    qDebug() << Q_FUNC_INFO;
     if (!projectToDebug) {
         emit statusMessage(tr("Invalid project, debugging canceled."));
         return false;
@@ -240,20 +231,17 @@ bool Inspector::setDebugConfigurationDataFromProject(ProjectExplorer::Project *p
 
 void Inspector::startQmlProjectDebugger()
 {
-    qDebug() << Q_FUNC_INFO;
     m_simultaneousCppAndQmlDebugMode = false;
     m_connectionTimer->start();
 }
 
 void Inspector::resetViews()
 {
-    qDebug() << Q_FUNC_INFO;
-#warning reset the views here
+//#warning reset the views here
 }
 
 void Inspector::simultaneouslyDebugQmlCppApplication()
 {
-    qDebug() << Q_FUNC_INFO;
     QString errorMessage;
     ProjectExplorer::ProjectExplorerPlugin *pex = ProjectExplorer::ProjectExplorerPlugin::instance();
     ProjectExplorer::Project *project = pex->startupProject();
@@ -273,9 +261,8 @@ QString Inspector::attachToQmlViewerAsExternalApp(ProjectExplorer::Project *proj
 {
     Q_UNUSED(project);
 
-    qDebug() << "TODO:" << Q_FUNC_INFO;
 
-#warning implement attachToQmlViewerAsExternalApp
+//#warning implement attachToQmlViewerAsExternalApp
     return QString();
 
 
@@ -329,9 +316,7 @@ QString Inspector::attachToQmlViewerAsExternalApp(ProjectExplorer::Project *proj
 QString Inspector::attachToExternalCppAppWithQml(ProjectExplorer::Project *project)
 {
     Q_UNUSED(project);
-    qDebug() << Q_FUNC_INFO;
-
-#warning implement attachToExternalCppAppWithQml
+//#warning implement attachToExternalCppAppWithQml
 
     return QString();
 
@@ -374,9 +359,6 @@ QString Inspector::executeDebuggerRunControl(Debugger::DebuggerRunControl *debug
 {
     Q_UNUSED(debuggableRunControl);
     Q_UNUSED(environment);
-
-    qDebug() << Q_FUNC_INFO;
-
     ProjectExplorer::ProjectExplorerPlugin *pex = ProjectExplorer::ProjectExplorerPlugin::instance();
 
     // to make sure we have a valid, debuggable run control, find the correct factory for it
@@ -397,8 +379,6 @@ Debugger::DebuggerRunControl *Inspector::createDebuggerRunControl(ProjectExplore
                                                                   const QString &executableFile,
                                                                   const QString &executableArguments)
 {
-    qDebug() << Q_FUNC_INFO;
-
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     const QList<Debugger::DebuggerRunControlFactory *> factories = pm->getObjects<Debugger::DebuggerRunControlFactory>();
     ProjectExplorer::RunControl *runControl = 0;
@@ -424,15 +404,12 @@ Debugger::DebuggerRunControl *Inspector::createDebuggerRunControl(ProjectExplore
 
 void Inspector::connected(QDeclarativeEngineDebug *client)
 {
-    qDebug() << Q_FUNC_INFO;
     m_client = client;
     resetViews();
 }
 
 void Inspector::updateMenuActions()
 {
-    qDebug() << Q_FUNC_INFO;
-
     bool enabled = true;
     if (m_simultaneousCppAndQmlDebugMode)
         enabled = (m_cppDebuggerState == Debugger::DebuggerNotReady && m_clientProxy->isUnconnected());
@@ -442,8 +419,6 @@ void Inspector::updateMenuActions()
 
 void Inspector::debuggerStateChanged(int newState)
 {
-    qDebug() << Q_FUNC_INFO;
-
     if (m_simultaneousCppAndQmlDebugMode) {
         switch(newState) {
         case Debugger::EngineStarting:
@@ -459,7 +434,7 @@ void Inspector::debuggerStateChanged(int newState)
             {
                 if (m_cppDebuggerState == Debugger::InferiorStopped) {
                     // re-enable UI again
-#warning enable the UI here
+//#warning enable the UI here
                 }
                 break;
             }
@@ -474,7 +449,7 @@ void Inspector::debuggerStateChanged(int newState)
             }
         case Debugger::InferiorStopped:
             {
-#warning disable the UI here
+//#warning disable the UI here
                 break;
             }
         case Debugger::EngineShuttingDown:
@@ -482,7 +457,7 @@ void Inspector::debuggerStateChanged(int newState)
                 m_connectionInitialized = false;
                 // here it's safe to enable the debugger windows again -
                 // disabled ones look ugly.
-#warning enable the UI here
+//#warning enable the UI here
                 m_simultaneousCppAndQmlDebugMode = false;
                 break;
             }
@@ -502,8 +477,6 @@ void Inspector::reloadQmlViewer()
 
 void Inspector::setSimpleDockWidgetArrangement()
 {
-    qDebug() << Q_FUNC_INFO;
-
 #if 0
     Utils::FancyMainWindow *mainWindow = Debugger::DebuggerUISwitcher::instance()->mainWindow();
 
@@ -536,8 +509,6 @@ void Inspector::setSimpleDockWidgetArrangement()
 
 void Inspector::setSelectedItemsByObjectReference(QList<QDeclarativeDebugObjectReference> objectReferences)
 {
-    qDebug() << Q_FUNC_INFO;
-
     if (objectReferences.length())
         gotoObjectReferenceDefinition(objectReferences.first());
 }
@@ -546,15 +517,11 @@ void Inspector::gotoObjectReferenceDefinition(const QDeclarativeDebugObjectRefer
 {
     Q_UNUSED(obj);
 
-    qDebug() << "TODO:" << Q_FUNC_INFO;
-
     QDeclarativeDebugFileReference source = obj.source();
     const QString fileName = source.url().toLocalFile();
 
     if (source.lineNumber() < 0 || !QFile::exists(fileName))
         return;
-
-    qDebug() << Q_FUNC_INFO << "selecting" << obj.className() << obj.debugId() << obj.source().url();
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     Core::IEditor *editor = editorManager->openEditor(fileName, QString(), Core::EditorManager::NoModeSwitch);
@@ -570,7 +537,6 @@ void Inspector::gotoObjectReferenceDefinition(const QDeclarativeDebugObjectRefer
 QDeclarativeDebugExpressionQuery *Inspector::executeExpression(int objectDebugId, const QString &objectId,
                                                                const QString &propertyName, const QVariant &value)
 {
-    qDebug() << Q_FUNC_INFO;
     if (objectId.length()) {
         QString quoteWrappedValue = value.toString();
         if (addQuotesForData(value))
@@ -585,8 +551,6 @@ QDeclarativeDebugExpressionQuery *Inspector::executeExpression(int objectDebugId
 
 bool Inspector::addQuotesForData(const QVariant &value) const
 {
-    qDebug() << Q_FUNC_INFO;
-
     switch (value.type()) {
     case QVariant::String:
     case QVariant::Color:
