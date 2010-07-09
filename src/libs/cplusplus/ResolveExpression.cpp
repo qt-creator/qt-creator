@@ -604,7 +604,12 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
                             if (ClassOrNamespace *retBinding = findClass(ptrTy->elementType(), overload->scope()))
                                 return retBinding;
 
-                            else if (debug) {
+                            else if (scope != overload->scope()) {
+                                if (ClassOrNamespace *retBinding = findClass(ptrTy->elementType(), scope))
+                                    return retBinding;
+                            }
+
+                            if (debug) {
                                 Overview oo;
                                 qDebug() << "no class for:" << oo(ptrTy->elementType());
                             }
