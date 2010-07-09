@@ -65,7 +65,7 @@ ContextPaneWidget::~ContextPaneWidget()
         m_bauhausColorDialog.clear();
 }
 
-void ContextPaneWidget::activate(const QPoint &pos, const QPoint &alternative)
+void ContextPaneWidget::activate(const QPoint &pos, const QPoint &alternative, const QPoint &alternative2)
 {
     //uncheck all color buttons
     foreach (ColorButton *colorButton, findChildren<ColorButton*>()) {
@@ -73,20 +73,19 @@ void ContextPaneWidget::activate(const QPoint &pos, const QPoint &alternative)
     }
     resize(sizeHint());
     show();
-    rePosition(pos, alternative);
+    rePosition(pos, alternative, alternative2);
     raise();
 }
 
-void ContextPaneWidget::rePosition(const QPoint &position, const QPoint &alternative)
+void ContextPaneWidget::rePosition(const QPoint &position, const QPoint &alternative, const QPoint &alternative2)
 {
-    if (position.y() > 0)
+    if ((position.x()  + width()) < parentWidget()->width())
         move(position);
     else
         move(alternative);
 
-    m_originalPos = pos();
-    if (m_xPos > 0)
-        move(m_xPos, pos().y());
+    if (pos().y() < 0)
+        move(alternative2);
 }
 
 void ContextPaneWidget::deactivate()
