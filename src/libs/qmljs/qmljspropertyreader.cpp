@@ -30,6 +30,7 @@
 #include "qmljspropertyreader.h"
 #include "qmljsdocument.h"
 #include <qmljs/parser/qmljsast_p.h>
+#include <QDebug>
 
 namespace QmlJS {
 
@@ -175,6 +176,14 @@ static bool isEnum(AST::Statement *ast)
     return false;
 }
 
+static QString cleanupSemicolon(const QString &str)
+{
+    QString out = str;
+    while (out.endsWith(QLatin1Char(';')))
+        out.chop(1);
+    return out;
+}
+
 } // anonymous namespace
 
 PropertyReader::PropertyReader(Document *doc, AST::UiObjectInitializer *ast)
@@ -186,9 +195,9 @@ PropertyReader::PropertyReader(Document *doc, AST::UiObjectInitializer *ast)
             if (!property->qualifiedId)
                 continue; // better safe than sorry.
             const QString propertyName = flatten(property->qualifiedId);
-            const QString astValue = textAt(doc,
+            const QString astValue = cleanupSemicolon(textAt(doc,
                               property->statement->firstSourceLocation(),
-                              property->statement->lastSourceLocation());
+                              property->statement->lastSourceLocation()));
             if (isLiteralValue(property)) {
                 m_properties.insert(propertyName, QVariant(deEscape(stripQuotes(astValue))));
             } else if (isEnum(property->statement)) { //enum
@@ -201,9 +210,9 @@ PropertyReader::PropertyReader(Document *doc, AST::UiObjectInitializer *ast)
                     UiObjectMember *objectMember = iter->member;
                     if (UiScriptBinding *property = cast<UiScriptBinding *>(objectMember)) {
                         const QString propertyNamePart2 = flatten(property->qualifiedId);
-                        const QString astValue = textAt(doc,
+                        const QString astValue = cleanupSemicolon(textAt(doc,
                             property->statement->firstSourceLocation(),
-                            property->statement->lastSourceLocation());
+                            property->statement->lastSourceLocation()));
                         if (isLiteralValue(property)) {
                             m_properties.insert(propertyName + '.' + propertyNamePart2, QVariant(deEscape(stripQuotes(astValue))));
                         } else if (isEnum(property->statement)) { //enum
@@ -214,5 +223,6 @@ PropertyReader::PropertyReader(Document *doc, AST::UiObjectInitializer *ast)
             }
         }
     }
+    qDebug() << m_properties;
 }
 } //QmlJS
