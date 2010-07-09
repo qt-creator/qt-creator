@@ -216,6 +216,8 @@ public:
 
     int verticalBlockSelection() const;
 
+    QRegion translatedLineRegion(int lineStart, int lineEnd) const;
+
 public slots:
     void setDisplayName(const QString &title);
 

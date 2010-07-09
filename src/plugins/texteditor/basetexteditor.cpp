@@ -4270,6 +4270,22 @@ int BaseTextEditor::verticalBlockSelection() const
     return qAbs(b.positionInBlock() - e.positionInBlock()) + d->m_blockSelectionExtraX;
 }
 
+QRegion BaseTextEditor::translatedLineRegion(int lineStart, int lineEnd) const
+{
+    QRegion region;
+    for (int i = lineStart ; i <= lineEnd; i++) {
+        QTextBlock block = document()->findBlockByNumber(i);
+        QPoint topLeft = blockBoundingGeometry(block).translated(contentOffset()).topLeft().toPoint();
+        QTextLayout *layout = block.layout();
+
+        for (int i = 0; i < layout->lineCount();i++) {
+            QTextLine line = layout->lineAt(i);
+            region += line.naturalTextRect().translated(topLeft).toRect();
+        }
+    }
+    return region;
+}
+
 void BaseTextEditor::setFindScope(const QTextCursor &start, const QTextCursor &end, int verticalBlockSelection)
 {
     if (start != d->m_findScopeStart || end != d->m_findScopeEnd) {
