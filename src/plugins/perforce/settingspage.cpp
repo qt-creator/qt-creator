@@ -85,6 +85,7 @@ Settings SettingsPageWidget::settings() const
     settings.timeOutS = m_ui.timeOutSpinBox->value();
     settings.logCount = m_ui.logCountSpinBox->value();
     settings.promptToSubmit = m_ui.promptToSubmitCheckBox->isChecked();
+    settings.autoOpen = m_ui.autoOpenCheckBox->isChecked();
     return settings;
 }
 
@@ -98,6 +99,7 @@ void SettingsPageWidget::setSettings(const PerforceSettings &s)
     m_ui.logCountSpinBox->setValue(s.logCount());
     m_ui.timeOutSpinBox->setValue(s.timeOutS());
     m_ui.promptToSubmitCheckBox->setChecked(s.promptToSubmit());
+    m_ui.autoOpenCheckBox->setChecked(s.autoOpen());
 }
 
 void SettingsPageWidget::setStatusText(const QString &t)

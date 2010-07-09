@@ -50,6 +50,7 @@ public:
 
     virtual bool supportsOperation(Operation operation) const;
     virtual bool vcsOpen(const QString &fileName);
+    virtual SettingsFlags settingsFlags() const;
     virtual bool vcsAdd(const QString &fileName);
     virtual bool vcsDelete(const QString &filename);
     virtual bool vcsMove(const QString &from, const QString &to);

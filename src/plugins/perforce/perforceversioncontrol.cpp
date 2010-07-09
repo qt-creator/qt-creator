@@ -70,6 +70,14 @@ bool PerforceVersionControl::vcsOpen(const QString &fileName)
     return m_plugin->vcsOpen(fi.absolutePath(), fi.fileName());
 }
 
+Core::IVersionControl::SettingsFlags PerforceVersionControl::settingsFlags() const
+{
+    SettingsFlags rc;
+    if (m_plugin->settings().autoOpen())
+        rc|= AutoOpen;
+    return rc;
+};
+
 bool PerforceVersionControl::vcsAdd(const QString &fileName)
 {
     const QFileInfo fi(fileName);

@@ -61,6 +61,7 @@ struct Settings {
     bool defaultEnv;
     int timeOutS;
     bool promptToSubmit;
+    bool autoOpen;
 };
 
 inline bool operator==(const Settings &s1, const Settings &s2) { return s1.equals(s2); }
@@ -122,6 +123,8 @@ public:
     bool defaultEnv() const;
     bool promptToSubmit() const;
     void setPromptToSubmit(bool p);
+    bool autoOpen() const;
+    void setAutoOpen(bool p);
 
     // Return basic arguments, including -d and server connection parameters.
     QStringList commonP4Arguments(const QString &workingDir) const;
