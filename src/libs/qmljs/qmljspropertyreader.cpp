@@ -223,6 +223,5 @@ PropertyReader::PropertyReader(Document *doc, AST::UiObjectInitializer *ast)
             }
         }
     }
-    qDebug() << m_properties;
 }
 } //QmlJS
