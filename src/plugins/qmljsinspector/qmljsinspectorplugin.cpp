@@ -82,7 +82,6 @@ QToolButton *createToolButton(QAction *action)
 
 InspectorPlugin::InspectorPlugin()
 {
-    qDebug() << Q_FUNC_INFO;
     Q_ASSERT(! g_instance);
     g_instance = this;
 
@@ -93,7 +92,6 @@ InspectorPlugin::InspectorPlugin()
 
 InspectorPlugin::~InspectorPlugin()
 {
-    qDebug() << Q_FUNC_INFO;
 }
 
 QmlJS::ModelManagerInterface *InspectorPlugin::modelManager() const
@@ -118,15 +116,12 @@ Inspector *InspectorPlugin::inspector() const
 
 void InspectorPlugin::aboutToShutdown()
 {
-    qDebug() << Q_FUNC_INFO;
 }
 
 bool InspectorPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
     Q_UNUSED(arguments);
     Q_UNUSED(errorString);
-
-    qDebug() << Q_FUNC_INFO;
 
     connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
             SLOT(prepareDebugger(Core::IMode*)));
@@ -149,8 +144,6 @@ bool InspectorPlugin::initialize(const QStringList &arguments, QString *errorStr
 
 void InspectorPlugin::extensionsInitialized()
 {
-    qDebug() << Q_FUNC_INFO;
-
     ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
     Debugger::DebuggerUISwitcher *uiSwitcher = pluginManager->getObject<Debugger::DebuggerUISwitcher>();
 
@@ -185,8 +178,6 @@ void InspectorPlugin::activateDebuggerForProject(ProjectExplorer::Project *proje
     Q_UNUSED(project);
     Q_UNUSED(runMode);
 
-    qDebug() << Q_FUNC_INFO;
-
     if (runMode == QLatin1String(ProjectExplorer::Constants::DEBUGMODE)) {
 #ifdef __GNUC__
 #  warning start a QML/JS debugging session using the information stored in the current project
@@ -203,8 +194,6 @@ void InspectorPlugin::activateDebuggerForProject(ProjectExplorer::Project *proje
 
 void InspectorPlugin::prepareDebugger(Core::IMode *mode)
 {
-    qDebug() << Q_FUNC_INFO;
-
     if (mode->id() != QLatin1String(Debugger::Constants::MODE_DEBUG))
         return;
 
@@ -220,8 +209,6 @@ void InspectorPlugin::prepareDebugger(Core::IMode *mode)
 void InspectorPlugin::setDockWidgetArrangement(const QString &activeLanguage)
 {
     Q_UNUSED(activeLanguage);
-
-    qDebug() << Q_FUNC_INFO;
 
 #if 0
     if (activeLanguage == Qml::Constants::LANG_QML || activeLanguage.isEmpty())

@@ -398,7 +398,6 @@ void Delta::operator()(Document::Ptr doc, Document::Ptr previousDoc)
 
                             if (methodCode != previousMethodCode) {
                                 const QString methodName = bindingParser.methodName(uiSource);
-                                qDebug() << methodName << methodCode;
                                 QDeclarativeDebugObjectReference ref = objectReferenceForUiObject(bindingParser, object);
                                 if (ref.debugId() != -1)
                                     updateMethodBody(ref, script, methodName, methodCode);
@@ -432,8 +431,6 @@ void Delta::updateScriptBinding(const QDeclarativeDebugObjectReference &objectRe
                                 const QString &propertyName,
                                 const QString &scriptCode)
 {
-    qDebug() << "update script:" << propertyName << scriptCode << scriptBinding;
-
     QVariant expr = scriptCode;
 
     const bool isLiteral = isLiteralValue(scriptBinding);

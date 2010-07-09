@@ -54,8 +54,6 @@ void QmlJSLiveTextPreview::updateDocuments()
 
 void QmlJSLiveTextPreview::changeSelectedElement(int offset, const QString &wordAtCursor)
 {
-    qDebug() << __FUNCTION__ << offset << wordAtCursor;
-
     if (!m_currentEditor)
         return;
 
@@ -70,17 +68,12 @@ void QmlJSLiveTextPreview::changeSelectedElement(int offset, const QString &word
     foreach (const QDeclarativeDebugObjectReference &ref, refs) {
         if (ref.idString() == wordAtCursor) {
             objectRef = ref;
-            qDebug() << "yes";
             break;
         }
     }
 
     if (objectRef.debugId() == -1 && offset >= 0) {
         objectRef = info.objectReferenceForOffset(offset);
-
-        qDebug() << "=====================";
-        qDebug() << objectRef.className() << objectRef.source().url() << objectRef.source().lineNumber() << offset;
-        qDebug() << "=====================";
     }
 
     if (objectRef.debugId() != -1)
@@ -112,8 +105,6 @@ void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
         return;
 
     if (doc && m_previousDoc && doc->fileName() == m_previousDoc->fileName()) {
-        qDebug() << "Doc, prevDoc:" << doc->fileName() << m_previousDoc->fileName();
-
         Delta delta;
         delta(doc, m_previousDoc);
         m_previousDoc = doc;
