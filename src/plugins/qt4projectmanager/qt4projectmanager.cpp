@@ -244,6 +244,8 @@ void Qt4Manager::runQMakeContextMenu()
 
 void Qt4Manager::runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *node)
 {
+    if (!ProjectExplorer::ProjectExplorerPlugin::instance()->saveModifiedFiles())
+        return;
     Qt4Project *qt4pro = qobject_cast<Qt4Project *>(p);
     QTC_ASSERT(qt4pro, return);
 
