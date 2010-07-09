@@ -175,7 +175,6 @@ void QmlContextPane::setProperty(const QString &propertyName, const QVariant &va
         QTextCursor tc(m_editor->editor()->document());
         tc.beginEditBlock();
         int cursorPostion = tc.position();
-        tc.beginEditBlock();
         changeSet.apply(&tc);
 
         if (line > 0) {
@@ -189,9 +188,6 @@ void QmlContextPane::setProperty(const QString &propertyName, const QVariant &va
             const int indent = indenter.indentForBottomLine(m_editor->editor()->document()->begin(), end.next(), QChar::Null);
             ts.indentLine(start, indent);
         }
-        tc.endEditBlock();
-        tc.setPosition(cursorPostion);
-
         tc.endEditBlock();
         tc.setPosition(cursorPostion);
     }
@@ -246,8 +242,14 @@ void QmlContextPane::onPropertyRemovedAndChange(const QString &remove, const QSt
     if (!m_doc)
         return;
 
-    setProperty(change, value);
+    QTextCursor tc(m_editor->editor()->document());
+    tc.beginEditBlock();
+
     removeProperty(remove);
+    setProperty(change, value);
+
+    tc.endEditBlock();
+
     m_doc.clear(); //the document is outdated
 
 }
