@@ -123,7 +123,8 @@ void MaemoSshRunner::initState()
 
 void MaemoSshRunner::handleRemoteOutput(const QByteArray &curOutput)
 {
-    const QByteArray output = m_potentialEndMarkerPrefix + curOutput;
+    const QByteArray output
+        = filterTerminalControlChars(m_potentialEndMarkerPrefix + curOutput);
 
     // Wait for a prompt before sending the command.
     if (!m_promptEncountered) {
@@ -184,7 +185,26 @@ void MaemoSshRunner::handleRemoteOutput(const QByteArray &curOutput)
     if (m_endMarkerCount == 2)
         stop();
 
-    m_potentialEndMarkerPrefix = output.right(EndMarker.count() - 1);
+    m_potentialEndMarkerPrefix = output.right(EndMarker.count());
+}
+
+QByteArray MaemoSshRunner::filterTerminalControlChars(const QByteArray &data)
+{
+    QByteArray filteredData;
+    for (int i = 0; i < data.size(); ++i) {
+        if (data.at(i) == '\b') {
+            if (filteredData.isEmpty()) {
+                qWarning("Failed to filter terminal control characters, "
+                    "remote output may not appear.");
+            } else {
+                filteredData.remove(filteredData.count() - 1, 1);
+            }
+        } else {
+            filteredData.append(data.at(i));
+        }
+    }
+
+    return filteredData;
 }
 
 const QByteArray MaemoSshRunner::EndMarker(QString(QChar(0x13a0)).toUtf8());
