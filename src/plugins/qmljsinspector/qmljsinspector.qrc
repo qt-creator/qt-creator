@@ -9,5 +9,13 @@
         <file>images/to-qml.png</file>
         <file>images/select-marquee.png</file>
         <file>images/zoom.png</file>
+        <file>images/color-picker-small.png</file>
+        <file>images/select-small.png</file>
+        <file>images/play-small.png</file>
+        <file>images/to-qml-small.png</file>
+        <file>images/pause-small.png</file>
+        <file>images/from-qml-small.png</file>
+        <file>images/zoom-small.png</file>
+        <file>images/select-marquee-small.png</file>
     </qresource>
 </RCC>

@@ -114,14 +114,14 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     m_reloadAction = new QAction(QIcon(":/qml/images/reload.png"), "Reload", this);
     m_reloadAction->setDisabled(true);
 
-    m_playAction = new QAction(QIcon(":/qml/images/play.png"), tr("Play animations"), this);
-    m_pauseAction = new QAction(QIcon(":/qml/images/pause.png"), tr("Pause animations"), this);
-    m_selectAction = new QAction(QIcon(":/qml/images/select.png"), tr("Select"), this);
-    m_selectMarqueeAction = new QAction(QIcon(":/qml/images/select-marquee.png"), tr("Select (Marquee)"), this);
-    m_zoomAction = new QAction(QIcon(":/qml/images/zoom.png"), tr("Zoom"), this);
-    m_colorPickerAction = new QAction(QIcon(":/qml/images/color-picker.png"), tr("Color Picker"), this);
-    m_toQmlAction = new QAction(QIcon(":/qml/images/to-qml.png"), tr("Apply Changes to QML Viewer"), this);
-    m_fromQmlAction = new QAction(QIcon(":/qml/images/from-qml.png"), tr("Apply Changes to Document"), this);
+    m_playAction = new QAction(QIcon(":/qml/images/play-small.png"), tr("Play animations"), this);
+    m_pauseAction = new QAction(QIcon(":/qml/images/pause-small.png"), tr("Pause animations"), this);
+    m_selectAction = new QAction(QIcon(":/qml/images/select-small.png"), tr("Select"), this);
+    m_selectMarqueeAction = new QAction(QIcon(":/qml/images/select-marquee-small.png"), tr("Select (Marquee)"), this);
+    m_zoomAction = new QAction(QIcon(":/qml/images/zoom-small.png"), tr("Zoom"), this);
+    m_colorPickerAction = new QAction(QIcon(":/qml/images/color-picker-small.png"), tr("Color Picker"), this);
+    m_toQmlAction = new QAction(QIcon(":/qml/images/to-qml-small.png"), tr("Apply Changes to QML Viewer"), this);
+    m_fromQmlAction = new QAction(QIcon(":/qml/images/from-qml-small.png"), tr("Apply Changes to Document"), this);
     m_playAction->setCheckable(true);
     m_playAction->setChecked(true);
     m_pauseAction->setCheckable(true);
