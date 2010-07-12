@@ -931,7 +931,7 @@ public:
                 // We need to do a QCA::translate, so we need a context.
                 // Use fully qualified class name:
                 Overview oo;
-                foreach (const Name *n, LookupContext::fullyQualifiedName(function)) {
+                foreach (const Name *n, LookupContext::path(function)) {
                     if (!m_context.isEmpty())
                         m_context.append(QLatin1String("::"));
                     m_context.append(oo.prettyName(n));
@@ -1563,7 +1563,10 @@ QList<TextEditor::QuickFixOperation::Ptr> CppQuickFixFactory::quickFixOperations
     quickFixOperations.append(convertNumericToOctal);
     quickFixOperations.append(convertNumericToDecimal);
     quickFixOperations.append(completeSwitchCaseStatement);
+
+#if 0
     quickFixOperations.append(declFromDef);
+#endif
 
     if (editor->mimeType() == CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)
         quickFixOperations.append(wrapCString);

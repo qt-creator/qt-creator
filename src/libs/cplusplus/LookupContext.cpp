@@ -47,24 +47,24 @@ namespace {
 
 using namespace CPlusPlus;
 
-static void addNames(const Name *name, QList<const Name *> *names)
+static void addNames(const Name *name, QList<const Name *> *names, bool addAllNames = false)
 {
     if (! name)
         return;
-    else if (name->isNameId() || name->isTemplateNameId())
-        names->append(name);
     else if (const QualifiedNameId *q = name->asQualifiedNameId()) {
         addNames(q->base(), names);
         addNames(q->name(), names);
+    } else if (addAllNames || name->isNameId() || name->isTemplateNameId()) {
+        names->append(name);
     }
 }
 
-static void fullyQualifiedName_helper(Symbol *symbol, QList<const Name *> *names)
+static void path_helper(Symbol *symbol, QList<const Name *> *names)
 {
     if (! symbol)
         return;
 
-    fullyQualifiedName_helper(symbol->enclosingSymbol(), names);
+    path_helper(symbol->enclosingSymbol(), names);
 
     if (symbol->name()) {
         if (symbol->isClass() || symbol->isNamespace()) {
@@ -138,13 +138,21 @@ LookupContext &LookupContext::operator = (const LookupContext &other)
 
 QList<const Name *> LookupContext::fullyQualifiedName(Symbol *symbol)
 {
+    QList<const Name *> qualifiedName = path(symbol->enclosingSymbol());
+    addNames(symbol->name(), &qualifiedName, /*add all names*/ true);
+    return qualifiedName;
+}
+
+QList<const Name *> LookupContext::path(Symbol *symbol)
+{
     QList<const Name *> names;
-    fullyQualifiedName_helper(symbol, &names);
+    path_helper(symbol, &names);
     return names;
 }
 
+
 const Name *LookupContext::minimalName(const Name *name,
-                                       Scope *source,
+                                       Scope *scope,
                                        ClassOrNamespace *target) const
 {
     qWarning() << "TODO:" << Q_FUNC_INFO;
@@ -329,7 +337,7 @@ QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
 
 ClassOrNamespace *LookupContext::lookupParent(Symbol *symbol) const
 {
-    QList<const Name *> fqName = fullyQualifiedName(symbol);
+    QList<const Name *> fqName = path(symbol);
     ClassOrNamespace *binding = globalNamespace();
     foreach (const Name *name, fqName) {
         binding = binding->findType(name);
@@ -697,15 +705,19 @@ ClassOrNamespace *CreateBindings::globalNamespace() const
 
 ClassOrNamespace *CreateBindings::lookupType(Symbol *symbol)
 {
-    const QList<const Name *> names = LookupContext::fullyQualifiedName(symbol);
+    const QList<const Name *> path = LookupContext::path(symbol);
+    return lookupType(path);
+}
 
-    if (names.isEmpty())
+ClassOrNamespace *CreateBindings::lookupType(const QList<const Name *> &path)
+{
+    if (path.isEmpty())
         return _globalNamespace;
 
-    ClassOrNamespace *b = _globalNamespace->lookupType(names.at(0));
+    ClassOrNamespace *b = _globalNamespace->lookupType(path.at(0));
 
-    for (int i = 1; b && i < names.size(); ++i)
-        b = b->findType(names.at(i));
+    for (int i = 1; b && i < path.size(); ++i)
+        b = b->findType(path.at(i));
 
     return b;
 }
