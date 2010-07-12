@@ -857,7 +857,7 @@ int CodeFormatter::tokenizeBlock(const QTextBlock &block, bool *endedJoined)
         *endedJoined = tokenize.endedJoined();
 
     const int lexerState = tokenize.state();
-    TextBlockUserData::setLexerState(block, lexerState);
+    BaseTextDocumentLayout::setLexerState(block, lexerState);
     return lexerState;
 }
 
@@ -942,12 +942,12 @@ bool QtStyleCodeFormatter::loadBlockData(const QTextBlock &block, BlockData *dat
 
 void QtStyleCodeFormatter::saveLexerState(QTextBlock *block, int state) const
 {
-    TextBlockUserData::setLexerState(*block, state);
+    BaseTextDocumentLayout::setLexerState(*block, state);
 }
 
 int QtStyleCodeFormatter::loadLexerState(const QTextBlock &block) const
 {
-    return TextBlockUserData::lexerState(block);
+    return BaseTextDocumentLayout::lexerState(block);
 }
 
 void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedIndentDepth) const

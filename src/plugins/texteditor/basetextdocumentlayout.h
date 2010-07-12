@@ -68,6 +68,7 @@ public:
         : m_folded(false),
           m_ifdefedOut(false),
           m_foldingIndent(0),
+          m_lexerState(0),
           m_foldingStartIncluded(false),
           m_foldingEndIncluded(false),
           m_codeFormatterData(0)
@@ -106,15 +107,15 @@ public:
     static bool findPreviousBlockOpenParenthesis(QTextCursor *cursor, bool checkStartPosition = false);
     static bool findNextBlockClosingParenthesis(QTextCursor *cursor);
 
-    int foldingIndent() const { return m_foldingIndent; }
-    void setFoldingIndent(int indent) { m_foldingIndent = indent; }
-    void setFoldingStartIncluded(bool included) { m_foldingStartIncluded = included; }
-    bool foldingStartIncluded() const { return m_foldingStartIncluded; }
-    void setFoldingEndIncluded(bool included) { m_foldingEndIncluded = included; }
-    bool foldingEndIncluded() const { return m_foldingEndIncluded; }
+    inline int foldingIndent() const { return m_foldingIndent; }
+    inline void setFoldingIndent(int indent) { m_foldingIndent = indent; }
+    inline void setFoldingStartIncluded(bool included) { m_foldingStartIncluded = included; }
+    inline bool foldingStartIncluded() const { return m_foldingStartIncluded; }
+    inline void setFoldingEndIncluded(bool included) { m_foldingEndIncluded = included; }
+    inline bool foldingEndIncluded() const { return m_foldingEndIncluded; }
+    inline int lexerState() const { return m_lexerState; }
+    inline void setLexerState(int state) {m_lexerState = state; }
 
-    static int lexerState(const QTextBlock &block);
-    static void setLexerState(QTextBlock block, int state);
 
     CodeFormatterData *codeFormatterData() const { return m_codeFormatterData; }
     void setCodeFormatterData(CodeFormatterData *data);
@@ -124,6 +125,7 @@ private:
     uint m_folded : 1;
     uint m_ifdefedOut : 1;
     uint m_foldingIndent : 16;
+    uint m_lexerState : 4;
     uint m_foldingStartIncluded : 1;
     uint m_foldingEndIncluded : 1;
     Parentheses m_parentheses;
@@ -152,6 +154,8 @@ public:
     static void changeBraceDepth(QTextBlock &block, int delta);
     static void setFoldingIndent(const QTextBlock &block, int indent);
     static int foldingIndent(const QTextBlock &block);
+    static void setLexerState(const QTextBlock &block, int state);
+    static int lexerState(const QTextBlock &block);
     static void changeFoldingIndent(QTextBlock &block, int delta);
     static bool canFold(const QTextBlock &block);
     static void doFoldOrUnfold(const QTextBlock& block, bool unfold);
@@ -177,6 +181,7 @@ public:
     void setRequiredWidth(int width);
 
     QSizeF documentSize() const;
+
 };
 
 } // namespace TextEditor

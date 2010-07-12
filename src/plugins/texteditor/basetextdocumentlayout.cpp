@@ -366,28 +366,6 @@ TextBlockUserData::MatchType TextBlockUserData::matchCursorForward(QTextCursor *
     return NoMatch;
 }
 
-int TextBlockUserData::lexerState(const QTextBlock &block)
-{
-    if (!block.isValid())
-        return -1;
-
-    int data = block.userState();
-    if (data == -1)
-        return -1;
-    return data & 0xFF;
-}
-
-void TextBlockUserData::setLexerState(QTextBlock block, int state)
-{
-    if (!block.isValid())
-        return;
-
-    int data = block.userState();
-    if (data == -1)
-        data = 0;
-    block.setUserState((data & ~0xFF) | (state & 0xFF));
-}
-
 void TextBlockUserData::setCodeFormatterData(CodeFormatterData *data)
 {
     if (m_codeFormatterData)
@@ -478,6 +456,23 @@ void BaseTextDocumentLayout::changeBraceDepth(QTextBlock &block, int delta)
 {
     if (delta)
         setBraceDepth(block, braceDepth(block) + delta);
+}
+
+void BaseTextDocumentLayout::setLexerState(const QTextBlock &block, int state)
+{
+    if (state == 0) {
+        if (TextBlockUserData *userData = testUserData(block))
+            userData->setLexerState(0);
+    } else {
+        userData(block)->setLexerState(qMax(0,state));
+    }
+}
+
+int BaseTextDocumentLayout::lexerState(const QTextBlock &block)
+{
+    if (TextBlockUserData *userData = testUserData(block))
+        return userData->lexerState();
+    return 0;
 }
 
 void BaseTextDocumentLayout::setFoldingIndent(const QTextBlock &block, int indent)

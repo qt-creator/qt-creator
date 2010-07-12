@@ -4028,11 +4028,7 @@ int BaseTextEditor::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
         return 0;
 
     // verify that we indeed do have an extra opening brace in the document
-    int braceDepth = document()->lastBlock().userState();
-    if (braceDepth >= 0)
-        braceDepth >>= 8;
-    else
-        braceDepth= 0;
+    int braceDepth = BaseTextDocumentLayout::braceDepth(document()->lastBlock());
 
     if (braceDepth <= 0)
         return 0; // braces are all balanced or worse, no need to do anything
@@ -4049,9 +4045,18 @@ int BaseTextEditor::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
     const TabSettings &ts = tabSettings();
     QTextBlock block = cursor.block();
     int indentation = ts.indentationColumn(block.text());
-    if (block.next().isValid()
-        && ts.indentationColumn(block.next().text()) > indentation)
-        return 0;
+
+    if (block.next().isValid()) { // not the last block
+        block = block.next();
+        //skip all empty blocks
+        while (block.isValid() && ts.onlySpace(block.text()))
+            block = block.next();
+        if (block.isValid()
+                && ts.indentationColumn(block.text()) > indentation) {
+            qDebug() << "indentation check failed" << indentation << ts.indentationColumn(block.next().text());
+            return 0;
+        }
+    }
 
     int pos = cursor.position();
 
