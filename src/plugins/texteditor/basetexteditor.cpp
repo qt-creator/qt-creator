@@ -573,8 +573,19 @@ void BaseTextEditor::triggerQuickFix()
     emit requestQuickFix(editableInterface());
 }
 
+QString BaseTextEditor::msgTextTooLarge(quint64 size)
+{
+    return tr("The text is too large to be displayed (%1 MB).").
+           arg(size >> 20);
+}
+
 bool BaseTextEditor::createNew(const QString &contents)
 {
+    if (contents.size() > Core::EditorManager::maxTextFileSize()) {
+        setPlainText(msgTextTooLarge(contents.size()));
+        document()->setModified(false);
+        return false;
+    }
     setPlainText(contents);
     document()->setModified(false);
     return true;

@@ -1080,7 +1080,7 @@ IEditor *EditorManager::createEditor(const QString &editorId,
             mimeType = m_d->m_core->mimeDatabase()->findByType(QLatin1String("text/plain"));
         }
         // open text files > 48 MB in binary editor
-        if (fileInfo.size() >  qint64(3) << 24 && mimeType.type().startsWith(QLatin1String("text")))
+        if (fileInfo.size() >  maxTextFileSize() && mimeType.type().startsWith(QLatin1String("text")))
             mimeType = m_d->m_core->mimeDatabase()->findByType(QLatin1String("application/octet-stream"));
         factories = editorFactories(mimeType, true);
     } else {
@@ -2012,6 +2012,11 @@ void EditorManager::gotoOtherSplit()
             }
         }
     }
+}
+
+qint64 EditorManager::maxTextFileSize()
+{
+    return (qint64(3) << 24);
 }
 //===================EditorClosingCoreListener======================
 

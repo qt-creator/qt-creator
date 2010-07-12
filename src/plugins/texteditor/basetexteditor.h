@@ -294,6 +294,8 @@ protected:
     bool canInsertFromMimeData(const QMimeData *source) const;
     void insertFromMimeData(const QMimeData *source);
 
+    static QString msgTextTooLarge(quint64 size);
+
 private:
     void maybeSelectLine();
 

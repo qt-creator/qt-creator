@@ -627,7 +627,11 @@ void VCSBaseEditor::jumpToChangeFromDiff(QTextCursor cursor)
 
 void VCSBaseEditor::setPlainTextData(const QByteArray &data)
 {
-    setPlainText(codec()->toUnicode(data));
+    if (data.size() > Core::EditorManager::maxTextFileSize()) {
+        setPlainText(msgTextTooLarge(data.size()));
+    } else {
+        setPlainText(codec()->toUnicode(data));
+    }
 }
 
 void VCSBaseEditor::setFontSettings(const TextEditor::FontSettings &fs)
