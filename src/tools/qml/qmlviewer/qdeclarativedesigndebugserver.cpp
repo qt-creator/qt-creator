@@ -40,17 +40,31 @@ void QDeclarativeDesignDebugServer::messageReceived(const QByteArray &message)
         QByteArray toolName;
         ds >> toolName;
         if (toolName == "COLOR_PICKER") {
-            colorPickerToolRequested();
+            emit colorPickerToolRequested();
         } else if (toolName == "SELECT") {
-            selectToolRequested();
+            emit selectToolRequested();
         } else if (toolName == "SELECT_MARQUEE") {
-            selectMarqueeToolRequested();
+            emit selectMarqueeToolRequested();
         } else if (toolName == "ZOOM") {
-            zoomToolRequested();
+            emit zoomToolRequested();
         }
+    } else if (type == "SET_DESIGN_MODE") {
+        bool inDesignMode;
+        ds >> inDesignMode;
+        emit designModeBehaviorChanged(inDesignMode);
     }
 }
 
+void QDeclarativeDesignDebugServer::setDesignModeBehavior(bool inDesignMode)
+{
+    QByteArray message;
+    QDataStream ds(&message, QIODevice::WriteOnly);
+
+    ds << QByteArray("SET_DESIGN_MODE")
+       << inDesignMode;
+
+    sendMessage(message);
+}
 
 void QDeclarativeDesignDebugServer::setCurrentObjects(QList<QObject*> objects)
 {

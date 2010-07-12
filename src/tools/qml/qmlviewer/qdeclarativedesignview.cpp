@@ -38,6 +38,7 @@ QDeclarativeDesignView::QDeclarativeDesignView(QWidget *parent) :
 
     setMouseTracking(true);
 
+    connect(qmlDesignDebugServer(), SIGNAL(designModeBehaviorChanged(bool)), SLOT(setDesignModeBehavior(bool)));
     connect(qmlDesignDebugServer(), SIGNAL(reloadRequested()), SLOT(reloadView()));
     connect(qmlDesignDebugServer(),
             SIGNAL(currentObjectsChanged(QList<QObject*>)),
@@ -48,7 +49,6 @@ QDeclarativeDesignView::QDeclarativeDesignView(QWidget *parent) :
     connect(qmlDesignDebugServer(), SIGNAL(selectToolRequested()), SLOT(changeToSingleSelectTool()));
     connect(qmlDesignDebugServer(), SIGNAL(zoomToolRequested()), SLOT(changeToZoomTool()));
 
-    connect(this, SIGNAL(designModeBehaviorChanged(bool)), SLOT(setDesignModeBehavior(bool)));
     connect(this, SIGNAL(statusChanged(QDeclarativeView::Status)), SLOT(onStatusChanged(QDeclarativeView::Status)));
 
     connect(m_colorPickerTool, SIGNAL(selectedColorChanged(QColor)), SIGNAL(selectedColorChanged(QColor)));
@@ -219,6 +219,10 @@ void QDeclarativeDesignView::wheelEvent(QWheelEvent *event)
 
 void QDeclarativeDesignView::setDesignModeBehavior(bool value)
 {
+    emit designModeBehaviorChanged(value);
+
+    m_toolbar->setDesignModeBehavior(value);
+
     m_designModeBehavior = value;
     if (m_subcomponentEditorTool) {
         m_subcomponentEditorTool->clear();
@@ -488,6 +492,9 @@ void QDeclarativeDesignView::createToolbar()
     m_toolbar = new QmlToolbar(this);
     connect(this, SIGNAL(selectedColorChanged(QColor)), m_toolbar, SLOT(setColorBoxColor(QColor)));
 
+    connect(this, SIGNAL(designModeBehaviorChanged(bool)), m_toolbar, SLOT(setDesignModeBehavior(bool)));
+
+    connect(m_toolbar, SIGNAL(designModeBehaviorChanged(bool)), this, SLOT(setDesignModeBehavior(bool)));
     connect(m_toolbar, SIGNAL(executionStarted()), this, SLOT(continueExecution()));
     connect(m_toolbar, SIGNAL(executionPaused()), this, SLOT(pauseExecution()));
     connect(m_toolbar, SIGNAL(colorPickerSelected()), this, SLOT(changeToColorPickerTool()));

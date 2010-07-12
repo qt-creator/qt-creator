@@ -158,6 +158,7 @@ void InspectorPlugin::extensionsInitialized()
     connect(_clientProxy, SIGNAL(connected(QDeclarativeEngineDebug*)), m_toolbar, SLOT(enable()));
     connect(_clientProxy, SIGNAL(disconnected()), m_toolbar, SLOT(disable()));
 
+    connect(m_toolbar, SIGNAL(designModeSelected(bool)), _clientProxy, SLOT(setDesignModeBehavior(bool)));
     connect(m_toolbar, SIGNAL(reloadSelected()), _clientProxy, SLOT(reloadQmlViewer()));
     connect(m_toolbar, SIGNAL(animationSpeedChanged(qreal)), _clientProxy, SLOT(setAnimationSpeed(qreal)));
     connect(m_toolbar, SIGNAL(colorPickerSelected()), _clientProxy, SLOT(changeToColorPickerTool()));
@@ -169,6 +170,7 @@ void InspectorPlugin::extensionsInitialized()
     connect(_clientProxy, SIGNAL(selectToolActivated()), m_toolbar, SLOT(activateSelectTool()));
     connect(_clientProxy, SIGNAL(selectMarqueeToolActivated()), m_toolbar, SLOT(activateMarqueeSelectTool()));
     connect(_clientProxy, SIGNAL(zoomToolActivated()), m_toolbar, SLOT(activateZoomTool()));
+    connect(_clientProxy, SIGNAL(designModeBehaviorChanged(bool)), m_toolbar, SLOT(setDesignModeBehavior(bool)));
 
     connect(_clientProxy, SIGNAL(animationSpeedChanged(qreal)), m_toolbar, SLOT(changeAnimationSpeed(qreal)));
 }

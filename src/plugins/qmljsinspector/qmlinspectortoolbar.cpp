@@ -24,6 +24,7 @@ static QToolButton *createToolButton(QAction *action)
 
 QmlInspectorToolbar::QmlInspectorToolbar(QObject *parent) :
     QObject(parent),
+    m_designmodeAction(0),
     m_reloadAction(0),
     m_playAction(0),
     m_pauseAction(0),
@@ -42,6 +43,7 @@ QmlInspectorToolbar::QmlInspectorToolbar(QObject *parent) :
 
 void QmlInspectorToolbar::setEnabled(bool value)
 {
+    m_designmodeAction->setEnabled(value);
     m_reloadAction->setEnabled(value);
     m_playAction->setEnabled(value);
     m_pauseAction->setEnabled(value);
@@ -56,6 +58,9 @@ void QmlInspectorToolbar::setEnabled(bool value)
 void QmlInspectorToolbar::enable()
 {
     setEnabled(true);
+    m_emitSignals = false;
+    activateDesignModeOnClick();
+    m_emitSignals = true;
 }
 
 void QmlInspectorToolbar::disable()
@@ -104,6 +109,14 @@ void QmlInspectorToolbar::changeAnimationSpeed(qreal slowdownFactor)
     m_emitSignals = true;
 }
 
+void QmlInspectorToolbar::setDesignModeBehavior(bool inDesignMode)
+{
+    m_emitSignals = false;
+    m_designmodeAction->setChecked(inDesignMode);
+    activateDesignModeOnClick();
+    m_emitSignals = true;
+}
+
 void QmlInspectorToolbar::createActions(const Core::Context &context)
 {
     Core::ICore *core = Core::ICore::instance();
@@ -111,9 +124,8 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
     Debugger::DebuggerUISwitcher *uiSwitcher = pluginManager->getObject<Debugger::DebuggerUISwitcher>();
 
+    m_designmodeAction = new QAction(QIcon(":/qml/images/designmode.png"), "Design Mode", this);
     m_reloadAction = new QAction(QIcon(":/qml/images/reload.png"), "Reload", this);
-    m_reloadAction->setDisabled(true);
-
     m_playAction = new QAction(QIcon(":/qml/images/play-small.png"), tr("Play animations"), this);
     m_pauseAction = new QAction(QIcon(":/qml/images/pause-small.png"), tr("Pause animations"), this);
     m_selectAction = new QAction(QIcon(":/qml/images/select-small.png"), tr("Select"), this);
@@ -122,6 +134,8 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     m_colorPickerAction = new QAction(QIcon(":/qml/images/color-picker-small.png"), tr("Color Picker"), this);
     m_toQmlAction = new QAction(QIcon(":/qml/images/to-qml-small.png"), tr("Apply Changes to QML Viewer"), this);
     m_fromQmlAction = new QAction(QIcon(":/qml/images/from-qml-small.png"), tr("Apply Changes to Document"), this);
+    m_designmodeAction->setCheckable(true);
+    m_designmodeAction->setChecked(false);
     m_playAction->setCheckable(true);
     m_playAction->setChecked(true);
     m_pauseAction->setCheckable(true);
@@ -130,6 +144,7 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     m_zoomAction->setCheckable(true);
     m_colorPickerAction->setCheckable(true);
 
+    am->registerAction(m_designmodeAction, QmlJSInspector::Constants::DESIGNMODE_ACTION, context);
     am->registerAction(m_reloadAction, QmlJSInspector::Constants::RELOAD_ACTION, context);
     am->registerAction(m_playAction, QmlJSInspector::Constants::PLAY_ACTION, context);
     am->registerAction(m_pauseAction, QmlJSInspector::Constants::PAUSE_ACTION, context);
@@ -149,6 +164,7 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
 
     configBarLayout->addWidget(createToolButton(am->command(ProjectExplorer::Constants::DEBUG)->action()));
     configBarLayout->addWidget(createToolButton(am->command(ProjectExplorer::Constants::STOP)->action()));
+    configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::DESIGNMODE_ACTION)->action()));
     configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::RELOAD_ACTION)->action()));
     configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::PLAY_ACTION)->action()));
     configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::PAUSE_ACTION)->action()));
@@ -167,6 +183,7 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     uiSwitcher->setToolbar(QmlJSInspector::Constants::LANG_QML, configBar);
     setEnabled(false);
 
+    connect(m_designmodeAction, SIGNAL(triggered()), SLOT(activateDesignModeOnClick()));
     connect(m_reloadAction, SIGNAL(triggered()), SIGNAL(reloadSelected()));
 
     connect(m_colorPickerAction, SIGNAL(triggered()), SLOT(activateColorPickerOnClick()));
@@ -181,6 +198,24 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
 
     connect(m_toQmlAction, SIGNAL(triggered()), SLOT(activateToQml()));
     connect(m_fromQmlAction, SIGNAL(triggered()), SLOT(activateFromQml()));
+}
+
+void QmlInspectorToolbar::activateDesignModeOnClick()
+{
+    bool checked = m_designmodeAction->isChecked();
+
+    m_reloadAction->setEnabled(checked);
+    m_playAction->setEnabled(checked);
+    m_pauseAction->setEnabled(checked);
+    m_selectAction->setEnabled(checked);
+    m_selectMarqueeAction->setEnabled(checked);
+    m_zoomAction->setEnabled(checked);
+    m_colorPickerAction->setEnabled(checked);
+    m_toQmlAction->setEnabled(checked);
+    m_fromQmlAction->setEnabled(checked);
+
+    if (m_emitSignals)
+        emit designModeSelected(checked);
 }
 
 void QmlInspectorToolbar::activatePlayOnClick()

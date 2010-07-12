@@ -42,6 +42,7 @@ const char * const M_DEBUG_SIMULTANEOUSLY = "QmlInspector.Menu.SimultaneousDebug
 
 const char * const LANG_QML = "QML";
 
+const char * const DESIGNMODE_ACTION = "QmlInspector.DesignMode";
 const char * const RELOAD_ACTION = "QmlInspector.Reload";
 const char * const PLAY_ACTION = "QmlInspector.Play";
 const char * const PAUSE_ACTION = "QmlInspector.Pause";

@@ -9,5 +9,6 @@
         <file>images/from-qml.png</file>
         <file>images/zoom.png</file>
         <file>images/to-qml.png</file>
+        <file>images/designmode.png</file>
     </qresource>
 </RCC>

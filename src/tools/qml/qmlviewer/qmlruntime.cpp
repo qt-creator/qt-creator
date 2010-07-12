@@ -633,7 +633,6 @@ void QDeclarativeViewer::setDesignModeBehavior(bool value)
 {
     designModeBehaviorAction->setChecked(value);
     canvas->setDesignModeBehavior(value);
-    canvas->toolbar()->setEnabled(value);
 }
 
 void QDeclarativeViewer::setDebugMode(bool on)
@@ -701,6 +700,7 @@ void QDeclarativeViewer::createMenu()
     designModeBehaviorAction->setCheckable(true);
     designModeBehaviorAction->setChecked(canvas->designModeBehavior());
     connect(designModeBehaviorAction, SIGNAL(triggered(bool)), this, SLOT(setDesignModeBehavior(bool)));
+    connect(canvas, SIGNAL(designModeBehaviorChanged(bool)), designModeBehaviorAction, SLOT(setChecked(bool)));
 
     QAction *proxyAction = new QAction(tr("HTTP &Proxy..."), this);
     connect(proxyAction, SIGNAL(triggered()), this, SLOT(showProxySettings()));

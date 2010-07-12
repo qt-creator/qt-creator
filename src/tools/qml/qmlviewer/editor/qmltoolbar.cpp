@@ -14,6 +14,7 @@ QmlToolbar::QmlToolbar(QWidget *parent) :
     m_emitSignals(true),
     ui(new Ui)
 {
+    ui->designmode = new QAction(QIcon(":/qml/images/designmode.png"), tr("Design Mode"), this);
     ui->play = new QAction(QIcon(":/qml/images/play.png"), tr("Play"), this);
     ui->pause = new QAction(QIcon(":/qml/images/pause.png"), tr("Pause"), this);
     ui->select = new QAction(QIcon(":/qml/images/select.png"), tr("Select"), this);
@@ -22,6 +23,9 @@ QmlToolbar::QmlToolbar(QWidget *parent) :
     ui->colorPicker = new QAction(QIcon(":/qml/images/color-picker.png"), tr("Color Picker"), this);
     ui->toQml = new QAction(QIcon(":/qml/images/to-qml.png"), tr("Apply Changes to QML Viewer"), this);
     ui->fromQml = new QAction(QIcon(":/qml/images/from-qml.png"), tr("Apply Changes to Document"), this);
+    ui->designmode->setCheckable(true);
+    ui->designmode->setChecked(false);
+
     ui->play->setCheckable(true);
     ui->play->setChecked(true);
     ui->pause->setCheckable(true);
@@ -32,6 +36,7 @@ QmlToolbar::QmlToolbar(QWidget *parent) :
 
     setWindowTitle(tr("Tools"));
 
+    addAction(ui->designmode);
     addAction(ui->play);
     addAction(ui->pause);
     addSeparator();
@@ -50,6 +55,8 @@ QmlToolbar::QmlToolbar(QWidget *parent) :
     addWidget(ui->colorBox);
 
     setWindowFlags(Qt::Tool);
+
+    connect(ui->designmode, SIGNAL(toggled(bool)), SLOT(setDesignModeBehaviorOnClick(bool)));
 
     connect(ui->colorPicker, SIGNAL(triggered()), SLOT(activateColorPickerOnClick()));
 
@@ -112,6 +119,29 @@ void QmlToolbar::activateZoom()
     m_emitSignals = true;
 }
 
+void QmlToolbar::setDesignModeBehavior(bool inDesignMode)
+{
+    m_emitSignals = false;
+    ui->designmode->setChecked(inDesignMode);
+    setDesignModeBehaviorOnClick(inDesignMode);
+    m_emitSignals = true;
+}
+
+void QmlToolbar::setDesignModeBehaviorOnClick(bool checked)
+{
+    ui->play->setEnabled(checked);
+    ui->pause->setEnabled(checked);
+    ui->select->setEnabled(checked);
+    ui->selectMarquee->setEnabled(checked);
+    ui->zoom->setEnabled(checked);
+    ui->colorPicker->setEnabled(checked);
+    ui->toQml->setEnabled(checked);
+    ui->fromQml->setEnabled(checked);
+
+    if (m_emitSignals)
+        emit designModeBehaviorChanged(checked);
+}
+
 void QmlToolbar::setColorBoxColor(const QColor &color)
 {
     ui->colorBox->setColor(color);
@@ -120,8 +150,8 @@ void QmlToolbar::setColorBoxColor(const QColor &color)
 void QmlToolbar::activatePlayOnClick()
 {
     ui->pause->setChecked(false);
+    ui->play->setChecked(true);
     if (!m_isRunning) {
-        ui->play->setChecked(true);
         m_isRunning = true;
         if (m_emitSignals)
             emit executionStarted();
@@ -131,9 +161,9 @@ void QmlToolbar::activatePlayOnClick()
 void QmlToolbar::activatePauseOnClick()
 {
     ui->play->setChecked(false);
+    ui->pause->setChecked(true);
     if (m_isRunning) {
         m_isRunning = false;
-        ui->pause->setChecked(true);
         if (m_emitSignals)
             emit executionPaused();
     }

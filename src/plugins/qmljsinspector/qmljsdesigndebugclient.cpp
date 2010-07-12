@@ -93,6 +93,10 @@ void QmlJSDesignDebugClient::messageReceived(const QByteArray &message)
         qreal slowdownFactor;
         ds >> slowdownFactor;
         emit animationSpeedChanged(slowdownFactor);
+    } else if (type == "SET_DESIGN_MODE") {
+        bool inDesignMode;
+        ds >> inDesignMode;
+        emit designModeBehaviorChanged(inDesignMode);
     }
 }
 
@@ -123,6 +127,20 @@ void QmlJSDesignDebugClient::reloadViewer()
     QDataStream ds(&message, QIODevice::WriteOnly);
 
     ds << QByteArray("RELOAD");
+    sendMessage(message);
+}
+
+void QmlJSDesignDebugClient::setDesignModeBehavior(bool inDesignMode)
+{
+    if (!m_connection || !m_connection->isConnected())
+        return;
+
+    QByteArray message;
+    QDataStream ds(&message, QIODevice::WriteOnly);
+
+    ds << QByteArray("SET_DESIGN_MODE")
+       << inDesignMode;
+
     sendMessage(message);
 }
 

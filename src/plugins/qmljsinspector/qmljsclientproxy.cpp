@@ -77,8 +77,9 @@ bool ClientProxy::connectToViewer(const QString &host, quint16 port)
         disconnect(m_designClient,
                    SIGNAL(selectMarqueeToolActivated()), this, SIGNAL(selectMarqueeToolActivated()));
         disconnect(m_designClient,
-
                    SIGNAL(animationSpeedChanged(qreal)), this, SIGNAL(animationSpeedChanged(qreal)));
+        disconnect(m_designClient,
+                   SIGNAL(designModeBehaviorChanged(bool)), this, SIGNAL(designModeBehaviorChanged(bool)));
 
         emit aboutToDisconnect();
 
@@ -173,7 +174,8 @@ void ClientProxy::connectionStateChanged()
                         SIGNAL(selectMarqueeToolActivated()), SIGNAL(selectMarqueeToolActivated()));
                 connect(m_designClient,
                         SIGNAL(animationSpeedChanged(qreal)), SIGNAL(animationSpeedChanged(qreal)));
-
+                connect(m_designClient,
+                        SIGNAL(designModeBehaviorChanged(bool)), SIGNAL(designModeBehaviorChanged(bool)));
             }
 
             (void) new DebuggerClient(m_conn);
@@ -331,6 +333,12 @@ void ClientProxy::reloadQmlViewer()
 {
     if (m_designClient && m_conn->isConnected())
         m_designClient->reloadViewer();
+}
+
+void ClientProxy::setDesignModeBehavior(bool inDesignMode)
+{
+    if (m_designClient && m_conn->isConnected())
+        m_designClient->setDesignModeBehavior(inDesignMode);
 }
 
 void ClientProxy::setAnimationSpeed(qreal slowdownFactor)

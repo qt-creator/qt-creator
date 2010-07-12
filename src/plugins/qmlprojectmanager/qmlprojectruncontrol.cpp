@@ -81,12 +81,6 @@ QmlRunControl::~QmlRunControl()
 
 void QmlRunControl::start()
 {
-    if (runMode() == ProjectExplorer::Constants::DEBUGMODE) {
-        if (!m_commandLineArguments.contains(QmlJSInspector::Constants::ARG_DESIGNMODE)) {
-            m_commandLineArguments.append(QmlJSInspector::Constants::ARG_DESIGNMODE);
-        }
-    }
-
     m_applicationLauncher.start(ProjectExplorer::ApplicationLauncher::Gui, m_executable,
                                 m_commandLineArguments);
 

@@ -94,11 +94,13 @@ signals:
     void selectMarqueeToolActivated();
     void zoomToolActivated();
     void animationSpeedChanged(qreal slowdownFactor);
+    void designModeBehaviorChanged(bool inDesignMode);
 
 public slots:
     void queryEngineContext(int id);
     void reloadQmlViewer();
 
+    void setDesignModeBehavior(bool inDesignMode);
     void setAnimationSpeed(qreal slowdownFactor = 1.0f);
     void changeToColorPickerTool();
     void changeToZoomTool();

@@ -57,6 +57,7 @@ public:
 
     void setSelectedItemsByObjectId(const QList<QDeclarativeDebugObjectReference> &objects);
     void reloadViewer();
+    void setDesignModeBehavior(bool inDesignMode);
     void setAnimationSpeed(qreal slowdownFactor);
     void changeToColorPickerTool();
     void changeToSelectTool();
@@ -73,6 +74,7 @@ signals:
     void selectMarqueeToolActivated();
     void zoomToolActivated();
     void animationSpeedChanged(qreal slowdownFactor);
+    void designModeBehaviorChanged(bool inDesignMode);
 
 protected:
     virtual void messageReceived(const QByteArray &);

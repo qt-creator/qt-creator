@@ -58,12 +58,14 @@ class QDeclarativeDesignDebugServer : public QDeclarativeDebugService
 public:
     QDeclarativeDesignDebugServer(QObject *parent = 0);
 
+    void setDesignModeBehavior(bool inDesignMode);
     void setCurrentObjects(QList<QObject*> items);
     void setAnimationSpeed(qreal slowdownFactor);
     void setCurrentTool(QmlViewer::Constants::DesignTool toolId);
 
 Q_SIGNALS:
     void currentObjectsChanged(const QList<QObject*> &objects);
+    void designModeBehaviorChanged(bool inDesignMode);
     void reloadRequested();
     void selectToolRequested();
     void selectMarqueeToolRequested();

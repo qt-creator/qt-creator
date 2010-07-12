@@ -17,6 +17,7 @@ public:
     ~QmlToolbar();
 
 public slots:
+    void setDesignModeBehavior(bool inDesignMode);
     void setColorBoxColor(const QColor &color);
     void startExecution();
     void pauseExecution();
@@ -29,6 +30,7 @@ signals:
     void executionStarted();
     void executionPaused();
 
+    void designModeBehaviorChanged(bool inDesignMode);
     void colorPickerSelected();
     void selectToolSelected();
     void marqueeSelectToolSelected();
@@ -38,6 +40,7 @@ signals:
     void applyChangesFromQmlFileSelected();
 
 private slots:
+    void setDesignModeBehaviorOnClick(bool inDesignMode);
     void activatePlayOnClick();
     void activatePauseOnClick();
     void activateColorPickerOnClick();
@@ -51,6 +54,7 @@ private slots:
 private:
     class Ui {
     public:
+        QAction *designmode;
         QAction *play;
         QAction *pause;
         QAction *select;
