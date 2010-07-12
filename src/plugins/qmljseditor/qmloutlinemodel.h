@@ -21,7 +21,7 @@ public:
 
     void update(QmlJS::Document::Ptr doc);
 
-    QModelIndex enterElement(const QString &typeName, const QmlJS::AST::SourceLocation &location);
+    QModelIndex enterElement(const QString &typeName, const QString &id, const QmlJS::AST::SourceLocation &location);
     void leaveElement();
 
     QModelIndex enterProperty(const QString &name, const QmlJS::AST::SourceLocation &location);

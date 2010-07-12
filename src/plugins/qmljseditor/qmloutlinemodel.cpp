@@ -63,6 +63,8 @@ private:
         return text;
     }
 
+
+
     bool visit(AST::UiObjectDefinition *objDef)
     {
         AST::SourceLocation location;
@@ -71,7 +73,9 @@ private:
                 - objDef->firstSourceLocation().offset
                 + objDef->lastSourceLocation().length;
 
-        QModelIndex index = m_model->enterElement(asString(objDef->qualifiedTypeNameId), location);
+        const QString typeName = asString(objDef->qualifiedTypeNameId);
+        const QString id = getId(objDef);
+        QModelIndex index = m_model->enterElement(asString(objDef->qualifiedTypeNameId), id, location);
         m_nodeToIndex.insert(objDef, index);
         return true;
     }
@@ -99,6 +103,26 @@ private:
     {
         m_model->leaveProperty();
     }
+
+    QString getId(AST::UiObjectDefinition *objDef) {
+        QString id;
+        for (AST::UiObjectMemberList *it = objDef->initializer->members; it; it = it->next) {
+            if (AST::UiScriptBinding *binding = dynamic_cast<AST::UiScriptBinding*>(it->member)) {
+                if (binding->qualifiedId->name->asString() == "id") {
+                    AST::ExpressionStatement *expr = dynamic_cast<AST::ExpressionStatement*>(binding->statement);
+                    if (!expr)
+                        continue;
+                    AST::IdentifierExpression *idExpr = dynamic_cast<AST::IdentifierExpression*>(expr->expression);
+                    if (!idExpr)
+                        continue;
+                    id = idExpr->name->asString();
+                    break;
+                }
+            }
+        }
+        return id;
+    }
+
 
     QmlOutlineModel *m_model;
     QHash<AST::Node*, QModelIndex> m_nodeToIndex;
@@ -128,10 +152,15 @@ void QmlOutlineModel::update(QmlJS::Document::Ptr doc)
     emit updated();
 }
 
-QModelIndex QmlOutlineModel::enterElement(const QString &type, const AST::SourceLocation &sourceLocation)
+QModelIndex QmlOutlineModel::enterElement(const QString &type, const QString &id, const AST::SourceLocation &sourceLocation)
 {
     QStandardItem *item = enterNode(sourceLocation);
-    item->setText(type);
+    if (!id.isEmpty()) {
+        item->setText(id);
+    } else {
+        item->setText(type);
+    }
+    item->setToolTip(type);
     item->setIcon(m_icons.objectDefinitionIcon());
     return item->index();
 }
