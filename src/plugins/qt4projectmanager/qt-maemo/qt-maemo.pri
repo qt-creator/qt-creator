@@ -19,7 +19,10 @@ HEADERS += \
     $$PWD/profilewrapper.h \
     $$PWD/maemodeployables.h \
     $$PWD/maemodeployable.h \
-    $$PWD/maemodeployablelistwidget.h
+    $$PWD/maemodeployablelistwidget.h \
+    $$PWD/maemodeploystep.h \
+    $$PWD/maemodeploystepwidget.h \
+    $$PWD/maemodeploystepfactory.h
 
 SOURCES += \
     $$PWD/maemoconfigtestdialog.cpp \
@@ -40,13 +43,17 @@ SOURCES += \
     $$PWD/qemuruntimemanager.cpp \
     $$PWD/profilewrapper.cpp \
     $$PWD/maemodeployables.cpp \
-    $$PWD/maemodeployablelistwidget.cpp
+    $$PWD/maemodeployablelistwidget.cpp \
+    $$PWD/maemodeploystep.cpp \
+    $$PWD/maemodeploystepwidget.cpp \
+    $$PWD/maemodeploystepfactory.cpp
 
 FORMS += \
     $$PWD/maemoconfigtestdialog.ui \
     $$PWD/maemosettingswidget.ui \
     $$PWD/maemosshconfigdialog.ui \
     $$PWD/maemopackagecreationwidget.ui \
-    $$PWD/maemodeployablelistwidget.ui
+    $$PWD/maemodeployablelistwidget.ui \
+    qt-maemo/maemodeploystepwidget.ui
 
 RESOURCES += $$PWD/qt-maemo.qrc
