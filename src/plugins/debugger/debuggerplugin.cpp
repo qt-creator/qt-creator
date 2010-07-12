@@ -171,15 +171,16 @@
 //                               +
 //                  (calls *Engine->setupEngine())
 //                            |      |
+//                            |      |
 //                       {notify-  {notify-
 //                        Engine-   Engine-
 //                        SetupOk}  SetupFailed}
-//                            |      |
-//                            |      `---> EngineSetupFailed
-//                            |                   +
-//                            |    [calls RunControl->startFailed]
-//                            |                   +
-//                            |             DebuggerNotReady
+//                            +      +
+//                            +      `+-+-+> EngineSetupFailed
+//                            +                   +
+//                            +    [calls RunControl->startFailed]
+//                            +                   +
+//                            +             DebuggerFinished
 //                            v
 //                      EngineSetupOk
 //                            +
@@ -257,6 +258,7 @@
 //                  EngineShutdownRequested                                 +
 //                            +                                             +
 //           (calls *Engine->shutdownEngine())  <+-+-+-+-+-+-+-+-+-+-+-+-+-+' 
+//                         |        |                                        
 //                         |        |                                        
 //                    {notify-   {notify-                                    
 //                    Inferior-  Inferior-                                   
