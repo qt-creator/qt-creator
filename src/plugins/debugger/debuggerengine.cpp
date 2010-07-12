@@ -942,12 +942,12 @@ static bool isAllowedTransition(DebuggerState from, DebuggerState to)
 {
     switch (from) {
     case DebuggerNotReady:
-        return to == EngineSetupRequested || to == DebuggerNotReady;
+        return to == EngineSetupRequested;
 
     case EngineSetupRequested:
         return to == EngineSetupOk || to == EngineSetupFailed;
     case EngineSetupFailed:
-        return to == DebuggerNotReady;
+        return to == DebuggerFinished;
     case EngineSetupOk:
         return to == InferiorSetupRequested || to == EngineShutdownRequested;
 
@@ -1273,9 +1273,14 @@ void DebuggerEngine::notifyEngineIll()
 void DebuggerEngine::notifyEngineSpontaneousShutdown()
 {
     SDEBUG(Q_FUNC_INFO);
-    qDebug() << "THE ENGINE SUDDENLY DIED";
-    setState(EngineShutdownOk, true);
-    QTimer::singleShot(0, d, SLOT(doFinishDebugger()));
+    if (state() == EngineShutdownRequested) {
+        setState(EngineShutdownOk, true);
+        QTimer::singleShot(0, d, SLOT(doFinishDebugger()));
+    } else {
+        qDebug() << "THE ENGINE SUDDENLY DIED";
+        setState(EngineShutdownOk, true);
+        QTimer::singleShot(0, d, SLOT(doFinishDebugger()));
+    }
 }
 
 void DebuggerEngine::notifyInferiorExited()

@@ -129,10 +129,6 @@ void PdbEngine::shutdownEngine()
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
     SDEBUG("PdbEngine::shutdownEngine()");
     m_pdbProc.kill();
-    //if (m_scriptEngine->isEvaluating())
-    //    m_scriptEngine->abortEvaluation();
-    //m_scriptEngine->setAgent(0);
-    notifyEngineShutdownOk();
 }
 
 void PdbEngine::setupEngine()
@@ -178,7 +174,7 @@ void PdbEngine::setupEngine()
     if (!m_pdbProc.waitForStarted()) {
         const QString msg = tr("Unable to start pdb '%1': %2")
             .arg(m_pdb, m_pdbProc.errorString());
-        setState(EngineSetupFailed);
+        notifyEngineSetupFailed();
         showMessage(_("ADAPTER START FAILED"));
         if (!msg.isEmpty()) {
             const QString title = tr("Adapter start failed");
@@ -206,59 +202,60 @@ void PdbEngine::runEngine()
 {
     showStatusMessage(tr("Running requested..."), 5000);
     SDEBUG("PdbEngine::runEngine()");
-    continueInferior();
+    notifyEngineRunAndInferiorRunOk();
+    postCommand("continue", CB(handleUpdateAll));
 }
 
 void PdbEngine::interruptInferior()
 {
-    setState(InferiorStopOk);
+    notifyInferiorStopOk();
 }
 
 void PdbEngine::executeStep()
 {
     resetLocation();
-    setState(InferiorRunRequested);
-    setState(InferiorRunOk);
+    notifyInferiorRunRequested();
+    notifyInferiorRunOk();
     postCommand("step", CB(handleUpdateAll));
 }
 
 void PdbEngine::executeStepI()
 {
     resetLocation();
-    setState(InferiorRunRequested);
-    setState(InferiorRunOk);
+    notifyInferiorRunRequested();
+    notifyInferiorRunOk();
     postCommand("step", CB(handleUpdateAll));
 }
 
 void PdbEngine::executeStepOut()
 {
     resetLocation();
-    setState(InferiorRunRequested);
-    setState(InferiorRunOk);
+    notifyInferiorRunRequested();
+    notifyInferiorRunOk();
     postCommand("finish", CB(handleUpdateAll));
 }
 
 void PdbEngine::executeNext()
 {
     resetLocation();
-    setState(InferiorRunRequested);
-    setState(InferiorRunOk);
+    notifyInferiorRunRequested();
+    notifyInferiorRunOk();
     postCommand("next", CB(handleUpdateAll));
 }
 
 void PdbEngine::executeNextI()
 {
     resetLocation();
-    setState(InferiorRunRequested);
-    setState(InferiorRunOk);
+    notifyInferiorRunRequested();
+    notifyInferiorRunOk();
     postCommand("next", CB(handleUpdateAll));
 }
 
 void PdbEngine::continueInferior()
 {
     resetLocation();
-    setState(InferiorRunRequested);
-    setState(InferiorRunOk);
+    notifyInferiorRunRequested();
+    notifyInferiorRunOk();
     // Callback will be triggered e.g. when breakpoint is hit.
     postCommand("continue", CB(handleUpdateAll));
 }
@@ -561,8 +558,8 @@ void PdbEngine::handlePdbError(QProcess::ProcessError error)
     case QProcess::WriteError:
     case QProcess::Timedout:
     default:
+        //setState(EngineShutdownRequested, true);
         m_pdbProc.kill();
-        setState(EngineShutdownRequested, true);
         plugin()->showMessageBox(QMessageBox::Critical, tr("Pdb I/O Error"),
                        errorMessage(error));
         break;
@@ -599,9 +596,7 @@ QString PdbEngine::errorMessage(QProcess::ProcessError error) const
 void PdbEngine::handlePdbFinished(int code, QProcess::ExitStatus type)
 {
     showMessage(_("PDB PROCESS FINISHED, status %1, code %2").arg(type).arg(code));
-    //shutdown();
-    //initializeVariables();
-    setState(DebuggerNotReady, true);
+    notifyEngineSpontaneousShutdown();
 }
 
 void PdbEngine::readPdbStandardError()
@@ -661,8 +656,7 @@ void PdbEngine::handleResponse(const QByteArray &response0)
             frame.line = lineNumber;
             if (frame.line > 0 && QFileInfo(frame.file).exists()) {
                 gotoLocation(frame, true);
-                setState(InferiorStopRequested);
-                setState(InferiorStopOk);
+                notifyInferiorSpontaneousStop();
                 return;
             }
         }
@@ -678,8 +672,7 @@ void PdbEngine::handleFirstCommand(const PdbResponse &response)
 void PdbEngine::handleUpdateAll(const PdbResponse &response)
 {
     Q_UNUSED(response);
-    setState(InferiorStopRequested);
-    setState(InferiorStopOk);
+    notifyInferiorSpontaneousStop();
     updateAll();
 }
 
