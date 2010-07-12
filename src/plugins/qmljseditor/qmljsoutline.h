@@ -3,16 +3,9 @@
 
 #include "qmljseditor.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/inavigationwidgetfactory.h>
 #include <texteditor/ioutlinewidget.h>
-#include <qmljs/parser/qmljsastvisitor_p.h>
-#include <qmljs/qmljsdocument.h>
-#include <qmljs/qmljsicons.h>
 
-#include <QtGui/QStandardItemModel>
 #include <QtGui/QTreeView>
-#include <QtGui/QWidget>
 
 namespace Core {
 class IEditor;
@@ -25,42 +18,12 @@ class Editor;
 namespace QmlJSEditor {
 namespace Internal {
 
-class QmlOutlineModel : public QStandardItemModel
-{
-    Q_OBJECT
-public:
-    enum CustomRoles {
-        SourceLocationRole = Qt::UserRole + 1
-    };
-
-    QmlOutlineModel(QObject *parent = 0);
-
-    void startSync();
-
-    QModelIndex enterElement(const QString &typeName, const QmlJS::AST::SourceLocation &location);
-    void leaveElement();
-
-    QModelIndex enterProperty(const QString &name, const QmlJS::AST::SourceLocation &location);
-    void leaveProperty();
-
-private:
-    QStandardItem *enterNode(const QmlJS::AST::SourceLocation &location);
-    void leaveNode();
-
-    QStandardItem *parentItem();
-
-    QList<int> m_treePos;
-    QStandardItem *m_currentItem;
-    QmlJS::Icons m_icons;
-};
-
 class QmlJSOutlineTreeView : public QTreeView
 {
     Q_OBJECT
 public:
     QmlJSOutlineTreeView(QWidget *parent = 0);
 };
-
 
 class QmlJSOutlineWidget : public TextEditor::IOutlineWidget
 {
@@ -102,7 +65,5 @@ public:
 
 } // namespace Internal
 } // namespace QmlJSEditor
-
-Q_DECLARE_METATYPE(QmlJS::AST::SourceLocation);
 
 #endif // QMLJSOUTLINE_H
