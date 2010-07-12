@@ -2202,8 +2202,8 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     m_detachAction->setEnabled(detachable);
 
     const bool stoppable = m_state == InferiorRunOk
-        || m_state == InferiorRunRequested
-        || m_state == InferiorStopRequested
+        //|| m_state == InferiorRunRequested
+        //|| m_state == InferiorStopRequested
         || m_state == InferiorStopOk
         || m_state == InferiorUnrunnable;
 
