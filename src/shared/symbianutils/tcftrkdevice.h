@@ -249,6 +249,9 @@ public:
                                  unsigned value,
                                  const QVariant &cookie = QVariant());
 
+    void sendLoggingAddListenerCommand(const TcfTrkCallback &callBack,
+                                       const QVariant &cookie = QVariant());
+
     static QByteArray parseMemoryGet(const TcfTrkCommandResult &r);
 
 signals:

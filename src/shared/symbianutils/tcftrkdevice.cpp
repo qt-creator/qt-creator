@@ -914,4 +914,15 @@ void TcfTrkDevice::sendRegistersSetCommand(const TcfTrkCallback &callBack,
                             value, cookie);
 }
 
+static const char outputListenerIDC[] = "org.eclipse.cdt.debug.edc.ui.ProgramOutputConsoleLogger";
+
+void TcfTrkDevice::sendLoggingAddListenerCommand(const TcfTrkCallback &callBack,
+                                                 const QVariant &cookie)
+{
+    QByteArray data;
+    JsonInputStream str(data);
+    str << outputListenerIDC;
+    sendTcfTrkMessage(MessageWithReply, LoggingService, "addListener", data, callBack, cookie);
+}
+
 } // namespace tcftrk

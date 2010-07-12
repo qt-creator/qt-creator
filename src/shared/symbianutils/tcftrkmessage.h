@@ -53,6 +53,7 @@ enum Services {
     BreakpointsService,
     RegistersService,
     SimpleRegistersService, // non-standard, trk specific
+    LoggingService,    // non-standard, trk specific
     UnknownService
 }; // Note: Check string array 'serviceNamesC' of same size when modifying this.
 
@@ -160,7 +161,8 @@ public:
                 RunControlSuspended,
                 RunControlBreakpointSuspended,
                 RunControlModuleLoadSuspended,
-                RunControlResumed
+                RunControlResumed,
+                LoggingWriteEvent // Non-standard
               };
 
     virtual ~TcfTrkEvent();
@@ -187,6 +189,21 @@ public:
 
 private:
     QStringList m_services;
+};
+
+// Logging event (non-standard, trk specific)
+class SYMBIANUTILS_EXPORT TcfTrkLoggingWriteEvent : public TcfTrkEvent {
+public:
+    explicit TcfTrkLoggingWriteEvent(const QByteArray &console, const QByteArray &message);
+
+    QByteArray message() const { return m_message; }
+    QByteArray console() const { return m_console; }
+
+    virtual QString toString() const;
+
+private:
+    const QByteArray m_console;
+    const QByteArray m_message;
 };
 
 // Base for events that just have one id as parameter
