@@ -206,6 +206,8 @@ void AttachCoreDialog::setCoreFile(const QString &fileName)
 //
 ///////////////////////////////////////////////////////////////////////
 
+#ifndef Q_OS_WIN
+
 static bool isUnixProcessId(const QString &procname)
 {
     for (int i = 0; i != procname.size(); ++i)
@@ -287,6 +289,7 @@ static QList<ProcData> unixProcessList()
     }
     return rc;
 }
+#endif // Q_OS_WIN
 
 static QList<ProcData> processList()
 {

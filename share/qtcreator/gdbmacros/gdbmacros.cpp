@@ -273,17 +273,6 @@ static bool startsWith(const char *s, const char *t)
     return true;
 }
 
-static bool couldBePointer(const void *p)
-{
-    // we assume valid pointer to be 4-aligned at least.
-    // So use this check only when this is guaranteed.
-    // FIXME: this breaks e.g. in the QString dumper...
-    const quintptr d = quintptr(p);
-    //qDebug() << "CHECKING : " << p << ((d & 3) == 0 && (d > 1000 || d == 0));
-    //return (d & 3) == 0 && (d > 1000 || d == 0);
-    return d > 1000 || d == 0;
-}
-
 // Check memory for read access and provoke segfault if nothing else helps.
 // On Windows, try to be less crash-prone by checking memory using WinAPI
 
@@ -313,6 +302,17 @@ static bool couldBePointer(const void *p)
         if (d) \
             qProvokeSegFaultHelper = *(char*)d; \
      } while (0)
+
+static bool couldBePointer(const void *p)
+{
+    // we assume valid pointer to be 4-aligned at least.
+    // So use this check only when this is guaranteed.
+    // FIXME: this breaks e.g. in the QString dumper...
+    const quintptr d = quintptr(p);
+    //qDebug() << "CHECKING : " << p << ((d & 3) == 0 && (d > 1000 || d == 0));
+    //return (d & 3) == 0 && (d > 1000 || d == 0);
+    return d > 1000 || d == 0;
+}
 
 #endif
 
