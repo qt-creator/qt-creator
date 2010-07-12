@@ -6293,7 +6293,10 @@
      which one you use.
 
      The integrated \QD fetches plugins from the \c {%SDK%\bin\designer} folder on Windows
-     and Linux. See \l{Additional Steps needed on Mac} for how to do it on Mac. To check which plugins
+     and Linux. For information about how to configure plugins on Mac OS, see
+     \l{Configuring Qt Designer Plugins on Mac OS}.
+
+     To check which plugins
      were loaded successfully and which failed, choose \gui{Tools > Form Editor >
      About Qt Designer Plugins}.
 
@@ -6302,60 +6305,60 @@
      \c {%SDK%\qt\plugins\designer}. To check which plugins were loaded successfully and which
      failed, choose \gui{Help > About Plugins}.
 
-     \section1 Additional Steps needed on Mac
+     \section2 Configuring Qt Designer Plugins on Mac OS
 
-     Due to the fact that Qt Creator uses its own set of Qt Libraries located in the bundle,
-     you need to reconfigure additional designer plugins you want to use with Qt Creator.
-     Read \l{http://doc.qt.nokia.com/4.6/deployment-mac.html}{Deploying an Application on Mac OS X}
-     to get general information on deploying on Mac.
+     On the Mac, a GUI application must be built and run from a bundle. A bundle is a
+     directory structure that appears as a single entity when viewed in the Finder.
+     A bundle for an application typcially contains the executable and all the resources
+     it needs.
 
-     The necessary steps of this process are shown by taking version 5.2.1 of the
-     \l{http://qwt.sourceforge.net/}{Qwt - Qt Widgets for Technical Applications} library as a sample.
+     Qt Creator uses its own set of Qt Libraries located in the bundle, and therefore,
+     you need to configure the \QD plugins that you want to use with Qt Creator.
+     Fore more information about how to deploy applications on Mac OS, see
+     \l{http://doc.qt.nokia.com/4.6/deployment-mac.html}{Deploying an Application on Mac OS X}.
 
-     In order to check the paths used in the Qwt library use the \c otool:
+     The following example illustrates how to configure version 5.2.1 of the
+     \l{http://qwt.sourceforge.net/}{Qwt - Qt Widgets for Technical Applications} library
+     for use with Qt Creator:
+
+     \list 1
+
+    \o To check the paths used in the Qwt library, enter the following \c otool command:
 
     \snippet examples/doc_src_plugins.qdoc 0
 
-     Here is what the output looks like for Qwt 5.2.1
+    The output for Qwt 5.2.1 indicates that the plugin uses Qt core libraries (QtDesigner,
+    QtScript, QtXml, QtGui and QtCore) and libqwt.5.dylib:
 
     \snippet examples/doc_src_plugins.qdoc 1
 
-                 This tells us two things:
 
-                 \list 1
-
-                 \o The plugin itself uses the following Qt core libraries:
-                                 QtDesigner, QtScript, QtXml, QtGui and QtCore
-
-                 \o The plugin also uses \c libqwt.5.dylib
-
-                 \endlist
-
-                 This means that you need to copy the designer plugin \c {libqwt_designer_plugin.dylib}
-                 and the Qwt library files \c {libqwt.*.dylib} to the following locations respectively:
+     \o You must copy the \QD plugin and the Qwt library files to the following locations:
 
                  \list
-                 \o \c {libqwt_designer_plugin.dylib} needs to be copied to \c {QtCreator.app/Contents/MacOS/designer}
-                 \o and the files \c {libqwt.*.dylib} need to be copied to \c {QtCreator.app/Contents/Frameworks}
+                 \o \c {libqwt_designer_plugin.dylib} to \c {QtCreator.app/Contents/MacOS/designer}
+                 \o \c {libqwt.*.dylib} to \c {QtCreator.app/Contents/Frameworks}
                  \endlist
 
-                 This can be done by the following commands:
+    Enter the following commands:
 
     \snippet examples/doc_src_plugins.qdoc 4
 
-                 We also need to check the libraries that are used by the Qwt library itself. We do this
-                 again with the \c otool:
+    \o Enter the following \c otool command to check the libraries that are used by the
+    Qwt library:
 
     \snippet examples/doc_src_plugins.qdoc 2
 
-                 which returns the following output:
+    The command returns the following output:
 
     \snippet examples/doc_src_plugins.qdoc 3
 
-                 Now we have all the information necessary to fix the references of the used libraries
-                 using the \c install_name_tool as:
+    \o Enter the following \c install_name_tool command to fix the references of the
+    libraries:
 
     \snippet examples/doc_src_plugins.qdoc 5
+
+    \endlist
 
 
      \section1 Matching Build Keys
