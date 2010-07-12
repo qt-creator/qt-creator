@@ -226,7 +226,7 @@ void FindPlugin::setupFilterMenuItems()
     d->m_filterActions.clear();
     bool haveEnabledFilters = false;
     foreach (IFindFilter *filter, findInterfaces) {
-        QAction *action = new QAction(QLatin1String("    ") + filter->name(), this);
+        QAction *action = new QAction(QLatin1String("    ") + filter->displayName(), this);
         bool isEnabled = filter->isEnabled();
         if (isEnabled)
             haveEnabledFilters = true;

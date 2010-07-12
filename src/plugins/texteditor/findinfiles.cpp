@@ -52,7 +52,7 @@ QString FindInFiles::id() const
     return "Files on Disk";
 }
 
-QString FindInFiles::name() const
+QString FindInFiles::displayName() const
 {
     return tr("Files on File System");
 }

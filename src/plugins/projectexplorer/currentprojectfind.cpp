@@ -60,7 +60,7 @@ QString CurrentProjectFind::id() const
     return QLatin1String("Current Project");
 }
 
-QString CurrentProjectFind::name() const
+QString CurrentProjectFind::displayName() const
 {
     return tr("Current Project");
 }

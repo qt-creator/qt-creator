@@ -52,7 +52,7 @@ public:
     explicit FindInFiles(Find::SearchResultWindow *resultWindow);
 
     QString id() const;
-    QString name() const;
+    QString displayName() const;
     QKeySequence defaultShortcut() const;
     void findAll(const QString &txt, QTextDocument::FindFlags findFlags);
     QWidget *createConfigWidget();

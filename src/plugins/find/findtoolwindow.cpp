@@ -98,7 +98,7 @@ void FindToolWindow::setFindFilters(const QList<IFindFilter *> &filters)
     m_ui.filterList->clear();
     QStringList names;
     foreach (IFindFilter *filter, filters) {
-        names << filter->name();
+        names << filter->displayName();
         m_configWidgets.append(filter->createConfigWidget());
     }
     m_ui.filterList->addItems(names);

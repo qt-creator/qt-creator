@@ -60,7 +60,7 @@ QString AllProjectsFind::id() const
     return QLatin1String("All Projects");
 }
 
-QString AllProjectsFind::name() const
+QString AllProjectsFind::displayName() const
 {
     return tr("All Projects");
 }

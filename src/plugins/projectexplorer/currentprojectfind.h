@@ -54,7 +54,7 @@ public:
     CurrentProjectFind(ProjectExplorerPlugin *plugin, Find::SearchResultWindow *resultWindow);
 
     QString id() const;
-    QString name() const;
+    QString displayName() const;
 
     bool isEnabled() const;
     QKeySequence defaultShortcut() const;
