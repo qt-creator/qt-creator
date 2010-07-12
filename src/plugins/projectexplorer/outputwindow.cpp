@@ -201,6 +201,8 @@ void OutputPane::createNewOutputWindow(RunControl *rc)
     }
     if (!found) {
         OutputWindow *ow = new OutputWindow(m_tabWidget);
+        ow->setWindowTitle(tr("Application Output Window"));
+        ow->setWindowIcon(QIcon(":/qt4projectmanager/images/window.png"));
         ow->setFormatter(rc->createOutputFormatter(ow));
         Aggregation::Aggregate *agg = new Aggregation::Aggregate;
         agg->add(ow);
@@ -356,8 +358,6 @@ OutputWindow::OutputWindow(QWidget *parent)
 {
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     //setCenterOnScroll(false);
-    setWindowTitle(tr("Application Output Window"));
-    setWindowIcon(QIcon(":/qt4projectmanager/images/window.png"));
     setFrameShape(QFrame::NoFrame);
     setMouseTracking(true);
 
@@ -492,6 +492,28 @@ void OutputWindow::appendMessage(const QString &out, bool isError)
     if (atBottom)
         scrollToBottom();
     enableUndoRedo();
+}
+
+// TODO rename
+void OutputWindow::appendText(const QString &text, const QTextCharFormat &format, int maxLineCount)
+{
+    if (document()->blockCount() > maxLineCount)
+        return;
+    const bool atBottom = isScrollbarAtBottom();
+    QTextCursor cursor = QTextCursor(document());
+    cursor.movePosition(QTextCursor::End);
+    cursor.beginEditBlock();
+    cursor.insertText(doNewlineEnfocement(text), format);
+
+    if (document()->blockCount() > maxLineCount) {
+        QTextCharFormat tmp;
+        tmp.setFontWeight(QFont::Bold);
+        cursor.insertText(tr("Additional output omitted\n"), tmp);
+    }
+
+    cursor.endEditBlock();
+    if (atBottom)
+        scrollToBottom();
 }
 
 bool OutputWindow::isScrollbarAtBottom() const

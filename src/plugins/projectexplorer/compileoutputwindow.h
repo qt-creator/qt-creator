@@ -30,6 +30,7 @@
 #ifndef COMPILEOUTPUTWINDOW_H
 #define COMPILEOUTPUTWINDOW_H
 
+#include "outputwindow.h"
 #include <coreplugin/ioutputpane.h>
 #include <QtGui/QColor>
 #include <QtGui/QTextCharFormat>
@@ -68,7 +69,7 @@ public:
     bool canNavigate();
 
 private:
-    QPlainTextEdit *m_textEdit;
+    OutputWindow *m_outputWindow;
 };
 
 } // namespace Internal
