@@ -44,7 +44,7 @@
 #include <QtGui/QStyle>
 
 /*!
-  \class FileIconProvider
+  \class Core::FileIconProvider
 
   Provides icons based on file suffixes with the ability to overwrite system
   icons for specific subtypes. Implements the QFileIconProvider interface

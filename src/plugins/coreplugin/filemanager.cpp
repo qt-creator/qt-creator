@@ -54,7 +54,7 @@
 #include <QtGui/QMainWindow>
 
 /*!
-  \class FileManager
+  \class Core::FileManager
   \mainclass
   \inheaderfile filemanager.h
   \brief Manages a set of IFile objects.
@@ -185,9 +185,11 @@ FileManager::~FileManager()
 }
 
 /*!
-    \fn bool FileManager::addFiles(const QList<IFile *> &files)
+    \fn bool FileManager::addFiles(const QList<IFile *> &files, bool addWatcher)
 
-    Adds a list of IFile's to the collection.
+    Adds a list of IFile's to the collection. If \a addWatcher is true (the default),
+    the files are added to a file system watcher that notifies the file manager
+    about file changes.
 
     Returns true if the file specified by \a files have not been yet part of the file list.
 */
@@ -344,9 +346,11 @@ void FileManager::removeFileInfo(const QString &fileName, IFile *file)
 }
 
 /*!
-    \fn bool FileManager::addFile(IFile *files)
+    \fn bool FileManager::addFile(IFile *files, bool addWatcher)
 
-    Adds a IFile object to the collection.
+    Adds a IFile object to the collection. If \a addWatcher is true (the default),
+    the file is added to a file system watcher that notifies the file manager
+    about file changes.
 
     Returns true if the file specified by \a file has not been yet part of the file list.
 */
@@ -560,9 +564,16 @@ QList<IFile *> FileManager::saveModifiedFilesSilently(const QList<IFile *> &file
 }
 
 /*!
-    \fn QList<IFile*> FileManager::saveModifiedFiles(const QList<IFile*> &files, bool *cancelled, const QString &message)
+    \fn QList<IFile*> FileManager::saveModifiedFiles(const QList<IFile *> &files, bool *cancelled, const QString &message, const QString &alwaysSaveMessage, bool *alwaysSave)
 
-    Asks the user whether to save the files listed in \a files . Returns the files that have not been saved.
+    Asks the user whether to save the files listed in \a files .
+    Opens a dialog with the given \a message, and a additional
+    text that should be used to ask if the user wants to enabled automatic save
+    of modified files (in this context).
+    The \a cancelled argument is set to true if the user cancelled the dialog,
+    \a alwaysSave is set to match the selection of the user, if files should
+    always automatically be saved.
+    Returns the files that have not been saved.
 */
 QList<IFile *> FileManager::saveModifiedFiles(const QList<IFile *> &files,
                                               bool *cancelled, const QString &message,
@@ -736,9 +747,12 @@ QString FileManager::getSaveAsFileName(IFile *file)
 }
 
 /*!
-    \fn QString FileManager::getOpenFileNames(const QStringList &filters, const QString &path, QString *selectedFilter) const
+    \fn QString FileManager::getOpenFileNames(const QString &filters, const QString &pathIn, QString *selectedFilter) const
 
-    Asks the user for a set of file names to be opened.
+    Asks the user for a set of file names to be opened. The \a filters
+    and \a selectedFilter parameters is interpreted like in
+    QFileDialog::getOpenFileNames(), \a pathIn specifies a path to open the dialog
+    in, if that is not overridden by the users policy.
 */
 
 QStringList FileManager::getOpenFileNames(const QString &filters,

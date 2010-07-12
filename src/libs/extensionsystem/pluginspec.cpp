@@ -397,7 +397,7 @@ QList<PluginSpec *> PluginSpec::dependencySpecs() const
 }
 
 /*!
-    \fn QList<PluginSpec *> PluginSpec::providesSpecs() const
+    \fn QList<PluginSpec *> PluginSpec::providesForSpecs() const
     Returns the list of plugins that depend on this one.
 
     \sa PluginSpec::dependencySpecs()
@@ -981,10 +981,8 @@ void PluginSpecPrivate::kill()
 }
 
 /*!
-    \fn void PluginSpec::addDependentPlugin(PluginSpec *dependent)
-    Adds a dependent the list of plugins that depend on this one.
-
-    \sa PluginSpec::providesSpecs()
+    \fn void PluginSpecPrivate::addProvidesForPlugin(PluginSpec *dependent)
+    \internal
 */
 void PluginSpecPrivate::addProvidesForPlugin(PluginSpec *dependent)
 {

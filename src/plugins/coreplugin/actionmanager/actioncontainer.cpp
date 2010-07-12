@@ -136,11 +136,6 @@ using namespace Core::Internal;
 */
 
 /*!
-    \fn bool ActionContainer::update()
-    \internal
-*/
-
-/*!
     \fn ActionContainer::~ActionContainer()
     \internal
 */

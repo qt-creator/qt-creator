@@ -74,7 +74,7 @@ Q_DECLARE_METATYPE(Locator::FilterEntry);
 namespace Locator {
 namespace Internal {
 
-/*! A model to represent the Locator results. */
+/* A model to represent the Locator results. */
 class LocatorModel : public QAbstractListModel
 {
 public:

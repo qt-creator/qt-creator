@@ -161,7 +161,7 @@ namespace {
 */
 
 /*!
-    \fn Command *ActionManager::registerAction(QAction *action, const QString &id, const Core::Context &context)
+    \fn Command *ActionManager::registerAction(QAction *action, const QString &id, const Context &context)
     \brief Makes an \a action known to the system under the specified string \a id.
 
     Returns a command object that represents the action in the application and is
@@ -172,7 +172,7 @@ namespace {
 */
 
 /*!
-    \fn Command *ActionManager::registerShortcut(QShortcut *shortcut, const QString &id, const Core::Context &context)
+    \fn Command *ActionManager::registerShortcut(QShortcut *shortcut, const QString &id, const Context &context)
     \brief Makes a \a shortcut known to the system under the specified string \a id.
 
     Returns a command object that represents the shortcut in the application and is
