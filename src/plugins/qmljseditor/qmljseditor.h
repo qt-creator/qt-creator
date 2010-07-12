@@ -217,7 +217,7 @@ public:
     bool isOutdated() const;
 
 signals:
-    void selectedElementChanged(int offset, const QString &wordAtCursor);
+    void selectedElementsChanged(QList<int> offsets, const QString &wordAtCursor);
 
 public slots:
     void followSymbolUnderCursor();

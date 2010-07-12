@@ -238,7 +238,7 @@ QList<QDeclarativeDebugObjectReference> ClientProxy::objectReferences(const QUrl
                                                                       const QDeclarativeDebugObjectReference &objectRef) const
 {
     QList<QDeclarativeDebugObjectReference> result;
-    if (objectRef.source().url() == url)
+    if (objectRef.source().url() == url || url.isEmpty())
         result.append(objectRef);
 
     foreach(const QDeclarativeDebugObjectReference &child, objectRef.children()) {

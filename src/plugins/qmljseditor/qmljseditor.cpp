@@ -857,19 +857,23 @@ void QmlJSTextEditor::updateUsesNow()
 
 class SelectedElement: protected Visitor
 {
-    unsigned cursorPosition;
-    UiObjectMember *selectedMember;
+    unsigned cursorPositionStart;
+    unsigned cursorPositionEnd;
+    UiObjectMember *containedBy;
+    QList<UiObjectMember *> selectedMembers;
 
 public:
     SelectedElement()
-        : cursorPosition(0), selectedMember(0) {}
+        : cursorPositionStart(0), cursorPositionEnd(0) {}
 
-    UiObjectMember *operator()(Node *root, unsigned position)
+    QList<UiObjectMember *> operator()(Node *root, unsigned startPosition, unsigned endPosition)
     {
-        cursorPosition = position;
-        selectedMember = 0;
+        containedBy = false;
+        cursorPositionStart = startPosition;
+        cursorPositionEnd = endPosition;
+        selectedMembers.clear();
         Node::accept(root, this);
-        return selectedMember;
+        return selectedMembers;
     }
 
 protected:
@@ -901,20 +905,38 @@ protected:
         return false;
     }
 
+    bool containsCursor(unsigned begin, unsigned end)
+    {
+        return cursorPositionStart >= begin && cursorPositionEnd <= end;
+    }
+
+    bool intersectsCursor(unsigned begin, unsigned end)
+    {
+        return (cursorPositionEnd >= begin && cursorPositionStart <= end);
+    }
+
     virtual void postVisit(Node *ast)
     {
-        if (selectedMember)
-            return; // nothing to do, we already have the result.
+        if ((cursorPositionStart == cursorPositionEnd && !selectedMembers.isEmpty())
+         /*|| (cursorPositionStart != cursorPositionEnd && containedBy != 0)*/)
+            return; // nothing to do, we already have the results.
 
         if (UiObjectMember *member = ast->uiObjectMemberCast()) {
             unsigned begin = member->firstSourceLocation().begin();
             unsigned end = member->lastSourceLocation().end();
 
-            if (cursorPosition >= begin && cursorPosition <= end) {
+            if ((cursorPositionStart != cursorPositionEnd && intersectsCursor(begin, end))
+             || (cursorPositionStart == cursorPositionEnd && containsCursor(begin, end)))
+            {
+                if (containsCursor(begin, end))
+                    containedBy = member;
+
                 if (UiObjectInitializer *init = initializer(member)) {
                     for (UiObjectMemberList *it = init->members; it; it = it->next) {
                         if (isIdBinding(it->member)) {
-                            selectedMember = member;
+                            selectedMembers << member;
+                            // move start towards end; this facilitates multiselection so that root is usually ignored.
+                            cursorPositionStart = qMin(end, cursorPositionEnd);
                             break;
                         }
                     }
@@ -927,18 +949,37 @@ protected:
 void QmlJSTextEditor::setSelectedElement()
 {
     QTextCursor tc = textCursor();
-    tc.movePosition(QTextCursor::StartOfWord);
-    tc.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
-    QString wordAtCursor = tc.selectedText();
+    QString wordAtCursor;
+    QList<int> offsets;
 
-    int offset = -1;
+    unsigned startPos;
+    unsigned endPos;
+
+    if (tc.hasSelection()) {
+        startPos = tc.selectionStart();
+        endPos = tc.selectionEnd();
+    } else {
+        tc.movePosition(QTextCursor::StartOfWord);
+        tc.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+
+        startPos = textCursor().position();
+        endPos = textCursor().position();
+    }
+
     if (Document::Ptr doc = m_semanticInfo.document) {
-        SelectedElement selectedMember;
-        if (UiObjectMember *m = selectedMember(doc->qmlProgram(), textCursor().position())) {
-            offset = m->firstSourceLocation().begin();
+        SelectedElement selectedMembers;
+
+        QList<UiObjectMember *> members = selectedMembers(doc->qmlProgram(), startPos, endPos);
+
+        if (!members.isEmpty()) {
+            foreach(UiObjectMember *m, members) {
+                offsets << m->firstSourceLocation().begin();
+            }
         }
     }
-    emit selectedElementChanged(offset, wordAtCursor);
+    wordAtCursor = tc.selectedText();
+
+    emit selectedElementsChanged(offsets, wordAtCursor);
 }
 
 void QmlJSTextEditor::updateMethodBoxToolTip()
