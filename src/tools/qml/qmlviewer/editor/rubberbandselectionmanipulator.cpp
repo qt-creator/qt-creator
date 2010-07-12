@@ -91,6 +91,7 @@ void RubberBandSelectionManipulator::select(SelectionType selectionType)
     foreach (QGraphicsItem* item, itemList) {
         if (item
             && item->parentItem()
+            && !newSelectionList.contains(item)
             //&& m_beginFormEditorItem->childItems().contains(item) // TODO activate this test
             )
         {

@@ -63,6 +63,12 @@ private slots:
     void activateMarqueeSelectToolOnClick();
     void activateZoomOnClick();
 
+    void changeToDefaultAnimSpeed();
+    void changeToHalfAnimSpeed();
+    void changeToFourthAnimSpeed();
+    void changeToEighthAnimSpeed();
+    void changeToTenthAnimSpeed();
+
     void activateFromQml();
     void activateToQml();
 
@@ -78,8 +84,17 @@ private:
     QAction *m_toQmlAction;
     QAction *m_fromQmlAction;
 
+    QAction *m_defaultAnimSpeedAction;
+    QAction *m_halfAnimSpeedAction;
+    QAction *m_fourthAnimSpeedAction;
+    QAction *m_eighthAnimSpeedAction;
+    QAction *m_tenthAnimSpeedAction;
+
     bool m_emitSignals;
     bool m_isRunning;
+    qreal m_animationSpeed;
+    qreal m_previousAnimationSpeed;
+
     DesignTool m_activeTool;
 
 };

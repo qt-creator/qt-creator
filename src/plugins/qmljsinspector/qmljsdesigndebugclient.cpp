@@ -154,7 +154,6 @@ void QmlJSDesignDebugClient::setAnimationSpeed(qreal slowdownFactor)
 
     ds << QByteArray("SET_ANIMATION_SPEED")
        << slowdownFactor;
-
     sendMessage(message);
 }
 

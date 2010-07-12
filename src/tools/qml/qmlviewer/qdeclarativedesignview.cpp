@@ -228,6 +228,8 @@ void QDeclarativeDesignView::setDesignModeBehavior(bool value)
     if (m_subcomponentEditorTool) {
         m_subcomponentEditorTool->clear();
         clearHighlightBoundingRect();
+        setSelectedItems(QList<QGraphicsItem*>());
+
         if (rootObject())
             m_subcomponentEditorTool->pushContext(rootObject());
     }
@@ -335,7 +337,6 @@ void QDeclarativeDesignView::changeToSelectTool()
 
 void QDeclarativeDesignView::changeToMarqueeSelectTool()
 {
-    qDebug() << "changed to marquee select tool";
     changeToSelectTool();
     m_currentToolMode = Constants::MarqueeSelectionToolMode;
     m_selectionTool->setRubberbandSelectionMode(true);
@@ -347,7 +348,6 @@ void QDeclarativeDesignView::changeToMarqueeSelectTool()
 void QDeclarativeDesignView::changeToZoomTool()
 {
     m_currentToolMode = Constants::ZoomMode;
-    qDebug() << "changed to zoom tool";
     m_currentTool->clear();
     m_currentTool = m_zoomTool;
     m_currentTool->clear();
@@ -386,10 +386,12 @@ void QDeclarativeDesignView::continueExecution(qreal slowdownFactor)
     Q_ASSERT(slowdownFactor > 0);
 
     m_slowdownFactor = slowdownFactor;
+    static const qreal animSpeedSnapDelta = 0.01f;
+    bool useStandardSpeed = (qAbs(1.0f - m_slowdownFactor) < animSpeedSnapDelta);
 
     QUnifiedTimer *timer = QUnifiedTimer::instance();
     timer->setSlowdownFactor(m_slowdownFactor);
-    timer->setSlowModeEnabled(false);
+    timer->setSlowModeEnabled(!useStandardSpeed);
     m_executionPaused = false;
 
     emit executionStarted(m_slowdownFactor);

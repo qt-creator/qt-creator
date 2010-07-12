@@ -11,6 +11,8 @@
 #include <QHBoxLayout>
 #include <QAction>
 #include <QToolButton>
+#include <QMenu>
+#include <QActionGroup>
 
 namespace QmlJSInspector {
 namespace Internal {
@@ -34,8 +36,15 @@ QmlInspectorToolbar::QmlInspectorToolbar(QObject *parent) :
     m_colorPickerAction(0),
     m_toQmlAction(0),
     m_fromQmlAction(0),
+    m_defaultAnimSpeedAction(0),
+    m_halfAnimSpeedAction(0),
+    m_fourthAnimSpeedAction(0),
+    m_eighthAnimSpeedAction(0),
+    m_tenthAnimSpeedAction(0),
     m_emitSignals(true),
     m_isRunning(false),
+    m_animationSpeed(1.0f),
+    m_previousAnimationSpeed(0.0f),
     m_activeTool(NoTool)
 {
 
@@ -59,6 +68,7 @@ void QmlInspectorToolbar::enable()
 {
     setEnabled(true);
     m_emitSignals = false;
+    changeAnimationSpeed(1.0f);
     activateDesignModeOnClick();
     m_emitSignals = true;
 }
@@ -104,6 +114,20 @@ void QmlInspectorToolbar::changeAnimationSpeed(qreal slowdownFactor)
     if (slowdownFactor == 0) {
         activatePauseOnClick();
     } else {
+        m_animationSpeed = slowdownFactor;
+
+        if (slowdownFactor == 1.0f) {
+            m_defaultAnimSpeedAction->setChecked(true);
+        } else if (slowdownFactor == 2.0f) {
+            m_halfAnimSpeedAction->setChecked(true);
+        } else if (slowdownFactor == 4.0f) {
+            m_fourthAnimSpeedAction->setChecked(true);
+        } else if (slowdownFactor == 8.0f) {
+            m_eighthAnimSpeedAction->setChecked(true);
+        } else if (slowdownFactor == 10.0f) {
+            m_tenthAnimSpeedAction->setChecked(true);
+        }
+
         activatePlayOnClick();
     }
     m_emitSignals = true;
@@ -162,11 +186,39 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     configBarLayout->setMargin(0);
     configBarLayout->setSpacing(5);
 
+    QMenu *playSpeedMenu = new QMenu(configBar);
+    QActionGroup *playSpeedMenuActions = new QActionGroup(this);
+    playSpeedMenuActions->setExclusive(true);
+
+    m_defaultAnimSpeedAction = playSpeedMenu->addAction(tr("1x"), this, SLOT(changeToDefaultAnimSpeed()));
+    m_defaultAnimSpeedAction->setCheckable(true);
+    m_defaultAnimSpeedAction->setChecked(true);
+    playSpeedMenuActions->addAction(m_defaultAnimSpeedAction);
+
+    m_halfAnimSpeedAction = playSpeedMenu->addAction(tr("0.5x"), this, SLOT(changeToHalfAnimSpeed()));
+    m_halfAnimSpeedAction->setCheckable(true);
+    playSpeedMenuActions->addAction(m_halfAnimSpeedAction);
+
+    m_fourthAnimSpeedAction = playSpeedMenu->addAction(tr("0.25x"), this, SLOT(changeToFourthAnimSpeed()));
+    m_fourthAnimSpeedAction->setCheckable(true);
+    playSpeedMenuActions->addAction(m_fourthAnimSpeedAction);
+
+    m_eighthAnimSpeedAction = playSpeedMenu->addAction(tr("0.125x"), this, SLOT(changeToEighthAnimSpeed()));
+    m_eighthAnimSpeedAction->setCheckable(true);
+    playSpeedMenuActions->addAction(m_eighthAnimSpeedAction);
+
+    m_tenthAnimSpeedAction = playSpeedMenu->addAction(tr("0.1x"), this, SLOT(changeToTenthAnimSpeed()));
+    m_tenthAnimSpeedAction->setCheckable(true);
+    playSpeedMenuActions->addAction(m_tenthAnimSpeedAction);
+
     configBarLayout->addWidget(createToolButton(am->command(ProjectExplorer::Constants::DEBUG)->action()));
     configBarLayout->addWidget(createToolButton(am->command(ProjectExplorer::Constants::STOP)->action()));
     configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::DESIGNMODE_ACTION)->action()));
     configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::RELOAD_ACTION)->action()));
-    configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::PLAY_ACTION)->action()));
+
+    QToolButton *playButton = createToolButton(am->command(QmlJSInspector::Constants::PLAY_ACTION)->action());
+    playButton->setMenu(playSpeedMenu);
+    configBarLayout->addWidget(playButton);
     configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::PAUSE_ACTION)->action()));
 
     configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::SELECT_ACTION)->action()));
@@ -200,6 +252,36 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     connect(m_fromQmlAction, SIGNAL(triggered()), SLOT(activateFromQml()));
 }
 
+void QmlInspectorToolbar::changeToDefaultAnimSpeed()
+{
+    m_animationSpeed = 1.0f;
+    activatePlayOnClick();
+}
+
+void QmlInspectorToolbar::changeToHalfAnimSpeed()
+{
+    m_animationSpeed = 2.0f;
+    activatePlayOnClick();
+}
+
+void QmlInspectorToolbar::changeToFourthAnimSpeed()
+{
+    m_animationSpeed = 4.0f;
+    activatePlayOnClick();
+}
+
+void QmlInspectorToolbar::changeToEighthAnimSpeed()
+{
+    m_animationSpeed = 8.0f;
+    activatePlayOnClick();
+}
+
+void QmlInspectorToolbar::changeToTenthAnimSpeed()
+{
+    m_animationSpeed = 10.0f;
+    activatePlayOnClick();
+}
+
 void QmlInspectorToolbar::activateDesignModeOnClick()
 {
     bool checked = m_designmodeAction->isChecked();
@@ -221,11 +303,12 @@ void QmlInspectorToolbar::activateDesignModeOnClick()
 void QmlInspectorToolbar::activatePlayOnClick()
 {
     m_pauseAction->setChecked(false);
-    if (!m_isRunning) {
+    if (!m_isRunning || m_animationSpeed != m_previousAnimationSpeed) {
         m_playAction->setChecked(true);
         m_isRunning = true;
+        m_previousAnimationSpeed = m_animationSpeed;
         if (m_emitSignals)
-            emit animationSpeedChanged(1.0f);
+            emit animationSpeedChanged(m_animationSpeed);
     }
 }
 
