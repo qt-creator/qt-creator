@@ -1095,11 +1095,11 @@ void CPPEditor::updateMethodBoxIndexNow()
     int line = 0, column = 0;
     convertPosition(position(), &line, &column);
 
-    m_overviewModelIndex = indexForPosition(line, column);
-    emit overviewModelIndexChanged(m_overviewModelIndex);
+    QModelIndex overviewModelIndex = indexForPosition(line, column);
+    emit overviewModelIndexChanged(overviewModelIndex);
 
     // ComboBox only let's you select top level indexes!
-    QModelIndex comboIndex = m_overviewModelIndex;
+    QModelIndex comboIndex = overviewModelIndex;
     while (comboIndex.parent().isValid())
         comboIndex = comboIndex.parent();
 
