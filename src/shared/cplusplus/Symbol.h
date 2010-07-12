@@ -337,7 +337,6 @@ private:
     bool _isDeprecated: 1;
     bool _isUnavailable: 1;
 
-    class IdentityForName;
     class HashCode;
 
     friend class Scope;

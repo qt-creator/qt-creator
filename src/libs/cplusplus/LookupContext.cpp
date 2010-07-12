@@ -47,6 +47,18 @@ namespace {
 
 using namespace CPlusPlus;
 
+static void addNames(const Name *name, QList<const Name *> *names)
+{
+    if (! name)
+        return;
+    else if (name->isNameId() || name->isTemplateNameId())
+        names->append(name);
+    else if (const QualifiedNameId *q = name->asQualifiedNameId()) {
+        addNames(q->base(), names);
+        addNames(q->name(), names);
+    }
+}
+
 static void fullyQualifiedName_helper(Symbol *symbol, QList<const Name *> *names)
 {
     if (! symbol)
@@ -56,23 +68,16 @@ static void fullyQualifiedName_helper(Symbol *symbol, QList<const Name *> *names
 
     if (symbol->name()) {
         if (symbol->isClass() || symbol->isNamespace()) {
-            if (const QualifiedNameId *q = symbol->name()->asQualifiedNameId()) {
-                for (unsigned i = 0; i < q->nameCount(); ++i)
-                    names->append(q->nameAt(i));
+            addNames(symbol->name(), names);
 
-            } else if (symbol->name()->isNameId() || symbol->name()->isTemplateNameId()) {
-                names->append(symbol->name());
-            }
         } else if (symbol->isObjCClass() || symbol->isObjCBaseClass() || symbol->isObjCProtocol()
                 || symbol->isObjCForwardClassDeclaration() || symbol->isObjCForwardProtocolDeclaration()
                 || symbol->isForwardClassDeclaration()) {
-            if (symbol->name())
-                names->append(symbol->name());
+            addNames(symbol->name(), names);
+
         } else if (symbol->isFunction()) {
-            if (const QualifiedNameId *q = symbol->name()->asQualifiedNameId()) {
-                for (unsigned i = 0; i < q->nameCount() - 1; ++i)
-                    names->append(q->nameAt(i));
-            }
+            if (const QualifiedNameId *q = symbol->name()->asQualifiedNameId())
+                addNames(q->base(), names);
         }
     }
 }
@@ -142,6 +147,9 @@ const Name *LookupContext::minimalName(const Name *name,
                                        Scope *source,
                                        ClassOrNamespace *target) const
 {
+    qWarning() << "TODO:" << Q_FUNC_INFO;
+
+#if 0
     Q_ASSERT(name);
     Q_ASSERT(source);
     Q_ASSERT(target);
@@ -153,7 +161,7 @@ const Name *LookupContext::minimalName(const Name *name,
     Symbol *canonicalSymbol = symbols.first();
     std::vector<const Name *> fqNames = fullyQualifiedName(canonicalSymbol).toVector().toStdVector();
     if (const QualifiedNameId *qId = name->asQualifiedNameId())
-        fqNames.push_back(qId->nameAt(qId->nameCount() - 1));
+        fqNames.push_back(qId->name());
     else
         fqNames.push_back(name);
 
@@ -172,6 +180,8 @@ const Name *LookupContext::minimalName(const Name *name,
         return lastWorking->nameAt(0);
     else
         return lastWorking;
+#endif
+    return 0;
 }
 
 
@@ -396,21 +406,11 @@ QList<Symbol *> ClassOrNamespace::lookup_helper(const Name *name, bool searchInE
 
     if (name) {
         if (const QualifiedNameId *q = name->asQualifiedNameId()) {
-            ClassOrNamespace *binding = this;
+            if (! q->base())
+                result = globalNamespace()->find(q->name());
 
-            if (q->isGlobal())
-                binding = globalNamespace();
-
-            if (q->nameCount() == 1)
-                return binding->find(q->unqualifiedNameId());
-
-            binding = binding->lookupType(q->nameAt(0));
-
-            for (unsigned index = 1; binding && index < q->nameCount() - 1; ++index)
-                binding = binding->findType(q->nameAt(index));
-
-            if (binding)
-                result = binding->find(q->unqualifiedNameId());
+            else if (ClassOrNamespace *binding = lookupType(q->base()))
+                result = binding->find(q->name());
 
             return result;
         }
@@ -533,17 +533,14 @@ ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
                                                       bool searchInEnclosingScope)
 {
     if (const QualifiedNameId *q = name->asQualifiedNameId()) {
-        ClassOrNamespace *e = this;
 
-        if (q->isGlobal())
-            e = globalNamespace();
+        if (! q->base())
+            return globalNamespace()->findType(q->name());
 
-        e = e->lookupType(q->nameAt(0));
+        else if (ClassOrNamespace *binding = lookupType(q->base()))
+            return binding->findType(q->name());
 
-        for (unsigned index = 1; e && index < q->nameCount(); ++index)
-            e = e->findType(q->nameAt(index));
-
-        return e;
+        return 0;
 
     } else if (! processed->contains(this)) {
         processed->insert(this);
@@ -653,12 +650,10 @@ ClassOrNamespace *ClassOrNamespace::findOrCreateType(const Name *name)
         return this;
 
     if (const QualifiedNameId *q = name->asQualifiedNameId()) {
-        ClassOrNamespace *e = this;
+        if (! q->base())
+            return globalNamespace()->findOrCreateType(q->name());
 
-        for (unsigned i = 0; e && i < q->nameCount(); ++i)
-            e = e->findOrCreateType(q->nameAt(i));
-
-        return e;
+        return findOrCreateType(q->base())->findOrCreateType(q->name());
 
     } else if (name->isNameId() || name->isTemplateNameId()) {
         ClassOrNamespace *e = nestedType(name);
@@ -871,7 +866,7 @@ bool CreateBindings::visit(UsingDeclaration *u)
 {
     if (u->name()) {
         if (const QualifiedNameId *q = u->name()->asQualifiedNameId()) {
-            if (const NameId *unqualifiedId = q->unqualifiedNameId()->asNameId()) {
+            if (const NameId *unqualifiedId = q->name()->asNameId()) {
                 if (ClassOrNamespace *delegate = _currentClassOrNamespace->lookupType(q)) {
                     ClassOrNamespace *b = _currentClassOrNamespace->findOrCreateType(unqualifiedId);
                     b->addUsing(delegate);

@@ -535,7 +535,7 @@ protected:
     {
         const Name *name = function->name();
         if (const QualifiedNameId *q = name->asQualifiedNameId())
-            name = q->unqualifiedNameId();
+            name = q->name();
 
         if (_declarationName->isEqualTo(name))
             _functions->append(function);

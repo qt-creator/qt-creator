@@ -117,8 +117,8 @@ protected:
             return;
 
         } else if (const QualifiedNameId *q = name->asQualifiedNameId()) {
-            for (unsigned i = 0; i < q->nameCount(); ++i)
-                addType(q->nameAt(i));
+            addType(q->base());
+            addType(q->name());
 
         } else if (name->isNameId() || name->isTemplateNameId()) {
             addType(name->identifier());

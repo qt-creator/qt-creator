@@ -256,27 +256,48 @@ private:
             _type = control()->namedType(templId);
         }
 
-        virtual void visit(const QualifiedNameId *name)
+        const Name *instantiate(const Name *name)
         {
-            QVarLengthArray<const Name *, 8> names(name->nameCount());
-            for (unsigned i = 0; i < name->nameCount(); ++i) {
-                const Name *n = name->nameAt(i);
+            if (! name)
+                return name;
 
-                if (const TemplateNameId *templId = n->asTemplateNameId()) {
-                    QVarLengthArray<FullySpecifiedType, 8> arguments(templId->templateArgumentCount());
-                    for (unsigned templateArgIndex = 0; templateArgIndex < templId->templateArgumentCount(); ++templateArgIndex) {
-                        FullySpecifiedType argTy = templId->templateArgumentAt(templateArgIndex);
-                        arguments[templateArgIndex] = q->apply(argTy);
-                    }
+            else if (const Name *nameId = name->asNameId()) {
+                const Identifier *id = control()->findOrInsertIdentifier(nameId->identifier()->chars(),
+                                                                         nameId->identifier()->size());
+                return control()->nameId(id);
 
-                    n = control()->templateNameId(templId->identifier(), arguments.data(), arguments.size());
+            } else if (const TemplateNameId *templId = name->asTemplateNameId()) {
+                QVarLengthArray<FullySpecifiedType, 8> arguments(templId->templateArgumentCount());
+                for (unsigned templateArgIndex = 0; templateArgIndex < templId->templateArgumentCount(); ++templateArgIndex) {
+                    FullySpecifiedType argTy = templId->templateArgumentAt(templateArgIndex);
+                    arguments[templateArgIndex] = q->apply(argTy);
                 }
+                const Identifier *id = control()->findOrInsertIdentifier(templId->identifier()->chars(),
+                                                                         templId->identifier()->size());
+                return control()->templateNameId(id, arguments.data(), arguments.size());
 
-                names[i] = n;
+            } else if (const QualifiedNameId *qq = name->asQualifiedNameId()) {
+                const Name *base = instantiate(qq->base());
+                const Name *name = instantiate(qq->name());
+
+                return control()->qualifiedNameId(base, name);
+
+            } else if (const OperatorNameId *op = name->asOperatorNameId()) {
+                return control()->operatorNameId(op->kind());
+
+            } else if (const ConversionNameId *c = name->asConversionNameId()) {
+                FullySpecifiedType ty = q->apply(c->type());
+                return control()->conversionNameId(ty);
+
             }
 
-            const QualifiedNameId *q = control()->qualifiedNameId(names.data(), names.size(), name->isGlobal());
-            _type = control()->namedType(q);
+            return 0;
+        }
+
+        virtual void visit(const QualifiedNameId *name)
+        {
+            if (const Name *n = instantiate(name))
+                _type = control()->namedType(n);
         }
 
         virtual void visit(const DestructorNameId *name)

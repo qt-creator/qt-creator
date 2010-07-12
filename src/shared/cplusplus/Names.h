@@ -59,36 +59,27 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT QualifiedNameId: public Name
 {
 public:
-    template <typename _Iterator>
-    QualifiedNameId(_Iterator first, _Iterator last, bool isGlobal = false)
-        : _names(first, last), _isGlobal(isGlobal) {}
+    QualifiedNameId(const Name *base, const Name *name)
+        : _base(base), _name(name) {}
 
     virtual ~QualifiedNameId();
 
     virtual const Identifier *identifier() const;
 
-    unsigned nameCount() const;
-    const Name *nameAt(unsigned index) const;
-    const Name *unqualifiedNameId() const;
-    const Name *const *names() const { return &_names[0]; } // ### remove me
-    bool isGlobal() const;
+    const Name *base() const;
+    const Name *name() const;
 
     virtual bool isEqualTo(const Name *other) const;
 
     virtual const QualifiedNameId *asQualifiedNameId() const
     { return this; }
 
-    typedef std::vector<const Name *>::const_iterator NameIterator;
-
-    NameIterator firstName() const { return _names.begin(); }
-    NameIterator lastName() const { return _names.end(); }
-
 protected:
     virtual void accept0(NameVisitor *visitor) const;
 
 private:
-    std::vector<const Name *> _names;
-    bool _isGlobal;
+    const Name *_base;
+    const Name *_name;
 };
 
 class CPLUSPLUS_EXPORT NameId: public Name

@@ -298,11 +298,11 @@ bool NamedType::isEqualTo(const Type *other) const
 
     const Name *name = _name;
     if (const QualifiedNameId *q = name->asQualifiedNameId())
-        name = q->unqualifiedNameId();
+        name = q->name();
 
     const Name *otherName = o->name();
     if (const QualifiedNameId *q = otherName->asQualifiedNameId())
-        otherName = q->unqualifiedNameId();
+        otherName = q->name();
 
     return name->isEqualTo(otherName);
 }

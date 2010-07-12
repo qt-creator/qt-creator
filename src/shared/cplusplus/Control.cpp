@@ -177,11 +177,10 @@ template <> struct Compare<QualifiedNameId>
 {
     bool operator()(const QualifiedNameId &name, const QualifiedNameId &otherName) const
     {
-        if (name.isGlobal() == otherName.isGlobal())
-            return std::lexicographical_compare(name.firstName(), name.lastName(),
-                                                otherName.firstName(), otherName.lastName());
+        if (name.base() == otherName.base())
+            return name.name() < otherName.name();
 
-        return name.isGlobal() < otherName.isGlobal();
+        return name.base() < otherName.base();
     }
 };
 
@@ -285,10 +284,9 @@ public:
         return conversionNameIds.intern(ConversionNameId(type));
     }
 
-    template <typename _Iterator>
-    const QualifiedNameId *findOrInsertQualifiedNameId(_Iterator first, _Iterator last, bool isGlobal)
+    const QualifiedNameId *findOrInsertQualifiedNameId(const Name *base, const Name *name)
     {
-        return qualifiedNameIds.intern(QualifiedNameId(first, last, isGlobal));
+        return qualifiedNameIds.intern(QualifiedNameId(base, name));
     }
 
     template <typename _Iterator>
@@ -641,11 +639,9 @@ const OperatorNameId *Control::operatorNameId(int kind)
 const ConversionNameId *Control::conversionNameId(const FullySpecifiedType &type)
 { return d->findOrInsertConversionNameId(type); }
 
-const QualifiedNameId *Control::qualifiedNameId(const Name *const *names,
-                                                unsigned nameCount,
-                                                bool isGlobal)
+const QualifiedNameId *Control::qualifiedNameId(const Name *base, const Name *name)
 {
-    return d->findOrInsertQualifiedNameId(names, names + nameCount, isGlobal);
+    return d->findOrInsertQualifiedNameId(base, name);
 }
 
 const SelectorNameId *Control::selectorNameId(const Name *const *names,

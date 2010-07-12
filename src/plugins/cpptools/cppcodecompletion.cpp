@@ -200,7 +200,7 @@ protected:
     { _item = newCompletionItem(name); }
 
     virtual void visit(const QualifiedNameId *name)
-    { _item = newCompletionItem(name->unqualifiedNameId()); }
+    { _item = newCompletionItem(name->name()); }
 };
 
 struct CompleteFunctionDeclaration
