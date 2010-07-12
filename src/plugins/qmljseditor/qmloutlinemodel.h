@@ -27,6 +27,9 @@ public:
     QModelIndex enterProperty(const QString &name, const QmlJS::AST::SourceLocation &location);
     void leaveProperty();
 
+signals:
+    void updated();
+
 private:
     QStandardItem *enterNode(const QmlJS::AST::SourceLocation &location);
     void leaveNode();

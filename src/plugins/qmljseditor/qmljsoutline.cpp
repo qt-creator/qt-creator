@@ -4,6 +4,7 @@
 #include <coreplugin/ifile.h>
 #include <QtGui/QVBoxLayout>
 
+#include <QDebug>
 using namespace QmlJS;
 
 enum {
@@ -29,8 +30,7 @@ QmlJSOutlineTreeView::QmlJSOutlineTreeView(QWidget *parent) :
 
 QmlJSOutlineWidget::QmlJSOutlineWidget(QWidget *parent) :
     TextEditor::IOutlineWidget(parent),
-    m_treeView(new QmlJSOutlineTreeView()),
-    m_model(new QmlOutlineModel),
+    m_treeView(new QmlJSOutlineTreeView(this)),
     m_enableCursorSync(true),
     m_blockCursorSync(false)
 {
@@ -41,90 +41,39 @@ QmlJSOutlineWidget::QmlJSOutlineWidget(QWidget *parent) :
     layout->addWidget(m_treeView);
 
     setLayout(layout);
-
-    m_treeView->setModel(m_model);
-
-    connect(m_treeView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(updateSelectionInText(QItemSelection)));
 }
 
 void QmlJSOutlineWidget::setEditor(QmlJSTextEditor *editor)
 {
     m_editor = editor;
 
-    connect(m_editor.data(), SIGNAL(semanticInfoUpdated(QmlJSEditor::Internal::SemanticInfo)),
-            this, SLOT(updateOutline(QmlJSEditor::Internal::SemanticInfo)));
-    connect(m_editor.data(), SIGNAL(cursorPositionChanged()),
-            this, SLOT(updateSelectionInTree()));
+    m_treeView->setModel(m_editor.data()->outlineModel());
+    connect(m_treeView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this, SLOT(updateSelectionInText(QItemSelection)));
 
-    updateOutline(m_editor.data()->semanticInfo());
+    connect(m_editor.data(), SIGNAL(outlineModelIndexChanged(QModelIndex)),
+            this, SLOT(updateSelectionInTree(QModelIndex)));
+    connect(m_editor.data()->outlineModel(), SIGNAL(updated()),
+            this, SLOT(modelUpdated()));
 }
 
 void QmlJSOutlineWidget::setCursorSynchronization(bool syncWithCursor)
 {
     m_enableCursorSync = syncWithCursor;
     if (m_enableCursorSync)
-        updateSelectionInTree();
+        updateSelectionInTree(m_editor.data()->outlineModelIndex());
 }
 
-void QmlJSOutlineWidget::updateOutline(const QmlJSEditor::Internal::SemanticInfo &semanticInfo)
+void QmlJSOutlineWidget::modelUpdated()
 {
-    Document::Ptr doc = semanticInfo.document;
-
-    if (!doc) {
-        return;
-    }
-
-    if (!m_editor
-            || m_editor.data()->file()->fileName() != doc->fileName()
-            || m_editor.data()->documentRevision() != doc->editorRevision()) {
-        return;
-    }
-
-    if (doc->ast()
-            && m_model) {
-
-        // got a correctly parsed (or recovered) file.
-
-        if (QmlOutlineModel *qmlModel = qobject_cast<QmlOutlineModel*>(m_model)) {
-            qmlModel->update(doc);
-        }
-    } else {
-        // TODO: Maybe disable view?
-    }
-
     m_treeView->expandAll();
+    updateSelectionInTree(m_editor.data()->outlineModelIndex());
 }
 
-QModelIndex QmlJSOutlineWidget::indexForPosition(const QModelIndex &rootIndex, int cursorPosition)
-{
-    if (!rootIndex.isValid())
-        return QModelIndex();
-
-    AST::SourceLocation location = rootIndex.data(QmlOutlineModel::SourceLocationRole).value<AST::SourceLocation>();
-
-    if (!offsetInsideLocation(cursorPosition, location)) {
-        return QModelIndex();
-    }
-
-    const int rowCount = rootIndex.model()->rowCount(rootIndex);
-    for (int i = 0; i < rowCount; ++i) {
-        QModelIndex childIndex = rootIndex.child(i, 0);
-        QModelIndex resultIndex = indexForPosition(childIndex, cursorPosition);
-        if (resultIndex.isValid())
-            return resultIndex;
-    }
-
-    return rootIndex;
-}
-
-void QmlJSOutlineWidget::updateSelectionInTree()
+void QmlJSOutlineWidget::updateSelectionInTree(const QModelIndex &index)
 {
     if (!syncCursor())
         return;
-
-    int absoluteCursorPos = m_editor.data()->textCursor().position();
-    QModelIndex index = indexForPosition(m_model->index(0, 0), absoluteCursorPos);
 
     m_blockCursorSync = true;
     m_treeView->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
@@ -148,12 +97,6 @@ void QmlJSOutlineWidget::updateSelectionInText(const QItemSelection &selection)
         m_editor.data()->setTextCursor(textCursor);
         m_blockCursorSync = false;
     }
-}
-
-bool QmlJSOutlineWidget::offsetInsideLocation(quint32 offset, const QmlJS::AST::SourceLocation &location)
-{
-    return ((offset >= location.offset)
-            && (offset <= location.offset + location.length));
 }
 
 bool QmlJSOutlineWidget::syncCursor()

@@ -32,6 +32,7 @@
 #include "qmljshighlighter.h"
 #include "qmljseditorplugin.h"
 #include "qmljsmodelmanager.h"
+#include "qmloutlinemodel.h"
 
 #include <qmljs/qmljsindenter.h>
 #include <qmljs/qmljsinterpreter.h>
@@ -70,9 +71,11 @@
 
 #include <QtGui/QMenu>
 #include <QtGui/QComboBox>
+#include <QtGui/QHeaderView>
 #include <QtGui/QInputDialog>
 #include <QtGui/QMainWindow>
 #include <QtGui/QToolBar>
+#include <QtGui/QTreeView>
 
 enum {
     UPDATE_DOCUMENT_DEFAULT_INTERVAL = 50,
@@ -612,6 +615,7 @@ QString QmlJSEditorEditable::preferredMode() const
 QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     TextEditor::BaseTextEditor(parent),
     m_methodCombo(0),
+    m_outlineModel(new QmlOutlineModel(this)),
     m_modelManager(0),
     m_contextPane(0)
 {
@@ -686,6 +690,16 @@ bool QmlJSTextEditor::isOutdated() const
         return true;
 
     return false;
+}
+
+QmlOutlineModel *QmlJSTextEditor::outlineModel() const
+{
+    return m_outlineModel;
+}
+
+QModelIndex QmlJSTextEditor::outlineModelIndex() const
+{
+    return m_outlineModelIndex;
 }
 
 Core::IEditor *QmlJSEditorEditable::duplicate(QWidget *parent)
@@ -794,33 +808,37 @@ void QmlJSTextEditor::modificationChanged(bool changed)
         m_modelManager->fileChangedOnDisk(file()->fileName());
 }
 
-void QmlJSTextEditor::jumpToMethod(int index)
+void QmlJSTextEditor::jumpToMethod(int /*index*/)
 {
-    if (index > 0 && index <= m_semanticInfo.declarations.size()) { // indexes are 1-based
-        Declaration d = m_semanticInfo.declarations.at(index - 1);
-        gotoLine(d.startLine, d.startColumn - 1);
-        setFocus();
-    }
+    QModelIndex index = m_methodCombo->view()->currentIndex();
+    AST::SourceLocation location = index.data(QmlOutlineModel::SourceLocationRole).value<AST::SourceLocation>();
+
+    QTextCursor cursor = textCursor();
+    cursor.setPosition(location.offset);
+    setTextCursor(cursor);
+
+    setFocus();
 }
 
 void QmlJSTextEditor::updateMethodBoxIndex()
 {
-    int line = 0, column = 0;
-    convertPosition(position(), &line, &column);
+    m_outlineModelIndex = indexForPosition(position());
+    emit outlineModelIndexChanged(m_outlineModelIndex);
 
-    int currentSymbolIndex = 0;
+    QModelIndex comboIndex = m_outlineModelIndex;
 
-    int index = 0;
-    while (index < m_semanticInfo.declarations.size()) {
-        const Declaration &d = m_semanticInfo.declarations.at(index++);
+    if (comboIndex.isValid()) {
+        bool blocked = m_methodCombo->blockSignals(true);
 
-        if (line < d.startLine)
-            break;
-        else
-            currentSymbolIndex = index;
+        // There is no direct way to select a non-root item
+        m_methodCombo->setRootModelIndex(comboIndex.parent());
+        m_methodCombo->setCurrentIndex(comboIndex.row());
+        m_methodCombo->setRootModelIndex(QModelIndex());
+
+        updateMethodBoxToolTip();
+        m_methodCombo->blockSignals(blocked);
     }
 
-    m_methodCombo->setCurrentIndex(currentSymbolIndex);
     updateUses();
 }
 
@@ -983,6 +1001,14 @@ void QmlJSTextEditor::createToolBar(QmlJSEditorEditable *editable)
 {
     m_methodCombo = new QComboBox;
     m_methodCombo->setMinimumContentsLength(22);
+    m_methodCombo->setModel(m_outlineModel);
+
+    QTreeView *treeView = new QTreeView;
+    treeView->header()->hide();
+    treeView->setItemsExpandable(false);
+    m_methodCombo->setView(treeView);
+    treeView->expandAll();
+
     //m_methodCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
     // Make the combo box prefer to expand
@@ -1332,15 +1358,14 @@ void QmlJSTextEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
         FindDeclarations findDeclarations;
         m_semanticInfo.declarations = findDeclarations(doc->ast());
 
-        QStringList items;
-        items.append(tr("<Select Symbol>"));
-
-        foreach (Declaration decl, m_semanticInfo.declarations)
-            items.append(decl.text);
-
-        m_methodCombo->clear();
-        m_methodCombo->addItems(items);
+        m_outlineModel->update(doc);
         updateMethodBoxIndex();
+
+        QTreeView *treeView = static_cast<QTreeView*>(m_methodCombo->view());
+        treeView->expandAll();
+        // ComboBox only let's you select top level indexes for a QAbstractItemModel!
+        // therefore we've to fake a treeview by listview + indentation
+
         if (m_contextPane) {
             Node *newNode = m_semanticInfo.declaringMember(position());
             if (newNode) {
@@ -1355,8 +1380,6 @@ void QmlJSTextEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
     appendExtraSelectionsForMessages(&selections, doc->diagnosticMessages(), document());
     appendExtraSelectionsForMessages(&selections, m_semanticInfo.semanticMessages, document());
     setExtraSelections(CodeWarningsSelection, selections);
-
-    emit semanticInfoUpdated(semanticInfo);
 }
 
 void QmlJSTextEditor::onCursorPositionChanged()
@@ -1370,6 +1393,30 @@ void QmlJSTextEditor::onCursorPositionChanged()
             m_contextPane->apply(editableInterface(), m_semanticInfo.document, m_semanticInfo.snapshot, newNode, false);
         m_oldCurserPosition = position();
     }
+}
+
+QModelIndex QmlJSTextEditor::indexForPosition(unsigned cursorPosition, const QModelIndex &rootIndex) const
+{
+    QModelIndex lastIndex = rootIndex;
+
+
+    const int rowCount = m_outlineModel->rowCount(rootIndex);
+    for (int i = 0; i < rowCount; ++i) {
+        QModelIndex childIndex = m_outlineModel->index(i, 0, rootIndex);
+        AST::SourceLocation location = childIndex.data(QmlOutlineModel::SourceLocationRole).value<AST::SourceLocation>();
+
+        if ((cursorPosition >= location.offset)
+              && (cursorPosition <= location.offset + location.length)) {
+            lastIndex = childIndex;
+            break;
+        }
+    }
+
+    if (lastIndex != rootIndex) {
+        // recurse
+        lastIndex = indexForPosition(cursorPosition, lastIndex);
+    }
+    return lastIndex;
 }
 
 SemanticHighlighter::Source QmlJSTextEditor::currentSource(bool force)

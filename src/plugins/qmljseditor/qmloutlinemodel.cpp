@@ -124,6 +124,8 @@ void QmlOutlineModel::update(QmlJS::Document::Ptr doc)
 
     QmlOutlineModelSync syncModel(this);
     syncModel(doc);
+
+    emit updated();
 }
 
 QModelIndex QmlOutlineModel::enterElement(const QString &type, const AST::SourceLocation &sourceLocation)

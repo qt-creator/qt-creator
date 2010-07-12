@@ -35,6 +35,7 @@
 #include <texteditor/basetexteditor.h>
 
 #include <QtCore/QWaitCondition>
+#include <QtCore/QModelIndex>
 #include <QtCore/QMutex>
 #include <QtCore/QThread>
 
@@ -58,6 +59,7 @@ class Highlighter;
 namespace Internal {
 
 class QmlJSTextEditor;
+class QmlOutlineModel;
 
 class QmlJSEditorEditable : public TextEditor::BaseTextEditorEditable
 {
@@ -214,12 +216,15 @@ public:
     int documentRevision() const;
     bool isOutdated() const;
 
+    QmlOutlineModel *outlineModel() const;
+    QModelIndex outlineModelIndex() const;
+
 public slots:
     void followSymbolUnderCursor();
     virtual void setFontSettings(const TextEditor::FontSettings &);
 
 signals:
-    void semanticInfoUpdated(const QmlJSEditor::Internal::SemanticInfo &semanticInfo);
+    void outlineModelIndexChanged(const QModelIndex &index);
 
 private slots:
     void onDocumentUpdated(QmlJS::Document::Ptr doc);
@@ -266,6 +271,7 @@ private:
     QString wordUnderCursor() const;
 
     SemanticHighlighter::Source currentSource(bool force = false);
+    QModelIndex indexForPosition(unsigned cursorPosition, const QModelIndex &rootIndex = QModelIndex()) const;
 
     const Core::Context m_context;
 
@@ -273,6 +279,8 @@ private:
     QTimer *m_updateUsesTimer;
     QTimer *m_semanticRehighlightTimer;
     QComboBox *m_methodCombo;
+    QmlOutlineModel *m_outlineModel;
+    QModelIndex m_outlineModelIndex;
     QmlJS::ModelManagerInterface *m_modelManager;
     QTextCharFormat m_occurrencesFormat;
     QTextCharFormat m_occurrencesUnusedFormat;

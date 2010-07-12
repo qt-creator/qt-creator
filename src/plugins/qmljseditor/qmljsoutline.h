@@ -37,18 +37,15 @@ public:
     virtual void setCursorSynchronization(bool syncWithCursor);
 
 private slots:
-    void updateOutline(const QmlJSEditor::Internal::SemanticInfo &semanticInfo);
-    void updateSelectionInTree();
+    void modelUpdated();
+    void updateSelectionInTree(const QModelIndex &index);
     void updateSelectionInText(const QItemSelection &selection);
 
 private:
-    QModelIndex indexForPosition(const QModelIndex &rootIndex, int cursorPosition);
-    bool offsetInsideLocation(quint32 offset, const QmlJS::AST::SourceLocation &location);
     bool syncCursor();
 
 private:
     QmlJSOutlineTreeView *m_treeView;
-    QAbstractItemModel *m_model;
     QWeakPointer<QmlJSTextEditor> m_editor;
 
     bool m_enableCursorSync;
