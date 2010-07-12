@@ -84,7 +84,7 @@ sudo cp -R /usr/local/qwt-5.2.1/lib/*  \
 
 //! [5]
 cd /Developer/Applications/Qt/Qt\ Creator.app/Contents/MacOS/designer
-sudo install_name_tool -change 
+sudo install_name_tool -change
     QtCore.framework/Versions/4/QtCore \
     @executable_path/../Frameworks/libQtCore.4.dylib \
     libqwt_designer_plugin.dylib
