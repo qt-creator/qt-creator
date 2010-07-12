@@ -168,7 +168,7 @@ public:
     SemanticInfo semanticInfo() const;
 
     CPlusPlus::OverviewModel *overviewModel() const;
-    QModelIndex overviewModelIndex() const;
+    QModelIndex overviewModelIndex();
 
     virtual void paste(); // reimplemented from BaseTextEditor
     virtual void cut(); // reimplemented from BaseTextEditor
@@ -265,7 +265,7 @@ private:
     bool openLink(const Link &link) { return openCppEditorAt(link); }
     bool openCppEditorAt(const Link &);
 
-    QModelIndex indexForPosition(int line, int column, const QModelIndex &rootIndex = QModelIndex());
+    QModelIndex indexForPosition(int line, int column, const QModelIndex &rootIndex = QModelIndex()) const;
 
     static Link linkToSymbol(CPlusPlus::Symbol *symbol);
 

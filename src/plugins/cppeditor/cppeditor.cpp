@@ -832,6 +832,7 @@ void CPPEditor::onDocumentUpdated(Document::Ptr doc)
     }
 
     m_overviewModel->rebuild(doc);
+
     OverviewTreeView *treeView = static_cast<OverviewTreeView *>(m_methodCombo->view());
     treeView->sync();
     updateMethodBoxIndexNow();
@@ -1092,14 +1093,9 @@ void CPPEditor::updateMethodBoxIndexNow()
 
     m_updateMethodBoxTimer->stop();
 
-    int line = 0, column = 0;
-    convertPosition(position(), &line, &column);
-
-    QModelIndex overviewModelIndex = indexForPosition(line, column);
-    emit overviewModelIndexChanged(overviewModelIndex);
-
+    m_overviewModelIndex = QModelIndex(); //invalidate
     // ComboBox only let's you select top level indexes!
-    QModelIndex comboIndex = overviewModelIndex;
+    QModelIndex comboIndex = overviewModelIndex();
     while (comboIndex.parent().isValid())
         comboIndex = comboIndex.parent();
 
@@ -1444,8 +1440,15 @@ CPlusPlus::OverviewModel *CPPEditor::overviewModel() const
     return m_overviewModel;
 }
 
-QModelIndex CPPEditor::overviewModelIndex() const
+QModelIndex CPPEditor::overviewModelIndex()
 {
+    if (!m_overviewModelIndex.isValid()) {
+        int line = 0, column = 0;
+        convertPosition(position(), &line, &column);
+        m_overviewModelIndex = indexForPosition(line, column);
+        emit overviewModelIndexChanged(m_overviewModelIndex);
+    }
+
     return m_overviewModelIndex;
 }
 
@@ -2194,7 +2197,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     return semanticInfo;
 }
 
-QModelIndex CPPEditor::indexForPosition(int line, int column, const QModelIndex &rootIndex)
+QModelIndex CPPEditor::indexForPosition(int line, int column, const QModelIndex &rootIndex) const
 {
     QModelIndex lastIndex = rootIndex;
 

@@ -90,7 +90,6 @@ void CppOutlineWidget::setCursorSynchronization(bool syncWithCursor)
 void CppOutlineWidget::modelUpdated()
 {
     m_treeView->expandAll();
-    updateSelectionInTree(m_editor->overviewModelIndex());
 }
 
 void CppOutlineWidget::updateSelectionInTree(const QModelIndex &index)

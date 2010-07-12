@@ -217,7 +217,7 @@ public:
     bool isOutdated() const;
 
     QmlOutlineModel *outlineModel() const;
-    QModelIndex outlineModelIndex() const;
+    QModelIndex outlineModelIndex();
 
 public slots:
     void followSymbolUnderCursor();

@@ -67,7 +67,6 @@ void QmlJSOutlineWidget::setCursorSynchronization(bool syncWithCursor)
 void QmlJSOutlineWidget::modelUpdated()
 {
     m_treeView->expandAll();
-    updateSelectionInTree(m_editor.data()->outlineModelIndex());
 }
 
 void QmlJSOutlineWidget::updateSelectionInTree(const QModelIndex &index)

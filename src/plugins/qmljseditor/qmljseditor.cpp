@@ -697,8 +697,12 @@ QmlOutlineModel *QmlJSTextEditor::outlineModel() const
     return m_outlineModel;
 }
 
-QModelIndex QmlJSTextEditor::outlineModelIndex() const
+QModelIndex QmlJSTextEditor::outlineModelIndex()
 {
+    if (!m_outlineModelIndex.isValid()) {
+        m_outlineModelIndex = indexForPosition(position());
+        emit outlineModelIndexChanged(m_outlineModelIndex);
+    }
     return m_outlineModelIndex;
 }
 
@@ -822,10 +826,8 @@ void QmlJSTextEditor::jumpToMethod(int /*index*/)
 
 void QmlJSTextEditor::updateMethodBoxIndex()
 {
-    m_outlineModelIndex = indexForPosition(position());
-    emit outlineModelIndexChanged(m_outlineModelIndex);
-
-    QModelIndex comboIndex = m_outlineModelIndex;
+    m_outlineModelIndex = QModelIndex(); // invalidate
+    QModelIndex comboIndex = outlineModelIndex();
 
     if (comboIndex.isValid()) {
         bool blocked = m_methodCombo->blockSignals(true);
@@ -1364,8 +1366,6 @@ void QmlJSTextEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
 
         QTreeView *treeView = static_cast<QTreeView*>(m_methodCombo->view());
         treeView->expandAll();
-        // ComboBox only let's you select top level indexes for a QAbstractItemModel!
-        // therefore we've to fake a treeview by listview + indentation
 
         if (m_contextPane) {
             Node *newNode = m_semanticInfo.declaringMember(position());
@@ -1542,3 +1542,4 @@ void SemanticHighlighter::setModelManager(QmlJS::ModelManagerInterface *modelMan
 {
     m_modelManager = modelManager;
 }
+
