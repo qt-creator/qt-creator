@@ -1073,7 +1073,7 @@ void GdbEngine::handleExecuteJumpToLine(const GdbResponse &response)
     } else if (response.resultClass == GdbResultDone) {
         // This happens on old gdb. Trigger the effect of a '*stopped'.
         showStatusMessage(tr("Jumped. Stopped"));
-        setState(InferiorStopOk);
+        notifyInferiorSpontaneousStop();
         handleStop1(response);
     }
 }
@@ -1091,7 +1091,7 @@ void GdbEngine::handleExecuteRunToLine(const GdbResponse &response)
         //>122^done
         gotoLocation(m_targetFrame, true);
         showStatusMessage(tr("Target line hit. Stopped"));
-        setState(InferiorStopOk);
+        notifyInferiorSpontaneousStop();
         handleStop1(response);
     }
 }
@@ -1712,7 +1712,7 @@ void GdbEngine::handleGdbExit(const GdbResponse &response)
         postCommand("-gdb-exit", GdbEngine::ExitRequest, CB(handleGdbExit));
         break;
     case InferiorSetupRequested: // This may take some time, so just short-circuit it
-        setState(InferiorSetupFailed);
+        notifyInferiorSetupFailed();
         gdbProc()->kill();
         break;
     case InferiorStopFailed: // Tough luck, I guess. But unreachable as of now anyway.
@@ -1725,7 +1725,13 @@ void GdbEngine::detachDebugger()
 {
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     QTC_ASSERT(startMode() != AttachCore, qDebug() << startMode());
-    postCommand("detach");
+    postCommand("detach", GdbEngine::ExitRequest, CB(handleDetach));
+}
+
+void GdbEngine::handleDetach(const GdbResponse &response)
+{
+    Q_UNUSED(response);
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     notifyInferiorExited();
 }
 
@@ -1737,8 +1743,8 @@ void GdbEngine::quitDebugger()
     // and regular the inferior shutdown procedure could take a while.
     // And the RunControl::stop() is called synchroneously.
     shutdownEngine();
-    initializeVariables();
-    setState(DebuggerNotReady);
+    //initializeVariables();
+    //setState(DebuggerNotReady);
 }
 
 int GdbEngine::currentFrame() const

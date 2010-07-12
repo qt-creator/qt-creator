@@ -77,7 +77,11 @@ void AttachGdbAdapter::setupInferior()
 void AttachGdbAdapter::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
-    m_engine->notifyInferiorStopOk();
+    m_engine->notifyEngineRunAndInferiorStopOk();
+    m_engine->notifyInferiorRunRequested();
+    m_engine->continueInferiorInternal();
+    m_engine->showStatusMessage(tr("Attached to process %1.")
+        .arg(m_engine->inferiorPid()));
 }
 
 void AttachGdbAdapter::handleAttach(const GdbResponse &response)
@@ -87,7 +91,7 @@ void AttachGdbAdapter::handleAttach(const GdbResponse &response)
         showMessage(_("INFERIOR ATTACHED"));
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
         m_engine->handleInferiorPrepared();
-        m_engine->updateAll();
+        //m_engine->updateAll();
     } else {
         QString msg = QString::fromLocal8Bit(response.data.findChild("msg").data());
         m_engine->notifyInferiorSetupFailed(msg);

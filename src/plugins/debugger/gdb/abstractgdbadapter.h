@@ -89,8 +89,6 @@ public:
 protected:
     DebuggerState state() const
         { return m_engine->state(); }
-    void setState(DebuggerState state)
-        { m_engine->setState(state); }
     const DebuggerStartParameters &startParameters() const
         { return m_engine->startParameters(); }
     void showMessage(const QString &msg, int channel = LogDebug, int timeout = 1)

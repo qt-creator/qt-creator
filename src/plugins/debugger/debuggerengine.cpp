@@ -1223,7 +1223,9 @@ void DebuggerEnginePrivate::doShutdownEngine()
 {
     SDEBUG(Q_FUNC_INFO);
     QTC_ASSERT(state() == InferiorShutdownOk
-        || state() == InferiorShutdownFailed, qDebug() << state());
+        || state() == InferiorShutdownFailed
+        || state() == InferiorSetupFailed,
+        qDebug() << state());
     m_targetState = DebuggerFinished;
     m_engine->setState(EngineShutdownRequested);
     m_engine->shutdownEngine();
