@@ -1,6 +1,7 @@
 QT += gui testlib
 
-GENERICHIGHLIGHTERDIR = ../../../../src/plugins/texteditor/generichighlighter
+PLUGINSDIR = ../../../../src/plugins
+GENERICHIGHLIGHTERDIR = $$PLUGINSDIR/texteditor/generichighlighter
 
 SOURCES += tst_highlighterengine.cpp \
     highlightermock.cpp \
@@ -21,6 +22,6 @@ HEADERS += \
     formats.h \
     tabsettings.h
 
-INCLUDEPATH += $$GENERICHIGHLIGHTERDIR
+INCLUDEPATH += $$GENERICHIGHLIGHTERDIR $$PLUGINSDIR
 
 TARGET=tst_$$TARGET
