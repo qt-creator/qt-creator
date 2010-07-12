@@ -4381,6 +4381,14 @@
     It is also possible to continue executing the program until the current
     function completes or jump to an arbitrary position in the current function.
 
+    \section2 Stepping into Frameworks in Mac OS
+
+    In Mac OS X, external libraries are usually built into so-called Frameworks,
+    which may contain both release and debug versions of the library. When you run
+    applications on the Mac OS desktop, the release version of Frameworks is used
+    by default. To step into Frameworks, select the \gui {Use debug versions of
+    Frameworks} option in the project run settings for \gui Desktop and
+    \gui {Qt Simulator} targets.
 
     \section1 Setting Breakpoints
 
