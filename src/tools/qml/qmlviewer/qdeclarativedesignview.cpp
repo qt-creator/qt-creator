@@ -222,6 +222,7 @@ void QDeclarativeDesignView::setDesignModeBehavior(bool value)
     emit designModeBehaviorChanged(value);
 
     m_toolbar->setDesignModeBehavior(value);
+    qmlDesignDebugServer()->setDesignModeBehavior(value);
 
     m_designModeBehavior = value;
     if (m_subcomponentEditorTool) {
