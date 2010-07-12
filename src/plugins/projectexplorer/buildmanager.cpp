@@ -411,7 +411,7 @@ bool BuildManager::buildQueueAppend(QList<BuildStep *> steps)
     return true;
 }
 
-void BuildManager::buildProjects(const QList<BuildConfiguration *> &configurations)
+bool BuildManager::buildProjects(const QList<BuildConfiguration *> &configurations)
 {
     QList<BuildStep *> steps;
     foreach(BuildConfiguration *bc, configurations)
@@ -420,15 +420,16 @@ void BuildManager::buildProjects(const QList<BuildConfiguration *> &configuratio
     bool success = buildQueueAppend(steps);
     if (!success) {
         m_outputWindow->popup(false);
-        return;
+        return false;
     }
 
     if (ProjectExplorerPlugin::instance()->projectExplorerSettings().showCompilerOutput)
         m_outputWindow->popup(false);
     startBuildQueue();
+    return true;
 }
 
-void BuildManager::deployProjects(const QList<BuildConfiguration *> &configurations)
+bool BuildManager::deployProjects(const QList<BuildConfiguration *> &configurations)
 {
     QList<BuildStep *> steps;
     foreach(BuildConfiguration *bc, configurations)
@@ -437,15 +438,16 @@ void BuildManager::deployProjects(const QList<BuildConfiguration *> &configurati
     bool success = buildQueueAppend(steps);
     if (!success) {
         m_outputWindow->popup(false);
-        return;
+        return false;
     }
 
     if (ProjectExplorerPlugin::instance()->projectExplorerSettings().showCompilerOutput)
         m_outputWindow->popup(false);
     startBuildQueue();
+    return true;
 }
 
-void BuildManager::cleanProjects(const QList<BuildConfiguration *> &configurations)
+bool BuildManager::cleanProjects(const QList<BuildConfiguration *> &configurations)
 {
     QList<BuildStep *> steps;
     foreach(BuildConfiguration *bc, configurations)
@@ -454,27 +456,28 @@ void BuildManager::cleanProjects(const QList<BuildConfiguration *> &configuratio
     bool success = buildQueueAppend(steps);
     if (!success) {
         m_outputWindow->popup(false);
-        return;
+        return false;
     }
 
     if (ProjectExplorerPlugin::instance()->projectExplorerSettings().showCompilerOutput)
         m_outputWindow->popup(false);
     startBuildQueue();
+    return true;
 }
 
-void BuildManager::buildProject(BuildConfiguration *configuration)
+bool BuildManager::buildProject(BuildConfiguration *configuration)
 {
-    buildProjects(QList<BuildConfiguration *>() << configuration);
+    return buildProjects(QList<BuildConfiguration *>() << configuration);
 }
 
-void BuildManager::deployProject(BuildConfiguration *configuration)
+bool BuildManager::deployProject(BuildConfiguration *configuration)
 {
-    deployProjects(QList<BuildConfiguration *>() << configuration);
+    return deployProjects(QList<BuildConfiguration *>() << configuration);
 }
 
-void BuildManager::cleanProject(BuildConfiguration *configuration)
+bool BuildManager::cleanProject(BuildConfiguration *configuration)
 {
-    cleanProjects(QList<BuildConfiguration *>() << configuration);
+    return cleanProjects(QList<BuildConfiguration *>() << configuration);
 }
 
 void BuildManager::appendStep(BuildStep *step)
