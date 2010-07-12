@@ -79,7 +79,8 @@
 
 enum {
     UPDATE_DOCUMENT_DEFAULT_INTERVAL = 50,
-    UPDATE_USES_DEFAULT_INTERVAL = 150
+    UPDATE_USES_DEFAULT_INTERVAL = 150,
+    UPDATE_METHOD_BOX_INTERVAL = 150
 };
 
 using namespace QmlJS;
@@ -647,6 +648,11 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     connect(this, SIGNAL(textChanged()), this, SLOT(updateDocument()));
     connect(this, SIGNAL(textChanged()), this, SLOT(updateUses()));
 
+    m_updateMethodBoxTimer = new QTimer(this);
+    m_updateMethodBoxTimer->setInterval(UPDATE_METHOD_BOX_INTERVAL);
+    m_updateMethodBoxTimer->setSingleShot(true);
+    connect(m_updateMethodBoxTimer, SIGNAL(timeout()), this, SLOT(updateMethodBoxIndex()));
+
     baseTextDocument()->setSyntaxHighlighter(new Highlighter(document()));
 
     m_modelManager = ExtensionSystem::PluginManager::instance()->getObject<ModelManagerInterface>();
@@ -826,6 +832,14 @@ void QmlJSTextEditor::jumpToMethod(int /*index*/)
 
 void QmlJSTextEditor::updateMethodBoxIndex()
 {
+    if (!m_semanticInfo.document)
+        return;
+
+    if (m_semanticInfo.document->editorRevision() != documentRevision()) {
+        m_updateMethodBoxTimer->start();
+        return;
+    }
+
     m_outlineModelIndex = QModelIndex(); // invalidate
     QModelIndex comboIndex = outlineModelIndex();
 
@@ -1020,7 +1034,7 @@ void QmlJSTextEditor::createToolBar(QmlJSEditorEditable *editable)
     m_methodCombo->setSizePolicy(policy);
 
     connect(m_methodCombo, SIGNAL(activated(int)), this, SLOT(jumpToMethod(int)));
-    connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateMethodBoxIndex()));
+    connect(this, SIGNAL(cursorPositionChanged()), m_updateMethodBoxTimer, SLOT(start()));
     connect(m_methodCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateMethodBoxToolTip()));
 
     connect(file(), SIGNAL(changed()), this, SLOT(updateFileName()));

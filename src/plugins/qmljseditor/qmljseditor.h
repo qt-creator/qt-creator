@@ -278,6 +278,7 @@ private:
     QTimer *m_updateDocumentTimer;
     QTimer *m_updateUsesTimer;
     QTimer *m_semanticRehighlightTimer;
+    QTimer *m_updateMethodBoxTimer;
     QComboBox *m_methodCombo;
     QmlOutlineModel *m_outlineModel;
     QModelIndex m_outlineModelIndex;
