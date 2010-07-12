@@ -135,10 +135,18 @@ public:
     void appendApplicationOutput(const QString &out, bool onStdErr);
     void appendApplicationOutputInline(const QString &out, bool onStdErr);
     void appendMessage(const QString &out, bool isError);
+    /// appends a \p text using \p format without using formater
+    void appendText(const QString &text, const QTextCharFormat &format, int maxLineCount);
 
     void grayOutOldContent();
 
     void showEvent(QShowEvent *);
+
+    void clear()
+    {
+        m_enforceNewline = false;
+        QPlainTextEdit::clear();
+    }
 
 protected:
     bool isScrollbarAtBottom() const;

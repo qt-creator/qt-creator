@@ -30,6 +30,7 @@
 #ifndef COMPILEOUTPUTWINDOW_H
 #define COMPILEOUTPUTWINDOW_H
 
+#include "outputwindow.h"
 #include <coreplugin/ioutputpane.h>
 
 #include <QtCore/QHash>
@@ -78,7 +79,7 @@ public:
     void showPositionOf(const Task &task);
 
 private:
-    QPlainTextEdit *m_textEdit;
+    OutputWindow *m_outputWindow;
     QHash<unsigned int, int> m_taskPositions;
     ShowOutputTaskHandler * m_handler;
 };

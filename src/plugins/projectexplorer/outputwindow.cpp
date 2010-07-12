@@ -221,6 +221,8 @@ void OutputPane::createNewOutputWindow(RunControl *rc)
     }
     if (!found) {
         OutputWindow *ow = new OutputWindow(m_tabWidget);
+        ow->setWindowTitle(tr("Application Output Window"));
+        ow->setWindowIcon(QIcon(":/qt4projectmanager/images/window.png"));
         ow->setFormatter(rc->outputFormatter());
         Aggregation::Aggregate *agg = new Aggregation::Aggregate;
         agg->add(ow);
@@ -376,6 +378,7 @@ bool OutputPane::canNavigate()
 
 OutputWindow::OutputWindow(QWidget *parent)
     : QPlainTextEdit(parent)
+    , m_formatter(0)
     , m_enforceNewline(false)
     , m_scrollToBottom(false)
     , m_linksActive(true)
@@ -383,8 +386,6 @@ OutputWindow::OutputWindow(QWidget *parent)
 {
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     //setCenterOnScroll(false);
-    setWindowTitle(tr("Application Output Window"));
-    setWindowIcon(QIcon(":/qt4projectmanager/images/window.png"));
     setFrameShape(QFrame::NoFrame);
     setMouseTracking(true);
 
@@ -433,10 +434,9 @@ OutputWindow::~OutputWindow()
     delete m_outputWindowContext;
 }
 
-void OutputWindow::mousePressEvent(QMouseEvent *e)
+void OutputWindow::mousePressEvent(QMouseEvent * /*e*/)
 {
     m_mousePressed = true;
-    QPlainTextEdit::mousePressEvent(e);
 }
 
 
@@ -453,7 +453,6 @@ void OutputWindow::mouseReleaseEvent(QMouseEvent *e)
     const QString href = anchorAt(e->pos());
     if (m_formatter)
         m_formatter->handleLink(href);
-    QPlainTextEdit::mouseReleaseEvent(e);
 }
 
 void OutputWindow::mouseMoveEvent(QMouseEvent *e)
@@ -466,7 +465,6 @@ void OutputWindow::mouseMoveEvent(QMouseEvent *e)
         viewport()->setCursor(Qt::IBeamCursor);
     else
         viewport()->setCursor(Qt::PointingHandCursor);
-    QPlainTextEdit::mouseMoveEvent(e);
 }
 
 OutputFormatter *OutputWindow::formatter() const
@@ -554,6 +552,28 @@ void OutputWindow::appendMessage(const QString &out, bool isError)
     if (atBottom)
         scrollToBottom();
     enableUndoRedo();
+}
+
+// TODO rename
+void OutputWindow::appendText(const QString &text, const QTextCharFormat &format, int maxLineCount)
+{
+    if (document()->blockCount() > maxLineCount)
+        return;
+    const bool atBottom = isScrollbarAtBottom();
+    QTextCursor cursor = QTextCursor(document());
+    cursor.movePosition(QTextCursor::End);
+    cursor.beginEditBlock();
+    cursor.insertText(doNewlineEnfocement(text), format);
+
+    if (document()->blockCount() > maxLineCount) {
+        QTextCharFormat tmp;
+        tmp.setFontWeight(QFont::Bold);
+        cursor.insertText(tr("Additional output omitted\n"), tmp);
+    }
+
+    cursor.endEditBlock();
+    if (atBottom)
+        scrollToBottom();
 }
 
 bool OutputWindow::isScrollbarAtBottom() const
