@@ -318,11 +318,11 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     AllProjectsFind *allProjectsFind = new AllProjectsFind(this,
-        pm->getObject<Find::SearchResultWindow>());
+        Find::SearchResultWindow::instance());
     addAutoReleasedObject(allProjectsFind);
 
     CurrentProjectFind *currentProjectFind = new CurrentProjectFind(this,
-        pm->getObject<Find::SearchResultWindow>());
+        Find::SearchResultWindow::instance());
     addAutoReleasedObject(currentProjectFind);
 
     addAutoReleasedObject(new LocalApplicationRunControlFactory);

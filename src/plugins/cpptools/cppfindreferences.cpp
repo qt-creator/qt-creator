@@ -148,7 +148,7 @@ public:
 CppFindReferences::CppFindReferences(CppTools::CppModelManagerInterface *modelManager)
     : QObject(modelManager),
       _modelManager(modelManager),
-      _resultWindow(ExtensionSystem::PluginManager::instance()->getObject<Find::SearchResultWindow>())
+      _resultWindow(Find::SearchResultWindow::instance())
 {
     m_watcher.setPendingResultsLimit(1);
     connect(&m_watcher, SIGNAL(resultsReadyAt(int,int)), this, SLOT(displayResults(int,int)));

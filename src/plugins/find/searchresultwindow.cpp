@@ -211,8 +211,11 @@ namespace Internal {
 
 using namespace Find::Internal;
 
+SearchResultWindow *SearchResultWindow::m_instance = 0;
+
 SearchResultWindow::SearchResultWindow() : d(new SearchResultWindowPrivate)
 {
+    m_instance = this;
     d->m_widget = new QStackedWidget;
     d->m_widget->setWindowTitle(displayName());
 
@@ -269,6 +272,11 @@ SearchResultWindow::~SearchResultWindow()
     d->m_widget = 0;
     d->m_items.clear();
     delete d;
+}
+
+SearchResultWindow *SearchResultWindow::instance()
+{
+    return m_instance;
 }
 
 void SearchResultWindow::setTextToReplace(const QString &textToReplace)

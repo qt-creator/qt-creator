@@ -82,6 +82,7 @@ public:
 
     SearchResultWindow();
     virtual ~SearchResultWindow();
+    static SearchResultWindow *instance();
 
     QWidget *outputWidget(QWidget *);
     QList<QWidget*> toolBarWidgets() const;
@@ -129,6 +130,7 @@ private:
     QList<SearchResultItem> checkedItems() const;
 
     Internal::SearchResultWindowPrivate *d;
+    static SearchResultWindow *m_instance;
 };
 
 } // namespace Find
