@@ -116,8 +116,10 @@ void CompileOutputWindow::appendText(const QString &text, const QTextCharFormat 
 
     cursor.endEditBlock();
 
-    if (shouldScroll)
+    if (shouldScroll) {
+        m_textEdit->verticalScrollBar()->setValue(m_textEdit->verticalScrollBar()->maximum());
         m_textEdit->setTextCursor(cursor);
+    }
 }
 
 void CompileOutputWindow::clearContents()
