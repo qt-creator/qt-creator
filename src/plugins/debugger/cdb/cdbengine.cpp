@@ -482,10 +482,10 @@ void CdbEngine::runEngine()
     if (rc) {
         if (needWatchTimer)
             m_d->startWatchTimer();
-        notifyInferiorSetupOk();
+        notifyEngineRunAndInferiorRunOk(); // FIXME AAA: correct?
     } else {
         warning(errorMessage);
-        notifyInferiorSetupFailed();
+        notifyEngineRunAndInferiorStopOk(); // FIXME AAA: correct?
     }
 }
 
