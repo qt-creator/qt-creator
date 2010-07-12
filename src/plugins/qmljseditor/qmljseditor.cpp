@@ -1006,6 +1006,7 @@ void QmlJSTextEditor::createToolBar(QmlJSEditorEditable *editable)
     QTreeView *treeView = new QTreeView;
     treeView->header()->hide();
     treeView->setItemsExpandable(false);
+    treeView->setRootIsDecorated(false);
     m_methodCombo->setView(treeView);
     treeView->expandAll();
 
