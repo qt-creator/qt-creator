@@ -220,3 +220,5 @@ Cpp.ignoredirectives    = Q_DECLARE_HANDLE \
                           K_DECLARE_PRIVATE \
                           PHONON_OBJECT \
                           PHONON_HEIR
+
+creator = true
