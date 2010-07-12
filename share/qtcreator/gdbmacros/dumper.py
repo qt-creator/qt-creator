@@ -124,6 +124,10 @@ def lookupType(typestring):
         #if not type is None:
         #    warn("  FIELDS: '%s'" % type.fields())
         typeCache[typestring] = type
+    if type is None:
+        # could be gdb.lookup_type("char[3]") generating
+        # "RuntimeError: No type named char[3]"
+        pass
     return type
 
 def cleanType(type):
@@ -805,7 +809,10 @@ def extractFields(type):
     #warn("TYPE 0: %s" % type)
     type = stripTypedefs(type)
     #warn("TYPE 1: %s" % type)
-    type = lookupType(str(type))
+    # This fails for arrays. See comment in lookupType.
+    type2 = lookupType(str(type))
+    if not type2 is None:
+        type = type2
     #warn("TYPE 2: %s" % type)
     fields = type.fields()
     #warn("FIELDS: %s" % fields)
