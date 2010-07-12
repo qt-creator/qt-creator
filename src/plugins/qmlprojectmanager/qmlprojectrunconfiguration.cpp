@@ -208,7 +208,7 @@ QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
     debugPort->setValue(m_debugData.serverPort);
     connect(debugPort, SIGNAL(valueChanged(int)), this, SLOT(onDebugServerPortChanged()));
 
-    form->addRow(tr("QML Viewer"), qmlViewer);
+    form->addRow(tr("Custom QML Viewer:"), qmlViewer);
     form->addRow(tr("QML Viewer arguments:"), qmlViewerArgs);
     form->addRow(tr("Main QML File:"), m_fileListCombo.data());
     form->addRow(tr("Debugging Address:"), debugServer);
