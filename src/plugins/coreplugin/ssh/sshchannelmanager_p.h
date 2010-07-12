@@ -1,0 +1,89 @@
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+** Commercial Usage
+**
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
+**
+** GNU Lesser General Public License Usage
+**
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at http://qt.nokia.com/contact.
+**
+**************************************************************************/
+
+#ifndef SSHCHANNELLAYER_P_H
+#define SSHCHANNELLAYER_P_H
+
+#include <QtCore/QHash>
+#include <QtCore/QSharedPointer>
+
+namespace Core {
+
+class SftpChannel;
+class SshRemoteProcess;
+
+namespace Internal {
+
+class AbstractSshChannel;
+class SshIncomingPacket;
+class SshSendFacility;
+
+class SshChannelManager
+{
+public:
+    SshChannelManager(SshSendFacility &sendFacility);
+    ~SshChannelManager();
+
+    QSharedPointer<SshRemoteProcess> createRemoteProcess(const QByteArray &command);
+    QSharedPointer<SftpChannel> createSftpChannel();
+    void closeAllChannels();
+
+    void handleChannelRequest(const SshIncomingPacket &packet);
+    void handleChannelOpen(const SshIncomingPacket &packet);
+    void handleChannelOpenFailure(const SshIncomingPacket &packet);
+    void handleChannelOpenConfirmation(const SshIncomingPacket &packet);
+    void handleChannelSuccess(const SshIncomingPacket &packet);
+    void handleChannelFailure(const SshIncomingPacket &packet);
+    void handleChannelWindowAdjust(const SshIncomingPacket &packet);
+    void handleChannelData(const SshIncomingPacket &packet);
+    void handleChannelExtendedData(const SshIncomingPacket &packet);
+    void handleChannelEof(const SshIncomingPacket &packet);
+    void handleChannelClose(const SshIncomingPacket &packet);
+
+private:
+    typedef QHash<quint32, AbstractSshChannel *>::Iterator ChannelIterator;
+
+    ChannelIterator lookupChannelAsIterator(quint32 channelId,
+        bool allowNotFound = false);
+    AbstractSshChannel *lookupChannel(quint32 channelId,
+        bool allowNotFound = false);
+    void removeChannel(ChannelIterator it);
+    void insertChannel(AbstractSshChannel *priv,
+        const QSharedPointer<QObject> &pub);
+
+    SshSendFacility &m_sendFacility;
+    QHash<quint32, AbstractSshChannel *> m_channels;
+    QHash<AbstractSshChannel *, QSharedPointer<QObject> > m_sessions;
+    quint32 m_nextLocalChannelId;
+};
+
+} // namespace Internal
+} // namespace Core
+
+#endif // SSHCHANNELLAYER_P_H

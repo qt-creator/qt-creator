@@ -27,49 +27,28 @@
 **
 **************************************************************************/
 
-#ifndef SSHKEYGENERATOR_H
-#define SSHKEYGENERATOR_H
+#include "sftppacket_p.h"
 
-#include <coreplugin/core_global.h>
-
-#include <QtCore/QCoreApplication>
-#include <QtCore/QSharedPointer>
-
-namespace Botan {
-    class Private_Key;
-}
+#include "sshpacketparser_p.h"
 
 namespace Core {
+namespace Internal {
 
-class CORE_EXPORT SshKeyGenerator
+const quint32 AbstractSftpPacket::MaxDataSize = 32768;
+const quint32 AbstractSftpPacket::MaxPacketSize = 34000;
+const int AbstractSftpPacket::TypeOffset = 4;
+const int AbstractSftpPacket::RequestIdOffset = TypeOffset + 1;
+const int AbstractSftpPacket::PayloadOffset = RequestIdOffset + 4;
+
+
+AbstractSftpPacket::AbstractSftpPacket()
 {
-    Q_DECLARE_TR_FUNCTIONS(SshKeyGenerator)
-public:
-    enum KeyType { Rsa, Dsa };
-    enum PrivateKeyFormat { Pkcs8, OpenSsl };
+}
 
-    SshKeyGenerator();
-    bool generateKeys(KeyType type, PrivateKeyFormat format, int keySize);
-    QString error() const { return m_error; }
-    QByteArray privateKey() const { return m_privateKey; }
-    QByteArray publicKey() const { return m_publicKey; }
-    KeyType type() const { return m_type; }
-    PrivateKeyFormat format() const { return m_format; }
+quint32 AbstractSftpPacket::requestId() const
+{
+    return SshPacketParser::asUint32(m_data, RequestIdOffset);
+}
 
-private:
-    typedef QSharedPointer<Botan::Private_Key> KeyPtr;
-
-    bool generatePkcs8Keys(const KeyPtr &key);
-    void generatePkcs8Key(const KeyPtr &key, bool privateKey);
-    bool generateOpenSslKeys(const KeyPtr &key, KeyType type);
-
-    QString m_error;
-    QByteArray m_publicKey;
-    QByteArray m_privateKey;
-    KeyType m_type;
-    PrivateKeyFormat m_format;
-};
-
+} // namespace Internal
 } // namespace Core
-
-#endif // SSHKEYGENERATOR_H

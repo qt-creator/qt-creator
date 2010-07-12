@@ -27,49 +27,46 @@
 **
 **************************************************************************/
 
-#ifndef SSHKEYGENERATOR_H
-#define SSHKEYGENERATOR_H
+#ifndef CAPABILITIES_P_H
+#define CAPABILITIES_P_H
 
-#include <coreplugin/core_global.h>
-
-#include <QtCore/QCoreApplication>
-#include <QtCore/QSharedPointer>
-
-namespace Botan {
-    class Private_Key;
-}
+#include <QtCore/QByteArray>
+#include <QtCore/QList>
 
 namespace Core {
+namespace Internal {
 
-class CORE_EXPORT SshKeyGenerator
+class SshCapabilities
 {
-    Q_DECLARE_TR_FUNCTIONS(SshKeyGenerator)
 public:
-    enum KeyType { Rsa, Dsa };
-    enum PrivateKeyFormat { Pkcs8, OpenSsl };
+    static const QByteArray DiffieHellmanGroup1Sha1;
+    static const QByteArray DiffieHellmanGroup14Sha1;
+    static const QList<QByteArray> KeyExchangeMethods;
 
-    SshKeyGenerator();
-    bool generateKeys(KeyType type, PrivateKeyFormat format, int keySize);
-    QString error() const { return m_error; }
-    QByteArray privateKey() const { return m_privateKey; }
-    QByteArray publicKey() const { return m_publicKey; }
-    KeyType type() const { return m_type; }
-    PrivateKeyFormat format() const { return m_format; }
+    static const QByteArray PubKeyDss;
+    static const QByteArray PubKeyRsa;
+    static const QList<QByteArray> PublicKeyAlgorithms;
 
-private:
-    typedef QSharedPointer<Botan::Private_Key> KeyPtr;
+    static const QByteArray CryptAlgo3Des;
+    static const QByteArray CryptAlgoAes128;
+    static const QList<QByteArray> EncryptionAlgorithms;
 
-    bool generatePkcs8Keys(const KeyPtr &key);
-    void generatePkcs8Key(const KeyPtr &key, bool privateKey);
-    bool generateOpenSslKeys(const KeyPtr &key, KeyType type);
+    static const QByteArray HMacSha1;
+    static const QByteArray HMacSha196;
+    static const QList<QByteArray> MacAlgorithms;
 
-    QString m_error;
-    QByteArray m_publicKey;
-    QByteArray m_privateKey;
-    KeyType m_type;
-    PrivateKeyFormat m_format;
+    static const QList<QByteArray> CompressionAlgorithms;
+
+    static const QByteArray SshConnectionService;
+
+    static const QByteArray PublicKeyAuthMethod;
+    static const QByteArray PasswordAuthMethod;
+
+    static QByteArray findBestMatch(const QList<QByteArray> &myCapabilities,
+        const QList<QByteArray> &serverCapabilities);
 };
 
+} // namespace Internal
 } // namespace Core
 
-#endif // SSHKEYGENERATOR_H
+#endif // CAPABILITIES_P_H

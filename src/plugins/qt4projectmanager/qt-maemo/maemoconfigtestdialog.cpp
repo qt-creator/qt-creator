@@ -35,38 +35,14 @@
 #include "maemoconfigtestdialog.h"
 #include "ui_maemoconfigtestdialog.h"
 
-#include "maemosshthread.h"
+#include "maemodeviceconfigurations.h"
+
+#include <coreplugin/ssh/sshconnection.h>
+#include <coreplugin/ssh/sshremoteprocess.h>
 
 #include <QtGui/QPushButton>
 
-namespace {
-
-/**
- * Class that waits until a thread is finished and then deletes it, and then
- * schedules itself to be deleted.
- */
-class SafeThreadDeleter : public QThread
-{
-public:
-    SafeThreadDeleter(QThread *thread) : m_thread(thread) {}
-    ~SafeThreadDeleter() { wait(); }
-
-protected:
-    void run()
-    {
-        // Wait for m_thread to finish and then delete it
-        m_thread->wait();
-        delete m_thread;
-
-        // Schedule this thread for deletion
-        deleteLater();
-    }
-
-private:
-    QThread *m_thread;
-};
-
-} // anonymous namespace
+using namespace Core;
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -75,7 +51,6 @@ MaemoConfigTestDialog::MaemoConfigTestDialog(const MaemoDeviceConfig &config, QW
     : QDialog(parent)
     , m_ui(new Ui_MaemoConfigTestDialog)
     , m_config(config)
-    , m_deviceTester(0)
 {
     setAttribute(Qt::WA_DeleteOnClose);
 
@@ -94,65 +69,86 @@ MaemoConfigTestDialog::~MaemoConfigTestDialog()
 
 void MaemoConfigTestDialog::startConfigTest()
 {
-    if (m_deviceTester)
+    if (m_testProcess)
         return;
 
     m_ui->testResultEdit->setPlainText(tr("Testing configuration..."));
     m_closeButton->setText(tr("Stop Test"));
+    m_connection = SshConnection::create();
+    connect(m_connection.data(), SIGNAL(connected()), this,
+        SLOT(handleConnected()));
+    connect(m_connection.data(), SIGNAL(error(SshError)), this,
+        SLOT(handleConnectionError()));
+    m_connection->connectToHost(m_config.server);
+}
 
+void MaemoConfigTestDialog::handleConnected()
+{
+    if (!m_connection)
+        return;
     QLatin1String sysInfoCmd("uname -rsm");
     QLatin1String qtInfoCmd("dpkg -l |grep libqt "
         "|sed 's/[[:space:]][[:space:]]*/ /g' "
         "|cut -d ' ' -f 2,3 |sed 's/~.*//g'");
     QString command(sysInfoCmd + " && " + qtInfoCmd);
-    m_deviceTester = new MaemoSshRunner(m_config.server, command);
-    connect(m_deviceTester, SIGNAL(remoteOutput(QString)),
-            this, SLOT(processSshOutput(QString)));
-    connect(m_deviceTester, SIGNAL(finished()),
-            this, SLOT(handleTestThreadFinished()));
-
-    m_deviceTester->start();
+    m_testProcess = m_connection->createRemoteProcess(command.toUtf8());
+    connect(m_testProcess.data(), SIGNAL(closed(int)), this,
+        SLOT(handleProcessFinished(int)));
+    connect(m_testProcess.data(), SIGNAL(outputAvailable(QByteArray)), this,
+        SLOT(processSshOutput(QByteArray)));
+    m_testProcess->start();
 }
 
-void MaemoConfigTestDialog::handleTestThreadFinished()
+void MaemoConfigTestDialog::handleConnectionError()
 {
-    if (!m_deviceTester)
+    if (!m_connection)
+        return;
+    QString output = tr("Could not connect to host: %1")
+        .arg(m_connection->errorString());
+    if (m_config.type == MaemoDeviceConfig::Simulator)
+        output += tr("\nDid you start Qemu?");
+    m_ui->testResultEdit->setPlainText(output);
+    stopConfigTest();
+}
+
+void MaemoConfigTestDialog::handleProcessFinished(int exitStatus)
+{
+    Q_ASSERT(exitStatus == SshRemoteProcess::FailedToStart
+        || exitStatus == SshRemoteProcess::KilledBySignal
+        || exitStatus == SshRemoteProcess::ExitedNormally);
+
+    if (!m_testProcess)
         return;
 
-    QString output;
-    if (m_deviceTester->hasError()) {
-        output = tr("Device configuration test failed:\n%1").arg(m_deviceTester->error());
-        if (m_config.type == MaemoDeviceConfig::Simulator)
-            output.append(tr("\nDid you start Qemu?"));
+    if (exitStatus != SshRemoteProcess::ExitedNormally
+        || m_testProcess->exitCode() != 0) {
+        m_ui->testResultEdit->setPlainText(tr("Remote process failed: %1")
+            .arg(m_testProcess->errorString()));
     } else {
-        output = parseTestOutput();
+        const QString &output = parseTestOutput();
         if (!m_qtVersionOk) {
             m_ui->errorLabel->setText(tr("Qt version mismatch! "
                 " Expected Qt on device: 4.6.2 or later."));
         }
+        m_ui->testResultEdit->setPlainText(output);
     }
-    m_ui->testResultEdit->setPlainText(output);
     stopConfigTest();
 }
 
 void MaemoConfigTestDialog::stopConfigTest()
 {
-    if (m_deviceTester) {
-        m_deviceTester->disconnect();  // Disconnect signals
-        m_deviceTester->stop();
+    if (m_testProcess)
+        disconnect(m_testProcess.data(), 0, this, 0);
+    if (m_connection)
+        disconnect(m_connection.data(), 0, this, 0);
 
-        SafeThreadDeleter *deleter = new SafeThreadDeleter(m_deviceTester);
-        deleter->start();
-
-        m_deviceTester = 0;
-        m_deviceTestOutput.clear();
-        m_closeButton->setText(tr("Close"));
-    }
+    m_deviceTestOutput.clear();
+    m_closeButton->setText(tr("Close"));
 }
 
-void MaemoConfigTestDialog::processSshOutput(const QString &data)
+void MaemoConfigTestDialog::processSshOutput(const QByteArray &output)
 {
-    m_deviceTestOutput.append(data);
+    m_deviceTestOutput.append(QString::fromUtf8(output));
 }
 
 QString MaemoConfigTestDialog::parseTestOutput()

@@ -42,7 +42,7 @@
 
 #include <algorithm>
 
-typedef Core::SshServerInfo::AuthType AuthType;
+typedef Core::SshConnectionParameters::AuthType AuthType;
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -80,7 +80,7 @@ namespace {
     const QString DefaultHostNameHW(QLatin1String("192.168.2.15"));
     const QString DefaultHostNameSim(QLatin1String("localhost"));
     const QString DefaultUserName(QLatin1String("developer"));
-    const AuthType DefaultAuthType(Core::SshServerInfo::AuthByKey);
+    const AuthType DefaultAuthType(Core::SshConnectionParameters::AuthByKey);
     const int DefaultTimeout(30);
     const MaemoDeviceConfig::DeviceType DefaultDeviceType(MaemoDeviceConfig::Physical);
 };

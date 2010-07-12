@@ -37,17 +37,24 @@
 
 #include "maemodeviceconfigurations.h"
 #include "maemodeployable.h"
-#include "maemosshthread.h"
 
+#include <coreplugin/ssh/sftpdefs.h>
 #include <projectexplorer/runconfiguration.h>
 
 #include <QtCore/QFutureInterface>
+#include <QtCore/QMap>
 #include <QtCore/QScopedPointer>
 #include <QtCore/QString>
 
 QT_BEGIN_NAMESPACE
 class QProcess;
 QT_END_NAMESPACE
+
+namespace Core {
+    class SftpChannel;
+    class SshConnection;
+    class SshRemoteProcess;
+}
 
 namespace Debugger {
     class DebuggerRunControl;
@@ -56,8 +63,6 @@ namespace Debugger {
 
 namespace Qt4ProjectManager {
 namespace Internal {
-class MaemoSshDeployer;
-class MaemoSshRunner;
 class MaemoRunConfiguration;
 
 class AbstractMaemoRunControl : public ProjectExplorer::RunControl
@@ -73,8 +78,7 @@ protected:
     virtual void start();
     virtual void stop();
 
-    void startDeployment(bool forDebugging);
-    void deploy();
+    void startDeployment();
     void stopRunning(bool forDebugging);
     virtual void startExecution();
     void handleError(const QString &errString);
@@ -86,46 +90,55 @@ protected:
     QString packageFileName() const;
     QString packageFilePath() const;
     QString executableFilePathOnTarget() const;
-
-protected slots:
-    void handleRunThreadFinished();
+    virtual QList<MaemoDeployable> filesToDeploy();
+    bool addDeployableIfNeeded(QList<MaemoDeployable> &deployables,
+        const MaemoDeployable &deployable);
 
 private slots:
-    virtual void handleRemoteOutput(const QString &output)=0;
-    void handleInitialCleanupFinished();
-    void handleDeployThreadFinished();
-    void handleFileCopied();
+    void handleConnected();
+    void handleConnectionFailure();
+    void handleInitialCleanupFinished(int exitStatus);
+    void handleSftpChannelInitialized();
+    void handleSftpChannelInitializationFailed(const QString &error);
+    void handleSftpJobFinished(Core::SftpJobId job, const QString &error);
+    void handleLinkProcessFinished(int exitStatus);
+    void handleInstallationFinished(int exitStatus);
+    virtual void handleRemoteProcessStarted() {}
+    void handleRemoteProcessFinished(int exitStatus);
+    void handleRemoteOutput(const QByteArray &output);
+    void handleRemoteErrorOutput(const QByteArray &output);
 
 protected:
     MaemoRunConfiguration *m_runConfig; // TODO this pointer can be invalid
     const MaemoDeviceConfig m_devConfig;
 
 private:
-    bool addDeployableIfNeeded(const MaemoDeployable &deployable);
-
-    virtual void startInternal()=0;
     virtual void stopInternal()=0;
     virtual QString remoteCall() const=0;
 
-    void startInitialCleanup();
     void killRemoteProcesses(const QStringList &apps, bool initialCleanup);
+    void cancelActions();
+    template<class SshChannel> void closeSshChannel(SshChannel &channel);
     void startExecutionIfPossible();
     bool isCleaning() const;
     bool isDeploying() const;
     QString remoteSudo() const;
-    QString remoteInstallCommand() const;
     QString uploadFilePath(const MaemoDeployable &deployable) const;
+    void handleDeploymentFinished();
 
     QFutureInterface<void> m_progress;
-    QScopedPointer<MaemoSshDeployer> m_sshDeployer;
-    QScopedPointer<MaemoSshRunner> m_sshRunner;
-    QScopedPointer<MaemoSshRunner> m_sshStopper;
-    QScopedPointer<MaemoSshRunner> m_initialCleaner;
-    bool m_stoppedByUser;
+    QSharedPointer<Core::SshConnection> m_connection;
+    QSharedPointer<Core::SftpChannel> m_uploader;
+    QSharedPointer<Core::SshRemoteProcess> m_installer;
+    QSharedPointer<Core::SshRemoteProcess> m_runner;
+    QSharedPointer<Core::SshRemoteProcess> m_stopper;
+    QSharedPointer<Core::SshRemoteProcess> m_initialCleaner;
 
-    QList<Core::SftpTransferInfo> m_deployables;
-    QMap<QString, QString> m_remoteLinks;
+    typedef QPair<MaemoDeployable, QString> DeployInfo;
+    QMap<Core::SftpJobId, DeployInfo> m_uploadsInProgress;
+    QMap<QSharedPointer<Core::SshRemoteProcess>, MaemoDeployable> m_linksInProgress;
     bool m_needsInstall;
+    bool m_stopped;
 };
 
 class MaemoRunControl : public AbstractMaemoRunControl
@@ -135,11 +148,7 @@ public:
     explicit MaemoRunControl(ProjectExplorer::RunConfiguration *runConfiguration);
     ~MaemoRunControl();
 
-private slots:
-    virtual void handleRemoteOutput(const QString &output);
-
 private:
-    virtual void startInternal();
     virtual void stopInternal();
     virtual QString remoteCall() const;
 };
@@ -153,22 +162,21 @@ public:
     bool isRunning() const;
 
 private slots:
-    virtual void handleRemoteOutput(const QString &output);
+    virtual void handleRemoteProcessStarted();
+    void debuggerOutput(const QString &output);
     void debuggingFinished();
 
 private:
-    virtual void startInternal();
     virtual void stopInternal();
     virtual void startExecution();
     virtual QString remoteCall() const;
+    virtual QList<MaemoDeployable> filesToDeploy();
 
     QString gdbServerPort() const;
     void startDebugging();
 
     Debugger::DebuggerRunControl *m_debuggerRunControl;
     QSharedPointer<Debugger::DebuggerStartParameters> m_startParams;
-
-    bool m_debuggingStarted;
 };
 
 } // namespace Internal

@@ -40,7 +40,7 @@ namespace Internal {
 RemotePlainGdbAdapter::RemotePlainGdbAdapter(GdbEngine *engine,
                                                QObject *parent)
     : AbstractPlainGdbAdapter(engine, parent),
-      m_gdbProc(engine->startParameters().sshserver, this)
+      m_gdbProc(engine->startParameters().connParams, this)
 {
 }
 
@@ -60,7 +60,7 @@ void RemotePlainGdbAdapter::startAdapter()
 
 void RemotePlainGdbAdapter::interruptInferior()
 {
-    m_gdbProc.write(RemoteGdbProcess::CtrlC);
+    m_gdbProc.interruptInferior();
 }
 
 QByteArray RemotePlainGdbAdapter::execFilePath() const

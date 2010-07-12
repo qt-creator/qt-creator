@@ -87,7 +87,7 @@ public:
 
     QString dumperLibrary;
     QStringList dumperLibraryLocations;
-    Core::SshServerInfo sshserver;
+    Core::SshConnectionParameters connParams;
     DebuggerStartMode startMode;
 };
 

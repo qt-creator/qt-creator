@@ -60,7 +60,7 @@ public:
     void save(QSettings &settings) const;
     bool isValid() const;
 
-    Core::SshServerInfo server;
+    Core::SshConnectionParameters server;
     QString name;
     DeviceType type;
     int gdbServerPort;

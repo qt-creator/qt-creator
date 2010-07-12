@@ -27,49 +27,17 @@
 **
 **************************************************************************/
 
-#ifndef SSHKEYGENERATOR_H
-#define SSHKEYGENERATOR_H
-
-#include <coreplugin/core_global.h>
-
-#include <QtCore/QCoreApplication>
-#include <QtCore/QSharedPointer>
-
-namespace Botan {
-    class Private_Key;
-}
+#ifndef SSHERRORS_P_H
+#define SSHERRORS_P_H
 
 namespace Core {
 
-class CORE_EXPORT SshKeyGenerator
-{
-    Q_DECLARE_TR_FUNCTIONS(SshKeyGenerator)
-public:
-    enum KeyType { Rsa, Dsa };
-    enum PrivateKeyFormat { Pkcs8, OpenSsl };
-
-    SshKeyGenerator();
-    bool generateKeys(KeyType type, PrivateKeyFormat format, int keySize);
-    QString error() const { return m_error; }
-    QByteArray privateKey() const { return m_privateKey; }
-    QByteArray publicKey() const { return m_publicKey; }
-    KeyType type() const { return m_type; }
-    PrivateKeyFormat format() const { return m_format; }
-
-private:
-    typedef QSharedPointer<Botan::Private_Key> KeyPtr;
-
-    bool generatePkcs8Keys(const KeyPtr &key);
-    void generatePkcs8Key(const KeyPtr &key, bool privateKey);
-    bool generateOpenSslKeys(const KeyPtr &key, KeyType type);
-
-    QString m_error;
-    QByteArray m_publicKey;
-    QByteArray m_privateKey;
-    KeyType m_type;
-    PrivateKeyFormat m_format;
+enum SshError {
+    SshNoError, SshSocketError, SshTimeoutError, SshProtocolError,
+    SshHostKeyError, SshKeyFileError, SshAuthenticationError,
+    SshClosedByServerError, SshInternalError
 };
 
 } // namespace Core
 
-#endif // SSHKEYGENERATOR_H
+#endif // SSHERRORS_P_H
