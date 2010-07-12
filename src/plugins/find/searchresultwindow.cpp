@@ -211,8 +211,85 @@ namespace Internal {
 
 using namespace Find::Internal;
 
+/*!
+    \enum Find::SearchResultWindow::SearchMode
+    Specifies if a search should show the replace UI or not.
+
+    \value SearchOnly
+           The search doesn't support replace.
+    \value SearchAndReplace
+           The search supports replace, so show the UI for it.
+*/
+
+/*!
+    \class Find::SearchResult
+    \brief Reports user interaction like activation of a search result item.
+
+    Whenever a new search is initiated via startNewSearch, an instance of this
+    class is returned to provide the initiator with the hooks for handling user
+    interaction.
+*/
+
+/*!
+    \fn void SearchResult::activated(const Find::SearchResultItem &item)
+    \brief Sent if the user activated (e.g. double-clicked) a search result
+    \a item.
+*/
+
+/*!
+    \fn void SearchResult::replaceButtonClicked(const QString &replaceText, const QList<Find::SearchResultItem> &checkedItems)
+    \brief Sent when the user initiated a replace, e.g. by pressing the replace
+    all button.
+
+    The signal reports the text to use for replacement in \a replaceText,
+    and the list of search result items that were selected by the user
+    in \a checkedItems.
+    The handler of this signal should apply the replace only on the selected
+    items.
+*/
+
+/*!
+    \class Find::SearchResultWindow
+    \brief The SearchResultWindow class is the implementation of a commonly
+    shared \gui{Search Results} output pane. Use it to show search results
+    to a user.
+
+    Whenever you want to show the user a list of search results, or want
+    to present UI for a global search and replace, use the single instance
+    of this class.
+
+    Except for being an implementation of a output pane, the
+    SearchResultWindow has a few methods and one enum that allows other
+    plugins to show their search results and hook into the user actions for
+    selecting an entry and performing a global replace.
+
+    Whenever you start a search, call startNewSearch(SearchMode) to initialize
+    the search result window. The parameter determines if the GUI for
+    replacing should be shown.
+    The method returns a SearchResult object that is your
+    hook into the signals from user interaction for this search.
+    When you produce search results, call addResults or addResult to add them
+    to the search result window.
+    After the search has finished call finishSearch to inform the search
+    result window about it.
+
+    After that you get activated signals via your SearchResult instance when
+    the user selects a search result item, and, if you started the search
+    with the SearchAndReplace option, the replaceButtonClicked signal
+    when the user requests a replace.
+*/
+
+/*!
+    \fn QString SearchResultWindow::displayName() const
+    \internal
+*/
+
 SearchResultWindow *SearchResultWindow::m_instance = 0;
 
+/*!
+    \fn SearchResultWindow::SearchResultWindow()
+    \internal
+*/
 SearchResultWindow::SearchResultWindow() : d(new SearchResultWindowPrivate)
 {
     m_instance = this;
@@ -263,6 +340,10 @@ SearchResultWindow::SearchResultWindow() : d(new SearchResultWindowPrivate)
     setShowReplaceUI(false);
 }
 
+/*!
+    \fn SearchResultWindow::~SearchResultWindow()
+    \internal
+*/
 SearchResultWindow::~SearchResultWindow()
 {
     writeSettings();
@@ -274,21 +355,38 @@ SearchResultWindow::~SearchResultWindow()
     delete d;
 }
 
+/*!
+    \fn SearchResultWindow *SearchResultWindow::instance()
+    \brief Returns the single shared instance of the Search Results window.
+*/
 SearchResultWindow *SearchResultWindow::instance()
 {
     return m_instance;
 }
 
+/*!
+    \fn void SearchResultWindow::setTextToReplace(const QString &textToReplace)
+    \brief Sets the value in the UI element that allows the user to type
+    the text that should replace text in search results to \a textToReplace.
+*/
 void SearchResultWindow::setTextToReplace(const QString &textToReplace)
 {
     d->m_replaceTextEdit->setText(textToReplace);
 }
 
+/*!
+    \fn QString SearchResultWindow::textToReplace() const
+    \brief Returns the text that should replace the text in search results.
+*/
 QString SearchResultWindow::textToReplace() const
 {
     return d->m_replaceTextEdit->text();
 }
 
+/*!
+    \fn void SearchResultWindow::setShowReplaceUI(bool show)
+    \internal
+*/
 void SearchResultWindow::setShowReplaceUI(bool show)
 {
     d->m_searchResultTreeView->model()->setShowReplaceUI(show);
@@ -298,6 +396,10 @@ void SearchResultWindow::setShowReplaceUI(bool show)
     d->m_isShowingReplaceUI = show;
 }
 
+/*!
+    \fn void SearchResultWindow::handleReplaceButton()
+    \internal
+*/
 void SearchResultWindow::handleReplaceButton()
 {
     QTC_ASSERT(d->m_currentSearch, return);
@@ -307,6 +409,10 @@ void SearchResultWindow::handleReplaceButton()
         d->m_currentSearch->replaceButtonClicked(d->m_replaceTextEdit->text(), checkedItems());
 }
 
+/*!
+    \fn QList<SearchResultItem> SearchResultWindow::checkedItems() const
+    \internal
+*/
 QList<SearchResultItem> SearchResultWindow::checkedItems() const
 {
     QList<SearchResultItem> result;
@@ -326,20 +432,42 @@ QList<SearchResultItem> SearchResultWindow::checkedItems() const
     return result;
 }
 
+/*!
+    \fn void SearchResultWindow::visibilityChanged(bool)
+    \internal
+*/
 void SearchResultWindow::visibilityChanged(bool /*visible*/)
 {
 }
 
+/*!
+    \fn QWidget *SearchResultWindow::outputWidget(QWidget *)
+    \internal
+*/
 QWidget *SearchResultWindow::outputWidget(QWidget *)
 {
     return d->m_widget;
 }
 
+/*!
+    \fn QList<QWidget*> SearchResultWindow::toolBarWidgets() const
+    \internal
+*/
 QList<QWidget*> SearchResultWindow::toolBarWidgets() const
 {
     return QList<QWidget*>() << d->m_expandCollapseButton << d->m_replaceLabel << d->m_replaceTextEdit << d->m_replaceButton;
 }
 
+/*!
+    \fn SearchResult *SearchResultWindow::startNewSearch(SearchMode searchOrSearchAndReplace)
+    \brief Tells the search results window to start a new search.
+
+    This will clear the contents of the previous search and initialize the UI
+    with regard to showing the replace UI or not (depending on the search mode
+    in \a searchOrSearchAndReplace).
+    Returns a SearchResult object that is used for signaling user interaction
+    with the results of this search.
+*/
 SearchResult *SearchResultWindow::startNewSearch(SearchMode searchOrSearchAndReplace)
 {
     clearContents();
@@ -349,6 +477,11 @@ SearchResult *SearchResultWindow::startNewSearch(SearchMode searchOrSearchAndRep
     return d->m_currentSearch;
 }
 
+/*!
+    \fn void SearchResultWindow::finishSearch()
+    \brief Notifies the search result window that the current search
+    has finished, and the UI should reflect that.
+*/
 void SearchResultWindow::finishSearch()
 {
     if (d->m_items.count()) {
@@ -358,6 +491,10 @@ void SearchResultWindow::finishSearch()
     }
 }
 
+/*!
+    \fn void SearchResultWindow::clearContents()
+    \brief Clears the current contents in the search result window.
+*/
 void SearchResultWindow::clearContents()
 {
     d->m_replaceTextEdit->setEnabled(false);
@@ -369,6 +506,10 @@ void SearchResultWindow::clearContents()
     navigateStateChanged();
 }
 
+/*!
+    \fn void SearchResultWindow::showNoMatchesFound()
+    \internal
+*/
 void SearchResultWindow::showNoMatchesFound()
 {
     d->m_replaceTextEdit->setEnabled(false);
@@ -376,26 +517,47 @@ void SearchResultWindow::showNoMatchesFound()
     d->m_widget->setCurrentWidget(d->m_noMatchesFoundDisplay);
 }
 
+/*!
+    \fn bool SearchResultWindow::isEmpty() const
+    Returns if the search result window currently doesn't show any results.
+*/
 bool SearchResultWindow::isEmpty() const
 {
     return (d->m_searchResultTreeView->model()->rowCount() < 1);
 }
 
+/*!
+    \fn int SearchResultWindow::numberOfResults() const
+    Returns the number of search results currently shown in the search
+    results window.
+*/
 int SearchResultWindow::numberOfResults() const
 {
     return d->m_items.count();
 }
 
+/*!
+    \fn bool SearchResultWindow::hasFocus()
+    \internal
+*/
 bool SearchResultWindow::hasFocus()
 {
     return d->m_searchResultTreeView->hasFocus() || (d->m_isShowingReplaceUI && d->m_replaceTextEdit->hasFocus());
 }
 
+/*!
+    \fn bool SearchResultWindow::canFocus()
+    \internal
+*/
 bool SearchResultWindow::canFocus()
 {
     return !d->m_items.isEmpty();
 }
 
+/*!
+    \fn void SearchResultWindow::setFocus()
+    \internal
+*/
 void SearchResultWindow::setFocus()
 {
     if (!d->m_items.isEmpty()) {
@@ -414,17 +576,37 @@ void SearchResultWindow::setFocus()
     }
 }
 
+/*!
+    \fn void SearchResultWindow::setTextEditorFont(const QFont &font)
+    \internal
+*/
 void SearchResultWindow::setTextEditorFont(const QFont &font)
 {
     d->m_searchResultTreeView->setTextEditorFont(font);
 }
 
+/*!
+    \fn void SearchResultWindow::handleJumpToSearchResult(int index, bool)
+    \internal
+*/
 void SearchResultWindow::handleJumpToSearchResult(int index, bool /* checked */)
 {
     QTC_ASSERT(d->m_currentSearch, return);
     d->m_currentSearch->activated(d->m_items.at(index));
 }
 
+/*!
+    \fn void SearchResultWindow::addResult(const QString &fileName, int lineNumber, const QString &rowText, int searchTermStart, int searchTermLength, const QVariant &userData)
+    \brief Adds a single result line to the search results.
+
+    The \a fileName, \a lineNumber and \a rowText are shown in the result line.
+    \a searchTermStart and \a searchTermLength specify the region that
+    should be visually marked (string position and length in \a rowText).
+    You can attach arbitrary \a userData to the search result, which can
+    be used e.g. when reacting to the signals of the SearchResult for your search.
+
+    \sa addResults()
+*/
 void SearchResultWindow::addResult(const QString &fileName, int lineNumber, const QString &rowText,
     int searchTermStart, int searchTermLength, const QVariant &userData)
 {
@@ -438,6 +620,13 @@ void SearchResultWindow::addResult(const QString &fileName, int lineNumber, cons
     addResults(QList<SearchResultItem>() << item);
 }
 
+/*!
+    \fn void SearchResultWindow::addResults(QList<SearchResultItem> &items)
+    \brief Adds all of the given search result \a items to the search
+    results window.
+
+    \sa addResult()
+*/
 void SearchResultWindow::addResults(QList<SearchResultItem> &items)
 {
     int index = d->m_items.size();
@@ -460,6 +649,10 @@ void SearchResultWindow::addResults(QList<SearchResultItem> &items)
     }
 }
 
+/*!
+    \fn void SearchResultWindow::handleExpandCollapseToolButton(bool checked)
+    \internal
+*/
 void SearchResultWindow::handleExpandCollapseToolButton(bool checked)
 {
     d->m_searchResultTreeView->setAutoExpandResults(checked);
@@ -469,6 +662,10 @@ void SearchResultWindow::handleExpandCollapseToolButton(bool checked)
         d->m_searchResultTreeView->collapseAll();
 }
 
+/*!
+    \fn void SearchResultWindow::readSettings()
+    \internal
+*/
 void SearchResultWindow::readSettings()
 {
     QSettings *s = Core::ICore::instance()->settings();
@@ -479,6 +676,10 @@ void SearchResultWindow::readSettings()
     }
 }
 
+/*!
+    \fn void SearchResultWindow::writeSettings()
+    \internal
+*/
 void SearchResultWindow::writeSettings()
 {
     QSettings *s = Core::ICore::instance()->settings();
@@ -489,21 +690,37 @@ void SearchResultWindow::writeSettings()
     }
 }
 
+/*!
+    \fn int SearchResultWindow::priorityInStatusBar() const
+    \internal
+*/
 int SearchResultWindow::priorityInStatusBar() const
 {
     return 80;
 }
 
+/*!
+    \fn bool SearchResultWindow::canNext()
+    \internal
+*/
 bool SearchResultWindow::canNext()
 {
     return d->m_items.count() > 0;
 }
 
+/*!
+    \fn bool SearchResultWindow::canPrevious()
+    \internal
+*/
 bool SearchResultWindow::canPrevious()
 {
     return d->m_items.count() > 0;
 }
 
+/*!
+    \fn void SearchResultWindow::goToNext()
+    \internal
+*/
 void SearchResultWindow::goToNext()
 {
     if (d->m_items.count() == 0)
@@ -514,6 +731,11 @@ void SearchResultWindow::goToNext()
         d->m_searchResultTreeView->emitJumpToSearchResult(idx);
     }
 }
+
+/*!
+    \fn void SearchResultWindow::goToPrev()
+    \internal
+*/
 void SearchResultWindow::goToPrev()
 {
     if (!d->m_searchResultTreeView->model()->rowCount())
@@ -525,6 +747,10 @@ void SearchResultWindow::goToPrev()
     }
 }
 
+/*!
+    \fn bool SearchResultWindow::canNavigate()
+    \internal
+*/
 bool SearchResultWindow::canNavigate()
 {
     return true;
