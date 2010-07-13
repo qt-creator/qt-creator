@@ -40,6 +40,7 @@
 #include "qmljspreviewrunner.h"
 #include "qmljsquickfix.h"
 #include "qmljs/qmljsicons.h"
+#include "qmltaskmanager.h"
 
 #include <qmldesigner/qmldesignerconstants.h>
 
@@ -52,6 +53,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <projectexplorer/taskhub.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/storagesettings.h>
@@ -180,11 +182,22 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
 
     addAutoReleasedObject(new QmlJSOutlineWidgetFactory);
 
+    m_qmlTaskManager = new QmlTaskManager;
+    addAutoReleasedObject(m_qmlTaskManager);
+
+    connect(m_modelManager, SIGNAL(documentChangedOnDisk(QmlJS::Document::Ptr)),
+            m_qmlTaskManager, SLOT(documentChangedOnDisk(QmlJS::Document::Ptr)));
+    connect(m_modelManager, SIGNAL(aboutToRemoveFiles(QStringList)),
+            m_qmlTaskManager, SLOT(documentsRemoved(QStringList)));
+
     return true;
 }
 
 void QmlJSEditorPlugin::extensionsInitialized()
 {
+    ProjectExplorer::TaskHub *taskHub =
+        ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::TaskHub>();
+    taskHub->addCategory(Constants::TASK_CATEGORY_QML, tr("QML"));
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag QmlJSEditorPlugin::aboutToShutdown()

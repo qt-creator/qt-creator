@@ -38,7 +38,6 @@ namespace QmlProjectManager {
 namespace Internal {
 
 class ProjectFilesFactory;
-class QmlTaskManager;
 
 class QmlProjectPlugin: public ExtensionSystem::IPlugin
 {
@@ -50,9 +49,6 @@ public:
 
     virtual bool initialize(const QStringList &arguments, QString *errorString);
     virtual void extensionsInitialized();
-
-private:
-    QmlTaskManager *m_qmlTaskManager;
 };
 
 } // namespace Internal

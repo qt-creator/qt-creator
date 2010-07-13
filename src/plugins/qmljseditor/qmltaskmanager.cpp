@@ -28,14 +28,15 @@
 **************************************************************************/
 
 #include "qmltaskmanager.h"
-#include "qmlprojectconstants.h"
+#include "qmljseditorconstants.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/taskhub.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <QDebug>
 
-namespace QmlProjectManager {
+namespace QmlJSEditor {
 namespace Internal {
 
 QmlTaskManager::QmlTaskManager(QObject *parent) :
@@ -43,12 +44,6 @@ QmlTaskManager::QmlTaskManager(QObject *parent) :
         m_taskHub(0)
 {
     m_taskHub = ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::TaskHub>();
-}
-
-QmlTaskManager *QmlTaskManager::instance()
-{
-    ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
-    return pluginManager->getObject<QmlTaskManager>();
 }
 
 void QmlTaskManager::documentChangedOnDisk(QmlJS::Document::Ptr doc)

@@ -30,7 +30,6 @@
 #include "qmlprojectmanager.h"
 #include "qmlprojectconstants.h"
 #include "qmlproject.h"
-#include "qmltaskmanager.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/ifile.h>

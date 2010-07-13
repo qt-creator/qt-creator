@@ -42,7 +42,7 @@ namespace ProjectExplorer {
 class TaskHub;
 } // namespace ProjectExplorer
 
-namespace QmlProjectManager {
+namespace QmlJSEditor {
 namespace Internal {
 
 class QmlTaskManager : public QObject
@@ -51,7 +51,7 @@ class QmlTaskManager : public QObject
 public:
     QmlTaskManager(QObject *parent = 0);
 
-    static QmlTaskManager *instance();
+    void extensionsInitialized();
 
 public slots:
     void documentChangedOnDisk(QmlJS::Document::Ptr doc);
@@ -67,6 +67,6 @@ private:
 };
 
 } // Internal
-} // QmlProjectManager
+} // QmlJSEditor
 
 #endif // QMLTASKMANAGER_H

@@ -49,7 +49,7 @@ const char * const FOLLOW_SYMBOL_UNDER_CURSOR = "QmlJSEditor.FollowSymbolUnderCu
 const char * const QML_MIMETYPE = "application/x-qml";
 const char * const JS_MIMETYPE = "application/javascript";
 
-
+const char *const TASK_CATEGORY_QML = "Task.Category.Qml";
 
 } // namespace Constants
 } // namespace QmlJSEditor

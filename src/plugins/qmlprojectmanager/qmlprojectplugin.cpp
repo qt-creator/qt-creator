@@ -35,7 +35,6 @@
 #include "qmlproject.h"
 #include "qmlprojectrunconfigurationfactory.h"
 #include "qmlprojectruncontrol.h"
-#include "qmltaskmanager.h"
 #include "fileformat/qmlprojectfileformat.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -47,15 +46,13 @@
 #include <texteditor/texteditoractionhandler.h>
 
 #include <projectexplorer/taskhub.h>
-#include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <QtCore/QtPlugin>
 
 namespace QmlProjectManager {
 namespace Internal {
 
-QmlProjectPlugin::QmlProjectPlugin() :
-        m_qmlTaskManager(0)
+QmlProjectPlugin::QmlProjectPlugin()
 { }
 
 QmlProjectPlugin::~QmlProjectPlugin()
@@ -76,9 +73,6 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
 
     Manager *manager = new Manager;
 
-    m_qmlTaskManager = new QmlTaskManager(this);
-    addAutoReleasedObject(m_qmlTaskManager);
-
     addAutoReleasedObject(manager);
     addAutoReleasedObject(new Internal::QmlProjectRunConfigurationFactory);
     addAutoReleasedObject(new Internal::QmlRunControlFactory);
@@ -94,16 +88,6 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
 
 void QmlProjectPlugin::extensionsInitialized()
 {
-    ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
-    ProjectExplorer::TaskHub *taskHub = pluginManager->getObject<ProjectExplorer::TaskHub>();
-    taskHub->addCategory(Constants::TASK_CATEGORY_QML, tr("QML"));
-
-    QmlJS::ModelManagerInterface *modelManager = pluginManager->getObject<QmlJS::ModelManagerInterface>();
-    Q_ASSERT(modelManager);
-    connect(modelManager, SIGNAL(documentChangedOnDisk(QmlJS::Document::Ptr)),
-            m_qmlTaskManager, SLOT(documentChangedOnDisk(QmlJS::Document::Ptr)));
-    connect(modelManager, SIGNAL(aboutToRemoveFiles(QStringList)),
-            m_qmlTaskManager, SLOT(documentsRemoved(QStringList)));
 }
 
 } // namespace Internal
