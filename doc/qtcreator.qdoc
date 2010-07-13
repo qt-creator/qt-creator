@@ -4188,10 +4188,9 @@
     \previouspage creator-debugging.html
     \page creator-debugging-cpp.html
     \nextpage creator-debugging-example.html
-=======
+    
     You can use the Qt Creator \gui Debug mode to inspect the state of your
     Qt projects while debugging.
->>>>>>> origin/2.0
 
     \image qtcreator-debugger-views.png "Native debugger views"
 
