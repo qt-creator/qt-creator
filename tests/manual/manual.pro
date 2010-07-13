@@ -17,12 +17,10 @@ win {
 unix {
 #   Uses popen
     SUBDIRS += \
+    plain-cplusplus \
 #   Profile library paths issues
     process \
     ssh
 }
-
-# Not compiling, popen + missing includes
-# SUBDIRS += plain-cplusplus
 
 subdir_proparser.file=proparser/testreader.pro

@@ -33,6 +33,7 @@
 #include <iosfwd>
 #include <vector>
 #include <map>
+#include <cstring>
 
 namespace CPlusPlus {
 
@@ -55,7 +56,7 @@ public:
         : _text(text), _size(size) {}
 
     StringRef(const char *text)
-        : _text(text), _size(strlen(text)) {}
+        : _text(text), _size(std::strlen(text)) {}
 
     inline const char *text() const { return _text; }
     inline unsigned size() const { return _size; }
@@ -66,7 +67,7 @@ public:
     bool operator == (const StringRef &other) const
     {
         if (_size == other._size)
-            return _text == other._text || ! strncmp(_text, other._text, _size);
+            return _text == other._text || ! std::strncmp(_text, other._text, _size);
 
         return false;
     }
