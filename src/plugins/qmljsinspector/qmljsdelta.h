@@ -56,7 +56,7 @@ public:
 
 public:
     typedef QHash< UiObjectMember*, QList<QDeclarativeDebugObjectReference > > DebugIdMap;
-    DebugIdMap operator()(Document::Ptr doc1, Document::Ptr doc2, const DebugIdMap& debugIds);
+    DebugIdMap operator()(const QmlJS::Document::Ptr &doc1, const QmlJS::Document::Ptr &doc2, const DebugIdMap &debugIds);
 
     QList<Change> changes() const;
 

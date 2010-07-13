@@ -246,8 +246,11 @@ static QString _methodName(UiSourceElement *source)
 
 
 
-Delta::DebugIdMap Delta::operator()(Document::Ptr doc1, Document::Ptr doc2, const DebugIdMap &debugIds)
+Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::Ptr &doc2, const DebugIdMap &debugIds)
 {
+    Q_ASSERT(doc1->qmlProgram());
+    Q_ASSERT(doc2->qmlProgram());
+
     QHash< UiObjectMember*, QList<QDeclarativeDebugObjectReference > > newDebuggIds;
 
     Map M = Mapping(doc1, doc2);
