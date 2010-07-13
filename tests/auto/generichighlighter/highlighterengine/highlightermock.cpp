@@ -49,9 +49,9 @@ using namespace Internal;
 
 HighlighterMock::HighlighterMock(QTextDocument *parent) :
     Highlighter(parent),
-    m_debugDetails(false),
     m_statesCounter(0),
     m_formatsCounter(0),
+    m_debugDetails(false),
     m_noTestCall(false),
     m_considerEmptyLines(false)
 {}
