@@ -810,7 +810,7 @@ def extractFields(type):
     # Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=11777:
     #fields = stripTypedefs(value.type).fields()
     # This seems to work.
-    warn("TYPE 0: %s" % type)
+    #warn("TYPE 0: %s" % type)
     type = stripTypedefs(type)
     #warn("TYPE 1: %s" % type)
     # This fails for arrays. See comment in lookupType.
@@ -819,7 +819,7 @@ def extractFields(type):
         type = type2
     #warn("TYPE 2: %s" % type)
     fields = type.fields()
-    warn("FIELDS: %s" % fields)
+    #warn("FIELDS: %s" % fields)
     return fields
 
 #######################################################################
