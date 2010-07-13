@@ -715,7 +715,9 @@ void HelpPlugin::activateContext()
             const QUrl &source = *links.begin();
             const QUrl &oldSource = viewer->source();
             if (source != oldSource) {
+#if !defined(QT_NO_WEBKIT)
                 viewer->stop();
+#endif
                 viewer->setSource(source);
             }
             viewer->setFocus();
