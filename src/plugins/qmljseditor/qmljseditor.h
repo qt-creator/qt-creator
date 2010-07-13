@@ -292,7 +292,7 @@ private:
     SemanticInfo m_semanticInfo;
 
     QmlJS::IContextPane *m_contextPane;
-    int m_oldCurserPosition;
+    int m_oldCursorPosition;
 };
 
 } // namespace Internal

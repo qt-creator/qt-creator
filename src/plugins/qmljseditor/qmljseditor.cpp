@@ -664,7 +664,7 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     m_contextPane = ExtensionSystem::PluginManager::instance()->getObject<QmlJS::IContextPane>();
     if (m_contextPane)
         connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(onCursorPositionChanged()));
-    m_oldCurserPosition = -1;
+    m_oldCursorPosition = -1;
 
     if (m_modelManager) {
         m_semanticHighlighter->setModelManager(m_modelManager);
@@ -825,7 +825,7 @@ void QmlJSTextEditor::modificationChanged(bool changed)
         m_modelManager->fileChangedOnDisk(file()->fileName());
 }
 
-void QmlJSTextEditor::jumpToElement(int /*index*/)
+void QmlJSTextEditor::jumpToOutlineElement(int /*index*/)
 {
     QModelIndex index = m_outlineCombo->view()->currentIndex();
     AST::SourceLocation location = index.data(QmlOutlineModel::SourceLocationRole).value<AST::SourceLocation>();
@@ -857,7 +857,7 @@ void QmlJSTextEditor::updateOutlineNow()
 void QmlJSTextEditor::updateOutlineIndexNow()
 {
     if (m_updateOutlineTimer->isActive())
-        return; // updateOutlineNow will call this method soon anyway
+        return; // updateOutlineNow will call this function soon anyway
 
     if (!m_outlineModel->document())
         return;
@@ -1055,7 +1055,7 @@ void QmlJSTextEditor::createToolBar(QmlJSEditorEditable *editable)
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
     m_outlineCombo->setSizePolicy(policy);
 
-    connect(m_outlineCombo, SIGNAL(activated(int)), this, SLOT(jumpToMethod(int)));
+    connect(m_outlineCombo, SIGNAL(activated(int)), this, SLOT(jumpToOutlineElement(int)));
     connect(this, SIGNAL(cursorPositionChanged()), m_updateOutlineIndexTimer, SLOT(start()));
 
     connect(file(), SIGNAL(changed()), this, SLOT(updateFileName()));
@@ -1403,7 +1403,7 @@ void QmlJSTextEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
             Node *newNode = m_semanticInfo.declaringMember(position());
             if (newNode) {
                 m_contextPane->apply(editableInterface(), doc, m_semanticInfo.snapshot, newNode, true);
-                m_oldCurserPosition = position();
+                m_oldCursorPosition = position();
             }
         }
     }
@@ -1421,10 +1421,10 @@ void QmlJSTextEditor::onCursorPositionChanged()
 
     if (m_contextPane) {
         Node *newNode = m_semanticInfo.declaringMember(position());
-        Node *oldNode = m_semanticInfo.declaringMember(m_oldCurserPosition);
+        Node *oldNode = m_semanticInfo.declaringMember(m_oldCursorPosition);
         if (oldNode != newNode)
             m_contextPane->apply(editableInterface(), m_semanticInfo.document, m_semanticInfo.snapshot, newNode, false);
-        m_oldCurserPosition = position();
+        m_oldCursorPosition = position();
     }
 }
 
