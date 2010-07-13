@@ -11,13 +11,14 @@ QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
 namespace Internal {
+class MaemoDeployStep;
 
 class MaemoDeployStepWidget : public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
 
 public:
-    MaemoDeployStepWidget();
+    MaemoDeployStepWidget(MaemoDeployStep *step);
     ~MaemoDeployStepWidget();
 
 private:
@@ -25,7 +26,10 @@ private:
     virtual QString summaryText() const;
     virtual QString displayName() const;
 
+    Q_SLOT void handleDeviceUpdate();
+
     Ui::MaemoDeployStepWidget *ui;
+    MaemoDeployStep * const m_step;
 };
 
 } // namespace Internal

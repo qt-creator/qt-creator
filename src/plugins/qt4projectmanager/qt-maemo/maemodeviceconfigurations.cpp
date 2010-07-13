@@ -36,6 +36,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <QtCore/QCoreApplication>
 #include <QtCore/QSettings>
 #include <QtCore/QStringBuilder>
 #include <QtGui/QDesktopServices>
@@ -52,6 +53,11 @@ QString homeDirOnDevice(const QString &uname)
     return uname == QLatin1String("root")
         ? QString::fromLatin1("/root")
         : QLatin1String("/home/") + uname;
+}
+
+QString remoteSudo()
+{
+    return QLatin1String("/usr/lib/mad-developer/devrootsh");
 }
 
 namespace {
@@ -132,7 +138,8 @@ MaemoDeviceConfig::MaemoDeviceConfig(const QSettings &settings,
 }
 
 MaemoDeviceConfig::MaemoDeviceConfig()
-    : internalId(InvalidId)
+    : name(QCoreApplication::translate("MaemoDeviceConfig", "(Invalid device)")),
+      internalId(InvalidId)
 {
 }
 

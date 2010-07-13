@@ -29,6 +29,7 @@
 
 #include "maemorunconfiguration.h"
 
+#include "maemodeploystep.h"
 #include "maemopackagecreationstep.h"
 #include "maemorunconfigurationwidget.h"
 #include "maemotoolchain.h"
@@ -67,7 +68,6 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
     , m_gdbPath(source->m_gdbPath)
     , m_devConfig(source->m_devConfig)
     , m_arguments(source->m_arguments)
-    , m_lastDeployed(source->m_lastDeployed)
 {
     init();
 }
@@ -123,30 +123,9 @@ QVariantMap MaemoRunConfiguration::toMap() const
     QVariantMap map(RunConfiguration::toMap());
     map.insert(DeviceIdKey, m_devConfig.internalId);
     map.insert(ArgumentsKey, m_arguments);
-    addDeployTimesToMap(map);
     const QDir dir = QDir(target()->project()->projectDirectory());
     map.insert(ProFileKey, dir.relativeFilePath(m_proFilePath));
-
     return map;
-}
-
-void MaemoRunConfiguration::addDeployTimesToMap(QVariantMap &map) const
-{
-    QVariantList hostList;
-    QVariantList fileList;
-    QVariantList remotePathList;
-    QVariantList timeList;
-    typedef QHash<DeployablePerHost, QDateTime>::ConstIterator DepIt;
-    for (DepIt it = m_lastDeployed.begin(); it != m_lastDeployed.end(); ++it) {
-        hostList << it.key().first.localFilePath;
-        remotePathList << it.key().first.remoteDir;
-        fileList << it.key().second;
-        timeList << it.value();
-    }
-    map.insert(LastDeployedHostsKey, hostList);
-    map.insert(LastDeployedFilesKey, fileList);
-    map.insert(LastDeployedRemotePathsKey, remotePathList);
-    map.insert(LastDeployedTimesKey, timeList);
 }
 
 bool MaemoRunConfiguration::fromMap(const QVariantMap &map)
@@ -157,45 +136,10 @@ bool MaemoRunConfiguration::fromMap(const QVariantMap &map)
     setDeviceConfig(MaemoDeviceConfigurations::instance().
         find(map.value(DeviceIdKey, 0).toInt()));
     m_arguments = map.value(ArgumentsKey).toStringList();
-    getDeployTimesFromMap(map);
     const QDir dir = QDir(target()->project()->projectDirectory());
     m_proFilePath = dir.filePath(map.value(ProFileKey).toString());
 
     return true;
-}
-
-void MaemoRunConfiguration::getDeployTimesFromMap(const QVariantMap &map)
-{
-    const QVariantList &hostList = map.value(LastDeployedHostsKey).toList();
-    const QVariantList &fileList = map.value(LastDeployedFilesKey).toList();
-    const QVariantList &remotePathList
-        = map.value(LastDeployedRemotePathsKey).toList();
-    const QVariantList &timeList = map.value(LastDeployedTimesKey).toList();
-    const int elemCount
-        = qMin(qMin(hostList.size(), fileList.size()),
-            qMin(remotePathList.size(), timeList.size()));
-    for (int i = 0; i < elemCount; ++i) {
-        const MaemoDeployable d(fileList.at(i).toString(),
-            remotePathList.at(i).toString());
-        m_lastDeployed.insert(DeployablePerHost(d, hostList.at(i).toString()),
-            timeList.at(i).toDateTime());
-    }
-}
-
-bool MaemoRunConfiguration::currentlyNeedsDeployment(const QString &host,
-    const MaemoDeployable &deployable) const
-{
-    const QDateTime &lastDeployed
-        = m_lastDeployed.value(DeployablePerHost(deployable, host));
-    return !lastDeployed.isValid()
-        || QFileInfo(deployable.localFilePath).lastModified() > lastDeployed;
-}
-
-void MaemoRunConfiguration::setDeployed(const QString &host,
-    const MaemoDeployable &deployable)
-{
-    m_lastDeployed.insert(DeployablePerHost(deployable, host),
-        QDateTime::currentDateTime());
 }
 
 void MaemoRunConfiguration::setDeviceConfig(const MaemoDeviceConfig &devConf)
@@ -236,6 +180,20 @@ const MaemoPackageCreationStep *MaemoRunConfiguration::packageStep() const
             return pStep;
     }
     Q_ASSERT(!"Impossible: Maemo run configuration without packaging step.");
+    return 0;
+}
+
+MaemoDeployStep *MaemoRunConfiguration::deployStep() const
+{
+    const QList<ProjectExplorer::BuildStep *> &buildSteps
+        = activeQt4BuildConfiguration()->steps(ProjectExplorer::BuildStep::Deploy);
+    for (int i = buildSteps.count() - 1; i >= 0; --i) {
+        MaemoDeployStep * const step
+            = qobject_cast<MaemoDeployStep*>(buildSteps.at(i));
+        if (step)
+            return step;
+    }
+    Q_ASSERT(!"Impossible: Maemo run configuration without deploy step.");
     return 0;
 }
 

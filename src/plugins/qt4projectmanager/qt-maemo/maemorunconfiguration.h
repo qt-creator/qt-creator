@@ -53,6 +53,7 @@ class Qt4BuildConfiguration;
 class Qt4ProFileNode;
 class Qt4Target;
 
+class MaemoDeployStep;
 class MaemoPackageCreationStep;
 class MaemoRunConfigurationFactory;
 
@@ -70,11 +71,8 @@ public:
     Qt4Target *qt4Target() const;
     Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
 
-    bool currentlyNeedsDeployment(const QString &host,
-        const MaemoDeployable &deployable) const;
-    void setDeployed(const QString &host, const MaemoDeployable &deployable);
-
     const MaemoPackageCreationStep *packageStep() const;
+    MaemoDeployStep *deployStep() const;
 
     QString maddeRoot() const;
     QString executable() const;
@@ -107,17 +105,12 @@ private slots:
 private:
     void init();
     const MaemoToolChain *toolchain() const;
-    void addDeployTimesToMap(QVariantMap &map) const;
-    void getDeployTimesFromMap(const QVariantMap &map);
 
     QString m_proFilePath;
     mutable QString m_gdbPath;
 
     MaemoDeviceConfig m_devConfig;
     QStringList m_arguments;
-
-    typedef QPair<MaemoDeployable, QString> DeployablePerHost;
-    QHash<DeployablePerHost, QDateTime> m_lastDeployed;
 };
 
     } // namespace Internal

@@ -49,6 +49,7 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 QString homeDirOnDevice(const QString &uname);
+QString remoteSudo();
 
 class MaemoDeviceConfig
 {

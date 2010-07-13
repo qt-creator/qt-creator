@@ -288,8 +288,8 @@ Qt4BuildConfiguration *Qt4Target::addQt4BuildConfiguration(QString displayName, 
     } else if (id() == Constants::MAEMO_DEVICE_TARGET_ID) {
         bc->insertStep(ProjectExplorer::BuildStep::Deploy, 2,
             new MaemoPackageCreationStep(bc));
-//        bc->insertStep(ProjectExplorer::BuildStep::Deploy, 2,
-//            new MaemoDeployStep(bc));
+        bc->insertStep(ProjectExplorer::BuildStep::Deploy, 3,
+            new MaemoDeployStep(bc));
     }
 
     MakeStep* cleanStep = new MakeStep(bc);
