@@ -207,7 +207,8 @@ void ItemLibraryItemModel::setItemIconPath(const QString &iconPath)
 {
     m_iconPath = iconPath;
 
-    setProperty(QLatin1String("itemLibraryIconPath"), "image://qmldesigner_itemlibrary/" + iconPath);
+    setProperty(QLatin1String("itemLibraryIconPath"),
+                QString(QLatin1String("image://qmldesigner_itemlibrary/") + iconPath));
 }
 
 void ItemLibraryItemModel::setItemIconSize(const QSize &itemIconSize)
