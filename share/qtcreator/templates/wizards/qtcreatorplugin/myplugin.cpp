@@ -3,6 +3,7 @@
 #include <QtPlugin>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/icontext.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -47,7 +48,7 @@ bool %PluginName%Impl::initialize(const QStringList &arguments, QString *errorSt
 
     QAction *action = new QAction(tr("%PluginName% action"), this);
     Core::Command *cmd = am->registerAction(action, QLatin1String(ACTION_ID),
-                         QList<int>() << Core::Constants::C_GLOBAL_ID);
+                         Core::Context(Core::Constants::C_GLOBAL));
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Meta+A")));
     connect(action, SIGNAL(triggered()), this, SLOT(triggerAction()));
 
@@ -66,10 +67,12 @@ void %PluginName%Impl::extensionsInitialized()
     //  plugins that depend on it are completely initialized."
 }
 
-void %PluginName%Impl::aboutToShutdown()
+ExtensionSystem::IPlugin::ShutdownFlag %PluginName%Impl::aboutToShutdown()
 {
     // Save settings
     // Disconnect from signals that are not needed during shutdown
+    // Hide UI (if you add UI that is not in the main window directly)
+    return SynchronousShutdown;
 }
 
 void %PluginName%Impl::triggerAction()
