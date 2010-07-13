@@ -29,13 +29,12 @@
 
 #include "cdbpromptthread.h"
 
-#include <cstdio>
 #include <QtCore/QDebug>
 
 static const char help[] =
 "Special commands:\n\n"
 "H                        Display Help\n"
-"q                        Quit\n"
+"V                        Output version\n"
 "E expression             Evaluate C++expression\n"
 "S binary args            Start binary\n"
 "I                        Interrupt\n"
@@ -46,11 +45,17 @@ static const char help[] =
 "B                        Clear breakpoint queue\n"
 "L                        List breakpoints\n"
 "F <n>                    Print stack frame <n>, 0 being top\n"
+"P <cmd>                  Run Python command\n"
+"W                        Synchronous wait for debug event\n"
 "\nThe remaining commands are passed to CDB.\n";
 
-CdbPromptThread::CdbPromptThread(QObject *parent) :
-        QThread(parent)
+CdbPromptThread::CdbPromptThread(FILE *file, QObject *parent) :
+        QThread(parent),
+        m_waitingForDebugEvent(false),
+        m_inputFile(file)
 {
+    if (!m_inputFile)
+        m_inputFile = stdin;
 }
 
 void CdbPromptThread::run()
@@ -60,9 +65,17 @@ void CdbPromptThread::run()
     QString cmd;
     char buf[bufSize];
     std::putc('>', stdout);
+    // When reading from an input file, switch to stdin after reading it out
     while (true) {
-        if (std::fgets(buf, bufSize, stdin) == NULL)
-            break;
+        if (std::fgets(buf, bufSize, m_inputFile) == NULL) {
+            if (m_inputFile == stdin) {
+                break;
+            } else {
+                fclose(m_inputFile);
+                m_inputFile = stdin;
+                continue;
+            }
+        }
         cmd += QString::fromLatin1(buf);
         if (cmd.endsWith(QLatin1Char('\n'))) {
             cmd.truncate(cmd.size() - 1);
@@ -72,6 +85,8 @@ void CdbPromptThread::run()
         }
         std::putc('>', stdout);
     }
+    if (m_inputFile != stdin)
+        fclose(m_inputFile);
 }
 
 // Determine the command
@@ -95,6 +110,12 @@ static Command evaluateCommand(const QString &cmdToken)
             return Execution_StartBinary;
         case 'F':
             return Sync_PrintFrame;
+        case 'P':
+            return Sync_Python;
+        case 'V':
+            return Sync_OutputVersion;
+        case 'W':
+            return WaitCommand;
         default:
             break;
         }
@@ -126,6 +147,12 @@ static Command parseCommand(QString *s)
     return rc;
 }
 
+void CdbPromptThread::notifyDebugEvent()
+{
+    if (m_waitingForDebugEvent)
+        m_debugEventWaitCondition.wakeAll();
+}
+
 bool CdbPromptThread::handleCommand(QString cmd)
 {
     if (cmd == QLatin1String("q"))
@@ -135,6 +162,16 @@ bool CdbPromptThread::handleCommand(QString cmd)
         return true;
     }
     const Command c = parseCommand(&cmd);
+    if (c == WaitCommand) {
+        std::fputs("Waiting for debug event\n", stdout);
+        m_debugEventMutex.lock();
+        m_waitingForDebugEvent = true;
+        m_debugEventWaitCondition.wait(&m_debugEventMutex);
+        m_debugEventMutex.unlock();
+        std::fputs("Debug event received\n", stdout);
+        m_waitingForDebugEvent = false;
+        return true;
+    }
     if (c & AsyncCommand) {
         emit asyncCommand(c, cmd);
         return true;

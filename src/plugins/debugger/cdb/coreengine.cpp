@@ -830,6 +830,11 @@ quint64 CoreEngine::getSourceLineAddress(const QString &file,
     return rc;
 }
 
+void CoreEngine::outputVersion()
+{
+    m_cif.debugControl->OutputVersionInformation(DEBUG_OUTCTL_ALL_CLIENTS);
+}
+
 bool CoreEngine::autoDetectPath(QString *outPath,
                                 QStringList *checkedDirectories /* = 0 */)
 {

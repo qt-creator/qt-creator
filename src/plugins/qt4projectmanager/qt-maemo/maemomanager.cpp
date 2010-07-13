@@ -30,6 +30,7 @@
 #include "maemomanager.h"
 
 #include "maemoconstants.h"
+#include "maemodeploystepfactory.h"
 #include "maemodeviceconfigurations.h"
 #include "maemopackagecreationfactory.h"
 #include "maemorunfactories.h"
@@ -57,6 +58,7 @@ MaemoManager::MaemoManager()
     , m_runControlFactory(new MaemoRunControlFactory(this))
     , m_runConfigurationFactory(new MaemoRunConfigurationFactory(this))
     , m_packageCreationFactory(new MaemoPackageCreationFactory(this))
+    , m_deployStepFactory(new MaemoDeployStepFactory(this))
     , m_settingsPage(new MaemoSettingsPage(this))
 {
     Q_ASSERT(!m_instance);
@@ -69,6 +71,7 @@ MaemoManager::MaemoManager()
     pluginManager->addObject(m_runControlFactory);
     pluginManager->addObject(m_runConfigurationFactory);
     pluginManager->addObject(m_packageCreationFactory);
+    pluginManager->addObject(m_deployStepFactory);
     pluginManager->addObject(m_settingsPage);
 }
 
@@ -77,6 +80,7 @@ MaemoManager::~MaemoManager()
     PluginManager *pluginManager = PluginManager::instance();
     pluginManager->removeObject(m_runControlFactory);
     pluginManager->removeObject(m_runConfigurationFactory);
+    pluginManager->removeObject(m_deployStepFactory);
     pluginManager->removeObject(m_packageCreationFactory);
     pluginManager->removeObject(m_settingsPage);
 

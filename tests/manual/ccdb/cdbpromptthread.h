@@ -31,6 +31,10 @@
 #define PROMPTTHREAD_H
 
 #include <QtCore/QThread>
+#include <QtCore/QWaitCondition>
+#include <QtCore/QMutex>
+
+#include <cstdio>
 
 enum CommandTypeFlags {
     // Interrupt or something.
@@ -51,17 +55,23 @@ enum Command {
     Sync_QueueBreakPoint  = SyncCommand|3,
     Sync_ListBreakPoints  = SyncCommand|4,
     Sync_PrintFrame       = SyncCommand|5,
+    Sync_OutputVersion    = SyncCommand|6,
+    Sync_Python           = SyncCommand|7,
     Execution_Go          = ExecutionCommand|1,
-    Execution_StartBinary = ExecutionCommand|2
+    Execution_StartBinary = ExecutionCommand|2,
+    WaitCommand           = 0xFFFF
 };
 
 class CdbPromptThread : public QThread
 {
     Q_OBJECT
 public:
-    explicit CdbPromptThread(QObject *parent = 0);
+    explicit CdbPromptThread(FILE *file, QObject *parent = 0);
 
     virtual void run();
+
+public slots:
+    void notifyDebugEvent();
 
 signals:
     void asyncCommand(int command, const QString &arg);
@@ -70,6 +80,10 @@ signals:
 
 private:
     bool handleCommand(QString);
+    QWaitCondition m_debugEventWaitCondition;
+    QMutex m_debugEventMutex;
+    bool m_waitingForDebugEvent;
+    FILE *m_inputFile;
 };
 
 #endif // PROMPTTHREAD_H

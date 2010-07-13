@@ -37,6 +37,8 @@
 #include <QtCore/QScopedPointer>
 #include <QtCore/QStringList>
 
+#include <cstdio>
+
 namespace CdbCore {
     class CoreEngine;
     class StackTraceContext;
@@ -65,13 +67,13 @@ private slots:
     void processAttached(void *handle);
 
 private:
-    bool parseOptions();
+    bool parseOptions(FILE **inputFile);
     void printFrame(const QString &arg);
     quint64 addQueuedBreakPoint(const QString &arg, QString *errorMessage);
 
     QString m_engineDll;
     QSharedPointer<CdbCore::CoreEngine> m_engine;
-    QScopedPointer<CdbCore::StackTraceContext> m_stackTrace;
+    QSharedPointer<CdbCore::StackTraceContext> m_stackTrace;
     CdbPromptThread *m_promptThread;
     QStringList m_queuedCommands;
     QStringList m_queuedBreakPoints;
