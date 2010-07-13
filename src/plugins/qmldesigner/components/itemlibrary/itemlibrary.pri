@@ -6,8 +6,8 @@ VPATH += $$PWD
 INCLUDEPATH += $$PWD
 
 # Input
-HEADERS += itemlibrary.h customdraganddrop.h itemlibrarymodel.h itemlibrarywidgets.h
-SOURCES += itemlibrary.cpp customdraganddrop.cpp itemlibrarymodel.cpp itemlibrarywidgets.cpp
+HEADERS += itemlibrary.h customdraganddrop.h itemlibrarymodel.h itemlibrarywidgets.h itemlibraryimageprovider.h
+SOURCES += itemlibrary.cpp customdraganddrop.cpp itemlibrarymodel.cpp itemlibrarywidgets.cpp itemlibraryimageprovider.cpp
 RESOURCES += itemlibrary.qrc
 
 OTHER_FILES += \

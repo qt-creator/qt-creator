@@ -176,7 +176,6 @@ ItemLibraryItemModel::ItemLibraryItemModel(QScriptEngine *scriptEngine, int item
       m_scriptEngine(scriptEngine),
       m_libId(itemLibId),
       m_name(itemName),
-      m_icon(),
       m_iconSize(64, 64)
 {
     QScriptValue pixmapScriptValue(m_scriptEngine->newVariant(QPixmap()));
@@ -204,21 +203,19 @@ QString ItemLibraryItemModel::itemName() const
     return m_name;
 }
 
-
-void ItemLibraryItemModel::setItemIcon(const QIcon &itemIcon)
+void ItemLibraryItemModel::setItemIconPath(const QString &iconPath)
 {
-    m_icon = itemIcon;
+    m_iconPath = iconPath;
 
-    QScriptValue pixmapScriptValue(m_scriptEngine->newVariant(m_icon.pixmap(m_iconSize)));
-    setProperty(QLatin1String("itemPixmap"), pixmapScriptValue);
+    setProperty(QLatin1String("itemLibraryIconPath"),
+                QString(QLatin1String("image://qmldesigner_itemlibrary/") + iconPath));
 }
-
 
 void ItemLibraryItemModel::setItemIconSize(const QSize &itemIconSize)
 {
     m_iconSize = itemIconSize;
 //    qDebug() << "set icon size" << itemIconSize;
-    setItemIcon(m_icon);
+    setItemIconPath(m_iconPath);
 }
 
 
@@ -414,12 +411,12 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo)
         itemModel = new ItemLibraryItemModel(m_scriptEngine.data(), itemId, entry.name());
 
         // delayed creation of (default) icons
-        if (entry.icon().isNull())
-            entry.setIcon(QIcon(QLatin1String(":/ItemLibrary/images/item-default-icon.png")));
+        if (entry.iconPath().isEmpty())
+            entry.setIconPath(QLatin1String(":/ItemLibrary/images/item-default-icon.png"));
         if (entry.dragIcon().isNull())
             entry.setDragIcon(createDragPixmap(getWidth(entry), getHeight(entry)));
 
-        itemModel->setItemIcon(entry.icon());
+        itemModel->setItemIconPath(entry.iconPath());
         itemModel->setItemIconSize(m_itemIconSize);
         sectionModel->addSectionEntry(itemModel);
         m_sections.insert(itemId, sectionId);

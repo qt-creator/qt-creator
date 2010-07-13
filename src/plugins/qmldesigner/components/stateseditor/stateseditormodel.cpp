@@ -42,12 +42,12 @@ namespace QmlDesigner {
 namespace Internal {
 
 StatesEditorModel::StatesEditorModel(QObject *parent) :
-        QAbstractListModel(parent)
+        QAbstractListModel(parent),
+        m_updateCounter(0)
 {
-
     QHash<int, QByteArray> roleNames;
     roleNames.insert(StateNameRole, "stateName");
-    roleNames.insert(StatesPixmapRole, "statePixmap");
+    roleNames.insert(StateImageSourceRole, "stateImageSource");
     setRoleNames(roleNames);
 }
 
@@ -78,11 +78,9 @@ QVariant StatesEditorModel::data(const QModelIndex &index, int role) const
                 result = m_stateNames.at(index.row());
             break;
         }
-    case StatesPixmapRole: {
-            // TODO: Maybe cache this?
-            if (!m_statesView.isNull()) {
-                result = m_statesView->renderState(index.row());
-            }
+    case StateImageSourceRole: {
+            if (!m_statesView.isNull()) 
+                return QString("image://qmldesigner_stateseditor/%1-%2").arg(index.row()).arg(m_updateCounter);
             break;
         }
     }
@@ -133,6 +131,14 @@ void StatesEditorModel::renameState(int i, const QString &newName)
 void StatesEditorModel::updateState(int i)
 {
     Q_ASSERT(i >= 0 && i < m_stateNames.count());
+
+    // QML images with the same URL are always cached, so this changes the URL each 
+    // time to ensure the image is loaded from the StatesImageProvider and not the 
+    // cache.
+    // TODO: only increase imageId when the scene has changed so that we can load 
+    // from the cache instead where possible.
+    if (++m_updateCounter == INT_MAX)
+        m_updateCounter = 0;
 
     emit dataChanged(createIndex(i, 0), createIndex(i, 0));
 }

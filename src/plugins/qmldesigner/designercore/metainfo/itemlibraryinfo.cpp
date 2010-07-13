@@ -46,6 +46,7 @@ public:
     QString category;
     int majorVersion;
     int minorVersion;
+    QString iconPath;
     QIcon icon;
     QIcon dragIcon;
     QList<PropertyContainer> properties;
@@ -148,6 +149,11 @@ QIcon ItemLibraryEntry::icon() const
     return m_data->icon;
 }
 
+QString ItemLibraryEntry::iconPath() const
+{
+    return m_data->iconPath;
+}
+
 void ItemLibraryEntry::setName(const QString &name)
 {
      m_data->name = name;
@@ -160,9 +166,9 @@ void ItemLibraryEntry::setType(const QString &typeName, int majorVersion, int mi
     m_data->minorVersion = minorVersion;
 }
 
-void ItemLibraryEntry::setIcon(const QIcon &icon)
+void ItemLibraryEntry::setIconPath(const QString &iconPath)
 {
-    m_data->icon = icon;
+    m_data->iconPath = iconPath;
 }
 
 void ItemLibraryEntry::setQml(const QString &qml)
@@ -184,6 +190,7 @@ QDataStream& operator<<(QDataStream& stream, const ItemLibraryEntry &itemLibrary
     stream << itemLibraryEntry.majorVersion();
     stream << itemLibraryEntry.minorVersion();
     stream << itemLibraryEntry.icon();
+    stream << itemLibraryEntry.iconPath();
     stream << itemLibraryEntry.category();
     stream << itemLibraryEntry.dragIcon();
     stream << itemLibraryEntry.m_data->properties;
@@ -198,6 +205,7 @@ QDataStream& operator>>(QDataStream& stream, ItemLibraryEntry &itemLibraryEntry)
     stream >> itemLibraryEntry.m_data->majorVersion;
     stream >> itemLibraryEntry.m_data->minorVersion;
     stream >> itemLibraryEntry.m_data->icon;
+    stream >> itemLibraryEntry.m_data->iconPath;
     stream >> itemLibraryEntry.m_data->category;
     stream >> itemLibraryEntry.m_data->dragIcon;
     stream >> itemLibraryEntry.m_data->properties;

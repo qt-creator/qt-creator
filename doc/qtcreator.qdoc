@@ -93,17 +93,10 @@
 
        \o \l{Debugging}
             \list
-            \o \l {Debugging Qt Applications}
-            \list
                 \o \l{Debugging the Example Application}
                 \o \l{Interacting with the Debugger}
                 \o \l{Setting Up Debugger}
                 \o \l{Using Debugging Helpers}
-            \endlist
-            \o \l{Debugging Qt Quick Applications}
-                \list
-                    \o \l{Using the QML Inspector}
-                \endlist
             \endlist
        \o \l{Using the Maemo Emulator}
        \o \l{Using Version Control Systems}
@@ -3970,12 +3963,9 @@
     \contentspage index.html
     \previouspage creator-build-dependencies.html
     \page creator-debugging.html
-    \nextpage creator-debugging-cpp.html
+    \nextpage creator-debugging-example.html
 
     \title Debugging
-
-    You can use the Qt Creator \gui Debug mode to inspect the state of your
-    Qt and Qt Quick projects while debugging.
 
     Qt Creator does not include a debugger. It provides a debugger plugin that acts
     as an interface between the Qt Creator core and external native debuggers
@@ -4198,8 +4188,12 @@
     \previouspage creator-debugging.html
     \page creator-debugging-cpp.html
     \nextpage creator-debugging-example.html
+=======
+    You can use the Qt Creator \gui Debug mode to inspect the state of your
+    Qt projects while debugging.
+>>>>>>> origin/2.0
 
-    \title Debugging Qt Applications
+    \image qtcreator-debugger-views.png "Native debugger views"
 
     In the \gui Debug mode you can interact with the debugger in several ways, including
     the following:
@@ -4628,6 +4622,14 @@
     It is also possible to continue executing the program until the current
     function completes or jump to an arbitrary position in the current function.
 
+    \section2 Stepping into Frameworks in Mac OS
+
+    In Mac OS X, external libraries are usually built into so-called Frameworks,
+    which may contain both release and debug versions of the library. When you run
+    applications on the Mac OS desktop, the release version of Frameworks is used
+    by default. To step into Frameworks, select the \gui {Use debug versions of
+    Frameworks} option in the project run settings for \gui Desktop and
+    \gui {Qt Simulator} targets.
 
     \section1 Setting Breakpoints
 
@@ -4799,7 +4801,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-debugging-cpp.html
+    \previouspage creator-debugging.html
     \page creator-debugging-example.html
     \nextpage creator-debug-mode.html
 
@@ -4884,7 +4886,7 @@
     \contentspage index.html
     \previouspage creator-debugger-engines.html
     \page creator-debugging-helpers.html
-    \nextpage creator-debugging-qml.html
+    \nextpage creator-maemo-emulator.html
 
     \title Using Debugging Helpers
 
@@ -5426,7 +5428,7 @@
     \contentspage index.html
     \previouspage creator-visual-editor.html
     \page quick-projects.html
-    \nextpage quick-ui.html
+    \nextpage quick-components.html
 
     \title Creating Qt Quick Projects
 
@@ -5464,9 +5466,9 @@
 /*!
 
     \contentspage index.html
-    \previouspage quick-ui.html
+    \previouspage quick-projects.html
     \page quick-components.html
-    \nextpage quick-buttons.html
+    \nextpage quick-screens.html
 
     \title Creating Components
 
@@ -5505,9 +5507,9 @@
 /*!
 
     \contentspage index.html
-    \previouspage quick-scalable-image.html
+    \previouspage quick-components.html
     \page quick-screens.html
-    \nextpage quick-list-views.html
+    \nextpage quick-animations.html
 
     \title Creating Screens
 
@@ -5539,7 +5541,7 @@
 /*!
 
     \contentspage index.html
-    \previouspage quick-list-views.html
+    \previouspage quick-screens.html
     \page quick-animations.html
     \nextpage quick-user-interaction.html
 
@@ -6066,7 +6068,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-qml-inspector.html
+    \previouspage creator-debugging-helpers.html
     \page creator-maemo-emulator.html
     \nextpage creator-version-control.html
 

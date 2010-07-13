@@ -30,6 +30,7 @@
 #include "stateseditorwidget.h"
 #include "stateseditormodel.h"
 #include "stateseditorview.h"
+#include "stateseditorimageprovider.h"
 
 #include <qmlitemnode.h>
 #include <invalidargumentexception.h>
@@ -203,6 +204,10 @@ void StatesEditorWidget::setup(Model *model)
     m_d->model = model;
     if (m_d->statesEditorView.isNull())
         m_d->statesEditorView = new Internal::StatesEditorView(m_d->statesEditorModel.data(), this);
+
+    m_d->listView->engine()->addImageProvider(
+            QLatin1String("qmldesigner_stateseditor"), new Internal::StatesEditorImageProvider(m_d->statesEditorView.data()));
+
     m_d->statesEditorModel->setStatesEditorView(m_d->statesEditorView.data());
 
     m_d->model->attachView(m_d->statesEditorView.data());
