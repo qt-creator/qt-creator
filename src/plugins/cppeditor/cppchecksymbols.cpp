@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "cppcheckundefinedsymbols.h"
+#include "cppchecksymbols.h"
 #include <cplusplus/Overview.h>
 
 #include <Names.h>
@@ -255,13 +255,13 @@ protected:
 
 } // end of anonymous namespace
 
-CheckUndefinedSymbols::Future CheckUndefinedSymbols::go(Document::Ptr doc, const LookupContext &context)
+CheckSymbols::Future CheckSymbols::go(Document::Ptr doc, const LookupContext &context)
 {
     Q_ASSERT(doc);
-    return (new CheckUndefinedSymbols(doc, context))->start();
+    return (new CheckSymbols(doc, context))->start();
 }
 
-CheckUndefinedSymbols::CheckUndefinedSymbols(Document::Ptr doc, const LookupContext &context)
+CheckSymbols::CheckSymbols(Document::Ptr doc, const LookupContext &context)
     : ASTVisitor(doc->translationUnit()), _doc(doc), _context(context)
 {
     _fileName = doc->fileName();
@@ -270,10 +270,10 @@ CheckUndefinedSymbols::CheckUndefinedSymbols(Document::Ptr doc, const LookupCont
     _scopes = collectTypes.scopes();
 }
 
-CheckUndefinedSymbols::~CheckUndefinedSymbols()
+CheckSymbols::~CheckSymbols()
 { }
 
-void CheckUndefinedSymbols::run()
+void CheckSymbols::run()
 {
     if (! isCanceled())
         runFunctor();
@@ -281,7 +281,7 @@ void CheckUndefinedSymbols::run()
     reportFinished();
 }
 
-void CheckUndefinedSymbols::runFunctor()
+void CheckSymbols::runFunctor()
 {
     _diagnosticMessages.clear();
 
@@ -291,14 +291,14 @@ void CheckUndefinedSymbols::runFunctor()
     }
 }
 
-bool CheckUndefinedSymbols::warning(unsigned line, unsigned column, const QString &text, unsigned length)
+bool CheckSymbols::warning(unsigned line, unsigned column, const QString &text, unsigned length)
 {
     Document::DiagnosticMessage m(Document::DiagnosticMessage::Warning, _fileName, line, column, text, length);
     _diagnosticMessages.append(m);
     return false;
 }
 
-bool CheckUndefinedSymbols::warning(AST *ast, const QString &text)
+bool CheckSymbols::warning(AST *ast, const QString &text)
 {
     const Token &firstToken = tokenAt(ast->firstToken());
     const Token &lastToken = tokenAt(ast->lastToken() - 1);
@@ -311,7 +311,7 @@ bool CheckUndefinedSymbols::warning(AST *ast, const QString &text)
     return false;
 }
 
-bool CheckUndefinedSymbols::preVisit(AST *)
+bool CheckSymbols::preVisit(AST *)
 {
     if (isCanceled())
         return false;
@@ -319,7 +319,7 @@ bool CheckUndefinedSymbols::preVisit(AST *)
     return true;
 }
 
-bool CheckUndefinedSymbols::visit(NamespaceAST *ast)
+bool CheckSymbols::visit(NamespaceAST *ast)
 {
     if (ast->identifier_token) {
         const Token &tok = tokenAt(ast->identifier_token);
@@ -334,22 +334,22 @@ bool CheckUndefinedSymbols::visit(NamespaceAST *ast)
     return true;
 }
 
-bool CheckUndefinedSymbols::visit(UsingDirectiveAST *)
+bool CheckSymbols::visit(UsingDirectiveAST *)
 {
     return true;
 }
 
-bool CheckUndefinedSymbols::visit(SimpleDeclarationAST *)
+bool CheckSymbols::visit(SimpleDeclarationAST *)
 {
     return true;
 }
 
-bool CheckUndefinedSymbols::visit(NamedTypeSpecifierAST *)
+bool CheckSymbols::visit(NamedTypeSpecifierAST *)
 {
     return true;
 }
 
-void CheckUndefinedSymbols::checkNamespace(NameAST *name)
+void CheckSymbols::checkNamespace(NameAST *name)
 {
     if (! name)
         return;
@@ -369,7 +369,7 @@ void CheckUndefinedSymbols::checkNamespace(NameAST *name)
     warning(line, column, QCoreApplication::translate("CheckUndefinedSymbols", "Expected a namespace-name"), length);
 }
 
-void CheckUndefinedSymbols::checkName(NameAST *ast)
+void CheckSymbols::checkName(NameAST *ast)
 {
     if (ast && ast->name) {
         if (const Identifier *ident = ast->name->identifier()) {
@@ -383,25 +383,25 @@ void CheckUndefinedSymbols::checkName(NameAST *ast)
     }
 }
 
-bool CheckUndefinedSymbols::visit(SimpleNameAST *ast)
+bool CheckSymbols::visit(SimpleNameAST *ast)
 {
     checkName(ast);
     return true;
 }
 
-bool CheckUndefinedSymbols::visit(TemplateIdAST *ast)
+bool CheckSymbols::visit(TemplateIdAST *ast)
 {
     checkName(ast);
     return true;
 }
 
-bool CheckUndefinedSymbols::visit(DestructorNameAST *ast)
+bool CheckSymbols::visit(DestructorNameAST *ast)
 {
     checkName(ast);
     return true;
 }
 
-bool CheckUndefinedSymbols::visit(QualifiedNameAST *ast)
+bool CheckSymbols::visit(QualifiedNameAST *ast)
 {
     if (ast->name) {
         Scope *scope = findScope(ast);
@@ -439,7 +439,7 @@ bool CheckUndefinedSymbols::visit(QualifiedNameAST *ast)
     return false;
 }
 
-bool CheckUndefinedSymbols::visit(TypenameTypeParameterAST *ast)
+bool CheckSymbols::visit(TypenameTypeParameterAST *ast)
 {
     if (ast->name && ast->name->name) {
         if (const Identifier *templId = ast->name->name->identifier()) {
@@ -454,24 +454,24 @@ bool CheckUndefinedSymbols::visit(TypenameTypeParameterAST *ast)
     return true;
 }
 
-bool CheckUndefinedSymbols::visit(TemplateTypeParameterAST *ast)
+bool CheckSymbols::visit(TemplateTypeParameterAST *ast)
 {
     checkName(ast->name);
     return true;
 }
 
-bool CheckUndefinedSymbols::visit(TemplateDeclarationAST *ast)
+bool CheckSymbols::visit(TemplateDeclarationAST *ast)
 {
     _templateDeclarationStack.append(ast);
     return true;
 }
 
-void CheckUndefinedSymbols::endVisit(TemplateDeclarationAST *)
+void CheckSymbols::endVisit(TemplateDeclarationAST *)
 {
     _templateDeclarationStack.takeFirst();
 }
 
-void CheckUndefinedSymbols::addTypeUsage(const Use &use)
+void CheckSymbols::addTypeUsage(const Use &use)
 {
     _typeUsages.append(use);
 
@@ -479,7 +479,7 @@ void CheckUndefinedSymbols::addTypeUsage(const Use &use)
         flush();
 }
 
-void CheckUndefinedSymbols::addTypeUsage(ClassOrNamespace *b, NameAST *ast)
+void CheckSymbols::addTypeUsage(ClassOrNamespace *b, NameAST *ast)
 {
     if (! b)
         return;
@@ -500,7 +500,7 @@ void CheckUndefinedSymbols::addTypeUsage(ClassOrNamespace *b, NameAST *ast)
     //qDebug() << "added use" << oo(ast->name) << line << column << length;
 }
 
-void CheckUndefinedSymbols::addTypeUsage(const QList<Symbol *> &candidates, NameAST *ast)
+void CheckSymbols::addTypeUsage(const QList<Symbol *> &candidates, NameAST *ast)
 {
     unsigned startToken = ast->firstToken();
     if (DestructorNameAST *dtor = ast->asDestructorName())
@@ -530,7 +530,7 @@ void CheckUndefinedSymbols::addTypeUsage(const QList<Symbol *> &candidates, Name
     }
 }
 
-unsigned CheckUndefinedSymbols::startOfTemplateDeclaration(TemplateDeclarationAST *ast) const
+unsigned CheckSymbols::startOfTemplateDeclaration(TemplateDeclarationAST *ast) const
 {
     if (ast->declaration) {
         if (TemplateDeclarationAST *templ = ast->declaration->asTemplateDeclaration())
@@ -542,7 +542,7 @@ unsigned CheckUndefinedSymbols::startOfTemplateDeclaration(TemplateDeclarationAS
     return ast->firstToken();
 }
 
-Scope *CheckUndefinedSymbols::findScope(AST *ast) const
+Scope *CheckSymbols::findScope(AST *ast) const
 {
     Scope *scope = 0;
 
@@ -561,7 +561,7 @@ Scope *CheckUndefinedSymbols::findScope(AST *ast) const
     return scope;
 }
 
-void CheckUndefinedSymbols::flush()
+void CheckSymbols::flush()
 {
     if (_typeUsages.isEmpty())
         return;

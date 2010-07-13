@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef CPLUSPLUS_CHECKUNDEFINEDSYMBOLS_H
-#define CPLUSPLUS_CHECKUNDEFINEDSYMBOLS_H
+#ifndef CPLUSPLUS_CHECKSYMBOLS_H
+#define CPLUSPLUS_CHECKSYMBOLS_H
 
 #include "cppsemanticinfo.h"
 
@@ -41,12 +41,12 @@
 
 namespace CPlusPlus {
 
-class CheckUndefinedSymbols:
+class CheckSymbols:
         protected ASTVisitor,
         public QtConcurrent::RunFunctionTaskBase<CppEditor::Internal::SemanticInfo::Use>
 {
 public:
-    virtual ~CheckUndefinedSymbols();
+    virtual ~CheckSymbols();
 
     typedef CppEditor::Internal::SemanticInfo::Use Use;
 
@@ -76,7 +76,7 @@ protected:
     using ASTVisitor::visit;
     using ASTVisitor::endVisit;
 
-    CheckUndefinedSymbols(Document::Ptr doc, const LookupContext &context);
+    CheckSymbols(Document::Ptr doc, const LookupContext &context);
 
     bool warning(unsigned line, unsigned column, const QString &text, unsigned length = 0);
     bool warning(AST *ast, const QString &text);
@@ -123,4 +123,4 @@ private:
 
 } // end of namespace CPlusPlus
 
-#endif // CPLUSPLUS_CHECKUNDEFINEDSYMBOLS_H
+#endif // CPLUSPLUS_CHECKSYMBOLS_H

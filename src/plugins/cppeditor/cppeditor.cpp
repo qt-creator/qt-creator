@@ -31,10 +31,8 @@
 #include "cppeditorconstants.h"
 #include "cppplugin.h"
 #include "cpphighlighter.h"
-#include "cppcheckundefinedsymbols.h"
-
+#include "cppchecksymbols.h"
 #include "cppquickfix.h"
-#include <cpptools/cpptoolsplugin.h>
 
 #include <AST.h>
 #include <Control.h>
@@ -57,6 +55,7 @@
 #include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/FastPreprocessor.h>
 
+#include <cpptools/cpptoolsplugin.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cppcodeformatter.h>
@@ -1128,7 +1127,7 @@ void CPPEditor::highlightTypeUsages(int from, int to)
     if (m_nextHighlightBlockNumber >= doc->blockCount())
         return;
 
-    QMap<int, QVector<SemanticInfo::Use> > chunks = CheckUndefinedSymbols::chunks(m_highlighter, from, to);
+    QMap<int, QVector<SemanticInfo::Use> > chunks = CheckSymbols::chunks(m_highlighter, from, to);
     Q_ASSERT(!chunks.isEmpty());
     QTextBlock b = doc->findBlockByNumber(m_nextHighlightBlockNumber);
 
@@ -1977,7 +1976,7 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
 
         if (semanticInfo.doc) {
             LookupContext context(semanticInfo.doc, semanticInfo.snapshot);
-            CheckUndefinedSymbols::Future f = CheckUndefinedSymbols::go(semanticInfo.doc, context);
+            CheckSymbols::Future f = CheckSymbols::go(semanticInfo.doc, context);
             m_highlighter = f;
             m_highlightRevision = semanticInfo.revision;
             m_nextHighlightBlockNumber = 0;
