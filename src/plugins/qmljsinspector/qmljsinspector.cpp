@@ -603,7 +603,7 @@ void MapObjectWithDebugReference::processRecursive(const QDeclarativeDebugObject
     // the QDeclarativeDebugObjectReference by filename/loc in a fist pass
 
     SourceLocation loc = ast->firstSourceLocation();
-    if (object.source().lineNumber() == int(loc.startLine) && object.source().url().toLocalFile() == filename) {
+    if (object.source().lineNumber() == int(loc.startLine) && object.source().columnNumber() == int(loc.startColumn) && object.source().url().toLocalFile() == filename) {
         result[ast] += object;
     }
 
