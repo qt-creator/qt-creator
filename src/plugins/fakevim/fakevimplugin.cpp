@@ -1175,9 +1175,10 @@ bool FakeVimPlugin::initialize(const QStringList &arguments, QString *errorMessa
     return d->initialize();
 }
 
-void FakeVimPlugin::aboutToShutdown()
+ExtensionSystem::IPlugin::ShutdownFlag FakeVimPlugin::aboutToShutdown()
 {
     d->aboutToShutdown();
+    return SynchronousShutdown;
 }
 
 void FakeVimPlugin::extensionsInitialized()

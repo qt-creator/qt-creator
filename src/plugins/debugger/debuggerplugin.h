@@ -121,7 +121,7 @@ private:
     friend class Internal::DebuggerListener
 ;
     bool initialize(const QStringList &arguments, QString *errorMessage);
-    void aboutToShutdown();
+    ShutdownFlag aboutToShutdown();
     void extensionsInitialized();
     void remoteCommand(const QStringList &options, const QStringList &arguments);
 

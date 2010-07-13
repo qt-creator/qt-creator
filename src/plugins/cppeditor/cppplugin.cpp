@@ -320,9 +320,10 @@ void CppPlugin::extensionsInitialized()
 {
 }
 
-void CppPlugin::aboutToShutdown()
+ExtensionSystem::IPlugin::ShutdownFlag CppPlugin::aboutToShutdown()
 {
     writeSettings();
+    return SynchronousShutdown;
 }
 
 void CppPlugin::switchDeclarationDefinition()

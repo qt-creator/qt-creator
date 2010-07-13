@@ -108,9 +108,10 @@ void CorePlugin::fileOpenRequest(const QString &f)
     remoteCommand(QStringList(), QStringList(f));
 }
 
-void CorePlugin::aboutToShutdown()
+ExtensionSystem::IPlugin::ShutdownFlag CorePlugin::aboutToShutdown()
 {
     m_mainWindow->aboutToShutdown();
+    return SynchronousShutdown;
 }
 
 Q_EXPORT_PLUGIN(CorePlugin)

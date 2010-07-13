@@ -31,6 +31,7 @@
 #define PLUGINSPEC_P_H
 
 #include "pluginspec.h"
+#include "iplugin.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
@@ -56,7 +57,7 @@ public:
     bool loadLibrary();
     bool initializePlugin();
     bool initializeExtensions();
-    void stop();
+    IPlugin::ShutdownFlag stop();
     void kill();
 
     QString name;

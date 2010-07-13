@@ -959,12 +959,12 @@ bool PluginSpecPrivate::initializeExtensions()
     \fn bool PluginSpecPrivate::stop()
     \internal
 */
-void PluginSpecPrivate::stop()
+IPlugin::ShutdownFlag PluginSpecPrivate::stop()
 {
     if (!plugin)
-        return;
-    plugin->aboutToShutdown();
+        return IPlugin::SynchronousShutdown;
     state = PluginSpec::Stopped;
+    return plugin->aboutToShutdown();
 }
 
 /*!

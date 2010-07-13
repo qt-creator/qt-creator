@@ -143,12 +143,13 @@ void FindPlugin::extensionsInitialized()
     readSettings();
 }
 
-void FindPlugin::aboutToShutdown()
+ExtensionSystem::IPlugin::ShutdownFlag FindPlugin::aboutToShutdown()
 {
     d->m_findToolBar->setVisible(false);
     d->m_findToolBar->setParent(0);
     d->m_currentDocumentFind->removeConnections();
     writeSettings();
+    return SynchronousShutdown;
 }
 
 void FindPlugin::filterChanged()

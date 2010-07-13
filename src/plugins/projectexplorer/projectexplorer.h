@@ -100,7 +100,7 @@ public:
     //PluginInterface
     bool initialize(const QStringList &arguments, QString *error_message);
     void extensionsInitialized();
-    void aboutToShutdown();
+    ShutdownFlag aboutToShutdown();
 
     void setProjectExplorerSettings(const Internal::ProjectExplorerSettings &pes);
     Internal::ProjectExplorerSettings projectExplorerSettings() const;

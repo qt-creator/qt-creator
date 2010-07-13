@@ -338,10 +338,11 @@ void HelpPlugin::extensionsInitialized()
     helpManager->registerDocumentation(filesToRegister);
 }
 
-void HelpPlugin::aboutToShutdown()
+ExtensionSystem::IPlugin::ShutdownFlag HelpPlugin::aboutToShutdown()
 {
     if (m_sideBar)
         m_sideBar->saveSettings(m_core->settings(), QLatin1String("HelpSideBar"));
+    return SynchronousShutdown;
 }
 
 void HelpPlugin::setupUi()

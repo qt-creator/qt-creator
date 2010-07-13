@@ -238,7 +238,6 @@ void MainWindow::setOverrideColor(const QColor &color)
 
 MainWindow::~MainWindow()
 {
-    hide();
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     pm->removeObject(m_shortcutSettings);
     pm->removeObject(m_generalSettings);
@@ -1134,6 +1133,7 @@ void MainWindow::aboutToShutdown()
     disconnect(QApplication::instance(), SIGNAL(focusChanged(QWidget*,QWidget*)),
                this, SLOT(updateFocusWidget(QWidget*,QWidget*)));
     m_activeContext = 0;
+    hide();
 }
 
 static const char *settingsGroup = "MainWindow";

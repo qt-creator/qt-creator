@@ -60,7 +60,7 @@ public:
 
     bool initialize(const QStringList &arguments, QString *error_message = 0);
     void extensionsInitialized();
-    void aboutToShutdown();
+    ShutdownFlag aboutToShutdown();
 
     // Connect editor to settings changed signals.
     void initializeEditor(CPPEditor *editor);

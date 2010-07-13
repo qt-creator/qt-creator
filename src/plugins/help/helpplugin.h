@@ -70,7 +70,7 @@ public:
 
     bool initialize(const QStringList &arguments, QString *error_message);
     void extensionsInitialized();
-    void aboutToShutdown();
+    ShutdownFlag aboutToShutdown();
 
 private slots:
     void modeChanged(Core::IMode *mode);

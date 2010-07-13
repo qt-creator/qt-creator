@@ -55,7 +55,7 @@ public:
 
     virtual bool initialize(const QStringList &arguments, QString *error_message);
     virtual void extensionsInitialized();
-    virtual void aboutToShutdown();
+    virtual ShutdownFlag aboutToShutdown();
 
 public slots:
     void postEditor();

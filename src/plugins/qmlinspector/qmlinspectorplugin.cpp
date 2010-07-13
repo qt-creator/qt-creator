@@ -84,9 +84,10 @@ QmlInspectorPlugin::~QmlInspectorPlugin()
     m_inspector = 0;
 }
 
-void QmlInspectorPlugin::aboutToShutdown()
+ExtensionSystem::IPlugin::ShutdownFlag QmlInspectorPlugin::aboutToShutdown()
 {
     m_inspector->shutdown();
+    return SynchronousShutdown;
 }
 
 bool QmlInspectorPlugin::initialize(const QStringList &arguments, QString *errorString)
