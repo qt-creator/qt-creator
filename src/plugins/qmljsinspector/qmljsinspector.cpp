@@ -143,7 +143,7 @@ Inspector::Inspector(QObject *parent)
     connect(m_clientProxy, SIGNAL(aboutToReloadEngines()), SLOT(aboutToReloadEngines()));
     connect(m_clientProxy, SIGNAL(enginesChanged()), SLOT(updateEngineList()));
     connect(m_clientProxy, SIGNAL(aboutToDisconnect()), SLOT(disconnectWidgets()));
-    connect(m_clientProxy, SIGNAL(objectTreeUpdated(QDeclarativeDebugObjectReference)),SLOT(objectTreeUpdated(QDeclarativeDebugObjectReference)));
+    connect(m_clientProxy, SIGNAL(objectTreeUpdated(QDeclarativeDebugObjectReference)), SLOT(objectTreeUpdated(QDeclarativeDebugObjectReference)));
 
     connect(Debugger::DebuggerPlugin::instance(),
             SIGNAL(stateChanged(int)), this, SLOT(debuggerStateChanged(int)));
@@ -632,5 +632,3 @@ void QmlJSInspector::Internal::Inspector::objectTreeUpdated(const QDeclarativeDe
     m_textPreview->m_initialTable = allDebugIds;
     m_textPreview->m_debugIds.clear();
 }
-
-

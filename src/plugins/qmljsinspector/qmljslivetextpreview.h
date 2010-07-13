@@ -52,6 +52,7 @@ private slots:
     void setEditor(Core::IEditor *editor);
 
 private:
+    QList<QDeclarativeDebugObjectReference > objectReferencesForOffset(quint32 offset) const;
     QVariant castToLiteral(const QString &expression, QmlJS::AST::UiScriptBinding *scriptBinding);
 
 private:

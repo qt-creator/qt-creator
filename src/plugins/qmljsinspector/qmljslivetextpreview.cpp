@@ -52,15 +52,30 @@ void QmlJSLiveTextPreview::updateDocuments()
             SLOT(documentChanged(QmlJS::Document::Ptr)));
 }
 
+QList<QDeclarativeDebugObjectReference > QmlJSLiveTextPreview::objectReferencesForOffset(quint32 offset) const
+{
+    QList<QDeclarativeDebugObjectReference > result;
+    QHashIterator<QmlJS::AST::UiObjectMember*, QList<QDeclarativeDebugObjectReference > > iter(m_debugIds);
+    while(iter.hasNext()) {
+        iter.next();
+        QmlJS::AST::UiObjectMember *member = iter.key();
+        if (member->firstSourceLocation().offset == offset) {
+            result = iter.value();
+            break;
+        }
+    }
+    return result;
+}
+
 void QmlJSLiveTextPreview::changeSelectedElements(QList<int> offsets, const QString &wordAtCursor)
 {
-    if (!m_currentEditor)
+    if (!m_currentEditor || !m_previousDoc)
         return;
 
+    if (m_debugIds.isEmpty())
+        m_debugIds = m_initialTable.value(m_previousDoc->fileName());
+
     ClientProxy *clientProxy = ClientProxy::instance();
-    QUrl url = QUrl::fromLocalFile(m_currentEditor.data()->file()->fileName());
-    QmlJS::Document::Ptr doc = modelManager()->snapshot().document(m_currentEditor.data()->file()->fileName());
-    ScriptBindingParser info(doc, clientProxy->objectReferences(url));
 
     QDeclarativeDebugObjectReference objectRefUnderCursor;
 
@@ -73,20 +88,21 @@ void QmlJSLiveTextPreview::changeSelectedElements(QList<int> offsets, const QStr
     }
 
     QList<QDeclarativeDebugObjectReference> selectedReferences;
+    bool containsReference = false;
 
     foreach(int offset, offsets) {
         if (offset >= 0) {
-            QDeclarativeDebugObjectReference ref = info.objectReferenceForOffset(offset);
-            if (ref.debugId() != -1)
-                selectedReferences << ref;
-        }
-    }
+            QList<QDeclarativeDebugObjectReference> list = objectReferencesForOffset(offset);
 
-    bool containsReference = false;
-    foreach(const QDeclarativeDebugObjectReference &ref, selectedReferences) {
-        if (ref.debugId() == objectRefUnderCursor.debugId()) {
-            containsReference = true;
-            break;
+            if (!containsReference) {
+                foreach(const QDeclarativeDebugObjectReference &ref, list) {
+                    if (ref.debugId() == objectRefUnderCursor.debugId()) {
+                        containsReference = true;
+                        break;
+                    }
+                }
+            }
+            selectedReferences << list;
         }
     }
 
@@ -103,12 +119,15 @@ void QmlJSLiveTextPreview::setEditor(Core::IEditor *editor)
         disconnect(m_currentEditor.data(), SIGNAL(selectedElementsChanged(QList<int>, QString)), this, SLOT(changeSelectedElements(QList<int>, QString)));
         m_currentEditor.clear();
         m_previousDoc.clear();
+        m_debugIds.clear();
     }
+
     if (editor) {
         m_currentEditor = qobject_cast<QmlJSEditor::Internal::QmlJSTextEditor*>(editor->widget());
         if (m_currentEditor) {
             connect(m_currentEditor.data(), SIGNAL(selectedElementsChanged(QList<int>, QString)), SLOT(changeSelectedElements(QList<int>, QString)));
             m_previousDoc = m_snapshot.document(editor->file()->fileName());
+            m_debugIds = m_initialTable.value(editor->file()->fileName());
         }
     }
 }
@@ -122,8 +141,11 @@ void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
         return;
 
     if (doc && m_previousDoc && doc->fileName() == m_previousDoc->fileName()) {
+        if (m_debugIds.isEmpty())
+            m_debugIds = m_initialTable.value(doc->fileName());
         Delta delta;
-        delta(doc, m_previousDoc);
+        m_debugIds = delta(m_previousDoc, doc,  m_debugIds);
+
         m_previousDoc = doc;
     }
 }
