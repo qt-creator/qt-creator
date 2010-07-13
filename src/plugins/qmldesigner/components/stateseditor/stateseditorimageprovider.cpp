@@ -26,55 +26,40 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-
-#ifndef STATESEDITORMODEL_H
-#define STATESEDITORMODEL_H
-
-#include <QAbstractListModel>
-#include <QWeakPointer>
-
-#include <stateseditorview.h>
+#include "stateseditorimageprovider.h"
+#include "stateseditorview.h"
 
 namespace QmlDesigner {
 
 namespace Internal {
 
-class StatesEditorModel : public QAbstractListModel
+StatesEditorImageProvider::StatesEditorImageProvider(StatesEditorView *view) : 
+        QDeclarativeImageProvider(QDeclarativeImageProvider::Pixmap),
+        m_view(view)
 {
-    Q_OBJECT
+}
 
-    Q_PROPERTY(int count READ count NOTIFY countChanged)
+QPixmap StatesEditorImageProvider::requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
+{
+    if (!m_view.isNull()) {
+        // discard the count number (see StatesEditorModel m_updateCounter)
+        QString s = id.mid(0, id.lastIndexOf(QLatin1Char('-')));
 
-    enum {
-        StateNameRole = Qt::DisplayRole,
-        StateImageSourceRole = Qt::UserRole,
-    };
+        bool ok = false;
+        int state = s.toInt(&ok);
+        if (ok) {
+            QPixmap pm = m_view->renderState(state);
+            if (size)
+                *size = pm.size();
+            if (requestedSize.isValid())
+                return pm.scaled(requestedSize);
+            return pm;
+        }
+    }
+    return QPixmap();
+}
 
-public:
-    StatesEditorModel(QObject *parent);
+}
 
-    int count() const;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+}
 
-    void insertState(int i, const QString &name);
-    void removeState(int i);
-    Q_INVOKABLE void renameState(int i, const QString &newName);
-    void updateState(int i);
-    void setStatesEditorView(StatesEditorView *statesView);
-    void emitChangedToState(int n);
-
-signals:
-    void countChanged();
-    void changedToState(int n);
-
-private:
-    QList<QString> m_stateNames;
-    QWeakPointer<StatesEditorView> m_statesView;
-    int m_updateCounter;
-};
-
-} // namespace Itnernal
-} // namespace QmlDesigner
-
-#endif // STATESEDITORMODEL_H

@@ -62,6 +62,7 @@ public:
     QString name() const;
     QString typeName() const;
     QIcon icon() const;
+    QString iconPath() const;
     int majorVersion() const;
     int minorVersion() const;
     QString category() const;
@@ -77,7 +78,7 @@ public:
 
     void setType(const QString &typeName, int majorVersion, int minorVersion);
     void setName(const QString &name);
-    void setIcon(const QIcon &icon);
+    void setIconPath(const QString &iconPath);
     void addProperty(const Property &p);
     void addProperty(QString &name, QString &type, QString &value);
     void setDragIcon(const QIcon &icon);

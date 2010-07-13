@@ -26,55 +26,30 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-
-#ifndef STATESEDITORMODEL_H
-#define STATESEDITORMODEL_H
-
-#include <QAbstractListModel>
-#include <QWeakPointer>
-
-#include <stateseditorview.h>
+#include "itemlibraryimageprovider.h"
 
 namespace QmlDesigner {
 
 namespace Internal {
 
-class StatesEditorModel : public QAbstractListModel
+ItemLibraryImageProvider::ItemLibraryImageProvider() : 
+        QDeclarativeImageProvider(QDeclarativeImageProvider::Pixmap)
 {
-    Q_OBJECT
+}
 
-    Q_PROPERTY(int count READ count NOTIFY countChanged)
+QPixmap ItemLibraryImageProvider::requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
+{
+    QPixmap pixmap(id);
+    if (size) {
+        size->setWidth(pixmap.width());
+        size->setHeight(pixmap.height());
+    }
+    if (requestedSize.isValid()) 
+        return pixmap.scaled(requestedSize);
+    return pixmap;
+}
 
-    enum {
-        StateNameRole = Qt::DisplayRole,
-        StateImageSourceRole = Qt::UserRole,
-    };
+}
 
-public:
-    StatesEditorModel(QObject *parent);
+}
 
-    int count() const;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-
-    void insertState(int i, const QString &name);
-    void removeState(int i);
-    Q_INVOKABLE void renameState(int i, const QString &newName);
-    void updateState(int i);
-    void setStatesEditorView(StatesEditorView *statesView);
-    void emitChangedToState(int n);
-
-signals:
-    void countChanged();
-    void changedToState(int n);
-
-private:
-    QList<QString> m_stateNames;
-    QWeakPointer<StatesEditorView> m_statesView;
-    int m_updateCounter;
-};
-
-} // namespace Itnernal
-} // namespace QmlDesigner
-
-#endif // STATESEDITORMODEL_H

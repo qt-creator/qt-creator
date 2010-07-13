@@ -84,7 +84,7 @@ public:
     int itemLibId() const;
     QString itemName() const;
 
-    void setItemIcon(const QIcon &itemIcon);
+    void setItemIconPath(const QString &iconPath);
     void setItemIconSize(const QSize &itemIconSize);
 
     bool operator<(const ItemLibraryItemModel &other) const;
@@ -93,7 +93,7 @@ private:
     QWeakPointer<QScriptEngine> m_scriptEngine;
     int m_libId;
     QString m_name;
-    QIcon m_icon;
+    QString m_iconPath;
     QSize m_iconSize;
 };
 
