@@ -56,6 +56,22 @@ public:
     typedef QFuture<Use> Future;
     static Future go(Document::Ptr doc, const LookupContext &context);
 
+    static QMap<int, QVector<Use> > chunks(const QFuture<Use> &future, int from, int to)
+    {
+        QMap<int, QVector<Use> > chunks;
+
+        for (int i = from; i < to; ++i) {
+            const Use use = future.resultAt(i);
+            if (! use.line)
+                continue; // skip it, it's an invalid use.
+
+            const int blockNumber = use.line - 1;
+            chunks[blockNumber].append(use);
+        }
+
+        return chunks;
+    }
+
 protected:
     using ASTVisitor::visit;
     using ASTVisitor::endVisit;

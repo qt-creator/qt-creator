@@ -349,7 +349,6 @@ public:
         FakeVimSelection,
         OtherSelection,
         SnippetPlaceholderSelection,
-        TypeSelection,
         ObjCSelection,
         NExtraSelectionKinds
     };

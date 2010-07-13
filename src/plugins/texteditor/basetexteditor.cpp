@@ -4063,10 +4063,8 @@ int BaseTextEditor::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
         while (block.isValid() && ts.onlySpace(block.text()))
             block = block.next();
         if (block.isValid()
-                && ts.indentationColumn(block.text()) > indentation) {
-            qDebug() << "indentation check failed" << indentation << ts.indentationColumn(block.next().text());
+                && ts.indentationColumn(block.text()) > indentation)
             return 0;
-        }
     }
 
     int pos = cursor.position();
@@ -4664,7 +4662,6 @@ void BaseTextEditor::maybeClearSomeExtraSelections(const QTextCursor &cursor)
     if (cursor.selectionEnd() - cursor.selectionStart() < smallSelectionSize)
         return;
 
-    d->m_extraSelections[TypeSelection].clear();
     d->m_extraSelections[UndefinedSymbolSelection].clear();
     d->m_extraSelections[ObjCSelection].clear();
     d->m_extraSelections[CodeWarningsSelection].clear();

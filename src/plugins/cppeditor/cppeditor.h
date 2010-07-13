@@ -233,7 +233,8 @@ private Q_SLOTS:
 
     void semanticRehighlight();
     void updateSemanticInfo(const CppEditor::Internal::SemanticInfo &semanticInfo);
-    void highlightTypeUsages();
+    void highlightTypeUsages(int from, int to);
+    void finishTypeUsages();
 
     void performQuickFix(int index);
 
@@ -300,7 +301,8 @@ private:
 
     QFuture<SemanticInfo::Use> m_highlighter;
     QFutureWatcher<SemanticInfo::Use> m_highlightWatcher;
-    unsigned m_highlighteRevision; // the editor revision that requested the highlight
+    unsigned m_highlightRevision; // the editor revision that requested the highlight
+    int m_nextHighlightBlockNumber;
 };
 
 

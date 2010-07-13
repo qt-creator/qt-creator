@@ -46,6 +46,7 @@
 #include <QtCore/qglobal.h>
 #include <QtCore/qobject.h>
 #include <QtGui/qtextobject.h>
+#include <QtGui/QTextLayout>
 
 QT_BEGIN_NAMESPACE
 class QTextDocument;
@@ -73,6 +74,8 @@ public:
 
     void setDocument(QTextDocument *doc);
     QTextDocument *document() const;
+
+    void setExtraAdditionalFormats(const QTextBlock& block, const QList<QTextLayout::FormatRange> &formats);
 
 public Q_SLOTS:
     void rehighlight();

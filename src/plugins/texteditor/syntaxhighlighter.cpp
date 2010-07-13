@@ -65,7 +65,7 @@ public:
 
     void _q_reformatBlocks(int from, int charsRemoved, int charsAdded);
     void reformatBlocks(int from, int charsRemoved, int charsAdded);
-    void reformatBlock(const QTextBlock &block);
+    void reformatBlock(const QTextBlock &block, int from, int charsRemoved, int charsAdded);
 
     inline void rehighlight(QTextCursor &cursor, QTextCursor::MoveOperation operation) {
         inReformatBlocks = true;
@@ -84,14 +84,26 @@ public:
         q_func()->rehighlight();
     }
 
-    void applyFormatChanges();
+    void applyFormatChanges(int from, int charsRemoved, int charsAdded);
     QVector<QTextCharFormat> formatChanges;
     QTextBlock currentBlock;
     bool rehighlightPending;
     bool inReformatBlocks;
 };
 
-void SyntaxHighlighterPrivate::applyFormatChanges()
+static bool adjustRange(QTextLayout::FormatRange &range, int from, int charsRemoved, int charsAdded) {
+
+    if (range.start >= from) {
+        range.start += charsAdded - charsRemoved;
+        return true;
+    } else if (range.start + range.length > from) {
+        range.length += charsAdded - charsRemoved;
+        return true;
+    }
+    return false;
+}
+
+void SyntaxHighlighterPrivate::applyFormatChanges(int from, int charsRemoved, int charsAdded)
 {
     bool formatsChanged = false;
 
@@ -101,11 +113,17 @@ void SyntaxHighlighterPrivate::applyFormatChanges()
 
     const int preeditAreaStart = layout->preeditAreaPosition();
     const int preeditAreaLength = layout->preeditAreaText().length();
+    bool doAdjustRange = currentBlock.contains(from);
 
     if (preeditAreaLength != 0) {
         QList<QTextLayout::FormatRange>::Iterator it = ranges.begin();
         while (it != ranges.end()) {
-            if (it->start >= preeditAreaStart
+            if (it->format.property(QTextFormat::UserProperty).toBool()) {
+                if (doAdjustRange)
+                    formatsChanged = adjustRange(*it, from - currentBlock.position(), charsRemoved, charsAdded)
+                            || formatsChanged;
+                ++it;
+            } else  if (it->start >= preeditAreaStart
                 && it->start + it->length <= preeditAreaStart + preeditAreaLength) {
                 ++it;
             } else {
@@ -114,8 +132,18 @@ void SyntaxHighlighterPrivate::applyFormatChanges()
             }
         }
     } else if (!ranges.isEmpty()) {
-        ranges.clear();
-        formatsChanged = true;
+        QList<QTextLayout::FormatRange>::Iterator it = ranges.begin();
+        while (it != ranges.end()) {
+            if (it->format.property(QTextFormat::UserProperty).toBool()) {
+                if (doAdjustRange)
+                    formatsChanged = adjustRange(*it, from - currentBlock.position(), charsRemoved, charsAdded)
+                            || formatsChanged;
+                ++it;
+            } else {
+                it = ranges.erase(it);
+                formatsChanged = true;
+            }
+        }
     }
 
     QTextCharFormat emptyFormat;
@@ -201,7 +229,7 @@ void SyntaxHighlighterPrivate::reformatBlocks(int from, int charsRemoved, int ch
     while (block.isValid() && (block.position() < endPosition || forceHighlightOfNextBlock)) {
         const int stateBeforeHighlight = block.userState();
 
-        reformatBlock(block);
+        reformatBlock(block, from, charsRemoved, charsAdded);
 
         forceHighlightOfNextBlock = (block.userState() != stateBeforeHighlight);
 
@@ -211,7 +239,7 @@ void SyntaxHighlighterPrivate::reformatBlocks(int from, int charsRemoved, int ch
     formatChanges.clear();
 }
 
-void SyntaxHighlighterPrivate::reformatBlock(const QTextBlock &block)
+void SyntaxHighlighterPrivate::reformatBlock(const QTextBlock &block, int from, int charsRemoved, int charsAdded)
 {
     Q_Q(SyntaxHighlighter);
 
@@ -221,7 +249,7 @@ void SyntaxHighlighterPrivate::reformatBlock(const QTextBlock &block)
 
     formatChanges.fill(QTextCharFormat(), block.length() - 1);
     q->highlightBlock(block.text());
-    applyFormatChanges();
+    applyFormatChanges(from, charsRemoved, charsAdded);
 
     currentBlock = QTextBlock();
 }
@@ -657,6 +685,59 @@ QTextBlock SyntaxHighlighter::currentBlock() const
 {
     Q_D(const SyntaxHighlighter);
     return d->currentBlock;
+}
+
+void SyntaxHighlighter::setExtraAdditionalFormats(const QTextBlock& block,
+                                                  const QList<QTextLayout::FormatRange> &formats)
+{
+
+//    qDebug() << "setAdditionalFormats() on block" << block.blockNumber();
+//    for (int i = 0; i < overrides.count(); ++i)
+//        qDebug() << "   from " << overrides.at(i).start << "length"
+//                 << overrides.at(i).length
+//                 << "color:" << overrides.at(i).format.foreground().color();
+    Q_D(SyntaxHighlighter);
+
+    if (block.layout() == 0)
+        return;
+
+    QList<QTextLayout::FormatRange> all = block.layout()->additionalFormats();
+
+    bool modified = false;
+
+    int skip = 0;
+
+    QList<QTextLayout::FormatRange>::Iterator it = all.begin();
+    while (it != all.end()) {
+        if (it->format.property(QTextFormat::UserProperty).toBool()) {
+            if (skip < formats.size()
+                    && it->start == formats.at(skip).start
+                    && it->length == formats.at(skip).length) {
+                ++skip;
+                ++it;
+            } else {
+                it = all.erase(it);
+                modified = true;
+            }
+        } else {
+            ++it;
+        }
+    }
+
+    if (!modified && skip == formats.length())
+        return; // skip'em all
+
+    for (int i = skip; i < formats.length(); ++i) {
+        QTextLayout::FormatRange range = formats.at(i);
+        range.format.setProperty(QTextFormat::UserProperty, true);
+        all.append(range);
+    }
+
+    bool wasInReformatBlocks = d->inReformatBlocks;
+    d->inReformatBlocks = true;
+    block.layout()->setAdditionalFormats(all);
+    document()->markContentsDirty(block.position(), block.length()-1);
+    d->inReformatBlocks = wasInReformatBlocks;
 }
 
 #include "moc_syntaxhighlighter.cpp"

@@ -129,47 +129,6 @@ static QList<QTextEdit::ExtraSelection> createSelections(QTextDocument *document
     return selections;
 }
 
-static QList<QTextEdit::ExtraSelection> createSelections(QTextDocument *document,
-                                                         const QList<SemanticInfo::Use> &msgs,
-                                                         const QTextCharFormat &format)
-{
-    QList<QTextEdit::ExtraSelection> selections;
-
-    QTextBlock currentBlock = document->firstBlock();
-    unsigned currentLine = 1;
-
-    foreach (const SemanticInfo::Use &use, msgs) {
-        QTextCursor cursor(document);
-
-        if (currentLine != use.line) {
-            int delta = use.line - currentLine;
-
-            if (delta >= 0) {
-                while (delta--)
-                    currentBlock = currentBlock.next();
-            } else {
-                currentBlock = document->findBlockByNumber(use.line - 1);
-            }
-
-            currentLine = use.line;
-        }
-
-        const int pos = currentBlock.position() + use.column - 1;
-        if (pos < 0)
-            continue;
-
-        cursor.setPosition(pos);
-        cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, use.length);
-
-        QTextEdit::ExtraSelection sel;
-        sel.cursor = cursor;
-        sel.format = format;
-        selections.append(sel);
-    }
-
-    return selections;
-}
-
 namespace {
 
 class OverviewTreeView : public QTreeView
@@ -643,8 +602,10 @@ CPPEditor::CPPEditor(QWidget *parent)
                 this, SLOT(onDocumentUpdated(CPlusPlus::Document::Ptr)));
     }
 
-    m_highlighteRevision = 0;
-    connect(&m_highlightWatcher, SIGNAL(finished()), SLOT(highlightTypeUsages()));
+    m_highlightRevision = 0;
+    m_nextHighlightBlockNumber = 0;
+    connect(&m_highlightWatcher, SIGNAL(resultsReadyAt(int,int)), SLOT(highlightTypeUsages(int,int)));
+    connect(&m_highlightWatcher, SIGNAL(finished()), SLOT(finishTypeUsages()));
 }
 
 CPPEditor::~CPPEditor()
@@ -1139,8 +1100,9 @@ void CPPEditor::updateOutlineToolTip()
 
 void CPPEditor::updateUses()
 {
+    if (editorRevision() != m_highlightRevision)
+        m_highlighter.cancel();
     m_updateUsesTimer->start();
-    m_highlighter.cancel();
 }
 
 void CPPEditor::updateUsesNow()
@@ -1151,17 +1113,75 @@ void CPPEditor::updateUsesNow()
     semanticRehighlight();
 }
 
-void CPPEditor::highlightTypeUsages()
+void CPPEditor::highlightTypeUsages(int from, int to)
 {
-    if (editorRevision() != m_highlighteRevision)
+    if (editorRevision() != m_highlightRevision)
         return; // outdated
 
     else if (m_highlighter.isCanceled())
         return; // aborted
 
-    const QList<SemanticInfo::Use> typeUsages = m_highlighter.results();
-    setExtraSelections(TypeSelection, createSelections(document(), typeUsages, m_typeFormat));
+    CppHighlighter *highlighter = qobject_cast<CppHighlighter*>(baseTextDocument()->syntaxHighlighter());
+    Q_ASSERT(highlighter);
+    QTextDocument *doc = document();
+
+    if (m_nextHighlightBlockNumber >= doc->blockCount())
+        return;
+
+    QMap<int, QVector<SemanticInfo::Use> > chunks = CheckUndefinedSymbols::chunks(m_highlighter, from, to);
+    Q_ASSERT(!chunks.isEmpty());
+    QTextBlock b = doc->findBlockByNumber(m_nextHighlightBlockNumber);
+
+    QMapIterator<int, QVector<SemanticInfo::Use> > it(chunks);
+    while (b.isValid() && it.hasNext()) {
+        it.next();
+        const int blockNumber = it.key();
+        Q_ASSERT(blockNumber < doc->blockCount());
+
+        while (m_nextHighlightBlockNumber < blockNumber) {
+            highlighter->setExtraAdditionalFormats(b, QList<QTextLayout::FormatRange>());
+            b = b.next();
+            ++m_nextHighlightBlockNumber;
+        }
+
+        QList<QTextLayout::FormatRange> formats;
+        foreach (const SemanticInfo::Use &use, it.value()) {
+            QTextLayout::FormatRange formatRange;
+            formatRange.format = m_typeFormat;
+            formatRange.start = use.column - 1;
+            formatRange.length = use.length;
+            formats.append(formatRange);
+        }
+        highlighter->setExtraAdditionalFormats(b, formats);
+        b = b.next();
+        ++m_nextHighlightBlockNumber;
+    }
 }
+
+void CPPEditor::finishTypeUsages()
+{
+    if (editorRevision() != m_highlightRevision)
+        return; // outdated
+
+    else if (m_highlighter.isCanceled())
+        return; // aborted
+
+    CppHighlighter *highlighter = qobject_cast<CppHighlighter*>(baseTextDocument()->syntaxHighlighter());
+    Q_ASSERT(highlighter);
+    QTextDocument *doc = document();
+
+    if (m_nextHighlightBlockNumber >= doc->blockCount())
+        return;
+
+    QTextBlock b = doc->findBlockByNumber(m_nextHighlightBlockNumber);
+
+    while (b.isValid()) {
+        highlighter->setExtraAdditionalFormats(b, QList<QTextLayout::FormatRange>());
+        b = b.next();
+        ++m_nextHighlightBlockNumber;
+    }
+}
+
 
 void CPPEditor::switchDeclarationDefinition()
 {
@@ -1959,7 +1979,8 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
             LookupContext context(semanticInfo.doc, semanticInfo.snapshot);
             CheckUndefinedSymbols::Future f = CheckUndefinedSymbols::go(semanticInfo.doc, context);
             m_highlighter = f;
-            m_highlighteRevision = semanticInfo.revision;
+            m_highlightRevision = semanticInfo.revision;
+            m_nextHighlightBlockNumber = 0;
             m_highlightWatcher.setFuture(m_highlighter);
         }
 
@@ -1969,6 +1990,7 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
                                                            m_keywordFormat));
 #endif
     }
+
 
     setExtraSelections(UnusedSymbolSelection, unusedSelections);
 
