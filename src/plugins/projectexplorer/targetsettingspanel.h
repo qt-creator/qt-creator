@@ -30,19 +30,18 @@
 #ifndef TARGETSETTINGSPANEL_H
 #define TARGETSETTINGSPANEL_H
 
-#include "iprojectproperties.h"
-
-#include <QtGui/QStackedWidget>
 #include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
 class QAction;
 class QMenu;
+class QStackedWidget;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 
 class Target;
+class Project;
 
 namespace Internal {
 

@@ -31,12 +31,9 @@
 #define OUTPUTWINDOW_H
 
 #include <coreplugin/ioutputpane.h>
-#include <projectexplorer/outputformatter.h>
 
-#include <QtCore/QObject>
 #include <QtCore/QHash>
 #include <QtGui/QIcon>
-#include <QtGui/QShowEvent>
 #include <QtGui/QPlainTextEdit>
 
 QT_BEGIN_NAMESPACE
@@ -50,7 +47,7 @@ namespace Core {
 }
 
 namespace ProjectExplorer {
-
+class OutputFormatter;
 class RunControl;
 
 namespace Constants {

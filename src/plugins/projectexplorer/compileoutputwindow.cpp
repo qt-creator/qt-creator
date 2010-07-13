@@ -38,6 +38,7 @@
 
 #include <QtGui/QKeyEvent>
 #include <QtGui/QIcon>
+#include <QtGui/QTextCharFormat>
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextCursor>
 #include <QtGui/QTextEdit>

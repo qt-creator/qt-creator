@@ -38,6 +38,7 @@
 #include <utils/detailswidget.h>
 #include <utils/pathchooser.h>
 
+#include <QtCore/QDir>
 #include <QtGui/QCheckBox>
 #include <QtGui/QComboBox>
 #include <QtGui/QDialog>

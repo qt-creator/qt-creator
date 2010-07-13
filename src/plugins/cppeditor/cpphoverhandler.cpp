@@ -235,7 +235,7 @@ bool CppHoverHandler::matchDiagnosticMessage(const CPlusPlus::Document::Ptr &doc
                                              const int line)
 {
     foreach (const Document::DiagnosticMessage &m, document->diagnosticMessages()) {
-        if (m.line() == line) {
+        if (m.line() == unsigned(line)) {
             m_toolTip = m.text();
             return true;
         }
@@ -246,7 +246,7 @@ bool CppHoverHandler::matchDiagnosticMessage(const CPlusPlus::Document::Ptr &doc
 bool CppHoverHandler::matchIncludeFile(const CPlusPlus::Document::Ptr &document, const int line)
 {
     foreach (const Document::Include &includeFile, document->includes()) {
-        if (includeFile.line() == line) {
+        if (includeFile.line() == unsigned(line)) {
             m_toolTip = QDir::toNativeSeparators(includeFile.fileName());
             const QString &fileName = QFileInfo(includeFile.fileName()).fileName();
             m_helpCandidates.append(HelpCandidate(fileName, fileName, HelpCandidate::Include));

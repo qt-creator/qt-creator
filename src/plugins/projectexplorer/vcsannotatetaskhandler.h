@@ -34,9 +34,6 @@
 
 #include "itaskhandler.h"
 
-#include <QtCore/QHash>
-#include <QtCore/QString>
-
 namespace Core {
 class IVersionControl;
 }

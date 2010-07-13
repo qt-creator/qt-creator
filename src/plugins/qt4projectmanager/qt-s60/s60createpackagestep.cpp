@@ -37,6 +37,8 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/gnumakeparser.h>
 
+#include <QtCore/QDir>
+
 using namespace Qt4ProjectManager::Internal;
 
 namespace {

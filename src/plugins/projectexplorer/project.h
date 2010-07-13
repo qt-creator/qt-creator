@@ -31,7 +31,6 @@
 #define PROJECT_H
 
 #include "projectexplorer_export.h"
-#include "target.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QSet>

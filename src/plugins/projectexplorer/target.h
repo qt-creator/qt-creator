@@ -33,8 +33,6 @@
 #include "projectconfiguration.h"
 #include "projectexplorer_export.h"
 
-#include <QtCore/QObject>
-#include <QtGui/QFileSystemModel>
 #include <QtGui/QIcon>
 
 namespace ProjectExplorer {

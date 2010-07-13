@@ -30,17 +30,17 @@
 #ifndef TASKWINDOW_H
 #define TASKWINDOW_H
 
-#include "task.h"
 #include <coreplugin/ioutputpane.h>
-#include <QtGui/QIcon>
 
 QT_BEGIN_NAMESPACE
 class QAction;
 class QModelIndex;
+class QPoint;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 class TaskHub;
+class Task;
 
 namespace Internal {
 class TaskWindowPrivate;

@@ -35,6 +35,7 @@
 #include "makestep.h"
 #include "qt4buildconfiguration.h"
 #include "qt4projectmanagerconstants.h"
+#include "qtversionmanager.h"
 
 #include "wizards/targetsetuppage.h"
 

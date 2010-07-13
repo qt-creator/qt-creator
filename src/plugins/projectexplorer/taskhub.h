@@ -31,7 +31,7 @@
 #define TASKHUB_H
 
 #include "task.h"
-#include "projectexplorer_export.h"
+
 #include <QtCore/QObject>
 #include <QtGui/QIcon>
 

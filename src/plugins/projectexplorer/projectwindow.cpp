@@ -59,6 +59,7 @@
 #include <QtGui/QScrollArea>
 #include <QtGui/QLabel>
 #include <QtGui/QPainter>
+#include <QtGui/QStackedWidget>
 #include <QtGui/QPaintEvent>
 #include <QtGui/QMenu>
 

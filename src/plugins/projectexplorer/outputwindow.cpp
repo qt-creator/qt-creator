@@ -33,6 +33,7 @@
 #include "projectexplorersettings.h"
 #include "runconfiguration.h"
 #include "session.h"
+#include "outputformatter.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -56,6 +57,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QTabWidget>
 #include <QtGui/QToolButton>
+#include <QtGui/QShowEvent>
 
 using namespace ProjectExplorer::Internal;
 using namespace ProjectExplorer;

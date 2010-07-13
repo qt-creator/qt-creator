@@ -43,6 +43,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QStackedWidget>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

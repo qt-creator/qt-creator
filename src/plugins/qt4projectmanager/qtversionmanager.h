@@ -30,8 +30,8 @@
 #ifndef QTVERSIONMANAGER_H
 #define QTVERSIONMANAGER_H
 
-#include <projectexplorer/taskwindow.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/task.h>
 
 #include <QtCore/QHash>
 #include <QtCore/QSet>

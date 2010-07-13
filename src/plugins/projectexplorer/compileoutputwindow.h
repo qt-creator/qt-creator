@@ -34,11 +34,9 @@
 
 #include <QtCore/QHash>
 
-#include <QtGui/QColor>
-#include <QtGui/QTextCharFormat>
-
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;
+class QTextCharFormat;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
