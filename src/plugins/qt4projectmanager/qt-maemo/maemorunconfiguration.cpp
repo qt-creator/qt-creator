@@ -30,6 +30,7 @@
 #include "maemorunconfiguration.h"
 
 #include "maemodeploystep.h"
+#include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
 #include "maemorunconfigurationwidget.h"
 #include "maemotoolchain.h"
@@ -171,30 +172,18 @@ const QString MaemoRunConfiguration::gdbCmd() const
 
 const MaemoPackageCreationStep *MaemoRunConfiguration::packageStep() const
 {
-    const QList<ProjectExplorer::BuildStep *> &buildSteps
-        = activeQt4BuildConfiguration()->steps(ProjectExplorer::BuildStep::Deploy);
-    for (int i = buildSteps.count() - 1; i >= 0; --i) {
-        const MaemoPackageCreationStep * const pStep
-            = qobject_cast<MaemoPackageCreationStep *>(buildSteps.at(i));
-        if (pStep)
-            return pStep;
-    }
-    Q_ASSERT(!"Impossible: Maemo run configuration without packaging step.");
-    return 0;
+    const MaemoPackageCreationStep * const step
+        = MaemoGlobal::buildStep<MaemoPackageCreationStep>(activeQt4BuildConfiguration());
+    Q_ASSERT(step && "Impossible: Maemo build configuration without packaging step.");
+    return step;
 }
 
 MaemoDeployStep *MaemoRunConfiguration::deployStep() const
 {
-    const QList<ProjectExplorer::BuildStep *> &buildSteps
-        = activeQt4BuildConfiguration()->steps(ProjectExplorer::BuildStep::Deploy);
-    for (int i = buildSteps.count() - 1; i >= 0; --i) {
-        MaemoDeployStep * const step
-            = qobject_cast<MaemoDeployStep*>(buildSteps.at(i));
-        if (step)
-            return step;
-    }
-    Q_ASSERT(!"Impossible: Maemo run configuration without deploy step.");
-    return 0;
+    MaemoDeployStep * const step
+        = MaemoGlobal::buildStep<MaemoDeployStep>(activeQt4BuildConfiguration());
+    Q_ASSERT(step && !"Impossible: Maemo build configuration without deploy step.");
+    return step;
 }
 
 QString MaemoRunConfiguration::maddeRoot() const

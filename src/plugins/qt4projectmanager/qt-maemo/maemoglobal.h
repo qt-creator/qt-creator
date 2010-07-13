@@ -32,6 +32,8 @@
 
 #include <projectexplorer/buildconfiguration.h>
 
+#include <QtCore/QList>
+
 QT_BEGIN_NAMESPACE
 class QString;
 QT_END_NAMESPACE
@@ -44,6 +46,17 @@ class MaemoGlobal
 public:
     static QString homeDirOnDevice(const QString &uname);
     static QString remoteSudo();
+
+    template<class T> static T *buildStep(const ProjectExplorer::BuildConfiguration *bc)
+    {
+        const QList<ProjectExplorer::BuildStep *> &buildSteps
+                = bc->steps(ProjectExplorer::BuildStep::Deploy);
+        for (int i = buildSteps.count() - 1; i >= 0; --i) {
+            if (T * const step = qobject_cast<T *>(buildSteps.at(i)))
+                return step;
+        }
+        return 0;
+    }
 };
 
 } // namespace Internal

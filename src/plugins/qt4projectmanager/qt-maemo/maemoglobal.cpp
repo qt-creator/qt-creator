@@ -29,6 +29,8 @@
 
 #include "maemoglobal.h"
 
+#include <QtCore/QString>
+
 namespace Qt4ProjectManager {
 namespace Internal {
 
