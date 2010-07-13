@@ -283,37 +283,23 @@ void CppHoverHandler::handleLookupItemMatch(const LookupItem &lookupItem, const 
     overview.setShowFullyQualifiedNamed(true);
 
     if (!matchingDeclaration && assignTooltip) {
-        m_toolTip = overview.prettyType(matchingType, QLatin1String(""));
+        m_toolTip = overview.prettyType(matchingType, QString());
     } else {
         QString qualifiedName;
-        HelpCandidate::Category helpCategory;
         if (matchingDeclaration->enclosingSymbol()->isClass() ||
             matchingDeclaration->enclosingSymbol()->isNamespace() ||
             matchingDeclaration->enclosingSymbol()->isEnum()) {
-            // Fully qualify the name if enclosed by a class, namespace or enum.
-            QList<const Name *> names = LookupContext::fullyQualifiedName(matchingDeclaration);
-            if (matchingDeclaration->isNamespace() ||
-                matchingDeclaration->isClass() ||
-                matchingDeclaration->isForwardClassDeclaration()) {
-                // In this case the declaration name appears in the fully qualified name. Remove
-                // it since it is already considered below.
-                names.removeLast();
-                helpCategory = HelpCandidate::ClassOrNamespace;
-            } else if (matchingDeclaration->isEnum()) {
-                helpCategory = HelpCandidate::Enum;
-            } else if (matchingDeclaration->isTypedef()) {
-                helpCategory = HelpCandidate::Typedef;
-            } else if (matchingDeclaration->isStatic() && !matchingDeclaration->isFunction()) {
-                helpCategory = HelpCandidate::Var;
-            } else {
-                helpCategory = HelpCandidate::Function;
+            const QList<const Name *> &names =
+                LookupContext::fullyQualifiedName(matchingDeclaration);
+            const int size = names.size();
+            for (int i = 0; i < size; ++i) {
+                qualifiedName.append(overview.prettyName(names.at(i)));
+                if (i < size - 1)
+                    qualifiedName.append(QLatin1String("::"));
             }
-            foreach (const Name *name, names) {
-                qualifiedName.append(overview.prettyName(name));
-                qualifiedName.append(QLatin1String("::"));
-            }
+        } else {
+            qualifiedName.append(overview.prettyName(matchingDeclaration->name()));
         }
-        qualifiedName.append(overview.prettyName(matchingDeclaration->name()));
 
         if (assignTooltip) {
             if (matchingDeclaration->isClass() ||
@@ -324,6 +310,21 @@ void CppHoverHandler::handleLookupItemMatch(const LookupItem &lookupItem, const 
             } else {
                 m_toolTip = overview.prettyType(matchingType, qualifiedName);
             }
+        }
+
+        HelpCandidate::Category helpCategory;
+        if (matchingDeclaration->isNamespace() ||
+            matchingDeclaration->isClass() ||
+            matchingDeclaration->isForwardClassDeclaration()) {
+            helpCategory = HelpCandidate::ClassOrNamespace;
+        } else if (matchingDeclaration->isEnum()) {
+            helpCategory = HelpCandidate::Enum;
+        } else if (matchingDeclaration->isTypedef()) {
+            helpCategory = HelpCandidate::Typedef;
+        } else if (matchingDeclaration->isStatic() && !matchingDeclaration->isFunction()) {
+            helpCategory = HelpCandidate::Var;
+        } else {
+            helpCategory = HelpCandidate::Function;
         }
 
         // Help identifiers are simply the name with no signature, arguments or return type.
