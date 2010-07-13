@@ -127,14 +127,19 @@ SnapshotHandler::SnapshotHandler(SessionEngine *engine)
 SnapshotHandler::~SnapshotHandler()
 {
     for (int i = m_snapshots.size(); --i >= 0; ) {
-        QString file = engineAt(i)->startParameters().coreFile;
-        QFile::remove(file);
+        if (DebuggerEngine *engine = engineAt(i)) {
+            QString fileName = engine->startParameters().coreFile;
+            if (!fileName.isEmpty())
+                QFile::remove(fileName);
+        }
     }
 }
 
 DebuggerEngine *SnapshotHandler::engineAt(int i) const
 {
-    return m_snapshots.at(i)->engine();
+    DebuggerEngine *engine = m_snapshots.at(i)->engine();
+    QTC_ASSERT(engine, qDebug() << "ENGINE AT " << i << "DELETED");
+    return engine;
 }
 
 int SnapshotHandler::rowCount(const QModelIndex &parent) const
@@ -154,6 +159,13 @@ QVariant SnapshotHandler::data(const QModelIndex &index, int role) const
         return QVariant();
 
     const DebuggerEngine *engine = engineAt(index.row());
+
+    if (role == SnapshotCapabilityRole)
+        return engine && (engine->debuggerCapabilities() & SnapshotCapability);
+
+    if (!engine)
+        return QLatin1String("<finished>");
+
     const DebuggerStartParameters &sp = engine->startParameters();
 
     if (role == Qt::DisplayRole) {
@@ -165,9 +177,6 @@ QVariant SnapshotHandler::data(const QModelIndex &index, int role) const
         }
         return QVariant();
     }
-
-    if (role == SnapshotCapabilityRole)
-        return engine->debuggerCapabilities() & SnapshotCapability;
 
     if (role == Qt::ToolTipRole) {
         //: Tooltip for variable
@@ -207,7 +216,9 @@ bool SnapshotHandler::setData
 {
     Q_UNUSED(value);
     if (index.isValid() && role == RequestMakeSnapshotRole) {
-        engineAt(index.row())->makeSnapshot();
+        DebuggerEngine *engine = engineAt(index.row());
+        QTC_ASSERT(engine, return false);
+        engine->makeSnapshot();
         return true;
     }
     if (index.isValid() && role == RequestActivateSnapshotRole) {
@@ -245,14 +256,26 @@ void SnapshotHandler::removeAll()
 
 void SnapshotHandler::appendSnapshot(DebuggerRunControl *rc)
 {
+    //return; // FIXME
     m_snapshots.append(rc);
     m_currentIndex = size() - 1;
     reset();
 }
 
+void SnapshotHandler::removeSnapshot(DebuggerRunControl *rc)
+{
+    int index = m_snapshots.indexOf(rc);
+    QTC_ASSERT(index != -1, return);
+    removeSnapshot(index);
+}
+
 void SnapshotHandler::removeSnapshot(int index)
 {
-    QFile::remove(engineAt(index)->startParameters().coreFile);
+    const DebuggerEngine *engine = engineAt(index);
+    QTC_ASSERT(engine, return);
+    QString fileName = engine->startParameters().coreFile;
+    if (!fileName.isEmpty())
+        QFile::remove(fileName);
     m_snapshots.removeAt(index);
     if (index == m_currentIndex)
         m_currentIndex = -1;

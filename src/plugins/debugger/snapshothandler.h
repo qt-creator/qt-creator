@@ -33,7 +33,7 @@
 #include "stackframe.h"
 
 #include <QtCore/QAbstractItemModel>
-#include <QtCore/QDateTime>
+#include <QtCore/QPointer>
 
 namespace Debugger {
 
@@ -63,10 +63,10 @@ public:
 
     // Called from SnapshotHandler after a new snapshot has been added
     void removeAll();
-    void removeSnapshot(int index);
     QAbstractItemModel *model() { return this; }
     int currentIndex() const { return m_currentIndex; }
     void appendSnapshot(DebuggerRunControl *rc);
+    void removeSnapshot(DebuggerRunControl *rc);
     void setCurrentIndex(int index);
     int size() const { return m_snapshots.size(); }
 
@@ -80,10 +80,11 @@ private:
     Qt::ItemFlags flags(const QModelIndex &index) const;
     Q_SLOT void resetModel() { reset(); }
     DebuggerEngine *engineAt(int i) const;
+    void removeSnapshot(int index);
 
     SessionEngine *m_engine;
     int m_currentIndex;
-    QList<DebuggerRunControl *> m_snapshots;
+    QList< QPointer<DebuggerRunControl> > m_snapshots;
     const QVariant m_positionIcon;
     const QVariant m_emptyIcon;
 };

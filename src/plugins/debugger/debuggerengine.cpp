@@ -461,7 +461,7 @@ void DebuggerEngine::handleCommand(int role, const QVariant &value)
             break;
 
         case RequestExecExitRole:
-            d->doShutdownInferior();
+            d->queueShutdownInferior();
             break;
 
         case RequestMakeSnapshotRole:
@@ -654,8 +654,8 @@ void DebuggerEngine::setRegisterValue(int regnr, const QString &value)
 
 void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) const
 {
-    //if (msg.size() && msg.at(0).isUpper() && msg.at(1).isUpper())
-    //    qDebug() << qPrintable(msg) << "IN STATE" << state();
+    if (msg.size() && msg.at(0).isUpper() && msg.at(1).isUpper())
+        qDebug() << qPrintable(msg) << "IN STATE" << state();
     d->m_runControl->showMessage(msg, channel);
     plugin()->showMessage(msg, channel, timeout);
 }

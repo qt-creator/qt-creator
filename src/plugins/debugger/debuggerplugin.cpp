@@ -2694,6 +2694,7 @@ void DebuggerPlugin::runControlStarted(DebuggerRunControl *runControl)
 void DebuggerPlugin::runControlFinished(DebuggerRunControl *runControl)
 {
     Q_UNUSED(runControl);
+    d->m_sessionEngine->m_snapshotHandler->removeSnapshot(runControl);
     d->disconnectEngine();
 }
 
