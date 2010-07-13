@@ -664,55 +664,55 @@ TextEditor::BaseTextEditorEditable *CPPEditor::createEditableInterface()
 
 void CPPEditor::createToolBar(CPPEditorEditable *editable)
 {
-    m_methodCombo = new QComboBox;
-    m_methodCombo->setMinimumContentsLength(22);
+    m_outlineCombo = new QComboBox;
+    m_outlineCombo->setMinimumContentsLength(22);
 
     // Make the combo box prefer to expand
-    QSizePolicy policy = m_methodCombo->sizePolicy();
+    QSizePolicy policy = m_outlineCombo->sizePolicy();
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
-    m_methodCombo->setSizePolicy(policy);
+    m_outlineCombo->setSizePolicy(policy);
 
-    QTreeView *methodView = new OverviewTreeView;
-    methodView->header()->hide();
-    methodView->setItemsExpandable(false);
-    m_methodCombo->setView(methodView);
-    m_methodCombo->setMaxVisibleItems(20);
+    QTreeView *outlineView = new OverviewTreeView;
+    outlineView->header()->hide();
+    outlineView->setItemsExpandable(false);
+    m_outlineCombo->setView(outlineView);
+    m_outlineCombo->setMaxVisibleItems(20);
 
-    m_overviewModel = new OverviewModel(this);
-    m_proxyModel = new OverviewProxyModel(m_overviewModel, this);
-    if (CppPlugin::instance()->sortedMethodOverview())
+    m_outlineModel = new OverviewModel(this);
+    m_proxyModel = new OverviewProxyModel(m_outlineModel, this);
+    if (CppPlugin::instance()->sortedOutline())
         m_proxyModel->sort(0, Qt::AscendingOrder);
     else
-        m_proxyModel->sort(-1, Qt::AscendingOrder); // don't sort yet, but set column for sortedMethodOverview()
+        m_proxyModel->sort(-1, Qt::AscendingOrder); // don't sort yet, but set column for sortedOutline()
     m_proxyModel->setDynamicSortFilter(true);
     m_proxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
-    m_methodCombo->setModel(m_proxyModel);
+    m_outlineCombo->setModel(m_proxyModel);
 
-    m_methodCombo->setContextMenuPolicy(Qt::ActionsContextMenu);
-    m_sortAction = new QAction(tr("Sort Alphabetically"), m_methodCombo);
+    m_outlineCombo->setContextMenuPolicy(Qt::ActionsContextMenu);
+    m_sortAction = new QAction(tr("Sort Alphabetically"), m_outlineCombo);
     m_sortAction->setCheckable(true);
-    m_sortAction->setChecked(sortedMethodOverview());
-    connect(m_sortAction, SIGNAL(toggled(bool)), CppPlugin::instance(), SLOT(setSortedMethodOverview(bool)));
-    m_methodCombo->addAction(m_sortAction);
+    m_sortAction->setChecked(sortedOutline());
+    connect(m_sortAction, SIGNAL(toggled(bool)), CppPlugin::instance(), SLOT(setSortedOutline(bool)));
+    m_outlineCombo->addAction(m_sortAction);
 
     m_updateOutlineTimer = new QTimer(this);
     m_updateOutlineTimer->setSingleShot(true);
     m_updateOutlineTimer->setInterval(UPDATE_OUTLINE_INTERVAL);
     connect(m_updateOutlineTimer, SIGNAL(timeout()), this, SLOT(updateOutlineNow()));
 
-    m_updateMethodBoxTimer = new QTimer(this);
-    m_updateMethodBoxTimer->setSingleShot(true);
-    m_updateMethodBoxTimer->setInterval(UPDATE_OUTLINE_INTERVAL);
-    connect(m_updateMethodBoxTimer, SIGNAL(timeout()), this, SLOT(updateMethodBoxIndexNow()));
+    m_updateOutlineIndexTimer = new QTimer(this);
+    m_updateOutlineIndexTimer->setSingleShot(true);
+    m_updateOutlineIndexTimer->setInterval(UPDATE_OUTLINE_INTERVAL);
+    connect(m_updateOutlineIndexTimer, SIGNAL(timeout()), this, SLOT(updateOutlineIndexNow()));
 
     m_updateUsesTimer = new QTimer(this);
     m_updateUsesTimer->setSingleShot(true);
     m_updateUsesTimer->setInterval(UPDATE_USES_INTERVAL);
     connect(m_updateUsesTimer, SIGNAL(timeout()), this, SLOT(updateUsesNow()));
 
-    connect(m_methodCombo, SIGNAL(activated(int)), this, SLOT(jumpToMethod(int)));
-    connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateMethodBoxIndex()));
-    connect(m_methodCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateMethodBoxToolTip()));
+    connect(m_outlineCombo, SIGNAL(activated(int)), this, SLOT(jumpToOutlineElement(int)));
+    connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateOutlineIndex()));
+    connect(m_outlineCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateOutlineToolTip()));
     connect(document(), SIGNAL(contentsChange(int,int,int)), this, SLOT(onContentsChanged(int,int,int)));
 
     connect(file(), SIGNAL(changed()), this, SLOT(updateFileName()));
@@ -728,7 +728,7 @@ void CPPEditor::createToolBar(CPPEditorEditable *editable)
     QToolBar *toolBar = static_cast<QToolBar*>(editable->toolBar());
     QList<QAction*> actions = toolBar->actions();
     QWidget *w = toolBar->widgetForAction(actions.first());
-    static_cast<QHBoxLayout*>(w->layout())->insertWidget(0, m_methodCombo, 1);
+    static_cast<QHBoxLayout*>(w->layout())->insertWidget(0, m_outlineCombo, 1);
 }
 
 void CPPEditor::paste()
@@ -1012,19 +1012,19 @@ void CPPEditor::onContentsChanged(int position, int charsRemoved, int charsAdded
 void CPPEditor::updateFileName()
 { }
 
-void CPPEditor::jumpToMethod(int)
+void CPPEditor::jumpToOutlineElement(int)
 {
-    QModelIndex index = m_proxyModel->mapToSource(m_methodCombo->view()->currentIndex());
-    Symbol *symbol = m_overviewModel->symbolFromIndex(index);
+    QModelIndex index = m_proxyModel->mapToSource(m_outlineCombo->view()->currentIndex());
+    Symbol *symbol = m_outlineModel->symbolFromIndex(index);
     if (! symbol)
         return;
 
     openCppEditorAt(linkToSymbol(symbol));
 }
 
-void CPPEditor::setSortedMethodOverview(bool sort)
+void CPPEditor::setSortedOutline(bool sort)
 {
-    if (sort != sortedMethodOverview()) {
+    if (sort != sortedOutline()) {
         if (sort)
             m_proxyModel->sort(0, Qt::AscendingOrder);
         else
@@ -1032,11 +1032,11 @@ void CPPEditor::setSortedMethodOverview(bool sort)
         bool block = m_sortAction->blockSignals(true);
         m_sortAction->setChecked(m_proxyModel->sortColumn() == 0);
         m_sortAction->blockSignals(block);
-        updateMethodBoxIndexNow();
+        updateOutlineIndexNow();
     }
 }
 
-bool CPPEditor::sortedMethodOverview() const
+bool CPPEditor::sortedOutline() const
 {
     return (m_proxyModel->sortColumn() == 0);
 }
@@ -1054,16 +1054,16 @@ void CPPEditor::updateOutlineNow()
         return;
     }
 
-    m_overviewModel->rebuild(document);
+    m_outlineModel->rebuild(document);
 
-    OverviewTreeView *treeView = static_cast<OverviewTreeView *>(m_methodCombo->view());
+    OverviewTreeView *treeView = static_cast<OverviewTreeView *>(m_outlineCombo->view());
     treeView->sync();
-    updateMethodBoxIndexNow();
+    updateOutlineIndexNow();
 }
 
-void CPPEditor::updateMethodBoxIndex()
+void CPPEditor::updateOutlineIndex()
 {
-    m_updateMethodBoxTimer->start();
+    m_updateOutlineIndexTimer->start();
 }
 
 void CPPEditor::highlightUses(const QList<SemanticInfo::Use> &uses,
@@ -1102,35 +1102,35 @@ void CPPEditor::highlightUses(const QList<SemanticInfo::Use> &uses,
     }
 }
 
-void CPPEditor::updateMethodBoxIndexNow()
+void CPPEditor::updateOutlineIndexNow()
 {
-    if (!m_overviewModel->document())
+    if (!m_outlineModel->document())
         return;
 
-    if (m_overviewModel->document()->editorRevision() != editorRevision()) {
-        m_updateMethodBoxTimer->start();
+    if (m_outlineModel->document()->editorRevision() != editorRevision()) {
+        m_updateOutlineIndexTimer->start();
         return;
     }
 
-    m_updateMethodBoxTimer->stop();
+    m_updateOutlineIndexTimer->stop();
 
-    m_overviewModelIndex = QModelIndex(); //invalidate
+    m_outlineModelIndex = QModelIndex(); //invalidate
     // ComboBox only let's you select top level indexes!
-    QModelIndex comboIndex = overviewModelIndex();
+    QModelIndex comboIndex = outlineModelIndex();
     while (comboIndex.parent().isValid())
         comboIndex = comboIndex.parent();
 
     if (comboIndex.isValid()) {
-        bool blocked = m_methodCombo->blockSignals(true);
-        m_methodCombo->setCurrentIndex(m_proxyModel->mapFromSource(comboIndex).row());
-        updateMethodBoxToolTip();
-        (void) m_methodCombo->blockSignals(blocked);
+        bool blocked = m_outlineCombo->blockSignals(true);
+        m_outlineCombo->setCurrentIndex(m_proxyModel->mapFromSource(comboIndex).row());
+        updateOutlineToolTip();
+        (void) m_outlineCombo->blockSignals(blocked);
     }
 }
 
-void CPPEditor::updateMethodBoxToolTip()
+void CPPEditor::updateOutlineToolTip()
 {
-    m_methodCombo->setToolTip(m_methodCombo->currentText());
+    m_outlineCombo->setToolTip(m_outlineCombo->currentText());
 }
 
 void CPPEditor::updateUses()
@@ -1456,21 +1456,21 @@ SemanticInfo CPPEditor::semanticInfo() const
     return m_lastSemanticInfo;
 }
 
-CPlusPlus::OverviewModel *CPPEditor::overviewModel() const
+CPlusPlus::OverviewModel *CPPEditor::outlineModel() const
 {
-    return m_overviewModel;
+    return m_outlineModel;
 }
 
-QModelIndex CPPEditor::overviewModelIndex()
+QModelIndex CPPEditor::outlineModelIndex()
 {
-    if (!m_overviewModelIndex.isValid()) {
+    if (!m_outlineModelIndex.isValid()) {
         int line = 0, column = 0;
         convertPosition(position(), &line, &column);
-        m_overviewModelIndex = indexForPosition(line, column);
-        emit overviewModelIndexChanged(m_overviewModelIndex);
+        m_outlineModelIndex = indexForPosition(line, column);
+        emit outlineModelIndexChanged(m_outlineModelIndex);
     }
 
-    return m_overviewModelIndex;
+    return m_outlineModelIndex;
 }
 
 bool CPPEditor::isElectricCharacter(QChar ch) const
@@ -2222,10 +2222,10 @@ QModelIndex CPPEditor::indexForPosition(int line, int column, const QModelIndex 
 {
     QModelIndex lastIndex = rootIndex;
 
-    const int rowCount = m_overviewModel->rowCount(rootIndex);
+    const int rowCount = m_outlineModel->rowCount(rootIndex);
     for (int row = 0; row < rowCount; ++row) {
-        const QModelIndex index = m_overviewModel->index(row, 0, rootIndex);
-        Symbol *symbol = m_overviewModel->symbolFromIndex(index);
+        const QModelIndex index = m_outlineModel->index(row, 0, rootIndex);
+        Symbol *symbol = m_outlineModel->symbolFromIndex(index);
         if (symbol && symbol->line() > unsigned(line))
             break;
         lastIndex = index;

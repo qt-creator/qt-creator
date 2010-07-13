@@ -167,8 +167,8 @@ public:
     bool isOutdated() const;
     SemanticInfo semanticInfo() const;
 
-    CPlusPlus::OverviewModel *overviewModel() const;
-    QModelIndex overviewModelIndex();
+    CPlusPlus::OverviewModel *outlineModel() const;
+    QModelIndex outlineModelIndex();
 
     virtual void paste(); // reimplemented from BaseTextEditor
     virtual void cut(); // reimplemented from BaseTextEditor
@@ -181,12 +181,12 @@ public:
     bool isObjCEnabled() const;
 
 Q_SIGNALS:
-    void overviewModelIndexChanged(const QModelIndex &index);
+    void outlineModelIndexChanged(const QModelIndex &index);
 
 public Q_SLOTS:
     virtual void setFontSettings(const TextEditor::FontSettings &);
     virtual void setTabSettings(const TextEditor::TabSettings &);
-    void setSortedMethodOverview(bool sort);
+    void setSortedOutline(bool sort);
     void switchDeclarationDefinition();
     void jumpToDefinition();
     void renameSymbolUnderCursor();
@@ -221,11 +221,11 @@ protected:
 
 private Q_SLOTS:
     void updateFileName();
-    void jumpToMethod(int index);
+    void jumpToOutlineElement(int index);
     void updateOutlineNow();
-    void updateMethodBoxIndex();
-    void updateMethodBoxIndexNow();
-    void updateMethodBoxToolTip();
+    void updateOutlineIndex();
+    void updateOutlineIndexNow();
+    void updateOutlineToolTip();
     void updateUses();
     void updateUsesNow();
     void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
@@ -242,7 +242,7 @@ private:
     void setShowWarningMessage(bool showWarningMessage);
 
     void markSymbols(CPlusPlus::Symbol *canonicalSymbol, const SemanticInfo &info);
-    bool sortedMethodOverview() const;
+    bool sortedOutline() const;
     CPlusPlus::Symbol *findDefinition(CPlusPlus::Symbol *symbol, const CPlusPlus::Snapshot &snapshot);
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
     virtual void indent(QTextDocument *doc, const QTextCursor &cursor, QChar typedChar);
@@ -272,13 +272,13 @@ private:
 
     CppTools::CppModelManagerInterface *m_modelManager;
 
-    QComboBox *m_methodCombo;
-    CPlusPlus::OverviewModel *m_overviewModel;
-    QModelIndex m_overviewModelIndex;
+    QComboBox *m_outlineCombo;
+    CPlusPlus::OverviewModel *m_outlineModel;
+    QModelIndex m_outlineModelIndex;
     QSortFilterProxyModel *m_proxyModel;
     QAction *m_sortAction;
     QTimer *m_updateOutlineTimer;
-    QTimer *m_updateMethodBoxTimer;
+    QTimer *m_updateOutlineIndexTimer;
     QTimer *m_updateUsesTimer;
     QTextCharFormat m_occurrencesFormat;
     QTextCharFormat m_occurrencesUnusedFormat;

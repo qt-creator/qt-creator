@@ -58,7 +58,7 @@ CppOutlineWidget::CppOutlineWidget(CPPEditor *editor) :
     TextEditor::IOutlineWidget(),
     m_editor(editor),
     m_treeView(new CppOutlineTreeView(this)),
-    m_model(m_editor->overviewModel()),
+    m_model(m_editor->outlineModel()),
     m_proxyModel(new CppOutlineFilterModel(m_model, this)),
     m_enableCursorSync(true),
     m_blockCursorSync(false)
@@ -74,7 +74,7 @@ CppOutlineWidget::CppOutlineWidget(CPPEditor *editor) :
     connect(m_model, SIGNAL(modelReset()), this, SLOT(modelUpdated()));
     modelUpdated();
 
-    connect(m_editor, SIGNAL(overviewModelIndexChanged(QModelIndex)),
+    connect(m_editor, SIGNAL(outlineModelIndexChanged(QModelIndex)),
             this, SLOT(updateSelectionInTree(QModelIndex)));
     connect(m_treeView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(updateSelectionInText(QItemSelection)));
@@ -84,7 +84,7 @@ void CppOutlineWidget::setCursorSynchronization(bool syncWithCursor)
 {
     m_enableCursorSync = syncWithCursor;
     if (m_enableCursorSync)
-        updateSelectionInTree(m_editor->overviewModelIndex());
+        updateSelectionInTree(m_editor->outlineModelIndex());
 }
 
 void CppOutlineWidget::modelUpdated()

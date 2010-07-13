@@ -65,15 +65,15 @@ public:
     // Connect editor to settings changed signals.
     void initializeEditor(CPPEditor *editor);
 
-    bool sortedMethodOverview() const;
+    bool sortedOutline() const;
 
     CppQuickFixCollector *quickFixCollector() const;
 
 signals:
-    void methodOverviewSortingChanged(bool sort);
+    void outlineSortingChanged(bool sort);
 
 public slots:
-    void setSortedMethodOverview(bool sorted);
+    void setSortedOutline(bool sorted);
 
 private slots:
     void switchDeclarationDefinition();
@@ -93,7 +93,7 @@ private:
     static CppPlugin *m_instance;
 
     TextEditor::TextEditorActionHandler *m_actionHandler;
-    bool m_sortedMethodOverview;
+    bool m_sortedOutline;
     QAction *m_renameSymbolUnderCursorAction;
     QAction *m_findUsagesAction;
     QAction *m_updateCodeModelAction;
