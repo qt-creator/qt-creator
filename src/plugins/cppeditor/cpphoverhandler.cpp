@@ -256,12 +256,13 @@ bool CppHoverHandler::matchMacroInUse(const CPlusPlus::Document::Ptr &document, 
 {
     foreach (const Document::MacroUse &use, document->macroUses()) {
         if (use.contains(pos)) {
-            const Macro& macro = use.macro();
-            m_toolTip = macro.toString();
-            m_helpCandidates.append(HelpCandidate(macro.name(),
-                                                  macro.name(),
-                                                  HelpCandidate::Macro));
-            return true;
+            const int begin = use.begin();
+            const QString &name = use.macro().name();
+            if (pos < begin + name.length()) {
+                m_toolTip = use.macro().toString();
+                m_helpCandidates.append(HelpCandidate(name, name, HelpCandidate::Macro));
+                return true;
+            }
         }
     }
     return false;
