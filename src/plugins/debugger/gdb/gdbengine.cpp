@@ -1170,6 +1170,11 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     if (state() == InferiorSetupRequested)
         return;
 
+    if (isDying()) {
+        notifyInferiorStopOk();
+        return;
+    }
+
     const QByteArray reason = data.findChild("reason").data();
 
     if (isExitedReason(reason)) {
@@ -1194,7 +1199,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
 
     if (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
         QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state())
-        //setState(InferiorStopOk);
+        notifyInferiorStopOk();
         flushQueuedCommands();
         if (state() == InferiorStopOk) {
             QTC_ASSERT(m_commandsDoneCallback == 0, /**/);
@@ -1359,6 +1364,12 @@ void GdbEngine::handleStop1(const GdbResponse &response)
 
 void GdbEngine::handleStop1(const GdbMi &data)
 {
+    if (isDying()) {
+        qDebug() << "HANDLING STOP WHILE DYING";
+        notifyInferiorStopOk();
+        return;
+    }
+
     QByteArray reason = data.findChild("reason").data();
 
     if (0 && m_gdbAdapter->isTrkAdapter()
@@ -1733,18 +1744,6 @@ void GdbEngine::handleDetach(const GdbResponse &response)
     Q_UNUSED(response);
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     notifyInferiorExited();
-}
-
-void GdbEngine::quitDebugger()
-{
-    // FIXME: The problem here is that the "kill" send in the shutdown()
-    // procedure might not receive a response anymore.  So we need a way
-    // to force it down. On the other hand, there could be an answer,
-    // and regular the inferior shutdown procedure could take a while.
-    // And the RunControl::stop() is called synchroneously.
-    shutdownEngine();
-    //initializeVariables();
-    //setState(DebuggerNotReady);
 }
 
 int GdbEngine::currentFrame() const
@@ -3054,8 +3053,11 @@ void GdbEngine::activateSnapshot(int index)
 
     if (state() == InferiorUnrunnable) {
         // All is well. We are looking at another core file.
+#if 0
+        // FIXME AAA
         setState(EngineShutdownRequested);
         setState(DebuggerNotReady);
+#endif
         activateSnapshot2();
     } else if (state() != DebuggerNotReady) {
         QMessageBox *mb = showMessageBox(QMessageBox::Critical,
@@ -3078,20 +3080,18 @@ void GdbEngine::activateSnapshot(int index)
 void GdbEngine::handleActivateSnapshot(const GdbResponse &response)
 {
     Q_UNUSED(response);
-    setState(InferiorShutdownRequested);
-    setState(InferiorShutdownOk);
-    setState(EngineShutdownRequested);
-    setState(DebuggerNotReady);
-    activateSnapshot2();
+    quitDebugger();
 }
 
 void GdbEngine::activateSnapshot2()
 {
     // Otherwise the stack data might be stale.
     // See http://sourceware.org/bugzilla/show_bug.cgi?id=1124.
+#if 0
     setState(EngineSetupRequested);
     postCommand("set stack-cache off");
     handleAdapterStarted();
+#endif
 }
 
 
@@ -4301,14 +4301,12 @@ void GdbEngine::handleInferiorPrepared()
 void GdbEngine::finishInferiorSetup()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-    showMessage(_("BREAKPOINTS SET, CONTINUING INFERIOR STARTUP"));
     notifyInferiorSetupOk();
 }
 
 void GdbEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
-    showMessage(_("RUN ENGINE"));
     m_gdbAdapter->runEngine();
 }
 

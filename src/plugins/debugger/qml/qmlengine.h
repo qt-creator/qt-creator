@@ -75,7 +75,6 @@ public:
     ~QmlEngine();
 
     void messageReceived(const QByteArray &message);
-    using DebuggerEngine::setState;
 
 private:
     // DebuggerEngine implementation

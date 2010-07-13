@@ -269,6 +269,7 @@ void QmlEngine::setupEngine()
     }
 #endif
     notifyEngineSetupOk();
+
     //m_frameRate = new CanvasFrameRate(0);
     //m_frameRate->show();
 }
@@ -313,24 +314,23 @@ void QmlEngine::setupConnection()
     }
  #endif
 
-    notifyEngineSetupOk();
+    notifyEngineRunAndInferiorStopOk();
     qDebug() << "CONNECTION SUCCESSFUL";
-    setState(InferiorRunRequested);
-    setState(InferiorRunOk);
 
 //    reloadEngines();
-
+//    continueInferior();
 }
 
 void QmlEngine::continueInferior()
 {
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     SDEBUG("QmlEngine::continueInferior()");
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
     rs << QByteArray("CONTINUE");
     sendMessage(reply);
-    setState(InferiorRunRequested);
-    setState(InferiorRunOk);
+    notifyInferiorRunRequested();
+    notifyInferiorRunOk();
 }
 
 void QmlEngine::interruptInferior()
@@ -349,8 +349,8 @@ void QmlEngine::executeStep()
     QDataStream rs(&reply, QIODevice::WriteOnly);
     rs << QByteArray("STEPINTO");
     sendMessage(reply);
-    setState(InferiorRunRequested);
-    setState(InferiorRunOk);
+    notifyInferiorRunRequested();
+    notifyInferiorRunOk();
 }
 
 void QmlEngine::executeStepI()
@@ -360,8 +360,8 @@ void QmlEngine::executeStepI()
     QDataStream rs(&reply, QIODevice::WriteOnly);
     rs << QByteArray("STEPINTO");
     sendMessage(reply);
-    setState(InferiorRunRequested);
-    setState(InferiorRunOk);
+    notifyInferiorRunRequested();
+    notifyInferiorRunOk();
 }
 
 void QmlEngine::executeStepOut()
@@ -371,8 +371,8 @@ void QmlEngine::executeStepOut()
     QDataStream rs(&reply, QIODevice::WriteOnly);
     rs << QByteArray("STEPOUT");
     sendMessage(reply);
-    setState(InferiorRunRequested);
-    setState(InferiorRunOk);
+    notifyInferiorRunRequested();
+    notifyInferiorRunOk();
 }
 
 void QmlEngine::executeNext()
@@ -381,8 +381,8 @@ void QmlEngine::executeNext()
     QDataStream rs(&reply, QIODevice::WriteOnly);
     rs << QByteArray("STEPOVER");
     sendMessage(reply);
-    setState(InferiorRunRequested);
-    setState(InferiorRunOk);
+    notifyInferiorRunRequested();
+    notifyInferiorRunOk();
     SDEBUG("QmlEngine::nextExec()");
 }
 
@@ -632,8 +632,7 @@ void QmlEngine::messageReceived(const QByteArray &message)
 
     showMessage(_("RECEIVED RESPONSE: ") + quoteUnprintableLatin1(message));
     if (command == "STOPPED") {
-        setState(InferiorStopRequested);
-        setState(InferiorStopOk);
+        notifyInferiorSpontaneousStop();
 
         QList<QPair<QString, QPair<QString, qint32> > > backtrace;
         QList<QPair<QString, QVariant> > watches;
@@ -725,8 +724,8 @@ void QmlEngine::handleProcError(QProcess::ProcessError error)
     case QProcess::WriteError:
     case QProcess::Timedout:
     default:
-        m_proc.kill();
-        setState(EngineShutdownRequested, true);
+        //m_proc.kill();
+        notifyEngineIll();
         plugin()->showMessageBox(QMessageBox::Critical, tr("Gdb I/O Error"),
                        errorMessage(error));
         break;
@@ -736,7 +735,8 @@ void QmlEngine::handleProcError(QProcess::ProcessError error)
 void QmlEngine::handleProcFinished(int code, QProcess::ExitStatus type)
 {
     showMessage(_("QML VIEWER PROCESS FINISHED, status %1, code %2").arg(type).arg(code));
-    setState(DebuggerNotReady, true);
+    notifyEngineIll();
+    //setState(DebuggerNotReady, true);
 }
 
 void QmlEngine::readProcStandardError()

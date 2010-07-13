@@ -265,6 +265,8 @@ protected:
     void notifyEngineRunAndInferiorRunOk();
     void notifyEngineRunAndInferiorStopOk();
     void notifyInferiorUnrunnable(); // Called by CoreAdapter.
+
+    // Use notifyInferiorRunRequested() plus notifyInferiorRunOk() instead.
     //void notifyInferiorSpontaneousRun();
 
     void notifyInferiorRunRequested();
@@ -292,7 +294,7 @@ protected:
     virtual void shutdownInferior() = 0;
     virtual void shutdownEngine() = 0;
 
-//private: // FIXME. State transitions 
+private:
     void setState(DebuggerState state, bool forced = false);
 
 private:

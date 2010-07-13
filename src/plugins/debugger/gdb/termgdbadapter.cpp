@@ -178,7 +178,6 @@ void TermGdbAdapter::stubExited()
         return;
     }
     showMessage(_("STUB EXITED"));
-    qDebug() << "STUB EXITED IN STATE: " << state();
     m_engine->notifyEngineIll();
 }
 
