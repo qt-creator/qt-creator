@@ -38,6 +38,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
+#include <texteditor/displaysettings.h>
 #include <debugger/debuggerconstants.h>
 #include <utils/htmldocextractor.h>
 
@@ -148,7 +149,10 @@ void CppHoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint 
         QToolTip::hideText();
     } else {
         if (m_matchingHelpCandidate != -1) {
-            const QString &contents = getDocContents();
+            QString contents;
+            TextEditor::BaseTextEditor *baseEditor = baseTextEditor(editor);
+            if (baseEditor && baseEditor->displaySettings().m_integrateDocsIntoTooltips)
+                contents = getDocContents();
             if (!contents.isEmpty()) {
                 m_toolTip = contents;
             } else {
