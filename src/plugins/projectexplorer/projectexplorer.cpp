@@ -97,6 +97,7 @@
 #include <utils/consoleprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/parameteraction.h>
+#include <utils/stringutils.h>
 
 #include <QtCore/QtPlugin>
 #include <QtCore/QDateTime>
@@ -1998,7 +1999,7 @@ void ProjectExplorerPlugin::updateRecentProjectMenu()
         const QPair<QString, QString> &s = *it;
         if (s.first.endsWith(QLatin1String(".qws")))
             continue;
-        QAction *action = menu->addAction(s.first);
+        QAction *action = menu->addAction(Utils::withTildeHomePath(s.first));
         action->setData(s.first);
         connect(action, SIGNAL(triggered()), this, SLOT(openRecentProject()));
     }

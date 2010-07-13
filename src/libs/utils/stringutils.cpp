@@ -31,6 +31,8 @@
 
 #include <QtCore/QString>
 #include <QtCore/QStringList>
+#include <QtCore/QFileInfo>
+#include <QtCore/QDir>
 
 #include <limits.h>
 
@@ -98,6 +100,23 @@ QTCREATOR_UTILS_EXPORT QString commonPath(const QStringList &files)
 #endif
     common.truncate(lastSeparatorPos);
     return common;
+}
+
+QTCREATOR_UTILS_EXPORT QString withTildeHomePath(const QString &path)
+{
+#ifdef Q_OS_WIN
+    QString outPath = path;
+#else
+    static const QString homePath = QDir::homePath();
+
+    QFileInfo fi(QDir::cleanPath(path));
+    QString outPath = fi.absoluteFilePath();
+    if (outPath.startsWith(homePath))
+        outPath = QLatin1Char('~') + outPath.mid(homePath.size());
+    else
+        outPath = path;
+#endif
+    return outPath;
 }
 
 } // namespace Utils

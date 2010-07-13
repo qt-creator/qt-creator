@@ -70,6 +70,7 @@
 #include <coreplugin/settingsdatabase.h>
 #include <utils/pathchooser.h>
 #include <utils/stylehelper.h>
+#include <utils/stringutils.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QDebug>
@@ -1253,7 +1254,8 @@ void MainWindow::aboutToShowRecentFiles()
     bool hasRecentFiles = false;
     foreach (const QString &fileName, m_fileManager->recentFiles()) {
         hasRecentFiles = true;
-        QAction *action = aci->menu()->addAction(fileName);
+        QAction *action = aci->menu()->addAction(
+                    Utils::withTildeHomePath(fileName));
         action->setData(fileName);
         connect(action, SIGNAL(triggered()), this, SLOT(openRecentFile()));
     }
