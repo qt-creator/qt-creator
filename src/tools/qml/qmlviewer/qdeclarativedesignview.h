@@ -35,8 +35,9 @@ public:
     void changeTool(Constants::DesignTool tool,
                     Constants::ToolFlags flags = Constants::NoToolFlags);
 
-    void clearHighlightBoundingRect();
-    void highlightBoundingRect(QGraphicsItem *item);
+    void clearHighlight();
+    void highlight(QList<QGraphicsItem *> item);
+    void highlight(QGraphicsItem *item);
 
     bool mouseInsideContextItem() const;
     bool isEditorItem(QGraphicsItem *item) const;

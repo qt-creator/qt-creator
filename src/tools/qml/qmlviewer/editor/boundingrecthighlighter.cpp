@@ -13,6 +13,51 @@ const qreal AnimDelta = 0.025f;
 const int AnimInterval = 30;
 const int AnimFrames = 10;
 
+class BoundingBoxPolygonItem : public QGraphicsPolygonItem
+{
+public:
+    explicit BoundingBoxPolygonItem(QGraphicsItem *item);
+    int type() const;
+};
+
+class BoundingBox
+{
+public:
+    explicit BoundingBox(QGraphicsObject *itemToHighlight, QGraphicsItem *parentItem);
+    ~BoundingBox();
+    QWeakPointer<QGraphicsObject> highlightedObject;
+    QGraphicsPolygonItem *highlightPolygon;
+    QGraphicsPolygonItem *highlightPolygonEdge;
+
+private:
+    Q_DISABLE_COPY(BoundingBox);
+
+};
+
+BoundingBox::BoundingBox(QGraphicsObject *itemToHighlight, QGraphicsItem *parentItem)
+    : highlightedObject(itemToHighlight),
+      highlightPolygon(0),
+      highlightPolygonEdge(0)
+{
+    highlightPolygon = new BoundingBoxPolygonItem(parentItem);
+    highlightPolygonEdge = new BoundingBoxPolygonItem(parentItem);
+
+    highlightPolygon->setPen(QPen(QColor(0, 22, 159)));
+    highlightPolygonEdge->setPen(QPen(QColor(158, 199, 255)));
+
+    highlightPolygon->setFlag(QGraphicsItem::ItemIsSelectable, false);
+    highlightPolygonEdge->setFlag(QGraphicsItem::ItemIsSelectable, false);
+}
+
+BoundingBox::~BoundingBox()
+{
+    delete highlightPolygon;
+    delete highlightPolygonEdge;
+    highlightPolygon = 0;
+    highlightPolygonEdge = 0;
+    highlightedObject.clear();
+}
+
 BoundingBoxPolygonItem::BoundingBoxPolygonItem(QGraphicsItem *item) : QGraphicsPolygonItem(item)
 {
     QPen pen;
@@ -28,8 +73,6 @@ int BoundingBoxPolygonItem::type() const
 BoundingRectHighlighter::BoundingRectHighlighter(QDeclarativeDesignView *view) :
     LayerItem(view->scene()),
     m_view(view),
-    m_highlightPolygon(0),
-    m_highlightPolygonEdge(0),
     m_animFrame(0)
 {
     m_animTimer = new QTimer(this);
@@ -44,89 +87,140 @@ void BoundingRectHighlighter::animTimeout()
         m_animTimer->stop();
     }
 
-    m_highlightPolygon->setPen(QPen(QColor(0, 22, 159)));
-    m_highlightPolygonEdge->setPen(QPen(QColor(158, 199, 255)));
     qreal alpha = m_animFrame / float(AnimFrames);
-    m_highlightPolygonEdge->setOpacity(alpha);
+
+    foreach(BoundingBox *box, m_boxes) {
+        box->highlightPolygonEdge->setOpacity(alpha);
+    }
 }
 
 void BoundingRectHighlighter::clear()
 {
-    if (m_highlightPolygon) {
-        m_view->scene()->removeItem(m_highlightPolygon);
-        delete m_highlightPolygon;
-        m_highlightPolygon = 0;
-        delete m_highlightPolygonEdge;
-        m_highlightPolygonEdge = 0;
+    if (m_boxes.length()) {
         m_animTimer->stop();
 
-        disconnect(m_highlightedObject.data(), SIGNAL(xChanged()), this, SLOT(refresh()));
-        disconnect(m_highlightedObject.data(), SIGNAL(yChanged()), this, SLOT(refresh()));
-        disconnect(m_highlightedObject.data(), SIGNAL(widthChanged()), this, SLOT(refresh()));
-        disconnect(m_highlightedObject.data(), SIGNAL(heightChanged()), this, SLOT(refresh()));
-        disconnect(m_highlightedObject.data(), SIGNAL(rotationChanged()), this, SLOT(refresh()));
+        qDeleteAll(m_boxes);
+        m_boxes.clear();
 
-        m_highlightedObject.clear();
+//        disconnect(m_highlightedObject.data(), SIGNAL(xChanged()), this, SLOT(refresh()));
+//        disconnect(m_highlightedObject.data(), SIGNAL(yChanged()), this, SLOT(refresh()));
+//        disconnect(m_highlightedObject.data(), SIGNAL(widthChanged()), this, SLOT(refresh()));
+//        disconnect(m_highlightedObject.data(), SIGNAL(heightChanged()), this, SLOT(refresh()));
+//        disconnect(m_highlightedObject.data(), SIGNAL(rotationChanged()), this, SLOT(refresh()));
     }
 }
 
-void BoundingRectHighlighter::highlight(QGraphicsObject* item)
+BoundingBox *BoundingRectHighlighter::boxFor(QGraphicsObject *item) const
 {
-    if (!item)
+    foreach(BoundingBox *box, m_boxes) {
+        if (box->highlightedObject.data() == item) {
+            return box;
+        }
+    }
+    return 0;
+}
+
+void BoundingRectHighlighter::highlight(QList<QGraphicsObject*> items)
+{
+    if (items.isEmpty())
         return;
 
     bool animate = false;
-    QGraphicsPolygonItem *polygonItem = 0;
-    QGraphicsPolygonItem *polygonItemEdge = 0;
-    if (item != m_highlightedObject.data() || !m_highlightPolygon) {
-        animate = true;
-        polygonItem = new BoundingBoxPolygonItem(this);
-        polygonItemEdge = new BoundingBoxPolygonItem(this);
-    } else {
-        polygonItem = m_highlightPolygon;
-        polygonItemEdge = m_highlightPolygonEdge;
+
+    QList<BoundingBox*> newBoxes;
+
+    foreach(QGraphicsObject *itemToHighlight, items) {
+        BoundingBox *box = boxFor(itemToHighlight);
+        if (!box) {
+            box = new BoundingBox(itemToHighlight, this);
+            animate = true;
+        }
+
+        newBoxes << box;
+    }
+    qSort(newBoxes);
+
+    if (newBoxes != m_boxes) {
+        clear();
+        m_boxes << newBoxes;
     }
 
-    QRectF itemAndChildRect = item->boundingRect() | item->childrenBoundingRect();
+    highlightAll(animate);
+}
 
-    QPolygonF boundingRectInSceneSpace(item->mapToScene(itemAndChildRect));
-    QPolygonF boundingRectInLayerItemSpace = mapFromScene(boundingRectInSceneSpace);
-    QRectF bboxRect = boundingRectInLayerItemSpace.boundingRect();
-    QRectF edgeRect = boundingRectInLayerItemSpace.boundingRect();
-    edgeRect.adjust(-1, -1, 1, 1);
+void BoundingRectHighlighter::highlight(QGraphicsObject* itemToHighlight)
+{
+    if (!itemToHighlight)
+        return;
 
-    polygonItem->setPolygon(QPolygonF(bboxRect));
-    polygonItem->setFlag(QGraphicsItem::ItemIsSelectable, false);
+    bool animate = false;
 
-    polygonItemEdge->setPolygon(QPolygonF(edgeRect));
-    polygonItemEdge->setFlag(QGraphicsItem::ItemIsSelectable, false);
+    BoundingBox *box = boxFor(itemToHighlight);
+    if (!box) {
+        box = new BoundingBox(itemToHighlight, this);
+        m_boxes << box;
+        animate = true;
+        qSort(m_boxes);
+    }
 
-    if (item != m_highlightedObject.data())
-        clear();
+    highlightAll(animate);
+}
 
-    m_highlightPolygon = polygonItem;
-    m_highlightPolygonEdge = polygonItemEdge;
-    m_highlightedObject = item;
+void BoundingRectHighlighter::highlightAll(bool animate)
+{
+    foreach(BoundingBox *box, m_boxes) {
+        QGraphicsObject *item = box->highlightedObject.data();
+        if (!item) {
+            m_boxes.removeOne(box);
+            continue;
+        }
 
-    if (item != m_highlightedObject.data()) {
-        connect(m_highlightedObject.data(), SIGNAL(xChanged()), this, SLOT(refresh()));
-        connect(m_highlightedObject.data(), SIGNAL(yChanged()), this, SLOT(refresh()));
-        connect(m_highlightedObject.data(), SIGNAL(widthChanged()), this, SLOT(refresh()));
-        connect(m_highlightedObject.data(), SIGNAL(heightChanged()), this, SLOT(refresh()));
-        connect(m_highlightedObject.data(), SIGNAL(rotationChanged()), this, SLOT(refresh()));
+        QRectF itemAndChildRect = item->boundingRect() | item->childrenBoundingRect();
+
+        QPolygonF boundingRectInSceneSpace(item->mapToScene(itemAndChildRect));
+        QPolygonF boundingRectInLayerItemSpace = mapFromScene(boundingRectInSceneSpace);
+        QRectF bboxRect = boundingRectInLayerItemSpace.boundingRect();
+        QRectF edgeRect = boundingRectInLayerItemSpace.boundingRect();
+        edgeRect.adjust(-1, -1, 1, 1);
+
+        box->highlightPolygon->setPolygon(QPolygonF(bboxRect));
+        box->highlightPolygonEdge->setPolygon(QPolygonF(edgeRect));
+
+//        if (XXX) {
+//            connect(item, SIGNAL(xChanged()), this, SLOT(refresh()));
+//            connect(item, SIGNAL(yChanged()), this, SLOT(refresh()));
+//            connect(item, SIGNAL(widthChanged()), this, SLOT(refresh()));
+//            connect(item, SIGNAL(heightChanged()), this, SLOT(refresh()));
+//            connect(item, SIGNAL(rotationChanged()), this, SLOT(refresh()));
+//        }
+
+        if (animate)
+            box->highlightPolygonEdge->setOpacity(0);
     }
 
     if (animate) {
-        m_highlightPolygonEdge->setOpacity(0);
         m_animFrame = 0;
         m_animTimer->start();
     }
 }
 
+void BoundingRectHighlighter::removeHighlight(QGraphicsObject *item)
+{
+    if (!item)
+        return;
+
+    BoundingBox *box = boxFor(item);
+    if (box) {
+        m_boxes.removeOne(box);
+        delete box;
+        box = 0;
+    }
+}
+
 void BoundingRectHighlighter::refresh()
 {
-    if (!m_highlightedObject.isNull())
-        highlight(m_highlightedObject.data());
+    if (!m_boxes.isEmpty())
+        highlightAll(true);
 }
 
 

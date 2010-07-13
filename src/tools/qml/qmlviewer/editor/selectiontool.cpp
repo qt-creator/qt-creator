@@ -222,7 +222,7 @@ void SelectionTool::contextMenuElementHovered(QAction *action)
 {
     int itemListIndex = action->data().toInt();
     if (itemListIndex >= 0 && itemListIndex < m_contextMenuItemList.length()) {
-        view()->highlightBoundingRect(m_contextMenuItemList.at(itemListIndex));
+        view()->highlight(m_contextMenuItemList.at(itemListIndex));
     }
 }
 
@@ -286,9 +286,9 @@ void SelectionTool::hoverMoveEvent(QMouseEvent * event)
             }
         }
 
-        view()->highlightBoundingRect(topSelectableItem);
+        view()->highlight(topSelectableItem);
     } else {
-        view()->clearHighlightBoundingRect();
+        view()->clearHighlight();
     }
 
 }

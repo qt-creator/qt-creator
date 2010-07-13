@@ -63,7 +63,7 @@ QDeclarativeDesignView::~QDeclarativeDesignView()
 void QDeclarativeDesignView::reloadView()
 {
     m_subcomponentEditorTool->clear();
-    clearHighlightBoundingRect();
+    clearHighlight();
     emit reloadRequested();
 }
 
@@ -73,7 +73,7 @@ void QDeclarativeDesignView::leaveEvent(QEvent *event)
         QDeclarativeView::leaveEvent(event);
         return;
     }
-    clearHighlightBoundingRect();
+    clearHighlight();
 }
 
 void QDeclarativeDesignView::mousePressEvent(QMouseEvent *event)
@@ -227,7 +227,7 @@ void QDeclarativeDesignView::setDesignModeBehavior(bool value)
     m_designModeBehavior = value;
     if (m_subcomponentEditorTool) {
         m_subcomponentEditorTool->clear();
-        clearHighlightBoundingRect();
+        clearHighlight();
         setSelectedItems(QList<QGraphicsItem*>());
 
         if (rootObject())
@@ -269,22 +269,32 @@ AbstractFormEditorTool *QDeclarativeDesignView::currentTool() const
     return m_currentTool;
 }
 
-void QDeclarativeDesignView::clearHighlightBoundingRect()
+void QDeclarativeDesignView::clearHighlight()
 {
     m_boundingRectHighlighter->clear();
 }
 
-void QDeclarativeDesignView::highlightBoundingRect(QGraphicsItem *item)
+void QDeclarativeDesignView::highlight(QGraphicsItem * item)
 {
-    if (!item)
-        return;
-    QGraphicsItem *itemToHighlight = m_subcomponentEditorTool->firstChildOfContext(item);
+    highlight(QList<QGraphicsItem*>() << item);
+}
 
-    if (itemToHighlight) {
-        m_boundingRectHighlighter->highlight(itemToHighlight->toGraphicsObject());
-    } else {
-        clearHighlightBoundingRect();
+void QDeclarativeDesignView::highlight(QList<QGraphicsItem *> items)
+{
+    if (items.isEmpty())
+        return;
+
+    QList<QGraphicsObject*> objectList;
+    foreach(QGraphicsItem *item, items) {
+        QGraphicsItem *child = m_subcomponentEditorTool->firstChildOfContext(item);
+        if (child) {
+            QGraphicsObject *childObject = child->toGraphicsObject();
+            if (childObject)
+                objectList << childObject;
+        }
     }
+
+    m_boundingRectHighlighter->highlight(objectList);
 }
 
 bool QDeclarativeDesignView::mouseInsideContextItem() const
@@ -480,9 +490,9 @@ void QDeclarativeDesignView::onCurrentObjectsChanged(QList<QObject*> objects)
     }
 
     setSelectedItems(items);
-    clearHighlightBoundingRect();
+    clearHighlight();
     if (!items.isEmpty())
-        highlightBoundingRect(items.first());
+        highlight(items);
 }
 
 QToolBar *QDeclarativeDesignView::toolbar() const

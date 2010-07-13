@@ -15,13 +15,7 @@ QT_FORWARD_DECLARE_CLASS(QTimer);
 namespace QmlViewer {
 
 class QDeclarativeDesignView;
-
-class BoundingBoxPolygonItem : public QGraphicsPolygonItem
-{
-public:
-    explicit BoundingBoxPolygonItem(QGraphicsItem *item);
-    int type() const;
-};
+class BoundingBox;
 
 class BoundingRectHighlighter : public LayerItem
 {
@@ -29,19 +23,26 @@ class BoundingRectHighlighter : public LayerItem
 public:
     explicit BoundingRectHighlighter(QDeclarativeDesignView *view);
     void clear();
+    void highlight(QList<QGraphicsObject*> items);
     void highlight(QGraphicsObject* item);
+    void removeHighlight(QGraphicsObject *item);
 
 private slots:
     void refresh();
     void animTimeout();
 
 private:
+    BoundingBox *boxFor(QGraphicsObject *item) const;
+    void highlightAll(bool animate);
+
+private:
     Q_DISABLE_COPY(BoundingRectHighlighter);
 
     QDeclarativeDesignView *m_view;
-    QWeakPointer<QGraphicsObject> m_highlightedObject;
-    QGraphicsPolygonItem *m_highlightPolygon;
-    QGraphicsPolygonItem *m_highlightPolygonEdge;
+    QList<BoundingBox*> m_boxes;
+//    QList<QWeakPointer<QGraphicsObject> > m_highlightedObjects;
+//    QGraphicsPolygonItem *m_highlightPolygon;
+//    QGraphicsPolygonItem *m_highlightPolygonEdge;
 
     QTimer *m_animTimer;
     qreal m_animScale;

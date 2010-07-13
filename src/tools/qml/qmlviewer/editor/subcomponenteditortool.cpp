@@ -71,7 +71,7 @@ void SubcomponentEditorTool::mouseDoubleClickEvent(QMouseEvent *event)
 void SubcomponentEditorTool::hoverMoveEvent(QMouseEvent *event)
 {
     if (!containsCursor(event->pos()) && m_currentContext.size() > 1) {
-        view()->clearHighlightBoundingRect();
+        view()->clearHighlight();
     }
 }
 
@@ -164,7 +164,7 @@ void SubcomponentEditorTool::setCurrentItem(QGraphicsItem* contextItem)
         m_animIncrement = 0.05f;
         m_animTimer->start();
 
-        view()->clearHighlightBoundingRect();
+        view()->clearHighlight();
         view()->setSelectedItems(QList<QGraphicsItem*>());
 
         pushContext(gfxObject);
