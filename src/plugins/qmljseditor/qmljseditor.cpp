@@ -685,14 +685,14 @@ SemanticInfo QmlJSTextEditor::semanticInfo() const
     return m_semanticInfo;
 }
 
-int QmlJSTextEditor::documentRevision() const
+int QmlJSTextEditor::editorRevision() const
 {
     return document()->revision();
 }
 
 bool QmlJSTextEditor::isOutdated() const
 {
-    if (m_semanticInfo.revision() != documentRevision())
+    if (m_semanticInfo.revision() != editorRevision())
         return true;
 
     return false;
@@ -835,7 +835,7 @@ void QmlJSTextEditor::updateMethodBoxIndex()
     if (!m_semanticInfo.document)
         return;
 
-    if (m_semanticInfo.document->editorRevision() != documentRevision()) {
+    if (m_semanticInfo.document->editorRevision() != editorRevision()) {
         m_updateMethodBoxTimer->start();
         return;
     }

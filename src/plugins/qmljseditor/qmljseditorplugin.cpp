@@ -251,7 +251,7 @@ void QmlJSEditorPlugin::quickFixNow()
     if (QmlJSTextEditor *editor = qobject_cast<QmlJSTextEditor*>(m_currentTextEditable->widget())) {
         if (currentEditor == editor) {
             if (editor->isOutdated()) {
-                // qDebug() << "TODO: outdated document" << editor->documentRevision() << editor->semanticInfo().revision();
+                // qDebug() << "TODO: outdated document" << editor->editorRevision() << editor->semanticInfo().revision();
                 // ### FIXME: m_quickFixTimer->start(QUICKFIX_INTERVAL);
                 m_quickFixTimer->stop();
             } else {

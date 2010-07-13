@@ -213,7 +213,7 @@ public:
     virtual void unCommentSelection();
 
     SemanticInfo semanticInfo() const;
-    int documentRevision() const;
+    int editorRevision() const;
     bool isOutdated() const;
 
     QmlOutlineModel *outlineModel() const;
