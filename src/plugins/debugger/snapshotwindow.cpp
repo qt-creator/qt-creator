@@ -128,9 +128,14 @@ void SnapshotWindow::keyPressEvent(QKeyEvent *ev)
 
 void SnapshotWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
-    //QModelIndex idx = indexAt(ev->pos());
+    QModelIndex idx = indexAt(ev->pos());
 
     QMenu menu;
+
+    QAction *actCreate = menu.addAction(tr("Create Snapshot"));
+    actCreate->setEnabled(idx.data(SnapshotCapabilityRole).toBool());
+
+    menu.addSeparator();
 
     QAction *actAdjust = menu.addAction(tr("Adjust Column Widths to Contents"));
 
@@ -145,7 +150,9 @@ void SnapshotWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QAction *act = menu.exec(ev->globalPos());
 
-    if (act == actAdjust)
+    if (act == actCreate)
+        model()->setData(idx, idx.row(), RequestMakeSnapshotRole);
+    else if (act == actAdjust)
         resizeColumnsToContents();
     else if (act == actAlwaysAdjust)
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);

@@ -53,8 +53,8 @@
 
 #include "watchutils.h"
 #include "breakhandler.h"
-#include "stackhandler.h"
-#include "watchhandler.h"
+#include "snapshothandler.h"
+#include "sessionengine.h"
 
 #ifdef Q_OS_WIN
 #  include "shared/peutils.h"
@@ -822,43 +822,6 @@ static bool isCurrentProjectCppBased()
 
 ///////////////////////////////////////////////////////////////////////
 //
-// SessionEngine
-//
-///////////////////////////////////////////////////////////////////////
-
-// This class contains data serving as a template for debugger engines
-// started during a session.
-
-class SessionEngine : public DebuggerEngine
-{
-public:
-    SessionEngine() : DebuggerEngine(DebuggerStartParameters()) {}
-
-    void setupEngine() {}
-    void setupInferior() {}
-    void runEngine() {}
-    void shutdownEngine() {}
-    void shutdownInferior() {}
-
-    bool isSessionEngine() const { return true; }
-
-    void loadSessionData()
-    {
-        breakHandler()->loadSessionData();
-        watchHandler()->loadSessionData();
-    }
-
-    void saveSessionData()
-    {
-        watchHandler()->saveSessionData();
-        breakHandler()->saveSessionData();
-    }
-
-};
-
-
-///////////////////////////////////////////////////////////////////////
-//
 // DebuggerPluginPrivate
 //
 ///////////////////////////////////////////////////////////////////////
@@ -966,6 +929,7 @@ public slots:
 
     DebuggerRunControl *createDebugger(const DebuggerStartParameters &sp);
     void startDebugger(ProjectExplorer::RunControl *runControl);
+    void displayDebugger(ProjectExplorer::RunControl *runControl);
 
     void dumpLog();
     void cleanupViews();
@@ -1146,6 +1110,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
 
     // Session related data
     m_sessionEngine = new SessionEngine;
+    m_snapshotWindow->setModel(m_sessionEngine->m_snapshotHandler->model());
 
     // Debug mode setup
     m_debugMode = new DebugMode(this);
@@ -1153,10 +1118,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     // Watchers
     connect(m_localsWindow->header(), SIGNAL(sectionResized(int,int,int)),
         this, SLOT(updateWatchersHeader(int,int,int)), Qt::QueuedConnection);
-
-    // Tooltip
-    qRegisterMetaType<WatchData>("WatchData");
-    qRegisterMetaType<StackCookie>("StackCookie");
 
     m_actions.continueAction = new QAction(tr("Continue"), this);
     QIcon continueIcon = QIcon(":/debugger/images/debugger_continue_small.png");
@@ -1950,29 +1911,41 @@ DebuggerPluginPrivate::createDebugger(const DebuggerStartParameters &sp)
     return m_debuggerRunControlFactory->create(sp);
 }
 
+void DebuggerPluginPrivate::displayDebugger(ProjectExplorer::RunControl *rc)
+{
+    DebuggerRunControl *runControl = qobject_cast<DebuggerRunControl *>(rc);
+    QTC_ASSERT(runControl, return);
+    disconnectEngine();
+    connectEngine(runControl->engine());
+    runControl->engine()->updateAll();
+    updateState(runControl->engine());
+}
+
 void DebuggerPluginPrivate::startDebugger(ProjectExplorer::RunControl *rc)
 {
+    qDebug() << "START DEBUGGER 1";
     QTC_ASSERT(rc, return);
     DebuggerRunControl *runControl = qobject_cast<DebuggerRunControl *>(rc);
     QTC_ASSERT(runControl, return);
     activateDebugMode();
     connectEngine(runControl->engine());
+    //m_sessionEngine->m_snapshotHandler->appendSnapshot(runControl);
     ProjectExplorerPlugin::instance()->startRunControl(runControl, PE::DEBUGMODE);
+    qDebug() << "START DEBUGGER 2";
 }
 
 void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
 {
-    //if (engine == m_sessionEngine)
-    //    qDebug() << "CONNECTING DUMMY ENGINE" << engine;
-    //else
-    //    qDebug() << "CONNECTING ENGINE " << engine;
+    if (engine == m_sessionEngine)
+        qDebug() << "CONNECTING DUMMY ENGINE" << engine;
+    else
+        qDebug() << "CONNECTING ENGINE " << engine;
     m_breakWindow->setModel(engine->breakModel());
     m_commandWindow->setModel(engine->commandModel());
     m_localsWindow->setModel(engine->localsModel());
     m_modulesWindow->setModel(engine->modulesModel());
     m_registerWindow->setModel(engine->registerModel());
     m_returnWindow->setModel(engine->returnModel());
-    m_snapshotWindow->setModel(engine->snapshotModel());
     m_sourceFilesWindow->setModel(engine->sourceFilesModel());
     m_stackWindow->setModel(engine->stackModel());
     m_threadsWindow->setModel(engine->threadsModel());
@@ -2666,6 +2639,11 @@ void DebuggerPlugin::startDebugger(ProjectExplorer::RunControl *runControl)
     instance()->d->startDebugger(runControl);
 }
 
+void DebuggerPlugin::displayDebugger(ProjectExplorer::RunControl *runControl)
+{
+    instance()->d->displayDebugger(runControl);
+}
+
 void DebuggerPlugin::updateState(DebuggerEngine *engine)
 {
     d->updateState(engine);
@@ -2706,6 +2684,7 @@ void DebuggerPlugin::createNewDock(QWidget *widget)
 void DebuggerPlugin::runControlStarted(DebuggerRunControl *runControl)
 {
     d->connectEngine(runControl->engine());
+    d->m_sessionEngine->m_snapshotHandler->appendSnapshot(runControl);
 }
 
 void DebuggerPlugin::runControlFinished(DebuggerRunControl *runControl)
@@ -2723,6 +2702,7 @@ bool DebuggerPlugin::isRegisterViewVisible() const
 {
     return d->m_registerDock->toggleViewAction()->isChecked();
 }
+
 
 //////////////////////////////////////////////////////////////////////
 //

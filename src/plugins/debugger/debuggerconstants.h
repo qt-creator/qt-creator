@@ -248,6 +248,7 @@ enum ModelRoles
     RequestReloadRegistersRole,
 
     // Snapshots
+    SnapshotCapabilityRole,
     RequestMakeSnapshotRole,
     RequestActivateSnapshotRole,
     RequestRemoveSnapshotRole,

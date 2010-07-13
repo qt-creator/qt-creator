@@ -105,7 +105,6 @@ class ModulesHandler;
 class RegisterHandler;
 class StackHandler;
 class StackFrame;
-class SnapshotHandler;
 class SourceFilesHandler;
 class ThreadsHandler;
 class WatchHandler;
@@ -154,7 +153,7 @@ public:
     virtual QString qtNamespace() const { return QString(); }
 
     virtual void makeSnapshot() {}
-    virtual void activateSnapshot(int index) { Q_UNUSED(index); }
+    virtual void updateAll() {}
 
     virtual void attemptBreakpointSynchronization() {}
     virtual void selectThread(int index) { Q_UNUSED(index); }
@@ -197,7 +196,6 @@ public:
     StackHandler *stackHandler() const;
     ThreadsHandler *threadsHandler() const;
     WatchHandler *watchHandler() const;
-    SnapshotHandler *snapshotHandler() const;
     SourceFilesHandler *sourceFilesHandler() const;
 
     QAbstractItemModel *commandModel() const;
@@ -209,7 +207,7 @@ public:
     QAbstractItemModel *localsModel() const;
     QAbstractItemModel *watchersModel() const;
     QAbstractItemModel *returnModel() const;
-    QAbstractItemModel *snapshotModel() const;
+    //QAbstractItemModel *snapshotModel() const;
     QAbstractItemModel *sourceFilesModel() const;
 
     void handleFinished();

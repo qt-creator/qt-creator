@@ -224,7 +224,6 @@ public:
         m_commandHandler(engine),
         m_modulesHandler(engine),
         m_registerHandler(engine),
-        m_snapshotHandler(engine),
         m_sourceFilesHandler(engine),
         m_stackHandler(engine),
         m_threadsHandler(engine),
@@ -291,7 +290,6 @@ public:
     CommandHandler m_commandHandler;
     ModulesHandler m_modulesHandler;
     RegisterHandler m_registerHandler;
-    SnapshotHandler m_snapshotHandler;
     SourceFilesHandler m_sourceFilesHandler;
     StackHandler m_stackHandler;
     ThreadsHandler m_threadsHandler;
@@ -464,7 +462,7 @@ void DebuggerEngine::handleCommand(int role, const QVariant &value)
             d->doShutdownInferior();
             break;
 
-        case RequestExecSnapshotRole:
+        case RequestMakeSnapshotRole:
             makeSnapshot();
             break;
 
@@ -575,10 +573,10 @@ WatchHandler *DebuggerEngine::watchHandler() const
     return &d->m_watchHandler;
 }
 
-SnapshotHandler *DebuggerEngine::snapshotHandler() const
-{
-    return &d->m_snapshotHandler;
-}
+//SnapshotHandler *DebuggerEngine::snapshotHandler() const
+//{
+//    return &d->m_snapshotHandler;
+//}
 
 SourceFilesHandler *DebuggerEngine::sourceFilesHandler() const
 {
@@ -623,11 +621,6 @@ QAbstractItemModel *DebuggerEngine::watchersModel() const
 QAbstractItemModel *DebuggerEngine::returnModel() const
 {
     return d->m_watchHandler.model(ReturnWatch);
-}
-
-QAbstractItemModel *DebuggerEngine::snapshotModel() const
-{
-    return d->m_snapshotHandler.model();
 }
 
 QAbstractItemModel *DebuggerEngine::sourceFilesModel() const

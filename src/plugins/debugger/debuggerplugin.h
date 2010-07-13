@@ -85,6 +85,7 @@ public:
 
     static DebuggerRunControl *createDebugger(const DebuggerStartParameters &sp);
     static void startDebugger(ProjectExplorer::RunControl *runControl);
+    static void displayDebugger(ProjectExplorer::RunControl *runControl);
 
     QMessageBox *showMessageBox(int icon, const QString &title,
         const QString &text, int buttons = 0);

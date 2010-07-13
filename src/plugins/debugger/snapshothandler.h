@@ -36,45 +36,14 @@
 #include <QtCore/QDateTime>
 
 namespace Debugger {
+
+class DebuggerRunControl;
+class DebuggerStartParameters;
+
 namespace Internal {
 
+class SessionEngine;
 class DebuggerEngine;
-
-////////////////////////////////////////////////////////////////////////
-//
-// SnapshotData
-//
-////////////////////////////////////////////////////////////////////////
-
-/*! An entry in the snapshot model. */
-
-class SnapshotData
-{
-public:
-    SnapshotData();
-
-    void clear();
-    QString toString() const;
-    QString toToolTip() const;
-
-    QDateTime date() const { return m_date; }
-    void setDate(const QDateTime &date) { m_date = date; }
-
-    void setLocation(const QString &location) { m_location = location; }
-    QString location() const { return m_location; }
-
-    void setFrames(const StackFrames &frames) { m_frames = frames; }
-    StackFrames frames() const { return m_frames; }
-
-    QString function() const; // Topmost entry.
-
-private:
-    QString m_location;       // Name of the core file.
-    QDateTime m_date;         // Date of the snapshot
-    StackFrames m_frames;     // Stack frames.
-};
-
-typedef QList<SnapshotData> Snapshots;
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -83,25 +52,23 @@ typedef QList<SnapshotData> Snapshots;
 //
 ////////////////////////////////////////////////////////////////////////
 
-/*! A model to represent the snapshot in a QTreeView. */
+/*! A model to represent the snapshots in a QTreeView. */
 class SnapshotHandler : public QAbstractTableModel
 {
     Q_OBJECT
 
 public:
-    explicit SnapshotHandler(DebuggerEngine *engine);
+    explicit SnapshotHandler(SessionEngine *engine);
     ~SnapshotHandler();
-
-    void setFrames(const Snapshots &snapshots, bool canExpand = false);
-    Snapshots snapshots() const;
 
     // Called from SnapshotHandler after a new snapshot has been added
     void removeAll();
     void removeSnapshot(int index);
     QAbstractItemModel *model() { return this; }
     int currentIndex() const { return m_currentIndex; }
-    void appendSnapshot(const SnapshotData &snapshot);
-    SnapshotData setCurrentIndex(int index);
+    void appendSnapshot(DebuggerRunControl *rc);
+    void setCurrentIndex(int index);
+    int size() const { return m_snapshots.size(); }
 
 private:
     // QAbstractTableModel
@@ -112,10 +79,11 @@ private:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
     Q_SLOT void resetModel() { reset(); }
+    DebuggerEngine *engineAt(int i) const;
 
-    DebuggerEngine *m_engine;
+    SessionEngine *m_engine;
     int m_currentIndex;
-    Snapshots m_snapshots;
+    QList<DebuggerRunControl *> m_snapshots;
     const QVariant m_positionIcon;
     const QVariant m_emptyIcon;
 };

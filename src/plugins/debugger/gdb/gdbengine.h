@@ -378,9 +378,6 @@ private: ////////// View & Data Stuff //////////
     //
     virtual void makeSnapshot();
     void handleMakeSnapshot(const GdbResponse &response);
-    void handleActivateSnapshot(const GdbResponse &response);
-    void activateSnapshot(int index);
-    void activateSnapshot2();
 
     //
     // Register specific stuff

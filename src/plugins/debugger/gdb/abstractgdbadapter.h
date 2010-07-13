@@ -69,7 +69,6 @@ public:
     virtual void interruptInferior() = 0;
     virtual void shutdownInferior() = 0;
     virtual void shutdownAdapter() = 0;
-    //virtual const char *inferiorShutdownCommand() const;
     virtual AbstractGdbProcess *gdbProc() = 0;
 
     virtual DumperHandling dumperHandling() const = 0;

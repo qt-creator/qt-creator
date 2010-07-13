@@ -35,6 +35,7 @@ HEADERS += breakhandler.h \
     procinterrupt.h \
     registerhandler.h \
     registerwindow.h \
+    sessionengine.h \
     stackframe.h \
     stackhandler.h \
     stackwindow.h \
@@ -50,6 +51,7 @@ HEADERS += breakhandler.h \
     debuggeruiswitcher.h \
     debuggermainwindow.h \
     threadshandler.h
+
 SOURCES += breakhandler.cpp \
     breakwindow.cpp \
     breakwindow.h \
@@ -82,6 +84,7 @@ SOURCES += breakhandler.cpp \
     debuggeruiswitcher.cpp \
     debuggermainwindow.cpp \
     threadshandler.cpp \
+    sessionengine.cpp \
     stackframe.cpp
 
 FORMS += attachexternaldialog.ui \

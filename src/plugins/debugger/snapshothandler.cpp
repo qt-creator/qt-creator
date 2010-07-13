@@ -29,9 +29,12 @@
 
 #include "snapshothandler.h"
 
+#include "sessionengine.h"
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
 #include "debuggerengine.h"
+#include "debuggerrunner.h"
+#include "debuggerplugin.h"
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
@@ -44,6 +47,7 @@
 namespace Debugger {
 namespace Internal {
 
+#if 0
 SnapshotData::SnapshotData()
 {}
 
@@ -104,6 +108,7 @@ QDebug operator<<(QDebug d, const  SnapshotData &f)
     d.nospace() << res;
     return d;
 }
+#endif
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -111,20 +116,25 @@ QDebug operator<<(QDebug d, const  SnapshotData &f)
 //
 ////////////////////////////////////////////////////////////////////////
 
-SnapshotHandler::SnapshotHandler(DebuggerEngine *engine)
+SnapshotHandler::SnapshotHandler(SessionEngine *engine)
   : m_engine(engine),
     m_positionIcon(QIcon(":/debugger/images/location_16.png")),
     m_emptyIcon(QIcon(":/debugger/images/debugger_empty_14.png"))
 {
-    m_currentIndex = 0;
-    connect(theDebuggerAction(OperateByInstruction), SIGNAL(triggered()),
-        this, SLOT(resetModel()));
+    m_currentIndex = -1;
 }
 
 SnapshotHandler::~SnapshotHandler()
 {
-    foreach (const SnapshotData &snapshot, m_snapshots)
-        QFile::remove(snapshot.location());
+    for (int i = m_snapshots.size(); --i >= 0; ) {
+        QString file = engineAt(i)->startParameters().coreFile;
+        QFile::remove(file);
+    }
+}
+
+DebuggerEngine *SnapshotHandler::engineAt(int i) const
+{
+    return m_snapshots.at(i)->engine();
 }
 
 int SnapshotHandler::rowCount(const QModelIndex &parent) const
@@ -135,7 +145,7 @@ int SnapshotHandler::rowCount(const QModelIndex &parent) const
 
 int SnapshotHandler::columnCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : 3;
+    return parent.isValid() ? 0 : 2;
 }
 
 QVariant SnapshotHandler::data(const QModelIndex &index, int role) const
@@ -143,42 +153,31 @@ QVariant SnapshotHandler::data(const QModelIndex &index, int role) const
     if (!index.isValid() || index.row() >= m_snapshots.size())
         return QVariant();
 
-    if (index.row() == m_snapshots.size()) {
-        if (role == Qt::DisplayRole && index.column() == 0)
-            return tr("...");
-        if (role == Qt::DisplayRole && index.column() == 1)
-            return tr("<More>");
-        if (role == Qt::DecorationRole && index.column() == 0)
-            return m_emptyIcon;
-        return QVariant();
-    }
-
-    const SnapshotData &snapshot = m_snapshots.at(index.row());
+    const DebuggerEngine *engine = engineAt(index.row());
+    const DebuggerStartParameters &sp = engine->startParameters();
 
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
-        case 0: // Function name of topmost snapshot
-            return snapshot.function();
-        case 1: // Timestamp
-            return snapshot.date().toString();
-        case 2: // File name
-            return snapshot.location();
+        case 0:
+            return sp.displayName;
+        case 1:
+            return sp.coreFile.isEmpty() ? sp.executable : sp.coreFile;
         }
         return QVariant();
     }
 
+    if (role == SnapshotCapabilityRole)
+        return engine->debuggerCapabilities() & SnapshotCapability;
+
     if (role == Qt::ToolTipRole) {
         //: Tooltip for variable
-        return snapshot.toToolTip();
+        //return snapshot.toToolTip();
     }
 
     if (role == Qt::DecorationRole && index.column() == 0) {
         // Return icon that indicates whether this is the active stack frame
         return (index.row() == m_currentIndex) ? m_positionIcon : m_emptyIcon;
     }
-
-    //if (role == Qt::UserRole)
-    //    return QVariant::fromValue(snapshot);
 
     return QVariant();
 }
@@ -187,9 +186,8 @@ QVariant SnapshotHandler::headerData(int section, Qt::Orientation orientation, i
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
-            case 0: return tr("Function");
-            case 1: return tr("Date");
-            case 2: return tr("Location");
+            case 0: return tr("Name");
+            case 1: return tr("File");
         };
     }
     return QVariant();
@@ -201,45 +199,60 @@ Qt::ItemFlags SnapshotHandler::flags(const QModelIndex &index) const
         return 0;
     if (index.row() == m_snapshots.size())
         return QAbstractTableModel::flags(index);
-    //const SnapshotData &snapshot = m_snapshots.at(index.row());
     return true ? QAbstractTableModel::flags(index) : Qt::ItemFlags(0);
 }
 
 bool SnapshotHandler::setData
     (const QModelIndex &index, const QVariant &value, int role)
 {
-    if (role == RequestMakeSnapshotRole) {
-        m_engine->makeSnapshot();
+    Q_UNUSED(value);
+    if (index.isValid() && role == RequestMakeSnapshotRole) {
+        engineAt(index.row())->makeSnapshot();
         return true;
     }
-    if (role == RequestActivateSnapshotRole) {
-        m_engine->activateSnapshot(value.toInt());
+    if (index.isValid() && role == RequestActivateSnapshotRole) {
+        m_currentIndex = index.row();
+        qDebug() << "ACTIVATING INDEX: " << m_currentIndex
+            << " OF " << size();
+        DebuggerPlugin::displayDebugger(m_snapshots.at(m_currentIndex));
+        reset();
         return true;
     }
-    if (role == RequestRemoveSnapshotRole) {
-        removeSnapshot(value.toInt());
-        return true;
-    }
-    return QAbstractTableModel::setData(index, value, role);
+    return false;
 }
+
+
+#if 0
+    // See http://sourceware.org/bugzilla/show_bug.cgi?id=11241.
+    setState(EngineSetupRequested);
+    postCommand("set stack-cache off");
+
+    QMessageBox *mb = showMessageBox(QMessageBox::Critical,
+        tr("Snapshot Reloading"),
+        tr("In order to load snapshots the debugged process needs "
+         "to be stopped. Continuation will not be possible afterwards.\n"
+         "Do you want to stop the debugged process and load the selected "
+         "snapshot?"), QMessageBox::Ok | QMessageBox::Cancel);
+    if (mb->exec() == QMessageBox::Cancel)
+#endif
 
 void SnapshotHandler::removeAll()
 {
     m_snapshots.clear();
-    m_currentIndex = 0;
+    m_currentIndex = -1;
     reset();
 }
 
-void SnapshotHandler::appendSnapshot(const SnapshotData &snapshot)
+void SnapshotHandler::appendSnapshot(DebuggerRunControl *rc)
 {
-    m_snapshots.append(snapshot);
-    m_currentIndex = m_snapshots.size() - 1;
+    m_snapshots.append(rc);
+    m_currentIndex = size() - 1;
     reset();
 }
 
 void SnapshotHandler::removeSnapshot(int index)
 {
-    QFile::remove(m_snapshots.at(index).location());
+    QFile::remove(engineAt(index)->startParameters().coreFile);
     m_snapshots.removeAt(index);
     if (index == m_currentIndex)
         m_currentIndex = -1;
@@ -248,16 +261,10 @@ void SnapshotHandler::removeSnapshot(int index)
     reset();
 }
 
-QList<SnapshotData> SnapshotHandler::snapshots() const
-{
-    return m_snapshots;
-}
-
-SnapshotData SnapshotHandler::setCurrentIndex(int index)
+void SnapshotHandler::setCurrentIndex(int index)
 {
     m_currentIndex = index;
     reset();
-    return m_snapshots.at(index);
 }
 
 } // namespace Internal
