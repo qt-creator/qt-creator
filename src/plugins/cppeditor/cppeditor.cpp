@@ -97,7 +97,7 @@
 #include <sstream>
 
 enum {
-    UPDATE_METHOD_BOX_INTERVAL = 150,
+    UPDATE_OUTLINE_INTERVAL = 150,
     UPDATE_USES_INTERVAL = 300
 };
 
@@ -695,9 +695,14 @@ void CPPEditor::createToolBar(CPPEditorEditable *editable)
     connect(m_sortAction, SIGNAL(toggled(bool)), CppPlugin::instance(), SLOT(setSortedMethodOverview(bool)));
     m_methodCombo->addAction(m_sortAction);
 
+    m_updateOutlineTimer = new QTimer(this);
+    m_updateOutlineTimer->setSingleShot(true);
+    m_updateOutlineTimer->setInterval(UPDATE_OUTLINE_INTERVAL);
+    connect(m_updateOutlineTimer, SIGNAL(timeout()), this, SLOT(updateOutlineNow()));
+
     m_updateMethodBoxTimer = new QTimer(this);
     m_updateMethodBoxTimer->setSingleShot(true);
-    m_updateMethodBoxTimer->setInterval(UPDATE_METHOD_BOX_INTERVAL);
+    m_updateMethodBoxTimer->setInterval(UPDATE_OUTLINE_INTERVAL);
     connect(m_updateMethodBoxTimer, SIGNAL(timeout()), this, SLOT(updateMethodBoxIndexNow()));
 
     m_updateUsesTimer = new QTimer(this);
@@ -831,11 +836,7 @@ void CPPEditor::onDocumentUpdated(Document::Ptr doc)
         m_semanticHighlighter->rehighlight(source);
     }
 
-    m_overviewModel->rebuild(doc);
-
-    OverviewTreeView *treeView = static_cast<OverviewTreeView *>(m_methodCombo->view());
-    treeView->sync();
-    updateMethodBoxIndexNow();
+    m_updateOutlineTimer->start();
 }
 
 const Macro *CPPEditor::findCanonicalMacro(const QTextCursor &cursor, Document::Ptr doc) const
@@ -1040,6 +1041,26 @@ bool CPPEditor::sortedMethodOverview() const
     return (m_proxyModel->sortColumn() == 0);
 }
 
+void CPPEditor::updateOutlineNow()
+{
+    const Snapshot snapshot = m_modelManager->snapshot();
+    Document::Ptr document = snapshot.document(file()->fileName());
+
+    if (!document)
+        return;
+
+    if (document->editorRevision() != editorRevision()) {
+        m_updateOutlineTimer->start();
+        return;
+    }
+
+    m_overviewModel->rebuild(document);
+
+    OverviewTreeView *treeView = static_cast<OverviewTreeView *>(m_methodCombo->view());
+    treeView->sync();
+    updateMethodBoxIndexNow();
+}
+
 void CPPEditor::updateMethodBoxIndex()
 {
     m_updateMethodBoxTimer->start();
@@ -1083,7 +1104,7 @@ void CPPEditor::highlightUses(const QList<SemanticInfo::Use> &uses,
 
 void CPPEditor::updateMethodBoxIndexNow()
 {
-    if (! m_overviewModel->document())
+    if (!m_overviewModel->document())
         return;
 
     if (m_overviewModel->document()->editorRevision() != editorRevision()) {

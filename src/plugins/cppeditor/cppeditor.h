@@ -222,6 +222,7 @@ protected:
 private Q_SLOTS:
     void updateFileName();
     void jumpToMethod(int index);
+    void updateOutlineNow();
     void updateMethodBoxIndex();
     void updateMethodBoxIndexNow();
     void updateMethodBoxToolTip();
@@ -276,6 +277,7 @@ private:
     QModelIndex m_overviewModelIndex;
     QSortFilterProxyModel *m_proxyModel;
     QAction *m_sortAction;
+    QTimer *m_updateOutlineTimer;
     QTimer *m_updateMethodBoxTimer;
     QTimer *m_updateUsesTimer;
     QTextCharFormat m_occurrencesFormat;
