@@ -1,4 +1,4 @@
-<plugin name="QmlInspector" version="2.0.80" compatVersion="2.0.80">
+<plugin name="QmlInspector" version="2.0.80" compatVersion="2.0.80" experimental="true">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2010 Nokia Corporation</copyright>
     <license>
