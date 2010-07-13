@@ -32,6 +32,7 @@ extraimages.HTML        = qt-logo \
                           bg_ll_blank.png \
                           bg_l_blank.png \
                           breadcrumb.png \
+                          bullet_up.png \
                           bullet_dn.png \
                           bullet_gt.png \
                           bullet_sq.png \

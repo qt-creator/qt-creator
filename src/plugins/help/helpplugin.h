@@ -98,6 +98,7 @@ private slots:
     void updateCloseButton();
     void setupHelpEngineIfNeeded();
 
+    void highlightSearchTerms();
     void handleHelpRequest(const QUrl &url);
 
 private:
@@ -134,6 +135,10 @@ private:
     Core::MiniSplitter *m_splitter;
 
     QToolButton *m_closeButton;
+
+    QString m_oldAttrValue;
+    QString m_styleProperty;
+    QString m_idFromContext;
 };
 
 } // namespace Internal

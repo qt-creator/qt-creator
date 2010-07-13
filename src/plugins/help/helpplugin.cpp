@@ -79,6 +79,12 @@
 
 #include <QtHelp/QHelpEngine>
 
+#if !defined(QT_NO_WEBKIT)
+#include <QtWebKit/QWebElement>
+#include <QtWebKit/QWebElementCollection>
+#include <QtWebKit/QWebFrame>
+#endif
+
 using namespace Core::Constants;
 using namespace Help::Internal;
 
@@ -688,13 +694,11 @@ void HelpPlugin::activateContext()
     } else if (m_core->modeManager()->currentMode() == m_mode)
         return;
 
-    QString id;
-    QMap<QString, QUrl> links;
-
     // Find out what to show
+    QMap<QString, QUrl> links;
     if (IContext *context = m_core->currentContextObject()) {
-        id = context->contextHelpId();
-        links = Core::HelpManager::instance()->linksForIdentifier(id);
+        m_idFromContext = context->contextHelpId();
+        links = Core::HelpManager::instance()->linksForIdentifier(m_idFromContext);
     }
 
     if (HelpViewer* viewer = viewerForContextMode()) {
@@ -702,16 +706,24 @@ void HelpPlugin::activateContext()
             // No link found or no context object
             viewer->setHtml(tr("<html><head><title>No Documentation</title>"
                 "</head><body><br/><center><b>%1</b><br/>No documentation "
-                "available.</center></body></html>").arg(id));
+                "available.</center></body></html>").arg(m_idFromContext));
             viewer->setSource(QUrl());
         } else {
             const QUrl &source = *links.begin();
-            if (viewer->source() != source)
+            const QUrl &oldSource = viewer->source();
+            if (source != oldSource) {
+                viewer->stop();
                 viewer->setSource(source);
+            }
             viewer->setFocus();
+            connect(viewer, SIGNAL(loadFinished(bool)), this,
+                SLOT(highlightSearchTerms()));
+
+            if (source.toString().remove(source.fragment())
+                == oldSource.toString().remove(oldSource.fragment())) {
+                    highlightSearchTerms();
+            }
         }
-        if (viewer != m_helpViewerForSideBar)
-            activateHelpMode();
     }
 }
 
@@ -817,6 +829,45 @@ void HelpPlugin::addBookmark()
 
     BookmarkManager *manager = &LocalHelpManager::bookmarkManager();
     manager->showBookmarkDialog(m_centralWidget, viewer->title(), url);
+}
+
+void HelpPlugin::highlightSearchTerms()
+{
+    if (HelpViewer* viewer = viewerForContextMode()) {
+        disconnect(viewer, SIGNAL(loadFinished(bool)), this,
+            SLOT(highlightSearchTerms()));
+
+#if !defined(QT_NO_WEBKIT)
+        const QString &attrValue = m_idFromContext.mid(m_idFromContext
+            .lastIndexOf(QChar(':')) + 1);
+        if (attrValue.isEmpty())
+            return;
+
+        const QWebElement &document = viewer->page()->mainFrame()->documentElement();
+        const QWebElementCollection &collection = document.findAll(QLatin1String("h3.fn a"));
+
+        const QLatin1String property("background-color");
+        foreach (const QWebElement &element, collection) {
+            const QString &name = element.attribute(QLatin1String("name"));
+            if (name.isEmpty())
+                continue;
+
+            if (m_oldAttrValue == name) {
+                QWebElement parent = element.parent();
+                parent.setStyleProperty(property, m_styleProperty);
+            }
+
+            if (attrValue == name) {
+                QWebElement parent = element.parent();
+                m_styleProperty = parent.styleProperty(property,
+                    QWebElement::InlineStyle);
+                parent.setStyleProperty(property, QLatin1String("yellow"));
+            }
+        }
+        m_oldAttrValue = attrValue;
+#endif
+        viewer->findText(m_idFromContext, 0, false, true);
+    }
 }
 
 void HelpPlugin::handleHelpRequest(const QUrl &url)

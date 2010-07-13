@@ -296,7 +296,7 @@ bool CoreEngine::init(const QString &dllEnginePath, QString *errorMessage)
         *errorMessage = msgComFailed("GetImagePathWide", hr);
         return false;
     }
-    m_baseImagePath = QString::fromUtf16(buf);
+    m_baseImagePath = QString::fromWCharArray(buf);
 
     hr = lib.debugCreate( __uuidof(IDebugRegisters2), reinterpret_cast<void**>(&m_cif.debugRegisters));
     if (FAILED(hr)) {
@@ -447,7 +447,7 @@ bool CoreEngine::startDebuggerWithExecutable(const QString &workingDirectory,
     PCWSTR workingDirC = 0;
     const QString workingDirN = workingDirectory.isEmpty() ? QString() : QDir::toNativeSeparators(workingDirectory);
     if (!workingDirN.isEmpty())
-        workingDirC = workingDirN.utf16();
+        workingDirC = (PCWSTR)workingDirN.utf16();
     hr = m_cif.debugClient->CreateProcess2Wide(NULL,
                                                reinterpret_cast<PWSTR>(const_cast<ushort *>(cmd.utf16())),
                                                &dbgopts, sizeof(dbgopts),
@@ -820,7 +820,7 @@ quint64 CoreEngine::getSourceLineAddress(const QString &file,
 {
     ULONG64 rc = 0;
     const HRESULT hr = m_cif.debugSymbols->GetOffsetByLineWide(line,
-                                                               const_cast<ushort*>(file.utf16()),
+                                                               (wchar_t*)(file.utf16()),
                                                                &rc);
     if (FAILED(hr)) {
         *errorMessage = QString::fromLatin1("Unable to determine address of %1:%2 : %3").
