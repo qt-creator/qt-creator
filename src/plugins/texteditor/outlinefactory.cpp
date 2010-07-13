@@ -17,6 +17,11 @@ OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
 {
     QLabel *label = new QLabel(tr("No outline available"), this);
     label->setAlignment(Qt::AlignCenter);
+
+    // set background to be white
+    label->setAutoFillBackground(true);
+    label->setBackgroundRole(QPalette::Base);
+
     addWidget(label);
 
     m_toggleSync = new QToolButton;
