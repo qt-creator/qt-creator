@@ -23,6 +23,10 @@ class QDeclarativeDesignView : public QDeclarativeView
 {
     Q_OBJECT
 public:
+    enum ContextFlags {
+        IgnoreContext,
+        ContextSensitive
+    };
 
     explicit QDeclarativeDesignView(QWidget *parent = 0);
     ~QDeclarativeDesignView();
@@ -36,8 +40,8 @@ public:
                     Constants::ToolFlags flags = Constants::NoToolFlags);
 
     void clearHighlight();
-    void highlight(QList<QGraphicsItem *> item);
-    void highlight(QGraphicsItem *item);
+    void highlight(QList<QGraphicsItem *> item, ContextFlags flags = ContextSensitive);
+    void highlight(QGraphicsItem *item, ContextFlags flags = ContextSensitive);
 
     bool mouseInsideContextItem() const;
     bool isEditorItem(QGraphicsItem *item) const;

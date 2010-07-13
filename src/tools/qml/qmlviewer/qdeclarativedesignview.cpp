@@ -274,19 +274,22 @@ void QDeclarativeDesignView::clearHighlight()
     m_boundingRectHighlighter->clear();
 }
 
-void QDeclarativeDesignView::highlight(QGraphicsItem * item)
+void QDeclarativeDesignView::highlight(QGraphicsItem * item, ContextFlags flags)
 {
-    highlight(QList<QGraphicsItem*>() << item);
+    highlight(QList<QGraphicsItem*>() << item, flags);
 }
 
-void QDeclarativeDesignView::highlight(QList<QGraphicsItem *> items)
+void QDeclarativeDesignView::highlight(QList<QGraphicsItem *> items, ContextFlags flags)
 {
     if (items.isEmpty())
         return;
 
     QList<QGraphicsObject*> objectList;
     foreach(QGraphicsItem *item, items) {
-        QGraphicsItem *child = m_subcomponentEditorTool->firstChildOfContext(item);
+        QGraphicsItem *child = item;
+        if (flags & ContextSensitive)
+            child = m_subcomponentEditorTool->firstChildOfContext(item);
+
         if (child) {
             QGraphicsObject *childObject = child->toGraphicsObject();
             if (childObject)
@@ -457,7 +460,6 @@ QList<QGraphicsItem*> QDeclarativeDesignView::filterForCurrentContext(QList<QGra
                 itemlist.removeAt(index);
             }
         }
-
     }
 
     return itemlist;
@@ -491,8 +493,7 @@ void QDeclarativeDesignView::onCurrentObjectsChanged(QList<QObject*> objects)
 
     setSelectedItems(items);
     clearHighlight();
-    if (!items.isEmpty())
-        highlight(items);
+    highlight(items, IgnoreContext);
 }
 
 QToolBar *QDeclarativeDesignView::toolbar() const
