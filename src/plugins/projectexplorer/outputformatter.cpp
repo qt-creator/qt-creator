@@ -37,8 +37,8 @@
 using namespace ProjectExplorer;
 using namespace TextEditor;
 
-OutputFormatter::OutputFormatter(QObject *parent)
-    : QObject(parent)
+OutputFormatter::OutputFormatter()
+    : QObject()
     , m_formats(0)
 {
     initFormats();
@@ -58,7 +58,6 @@ QPlainTextEdit *OutputFormatter::plainTextEdit() const
 void OutputFormatter::setPlainTextEdit(QPlainTextEdit *plainText)
 {
     m_plainTextEdit = plainText;
-    setParent(m_plainTextEdit);
 }
 
 void OutputFormatter::appendApplicationOutput(const QString &text, bool onStdErr)
@@ -82,15 +81,6 @@ void OutputFormatter::append(const QString &text, const QTextCharFormat &format)
     cursor.movePosition(QTextCursor::End);
     cursor.insertText(text, format);
 }
-
-void OutputFormatter::mousePressEvent(QMouseEvent * /*e*/)
-{}
-
-void OutputFormatter::mouseReleaseEvent(QMouseEvent * /*e*/)
-{}
-
-void OutputFormatter::mouseMoveEvent(QMouseEvent * /*e*/)
-{}
 
 void OutputFormatter::initFormats()
 {
@@ -116,4 +106,9 @@ void OutputFormatter::initFormats()
     // StdErrFormat
     m_formats[StdErrFormat].setFont(font);
     m_formats[StdErrFormat].setForeground(QColor(200, 0, 0));
+}
+
+void OutputFormatter::handleLink(const QString &href)
+{
+    Q_UNUSED(href);
 }

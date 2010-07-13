@@ -31,30 +31,29 @@
 #define QMLOUTPUTFORMATTER_H
 
 #include <projectexplorer/outputformatter.h>
-
 #include <QtCore/QRegExp>
+#include <QSharedPointer>
 
-namespace QmlProjectManager {
-namespace Internal {
+namespace Qt4ProjectManager
+{
+class Qt4Project;
 
-class QmlOutputFormatter: public ProjectExplorer::OutputFormatter
+class QtOutputFormatter: public ProjectExplorer::OutputFormatter
 {
 public:
-    QmlOutputFormatter(QObject *parent = 0);
+    QtOutputFormatter(Qt4Project *project);
 
     virtual void appendApplicationOutput(const QString &text, bool onStdErr);
 
-    virtual void mousePressEvent(QMouseEvent *e);
-    virtual void mouseReleaseEvent(QMouseEvent *e);
-    virtual void mouseMoveEvent(QMouseEvent *e);
+    virtual void handleLink(const QString &href);
 
 private:
     QRegExp m_qmlError;
-    bool m_linksActive;
-    bool m_mousePressed;
+    QRegExp m_qtError;
+    QWeakPointer<Qt4Project> m_project;
 };
 
-} // namespace Internal
+
 } // namespace QmlProjectManager
 
 #endif // QMLOUTPUTFORMATTER_H

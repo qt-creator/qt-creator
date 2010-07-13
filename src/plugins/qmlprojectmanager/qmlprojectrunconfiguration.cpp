@@ -27,9 +27,9 @@
 **
 **************************************************************************/
 
+#include "qmlprojectrunconfiguration.h"
 #include "qmlproject.h"
 #include "qmlprojectmanagerconstants.h"
-#include "qmlprojectrunconfiguration.h"
 #include "qmlprojecttarget.h"
 #include "projectexplorer/projectexplorer.h"
 

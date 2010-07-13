@@ -49,6 +49,7 @@ namespace Core {
 namespace ProjectExplorer {
 class OutputFormatter;
 class RunControl;
+class Project;
 
 namespace Constants {
     const char * const C_APP_OUTPUT = "Application Output";
@@ -140,23 +141,24 @@ public:
     void showEvent(QShowEvent *);
 
 protected:
-    void mousePressEvent(QMouseEvent *e);
-    void mouseReleaseEvent(QMouseEvent *e);
-    void mouseMoveEvent(QMouseEvent *e);
-
     bool isScrollbarAtBottom() const;
     void scrollToBottom();
+
+    virtual void mousePressEvent(QMouseEvent *e);
+    virtual void mouseReleaseEvent(QMouseEvent *e);
+    virtual void mouseMoveEvent(QMouseEvent *e);
 
 private:
     void enableUndoRedo();
     QString doNewlineEnfocement(const QString &out);
 
-private:
     Core::BaseContext *m_outputWindowContext;
     OutputFormatter *m_formatter;
 
     bool m_enforceNewline;
     bool m_scrollToBottom;
+    bool m_linksActive;
+    bool m_mousePressed;
 };
 
 } // namespace Internal

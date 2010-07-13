@@ -37,6 +37,7 @@
 #include "s60devices.h"
 #include "qt4buildconfiguration.h"
 #include "qt4projectmanagerconstants.h"
+#include "qtoutputformatter.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -129,6 +130,11 @@ bool S60EmulatorRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration 
 QWidget *S60EmulatorRunConfiguration::createConfigurationWidget()
 {
     return new S60EmulatorRunConfigurationWidget(this);
+}
+
+ProjectExplorer::OutputFormatter *S60EmulatorRunConfiguration::createOutputFormatter() const
+{
+    return new QtOutputFormatter(qt4Target()->qt4Project());
 }
 
 QVariantMap S60EmulatorRunConfiguration::toMap() const

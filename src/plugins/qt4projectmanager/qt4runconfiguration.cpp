@@ -36,6 +36,7 @@
 #include "qt4target.h"
 #include "qt4buildconfiguration.h"
 #include "qt4projectmanagerconstants.h"
+#include "qtoutputformatter.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -667,6 +668,11 @@ ProjectExplorer::ToolChain::ToolChainType Qt4RunConfiguration::toolChainType() c
 {
     Qt4BuildConfiguration *qt4bc = qt4Target()->activeBuildConfiguration();
     return qt4bc->toolChainType();
+}
+
+ProjectExplorer::OutputFormatter *Qt4RunConfiguration::createOutputFormatter() const
+{
+    return new QtOutputFormatter(qt4Target()->qt4Project());
 }
 
 ///

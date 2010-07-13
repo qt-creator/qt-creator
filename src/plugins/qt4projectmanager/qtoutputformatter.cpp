@@ -27,24 +27,28 @@
 **
 **************************************************************************/
 
-#include "qmloutputformatter.h"
+#include "qtoutputformatter.h"
 
 #include <texteditor/basetexteditor.h>
+#include <qt4projectmanager/qt4project.h>
 
+#include <QtCore/QFileInfo>
 #include <QtGui/QPlainTextEdit>
 
 using namespace ProjectExplorer;
-using namespace QmlProjectManager::Internal;
+using namespace Qt4ProjectManager;
 
-QmlOutputFormatter::QmlOutputFormatter(QObject *parent)
-    : OutputFormatter(parent)
+QtOutputFormatter::QtOutputFormatter(Qt4Project *project)
+    : OutputFormatter()
     , m_qmlError(QLatin1String("(file:///[^:]+:\\d+:\\d+):"))
-    , m_linksActive(true)
-    , m_mousePressed(false)
+    , m_qtError(QLatin1String("Object::.*in (.*:\\d+)"))
+    , m_project(project)
+
 {
+
 }
 
-void QmlOutputFormatter::appendApplicationOutput(const QString &text, bool onStdErr)
+void QtOutputFormatter::appendApplicationOutput(const QString &text, bool onStdErr)
 {
     QTextCharFormat linkFormat;
     linkFormat.setForeground(plainTextEdit()->palette().link().color());
@@ -52,37 +56,33 @@ void QmlOutputFormatter::appendApplicationOutput(const QString &text, bool onStd
     linkFormat.setAnchor(true);
 
     // Create links from QML errors (anything of the form "file:///...:[line]:[column]:")
-    int index = 0;
-    while (m_qmlError.indexIn(text, index) != -1) {
+    if (m_qmlError.indexIn(text) != -1) {
         const int matchPos = m_qmlError.pos(1);
-        const QString leader = text.mid(index, matchPos - index);
+        const QString leader = text.left(matchPos);
         append(leader, onStdErr ? StdErrFormat : StdOutFormat);
 
         const QString matched = m_qmlError.cap(1);
         linkFormat.setAnchorHref(matched);
         append(matched, linkFormat);
 
-        index = matchPos + m_qmlError.matchedLength() - 1;
+        int index = matchPos + m_qmlError.matchedLength() - 1;
+        append(text.mid(index), onStdErr ? StdErrFormat : StdOutFormat);
+    } else if (m_qtError.indexIn(text) != -1) {
+        const int matchPos = m_qtError.pos(1);
+        const QString leader = text.left(matchPos);
+        append(leader, onStdErr ? StdErrFormat : StdOutFormat);
+
+        const QString matched = m_qtError.cap(1);
+        linkFormat.setAnchorHref(m_qtError.cap(1));
+        append(matched, linkFormat);
+
+        int index = matchPos + m_qtError.matchedLength() - 1;
+        append(text.mid(index), onStdErr ? StdErrFormat : StdOutFormat);
     }
-    append(text.mid(index), onStdErr ? StdErrFormat : StdOutFormat);
 }
 
-void QmlOutputFormatter::mousePressEvent(QMouseEvent * /*e*/)
+void QtOutputFormatter::handleLink(const QString &href)
 {
-    m_mousePressed = true;
-}
-
-void QmlOutputFormatter::mouseReleaseEvent(QMouseEvent *e)
-{
-    m_mousePressed = false;
-
-    if (!m_linksActive) {
-        // Mouse was released, activate links again
-        m_linksActive = true;
-        return;
-    }
-
-    const QString href = plainTextEdit()->anchorAt(e->pos());
     if (!href.isEmpty()) {
         QRegExp qmlErrorLink(QLatin1String("^file://(/[^:]+):(\\d+):(\\d+)"));
 
@@ -91,18 +91,30 @@ void QmlOutputFormatter::mouseReleaseEvent(QMouseEvent *e)
             const int line = qmlErrorLink.cap(2).toInt();
             const int column = qmlErrorLink.cap(3).toInt();
             TextEditor::BaseTextEditor::openEditorAt(fileName, line, column - 1);
+            return;
+        }
+
+        QRegExp qtErrorLink(QLatin1String("^(.*):(\\d+)$"));
+        if (qtErrorLink.indexIn(href) != 1) {
+            QString fileName = qtErrorLink.cap(1);
+            const int line = qtErrorLink.cap(2).toInt();
+            QFileInfo fi(fileName);
+            if (fi.isRelative()) {
+                // Yeah fileName is relative, no suprise
+                Qt4Project *pro = m_project.data();
+                if (pro) {
+                    QString baseName = fi.fileName();
+                    foreach (const QString &file, pro->files(Project::AllFiles)) {
+                        if (file.endsWith(baseName)) {
+                            // pick the first one...
+                            fileName = file;
+                            break;
+                        }
+                    }
+                }
+            }
+            TextEditor::BaseTextEditor::openEditorAt(fileName, line, 0);
+            return;
         }
     }
-}
-
-void QmlOutputFormatter::mouseMoveEvent(QMouseEvent *e)
-{
-    // Cursor was dragged to make a selection, deactivate links
-    if (m_mousePressed && plainTextEdit()->textCursor().hasSelection())
-        m_linksActive = false;
-
-    if (!m_linksActive || plainTextEdit()->anchorAt(e->pos()).isEmpty())
-        plainTextEdit()->viewport()->setCursor(Qt::IBeamCursor);
-    else
-        plainTextEdit()->viewport()->setCursor(Qt::PointingHandCursor);
 }

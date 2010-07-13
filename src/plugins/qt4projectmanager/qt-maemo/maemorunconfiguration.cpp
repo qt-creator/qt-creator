@@ -35,6 +35,7 @@
 #include "maemorunconfigurationwidget.h"
 #include "maemotoolchain.h"
 #include "qemuruntimemanager.h"
+#include "qtoutputformatter.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -111,6 +112,11 @@ bool MaemoRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *confi
 QWidget *MaemoRunConfiguration::createConfigurationWidget()
 {
     return new MaemoRunConfigurationWidget(this);
+}
+
+ProjectExplorer::OutputFormatter *MaemoRunConfiguration::createConfigurationWidget() const
+{
+    return new QtOutputFormatter(qt4Target()->qt4Project());
 }
 
 void MaemoRunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)

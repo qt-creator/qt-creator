@@ -74,6 +74,8 @@ public:
     bool isEnabled(ProjectExplorer::BuildConfiguration *configuration) const;
     QWidget *createConfigurationWidget();
 
+    ProjectExplorer::OutputFormatter *createOutputFormatter() const;
+
     QString serialPortName() const;
     void setSerialPortName(const QString &name);
 

@@ -44,6 +44,8 @@
 #include <coreplugin/icontext.h>
 #include <find/basetextfind.h>
 #include <aggregation/aggregate.h>
+#include <texteditor/basetexteditor.h>
+#include <projectexplorer/project.h>
 
 #include <QtGui/QIcon>
 #include <QtGui/QScrollBar>
@@ -211,7 +213,7 @@ void OutputPane::createNewOutputWindow(RunControl *rc)
             OutputWindow *ow = static_cast<OutputWindow *>(m_tabWidget->widget(i));
             ow->grayOutOldContent();
             ow->verticalScrollBar()->setValue(ow->verticalScrollBar()->maximum());
-            ow->setFormatter(rc->createOutputFormatter(ow));
+            ow->setFormatter(rc->outputFormatter());
             m_outputWindows.insert(rc, ow);
             found = true;
             break;
@@ -219,7 +221,7 @@ void OutputPane::createNewOutputWindow(RunControl *rc)
     }
     if (!found) {
         OutputWindow *ow = new OutputWindow(m_tabWidget);
-        ow->setFormatter(rc->createOutputFormatter(ow));
+        ow->setFormatter(rc->outputFormatter());
         Aggregation::Aggregate *agg = new Aggregation::Aggregate;
         agg->add(ow);
         agg->add(new Find::BaseTextFind(ow));
@@ -376,6 +378,8 @@ OutputWindow::OutputWindow(QWidget *parent)
     : QPlainTextEdit(parent)
     , m_enforceNewline(false)
     , m_scrollToBottom(false)
+    , m_linksActive(true)
+    , m_mousePressed(false)
 {
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     //setCenterOnScroll(false);
@@ -427,6 +431,42 @@ OutputWindow::~OutputWindow()
 {
     Core::ICore::instance()->removeContextObject(m_outputWindowContext);
     delete m_outputWindowContext;
+}
+
+void OutputWindow::mousePressEvent(QMouseEvent *e)
+{
+    m_mousePressed = true;
+    QPlainTextEdit::mousePressEvent(e);
+}
+
+
+void OutputWindow::mouseReleaseEvent(QMouseEvent *e)
+{
+    m_mousePressed = false;
+
+    if (!m_linksActive) {
+        // Mouse was released, activate links again
+        m_linksActive = true;
+        return;
+    }
+
+    const QString href = anchorAt(e->pos());
+    if (m_formatter)
+        m_formatter->handleLink(href);
+    QPlainTextEdit::mouseReleaseEvent(e);
+}
+
+void OutputWindow::mouseMoveEvent(QMouseEvent *e)
+{
+    // Cursor was dragged to make a selection, deactivate links
+    if (m_mousePressed && textCursor().hasSelection())
+        m_linksActive = false;
+
+    if (!m_linksActive || anchorAt(e->pos()).isEmpty())
+        viewport()->setCursor(Qt::IBeamCursor);
+    else
+        viewport()->setCursor(Qt::PointingHandCursor);
+    QPlainTextEdit::mouseMoveEvent(e);
 }
 
 OutputFormatter *OutputWindow::formatter() const
@@ -553,22 +593,4 @@ void OutputWindow::enableUndoRedo()
 {
     setMaximumBlockCount(0);
     setUndoRedoEnabled(true);
-}
-
-void OutputWindow::mousePressEvent(QMouseEvent *e)
-{
-    QPlainTextEdit::mousePressEvent(e);
-    m_formatter->mousePressEvent(e);
-}
-
-void OutputWindow::mouseReleaseEvent(QMouseEvent *e)
-{
-    QPlainTextEdit::mouseReleaseEvent(e);
-    m_formatter->mouseReleaseEvent(e);
-}
-
-void OutputWindow::mouseMoveEvent(QMouseEvent *e)
-{
-    QPlainTextEdit::mouseMoveEvent(e);
-    m_formatter->mouseMoveEvent(e);
 }
