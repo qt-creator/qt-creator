@@ -168,6 +168,9 @@ signals:
     // feature of the engine.
     void modulesLoaded();
 
+public  slots:
+    void outputVersion();
+
 protected:
     virtual void timerEvent(QTimerEvent* te);
 
