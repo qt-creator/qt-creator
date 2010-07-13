@@ -167,11 +167,12 @@ int DeclFromDef::match(const QList<CPlusPlus::AST *> &path)
     int idx = 0;
     for (; idx < path.size(); ++idx) {
         AST *node = path.at(idx);
-        if (FunctionDefinitionAST *candidate = node->asFunctionDefinition())
+        if (FunctionDefinitionAST *candidate = node->asFunctionDefinition()) {
             if (!funDef)
                 funDef = candidate;
-        else if (node->asClassSpecifier())
+        } else if (node->asClassSpecifier()) {
             return -1;
+        }
     }
 
     if (!funDef || !funDef->symbol)
