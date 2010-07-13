@@ -316,7 +316,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     ProcessStepFactory *processStepFactory = new ProcessStepFactory;
     addAutoReleasedObject(processStepFactory);
 
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     AllProjectsFind *allProjectsFind = new AllProjectsFind(this,
         Find::SearchResultWindow::instance());
     addAutoReleasedObject(allProjectsFind);
