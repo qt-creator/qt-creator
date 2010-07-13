@@ -32,6 +32,7 @@
 #include "maemoconstants.h"
 #include "maemodeployables.h"
 #include "maemodeploystepwidget.h"
+#include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
 #include "maemorunconfiguration.h"
 
@@ -191,7 +192,7 @@ void MaemoDeployStep::stop()
 
 QString MaemoDeployStep::uploadDir() const
 {
-    return homeDirOnDevice(m_connection->connectionParameters().uname);
+    return MaemoGlobal::homeDirOnDevice(m_connection->connectionParameters().uname);
 }
 
 bool MaemoDeployStep::currentlyNeedsDeployment(const QString &host,
@@ -350,7 +351,7 @@ void MaemoDeployStep::handleSftpJobFinished(Core::SftpJobId job,
         .arg(deployInfo.first.localFilePath));
     const QString remoteFilePath = deployInfo.first.remoteDir + '/'
         + QFileInfo(deployInfo.first.localFilePath).fileName();
-    QByteArray linkCommand = remoteSudo().toUtf8() + " ln -sf "
+    QByteArray linkCommand = MaemoGlobal::remoteSudo().toUtf8() + " ln -sf "
         + deployInfo.second.toUtf8() + ' ' + remoteFilePath.toUtf8();
     SshRemoteProcess::Ptr linkProcess
         = m_connection->createRemoteProcess(linkCommand);
@@ -397,8 +398,8 @@ void MaemoDeployStep::handleLinkProcessFinished(int exitStatus)
             writeOutput(tr("Installing package ..."));
             const QString packageFileName
                 = QFileInfo(packagingStep()->packageFilePath()).fileName();
-            const QByteArray cmd = remoteSudo().toUtf8() + " dpkg -i "
-                + packageFileName.toUtf8();
+            const QByteArray cmd = MaemoGlobal::remoteSudo().toUtf8()
+                + " dpkg -i " + packageFileName.toUtf8();
             m_installer = m_connection->createRemoteProcess(cmd);
             connect(m_installer.data(), SIGNAL(closed(int)), this,
                 SLOT(handleInstallationFinished(int)));

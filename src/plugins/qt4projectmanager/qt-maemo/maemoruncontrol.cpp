@@ -36,6 +36,7 @@
 
 #include "maemodeployables.h"
 #include "maemodeploystep.h"
+#include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
 #include "maemorunconfiguration.h"
 
@@ -271,13 +272,13 @@ const QString AbstractMaemoRunControl::executableFileName() const
 
 const QString AbstractMaemoRunControl::uploadDir() const
 {
-    return homeDirOnDevice(m_devConfig.server.uname);
+    return MaemoGlobal::homeDirOnDevice(m_devConfig.server.uname);
 }
 
 const QString AbstractMaemoRunControl::targetCmdLinePrefix() const
 {
     return QString::fromLocal8Bit("%1 chmod a+x %2 && source /etc/profile && DISPLAY=:0.0 ")
-        .arg(remoteSudo()).arg(executableFilePathOnTarget());
+        .arg(MaemoGlobal::remoteSudo()).arg(executableFilePathOnTarget());
 }
 
 QString AbstractMaemoRunControl::targetCmdLineSuffix() const

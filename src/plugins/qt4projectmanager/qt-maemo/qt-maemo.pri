@@ -22,7 +22,8 @@ HEADERS += \
     $$PWD/maemodeployablelistwidget.h \
     $$PWD/maemodeploystep.h \
     $$PWD/maemodeploystepwidget.h \
-    $$PWD/maemodeploystepfactory.h
+    $$PWD/maemodeploystepfactory.h \
+    $$PWD/maemoglobal.h
 
 SOURCES += \
     $$PWD/maemoconfigtestdialog.cpp \
@@ -46,7 +47,8 @@ SOURCES += \
     $$PWD/maemodeployablelistwidget.cpp \
     $$PWD/maemodeploystep.cpp \
     $$PWD/maemodeploystepwidget.cpp \
-    $$PWD/maemodeploystepfactory.cpp
+    $$PWD/maemodeploystepfactory.cpp \
+    $$PWD/maemoglobal.cpp
 
 FORMS += \
     $$PWD/maemoconfigtestdialog.ui \
@@ -54,6 +56,6 @@ FORMS += \
     $$PWD/maemosshconfigdialog.ui \
     $$PWD/maemopackagecreationwidget.ui \
     $$PWD/maemodeployablelistwidget.ui \
-    qt-maemo/maemodeploystepwidget.ui
+    $$PWD/maemodeploystepwidget.ui
 
 RESOURCES += $$PWD/qt-maemo.qrc

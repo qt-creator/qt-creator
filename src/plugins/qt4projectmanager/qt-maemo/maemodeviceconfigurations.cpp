@@ -48,18 +48,6 @@ typedef Core::SshConnectionParameters::AuthType AuthType;
 namespace Qt4ProjectManager {
 namespace Internal {
 
-QString homeDirOnDevice(const QString &uname)
-{
-    return uname == QLatin1String("root")
-        ? QString::fromLatin1("/root")
-        : QLatin1String("/home/") + uname;
-}
-
-QString remoteSudo()
-{
-    return QLatin1String("/usr/lib/mad-developer/devrootsh");
-}
-
 namespace {
     const QLatin1String SettingsGroup("MaemoDeviceConfigs");
     const QLatin1String IdCounterKey("IdCounter");

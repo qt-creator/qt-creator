@@ -49,7 +49,7 @@
 #include <QtCore/QStringBuilder>
 
 namespace Qt4ProjectManager {
-    namespace Internal {
+namespace Internal {
 
 using namespace ProjectExplorer;
 
@@ -269,5 +269,5 @@ void MaemoRunConfiguration::updateDeviceConfigurations()
     emit deviceConfigurationsUpdated(target());
 }
 
-    } // namespace Internal
+} // namespace Internal
 } // namespace Qt4ProjectManager
