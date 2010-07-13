@@ -232,10 +232,9 @@ private slots:
 
     void updateDocument();
     void updateDocumentNow();
-    void jumpToMethod(int index);
+    void jumpToOutlineElement(int index);
     void updateOutlineNow();
-    void updateMethodBoxIndex();
-    void updateMethodBoxToolTip();
+    void updateOutlineIndexNow();
     void updateFileName();
 
     void updateUses();
@@ -280,8 +279,8 @@ private:
     QTimer *m_updateUsesTimer;
     QTimer *m_semanticRehighlightTimer;
     QTimer *m_updateOutlineTimer;
-    QTimer *m_updateMethodBoxTimer;
-    QComboBox *m_methodCombo;
+    QTimer *m_updateOutlineIndexTimer;
+    QComboBox *m_outlineCombo;
     QmlOutlineModel *m_outlineModel;
     QModelIndex m_outlineModelIndex;
     QmlJS::ModelManagerInterface *m_modelManager;
