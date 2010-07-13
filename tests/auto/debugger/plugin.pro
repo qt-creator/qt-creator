@@ -1,5 +1,4 @@
-QT += testlib
-
+CONFIG += qtestlib testcase
 
 DEBUGGERDIR = ../../../src/plugins/debugger
 UTILSDIR    = ../../../src/libs

@@ -1,4 +1,4 @@
-CONFIG += qtestlib
+CONFIG += qtestlib testcase
 TEMPLATE = app
 CONFIG -= app_bundle
 DEFINES += AGGREGATION_LIBRARY

@@ -1,4 +1,5 @@
-QT += gui testlib
+QT += gui
+CONFIG += qtestlib testcase
 
 PLUGINSDIR = ../../../../src/plugins
 TEXTEDITORDIR = $$PLUGINSDIR/texteditor

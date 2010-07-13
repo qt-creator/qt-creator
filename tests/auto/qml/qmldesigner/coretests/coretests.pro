@@ -2,9 +2,10 @@ include(../../../../../qtcreator.pri)
 
 include($$IDE_SOURCE_TREE/src/plugins/qmldesigner/config.pri)
 
-QT += testlib \
-    script \
+QT += script \
     declarative
+
+CONFIG += qtestlib testcase
 
 # DEFINES+=QTCREATOR_UTILS_STATIC_LIB QML_BUILD_STATIC_LIB
 DEFINES+=QTCREATORDIR=\\\"$$CREATORDIR\\\"
