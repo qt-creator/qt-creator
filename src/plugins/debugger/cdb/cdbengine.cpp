@@ -225,13 +225,6 @@ CdbEngine::~CdbEngine()
     delete m_d;
 }
 
-void CdbEngine::setState(DebuggerState state, const char *func, int line)
-{
-    if (debugCDB)
-        qDebug() << "setState(" << state << ") at " << func << ':' << line;
-    DebuggerEngine::setState(state);
-}
-
 void CdbEngine::shutdownInferior()
 {
     notifyInferiorShutdownOk();

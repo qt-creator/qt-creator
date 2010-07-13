@@ -110,7 +110,6 @@ private: ////////// General Interface //////////
     virtual void runEngine();
 
     virtual unsigned debuggerCapabilities() const;
-    virtual void quitDebugger();
     virtual void detachDebugger();
     virtual void shutdownEngine();
     virtual void shutdownInferior();
