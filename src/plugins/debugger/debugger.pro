@@ -54,7 +54,7 @@ HEADERS += breakhandler.h \
 
 SOURCES += breakhandler.cpp \
     breakwindow.cpp \
-    breakwindow.h \
+    breakpoint.cpp \
     debuggeragents.cpp \
     debuggeractions.cpp \
     debuggerdialogs.cpp \

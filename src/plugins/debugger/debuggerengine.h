@@ -239,6 +239,8 @@ public:
     void notifyInferiorPid(qint64 pid);
     qint64 inferiorPid() const;
     bool isReverseDebugging() const;
+    bool isActive() const; // True if this is the currently active engine;
+    void setActive(bool on); // FIXME: private?
     void handleCommand(int role, const QVariant &value);
 
     // Convenience

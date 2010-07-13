@@ -42,6 +42,8 @@ class SnapshotHandler;
 
 class SessionEngine : public DebuggerEngine
 {
+    Q_OBJECT
+
 public:
     SessionEngine();
 

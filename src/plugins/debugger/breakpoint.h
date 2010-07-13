@@ -35,7 +35,6 @@
 #include <QtCore/QString>
 
 namespace Debugger {
-class DebuggerManager;
 namespace Internal {
 
 class BreakpointMarker;
@@ -63,8 +62,8 @@ public:
     bool isSimilarTo(const BreakpointData *needle) const;
     bool conditionsMatch() const;
 
-    BreakpointData *clone() const;
     // This copies only the static data.
+    BreakpointData *clone() const;
 
 private:
     // Intentionally unimplemented.

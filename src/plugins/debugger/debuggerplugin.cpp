@@ -869,7 +869,7 @@ public:
 
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void notifyCurrentEngine(int role, const QVariant &value = QVariant());
-    void connectEngine(DebuggerEngine *engine);
+    void connectEngine(DebuggerEngine *engine, bool notify = true);
     void disconnectEngine() { connectEngine(m_sessionEngine); }
 
 public slots:
@@ -1608,8 +1608,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     connect(m_uiSwitcher, SIGNAL(languageChanged(QString)),
         this, SLOT(languageChanged(QString)));
 
-    disconnectEngine();
     setInitialState();
+    connectEngine(m_sessionEngine, false);
 
     return true;
 }
@@ -1934,8 +1934,10 @@ void DebuggerPluginPrivate::startDebugger(ProjectExplorer::RunControl *rc)
     qDebug() << "START DEBUGGER 2";
 }
 
-void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
+void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine, bool notify)
 {
+    if (notify)
+        notifyCurrentEngine(RequestActivationRole, false);
     if (engine == m_sessionEngine)
         qDebug() << "CONNECTING DUMMY ENGINE" << engine;
     else
@@ -1952,6 +1954,8 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
     m_threadBox->setModel(engine->threadsModel());
     m_watchersWindow->setModel(engine->watchersModel());
     m_capabilities = engine->debuggerCapabilities();
+    if (notify)
+        notifyCurrentEngine(RequestActivationRole, true);
 }
 
 static void changeFontSize(QWidget *widget, int size)

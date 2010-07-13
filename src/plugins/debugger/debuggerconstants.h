@@ -164,6 +164,7 @@ enum ModelRoles
     EngineStateRole,
     EngineCapabilitiesRole,
     EngineActionsEnabledRole,
+    RequestActivationRole,
 
     // Running
     RequestExecContinueRole,

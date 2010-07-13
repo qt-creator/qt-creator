@@ -217,6 +217,7 @@ public:
     DebuggerEnginePrivate(DebuggerEngine *engine, const DebuggerStartParameters &sp)
       : m_engine(engine),
         m_runControl(0),
+        m_isActive(false),
         m_startParameters(sp),
         m_state(DebuggerNotReady),
         m_lastGoodState(DebuggerNotReady),
@@ -272,6 +273,7 @@ public:
 
     DebuggerEngine *m_engine; // Not owned.
     DebuggerRunControl *m_runControl;  // Not owned.
+    bool m_isActive;
 
     DebuggerStartParameters m_startParameters;
 
@@ -466,6 +468,10 @@ void DebuggerEngine::handleCommand(int role, const QVariant &value)
             makeSnapshot();
             break;
 
+        case RequestActivationRole:
+            setActive(value.toBool());
+            break;
+
         case RequestExecFrameDownRole:
             frameDown();
             break;
@@ -648,8 +654,8 @@ void DebuggerEngine::setRegisterValue(int regnr, const QString &value)
 
 void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) const
 {
-    if (msg.size() && msg.at(0).isUpper() && msg.at(1).isUpper())
-        qDebug() << qPrintable(msg) << "IN STATE" << state();
+    //if (msg.size() && msg.at(0).isUpper() && msg.at(1).isUpper())
+    //    qDebug() << qPrintable(msg) << "IN STATE" << state();
     d->m_runControl->showMessage(msg, channel);
     plugin()->showMessage(msg, channel, timeout);
 }
@@ -1294,8 +1300,8 @@ void DebuggerEngine::notifyInferiorExited()
 void DebuggerEngine::setState(DebuggerState state, bool forced)
 {
     SDEBUG(Q_FUNC_INFO);
-    qDebug() << "STATUS CHANGE: FROM " << stateName(d->m_state)
-            << " TO " << stateName(state);
+    //qDebug() << "STATUS CHANGE: FROM " << stateName(d->m_state)
+    //        << " TO " << stateName(state);
 
     DebuggerState oldState = d->m_state;
     d->m_state = state;
@@ -1377,6 +1383,18 @@ void DebuggerEngine::openFile(const QString &fileName, int lineNumber)
 bool DebuggerEngine::isReverseDebugging() const
 {
     return plugin()->isReverseDebugging();
+}
+
+bool DebuggerEngine::isActive() const
+{
+    return d->m_isActive && !isSessionEngine();
+}
+
+void DebuggerEngine::setActive(bool on)
+{
+    qDebug() << "SETTING ACTIVE" << this << on;
+    d->m_isActive = on;
+    //breakHandler()->updateMarkers();
 }
 
 // called by DebuggerRunControl

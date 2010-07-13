@@ -34,7 +34,9 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QAbstractTableModel>
+
 #include <QtGui/QIcon>
+
 
 namespace Debugger {
 namespace Internal {
@@ -74,6 +76,7 @@ public:
     int findWatchPointIndexByAddress(const QByteArray &a) const;
     bool watchPointAt(quint64 address) const;
     void updateMarkers();
+    bool isActive() const;
 
     Breakpoints insertedBreakpoints() const;
     void takeInsertedBreakPoint(BreakpointData *);
@@ -81,9 +84,10 @@ public:
     Breakpoints takeEnabledBreakpoints(); // Not owned.
     Breakpoints takeDisabledBreakpoints(); // Not owned.
 
-    QIcon breakpointIcon() const         { return m_breakpointIcon; }
+    QIcon breakpointIcon() const { return m_breakpointIcon; }
     QIcon disabledBreakpointIcon() const { return m_disabledBreakpointIcon; }
-    QIcon pendingBreakPointIcon() const  { return m_pendingBreakPointIcon; }
+    QIcon pendingBreakPointIcon() const { return m_pendingBreakPointIcon; }
+    QIcon emptyIcon() const { return m_emptyIcon; }
 
     void initializeFromTemplate(BreakHandler *other);
     void storeToTemplate(BreakHandler *other);
@@ -117,6 +121,7 @@ private:
     const QIcon m_breakpointIcon;
     const QIcon m_disabledBreakpointIcon;
     const QIcon m_pendingBreakPointIcon;
+    const QIcon m_emptyIcon;
     const QIcon m_watchpointIcon;
 
     DebuggerEngine *m_engine; // Not owned.
