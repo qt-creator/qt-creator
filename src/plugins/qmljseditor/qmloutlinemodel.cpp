@@ -140,8 +140,15 @@ QmlOutlineModel::QmlOutlineModel(QObject *parent) :
 {
 }
 
+QmlJS::Document::Ptr QmlOutlineModel::document() const
+{
+    return m_document;
+}
+
 void QmlOutlineModel::update(QmlJS::Document::Ptr doc)
 {
+    m_document = doc;
+
     m_treePos.clear();
     m_treePos.append(0);
     m_currentItem = invisibleRootItem();

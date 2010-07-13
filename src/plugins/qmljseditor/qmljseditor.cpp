@@ -80,7 +80,7 @@
 enum {
     UPDATE_DOCUMENT_DEFAULT_INTERVAL = 50,
     UPDATE_USES_DEFAULT_INTERVAL = 150,
-    UPDATE_METHOD_BOX_INTERVAL = 150
+    UPDATE_OUTLINE_INTERVAL = 150 // msecs after new semantic info has been arrived / cursor has moved
 };
 
 using namespace QmlJS;
@@ -648,8 +648,13 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     connect(this, SIGNAL(textChanged()), this, SLOT(updateDocument()));
     connect(this, SIGNAL(textChanged()), this, SLOT(updateUses()));
 
+    m_updateOutlineTimer = new QTimer(this);
+    m_updateOutlineTimer->setInterval(UPDATE_OUTLINE_INTERVAL);
+    m_updateOutlineTimer->setSingleShot(true);
+    connect(m_updateOutlineTimer, SIGNAL(timeout()), this, SLOT(updateOutlineNow()));
+
     m_updateMethodBoxTimer = new QTimer(this);
-    m_updateMethodBoxTimer->setInterval(UPDATE_METHOD_BOX_INTERVAL);
+    m_updateMethodBoxTimer->setInterval(UPDATE_OUTLINE_INTERVAL);
     m_updateMethodBoxTimer->setSingleShot(true);
     connect(m_updateMethodBoxTimer, SIGNAL(timeout()), this, SLOT(updateMethodBoxIndex()));
 
@@ -804,6 +809,8 @@ void QmlJSTextEditor::onDocumentUpdated(QmlJS::Document::Ptr doc)
 
         const SemanticHighlighter::Source source = currentSource(/*force = */ true);
         m_semanticHighlighter->rehighlight(source);
+
+        m_updateOutlineTimer->start();
     } else {
         // show parsing errors
         QList<QTextEdit::ExtraSelection> selections;
@@ -830,12 +837,29 @@ void QmlJSTextEditor::jumpToMethod(int /*index*/)
     setFocus();
 }
 
-void QmlJSTextEditor::updateMethodBoxIndex()
+void QmlJSTextEditor::updateOutlineNow()
 {
-    if (!m_semanticInfo.document)
+    const Snapshot snapshot = m_modelManager->snapshot();
+    Document::Ptr document = snapshot.document(file()->fileName());
+
+    if (!document)
         return;
 
-    if (m_semanticInfo.document->editorRevision() != editorRevision()) {
+    if (document->editorRevision() != editorRevision()) {
+        m_updateOutlineTimer->start();
+        return;
+    }
+
+    m_outlineModel->update(document);
+    updateMethodBoxIndex();
+}
+
+void QmlJSTextEditor::updateMethodBoxIndex()
+{
+    if (!m_outlineModel->document())
+        return;
+
+    if (m_outlineModel->document()->editorRevision() != editorRevision()) {
         m_updateMethodBoxTimer->start();
         return;
     }
@@ -1374,9 +1398,6 @@ void QmlJSTextEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
     if (doc->isParsedCorrectly()) {
         FindDeclarations findDeclarations;
         m_semanticInfo.declarations = findDeclarations(doc->ast());
-
-        m_outlineModel->update(doc);
-        updateMethodBoxIndex();
 
         QTreeView *treeView = static_cast<QTreeView*>(m_methodCombo->view());
         treeView->expandAll();

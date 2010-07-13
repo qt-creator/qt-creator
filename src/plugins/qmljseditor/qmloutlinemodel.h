@@ -19,6 +19,7 @@ public:
 
     QmlOutlineModel(QObject *parent = 0);
 
+    QmlJS::Document::Ptr document() const;
     void update(QmlJS::Document::Ptr doc);
 
     QModelIndex enterElement(const QString &typeName, const QString &id, const QmlJS::AST::SourceLocation &location);
@@ -36,6 +37,7 @@ private:
 
     QStandardItem *parentItem();
 
+    QmlJS::Document::Ptr m_document;
     QList<int> m_treePos;
     QStandardItem *m_currentItem;
     QmlJS::Icons m_icons;

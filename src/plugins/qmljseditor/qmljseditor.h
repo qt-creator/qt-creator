@@ -233,6 +233,7 @@ private slots:
     void updateDocument();
     void updateDocumentNow();
     void jumpToMethod(int index);
+    void updateOutlineNow();
     void updateMethodBoxIndex();
     void updateMethodBoxToolTip();
     void updateFileName();
@@ -278,6 +279,7 @@ private:
     QTimer *m_updateDocumentTimer;
     QTimer *m_updateUsesTimer;
     QTimer *m_semanticRehighlightTimer;
+    QTimer *m_updateOutlineTimer;
     QTimer *m_updateMethodBoxTimer;
     QComboBox *m_methodCombo;
     QmlOutlineModel *m_outlineModel;
