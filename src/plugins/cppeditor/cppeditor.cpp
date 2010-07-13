@@ -1115,16 +1115,20 @@ void CPPEditor::updateOutlineIndexNow()
     m_updateOutlineIndexTimer->stop();
 
     m_outlineModelIndex = QModelIndex(); //invalidate
-    // ComboBox only let's you select top level indexes!
     QModelIndex comboIndex = outlineModelIndex();
-    while (comboIndex.parent().isValid())
-        comboIndex = comboIndex.parent();
+
 
     if (comboIndex.isValid()) {
         bool blocked = m_outlineCombo->blockSignals(true);
+
+        // There is no direct way to select a non-root item
+        m_outlineCombo->setRootModelIndex(m_proxyModel->mapFromSource(comboIndex.parent()));
         m_outlineCombo->setCurrentIndex(m_proxyModel->mapFromSource(comboIndex).row());
+        m_outlineCombo->setRootModelIndex(QModelIndex());
+
         updateOutlineToolTip();
-        (void) m_outlineCombo->blockSignals(blocked);
+
+        m_outlineCombo->blockSignals(blocked);
     }
 }
 
