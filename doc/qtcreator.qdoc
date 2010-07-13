@@ -4330,12 +4330,14 @@
     In \gui Debug mode, you can use several views to interact with the
     program you are debugging. Frequently used views are shown by
     default and rarely used ones are hidden. To change the default settings,
-    select \gui Debug > \gui Views, and then select views to display
-    or hide. You can also lock views. The position of views is saved for future
-    sessions.
+    select \gui {Window > Views}, and then select views to display or hide.
 
     \image qtcreator-debugger-views.png "Debug mode views"
 
+    By default, the views are locked into place in the workspace. Select
+    \gui {Window > Views > Locked} to unlock the views. Drag and drop the
+    views into new positions on the screen. Drag view borders to resize the
+    views. The size and position of views are saved for future sessions.
 
     \section1 Starting the Debugger
 
