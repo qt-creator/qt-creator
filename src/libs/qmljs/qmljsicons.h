@@ -41,14 +41,21 @@ class IconsPrivate;
 class QMLJS_EXPORT Icons
 {
 public:
-    Icons();
     ~Icons();
 
+    static Icons *instance();
+
+    void setIconFilesPath(const QString &iconPath);
+
+    QIcon icon(const QString &packageName, const QString typeName) const;
     QIcon icon(AST::Node *node) const;
 
     QIcon objectDefinitionIcon() const;
     QIcon scriptBindingIcon() const;
 
+private:
+    Icons();
+    static Icons *m_instance;
     IconsPrivate *m_d;
 };
 

@@ -1,7 +1,11 @@
 #include "qmloutlinemodel.h"
 #include <qmljs/parser/qmljsastvisitor_p.h>
+#include <qmljs/qmljsinterpreter.h>
+#include <qmljs/qmljslookupcontext.h>
 
+#include <coreplugin/icore.h>
 #include <QtCore/QDebug>
+#include <QtCore/QTime>
 #include <typeinfo>
 
 using namespace QmlJS;
@@ -11,7 +15,8 @@ enum {
     debug = false
 };
 
-namespace {
+namespace QmlJSEditor {
+namespace Internal {
 
 class QmlOutlineModelSync : protected AST::Visitor
 {
@@ -22,14 +27,23 @@ public:
     {
     }
 
-    void operator()(Document::Ptr doc)
+    void operator()(Document::Ptr doc, const Snapshot &snapshot)
     {
         m_nodeToIndex.clear();
+
+        // Set up lookup context once to do the element type lookup
+        //
+        // We're simplifying here by using the root context everywhere
+        // (empty node list). However, creating the LookupContext is quite expensive (about 3ms),
+        // and there is AFAIK no way to introduce new type names in a sub-context.
+        m_context = LookupContext::create(doc, snapshot, QList<AST::Node*>());
 
         if (debug)
             qDebug() << "QmlOutlineModel ------";
         if (doc && doc->ast())
             doc->ast()->accept(this);
+
+        m_context.clear();
     }
 
 private:
@@ -64,7 +78,7 @@ private:
     }
 
 
-
+    typedef QPair<QString,QString> ElementType;
     bool visit(AST::UiObjectDefinition *objDef)
     {
         if (!validElement(objDef)) {
@@ -78,8 +92,14 @@ private:
                 + objDef->lastSourceLocation().length;
 
         const QString typeName = asString(objDef->qualifiedTypeNameId);
-        const QString id = getId(objDef);
-        QModelIndex index = m_model->enterElement(typeName, id, location);
+
+        if (!m_typeToIcon.contains(typeName)) {
+            m_typeToIcon.insert(typeName, getIcon(objDef));
+        }
+        const QIcon icon = m_typeToIcon.value(typeName);
+        QString id = getId(objDef);
+
+        QModelIndex index = m_model->enterElement(typeName, id, icon, location);
         m_nodeToIndex.insert(objDef, index);
         return true;
     }
@@ -112,8 +132,31 @@ private:
     }
 
     bool validElement(AST::UiObjectDefinition *objDef) {
-        // For 'Rectangle { id }', id is parsed as UiObjectDefinition ... Filter this out.ctan
+        // For 'Rectangle { id }', id is parsed as UiObjectDefinition ... Filter this out.
         return objDef->qualifiedTypeNameId->name->asString().at(0).isUpper();
+    }
+
+    QIcon getIcon(AST::UiObjectDefinition *objDef) {
+        const QmlJS::Interpreter::Value *value = m_context->evaluate(objDef->qualifiedTypeNameId);
+
+        if (const Interpreter::ObjectValue *objectValue = value->asObjectValue()) {
+            do {
+                QString module;
+                QString typeName;
+                if (const Interpreter::QmlObjectValue *qmlObjectValue =
+                        dynamic_cast<const Interpreter::QmlObjectValue*>(objectValue)) {
+                    module = qmlObjectValue->packageName();
+                }
+                typeName = objectValue->className();
+
+                QIcon icon = m_model->m_icons->icon(module, typeName);
+                if (! icon.isNull())
+                    return icon;
+
+                objectValue = objectValue->prototype(m_context->context());
+            } while (objectValue);
+        }
+        return QIcon();
     }
 
     QString getId(AST::UiObjectDefinition *objDef) {
@@ -137,19 +180,19 @@ private:
 
 
     QmlOutlineModel *m_model;
+    LookupContext::Ptr m_context;
+
     QHash<AST::Node*, QModelIndex> m_nodeToIndex;
+    QHash<QString, QIcon> m_typeToIcon;
     int indent;
 };
-
-
-} // namespace
-
-namespace QmlJSEditor {
-namespace Internal {
 
 QmlOutlineModel::QmlOutlineModel(QObject *parent) :
     QStandardItemModel(parent)
 {
+    m_icons = Icons::instance();
+    const QString resourcePath = Core::ICore::instance()->resourcePath();
+    QmlJS::Icons::instance()->setIconFilesPath(resourcePath + "/qmlicons");
 }
 
 QmlJS::Document::Ptr QmlOutlineModel::document() const
@@ -157,7 +200,7 @@ QmlJS::Document::Ptr QmlOutlineModel::document() const
     return m_document;
 }
 
-void QmlOutlineModel::update(QmlJS::Document::Ptr doc)
+void QmlOutlineModel::update(QmlJS::Document::Ptr doc, const QmlJS::Snapshot &snapshot)
 {
     m_document = doc;
 
@@ -166,12 +209,12 @@ void QmlOutlineModel::update(QmlJS::Document::Ptr doc)
     m_currentItem = invisibleRootItem();
 
     QmlOutlineModelSync syncModel(this);
-    syncModel(doc);
+    syncModel(doc, snapshot);
 
     emit updated();
 }
 
-QModelIndex QmlOutlineModel::enterElement(const QString &type, const QString &id, const AST::SourceLocation &sourceLocation)
+QModelIndex QmlOutlineModel::enterElement(const QString &type, const QString &id, const QIcon &icon, const AST::SourceLocation &sourceLocation)
 {
     QStandardItem *item = enterNode(sourceLocation);
     if (!id.isEmpty()) {
@@ -179,8 +222,8 @@ QModelIndex QmlOutlineModel::enterElement(const QString &type, const QString &id
     } else {
         item->setText(type);
     }
+    item->setIcon(icon);
     item->setToolTip(type);
-    item->setIcon(m_icons.objectDefinitionIcon());
     return item->index();
 }
 
@@ -193,7 +236,7 @@ QModelIndex QmlOutlineModel::enterProperty(const QString &name, const AST::Sourc
 {
     QStandardItem *item = enterNode(sourceLocation);
     item->setText(name);
-    item->setIcon(m_icons.scriptBindingIcon());
+    item->setIcon(m_icons->scriptBindingIcon());
     return item->index();
 }
 

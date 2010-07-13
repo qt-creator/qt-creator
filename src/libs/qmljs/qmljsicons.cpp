@@ -28,17 +28,29 @@
 **************************************************************************/
 
 #include "qmljsicons.h"
+#include <QtCore/QDebug>
+#include <QtCore/QDir>
+#include <QtCore/QHash>
+#include <QtCore/QPair>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
 
+enum {
+    debug = false
+};
+
 namespace QmlJS {
+
+Icons *Icons::m_instance = 0;
 
 class IconsPrivate
 {
 public:
     QIcon elementIcon;
     QIcon propertyIcon;
+    QHash<QPair<QString,QString>,QIcon> iconHash;
+    QString resourcePath;
 };
 
 } // namespace QmlJS
@@ -52,7 +64,53 @@ Icons::Icons()
 
 Icons::~Icons()
 {
+    m_instance = 0;
     delete m_d;
+}
+
+Icons *Icons::instance()
+{
+    if (!m_instance)
+        m_instance = new Icons();
+    return m_instance;
+}
+
+void Icons::setIconFilesPath(const QString &iconPath)
+{
+    if (iconPath == m_d->resourcePath)
+        return;
+
+    m_d->resourcePath = iconPath;
+
+    if (debug)
+        qDebug() << "QmlJSIcons -" << "parsing" << iconPath;
+    QDir topDir(iconPath);
+    foreach (const QFileInfo &subDirInfo, topDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+        if (debug)
+            qDebug() << "QmlJSIcons - parsing" << subDirInfo.absoluteFilePath();
+        const QString packageName = subDirInfo.fileName();
+        QDir subDir(subDirInfo.absoluteFilePath() + QLatin1String("/16x16"));
+        foreach (const QFileInfo &iconFile, subDir.entryInfoList(QDir::Files)) {
+            QIcon icon(iconFile.absoluteFilePath());
+            if (icon.isNull()) {
+                if (debug)
+                    qDebug() << "QmlJSIcons - skipping" << iconFile.absoluteFilePath();
+                continue;
+            }
+            if (debug)
+                qDebug() << "QmlJSIcons - adding" << packageName << iconFile.baseName() << "icon to database";
+            QPair<QString,QString> element(packageName, iconFile.baseName());
+            m_d->iconHash.insert(element, icon);
+        }
+    }
+}
+
+QIcon Icons::icon(const QString &packageName, const QString typeName) const
+{
+    QPair<QString,QString> element(packageName, typeName);
+    if (debug)
+        qDebug() << "QmlJSIcons - icon for" << packageName << typeName << "requested" << m_d->iconHash.contains(element);
+    return m_d->iconHash.value(element);
 }
 
 QIcon Icons::icon(Node *node) const

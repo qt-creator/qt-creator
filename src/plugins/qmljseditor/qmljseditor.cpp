@@ -850,7 +850,7 @@ void QmlJSTextEditor::updateOutlineNow()
         return;
     }
 
-    m_outlineModel->update(document);
+    m_outlineModel->update(document, snapshot);
     updateOutlineIndexNow();
 }
 

@@ -20,9 +20,9 @@ public:
     QmlOutlineModel(QObject *parent = 0);
 
     QmlJS::Document::Ptr document() const;
-    void update(QmlJS::Document::Ptr doc);
+    void update(QmlJS::Document::Ptr doc, const QmlJS::Snapshot &snapshot);
 
-    QModelIndex enterElement(const QString &typeName, const QString &id, const QmlJS::AST::SourceLocation &location);
+    QModelIndex enterElement(const QString &typeName, const QString &id, const QIcon &icon, const QmlJS::AST::SourceLocation &location);
     void leaveElement();
 
     QModelIndex enterProperty(const QString &name, const QmlJS::AST::SourceLocation &location);
@@ -40,7 +40,9 @@ private:
     QmlJS::Document::Ptr m_document;
     QList<int> m_treePos;
     QStandardItem *m_currentItem;
-    QmlJS::Icons m_icons;
+    QmlJS::Icons *m_icons;
+
+    friend class QmlOutlineModelSync;
 };
 
 } // namespace Internal

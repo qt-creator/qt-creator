@@ -77,6 +77,7 @@ public:
     // IPlugin
     bool initialize(const QStringList &arguments, QString *errorMessage = 0);
     void extensionsInitialized();
+    ShutdownFlag aboutToShutdown();
 
     static QmlJSEditorPlugin *instance()
     { return m_instance; }

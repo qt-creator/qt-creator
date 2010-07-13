@@ -39,6 +39,7 @@
 #include "qmljsoutline.h"
 #include "qmljspreviewrunner.h"
 #include "qmljsquickfix.h"
+#include "qmljs/qmljsicons.h"
 
 #include <qmldesigner/qmldesignerconstants.h>
 
@@ -184,6 +185,13 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
 
 void QmlJSEditorPlugin::extensionsInitialized()
 {
+}
+
+ExtensionSystem::IPlugin::ShutdownFlag QmlJSEditorPlugin::aboutToShutdown()
+{
+    delete QmlJS::Icons::instance(); // delete object held by singleton
+
+    return IPlugin::aboutToShutdown();
 }
 
 void QmlJSEditorPlugin::openPreview()
