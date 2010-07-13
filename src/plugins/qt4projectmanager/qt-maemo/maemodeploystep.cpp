@@ -219,16 +219,6 @@ MaemoDeviceConfig MaemoDeployStep::deviceConfig() const
         : MaemoDeviceConfig();
 }
 
-QString MaemoDeployStep::packageFileName() const
-{
-    return QFileInfo(packageFilePath()).fileName();
-}
-
-QString MaemoDeployStep::packageFilePath() const
-{
-    return packagingStep()->packageFilePath();
-}
-
 void MaemoDeployStep::start()
 {
     m_stopped = false;
@@ -288,7 +278,7 @@ void MaemoDeployStep::handleSftpChannelInitialized()
     const MaemoPackageCreationStep * const pStep = packagingStep();
     const QString hostName = m_connection->connectionParameters().host;
     if (pStep->isPackagingEnabled()) {
-        const MaemoDeployable d(packageFilePath(), uploadDir());
+        const MaemoDeployable d(pStep->packageFilePath(), uploadDir());
         if (currentlyNeedsDeployment(hostName, d)) {
             if (!deploy(MaemoDeployable(d)))
                 return;
@@ -405,8 +395,10 @@ void MaemoDeployStep::handleLinkProcessFinished(int exitStatus)
     if (m_linksInProgress.isEmpty() && m_uploadsInProgress.isEmpty()) {
         if (m_needsInstall) {
             writeOutput(tr("Installing package ..."));
+            const QString packageFileName
+                = QFileInfo(packagingStep()->packageFilePath()).fileName();
             const QByteArray cmd = remoteSudo().toUtf8() + " dpkg -i "
-                + packageFileName().toUtf8();
+                + packageFileName.toUtf8();
             m_installer = m_connection->createRemoteProcess(cmd);
             connect(m_installer.data(), SIGNAL(closed(int)), this,
                 SLOT(handleInstallationFinished(int)));

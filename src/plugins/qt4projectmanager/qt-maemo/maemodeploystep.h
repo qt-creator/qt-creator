@@ -104,8 +104,6 @@ private:
     const MaemoPackageCreationStep *packagingStep() const;
     bool deploy(const MaemoDeployable &deployable);
     QString uploadDir() const;
-    QString packageFileName() const;
-    QString packageFilePath() const;
 
     static const QLatin1String Id;
 
