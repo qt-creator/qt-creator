@@ -604,7 +604,11 @@ def isNull(p):
     # for invalid char *, as their "contents" is being examined
     #s = str(p)
     #return s == "0x0" or s.startswith("0x0 ")
-    return p.cast(lookupType("void").pointer()) == 0
+    try:
+        # Can fail with: "RuntimeError: Cannot access memory at address 0x5"
+        return p.cast(lookupType("void").pointer()) == 0
+    except:
+        return False
 
 movableTypes = set([
     "QBrush", "QBitArray", "QByteArray",
@@ -1045,11 +1049,14 @@ class Dumper:
                 # Special handling for char** argv.
                 n = 0
                 p = item.value
-                # p is 0 for "optimized out" cases.
-                if not isNull(p):
-                    while not isNull(p.dereference()) and n <= 100:
-                        p += 1
-                        n += 1
+                # p is 0 for "optimized out" cases. Or contains rubbish.
+                try:
+                    if not isNull(p):
+                        while not isNull(p.dereference()) and n <= 100:
+                            p += 1
+                            n += 1
+                except:
+                    pass
 
                 with SubItem(self):
                     self.put('iname="%s",' % item.iname)

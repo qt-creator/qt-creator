@@ -45,7 +45,6 @@
 #include <projectexplorer/buildstep.h>
 
 #include <QtCore/QScopedPointer>
-#include <QtCore/QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QFile;

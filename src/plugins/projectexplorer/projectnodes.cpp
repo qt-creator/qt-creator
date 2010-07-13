@@ -154,8 +154,7 @@ bool FileNode::isGenerated() const
 */
 FolderNode::FolderNode(const QString &folderPath)  :
     Node(FolderNodeType, folderPath),
-    m_displayName(QDir::toNativeSeparators(folderPath)),
-    m_icon(Core::FileIconProvider::instance()->icon(QFileIconProvider::Folder))
+    m_displayName(QDir::toNativeSeparators(folderPath))
 {
 }
 
@@ -182,6 +181,9 @@ QString FolderNode::displayName() const
  */
 QIcon FolderNode::icon() const
 {
+    // Instantiating the Icon provider is expensive.
+    if (m_icon.isNull())
+        m_icon = Core::FileIconProvider::instance()->icon(QFileIconProvider::Folder);
     return m_icon;
 }
 

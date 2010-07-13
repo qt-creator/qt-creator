@@ -551,6 +551,11 @@
     an open output pane, click the \gui {Maximize Output Pane} button
     or press \key {Alt+9}.
 
+    To search within the \gui{Application Output} and \gui{Compile Output}
+    panes, press \key {Ctrl+F} when the pane is active. Enter search
+    criteria in the \gui Find field and click the left and right arrows to
+    search down and up in the pane.
+
     To open the \gui{General Messages} and \gui{Version Control}
     panes, select \gui {Window > Output Panes}.
 
@@ -824,20 +829,20 @@
 
     \image qtcreator-editortoolbar-symbols.png
 
-    Use the toolbar to navigate between open files and symbols in use:
-    \list
-        \o To browse forward or backward through your location history, click
+    Use the toolbar to navigate between open files and symbols in use.
+    To browse forward or backward through your location history, click
            \inlineimage qtcreator-back.png
            and \inlineimage qtcreator-forward.png
            .
-        \o To go to any open file, select it from the \gui{Open files}
-           drop-down menu.
-        \o To jump to any symbol used in the current file, select it from the
-           \gui Symbols drop-down menu.
-    \endlist
 
-    When you create or edit forms in a \c{.ui} file, the toolbar contains
-    Qt Designer specific tools.
+    To go to any open file, select it from the \gui{Open files} drop-down menu.
+    Right-click the menu title and select \gui {Copy Full Path to Clipboard} to
+    copy the path and name of the current file to the clipboard.
+
+    To jump to any symbol used in the current file, select it from the
+    \gui Symbols drop-down menu. By default, the symbols are displayed in the
+    order in which they appear in the file. Right-click the menu title and select
+    \gui {Sort Alphabetically} to arrange the symbols in alphabetic order.
 
 
     \section1 Splitting the Editor View
@@ -1438,7 +1443,7 @@
 
     \section1 Renaming Symbols
 
-    The functions used to rename symbols depends on whether you are
+    The functions available for renaming symbols depend on whether you are
     writing C++ or QML code. For QML, you can only rename IDs.
 
     To rename a specific symbol in a Qt project:
@@ -1601,6 +1606,8 @@
 
     The wizards prompt you to enter the settings needed
     for that particular type of project and create the necessary files for you.
+    To display other types of files in the \gui Projects pane, specify them in
+    the project file.
 
     \image qtcreator-new-project.png
 
@@ -1636,6 +1643,25 @@
 
            \image qtcreator-new-project-summary.png
     \endlist
+
+    \section1 Displaying Additional File Types in Projects Pane
+
+    Qt Creator determines whether to display files from the project folder
+    in the \gui Projects pane depending on the file type (.pro, .pri, .cpp,
+    .h, .ui, .qrc, and so on). To display other types of files, edit the the
+    project file. Add filenames as values of the \c {OTHER_FILES} variable.
+    You can also use wildcards.
+
+    For example, the following code specifies that text files are displayed
+    in the \gui Projects pane:
+
+    \code
+
+    OTHER_FILES += *.txt
+
+    \endcode
+
+    This also makes the files available in the \gui Locator.
 
     \section1 Adding New Project Wizards
 
@@ -2818,6 +2844,17 @@
         \o In the \gui Properties pane, change the \gui objectName to
         \bold batteryLevelBar.
 
+        \o Right-click the \gui BatteryIndicator object and select
+        \gui {Lay Out > Lay Out Horizontally} to ensure that the battery
+        indicator widget size is adjusted correctly on Maemo devices.
+
+        To adjust widget size correctly on Qt Simulator, remove the condition
+        from the main.cpp file (displayed in the following code snippet) and just
+        leave the \c {w.showMaximized();} line:
+
+        \snippet examples/batteryindicator/main.cpp 0
+
+
     \endlist
 
     \section1 Completing the Header File
@@ -3221,6 +3258,12 @@
     \endlist
 
     \image qtcreator-textfinder-ui-widgets.png "Adding widgets to Text Finder UI"
+
+    \note To easily locate the widgets, use the search box at the top of the
+    \gui Sidebar. For example, to find the \gui Label widget, start typing
+    the word \bold label.
+
+    \image qtcreator-texfinder-filter.png "Filter field"
 
     \o Double-click the \gui{Label} widget and enter the text \bold{Keyword}.
 
@@ -3755,7 +3798,7 @@
 
     \section1 Using the Locator Filters
 
-    The \gui Locator allows you to browse not only files, but any items
+    The locator allows you to browse not only files, but any items
     defined by \bold{locator filters}. By default, the locator contains
     filters which locate:
     \list
@@ -6478,7 +6521,7 @@
     \title Tips and Tricks
 
 
-    \section1 Switching between modes
+    \section1 Switching Between Modes
 
     Qt Creator uses different modes for different purposes. You can quickly
     switch between these modes with the following keyboard shortcuts:
@@ -6501,6 +6544,12 @@
     To quickly move between currently open files, press
     \key Ctrl+Tab.
 
+    To move forward in the location history, press \key {Alt+Right}
+    (\key {Cmd+Opt+Right} on Mac OS). To move backward, press \key {Alt+Left}
+    (\key {Cmd+Opt+Right} on Mac OS). For example, if you use the \gui Locator
+    to jump to a symbol in the same file, you can jump back to your original
+    location in that file by pressing \key {Alt+Left}.
+
 
     \section1 Moving To the Edit Mode
 
@@ -6518,10 +6567,34 @@
     To find specific settings you require in \gui{Tools} > \gui{Options...}
     use the filter located at the top left of the \gui Options dialog box.
 
+    \section1 Opening Output Panes
+
+    The output panes provide a list of errors and warnings encountered during
+    a build, detailed output from the compiler, status of a program when it is
+    executed and debug output, as well as search results.
+
+    To open output panes, use the following shortcuts:
+
+    \list
+
+        \o \gui{Build Issues} pane Alt+1 (Cmd+1 on Mac OS X)
+
+        \o \gui{Search Results} pane Alt+2 (Cmd+2 on Mac OS X)
+
+        \o \gui{Application Output} pane Alt+3 (Cmd+3 on Mac OS X)
+
+        \o \gui{Compile Output} pane Alt+4 (Cmd+4 on Mac OS X)
+
+    \endlist
+
+    For more information about output panes, see \l{Viewing Output}.
+
 
     \section1 Using Keyboard Shortcuts
 
     Qt Creator provides \l{Keyboard Shortcuts}{many useful keyboard shortcuts}.
+    You can see the keyboard shortcut for a menu command in the menu
+    or the tooltip for a button.
 
     To customize, import or export keyboard shortcuts, select \gui Tools >
     \gui Options... > \gui Environment > \gui Keyboard.
@@ -6556,10 +6629,18 @@
     \section1 Moving To Symbols
 
     To move straight to a symbol used in a project, select the symbol in the
-    \gui Editor toolbar drop-down menu.
-
-    For more information on the editor toolbar,
+    \gui Editor toolbar drop-down menu. For more information on the editor toolbar,
     see \l {Using the Editor Toolbar}.
+
+    To jump to a symbol in the current file, press \key {Ctrl+K} to open the
+    \gui Locator, enter a period (.), and start typing the symbol name. Then
+    select the symbol in the list. For more information on using the locator,
+    see \l{Searching With the Locator}.
+
+    Press \key Ctrl (\key Cmd on Mac OS) and click a symbol to move directly to
+    the definition or the declaration of the symbol. You can also move the cursor
+    on the symbol and press \key {F2}. For more information, see
+    \l{Moving to Symbol Definition or Declaration}.
 
 
 
@@ -6574,6 +6655,9 @@
     the slot in the \e slots subitem. The objects connected to this slot are
     shown as children of the slot. This method works with signals too.
 
+    For more information about the \gui{Locals and Watchers} view, see
+    \l{Locals and Watchers}.
+
 
     \section1 Displaying Low Level Data
 
@@ -6587,6 +6671,19 @@
            \gui{Debugging Helper}.
         \o Uncheck the \gui{Use debugging helper} checkbox.
     \endlist
+
+
+    \section1 Locating Files
+
+    The \gui Locator provides one of the easiest ways in Qt Creator to browse
+    through projects, files, classes, methods, documentation and file systems.
+    To quickly access files not directly mentioned in your project, you can
+    create your own locator filters. That way you can locate files in a
+    directory structure you have defined.
+
+    To create locator filters, select \gui {Tools > Options... > Locator > Add}.
+
+    For more information, see \l{Creating Locator Filters}.
 
 */
 

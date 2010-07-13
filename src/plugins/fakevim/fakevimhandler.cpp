@@ -232,6 +232,11 @@ struct Column
     int logical; // Column on screen.
 };
 
+QDebug operator<<(QDebug ts, const Column &col)
+{
+    return ts << "(p: " << col.physical << ", l: " << col.logical << ")";
+}
+
 struct CursorPosition
 {
     // for jump history
@@ -2035,22 +2040,25 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         m_opcount = m_mvcount;
         m_mvcount.clear();
         m_submode = DeleteSubMode;
-    } else if ((input.is('d') || input.is('x')) && isVisualCharMode()) {
-        leaveVisualMode();
-        m_submode = DeleteSubMode;
-        finishMovement();
-    } else if ((input.is('d') || input.is('x')) && isVisualLineMode()) {
-        leaveVisualMode();
-        m_rangemode = RangeLineMode;
-        yankText(currentRange(), m_register);
-        removeText(currentRange());
-        handleStartOfLine();
-    } else if ((input.is('d') || input.is('x')) && isVisualBlockMode()) {
-        leaveVisualMode();
-        m_rangemode = RangeBlockMode;
-        yankText(currentRange(), m_register);
-        removeText(currentRange());
-        setPosition(qMin(position(), anchor()));
+    } else if ((input.is('d') || input.is('x') || input.isKey(Key_Delete))
+            && isVisualMode()) {
+        if (isVisualCharMode()) {
+            leaveVisualMode();
+            m_submode = DeleteSubMode;
+            finishMovement();
+        } else if (isVisualLineMode()) {
+            leaveVisualMode();
+            m_rangemode = RangeLineMode;
+            yankText(currentRange(), m_register);
+            removeText(currentRange());
+            handleStartOfLine();
+        } else if (isVisualBlockMode()) {
+            leaveVisualMode();
+            m_rangemode = RangeBlockMode;
+            yankText(currentRange(), m_register);
+            removeText(currentRange());
+            setPosition(qMin(position(), anchor()));
+        }
     } else if (input.is('D') && isNoVisualMode()) {
         if (atEndOfLine())
             moveLeft();
@@ -2486,6 +2494,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         setAnchor();
         moveRight(qMin(1, rightDist()));
         removeText(currentRange());
+        if (atEndOfLine())
+            moveLeft();
     } else if (input.isKey(Key_BracketLeft) || input.isKey(Key_BracketRight)) {
 
     } else if (input.isControl(Key_BracketRight)) {
@@ -2624,11 +2634,11 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
             if (col.logical <= ind.logical && col.logical
                     && startsWithWhitespace(data, col.physical)) {
                 const int ts = config(ConfigTabStop).toInt();
-                const int newcol = col.logical - 1 - (col.logical - 1) % ts;
-                data.remove(0, col.physical);
-                setLineContents(line, tabExpand(newcol).append(data));
+                const int newl = col.logical - 1 - (col.logical - 1) % ts;
+                const QString prefix = tabExpand(newl);
+                setLineContents(line, prefix + data.mid(col.physical));
                 moveToStartOfLine();
-                moveRight(newcol);
+                moveRight(prefix.size());
                 m_lastInsertion.clear(); // FIXME
             } else {
                 m_tc.deletePreviousChar();
@@ -2649,14 +2659,18 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         removeAutomaticIndentation();
         moveUp(count() * (linesOnScreen() - 2));
         m_lastInsertion.clear();
-    } else if (input.isKey(Key_Tab) && hasConfig(ConfigExpandTab)) {
+    } else if (input.isKey(Key_Tab)) {
         m_justAutoIndented = 0;
-        const int ts = config(ConfigTabStop).toInt();
-        const int col = logicalCursorColumn();
-        QString str = QString(ts - col % ts, ' ');
-        m_lastInsertion.append(str);
-        insertText(str);
-        setTargetColumn();
+        if (hasConfig(ConfigExpandTab)) {
+            const int ts = config(ConfigTabStop).toInt();
+            const int col = logicalCursorColumn();
+            QString str = QString(ts - col % ts, ' ');
+            m_lastInsertion.append(str);
+            insertText(str);
+            setTargetColumn();
+        } else {
+            insertInInsertMode(input.raw());
+        }
     } else if (input.isControl('d')) {
         // remove one level of indentation from the current line
         int shift = config(ConfigShiftWidth).toInt();
@@ -3613,13 +3627,13 @@ void FakeVimHandler::Private::shiftRegionRight(int repeat)
     if (hasConfig(ConfigStartOfLine))
         targetPos = firstPositionInLine(beginLine);
 
-    int len = config(ConfigShiftWidth).toInt() * repeat;
-    QString indent(len, ' ');
-
+    const int sw = config(ConfigShiftWidth).toInt();
     beginEditBlock(targetPos);
     for (int line = beginLine; line <= endLine; ++line) {
-        setPosition(firstPositionInLine(line));
-        m_tc.insertText(indent);
+        QString data = lineContents(line);
+        const Column col = indentation(data);
+        data = tabExpand(col.logical + sw * repeat) + data.mid(col.physical);
+        setLineContents(line, data);
     }
     endEditBlock();
 
@@ -4301,10 +4315,12 @@ void FakeVimHandler::Private::setLineContents(int line, const QString &contents)
 {
     QTextBlock block = m_tc.document()->findBlockByNumber(line - 1);
     QTextCursor tc = m_tc;
-    tc.setPosition(block.position());
-    tc.setPosition(block.position() + block.length() - 1, KeepAnchor);
+    const int begin = block.position();
+    const int len = block.length();
+    tc.setPosition(begin);
+    tc.setPosition(begin + len - 1, KeepAnchor);
     tc.removeSelectedText();
-    fixMarks(block.position(), block.length() - contents.size());
+    fixMarks(begin, contents.size() + 1 - len);
     tc.insertText(contents);
 }
 

@@ -72,7 +72,7 @@ doc/pluginhowto/html/*
 # Binaries
 # --------
 bin/*.dll
-bin/qtcreator.bin
+bin/qtcreator
 bin/qtcreator_process_stub*
 bin/qtcreator.exe
 share/doc/qtcreator/qtcreator.qch

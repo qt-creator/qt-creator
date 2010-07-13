@@ -92,6 +92,9 @@ QString MaemoPackageCreationWidget::displayName() const
 
 void MaemoPackageCreationWidget::handleSkipButtonToggled(bool checked)
 {
+    m_ui->major->setEnabled(!checked);
+    m_ui->minor->setEnabled(!checked);
+    m_ui->patch->setEnabled(!checked);
     m_step->setPackagingEnabled(!checked);
 }
 

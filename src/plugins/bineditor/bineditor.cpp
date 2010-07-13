@@ -1042,7 +1042,7 @@ bool BinEditor::event(QEvent *e) {
             selEnd = selStart + 1;
             byteCount = 1;
         }
-        if (byteCount <= 8) {
+        if (m_hexCursor && byteCount <= 8) {
             const QPoint &startPoint = offsetToPos(selStart);
             const QPoint &endPoint = offsetToPos(selEnd);
             const QPoint expandedEndPoint
@@ -1138,14 +1138,25 @@ void BinEditor::keyPressEvent(QKeyEvent *e)
     } break;
 
     case Qt::Key_Home:
-        setCursorPosition((e->modifiers() & Qt::ControlModifier) ?
-                          0 : (m_cursorPosition/16 * 16), moveMode);
+        if (e->modifiers() & Qt::ControlModifier) {
+            if (m_inLazyMode)
+                emit startOfFileRequested(editorInterface());
+            else
+                setCursorPosition(0);
+        } else {
+            setCursorPosition(m_cursorPosition/16 * 16, moveMode);
+        }
         break;
     case Qt::Key_End:
-        setCursorPosition((e->modifiers() & Qt::ControlModifier) ?
-                          (m_size-1) : (m_cursorPosition/16 * 16 + 15), moveMode);
+        if (e->modifiers() & Qt::ControlModifier) {
+            if (m_inLazyMode)
+                emit endOfFileRequested(editorInterface());
+            else
+                setCursorPosition(m_size - 1);
+        } else {
+            setCursorPosition(m_cursorPosition/16 * 16 + 15, moveMode);
+        }
         break;
-
     default:
         if (m_readOnly)
             break;
@@ -1380,7 +1391,7 @@ void BinEditor::jumpToAddress(quint64 address)
 {
     if (address >= m_baseAddr && address < m_baseAddr + m_data.size())
         setCursorPosition(address - m_baseAddr);
-    else
+    else if (m_inLazyMode)
         emit newRangeRequested(editorInterface(), address);
 }
 
@@ -1392,7 +1403,7 @@ void BinEditor::setNewWindowRequestAllowed()
 QPoint BinEditor::offsetToPos(int offset)
 {
     const int x = m_labelWidth + (offset % 16) * m_columnWidth;
-    const int y = (offset / 16) * m_lineHeight;
+    const int y = (offset / 16  - verticalScrollBar()->value()) * m_lineHeight;
     return QPoint(x, y);
 }
 
