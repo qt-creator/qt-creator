@@ -70,22 +70,32 @@ void BuildParentHash::postVisit(Node* ast)
     }
 }
 
-QString label(UiObjectMember *member, Document::Ptr doc)
+static QString label(UiQualifiedId *id)
+{
+    QString str;
+    for (; id ; id = id->next) {
+        if (!id->name)
+            return QString();
+        if (!str.isEmpty())
+            str += QLatin1Char('.');
+        str += id->name->asString();
+    }
+    return str;
+}
+
+static QString label(UiObjectMember *member, Document::Ptr doc)
 {
     QString str;
     if(!member)
         return str;
 
     if (UiObjectDefinition* foo = cast<UiObjectDefinition *>(member)) {
-        quint32 start = foo->firstSourceLocation().begin();
-        quint32 end = foo->initializer->lbraceToken.begin();
-        str = doc->source().mid(start, end-start);
+        str = label(foo->qualifiedTypeNameId);
     } else if(UiObjectBinding *foo = cast<UiObjectBinding *>(member)) {
-        quint32 start = foo->firstSourceLocation().begin();
-        quint32 end = foo->initializer->lbraceToken.begin();
-        str = doc->source().mid(start, end-start);
-    } else if(cast<UiArrayBinding *>(member)) {
-        //TODO
+        str = label(foo->qualifiedId) + QLatin1Char(' ') + label(foo->qualifiedTypeNameId);
+    } else if(UiArrayBinding *foo = cast<UiArrayBinding *>(member)) {
+        str = label(foo->qualifiedId) + QLatin1String("[]");
+    } else if(UiScriptBinding *foo = cast<UiScriptBinding *>(member)) {
     } else {
         quint32 start = member->firstSourceLocation().begin();
         quint32 end = member->lastSourceLocation().end();
@@ -133,11 +143,23 @@ struct Map {
     }
 };
 
-QList<UiObjectMember *> children(UiObjectMember *ast)
+static QList<UiObjectMember *> children(UiObjectMember *ast)
 {
     QList<UiObjectMember *> ret;
     if (UiObjectDefinition* foo = cast<UiObjectDefinition *>(ast)) {
         UiObjectMemberList* list = foo->initializer->members;
+        while (list) {
+            ret.append(list->member);
+            list = list->next;
+        }
+    } else if(UiObjectBinding *foo = cast<UiObjectBinding *>(ast)) {
+        UiObjectMemberList* list = foo->initializer->members;
+        while (list) {
+            ret.append(list->member);
+            list = list->next;
+        }
+    } else if(UiArrayBinding *foo = cast<UiArrayBinding *>(ast)) {
+        UiArrayMemberList* list = foo->members;
         while (list) {
             ret.append(list->member);
             list = list->next;
@@ -277,14 +299,17 @@ Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::P
         if (debugIds.contains(x)) {
             newDebuggIds[y] = debugIds[x];
 
+#if 1
             UiObjectMember *object = y;
             UiObjectMember *previousObject = x;
 
             for (UiObjectMemberList *objectMemberIt = objectMembers(object); objectMemberIt; objectMemberIt = objectMemberIt->next) {
                 if (UiScriptBinding *script = cast<UiScriptBinding *>(objectMemberIt->member)) {
+                    bool found = false;
                     for (UiObjectMemberList *previousObjectMemberIt = Delta::objectMembers(previousObject); previousObjectMemberIt; previousObjectMemberIt = previousObjectMemberIt->next) {
                         if (UiScriptBinding *previousScript = cast<UiScriptBinding *>(previousObjectMemberIt->member)) {
                             if (compare(script->qualifiedId, previousScript->qualifiedId)) {
+                                found = true;
                                 const QString scriptCode = _scriptCode(script, doc2);
                                 const QString previousScriptCode = _scriptCode(previousScript, doc1);
 
@@ -296,6 +321,14 @@ Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::P
                                     }
                                 }
                             }
+                        }
+                    }
+                    if (!found) {
+                        const QString scriptCode = _scriptCode(script, doc2);
+                        const QString property = _propertyName(script->qualifiedId);
+                        foreach (const QDeclarativeDebugObjectReference &ref, debugIds[x]) {
+                            if (ref.debugId() != -1)
+                                updateScriptBinding(ref, script, property, scriptCode);
                         }
                     }
                 } else if (UiSourceElement *uiSource = cast<UiSourceElement*>(objectMemberIt->member)) {
@@ -320,6 +353,7 @@ Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::P
                     }
                 }
             }
+#endif
         }
 
 //--8<--------------------------------------------------------------------------------------------------
