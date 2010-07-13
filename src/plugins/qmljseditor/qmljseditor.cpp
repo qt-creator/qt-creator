@@ -859,7 +859,6 @@ class SelectedElement: protected Visitor
 {
     unsigned cursorPositionStart;
     unsigned cursorPositionEnd;
-    UiObjectMember *containedBy;
     QList<UiObjectMember *> selectedMembers;
 
 public:
@@ -868,7 +867,6 @@ public:
 
     QList<UiObjectMember *> operator()(Node *root, unsigned startPosition, unsigned endPosition)
     {
-        containedBy = false;
         cursorPositionStart = startPosition;
         cursorPositionEnd = endPosition;
         selectedMembers.clear();
@@ -877,6 +875,25 @@ public:
     }
 
 protected:
+
+    bool isAcceptableParent(UiObjectMember *member) const
+    {
+        UiQualifiedId *id = 0;
+        if (UiObjectDefinition *def = cast<UiObjectDefinition *>(member))
+            id = def->qualifiedTypeNameId;
+        else if (UiObjectBinding *binding = cast<UiObjectBinding *>(member))
+            id = binding->qualifiedTypeNameId;
+
+        if (id) {
+            QString name = id->name->asString();
+            if (!name.isEmpty() && name.at(0).isUpper()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     UiObjectInitializer *initializer(UiObjectMember *member) const
     {
         if (UiObjectDefinition *def = cast<UiObjectDefinition *>(member))
@@ -917,8 +934,7 @@ protected:
 
     virtual void postVisit(Node *ast)
     {
-        if ((cursorPositionStart == cursorPositionEnd && !selectedMembers.isEmpty())
-         /*|| (cursorPositionStart != cursorPositionEnd && containedBy != 0)*/)
+        if ((cursorPositionStart == cursorPositionEnd && !selectedMembers.isEmpty()))
             return; // nothing to do, we already have the results.
 
         if (UiObjectMember *member = ast->uiObjectMemberCast()) {
@@ -928,12 +944,9 @@ protected:
             if ((cursorPositionStart != cursorPositionEnd && intersectsCursor(begin, end))
              || (cursorPositionStart == cursorPositionEnd && containsCursor(begin, end)))
             {
-                if (containsCursor(begin, end))
-                    containedBy = member;
-
                 if (UiObjectInitializer *init = initializer(member)) {
                     for (UiObjectMemberList *it = init->members; it; it = it->next) {
-                        if (isIdBinding(it->member)) {
+                        if (isAcceptableParent(member)) {
                             selectedMembers << member;
                             // move start towards end; this facilitates multiselection so that root is usually ignored.
                             cursorPositionStart = qMin(end, cursorPositionEnd);

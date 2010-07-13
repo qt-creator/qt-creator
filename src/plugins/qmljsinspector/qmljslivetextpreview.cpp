@@ -94,7 +94,7 @@ void QmlJSLiveTextPreview::changeSelectedElements(QList<int> offsets, const QStr
         if (offset >= 0) {
             QList<QDeclarativeDebugObjectReference> list = objectReferencesForOffset(offset);
 
-            if (!containsReference) {
+            if (!containsReference && objectRefUnderCursor.debugId() != -1) {
                 foreach(const QDeclarativeDebugObjectReference &ref, list) {
                     if (ref.debugId() == objectRefUnderCursor.debugId()) {
                         containsReference = true;
