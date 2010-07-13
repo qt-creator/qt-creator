@@ -2,6 +2,7 @@
 FAKEVIMHOME = ../../../src/plugins/fakevim
 UTILSDIR = ../../../src/libs
 
+DEFINES += QTCREATOR_UTILS_STATIC_LIB
 SOURCES += \
 	main.cpp \
 	$$FAKEVIMHOME/fakevimhandler.cpp \
