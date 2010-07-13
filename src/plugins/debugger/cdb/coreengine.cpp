@@ -983,10 +983,10 @@ static void formatEventFilter(CIDebugControl *ctl, unsigned long start, unsigned
         HRESULT hr = ctl->GetEventFilterTextWide(i, buffer, bufSize, 0);
         if (SUCCEEDED(hr)) {
             ULONG size;
-            str << "- #" << i << " \"" << QString::fromUtf16(buffer) << '"';
+            str << "- #" << i << " \"" << QString::fromWCharArray(buffer) << '"';
             hr = ctl->GetEventFilterCommandWide(i, buffer, bufSize, &size);
             if (SUCCEEDED(hr) && size > 1)
-                str << " command: '" << QString::fromUtf16(buffer) << '\'';
+                str << " command: '" << QString::fromWCharArray(buffer) << '\'';
             if (isException) {
                 DEBUG_EXCEPTION_FILTER_PARAMETERS exceptionParameters;
                 hr = ctl->GetExceptionFilterParameters(1, 0, i, &exceptionParameters);
@@ -1001,7 +1001,7 @@ static void formatEventFilter(CIDebugControl *ctl, unsigned long start, unsigned
                     if (exceptionParameters.SecondCommandSize) {
                         hr = ctl->GetExceptionFilterSecondCommandWide(i, buffer, bufSize, 0);
                         if (SUCCEEDED(hr))
-                            str << " 2nd-command '" << QString::fromUtf16(buffer) << '\'';
+                            str << " 2nd-command '" << QString::fromWCharArray(buffer) << '\'';
                     }
                 }
             } // isException
