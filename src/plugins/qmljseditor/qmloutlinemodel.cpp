@@ -67,6 +67,10 @@ private:
 
     bool visit(AST::UiObjectDefinition *objDef)
     {
+        if (!validElement(objDef)) {
+            return true;
+        }
+
         AST::SourceLocation location;
         location.offset = objDef->firstSourceLocation().offset;
         location.length = objDef->lastSourceLocation().offset
@@ -75,13 +79,16 @@ private:
 
         const QString typeName = asString(objDef->qualifiedTypeNameId);
         const QString id = getId(objDef);
-        QModelIndex index = m_model->enterElement(asString(objDef->qualifiedTypeNameId), id, location);
+        QModelIndex index = m_model->enterElement(typeName, id, location);
         m_nodeToIndex.insert(objDef, index);
         return true;
     }
 
-    void endVisit(AST::UiObjectDefinition * /*objDefinition*/)
+    void endVisit(AST::UiObjectDefinition *objDef)
     {
+        if (!validElement(objDef)) {
+            return;
+        }
         m_model->leaveElement();
     }
 
@@ -102,6 +109,11 @@ private:
     void endVisit(AST::UiScriptBinding * /*scriptBinding*/)
     {
         m_model->leaveProperty();
+    }
+
+    bool validElement(AST::UiObjectDefinition *objDef) {
+        // For 'Rectangle { id }', id is parsed as UiObjectDefinition ... Filter this out.ctan
+        return objDef->qualifiedTypeNameId->name->asString().at(0).isUpper();
     }
 
     QString getId(AST::UiObjectDefinition *objDef) {
