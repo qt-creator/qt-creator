@@ -429,7 +429,7 @@ void DebuggerEngine::handleCommand(int role, const QVariant &value)
             break;
 
         case RequestExecResetRole:
-            //exec();
+            notifyEngineIll(); // FIXME: check
             break;
 
         case RequestExecStepRole:
