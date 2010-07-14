@@ -434,9 +434,10 @@ OutputWindow::~OutputWindow()
     delete m_outputWindowContext;
 }
 
-void OutputWindow::mousePressEvent(QMouseEvent * /*e*/)
+void OutputWindow::mousePressEvent(QMouseEvent * e)
 {
     m_mousePressed = true;
+    QPlainTextEdit::mousePressEvent(e);
 }
 
 
@@ -453,6 +454,7 @@ void OutputWindow::mouseReleaseEvent(QMouseEvent *e)
     const QString href = anchorAt(e->pos());
     if (m_formatter)
         m_formatter->handleLink(href);
+    QPlainTextEdit::mousePressEvent(e);
 }
 
 void OutputWindow::mouseMoveEvent(QMouseEvent *e)
@@ -465,6 +467,7 @@ void OutputWindow::mouseMoveEvent(QMouseEvent *e)
         viewport()->setCursor(Qt::IBeamCursor);
     else
         viewport()->setCursor(Qt::PointingHandCursor);
+    QPlainTextEdit::mouseMoveEvent(e);
 }
 
 OutputFormatter *OutputWindow::formatter() const
