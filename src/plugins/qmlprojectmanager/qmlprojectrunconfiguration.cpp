@@ -96,11 +96,7 @@ void QmlProjectRunConfiguration::ctor()
 
     setDisplayName(tr("QML Viewer", "QMLRunConfiguration display name."));
 
-#ifdef Q_OS_MAC
-    const QString qmlViewerName = QLatin1String("QMLViewer");
-#else
-    const QString qmlViewerName = QLatin1String("qmlviewer");
-#endif
+    const QString qmlViewerName = QLatin1String("qmlobserver");
 
     if (m_qmlViewerDefaultPath.isEmpty()) {
         QDir qmlviewerExecutable(QCoreApplication::applicationDirPath());
@@ -111,7 +107,7 @@ void QmlProjectRunConfiguration::ctor()
 #endif
         QFileInfo qmlviewerFileInfo(m_qmlViewerDefaultPath);
         if (!qmlviewerFileInfo.exists()) {
-            qWarning() << "QmlProjectRunConfiguration::ctor(): qmlviewer executable does not exist at" << m_qmlViewerDefaultPath;
+            qWarning() << "QmlProjectRunConfiguration::ctor(): QML Viewer executable does not exist at" << m_qmlViewerDefaultPath;
             m_qmlViewerDefaultPath.clear();
         } else if (!qmlviewerFileInfo.isFile()) {
             qWarning() << "QmlProjectRunConfiguration::ctor(): " << m_qmlViewerDefaultPath << " is not a file";

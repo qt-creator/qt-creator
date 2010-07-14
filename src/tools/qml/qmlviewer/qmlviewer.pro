@@ -15,4 +15,4 @@ mac {
     ICON=qml.icns
 }
 
-TARGET=qmlviewer
+TARGET=qmlobserver
