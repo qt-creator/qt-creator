@@ -868,6 +868,7 @@ public:
     bool handleExHistoryCommand(const ExCommand &cmd);
     bool handleExRegisterCommand(const ExCommand &cmd);
     bool handleExMapCommand(const ExCommand &cmd);
+    bool handleExNohlsearchCommand(const ExCommand &cmd);
     bool handleExNormalCommand(const ExCommand &cmd);
     bool handleExReadCommand(const ExCommand &cmd);
     bool handleExRedoCommand(const ExCommand &cmd);
@@ -3383,6 +3384,17 @@ bool FakeVimHandler::Private::handleExShiftCommand(const ExCommand &cmd)
     return true;
 }
 
+bool FakeVimHandler::Private::handleExNohlsearchCommand(const ExCommand &cmd)
+{
+    // :nohlsearch
+    if (!cmd.cmd.startsWith("noh"))
+        return false;
+
+    m_searchSelections.clear();
+    updateSelection();
+    return true;
+}
+
 bool FakeVimHandler::Private::handleExRedoCommand(const ExCommand &cmd)
 {
     // :redo
@@ -3486,6 +3498,7 @@ bool FakeVimHandler::Private::handleExCommandHelper(const ExCommand &cmd)
         || handleExRegisterCommand(cmd)
         || handleExDeleteCommand(cmd)
         || handleExMapCommand(cmd)
+        || handleExNohlsearchCommand(cmd)
         || handleExNormalCommand(cmd)
         || handleExReadCommand(cmd)
         || handleExRedoCommand(cmd)
