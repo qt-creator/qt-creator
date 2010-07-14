@@ -14,7 +14,13 @@ class QmlOutlineModel : public QStandardItemModel
     Q_OBJECT
 public:
     enum CustomRoles {
-        SourceLocationRole = Qt::UserRole + 1
+        SourceLocationRole = Qt::UserRole + 1,
+        ItemTypeRole = SourceLocationRole + 1
+    };
+
+    enum ItemTypes {
+        ElementType,
+        PropertyType
     };
 
     QmlOutlineModel(QObject *parent = 0);

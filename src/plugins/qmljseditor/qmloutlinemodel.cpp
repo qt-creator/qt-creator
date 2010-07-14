@@ -201,6 +201,22 @@ private:
     int indent;
 };
 
+class OutlineItem : public QStandardItem
+{
+    int type() const
+    {
+        return QStandardItem::UserType + 1;
+    }
+
+    QVariant data(int role = Qt::UserRole + 1) const
+    {
+        if (role == Qt::ToolTipRole) {
+
+        }
+        return QStandardItem::data(role);
+    }
+};
+
 QmlOutlineModel::QmlOutlineModel(QObject *parent) :
     QStandardItemModel(parent)
 {
@@ -238,6 +254,7 @@ QModelIndex QmlOutlineModel::enterElement(const QString &type, const QString &id
     }
     item->setIcon(icon);
     item->setToolTip(type);
+    item->setData(ElementType, ItemTypeRole);
     return item->index();
 }
 
@@ -255,6 +272,7 @@ QModelIndex QmlOutlineModel::enterProperty(const QString &name, bool isCustomPro
     } else {
         item->setIcon(m_icons->scriptBindingIcon());
     }
+    item->setData(PropertyType, ItemTypeRole);
     return item->index();
 }
 

@@ -396,7 +396,7 @@ Core::NavigationView ProjectTreeWidgetFactory::createWidget()
     n.widget = ptw;
 
     QToolButton *filter = new QToolButton;
-    filter->setIcon(QIcon(":/projectexplorer/images/filtericon.png"));
+    filter->setIcon(QIcon(":/core/images/filtericon.png"));
     filter->setToolTip(tr("Filter tree"));
     filter->setPopupMode(QToolButton::InstantPopup);
     QMenu *filterMenu = new QMenu(filter);

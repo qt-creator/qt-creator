@@ -1,4 +1,5 @@
 #include "outlinefactory.h"
+#include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <QVBoxLayout>
@@ -31,6 +32,14 @@ OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
     m_toggleSync->setToolTip(tr("Synchronize with Editor"));
     connect(m_toggleSync, SIGNAL(clicked(bool)), this, SLOT(toggleCursorSynchronization()));
 
+    m_filterButton = new QToolButton;
+    m_filterButton->setIcon(QIcon(":/core/images/filtericon.png"));
+    m_filterButton->setToolTip(tr("Filter tree"));
+    m_filterButton->setPopupMode(QToolButton::InstantPopup);
+    m_filterMenu = new QMenu(m_filterButton);
+    m_filterButton->setMenu(m_filterMenu);
+    connect(m_filterMenu, SIGNAL(aboutToShow()), this, SLOT(updateFilterMenu()));
+
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     connect(editorManager, SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(updateCurrentEditor(Core::IEditor*)));
@@ -46,6 +55,11 @@ QToolButton *OutlineWidgetStack::toggleSyncButton()
     return m_toggleSync;
 }
 
+QToolButton *OutlineWidgetStack::filterButton()
+{
+    return m_filterButton;
+}
+
 bool OutlineWidgetStack::isCursorSynchronized() const
 {
     return m_syncWithEditor;
@@ -56,6 +70,16 @@ void OutlineWidgetStack::toggleCursorSynchronization()
     m_syncWithEditor = !m_syncWithEditor;
     if (IOutlineWidget *outlineWidget = qobject_cast<IOutlineWidget*>(currentWidget()))
         outlineWidget->setCursorSynchronization(m_syncWithEditor);
+}
+
+void OutlineWidgetStack::updateFilterMenu()
+{
+    m_filterMenu->clear();
+    if (IOutlineWidget *outlineWidget = qobject_cast<IOutlineWidget*>(currentWidget())) {
+        foreach (QAction *filterAction, outlineWidget->filterMenuActions()) {
+            m_filterMenu->addAction(filterAction);
+        }
+    }
 }
 
 void OutlineWidgetStack::updateCurrentEditor(Core::IEditor *editor)
@@ -121,6 +145,7 @@ Core::NavigationView OutlineFactory::createWidget()
     OutlineWidgetStack *placeHolder = new OutlineWidgetStack(this);
     n.widget = placeHolder;
     n.dockToolBarWidgets.append(placeHolder->toggleSyncButton());
+    n.dockToolBarWidgets.append(placeHolder->filterButton());
     return n;
 }
 

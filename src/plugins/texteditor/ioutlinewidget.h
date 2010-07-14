@@ -16,6 +16,7 @@ class TEXTEDITOR_EXPORT IOutlineWidget : public QWidget
 public:
     IOutlineWidget(QWidget *parent = 0) : QWidget(parent) {}
 
+    virtual QList<QAction*> filterMenuActions() const = 0;
     virtual void setCursorSynchronization(bool syncWithCursor) = 0;
 };
 

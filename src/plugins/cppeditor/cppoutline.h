@@ -37,6 +37,7 @@ public:
     CppOutlineWidget(CPPEditor *editor);
 
     // IOutlineWidget
+    virtual QList<QAction*> filterMenuActions() const;
     virtual void setCursorSynchronization(bool syncWithCursor);
 
 private slots:

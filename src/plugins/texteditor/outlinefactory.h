@@ -4,6 +4,7 @@
 #include <texteditor/ioutlinewidget.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 #include <QtGui/QStackedWidget>
+#include <QtGui/QMenu>
 
 namespace Core {
 class IEditor;
@@ -22,6 +23,7 @@ public:
     ~OutlineWidgetStack();
 
     QToolButton *toggleSyncButton();
+    QToolButton *filterButton();
 
 private:
     bool isCursorSynchronized() const;
@@ -29,12 +31,15 @@ private:
 
 private slots:
     void toggleCursorSynchronization();
+    void updateFilterMenu();
     void updateCurrentEditor(Core::IEditor *editor);
 
 private:
     QStackedWidget *m_widgetStack;
     OutlineFactory *m_factory;
     QToolButton *m_toggleSync;
+    QToolButton *m_filterButton;
+    QMenu *m_filterMenu;
     bool m_syncWithEditor;
 };
 

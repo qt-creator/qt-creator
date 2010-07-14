@@ -560,7 +560,7 @@ TaskWindow::TaskWindow(TaskHub *taskhub) : d(new TaskWindowPrivate)
     connect(d->m_categoriesMenu, SIGNAL(triggered(QAction*)), this, SLOT(filterCategoryTriggered(QAction*)));
 
     d->m_categoriesButton = new QToolButton;
-    d->m_categoriesButton->setIcon(QIcon(":/projectexplorer/images/filtericon.png"));
+    d->m_categoriesButton->setIcon(QIcon(":/core/images/filtericon.png"));
     d->m_categoriesButton->setToolTip(tr("Filter by categories"));
     d->m_categoriesButton->setAutoRaise(true);
     d->m_categoriesButton->setPopupMode(QToolButton::InstantPopup);

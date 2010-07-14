@@ -81,6 +81,11 @@ CppOutlineWidget::CppOutlineWidget(CPPEditor *editor) :
             this, SLOT(updateSelectionInText(QItemSelection)));
 }
 
+QList<QAction*> CppOutlineWidget::filterMenuActions() const
+{
+    return QList<QAction*>();
+}
+
 void CppOutlineWidget::setCursorSynchronization(bool syncWithCursor)
 {
     m_enableCursorSync = syncWithCursor;
