@@ -4290,11 +4290,14 @@ QRegion BaseTextEditor::translatedLineRegion(int lineStart, int lineEnd) const
     for (int i = lineStart ; i <= lineEnd; i++) {
         QTextBlock block = document()->findBlockByNumber(i);
         QPoint topLeft = blockBoundingGeometry(block).translated(contentOffset()).topLeft().toPoint();
-        QTextLayout *layout = block.layout();
 
-        for (int i = 0; i < layout->lineCount();i++) {
-            QTextLine line = layout->lineAt(i);
-            region += line.naturalTextRect().translated(topLeft).toRect();
+        if (block.isValid()) {
+            QTextLayout *layout = block.layout();
+
+            for (int i = 0; i < layout->lineCount();i++) {
+                QTextLine line = layout->lineAt(i);
+                region += line.naturalTextRect().translated(topLeft).toRect();
+            }
         }
     }
     return region;
