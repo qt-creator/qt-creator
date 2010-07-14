@@ -39,6 +39,8 @@ using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJSInspector::Internal;
 
+namespace {
+
 /*!
     Build a hash of the parents
  */
@@ -273,7 +275,7 @@ static QString _methodName(UiSourceElement *source)
     return QString();
 }
 
-
+}
 
 Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::Ptr &doc2, const DebugIdMap &debugIds)
 {
