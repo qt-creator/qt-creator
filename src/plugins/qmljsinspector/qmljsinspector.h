@@ -117,8 +117,6 @@ private slots:
     void disconnectWidgets();
     void disconnected();
 
-    void objectTreeUpdated(const QDeclarativeDebugObjectReference &ref);
-
 private:
     Debugger::DebuggerRunControl *createDebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig,
                                                            const QString &executableFile = QString(),
