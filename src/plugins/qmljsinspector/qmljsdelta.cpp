@@ -177,10 +177,17 @@ Map MatchFragment(UiObjectMember *x, UiObjectMember *y, const Map &M, Document::
     if(label(x, doc1) != label(y, doc2))
         return M2;
     M2.insert(x, y);
-    const QList<UiObjectMember *> list1 = children(x);
-    const QList<UiObjectMember *> list2 = children(y);
-    for (int i = 0; i < qMin(list1.count(), list2.count()); i++) {
-        M2 += MatchFragment(list1[i], list2[i], M, doc1, doc2);
+    QList<UiObjectMember *> list1 = children(x);
+    QList<UiObjectMember *> list2 = children(y);
+    for (int i = 0; i < list1.count(); i++) {
+        QString l = label(list1[i], doc1);
+        for (int j = 0; j < list2.count(); j++) {
+            if (l != label(list2[j], doc2))
+                continue;
+            M2 += MatchFragment(list1[i], list2[j], M, doc1, doc2);
+            list2.removeAt(j);
+            break;
+        }
     }
     return M2;
 }
