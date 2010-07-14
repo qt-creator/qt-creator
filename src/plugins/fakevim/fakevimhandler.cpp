@@ -1696,6 +1696,8 @@ EventResult FakeVimHandler::Private::handleOpenSquareSubMode(const Input &input)
     m_submode = NoSubMode;
     if (input.is('{')) {
         searchBalanced(false, '{', '}');
+    } else if (input.is('(')) {
+        searchBalanced(false, '(', ')');
     } else {
         handled = EventUnhandled;
     }
@@ -1708,6 +1710,8 @@ EventResult FakeVimHandler::Private::handleCloseSquareSubMode(const Input &input
     m_submode = NoSubMode;
     if (input.is('}')) {
         searchBalanced(true, '}', '{');
+    } else if (input.is(')')) {
+        searchBalanced(true, ')', '(');
     } else {
         handled = EventUnhandled;
     }
