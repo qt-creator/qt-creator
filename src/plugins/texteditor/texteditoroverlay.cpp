@@ -138,6 +138,9 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
 
     QTextBlock block = begin.block();
 
+    if (block.blockNumber() < m_editor->firstVisibleBlock().blockNumber() - 4)
+        block = m_editor->document()->findBlockByNumber(m_editor->firstVisibleBlock().blockNumber() - 4);
+
     bool inSelection = false;
 
     QVector<QRectF> selection;
