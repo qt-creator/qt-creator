@@ -22,6 +22,7 @@ public:
     ~MaemoDeployStepWidget();
 
 private:
+    Q_SLOT void handleModelsCreated();
     virtual void init();
     virtual QString summaryText() const;
     virtual QString displayName() const;

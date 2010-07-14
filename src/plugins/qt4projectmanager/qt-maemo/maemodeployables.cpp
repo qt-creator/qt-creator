@@ -42,9 +42,9 @@
 #include "maemodeployables.h"
 
 #include "maemodeployablelistmodel.h"
-#include "maemopackagecreationstep.h"
 #include "maemotoolchain.h"
 
+#include <projectexplorer/buildstep.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4nodes.h>
 #include <qt4projectmanager/qt4project.h>
@@ -55,8 +55,8 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-MaemoDeployables::MaemoDeployables(MaemoPackageCreationStep *packagingStep)
-    : m_packagingStep(packagingStep), m_proFilesWatcher(0)
+MaemoDeployables::MaemoDeployables(const ProjectExplorer::BuildStep *buildStep)
+    : m_buildStep(buildStep), m_proFilesWatcher(0)
 {
     QTimer::singleShot(0, this, SLOT(createModels()));
 }
@@ -64,8 +64,8 @@ MaemoDeployables::MaemoDeployables(MaemoPackageCreationStep *packagingStep)
 void MaemoDeployables::createModels()
 {
     m_listModels.clear();
-    Qt4ProFileNode *rootNode = m_packagingStep->qt4BuildConfiguration()
-        ->qt4Target()->qt4Project()->rootProjectNode();
+    Qt4ProFileNode *rootNode
+        = qt4BuildConfiguration()->qt4Target()->qt4Project()->rootProjectNode();
     createModels(rootNode);
     if (!m_proFilesWatcher) {
         m_proFilesWatcher = new Qt4NodesWatcher(this);
@@ -84,7 +84,10 @@ void MaemoDeployables::createModels(const Qt4ProFileNode *proFileNode)
     case ApplicationTemplate:
     case LibraryTemplate:
     case ScriptTemplate: {
-        const QString qConfigFile = m_packagingStep->maemoToolChain()->sysrootRoot()
+        const MaemoToolChain * const tc
+            = dynamic_cast<MaemoToolChain *>(qt4BuildConfiguration()->toolChain());
+        Q_ASSERT(tc);
+        const QString qConfigFile = tc->sysrootRoot()
             + QLatin1String("/usr/share/qt/mkspecs/qconfig.pri");
         m_listModels << new MaemoDeployableListModel(proFileNode, qConfigFile, this);
         break;
@@ -149,6 +152,14 @@ QString MaemoDeployables::remoteExecutableFilePath(const QString &localExecutabl
     }
     qWarning("No remote executable specified!");
     return QString();
+}
+
+const Qt4BuildConfiguration *MaemoDeployables::qt4BuildConfiguration() const
+{
+    const Qt4BuildConfiguration * const bc
+        = qobject_cast<Qt4BuildConfiguration *>(m_buildStep->buildConfiguration());
+    Q_ASSERT(bc);
+    return bc;
 }
 
 } // namespace Qt4ProjectManager

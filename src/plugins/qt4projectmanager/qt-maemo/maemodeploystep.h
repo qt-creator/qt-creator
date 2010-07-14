@@ -54,6 +54,7 @@ class SshRemoteProcess;
 
 namespace Qt4ProjectManager {
 namespace Internal {
+class MaemoDeployables;
 class MaemoPackageCreationStep;
 
 class MaemoDeployStep : public ProjectExplorer::BuildStep
@@ -67,6 +68,7 @@ public:
     bool currentlyNeedsDeployment(const QString &host,
         const MaemoDeployable &deployable) const;
     void setDeployed(const QString &host, const MaemoDeployable &deployable);
+    MaemoDeployables *deployables() const { return m_deployables; }
 
 signals:
     void done();
@@ -107,6 +109,7 @@ private:
 
     static const QLatin1String Id;
 
+    MaemoDeployables * const m_deployables;
     QSharedPointer<Core::SshConnection> m_connection;
     QSharedPointer<Core::SftpChannel> m_uploader;
     QSharedPointer<Core::SshRemoteProcess> m_installer;

@@ -42,8 +42,10 @@
 #include "maemopackagecreationstep.h"
 
 #include "maemoconstants.h"
+#include "maemoglobal.h"
 #include "maemopackagecreationwidget.h"
 #include "maemodeployables.h"
+#include "maemodeploystep.h"
 #include "maemotoolchain.h"
 #include "profilewrapper.h"
 
@@ -73,7 +75,6 @@ namespace Internal {
 
 MaemoPackageCreationStep::MaemoPackageCreationStep(BuildConfiguration *buildConfig)
     : ProjectExplorer::BuildStep(buildConfig, CreatePackageId),
-      m_deployables(new MaemoDeployables(this)),
       m_packagingEnabled(true),
       m_versionString(DefaultVersionNumber)
 {
@@ -82,7 +83,6 @@ MaemoPackageCreationStep::MaemoPackageCreationStep(BuildConfiguration *buildConf
 MaemoPackageCreationStep::MaemoPackageCreationStep(BuildConfiguration *buildConfig,
     MaemoPackageCreationStep *other)
     : BuildStep(buildConfig, other),
-      m_deployables(new MaemoDeployables(this)),
       m_packagingEnabled(other->m_packagingEnabled),
       m_versionString(other->m_versionString)
 {
@@ -90,7 +90,6 @@ MaemoPackageCreationStep::MaemoPackageCreationStep(BuildConfiguration *buildConf
 
 MaemoPackageCreationStep::~MaemoPackageCreationStep()
 {
-    delete m_deployables;
 }
 
 bool MaemoPackageCreationStep::init()
@@ -245,7 +244,7 @@ bool MaemoPackageCreationStep::createPackage()
     }
 
     emit addOutput(tr("Package created."), textCharFormat);
-    m_deployables->setUnmodified();
+    deployStep()->deployables()->setUnmodified();
     return true;
 }
 
@@ -313,6 +312,15 @@ const MaemoToolChain *MaemoPackageCreationStep::maemoToolChain() const
     return static_cast<MaemoToolChain *>(qt4BuildConfiguration()->toolChain());
 }
 
+MaemoDeployStep *MaemoPackageCreationStep::deployStep() const
+{
+    MaemoDeployStep * const deployStep
+        = MaemoGlobal::buildStep<MaemoDeployStep>(buildConfiguration());
+    Q_ASSERT(deployStep &&
+        "Fatal error: Maemo build configuration without deploy step.");
+    return deployStep;
+}
+
 QString MaemoPackageCreationStep::maddeRoot() const
 {
     return maemoToolChain()->maddeRoot();
@@ -325,14 +333,15 @@ QString MaemoPackageCreationStep::targetRoot() const
 
 bool MaemoPackageCreationStep::packagingNeeded() const
 {
+    const MaemoDeployables * const deployables = deployStep()->deployables();
     QFileInfo packageInfo(packageFilePath());
-    if (!packageInfo.exists() || m_deployables->isModified())
+    if (!packageInfo.exists() || deployables->isModified())
         return true;
 
-    const int deployableCount = m_deployables->deployableCount();
+    const int deployableCount = deployables->deployableCount();
     for (int i = 0; i < deployableCount; ++i) {
         if (packageInfo.lastModified()
-            <= QFileInfo(m_deployables->deployableAt(i).localFilePath)
+            <= QFileInfo(deployables->deployableAt(i).localFilePath)
                .lastModified())
             return true;
     }

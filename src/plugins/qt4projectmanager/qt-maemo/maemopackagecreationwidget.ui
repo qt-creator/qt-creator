@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>478</width>
-    <height>335</height>
+    <width>453</width>
+    <height>116</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -178,24 +178,17 @@
     </layout>
    </item>
    <item>
-    <widget class="QLabel" name="contentsLabel">
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
      </property>
-     <property name="text">
-      <string>Files to deploy:</string>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
      </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QTabWidget" name="tabWidget">
-     <property name="currentIndex">
-      <number>-1</number>
-     </property>
-    </widget>
+    </spacer>
    </item>
   </layout>
  </widget>

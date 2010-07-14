@@ -37,7 +37,6 @@
 #include "maemodeployables.h"
 #include "maemodeploystep.h"
 #include "maemoglobal.h"
-#include "maemopackagecreationstep.h"
 #include "maemorunconfiguration.h"
 
 #include <coreplugin/icore.h>
@@ -143,7 +142,7 @@ void AbstractMaemoRunControl::stop()
 QString AbstractMaemoRunControl::executableFilePathOnTarget() const
 {
     const MaemoDeployables * const deployables
-        = m_runConfig->packageStep()->deployables();
+        = m_runConfig->deployStep()->deployables();
     return deployables->remoteExecutableFilePath(m_runConfig->executable());
 }
 

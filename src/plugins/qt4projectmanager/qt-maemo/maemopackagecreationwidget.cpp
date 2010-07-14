@@ -42,11 +42,7 @@
 #include "maemopackagecreationwidget.h"
 #include "ui_maemopackagecreationwidget.h"
 
-#include "maemodeployablelistmodel.h"
-#include "maemodeployablelistwidget.h"
-#include "maemodeployables.h"
 #include "maemopackagecreationstep.h"
-#include "maemotoolchain.h"
 
 #include <utils/qtcassert.h>
 #include <projectexplorer/project.h>
@@ -70,10 +66,6 @@ MaemoPackageCreationWidget::MaemoPackageCreationWidget(MaemoPackageCreationStep 
     m_ui->minor->setValue(list.value(1, QLatin1String("0")).toInt());
     m_ui->patch->setValue(list.value(2, QLatin1String("0")).toInt());
     versionInfoChanged();
-
-    connect(m_step->deployables(), SIGNAL(modelsCreated()), this,
-        SLOT(handleModelsCreated()));
-    handleModelsCreated();
 }
 
 void MaemoPackageCreationWidget::init()
@@ -103,17 +95,6 @@ void MaemoPackageCreationWidget::versionInfoChanged()
     m_step->setVersionString(m_ui->major->text() + QLatin1Char('.')
         + m_ui->minor->text() + QLatin1Char('.') + m_ui->patch->text());
     emit updateSummary();
-}
-
-void MaemoPackageCreationWidget::handleModelsCreated()
-{
-    m_ui->tabWidget->clear();
-    for (int i = 0; i < m_step->deployables()->modelCount(); ++i) {
-        MaemoDeployableListModel * const model
-            = m_step->deployables()->modelAt(i);
-        m_ui->tabWidget->addTab(new MaemoDeployableListWidget(this, model),
-            model->projectName());
-    }
 }
 
 } // namespace Internal

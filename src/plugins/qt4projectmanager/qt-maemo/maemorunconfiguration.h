@@ -71,7 +71,6 @@ public:
     Qt4Target *qt4Target() const;
     Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
 
-    const MaemoPackageCreationStep *packageStep() const;
     MaemoDeployStep *deployStep() const;
 
     QString maddeRoot() const;

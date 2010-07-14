@@ -2,6 +2,9 @@
 #include "ui_maemodeploystepwidget.h"
 
 #include "maemodeploystep.h"
+#include "maemodeployablelistmodel.h"
+#include "maemodeployablelistwidget.h"
+#include "maemodeployables.h"
 #include "maemorunconfiguration.h"
 
 #include <projectexplorer/buildconfiguration.h>
@@ -16,6 +19,10 @@ MaemoDeployStepWidget::MaemoDeployStepWidget(MaemoDeployStep *step) :
     m_step(step)
 {
     ui->setupUi(this);
+
+    connect(m_step->deployables(), SIGNAL(modelsCreated()), this,
+        SLOT(handleModelsCreated()));
+    handleModelsCreated();
 }
 
 MaemoDeployStepWidget::~MaemoDeployStepWidget()
@@ -47,6 +54,18 @@ QString MaemoDeployStepWidget::summaryText() const
 QString MaemoDeployStepWidget::displayName() const
 {
     return QString();
+}
+
+
+void MaemoDeployStepWidget::handleModelsCreated()
+{
+    ui->tabWidget->clear();
+    for (int i = 0; i < m_step->deployables()->modelCount(); ++i) {
+        MaemoDeployableListModel * const model
+            = m_step->deployables()->modelAt(i);
+        ui->tabWidget->addTab(new MaemoDeployableListWidget(this, model),
+            model->projectName());
+    }
 }
 
 } // namespace Internal

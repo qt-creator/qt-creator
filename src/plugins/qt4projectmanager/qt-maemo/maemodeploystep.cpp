@@ -59,19 +59,23 @@ const QLatin1String MaemoDeployStep::Id("Qt4ProjectManager.MaemoDeployStep");
 
 
 MaemoDeployStep::MaemoDeployStep(ProjectExplorer::BuildConfiguration *bc)
-    : BuildStep(bc, Id)
+    : BuildStep(bc, Id), m_deployables(new MaemoDeployables(this))
 {
     ctor();
 }
 
 MaemoDeployStep::MaemoDeployStep(ProjectExplorer::BuildConfiguration *bc,
     MaemoDeployStep *other)
-    : BuildStep(bc, other), m_lastDeployed(other->m_lastDeployed)
+    : BuildStep(bc, other), m_deployables(new MaemoDeployables(this)),
+      m_lastDeployed(other->m_lastDeployed)
 {
     ctor();
 }
 
-MaemoDeployStep::~MaemoDeployStep() {}
+MaemoDeployStep::~MaemoDeployStep()
+{
+    delete m_deployables;
+}
 
 void MaemoDeployStep::ctor()
 {
@@ -152,7 +156,8 @@ const MaemoPackageCreationStep *MaemoDeployStep::packagingStep() const
 {
     const MaemoPackageCreationStep * const step
         = MaemoGlobal::buildStep<MaemoPackageCreationStep>(buildConfiguration());
-    Q_ASSERT(step && "Impossible: Maemo build configuration without packaging step.");
+    Q_ASSERT_X(step, Q_FUNC_INFO,
+        "Impossible: Maemo build configuration without packaging step.");
     return step;
 }
 
@@ -283,10 +288,9 @@ void MaemoDeployStep::handleSftpChannelInitialized()
             m_needsInstall = false;
         }
     } else {
-        const MaemoDeployables * const deployables = pStep->deployables();
-        const int deployableCount = deployables->deployableCount();
+        const int deployableCount = m_deployables->deployableCount();
         for (int i = 0; i < deployableCount; ++i) {
-            const MaemoDeployable &d = deployables->deployableAt(i);
+            const MaemoDeployable &d = m_deployables->deployableAt(i);
             if (currentlyNeedsDeployment(hostName, d)
                 && !deploy(MaemoDeployable(d)))
                 return;

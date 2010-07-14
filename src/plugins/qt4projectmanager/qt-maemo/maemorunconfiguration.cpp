@@ -170,19 +170,12 @@ const QString MaemoRunConfiguration::gdbCmd() const
     return QString();
 }
 
-const MaemoPackageCreationStep *MaemoRunConfiguration::packageStep() const
-{
-    const MaemoPackageCreationStep * const step
-        = MaemoGlobal::buildStep<MaemoPackageCreationStep>(activeQt4BuildConfiguration());
-    Q_ASSERT(step && "Impossible: Maemo build configuration without packaging step.");
-    return step;
-}
-
 MaemoDeployStep *MaemoRunConfiguration::deployStep() const
 {
     MaemoDeployStep * const step
         = MaemoGlobal::buildStep<MaemoDeployStep>(activeQt4BuildConfiguration());
-    Q_ASSERT(step && !"Impossible: Maemo build configuration without deploy step.");
+    Q_ASSERT_X(step, Q_FUNC_INFO,
+        "Impossible: Maemo build configuration without deploy step.");
     return step;
 }
 
