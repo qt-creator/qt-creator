@@ -64,17 +64,17 @@ void QmlJSDesignDebugClient::messageReceived(const QByteArray &message)
     if (type == "CURRENT_OBJECTS_CHANGED") {
         int objectCount;
         ds >> objectCount;
-        QList<int> debugIds;
+        m_selectedItemIds.clear();
 
         for(int i = 0; i < objectCount; ++i) {
             int debugId;
             ds >> debugId;
             if (debugId != -1) {
-                debugIds << debugId;
+                m_selectedItemIds  << debugId;
             }
         }
 
-        emit currentObjectsChanged(debugIds);
+        emit currentObjectsChanged(m_selectedItemIds);
     } else if (type == "TOOL_CHANGED") {
         int toolId;
         ds >> toolId;
@@ -97,6 +97,11 @@ void QmlJSDesignDebugClient::messageReceived(const QByteArray &message)
         ds >> inDesignMode;
         emit designModeBehaviorChanged(inDesignMode);
     }
+}
+
+QList<int> QmlJSDesignDebugClient::selectedItemIds() const
+{
+    return m_selectedItemIds;
 }
 
 void QmlJSDesignDebugClient::setSelectedItemsByObjectId(const QList<QDeclarativeDebugObjectReference> &objects)

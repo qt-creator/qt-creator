@@ -67,6 +67,8 @@ public:
     void applyChangesToQmlFile();
     void applyChangesFromQmlFile();
 
+    QList<int> selectedItemIds() const;
+
 signals:
     void currentObjectsChanged(const QList<int> &debugIds);
     void colorPickerActivated();
@@ -80,6 +82,7 @@ protected:
     virtual void messageReceived(const QByteArray &);
 
 private:
+    QList<int> m_selectedItemIds;
     QDeclarativeDebugConnection *m_connection;
 };
 

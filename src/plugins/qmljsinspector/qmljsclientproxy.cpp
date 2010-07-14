@@ -128,20 +128,22 @@ void ClientProxy::onCurrentObjectsChanged(const QList<int> &debugIds)
             // So the only choice that remains is to update the complete tree when we have an unknown debug id.
             if (!m_objectTreeQuery) {
                 m_objectTreeQuery = m_client->queryObjectRecursive(m_rootObject, this);
-
-                if (!m_objectTreeQuery->isWaiting()) {
-                    objectTreeFetched();
-                } else {
-                    connect(m_objectTreeQuery,
-                            SIGNAL(stateChanged(QDeclarativeDebugQuery::State)),
-                            SLOT(objectTreeFetched(QDeclarativeDebugQuery::State)));
-                }
             }
 
         }
     }
 
-    emit selectedItemsChanged(selectedItems);
+    if (m_objectTreeQuery) {
+        if (!m_objectTreeQuery->isWaiting()) {
+            objectTreeFetched();
+        } else {
+            connect(m_objectTreeQuery,
+                    SIGNAL(stateChanged(QDeclarativeDebugQuery::State)),
+                    SLOT(objectTreeFetched(QDeclarativeDebugQuery::State)));
+        }
+    } else {
+        emit selectedItemsChanged(selectedItems);
+    }
 }
 
 void ClientProxy::disconnectFromViewer()
@@ -358,49 +360,58 @@ void ClientProxy::objectTreeFetched(QDeclarativeDebugQuery::State state)
     m_objectTreeQuery = 0;
 
     emit objectTreeUpdated(m_rootObject);
+
+    if (isDesignClientConnected() && !m_designClient->selectedItemIds().isEmpty()) {
+        onCurrentObjectsChanged(m_designClient->selectedItemIds());
+    }
+
 }
 
 void ClientProxy::reloadQmlViewer()
 {
-    if (m_designClient && m_conn->isConnected())
+    if (isDesignClientConnected())
         m_designClient->reloadViewer();
 }
 
 void ClientProxy::setDesignModeBehavior(bool inDesignMode)
 {
-    if (m_designClient && m_conn->isConnected())
+    if (isDesignClientConnected())
         m_designClient->setDesignModeBehavior(inDesignMode);
 }
 
 void ClientProxy::setAnimationSpeed(qreal slowdownFactor)
 {
-    if (m_designClient && m_conn->isConnected())
+    if (isDesignClientConnected())
         m_designClient->setAnimationSpeed(slowdownFactor);
 }
 
 void ClientProxy::changeToColorPickerTool()
 {
-    if (m_designClient && m_conn->isConnected())
+    if (isDesignClientConnected())
         m_designClient->changeToColorPickerTool();
 }
 
 void ClientProxy::changeToZoomTool()
 {
-    if (m_designClient && m_conn->isConnected())
+    if (isDesignClientConnected())
         m_designClient->changeToZoomTool();
 }
 void ClientProxy::changeToSelectTool()
 {
-    if (m_designClient && m_conn->isConnected())
+    if (isDesignClientConnected())
         m_designClient->changeToSelectTool();
 }
 
 void ClientProxy::changeToSelectMarqueeTool()
 {
-    if (m_designClient && m_conn->isConnected())
+    if (isDesignClientConnected())
         m_designClient->changeToSelectMarqueeTool();
 }
 
+bool ClientProxy::isDesignClientConnected() const
+{
+    return (m_designClient && m_conn->isConnected());
+}
 
 void ClientProxy::reloadEngines()
 {
