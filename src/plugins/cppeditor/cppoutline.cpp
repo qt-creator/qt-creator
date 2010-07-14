@@ -4,6 +4,7 @@
 #include <Symbol.h>
 
 #include <coreplugin/ifile.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <cplusplus/OverviewModel.h>
 
 #include <QtCore/QDebug>
@@ -125,6 +126,10 @@ void CppOutlineWidget::updateSelectionInText(const QItemSelection &selection)
 
             if (debug)
                 qDebug() << "CppOutline - moving cursor to" << line << column - 1;
+
+            Core::EditorManager *editorManager = Core::EditorManager::instance();
+            editorManager->cutForwardNavigationHistory();
+            editorManager->addCurrentPositionToNavigationHistory();
 
             // line has to be 1 based, column 0 based!
             m_editor->gotoLine(line, column - 1);

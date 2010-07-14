@@ -2,6 +2,7 @@
 #include "qmloutlinemodel.h"
 
 #include <coreplugin/ifile.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <QtGui/QVBoxLayout>
 
 #include <QDebug>
@@ -89,6 +90,10 @@ void QmlJSOutlineWidget::updateSelectionInText(const QItemSelection &selection)
     if (!selection.indexes().isEmpty()) {
         QModelIndex index = selection.indexes().first();
         AST::SourceLocation location = index.data(QmlOutlineModel::SourceLocationRole).value<AST::SourceLocation>();
+
+        Core::EditorManager *editorManager = Core::EditorManager::instance();
+        editorManager->cutForwardNavigationHistory();
+        editorManager->addCurrentPositionToNavigationHistory();
 
         QTextCursor textCursor = m_editor.data()->textCursor();
         m_blockCursorSync = true;

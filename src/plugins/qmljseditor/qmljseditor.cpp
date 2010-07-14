@@ -50,6 +50,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
@@ -829,6 +830,10 @@ void QmlJSTextEditor::jumpToOutlineElement(int /*index*/)
 {
     QModelIndex index = m_outlineCombo->view()->currentIndex();
     AST::SourceLocation location = index.data(QmlOutlineModel::SourceLocationRole).value<AST::SourceLocation>();
+
+    Core::EditorManager *editorManager = Core::EditorManager::instance();
+    editorManager->cutForwardNavigationHistory();
+    editorManager->addCurrentPositionToNavigationHistory();
 
     QTextCursor cursor = textCursor();
     cursor.setPosition(location.offset);
