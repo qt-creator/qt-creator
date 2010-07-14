@@ -69,6 +69,7 @@ private:
     void dragEnterEvent(QDragEnterEvent *ev);
     void dropEvent(QDropEvent *ev);
     void dragMoveEvent(QDragMoveEvent *ev);
+    void mouseDoubleClickEvent(QMouseEvent *ev);
     bool event(QEvent *ev);
 
     void editItem(const QModelIndex &idx);

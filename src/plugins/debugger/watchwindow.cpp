@@ -202,6 +202,16 @@ void WatchWindow::dropEvent(QDropEvent *ev)
     //QTreeView::dropEvent(ev);
 }
 
+void WatchWindow::mouseDoubleClickEvent(QMouseEvent *ev)
+{
+    const QModelIndex idx = indexAt(ev->pos());
+    if (!idx.isValid()) {
+        setModelData(RequestWatchExpressionRole, QString("<Edit>"));
+        return;
+    }
+    QTreeView::mouseDoubleClickEvent(ev);
+}
+
 void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
     const QModelIndex idx = indexAt(ev->pos());
