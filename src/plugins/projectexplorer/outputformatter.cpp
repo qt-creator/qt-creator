@@ -41,7 +41,7 @@ OutputFormatter::OutputFormatter()
     : QObject()
     , m_formats(0)
 {
-    initFormats();
+
 }
 
 OutputFormatter::~OutputFormatter()
@@ -58,6 +58,7 @@ QPlainTextEdit *OutputFormatter::plainTextEdit() const
 void OutputFormatter::setPlainTextEdit(QPlainTextEdit *plainText)
 {
     m_plainTextEdit = plainText;
+    initFormats();
 }
 
 void OutputFormatter::appendApplicationOutput(const QString &text, bool onStdErr)
@@ -82,8 +83,16 @@ void OutputFormatter::append(const QString &text, const QTextCharFormat &format)
     cursor.insertText(text, format);
 }
 
+static QColor mix_colors(QColor a, QColor b)
+{
+    return QColor((a.red() + b.red()) / 2, (a.green() + b.green()) / 2,
+                  (a.blue() + b.blue()) / 2, (a.alpha() + b.alpha()) / 2);
+}
+
 void OutputFormatter::initFormats()
 {
+    QPalette p = plainTextEdit()->palette();
+
     FontSettings fs = TextEditorSettings::instance()->fontSettings();
     QFont font = fs.font();
     QFont boldFont = font;
@@ -93,19 +102,19 @@ void OutputFormatter::initFormats()
 
     // NormalMessageFormat
     m_formats[NormalMessageFormat].setFont(boldFont);
-    m_formats[NormalMessageFormat].setForeground(QColor(Qt::blue));
+    m_formats[NormalMessageFormat].setForeground(mix_colors(QColor(Qt::blue), p.color(QPalette::Text)));
 
     // ErrorMessageFormat
     m_formats[ErrorMessageFormat].setFont(boldFont);
-    m_formats[ErrorMessageFormat].setForeground(QColor(200, 0, 0));
+    m_formats[ErrorMessageFormat].setForeground(mix_colors(QColor(Qt::red), p.color(QPalette::Text)));
 
     // StdOutFormat
     m_formats[StdOutFormat].setFont(font);
-    m_formats[StdOutFormat].setForeground(QColor(Qt::black));
+    m_formats[StdOutFormat].setForeground(p.color(QPalette::Text));
 
     // StdErrFormat
     m_formats[StdErrFormat].setFont(font);
-    m_formats[StdErrFormat].setForeground(QColor(200, 0, 0));
+    m_formats[StdErrFormat].setForeground(mix_colors(QColor(Qt::red), p.color(QPalette::Text)));
 }
 
 void OutputFormatter::handleLink(const QString &href)
