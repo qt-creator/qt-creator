@@ -2215,7 +2215,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
             setCursorPosition(m_jumpListRedo.last());
             m_jumpListRedo.pop_back();
         }
-    } else if (input.is('j') || input.isKey(Key_Down)) {
+    } else if (input.is('j') || input.isKey(Key_Down)
+            || input.isControl('j') || input.isControl('n')) {
         m_movetype = MoveLineWise;
         setAnchor();
         moveDown(count());
@@ -2243,7 +2244,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         }
         endEditBlock();
         finishMovement();
-    } else if (input.is('k') || input.isKey(Key_Up)) {
+    } else if (input.is('k') || input.isKey(Key_Up) || input.isControl('p')) {
         m_movetype = MoveLineWise;
         setAnchor();
         moveUp(count());
