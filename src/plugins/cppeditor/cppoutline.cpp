@@ -120,19 +120,16 @@ void CppOutlineWidget::updateSelectionInText(const QItemSelection &selection)
         CPlusPlus::Symbol *symbol = m_model->symbolFromIndex(index);
         if (symbol) {
             m_blockCursorSync = true;
-            unsigned line, column;
-
-            m_model->document()->translationUnit()->getPosition(symbol->startOffset(), &line, &column);
 
             if (debug)
-                qDebug() << "CppOutline - moving cursor to" << line << column - 1;
+                qDebug() << "CppOutline - moving cursor to" << symbol->line() << symbol->column() - 1;
 
             Core::EditorManager *editorManager = Core::EditorManager::instance();
             editorManager->cutForwardNavigationHistory();
             editorManager->addCurrentPositionToNavigationHistory();
 
             // line has to be 1 based, column 0 based!
-            m_editor->gotoLine(line, column - 1);
+            m_editor->gotoLine(symbol->line(), symbol->column() - 1);
             m_blockCursorSync = false;
         }
     }
