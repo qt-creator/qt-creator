@@ -12,7 +12,7 @@ using namespace QmlJS;
 using namespace QmlJSEditor::Internal;
 
 enum {
-    debug = true
+    debug = false
 };
 
 namespace QmlJSEditor {
