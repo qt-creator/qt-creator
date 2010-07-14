@@ -68,20 +68,12 @@ void SelectionIndicator::clear()
     m_indicatorShapeHash.clear();
 }
 
-//static void alignVertices(QPolygonF &polygon, double factor)
-//{
-//    QMutableVectorIterator<QPointF> iterator(polygon);
-//    while (iterator.hasNext()) {
-//        QPointF &vertex = iterator.next();
-//        vertex.setX(std::floor(vertex.x()) + factor);
-//        vertex.setY(std::floor(vertex.y()) + factor);
-//    }
-//
-//}
-
 QPolygonF SelectionIndicator::addBoundingRectToPolygon(QGraphicsItem *item, QPolygonF &polygon)
 {
-    polygon = polygon.united(item->mapToScene(item->boundingRect()));
+    // ### remove this if statement when QTBUG-12172 gets fixed
+    if (item->boundingRect() != QRectF(0,0,0,0))
+        polygon = polygon.united(item->mapToScene(item->boundingRect()));
+
     foreach(QGraphicsItem *child, item->childItems()) {
         if (!m_view->isEditorItem(child))
             addBoundingRectToPolygon(child, polygon);
@@ -103,7 +95,6 @@ void SelectionIndicator::setItems(const QList<QGraphicsObject*> &itemList)
         addBoundingRectToPolygon(item, boundingShapeInSceneSpace);
 
         QPolygonF boundingRectInLayerItemSpace = m_layerItem->mapFromScene(boundingShapeInSceneSpace);
-
 
         QPen pen;
         pen.setColor(QColor(108, 141, 221));

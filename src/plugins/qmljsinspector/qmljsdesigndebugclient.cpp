@@ -61,21 +61,20 @@ void QmlJSDesignDebugClient::messageReceived(const QByteArray &message)
     QByteArray type;
     ds >> type;
 
-    QList<QDeclarativeDebugObjectReference> references;
-
     if (type == "CURRENT_OBJECTS_CHANGED") {
         int objectCount;
         ds >> objectCount;
+        QList<int> debugIds;
+
         for(int i = 0; i < objectCount; ++i) {
             int debugId;
             ds >> debugId;
             if (debugId != -1) {
-                QDeclarativeDebugObjectReference ref = ClientProxy::instance()->objectReferenceForId(debugId);
-                if (ref.debugId() != -1)
-                    references << ref;
+                debugIds << debugId;
             }
         }
-        emit currentObjectsChanged(references);
+
+        emit currentObjectsChanged(debugIds);
     } else if (type == "TOOL_CHANGED") {
         int toolId;
         ds >> toolId;

@@ -112,6 +112,7 @@ private slots:
     void connectionStateChanged();
     void connectionError();
 
+    void onCurrentObjectsChanged(const QList<int> &debugIds);
     void updateEngineList();
     void objectTreeFetched(QDeclarativeDebugQuery::State state = QDeclarativeDebugQuery::Completed);
 

@@ -66,8 +66,8 @@ bool ClientProxy::connectToViewer(const QString &host, quint16 port)
 
     if (m_designClient) {
 
-        disconnect(m_designClient, SIGNAL(currentObjectsChanged(QList<QDeclarativeDebugObjectReference>)),
-                            this, SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)));
+        disconnect(m_designClient, SIGNAL(currentObjectsChanged(QList<int>)),
+                            this, SLOT(onCurrentObjectsChanged(QList<int>)));
         disconnect(m_designClient,
                    SIGNAL(colorPickerActivated()), this, SIGNAL(colorPickerActivated()));
         disconnect(m_designClient,
@@ -111,6 +111,37 @@ bool ClientProxy::connectToViewer(const QString &host, quint16 port)
         return false;
 
     return true;
+}
+
+void ClientProxy::onCurrentObjectsChanged(const QList<int> &debugIds)
+{
+    QList<QDeclarativeDebugObjectReference> selectedItems;
+
+    foreach(int debugId, debugIds) {
+        QDeclarativeDebugObjectReference ref = objectReferenceForId(debugId);
+        if (ref.debugId() != -1) {
+            selectedItems << ref;
+        } else {
+            // ### FIXME right now, there's no way in the protocol to
+            // a) get some item and know its parent (although that's possible by adding it to a separate plugin)
+            // b) add children to part of an existing tree.
+            // So the only choice that remains is to update the complete tree when we have an unknown debug id.
+            if (!m_objectTreeQuery) {
+                m_objectTreeQuery = m_client->queryObjectRecursive(m_rootObject, this);
+
+                if (!m_objectTreeQuery->isWaiting()) {
+                    objectTreeFetched();
+                } else {
+                    connect(m_objectTreeQuery,
+                            SIGNAL(stateChanged(QDeclarativeDebugQuery::State)),
+                            SLOT(objectTreeFetched(QDeclarativeDebugQuery::State)));
+                }
+            }
+
+        }
+    }
+
+    emit selectedItemsChanged(selectedItems);
 }
 
 void ClientProxy::disconnectFromViewer()
@@ -162,8 +193,8 @@ void ClientProxy::connectionStateChanged()
                 emit connected(m_client);
 
                 connect(m_designClient,
-                        SIGNAL(currentObjectsChanged(QList<QDeclarativeDebugObjectReference>)),
-                        SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)));
+                        SIGNAL(currentObjectsChanged(QList<int>)),
+                        SLOT(onCurrentObjectsChanged(QList<int>)));
                 connect(m_designClient,
                         SIGNAL(colorPickerActivated()), SIGNAL(colorPickerActivated()));
                 connect(m_designClient,

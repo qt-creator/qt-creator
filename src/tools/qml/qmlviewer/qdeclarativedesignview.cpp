@@ -120,10 +120,7 @@ void QDeclarativeDesignView::mouseReleaseEvent(QMouseEvent *event)
     m_cursorPos = event->pos();
     m_currentTool->mouseReleaseEvent(event);
 
-    if (event->buttons() & Qt::LeftButton) {
-        qDebug() << "setting current objects";
-        qmlDesignDebugServer()->setCurrentObjects(AbstractFormEditorTool::toObjectList(selectedItems()));
-    }
+    qmlDesignDebugServer()->setCurrentObjects(AbstractFormEditorTool::toObjectList(selectedItems()));
 }
 
 void QDeclarativeDesignView::keyPressEvent(QKeyEvent *event)
@@ -447,17 +444,18 @@ QList<QGraphicsItem*> QDeclarativeDesignView::filterForCurrentContext(QList<QGra
     foreach(QGraphicsItem *item, itemlist) {
 
         if (isEditorItem(item) || !m_subcomponentEditorTool->isDirectChildOfContext(item)) {
-            int index = itemlist.indexOf(item);
 
             // if we're a child, but not directly, replace with the parent that is directly in context.
             if (QGraphicsItem *contextParent = m_subcomponentEditorTool->firstChildOfContext(item)) {
-                if (index >= 0) {
-                    itemlist.replace(index, contextParent);
-                } else {
-                    itemlist.append(contextParent);
+                if (contextParent != item) {
+                    if (itemlist.contains(contextParent)) {
+                        itemlist.removeOne(item);
+                    } else {
+                        itemlist.replace(itemlist.indexOf(item), contextParent);
+                    }
                 }
             } else {
-                itemlist.removeAt(index);
+                itemlist.removeOne(item);
             }
         }
     }

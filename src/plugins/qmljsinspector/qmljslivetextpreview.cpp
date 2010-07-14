@@ -143,6 +143,7 @@ void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
     if (doc && m_previousDoc && doc->fileName() == m_previousDoc->fileName() && doc->qmlProgram() && m_previousDoc->qmlProgram()) {
         if (m_debugIds.isEmpty())
             m_debugIds = m_initialTable.value(doc->fileName());
+
         Delta delta;
         m_debugIds = delta(m_previousDoc, doc,  m_debugIds);
 

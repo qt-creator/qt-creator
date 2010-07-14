@@ -68,7 +68,7 @@ public:
     void applyChangesFromQmlFile();
 
 signals:
-    void currentObjectsChanged(const QList<QDeclarativeDebugObjectReference> &currentObjects);
+    void currentObjectsChanged(const QList<int> &debugIds);
     void colorPickerActivated();
     void selectToolActivated();
     void selectMarqueeToolActivated();
