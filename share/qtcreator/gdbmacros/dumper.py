@@ -632,11 +632,11 @@ movableTypes = set([
 def stripClassTag(type):
     if type.startswith("class "):
         return type[6:]
-    elif type.startswith("struct "):
+    if type.startswith("struct "):
         return type[7:]
-    elif type.startswith("const "):
+    if type.startswith("const "):
         return type[6:]
-    elif type.startswith("volatile "):
+    if type.startswith("volatile "):
         return type[9:]
     return type
 
@@ -685,6 +685,7 @@ def makeExpression(value):
 def qtNamespace():
     try:
         str = catchCliOutput("ptype QString::Null")[0]
+        # The result looks like:
         # "type = const struct myns::QString::Null {"
         # "    <no data fields>"
         # "}"
