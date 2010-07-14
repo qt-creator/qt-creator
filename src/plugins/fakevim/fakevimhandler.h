@@ -64,6 +64,8 @@ struct ExCommand
     ExCommand(const QString &cmd, const QString &args = QString(),
         const Range &range = Range());
 
+    bool matches(const QString &min, const QString &full) const;
+
     QString cmd;
     bool hasBang;
     QString args;

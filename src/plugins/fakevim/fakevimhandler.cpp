@@ -302,6 +302,11 @@ ExCommand::ExCommand(const QString &c, const QString &a, const Range &r)
     : cmd(c), hasBang(false), args(a), range(r), count(1)
 {}
 
+bool ExCommand::matches(const QString &min, const QString &full) const
+{
+    return cmd.startsWith(min) && full.startsWith(cmd);
+}
+
 QDebug operator<<(QDebug ts, const ExCommand &cmd)
 {
     return ts << cmd.cmd << ' ' << cmd.args << ' ' << cmd.range;
@@ -3133,8 +3138,8 @@ bool FakeVimHandler::Private::handleExMapCommand(const ExCommand &cmd0) // :map
 
 bool FakeVimHandler::Private::handleExHistoryCommand(const ExCommand &cmd)
 {
-    // :history
-    if (cmd.cmd != "his" && cmd.cmd != "history")
+    // :his[tory]
+    if (!cmd.matches("his", "history"))
         return false;
 
     if (cmd.args.isEmpty()) {
@@ -3155,9 +3160,8 @@ bool FakeVimHandler::Private::handleExHistoryCommand(const ExCommand &cmd)
 
 bool FakeVimHandler::Private::handleExRegisterCommand(const ExCommand &cmd)
 {
-    // :reg and :di[splay]
-    if (cmd.cmd != "reg" && cmd.cmd != "registers"
-            && cmd.cmd != "di" && cmd.cmd != "display")
+    // :reg[isters] and :di[splay]
+    if (!cmd.matches("reg", "registers") && !cmd.matches("di", "display"))
         return false;
 
     QByteArray regs = cmd.args.toLatin1();
@@ -3183,8 +3187,8 @@ bool FakeVimHandler::Private::handleExRegisterCommand(const ExCommand &cmd)
 
 bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
 {
-    // :set
-    if (cmd.cmd != "se" && cmd.cmd != "set")
+    // :se[t]
+    if (!cmd.matches("se", "set"))
         return false;
 
     showBlackMessage(QString());
@@ -3224,8 +3228,8 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
 
 bool FakeVimHandler::Private::handleExNormalCommand(const ExCommand &cmd)
 {
-    // :normal
-    if (cmd.cmd != "norm" && cmd.cmd != "normal") 
+    // :norm[al]
+    if (!cmd.matches("norm", "normal"))
         return false;
     //qDebug() << "REPLAY NORMAL: " << quoteUnprintable(reNormal.cap(3));
     replay(cmd.args, 1);
@@ -3234,8 +3238,8 @@ bool FakeVimHandler::Private::handleExNormalCommand(const ExCommand &cmd)
 
 bool FakeVimHandler::Private::handleExDeleteCommand(const ExCommand &cmd)
 {
-    // :delete
-    if (cmd.cmd != "d" && cmd.cmd != "delete")
+    // :d[elete]
+    if (!cmd.matches("d", "delete"))
         return false;
 
     setCurrentRange(cmd.range);
@@ -3314,8 +3318,8 @@ bool FakeVimHandler::Private::handleExWriteCommand(const ExCommand &cmd)
 
 bool FakeVimHandler::Private::handleExReadCommand(const ExCommand &cmd)
 {
-    // :read
-    if (cmd.cmd != "r" && cmd.cmd != "read")
+    // :r[ead]
+    if (!cmd.matches("r", "read"))
         return false;
 
     beginEditBlock();

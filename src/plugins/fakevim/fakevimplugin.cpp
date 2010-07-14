@@ -910,7 +910,8 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
     QTC_ASSERT(editorManager(), return);
 
     *handled = true;
-    if (cmd.cmd == "w" || cmd.cmd == "write") {
+    if (cmd.matches("w", "write")) {
+        // :w[rite]
         Core::IEditor *editor = m_editorToHandler.key(handler);
         const QString fileName = handler->currentFileName();
         if (editor && editor->file()->fileName() == fileName) {
@@ -929,8 +930,8 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
         } else {
             handler->showRedMessage(tr("File not saved"));
         }
-    } else if (cmd.cmd == "wa" || cmd.cmd == "wall") {
-        // :wa
+    } else if (cmd.matches("wa", "wall")) {
+        // :w[all]
         FileManager *fm = ICore::instance()->fileManager();
         QList<IFile *> toSave = fm->modifiedFiles();
         QList<IFile *> failed = fm->saveModifiedFilesSilently(toSave);
@@ -938,24 +939,24 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
             handler->showBlackMessage(tr("Saving succeeded"));
         else
             handler->showRedMessage(tr("%n files not saved", 0, failed.size()));
-    } else if (cmd.cmd == "q" || cmd.cmd == "quit") {
+    } else if (cmd.matches("q", "quit")) {
         // :q[uit]
         emit delayedQuitRequested(cmd.hasBang, m_editorToHandler.key(handler));
-    } else if (cmd.cmd == "qa" || cmd.cmd == "qall") {
-        // :qa
+    } else if (cmd.matches("qa", "qall")) {
+        // :qa[ll]
         emit delayedQuitAllRequested(cmd.hasBang);
-    } else if (cmd.cmd == "sp" || cmd.cmd == "split") {
+    } else if (cmd.matches("sp", "split")) {
         // :sp[lit]
         triggerAction(Core::Constants::SPLIT);
-    } else if (cmd.cmd == "vs" || cmd.cmd == "vsplit") {
+    } else if (cmd.matches("vs", "vsplit")) {
         // :vs[plit]
         triggerAction(Core::Constants::SPLIT_SIDE_BY_SIDE);
-    } else if (cmd.cmd == "mak" || cmd.cmd == "make") {
+    } else if (cmd.matches("mak", "make")) {
         // :mak[e][!] [arguments]
         triggerAction(ProjectExplorer::Constants::BUILD);
-    } else if (cmd.cmd == "se" || cmd.cmd == "set") {
+    } else if (cmd.matches("se", "set")) {
         if (cmd.args.isEmpty()) {
-            // :set
+            // :se[t]
             showSettingsDialog();
         } else if (cmd.args == "ic" || cmd.args == "ignorecase") {
             // :set noic
@@ -966,21 +967,20 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
             setActionChecked(Find::Constants::CASE_SENSITIVE, true);
             *handled = false; // Let the handler see it as well.
         }
-    } else if (cmd.cmd == "n" || cmd.cmd == "next") {
+    } else if (cmd.matches("n", "next")) {
         // :n[ext]
         switchToFile(currentFile() + cmd.count);
-    } else if (cmd.cmd == "prev" || cmd.cmd == "previous"
-            || cmd.cmd == "N" || cmd.cmd == "Next") {
-        // :prev[ious]
+    } else if (cmd.matches("prev", "previous") || cmd.matches("N", "Next")) {
+        // :prev[ious], :N[ext]
         switchToFile(currentFile() - cmd.count);
-    } else if (cmd.cmd == "bn" || cmd.cmd == "bnext") {
+    } else if (cmd.matches("bn", "bnext")) {
         // :bn[ext]
         switchToFile(currentFile() + cmd.count);
-    } else if (cmd.cmd == "bp" || cmd.cmd == "bprevious"
-            || cmd.cmd == "bN" || cmd.cmd == "bNext") {
-        // :bp[revious]
+    } else if (cmd.matches("bp", "bprevious") || cmd.matches("bN", "bNext")) {
+        // :bp[revious], :bN[ext]
         switchToFile(currentFile() - cmd.count);
-    } else if (cmd.cmd == "on" || cmd.cmd == "only") {
+    } else if (cmd.matches("on", "only")) {
+        // :on[ly]
         //triggerAction(Core::Constants::REMOVE_ALL_SPLITS);
         triggerAction(Core::Constants::REMOVE_CURRENT_SPLIT);
     } else {
