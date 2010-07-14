@@ -438,6 +438,7 @@ CppCodeCompletion::CppCodeCompletion(CppModelManager *manager)
       m_manager(manager),
       m_editor(0),
       m_startPosition(-1),
+      m_shouldRestartCompletion(false),
       m_forcedCompletion(false),
       m_completionOperator(T_EOF_SYMBOL),
       m_objcEnabled(true)
@@ -632,8 +633,13 @@ TextEditor::ITextEditable *CppCodeCompletion::editor() const
 int CppCodeCompletion::startPosition() const
 { return m_startPosition; }
 
+bool CppCodeCompletion::shouldRestartCompletion()
+{ return m_shouldRestartCompletion; }
+
 bool CppCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
 {
+    m_editor = editor;
+
     const int pos = editor->position();
     unsigned token = T_EOF_SYMBOL;
 
@@ -649,6 +655,14 @@ bool CppCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
         }
 
         return true;
+    } else {
+        // Trigger completion after at least three characters of a name have been typed
+        const int startOfName = findStartOfName(pos);
+        if (pos - startOfName > 2) {
+            const QChar firstCharacter = editor->characterAt(startOfName);
+            if (firstCharacter.isLetter() || firstCharacter == QLatin1Char('_'))
+                return true;
+        }
     }
 
     return false;
@@ -1751,6 +1765,8 @@ bool CppCodeCompletion::typedCharCompletes(const TextEditor::CompletionItem &ite
 
 void CppCodeCompletion::complete(const TextEditor::CompletionItem &item, QChar typedChar)
 {
+    m_shouldRestartCompletion = false; // Enabled for specific cases
+
     Symbol *symbol = 0;
 
     if (item.data.isValid()) {
@@ -1780,10 +1796,13 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item, QChar t
             typedChar = QChar();
     } else if (m_completionOperator == T_STRING_LITERAL || m_completionOperator == T_ANGLE_STRING_LITERAL) {
         toInsert = item.text;
-        if (!toInsert.endsWith(QLatin1Char('/')))
+        if (!toInsert.endsWith(QLatin1Char('/'))) {
             extraChars += QLatin1Char((m_completionOperator == T_ANGLE_STRING_LITERAL) ? '>' : '"');
-        else if (typedChar == QLatin1Char('/')) // Eat the slash
-            typedChar = QChar();
+        } else {
+            m_shouldRestartCompletion = true;  // Re-trigger for subdirectory
+            if (typedChar == QLatin1Char('/')) // Eat the slash
+                typedChar = QChar();
+        }
     } else {
         toInsert = item.text;
 
@@ -1865,6 +1884,12 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item, QChar t
         extraChars += typedChar;
         if (cursorOffset != 0)
             --cursorOffset;
+    }
+
+    if (!extraChars.isEmpty() && extraChars.length() + cursorOffset > 0) {
+        const QChar c = extraChars.at(extraChars.length() - 1 + cursorOffset);
+        if (c == QLatin1Char('.') || c == QLatin1Char('('))
+            m_shouldRestartCompletion = true;
     }
 
     // Avoid inserting characters that are already there

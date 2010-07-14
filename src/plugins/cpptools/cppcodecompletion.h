@@ -72,6 +72,7 @@ public:
 
     TextEditor::ITextEditable *editor() const;
     int startPosition() const;
+    bool shouldRestartCompletion();
     QList<TextEditor::CompletionItem> getCompletions();
     bool supportsEditor(TextEditor::ITextEditable *editor);
     bool triggersCompletion(TextEditor::ITextEditable *editor);
@@ -144,6 +145,7 @@ private:
     CppModelManager *m_manager;
     TextEditor::ITextEditable *m_editor;
     int m_startPosition;     // Position of the cursor from which completion started
+    bool m_shouldRestartCompletion;
 
     bool m_forcedCompletion;
     unsigned m_completionOperator;
