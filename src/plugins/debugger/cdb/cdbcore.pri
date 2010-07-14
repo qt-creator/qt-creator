@@ -31,7 +31,7 @@ HEADERS += \
     $$PWD/debugeventcallbackbase.h \
     $$PWD/symbolgroupcontext.h \
     $$PWD/stacktracecontext.h \
-    $$PWD/breakpoint.h
+    $$PWD/corebreakpoint.h
 
 SOURCES += \
     $$PWD/coreengine.cpp \
@@ -39,7 +39,7 @@ SOURCES += \
     $$PWD/debugeventcallbackbase.cpp \
     $$PWD/symbolgroupcontext.cpp \
     $$PWD/stacktracecontext.cpp \
-    $$PWD/breakpoint.cpp
+    $$PWD/corebreakpoint.cpp
 
 INCLUDEPATH*=$$PWD
 DEPENDPATH*=$$PWD

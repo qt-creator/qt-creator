@@ -30,7 +30,7 @@
 #ifndef CDBAPPLICATION_H
 #define CDBAPPLICATION_H
 
-#include "breakpoint.h"
+#include "corebreakpoint.h"
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QSharedPointer>
