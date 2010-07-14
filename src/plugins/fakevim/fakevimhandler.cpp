@@ -299,7 +299,7 @@ QDebug operator<<(QDebug ts, const Range &range)
 
 
 ExCommand::ExCommand(const QString &c, const QString &a, const Range &r)
-    : cmd(c), hasBang(false), args(a), range(r)
+    : cmd(c), hasBang(false), args(a), range(r), count(1)
 {}
 
 QDebug operator<<(QDebug ts, const ExCommand &cmd)
@@ -3449,7 +3449,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &line0)
     if (line.startsWith(QLatin1Char('%')))
         line = "1,$" + line.mid(1);
 
-    int beginLine = readLineCode(line);
+    const int beginLine = readLineCode(line);
     int endLine = -1;
     if (line.startsWith(',')) {
         line = line.mid(1);
@@ -3467,6 +3467,8 @@ void FakeVimHandler::Private::handleExCommand(const QString &line0)
     cmd.hasBang = arg0.endsWith('!');
     if (cmd.hasBang)
         cmd.cmd.chop(1);
+    if (beginLine != -1)
+        cmd.count = beginLine;
     //qDebug() << "CMD: " << cmd;
 
     enterCommandMode();
