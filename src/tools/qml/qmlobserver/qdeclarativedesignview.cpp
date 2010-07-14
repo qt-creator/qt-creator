@@ -67,6 +67,12 @@ void QDeclarativeDesignView::reloadView()
     emit reloadRequested();
 }
 
+void QDeclarativeDesignView::clearEditorItems()
+{
+    clearHighlight();
+    setSelectedItems(QList<QGraphicsItem*>());
+}
+
 void QDeclarativeDesignView::leaveEvent(QEvent *event)
 {
     if (!designModeBehavior()) {
@@ -89,7 +95,7 @@ void QDeclarativeDesignView::mousePressEvent(QMouseEvent *event)
 void QDeclarativeDesignView::mouseMoveEvent(QMouseEvent *event)
 {
     if (!designModeBehavior()) {
-        clearHighlight();
+        clearEditorItems();
         QDeclarativeView::mouseMoveEvent(event);
         return;
     }
@@ -231,6 +237,9 @@ void QDeclarativeDesignView::setDesignModeBehavior(bool value)
         if (rootObject())
             m_subcomponentEditorTool->pushContext(rootObject());
     }
+
+    if (!m_designModeBehavior)
+        clearEditorItems();
 }
 
 bool QDeclarativeDesignView::designModeBehavior() const

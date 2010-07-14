@@ -94,6 +94,7 @@ private Q_SLOTS:
     void applyChangesFromClient();
 
 private:
+    void clearEditorItems();
     void createToolbar();
     void changeToSelectTool();
     QList<QGraphicsItem*> filterForCurrentContext(QList<QGraphicsItem*> &itemlist) const;
