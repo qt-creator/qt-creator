@@ -32,6 +32,7 @@
 #include <QtCore/QMap>
 #include <QtCore/QUrl>
 
+#include <QtGui/QKeyEvent>
 #include <QtGui/QStandardItemModel>
 #include <QtGui/QSortFilterProxyModel>
 
@@ -41,6 +42,10 @@ TopicChooser::TopicChooser(QWidget *parent, const QString &keyword,
     , m_filterModel(new QSortFilterProxyModel(this))
 {
     ui.setupUi(this);
+
+    setFocusProxy(ui.lineEdit);
+    ui.lineEdit->installEventFilter(this);
+    ui.lineEdit->setPlaceholderText(tr("Filter"));
     ui.label->setText(tr("Choose a topic for <b>%1</b>:").arg(keyword));
 
     QStandardItemModel *model = new QStandardItemModel(this);
@@ -59,14 +64,13 @@ TopicChooser::TopicChooser(QWidget *parent, const QString &keyword,
 
     if (m_filterModel->rowCount() != 0)
         ui.listWidget->setCurrentIndex(m_filterModel->index(0, 0));
-    ui.listWidget->setFocus();
 
-    connect(ui.buttonDisplay, SIGNAL(clicked()), this, SLOT(accept()));
+    connect(ui.buttonDisplay, SIGNAL(clicked()), this, SLOT(acceptDialog()));
     connect(ui.buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
     connect(ui.listWidget, SIGNAL(activated(QModelIndex)), this,
         SLOT(activated(QModelIndex)));
-    connect(ui.lineEdit, SIGNAL(filterChanged(QString)), m_filterModel,
-        SLOT(setFilterFixedString(QString)));
+    connect(ui.lineEdit, SIGNAL(filterChanged(QString)), this,
+        SLOT(setFilter(QString)));
 }
 
 QUrl TopicChooser::link() const
@@ -76,8 +80,50 @@ QUrl TopicChooser::link() const
     return QUrl();
 }
 
+void TopicChooser::acceptDialog()
+{
+    m_activedIndex = ui.listWidget->currentIndex();
+    accept();
+}
+
+void TopicChooser::setFilter(const QString &pattern)
+{
+    m_filterModel->setFilterFixedString(pattern);
+    if (m_filterModel->rowCount() != 0 && !ui.listWidget->currentIndex().isValid())
+        ui.listWidget->setCurrentIndex(m_filterModel->index(0, 0));
+}
+
 void TopicChooser::activated(const QModelIndex &index)
 {
     m_activedIndex = index;
     accept();
+}
+
+bool TopicChooser::eventFilter(QObject *object, QEvent *event)
+{
+    if (object == ui.lineEdit && event->type() == QEvent::KeyPress) {
+        QModelIndex idx = ui.listWidget->currentIndex();
+        switch ((static_cast<QKeyEvent*>(event)->key())) {
+            case Qt::Key_Up:
+                idx = m_filterModel->index(idx.row() - 1, idx.column(),
+                    idx.parent());
+                if (idx.isValid())
+                    ui.listWidget->setCurrentIndex(idx);
+                break;
+
+            case Qt::Key_Down:
+                idx = m_filterModel->index(idx.row() + 1, idx.column(),
+                    idx.parent());
+                if (idx.isValid())
+                    ui.listWidget->setCurrentIndex(idx);
+                break;
+
+            default: ;
+        }
+    } else if (ui.lineEdit && event->type() == QEvent::FocusIn
+        && static_cast<QFocusEvent *>(event)->reason() != Qt::MouseFocusReason) {
+        ui.lineEdit->selectAll();
+        ui.lineEdit->setFocus();
+    }
+    return QDialog::eventFilter(object, event);
 }
