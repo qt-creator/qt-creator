@@ -658,8 +658,8 @@ void DebuggerEngine::setRegisterValue(int regnr, const QString &value)
 
 void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) const
 {
-    if (msg.size() && msg.at(0).isUpper() && msg.at(1).isUpper())
-        qDebug() << qPrintable(msg) << "IN STATE" << state();
+    //if (msg.size() && msg.at(0).isUpper() && msg.at(1).isUpper())
+    //    qDebug() << qPrintable(msg) << "IN STATE" << state();
     d->m_runControl->showMessage(msg, channel);
     plugin()->showMessage(msg, channel, timeout);
 }
@@ -1090,7 +1090,6 @@ void DebuggerEngine::notifyInferiorUnrunnable()
 void DebuggerEngine::notifyEngineRunFailed()
 {
     showMessage(_("NOTE: ENGINE RUN FAILED"));
-    SDEBUG(Q_FUNC_INFO);
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
     setState(EngineRunFailed);
     d->queueShutdownInferior();
@@ -1303,7 +1302,6 @@ void DebuggerEngine::notifyInferiorExited()
 
 void DebuggerEngine::setState(DebuggerState state, bool forced)
 {
-    SDEBUG(Q_FUNC_INFO);
     //qDebug() << "STATUS CHANGE: FROM " << stateName(d->m_state)
     //        << " TO " << stateName(state);
 
