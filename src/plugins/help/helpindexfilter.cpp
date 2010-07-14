@@ -71,7 +71,7 @@ QList<FilterEntry> HelpIndexFilter::matchesFor(const QString &entry)
 {
     QStringList keywords;
     if (entry.length() < 2)
-        keywords = Core::HelpManager::instance()->findKeywords(entry, 300);
+        keywords = Core::HelpManager::instance()->findKeywords(entry, 200);
     else
         keywords = Core::HelpManager::instance()->findKeywords(entry);
 
