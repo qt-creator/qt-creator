@@ -171,7 +171,6 @@ void RemoteGdbServerAdapter::setupInferior()
     }
 
     m_engine->postCommand("set target-async on", CB(handleSetTargetAsync));
-    QString x = startParameters().executable;
     QFileInfo fi(startParameters().executable);
     QString fileName = fi.absoluteFilePath();
     m_engine->postCommand("-file-exec-and-symbols \""
@@ -210,7 +209,6 @@ void RemoteGdbServerAdapter::handleTargetRemote(const GdbResponse &record)
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     if (record.resultClass == GdbResultDone) {
-        m_engine->notifyInferiorStopOk();
         // gdb server will stop the remote application itself.
         showMessage(_("INFERIOR STARTED"));
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
@@ -225,6 +223,8 @@ void RemoteGdbServerAdapter::handleTargetRemote(const GdbResponse &record)
 
 void RemoteGdbServerAdapter::runEngine()
 {
+    m_engine->notifyEngineRunAndInferiorStopOk();
+    m_engine->notifyInferiorRunRequested();
     m_engine->continueInferiorInternal();
 }
 

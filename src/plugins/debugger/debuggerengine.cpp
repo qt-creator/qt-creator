@@ -1293,8 +1293,7 @@ void DebuggerEngine::notifyInferiorExited()
     }
     setState(InferiorShutdownRequested);
     setState(InferiorShutdownOk);
-    showMessage(_("QUEUE: SHUTDOWN ENGINE"));
-    QTimer::singleShot(0, d, SLOT(doShutdownEngine()));
+    d->queueShutdownEngine();
 }
 
 void DebuggerEngine::setState(DebuggerState state, bool forced)
