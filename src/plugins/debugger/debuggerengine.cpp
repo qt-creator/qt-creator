@@ -416,6 +416,10 @@ void DebuggerEngine::handleCommand(int role, const QVariant &value)
             reloadRegisters();
             break;
 
+        case RequestExecDetachRole:
+            detachDebugger();
+            break;
+
         case RequestExecContinueRole:
             continueInferior();
             break;
