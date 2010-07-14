@@ -684,12 +684,14 @@ def makeExpression(value):
 
 def qtNamespace():
     try:
-        type = str(parseAndEvaluate("&QString::null").type.target().unqualified())
-        return type[0:len(type) - len("QString::null")]
-    except RuntimeError:
-        return ""
-    except AttributeError:
-        # Happens for none-Qt applications
+        str = catchCliOutput("ptype QString::Null")[0]
+        # "type = const struct myns::QString::Null {"
+        # "    <no data fields>"
+        # "}"
+        pos1 = str.find("struct") + 7
+        pos2 = str.find("QString::Null")
+        return str[pos1:pos2]
+    except:
         return ""
 
 def findFirstZero(p, max):
@@ -698,7 +700,6 @@ def findFirstZero(p, max):
             return i
         p = p + 1
     return -1
-
 
 def extractCharArray(p, maxsize):
     t = lookupType("unsigned char").pointer()
@@ -848,6 +849,7 @@ class Item:
 
 qqDumpers = {}
 qqFormats = {}
+qqNs = ""
 
 
 class SetupCommand(gdb.Command):
@@ -872,11 +874,10 @@ class SetupCommand(gdb.Command):
                     pass
                 qqFormats[name] = formats
         result = "dumpers=["
-        # Too early: ns = qtNamespace()
+        qqNs = qtNamespace()
         for key, value in qqFormats.items():
             result += '{type="%s",formats="%s"},' % (key, value)
-        result += ']'
-        #result += '],namespace="%s"' % ns
+        result += '],namespace="%s"' % qqNs
         print(result)
 
 SetupCommand()
@@ -997,7 +998,7 @@ class Dumper:
         self.useFancy = "fancy" in options
         self.passExceptions = "pe" in options
         self.autoDerefPointers = "autoderef" in options
-        self.ns = qtNamespace()
+        self.ns = qqNs
 
         #warn("NAMESPACE: '%s'" % self.ns)
         #warn("VARIABLES: %s" % varList)
