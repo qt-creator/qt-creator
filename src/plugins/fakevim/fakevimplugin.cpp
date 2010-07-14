@@ -980,6 +980,9 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
             || cmd.cmd == "bN" || cmd.cmd == "bNext") {
         // :bp[revious]
         switchToFile(currentFile() - cmd.count);
+    } else if (cmd.cmd == "on" || cmd.cmd == "only") {
+        //triggerAction(Core::Constants::REMOVE_ALL_SPLITS);
+        triggerAction(Core::Constants::REMOVE_CURRENT_SPLIT);
     } else {
         // Check whether one of the configure commands matches.
         typedef CommandMap::const_iterator Iterator;
