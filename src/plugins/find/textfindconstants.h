@@ -45,6 +45,7 @@ const char * const FIND_IN_DOCUMENT  = "Find.FindInCurrentDocument";
 const char * const FIND_NEXT         = "Find.FindNext";
 const char * const FIND_PREVIOUS     = "Find.FindPrevious";
 const char * const FIND_ALL          = "Find.FindAll";
+const char * const REPLACE           = "Find.Replace";
 const char * const REPLACE_NEXT      = "Find.ReplaceNext";
 const char * const REPLACE_PREVIOUS  = "Find.ReplacePrevious";
 const char * const REPLACE_ALL       = "Find.ReplaceAll";

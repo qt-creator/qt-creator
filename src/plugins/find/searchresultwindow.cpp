@@ -160,6 +160,14 @@ namespace Internal {
             return IFindSupport::NotFound;
         }
 
+        void replace(const QString &before, const QString &after,
+            IFindSupport::FindFlags findFlags)
+        {
+            Q_UNUSED(before)
+            Q_UNUSED(after)
+            Q_UNUSED(findFlags)
+        }
+
         bool replaceStep(const QString &before, const QString &after,
             IFindSupport::FindFlags findFlags)
         {

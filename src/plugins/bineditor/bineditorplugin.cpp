@@ -154,6 +154,8 @@ public:
         return result;
     }
 
+    void replace(const QString &, const QString &,
+                 Find::IFindSupport::FindFlags) { }
     bool replaceStep(const QString &, const QString &,
                      Find::IFindSupport::FindFlags) { return false;}
     int replaceAll(const QString &, const QString &,

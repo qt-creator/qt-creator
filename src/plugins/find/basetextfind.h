@@ -60,6 +60,8 @@ public:
 
     Result findIncremental(const QString &txt, IFindSupport::FindFlags findFlags);
     Result findStep(const QString &txt, IFindSupport::FindFlags findFlags);
+    void replace(const QString &before, const QString &after,
+        IFindSupport::FindFlags findFlags);
     bool replaceStep(const QString &before, const QString &after,
         IFindSupport::FindFlags findFlags);
     int replaceAll(const QString &before, const QString &after,
@@ -76,6 +78,8 @@ private:
     bool find(const QString &txt,
               IFindSupport::FindFlags findFlags,
               QTextCursor start);
+    QTextCursor replaceInternal(const QString &before, const QString &after,
+                                IFindSupport::FindFlags findFlags);
 
     QTextCursor textCursor() const;
     void setTextCursor(const QTextCursor&);

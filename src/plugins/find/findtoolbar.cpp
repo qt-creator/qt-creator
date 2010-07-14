@@ -71,7 +71,9 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
       m_enterFindStringAction(0),
       m_findNextAction(0),
       m_findPreviousAction(0),
+      m_replaceAction(0),
       m_replaceNextAction(0),
+      m_replacePreviousAction(0),
       m_casesensitiveIcon(":/find/images/casesensitively.png"),
       m_regexpIcon(":/find/images/regexp.png"),
       m_wholewordsIcon(":/find/images/wholewords.png"),
@@ -168,7 +170,15 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     connect(m_findPreviousAction, SIGNAL(triggered()), this, SLOT(invokeFindPrevious()));
     m_ui.findPreviousButton->setDefaultAction(cmd->action());
 
-    m_replaceNextAction = new QAction(tr("Replace && Find Next"), this);
+    m_replaceAction = new QAction(tr("Replace"), this);
+    cmd = am->registerAction(m_replaceAction, Constants::REPLACE, globalcontext);
+    cmd->setDefaultKeySequence(QKeySequence());
+    mfind->addAction(cmd, Constants::G_FIND_ACTIONS);
+    connect(m_replaceAction, SIGNAL(triggered()), this, SLOT(invokeReplace()));
+    m_ui.replaceButton->setDefaultAction(cmd->action());
+
+    m_replaceNextAction = new QAction(tr("Replace && Find"), this);
+    m_replaceNextAction->setIconText(tr("Replace && Find")); // work around bug in Qt that kills ampersands in tool button
     cmd = am->registerAction(m_replaceNextAction, Constants::REPLACE_NEXT, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+=")));
     mfind->addAction(cmd, Constants::G_FIND_ACTIONS);
@@ -181,7 +191,6 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+=")));
     mfind->addAction(cmd, Constants::G_FIND_ACTIONS);
     connect(m_replacePreviousAction, SIGNAL(triggered()), this, SLOT(invokeReplacePrevious()));
-    m_ui.replacePreviousButton->setDefaultAction(cmd->action());
 
     m_replaceAllAction = new QAction(tr("Replace All"), this);
     cmd = am->registerAction(m_replaceAllAction, Constants::REPLACE_ALL, globalcontext);
@@ -315,6 +324,7 @@ void FindToolBar::updateToolBar()
     m_findNextAction->setEnabled(enabled);
     m_findPreviousAction->setEnabled(enabled);
 
+    m_replaceAction->setEnabled(replaceEnabled);
     m_replaceNextAction->setEnabled(replaceEnabled);
     m_replacePreviousAction->setEnabled(replaceEnabled);
     m_replaceAllAction->setEnabled(replaceEnabled);
@@ -332,7 +342,7 @@ void FindToolBar::updateToolBar()
     m_ui.replaceLabel->setEnabled(replaceEnabled);
     m_ui.replaceEdit->setVisible(replaceEnabled);
     m_ui.replaceLabel->setVisible(replaceEnabled);
-    m_ui.replacePreviousButton->setVisible(replaceEnabled);
+    m_ui.replaceButton->setVisible(replaceEnabled);
     m_ui.replaceNextButton->setVisible(replaceEnabled);
     m_ui.replaceAllButton->setVisible(replaceEnabled);
     layout()->invalidate();
@@ -430,6 +440,16 @@ void FindToolBar::invokeFindIncremental()
             m_findIncrementalTimer.start(50);
         if (text.isEmpty())
             m_currentDocumentFind->clearResults();
+    }
+}
+
+void FindToolBar::invokeReplace()
+{
+    setFindFlag(IFindSupport::FindBackward, false);
+    if (m_currentDocumentFind->isEnabled() && m_currentDocumentFind->supportsReplace()) {
+        m_plugin->updateFindCompletion(getFindText());
+        m_plugin->updateReplaceCompletion(getReplaceText());
+        m_currentDocumentFind->replace(getFindText(), getReplaceText(), effectiveFindFlags());
     }
 }
 

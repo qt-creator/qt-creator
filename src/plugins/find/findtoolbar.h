@@ -67,6 +67,7 @@ private slots:
     void invokeFindNext();
     void invokeFindPrevious();
     void invokeFindStep();
+    void invokeReplace();
     void invokeReplaceNext();
     void invokeReplacePrevious();
     void invokeReplaceStep();
@@ -120,6 +121,7 @@ private:
     QAction *m_enterFindStringAction;
     QAction *m_findNextAction;
     QAction *m_findPreviousAction;
+    QAction *m_replaceAction;
     QAction *m_replaceNextAction;
     QAction *m_replacePreviousAction;
     QAction *m_replaceAllAction;

@@ -118,6 +118,13 @@ IFindSupport::Result CurrentDocumentFind::findStep(const QString &txt, IFindSupp
     return m_currentFind->findStep(txt, findFlags);
 }
 
+void CurrentDocumentFind::replace(const QString &before, const QString &after,
+    IFindSupport::FindFlags findFlags)
+{
+    QTC_ASSERT(m_currentFind, return);
+    m_currentFind->replace(before, after, findFlags);
+}
+
 bool CurrentDocumentFind::replaceStep(const QString &before, const QString &after,
     IFindSupport::FindFlags findFlags)
 {
