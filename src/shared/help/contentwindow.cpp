@@ -29,7 +29,9 @@
 
 #include "contentwindow.h"
 
+#include "centralwidget.h"
 #include "helpmanager.h"
+#include "helpviewer.h"
 #include "openpagesmanager.h"
 
 #include <QtGui/QLayout>
@@ -102,18 +104,21 @@ bool ContentWindow::eventFilter(QObject *o, QEvent *e)
     if (m_contentWidget && o == m_contentWidget->viewport()
         && e->type() == QEvent::MouseButtonRelease) {
         QMouseEvent *me = static_cast<QMouseEvent*>(e);
-        QModelIndex index = m_contentWidget->indexAt(me->pos());
         QItemSelectionModel *sm = m_contentWidget->selectionModel();
+        if (!me || !sm)
+            return QWidget::eventFilter(o, e);
 
         Qt::MouseButtons button = me->button();
-        if (index.isValid() && (sm && sm->isSelected(index))) {
+        const QModelIndex &index = m_contentWidget->indexAt(me->pos());
+
+        if (index.isValid() && sm->isSelected(index)) {
             if ((button == Qt::LeftButton && (me->modifiers() & Qt::ControlModifier))
                 || (button == Qt::MidButton)) {
                 QHelpContentModel *contentModel =
                     qobject_cast<QHelpContentModel*>(m_contentWidget->model());
                 if (contentModel) {
                     QHelpContentItem *itm = contentModel->contentItemAt(index);
-                    if (itm && !isPdfFile(itm))
+                    if (itm && HelpViewer::canOpenPage(itm->url().path()))
                         OpenPagesManager::instance().createPage(itm->url());
                 }
             } else if (button == Qt::LeftButton) {
@@ -137,7 +142,7 @@ void ContentWindow::showContextMenu(const QPoint &pos)
     QMenu menu;
     QAction *curTab = menu.addAction(tr("Open Link"));
     QAction *newTab = menu.addAction(tr("Open Link as New Page"));
-    if (isPdfFile(itm))
+    if (!HelpViewer::canOpenPage(itm->url().path()))
         newTab->setEnabled(false);
 
     menu.move(m_contentWidget->mapToGlobal(pos));
@@ -155,14 +160,10 @@ void ContentWindow::itemClicked(const QModelIndex &index)
         qobject_cast<QHelpContentModel*>(m_contentWidget->model());
 
     if (contentModel) {
-        QHelpContentItem *itm = contentModel->contentItemAt(index);
-        if (itm)
-            emit linkActivated(itm->url());
+        if (QHelpContentItem *itm = contentModel->contentItemAt(index)) {
+            const QUrl &url = itm->url();
+            if (url != CentralWidget::instance()->currentHelpViewer()->source())
+                emit linkActivated(itm->url());
+        }
     }
-}
-
-bool ContentWindow::isPdfFile(QHelpContentItem *item) const
-{
-    const QString &path = item->url().path();
-    return path.endsWith(QLatin1String(".pdf"), Qt::CaseInsensitive);
 }
