@@ -49,6 +49,8 @@ void QmlJSOutlineWidget::setEditor(QmlJSTextEditor *editor)
     m_editor = editor;
 
     m_treeView->setModel(m_editor.data()->outlineModel());
+    modelUpdated();
+
     connect(m_treeView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(updateSelectionInText(QItemSelection)));
 

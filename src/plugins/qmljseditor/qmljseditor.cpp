@@ -856,6 +856,10 @@ void QmlJSTextEditor::updateOutlineNow()
     }
 
     m_outlineModel->update(document, snapshot);
+
+    QTreeView *treeView = static_cast<QTreeView*>(m_outlineCombo->view());
+    treeView->expandAll();
+
     updateOutlineIndexNow();
 }
 
@@ -1400,9 +1404,6 @@ void QmlJSTextEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
     if (doc->isParsedCorrectly()) {
         FindDeclarations findDeclarations;
         m_semanticInfo.declarations = findDeclarations(doc->ast());
-
-        QTreeView *treeView = static_cast<QTreeView*>(m_outlineCombo->view());
-        treeView->expandAll();
 
         if (m_contextPane) {
             Node *newNode = m_semanticInfo.declaringMember(position());
