@@ -29,9 +29,9 @@
 
 #include "maemorunconfiguration.h"
 
+#include "maemodeployables.h"
 #include "maemodeploystep.h"
 #include "maemoglobal.h"
-#include "maemopackagecreationstep.h"
 #include "maemorunconfigurationwidget.h"
 #include "maemotoolchain.h"
 #include "qemuruntimemanager.h"
@@ -217,7 +217,7 @@ const QString MaemoRunConfiguration::dumperLib() const
     return qt4bc->qtVersion()->debuggingHelperLibrary();
 }
 
-QString MaemoRunConfiguration::executable() const
+QString MaemoRunConfiguration::localExecutableFilePath() const
 {
     TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()
         ->targetInformation(m_proFilePath);
@@ -225,6 +225,12 @@ QString MaemoRunConfiguration::executable() const
         return QString();
 
     return QDir::cleanPath(ti.workingDir + QLatin1Char('/') + ti.target);
+}
+
+QString MaemoRunConfiguration::remoteExecutableFilePath() const
+{
+    return deployStep()->deployables()
+        ->remoteExecutableFilePath(localExecutableFilePath());
 }
 
 QString MaemoRunConfiguration::runtimeGdbServerPort() const

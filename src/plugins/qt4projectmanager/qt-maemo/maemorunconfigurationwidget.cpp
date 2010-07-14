@@ -83,7 +83,7 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     devConfLayout->addWidget(debuggerConfLabel);
 
     mainLayout->addRow(new QLabel(tr("Device configuration:")), devConfWidget);
-    m_executableLabel = new QLabel(m_runConfiguration->executable());
+    m_executableLabel = new QLabel(m_runConfiguration->localExecutableFilePath());
     mainLayout->addRow(tr("Executable:"), m_executableLabel);
     m_argsLineEdit = new QLineEdit(m_runConfiguration->arguments().join(" "));
     mainLayout->addRow(tr("Arguments:"), m_argsLineEdit);
@@ -118,7 +118,7 @@ void MaemoRunConfigurationWidget::argumentsEdited(const QString &text)
 
 void MaemoRunConfigurationWidget::updateTargetInformation()
 {
-    m_executableLabel->setText(m_runConfiguration->executable());
+    m_executableLabel->setText(m_runConfiguration->localExecutableFilePath());
 }
 
 void MaemoRunConfigurationWidget::deviceConfigurationChanged(const QString &name)

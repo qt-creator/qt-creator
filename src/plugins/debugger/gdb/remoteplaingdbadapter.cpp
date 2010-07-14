@@ -85,8 +85,7 @@ QString RemotePlainGdbAdapter::fromLocalEncoding(const QByteArray &b) const
 
 void RemotePlainGdbAdapter::handleApplicationOutput(const QByteArray &output)
 {
-    // FIXME: Remote encoding?
-    showMessage(QString::fromLatin1(output), AppOutput);
+    showMessage(QString::fromUtf8(output), AppOutput);
 }
 
 } // namespace Internal

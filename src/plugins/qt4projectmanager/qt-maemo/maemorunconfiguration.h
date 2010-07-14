@@ -75,7 +75,8 @@ public:
     MaemoDeployStep *deployStep() const;
 
     QString maddeRoot() const;
-    QString executable() const;
+    QString localExecutableFilePath() const;
+    QString remoteExecutableFilePath() const;
     const QString sysRoot() const;
     const QString targetRoot() const;
     const QStringList arguments() const;

@@ -34,15 +34,14 @@
 
 #include "maemoruncontrol.h"
 
-#include "maemodeployables.h"
 #include "maemodeploystep.h"
 #include "maemoglobal.h"
 #include "maemorunconfiguration.h"
+#include "maemosshrunner.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/ssh/sftpchannel.h>
 #include <coreplugin/ssh/sshconnection.h>
-#include <coreplugin/ssh/sshremoteprocess.h>
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunner.h>
@@ -73,6 +72,8 @@ AbstractMaemoRunControl::AbstractMaemoRunControl(RunConfiguration *rc, QString m
     : RunControl(rc, mode)
     , m_runConfig(qobject_cast<MaemoRunConfiguration *>(rc))
     , m_devConfig(m_runConfig ? m_runConfig->deviceConfig() : MaemoDeviceConfig())
+    , m_runner(new MaemoSshRunner(this, m_runConfig))
+    , m_running(false)
 {
 }
 
@@ -80,115 +81,62 @@ AbstractMaemoRunControl::~AbstractMaemoRunControl()
 {
 }
 
-    // TODO: We can cache the connection. We'd have to check if the connection
-    // is active and its parameters are the same as m_devConfig. If yes,
-    //     skip the connection step and jump right to handleConnected()
 void AbstractMaemoRunControl::start()
 {
     if (!m_devConfig.isValid()) {
         handleError(tr("No device configuration set for run configuration."));
     } else {
+        emit appendMessage(this, tr("Preparing remote side ..."), false);
+        m_running = true;
         m_stopped = false;
         emit started();
-        m_connection = SshConnection::create();
-        connect(m_connection.data(), SIGNAL(connected()), this,
-            SLOT(handleConnected()));
-        connect(m_connection.data(), SIGNAL(error(SshError)), this,
-            SLOT(handleConnectionFailure()));
-        m_connection->connectToHost(m_devConfig.server);
+        connect(m_runner, SIGNAL(error(QString)), this,
+            SLOT(handleSshError(QString)));
+        connect(m_runner, SIGNAL(readyForExecution()), this,
+            SLOT(startExecution()));
+        connect(m_runner, SIGNAL(remoteErrorOutput(QByteArray)), this,
+            SLOT(handleRemoteErrorOutput(QByteArray)));
+        connect(m_runner, SIGNAL(remoteOutput(QByteArray)), this,
+            SLOT(handleRemoteOutput(QByteArray)));
+        connect(m_runner, SIGNAL(remoteProcessStarted()), this,
+            SLOT(handleRemoteProcessStarted()));
+        connect(m_runner, SIGNAL(remoteProcessFinished(int)), this,
+            SLOT(handleRemoteProcessFinished(int)));
+        m_runner->start();
     }
-}
-
-void AbstractMaemoRunControl::handleConnected()
-{
-    if (m_stopped)
-        return;
-
-    emit appendMessage(this, tr("Cleaning up remote leftovers first ..."), false);
-    const QStringList appsToKill = QStringList() << executableFileName()
-#ifdef USE_GDBSERVER
-        << QLatin1String("gdbserver");
-#else
-        << QLatin1String("gdb");
-#endif
-    killRemoteProcesses(appsToKill, true);
-}
-
-void AbstractMaemoRunControl::handleConnectionFailure()
-{
-    if (m_stopped)
-        return;
-
-    handleError(tr("Could not connect to host: %1")
-        .arg(m_connection->errorString()));
-    emit finished();
 }
 
 void AbstractMaemoRunControl::stop()
 {
     m_stopped = true;
-    if (m_connection && m_connection->state() == SshConnection::Connecting) {
-        disconnect(m_connection.data(), 0, this, 0);
-        m_connection->disconnectFromHost();
-        emit finished();
-    } else if (m_initialCleaner && m_initialCleaner->isRunning()) {
-        disconnect(m_initialCleaner.data(), 0, this, 0);
-        emit finished();
-    } else {
-        stopInternal();
-    }
+    if (m_runner)
+        m_runner->stop();
+    stopInternal();
 }
 
-QString AbstractMaemoRunControl::executableFilePathOnTarget() const
+void AbstractMaemoRunControl::handleSshError(const QString &error)
 {
-    const MaemoDeployables * const deployables
-        = m_runConfig->deployStep()->deployables();
-    return deployables->remoteExecutableFilePath(m_runConfig->executable());
-}
-
-void AbstractMaemoRunControl::startExecutionIfPossible()
-{
-    if (executableFilePathOnTarget().isEmpty()) {
-        handleError(tr("Cannot run: No remote executable set."));
-        emit finished();
-    } else {
-        startExecution();
-    }
+    handleError(error);
+    setFinished();
 }
 
 void AbstractMaemoRunControl::startExecution()
 {
-    m_runner = m_connection->createRemoteProcess(remoteCall().toUtf8());
-    connect(m_runner.data(), SIGNAL(started()), this,
-        SLOT(handleRemoteProcessStarted()));
-    connect(m_runner.data(), SIGNAL(closed(int)), this,
-        SLOT(handleRemoteProcessFinished(int)));
-    connect(m_runner.data(), SIGNAL(outputAvailable(QByteArray)), this,
-        SLOT(handleRemoteOutput(QByteArray)));
-    connect(m_runner.data(), SIGNAL(errorOutputAvailable(QByteArray)), this,
-        SLOT(handleRemoteErrorOutput(QByteArray)));
-    emit appendMessage(this, tr("Starting remote application."), false);
-    m_runner->start();
+    emit appendMessage(this, tr("Starting remote process ..."), false);
+    m_runner->startExecution(QString::fromLocal8Bit("%1 %2 %3")
+        .arg(targetCmdLinePrefix()).arg(m_runConfig->remoteExecutableFilePath())
+        .arg(arguments()).toUtf8());
 }
 
-void AbstractMaemoRunControl::handleRemoteProcessFinished(int exitStatus)
+void AbstractMaemoRunControl::handleRemoteProcessFinished(int exitCode)
 {
-    Q_ASSERT(exitStatus == SshRemoteProcess::FailedToStart
-        || exitStatus == SshRemoteProcess::KilledBySignal
-        || exitStatus == SshRemoteProcess::ExitedNormally);
-
     if (m_stopped)
         return;
 
-    if (exitStatus == SshRemoteProcess::ExitedNormally) {
-        emit appendMessage(this,
-            tr("Finished running remote process. Exit code was %1.")
-            .arg(m_runner->exitCode()), false);
-        emit finished();
-    } else {
-        handleError(tr("Error running remote process: %1")
-            .arg(m_runner->errorString()));
-    }
+    emit appendMessage(this,
+        tr("Finished running remote process. Exit code was %1.").arg(exitCode),
+        false);
+    setFinished();
 }
 
 void AbstractMaemoRunControl::handleRemoteOutput(const QByteArray &output)
@@ -203,84 +151,17 @@ void AbstractMaemoRunControl::handleRemoteErrorOutput(const QByteArray &output)
 
 bool AbstractMaemoRunControl::isRunning() const
 {
-    return m_runner && m_runner->isRunning();
-}
-
-void AbstractMaemoRunControl::stopRunning(bool forDebugging)
-{
-    if (m_runner && m_runner->isRunning()) {
-        disconnect(m_runner.data(), 0, this, 0);
-        QStringList apps(executableFileName());
-        if (forDebugging)
-            apps << QLatin1String("gdbserver");
-        killRemoteProcesses(apps, false);
-        emit finished();
-    }
-}
-
-void AbstractMaemoRunControl::killRemoteProcesses(const QStringList &apps,
-    bool initialCleanup)
-{
-    QString niceKill;
-    QString brutalKill;
-    foreach (const QString &app, apps) {
-        niceKill += QString::fromLocal8Bit("pkill -x %1;").arg(app);
-        brutalKill += QString::fromLocal8Bit("pkill -x -9 %1;").arg(app);
-    }
-    QString remoteCall = niceKill + QLatin1String("sleep 1; ") + brutalKill;
-    remoteCall.remove(remoteCall.count() - 1, 1); // Get rid of trailing semicolon.
-    SshRemoteProcess::Ptr proc
-        = m_connection->createRemoteProcess(remoteCall.toUtf8());
-    if (initialCleanup) {
-        m_initialCleaner = proc;
-        connect(m_initialCleaner.data(), SIGNAL(closed(int)), this,
-            SLOT(handleInitialCleanupFinished(int)));
-    } else {
-        m_stopper = proc;
-    }
-    proc->start();
-}
-
-void AbstractMaemoRunControl::handleInitialCleanupFinished(int exitStatus)
-{
-    Q_ASSERT(exitStatus == SshRemoteProcess::FailedToStart
-        || exitStatus == SshRemoteProcess::KilledBySignal
-        || exitStatus == SshRemoteProcess::ExitedNormally);
-
-    if (m_stopped)
-        return;
-
-    if (exitStatus != SshRemoteProcess::ExitedNormally) {
-        handleError(tr("Initial cleanup failed: %1")
-            .arg(m_initialCleaner->errorString()));
-    } else {
-        emit appendMessage(this, tr("Initial cleanup done."), false);
-        startExecutionIfPossible();
-    }
-}
-
-const QString AbstractMaemoRunControl::executableOnHost() const
-{
-    return m_runConfig->executable();
-}
-
-const QString AbstractMaemoRunControl::executableFileName() const
-{
-    return QFileInfo(executableOnHost()).fileName();
-}
-
-const QString AbstractMaemoRunControl::uploadDir() const
-{
-    return MaemoGlobal::homeDirOnDevice(m_devConfig.server.uname);
+    return m_running;
 }
 
 const QString AbstractMaemoRunControl::targetCmdLinePrefix() const
 {
     return QString::fromLocal8Bit("%1 chmod a+x %2 && source /etc/profile && DISPLAY=:0.0 ")
-        .arg(MaemoGlobal::remoteSudo()).arg(executableFilePathOnTarget());
+        .arg(MaemoGlobal::remoteSudo())
+        .arg(m_runConfig->remoteExecutableFilePath());
 }
 
-QString AbstractMaemoRunControl::targetCmdLineSuffix() const
+QString AbstractMaemoRunControl::arguments() const
 {
     return m_runConfig->arguments().join(" ");
 }
@@ -292,12 +173,10 @@ void AbstractMaemoRunControl::handleError(const QString &errString)
     stop();
 }
 
-template<typename SshChannel> void AbstractMaemoRunControl::closeSshChannel(SshChannel &channel)
+void AbstractMaemoRunControl::setFinished()
 {
-    if (channel) {
-        disconnect(channel.data(), 0, this, 0);
-        // channel->closeChannel();
-    }
+    m_running = false;
+    emit finished();
 }
 
 
@@ -311,15 +190,9 @@ MaemoRunControl::~MaemoRunControl()
     stop();
 }
 
-QString MaemoRunControl::remoteCall() const
-{
-    return QString::fromLocal8Bit("%1 %2 %3").arg(targetCmdLinePrefix())
-        .arg(executableFilePathOnTarget()).arg(targetCmdLineSuffix());
-}
-
 void MaemoRunControl::stopInternal()
 {
-    AbstractMaemoRunControl::stopRunning(false);
+    setFinished();
 }
 
 
@@ -331,17 +204,19 @@ MaemoDebugRunControl::MaemoDebugRunControl(RunConfiguration *runConfiguration)
 {
 #ifdef USE_GDBSERVER
     m_startParams->startMode = AttachToRemote;
-    m_startParams->executable = executableOnHost();
+    m_startParams->executable = m_runConfig->localExecutableFilePath();
     m_startParams->debuggerCommand = m_runConfig->gdbCmd();
     m_startParams->remoteChannel
         = m_devConfig.server.host % QLatin1Char(':') % gdbServerPort();
     m_startParams->remoteArchitecture = QLatin1String("arm");
+    m_runner->addProcsToKill(QStringList() << QLatin1String("gdbserver"));
 #else
     m_startParams->startMode = StartRemoteGdb;
-    m_startParams->executable = executableFilePathOnTarget();
+    m_startParams->executable = m_runConfig->remoteExecutableFilePath();
     m_startParams->debuggerCommand = targetCmdLinePrefix()
         + QLatin1String(" /usr/bin/gdb");
     m_startParams->connParams = m_devConfig.server;
+    m_runner->addProcsToKill(QStringList() << QLatin1String("gdb"));
 #endif
     m_startParams->processArgs = m_runConfig->arguments();
     m_startParams->sysRoot = m_runConfig->sysRoot();
@@ -362,20 +237,13 @@ MaemoDebugRunControl::~MaemoDebugRunControl()
     stop();
 }
 
-QString MaemoDebugRunControl::remoteCall() const
-{
-    return QString::fromLocal8Bit("%1 gdbserver :%2 %3 %4")
-        .arg(targetCmdLinePrefix()).arg(gdbServerPort())
-        .arg(executableFilePathOnTarget()).arg(targetCmdLineSuffix());
-}
-
 void MaemoDebugRunControl::startExecution()
 {
     const QString &dumperLib = m_runConfig->dumperLib();
     if (!dumperLib.isEmpty()
         && m_runConfig->deployStep()->currentlyNeedsDeployment(m_devConfig.server.host,
             MaemoDeployable(dumperLib, uploadDir()))) {
-        m_uploader = m_connection->createSftpChannel();
+        m_uploader = m_runner->connection()->createSftpChannel();
         connect(m_uploader.data(), SIGNAL(initialized()), this,
             SLOT(handleSftpChannelInitialized()));
         connect(m_uploader.data(), SIGNAL(initializationFailed(QString)), this,
@@ -438,7 +306,10 @@ void MaemoDebugRunControl::handleSftpJobFinished(Core::SftpJobId job,
 void MaemoDebugRunControl::startDebugging()
 {
 #ifdef USE_GDBSERVER
-    AbstractMaemoRunControl::startExecution();
+    m_runner->startExecution(QString::fromLocal8Bit("%1 gdbserver :%2 %3 %4")
+        .arg(targetCmdLinePrefix()).arg(gdbServerPort())
+        .arg(m_runConfig->remoteExecutableFilePath())
+        .arg(arguments()).toUtf8());
 #else
     DebuggerPlugin::startDebugger(m_debuggerRunControl);
 #endif
@@ -455,27 +326,20 @@ void MaemoDebugRunControl::stopInternal()
         disconnect(m_uploader.data(), 0, this, 0);
         m_uploader->closeChannel();
         m_uploadJob = SftpInvalidJob;
-        emit finished();
+        setFinished();
     } else if (m_debuggerRunControl && m_debuggerRunControl->engine()) {
         m_debuggerRunControl->engine()->quitDebugger();
     } else {
-        emit finished();
+        setFinished();
     }
-}
-
-bool MaemoDebugRunControl::isRunning() const
-{
-    return isDeploying() || AbstractMaemoRunControl::isRunning()
-        || m_debuggerRunControl->state() != DebuggerNotReady;
 }
 
 void MaemoDebugRunControl::debuggingFinished()
 {
 #ifdef USE_GDBSERVER
-    AbstractMaemoRunControl::stopRunning(true);
-#else
-    emit finished();
+    m_runner->stop();
 #endif
+    setFinished();
 }
 
 void MaemoDebugRunControl::handleRemoteProcessStarted()
@@ -495,6 +359,11 @@ QString MaemoDebugRunControl::gdbServerPort() const
         : m_runConfig->runtimeGdbServerPort();  // During configuration we don't
         // know which port to use, so we display something in the config dialog,
         // but we will make sure we use the right port from the information file.
+}
+
+QString MaemoDebugRunControl::uploadDir() const
+{
+    return MaemoGlobal::homeDirOnDevice(m_devConfig.server.uname);
 }
 
 } // namespace Internal
