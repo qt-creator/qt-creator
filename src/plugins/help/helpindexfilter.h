@@ -37,8 +37,6 @@
 namespace Help {
 namespace Internal {
 
-class HelpPlugin;
-
 class HelpIndexFilter : public Locator::ILocatorFilter
 {
     Q_OBJECT
@@ -57,7 +55,6 @@ public:
 
 signals:
     void linkActivated(const QUrl &link) const;
-    void linksActivated(const QMap<QString, QUrl> &urls, const QString &keyword) const;
 
 private:
     QIcon m_icon;

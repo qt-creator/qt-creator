@@ -29,6 +29,9 @@
 
 #include "helpindexfilter.h"
 
+#include "centralwidget.h"
+#include "topicchooser.h"
+
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
@@ -86,10 +89,13 @@ void HelpIndexFilter::accept(FilterEntry selection) const
 {
     const QString &key = selection.displayName;
     const QMap<QString, QUrl> &links = Core::HelpManager::instance()->linksForKeyword(key);
+
     if (links.size() == 1) {
         emit linkActivated(links.begin().value());
     } else if (!links.isEmpty()) {
-        emit linksActivated(links, key);
+        TopicChooser tc(CentralWidget::instance(), key, links);
+        if (tc.exec() == QDialog::Accepted)
+            emit linkActivated(tc.link());
     }
 }
 

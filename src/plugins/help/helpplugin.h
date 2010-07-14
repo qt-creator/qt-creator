@@ -88,7 +88,6 @@ private slots:
 
     void switchToHelpMode();
     void switchToHelpMode(const QUrl &source);
-    void switchToHelpMode(const QMap<QString, QUrl> &urls, const QString &keyword);
     void slotHideRightPane();
 
     void updateSideBarSource();

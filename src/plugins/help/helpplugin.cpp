@@ -299,8 +299,6 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     addAutoReleasedObject(helpIndexFilter);
     connect(helpIndexFilter, SIGNAL(linkActivated(QUrl)), this,
         SLOT(switchToHelpMode(QUrl)));
-    connect(helpIndexFilter, SIGNAL(linksActivated(QMap<QString, QUrl>, QString)),
-        this, SLOT(switchToHelpMode(QMap<QString, QUrl>, QString)));
 
     QDesktopServices::setUrlHandler("qthelp", this, "handleHelpRequest");
     connect(m_core->modeManager(), SIGNAL(currentModeChanged(Core::IMode*)),
@@ -560,13 +558,6 @@ void HelpPlugin::switchToHelpMode(const QUrl &source)
     activateHelpMode();
     m_centralWidget->setSource(source);
     m_centralWidget->setFocus();
-}
-
-void HelpPlugin::switchToHelpMode(const QMap<QString, QUrl> &urls,
-    const QString &keyword)
-{
-    activateHelpMode();
-    m_centralWidget->showTopicChooser(urls, keyword);
 }
 
 void HelpPlugin::slotHideRightPane()
