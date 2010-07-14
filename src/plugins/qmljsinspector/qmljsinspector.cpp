@@ -425,6 +425,8 @@ void Inspector::updateMenuActions()
 
 void Inspector::debuggerStateChanged(int newState)
 {
+#if 0
+    // FIXME: AAA: adjsut to new debugger states
     if (m_simultaneousCppAndQmlDebugMode) {
         switch(newState) {
         case Debugger::EngineStarting:
@@ -471,7 +473,7 @@ void Inspector::debuggerStateChanged(int newState)
             break;
         }
     }
-
+#endif
     m_cppDebuggerState = newState;
     updateMenuActions();
 }
