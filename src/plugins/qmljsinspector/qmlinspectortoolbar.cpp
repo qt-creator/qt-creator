@@ -68,6 +68,7 @@ void QmlInspectorToolbar::enable()
 {
     setEnabled(true);
     m_emitSignals = false;
+    m_designmodeAction->setChecked(false);
     changeAnimationSpeed(1.0f);
     activateDesignModeOnClick();
     m_emitSignals = true;
