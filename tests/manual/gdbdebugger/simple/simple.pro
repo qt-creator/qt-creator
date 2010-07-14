@@ -1,4 +1,4 @@
 
 TEMPLATE = subdirs
 
-SUBDIRS += app.pro plugin.pro
+SUBDIRS += simple_gdbtest_app.pro simple_gdbtest_plugin.pro
