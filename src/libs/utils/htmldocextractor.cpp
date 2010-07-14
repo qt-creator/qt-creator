@@ -266,6 +266,7 @@ void HtmlDocExtractor::formatContents(QString *html) const
         return;
 
     if (m_formatContents) {
+        stripBold(html);
         replaceNonStyledHeadingsForBold(html);
         replaceTablesForSimpleLines(html);
         replaceListsForSimpleLines(html);
@@ -274,6 +275,7 @@ void HtmlDocExtractor::formatContents(QString *html) const
         stripDivs(html);
         stripTagsStyles(html);
         stripHeadings(html);
+        stripImagens(html);
     }
 
     if (m_lengthReference > -1 && html->length() > m_lengthReference) {
@@ -288,9 +290,11 @@ void HtmlDocExtractor::formatContents(QString *html) const
         } else {
             html->truncate(m_lengthReference);
         }
-        html->append(QLatin1String("..."));
-        if (m_formatContents)
-            html->append(QLatin1String("<br />"));
+        if (m_formatContents) {
+            if (html->endsWith(QLatin1String("<br />")))
+                html->chop(6);
+            html->append(QLatin1String("<p>...</p>"));
+        }
     }
 }
 
@@ -327,7 +331,19 @@ void HtmlDocExtractor::stripTagsStyles(QString *html)
 
 void HtmlDocExtractor::stripTeletypes(QString *html)
 {
-    html->remove(createMinimalExp(QLatin1String("<tt>|</tt>")));
+    html->remove(QLatin1String("<tt>"));
+    html->remove(QLatin1String("</tt>"));
+}
+
+void HtmlDocExtractor::stripImagens(QString *html)
+{
+    html->remove(createMinimalExp(QLatin1String("<img.*>")));
+}
+
+void HtmlDocExtractor::stripBold(QString *html)
+{
+    html->remove(QLatin1String("<b>"));
+    html->remove(QLatin1String("</b>"));
 }
 
 void HtmlDocExtractor::replaceNonStyledHeadingsForBold(QString *html)
@@ -340,13 +356,19 @@ void HtmlDocExtractor::replaceNonStyledHeadingsForBold(QString *html)
 
 void HtmlDocExtractor::replaceTablesForSimpleLines(QString *html)
 {
-    html->remove(createMinimalExp(QLatin1String("<table.*>")));
-    html->remove(QLatin1String("</table>"));
+    html->replace(createMinimalExp(QLatin1String("(?:<p>)?<table.*>")), QLatin1String("<p>"));
+    html->replace(QLatin1String("</table>"), QLatin1String("</p>"));
+    html->remove(createMinimalExp(QLatin1String("<thead.*>")));
+    html->remove(QLatin1String("</thead>"));
+    html->remove(createMinimalExp(QLatin1String("<tfoot.*>")));
+    html->remove(QLatin1String("</tfoot>"));
     html->remove(createMinimalExp(QLatin1String("<tr.*><th.*>.*</th></tr>")));
     html->replace(QLatin1String("</td><td"), QLatin1String("</td>&nbsp;<td"));
+    html->remove(createMinimalExp(QLatin1String("<td.*><p>")));
     html->remove(createMinimalExp(QLatin1String("<td.*>")));
-    html->remove(QLatin1String("</td>"));
-    html->replace(QLatin1String("<tr>"), QLatin1String("&nbsp;&nbsp;-&nbsp;"));
+    html->remove(createMinimalExp(QLatin1String("(?:</p>)?</td>")));
+    html->replace(createMinimalExp(QLatin1String("<tr.*>")),
+                  QLatin1String("&nbsp;&nbsp;&nbsp;&nbsp;"));
     html->replace(QLatin1String("</tr>"), QLatin1String("<br />"));
 }
 
@@ -354,7 +376,7 @@ void HtmlDocExtractor::replaceListsForSimpleLines(QString *html)
 {
     html->remove(createMinimalExp(QLatin1String("<(?:ul|ol).*>")));
     html->remove(createMinimalExp(QLatin1String("</(?:ul|ol)>")));
-    html->replace(QLatin1String("<li>"), QLatin1String("&nbsp;&nbsp;-&nbsp;"));
+    html->replace(QLatin1String("<li>"), QLatin1String("&nbsp;&nbsp;&nbsp;&nbsp;"));
     html->replace(QLatin1String("</li>"), QLatin1String("<br />"));
 }
 

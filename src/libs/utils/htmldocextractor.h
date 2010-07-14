@@ -85,6 +85,8 @@ private:
     static void stripDivs(QString *html);
     static void stripTagsStyles(QString *html);
     static void stripTeletypes(QString *html);
+    static void stripImagens(QString *html);
+    static void stripBold(QString *html);
     static void replaceNonStyledHeadingsForBold(QString *html);
     static void replaceTablesForSimpleLines(QString *html);
     static void replaceListsForSimpleLines(QString *html);

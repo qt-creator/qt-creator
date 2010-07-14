@@ -70,20 +70,15 @@ namespace {
             return name.right(name.length() - index - 1);
     }
 
-    void moveCursorToEndOfQualifiedName(QTextCursor *tc) {
+    void moveCursorToEndOfName(QTextCursor *tc) {
         QTextDocument *doc = tc->document();
         if (!doc)
             return;
 
-        while (true) {
-            const QChar &ch = doc->characterAt(tc->position());
-            if (ch.isLetterOrNumber() || ch == QLatin1Char('_'))
-                tc->movePosition(QTextCursor::NextCharacter);
-            else if (ch == QLatin1Char(':') &&
-                     doc->characterAt(tc->position() + 1) == QLatin1Char(':'))
-                tc->movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, 2);
-            else
-                break;
+        QChar ch = doc->characterAt(tc->position());
+        while (ch.isLetterOrNumber() || ch == QLatin1Char('_')) {
+            tc->movePosition(QTextCursor::NextCharacter);
+            ch = doc->characterAt(tc->position());
         }
     }
 }
@@ -211,7 +206,7 @@ void CppHoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
 
         QTextCursor tc(baseEditor->document());
         tc.setPosition(pos);
-        moveCursorToEndOfQualifiedName(&tc);
+        moveCursorToEndOfName(&tc);
 
         // Fetch the expression's code
         ExpressionUnderCursor expressionUnderCursor;
