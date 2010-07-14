@@ -52,7 +52,7 @@ DebuggerClient::DebuggerClient(QDeclarativeDebugConnection* client)
     QTC_ASSERT(engine, return );
 
     engine->Debugger::Internal::DebuggerEngine::startDebugger(debuggerRunControl);
-    engine->startSuccessful();
+    //engine->startSuccessful();  // FIXME: AAA: port to new debugger states
 
     connect(engine, SIGNAL(sendMessage(QByteArray)), this, SLOT(slotSendMessage(QByteArray)));
     setEnabled(true);
