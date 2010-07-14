@@ -40,6 +40,7 @@ const char * const G_FIND_FILTERS    = "Find.FindMenu.Filters";
 const char * const G_FIND_FLAGS      = "Find.FindMenu.Flags";
 const char * const G_FIND_ACTIONS    = "Find.FindMenu.Actions";
 
+const char * const ADVANCED_FIND     = "Find.Dialog";
 const char * const FIND              = "Find.FindReplace";
 const char * const FIND_IN_DOCUMENT  = "Find.FindInCurrentDocument";
 const char * const FIND_NEXT         = "Find.FindNext";

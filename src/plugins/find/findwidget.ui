@@ -168,6 +168,16 @@
        </property>
       </spacer>
      </item>
+     <item>
+      <widget class="QToolButton" name="advancedButton">
+       <property name="text">
+        <string>Advanced...</string>
+       </property>
+       <property name="toolButtonStyle">
+        <enum>Qt::ToolButtonTextOnly</enum>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
   </layout>

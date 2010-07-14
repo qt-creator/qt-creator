@@ -140,6 +140,8 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     Core::ActionContainer *mfind = am->actionContainer(Constants::M_FIND);
     Core::Command *cmd;
 
+    m_ui.advancedButton->setDefaultAction(am->command(Constants::ADVANCED_FIND)->action());
+
     QIcon icon = QIcon::fromTheme(QLatin1String("edit-find-replace"));
     m_findInDocumentAction = new QAction(icon, tr("Find/Replace"), this);
     cmd = am->registerAction(m_findInDocumentAction, Constants::FIND_IN_DOCUMENT, globalcontext);
@@ -345,6 +347,7 @@ void FindToolBar::updateToolBar()
     m_ui.replaceButton->setVisible(replaceEnabled);
     m_ui.replaceNextButton->setVisible(replaceEnabled);
     m_ui.replaceAllButton->setVisible(replaceEnabled);
+    m_ui.advancedButton->setVisible(replaceEnabled);
     layout()->invalidate();
 
     if (!replaceEnabled && enabled && replaceFocus)

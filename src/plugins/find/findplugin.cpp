@@ -209,7 +209,8 @@ void FindPlugin::setupMenu()
     mfindadvanced->menu()->setTitle(tr("Advanced Find"));
     mfind->addMenu(mfindadvanced, Constants::G_FIND_FILTERS);
     d->m_openFindDialog = new QAction(tr("Open Advanced Find..."), this);
-    cmd = am->registerAction(d->m_openFindDialog, QLatin1String("Find.Dialog"), globalcontext);
+    d->m_openFindDialog->setIconText(tr("Advanced..."));
+    cmd = am->registerAction(d->m_openFindDialog, Constants::ADVANCED_FIND, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+F")));
     mfindadvanced->addAction(cmd);
     connect(d->m_openFindDialog, SIGNAL(triggered()), this, SLOT(openFindFilter()));
