@@ -232,10 +232,10 @@ void CppHoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
 }
 
 bool CppHoverHandler::matchDiagnosticMessage(const CPlusPlus::Document::Ptr &document,
-                                             const int line)
+                                             unsigned line)
 {
     foreach (const Document::DiagnosticMessage &m, document->diagnosticMessages()) {
-        if (m.line() == unsigned(line)) {
+        if (m.line() == line) {
             m_toolTip = m.text();
             return true;
         }
@@ -243,10 +243,10 @@ bool CppHoverHandler::matchDiagnosticMessage(const CPlusPlus::Document::Ptr &doc
     return false;
 }
 
-bool CppHoverHandler::matchIncludeFile(const CPlusPlus::Document::Ptr &document, const int line)
+bool CppHoverHandler::matchIncludeFile(const CPlusPlus::Document::Ptr &document, unsigned line)
 {
     foreach (const Document::Include &includeFile, document->includes()) {
-        if (includeFile.line() == unsigned(line)) {
+        if (includeFile.line() == line) {
             m_toolTip = QDir::toNativeSeparators(includeFile.fileName());
             const QString &fileName = QFileInfo(includeFile.fileName()).fileName();
             m_helpCandidates.append(HelpCandidate(fileName, fileName, HelpCandidate::Include));
@@ -256,11 +256,11 @@ bool CppHoverHandler::matchIncludeFile(const CPlusPlus::Document::Ptr &document,
     return false;
 }
 
-bool CppHoverHandler::matchMacroInUse(const CPlusPlus::Document::Ptr &document, const int pos)
+bool CppHoverHandler::matchMacroInUse(const CPlusPlus::Document::Ptr &document, unsigned pos)
 {
     foreach (const Document::MacroUse &use, document->macroUses()) {
         if (use.contains(pos)) {
-            const int begin = use.begin();
+            const unsigned begin = use.begin();
             const QString &name = use.macro().name();
             if (pos < begin + name.length()) {
                 m_toolTip = use.macro().toString();

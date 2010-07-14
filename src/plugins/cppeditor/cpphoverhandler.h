@@ -97,9 +97,9 @@ private:
 
     void resetMatchings();
     void identifyMatch(TextEditor::ITextEditor *editor, int pos);
-    bool matchDiagnosticMessage(const CPlusPlus::Document::Ptr &document, const int line);
-    bool matchIncludeFile(const CPlusPlus::Document::Ptr &document, const int line);
-    bool matchMacroInUse(const CPlusPlus::Document::Ptr &document, const int pos);
+    bool matchDiagnosticMessage(const CPlusPlus::Document::Ptr &document, unsigned line);
+    bool matchIncludeFile(const CPlusPlus::Document::Ptr &document, unsigned line);
+    bool matchMacroInUse(const CPlusPlus::Document::Ptr &document, unsigned pos);
     void handleLookupItemMatch(const CPlusPlus::LookupItem &lookupItem,
                                const bool assignTooltip);
 
