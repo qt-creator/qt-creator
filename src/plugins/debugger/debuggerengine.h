@@ -244,8 +244,8 @@ public:
     void handleCommand(int role, const QVariant &value);
 
     // Convenience
-    void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1) const;
-    void showStatusMessage(const QString &msg, int timeout = -1) const;
+    Q_SLOT void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1) const;
+    Q_SLOT void showStatusMessage(const QString &msg, int timeout = -1) const;
 
     void resetLocation();
     void openFile(const QString &fileName, int lineNumber = -1);

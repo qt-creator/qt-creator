@@ -98,11 +98,10 @@ public:
     bool attemptBreakpointSynchronization(QString *errorMessage);
     void notifyException(long code, bool fatal, const QString &message);
 
-    enum EndInferiorAction { DetachInferior, TerminateInferior };
-    bool endInferior(EndInferiorAction a, QString *errorMessage);
 
-    enum EndDebuggingMode { EndDebuggingDetach, EndDebuggingTerminate, EndDebuggingAuto };
-    void endDebugging(EndDebuggingMode em = EndDebuggingAuto);
+    bool endInferior(bool detachOnly /* = false */, QString *errorMessage);
+
+    void endDebugging(bool detachOnly = false);
 
     void updateCodeLevel();
 

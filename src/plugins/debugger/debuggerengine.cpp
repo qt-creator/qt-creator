@@ -1202,7 +1202,7 @@ void DebuggerEngine::notifyInferiorShutdownOk()
 void DebuggerEngine::notifyInferiorShutdownFailed()
 {
     showMessage(_("INFERIOR SHUTDOWN FAILED"));
-    QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
+    QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << this << state());
     setState(InferiorShutdownFailed);
     d->queueShutdownEngine();
 }
@@ -1226,7 +1226,8 @@ void DebuggerEngine::notifyInferiorIll()
 
 void DebuggerEnginePrivate::doShutdownEngine()
 {
-    QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
+    QTC_ASSERT(state() == EngineShutdownRequested
+           || state() == InferiorShutdownOk, qDebug() << state());
     m_targetState = DebuggerFinished;
     m_engine->showMessage(_("CALL: SHUTDOWN ENGINE"));
     m_engine->shutdownEngine();

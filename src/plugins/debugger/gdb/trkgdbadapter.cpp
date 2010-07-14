@@ -1864,6 +1864,7 @@ void TrkGdbAdapter::shutdownInferior()
 void TrkGdbAdapter::shutdownAdapter()
 {
     cleanup();
+    m_engine->notifyAdapterShutdownOk();
 }
 
 void TrkGdbAdapter::trkReloadRegisters()
