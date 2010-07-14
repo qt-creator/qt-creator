@@ -49,6 +49,7 @@ class IconsPrivate
 public:
     QIcon elementIcon;
     QIcon propertyIcon;
+    QIcon publicMemberIcon;
     QHash<QPair<QString,QString>,QIcon> iconHash;
     QString resourcePath;
 };
@@ -60,6 +61,7 @@ Icons::Icons()
 {
     m_d->elementIcon = QIcon(QLatin1String(":/qmljs/images/element.png"));
     m_d->propertyIcon = QIcon(QLatin1String(":/qmljs/images/property.png"));
+    m_d->publicMemberIcon = QIcon(QLatin1String(":/qmljs/images/publicmember.png"));
 }
 
 Icons::~Icons()
@@ -133,4 +135,9 @@ QIcon Icons::objectDefinitionIcon() const
 QIcon Icons::scriptBindingIcon() const
 {
     return m_d->propertyIcon;
+}
+
+QIcon Icons::publicMemberIcon() const
+{
+    return m_d->publicMemberIcon;
 }

@@ -22,10 +22,12 @@ public:
     QmlJS::Document::Ptr document() const;
     void update(QmlJS::Document::Ptr doc, const QmlJS::Snapshot &snapshot);
 
-    QModelIndex enterElement(const QString &typeName, const QString &id, const QIcon &icon, const QmlJS::AST::SourceLocation &location);
+    QModelIndex enterElement(const QString &typeName, const QString &id, const QIcon &icon,
+                             const QmlJS::AST::SourceLocation &location);
     void leaveElement();
 
-    QModelIndex enterProperty(const QString &name, const QmlJS::AST::SourceLocation &location);
+    QModelIndex enterProperty(const QString &name, bool isCustomProperty,
+                              const QmlJS::AST::SourceLocation &location);
     void leaveProperty();
 
 signals:

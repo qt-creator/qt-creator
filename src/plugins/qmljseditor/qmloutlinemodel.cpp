@@ -12,7 +12,7 @@ using namespace QmlJS;
 using namespace QmlJSEditor::Internal;
 
 enum {
-    debug = false
+    debug = true
 };
 
 namespace QmlJSEditor {
@@ -85,11 +85,7 @@ private:
             return true;
         }
 
-        AST::SourceLocation location;
-        location.offset = objDef->firstSourceLocation().offset;
-        location.length = objDef->lastSourceLocation().offset
-                - objDef->firstSourceLocation().offset
-                + objDef->lastSourceLocation().length;
+        AST::SourceLocation location = getLocation(objDef);
 
         const QString typeName = asString(objDef->qualifiedTypeNameId);
 
@@ -114,19 +110,29 @@ private:
 
     bool visit(AST::UiScriptBinding *scriptBinding)
     {
-        AST::SourceLocation location;
-        location.offset = scriptBinding->firstSourceLocation().offset;
-        location.length = scriptBinding->lastSourceLocation().offset
-                - scriptBinding->firstSourceLocation().offset
-                + scriptBinding->lastSourceLocation().length;
+        AST::SourceLocation location = getLocation(scriptBinding);
 
-        QModelIndex index = m_model->enterProperty(asString(scriptBinding->qualifiedId), location);
+        QModelIndex index = m_model->enterProperty(asString(scriptBinding->qualifiedId), false, location);
         m_nodeToIndex.insert(scriptBinding, index);
 
         return true;
     }
 
     void endVisit(AST::UiScriptBinding * /*scriptBinding*/)
+    {
+        m_model->leaveProperty();
+    }
+
+    bool visit(AST::UiPublicMember *publicMember)
+    {
+        AST::SourceLocation location = getLocation(publicMember);
+        QModelIndex index = m_model->enterProperty(publicMember->name->asString(), true, location);
+        m_nodeToIndex.insert(publicMember, index);
+
+        return true;
+    }
+
+    void endVisit(AST::UiPublicMember * /*publicMember*/)
     {
         m_model->leaveProperty();
     }
@@ -178,6 +184,14 @@ private:
         return id;
     }
 
+    AST::SourceLocation getLocation(AST::UiObjectMember *objMember) {
+        AST::SourceLocation location;
+        location.offset = objMember->firstSourceLocation().offset;
+        location.length = objMember->lastSourceLocation().offset
+                - objMember->firstSourceLocation().offset
+                + objMember->lastSourceLocation().length;
+        return location;
+    }
 
     QmlOutlineModel *m_model;
     LookupContext::Ptr m_context;
@@ -232,11 +246,15 @@ void QmlOutlineModel::leaveElement()
     leaveNode();
 }
 
-QModelIndex QmlOutlineModel::enterProperty(const QString &name, const AST::SourceLocation &sourceLocation)
+QModelIndex QmlOutlineModel::enterProperty(const QString &name, bool isCustomProperty, const AST::SourceLocation &sourceLocation)
 {
     QStandardItem *item = enterNode(sourceLocation);
     item->setText(name);
-    item->setIcon(m_icons->scriptBindingIcon());
+    if (isCustomProperty) {
+        item->setIcon(m_icons->publicMemberIcon());
+    } else {
+        item->setIcon(m_icons->scriptBindingIcon());
+    }
     return item->index();
 }
 
