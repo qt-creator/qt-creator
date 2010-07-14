@@ -83,9 +83,7 @@ public:
     const ConversionNameId *conversionNameId(const FullySpecifiedType &type);
 
     /// Returns the canonical qualified name id.
-    const QualifiedNameId *qualifiedNameId(const Name *const *names,
-                                           unsigned nameCount,
-                                           bool isGlobal = false);
+    const QualifiedNameId *qualifiedNameId(const Name *base, const Name *name);
 
     const SelectorNameId *selectorNameId(const Name *const *names,
                                          unsigned nameCount,

@@ -2,9 +2,9 @@ TEMPLATE = app
 
 CONFIG += qt warn_on console depend_includepath
 CONFIG -= app_bundle
+CONFIG += qtestlib testcase
 
-QT += testlib \
-    script \
+QT += script \
     declarative
 
 PLUGIN_DIR=../../../../../src/plugins/qmlprojectmanager

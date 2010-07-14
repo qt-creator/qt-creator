@@ -42,7 +42,7 @@ using namespace TextEditor;
 using namespace CPlusPlus;
 
 CppHighlighter::CppHighlighter(QTextDocument *document) :
-    QSyntaxHighlighter(document)
+    TextEditor::SyntaxHighlighter(document)
 {
 }
 

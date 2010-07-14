@@ -22,8 +22,8 @@ class ContextPaneWidget : public QFrame
 public:
     explicit ContextPaneWidget(QWidget *parent = 0);
     ~ContextPaneWidget();
-    void activate(const QPoint &pos, const QPoint &alternative);
-    void rePosition(const QPoint &pos, const QPoint &alternative);
+    void activate(const QPoint &pos, const QPoint &alternative, const QPoint &alternative2);
+    void rePosition(const QPoint &pos, const QPoint &alternative , const QPoint &alternative3);
     void deactivate();
     BauhausColorDialog *colorDialog();
     void setProperties(QmlJS::PropertyReader *propertyReader);

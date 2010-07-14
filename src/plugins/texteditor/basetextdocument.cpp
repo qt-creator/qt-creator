@@ -32,6 +32,7 @@
 #include "basetextdocumentlayout.h"
 #include "basetexteditor.h"
 #include "storagesettings.h"
+#include "syntaxhighlighter.h"
 
 #include <QtCore/QFile>
 #include <QtCore/QDir>
@@ -162,7 +163,16 @@ bool BaseTextDocument::save(const QString &fileName)
 {
     QTextCursor cursor(m_document);
 
+    // When saving the current editor, make sure to maintain the cursor position for undo
+    Core::IEditor *currentEditor = Core::EditorManager::instance()->currentEditor();
+    if (BaseTextEditorEditable *editable = qobject_cast<BaseTextEditorEditable*>(currentEditor)) {
+        if (editable->file() == this)
+            cursor = editable->editor()->textCursor();
+    }
+
     cursor.beginEditBlock();
+    cursor.movePosition(QTextCursor::Start);
+
     if (m_storageSettings.m_cleanWhitespace)
         cleanWhitespace(cursor, m_storageSettings.m_cleanIndentation, m_storageSettings.m_inEntireDocument);
     if (m_storageSettings.m_addFinalNewLine)
@@ -357,7 +367,7 @@ void BaseTextDocument::reload(ReloadFlag flag, ChangeType type)
     }
 }
 
-void BaseTextDocument::setSyntaxHighlighter(QSyntaxHighlighter *highlighter)
+void BaseTextDocument::setSyntaxHighlighter(SyntaxHighlighter *highlighter)
 {
     if (m_highlighter)
         delete m_highlighter;

@@ -46,6 +46,7 @@ public:
     typedef Utils::ChangeSet::Range Range;
 
 public:
+    RefactoringChanges();
     virtual ~RefactoringChanges();
 
     void createFile(const QString &fileName, const QString &contents);
@@ -63,10 +64,16 @@ public:
                                          bool openIfClosed = false);
     static BaseTextEditor *editorForNewFile(const QString &fileName);
 
+    /** line and column are zero-based */
+    void openEditor(const QString &fileName, int line, int column);
+
 private:
     QMap<QString, QString> m_contentsByCreatedFile;
     QMap<QString, Utils::ChangeSet> m_changesByFile;
     QMap<QString, QList<Range> > m_indentRangesByFile;
+    QString m_fileNameToShow;
+    int m_lineToShow;
+    int m_columnToShow;
 };
 
 } // namespace TextEditor

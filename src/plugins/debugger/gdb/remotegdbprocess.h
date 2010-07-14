@@ -33,6 +33,7 @@
 #include "abstractgdbprocess.h"
 
 #include <coreplugin/ssh/sshconnection.h>
+#include <coreplugin/ssh/sshremoteprocess.h>
 
 #include <QtCore/QByteArray>
 #include <QtCore/QQueue>
@@ -46,7 +47,7 @@ class RemoteGdbProcess : public AbstractGdbProcess
 {
     Q_OBJECT
 public:
-    RemoteGdbProcess(const Core::SshServerInfo &server,
+    RemoteGdbProcess(const Core::SshConnectionParameters &server,
                      RemotePlainGdbAdapter *adapter, QObject *parent = 0);
 
     virtual QByteArray readAllStandardOutput();
@@ -65,32 +66,37 @@ public:
     virtual void setEnvironment(const QStringList &env);
     virtual void setWorkingDirectory(const QString &dir);
 
+    void interruptInferior();
+
     static const QByteArray CtrlC;
 
 private slots:
-    void handleGdbOutput();
-    void handleAppOutput();
-    void handleErrOutput();
+    void handleConnected();
+    void handleConnectionError();
+    void handleFifoCreationFinished(int exitStatus);
+    void handleAppOutputReaderStarted();
+    void handleAppOutputReaderFinished(int exitStatus);
+    void handleGdbStarted();
+    void handleGdbFinished(int exitStatus);
+    void handleGdbOutput(const QByteArray &output);
+    void handleAppOutput(const QByteArray &output);
+    void handleErrOutput(const QByteArray &output);
 
 private:
     static QByteArray readerCmdLine(const QByteArray &file);
 
     int findAnchor(const QByteArray &data) const;
-    qint64 sendInput(const QByteArray &data);
-    void stopReaders();
+    void sendInput(const QByteArray &data);
     QByteArray removeCarriageReturn(const QByteArray &data);
-    bool checkForGdbExit(QByteArray &output);
-    bool sendAndWaitForEcho(Core::InteractiveSshConnection::Ptr &conn,
-        const QByteArray &cmdLine);
-    bool waitForInputReady(Core::InteractiveSshConnection::Ptr &conn);
+    void emitErrorExit(const QString &error);
 
     static const QByteArray AppOutputFile;
-    static const QByteArray ErrOutputFile;
 
-    Core::SshServerInfo m_serverInfo;
-    Core::InteractiveSshConnection::Ptr m_gdbConn;
-    Core::InteractiveSshConnection::Ptr m_appOutputConn;
-    Core::InteractiveSshConnection::Ptr m_errOutputConn;
+    Core::SshConnectionParameters m_connParams;
+    Core::SshConnection::Ptr m_conn;
+    Core::SshRemoteProcess::Ptr m_gdbProc;
+    Core::SshRemoteProcess::Ptr m_appOutputReader;
+    Core::SshRemoteProcess::Ptr m_fifoCreator;
     QByteArray m_gdbOutput;
     QByteArray m_errorOutput;
     QString m_command;
@@ -99,7 +105,7 @@ private:
     QQueue<QByteArray> m_inputToSend;
     QByteArray m_currentGdbOutput;
     QByteArray m_lastSeqNr;
-    QByteArray m_gdbCmdLine;
+    QString m_error;
     bool m_gdbStarted;
 
     RemotePlainGdbAdapter *m_adapter;

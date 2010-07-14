@@ -48,8 +48,6 @@ QT_END_NAMESPACE
 namespace Qt4ProjectManager {
 namespace Internal {
 
-QString homeDirOnDevice(const QString &uname);
-
 class MaemoDeviceConfig
 {
 public:
@@ -60,7 +58,7 @@ public:
     void save(QSettings &settings) const;
     bool isValid() const;
 
-    Core::SshServerInfo server;
+    Core::SshConnectionParameters server;
     QString name;
     DeviceType type;
     int gdbServerPort;

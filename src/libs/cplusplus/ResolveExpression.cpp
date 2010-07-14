@@ -221,11 +221,10 @@ bool ResolveExpression::visit(NewExpressionAST *ast)
 
 bool ResolveExpression::visit(TypeidExpressionAST *)
 {
-    const Name *std_type_info[2];
-    std_type_info[0] = control()->nameId(control()->findOrInsertIdentifier("std"));
-    std_type_info[1] = control()->nameId(control()->findOrInsertIdentifier("type_info"));
+    const Name *stdName = control()->nameId(control()->findOrInsertIdentifier("std"));
+    const Name *tiName = control()->nameId(control()->findOrInsertIdentifier("type_info"));
+    const Name *q = control()->qualifiedNameId(control()->qualifiedNameId(/* :: */ 0, stdName), tiName);
 
-    const Name *q = control()->qualifiedNameId(std_type_info, 2, /*global=*/ true);
     FullySpecifiedType ty(control()->namedType(q));
     addResult(ty, _scope);
 
@@ -314,14 +313,11 @@ void ResolveExpression::thisObject()
                 addResult(ptrTy, fun->scope());
                 break;
             } else if (const QualifiedNameId *q = fun->name()->asQualifiedNameId()) {
-                const Name *nestedNameSpecifier = 0;
-                if (q->nameCount() == 1 && q->isGlobal())
-                    nestedNameSpecifier = q->nameAt(0);
-                else
-                    nestedNameSpecifier = control()->qualifiedNameId(q->names(), q->nameCount() - 1);
-                FullySpecifiedType classTy(control()->namedType(nestedNameSpecifier));
-                FullySpecifiedType ptrTy(control()->pointerType(classTy));
-                addResult(ptrTy, fun->scope());
+                if (q->base()) {
+                    FullySpecifiedType classTy(control()->namedType(q->base()));
+                    FullySpecifiedType ptrTy(control()->pointerType(classTy));
+                    addResult(ptrTy, fun->scope());
+                }
                 break;
             }
         }
@@ -604,7 +600,12 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
                             if (ClassOrNamespace *retBinding = findClass(ptrTy->elementType(), overload->scope()))
                                 return retBinding;
 
-                            else if (debug) {
+                            else if (scope != overload->scope()) {
+                                if (ClassOrNamespace *retBinding = findClass(ptrTy->elementType(), scope))
+                                    return retBinding;
+                            }
+
+                            if (debug) {
                                 Overview oo;
                                 qDebug() << "no class for:" << oo(ptrTy->elementType());
                             }

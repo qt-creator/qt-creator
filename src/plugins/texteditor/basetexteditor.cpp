@@ -39,6 +39,7 @@
 #include "tabsettings.h"
 #include "texteditorconstants.h"
 #include "texteditorplugin.h"
+#include "syntaxhighlighter.h"
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -572,8 +573,19 @@ void BaseTextEditor::triggerQuickFix()
     emit requestQuickFix(editableInterface());
 }
 
+QString BaseTextEditor::msgTextTooLarge(quint64 size)
+{
+    return tr("The text is too large to be displayed (%1 MB).").
+           arg(size >> 20);
+}
+
 bool BaseTextEditor::createNew(const QString &contents)
 {
+    if (contents.size() > Core::EditorManager::maxTextFileSize()) {
+        setPlainText(msgTextTooLarge(contents.size()));
+        document()->setModified(false);
+        return false;
+    }
     setPlainText(contents);
     document()->setModified(false);
     return true;
@@ -4027,11 +4039,7 @@ int BaseTextEditor::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
         return 0;
 
     // verify that we indeed do have an extra opening brace in the document
-    int braceDepth = document()->lastBlock().userState();
-    if (braceDepth >= 0)
-        braceDepth >>= 8;
-    else
-        braceDepth= 0;
+    int braceDepth = BaseTextDocumentLayout::braceDepth(document()->lastBlock());
 
     if (braceDepth <= 0)
         return 0; // braces are all balanced or worse, no need to do anything
@@ -4048,9 +4056,16 @@ int BaseTextEditor::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
     const TabSettings &ts = tabSettings();
     QTextBlock block = cursor.block();
     int indentation = ts.indentationColumn(block.text());
-    if (block.next().isValid()
-        && ts.indentationColumn(block.next().text()) > indentation)
-        return 0;
+
+    if (block.next().isValid()) { // not the last block
+        block = block.next();
+        //skip all empty blocks
+        while (block.isValid() && ts.onlySpace(block.text()))
+            block = block.next();
+        if (block.isValid()
+                && ts.indentationColumn(block.text()) > indentation)
+            return 0;
+    }
 
     int pos = cursor.position();
 
@@ -4267,6 +4282,25 @@ int BaseTextEditor::verticalBlockSelection() const
     e.setPosition(e.selectionEnd());
 
     return qAbs(b.positionInBlock() - e.positionInBlock()) + d->m_blockSelectionExtraX;
+}
+
+QRegion BaseTextEditor::translatedLineRegion(int lineStart, int lineEnd) const
+{
+    QRegion region;
+    for (int i = lineStart ; i <= lineEnd; i++) {
+        QTextBlock block = document()->findBlockByNumber(i);
+        QPoint topLeft = blockBoundingGeometry(block).translated(contentOffset()).topLeft().toPoint();
+
+        if (block.isValid()) {
+            QTextLayout *layout = block.layout();
+
+            for (int i = 0; i < layout->lineCount();i++) {
+                QTextLine line = layout->lineAt(i);
+                region += line.naturalTextRect().translated(topLeft).toRect();
+            }
+        }
+    }
+    return region;
 }
 
 void BaseTextEditor::setFindScope(const QTextCursor &start, const QTextCursor &end, int verticalBlockSelection)
@@ -4631,7 +4665,6 @@ void BaseTextEditor::maybeClearSomeExtraSelections(const QTextCursor &cursor)
     if (cursor.selectionEnd() - cursor.selectionStart() < smallSelectionSize)
         return;
 
-    d->m_extraSelections[TypeSelection].clear();
     d->m_extraSelections[UndefinedSymbolSelection].clear();
     d->m_extraSelections[ObjCSelection].clear();
     d->m_extraSelections[CodeWarningsSelection].clear();
@@ -4940,7 +4973,7 @@ void BaseTextEditor::setDisplaySettings(const DisplaySettings &ds)
     setCenterOnScroll(ds.m_centerCursorOnScroll);
 
     if (d->m_displaySettings.m_visualizeWhitespace != ds.m_visualizeWhitespace) {
-        if (QSyntaxHighlighter *highlighter = baseTextDocument()->syntaxHighlighter())
+        if (SyntaxHighlighter *highlighter = baseTextDocument()->syntaxHighlighter())
             highlighter->rehighlight();
         QTextOption option =  document()->defaultTextOption();
         if (ds.m_visualizeWhitespace)

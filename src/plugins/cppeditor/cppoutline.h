@@ -22,10 +22,12 @@ class CppOutlineFilterModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 public:
-    CppOutlineFilterModel(QObject *parent);
+    CppOutlineFilterModel(CPlusPlus::OverviewModel *sourceModel, QObject *parent);
     // QSortFilterProxyModel
     bool filterAcceptsRow(int sourceRow,
                           const QModelIndex &sourceParent) const;
+private:
+    CPlusPlus::OverviewModel *m_sourceModel;
 };
 
 class CppOutlineWidget : public TextEditor::IOutlineWidget
@@ -38,13 +40,11 @@ public:
     virtual void setCursorSynchronization(bool syncWithCursor);
 
 private slots:
-    void updateOutline(CPlusPlus::Document::Ptr document);
-    void updateSelectionInTree();
+    void modelUpdated();
+    void updateSelectionInTree(const QModelIndex &index);
     void updateSelectionInText(const QItemSelection &selection);
 
 private:
-    QModelIndex indexForPosition(const QModelIndex &rootIndex, int line, int column);
-    bool positionInsideSymbol(unsigned cursorLine, unsigned cursorColumn, CPlusPlus::Symbol *symbol) const;
     bool syncCursor();
 
 private:
@@ -52,7 +52,6 @@ private:
     CppOutlineTreeView *m_treeView;
     CPlusPlus::OverviewModel *m_model;
     CppOutlineFilterModel *m_proxyModel;
-    CPlusPlus::Document::Ptr m_document;
 
     bool m_enableCursorSync;
     bool m_blockCursorSync;

@@ -1,19 +1,20 @@
-/****************************************************************************
+/**************************************************************************
 **
-** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
+** This file is part of Qt Creator
+**
+** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
+**
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
-** This file is part of Qt Creator.
+** Commercial Usage
 **
-** $QT_BEGIN_LICENSE:LGPL$
-** No Commercial Usage
-** This file contains pre-release code and may not be distributed.
-** You may use this file in accordance with the terms and conditions
-** contained in the Technology Preview License Agreement accompanying
-** this package.
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
 **
 ** GNU Lesser General Public License Usage
+**
 ** Alternatively, this file may be used under the terms of the GNU Lesser
 ** General Public License version 2.1 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.LGPL included in the
@@ -21,471 +22,540 @@
 ** ensure the GNU Lesser General Public License version 2.1 requirements
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights.  These rights are described in the Nokia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at http://qt.nokia.com/contact.
 **
-** If you have questions regarding the use of this file, please contact
-** Nokia at qt-info@nokia.com.
-**
-**
-**
-**
-**
-**
-**
-**
-** $QT_END_LICENSE$
-**
-****************************************************************************/
+**************************************************************************/
 
 #include "sshconnection.h"
+#include "sshconnection_p.h"
 
-#include "ne7sshobject.h"
+#include "sftpchannel.h"
+#include "sshcapabilities_p.h"
+#include "sshchannelmanager_p.h"
+#include "sshcryptofacility_p.h"
+#include "sshexception_p.h"
+#include "sshkeyexchange_p.h"
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
+#include <botan/exceptn.h>
+#include <botan/init.h>
+
+#include <QtCore/QFile>
 #include <QtCore/QMutex>
-#include <QtCore/QThread>
-#include <QtCore/QWaitCondition>
-
-#include <ne7ssh.h>
-
-#include <exception>
+#include <QtNetwork/QTcpSocket>
 
 namespace Core {
 
 namespace {
+    const QByteArray ClientId("SSH-2.0-QtCreator\r\n");
 
-class GenericSshConnection
-{
-    Q_DECLARE_TR_FUNCTIONS(GenericSshConnection)
-public:
-    GenericSshConnection(const SshServerInfo &server)
-        : ssh(Internal::Ne7SshObject::instance()->get()),
-        m_server(server),
-        m_channel(-1)
-    { }
+    bool staticInitializationsDone = false;
+    QMutex staticInitMutex;
 
-    ~GenericSshConnection()
+    void doStaticInitializationsIfNecessary()
     {
-        quit();
-    }
-
-    bool start(bool shell, void (*callbackFunc)(void *), void *callbackArg)
-    {
-        Q_ASSERT(m_channel == -1);
-
-        try {
-            const QString *authString;
-            int (ne7ssh::*connFunc)(const char *, int, const char *,
-                const char *, bool, int, void (*)(void *), void *);
-            if (m_server.authType == SshServerInfo::AuthByPwd) {
-                authString = &m_server.pwd;
-                connFunc = &ne7ssh::connectWithPassword;
-            } else {
-                authString = &m_server.privateKeyFile;
-                connFunc = &ne7ssh::connectWithKey;
+        if (!staticInitializationsDone) {
+            staticInitMutex.lock();
+            if (!staticInitializationsDone) {
+                Botan::LibraryInitializer::initialize("thread_safe=true");
+                qRegisterMetaType<SshError>("SshError");
+                staticInitializationsDone = true;
             }
-            m_channel = (ssh.data()->*connFunc)(m_server.host.toLatin1(),
-                m_server.port, m_server.uname.toAscii(), authString->toLatin1(),
-                shell, m_server.timeout, callbackFunc, callbackArg);
-            if (m_channel == -1) {
-                setError(tr("Could not connect to host."), false);
-                return false;
-            }
-        } catch (const std::exception &e) {
-            // Should in theory not be necessary, but Net7 leaks Botan exceptions.
-            setError(tr("Error in cryptography backend: %1")
-                     .arg(QLatin1String(e.what())), false);
-            return false;
-    }
-
-        return true;
-    }
-
-    void quit()
-    {
-        const int channel = m_channel;
-        if (channel != -1) {
-            m_channel = -1;
-            if (!ssh->close(channel))
-                qWarning("%s: close() failed.", Q_FUNC_INFO);
+            staticInitMutex.unlock();
         }
     }
-
-    bool isConnected() const { return channel() != -1; }
-    bool hasError() const { return !m_error.isEmpty(); }
-    QString error() const { return m_error; }
-    int channel() const { return m_channel; }
-    QString lastNe7Error() { return ssh->errors()->pop(channel()); }
-    const SshServerInfo &server() { return m_server; }
-
-    void setError(const QString error, bool appendNe7ErrMsg)
-    {
-        m_error = error;
-        if (appendNe7ErrMsg)
-            m_error += QLatin1String(": ") + lastNe7Error();
-    }
-
-    QSharedPointer<ne7ssh> ssh;
-private:
-    const SshServerInfo m_server;
-    QString m_error;
-    int m_channel;
-};
-
-char *alloc(size_t n)
-{
-    return new char[n];
 }
 
-} // anonymous namespace
+// TODO: Mechanism for checking the host key. First connection to host: save, later: compare
+
+SshConnection::Ptr SshConnection::create()
+{
+    doStaticInitializationsIfNecessary();
+    return Ptr(new SshConnection);
+}
+
+SshConnection::SshConnection() : d(new Internal::SshConnectionPrivate(this))
+{
+    connect(d, SIGNAL(connected()), this, SIGNAL(connected()),
+        Qt::QueuedConnection);
+    connect(d, SIGNAL(dataAvailable(QString)), this,
+        SIGNAL(dataAvailable(QString)), Qt::QueuedConnection);
+    connect(d, SIGNAL(disconnected()), this, SIGNAL(disconnected()),
+        Qt::QueuedConnection);
+    connect(d, SIGNAL(error(SshError)), this, SIGNAL(error(SshError)),
+        Qt::QueuedConnection);
+}
+
+void SshConnection::connectToHost(const SshConnectionParameters &serverInfo)
+{
+    d->connectToHost(serverInfo);
+}
+
+void SshConnection::disconnectFromHost()
+{
+    d->closeConnection(Internal::SSH_DISCONNECT_BY_APPLICATION, SshNoError, "",
+        QString());
+}
+
+SshConnection::State SshConnection::state() const
+{
+    switch (d->state()) {
+    case Internal::SocketUnconnected:
+        return Unconnected;
+    case Internal::ConnectionEstablished:
+        return Connected;
+    default:
+        return Connecting;
+    }
+}
+
+SshError SshConnection::errorState() const
+{
+    return d->error();
+}
+
+QString SshConnection::errorString() const
+{
+    return d->errorString();
+}
+
+SshConnectionParameters SshConnection::connectionParameters() const
+{
+    return d->m_connParams;
+}
+
+SshConnection::~SshConnection()
+{
+    disconnect();
+    disconnectFromHost();
+    delete d;
+}
+
+QSharedPointer<SshRemoteProcess> SshConnection::createRemoteProcess(const QByteArray &command)
+{
+    return state() == Connected
+        ? d->createRemoteProcess(command) : QSharedPointer<SshRemoteProcess>();
+}
+
+QSharedPointer<SftpChannel> SshConnection::createSftpChannel()
+{
+    return state() == Connected
+        ? d->createSftpChannel() : QSharedPointer<SftpChannel>();
+}
+
 
 namespace Internal {
 
-struct InteractiveSshConnectionPrivate
+SshConnectionPrivate::SshConnectionPrivate(SshConnection *conn)
+    : m_socket(new QTcpSocket(this)), m_state(SocketUnconnected),
+      m_sendFacility(m_socket),
+      m_channelManager(new SshChannelManager(m_sendFacility)),
+      m_error(SshNoError), m_ignoreNextPacket(false), m_conn(conn)
 {
-    InteractiveSshConnectionPrivate(const SshServerInfo &server)
-        : conn(server), outputReader(0) {}
+    setupPacketHandlers();
+    connect(&m_timeoutTimer, SIGNAL(timeout()), this, SLOT(handleTimeout()));
+}
 
-    GenericSshConnection conn;
-    ConnectionOutputReader *outputReader;
-    QByteArray remoteOutput;
-    QMutex mutex;
-    QWaitCondition waitCond;
-};
-
-struct NonInteractiveSshConnectionPrivate
+SshConnectionPrivate::~SshConnectionPrivate()
 {
-    NonInteractiveSshConnectionPrivate(const SshServerInfo &server)
-        : conn(server) {}
+    disconnect();
+}
 
-    GenericSshConnection conn;
-    Ne7SftpSubsystem sftp;
-};
-
-class ConnectionOutputReader : public QThread
+void SshConnectionPrivate::setupPacketHandlers()
 {
-public:
-    ConnectionOutputReader(InteractiveSshConnection *parent)
-        : QThread(parent), m_conn(parent), m_stopRequested(false),
-          m_dataAvailable(false)
-    {}
+    typedef SshConnectionPrivate This;
 
-    ~ConnectionOutputReader()
-    {
-        stop();
-        wait();
+    setupPacketHandler(SSH_MSG_KEXINIT, StateList() << SocketConnected,
+        &This::handleKeyExchangeInitPacket);
+    setupPacketHandler(SSH_MSG_KEXDH_REPLY, StateList() << KeyExchangeStarted,
+        &This::handleKeyExchangeReplyPacket);
+
+    setupPacketHandler(SSH_MSG_NEWKEYS, StateList() << KeyExchangeSuccess,
+        &This::handleNewKeysPacket);
+    setupPacketHandler(SSH_MSG_SERVICE_ACCEPT,
+        StateList() << UserAuthServiceRequested,
+        &This::handleServiceAcceptPacket);
+    setupPacketHandler(SSH_MSG_USERAUTH_PASSWD_CHANGEREQ,
+        StateList() << UserAuthRequested, &This::handlePasswordExpiredPacket);
+    setupPacketHandler(SSH_MSG_GLOBAL_REQUEST,
+        StateList() << ConnectionEstablished, &This::handleGlobalRequest);
+
+    const StateList authReqList = StateList() << UserAuthRequested;
+    setupPacketHandler(SSH_MSG_USERAUTH_BANNER, authReqList,
+        &This::handleUserAuthBannerPacket);
+    setupPacketHandler(SSH_MSG_USERAUTH_SUCCESS, authReqList,
+        &This::handleUserAuthSuccessPacket);
+    setupPacketHandler(SSH_MSG_USERAUTH_FAILURE, authReqList,
+        &This::handleUserAuthFailurePacket);
+
+    const StateList connectedList
+        = StateList() << ConnectionEstablished;
+    setupPacketHandler(SSH_MSG_CHANNEL_REQUEST, connectedList,
+        &This::handleChannelRequest);
+    setupPacketHandler(SSH_MSG_CHANNEL_OPEN, connectedList,
+        &This::handleChannelOpen);
+    setupPacketHandler(SSH_MSG_CHANNEL_OPEN_FAILURE, connectedList,
+        &This::handleChannelOpenFailure);
+    setupPacketHandler(SSH_MSG_CHANNEL_OPEN_CONFIRMATION, connectedList,
+        &This::handleChannelOpenConfirmation);
+    setupPacketHandler(SSH_MSG_CHANNEL_SUCCESS, connectedList,
+        &This::handleChannelSuccess);
+    setupPacketHandler(SSH_MSG_CHANNEL_FAILURE, connectedList,
+        &This::handleChannelFailure);
+    setupPacketHandler(SSH_MSG_CHANNEL_WINDOW_ADJUST, connectedList,
+        &This::handleChannelWindowAdjust);
+    setupPacketHandler(SSH_MSG_CHANNEL_DATA, connectedList,
+        &This::handleChannelData);
+    setupPacketHandler(SSH_MSG_CHANNEL_EXTENDED_DATA, connectedList,
+        &This::handleChannelExtendedData);
+
+    const StateList connectedOrClosedList
+        = StateList() << SocketUnconnected << ConnectionEstablished;
+    setupPacketHandler(SSH_MSG_CHANNEL_EOF, connectedOrClosedList,
+        &This::handleChannelEof);
+    setupPacketHandler(SSH_MSG_CHANNEL_CLOSE, connectedOrClosedList,
+        &This::handleChannelClose);
+
+    setupPacketHandler(SSH_MSG_DISCONNECT, StateList() << SocketConnected
+        << KeyExchangeStarted << KeyExchangeSuccess
+        << UserAuthServiceRequested << UserAuthRequested
+        << ConnectionEstablished, &This::handleDisconnect);
+}
+
+void SshConnectionPrivate::setupPacketHandler(SshPacketType type,
+    const SshConnectionPrivate::StateList &states,
+    SshConnectionPrivate::PacketHandler handler)
+{
+    m_packetHandlers.insert(type, HandlerInStates(states, handler));
+}
+
+void SshConnectionPrivate::handleSocketConnected()
+{
+    m_state = SocketConnected;
+    sendData(ClientId);
+}
+
+void SshConnectionPrivate::handleIncomingData()
+{
+    if (m_state == SocketUnconnected)
+        return; // For stuff queued in the event loop after we've called closeConnection();
+
+    try {
+        m_incomingData += m_socket->readAll();
+#ifdef CREATOR_SSH_DEBUG
+        qDebug("state = %d, remote data size = %d", m_state,
+            m_incomingData.count());
+#endif
+        if (m_state == SocketConnected)
+            handleServerId();
+        handlePackets();
+    } catch (SshServerException &e) {
+        closeConnection(e.error, SshProtocolError, e.errorStringServer,
+            tr("SSH Protocol error: %1").arg(e.errorStringUser));
+    } catch (SshClientException &e) {
+        closeConnection(SSH_DISCONNECT_BY_APPLICATION, e.error, "",
+            e.errorString);
+    } catch (Botan::Exception &e) {
+        closeConnection(SSH_DISCONNECT_BY_APPLICATION, SshInternalError, "",
+            tr("Botan exception: %1").arg(e.what()));
+    }
+}
+
+void SshConnectionPrivate::handleServerId()
+{
+    const int idOffset = m_incomingData.indexOf("SSH-");
+    if (idOffset == -1)
+        return;
+    m_incomingData.remove(0, idOffset);
+    if (m_incomingData.size() < 7)
+        return;
+    const QByteArray &version = m_incomingData.mid(4, 3);
+    if (version != "2.0") {
+        throw SshServerException(SSH_DISCONNECT_PROTOCOL_VERSION_NOT_SUPPORTED,
+            "Invalid protocol version.",
+            tr("Invalid protocol version: Expected '2.0', got '%1'.")
+            .arg(SshPacketParser::asUserString(version)));
+    }
+    const int endOffset = m_incomingData.indexOf("\r\n");
+    if (endOffset == -1)
+        return;
+    if (m_incomingData.at(7) != '-') {
+        throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR,
+            "Invalid server id.", tr("Invalid server id '%1'.")
+            .arg(SshPacketParser::asUserString(m_incomingData)));
     }
 
-    void stop()
-    {
-        m_mutex.lock();
-        m_stopRequested = true;
-        m_waitCond.wakeOne();
-        m_mutex.unlock();
+    m_keyExchange.reset(new SshKeyExchange(m_sendFacility));
+    m_keyExchange->sendKexInitPacket(m_incomingData.left(endOffset));
+    m_incomingData.remove(0, endOffset + 2);
+}
+
+void SshConnectionPrivate::handlePackets()
+{
+    m_incomingPacket.consumeData(m_incomingData);
+    while (m_incomingPacket.isComplete()) {
+        handleCurrentPacket();
+        m_incomingPacket.clear();
+        m_incomingPacket.consumeData(m_incomingData);
+    }
+}
+
+void SshConnectionPrivate::handleCurrentPacket()
+{
+    Q_ASSERT(m_incomingPacket.isComplete());
+    Q_ASSERT(m_state == KeyExchangeStarted || !m_ignoreNextPacket);
+
+    if (m_ignoreNextPacket) {
+        m_ignoreNextPacket = false;
+        return;
     }
 
-    void dataAvailable()
-    {
-        m_mutex.lock();
-        m_dataAvailable = true;
-        m_waitCond.wakeOne();
-        m_mutex.unlock();
+    QHash<SshPacketType, HandlerInStates>::ConstIterator it
+        = m_packetHandlers.find(m_incomingPacket.type());
+    if (it == m_packetHandlers.end()) {
+        m_sendFacility.sendMsgUnimplementedPacket(m_incomingPacket.serverSeqNr());
+        return;
     }
+    if (!it.value().first.contains(m_state)) {
+        throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR,
+            "Unexpected packet.", tr("Unexpected packet of type %1.")
+            .arg(m_incomingPacket.type()));
+    }
+    (this->*it.value().second)();
+}
 
-private:
-    virtual void run()
-    {
-        while (true) {
-            m_mutex.lock();
-            if (m_stopRequested) {
-                m_mutex.unlock();
-                return;
-            }
-            const int channel = m_conn->d->conn.channel();
-            if (!m_dataAvailable || channel == -1)
-                m_waitCond.wait(&m_mutex);
-            m_dataAvailable = false;
-            m_mutex.unlock();
-            QScopedPointer<char, QScopedPointerArrayDeleter<char> >
-                    output(m_conn->d->conn.ssh->readAndReset(channel, alloc));
-            if (output) {
-                m_conn->d->mutex.lock();
-                m_conn->d->remoteOutput += output.data();
-                emit m_conn->remoteOutputAvailable();
-                m_conn->d->mutex.unlock();
-            }
+void SshConnectionPrivate::handleKeyExchangeInitPacket()
+{
+    // If the server sends a guessed packet, the guess must be wrong,
+    // because the algorithms we support requires us to initiate the
+    // key exchange.
+    if (m_keyExchange->sendDhInitPacket(m_incomingPacket))
+        m_ignoreNextPacket = true;
+    m_state = KeyExchangeStarted;
+}
+
+void SshConnectionPrivate::handleKeyExchangeReplyPacket()
+{
+    m_keyExchange->sendNewKeysPacket(m_incomingPacket,
+        ClientId.left(ClientId.size() - 2));
+    m_sendFacility.recreateKeys(*m_keyExchange);
+    m_state = KeyExchangeSuccess;
+}
+
+void SshConnectionPrivate::handleNewKeysPacket()
+{
+    m_incomingPacket.recreateKeys(*m_keyExchange);
+    m_keyExchange.reset();
+    m_sendFacility.sendUserAuthServiceRequestPacket();
+    m_state = UserAuthServiceRequested;
+}
+
+void SshConnectionPrivate::handleServiceAcceptPacket()
+{
+    if (m_connParams.authType == SshConnectionParameters::AuthByPwd) {
+        m_sendFacility.sendUserAuthByPwdRequestPacket(m_connParams.uname.toUtf8(),
+            SshCapabilities::SshConnectionService, m_connParams.pwd.toUtf8());
+    } else {
+        QFile privKeyFile(m_connParams.privateKeyFile);
+        bool couldOpen = privKeyFile.open(QIODevice::ReadOnly);
+        QByteArray contents;
+        if (couldOpen)
+            contents = privKeyFile.readAll();
+        if (!couldOpen || privKeyFile.error() != QFile::NoError) {
+            throw SshClientException(SshKeyFileError,
+                tr("Could not read private key file: %1")
+                .arg(privKeyFile.errorString()));
         }
+
+        m_sendFacility.createAuthenticationKey(contents);
+        m_sendFacility.sendUserAuthByKeyRequestPacket(m_connParams.uname.toUtf8(),
+            SshCapabilities::SshConnectionService);
+    }
+    m_state = UserAuthRequested;
+}
+
+void SshConnectionPrivate::handlePasswordExpiredPacket()
+{
+    if (m_connParams.authType == SshConnectionParameters::AuthByKey) {
+        throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
+            "Got SSH_MSG_USERAUTH_PASSWD_CHANGEREQ, but did not use password.");
     }
 
-    InteractiveSshConnection *m_conn;
-    bool m_stopRequested;
-    bool m_dataAvailable;
-    QMutex m_mutex;
-    QWaitCondition m_waitCond;
-};
+    throw SshClientException(SshAuthenticationError, tr("Password expired."));
+}
+
+void SshConnectionPrivate::handleUserAuthBannerPacket()
+{
+    emit dataAvailable(m_incomingPacket.extractUserAuthBanner().message);
+}
+
+void SshConnectionPrivate::handleGlobalRequest()
+{
+    m_sendFacility.sendRequestFailurePacket();
+}
+
+void SshConnectionPrivate::handleUserAuthSuccessPacket()
+{
+    m_state = ConnectionEstablished;
+    m_timeoutTimer.stop();
+    emit connected();
+}
+
+void SshConnectionPrivate::handleUserAuthFailurePacket()
+{
+    const QString errorMsg = m_connParams.authType == SshConnectionParameters::AuthByPwd
+        ? tr("Server rejected password.") : tr("Server rejected key.");
+    throw SshClientException(SshAuthenticationError, errorMsg);
+}
+void SshConnectionPrivate::handleDebugPacket()
+{
+    const SshDebug &msg = m_incomingPacket.extractDebug();
+    if (msg.display)
+        emit dataAvailable(msg.message);
+}
+
+void SshConnectionPrivate::handleChannelRequest()
+{
+    m_channelManager->handleChannelRequest(m_incomingPacket);
+}
+
+void SshConnectionPrivate::handleChannelOpen()
+{
+    m_channelManager->handleChannelOpen(m_incomingPacket);
+}
+
+void SshConnectionPrivate::handleChannelOpenFailure()
+{
+   m_channelManager->handleChannelOpenFailure(m_incomingPacket);
+}
+
+void SshConnectionPrivate::handleChannelOpenConfirmation()
+{
+    m_channelManager->handleChannelOpenConfirmation(m_incomingPacket);
+}
+
+void SshConnectionPrivate::handleChannelSuccess()
+{
+    m_channelManager->handleChannelSuccess(m_incomingPacket);
+}
+
+void SshConnectionPrivate::handleChannelFailure()
+{
+    m_channelManager->handleChannelFailure(m_incomingPacket);
+}
+
+void SshConnectionPrivate::handleChannelWindowAdjust()
+{
+   m_channelManager->handleChannelWindowAdjust(m_incomingPacket);
+}
+
+void SshConnectionPrivate::handleChannelData()
+{
+   m_channelManager->handleChannelData(m_incomingPacket);
+}
+
+void SshConnectionPrivate::handleChannelExtendedData()
+{
+   m_channelManager->handleChannelExtendedData(m_incomingPacket);
+}
+
+void SshConnectionPrivate::handleChannelEof()
+{
+   m_channelManager->handleChannelEof(m_incomingPacket);
+}
+
+void SshConnectionPrivate::handleChannelClose()
+{
+   m_channelManager->handleChannelClose(m_incomingPacket);
+}
+
+void SshConnectionPrivate::handleDisconnect()
+{
+    const SshDisconnect msg = m_incomingPacket.extractDisconnect();
+    throw SshServerException(SSH_DISCONNECT_CONNECTION_LOST,
+        "", tr("Server closed connection: %1").arg(msg.description));
+}
+
+void SshConnectionPrivate::sendData(const QByteArray &data)
+{
+    m_socket->write(data);
+}
+
+void SshConnectionPrivate::handleSocketDisconnected()
+{
+    closeConnection(SSH_DISCONNECT_CONNECTION_LOST, SshClosedByServerError,
+        "Connection closed unexpectedly.",
+        tr("Connection closed unexpectedly."));
+}
+
+void SshConnectionPrivate::handleSocketError()
+{
+    if (m_error == SshNoError) {
+        closeConnection(SSH_DISCONNECT_CONNECTION_LOST, SshSocketError,
+            "Network error", m_socket->errorString());
+    }
+}
+
+void SshConnectionPrivate::handleTimeout()
+{
+    if (m_state != ConnectionEstablished)
+        closeConnection(SSH_DISCONNECT_BY_APPLICATION, SshTimeoutError, "",
+            tr("Connection timed out."));
+}
+
+void SshConnectionPrivate::connectToHost(const SshConnectionParameters &serverInfo)
+{
+    m_incomingData.clear();
+    m_incomingPacket.reset();
+    m_sendFacility.reset();
+    m_error = SshNoError;
+    m_ignoreNextPacket = false;
+    m_errorString.clear();
+    connect(m_socket, SIGNAL(connected()), this, SLOT(handleSocketConnected()));
+    connect(m_socket, SIGNAL(readyRead()), this, SLOT(handleIncomingData()));
+    connect(m_socket, SIGNAL(error(QAbstractSocket::SocketError)), this,
+        SLOT(handleSocketError()));
+    connect(m_socket, SIGNAL(disconnected()), this,
+        SLOT(handleSocketDisconnected()));
+    this->m_connParams = serverInfo;
+    m_state = SocketConnecting;
+    m_timeoutTimer.start(m_connParams.timeout * 1000);
+    m_socket->connectToHost(serverInfo.host, serverInfo.port);
+}
+
+void SshConnectionPrivate::closeConnection(SshErrorCode sshError,
+    SshError userError, const QByteArray &serverErrorString,
+    const QString &userErrorString)
+{
+    // Prevent endless loops by recursive exceptions.
+    if (m_state == SocketUnconnected || m_error != SshNoError)
+        return;
+
+    m_error = userError;
+    m_errorString = userErrorString;
+    m_timeoutTimer.stop();
+    disconnect(m_socket, 0, this, 0);
+    try {
+        m_channelManager->closeAllChannels();
+        m_sendFacility.sendDisconnectPacket(sshError, serverErrorString);
+    } catch (Botan::Exception &) {}  // Nothing sensible to be done here.
+    if (m_error != SshNoError)
+        emit error(userError);
+    if (m_state == ConnectionEstablished)
+        emit disconnected();
+    m_socket->disconnectFromHost();
+    m_state = SocketUnconnected;
+}
+
+QSharedPointer<SshRemoteProcess> SshConnectionPrivate::createRemoteProcess(const QByteArray &command)
+{
+    return m_channelManager->createRemoteProcess(command);
+}
+
+QSharedPointer<SftpChannel> SshConnectionPrivate::createSftpChannel()
+{
+    return m_channelManager->createSftpChannel();
+}
 
 } // namespace Internal
-
-
-namespace {
-
-void wakeupReader(void *opaqueReader)
-{
-    static_cast<Internal::ConnectionOutputReader*>(opaqueReader)->dataAvailable();
-}
-
-} // Anonymous namespace
-
-
-InteractiveSshConnection::InteractiveSshConnection(const SshServerInfo &server)
-    : d(new Internal::InteractiveSshConnectionPrivate(server))
-{
-    d->outputReader = new Internal::ConnectionOutputReader(this);
-}
-
-InteractiveSshConnection::~InteractiveSshConnection()
-{
-    d->conn.ssh->send("exit\n", d->conn.channel());
-    quit();
-    delete d;
-}
-
-bool InteractiveSshConnection::start()
-{
-    if (isConnected())
-        return true;
-
-    if (!d->conn.start(true, wakeupReader, d->outputReader))
-        return false;
-
-    d->outputReader->start();
-    return true;
-}
-
-bool InteractiveSshConnection::sendInput(const QByteArray &input)
-{
-    if (!d->conn.ssh->send(input.data(), d->conn.channel())) {
-        d->conn.setError(tr("Error sending input"), true);
-        return false;
-    }
-    return true;
-}
-
-void InteractiveSshConnection::quit()
-{
-    d->mutex.lock();
-    d->waitCond.wakeOne();
-    d->mutex.unlock();
-    d->outputReader->stop();
-    d->conn.quit();
-}
-
-QByteArray InteractiveSshConnection::waitForRemoteOutput(int msecs)
-{
-    d->mutex.lock();
-    if (d->remoteOutput.isEmpty())
-        d->waitCond.wait(&d->mutex, msecs == -1 ? ULONG_MAX : msecs);
-    const QByteArray remoteOutput = d->remoteOutput;
-    d->remoteOutput.clear();
-    d->mutex.unlock();
-    return remoteOutput;
-}
-
-
-InteractiveSshConnection::Ptr InteractiveSshConnection::create(const SshServerInfo &server)
-{
-    return Ptr(new InteractiveSshConnection(server));
-}
-
-bool InteractiveSshConnection::isConnected() const
-{
-    return d->conn.isConnected();
-}
-
-bool InteractiveSshConnection::hasError() const
-{
-    return d->conn.hasError();
-}
-
-QString InteractiveSshConnection::error() const
-{
-    return d->conn.error();
-}
-
-
-namespace {
-
-class FileMgr
-{
-public:
-    FileMgr(const QString &filePath, const char *mode)
-        : m_file(fopen(filePath.toLatin1().data(), mode)) {}
-    ~FileMgr() { if (m_file) fclose(m_file); }
-    FILE *file() const { return m_file; }
-private:
-    FILE * const m_file;
-};
-
-} // Anonymous namespace
-
-SftpConnection::SftpConnection(const SshServerInfo &server)
-    : d(new Internal::NonInteractiveSshConnectionPrivate(server))
-{ }
-
-SftpConnection::~SftpConnection()
-{
-    quit();
-    delete d;
-}
-
-bool SftpConnection::start()
-{
-    if (isConnected())
-        return true;
-    if (!d->conn.start(false, 0, 0))
-        return false;
-    if (!d->conn.ssh->initSftp(d->sftp, d->conn.channel())
-        || !d->sftp.setTimeout(d->conn.server().timeout)) {
-        d->conn.setError(tr("Error setting up SFTP subsystem"), true);
-        quit();
-        return false;
-    }
-    return true;
-}
-
-bool SftpConnection::transferFiles(const QList<SftpTransferInfo> &transferList)
-{
-    for (int i = 0; i < transferList.count(); ++i) {
-        const SftpTransferInfo &transfer = transferList.at(i);
-        bool success;
-        if (transfer.type == SftpTransferInfo::Upload) {
-            success = upload(transfer.localFilePath, transfer.remoteFilePath);
-        } else {
-            success = download(transfer.remoteFilePath, transfer.localFilePath);
-        }
-        if (!success)
-            return false;
-    }
-
-    return true;
-}
-
-bool SftpConnection::upload(const QString &localFilePath,
-                            const QByteArray &remoteFilePath)
-{
-    FileMgr fileMgr(localFilePath, "rb");
-    if (!fileMgr.file()) {
-        d->conn.setError(tr("Could not open file '%1'").arg(localFilePath),
-                          false);
-        return false;
-    }
-
-    if (!d->sftp.put(fileMgr.file(), remoteFilePath.data())) {
-        d->conn.setError(tr("Could not uplodad file '%1'")
-                         .arg(localFilePath), true);
-        return false;
-    }
-
-    emit fileCopied(localFilePath);
-    return true;
-}
-
-bool SftpConnection::download(const QByteArray &remoteFilePath,
-                              const QString &localFilePath)
-{
-    FileMgr fileMgr(localFilePath, "wb");
-    if (!fileMgr.file()) {
-        d->conn.setError(tr("Could not open file '%1'").arg(localFilePath),
-                          false);
-        return false;
-    }
-
-    if (!d->sftp.get(remoteFilePath.data(), fileMgr.file())) {
-        d->conn.setError(tr("Could not copy remote file '%1' to local file '%2'")
-                          .arg(remoteFilePath, localFilePath), false);
-        return false;
-    }
-
-    emit fileCopied(remoteFilePath);
-    return true;
-}
-
-bool SftpConnection::createRemoteDir(const QByteArray &remoteDir)
-{
-    if (!d->sftp.mkdir(remoteDir.data())) {
-        d->conn.setError(tr("Could not create remote directory"), true);
-        return false;
-    }
-    return true;
-}
-
-bool SftpConnection::removeRemoteDir(const QByteArray &remoteDir)
-{
-    if (!d->sftp.rmdir(remoteDir.data())) {
-        d->conn.setError(tr("Could not remove remote directory"), true);
-        return false;
-    }
-    return true;
-}
-
-QByteArray SftpConnection::listRemoteDirContents(const QByteArray &remoteDir,
-                                                 bool withAttributes, bool &ok)
-{
-    const char * const buffer = d->sftp.ls(remoteDir.data(), withAttributes);
-    if (!buffer) {
-        d->conn.setError(tr("Could not get remote directory contents"), true);
-        ok = false;
-        return QByteArray();
-    }
-    ok = true;
-    return QByteArray(buffer);
-}
-
-bool SftpConnection::removeRemoteFile(const QByteArray &remoteFile)
-{
-    if (!d->sftp.rm(remoteFile.data())) {
-        d->conn.setError(tr("Could not remove remote file"), true);
-        return false;
-    }
-    return true;
-}
-
-bool SftpConnection::changeRemoteWorkingDir(const QByteArray &newRemoteDir)
-{
-    if (!d->sftp.cd(newRemoteDir.data())) {
-        d->conn.setError(tr("Could not change remote working directory"), true);
-        return false;
-    }
-    return true;
-}
-
-void SftpConnection::quit()
-{
-    d->conn.quit();
-}
-
-bool SftpConnection::isConnected() const
-{
-    return d->conn.isConnected();
-}
-
-bool SftpConnection::hasError() const
-{
-    return d->conn.hasError();
-}
-
-QString SftpConnection::error() const
-{
-    return d->conn.error();
-}
-
-SftpConnection::Ptr SftpConnection::create(const SshServerInfo &server)
-{
-    return Ptr(new SftpConnection(server));
-}
-
 } // namespace Core

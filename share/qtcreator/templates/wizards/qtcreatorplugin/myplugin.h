@@ -18,7 +18,7 @@ public:
 
     bool initialize(const QStringList &arguments, QString *errorString);
     void extensionsInitialized();
-    void aboutToShutdown();
+    ShutdownFlag aboutToShutdown();
 
 private slots:
     void triggerAction();

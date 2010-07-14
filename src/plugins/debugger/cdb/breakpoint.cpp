@@ -257,9 +257,9 @@ static bool mapDeviceToDriveLetter(QString *s)
     for (const TCHAR *driveLetter = driveLetters; *driveLetter; driveLetter++) {
         szDrive[0] = *driveLetter; // Look up each device name
         if (QueryDosDevice(szDrive, driveName, MAX_PATH)) {
-            const QString deviceName = QString::fromUtf16(driveName);
+            const QString deviceName = QString::fromWCharArray(driveName);
             if (s->startsWith(deviceName)) {
-                s->replace(0, deviceName.size(), QString::fromUtf16(szDrive));
+                s->replace(0, deviceName.size(), QString::fromWCharArray(szDrive));
                 return true;
             }
         }
@@ -275,7 +275,7 @@ static bool mapDeviceToDriveLetter(QString *s)
 
 static inline QString normalizeFileNameCaseHelper(const QString &f)
 {
-    HANDLE hFile = CreateFile(f.utf16(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+    HANDLE hFile = CreateFile((const wchar_t*)f.utf16(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
     if(hFile == INVALID_HANDLE_VALUE)
         return f;
     // Get the file size. We need a non-empty file to map it.
@@ -305,7 +305,7 @@ static inline QString normalizeFileNameCaseHelper(const QString &f)
     pszFilename[0] = 0;
     // Get a file name of the form "/Device/HarddiskVolume1/file.cpp"
     if (GetMappedFileName (GetCurrentProcess(), pMem, pszFilename, MAX_PATH)) {
-        rc = QString::fromUtf16(pszFilename);
+        rc = QString::fromWCharArray(pszFilename);
         if (!mapDeviceToDriveLetter(&rc))
             rc.clear();
     }

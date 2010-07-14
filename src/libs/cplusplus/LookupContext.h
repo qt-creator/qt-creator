@@ -125,6 +125,7 @@ public:
 
     /// Finds the binding associated to the given symbol.
     ClassOrNamespace *lookupType(Symbol *symbol);
+    ClassOrNamespace *lookupType(const QList<const Name *> &path);
 
     /// Returns the Control that must be used to create temporary symbols.
     /// \internal
@@ -216,6 +217,7 @@ public:
     QList<Symbol *> lookup(const Name *name, Scope *scope) const;
     ClassOrNamespace *lookupType(const Name *name, Scope *scope) const;
     ClassOrNamespace *lookupType(Symbol *symbol) const;
+    ClassOrNamespace *lookupParent(Symbol *symbol) const;
 
     /// \internal
     QSharedPointer<CreateBindings> bindings() const;
@@ -226,6 +228,10 @@ public:
     QSharedPointer<Control> control() const; // ### deprecate
 
     static QList<const Name *> fullyQualifiedName(Symbol *symbol);
+    static QList<const Name *> path(Symbol *symbol);
+
+    Q_DECL_DEPRECATED const Name *minimalName(const Name *name, Scope *source,
+                                              ClassOrNamespace *target) const;
 
 private:
     // The current expression.

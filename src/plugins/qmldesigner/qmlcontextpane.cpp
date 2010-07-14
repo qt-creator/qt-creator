@@ -8,6 +8,9 @@
 #include <qmljs/qmljspropertyreader.h>
 #include <qmljs/qmljsrewriter.h>
 #include <qmljs/qmljsindenter.h>
+#include <qmljs/qmljslookupcontext.h>
+#include <qmljs/qmljsinterpreter.h>
+#include <qmljs/qmljsbind.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/tabsettings.h>
 #include <colorwidget.h>
@@ -62,7 +65,7 @@ QmlContextPane::~QmlContextPane()
         m_widget.clear();
 }
 
-void QmlContextPane::apply(TextEditor::BaseTextEditorEditable *editor, Document::Ptr doc,  Node *node, bool update)
+void QmlContextPane::apply(TextEditor::BaseTextEditorEditable *editor, Document::Ptr doc, const QmlJS::Snapshot &snapshot, AST::Node *node, bool update)
 {
     if (!Internal::BauhausPlugin::pluginInstance()->settings().enableContextPane)
         return;
@@ -72,6 +75,15 @@ void QmlContextPane::apply(TextEditor::BaseTextEditorEditable *editor, Document:
 
     if (update && editor != m_editor)
         return; //do not update for different editor
+
+    LookupContext::Ptr lookupContext = LookupContext::create(doc, snapshot, QList<Node*>());
+    const Interpreter::ObjectValue *scopeObject = doc->bind()->findQmlObject(node);
+
+    QStringList prototypes;
+    while (scopeObject) {
+        prototypes.append(scopeObject->className());
+        scopeObject =  scopeObject->prototype(lookupContext->context());
+    }
 
     setEnabled(doc->isParsedCorrectly());
     m_editor = editor;
@@ -97,6 +109,24 @@ void QmlContextPane::apply(TextEditor::BaseTextEditorEditable *editor, Document:
             offset = objectBinding->firstSourceLocation().offset;
             end = objectBinding->lastSourceLocation().end();
         }
+
+        int line1;
+        int column1;
+        int line2;
+        int column2;
+        m_editor->convertPosition(offset, &line1, &column1); //get line
+        m_editor->convertPosition(end, &line2, &column2); //get line
+
+        QRegion reg;
+        if (line1 > -1 && line2 > -1)
+            reg = m_editor->editor()->translatedLineRegion(line1 - 1, line2);
+
+        QRect rect;
+        rect.setHeight(m_widget->height() + 10);
+        rect.setWidth(reg.boundingRect().width() - reg.boundingRect().left());
+        rect.moveTo(reg.boundingRect().topLeft());
+        reg = reg.intersect(rect);
+
         if (name.contains("Text")) {
             m_node = 0;
             PropertyReader propertyReader(doc.data(), initializer);
@@ -105,11 +135,15 @@ void QmlContextPane::apply(TextEditor::BaseTextEditorEditable *editor, Document:
             QPoint p1 = editor->editor()->mapToParent(editor->editor()->viewport()->mapToParent(editor->editor()->cursorRect(tc).topLeft()) - QPoint(0, contextWidget()->height() + 10));
             tc.setPosition(end);
             QPoint p2 = editor->editor()->mapToParent(editor->editor()->viewport()->mapToParent(editor->editor()->cursorRect(tc).bottomLeft()) + QPoint(0, 10));
+            QPoint offset = QPoint(10, 0);
+            if (reg.boundingRect().width() < 400)
+                offset = QPoint(400 - reg.boundingRect().width() + 10 ,0);
+            QPoint p3 = editor->editor()->mapToParent(editor->editor()->viewport()->mapToParent(reg.boundingRect().topRight()) + offset);
             p2.setX(p1.x());
             if (!update)
-                contextWidget()->activate(p1 , p2);
+                contextWidget()->activate(p3 , p1, p2);
             else
-                contextWidget()->rePosition(p1 , p2);
+                contextWidget()->rePosition(p3 , p1, p2);
             m_blockWriting = true;
             contextWidget()->setType(name);
             contextWidget()->setProperties(&propertyReader);
@@ -163,7 +197,6 @@ void QmlContextPane::setProperty(const QString &propertyName, const QVariant &va
         QTextCursor tc(m_editor->editor()->document());
         tc.beginEditBlock();
         int cursorPostion = tc.position();
-        tc.beginEditBlock();
         changeSet.apply(&tc);
 
         if (line > 0) {
@@ -171,15 +204,14 @@ void QmlContextPane::setProperty(const QString &propertyName, const QVariant &va
             QmlJSIndenter indenter;
             indenter.setTabSize(ts.m_tabSize);
             indenter.setIndentSize(ts.m_indentSize);
-            QTextBlock start = m_editor->editor()->document()->findBlockByLineNumber(line);
-            QTextBlock end = m_editor->editor()->document()->findBlockByLineNumber(line);
+            QTextBlock start = m_editor->editor()->document()->findBlockByNumber(line);
+            QTextBlock end = m_editor->editor()->document()->findBlockByNumber(line);
 
-            const int indent = indenter.indentForBottomLine(m_editor->editor()->document()->begin(), end.next(), QChar::Null);
-            ts.indentLine(start, indent);
+            if (end.isValid()) {
+                const int indent = indenter.indentForBottomLine(m_editor->editor()->document()->begin(), end.next(), QChar::Null);
+                ts.indentLine(start, indent);
+            }
         }
-        tc.endEditBlock();
-        tc.setPosition(cursorPostion);
-
         tc.endEditBlock();
         tc.setPosition(cursorPostion);
     }
@@ -234,8 +266,14 @@ void QmlContextPane::onPropertyRemovedAndChange(const QString &remove, const QSt
     if (!m_doc)
         return;
 
-    setProperty(change, value);
+    QTextCursor tc(m_editor->editor()->document());
+    tc.beginEditBlock();
+
     removeProperty(remove);
+    setProperty(change, value);
+
+    tc.endEditBlock();
+
     m_doc.clear(); //the document is outdated
 
 }

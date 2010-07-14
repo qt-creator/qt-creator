@@ -406,7 +406,7 @@ void Rewriter::removeMember(UiObjectMember *member)
 
     includeSurroundingWhitespace(start, end);
 
-    m_changeSet->replace(start, end, QLatin1String(""));
+    m_changeSet->remove(start, end);
 }
 
 bool Rewriter::includeSurroundingWhitespace(int &start, int &end) const
@@ -416,10 +416,10 @@ bool Rewriter::includeSurroundingWhitespace(int &start, int &end) const
 
     if (end >= 0) {
         QChar c = m_originalText.at(end);
+
         while (c.isSpace()) {
             ++end;
-
-            if (c == QChar::ParagraphSeparator) {
+            if (c.unicode() == 10) {
                 paragraphFound = true;
                 break;
             } else if (end == m_originalText.length()) {
@@ -432,18 +432,23 @@ bool Rewriter::includeSurroundingWhitespace(int &start, int &end) const
         includeStartingWhitespace = paragraphFound;
     }
 
+    paragraphFound = false;
     if (includeStartingWhitespace) {
         while (start > 0) {
             const QChar c = m_originalText.at(start - 1);
 
-            if (!c.isSpace())
+            if (c.unicode() == 10) {
+                paragraphFound = true;
                 break;
-            else if (c == QChar::ParagraphSeparator)
+            }
+            if (!c.isSpace())
                 break;
 
             --start;
         }
     }
+    if (!paragraphFound) //keep the line ending
+        --end;
 
     return paragraphFound;
 }
@@ -590,7 +595,7 @@ void Rewriter::removeObjectMember(UiObjectMember *member, UiObjectMember *parent
     }
 
     includeLeadingEmptyLine(start);
-    m_changeSet->replace(start, end, QLatin1String(""));
+    m_changeSet->remove(start, end);
 }
 
 void Rewriter::extendToLeadingOrTrailingComma(UiArrayBinding *parentArray,

@@ -32,6 +32,7 @@
 #include <utils/filterlineedit.h>
 #include "itemlibrarywidgets.h"
 #include "itemlibrarymodel.h"
+#include "itemlibraryimageprovider.h"
 #include "customdraganddrop.h"
 
 #include <QFileInfo>
@@ -163,6 +164,9 @@ ItemLibrary::ItemLibrary(QWidget *parent) :
     m_d->m_resourcesView = new Internal::ItemLibraryTreeView(this);
     m_d->m_resourcesView->setModel(m_d->m_resourcesDirModel);
     m_d->m_resourcesView->setIconSize(m_d->m_resIconSize);
+
+    /* create image provider for loading item icons */
+    m_d->m_itemsView->engine()->addImageProvider(QLatin1String("qmldesigner_itemlibrary"), new Internal::ItemLibraryImageProvider);
 
     /* other widgets */
     QTabBar *tabBar = new QTabBar(this);

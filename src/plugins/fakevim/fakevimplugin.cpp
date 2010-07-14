@@ -102,8 +102,6 @@ const char * const SETTINGS_CATEGORY              = "D.FakeVim";
 const char * const SETTINGS_CATEGORY_FAKEVIM_ICON = ":/core/images/category_fakevim.png";
 const char * const SETTINGS_ID                    = "A.General";
 const char * const SETTINGS_EX_CMDS_ID            = "B.ExCommands";
-const char * const CMD_FILE_NEXT                  = "FakeVim.SwitchFileNext";
-const char * const CMD_FILE_PREV                  = "FakeVim.SwitchFilePrev";
 
 } // namespace Constants
 } // namespace FakeVim
@@ -119,6 +117,7 @@ namespace FakeVim {
 namespace Internal {
 
 typedef QMap<QString, QRegExp> CommandMap;
+typedef QLatin1String _;
 
 class FakeVimOptionPage : public Core::IOptionsPage
 {
@@ -128,11 +127,12 @@ public:
     FakeVimOptionPage() {}
 
     // IOptionsPage
-    QString id() const { return QLatin1String(Constants::SETTINGS_ID); }
+    QString id() const { return _(Constants::SETTINGS_ID); }
     QString displayName() const { return tr("General"); }
-    QString category() const { return QLatin1String(Constants::SETTINGS_CATEGORY); }
+    QString category() const { return _(Constants::SETTINGS_CATEGORY); }
     QString displayCategory() const { return tr("FakeVim"); }
-    QIcon categoryIcon() const { return QIcon(QLatin1String(Constants::SETTINGS_CATEGORY_FAKEVIM_ICON)); }
+    QIcon categoryIcon() const
+        { return QIcon(_(Constants::SETTINGS_CATEGORY_FAKEVIM_ICON)); }
 
     QWidget *createPage(QWidget *parent);
     void apply() { m_group.apply(ICore::instance()->settings()); }
@@ -238,7 +238,7 @@ void FakeVimOptionPage::setQtStyle()
     m_ui.checkBoxAutoIndent->setChecked(true);
     m_ui.checkBoxSmartIndent->setChecked(true);
     m_ui.checkBoxIncSearch->setChecked(true);
-    m_ui.lineEditBackspace->setText(QLatin1String("indent,eol,start"));
+    m_ui.lineEditBackspace->setText(_("indent,eol,start"));
 }
 
 void FakeVimOptionPage::setPlainStyle()
@@ -275,7 +275,7 @@ struct CommandItem
     QTreeWidgetItem *m_item;
 };
 
-Q_DECLARE_METATYPE(CommandItem*);
+Q_DECLARE_METATYPE(CommandItem *);
 
 namespace FakeVim {
 namespace Internal {
@@ -288,9 +288,9 @@ public:
     FakeVimExCommandsPage(FakeVimPluginPrivate *q) : m_q(q) {}
 
     // IOptionsPage
-    QString id() const { return QLatin1String(Constants::SETTINGS_EX_CMDS_ID); }
+    QString id() const { return _(Constants::SETTINGS_EX_CMDS_ID); }
     QString displayName() const { return tr("Ex Command Mapping"); }
-    QString category() const { return QLatin1String(Constants::SETTINGS_CATEGORY); }
+    QString category() const { return _(Constants::SETTINGS_CATEGORY); }
     QString displayCategory() const { return tr("FakeVim"); }
     QIcon categoryIcon() const { return QIcon(); } // TODO: Icon for FakeVim
 
@@ -512,9 +512,8 @@ private slots:
     void handleDelayedQuitAll(bool forced);
     void handleDelayedQuit(bool forced, Core::IEditor *editor);
 
-    void switchFile(bool previous);
-    void switchFileNext();
-    void switchFilePrev();
+    void switchToFile(int n);
+    int currentFile() const;
 
 signals:
     void delayedQuitRequested(bool forced, Core::IEditor *editor);
@@ -525,6 +524,8 @@ private:
     FakeVimOptionPage *m_fakeVimOptionsPage;
     FakeVimExCommandsPage *m_fakeVimExCommandsPage;
     QHash<Core::IEditor *, FakeVimHandler *> m_editorToHandler;
+    QPointer<EditorManager> m_editorManager;
+    EditorManager *editorManager() const { return m_editorManager; }
 
     void triggerAction(const QString &code);
     void setActionChecked(const QString &code, bool check);
@@ -546,10 +547,6 @@ FakeVimPluginPrivate::FakeVimPluginPrivate(FakeVimPlugin *plugin)
     q = plugin;
     m_fakeVimOptionsPage = 0;
     m_fakeVimExCommandsPage = 0;
-    defaultExCommandMap()[Constants::CMD_FILE_NEXT] =
-        QRegExp("^n(ext)?!?( (.*))?$");
-    defaultExCommandMap()[Constants::CMD_FILE_PREV] =
-        QRegExp("^(N(ext)?|prev(ious)?)!?( (.*))?$");
     defaultExCommandMap()[CppTools::Constants::SWITCH_HEADER_SOURCE] =
         QRegExp("^A$");
     defaultExCommandMap()["Coreplugin.OutputPane.previtem"] =
@@ -560,7 +557,7 @@ FakeVimPluginPrivate::FakeVimPluginPrivate(FakeVimPlugin *plugin)
         QRegExp("^tag?$");
     defaultExCommandMap()[Core::Constants::GO_BACK] =
         QRegExp("^pop?$");
-    defaultExCommandMap()[QLatin1String("QtCreator.Locate")] =
+    defaultExCommandMap()[_("QtCreator.Locate")] =
         QRegExp("^e$");
 }
 
@@ -584,6 +581,7 @@ void FakeVimPluginPrivate::aboutToShutdown()
 
 bool FakeVimPluginPrivate::initialize()
 {
+    m_editorManager = Core::ICore::instance()->editorManager();
     Core::ActionManager *actionManager = Core::ICore::instance()->actionManager();
     QTC_ASSERT(actionManager, return false);
 
@@ -607,26 +605,15 @@ bool FakeVimPluginPrivate::initialize()
     advancedMenu->addAction(cmd, Core::Constants::G_EDIT_EDITOR);
 
     // EditorManager
-    QObject *editorManager = Core::ICore::instance()->editorManager();
-    connect(editorManager, SIGNAL(editorAboutToClose(Core::IEditor*)),
+    connect(editorManager(), SIGNAL(editorAboutToClose(Core::IEditor*)),
         this, SLOT(editorAboutToClose(Core::IEditor*)));
-    connect(editorManager, SIGNAL(editorOpened(Core::IEditor*)),
+    connect(editorManager(), SIGNAL(editorOpened(Core::IEditor*)),
         this, SLOT(editorOpened(Core::IEditor*)));
 
     connect(theFakeVimSetting(ConfigUseFakeVim), SIGNAL(valueChanged(QVariant)),
         this, SLOT(setUseFakeVim(QVariant)));
     connect(theFakeVimSetting(ConfigReadVimRc), SIGNAL(valueChanged(QVariant)),
         this, SLOT(maybeReadVimRc()));
-
-    QAction *switchFileNextAction = new QAction(tr("Switch to next file"), this);
-    cmd = actionManager->registerAction(switchFileNextAction, Constants::CMD_FILE_NEXT, globalcontext);
-    cmd->setAttribute(Command::CA_Hide);
-    connect(switchFileNextAction, SIGNAL(triggered()), this, SLOT(switchFileNext()));
-
-    QAction *switchFilePrevAction = new QAction(tr("Switch to previous file"), this);
-    cmd = actionManager->registerAction(switchFilePrevAction, Constants::CMD_FILE_PREV, globalcontext);
-    cmd->setAttribute(Command::CA_Hide);
-    connect(switchFilePrevAction, SIGNAL(triggered()), this, SLOT(switchFilePrev()));
 
     // Delayed operations.
     connect(this, SIGNAL(delayedQuitRequested(bool,Core::IEditor*)),
@@ -645,7 +632,7 @@ static const char *idKey = "Command";
 
 void FakeVimPluginPrivate::writeSettings(QSettings *settings)
 {
-    settings->beginWriteArray(QLatin1String(exCommandMapGroup));
+    settings->beginWriteArray(_(exCommandMapGroup));
 
     int count = 0;
     typedef CommandMap::const_iterator Iterator;
@@ -657,8 +644,8 @@ void FakeVimPluginPrivate::writeSettings(QSettings *settings)
         if ((defaultExCommandMap().contains(id) && defaultExCommandMap()[id] != re)
             || (!defaultExCommandMap().contains(id) && !re.pattern().isEmpty())) {
             settings->setArrayIndex(count);
-            settings->setValue(QLatin1String(idKey), id);
-            settings->setValue(QLatin1String(reKey), re.pattern());
+            settings->setValue(_(idKey), id);
+            settings->setValue(_(reKey), re.pattern());
             ++count;
         }
     }
@@ -670,11 +657,11 @@ void FakeVimPluginPrivate::readSettings(QSettings *settings)
 {
     exCommandMap() = defaultExCommandMap();
 
-    int size = settings->beginReadArray(QLatin1String(exCommandMapGroup));
+    int size = settings->beginReadArray(_(exCommandMapGroup));
     for (int i = 0; i < size; ++i) {
         settings->setArrayIndex(i);
-        const QString id = settings->value(QLatin1String(idKey)).toString();
-        const QString re = settings->value(QLatin1String(reKey)).toString();
+        const QString id = settings->value(_(idKey)).toString();
+        const QString re = settings->value(_(reKey)).toString();
         exCommandMap()[id] = QRegExp(re);
     }
     settings->endArray();
@@ -702,8 +689,8 @@ void FakeVimPluginPrivate::maybeReadVimRc()
 void FakeVimPluginPrivate::showSettingsDialog()
 {
     Core::ICore::instance()->showOptionsDialog(
-        QLatin1String(Constants::SETTINGS_CATEGORY),
-        QLatin1String(Constants::SETTINGS_ID));
+        _(Constants::SETTINGS_CATEGORY),
+        _(Constants::SETTINGS_ID));
 }
 
 void FakeVimPluginPrivate::triggerAction(const QString &code)
@@ -873,15 +860,15 @@ void FakeVimPluginPrivate::setUseFakeVim(const QVariant &value)
     if (Find::FindPlugin::instance())
         Find::FindPlugin::instance()->setUseFakeVim(on);
     if (on) {
-        Core::EditorManager::instance()->showEditorStatusBar(
-            QLatin1String(Constants::MINI_BUFFER),
+        editorManager()->showEditorStatusBar(
+            _(Constants::MINI_BUFFER),
             "vi emulation mode. Type :q to leave. Use , Ctrl-R to trigger run.",
             tr("Quit FakeVim"), this, SLOT(quitFakeVim()));
         foreach (Core::IEditor *editor, m_editorToHandler.keys())
             m_editorToHandler[editor]->setupWidget();
     } else {
-        Core::EditorManager::instance()->hideEditorStatusBar(
-            QLatin1String(Constants::MINI_BUFFER));
+        editorManager()->hideEditorStatusBar(
+            _(Constants::MINI_BUFFER));
         TextEditor::TabSettings ts =
             TextEditor::TextEditorSettings::instance()->tabSettings();
         foreach (Core::IEditor *editor, m_editorToHandler.keys())
@@ -912,7 +899,7 @@ void FakeVimPluginPrivate::checkForElectricCharacter(bool *result, QChar c)
 void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
 {
     using namespace Core;
-    //qDebug() << "PLUGIN HANDLE: " << cmd.cmd;
+    //qDebug() << "PLUGIN HANDLE: " << cmd.cmd << cmd.count;
 
     *handled = false;
 
@@ -920,8 +907,7 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
     if (!handler)
         return;
 
-    EditorManager *editorManager = EditorManager::instance();
-    QTC_ASSERT(editorManager, return);
+    QTC_ASSERT(editorManager(), return);
 
     *handled = true;
     if (cmd.cmd == "w" || cmd.cmd == "write") {
@@ -980,6 +966,20 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
             setActionChecked(Find::Constants::CASE_SENSITIVE, true);
             *handled = false; // Let the handler see it as well.
         }
+    } else if (cmd.cmd == "n" || cmd.cmd == "next") {
+        // :n[ext]
+        switchToFile(currentFile() + cmd.count);
+    } else if (cmd.cmd == "prev" || cmd.cmd == "previous"
+            || cmd.cmd == "N" || cmd.cmd == "Next") {
+        // :prev[ious]
+        switchToFile(currentFile() - cmd.count);
+    } else if (cmd.cmd == "bn" || cmd.cmd == "bnext") {
+        // :bn[ext]
+        switchToFile(currentFile() + cmd.count);
+    } else if (cmd.cmd == "bp" || cmd.cmd == "bprevious"
+            || cmd.cmd == "bN" || cmd.cmd == "bNext") {
+        // :bp[revious]
+        switchToFile(currentFile() - cmd.count);
     } else {
         // Check whether one of the configure commands matches.
         typedef CommandMap::const_iterator Iterator;
@@ -1027,7 +1027,7 @@ void FakeVimPluginPrivate::moveToMatchingParenthesis(bool *moved, bool *forward,
         if (undoFakeEOL)
             cursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 1);
         if (match == TextEditor::TextBlockUserData::NoMatch) {
-            // backward matching is according to the character before the cursor
+            // Backward matching is according to the character before the cursor.
             bool undoMove = false;
             if (!cursor->atBlockEnd()) {
                 cursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 1);
@@ -1102,8 +1102,8 @@ void FakeVimPluginPrivate::quitFakeVim()
 void FakeVimPluginPrivate::showCommandBuffer(const QString &contents)
 {
     //qDebug() << "SHOW COMMAND BUFFER" << contents;
-    Core::EditorManager::instance()->showEditorStatusBar(
-        QLatin1String(Constants::MINI_BUFFER), contents,
+    editorManager()->showEditorStatusBar(
+        _(Constants::MINI_BUFFER), contents,
         tr("Quit FakeVim"), this, SLOT(quitFakeVim()));
 }
 
@@ -1122,24 +1122,22 @@ void FakeVimPluginPrivate::changeSelection
             bt->setExtraSelections(BaseTextEditor::FakeVimSelection, selection);
 }
 
-void FakeVimPluginPrivate::switchFile(bool previous)
+int FakeVimPluginPrivate::currentFile() const
 {
-    Core::EditorManager *em = Core::EditorManager::instance();
-    Core::OpenEditorsModel *model = em->openedEditorsModel();
+    Core::OpenEditorsModel *model = editorManager()->openedEditorsModel();
     IEditor *cur = Core::EditorManager::instance()->currentEditor();
-    int curIdx = model->indexOf(cur).row();
-    int nIdx = (curIdx + model->rowCount() + (previous ? -1 : 1)) % model->rowCount();
-    em->activateEditor(model->index(nIdx, 0), 0);
+    return model->indexOf(cur).row();
 }
 
-void FakeVimPluginPrivate::switchFileNext()
+void FakeVimPluginPrivate::switchToFile(int n)
 {
-    switchFile(false);
-}
-
-void FakeVimPluginPrivate::switchFilePrev()
-{
-    switchFile(true);
+    Core::OpenEditorsModel *model = editorManager()->openedEditorsModel();
+    int size = model->rowCount();
+    QTC_ASSERT(size, return);
+    n = n % size;
+    if (n < 0)
+        n += size;
+    editorManager()->activateEditor(model->index(n, 0), 0);
 }
 
 CommandMap &FakeVimExCommandsPage::exCommandMap()
@@ -1175,9 +1173,10 @@ bool FakeVimPlugin::initialize(const QStringList &arguments, QString *errorMessa
     return d->initialize();
 }
 
-void FakeVimPlugin::aboutToShutdown()
+ExtensionSystem::IPlugin::ShutdownFlag FakeVimPlugin::aboutToShutdown()
 {
     d->aboutToShutdown();
+    return SynchronousShutdown;
 }
 
 void FakeVimPlugin::extensionsInitialized()

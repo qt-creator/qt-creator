@@ -154,6 +154,8 @@ public:
         return result;
     }
 
+    void replace(const QString &, const QString &,
+                 Find::IFindSupport::FindFlags) { }
     bool replaceStep(const QString &, const QString &,
                      Find::IFindSupport::FindFlags) { return false;}
     int replaceAll(const QString &, const QString &,
@@ -180,6 +182,10 @@ public:
             this, SLOT(provideData(Core::IEditor *, quint64)));
         connect(m_editor, SIGNAL(newRangeRequested(Core::IEditor*,quint64)),
             this, SLOT(provideNewRange(Core::IEditor*,quint64)));
+        connect(m_editor, SIGNAL(startOfFileRequested(Core::IEditor*)), this,
+            SLOT(handleStartOfFileRequested(Core::IEditor*)));
+        connect(m_editor, SIGNAL(endOfFileRequested(Core::IEditor*)), this,
+            SLOT(handleEndOfFileRequested(Core::IEditor*)));
     }
     ~BinEditorFile() {}
 
@@ -209,7 +215,7 @@ public:
             && file.open(QIODevice::ReadOnly)) {
             m_fileName = fileName;
             qint64 maxRange = 64 * 1024 * 1024;
-            if (file.isSequential() && file.size() <= maxRange) {
+            if (file.size() <= maxRange) {
                 m_editor->setData(file.readAll());
             } else {
                 m_editor->setLazyData(offset, maxRange);
@@ -239,6 +245,14 @@ private slots:
 
     void provideNewRange(Core::IEditor *, quint64 offset) {
         open(m_fileName, offset);
+    }
+
+    void handleStartOfFileRequested(Core::IEditor *) {
+        open(m_fileName, 0);
+    }
+
+    void handleEndOfFileRequested(Core::IEditor *) {
+        open(m_fileName, QFileInfo(m_fileName).size() - 1);
     }
 
 public:

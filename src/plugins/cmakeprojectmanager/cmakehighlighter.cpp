@@ -46,7 +46,7 @@ static bool isVariable(const QString &word)
 
 
 CMakeHighlighter::CMakeHighlighter(QTextDocument *document) :
-    QSyntaxHighlighter(document)
+    TextEditor::SyntaxHighlighter(document)
 {
 }
 

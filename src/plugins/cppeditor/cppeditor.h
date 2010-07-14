@@ -42,6 +42,7 @@
 #include <QtCore/QMutex>
 #include <QtCore/QWaitCondition>
 #include <QtCore/QFutureWatcher>
+#include <QtCore/QModelIndex>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -166,6 +167,9 @@ public:
     bool isOutdated() const;
     SemanticInfo semanticInfo() const;
 
+    CPlusPlus::OverviewModel *outlineModel() const;
+    QModelIndex outlineModelIndex();
+
     virtual void paste(); // reimplemented from BaseTextEditor
     virtual void cut(); // reimplemented from BaseTextEditor
 
@@ -176,10 +180,13 @@ public:
     void setObjCEnabled(bool onoff);
     bool isObjCEnabled() const;
 
+Q_SIGNALS:
+    void outlineModelIndexChanged(const QModelIndex &index);
+
 public Q_SLOTS:
     virtual void setFontSettings(const TextEditor::FontSettings &);
     virtual void setTabSettings(const TextEditor::TabSettings &);
-    void setSortedMethodOverview(bool sort);
+    void setSortedOutline(bool sort);
     void switchDeclarationDefinition();
     void jumpToDefinition();
     void renameSymbolUnderCursor();
@@ -214,10 +221,11 @@ protected:
 
 private Q_SLOTS:
     void updateFileName();
-    void jumpToMethod(int index);
-    void updateMethodBoxIndex();
-    void updateMethodBoxIndexNow();
-    void updateMethodBoxToolTip();
+    void jumpToOutlineElement(int index);
+    void updateOutlineNow();
+    void updateOutlineIndex();
+    void updateOutlineIndexNow();
+    void updateOutlineToolTip();
     void updateUses();
     void updateUsesNow();
     void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
@@ -225,7 +233,8 @@ private Q_SLOTS:
 
     void semanticRehighlight();
     void updateSemanticInfo(const CppEditor::Internal::SemanticInfo &semanticInfo);
-    void highlightTypeUsages();
+    void highlightTypeUsages(int from, int to);
+    void finishTypeUsages();
 
     void performQuickFix(int index);
 
@@ -234,7 +243,7 @@ private:
     void setShowWarningMessage(bool showWarningMessage);
 
     void markSymbols(CPlusPlus::Symbol *canonicalSymbol, const SemanticInfo &info);
-    bool sortedMethodOverview() const;
+    bool sortedOutline() const;
     CPlusPlus::Symbol *findDefinition(CPlusPlus::Symbol *symbol, const CPlusPlus::Snapshot &snapshot);
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
     virtual void indent(QTextDocument *doc, const QTextCursor &cursor, QChar typedChar);
@@ -258,15 +267,19 @@ private:
     bool openLink(const Link &link) { return openCppEditorAt(link); }
     bool openCppEditorAt(const Link &);
 
+    QModelIndex indexForPosition(int line, int column, const QModelIndex &rootIndex = QModelIndex()) const;
+
     static Link linkToSymbol(CPlusPlus::Symbol *symbol);
 
     CppTools::CppModelManagerInterface *m_modelManager;
 
-    QComboBox *m_methodCombo;
-    CPlusPlus::OverviewModel *m_overviewModel;
+    QComboBox *m_outlineCombo;
+    CPlusPlus::OverviewModel *m_outlineModel;
+    QModelIndex m_outlineModelIndex;
     QSortFilterProxyModel *m_proxyModel;
     QAction *m_sortAction;
-    QTimer *m_updateMethodBoxTimer;
+    QTimer *m_updateOutlineTimer;
+    QTimer *m_updateOutlineIndexTimer;
     QTimer *m_updateUsesTimer;
     QTextCharFormat m_occurrencesFormat;
     QTextCharFormat m_occurrencesUnusedFormat;
@@ -288,7 +301,8 @@ private:
 
     QFuture<SemanticInfo::Use> m_highlighter;
     QFutureWatcher<SemanticInfo::Use> m_highlightWatcher;
-    unsigned m_highlighteRevision; // the editor revision that requested the highlight
+    unsigned m_highlightRevision; // the editor revision that requested the highlight
+    int m_nextHighlightBlockNumber;
 };
 
 

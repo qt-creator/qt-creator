@@ -17,9 +17,10 @@ HEADERS += cppplugin.h \
     cppclasswizard.h \
     cppquickfix.h \
     cpprefactoringchanges.h \
-    cppcheckundefinedsymbols.h \
+    cppchecksymbols.h \
     cppsemanticinfo.h \
-    cppoutline.h
+    cppoutline.h \
+    cppdeclfromdef.h
 
 SOURCES += cppplugin.cpp \
     cppeditor.cpp \
@@ -29,9 +30,10 @@ SOURCES += cppplugin.cpp \
     cppclasswizard.cpp \
     cppquickfix.cpp \
     cpprefactoringchanges.cpp \
-    cppcheckundefinedsymbols.cpp \
+    cppchecksymbols.cpp \
     cppsemanticinfo.cpp \
-    cppoutline.cpp
+    cppoutline.cpp \
+    cppdeclfromdef.cpp
 
 RESOURCES += cppeditor.qrc
 

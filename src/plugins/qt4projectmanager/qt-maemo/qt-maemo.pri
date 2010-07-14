@@ -10,7 +10,6 @@ HEADERS += \
     $$PWD/maemosettingspage.h \
     $$PWD/maemosettingswidget.h \
     $$PWD/maemosshconfigdialog.h \
-    $$PWD/maemosshthread.h \
     $$PWD/maemotoolchain.h \
     $$PWD/maemopackagecreationstep.h \
     $$PWD/maemopackagecreationfactory.h \
@@ -20,7 +19,11 @@ HEADERS += \
     $$PWD/profilewrapper.h \
     $$PWD/maemodeployables.h \
     $$PWD/maemodeployable.h \
-    $$PWD/maemodeployablelistwidget.h
+    $$PWD/maemodeployablelistwidget.h \
+    $$PWD/maemodeploystep.h \
+    $$PWD/maemodeploystepwidget.h \
+    $$PWD/maemodeploystepfactory.h \
+    $$PWD/maemoglobal.h
 
 SOURCES += \
     $$PWD/maemoconfigtestdialog.cpp \
@@ -33,7 +36,6 @@ SOURCES += \
     $$PWD/maemosettingspage.cpp \
     $$PWD/maemosettingswidget.cpp \
     $$PWD/maemosshconfigdialog.cpp \
-    $$PWD/maemosshthread.cpp \
     $$PWD/maemotoolchain.cpp \
     $$PWD/maemopackagecreationstep.cpp \
     $$PWD/maemopackagecreationfactory.cpp \
@@ -42,13 +44,18 @@ SOURCES += \
     $$PWD/qemuruntimemanager.cpp \
     $$PWD/profilewrapper.cpp \
     $$PWD/maemodeployables.cpp \
-    $$PWD/maemodeployablelistwidget.cpp
+    $$PWD/maemodeployablelistwidget.cpp \
+    $$PWD/maemodeploystep.cpp \
+    $$PWD/maemodeploystepwidget.cpp \
+    $$PWD/maemodeploystepfactory.cpp \
+    $$PWD/maemoglobal.cpp
 
 FORMS += \
     $$PWD/maemoconfigtestdialog.ui \
     $$PWD/maemosettingswidget.ui \
     $$PWD/maemosshconfigdialog.ui \
     $$PWD/maemopackagecreationwidget.ui \
-    $$PWD/maemodeployablelistwidget.ui
+    $$PWD/maemodeployablelistwidget.ui \
+    $$PWD/maemodeploystepwidget.ui
 
 RESOURCES += $$PWD/qt-maemo.qrc

@@ -31,10 +31,8 @@
 #include "cppeditorconstants.h"
 #include "cppplugin.h"
 #include "cpphighlighter.h"
-#include "cppcheckundefinedsymbols.h"
-
+#include "cppchecksymbols.h"
 #include "cppquickfix.h"
-#include <cpptools/cpptoolsplugin.h>
 
 #include <AST.h>
 #include <Control.h>
@@ -57,6 +55,7 @@
 #include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/FastPreprocessor.h>
 
+#include <cpptools/cpptoolsplugin.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cppcodeformatter.h>
@@ -97,7 +96,7 @@
 #include <sstream>
 
 enum {
-    UPDATE_METHOD_BOX_INTERVAL = 150,
+    UPDATE_OUTLINE_INTERVAL = 150,
     UPDATE_USES_INTERVAL = 300
 };
 
@@ -129,47 +128,6 @@ static QList<QTextEdit::ExtraSelection> createSelections(QTextDocument *document
     return selections;
 }
 
-static QList<QTextEdit::ExtraSelection> createSelections(QTextDocument *document,
-                                                         const QList<SemanticInfo::Use> &msgs,
-                                                         const QTextCharFormat &format)
-{
-    QList<QTextEdit::ExtraSelection> selections;
-
-    QTextBlock currentBlock = document->firstBlock();
-    unsigned currentLine = 1;
-
-    foreach (const SemanticInfo::Use &use, msgs) {
-        QTextCursor cursor(document);
-
-        if (currentLine != use.line) {
-            int delta = use.line - currentLine;
-
-            if (delta >= 0) {
-                while (delta--)
-                    currentBlock = currentBlock.next();
-            } else {
-                currentBlock = document->findBlockByNumber(use.line - 1);
-            }
-
-            currentLine = use.line;
-        }
-
-        const int pos = currentBlock.position() + use.column - 1;
-        if (pos < 0)
-            continue;
-
-        cursor.setPosition(pos);
-        cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, use.length);
-
-        QTextEdit::ExtraSelection sel;
-        sel.cursor = cursor;
-        sel.format = format;
-        selections.append(sel);
-    }
-
-    return selections;
-}
-
 namespace {
 
 class OverviewTreeView : public QTreeView
@@ -188,6 +146,32 @@ public:
         setMinimumWidth(qMax(sizeHintForColumn(0), minimumSizeHint().width()));
     }
 };
+
+class OverviewProxyModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+public:
+    OverviewProxyModel(CPlusPlus::OverviewModel *sourceModel, QObject *parent) :
+        QSortFilterProxyModel(parent),
+        m_sourceModel(sourceModel)
+    {
+        setSourceModel(m_sourceModel);
+    }
+
+    bool filterAcceptsRow(int sourceRow,const QModelIndex &sourceParent) const
+    {
+        // ignore generated symbols, e.g. by macro expansion (Q_OBJECT)
+        const QModelIndex sourceIndex = m_sourceModel->index(sourceRow, 0, sourceParent);
+        CPlusPlus::Symbol *symbol = m_sourceModel->symbolFromIndex(sourceIndex);
+        if (symbol && symbol->isGenerated())
+            return false;
+
+        return QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent);
+    }
+private:
+    CPlusPlus::OverviewModel *m_sourceModel;
+};
+
 
 class FindLocalUses: protected ASTVisitor
 {
@@ -509,7 +493,7 @@ protected:
     {
         const Name *name = function->name();
         if (const QualifiedNameId *q = name->asQualifiedNameId())
-            name = q->unqualifiedNameId();
+            name = q->name();
 
         if (_declarationName->isEqualTo(name))
             _functions->append(function);
@@ -617,8 +601,10 @@ CPPEditor::CPPEditor(QWidget *parent)
                 this, SLOT(onDocumentUpdated(CPlusPlus::Document::Ptr)));
     }
 
-    m_highlighteRevision = 0;
-    connect(&m_highlightWatcher, SIGNAL(finished()), SLOT(highlightTypeUsages()));
+    m_highlightRevision = 0;
+    m_nextHighlightBlockNumber = 0;
+    connect(&m_highlightWatcher, SIGNAL(resultsReadyAt(int,int)), SLOT(highlightTypeUsages(int,int)));
+    connect(&m_highlightWatcher, SIGNAL(finished()), SLOT(finishTypeUsages()));
 }
 
 CPPEditor::~CPPEditor()
@@ -638,51 +624,55 @@ TextEditor::BaseTextEditorEditable *CPPEditor::createEditableInterface()
 
 void CPPEditor::createToolBar(CPPEditorEditable *editable)
 {
-    m_methodCombo = new QComboBox;
-    m_methodCombo->setMinimumContentsLength(22);
+    m_outlineCombo = new QComboBox;
+    m_outlineCombo->setMinimumContentsLength(22);
 
     // Make the combo box prefer to expand
-    QSizePolicy policy = m_methodCombo->sizePolicy();
+    QSizePolicy policy = m_outlineCombo->sizePolicy();
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
-    m_methodCombo->setSizePolicy(policy);
+    m_outlineCombo->setSizePolicy(policy);
 
-    QTreeView *methodView = new OverviewTreeView;
-    methodView->header()->hide();
-    methodView->setItemsExpandable(false);
-    m_methodCombo->setView(methodView);
-    m_methodCombo->setMaxVisibleItems(20);
+    QTreeView *outlineView = new OverviewTreeView;
+    outlineView->header()->hide();
+    outlineView->setItemsExpandable(false);
+    m_outlineCombo->setView(outlineView);
+    m_outlineCombo->setMaxVisibleItems(20);
 
-    m_overviewModel = new OverviewModel(this);
-    m_proxyModel = new QSortFilterProxyModel(this);
-    m_proxyModel->setSourceModel(m_overviewModel);
-    if (CppPlugin::instance()->sortedMethodOverview())
+    m_outlineModel = new OverviewModel(this);
+    m_proxyModel = new OverviewProxyModel(m_outlineModel, this);
+    if (CppPlugin::instance()->sortedOutline())
         m_proxyModel->sort(0, Qt::AscendingOrder);
     else
-        m_proxyModel->sort(-1, Qt::AscendingOrder); // don't sort yet, but set column for sortedMethodOverview()
+        m_proxyModel->sort(-1, Qt::AscendingOrder); // don't sort yet, but set column for sortedOutline()
     m_proxyModel->setDynamicSortFilter(true);
     m_proxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
-    m_methodCombo->setModel(m_proxyModel);
+    m_outlineCombo->setModel(m_proxyModel);
 
-    m_methodCombo->setContextMenuPolicy(Qt::ActionsContextMenu);
-    m_sortAction = new QAction(tr("Sort alphabetically"), m_methodCombo);
+    m_outlineCombo->setContextMenuPolicy(Qt::ActionsContextMenu);
+    m_sortAction = new QAction(tr("Sort Alphabetically"), m_outlineCombo);
     m_sortAction->setCheckable(true);
-    m_sortAction->setChecked(sortedMethodOverview());
-    connect(m_sortAction, SIGNAL(toggled(bool)), CppPlugin::instance(), SLOT(setSortedMethodOverview(bool)));
-    m_methodCombo->addAction(m_sortAction);
+    m_sortAction->setChecked(sortedOutline());
+    connect(m_sortAction, SIGNAL(toggled(bool)), CppPlugin::instance(), SLOT(setSortedOutline(bool)));
+    m_outlineCombo->addAction(m_sortAction);
 
-    m_updateMethodBoxTimer = new QTimer(this);
-    m_updateMethodBoxTimer->setSingleShot(true);
-    m_updateMethodBoxTimer->setInterval(UPDATE_METHOD_BOX_INTERVAL);
-    connect(m_updateMethodBoxTimer, SIGNAL(timeout()), this, SLOT(updateMethodBoxIndexNow()));
+    m_updateOutlineTimer = new QTimer(this);
+    m_updateOutlineTimer->setSingleShot(true);
+    m_updateOutlineTimer->setInterval(UPDATE_OUTLINE_INTERVAL);
+    connect(m_updateOutlineTimer, SIGNAL(timeout()), this, SLOT(updateOutlineNow()));
+
+    m_updateOutlineIndexTimer = new QTimer(this);
+    m_updateOutlineIndexTimer->setSingleShot(true);
+    m_updateOutlineIndexTimer->setInterval(UPDATE_OUTLINE_INTERVAL);
+    connect(m_updateOutlineIndexTimer, SIGNAL(timeout()), this, SLOT(updateOutlineIndexNow()));
 
     m_updateUsesTimer = new QTimer(this);
     m_updateUsesTimer->setSingleShot(true);
     m_updateUsesTimer->setInterval(UPDATE_USES_INTERVAL);
     connect(m_updateUsesTimer, SIGNAL(timeout()), this, SLOT(updateUsesNow()));
 
-    connect(m_methodCombo, SIGNAL(activated(int)), this, SLOT(jumpToMethod(int)));
-    connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateMethodBoxIndex()));
-    connect(m_methodCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateMethodBoxToolTip()));
+    connect(m_outlineCombo, SIGNAL(activated(int)), this, SLOT(jumpToOutlineElement(int)));
+    connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateOutlineIndex()));
+    connect(m_outlineCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateOutlineToolTip()));
     connect(document(), SIGNAL(contentsChange(int,int,int)), this, SLOT(onContentsChanged(int,int,int)));
 
     connect(file(), SIGNAL(changed()), this, SLOT(updateFileName()));
@@ -698,7 +688,7 @@ void CPPEditor::createToolBar(CPPEditorEditable *editable)
     QToolBar *toolBar = static_cast<QToolBar*>(editable->toolBar());
     QList<QAction*> actions = toolBar->actions();
     QWidget *w = toolBar->widgetForAction(actions.first());
-    static_cast<QHBoxLayout*>(w->layout())->insertWidget(0, m_methodCombo, 1);
+    static_cast<QHBoxLayout*>(w->layout())->insertWidget(0, m_outlineCombo, 1);
 }
 
 void CPPEditor::paste()
@@ -806,10 +796,7 @@ void CPPEditor::onDocumentUpdated(Document::Ptr doc)
         m_semanticHighlighter->rehighlight(source);
     }
 
-    m_overviewModel->rebuild(doc);
-    OverviewTreeView *treeView = static_cast<OverviewTreeView *>(m_methodCombo->view());
-    treeView->sync();
-    updateMethodBoxIndexNow();
+    m_updateOutlineTimer->start();
 }
 
 const Macro *CPPEditor::findCanonicalMacro(const QTextCursor &cursor, Document::Ptr doc) const
@@ -985,19 +972,19 @@ void CPPEditor::onContentsChanged(int position, int charsRemoved, int charsAdded
 void CPPEditor::updateFileName()
 { }
 
-void CPPEditor::jumpToMethod(int)
+void CPPEditor::jumpToOutlineElement(int)
 {
-    QModelIndex index = m_proxyModel->mapToSource(m_methodCombo->view()->currentIndex());
-    Symbol *symbol = m_overviewModel->symbolFromIndex(index);
+    QModelIndex index = m_proxyModel->mapToSource(m_outlineCombo->view()->currentIndex());
+    Symbol *symbol = m_outlineModel->symbolFromIndex(index);
     if (! symbol)
         return;
 
     openCppEditorAt(linkToSymbol(symbol));
 }
 
-void CPPEditor::setSortedMethodOverview(bool sort)
+void CPPEditor::setSortedOutline(bool sort)
 {
-    if (sort != sortedMethodOverview()) {
+    if (sort != sortedOutline()) {
         if (sort)
             m_proxyModel->sort(0, Qt::AscendingOrder);
         else
@@ -1005,18 +992,38 @@ void CPPEditor::setSortedMethodOverview(bool sort)
         bool block = m_sortAction->blockSignals(true);
         m_sortAction->setChecked(m_proxyModel->sortColumn() == 0);
         m_sortAction->blockSignals(block);
-        updateMethodBoxIndexNow();
+        updateOutlineIndexNow();
     }
 }
 
-bool CPPEditor::sortedMethodOverview() const
+bool CPPEditor::sortedOutline() const
 {
     return (m_proxyModel->sortColumn() == 0);
 }
 
-void CPPEditor::updateMethodBoxIndex()
+void CPPEditor::updateOutlineNow()
 {
-    m_updateMethodBoxTimer->start();
+    const Snapshot snapshot = m_modelManager->snapshot();
+    Document::Ptr document = snapshot.document(file()->fileName());
+
+    if (!document)
+        return;
+
+    if (document->editorRevision() != editorRevision()) {
+        m_updateOutlineTimer->start();
+        return;
+    }
+
+    m_outlineModel->rebuild(document);
+
+    OverviewTreeView *treeView = static_cast<OverviewTreeView *>(m_outlineCombo->view());
+    treeView->sync();
+    updateOutlineIndexNow();
+}
+
+void CPPEditor::updateOutlineIndex()
+{
+    m_updateOutlineIndexTimer->start();
 }
 
 void CPPEditor::highlightUses(const QList<SemanticInfo::Use> &uses,
@@ -1055,49 +1062,46 @@ void CPPEditor::highlightUses(const QList<SemanticInfo::Use> &uses,
     }
 }
 
-void CPPEditor::updateMethodBoxIndexNow()
+void CPPEditor::updateOutlineIndexNow()
 {
-    if (! m_overviewModel->document())
+    if (!m_outlineModel->document())
         return;
 
-    if (m_overviewModel->document()->editorRevision() != editorRevision()) {
-        m_updateMethodBoxTimer->start();
+    if (m_outlineModel->document()->editorRevision() != editorRevision()) {
+        m_updateOutlineIndexTimer->start();
         return;
     }
 
-    m_updateMethodBoxTimer->stop();
+    m_updateOutlineIndexTimer->stop();
 
-    int line = 0, column = 0;
-    convertPosition(position(), &line, &column);
+    m_outlineModelIndex = QModelIndex(); //invalidate
+    QModelIndex comboIndex = outlineModelIndex();
 
-    QModelIndex lastIndex;
 
-    const int rc = m_overviewModel->rowCount();
-    for (int row = 0; row < rc; ++row) {
-        const QModelIndex index = m_overviewModel->index(row, 0, QModelIndex());
-        Symbol *symbol = m_overviewModel->symbolFromIndex(index);
-        if (symbol && symbol->line() > unsigned(line))
-            break;
-        lastIndex = index;
-    }
+    if (comboIndex.isValid()) {
+        bool blocked = m_outlineCombo->blockSignals(true);
 
-    if (lastIndex.isValid()) {
-        bool blocked = m_methodCombo->blockSignals(true);
-        m_methodCombo->setCurrentIndex(m_proxyModel->mapFromSource(lastIndex).row());
-        updateMethodBoxToolTip();
-        (void) m_methodCombo->blockSignals(blocked);
+        // There is no direct way to select a non-root item
+        m_outlineCombo->setRootModelIndex(m_proxyModel->mapFromSource(comboIndex.parent()));
+        m_outlineCombo->setCurrentIndex(m_proxyModel->mapFromSource(comboIndex).row());
+        m_outlineCombo->setRootModelIndex(QModelIndex());
+
+        updateOutlineToolTip();
+
+        m_outlineCombo->blockSignals(blocked);
     }
 }
 
-void CPPEditor::updateMethodBoxToolTip()
+void CPPEditor::updateOutlineToolTip()
 {
-    m_methodCombo->setToolTip(m_methodCombo->currentText());
+    m_outlineCombo->setToolTip(m_outlineCombo->currentText());
 }
 
 void CPPEditor::updateUses()
 {
+    if (editorRevision() != m_highlightRevision)
+        m_highlighter.cancel();
     m_updateUsesTimer->start();
-    m_highlighter.cancel();
 }
 
 void CPPEditor::updateUsesNow()
@@ -1108,17 +1112,75 @@ void CPPEditor::updateUsesNow()
     semanticRehighlight();
 }
 
-void CPPEditor::highlightTypeUsages()
+void CPPEditor::highlightTypeUsages(int from, int to)
 {
-    if (editorRevision() != m_highlighteRevision)
+    if (editorRevision() != m_highlightRevision)
         return; // outdated
 
     else if (m_highlighter.isCanceled())
         return; // aborted
 
-    const QList<SemanticInfo::Use> typeUsages = m_highlighter.results();
-    setExtraSelections(TypeSelection, createSelections(document(), typeUsages, m_typeFormat));
+    CppHighlighter *highlighter = qobject_cast<CppHighlighter*>(baseTextDocument()->syntaxHighlighter());
+    Q_ASSERT(highlighter);
+    QTextDocument *doc = document();
+
+    if (m_nextHighlightBlockNumber >= doc->blockCount())
+        return;
+
+    QMap<int, QVector<SemanticInfo::Use> > chunks = CheckSymbols::chunks(m_highlighter, from, to);
+    Q_ASSERT(!chunks.isEmpty());
+    QTextBlock b = doc->findBlockByNumber(m_nextHighlightBlockNumber);
+
+    QMapIterator<int, QVector<SemanticInfo::Use> > it(chunks);
+    while (b.isValid() && it.hasNext()) {
+        it.next();
+        const int blockNumber = it.key();
+        Q_ASSERT(blockNumber < doc->blockCount());
+
+        while (m_nextHighlightBlockNumber < blockNumber) {
+            highlighter->setExtraAdditionalFormats(b, QList<QTextLayout::FormatRange>());
+            b = b.next();
+            ++m_nextHighlightBlockNumber;
+        }
+
+        QList<QTextLayout::FormatRange> formats;
+        foreach (const SemanticInfo::Use &use, it.value()) {
+            QTextLayout::FormatRange formatRange;
+            formatRange.format = m_typeFormat;
+            formatRange.start = use.column - 1;
+            formatRange.length = use.length;
+            formats.append(formatRange);
+        }
+        highlighter->setExtraAdditionalFormats(b, formats);
+        b = b.next();
+        ++m_nextHighlightBlockNumber;
+    }
 }
+
+void CPPEditor::finishTypeUsages()
+{
+    if (editorRevision() != m_highlightRevision)
+        return; // outdated
+
+    else if (m_highlighter.isCanceled())
+        return; // aborted
+
+    CppHighlighter *highlighter = qobject_cast<CppHighlighter*>(baseTextDocument()->syntaxHighlighter());
+    Q_ASSERT(highlighter);
+    QTextDocument *doc = document();
+
+    if (m_nextHighlightBlockNumber >= doc->blockCount())
+        return;
+
+    QTextBlock b = doc->findBlockByNumber(m_nextHighlightBlockNumber);
+
+    while (b.isValid()) {
+        highlighter->setExtraAdditionalFormats(b, QList<QTextLayout::FormatRange>());
+        b = b.next();
+        ++m_nextHighlightBlockNumber;
+    }
+}
+
 
 void CPPEditor::switchDeclarationDefinition()
 {
@@ -1415,6 +1477,23 @@ bool CPPEditor::isOutdated() const
 SemanticInfo CPPEditor::semanticInfo() const
 {
     return m_lastSemanticInfo;
+}
+
+CPlusPlus::OverviewModel *CPPEditor::outlineModel() const
+{
+    return m_outlineModel;
+}
+
+QModelIndex CPPEditor::outlineModelIndex()
+{
+    if (!m_outlineModelIndex.isValid()) {
+        int line = 0, column = 0;
+        convertPosition(position(), &line, &column);
+        m_outlineModelIndex = indexForPosition(line, column);
+        emit outlineModelIndexChanged(m_outlineModelIndex);
+    }
+
+    return m_outlineModelIndex;
 }
 
 bool CPPEditor::isElectricCharacter(QChar ch) const
@@ -1897,9 +1976,10 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
 
         if (semanticInfo.doc) {
             LookupContext context(semanticInfo.doc, semanticInfo.snapshot);
-            CheckUndefinedSymbols::Future f = CheckUndefinedSymbols::go(semanticInfo.doc, context);
+            CheckSymbols::Future f = CheckSymbols::go(semanticInfo.doc, context);
             m_highlighter = f;
-            m_highlighteRevision = semanticInfo.revision;
+            m_highlightRevision = semanticInfo.revision;
+            m_nextHighlightBlockNumber = 0;
             m_highlightWatcher.setFuture(m_highlighter);
         }
 
@@ -1909,6 +1989,7 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
                                                            m_keywordFormat));
 #endif
     }
+
 
     setExtraSelections(UnusedSymbolSelection, unusedSelections);
 
@@ -2161,3 +2242,26 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
 
     return semanticInfo;
 }
+
+QModelIndex CPPEditor::indexForPosition(int line, int column, const QModelIndex &rootIndex) const
+{
+    QModelIndex lastIndex = rootIndex;
+
+    const int rowCount = m_outlineModel->rowCount(rootIndex);
+    for (int row = 0; row < rowCount; ++row) {
+        const QModelIndex index = m_outlineModel->index(row, 0, rootIndex);
+        Symbol *symbol = m_outlineModel->symbolFromIndex(index);
+        if (symbol && symbol->line() > unsigned(line))
+            break;
+        lastIndex = index;
+    }
+
+    if (lastIndex != rootIndex) {
+        // recurse
+        lastIndex = indexForPosition(line, column, lastIndex);
+    }
+
+    return lastIndex;
+}
+
+#include "cppeditor.moc"

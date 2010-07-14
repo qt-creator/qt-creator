@@ -63,9 +63,16 @@
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="buildProjectBeforeRunCheckBox">
+       <widget class="QCheckBox" name="buildProjectBeforeDeployCheckBox">
         <property name="text">
-         <string>Always build project before running</string>
+         <string>Always build project before deploying it</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="deployProjectBeforeRunCheckBox">
+        <property name="text">
+         <string>Always deploy project before running it</string>
         </property>
        </widget>
       </item>

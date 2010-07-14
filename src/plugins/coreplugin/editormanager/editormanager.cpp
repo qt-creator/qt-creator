@@ -1080,7 +1080,7 @@ IEditor *EditorManager::createEditor(const QString &editorId,
             mimeType = m_d->m_core->mimeDatabase()->findByType(QLatin1String("text/plain"));
         }
         // open text files > 48 MB in binary editor
-        if (fileInfo.size() >  qint64(3) << 24 && mimeType.type().startsWith(QLatin1String("text")))
+        if (fileInfo.size() >  maxTextFileSize() && mimeType.type().startsWith(QLatin1String("text")))
             mimeType = m_d->m_core->mimeDatabase()->findByType(QLatin1String("application/octet-stream"));
         factories = editorFactories(mimeType, true);
     } else {
@@ -1389,13 +1389,22 @@ EditorManager::ReadOnlyAction
                                       QWidget *parent,
                                       bool displaySaveAsButton)
 {
+    // Version Control: If automatic open is desired, open right away.
+    bool promptVCS = false;
+    if (versionControl && versionControl->supportsOperation(IVersionControl::OpenOperation)) {
+        if (versionControl->settingsFlags() & IVersionControl::AutoOpen)
+            return RO_OpenVCS;
+        promptVCS = true;
+    }
+
+    // Create message box.
     QMessageBox msgBox(QMessageBox::Question, tr("File is Read Only"),
-                       tr("The file %1 is read only.").arg(QDir::toNativeSeparators(fileName)),
+                       tr("The file <i>%1</i> is read only.").arg(QDir::toNativeSeparators(fileName)),
                        QMessageBox::Cancel, parent);
 
-    QPushButton *sccButton = 0;
-    if (versionControl && versionControl->supportsOperation(IVersionControl::OpenOperation))
-        sccButton = msgBox.addButton(tr("Open with VCS (%1)").arg(versionControl->displayName()), QMessageBox::AcceptRole);
+    QPushButton *vcsButton = 0;
+    if (promptVCS)
+        vcsButton = msgBox.addButton(tr("Open with VCS (%1)").arg(versionControl->displayName()), QMessageBox::AcceptRole);
 
     QPushButton *makeWritableButton =  msgBox.addButton(tr("Make writable"), QMessageBox::AcceptRole);
 
@@ -1403,11 +1412,11 @@ EditorManager::ReadOnlyAction
     if (displaySaveAsButton)
         saveAsButton = msgBox.addButton(tr("Save as ..."), QMessageBox::ActionRole);
 
-    msgBox.setDefaultButton(sccButton ? sccButton : makeWritableButton);
+    msgBox.setDefaultButton(vcsButton ? vcsButton : makeWritableButton);
     msgBox.exec();
 
     QAbstractButton *clickedButton = msgBox.clickedButton();
-    if (clickedButton == sccButton)
+    if (clickedButton == vcsButton)
         return RO_OpenVCS;
     if (clickedButton == makeWritableButton)
         return RO_MakeWriteable;
@@ -2003,6 +2012,11 @@ void EditorManager::gotoOtherSplit()
             }
         }
     }
+}
+
+qint64 EditorManager::maxTextFileSize()
+{
+    return (qint64(3) << 24);
 }
 //===================EditorClosingCoreListener======================
 

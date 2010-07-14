@@ -61,14 +61,7 @@ QmlProjectApplicationWizard::~QmlProjectApplicationWizard()
 Core::BaseFileWizardParameters QmlProjectApplicationWizard::parameters()
 {
     Core::BaseFileWizardParameters parameters(ProjectWizard);
-    // TODO: provide icons in correct size
-    {
-        QPixmap icon(22, 22);
-        icon.fill(Qt::transparent);
-        QPainter p(&icon);
-        p.drawPixmap(3, 3, 16, 16, QPixmap(QLatin1String(Constants::QML_WIZARD_ICON)));
-        parameters.setIcon(icon);
-    }
+    parameters.setIcon(QIcon(QLatin1String(Constants::QML_WIZARD_ICON)));
     parameters.setDisplayName(tr("Qt QML Application"));
     parameters.setId(QLatin1String("QA.QML Application"));
     parameters.setDescription(tr("Creates a Qt QML application project with a single QML file containing the main view.\n\n"

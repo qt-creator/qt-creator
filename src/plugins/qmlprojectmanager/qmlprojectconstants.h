@@ -47,8 +47,6 @@ const char *const FILES_EDITOR_ID    = "Qt4.QmlProjectEditor";
 const char *const FILES_EDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("OpenWith::Editors", ".qmlproject Editor");
 const char *const FILES_MIMETYPE     = QMLMIMETYPE;
 
-const char *const TASK_CATEGORY_QML = "Task.Category.Qml";
-
 // Wizard category
 const char * const QML_WIZARD_CATEGORY = "F.Projects"; // (after Qt)
 const char * const QML_WIZARD_TR_SCOPE = "QmlProjectManager";

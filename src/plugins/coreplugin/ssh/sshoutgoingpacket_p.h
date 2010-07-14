@@ -1,0 +1,98 @@
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+** Commercial Usage
+**
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
+**
+** GNU Lesser General Public License Usage
+**
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at http://qt.nokia.com/contact.
+**
+**************************************************************************/
+
+#ifndef SSHOUTGOINGPACKET_P_H
+#define SSHOUTGOINGPACKET_P_H
+
+#include "sshpacket_p.h"
+
+namespace Core {
+namespace Internal {
+
+class SshEncryptionFacility;
+
+class SshOutgoingPacket : public AbstractSshPacket
+{
+public:
+    SshOutgoingPacket(const SshEncryptionFacility &encrypter,
+        const quint32 &seqNr);
+
+    void generateKeyExchangeInitPacket();
+    void generateKeyDhInitPacket(const Botan::BigInt &e);
+    void generateNewKeysPacket();
+    void generateDisconnectPacket(SshErrorCode reason,
+        const QByteArray &reasonString);
+    void generateMsgUnimplementedPacket(quint32 serverSeqNr);
+    void generateUserAuthServiceRequestPacket();
+    void generateUserAuthByPwdRequestPacket(const QByteArray &user,
+        const QByteArray &service, const QByteArray &pwd);
+    void generateUserAuthByKeyRequestPacket(const QByteArray &user,
+        const QByteArray &service);
+    void generateRequestFailurePacket();
+    void generateSessionPacket(quint32 channelId, quint32 windowSize,
+        quint32 maxPacketSize);
+    void generateEnvPacket(quint32 remoteChannel, const QByteArray &var,
+        const QByteArray &value);
+    void generateExecPacket(quint32 remoteChannel, const QByteArray &command);
+    void generateSftpPacket(quint32 remoteChannel);
+    void generateWindowAdjustPacket(quint32 remoteChannel, quint32 bytesToAdd);
+    void generateChannelDataPacket(quint32 remoteChannel,
+        const QByteArray &data);
+    void generateChannelSignalPacket(quint32 remoteChannel,
+        const QByteArray &signalName);
+    void generateChannelEofPacket(quint32 remoteChannel);
+    void generateChannelClosePacket(quint32 remoteChannel);
+
+private:
+    virtual quint32 cipherBlockSize() const;
+    virtual quint32 macLength() const;
+
+    static QByteArray encodeNameList(const QList<QByteArray> &list);
+
+    void generateServiceRequest(const QByteArray &service);
+
+    SshOutgoingPacket &init(SshPacketType type);
+    SshOutgoingPacket &setPadding();
+    SshOutgoingPacket &encrypt();
+    void finalize();
+
+    SshOutgoingPacket &appendInt(quint32 val);
+    SshOutgoingPacket &appendString(const QByteArray &string);
+    SshOutgoingPacket &appendMpInt(const Botan::BigInt &number);
+    SshOutgoingPacket &appendBool(bool b);
+    int sizeDivisor() const;
+
+    const SshEncryptionFacility &m_encrypter;
+    const quint32 &m_seqNr;
+};
+
+} // namespace Internal
+} // namespace Core
+
+#endif // SSHOUTGOINGPACKET_P_H

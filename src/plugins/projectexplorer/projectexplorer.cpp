@@ -97,6 +97,7 @@
 #include <utils/consoleprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/parameteraction.h>
+#include <utils/stringutils.h>
 
 #include <QtCore/QtPlugin>
 #include <QtCore/QDateTime>
@@ -146,6 +147,10 @@ struct ProjectExplorerPluginPrivate {
     Utils::ParameterAction *m_rebuildActionContextMenu;
     QAction *m_rebuildSessionAction;
     QAction *m_cleanProjectOnlyAction;
+    QAction *m_deployProjectOnlyAction;
+    Utils::ParameterAction *m_deployAction;
+    Utils::ParameterAction *m_deployActionContextMenu;
+    QAction *m_deploySessionAction;
     Utils::ParameterAction *m_cleanAction;
     Utils::ParameterAction *m_cleanActionContextMenu;
     QAction *m_cleanSessionAction;
@@ -312,13 +317,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     ProcessStepFactory *processStepFactory = new ProcessStepFactory;
     addAutoReleasedObject(processStepFactory);
 
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     AllProjectsFind *allProjectsFind = new AllProjectsFind(this,
-        pm->getObject<Find::SearchResultWindow>());
+        Find::SearchResultWindow::instance());
     addAutoReleasedObject(allProjectsFind);
 
     CurrentProjectFind *currentProjectFind = new CurrentProjectFind(this,
-        pm->getObject<Find::SearchResultWindow>());
+        Find::SearchResultWindow::instance());
     addAutoReleasedObject(currentProjectFind);
 
     addAutoReleasedObject(new LocalApplicationRunControlFactory);
@@ -569,6 +573,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mbuild->addAction(cmd, Constants::G_BUILD_SESSION);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_BUILD);
 
+    // deploy session
+    d->m_deploySessionAction = new QAction(tr("Deploy All"), this);
+    cmd = am->registerAction(d->m_deploySessionAction, Constants::DEPLOYSESSION, globalcontext);
+    mbuild->addAction(cmd, Constants::G_BUILD_SESSION);
+    msessionContextMenu->addAction(cmd, Constants::G_SESSION_BUILD);
+
     // clean session
     QIcon cleanIcon(Constants::ICON_CLEAN);
     cleanIcon.addFile(Constants::ICON_CLEAN_SMALL);
@@ -592,6 +602,14 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd = am->registerAction(d->m_rebuildAction, Constants::REBUILD, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDefaultText(d->m_rebuildAction->text());
+    mbuild->addAction(cmd, Constants::G_BUILD_PROJECT);
+
+    // deploy action
+    d->m_deployAction = new Utils::ParameterAction(tr("Deploy Project"), tr("Deploy Project \"%1\""),
+                                                     Utils::ParameterAction::AlwaysEnabled, this);
+    cmd = am->registerAction(d->m_deployAction, Constants::DEPLOY, globalcontext);
+    cmd->setAttribute(Core::Command::CA_UpdateText);
+    cmd->setDefaultText(d->m_deployAction->text());
     mbuild->addAction(cmd, Constants::G_BUILD_PROJECT);
 
     // clean action
@@ -618,6 +636,14 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd->setDefaultText(d->m_rebuildActionContextMenu->text());
     mproject->addAction(cmd, Constants::G_PROJECT_BUILD);
 
+    // deploy action (context menu)
+    d->m_deployActionContextMenu = new Utils::ParameterAction(tr("Deploy Project"), tr("Deploy Project \"%1\""),
+                                                              Utils::ParameterAction::AlwaysEnabled, this);
+    cmd = am->registerAction(d->m_rebuildActionContextMenu, Constants::DEPLOYCM, globalcontext);
+    cmd->setAttribute(Core::Command::CA_UpdateText);
+    cmd->setDefaultText(d->m_deployActionContextMenu->text());
+    mproject->addAction(cmd, Constants::G_PROJECT_BUILD);
+
     // clean action (context menu)
     d->m_cleanActionContextMenu = new Utils::ParameterAction(tr("Clean Project"), tr("Clean Project \"%1\""),
                                                              Utils::ParameterAction::AlwaysEnabled, this);
@@ -633,6 +659,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // rebuild without dependencies action
     d->m_rebuildProjectOnlyAction = new QAction(tr("Rebuild Without Dependencies"), this);
     cmd = am->registerAction(d->m_rebuildProjectOnlyAction, Constants::REBUILDPROJECTONLY, globalcontext);
+
+    // deploy without dependencies action
+    d->m_deployProjectOnlyAction = new QAction(tr("Deploy Without Dependencies"), this);
+    cmd = am->registerAction(d->m_deployProjectOnlyAction, Constants::DEPLOYPROJECTONLY, globalcontext);
 
     // clean without dependencies action
     d->m_cleanProjectOnlyAction = new QAction(tr("Clean Without Dependencies"), this);
@@ -748,7 +778,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     }
 
     if (QSettings *s = core->settings()) {
-        d->m_projectExplorerSettings.buildBeforeRun = s->value("ProjectExplorer/Settings/BuildBeforeRun", true).toBool();
+        d->m_projectExplorerSettings.buildBeforeDeploy = s->value("ProjectExplorer/Settings/BuildBeforeDeploy", true).toBool();
+        d->m_projectExplorerSettings.deployBeforeRun = s->value("ProjectExplorer/Settings/DeployBeforeRun", true).toBool();
         d->m_projectExplorerSettings.saveBeforeBuild = s->value("ProjectExplorer/Settings/SaveBeforeBuild", false).toBool();
         d->m_projectExplorerSettings.showCompilerOutput = s->value("ProjectExplorer/Settings/ShowCompilerOutput", false).toBool();
         d->m_projectExplorerSettings.cleanOldAppOutput = s->value("ProjectExplorer/Settings/CleanOldAppOutput", false).toBool();
@@ -771,6 +802,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(d->m_rebuildAction, SIGNAL(triggered()), this, SLOT(rebuildProject()));
     connect(d->m_rebuildActionContextMenu, SIGNAL(triggered()), this, SLOT(rebuildProjectContextMenu()));
     connect(d->m_rebuildSessionAction, SIGNAL(triggered()), this, SLOT(rebuildSession()));
+    connect(d->m_deployProjectOnlyAction, SIGNAL(triggered()), this, SLOT(deployProjectOnly()));
+    connect(d->m_deployAction, SIGNAL(triggered()), this, SLOT(deployProject()));
+    connect(d->m_deployActionContextMenu, SIGNAL(triggered()), this, SLOT(deployProjectContextMenu()));
+    connect(d->m_deploySessionAction, SIGNAL(triggered()), this, SLOT(deploySession()));
     connect(d->m_cleanProjectOnlyAction, SIGNAL(triggered()), this, SLOT(cleanProjectOnly()));
     connect(d->m_cleanAction, SIGNAL(triggered()), this, SLOT(cleanProject()));
     connect(d->m_cleanActionContextMenu, SIGNAL(triggered()), this, SLOT(cleanProjectContextMenu()));
@@ -909,12 +944,13 @@ void ProjectExplorerPlugin::extensionsInitialized()
     d->m_buildManager->extensionsInitialized();
 }
 
-void ProjectExplorerPlugin::aboutToShutdown()
+ExtensionSystem::IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
 {
     d->m_proWindow->aboutToShutdown(); // disconnect from session
     d->m_session->clear();
     d->m_projectsMode = 0;
 //    d->m_proWindow->saveConfigChanges();
+    return SynchronousShutdown;
 }
 
 void ProjectExplorerPlugin::newProject()
@@ -998,7 +1034,8 @@ void ProjectExplorerPlugin::savePersistentSettings()
         s->setValue("ProjectExplorer/RecentProjects/FileNames", fileNames);
         s->setValue("ProjectExplorer/RecentProjects/DisplayNames", displayNames);
 
-        s->setValue("ProjectExplorer/Settings/BuildBeforeRun", d->m_projectExplorerSettings.buildBeforeRun);
+        s->setValue("ProjectExplorer/Settings/BuildBeforeDeploy", d->m_projectExplorerSettings.buildBeforeDeploy);
+        s->setValue("ProjectExplorer/Settings/DeployBeforeRun", d->m_projectExplorerSettings.deployBeforeRun);
         s->setValue("ProjectExplorer/Settings/SaveBeforeBuild", d->m_projectExplorerSettings.saveBeforeBuild);
         s->setValue("ProjectExplorer/Settings/ShowCompilerOutput", d->m_projectExplorerSettings.showCompilerOutput);
         s->setValue("ProjectExplorer/Settings/CleanOldAppOutput", d->m_projectExplorerSettings.cleanOldAppOutput);
@@ -1261,7 +1298,6 @@ void ProjectExplorerPlugin::executeRunConfiguration(RunConfiguration *runConfigu
         RunControl *control = runControlFactory->create(runConfiguration, runMode);
         startRunControl(control, runMode);
     }
-
 }
 
 void ProjectExplorerPlugin::startRunControl(RunControl *runControl, const QString &runMode)
@@ -1362,19 +1398,18 @@ void ProjectExplorerPlugin::updateActions()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::updateActions";
 
-    Project *startupProject = session()->startupProject();
-    bool enableBuildActions = startupProject
-                              && ! (d->m_buildManager->isBuilding(startupProject))
-                              && hasBuildSettings(startupProject);
+    Project *project = startupProject();
+    bool enableBuildActions = project
+                              && ! (d->m_buildManager->isBuilding(project))
+                              && hasBuildSettings(project);
 
     bool enableBuildActionsContextMenu = d->m_currentProject
                               && ! (d->m_buildManager->isBuilding(d->m_currentProject))
                               && hasBuildSettings(d->m_currentProject);
 
-
     bool hasProjects = !d->m_session->projects().isEmpty();
     bool building = d->m_buildManager->isBuilding();
-    QString projectName = startupProject ? startupProject->displayName() : QString();
+    QString projectName = project ? project->displayName() : QString();
     QString projectNameContextMenu = d->m_currentProject ? d->m_currentProject->displayName() : QString();
 
     if (debug)
@@ -1411,7 +1446,7 @@ void ProjectExplorerPlugin::updateActions()
     d->m_projectSelectorAction->setEnabled(!session()->projects().isEmpty());
     d->m_projectSelectorActionMenu->setEnabled(!session()->projects().isEmpty());
 
-    updateRunActions();
+    updateDeployActions();
 }
 
 // NBS TODO check projectOrder()
@@ -1575,6 +1610,54 @@ void ProjectExplorerPlugin::rebuildSession()
     }
 }
 
+void ProjectExplorerPlugin::deployProjectOnly()
+{
+    if (!saveModifiedFiles())
+        return;
+    d->m_buildManager->deployProject(session()->startupProject()->activeTarget()->activeBuildConfiguration());
+}
+
+void ProjectExplorerPlugin::deployProject()
+{
+    if (!saveModifiedFiles())
+        return;
+
+    const QList<Project *> &projects = d->m_session->projectOrder(session()->startupProject());
+    QList<BuildConfiguration *> configurations;
+    foreach (Project *pro, projects)
+        if (pro->activeTarget()->activeBuildConfiguration())
+            configurations << pro->activeTarget()->activeBuildConfiguration();
+
+    d->m_buildManager->deployProjects(configurations);
+}
+
+void ProjectExplorerPlugin::deployProjectContextMenu()
+{
+    if (!saveModifiedFiles())
+        return;
+
+    QList<BuildConfiguration *> configurations;
+    foreach (Project *pro, d->m_session->projectOrder(d->m_currentProject))
+        if (pro->activeTarget()->activeBuildConfiguration())
+            configurations << pro->activeTarget()->activeBuildConfiguration();
+
+    d->m_buildManager->deployProjects(configurations);
+}
+
+void ProjectExplorerPlugin::deploySession()
+{
+    if (!saveModifiedFiles())
+        return;
+
+    const QList<Project *> & projects = d->m_session->projectOrder();
+    QList<BuildConfiguration *> configurations;
+    foreach (Project *pro, projects)
+        if (pro->activeTarget()->activeBuildConfiguration())
+            configurations << pro->activeTarget()->activeBuildConfiguration();
+
+    d->m_buildManager->deployProjects(configurations);
+}
+
 void ProjectExplorerPlugin::cleanProjectOnly()
 {
     if (debug)
@@ -1648,34 +1731,58 @@ bool ProjectExplorerPlugin::hasBuildSettings(Project *pro)
     return false;
 }
 
+bool ProjectExplorerPlugin::hasDeploySettings(Project *pro)
+{
+    const QList<Project *> & projects = d->m_session->projectOrder(pro);
+    foreach(Project *project, projects)
+        if (project->activeTarget()->activeBuildConfiguration() &&
+            !project->activeTarget()->activeBuildConfiguration()->steps(BuildStep::Deploy).isEmpty())
+            return true;
+    return false;
+}
+
 void ProjectExplorerPlugin::runProjectImpl(Project *pro, QString mode)
 {
     if (!pro)
         return;
 
-    if (d->m_projectExplorerSettings.buildBeforeRun && hasBuildSettings(pro)) {
-        if (!pro->activeTarget()->activeRunConfiguration()->isEnabled()) {
-            if (!showBuildConfigDialog())
-                return;
-        }
-        if (saveModifiedFiles()) {
-            d->m_runMode = mode;
-            d->m_delayedRunConfiguration = pro->activeTarget()->activeRunConfiguration();
-
-            const QList<Project *> & projects = d->m_session->projectOrder(pro);
-            QList<BuildConfiguration *> configurations;
-            foreach(Project *project, projects)
-                if (project->activeTarget()->activeBuildConfiguration())
-                    configurations << project->activeTarget()->activeBuildConfiguration();
-            d->m_buildManager->buildProjects(configurations);
-
-            updateRunActions();
-        }
-    } else {
-        // TODO this ignores RunConfiguration::isEnabled()
-        if (saveModifiedFiles())
-            executeRunConfiguration(pro->activeTarget()->activeRunConfiguration(), mode);
+    if (!pro->activeTarget()->activeRunConfiguration()->isEnabled()) {
+        if (!showBuildConfigDialog())
+            return;
     }
+
+    if (!saveModifiedFiles())
+        return;
+
+    bool delayRun = false;
+    // Deploy/build first?
+    if (d->m_projectExplorerSettings.deployBeforeRun) {
+        const QList<Project *> & projects = d->m_session->projectOrder(pro);
+        QList<BuildConfiguration *> configurations;
+        foreach(Project *project, projects)
+            if (project->activeTarget()->activeBuildConfiguration())
+                configurations << project->activeTarget()->activeBuildConfiguration();
+
+        if (d->m_projectExplorerSettings.buildBeforeDeploy && hasBuildSettings(pro)) {
+            if (!d->m_buildManager->buildProjects(configurations))
+                return;
+            delayRun = true;
+        }
+        if (hasDeploySettings(pro)) {
+            if (!d->m_buildManager->deployProjects(configurations))
+                return;
+            delayRun = true;
+        }
+    }
+
+    // Actually run (delayed)
+    if (delayRun) {
+        d->m_runMode = mode;
+        d->m_delayedRunConfiguration = pro->activeTarget()->activeRunConfiguration();
+    } else {
+        executeRunConfiguration(pro->activeTarget()->activeRunConfiguration(), mode);
+    }
+    updateRunActions();
 }
 
 void ProjectExplorerPlugin::debugProject()
@@ -1735,7 +1842,7 @@ void ProjectExplorerPlugin::startupProjectChanged()
                 this, SLOT(updateRunActions()));
 
         disconnect(previousStartupProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
-                   this, SLOT(updateRunActions()));
+                   this, SLOT(updateDeployActions()));
         disconnect(previousStartupProject->activeTarget()->activeRunConfiguration(),
                    SIGNAL(isEnabledChanged(bool)), this, SLOT(updateRunActions()));
 
@@ -1748,7 +1855,7 @@ void ProjectExplorerPlugin::startupProjectChanged()
 
     if (project) {
         connect(project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
-                this, SLOT(updateRunActions()));
+                this, SLOT(updateDeployActions()));
 
         connect(project->activeTarget(), SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
                 this, SLOT(updateRunActions()));
@@ -1774,6 +1881,35 @@ IRunControlFactory *ProjectExplorerPlugin::findRunControlFactory(RunConfiguratio
         if (f->canRun(config, mode))
             return f;
     return 0;
+}
+
+void ProjectExplorerPlugin::updateDeployActions()
+{
+    Project *project = startupProject();
+
+    bool enableDeployActions = project
+            && ! (d->m_buildManager->isBuilding(project))
+            && hasDeploySettings(project);
+    bool enableDeployActionsContextMenu = d->m_currentProject
+                              && ! (d->m_buildManager->isBuilding(d->m_currentProject))
+                              && hasDeploySettings(d->m_currentProject);
+
+    const QString projectName = project ? project->displayName() : QString();
+    const QString projectNameContextMenu = d->m_currentProject ? d->m_currentProject->displayName() : QString();
+    bool hasProjects = !d->m_session->projects().isEmpty();
+    bool building = d->m_buildManager->isBuilding();
+
+    d->m_deployAction->setParameter(projectName);
+    d->m_deployAction->setEnabled(enableDeployActions);
+
+    d->m_deployActionContextMenu->setParameter(projectNameContextMenu);
+    d->m_deployActionContextMenu->setEnabled(enableDeployActionsContextMenu);
+
+    d->m_deployProjectOnlyAction->setEnabled(enableDeployActions);
+
+    d->m_deploySessionAction->setEnabled(hasProjects && !building);
+
+    updateRunActions();
 }
 
 void ProjectExplorerPlugin::updateRunActions()
@@ -1863,7 +1999,7 @@ void ProjectExplorerPlugin::updateRecentProjectMenu()
         const QPair<QString, QString> &s = *it;
         if (s.first.endsWith(QLatin1String(".qws")))
             continue;
-        QAction *action = menu->addAction(s.first);
+        QAction *action = menu->addAction(Utils::withTildeHomePath(s.first));
         action->setData(s.first);
         connect(action, SIGNAL(triggered()), this, SLOT(openRecentProject()));
     }

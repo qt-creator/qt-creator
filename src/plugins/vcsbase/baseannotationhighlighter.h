@@ -31,7 +31,7 @@
 #define BASEANNOTATIONHIGHLIGHTER_H
 
 #include "vcsbase_global.h"
-
+#include <texteditor/syntaxhighlighter.h>
 #include <QtCore/QMap>
 #include <QtCore/QSet>
 #include <QtGui/QSyntaxHighlighter>
@@ -47,7 +47,7 @@ struct BaseAnnotationHighlighterPrivate;
 // 112: text1 <color 1>
 // 113: text2 <color 2>
 // 112: text3 <color 1>
-class VCSBASE_EXPORT BaseAnnotationHighlighter : public QSyntaxHighlighter
+class VCSBASE_EXPORT BaseAnnotationHighlighter : public TextEditor::SyntaxHighlighter
 {
     Q_OBJECT
 public:

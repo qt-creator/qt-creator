@@ -101,63 +101,13 @@ protected:
     { _value = 0; } // ### TODO: implement me
 
     virtual void visit(const QualifiedNameId *name)
-    { _value = operator()(name->unqualifiedNameId()); }
+    { _value = operator()(name->name()); }
 
     virtual void visit(const SelectorNameId *name)
     { _value = name->identifier()->hashCode(); }
 
 private:
     unsigned _value;
-};
-
-class Symbol::IdentityForName: protected NameVisitor
-{
-public:
-    IdentityForName()
-        : _identity(0)
-    { }
-
-    virtual ~IdentityForName()
-    { }
-
-    const Name *operator()(const Name *name)
-    {
-        const Name *previousIdentity = switchIdentity(0);
-        accept(name);
-        return switchIdentity(previousIdentity);
-    }
-
-protected:
-    const Name *switchIdentity(const Name *identity)
-    {
-        const Name *previousIdentity = _identity;
-        _identity = identity;
-        return previousIdentity;
-    }
-
-    virtual void visit(const NameId *name)
-    { _identity = name; }
-
-    virtual void visit(const TemplateNameId *name)
-    { _identity = name; }
-
-    virtual void visit(const DestructorNameId *name)
-    { _identity = name; }
-
-    virtual void visit(const OperatorNameId *name)
-    { _identity = name; }
-
-    virtual void visit(const ConversionNameId *name)
-    { _identity = name; }
-
-    virtual void visit(const QualifiedNameId *name)
-    { _identity = name->unqualifiedNameId(); }
-
-    virtual void visit(const SelectorNameId *name)
-    { _identity = name; }
-
-private:
-    const Name *_identity;
 };
 
 Symbol::Symbol(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
@@ -265,8 +215,13 @@ void Symbol::setEndOffset(unsigned offset)
 
 const Name *Symbol::identity() const
 {
-    IdentityForName id;
-    return id(_name);
+    if (! _name)
+        return 0;
+
+    else if (const QualifiedNameId *q = _name->asQualifiedNameId())
+        return q->name();
+
+    return _name;
 }
 
 const Name *Symbol::name() const
@@ -279,9 +234,8 @@ void Symbol::setName(const Name *name)
     if (! _name)
         _hashCode = 0;
     else {
-        IdentityForName identityForName;
         HashCode hh;
-        _hashCode = hh(identityForName(_name));
+        _hashCode = hh(identity());
     }
 }
 

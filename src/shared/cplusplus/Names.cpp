@@ -63,48 +63,29 @@ void QualifiedNameId::accept0(NameVisitor *visitor) const
 
 const Identifier *QualifiedNameId::identifier() const
 {
-    if (const Name *u = unqualifiedNameId())
+    if (const Name *u = name())
         return u->identifier();
 
     return 0;
 }
 
-unsigned QualifiedNameId::nameCount() const
-{ return _names.size(); }
+const Name *QualifiedNameId::base() const
+{ return _base; }
 
-const Name *QualifiedNameId::nameAt(unsigned index) const
-{ return _names[index]; }
-
-bool QualifiedNameId::isGlobal() const
-{ return _isGlobal; }
-
-const Name *QualifiedNameId::unqualifiedNameId() const
-{
-    if (_names.empty())
-        return 0;
-
-    return _names.back();
-}
+const Name *QualifiedNameId::name() const
+{ return _name; }
 
 bool QualifiedNameId::isEqualTo(const Name *other) const
 {
-    const QualifiedNameId *q = other->asQualifiedNameId();
-    if (! q)
-        return false;
-    else if (isGlobal() != q->isGlobal())
-        return false;
-    else {
-        const unsigned count = nameCount();
-        if (count != q->nameCount())
-            return false;
-        for (unsigned i = 0; i < count; ++i) {
-            const Name *l = nameAt(i);
-            const Name *r = q->nameAt(i);
-            if (! l->isEqualTo(r))
-                return false;
+    if (const QualifiedNameId *q = other->asQualifiedNameId()) {
+        if (_base == q->_base || (_base && _base->isEqualTo(q->_base))) {
+            if (_name == q->_name || (_name && _name->isEqualTo(q->_name))) {
+                return true;
+            }
         }
     }
-    return true;
+
+    return false;
 }
 
 NameId::NameId(const Identifier *identifier)

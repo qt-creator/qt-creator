@@ -4,10 +4,12 @@
 #include <Symbol.h>
 
 #include <coreplugin/ifile.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <cplusplus/OverviewModel.h>
 
-#include <QtGui/QVBoxLayout>
 #include <QtCore/QDebug>
+#include <QtGui/QVBoxLayout>
+#include <QtCore/QTimer>
 
 using namespace CppEditor::Internal;
 
@@ -29,9 +31,11 @@ CppOutlineTreeView::CppOutlineTreeView(QWidget *parent) :
     setExpandsOnDoubleClick(false);
 }
 
-CppOutlineFilterModel::CppOutlineFilterModel(QObject *parent) :
-    QSortFilterProxyModel(parent)
+CppOutlineFilterModel::CppOutlineFilterModel(CPlusPlus::OverviewModel *sourceModel, QObject *parent) :
+    QSortFilterProxyModel(parent),
+    m_sourceModel(sourceModel)
 {
+    setSourceModel(m_sourceModel);
 }
 
 bool CppOutlineFilterModel::filterAcceptsRow(int sourceRow,
@@ -41,6 +45,12 @@ bool CppOutlineFilterModel::filterAcceptsRow(int sourceRow,
     if (!sourceParent.isValid() && sourceRow == 0) {
         return false;
     }
+    // ignore generated symbols, e.g. by macro expansion (Q_OBJECT)
+    const QModelIndex sourceIndex = m_sourceModel->index(sourceRow, 0, sourceParent);
+    CPlusPlus::Symbol *symbol = m_sourceModel->symbolFromIndex(sourceIndex);
+    if (symbol && symbol->isGenerated())
+        return false;
+
     return QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent);
 }
 
@@ -49,8 +59,8 @@ CppOutlineWidget::CppOutlineWidget(CPPEditor *editor) :
     TextEditor::IOutlineWidget(),
     m_editor(editor),
     m_treeView(new CppOutlineTreeView(this)),
-    m_model(new CPlusPlus::OverviewModel(this)),
-    m_proxyModel(new CppOutlineFilterModel(this)),
+    m_model(m_editor->outlineModel()),
+    m_proxyModel(new CppOutlineFilterModel(m_model, this)),
     m_enableCursorSync(true),
     m_blockCursorSync(false)
 {
@@ -60,20 +70,13 @@ CppOutlineWidget::CppOutlineWidget(CPPEditor *editor) :
     layout->addWidget(m_treeView);
     setLayout(layout);
 
-    m_proxyModel->setSourceModel(m_model);
     m_treeView->setModel(m_proxyModel);
 
-    CppTools::CppModelManagerInterface *modelManager = CppTools::CppModelManagerInterface::instance();
+    connect(m_model, SIGNAL(modelReset()), this, SLOT(modelUpdated()));
+    modelUpdated();
 
-    connect(modelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
-            this, SLOT(updateOutline(CPlusPlus::Document::Ptr)));
-
-    if (modelManager->snapshot().contains(editor->file()->fileName())) {
-        updateOutline(modelManager->snapshot().document(editor->file()->fileName()));
-    }
-
-    connect(m_editor, SIGNAL(cursorPositionChanged()),
-            this, SLOT(updateSelectionInTree()));
+    connect(m_editor, SIGNAL(outlineModelIndexChanged(QModelIndex)),
+            this, SLOT(updateSelectionInTree(QModelIndex)));
     connect(m_treeView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(updateSelectionInText(QItemSelection)));
 }
@@ -82,32 +85,19 @@ void CppOutlineWidget::setCursorSynchronization(bool syncWithCursor)
 {
     m_enableCursorSync = syncWithCursor;
     if (m_enableCursorSync)
-        updateSelectionInTree();
+        updateSelectionInTree(m_editor->outlineModelIndex());
 }
 
-void CppOutlineWidget::updateOutline(CPlusPlus::Document::Ptr document)
+void CppOutlineWidget::modelUpdated()
 {
-    m_document = document;
-    if (document && m_editor
-            && (document->fileName() == m_editor->file()->fileName())
-            && (document->editorRevision() == m_editor->editorRevision())) {
-        if (debug)
-            qDebug() << "CppOutline - rebuilding model";
-        m_model->rebuild(document);
-        m_treeView->expandAll();
-        updateSelectionInTree();
-    }
+    m_treeView->expandAll();
 }
 
-void CppOutlineWidget::updateSelectionInTree()
+void CppOutlineWidget::updateSelectionInTree(const QModelIndex &index)
 {
     if (!syncCursor())
         return;
 
-    int line = m_editor->textCursor().blockNumber();
-    int column = m_editor->textCursor().columnNumber();
-
-    QModelIndex index = indexForPosition(QModelIndex(), line, column);
     QModelIndex proxyIndex = m_proxyModel->mapFromSource(index);
 
     m_blockCursorSync = true;
@@ -115,6 +105,7 @@ void CppOutlineWidget::updateSelectionInTree()
         qDebug() << "CppOutline - updating selection due to cursor move";
 
     m_treeView->selectionModel()->select(proxyIndex, QItemSelectionModel::ClearAndSelect);
+    m_treeView->scrollTo(proxyIndex);
     m_blockCursorSync = false;
 }
 
@@ -129,67 +120,19 @@ void CppOutlineWidget::updateSelectionInText(const QItemSelection &selection)
         CPlusPlus::Symbol *symbol = m_model->symbolFromIndex(index);
         if (symbol) {
             m_blockCursorSync = true;
-            unsigned line, column;
-            m_document->translationUnit()->getPosition(symbol->startOffset(), &line, &column);
 
             if (debug)
-                qDebug() << "CppOutline - moving cursor to" << line << column - 1;
+                qDebug() << "CppOutline - moving cursor to" << symbol->line() << symbol->column() - 1;
+
+            Core::EditorManager *editorManager = Core::EditorManager::instance();
+            editorManager->cutForwardNavigationHistory();
+            editorManager->addCurrentPositionToNavigationHistory();
 
             // line has to be 1 based, column 0 based!
-            m_editor->gotoLine(line, column - 1);
+            m_editor->gotoLine(symbol->line(), symbol->column() - 1);
             m_blockCursorSync = false;
         }
     }
-}
-
-QModelIndex CppOutlineWidget::indexForPosition(const QModelIndex &rootIndex, int line, int column)
-{
-    QModelIndex result = rootIndex;
-
-    const int rowCount = m_model->rowCount(rootIndex);
-    for (int row = 0; row < rowCount; ++row) {
-        QModelIndex index = m_model->index(row, 0, rootIndex);
-        CPlusPlus::Symbol *symbol = m_model->symbolFromIndex(index);
-        if (symbol && positionInsideSymbol(line, column, symbol)) {
-            // recurse to children
-            result = indexForPosition(index, line, column);
-        }
-    }
-
-    return result;
-}
-
-bool CppOutlineWidget::positionInsideSymbol(unsigned cursorLine, unsigned cursorColumn, CPlusPlus::Symbol *symbol) const
-{
-    if (!m_document)
-        return false;
-    CPlusPlus::TranslationUnit *translationUnit = m_document->translationUnit();
-
-    unsigned symbolStartLine = -1;
-    unsigned symbolStartColumn = -1;
-
-    translationUnit->getPosition(symbol->startOffset(), &symbolStartLine, &symbolStartColumn);
-
-    // normalize to 0 based
-    --symbolStartLine;
-    --symbolStartColumn;
-
-    if (symbolStartLine < cursorLine
-            || (symbolStartLine == cursorLine && symbolStartColumn <= cursorColumn)) {
-        unsigned symbolEndLine = -1;
-        unsigned symbolEndColumn = -1;
-        translationUnit->getPosition(symbol->endOffset(), &symbolEndLine, &symbolEndColumn);
-
-        // normalize to 0 based
-        --symbolEndLine;
-        --symbolEndColumn;
-
-        if (symbolEndLine > cursorLine
-                || (symbolEndLine == cursorLine && symbolEndColumn >= cursorColumn)) {
-            return true;
-        }
-    }
-    return false;
 }
 
 bool CppOutlineWidget::syncCursor()

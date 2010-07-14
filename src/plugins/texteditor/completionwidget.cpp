@@ -199,6 +199,11 @@ void CompletionWidget::showCompletions(int startPos)
     setFocus();
 }
 
+QChar CompletionWidget::typedChar() const
+{
+    return m_completionListView->m_typedChar;
+}
+
 void CompletionWidget::updatePositionAndSize(int startPos)
 {
     // Determine size by calculating the space of the visible items
@@ -415,6 +420,16 @@ bool CompletionListView::event(QEvent *e)
         }
 
         if (forwardKeys && ! m_quickFix) {
+            if (ke->text().length() == 1 && currentIndex().isValid() && qApp->focusWidget() == this) {
+                QChar typedChar = ke->text().at(0);
+                const CompletionItem &item = m_model->itemAt(currentIndex());
+                if (item.collector->typedCharCompletes(item, typedChar)) {
+                    m_typedChar = typedChar;
+                    m_completionWidget->closeList(currentIndex());
+                    return true;
+                }
+            }
+
             m_blockFocusOut = true;
             QApplication::sendEvent(m_editorWidget, e);
             m_blockFocusOut = false;

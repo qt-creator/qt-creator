@@ -31,6 +31,7 @@
 #include "project.h"
 #include "runconfiguration.h"
 #include "buildconfiguration.h"
+#include "target.h"
 
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QPushButton>

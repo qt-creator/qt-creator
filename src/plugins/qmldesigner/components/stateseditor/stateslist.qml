@@ -145,7 +145,7 @@ Rectangle {
                 anchors.bottomMargin: 9
                 Image {
                     anchors.centerIn:parent
-                    pixmap: statePixmap
+                    source: stateImageSource
                     Rectangle {
                         anchors.fill:parent
                         color:"transparent"

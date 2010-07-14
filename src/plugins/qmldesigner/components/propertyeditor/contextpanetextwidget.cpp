@@ -272,14 +272,14 @@ void ContextPaneTextWidget::onHorizontalAlignmentChanged()
 {
     QString alignment;
     if (ui->centerHAlignmentButton->isChecked())
-        alignment = QLatin1String("Text.AlignHCenter");
+        alignment = QLatin1String("AlignHCenter");
     else if (ui->leftAlignmentButton->isChecked())
-        alignment = QLatin1String("Text.AlignLeft");
+        alignment = QLatin1String("AlignLeft");
     else if (ui->rightAlignmentButton->isChecked())
-        alignment = QLatin1String("Text.AlignRight");
+        alignment = QLatin1String("AlignRight");
     if (m_horizontalAlignment != alignment) {
         m_horizontalAlignment = alignment;
-        if (alignment == QLatin1String("Text.AlignLeft"))
+        if (alignment == QLatin1String("AlignLeft"))
             emit removeProperty(QLatin1String("horizontalAlignment"));
         else
             emit propertyChanged(QLatin1String("horizontalAlignment"), alignment);
@@ -298,14 +298,14 @@ void ContextPaneTextWidget::onVerticalAlignmentChanged()
 {
     QString alignment;
     if (ui->centerVAlignmentButton->isChecked())
-        alignment = QLatin1String("Text.AlignVCenter");
+        alignment = QLatin1String("AlignVCenter");
     else if (ui->topAlignmentButton->isChecked())
-        alignment = QLatin1String("Text.AlignTop");
+        alignment = QLatin1String("AlignTop");
     else if (ui->bottomAlignmentButton->isChecked())
-        alignment = QLatin1String("Text.AlignBottom");
+        alignment = QLatin1String("AlignBottom");
     if (m_verticalAlignment != alignment) {
         m_verticalAlignment = alignment;
-        if (alignment == QLatin1String("Text.AlignTop"))
+        if (alignment == QLatin1String("AlignTop"))
             emit removeProperty(QLatin1String("verticalAlignment"));
         else
             emit propertyChanged(QLatin1String("verticalAlignment"), alignment);

@@ -57,7 +57,7 @@ QString FindInCurrentFile::id() const
     return "Current File";
 }
 
-QString FindInCurrentFile::name() const
+QString FindInCurrentFile::displayName() const
 {
     return tr("Current File");
 }

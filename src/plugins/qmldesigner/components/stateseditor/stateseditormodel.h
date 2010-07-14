@@ -47,7 +47,7 @@ class StatesEditorModel : public QAbstractListModel
 
     enum {
         StateNameRole = Qt::DisplayRole,
-        StatesPixmapRole = Qt::UserRole
+        StateImageSourceRole = Qt::UserRole,
     };
 
 public:
@@ -71,6 +71,7 @@ signals:
 private:
     QList<QString> m_stateNames;
     QWeakPointer<StatesEditorView> m_statesView;
+    int m_updateCounter;
 };
 
 } // namespace Itnernal

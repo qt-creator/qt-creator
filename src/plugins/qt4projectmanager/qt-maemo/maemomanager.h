@@ -41,6 +41,7 @@ namespace Qt4ProjectManager {
     class QtVersion;
 namespace Internal {
 
+class MaemoDeployStepFactory;
 class MaemoPackageCreationFactory;
 class MaemoRunControlFactory;
 class MaemoRunConfigurationFactory;
@@ -67,6 +68,7 @@ private:
     MaemoRunControlFactory *m_runControlFactory;
     MaemoRunConfigurationFactory *m_runConfigurationFactory;
     MaemoPackageCreationFactory *m_packageCreationFactory;
+    MaemoDeployStepFactory *m_deployStepFactory;
     MaemoSettingsPage *m_settingsPage;
     QemuRuntimeManager *m_qemuRuntimeManager;
 };

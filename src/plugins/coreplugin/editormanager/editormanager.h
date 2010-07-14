@@ -199,6 +199,8 @@ public:
                                              QWidget *parent,
                                              bool displaySaveAsButton = false);
 
+    static qint64 maxTextFileSize();
+
 signals:
     void currentEditorChanged(Core::IEditor *editor);
     void editorCreated(Core::IEditor *editor, const QString &fileName);

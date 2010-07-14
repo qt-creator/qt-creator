@@ -205,8 +205,8 @@ void MetaInfoParser::handleNodeItemLibraryEntryElement(QXmlStreamReader &reader,
         entry.setName(name);
 
         QString iconPath = reader.attributes().value("icon").toString();
-        if (!iconPath.isEmpty())
-            entry.setIcon(QIcon(iconPath));
+        if (!iconPath.isEmpty()) 
+            entry.setIconPath(iconPath);
 
         QString category = reader.attributes().value("category").toString();
         if (!category.isEmpty())

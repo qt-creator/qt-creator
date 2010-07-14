@@ -30,7 +30,7 @@
 #ifndef GETTINGSTARTEDWELCOMEPAGEWIDGET_H
 #define GETTINGSTARTEDWELCOMEPAGEWIDGET_H
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
 namespace Qt4ProjectManager {
 namespace Internal {

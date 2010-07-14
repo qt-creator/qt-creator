@@ -30,6 +30,7 @@
 #include "centralwidget.h"
 
 #include "helpmanager.h"
+#include "helpviewer.h"
 #include "indexwindow.h"
 #include "openpagesmanager.h"
 #include "topicchooser.h"
@@ -209,8 +210,8 @@ void IndexWindow::open(QHelpIndexWidget* indexWidget, const QModelIndex &index)
             return;
         }
 
-        if (url.path().endsWith(QLatin1String(".pdf"), Qt::CaseInsensitive))
-            Help::Internal::CentralWidget::instance()->setSource(url);
+        if (!HelpViewer::canOpenPage(url.path()))
+            CentralWidget::instance()->setSource(url);
         else
             OpenPagesManager::instance().createPage(url);
     }

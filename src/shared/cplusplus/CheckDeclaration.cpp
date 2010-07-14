@@ -870,35 +870,31 @@ bool CheckDeclaration::visit(QtPropertyDeclarationAST *ast)
     return false;
 }
 
-void CheckDeclaration::checkQEnumsQFlagsNames(NameListAST *nameListAst,
-                                              const char *declName)
+static bool checkEnumName(const Name *name)
+{
+    if (! name)
+        return false;
+
+    else if (name->asNameId() != 0)
+        return true;
+
+    else if (const QualifiedNameId *q = name->asQualifiedNameId()) {
+        if (! q->base())
+            return false; // global qualified name
+
+        if (checkEnumName(q->base()) && checkEnumName(q->name()))
+            return true;
+    }
+
+    return false;
+}
+
+void CheckDeclaration::checkQEnumsQFlagsNames(NameListAST *nameListAst, const char *declName)
 {
     for (NameListAST *iter = nameListAst; iter; iter = iter->next) {
-
-        const Name *name = semantic()->check(iter->value, _scope);
-        if (!name)
-            continue;
-
-        if (name->isNameId())
-            continue;
-
-        const QualifiedNameId *qName = name->asQualifiedNameId();
-        if (!qName)
-            translationUnit()->error(iter->firstToken(), "invalid name in %s",
-                                     declName);
-        else if (qName->isGlobal())
-                translationUnit()->error(iter->firstToken(),
-                                         "invalid name '%s' in %s",
-                                         qName->identifier()->chars(), declName);
-        else {
-            for (unsigned i = 0; i < qName->nameCount(); ++i) {
-                const Name *namePart = qName->nameAt(i);
-                if (!namePart || !namePart->isNameId()) {
-                    translationUnit()->error(iter->firstToken(),
-                                             "invalid name '%s' in %s",
-                                             qName->identifier()->chars(), declName);
-                }
-            }
+        if (const Name *name = semantic()->check(iter->value, _scope)) {
+            if (! checkEnumName(name))
+                translationUnit()->error(iter->firstToken(), "invalid name in %s", declName);
         }
     }
 }

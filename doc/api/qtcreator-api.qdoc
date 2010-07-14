@@ -142,7 +142,7 @@
     \row
     \o Add a find filter for the find dialog.
     \o Implement any kind of search term based search.
-    \o \l{Find::IFindFilter}, \l{Find::SearchResultWindow}, \l{Find::ResultWindowItem}
+    \o \l{Find::IFindFilter}, \l{Find::SearchResultWindow}
 
     \row
     \o Add support for the find tool bar to a widget.

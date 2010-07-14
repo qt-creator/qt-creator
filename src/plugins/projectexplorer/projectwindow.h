@@ -30,22 +30,13 @@
 #ifndef PROJECTWINDOW_H
 #define PROJECTWINDOW_H
 
-#include "iprojectproperties.h"
-
-#include <QtCore/QPair>
-#include <QtCore/QMap>
-#include <QtGui/QApplication>
-#include <QtGui/QComboBox>
-#include <QtGui/QLabel>
-#include <QtGui/QPushButton>
 #include <QtGui/QScrollArea>
-#include <QtGui/QStackedWidget>
-#include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
 class QLabel;
 class QGridLayout;
 class QMenu;
+class QStackedWidget;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -104,7 +95,6 @@ private:
     QWidget *m_currentWidget;
     QList<ProjectExplorer::Project *> m_tabIndexToProject;
 };
-
 
 } // namespace Internal
 } // namespace ProjectExplorer

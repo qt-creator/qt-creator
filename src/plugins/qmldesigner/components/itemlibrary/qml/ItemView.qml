@@ -96,7 +96,7 @@ Item {
 
         width: itemLibraryIconWidth  // to be set in Qml context
         height: itemLibraryIconHeight   // to be set in Qml context
-        pixmap: itemPixmap  // to be set by model
+        source: itemLibraryIconPath     // to be set by model
     }
 
     Text {

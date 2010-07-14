@@ -79,6 +79,10 @@ public:
     QString prettyType(const FullySpecifiedType &type, const Name *name = 0) const;
     QString prettyType(const FullySpecifiedType &type, const QString &name) const;
 
+    QString prettyTypeWithName(const FullySpecifiedType &type,
+                               const Name *name,
+                               Control *control);
+
 private:
     unsigned _markedArgument;
     int _markedArgumentBegin;

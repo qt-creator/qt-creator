@@ -114,8 +114,9 @@ Inspector *InspectorPlugin::inspector() const
     return _inspector;
 }
 
-void InspectorPlugin::aboutToShutdown()
+ExtensionSystem::IPlugin::ShutdownFlag InspectorPlugin::aboutToShutdown()
 {
+    return SynchronousShutdown;
 }
 
 bool InspectorPlugin::initialize(const QStringList &arguments, QString *errorString)

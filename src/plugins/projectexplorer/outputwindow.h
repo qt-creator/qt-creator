@@ -31,12 +31,9 @@
 #define OUTPUTWINDOW_H
 
 #include <coreplugin/ioutputpane.h>
-#include <projectexplorer/outputformatter.h>
 
-#include <QtCore/QObject>
 #include <QtCore/QHash>
 #include <QtGui/QIcon>
-#include <QtGui/QShowEvent>
 #include <QtGui/QPlainTextEdit>
 
 QT_BEGIN_NAMESPACE
@@ -50,8 +47,9 @@ namespace Core {
 }
 
 namespace ProjectExplorer {
-
+class OutputFormatter;
 class RunControl;
+class Project;
 
 namespace Constants {
     const char * const C_APP_OUTPUT = "Application Output";
@@ -137,29 +135,38 @@ public:
     void appendApplicationOutput(const QString &out, bool onStdErr);
     void appendApplicationOutputInline(const QString &out, bool onStdErr);
     void appendMessage(const QString &out, bool isError);
+    /// appends a \p text using \p format without using formater
+    void appendText(const QString &text, const QTextCharFormat &format, int maxLineCount);
 
     void grayOutOldContent();
 
     void showEvent(QShowEvent *);
 
-protected:
-    void mousePressEvent(QMouseEvent *e);
-    void mouseReleaseEvent(QMouseEvent *e);
-    void mouseMoveEvent(QMouseEvent *e);
+    void clear()
+    {
+        m_enforceNewline = false;
+        QPlainTextEdit::clear();
+    }
 
+protected:
     bool isScrollbarAtBottom() const;
     void scrollToBottom();
+
+    virtual void mousePressEvent(QMouseEvent *e);
+    virtual void mouseReleaseEvent(QMouseEvent *e);
+    virtual void mouseMoveEvent(QMouseEvent *e);
 
 private:
     void enableUndoRedo();
     QString doNewlineEnfocement(const QString &out);
 
-private:
     Core::BaseContext *m_outputWindowContext;
     OutputFormatter *m_formatter;
 
     bool m_enforceNewline;
     bool m_scrollToBottom;
+    bool m_linksActive;
+    bool m_mousePressed;
 };
 
 } // namespace Internal

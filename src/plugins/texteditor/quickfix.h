@@ -111,7 +111,7 @@ public:
     virtual bool triggersCompletion(TextEditor::ITextEditable *editor);
     virtual int startCompletion(TextEditor::ITextEditable *editor);
     virtual void completions(QList<TextEditor::CompletionItem> *completions);
-    virtual void complete(const TextEditor::CompletionItem &item);
+    virtual void fix(const TextEditor::CompletionItem &item);
     virtual void cleanup();
 
     virtual TextEditor::QuickFixState *initializeCompletion(TextEditor::ITextEditable *editable) = 0;

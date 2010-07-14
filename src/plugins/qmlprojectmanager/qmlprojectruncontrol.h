@@ -51,8 +51,6 @@ public:
     virtual void stop();
     virtual bool isRunning() const;
 
-    virtual ProjectExplorer::OutputFormatter *createOutputFormatter(QObject *parent = 0);
-
 private slots:
     void processExited(int exitCode);
     void slotBringApplicationToForeground(qint64 pid);

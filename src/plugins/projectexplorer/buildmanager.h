@@ -72,10 +72,12 @@ public:
 
     bool tasksAvailable() const;
 
-    void buildProject(BuildConfiguration *bc);
-    void buildProjects(const QList<BuildConfiguration *> &configurations);
-    void cleanProject(BuildConfiguration *configuration);
-    void cleanProjects(const QList<BuildConfiguration *> &configurations);
+    bool buildProject(BuildConfiguration *bc);
+    bool buildProjects(const QList<BuildConfiguration *> &configurations);
+    bool deployProject(BuildConfiguration *bc);
+    bool deployProjects(const QList<BuildConfiguration *> &configurations);
+    bool cleanProject(BuildConfiguration *configuration);
+    bool cleanProjects(const QList<BuildConfiguration *> &configurations);
     bool isBuilding(Project *p);
     bool isBuilding(BuildStep *step);
 

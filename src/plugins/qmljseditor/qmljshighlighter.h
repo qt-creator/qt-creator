@@ -39,10 +39,11 @@
 #include <QtGui/QSyntaxHighlighter>
 
 #include <texteditor/basetextdocumentlayout.h>
+#include <texteditor/syntaxhighlighter.h>
 
 namespace QmlJSEditor {
 
-class QMLJSEDITOR_EXPORT Highlighter : public QSyntaxHighlighter
+class QMLJSEDITOR_EXPORT Highlighter : public TextEditor::SyntaxHighlighter
 {
     Q_OBJECT
 

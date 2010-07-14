@@ -46,6 +46,7 @@ static const char *portKeyC = "Port";
 static const char *clientKeyC = "Client";
 static const char *userKeyC = "User";
 static const char *promptToSubmitKeyC = "PromptForSubmit";
+static const char *autoOpenKeyC = "PromptToOpen";
 static const char *timeOutKeyC = "TimeOut";
 static const char *logCountKeyC = "LogCount";
 
@@ -68,7 +69,8 @@ Settings::Settings() :
     logCount(defaultLogCount),
     defaultEnv(true),
     timeOutS(defaultTimeOutS),
-    promptToSubmit(true)
+    promptToSubmit(true),
+    autoOpen(true)
 {
 }
 
@@ -78,7 +80,8 @@ bool Settings::equals(const Settings &rhs) const
             && logCount == rhs.logCount
             && p4Command == rhs.p4Command && p4Port == rhs.p4Port
             && p4Client == rhs.p4Client && p4User == rhs.p4User
-            && timeOutS == rhs.timeOutS && promptToSubmit == rhs.promptToSubmit;
+            && timeOutS == rhs.timeOutS && promptToSubmit == rhs.promptToSubmit
+            && autoOpen == rhs.autoOpen;
 };
 
 QStringList Settings::commonP4Arguments() const
@@ -115,6 +118,7 @@ void PerforceSettings::fromSettings(QSettings *settings)
     m_settings.timeOutS = settings->value(QLatin1String(timeOutKeyC), defaultTimeOutS).toInt();
     m_settings.promptToSubmit = settings->value(QLatin1String(promptToSubmitKeyC), true).toBool();
     m_settings.logCount = settings->value(QLatin1String(logCountKeyC), int(defaultLogCount)).toInt();
+    m_settings.autoOpen = settings->value(QLatin1String(autoOpenKeyC), true).toBool();
     settings->endGroup();
 }
 
@@ -129,6 +133,7 @@ void PerforceSettings::toSettings(QSettings *settings) const
     settings->setValue(QLatin1String(timeOutKeyC), m_settings.timeOutS);
     settings->setValue(QLatin1String(promptToSubmitKeyC), m_settings.promptToSubmit);
     settings->setValue(QLatin1String(logCountKeyC), m_settings.logCount);
+    settings->setValue(QLatin1String(autoOpenKeyC), m_settings.autoOpen);
     settings->endGroup();
 }
 
@@ -178,6 +183,16 @@ bool PerforceSettings::promptToSubmit() const
 void PerforceSettings::setPromptToSubmit(bool p)
 {
     m_settings.promptToSubmit = p;
+}
+
+bool PerforceSettings::autoOpen() const
+{
+    return m_settings.autoOpen;
+}
+
+void PerforceSettings::setAutoOpen(bool b)
+{
+    m_settings.autoOpen = b;
 }
 
 QString PerforceSettings::topLevel() const

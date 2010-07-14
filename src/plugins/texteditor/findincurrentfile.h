@@ -54,7 +54,7 @@ public:
     explicit FindInCurrentFile(Find::SearchResultWindow *resultWindow);
 
     QString id() const;
-    QString name() const;
+    QString displayName() const;
     QKeySequence defaultShortcut() const;
     bool isEnabled() const;
     QWidget *createConfigWidget();

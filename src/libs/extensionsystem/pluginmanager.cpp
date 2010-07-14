@@ -254,6 +254,16 @@ void PluginManager::loadPlugins()
 }
 
 /*!
+    \fn void PluginManager::shutdown()
+    Shuts down and deletes all plugins.
+*/
+void PluginManager::shutdown()
+{
+    d->shutdown();
+}
+
+
+/*!
     \fn QStringList PluginManager::pluginPaths() const
     The list of paths were the plugin manager searches for plugins.
 
@@ -628,20 +638,21 @@ PluginManagerPrivate::PluginManagerPrivate(PluginManager *pluginManager) :
 {
 }
 
+
 /*!
     \fn PluginManagerPrivate::~PluginManagerPrivate()
     \internal
 */
 PluginManagerPrivate::~PluginManagerPrivate()
 {
-    stopAll();
     qDeleteAll(pluginSpecs);
     qDeleteAll(pluginCategories);
-    if (!allObjects.isEmpty()) {
-        qDebug() << "There are" << allObjects.size() << "objects left in the plugin manager pool: " << allObjects;
-    }
 }
 
+/*!
+    \fn void PluginManagerPrivate::writeSettings()
+    \internal
+*/
 void PluginManagerPrivate::writeSettings()
 {
     QSettings settings(QSettings::IniFormat, QSettings::UserScope,
@@ -660,6 +671,10 @@ void PluginManagerPrivate::writeSettings()
     settings.setValue(QLatin1String(C_FORCEENABLED_PLUGINS), tempForceEnabledPlugins);
 }
 
+/*!
+    \fn void PluginManagerPrivate::loadSettings()
+    \internal
+*/
 void PluginManagerPrivate::loadSettings()
 {
     const QSettings settings(QSettings::IniFormat, QSettings::UserScope,
@@ -669,12 +684,25 @@ void PluginManagerPrivate::loadSettings()
     forceEnabledPlugins = settings.value(QLatin1String(C_FORCEENABLED_PLUGINS)).toStringList();
 }
 
+/*!
+    \fn void PluginManagerPrivate::stopAll()
+    \internal
+*/
 void PluginManagerPrivate::stopAll()
 {
     QList<PluginSpec *> queue = loadQueue();
     foreach (PluginSpec *spec, queue) {
         loadPlugin(spec, PluginSpec::Stopped);
     }
+}
+
+/*!
+    \fn void PluginManagerPrivate::deleteAll()
+    \internal
+*/
+void PluginManagerPrivate::deleteAll()
+{
+    QList<PluginSpec *> queue = loadQueue();
     QListIterator<PluginSpec *> it(queue);
     it.toBack();
     while (it.hasPrevious()) {
@@ -760,6 +788,36 @@ void PluginManagerPrivate::loadPlugins()
 }
 
 /*!
+    \fn void PluginManagerPrivate::shutdown()
+    \internal
+*/
+void PluginManagerPrivate::shutdown()
+{
+    stopAll();
+    if (!asynchronousPlugins.isEmpty()) {
+        shutdownEventLoop = new QEventLoop;
+        shutdownEventLoop->exec();
+    }
+    deleteAll();
+    if (!allObjects.isEmpty()) {
+        qDebug() << "There are" << allObjects.size() << "objects left in the plugin manager pool: " << allObjects;
+    }
+}
+
+/*!
+    \fn void PluginManagerPrivate::asyncShutdownFinished()
+    \internal
+*/
+void PluginManagerPrivate::asyncShutdownFinished()
+{
+    IPlugin *plugin = qobject_cast<IPlugin *>(sender());
+    Q_ASSERT(plugin);
+    asynchronousPlugins.removeAll(plugin->pluginSpec());
+    if (asynchronousPlugins.isEmpty())
+        shutdownEventLoop->exit();
+}
+
+/*!
     \fn void PluginManagerPrivate::loadQueue()
     \internal
 */
@@ -836,7 +894,9 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
         profilingReport("<initializeExtensions", spec);
         return;
     case PluginSpec::Deleted:
+        profilingReport(">delete", spec);
         spec->d->kill();
+        profilingReport("<delete", spec);
         return;
     default:
         break;
@@ -863,7 +923,11 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
         break;
     case PluginSpec::Stopped:
         profilingReport(">stop", spec);
-        spec->d->stop();
+        if (spec->d->stop() == IPlugin::AsynchronousShutdown) {
+            asynchronousPlugins << spec;
+            connect(spec->plugin(), SIGNAL(asynchronousShutdownFinished()),
+                    this, SLOT(asyncShutdownFinished()));
+        }
         profilingReport("<stop", spec);
         break;
     default:

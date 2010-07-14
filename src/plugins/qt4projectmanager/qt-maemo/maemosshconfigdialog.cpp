@@ -45,13 +45,13 @@
 #include <QtGui/QMessageBox>
 #include <QtNetwork/QHostInfo>
 
-
+using namespace Core;
 using namespace Qt4ProjectManager::Internal;
 
 MaemoSshConfigDialog::MaemoSshConfigDialog(QWidget *parent)
     : QDialog(parent)
     , home(QDesktopServices::storageLocation(QDesktopServices::HomeLocation))
-    , m_keyGenerator(new Core::SshKeyGenerator)
+    , m_keyGenerator(new SshKeyGenerator)
 {
     m_ui.setupUi(this);
 
@@ -75,16 +75,16 @@ void MaemoSshConfigDialog::slotToggled()
 
 void MaemoSshConfigDialog::generateSshKey()
 {
-    const Core::SshKeyGenerator::KeyType keyType = m_ui.rsa->isChecked()
-        ? Core::SshKeyGenerator::Rsa
-        : Core::SshKeyGenerator::Dsa;
+    const SshKeyGenerator::KeyType keyType = m_ui.rsa->isChecked()
+        ? SshKeyGenerator::Rsa
+        : SshKeyGenerator::Dsa;
 
     QByteArray userId = QString(home.mid(home.lastIndexOf(QLatin1Char('/')) + 1)
         + QLatin1Char('@') + QHostInfo::localHostName()).toUtf8();
 
     QApplication::setOverrideCursor(Qt::BusyCursor);
 
-    if (m_keyGenerator->generateKeys(keyType, userId,
+    if (m_keyGenerator->generateKeys(keyType, SshKeyGenerator::OpenSsl,
                                      m_ui.comboBox->currentText().toUShort())) {
         m_ui.plainTextEdit->setPlainText(m_keyGenerator->publicKey());
         m_ui.savePublicKey->setEnabled(true);
@@ -117,7 +117,7 @@ void MaemoSshConfigDialog::saveKey(bool publicKey)
 {
     checkSshDir();
     const QString suggestedTypeSuffix =
-        m_keyGenerator->type() == Core::SshKeyGenerator::Rsa ? "rsa" : "dsa";
+        m_keyGenerator->type() == SshKeyGenerator::Rsa ? "rsa" : "dsa";
     const QString suggestedName = home + QString::fromLatin1("/.ssh/id_%1%2")
         .arg(suggestedTypeSuffix).arg(publicKey ? ".pub" : "");
     const QString dlgTitle
@@ -131,8 +131,8 @@ void MaemoSshConfigDialog::saveKey(bool publicKey)
     const bool canOpen = file.open(QIODevice::WriteOnly);
     if (canOpen)
         file.write(publicKey
-            ? m_keyGenerator->publicKey().toUtf8()
-            : m_keyGenerator->privateKey().toUtf8());
+            ? m_keyGenerator->publicKey()
+            : m_keyGenerator->privateKey());
     if (!canOpen || file.error() != QFile::NoError) {
         QMessageBox::critical(this, tr("Error writing file"),
                               tr("Could not write file '%1':\n %2")

@@ -95,7 +95,7 @@ void Core::Internal::ProgressManagerPrivate::setApplicationLabel(const QString &
         font.setPointSize(font.pointSize()-2);
         p.setFont(font);
         p.drawText(QRect(QPoint(0,0), pix.size()), Qt::AlignHCenter|Qt::AlignCenter, text);
-        pITask->SetOverlayIcon(winId, pix.toWinHICON(), text.utf16());
+        pITask->SetOverlayIcon(winId, pix.toWinHICON(), (wchar_t*)text.utf16());
     }
 }
 

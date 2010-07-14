@@ -34,13 +34,20 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
+#include <QtCore/QFlags>
 
 namespace Core {
 
 class CORE_EXPORT IVersionControl : public QObject
 {
     Q_OBJECT
+    Q_ENUMS(SettingsFlag Operation)
 public:
+    enum SettingsFlag {
+        AutoOpen = 0x1
+    };
+    Q_DECLARE_FLAGS(SettingsFlags, SettingsFlag)
+
     enum Operation {
         AddOperation, DeleteOperation, OpenOperation, MoveOperation,
         CreateRepositoryOperation,
@@ -75,6 +82,12 @@ public:
      * \note The EditorManager calls this for the editors.
      */
     virtual bool vcsOpen(const QString &fileName) = 0;
+
+    /*!
+     * Returns settings.
+     */
+
+    virtual SettingsFlags settingsFlags() const { return 0; }
 
     /*!
      * Called after a file has been added to a project If the version control
@@ -136,6 +149,8 @@ signals:
     // TODO: ADD A WAY TO DETECT WHETHER A FILE IS MANAGED, e.g
     // virtual bool sccManaged(const QString &filename) = 0;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Core::IVersionControl::SettingsFlags)
 
 } // namespace Core
 

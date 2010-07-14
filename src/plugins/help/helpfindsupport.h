@@ -58,6 +58,8 @@ public:
 
     Result findIncremental(const QString &txt, Find::IFindSupport::FindFlags findFlags);
     Result findStep(const QString &txt, Find::IFindSupport::FindFlags findFlags);
+    void replace(const QString &, const QString &,
+        Find::IFindSupport::FindFlags ) { }
     bool replaceStep(const QString &, const QString &,
         Find::IFindSupport::FindFlags ) { return false; }
     int replaceAll(const QString &, const QString &,
@@ -85,6 +87,8 @@ public:
 
     Result findIncremental(const QString &txt, Find::IFindSupport::FindFlags findFlags);
     Result findStep(const QString &txt, Find::IFindSupport::FindFlags findFlags);
+    void replace(const QString &, const QString &,
+        Find::IFindSupport::FindFlags ) { }
     bool replaceStep(const QString &, const QString &,
         Find::IFindSupport::FindFlags ) { return false; }
     int replaceAll(const QString &, const QString &,

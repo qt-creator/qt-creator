@@ -31,8 +31,7 @@
 #define DIFFHIGHLIGHTER_H
 
 #include "vcsbase_global.h"
-
-#include <QtGui/QSyntaxHighlighter>
+#include <texteditor/syntaxhighlighter.h>
 #include <QtGui/QTextCharFormat>
 #include <QtCore/QVector>
 
@@ -66,7 +65,7 @@ struct DiffHighlighterPrivate;
  * \endcode
  * */
 
-class VCSBASE_EXPORT DiffHighlighter : public QSyntaxHighlighter
+class VCSBASE_EXPORT DiffHighlighter : public TextEditor::SyntaxHighlighter
 {
     Q_OBJECT
 public:

@@ -33,6 +33,7 @@
 #include "projectexplorersettings.h"
 #include "runconfiguration.h"
 #include "session.h"
+#include "outputformatter.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -43,6 +44,8 @@
 #include <coreplugin/icontext.h>
 #include <find/basetextfind.h>
 #include <aggregation/aggregate.h>
+#include <texteditor/basetexteditor.h>
+#include <projectexplorer/project.h>
 
 #include <QtGui/QIcon>
 #include <QtGui/QScrollBar>
@@ -56,6 +59,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QTabWidget>
 #include <QtGui/QToolButton>
+#include <QtGui/QShowEvent>
 
 using namespace ProjectExplorer::Internal;
 using namespace ProjectExplorer;
@@ -209,7 +213,7 @@ void OutputPane::createNewOutputWindow(RunControl *rc)
             OutputWindow *ow = static_cast<OutputWindow *>(m_tabWidget->widget(i));
             ow->grayOutOldContent();
             ow->verticalScrollBar()->setValue(ow->verticalScrollBar()->maximum());
-            ow->setFormatter(rc->createOutputFormatter(ow));
+            ow->setFormatter(rc->outputFormatter());
             m_outputWindows.insert(rc, ow);
             found = true;
             break;
@@ -217,7 +221,9 @@ void OutputPane::createNewOutputWindow(RunControl *rc)
     }
     if (!found) {
         OutputWindow *ow = new OutputWindow(m_tabWidget);
-        ow->setFormatter(rc->createOutputFormatter(ow));
+        ow->setWindowTitle(tr("Application Output Window"));
+        ow->setWindowIcon(QIcon(":/qt4projectmanager/images/window.png"));
+        ow->setFormatter(rc->outputFormatter());
         Aggregation::Aggregate *agg = new Aggregation::Aggregate;
         agg->add(ow);
         agg->add(new Find::BaseTextFind(ow));
@@ -372,13 +378,14 @@ bool OutputPane::canNavigate()
 
 OutputWindow::OutputWindow(QWidget *parent)
     : QPlainTextEdit(parent)
+    , m_formatter(0)
     , m_enforceNewline(false)
     , m_scrollToBottom(false)
+    , m_linksActive(true)
+    , m_mousePressed(false)
 {
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     //setCenterOnScroll(false);
-    setWindowTitle(tr("Application Output Window"));
-    setWindowIcon(QIcon(":/qt4projectmanager/images/window.png"));
     setFrameShape(QFrame::NoFrame);
     setMouseTracking(true);
 
@@ -425,6 +432,42 @@ OutputWindow::~OutputWindow()
 {
     Core::ICore::instance()->removeContextObject(m_outputWindowContext);
     delete m_outputWindowContext;
+}
+
+void OutputWindow::mousePressEvent(QMouseEvent * e)
+{
+    m_mousePressed = true;
+    QPlainTextEdit::mousePressEvent(e);
+}
+
+
+void OutputWindow::mouseReleaseEvent(QMouseEvent *e)
+{
+    m_mousePressed = false;
+
+    if (!m_linksActive) {
+        // Mouse was released, activate links again
+        m_linksActive = true;
+        return;
+    }
+
+    const QString href = anchorAt(e->pos());
+    if (m_formatter)
+        m_formatter->handleLink(href);
+    QPlainTextEdit::mousePressEvent(e);
+}
+
+void OutputWindow::mouseMoveEvent(QMouseEvent *e)
+{
+    // Cursor was dragged to make a selection, deactivate links
+    if (m_mousePressed && textCursor().hasSelection())
+        m_linksActive = false;
+
+    if (!m_linksActive || anchorAt(e->pos()).isEmpty())
+        viewport()->setCursor(Qt::IBeamCursor);
+    else
+        viewport()->setCursor(Qt::PointingHandCursor);
+    QPlainTextEdit::mouseMoveEvent(e);
 }
 
 OutputFormatter *OutputWindow::formatter() const
@@ -514,6 +557,28 @@ void OutputWindow::appendMessage(const QString &out, bool isError)
     enableUndoRedo();
 }
 
+// TODO rename
+void OutputWindow::appendText(const QString &text, const QTextCharFormat &format, int maxLineCount)
+{
+    if (document()->blockCount() > maxLineCount)
+        return;
+    const bool atBottom = isScrollbarAtBottom();
+    QTextCursor cursor = QTextCursor(document());
+    cursor.movePosition(QTextCursor::End);
+    cursor.beginEditBlock();
+    cursor.insertText(doNewlineEnfocement(text), format);
+
+    if (document()->blockCount() > maxLineCount) {
+        QTextCharFormat tmp;
+        tmp.setFontWeight(QFont::Bold);
+        cursor.insertText(tr("Additional output omitted\n"), tmp);
+    }
+
+    cursor.endEditBlock();
+    if (atBottom)
+        scrollToBottom();
+}
+
 bool OutputWindow::isScrollbarAtBottom() const
 {
     return verticalScrollBar()->value() == verticalScrollBar()->maximum();
@@ -551,22 +616,4 @@ void OutputWindow::enableUndoRedo()
 {
     setMaximumBlockCount(0);
     setUndoRedoEnabled(true);
-}
-
-void OutputWindow::mousePressEvent(QMouseEvent *e)
-{
-    QPlainTextEdit::mousePressEvent(e);
-    m_formatter->mousePressEvent(e);
-}
-
-void OutputWindow::mouseReleaseEvent(QMouseEvent *e)
-{
-    QPlainTextEdit::mouseReleaseEvent(e);
-    m_formatter->mouseReleaseEvent(e);
-}
-
-void OutputWindow::mouseMoveEvent(QMouseEvent *e)
-{
-    QPlainTextEdit::mouseMoveEvent(e);
-    m_formatter->mouseMoveEvent(e);
 }

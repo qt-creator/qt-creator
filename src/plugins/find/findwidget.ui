@@ -100,7 +100,7 @@
     </widget>
    </item>
    <item row="1" column="1">
-   <widget class="Utils::FilterLineEdit" name="replaceEdit"/>
+    <widget class="Utils::FilterLineEdit" name="replaceEdit"/>
    </item>
    <item row="1" column="2">
     <layout class="QHBoxLayout" name="horizontalLayout">
@@ -108,9 +108,15 @@
       <number>3</number>
      </property>
      <item>
-      <widget class="QToolButton" name="replacePreviousButton">
+      <widget class="QToolButton" name="replaceButton">
        <property name="focusPolicy">
         <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="text">
+        <string>Replace</string>
+       </property>
+       <property name="toolButtonStyle">
+        <enum>Qt::ToolButtonTextOnly</enum>
        </property>
        <property name="arrowType">
         <enum>Qt::LeftArrow</enum>
@@ -125,6 +131,12 @@
        <property name="focusPolicy">
         <enum>Qt::NoFocus</enum>
        </property>
+       <property name="text">
+        <string>Replace &amp;&amp; Find</string>
+       </property>
+       <property name="toolButtonStyle">
+        <enum>Qt::ToolButtonTextOnly</enum>
+       </property>
        <property name="arrowType">
         <enum>Qt::RightArrow</enum>
        </property>
@@ -136,7 +148,7 @@
         <font/>
        </property>
        <property name="text">
-        <string>All</string>
+        <string>Replace All</string>
        </property>
        <property name="toolButtonStyle">
         <enum>Qt::ToolButtonTextOnly</enum>
@@ -155,6 +167,16 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QToolButton" name="advancedButton">
+       <property name="text">
+        <string>Advanced...</string>
+       </property>
+       <property name="toolButtonStyle">
+        <enum>Qt::ToolButtonTextOnly</enum>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

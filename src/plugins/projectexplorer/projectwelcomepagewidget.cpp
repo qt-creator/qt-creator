@@ -39,6 +39,8 @@
 #include <coreplugin/mainwindow.h>
 #include <coreplugin/filemanager.h>
 
+#include <utils/stringutils.h>
+
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
 #include <QtCore/QPair>
@@ -146,8 +148,9 @@ void ProjectWelcomePageWidget::updateWelcomePage(const WelcomePageData &welcomeP
                 break;
             const QFileInfo fi(it.first);
             QString label = "<b>" + it.second +
-                            "</b><br><font color=gray>" +
-                            fm.elidedText(it.first, Qt::ElideMiddle, 250);
+                    "</b><br><font color=gray>" +
+                    fm.elidedText(QDir::toNativeSeparators(Utils::withTildeHomePath(it.first)),
+                                  Qt::ElideMiddle, 250);
             ui->projTreeWidget->addItem(label, it.first,
                                         QDir::toNativeSeparators(fi.absolutePath()));
         }

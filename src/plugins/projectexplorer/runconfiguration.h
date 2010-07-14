@@ -85,6 +85,8 @@ public:
 
     Target *target() const;
 
+    virtual ProjectExplorer::OutputFormatter *createOutputFormatter() const;
+
 signals:
     void isEnabledChanged(bool value);
 
@@ -169,7 +171,7 @@ public:
 
     bool sameRunConfiguration(RunControl *other);
 
-    virtual OutputFormatter *createOutputFormatter(QObject *parent = 0);
+    OutputFormatter *outputFormatter();
     QString runMode() const;
 
 signals:
@@ -189,6 +191,7 @@ private:
     QString m_displayName;
     QString m_runMode;
     const QWeakPointer<RunConfiguration> m_runConfiguration;
+    OutputFormatter *m_outputFormatter;
 
 #ifdef Q_OS_MAC
     //these two are used to bring apps in the foreground on Mac

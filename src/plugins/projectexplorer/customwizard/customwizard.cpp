@@ -155,11 +155,10 @@ static inline bool createFile(Internal::CustomWizardFile cwFile,
         return false;
     }
     // Field replacement on contents
-    QString contents = QString::fromLocal8Bit(file.readAll());
-    if (!contents.isEmpty() && !fm.isEmpty())
-        Internal::CustomWizardContext::replaceFields(fm, &contents);
+    const QString contentsIn = QString::fromLocal8Bit(file.readAll());
+
     Core::GeneratedFile generatedFile;
-    generatedFile.setContents(contents);
+    generatedFile.setContents(Internal::CustomWizardContext::processFile(fm, contentsIn));
     generatedFile.setPath(targetPath);
     Core::GeneratedFile::Attributes attributes = 0;
     if (cwFile.openEditor)

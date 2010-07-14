@@ -30,17 +30,13 @@
 #ifndef PROJECTLOADWIZARD_H
 #define PROJECTLOADWIZARD_H
 
-#include "qtversionmanager.h"
-#include <wizards/targetsetuppage.h>
-
 #include <QtGui/QWizard>
 
 namespace Qt4ProjectManager {
 class Qt4Project;
 
 namespace Internal {
-
-class TargetsPage;
+class TargetSetupPage;
 
 class ProjectLoadWizard : public QWizard
 {

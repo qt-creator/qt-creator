@@ -160,8 +160,9 @@ void CppToolsPlugin::extensionsInitialized()
     m_modelManager->setHeaderSuffixes(mimeType.suffixes());
 }
 
-void CppToolsPlugin::aboutToShutdown()
+ExtensionSystem::IPlugin::ShutdownFlag CppToolsPlugin::aboutToShutdown()
 {
+    return SynchronousShutdown;
 }
 
 void CppToolsPlugin::switchHeaderSource()

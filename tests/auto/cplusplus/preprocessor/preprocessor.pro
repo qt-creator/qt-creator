@@ -1,6 +1,6 @@
 TEMPLATE = app
 CONFIG += qt warn_on console depend_includepath
-QT += testlib
+CONFIG += qtestlib testcase
 TARGET = tst_$$TARGET
 include(../shared/shared.pri)
 SOURCES += tst_preprocessor.cpp

@@ -38,6 +38,7 @@
 #include <QtCore/QStringList>
 #include <QtCore/QUrl>
 #include <QtCore/QVariant>
+#include <QtCore/QByteArray>
 
 QT_FORWARD_DECLARE_CLASS(QHelpEngineCore)
 QT_FORWARD_DECLARE_CLASS(QSqlQuery)
@@ -64,6 +65,7 @@ public:
     QStringList findKeywords(const QString &key, int maxHits = INT_MAX) const;
 
     QUrl findFile(const QUrl &url) const;
+    QByteArray fileData(const QUrl &url) const;
     void handleHelpRequest(const QString &url);
 
     QStringList registeredNamespaces() const;

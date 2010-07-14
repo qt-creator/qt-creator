@@ -246,14 +246,10 @@ void NamePrettyPrinter::visit(const ConversionNameId *name)
 
 void NamePrettyPrinter::visit(const QualifiedNameId *name)
 {
-    if (name->isGlobal())
-        _name += QLatin1String("::");
-
-    for (unsigned index = 0; index < name->nameCount(); ++index) {
-        if (index != 0)
-            _name += QLatin1String("::");
-        _name += operator()(name->nameAt(index));
-    }
+    if (name->base())
+        _name += operator()(name->base());
+    _name += QLatin1String("::");
+    _name += operator()(name->name());
 }
 
 void NamePrettyPrinter::visit(const SelectorNameId *name)

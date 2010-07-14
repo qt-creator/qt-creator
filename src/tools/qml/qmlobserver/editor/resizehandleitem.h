@@ -54,7 +54,13 @@ public:
     QRectF boundingRect() const;
     QPainterPath shape() const;
 
+<<<<<<< HEAD:src/tools/qml/qmlobserver/editor/resizehandleitem.h
     ResizeController * resizeController() const;
+=======
+    virtual bool initialize(const QStringList &arguments, QString *errorString);
+    virtual void extensionsInitialized();
+    virtual ShutdownFlag aboutToShutdown();
+>>>>>>> 9eba87bd92aa2de00e2c191119bc9a9e015e1de5:src/plugins/qmlinspector/qmlinspectorplugin.h
 
     static ResizeHandleItem* fromGraphicsItem(QGraphicsItem *item);
 

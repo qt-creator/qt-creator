@@ -59,6 +59,7 @@ struct TEXTEDITOR_EXPORT TabSettings
 
     int lineIndentPosition(const QString &text) const;
     int firstNonSpace(const QString &text) const;
+    inline bool onlySpace(const QString &text) const { return firstNonSpace(text) == text.length(); }
     int columnAt(const QString &text, int position) const;
     int spacesLeftFromPosition(const QString &text, int position) const;
     int indentedColumn(int column, bool doIndent = true) const;

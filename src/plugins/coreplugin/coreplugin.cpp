@@ -34,7 +34,6 @@
 #include "modemanager.h"
 #include "fileiconprovider.h"
 #include "designmode.h"
-#include "ssh/ne7sshobject.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -89,7 +88,6 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
         m_designMode = new DesignMode(editorManager);
         addObject(m_designMode);
-        Ne7SshObject::instance();
     }
     return success;
 }
@@ -110,10 +108,10 @@ void CorePlugin::fileOpenRequest(const QString &f)
     remoteCommand(QStringList(), QStringList(f));
 }
 
-void CorePlugin::aboutToShutdown()
+ExtensionSystem::IPlugin::ShutdownFlag CorePlugin::aboutToShutdown()
 {
     m_mainWindow->aboutToShutdown();
-    Ne7SshObject::removeInstance();
+    return SynchronousShutdown;
 }
 
 Q_EXPORT_PLUGIN(CorePlugin)

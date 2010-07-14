@@ -50,6 +50,11 @@ QTCREATOR_UTILS_EXPORT QString commonPrefix(const QStringList &strings);
 // "C:\foo\bar1" "C:\foo\bar2"  -> "C:\foo"
 QTCREATOR_UTILS_EXPORT QString commonPath(const QStringList &files);
 
+// On Linux/Mac replace user's home path with ~
+// Uses cleaned path and tries to use absolute path of "path" if possible
+// If path is not sub of home path, or when running on Windows, returns the input
+QTCREATOR_UTILS_EXPORT QString withTildeHomePath(const QString &path);
+
 } // namespace Utils
 
 #endif // SETTINGSTUTILS_H

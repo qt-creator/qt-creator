@@ -38,6 +38,7 @@
 
 #include <QtGui/QKeyEvent>
 #include <QtGui/QIcon>
+#include <QtGui/QTextCharFormat>
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextCursor>
 #include <QtGui/QTextEdit>
@@ -53,14 +54,14 @@ const int MAX_LINECOUNT = 10000;
 
 CompileOutputWindow::CompileOutputWindow(BuildManager * /*bm*/)
 {
-    m_textEdit = new QPlainTextEdit();
-    m_textEdit->setWindowTitle(tr("Compile Output"));
-    m_textEdit->setWindowIcon(QIcon(":/qt4projectmanager/images/window.png"));
-    m_textEdit->setReadOnly(true);
-    m_textEdit->setFrameStyle(QFrame::NoFrame);
+    m_outputWindow = new OutputWindow();
+    m_outputWindow->setWindowTitle(tr("Compile Output"));
+    m_outputWindow->setWindowIcon(QIcon(":/qt4projectmanager/images/window.png"));
+    m_outputWindow->setReadOnly(true);
+
     Aggregation::Aggregate *agg = new Aggregation::Aggregate;
-    agg->add(m_textEdit);
-    agg->add(new Find::BaseTextFind(m_textEdit));
+    agg->add(m_outputWindow);
+    agg->add(new Find::BaseTextFind(m_outputWindow));
 
     qRegisterMetaType<QTextCharFormat>("QTextCharFormat");
 
@@ -76,7 +77,7 @@ CompileOutputWindow::~CompileOutputWindow()
 
 bool CompileOutputWindow::hasFocus()
 {
-    return m_textEdit->hasFocus();
+    return m_outputWindow->hasFocus();
 }
 
 bool CompileOutputWindow::canFocus()
@@ -86,50 +87,28 @@ bool CompileOutputWindow::canFocus()
 
 void CompileOutputWindow::setFocus()
 {
-    m_textEdit->setFocus();
+    m_outputWindow->setFocus();
 }
 
 QWidget *CompileOutputWindow::outputWidget(QWidget *)
 {
-    return m_textEdit;
+    return m_outputWindow;
 }
 
 void CompileOutputWindow::appendText(const QString &text, const QTextCharFormat &textCharFormat)
 {
-    if (m_textEdit->document()->blockCount() > MAX_LINECOUNT)
-        return;
-    bool shouldScroll = (m_textEdit->verticalScrollBar()->value() ==
-                         m_textEdit->verticalScrollBar()->maximum());
-    QString textWithNewline = text;
-    if (!textWithNewline.endsWith("\n"))
-        textWithNewline.append("\n");
-    QTextCursor cursor = QTextCursor(m_textEdit->document());
-    cursor.movePosition(QTextCursor::End);
-    cursor.beginEditBlock();
-    cursor.insertText(textWithNewline, textCharFormat);
-
-    if (m_textEdit->document()->blockCount() > MAX_LINECOUNT) {
-        QTextCharFormat tmp;
-        tmp.setFontWeight(QFont::Bold);
-        cursor.insertText(tr("Additional output omitted\n"), tmp);
-    }
-
-    cursor.endEditBlock();
-
-    if (shouldScroll)
-        m_textEdit->setTextCursor(cursor);
+    m_outputWindow->appendText(text, textCharFormat, MAX_LINECOUNT);
 }
 
 void CompileOutputWindow::clearContents()
 {
-    m_textEdit->clear();
+    m_outputWindow->clear();
     m_taskPositions.clear();
 }
 
-void CompileOutputWindow::visibilityChanged(bool b)
+void CompileOutputWindow::visibilityChanged(bool)
 {
-    if (b)
-        m_textEdit->verticalScrollBar()->setValue(m_textEdit->verticalScrollBar()->maximum());
+
 }
 
 int CompileOutputWindow::priorityInStatusBar() const
@@ -164,7 +143,7 @@ bool CompileOutputWindow::canNavigate()
 
 void CompileOutputWindow::registerPositionOf(const Task &task)
 {
-    int blocknumber = m_textEdit->blockCount();
+    int blocknumber = m_outputWindow->blockCount();
     if (blocknumber > MAX_LINECOUNT)
         return;
     m_taskPositions.insert(task.taskId, blocknumber - 1);
@@ -178,7 +157,7 @@ bool CompileOutputWindow::knowsPositionOf(const Task &task)
 void CompileOutputWindow::showPositionOf(const Task &task)
 {
     int position = m_taskPositions.value(task.taskId);
-    QTextCursor newCursor(m_textEdit->document()->findBlockByNumber(position));
+    QTextCursor newCursor(m_outputWindow->document()->findBlockByNumber(position));
     newCursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-    m_textEdit->setTextCursor(newCursor);
+    m_outputWindow->setTextCursor(newCursor);
 }

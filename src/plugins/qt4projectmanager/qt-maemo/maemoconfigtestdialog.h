@@ -35,18 +35,23 @@
 #ifndef MAEMOCONFIGTESTDIALOG_H
 #define MAEMOCONFIGTESTDIALOG_H
 
-#include <QDialog>
+#include <QtCore/QSharedPointer>
+#include <QtGui/QDialog>
 
 QT_BEGIN_NAMESPACE
 class QPushButton;
 class Ui_MaemoConfigTestDialog;
 QT_END_NAMESPACE
 
+namespace Core {
+    class SshConnection;
+    class SshRemoteProcess;
+} // namespace Core
+
 namespace Qt4ProjectManager {
 namespace Internal {
 
 class MaemoDeviceConfig;
-class MaemoSshRunner;
 
 /**
  * A dialog that runs a test of a device configuration.
@@ -60,8 +65,10 @@ public:
 
 private slots:
     void stopConfigTest();
-    void processSshOutput(const QString &data);
-    void handleTestThreadFinished();
+    void processSshOutput(const QByteArray &output);
+    void handleConnected();
+    void handleConnectionError();
+    void handleProcessFinished(int exitStatus);
 
 private:
     void startConfigTest();
@@ -71,7 +78,8 @@ private:
     QPushButton *m_closeButton;
 
     const MaemoDeviceConfig &m_config;
-    MaemoSshRunner *m_deviceTester;
+    QSharedPointer<Core::SshConnection> m_connection;
+    QSharedPointer<Core::SshRemoteProcess> m_testProcess;
     QString m_deviceTestOutput;
     bool m_qtVersionOk;
 };

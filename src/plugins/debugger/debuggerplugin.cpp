@@ -2480,13 +2480,14 @@ void DebuggerPlugin::clearCppCodeModelSnapshot()
     d->m_codeModelSnapshot = CPlusPlus::Snapshot();
 }
 
-void DebuggerPlugin::aboutToShutdown()
+ExtensionSystem::IPlugin::ShutdownFlag DebuggerPlugin::aboutToShutdown()
 {
     writeSettings();
     if (d->m_uiSwitcher)
         d->m_uiSwitcher->aboutToShutdown();
     //if (d->m_engine)
     //    d->m_engine->shutdown();
+    return SynchronousShutdown;
 }
 
 void DebuggerPlugin::showMessage(const QString &msg, int channel, int timeout)

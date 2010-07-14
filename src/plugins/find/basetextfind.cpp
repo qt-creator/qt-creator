@@ -153,8 +153,15 @@ IFindSupport::Result BaseTextFind::findStep(const QString &txt, IFindSupport::Fi
     return found ? Found : NotFound;
 }
 
-bool BaseTextFind::replaceStep(const QString &before, const QString &after,
-    IFindSupport::FindFlags findFlags)
+void BaseTextFind::replace(const QString &before, const QString &after,
+                           IFindSupport::FindFlags findFlags)
+{
+    QTextCursor cursor = replaceInternal(before, after, findFlags);
+    setTextCursor(cursor);
+}
+
+QTextCursor BaseTextFind::replaceInternal(const QString &before, const QString &after,
+                                          IFindSupport::FindFlags findFlags)
 {
     QTextCursor cursor = textCursor();
     bool usesRegExp = (findFlags & IFindSupport::FindRegularExpression);
@@ -169,6 +176,13 @@ bool BaseTextFind::replaceStep(const QString &before, const QString &after,
         if ((findFlags&IFindSupport::FindBackward) != 0)
             cursor.setPosition(start);
     }
+    return cursor;
+}
+
+bool BaseTextFind::replaceStep(const QString &before, const QString &after,
+    IFindSupport::FindFlags findFlags)
+{
+    QTextCursor cursor = replaceInternal(before, after, findFlags);
     return find(before, findFlags, cursor);
 }
 

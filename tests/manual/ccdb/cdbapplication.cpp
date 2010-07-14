@@ -34,17 +34,18 @@
 #include "debugeventcallback.h"
 #include "symbolgroupcontext.h"
 #include "stacktracecontext.h"
-
 #include <QtCore/QStringList>
 #include <QtCore/QTimer>
 #include <QtCore/QDebug>
 
 #include <cstdio>
+#include <cerrno>
 
 const char usage[] =
 "CDB command line test tool\n\n"
 "ccdb <Options>\n"
-"Options: -p engine path\n";
+"Options: -p engine path\n"
+"         -c initial_command_file\n";
 
 class PrintfOutputHandler : public CdbCore::DebugOutputBase
 {
@@ -72,7 +73,8 @@ CdbApplication::~CdbApplication()
 
 CdbApplication::InitResult CdbApplication::init()
 {
-    if (!parseOptions()) {
+    FILE *inputFile;
+    if (!parseOptions(&inputFile)) {
         printf(usage);
         return InitUsageShown;
     }
@@ -91,7 +93,7 @@ CdbApplication::InitResult CdbApplication::init()
     connect(m_engine.data(), SIGNAL(watchTimerDebugEvent()), this, SLOT(debugEvent()));
     std::printf("Succeded.\n");
     // Prompt
-    m_promptThread = new CdbPromptThread(this);
+    m_promptThread = new CdbPromptThread(inputFile, this);
     connect(m_promptThread, SIGNAL(finished()), this, SLOT(promptThreadTerminated()));
     connect(m_promptThread, SIGNAL(asyncCommand(int,QString)),
             this, SLOT(asyncCommand(int,QString)), Qt::QueuedConnection);
@@ -99,7 +101,8 @@ CdbApplication::InitResult CdbApplication::init()
             this, SLOT(syncCommand(int,QString)), Qt::BlockingQueuedConnection);
     connect(m_promptThread, SIGNAL(executionCommand(int,QString)),
             this, SLOT(executionCommand(int,QString)), Qt::BlockingQueuedConnection);
-
+    connect(m_engine.data(), SIGNAL(watchTimerDebugEvent()), m_promptThread, SLOT(notifyDebugEvent()),
+            Qt::QueuedConnection);
     m_promptThread->start();
     return InitOk;
 }
@@ -113,23 +116,41 @@ void CdbApplication::promptThreadTerminated()
     quit();
 }
 
-bool CdbApplication::parseOptions()
+bool CdbApplication::parseOptions(FILE **inputFile)
 {
+    *inputFile = NULL;
     const QStringList args = QCoreApplication::arguments();
     const QStringList::const_iterator cend = args.constEnd();
     QStringList::const_iterator it = args.constBegin();
     for (++it; it != cend ; ++it) {
         const QString &a = *it;
-        if (a == QLatin1String("-p")) {
-            ++it;
-            if (it == cend) {
-                std::fprintf(stderr, "Option -p is missing an argument.\n");
+        if (a.startsWith(QLatin1Char('-')) && a.size() >= 2) {
+            switch (a.at(1).toAscii()) {
+            case 'p':
+                ++it;
+                if (it == cend) {
+                    std::fprintf(stderr, "Option -p is missing an argument.\n");
+                    return false;
+                }
+                m_engineDll = *it;
+                break;
+            case 'c':
+                ++it;
+                if (it == cend) {
+                    std::fprintf(stderr, "Option -c is missing an argument.\n");
+                    return false;
+                }
+                *inputFile = std::fopen( it->toLocal8Bit().constData(), "r");
+                if (*inputFile == NULL) {
+                    std::fprintf(stderr, "Cannot open %s: %s\n", qPrintable(*it), std::strerror(errno));
+                    return false;
+                }
+                break;
+
+            default:
+                std::fprintf(stderr, "Invalid option %s\n", qPrintable(a));
                 return false;
             }
-            m_engineDll = *it;
-        } else {
-            std::fprintf(stderr, "Invalid option %s\n", qPrintable(a));
-            return false;
         }
     }
     return true;
@@ -252,6 +273,11 @@ void CdbApplication::syncCommand(int command, const QString &arg)
     case Sync_PrintFrame:
         printFrame(arg);
         break;
+    case Sync_OutputVersion:
+        m_engine->outputVersion();
+        break;
+    case Sync_Python:
+        break;
     case Unknown:
         std::printf("Executing '%s' in code level %d, syntax %d\n",
                     qPrintable(arg), m_engine->codeLevel(), m_engine->expressionSyntax());
@@ -286,7 +312,7 @@ void CdbApplication::executionCommand(int command, const QString &arg)
     }
     if (ok) {
         m_engine->startWatchTimer();
-        m_stackTrace.reset();
+        m_stackTrace = QSharedPointer<CdbCore::StackTraceContext>();
     } else {
         std::fprintf(stderr, "%s\n", qPrintable(errorMessage));
     }
@@ -297,11 +323,17 @@ void CdbApplication::debugEvent()
     QString errorMessage;
     std::printf("Debug event\n");
 
-    CdbCore::StackTraceContext::ThreadIdFrameMap threads;
+    QVector<CdbCore::Thread> threads;
+    QVector<CdbCore::StackFrame> threadFrames;
     ULONG currentThreadId;
-    if (CdbCore::StackTraceContext::getThreads(m_engine->interfaces(), &threads,
-                                               &currentThreadId, &errorMessage)) {
-        printf("%s\n", qPrintable(CdbCore::StackTraceContext::formatThreads(threads)));
+
+    if (CdbCore::StackTraceContext::getThreadList(m_engine->interfaces(), &threads, &currentThreadId, &errorMessage)
+        && CdbCore::StackTraceContext::getStoppedThreadFrames(m_engine->interfaces(), currentThreadId, threads, &threadFrames, &errorMessage)) {
+        const int count = threadFrames.size();
+        for (int i = 0; i  < count; i++) {
+            printf("Thread #%02d ID %10d SYSID %10d %s\n", i,
+                   threads.at(i).id, threads.at(i).systemId, qPrintable(threadFrames.at(i).toString()));
+        }
     } else {
         std::fprintf(stderr, "%s\n", qPrintable(errorMessage));
     }
@@ -310,7 +342,7 @@ void CdbApplication::debugEvent()
         CdbCore::StackTraceContext::create(&m_engine->interfaces(),
                                            0xFFFF, &errorMessage);
     if (trace) {
-        m_stackTrace.reset(trace);
+        m_stackTrace = QSharedPointer<CdbCore::StackTraceContext>(trace);
         printf("%s\n", qPrintable(m_stackTrace->toString()));
     } else {
         std::fprintf(stderr, "%s\n", qPrintable(errorMessage));

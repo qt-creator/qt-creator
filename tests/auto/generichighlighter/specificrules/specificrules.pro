@@ -1,4 +1,4 @@
-QT += testlib
+CONFIG += qtestlib testcase
 
 PLUGINSDIR = ../../../../src/plugins
 

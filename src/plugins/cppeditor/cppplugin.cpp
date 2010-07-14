@@ -135,7 +135,7 @@ CppPlugin *CppPlugin::m_instance = 0;
 
 CppPlugin::CppPlugin() :
     m_actionHandler(0),
-    m_sortedMethodOverview(false),
+    m_sortedOutline(false),
     m_renameSymbolUnderCursorAction(0),
     m_findUsagesAction(0),
     m_updateCodeModelAction(0)
@@ -176,19 +176,19 @@ void CppPlugin::initializeEditor(CPPEditor *editor)
             this, SLOT(quickFix(TextEditor::ITextEditable*)));
 
     // method combo box sorting
-    connect(this, SIGNAL(methodOverviewSortingChanged(bool)),
-            editor, SLOT(setSortedMethodOverview(bool)));
+    connect(this, SIGNAL(outlineSortingChanged(bool)),
+            editor, SLOT(setSortedOutline(bool)));
 }
 
-void CppPlugin::setSortedMethodOverview(bool sorted)
+void CppPlugin::setSortedOutline(bool sorted)
 {
-    m_sortedMethodOverview = sorted;
-    emit methodOverviewSortingChanged(sorted);
+    m_sortedOutline = sorted;
+    emit outlineSortingChanged(sorted);
 }
 
-bool CppPlugin::sortedMethodOverview() const
+bool CppPlugin::sortedOutline() const
 {
-    return m_sortedMethodOverview;
+    return m_sortedOutline;
 }
 
 CppQuickFixCollector *CppPlugin::quickFixCollector() const
@@ -308,21 +308,22 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
 
 void CppPlugin::readSettings()
 {
-    m_sortedMethodOverview = Core::ICore::instance()->settings()->value("CppTools/SortedMethodOverview", false).toBool();
+    m_sortedOutline = Core::ICore::instance()->settings()->value("CppTools/SortedMethodOverview", false).toBool();
 }
 
 void CppPlugin::writeSettings()
 {
-    Core::ICore::instance()->settings()->setValue("CppTools/SortedMethodOverview", m_sortedMethodOverview);
+    Core::ICore::instance()->settings()->setValue("CppTools/SortedMethodOverview", m_sortedOutline);
 }
 
 void CppPlugin::extensionsInitialized()
 {
 }
 
-void CppPlugin::aboutToShutdown()
+ExtensionSystem::IPlugin::ShutdownFlag CppPlugin::aboutToShutdown()
 {
     writeSettings();
+    return SynchronousShutdown;
 }
 
 void CppPlugin::switchDeclarationDefinition()

@@ -47,10 +47,13 @@
 #include <QtCore/QList>
 #include <QtCore/QObject>
 
+namespace ProjectExplorer { class BuildStep; }
+
 namespace Qt4ProjectManager {
 namespace Internal {
+
 class MaemoDeployableListModel;
-class MaemoPackageCreationStep;
+class Qt4BuildConfiguration;
 class Qt4NodesWatcher;
 class Qt4ProFileNode;
 
@@ -58,7 +61,7 @@ class MaemoDeployables : public QObject
 {
     Q_OBJECT
 public:
-    MaemoDeployables(MaemoPackageCreationStep *packagingStep);
+    MaemoDeployables(const ProjectExplorer::BuildStep *buildStep);
     void setUnmodified();
     bool isModified() const;
     int deployableCount() const;
@@ -73,9 +76,10 @@ signals:
 private:
     Q_SLOT void createModels();
     void createModels(const Qt4ProFileNode *proFileNode);
+    const Qt4BuildConfiguration *qt4BuildConfiguration() const;
 
     QList<MaemoDeployableListModel *> m_listModels;
-    MaemoPackageCreationStep * const m_packagingStep;
+    const ProjectExplorer::BuildStep * const m_buildStep;
     Qt4NodesWatcher *m_proFilesWatcher;
 };
 

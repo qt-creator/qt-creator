@@ -1,5 +1,4 @@
-
-QT += testlib
+CONFIG += qtestlib testcase
 
 # Defines import symbol as empty
 DEFINES+=QTCREATOR_UTILS_STATIC_LIB

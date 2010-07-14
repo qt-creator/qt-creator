@@ -126,7 +126,7 @@ void HoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int p
 
     const SemanticInfo semanticInfo = edit->semanticInfo();
 
-    if (semanticInfo.revision() != edit->documentRevision())
+    if (semanticInfo.revision() != edit->editorRevision())
         return;
 
     const Snapshot snapshot = semanticInfo.snapshot;

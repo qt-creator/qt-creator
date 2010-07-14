@@ -240,6 +240,13 @@ QUrl HelpManager::findFile(const QUrl &url) const
     return m_helpEngine->findFile(url);
 }
 
+QByteArray HelpManager::fileData(const QUrl &url) const
+{
+    if (m_needsSetup)
+        return QByteArray();
+    return m_helpEngine->fileData(url);
+}
+
 void HelpManager::handleHelpRequest(const QString &url)
 {
     emit helpRequested(QUrl(url));

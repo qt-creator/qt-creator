@@ -88,7 +88,7 @@ DiffFormats DiffHighlighterPrivate::analyzeLine(const QString &text) const
 // --- DiffHighlighter
 DiffHighlighter::DiffHighlighter(const QRegExp &filePattern,
                                  QTextDocument *document) :
-    QSyntaxHighlighter(document),
+    TextEditor::SyntaxHighlighter(document),
     m_d(new DiffHighlighterPrivate(filePattern))
 {
 }

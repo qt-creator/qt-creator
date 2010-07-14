@@ -55,7 +55,8 @@ qhp.QtCreator.extraFiles       = \
                           images/page_bg.png \
                           images/page.png \
                           images/qt-logo.png \
-                          images/sprites-combined.png
+                          images/sprites-combined.png \
+                          images/bullet_up.png
 
 qhp.QtCreator.subprojects = manual
 qhp.QtCreator.subprojects.manual.title = Qt Creator Manual
@@ -218,3 +219,5 @@ Cpp.ignoredirectives    = Q_DECLARE_HANDLE \
                           K_DECLARE_PRIVATE \
                           PHONON_OBJECT \
                           PHONON_HEIR
+
+creator = true

@@ -157,7 +157,7 @@ void TextEditorPlugin::extensionsInitialized()
 
     ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
 
-    m_searchResultWindow = pluginManager->getObject<Find::SearchResultWindow>();
+    m_searchResultWindow = Find::SearchResultWindow::instance();
 
     m_outlineFactory->setWidgetFactories(pluginManager->getObjects<TextEditor::IOutlineWidgetFactory>());
 

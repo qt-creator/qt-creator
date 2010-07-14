@@ -33,14 +33,15 @@
 
 #include <ctype.h>
 
+using namespace Core;
+
 namespace Debugger {
 namespace Internal {
 
-RemoteGdbProcess::RemoteGdbProcess(const Core::SshServerInfo &server,
+RemoteGdbProcess::RemoteGdbProcess(const Core::SshConnectionParameters &connParams,
     RemotePlainGdbAdapter *adapter, QObject *parent)
-    : AbstractGdbProcess(parent), m_serverInfo(server), m_adapter(adapter)
+    : AbstractGdbProcess(parent), m_connParams(connParams), m_adapter(adapter)
 {
-
 }
 
 QByteArray RemoteGdbProcess::readAllStandardOutput()
@@ -59,68 +60,122 @@ QByteArray RemoteGdbProcess::readAllStandardError()
 
 void RemoteGdbProcess::start(const QString &cmd, const QStringList &args)
 {
-    m_gdbConn = Core::InteractiveSshConnection::create(m_serverInfo);
-    m_appOutputConn = Core::InteractiveSshConnection::create(m_serverInfo);
-    m_errOutputConn = Core::InteractiveSshConnection::create(m_serverInfo);
     m_command = cmd;
     m_cmdArgs = args;
-    m_errOutputConn->start();
-    m_appOutputConn->start();
-    m_gdbConn->start();
- }
+    m_gdbStarted = false;
+    m_error.clear();
+    m_conn = SshConnection::create();
+    connect(m_conn.data(), SIGNAL(connected()), this, SLOT(handleConnected()));
+    connect(m_conn.data(), SIGNAL(error(SshError)), this,
+        SLOT(handleConnectionError()));
+    m_conn->connectToHost(m_connParams);
+}
+
+void RemoteGdbProcess::handleConnected()
+{
+    m_fifoCreator = m_conn->createRemoteProcess( "rm -f "
+        + AppOutputFile + " && mkfifo " + AppOutputFile);
+    connect(m_fifoCreator.data(), SIGNAL(closed(int)), this,
+        SLOT(handleFifoCreationFinished(int)));
+    m_fifoCreator->start();
+}
+
+void RemoteGdbProcess::handleConnectionError()
+{
+    emitErrorExit(tr("Connection could not be established."));
+}
+
+void RemoteGdbProcess::handleFifoCreationFinished(int exitStatus)
+{
+    if (exitStatus != SshRemoteProcess::ExitedNormally) {
+        emitErrorExit(tr("Could not create FIFO."));
+    } else {
+        m_appOutputReader = m_conn->createRemoteProcess("cat " + AppOutputFile);
+        connect(m_appOutputReader.data(), SIGNAL(started()), this,
+            SLOT(handleAppOutputReaderStarted()));
+        connect(m_appOutputReader.data(), SIGNAL(closed(int)), this,
+            SLOT(handleAppOutputReaderFinished(int)));
+        m_appOutputReader->start();
+    }
+}
+
+void RemoteGdbProcess::handleAppOutputReaderStarted()
+{
+    connect(m_appOutputReader.data(), SIGNAL(outputAvailable(QByteArray)),
+        this, SLOT(handleAppOutput(QByteArray)));
+    QByteArray cmdLine = "DISPLAY=:0.0 " + m_command.toUtf8() + ' '
+        + m_cmdArgs.join(QLatin1String(" ")).toUtf8()
+        + " -tty=" + AppOutputFile;
+    if (!m_wd.isEmpty())
+        cmdLine.prepend("cd " + m_wd.toUtf8() + " && ");
+    m_gdbProc = m_conn->createRemoteProcess(cmdLine);
+    connect(m_gdbProc.data(), SIGNAL(started()), this,
+        SLOT(handleGdbStarted()));
+    connect(m_gdbProc.data(), SIGNAL(closed(int)), this,
+        SLOT(handleGdbFinished(int)));
+    connect(m_gdbProc.data(), SIGNAL(outputAvailable(QByteArray)), this,
+        SLOT(handleGdbOutput(QByteArray)));
+    connect(m_gdbProc.data(), SIGNAL(errorOutputAvailable(QByteArray)), this,
+        SLOT(handleErrOutput(QByteArray)));
+    m_gdbProc->start();
+}
+
+void RemoteGdbProcess::handleAppOutputReaderFinished(int exitStatus)
+{
+    if (exitStatus != SshRemoteProcess::ExitedNormally)
+        emitErrorExit(tr("Application output reader unexpectedly finished."));
+}
+
+void RemoteGdbProcess::handleGdbStarted()
+{
+    m_gdbStarted = true;
+}
+
+void RemoteGdbProcess::handleGdbFinished(int exitStatus)
+{
+    switch (exitStatus) {
+    case SshRemoteProcess::FailedToStart:
+        emitErrorExit(tr("Remote gdb failed to start."));
+        break;
+    case SshRemoteProcess::KilledBySignal:
+        emitErrorExit(tr("Remote gdb crashed."));
+        break;
+    case SshRemoteProcess::ExitedNormally:
+        emit finished(m_gdbProc->exitCode(), QProcess::NormalExit);
+        break;
+    }
+    disconnect(m_conn.data(), 0, this, 0);
+    m_gdbProc = SshRemoteProcess::Ptr();
+    m_appOutputReader = SshRemoteProcess::Ptr();
+    m_conn->disconnectFromHost();
+}
 
 bool RemoteGdbProcess::waitForStarted()
 {
-    if (!waitForInputReady(m_appOutputConn))
-        return false;
-    if (!sendAndWaitForEcho(m_appOutputConn, readerCmdLine(AppOutputFile)))
-        return false;
-    if (!waitForInputReady(m_errOutputConn))
-        return false;
-    if (!sendAndWaitForEcho(m_errOutputConn, readerCmdLine(ErrOutputFile)))
-        return false;
-    if (!waitForInputReady(m_gdbConn))
-        return false;
-    connect(m_appOutputConn.data(), SIGNAL(remoteOutputAvailable()),
-            this, SLOT(handleAppOutput()));
-    connect(m_errOutputConn.data(), SIGNAL(remoteOutputAvailable()),
-            this, SLOT(handleErrOutput()));
-    connect(m_gdbConn.data(), SIGNAL(remoteOutputAvailable()),
-            this, SLOT(handleGdbOutput()));
-    m_gdbStarted = false;
-    m_gdbCmdLine = "stty -echo && DISPLAY=:0.0 " + m_command.toUtf8() + ' '
-        + m_cmdArgs.join(QLatin1String(" ")).toUtf8()
-        + " -tty=" + AppOutputFile + " 2>" + ErrOutputFile + '\n';
-    if (!m_wd.isEmpty())
-        m_gdbCmdLine.prepend("cd " + m_wd.toUtf8() + " && ");
-    if (sendInput(m_gdbCmdLine) != m_gdbCmdLine.count())
-        return false;
-
-    return true;
+    return m_error.isEmpty();
 }
 
 qint64 RemoteGdbProcess::write(const QByteArray &data)
 {
-    if (!m_gdbStarted || !m_inputToSend.isEmpty() || !m_lastSeqNr.isEmpty()) {
+    if (!m_gdbStarted || !m_inputToSend.isEmpty() || !m_lastSeqNr.isEmpty())
         m_inputToSend.enqueue(data);
-        return data.size();
-    } else {
-        return sendInput(data);
-    }
+    else
+        sendInput(data);
+    return data.size();
 }
 
 void RemoteGdbProcess::kill()
 {
-    stopReaders();
-    Core::InteractiveSshConnection::Ptr controlConn
-        = Core::InteractiveSshConnection::create(m_serverInfo);
-    if (!controlConn->hasError()) {
-        if (controlConn->start())
-            controlConn->sendInput("pkill -x gdb\r\n");
-    }
+    SshRemoteProcess::Ptr killProc
+        = m_conn->createRemoteProcess("pkill -SIGKILL -x gdb");
+    killProc->start();
+}
 
-    m_gdbConn->quit();
-    emit finished(0, QProcess::CrashExit);
+void RemoteGdbProcess::interruptInferior()
+{
+    SshRemoteProcess::Ptr intProc
+        = m_conn->createRemoteProcess("pkill -x -SIGINT gdb");
+    intProc->start();
 }
 
 QProcess::ProcessState RemoteGdbProcess::state() const
@@ -130,34 +185,18 @@ QProcess::ProcessState RemoteGdbProcess::state() const
 
 QString RemoteGdbProcess::errorString() const
 {
-    return m_gdbConn ? m_gdbConn->error() : QString();
+    return m_error;
 }
 
-void RemoteGdbProcess::handleGdbOutput()
+void RemoteGdbProcess::handleGdbOutput(const QByteArray &output)
 {
-    m_currentGdbOutput
-        += removeCarriageReturn(m_gdbConn->waitForRemoteOutput(0));
+    // TODO: Carriage return removal still necessary?
+    m_currentGdbOutput += removeCarriageReturn(output);
 #if 0
     qDebug("%s: complete unread output is '%s'", Q_FUNC_INFO, m_currentGdbOutput.data());
 #endif
-    if (checkForGdbExit(m_currentGdbOutput)) {
-        m_currentGdbOutput.clear();
-        return;
-    }
-
     if (!m_currentGdbOutput.endsWith('\n'))
         return;
-
-    if (!m_gdbStarted) {
-        const int index = m_currentGdbOutput.indexOf(m_gdbCmdLine);
-        if (index != -1)
-            m_currentGdbOutput.remove(index, m_gdbCmdLine.size());
-        // Note: We can't guarantee that we will match the command line,
-        // because the remote terminal sometimes inserts control characters.
-        // Otherwise we could set m_gdbStarted here.
-    }
-
-    m_gdbStarted = true;
 
     if (m_currentGdbOutput.contains(m_lastSeqNr + '^'))
         m_lastSeqNr.clear();
@@ -187,7 +226,7 @@ QProcessEnvironment RemoteGdbProcess::processEnvironment() const
 
 void RemoteGdbProcess::setProcessEnvironment(const QProcessEnvironment & /* env */)
 {
-    // TODO: Do something.
+    // TODO: Do something. (if remote process exists: set, otherwise queue)
 }
 
 void RemoteGdbProcess::setEnvironment(const QStringList & /* env */)
@@ -211,46 +250,25 @@ int RemoteGdbProcess::findAnchor(const QByteArray &data) const
     return -1;
 }
 
-qint64 RemoteGdbProcess::sendInput(const QByteArray &data)
+void RemoteGdbProcess::sendInput(const QByteArray &data)
 {
     int pos;
     for (pos = 0; pos < data.size(); ++pos)
         if (!isdigit(data.at(pos)))
             break;
     m_lastSeqNr = data.left(pos);
-    return m_gdbConn->sendInput(data) ? data.size() : 0;
+    m_gdbProc->sendInput(data);
 }
 
-void RemoteGdbProcess::handleAppOutput()
+void RemoteGdbProcess::handleAppOutput(const QByteArray &output)
 {
-    m_adapter->handleApplicationOutput(m_appOutputConn->waitForRemoteOutput(0));
+    m_adapter->handleApplicationOutput(output);
 }
 
-void RemoteGdbProcess::handleErrOutput()
+void RemoteGdbProcess::handleErrOutput(const QByteArray &output)
 {
-    m_errorOutput += m_errOutputConn->waitForRemoteOutput(0);
+    m_errorOutput += output;
     emit readyReadStandardError();
-}
-
-void RemoteGdbProcess::stopReaders()
-{
-    if (m_appOutputConn) {
-        disconnect(m_appOutputConn.data(), SIGNAL(remoteOutputAvailable()),
-                   this, SLOT(handleAppOutput()));
-        m_appOutputConn->sendInput(CtrlC);
-        m_appOutputConn->quit();
-    }
-    if (m_errOutputConn)  {
-        disconnect(m_errOutputConn.data(), SIGNAL(remoteOutputAvailable()),
-                   this, SLOT(handleErrOutput()));
-        m_errOutputConn->sendInput(CtrlC);
-        m_errOutputConn->quit();
-    }
-}
-
-QByteArray RemoteGdbProcess::readerCmdLine(const QByteArray &file)
-{
-    return "rm -f " + file + " && mkfifo " + file +  " && cat " + file + "\r\n";
 }
 
 QByteArray RemoteGdbProcess::removeCarriageReturn(const QByteArray &data)
@@ -264,48 +282,16 @@ QByteArray RemoteGdbProcess::removeCarriageReturn(const QByteArray &data)
     return output;
 }
 
-bool RemoteGdbProcess::checkForGdbExit(QByteArray &output)
+void RemoteGdbProcess::emitErrorExit(const QString &error)
 {
-    const QByteArray exitString("^exit");
-    const int exitPos = output.indexOf(exitString);
-    if (exitPos == -1)
-        return false;
-
-    emit finished(0, QProcess::NormalExit);
-    disconnect(m_gdbConn.data(), SIGNAL(remoteOutputAvailable()),
-               this, SLOT(handleGdbOutput()));
-    output.remove(exitPos + exitString.size(), output.size());
-    stopReaders();
-    return true;
-}
-
-bool RemoteGdbProcess::waitForInputReady(Core::InteractiveSshConnection::Ptr &conn)
-{
-    if (conn->waitForRemoteOutput(m_serverInfo.timeout).isEmpty())
-        return false;
-    while (!conn->waitForRemoteOutput(100).isEmpty())
-        ;
-    return true;
-}
-
-bool RemoteGdbProcess::sendAndWaitForEcho(Core::InteractiveSshConnection::Ptr &conn,
-    const QByteArray &cmdLine)
-{
-    conn->sendInput(cmdLine);
-    QByteArray allOutput;
-    while (!allOutput.endsWith(cmdLine)) {
-        const QByteArray curOutput = conn->waitForRemoteOutput(100);
-        if (curOutput.isEmpty())
-            return false;
-        allOutput += curOutput;
+    if (m_error.isEmpty()) {
+        m_error = error;
+        emit finished(-1, QProcess::CrashExit);
     }
-    return true;
 }
-
 
 const QByteArray RemoteGdbProcess::CtrlC = QByteArray(1, 0x3);
 const QByteArray RemoteGdbProcess::AppOutputFile("app_output");
-const QByteArray RemoteGdbProcess::ErrOutputFile("err_output");
 
 } // namespace Internal
 } // namespace Debugger

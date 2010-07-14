@@ -65,6 +65,7 @@ class QmlJSEditorFactory;
 class QmlJSTextEditor;
 class QmlJSPreviewRunner;
 class QmlJSQuickFixCollector;
+class QmlTaskManager;
 
 class QmlJSEditorPlugin : public ExtensionSystem::IPlugin
 {
@@ -77,6 +78,7 @@ public:
     // IPlugin
     bool initialize(const QStringList &arguments, QString *errorMessage = 0);
     void extensionsInitialized();
+    ShutdownFlag aboutToShutdown();
 
     static QmlJSEditorPlugin *instance()
     { return m_instance; }
@@ -111,6 +113,7 @@ private:
 
     QTimer *m_quickFixTimer;
     QPointer<TextEditor::ITextEditable> m_currentTextEditable;
+    QmlTaskManager *m_qmlTaskManager;
 };
 
 } // namespace Internal

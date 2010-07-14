@@ -270,6 +270,7 @@ void TcfTrkGdbAdapter::tcftrkEvent(const tcftrk::TcfTrkEvent &e)
 
     switch (e.type()) {
     case tcftrk::TcfTrkEvent::LocatorHello:
+        m_trkDevice->sendLoggingAddListenerCommand(TcfTrkCallback());
         startGdb(); // Commands are only accepted after hello
         break;
     case tcftrk::TcfTrkEvent::RunControlModuleLoadSuspended: // A module was loaded
@@ -310,6 +311,9 @@ void TcfTrkGdbAdapter::tcftrkEvent(const tcftrk::TcfTrkEvent &e)
                                                        currentThreadContextId(), 0,
                                                        Symbian::RegisterCount);
     }
+        break;
+    case tcftrk::TcfTrkEvent::LoggingWriteEvent: // TODO: Not tested yet.
+        showMessage(e.toString(), AppOutput);
         break;
     default:
         break;

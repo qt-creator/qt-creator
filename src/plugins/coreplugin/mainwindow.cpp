@@ -70,6 +70,7 @@
 #include <coreplugin/settingsdatabase.h>
 #include <utils/pathchooser.h>
 #include <utils/stylehelper.h>
+#include <utils/stringutils.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QDebug>
@@ -238,7 +239,6 @@ void MainWindow::setOverrideColor(const QColor &color)
 
 MainWindow::~MainWindow()
 {
-    hide();
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     pm->removeObject(m_shortcutSettings);
     pm->removeObject(m_generalSettings);
@@ -1134,6 +1134,7 @@ void MainWindow::aboutToShutdown()
     disconnect(QApplication::instance(), SIGNAL(focusChanged(QWidget*,QWidget*)),
                this, SLOT(updateFocusWidget(QWidget*,QWidget*)));
     m_activeContext = 0;
+    hide();
 }
 
 static const char *settingsGroup = "MainWindow";
@@ -1253,7 +1254,8 @@ void MainWindow::aboutToShowRecentFiles()
     bool hasRecentFiles = false;
     foreach (const QString &fileName, m_fileManager->recentFiles()) {
         hasRecentFiles = true;
-        QAction *action = aci->menu()->addAction(fileName);
+        QAction *action = aci->menu()->addAction(
+                    Utils::withTildeHomePath(fileName));
         action->setData(fileName);
         connect(action, SIGNAL(triggered()), this, SLOT(openRecentFile()));
     }

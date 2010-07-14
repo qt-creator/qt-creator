@@ -42,6 +42,7 @@ SOURCES += texteditorplugin.cpp \
     normalindenter.cpp \
     indenter.cpp \
     quickfix.cpp \
+    syntaxhighlighter.cpp \
     generichighlighter/itemdata.cpp \
     generichighlighter/specificrules.cpp \
     generichighlighter/rule.cpp \
@@ -103,6 +104,7 @@ HEADERS += texteditorplugin.h \
     normalindenter.h \
     indenter.h \
     quickfix.h \
+    syntaxhighlighter.h \
     generichighlighter/reuse.h \
     generichighlighter/itemdata.h \
     generichighlighter/specificrules.h \

@@ -124,6 +124,10 @@ def lookupType(typestring):
         #if not type is None:
         #    warn("  FIELDS: '%s'" % type.fields())
         typeCache[typestring] = type
+    if type is None:
+        # could be gdb.lookup_type("char[3]") generating
+        # "RuntimeError: No type named char[3]"
+        pass
     return type
 
 def cleanType(type):
@@ -600,7 +604,11 @@ def isNull(p):
     # for invalid char *, as their "contents" is being examined
     #s = str(p)
     #return s == "0x0" or s.startswith("0x0 ")
-    return p.cast(lookupType("void").pointer()) == 0
+    try:
+        # Can fail with: "RuntimeError: Cannot access memory at address 0x5"
+        return p.cast(lookupType("void").pointer()) == 0
+    except:
+        return False
 
 movableTypes = set([
     "QBrush", "QBitArray", "QByteArray",
@@ -805,7 +813,10 @@ def extractFields(type):
     #warn("TYPE 0: %s" % type)
     type = stripTypedefs(type)
     #warn("TYPE 1: %s" % type)
-    type = lookupType(str(type))
+    # This fails for arrays. See comment in lookupType.
+    type2 = lookupType(str(type))
+    if not type2 is None:
+        type = type2
     #warn("TYPE 2: %s" % type)
     fields = type.fields()
     #warn("FIELDS: %s" % fields)
@@ -1038,11 +1049,14 @@ class Dumper:
                 # Special handling for char** argv.
                 n = 0
                 p = item.value
-                # p is 0 for "optimized out" cases.
-                if not isNull(p):
-                    while not isNull(p.dereference()) and n <= 100:
-                        p += 1
-                        n += 1
+                # p is 0 for "optimized out" cases. Or contains rubbish.
+                try:
+                    if not isNull(p):
+                        while not isNull(p.dereference()) and n <= 100:
+                            p += 1
+                            n += 1
+                except:
+                    pass
 
                 with SubItem(self):
                     self.put('iname="%s",' % item.iname)

@@ -31,16 +31,17 @@
 #define CPPHIGHLIGHTER_H
 
 #include "cppeditorenums.h"
-#include <QtGui/QSyntaxHighlighter>
+#include <texteditor/syntaxhighlighter.h>
 #include <QtGui/QTextCharFormat>
 #include <QtCore/QtAlgorithms>
 
 namespace CppEditor {
+
 namespace Internal {
 
 class CPPEditor;
 
-class CppHighlighter : public QSyntaxHighlighter
+class CppHighlighter : public TextEditor::SyntaxHighlighter
 {
     Q_OBJECT
 

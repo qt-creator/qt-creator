@@ -8,7 +8,8 @@ SUBDIRS += \
     aggregation \
     changeset \
 #    icheckbuild \
-    generichighlighter
+    generichighlighter \
+    utils_stringutils
 
 contains (QT_CONFIG, declarative) {
 SUBDIRS += qml

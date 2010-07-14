@@ -2,14 +2,6 @@
 <ui version="4.0">
  <class>Perforce::Internal::SettingsPage</class>
  <widget class="QWidget" name="Perforce::Internal::SettingsPage">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>437</width>
-    <height>407</height>
-   </rect>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="configGroupBox">
@@ -25,7 +17,7 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="Utils::PathChooser" name="pathChooser"/>
+       <widget class="Utils::PathChooser" name="pathChooser" native="true"/>
       </item>
      </layout>
     </widget>
@@ -131,6 +123,13 @@
        <widget class="QSpinBox" name="logCountSpinBox">
         <property name="maximum">
          <number>10000</number>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="2">
+       <widget class="QCheckBox" name="autoOpenCheckBox">
+        <property name="text">
+         <string>Automatically open files when editing</string>
         </property>
        </widget>
       </item>

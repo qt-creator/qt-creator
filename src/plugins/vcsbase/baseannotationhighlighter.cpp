@@ -47,7 +47,7 @@ struct BaseAnnotationHighlighterPrivate {
 
 BaseAnnotationHighlighter::BaseAnnotationHighlighter(const ChangeNumbers &changeNumbers,
                                              QTextDocument *document) :
-    QSyntaxHighlighter(document),
+    TextEditor::SyntaxHighlighter(document),
     m_d(new BaseAnnotationHighlighterPrivate)
 {
     setChangeNumbers(changeNumbers);

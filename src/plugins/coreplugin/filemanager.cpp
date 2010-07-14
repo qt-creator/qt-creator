@@ -745,7 +745,11 @@ QStringList FileManager::getOpenFileNames(const QString &filters,
                                           const QString pathIn,
                                           QString *selectedFilter)
 {
-    const QString path = pathIn.isEmpty() ? fileDialogInitialDirectory() : pathIn;
+    QString path = pathIn;
+    if (path.isEmpty()) {
+        if (!d->m_currentFile.isEmpty())
+            path = QFileInfo(d->m_currentFile).absoluteFilePath();
+    }
     const QStringList files = QFileDialog::getOpenFileNames(d->m_mainWindow,
                                                       tr("Open File"),
                                                       path, filters,
@@ -1009,7 +1013,7 @@ QString FileManager::currentFile() const
 QString FileManager::fileDialogInitialDirectory() const
 {
     if (!d->m_currentFile.isEmpty())
-        return QFileInfo(d->m_currentFile).absoluteFilePath();
+        return QFileInfo(d->m_currentFile).absolutePath();
     return d->m_lastVisitedDirectory;
 }
 

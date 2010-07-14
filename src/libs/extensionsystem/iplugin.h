@@ -49,12 +49,17 @@ class EXTENSIONSYSTEM_EXPORT IPlugin : public QObject
     Q_OBJECT
 
 public:
+    enum ShutdownFlag {
+        SynchronousShutdown,
+        AsynchronousShutdown
+    };
+
     IPlugin();
     virtual ~IPlugin();
 
     virtual bool initialize(const QStringList &arguments, QString *errorString) = 0;
     virtual void extensionsInitialized() = 0;
-    virtual void aboutToShutdown() { }
+    virtual ShutdownFlag aboutToShutdown() { return SynchronousShutdown; }
     virtual void remoteCommand(const QStringList & /* options */, const QStringList & /* arguments */) { }
 
     PluginSpec *pluginSpec() const;
@@ -62,6 +67,9 @@ public:
     void addObject(QObject *obj);
     void addAutoReleasedObject(QObject *obj);
     void removeObject(QObject *obj);
+
+signals:
+    void asynchronousShutdownFinished();
 
 private:
     Internal::IPluginPrivate *d;

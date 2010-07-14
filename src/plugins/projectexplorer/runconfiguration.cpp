@@ -179,6 +179,11 @@ Target *RunConfiguration::target() const
     return m_target;
 }
 
+ProjectExplorer::OutputFormatter *RunConfiguration::createOutputFormatter() const
+{
+    return new OutputFormatter();
+}
+
 IRunConfigurationFactory::IRunConfigurationFactory(QObject *parent) :
     QObject(parent)
 {
@@ -218,13 +223,23 @@ IRunControlFactory::~IRunControlFactory()
 RunControl::RunControl(RunConfiguration *runConfiguration, QString mode)
     : m_runMode(mode), m_runConfiguration(runConfiguration)
 {
-    if (runConfiguration)
+    if (runConfiguration) {
         m_displayName  = runConfiguration->displayName();
+        m_outputFormatter = runConfiguration->createOutputFormatter();
+    }
+    // We need to ensure that there's always a OutputFormatter
+    if (!m_outputFormatter)
+        m_outputFormatter = new OutputFormatter();
 }
 
 RunControl::~RunControl()
 {
+    delete m_outputFormatter;
+}
 
+OutputFormatter *RunControl::outputFormatter()
+{
+    return m_outputFormatter;
 }
 
 QString RunControl::runMode() const
@@ -240,11 +255,6 @@ QString RunControl::displayName() const
 bool RunControl::sameRunConfiguration(RunControl *other)
 {
     return other->m_runConfiguration.data() == m_runConfiguration.data();
-}
-
-OutputFormatter *RunControl::createOutputFormatter(QObject *parent)
-{
-    return new OutputFormatter(parent);
 }
 
 void RunControl::bringApplicationToForeground(qint64 pid)

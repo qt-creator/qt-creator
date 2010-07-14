@@ -37,6 +37,7 @@
 #include <texteditor/basetexteditor.h>
 
 #include <QtCore/QWaitCondition>
+#include <QtCore/QModelIndex>
 #include <QtCore/QMutex>
 #include <QtCore/QThread>
 
@@ -60,6 +61,7 @@ class Highlighter;
 namespace Internal {
 
 class QmlJSTextEditor;
+class QmlOutlineModel;
 
 class QmlJSEditorEditable : public TextEditor::BaseTextEditorEditable
 {
@@ -213,18 +215,19 @@ public:
     virtual void unCommentSelection();
 
     SemanticInfo semanticInfo() const;
-    int documentRevision() const;
+    int editorRevision() const;
     bool isOutdated() const;
 
-signals:
-    void selectedElementsChanged(QList<int> offsets, const QString &wordAtCursor);
+    QmlOutlineModel *outlineModel() const;
+    QModelIndex outlineModelIndex();
 
 public slots:
     void followSymbolUnderCursor();
     virtual void setFontSettings(const TextEditor::FontSettings &);
 
 signals:
-    void semanticInfoUpdated(const QmlJSEditor::Internal::SemanticInfo &semanticInfo);
+    void outlineModelIndexChanged(const QModelIndex &index);
+    void selectedElementsChanged(QList<int> offsets, const QString &wordAtCursor);
 
 private slots:
     void onDocumentUpdated(QmlJS::Document::Ptr doc);
@@ -232,9 +235,9 @@ private slots:
 
     void updateDocument();
     void updateDocumentNow();
-    void jumpToMethod(int index);
-    void updateMethodBoxIndex();
-    void updateMethodBoxToolTip();
+    void jumpToOutlineElement(int index);
+    void updateOutlineNow();
+    void updateOutlineIndexNow();
     void updateFileName();
 
     void updateUses();
@@ -272,13 +275,18 @@ private:
     QString wordUnderCursor() const;
 
     SemanticHighlighter::Source currentSource(bool force = false);
+    QModelIndex indexForPosition(unsigned cursorPosition, const QModelIndex &rootIndex = QModelIndex()) const;
 
     const Core::Context m_context;
 
     QTimer *m_updateDocumentTimer;
     QTimer *m_updateUsesTimer;
     QTimer *m_semanticRehighlightTimer;
-    QComboBox *m_methodCombo;
+    QTimer *m_updateOutlineTimer;
+    QTimer *m_updateOutlineIndexTimer;
+    QComboBox *m_outlineCombo;
+    QmlOutlineModel *m_outlineModel;
+    QModelIndex m_outlineModelIndex;
     QmlJS::ModelManagerInterface *m_modelManager;
     QTextCharFormat m_occurrencesFormat;
     QTextCharFormat m_occurrencesUnusedFormat;
@@ -288,7 +296,7 @@ private:
     SemanticInfo m_semanticInfo;
 
     QmlJS::IContextPane *m_contextPane;
-    int m_oldCurserPosition;
+    int m_oldCursorPosition;
 };
 
 } // namespace Internal

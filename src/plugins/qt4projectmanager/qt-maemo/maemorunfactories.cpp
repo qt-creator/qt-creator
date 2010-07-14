@@ -81,7 +81,10 @@ bool MaemoRunConfigurationFactory::canCreate(Target *parent,
 bool MaemoRunConfigurationFactory::canRestore(Target *parent,
     const QVariantMap &map) const
 {
-    return canCreate(parent, ProjectExplorer::idFromMap(map));
+    if (!qobject_cast<Qt4Target *>(parent))
+        return false;
+    return ProjectExplorer::idFromMap(map)
+        .startsWith(QLatin1String(MAEMO_RC_ID));
 }
 
 bool MaemoRunConfigurationFactory::canClone(Target *parent,

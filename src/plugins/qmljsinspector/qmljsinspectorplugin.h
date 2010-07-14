@@ -70,7 +70,7 @@ public:
     // ExtensionSystem::IPlugin interface
     virtual bool initialize(const QStringList &arguments, QString *errorString);
     virtual void extensionsInitialized();
-    virtual void aboutToShutdown();
+    virtual ExtensionSystem::IPlugin::ShutdownFlag aboutToShutdown();
 
 public slots:
     void activateDebuggerForProject(ProjectExplorer::Project *project, const QString &runMode);

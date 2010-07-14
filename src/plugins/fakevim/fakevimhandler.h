@@ -60,7 +60,7 @@ struct Range
 
 struct ExCommand
 {
-    ExCommand() : hasBang(false) {}
+    ExCommand() : hasBang(false), count(1) {}
     ExCommand(const QString &cmd, const QString &args = QString(),
         const Range &range = Range());
 
@@ -68,6 +68,7 @@ struct ExCommand
     bool hasBang;
     QString args;
     Range range;
+    int count;
 };
 
 class FakeVimHandler : public QObject

@@ -50,7 +50,7 @@ template <class SymbolType>
 inline bool resolveSymbol(const char *libraryName, HMODULE libraryHandle, const char *symbolName, SymbolType *s, QString *errorMessage)
 {
     *s = 0;
-    FARPROC WINAPI vs = ::GetProcAddress(libraryHandle, symbolName);
+    FARPROC vs = ::GetProcAddress(libraryHandle, symbolName);
     if (vs == 0) {
         *errorMessage = QString::fromLatin1("Unable to resolve '%2' in '%1'.").arg(QString::fromAscii(symbolName), QString::fromAscii(libraryName));
         return false;

@@ -65,7 +65,7 @@ ContextPaneWidget::~ContextPaneWidget()
         m_bauhausColorDialog.clear();
 }
 
-void ContextPaneWidget::activate(const QPoint &pos, const QPoint &alternative)
+void ContextPaneWidget::activate(const QPoint &pos, const QPoint &alternative, const QPoint &alternative2)
 {
     //uncheck all color buttons
     foreach (ColorButton *colorButton, findChildren<ColorButton*>()) {
@@ -73,20 +73,19 @@ void ContextPaneWidget::activate(const QPoint &pos, const QPoint &alternative)
     }
     resize(sizeHint());
     show();
-    rePosition(pos, alternative);
+    rePosition(pos, alternative, alternative2);
     raise();
 }
 
-void ContextPaneWidget::rePosition(const QPoint &position, const QPoint &alternative)
+void ContextPaneWidget::rePosition(const QPoint &position, const QPoint &alternative, const QPoint &alternative2)
 {
-    if (position.y() > 0)
+    if ((position.x()  + width()) < parentWidget()->width())
         move(position);
     else
         move(alternative);
 
-    m_originalPos = pos();
-    if (m_xPos > 0)
-        move(m_xPos, pos().y());
+    if (pos().y() < 0)
+        move(alternative2);
 }
 
 void ContextPaneWidget::deactivate()
@@ -178,13 +177,17 @@ void ContextPaneWidget::mouseReleaseEvent(QMouseEvent *event)
 void ContextPaneWidget::mouseMoveEvent(QMouseEvent * event)
 {
     if (event->buttons() &&  Qt::LeftButton) {
-
+        if (pos().x() < 10  && event->pos().x() < -20)
+            return;
         if (m_oldPos != QPoint(-1, -1)) {
             QPoint diff = event->globalPos() - m_oldPos;
-            move(pos() + diff);
-            if (m_bauhausColorDialog)
-                m_bauhausColorDialog->move(m_bauhausColorDialog->pos() + diff);
-            m_xPos = pos().x();
+            if (m_bauhausColorDialog) {
+                QPoint newPos = pos() + diff;
+                if (newPos.x() > 0 && newPos.y() > 0 && (newPos.x() + width()) < parentWidget()->width() && (newPos.y() + height()) < parentWidget()->height()) {
+                    m_bauhausColorDialog->move(m_bauhausColorDialog->pos() + diff);
+                    move(newPos);
+                }
+            }
         } else {
             m_opacityEffect = new QGraphicsOpacityEffect;
             setGraphicsEffect(m_opacityEffect);

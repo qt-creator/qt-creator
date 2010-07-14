@@ -62,7 +62,6 @@ private slots:
 
 private:
     bool eventFilter(QObject *o, QEvent *e);
-    bool isPdfFile(QHelpContentItem *item) const;
 
     QHelpContentWidget *m_contentWidget;
     int m_expandDepth;

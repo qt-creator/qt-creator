@@ -40,10 +40,11 @@
 QT_BEGIN_NAMESPACE
 class QTextCursor;
 class QTextDocument;
-class QSyntaxHighlighter;
 QT_END_NAMESPACE
 
 namespace TextEditor {
+
+class SyntaxHighlighter;
 
 class DocumentMarker : public ITextMarkable
 {
@@ -101,8 +102,8 @@ public:
     virtual void reload();
 
     QTextDocument *document() const { return m_document; }
-    void setSyntaxHighlighter(QSyntaxHighlighter *highlighter);
-    QSyntaxHighlighter *syntaxHighlighter() const { return m_highlighter; }
+    void setSyntaxHighlighter(SyntaxHighlighter *highlighter);
+    SyntaxHighlighter *syntaxHighlighter() const { return m_highlighter; }
 
 
     inline bool isBinaryData() const { return m_isBinaryData; }
@@ -127,7 +128,7 @@ private:
     TabSettings m_tabSettings;
     QTextDocument *m_document;
     DocumentMarker *m_documentMarker;
-    QSyntaxHighlighter *m_highlighter;
+    SyntaxHighlighter *m_highlighter;
 
     enum LineTerminatorMode {
         LFLineTerminator,

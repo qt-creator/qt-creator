@@ -30,11 +30,20 @@
 #ifndef CPPHOVERHANDLER_H
 #define CPPHOVERHANDLER_H
 
+#include <utils/htmldocextractor.h>
+
 #include <QtCore/QObject>
+#include <QtCore/QList>
+
+#include <cplusplus/CppDocument.h>
 
 QT_BEGIN_NAMESPACE
 class QPoint;
 QT_END_NAMESPACE
+
+namespace CPlusPlus {
+class LookupItem;
+}
 
 namespace Core {
 class IEditor;
@@ -46,6 +55,7 @@ class CppModelManagerInterface;
 
 namespace TextEditor {
 class ITextEditor;
+class BaseTextEditor;
 }
 
 namespace CppEditor {
@@ -54,7 +64,6 @@ namespace Internal {
 class CppHoverHandler : public QObject
 {
     Q_OBJECT
-
 public:
     CppHoverHandler(QObject *parent = 0);
 
@@ -66,11 +75,45 @@ private slots:
     void editorOpened(Core::IEditor *editor);
 
 private:
-    void updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int pos);
+    struct HelpCandidate
+    {
+        enum Category {
+            ClassOrNamespace,
+            Enum,
+            Typedef,
+            Var,
+            Macro,
+            Include,
+            Function
+        };
+
+        HelpCandidate(const QString &helpId, const QString &markId, Category category) :
+            m_helpId(helpId), m_markId(markId), m_category(category)
+        {}
+        QString m_helpId;
+        QString m_markId;
+        Category m_category;
+    };
+
+    void resetMatchings();
+    void identifyMatch(TextEditor::ITextEditor *editor, int pos);
+    bool matchDiagnosticMessage(const CPlusPlus::Document::Ptr &document, unsigned line);
+    bool matchIncludeFile(const CPlusPlus::Document::Ptr &document, unsigned line);
+    bool matchMacroInUse(const CPlusPlus::Document::Ptr &document, unsigned pos);
+    void handleLookupItemMatch(const CPlusPlus::LookupItem &lookupItem,
+                               const bool assignTooltip);
+
+    void evaluateHelpCandidates();
+    bool helpIdExists(const QString &helpId) const;
+    QString getDocContents();
+
+    static TextEditor::BaseTextEditor *baseTextEditor(TextEditor::ITextEditor *editor);
 
     CppTools::CppModelManagerInterface *m_modelManager;
-    QString m_helpId;
+    int m_matchingHelpCandidate;
+    QList<HelpCandidate> m_helpCandidates;
     QString m_toolTip;
+    Utils::HtmlDocExtractor m_htmlDocExtractor;
 };
 
 } // namespace Internal

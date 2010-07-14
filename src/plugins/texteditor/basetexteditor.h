@@ -216,6 +216,8 @@ public:
 
     int verticalBlockSelection() const;
 
+    QRegion translatedLineRegion(int lineStart, int lineEnd) const;
+
 public slots:
     void setDisplayName(const QString &title);
 
@@ -292,6 +294,8 @@ protected:
     bool canInsertFromMimeData(const QMimeData *source) const;
     void insertFromMimeData(const QMimeData *source);
 
+    static QString msgTextTooLarge(quint64 size);
+
 private:
     void maybeSelectLine();
 
@@ -345,7 +349,6 @@ public:
         FakeVimSelection,
         OtherSelection,
         SnippetPlaceholderSelection,
-        TypeSelection,
         ObjCSelection,
         NExtraSelectionKinds
     };

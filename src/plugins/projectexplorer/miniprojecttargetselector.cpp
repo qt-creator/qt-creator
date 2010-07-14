@@ -30,6 +30,7 @@
 #include "miniprojecttargetselector.h"
 #include "buildconfigurationmodel.h"
 #include "runconfigurationmodel.h"
+#include "target.h"
 
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>

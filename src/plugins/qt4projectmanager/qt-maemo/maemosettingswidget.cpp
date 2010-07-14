@@ -39,7 +39,9 @@
 #include "maemoconfigtestdialog.h"
 #include "maemodeviceconfigurations.h"
 #include "maemosshconfigdialog.h"
-#include "maemosshthread.h"
+
+#include <coreplugin/ssh/sshconnection.h>
+#include <coreplugin/ssh/sshremoteprocess.h>
 
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
@@ -51,6 +53,8 @@
 #include <QtGui/QIntValidator>
 
 #include <algorithm>
+
+using namespace Core;
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -97,8 +101,7 @@ MaemoSettingsWidget::MaemoSettingsWidget(QWidget *parent)
     : QWidget(parent),
       m_ui(new Ui_MaemoSettingsWidget),
       m_devConfs(MaemoDeviceConfigurations::instance().devConfigs()),
-      m_nameValidator(new NameValidator(m_devConfs)),
-      m_keyDeployer(0)
+      m_nameValidator(new NameValidator(m_devConfs))
 {
     initGui();
 }
@@ -195,7 +198,7 @@ void MaemoSettingsWidget::display(const MaemoDeviceConfig &devConfig)
     otherConfig->server.pwd = devConfig.server.pwd;
     otherConfig->server.privateKeyFile = devConfig.server.privateKeyFile;
 
-    if (devConfig.server.authType == Core::SshServerInfo::AuthByPwd)
+    if (devConfig.server.authType == Core::SshConnectionParameters::AuthByPwd)
         m_ui->passwordButton->setChecked(true);
     else
         m_ui->keyButton->setChecked(true);
@@ -272,7 +275,7 @@ void MaemoSettingsWidget::authenticationTypeChanged()
 {
     const bool usePassword = m_ui->passwordButton->isChecked();
     currentConfig().server.authType
-        = usePassword ? Core::SshServerInfo::AuthByPwd : Core::SshServerInfo::AuthByKey;
+        = usePassword ? Core::SshConnectionParameters::AuthByPwd : Core::SshConnectionParameters::AuthByKey;
     m_ui->pwdLineEdit->setEnabled(usePassword);
     m_ui->passwordLabel->setEnabled(usePassword);
     m_ui->keyFileLineEdit->setEnabled(!usePassword);
@@ -337,13 +340,32 @@ void MaemoSettingsWidget::deployKey()
     if (m_keyDeployer)
         return;
 
+    disconnect(m_ui->deployKeyButton, 0, this, 0);
+    m_ui->deployKeyButton->setText(tr("Stop Deploying"));
+    connect(m_ui->deployKeyButton, SIGNAL(clicked()), this,
+        SLOT(stopDeploying()));
+    m_connection = SshConnection::create();
+    connect(m_connection.data(), SIGNAL(connected()), this,
+        SLOT(handleConnected()));
+    connect(m_connection.data(), SIGNAL(error(SshError)), this,
+        SLOT(handleConnectionFailure()));
+    m_connection->connectToHost(currentConfig().server);
+}
+
+void MaemoSettingsWidget::handleConnected()
+{
+    if (!m_connection)
+        return;
+
     const QString &dir
         = QFileInfo(currentConfig().server.privateKeyFile).path();
     QString publicKeyFileName = QFileDialog::getOpenFileName(this,
         tr("Choose Public Key File"), dir,
         tr("Public Key Files(*.pub);;All Files (*)"));
-    if (publicKeyFileName.isEmpty())
+    if (publicKeyFileName.isEmpty()) {
+        stopDeploying();
         return;
+    }
 
     QFile keyFile(publicKeyFileName);
     QByteArray key;
@@ -353,32 +375,45 @@ void MaemoSettingsWidget::deployKey()
     if (!keyFileAccessible || keyFile.error() != QFile::NoError) {
         QMessageBox::critical(this, tr("Deployment Failed"),
             tr("Could not read public key file '%1'.").arg(publicKeyFileName));
+        stopDeploying();
         return;
     }
 
-    m_ui->deployKeyButton->disconnect();
-    const QString command = QLatin1String("test -d .ssh "
-        "|| mkdir .ssh && chmod 0700 .ssh && echo '")
-        + key + QLatin1String("' >> .ssh/authorized_keys");
-    m_keyDeployer = new MaemoSshRunner(currentConfig().server, command);
-    connect(m_keyDeployer, SIGNAL(finished()),
-            this, SLOT(handleDeployThreadFinished()));
-    m_ui->deployKeyButton->setText(tr("Stop Deploying"));
-    connect(m_ui->deployKeyButton, SIGNAL(clicked()), this, SLOT(stopDeploying()));
+    const QByteArray command = "test -d .ssh "
+        "|| mkdir .ssh && chmod 0700 .ssh && echo '"
+        + key + "' >> .ssh/authorized_keys";
+    m_keyDeployer = m_connection->createRemoteProcess(command);
+    connect(m_keyDeployer.data(), SIGNAL(closed(int)), this,
+        SLOT(handleKeyUploadFinished(int)));
     m_keyDeployer->start();
 }
 
-void MaemoSettingsWidget::handleDeployThreadFinished()
+void MaemoSettingsWidget::handleConnectionFailure()
 {
-    if (!m_keyDeployer)
+    if (!m_connection)
         return;
 
-    if (m_keyDeployer->hasError()) {
-        QMessageBox::critical(this, tr("Deployment Failed"),
-            tr("Key deployment failed: %1").arg(m_keyDeployer->error()));
-    } else {
+    QMessageBox::critical(this, tr("Deployment Failed"),
+        tr("Could not connect to host: %1").arg(m_connection->errorString()));
+    stopDeploying();
+}
+
+void MaemoSettingsWidget::handleKeyUploadFinished(int exitStatus)
+{
+    Q_ASSERT(exitStatus == SshRemoteProcess::FailedToStart
+        || exitStatus == SshRemoteProcess::KilledBySignal
+        || exitStatus == SshRemoteProcess::ExitedNormally);
+
+    if (!m_connection)
+        return;
+
+    if (exitStatus == SshRemoteProcess::ExitedNormally
+        && m_keyDeployer->exitCode() == 0) {
         QMessageBox::information(this, tr("Deployment Succeeded"),
             tr("Key was successfully deployed."));
+    } else {
+        QMessageBox::critical(this, tr("Deployment Failed"),
+            tr("Key deployment failed: %1.").arg(m_keyDeployer->errorString()));
     }
     stopDeploying();
 }
@@ -386,14 +421,14 @@ void MaemoSettingsWidget::handleDeployThreadFinished()
 void MaemoSettingsWidget::stopDeploying()
 {
     if (m_keyDeployer) {
-        m_ui->deployKeyButton->disconnect();
-        m_keyDeployer->disconnect();
-        m_keyDeployer->stop();
-        delete m_keyDeployer;
-        m_keyDeployer = 0;
-        m_ui->deployKeyButton->setText(tr("Deploy Public Key ..."));
-        connect(m_ui->deployKeyButton, SIGNAL(clicked()), this, SLOT(deployKey()));
+        disconnect(m_keyDeployer.data(), 0, this, 0);
+        m_keyDeployer = SshRemoteProcess::Ptr();
     }
+    if (m_connection)
+        disconnect(m_connection.data(), 0, this, 0);
+    m_ui->deployKeyButton->disconnect();
+    m_ui->deployKeyButton->setText(tr("Deploy Public Key ..."));
+    connect(m_ui->deployKeyButton, SIGNAL(clicked()), this, SLOT(deployKey()));
 }
 
 void MaemoSettingsWidget::currentConfigChanged(int index)

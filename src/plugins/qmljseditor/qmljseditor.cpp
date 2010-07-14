@@ -32,6 +32,7 @@
 #include "qmljshighlighter.h"
 #include "qmljseditorplugin.h"
 #include "qmljsmodelmanager.h"
+#include "qmloutlinemodel.h"
 
 #include <qmljs/qmljsindenter.h>
 #include <qmljs/qmljsinterpreter.h>
@@ -49,6 +50,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
@@ -60,6 +62,7 @@
 #include <texteditor/textblockiterator.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
+#include <texteditor/syntaxhighlighter.h>
 #include <qmldesigner/qmldesignerconstants.h>
 #include <utils/changeset.h>
 #include <utils/uncommentselection.h>
@@ -69,13 +72,16 @@
 
 #include <QtGui/QMenu>
 #include <QtGui/QComboBox>
+#include <QtGui/QHeaderView>
 #include <QtGui/QInputDialog>
 #include <QtGui/QMainWindow>
 #include <QtGui/QToolBar>
+#include <QtGui/QTreeView>
 
 enum {
     UPDATE_DOCUMENT_DEFAULT_INTERVAL = 50,
-    UPDATE_USES_DEFAULT_INTERVAL = 150
+    UPDATE_USES_DEFAULT_INTERVAL = 150,
+    UPDATE_OUTLINE_INTERVAL = 150 // msecs after new semantic info has been arrived / cursor has moved
 };
 
 using namespace QmlJS;
@@ -610,7 +616,8 @@ QString QmlJSEditorEditable::preferredMode() const
 
 QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     TextEditor::BaseTextEditor(parent),
-    m_methodCombo(0),
+    m_outlineCombo(0),
+    m_outlineModel(new QmlOutlineModel(this)),
     m_modelManager(0),
     m_contextPane(0)
 {
@@ -642,13 +649,23 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     connect(this, SIGNAL(textChanged()), this, SLOT(updateDocument()));
     connect(this, SIGNAL(textChanged()), this, SLOT(updateUses()));
 
+    m_updateOutlineTimer = new QTimer(this);
+    m_updateOutlineTimer->setInterval(UPDATE_OUTLINE_INTERVAL);
+    m_updateOutlineTimer->setSingleShot(true);
+    connect(m_updateOutlineTimer, SIGNAL(timeout()), this, SLOT(updateOutlineNow()));
+
+    m_updateOutlineIndexTimer = new QTimer(this);
+    m_updateOutlineIndexTimer->setInterval(UPDATE_OUTLINE_INTERVAL);
+    m_updateOutlineIndexTimer->setSingleShot(true);
+    connect(m_updateOutlineIndexTimer, SIGNAL(timeout()), this, SLOT(updateOutlineIndexNow()));
+
     baseTextDocument()->setSyntaxHighlighter(new Highlighter(document()));
 
     m_modelManager = ExtensionSystem::PluginManager::instance()->getObject<ModelManagerInterface>();
     m_contextPane = ExtensionSystem::PluginManager::instance()->getObject<QmlJS::IContextPane>();
     if (m_contextPane)
         connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(onCursorPositionChanged()));
-    m_oldCurserPosition = -1;
+    m_oldCursorPosition = -1;
 
     if (m_modelManager) {
         m_semanticHighlighter->setModelManager(m_modelManager);
@@ -674,17 +691,31 @@ SemanticInfo QmlJSTextEditor::semanticInfo() const
     return m_semanticInfo;
 }
 
-int QmlJSTextEditor::documentRevision() const
+int QmlJSTextEditor::editorRevision() const
 {
     return document()->revision();
 }
 
 bool QmlJSTextEditor::isOutdated() const
 {
-    if (m_semanticInfo.revision() != documentRevision())
+    if (m_semanticInfo.revision() != editorRevision())
         return true;
 
     return false;
+}
+
+QmlOutlineModel *QmlJSTextEditor::outlineModel() const
+{
+    return m_outlineModel;
+}
+
+QModelIndex QmlJSTextEditor::outlineModelIndex()
+{
+    if (!m_outlineModelIndex.isValid()) {
+        m_outlineModelIndex = indexForPosition(position());
+        emit outlineModelIndexChanged(m_outlineModelIndex);
+    }
+    return m_outlineModelIndex;
 }
 
 Core::IEditor *QmlJSEditorEditable::duplicate(QWidget *parent)
@@ -779,6 +810,8 @@ void QmlJSTextEditor::onDocumentUpdated(QmlJS::Document::Ptr doc)
 
         const SemanticHighlighter::Source source = currentSource(/*force = */ true);
         m_semanticHighlighter->rehighlight(source);
+
+        m_updateOutlineTimer->start();
     } else {
         // show parsing errors
         QList<QTextEdit::ExtraSelection> selections;
@@ -793,33 +826,70 @@ void QmlJSTextEditor::modificationChanged(bool changed)
         m_modelManager->fileChangedOnDisk(file()->fileName());
 }
 
-void QmlJSTextEditor::jumpToMethod(int index)
+void QmlJSTextEditor::jumpToOutlineElement(int /*index*/)
 {
-    if (index > 0 && index <= m_semanticInfo.declarations.size()) { // indexes are 1-based
-        Declaration d = m_semanticInfo.declarations.at(index - 1);
-        gotoLine(d.startLine, d.startColumn - 1);
-        setFocus();
-    }
+    QModelIndex index = m_outlineCombo->view()->currentIndex();
+    AST::SourceLocation location = index.data(QmlOutlineModel::SourceLocationRole).value<AST::SourceLocation>();
+
+    Core::EditorManager *editorManager = Core::EditorManager::instance();
+    editorManager->cutForwardNavigationHistory();
+    editorManager->addCurrentPositionToNavigationHistory();
+
+    QTextCursor cursor = textCursor();
+    cursor.setPosition(location.offset);
+    setTextCursor(cursor);
+
+    setFocus();
 }
 
-void QmlJSTextEditor::updateMethodBoxIndex()
+void QmlJSTextEditor::updateOutlineNow()
 {
-    int line = 0, column = 0;
-    convertPosition(position(), &line, &column);
+    const Snapshot snapshot = m_modelManager->snapshot();
+    Document::Ptr document = snapshot.document(file()->fileName());
 
-    int currentSymbolIndex = 0;
+    if (!document)
+        return;
 
-    int index = 0;
-    while (index < m_semanticInfo.declarations.size()) {
-        const Declaration &d = m_semanticInfo.declarations.at(index++);
-
-        if (line < d.startLine)
-            break;
-        else
-            currentSymbolIndex = index;
+    if (document->editorRevision() != editorRevision()) {
+        m_updateOutlineTimer->start();
+        return;
     }
 
-    m_methodCombo->setCurrentIndex(currentSymbolIndex);
+    m_outlineModel->update(document, snapshot);
+
+    QTreeView *treeView = static_cast<QTreeView*>(m_outlineCombo->view());
+    treeView->expandAll();
+
+    updateOutlineIndexNow();
+}
+
+void QmlJSTextEditor::updateOutlineIndexNow()
+{
+    if (m_updateOutlineTimer->isActive())
+        return; // updateOutlineNow will call this function soon anyway
+
+    if (!m_outlineModel->document())
+        return;
+
+    if (m_outlineModel->document()->editorRevision() != editorRevision()) {
+        m_updateOutlineIndexTimer->start();
+        return;
+    }
+
+    m_outlineModelIndex = QModelIndex(); // invalidate
+    QModelIndex comboIndex = outlineModelIndex();
+
+    if (comboIndex.isValid()) {
+        bool blocked = m_outlineCombo->blockSignals(true);
+
+        // There is no direct way to select a non-root item
+        m_outlineCombo->setRootModelIndex(comboIndex.parent());
+        m_outlineCombo->setCurrentIndex(comboIndex.row());
+        m_outlineCombo->setRootModelIndex(QModelIndex());
+
+        m_outlineCombo->blockSignals(blocked);
+    }
+
     updateUses();
 }
 
@@ -995,10 +1065,6 @@ void QmlJSTextEditor::setSelectedElement()
     emit selectedElementsChanged(offsets, wordAtCursor);
 }
 
-void QmlJSTextEditor::updateMethodBoxToolTip()
-{
-}
-
 void QmlJSTextEditor::updateFileName()
 {
 }
@@ -1122,25 +1188,33 @@ TextEditor::BaseTextEditorEditable *QmlJSTextEditor::createEditableInterface()
 
 void QmlJSTextEditor::createToolBar(QmlJSEditorEditable *editable)
 {
-    m_methodCombo = new QComboBox;
-    m_methodCombo->setMinimumContentsLength(22);
-    //m_methodCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    m_outlineCombo = new QComboBox;
+    m_outlineCombo->setMinimumContentsLength(22);
+    m_outlineCombo->setModel(m_outlineModel);
+
+    QTreeView *treeView = new QTreeView;
+    treeView->header()->hide();
+    treeView->setItemsExpandable(false);
+    treeView->setRootIsDecorated(false);
+    m_outlineCombo->setView(treeView);
+    treeView->expandAll();
+
+    //m_outlineCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
     // Make the combo box prefer to expand
-    QSizePolicy policy = m_methodCombo->sizePolicy();
+    QSizePolicy policy = m_outlineCombo->sizePolicy();
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
-    m_methodCombo->setSizePolicy(policy);
+    m_outlineCombo->setSizePolicy(policy);
 
-    connect(m_methodCombo, SIGNAL(activated(int)), this, SLOT(jumpToMethod(int)));
-    connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateMethodBoxIndex()));
-    connect(m_methodCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateMethodBoxToolTip()));
+    connect(m_outlineCombo, SIGNAL(activated(int)), this, SLOT(jumpToOutlineElement(int)));
+    connect(this, SIGNAL(cursorPositionChanged()), m_updateOutlineIndexTimer, SLOT(start()));
 
     connect(file(), SIGNAL(changed()), this, SLOT(updateFileName()));
 
     QToolBar *toolBar = static_cast<QToolBar*>(editable->toolBar());
 
     QList<QAction*> actions = toolBar->actions();
-    toolBar->insertWidget(actions.first(), m_methodCombo);
+    toolBar->insertWidget(actions.first(), m_outlineCombo);
 }
 
 TextEditor::BaseTextEditor::Link QmlJSTextEditor::findLinkAt(const QTextCursor &cursor, bool /*resolveTarget*/)
@@ -1226,7 +1300,7 @@ bool QmlJSTextEditor::event(QEvent *e)
     switch (e->type()) {
     case QEvent::ShortcutOverride:
         if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape && m_contextPane) {
-            m_contextPane->apply(editableInterface(),  m_semanticInfo.document, 0, false);
+            m_contextPane->apply(editableInterface(),  m_semanticInfo.document, m_semanticInfo.snapshot, 0, false);
         }
         break;
     default:
@@ -1241,7 +1315,7 @@ void QmlJSTextEditor::wheelEvent(QWheelEvent *event)
 {
     BaseTextEditor::wheelEvent(event);
     if (m_contextPane)
-        m_contextPane->apply(editableInterface(),  m_semanticInfo.document, m_semanticInfo.declaringMember(position()), true);
+        m_contextPane->apply(editableInterface(),  m_semanticInfo.document, m_semanticInfo.snapshot, m_semanticInfo.declaringMember(position()), true);
 }
 
 void QmlJSTextEditor::unCommentSelection()
@@ -1473,20 +1547,11 @@ void QmlJSTextEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
         FindDeclarations findDeclarations;
         m_semanticInfo.declarations = findDeclarations(doc->ast());
 
-        QStringList items;
-        items.append(tr("<Select Symbol>"));
-
-        foreach (Declaration decl, m_semanticInfo.declarations)
-            items.append(decl.text);
-
-        m_methodCombo->clear();
-        m_methodCombo->addItems(items);
-        updateMethodBoxIndex();
         if (m_contextPane) {
             Node *newNode = m_semanticInfo.declaringMember(position());
             if (newNode) {
-                m_contextPane->apply(editableInterface(), doc, newNode, true);
-                m_oldCurserPosition = position();
+                m_contextPane->apply(editableInterface(), doc, m_semanticInfo.snapshot, newNode, true);
+                m_oldCursorPosition = position();
             }
         }
     }
@@ -1496,19 +1561,43 @@ void QmlJSTextEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
     appendExtraSelectionsForMessages(&selections, doc->diagnosticMessages(), document());
     appendExtraSelectionsForMessages(&selections, m_semanticInfo.semanticMessages, document());
     setExtraSelections(CodeWarningsSelection, selections);
-
-    emit semanticInfoUpdated(semanticInfo);
 }
 
 void QmlJSTextEditor::onCursorPositionChanged()
 {
+
+
     if (m_contextPane) {
         Node *newNode = m_semanticInfo.declaringMember(position());
-        Node *oldNode = m_semanticInfo.declaringMember(m_oldCurserPosition);
+        Node *oldNode = m_semanticInfo.declaringMember(m_oldCursorPosition);
         if (oldNode != newNode)
-            m_contextPane->apply(editableInterface(), m_semanticInfo.document, newNode, false);
-        m_oldCurserPosition = position();
+            m_contextPane->apply(editableInterface(), m_semanticInfo.document, m_semanticInfo.snapshot, newNode, false);
+        m_oldCursorPosition = position();
     }
+}
+
+QModelIndex QmlJSTextEditor::indexForPosition(unsigned cursorPosition, const QModelIndex &rootIndex) const
+{
+    QModelIndex lastIndex = rootIndex;
+
+
+    const int rowCount = m_outlineModel->rowCount(rootIndex);
+    for (int i = 0; i < rowCount; ++i) {
+        QModelIndex childIndex = m_outlineModel->index(i, 0, rootIndex);
+        AST::SourceLocation location = childIndex.data(QmlOutlineModel::SourceLocationRole).value<AST::SourceLocation>();
+
+        if ((cursorPosition >= location.offset)
+              && (cursorPosition <= location.offset + location.length)) {
+            lastIndex = childIndex;
+            break;
+        }
+    }
+
+    if (lastIndex != rootIndex) {
+        // recurse
+        lastIndex = indexForPosition(cursorPosition, lastIndex);
+    }
+    return lastIndex;
 }
 
 SemanticHighlighter::Source QmlJSTextEditor::currentSource(bool force)
@@ -1633,3 +1722,4 @@ void SemanticHighlighter::setModelManager(QmlJS::ModelManagerInterface *modelMan
 {
     m_modelManager = modelManager;
 }
+

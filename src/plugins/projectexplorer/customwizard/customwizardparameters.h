@@ -105,6 +105,7 @@ struct CustomWizardContext {
     // %Field:l% -> lower case replacement, 'u' upper case,
     // 'c' capitalize first letter.
     static void replaceFields(const FieldReplacementMap &fm, QString *s);
+    static QString processFile(const FieldReplacementMap &fm, QString in);
 
     FieldReplacementMap baseReplacements;
 };

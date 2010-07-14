@@ -144,7 +144,7 @@ void CodepasterPlugin::extensionsInitialized()
 {
 }
 
-void CodepasterPlugin::aboutToShutdown()
+ExtensionSystem::IPlugin::ShutdownFlag CodepasterPlugin::aboutToShutdown()
 {
     // Delete temporary, fetched files
     foreach(const QString &fetchedSnippet, m_fetchedSnippets) {
@@ -152,6 +152,7 @@ void CodepasterPlugin::aboutToShutdown()
         if (file.exists())
             file.remove();
     }
+    return SynchronousShutdown;
 }
 
 void CodepasterPlugin::postEditor()

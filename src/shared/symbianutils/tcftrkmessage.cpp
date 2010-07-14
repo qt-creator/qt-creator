@@ -36,7 +36,7 @@
 // Names matching the enum
 static const char *serviceNamesC[] =
 { "Locator", "RunControl", "Processes", "Memory", "Settings", "Breakpoints",
-  "Registers", "SimpleRegisters",
+  "Registers", "SimpleRegisters", "Logging",
   "UnknownService"};
 
 namespace tcftrk {
@@ -401,6 +401,10 @@ TcfTrkEvent *TcfTrkEvent::parseEvent(Services s, const QByteArray &nameBA, const
             return new TcfTrkRunControlContextRemovedEvent(ids);
         }
         break;
+    case LoggingService:
+        if (nameBA == "write" && values.size() >= 2)
+            return new TcfTrkLoggingWriteEvent(values.at(0).data(), values.at(1).data());
+        break;
    default:
         break;
     }
@@ -417,6 +421,21 @@ TcfTrkLocatorHelloEvent::TcfTrkLocatorHelloEvent(const QStringList &s) :
 QString TcfTrkLocatorHelloEvent::toString() const
 {
     return QLatin1String("ServiceHello: ") + m_services.join(QLatin1String(", "));
+}
+
+// --------------  Logging event
+
+TcfTrkLoggingWriteEvent::TcfTrkLoggingWriteEvent(const QByteArray &console, const QByteArray &message) :
+    TcfTrkEvent(LoggingWriteEvent), m_console(console), m_message(message)
+{
+}
+
+QString TcfTrkLoggingWriteEvent::toString() const
+{
+    QByteArray msgBA = m_console;
+    msgBA += ": ";
+    msgBA += m_message;
+    return QString::fromUtf8(msgBA);
 }
 
 // -------------- TcfTrkIdEvent

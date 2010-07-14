@@ -147,7 +147,7 @@ private:
     // managed by ProjectNode
     friend class ProjectNode;
     QString m_displayName;
-    QIcon m_icon;
+    mutable QIcon m_icon;
 };
 
 class PROJECTEXPLORER_EXPORT ProjectNode : public FolderNode

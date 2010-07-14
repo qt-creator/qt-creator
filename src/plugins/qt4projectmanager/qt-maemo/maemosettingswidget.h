@@ -38,6 +38,7 @@
 #include "maemodeviceconfigurations.h"
 
 #include <QtCore/QList>
+#include <QtCore/QSharedPointer>
 #include <QtCore/QString>
 #include <QtGui/QWidget>
 
@@ -46,6 +47,11 @@ class QLineEdit;
 
 class Ui_MaemoSettingsWidget;
 QT_END_NAMESPACE
+
+namespace Core {
+class SshConnection;
+class SshRemoteProcess;
+}
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -86,8 +92,10 @@ private slots:
 
     // For key deploying.
     void deployKey();
-    void handleDeployThreadFinished();
     void stopDeploying();
+    void handleConnected();
+    void handleConnectionFailure();
+    void handleKeyUploadFinished(int exitStatus);
 
 private:
     void initGui();
@@ -102,7 +110,8 @@ private:
     MaemoDeviceConfig m_lastConfigHW;
     MaemoDeviceConfig m_lastConfigSim;
     NameValidator * const m_nameValidator;
-    MaemoSshRunner *m_keyDeployer;
+    QSharedPointer<Core::SshConnection> m_connection;
+    QSharedPointer<Core::SshRemoteProcess> m_keyDeployer;
 };
 
 } // namespace Internal

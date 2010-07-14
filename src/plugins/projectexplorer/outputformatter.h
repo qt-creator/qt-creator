@@ -46,7 +46,7 @@ class PROJECTEXPLORER_EXPORT OutputFormatter: public QObject
     Q_OBJECT
 
 public:
-    OutputFormatter(QObject *parent = 0);
+    OutputFormatter();
     virtual ~OutputFormatter();
 
     QPlainTextEdit *plainTextEdit() const;
@@ -55,9 +55,7 @@ public:
     virtual void appendApplicationOutput(const QString &text, bool onStdErr);
     virtual void appendMessage(const QString &text, bool isError);
 
-    virtual void mousePressEvent(QMouseEvent *e);
-    virtual void mouseReleaseEvent(QMouseEvent *e);
-    virtual void mouseMoveEvent(QMouseEvent *e);
+    virtual void handleLink(const QString &href);
 
 protected:
     enum Format {

@@ -55,7 +55,9 @@
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
-#include <cxxabi.h>
+#ifdef __GNUC__
+#  include <cxxabi.h>
+#endif
 
 using namespace CPlusPlus;
 
@@ -103,9 +105,12 @@ protected:
     }
 
     static QByteArray name(AST *ast) {
+#ifdef __GNUC__
         QByteArray name = abi::__cxa_demangle(typeid(*ast).name(), 0, 0, 0) + 11;
         name.truncate(name.length() - 3);
-
+#else
+        QByteArray name = typeid(*ast).name();
+#endif
         return name;
     }
 
@@ -199,7 +204,11 @@ public:
 
 protected:
     QByteArray name(Symbol *s) {
+#ifdef __GNUC__
         QByteArray result = abi::__cxa_demangle(typeid(*s).name(), 0, 0, 0) + 11;
+#else
+        QByteArray result = typeid(*s).name();
+#endif
         if (s->identifier()) {
             result.append("\\nid: ");
             result.append(s->identifier()->chars());

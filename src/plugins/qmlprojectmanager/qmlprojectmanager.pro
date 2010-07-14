@@ -19,11 +19,9 @@ HEADERS += qmlproject.h \
     qmlprojectrunconfiguration.h \
     qmlprojectrunconfigurationfactory.h \
     qmlprojectapplicationwizard.h \
-    qmltaskmanager.h \
     qmlprojectmanager_global.h \
     qmlprojectmanagerconstants.h \
-    qmlprojecttarget.h \
-    qmloutputformatter.h
+    qmlprojecttarget.h
 SOURCES += qmlproject.cpp \
     qmlprojectplugin.cpp \
     qmlprojectmanager.cpp \
@@ -34,9 +32,7 @@ SOURCES += qmlproject.cpp \
     qmlprojectrunconfiguration.cpp \
     qmlprojectrunconfigurationfactory.cpp \
     qmlprojectapplicationwizard.cpp \
-    qmltaskmanager.cpp \
-    qmlprojecttarget.cpp \
-    qmloutputformatter.cpp
+    qmlprojecttarget.cpp
 RESOURCES += qmlproject.qrc
 
 OTHER_FILES += QmlProjectManager.pluginspec \
