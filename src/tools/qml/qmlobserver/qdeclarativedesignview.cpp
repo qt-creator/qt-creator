@@ -89,6 +89,7 @@ void QDeclarativeDesignView::mousePressEvent(QMouseEvent *event)
 void QDeclarativeDesignView::mouseMoveEvent(QMouseEvent *event)
 {
     if (!designModeBehavior()) {
+        clearHighlight();
         QDeclarativeView::mouseMoveEvent(event);
         return;
     }
