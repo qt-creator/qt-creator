@@ -283,7 +283,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     const bool actionsEnabled = modelData(EngineActionsEnabledRole).toBool();
     const unsigned engineCapabilities = modelData(EngineCapabilitiesRole).toUInt();
-    const bool canHandleWatches = actionsEnabled && (engineCapabilities & AddWatcherCapability);
+    const bool canHandleWatches =
+        actionsEnabled && (engineCapabilities & AddWatcherCapability);
 
     QMenu menu;
     QAction *actInsertNewWatchItem = menu.addAction(tr("Insert New Watch Item"));
@@ -335,12 +336,15 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         actSetWatchPointAtVariableAddress->setEnabled(false);
     }
 
-    QAction *actWatchExpression =
-        new QAction(tr("Watch Expression \"%1\"").arg(exp), &menu);
-    actWatchExpression->setEnabled(canHandleWatches);
+    QString actionName = exp.isEmpty() ? tr("Watch Expression")
+        : tr("Watch Expression \"%1\"").arg(exp);
+    QAction *actWatchExpression = new QAction(actionName, &menu);
+    actWatchExpression->setEnabled(canHandleWatches && !exp.isEmpty());
 
-    QAction *actRemoveWatchExpression =
-        new QAction(tr("Remove Watch Expression \"%1\"").arg(exp), &menu);
+    actionName = exp.isEmpty() ? tr("Remove Watch Expression")
+        : tr("Remove Watch Expression \"%1\"").arg(exp);
+    QAction *actRemoveWatchExpression = new QAction(actionName, &menu);
+    actRemoveWatchExpression->setEnabled(canHandleWatches && !exp.isEmpty());
 
     if (m_type == LocalsType)
         menu.addAction(actWatchExpression);
