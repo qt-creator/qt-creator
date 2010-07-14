@@ -31,7 +31,7 @@
 #define CDBBREAKPOINTS_H
 
 #include "cdbcom.h"
-#include "breakpoint.h"
+#include "corebreakpoint.h"
 #include "breakhandler.h"
 
 #include <QtCore/QString>

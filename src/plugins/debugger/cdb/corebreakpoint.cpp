@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "breakpoint.h"
+#include "corebreakpoint.h"
 #include "coreengine.h"
 
 #include <utils/qtcassert.h>

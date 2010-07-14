@@ -49,7 +49,7 @@ HEADERS += \
     $$PWD/debugeventcallbackbase.h \
     $$PWD/symbolgroupcontext.h \
     $$PWD/stacktracecontext.h \
-    $$PWD/breakpoint.h
+    $$PWD/corebreakpoint.h
 
 HEADERS += \
     $$PWD/cdbengine.h \
@@ -74,7 +74,7 @@ SOURCES += \
 #    $$PWD/debugeventcallbackbase.cpp \
 #    $$PWD/symbolgroupcontext.cpp \
 #    $$PWD/stacktracecontext.cpp \
-#    $$PWD/breakpoint.cpp
+#    $$PWD/corebreakpoint.cpp
 
 SOURCES += \
 #    $$PWD/cdbengine.cpp \

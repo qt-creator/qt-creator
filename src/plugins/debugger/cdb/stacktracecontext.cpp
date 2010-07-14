@@ -29,7 +29,7 @@
 
 #include "stacktracecontext.h"
 #include "symbolgroupcontext.h"
-#include "breakpoint.h"
+#include "corebreakpoint.h"
 #include "coreengine.h"
 
 #include <QtCore/QDir>
