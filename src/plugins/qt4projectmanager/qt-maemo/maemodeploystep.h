@@ -74,6 +74,7 @@ signals:
 
 private slots:
     void start();
+    void stop();
     void handleConnected();
     void handleConnectionFailure();
     void handleSftpChannelInitialized();
@@ -95,7 +96,6 @@ private:
     virtual bool fromMap(const QVariantMap &map);
 
     void ctor();
-    void stop();
     void raiseError(const QString &error);
     void writeOutput(const QString &text,
         const QTextCharFormat &format = QTextCharFormat());

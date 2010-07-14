@@ -88,6 +88,7 @@ void MaemoDeployStep::run(QFutureInterface<bool> &fi)
     QTimer::singleShot(0, this, SLOT(start()));
 
     MaemoDeployEventHandler eventHandler(this, fi);
+    connect (&eventHandler, SIGNAL(destroyed()), this, SLOT(stop()));
 }
 
 BuildStepConfigWidget *MaemoDeployStep::createConfigWidget()
@@ -176,8 +177,8 @@ void MaemoDeployStep::stop()
     } else if (!m_uploadsInProgress.isEmpty() || !m_linksInProgress.isEmpty()) {
         m_uploadsInProgress.clear();
         m_linksInProgress.clear();
-        m_uploader->closeChannel();
         disconnect(m_uploader.data(), 0, this, 0);
+        m_uploader->closeChannel();
     }
     if (m_connection)
         disconnect(m_connection.data(), 0, this, 0);
