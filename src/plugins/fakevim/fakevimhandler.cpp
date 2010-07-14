@@ -149,19 +149,21 @@ enum Mode
 enum SubMode
 {
     NoSubMode,
-    ChangeSubMode,     // Used for c
-    DeleteSubMode,     // Used for d
-    FilterSubMode,     // Used for !
-    IndentSubMode,     // Used for =
-    RegisterSubMode,   // Used for "
-    ShiftLeftSubMode,  // Used for <
-    ShiftRightSubMode, // Used for >
-    TransformSubMode,  // Used for ~/gu/gU
-    WindowSubMode,     // Used for Ctrl-w
-    YankSubMode,       // Used for y
-    ZSubMode,          // Used for z
-    CapitalZSubMode,   // Used for Z
-    ReplaceSubMode,    // Used for r
+    ChangeSubMode,       // Used for c
+    DeleteSubMode,       // Used for d
+    FilterSubMode,       // Used for !
+    IndentSubMode,       // Used for =
+    RegisterSubMode,     // Used for "
+    ShiftLeftSubMode,    // Used for <
+    ShiftRightSubMode,   // Used for >
+    TransformSubMode,    // Used for ~/gu/gU
+    WindowSubMode,       // Used for Ctrl-w
+    YankSubMode,         // Used for y
+    ZSubMode,            // Used for z
+    CapitalZSubMode,     // Used for Z
+    ReplaceSubMode,      // Used for r
+    OpenSquareSubMode,   // Used for [
+    CloseSquareSubMode,  // Used for ]
 };
 
 /*! A \e SubSubMode is used for things that require one more data item
@@ -605,12 +607,15 @@ public:
     EventResult handleCommandMode(const Input &);
     EventResult handleRegisterMode(const Input &);
     EventResult handleExMode(const Input &);
+    EventResult handleOpenSquareSubMode(const Input &);
+    EventResult handleCloseSquareSubMode(const Input &);
     EventResult handleSearchSubSubMode(const Input &);
     EventResult handleCommandSubSubMode(const Input &);
     void finishMovement(const QString &dotCommand = QString());
     void finishMovement(const QString &dotCommand, int count);
     void resetCommandMode();
     void search(const SearchData &sd);
+    void searchBalanced(bool forward, QChar needle, QChar other);
     void highlightMatches(const QString &needle);
     void stopIncrementalFind();
 
@@ -1685,6 +1690,30 @@ EventResult FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
     return handled;
 }
 
+EventResult FakeVimHandler::Private::handleOpenSquareSubMode(const Input &input)
+{
+    EventResult handled = EventHandled;
+    m_submode = NoSubMode;
+    if (input.is('{')) {
+        searchBalanced(false, '{', '}');
+    } else {
+        handled = EventUnhandled;
+    }
+    return handled;
+}
+
+EventResult FakeVimHandler::Private::handleCloseSquareSubMode(const Input &input)
+{
+    EventResult handled = EventHandled;
+    m_submode = NoSubMode;
+    if (input.is('}')) {
+        searchBalanced(true, '}', '{');
+    } else {
+        handled = EventUnhandled;
+    }
+    return handled;
+}
+
 EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
 {
     EventResult handled = EventHandled;
@@ -1703,6 +1732,10 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         }
     } else if (m_subsubmode != NoSubSubMode) {
         handleCommandSubSubMode(input);
+    } else if (m_submode == OpenSquareSubMode) {
+        handled = handleOpenSquareSubMode(input);
+    } else if (m_submode == CloseSquareSubMode) {
+        handled = handleCloseSquareSubMode(input);
     } else if (m_submode == WindowSubMode) {
         emit q->windowCommandRequested(input.key());
         m_submode = NoSubMode;
@@ -2480,6 +2513,10 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         else if (input.is('U'))
             m_subsubmode = UpCaseSubSubMode;
         finishMovement();
+    } else if (input.is('[')) {
+        m_submode = OpenSquareSubMode;
+    } else if (input.is(']')) {
+        m_submode = CloseSquareSubMode;
     } else if (input.isKey(Key_PageDown) || input.isControl('f')) {
         moveDown(count() * (linesOnScreen() - 2) - cursorLineOnScreen());
         scrollToLine(cursorLine());
@@ -3471,6 +3508,40 @@ static void vimPatternToQtPattern(QString *needle, QTextDocument::FindFlags *fla
     needle->remove(_("\\<")); // start of word
     needle->remove(_("\\>")); // end of word
     //qDebug() << "NEEDLE " << needle0 << needle;
+}
+
+void FakeVimHandler::Private::searchBalanced(bool forward, QChar needle, QChar other)
+{
+    int level = 1;
+    int pos = m_tc.position();
+    const int npos = forward ? lastPositionInDocument() : 0;
+    QTextDocument *doc = m_tc.document();
+    while (true) {
+        if (forward)
+            ++pos;
+        else
+            --pos;
+        if (pos == npos)
+            return;
+        QChar c = doc->characterAt(pos);
+        if (c == other)
+            ++level;
+        else if (c == needle)
+            --level;
+        if (level == 0) {
+            const int oldLine = cursorLine() - cursorLineOnScreen();
+            m_tc.setPosition(pos, MoveAnchor);
+            m_tc.clearSelection();
+            EDITOR(setTextCursor(m_tc));
+            // Making this unconditional feels better, but is not "vim like".
+            if (oldLine != cursorLine() - cursorLineOnScreen())
+                scrollToLine(cursorLine() - linesOnScreen() / 2);
+            setTargetColumn();
+            updateSelection();
+            recordJump();
+            return;
+        }
+    }
 }
 
 void FakeVimHandler::Private::search(const SearchData &sd)

@@ -1027,7 +1027,7 @@ void FakeVimPluginPrivate::moveToMatchingParenthesis(bool *moved, bool *forward,
         if (undoFakeEOL)
             cursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 1);
         if (match == TextEditor::TextBlockUserData::NoMatch) {
-            // backward matching is according to the character before the cursor
+            // Backward matching is according to the character before the cursor.
             bool undoMove = false;
             if (!cursor->atBlockEnd()) {
                 cursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 1);
