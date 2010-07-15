@@ -136,6 +136,7 @@ private: ////////// Gdb Process Management //////////
 
     void handleAdapterStarted();
     void defaultInferiorShutdown(const char *cmd);
+    void loadPythonDumpers();
 
     // Something went wrong with the adapter *before* adapterStarted() was emitted.
     // Make sure to clean up everything before emitting this signal.

@@ -56,10 +56,17 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-CoreGdbAdapter::CoreGdbAdapter(GdbEngine *engine, QObject *parent)
-    : AbstractGdbAdapter(engine, parent), m_round(1)
+static QByteArray coreName(const DebuggerStartParameters &sp)
 {
+    QFileInfo fi(sp.coreFile);
+    return fi.absoluteFilePath().toLocal8Bit();
 }
+
+CoreGdbAdapter::CoreGdbAdapter(GdbEngine *engine, QObject *parent)
+  : AbstractGdbAdapter(engine, parent),
+    m_executable(startParameters().executable),
+    m_coreName(coreName(startParameters()))
+{}
 
 void CoreGdbAdapter::startAdapter()
 {
@@ -69,34 +76,67 @@ void CoreGdbAdapter::startAdapter()
     if (!m_engine->startGdb())
         return;
 
+#ifndef EXE_FROM_CORE
+    if (m_executable.isEmpty()) {
+        showMessageBox(QMessageBox::Warning, tr("Error Loading Symbols"),
+                       tr("No executable to load symbols from specified."));
+    }
     m_engine->handleAdapterStarted();
+#else
+    // Extra round trip to get executable name from core file.
+    // This is sometimes not the full name, so it can't be used
+    // as the generic solution.
+
+    // Quoting core name below fails in gdb 6.8-debian.
+    m_engine->postCommand("target core " + m_coreName,
+        CB(handleTemporaryTargetCore));
+#endif
+}
+
+void CoreGdbAdapter::handleTemporaryTargetCore(const GdbResponse &response)
+{
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
+    if (response.resultClass != GdbResultDone) {
+        showMessage(tr("Attach to core failed."), StatusBar);
+        m_engine->notifyEngineSetupFailed();
+        return;
+    }
+
+    GdbMi console = response.data.findChild("consolestreamoutput");
+    int pos1 = console.data().indexOf('`');
+    int pos2 = console.data().indexOf('\'');
+    if (pos1 == -1 || pos2 == -1) {
+        showMessage(tr("Attach to core failed."), StatusBar);
+        m_engine->notifyEngineSetupFailed();
+        return;
+    }
+
+    m_executable = console.data().mid(pos1 + 1, pos2 - pos1 - 1);
+    // Strip off command line arguments. FIXME: make robust.
+    int idx = m_executable.indexOf(_c(' '));
+    if (idx >= 0)
+        m_executable.truncate(idx);
+    if (m_executable.isEmpty()) {
+        m_engine->postCommand("detach");
+        m_engine->notifyEngineSetupFailed();
+        return;
+    }
+    m_executable = QFileInfo(startParameters().coreFile).absoluteDir()
+                   .absoluteFilePath(m_executable);
+    showMessage(tr("Attached to core temporarily."), StatusBar);
+    m_engine->postCommand("detach", CB(handleTemporaryDetach));
+}
+
+void CoreGdbAdapter::handleTemporaryDetach(const GdbResponse &response)
+{
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
+    if (response.resultClass == GdbResultDone)
+        m_engine->notifyEngineSetupOk();
+    else
+        m_engine->notifyEngineSetupFailed();
 }
 
 void CoreGdbAdapter::setupInferior()
-{
-    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-    m_executable = startParameters().executable;
-    if (m_executable.isEmpty()) {
-#ifdef EXE_FROM_CORE
-        // Extra round trip to get executable name from core file.
-        // This is sometimes not the full name, so it can't be used
-        // as the generic solution.
-
-        m_round = 1;
-        loadCoreFile();
-#else
-        showMessageBox(QMessageBox::Warning, tr("Error Loading Symbols"),
-                       tr("No executable to load symbols from specified."));
-#endif
-        return;
-    }
-#ifdef EXE_FROM_CORE
-    m_round = 2;
-#endif
-    loadExeAndSyms();
-}
-
-void CoreGdbAdapter::loadExeAndSyms()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     // Do that first, otherwise no symbols are loaded.
@@ -111,63 +151,27 @@ void CoreGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
         showMessage(tr("Symbols found."), StatusBar);
-    } else {
-        QString msg = tr("Loading symbols from \"%1\" failed:\n").arg(m_executable)
-            + QString::fromLocal8Bit(response.data.findChild("msg").data());
-        showMessageBox(QMessageBox::Warning, tr("Error Loading Symbols"), msg);
+        m_engine->postCommand("target core " + m_coreName,
+            CB(handleTargetCore));
+        return;
     }
-    loadCoreFile();
-}
-
-void CoreGdbAdapter::loadCoreFile()
-{
-    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-    // Quoting core name below fails in gdb 6.8-debian.
-    QFileInfo fi(startParameters().coreFile);
-    QByteArray coreName = fi.absoluteFilePath().toLocal8Bit();
-    m_engine->postCommand("target core " + coreName, CB(handleTargetCore));
+    m_engine->notifyInferiorSetupFailed(_("File or symbols not found"));
 }
 
 void CoreGdbAdapter::handleTargetCore(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
-#ifdef EXE_FROM_CORE
-        if (m_round == 1) {
-            m_round = 2;
-            GdbMi console = response.data.findChild("consolestreamoutput");
-            int pos1 = console.data().indexOf('`');
-            int pos2 = console.data().indexOf('\'');
-            if (pos1 != -1 && pos2 != -1) {
-                m_executable = console.data().mid(pos1 + 1, pos2 - pos1 - 1);
-                // Strip off command line arguments. FIXME: make robust.
-                int idx = m_executable.indexOf(_c(' '));
-                if (idx >= 0)
-                    m_executable.truncate(idx);
-                if (!m_executable.isEmpty()) {
-                    m_executable = QFileInfo(startParameters().coreFile).absoluteDir()
-                                   .absoluteFilePath(m_executable);
-                    if (QFile::exists(m_executable)) {
-                        // Finish extra round ...
-                        showMessage(tr("Attached to core temporarily."), StatusBar);
-                        m_engine->postCommand("detach");
-                        // ... and retry.
-                        loadExeAndSyms();
-                        return;
-                    }
-                }
-            }
-            showMessageBox(QMessageBox::Warning, tr("Error Loading Symbols"),
-                           tr("Unable to determine executable from core file."));
-        }
-#endif
+        // HACK: The namespace is not accessible in the initial run.
+        m_engine->loadPythonDumpers();
         showMessage(tr("Attached to core."), StatusBar);
         m_engine->handleInferiorPrepared();
-    } else {
-        QString msg = tr("Attach to core \"%1\" failed:\n").arg(startParameters().coreFile)
-            + QString::fromLocal8Bit(response.data.findChild("msg").data());
-        m_engine->notifyInferiorSetupFailed(msg);
+        return;
     }
+    QString msg = tr("Attach to core \"%1\" failed:\n")
+        .arg(startParameters().coreFile)
+        + QString::fromLocal8Bit(response.data.findChild("msg").data());
+    m_engine->notifyInferiorSetupFailed(msg);
 }
 
 void CoreGdbAdapter::runEngine()

@@ -63,13 +63,13 @@ private:
 
     AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
 
-    void loadExeAndSyms();
-    void loadCoreFile();
+    void handleTemporaryDetach(const GdbResponse &response);
+    void handleTemporaryTargetCore(const GdbResponse &response);
     void handleFileExecAndSymbols(const GdbResponse &response);
     void handleTargetCore(const GdbResponse &response);
 
-    int m_round; // Round 1: read executable name from core, Round 2: use it.
     QString m_executable;
+    const QByteArray m_coreName;
     LocalGdbProcess m_gdbProc;
 };
 

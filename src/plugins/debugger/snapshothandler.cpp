@@ -256,7 +256,6 @@ void SnapshotHandler::removeAll()
 
 void SnapshotHandler::appendSnapshot(DebuggerRunControl *rc)
 {
-    //return; // FIXME
     m_snapshots.append(rc);
     m_currentIndex = size() - 1;
     reset();
@@ -264,9 +263,10 @@ void SnapshotHandler::appendSnapshot(DebuggerRunControl *rc)
 
 void SnapshotHandler::removeSnapshot(DebuggerRunControl *rc)
 {
+    // Could be that the run controls died before it was appended.
     int index = m_snapshots.indexOf(rc);
-    QTC_ASSERT(index != -1, return);
-    removeSnapshot(index);
+    if (index != -1)
+        removeSnapshot(index);
 }
 
 void SnapshotHandler::removeSnapshot(int index)

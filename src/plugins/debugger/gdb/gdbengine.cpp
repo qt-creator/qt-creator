@@ -4047,9 +4047,6 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
         return false;
     }
 
-    const QByteArray dumperSourcePath =
-        Core::ICore::instance()->resourcePath().toLocal8Bit() + "/gdbmacros/";
-
     showMessage(_("GDB STARTED, INITIALIZING IT"));
     m_commandTimer->setInterval(commandTimeoutTime());
 
@@ -4134,6 +4131,14 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
               ).arg(scriptFileName));
         }
     }
+    loadPythonDumpers();
+    return true;
+}
+
+void GdbEngine::loadPythonDumpers()
+{
+    const QByteArray dumperSourcePath =
+        Core::ICore::instance()->resourcePath().toLocal8Bit() + "/gdbmacros/";
 
     postCommand("python execfile('" + dumperSourcePath + "dumper.py')",
         ConsoleCommand|NonCriticalResponse);
@@ -4141,8 +4146,6 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
         ConsoleCommand|NonCriticalResponse);
     postCommand("bbsetup",
         ConsoleCommand, CB(handleHasPython));
-
-    return true;
 }
 
 bool GdbEngine::checkDebuggingHelpers()
