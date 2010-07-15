@@ -78,6 +78,8 @@ void QtOutputFormatter::appendApplicationOutput(const QString &text, bool onStdE
 
         int index = matchPos + m_qtError.matchedLength() - 1;
         append(text.mid(index), onStdErr ? StdErrFormat : StdOutFormat);
+    } else {
+        append(text, onStdErr ? StdErrFormat : StdOutFormat);
     }
 }
 
