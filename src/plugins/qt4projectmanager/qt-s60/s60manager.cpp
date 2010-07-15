@@ -38,6 +38,7 @@
 #include "s60emulatorrunconfiguration.h"
 #include "s60devicerunconfiguration.h"
 #include "s60createpackagestep.h"
+#include "s60deploystep.h"
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
@@ -120,6 +121,7 @@ S60Manager::S60Manager(QObject *parent)
                                                 (QLatin1String(ProjectExplorer::Constants::RUNMODE),
                                                  tr("Run on Device"), parent));
     addAutoReleasedObject(new S60CreatePackageStepFactory);
+    addAutoReleasedObject(new S60DeployStepFactory);
 
     if (Debugger::DebuggerPlugin::instance())
         addAutoReleasedObject(new RunControlFactory<S60DeviceDebugRunControl,

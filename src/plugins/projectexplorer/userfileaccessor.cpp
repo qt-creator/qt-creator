@@ -167,6 +167,23 @@ public:
     QVariantMap update(Project *project, const QVariantMap &map);
 };
 
+// Version 5 reflects the introduction of new deploy steps for Symbian/Maemo
+class Version5Handler : public UserFileVersionHandler
+{
+public:
+    int userFileVersion() const
+    {
+        return 5;
+    }
+
+    QString displayUserFileVersion() const
+    {
+        return QLatin1String("2.2pre2");
+    }
+
+    QVariantMap update(Project *project, const QVariantMap &map);
+};
+
 //
 // Helper functions:
 //
@@ -238,6 +255,7 @@ UserFileAccessor::UserFileAccessor() :
     addVersionHandler(new Version2Handler);
     addVersionHandler(new Version3Handler);
     addVersionHandler(new Version4Handler);
+    addVersionHandler(new Version5Handler);
 }
 
 UserFileAccessor::~UserFileAccessor()
@@ -1102,6 +1120,68 @@ QVariantMap Version4Handler::update(Project *, const QVariantMap &map)
                 newBc.insert(QLatin1String("ProjectExplorer.BuildConfiguration.BuildStepsCount"),
                         newBc.value(QLatin1String("ProjectExplorer.BuildConfiguration.BuildStepsCount")).toInt() - 1);
             }
+            newTarget.insert(targetKey, newBc);
+        }
+        result.insert(globalKey, newTarget);
+    }
+    return result;
+}
+
+// -------------------------------------------------------------------------
+// Version5Handler
+// -------------------------------------------------------------------------
+
+// Move packaging steps from build steps into deploy steps
+QVariantMap Version5Handler::update(Project *, const QVariantMap &map)
+{
+    QVariantMap result;
+    QMapIterator<QString, QVariant> it(map);
+    while (it.hasNext()) {
+        it.next();
+        const QString &globalKey = it.key();
+        // check for target info
+        if (!globalKey.startsWith(QLatin1String("ProjectExplorer.Project.Target."))) {
+            result.insert(globalKey, it.value());
+            continue;
+        }
+        const QVariantMap &originalTarget = it.value().toMap();
+        // check for symbian and maemo device target
+        if (originalTarget.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"))
+            != QLatin1String("Qt4ProjectManager.Target.S60DeviceTarget")
+            && originalTarget.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"))
+            != QLatin1String("Qt4ProjectManager.Target.MaemoDeviceTarget")) {
+            result.insert(globalKey, originalTarget);
+            continue;
+        }
+
+        QVariantMap newTarget;
+        QMapIterator<QString, QVariant> targetIt(originalTarget);
+        while (targetIt.hasNext()) {
+            targetIt.next();
+            const QString &targetKey = targetIt.key();
+            if (!targetKey.startsWith(QLatin1String("ProjectExplorer.Target.BuildConfiguration."))) {
+                newTarget.insert(targetKey, targetIt.value());
+                continue;
+            }
+
+            const QVariantMap &originalBc = targetIt.value().toMap();
+            QVariantMap newBc = originalBc;
+            QVariantMap newDeployStep;
+
+            if (originalTarget.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"))
+                == QLatin1String("Qt4ProjectManager.Target.S60DeviceTarget")) {
+                newDeployStep.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"),
+                                     QLatin1String("Qt4ProjectManager.S60DeployStep"));
+            } else {
+                newDeployStep.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"),
+                                     QLatin1String("Qt4ProjectManager.MaemoDeployStep"));
+            }
+
+            int deployCount = newBc.value(QLatin1String("ProjectExplorer.BuildConfiguration.DeployStepsCount"), 0).toInt();
+            newBc.insert(QString::fromLatin1("ProjectExplorer.BuildConfiguration.DeployStep.") + QString::number(deployCount),
+                         newDeployStep);
+            newBc.insert(QLatin1String("ProjectExplorer.BuildConfiguration.DeployStepsCount"), deployCount + 1);
+
             newTarget.insert(targetKey, newBc);
         }
         result.insert(globalKey, newTarget);

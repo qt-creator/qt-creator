@@ -175,14 +175,6 @@ protected slots:
 private slots:
     void processStopped(uint pc, uint pid, uint tid, const QString& reason);
     void printConnectFailed(const QString &errorMessage);
-    void printCopyingNotice();
-    void printCreateFileFailed(const QString &filename, const QString &errorMessage);
-    void printWriteFileFailed(const QString &filename, const QString &errorMessage);
-    void printCloseFileFailed(const QString &filename, const QString &errorMessage);
-    void printCopyProgress(int progress);
-    void printInstallingNotice();
-    void printInstallFailed(const QString &filename, const QString &errorMessage);
-    void printInstallingFinished();
     void launcherFinished();
     void slotLauncherStateChanged(int);
     void slotWaitingForTrkClosed();
@@ -199,8 +191,6 @@ private:
     QString m_workingDirectory;
     QString m_executableFileName;
     QString m_qtDir;
-    QString m_packageFileNameWithTarget; // Support for 4.6.1
-    QString m_signedPackage;
     QString m_qtBinPath;
     bool m_releaseDeviceAfterLauncherFinish;
     bool m_handleDeviceRemoval;

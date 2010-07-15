@@ -509,10 +509,7 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfigurat
     m_serialPortName = s60runConfig->serialPortName();
     m_serialPortFriendlyName = SymbianUtils::SymbianDeviceManager::instance()->friendlyNameForPort(m_serialPortName);
     m_targetName = s60runConfig->targetName();
-    m_packageFileNameWithTarget = s60runConfig->packageFileNameWithTargetInfo();
-    m_signedPackage = s60runConfig->signedPackage();
     m_commandLineArguments = s60runConfig->commandLineArguments();
-    m_workingDirectory = QFileInfo(m_signedPackage).absolutePath();
     m_qtDir = activeBuildConf->qtVersion()->versionInfo().value("QT_INSTALL_DATA");
     if (const QtVersion *qtv = s60runConfig->qtVersion())
         m_qtBinPath = qtv->versionInfo().value(QLatin1String("QT_INSTALL_BINS"));
@@ -520,7 +517,7 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfigurat
     m_executableFileName = s60runConfig->localExecutableFileName();
     if (debug)
         qDebug() << "S60DeviceRunControlBase::CT" << m_targetName << ProjectExplorer::ToolChain::toolChainName(m_toolChain)
-                 << m_serialPortName << m_workingDirectory;
+                 << m_serialPortName;
 }
 
 S60DeviceRunControlBase::~S60DeviceRunControlBase()
@@ -534,32 +531,6 @@ S60DeviceRunControlBase::~S60DeviceRunControlBase()
 void S60DeviceRunControlBase::setReleaseDeviceAfterLauncherFinish(bool v)
 {
     m_releaseDeviceAfterLauncherFinish = v;
-}
-
-static inline bool ensureDeleteFile(const QString &fileName, QString *errorMessage)
-{
-    QFile file(fileName);
-    if (file.exists() && !file.remove()) {
-        *errorMessage = S60DeviceRunControlBase::tr("Unable to remove existing file '%1': %2").arg(fileName, file.errorString());
-        return false;
-    }
-    return true;
-}
-
-static inline bool renameFile(const QString &sourceName, const QString &targetName,
-                              QString *errorMessage)
-{
-    if (sourceName == targetName)
-        return true;
-    if (!ensureDeleteFile(targetName, errorMessage))
-        return false;
-    QFile source(sourceName);
-    if (!source.rename(targetName)) {
-        *errorMessage = S60DeviceRunControlBase::tr("Unable to rename file '%1' to '%2': %3")
-                        .arg(sourceName, targetName, source.errorString());
-        return false;
-    }
-    return true;
 }
 
 void S60DeviceRunControlBase::start()
@@ -594,46 +565,7 @@ void S60DeviceRunControlBase::start()
         return;
     }
 
-    // make sure we have the right name of the sis package
-    bool ok = true;
-    QFileInfo packageInfo(m_signedPackage);
-    {
-        // support for 4.6.1 and pre, where make sis creates 'targetname_armX_udeb.sis' instead of 'targetname.sis'
-        QFileInfo packageWithTargetInfo(m_packageFileNameWithTarget);
-        // does the 4.6.1 version exist?
-        if (packageWithTargetInfo.exists() && packageWithTargetInfo.isFile()) {
-            // is the 4.6.1 version newer? (to guard against behavior change Qt Creator 1.3 --> 2.0)
-            if (!packageInfo.exists()
-                    || packageInfo.lastModified() < packageWithTargetInfo.lastModified()) {
-                // the 'targetname_armX_udeb.sis' crap exists and is new, rename it
-                emit appendMessage(this, tr("Renaming new package '%1' to '%2'")
-                                   .arg(QDir::toNativeSeparators(m_packageFileNameWithTarget),
-                                        QDir::toNativeSeparators(m_signedPackage)), false);
-                ok = renameFile(m_packageFileNameWithTarget, m_signedPackage, &errorMessage);
-            } else {
-                // the 'targetname_armX_udeb.sis' crap exists but is old, remove it
-                emit appendMessage(this, tr("Removing old package '%1'")
-                                   .arg(QDir::toNativeSeparators(m_packageFileNameWithTarget)),
-                                   false);
-                QFile::remove(m_packageFileNameWithTarget);
-            }
-        }
-    }
-    if (ok) {
-        if (!packageInfo.exists() || !packageInfo.isFile()) {
-            errorMessage = tr("Package file not found");
-            ok = false;
-        }
-    }
-    if (ok) {
-        startDeployment();
-    } else {
-        m_deployProgress->reportCanceled();
-        errorMessage = tr("Failed to find package '%1': %2").arg(m_signedPackage, errorMessage);
-        appendMessage(this, errorMessage, true);
-        stop();
-        emit finished();
-    }
+    startDeployment();
 }
 
 static inline void stopProcess(QProcess *p)
@@ -672,14 +604,6 @@ void S60DeviceRunControlBase::startDeployment()
 
         connect(m_launcher, SIGNAL(finished()), this, SLOT(launcherFinished()));
         connect(m_launcher, SIGNAL(canNotConnect(QString)), this, SLOT(printConnectFailed(QString)));
-        connect(m_launcher, SIGNAL(copyingStarted()), this, SLOT(printCopyingNotice()));
-        connect(m_launcher, SIGNAL(canNotCreateFile(QString,QString)), this, SLOT(printCreateFileFailed(QString,QString)));
-        connect(m_launcher, SIGNAL(canNotWriteFile(QString,QString)), this, SLOT(printWriteFileFailed(QString,QString)));
-        connect(m_launcher, SIGNAL(canNotCloseFile(QString,QString)), this, SLOT(printCloseFileFailed(QString,QString)));
-        connect(m_launcher, SIGNAL(installingStarted()), this, SLOT(printInstallingNotice()));
-        connect(m_launcher, SIGNAL(canNotInstall(QString,QString)), this, SLOT(printInstallFailed(QString,QString)));
-        connect(m_launcher, SIGNAL(installingFinished()), this, SLOT(printInstallingFinished()));
-        connect(m_launcher, SIGNAL(copyProgress(int)), this, SLOT(printCopyProgress(int)));
         connect(m_launcher, SIGNAL(stateChanged(int)), this, SLOT(slotLauncherStateChanged(int)));
         connect(m_launcher, SIGNAL(processStopped(uint,uint,uint,QString)),
                 this, SLOT(processStopped(uint,uint,uint,QString)));
@@ -687,16 +611,11 @@ void S60DeviceRunControlBase::startDeployment()
         //TODO sisx destination and file path user definable
         if (!m_commandLineArguments.isEmpty())
             m_launcher->setCommandLineArgs(m_commandLineArguments);
-        const QString copyDst = QString::fromLatin1("C:\\Data\\%1").arg(QFileInfo(m_signedPackage).fileName());
         const QString runFileName = QString::fromLatin1("C:\\sys\\bin\\%1.exe").arg(m_targetName);
-        m_launcher->setCopyFileName(m_signedPackage, copyDst);
-        m_launcher->setInstallFileName(copyDst);
         initLauncher(runFileName, m_launcher);
-        emit appendMessage(this, tr("Package: %1\nDeploying application to '%2'...").arg(msgListFile(m_signedPackage), m_serialPortFriendlyName), false);
-        // Prompt the user to start up the Blue tooth connection
         const trk::PromptStartCommunicationResult src =
-            S60RunConfigBluetoothStarter::startCommunication(m_launcher->trkDevice(),
-                                                             0, &errorMessage);
+                S60RunConfigBluetoothStarter::startCommunication(m_launcher->trkDevice(),
+                                                                 0, &errorMessage);
         if (src != trk::PromptStartCommunicationConnected)
             break;
         if (!m_launcher->startServer(&errorMessage)) {
@@ -715,57 +634,9 @@ void S60DeviceRunControlBase::startDeployment()
     }
 }
 
-void S60DeviceRunControlBase::printCreateFileFailed(const QString &filename, const QString &errorMessage)
-{
-    emit appendMessage(this, tr("Could not create file %1 on device: %2").arg(filename, errorMessage), true);
-}
-
-void S60DeviceRunControlBase::printWriteFileFailed(const QString &filename, const QString &errorMessage)
-{
-    emit appendMessage(this, tr("Could not write to file %1 on device: %2").arg(filename, errorMessage), true);
-}
-
-void S60DeviceRunControlBase::printCloseFileFailed(const QString &filename, const QString &errorMessage)
-{
-    const QString msg = tr("Could not close file %1 on device: %2. It will be closed when App TRK is closed.");
-    emit appendMessage(this, msg.arg(filename, errorMessage), true);
-}
-
 void S60DeviceRunControlBase::printConnectFailed(const QString &errorMessage)
 {
     emit appendMessage(this, tr("Could not connect to App TRK on device: %1. Restarting App TRK might help.").arg(errorMessage), true);
-}
-
-void S60DeviceRunControlBase::printCopyingNotice()
-{
-    emit appendMessage(this, tr("Copying installation file..."), false);
-}
-
-void S60DeviceRunControlBase::printCopyProgress(int progress)
-{
-    m_deployProgress->setProgressValue(PROGRESS_DEPLOYBASE + progress);
-}
-
-void S60DeviceRunControlBase::printInstallingNotice()
-{
-    m_deployProgress->setProgressValue(PROGRESS_PACKAGEDEPLOYED);
-    emit appendMessage(this, tr("Installing application..."), false);
-}
-
-void S60DeviceRunControlBase::printInstallingFinished()
-{
-    m_deployProgress->setProgressValue(PROGRESS_PACKAGEINSTALLED);
-    m_deployProgress->reportFinished();
-    delete m_deployProgress;
-    m_deployProgress = 0;
-}
-
-void S60DeviceRunControlBase::printInstallFailed(const QString &filename, const QString &errorMessage)
-{
-    QTC_ASSERT(m_deployProgress, ;)
-    if (m_deployProgress)
-        m_deployProgress->reportCanceled();
-    emit appendMessage(this, tr("Could not install from package %1 on device: %2").arg(filename, errorMessage), true);
 }
 
 void S60DeviceRunControlBase::launcherFinished()
@@ -866,7 +737,7 @@ void S60DeviceRunControl::initLauncher(const QString &executable, trk::Launcher 
      connect(launcher, SIGNAL(applicationRunning(uint)), this, SLOT(printRunNotice(uint)));
      connect(launcher, SIGNAL(canNotRun(QString)), this, SLOT(printRunFailNotice(QString)));
      connect(launcher, SIGNAL(applicationOutputReceived(QString)), this, SLOT(printApplicationOutput(QString)));
-     launcher->addStartupActions(trk::Launcher::ActionCopyInstallRun);
+     launcher->addStartupActions(trk::Launcher::ActionRun);
      launcher->setFileName(executable);
 }
 
@@ -936,10 +807,10 @@ void S60DeviceDebugRunControl::initLauncher(const QString &executable, trk::Laun
         m_startParams->symbolFileName.clear();
         emit appendMessage(this, tr("Warning: Cannot locate the symbol file belonging to %1.").arg(m_localExecutableFileName), true);
     }
-
-    launcher->addStartupActions(trk::Launcher::ActionCopyInstall);
     // Avoid close/open sequence in quick succession, which may cause crashs
     launcher->setCloseDevice(false);
+    // The S60DeviceDebugRunControl does not deploy anything anymore
+    emit finished();
 }
 
 void S60DeviceDebugRunControl::handleLauncherFinished()

@@ -15,7 +15,8 @@ SOURCES += $$PWD/s60devices.cpp \
     $$PWD/abldparser.cpp \
     $$PWD/rvctparser.cpp \
     $$PWD/winscwparser.cpp \
-    qt-s60/s60createpackagestep.cpp
+    qt-s60/s60createpackagestep.cpp \
+    qt-s60/s60deploystep.cpp
 HEADERS += $$PWD/s60devices.h \
     $$PWD/s60devicespreferencepane.h \
     $$PWD/s60manager.h \
@@ -30,6 +31,7 @@ HEADERS += $$PWD/s60devices.h \
     $$PWD/abldparser.h \
     $$PWD/rvctparser.h \
     $$PWD/winscwparser.h \
-    qt-s60/s60createpackagestep.h
+    qt-s60/s60createpackagestep.h \
+    qt-s60/s60deploystep.h
 FORMS += $$PWD/s60devicespreferencepane.ui \
     qt-s60/s60createpackagestep.ui

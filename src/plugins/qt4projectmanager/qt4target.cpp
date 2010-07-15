@@ -41,6 +41,7 @@
 #include "qt-s60/s60devicerunconfiguration.h"
 #include "qt-s60/s60emulatorrunconfiguration.h"
 #include "qt-s60/s60createpackagestep.h"
+#include "qt-s60/s60deploystep.h"
 
 #include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/toolchain.h>
@@ -285,6 +286,8 @@ Qt4BuildConfiguration *Qt4Target::addQt4BuildConfiguration(QString displayName, 
     if (id() == Constants::S60_DEVICE_TARGET_ID) {
         S60CreatePackageStep *packageStep = new S60CreatePackageStep(bc);
         bc->insertStep(ProjectExplorer::BuildStep::Deploy, 2, packageStep);
+        S60DeployStep *deployStep = new S60DeployStep(bc);
+        bc->insertStep(ProjectExplorer::BuildStep::Deploy, 3, deployStep);
     } else if (id() == Constants::MAEMO_DEVICE_TARGET_ID) {
         bc->insertStep(ProjectExplorer::BuildStep::Deploy, 2,
             new MaemoPackageCreationStep(bc));
