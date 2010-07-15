@@ -215,28 +215,26 @@
 //                                                +                         v
 //                                                 `-+-+-+-+-+-+-+-+-+-+-+>-+
 //                                                                          +
-//    .--- #SpontaneousStop@InferiorRunOk#                                  +
-//    |                                                                     +
-//    |                                                                     +
-//    |         #Interupt@InferiorRunOk#                                    +
-//    |                    +                                                +
-//    |             InferiorStopRequested                                   +
-//    |                    +                                                +
-//    |              (calls *Engine->                                       +
-//    |             interruptInferior())                                    +
-//    |                |            |                                       +
-//  {notify-        {notify-    {notify-                                    +
-// Sponta.Inf.       Inferior-   Inferior-                                  +
-//   StopOk}         StopOk}    StopFailed}                                 +
-//     +              +             +                                       +
-//      +            +              +                                       +
-//      InferiorStopOk              +                                       +
+//                                                                          +
+//                       #Interupt@InferiorRunOk#                           +
 //                                  +                                       +
-//                                  +                                       +
-//                                  +                                       +
-//        #Stop@InferiorUnrunnable# +                                       +
-//          #Creator Close Event#   +                                       +
-//                        +         +                                       +
+//                          InferiorStopRequested                           +
+//  #SpontaneousStop                +                                       +
+//   @InferiorRunOk#         (calls *Engine->                               +
+//          +               interruptInferior())                            +
+//      {notify-               |          |                                 +
+//     Spontaneous-       {notify-    {notify-                              +
+//      Inferior-          Inferior-   Inferior-                            +
+//       StopOk}           StopOk}    StopFailed}                           +
+//           +              +             +                                 +
+//            +            +              +                                 +
+//            InferiorStopOk              +                                 +
+//                  +                     +                                 +
+//                  +                    +                                  +
+//                  +                   +                                   +
+//        #Stop@InferiorUnrunnable#    +                                    +
+//          #Creator Close Event#     +                                     +
+//                       +           +                                      +
 //                InferiorShutdownRequested                                 +
 //                            +                                             +
 //           (calls *Engine->shutdownInferior())                            +
@@ -269,12 +267,8 @@
 //                     DebuggerFinished
 //
 
+// Additional signalling:    {notifyInferiorIll}   {notifyEngineIll}
 
-//(attach)    | (plain)
-//(term)      | (trk)  
-//(remote)    |        
-//(script)    |        
-//(pdb)       |        
 
 // GdbEngine specific startup. All happens in EngineSetupRequested state
 //
