@@ -131,7 +131,7 @@ void FileWidget::setupComboBox()
     if (m_itemNode.isValid())
         dir = QFileInfo(m_itemNode.modelNode().model()->fileUrl().toLocalFile()).absoluteDir();
     else if (m_path.isValid())
-        dir = QFileInfo(m_path.toLocalFile()).absoluteDir();
+        dir = QDir(m_path.toLocalFile());
 
     QStringList filterList = m_filter.split(' ');
 
