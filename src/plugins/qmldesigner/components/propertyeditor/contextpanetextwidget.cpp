@@ -59,7 +59,10 @@ ContextPaneTextWidget::ContextPaneTextWidget(QWidget *parent) :
 void ContextPaneTextWidget::setProperties(QmlJS::PropertyReader *propertyReader)
 {
     if (propertyReader->hasProperty(QLatin1String("font.pointSize"))) {
-        ui->fontSizeSpinBox->setValue(propertyReader->readProperty(QLatin1String("font.pointSize")).toInt());
+        QVariant variant = propertyReader->readProperty(QLatin1String("font.pointSize"));
+        bool b;
+        ui->fontSizeSpinBox->setValue(variant.toInt(&b));        
+        ui->fontSizeSpinBox->setEnabled(b);
         ui->fontSizeSpinBox->setIsPointSize(true);
     } else if (!propertyReader->hasProperty(QLatin1String("font.pixelSize"))) {
         ui->fontSizeSpinBox->setValue(8);
@@ -72,7 +75,11 @@ void ContextPaneTextWidget::setProperties(QmlJS::PropertyReader *propertyReader)
     }
 
     if (propertyReader->hasProperty(QLatin1String("font.pixelSize"))) {
-        ui->fontSizeSpinBox->setValue(propertyReader->readProperty(QLatin1String("font.pixelSize")).toInt());
+        QVariant variant = propertyReader->readProperty(QLatin1String("font.pixelSize"));
+        bool b;
+        ui->fontSizeSpinBox->setValue(variant.toInt(&b));
+
+        ui->fontSizeSpinBox->setEnabled(b);
         ui->fontSizeSpinBox->setIsPixelSize(true);
     }
 
@@ -116,16 +123,26 @@ void ContextPaneTextWidget::setProperties(QmlJS::PropertyReader *propertyReader)
         QString familyName = propertyReader->readProperty(QLatin1String("font.family")).toString();
         QFont font;
         font.setFamily(familyName);
+
         ui->fontComboBox->setCurrentFont(font);
+        if (propertyReader->isBindingOrEnum(QLatin1String("font.family")))
+            ui->fontComboBox->setEnabled(false);
+        else
+            ui->fontComboBox->setEnabled(true);
     }
 
     if (propertyReader->hasProperty(QLatin1String("horizontalAlignment"))) {
         QString alignment = propertyReader->readProperty(QLatin1String("horizontalAlignment")).toString();
         ui->leftAlignmentButton->setChecked(true);
+        ui->leftAlignmentButton->setEnabled(true);
         if (alignment == QLatin1String("Text.AlignHCenter") || alignment == "AlignHCenter")
             ui->centerHAlignmentButton->setChecked(true);
         else if (alignment == QLatin1String("Text.AlignRight") || alignment == QLatin1String("AlignRight"))
             ui->rightAlignmentButton->setChecked(true);
+        else if (alignment == QLatin1String("Text.AlignLeft") || alignment == QLatin1String("AlignLeft"))
+            ui->leftAlignmentButton->setChecked(true);
+        else
+            ui->leftAlignmentButton->setEnabled(false);
     } else {
         ui->leftAlignmentButton->setChecked(true);
     }
@@ -133,10 +150,15 @@ void ContextPaneTextWidget::setProperties(QmlJS::PropertyReader *propertyReader)
     if (propertyReader->hasProperty(QLatin1String("verticalAlignment"))) {
         QString alignment = propertyReader->readProperty(QLatin1String("verticalAlignment")).toString();
         ui->topAlignmentButton->setChecked(true);
+        ui->bottomAlignmentButton->setEnabled(true);
         if (alignment == QLatin1String("Text.AlignVCenter") || alignment == QLatin1String("AlignVCenter"))
             ui->centerVAlignmentButton->setChecked(true);
         else if (alignment == QLatin1String("Text.AlignBottom") || alignment == QLatin1String("AlignBottom"))
             ui->bottomAlignmentButton->setChecked(true);
+        else if (alignment == QLatin1String("Text.Top") || alignment == QLatin1String("AlignTop"))
+            ui->topAlignmentButton->setChecked(true);
+        else
+            ui->bottomAlignmentButton->setEnabled(false);
     } else {
         ui->topAlignmentButton->setChecked(true);
     }
@@ -144,12 +166,17 @@ void ContextPaneTextWidget::setProperties(QmlJS::PropertyReader *propertyReader)
     if (propertyReader->hasProperty(QLatin1String("style"))) {
         QString style = propertyReader->readProperty(QLatin1String("style")).toString();
         ui->styleComboBox->setCurrentIndex(0);
+        ui->styleComboBox->setEnabled(true);
         if (style == QLatin1String("Text.Outline") || style == QLatin1String("Outline"))
             ui->styleComboBox->setCurrentIndex(1);
         if (style == QLatin1String("Text.Raised") || style == QLatin1String("Raised"))
             ui->styleComboBox->setCurrentIndex(2);
         else if (style == QLatin1String("Text.Sunken") || style == QLatin1String("Sunken"))
             ui->styleComboBox->setCurrentIndex(3);
+        else if (style == QLatin1String("Text.Normal") || style == QLatin1String("Normal"))
+            ui->styleComboBox->setCurrentIndex(0);
+        else
+            ui->styleComboBox->setEnabled(false);
     } else {
         ui->styleComboBox->setCurrentIndex(0);
     }
@@ -222,9 +249,9 @@ void ContextPaneTextWidget::onFontFormatChanged()
 {
     int size = ui->fontSizeSpinBox->value();
     if (ui->fontSizeSpinBox->isPointSize()) {   
-        emit removeAndChangeProperty(QLatin1String("font.pixelSize"), QLatin1String("font.pointSize"), size);
+        emit removeAndChangeProperty(QLatin1String("font.pixelSize"), QLatin1String("font.pointSize"), size, true);
     } else {        
-        emit removeAndChangeProperty(QLatin1String("font.pointSize"), QLatin1String("font.pixelSize"), size);
+        emit removeAndChangeProperty(QLatin1String("font.pointSize"), QLatin1String("font.pixelSize"), size, true);
     }
 
 }

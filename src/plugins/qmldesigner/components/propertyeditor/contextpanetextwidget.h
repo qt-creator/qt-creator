@@ -49,7 +49,7 @@ public slots:
 signals:
     void propertyChanged(const QString &, const QVariant &);
     void removeProperty(const QString &);
-    void removeAndChangeProperty(const QString &, const QString &, const QVariant &);
+    void removeAndChangeProperty(const QString &, const QString &, const QVariant &, bool removeFirst);
 
 protected:
     void changeEvent(QEvent *e);
