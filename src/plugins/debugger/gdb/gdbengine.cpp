@@ -652,7 +652,6 @@ void GdbEngine::interruptInferiorTemporarily()
     foreach (const GdbCommand &cmd, m_commandsToRunOnTemporaryBreak) {
         if (cmd.flags & LosesChild) {
             notifyInferiorIll();
-            //setState(InferiorStopRequested_Kill);
             break;
         }
     }
@@ -751,7 +750,6 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
             if (state() == InferiorStopRequested) {
                 if (cmd.flags & LosesChild) {
                     notifyInferiorIll();
-                    //setState(InferiorStopRequested_Kill);
                 }
                 showMessage(_("CHILD ALREADY BEING INTERRUPTED. STILL HOPING."));
                 // Calling shutdown() here breaks all situations where two
@@ -792,14 +790,14 @@ void GdbEngine::flushQueuedCommands()
 
 void GdbEngine::flushCommand(const GdbCommand &cmd0)
 {
-    GdbCommand cmd = cmd0;
-    if (state() == DebuggerNotReady) {
-        showMessage(_(cmd.command), LogInput);
-        showMessage(_("GDB PROCESS NOT RUNNING, PLAIN CMD IGNORED: " + cmd.command));
+    if (!stateAcceptsGdbCommands(state())) {
+        showMessage(_(cmd0.command), LogInput);
+        showMessage(_("GDB PROCESS ACCEPTS NO CMD IN STATE %1 ").arg(state()));
         return;
     }
 
     ++currentToken();
+    GdbCommand cmd = cmd0;
     cmd.postTime = QTime::currentTime();
     m_cookieForToken[currentToken()] = cmd;
     if (cmd.flags & ConsoleCommand)
