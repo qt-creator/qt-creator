@@ -489,6 +489,64 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                          QLatin1String("/home/code/test.cpp"), 54,
                          Constants::TASK_CATEGORY_COMPILE))
             << QString();
+
+    QTest::newRow("QTCREATORBUG-597")
+            << QString::fromLatin1("debug/qplotaxis.o: In function `QPlotAxis':\n"
+                                   "M:\\Development\\x64\\QtPlot/qplotaxis.cpp:26: undefined reference to `vtable for QPlotAxis'\n"
+                                   "M:\\Development\\x64\\QtPlot/qplotaxis.cpp:26: undefined reference to `vtable for QPlotAxis'\n"
+                                   "collect2: ld returned 1 exit status")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << ( QList<ProjectExplorer::Task>()
+                << Task(Task::Unknown,
+                        QLatin1String("In function `QPlotAxis':"),
+                        QLatin1String("debug/qplotaxis.o"), -1,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Error,
+                        QLatin1String("undefined reference to `vtable for QPlotAxis'"),
+                        QLatin1String("M:\\Development\\x64\\QtPlot/qplotaxis.cpp"), 26,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Error,
+                        QLatin1String("undefined reference to `vtable for QPlotAxis'"),
+                        QLatin1String("M:\\Development\\x64\\QtPlot/qplotaxis.cpp"), 26,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Error,
+                        QLatin1String("collect2: ld returned 1 exit status"),
+                        QString(), -1,
+                        Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+
+    QTest::newRow("instantiated from here should not be an error")
+            << QString::fromLatin1("../stl/main.cpp: In member function typename _Vector_base<_Tp, _Alloc>::_Tp_alloc_type::const_reference Vector<_Tp, _Alloc>::at(int) [with _Tp = Point, _Alloc = Allocator<Point>]:\n"
+                                   "../stl/main.cpp:38:   instantiated from here\n"
+                                   "../stl/main.cpp:31: warning: returning reference to temporary\n"
+                                   "../stl/main.cpp: At global scope:\n"
+                                   "../stl/main.cpp:31: warning: unused parameter index")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << ( QList<ProjectExplorer::Task>()
+                << Task(Task::Unknown,
+                        QLatin1String("In member function typename _Vector_base<_Tp, _Alloc>::_Tp_alloc_type::const_reference Vector<_Tp, _Alloc>::at(int) [with _Tp = Point, _Alloc = Allocator<Point>]:"),
+                        QLatin1String("../stl/main.cpp"), -1,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Unknown,
+                        QLatin1String("instantiated from here"),
+                        QLatin1String("../stl/main.cpp"), 38,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Warning,
+                        QLatin1String("returning reference to temporary"),
+                        QLatin1String("../stl/main.cpp"), 31,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Unknown,
+                        QLatin1String("At global scope:"),
+                        QLatin1String("../stl/main.cpp"), -1,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Warning,
+                        QLatin1String("unused parameter index"),
+                        QLatin1String("../stl/main.cpp"), 31,
+                        Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+
 }
 
 void ProjectExplorerPlugin::testGccOutputParsers()
