@@ -656,9 +656,9 @@ bool CppCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
 
         return true;
     } else if (completionSettings().m_completionTrigger == TextEditor::AutomaticCompletion) {
-        // Trigger completion after at least three characters of a name have been typed
+        // Trigger completion after three characters of a name have been typed
         const int startOfName = findStartOfName(pos);
-        if (pos - startOfName > 2) {
+        if (pos - startOfName == 3) {
             const QChar firstCharacter = editor->characterAt(startOfName);
             if (firstCharacter.isLetter() || firstCharacter == QLatin1Char('_'))
                 return true;
