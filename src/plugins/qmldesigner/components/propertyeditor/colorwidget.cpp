@@ -58,7 +58,7 @@ static inline int clamp(int x, int lower, int upper)
     return x;
 }
 
-inline QString properName(const QColor &color)
+static inline QString properName(const QColor &color)
 {
     QString s;
     if (color.alpha() == 255)
@@ -68,7 +68,7 @@ inline QString properName(const QColor &color)
     return s;
 }
 
-inline QColor properColor(const QString &str)
+static inline QColor properColor(const QString &str)
 {
     int lalpha = 255;
     QString lcolorStr = str;
@@ -88,6 +88,27 @@ inline QColor properColor(const QString &str)
     return lcolor;
 }
 
+static inline bool isColorString(const QString &colorString)
+{
+    bool ok = true;
+    if (colorString.size() == 9 && colorString.at(0) == QLatin1Char('#')) {
+        // #rgba
+        for (int i = 1; i < 9; ++i) {
+            const QChar c = colorString.at(i);
+            if ((c >= QLatin1Char('0') && c <= QLatin1Char('9'))
+                || (c >= QLatin1Char('a') && c <= QLatin1Char('f'))
+                || (c >= QLatin1Char('A') && c <= QLatin1Char('F')))
+                continue;
+            ok = false;
+            break;
+        }
+    } else {
+        ok = QColor::isValidColor(colorString);
+    }
+
+    return ok;
+}
+
 namespace QmlDesigner {
 
 void ColorWidget::registerDeclarativeTypes() {
@@ -101,6 +122,9 @@ void ColorButton::setColor(const QString &colorStr)
 {
     if (m_colorString == colorStr)
         return;
+
+
+    setEnabled(isColorString(colorStr));
 
     m_colorString = colorStr;
     update();
@@ -402,8 +426,17 @@ void GradientLine::setItemNode(const QVariant &itemNode)
     if (!itemNode.value<ModelNode>().isValid())
         return;
     m_itemNode = itemNode.value<ModelNode>();
-    setup();
+    setupGradient();
     emit itemNodeChanged();
+}
+
+void GradientLine::setGradient(const QLinearGradient &gradient)
+{
+    m_gradient = gradient;
+    m_useGradient = true;
+    setupGradient();
+    emit gradientChanged();
+
 }
 
 static inline QColor invertColor(const QColor color)
@@ -422,7 +455,8 @@ GradientLine::GradientLine(QWidget *parent) :
         m_yOffset(0),
         m_create(false),
         m_active(false),
-        m_dragOff(false)
+        m_dragOff(false),
+        m_useGradient(true)
 {
     setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
     setFocusPolicy(Qt::StrongFocus);
@@ -458,27 +492,36 @@ void GradientLine::setActiveColor(const QColor &newColor)
 
 void GradientLine::setupGradient()
 {
-    ModelNode modelNode = m_itemNode.modelNode();
-    if (!modelNode.isValid())
-        return;
-    m_colorList.clear();
-    m_stops.clear();
-
-    if (modelNode.hasProperty(m_gradientName)) { //gradient exists
-
-        ModelNode gradientNode = modelNode.nodeProperty(m_gradientName).modelNode();
-        QList<ModelNode> stopList = gradientNode.nodeListProperty("stops").toModelNodeList();
-
-        foreach (const ModelNode &stopNode, stopList) {
-            QmlObjectNode stopObjectNode = stopNode;
-            if (stopObjectNode.isValid()) {
-                m_stops << stopObjectNode.instanceValue("position").toReal();
-                m_colorList << stopObjectNode.instanceValue("color").value<QColor>();
-            }
+    if (m_useGradient) {
+        m_colorList.clear();
+        m_stops.clear();
+        foreach (const QGradientStop &stop, m_gradient.stops()) {
+            m_stops << stop.first;
+            m_colorList << stop.second;
         }
     } else {
-        m_colorList << m_activeColor << QColor(Qt::black);
-        m_stops << 0 << 1;
+        ModelNode modelNode = m_itemNode.modelNode();
+        if (!modelNode.isValid())
+            return;
+        m_colorList.clear();
+        m_stops.clear();
+
+        if (modelNode.hasProperty(m_gradientName)) { //gradient exists
+
+            ModelNode gradientNode = modelNode.nodeProperty(m_gradientName).modelNode();
+            QList<ModelNode> stopList = gradientNode.nodeListProperty("stops").toModelNodeList();
+
+            foreach (const ModelNode &stopNode, stopList) {
+                QmlObjectNode stopObjectNode = stopNode;
+                if (stopObjectNode.isValid()) {
+                    m_stops << stopObjectNode.instanceValue("position").toReal();
+                    m_colorList << stopObjectNode.instanceValue("color").value<QColor>();
+                }
+            }
+        } else {
+            m_colorList << m_activeColor << QColor(Qt::black);
+            m_stops << 0 << 1;
+        }
     }
 
     updateGradient();
@@ -534,6 +577,9 @@ void GradientLine::keyPressEvent(QKeyEvent * event)
 void GradientLine::paintEvent(QPaintEvent *event)
 {
     QWidget::paintEvent(event);
+
+    if (!isEnabled())
+        return;
     QPainter p(this);
 
 
@@ -559,7 +605,7 @@ void GradientLine::paintEvent(QPaintEvent *event)
         QColor arrowColor(Qt::black);
         if (i == currentColorIndex()) {
             localYOffset = m_yOffset;
-            arrowColor = QColor(0xeeeeee);
+            arrowColor = QColor(0x909090);
         }
         p.setPen(arrowColor);
         if (i == 0 || i == (m_colorList.size() - 1))
@@ -589,6 +635,7 @@ void GradientLine::paintEvent(QPaintEvent *event)
 void GradientLine::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
+        event->accept();
         int xPos = event->pos().x();
         int yPos = event->pos().y();
 
@@ -605,12 +652,23 @@ void GradientLine::mousePressEvent(QMouseEvent *event)
                 setCurrentIndex(draggedIndex);
                 update();
             }
+        } else {
+            QWidget::mousePressEvent(event);
         }
         if (draggedIndex == -1)
             m_create = true;
+    } else {
+        QWidget::mousePressEvent(event);
     }
     setFocus(Qt::MouseFocusReason);
+}
+
+void GradientLine::mouseDoubleClickEvent(QMouseEvent *event)
+{
     event->accept();
+    m_dragActive = false;
+    m_create = false;
+    emit openColorDialog(event->pos());
 }
 
 void GradientLine::mouseReleaseEvent(QMouseEvent *event)
@@ -623,24 +681,27 @@ void GradientLine::mouseReleaseEvent(QMouseEvent *event)
                 if ((stopPos > m_stops.at(i)) && (index == -1))
                     index = i +1;
             }
-            if (index != -1 && m_itemNode.isInBaseState()) { //creating of items only in base state
+            if (index != -1 && (m_useGradient || m_itemNode.isInBaseState())) { //creating of items only in base state
                 m_stops.insert(index, stopPos);
                 m_colorList.insert(index, QColor(Qt::white));
                 setCurrentIndex(index);
                 updateGradient();
             }
         }
+        event->accept();
     }
     m_dragActive = false;
     m_yOffset = 0;
     update();
     updateGradient();
-    event->accept();
+
+    //QWidget::mouseReleaseEvent(event);
 }
 
 void GradientLine::mouseMoveEvent(QMouseEvent *event)
 {
     if (m_dragActive) {
+        event->accept();
         int xPos = event->pos().x();
         int pos = qreal((width() - 20)) * m_stops.at(currentColorIndex()) + 8;
         int offset = m_dragOff ? 2 : 20;
@@ -652,7 +713,7 @@ void GradientLine::mouseMoveEvent(QMouseEvent *event)
             if ((newStop >=0) && (newStop <= 1))
                 m_stops[currentColorIndex()] = newStop;
             m_yOffset += event->pos().y() - m_dragStart.y();
-            if (m_yOffset > 0 || !m_itemNode.isInBaseState()) { //deleting only in base state
+            if (m_yOffset > 0 || !(m_itemNode.isInBaseState() || m_useGradient)) { //deleting only in base state
                 m_yOffset = 0;
             } else if ((m_yOffset < - 12) && (currentColorIndex()) != 0 && (currentColorIndex() < m_stops.size() - 1)) {
                 m_yOffset = 0;
@@ -670,7 +731,7 @@ void GradientLine::mouseMoveEvent(QMouseEvent *event)
         update();
     }
 
-    QWidget::mouseMoveEvent(event);
+    //QWidget::mouseMoveEvent(event);
 }
 
 void GradientLine::setup()
@@ -693,43 +754,52 @@ static inline qreal roundReal(qreal real)
 
 void GradientLine::updateGradient()
 {
-    if (!active())
-        return;
-    RewriterTransaction transaction = m_itemNode.modelNode().view()->beginRewriterTransaction();
-    if (!m_itemNode.isValid())
-        return;
-
-    if (!m_itemNode.modelNode().metaInfo().hasProperty(m_gradientName))
-        return;
-
-    ModelNode modelNode = m_itemNode.modelNode();
-
-    if (m_itemNode.isInBaseState()) {
-        if (modelNode.hasProperty(m_gradientName)) {
-            modelNode.removeProperty(m_gradientName);
-        }
-
-        ModelNode gradientNode = modelNode.view()->createModelNode("Qt/Gradient", 4, 7);
-
-
+    if (m_useGradient) {
+        QGradientStops stops;
         for (int i = 0;i < m_stops.size(); i++) {
-            ModelNode gradientStopNode = modelNode.view()->createModelNode("Qt/GradientStop", 4, 7);
-            gradientStopNode.variantProperty("position") = roundReal(m_stops.at(i));
-            gradientStopNode.variantProperty("color") = normalizeColor(m_colorList.at(i));
-            gradientNode.nodeListProperty("stops").reparentHere(gradientStopNode);
+            stops.append(QPair<qreal, QColor>(m_stops.at(i), m_colorList.at(i)));
         }
-        modelNode.nodeProperty(m_gradientName).reparentHere(gradientNode);
-    } else { //state
-        if  (!modelNode.hasProperty(m_gradientName)) {
-            qWarning(" GradientLine::updateGradient: no gradient in state");
+        m_gradient.setStops(stops);
+        emit gradientChanged();
+    } else {
+        if (!active())
             return;
-        }
-        ModelNode gradientNode = modelNode.nodeProperty(m_gradientName).modelNode();
-        QList<ModelNode> stopList = gradientNode.nodeListProperty("stops").toModelNodeList();
-        for (int i = 0;i < m_stops.size(); i++) {            
-            QmlObjectNode stopObjectNode = stopList.at(i);
-            stopObjectNode.setVariantProperty("position", roundReal(m_stops.at(i)));
-            stopObjectNode.setVariantProperty("color", normalizeColor(m_colorList.at(i)));
+        RewriterTransaction transaction = m_itemNode.modelNode().view()->beginRewriterTransaction();
+        if (!m_itemNode.isValid())
+            return;
+
+        if (!m_itemNode.modelNode().metaInfo().hasProperty(m_gradientName))
+            return;
+
+        ModelNode modelNode = m_itemNode.modelNode();
+
+        if (m_itemNode.isInBaseState()) {
+            if (modelNode.hasProperty(m_gradientName)) {
+                modelNode.removeProperty(m_gradientName);
+            }
+
+            ModelNode gradientNode = modelNode.view()->createModelNode("Qt/Gradient", 4, 7);
+
+
+            for (int i = 0;i < m_stops.size(); i++) {
+                ModelNode gradientStopNode = modelNode.view()->createModelNode("Qt/GradientStop", 4, 7);
+                gradientStopNode.variantProperty("position") = roundReal(m_stops.at(i));
+                gradientStopNode.variantProperty("color") = normalizeColor(m_colorList.at(i));
+                gradientNode.nodeListProperty("stops").reparentHere(gradientStopNode);
+            }
+            modelNode.nodeProperty(m_gradientName).reparentHere(gradientNode);
+        } else { //state
+            if  (!modelNode.hasProperty(m_gradientName)) {
+                qWarning(" GradientLine::updateGradient: no gradient in state");
+                return;
+            }
+            ModelNode gradientNode = modelNode.nodeProperty(m_gradientName).modelNode();
+            QList<ModelNode> stopList = gradientNode.nodeListProperty("stops").toModelNodeList();
+            for (int i = 0;i < m_stops.size(); i++) {
+                QmlObjectNode stopObjectNode = stopList.at(i);
+                stopObjectNode.setVariantProperty("position", roundReal(m_stops.at(i)));
+                stopObjectNode.setVariantProperty("color", normalizeColor(m_colorList.at(i)));
+            }
         }
     }
 }

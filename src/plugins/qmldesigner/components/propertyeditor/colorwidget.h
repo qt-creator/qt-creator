@@ -40,6 +40,7 @@
 #include <propertyeditorvalue.h>
 #include <qmlitemnode.h>
 #include <QDialog>
+#include <QLinearGradient>
 
 QT_BEGIN_NAMESPACE
 class QtColorButton;
@@ -65,7 +66,7 @@ public:
     bool noColor() const { return m_noColor; }
     void setNoColor(bool f) { m_noColor = f; update(); }
     bool showArrow() const { return m_showArrow; }
-    void setShowArrow(bool b) { m_showArrow = b; }
+    void setShowArrow(bool b) { m_showArrow = b; }      
 
 signals:
     void colorChanged();
@@ -172,6 +173,7 @@ class GradientLine : public QWidget {
     Q_PROPERTY(QVariant itemNode READ itemNode WRITE setItemNode NOTIFY itemNodeChanged)
     Q_PROPERTY(QString gradientName READ gradientName WRITE setGradientName NOTIFY gradientNameChanged)
     Q_PROPERTY(bool active READ active WRITE setActive)
+    Q_PROPERTY(QLinearGradient gradient READ gradient WRITE setGradient NOTIFY gradientChanged)
 
 public:
     GradientLine(QWidget *parent = 0);
@@ -184,6 +186,8 @@ public:
     void setActiveColor(const QColor &newColor);
     bool active() const { return m_active; }
     void setActive(bool a) { m_active = a; }
+    QLinearGradient gradient() const { return m_gradient; }
+    void setGradient(const QLinearGradient &);
 
 public slots:
     void setupGradient();
@@ -193,11 +197,14 @@ signals:
     void activeColorChanged();
     void itemNodeChanged();
     void gradientNameChanged();
+    void gradientChanged();
+    void openColorDialog(const QPoint &pos);
 protected:
     bool event(QEvent *event);
     void keyPressEvent(QKeyEvent * event);
     void paintEvent(QPaintEvent *event);
-    void mousePressEvent(QMouseEvent *);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseDoubleClickEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *);
     void mouseMoveEvent(QMouseEvent *);    
 
@@ -215,10 +222,13 @@ private:
     int m_colorIndex;
     bool m_dragActive;
     QPoint m_dragStart;
+    QLinearGradient m_gradient;
     int m_yOffset;
     bool m_create;
     bool m_active;
     bool m_dragOff;
+    bool m_useGradient;
+
 };
 
 class BauhausColorDialog : public QFrame {
