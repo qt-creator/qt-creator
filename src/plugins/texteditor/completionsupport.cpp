@@ -34,6 +34,7 @@
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/itexteditable.h>
+#include <texteditor/completionsettings.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QString>
@@ -126,8 +127,13 @@ void CompletionSupport::autoComplete_helper(ITextEditable *editor, bool forced,
     QList<CompletionItem> completionItems;
 
     if (!m_completionList) {
-        if (!forced && !m_completionCollector->triggersCompletion(editor))
-            return;
+        if (!forced) {
+            const CompletionSettings &completionSettings = m_completionCollector->completionSettings();
+            if (completionSettings.m_completionTrigger == ManualCompletion)
+                return;
+            if (!m_completionCollector->triggersCompletion(editor))
+                return;
+        }
 
         m_startPosition = m_completionCollector->startCompletion(editor);
         completionItems = getCompletions();

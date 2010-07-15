@@ -33,6 +33,7 @@
 
 static const char * const groupPostfix = "Completion";
 static const char * const caseSensitivityKey = "CaseSensitivity";
+static const char * const completionTriggerKey = "CompletionTrigger";
 static const char * const autoInsertBracesKey = "AutoInsertBraces";
 static const char * const partiallyCompleteKey = "PartiallyComplete";
 static const char * const spaceAfterFunctionNameKey = "SpaceAfterFunctionName";
@@ -41,6 +42,7 @@ using namespace TextEditor;
 
 CompletionSettings::CompletionSettings()
     : m_caseSensitivity(CaseInsensitive)
+    , m_completionTrigger(AutomaticCompletion)
     , m_autoInsertBrackets(true)
     , m_partiallyComplete(true)
     , m_spaceAfterFunctionName(false)
@@ -55,6 +57,7 @@ void CompletionSettings::toSettings(const QString &category, QSettings *s) const
 
     s->beginGroup(group);
     s->setValue(QLatin1String(caseSensitivityKey), (int) m_caseSensitivity);
+    s->setValue(QLatin1String(completionTriggerKey), (int) m_completionTrigger);
     s->setValue(QLatin1String(autoInsertBracesKey), m_autoInsertBrackets);
     s->setValue(QLatin1String(partiallyCompleteKey), m_partiallyComplete);
     s->setValue(QLatin1String(spaceAfterFunctionNameKey), m_spaceAfterFunctionName);
@@ -71,6 +74,7 @@ void CompletionSettings::fromSettings(const QString &category, const QSettings *
     *this = CompletionSettings(); // Assign defaults
 
     m_caseSensitivity = (CaseSensitivity) s->value(group + QLatin1String(caseSensitivityKey), m_caseSensitivity).toInt();
+    m_completionTrigger = (CompletionTrigger) s->value(group + QLatin1String(completionTriggerKey), m_completionTrigger).toInt();
     m_autoInsertBrackets = s->value(group + QLatin1String(autoInsertBracesKey), m_autoInsertBrackets).toBool();
     m_partiallyComplete = s->value(group + QLatin1String(partiallyCompleteKey), m_partiallyComplete).toBool();
     m_spaceAfterFunctionName = s->value(group + QLatin1String(spaceAfterFunctionNameKey), m_spaceAfterFunctionName).toBool();
@@ -79,6 +83,7 @@ void CompletionSettings::fromSettings(const QString &category, const QSettings *
 bool CompletionSettings::equals(const CompletionSettings &cs) const
 {
     return m_caseSensitivity == cs.m_caseSensitivity
+        && m_completionTrigger == cs.m_completionTrigger
         && m_autoInsertBrackets == cs.m_autoInsertBrackets
         && m_partiallyComplete == cs.m_partiallyComplete
         && m_spaceAfterFunctionName == cs.m_spaceAfterFunctionName

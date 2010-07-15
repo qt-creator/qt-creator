@@ -655,7 +655,7 @@ bool CppCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
         }
 
         return true;
-    } else {
+    } else if (completionSettings().m_completionTrigger == TextEditor::AutomaticCompletion) {
         // Trigger completion after at least three characters of a name have been typed
         const int startOfName = findStartOfName(pos);
         if (pos - startOfName > 2) {

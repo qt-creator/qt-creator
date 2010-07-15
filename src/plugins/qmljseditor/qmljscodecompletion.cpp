@@ -40,6 +40,7 @@
 #include <qmljs/qmljsscopebuilder.h>
 
 #include <texteditor/basetexteditor.h>
+#include <texteditor/completionsettings.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -546,6 +547,8 @@ bool CodeCompletion::maybeTriggersCompletion(TextEditor::ITextEditable *editor)
 
     if (ch == QLatin1Char('(') || ch == QLatin1Char('.'))
         return true;
+    if (completionSettings().m_completionTrigger != TextEditor::AutomaticCompletion)
+        return false;
 
     const QChar characterUnderCursor = editor->characterAt(cursorPosition);
 

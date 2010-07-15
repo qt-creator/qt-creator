@@ -44,6 +44,12 @@ enum CaseSensitivity {
     FirstLetterCaseSensitive
 };
 
+enum CompletionTrigger {
+    ManualCompletion,
+    TriggeredCompletion,
+    AutomaticCompletion
+};
+
 /**
  * Settings that describe how the code completion behaves.
  */
@@ -57,6 +63,7 @@ struct TEXTEDITOR_EXPORT CompletionSettings
     bool equals(const CompletionSettings &bs) const;
 
     CaseSensitivity m_caseSensitivity;
+    CompletionTrigger m_completionTrigger;
     bool m_autoInsertBrackets;
     bool m_partiallyComplete;
     bool m_spaceAfterFunctionName;

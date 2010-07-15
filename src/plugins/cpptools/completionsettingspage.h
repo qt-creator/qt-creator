@@ -60,6 +60,7 @@ public:
 
 private:
     TextEditor::CaseSensitivity caseSensitivity() const;
+    TextEditor::CompletionTrigger completionTrigger() const;
 
     Ui_CompletionSettingsPage *m_page;
     QString m_searchKeywords;

@@ -80,7 +80,21 @@ QWidget *CompletionSettingsPage::createPage(QWidget *parent)
         break;
     }
 
+    int completionTriggerIndex = 0;
+    switch (settings.m_completionTrigger) {
+    case TextEditor::ManualCompletion:
+        completionTriggerIndex = 0;
+        break;
+    case TextEditor::TriggeredCompletion:
+        completionTriggerIndex = 1;
+        break;
+    case TextEditor::AutomaticCompletion:
+        completionTriggerIndex = 2;
+        break;
+    }
+
     m_page->caseSensitivity->setCurrentIndex(caseSensitivityIndex);
+    m_page->completionTrigger->setCurrentIndex(completionTriggerIndex);
     m_page->autoInsertBrackets->setChecked(settings.m_autoInsertBrackets);
     m_page->partiallyComplete->setChecked(settings.m_partiallyComplete);
     m_page->spaceAfterFunctionName->setChecked(settings.m_spaceAfterFunctionName);
@@ -88,8 +102,9 @@ QWidget *CompletionSettingsPage::createPage(QWidget *parent)
     if (m_searchKeywords.isEmpty()) {
         QTextStream(&m_searchKeywords) << m_page->caseSensitivityLabel->text()
                 << ' ' << m_page->autoInsertBrackets->text()
-		<< ' ' << m_page->partiallyComplete->text()
-		<< ' ' << m_page->spaceAfterFunctionName->text();
+                << ' ' << m_page->completionTriggerLabel->text()
+                << ' ' << m_page->partiallyComplete->text()
+                << ' ' << m_page->spaceAfterFunctionName->text();
         m_searchKeywords.remove(QLatin1Char('&'));
     }
 
@@ -100,6 +115,7 @@ void CompletionSettingsPage::apply()
 {
     TextEditor::CompletionSettings settings;
     settings.m_caseSensitivity = caseSensitivity();
+    settings.m_completionTrigger = completionTrigger();
     settings.m_autoInsertBrackets = m_page->autoInsertBrackets->isChecked();
     settings.m_partiallyComplete = m_page->partiallyComplete->isChecked();
     settings.m_spaceAfterFunctionName = m_page->spaceAfterFunctionName->isChecked();
@@ -121,5 +137,17 @@ TextEditor::CaseSensitivity CompletionSettingsPage::caseSensitivity() const
         return TextEditor::CaseInsensitive;
     default: // First letter
         return TextEditor::FirstLetterCaseSensitive;
+    }
+}
+
+TextEditor::CompletionTrigger CompletionSettingsPage::completionTrigger() const
+{
+    switch (m_page->completionTrigger->currentIndex()) {
+    case 0:
+        return TextEditor::ManualCompletion;
+    case 1:
+        return TextEditor::TriggeredCompletion;
+    default:
+        return TextEditor::AutomaticCompletion;
     }
 }
