@@ -656,12 +656,30 @@ bool CppCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
 
         return true;
     } else if (completionSettings().m_completionTrigger == TextEditor::AutomaticCompletion) {
-        // Trigger completion after three characters of a name have been typed
-        const int startOfName = findStartOfName(pos);
-        if (pos - startOfName == 3) {
-            const QChar firstCharacter = editor->characterAt(startOfName);
-            if (firstCharacter.isLetter() || firstCharacter == QLatin1Char('_'))
-                return true;
+        // Trigger completion after three characters of a name have been typed, when not editing an existing name
+        QChar characterUnderCursor = editor->characterAt(pos);
+        if (!characterUnderCursor.isLetterOrNumber()) {
+            const int startOfName = findStartOfName(pos);
+            if (pos - startOfName == 3) {
+                const QChar firstCharacter = editor->characterAt(startOfName);
+                if (firstCharacter.isLetter() || firstCharacter == QLatin1Char('_')) {
+                    // Finally check that we're not inside a comment or string (code copied from startOfOperator)
+                    TextEditor::BaseTextEditor *edit = qobject_cast<TextEditor::BaseTextEditor *>(editor->widget());
+                    QTextCursor tc(edit->textCursor());
+                    tc.setPosition(pos);
+
+                    SimpleLexer tokenize;
+                    tokenize.setQtMocRunEnabled(true);
+                    tokenize.setObjCEnabled(true);
+                    tokenize.setSkipComments(false);
+                    const QList<Token> &tokens = tokenize(tc.block().text(), BackwardsScanner::previousBlockState(tc.block()));
+                    const int tokenIdx = SimpleLexer::tokenBefore(tokens, qMax(0, tc.positionInBlock() - 1));
+                    const Token tk = (tokenIdx == -1) ? Token() : tokens.at(tokenIdx);
+
+                    if (!tk.isComment() && !tk.isLiteral())
+                        return true;
+                }
+            }
         }
     }
 
