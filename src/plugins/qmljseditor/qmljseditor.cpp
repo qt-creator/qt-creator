@@ -1002,6 +1002,11 @@ protected:
         return (cursorPositionEnd >= begin && cursorPositionStart <= end);
     }
 
+    bool isRangeSelected() const
+    {
+        return (cursorPositionStart != cursorPositionEnd);
+    }
+
     virtual void postVisit(Node *ast)
     {
         if ((cursorPositionStart == cursorPositionEnd && !selectedMembers.isEmpty()))
@@ -1011,12 +1016,13 @@ protected:
             unsigned begin = member->firstSourceLocation().begin();
             unsigned end = member->lastSourceLocation().end();
 
-            if ((cursorPositionStart != cursorPositionEnd && intersectsCursor(begin, end))
-             || (cursorPositionStart == cursorPositionEnd && containsCursor(begin, end)))
+            if ((isRangeSelected() && intersectsCursor(begin, end))
+            || (!isRangeSelected() && containsCursor(begin, end)))
             {
                 if (UiObjectInitializer *init = initializer(member)) {
                     for (UiObjectMemberList *it = init->members; it; it = it->next) {
-                        if (isAcceptableParent(member)) {
+                        if ((isRangeSelected() && isAcceptableParent(member))
+                         || (!isRangeSelected() && isIdBinding(it->member))) {
                             selectedMembers << member;
                             // move start towards end; this facilitates multiselection so that root is usually ignored.
                             cursorPositionStart = qMin(end, cursorPositionEnd);
