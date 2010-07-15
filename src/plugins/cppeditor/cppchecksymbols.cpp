@@ -28,6 +28,8 @@
 **************************************************************************/
 
 #include "cppchecksymbols.h"
+#include "cpplocalsymbols.h"
+
 #include <cplusplus/Overview.h>
 
 #include <Names.h>
@@ -45,6 +47,7 @@
 #include <qtconcurrent/runextensions.h>
 
 using namespace CPlusPlus;
+using namespace CppEditor::Internal;
 
 namespace {
 
@@ -53,6 +56,7 @@ class CollectTypes: protected SymbolVisitor
     Document::Ptr _doc;
     Snapshot _snapshot;
     QSet<QByteArray> _types;
+    QSet<QByteArray> _members;
     QList<ScopedSymbol *> _scopes;
     QList<NameAST *> _names;
     bool _mainDocument;
@@ -68,6 +72,11 @@ public:
     const QSet<QByteArray> &types() const
     {
         return _types;
+    }
+
+    const QSet<QByteArray> &members() const
+    {
+        return _members;
     }
 
     const QList<ScopedSymbol *> &scopes() const
@@ -126,6 +135,18 @@ protected:
         }
     }
 
+    void addMember(const Name *name)
+    {
+        if (! name) {
+            return;
+
+        } else if (name->isNameId()) {
+            const Identifier *id = name->identifier();
+            _members.insert(QByteArray::fromRawData(id->chars(), id->size()));
+
+        }
+    }
+
     void addScope(ScopedSymbol *symbol)
     {
         if (_mainDocument)
@@ -166,6 +187,8 @@ protected:
     {
         if (symbol->isTypedef())
             addType(symbol->name());
+        else if (! symbol->type()->isFunctionType() && symbol->enclosingSymbol()->isClass())
+            addMember(symbol->name());
 
         return true;
     }
@@ -267,6 +290,7 @@ CheckSymbols::CheckSymbols(Document::Ptr doc, const LookupContext &context)
     _fileName = doc->fileName();
     CollectTypes collectTypes(doc, context.snapshot());
     _potentialTypes = collectTypes.types();
+    _potentialMembers = collectTypes.members();
     _scopes = collectTypes.scopes();
     _flushRequested = false;
     _flushLine = 0;
@@ -351,6 +375,12 @@ bool CheckSymbols::visit(NamedTypeSpecifierAST *)
     return true;
 }
 
+bool CheckSymbols::visit(MemberAccessAST *ast)
+{
+    accept(ast->base_expression);
+    return false;
+}
+
 void CheckSymbols::checkNamespace(NameAST *name)
 {
     if (! name)
@@ -380,6 +410,28 @@ void CheckSymbols::checkName(NameAST *ast)
                 Scope *scope = findScope(ast);
                 const QList<Symbol *> candidates = _context.lookup(ast->name, scope);
                 addTypeUsage(candidates, ast);
+            } else if (_potentialMembers.contains(id)) {
+                Scope *scope = findScope(ast);
+                const QList<Symbol *> candidates = _context.lookup(ast->name, scope);
+                addMemberUsage(candidates, ast);
+            }
+        }
+    }
+}
+
+void CheckSymbols::checkMemberName(NameAST *ast)
+{
+    if (ast && ast->name) {
+        if (const Identifier *ident = ast->name->identifier()) {
+            const QByteArray id = QByteArray::fromRawData(ident->chars(), ident->size());
+            if (_potentialMembers.contains(id)) {
+                Scope *scope = findScope(ast);
+                const QList<Symbol *> candidates = _context.lookup(ast->name, scope);
+                addMemberUsage(candidates, ast);
+            } else if (_potentialMembers.contains(id)) {
+                Scope *scope = findScope(ast);
+                const QList<Symbol *> candidates = _context.lookup(ast->name, scope);
+                addMemberUsage(candidates, ast);
             }
         }
     }
@@ -473,14 +525,35 @@ void CheckSymbols::endVisit(TemplateDeclarationAST *)
     _templateDeclarationStack.takeFirst();
 }
 
+bool CheckSymbols::visit(FunctionDefinitionAST *ast)
+{
+    _functionDefinitionStack.append(ast);
+    const LocalSymbols locals(_doc, ast);
+    QList<SemanticInfo::Use> uses;
+    foreach (uses, locals.uses) {
+        foreach (const SemanticInfo::Use &u, uses)
+            addTypeUsage(u);
+    }
+
+    accept(ast->decl_specifier_list);
+    accept(ast->declarator);
+    accept(ast->ctor_initializer);
+    accept(ast->function_body);
+
+    _functionDefinitionStack.removeLast();
+    return false;
+}
+
 void CheckSymbols::addTypeUsage(const Use &use)
 {
-    if (_typeUsages.size() >= 50) {
-        if (_flushRequested && use.line != _flushLine)
-            flush();
-        else if (! _flushRequested) {
-            _flushRequested = true;
-            _flushLine = use.line;
+    if (_functionDefinitionStack.isEmpty()) {
+        if (_typeUsages.size() >= 50) {
+            if (_flushRequested && use.line != _flushLine)
+                flush();
+            else if (! _flushRequested) {
+                _flushRequested = true;
+                _flushLine = use.line;
+            }
         }
     }
 
@@ -535,6 +608,36 @@ void CheckSymbols::addTypeUsage(const QList<Symbol *> &candidates, NameAST *ast)
             //qDebug() << "added use" << oo(ast->name) << line << column << length;
             break;
         }
+    }
+}
+
+void CheckSymbols::addMemberUsage(const QList<Symbol *> &candidates, NameAST *ast)
+{
+    unsigned startToken = ast->firstToken();
+    if (DestructorNameAST *dtor = ast->asDestructorName())
+        startToken = dtor->identifier_token;
+
+    const Token &tok = tokenAt(startToken);
+    if (tok.generated())
+        return;
+
+    unsigned line, column;
+    getTokenStartPosition(startToken, &line, &column);
+    const unsigned length = tok.length();
+
+    foreach (Symbol *c, candidates) {
+        if (! c->isDeclaration())
+            continue;
+        else if (c->isTypedef())
+            continue;
+        else if (c->type()->isFunctionType())
+            continue;
+        else if (! c->enclosingSymbol()->isClass())
+            continue;
+
+        const Use use(line, column, length, Use::Field);
+        addTypeUsage(use);
+        //qDebug() << "added use" << oo(ast->name) << line << column << length;
     }
 }
 

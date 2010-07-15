@@ -20,7 +20,8 @@ HEADERS += cppplugin.h \
     cppchecksymbols.h \
     cppsemanticinfo.h \
     cppoutline.h \
-    cppdeclfromdef.h
+    cppdeclfromdef.h \
+    cpplocalsymbols.h
 
 SOURCES += cppplugin.cpp \
     cppeditor.cpp \
@@ -33,7 +34,8 @@ SOURCES += cppplugin.cpp \
     cppchecksymbols.cpp \
     cppsemanticinfo.cpp \
     cppoutline.cpp \
-    cppdeclfromdef.cpp
+    cppdeclfromdef.cpp \
+    cpplocalsymbols.cpp
 
 RESOURCES += cppeditor.qrc
 

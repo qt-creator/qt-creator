@@ -27,54 +27,30 @@
 **
 **************************************************************************/
 
-#ifndef CPPSEMANTICINFO_H
-#define CPPSEMANTICINFO_H
+#ifndef CPPLOCALSYMBOLS_H
+#define CPPLOCALSYMBOLS_H
 
+#include "cppsemanticinfo.h"
 #include <cplusplus/CppDocument.h>
-#include <cplusplus/LookupContext.h>
-#include <QtCore/QHash>
+#include <ASTfwd.h>
 
 namespace CppEditor {
 namespace Internal {
 
-class CPPEditor;
-
-class SemanticInfo
+class LocalSymbols
 {
+    Q_DISABLE_COPY(LocalSymbols)
+
 public:
-    struct Use {
-        unsigned line;
-        unsigned column;
-        unsigned length;
-        unsigned kind;
+    LocalSymbols(CPlusPlus::Document::Ptr doc, CPlusPlus::DeclarationAST *ast);
 
-        enum {
-            Type = 0,
-            Local,
-            Field
-        };
-
-        Use(unsigned line = 0, unsigned column = 0, unsigned length = 0, unsigned kind = Type)
-            : line(line), column(column), length(length), kind(kind) {}
-    };
-
-    typedef QHash<CPlusPlus::Symbol *, QList<Use> > LocalUseMap;
-    typedef QHashIterator<CPlusPlus::Symbol *, QList<Use> > LocalUseIterator;
-
-    SemanticInfo();
-
-    unsigned revision;
-    bool hasQ: 1;
-    bool hasD: 1;
-    bool forced: 1;
-    CPlusPlus::Snapshot snapshot;
-    CPlusPlus::Document::Ptr doc;
-    LocalUseMap localUses;
-    QList<Use> objcKeywords;
-    QList<CPlusPlus::Document::DiagnosticMessage> diagnosticMessages;
+    bool hasD;
+    bool hasQ;
+    SemanticInfo::LocalUseMap uses;
 };
 
-} // end of namespace Internal
-} // end of namespace CppEditor;
+}
 
-#endif // CPPSEMANTICINFO_H
+}
+
+#endif // CPPLOCALSYMBOLS_H

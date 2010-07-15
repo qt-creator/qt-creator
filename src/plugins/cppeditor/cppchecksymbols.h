@@ -87,6 +87,9 @@ protected:
     void addTypeUsage(const QList<Symbol *> &candidates, NameAST *ast);
     void addTypeUsage(const Use &use);
 
+    void checkMemberName(NameAST *ast);
+    void addMemberUsage(const QList<Symbol *> &candidates, NameAST *ast);
+
     virtual bool preVisit(AST *);
 
     virtual bool visit(NamespaceAST *);
@@ -105,6 +108,9 @@ protected:
     virtual bool visit(TypenameTypeParameterAST *ast);
     virtual bool visit(TemplateTypeParameterAST *ast);
 
+    virtual bool visit(FunctionDefinitionAST *ast);
+    virtual bool visit(MemberAccessAST *ast);
+
     unsigned startOfTemplateDeclaration(TemplateDeclarationAST *ast) const;
     Scope *findScope(AST *ast) const;
 
@@ -116,8 +122,10 @@ private:
     QString _fileName;
     QList<Document::DiagnosticMessage> _diagnosticMessages;
     QSet<QByteArray> _potentialTypes;
+    QSet<QByteArray> _potentialMembers;
     QList<ScopedSymbol *> _scopes;
     QList<TemplateDeclarationAST *> _templateDeclarationStack;
+    QList<FunctionDefinitionAST *> _functionDefinitionStack;
     QVector<Use> _typeUsages;
     bool _flushRequested;
     unsigned _flushLine;

@@ -33,6 +33,7 @@
 #include "cpphighlighter.h"
 #include "cppchecksymbols.h"
 #include "cppquickfix.h"
+#include "cpplocalsymbols.h"
 
 #include <AST.h>
 #include <Control.h>
@@ -171,240 +172,6 @@ public:
 private:
     CPlusPlus::OverviewModel *m_sourceModel;
 };
-
-
-class FindLocalUses: protected ASTVisitor
-{
-    Scope *_functionScope;
-    Document::Ptr _doc;
-
-public:
-    FindLocalUses(Document::Ptr doc)
-        : ASTVisitor(doc->translationUnit()), _doc(doc), hasD(false), hasQ(false)
-    { }
-
-    // local and external uses.
-    SemanticInfo::LocalUseMap localUses;
-    bool hasD;
-    bool hasQ;
-
-    void operator()(DeclarationAST *ast)
-    {
-        localUses.clear();
-
-        if (!ast)
-            return;
-
-        if (FunctionDefinitionAST *def = ast->asFunctionDefinition()) {
-            if (def->symbol) {
-                _functionScope = def->symbol->members();
-                accept(ast);
-            }
-        } else if (ObjCMethodDeclarationAST *decl = ast->asObjCMethodDeclaration()) {
-            if (decl->method_prototype->symbol) {
-                _functionScope = decl->method_prototype->symbol->members();
-                accept(ast);
-            }
-        }
-    }
-
-protected:
-    using ASTVisitor::visit;
-
-    bool findMember(Scope *scope, NameAST *ast, unsigned line, unsigned column)
-    {
-        if (! (ast && ast->name))
-            return false;
-
-        const Identifier *id = ast->name->identifier();
-
-        if (scope) {
-            for (Symbol *member = scope->lookat(id); member; member = member->next()) {
-                if (member->identifier() != id)
-                    continue;
-                else if (member->line() < line || (member->line() == line && member->column() <= column)) {
-                    localUses[member].append(SemanticInfo::Use(line, column, id->size()));
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    void searchUsesInTemplateArguments(NameAST *name)
-    {
-        if (! name)
-            return;
-
-        else if (TemplateIdAST *template_id = name->asTemplateId()) {
-            for (TemplateArgumentListAST *it = template_id->template_argument_list; it; it = it->next) {
-                accept(it->value);
-            }
-        }
-    }
-
-    virtual bool visit(SimpleNameAST *ast)
-    { return findMemberForToken(ast->firstToken(), ast); }
-
-    bool findMemberForToken(unsigned tokenIdx, NameAST *ast)
-    {
-        const Token &tok = tokenAt(tokenIdx);
-        if (tok.generated())
-            return false;
-
-        unsigned line, column;
-        getTokenStartPosition(tokenIdx, &line, &column);
-
-        Scope *scope = _doc->scopeAt(line, column);
-
-        while (scope) {
-            if (scope->isFunctionScope()) {
-                Function *fun = scope->owner()->asFunction();
-                if (findMember(fun->members(), ast, line, column))
-                    return false;
-                else if (findMember(fun->arguments(), ast, line, column))
-                    return false;
-            } else if (scope->isObjCMethodScope()) {
-                ObjCMethod *method = scope->owner()->asObjCMethod();
-                if (findMember(method->members(), ast, line, column))
-                    return false;
-                else if (findMember(method->arguments(), ast, line, column))
-                    return false;
-            } else if (scope->isBlockScope()) {
-                if (findMember(scope, ast, line, column))
-                    return false;
-            } else {
-                break;
-            }
-
-            scope = scope->enclosingScope();
-        }
-
-        return false;
-    }
-
-    virtual bool visit(TemplateIdAST *ast)
-    {
-        for (TemplateArgumentListAST *arg = ast->template_argument_list; arg; arg = arg->next)
-            accept(arg->value);
-
-        const Token &tok = tokenAt(ast->identifier_token);
-        if (tok.generated())
-            return false;
-
-        unsigned line, column;
-        getTokenStartPosition(ast->firstToken(), &line, &column);
-
-        Scope *scope = _doc->scopeAt(line, column);
-
-        while (scope) {
-            if (scope->isFunctionScope()) {
-                Function *fun = scope->owner()->asFunction();
-                if (findMember(fun->members(), ast, line, column))
-                    return false;
-                else if (findMember(fun->arguments(), ast, line, column))
-                    return false;
-            } else if (scope->isBlockScope()) {
-                if (findMember(scope, ast, line, column))
-                    return false;
-            } else {
-                break;
-            }
-
-            scope = scope->enclosingScope();
-        }
-
-        return false;
-    }
-
-    virtual bool visit(QualifiedNameAST *ast)
-    {
-        for (NestedNameSpecifierListAST *it = ast->nested_name_specifier_list; it; it = it->next)
-            searchUsesInTemplateArguments(it->value->class_or_namespace_name);
-
-        searchUsesInTemplateArguments(ast->unqualified_name);
-        return false;
-    }
-
-    virtual bool visit(MemberAccessAST *ast)
-    {
-        // accept only the base expression
-        accept(ast->base_expression);
-        // and ignore the member name.
-        return false;
-    }
-
-    virtual bool visit(ElaboratedTypeSpecifierAST *)
-    {
-        // ### template args
-        return false;
-    }
-
-    virtual bool visit(ClassSpecifierAST *)
-    {
-        // ### template args
-        return false;
-    }
-
-    virtual bool visit(EnumSpecifierAST *)
-    {
-        // ### template args
-        return false;
-    }
-
-    virtual bool visit(UsingDirectiveAST *)
-    {
-        return false;
-    }
-
-    virtual bool visit(UsingAST *ast)
-    {
-        accept(ast->name);
-        return false;
-    }
-
-    virtual bool visit(QtMemberDeclarationAST *ast)
-    {
-        if (tokenKind(ast->q_token) == T_Q_D)
-            hasD = true;
-        else
-            hasQ = true;
-
-        return true;
-    }
-
-    virtual bool visit(ExpressionOrDeclarationStatementAST *ast)
-    {
-        accept(ast->declaration);
-        return false;
-    }
-
-    virtual bool visit(FunctionDeclaratorAST *ast)
-    {
-        accept(ast->parameters);
-
-        for (SpecifierListAST *it = ast->cv_qualifier_list; it; it = it->next)
-            accept(it->value);
-
-        accept(ast->exception_specification);
-
-        return false;
-    }
-
-    virtual bool visit(ObjCMethodPrototypeAST *ast)
-    {
-        accept(ast->argument_list);
-        return false;
-    }
-
-    virtual bool visit(ObjCMessageArgumentDeclarationAST *ast)
-    {
-        accept(ast->param_name);
-        return false;
-    }
-};
-
 
 class FunctionDefinitionUnderCursor: protected ASTVisitor
 {
@@ -1131,6 +898,12 @@ void CPPEditor::highlightTypeUsages(int from, int to)
     Q_ASSERT(!chunks.isEmpty());
     QTextBlock b = doc->findBlockByNumber(m_nextHighlightBlockNumber);
 
+    QTextCharFormat localUseFormat;
+    localUseFormat.setForeground(Qt::darkBlue); // ### hardcoded
+
+    QTextCharFormat memberUseFormat;
+    memberUseFormat.setForeground(Qt::darkRed); // ### hardcoded
+
     QMapIterator<int, QVector<SemanticInfo::Use> > it(chunks);
     while (b.isValid() && it.hasNext()) {
         it.next();
@@ -1146,7 +919,24 @@ void CPPEditor::highlightTypeUsages(int from, int to)
         QList<QTextLayout::FormatRange> formats;
         foreach (const SemanticInfo::Use &use, it.value()) {
             QTextLayout::FormatRange formatRange;
-            formatRange.format = m_typeFormat;
+
+            switch (use.kind) {
+            case SemanticInfo::Use::Type:
+                formatRange.format = m_typeFormat;
+                break;
+
+            case SemanticInfo::Use::Field:
+                formatRange.format = memberUseFormat;
+                break;
+
+            case SemanticInfo::Use::Local:
+                formatRange.format = localUseFormat;
+                break;
+
+            default:
+                continue;
+            }
+
             formatRange.start = use.column - 1;
             formatRange.length = use.length;
             formats.append(formatRange);
@@ -2187,8 +1977,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     Snapshot snapshot;
     Document::Ptr doc;
     QList<Document::DiagnosticMessage> diagnosticMessages;
-    QList<SemanticInfo::Use> typeUsages, objcKeywords;
-    LookupContext context;
+    QList<SemanticInfo::Use> objcKeywords;
 
     if (! source.force && revision == source.revision) {
         m_mutex.lock();
@@ -2207,13 +1996,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
         doc->check();
 
 #if 0
-        context = LookupContext(doc, snapshot);
-
         if (TranslationUnit *unit = doc->translationUnit()) {
-            CheckUndefinedSymbols checkUndefinedSymbols(unit, context);
-            diagnosticMessages = checkUndefinedSymbols(unit->ast());
-            typeUsages = checkUndefinedSymbols.typeUsages();
-
             FindObjCKeywords findObjCKeywords(unit); // ### remove me
             objcKeywords = findObjCKeywords();
         }
@@ -2226,14 +2009,13 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     FunctionDefinitionUnderCursor functionDefinitionUnderCursor(translationUnit);
     DeclarationAST *currentFunctionDefinition = functionDefinitionUnderCursor(ast, source.line, source.column);
 
-    FindLocalUses useTable(doc);
-    useTable(currentFunctionDefinition);
+    const LocalSymbols useTable(doc, currentFunctionDefinition);
 
     SemanticInfo semanticInfo;
     semanticInfo.revision = source.revision;
     semanticInfo.snapshot = snapshot;
     semanticInfo.doc = doc;
-    semanticInfo.localUses = useTable.localUses;
+    semanticInfo.localUses = useTable.uses;
     semanticInfo.hasQ = useTable.hasQ;
     semanticInfo.hasD = useTable.hasD;
     semanticInfo.forced = source.force;
