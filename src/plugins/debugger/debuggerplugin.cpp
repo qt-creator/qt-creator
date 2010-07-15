@@ -2551,8 +2551,17 @@ ExtensionSystem::IPlugin::ShutdownFlag DebuggerPlugin::aboutToShutdown()
         d->m_uiSwitcher->aboutToShutdown();
     //if (d->m_engine)
     //    d->m_engine->shutdown();
-    return SynchronousShutdown;
+
+    // FIXME: Notify all engines instead.
+    QTimer::singleShot(0, this, SLOT(emitShutdownFinished()));
+    return AsynchronousShutdown;
 }
+
+void DebuggerPlugin::emitShutdownFinished()
+{
+    emit asynchronousShutdownFinished();
+}
+
 
 void DebuggerPlugin::showMessage(const QString &msg, int channel, int timeout)
 {

@@ -35,7 +35,6 @@
 #include <extensionsystem/iplugin.h>
 
 QT_BEGIN_NAMESPACE
-class QAbstractItemView;
 class QIcon;
 class QMessageBox;
 QT_END_NAMESPACE
@@ -119,8 +118,9 @@ signals:
 
 private:
     friend class Internal::DebuggerEngine;
-    friend class Internal::DebuggerListener
-;
+    friend class Internal::DebuggerListener;
+
+    Q_SLOT void emitShutdownFinished();
     bool initialize(const QStringList &arguments, QString *errorMessage);
     ShutdownFlag aboutToShutdown();
     void extensionsInitialized();
