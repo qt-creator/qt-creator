@@ -149,7 +149,8 @@ protected:
         substatement_open, // The brace that opens a substatement block.
 
         arglist_open, // after the lparen. TODO: check if this is enough.
-        stream_op, // Lines continuing a stream operator (C++ only).
+        stream_op, // After a '<<' or '>>' in a context where it's likely a stream operator.
+        stream_op_cont, // When finding another stream operator in stream_op
         ternary_op, // The ? : operator
 
         condition_open, // Start of a condition in 'if', 'while', entered after opening paren

@@ -203,9 +203,17 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             } break;
 
         case stream_op:
-            if (tryExpression())
+        case stream_op_cont:
+            if (kind != T_LESS_LESS && kind != T_GREATER_GREATER && tryExpression())
                 break;
             switch (kind) {
+            case T_LESS_LESS:
+            case T_GREATER_GREATER:
+                if (m_currentState.top().type == stream_op)
+                    enter(stream_op_cont);
+                else // stream_op_cont already
+                    turnInto(stream_op_cont);
+                break;
             case T_COMMA:
             case T_SEMICOLON:   leave(); continue; // always nested, propagate semicolon
             } break;
@@ -604,12 +612,10 @@ bool CodeFormatter::tryExpression(bool alsoExpression)
 
     case T_LESS_LESS:
     case T_GREATER_GREATER:
-        // don't go into stream operator state inside arglist_open
-        // or another stream_op
         newState = stream_op;
         for (int i = m_currentState.size() - 1; i >= 0; --i) {
             const int type = m_currentState.at(i).type;
-            if (type == arglist_open || type == stream_op) {
+            if (type == arglist_open) { // likely a left-shift instead
                 newState = -1;
                 break;
             }
@@ -1020,6 +1026,10 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
     case stream_op:
         *indentDepth = tokenPosition + tk.length() + 1;
         break;
+    case stream_op_cont:
+        if (firstToken)
+            *savedIndentDepth = *indentDepth = tokenPosition + tk.length() + 1;
+        break;
 
     case member_init_open:
         // undo the continuation indent of the parent
@@ -1257,7 +1267,7 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
         break;
     case T_LESS_LESS:
     case T_GREATER_GREATER:
-        if (topState.type == stream_op)
+        if (topState.type == stream_op || topState.type == stream_op_cont)
             *indentDepth -= 3; // to align << with <<
         break;
     case T_COMMENT:
