@@ -355,6 +355,7 @@ OutputWindow::OutputWindow(QWidget *parent)
     : QPlainTextEdit(parent)
     , m_enforceNewline(false)
     , m_scrollToBottom(false)
+    , m_formatter(0)
 {
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     //setCenterOnScroll(false);
@@ -558,17 +559,20 @@ void OutputWindow::enableUndoRedo()
 void OutputWindow::mousePressEvent(QMouseEvent *e)
 {
     QPlainTextEdit::mousePressEvent(e);
-    m_formatter->mousePressEvent(e);
+    if (m_formatter)
+        m_formatter->mousePressEvent(e);
 }
 
 void OutputWindow::mouseReleaseEvent(QMouseEvent *e)
 {
     QPlainTextEdit::mouseReleaseEvent(e);
-    m_formatter->mouseReleaseEvent(e);
+    if (m_formatter)
+        m_formatter->mouseReleaseEvent(e);
 }
 
 void OutputWindow::mouseMoveEvent(QMouseEvent *e)
 {
     QPlainTextEdit::mouseMoveEvent(e);
-    m_formatter->mouseMoveEvent(e);
+    if (m_formatter)
+        m_formatter->mouseMoveEvent(e);
 }
