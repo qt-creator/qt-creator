@@ -22,7 +22,9 @@ SOURCES += propertyeditor.cpp \
     declarativewidgetview.cpp \
     contextpanewidget.cpp \
     contextpanetextwidget.cpp \
-    fontsizespinbox.cpp
+    fontsizespinbox.cpp \
+    contextpanewidgetrectangle.cpp \
+    contextpanewidgetimage.cpp
 
 HEADERS += propertyeditor.h \
     qmlanchorbindingproxy.h \
@@ -46,8 +48,12 @@ HEADERS += propertyeditor.h \
     declarativewidgetview.h \
     contextpanewidget.h \
     contextpanetextwidget.h \
-    fontsizespinbox.h
+    fontsizespinbox.h \
+    contextpanewidgetrectangle.h \
+    contextpanewidgetimage.h
 QT += declarative
 RESOURCES += propertyeditor.qrc
 FORMS += behaviordialog.ui \
-         contextpanetext.ui
+         contextpanetext.ui \
+         contextpanewidgetrectangle.ui \
+         contextpanewidgetimage.ui
