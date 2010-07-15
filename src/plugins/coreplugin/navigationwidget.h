@@ -38,6 +38,7 @@ QT_BEGIN_NAMESPACE
 class QSettings;
 class QShortcut;
 class QToolButton;
+class QStandardItemModel;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -77,8 +78,16 @@ class NavigationWidget : public MiniSplitter
 {
     Q_OBJECT
 public:
+    enum FactoryModelRoles {
+        FactoryObjectRole = Qt::UserRole,
+        FactoryIdRole
+    };
+
+
     NavigationWidget(QAction *toggleSideBarAction);
     ~NavigationWidget();
+
+    void setFactories(const QList<INavigationWidgetFactory*> factories);
 
     void saveSettings(QSettings *settings);
     void restoreSettings(QSettings *settings);
@@ -97,21 +106,26 @@ public:
     void placeHolderChanged(NavigationWidgetPlaceHolder *holder);
 
     QHash<QString, Core::Command*> commandMap() const { return m_commandMap; }
+    QAbstractItemModel *factoryModel() const;
 
 protected:
     void resizeEvent(QResizeEvent *);
+
 private slots:
-    void objectAdded(QObject*);
     void activateSubWidget();
     void splitSubWidget();
     void closeSubWidget();
 
 private:
     void updateToggleText();
-    NavigationSubWidget *insertSubItem(int position);
+    NavigationSubWidget *insertSubItem(int position, int index);
+    int factoryIndex(const QString &id);
+
     QList<NavigationSubWidget *> m_subWidgets;
     QHash<QShortcut *, QString> m_shortcutMap;
     QHash<QString, Core::Command*> m_commandMap;
+    QStandardItemModel *m_factoryModel;
+
     bool m_shown;
     bool m_suppressed;
     int m_width;
@@ -123,16 +137,21 @@ class NavigationSubWidget : public QWidget
 {
     Q_OBJECT
 public:
-    NavigationSubWidget(NavigationWidget *parentWidget);
+    NavigationSubWidget(NavigationWidget *parentWidget, int position, int index);
     virtual ~NavigationSubWidget();
 
     INavigationWidgetFactory *factory();
-    void setFactory(INavigationWidgetFactory *factory);
-    void setFactory(const QString &id);
+
+    int factoryIndex() const;
+    void setFactoryIndex(int i);
+
     void setFocusWidget();
 
-    void saveSettings(int position);
-    void restoreSettings(int position);
+    int position() const;
+    void setPosition(int i);
+
+    void saveSettings();
+    void restoreSettings();
 
     Core::Command *command(const QString &title) const;
 
@@ -141,9 +160,7 @@ signals:
     void closeMe();
 
 private slots:
-    void objectAdded(QObject*);
-    void aboutToRemoveObject(QObject*);
-    void setCurrentIndex(int);
+    void comboBoxIndexChanged(int);
 
 private:
     NavigationWidget *m_parentWidget;
@@ -151,6 +168,8 @@ private:
     QWidget *m_navigationWidget;
     Utils::StyledBar *m_toolBar;
     QList<QToolButton *> m_additionalToolBarWidgets;
+    int m_position;
+    int m_currentIndex;
 };
 
 class NavComboBox : public QComboBox

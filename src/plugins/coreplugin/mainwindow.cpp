@@ -67,6 +67,7 @@
 
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/icorelistener.h>
+#include <coreplugin/inavigationwidgetfactory.h>
 #include <coreplugin/settingsdatabase.h>
 #include <utils/pathchooser.h>
 #include <utils/stylehelper.h>
@@ -332,6 +333,9 @@ void MainWindow::extensionsInitialized()
 
     m_actionManager->initialize();
     m_vcsManager->extensionsInitialized();
+
+    m_navigationWidget->setFactories(ExtensionSystem::PluginManager::instance()->getObjects<INavigationWidgetFactory>());
+
     readSettings();
     updateContext();
 
