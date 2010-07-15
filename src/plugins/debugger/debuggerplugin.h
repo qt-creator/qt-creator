@@ -124,7 +124,6 @@ private:
     bool initialize(const QStringList &arguments, QString *errorMessage);
     ShutdownFlag aboutToShutdown();
     void extensionsInitialized();
-    void remoteCommand(const QStringList &options, const QStringList &arguments);
 
     QWidget *mainWindow() const;
 

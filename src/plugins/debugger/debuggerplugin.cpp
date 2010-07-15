@@ -422,8 +422,8 @@ struct AttachRemoteParameters
     AttachRemoteParameters() : attachPid(0), winCrashEvent(0) {}
 
     quint64 attachPid;
-    QString attachCore;
-    // Event handle for attaching to crashed Windows processes.
+    QString attachTarget;  // core file name or  server:port
+    // Event handle for attaching to crashed Windows processes. 
     quint64 winCrashEvent;
 };
 
@@ -605,8 +605,10 @@ public:
     QString id() const { return _("Z.DebuggingHelper"); }
     QString displayName() const { return tr("Debugging Helper"); }
     QString category() const { return _(DEBUGGER_SETTINGS_CATEGORY); }
-    QString displayCategory() const { return QCoreApplication::translate("Debugger", DEBUGGER_SETTINGS_TR_CATEGORY); }
-    QIcon categoryIcon() const { return QIcon(QLatin1String(DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON)); }
+    QString displayCategory() const
+    { return QCoreApplication::translate("Debugger", DEBUGGER_SETTINGS_TR_CATEGORY); }
+    QIcon categoryIcon() const
+    { return QIcon(QLatin1String(DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON)); }
 
     QWidget *createPage(QWidget *parent);
     void apply() { m_group.apply(settings()); }
@@ -702,6 +704,8 @@ static bool parseArgument(QStringList::const_iterator &it,
 {
     const QString &option = *it;
     // '-debug <pid>'
+    // '-debug <corefile>'
+    // '-debug <server:port>'
     if (*it == _("-debug")) {
         ++it;
         if (it == cend) {
@@ -710,10 +714,8 @@ static bool parseArgument(QStringList::const_iterator &it,
         }
         bool ok;
         attachRemoteParameters->attachPid = it->toULongLong(&ok);
-        if (!ok) {
-            attachRemoteParameters->attachPid = 0;
-            attachRemoteParameters->attachCore = *it;
-        }
+        if (!ok)
+            attachRemoteParameters->attachTarget = *it;
         return true;
     }
     // -wincrashevent <event-handle>. A handle used for
@@ -770,7 +772,7 @@ static bool parseArguments(const QStringList &args,
         qDebug().nospace() << args << "engines=0x"
             << QString::number(*enabledEngines, 16)
             << " pid" << attachRemoteParameters->attachPid
-            << " core" << attachRemoteParameters->attachCore << '\n';
+            << " target" << attachRemoteParameters->attachTarget << '\n';
     return true;
 }
 
@@ -903,6 +905,7 @@ public slots:
     void attachCore();
     void attachCore(const QString &core, const QString &exeFileName);
     void attachCmdLine();
+    void attachRemote(const QString &spec);
     void attachRemoteTcf();
 
     void interruptDebuggingRequest();
@@ -1272,7 +1275,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
 
     // Do not fail the whole plugin if something goes wrong here.
     uint cmdLineEnabledEngines = AllEngineTypes;
-    if (!parseArguments(arguments, &m_attachRemoteParameters, &cmdLineEnabledEngines, errorMessage)) {
+    if (!parseArguments(arguments, &m_attachRemoteParameters,
+            &cmdLineEnabledEngines, errorMessage)) {
         *errorMessage = tr("Error evaluating command line arguments: %1")
             .arg(*errorMessage);
         qWarning("%s\n", qPrintable(*errorMessage));
@@ -1687,22 +1691,19 @@ void DebuggerPluginPrivate::attachExternalApplication
     sp.executable = binary;
     sp.crashParameter = crashParameter;
     sp.startMode = crashParameter.isEmpty() ? AttachExternal:AttachCrashedExternal;
-    startDebugger(m_debuggerRunControlFactory->create(sp));
+    DebuggerRunControl *rc = createDebugger(sp);
+    startDebugger(rc);
 }
 
 void DebuggerPluginPrivate::attachCore()
 {
     AttachCoreDialog dlg(mainWindow());
-    dlg.setExecutableFile(
-            configValue(_("LastExternalExecutableFile")).toString());
-    dlg.setCoreFile(
-            configValue(_("LastExternalCoreFile")).toString());
+    dlg.setExecutableFile(configValue(_("LastExternalExecutableFile")).toString());
+    dlg.setCoreFile(configValue(_("LastExternalCoreFile")).toString());
     if (dlg.exec() != QDialog::Accepted)
         return;
-    setConfigValue(_("LastExternalExecutableFile"),
-                   dlg.executableFile());
-    setConfigValue(_("LastExternalCoreFile"),
-                   dlg.coreFile());
+    setConfigValue(_("LastExternalExecutableFile"), dlg.executableFile());
+    setConfigValue(_("LastExternalCoreFile"), dlg.coreFile());
     attachCore(dlg.coreFile(), dlg.executableFile());
 }
 
@@ -1713,7 +1714,21 @@ void DebuggerPluginPrivate::attachCore(const QString &core, const QString &exe)
     sp.coreFile = core;
     sp.displayName = tr("Core file: \"%1\"").arg(core);
     sp.startMode = AttachCore;
-    startDebugger(createDebugger(sp));
+    DebuggerRunControl *rc = createDebugger(sp);
+    startDebugger(rc);
+}
+
+void DebuggerPluginPrivate::attachRemote(const QString &spec)
+{
+    // spec is:  executable@server:port@architecture
+    DebuggerStartParameters sp;
+    sp.executable = spec.section('@', 0, 0);
+    sp.remoteChannel = spec.section('@', 1, 1);
+    sp.remoteArchitecture = spec.section('@', 2, 2);
+    sp.displayName = tr("Remote: \"%1\"").arg(sp.remoteChannel);
+    sp.startMode = AttachToRemote;
+    DebuggerRunControl *rc = createDebugger(sp);
+    startDebugger(rc);
 }
 
 void DebuggerPluginPrivate::startRemoteApplication()
@@ -1810,10 +1825,15 @@ void DebuggerPluginPrivate::attachCmdLine()
             QString(), crashParameter);
         return;
     }
-    if (!m_attachRemoteParameters.attachCore.isEmpty()) {
-        showStatusMessage(tr("Attaching to core %1.")
-            .arg(m_attachRemoteParameters.attachCore));
-        attachCore(m_attachRemoteParameters.attachCore, QString());
+    const QString target = m_attachRemoteParameters.attachTarget;
+    if (!target.isEmpty()) {
+        if (target.indexOf(':') > 0) {
+            showStatusMessage(tr("Attaching to remote server %1.").arg(target));
+            attachRemote(target);
+        } else {
+            showStatusMessage(tr("Attaching to core %1.").arg(target));
+            attachCore(target, QString());
+        }
     }
 }
 
@@ -1828,7 +1848,8 @@ void DebuggerPluginPrivate::editorOpened(Core::IEditor *editor)
         this, SLOT(requestMark(TextEditor::ITextEditor*,int)));
     connect(editor, SIGNAL(tooltipRequested(TextEditor::ITextEditor*,QPoint,int)),
         this, SLOT(showToolTip(TextEditor::ITextEditor*,QPoint,int)));
-    connect(textEditor, SIGNAL(markContextMenuRequested(TextEditor::ITextEditor*,int,QMenu*)),
+    connect(textEditor,
+        SIGNAL(markContextMenuRequested(TextEditor::ITextEditor*,int,QMenu*)),
         this, SLOT(requestContextMenu(TextEditor::ITextEditor*,int,QMenu*)));
 }
 
@@ -1917,25 +1938,24 @@ void DebuggerPluginPrivate::displayDebugger(ProjectExplorer::RunControl *rc)
 
 void DebuggerPluginPrivate::startDebugger(ProjectExplorer::RunControl *rc)
 {
-    qDebug() << "START DEBUGGER 1";
+    //qDebug() << "START DEBUGGER 1";
     QTC_ASSERT(rc, return);
     DebuggerRunControl *runControl = qobject_cast<DebuggerRunControl *>(rc);
     QTC_ASSERT(runControl, return);
     activateDebugMode();
     connectEngine(runControl->engine());
-    //m_sessionEngine->m_snapshotHandler->appendSnapshot(runControl);
     ProjectExplorerPlugin::instance()->startRunControl(runControl, PE::DEBUGMODE);
-    qDebug() << "START DEBUGGER 2";
+    //qDebug() << "START DEBUGGER 2";
 }
 
 void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine, bool notify)
 {
     if (notify)
         notifyCurrentEngine(RequestActivationRole, false);
-    if (engine == m_sessionEngine)
-        qDebug() << "CONNECTING DUMMY ENGINE" << engine;
-    else
-        qDebug() << "CONNECTING ENGINE " << engine;
+    //if (engine == m_sessionEngine)
+    //    qDebug() << "CONNECTING DUMMY ENGINE" << engine;
+    //else
+    //    qDebug() << "CONNECTING ENGINE " << engine;
     m_breakWindow->setModel(engine->breakModel());
     m_commandWindow->setModel(engine->commandModel());
     m_localsWindow->setModel(engine->localsModel());
@@ -2592,19 +2612,6 @@ QIcon DebuggerPlugin::locationMarkIcon() const
     return d->m_locationMarkIcon;
 }
 
-void DebuggerPlugin::remoteCommand(const QStringList &options, const QStringList &)
-{
-    QString errorMessage;
-    AttachRemoteParameters parameters;
-    unsigned dummy = 0;
-    // Did we receive a request for debugging (unless it is ourselves)?
-    if (parseArguments(options, &parameters, &dummy, &errorMessage)
-        && parameters.attachPid != quint64(QCoreApplication::applicationPid())) {
-        d->m_attachRemoteParameters = parameters;
-        d->attachCmdLine();
-    }
-}
-
 void DebuggerPlugin::extensionsInitialized()
 {
     d->m_uiSwitcher->initialize();
@@ -2617,7 +2624,7 @@ void DebuggerPlugin::extensionsInitialized()
     // if (!env.isEmpty())
     //    m_plugin->runTest(QString::fromLocal8Bit(env));
     if (d->m_attachRemoteParameters.attachPid
-            || !d->m_attachRemoteParameters.attachCore.isEmpty())
+            || !d->m_attachRemoteParameters.attachTarget.isEmpty())
         QTimer::singleShot(0, d, SLOT(attachCmdLine()));
 }
 

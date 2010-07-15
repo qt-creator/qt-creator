@@ -1394,7 +1394,7 @@ bool DebuggerEngine::isActive() const
 
 void DebuggerEngine::setActive(bool on)
 {
-    qDebug() << "SETTING ACTIVE" << this << on;
+    //qDebug() << "SETTING ACTIVE" << this << on;
     d->m_isActive = on;
     //breakHandler()->updateMarkers();
 }
