@@ -262,13 +262,29 @@ void QDeclarativeDesignView::changeTool(Constants::DesignTool tool, Constants::T
 
 void QDeclarativeDesignView::setSelectedItems(QList<QGraphicsItem *> items)
 {
-    m_currentSelection = items;
-    m_currentTool->setItems(items);
+    m_currentSelection.clear();
+    foreach(QGraphicsItem *item, items) {
+        if (item) {
+            QGraphicsObject *obj = item->toGraphicsObject();
+            if (obj)
+                m_currentSelection << obj;
+        }
+    }
+    m_currentTool->updateSelectedItems();
 }
 
-QList<QGraphicsItem *> QDeclarativeDesignView::selectedItems() const
+QList<QGraphicsItem *> QDeclarativeDesignView::selectedItems()
 {
-    return m_currentSelection;
+    QList<QGraphicsItem *> selection;
+    foreach(const QWeakPointer<QGraphicsObject> &selectedObject, m_currentSelection) {
+        if (selectedObject.isNull()) {
+            m_currentSelection.removeOne(selectedObject);
+        } else {
+            selection << selectedObject.data();
+        }
+    }
+
+    return selection;
 }
 
 AbstractFormEditorTool *QDeclarativeDesignView::currentTool() const
@@ -333,8 +349,6 @@ QList<QGraphicsItem*> QDeclarativeDesignView::selectableItems(const QRectF &scen
 
 void QDeclarativeDesignView::changeToSingleSelectTool()
 {
-    //qDebug() << "changing to selection tool";
-
     m_currentToolMode = Constants::SelectionToolMode;
     m_selectionTool->setRubberbandSelectionMode(false);
 
@@ -352,7 +366,7 @@ void QDeclarativeDesignView::changeToSelectTool()
     m_currentTool->clear();
     m_currentTool = m_selectionTool;
     m_currentTool->clear();
-    m_currentTool->setItems(m_currentSelection);
+    m_currentTool->updateSelectedItems();
 }
 
 void QDeclarativeDesignView::changeToMarqueeSelectTool()

@@ -3,6 +3,7 @@
 
 #include "qmlviewerconstants.h"
 #include <qdeclarativeview.h>
+#include <QWeakPointer>
 
 QT_FORWARD_DECLARE_CLASS(QDeclarativeItem);
 QT_FORWARD_DECLARE_CLASS(QMouseEvent);
@@ -32,7 +33,7 @@ public:
     ~QDeclarativeDesignView();
 
     void setSelectedItems(QList<QGraphicsItem *> items);
-    QList<QGraphicsItem *> selectedItems() const;
+    QList<QGraphicsItem *> selectedItems();
     AbstractFormEditorTool *currentTool() const;
 
     LayerItem *manipulatorLayer() const;
@@ -102,7 +103,7 @@ private:
 
 private:
     QPointF m_cursorPos;
-    QList<QGraphicsItem *> m_currentSelection;
+    QList<QWeakPointer<QGraphicsObject> > m_currentSelection;
 
     Constants::DesignTool m_currentToolMode;
     AbstractFormEditorTool *m_currentTool;

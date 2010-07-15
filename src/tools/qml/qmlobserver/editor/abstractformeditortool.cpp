@@ -60,15 +60,14 @@ QGraphicsScene* AbstractFormEditorTool::scene() const
     return view()->scene();
 }
 
-void AbstractFormEditorTool::setItems(const QList<QGraphicsItem*> &itemList)
+void AbstractFormEditorTool::updateSelectedItems()
 {
-    m_itemList = itemList;
-    selectedItemsChanged(m_itemList);
+    selectedItemsChanged(items());
 }
 
 QList<QGraphicsItem*> AbstractFormEditorTool::items() const
 {
-    return m_itemList;
+    return view()->selectedItems();
 }
 
 bool AbstractFormEditorTool::topItemIsMovable(const QList<QGraphicsItem*> & itemList)

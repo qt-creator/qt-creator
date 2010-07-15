@@ -74,7 +74,7 @@ public:
     virtual void clear() = 0;
     virtual void graphicsObjectsChanged(const QList<QGraphicsObject*> &itemList) = 0;
 
-    void setItems(const QList<QGraphicsItem*> &itemList);
+    void updateSelectedItems();
     QList<QGraphicsItem*> items() const;
 
     bool topItemIsMovable(const QList<QGraphicsItem*> &itemList);
@@ -89,7 +89,7 @@ public:
     static QDeclarativeItem *toQDeclarativeItem(QGraphicsItem *item);
 
 protected:
-    virtual void selectedItemsChanged(const QList<QGraphicsItem*> &itemList) = 0;
+    virtual void selectedItemsChanged(const QList<QGraphicsItem*> &objectList) = 0;
 
     QDeclarativeDesignView *view() const;
     QGraphicsScene* scene() const;
