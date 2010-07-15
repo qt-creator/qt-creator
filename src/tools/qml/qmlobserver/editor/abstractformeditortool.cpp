@@ -173,9 +173,9 @@ QString AbstractFormEditorTool::titleForItem(const QGraphicsItem *item)
 
             QDeclarativeContext *context = QDeclarativeEngine::contextForObject(declarativeItem);
             if (context) {
-                QDeclarativeContextData *cdata = QDeclarativeContextData::get(context);
-                if (cdata)
-                    objectStringId = cdata->findObjectId(declarativeItem);
+//                QDeclarativeContextData *cdata = QDeclarativeContextData::get(context);
+//                if (cdata)
+//                    objectStringId = cdata->findObjectId(declarativeItem);
             }
         }
 
