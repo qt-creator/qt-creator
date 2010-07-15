@@ -419,10 +419,16 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 // 7.0.x, there was a *-created instead.
                 const int progress = m_progress->progressValue();
                 m_progress->setProgressValue(qMin(70, progress + 1));
+                // 7.1.50 has thread-group-started,id="i1",pid="3529"
                 QByteArray id = result.findChild("id").data();
                 showStatusMessage(tr("Thread group %1 created").arg(_(id)), 1000);
-                const int pid = id.toInt();
-                notifyInferiorPid(pid);
+                int pid = id.toInt();
+                if (!pid) {
+                    id = result.findChild("pid").data();
+                    pid = id.toInt();
+                }
+                if (pid)
+                    notifyInferiorPid(pid);
             } else if (asyncClass == "thread-created") {
                 //"{id="1",group-id="28902"}"
                 QByteArray id = result.findChild("id").data();

@@ -1359,6 +1359,7 @@ bool DebuggerEngine::debuggerActionsEnabled(DebuggerState state)
 
 void DebuggerEngine::notifyInferiorPid(qint64 pid)
 {
+    showMessage(tr("Taking notice of pid %1").arg(pid));
     if (d->m_inferiorPid == pid)
         return;
     d->m_inferiorPid = pid;
