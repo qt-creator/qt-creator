@@ -46,6 +46,10 @@ namespace Internal {
     static_cast<GdbEngine::AdapterCallback>(&CoreGdbAdapter::callback), \
     STRINGIFY(callback)
 
+#ifdef Q_OS_LINUX
+# define EXE_FROM_CORE
+#endif
+
 ///////////////////////////////////////////////////////////////////////
 //
 // CoreGdbAdapter
@@ -53,7 +57,7 @@ namespace Internal {
 ///////////////////////////////////////////////////////////////////////
 
 CoreGdbAdapter::CoreGdbAdapter(GdbEngine *engine, QObject *parent)
-    : AbstractGdbAdapter(engine, parent)
+    : AbstractGdbAdapter(engine, parent), m_round(1)
 {
 }
 
@@ -94,6 +98,7 @@ void CoreGdbAdapter::setupInferior()
 
 void CoreGdbAdapter::loadExeAndSyms()
 {
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     // Do that first, otherwise no symbols are loaded.
     QFileInfo fi(m_executable);
     QByteArray path = fi.absoluteFilePath().toLocal8Bit();
@@ -116,6 +121,7 @@ void CoreGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
 
 void CoreGdbAdapter::loadCoreFile()
 {
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     // Quoting core name below fails in gdb 6.8-debian.
     QFileInfo fi(startParameters().coreFile);
     QByteArray coreName = fi.absoluteFilePath().toLocal8Bit();

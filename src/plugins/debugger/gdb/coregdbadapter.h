@@ -34,9 +34,6 @@
 
 #include "abstractgdbprocess.h"
 
-#ifdef Q_OS_LINUX
-# define EXE_FROM_CORE
-#endif
 
 namespace Debugger {
 namespace Internal {
@@ -71,9 +68,7 @@ private:
     void handleFileExecAndSymbols(const GdbResponse &response);
     void handleTargetCore(const GdbResponse &response);
 
-#ifdef EXE_FROM_CORE
-    int m_round;
-#endif
+    int m_round; // Round 1: read executable name from core, Round 2: use it.
     QString m_executable;
     LocalGdbProcess m_gdbProc;
 };

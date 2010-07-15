@@ -173,9 +173,19 @@ def catchCliOutput(command):
     gdb.execute("set logging file %s" % filename)
     gdb.execute("set logging redirect on")
     gdb.execute("set logging on")
-    gdb.execute(command)
+    msg = ""
+    try:
+        gdb.execute(command)
+    except RuntimeError, error:
+        # For the first phase of core file loading this yield
+        # "No symbol table is loaded.  Use the \"file\" command."
+        msg = str(error)
+    except:
+        msg = "Unknown error";
     gdb.execute("set logging off")
     gdb.execute("set logging redirect off")
+    if len(msg):
+        warn("CLI ERROR: %s " % msg)
     temp = open(filename, "r")
     lines = []
     for line in temp:
@@ -860,28 +870,31 @@ class SetupCommand(gdb.Command):
         super(SetupCommand, self).__init__("bbsetup", gdb.COMMAND_OBSCURE)
 
     def invoke(self, args, from_tty):
-        module = sys.modules[__name__]
-        for key, value in module.__dict__.items():
-            if key.startswith("qdump__"):
-                name = key[7:]
-                qqDumpers[name] = value
-                qqFormats[name] = qqFormats.get(name, "");
-            elif key.startswith("qform__"):
-                name = key[7:]
-                formats = ""
-                try:
-                    formats = value()
-                except:
-                    pass
-                qqFormats[name] = formats
-        result = "dumpers=["
-        qqNs = qtNamespace()
-        for key, value in qqFormats.items():
-            result += '{type="%s",formats="%s"},' % (key, value)
-        result += '],namespace="%s"' % qqNs
-        print(result)
+        print bbsetup()
 
 SetupCommand()
+
+def bbsetup():
+    module = sys.modules[__name__]
+    for key, value in module.__dict__.items():
+        if key.startswith("qdump__"):
+            name = key[7:]
+            qqDumpers[name] = value
+            qqFormats[name] = qqFormats.get(name, "");
+        elif key.startswith("qform__"):
+            name = key[7:]
+            formats = ""
+            try:
+                formats = value()
+            except:
+                pass
+            qqFormats[name] = formats
+    result = "dumpers=["
+    qqNs = qtNamespace()
+    for key, value in qqFormats.items():
+        result += '{type="%s",formats="%s"},' % (key, value)
+    result += '],namespace="%s"' % qqNs
+    return result
 
 
 #######################################################################

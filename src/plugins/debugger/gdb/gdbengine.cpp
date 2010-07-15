@@ -4140,7 +4140,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
     postCommand("python execfile('" + dumperSourcePath + "gdbmacros.py')",
         ConsoleCommand|NonCriticalResponse);
     postCommand("bbsetup",
-        ConsoleCommand,CB(handleHasPython));
+        ConsoleCommand, CB(handleHasPython));
 
     return true;
 }
