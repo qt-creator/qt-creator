@@ -14,6 +14,8 @@ namespace QmlDesigner {
 
 class BauhausColorDialog;
 class ContextPaneTextWidget;
+class ContextPaneWidgetRectangle;
+class ContextPaneWidgetImage;
 
 class ContextPaneWidget : public QFrame
 {
@@ -27,6 +29,7 @@ public:
     void deactivate();
     BauhausColorDialog *colorDialog();
     void setProperties(QmlJS::PropertyReader *propertyReader);
+    void setPath(const QString &path);
     bool setType(const QString &typeName);
     QWidget* currentWidget() const { return m_currentWidget; }
 
@@ -37,7 +40,7 @@ public slots:
 signals:
     void propertyChanged(const QString &, const QVariant &);
     void removeProperty(const QString &);
-    void removeAndChangeProperty(const QString &, const QString &, const QVariant &);
+    void removeAndChangeProperty(const QString &, const QString &, const QVariant &, bool);
 
 private slots:
     void onDisable();
@@ -45,6 +48,8 @@ private slots:
 
 protected:
     QWidget *createFontWidget();
+    QWidget *createImageWidget();
+    QWidget *createRectangleWidget();
     void mousePressEvent(QMouseEvent * event);
     void mouseReleaseEvent(QMouseEvent * event);
     void mouseMoveEvent(QMouseEvent * event);
@@ -52,6 +57,8 @@ protected:
 private:
     QWidget *m_currentWidget;
     ContextPaneTextWidget *m_textWidget;
+    ContextPaneWidgetImage *m_imageWidget;
+    ContextPaneWidgetRectangle *m_rectangleWidget;
     QPoint m_oldPos;
     QGraphicsDropShadowEffect *m_dropShadowEffect;
     QGraphicsOpacityEffect *m_opacityEffect;

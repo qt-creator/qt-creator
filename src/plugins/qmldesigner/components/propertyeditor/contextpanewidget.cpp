@@ -14,6 +14,8 @@
 #include <qmldesignerplugin.h>
 #include "colorwidget.h"
 #include "contextpanetextwidget.h"
+#include "contextpanewidgetimage.h"
+#include "contextpanewidgetrectangle.h"
 
 
 namespace QmlDesigner {
@@ -44,7 +46,11 @@ ContextPaneWidget::ContextPaneWidget(QWidget *parent) : QFrame(parent), m_curren
 
     QWidget *fontWidget = createFontWidget();
     m_currentWidget = fontWidget;
+    QWidget *imageWidget = createImageWidget();
+    QWidget *rectangleWidget = createRectangleWidget();
     layout->addWidget(fontWidget, 0, 1, 2, 1);
+    layout->addWidget(imageWidget, 0, 1, 2, 1);
+    layout->addWidget(rectangleWidget, 0, 1, 2, 1);
     setAutoFillBackground(true);
     setContextMenuPolicy(Qt::ActionsContextMenu);
 
@@ -110,10 +116,30 @@ void ContextPaneWidget::setProperties(::QmlJS::PropertyReader *propertyReader)
     ContextPaneTextWidget *textWidget = qobject_cast<ContextPaneTextWidget*>(m_currentWidget);
     if (textWidget)
         textWidget->setProperties(propertyReader);
+
+    ContextPaneWidgetImage *imageWidget = qobject_cast<ContextPaneWidgetImage*>(m_currentWidget);
+    if (imageWidget)
+        imageWidget->setProperties(propertyReader);
+
+    ContextPaneWidgetRectangle *rectangleWidget = qobject_cast<ContextPaneWidgetRectangle*>(m_currentWidget);
+    if (rectangleWidget)
+        rectangleWidget->setProperties(propertyReader);
+}
+
+void ContextPaneWidget::setPath(const QString &path)
+{
+    ContextPaneWidgetImage *imageWidget = qobject_cast<ContextPaneWidgetImage*>(m_currentWidget);
+    if (imageWidget)
+        imageWidget->setPath(path);
+
 }
 
 bool ContextPaneWidget::setType(const QString &typeName)
 {
+    m_imageWidget->hide();
+    m_textWidget->hide();
+    m_rectangleWidget->hide();
+
     if (typeName.contains("Text")) {
         m_currentWidget = m_textWidget;
         m_textWidget->show();
@@ -127,8 +153,17 @@ bool ContextPaneWidget::setType(const QString &typeName)
         }
         return true;
     }
+    if (typeName.contains("Rectangle")) {
+        m_currentWidget = m_rectangleWidget;
+        m_rectangleWidget->show();
+        return true;
+    }
+    if (typeName.contains("Image")) {
+        m_currentWidget = m_imageWidget;
+        m_imageWidget->show();
+        return true;
+    }
 
-    m_textWidget->hide();
     return false;
 }
 
@@ -217,9 +252,29 @@ QWidget* ContextPaneWidget::createFontWidget()
     m_textWidget = new ContextPaneTextWidget(this);
     connect(m_textWidget, SIGNAL(propertyChanged(QString,QVariant)), this, SIGNAL(propertyChanged(QString,QVariant)));
     connect(m_textWidget, SIGNAL(removeProperty(QString)), this, SIGNAL(removeProperty(QString)));
-    connect(m_textWidget, SIGNAL(removeAndChangeProperty(QString,QString,QVariant)), this, SIGNAL(removeAndChangeProperty(QString,QString,QVariant)));
+    connect(m_textWidget, SIGNAL(removeAndChangeProperty(QString,QString,QVariant, bool)), this, SIGNAL(removeAndChangeProperty(QString,QString,QVariant, bool)));
 
     return m_textWidget;
+}
+
+QWidget *ContextPaneWidget::createImageWidget()
+{
+    m_imageWidget = new ContextPaneWidgetImage(this);
+    connect(m_imageWidget, SIGNAL(propertyChanged(QString,QVariant)), this, SIGNAL(propertyChanged(QString,QVariant)));
+    connect(m_imageWidget, SIGNAL(removeProperty(QString)), this, SIGNAL(removeProperty(QString)));
+    connect(m_imageWidget, SIGNAL(removeAndChangeProperty(QString,QString,QVariant, bool)), this, SIGNAL(removeAndChangeProperty(QString,QString,QVariant, bool)));
+
+    return m_imageWidget;
+}
+
+QWidget *ContextPaneWidget::createRectangleWidget()
+{
+    m_rectangleWidget = new ContextPaneWidgetRectangle(this);
+    connect(m_rectangleWidget, SIGNAL(propertyChanged(QString,QVariant)), this, SIGNAL(propertyChanged(QString,QVariant)));
+    connect(m_rectangleWidget, SIGNAL(removeProperty(QString)), this, SIGNAL(removeProperty(QString)));
+    connect(m_rectangleWidget, SIGNAL(removeAndChangeProperty(QString,QString,QVariant, bool)), this, SIGNAL(removeAndChangeProperty(QString,QString,QVariant, bool)));
+
+    return m_rectangleWidget;
 }
 
 
