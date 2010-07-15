@@ -265,6 +265,11 @@ void FindPlugin::setBackward(bool backward)
     setFindFlag(Find::FindBackward, backward);
 }
 
+void FindPlugin::setRegularExpression(bool regExp)
+{
+    setFindFlag(Find::FindRegularExpression, regExp);
+}
+
 void FindPlugin::setFindFlag(Find::FindFlag flag, bool enabled)
 {
     bool hasFlag = hasFindFlag(flag);
@@ -287,9 +292,10 @@ void FindPlugin::writeSettings()
 {
     QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup("Find");
-    settings->setValue("Backward", QVariant((d->m_findFlags & Find::FindBackward) != 0));
-    settings->setValue("CaseSensitively", QVariant((d->m_findFlags & Find::FindCaseSensitively) != 0));
-    settings->setValue("WholeWords", QVariant((d->m_findFlags & Find::FindWholeWords) != 0));
+    settings->setValue("Backward", hasFindFlag(Find::FindBackward));
+    settings->setValue("CaseSensitively", hasFindFlag(Find::FindCaseSensitively));
+    settings->setValue("WholeWords", hasFindFlag(Find::FindWholeWords));
+    settings->setValue("RegularExpression", hasFindFlag(Find::FindRegularExpression));
     settings->setValue("FindStrings", d->m_findCompletions);
     settings->setValue("ReplaceStrings", d->m_replaceCompletions);
     settings->endGroup();
@@ -305,6 +311,7 @@ void FindPlugin::readSettings()
     setBackward(settings->value("Backward", false).toBool());
     setCaseSensitive(settings->value("CaseSensitively", false).toBool());
     setWholeWord(settings->value("WholeWords", false).toBool());
+    setRegularExpression(settings->value("RegularExpression", false).toBool());
     blockSignals(block);
     d->m_findCompletions = settings->value("FindStrings").toStringList();
     d->m_replaceCompletions = settings->value("ReplaceStrings").toStringList();

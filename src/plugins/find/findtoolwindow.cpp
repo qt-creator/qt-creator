@@ -53,6 +53,7 @@ FindToolWindow::FindToolWindow(FindPlugin *plugin)
     connect(m_ui.replaceButton, SIGNAL(clicked()), this, SLOT(replace()));
     connect(m_ui.matchCase, SIGNAL(toggled(bool)), m_plugin, SLOT(setCaseSensitive(bool)));
     connect(m_ui.wholeWords, SIGNAL(toggled(bool)), m_plugin, SLOT(setWholeWord(bool)));
+    connect(m_ui.regExp, SIGNAL(toggled(bool)), m_plugin, SLOT(setRegularExpression(bool)));
     connect(m_ui.filterList, SIGNAL(activated(int)), this, SLOT(setCurrentFilter(int)));
     connect(m_ui.searchTerm, SIGNAL(textChanged(QString)), this, SLOT(updateButtonStates()));
     m_findCompleter->setModel(m_plugin->findCompletionModel());
@@ -119,8 +120,10 @@ void FindToolWindow::open(IFindFilter *filter)
     if (index >= 0) {
         setCurrentFilter(index);
     }
-    m_ui.matchCase->setChecked(m_plugin->findFlags() & QTextDocument::FindCaseSensitively);
-    m_ui.wholeWords->setChecked(m_plugin->findFlags() & QTextDocument::FindWholeWords);
+    m_ui.matchCase->setChecked(m_plugin->hasFindFlag(Find::FindCaseSensitively));
+    m_ui.wholeWords->setChecked(m_plugin->hasFindFlag(Find::FindWholeWords));
+    m_ui.regExp->setChecked(m_plugin->hasFindFlag(Find::FindRegularExpression));
+
     m_ui.searchTerm->setFocus();
     m_ui.searchTerm->selectAll();
     exec();
@@ -134,8 +137,12 @@ void FindToolWindow::setCurrentFilter(int index)
         if (i == index) {
             m_currentFilter = m_filters.at(i);
             bool enabled = m_currentFilter->isEnabled();
-            m_ui.matchCase->setEnabled(enabled);
-            m_ui.wholeWords->setEnabled(enabled);
+            m_ui.matchCase->setEnabled(enabled
+                && (m_currentFilter->supportedFindFlags() & Find::FindCaseSensitively));
+            m_ui.wholeWords->setEnabled(enabled
+                && (m_currentFilter->supportedFindFlags() & Find::FindWholeWords));
+            m_ui.regExp->setEnabled(enabled
+                && (m_currentFilter->supportedFindFlags() & Find::FindRegularExpression));
             m_ui.searchTerm->setEnabled(enabled);
             updateButtonStates();
             if (configWidget) {

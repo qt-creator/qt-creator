@@ -108,15 +108,14 @@ QWidget *CurrentProjectFind::createConfigWidget()
         QGridLayout * const layout = new QGridLayout(m_configWidget);
         layout->setMargin(0);
         m_configWidget->setLayout(layout);
-        layout->addWidget(createRegExpWidget(), 0, 1);
         QLabel * const filePatternLabel = new QLabel(tr("File &pattern:"));
         filePatternLabel->setMinimumWidth(80);
         filePatternLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
         filePatternLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
         QWidget *patternWidget = createPatternWidget();
         filePatternLabel->setBuddy(patternWidget);
-        layout->addWidget(filePatternLabel, 1, 0, Qt::AlignRight);
-        layout->addWidget(patternWidget, 1, 1);
+        layout->addWidget(filePatternLabel, 0, 0, Qt::AlignRight);
+        layout->addWidget(patternWidget, 0, 1);
         m_configWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     }
     return m_configWidget;

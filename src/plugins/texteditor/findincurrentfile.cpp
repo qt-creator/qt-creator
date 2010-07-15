@@ -104,7 +104,6 @@ QWidget *FindInCurrentFile::createConfigWidget()
         QGridLayout * const gridLayout = new QGridLayout(m_configWidget);
         gridLayout->setMargin(0);
         m_configWidget->setLayout(gridLayout);
-        gridLayout->addWidget(createRegExpWidget(), 0, 1, 1, 2);
         // just for the layout HACK
         QLabel * const filePatternLabel = new QLabel;
         filePatternLabel->setMinimumWidth(80);

@@ -81,10 +81,9 @@ QWidget *FindInFiles::createConfigWidget()
         QGridLayout * const gridLayout = new QGridLayout(m_configWidget);
         gridLayout->setMargin(0);
         m_configWidget->setLayout(gridLayout);
-        gridLayout->addWidget(createRegExpWidget(), 0, 1, 1, 2);
 
         QLabel *dirLabel = new QLabel(tr("&Directory:"));
-        gridLayout->addWidget(dirLabel, 1, 0, Qt::AlignRight);
+        gridLayout->addWidget(dirLabel, 0, 0, Qt::AlignRight);
         m_directory = new QComboBox;
         m_directory->setEditable(true);
         m_directory->setMaxCount(30);
@@ -95,9 +94,9 @@ QWidget *FindInFiles::createConfigWidget()
         m_directory->setModel(&m_directoryStrings);
         syncComboWithSettings(m_directory, m_directorySetting);
         dirLabel->setBuddy(m_directory);
-        gridLayout->addWidget(m_directory, 1, 1);
+        gridLayout->addWidget(m_directory, 0, 1);
         QPushButton *browseButton = new QPushButton(tr("&Browse"));
-        gridLayout->addWidget(browseButton, 1, 2);
+        gridLayout->addWidget(browseButton, 0, 2);
         connect(browseButton, SIGNAL(clicked()), this, SLOT(openFileBrowser()));
 
         QLabel * const filePatternLabel = new QLabel(tr("File &pattern:"));
@@ -106,8 +105,8 @@ QWidget *FindInFiles::createConfigWidget()
         filePatternLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
         QWidget *patternWidget = createPatternWidget();
         filePatternLabel->setBuddy(patternWidget);
-        gridLayout->addWidget(filePatternLabel, 2, 0);
-        gridLayout->addWidget(patternWidget, 2, 1, 1, 2);
+        gridLayout->addWidget(filePatternLabel, 1, 0);
+        gridLayout->addWidget(patternWidget, 1, 1, 1, 2);
         m_configWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     }
     return m_configWidget;

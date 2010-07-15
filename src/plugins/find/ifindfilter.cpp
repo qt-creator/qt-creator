@@ -111,7 +111,7 @@
 */
 
 /*!
-    \fn void IFindFilter::findAll(const QString &txt, QTextDocument::FindFlags findFlags)
+    \fn void IFindFilter::findAll(const QString &txt, Find::FindFlags findFlags)
     \brief This method is called when the user selected this find scope and
     initiated a search.
 
@@ -128,7 +128,7 @@
 */
 
 /*!
-    \fn void IFindFilter::replaceAll(const QString &txt, QTextDocument::FindFlags findFlags)
+    \fn void IFindFilter::replaceAll(const QString &txt, Find::FindFlags findFlags)
     \brief Override this method if you want to support search and replace.
 
     This method is called when the user selected this find scope and
@@ -172,3 +172,19 @@
     \fn void IFindFilter::changed()
     \brief Signals that the enabled state of this find filter has changed.
 */
+
+/*!
+    \fn Find::FindFlags BaseTextFind::supportedFindFlags() const
+    \brief Returns the find flags, like whole words or regular expressions,
+    that this find filter supports.
+
+    Depending on the returned value, the default find option widgets are
+    enabled or disabled.
+    The default is Find::FindCaseSensitively, Find::FindRegularExpression
+    and Find::FindWholeWords
+*/
+Find::FindFlags Find::IFindFilter::supportedFindFlags() const
+{
+    return Find::FindCaseSensitively
+            | Find::FindRegularExpression | Find::FindWholeWords;
+}

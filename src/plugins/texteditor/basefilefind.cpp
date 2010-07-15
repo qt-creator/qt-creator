@@ -58,9 +58,7 @@ BaseFileFind::BaseFileFind(SearchResultWindow *resultWindow)
   : m_resultWindow(resultWindow),
     m_isSearching(false),
     m_resultLabel(0),
-    m_filterCombo(0),
-    m_useRegExp(false),
-    m_useRegExpCheckBox(0)
+    m_filterCombo(0)
 {
     m_watcher.setPendingResultsLimit(1);
     connect(&m_watcher, SIGNAL(resultReadyAt(int)), this, SLOT(displayResult(int)));
@@ -97,7 +95,7 @@ void BaseFileFind::findAll(const QString &txt, Find::FindFlags findFlags)
     SearchResult *result = m_resultWindow->startNewSearch();
     connect(result, SIGNAL(activated(Find::SearchResultItem)), this, SLOT(openEditor(Find::SearchResultItem)));
     m_resultWindow->popup(true);
-    if (m_useRegExp) {
+    if (findFlags & Find::FindRegularExpression) {
         m_watcher.setFuture(Utils::findInFilesRegExp(txt, files(),
             textDocumentFlagsForFindFlags(findFlags), ITextEditor::openedTextEditorsContents()));
     } else {
@@ -124,7 +122,7 @@ void BaseFileFind::replaceAll(const QString &txt, Find::FindFlags findFlags)
     connect(result, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
             this, SLOT(doReplace(QString,QList<Find::SearchResultItem>)));
     m_resultWindow->popup(true);
-    if (m_useRegExp) {
+    if (findFlags & Find::FindRegularExpression) {
         m_watcher.setFuture(Utils::findInFilesRegExp(txt, files(),
             textDocumentFlagsForFindFlags(findFlags), ITextEditor::openedTextEditorsContents()));
     } else {
@@ -192,20 +190,7 @@ QWidget *BaseFileFind::createProgressWidget()
 
 QWidget *BaseFileFind::createPatternWidget()
 {
-/*
-    QWidget *widget = new QWidget;
-    QHBoxLayout *hlayout = new QHBoxLayout(widget);
-    hlayout->setMargin(0);
-    widget->setLayout(hlayout);
-*/
     QString filterToolTip = tr("List of comma separated wildcard filters");
-/*
-    QLabel *label = new QLabel(tr("File &pattern:"));
-    label->setToolTip(filterToolTip);
-*/
-/*
-    hlayout->addWidget(label);
-*/
     m_filterCombo = new QComboBox;
     m_filterCombo->setEditable(true);
     m_filterCombo->setModel(&m_filterStrings);
@@ -216,19 +201,7 @@ QWidget *BaseFileFind::createPatternWidget()
     m_filterCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     m_filterCombo->setToolTip(filterToolTip);
     syncComboWithSettings(m_filterCombo, m_filterSetting);
-/*
-    label->setBuddy(m_filterCombo);
-    hlayout->addWidget(m_filterCombo);
-*/
     return m_filterCombo;
-}
-
-QWidget *BaseFileFind::createRegExpWidget()
-{
-    m_useRegExpCheckBox = new QCheckBox(tr("Use regular e&xpressions"));
-    m_useRegExpCheckBox->setChecked(m_useRegExp);
-    connect(m_useRegExpCheckBox, SIGNAL(toggled(bool)), this, SLOT(syncRegExpSetting(bool)));
-    return m_useRegExpCheckBox;
 }
 
 void BaseFileFind::writeCommonSettings(QSettings *settings)
@@ -236,16 +209,12 @@ void BaseFileFind::writeCommonSettings(QSettings *settings)
     settings->setValue("filters", m_filterStrings.stringList());
     if (m_filterCombo)
         settings->setValue("currentFilter", m_filterCombo->currentText());
-    settings->setValue("useRegExp", m_useRegExp);
 }
 
 void BaseFileFind::readCommonSettings(QSettings *settings, const QString &defaultFilter)
 {
     QStringList filters = settings->value("filters").toStringList();
     m_filterSetting = settings->value("currentFilter").toString();
-    m_useRegExp = settings->value("useRegExp", false).toBool();
-    if (m_useRegExpCheckBox)
-        m_useRegExpCheckBox->setChecked(m_useRegExp);
     if (filters.isEmpty())
         filters << defaultFilter;
     if (m_filterSetting.isEmpty())
@@ -277,11 +246,6 @@ void BaseFileFind::updateComboEntries(QComboBox *combo, bool onTop)
         }
         combo->setCurrentIndex(combo->findText(combo->currentText()));
     }
-}
-
-void BaseFileFind::syncRegExpSetting(bool useRegExp)
-{
-    m_useRegExp = useRegExp;
 }
 
 void BaseFileFind::openEditor(const Find::SearchResultItem &item)

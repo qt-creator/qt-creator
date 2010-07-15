@@ -75,7 +75,6 @@ protected:
     void writeCommonSettings(QSettings *settings);
     void readCommonSettings(QSettings *settings, const QString &defaultFilter);
     QWidget *createPatternWidget();
-    QWidget *createRegExpWidget();
     void syncComboWithSettings(QComboBox *combo, const QString &setting);
     void updateComboEntries(QComboBox *combo, bool onTop);
     QStringList fileNameFilters() const;
@@ -84,7 +83,6 @@ private slots:
     void displayResult(int index);
     void searchFinished();
     void openEditor(const Find::SearchResultItem &item);
-    void syncRegExpSetting(bool useRegExp);
     void doReplace(const QString &txt,
                     const QList<Find::SearchResultItem> &items);
 
@@ -98,8 +96,6 @@ private:
     QStringListModel m_filterStrings;
     QString m_filterSetting;
     QPointer<QComboBox> m_filterCombo;
-    bool m_useRegExp;
-    QCheckBox *m_useRegExpCheckBox;
 };
 
 } // namespace TextEditor

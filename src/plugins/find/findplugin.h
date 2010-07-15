@@ -71,6 +71,7 @@ public:
     ShutdownFlag aboutToShutdown();
 
     Find::FindFlags findFlags() const;
+    bool hasFindFlag(Find::FindFlag flag);
     void updateFindCompletion(const QString &text);
     void updateReplaceCompletion(const QString &text);
     QStringListModel *findCompletionModel() const;
@@ -82,6 +83,7 @@ public slots:
     void setCaseSensitive(bool sensitive);
     void setWholeWord(bool wholeOnly);
     void setBackward(bool backward);
+    void setRegularExpression(bool regExp);
 
 signals:
     void findFlagsChanged();
@@ -92,7 +94,6 @@ private slots:
 
 private:
     void setFindFlag(Find::FindFlag flag, bool enabled);
-    bool hasFindFlag(Find::FindFlag flag);
     void updateCompletion(const QString &text, QStringList &completions, QStringListModel *model);
     void setupMenu();
     void setupFilterMenuItems();

@@ -55,6 +55,7 @@ public:
     virtual bool isEnabled() const = 0;
     virtual QKeySequence defaultShortcut() const = 0;
     virtual bool isReplaceSupported() const { return false; }
+    virtual FindFlags supportedFindFlags() const;
 
     virtual void findAll(const QString &txt, Find::FindFlags findFlags) = 0;
     virtual void replaceAll(const QString &txt, Find::FindFlags findFlags)

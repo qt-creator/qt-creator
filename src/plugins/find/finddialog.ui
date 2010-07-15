@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>378</width>
-    <height>123</height>
+    <width>450</width>
+    <height>221</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -96,27 +96,13 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="0" colspan="2">
+     <item row="5" column="0" colspan="2">
       <widget class="QWidget" name="configWidget" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>10</verstretch>
         </sizepolicy>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QCheckBox" name="matchCase">
-       <property name="text">
-        <string>&amp;Case sensitive</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QCheckBox" name="wholeWords">
-       <property name="text">
-        <string>&amp;Whole words only</string>
        </property>
       </widget>
      </item>
@@ -127,7 +113,50 @@
        </property>
       </widget>
      </item>
+     <item row="2" column="1" rowspan="3">
+      <widget class="QWidget" name="widget" native="true">
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <property name="margin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QCheckBox" name="matchCase">
+          <property name="text">
+           <string>&amp;Case sensitive</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="wholeWords">
+          <property name="text">
+           <string>&amp;Whole words only</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="regExp">
+          <property name="text">
+           <string>Use regular E&amp;xpressions</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
     </layout>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>
@@ -137,8 +166,6 @@
   <tabstop>searchButton</tabstop>
   <tabstop>closeButton</tabstop>
   <tabstop>replaceButton</tabstop>
-  <tabstop>matchCase</tabstop>
-  <tabstop>wholeWords</tabstop>
  </tabstops>
  <resources/>
  <connections/>
