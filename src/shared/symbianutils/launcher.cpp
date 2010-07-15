@@ -102,13 +102,17 @@ struct LauncherPrivate {
     Launcher::Actions m_startupActions;
     bool m_closeDevice;
     CrashReportState m_crashReportState;
+    Launcher::InstallationMode m_installationMode;
+    Launcher::InstallationMode m_currentInstallationStep;
 };
 
 LauncherPrivate::LauncherPrivate(const TrkDevicePtr &d) :
     m_device(d),
     m_state(Launcher::Disconnected),
     m_verbose(0),
-    m_closeDevice(true)
+    m_closeDevice(true),
+    m_installationMode(Launcher::InstallationModeSilentAndUser),
+    m_currentInstallationStep(Launcher::InstallationModeSilent)
 {
     if (m_device.isNull())
         m_device = TrkDevicePtr(new TrkDevice);
@@ -145,6 +149,11 @@ void Launcher::setState(State s)
         d->m_state = s;
         emit stateChanged(s);
     }
+}
+
+void Launcher::setInstallationMode(InstallationMode installation)
+{
+    d->m_installationMode = installation;
 }
 
 void Launcher::addStartupActions(trk::Launcher::Actions startupActions)
@@ -204,7 +213,6 @@ bool Launcher::serialFrame() const
     return d->m_device->serialFrame();
 }
 
-
 bool Launcher::closeDevice() const
 {
     return d->m_closeDevice;
@@ -213,6 +221,11 @@ bool Launcher::closeDevice() const
 void Launcher::setCloseDevice(bool c)
 {
     d->m_closeDevice = c;
+}
+
+Launcher::InstallationMode Launcher::installationMode() const
+{
+    return d->m_installationMode;
 }
 
 bool Launcher::startServer(QString *errorMessage)
@@ -291,7 +304,7 @@ void Launcher::handleConnect(const TrkResult &result)
     if (d->m_startupActions & ActionCopy)
         copyFileToRemote();
     else if (d->m_startupActions & ActionInstall)
-        installRemotePackageSilently();
+        installRemotePackage();
     else if (d->m_startupActions & ActionRun)
         startInferiorIfNeeded();
     else if (d->m_startupActions & ActionDownload)
@@ -678,7 +691,7 @@ void Launcher::handleFileCopied(const TrkResult &result)
     if (result.errorCode())
         emit canNotCloseFile(d->m_copyState.destinationFileName, result.errorString());
     if (d->m_startupActions & ActionInstall)
-        installRemotePackageSilently();
+        installRemotePackage();
     else if (d->m_startupActions & ActionRun)
         startInferiorIfNeeded();
     else if (d->m_startupActions & ActionDownload)
@@ -847,15 +860,45 @@ void Launcher::copyFileFromRemote()
 void Launcher::installRemotePackageSilently()
 {
     emit installingStarted();
+    d->m_currentInstallationStep = InstallationModeSilent;
     QByteArray ba;
     ba.append('C');
     appendString(&ba, d->m_installFileName.toLocal8Bit(), TargetByteOrder, false);
     d->m_device->sendTrkMessage(TrkInstallFile, TrkCallback(this, &Launcher::handleInstallPackageFinished), ba);
 }
 
+void Launcher::installRemotePackageByUser()
+{
+    emit installingStarted();
+    d->m_currentInstallationStep = InstallationModeUser;
+    QByteArray ba;
+    appendString(&ba, d->m_installFileName.toLocal8Bit(), TargetByteOrder, false);
+    d->m_device->sendTrkMessage(TrkInstallFile2, TrkCallback(this, &Launcher::handleInstallPackageFinished), ba);
+}
+
+void Launcher::installRemotePackage()
+{
+    switch (installationMode()) {
+    case InstallationModeSilent:
+    case InstallationModeSilentAndUser:
+        installRemotePackageSilently();
+        break;
+    case InstallationModeUser:
+        installRemotePackageByUser();
+        break;
+    default:
+        break;
+    }
+}
+
 void Launcher::handleInstallPackageFinished(const TrkResult &result)
 {
     if (result.errorCode()) {
+        if( installationMode() == InstallationModeSilentAndUser
+            && d->m_currentInstallationStep & InstallationModeSilent ) {
+            installRemotePackageByUser();
+            return;
+        }
         emit canNotInstall(d->m_installFileName, result.errorString());
         disconnectTrk();
         return;

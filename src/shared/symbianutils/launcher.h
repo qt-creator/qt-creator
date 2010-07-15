@@ -51,6 +51,13 @@ class SYMBIANUTILS_EXPORT Launcher : public QObject
 public:
     typedef void (Launcher::*TrkCallBack)(const TrkResult &);
 
+    enum InstallationMode {
+        InstallationModeSilent  = 0x1,
+        InstallationModeUser = 0x2,
+        InstallationModeSilentAndUser = InstallationModeSilent|InstallationModeUser
+                                    //first attempt is silent and if it fails then the user installation is launched
+    };
+
     enum Actions {
         ActionPingOnly = 0x0,
         ActionCopy = 0x1,
@@ -87,8 +94,12 @@ public:
     void setInstallFileName(const QString &name);
     void setCommandLineArgs(const QStringList &args);
     bool startServer(QString *errorMessage);
+    void setInstallationMode(InstallationMode installation);
     void setVerbose(int v);
     void setSerialFrame(bool b);
+
+    InstallationMode installationMode() const;
+
     bool serialFrame() const;
     // Close device or leave it open
     bool closeDevice() const;
@@ -185,6 +196,8 @@ private:
     void copyFileToRemote();
     void copyFileFromRemote();
     void installRemotePackageSilently();
+    void installRemotePackageByUser();
+    void installRemotePackage();
     void startInferiorIfNeeded();
     void handleFinished();
 
