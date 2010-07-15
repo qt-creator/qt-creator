@@ -217,6 +217,7 @@ bool SubcomponentEditorTool::itemIsChildOfQmlSubComponent(QGraphicsItem *item) c
 
 void SubcomponentEditorTool::pushContext(QGraphicsObject *contextItem)
 {
+    connect(contextItem, SIGNAL(destroyed(QObject*)), SLOT(contextDestroyed(QObject*)));
     m_currentContext.push(contextItem);
 }
 
@@ -245,6 +246,19 @@ QGraphicsObject *SubcomponentEditorTool::popContext()
 QGraphicsObject *SubcomponentEditorTool::currentRootItem() const
 {
     return m_currentContext.top();
+}
+
+void SubcomponentEditorTool::contextDestroyed(QObject *contextToDestroy)
+{
+    disconnect(contextToDestroy, SIGNAL(destroyed(QObject*)), this, SLOT(contextDestroyed(QObject*)));
+
+    // pop out the whole context - it might not be safe anymore.
+    while (m_currentContext.size() > 1) {
+        m_currentContext.pop();
+    }
+
+    m_mask->setVisible(false);
+
 }
 
 } // namespace QmlViewer
