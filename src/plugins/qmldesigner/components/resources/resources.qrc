@@ -118,6 +118,15 @@
         <file>images/underline-h-icon.png</file>
         <file>images/strikeout-h-icon.png</file>
         <file>images/italic-h-icon.png</file>
-        <file>images/bold-h-icon.png</file>        
+        <file>images/bold-h-icon.png</file>
+        <file>images/icon_color_none.png</file>
+        <file>images/icon_color_solid.png</file>
+        <file>images/icon_color_gradient.png</file>
+        <file>images/scale-icon.png</file>
+        <file>images/horizontal-scale-icon.png</file>
+        <file>images/vertical-scale-icon.png</file>
+        <file>images/tile-icon.png</file>
+        <file>images/aspect-fit-icon.png</file>
+        <file>images/aspect-crop-icon.png</file>
     </qresource>
 </RCC>
