@@ -217,7 +217,7 @@ void QmlEngine::setupInferior()
 void QmlEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
-    //notifyEngineRunOk(); 
+    notifyEngineRunAndInferiorRunOk();
 }
 
 void QmlEngine::shutdownInferior()
@@ -276,7 +276,8 @@ void QmlEngine::setupEngine()
 
 void QmlEngine::setupConnection()
 {
-    #if 0 //the qmlviewer right now connected using QmlJSInspector::InternalInspectorPlugin::ClientProxy
+    #if 0
+    //the qmlviewer right now connected using QmlJSInspector::InternalInspectorPlugin::ClientProxy
     QTC_ASSERT(m_conn == 0, /**/);
     m_conn = new QDeclarativeDebugConnection(this);
 
