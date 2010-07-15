@@ -32,11 +32,14 @@
 
 #include <qmljs/qmljs_global.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
+#include <qmljs/qmljsdocument.h>
 
 #include <QHash>
+#include <QList>
 #include <QVariant>
 #include <QString>
 #include <QStringList>
+#include <QLinearGradient>
 
 namespace QmlJS {
 
@@ -46,7 +49,7 @@ class QMLJS_EXPORT PropertyReader
 {
 public:
 
-    PropertyReader(Document *doc, AST::UiObjectInitializer *ast);
+    PropertyReader(Document::Ptr doc, AST::UiObjectInitializer *ast);
 
     bool hasProperty(const QString &propertyName) const
     { return m_properties.contains(propertyName); }
@@ -59,11 +62,19 @@ public:
             return QVariant();
     }
 
+    QLinearGradient parseGradient(const QString &propertyName) const;
+
     QStringList properties() const
     { return m_properties.keys(); }
 
+    bool isBindingOrEnum(const QString &propertyName) const
+    { return m_bindingOrEnum.contains(propertyName); }
+
 private:
     QHash<QString, QVariant> m_properties;
+    QList<QString> m_bindingOrEnum;
+    AST::UiObjectInitializer *m_ast;
+    Document::Ptr m_doc;
 };
 
 } //QmlJS
