@@ -1,7 +1,0 @@
-#!/bin/sh
-me=$(dirname $0)
-t=$(mktemp -t c++)
-echo "Generating $t"
-${CPP-gcc} -xc++ -E -include $me/conf.c++ $* > $t
-echo "Parsing $t"
-$me/cplusplus0 $t
