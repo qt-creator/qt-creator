@@ -119,6 +119,8 @@ private:
     QList<ScopedSymbol *> _scopes;
     QList<TemplateDeclarationAST *> _templateDeclarationStack;
     QVector<Use> _typeUsages;
+    bool _flushRequested;
+    unsigned _flushLine;
 };
 
 } // end of namespace CPlusPlus

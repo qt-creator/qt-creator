@@ -268,6 +268,8 @@ CheckSymbols::CheckSymbols(Document::Ptr doc, const LookupContext &context)
     CollectTypes collectTypes(doc, context.snapshot());
     _potentialTypes = collectTypes.types();
     _scopes = collectTypes.scopes();
+    _flushRequested = false;
+    _flushLine = 0;
 }
 
 CheckSymbols::~CheckSymbols()
@@ -473,10 +475,16 @@ void CheckSymbols::endVisit(TemplateDeclarationAST *)
 
 void CheckSymbols::addTypeUsage(const Use &use)
 {
-    _typeUsages.append(use);
+    if (_typeUsages.size() >= 50) {
+        if (_flushRequested && use.line != _flushLine)
+            flush();
+        else if (! _flushRequested) {
+            _flushRequested = true;
+            _flushLine = use.line;
+        }
+    }
 
-    if (_typeUsages.size() == 50)
-        flush();
+    _typeUsages.append(use);
 }
 
 void CheckSymbols::addTypeUsage(ClassOrNamespace *b, NameAST *ast)
@@ -563,6 +571,9 @@ Scope *CheckSymbols::findScope(AST *ast) const
 
 void CheckSymbols::flush()
 {
+    _flushRequested = false;
+    _flushLine = 0;
+
     if (_typeUsages.isEmpty())
         return;
 
