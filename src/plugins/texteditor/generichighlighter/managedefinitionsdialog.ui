@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>447</width>
-    <height>315</height>
+    <height>445</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,6 +22,9 @@
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="QTableWidget" name="definitionsTable">
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
         <property name="alternatingRowColors">
          <bool>true</bool>
         </property>
@@ -31,11 +34,17 @@
         <property name="columnCount">
          <number>3</number>
         </property>
+        <attribute name="horizontalHeaderHighlightSections">
+         <bool>false</bool>
+        </attribute>
         <attribute name="verticalHeaderVisible">
          <bool>false</bool>
         </attribute>
         <attribute name="verticalHeaderDefaultSectionSize">
          <number>20</number>
+        </attribute>
+        <attribute name="verticalHeaderHighlightSections">
+         <bool>false</bool>
         </attribute>
         <column/>
         <column/>
