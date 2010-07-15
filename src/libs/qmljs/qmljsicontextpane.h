@@ -54,6 +54,7 @@ public:
     virtual ~IContextPane() {}
     virtual void apply(TextEditor::BaseTextEditorEditable *editor, Document::Ptr doc, const QmlJS::Snapshot &snapshot, AST::Node *node, bool update) = 0;
     virtual void setEnabled(bool) = 0;
+    virtual QWidget* widget() = 0;
 };
 
 } // namespace QmlJS

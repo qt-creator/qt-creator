@@ -1306,7 +1306,11 @@ bool QmlJSTextEditor::event(QEvent *e)
     switch (e->type()) {
     case QEvent::ShortcutOverride:
         if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape && m_contextPane) {
-            m_contextPane->apply(editableInterface(),  m_semanticInfo.document, m_semanticInfo.snapshot, 0, false);
+            if ((m_contextPane) && m_contextPane->widget()->isVisible()) {
+                m_contextPane->apply(editableInterface(),  m_semanticInfo.document, m_semanticInfo.snapshot, 0, false);
+                e->accept();
+                return true;
+            }
         }
         break;
     default:
