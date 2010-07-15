@@ -515,6 +515,38 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                         QString(), -1,
                         Constants::TASK_CATEGORY_COMPILE))
             << QString();
+
+    QTest::newRow("instantiated from here should not be an error")
+            << QString::fromLatin1("../stl/main.cpp: In member function typename _Vector_base<_Tp, _Alloc>::_Tp_alloc_type::const_reference Vector<_Tp, _Alloc>::at(int) [with _Tp = Point, _Alloc = Allocator<Point>]:\n"
+                                   "../stl/main.cpp:38:   instantiated from here\n"
+                                   "../stl/main.cpp:31: warning: returning reference to temporary\n"
+                                   "../stl/main.cpp: At global scope:\n"
+                                   "../stl/main.cpp:31: warning: unused parameter index")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << ( QList<ProjectExplorer::Task>()
+                << Task(Task::Unknown,
+                        QLatin1String("In member function typename _Vector_base<_Tp, _Alloc>::_Tp_alloc_type::const_reference Vector<_Tp, _Alloc>::at(int) [with _Tp = Point, _Alloc = Allocator<Point>]:"),
+                        QLatin1String("../stl/main.cpp"), -1,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Unknown,
+                        QLatin1String("instantiated from here"),
+                        QLatin1String("../stl/main.cpp"), 38,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Warning,
+                        QLatin1String("returning reference to temporary"),
+                        QLatin1String("../stl/main.cpp"), 31,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Unknown,
+                        QLatin1String("At global scope:"),
+                        QLatin1String("../stl/main.cpp"), -1,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Warning,
+                        QLatin1String("unused parameter index"),
+                        QLatin1String("../stl/main.cpp"), 31,
+                        Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+
 }
 
 void ProjectExplorerPlugin::testGccOutputParsers()

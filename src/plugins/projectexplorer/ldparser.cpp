@@ -89,7 +89,7 @@ void LdParser::stdError(const QString &line)
         int lineno = m_regExpLinker.cap(4).toInt(&ok);
         if (!ok)
             lineno = -1;
-        QString description = m_regExpLinker.cap(5);
+        QString description = m_regExpLinker.cap(5).trimmed();
         Task task(Task::Error,
                   description,
                   m_regExpLinker.cap(1) /* filename */,
