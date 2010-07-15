@@ -71,7 +71,7 @@ enum FindFlag {
 Q_DECLARE_FLAGS(FindFlags, FindFlag)
 
 // defined in findplugin.cpp
-QTextDocument::FindFlags FIND_EXPORT textDocumentFlagsForFindFlags(FindFlags flags);
+QTextDocument::FindFlags FIND_EXPORT textDocumentFlagsForFindFlags(Find::FindFlags flags);
 
 } // namespace Find
 

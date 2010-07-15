@@ -31,6 +31,7 @@
 #define IFINDFILTER_H
 
 #include "find_global.h"
+#include "textfindconstants.h"
 
 #include <QtGui/QTextDocument>
 
@@ -55,8 +56,8 @@ public:
     virtual QKeySequence defaultShortcut() const = 0;
     virtual bool isReplaceSupported() const { return false; }
 
-    virtual void findAll(const QString &txt, QTextDocument::FindFlags findFlags) = 0;
-    virtual void replaceAll(const QString &txt, QTextDocument::FindFlags findFlags)
+    virtual void findAll(const QString &txt, Find::FindFlags findFlags) = 0;
+    virtual void replaceAll(const QString &txt, Find::FindFlags findFlags)
     { Q_UNUSED(txt) Q_UNUSED(findFlags) }
 
     virtual QWidget *createConfigWidget() { return 0; }

@@ -87,7 +87,7 @@ struct FindPluginPrivate {
     Internal::CurrentDocumentFind *m_currentDocumentFind;
     Internal::FindToolBar *m_findToolBar;
     Internal::FindToolWindow *m_findDialog;
-    QTextDocument::FindFlags m_findFlags;
+    Find::FindFlags m_findFlags;
     QStringListModel *m_findCompletionModel;
     QStringListModel *m_replaceCompletionModel;
     QStringList m_findCompletions;
@@ -245,27 +245,27 @@ void FindPlugin::setupFilterMenuItems()
     d->m_openFindDialog->setEnabled(haveEnabledFilters);
 }
 
-QTextDocument::FindFlags FindPlugin::findFlags() const
+Find::FindFlags FindPlugin::findFlags() const
 {
     return d->m_findFlags;
 }
 
 void FindPlugin::setCaseSensitive(bool sensitive)
 {
-    setFindFlag(QTextDocument::FindCaseSensitively, sensitive);
+    setFindFlag(Find::FindCaseSensitively, sensitive);
 }
 
 void FindPlugin::setWholeWord(bool wholeOnly)
 {
-    setFindFlag(QTextDocument::FindWholeWords, wholeOnly);
+    setFindFlag(Find::FindWholeWords, wholeOnly);
 }
 
 void FindPlugin::setBackward(bool backward)
 {
-    setFindFlag(QTextDocument::FindBackward, backward);
+    setFindFlag(Find::FindBackward, backward);
 }
 
-void FindPlugin::setFindFlag(QTextDocument::FindFlag flag, bool enabled)
+void FindPlugin::setFindFlag(Find::FindFlag flag, bool enabled)
 {
     bool hasFlag = hasFindFlag(flag);
     if ((hasFlag && enabled) || (!hasFlag && !enabled))
@@ -274,11 +274,11 @@ void FindPlugin::setFindFlag(QTextDocument::FindFlag flag, bool enabled)
         d->m_findFlags |= flag;
     else
         d->m_findFlags &= ~flag;
-    if (flag != QTextDocument::FindBackward)
+    if (flag != Find::FindBackward)
         emit findFlagsChanged();
 }
 
-bool FindPlugin::hasFindFlag(QTextDocument::FindFlag flag)
+bool FindPlugin::hasFindFlag(Find::FindFlag flag)
 {
     return d->m_findFlags & flag;
 }
@@ -287,9 +287,9 @@ void FindPlugin::writeSettings()
 {
     QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup("Find");
-    settings->setValue("Backward", QVariant((d->m_findFlags & QTextDocument::FindBackward) != 0));
-    settings->setValue("CaseSensitively", QVariant((d->m_findFlags & QTextDocument::FindCaseSensitively) != 0));
-    settings->setValue("WholeWords", QVariant((d->m_findFlags & QTextDocument::FindWholeWords) != 0));
+    settings->setValue("Backward", QVariant((d->m_findFlags & Find::FindBackward) != 0));
+    settings->setValue("CaseSensitively", QVariant((d->m_findFlags & Find::FindCaseSensitively) != 0));
+    settings->setValue("WholeWords", QVariant((d->m_findFlags & Find::FindWholeWords) != 0));
     settings->setValue("FindStrings", d->m_findCompletions);
     settings->setValue("ReplaceStrings", d->m_replaceCompletions);
     settings->endGroup();
@@ -361,7 +361,10 @@ QStringListModel *FindPlugin::replaceCompletionModel() const
     return d->m_replaceCompletionModel;
 }
 
-QTextDocument::FindFlags textDocumentFlagsForFindFlags(FindFlags flags)
+} // namespace Find
+
+// declared in textfindconstants.h
+QTextDocument::FindFlags Find::textDocumentFlagsForFindFlags(Find::FindFlags flags)
 {
     QTextDocument::FindFlags textDocFlags;
     if (flags & Find::FindBackward)
@@ -372,7 +375,5 @@ QTextDocument::FindFlags textDocumentFlagsForFindFlags(FindFlags flags)
         textDocFlags |= QTextDocument::FindWholeWords;
     return textDocFlags;
 }
-
-} // namespace Find
 
 Q_EXPORT_PLUGIN(Find::FindPlugin)

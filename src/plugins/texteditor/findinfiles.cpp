@@ -62,7 +62,7 @@ QKeySequence FindInFiles::defaultShortcut() const
     return QKeySequence();
 }
 
-void FindInFiles::findAll(const QString &txt, QTextDocument::FindFlags findFlags)
+void FindInFiles::findAll(const QString &txt, Find::FindFlags findFlags)
 {
     updateComboEntries(m_directory, true);
     BaseFileFind::findAll(txt, findFlags);

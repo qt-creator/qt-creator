@@ -31,6 +31,7 @@
 #define FINDPLUGIN_H
 
 #include "find_global.h"
+#include "textfindconstants.h"
 
 #include <extensionsystem/iplugin.h>
 
@@ -69,7 +70,7 @@ public:
     void extensionsInitialized();
     ShutdownFlag aboutToShutdown();
 
-    QTextDocument::FindFlags findFlags() const;
+    Find::FindFlags findFlags() const;
     void updateFindCompletion(const QString &text);
     void updateReplaceCompletion(const QString &text);
     QStringListModel *findCompletionModel() const;
@@ -90,8 +91,8 @@ private slots:
     void openFindFilter();
 
 private:
-    void setFindFlag(QTextDocument::FindFlag flag, bool enabled);
-    bool hasFindFlag(QTextDocument::FindFlag flag);
+    void setFindFlag(Find::FindFlag flag, bool enabled);
+    bool hasFindFlag(Find::FindFlag flag);
     void updateCompletion(const QString &text, QStringList &completions, QStringListModel *model);
     void setupMenu();
     void setupFilterMenuItems();

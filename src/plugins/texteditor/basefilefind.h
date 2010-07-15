@@ -63,8 +63,8 @@ public:
 
     bool isEnabled() const;
     bool isReplaceSupported() const { return true; }
-    void findAll(const QString &txt, QTextDocument::FindFlags findFlags);
-    void replaceAll(const QString &txt, QTextDocument::FindFlags findFlags);
+    void findAll(const QString &txt, Find::FindFlags findFlags);
+    void replaceAll(const QString &txt, Find::FindFlags findFlags);
 
     /* returns the list of unique files that were passed in items */
     static QStringList replaceAll(const QString &txt,

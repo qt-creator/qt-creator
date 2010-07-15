@@ -87,7 +87,7 @@ QStringList BaseFileFind::fileNameFilters() const
     return filters;
 }
 
-void BaseFileFind::findAll(const QString &txt, QTextDocument::FindFlags findFlags)
+void BaseFileFind::findAll(const QString &txt, Find::FindFlags findFlags)
 {
     m_isSearching = true;
     emit changed();
@@ -97,10 +97,13 @@ void BaseFileFind::findAll(const QString &txt, QTextDocument::FindFlags findFlag
     SearchResult *result = m_resultWindow->startNewSearch();
     connect(result, SIGNAL(activated(Find::SearchResultItem)), this, SLOT(openEditor(Find::SearchResultItem)));
     m_resultWindow->popup(true);
-    if (m_useRegExp)
-        m_watcher.setFuture(Utils::findInFilesRegExp(txt, files(), findFlags, ITextEditor::openedTextEditorsContents()));
-    else
-        m_watcher.setFuture(Utils::findInFiles(txt, files(), findFlags, ITextEditor::openedTextEditorsContents()));
+    if (m_useRegExp) {
+        m_watcher.setFuture(Utils::findInFilesRegExp(txt, files(),
+            textDocumentFlagsForFindFlags(findFlags), ITextEditor::openedTextEditorsContents()));
+    } else {
+        m_watcher.setFuture(Utils::findInFiles(txt, files(),
+            textDocumentFlagsForFindFlags(findFlags), ITextEditor::openedTextEditorsContents()));
+    }
     Core::FutureProgress *progress =
         Core::ICore::instance()->progressManager()->addTask(m_watcher.future(),
                                                                         "Search",
@@ -109,7 +112,7 @@ void BaseFileFind::findAll(const QString &txt, QTextDocument::FindFlags findFlag
     connect(progress, SIGNAL(clicked()), m_resultWindow, SLOT(popup()));
 }
 
-void BaseFileFind::replaceAll(const QString &txt, QTextDocument::FindFlags findFlags)
+void BaseFileFind::replaceAll(const QString &txt, Find::FindFlags findFlags)
 {
     m_isSearching = true;
     emit changed();
@@ -121,10 +124,13 @@ void BaseFileFind::replaceAll(const QString &txt, QTextDocument::FindFlags findF
     connect(result, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
             this, SLOT(doReplace(QString,QList<Find::SearchResultItem>)));
     m_resultWindow->popup(true);
-    if (m_useRegExp)
-        m_watcher.setFuture(Utils::findInFilesRegExp(txt, files(), findFlags, ITextEditor::openedTextEditorsContents()));
-    else
-        m_watcher.setFuture(Utils::findInFiles(txt, files(), findFlags, ITextEditor::openedTextEditorsContents()));
+    if (m_useRegExp) {
+        m_watcher.setFuture(Utils::findInFilesRegExp(txt, files(),
+            textDocumentFlagsForFindFlags(findFlags), ITextEditor::openedTextEditorsContents()));
+    } else {
+        m_watcher.setFuture(Utils::findInFiles(txt, files(),
+            textDocumentFlagsForFindFlags(findFlags), ITextEditor::openedTextEditorsContents()));
+    }
     Core::FutureProgress *progress =
         Core::ICore::instance()->progressManager()->addTask(m_watcher.future(),
                                                                         "Search",
