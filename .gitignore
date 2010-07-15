@@ -78,6 +78,7 @@ bin/qtcreator.exe
 share/doc/qtcreator/qtcreator.qch
 tests/manual/cplusplus/cplusplus0
 tests/manual/cplusplus-dump/cplusplus0
+tests/manual/qml-ast2dot/qml-ast2dot
 tests/auto/qml/qmldesigner/bauhaustests/tst_bauhaus
 tests/auto/qml/qmldesigner/coretests/tst_qmldesigner_core
 tests/auto/qml/qmldesigner/propertyeditortests/tst_propertyeditor
