@@ -82,8 +82,8 @@ void AbstractProcessStep::setOutputParser(ProjectExplorer::IOutputParser *parser
     m_outputParserChain = parser;
 
     if (m_outputParserChain) {
-        connect(parser, SIGNAL(addOutput(QString, QTextCharFormat)),
-                this, SLOT(outputAdded(QString, QTextCharFormat)));
+        connect(parser, SIGNAL(addOutput(QString, ProjectExplorer::BuildStep::OutputFormat)),
+                this, SLOT(outputAdded(QString, ProjectExplorer::BuildStep::OutputFormat)));
         connect(parser, SIGNAL(addTask(ProjectExplorer::Task)),
                 this, SLOT(taskAdded(ProjectExplorer::Task)));
     }
@@ -199,34 +199,27 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
 
 void AbstractProcessStep::processStarted()
 {
-    QTextCharFormat textCharFormat;
-    textCharFormat.setForeground(Qt::blue);
-    emit addOutput(tr("Starting: \"%1\" %2\n").arg(QDir::toNativeSeparators(m_command), m_arguments.join(" ")), textCharFormat);
+    emit addOutput(tr("Starting: \"%1\" %2\n").arg(QDir::toNativeSeparators(m_command), m_arguments.join(" ")), BuildStep::MessageOutput);
 }
 
 void AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus status)
 {
-    QTextCharFormat textCharFormat;
     if (status == QProcess::NormalExit && exitCode == 0) {
-        textCharFormat.setForeground(Qt::blue);
-        emit addOutput(tr("The process \"%1\" exited normally.").arg(QDir::toNativeSeparators(m_command)), textCharFormat);
+        emit addOutput(tr("The process \"%1\" exited normally.")
+                       .arg(QDir::toNativeSeparators(m_command)),
+                       BuildStep::MessageOutput);
     } else if (status == QProcess::NormalExit) {
-        textCharFormat.setForeground(Qt::red);
-        textCharFormat.setFontWeight(QFont::Bold);
-        emit addOutput(tr("The process \"%1\" exited with code %2.").arg(QDir::toNativeSeparators(m_command), QString::number(m_process->exitCode())), textCharFormat);
+        emit addOutput(tr("The process \"%1\" exited with code %2.")
+                       .arg(QDir::toNativeSeparators(m_command), QString::number(m_process->exitCode())),
+                       BuildStep::ErrorMessageOutput);
     } else {
-        textCharFormat.setForeground(Qt::red);
-        textCharFormat.setFontWeight(QFont::Bold);
-        emit addOutput(tr("The process \"%1\" crashed.").arg(QDir::toNativeSeparators(m_command)), textCharFormat);
+        emit addOutput(tr("The process \"%1\" crashed.").arg(QDir::toNativeSeparators(m_command)), BuildStep::ErrorMessageOutput);
     }
 }
 
 void AbstractProcessStep::processStartupFailed()
 {
-    QTextCharFormat textCharFormat;
-    textCharFormat.setForeground(Qt::red);
-    textCharFormat.setFontWeight(QFont::Bold);
-    emit addOutput(tr("Could not start process \"%1\"").arg(QDir::toNativeSeparators(m_command)), textCharFormat);
+    emit addOutput(tr("Could not start process \"%1\"").arg(QDir::toNativeSeparators(m_command)), BuildStep::ErrorMessageOutput);
 }
 
 bool AbstractProcessStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
@@ -247,8 +240,7 @@ void AbstractProcessStep::stdOutput(const QString &line)
 {
     if (m_outputParserChain)
         m_outputParserChain->stdOutput(line);
-    QTextCharFormat textCharFormat;
-    emit addOutput(line, textCharFormat);
+    emit addOutput(line, BuildStep::NormalOutput);
 }
 
 void AbstractProcessStep::processReadyReadStdError()
@@ -264,9 +256,7 @@ void AbstractProcessStep::stdError(const QString &line)
 {
     if (m_outputParserChain)
         m_outputParserChain->stdError(line);
-    QTextCharFormat textCharFormat;
-    textCharFormat.setForeground(Qt::red);
-    emit addOutput(line, textCharFormat);
+    emit addOutput(line, BuildStep::ErrorOutput);
 }
 
 void AbstractProcessStep::checkForCancel()
@@ -327,9 +317,9 @@ void AbstractProcessStep::taskAdded(const ProjectExplorer::Task &task)
     emit addTask(editable);
 }
 
-void AbstractProcessStep::outputAdded(const QString &string, const QTextCharFormat &textCharFormat)
+void AbstractProcessStep::outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format)
 {
-    emit addOutput(string, textCharFormat);
+    emit addOutput(string, format);
 }
 
 void AbstractProcessStep::slotProcessFinished(int, QProcess::ExitStatus)

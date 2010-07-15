@@ -135,9 +135,7 @@ bool MakeStep::init()
         // Try to detect command in environment
         const QString tmp = environment.searchInPath(makeCmd);
         if (tmp.isEmpty()) {
-            QTextCharFormat textCharFormat;
-            textCharFormat.setForeground(Qt::red);
-            emit addOutput(tr("Could not find make command: %1 in the build environment").arg(makeCmd), textCharFormat);
+            emit addOutput(tr("Could not find make command: %1 in the build environment").arg(makeCmd), BuildStep::ErrorOutput);
             return false;
         }
         makeCmd = tmp;

@@ -201,17 +201,13 @@ void QMakeStep::run(QFutureInterface<bool> &fi)
             canContinue = false;
     }
     if (!canContinue) {
-        QTextCharFormat textCharFormat;
-        textCharFormat.setForeground(Qt::blue);
-        emit addOutput(tr("Configuration is faulty, please check the Build Issues view for details."), textCharFormat);
+        emit addOutput(tr("Configuration is faulty, please check the Build Issues view for details."), BuildStep::MessageOutput);
         fi.reportResult(false);
         return;
     }
 
     if (!m_needToRunQMake) {
-        QTextCharFormat textCharFormat;
-        textCharFormat.setForeground(Qt::blue);
-        emit addOutput(tr("Configuration unchanged, skipping qmake step."), textCharFormat);
+        emit addOutput(tr("Configuration unchanged, skipping qmake step."), BuildStep::MessageOutput);
         fi.reportResult(true);
         return;
     }

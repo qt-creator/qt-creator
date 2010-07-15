@@ -127,8 +127,7 @@ bool MaemoPackageCreationStep::createPackage()
     if (!packagingNeeded())
         return true;
 
-    QTextCharFormat textCharFormat;
-    emit addOutput(tr("Creating package file ..."), textCharFormat);
+    emit addOutput(tr("Creating package file ..."), BuildStep::MessageOutput);
     QFile configFile(targetRoot() % QLatin1String("/config.sh"));
     if (!configFile.open(QIODevice::ReadOnly)) {
         raiseError(tr("Cannot open MADDE config file '%1'.")
@@ -243,15 +242,14 @@ bool MaemoPackageCreationStep::createPackage()
         }
     }
 
-    emit addOutput(tr("Package created."), textCharFormat);
+    emit addOutput(tr("Package created."), BuildStep::MessageOutput);
     deployStep()->deployables()->setUnmodified();
     return true;
 }
 
 bool MaemoPackageCreationStep::runCommand(const QString &command)
 {
-    QTextCharFormat textCharFormat;
-    emit addOutput(tr("Package Creation: Running command '%1'.").arg(command), textCharFormat);
+    emit addOutput(tr("Package Creation: Running command '%1'.").arg(command), BuildStep::MessageOutput);
     QString perl;
 #ifdef Q_OS_WIN
     perl = maddeRoot() + QLatin1String("/bin/perl.exe ");
@@ -281,13 +279,11 @@ bool MaemoPackageCreationStep::runCommand(const QString &command)
 void MaemoPackageCreationStep::handleBuildOutput()
 {
     const QByteArray &stdOut = m_buildProc->readAllStandardOutput();
-    QTextCharFormat textCharFormat;
     if (!stdOut.isEmpty())
-        emit addOutput(QString::fromLocal8Bit(stdOut), textCharFormat);
+        emit addOutput(QString::fromLocal8Bit(stdOut), BuildStep::NormalOutput);
     const QByteArray &errorOut = m_buildProc->readAllStandardError();
     if (!errorOut.isEmpty()) {
-        textCharFormat.setForeground(QBrush(QColor("red")));
-        emit addOutput(QString::fromLocal8Bit(errorOut), textCharFormat);
+        emit addOutput(QString::fromLocal8Bit(errorOut), BuildStep::ErrorOutput);
     }
 }
 
@@ -373,8 +369,7 @@ QString MaemoPackageCreationStep::nativePath(const QFile &file) const
 void MaemoPackageCreationStep::raiseError(const QString &shortMsg,
                                           const QString &detailedMsg)
 {
-    QTextCharFormat textCharFormat;
-    emit addOutput(detailedMsg.isNull() ? shortMsg : detailedMsg, textCharFormat);
+    emit addOutput(detailedMsg.isNull() ? shortMsg : detailedMsg, BuildStep::ErrorOutput);
     emit addTask(Task(Task::Error, shortMsg, QString(), -1,
                       TASK_CATEGORY_BUILDSYSTEM));
 }

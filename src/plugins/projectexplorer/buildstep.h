@@ -104,13 +104,15 @@ public:
 
     BuildConfiguration *buildConfiguration() const;
 
+    enum OutputFormat { NormalOutput, ErrorOutput, MessageOutput, ErrorMessageOutput };
+
 signals:
     // Add a task.
     void addTask(const ProjectExplorer::Task &task);
     // The string is added to the generated output, usually in the output
     // window.
     // It should be in plain text, with the format in the parameter
-    void addOutput(const QString &string, const QTextCharFormat &textCharFormat);
+    void addOutput(const QString &string, ProjectExplorer::BuildStep::OutputFormat format);
 
 private:
     BuildConfiguration *m_buildConfiguration;
@@ -170,5 +172,7 @@ signals:
 };
 
 } // namespace ProjectExplorer
+
+Q_DECLARE_METATYPE(ProjectExplorer::BuildStep::OutputFormat)
 
 #endif // BUILDSTEP_H

@@ -32,6 +32,7 @@
 
 #include "projectexplorer_export.h"
 #include "task.h"
+#include "buildstep.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
@@ -99,7 +100,7 @@ signals:
 
 private slots:
     void addToTaskWindow(const ProjectExplorer::Task &task);
-    void addToOutputWindow(const QString &string, const QTextCharFormat &textCharFormat);
+    void addToOutputWindow(const QString &string, ProjectExplorer::BuildStep::OutputFormat);
 
     void nextBuildQueue();
     void progressChanged();

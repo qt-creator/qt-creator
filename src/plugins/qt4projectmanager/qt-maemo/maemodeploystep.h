@@ -99,8 +99,7 @@ private:
 
     void ctor();
     void raiseError(const QString &error);
-    void writeOutput(const QString &text,
-        const QTextCharFormat &format = QTextCharFormat());
+    void writeOutput(const QString &text, ProjectExplorer::BuildStep::OutputFormat = BuildStep::NormalOutput);
     void addDeployTimesToMap(QVariantMap &map) const;
     void getDeployTimesFromMap(const QVariantMap &map);
     const MaemoPackageCreationStep *packagingStep() const;

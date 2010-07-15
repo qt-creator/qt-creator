@@ -170,7 +170,7 @@ void MaemoDeployStep::raiseError(const QString &errorString)
 }
 
 void MaemoDeployStep::writeOutput(const QString &text,
-    const QTextCharFormat &format)
+                                  ProjectExplorer::BuildStep::OutputFormat format)
 {
     emit addOutput(text, format);
 }
@@ -435,9 +435,7 @@ void MaemoDeployStep::handleInstallerOutput(const QByteArray &output)
 
 void MaemoDeployStep::handleInstallerErrorOutput(const QByteArray &output)
 {
-    QTextCharFormat format;
-    format.setForeground(QBrush(QColor("red")));
-    writeOutput(output, format);
+    writeOutput(output, BuildStep::ErrorOutput);
 }
 
 

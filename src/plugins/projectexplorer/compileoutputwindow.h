@@ -31,6 +31,7 @@
 #define COMPILEOUTPUTWINDOW_H
 
 #include "outputwindow.h"
+#include "buildstep.h"
 #include <coreplugin/ioutputpane.h>
 
 #include <QtCore/QHash>
@@ -63,7 +64,7 @@ public:
     int priorityInStatusBar() const;
     void clearContents();
     void visibilityChanged(bool visible);
-    void appendText(const QString &text, const QTextCharFormat &textCharFormat);
+    void appendText(const QString &text, ProjectExplorer::BuildStep::OutputFormat format);
     bool canFocus();
     bool hasFocus();
     void setFocus();

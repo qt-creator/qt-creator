@@ -95,9 +95,36 @@ QWidget *CompileOutputWindow::outputWidget(QWidget *)
     return m_outputWindow;
 }
 
-void CompileOutputWindow::appendText(const QString &text, const QTextCharFormat &textCharFormat)
+static QColor mix_colors(QColor a, QColor b)
 {
-    m_outputWindow->appendText(text, textCharFormat, MAX_LINECOUNT);
+    return QColor((a.red() + b.red()) / 2, (a.green() + b.green()) / 2,
+                  (a.blue() + b.blue()) / 2, (a.alpha() + b.alpha()) / 2);
+}
+
+void CompileOutputWindow::appendText(const QString &text, ProjectExplorer::BuildStep::OutputFormat format)
+{
+    QPalette p = m_outputWindow->palette();
+    QTextCharFormat textFormat;
+    switch (format) {
+    case BuildStep::NormalOutput:
+        textFormat.setForeground(p.color(QPalette::Text));
+        textFormat.setFontWeight(QFont::Normal);
+        break;
+    case BuildStep::ErrorOutput:
+        textFormat.setForeground(mix_colors(p.color(QPalette::Text), QColor(Qt::red)));
+        textFormat.setFontWeight(QFont::Normal);
+        break;
+    case BuildStep::MessageOutput:
+        textFormat.setForeground(mix_colors(p.color(QPalette::Text), QColor(Qt::blue)));
+        break;
+    case BuildStep::ErrorMessageOutput:
+        textFormat.setForeground(mix_colors(p.color(QPalette::Text), QColor(Qt::red)));
+        textFormat.setFontWeight(QFont::Bold);
+        break;
+
+    }
+
+    m_outputWindow->appendText(text, textFormat, MAX_LINECOUNT);
 }
 
 void CompileOutputWindow::clearContents()

@@ -50,6 +50,7 @@
 
 #include <QtCore/QDir>
 #include <QtCore/QTimer>
+#include <QtCore/QMetaType>
 
 #include <qtconcurrent/QtConcurrentTools>
 
@@ -95,6 +96,8 @@ BuildManager::BuildManager(ProjectExplorerPlugin *parent)
     m_taskHub = pm->getObject<TaskHub>();
     m_taskWindow = new TaskWindow(m_taskHub);
     pm->addObject(m_taskWindow);
+
+    qRegisterMetaType<ProjectExplorer::BuildStep::OutputFormat>();
 
     connect(m_taskWindow, SIGNAL(tasksChanged()),
             this, SLOT(updateTaskCount()));
@@ -156,8 +159,8 @@ void BuildManager::cancel()
 
         disconnect(m_currentBuildStep, SIGNAL(addTask(ProjectExplorer::Task)),
                    this, SLOT(addToTaskWindow(ProjectExplorer::Task)));
-        disconnect(m_currentBuildStep, SIGNAL(addOutput(QString, QTextCharFormat)),
-                   this, SLOT(addToOutputWindow(QString, QTextCharFormat)));
+        disconnect(m_currentBuildStep, SIGNAL(addOutput(QString, ProjectExplorer::BuildStep::OutputFormat)),
+                   this, SLOT(addToOutputWindow(QString, ProjectExplorer::BuildStep::OutputFormat)));
         decrementActiveBuildSteps(m_currentBuildStep->buildConfiguration()->target()->project());
 
         m_progressFutureInterface->setProgressValueAndText(m_progress*100, tr("Build canceled")); //TODO NBS fix in qtconcurrent
@@ -185,9 +188,7 @@ void BuildManager::finish()
 
 void BuildManager::emitCancelMessage()
 {
-    QTextCharFormat textCharFormat;
-    textCharFormat.setForeground(Qt::red);
-    emit addToOutputWindow(tr("Canceled build."), textCharFormat);
+    emit addToOutputWindow(tr("Canceled build."), BuildStep::ErrorMessageOutput);
 }
 
 void BuildManager::clearBuildQueue()
@@ -196,8 +197,8 @@ void BuildManager::clearBuildQueue()
         decrementActiveBuildSteps(bs->buildConfiguration()->target()->project());
         disconnect(bs, SIGNAL(addTask(ProjectExplorer::Task)),
                    this, SLOT(addToTaskWindow(ProjectExplorer::Task)));
-        disconnect(bs, SIGNAL(addOutput(QString, QTextCharFormat)),
-                   this, SLOT(addToOutputWindow(QString, QTextCharFormat)));
+        disconnect(bs, SIGNAL(addOutput(QString, ProjectExplorer::BuildStep::OutputFormat)),
+                   this, SLOT(addToOutputWindow(QString, ProjectExplorer::BuildStep::OutputFormat)));
     }
 
     m_buildQueue.clear();
@@ -287,7 +288,7 @@ void BuildManager::addToTaskWindow(const ProjectExplorer::Task &task)
     m_taskHub->addTask(task);
 }
 
-void BuildManager::addToOutputWindow(const QString &string, const QTextCharFormat &format)
+void BuildManager::addToOutputWindow(const QString &string, ProjectExplorer::BuildStep::OutputFormat format)
 {
     m_outputWindow->appendText(string, format);
 }
@@ -299,8 +300,8 @@ void BuildManager::nextBuildQueue()
 
     disconnect(m_currentBuildStep, SIGNAL(addTask(ProjectExplorer::Task)),
                this, SLOT(addToTaskWindow(ProjectExplorer::Task)));
-    disconnect(m_currentBuildStep, SIGNAL(addOutput(QString, QTextCharFormat)),
-               this, SLOT(addToOutputWindow(QString, QTextCharFormat)));
+    disconnect(m_currentBuildStep, SIGNAL(addOutput(QString, ProjectExplorer::BuildStep::OutputFormat)),
+               this, SLOT(addToOutputWindow(QString, ProjectExplorer::BuildStep::OutputFormat)));
 
     ++m_progress;
     m_progressFutureInterface->setProgressValueAndText(m_progress*100, msgProgress(m_progress, m_maxProgress));
@@ -311,10 +312,8 @@ void BuildManager::nextBuildQueue()
         // Build Failure
         const QString projectName = m_currentBuildStep->buildConfiguration()->target()->project()->displayName();
         const QString targetName = m_currentBuildStep->buildConfiguration()->target()->displayName();
-        QTextCharFormat textCharFormat;
-        textCharFormat.setForeground(Qt::red);
-        addToOutputWindow(tr("Error while building project %1 (target: %2)").arg(projectName, targetName), textCharFormat);
-        addToOutputWindow(tr("When executing build step '%1'").arg(m_currentBuildStep->displayName()), textCharFormat);
+        addToOutputWindow(tr("Error while building project %1 (target: %2)").arg(projectName, targetName), BuildStep::ErrorOutput);
+        addToOutputWindow(tr("When executing build step '%1'").arg(m_currentBuildStep->displayName()), BuildStep::ErrorOutput);
         // NBS TODO fix in qtconcurrent
         m_progressFutureInterface->setProgressValueAndText(m_progress*100, tr("Error while building project %1 (target: %2)").arg(projectName, targetName));
     }
@@ -344,10 +343,8 @@ void BuildManager::nextStep()
 
         if (m_currentBuildStep->buildConfiguration()->target()->project() != m_previousBuildStepProject) {
             const QString projectName = m_currentBuildStep->buildConfiguration()->target()->project()->displayName();
-            QTextCharFormat textCharFormat;
-            textCharFormat.setFontWeight(QFont::Bold);
             addToOutputWindow(tr("Running build steps for project %1...")
-                              .arg(projectName), textCharFormat);
+                              .arg(projectName), BuildStep::MessageOutput);
             m_previousBuildStepProject = m_currentBuildStep->buildConfiguration()->target()->project();
         }
         m_watcher.setFuture(QtConcurrent::run(&BuildStep::run, m_currentBuildStep));
@@ -373,8 +370,8 @@ bool BuildManager::buildQueueAppend(QList<BuildStep *> steps)
         BuildStep *bs = steps.at(i);
         connect(bs, SIGNAL(addTask(ProjectExplorer::Task)),
                 this, SLOT(addToTaskWindow(ProjectExplorer::Task)));
-        connect(bs, SIGNAL(addOutput(QString, QTextCharFormat)),
-                this, SLOT(addToOutputWindow(QString, QTextCharFormat)));
+        connect(bs, SIGNAL(addOutput(QString, ProjectExplorer::BuildStep::OutputFormat)),
+                this, SLOT(addToOutputWindow(QString, ProjectExplorer::BuildStep::OutputFormat)));
         init = bs->init();
         if (!init)
             break;
@@ -386,18 +383,16 @@ bool BuildManager::buildQueueAppend(QList<BuildStep *> steps)
         // print something for the user
         const QString projectName = bs->buildConfiguration()->target()->project()->displayName();
         const QString targetName = bs->buildConfiguration()->target()->displayName();
-        QTextCharFormat textCharFormat;
-        textCharFormat.setForeground(Qt::red);
-        addToOutputWindow(tr("Error while building project %1 (target: %2)").arg(projectName, targetName), textCharFormat);
-        addToOutputWindow(tr("When executing build step '%1'").arg(bs->displayName()), textCharFormat);
+        addToOutputWindow(tr("Error while building project %1 (target: %2)").arg(projectName, targetName), BuildStep::ErrorOutput);
+        addToOutputWindow(tr("When executing build step '%1'").arg(bs->displayName()), BuildStep::ErrorOutput);
 
         // disconnect the buildsteps again
         for (int j = 0; j <= i; ++j) {
             BuildStep *bs = steps.at(j);
             disconnect(bs, SIGNAL(addTask(ProjectExplorer::Task)),
                        this, SLOT(addToTaskWindow(ProjectExplorer::Task)));
-            disconnect(bs, SIGNAL(addOutput(QString, QTextCharFormat)),
-                       this, SLOT(addToOutputWindow(QString, QTextCharFormat)));
+            disconnect(bs, SIGNAL(addOutput(QString, ProjectExplorer::BuildStep::OutputFormat)),
+                       this, SLOT(addToOutputWindow(QString, ProjectExplorer::BuildStep::OutputFormat)));
         }
         return false;
     }

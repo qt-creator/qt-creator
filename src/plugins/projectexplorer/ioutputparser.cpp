@@ -50,8 +50,8 @@ void IOutputParser::appendOutputParser(IOutputParser *parser)
     }
 
     m_parser = parser;
-    connect(parser, SIGNAL(addOutput(QString, QTextCharFormat)),
-            this, SLOT(outputAdded(QString, QTextCharFormat)), Qt::DirectConnection);
+    connect(parser, SIGNAL(addOutput(QString, ProjectExplorer::BuildStep::OutputFormat)),
+            this, SLOT(outputAdded(QString, ProjectExplorer::BuildStep::OutputFormat)), Qt::DirectConnection);
     connect(parser, SIGNAL(addTask(ProjectExplorer::Task)),
             this, SLOT(taskAdded(ProjectExplorer::Task)), Qt::DirectConnection);
 }
@@ -84,9 +84,9 @@ void IOutputParser::stdError(const QString &line)
         m_parser->stdError(line);
 }
 
-void IOutputParser::outputAdded(const QString &string, const QTextCharFormat &textCharFormat)
+void IOutputParser::outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format)
 {
-    emit addOutput(string, textCharFormat);
+    emit addOutput(string, format);
 }
 
 void IOutputParser::taskAdded(const ProjectExplorer::Task &task)
