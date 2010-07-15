@@ -33,7 +33,7 @@
 
 #include <QtGui/QWidget>
 #include <QLabel>
-#include <QPushButton>
+#include <QToolButton>
 #include <QLineEdit>
 #include <QComboBox>
 #include <QUrl>
@@ -49,7 +49,8 @@ class FileWidget : public QWidget
     Q_PROPERTY(QString fileName READ fileName WRITE setFileNameStr NOTIFY fileNameChanged)
     Q_PROPERTY(QString filter READ filter WRITE setFilter)
     Q_PROPERTY(bool showComboBox READ showComboBox WRITE setShowComboBox)
-    Q_PROPERTY(QVariant itemNode READ itemNode WRITE setItemNode NOTIFY itemNodeChanged)        
+    Q_PROPERTY(QVariant itemNode READ itemNode WRITE setItemNode NOTIFY itemNodeChanged)
+    Q_PROPERTY(QUrl path READ path WRITE setPath)
 
 public:
 
@@ -66,6 +67,10 @@ public:
     {
 
     }
+
+    void setPath(const QUrl &url) { m_path = url; setupComboBox(); }
+
+    QUrl path() const { return m_path; }
 
     QString text() const
     {
@@ -104,10 +109,11 @@ private:
 
     void setupComboBox();
 
-    QPushButton *m_pushButton;
+    QToolButton *m_pushButton;
     QLineEdit *m_lineEdit;
     QComboBox *m_comboBox;
     QUrl m_fileName;
+    QUrl m_path;
     QmlDesigner::QmlItemNode m_itemNode;
     QString m_filter;
     bool m_showComboBox;

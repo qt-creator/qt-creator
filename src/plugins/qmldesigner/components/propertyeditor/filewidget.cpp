@@ -40,7 +40,7 @@ QT_BEGIN_NAMESPACE
 
 FileWidget::FileWidget(QWidget *parent) : QWidget(parent), m_filter("(*.*)"), m_showComboBox(false), m_lock(false)
 {
-    m_pushButton = new QPushButton(this);
+    m_pushButton = new QToolButton(this);
     m_pushButton->setFixedWidth(32);
     m_lineEdit = new QLineEdit(this);
     m_comboBox = new QComboBox(this);
@@ -126,16 +126,20 @@ void FileWidget::setupComboBox()
     m_lock = true;
     m_comboBox->clear();
 
-    if (m_itemNode.isValid()) {
-        QDir dir = QFileInfo(m_itemNode.modelNode().model()->fileUrl().toLocalFile()).absoluteDir();
-        QStringList filterList = m_filter.split(' ');
-        QDirIterator it(dir.absolutePath(), filterList, QDir::Files, QDirIterator::Subdirectories);
-        while (it.hasNext()) {
-            QString absolutePath = it.next();
-            m_comboBox->addItem(dir.relativeFilePath(absolutePath));
-        }
-    }
+    QDir dir;
 
+    if (m_itemNode.isValid())
+        dir = QFileInfo(m_itemNode.modelNode().model()->fileUrl().toLocalFile()).absoluteDir();
+    else if (m_path.isValid())
+        dir = QFileInfo(m_path.toLocalFile()).absoluteDir();
+
+    QStringList filterList = m_filter.split(' ');
+
+    QDirIterator it(dir.absolutePath(), filterList, QDir::Files, QDirIterator::Subdirectories);
+    while (it.hasNext()) {
+        QString absolutePath = it.next();
+        m_comboBox->addItem(dir.relativeFilePath(absolutePath));
+    }
     m_comboBox->setEditText(m_fileName.toString());
 
     m_lock = false;
