@@ -137,7 +137,7 @@ void ZoomTool::hoverMoveEvent(QMouseEvent *event)
 }
 
 
-void ZoomTool::keyPressEvent(QKeyEvent */*event*/)
+void ZoomTool::keyPressEvent(QKeyEvent * /*event*/)
 {
 }
 

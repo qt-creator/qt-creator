@@ -22,7 +22,7 @@ ColorPickerTool::~ColorPickerTool()
 
 }
 
-void ColorPickerTool::mousePressEvent(QMouseEvent */*event*/)
+void ColorPickerTool::mousePressEvent(QMouseEvent * /*event*/)
 {
 }
 
@@ -36,23 +36,23 @@ void ColorPickerTool::mouseReleaseEvent(QMouseEvent *event)
     pickColor(event->pos());
 }
 
-void ColorPickerTool::mouseDoubleClickEvent(QMouseEvent */*event*/)
+void ColorPickerTool::mouseDoubleClickEvent(QMouseEvent * /*event*/)
 {
 }
 
 
-void ColorPickerTool::hoverMoveEvent(QMouseEvent */*event*/)
+void ColorPickerTool::hoverMoveEvent(QMouseEvent * /*event*/)
 {
 }
 
-void ColorPickerTool::keyPressEvent(QKeyEvent */*event*/)
+void ColorPickerTool::keyPressEvent(QKeyEvent * /*event*/)
 {
 }
 
-void ColorPickerTool::keyReleaseEvent(QKeyEvent */*keyEvent*/)
+void ColorPickerTool::keyReleaseEvent(QKeyEvent * /*keyEvent*/)
 {
 }
-void ColorPickerTool::wheelEvent(QWheelEvent */*event*/)
+void ColorPickerTool::wheelEvent(QWheelEvent * /*event*/)
 {
 }
 

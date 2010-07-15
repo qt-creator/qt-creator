@@ -31,12 +31,12 @@ SubcomponentEditorTool::~SubcomponentEditorTool()
 
 }
 
-void SubcomponentEditorTool::mousePressEvent(QMouseEvent */*event*/)
+void SubcomponentEditorTool::mousePressEvent(QMouseEvent * /*event*/)
 {
 
 }
 
-void SubcomponentEditorTool::mouseMoveEvent(QMouseEvent */*event*/)
+void SubcomponentEditorTool::mouseMoveEvent(QMouseEvent * /*event*/)
 {
 
 }
@@ -53,7 +53,7 @@ bool SubcomponentEditorTool::containsCursor(const QPoint &mousePos) const
     return polyRect.contains(scenePos);
 }
 
-void SubcomponentEditorTool::mouseReleaseEvent(QMouseEvent */*event*/)
+void SubcomponentEditorTool::mouseReleaseEvent(QMouseEvent * /*event*/)
 {
 
 }
@@ -75,17 +75,17 @@ void SubcomponentEditorTool::hoverMoveEvent(QMouseEvent *event)
     }
 }
 
-void SubcomponentEditorTool::wheelEvent(QWheelEvent */*event*/)
+void SubcomponentEditorTool::wheelEvent(QWheelEvent * /*event*/)
 {
 
 }
 
-void SubcomponentEditorTool::keyPressEvent(QKeyEvent */*event*/)
+void SubcomponentEditorTool::keyPressEvent(QKeyEvent * /*event*/)
 {
 
 }
 
-void SubcomponentEditorTool::keyReleaseEvent(QKeyEvent */*keyEvent*/)
+void SubcomponentEditorTool::keyReleaseEvent(QKeyEvent * /*keyEvent*/)
 {
 
 }

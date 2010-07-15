@@ -47,7 +47,7 @@ namespace QmlJSInspector {
 namespace Internal {
 
 QmlJSDesignDebugClient::QmlJSDesignDebugClient(QDeclarativeDebugConnection *client,
-                                                             QObject */*parent*/)
+                                                             QObject * /*parent*/)
     : QDeclarativeDebugClient(QLatin1String("QDeclarativeDesignMode"), client) ,
     m_connection(client)
 {
