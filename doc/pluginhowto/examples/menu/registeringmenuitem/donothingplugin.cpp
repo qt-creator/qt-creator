@@ -2,11 +2,16 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/icore.h>
-#include <QKeySequence>
+#include <coreplugin/icontext.h>
 
-#include <QtPlugin>
+#include <QKeySequence>
 #include <QStringList>
+#include <QMessageBox>
+#include <QAction>
+#include <QMenu>
+#include <QtPlugin>
 
 DoNothingPlugin::DoNothingPlugin()
 {
@@ -31,18 +36,21 @@ bool DoNothingPlugin::initialize(const QStringList& args, QString *errMsg)
     // Fetch the action manager
     Core::ActionManager* am = Core::ICore::instance()->actionManager();
 
-    // Create a command for "About DoNothing".
-    Core::Command* cmd = am->registerAction(new QAction(tr("About DoNothing"),this),"DoNothingPlugin.AboutDoNothing",
-                                            QList<int>() <<Core::Constants::C_GLOBAL_ID);
+    // Create a command for "DoNothing".
+    QAction *action = new QAction(tr("DoNothing"),this);
+    Core::Command* cmd = am->registerAction(action,
+        QLatin1String("DoNothingPlugin.DoNothing"),
+        Core::Context(Core::Constants::C_GLOBAL));
 
-    // Add the command to Help menu
-    am->actionContainer(Core::Constants::M_HELP)->addAction(cmd);
+    // Add the "DoNothing" action to the tools menu
+    am->actionContainer(Core::Constants::M_TOOLS)->addAction(cmd);
+
     return true;
 }
 
-void DoNothingPlugin::shutdown()
+ExtensionSystem::IPlugin::ShutdownFlag DoNothingPlugin::shutdown()
 {
-    // Do nothing
+    return SynchronousShutdown;
 }
 
 Q_EXPORT_PLUGIN(DoNothingPlugin)

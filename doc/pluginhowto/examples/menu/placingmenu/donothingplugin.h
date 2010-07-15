@@ -12,10 +12,7 @@ public:
     ~DoNothingPlugin();
     void extensionsInitialized();
     bool initialize(const QStringList & arguments, QString * errorString);
-    void shutdown();
-private slots:
-    void about();
-
+    ShutdownFlag shutdown();
 };
 
 #endif // DONOTHING_PLUGIN_H

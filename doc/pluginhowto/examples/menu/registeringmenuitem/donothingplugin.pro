@@ -1,15 +1,16 @@
-QTC_SOURCE = C:/Work/QtCreator
-QTC_BUILD  = C:/Work/QtCreator/build
-
 TEMPLATE = lib
 TARGET = DoNothing
 
-IDE_SOURCE_TREE = $$QTC_SOURCE
-IDE_BUILD_TREE = $$QTC_BUILD
+isEmpty(QTC_SOURCE):IDE_SOURCE_TREE=$$PWD/../../../../../
+else:IDE_SOURCE_TREE=$$(QTC_SOURCE)
+
+isEmpty(QTC_BUILD):IDE_BUILD_TREE=$$OUT_PWD/../../../../../
+else:IDE_BUILD_TREE=$$(QTC_BUILD)
+
 PROVIDER = FooCompanyInc
 
-include($$QTC_SOURCE/src/qtcreatorplugin.pri)
-include($$QTC_SOURCE/src/plugins/coreplugin/coreplugin.pri)
+include($$IDE_SOURCE_TREE/src/qtcreatorplugin.pri)
+include($$IDE_SOURCE_TREE/src/plugins/coreplugin/coreplugin.pri)
 
 LIBS += -L$$IDE_PLUGIN_PATH/Nokia
 

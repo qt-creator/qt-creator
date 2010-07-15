@@ -2,12 +2,16 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/icore.h>
-#include <QKeySequence>
+#include <coreplugin/icontext.h>
 
-#include <QtPlugin>
+#include <QKeySequence>
 #include <QStringList>
 #include <QMessageBox>
+#include <QAction>
+#include <QMenu>
+#include <QtPlugin>
 
 DoNothingPlugin::DoNothingPlugin()
 {
@@ -36,29 +40,32 @@ bool DoNothingPlugin::initialize(const QStringList& args, QString *errMsg)
     Core::ActionContainer* ac = am->createMenu("DoNothingPlugin.DoNothingMenu");
     ac->menu()->setTitle("DoNothing");
 
-    // Create a command for "About DoNothing".
-    QAction *action = new QAction(tr("About DoNothing"),this);
-    Core::Command* cmd = am->registerAction(action,"DoNothingPlugin.AboutDoNothing",QList<int>() << 0);
+    // Create a command for "DoNothing".
+    QAction *action = new QAction(tr("DoNothing"),this);
+    Core::Command* cmd = am->registerAction(action,
+        QLatin1String("DoNothingPlugin.DoNothing"),
+        Core::Context(Core::Constants::C_GLOBAL));
 
     // Add DoNothing menu to the menubar
-    am->actionContainer(Core::Constants::MENU_BAR)->addMenu(ac);
+    am->actionContainer(Core::Constants::M_TOOLS)->addMenu(ac, Core::Constants::G_DEFAULT_THREE);
 
-    // Add the "About DoNothing" action to the DoNothing menu
+    // Add the "DoNothing" action to the DoNothing menu
     ac->addAction(cmd);
 
     // Connect the action
-    connect(action, SIGNAL(triggered(bool)), this, SLOT(about()));
+    connect(action, SIGNAL(triggered(bool)), this, SLOT(performAction()));
     return true;
 }
 
-void DoNothingPlugin::shutdown()
+ExtensionSystem::IPlugin::ShutdownFlag DoNothingPlugin::shutdown()
 {
-    // Do nothing
+    return SynchronousShutdown;
 }
-void DoNothingPlugin::about()
+
+void DoNothingPlugin::performAction()
 {
-    QMessageBox::information(0, "About DoNothing Plugin",
-                             "Seriously dude, this plugin does nothing");
+    QMessageBox::information(0, tr("DoNothing Plugin"),
+                             tr("Seriously dude, this plugin does nothing"));
 }
 
 Q_EXPORT_PLUGIN(DoNothingPlugin)

@@ -45,12 +45,20 @@ bool DoNothingPlugin::initialize(const QStringList& args, QString *errMsg)
     // Add the "DoNothing" action to the tools menu
     am->actionContainer(Core::Constants::M_TOOLS)->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
 
+    // Connect the action
+    connect(action, SIGNAL(triggered(bool)), this, SLOT(performAction()));
     return true;
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag DoNothingPlugin::shutdown()
 {
     return SynchronousShutdown;
+}
+
+void DoNothingPlugin::performAction()
+{
+    QMessageBox::information(0, tr("DoNothing Plugin"),
+                             tr("Seriously dude, this plugin does nothing"));
 }
 
 Q_EXPORT_PLUGIN(DoNothingPlugin)

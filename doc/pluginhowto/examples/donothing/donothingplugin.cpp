@@ -27,9 +27,9 @@ bool DoNothingPlugin::initialize(const QStringList& args, QString *errMsg)
     return true;
 }
 
-void DoNothingPlugin::shutdown()
+ExtensionSystem::IPlugin::ShutdownFlag DoNothingPlugin::shutdown()
 {
-    // Do nothing
+    return SynchronousShutdown;
 }
 
 Q_EXPORT_PLUGIN(DoNothingPlugin)
