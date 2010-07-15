@@ -12,7 +12,8 @@ include(../../../rpath.pri)
 
 mac {
     QMAKE_INFO_PLIST=Info_mac.plist
+    TARGET=QMLObserver
     ICON=qml.icns
+} else {
+    TARGET=qmlobserver
 }
-
-TARGET=qmlobserver

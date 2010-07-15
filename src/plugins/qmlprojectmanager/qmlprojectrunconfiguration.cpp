@@ -96,14 +96,18 @@ void QmlProjectRunConfiguration::ctor()
 
     setDisplayName(tr("QML Viewer", "QMLRunConfiguration display name."));
 
-    const QString qmlViewerName = QLatin1String("qmlobserver");
+#ifdef Q_OS_MAC
+    const QString qmlObserverName = QLatin1String("QMLObserver.app");
+#else
+    const QString qmlObserverName = QLatin1String("qmlobserver");
+#endif
 
     if (m_qmlViewerDefaultPath.isEmpty()) {
         QDir qmlviewerExecutable(QCoreApplication::applicationDirPath());
-#ifndef Q_OS_WIN
-        m_qmlViewerDefaultPath = qmlviewerExecutable.absoluteFilePath(qmlViewerName);
+#ifdef Q_OS_WIN
+        m_qmlViewerDefaultPath = qmlviewerExecutable.absoluteFilePath(qmlObserverName + QLatin1String(".exe"));
 #else
-        m_qmlViewerDefaultPath = qmlviewerExecutable.absoluteFilePath(QString("%1.exe").arg(qmlViewerName));
+        m_qmlViewerDefaultPath = qmlviewerExecutable.absoluteFilePath(qmlObserverName);
 #endif
         QFileInfo qmlviewerFileInfo(m_qmlViewerDefaultPath);
         if (!qmlviewerFileInfo.exists()) {
