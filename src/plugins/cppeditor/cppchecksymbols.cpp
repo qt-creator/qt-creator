@@ -528,17 +528,18 @@ void CheckSymbols::endVisit(TemplateDeclarationAST *)
 bool CheckSymbols::visit(FunctionDefinitionAST *ast)
 {
     _functionDefinitionStack.append(ast);
+
+    accept(ast->decl_specifier_list);
+    accept(ast->declarator);
+    accept(ast->ctor_initializer);
+    accept(ast->function_body);
+
     const LocalSymbols locals(_doc, ast);
     QList<SemanticInfo::Use> uses;
     foreach (uses, locals.uses) {
         foreach (const SemanticInfo::Use &u, uses)
             addTypeUsage(u);
     }
-
-    accept(ast->decl_specifier_list);
-    accept(ast->declarator);
-    accept(ast->ctor_initializer);
-    accept(ast->function_body);
 
     _functionDefinitionStack.removeLast();
     return false;
