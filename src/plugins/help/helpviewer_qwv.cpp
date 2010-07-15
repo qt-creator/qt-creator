@@ -338,14 +338,14 @@ bool HelpViewer::isBackwardAvailable() const
     return pageAction(QWebPage::Back)->isEnabled();
 }
 
-bool HelpViewer::findText(const QString &text, IFindSupport::FindFlags flags,
+bool HelpViewer::findText(const QString &text, Find::FindFlags flags,
     bool incremental, bool fromSearch)
 {
     Q_UNUSED((incremental && fromSearch))
     QWebPage::FindFlags options = QWebPage::FindWrapsAroundDocument;
-    if (flags & Find::IFindSupport::FindBackward)
+    if (flags & Find::FindBackward)
         options |= QWebPage::FindBackward;
-    if (flags & Find::IFindSupport::FindCaseSensitively)
+    if (flags & Find::FindCaseSensitively)
         options |= QWebPage::FindCaseSensitively;
 
     bool found = QWebView::findText(text, options);

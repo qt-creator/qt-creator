@@ -31,6 +31,8 @@
 #define IFINDSUPPORT_H
 
 #include "find_global.h"
+#include "textfindconstants.h"
+
 #include <QtCore/QObject>
 #include <QtCore/QString>
 #include <QtGui/QTextDocument>
@@ -42,14 +44,6 @@ class FIND_EXPORT IFindSupport : public QObject
     Q_OBJECT
 
 public:
-    enum FindFlag {
-        FindBackward = 0x01,
-        FindCaseSensitively = 0x02,
-        FindWholeWords = 0x04,
-        FindRegularExpression = 0x08
-    };
-    Q_DECLARE_FLAGS(FindFlags, FindFlag)
-
     enum Result { Found, NotFound, NotYetFound };
 
     IFindSupport() : QObject(0) {}
@@ -75,18 +69,6 @@ public:
     virtual void defineFindScope(){}
     virtual void clearFindScope(){}
 
-    static QTextDocument::FindFlags textDocumentFlagsForFindFlags(IFindSupport::FindFlags flags)
-    {
-        QTextDocument::FindFlags textDocFlags;
-        if (flags&IFindSupport::FindBackward)
-            textDocFlags |= QTextDocument::FindBackward;
-        if (flags&IFindSupport::FindCaseSensitively)
-            textDocFlags |= QTextDocument::FindCaseSensitively;
-        if (flags&IFindSupport::FindWholeWords)
-            textDocFlags |= QTextDocument::FindWholeWords;
-        return textDocFlags;
-    }
-
 signals:
     void changed();
 };
@@ -94,7 +76,5 @@ signals:
 inline void IFindSupport::highlightAll(const QString &, FindFlags) {}
 
 } // namespace Find
-
-Q_DECLARE_OPERATORS_FOR_FLAGS(Find::IFindSupport::FindFlags)
 
 #endif // IFINDSUPPORT_H

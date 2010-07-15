@@ -49,24 +49,24 @@ public:
 
     bool isEnabled() const;
     bool supportsReplace() const { return false; }
-    IFindSupport::FindFlags supportedFindFlags() const;
+    Find::FindFlags supportedFindFlags() const;
 
     void resetIncrementalSearch() {}
     void clearResults() {}
     QString currentFindString() const;
     QString completedFindString() const;
 
-    Result findIncremental(const QString &txt, Find::IFindSupport::FindFlags findFlags);
-    Result findStep(const QString &txt, Find::IFindSupport::FindFlags findFlags);
+    Result findIncremental(const QString &txt, Find::FindFlags findFlags);
+    Result findStep(const QString &txt, Find::FindFlags findFlags);
     void replace(const QString &, const QString &,
-        Find::IFindSupport::FindFlags ) { }
+        Find::FindFlags ) { }
     bool replaceStep(const QString &, const QString &,
-        Find::IFindSupport::FindFlags ) { return false; }
+        Find::FindFlags ) { return false; }
     int replaceAll(const QString &, const QString &,
-        Find::IFindSupport::FindFlags ) { return 0; }
+        Find::FindFlags ) { return 0; }
 
 private:
-    bool find(const QString &ttf, Find::IFindSupport::FindFlags findFlags, bool incremental);
+    bool find(const QString &ttf, Find::FindFlags findFlags, bool incremental);
 
     CentralWidget *m_centralWidget;
 };
@@ -79,23 +79,23 @@ public:
 
     bool isEnabled() const { return true; }
     bool supportsReplace() const { return false; }
-    IFindSupport::FindFlags supportedFindFlags() const;
+    Find::FindFlags supportedFindFlags() const;
     void resetIncrementalSearch() {}
     void clearResults() {}
     QString currentFindString() const;
     QString completedFindString() const { return QString(); }
 
-    Result findIncremental(const QString &txt, Find::IFindSupport::FindFlags findFlags);
-    Result findStep(const QString &txt, Find::IFindSupport::FindFlags findFlags);
+    Result findIncremental(const QString &txt, Find::FindFlags findFlags);
+    Result findStep(const QString &txt, Find::FindFlags findFlags);
     void replace(const QString &, const QString &,
-        Find::IFindSupport::FindFlags ) { }
+        Find::FindFlags ) { }
     bool replaceStep(const QString &, const QString &,
-        Find::IFindSupport::FindFlags ) { return false; }
+        Find::FindFlags ) { return false; }
     int replaceAll(const QString &, const QString &,
-        Find::IFindSupport::FindFlags ) { return 0; }
+        Find::FindFlags ) { return 0; }
 
 private:
-    bool find(const QString &ttf, Find::IFindSupport::FindFlags findFlags, bool incremental);
+    bool find(const QString &ttf, Find::FindFlags findFlags, bool incremental);
     HelpViewer *m_viewer;
 };
 

@@ -2137,7 +2137,7 @@ void BaseTextEditorPrivate::highlightSearchResults(const QTextBlock &block,
         l = m_searchExpr.matchedLength();
         if (l == 0)
             break;
-        if ((m_findFlags & Find::IFindSupport::FindWholeWords)
+        if ((m_findFlags & Find::FindWholeWords)
             && ((idx && text.at(idx-1).isLetterOrNumber())
                 || (idx + l < text.length() && text.at(idx + l).isLetterOrNumber())))
             continue;
@@ -4254,7 +4254,7 @@ void BaseTextEditor::markBlocksAsChanged(QList<int> blockNumbers)
 }
 
 
-void BaseTextEditor::highlightSearchResults(const QString &txt, Find::IFindSupport::FindFlags findFlags)
+void BaseTextEditor::highlightSearchResults(const QString &txt, Find::FindFlags findFlags)
 {
     QString pattern = txt;
     if (pattern.size() < 2)
@@ -4263,9 +4263,9 @@ void BaseTextEditor::highlightSearchResults(const QString &txt, Find::IFindSuppo
     if (d->m_searchExpr.pattern() == pattern)
         return;
     d->m_searchExpr.setPattern(pattern);
-    d->m_searchExpr.setPatternSyntax((findFlags & Find::IFindSupport::FindRegularExpression) ?
+    d->m_searchExpr.setPatternSyntax((findFlags & Find::FindRegularExpression) ?
                                      QRegExp::RegExp : QRegExp::FixedString);
-    d->m_searchExpr.setCaseSensitivity((findFlags & Find::IFindSupport::FindCaseSensitively) ?
+    d->m_searchExpr.setCaseSensitivity((findFlags & Find::FindCaseSensitively) ?
                                        Qt::CaseSensitive : Qt::CaseInsensitive);
     d->m_findFlags = findFlags;
 
@@ -5323,8 +5323,8 @@ BaseTextEditorEditable::BaseTextEditorEditable(BaseTextEditor *editor)
     using namespace Find;
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
     BaseTextFind *baseTextFind = new BaseTextFind(editor);
-    connect(baseTextFind, SIGNAL(highlightAll(QString, Find::IFindSupport::FindFlags)),
-            editor, SLOT(highlightSearchResults(QString, Find::IFindSupport::FindFlags)));
+    connect(baseTextFind, SIGNAL(highlightAll(QString, Find::FindFlags)),
+            editor, SLOT(highlightSearchResults(QString, Find::FindFlags)));
     connect(baseTextFind, SIGNAL(findScopeChanged(QTextCursor, QTextCursor, int)),
             editor, SLOT(setFindScope(QTextCursor, QTextCursor, int)));
     aggregate->add(baseTextFind);

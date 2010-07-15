@@ -72,9 +72,9 @@ public:
     ~BinEditorFind() {}
 
     bool supportsReplace() const { return false; }
-    IFindSupport::FindFlags supportedFindFlags() const
+    Find::FindFlags supportedFindFlags() const
     {
-        return IFindSupport::FindBackward | IFindSupport::FindCaseSensitively;
+        return Find::FindBackward | Find::FindCaseSensitively;
     }
 
     void resetIncrementalSearch()
@@ -87,16 +87,16 @@ public:
     QString completedFindString() const { return QString(); }
 
 
-    int find(const QByteArray &pattern, int pos, Find::IFindSupport::FindFlags findFlags) {
+    int find(const QByteArray &pattern, int pos, Find::FindFlags findFlags) {
         if (pattern.isEmpty()) {
             m_editor->setCursorPosition(pos);
             return pos;
         }
 
-        return m_editor->find(pattern, pos, Find::IFindSupport::textDocumentFlagsForFindFlags(findFlags));
+        return m_editor->find(pattern, pos, Find::textDocumentFlagsForFindFlags(findFlags));
     }
 
-    Result findIncremental(const QString &txt, Find::IFindSupport::FindFlags findFlags) {
+    Result findIncremental(const QString &txt, Find::FindFlags findFlags) {
         QByteArray pattern = txt.toLatin1();
         if (pattern != m_lastPattern)
             resetIncrementalSearch(); // Because we don't search for nibbles.
@@ -109,13 +109,13 @@ public:
         Result result;
         if (found >= 0) {
             result = Found;
-            m_editor->highlightSearchResults(pattern, Find::IFindSupport::textDocumentFlagsForFindFlags(findFlags));
+            m_editor->highlightSearchResults(pattern, Find::textDocumentFlagsForFindFlags(findFlags));
             m_contPos = -1;
         } else {
             if (found == -2) {
                 result = NotYetFound;
                 m_contPos +=
-                        findFlags & Find::IFindSupport::FindBackward
+                        findFlags & Find::FindBackward
                         ? -BinEditor::SearchStride : BinEditor::SearchStride;
             } else {
                 result = NotFound;
@@ -126,12 +126,12 @@ public:
         return result;
     }
 
-    Result findStep(const QString &txt, Find::IFindSupport::FindFlags findFlags) {
+    Result findStep(const QString &txt, Find::FindFlags findFlags) {
         QByteArray pattern = txt.toLatin1();
         bool wasReset = (m_incrementalStartPos < 0);
         if (m_contPos == -1) {
             m_contPos = m_editor->cursorPosition();
-            if (findFlags & Find::IFindSupport::FindBackward)
+            if (findFlags & Find::FindBackward)
                 m_contPos = m_editor->selectionStart()-1;
         }
         int found = find(pattern, m_contPos, findFlags);
@@ -141,10 +141,10 @@ public:
             m_incrementalStartPos = found;
             m_contPos = -1;
             if (wasReset)
-                m_editor->highlightSearchResults(pattern, Find::IFindSupport::textDocumentFlagsForFindFlags(findFlags));
+                m_editor->highlightSearchResults(pattern, Find::textDocumentFlagsForFindFlags(findFlags));
         } else if (found == -2) {
             result = NotYetFound;
-            m_contPos += findFlags & Find::IFindSupport::FindBackward
+            m_contPos += findFlags & Find::FindBackward
                          ? -BinEditor::SearchStride : BinEditor::SearchStride;
         } else {
             result = NotFound;
@@ -155,11 +155,11 @@ public:
     }
 
     void replace(const QString &, const QString &,
-                 Find::IFindSupport::FindFlags) { }
+                 Find::FindFlags) { }
     bool replaceStep(const QString &, const QString &,
-                     Find::IFindSupport::FindFlags) { return false;}
+                     Find::FindFlags) { return false;}
     int replaceAll(const QString &, const QString &,
-                   Find::IFindSupport::FindFlags) { return 0; }
+                   Find::FindFlags) { return 0; }
 
 private:
     BinEditor *m_editor;

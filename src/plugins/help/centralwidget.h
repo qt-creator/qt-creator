@@ -68,7 +68,7 @@ public:
     int currentIndex() const;
     void setCurrentPage(HelpViewer *page);
 
-    bool find(const QString &txt, Find::IFindSupport::FindFlags findFlags,
+    bool find(const QString &txt, Find::FindFlags findFlags,
         bool incremental);
 
 public slots:

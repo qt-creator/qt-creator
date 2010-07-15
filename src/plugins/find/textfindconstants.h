@@ -30,6 +30,11 @@
 #ifndef TEXTFINDCONSTANTS_H
 #define TEXTFINDCONSTANTS_H
 
+#include "find_global.h"
+
+#include <QtCore/QFlags>
+#include <QtGui/QTextDocument>
+
 namespace Find {
 namespace Constants {
 
@@ -56,6 +61,20 @@ const char * const REGULAR_EXPRESSIONS="Find.RegularExpressions";
 const char * const TASK_SEARCH       = "Find.Task.Search";
 
 } // namespace Constants
+
+enum FindFlag {
+    FindBackward = 0x01,
+    FindCaseSensitively = 0x02,
+    FindWholeWords = 0x04,
+    FindRegularExpression = 0x08
+};
+Q_DECLARE_FLAGS(FindFlags, FindFlag)
+
+// defined in findplugin.cpp
+QTextDocument::FindFlags FIND_EXPORT textDocumentFlagsForFindFlags(FindFlags flags);
+
 } // namespace Find
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Find::FindFlags)
 
 #endif // TEXTFINDCONSTANTS_H

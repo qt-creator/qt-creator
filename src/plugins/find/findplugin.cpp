@@ -361,6 +361,17 @@ QStringListModel *FindPlugin::replaceCompletionModel() const
     return d->m_replaceCompletionModel;
 }
 
+QTextDocument::FindFlags textDocumentFlagsForFindFlags(FindFlags flags)
+{
+    QTextDocument::FindFlags textDocFlags;
+    if (flags & Find::FindBackward)
+        textDocFlags |= QTextDocument::FindBackward;
+    if (flags & Find::FindCaseSensitively)
+        textDocFlags |= QTextDocument::FindCaseSensitively;
+    if (flags & Find::FindWholeWords)
+        textDocFlags |= QTextDocument::FindWholeWords;
+    return textDocFlags;
+}
 
 } // namespace Find
 

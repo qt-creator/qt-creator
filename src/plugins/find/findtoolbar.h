@@ -99,9 +99,9 @@ private:
     void installEventFilters();
     void invokeClearResults();
     bool setFocusToCurrentFindSupport();
-    void setFindFlag(IFindSupport::FindFlag flag, bool enabled);
-    bool hasFindFlag(IFindSupport::FindFlag flag);
-    IFindSupport::FindFlags effectiveFindFlags();
+    void setFindFlag(Find::FindFlag flag, bool enabled);
+    bool hasFindFlag(Find::FindFlag flag);
+    Find::FindFlags effectiveFindFlags();
     Core::FindToolBarPlaceHolder *findToolBarPlaceHolder() const;
 
     bool eventFilter(QObject *obj, QEvent *event);
@@ -128,7 +128,7 @@ private:
     QAction *m_caseSensitiveAction;
     QAction *m_wholeWordAction;
     QAction *m_regularExpressionAction;
-    IFindSupport::FindFlags m_findFlags;
+    Find::FindFlags m_findFlags;
 
     QPixmap m_casesensitiveIcon;
     QPixmap m_regexpIcon;

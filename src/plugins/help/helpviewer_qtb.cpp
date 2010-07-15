@@ -186,7 +186,7 @@ bool HelpViewer::isBackwardAvailable() const
     return QTextBrowser::isBackwardAvailable();
 }
 
-bool HelpViewer::findText(const QString &text, IFindSupport::FindFlags flags,
+bool HelpViewer::findText(const QString &text, Find::FindFlags flags,
     bool incremental, bool fromSearch)
 {
     QTextDocument *doc = document();
@@ -198,10 +198,10 @@ bool HelpViewer::findText(const QString &text, IFindSupport::FindFlags flags,
     if (incremental)
         cursor.setPosition(position);
 
-    QTextDocument::FindFlags f = IFindSupport::textDocumentFlagsForFindFlags(flags);
+    QTextDocument::FindFlags f = Find::textDocumentFlagsForFindFlags(flags);
     QTextCursor found = doc->find(text, cursor, f);
     if (found.isNull()) {
-        if ((flags & Find::IFindSupport::FindBackward) == 0)
+        if ((flags & Find::FindBackward) == 0)
             cursor.movePosition(QTextCursor::Start);
         else
             cursor.movePosition(QTextCursor::End);

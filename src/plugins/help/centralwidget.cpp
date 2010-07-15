@@ -162,7 +162,7 @@ void CentralWidget::setCurrentPage(HelpViewer *page)
     emit currentViewerChanged();
 }
 
-bool CentralWidget::find(const QString &txt, Find::IFindSupport::FindFlags flags,
+bool CentralWidget::find(const QString &txt, Find::FindFlags flags,
     bool incremental)
 {
     return currentHelpViewer()->findText(txt, flags, incremental, false);

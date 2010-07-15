@@ -90,10 +90,10 @@ namespace Internal {
 
         bool supportsReplace() const { return false; }
 
-        IFindSupport::FindFlags supportedFindFlags() const
+        Find::FindFlags supportedFindFlags() const
         {
-            return IFindSupport::FindBackward | IFindSupport::FindCaseSensitively
-                    | IFindSupport::FindRegularExpression | IFindSupport::FindWholeWords;
+            return Find::FindBackward | Find::FindCaseSensitively
+                    | Find::FindRegularExpression | Find::FindWholeWords;
         }
 
         void resetIncrementalSearch()
@@ -113,14 +113,14 @@ namespace Internal {
             return QString();
         }
 
-        void highlightAll(const QString &txt, IFindSupport::FindFlags findFlags)
+        void highlightAll(const QString &txt, Find::FindFlags findFlags)
         {
             Q_UNUSED(txt)
             Q_UNUSED(findFlags)
             return;
         }
 
-        IFindSupport::Result findIncremental(const QString &txt, IFindSupport::FindFlags findFlags)
+        IFindSupport::Result findIncremental(const QString &txt, Find::FindFlags findFlags)
         {
             if (!m_incrementalFindStart.isValid())
                 m_incrementalFindStart = m_view->currentIndex();
@@ -128,7 +128,7 @@ namespace Internal {
             return find(txt, findFlags);
         }
 
-        IFindSupport::Result findStep(const QString &txt, IFindSupport::FindFlags findFlags)
+        IFindSupport::Result findStep(const QString &txt, Find::FindFlags findFlags)
         {
             IFindSupport::Result result = find(txt, findFlags);
             if (result == IFindSupport::Found)
@@ -136,19 +136,19 @@ namespace Internal {
             return result;
         }
 
-        IFindSupport::Result find(const QString &txt, IFindSupport::FindFlags findFlags)
+        IFindSupport::Result find(const QString &txt, Find::FindFlags findFlags)
         {
             if (txt.isEmpty())
                 return IFindSupport::NotFound;
             QModelIndex index;
-            if (findFlags & IFindSupport::FindRegularExpression) {
-                bool sensitive = (findFlags & IFindSupport::FindCaseSensitively);
+            if (findFlags & Find::FindRegularExpression) {
+                bool sensitive = (findFlags & Find::FindCaseSensitively);
                 index = m_view->model()->find(QRegExp(txt, (sensitive ? Qt::CaseSensitive : Qt::CaseInsensitive)),
                                       m_view->currentIndex(),
-                                      IFindSupport::textDocumentFlagsForFindFlags(findFlags));
+                                      Find::textDocumentFlagsForFindFlags(findFlags));
             } else {
                 index = m_view->model()->find(txt, m_view->currentIndex(),
-                                      IFindSupport::textDocumentFlagsForFindFlags(findFlags));
+                                      Find::textDocumentFlagsForFindFlags(findFlags));
             }
             if (index.isValid()) {
                 m_view->setCurrentIndex(index);
@@ -161,7 +161,7 @@ namespace Internal {
         }
 
         void replace(const QString &before, const QString &after,
-            IFindSupport::FindFlags findFlags)
+            Find::FindFlags findFlags)
         {
             Q_UNUSED(before)
             Q_UNUSED(after)
@@ -169,7 +169,7 @@ namespace Internal {
         }
 
         bool replaceStep(const QString &before, const QString &after,
-            IFindSupport::FindFlags findFlags)
+            Find::FindFlags findFlags)
         {
             Q_UNUSED(before)
             Q_UNUSED(after)
@@ -178,7 +178,7 @@ namespace Internal {
         }
 
         int replaceAll(const QString &before, const QString &after,
-            IFindSupport::FindFlags findFlags)
+            Find::FindFlags findFlags)
         {
             Q_UNUSED(before)
             Q_UNUSED(after)

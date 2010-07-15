@@ -82,7 +82,7 @@ public:
     bool isForwardAvailable() const;
     bool isBackwardAvailable() const;
 
-    bool findText(const QString &text, Find::IFindSupport::FindFlags flags,
+    bool findText(const QString &text, Find::FindFlags flags,
         bool incremental, bool fromSearch);
 
     static const QString NsNokia;

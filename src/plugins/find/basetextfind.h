@@ -52,34 +52,34 @@ public:
     BaseTextFind(QTextEdit *editor);
 
     bool supportsReplace() const;
-    IFindSupport::FindFlags supportedFindFlags() const;
+    Find::FindFlags supportedFindFlags() const;
     void resetIncrementalSearch();
     void clearResults();
     QString currentFindString() const;
     QString completedFindString() const;
 
-    Result findIncremental(const QString &txt, IFindSupport::FindFlags findFlags);
-    Result findStep(const QString &txt, IFindSupport::FindFlags findFlags);
+    Result findIncremental(const QString &txt, Find::FindFlags findFlags);
+    Result findStep(const QString &txt, Find::FindFlags findFlags);
     void replace(const QString &before, const QString &after,
-        IFindSupport::FindFlags findFlags);
+        Find::FindFlags findFlags);
     bool replaceStep(const QString &before, const QString &after,
-        IFindSupport::FindFlags findFlags);
+        Find::FindFlags findFlags);
     int replaceAll(const QString &before, const QString &after,
-        IFindSupport::FindFlags findFlags);
+        Find::FindFlags findFlags);
 
     void defineFindScope();
     void clearFindScope();
 
 signals:
-    void highlightAll(const QString &txt, Find::IFindSupport::FindFlags findFlags);
+    void highlightAll(const QString &txt, Find::FindFlags findFlags);
     void findScopeChanged(const QTextCursor &start, const QTextCursor &end, int verticalBlockSelection);
 
 private:
     bool find(const QString &txt,
-              IFindSupport::FindFlags findFlags,
+              Find::FindFlags findFlags,
               QTextCursor start);
     QTextCursor replaceInternal(const QString &before, const QString &after,
-                                IFindSupport::FindFlags findFlags);
+                                Find::FindFlags findFlags);
 
     QTextCursor textCursor() const;
     void setTextCursor(const QTextCursor&);
