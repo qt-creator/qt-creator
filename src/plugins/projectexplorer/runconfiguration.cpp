@@ -221,7 +221,7 @@ IRunControlFactory::~IRunControlFactory()
 }
 
 RunControl::RunControl(RunConfiguration *runConfiguration, QString mode)
-    : m_runMode(mode), m_runConfiguration(runConfiguration)
+    : m_runMode(mode), m_runConfiguration(runConfiguration), m_outputFormatter(0)
 {
     if (runConfiguration) {
         m_displayName  = runConfiguration->displayName();
