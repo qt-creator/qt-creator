@@ -1679,60 +1679,6 @@ void GdbEngine::handleGdbExit(const GdbResponse &response)
     }
 }
 
-#if 0
-    switch (lastGoodState()) {
-    case DebuggerNotReady: // Neutral.
-        notifyEngineShutdownOk();
-        break;
-    case DebuggerFinished: // Should not happen.
-    case EngineRunFailed: // Should not happen.
-    case InferiorRunRequested:
-    case InferiorRunOk:
-    case InferiorStopRequested:
-    case InferiorStopOk:
-        QTC_ASSERT(false, qDebug() << lastGoodState());
-        notifyEngineShutdownOk();
-        break;
-    case InferiorShutdownRequested: // Will auto-trigger further shutdown steps
-    case EngineShutdownRequested: // Do not disturb! :)
-    case EngineShutdownOk:
-    case EngineShutdownFailed:
-    //case InferiorRunRequested_Kill:
-    //case InferiorStopRequested_Kill:
-        QTC_ASSERT(false, qDebug() << lastGoodState());
-        notifyEngineShutdownOk();
-        break;
-    case EngineSetupRequested: // GDB is up, adapter is "doing something"
-        m_gdbAdapter->shutdownAdapter();
-        // fall-through
-    case EngineSetupFailed: // Adapter "did something", but it did not help
-        if (gdbProc()->state() == QProcess::Running) {
-            m_commandsToRunOnTemporaryBreak.clear();
-            postCommand("-gdb-exit", GdbEngine::ExitRequest, CB(handleGdbExit));
-        } else {
-            gdbProc()->kill();
-        }
-        break;
-
-    case EngineSetupOk: // We can't get here, really
-    case EngineRunRequested:
-    case InferiorSetupFailed:
-    case InferiorShutdownOk:
-    case InferiorShutdownFailed: // Whatever
-    case InferiorUnrunnable:
-        m_commandsToRunOnTemporaryBreak.clear();
-        postCommand("-gdb-exit", GdbEngine::ExitRequest, CB(handleGdbExit));
-        break;
-    case InferiorSetupRequested: // This may take some time, so just short-circuit it
-        notifyInferiorSetupFailed();
-        gdbProc()->kill();
-        break;
-    case InferiorStopFailed: // Tough luck, I guess. But unreachable as of now anyway.
-        gdbProc()->kill();
-        break;
-    }
-#endif
-
 void GdbEngine::detachDebugger()
 {
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
