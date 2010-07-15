@@ -83,13 +83,14 @@ enum DebuggingHelperState
 };
 
 
-class GdbEngine : public DebuggerEngine
+class DEBUGGER_EXPORT GdbEngine : public DebuggerEngine
 {
     Q_OBJECT
 
 public:
     explicit GdbEngine(const DebuggerStartParameters &startParameters);
     ~GdbEngine();
+    AbstractGdbAdapter *gdbAdapter() const { return m_gdbAdapter; }
 
 private:
     friend class AbstractGdbAdapter;

@@ -24,7 +24,8 @@ HEADERS += \
     $$PWD/maemodeploystepwidget.h \
     $$PWD/maemodeploystepfactory.h \
     $$PWD/maemoglobal.h \
-    $$PWD/maemosshrunner.h
+    $$PWD/maemosshrunner.h \
+    $$PWD/maemodebugsupport.h
 
 SOURCES += \
     $$PWD/maemoconfigtestdialog.cpp \
@@ -50,7 +51,8 @@ SOURCES += \
     $$PWD/maemodeploystepwidget.cpp \
     $$PWD/maemodeploystepfactory.cpp \
     $$PWD/maemoglobal.cpp \
-    $$PWD/maemosshrunner.cpp
+    $$PWD/maemosshrunner.cpp \
+    $$PWD/maemodebugsupport.cpp
 
 FORMS += \
     $$PWD/maemoconfigtestdialog.ui \

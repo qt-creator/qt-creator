@@ -43,12 +43,14 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-class RemoteGdbServerAdapter : public AbstractGdbAdapter
+class DEBUGGER_EXPORT RemoteGdbServerAdapter : public AbstractGdbAdapter
 {
     Q_OBJECT
 
 public:
     RemoteGdbServerAdapter(GdbEngine *engine, int toolChainType, QObject *parent = 0);
+    void handleSetupDone();
+    void handleSetupFailed(const QString &reason);
 
 private:
     DumperHandling dumperHandling() const;
@@ -62,9 +64,14 @@ private:
 
     AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
 
+signals:
+    void requestSetup();
+
+private:
     Q_SLOT void readUploadStandardOutput();
     Q_SLOT void readUploadStandardError();
     Q_SLOT void uploadProcError(QProcess::ProcessError error);
+    Q_SLOT void uploadProcFinished();
 
     void handleSetTargetAsync(const GdbResponse &response);
     void handleFileExecAndSymbols(const GdbResponse &response);

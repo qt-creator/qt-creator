@@ -179,7 +179,6 @@ static QByteArray parsePlainConsoleStream(const GdbResponse &response)
 GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters)
   : DebuggerEngine(startParameters)
 {
-    m_gdbAdapter = 0;
     m_progress = 0;
 
     m_commandTimer = new QTimer(this);
@@ -189,6 +188,7 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters)
     // Needs no resetting in initializeVariables()
     m_busy = false;
     initializeVariables();
+    m_gdbAdapter = createAdapter();
 
     connect(theDebuggerAction(AutoDerefPointers), SIGNAL(valueChanged(QVariant)),
             this, SLOT(setAutoDerefPointers(QVariant)));
@@ -1754,7 +1754,6 @@ void GdbEngine::setupEngine()
     //qDebug() << "GDB START DEBUGGER";
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     QTC_ASSERT(m_debuggingHelperState == DebuggingHelperUninitialized, /**/);
-    QTC_ASSERT(m_gdbAdapter == 0, /**/);
 
     m_progress = new QFutureInterface<void>();
     m_progress->setProgressRange(0, 100);
@@ -1763,7 +1762,6 @@ void GdbEngine::setupEngine()
     fp->setKeepOnFinish(false);
     m_progress->reportStarted();
 
-    m_gdbAdapter = createAdapter();
     //qDebug() << "CREATED ADAPTER: " << m_gdbAdapter;
 
     if (m_gdbAdapter->dumperHandling() != AbstractGdbAdapter::DumperNotAvailable) {

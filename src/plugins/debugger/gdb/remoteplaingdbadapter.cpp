@@ -48,13 +48,7 @@ void RemotePlainGdbAdapter::startAdapter()
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(QLatin1String("TRYING TO START ADAPTER"));
 
-    if (!startParameters().workingDirectory.isEmpty())
-        m_gdbProc.setWorkingDirectory(startParameters().workingDirectory);
-    if (!startParameters().environment.isEmpty())
-        m_gdbProc.setEnvironment(startParameters().environment);
-
-    if (m_engine->startGdb(QStringList(), m_engine->startParameters().debuggerCommand))
-        m_engine->handleAdapterStarted();
+    emit requestSetup();
 }
 
 void RemotePlainGdbAdapter::interruptInferior()
@@ -95,6 +89,26 @@ void RemotePlainGdbAdapter::shutdownInferior()
 void RemotePlainGdbAdapter::shutdownAdapter()
 {
     m_engine->notifyAdapterShutdownOk();
+}
+
+void RemotePlainGdbAdapter::handleSetupDone()
+{
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
+
+    if (!startParameters().workingDirectory.isEmpty())
+        m_gdbProc.setWorkingDirectory(startParameters().workingDirectory);
+    if (!startParameters().environment.isEmpty())
+        m_gdbProc.setEnvironment(startParameters().environment);
+
+    if (m_engine->startGdb(QStringList(), m_engine->startParameters().debuggerCommand))
+        m_engine->handleAdapterStarted();
+}
+
+void RemotePlainGdbAdapter::handleSetupFailed(const QString &reason)
+{
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
+
+    m_engine->handleAdapterStartFailed(reason);
 }
 
 } // namespace Internal

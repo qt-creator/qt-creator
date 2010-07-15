@@ -36,13 +36,18 @@
 namespace Debugger {
 namespace Internal {
 
-class RemotePlainGdbAdapter : public AbstractPlainGdbAdapter
+class DEBUGGER_EXPORT RemotePlainGdbAdapter : public AbstractPlainGdbAdapter
 {
     Q_OBJECT
 
 public:
     friend class RemoteGdbProcess;
     RemotePlainGdbAdapter(GdbEngine *engine, QObject *parent = 0);
+    void handleSetupDone();
+    void handleSetupFailed(const QString &reason);
+
+signals:
+    void requestSetup();
 
 private:
     void startAdapter();

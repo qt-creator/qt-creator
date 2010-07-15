@@ -32,51 +32,88 @@
 **
 ****************************************************************************/
 
-#ifndef MAEMORUNCONTROL_H
-#define MAEMORUNCONTROL_H
+#ifndef MAEMODEBUGSUPPORT_H
+#define MAEMODEBUGSUPPORT_H
 
 #include "maemodeviceconfigurations.h"
 
-#include <projectexplorer/runconfiguration.h>
+#include <coreplugin/ssh/sftpdefs.h>
 
-#include <QtCore/QString>
+#include <QtCore/QObject>
+#include <QtCore/QSharedPointer>
+
+#define USE_GDBSERVER
+
+namespace Core { class SftpChannel; }
+
+namespace Debugger {
+class DebuggerRunControl;
+namespace Internal {
+class RemoteGdbServerAdapter;
+class RemotePlainGdbAdapter;
+}
+}
+
+namespace ProjectExplorer { class RunControl; }
 
 namespace Qt4ProjectManager {
 namespace Internal {
+
 class MaemoRunConfiguration;
 class MaemoSshRunner;
 
-class MaemoRunControl : public ProjectExplorer::RunControl
+class MaemoDebugSupport : public QObject
 {
     Q_OBJECT
 public:
-    explicit MaemoRunControl(ProjectExplorer::RunConfiguration *runConfig);
-    virtual ~MaemoRunControl();
+    static ProjectExplorer::RunControl *createDebugRunControl(MaemoRunConfiguration *runConfig);
+
+    MaemoDebugSupport(MaemoRunConfiguration *runConfig,
+        Debugger::DebuggerRunControl *runControl);
+    ~MaemoDebugSupport();
+
+    static QString gdbServerPort(const MaemoRunConfiguration *rc,
+        const MaemoDeviceConfig &devConf);
+    static QString uploadDir(const MaemoDeviceConfig &devConf);
 
 private slots:
-    void startExecution();
+    void handleAdapterSetupRequested();
     void handleSshError(const QString &error);
-    void handleRemoteProcessStarted() {}
-    void handleRemoteProcessFinished(int exitCode);
+    void startExecution();
+    void handleSftpChannelInitialized();
+    void handleSftpChannelInitializationFailed(const QString &error);
+    void handleSftpJobFinished(Core::SftpJobId job, const QString &error);
+    void handleRemoteProcessStarted();
+    void handleDebuggingFinished();
     void handleRemoteOutput(const QByteArray &output);
     void handleRemoteErrorOutput(const QByteArray &output);
 
 private:
-    virtual void start();
-    virtual void stop();
-    virtual bool isRunning() const;
+    void stopSsh();
+    void handleAdapterSetupFailed(const QString &error);
+    void handleAdapterSetupDone();
+    void startDebugging();
 
-    void setFinished();
-    void handleError(const QString &errString);
-
-    MaemoRunConfiguration *m_runConfig; // TODO this pointer can be invalid
-    const MaemoDeviceConfig m_devConfig;
+    Debugger::DebuggerRunControl *m_runControl;
+    MaemoRunConfiguration * const m_runConfig;
+    const MaemoDeviceConfig m_deviceConfig;
     MaemoSshRunner * const m_runner;
+
+
+#ifdef USE_GDBSERVER
+    typedef Debugger::Internal::RemoteGdbServerAdapter GdbAdapter;
+#else
+    typedef Debugger::Internal::RemotePlainGdbAdapter GdbAdapter;
+#endif
+    GdbAdapter *m_gdbAdapter;
+
+    QSharedPointer<Core::SftpChannel> m_uploader;
+    Core::SftpJobId m_uploadJob;
+    bool m_adapterStarted;
     bool m_stopped;
-    bool m_running;
 };
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
 
-#endif // MAEMORUNCONTROL_H
+#endif // MAEMODEBUGSUPPORT_H

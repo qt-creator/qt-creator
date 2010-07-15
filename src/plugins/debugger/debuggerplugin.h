@@ -44,6 +44,7 @@ class Snapshot;
 }
 
 namespace ProjectExplorer {
+class RunConfiguration;
 class RunControl;
 }
 
@@ -82,7 +83,8 @@ public:
     void readSettings();
     void writeSettings() const;
 
-    static DebuggerRunControl *createDebugger(const DebuggerStartParameters &sp);
+    static DebuggerRunControl *createDebugger(const DebuggerStartParameters &sp,
+        ProjectExplorer::RunConfiguration *rc = 0);
     static void startDebugger(ProjectExplorer::RunControl *runControl);
     static void displayDebugger(ProjectExplorer::RunControl *runControl);
 

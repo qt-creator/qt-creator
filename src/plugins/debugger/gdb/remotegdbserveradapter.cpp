@@ -62,6 +62,8 @@ RemoteGdbServerAdapter::RemoteGdbServerAdapter(GdbEngine *engine, int toolChainT
         this, SLOT(readUploadStandardOutput()));
     connect(&m_uploadProc, SIGNAL(readyReadStandardError()),
         this, SLOT(readUploadStandardError()));
+    connect(&m_uploadProc, SIGNAL(finished(int)), this,
+        SLOT(uploadProcFinished()));
 }
 
 AbstractGdbAdapter::DumperHandling RemoteGdbServerAdapter::dumperHandling() const
@@ -86,22 +88,13 @@ void RemoteGdbServerAdapter::startAdapter()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("TRYING TO START ADAPTER"));
-
-    // FIXME: make asynchroneous
-    // Start the remote server
     if (startParameters().serverStartScript.isEmpty()) {
-        showMessage(_("No server start script given. "
-            "Assuming server runs already."), StatusBar);
+        showMessage(_("No server start script given. "), StatusBar);
+        emit requestSetup();
     } else {
         m_uploadProc.start(_("/bin/sh ") + startParameters().serverStartScript);
         m_uploadProc.waitForStarted();
     }
-
-    if (!m_engine->startGdb(QStringList(), startParameters().debuggerCommand))
-        // FIXME: cleanup missing
-        return;
-
-    m_engine->handleAdapterStarted();
 }
 
 void RemoteGdbServerAdapter::uploadProcError(QProcess::ProcessError error)
@@ -152,6 +145,15 @@ void RemoteGdbServerAdapter::readUploadStandardError()
     const QString msg = QString::fromLocal8Bit(ba, ba.length());
     showMessage(msg, LogOutput);
     showMessage(msg, AppError);
+}
+
+void RemoteGdbServerAdapter::uploadProcFinished()
+{
+    if (m_uploadProc.exitStatus() == QProcess::NormalExit
+        && m_uploadProc.exitCode() == 0)
+        handleSetupDone();
+    else
+        handleSetupFailed(m_uploadProc.errorString());
 }
 
 void RemoteGdbServerAdapter::setupInferior()
@@ -243,6 +245,21 @@ void RemoteGdbServerAdapter::shutdownInferior()
 void RemoteGdbServerAdapter::shutdownAdapter()
 {
     m_engine->notifyAdapterShutdownOk();
+}
+
+void RemoteGdbServerAdapter::handleSetupDone()
+{
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
+
+    if (m_engine->startGdb(QStringList(), startParameters().debuggerCommand))
+        m_engine->handleAdapterStarted();
+}
+
+void RemoteGdbServerAdapter::handleSetupFailed(const QString &reason)
+{
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
+
+    m_engine->handleAdapterStartFailed(reason);
 }
 
 } // namespace Internal

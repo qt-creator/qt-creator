@@ -46,6 +46,7 @@ class MaemoGlobal
 public:
     static QString homeDirOnDevice(const QString &uname);
     static QString remoteSudo();
+    static QString remoteCommandPrefix(const QString &commandFilePath);
 
     template<class T> static T *buildStep(const ProjectExplorer::BuildConfiguration *bc)
     {

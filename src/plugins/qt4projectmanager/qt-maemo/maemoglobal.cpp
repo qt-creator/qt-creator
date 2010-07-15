@@ -46,5 +46,11 @@ QString MaemoGlobal::remoteSudo()
     return QLatin1String("/usr/lib/mad-developer/devrootsh");
 }
 
+QString MaemoGlobal::remoteCommandPrefix(const QString &commandFilePath)
+{
+    return QString::fromLocal8Bit("%1 chmod a+x %2 && source /etc/profile && DISPLAY=:0.0 ")
+        .arg(remoteSudo()).arg(commandFilePath);
+}
+
 } // namespace Internal
 } // namespace Qt4ProjectManager

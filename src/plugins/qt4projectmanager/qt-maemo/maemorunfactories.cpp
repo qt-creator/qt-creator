@@ -35,6 +35,7 @@
 #include "maemorunfactories.h"
 
 #include "maemoconstants.h"
+#include "maemodebugsupport.h"
 #include "maemorunconfiguration.h"
 #include "maemoruncontrol.h"
 
@@ -171,7 +172,7 @@ RunControl* MaemoRunControlFactory::create(RunConfiguration *runConfig,
         || mode == ProjectExplorer::Constants::DEBUGMODE);
     if (mode == ProjectExplorer::Constants::RUNMODE)
         return new MaemoRunControl(rc);
-    return new MaemoDebugRunControl(rc);
+    return MaemoDebugSupport::createDebugRunControl(rc);
 }
 
 QString MaemoRunControlFactory::displayName() const
