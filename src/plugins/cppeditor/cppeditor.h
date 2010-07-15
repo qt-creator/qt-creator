@@ -285,6 +285,8 @@ private:
     QTextCharFormat m_occurrencesUnusedFormat;
     QTextCharFormat m_occurrenceRenameFormat;
     QTextCharFormat m_typeFormat;
+    QTextCharFormat m_localFormat;
+    QTextCharFormat m_fieldFormat;
     QTextCharFormat m_keywordFormat;
 
     QList<QTextEdit::ExtraSelection> m_renameSelections;

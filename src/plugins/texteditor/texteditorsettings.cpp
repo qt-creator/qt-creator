@@ -126,6 +126,8 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     formatDescriptions.append(FormatDescription(QLatin1String(C_NUMBER), tr("Number"), Qt::darkBlue));
     formatDescriptions.append(FormatDescription(QLatin1String(C_STRING), tr("String"), Qt::darkGreen));
     formatDescriptions.append(FormatDescription(QLatin1String(C_TYPE), tr("Type"), Qt::darkMagenta));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_LOCAL), tr("Local"), Qt::darkBlue));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_FIELD), tr("Field"), Qt::darkRed));
     formatDescriptions.append(FormatDescription(QLatin1String(C_KEYWORD), tr("Keyword"), Qt::darkYellow));
     formatDescriptions.append(FormatDescription(QLatin1String(C_OPERATOR), tr("Operator")));
     formatDescriptions.append(FormatDescription(QLatin1String(C_PREPROCESSOR), tr("Preprocessor"), Qt::darkBlue));

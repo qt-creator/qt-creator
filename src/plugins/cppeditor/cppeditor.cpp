@@ -898,12 +898,6 @@ void CPPEditor::highlightTypeUsages(int from, int to)
     Q_ASSERT(!chunks.isEmpty());
     QTextBlock b = doc->findBlockByNumber(m_nextHighlightBlockNumber);
 
-    QTextCharFormat localUseFormat;
-    localUseFormat.setForeground(Qt::darkBlue); // ### hardcoded
-
-    QTextCharFormat memberUseFormat;
-    memberUseFormat.setForeground(Qt::darkRed); // ### hardcoded
-
     QMapIterator<int, QVector<SemanticInfo::Use> > it(chunks);
     while (b.isValid() && it.hasNext()) {
         it.next();
@@ -926,11 +920,11 @@ void CPPEditor::highlightTypeUsages(int from, int to)
                 break;
 
             case SemanticInfo::Use::Field:
-                formatRange.format = memberUseFormat;
+                formatRange.format = m_fieldFormat;
                 break;
 
             case SemanticInfo::Use::Local:
-                formatRange.format = localUseFormat;
+                formatRange.format = m_localFormat;
                 break;
 
             default:
@@ -1641,7 +1635,6 @@ void CPPEditor::setFontSettings(const TextEditor::FontSettings &fs)
 
     const QVector<QTextCharFormat> formats = fs.toTextCharFormats(categories);
     highlighter->setFormats(formats.constBegin(), formats.constEnd());
-    highlighter->rehighlight();
 
     m_occurrencesFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES));
     m_occurrencesUnusedFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES_UNUSED));
@@ -1651,11 +1644,23 @@ void CPPEditor::setFontSettings(const TextEditor::FontSettings &fs)
     m_occurrencesUnusedFormat.setToolTip(tr("Unused variable"));
     m_occurrenceRenameFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES_RENAME));
     m_typeFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_TYPE));
+    m_localFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_LOCAL));
+    m_fieldFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_FIELD));
     m_keywordFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_KEYWORD));
 
     // only set the background, we do not want to modify foreground properties set by the syntax highlighter or the link
     m_occurrencesFormat.clearForeground();
     m_occurrenceRenameFormat.clearForeground();
+
+    // Clear all additional formats since they may have changed
+    QTextBlock b = document()->firstBlock();
+    while (b.isValid()) {
+        highlighter->setExtraAdditionalFormats(b, QList<QTextLayout::FormatRange>());
+        b = b.next();
+    }
+
+    // This also triggers an update of the additional formats
+    highlighter->rehighlight();
 }
 
 void CPPEditor::setTabSettings(const TextEditor::TabSettings &ts)
