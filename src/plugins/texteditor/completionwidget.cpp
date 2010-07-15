@@ -492,19 +492,7 @@ void CompletionListView::setQuickFix(bool quickFix)
 void CompletionListView::setCompletionItems(const QList<TextEditor::CompletionItem> &completionItems)
 {
     m_model->setItems(completionItems);
-
-    // Select the first of the most relevant completion items
-    int relevance = INT_MIN;
-    int mostRelevantIndex = 0;
-    for (int i = 0; i < completionItems.size(); ++i) {
-        const CompletionItem &item = completionItems.at(i);
-        if (item.relevance > relevance) {
-            relevance = item.relevance;
-            mostRelevantIndex = i;
-        }
-    }
-
-    setCurrentIndex(m_model->index(mostRelevantIndex));
+    setCurrentIndex(m_model->index(0)); // Select the first item
 }
 
 void CompletionListView::closeList(const QModelIndex &index)

@@ -54,8 +54,7 @@ class CompletionItem
 {
 public:
     CompletionItem(ICompletionCollector *collector = 0)
-        : relevance(0),
-          duplicateCount(0),
+        : duplicateCount(0),
           order(0),
           originalIndex(0),
           collector(collector),
@@ -69,7 +68,6 @@ public:
     QString details;
     QIcon icon;
     QVariant data;
-    int relevance;
     int duplicateCount;
     int order;
     int originalIndex;

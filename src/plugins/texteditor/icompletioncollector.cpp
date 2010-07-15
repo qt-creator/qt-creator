@@ -207,20 +207,9 @@ void ICompletionCollector::filter(const QList<TextEditor::CompletionItem> &items
     }
     const QRegExp regExp(keyRegExp);
 
-    const bool hasKey = !key.isEmpty();
-    foreach (TextEditor::CompletionItem item, items) {
-        if (regExp.indexIn(item.text) == 0) {
-            if (hasKey) {
-                if (item.text.startsWith(key, Qt::CaseSensitive)) {
-                    item.relevance = 2;
-                } else if (caseSensitivity != TextEditor::CaseSensitive
-                           && item.text.startsWith(key, Qt::CaseInsensitive)) {
-                    item.relevance = 1;
-                }
-            }
+    foreach (TextEditor::CompletionItem item, items)
+        if (regExp.indexIn(item.text) == 0)
             filteredItems->append(item);
-        }
-    }
 }
 
 bool ICompletionCollector::shouldRestartCompletion()
