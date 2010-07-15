@@ -215,6 +215,7 @@ void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
 
         Delta delta;
         m_debugIds = delta(m_previousDoc, doc,  m_debugIds);
+        m_initialTable[doc->fileName()] = m_debugIds;
 
         m_previousDoc = doc;
     }
