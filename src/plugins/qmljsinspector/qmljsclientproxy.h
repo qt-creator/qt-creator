@@ -38,10 +38,6 @@ QT_FORWARD_DECLARE_CLASS(QDeclarativeEngineDebug)
 QT_FORWARD_DECLARE_CLASS(QDeclarativeDebugConnection)
 QT_FORWARD_DECLARE_CLASS(QDeclarativeDebugExpressionQuery)
 
-namespace Debugger {
-    class DebuggerRunControl;
-}
-
 namespace QmlJSInspector {
 namespace Internal {
 
