@@ -571,6 +571,7 @@ bool CdbEnginePrivate::endInferior(bool detachOnly, QString *errorMessage)
     case InferiorStopRequested:
     case InferiorStopOk:
     case InferiorStopFailed:
+    case InferiorShutdownRequested:
         break;
     default:
         return true;
