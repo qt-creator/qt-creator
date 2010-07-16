@@ -34,6 +34,8 @@
 #include "qmljslivetextpreview.h"
 #include "qmljsprivateapi.h"
 
+#include <qmljseditor/qmljseditorconstants.h>
+
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsdocument.h>
 
@@ -128,12 +130,6 @@ Inspector::Inspector(QObject *parent)
     QWidget *contextWidget = 0;
     m_context = new InspectorContext(contextWidget);
 
-    m_textPreview = new QmlJSLiveTextPreview(this);
-
-    connect(m_textPreview,
-            SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
-            SLOT(changeSelectedItems(QList<QDeclarativeDebugObjectReference>)));
-
     connect(m_clientProxy, SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
             SLOT(setSelectedItemsByObjectReference(QList<QDeclarativeDebugObjectReference>)));
 
@@ -161,6 +157,9 @@ void Inspector::disconnectWidgets()
 
 void Inspector::disconnected()
 {
+    Core::EditorManager *em = Core::EditorManager::instance();
+    disconnect(em, SIGNAL(editorAboutToClose(Core::IEditor*)), this, SLOT(removePreviewForEditor(Core::IEditor*)));
+    disconnect(em, SIGNAL(editorOpened(Core::IEditor*)), this, SLOT(createPreviewForEditor(Core::IEditor*)));
     resetViews();
     updateMenuActions();
 }
@@ -201,7 +200,7 @@ void Inspector::pollInspector()
     const quint16 port = quint16(m_runConfigurationDebugData.serverPort);
 
     if (m_clientProxy->connectToViewer(host, port)) {
-        m_textPreview->updateDocuments();
+        initializeDocuments();
         m_connectionTimer->stop();
         m_connectionAttempts = 0;
     } else if (m_connectionAttempts == MaxConnectionAttempts) {
@@ -213,6 +212,57 @@ void Inspector::pollInspector()
                               tr("Could not connect to debugger server.") );
     }
     updateMenuActions();
+}
+
+QmlJS::ModelManagerInterface *Inspector::modelManager()
+{
+    return ExtensionSystem::PluginManager::instance()->getObject<QmlJS::ModelManagerInterface>();
+}
+
+void Inspector::initializeDocuments()
+{
+    if (!modelManager())
+        return;
+
+    QmlJS::Snapshot snapshot = modelManager()->snapshot();
+    Core::EditorManager *em = Core::EditorManager::instance();
+    connect(em, SIGNAL(editorAboutToClose(Core::IEditor*)), SLOT(removePreviewForEditor(Core::IEditor*)));
+    connect(em, SIGNAL(editorOpened(Core::IEditor*)), SLOT(createPreviewForEditor(Core::IEditor*)));
+
+    // initial update
+    foreach (QmlJS::Document::Ptr doc, snapshot) {
+        QmlJSLiveTextPreview *preview = new QmlJSLiveTextPreview(doc, this);
+        connect(preview,
+                SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
+                SLOT(changeSelectedItems(QList<QDeclarativeDebugObjectReference>)));
+        m_textPreviews.insert(doc->fileName(), preview);
+    }
+}
+
+void Inspector::removePreviewForEditor(Core::IEditor *oldEditor)
+{
+    if (QmlJSLiveTextPreview *preview = m_textPreviews.value(oldEditor->file()->fileName())) {
+        preview->unassociateEditor(oldEditor);
+    }
+}
+
+void Inspector::createPreviewForEditor(Core::IEditor *newEditor)
+{
+    if (newEditor && newEditor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
+        QString filename = newEditor->file()->fileName();
+        QmlJS::Document::Ptr doc = modelManager()->snapshot().document(filename);
+
+        if (m_textPreviews.contains(filename)) {
+            m_textPreviews.value(filename)->associateEditor(newEditor);
+        } else {
+
+            QmlJSLiveTextPreview *preview = new QmlJSLiveTextPreview(doc, this);
+            connect(preview,
+                    SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
+                    SLOT(changeSelectedItems(QList<QDeclarativeDebugObjectReference>)));
+            m_textPreviews.insert(newEditor->file()->fileName(), preview);
+        }
+    }
 }
 
 bool Inspector::setDebugConfigurationDataFromProject(ProjectExplorer::Project *projectToDebug)

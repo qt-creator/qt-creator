@@ -113,6 +113,21 @@ bool ClientProxy::connectToViewer(const QString &host, quint16 port)
     return true;
 }
 
+void ClientProxy::refreshObjectTree()
+{
+    if (!m_objectTreeQuery) {
+        m_objectTreeQuery = m_client->queryObjectRecursive(m_rootObject, this);
+
+        if (!m_objectTreeQuery->isWaiting()) {
+            objectTreeFetched();
+        } else {
+            connect(m_objectTreeQuery,
+                    SIGNAL(stateChanged(QDeclarativeDebugQuery::State)),
+                    SLOT(objectTreeFetched(QDeclarativeDebugQuery::State)));
+        }
+    }
+}
+
 void ClientProxy::onCurrentObjectsChanged(const QList<int> &debugIds)
 {
     QList<QDeclarativeDebugObjectReference> selectedItems;
@@ -126,10 +141,8 @@ void ClientProxy::onCurrentObjectsChanged(const QList<int> &debugIds)
             // a) get some item and know its parent (although that's possible by adding it to a separate plugin)
             // b) add children to part of an existing tree.
             // So the only choice that remains is to update the complete tree when we have an unknown debug id.
-            if (!m_objectTreeQuery) {
+            if (!m_objectTreeQuery)
                 m_objectTreeQuery = m_client->queryObjectRecursive(m_rootObject, this);
-            }
-
         }
     }
 

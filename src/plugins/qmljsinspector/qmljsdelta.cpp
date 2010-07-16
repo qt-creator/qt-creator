@@ -300,6 +300,7 @@ void Delta::insert(UiObjectMember *member, UiObjectMember *parentMember, const Q
 
         foreach(const QDeclarativeDebugObjectReference &ref, debugReferences) {
             if (ref.debugId() != -1) {
+                _referenceRefreshRequired = true;
                 ClientProxy::instance()->createQmlObject(qmlText, ref, importList, doc->fileName());
             }
         }
@@ -395,6 +396,7 @@ Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::P
     QHash< UiObjectMember*, QList<QDeclarativeDebugObjectReference > > newDebuggIds;
 
     Map M = Mapping(doc1, doc2);
+    _referenceRefreshRequired = false;
 
     BuildParentHash parents2;
     doc2->qmlProgram()->accept(&parents2);
@@ -634,4 +636,9 @@ Document::Ptr Delta::previousDocument() const
 QList<Delta::Change> Delta::changes() const
 {
     return _changes;
+}
+
+bool Delta::referenceRefreshRequired() const
+{
+    return _referenceRefreshRequired;
 }

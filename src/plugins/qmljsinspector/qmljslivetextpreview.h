@@ -33,15 +33,14 @@ class QmlJSLiveTextPreview : public QObject
     Q_OBJECT
 
 public:
-    explicit QmlJSLiveTextPreview(QObject *parent = 0);
+    explicit QmlJSLiveTextPreview(QmlJS::Document::Ptr doc, QObject *parent = 0);
     static QmlJS::ModelManagerInterface *modelManager();
-    void updateDocuments();
+    //void updateDocuments();
 
+    void associateEditor(Core::IEditor *editor);
+    void unassociateEditor(Core::IEditor *editor);
     void setActiveObject(const QDeclarativeDebugObjectReference &object);
     void mapObjectToQml(const QDeclarativeDebugObjectReference &object);
-
-    QHash<QString, QHash<QmlJS::AST::UiObjectMember *, QList< QDeclarativeDebugObjectReference> > > m_initialTable;
-    QHash< QmlJS::AST::UiObjectMember*, QList<QDeclarativeDebugObjectReference > > m_debugIds;
 
 signals:
     void selectedItemsChanged(const QList<QDeclarativeDebugObjectReference> &objects);
@@ -57,10 +56,13 @@ private:
     QVariant castToLiteral(const QString &expression, QmlJS::AST::UiScriptBinding *scriptBinding);
 
 private:
-    QmlJS::Document::Ptr m_previousDoc;
+    QHash<QmlJS::AST::UiObjectMember*, QList<QDeclarativeDebugObjectReference> > m_initialTable;
+    QHash<QmlJS::AST::UiObjectMember*, QList<QDeclarativeDebugObjectReference> > m_debugIds;
 
-    QmlJS::Snapshot m_snapshot;
-    QWeakPointer<QmlJSEditor::Internal::QmlJSTextEditor> m_currentEditor;
+    QmlJS::Document::Ptr m_previousDoc;
+    QString m_filename;
+
+    QList<QWeakPointer<QmlJSEditor::Internal::QmlJSTextEditor> > m_editors;
 
 };
 

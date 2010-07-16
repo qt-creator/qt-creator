@@ -54,6 +54,10 @@ namespace Debugger {
     class DebuggerRunControl;
 }
 
+namespace QmlJS {
+    class ModelManagerInterface;
+}
+
 namespace QmlJSInspector {
 namespace Internal {
 
@@ -117,6 +121,9 @@ private slots:
     void disconnectWidgets();
     void disconnected();
 
+    void removePreviewForEditor(Core::IEditor *newEditor);
+    void createPreviewForEditor(Core::IEditor *newEditor);
+
 private:
     Debugger::DebuggerRunControl *createDebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig,
                                                            const QString &executableFile = QString(),
@@ -131,6 +138,9 @@ private:
     bool addQuotesForData(const QVariant &value) const;
     void resetViews();
 
+    QmlJS::ModelManagerInterface *modelManager();
+    void initializeDocuments();
+
 private:
     QWeakPointer<QDeclarativeEngineDebug> m_client;
     QmlProjectManager::QmlProjectRunConfigurationDebugData m_runConfigurationDebugData;
@@ -144,7 +154,7 @@ private:
     ClientProxy *m_clientProxy;
 
     // Qml/JS integration
-    QmlJSLiveTextPreview *m_textPreview;
+    QHash<QString, QmlJSLiveTextPreview *> m_textPreviews;
 };
 
 } // Internal

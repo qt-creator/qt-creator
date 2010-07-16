@@ -65,38 +65,56 @@ void MapObjectWithDebugReference::processRecursive(const QDeclarativeDebugObject
     }
 }
 
-QmlJSLiveTextPreview::QmlJSLiveTextPreview(QObject *parent) :
-    QObject(parent)
-{
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
-    ClientProxy *clientProxy = ClientProxy::instance();
-    connect(editorManager->instance(),
-            SIGNAL(currentEditorChanged(Core::IEditor*)),
-            SLOT(setEditor(Core::IEditor*)));
-    connect(clientProxy,
-            SIGNAL(objectTreeUpdated(QDeclarativeDebugObjectReference)),
-            SLOT(updateDebugIds(QDeclarativeDebugObjectReference)));
-}
-
 QmlJS::ModelManagerInterface *QmlJSLiveTextPreview::modelManager()
 {
     return ExtensionSystem::PluginManager::instance()->getObject<QmlJS::ModelManagerInterface>();
 }
 
-void QmlJSLiveTextPreview::updateDocuments()
+void QmlJSLiveTextPreview::associateEditor(Core::IEditor *editor)
 {
-    if (!modelManager())
-        return;
-
-    m_snapshot = modelManager()->snapshot();
-    setEditor(Core::EditorManager::instance()->currentEditor());
-
-    // initial update
-    foreach (QmlJS::Document::Ptr doc, m_snapshot) {
-        documentChanged(doc);
+    if (editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
+        QmlJSEditor::Internal::QmlJSTextEditor* qmljsEditor = qobject_cast<QmlJSEditor::Internal::QmlJSTextEditor*>(editor->widget());
+        if (qmljsEditor && !m_editors.contains(qmljsEditor)) {
+            m_editors << qmljsEditor;
+            connect(qmljsEditor,
+                    SIGNAL(selectedElementsChanged(QList<int>,QString)),
+                    SLOT(changeSelectedElements(QList<int>,QString)));
+        }
     }
+}
+
+void QmlJSLiveTextPreview::unassociateEditor(Core::IEditor *oldEditor)
+{
+    if (oldEditor && oldEditor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
+        QmlJSEditor::Internal::QmlJSTextEditor* qmljsEditor = qobject_cast<QmlJSEditor::Internal::QmlJSTextEditor*>(oldEditor->widget());
+        if (qmljsEditor && m_editors.contains(qmljsEditor)) {
+            m_editors.removeOne(qmljsEditor);
+            disconnect(qmljsEditor,
+                       SIGNAL(selectedElementsChanged(QList<int>,QString)),
+                       this,
+                       SLOT(changeSelectedElements(QList<int>,QString)));
+        }
+    }
+}
+
+QmlJSLiveTextPreview::QmlJSLiveTextPreview(QmlJS::Document::Ptr doc, QObject *parent) :
+    QObject(parent), m_previousDoc(doc)
+{
+    ClientProxy *clientProxy = ClientProxy::instance();
+    m_filename = doc->fileName();
+
     connect(modelManager(), SIGNAL(documentChangedOnDisk(QmlJS::Document::Ptr)),
             SLOT(documentChanged(QmlJS::Document::Ptr)));
+
+    connect(clientProxy,
+            SIGNAL(objectTreeUpdated(QDeclarativeDebugObjectReference)),
+            SLOT(updateDebugIds(QDeclarativeDebugObjectReference)));
+
+    Core::EditorManager *em = Core::EditorManager::instance();
+    QList<Core::IEditor *> editors = em->editorsForFileName(m_filename);
+
+    foreach(Core::IEditor *editor, editors)
+        associateEditor(editor);
 }
 
 QList<QDeclarativeDebugObjectReference > QmlJSLiveTextPreview::objectReferencesForOffset(quint32 offset) const
@@ -116,11 +134,8 @@ QList<QDeclarativeDebugObjectReference > QmlJSLiveTextPreview::objectReferencesF
 
 void QmlJSLiveTextPreview::changeSelectedElements(QList<int> offsets, const QString &wordAtCursor)
 {
-    if (!m_currentEditor || !m_previousDoc)
+    if (m_editors.isEmpty() || !m_previousDoc)
         return;
-
-    if (m_debugIds.isEmpty())
-        m_debugIds = m_initialTable.value(m_previousDoc->fileName());
 
     ClientProxy *clientProxy = ClientProxy::instance();
 
@@ -160,47 +175,26 @@ void QmlJSLiveTextPreview::changeSelectedElements(QList<int> offsets, const QStr
         emit selectedItemsChanged(selectedReferences);
 }
 
-void QmlJSLiveTextPreview::setEditor(Core::IEditor *editor)
-{
-    if (!m_currentEditor.isNull()) {
-        disconnect(m_currentEditor.data(), SIGNAL(selectedElementsChanged(QList<int>, QString)), this, SLOT(changeSelectedElements(QList<int>, QString)));
-        m_currentEditor.clear();
-        m_previousDoc.clear();
-        m_debugIds.clear();
-    }
-
-    if (editor) {
-        m_currentEditor = qobject_cast<QmlJSEditor::Internal::QmlJSTextEditor*>(editor->widget());
-        if (m_currentEditor) {
-            connect(m_currentEditor.data(), SIGNAL(selectedElementsChanged(QList<int>, QString)), SLOT(changeSelectedElements(QList<int>, QString)));
-            m_previousDoc = m_snapshot.document(editor->file()->fileName());
-            m_debugIds = m_initialTable.value(editor->file()->fileName());
-        }
-    }
-}
-
 void QmlJSLiveTextPreview::updateDebugIds(const QDeclarativeDebugObjectReference &rootReference)
 {
-    QmlJS::ModelManagerInterface *m = QmlJS::ModelManagerInterface::instance();
-    Snapshot snapshot = m->snapshot();
-    QHash<QString, QHash<UiObjectMember *, QList< QDeclarativeDebugObjectReference> > > allDebugIds;
-    foreach(const Document::Ptr &doc, snapshot) {
-        if (!doc->qmlProgram())
-            continue;
-        MapObjectWithDebugReference visitor;
-        visitor.root = rootReference;
-        QString filename = doc->fileName();
-        visitor.filename = filename;
-        doc->qmlProgram()->accept(&visitor);
-        allDebugIds[filename] = visitor.result;
-    }
+    QmlJS::Document::Ptr doc = m_previousDoc;
 
-    m_initialTable = allDebugIds;
-    m_debugIds.clear();
+    if (!doc->qmlProgram())
+        return;
+
+    MapObjectWithDebugReference visitor;
+    visitor.root = rootReference;
+    visitor.filename = doc->fileName();
+    doc->qmlProgram()->accept(&visitor);
+
+    m_debugIds = visitor.result;
 }
 
 void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
-{    
+{
+    if (doc->fileName() != m_previousDoc->fileName())
+        return;
+
     Core::ICore *core = Core::ICore::instance();
     const int dbgcontext = core->uniqueIDManager()->uniqueIdentifier(Debugger::Constants::C_DEBUGMODE);
 
@@ -210,12 +204,11 @@ void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
     if (doc && m_previousDoc && doc->fileName() == m_previousDoc->fileName()
         && doc->qmlProgram() && m_previousDoc->qmlProgram())
     {
-        if (m_debugIds.isEmpty())
-            m_debugIds = m_initialTable.value(doc->fileName());
-
         Delta delta;
-        m_debugIds = delta(m_previousDoc, doc,  m_debugIds);
-        m_initialTable[doc->fileName()] = m_debugIds;
+        m_debugIds = delta(m_previousDoc, doc, m_debugIds);
+
+        if (delta.referenceRefreshRequired())
+            ClientProxy::instance()->refreshObjectTree();
 
         m_previousDoc = doc;
     }

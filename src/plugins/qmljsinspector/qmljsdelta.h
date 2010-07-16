@@ -64,6 +64,14 @@ public:
     QmlJS::Document::Ptr previousDocument() const;
 
 public:
+    bool referenceRefreshRequired() const;
+    static bool compare(UiSourceElement *source, UiSourceElement *other);
+    static bool compare(QmlJS::AST::UiQualifiedId *id, QmlJS::AST::UiQualifiedId *other);
+    static QmlJS::AST::UiObjectMemberList *objectMembers(QmlJS::AST::UiObjectMember *object);
+
+private:
+    void insert(UiObjectMember *member, UiObjectMember *parentMember,
+                const QList<QDeclarativeDebugObjectReference> &debugReferences, const Document::Ptr &doc);
     void updateScriptBinding(const QDeclarativeDebugObjectReference &objectReference,
                              QmlJS::AST::UiScriptBinding *scriptBinding,
                              const QString &propertyName,
@@ -72,14 +80,6 @@ public:
                             UiScriptBinding *scriptBinding,
                             const QString &methodName,
                             const QString &methodBody);
-
-    static bool compare(UiSourceElement *source, UiSourceElement *other);
-    static bool compare(QmlJS::AST::UiQualifiedId *id, QmlJS::AST::UiQualifiedId *other);
-    static QmlJS::AST::UiObjectMemberList *objectMembers(QmlJS::AST::UiObjectMember *object);
-
-private:
-    void insert(UiObjectMember *member, UiObjectMember *parentMember,
-                const QList<QDeclarativeDebugObjectReference> &debugReferences, const Document::Ptr &doc);
 
     void update(UiObjectDefinition* oldObject, const QmlJS::Document::Ptr& oldDoc,
                 UiObjectDefinition* newObject, const QmlJS::Document::Ptr& newDoc,
@@ -90,6 +90,7 @@ private:
     QmlJS::Document::Ptr _previousDoc;
     QList<Change> _changes;
     QUrl _url;
+    bool _referenceRefreshRequired;
 };
 
 } // namespace Internal
