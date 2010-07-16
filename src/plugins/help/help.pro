@@ -26,6 +26,7 @@ HEADERS += \
     openpagesmodel.h \
     openpagesswitcher.h \
     openpageswidget.h \
+    remotehelpfilter.h \
     searchwidget.h \
     xbelsupport.h
 
@@ -46,12 +47,14 @@ SOURCES += \
     openpagesmodel.cpp \
     openpagesswitcher.cpp \
     openpageswidget.cpp \
+    remotehelpfilter.cpp \
     searchwidget.cpp \
     xbelsupport.cpp
 
 FORMS += docsettingspage.ui \
     filtersettingspage.ui \
-    generalsettingspage.ui
+    generalsettingspage.ui \
+    remotehelpfilter.ui
 
 RESOURCES += help.qrc
 include(../../shared/help/help.pri)

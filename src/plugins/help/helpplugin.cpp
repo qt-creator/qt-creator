@@ -44,6 +44,7 @@
 #include "indexwindow.h"
 #include "openpagesmanager.h"
 #include "openpagesmodel.h"
+#include "remotehelpfilter.h"
 #include "searchwidget.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -298,6 +299,11 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     HelpIndexFilter *helpIndexFilter = new HelpIndexFilter();
     addAutoReleasedObject(helpIndexFilter);
     connect(helpIndexFilter, SIGNAL(linkActivated(QUrl)), this,
+        SLOT(switchToHelpMode(QUrl)));
+
+    RemoteHelpFilter *remoteHelpFilter = new RemoteHelpFilter();
+    addAutoReleasedObject(remoteHelpFilter);
+    connect(remoteHelpFilter, SIGNAL(linkActivated(QUrl)), this,
         SLOT(switchToHelpMode(QUrl)));
 
     QDesktopServices::setUrlHandler("qthelp", this, "handleHelpRequest");
