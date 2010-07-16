@@ -35,14 +35,10 @@
 #include "qmloutlinemodel.h"
 
 #include <qmljs/qmljsindenter.h>
-#include <qmljs/qmljsinterpreter.h>
-#include <qmljs/qmljsbind.h>
 #include <qmljs/qmljscheck.h>
-#include <qmljs/qmljsevaluate.h>
 #include <qmljs/qmljsdocument.h>
-#include <qmljs/qmljslink.h>
-#include <qmljs/qmljsscopebuilder.h>
 #include <qmljs/qmljsicontextpane.h>
+#include <qmljs/qmljslookupcontext.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsengine_p.h>
@@ -1230,14 +1226,9 @@ TextEditor::BaseTextEditor::Link QmlJSTextEditor::findLinkAt(const QTextCursor &
 
     AST::Node *node = semanticInfo.nodeUnderCursor(cursorPosition);
 
-    Interpreter::Engine interp;
-    Interpreter::Context context(&interp);
-    QmlJS::Link linkedSnapshot(&context, semanticInfo.document, semanticInfo.snapshot, m_modelManager->importPaths());
-    ScopeBuilder scopeBuilder(semanticInfo.document, &context);
-    scopeBuilder.push(semanticInfo.astPath(cursorPosition));
+    LookupContext::Ptr lookupContext = LookupContext::create(semanticInfo.document, semanticInfo.snapshot, semanticInfo.astPath(cursorPosition));
+    const Interpreter::Value *value = lookupContext->evaluate(node);
 
-    Evaluate check(&context);
-    const Interpreter::Value *value = check.reference(node);
     QString fileName;
     int line = 0, column = 0;
 
