@@ -88,10 +88,6 @@ private:
     typedef QPair<QString,QString> ElementType;
     bool visit(AST::UiObjectDefinition *objDef)
     {
-        if (!validElement(objDef)) {
-            return true;
-        }
-
         AST::SourceLocation location = getLocation(objDef);
 
         const QString typeName = asString(objDef->qualifiedTypeNameId);
@@ -107,11 +103,8 @@ private:
         return true;
     }
 
-    void endVisit(AST::UiObjectDefinition *objDef)
+    void endVisit(AST::UiObjectDefinition * /*objDef*/)
     {
-        if (!validElement(objDef)) {
-            return;
-        }
         m_model->leaveElement();
     }
 
@@ -142,11 +135,6 @@ private:
     void endVisit(AST::UiPublicMember * /*publicMember*/)
     {
         m_model->leaveProperty();
-    }
-
-    bool validElement(AST::UiObjectDefinition *objDef) {
-        // For 'Rectangle { id }', id is parsed as UiObjectDefinition ... Filter this out.
-        return objDef->qualifiedTypeNameId->name->asString().at(0).isUpper();
     }
 
     QIcon getIcon(AST::UiObjectDefinition *objDef) {
