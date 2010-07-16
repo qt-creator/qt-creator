@@ -29,7 +29,7 @@ extract.commands += \
     $$XMLPATTERNS -output $$CUSTOMWIZARD_TR_H -param files=$$CUSTOMWIZARD_FILES $$PWD/extract-customwizards.xq
 QMAKE_EXTRA_TARGETS += extract
 
-files = $$files($$PWD/*_??.ts)
+files = $$files($$PWD/*_??.ts) $$PWD/qtcreator_untranslated.ts
 for(file, files) {
     lang = $$replace(file, .*_(.*)\\.ts, \\1)
     v = ts-$${lang}.commands
@@ -44,7 +44,8 @@ QMAKE_EXTRA_TARGETS += ts-all
 
 ts.commands = \
     @echo \"The \'ts\' target has been removed in favor of more fine-grained targets.\" && \
-    echo \"Use \'ts-<lang>\' instead.\"
+    echo \"Use \'ts-<lang>\' instead. To add a language, use \'ts-untranslated\',\" && \
+    echo \"rename the file and re-run \'qmake\'.\"
 QMAKE_EXTRA_TARGETS += ts
 
 TEMPLATE = app

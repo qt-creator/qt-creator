@@ -54,6 +54,7 @@ Thumbs.db
 
 # translation related:
 share/qtcreator/translations/*_tr.h
+share/qtcreator/translations/qtcreator_untranslated.ts
 
 # Directories to ignore
 # ---------------------
