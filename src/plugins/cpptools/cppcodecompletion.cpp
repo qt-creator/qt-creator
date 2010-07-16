@@ -1175,11 +1175,13 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &r
 
             if (NamedType *namedTy = ty->asNamedType()) {
                 if (ClassOrNamespace *b = context.lookupType(namedTy->name(), scope)) {
-                    foreach (Symbol *overload, b->lookup(functionCallOp)) {
+                    foreach (const LookupItem &r, b->lookup(functionCallOp)) {
+                        Symbol *overload = r.declaration();
                         FullySpecifiedType overloadTy = overload->type().simplified();
 
-                        if (Function *funTy = overloadTy->asFunctionType())
+                        if (Function *funTy = overloadTy->asFunctionType()) {
                             functions.append(funTy);
+                        }
                     }
                 }
             }

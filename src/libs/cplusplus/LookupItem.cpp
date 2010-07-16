@@ -44,11 +44,16 @@ uint CPlusPlus::qHash(const CPlusPlus::LookupItem &key)
 }
 
 LookupItem::LookupItem()
-    : _scope(0), _declaration(0)
+    : _scope(0), _declaration(0), _binding(0)
 { }
 
 FullySpecifiedType LookupItem::type() const
-{ return _type; }
+{
+    if (! _type && _declaration)
+        return _declaration->type();
+
+    return _type;
+}
 
 void LookupItem::setType(const FullySpecifiedType &type)
 { _type = type; }
@@ -70,9 +75,16 @@ Scope *LookupItem::scope() const
 void LookupItem::setScope(Scope *scope)
 { _scope = scope; }
 
+ClassOrNamespace *LookupItem::binding() const
+{ return _binding; }
+
+void LookupItem::setBinding(ClassOrNamespace *binding)
+{ _binding = binding; }
+
 bool LookupItem::operator == (const LookupItem &other) const
 {
-    if (_type == other._type && _declaration == other._declaration && _scope == other._scope)
+    if (_type == other._type && _declaration == other._declaration && _scope == other._scope
+            && _binding == other._binding)
         return true;
 
     return false;

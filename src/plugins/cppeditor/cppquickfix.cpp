@@ -920,7 +920,8 @@ public:
                 ClassOrNamespace *b = context.lookupType(function);
                 if (b) {
                     // Do we have a tr method?
-                    foreach(Symbol *s, b->find(trName)) {
+                    foreach(const LookupItem &r, b->find(trName)) {
+                        Symbol *s = r.declaration();
                         if (s->type()->isFunctionType()) {
                             m_option = useTr;
                             // no context required for tr
@@ -1302,9 +1303,10 @@ protected:
             if (Enum *e = result.declaration()->type()->asEnumType())
                 return e;
             if (NamedType *namedType = fst->asNamedType()) {
-                QList<Symbol *> candidates =
+                QList<LookupItem> candidates =
                         typeOfExpression.context().lookup(namedType->name(), scope);
-                foreach (Symbol *candidate, candidates) {
+                foreach (const LookupItem &r, candidates) {
+                    Symbol *candidate = r.declaration();
                     if (Enum *e = candidate->asEnum()) {
                         return e;
                     }

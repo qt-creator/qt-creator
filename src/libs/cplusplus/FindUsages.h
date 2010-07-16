@@ -74,10 +74,10 @@ protected:
     QString matchingLine(const Token &tk) const;
     Scope *scopeAt(unsigned tokenIndex) const;
 
-    void reportResult(unsigned tokenIndex, const QList<Symbol *> &candidates);
+    void reportResult(unsigned tokenIndex, const QList<LookupItem> &candidates);
     void reportResult(unsigned tokenIndex);
 
-    bool checkCandidates(const QList<Symbol *> &candidates) const;
+    bool checkCandidates(const QList<LookupItem> &candidates) const;
     void checkExpression(unsigned startToken, unsigned endToken);
 
     void ensureNameIsValid(NameAST *ast);

@@ -740,11 +740,12 @@ Symbol *Snapshot::findMatchingDefinition(Symbol *declaration) const
                 continue; // nothing to do
 
             foreach (Function *fun, result) {
-                const QList<Symbol *> declarations = context.lookup(fun->name(), fun->scope());
+                const QList<LookupItem> declarations = context.lookup(fun->name(), fun->scope());
                 if (declarations.isEmpty())
                     continue;
 
-                else if (enclosingType == context.lookupType(declarations.first()))
+                const LookupItem best = declarations.first();
+                if (enclosingType == context.lookupType(best.declaration()))
                     viableFunctions.append(fun);
             }
 

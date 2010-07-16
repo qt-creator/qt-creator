@@ -995,8 +995,9 @@ void CPPEditor::switchDeclarationDefinition()
             LookupContext context(thisDocument, snapshot);
 
             Function *functionDefinition = functionScope->owner()->asFunction();
-            const QList<Symbol *> declarations = context.lookup(functionDefinition->name(), functionDefinition->scope());
-            foreach (Symbol *decl, declarations) {
+            const QList<LookupItem> declarations = context.lookup(functionDefinition->name(), functionDefinition->scope());
+            foreach (const LookupItem &r, declarations) {
+                Symbol *decl = r.declaration();
                 // TODO: check decl.
                 openCppEditorAt(linkToSymbol(decl));
                 break;

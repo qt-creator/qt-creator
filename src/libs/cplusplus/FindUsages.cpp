@@ -124,7 +124,7 @@ Scope *FindUsages::scopeAt(unsigned tokenIndex) const
     return _doc->scopeAt(line, column);
 }
 
-void FindUsages::reportResult(unsigned tokenIndex, const QList<Symbol *> &candidates)
+void FindUsages::reportResult(unsigned tokenIndex, const QList<LookupItem> &candidates)
 {
     if (_processed.contains(tokenIndex))
         return;
@@ -160,11 +160,12 @@ void FindUsages::reportResult(unsigned tokenIndex)
     _references.append(tokenIndex);
 }
 
-bool FindUsages::checkCandidates(const QList<Symbol *> &candidates) const
+bool FindUsages::checkCandidates(const QList<LookupItem> &candidates) const
 {
     if (ClassOrNamespace *c = _context.lookupType(_declSymbol)) {
         for (int i = candidates.size() - 1; i != -1; --i) {
-            Symbol *s = candidates.at(i);
+            const LookupItem &r = candidates.at(i);
+            Symbol *s = r.declaration();
             if (_context.lookupType(s) == c)
                 return true;
         }
@@ -186,7 +187,7 @@ bool FindUsages::visit(MemInitializerAST *ast)
 
         SimpleNameAST *simple = ast->name->asSimpleName();
         if (identifier(simple->identifier_token) == _id) {
-            const QList<Symbol *> candidates = _context.lookup(simple->name, scopeAt(simple->identifier_token));
+            const QList<LookupItem> candidates = _context.lookup(simple->name, scopeAt(simple->identifier_token));
             reportResult(simple->identifier_token, candidates);
         }
     }
@@ -223,14 +224,7 @@ void FindUsages::checkExpression(unsigned startToken, unsigned endToken)
     const QList<LookupItem> results = typeofExpression(expression, scope,
                                                        TypeOfExpression::Preprocess);
 
-    QList<Symbol *> candidates;
-
-    foreach (const LookupItem &r, results) {
-        Symbol *lastVisibleSymbol = r.declaration();
-        candidates.append(lastVisibleSymbol);
-    }
-
-    reportResult(endToken, candidates);
+    reportResult(endToken, results);
 }
 
 bool FindUsages::visit(QualifiedNameAST *ast)
@@ -297,7 +291,7 @@ bool FindUsages::visit(EnumeratorAST *ast)
 {
     const Identifier *id = identifier(ast->identifier_token);
     if (id == _id) {
-        const QList<Symbol *> candidates = _context.lookup(control()->nameId(id), scopeAt(ast->identifier_token));
+        const QList<LookupItem> candidates = _context.lookup(control()->nameId(id), scopeAt(ast->identifier_token));
         reportResult(ast->identifier_token, candidates);
     }
 
@@ -310,7 +304,7 @@ bool FindUsages::visit(SimpleNameAST *ast)
 {
     const Identifier *id = identifier(ast->identifier_token);
     if (id == _id) {
-        const QList<Symbol *> candidates = _context.lookup(ast->name, scopeAt(ast->identifier_token));
+        const QList<LookupItem> candidates = _context.lookup(ast->name, scopeAt(ast->identifier_token));
         reportResult(ast->identifier_token, candidates);
     }
 
@@ -321,7 +315,7 @@ bool FindUsages::visit(DestructorNameAST *ast)
 {
     const Identifier *id = identifier(ast->identifier_token);
     if (id == _id) {
-        const QList<Symbol *> candidates = _context.lookup(ast->name, scopeAt(ast->identifier_token));
+        const QList<LookupItem> candidates = _context.lookup(ast->name, scopeAt(ast->identifier_token));
         reportResult(ast->identifier_token, candidates);
     }
 
@@ -331,7 +325,7 @@ bool FindUsages::visit(DestructorNameAST *ast)
 bool FindUsages::visit(TemplateIdAST *ast)
 {
     if (_id == identifier(ast->identifier_token)) {
-        const QList<Symbol *> candidates = _context.lookup(ast->name, scopeAt(ast->identifier_token));
+        const QList<LookupItem> candidates = _context.lookup(ast->name, scopeAt(ast->identifier_token));
         reportResult(ast->identifier_token, candidates);
     }
 
@@ -406,7 +400,7 @@ bool FindUsages::visit(ObjCSelectorAST *ast)
     if (ast->name) {
         const Identifier *id = ast->name->identifier();
         if (id == _id) {
-            const QList<Symbol *> candidates = _context.lookup(ast->name, scopeAt(ast->firstToken()));
+            const QList<LookupItem> candidates = _context.lookup(ast->name, scopeAt(ast->firstToken()));
             reportResult(ast->firstToken(), candidates);
         }
     }
@@ -440,7 +434,7 @@ bool FindUsages::visit(TypenameTypeParameterAST *ast)
         const Identifier *id = name->name->identifier();
         if (id == _id) {
             unsigned start = startOfTemplateDeclaration(_templateDeclarationStack.back());
-            const QList<Symbol *> candidates = _context.lookup(name->name, scopeAt(start));
+            const QList<LookupItem> candidates = _context.lookup(name->name, scopeAt(start));
             reportResult(ast->name->firstToken(), candidates);
         }
     }
@@ -454,7 +448,7 @@ bool FindUsages::visit(TemplateTypeParameterAST *ast)
         const Identifier *id = name->name->identifier();
         if (id == _id) {
             unsigned start = startOfTemplateDeclaration(_templateDeclarationStack.back());
-            const QList<Symbol *> candidates = _context.lookup(name->name, scopeAt(start));
+            const QList<LookupItem> candidates = _context.lookup(name->name, scopeAt(start));
             reportResult(ast->name->firstToken(), candidates);
         }
     }

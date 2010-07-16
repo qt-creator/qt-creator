@@ -408,11 +408,11 @@ void CheckSymbols::checkName(NameAST *ast)
             const QByteArray id = QByteArray::fromRawData(ident->chars(), ident->size());
             if (_potentialTypes.contains(id)) {
                 Scope *scope = findScope(ast);
-                const QList<Symbol *> candidates = _context.lookup(ast->name, scope);
+                const QList<LookupItem> candidates = _context.lookup(ast->name, scope);
                 addTypeUsage(candidates, ast);
             } else if (_potentialMembers.contains(id)) {
                 Scope *scope = findScope(ast);
-                const QList<Symbol *> candidates = _context.lookup(ast->name, scope);
+                const QList<LookupItem> candidates = _context.lookup(ast->name, scope);
                 addMemberUsage(candidates, ast);
             }
         }
@@ -426,11 +426,11 @@ void CheckSymbols::checkMemberName(NameAST *ast)
             const QByteArray id = QByteArray::fromRawData(ident->chars(), ident->size());
             if (_potentialMembers.contains(id)) {
                 Scope *scope = findScope(ast);
-                const QList<Symbol *> candidates = _context.lookup(ast->name, scope);
+                const QList<LookupItem> candidates = _context.lookup(ast->name, scope);
                 addMemberUsage(candidates, ast);
             } else if (_potentialMembers.contains(id)) {
                 Scope *scope = findScope(ast);
-                const QList<Symbol *> candidates = _context.lookup(ast->name, scope);
+                const QList<LookupItem> candidates = _context.lookup(ast->name, scope);
                 addMemberUsage(candidates, ast);
             }
         }
@@ -500,7 +500,7 @@ bool CheckSymbols::visit(TypenameTypeParameterAST *ast)
             const QByteArray id = QByteArray::fromRawData(templId->chars(), templId->size());
             if (_potentialTypes.contains(id)) {
                 Scope *scope = findScope(_templateDeclarationStack.back());
-                const QList<Symbol *> candidates = _context.lookup(ast->name->name, scope);
+                const QList<LookupItem> candidates = _context.lookup(ast->name->name, scope);
                 addTypeUsage(candidates, ast->name);
             }
         }
@@ -582,7 +582,7 @@ void CheckSymbols::addTypeUsage(ClassOrNamespace *b, NameAST *ast)
     //qDebug() << "added use" << oo(ast->name) << line << column << length;
 }
 
-void CheckSymbols::addTypeUsage(const QList<Symbol *> &candidates, NameAST *ast)
+void CheckSymbols::addTypeUsage(const QList<LookupItem> &candidates, NameAST *ast)
 {
     unsigned startToken = ast->firstToken();
     if (DestructorNameAST *dtor = ast->asDestructorName())
@@ -596,7 +596,8 @@ void CheckSymbols::addTypeUsage(const QList<Symbol *> &candidates, NameAST *ast)
     getTokenStartPosition(startToken, &line, &column);
     const unsigned length = tok.length();
 
-    foreach (Symbol *c, candidates) {
+    foreach (const LookupItem &r, candidates) {
+        Symbol *c = r.declaration();
         if (c->isUsingDeclaration()) // skip using declarations...
             continue;
         else if (c->isUsingNamespaceDirective()) // ... and using namespace directives.
@@ -612,7 +613,7 @@ void CheckSymbols::addTypeUsage(const QList<Symbol *> &candidates, NameAST *ast)
     }
 }
 
-void CheckSymbols::addMemberUsage(const QList<Symbol *> &candidates, NameAST *ast)
+void CheckSymbols::addMemberUsage(const QList<LookupItem> &candidates, NameAST *ast)
 {
     unsigned startToken = ast->firstToken();
     if (DestructorNameAST *dtor = ast->asDestructorName())
@@ -626,8 +627,11 @@ void CheckSymbols::addMemberUsage(const QList<Symbol *> &candidates, NameAST *as
     getTokenStartPosition(startToken, &line, &column);
     const unsigned length = tok.length();
 
-    foreach (Symbol *c, candidates) {
-        if (! c->isDeclaration())
+    foreach (const LookupItem &r, candidates) {
+        Symbol *c = r.declaration();
+        if (! c)
+            continue;
+        else if (! c->isDeclaration())
             continue;
         else if (c->isTypedef())
             continue;
