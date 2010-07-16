@@ -113,9 +113,6 @@ void QmlProjectRunConfiguration::ctor()
         if (!qmlviewerFileInfo.exists()) {
             qWarning() << "QmlProjectRunConfiguration::ctor(): QML Viewer executable does not exist at" << m_qmlViewerDefaultPath;
             m_qmlViewerDefaultPath.clear();
-        } else if (!qmlviewerFileInfo.isFile()) {
-            qWarning() << "QmlProjectRunConfiguration::ctor(): " << m_qmlViewerDefaultPath << " is not a file";
-            m_qmlViewerDefaultPath.clear();
         }
     }
 }
