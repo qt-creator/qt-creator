@@ -43,6 +43,10 @@ ts-all.commands = cd $$IDE_SOURCE_TREE && $$LUPDATE src share/qtcreator/qmldesig
 ts-all.depends = extract
 QMAKE_EXTRA_TARGETS += ts-all
 
+check-ts.commands = (cd $$PWD && perl check-ts.pl)
+check-ts.depends = ts-all
+QMAKE_EXTRA_TARGETS += check-ts
+
 isEqual(QMAKE_DIR_SEP, /) {
     commit-ts.commands = \
         cd $$IDE_SOURCE_TREE; \
