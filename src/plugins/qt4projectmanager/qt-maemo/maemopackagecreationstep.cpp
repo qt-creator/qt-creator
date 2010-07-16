@@ -209,6 +209,7 @@ bool MaemoPackageCreationStep::createPackage()
     }
 
     {
+        QFile::remove(buildDir + QLatin1String("/debian/files"));
         QFile changeLog(buildDir + QLatin1String("/debian/changelog"));
         if (changeLog.open(QIODevice::ReadWrite)) {
             QString content = QString::fromUtf8(changeLog.readAll());
