@@ -48,7 +48,6 @@ signals:
 private slots:
     void changeSelectedElements(QList<int> offsets, const QString &wordAtCursor);
     void documentChanged(QmlJS::Document::Ptr doc);
-    void setEditor(Core::IEditor *editor);
     void updateDebugIds(const QDeclarativeDebugObjectReference &rootReference);
 
 private:
