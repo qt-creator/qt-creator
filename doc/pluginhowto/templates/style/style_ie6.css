@@ -1,0 +1,54 @@
+.indexbox, .indexboxcont, .group {
+  zoom: 1;
+  height: 1%;
+}
+
+.sidebar {
+  margin-left: 3px;
+  width: 199px;
+  overflow: hidden;
+}
+
+.sidebar .search form {
+  position: relative;
+}
+
+.sidebar .search form fieldset {
+  position: absolute;
+  margin-top: -1px;
+}
+
+.sidebar .search form input#searchstring  {
+  border: 1px solid #fff;
+  height: 18px;
+}
+
+.wrap {
+  zoom: 1;
+}
+
+.content,
+.toolbar {
+  zoom: 1;
+  margin-left: -3px;
+  position: relative;
+}
+
+.indexbox {
+  clear: both;
+}
+
+.indexboxcont .section {
+  zoom: 1;
+  float: left;
+}
+
+.indexboxcont .sectionlist {
+  zoom: 1;
+  float: left;
+}
+
+.wrap .toolbar .toolbuttons li {
+  text-indent: 0;
+  margin-right: 8px;
+}
