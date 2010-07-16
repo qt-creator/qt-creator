@@ -59,8 +59,8 @@ void IOutputParser::appendOutputParser(IOutputParser *parser)
 IOutputParser *IOutputParser::takeOutputParserChain()
 {
     IOutputParser *parser = m_parser;
-    disconnect(parser, SIGNAL(addOutput(QString, QTextCharFormat)),
-            this, SLOT(outputAdded(QString, QTextCharFormat)));
+    disconnect(parser, SIGNAL(addOutput(QString,ProjectExplorer::BuildStep::OutputFormat)),
+            this, SLOT(outputAdded(QString,ProjectExplorer::BuildStep::OutputFormat)));
     disconnect(parser, SIGNAL(addTask(ProjectExplorer::Task)),
             this, SLOT(taskAdded(ProjectExplorer::Task)));
     m_parser = 0;
