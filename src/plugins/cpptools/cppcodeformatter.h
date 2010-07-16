@@ -111,7 +111,10 @@ protected:
 
         class_start, // after the 'class' token
         class_open, // Brace that opens a class definition.
+
         member_init_open, // After ':' that starts a member initialization list.
+        member_init, // At the start and after every ',' in member_init_open
+        member_init_paren_open, // After '(' in member_init.
 
         enum_start, // After 'enum'
         enum_open, // Brace that opens a enum declaration.

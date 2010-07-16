@@ -161,7 +161,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             case T_SEMICOLON:   leave(true); break;
             case T_EQUAL:       enter(initializer); break;
             case T_LBRACE:      enter(defun_open); break;
-            case T_COLON:       enter(member_init_open); break;
+            case T_COLON:       enter(member_init_open); enter(member_init); break;
             case T_OPERATOR:    enter(operator_declaration); break;
             } break;
 
@@ -221,7 +221,24 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
         case member_init_open:
             switch (kind) {
             case T_LBRACE:      turnInto(defun_open); break;
-            case T_SEMICOLON:   leave(); continue; // so we don't break completely if it's a bitfield or ternary
+            case T_COMMA:       enter(member_init); break;
+            case T_SEMICOLON:   leave(); continue; // try to recover
+            } break;
+
+        case member_init:
+            switch (kind) {
+            case T_LPAREN:      enter(member_init_paren_open); break;
+            case T_RPAREN:      leave(); break;
+            case T_LBRACE:
+            case T_SEMICOLON:   leave(); continue; // try to recover
+            } break;
+
+        case member_init_paren_open:
+            if (tryExpression())
+                break;
+            switch (kind) {
+            case T_RPAREN:      leave(); continue;
+            case T_SEMICOLON:   leave(); continue; // try to recover
             } break;
 
         case defun_open:
@@ -1036,9 +1053,17 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
         *savedIndentDepth = parentState.savedIndentDepth;
 
         if (firstToken)
-            *indentDepth = tokenPosition + tk.length() + 1;
+            *indentDepth = tokenPosition;
         else
-            *indentDepth = *savedIndentDepth + m_indentSize;
+            *indentDepth = *savedIndentDepth + m_indentSize - 2; // they'll get another 2 from member_init
+        break;
+
+    case member_init:
+        *indentDepth = *savedIndentDepth + 2; // savedIndentDepth is the position of ':'
+        break;
+
+    case member_init_paren_open:
+        *indentDepth = *savedIndentDepth + m_indentSize;
         break;
 
     case case_cont:
@@ -1181,11 +1206,6 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
         if (topState.type == expression && previousState.type == declaration_start) {
             *indentDepth = previousState.savedIndentDepth + m_indentSize;
         } else if (topState.type == ternary_op) {
-            *indentDepth -= 2;
-        }
-        break;
-    case T_COMMA:
-        if (topState.type == member_init_open) {
             *indentDepth -= 2;
         }
         break;
