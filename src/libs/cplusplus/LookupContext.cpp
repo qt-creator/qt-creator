@@ -39,13 +39,17 @@
 #include <Scope.h>
 #include <Control.h>
 
-#include <QtDebug>
-
-namespace {
-    const bool debug = ! qgetenv("CPLUSPLUS_LOOKUPCONTEXT_DEBUG").isEmpty();
-}
+#include <QtCore/QStack>
+#include <QtCore/QHash>
+#include <QtCore/QVarLengthArray>
+#include <QtCore/QtDebug>
 
 using namespace CPlusPlus;
+
+namespace {
+const bool debug = ! qgetenv("CPLUSPLUS_LOOKUPCONTEXT_DEBUG").isEmpty();
+} // end of anonymous namespace
+
 
 static void addNames(const Name *name, QList<const Name *> *names, bool addAllNames = false)
 {
@@ -241,16 +245,16 @@ ClassOrNamespace *LookupContext::lookupType(Symbol *symbol) const
     return bindings()->lookupType(symbol);
 }
 
-QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
+QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
 {
-    QList<Symbol *> candidates;
+    QList<LookupItem> candidates;
 
     if (! name)
         return candidates;
 
     for (; scope; scope = scope->enclosingScope()) {
         if ((name->isNameId() || name->isTemplateNameId()) && scope->isBlockScope()) {
-            bindings()->lookupInScope(name, scope, &candidates, /*templateId = */ 0);
+            bindings()->lookupInScope(name, scope, &candidates, /*templateId = */ 0, /*binding=*/ 0);
 
             if (! candidates.isEmpty())
                 break; // it's a local.
@@ -274,10 +278,10 @@ QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
 
         } else if (scope->isFunctionScope()) {
             Function *fun = scope->owner()->asFunction();
-            bindings()->lookupInScope(name, fun->arguments(), &candidates, /*templateId = */ 0);
+            bindings()->lookupInScope(name, fun->arguments(), &candidates, /*templateId = */ 0, /*binding=*/ 0);
 
             for (TemplateParameters *it = fun->templateParameters(); it && candidates.isEmpty(); it = it->previous())
-                bindings()->lookupInScope(name, it->scope(), &candidates, /* templateId = */ 0);
+                bindings()->lookupInScope(name, it->scope(), &candidates, /* templateId = */ 0, /*binding=*/ 0);
 
             if (! candidates.isEmpty())
                 break; // it's an argument or a template parameter.
@@ -295,7 +299,7 @@ QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
 
         } else if (scope->isObjCMethodScope()) {
             ObjCMethod *method = scope->owner()->asObjCMethod();
-            bindings()->lookupInScope(name, method->arguments(), &candidates, /*templateId = */ 0);
+            bindings()->lookupInScope(name, method->arguments(), &candidates, /*templateId = */ 0, /*binding=*/ 0);
 
             if (! candidates.isEmpty())
                 break; // it's a formal argument.
@@ -304,7 +308,7 @@ QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
             Class *klass = scope->owner()->asClass();
 
             for (TemplateParameters *it = klass->templateParameters(); it && candidates.isEmpty(); it = it->previous())
-                bindings()->lookupInScope(name, it->scope(), &candidates, /* templateId = */ 0);
+                bindings()->lookupInScope(name, it->scope(), &candidates, /* templateId = */ 0, /*binding=*/ 0);
 
             if (! candidates.isEmpty())
                 break; // it's an argument or a template parameter.
@@ -398,19 +402,19 @@ ClassOrNamespace *ClassOrNamespace::globalNamespace() const
     return e;
 }
 
-QList<Symbol *> ClassOrNamespace::find(const Name *name)
+QList<LookupItem> ClassOrNamespace::find(const Name *name)
 {
     return lookup_helper(name, false);
 }
 
-QList<Symbol *> ClassOrNamespace::lookup(const Name *name)
+QList<LookupItem> ClassOrNamespace::lookup(const Name *name)
 {
     return lookup_helper(name, true);
 }
 
-QList<Symbol *> ClassOrNamespace::lookup_helper(const Name *name, bool searchInEnclosingScope)
+QList<LookupItem> ClassOrNamespace::lookup_helper(const Name *name, bool searchInEnclosingScope)
 {
-    QList<Symbol *> result;
+    QList<LookupItem> result;
 
     if (name) {
         if (const QualifiedNameId *q = name->asQualifiedNameId()) {
@@ -435,9 +439,9 @@ QList<Symbol *> ClassOrNamespace::lookup_helper(const Name *name, bool searchInE
 }
 
 void ClassOrNamespace::lookup_helper(const Name *name, ClassOrNamespace *binding,
-                                     QList<Symbol *> *result,
-                                     QSet<ClassOrNamespace *> *processed,
-                                     const TemplateNameId *templateId)
+                                          QList<LookupItem> *result,
+                                          QSet<ClassOrNamespace *> *processed,
+                                          const TemplateNameId *templateId)
 {
     if (binding && ! processed->contains(binding)) {
         processed->insert(binding);
@@ -448,16 +452,20 @@ void ClassOrNamespace::lookup_helper(const Name *name, ClassOrNamespace *binding
             if (ScopedSymbol *scoped = s->asScopedSymbol()) {
                 if (Class *klass = scoped->asClass()) {
                     if (const Identifier *id = klass->identifier()) {
-                        if (nameId && nameId->isEqualTo(id))
-                            result->append(klass);
+                        if (nameId && nameId->isEqualTo(id)) {
+                            LookupItem item;
+                            item.setDeclaration(klass);
+                            item.setBinding(binding);
+                            result->append(item);
+                        }
                     }
                 }
-                _factory->lookupInScope(name, scoped->members(), result, templateId);
+                _factory->lookupInScope(name, scoped->members(), result, templateId, binding);
             }
         }
 
         foreach (Enum *e, binding->enums())
-            _factory->lookupInScope(name, e->members(), result, templateId);
+            _factory->lookupInScope(name, e->members(), result, templateId, binding);
 
         foreach (ClassOrNamespace *u, binding->usings())
             lookup_helper(name, u, result, processed, binding->_templateId);
@@ -465,8 +473,9 @@ void ClassOrNamespace::lookup_helper(const Name *name, ClassOrNamespace *binding
 }
 
 void CreateBindings::lookupInScope(const Name *name, Scope *scope,
-                                   QList<Symbol *> *result,
-                                   const TemplateNameId *templateId)
+                                   QList<LookupItem> *result,
+                                   const TemplateNameId *templateId,
+                                   ClassOrNamespace *binding)
 {
     Q_UNUSED(templateId);
 
@@ -480,7 +489,10 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
             else if (! s->name()->isEqualTo(op))
                 continue;
 
-            result->append(s);
+            LookupItem item;
+            item.setDeclaration(s);
+            item.setBinding(binding);
+            result->append(item);
         }
 
     } else if (const Identifier *id = name->identifier()) {
@@ -490,34 +502,17 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
             else if (s->name()->isQualifiedNameId())
                 continue; // skip qualified ids.
 
+            LookupItem item;
+            item.setDeclaration(s);
+            item.setBinding(binding);
+
             if (templateId && (s->isDeclaration() || s->isFunction())) {
-
                 FullySpecifiedType ty = DeprecatedGenTemplateInstance::instantiate(templateId, s, _control);
-
-                if (debug) {
-                    Overview oo;
-                    oo.setShowFunctionSignatures(true);
-                    oo.setShowReturnTypes(true);
-                    qDebug() << "instantiate:" << oo(s->type(), s->name()) << "using:" << oo(templateId) << oo(ty);
-                }
-
-                if (Declaration *decl = s->asDeclaration()) {
-                    Declaration *d = _control->newDeclaration(0, 0);
-                    d->copy(decl);
-                    d->setType(ty);
-                    result->append(d);
-                    continue;
-                } else if (Function *fun = s->asFunction()) {
-                    Function *d = ty->asFunctionType();
-                    d->copy(fun);
-                    result->append(d);
-                    continue;
-                }
+                item.setType(ty); // override the type.
             }
 
-            result->append(s);
+            result->append(item);
         }
-
     }
 }
 
@@ -987,3 +982,4 @@ bool CreateBindings::visit(ObjCMethod *)
 {
     return false;
 }
+

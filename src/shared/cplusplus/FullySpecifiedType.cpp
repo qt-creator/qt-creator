@@ -235,6 +235,12 @@ FullySpecifiedType FullySpecifiedType::simplified() const
     return *this;
 }
 
+unsigned FullySpecifiedType::flags() const
+{ return _flags; }
+
+void FullySpecifiedType::setFlags(unsigned flags)
+{ _flags = flags; }
+
 void FullySpecifiedType::copySpecifiers(const FullySpecifiedType &type)
 {
     // class storage specifiers

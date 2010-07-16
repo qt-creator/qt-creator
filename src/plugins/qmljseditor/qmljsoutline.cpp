@@ -17,16 +17,11 @@ namespace QmlJSEditor {
 namespace Internal {
 
 QmlJSOutlineTreeView::QmlJSOutlineTreeView(QWidget *parent) :
-    QTreeView(parent)
+    Utils::NavigationTreeView(parent)
 {
     // see also CppOutlineTreeView
     setFocusPolicy(Qt::NoFocus);
-    setFrameStyle(QFrame::NoFrame);
-    setAttribute(Qt::WA_MacShowFocusRect, false);
-    setUniformRowHeights(true);
     setHeaderHidden(true);
-    setTextElideMode(Qt::ElideNone);
-    setIndentation(20);
     setExpandsOnDoubleClick(false);
 }
 

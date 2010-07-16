@@ -36,6 +36,7 @@
 #include <Type.h>
 #include <SymbolVisitor.h>
 #include <Control.h>
+#include <Name.h>
 #include <QtCore/QSet>
 #include <map>
 #include <functional>
@@ -57,8 +58,8 @@ public:
 
     ClassOrNamespace *globalNamespace() const;
 
-    QList<Symbol *> lookup(const Name *name);
-    QList<Symbol *> find(const Name *name);
+    QList<LookupItem> lookup(const Name *name);
+    QList<LookupItem> find(const Name *name);
 
     ClassOrNamespace *lookupType(const Name *name);
     ClassOrNamespace *findType(const Name *name);
@@ -76,12 +77,12 @@ private:
     void addUsing(ClassOrNamespace *u);
     void addNestedType(const Name *alias, ClassOrNamespace *e);
 
-    QList<Symbol *> lookup_helper(const Name *name, bool searchInEnclosingScope);
+    QList<LookupItem> lookup_helper(const Name *name, bool searchInEnclosingScope);
 
     void lookup_helper(const Name *name, ClassOrNamespace *binding,
-                       QList<Symbol *> *result,
-                       QSet<ClassOrNamespace *> *processed,
-                       const TemplateNameId *templateId);
+                            QList<LookupItem> *result,
+                            QSet<ClassOrNamespace *> *processed,
+                            const TemplateNameId *templateId);
 
     ClassOrNamespace *lookupType_helper(const Name *name, QSet<ClassOrNamespace *> *processed,
                                         bool searchInEnclosingScope);
@@ -134,8 +135,8 @@ public:
     /// Searches in \a scope for symbols with the given \a name.
     /// Store the result in \a results.
     /// \internal
-    void lookupInScope(const Name *name, Scope *scope, QList<Symbol *> *result,
-                       const TemplateNameId *templateId);
+    void lookupInScope(const Name *name, Scope *scope, QList<LookupItem> *result,
+                            const TemplateNameId *templateId, ClassOrNamespace *binding);
 
     /// Create bindings for the symbols reachable from \a rootSymbol.
     /// \internal
@@ -214,7 +215,7 @@ public:
 
     ClassOrNamespace *globalNamespace() const;
 
-    QList<Symbol *> lookup(const Name *name, Scope *scope) const;
+    QList<LookupItem> lookup(const Name *name, Scope *scope) const;
     ClassOrNamespace *lookupType(const Name *name, Scope *scope) const;
     ClassOrNamespace *lookupType(Symbol *symbol) const;
     ClassOrNamespace *lookupParent(Symbol *symbol) const;

@@ -84,11 +84,11 @@ protected:
     void checkName(NameAST *ast);
     void checkNamespace(NameAST *name);
     void addTypeUsage(ClassOrNamespace *b, NameAST *ast);
-    void addTypeUsage(const QList<Symbol *> &candidates, NameAST *ast);
+    void addTypeUsage(const QList<LookupItem> &candidates, NameAST *ast);
     void addTypeUsage(const Use &use);
 
     void checkMemberName(NameAST *ast);
-    void addMemberUsage(const QList<Symbol *> &candidates, NameAST *ast);
+    void addMemberUsage(const QList<LookupItem> &candidates, NameAST *ast);
 
     virtual bool preVisit(AST *);
 

@@ -134,6 +134,9 @@ public:
 
     void copySpecifiers(const FullySpecifiedType &type);
 
+    unsigned flags() const;
+    void setFlags(unsigned flags);
+
 private:
     Type *_type;
     struct Flags {

@@ -38,6 +38,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/qtcassert.h>
+#include <utils/navigationtreeview.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
@@ -57,14 +58,12 @@ namespace {
     bool debug = false;
 }
 
-class ProjectTreeView : public QTreeView
+class ProjectTreeView : public Utils::NavigationTreeView
 {
 public:
     ProjectTreeView()
     {
         setEditTriggers(QAbstractItemView::EditKeyPressed);
-        setFrameStyle(QFrame::NoFrame);
-        setIndentation(indentation() * 9/10);
         {
             QHeaderView *treeHeader = header();
             treeHeader->setVisible(false);
@@ -72,41 +71,8 @@ public:
             treeHeader->setStretchLastSection(true);
         }
         setContextMenuPolicy(Qt::CustomContextMenu);
-        setUniformRowHeights(true);
-        setTextElideMode(Qt::ElideNone);
 //        setExpandsOnDoubleClick(false);
-        setAttribute(Qt::WA_MacShowFocusRect, false);
     }
-
-protected:
-    // This is a workaround to stop Qt from redrawing the project tree every
-    // time the user opens or closes a menu when it has focus. Would be nicer to
-    // fix it in Qt.
-    void focusInEvent(QFocusEvent *event)
-    {
-        if (event->reason() != Qt::PopupFocusReason)
-            QTreeView::focusInEvent(event);
-    }
-
-    void focusOutEvent(QFocusEvent *event)
-    {
-        if (event->reason() != Qt::PopupFocusReason)
-            QTreeView::focusOutEvent(event);
-    }
-
-#ifdef Q_WS_MAC
-    void keyPressEvent(QKeyEvent *event)
-    {
-        if ((event->key() == Qt::Key_Return
-                || event->key() == Qt::Key_Enter)
-                && event->modifiers() == 0
-                && currentIndex().isValid()) {
-            emit activated(currentIndex());
-            return;
-        }
-        QTreeView::keyPressEvent(event);
-    }
-#endif
 };
 
 /*!

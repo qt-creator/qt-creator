@@ -2959,7 +2959,7 @@ const Value *ASTVariableReference::value(Context *context) const
     return check(_ast->expression);
 }
 
-ASTFunctionValue::ASTFunctionValue(FunctionDeclaration *ast, const Document *doc, Engine *engine)
+ASTFunctionValue::ASTFunctionValue(FunctionDeclaration *ast, const QmlJS::Document *doc, Engine *engine)
     : FunctionValue(engine), _doc(doc), _ast(ast)
 {
     setPrototype(engine->functionPrototype());

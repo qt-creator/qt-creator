@@ -3,6 +3,7 @@
 
 #include "qmljseditor.h"
 
+#include <utils/navigationtreeview.h>
 #include <texteditor/ioutlinewidget.h>
 
 #include <QtGui/QTreeView>
@@ -19,7 +20,7 @@ class Editor;
 namespace QmlJSEditor {
 namespace Internal {
 
-class QmlJSOutlineTreeView : public QTreeView
+class QmlJSOutlineTreeView : public Utils::NavigationTreeView
 {
     Q_OBJECT
 public:

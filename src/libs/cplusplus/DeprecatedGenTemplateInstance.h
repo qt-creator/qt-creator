@@ -46,7 +46,7 @@ public:
     typedef QList< QPair<const Identifier *, FullySpecifiedType> > Substitution;
 
 public:
-    static FullySpecifiedType instantiate(const Name *className, Symbol *candidate, QSharedPointer<Control> control);
+    Q_DECL_DEPRECATED static FullySpecifiedType instantiate(const Name *className, Symbol *candidate, QSharedPointer<Control> control);
 
 private:
     DeprecatedGenTemplateInstance(QSharedPointer<Control> control, const Substitution &substitution);

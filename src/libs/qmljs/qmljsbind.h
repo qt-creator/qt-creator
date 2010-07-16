@@ -54,6 +54,7 @@ public:
     struct ImportInfo {
         QString name;
         ComponentVersion version;
+        AST::UiImport *ast;
     };
 
     QList<ImportInfo> fileImports() const;

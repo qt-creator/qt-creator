@@ -18,16 +18,11 @@ enum {
 };
 
 CppOutlineTreeView::CppOutlineTreeView(QWidget *parent) :
-    QTreeView(parent)
+    Utils::NavigationTreeView(parent)
 {
     // see also QmlJSOutlineTreeView
     setFocusPolicy(Qt::NoFocus);
-    setFrameStyle(QFrame::NoFrame);
-    setAttribute(Qt::WA_MacShowFocusRect, false);
-    setUniformRowHeights(true);
     setHeaderHidden(true);
-    setTextElideMode(Qt::ElideNone);
-    setIndentation(20);
     setExpandsOnDoubleClick(false);
 }
 

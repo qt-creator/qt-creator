@@ -27,6 +27,7 @@ SOURCES += \
 HEADERS += \
     $$PWD/SimpleLexer.h \
     $$PWD/CppDocument.h \
+    $$PWD/CppRewriter.h \
     $$PWD/Overview.h \
     $$PWD/NamePrettyPrinter.h \
     $$PWD/TypeOfExpression.h \
@@ -52,6 +53,7 @@ HEADERS += \
 SOURCES += \
     $$PWD/SimpleLexer.cpp \
     $$PWD/CppDocument.cpp \
+    $$PWD/CppRewriter.cpp \
     $$PWD/Overview.cpp \
     $$PWD/NamePrettyPrinter.cpp \
     $$PWD/TypeOfExpression.cpp \

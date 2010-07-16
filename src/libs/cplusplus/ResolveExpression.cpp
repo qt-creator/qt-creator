@@ -31,6 +31,7 @@
 #include "LookupContext.h"
 #include "Overview.h"
 #include "DeprecatedGenTemplateInstance.h"
+#include "CppRewriter.h"
 
 #include <Control.h>
 #include <AST.h>
@@ -119,6 +120,11 @@ void ResolveExpression::addResults(const QList<Symbol *> &symbols)
         item.setDeclaration(symbol);
         _results.append(item);
     }
+}
+
+void ResolveExpression::addResults(const QList<LookupItem> &items)
+{
+    _results += items;
 }
 
 void ResolveExpression::addResult(const FullySpecifiedType &ty, Scope *scope)
@@ -395,7 +401,7 @@ bool ResolveExpression::visit(CompoundLiteralAST *ast)
 bool ResolveExpression::visit(QualifiedNameAST *ast)
 {
     if (const Name *name = ast->name) {
-        const QList<Symbol *> candidates = _context.lookup(name, _scope);
+        const QList<LookupItem> candidates = _context.lookup(name, _scope);
         addResults(candidates);
     }
 
@@ -404,14 +410,14 @@ bool ResolveExpression::visit(QualifiedNameAST *ast)
 
 bool ResolveExpression::visit(SimpleNameAST *ast)
 {
-    const QList<Symbol *> candidates = _context.lookup(ast->name, _scope);
+    const QList<LookupItem> candidates = _context.lookup(ast->name, _scope);
     addResults(candidates);
     return false;
 }
 
 bool ResolveExpression::visit(TemplateIdAST *ast)
 {
-    const QList<Symbol *> candidates = _context.lookup(ast->name, _scope);
+    const QList<LookupItem> candidates = _context.lookup(ast->name, _scope);
     addResults(candidates);
     return false;
 }
@@ -477,7 +483,8 @@ bool ResolveExpression::visit(CallAST *ast)
 
         if (NamedType *namedTy = ty->asNamedType()) {
             if (ClassOrNamespace *b = _context.lookupType(namedTy->name(), scope)) {
-                foreach (Symbol *overload, b->find(functionCallOp)) {
+                foreach (const LookupItem &r, b->find(functionCallOp)) {
+                    Symbol *overload = r.declaration();
                     if (Function *funTy = overload->type()->asFunctionType()) {
                         if (maybeValidPrototype(funTy, actualArgumentCount)) {
                             if (Function *proto = instantiate(namedTy->name(), funTy)->asFunctionType())
@@ -520,7 +527,8 @@ bool ResolveExpression::visit(ArrayAccessAST *ast)
 
         } else if (NamedType *namedTy = ty->asNamedType()) {
             if (ClassOrNamespace *b = _context.lookupType(namedTy->name(), scope)) {
-                foreach (Symbol *overload, b->find(arrayAccessOp)) {
+                foreach (const LookupItem &r, b->find(arrayAccessOp)) {
+                    Symbol *overload = r.declaration();
                     if (Function *funTy = overload->type()->asFunctionType()) {
                         if (Function *proto = instantiate(namedTy->name(), funTy)->asFunctionType())
                             // ### TODO: check the actual arguments
@@ -532,6 +540,56 @@ bool ResolveExpression::visit(ArrayAccessAST *ast)
         }
     }
     return false;
+}
+
+QList<LookupItem> ResolveExpression::getMembers(ClassOrNamespace *binding, const Name *memberName) const
+{
+    QList<LookupItem> members;
+
+    const QList<LookupItem> originalMembers = binding->find(memberName);
+
+    foreach (const LookupItem &m, originalMembers) {
+        if (! m.binding() || ! m.binding()->templateId()) {
+            members.append(m);
+            continue;
+        }
+
+        Symbol *decl = m.declaration();
+
+        if (Class *klass = decl->enclosingSymbol()->asClass()) {
+            if (klass->templateParameters() != 0) {
+                SubstitutionMap map;
+
+                const TemplateNameId *templateId = m.binding()->templateId();
+                unsigned count = qMin(klass->templateParameterCount(), templateId->templateArgumentCount());
+
+                for (unsigned i = 0; i < count; ++i) {
+                    map.bind(klass->templateParameterAt(i)->name(), templateId->templateArgumentAt(i));
+                }
+
+                SubstitutionEnvironment env;
+                ContextSubstitution ctxSubst(_context, m.scope());
+
+                env.enter(&ctxSubst);
+                env.enter(&map);
+                FullySpecifiedType instantiatedTy = rewriteType(decl->type(), env, _context.control().data());
+
+                Overview oo;
+                oo.setShowReturnTypes(true);
+                oo.setShowFunctionSignatures(true);
+
+                qDebug() << "original:" << oo(decl->type(), decl->name()) << "inst:" << oo(instantiatedTy, decl->name());
+
+                LookupItem newItem;
+                newItem = m;
+                newItem.setType(instantiatedTy);
+                members.append(newItem);
+            }
+        }
+    }
+
+
+    return members;
 }
 
 bool ResolveExpression::visit(MemberAccessAST *ast)
@@ -586,9 +644,13 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
 
             } else if (ClassOrNamespace *binding = findClass(ty, scope)) {
                 // lookup for overloads of operator->
-                const OperatorNameId *arrowOp = control()->operatorNameId(OperatorNameId::ArrowOp);
 
-                foreach (Symbol *overload, binding->find(arrowOp)) {
+                const OperatorNameId *arrowOp = control()->operatorNameId(OperatorNameId::ArrowOp);
+                foreach (const LookupItem &r, binding->find(arrowOp)) {
+                    Symbol *overload = r.declaration();
+                    if (! overload)
+                        continue;
+
                     if (overload->type()->isFunctionType()) {
                         FullySpecifiedType overloadTy = instantiate(binding->templateId(), overload);
                         Function *instantiatedFunction = overloadTy->asFunctionType();
@@ -604,14 +666,10 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
                                 if (ClassOrNamespace *retBinding = findClass(ptrTy->elementType(), scope))
                                     return retBinding;
                             }
-
-                            if (debug) {
-                                Overview oo;
-                                qDebug() << "no class for:" << oo(ptrTy->elementType());
-                            }
                         }
                     }
                 }
+
             }
         } else if (accessOp == T_DOT) {
             if (replacedDotOperator) {
@@ -663,9 +721,11 @@ bool ResolveExpression::visit(ObjCMessageExpressionAST *ast)
         }
 
         if (binding) {
-            foreach (Symbol *s, binding->lookup(ast->selector->name))
+            foreach (const LookupItem &r, binding->lookup(ast->selector->name)) {
+                Symbol *s = r.declaration();
                 if (ObjCMethod *m = s->asObjCMethod())
                     addResult(m->returnType(), result.scope());
+            }
         }
     }
 

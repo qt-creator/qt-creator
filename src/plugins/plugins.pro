@@ -34,6 +34,7 @@ SUBDIRS   = plugin_coreplugin \
             plugin_genericprojectmanager \
             plugin_qmljseditor \
             plugin_mercurial \
+            plugin_classview \
             debugger/dumper.pro
 
 contains(QT_CONFIG, declarative) {
@@ -208,3 +209,9 @@ plugin_mercurial.subdir = mercurial
 plugin_mercurial.depends = plugin_vcsbase
 plugin_mercurial.depends += plugin_projectexplorer
 plugin_mercurial.depends += plugin_coreplugin
+
+plugin_classview.subdir = classview
+plugin_classview.depends = plugin_coreplugin
+plugin_classview.depends += plugin_cpptools
+plugin_classview.depends += plugin_projectexplorer
+plugin_classview.depends += plugin_texteditor

@@ -64,6 +64,13 @@ private Q_SLOTS:
     void class_with_baseclass();
     void class_with_protocol_with_protocol();
     void iface_impl_scoping();
+
+    // template instantiation:
+    void templates_1();
+    void templates_2();
+    void templates_3();
+    void templates_4();
+    void templates_5();
 };
 
 void tst_Lookup::base_class_defined_1()
@@ -169,14 +176,14 @@ void tst_Lookup::simple_class_1()
     QVERIFY(klass->symbols().contains(impl));
 
     // check method resolving:
-    QList<Symbol *> results = context.lookup(allocMethodImpl->name(), impl->members());
+    QList<LookupItem> results = context.lookup(allocMethodImpl->name(), impl->members());
     QCOMPARE(results.size(), 2);
-    QCOMPARE(results.at(0), allocMethodIface);
-    QCOMPARE(results.at(1), allocMethodImpl);
+    QCOMPARE(results.at(0).declaration(), allocMethodIface);
+    QCOMPARE(results.at(1).declaration(), allocMethodImpl);
 
     results = context.lookup(deallocMethod->name(), impl->members());
     QCOMPARE(results.size(), 1);
-    QCOMPARE(results.at(0), deallocMethod);
+    QCOMPARE(results.at(0).declaration(), deallocMethod);
 }
 
 void tst_Lookup::class_with_baseclass()
@@ -230,13 +237,13 @@ void tst_Lookup::class_with_baseclass()
     QVERIFY(objClass != 0);
     QVERIFY(objClass->symbols().contains(baseZoo));
 
-    QList<Symbol *> results = context.lookup(baseDecl->name(), zooImpl->members());
+    QList<LookupItem> results = context.lookup(baseDecl->name(), zooImpl->members());
     QCOMPARE(results.size(), 1);
-    QCOMPARE(results.at(0), baseDecl);
+    QCOMPARE(results.at(0).declaration(), baseDecl);
 
     results = context.lookup(baseMethod->name(), zooImpl->members());
     QCOMPARE(results.size(), 1);
-    QCOMPARE(results.at(0), baseMethod);
+    QCOMPARE(results.at(0).declaration(), baseMethod);
 }
 
 void tst_Lookup::class_with_protocol_with_protocol()
@@ -279,20 +286,20 @@ void tst_Lookup::class_with_protocol_with_protocol()
     const LookupContext context(doc, snapshot);
 
     {
-        const QList<Symbol *> candidates = context.lookup(P1->name(), zooImpl->scope());
+        const QList<LookupItem> candidates = context.lookup(P1->name(), zooImpl->scope());
         QCOMPARE(candidates.size(), 1);
-        QVERIFY(candidates.contains(P1));
+        QVERIFY(candidates.at(0).declaration() == P1);
     }
 
     {
-        const QList<Symbol *> candidates = context.lookup(P2->protocolAt(0)->name(), zooImpl->scope());
+        const QList<LookupItem> candidates = context.lookup(P2->protocolAt(0)->name(), zooImpl->scope());
         QCOMPARE(candidates.size(), 1);
-        QVERIFY(candidates.contains(P1));
+        QVERIFY(candidates.first().declaration() == P1);
     }
 
-    QList<Symbol *> results = context.lookup(p1method->name(), zooImpl->members());
+    QList<LookupItem> results = context.lookup(p1method->name(), zooImpl->members());
     QCOMPARE(results.size(), 1);
-    QCOMPARE(results.at(0), p1method);
+    QCOMPARE(results.at(0).declaration(), p1method);
 }
 
 void tst_Lookup::iface_impl_scoping()
@@ -341,9 +348,9 @@ void tst_Lookup::iface_impl_scoping()
         QVERIFY(arg->name()->identifier());
         QCOMPARE(arg->name()->identifier()->chars(), "arg");
 
-        const QList<Symbol *> candidates = context.lookup(arg->name(), method1Body->scope());
+        const QList<LookupItem> candidates = context.lookup(arg->name(), method1Body->scope());
         QCOMPARE(candidates.size(), 1);
-        QVERIFY(candidates.at(0)->type()->asIntegerType());
+        QVERIFY(candidates.at(0).declaration()->type()->asIntegerType());
     }
 
     Declaration *method2 = iface->memberAt(1)->asDeclaration();
@@ -351,10 +358,173 @@ void tst_Lookup::iface_impl_scoping()
     QCOMPARE(method2->identifier()->chars(), "method2");
 
     { // verify if we can resolve "method2" in the body
-        const QList<Symbol *> candidates = context.lookup(method2->name(), method1Body->scope());
+        const QList<LookupItem> candidates = context.lookup(method2->name(), method1Body->scope());
         QCOMPARE(candidates.size(), 1);
-        QCOMPARE(candidates.at(0), method2);
+        QCOMPARE(candidates.at(0).declaration(), method2);
     }
+}
+
+void tst_Lookup::templates_1()
+{
+    const QByteArray source = "\n"
+            "namespace std {\n"
+            "    template <typename T>\n"
+            "    struct _List_iterator {\n"
+            "        T data;\n"
+            "    };\n"
+            "\n"
+            "    template <typename T>\n"
+            "    struct list {\n"
+            "        typedef _List_iterator<T> iterator;\n"
+            "\n"
+            "        iterator begin();\n"
+            "        _List_iterator<T> end();\n"
+            "    };\n"
+            "}\n"
+            "\n"
+            "struct Point {\n"
+            "    int x, y;\n"
+            "};\n"
+            "\n"
+            "int main()\n"
+            "{\n"
+            "    std::list<Point> l;\n"
+            "    l.begin();  // std::_List_iterator<Point> .. and not only _List_iterator<Point>\n"
+            "    l.end(); // std::_List_iterator<Point>\n"
+            "}\n";
+    Document::Ptr doc = Document::create("templates_1");
+    doc->setSource(source);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+}
+
+void tst_Lookup::templates_2()
+{
+    const QByteArray source = "\n"
+            "template <typename T1>\n"
+            "struct Node {\n"
+            "    T1 value;\n"
+            "    Node *next;\n"
+            "    Node<T1> *other_next;\n"
+            "};\n"
+            "\n"
+            "template <typename T2>\n"
+            "struct List {\n"
+            "    Node<T2> *elements;\n"
+            "};\n"
+            "\n"
+            "int main()\n"
+            "{\n"
+            "    List<int> *e;\n"
+            "    e->elements; // Node<int> *\n"
+            "    e->elements->next; // Node<int> *\n"
+            "    e->elements->other_next; // Node<int> *\n"
+            "}\n"
+;
+    Document::Ptr doc = Document::create("templates_2");
+    doc->setSource(source);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+}
+
+void tst_Lookup::templates_3()
+{
+    const QByteArray source = "\n"
+            "struct Point {\n"
+            "    int x, y;\n"
+            "};\n"
+            "\n"
+            "template <typename T = Point>\n"
+            "struct List {\n"
+            "    const T &at(int);\n"
+            "};\n"
+            "\n"
+            "int main()\n"
+            "{\n"
+            "    List<> l;\n"
+            "    l.at(0); // const Point &\n"
+            "}\n";
+    Document::Ptr doc = Document::create("templates_3");
+    doc->setSource(source);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+}
+
+void tst_Lookup::templates_4()
+{
+    const QByteArray source = "\n"
+            "template <typename T>\n"
+            "struct Allocator {\n"
+            "    typedef T *pointer_type;\n"
+            "    typedef T &reference_type;\n"
+            "};\n"
+            "\n"
+            "template <typename T>\n"
+            "struct SharedPtr {\n"
+            "    typedef typename Allocator<T>::pointer_type pointer_type;\n"
+            "    typedef typename Allocator<T>::reference_type reference_type;\n"
+            "\n"
+            "    pointer_type operator->();\n"
+            "    reference_type operator*();\n"
+            "\n"
+            "    pointer_type data();\n"
+            "    reference_type get();\n"
+            "\n"
+            "};\n"
+            "\n"
+            "struct Point {\n"
+            "    int x,y;\n"
+            "};\n"
+            "\n"
+            "int main()\n"
+            "{\n"
+            "    SharedPtr<Point> l;\n"
+            "\n"
+            "    l->x; // int\n"
+            "    (*l); // Point &\n"
+            "}\n";
+    Document::Ptr doc = Document::create("templates_4");
+    doc->setSource(source);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+}
+
+void tst_Lookup::templates_5()
+{
+    const QByteArray source = "\n"
+            "struct Point {\n"
+            "    int x,y;\n"
+            "};\n"
+            "\n"
+            "template <typename _Tp>\n"
+            "struct Allocator {\n"
+            "    typedef const _Tp &const_reference;\n"
+            "\n"
+            "    const_reference get();\n"
+            "};\n"
+            "\n"
+            "int main()\n"
+            "{\n"
+            "    Allocator<Point>::const_reference r = pt;\n"
+            "    //r.; // const Point &\n"
+            "\n"
+            "    Allocator<Point> a;\n"
+            "    a.get(); // const Point &\n"
+            "}\n";
+    Document::Ptr doc = Document::create("templates_5");
+    doc->setSource(source);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
 }
 
 QTEST_APPLESS_MAIN(tst_Lookup)
