@@ -3,9 +3,11 @@
 
 #include <QWidget>
 
+QT_BEGIN_NAMESPACE
 namespace Ui {
     class ContextPaneWidgetRectangle;
 }
+QT_END_NAMESPACE
 
 namespace QmlJS {
     class PropertyReader;
