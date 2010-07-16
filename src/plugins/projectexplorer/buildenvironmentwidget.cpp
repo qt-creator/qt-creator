@@ -63,20 +63,14 @@ QString BuildEnvironmentWidget::displayName() const
 
 void BuildEnvironmentWidget::init(BuildConfiguration *bc)
 {
-    QTC_ASSERT(bc, return);
+    Q_ASSERT(bc);
 
     if (m_buildConfiguration) {
         disconnect(m_buildConfiguration, SIGNAL(environmentChanged()),
                    this, SLOT(environmentChanged()));
     }
 
-    m_buildConfiguration = static_cast<BuildConfiguration *>(bc);
-
-    if (!m_buildConfiguration) {
-        setEnabled(false);
-        return;
-    }
-    setEnabled(true);
+    m_buildConfiguration = bc;
 
     connect(m_buildConfiguration, SIGNAL(environmentChanged()),
             this, SLOT(environmentChanged()));
