@@ -5,6 +5,7 @@ TARGET = phony_target
 CONFIG -= qt
 QT =
 LIBS =
+macx:CONFIG -= app_bundle
 
 isEmpty(vcproj) {
     QMAKE_LINK = @: IGNORE THIS LINE
