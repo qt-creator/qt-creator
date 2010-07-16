@@ -57,7 +57,8 @@ public:
     virtual QString id() const;
     virtual QKeySequence activationSequence() const;
     virtual Core::NavigationView createWidget();
-
+    virtual void saveSettings(int position, QWidget *widget);
+    virtual void restoreSettings(int position, QWidget *widget);
 private:
     QList<IOutlineWidgetFactory*> m_factories;
 };

@@ -149,5 +149,23 @@ Core::NavigationView OutlineFactory::createWidget()
     return n;
 }
 
+void OutlineFactory::saveSettings(int position, QWidget *widget)
+{
+    OutlineWidgetStack *widgetStack = qobject_cast<OutlineWidgetStack *>(widget);
+    Q_ASSERT(widgetStack);
+    QSettings *settings = Core::ICore::instance()->settings();
+    settings->setValue("Outline."+QString::number(position)+".SyncWithEditor",
+                       widgetStack->toggleSyncButton()->isEnabled());
+}
+
+void OutlineFactory::restoreSettings(int position, QWidget *widget)
+{
+    OutlineWidgetStack *widgetStack = qobject_cast<OutlineWidgetStack *>(widget);
+    Q_ASSERT(widgetStack);
+    QSettings *settings = Core::ICore::instance()->settings();
+    widgetStack->toggleSyncButton()->setChecked(
+                settings->value("Outline."+QString::number(position)+".SyncWithEditor", true).toBool());
+}
+
 } // namespace Internal
 } // namespace TextEditor
