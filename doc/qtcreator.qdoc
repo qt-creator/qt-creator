@@ -103,7 +103,7 @@
        \o \l{Keyboard Shortcuts}
        \o \l{Known Issues}
        \o \l{Glossary}
-       \o \l{Acknowledgements}
+       \o \l{Acknowledgments}
     \endlist
 */
 
@@ -6920,7 +6920,7 @@
     \contentspage index.html
     \previouspage creator-known-issues.html
     \page creator-glossary.html
-    \nextpage creator-acknowledgements.html
+    \nextpage creator-acknowledgments.html
 
     \title Glossary
 
@@ -7062,9 +7062,9 @@
 /*!
     \contentspage index.html
     \previouspage creator-glossary.html
-    \page creator-acknowledgements.html
+    \page creator-acknowledgments.html
 
-    \title Acknowledgements
+    \title Acknowledgments
 
     \section1 Third-party Components
 
