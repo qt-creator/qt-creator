@@ -342,13 +342,18 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
         return false;
     }
 
+    unsigned funStartOffset = tokenAt(ast->firstToken()).offset;
+    if (ast->declarator && ast->declarator->core_declarator) {
+        funStartOffset = tokenAt(ast->declarator->core_declarator->lastToken() - 1).end();
+    }
+
     Function *fun = funTy->asFunctionType();
     fun->setVirtual(ty.isVirtual());
     if (ty.isDeprecated())
         fun->setDeprecated(true);
     if (ty.isUnavailable())
         fun->setUnavailable(true);
-    fun->setStartOffset(tokenAt(ast->firstToken()).offset);
+    fun->setStartOffset(funStartOffset);
     fun->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     if (ast->declarator)
         fun->setSourceLocation(ast->declarator->firstToken(), translationUnit());

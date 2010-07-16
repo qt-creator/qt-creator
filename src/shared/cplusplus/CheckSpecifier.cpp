@@ -310,9 +310,13 @@ bool CheckSpecifier::visit(ClassSpecifierAST *ast)
     if (ast->name)
         sourceLocation = ast->name->firstToken();
 
+    unsigned classScopeStart = tokenAt(ast->firstToken()).offset;
+    if (ast->lbrace_token)
+        classScopeStart = tokenAt(ast->lbrace_token).end();
+
     const Name *className = semantic()->check(ast->name, _scope);
     Class *klass = control()->newClass(sourceLocation, className);
-    klass->setStartOffset(tokenAt(ast->firstToken()).offset);
+    klass->setStartOffset(classScopeStart);
     klass->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     ast->symbol = klass;
     unsigned classKey = tokenKind(ast->classkey_token);
@@ -397,9 +401,13 @@ bool CheckSpecifier::visit(EnumSpecifierAST *ast)
     if (ast->name)
         sourceLocation = ast->name->firstToken();
 
+    unsigned scopeStart = tokenAt(ast->firstToken()).offset;
+    if (ast->lbrace_token)
+        scopeStart = tokenAt(ast->lbrace_token).end();
+
     const Name *name = semantic()->check(ast->name, _scope);
     Enum *e = control()->newEnum(sourceLocation, name);
-    e->setStartOffset(tokenAt(ast->firstToken()).offset);
+    e->setStartOffset(scopeStart);
     e->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     e->setVisibility(semantic()->currentVisibility());
     _scope->enterSymbol(e);

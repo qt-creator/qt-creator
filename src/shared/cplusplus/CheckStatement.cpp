@@ -111,7 +111,7 @@ bool CheckStatement::visit(CaseStatementAST *ast)
 bool CheckStatement::visit(CompoundStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->lbrace_token);
-    block->setStartOffset(tokenAt(ast->firstToken()).offset);
+    block->setStartOffset(tokenAt(ast->firstToken()).end());
     block->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     ast->symbol = block;
     _scope->enterSymbol(block);
