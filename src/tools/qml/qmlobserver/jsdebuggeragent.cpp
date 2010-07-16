@@ -276,7 +276,7 @@ void JSDebuggerAgent::stopped()
 
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
-    rs << QByteArray("STOPPED") << backtrace << watches;
+    rs << QByteArray("STOPPED") << backtrace << watches << engine()->currentContext()->activationObject().toVariant();
     sendMessage(reply);
 
     loop.exec(QEventLoop::ExcludeUserInputEvents);

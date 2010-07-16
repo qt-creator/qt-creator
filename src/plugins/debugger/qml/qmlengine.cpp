@@ -529,10 +529,72 @@ void QmlEngine::updateWatchData(const WatchData &data)
     }
 }
 
-void QmlEngine::updateSubItem(const WatchData &data0)
+void QmlEngine::updateSubItem(WatchData &data, const QVariant &value)
 {
-    Q_UNUSED(data0)
-    QTC_ASSERT(false, return);
+    QList<WatchData> children;
+    switch (value.userType()) {
+        case QVariant::Invalid:{
+            const QString nullValue = QLatin1String("<undefined>");
+            data.setType(nullValue, false);
+            data.setValue(nullValue);
+            break;}
+        case QVariant::Map: {
+            data.setType(QString::fromLatin1("Object"), false);
+            QVariantMap map = value.toMap();
+            for (QVariantMap::const_iterator it = map.constBegin(); it != map.constEnd(); ++it) {
+                WatchData childData;
+                childData.iname = data.iname + '.' + it.key().toLatin1();
+                childData.exp = it.key().toLatin1();
+                childData.name = it.key();
+                updateSubItem(childData, it.value());
+                children.append(childData);
+            }
+            break;
+        }
+        case QVariant::List: {
+            data.setType(QString::fromLatin1("Array"), false);
+            QVariantList list = value.toList();
+            QStringList values;
+            for (int i = 0; i < list.count(); ++i) {
+                WatchData childData;
+                childData.exp = QByteArray::number(i);
+                childData.iname = data.iname + '.' + childData.exp;
+                childData.name = QString::number(i);
+                updateSubItem(childData, list.at(i));
+                children.append(childData);
+                values.append(list.at(i).toString());
+            }
+            data.setValue(QLatin1Char('[') + values.join(QLatin1String(",")) + QLatin1Char(']'));
+            break;
+        }
+        case QVariant::Bool:
+            data.setType(QLatin1String("Bool"), false);
+            data.setValue(value.toBool() ? QLatin1String("true") : QLatin1String("false"));
+            data.setHasChildren(false);
+            break;
+        case QVariant::Date:
+        case QVariant::DateTime:
+        case QVariant::Time:
+            data.setType(QLatin1String("Date"), false);
+            data.setValue(value.toDateTime().toString());
+            data.setHasChildren(false);
+            break;
+        case QVariant::UInt:
+        case QVariant::Int:
+        case QVariant::Double:
+            data.setType(QLatin1String("Number"), false);
+            data.setValue(QString::number(value.toDouble()));
+            break;
+        case QVariant::String:
+            data.setType(QLatin1String("String"), false);
+            data.setValue(value.toString());
+            break;
+        default:
+            data.setType(QString::fromLatin1(value.typeName()), false);
+            data.setValue(value.toString());
+    }
+    data.setHasChildren(!children.isEmpty());
+    watchHandler()->insertData(data);
 }
 
 DebuggerEngine *createQmlEngine(const DebuggerStartParameters &sp)
@@ -554,73 +616,6 @@ unsigned QmlEngine::debuggerCapabilities() const
         | AddWatcherCapability;*/
 }
 
-static void updateWatchDataFromVariant(const QVariant &value,  WatchData &data)
-{
-    switch (value.userType()) {
-        case QVariant::Bool:
-            data.setType(QLatin1String("Bool"), false);
-            data.setValue(value.toBool() ? QLatin1String("true") : QLatin1String("false"));
-            data.setHasChildren(false);
-            break;
-        case QVariant::Date:
-        case QVariant::DateTime:
-        case QVariant::Time:
-            data.setType(QLatin1String("Date"), false);
-            data.setValue(value.toDateTime().toString());
-            data.setHasChildren(false);
-            break;
-        /*} else if (ob.isError()) {
-            data.setType(QLatin1String("Error"), false);
-            data.setValue(QString(QLatin1Char(' ')));
-        } else if (ob.isFunction()) {
-            data.setType(QLatin1String("Function"), false);
-            data.setValue(QString(QLatin1Char(' ')));*/
-        case QVariant::Invalid:{
-            const QString nullValue = QLatin1String("<null>");
-            data.setType(nullValue, false);
-            data.setValue(nullValue);
-            break;}
-        case QVariant::UInt:
-        case QVariant::Int:
-        case QVariant::Double:
-        //FIXME FLOAT
-            data.setType(QLatin1String("Number"), false);
-            data.setValue(QString::number(value.toDouble()));
-            data.setHasChildren(false);
-            break;
-/*                } else if (ob.isObject()) {
-            data.setType(QLatin1String("Object"), false);
-            data.setValue(QString(QLatin1Char(' ')));
-        } else if (ob.isQMetaObject()) {
-            data.setType(QLatin1String("QMetaObject"), false);
-            data.setValue(QString(QLatin1Char(' ')));
-        } else if (ob.isQObject()) {
-            data.setType(QLatin1String("QObject"), false);
-            data.setValue(QString(QLatin1Char(' ')));
-        } else if (ob.isRegExp()) {
-            data.setType(QLatin1String("RegExp"), false);
-            data.setValue(ob.toRegExp().pattern());
-        } else if (ob.isString()) {*/
-        case QVariant::String:
-            data.setType(QLatin1String("String"), false);
-            data.setValue(value.toString());
-/*                } else if (ob.isVariant()) {
-            data.setType(QLatin1String("Variant"), false);
-            data.setValue(QString(QLatin1Char(' ')));
-        } else if (ob.isUndefined()) {
-            data.setType(QLatin1String("<undefined>"), false);
-            data.setValue(QLatin1String("<unknown>"));
-            data.setHasChildren(false);
-        } else {*/
-        default:{
-            const QString unknown = QLatin1String("<unknown>");
-            data.setType(unknown, false);
-            data.setValue(unknown);
-            data.setHasChildren(false);
-        }
-    }
-}
-
 void QmlEngine::messageReceived(const QByteArray &message)
 {
     QByteArray rwData = message;
@@ -637,7 +632,8 @@ void QmlEngine::messageReceived(const QByteArray &message)
 
         QList<QPair<QString, QPair<QString, qint32> > > backtrace;
         QList<QPair<QString, QVariant> > watches;
-        stream >> backtrace >> watches;
+        QVariant locals;
+        stream >> backtrace >> watches >> locals;
 
         StackFrames stackFrames;
         typedef QPair<QString, QPair<QString, qint32> > Iterator;
@@ -660,26 +656,26 @@ void QmlEngine::messageReceived(const QByteArray &message)
             data.name = it.first;
             data.exp = it.first.toUtf8();
             data.iname = watchHandler()->watcherName(data.exp);
-            updateWatchDataFromVariant(it.second,  data);
-            watchHandler()->insertData(data);
+            updateSubItem(data, it.second);
+        }
+
+//        QVariantMap localsMap = locals.toMap();
+//        for (QVariantMap::const_iterator it = localsMap.constBegin(); it != localsMap.constEnd(); it++)
+        {
+            WatchData localData;
+            localData.iname = "local";
+            localData.name = QLatin1String("local");
+            updateSubItem(localData, locals);
         }
 
         watchHandler()->endCycle();
-
-        foreach (QDeclarativeDebugWatch *watch, m_watches) {
-            qDebug() << "WATCH"
-                << watch->objectName()
-                << watch->queryId()
-                << watch->state()
-                << watch->objectDebugId();
-        }
 
     } else if (command == "RESULT") {
         WatchData data;
         QVariant variant;
         stream >> data.iname >> data.name >> variant;
         data.exp = data.name.toUtf8();
-        updateWatchDataFromVariant(variant,  data);
+        updateSubItem(data, variant);
         qDebug() << Q_FUNC_INFO << this << data.name << data.iname << variant;
         watchHandler()->insertData(data);
     } else {

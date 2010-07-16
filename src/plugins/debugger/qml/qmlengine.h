@@ -120,7 +120,7 @@ private:
     void maybeBreakNow(bool byFunction);
     void updateWatchData(const WatchData &data);
     void updateLocals();
-    void updateSubItem(const WatchData &data);
+    void updateSubItem(WatchData& data, const QVariant& value);
 
     unsigned int debuggerCapabilities() const;
 
