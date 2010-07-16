@@ -41,7 +41,8 @@ SOURCES += reloadpromptutils.cpp \
     changeset.cpp \
     filterlineedit.cpp \
     faketooltip.cpp \
-    htmldocextractor.cpp
+    htmldocextractor.cpp \
+    navigationtreeview.cpp
 win32 {
     SOURCES += abstractprocess_win.cpp \
         consoleprocess_win.cpp \
@@ -95,7 +96,8 @@ HEADERS += utils_global.h \
     changeset.h \
     filterlineedit.h \
     faketooltip.h \
-    htmldocextractor.h
+    htmldocextractor.h \
+    navigationtreeview.h
 FORMS += filewizardpage.ui \
     projectintropage.ui \
     newclasswidget.ui \

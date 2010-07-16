@@ -76,7 +76,6 @@ NavigationWidget::NavigationWidget(QWidget *parent) :
 {
     d_ptr->ui = new Ui::NavigationWidget;
     d_ptr->ui->setupUi(this);
-    d_ptr->ui->treeView->setIndentation(d_ptr->ui->treeView->indentation() * 9/10);
 
     // tree model
     d_ptr->treeModel = new TreeItemModel(this);
