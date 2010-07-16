@@ -1,12 +1,15 @@
 #include "qmljsoutline.h"
 #include "qmloutlinemodel.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/ifile.h>
 #include <coreplugin/editormanager/editormanager.h>
+
+#include <QtCore/QDebug>
+#include <QtCore/QSettings>
 #include <QtGui/QAction>
 #include <QtGui/QVBoxLayout>
 
-#include <QDebug>
 using namespace QmlJS;
 
 enum {
@@ -35,7 +38,9 @@ bool QmlJSOutlineFilterModel::filterAcceptsRow(int sourceRow,
 {
     if (m_filterBindings) {
         QModelIndex sourceIndex = sourceModel()->index(sourceRow, 0, sourceParent);
-        if (sourceIndex.data(QmlOutlineModel::ItemTypeRole) == QmlOutlineModel::PropertyType) {
+        QVariant itemType = sourceIndex.data(QmlOutlineModel::ItemTypeRole);
+        Q_ASSERT(itemType.isValid());
+        if (itemType.isValid() && itemType == QmlOutlineModel::PropertyType) {
             return false;
         }
     }
@@ -49,10 +54,8 @@ bool QmlJSOutlineFilterModel::filterBindings() const
 
 void QmlJSOutlineFilterModel::setFilterBindings(bool filterBindings)
 {
-    if (m_filterBindings != filterBindings) {
-        m_filterBindings = filterBindings;
-        invalidateFilter();
-    }
+    m_filterBindings = filterBindings;
+    invalidateFilter();
 }
 
 QmlJSOutlineWidget::QmlJSOutlineWidget(QWidget *parent) :
@@ -62,6 +65,8 @@ QmlJSOutlineWidget::QmlJSOutlineWidget(QWidget *parent) :
     m_enableCursorSync(true),
     m_blockCursorSync(false)
 {
+    m_filterModel->setFilterBindings(false);
+
     m_treeView->setModel(m_filterModel);
 
     QVBoxLayout *layout = new QVBoxLayout;
@@ -74,7 +79,7 @@ QmlJSOutlineWidget::QmlJSOutlineWidget(QWidget *parent) :
     m_showBindingsAction->setText(tr("Show bindings"));
     m_showBindingsAction->setCheckable(true);
     m_showBindingsAction->setChecked(true);
-    connect(m_showBindingsAction, SIGNAL(triggered(bool)), this, SLOT(setShowBindings(bool)));
+    connect(m_showBindingsAction, SIGNAL(toggled(bool)), this, SLOT(setShowBindings(bool)));
 
     setLayout(layout);
 }
@@ -107,6 +112,20 @@ void QmlJSOutlineWidget::setCursorSynchronization(bool syncWithCursor)
     m_enableCursorSync = syncWithCursor;
     if (m_enableCursorSync)
         updateSelectionInTree(m_editor.data()->outlineModelIndex());
+}
+
+void QmlJSOutlineWidget::restoreSettings(int position)
+{
+    QSettings *settings = Core::ICore::instance()->settings();
+    bool showBindings = settings->value("QmlJSOutline."+QString::number(position)+".ShowBindings", true).toBool();
+    m_showBindingsAction->setChecked(showBindings);
+}
+
+void QmlJSOutlineWidget::saveSettings(int position)
+{
+    QSettings *settings = Core::ICore::instance()->settings();
+    settings->setValue("QmlJSOutline."+QString::number(position)+".ShowBindings",
+                       m_showBindingsAction->isChecked());
 }
 
 void QmlJSOutlineWidget::modelUpdated()

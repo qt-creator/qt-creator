@@ -53,6 +53,8 @@ public:
     // IOutlineWidget
     virtual QList<QAction*> filterMenuActions() const;
     virtual void setCursorSynchronization(bool syncWithCursor);
+    virtual void restoreSettings(int position);
+    virtual void saveSettings(int position);
 
 private slots:
     void modelUpdated();

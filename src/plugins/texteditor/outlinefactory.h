@@ -25,6 +25,9 @@ public:
     QToolButton *toggleSyncButton();
     QToolButton *filterButton();
 
+    void saveSettings(int position);
+    void restoreSettings(int position);
+
 private:
     bool isCursorSynchronized() const;
     QWidget *dummyWidget() const;
@@ -41,6 +44,7 @@ private:
     QToolButton *m_filterButton;
     QMenu *m_filterMenu;
     bool m_syncWithEditor;
+    int m_position;
 };
 
 class OutlineFactory : public Core::INavigationWidgetFactory

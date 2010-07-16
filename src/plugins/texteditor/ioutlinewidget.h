@@ -18,6 +18,9 @@ public:
 
     virtual QList<QAction*> filterMenuActions() const = 0;
     virtual void setCursorSynchronization(bool syncWithCursor) = 0;
+
+    virtual void restoreSettings(int position) { Q_UNUSED(position); }
+    virtual void saveSettings(int position) { Q_UNUSED(position); }
 };
 
 class TEXTEDITOR_EXPORT IOutlineWidgetFactory : public QObject {
