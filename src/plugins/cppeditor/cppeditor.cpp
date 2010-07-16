@@ -320,7 +320,7 @@ struct FindCanonicalSymbol
         Scope *scope = info.doc->scopeAt(line, col);
 
         const QList<LookupItem> results = typeOfExpression(code, scope, TypeOfExpression::Preprocess);
-        for (int i = results.size() - 1; i != -1; --i) { // ### TODO virtual methods and classes.
+        for (int i = 0; i < results.size(); ++i) { // ### TODO virtual methods and classes.
             const LookupItem &r = results.at(i);
 
             if (r.declaration())
