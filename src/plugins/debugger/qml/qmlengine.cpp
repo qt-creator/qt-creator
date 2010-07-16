@@ -98,6 +98,7 @@ public:
 //
 ///////////////////////////////////////////////////////////////////////
 
+#if 0 //QmlJSInspector does that for us now.
 class QmlDebuggerClient : public QDeclarativeDebugClient
 {
     Q_OBJECT
@@ -152,7 +153,7 @@ public:
     QDeclarativeDebugConnection *m_connection;
     QmlEngine *m_engine;
 };
-
+#endif
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -163,12 +164,12 @@ public:
 QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters)
     : DebuggerEngine(startParameters)
 {
+/*
     m_conn = 0;
     m_client = 0;
     m_engineDebugInterface = 0;
     m_frameRate = 0;
 
-    /*
     m_watchTableModel = new Internal::WatchTableModel(0, this);
 
     m_objectTreeWidget = new Internal::ObjectTree;
@@ -682,128 +683,6 @@ void QmlEngine::messageReceived(const QByteArray &message)
         qDebug() << Q_FUNC_INFO << "Unknown command: " << command;
     }
 
-}
-
-QString QmlEngine::errorMessage(QProcess::ProcessError error)
-{
-    switch (error) {
-        case QProcess::FailedToStart:
-            return tr("The Gdb process failed to start. Either the "
-                "invoked program is missing, or you may have insufficient "
-                "permissions to invoke the program.");
-        case QProcess::Crashed:
-            return tr("The Gdb process crashed some time after starting "
-                "successfully.");
-        case QProcess::Timedout:
-            return tr("The last waitFor...() function timed out. "
-                "The state of QProcess is unchanged, and you can try calling "
-                "waitFor...() again.");
-        case QProcess::WriteError:
-            return tr("An error occurred when attempting to write "
-                "to the Gdb process. For example, the process may not be running, "
-                "or it may have closed its input channel.");
-        case QProcess::ReadError:
-            return tr("An error occurred when attempting to read from "
-                "the Gdb process. For example, the process may not be running.");
-        default:
-            return tr("An unknown error in the Gdb process occurred. ");
-    }
-}
-
-void QmlEngine::handleProcError(QProcess::ProcessError error)
-{
-    showMessage(_("HANDLE QML ERROR"));
-    switch (error) {
-    case QProcess::Crashed:
-        break; // will get a processExited() as well
-    // impossible case QProcess::FailedToStart:
-    case QProcess::ReadError:
-    case QProcess::WriteError:
-    case QProcess::Timedout:
-    default:
-        //m_proc.kill();
-        notifyEngineIll();
-        plugin()->showMessageBox(QMessageBox::Critical, tr("Gdb I/O Error"),
-                       errorMessage(error));
-        break;
-    }
-}
-
-void QmlEngine::handleProcFinished(int code, QProcess::ExitStatus type)
-{
-    showMessage(_("QML VIEWER PROCESS FINISHED, status %1, code %2").arg(type).arg(code));
-    notifyEngineIll();
-    //setState(DebuggerNotReady, true);
-}
-
-void QmlEngine::readProcStandardError()
-{
-    QString msg = QString::fromUtf8(m_proc.readAllStandardError());
-    if (!m_conn)
-        setupConnection();
-    qDebug() << "STD ERR" << msg;
-    showMessage(msg, AppError);
-}
-
-void QmlEngine::readProcStandardOutput()
-{
-    QString msg = QString::fromUtf8(m_proc.readAllStandardOutput());
-    qDebug() << "STD OUT" << msg;
-    showMessage(msg, AppOutput);
-}
-
-void QmlEngine::connectionStateChanged()
-{
-    QTC_ASSERT(m_conn, return);
-    QAbstractSocket::SocketState state = m_conn->state();
-    qDebug() << "CONNECTION STATE: " << state;
-    switch (state) {
-        case QAbstractSocket::UnconnectedState:
-        {
-            showStatusMessage(tr("[QmlEngine] disconnected.\n\n"));
-//            resetViews();
-
-//            updateMenuActions();
-
-            break;
-        }
-        case QAbstractSocket::HostLookupState:
-            showStatusMessage(tr("[QmlEngine] resolving host..."));
-            break;
-        case QAbstractSocket::ConnectingState:
-            showStatusMessage(tr("[QmlEngine] connecting to debug server..."));
-            break;
-        case QAbstractSocket::ConnectedState:
-            showStatusMessage(tr("[QmlEngine] connected.\n"));
-            //setupConnection()
-            break;
-        case QAbstractSocket::ClosingState:
-            showStatusMessage(tr("[QmlEngine] closing..."));
-            break;
-        case QAbstractSocket::BoundState:
-            showStatusMessage(tr("[QmlEngine] bound state"));
-            break;
-        case QAbstractSocket::ListeningState:
-            showStatusMessage(tr("[QmlEngine] listening state"));
-            break;
-        default:
-            showStatusMessage(tr("[QmlEngine] unknown state: %1").arg(state));
-            break;
-    }
-}
-
-void QmlEngine::connectionError()
-{
-    QTC_ASSERT(m_conn, return);
-    showStatusMessage(tr("[QmlEngine] error: (%1) %2", "%1=error code, %2=error message")
-            .arg(m_conn->error()).arg(m_conn->errorString()));
-}
-
-void QmlEngine::connectionConnected()
-{
-    QTC_ASSERT(m_conn, return);
-    showStatusMessage(tr("[QmlEngine] error: (%1) %2", "%1=error code, %2=error message")
-            .arg(m_conn->error()).arg(m_conn->errorString()));
 }
 
 
@@ -1349,7 +1228,7 @@ void QmlEngine::setSimpleDockWidgetArrangement()
     mainWindow->setTrackingEnabled(true);
 }
 #endif
-
+#if 0
 void QmlEngine::reloadEngines()
 {
     //m_engineComboBox->setEnabled(false);
@@ -1500,7 +1379,7 @@ void QmlEngine::buildTree(const QDeclarativeDebugObjectReference &obj,
     for (int i = 0; i < obj.children().size(); ++i)
         buildTree(obj.children().at(i), iname + '.' + QByteArray::number(i));
 }
-
+#endif
 #if 0
 void QmlEngine::treeObjectActivated(const QDeclarativeDebugObjectReference &obj)
 {

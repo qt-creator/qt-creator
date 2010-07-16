@@ -128,47 +128,7 @@ private:
 signals:
     void sendMessage(const QByteArray &msg);
 
-private slots:
-    void handleProcFinished(int, QProcess::ExitStatus status);
-    void handleProcError(QProcess::ProcessError error);
-    void readProcStandardOutput();
-    void readProcStandardError();
-
-    void connectionError();
-    void connectionConnected();
-    void connectionStateChanged();
-
-    void reloadEngines();
-    void enginesChanged();
-    void queryEngineContext(const QDeclarativeDebugEngineReference& engine);
-    void contextChanged();
-
-    void reloadObject(const QDeclarativeDebugObjectReference &object);
-    void objectFetched(QDeclarativeDebugQuery::State state);
-
 private:
-    void objectFetched(QDeclarativeDebugObjectQuery *query, QDeclarativeDebugQuery::State state);
-    void contextChanged(QDeclarativeDebugRootContextQuery *query);
-    void enginesChanged(QDeclarativeDebugEnginesQuery *query);
-
-    void buildTree(const QDeclarativeDebugObjectReference &obj, const QByteArray &iname);
-
-    QString errorMessage(QProcess::ProcessError error);
-    QProcess m_proc;
-
-    QDeclarativeDebugConnection *m_conn;
-    QDeclarativeEngineDebug *m_engineDebugInterface;
-    QmlDebuggerClient *m_client;
-    CanvasFrameRate *m_frameRate;
-
-    enum DebugMode {
-        StandaloneMode,
-        CppProjectWithQmlEngines,
-        QmlProjectWithCppPlugins
-    };
-
-    QList<QDeclarativeDebugWatch *> m_watches;
-
 #if 0
     void createDockWidgets();
     bool connectToViewer(); // using host, port from widgets
