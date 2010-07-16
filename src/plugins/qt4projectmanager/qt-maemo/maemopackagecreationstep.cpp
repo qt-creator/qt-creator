@@ -146,9 +146,16 @@ bool MaemoPackageCreationStep::createPackage()
     colon = QLatin1String(";");
     env.insert(key, path % QLatin1String("bin") % colon % env.value(key));
 #endif
+
     env.insert(key, targetRoot() % "/bin" % colon % env.value(key));
     env.insert(key, path % QLatin1String("madbin") % colon % env.value(key));
-    env.insert(QLatin1String("PERL5LIB"), path % QLatin1String("madlib/perl5"));
+
+    QString perlLib = QDir::fromNativeSeparators(path % QLatin1String("madlib/perl5"));
+#ifdef Q_OS_WIN
+    perlLib = perlLib.remove(QLatin1Char(':'));
+    perlLib = perlLib.prepend(QLatin1Char('/'));
+#endif
+    env.insert(QLatin1String("PERL5LIB"), perlLib);
 
     const QString buildDir = buildDirectory();
     env.insert(QLatin1String("PWD"), buildDir);
