@@ -39,7 +39,7 @@ ContextPaneWidget::ContextPaneWidget(QWidget *parent) : QFrame(parent), m_curren
     QIcon icon(style()->standardIcon(QStyle::SP_DockWidgetCloseButton));
     toolButton->setIcon(icon);
     toolButton->setToolButtonStyle(Qt::ToolButtonIconOnly);    
-    toolButton->setFixedSize(icon.availableSizes().first() + QSize(4, 4));
+    toolButton->setFixedSize(icon.availableSizes().value(0) + QSize(4, 4));
     connect(toolButton, SIGNAL(clicked()), this, SLOT(onTogglePane()));
     layout->addWidget(toolButton, 0, 0, 1, 1);
     colorDialog();
