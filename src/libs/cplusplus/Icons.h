@@ -48,6 +48,29 @@ public:
     QIcon keywordIcon() const;
     QIcon macroIcon() const;
 
+    enum IconType {
+        ClassIconType = 0,
+        EnumIconType,
+        EnumeratorIconType,
+        FuncPublicIconType,
+        FuncProtectedIconType,
+        FuncPrivateIconType,
+        NamespaceIconType,
+        VarPublicIconType,
+        VarProtectedIconType,
+        VarPrivateIconType,
+        SignalIconType,
+        SlotPublicIconType,
+        SlotProtectedIconType,
+        SlotPrivateIconType,
+        KeywordIconType,
+        MacroIconType,
+        UnknownIconType
+    };
+
+    static IconType iconTypeForSymbol(const Symbol *symbol);
+    QIcon iconForType(IconType type) const;
+
 private:
     QIcon _classIcon;
     QIcon _enumIcon;

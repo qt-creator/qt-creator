@@ -59,60 +59,7 @@ Icons::Icons()
 
 QIcon Icons::iconForSymbol(const Symbol *symbol) const
 {
-    FullySpecifiedType symbolType = symbol->type();
-    if (symbol->isFunction() || (symbol->isDeclaration() && symbolType &&
-                                 symbolType->isFunctionType()))
-    {
-        const Function *function = symbol->asFunction();
-        if (!function)
-            function = symbol->type()->asFunctionType();
-
-        if (function->isSlot()) {
-            if (function->isPublic()) {
-                return _slotPublicIcon;
-            } else if (function->isProtected()) {
-                return _slotProtectedIcon;
-            } else if (function->isPrivate()) {
-                return _slotPrivateIcon;
-            }
-        } else if (function->isSignal()) {
-            return _signalIcon;
-        } else if (symbol->isPublic()) {
-            return _funcPublicIcon;
-        } else if (symbol->isProtected()) {
-            return _funcProtectedIcon;
-        } else if (symbol->isPrivate()) {
-            return _funcPrivateIcon;
-        }
-    } else if (symbol->scope() && symbol->scope()->isEnumScope()) {
-        return _enumeratorIcon;
-    } else if (symbol->isDeclaration() || symbol->isArgument()) {
-        if (symbol->isPublic()) {
-            return _varPublicIcon;
-        } else if (symbol->isProtected()) {
-            return _varProtectedIcon;
-        } else if (symbol->isPrivate()) {
-            return _varPrivateIcon;
-        }
-    } else if (symbol->isEnum()) {
-        return _enumIcon;
-    } else if (symbol->isClass() || symbol->isForwardClassDeclaration()) {
-        return _classIcon;
-    } else if (symbol->isObjCClass() || symbol->isObjCForwardClassDeclaration()) {
-        return _classIcon;
-    } else if (symbol->isObjCProtocol() || symbol->isObjCForwardProtocolDeclaration()) {
-        return _classIcon;
-    } else if (symbol->isObjCMethod()) {
-        return _funcPublicIcon;
-    } else if (symbol->isNamespace()) {
-        return _namespaceIcon;
-    } else if (symbol->isUsingNamespaceDirective() ||
-               symbol->isUsingDeclaration()) {
-        // TODO: Might be nice to have a different icons for these things
-        return _namespaceIcon;
-    }
-
-    return QIcon();
+    return iconForType(iconTypeForSymbol(symbol));
 }
 
 QIcon Icons::keywordIcon() const
@@ -123,4 +70,103 @@ QIcon Icons::keywordIcon() const
 QIcon Icons::macroIcon() const
 {
     return _macroIcon;
+}
+
+Icons::IconType Icons::iconTypeForSymbol(const Symbol *symbol)
+{
+    FullySpecifiedType symbolType = symbol->type();
+    if (symbol->isFunction() || (symbol->isDeclaration() && symbolType &&
+                                 symbolType->isFunctionType()))
+    {
+        const Function *function = symbol->asFunction();
+        if (!function)
+            function = symbol->type()->asFunctionType();
+
+        if (function->isSlot()) {
+            if (function->isPublic()) {
+                return SlotPublicIconType;
+            } else if (function->isProtected()) {
+                return SlotProtectedIconType;
+            } else if (function->isPrivate()) {
+                return SlotPrivateIconType;
+            }
+        } else if (function->isSignal()) {
+            return SignalIconType;
+        } else if (symbol->isPublic()) {
+            return FuncPublicIconType;
+        } else if (symbol->isProtected()) {
+            return FuncProtectedIconType;
+        } else if (symbol->isPrivate()) {
+            return FuncPrivateIconType;
+        }
+    } else if (symbol->scope() && symbol->scope()->isEnumScope()) {
+        return EnumeratorIconType;
+    } else if (symbol->isDeclaration() || symbol->isArgument()) {
+        if (symbol->isPublic()) {
+            return VarPublicIconType;
+        } else if (symbol->isProtected()) {
+            return VarProtectedIconType;
+        } else if (symbol->isPrivate()) {
+            return VarPrivateIconType;
+        }
+    } else if (symbol->isEnum()) {
+        return EnumIconType;
+    } else if (symbol->isClass() || symbol->isForwardClassDeclaration()) {
+        return ClassIconType;
+    } else if (symbol->isObjCClass() || symbol->isObjCForwardClassDeclaration()) {
+        return ClassIconType;
+    } else if (symbol->isObjCProtocol() || symbol->isObjCForwardProtocolDeclaration()) {
+        return ClassIconType;
+    } else if (symbol->isObjCMethod()) {
+        return FuncPublicIconType;
+    } else if (symbol->isNamespace()) {
+        return NamespaceIconType;
+    } else if (symbol->isUsingNamespaceDirective() ||
+               symbol->isUsingDeclaration()) {
+        // TODO: Might be nice to have a different icons for these things
+        return NamespaceIconType;
+    }
+
+    return UnknownIconType;
+}
+
+QIcon Icons::iconForType(IconType type) const
+{
+    switch(type) {
+    case ClassIconType:
+        return _classIcon;
+    case EnumIconType:
+        return _enumIcon;
+    case EnumeratorIconType:
+        return _enumeratorIcon;
+    case FuncPublicIconType:
+        return _funcPublicIcon;
+    case FuncProtectedIconType:
+        return _funcProtectedIcon;
+    case FuncPrivateIconType:
+        return _funcPrivateIcon;
+    case NamespaceIconType:
+        return _namespaceIcon;
+    case VarPublicIconType:
+        return _varPublicIcon;
+    case VarProtectedIconType:
+        return _varProtectedIcon;
+    case VarPrivateIconType:
+        return _varPrivateIcon;
+    case SignalIconType:
+        return _signalIcon;
+    case SlotPublicIconType:
+        return _slotPublicIcon;
+    case SlotProtectedIconType:
+        return _slotProtectedIcon;
+    case SlotPrivateIconType:
+        return _slotPrivateIcon;
+    case KeywordIconType:
+        return _keywordIcon;
+    case MacroIconType:
+        return _macroIcon;
+    default:
+        break;
+    }
+    return QIcon();
 }
