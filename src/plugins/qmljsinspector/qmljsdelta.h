@@ -78,6 +78,10 @@ public:
     static QmlJS::AST::UiObjectMemberList *objectMembers(QmlJS::AST::UiObjectMember *object);
 
 private:
+    void insert(UiObjectMember *member, UiObjectMember *parentMember,
+                const QList<QDeclarativeDebugObjectReference> &debugReferences, const Document::Ptr &doc);
+
+private:
     QmlJS::Document::Ptr _doc;
     QmlJS::Document::Ptr _previousDoc;
     QList<Change> _changes;

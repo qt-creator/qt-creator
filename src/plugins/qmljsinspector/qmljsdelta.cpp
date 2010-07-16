@@ -98,6 +98,7 @@ static QString label(UiObjectMember *member, Document::Ptr doc)
     } else if(UiArrayBinding *foo = cast<UiArrayBinding *>(member)) {
         str = label(foo->qualifiedId) + QLatin1String("[]");
     } else if(UiScriptBinding *foo = cast<UiScriptBinding *>(member)) {
+        Q_UNUSED(foo)
     } else {
         quint32 start = member->firstSourceLocation().begin();
         quint32 end = member->lastSourceLocation().end();
@@ -277,6 +278,34 @@ static QString _methodName(UiSourceElement *source)
 
 }
 
+void Delta::insert(UiObjectMember *member, UiObjectMember *parentMember, const QList<QDeclarativeDebugObjectReference > &debugReferences, const Document::Ptr &doc)
+{
+    if (!member || !parentMember)
+        return;
+
+    // create new objects
+    if (UiObjectDefinition* uiObjectDef = cast<UiObjectDefinition *>(member)) {
+        unsigned begin = uiObjectDef->firstSourceLocation().begin();
+        unsigned end = uiObjectDef->lastSourceLocation().end();
+        QString qmlText = doc->source().mid(begin, end - begin);
+        QStringList importList;
+        for (UiImportList *it = doc->qmlProgram()->imports; it; it = it->next) {
+            if (!it->import)
+                continue;
+            unsigned importBegin = it->import->firstSourceLocation().begin();
+            unsigned importEnd = it->import->lastSourceLocation().end();
+
+            importList << doc->source().mid(importBegin, importEnd - importBegin);
+        }
+
+        foreach(const QDeclarativeDebugObjectReference &ref, debugReferences) {
+            if (ref.debugId() != -1) {
+                ClientProxy::instance()->createQmlObject(qmlText, ref, importList, doc->fileName());
+            }
+        }
+    }
+}
+
 Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::Ptr &doc2, const DebugIdMap &debugIds)
 {
     Q_ASSERT(doc1->qmlProgram());
@@ -297,12 +326,13 @@ Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::P
     while(!todo.isEmpty()) {
         UiObjectMember *y = todo.takeFirst();
         todo += children(y);
+
         if (!M.way2.contains(y)) {
+            insert(y, parents2.parent.value(y), newDebuggIds.value(parents2.parent.value(y)), doc2);
             qDebug () << "insert " << label(y, doc2) << " to " << label(parents2.parent.value(y), doc2);
             continue;
         }
         UiObjectMember *x = M.way2[y];
-
 
 //--8<---------------------------------------------------------------------------------------
         if (debugIds.contains(x)) {

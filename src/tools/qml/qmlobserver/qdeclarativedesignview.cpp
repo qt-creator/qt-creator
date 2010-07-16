@@ -8,9 +8,12 @@
 #include "subcomponenteditortool.h"
 #include "qmltoolbar.h"
 
-#include <QMouseEvent>
 #include <QDeclarativeItem>
+#include <QDeclarativeEngine>
+#include <QDeclarativeContext>
+#include <QDeclarativeExpression>
 #include <QWidget>
+#include <QMouseEvent>
 #include <QGraphicsObject>
 #include <QApplication>
 
@@ -48,6 +51,9 @@ QDeclarativeDesignView::QDeclarativeDesignView(QWidget *parent) :
     connect(qmlDesignDebugServer(), SIGNAL(selectMarqueeToolRequested()), SLOT(changeToMarqueeSelectTool()));
     connect(qmlDesignDebugServer(), SIGNAL(selectToolRequested()), SLOT(changeToSingleSelectTool()));
     connect(qmlDesignDebugServer(), SIGNAL(zoomToolRequested()), SLOT(changeToZoomTool()));
+    connect(qmlDesignDebugServer(),
+            SIGNAL(objectCreationRequested(QString,QObject*,QStringList,QString)),
+            SLOT(createQmlObject(QString,QObject*,QStringList,QString)));
 
     connect(this, SIGNAL(statusChanged(QDeclarativeView::Status)), SLOT(onStatusChanged(QDeclarativeView::Status)));
 
@@ -176,6 +182,32 @@ void QDeclarativeDesignView::keyReleaseEvent(QKeyEvent *event)
     }
 
     m_currentTool->keyReleaseEvent(event);
+}
+
+void QDeclarativeDesignView::createQmlObject(const QString &qml, QObject *parent, const QStringList &importList, const QString &filename)
+{
+    if (!parent)
+        return;
+
+    QString imports;
+    foreach(const QString &s, importList) {
+        imports += s + "\n";
+    }
+
+    QDeclarativeContext *parentContext = engine()->contextForObject(parent);
+    QDeclarativeComponent component(engine(), this);
+    QByteArray constructedQml = QString(imports + qml).toLatin1();
+
+    component.setData(constructedQml, filename);
+    QObject *newObject = component.create(parentContext);
+    if (newObject) {
+        newObject->setParent(parent);
+        QDeclarativeItem *parentItem = dynamic_cast<QDeclarativeItem*>(parent);
+        QDeclarativeItem *newItem    = dynamic_cast<QDeclarativeItem*>(newObject);
+        if (parentItem && newItem) {
+            newItem->setParentItem(parentItem);
+        }
+    }
 }
 
 QGraphicsItem *QDeclarativeDesignView::currentRootItem() const

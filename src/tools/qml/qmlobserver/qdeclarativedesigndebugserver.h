@@ -72,6 +72,9 @@ Q_SIGNALS:
     void zoomToolRequested();
     void colorPickerToolRequested();
 
+    void objectCreationRequested(const QString &qml, QObject *parent,
+                                 const QStringList &imports, const QString &filename = QString());
+
     // 1 = normal speed,
     // 0 = paused,
     // 1 < x < 16 = slowdown by some factor

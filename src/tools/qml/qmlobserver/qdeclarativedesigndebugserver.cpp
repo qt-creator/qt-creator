@@ -1,4 +1,5 @@
 #include "qdeclarativedesigndebugserver.h"
+#include <QStringList>
 
 #include <QDebug>
 
@@ -52,6 +53,13 @@ void QDeclarativeDesignDebugServer::messageReceived(const QByteArray &message)
         bool inDesignMode;
         ds >> inDesignMode;
         emit designModeBehaviorChanged(inDesignMode);
+    } else if (type == "CREATE_OBJECT") {
+        QString qml;
+        int parentId;
+        QString filename;
+        QStringList imports;
+        ds >> qml >> parentId >> imports >> filename;
+        emit objectCreationRequested(qml, objectForId(parentId), imports, filename);
     }
 }
 

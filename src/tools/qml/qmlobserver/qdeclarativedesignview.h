@@ -93,6 +93,8 @@ private Q_SLOTS:
     void onStatusChanged(QDeclarativeView::Status status);
     void onCurrentObjectsChanged(QList<QObject*> objects);
     void applyChangesFromClient();
+    void createQmlObject(const QString &qml, QObject *parent,
+                         const QStringList &imports, const QString &filename = QString());
 
 private:
     void clearEditorItems();
@@ -100,6 +102,7 @@ private:
     void changeToSelectTool();
     QList<QGraphicsItem*> filterForCurrentContext(QList<QGraphicsItem*> &itemlist) const;
     QList<QGraphicsItem*> filterForSelection(QList<QGraphicsItem*> &itemlist) const;
+
 
 private:
     QPointF m_cursorPos;
