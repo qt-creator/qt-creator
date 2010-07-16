@@ -334,16 +334,24 @@ static void addDeclaration(Document::Ptr doc, const Class *cl, const QString &fu
             if (const Function *fun = decl->type()->asFunctionType())  {
                 // we are only interested in declarations of methods.
                 if (fun->isSlot() && fun->isPrivate()) {
+
+                    //
+                    // ### FIXME: change this to use the Refactoring changes and the AST to find the correct insertion position
+                    //
+
                     const int line = fun->line(); // this is the beginning of function name: "void ^foo(...)"
-                    const int column = fun->column();
+                    const int column = 0;
                     if (ITextEditable *editable = editableAt(docFileName, line, column)) {
-                        unsigned dl, dc; // this position is the beginning of return value: "^void foo(...)"
-                        unit->getPosition(decl->startOffset(), &dl, &dc);
-                        dc--; // if the first character in line is 'v' coming from "void" getStartPosition returns 1, not 0, so we always decrement it.
-                        editable->gotoLine(dl, dc);
-                        editable->position(ITextEditor::StartOfLine);
-                        const QString indentation = QString(dc, QLatin1Char(' '));
-                        editable->insert(declaration + indentation);
+                        BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(editable->widget());
+                        if (editor) {
+                            QTextCursor tc = editor->textCursor();
+                            int pos = tc.position();
+                            tc.beginEditBlock();
+                            tc.insertText(declaration);
+                            tc.setPosition(pos, QTextCursor::KeepAnchor);
+                            editor->indentInsertedText(tc);
+                            tc.endEditBlock();
+                        }
                     }
                     return;
                 }
