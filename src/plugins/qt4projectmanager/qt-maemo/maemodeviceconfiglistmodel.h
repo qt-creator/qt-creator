@@ -32,47 +32,46 @@
 **
 ****************************************************************************/
 
-#ifndef MAEMORUNCONFIGURATIONWIDGET_H
-#define MAEMORUNCONFIGURATIONWIDGET_H
+#ifndef MAEMODEVICECONFIGLISTMODEL_H
+#define MAEMODEVICECONFIGLISTMODEL_H
 
-#include <QtGui/QWidget>
+#include "maemodeviceconfigurations.h"
 
-QT_BEGIN_NAMESPACE
-class QComboBox;
-class QLabel;
-class QLineEdit;
-QT_END_NAMESPACE
+#include <QtCore/QAbstractListModel>
+#include <QtCore/QVariantMap>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class MaemoRunConfiguration;
-
-class MaemoRunConfigurationWidget : public QWidget
+class MaemoDeviceConfigListModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    explicit MaemoRunConfigurationWidget(MaemoRunConfiguration *runConfiguration,
-        QWidget *parent = 0);
+    explicit MaemoDeviceConfigListModel(QObject *parent = 0);
+    void setCurrentIndex(int index);
+    MaemoDeviceConfig current() const;
+    int currentIndex() const { return m_currentIndex; }
 
-private slots:
-    void configNameEdited(const QString &text);
-    void argumentsEdited(const QString &args);
-    void showSettingsDialog(const QString &link);
-    void updateTargetInformation();
-    void handleCurrentDeviceConfigChanged();
-    void setCurrentDeviceConfig(int index);
+    QVariantMap toMap() const;
+    void fromMap(const QVariantMap &map);
+
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual QVariant data(const QModelIndex &index, int role) const;
+
+signals:
+    void currentChanged();
 
 private:
-    QLineEdit *m_configNameLineEdit;
-    QLineEdit *m_argsLineEdit;
-    QLabel *m_executableLabel;
-    QLabel *m_debuggerLabel;
-    QComboBox *m_devConfBox;
-    MaemoRunConfiguration *m_runConfiguration;
+    Q_SLOT void handleDeviceConfigListChange();
+    void resetCurrentIndex();
+    void setInvalid();
+
+    quint64 m_currentId;
+    int m_currentIndex;
 };
+
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
 
-#endif // MAEMORUNCONFIGURATIONWIDGET_H
+#endif // MAEMODEVICECONFIGLISTMODEL_H

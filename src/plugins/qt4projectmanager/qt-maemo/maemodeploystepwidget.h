@@ -22,12 +22,14 @@ public:
     ~MaemoDeployStepWidget();
 
 private:
+    Q_SLOT void handleDeviceUpdate();
     Q_SLOT void handleModelsCreated();
+    Q_SLOT void handleDeviceConfigModelChanged();
+    Q_SLOT void setCurrentDeviceConfig(int index);
+
     virtual void init();
     virtual QString summaryText() const;
     virtual QString displayName() const;
-
-    Q_SLOT void handleDeviceUpdate();
 
     Ui::MaemoDeployStepWidget *ui;
     MaemoDeployStep * const m_step;

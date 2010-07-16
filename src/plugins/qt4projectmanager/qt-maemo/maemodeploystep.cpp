@@ -32,6 +32,7 @@
 #include "maemoconstants.h"
 #include "maemodeployables.h"
 #include "maemodeploystepwidget.h"
+#include "maemodeviceconfiglistmodel.h"
 #include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
 #include "maemorunconfiguration.h"
@@ -79,6 +80,7 @@ MaemoDeployStep::~MaemoDeployStep()
 
 void MaemoDeployStep::ctor()
 {
+    m_deviceConfigModel = new MaemoDeviceConfigListModel(this);
 }
 
 bool MaemoDeployStep::init()
@@ -104,6 +106,7 @@ QVariantMap MaemoDeployStep::toMap() const
 {
     QVariantMap map(BuildStep::toMap());
     addDeployTimesToMap(map);
+    map.unite(m_deviceConfigModel->toMap());
     return map;
 }
 
@@ -131,6 +134,7 @@ bool MaemoDeployStep::fromMap(const QVariantMap &map)
     if (!BuildStep::fromMap(map))
         return false;
     getDeployTimesFromMap(map);
+    m_deviceConfigModel->fromMap(map);
     return true;
 }
 
@@ -213,11 +217,15 @@ void MaemoDeployStep::setDeployed(const QString &host,
 
 MaemoDeviceConfig MaemoDeployStep::deviceConfig() const
 {
-    // TODO: For lib template, get info from config widget
-    const RunConfiguration * const rc =
-        buildConfiguration()->target()->activeRunConfiguration();
-    return rc ? qobject_cast<const MaemoRunConfiguration *>(rc)->deviceConfig()
-        : MaemoDeviceConfig();
+    return deviceConfigModel()->current();
+}
+
+MaemoDeviceConfigListModel *MaemoDeployStep::deviceConfigModel() const
+{
+    const MaemoRunConfiguration * const rc =
+        qobject_cast<const MaemoRunConfiguration *>(buildConfiguration()
+            ->target()->activeRunConfiguration());
+    return rc ? rc->deviceConfigModel() : m_deviceConfigModel;
 }
 
 void MaemoDeployStep::start()

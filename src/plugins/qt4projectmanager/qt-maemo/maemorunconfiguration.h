@@ -47,15 +47,16 @@ class Qt4Project;
 
 namespace Internal {
 
-class MaemoManager;
-class MaemoToolChain;
 class Qt4BuildConfiguration;
 class Qt4ProFileNode;
 class Qt4Target;
 
+class MaemoDeviceConfigListModel;
 class MaemoDeployStep;
+class MaemoManager;
 class MaemoPackageCreationStep;
 class MaemoRunConfigurationFactory;
+class MaemoToolChain;
 
 class MaemoRunConfiguration : public ProjectExplorer::RunConfiguration
 {
@@ -81,8 +82,8 @@ public:
     const QString targetRoot() const;
     const QStringList arguments() const;
     void setArguments(const QStringList &args);
-    void setDeviceConfig(const MaemoDeviceConfig &deviceConfig);
     MaemoDeviceConfig deviceConfig() const;
+    MaemoDeviceConfigListModel *deviceConfigModel() const;
     QString runtimeGdbServerPort() const;
 
     const QString gdbCmd() const;
@@ -91,7 +92,6 @@ public:
     virtual QVariantMap toMap() const;
 
 signals:
-    void deviceConfigurationsUpdated(ProjectExplorer::Target *target);
     void deviceConfigurationChanged(ProjectExplorer::Target *target);
     void targetInformationChanged() const;
 
@@ -109,8 +109,7 @@ private:
 
     QString m_proFilePath;
     mutable QString m_gdbPath;
-
-    MaemoDeviceConfig m_devConfig;
+    MaemoDeviceConfigListModel *m_devConfigModel;
     QStringList m_arguments;
 };
 

@@ -199,8 +199,10 @@ void QemuRuntimeManager::projectRemoved(ProjectExplorer::Project *project)
 
 void QemuRuntimeManager::projectChanged(ProjectExplorer::Project *project)
 {
-    if (project)
+    if (project) {
         toggleStarterButton(project->activeTarget());
+        deviceConfigurationChanged(project->activeTarget());
+    }
 }
 
 bool targetIsMaemo(const QString &id)
@@ -265,8 +267,10 @@ void QemuRuntimeManager::targetRemoved(ProjectExplorer::Target *target)
 
 void QemuRuntimeManager::targetChanged(ProjectExplorer::Target *target)
 {
-    if (target)
+    if (target) {
         toggleStarterButton(target);
+        deviceConfigurationChanged(target);
+    }
 }
 
 void QemuRuntimeManager::runConfigurationAdded(ProjectExplorer::RunConfiguration *rc)
@@ -610,12 +614,8 @@ void QemuRuntimeManager::toggleDeviceConnections(MaemoRunConfiguration *mrc,
     if (_connect) { // handle device configuration changes
         connect(mrc, SIGNAL(deviceConfigurationChanged(ProjectExplorer::Target*)),
             this, SLOT(deviceConfigurationChanged(ProjectExplorer::Target*)));
-        connect(mrc, SIGNAL(deviceConfigurationsUpdated(ProjectExplorer::Target*)),
-            this, SLOT(deviceConfigurationChanged(ProjectExplorer::Target*)));
     } else {
         disconnect(mrc, SIGNAL(deviceConfigurationChanged(ProjectExplorer::Target*)),
-            this, SLOT(deviceConfigurationChanged(ProjectExplorer::Target*)));
-        disconnect(mrc, SIGNAL(deviceConfigurationsUpdated(ProjectExplorer::Target*)),
             this, SLOT(deviceConfigurationChanged(ProjectExplorer::Target*)));
     }
 }

@@ -58,6 +58,8 @@ public:
     void save(QSettings &settings) const;
     bool isValid() const;
 
+    static const quint64 InvalidId = 0;
+
     Core::SshConnectionParameters server;
     QString name;
     DeviceType type;
@@ -69,7 +71,6 @@ private:
     int defaultGdbServerPort(DeviceType type) const;
     QString defaultHost(DeviceType type) const;
 
-    static const quint64 InvalidId = 0;
 };
 
 class DevConfNameMatcher

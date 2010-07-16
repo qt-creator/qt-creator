@@ -34,7 +34,7 @@
 
 #include "maemorunconfigurationwidget.h"
 
-#include "maemodeviceconfigurations.h"
+#include "maemodeviceconfiglistmodel.h"
 #include "maemomanager.h"
 #include "maemorunconfiguration.h"
 #include "maemosettingspage.h"
@@ -70,6 +70,7 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     QHBoxLayout *devConfLayout = new QHBoxLayout(devConfWidget);
     m_devConfBox = new QComboBox;
     m_devConfBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    m_devConfBox->setModel(runConfiguration->deviceConfigModel());
     devConfLayout->setMargin(0);
     devConfLayout->addWidget(m_devConfBox);
     QLabel *addDevConfLabel= new QLabel(tr("<a href=\"%1\">Manage device configurations</a>")
@@ -88,16 +89,15 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     m_argsLineEdit = new QLineEdit(m_runConfiguration->arguments().join(" "));
     mainLayout->addRow(tr("Arguments:"), m_argsLineEdit);
 
-    resetDeviceConfigurations();
-    connect(m_runConfiguration, SIGNAL(deviceConfigurationsUpdated(ProjectExplorer::Target *)),
-            this, SLOT(resetDeviceConfigurations()));
-
+    handleCurrentDeviceConfigChanged();
     connect(m_configNameLineEdit, SIGNAL(textEdited(QString)), this,
         SLOT(configNameEdited(QString)));
     connect(m_argsLineEdit, SIGNAL(textEdited(QString)), this,
         SLOT(argumentsEdited(QString)));
-    connect(m_devConfBox, SIGNAL(activated(QString)), this,
-            SLOT(deviceConfigurationChanged(QString)));
+    connect(m_devConfBox, SIGNAL(activated(int)), this,
+            SLOT(setCurrentDeviceConfig(int)));
+    connect(runConfiguration->deviceConfigModel(), SIGNAL(currentChanged()),
+        this, SLOT(handleCurrentDeviceConfigChanged()));
     connect(m_runConfiguration, SIGNAL(targetInformationChanged()), this,
         SLOT(updateTargetInformation()));
     connect(addDevConfLabel, SIGNAL(linkActivated(QString)), this,
@@ -121,25 +121,6 @@ void MaemoRunConfigurationWidget::updateTargetInformation()
     m_executableLabel->setText(m_runConfiguration->localExecutableFilePath());
 }
 
-void MaemoRunConfigurationWidget::deviceConfigurationChanged(const QString &name)
-{
-    const MaemoDeviceConfig &devConfig
-        = MaemoDeviceConfigurations::instance().find(name);
-    m_runConfiguration->setDeviceConfig(devConfig);
-}
-
-void MaemoRunConfigurationWidget::resetDeviceConfigurations()
-{
-    m_devConfBox->clear();
-    const QList<MaemoDeviceConfig> &devConfs =
-        MaemoDeviceConfigurations::instance().devConfigs();
-    foreach (const MaemoDeviceConfig &devConf, devConfs)
-        m_devConfBox->addItem(devConf.name);
-    m_devConfBox->addItem(MaemoDeviceConfig().name);
-    const MaemoDeviceConfig &devConf = m_runConfiguration->deviceConfig();
-    m_devConfBox->setCurrentIndex(m_devConfBox->findText(devConf.name));
-}
-
 void MaemoRunConfigurationWidget::showSettingsDialog(const QString &link)
 {
     if (link == QLatin1String("deviceconfig")) {
@@ -149,6 +130,17 @@ void MaemoRunConfigurationWidget::showSettingsDialog(const QString &link)
         Core::ICore::instance()->showOptionsDialog(QLatin1String("O.Debugger"),
             QLatin1String("M.Gdb"));
     }
+}
+
+void MaemoRunConfigurationWidget::handleCurrentDeviceConfigChanged()
+{
+    m_devConfBox->setCurrentIndex(m_runConfiguration->deviceConfigModel()
+        ->currentIndex());
+}
+
+void MaemoRunConfigurationWidget::setCurrentDeviceConfig(int index)
+{
+    m_runConfiguration->deviceConfigModel()->setCurrentIndex(index);
 }
 
 } // namespace Internal

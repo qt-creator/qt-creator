@@ -31,6 +31,7 @@
 
 #include "maemodeployables.h"
 #include "maemodeploystep.h"
+#include "maemodeviceconfiglistmodel.h"
 #include "maemoglobal.h"
 #include "maemorunconfigurationwidget.h"
 #include "maemotoolchain.h"
@@ -68,7 +69,6 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
     : RunConfiguration(parent, source)
     , m_proFilePath(source->m_proFilePath)
     , m_gdbPath(source->m_gdbPath)
-    , m_devConfig(source->m_devConfig)
     , m_arguments(source->m_arguments)
 {
     init();
@@ -76,10 +76,13 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
 
 void MaemoRunConfiguration::init()
 {
+    m_devConfigModel = new MaemoDeviceConfigListModel(this);
     setDisplayName(QFileInfo(m_proFilePath).completeBaseName());
 
     updateDeviceConfigurations();
-    connect(&MaemoDeviceConfigurations::instance(), SIGNAL(updated()), this,
+    connect(m_devConfigModel, SIGNAL(currentChanged()), this,
+        SLOT(updateDeviceConfigurations()));
+    connect(m_devConfigModel, SIGNAL(modelReset()), this,
         SLOT(updateDeviceConfigurations()));
 
     connect(qt4Target()->qt4Project(),
@@ -128,10 +131,10 @@ void MaemoRunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFil
 QVariantMap MaemoRunConfiguration::toMap() const
 {
     QVariantMap map(RunConfiguration::toMap());
-    map.insert(DeviceIdKey, m_devConfig.internalId);
     map.insert(ArgumentsKey, m_arguments);
     const QDir dir = QDir(target()->project()->projectDirectory());
     map.insert(ProFileKey, dir.relativeFilePath(m_proFilePath));
+    map.unite(m_devConfigModel->toMap());
     return map;
 }
 
@@ -140,24 +143,22 @@ bool MaemoRunConfiguration::fromMap(const QVariantMap &map)
     if (!RunConfiguration::fromMap(map))
         return false;
 
-    setDeviceConfig(MaemoDeviceConfigurations::instance().
-        find(map.value(DeviceIdKey, 0).toInt()));
     m_arguments = map.value(ArgumentsKey).toStringList();
     const QDir dir = QDir(target()->project()->projectDirectory());
     m_proFilePath = dir.filePath(map.value(ProFileKey).toString());
+    m_devConfigModel->fromMap(map);
 
     return true;
 }
 
-void MaemoRunConfiguration::setDeviceConfig(const MaemoDeviceConfig &devConf)
-{
-    m_devConfig = devConf;
-    emit deviceConfigurationChanged(target());
-}
-
 MaemoDeviceConfig MaemoRunConfiguration::deviceConfig() const
 {
-    return m_devConfig;
+    return m_devConfigModel->current();
+}
+
+MaemoDeviceConfigListModel *MaemoRunConfiguration::deviceConfigModel() const
+{
+    return m_devConfigModel;
 }
 
 const MaemoToolChain *MaemoRunConfiguration::toolchain() const
@@ -251,16 +252,7 @@ void MaemoRunConfiguration::setArguments(const QStringList &args)
 
 void MaemoRunConfiguration::updateDeviceConfigurations()
 {
-    const MaemoDeviceConfigurations &configManager
-        = MaemoDeviceConfigurations::instance();
-    if (!m_devConfig.isValid()) {
-        const QList<MaemoDeviceConfig> &configList = configManager.devConfigs();
-        if (!configList.isEmpty())
-            m_devConfig = configList.first();
-    } else {
-        m_devConfig = configManager.find(m_devConfig.internalId);
-    }
-    emit deviceConfigurationsUpdated(target());
+    emit deviceConfigurationChanged(target());
 }
 
 } // namespace Internal

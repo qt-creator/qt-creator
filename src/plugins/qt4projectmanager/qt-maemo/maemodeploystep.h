@@ -55,6 +55,7 @@ class SshRemoteProcess;
 namespace Qt4ProjectManager {
 namespace Internal {
 class MaemoDeployables;
+class MaemoDeviceConfigListModel;
 class MaemoPackageCreationStep;
 
 class MaemoDeployStep : public ProjectExplorer::BuildStep
@@ -65,6 +66,7 @@ public:
     MaemoDeployStep(ProjectExplorer::BuildConfiguration *bc);
     virtual ~MaemoDeployStep();
     MaemoDeviceConfig deviceConfig() const;
+    MaemoDeviceConfigListModel *deviceConfigModel() const;
     bool currentlyNeedsDeployment(const QString &host,
         const MaemoDeployable &deployable) const;
     void setDeployed(const QString &host, const MaemoDeployable &deployable);
@@ -119,6 +121,7 @@ private:
     bool m_stopped;
     typedef QPair<MaemoDeployable, QString> DeployablePerHost;
     QHash<DeployablePerHost, QDateTime> m_lastDeployed;
+    MaemoDeviceConfigListModel *m_deviceConfigModel;
 };
 
 class MaemoDeployEventHandler : public QObject

@@ -5,6 +5,7 @@
 #include "maemodeployablelistmodel.h"
 #include "maemodeployablelistwidget.h"
 #include "maemodeployables.h"
+#include "maemodeviceconfiglistmodel.h"
 #include "maemorunconfiguration.h"
 
 #include <projectexplorer/buildconfiguration.h>
@@ -32,17 +33,33 @@ MaemoDeployStepWidget::~MaemoDeployStepWidget()
 
 void MaemoDeployStepWidget::init()
 {
-    const ProjectExplorer::RunConfiguration * const rc =
-        m_step->buildConfiguration()->target()->activeRunConfiguration();
-    if (rc) {
-        connect(qobject_cast<const MaemoRunConfiguration *>(rc),
-            SIGNAL(deviceConfigurationChanged(ProjectExplorer::Target *)),
-            this, SLOT(handleDeviceUpdate()));
-    }
+    connectDeviceConfigModel();
+    connect(m_step->buildConfiguration()->target(),
+        SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
+        this, SLOT(connectDeviceConfigModel()));
+    connect(ui->deviceConfigComboBox, SIGNAL(activated(int)), this,
+        SLOT(setCurrentDeviceConfig(int)));
+}
+
+void MaemoDeployStepWidget::connectDeviceConfigModel()
+{
+    const MaemoDeviceConfigListModel * const oldModel
+        = qobject_cast<MaemoDeviceConfigListModel *>(ui->deviceConfigComboBox->model());
+    if (oldModel)
+        disconnect(oldModel, 0, this, 0);
+    MaemoDeviceConfigListModel * const devModel = m_step->deviceConfigModel();
+    ui->deviceConfigComboBox->setModel(devModel);
+    connect(devModel, SIGNAL(currentChanged()), this,
+        SLOT(handleDeviceUpdate()));
+    connect(devModel, SIGNAL(modelReset()), this,
+        SLOT(handleDeviceUpdate()));
+    handleDeviceUpdate();
 }
 
 void MaemoDeployStepWidget::handleDeviceUpdate()
 {
+    ui->deviceConfigComboBox->setCurrentIndex(m_step->deviceConfigModel()
+        ->currentIndex());
     emit updateSummary();
 }
 
@@ -66,6 +83,11 @@ void MaemoDeployStepWidget::handleModelsCreated()
         ui->tabWidget->addTab(new MaemoDeployableListWidget(this, model),
             model->projectName());
     }
+}
+
+void MaemoDeployStepWidget::setCurrentDeviceConfig(int index)
+{
+    m_step->deviceConfigModel()->setCurrentIndex(index);
 }
 
 } // namespace Internal
