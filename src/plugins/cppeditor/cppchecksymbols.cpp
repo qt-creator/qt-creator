@@ -542,6 +542,8 @@ bool CheckSymbols::visit(FunctionDefinitionAST *ast)
     }
 
     _functionDefinitionStack.removeLast();
+
+    flush();
     return false;
 }
 
