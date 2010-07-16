@@ -143,6 +143,12 @@ void SubcomponentEditorTool::setCurrentItem(QGraphicsItem* contextItem)
     if (!gfxObject)
         return;
 
+    connect(gfxObject, SIGNAL(xChanged()), SLOT(refresh()));
+    connect(gfxObject, SIGNAL(yChanged()), SLOT(refresh()));
+    connect(gfxObject, SIGNAL(scaleChanged()), SLOT(refresh()));
+    connect(gfxObject, SIGNAL(widthChanged()), SLOT(refresh()));
+    connect(gfxObject, SIGNAL(heightChanged()), SLOT(refresh()));
+
     //QString parentClassName = gfxObject->metaObject()->className();
     //if (parentClassName.contains(QRegExp("_QMLTYPE_\\d+")))
 
@@ -234,6 +240,13 @@ void SubcomponentEditorTool::aboutToPopContext()
 QGraphicsObject *SubcomponentEditorTool::popContext()
 {
     QGraphicsObject *popped = m_currentContext.pop();
+
+    disconnect(popped, SIGNAL(xChanged()), this, SLOT(refresh()));
+    disconnect(popped, SIGNAL(yChanged()), this, SLOT(refresh()));
+    disconnect(popped, SIGNAL(scaleChanged()), this, SLOT(refresh()));
+    disconnect(popped, SIGNAL(widthChanged()), this, SLOT(refresh()));
+    disconnect(popped, SIGNAL(heightChanged()), this, SLOT(refresh()));
+
     if (m_currentContext.size() > 1) {
         m_mask->setCurrentItem(m_currentContext.top());
         m_mask->setOpacity(MaxOpacity);
@@ -241,6 +254,11 @@ QGraphicsObject *SubcomponentEditorTool::popContext()
     }
 
     return popped;
+}
+
+void SubcomponentEditorTool::refresh()
+{
+    m_mask->setCurrentItem(m_currentContext.top());
 }
 
 QGraphicsObject *SubcomponentEditorTool::currentRootItem() const

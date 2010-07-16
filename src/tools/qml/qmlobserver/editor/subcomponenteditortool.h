@@ -58,6 +58,7 @@ protected:
 private slots:
     void animate();
     void contextDestroyed(QObject *context);
+    void refresh();
 
 private:
     void aboutToPopContext();
