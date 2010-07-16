@@ -24,11 +24,27 @@ MIMETYPES_FILES = \"$$join(MIMETYPES_FILES, |)\"
 for(dir, $$list($$files($$IDE_SOURCE_TREE/share/qtcreator/templates/wizards/*))):CUSTOMWIZARD_FILES += $$files($$dir/wizard.xml)
 CUSTOMWIZARD_FILES = \"$$join(CUSTOMWIZARD_FILES, |)\"
 
-ts.commands += \
+extract.commands += \
     $$XMLPATTERNS -output $$MIME_TR_H -param files=$$MIMETYPES_FILES $$PWD/extract-mimetypes.xq $$escape_expand(\\n\\t) \
-    $$XMLPATTERNS -output $$CUSTOMWIZARD_TR_H -param files=$$CUSTOMWIZARD_FILES $$PWD/extract-customwizards.xq $$escape_expand(\\n\\t) \
-    (cd $$IDE_SOURCE_TREE && $$LUPDATE src share/qtcreator/qmldesigner $$MIME_TR_H $$CUSTOMWIZARD_TR_H -ts $$TRANSLATIONS) && \
-    $$QMAKE_DEL_FILE $$MIME_TR_H
+    $$XMLPATTERNS -output $$CUSTOMWIZARD_TR_H -param files=$$CUSTOMWIZARD_FILES $$PWD/extract-customwizards.xq
+QMAKE_EXTRA_TARGETS += extract
+
+files = $$files($$PWD/*_??.ts)
+for(file, files) {
+    lang = $$replace(file, .*_(.*)\\.ts, \\1)
+    v = ts-$${lang}.commands
+    $$v = cd $$IDE_SOURCE_TREE && $$LUPDATE src share/qtcreator/qmldesigner $$MIME_TR_H $$CUSTOMWIZARD_TR_H -ts $$file
+    v = ts-$${lang}.depends
+    $$v = extract
+    QMAKE_EXTRA_TARGETS += ts-$$lang
+}
+ts-all.commands = cd $$IDE_SOURCE_TREE && $$LUPDATE src share/qtcreator/qmldesigner $$MIME_TR_H $$CUSTOMWIZARD_TR_H -ts $$files
+ts-all.depends = extract
+QMAKE_EXTRA_TARGETS += ts-all
+
+ts.commands = \
+    @echo \"The \'ts\' target has been removed in favor of more fine-grained targets.\" && \
+    echo \"Use \'ts-<lang>\' instead.\"
 QMAKE_EXTRA_TARGETS += ts
 
 TEMPLATE = app

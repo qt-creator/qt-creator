@@ -53,6 +53,7 @@ Thumbs.db
 *.Release
 
 # translation related:
+share/qtcreator/translations/*_tr.h
 
 # Directories to ignore
 # ---------------------
