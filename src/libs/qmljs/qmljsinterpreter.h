@@ -769,10 +769,11 @@ private:
 class QMLJS_EXPORT ASTFunctionValue: public FunctionValue
 {
     AST::FunctionDeclaration *_ast;
+    const Document *_doc;
     QList<NameId *> _argumentNames;
 
 public:
-    ASTFunctionValue(AST::FunctionDeclaration *ast, Engine *engine);
+    ASTFunctionValue(AST::FunctionDeclaration *ast, const Document *doc, Engine *engine);
     virtual ~ASTFunctionValue();
 
     AST::FunctionDeclaration *ast() const;
@@ -782,6 +783,8 @@ public:
     virtual const Value *argument(int) const;
     virtual QString argumentName(int index) const;
     virtual bool isVariadic() const;
+
+    virtual bool getSourceLocation(QString *fileName, int *line, int *column) const;
 };
 
 class QMLJS_EXPORT ASTPropertyReference: public Reference

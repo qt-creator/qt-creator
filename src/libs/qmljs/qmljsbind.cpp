@@ -282,7 +282,7 @@ bool Bind::visit(FunctionDeclaration *ast)
     //if (_currentObjectValue->property(ast->name->asString(), 0))
     //    return false;
 
-    ASTFunctionValue *function = new ASTFunctionValue(ast, &_engine);
+    ASTFunctionValue *function = new ASTFunctionValue(ast, _doc, &_engine);
     _currentObjectValue->setProperty(ast->name->asString(), function);
 
     // build function scope

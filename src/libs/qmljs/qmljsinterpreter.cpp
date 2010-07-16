@@ -2959,8 +2959,8 @@ const Value *ASTVariableReference::value(Context *context) const
     return check(_ast->expression);
 }
 
-ASTFunctionValue::ASTFunctionValue(FunctionDeclaration *ast, Engine *engine)
-    : FunctionValue(engine), _ast(ast)
+ASTFunctionValue::ASTFunctionValue(FunctionDeclaration *ast, const Document *doc, Engine *engine)
+    : FunctionValue(engine), _doc(doc), _ast(ast)
 {
     setPrototype(engine->functionPrototype());
 
@@ -3004,6 +3004,14 @@ QString ASTFunctionValue::argumentName(int index) const
 
 bool ASTFunctionValue::isVariadic() const
 {
+    return true;
+}
+
+bool ASTFunctionValue::getSourceLocation(QString *fileName, int *line, int *column) const
+{
+    *fileName = _doc->fileName();
+    *line = _ast->identifierToken.startLine;
+    *column = _ast->identifierToken.startColumn;
     return true;
 }
 
