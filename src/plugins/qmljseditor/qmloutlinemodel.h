@@ -9,10 +9,17 @@
 namespace QmlJSEditor {
 namespace Internal {
 
+class QmlOutlineItem : public QStandardItem
+{
+public:
+    QmlOutlineItem &copyValues(const QmlOutlineItem &other); // so that we can assign all values at once
+};
+
 class QmlOutlineModel : public QStandardItemModel
 {
     Q_OBJECT
 public:
+
     enum CustomRoles {
         SourceLocationRole = Qt::UserRole + 1,
         ItemTypeRole = SourceLocationRole + 1
@@ -40,7 +47,7 @@ signals:
     void updated();
 
 private:
-    QStandardItem *enterNode(const QmlJS::AST::SourceLocation &location);
+    QModelIndex enterNode(const QmlOutlineItem &prototype);
     void leaveNode();
 
     QStandardItem *parentItem();

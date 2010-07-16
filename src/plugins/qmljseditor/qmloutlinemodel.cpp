@@ -18,6 +18,13 @@ enum {
 namespace QmlJSEditor {
 namespace Internal {
 
+QmlOutlineItem &QmlOutlineItem::copyValues(const QmlOutlineItem &other)
+{
+    *this = other;
+    emitDataChanged();
+    return *this;
+}
+
 class QmlOutlineModelSync : protected AST::Visitor
 {
 public:
@@ -201,22 +208,6 @@ private:
     int indent;
 };
 
-class OutlineItem : public QStandardItem
-{
-    int type() const
-    {
-        return QStandardItem::UserType + 1;
-    }
-
-    QVariant data(int role = Qt::UserRole + 1) const
-    {
-        if (role == Qt::ToolTipRole) {
-
-        }
-        return QStandardItem::data(role);
-    }
-};
-
 QmlOutlineModel::QmlOutlineModel(QObject *parent) :
     QStandardItemModel(parent)
 {
@@ -246,16 +237,19 @@ void QmlOutlineModel::update(QmlJS::Document::Ptr doc, const QmlJS::Snapshot &sn
 
 QModelIndex QmlOutlineModel::enterElement(const QString &type, const QString &id, const QIcon &icon, const AST::SourceLocation &sourceLocation)
 {
-    QStandardItem *item = enterNode(sourceLocation);
+    QmlOutlineItem prototype;
+
     if (!id.isEmpty()) {
-        item->setText(id);
+        prototype.setText(id);
     } else {
-        item->setText(type);
+        prototype.setText(type);
     }
-    item->setIcon(icon);
-    item->setToolTip(type);
-    item->setData(ElementType, ItemTypeRole);
-    return item->index();
+    prototype.setIcon(icon);
+    prototype.setToolTip(type);
+    prototype.setData(ElementType, ItemTypeRole);
+    prototype.setData(QVariant::fromValue(sourceLocation), SourceLocationRole);
+
+    return enterNode(prototype);
 }
 
 void QmlOutlineModel::leaveElement()
@@ -265,15 +259,18 @@ void QmlOutlineModel::leaveElement()
 
 QModelIndex QmlOutlineModel::enterProperty(const QString &name, bool isCustomProperty, const AST::SourceLocation &sourceLocation)
 {
-    QStandardItem *item = enterNode(sourceLocation);
-    item->setText(name);
+    QmlOutlineItem prototype;
+
+    prototype.setText(name);
     if (isCustomProperty) {
-        item->setIcon(m_icons->publicMemberIcon());
+        prototype.setIcon(m_icons->publicMemberIcon());
     } else {
-        item->setIcon(m_icons->scriptBindingIcon());
+        prototype.setIcon(m_icons->scriptBindingIcon());
     }
-    item->setData(PropertyType, ItemTypeRole);
-    return item->index();
+    prototype.setData(PropertyType, ItemTypeRole);
+    prototype.setData(QVariant::fromValue(sourceLocation), SourceLocationRole);
+
+    return enterNode(prototype);
 }
 
 void QmlOutlineModel::leaveProperty()
@@ -281,40 +278,49 @@ void QmlOutlineModel::leaveProperty()
     leaveNode();
 }
 
-QStandardItem *QmlOutlineModel::enterNode(const QmlJS::AST::SourceLocation &location)
+QModelIndex QmlOutlineModel::enterNode(const QmlOutlineItem &prototype)
 {
     int siblingIndex = m_treePos.last();
     if (siblingIndex == 0) {
         // first child
         if (!m_currentItem->hasChildren()) {
-            QStandardItem *parentItem = m_currentItem;
-            m_currentItem = new QStandardItem;
-            m_currentItem->setEditable(false);
-            parentItem->appendRow(m_currentItem);
             if (debug)
-                qDebug() << "QmlOutlineModel - Adding" << "element to" << parentItem->text();
+                qDebug() << "QmlOutlineModel - Adding" << "element to" << m_currentItem->text();
+
+            QmlOutlineItem *newItem = new QmlOutlineItem;
+            newItem->copyValues(prototype);
+            newItem->setEditable(false);
+            m_currentItem->appendRow(newItem);
+
+            m_currentItem = newItem;
         } else {
             m_currentItem = m_currentItem->child(0);
+
+            QmlOutlineItem *existingItem = static_cast<QmlOutlineItem*>(m_currentItem);
+            existingItem->copyValues(prototype);
         }
     } else {
         // sibling
         if (m_currentItem->rowCount() <= siblingIndex) {
-            // attach
-            QStandardItem *oldItem = m_currentItem;
-            m_currentItem = new QStandardItem;
-            m_currentItem->setEditable(false);
-            oldItem->appendRow(m_currentItem);
             if (debug)
-                qDebug() << "QmlOutlineModel - Adding" << "element to" << oldItem->text();
+                qDebug() << "QmlOutlineModel - Adding" << "element to" << m_currentItem->text();
+
+            QmlOutlineItem *newItem = new QmlOutlineItem;
+            newItem->copyValues(prototype);
+            newItem->setEditable(false);
+            m_currentItem->appendRow(newItem);
+            m_currentItem = newItem;
         } else {
             m_currentItem = m_currentItem->child(siblingIndex);
+
+            QmlOutlineItem *existingItem = static_cast<QmlOutlineItem*>(m_currentItem);
+            existingItem->copyValues(prototype);
         }
     }
 
     m_treePos.append(0);
-    m_currentItem->setData(QVariant::fromValue(location), SourceLocationRole);
 
-    return m_currentItem;
+    return m_currentItem->index();
 }
 
 void QmlOutlineModel::leaveNode()
