@@ -27,51 +27,26 @@
 **
 **************************************************************************/
 
-#include "buildstep.h"
-
-#include "buildconfiguration.h"
-#include "buildsteplist.h"
-#include "target.h"
+#include "namedwidget.h"
 
 using namespace ProjectExplorer;
 
-BuildStep::BuildStep(BuildStepList *bsl, const QString &id) :
-    ProjectConfiguration(bsl, id)
-{
-    Q_ASSERT(bsl);
-}
+///
+// NamedWidget
+///
 
-BuildStep::BuildStep(BuildStepList *bsl, BuildStep *bs) :
-    ProjectConfiguration(bsl, bs)
-{
-    Q_ASSERT(bsl);
-}
-
-BuildStep::~BuildStep()
-{
-}
-
-BuildConfiguration *BuildStep::buildConfiguration() const
-{
-    BuildConfiguration *bc = qobject_cast<BuildConfiguration *>(parent()->parent());
-    if (!bc)
-        bc = target()->activeBuildConfiguration();
-    return bc;
-}
-
-Target *BuildStep::target() const
-{
-    return qobject_cast<Target *>(parent()->parent()->parent());
-}
-
-bool BuildStep::immutable() const
-{
-    return false;
-}
-
-IBuildStepFactory::IBuildStepFactory(QObject *parent) :
-    QObject(parent)
+NamedWidget::NamedWidget(QWidget *parent) : QWidget(parent)
 { }
 
-IBuildStepFactory::~IBuildStepFactory()
-{ }
+QString NamedWidget::displayName() const
+{
+    return m_displayName;
+}
+
+void NamedWidget::setDisplayName(const QString &displayName)
+{
+    if (m_displayName == displayName)
+        return;
+    m_displayName = displayName;
+    emit displayNameChanged(m_displayName);
+}

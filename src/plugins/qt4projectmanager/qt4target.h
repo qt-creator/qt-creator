@@ -43,6 +43,7 @@ namespace Internal {
 class Qt4ProFileNode;
 class Qt4TargetFactory;
 class Qt4BuildConfigurationFactory;
+class Qt4DeployConfigurationFactory;
 
 struct BuildConfigurationInfo {
     explicit BuildConfigurationInfo(QtVersion *v = 0, QtVersion::QmakeBuildConfigs bc = QtVersion::QmakeBuildConfig(0),
@@ -75,6 +76,7 @@ public:
     void addRunConfigurationForPath(const QString &proFilePath);
 
     Internal::Qt4BuildConfigurationFactory *buildConfigurationFactory() const;
+    ProjectExplorer::DeployConfigurationFactory *deployConfigurationFactory() const;
 
     QList<ProjectExplorer::ToolChain::ToolChainType> filterToolChainTypes(const QList<ProjectExplorer::ToolChain::ToolChainType> &candidates) const;
     ProjectExplorer::ToolChain::ToolChainType preferredToolChainType(const QList<ProjectExplorer::ToolChain::ToolChainType> &candidates) const;
@@ -105,6 +107,7 @@ private:
     const QPixmap m_disconnectedPixmap;
 
     Internal::Qt4BuildConfigurationFactory *m_buildConfigurationFactory;
+    Internal::Qt4DeployConfigurationFactory *m_deployConfigurationFactory;
 };
 
 class Qt4TargetFactory : public ProjectExplorer::ITargetFactory

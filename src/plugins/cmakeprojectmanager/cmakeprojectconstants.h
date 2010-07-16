@@ -38,6 +38,10 @@ const char * const CMAKEMIMETYPE  = "text/x-cmake"; // TOOD check that this is c
 const char * const CMAKE_EDITOR_ID = "CMakeProject.CMakeEditor";
 const char * const CMAKE_EDITOR_DISPLAY_NAME = "CMake Editor";
 const char * const C_CMAKEEDITOR = "CMakeProject.Context.CMakeEditor";
+
+// Project
+const char * const CMAKEPROJECT_ID = "CMakeProjectManager.CMakeProject";
+
 } // namespace Constants
 } // namespace CMakeProjectManager
 

@@ -63,7 +63,7 @@ class MaemoDeployStep : public ProjectExplorer::BuildStep
     Q_OBJECT
     friend class MaemoDeployStepFactory;
 public:
-    MaemoDeployStep(ProjectExplorer::BuildConfiguration *bc);
+    MaemoDeployStep(ProjectExplorer::BuildStepList *bc);
     virtual ~MaemoDeployStep();
     MaemoDeviceConfig deviceConfig() const;
     MaemoDeviceConfigListModel *deviceConfigModel() const;
@@ -90,7 +90,7 @@ private slots:
     void handleInstallerErrorOutput(const QByteArray &output);
 
 private:
-    MaemoDeployStep(ProjectExplorer::BuildConfiguration *bc,
+    MaemoDeployStep(ProjectExplorer::BuildStepList *bc,
         MaemoDeployStep *other);
     virtual bool init();
     virtual void run(QFutureInterface<bool> &fi);

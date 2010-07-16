@@ -55,6 +55,7 @@ public:
     QmlProject *qmlProject() const;
 
     ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
+    ProjectExplorer::DeployConfigurationFactory *deployConfigurationFactory() const;
 
 protected:
     bool fromMap(const QVariantMap &map);

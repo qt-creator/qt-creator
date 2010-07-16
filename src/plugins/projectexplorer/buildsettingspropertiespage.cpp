@@ -31,6 +31,7 @@
 #include "buildstep.h"
 #include "buildstepspage.h"
 #include "project.h"
+#include "projectexplorerconstants.h"
 #include "target.h"
 #include "buildconfiguration.h"
 #include "buildconfigurationmodel.h"
@@ -187,12 +188,14 @@ void BuildSettingsWidget::setupUi()
                 SLOT(updateAddButtonMenu()));
 }
 
-void BuildSettingsWidget::addSubWidget(const QString &name, BuildConfigWidget *widget)
+void BuildSettingsWidget::addSubWidget(BuildConfigWidget *widget)
 {
     widget->setContentsMargins(0, 10, 0, 0);
 
     QLabel *label = new QLabel(this);
-    label->setText(name);
+    label->setText(widget->displayName());
+    connect(widget, SIGNAL(displayNameChanged(QString)),
+            label, SLOT(setText(QString)));
     QFont f = label->font();
     f.setBold(true);
     f.setPointSizeF(f.pointSizeF() * 1.2);
@@ -247,15 +250,14 @@ void BuildSettingsWidget::updateBuildSettings()
 
     // Add pages
     BuildConfigWidget *generalConfigWidget = m_target->project()->createConfigWidget();
-    addSubWidget(generalConfigWidget->displayName(), generalConfigWidget);
+    addSubWidget(generalConfigWidget);
 
-    addSubWidget(tr("Build Steps"), new BuildStepsPage(m_target, BuildStep::Build));
-    addSubWidget(tr("Deploy Steps"), new BuildStepsPage(m_target, BuildStep::Deploy));
-    addSubWidget(tr("Clean Steps"), new BuildStepsPage(m_target, BuildStep::Clean));
+    addSubWidget(new BuildStepsPage(m_target, QLatin1String(Constants::BUILDSTEPS_BUILD)));
+    addSubWidget(new BuildStepsPage(m_target, QLatin1String(Constants::BUILDSTEPS_CLEAN)));
 
     QList<BuildConfigWidget *> subConfigWidgets = m_target->project()->subConfigWidgets();
     foreach (BuildConfigWidget *subConfigWidget, subConfigWidgets)
-        addSubWidget(subConfigWidget->displayName(), subConfigWidget);
+        addSubWidget(subConfigWidget);
 
     foreach (BuildConfigWidget *widget, subWidgets())
         widget->init(m_buildConfiguration);

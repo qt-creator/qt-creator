@@ -95,6 +95,9 @@ const char * const QT_APP_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("Qt4ProjectMana
 // Tasks
 const char * const PROFILE_EVALUATE = "Qt4ProjectManager.ProFileEvaluate";
 
+// Project
+const char * const QT4PROJECT_ID("Qt4ProjectManager.Qt4Project");
+
 // Targets
 const char * const DESKTOP_TARGET_ID("Qt4ProjectManager.Target.DesktopTarget");
 const char * const S60_EMULATOR_TARGET_ID("Qt4ProjectManager.Target.S60EmulatorTarget");

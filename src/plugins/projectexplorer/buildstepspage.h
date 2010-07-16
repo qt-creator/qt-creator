@@ -31,7 +31,9 @@
 #define BUILDSTEPSPAGE_H
 
 #include "buildstep.h"
-#include "buildconfiguration.h"
+#include "deployconfiguration.h"
+#include "namedwidget.h"
+
 #include <utils/detailswidget.h>
 
 QT_BEGIN_NAMESPACE
@@ -49,10 +51,6 @@ class BuildConfiguration;
 
 namespace Internal {
 
-namespace Ui {
-    class BuildStepsPage;
-}
-
 struct BuildStepsWidgetStruct
 {
     BuildStepConfigWidget *widget;
@@ -62,16 +60,15 @@ struct BuildStepsWidgetStruct
     QToolButton *removeButton;
 };
 
-class BuildStepsPage : public BuildConfigWidget
+class BuildStepListWidget : public NamedWidget
 {
     Q_OBJECT
 
 public:
-    explicit BuildStepsPage(Target *target, BuildStep::Type type);
-    virtual ~BuildStepsPage();
+    BuildStepListWidget(QWidget *parent = 0);
+    virtual ~BuildStepListWidget();
 
-    QString displayName() const;
-    void init(BuildConfiguration *bc);
+    void init(BuildStepList *bsl);
 
 private slots:
     void updateAddBuildStepMenu();
@@ -86,11 +83,10 @@ private:
     void updateBuildStepButtonsState();
     void addBuildStepWidget(int pos, BuildStep *step);
 
-    BuildConfiguration * m_configuration;
+    BuildStepList *m_buildStepList;
     QHash<QAction *, QPair<QString, ProjectExplorer::IBuildStepFactory *> > m_addBuildStepHash;
-    BuildStep::Type m_type;
 
-    QList<BuildStepsWidgetStruct> m_buildSteps;
+    QList<Internal::BuildStepsWidgetStruct> m_buildSteps;
 
     QVBoxLayout *m_vbox;
 
@@ -102,6 +98,37 @@ private:
     QSignalMapper *m_removeMapper;
 
     int m_leftMargin;
+};
+
+namespace Ui {
+    class BuildStepsPage;
+}
+
+class BuildStepsPage : public BuildConfigWidget
+{
+    Q_OBJECT
+
+public:
+    BuildStepsPage(Target *target, const QString &id);
+    virtual ~BuildStepsPage();
+
+    QString displayName() const;
+    void init(BuildConfiguration *bc);
+
+private:
+    QString m_id;
+    BuildStepListWidget *m_widget;
+};
+
+class DeployConfigurationStepsWidget : public DeployConfigurationWidget
+{
+public:
+    explicit DeployConfigurationStepsWidget(QWidget *parent = 0);
+
+    void init(DeployConfiguration *dc);
+
+private:
+    BuildStepListWidget *m_widget;
 };
 
 } // Internal

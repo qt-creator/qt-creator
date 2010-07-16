@@ -28,8 +28,11 @@
 **************************************************************************/
 
 #include "buildstepspage.h"
+
 #include "buildconfiguration.h"
+#include "buildsteplist.h"
 #include "detailsbutton.h"
+#include "projectexplorerconstants.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
@@ -50,16 +53,15 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-BuildStepsPage::BuildStepsPage(Target *target, BuildStep::Type type) :
-    BuildConfigWidget(),
-    m_type(type),
+BuildStepListWidget::BuildStepListWidget(QWidget *parent) :
+    NamedWidget(parent),
+    m_buildStepList(0),
     m_addButton(0)
 {
-    Q_UNUSED(target);
     setStyleSheet("background: red");
 }
 
-BuildStepsPage::~BuildStepsPage()
+BuildStepListWidget::~BuildStepListWidget()
 {
     foreach(const BuildStepsWidgetStruct &s, m_buildSteps) {
         delete s.widget;
@@ -68,7 +70,7 @@ BuildStepsPage::~BuildStepsPage()
     m_buildSteps.clear();
 }
 
-void BuildStepsPage::updateSummary()
+void BuildStepListWidget::updateSummary()
 {
     BuildStepConfigWidget *widget = qobject_cast<BuildStepConfigWidget *>(sender());
     if (widget) {
@@ -81,23 +83,9 @@ void BuildStepsPage::updateSummary()
     }
 }
 
-QString BuildStepsPage::displayName() const
+void BuildStepListWidget::init(BuildStepList *bsl)
 {
-    switch(m_type) {
-    case BuildStep::Build:
-        return tr("Build Steps");
-    case BuildStep::Deploy:
-        return tr("Deploy Steps");
-    case BuildStep::Clean:
-        return tr("Clean Steps");
-    default:
-        return tr("Unknown Steps");
-    }
-}
-
-void BuildStepsPage::init(BuildConfiguration *bc)
-{
-    QTC_ASSERT(bc, return);
+    Q_ASSERT(bsl);
 
     setupUi();
 
@@ -107,16 +95,17 @@ void BuildStepsPage::init(BuildConfiguration *bc)
     }
     m_buildSteps.clear();
 
-    m_configuration = bc;
+    m_buildStepList = bsl;
+    //: %1 is the name returned by BuildStepList::displayName
+    setDisplayName(tr("%1 Steps").arg(m_buildStepList->displayName()));
 
-    const QList<BuildStep *> &steps = m_configuration->steps(m_type);
-    int i = 0;
-    foreach (BuildStep *bs, steps) {
-        addBuildStepWidget(i, bs);
-        ++i;
-    }
+    for (int i = 0; i < bsl->count(); ++i)
+        addBuildStepWidget(i, m_buildStepList->at(i));
 
-    m_noStepsLabel->setVisible(steps.isEmpty());
+    m_noStepsLabel->setVisible(bsl->isEmpty());
+    m_noStepsLabel->setText(tr("No %1 Steps").arg(m_buildStepList->displayName()));
+
+    m_addButton->setText(tr("Add %1 Step").arg(m_buildStepList->displayName()));
 
     // make sure widget is updated
     foreach(BuildStepsWidgetStruct s, m_buildSteps) {
@@ -132,13 +121,13 @@ void BuildStepsPage::init(BuildConfiguration *bc)
     setStyleSheet(buttonStyle);
 }
 
-void BuildStepsPage::updateAddBuildStepMenu()
+void BuildStepListWidget::updateAddBuildStepMenu()
 {
     QMap<QString, QPair<QString, IBuildStepFactory *> > map;
     //Build up a list of possible steps and save map the display names to the (internal) name and factories.
     QList<IBuildStepFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<IBuildStepFactory>();
     foreach (IBuildStepFactory *factory, factories) {
-        QStringList ids = factory->availableCreationIds(m_configuration, m_type);
+        QStringList ids = factory->availableCreationIds(m_buildStepList);
         foreach (const QString &id, ids) {
             map.insert(factory->displayNameForId(id), QPair<QString, IBuildStepFactory *>(id, factory));
         }
@@ -160,7 +149,7 @@ void BuildStepsPage::updateAddBuildStepMenu()
     }
 }
 
-void BuildStepsPage::addBuildStepWidget(int pos, BuildStep *step)
+void BuildStepListWidget::addBuildStepWidget(int pos, BuildStep *step)
 {
     // create everything
     BuildStepsWidgetStruct s;
@@ -222,13 +211,13 @@ void BuildStepsPage::addBuildStepWidget(int pos, BuildStep *step)
             m_removeMapper, SLOT(map()));
 }
 
-void BuildStepsPage::addBuildStep()
+void BuildStepListWidget::addBuildStep()
 {
     if (QAction *action = qobject_cast<QAction *>(sender())) {
         QPair<QString, IBuildStepFactory *> pair = m_addBuildStepHash.value(action);
-        BuildStep *newStep = pair.second->create(m_configuration, m_type, pair.first);
-        int pos = m_configuration->steps(m_type).count();
-        m_configuration->insertStep(m_type, pos, newStep);
+        BuildStep *newStep = pair.second->create(m_buildStepList, pair.first);
+        int pos = m_buildStepList->count();
+        m_buildStepList->insertStep(pos, newStep);
 
         addBuildStepWidget(pos, newStep);
         const BuildStepsWidgetStruct s = m_buildSteps.at(pos);
@@ -239,9 +228,9 @@ void BuildStepsPage::addBuildStep()
     updateBuildStepButtonsState();
 }
 
-void BuildStepsPage::stepMoveUp(int pos)
+void BuildStepListWidget::stepMoveUp(int pos)
 {
-    m_configuration->moveStepUp(m_type, pos);
+    m_buildStepList->moveStepUp(pos);
 
     m_vbox->insertWidget(pos - 1, m_buildSteps.at(pos).detailsWidget);
 
@@ -250,14 +239,14 @@ void BuildStepsPage::stepMoveUp(int pos)
     updateBuildStepButtonsState();
 }
 
-void BuildStepsPage::stepMoveDown(int pos)
+void BuildStepListWidget::stepMoveDown(int pos)
 {
     stepMoveUp(pos + 1);
 }
 
-void BuildStepsPage::stepRemove(int pos)
+void BuildStepListWidget::stepRemove(int pos)
 {
-    if (m_configuration->removeStep(m_type, pos)) {
+    if (m_buildStepList->removeStep(pos)) {
         BuildStepsWidgetStruct s = m_buildSteps.at(pos);
         delete s.widget;
         delete s.detailsWidget;
@@ -265,7 +254,7 @@ void BuildStepsPage::stepRemove(int pos)
 
         updateBuildStepButtonsState();
 
-        bool hasSteps = m_configuration->steps(m_type).isEmpty();
+        bool hasSteps = m_buildStepList->isEmpty();
         m_noStepsLabel->setVisible(hasSteps);
     } else {
         QMessageBox::warning(Core::ICore::instance()->mainWindow(),
@@ -275,7 +264,7 @@ void BuildStepsPage::stepRemove(int pos)
     }
 }
 
-void BuildStepsPage::setupUi()
+void BuildStepListWidget::setupUi()
 {
     if (0 != m_addButton)
         return;
@@ -301,19 +290,6 @@ void BuildStepsPage::setupUi()
     QHBoxLayout *hboxLayout = new QHBoxLayout();
     hboxLayout->setContentsMargins(0, 4, 0, 0);
     m_addButton = new QPushButton(this);
-    switch (m_type) {
-    case BuildStep::Clean:
-        m_addButton->setText(tr("Add Clean Step"));
-        break;
-    case BuildStep::Build:
-        m_addButton->setText(tr("Add Build Step"));
-        break;
-    case BuildStep::Deploy:
-        m_addButton->setText(tr("Add Deploy Step"));
-        break;
-    default:
-        m_addButton->setText(tr("Add Step"));
-    }
     m_addButton->setMenu(new QMenu(this));
     hboxLayout->addWidget(m_addButton);
 
@@ -329,21 +305,69 @@ void BuildStepsPage::setupUi()
             this, SLOT(updateAddBuildStepMenu()));
 }
 
-void BuildStepsPage::updateBuildStepButtonsState()
+void BuildStepListWidget::updateBuildStepButtonsState()
 {
-    const QList<BuildStep *> &steps = m_configuration->steps(m_type);
     for(int i = 0; i < m_buildSteps.count(); ++i) {
         BuildStepsWidgetStruct s = m_buildSteps.at(i);
-        s.removeButton->setEnabled(!steps.at(i)->immutable());
+        s.removeButton->setEnabled(!m_buildStepList->at(i)->immutable());
         m_removeMapper->setMapping(s.removeButton, i);
 
-        s.upButton->setEnabled((i > 0) && !(steps.at(i)->immutable() && steps.at(i - 1)));
+        s.upButton->setEnabled((i > 0)
+                               && !(m_buildStepList->at(i)->immutable()
+                               && m_buildStepList->at(i - 1)));
         m_upMapper->setMapping(s.upButton, i);
-        s.downButton->setEnabled((i + 1 < steps.count()) && !(steps.at(i)->immutable() && steps.at(i + 1)->immutable()));
+        s.downButton->setEnabled((i + 1 < m_buildStepList->count())
+                                 && !(m_buildStepList->at(i)->immutable()
+                                      && m_buildStepList->at(i + 1)->immutable()));
         m_downMapper->setMapping(s.downButton, i);
 
         // Only show buttons when needed
-        s.downButton->setVisible(steps.count() != 1);
-        s.upButton->setVisible(steps.count() != 1);
+        s.downButton->setVisible(m_buildStepList->count() != 1);
+        s.upButton->setVisible(m_buildStepList->count() != 1);
     }
+}
+
+BuildStepsPage::BuildStepsPage(Target *target, const QString &id) :
+    BuildConfigWidget(),
+    m_id(id),
+    m_widget(new BuildStepListWidget(this))
+{
+    Q_UNUSED(target);
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->setMargin(0);
+    layout->setSpacing(0);
+    layout->addWidget(m_widget);
+}
+
+BuildStepsPage::~BuildStepsPage()
+{ }
+
+QString BuildStepsPage::displayName() const
+{
+    if (m_id == QLatin1String(Constants::BUILDSTEPS_BUILD))
+        return tr("Build Steps");
+    if (m_id == QLatin1String(Constants::BUILDSTEPS_CLEAN))
+        return tr("Clean Steps");
+    return QString();
+}
+
+void BuildStepsPage::init(BuildConfiguration *bc)
+{
+    m_widget->init(bc->stepList(m_id));
+}
+
+DeployConfigurationStepsWidget::DeployConfigurationStepsWidget(QWidget *parent) :
+    DeployConfigurationWidget(parent),
+    m_widget(new BuildStepListWidget(this))
+{
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->setMargin(0);
+    layout->setSpacing(0);
+    layout->addWidget(m_widget);
+}
+
+void DeployConfigurationStepsWidget::init(DeployConfiguration *dc)
+{
+    m_widget->init(dc->stepList());
+    setDisplayName(m_widget->displayName());
 }

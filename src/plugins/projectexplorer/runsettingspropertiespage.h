@@ -37,11 +37,14 @@
 QT_BEGIN_NAMESPACE
 class QMenu;
 class QLabel;
+class QVBoxLayout;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 
-class RunConfiguration;
+class DeployConfiguration;
+class DeployConfigurationWidget;
+class DeployConfigurationModel;
 class RunConfigurationModel;
 
 namespace Internal {
@@ -53,6 +56,7 @@ class RunSettingsPropertiesPage;
 }
 
 class RunSettingsWidget;
+class BuildStepListWidget;
 
 class RunSettingsPanelFactory : public ITargetPanelFactory
 {
@@ -91,12 +95,24 @@ private slots:
     void addRunConfiguration();
     void removeRunConfiguration();
     void activeRunConfigurationChanged();
+    void currentDeployConfigurationChanged(int index);
+    void aboutToShowDeployMenu();
+    void addDeployConfiguration();
+    void removeDeployConfiguration();
+    void activeDeployConfigurationChanged();
+
 private:
+    void updateDeployConfiguration(DeployConfiguration *);
     Target *m_target;
     RunConfigurationModel *m_runConfigurationsModel;
+    DeployConfigurationModel *m_deployConfigurationModel;
     Ui::RunSettingsPropertiesPage *m_ui;
     QWidget *m_runConfigurationWidget;
-    QMenu *m_addMenu;
+    DeployConfigurationWidget *m_deployConfigurationWidget;
+    QVBoxLayout *m_deployLayout;
+    BuildStepListWidget *m_deploySteps;
+    QMenu *m_addRunMenu;
+    QMenu *m_addDeployMenu;
     bool m_ignoreChange;
 };
 

@@ -3,7 +3,8 @@ TARGET = Qt4ProjectManager
 QT += network
 include(../../qtcreatorplugin.pri)
 include(qt4projectmanager_dependencies.pri)
-HEADERS += qt4projectmanagerplugin.h \
+HEADERS += qt4deployconfiguration.h \
+    qt4projectmanagerplugin.h \
     qt4projectmanager.h \
     qt4project.h \
     qt4nodes.h \
@@ -46,7 +47,8 @@ HEADERS += qt4projectmanagerplugin.h \
     qt4target.h \
     qmakeparser.h \
     qtoutputformatter.h
-SOURCES += qt4projectmanagerplugin.cpp \
+SOURCES += qt4deployconfiguration.cpp \
+    qt4projectmanagerplugin.cpp \
     qt4projectmanager.cpp \
     qt4project.cpp \
     qt4nodes.cpp \

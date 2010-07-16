@@ -40,7 +40,9 @@ namespace ProjectExplorer {
 class RunConfiguration;
 class Environment;
 class BuildConfiguration;
+class DeployConfiguration;
 class IBuildConfigurationFactory;
+class DeployConfigurationFactory;
 class IRunConfigurationFactory;
 class Project;
 
@@ -62,6 +64,16 @@ public:
     void setActiveBuildConfiguration(BuildConfiguration *configuration);
 
     virtual IBuildConfigurationFactory *buildConfigurationFactory() const = 0;
+
+    // DeployConfiguration
+    void addDeployConfiguration(DeployConfiguration *dc);
+    void removeDeployConfiguration(DeployConfiguration *dc);
+
+    QList<DeployConfiguration *> deployConfigurations() const;
+    virtual DeployConfiguration *activeDeployConfiguration() const;
+    void setActiveDeployConfiguration(DeployConfiguration *configuration);
+
+    virtual DeployConfigurationFactory *deployConfigurationFactory() const = 0;
 
     // Running
     QList<RunConfiguration *> runConfigurations() const;
@@ -105,6 +117,10 @@ signals:
     void addedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
     void activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration *);
 
+    void removedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc);
+    void addedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc);
+    void activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration *dc);
+
     /// convenience signal, emitted if either the active buildconfiguration emits
     /// environmentChanged() or if the active build configuration changes
     void environmentChanged();
@@ -120,7 +136,6 @@ private slots:
     void changeEnvironment();
 
 private:
-    Project *m_project;
     bool m_isEnabled;
     QIcon m_icon;
     QIcon m_overlayIcon;
@@ -128,6 +143,8 @@ private:
 
     QList<BuildConfiguration *> m_buildConfigurations;
     BuildConfiguration *m_activeBuildConfiguration;
+    QList<DeployConfiguration *> m_deployConfigurations;
+    DeployConfiguration *m_activeDeployConfiguration;
     QList<RunConfiguration *> m_runConfigurations;
     RunConfiguration* m_activeRunConfiguration;
 };

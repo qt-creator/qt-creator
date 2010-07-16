@@ -32,6 +32,8 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/environment.h>
+#include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QtCore/QList>
 
@@ -53,8 +55,10 @@ public:
 
     template<class T> static T *buildStep(const ProjectExplorer::BuildConfiguration *bc)
     {
-        const QList<ProjectExplorer::BuildStep *> &buildSteps
-                = bc->steps(ProjectExplorer::BuildStep::Deploy);
+        ProjectExplorer::BuildStepList *bsl = bc->stepList(QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY));
+        if (!bsl)
+            return 0;
+        const QList<ProjectExplorer::BuildStep *> &buildSteps = bsl->steps();
         for (int i = buildSteps.count() - 1; i >= 0; --i) {
             if (T * const step = qobject_cast<T *>(buildSteps.at(i)))
                 return step;

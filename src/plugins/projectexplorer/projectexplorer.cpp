@@ -29,6 +29,8 @@
 
 #include "projectexplorer.h"
 
+#include "buildsteplist.h"
+#include "deployconfiguration.h"
 #include "project.h"
 #include "projectexplorersettings.h"
 #include "target.h"
@@ -1482,221 +1484,141 @@ bool ProjectExplorerPlugin::saveModifiedFiles()
 //NBS handle case where there is no activeBuildConfiguration
 // because someone delete all build configurations
 
+void ProjectExplorerPlugin::deploy(QList<Project *> projects)
+{
+    QStringList steps;
+    if (d->m_projectExplorerSettings.buildBeforeDeploy)
+        steps << Constants::BUILDSTEPS_BUILD;
+    steps << Constants::BUILDSTEPS_DEPLOY;
+    queue(projects, steps);
+}
+
+int ProjectExplorerPlugin::queue(QList<Project *> projects, QStringList stepIds)
+{
+    if (debug) {
+        QStringList projectNames;
+        foreach (Project *p, projects)
+            projectNames << p->displayName();
+        qDebug() << "Building" << stepIds << "for projects" << projectNames;
+    }
+
+    if (!saveModifiedFiles())
+        return -1;
+
+    QList<BuildStepList *> stepLists;
+    foreach (Project *pro, projects) {
+        if (!pro || !pro->activeTarget())
+            continue;
+        foreach (const QString id, stepIds) {
+            BuildStepList *bsl = 0;
+            if (id == QLatin1String(Constants::BUILDSTEPS_DEPLOY)
+                && pro->activeTarget()->activeDeployConfiguration())
+                bsl = pro->activeTarget()->activeDeployConfiguration()->stepList();
+            else if (pro->activeTarget()->activeBuildConfiguration())
+                bsl = pro->activeTarget()->activeBuildConfiguration()->stepList(id);
+
+            if (!bsl || bsl->isEmpty())
+                continue;
+            stepLists << bsl;
+        }
+    }
+
+    if (stepLists.isEmpty())
+        return 0;
+    if (!d->m_buildManager->buildLists(stepLists))
+        return -1;
+    return stepLists.count();
+}
+
 void ProjectExplorerPlugin::buildProjectOnly()
 {
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::buildProjectOnly";
-
-    if (saveModifiedFiles())
-        buildManager()->buildProject(session()->startupProject()->activeTarget()->activeBuildConfiguration());
+    queue(QList<Project *>() << session()->startupProject(), QStringList() << Constants::BUILDSTEPS_BUILD);
 }
 
 void ProjectExplorerPlugin::buildProject()
 {
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::buildProject";
-
-    if (saveModifiedFiles()) {
-        QList<BuildConfiguration *> configurations;
-        foreach (Project *pro, d->m_session->projectOrder(session()->startupProject()))
-            if (pro->activeTarget()->activeBuildConfiguration())
-                configurations << pro->activeTarget()->activeBuildConfiguration();
-
-        d->m_buildManager->buildProjects(configurations);
-    }
+    queue(d->m_session->projectOrder(session()->startupProject()),
+          QStringList() << Constants::BUILDSTEPS_BUILD);
 }
 
 void ProjectExplorerPlugin::buildProjectContextMenu()
 {
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::buildProjectContextMenu";
-
-    if (saveModifiedFiles()) {
-        QList<BuildConfiguration *> configurations;
-        foreach (Project *pro, d->m_session->projectOrder(d->m_currentProject))
-            if (pro->activeTarget()->activeBuildConfiguration())
-                configurations << pro->activeTarget()->activeBuildConfiguration();
-
-        d->m_buildManager->buildProjects(configurations);
-    }
+    queue(d->m_session->projectOrder(d->m_currentProject),
+          QStringList() << Constants::BUILDSTEPS_BUILD);
 }
 
 void ProjectExplorerPlugin::buildSession()
 {
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::buildSession";
-
-    if (saveModifiedFiles()) {
-        QList<BuildConfiguration *> configurations;
-        foreach (Project *pro, d->m_session->projectOrder())
-            if (pro->activeTarget()->activeBuildConfiguration())
-                configurations << pro->activeTarget()->activeBuildConfiguration();
-        d->m_buildManager->buildProjects(configurations);
-    }
+    queue(d->m_session->projectOrder(),
+          QStringList() << Constants::BUILDSTEPS_BUILD);
 }
 
 void ProjectExplorerPlugin::rebuildProjectOnly()
 {
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::rebuildProjectOnly";
-
-    if (saveModifiedFiles()) {
-        d->m_buildManager->cleanProject(session()->startupProject()->activeTarget()->activeBuildConfiguration());
-        d->m_buildManager->buildProject(session()->startupProject()->activeTarget()->activeBuildConfiguration());
-    }
+    queue(QList<Project *>() << session()->startupProject(),
+          QStringList() << Constants::BUILDSTEPS_CLEAN << Constants::BUILDSTEPS_BUILD);
 }
 
 void ProjectExplorerPlugin::rebuildProject()
 {
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::rebuildProject";
-
-    if (saveModifiedFiles()) {
-        const QList<Project *> &projects = d->m_session->projectOrder(session()->startupProject());
-        QList<BuildConfiguration *> configurations;
-        foreach (Project *pro, projects)
-            if (pro->activeTarget()->activeBuildConfiguration())
-                configurations << pro->activeTarget()->activeBuildConfiguration();
-
-        d->m_buildManager->cleanProjects(configurations);
-        d->m_buildManager->buildProjects(configurations);
-    }
+    queue(d->m_session->projectOrder(session()->startupProject()),
+          QStringList() << Constants::BUILDSTEPS_CLEAN << Constants::BUILDSTEPS_BUILD);
 }
 
 void ProjectExplorerPlugin::rebuildProjectContextMenu()
 {
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::rebuildProjectContextMenu";
-
-    if (saveModifiedFiles()) {
-        const QList<Project *> &projects = d->m_session->projectOrder(d->m_currentProject);
-        QList<BuildConfiguration *> configurations;
-        foreach (Project *pro, projects)
-            if (pro->activeTarget()->activeBuildConfiguration())
-                configurations << pro->activeTarget()->activeBuildConfiguration();
-
-        d->m_buildManager->cleanProjects(configurations);
-        d->m_buildManager->buildProjects(configurations);
-    }
+    queue(d->m_session->projectOrder(d->m_currentProject),
+          QStringList() << Constants::BUILDSTEPS_CLEAN << Constants::BUILDSTEPS_BUILD);
 }
 
 void ProjectExplorerPlugin::rebuildSession()
 {
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::rebuildSession";
-
-    if (saveModifiedFiles()) {
-        const QList<Project *> & projects = d->m_session->projectOrder();
-        QList<BuildConfiguration *> configurations;
-        foreach (Project *pro, projects)
-            if (pro->activeTarget()->activeBuildConfiguration())
-                configurations << pro->activeTarget()->activeBuildConfiguration();
-
-        d->m_buildManager->cleanProjects(configurations);
-        d->m_buildManager->buildProjects(configurations);
-    }
+    queue(d->m_session->projectOrder(),
+          QStringList() << Constants::BUILDSTEPS_CLEAN << Constants::BUILDSTEPS_BUILD);
 }
 
 void ProjectExplorerPlugin::deployProjectOnly()
 {
-    if (!saveModifiedFiles())
-        return;
-    d->m_buildManager->deployProject(session()->startupProject()->activeTarget()->activeBuildConfiguration());
+    deploy(QList<Project *>() << session()->startupProject());
 }
 
 void ProjectExplorerPlugin::deployProject()
 {
-    if (!saveModifiedFiles())
-        return;
-
-    const QList<Project *> &projects = d->m_session->projectOrder(session()->startupProject());
-    QList<BuildConfiguration *> configurations;
-    foreach (Project *pro, projects)
-        if (pro->activeTarget()->activeBuildConfiguration())
-            configurations << pro->activeTarget()->activeBuildConfiguration();
-
-    d->m_buildManager->deployProjects(configurations);
+    deploy(d->m_session->projectOrder(session()->startupProject()));
 }
 
 void ProjectExplorerPlugin::deployProjectContextMenu()
 {
-    if (!saveModifiedFiles())
-        return;
-
-    QList<BuildConfiguration *> configurations;
-    foreach (Project *pro, d->m_session->projectOrder(d->m_currentProject))
-        if (pro->activeTarget()->activeBuildConfiguration())
-            configurations << pro->activeTarget()->activeBuildConfiguration();
-
-    d->m_buildManager->deployProjects(configurations);
+    deploy(d->m_session->projectOrder(d->m_currentProject));
 }
 
 void ProjectExplorerPlugin::deploySession()
 {
-    if (!saveModifiedFiles())
-        return;
-
-    const QList<Project *> & projects = d->m_session->projectOrder();
-    QList<BuildConfiguration *> configurations;
-    foreach (Project *pro, projects)
-        if (pro->activeTarget()->activeBuildConfiguration())
-            configurations << pro->activeTarget()->activeBuildConfiguration();
-
-    d->m_buildManager->deployProjects(configurations);
+    deploy(d->m_session->projectOrder());
 }
 
 void ProjectExplorerPlugin::cleanProjectOnly()
 {
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::cleanProjectOnly";
-
-    if (saveModifiedFiles())
-        d->m_buildManager->cleanProject(session()->startupProject()->activeTarget()->activeBuildConfiguration());
+    queue(QList<Project *>() << session()->startupProject(),
+          QStringList() << Constants::BUILDSTEPS_CLEAN << Constants::BUILDSTEPS_CLEAN);
 }
 
 void ProjectExplorerPlugin::cleanProject()
 {
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::cleanProject";
-
-    if (saveModifiedFiles()) {
-        const QList<Project *> & projects = d->m_session->projectOrder(session()->startupProject());
-        QList<BuildConfiguration *> configurations;
-        foreach (Project *pro, projects)
-            if (pro->activeTarget()->activeBuildConfiguration())
-                configurations << pro->activeTarget()->activeBuildConfiguration();
-        d->m_buildManager->cleanProjects(configurations);
-    }
+    queue(d->m_session->projectOrder(session()->startupProject()),
+          QStringList() << Constants::BUILDSTEPS_CLEAN << Constants::BUILDSTEPS_CLEAN);
 }
 
 void ProjectExplorerPlugin::cleanProjectContextMenu()
 {
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::cleanProjectContextMenu";
-
-    if (saveModifiedFiles()) {
-        const QList<Project *> & projects = d->m_session->projectOrder(d->m_currentProject);
-        QList<BuildConfiguration *> configurations;
-        foreach (Project *pro, projects)
-            if (pro->activeTarget()->activeBuildConfiguration())
-                configurations << pro->activeTarget()->activeBuildConfiguration();
-        d->m_buildManager->cleanProjects(configurations);
-    }
+    queue(d->m_session->projectOrder(d->m_currentProject),
+          QStringList() << Constants::BUILDSTEPS_CLEAN << Constants::BUILDSTEPS_CLEAN);
 }
 
 void ProjectExplorerPlugin::cleanSession()
 {
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::cleanSession";
-
-    if (saveModifiedFiles()) {
-        const QList<Project *> & projects = d->m_session->projectOrder();
-        QList<BuildConfiguration *> configurations;
-        foreach (Project *pro, projects)
-            if (pro->activeTarget()->activeBuildConfiguration())
-                configurations << pro->activeTarget()->activeBuildConfiguration();
-        d->m_buildManager->cleanProjects(configurations);
-    }
+    queue(d->m_session->projectOrder(),
+          QStringList() << Constants::BUILDSTEPS_CLEAN << Constants::BUILDSTEPS_CLEAN);
 }
 
 void ProjectExplorerPlugin::runProject()
@@ -1722,8 +1644,8 @@ bool ProjectExplorerPlugin::hasDeploySettings(Project *pro)
 {
     const QList<Project *> & projects = d->m_session->projectOrder(pro);
     foreach(Project *project, projects)
-        if (project->activeTarget()->activeBuildConfiguration() &&
-            !project->activeTarget()->activeBuildConfiguration()->steps(BuildStep::Deploy).isEmpty())
+        if (project->activeTarget()->activeDeployConfiguration() &&
+                !project->activeTarget()->activeDeployConfiguration()->stepList()->isEmpty())
             return true;
     return false;
 }
@@ -1738,32 +1660,20 @@ void ProjectExplorerPlugin::runProjectImpl(Project *pro, QString mode)
             return;
     }
 
-    if (!saveModifiedFiles())
+    QStringList stepIds;
+    if (d->m_projectExplorerSettings.deployBeforeRun) {
+        if (d->m_projectExplorerSettings.buildBeforeDeploy)
+            stepIds << Constants::BUILDSTEPS_BUILD;
+        stepIds << Constants::BUILDSTEPS_DEPLOY;
+    }
+    const QList<Project *> &projects = d->m_session->projectOrder(pro);
+    int queueCount = queue(projects, stepIds);
+
+    if (queueCount < 0) // something went wrong
         return;
 
-    bool delayRun = false;
-    // Deploy/build first?
-    if (d->m_projectExplorerSettings.deployBeforeRun) {
-        const QList<Project *> & projects = d->m_session->projectOrder(pro);
-        QList<BuildConfiguration *> configurations;
-        foreach(Project *project, projects)
-            if (project->activeTarget()->activeBuildConfiguration())
-                configurations << project->activeTarget()->activeBuildConfiguration();
-
-        if (d->m_projectExplorerSettings.buildBeforeDeploy && hasBuildSettings(pro)) {
-            if (!d->m_buildManager->buildProjects(configurations))
-                return;
-            delayRun = true;
-        }
-        if (hasDeploySettings(pro)) {
-            if (!d->m_buildManager->deployProjects(configurations))
-                return;
-            delayRun = true;
-        }
-    }
-
-    // Actually run (delayed)
-    if (delayRun) {
+    if (queueCount > 0) {
+        // delay running till after our queued steps were processed
         d->m_runMode = mode;
         d->m_delayedRunConfiguration = pro->activeTarget()->activeRunConfiguration();
     } else {

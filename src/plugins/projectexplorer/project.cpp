@@ -40,8 +40,6 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
@@ -51,6 +49,7 @@ const char * const TARGET_KEY_PREFIX("ProjectExplorer.Project.Target.");
 const char * const TARGET_COUNT_KEY("ProjectExplorer.Project.TargetCount");
 
 const char * const EDITOR_SETTINGS_KEY("ProjectExplorer.Project.EditorSettings");
+
 } // namespace
 
 // -------------------------------------------------------------------------

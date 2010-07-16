@@ -38,11 +38,11 @@
 #include <QtCore/QList>
 #include <QtCore/QObject>
 
-#include "buildstep.h"
 #include "projectconfiguration.h"
 
 namespace ProjectExplorer {
 
+class BuildStepList;
 class Target;
 class IOutputParser;
 
@@ -54,14 +54,7 @@ public:
     // ctors are protected
     virtual ~BuildConfiguration();
 
-    QList<BuildStep *> steps(BuildStep::Type type) const;
-    void insertStep(BuildStep::Type type, int position, BuildStep *step);
-    bool removeStep(BuildStep::Type type, int position);
-    void moveStepUp(BuildStep::Type type, int position);
-
     virtual QString buildDirectory() const = 0;
-
-    Target *target() const;
 
     // TODO: Maybe the BuildConfiguration is not the best place for the environment
     virtual Environment baseEnvironment() const;
@@ -72,6 +65,9 @@ public:
     bool useSystemEnvironment() const;
     void setUseSystemEnvironment(bool b);
 
+    QStringList knownStepLists() const;
+    BuildStepList *stepList(const QString &id) const;
+
     virtual QVariantMap toMap() const;
 
     // Creates a suitable outputparser for custom build steps
@@ -81,6 +77,8 @@ public:
     // with the generic project manager
     virtual IOutputParser *createOutputParser() const = 0;
 
+    Target *target() const;
+
 signals:
     void environmentChanged();
     void buildDirectoryChanged();
@@ -88,16 +86,15 @@ signals:
 protected:
     BuildConfiguration(Target *target, const QString &id);
     BuildConfiguration(Target *target, BuildConfiguration *source);
+
     void cloneSteps(BuildConfiguration *source);
 
     virtual bool fromMap(const QVariantMap &map);
 
 private:
-    QList<BuildStep *> m_steps[BuildStep::LastStepType];
-    Target *m_target;
-
     bool m_clearSystemEnvironment;
     QList<EnvironmentItem> m_userEnvironmentChanges;
+    QList<BuildStepList *> m_stepLists;
 };
 
 class PROJECTEXPLORER_EXPORT IBuildConfigurationFactory :

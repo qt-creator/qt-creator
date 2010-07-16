@@ -166,7 +166,7 @@ void Qt4ProjectConfigWidget::init(ProjectExplorer::BuildConfiguration *bc)
     QTC_ASSERT(bc, return);
 
     if (debug)
-        qDebug() << "Qt4ProjectConfigWidget::init() for"<<bc->displayName();
+        qDebug() << "Qt4ProjectConfigWidget::init() for" << bc->displayName();
 
     if (m_buildConfiguration) {
         disconnect(m_buildConfiguration, SIGNAL(buildDirectoryChanged()),

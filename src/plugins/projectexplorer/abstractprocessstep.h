@@ -117,8 +117,8 @@ public:
     ProjectExplorer::IOutputParser *outputParser() const;
 
 protected:
-    AbstractProcessStep(BuildConfiguration *bc, const QString &id);
-    AbstractProcessStep(BuildConfiguration *bc, AbstractProcessStep *bs);
+    AbstractProcessStep(BuildStepList *bsl, const QString &id);
+    AbstractProcessStep(BuildStepList *bsl, AbstractProcessStep *bs);
 
     /// Called after the process is started
     /// the default implementation adds a process started message to the output message

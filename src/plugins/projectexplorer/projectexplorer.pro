@@ -13,7 +13,11 @@ HEADERS += projectexplorer.h \
     projectexplorer_export.h \
     projectwindow.h \
     buildmanager.h \
+    buildsteplist.h \
     compileoutputwindow.h \
+    deployconfiguration.h \
+    deployconfigurationmodel.h \
+    namedwidget.h \
     target.h \
     targetsettingspanel.h \
     task.h \
@@ -93,7 +97,11 @@ HEADERS += projectexplorer.h \
 SOURCES += projectexplorer.cpp \
     projectwindow.cpp \
     buildmanager.cpp \
+    buildsteplist.cpp \
     compileoutputwindow.cpp \
+    deployconfiguration.cpp \
+    deployconfigurationmodel.cpp \
+    namedwidget.cpp \
     target.cpp \
     targetsettingspanel.cpp \
     ioutputparser.cpp \

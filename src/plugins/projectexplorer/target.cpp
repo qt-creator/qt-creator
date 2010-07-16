@@ -30,6 +30,7 @@
 #include "target.h"
 
 #include "buildconfiguration.h"
+#include "deployconfiguration.h"
 #include "project.h"
 #include "runconfiguration.h"
 
@@ -42,6 +43,10 @@ const char * const ACTIVE_BC_KEY("ProjectExplorer.Target.ActiveBuildConfiguratio
 const char * const BC_KEY_PREFIX("ProjectExplorer.Target.BuildConfiguration.");
 const char * const BC_COUNT_KEY("ProjectExplorer.Target.BuildConfigurationCount");
 
+const char * const ACTIVE_DC_KEY("ProjectExplorer.Target.ActiveDeployConfiguration");
+const char * const DC_KEY_PREFIX("ProjectExplorer.Target.DeployConfiguration.");
+const char * const DC_COUNT_KEY("ProjectExplorer.Target.DeployConfigurationCount");
+
 const char * const ACTIVE_RC_KEY("ProjectExplorer.Target.ActiveRunConfiguration");
 const char * const RC_KEY_PREFIX("ProjectExplorer.Target.RunConfiguration.");
 const char * const RC_COUNT_KEY("ProjectExplorer.Target.RunConfigurationCount");
@@ -53,10 +58,10 @@ const char * const RC_COUNT_KEY("ProjectExplorer.Target.RunConfigurationCount");
 // -------------------------------------------------------------------------
 
 Target::Target(Project *project, const QString &id) :
-    ProjectConfiguration(id),
-    m_project(project),
+    ProjectConfiguration(project, id),
     m_isEnabled(true),
     m_activeBuildConfiguration(0),
+    m_activeDeployConfiguration(0),
     m_activeRunConfiguration(0)
 {
 }
@@ -76,7 +81,7 @@ void Target::changeEnvironment()
 
 Project *Target::project() const
 {
-    return m_project;
+    return static_cast<Project *>(parent());
 }
 
 void Target::addBuildConfiguration(BuildConfiguration *configuration)
@@ -145,6 +150,72 @@ void Target::setActiveBuildConfiguration(BuildConfiguration *configuration)
         m_activeBuildConfiguration = configuration;
         emit activeBuildConfigurationChanged(m_activeBuildConfiguration);
         emit environmentChanged();
+    }
+}
+
+void Target::addDeployConfiguration(DeployConfiguration *dc)
+{
+    QTC_ASSERT(dc && !m_deployConfigurations.contains(dc), return);
+    Q_ASSERT(dc->target() == this);
+
+    if (!deployConfigurationFactory())
+        return;
+
+    // Check that we don't have a configuration with the same displayName
+    QString configurationDisplayName = dc->displayName();
+    QStringList displayNames;
+    foreach (const DeployConfiguration *bc, m_deployConfigurations)
+        displayNames << bc->displayName();
+    configurationDisplayName = Project::makeUnique(configurationDisplayName, displayNames);
+    dc->setDisplayName(configurationDisplayName);
+
+    // add it
+    m_deployConfigurations.push_back(dc);
+
+    emit addedDeployConfiguration(dc);
+
+    if (!m_activeDeployConfiguration)
+        setActiveDeployConfiguration(dc);
+    Q_ASSERT(activeDeployConfiguration());
+}
+
+void Target::removeDeployConfiguration(DeployConfiguration *dc)
+{
+    //todo: this might be error prone
+    if (!m_deployConfigurations.contains(dc))
+        return;
+
+    m_deployConfigurations.removeOne(dc);
+
+    emit removedDeployConfiguration(dc);
+
+    if (activeDeployConfiguration() == dc) {
+        if (m_deployConfigurations.isEmpty())
+            setActiveDeployConfiguration(0);
+        else
+            setActiveDeployConfiguration(m_deployConfigurations.at(0));
+    }
+
+    delete dc;
+}
+
+QList<DeployConfiguration *> Target::deployConfigurations() const
+{
+    return m_deployConfigurations;
+}
+
+DeployConfiguration *Target::activeDeployConfiguration() const
+{
+    return m_activeDeployConfiguration;
+}
+
+void Target::setActiveDeployConfiguration(DeployConfiguration *dc)
+{
+    if ((!dc && m_deployConfigurations.isEmpty()) ||
+        (dc && m_deployConfigurations.contains(dc) &&
+         dc != m_activeDeployConfiguration)) {
+        m_activeDeployConfiguration = dc;
+        emit activeDeployConfigurationChanged(m_activeDeployConfiguration);
     }
 }
 
@@ -245,6 +316,12 @@ QVariantMap Target::toMap() const
     for (int i = 0; i < bcs.size(); ++i)
         map.insert(QString::fromLatin1(BC_KEY_PREFIX) + QString::number(i), bcs.at(i)->toMap());
 
+    const QList<DeployConfiguration *> dcs = deployConfigurations();
+    map.insert(QLatin1String(ACTIVE_DC_KEY), dcs.indexOf(m_activeDeployConfiguration));
+    map.insert(QLatin1String(DC_COUNT_KEY), dcs.size());
+    for (int i = 0; i < dcs.size(); ++i)
+        map.insert(QString::fromLatin1(DC_KEY_PREFIX) + QString::number(i), dcs.at(i)->toMap());
+
     const QList<RunConfiguration *> rcs = runConfigurations();
     map.insert(QLatin1String(ACTIVE_RC_KEY), rcs.indexOf(m_activeRunConfiguration));
     map.insert(QLatin1String(RC_COUNT_KEY), rcs.size());
@@ -292,6 +369,29 @@ bool Target::fromMap(const QVariantMap &map)
     if (buildConfigurations().isEmpty() && buildConfigurationFactory())
         return false;
 
+    int dcCount(map.value(QLatin1String(DC_COUNT_KEY), 0).toInt(&ok));
+    if (!ok || dcCount < 0)
+        dcCount = 0;
+    activeConfiguration = map.value(QLatin1String(ACTIVE_DC_KEY), 0).toInt(&ok);
+    if (!ok || activeConfiguration < 0)
+        activeConfiguration = 0;
+    if (0 > activeConfiguration || dcCount < activeConfiguration)
+        activeConfiguration = 0;
+
+    for (int i = 0; i < dcCount; ++i) {
+        const QString key(QString::fromLatin1(DC_KEY_PREFIX) + QString::number(i));
+        if (!map.contains(key))
+            return false;
+        DeployConfiguration *dc(deployConfigurationFactory()->restore(this, map.value(key).toMap()));
+        if (!dc)
+            continue;
+        addDeployConfiguration(dc);
+        if (i == activeConfiguration)
+            setActiveDeployConfiguration(dc);
+    }
+    if (deployConfigurations().isEmpty() && deployConfigurationFactory())
+        return false;
+
     int rcCount(map.value(QLatin1String(RC_COUNT_KEY), 0).toInt(&ok));
     if (!ok || rcCount < 0)
         rcCount = 0;
@@ -330,9 +430,7 @@ bool Target::fromMap(const QVariantMap &map)
 
 ITargetFactory::ITargetFactory(QObject *parent) :
     QObject(parent)
-{
-}
+{ }
 
 ITargetFactory::~ITargetFactory()
-{
-}
+{ }

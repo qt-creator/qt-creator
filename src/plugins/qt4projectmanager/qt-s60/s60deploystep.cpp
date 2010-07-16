@@ -27,7 +27,6 @@
 **
 **************************************************************************/
 
-
 #include "s60deploystep.h"
 
 #include "qt4buildconfiguration.h"
@@ -45,9 +44,10 @@
 #include <QDir>
 
 #include <coreplugin/icore.h>
-#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/ioutputparser.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <qt4projectmanagerconstants.h>
 
 using namespace ProjectExplorer;
@@ -85,14 +85,7 @@ static inline bool renameFile(const QString &sourceName, const QString &targetNa
 
 // #pragma mark -- S60DeployStep
 
-S60DeployStep::S60DeployStep(ProjectExplorer::BuildConfiguration *bc, const QString &id) :
-        BuildStep(bc, id), m_timer(0),
-        m_releaseDeviceAfterLauncherFinish(true), m_handleDeviceRemoval(true),
-        m_launcher(0), m_eventLoop(0)
-{
-}
-
-S60DeployStep::S60DeployStep(ProjectExplorer::BuildConfiguration *bc,
+S60DeployStep::S60DeployStep(ProjectExplorer::BuildStepList *bc,
                              S60DeployStep *bs):
         BuildStep(bc, bs), m_timer(0),
         m_releaseDeviceAfterLauncherFinish(bs->m_releaseDeviceAfterLauncherFinish),
@@ -101,7 +94,7 @@ S60DeployStep::S60DeployStep(ProjectExplorer::BuildConfiguration *bc,
 {
 }
 
-S60DeployStep::S60DeployStep(ProjectExplorer::BuildConfiguration *bc):
+S60DeployStep::S60DeployStep(ProjectExplorer::BuildStepList *bc):
         BuildStep(bc, QLatin1String(S60_DEPLOY_STEP_ID)), m_timer(0),
         m_releaseDeviceAfterLauncherFinish(true),
         m_handleDeviceRemoval(true), m_launcher(0), m_eventLoop(0)
@@ -415,12 +408,12 @@ void S60DeployStepWidget::init()
 
 QString S60DeployStepWidget::summaryText() const
 {
-    return tr("<b>Deploy SIS Package</b>");
+    return QString("<b>%1</b>").arg(displayName());
 }
 
 QString S60DeployStepWidget::displayName() const
 {
-    return QString("S60DeployStepWidget::displayName");
+    return tr("Deploy SIS Package");
 }
 
 // #pragma mark -- S60DeployStepFactory
@@ -434,43 +427,47 @@ S60DeployStepFactory::~S60DeployStepFactory()
 {
 }
 
-bool S60DeployStepFactory::canCreate(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, const QString &id) const
+bool S60DeployStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, const QString &id) const
 {
-    if (type != ProjectExplorer::BuildStep::Deploy)
+    if (parent->id() != QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY))
         return false;
     if (parent->target()->id() != QLatin1String(Constants::S60_DEVICE_TARGET_ID))
         return false;
     return (id == QLatin1String(S60_DEPLOY_STEP_ID));
 }
 
-ProjectExplorer::BuildStep *S60DeployStepFactory::create(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, const QString &id)
+ProjectExplorer::BuildStep *S60DeployStepFactory::create(ProjectExplorer::BuildStepList *parent, const QString &id)
 {
-    if (!canCreate(parent, type, id))
+    if (!canCreate(parent, id))
         return 0;
-    return new S60DeployStep(parent, id);
+    return new S60DeployStep(parent);
 }
 
-bool S60DeployStepFactory::canClone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, ProjectExplorer::BuildStep *source) const
+bool S60DeployStepFactory::canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *source) const
 {
-    return canCreate(parent, type, source->id());
+    if (!canCreate(parent, source->id()))
+        return false;
+    if (!qobject_cast<S60DeployStep *>(source))
+        return false;
+    return true;
 }
 
-ProjectExplorer::BuildStep *S60DeployStepFactory::clone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, ProjectExplorer::BuildStep *source)
+ProjectExplorer::BuildStep *S60DeployStepFactory::clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *source)
 {
-    if (!canClone(parent, type, source))
+    if (!canClone(parent, source))
         return 0;
     return new S60DeployStep(parent, static_cast<S60DeployStep *>(source));
 }
 
-bool S60DeployStepFactory::canRestore(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, const QVariantMap &map) const
+bool S60DeployStepFactory::canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const
 {
     QString id(ProjectExplorer::idFromMap(map));
-    return canCreate(parent, type, id);
+    return canCreate(parent, id);
 }
 
-ProjectExplorer::BuildStep *S60DeployStepFactory::restore(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, const QVariantMap &map)
+ProjectExplorer::BuildStep *S60DeployStepFactory::restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map)
 {
-    if (!canRestore(parent, type, map))
+    if (!canRestore(parent, map))
         return 0;
     S60DeployStep *bs = new S60DeployStep(parent);
     if (bs->fromMap(map))
@@ -479,11 +476,10 @@ ProjectExplorer::BuildStep *S60DeployStepFactory::restore(ProjectExplorer::Build
     return 0;
 }
 
-QStringList S60DeployStepFactory::availableCreationIds(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type) const
+QStringList S60DeployStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
 {
-    if (type != ProjectExplorer::BuildStep::Deploy)
-        return QStringList();
-    if (parent->target()->id() == QLatin1String(Constants::S60_DEVICE_TARGET_ID))
+    if (parent->id() == QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
+        && parent->target()->id() == QLatin1String(Constants::S60_DEVICE_TARGET_ID))
         return QStringList() << QLatin1String(S60_DEPLOY_STEP_ID);
     return QStringList();
 }

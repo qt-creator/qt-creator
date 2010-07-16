@@ -96,9 +96,6 @@ protected:
 
     /// convenience method to get current build configuration.
     BuildConfiguration *activeBuildConfiguration() const;
-
-private:
-    Target *m_target;
 };
 
 /**

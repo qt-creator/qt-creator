@@ -34,6 +34,7 @@
 #include "cmaketarget.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/buildsteplist.h>
 #include <utils/qtcassert.h>
 
 #include <QtGui/QInputDialog>
@@ -61,6 +62,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(CMakeTarget *parent, CMakeBuild
     m_buildDirectory(source->m_buildDirectory),
     m_msvcVersion(source->m_msvcVersion)
 {
+    Q_ASSERT(parent);
     cloneSteps(source);
 }
 
@@ -217,11 +219,14 @@ CMakeBuildConfiguration *CMakeBuildConfigurationFactory::create(ProjectExplorer:
     CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(cmtarget);
     bc->setDisplayName(buildConfigurationName);
 
-    MakeStep *makeStep = new MakeStep(bc);
-    bc->insertStep(ProjectExplorer::BuildStep::Build, 0, makeStep);
+    ProjectExplorer::BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    ProjectExplorer::BuildStepList *cleanSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
 
-    MakeStep *cleanMakeStep = new MakeStep(bc);
-    bc->insertStep(ProjectExplorer::BuildStep::Clean, 0, cleanMakeStep);
+    MakeStep *makeStep = new MakeStep(buildSteps);
+    buildSteps->insertStep(0, makeStep);
+
+    MakeStep *cleanMakeStep = new MakeStep(cleanSteps);
+    cleanSteps->insertStep(0, cleanMakeStep);
     cleanMakeStep->setAdditionalArguments(QStringList() << "clean");
     cleanMakeStep->setClean(true);
 

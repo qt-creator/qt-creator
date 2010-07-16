@@ -27,55 +27,63 @@
 **
 **************************************************************************/
 
-#ifndef PROJECTCONFIGURATION_H
-#define PROJECTCONFIGURATION_H
+#ifndef PROJECTEXPLORER_BUILDSTEPLIST_H
+#define PROJECTEXPLORER_BUILDSTEPLIST_H
 
 #include "projectexplorer_export.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QString>
+#include "projectconfiguration.h"
+
 #include <QtCore/QVariantMap>
 
 namespace ProjectExplorer {
 
-class Project;
+class BuildStep;
+class Target;
 
-class PROJECTEXPLORER_EXPORT ProjectConfiguration : public QObject
+class PROJECTEXPLORER_EXPORT BuildStepList : public ProjectConfiguration
 {
     Q_OBJECT
 
 public:
-    // ctors are protected
-    virtual ~ProjectConfiguration();
+    BuildStepList(QObject *parent, const QString &id);
+    BuildStepList(QObject *parent, BuildStepList *source);
+    BuildStepList(QObject *parent, const QVariantMap &data);
+    virtual ~BuildStepList();
 
-    QString id() const;
-    QString displayName() const;
-    void setDisplayName(const QString &name);
+    QList<BuildStep *> steps() const;
+    bool isNull() const;
+    int count() const;
+    bool isEmpty() const;
+    bool contains(const QString &id) const;
 
-    // Note: Make sure subclasses call the superclasses toMap() method!
+    void insertStep(int position, BuildStep *step);
+    bool removeStep(int position);
+    void moveStepUp(int position);
+    BuildStep *at(int position);
+
+    Target *target() const;
+
     virtual QVariantMap toMap() const;
 
 signals:
-    void displayNameChanged();
+    void stepInserted(int position);
+    void aboutToRemoveStep(int position);
+    void stepRemoved(int position);
+    void stepMoved(int from, int to);
 
 protected:
-    ProjectConfiguration(QObject *parent, const QString &id);
-    ProjectConfiguration(QObject *parent, const ProjectConfiguration *source);
+    void cloneSteps(BuildStepList *source);
 
-    // Note: Make sure subclasses call the superclasses toMap() method!
     virtual bool fromMap(const QVariantMap &map);
 
 private:
-    Q_DISABLE_COPY(ProjectConfiguration)
-
-    QString m_id;
-    QString m_displayName;
+    QList<BuildStep *> m_steps;
+    bool m_isNull;
 };
-
-// helper functions:
-PROJECTEXPLORER_EXPORT QString idFromMap(const QVariantMap &map);
-PROJECTEXPLORER_EXPORT QString displayNameFromMap(const QVariantMap &map);
 
 } // namespace ProjectExplorer
 
-#endif // PROJECTCONFIGURATION_H
+Q_DECLARE_METATYPE(ProjectExplorer::BuildStepList *);
+
+#endif // PROJECTEXPLORER_BUILDSTEPLIST_H

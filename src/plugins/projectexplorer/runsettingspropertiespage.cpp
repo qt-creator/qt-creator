@@ -28,6 +28,10 @@
 **************************************************************************/
 
 #include "runsettingspropertiespage.h"
+
+#include "buildstepspage.h"
+#include "deployconfiguration.h"
+#include "deployconfigurationmodel.h"
 #include "runconfigurationmodel.h"
 #include "runconfiguration.h"
 #include "target.h"
@@ -39,7 +43,6 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
 #include <QtCore/QPair>
 #include <QtGui/QMenu>
 
@@ -123,31 +126,64 @@ QIcon RunSettingsPanel::icon() const
 RunSettingsWidget::RunSettingsWidget(Target *target)
     : m_target(target),
       m_runConfigurationsModel(new RunConfigurationModel(target, this)),
+      m_deployConfigurationModel(new DeployConfigurationModel(target, this)),
       m_runConfigurationWidget(0),
+      m_deployConfigurationWidget(0),
+      m_deployLayout(0),
+      m_deploySteps(0),
       m_ignoreChange(false)
 {
     Q_ASSERT(m_target);
 
     m_ui = new Ui::RunSettingsPropertiesPage;
     m_ui->setupUi(this);
-    m_addMenu = new QMenu(m_ui->addToolButton);
-    m_ui->addToolButton->setMenu(m_addMenu);
-    m_ui->addToolButton->setText(tr("Add"));
-    m_ui->removeToolButton->setText(tr("Remove"));
+    m_ui->deployWidget->setContentsMargins(0, 0, 0, 25);
+
+    m_deployLayout = new QVBoxLayout(m_ui->deployWidget);
+    m_deployLayout->setMargin(0);
+    m_deployLayout->setSpacing(5);
+
+    m_ui->deployConfigurationCombo->setModel(m_deployConfigurationModel);
+    m_addDeployMenu = new QMenu(m_ui->addDeployToolButton);
+    m_ui->addDeployToolButton->setMenu(m_addDeployMenu);
+
+    // deploy part
+    updateDeployConfiguration(m_target->activeDeployConfiguration());
+
+    m_ui->addDeployToolButton->setEnabled(m_target->activeDeployConfiguration());
+    m_ui->deployConfigurationCombo->setEnabled(m_target->activeDeployConfiguration());
+    m_ui->removeDeployToolButton->setEnabled(m_target->deployConfigurations().count() > 1);
+
+    connect(m_addDeployMenu, SIGNAL(aboutToShow()),
+            this, SLOT(aboutToShowDeployMenu()));
+    connect(m_ui->deployConfigurationCombo, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(currentDeployConfigurationChanged(int)));
+    connect(m_ui->removeDeployToolButton, SIGNAL(clicked(bool)),
+            this, SLOT(removeDeployConfiguration()));
+
+    connect(m_target, SIGNAL(activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration*)),
+            this, SLOT(activeDeployConfigurationChanged()));
+
+    // run part
+    m_addRunMenu = new QMenu(m_ui->addRunToolButton);
+    m_ui->addRunToolButton->setMenu(m_addRunMenu);
     m_ui->runConfigurationCombo->setModel(m_runConfigurationsModel);
     m_ui->runConfigurationCombo->setCurrentIndex(
             m_runConfigurationsModel->indexFor(m_target->activeRunConfiguration()).row());
 
-    m_ui->removeToolButton->setEnabled(m_target->runConfigurations().size() > 1);
+    m_ui->removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);
 
     m_runConfigurationWidget = m_target->activeRunConfiguration()->createConfigurationWidget();
-    layout()->addWidget(m_runConfigurationWidget);
+    QVBoxLayout *runLayout = new QVBoxLayout(m_ui->runWidget);
+    runLayout->setMargin(0);
+    runLayout->setSpacing(0);
+    runLayout->addWidget(m_runConfigurationWidget);
 
-    connect(m_addMenu, SIGNAL(aboutToShow()),
+    connect(m_addRunMenu, SIGNAL(aboutToShow()),
             this, SLOT(aboutToShowAddMenu()));
     connect(m_ui->runConfigurationCombo, SIGNAL(currentIndexChanged(int)),
             this, SLOT(currentRunConfigurationChanged(int)));
-    connect(m_ui->removeToolButton, SIGNAL(clicked(bool)),
+    connect(m_ui->removeRunToolButton, SIGNAL(clicked(bool)),
             this, SLOT(removeRunConfiguration()));
 
     connect(m_target, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
@@ -170,13 +206,13 @@ RunSettingsWidget::~RunSettingsWidget()
 
 void RunSettingsWidget::aboutToShowAddMenu()
 {
-    m_addMenu->clear();
+    m_addRunMenu->clear();
     QList<IRunConfigurationFactory *> factories =
         ExtensionSystem::PluginManager::instance()->getObjects<IRunConfigurationFactory>();
     foreach (IRunConfigurationFactory *factory, factories) {
         QStringList ids = factory->availableCreationIds(m_target);
         foreach (const QString &id, ids) {
-            QAction *action = m_addMenu->addAction(factory->displayNameForId(id));;
+            QAction *action = m_addRunMenu->addAction(factory->displayNameForId(id));;
             FactoryAndId fai;
             fai.factory = factory;
             fai.id = id;
@@ -200,14 +236,14 @@ void RunSettingsWidget::addRunConfiguration()
         return;
     m_target->addRunConfiguration(newRC);
     m_target->setActiveRunConfiguration(newRC);
-    m_ui->removeToolButton->setEnabled(m_target->runConfigurations().size() > 1);
+    m_ui->removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);
 }
 
 void RunSettingsWidget::removeRunConfiguration()
 {
     RunConfiguration *rc = m_target->activeRunConfiguration();
     m_target->removeRunConfiguration(rc);
-    m_ui->removeToolButton->setEnabled(m_target->runConfigurations().size() > 1);
+    m_ui->removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);
 }
 
 void RunSettingsWidget::activeRunConfigurationChanged()
@@ -244,4 +280,77 @@ void RunSettingsWidget::currentRunConfigurationChanged(int index)
     delete m_runConfigurationWidget;
     m_runConfigurationWidget = selectedRunConfiguration->createConfigurationWidget();
     layout()->addWidget(m_runConfigurationWidget);
+}
+
+void RunSettingsWidget::currentDeployConfigurationChanged(int index)
+{
+    if (index == -1)
+        updateDeployConfiguration(0);
+    else
+        m_target->setActiveDeployConfiguration(m_deployConfigurationModel->deployConfigurationAt(index));
+}
+
+void RunSettingsWidget::aboutToShowDeployMenu()
+{
+    m_addDeployMenu->clear();
+    DeployConfigurationFactory *factory = m_target->deployConfigurationFactory();
+    QStringList ids = factory->availableCreationIds(m_target);
+    foreach (const QString &id, ids) {
+        QAction *action = m_addDeployMenu->addAction(factory->displayNameForId(id));;
+        action->setData(QVariant(id));
+        connect(action, SIGNAL(triggered()),
+                this, SLOT(addDeployConfiguration()));
+    }
+}
+
+void RunSettingsWidget::addDeployConfiguration()
+{
+    QAction *act = qobject_cast<QAction *>(sender());
+    if (!act)
+        return;
+    QString id = act->data().toString();
+    DeployConfiguration *newDc = m_target->deployConfigurationFactory()->create(m_target, id);
+    if (!newDc)
+        return;
+    m_target->addDeployConfiguration(newDc);
+    m_target->setActiveDeployConfiguration(newDc);
+    m_ui->removeDeployToolButton->setEnabled(m_target->deployConfigurations().size() > 1);
+}
+
+void RunSettingsWidget::removeDeployConfiguration()
+{
+    DeployConfiguration *dc = m_target->activeDeployConfiguration();
+    m_target->removeDeployConfiguration(dc);
+    m_ui->removeDeployToolButton->setEnabled(m_target->deployConfigurations().size() > 1);
+}
+
+void RunSettingsWidget::activeDeployConfigurationChanged()
+{
+    updateDeployConfiguration(m_target->activeDeployConfiguration());
+}
+
+void RunSettingsWidget::updateDeployConfiguration(DeployConfiguration *dc)
+{
+    delete m_deployConfigurationWidget;
+    m_deployConfigurationWidget = 0;
+    delete m_deploySteps;
+    m_deploySteps = 0;
+
+    m_ui->deployConfigurationCombo->setCurrentIndex(-1);
+
+    if (!dc)
+        return;
+
+    QModelIndex actDc = m_deployConfigurationModel->indexFor(dc);
+    m_ui->deployConfigurationCombo->setCurrentIndex(actDc.row());
+
+    m_deployConfigurationWidget = dc->configurationWidget();
+    if (m_deployConfigurationWidget) {
+        m_deployConfigurationWidget->init(dc);
+        m_deployLayout->addWidget(m_deployConfigurationWidget);
+    }
+
+    m_deploySteps = new BuildStepListWidget;
+    m_deploySteps->init(dc->stepList());
+    m_deployLayout->addWidget(m_deploySteps);
 }

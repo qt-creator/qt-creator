@@ -52,36 +52,24 @@ class MaemoPackageCreationFactory : public ProjectExplorer::IBuildStepFactory
 public:
     MaemoPackageCreationFactory(QObject *parent);
 
-    virtual QStringList availableCreationIds(ProjectExplorer::BuildConfiguration *parent,
-                                             ProjectExplorer::BuildStep::Type type) const;
+    virtual QStringList availableCreationIds(ProjectExplorer::BuildStepList *parent) const;
     virtual QString displayNameForId(const QString &id) const;
 
-    virtual bool canCreate(ProjectExplorer::BuildConfiguration *parent,
-                           ProjectExplorer::BuildStep::Type type,
+    virtual bool canCreate(ProjectExplorer::BuildStepList *parent,
                            const QString &id) const;
     virtual ProjectExplorer::BuildStep *
-            create(ProjectExplorer::BuildConfiguration *parent,
-                   ProjectExplorer::BuildStep::Type type, const QString &id);
+            create(ProjectExplorer::BuildStepList *parent, const QString &id);
 
-    virtual bool canRestore(ProjectExplorer::BuildConfiguration *parent,
-                            ProjectExplorer::BuildStep::Type type,
+    virtual bool canRestore(ProjectExplorer::BuildStepList *parent,
                             const QVariantMap &map) const;
     virtual ProjectExplorer::BuildStep *
-            restore(ProjectExplorer::BuildConfiguration *parent,
-                    ProjectExplorer::BuildStep::Type type, const QVariantMap &map);
+            restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map);
 
-    virtual bool canClone(ProjectExplorer::BuildConfiguration *parent,
-                          ProjectExplorer::BuildStep::Type type,
+    virtual bool canClone(ProjectExplorer::BuildStepList *parent,
                           ProjectExplorer::BuildStep *product) const;
     virtual ProjectExplorer::BuildStep *
-            clone(ProjectExplorer::BuildConfiguration *parent,
-                  ProjectExplorer::BuildStep::Type type,
+            clone(ProjectExplorer::BuildStepList *parent,
                   ProjectExplorer::BuildStep *product);
-
-private:
-    bool canCreateInternally(ProjectExplorer::BuildConfiguration *parent,
-                             ProjectExplorer::BuildStep::Type type,
-                             const QString &id) const;
 };
 
 } // namespace Internal

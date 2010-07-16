@@ -33,6 +33,8 @@
 #include "genericproject.h"
 #include "generictarget.h"
 
+#include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
 
 #include <QtGui/QInputDialog>
@@ -182,8 +184,10 @@ BuildConfiguration *GenericBuildConfigurationFactory::create(ProjectExplorer::Ta
     GenericBuildConfiguration *bc = new GenericBuildConfiguration(target);
     bc->setDisplayName(buildConfigurationName);
 
-    GenericMakeStep *makeStep = new GenericMakeStep(bc);
-    bc->insertStep(ProjectExplorer::BuildStep::Build, 0, makeStep);
+    ProjectExplorer::BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    Q_ASSERT(buildSteps);
+    GenericMakeStep *makeStep = new GenericMakeStep(buildSteps);
+    buildSteps->insertStep(0, makeStep);
     makeStep->setBuildTarget("all", /* on = */ true);
 
     target->addBuildConfiguration(bc); // also makes the name unique...

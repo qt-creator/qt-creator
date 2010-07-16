@@ -38,6 +38,8 @@
 #include "passphraseforkeydialog.h"
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/gnumakeparser.h>
@@ -64,8 +66,8 @@ namespace {
     const char * const MAKE_CERTIFICATE_ARGUMENT("QT_SIS_CERTIFICATE=");
 }
 
-S60CreatePackageStep::S60CreatePackageStep(ProjectExplorer::BuildConfiguration *bc) :
-    BuildStep(bc, QLatin1String(SIGN_BS_ID)),
+S60CreatePackageStep::S60CreatePackageStep(ProjectExplorer::BuildStepList *bsl) :
+    BuildStep(bsl, QLatin1String(SIGN_BS_ID)),
     m_signingMode(SignSelf),
     m_createSmartInstaller(false),
     m_outputParserChain(0),
@@ -79,8 +81,8 @@ S60CreatePackageStep::S60CreatePackageStep(ProjectExplorer::BuildConfiguration *
     ctor_package();
 }
 
-S60CreatePackageStep::S60CreatePackageStep(ProjectExplorer::BuildConfiguration *bc, S60CreatePackageStep *bs) :
-    BuildStep(bc, bs),
+S60CreatePackageStep::S60CreatePackageStep(ProjectExplorer::BuildStepList *bsl, S60CreatePackageStep *bs) :
+    BuildStep(bsl, bs),
     m_signingMode(bs->m_signingMode),
     m_customSignaturePath(bs->m_customSignaturePath),
     m_customKeyPath(bs->m_customKeyPath),
@@ -96,8 +98,8 @@ S60CreatePackageStep::S60CreatePackageStep(ProjectExplorer::BuildConfiguration *
     ctor_package();
 }
 
-S60CreatePackageStep::S60CreatePackageStep(ProjectExplorer::BuildConfiguration *bc, const QString &id) :
-    BuildStep(bc, id),
+S60CreatePackageStep::S60CreatePackageStep(ProjectExplorer::BuildStepList *bsl, const QString &id) :
+    BuildStep(bsl, id),
     m_signingMode(SignSelf),
     m_createSmartInstaller(false),
     m_outputParserChain(0),
@@ -564,43 +566,43 @@ S60CreatePackageStepFactory::~S60CreatePackageStepFactory()
 {
 }
 
-bool S60CreatePackageStepFactory::canCreate(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, const QString &id) const
+bool S60CreatePackageStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, const QString &id) const
 {
-    if (type != ProjectExplorer::BuildStep::Deploy)
+    if (parent->id() != QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY))
         return false;
-    if (parent->target()->id() != Constants::S60_DEVICE_TARGET_ID)
+    if (parent->target()->id() != QLatin1String(Constants::S60_DEVICE_TARGET_ID))
         return false;
     return (id == QLatin1String(SIGN_BS_ID));
 }
 
-ProjectExplorer::BuildStep *S60CreatePackageStepFactory::create(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, const QString &id)
+ProjectExplorer::BuildStep *S60CreatePackageStepFactory::create(ProjectExplorer::BuildStepList *parent, const QString &id)
 {
-    if (!canCreate(parent, type, id))
+    if (!canCreate(parent, id))
         return 0;
     return new S60CreatePackageStep(parent);
 }
 
-bool S60CreatePackageStepFactory::canClone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, ProjectExplorer::BuildStep *source) const
+bool S60CreatePackageStepFactory::canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *source) const
 {
-    return canCreate(parent, type, source->id());
+    return canCreate(parent, source->id());
 }
 
-ProjectExplorer::BuildStep *S60CreatePackageStepFactory::clone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, ProjectExplorer::BuildStep *source)
+ProjectExplorer::BuildStep *S60CreatePackageStepFactory::clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *source)
 {
-    if (!canClone(parent, type, source))
+    if (!canClone(parent, source))
         return 0;
     return new S60CreatePackageStep(parent, static_cast<S60CreatePackageStep *>(source));
 }
 
-bool S60CreatePackageStepFactory::canRestore(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, const QVariantMap &map) const
+bool S60CreatePackageStepFactory::canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const
 {
     QString id(ProjectExplorer::idFromMap(map));
-    return canCreate(parent, type, id);
+    return canCreate(parent, id);
 }
 
-ProjectExplorer::BuildStep *S60CreatePackageStepFactory::restore(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, const QVariantMap &map)
+ProjectExplorer::BuildStep *S60CreatePackageStepFactory::restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map)
 {
-    if (!canRestore(parent, type, map))
+    if (!canRestore(parent, map))
         return 0;
     S60CreatePackageStep *bs(new S60CreatePackageStep(parent));
     if (bs->fromMap(map))
@@ -609,11 +611,11 @@ ProjectExplorer::BuildStep *S60CreatePackageStepFactory::restore(ProjectExplorer
     return 0;
 }
 
-QStringList S60CreatePackageStepFactory::availableCreationIds(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type) const
+QStringList S60CreatePackageStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
 {
-    if (type != ProjectExplorer::BuildStep::Deploy)
+    if (parent->id() != QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY))
         return QStringList();
-    if (parent->target()->id() == Constants::S60_DEVICE_TARGET_ID)
+    if (parent->target()->id() == QLatin1String(Constants::S60_DEVICE_TARGET_ID))
         return QStringList() << QLatin1String(SIGN_BS_ID);
     return QStringList();
 }

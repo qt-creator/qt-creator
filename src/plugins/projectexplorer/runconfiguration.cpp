@@ -136,17 +136,15 @@ IRunConfigurationFactory * findRunConfigurationFactory(RunConfigurationFactoryMa
 
 // RunConfiguration
 RunConfiguration::RunConfiguration(Target *target, const QString &id) :
-    ProjectConfiguration(id),
-    m_target(target)
+    ProjectConfiguration(target, id)
 {
-    Q_ASSERT(m_target);
+    Q_ASSERT(target);
 }
 
 RunConfiguration::RunConfiguration(Target *target, RunConfiguration *source) :
-    ProjectConfiguration(source),
-    m_target(target)
+    ProjectConfiguration(target, source)
 {
-    Q_ASSERT(m_target);
+    Q_ASSERT(target);
 }
 
 RunConfiguration::~RunConfiguration()
@@ -176,7 +174,7 @@ BuildConfiguration *RunConfiguration::activeBuildConfiguration() const
 
 Target *RunConfiguration::target() const
 {
-    return m_target;
+    return static_cast<Target *>(parent());
 }
 
 ProjectExplorer::OutputFormatter *RunConfiguration::createOutputFormatter() const

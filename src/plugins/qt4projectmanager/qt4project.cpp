@@ -849,7 +849,7 @@ QString Qt4Project::displayName() const
 
 QString Qt4Project::id() const
 {
-    return QLatin1String("Qt4ProjectManager.Qt4Project");
+    return QLatin1String(Constants::QT4PROJECT_ID);
 }
 
 Core::IFile *Qt4Project::file() const

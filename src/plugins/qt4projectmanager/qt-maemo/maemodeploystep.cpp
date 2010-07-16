@@ -58,15 +58,15 @@ namespace Internal {
 
 const QLatin1String MaemoDeployStep::Id("Qt4ProjectManager.MaemoDeployStep");
 
-MaemoDeployStep::MaemoDeployStep(ProjectExplorer::BuildConfiguration *bc)
-    : BuildStep(bc, Id), m_deployables(new MaemoDeployables(this))
+MaemoDeployStep::MaemoDeployStep(ProjectExplorer::BuildStepList *parent)
+    : BuildStep(parent, Id), m_deployables(new MaemoDeployables(this))
 {
     ctor();
 }
 
-MaemoDeployStep::MaemoDeployStep(ProjectExplorer::BuildConfiguration *bc,
+MaemoDeployStep::MaemoDeployStep(ProjectExplorer::BuildStepList *parent,
     MaemoDeployStep *other)
-    : BuildStep(bc, other), m_deployables(new MaemoDeployables(this)),
+    : BuildStep(parent, other), m_deployables(new MaemoDeployables(this)),
       m_lastDeployed(other->m_lastDeployed)
 {
     ctor();

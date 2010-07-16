@@ -31,6 +31,7 @@
 
 #include "buildprogress.h"
 #include "buildstep.h"
+#include "buildsteplist.h"
 #include "compileoutputwindow.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorer.h"
@@ -409,11 +410,16 @@ bool BuildManager::buildQueueAppend(QList<BuildStep *> steps)
     return true;
 }
 
-bool BuildManager::buildProjects(const QList<BuildConfiguration *> &configurations)
+bool BuildManager::buildList(BuildStepList *bsl)
+{
+    return buildLists(QList<BuildStepList *>() << bsl);
+}
+
+bool BuildManager::buildLists(QList<BuildStepList *> bsls)
 {
     QList<BuildStep *> steps;
-    foreach(BuildConfiguration *bc, configurations)
-        steps.append(bc->steps(BuildStep::Build));
+    foreach(BuildStepList *list, bsls)
+        steps.append(list->steps());
 
     bool success = buildQueueAppend(steps);
     if (!success) {
@@ -425,57 +431,6 @@ bool BuildManager::buildProjects(const QList<BuildConfiguration *> &configuratio
         m_outputWindow->popup(false);
     startBuildQueue();
     return true;
-}
-
-bool BuildManager::deployProjects(const QList<BuildConfiguration *> &configurations)
-{
-    QList<BuildStep *> steps;
-    foreach(BuildConfiguration *bc, configurations)
-        steps.append(bc->steps(BuildStep::Deploy));
-
-    bool success = buildQueueAppend(steps);
-    if (!success) {
-        m_outputWindow->popup(false);
-        return false;
-    }
-
-    if (ProjectExplorerPlugin::instance()->projectExplorerSettings().showCompilerOutput)
-        m_outputWindow->popup(false);
-    startBuildQueue();
-    return true;
-}
-
-bool BuildManager::cleanProjects(const QList<BuildConfiguration *> &configurations)
-{
-    QList<BuildStep *> steps;
-    foreach(BuildConfiguration *bc, configurations)
-        steps.append(bc->steps(BuildStep::Clean));
-
-    bool success = buildQueueAppend(steps);
-    if (!success) {
-        m_outputWindow->popup(false);
-        return false;
-    }
-
-    if (ProjectExplorerPlugin::instance()->projectExplorerSettings().showCompilerOutput)
-        m_outputWindow->popup(false);
-    startBuildQueue();
-    return true;
-}
-
-bool BuildManager::buildProject(BuildConfiguration *configuration)
-{
-    return buildProjects(QList<BuildConfiguration *>() << configuration);
-}
-
-bool BuildManager::deployProject(BuildConfiguration *configuration)
-{
-    return deployProjects(QList<BuildConfiguration *>() << configuration);
-}
-
-bool BuildManager::cleanProject(BuildConfiguration *configuration)
-{
-    return cleanProjects(QList<BuildConfiguration *>() << configuration);
 }
 
 void BuildManager::appendStep(BuildStep *step)

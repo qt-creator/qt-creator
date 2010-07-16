@@ -48,6 +48,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
+#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -413,7 +414,9 @@ bool S60DeviceRunConfiguration::runSmartInstaller() const
 {
     BuildConfiguration *bc = target()->activeBuildConfiguration();
     QTC_ASSERT(bc, return false);
-    QList<BuildStep *> steps = bc->steps(ProjectExplorer::BuildStep::Build);
+    BuildStepList *bsl = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    QTC_ASSERT(bsl, return false);
+    QList<BuildStep *> steps = bsl->steps();
     foreach (const BuildStep *step, steps) {
         if (const S60CreatePackageStep *packageStep = qobject_cast<const S60CreatePackageStep *>(step)) {
             return packageStep->createsSmartInstaller();

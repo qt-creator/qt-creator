@@ -34,7 +34,10 @@
 #include "cmakerunconfiguration.h"
 #include "cmakebuildconfiguration.h"
 
+#include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QtGui/QApplication>
 #include <QtGui/QStyle>
@@ -58,7 +61,8 @@ QString displayNameForId(const QString &id) {
 
 CMakeTarget::CMakeTarget(CMakeProject *parent) :
     ProjectExplorer::Target(parent, QLatin1String(DEFAULT_CMAKE_TARGET_ID)),
-    m_buildConfigurationFactory(new CMakeBuildConfigurationFactory(this))
+    m_buildConfigurationFactory(new CMakeBuildConfigurationFactory(this)),
+    m_deployConfigurationFactory(new ProjectExplorer::DeployConfigurationFactory(this))
 {
     setDisplayName(displayNameForId(id()));
     setIcon(qApp->style()->standardIcon(QStyle::SP_ComputerIcon));
@@ -81,7 +85,12 @@ CMakeBuildConfiguration *CMakeTarget::activeBuildConfiguration() const
 
 CMakeBuildConfigurationFactory *CMakeTarget::buildConfigurationFactory() const
 {
-        return m_buildConfigurationFactory;
+    return m_buildConfigurationFactory;
+}
+
+ProjectExplorer::DeployConfigurationFactory *CMakeTarget::deployConfigurationFactory() const
+{
+    return m_deployConfigurationFactory;
 }
 
 QString CMakeTarget::defaultBuildDirectory() const
@@ -187,15 +196,20 @@ CMakeTarget *CMakeTargetFactory::create(ProjectExplorer::Project *parent, const 
     CMakeBuildConfiguration *bc(new CMakeBuildConfiguration(t));
     bc->setDisplayName("all");
 
-    // Now create a standard build configuration
-    bc->insertStep(ProjectExplorer::BuildStep::Build, 0, new MakeStep(bc));
+    ProjectExplorer::BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    ProjectExplorer::BuildStepList *cleanSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
 
-    MakeStep *cleanMakeStep = new MakeStep(bc);
-    bc->insertStep(ProjectExplorer::BuildStep::Clean, 0, cleanMakeStep);
+    // Now create a standard build configuration
+    buildSteps->insertStep(0, new MakeStep(buildSteps));
+
+    MakeStep *cleanMakeStep = new MakeStep(cleanSteps);
+    cleanSteps->insertStep(0, cleanMakeStep);
     cleanMakeStep->setAdditionalArguments(QStringList() << "clean");
     cleanMakeStep->setClean(true);
 
     t->addBuildConfiguration(bc);
+
+    t->addDeployConfiguration(t->deployConfigurationFactory()->create(t, ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID));
 
     t->updateRunConfigurations();
 

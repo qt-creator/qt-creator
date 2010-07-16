@@ -184,6 +184,23 @@ public:
     QVariantMap update(Project *project, const QVariantMap &map);
 };
 
+// Version 5 reflects the introduction of new deploy steps for Symbian/Maemo
+class Version6Handler : public UserFileVersionHandler
+{
+public:
+    int userFileVersion() const
+    {
+        return 6;
+    }
+
+    QString displayUserFileVersion() const
+    {
+        return QLatin1String("2.2pre3");
+    }
+
+    QVariantMap update(Project *project, const QVariantMap &map);
+};
+
 //
 // Helper functions:
 //
@@ -256,6 +273,7 @@ UserFileAccessor::UserFileAccessor() :
     addVersionHandler(new Version3Handler);
     addVersionHandler(new Version4Handler);
     addVersionHandler(new Version5Handler);
+    addVersionHandler(new Version6Handler);
 }
 
 UserFileAccessor::~UserFileAccessor()
@@ -1184,6 +1202,112 @@ QVariantMap Version5Handler::update(Project *, const QVariantMap &map)
 
             newTarget.insert(targetKey, newBc);
         }
+        result.insert(globalKey, newTarget);
+    }
+    return result;
+}
+
+// -------------------------------------------------------------------------
+// Version6Handler
+// -------------------------------------------------------------------------
+
+// Introduce DeployConfiguration and BuildStepLists
+QVariantMap Version6Handler::update(Project *, const QVariantMap &map)
+{
+    QVariantMap result;
+    QMapIterator<QString, QVariant> it(map);
+    while (it.hasNext()) {
+        it.next();
+        const QString &globalKey = it.key();
+        // check for target info
+        if (!globalKey.startsWith(QLatin1String("ProjectExplorer.Project.Target."))) {
+            result.insert(globalKey, it.value());
+            continue;
+        }
+
+        QVariantMap newDc;
+        const QVariantMap &originalTarget = it.value().toMap();
+        QVariantMap newTarget;
+        QVariantMap deploySteps;
+        QString deploymentName = QCoreApplication::translate("ProjectExplorer::UserFileHandler", "No deployment");
+
+        QMapIterator<QString, QVariant> targetIt(originalTarget);
+        while (targetIt.hasNext()) {
+            targetIt.next();
+            const QString &targetKey = targetIt.key();
+
+            if (targetKey == QLatin1String("ProjectExplorer.ProjectConfiguration.Id")) {
+                if (targetIt.value().toString() == QLatin1String("Qt4ProjectManager.Target.MaemoDeviceTarget"))
+                    deploymentName = QCoreApplication::translate("ProjectExplorer::UserFileHandler", "Deploy to Maemo device");
+                else if (targetIt.value().toString() == QLatin1String("Qt4ProjectManager.Target.S60DeviceTarget"))
+                    deploymentName = QCoreApplication::translate("ProjectExplorer::UserFileHandler", "Deploy to Symbian device");
+            }
+
+            if (!targetKey.startsWith(QLatin1String("ProjectExplorer.Target.BuildConfiguration."))) {
+                newTarget.insert(targetKey, targetIt.value());
+                continue;
+            }
+
+            QVariantMap buildSteps;
+            QVariantMap cleanSteps;
+            QVariantMap &originalBc = targetIt.value().toMap();
+            QVariantMap newBc;
+
+            QMapIterator<QString, QVariant> bcIt(originalBc);
+            while (bcIt.hasNext())
+            {
+                bcIt.next();
+                const QString &bcKey = bcIt.key();
+                if (bcKey.startsWith(QLatin1String("ProjectExplorer.BuildConfiguration.BuildStep."))) {
+                    QString position = bcKey.mid(45);
+                    buildSteps.insert(QString::fromLatin1("ProjectExplorer.BuildStepList.Step.") + position, bcIt.value());
+                    continue;
+                }
+                if (bcKey.startsWith(QLatin1String("ProjectExplorer.BuildConfiguration.BuildStepsCount"))) {
+                    buildSteps.insert(QLatin1String("ProjectExplorer.BuildStepList.StepsCount"), bcIt.value());
+                    continue;
+                }
+                if (bcKey.startsWith(QLatin1String("ProjectExplorer.BuildConfiguration.CleanStep."))) {
+                    QString position = bcKey.mid(45);
+                    cleanSteps.insert(QString::fromLatin1("ProjectExplorer.BuildStepList.Step.") + position, bcIt.value());
+                    continue;
+                }
+                if (bcKey.startsWith(QLatin1String("ProjectExplorer.BuildConfiguration.CleanStepsCount"))) {
+                    cleanSteps.insert(QLatin1String("ProjectExplorer.BuildStepList.StepsCount"), bcIt.value());
+                    continue;
+                }
+                if (bcKey.startsWith(QLatin1String("ProjectExplorer.BuildConfiguration.DeployStep."))) {
+                    QString position = bcKey.mid(46);
+                    deploySteps.insert(QString::fromLatin1("ProjectExplorer.BuildStepList.Step.") + position, bcIt.value());
+                    continue;
+                }
+                if (bcKey.startsWith(QLatin1String("ProjectExplorer.BuildConfiguration.DeployStepsCount"))) {
+                    deploySteps.insert(QLatin1String("ProjectExplorer.BuildStepList.StepsCount"), bcIt.value());
+                    continue;
+                }
+                newBc.insert(bcKey, bcIt.value());
+            }
+            buildSteps.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.DisplayName"), QLatin1String("Build"));
+            buildSteps.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"), QLatin1String("ProjectExplorer.BuildSteps.Build"));
+            cleanSteps.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.DisplayName"), QLatin1String("Clean"));
+            cleanSteps.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"), QLatin1String("ProjectExplorer.BuildSteps.Clean"));
+            newBc.insert(QLatin1String("ProjectExplorer.BuildConfiguration.BuildStepList.0"), buildSteps);
+            newBc.insert(QLatin1String("ProjectExplorer.BuildConfiguration.BuildStepList.1"), cleanSteps);
+            newBc.insert(QLatin1String("ProjectExplorer.BuildConfiguration.BuildStepListCount"), 2);
+            newTarget.insert(targetKey, newBc);
+        }
+
+        // Only insert one deploy configuration:
+        deploySteps.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.DisplayName"), QLatin1String("Deploy"));
+        deploySteps.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"), QLatin1String("ProjectExplorer.BuildSteps.Deploy"));
+        newDc.insert(QLatin1String("ProjectExplorer.BuildConfiguration.BuildStepList.0"), deploySteps);
+        newDc.insert(QLatin1String("ProjectExplorer.BuildConfiguration.BuildStepListCount"), 1);
+        newDc.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.DisplayName"), deploymentName);
+        newDc.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"), QLatin1String("ProjectExplorer.DefaultDeployConfiguration"));
+
+        newTarget.insert(QLatin1String("ProjectExplorer.Target.DeployConfigurationCount"), 1);
+        newTarget.insert(QLatin1String("ProjectExplorer.Target.ActiveDeployConfiguration"), 0);
+        newTarget.insert(QLatin1String("ProjectExplorer.Target.DeployConfiguration.0"), newDc);
         result.insert(globalKey, newTarget);
     }
     return result;

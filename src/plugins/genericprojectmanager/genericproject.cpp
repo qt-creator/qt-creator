@@ -375,7 +375,7 @@ QString GenericProject::displayName() const
 
 QString GenericProject::id() const
 {
-    return QLatin1String("GenericProjectManager.GenericProject");
+    return QLatin1String(Constants::GENERICPROJECT_ID);
 }
 
 Core::IFile *GenericProject::file() const

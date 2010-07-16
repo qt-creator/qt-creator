@@ -54,6 +54,9 @@ const char *const INCLUDES_MIMETYPE  = "application/vnd.nokia.qt.generic.include
 const char *const CONFIG_EDITOR      = ".config Editor";
 const char *const CONFIG_MIMETYPE    = "application/vnd.nokia.qt.generic.config";
 
+// Project
+const char *const GENERICPROJECT_ID  = "GenericProjectManager.GenericProject";
+
 } // namespace Constants
 } // namespace GenericProjectManager
 

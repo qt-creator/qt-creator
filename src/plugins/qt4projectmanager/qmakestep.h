@@ -55,13 +55,13 @@ class QMakeStepFactory : public ProjectExplorer::IBuildStepFactory
 public:
     explicit QMakeStepFactory(QObject *parent = 0);
     virtual ~QMakeStepFactory();
-    bool canCreate(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type,const QString & id) const;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type,const QString &id);
-    bool canClone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type,ProjectExplorer::BuildStep *bs) const;
-    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type,ProjectExplorer::BuildStep *bs);
-    bool canRestore(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type,const QVariantMap &map) const;
-    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type,const QVariantMap &map);
-    QStringList availableCreationIds(ProjectExplorer::BuildConfiguration *bc, ProjectExplorer::BuildStep::Type type) const;
+    bool canCreate(ProjectExplorer::BuildStepList *parent, const QString & id) const;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, const QString &id);
+    bool canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *bs) const;
+    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *bs);
+    bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const;
+    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map);
+    QStringList availableCreationIds(ProjectExplorer::BuildStepList *parent) const;
     QString displayNameForId(const QString &id) const;
 };
 
@@ -74,7 +74,7 @@ class QMakeStep : public ProjectExplorer::AbstractProcessStep
     friend class Internal::QMakeStepFactory;
 
 public:
-    explicit QMakeStep(Internal::Qt4BuildConfiguration *parent);
+    explicit QMakeStep(ProjectExplorer::BuildStepList *parent);
     virtual ~QMakeStep();
 
     Internal::Qt4BuildConfiguration *qt4BuildConfiguration() const;
@@ -95,8 +95,8 @@ signals:
     void userArgumentsChanged();
 
 protected:
-    QMakeStep(Internal::Qt4BuildConfiguration *parent, QMakeStep *source);
-    QMakeStep(Internal::Qt4BuildConfiguration *parent, const QString &id);
+    QMakeStep(ProjectExplorer::BuildStepList *parent, QMakeStep *source);
+    QMakeStep(ProjectExplorer::BuildStepList *parent, const QString &id);
     virtual bool fromMap(const QVariantMap &map);
 
     virtual void processStartupFailed();

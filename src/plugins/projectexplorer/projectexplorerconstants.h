@@ -207,6 +207,14 @@ const char * const PROJECT_WIZARD_CATEGORY = "I.Projects"; // (after Qt)
 const char * const PROJECT_WIZARD_TR_SCOPE = "ProjectExplorer";
 const char * const PROJECT_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("ProjectExplorer", "Other Project");
 
+// Build step lists ids:
+const char * const BUILDSTEPS_CLEAN = "ProjectExplorer.BuildSteps.Clean";
+const char * const BUILDSTEPS_BUILD = "ProjectExplorer.BuildSteps.Build";
+const char * const BUILDSTEPS_DEPLOY = "ProjectExplorer.BuildSteps.Deploy";
+
+// Deploy Configuration id:
+const char * const DEFAULT_DEPLOYCONFIGURATION_ID = "ProjectExplorer.DefaultDeployConfiguration";
+
 } // namespace Constants
 } // namespace ProjectExplorer
 

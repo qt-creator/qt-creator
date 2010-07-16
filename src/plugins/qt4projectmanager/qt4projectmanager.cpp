@@ -298,13 +298,15 @@ void Qt4Manager::handleSubDirContexMenu(Qt4Manager::Action action)
             bc->setSubNodeBuild(profile);
 
     if (projectExplorer()->saveModifiedFiles()) {
-        if (action == BUILD)
-            projectExplorer()->buildManager()->buildProject(bc);
-        else if (action == CLEAN)
-            projectExplorer()->buildManager()->cleanProject(bc);
-        else if (action == REBUILD) {
-            projectExplorer()->buildManager()->cleanProject(bc);
-            projectExplorer()->buildManager()->buildProject(bc);
+        if (action == BUILD) {
+            projectExplorer()->buildManager()->buildList(bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
+        } else if (action == CLEAN) {
+            projectExplorer()->buildManager()->buildList(bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
+        } else if (action == REBUILD) {
+            QList<ProjectExplorer::BuildStepList *> stepLists;
+            stepLists << bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
+            stepLists << bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+            projectExplorer()->buildManager()->buildLists(stepLists);
         }
     }
 

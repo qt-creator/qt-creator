@@ -37,6 +37,8 @@
 #include "makestep.h"
 
 #include <utils/qtcassert.h>
+#include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QtCore/QDebug>
 
@@ -398,18 +400,22 @@ void Qt4BuildConfiguration::getConfigCommandLineArguments(QStringList *addedUser
 QMakeStep *Qt4BuildConfiguration::qmakeStep() const
 {
     QMakeStep *qs = 0;
-    foreach(BuildStep *bs, steps(ProjectExplorer::BuildStep::Build))
-        if ((qs = qobject_cast<QMakeStep *>(bs)) != 0)
+    BuildStepList *bsl = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    Q_ASSERT(bsl);
+    for (int i = 0; i < bsl->count(); ++i)
+        if ((qs = qobject_cast<QMakeStep *>(bsl->at(i))) != 0)
             return qs;
     return 0;
 }
 
 MakeStep *Qt4BuildConfiguration::makeStep() const
 {
-    MakeStep *qs = 0;
-    foreach(BuildStep *bs, steps(ProjectExplorer::BuildStep::Build))
-        if ((qs = qobject_cast<MakeStep *>(bs)) != 0)
-            return qs;
+    MakeStep *ms = 0;
+    BuildStepList *bsl = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    Q_ASSERT(bsl);
+    for (int i = 0; i < bsl->count(); ++i)
+        if ((ms = qobject_cast<MakeStep *>(bsl->at(i))) != 0)
+            return ms;
     return 0;
 }
 
@@ -648,7 +654,7 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(ProjectExplorer::Target
                           version->displayName(),
                           &ok);
     if (!ok || buildConfigurationName.isEmpty())
-        return false;
+        return 0;
 
     qt4Target->addQt4BuildConfiguration(tr("%1 Debug").arg(buildConfigurationName),
                                         version,

@@ -46,15 +46,15 @@ public:
     ProcessStepFactory();
     ~ProcessStepFactory();
 
-    virtual QStringList availableCreationIds(BuildConfiguration *parent, BuildStep::Type type) const;
+    virtual QStringList availableCreationIds(BuildStepList *parent) const;
     virtual QString displayNameForId(const QString &id) const;
 
-    virtual bool canCreate(BuildConfiguration *parent, BuildStep::Type type, const QString &id) const;
-    virtual BuildStep *create(BuildConfiguration *parent, BuildStep::Type type, const QString &id);
-    virtual bool canRestore(BuildConfiguration *parent, BuildStep::Type type, const QVariantMap &map) const;
-    virtual BuildStep *restore(BuildConfiguration *parent, BuildStep::Type type, const QVariantMap &map);
-    virtual bool canClone(BuildConfiguration *parent, BuildStep::Type type, BuildStep *product) const;
-    virtual BuildStep *clone(BuildConfiguration *parent, BuildStep::Type type, BuildStep *product);
+    virtual bool canCreate(BuildStepList *parent, const QString &id) const;
+    virtual BuildStep *create(BuildStepList *parent, const QString &id);
+    virtual bool canRestore(BuildStepList *parent, const QVariantMap &map) const;
+    virtual BuildStep *restore(BuildStepList *parent, const QVariantMap &map);
+    virtual bool canClone(BuildStepList *parent, BuildStep *product) const;
+    virtual BuildStep *clone(BuildStepList *parent, BuildStep *product);
 };
 
 class ProcessStep : public ProjectExplorer::AbstractProcessStep
@@ -63,7 +63,7 @@ class ProcessStep : public ProjectExplorer::AbstractProcessStep
     friend class ProcessStepFactory;
 
 public:
-    explicit ProcessStep(BuildConfiguration *bc);
+    explicit ProcessStep(BuildStepList *bsl);
     virtual ~ProcessStep();
 
     virtual bool init();
@@ -85,8 +85,8 @@ public:
     QVariantMap toMap() const;
 
 protected:
-    ProcessStep(BuildConfiguration *bc, ProcessStep *bs);
-    ProcessStep(BuildConfiguration *bc, const QString &id);
+    ProcessStep(BuildStepList *bsl, ProcessStep *bs);
+    ProcessStep(BuildStepList *bsl, const QString &id);
 
     bool fromMap(const QVariantMap &map);
 

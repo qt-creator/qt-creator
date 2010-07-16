@@ -63,6 +63,11 @@ ProjectExplorer::IBuildConfigurationFactory *QmlProjectTarget::buildConfiguratio
     return 0;
 }
 
+ProjectExplorer::DeployConfigurationFactory *QmlProjectTarget::deployConfigurationFactory() const
+{
+    return 0;
+}
+
 bool QmlProjectTarget::fromMap(const QVariantMap &map)
 {
     if (!Target::fromMap(map))

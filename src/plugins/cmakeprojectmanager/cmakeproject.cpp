@@ -38,6 +38,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/buildenvironmentwidget.h>
+#include <projectexplorer/buildsteplist.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
@@ -410,7 +411,7 @@ QString CMakeProject::displayName() const
 
 QString CMakeProject::id() const
 {
-    return QLatin1String("CMakeProjectManager.CMakeProject");
+    return QLatin1String(Constants::CMAKEPROJECT_ID);
 }
 
 Core::IFile *CMakeProject::file() const
@@ -521,7 +522,7 @@ bool CMakeProject::fromMap(const QVariantMap &map)
 
     if (!hasUserFile && hasBuildTarget("all")) {
         MakeStep *makeStep = qobject_cast<MakeStep *>(
-                activeTarget()->activeBuildConfiguration()->steps(ProjectExplorer::BuildStep::Build).at(0));
+                    activeTarget()->activeBuildConfiguration()->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD)->at(0));
         Q_ASSERT(makeStep);
         makeStep->setBuildTarget("all", true);
     }

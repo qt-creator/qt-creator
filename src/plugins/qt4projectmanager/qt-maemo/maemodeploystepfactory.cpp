@@ -3,6 +3,8 @@
 #include "maemodeploystep.h"
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 
@@ -16,40 +18,44 @@ MaemoDeployStepFactory::MaemoDeployStepFactory(QObject *parent)
 {
 }
 
-QStringList MaemoDeployStepFactory::availableCreationIds(BuildConfiguration *,
-    BuildStep::Type) const
+QStringList MaemoDeployStepFactory::availableCreationIds(BuildStepList *parent) const
 {
+    if (parent->id() == QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
+        && parent->target()->id() == QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID)
+        && !parent->contains(MaemoDeployStep::Id))
+        return QStringList() << MaemoDeployStep::Id;
     return QStringList();
 }
 
-QString MaemoDeployStepFactory::displayNameForId(const QString &) const
+QString MaemoDeployStepFactory::displayNameForId(const QString &id) const
 {
+    if (id == MaemoDeployStep::Id)
+        return(tr("Deploy to device"));
     return QString();
 }
 
-bool MaemoDeployStepFactory::canCreate(BuildConfiguration *,
-    BuildStep::Type, const QString &) const
+bool MaemoDeployStepFactory::canCreate(BuildStepList *parent, const QString &id) const
 {
-    return false;
+    return parent->id() == QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
+            && id == QLatin1String(MaemoDeployStep::Id)
+            && parent->target()->id() == QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID)
+            && !parent->contains(MaemoDeployStep::Id);
 }
 
-BuildStep *MaemoDeployStepFactory::create(BuildConfiguration *,
-    BuildStep::Type, const QString &)
+BuildStep *MaemoDeployStepFactory::create(BuildStepList *parent, const QString &id)
 {
-    Q_ASSERT(false);
-    return 0;
+    Q_ASSERT(canCreate(parent, id));
+    return new MaemoDeployStep(parent);
 }
 
-bool MaemoDeployStepFactory::canRestore(BuildConfiguration *parent,
-    BuildStep::Type type, const QVariantMap &map) const
+bool MaemoDeployStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
 {
-    return canCreateInternally(parent, type, idFromMap(map));
+    return canCreate(parent, idFromMap(map));
 }
 
-BuildStep *MaemoDeployStepFactory::restore(BuildConfiguration *parent,
-    BuildStep::Type type, const QVariantMap &map)
+BuildStep *MaemoDeployStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
 {
-    Q_ASSERT(canRestore(parent, type, map));
+    Q_ASSERT(canRestore(parent, map));
     MaemoDeployStep * const step = new MaemoDeployStep(parent);
     if (!step->fromMap(map)) {
         delete step;
@@ -58,24 +64,15 @@ BuildStep *MaemoDeployStepFactory::restore(BuildConfiguration *parent,
     return step;
 }
 
-bool MaemoDeployStepFactory::canClone(BuildConfiguration *parent,
-    BuildStep::Type type, BuildStep *product) const
+bool MaemoDeployStepFactory::canClone(BuildStepList *parent, BuildStep *product) const
 {
-    return canCreateInternally(parent, type, product->id());
+    return canCreate(parent, product->id());
 }
 
-BuildStep *MaemoDeployStepFactory::clone(BuildConfiguration *parent,
-    BuildStep::Type type, BuildStep *product)
+BuildStep *MaemoDeployStepFactory::clone(BuildStepList *parent, BuildStep *product)
 {
-    Q_ASSERT(canClone(parent, type, product));
+    Q_ASSERT(canClone(parent, product));
     return new MaemoDeployStep(parent, static_cast<MaemoDeployStep*>(product));
-}
-
-bool MaemoDeployStepFactory::canCreateInternally(BuildConfiguration *parent,
-    BuildStep::Type type, const QString &id) const
-{
-    return type == BuildStep::Deploy && id == MaemoDeployStep::Id
-        && parent->target()->id() == Constants::MAEMO_DEVICE_TARGET_ID;
 }
 
 } // namespace Internal

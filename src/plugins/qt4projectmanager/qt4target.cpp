@@ -32,6 +32,7 @@
 #include "makestep.h"
 #include "profilereader.h"
 #include "qmakestep.h"
+#include "qt4deployconfiguration.h"
 #include "qt4project.h"
 #include "qt4runconfiguration.h"
 #include "qt4projectmanagerconstants.h"
@@ -43,8 +44,10 @@
 #include "qt-s60/s60createpackagestep.h"
 #include "qt-s60/s60deploystep.h"
 
+#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <coreplugin/coreconstants.h>
 #include <symbianutils/symbiandevicemanager.h>
 
@@ -59,29 +62,29 @@ using namespace Qt4ProjectManager::Internal;
 namespace {
 
 QString displayNameForId(const QString &id) {
-    if (id == QLatin1String(Constants::DESKTOP_TARGET_ID))
+    if (id == QLatin1String(Qt4ProjectManager::Constants::DESKTOP_TARGET_ID))
         return QApplication::translate("Qt4ProjectManager::Internal::Qt4Target", "Desktop", "Qt4 Desktop target display name");
-    if (id == QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
+    if (id == QLatin1String(Qt4ProjectManager::Constants::S60_EMULATOR_TARGET_ID))
         return QApplication::translate("Qt4ProjectManager::Internal::Qt4Target", "Symbian Emulator", "Qt4 Symbian Emulator target display name");
-    if (id == QLatin1String(Constants::S60_DEVICE_TARGET_ID))
+    if (id == QLatin1String(Qt4ProjectManager::Constants::S60_DEVICE_TARGET_ID))
         return QApplication::translate("Qt4ProjectManager::Internal::Qt4Target", "Symbian Device", "Qt4 Symbian Device target display name");
-    if (id == QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID))
+    if (id == QLatin1String(Qt4ProjectManager::Constants::MAEMO_DEVICE_TARGET_ID))
         return QApplication::translate("Qt4ProjectManager::Internal::Qt4Target", "Maemo", "Qt4 Maemo target display name");
-    if (id == QLatin1String(Constants::QT_SIMULATOR_TARGET_ID))
+    if (id == QLatin1String(Qt4ProjectManager::Constants::QT_SIMULATOR_TARGET_ID))
         return QApplication::translate("Qt4ProjectManager::Internal::Qt4Target", "Qt Simulator", "Qt4 Simulator target display name");
     return QString();
 }
 
 QIcon iconForId(const QString &id) {
-    if (id == QLatin1String(Constants::DESKTOP_TARGET_ID))
+    if (id == QLatin1String(Qt4ProjectManager::Constants::DESKTOP_TARGET_ID))
         return QIcon(qApp->style()->standardIcon(QStyle::SP_ComputerIcon));
-    if (id == QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
+    if (id == QLatin1String(Qt4ProjectManager::Constants::S60_EMULATOR_TARGET_ID))
         return QIcon(QLatin1String(":/projectexplorer/images/SymbianEmulator.png"));
-    if (id == QLatin1String(Constants::S60_DEVICE_TARGET_ID))
+    if (id == QLatin1String(Qt4ProjectManager::Constants::S60_DEVICE_TARGET_ID))
         return QIcon(QLatin1String(":/projectexplorer/images/SymbianDevice.png"));
-    if (id == QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID))
+    if (id == QLatin1String(Qt4ProjectManager::Constants::MAEMO_DEVICE_TARGET_ID))
         return QIcon(QLatin1String(":/projectexplorer/images/MaemoDevice.png"));
-    if (id == QLatin1String(Constants::QT_SIMULATOR_TARGET_ID))
+    if (id == QLatin1String(Qt4ProjectManager::Constants::QT_SIMULATOR_TARGET_ID))
         return QIcon(QLatin1String(":/projectexplorer/images/SymbianEmulator.png"));
     return QIcon();
 }
@@ -194,6 +197,8 @@ Qt4Target *Qt4TargetFactory::create(ProjectExplorer::Project *parent, const QStr
         t->addQt4BuildConfiguration(displayName, info.version, info.buildConfig, info.additionalArguments, info.directory);
     }
 
+    t->addDeployConfiguration(t->deployConfigurationFactory()->create(t, ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID));
+
     // create RunConfigurations:
     QStringList pathes = qt4project->applicationProFilePathes();
     foreach (const QString &path, pathes)
@@ -231,7 +236,8 @@ Qt4Target::Qt4Target(Qt4Project *parent, const QString &id) :
     ProjectExplorer::Target(parent, id),
     m_connectedPixmap(QLatin1String(":/projectexplorer/images/ConnectionOn.png")),
     m_disconnectedPixmap(QLatin1String(":/projectexplorer/images/ConnectionOff.png")),
-    m_buildConfigurationFactory(new Qt4BuildConfigurationFactory(this))
+    m_buildConfigurationFactory(new Qt4BuildConfigurationFactory(this)),
+    m_deployConfigurationFactory(new Qt4DeployConfigurationFactory(this))
 {
     connect(project(), SIGNAL(supportedTargetIdsChanged()),
             this, SLOT(updateQtVersion()));
@@ -277,28 +283,21 @@ Qt4BuildConfiguration *Qt4Target::addQt4BuildConfiguration(QString displayName, 
     Qt4BuildConfiguration *bc = new Qt4BuildConfiguration(this);
     bc->setDisplayName(displayName);
 
-    QMakeStep *qmakeStep = new QMakeStep(bc);
-    bc->insertStep(ProjectExplorer::BuildStep::Build, 0, qmakeStep);
+    BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    BuildStepList *cleanSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
+    Q_ASSERT(buildSteps);
+    Q_ASSERT(cleanSteps);
 
-    MakeStep *makeStep = new MakeStep(bc);
-    bc->insertStep(ProjectExplorer::BuildStep::Build, 1, makeStep);
+    QMakeStep *qmakeStep = new QMakeStep(buildSteps);
+    buildSteps->insertStep(0, qmakeStep);
 
-    if (id() == Constants::S60_DEVICE_TARGET_ID) {
-        S60CreatePackageStep *packageStep = new S60CreatePackageStep(bc);
-        bc->insertStep(ProjectExplorer::BuildStep::Deploy, 2, packageStep);
-        S60DeployStep *deployStep = new S60DeployStep(bc);
-        bc->insertStep(ProjectExplorer::BuildStep::Deploy, 3, deployStep);
-    } else if (id() == Constants::MAEMO_DEVICE_TARGET_ID) {
-        bc->insertStep(ProjectExplorer::BuildStep::Deploy, 2,
-            new MaemoPackageCreationStep(bc));
-        bc->insertStep(ProjectExplorer::BuildStep::Deploy, 3,
-            new MaemoDeployStep(bc));
-    }
+    MakeStep *makeStep = new MakeStep(buildSteps);
+    buildSteps->insertStep(1, makeStep);
 
-    MakeStep* cleanStep = new MakeStep(bc);
+    MakeStep* cleanStep = new MakeStep(cleanSteps);
     cleanStep->setClean(true);
     cleanStep->setUserArguments(QStringList() << "clean");
-    bc->insertStep(ProjectExplorer::BuildStep::Clean, 0, cleanStep);
+    cleanSteps->insertStep(0, cleanStep);
     if (!additionalArguments.isEmpty())
         qmakeStep->setUserArguments(additionalArguments);
 
@@ -322,6 +321,11 @@ Qt4BuildConfiguration *Qt4Target::addQt4BuildConfiguration(QString displayName, 
 Qt4BuildConfigurationFactory *Qt4Target::buildConfigurationFactory() const
 {
     return m_buildConfigurationFactory;
+}
+
+ProjectExplorer::DeployConfigurationFactory *Qt4Target::deployConfigurationFactory() const
+{
+    return m_deployConfigurationFactory;
 }
 
 void Qt4Target::addRunConfigurationForPath(const QString &proFilePath)

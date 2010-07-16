@@ -36,23 +36,23 @@ const char * const CONFIGURATION_ID_KEY("ProjectExplorer.ProjectConfiguration.Id
 const char * const DISPLAY_NAME_KEY("ProjectExplorer.ProjectConfiguration.DisplayName");
 }
 
-ProjectConfiguration::ProjectConfiguration(const QString &id) :
+ProjectConfiguration::ProjectConfiguration(QObject *parent, const QString &id) :
+    QObject(parent),
     m_id(id)
 {
     Q_ASSERT(!m_id.isEmpty());
 }
 
-ProjectConfiguration::ProjectConfiguration(ProjectConfiguration *config)
+ProjectConfiguration::ProjectConfiguration(QObject *parent, const ProjectConfiguration *source) :
+    QObject(parent)
 {
-    Q_ASSERT(config);
-    m_id = config->m_id;
-    m_displayName = tr("Clone of %1").arg(config->displayName());
-    Q_ASSERT(!m_id.isEmpty());
+    Q_ASSERT(source);
+    m_id = source->m_id;
+    m_displayName = tr("Clone of %1").arg(source->displayName());
 }
 
 ProjectConfiguration::~ProjectConfiguration()
-{
-}
+{ }
 
 QString ProjectConfiguration::id() const
 {

@@ -60,17 +60,17 @@ public:
     ~S60DeployStepFactory();
 
     // used to show the list of possible additons to a target, returns a list of types
-    QStringList availableCreationIds(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type) const;
+    QStringList availableCreationIds(ProjectExplorer::BuildStepList *parent) const;
     // used to translate the types to names to display to the user
     QString displayNameForId(const QString &id) const;
 
-    bool canCreate(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, const QString &id) const;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, const QString &id);
+    bool canCreate(ProjectExplorer::BuildStepList *parent, const QString &id) const;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, const QString &id);
     // used to recreate the runConfigurations when restoring settings
-    bool canRestore(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, const QVariantMap &map) const;
-    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, const QVariantMap &map);
-    bool canClone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, ProjectExplorer::BuildStep *product) const;
-    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, ProjectExplorer::BuildStep *product);
+    bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const;
+    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map);
+    bool canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product) const;
+    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product);
 };
 
 class S60DeployStep : public ProjectExplorer::BuildStep
@@ -79,10 +79,7 @@ class S60DeployStep : public ProjectExplorer::BuildStep
 public:
     friend class S60DeployStepFactory;
 
-    S60DeployStep(ProjectExplorer::BuildConfiguration *bc, const QString &id);
-    S60DeployStep(ProjectExplorer::BuildConfiguration *bc,
-                  S60DeployStep *bs);
-    explicit S60DeployStep(ProjectExplorer::BuildConfiguration *bc);
+    explicit S60DeployStep(ProjectExplorer::BuildStepList *parent);
 
     virtual ~S60DeployStep();
 
@@ -96,14 +93,6 @@ public:
 
 protected:
     virtual bool fromMap(const QVariantMap &map);
-
-private:
-    void start();
-    void stop();
-    void startDeployment();
-    bool processPackageName(QString &errorMessage);
-    void setupConnections();
-    void appendMessage(const QString &error, bool isError);
 
 protected slots:
     void deviceRemoved(const SymbianUtils::SymbianDevice &);
@@ -127,6 +116,16 @@ signals:
     void finishNow();
 
 private:
+    S60DeployStep(ProjectExplorer::BuildStepList *parent,
+                  S60DeployStep *bs);
+
+    void start();
+    void stop();
+    void startDeployment();
+    bool processPackageName(QString &errorMessage);
+    void setupConnections();
+    void appendMessage(const QString &error, bool isError);
+
     QString m_serialPortName;
     QString m_serialPortFriendlyName;
     QStringList m_packageFileNamesWithTarget; // Support for 4.6.1

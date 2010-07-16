@@ -50,20 +50,20 @@ const char * const PROCESS_ARGUMENTS_KEY("ProjectExplorer.ProcessStep.Arguments"
 const char * const PROCESS_ENABLED_KEY("ProjectExplorer.ProcessStep.Enabled");
 }
 
-ProcessStep::ProcessStep(BuildConfiguration *bc) :
-    AbstractProcessStep(bc, QLatin1String(PROCESS_STEP_ID))
+ProcessStep::ProcessStep(BuildStepList *bsl) :
+    AbstractProcessStep(bsl, QLatin1String(PROCESS_STEP_ID))
 {
     ctor();
 }
 
-ProcessStep::ProcessStep(BuildConfiguration *bc, const QString &id) :
-    AbstractProcessStep(bc, id)
+ProcessStep::ProcessStep(BuildStepList *bsl, const QString &id) :
+    AbstractProcessStep(bsl, id)
 {
     ctor();
 }
 
-ProcessStep::ProcessStep(BuildConfiguration *bc, ProcessStep *bs) :
-    AbstractProcessStep(bc, bs),
+ProcessStep::ProcessStep(BuildStepList *bsl, ProcessStep *bs) :
+    AbstractProcessStep(bsl, bs),
     m_name(bs->m_name),
     m_command(bs->m_command),
     m_arguments(bs->m_arguments),
@@ -85,16 +85,17 @@ ProcessStep::~ProcessStep()
 
 bool ProcessStep::init()
 {
-    setEnvironment(buildConfiguration()->environment());
+    BuildConfiguration *bc = buildConfiguration();
+    setEnvironment(bc->environment());
     QString wd = workingDirectory();
     if (wd.isEmpty())
         wd = "$BUILDDIR";
 
-    AbstractProcessStep::setWorkingDirectory(wd.replace("$BUILDDIR", buildConfiguration()->buildDirectory()));
+    AbstractProcessStep::setWorkingDirectory(wd.replace("$BUILDDIR", bc->buildDirectory()));
     AbstractProcessStep::setCommand(m_command);
     AbstractProcessStep::setEnabled(m_enabled);
     AbstractProcessStep::setArguments(m_arguments);
-    setOutputParser(buildConfiguration()->createOutputParser());
+    setOutputParser(bc->createOutputParser());
     return AbstractProcessStep::init();
 }
 
@@ -185,41 +186,40 @@ ProcessStepFactory::~ProcessStepFactory()
 {
 }
 
-bool ProcessStepFactory::canCreate(BuildConfiguration *parent, BuildStep::Type type, const QString &id) const
+bool ProcessStepFactory::canCreate(BuildStepList *parent, const QString &id) const
 {
     Q_UNUSED(parent);
-    Q_UNUSED(type);
     return id == QLatin1String(PROCESS_STEP_ID);
 }
 
-BuildStep *ProcessStepFactory::create(BuildConfiguration *parent, BuildStep::Type type, const QString &id)
+BuildStep *ProcessStepFactory::create(BuildStepList *parent, const QString &id)
 {
-    if (!canCreate(parent, type, id))
+    if (!canCreate(parent, id))
         return 0;
     return new ProcessStep(parent);
 }
 
-bool ProcessStepFactory::canClone(BuildConfiguration *parent, BuildStep::Type type, BuildStep *bs) const
+bool ProcessStepFactory::canClone(BuildStepList *parent, BuildStep *bs) const
 {
-    return canCreate(parent, type, bs->id());
+    return canCreate(parent, bs->id());
 }
 
-BuildStep *ProcessStepFactory::clone(BuildConfiguration *parent, BuildStep::Type type, BuildStep *bs)
+BuildStep *ProcessStepFactory::clone(BuildStepList *parent, BuildStep *bs)
 {
-    if (!canClone(parent, type, bs))
+    if (!canClone(parent, bs))
         return 0;
     return new ProcessStep(parent, static_cast<ProcessStep *>(bs));
 }
 
-bool ProcessStepFactory::canRestore(BuildConfiguration *parent, BuildStep::Type type, const QVariantMap &map) const
+bool ProcessStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
 {
     QString id(ProjectExplorer::idFromMap(map));
-    return canCreate(parent, type, id);
+    return canCreate(parent, id);
 }
 
-BuildStep *ProcessStepFactory::restore(BuildConfiguration *parent, BuildStep::Type type, const QVariantMap &map)
+BuildStep *ProcessStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
 {
-    if (!canRestore(parent, type, map))
+    if (!canRestore(parent, map))
         return 0;
 
     ProcessStep *bs(new ProcessStep(parent));
@@ -229,10 +229,9 @@ BuildStep *ProcessStepFactory::restore(BuildConfiguration *parent, BuildStep::Ty
     return 0;
 }
 
-QStringList ProcessStepFactory::availableCreationIds(BuildConfiguration *parent, BuildStep::Type type) const
+QStringList ProcessStepFactory::availableCreationIds(BuildStepList *parent) const
 {
     Q_UNUSED(parent);
-    Q_UNUSED(type);
     return QStringList() << QLatin1String(PROCESS_STEP_ID);
 }
 QString ProcessStepFactory::displayNameForId(const QString &id) const

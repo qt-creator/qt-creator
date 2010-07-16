@@ -40,6 +40,8 @@
 namespace ProjectExplorer {
 
 class BuildConfiguration;
+class BuildStepList;
+class Target;
 
 /*
 // BuildSteps are the primary way plugin developers can customize
@@ -68,18 +70,10 @@ class PROJECTEXPLORER_EXPORT BuildStep : public ProjectConfiguration
     Q_OBJECT
 
 protected:
-    BuildStep(BuildConfiguration *bc, const QString &id);
-    BuildStep(BuildConfiguration *bc, BuildStep *bs);
+    BuildStep(BuildStepList *bsl, const QString &id);
+    BuildStep(BuildStepList *bsl, BuildStep *bs);
 
 public:
-    enum Type {
-        Build = 0,
-        Clean,
-        Deploy,
-        LastStepType
-    };
-    Q_ENUMS(Type)
-
     virtual ~BuildStep();
 
     // This function is run in the gui thread,
@@ -103,6 +97,7 @@ public:
     virtual bool immutable() const;
 
     BuildConfiguration *buildConfiguration() const;
+    Target *target() const;
 
     enum OutputFormat { NormalOutput, ErrorOutput, MessageOutput, ErrorMessageOutput };
 
@@ -113,9 +108,6 @@ signals:
     // window.
     // It should be in plain text, with the format in the parameter
     void addOutput(const QString &string, ProjectExplorer::BuildStep::OutputFormat format);
-
-private:
-    BuildConfiguration *m_buildConfiguration;
 };
 
 class PROJECTEXPLORER_EXPORT IBuildStepFactory :
@@ -128,17 +120,17 @@ public:
     virtual ~IBuildStepFactory();
 
     // used to show the list of possible additons to a target, returns a list of types
-    virtual QStringList availableCreationIds(BuildConfiguration *parent, BuildStep::Type type) const = 0;
+    virtual QStringList availableCreationIds(BuildStepList *parent) const = 0;
     // used to translate the types to names to display to the user
     virtual QString displayNameForId(const QString &id) const = 0;
 
-    virtual bool canCreate(BuildConfiguration *parent, BuildStep::Type type, const QString &id) const = 0;
-    virtual BuildStep *create(BuildConfiguration *parent, BuildStep::Type type, const QString &id) = 0;
+    virtual bool canCreate(BuildStepList *parent, const QString &id) const = 0;
+    virtual BuildStep *create(BuildStepList *parent, const QString &id) = 0;
     // used to recreate the runConfigurations when restoring settings
-    virtual bool canRestore(BuildConfiguration *parent, BuildStep::Type type, const QVariantMap &map) const = 0;
-    virtual BuildStep *restore(BuildConfiguration *parent, BuildStep::Type type, const QVariantMap &map) = 0;
-    virtual bool canClone(BuildConfiguration *parent, BuildStep::Type type, BuildStep *product) const = 0;
-    virtual BuildStep *clone(BuildConfiguration *parent, BuildStep::Type type, BuildStep *product) = 0;
+    virtual bool canRestore(BuildStepList *parent, const QVariantMap &map) const = 0;
+    virtual BuildStep *restore(BuildStepList *parent, const QVariantMap &map) = 0;
+    virtual bool canClone(BuildStepList *parent, BuildStep *product) const = 0;
+    virtual BuildStep *clone(BuildStepList *parent, BuildStep *product) = 0;
 };
 
 class PROJECTEXPLORER_EXPORT BuildConfigWidget
@@ -154,6 +146,9 @@ public:
 
     // This is called to set up the config widget before showing it
     virtual void init(BuildConfiguration *bc) = 0;
+
+signals:
+    void displayNameChanged(const QString &);
 };
 
 class PROJECTEXPLORER_EXPORT BuildStepConfigWidget

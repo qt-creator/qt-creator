@@ -64,7 +64,7 @@ class MaemoPackageCreationStep : public ProjectExplorer::BuildStep
     Q_OBJECT
     friend class MaemoPackageCreationFactory;
 public:
-    MaemoPackageCreationStep(ProjectExplorer::BuildConfiguration *buildConfig);
+    MaemoPackageCreationStep(ProjectExplorer::BuildStepList *bsl);
     ~MaemoPackageCreationStep();
 
     QString packageFilePath() const;
@@ -82,7 +82,7 @@ private slots:
     void handleBuildOutput();
 
 private:
-    MaemoPackageCreationStep(ProjectExplorer::BuildConfiguration *buildConfig,
+    MaemoPackageCreationStep(ProjectExplorer::BuildStepList *buildConfig,
                              MaemoPackageCreationStep *other);
 
     void ctor();

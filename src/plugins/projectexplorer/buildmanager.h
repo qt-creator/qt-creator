@@ -49,6 +49,7 @@ namespace Internal {
 }
 
 class BuildStep;
+class BuildStepList;
 class Project;
 class ProjectExplorerPlugin;
 class BuildConfiguration;
@@ -73,12 +74,8 @@ public:
 
     bool tasksAvailable() const;
 
-    bool buildProject(BuildConfiguration *bc);
-    bool buildProjects(const QList<BuildConfiguration *> &configurations);
-    bool deployProject(BuildConfiguration *bc);
-    bool deployProjects(const QList<BuildConfiguration *> &configurations);
-    bool cleanProject(BuildConfiguration *configuration);
-    bool cleanProjects(const QList<BuildConfiguration *> &configurations);
+    bool buildLists(QList<BuildStepList *> bsls);
+    bool buildList(BuildStepList *bsl);
     bool isBuilding(Project *p);
     bool isBuilding(BuildStep *step);
 

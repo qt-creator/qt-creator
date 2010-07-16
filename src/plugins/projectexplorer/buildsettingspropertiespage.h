@@ -87,7 +87,7 @@ public:
     ~BuildSettingsWidget();
 
     void clear();
-    void addSubWidget(const QString &name, BuildConfigWidget *widget);
+    void addSubWidget(BuildConfigWidget *widget);
     QList<BuildConfigWidget *> subWidgets() const;
 
     void setupUi();

@@ -207,6 +207,8 @@ private slots:
 #endif
 
 private:
+    void deploy(QList<Project *>);
+    int queue(QList<Project *>, QStringList stepIds);
     void updateContextMenuActions(Node *node);
     bool parseArguments(const QStringList &arguments, QString *error);
     void runProjectImpl(Project *pro, QString mode);

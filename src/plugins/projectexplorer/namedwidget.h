@@ -27,51 +27,34 @@
 **
 **************************************************************************/
 
-#include "buildstep.h"
+#ifndef PROJECTEXPLORER_NAMEDWIDGET_H
+#define PROJECTEXPLORER_NAMEDWIDGET_H
 
-#include "buildconfiguration.h"
-#include "buildsteplist.h"
-#include "target.h"
+#include "projectexplorer_export.h"
 
-using namespace ProjectExplorer;
+#include <QtGui/QWidget>
 
-BuildStep::BuildStep(BuildStepList *bsl, const QString &id) :
-    ProjectConfiguration(bsl, id)
+namespace ProjectExplorer {
+
+class PROJECTEXPLORER_EXPORT NamedWidget : public QWidget
 {
-    Q_ASSERT(bsl);
-}
+    Q_OBJECT
 
-BuildStep::BuildStep(BuildStepList *bsl, BuildStep *bs) :
-    ProjectConfiguration(bsl, bs)
-{
-    Q_ASSERT(bsl);
-}
+public:
+    NamedWidget(QWidget *parent = 0);
 
-BuildStep::~BuildStep()
-{
-}
+    QString displayName() const;
 
-BuildConfiguration *BuildStep::buildConfiguration() const
-{
-    BuildConfiguration *bc = qobject_cast<BuildConfiguration *>(parent()->parent());
-    if (!bc)
-        bc = target()->activeBuildConfiguration();
-    return bc;
-}
+signals:
+    void displayNameChanged(const QString &);
 
-Target *BuildStep::target() const
-{
-    return qobject_cast<Target *>(parent()->parent()->parent());
-}
+protected:
+    void setDisplayName(const QString &displayName);
 
-bool BuildStep::immutable() const
-{
-    return false;
-}
+private:
+    QString m_displayName;
+};
 
-IBuildStepFactory::IBuildStepFactory(QObject *parent) :
-    QObject(parent)
-{ }
+} // namespace ProjectExplorer
 
-IBuildStepFactory::~IBuildStepFactory()
-{ }
+#endif // PROJECTEXPLORER_NAMEDWIDGET_H

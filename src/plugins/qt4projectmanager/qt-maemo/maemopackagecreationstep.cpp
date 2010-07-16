@@ -49,6 +49,7 @@
 #include "maemoprofilewrapper.h"
 #include "maemotoolchain.h"
 
+#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qt4buildconfiguration.h>
 #include <qt4project.h>
@@ -66,24 +67,24 @@ namespace {
 }
 
 using namespace ProjectExplorer::Constants;
-using ProjectExplorer::BuildConfiguration;
+using ProjectExplorer::BuildStepList;
 using ProjectExplorer::BuildStepConfigWidget;
 using ProjectExplorer::Task;
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-MaemoPackageCreationStep::MaemoPackageCreationStep(BuildConfiguration *buildConfig)
-    : ProjectExplorer::BuildStep(buildConfig, CreatePackageId),
+MaemoPackageCreationStep::MaemoPackageCreationStep(BuildStepList *bsl)
+    : ProjectExplorer::BuildStep(bsl, CreatePackageId),
       m_packagingEnabled(true),
       m_versionString(DefaultVersionNumber)
 {
     ctor();
 }
 
-MaemoPackageCreationStep::MaemoPackageCreationStep(BuildConfiguration *buildConfig,
+MaemoPackageCreationStep::MaemoPackageCreationStep(BuildStepList *bsl,
     MaemoPackageCreationStep *other)
-    : BuildStep(buildConfig, other),
+    : BuildStep(bsl, other),
       m_packagingEnabled(other->m_packagingEnabled),
       m_versionString(other->m_versionString)
 {

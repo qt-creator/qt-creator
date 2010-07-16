@@ -34,6 +34,7 @@
 #include "cmaketarget.h"
 #include "cmakebuildconfiguration.h"
 
+#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/gnumakeparser.h>
 
@@ -57,22 +58,22 @@ const char * const ADDITIONAL_ARGUMENTS_KEY("CMakeProjectManager.MakeStep.Additi
 
 // TODO: Move progress information into an IOutputParser!
 
-MakeStep::MakeStep(BuildConfiguration *bc) :
-    AbstractProcessStep(bc, QLatin1String(MS_ID)), m_clean(false),
+MakeStep::MakeStep(BuildStepList *bsl) :
+    AbstractProcessStep(bsl, QLatin1String(MS_ID)), m_clean(false),
     m_futureInterface(0)
 {
     ctor();
 }
 
-MakeStep::MakeStep(BuildConfiguration *bc, const QString &id) :
-    AbstractProcessStep(bc, id), m_clean(false),
+MakeStep::MakeStep(BuildStepList *bsl, const QString &id) :
+    AbstractProcessStep(bsl, id), m_clean(false),
     m_futureInterface(0)
 {
     ctor();
 }
 
-MakeStep::MakeStep(BuildConfiguration *bc, MakeStep *bs) :
-    AbstractProcessStep(bc, bs),
+MakeStep::MakeStep(BuildStepList *bsl, MakeStep *bs) :
+    AbstractProcessStep(bsl, bs),
     m_clean(bs->m_clean),
     m_futureInterface(0),
     m_buildTargets(bs->m_buildTargets),
@@ -317,42 +318,41 @@ MakeStepFactory::~MakeStepFactory()
 {
 }
 
-bool MakeStepFactory::canCreate(BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, const QString &id) const
+bool MakeStepFactory::canCreate(BuildStepList *parent, const QString &id) const
 {
-    Q_UNUSED(type)
-    if (!qobject_cast<CMakeBuildConfiguration *>(parent))
+    if (parent->target()->project()->id() != QLatin1String(Constants::CMAKEPROJECT_ID))
         return false;
     return QLatin1String(MS_ID) == id;
 }
 
-BuildStep *MakeStepFactory::create(BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, const QString &id)
+BuildStep *MakeStepFactory::create(BuildStepList *parent, const QString &id)
 {
-    if (!canCreate(parent, type, id))
+    if (!canCreate(parent, id))
         return 0;
     return new MakeStep(parent);
 }
 
-bool MakeStepFactory::canClone(BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, BuildStep *source) const
+bool MakeStepFactory::canClone(BuildStepList *parent, BuildStep *source) const
 {
-    return canCreate(parent, type, source->id());
+    return canCreate(parent, source->id());
 }
 
-BuildStep *MakeStepFactory::clone(BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, BuildStep *source)
+BuildStep *MakeStepFactory::clone(BuildStepList *parent, BuildStep *source)
 {
-    if (!canClone(parent, type, source))
+    if (!canClone(parent, source))
         return 0;
     return new MakeStep(parent, static_cast<MakeStep *>(source));
 }
 
-bool MakeStepFactory::canRestore(BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, const QVariantMap &map) const
+bool MakeStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
 {
     QString id(ProjectExplorer::idFromMap(map));
-    return canCreate(parent, type, id);
+    return canCreate(parent, id);
 }
 
-BuildStep *MakeStepFactory::restore(BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, const QVariantMap &map)
+BuildStep *MakeStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
 {
-    if (!canRestore(parent, type, map))
+    if (!canRestore(parent, map))
         return 0;
     MakeStep *bs(new MakeStep(parent));
     if (bs->fromMap(map))
@@ -361,12 +361,11 @@ BuildStep *MakeStepFactory::restore(BuildConfiguration *parent, ProjectExplorer:
     return 0;
 }
 
-QStringList MakeStepFactory::availableCreationIds(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type) const
+QStringList MakeStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
 {
-    Q_UNUSED(type)
-    if (!qobject_cast<CMakeBuildConfiguration *>(parent))
-        return QStringList();
-    return QStringList() << QLatin1String(MS_ID);
+    if (parent->target()->project()->id() == QLatin1String(Constants::CMAKEPROJECT_ID))
+        return QStringList() << QLatin1String(MS_ID);
+    return QStringList();
 }
 
 QString MakeStepFactory::displayNameForId(const QString &id) const

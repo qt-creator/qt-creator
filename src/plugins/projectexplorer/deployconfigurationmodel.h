@@ -27,55 +27,42 @@
 **
 **************************************************************************/
 
-#ifndef PROJECTCONFIGURATION_H
-#define PROJECTCONFIGURATION_H
+#ifndef PROJECTEXPLORER_DEPLOYCONFIGURATIONMODEL_H
+#define PROJECTEXPLORER_DEPLOYCONFIGURATIONMODEL_H
 
-#include "projectexplorer_export.h"
-
-#include <QtCore/QObject>
-#include <QtCore/QString>
-#include <QtCore/QVariantMap>
+#include <QtCore/QAbstractItemModel>
 
 namespace ProjectExplorer {
 
-class Project;
+class Target;
+class DeployConfiguration;
 
-class PROJECTEXPLORER_EXPORT ProjectConfiguration : public QObject
+/*! A model to represent the run configurations of a target.
+    To be used in for the drop down of comboboxes
+    Does automatically adjust itself to added and removed RunConfigurations
+*/
+class DeployConfigurationModel : public QAbstractListModel
 {
     Q_OBJECT
-
 public:
-    // ctors are protected
-    virtual ~ProjectConfiguration();
+    DeployConfigurationModel(Target *target, QObject *parent = 0);
 
-    QString id() const;
-    QString displayName() const;
-    void setDisplayName(const QString &name);
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
-    // Note: Make sure subclasses call the superclasses toMap() method!
-    virtual QVariantMap toMap() const;
-
-signals:
+    DeployConfiguration *deployConfigurationAt(int i);
+    DeployConfiguration *deployConfigurationFor(const QModelIndex &idx);
+    QModelIndex indexFor(DeployConfiguration *rc);
+private slots:
+    void addedDeployConfiguration(ProjectExplorer::DeployConfiguration*);
+    void removedDeployConfiguration(ProjectExplorer::DeployConfiguration*);
     void displayNameChanged();
-
-protected:
-    ProjectConfiguration(QObject *parent, const QString &id);
-    ProjectConfiguration(QObject *parent, const ProjectConfiguration *source);
-
-    // Note: Make sure subclasses call the superclasses toMap() method!
-    virtual bool fromMap(const QVariantMap &map);
-
 private:
-    Q_DISABLE_COPY(ProjectConfiguration)
-
-    QString m_id;
-    QString m_displayName;
+    Target *m_target;
+    QList<DeployConfiguration *> m_deployConfigurations;
 };
-
-// helper functions:
-PROJECTEXPLORER_EXPORT QString idFromMap(const QVariantMap &map);
-PROJECTEXPLORER_EXPORT QString displayNameFromMap(const QVariantMap &map);
 
 } // namespace ProjectExplorer
 
-#endif // PROJECTCONFIGURATION_H
+#endif // PROJECTEXPLORER_DEPLOYCONFIGURATIONMODEL_H

@@ -27,51 +27,25 @@
 **
 **************************************************************************/
 
-#include "buildstep.h"
+#ifndef QT4PROJECTMANAGER_QT4DEPLOYCONFIGURATION_H
+#define QT4PROJECTMANAGER_QT4DEPLOYCONFIGURATION_H
 
-#include "buildconfiguration.h"
-#include "buildsteplist.h"
-#include "target.h"
+#include <projectexplorer/deployconfiguration.h>
 
-using namespace ProjectExplorer;
+namespace Qt4ProjectManager {
+namespace Internal {
 
-BuildStep::BuildStep(BuildStepList *bsl, const QString &id) :
-    ProjectConfiguration(bsl, id)
+class Qt4DeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory
 {
-    Q_ASSERT(bsl);
-}
+    Q_OBJECT
 
-BuildStep::BuildStep(BuildStepList *bsl, BuildStep *bs) :
-    ProjectConfiguration(bsl, bs)
-{
-    Q_ASSERT(bsl);
-}
+public:
+    explicit Qt4DeployConfigurationFactory(QObject *parent = 0);
 
-BuildStep::~BuildStep()
-{
-}
+    ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, const QString &id);
+};
 
-BuildConfiguration *BuildStep::buildConfiguration() const
-{
-    BuildConfiguration *bc = qobject_cast<BuildConfiguration *>(parent()->parent());
-    if (!bc)
-        bc = target()->activeBuildConfiguration();
-    return bc;
-}
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
-Target *BuildStep::target() const
-{
-    return qobject_cast<Target *>(parent()->parent()->parent());
-}
-
-bool BuildStep::immutable() const
-{
-    return false;
-}
-
-IBuildStepFactory::IBuildStepFactory(QObject *parent) :
-    QObject(parent)
-{ }
-
-IBuildStepFactory::~IBuildStepFactory()
-{ }
+#endif // QT4PROJECTMANAGER_QT4DEPLOYCONFIGURATION_H
