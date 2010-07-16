@@ -353,7 +353,7 @@ bool CheckSymbols::visit(NamespaceAST *ast)
             unsigned line, column;
             getTokenStartPosition(ast->identifier_token, &line, &column);
             Use use(line, column, tok.length());
-            addTypeUsage(use);
+            addUsage(use);
         }
     }
 
@@ -409,7 +409,7 @@ void CheckSymbols::checkName(NameAST *ast)
             if (_potentialTypes.contains(id)) {
                 Scope *scope = findScope(ast);
                 const QList<LookupItem> candidates = _context.lookup(ast->name, scope);
-                addTypeUsage(candidates, ast);
+                addUsage(candidates, ast);
             } else if (_potentialMembers.contains(id)) {
                 Scope *scope = findScope(ast);
                 const QList<LookupItem> candidates = _context.lookup(ast->name, scope);
@@ -470,7 +470,7 @@ bool CheckSymbols::visit(QualifiedNameAST *ast)
 
                 const Name *name = class_or_namespace_name->name;
                 b = _context.lookupType(name, scope);
-                addTypeUsage(b, class_or_namespace_name);
+                addUsage(b, class_or_namespace_name);
 
                 for (it = it->next; b && it; it = it->next) {
                     NestedNameSpecifierAST *nested_name_specifier = it->value;
@@ -480,14 +480,14 @@ bool CheckSymbols::visit(QualifiedNameAST *ast)
                             accept(template_id->template_argument_list);
 
                         b = b->findType(class_or_namespace_name->name);
-                        addTypeUsage(b, class_or_namespace_name);
+                        addUsage(b, class_or_namespace_name);
                     }
                 }
             }
         }
 
         if (b && ast->unqualified_name)
-            addTypeUsage(b->find(ast->unqualified_name->name), ast->unqualified_name);
+            addUsage(b->find(ast->unqualified_name->name), ast->unqualified_name);
     }
 
     return false;
@@ -501,7 +501,7 @@ bool CheckSymbols::visit(TypenameTypeParameterAST *ast)
             if (_potentialTypes.contains(id)) {
                 Scope *scope = findScope(_templateDeclarationStack.back());
                 const QList<LookupItem> candidates = _context.lookup(ast->name->name, scope);
-                addTypeUsage(candidates, ast->name);
+                addUsage(candidates, ast->name);
             }
         }
     }
@@ -538,7 +538,7 @@ bool CheckSymbols::visit(FunctionDefinitionAST *ast)
     QList<SemanticInfo::Use> uses;
     foreach (uses, locals.uses) {
         foreach (const SemanticInfo::Use &u, uses)
-            addTypeUsage(u);
+            addUsage(u);
     }
 
     _functionDefinitionStack.removeLast();
@@ -547,10 +547,10 @@ bool CheckSymbols::visit(FunctionDefinitionAST *ast)
     return false;
 }
 
-void CheckSymbols::addTypeUsage(const Use &use)
+void CheckSymbols::addUsage(const Use &use)
 {
     if (_functionDefinitionStack.isEmpty()) {
-        if (_typeUsages.size() >= 50) {
+        if (_usages.size() >= 50) {
             if (_flushRequested && use.line != _flushLine)
                 flush();
             else if (! _flushRequested) {
@@ -560,10 +560,10 @@ void CheckSymbols::addTypeUsage(const Use &use)
         }
     }
 
-    _typeUsages.append(use);
+    _usages.append(use);
 }
 
-void CheckSymbols::addTypeUsage(ClassOrNamespace *b, NameAST *ast)
+void CheckSymbols::addUsage(ClassOrNamespace *b, NameAST *ast)
 {
     if (! b)
         return;
@@ -580,11 +580,11 @@ void CheckSymbols::addTypeUsage(ClassOrNamespace *b, NameAST *ast)
     getTokenStartPosition(startToken, &line, &column);
     const unsigned length = tok.length();
     const Use use(line, column, length);
-    addTypeUsage(use);
+    addUsage(use);
     //qDebug() << "added use" << oo(ast->name) << line << column << length;
 }
 
-void CheckSymbols::addTypeUsage(const QList<LookupItem> &candidates, NameAST *ast)
+void CheckSymbols::addUsage(const QList<LookupItem> &candidates, NameAST *ast)
 {
     unsigned startToken = ast->firstToken();
     if (DestructorNameAST *dtor = ast->asDestructorName())
@@ -608,7 +608,7 @@ void CheckSymbols::addTypeUsage(const QList<LookupItem> &candidates, NameAST *as
                  c->isClass() || c->isEnum() ||
                  c->isForwardClassDeclaration() || c->isTypenameArgument()) {
             const Use use(line, column, length);
-            addTypeUsage(use);
+            addUsage(use);
             //qDebug() << "added use" << oo(ast->name) << line << column << length;
             break;
         }
@@ -643,7 +643,7 @@ void CheckSymbols::addMemberUsage(const QList<LookupItem> &candidates, NameAST *
             continue;
 
         const Use use(line, column, length, Use::Field);
-        addTypeUsage(use);
+        addUsage(use);
         //qDebug() << "added use" << oo(ast->name) << line << column << length;
     }
 }
@@ -684,9 +684,9 @@ void CheckSymbols::flush()
     _flushRequested = false;
     _flushLine = 0;
 
-    if (_typeUsages.isEmpty())
+    if (_usages.isEmpty())
         return;
 
-    reportResults(_typeUsages);
-    _typeUsages.clear();
+    reportResults(_usages);
+    _usages.clear();
 }

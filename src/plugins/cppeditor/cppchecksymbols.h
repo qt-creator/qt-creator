@@ -83,9 +83,9 @@ protected:
 
     void checkName(NameAST *ast);
     void checkNamespace(NameAST *name);
-    void addTypeUsage(ClassOrNamespace *b, NameAST *ast);
-    void addTypeUsage(const QList<LookupItem> &candidates, NameAST *ast);
-    void addTypeUsage(const Use &use);
+    void addUsage(ClassOrNamespace *b, NameAST *ast);
+    void addUsage(const QList<LookupItem> &candidates, NameAST *ast);
+    void addUsage(const Use &use);
 
     void checkMemberName(NameAST *ast);
     void addMemberUsage(const QList<LookupItem> &candidates, NameAST *ast);
@@ -126,7 +126,7 @@ private:
     QList<ScopedSymbol *> _scopes;
     QList<TemplateDeclarationAST *> _templateDeclarationStack;
     QList<FunctionDefinitionAST *> _functionDefinitionStack;
-    QVector<Use> _typeUsages;
+    QVector<Use> _usages;
     bool _flushRequested;
     unsigned _flushLine;
 };
