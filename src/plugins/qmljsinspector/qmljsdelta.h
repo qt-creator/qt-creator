@@ -81,6 +81,10 @@ private:
     void insert(UiObjectMember *member, UiObjectMember *parentMember,
                 const QList<QDeclarativeDebugObjectReference> &debugReferences, const Document::Ptr &doc);
 
+    void update(UiObjectDefinition* oldObject, const QmlJS::Document::Ptr& oldDoc,
+                UiObjectDefinition* newObject, const QmlJS::Document::Ptr& newDoc,
+                const QList<QDeclarativeDebugObjectReference >& debugReferences);
+
 private:
     QmlJS::Document::Ptr _doc;
     QmlJS::Document::Ptr _previousDoc;

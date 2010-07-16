@@ -306,6 +306,87 @@ void Delta::insert(UiObjectMember *member, UiObjectMember *parentMember, const Q
     }
 }
 
+void QmlJSInspector::Internal::Delta::update(UiObjectDefinition* oldObject, const QmlJS::Document::Ptr& oldDoc,
+                                             UiObjectDefinition* newObject, const QmlJS::Document::Ptr& newDoc,
+                                             const QList< QDeclarativeDebugObjectReference >& debugReferences)
+{
+    Q_ASSERT (oldObject && newObject);
+    QSet<QString> presentBinding;
+
+    for (UiObjectMemberList *objectMemberIt = objectMembers(newObject); objectMemberIt; objectMemberIt = objectMemberIt->next) {
+        if (UiScriptBinding *script = cast<UiScriptBinding *>(objectMemberIt->member)) {
+            bool found = false;
+            const QString property = _propertyName(script->qualifiedId);
+            presentBinding.insert(property);
+            for (UiObjectMemberList *previousObjectMemberIt = Delta::objectMembers(oldObject); previousObjectMemberIt; previousObjectMemberIt = previousObjectMemberIt->next) {
+                if (UiScriptBinding *previousScript = cast<UiScriptBinding *>(previousObjectMemberIt->member)) {
+                    if (compare(script->qualifiedId, previousScript->qualifiedId)) {
+                        found = true;
+                        const QString scriptCode = _scriptCode(script, newDoc);
+                        const QString previousScriptCode = _scriptCode(previousScript, oldDoc);
+
+                        if (scriptCode != previousScriptCode) {
+                            foreach (const QDeclarativeDebugObjectReference &ref, debugReferences) {
+                                if (ref.debugId() != -1)
+                                    updateScriptBinding(ref, script, property, scriptCode);
+                            }
+                        }
+                    }
+                }
+            }
+            if (!found) {
+                const QString scriptCode = _scriptCode(script, newDoc);
+                foreach (const QDeclarativeDebugObjectReference &ref, debugReferences) {
+                    if (ref.debugId() != -1)
+                        updateScriptBinding(ref, script, property, scriptCode);
+                }
+            }
+        } else if (UiSourceElement *uiSource = cast<UiSourceElement*>(objectMemberIt->member)) {
+            bool found = false;
+            const QString methodName = _methodName(uiSource);
+            for (UiObjectMemberList *previousObjectMemberIt = objectMembers(oldObject);
+                previousObjectMemberIt; previousObjectMemberIt = previousObjectMemberIt->next) {
+                if (UiSourceElement *previousSource = cast<UiSourceElement*>(previousObjectMemberIt->member)) {
+                    if (compare(uiSource, previousSource)) {
+                        found = true;
+                        const QString methodCode = _methodCode(uiSource, newDoc);
+                        const QString previousMethodCode = _methodCode(previousSource, oldDoc);
+
+                        if (methodCode != previousMethodCode) {
+                            foreach (const QDeclarativeDebugObjectReference &ref, debugReferences) {
+                                if (ref.debugId() != -1)
+                                    updateMethodBody(ref, script, methodName, methodCode);
+                            }
+                        }
+                    }
+                }
+            }
+            if (!found) {
+                const QString methodCode = _methodCode(uiSource, newDoc);
+                foreach (const QDeclarativeDebugObjectReference &ref, debugReferences) {
+                    if (ref.debugId() != -1)
+                        updateMethodBody(ref, script, methodName, methodCode);
+                }
+            }
+        }
+    }
+
+    //reset property that are not present in the new object.
+    for (UiObjectMemberList *previousObjectMemberIt = Delta::objectMembers(oldObject); previousObjectMemberIt; previousObjectMemberIt = previousObjectMemberIt->next) {
+        if (UiScriptBinding *previousScript = cast<UiScriptBinding *>(previousObjectMemberIt->member)) {
+            const QString property = _propertyName(previousScript->qualifiedId);
+            if (!presentBinding.contains(property)) {
+                foreach (const QDeclarativeDebugObjectReference &ref, debugReferences) {
+                    if (ref.debugId() != -1)
+                        ClientProxy::instance()->resetBindingForObject(ref.debugId(), property); // ### remove
+                }
+            }
+        }
+    }
+}
+
+
+
 Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::Ptr &doc2, const DebugIdMap &debugIds)
 {
     Q_ASSERT(doc1->qmlProgram());
@@ -327,81 +408,29 @@ Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::P
         UiObjectMember *y = todo.takeFirst();
         todo += children(y);
 
+        if (!cast<UiObjectDefinition *>(y))
+            continue;
+
         if (!M.way2.contains(y)) {
+            qDebug () << "Delta::operator():  insert " << label(y, doc2) << " to " << label(parents2.parent.value(y), doc2);
             insert(y, parents2.parent.value(y), newDebuggIds.value(parents2.parent.value(y)), doc2);
-            qDebug () << "insert " << label(y, doc2) << " to " << label(parents2.parent.value(y), doc2);
             continue;
         }
         UiObjectMember *x = M.way2[y];
+        Q_ASSERT(cast<UiObjectDefinition *>(x));
 
-//--8<---------------------------------------------------------------------------------------
         if (debugIds.contains(x)) {
-            newDebuggIds[y] = debugIds[x];
-
-#if 1
-            UiObjectMember *object = y;
-            UiObjectMember *previousObject = x;
-
-            for (UiObjectMemberList *objectMemberIt = objectMembers(object); objectMemberIt; objectMemberIt = objectMemberIt->next) {
-                if (UiScriptBinding *script = cast<UiScriptBinding *>(objectMemberIt->member)) {
-                    bool found = false;
-                    for (UiObjectMemberList *previousObjectMemberIt = Delta::objectMembers(previousObject); previousObjectMemberIt; previousObjectMemberIt = previousObjectMemberIt->next) {
-                        if (UiScriptBinding *previousScript = cast<UiScriptBinding *>(previousObjectMemberIt->member)) {
-                            if (compare(script->qualifiedId, previousScript->qualifiedId)) {
-                                found = true;
-                                const QString scriptCode = _scriptCode(script, doc2);
-                                const QString previousScriptCode = _scriptCode(previousScript, doc1);
-
-                                if (scriptCode != previousScriptCode) {
-                                    const QString property = _propertyName(script->qualifiedId);
-                                    foreach (const QDeclarativeDebugObjectReference &ref, debugIds[x]) {
-                                        if (ref.debugId() != -1)
-                                            updateScriptBinding(ref, script, property, scriptCode);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (!found) {
-                        const QString scriptCode = _scriptCode(script, doc2);
-                        const QString property = _propertyName(script->qualifiedId);
-                        foreach (const QDeclarativeDebugObjectReference &ref, debugIds[x]) {
-                            if (ref.debugId() != -1)
-                                updateScriptBinding(ref, script, property, scriptCode);
-                        }
-                    }
-                } else if (UiSourceElement *uiSource = cast<UiSourceElement*>(objectMemberIt->member)) {
-                    for (UiObjectMemberList *previousObjectMemberIt = objectMembers(previousObject);
-                    previousObjectMemberIt; previousObjectMemberIt = previousObjectMemberIt->next)
-                    {
-                        if (UiSourceElement *previousSource = cast<UiSourceElement*>(previousObjectMemberIt->member)) {
-                            if (compare(uiSource, previousSource))
-                            {
-                                const QString methodCode = _methodCode(uiSource, doc2);
-                                const QString previousMethodCode = _methodCode(previousSource, doc1);
-
-                                if (methodCode != previousMethodCode) {
-                                    const QString methodName = _methodName(uiSource);
-                                    foreach (const QDeclarativeDebugObjectReference &ref, debugIds[x]) {
-                                        if (ref.debugId() != -1)
-                                            updateMethodBody(ref, script, methodName, methodCode);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-#endif
+            QList< QDeclarativeDebugObjectReference > ids = debugIds[x];
+            newDebuggIds[y] = ids;
+            update(cast<UiObjectDefinition *>(x), doc1, cast<UiObjectDefinition *>(y), doc2, ids);
         }
-
-//--8<--------------------------------------------------------------------------------------------------
-
-        //qDebug() << "match "<< label(x, doc1) << "with parent " << label(parents1.parent.value(x), doc1)
+        //qDebug() << "Delta::operator():  match "<< label(x, doc1) << "with parent " << label(parents1.parent.value(x), doc1)
         //     << " to "<< label(y, doc2) << "with parent " << label(parents2.parent.value(y), doc2);
+        
+
         if (!M.contains(parents1.parent.value(x),parents2.parent.value(y))) {
-            qDebug () << "move " << label(y, doc2) << " from " << label(parents1.parent.value(x), doc1)
-            << " to " << label(parents2.parent.value(y), doc2);
+            qDebug () << "Delta::operator():  move " << label(y, doc2) << " from " << label(parents1.parent.value(x), doc1)
+            << " to " << label(parents2.parent.value(y), doc2)  << " ### TODO";
             continue;
         }
     }
@@ -410,8 +439,10 @@ Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::P
     while(!todo.isEmpty()) {
         UiObjectMember *x = todo.takeFirst();
         todo += children(x);
+        if (!cast<UiObjectDefinition *>(x))
+            continue;
         if (!M.way1.contains(x)) {
-            qDebug () << "remove " << label(x, doc1);
+            qDebug () << "Delta::operator():  remove " << label(x, doc1) << " ### TODO";
             continue;
         }
     }

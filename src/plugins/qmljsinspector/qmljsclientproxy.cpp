@@ -286,22 +286,33 @@ bool ClientProxy::setBindingForObject(int objectDebugId,
                                       const QVariant &value,
                                       bool isLiteralValue)
 {
-    if (propertyName == QLatin1String("id") || objectDebugId == -1)
+    qDebug() << "setBindingForObject():" << objectDebugId << propertyName << value;
+    if (objectDebugId == -1)
         return false;
 
-//    qDebug() << "setBindingForObject():" << objectDebugId << propertyName << value << "isLiteral:" << isLiteralValue;
+    if (propertyName == QLatin1String("id"))
+        return false; // Crashes the QMLViewer.
 
     return m_client->setBindingForObject(objectDebugId, propertyName, value.toString(), isLiteralValue);
 }
 
 bool ClientProxy::setMethodBodyForObject(int objectDebugId, const QString &methodName, const QString &methodBody)
 {
+    qDebug() << "setMethodBodyForObject():" << objectDebugId << methodName << methodBody;
     if (objectDebugId == -1)
         return 0;
-
-//    qDebug() << "setMethodBodyForObject():" << objectDebugId << methodName;
     return m_client->setMethodBody(objectDebugId, methodName, methodBody);
 }
+
+bool ClientProxy::resetBindingForObject(int objectDebugId, const QString& propertyName)
+{
+    qDebug() << "resetBindingForObject():" << objectDebugId << propertyName;
+    if (objectDebugId == -1)
+        return false;
+    //    if (propertyName == QLatin1String("id"))  return false;
+    return m_client->resetBindingForObject(objectDebugId, propertyName);
+}
+
 
 void ClientProxy::queryEngineContext(int id)
 {
