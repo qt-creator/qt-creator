@@ -111,9 +111,7 @@ private:
 };
 
 Symbol::Symbol(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
-    : _startOffset(0),
-      _endOffset(0),
-      _name(0),
+    : _name(0),
       _hashCode(0),
       _storage(Symbol::NoStorage),
       _visibility(Symbol::Public),
@@ -200,18 +198,6 @@ const char *Symbol::fileName() const
 
 unsigned Symbol::fileNameLength() const
 { return fileId()->size(); }
-
-unsigned Symbol::startOffset() const
-{ return _startOffset; }
-
-void Symbol::setStartOffset(unsigned offset)
-{ _startOffset = offset; }
-
-unsigned Symbol::endOffset() const
-{ return _endOffset; }
-
-void Symbol::setEndOffset(unsigned offset)
-{ _endOffset = offset; }
 
 const Name *Symbol::identity() const
 {
@@ -433,8 +419,6 @@ bool Symbol::isObjCPropertyDeclaration() const
 void Symbol::copy(Symbol *other)
 {
     _sourceLocation = other->_sourceLocation;
-    _startOffset = other->_startOffset;
-    _endOffset = other->_endOffset;
     _name = other->_name;
     _hashCode = other->_hashCode;
     _storage = other->_storage;

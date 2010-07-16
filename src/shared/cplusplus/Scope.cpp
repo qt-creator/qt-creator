@@ -61,7 +61,9 @@ Scope::Scope(ScopedSymbol *owner)
       _allocatedSymbols(0),
       _symbolCount(-1),
       _hash(0),
-      _hashSize(0)
+      _hashSize(0),
+      _startOffset(0),
+      _endOffset(0)
 { }
 
 Scope::~Scope()
@@ -332,5 +334,17 @@ Scope::iterator Scope::firstSymbol() const
 
 Scope::iterator Scope::lastSymbol() const
 { return _symbols + _symbolCount + 1; }
+
+unsigned Scope::startOffset() const
+{ return _startOffset; }
+
+void Scope::setStartOffset(unsigned offset)
+{ _startOffset = offset; }
+
+unsigned Scope::endOffset() const
+{ return _endOffset; }
+
+void Scope::setEndOffset(unsigned offset)
+{ _endOffset = offset; }
 
 

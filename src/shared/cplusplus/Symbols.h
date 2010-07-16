@@ -234,6 +234,14 @@ public:
     virtual ScopedSymbol *asScopedSymbol()
     { return this; }
 
+    /// Set the start offset of the scope for this symbol
+    unsigned startOffset() const;
+    void setStartOffset(unsigned offset);
+
+    /// Set the end offset of the scope for this symbol
+    unsigned endOffset() const;
+    void setEndOffset(unsigned offset);
+
 private:
     Scope *_members;
 };

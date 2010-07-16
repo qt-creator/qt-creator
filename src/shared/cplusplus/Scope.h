@@ -142,6 +142,14 @@ public:
     Symbol *lookat(const Identifier *id) const;
     Symbol *lookat(int operatorId) const;
 
+    /// Set the start offset of the scope
+    unsigned startOffset() const;
+    void setStartOffset(unsigned offset);
+
+    /// Set the end offset of the scope
+    unsigned endOffset() const;
+    void setEndOffset(unsigned offset);
+
 private:
     /// Returns the hash value for the given Symbol.
     unsigned hashValue(Symbol *symbol) const;
@@ -160,6 +168,9 @@ private:
 
     Symbol **_hash;
     int _hashSize;
+
+    unsigned _startOffset;
+    unsigned _endOffset;
 };
 
 } // end of namespace CPlusPlus

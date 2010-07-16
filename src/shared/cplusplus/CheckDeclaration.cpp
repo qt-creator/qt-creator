@@ -230,8 +230,6 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
         }
 
         Declaration *symbol = control()->newDeclaration(location, name);
-        symbol->setStartOffset(tokenAt(ast->firstToken()).offset);
-        symbol->setEndOffset(tokenAt(ast->lastToken() - 1).end());
 
         symbol->setType(declTy);
         if (declTy.isDeprecated())
@@ -321,8 +319,6 @@ bool CheckDeclaration::visit(ExceptionDeclarationAST *ast)
     }
 
     Declaration *symbol = control()->newDeclaration(location, name);
-    symbol->setStartOffset(tokenAt(ast->firstToken()).offset);
-    symbol->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     symbol->setType(declTy);
     _scope->enterSymbol(symbol);
 
@@ -444,8 +440,6 @@ bool CheckDeclaration::visit(NamespaceAliasDefinitionAST *ast)
 
     NamespaceAlias *namespaceAlias = control()->newNamespaceAlias(sourceLocation, name);
     namespaceAlias->setNamespaceName(namespaceName);
-    namespaceAlias->setStartOffset(tokenAt(ast->firstToken()).offset);
-    namespaceAlias->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     //ast->symbol = namespaceAlias;
     _scope->enterSymbol(namespaceAlias);
 
@@ -578,8 +572,6 @@ bool CheckDeclaration::visit(ObjCProtocolForwardDeclarationAST *ast)
 
         const Name *protocolName = semantic()->check(it->value, _scope);
         ObjCForwardProtocolDeclaration *fwdProtocol = control()->newObjCForwardProtocolDeclaration(sourceLocation, protocolName);
-        fwdProtocol->setStartOffset(tokenAt(ast->firstToken()).offset);
-        fwdProtocol->setEndOffset(tokenAt(ast->lastToken() - 1).end());
 
         _scope->enterSymbol(fwdProtocol);
 
@@ -639,8 +631,6 @@ bool CheckDeclaration::visit(ObjCClassForwardDeclarationAST *ast)
 
         const Name *className = semantic()->check(it->value, _scope);
         ObjCForwardClassDeclaration *fwdClass = control()->newObjCForwardClassDeclaration(sourceLocation, className);
-        fwdClass->setStartOffset(tokenAt(ast->firstToken()).offset);
-        fwdClass->setEndOffset(tokenAt(ast->lastToken() - 1).end());
 
         _scope->enterSymbol(fwdClass);
 
@@ -726,6 +716,8 @@ bool CheckDeclaration::visit(ObjCMethodDeclarationAST *ast)
     Symbol *symbol;
     if (ast->function_body) {
         symbol = methodTy;
+        methodTy->setStartOffset(tokenAt(ast->firstToken()).offset);
+        methodTy->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     } else {
         Declaration *decl = control()->newDeclaration(selector->firstToken(), methodTy->name());
         decl->setType(methodTy);
@@ -733,8 +725,6 @@ bool CheckDeclaration::visit(ObjCMethodDeclarationAST *ast)
         symbol->setStorage(methodTy->storage());
     }
 
-    symbol->setStartOffset(tokenAt(ast->firstToken()).offset);
-    symbol->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     symbol->setVisibility(semantic()->currentObjCVisibility());
     if (ty.isDeprecated())
         symbol->setDeprecated(true);

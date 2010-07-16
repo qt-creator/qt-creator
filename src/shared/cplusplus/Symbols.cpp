@@ -427,6 +427,18 @@ Scope *ScopedSymbol::members() const
 void ScopedSymbol::addMember(Symbol *member)
 { _members->enterSymbol(member); }
 
+unsigned ScopedSymbol::startOffset() const
+{ return _members->startOffset(); }
+
+void ScopedSymbol::setStartOffset(unsigned offset)
+{ _members->setStartOffset(offset); }
+
+unsigned ScopedSymbol::endOffset() const
+{ return _members->endOffset(); }
+
+void ScopedSymbol::setEndOffset(unsigned offset)
+{ _members->setEndOffset(offset); }
+
 Block::Block(TranslationUnit *translationUnit, unsigned sourceLocation)
     : ScopedSymbol(translationUnit, sourceLocation, /*name = */ 0)
 { }

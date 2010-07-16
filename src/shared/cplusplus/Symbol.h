@@ -105,12 +105,6 @@ public:
     /// Returns this Symbol's file name length.
     unsigned fileNameLength() const;
 
-    unsigned startOffset() const;
-    void setStartOffset(unsigned offset);
-
-    unsigned endOffset() const;
-    void setEndOffset(unsigned offset);
-
     /// Returns this Symbol's name.
     const Name *name() const;
 
@@ -320,8 +314,6 @@ protected:
 
 private:
     unsigned _sourceLocation;
-    unsigned _startOffset;
-    unsigned _endOffset;
     const Name *_name;
     unsigned _hashCode;
     int _storage;
