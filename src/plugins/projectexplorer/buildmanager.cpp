@@ -63,9 +63,9 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-static inline QString msgProgress(int n, int total)
+static inline QString msgProgress(int progress, int total)
 {
-    return BuildManager::tr("Finished %1 of %n build steps", 0, n).arg(total);
+    return BuildManager::tr("Finished %1 of %n build steps", 0, total).arg(progress);
 }
 
 BuildManager::BuildManager(ProjectExplorerPlugin *parent)
@@ -101,6 +101,9 @@ BuildManager::BuildManager(ProjectExplorerPlugin *parent)
 
     connect(m_taskWindow, SIGNAL(tasksChanged()),
             this, SLOT(updateTaskCount()));
+
+    connect(m_taskWindow, SIGNAL(tasksCleared()),
+            this,SIGNAL(tasksCleared()));
 
     connect(&m_progressWatcher, SIGNAL(canceled()),
             this, SLOT(cancel()));

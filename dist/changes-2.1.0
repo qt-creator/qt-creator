@@ -8,23 +8,27 @@ git clone git://gitorious.org/qt-creator/qt-creator.git
 git log --cherry-pick --pretty=oneline v2.0.0...v2.1.0
 
 General
+   * Fix the suggested path in the new dialog in case of sub projects
+   * Search dialog now opens the completion box for the search term on cursor down
 
 Editing
-
-  * FakeVim: Fix issues with non-letter keys on non-US keyboards
-  * FakeVim: Fix performance of find/replace
+   * FakeVim: Fix issues with non-letter keys on non-US keyboards
+   * FakeVim: Fix performance of find/replace
+   * Fixed disabled "Open with" context menu in project tree.
 
 C++ Support
 
 Project support
+   * Fix auto-scrolling in application and compile output
 
 Debugging
-
    * Fix display of certain structures within containers
    * Fix display of typedefs of typedefs of simple types such as qulonglong
    * Fix behaviour of 'step' and 'next' when a lower frame was selected
    * Fix std::string display for objects with (the legal) ref count -1
    * Improve gdb version string parsing
+   * Fix that the newest version of compiled debugging helper was not used
+     if there was an older version still was around in a different search path
 
 QML/JS Support
    * New QmlDesigner
@@ -39,6 +43,7 @@ Mac
 Linux (GNOME and KDE)
 
 Windows
+   * Fixed that some menu items got disabled during keyboard navigation
 
 Additional credits go to:
 

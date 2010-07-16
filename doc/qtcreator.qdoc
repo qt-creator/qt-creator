@@ -2178,7 +2178,8 @@
         build the application.
 
         Qt Creator generates an installation package, installs in on the device,
-        and executes it. The application views are displayed on the Nokia N900.
+        and executes it. You can skip the packaging step to save some time.
+        The application views are displayed on the Nokia N900.
         Command-line
         output is visible in the Qt Creator \gui {Application Output} view.
 
@@ -2187,13 +2188,21 @@
         \section2 Creating Installation Packages
 
         When you build the application for the \gui{Maemo} target, Qt
-        Creator automatically generates a debian installation package
-        in the project folder. You can deliver the installation package to
+        Creator generates a debian installation package
+        in the project folder by default. You can deliver the installation package to
         users for installation on Maemo devices.
 
-        You can add other files to the installation package in the
-        \gui {Create package} step in the build configuration. Add files
-        to the \gui {Package contents} field. In \gui {Local File Path},
+        The name of the installation package is displayed in the \gui {Create Package}
+        field. You can change the version number in the \gui {Version number} field.
+
+        When you test your application on a device or the Maemo emulator, you can
+        save some time by installing the built files directly on the connected device
+        without packaging. Select the \gui {Skip packaging step} check box in the
+        \gui {Create Package} step in the \gui {Build Settings}.
+
+        You can add other files to the installed files in the
+        \gui {Create Package} step, the \gui {Package contents} field. In
+        \gui {Local File Path},
         specify the location of the file on the development PC. In
         \gui {Remote File Path}, specify the folder to install the file on
         the device.

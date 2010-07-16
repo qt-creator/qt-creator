@@ -602,6 +602,7 @@ void TaskWindow::clearTasks(const QString &categoryId)
     d->m_model->clearTasks(categoryId);
 
     emit tasksChanged();
+    emit tasksCleared();
     navigateStateChanged();
 }
 

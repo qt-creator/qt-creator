@@ -78,6 +78,7 @@ public:
 
 signals:
     void tasksChanged();
+    void tasksCleared();
 
 private slots:
     void addCategory(const QString &categoryId, const QString &displayName);

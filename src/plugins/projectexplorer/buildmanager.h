@@ -97,6 +97,8 @@ signals:
     void buildStateChanged(ProjectExplorer::Project *pro);
     void buildQueueFinished(bool success);
     void tasksChanged();
+    void taskAdded(const ProjectExplorer::Task &task);
+    void tasksCleared();
 
 private slots:
     void addToTaskWindow(const ProjectExplorer::Task &task);
