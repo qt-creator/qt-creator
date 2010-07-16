@@ -55,10 +55,10 @@ private:
     QVariant castToLiteral(const QString &expression, QmlJS::AST::UiScriptBinding *scriptBinding);
 
 private:
-    QHash<QmlJS::AST::UiObjectMember*, QList<QDeclarativeDebugObjectReference> > m_initialTable;
     QHash<QmlJS::AST::UiObjectMember*, QList<QDeclarativeDebugObjectReference> > m_debugIds;
 
     QmlJS::Document::Ptr m_previousDoc;
+    QmlJS::Document::Ptr m_initialDoc; //the document that was loaded by the server
     QString m_filename;
 
     QList<QWeakPointer<QmlJSEditor::Internal::QmlJSTextEditor> > m_editors;

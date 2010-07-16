@@ -98,7 +98,7 @@ void QmlJSLiveTextPreview::unassociateEditor(Core::IEditor *oldEditor)
 }
 
 QmlJSLiveTextPreview::QmlJSLiveTextPreview(QmlJS::Document::Ptr doc, QObject *parent) :
-    QObject(parent), m_previousDoc(doc)
+    QObject(parent), m_previousDoc(doc), m_initialDoc(doc)
 {
     ClientProxy *clientProxy = ClientProxy::instance();
     m_filename = doc->fileName();
@@ -177,7 +177,7 @@ void QmlJSLiveTextPreview::changeSelectedElements(QList<int> offsets, const QStr
 
 void QmlJSLiveTextPreview::updateDebugIds(const QDeclarativeDebugObjectReference &rootReference)
 {
-    QmlJS::Document::Ptr doc = m_previousDoc;
+    QmlJS::Document::Ptr doc = m_initialDoc;
 
     if (!doc->qmlProgram())
         return;
@@ -188,6 +188,9 @@ void QmlJSLiveTextPreview::updateDebugIds(const QDeclarativeDebugObjectReference
     doc->qmlProgram()->accept(&visitor);
 
     m_debugIds = visitor.result;
+    Delta delta;
+    delta.doNotSendChanges = true;
+    m_debugIds = delta(doc, m_previousDoc, m_debugIds);
 }
 
 void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)

@@ -75,9 +75,6 @@ public:
         CppProjectWithQmlEngines,
         QmlProjectWithCppPlugins
     };
-
-    QHash< QString, QList< QPair< QmlJS::AST::UiObjectMember*, int > > > m_initialTable;
-
 public:
     Inspector(QObject *parent = 0);
     virtual ~Inspector();

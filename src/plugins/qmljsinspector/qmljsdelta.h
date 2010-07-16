@@ -46,6 +46,10 @@ namespace Internal {
 class Delta
 {
 public:
+    Delta() : doNotSendChanges(false) {}
+
+    bool doNotSendChanges;
+
     struct Change {
         Change(): script(0), isLiteral(false) {}
 
@@ -54,7 +58,6 @@ public:
         QDeclarativeDebugObjectReference ref;
     };
 
-public:
     typedef QHash< UiObjectMember*, QList<QDeclarativeDebugObjectReference > > DebugIdMap;
     DebugIdMap operator()(const QmlJS::Document::Ptr &doc1, const QmlJS::Document::Ptr &doc2, const DebugIdMap &debugIds);
 

@@ -280,6 +280,9 @@ static QString _methodName(UiSourceElement *source)
 
 void Delta::insert(UiObjectMember *member, UiObjectMember *parentMember, const QList<QDeclarativeDebugObjectReference > &debugReferences, const Document::Ptr &doc)
 {
+    if (doNotSendChanges)
+        return;
+
     if (!member || !parentMember)
         return;
 
@@ -311,6 +314,9 @@ void QmlJSInspector::Internal::Delta::update(UiObjectDefinition* oldObject, cons
                                              UiObjectDefinition* newObject, const QmlJS::Document::Ptr& newDoc,
                                              const QList< QDeclarativeDebugObjectReference >& debugReferences)
 {
+    if (doNotSendChanges)
+        return;
+
     Q_ASSERT (oldObject && newObject);
     QSet<QString> presentBinding;
 
@@ -371,6 +377,10 @@ void QmlJSInspector::Internal::Delta::update(UiObjectDefinition* oldObject, cons
             }
         }
     }
+
+
+    if (doNotSendChanges)
+        return;
 
     //reset property that are not present in the new object.
     for (UiObjectMemberList *previousObjectMemberIt = Delta::objectMembers(oldObject); previousObjectMemberIt; previousObjectMemberIt = previousObjectMemberIt->next) {
@@ -562,6 +572,8 @@ void Delta::updateScriptBinding(const QDeclarativeDebugObjectReference &objectRe
                                 const QString &propertyName,
                                 const QString &scriptCode)
 {
+    if (doNotSendChanges)
+        return;
     QVariant expr = scriptCode;
 
     const bool isLiteral = isLiteralValue(scriptBinding);
