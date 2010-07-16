@@ -35,6 +35,7 @@
 #include "qmloutlinemodel.h"
 
 #include <qmljs/qmljsindenter.h>
+#include <qmljs/qmljsbind.h>
 #include <qmljs/qmljscheck.h>
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsicontextpane.h>
@@ -525,12 +526,31 @@ QList<AST::Node *> SemanticInfo::astPath(int cursorPosition) const
     return path;
 }
 
+static bool importContainsCursor(UiImport *importAst, unsigned cursorPosition)
+{
+    return cursorPosition >= importAst->firstSourceLocation().begin()
+           && cursorPosition <= importAst->lastSourceLocation().end();
+}
+
 AST::Node *SemanticInfo::nodeUnderCursor(int pos) const
 {
     if (! document)
         return 0;
 
     const unsigned cursorPosition = pos;
+
+    foreach (const Bind::ImportInfo &import, document->bind()->fileImports()) {
+        if (importContainsCursor(import.ast, cursorPosition))
+            return import.ast;
+    }
+    foreach (const Bind::ImportInfo &import, document->bind()->directoryImports()) {
+        if (importContainsCursor(import.ast, cursorPosition))
+            return import.ast;
+    }
+    foreach (const Bind::ImportInfo &import, document->bind()->libraryImports()) {
+        if (importContainsCursor(import.ast, cursorPosition))
+            return import.ast;
+    }
 
     CollectASTNodes nodes;
     nodes.accept(document->ast());
@@ -1225,6 +1245,19 @@ TextEditor::BaseTextEditor::Link QmlJSTextEditor::findLinkAt(const QTextCursor &
     const unsigned cursorPosition = cursor.position();
 
     AST::Node *node = semanticInfo.nodeUnderCursor(cursorPosition);
+
+    if (AST::UiImport *importAst = cast<AST::UiImport *>(node)) {
+        // if it's a file import, link to the file
+        foreach (const Bind::ImportInfo &import, semanticInfo.document->bind()->fileImports()) {
+            if (import.ast == importAst) {
+                BaseTextEditor::Link link(import.name);
+                link.begin = importAst->firstSourceLocation().begin();
+                link.end = importAst->lastSourceLocation().end();
+                return link;
+            }
+        }
+        return Link();
+    }
 
     LookupContext::Ptr lookupContext = LookupContext::create(semanticInfo.document, semanticInfo.snapshot, semanticInfo.astPath(cursorPosition));
     const Interpreter::Value *value = lookupContext->evaluate(node);

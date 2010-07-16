@@ -181,6 +181,7 @@ bool Bind::visit(AST::Program *)
 bool Bind::visit(UiImport *ast)
 {
     ImportInfo info;
+    info.ast = ast;
 
     if (ast->versionToken.isValid()) {
         const QString versionString = _doc->source().mid(ast->versionToken.offset, ast->versionToken.length);
