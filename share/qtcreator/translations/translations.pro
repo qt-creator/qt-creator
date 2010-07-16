@@ -12,6 +12,7 @@ defineReplace(prependAll) {
 XMLPATTERNS = $$targetPath($$[QT_INSTALL_BINS]/xmlpatterns)
 LUPDATE = $$targetPath($$[QT_INSTALL_BINS]/lupdate) -locations relative -no-ui-lines -no-sort
 LRELEASE = $$targetPath($$[QT_INSTALL_BINS]/lrelease)
+LCONVERT = $$targetPath($$[QT_INSTALL_BINS]/lconvert)
 
 TRANSLATIONS = $$prependAll(LANGUAGES, $$PWD/qtcreator_,.ts)
 
@@ -41,6 +42,23 @@ for(file, files) {
 ts-all.commands = cd $$IDE_SOURCE_TREE && $$LUPDATE src share/qtcreator/qmldesigner $$MIME_TR_H $$CUSTOMWIZARD_TR_H -ts $$files
 ts-all.depends = extract
 QMAKE_EXTRA_TARGETS += ts-all
+
+isEqual(QMAKE_DIR_SEP, /) {
+    commit-ts.commands = \
+        cd $$IDE_SOURCE_TREE; \
+        for f in `git diff-files --name-only share/qtcreator/translations/*_??.ts`; do \
+            $$LCONVERT -locations none -i \$\$f -o \$\$f; \
+        done; \
+        git add share/qtcreator/translations/*_??.ts && git commit
+} else {
+    wd = $$replace(IDE_SOURCE_TREE, /, \\)
+    commit-ts.commands = \
+        cd $$wd && \
+        for /f usebackq %%f in (`git diff-files --name-only share/qtcreator/translations/*_??.ts`) do \
+            $$LCONVERT -locations none -i %%f -o %%f $$escape_expand(\\n\\t) \
+        cd $$wd && git add share/qtcreator/translations/*_??.ts && git commit
+}
+QMAKE_EXTRA_TARGETS += commit-ts
 
 ts.commands = \
     @echo \"The \'ts\' target has been removed in favor of more fine-grained targets.\" && \
