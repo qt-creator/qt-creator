@@ -65,6 +65,7 @@ class FindScopeAt: protected SymbolVisitor
     Scope *_scope;
 
 public:
+    /** line and column should be 1-based */
     FindScopeAt(TranslationUnit *unit, unsigned line, unsigned column)
         : _unit(unit), _line(line), _column(column), _scope(0) {}
 
