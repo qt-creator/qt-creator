@@ -22,7 +22,6 @@ CppOutlineTreeView::CppOutlineTreeView(QWidget *parent) :
 {
     // see also QmlJSOutlineTreeView
     setFocusPolicy(Qt::NoFocus);
-    setHeaderHidden(true);
     setExpandsOnDoubleClick(false);
 }
 

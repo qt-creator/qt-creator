@@ -64,12 +64,6 @@ public:
     ProjectTreeView()
     {
         setEditTriggers(QAbstractItemView::EditKeyPressed);
-        {
-            QHeaderView *treeHeader = header();
-            treeHeader->setVisible(false);
-            treeHeader->setResizeMode(QHeaderView::Stretch);
-            treeHeader->setStretchLastSection(true);
-        }
         setContextMenuPolicy(Qt::CustomContextMenu);
 //        setExpandsOnDoubleClick(false);
     }

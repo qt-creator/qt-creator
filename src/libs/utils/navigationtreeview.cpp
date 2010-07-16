@@ -29,6 +29,7 @@
 
 #include "navigationtreeview.h"
 
+#include <QtGui/QHeaderView>
 #include <QtGui/QFocusEvent>
 
 #ifdef Q_WS_MAC
@@ -45,6 +46,12 @@ NavigationTreeView::NavigationTreeView(QWidget *parent)
     setUniformRowHeights(true);
     setTextElideMode(Qt::ElideNone);
     setAttribute(Qt::WA_MacShowFocusRect, false);
+
+    setHeaderHidden(true);
+
+    // show horizontal scrollbar
+    header()->setResizeMode(QHeaderView::ResizeToContents);
+    header()->setStretchLastSection(false);
 }
 
 // This is a workaround to stop Qt from redrawing the project tree every
