@@ -33,15 +33,15 @@ MaemoDeployStepWidget::~MaemoDeployStepWidget()
 
 void MaemoDeployStepWidget::init()
 {
-    connectDeviceConfigModel();
+    handleDeviceConfigModelChanged();
     connect(m_step->buildConfiguration()->target(),
         SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
-        this, SLOT(connectDeviceConfigModel()));
+        this, SLOT(handleDeviceConfigModelChanged()));
     connect(ui->deviceConfigComboBox, SIGNAL(activated(int)), this,
         SLOT(setCurrentDeviceConfig(int)));
 }
 
-void MaemoDeployStepWidget::connectDeviceConfigModel()
+void MaemoDeployStepWidget::handleDeviceConfigModelChanged()
 {
     const MaemoDeviceConfigListModel * const oldModel
         = qobject_cast<MaemoDeviceConfigListModel *>(ui->deviceConfigComboBox->model());
