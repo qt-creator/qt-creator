@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/classview">
+        <file>images/hierarchicalmode.png</file>
+    </qresource>
+</RCC>
