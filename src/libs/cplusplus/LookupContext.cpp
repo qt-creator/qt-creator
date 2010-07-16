@@ -449,6 +449,9 @@ void ClassOrNamespace::lookup_helper(const Name *name, ClassOrNamespace *binding
         const Identifier *nameId = name->identifier();
 
         foreach (Symbol *s, binding->symbols()) {
+            if (s->isFriend())
+                continue;
+
             if (ScopedSymbol *scoped = s->asScopedSymbol()) {
                 if (Class *klass = scoped->asClass()) {
                     if (const Identifier *id = klass->identifier()) {
@@ -486,6 +489,8 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
         for (Symbol *s = scope->lookat(op->kind()); s; s = s->next()) {
             if (! s->name())
                 continue;
+            else if (s->isFriend())
+                continue;
             else if (! s->name()->isEqualTo(op))
                 continue;
 
@@ -497,7 +502,9 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
 
     } else if (const Identifier *id = name->identifier()) {
         for (Symbol *s = scope->lookat(id); s; s = s->next()) {
-            if (! id->isEqualTo(s->identifier()))
+            if (s->isFriend())
+                continue; // skip friends
+            else if (! id->isEqualTo(s->identifier()))
                 continue;
             else if (s->name()->isQualifiedNameId())
                 continue; // skip qualified ids.
