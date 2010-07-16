@@ -19,16 +19,14 @@ MIME_TR_H = $$OUT_PWD/mime_tr.h
 CUSTOMWIZARD_TR_H = $$OUT_PWD/customwizard_tr.h
 
 for(dir, $$list($$files($$IDE_SOURCE_TREE/src/plugins/*))):MIMETYPES_FILES += $$files($$dir/*.mimetypes.xml)
-MIMETYPES_FILES = \"$$join(MIMETYPES_FILES, \", \")\"
+MIMETYPES_FILES = \"$$join(MIMETYPES_FILES, |)\"
 
 for(dir, $$list($$files($$IDE_SOURCE_TREE/share/qtcreator/templates/wizards/*))):CUSTOMWIZARD_FILES += $$files($$dir/wizard.xml)
-CUSTOMWIZARD_FILES = \"$$join(CUSTOMWIZARD_FILES, \", \")\"
+CUSTOMWIZARD_FILES = \"$$join(CUSTOMWIZARD_FILES, |)\"
 
-QMAKE_SUBSTITUTES += extract-mimetypes.xq.in
-QMAKE_SUBSTITUTES += extract-customwizards.xq.in
 ts.commands += \
-    $$XMLPATTERNS -output $$MIME_TR_H $$PWD/extract-mimetypes.xq && \
-    $$XMLPATTERNS -output $$CUSTOMWIZARD_TR_H $$PWD/extract-customwizards.xq && \
+    $$XMLPATTERNS -output $$MIME_TR_H -param files=$$MIMETYPES_FILES $$PWD/extract-mimetypes.xq $$escape_expand(\\n\\t) \
+    $$XMLPATTERNS -output $$CUSTOMWIZARD_TR_H -param files=$$CUSTOMWIZARD_FILES $$PWD/extract-customwizards.xq $$escape_expand(\\n\\t) \
     (cd $$IDE_SOURCE_TREE && $$LUPDATE src share/qtcreator/qmldesigner $$MIME_TR_H $$CUSTOMWIZARD_TR_H -ts $$TRANSLATIONS) && \
     $$QMAKE_DEL_FILE $$MIME_TR_H
 QMAKE_EXTRA_TARGETS += ts
