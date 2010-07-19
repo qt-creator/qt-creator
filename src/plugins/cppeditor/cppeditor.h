@@ -292,6 +292,7 @@ private:
 
     QList<QTextEdit::ExtraSelection> m_renameSelections;
     int m_currentRenameSelection;
+    static const int NoCurrentRenameSelection = -1;
     bool m_inRename, m_inRenameChanged, m_firstRenameChange;
     QTextCursor m_currentRenameSelectionBegin;
     QTextCursor m_currentRenameSelectionEnd;
