@@ -36,6 +36,7 @@
 #include <cplusplus/ResolveExpression.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/TypeOfExpression.h>
+#include <cplusplus/DependencyTable.h>
 
 #include <TranslationUnit.h>
 #include <ASTVisitor.h>
@@ -1369,6 +1370,128 @@ protected:
     QStringList values;
 };
 
+
+class FixForwardDeclarationOp: public CppQuickFixOperation
+{
+public:
+    FixForwardDeclarationOp(TextEditor::BaseTextEditor *editor)
+        : CppQuickFixOperation(editor), fwdClass(0)
+    {
+    }
+
+    virtual QString description() const
+    {
+        return QApplication::translate("CppTools::QuickFix", "#include header file");
+    }
+
+    bool checkName(const NameAST *ast)
+    {
+        if (ast && isCursorOn(ast)) {
+            if (const Name *name = ast->name) {
+                context = LookupContext(document(), snapshot());
+
+                unsigned line, column;
+                document()->translationUnit()->getTokenStartPosition(ast->firstToken(), &line, &column);
+
+                fwdClass = 0;
+
+                foreach (const LookupItem &r, context.lookup(name, document()->scopeAt(line, column))) {
+                    if (! r.declaration())
+                        continue;
+                    else if (ForwardClassDeclaration *fwd = r.declaration()->asForwardClassDeclaration())
+                        fwdClass = fwd;
+                    else if (r.declaration()->isClass())
+                        return -1; // nothing to do.
+                }
+
+                if (fwdClass)
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    virtual int match(const QList<AST *> &path)
+    {
+        for (int index = path.size() - 1; index != -1; --index) {
+            AST *ast = path.at(index);
+            if (NamedTypeSpecifierAST *namedTy = ast->asNamedTypeSpecifier()) {
+                if (checkName(namedTy->name))
+                    return index;
+            } else if (ElaboratedTypeSpecifierAST *eTy = ast->asElaboratedTypeSpecifier()) {
+                if (checkName(eTy->name))
+                    return index;
+            }
+        }
+
+        return -1;
+    }
+
+    virtual void createChanges()
+    {
+        if (Class *k = snapshot().findMatchingClassDeclaration(fwdClass)) {
+            const QString headerFile = QString::fromUtf8(k->fileName(), k->fileNameLength());
+
+            // collect the fwd headers
+            Snapshot fwdHeaders;
+            fwdHeaders.insert(snapshot().document(headerFile));
+            foreach (Document::Ptr doc, snapshot()) {
+                QFileInfo headerFileInfo(doc->fileName());
+                if (doc->globalSymbolCount() == 0 && doc->includes().size() == 1)
+                    fwdHeaders.insert(doc);
+                else if (headerFileInfo.suffix().isEmpty())
+                    fwdHeaders.insert(doc);
+            }
+
+
+            DependencyTable dep;
+            dep.build(fwdHeaders);
+            QStringList candidates = dep.dependencyTable().value(headerFile);
+
+            const QString className = QString::fromUtf8(k->identifier()->chars());
+
+            QString best;
+            foreach (const QString &c, candidates) {
+                QFileInfo headerFileInfo(c);
+                if (headerFileInfo.fileName() == className) {
+                    best = c;
+                    break;
+                } else if (headerFileInfo.fileName().at(0).isUpper()) {
+                    best = c;
+                    // and continue
+                } else if (! best.isEmpty()) {
+                    if (c.count(QLatin1Char('/')) < best.count(QLatin1Char('/')))
+                        best = c;
+                }
+            }
+
+            if (best.isEmpty())
+                best = headerFile;
+
+            int pos = startOf(1);
+
+            unsigned currentLine = textCursor().blockNumber() + 1;
+            unsigned bestLine = 0;
+            foreach (const Document::Include &incl, document()->includes()) {
+                if (incl.line() < currentLine)
+                    bestLine = incl.line();
+            }
+
+            if (bestLine)
+                pos = editor()->document()->findBlockByNumber(bestLine).position();
+
+            Utils::ChangeSet changes;
+            changes.insert(pos, QString("#include <%1>\n").arg(QFileInfo(best).fileName()));
+            refactoringChanges()->changeFile(fileName(), changes);
+        }
+    }
+
+private:
+    LookupContext context;
+    Symbol *fwdClass;
+};
+
 } // end of anonymous namespace
 
 
@@ -1568,6 +1691,7 @@ QList<TextEditor::QuickFixOperation::Ptr> CppQuickFixFactory::quickFixOperations
     QSharedPointer<ConvertNumericToOctal> convertNumericToOctal(new ConvertNumericToOctal(editor));
     QSharedPointer<ConvertNumericToDecimal> convertNumericToDecimal(new ConvertNumericToDecimal(editor));
     QSharedPointer<CompleteSwitchCaseStatement> completeSwitchCaseStatement(new CompleteSwitchCaseStatement(editor));
+    QSharedPointer<FixForwardDeclarationOp> fixForwardDeclarationOp(new FixForwardDeclarationOp(editor));
     QSharedPointer<DeclFromDef> declFromDef(new DeclFromDef(editor));
 
     quickFixOperations.append(rewriteLogicalAndOp);
@@ -1584,6 +1708,7 @@ QList<TextEditor::QuickFixOperation::Ptr> CppQuickFixFactory::quickFixOperations
     quickFixOperations.append(convertNumericToOctal);
     quickFixOperations.append(convertNumericToDecimal);
     quickFixOperations.append(completeSwitchCaseStatement);
+    quickFixOperations.append(fixForwardDeclarationOp);
 
 #if 0
     quickFixOperations.append(declFromDef);
