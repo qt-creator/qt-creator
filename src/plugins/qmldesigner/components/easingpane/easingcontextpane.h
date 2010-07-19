@@ -38,7 +38,7 @@ public:
 signals:
     void propertyChanged(const QString &, const QVariant &);
     void removeProperty(const QString &);
-    void removeAndChangeProperty(const QString &, const QString &, const QVariant &);
+    void removeAndChangeProperty(const QString &, const QString &, const QVariant &, bool);
 
 protected:
     void changeEvent(QEvent *e);
@@ -58,7 +58,6 @@ private:
 private slots:
 
     void on_playButton_clicked();
-    void on_graphSelectButton_clicked();
     void on_overshootSpinBox_valueChanged(double );
     void on_periodSpinBox_valueChanged(double );
     void on_amplitudeSpinBox_valueChanged(double );

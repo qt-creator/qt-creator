@@ -7,9 +7,6 @@
 #include <QPropertyAnimation>
 #include <QSequentialAnimationGroup>
 
-#include <qdebug.h>
-
-
 namespace QmlDesigner {
 
 class PixmapItem : public QObject, public QGraphicsPixmapItem
@@ -24,12 +21,15 @@ class EasingSimulation : public QObject
 {
     Q_OBJECT
 public:
-    EasingSimulation(QObject *parent=0, int length=210):QObject(parent) {
+    QGraphicsView *m_g;
+    EasingSimulation(QObject *parent=0, QGraphicsView *v=0):QObject(parent) {
         m_qtLogo = new PixmapItem(QPixmap(":/qt_logo.png"));
         m_scene.addItem(m_qtLogo);
-        m_scene.setSceneRect(0,0,length,m_qtLogo->boundingRect().height());
+        m_scene.setSceneRect(0,0,v->viewport()->width(),m_qtLogo->boundingRect().height());
         m_qtLogo->hide();
         m_sequential = 0;
+        m_g = v;
+        m_g->setScene(&m_scene);
     }
 
     ~EasingSimulation() { delete m_qtLogo; }
@@ -37,7 +37,10 @@ public:
     QGraphicsScene *scene() { return &m_scene; }
     void show() { m_qtLogo->show(); }
     void hide() { m_qtLogo->hide(); }
-    void reset() { m_qtLogo->setPos(0,0); }
+    void reset() {
+        m_qtLogo->setPos(0,0);
+        m_scene.setSceneRect(0,0,m_g->viewport()->width(),m_qtLogo->boundingRect().height());
+    }
     void stop() {
         if (m_sequential) {
             m_sequential->stop();
@@ -90,8 +93,8 @@ EasingContextPane::EasingContextPane(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    m_simulation = new EasingSimulation(this, 210);
-    ui->graphicsView->setScene(m_simulation->scene());
+    m_simulation = new EasingSimulation(this,ui->graphicsView);
+//    ui->graphicsView->setScene(m_simulation->scene());
 
     m_easingGraph = new EasingGraph(this);
     m_easingGraph->raise();
@@ -347,11 +350,6 @@ void QmlDesigner::EasingContextPane::on_overshootSpinBox_valueChanged(double new
         m_simulation->updateCurve(m_easingGraph->easingCurve(),ui->durationSpinBox->value());
         emit propertyChanged(QLatin1String("easing.overshoot"), newOvershoot);
     }
-}
-
-void QmlDesigner::EasingContextPane::on_graphSelectButton_clicked()
-{
-    setGraphDisplayMode(m_displayMode==GraphMode?SimulationMode:GraphMode);
 }
 
 void QmlDesigner::EasingContextPane::on_playButton_clicked()

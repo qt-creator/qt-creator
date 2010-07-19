@@ -282,7 +282,7 @@ QWidget* ContextPaneWidget::createEasingWidget()
 
     connect(m_easingWidget, SIGNAL(propertyChanged(QString,QVariant)), this, SIGNAL(propertyChanged(QString,QVariant)));
     connect(m_easingWidget, SIGNAL(removeProperty(QString)), this, SIGNAL(removeProperty(QString)));
-    connect(m_easingWidget, SIGNAL(removeAndChangeProperty(QString,QString,QVariant)), this, SIGNAL(removeAndChangeProperty(QString,QString,QVariant)));
+    connect(m_easingWidget, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)), this, SIGNAL(removeAndChangeProperty(QString,QString,QVariant, bool)));
 
     return m_easingWidget;
 }
