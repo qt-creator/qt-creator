@@ -97,8 +97,8 @@
 #include <sstream>
 
 enum {
-    UPDATE_OUTLINE_INTERVAL = 150,
-    UPDATE_USES_INTERVAL = 300
+    UPDATE_OUTLINE_INTERVAL = 500,
+    UPDATE_USES_INTERVAL = 500
 };
 
 using namespace CPlusPlus;
