@@ -369,7 +369,7 @@ CPPEditorEditable::CPPEditorEditable(CPPEditor *editor)
 
 CPPEditor::CPPEditor(QWidget *parent)
     : TextEditor::BaseTextEditor(parent)
-    , m_currentRenameSelection(-1)
+    , m_currentRenameSelection(NoCurrentRenameSelection)
     , m_inRename(false)
     , m_inRenameChanged(false)
     , m_firstRenameChange(false)
@@ -490,7 +490,7 @@ void CPPEditor::createToolBar(CPPEditorEditable *editable)
 
 void CPPEditor::paste()
 {
-    if (m_currentRenameSelection == -1) {
+    if (m_currentRenameSelection == NoCurrentRenameSelection) {
         BaseTextEditor::paste();
         return;
     }
@@ -502,7 +502,7 @@ void CPPEditor::paste()
 
 void CPPEditor::cut()
 {
-    if (m_currentRenameSelection == -1) {
+    if (m_currentRenameSelection == NoCurrentRenameSelection) {
         BaseTextEditor::cut();
         return;
     }
@@ -569,10 +569,10 @@ void CPPEditor::finishRename()
 
 void CPPEditor::abortRename()
 {
-    if (m_currentRenameSelection < 0)
+    if (m_currentRenameSelection <= NoCurrentRenameSelection)
         return;
     m_renameSelections[m_currentRenameSelection].format = m_occurrencesFormat;
-    m_currentRenameSelection = -1;
+    m_currentRenameSelection = NoCurrentRenameSelection;
     m_currentRenameSelectionBegin = QTextCursor();
     m_currentRenameSelectionEnd = QTextCursor();
     setExtraSelections(CodeSemanticsSelection, m_renameSelections);
@@ -777,7 +777,7 @@ void CPPEditor::onContentsChanged(int position, int charsRemoved, int charsAdded
 {
     Q_UNUSED(position)
 
-    if (m_currentRenameSelection == -1 || m_inRename)
+    if (m_currentRenameSelection == NoCurrentRenameSelection || m_inRename)
         return;
 
     if (position + charsAdded == m_currentRenameSelectionBegin.position()) {
@@ -934,7 +934,7 @@ void CPPEditor::updateUses()
 
 void CPPEditor::updateUsesNow()
 {
-    if (m_currentRenameSelection != -1)
+    if (m_currentRenameSelection != NoCurrentRenameSelection)
         return;
 
     semanticRehighlight();
@@ -1505,7 +1505,7 @@ bool CPPEditor::event(QEvent *e)
 {
     switch (e->type()) {
     case QEvent::ShortcutOverride:
-        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape && m_currentRenameSelection != -1) {
+        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape && m_currentRenameSelection != NoCurrentRenameSelection) {
             e->accept();
             return true;
         }
@@ -1568,7 +1568,7 @@ void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
 
 void CPPEditor::keyPressEvent(QKeyEvent *e)
 {
-    if (m_currentRenameSelection == -1) {
+    if (m_currentRenameSelection == NoCurrentRenameSelection) {
         TextEditor::BaseTextEditor::keyPressEvent(e);
         return;
     }
@@ -1796,6 +1796,7 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
     QList<QTextEdit::ExtraSelection> unusedSelections;
 
     m_renameSelections.clear();
+    m_currentRenameSelection = NoCurrentRenameSelection;
 
     SemanticInfo::LocalUseIterator it(semanticInfo.localUses);
     while (it.hasNext()) {
