@@ -1448,7 +1448,6 @@ bool QmlJSTextEditor::contextAllowsAutoParentheses(const QTextCursor &cursor, co
 bool QmlJSTextEditor::contextAllowsElectricCharacters(const QTextCursor &cursor) const
 {
     Token token = tokenUnderCursor(cursor);
-    qDebug() << cursor.positionInBlock() << token.begin() << token.end();
     switch (token.kind) {
     case Token::Comment:
     case Token::String:
