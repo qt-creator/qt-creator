@@ -87,12 +87,12 @@ public:
     static Scope *findScope(unsigned tokenOffset, const QList<ScopedSymbol *> &scopes)
     {
         for (int i = scopes.size() - 1; i != -1; --i) {
-            ScopedSymbol *symbol = scopes.at(i);
-            const unsigned start = symbol->startOffset();
-            const unsigned end = symbol->endOffset();
+            Scope *scope = scopes.at(i)->members();
+            const unsigned start = scope->startOffset();
+            const unsigned end = scope->endOffset();
 
             if (tokenOffset >= start && tokenOffset < end)
-                return symbol->members();
+                return scope;
         }
 
         return 0;

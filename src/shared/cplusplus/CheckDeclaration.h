@@ -111,6 +111,9 @@ private:
     void checkQEnumsQFlagsNames(NameListAST *nameListAst,
                                 const char *declName);
 
+    unsigned calculateScopeStart(ObjCClassDeclarationAST *ast) const;
+    unsigned calculateScopeStart(ObjCProtocolDeclarationAST *ast) const;
+
 private:
     DeclarationAST *_declaration;
     Scope *_scope;

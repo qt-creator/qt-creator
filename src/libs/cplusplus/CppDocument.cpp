@@ -89,11 +89,11 @@ protected:
             }
 
             unsigned startLine, startColumn;
-            _unit->getPosition(symbol->startOffset(), &startLine, &startColumn);
+            _unit->getPosition(scope->startOffset(), &startLine, &startColumn);
 
             if (_line > startLine || (_line == startLine && _column >= startColumn)) {
                 unsigned endLine, endColumn;
-                _unit->getPosition(symbol->endOffset(), &endLine, &endColumn);
+                _unit->getPosition(scope->endOffset(), &endLine, &endColumn);
 
                 if (_line < endLine || (_line == endLine && _column <= endColumn))
                     _scope = scope;

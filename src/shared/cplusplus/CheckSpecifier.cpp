@@ -316,8 +316,8 @@ bool CheckSpecifier::visit(ClassSpecifierAST *ast)
 
     const Name *className = semantic()->check(ast->name, _scope);
     Class *klass = control()->newClass(sourceLocation, className);
-    klass->setStartOffset(classScopeStart);
-    klass->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    klass->members()->setStartOffset(classScopeStart);
+    klass->members()->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     ast->symbol = klass;
     unsigned classKey = tokenKind(ast->classkey_token);
     if (classKey == T_CLASS)
@@ -407,8 +407,8 @@ bool CheckSpecifier::visit(EnumSpecifierAST *ast)
 
     const Name *name = semantic()->check(ast->name, _scope);
     Enum *e = control()->newEnum(sourceLocation, name);
-    e->setStartOffset(scopeStart);
-    e->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    e->members()->setStartOffset(scopeStart);
+    e->members()->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     e->setVisibility(semantic()->currentVisibility());
     _scope->enterSymbol(e);
     _fullySpecifiedType.setType(e);

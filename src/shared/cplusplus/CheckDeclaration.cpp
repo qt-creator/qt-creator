@@ -349,8 +349,8 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
         fun->setDeprecated(true);
     if (ty.isUnavailable())
         fun->setUnavailable(true);
-    fun->setStartOffset(funStartOffset);
-    fun->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    fun->members()->setStartOffset(funStartOffset);
+    fun->members()->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     if (ast->declarator)
         fun->setSourceLocation(ast->declarator->firstToken(), translationUnit());
     fun->setName(name);
@@ -410,13 +410,15 @@ bool CheckDeclaration::visit(NamespaceAST *ast)
         namespaceName = control()->nameId(id);
 
     unsigned sourceLocation = ast->firstToken();
-
     if (ast->identifier_token)
         sourceLocation = ast->identifier_token;
+    unsigned scopeStart = tokenAt(ast->firstToken()).offset;
+    if (ast->linkage_body && ast->linkage_body->firstToken())
+        scopeStart = tokenAt(ast->linkage_body->firstToken()).offset;
 
     Namespace *ns = control()->newNamespace(sourceLocation, namespaceName);
-    ns->setStartOffset(tokenAt(ast->firstToken()).offset);
-    ns->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    ns->members()->setStartOffset(scopeStart);
+    ns->members()->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     ast->symbol = ns;
     _scope->enterSymbol(ns);
     semantic()->check(ast->linkage_body, ns->members()); // ### we'll do the merge later.
@@ -583,6 +585,18 @@ bool CheckDeclaration::visit(ObjCProtocolForwardDeclarationAST *ast)
     return false;
 }
 
+unsigned CheckDeclaration::calculateScopeStart(ObjCProtocolDeclarationAST *ast) const
+{
+    if (ast->protocol_refs)
+        if (unsigned pos = ast->protocol_refs->lastToken())
+            return tokenAt(pos - 1).end();
+    if (ast->name)
+        if (unsigned pos = ast->name->lastToken())
+            return tokenAt(pos - 1).end();
+
+    return tokenAt(ast->firstToken()).offset;
+}
+
 bool CheckDeclaration::visit(ObjCProtocolDeclarationAST *ast)
 {
     unsigned sourceLocation;
@@ -593,8 +607,8 @@ bool CheckDeclaration::visit(ObjCProtocolDeclarationAST *ast)
 
     const Name *protocolName = semantic()->check(ast->name, _scope);
     ObjCProtocol *protocol = control()->newObjCProtocol(sourceLocation, protocolName);
-    protocol->setStartOffset(tokenAt(ast->firstToken()).offset);
-    protocol->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    protocol->members()->setStartOffset(calculateScopeStart(ast));
+    protocol->members()->setEndOffset(tokenAt(ast->lastToken() - 1).end());
 
     if (ast->protocol_refs && ast->protocol_refs->identifier_list) {
         for (NameListAST *iter = ast->protocol_refs->identifier_list; iter; iter = iter->next) {
@@ -642,6 +656,40 @@ bool CheckDeclaration::visit(ObjCClassForwardDeclarationAST *ast)
     return false;
 }
 
+unsigned CheckDeclaration::calculateScopeStart(ObjCClassDeclarationAST *ast) const
+{
+    if (ast->inst_vars_decl)
+        if (unsigned pos = ast->inst_vars_decl->lbrace_token)
+            return tokenAt(pos).end();
+
+    if (ast->protocol_refs)
+        if (unsigned pos = ast->protocol_refs->lastToken())
+            return tokenAt(pos - 1).end();
+
+    if (ast->superclass)
+        if (unsigned pos = ast->superclass->lastToken())
+            return tokenAt(pos - 1).end();
+
+    if (ast->colon_token)
+        return tokenAt(ast->colon_token).end();
+
+    if (ast->rparen_token)
+        return tokenAt(ast->rparen_token).end();
+
+    if (ast->category_name)
+        if (unsigned pos = ast->category_name->lastToken())
+            return tokenAt(pos - 1).end();
+
+    if (ast->lparen_token)
+        return tokenAt(ast->lparen_token).end();
+
+    if (ast->class_name)
+        if (unsigned pos = ast->class_name->lastToken())
+            return tokenAt(pos - 1).end();
+
+    return tokenAt(ast->firstToken()).offset;
+}
+
 bool CheckDeclaration::visit(ObjCClassDeclarationAST *ast)
 {
     unsigned sourceLocation;
@@ -652,8 +700,8 @@ bool CheckDeclaration::visit(ObjCClassDeclarationAST *ast)
 
     const Name *className = semantic()->check(ast->class_name, _scope);
     ObjCClass *klass = control()->newObjCClass(sourceLocation, className);
-    klass->setStartOffset(tokenAt(ast->firstToken()).offset);
-    klass->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    klass->members()->setStartOffset(calculateScopeStart(ast));
+    klass->members()->setEndOffset(tokenAt(ast->lastToken() - 1).offset);
     ast->symbol = klass;
 
     klass->setInterface(ast->interface_token != 0);
@@ -716,8 +764,8 @@ bool CheckDeclaration::visit(ObjCMethodDeclarationAST *ast)
     Symbol *symbol;
     if (ast->function_body) {
         symbol = methodTy;
-        methodTy->setStartOffset(tokenAt(ast->firstToken()).offset);
-        methodTy->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+        methodTy->members()->setStartOffset(tokenAt(ast->function_body->firstToken()).offset);
+        methodTy->members()->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     } else {
         Declaration *decl = control()->newDeclaration(selector->firstToken(), methodTy->name());
         decl->setType(methodTy);

@@ -92,6 +92,7 @@ protected:
     virtual bool visit(QtMemberDeclarationAST *ast);
 
     bool forEachFastEnum(unsigned firstToken,
+                         unsigned lparen,
                          unsigned lastToken,
                          SpecifierListAST *type_specifier_list,
                          DeclaratorAST *declarator,

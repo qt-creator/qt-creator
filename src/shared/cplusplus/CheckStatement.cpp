@@ -111,8 +111,8 @@ bool CheckStatement::visit(CaseStatementAST *ast)
 bool CheckStatement::visit(CompoundStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->lbrace_token);
-    block->setStartOffset(tokenAt(ast->firstToken()).end());
-    block->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    block->members()->setStartOffset(tokenAt(ast->firstToken()).end());
+    block->members()->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     ast->symbol = block;
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());
@@ -167,6 +167,7 @@ bool CheckStatement::visit(ExpressionStatementAST *ast)
 }
 
 bool CheckStatement::forEachFastEnum(unsigned firstToken,
+                                     unsigned lparen,
                                      unsigned lastToken,
                                      SpecifierListAST *type_specifier_list,
                                      DeclaratorAST *declarator,
@@ -175,9 +176,13 @@ bool CheckStatement::forEachFastEnum(unsigned firstToken,
                                      StatementAST *statement,
                                      Block *&symbol)
 {
+    unsigned scopeStart = tokenAt(firstToken).offset;
+    if (lparen)
+        scopeStart = tokenAt(lparen).end();
+
     Block *block = control()->newBlock(firstToken);
-    block->setStartOffset(tokenAt(firstToken).offset);
-    block->setEndOffset(tokenAt(lastToken - 1).end());
+    block->members()->setStartOffset(scopeStart);
+    block->members()->setEndOffset(tokenAt(lastToken - 1).end());
     symbol = block;
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());
@@ -205,6 +210,7 @@ bool CheckStatement::forEachFastEnum(unsigned firstToken,
 bool CheckStatement::visit(ForeachStatementAST *ast)
 {
     return forEachFastEnum(ast->firstToken(),
+                           ast->lparen_token,
                            ast->lastToken(),
                            ast->type_specifier_list,
                            ast->declarator,
@@ -217,6 +223,7 @@ bool CheckStatement::visit(ForeachStatementAST *ast)
 bool CheckStatement::visit(ObjCFastEnumerationAST *ast)
 {
     return forEachFastEnum(ast->firstToken(),
+                           ast->lparen_token,
                            ast->lastToken(),
                            ast->type_specifier_list,
                            ast->declarator,
@@ -228,9 +235,13 @@ bool CheckStatement::visit(ObjCFastEnumerationAST *ast)
 
 bool CheckStatement::visit(ForStatementAST *ast)
 {
+    unsigned scopeStart = tokenAt(ast->firstToken()).offset;
+    if (ast->lparen_token)
+        scopeStart = tokenAt(ast->lparen_token).end();
+
     Block *block = control()->newBlock(ast->for_token);
-    block->setStartOffset(tokenAt(ast->firstToken()).offset);
-    block->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    block->members()->setStartOffset(scopeStart);
+    block->members()->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     ast->symbol = block;
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());
@@ -245,9 +256,13 @@ bool CheckStatement::visit(ForStatementAST *ast)
 
 bool CheckStatement::visit(IfStatementAST *ast)
 {
+    unsigned scopeStart = tokenAt(ast->firstToken()).offset;
+    if (ast->lparen_token)
+        scopeStart = tokenAt(ast->lparen_token).end();
+
     Block *block = control()->newBlock(ast->if_token);
-    block->setStartOffset(tokenAt(ast->firstToken()).offset);
-    block->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    block->members()->setStartOffset(scopeStart);
+    block->members()->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     ast->symbol = block;
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());
@@ -292,9 +307,13 @@ bool CheckStatement::visit(ReturnStatementAST *ast)
 
 bool CheckStatement::visit(SwitchStatementAST *ast)
 {
+    unsigned scopeStart = tokenAt(ast->firstToken()).offset;
+    if (ast->lparen_token)
+        scopeStart = tokenAt(ast->lparen_token).offset;
+
     Block *block = control()->newBlock(ast->switch_token);
-    block->setStartOffset(tokenAt(ast->firstToken()).offset);
-    block->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    block->members()->setStartOffset(scopeStart);
+    block->members()->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     ast->symbol = block;
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());
@@ -317,9 +336,13 @@ bool CheckStatement::visit(TryBlockStatementAST *ast)
 
 bool CheckStatement::visit(CatchClauseAST *ast)
 {
+    unsigned scopeStart = tokenAt(ast->firstToken()).offset;
+    if (ast->lparen_token)
+        scopeStart = tokenAt(ast->lparen_token).end();
+
     Block *block = control()->newBlock(ast->catch_token);
-    block->setStartOffset(tokenAt(ast->firstToken()).offset);
-    block->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    block->members()->setStartOffset(scopeStart);
+    block->members()->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     ast->symbol = block;
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());
@@ -332,9 +355,13 @@ bool CheckStatement::visit(CatchClauseAST *ast)
 
 bool CheckStatement::visit(WhileStatementAST *ast)
 {
+    unsigned scopeStart = tokenAt(ast->firstToken()).offset;
+    if (ast->lparen_token)
+        scopeStart = tokenAt(ast->lparen_token).end();
+
     Block *block = control()->newBlock(ast->while_token);
-    block->setStartOffset(tokenAt(ast->firstToken()).offset);
-    block->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    block->members()->setStartOffset(scopeStart);
+    block->members()->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     ast->symbol = block;
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());
