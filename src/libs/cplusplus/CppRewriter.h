@@ -50,9 +50,12 @@ public:
 
 class CPLUSPLUS_EXPORT SubstitutionEnvironment
 {
+    Q_DISABLE_COPY(SubstitutionEnvironment)
     QList<Substitution *> substs;
 
 public:
+    SubstitutionEnvironment() {}
+
     FullySpecifiedType apply(const Name *name, Rewrite *rewrite) const
     {
         if (name) {
@@ -107,11 +110,11 @@ private:
 };
 
 CPLUSPLUS_EXPORT FullySpecifiedType rewriteType(const FullySpecifiedType &type,
-                                                const SubstitutionEnvironment &env,
+                                                SubstitutionEnvironment *env,
                                                 Control *control);
 
 CPLUSPLUS_EXPORT const Name *rewriteName(const Name *name,
-                                         const SubstitutionEnvironment &env,
+                                         SubstitutionEnvironment *env,
                                          Control *control);
 
 } // end of namespace CPlusPlus

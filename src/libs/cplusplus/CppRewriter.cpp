@@ -43,7 +43,7 @@ using namespace CPlusPlus;
 class CPlusPlus::Rewrite
 {
 public:
-    Rewrite(Control *control, const SubstitutionEnvironment &env)
+    Rewrite(Control *control, SubstitutionEnvironment *env)
         : control(control), env(env), rewriteType(this), rewriteName(this) {}
 
     class RewriteType: public TypeVisitor
@@ -118,7 +118,7 @@ public:
 
         virtual void visit(NamedType *type)
         {
-            FullySpecifiedType ty = rewrite->env.apply(type->name(), rewrite);
+            FullySpecifiedType ty = rewrite->env->apply(type->name(), rewrite);
             if (! ty->isUndefinedType())
                 temps.append(rewrite->rewriteType(ty));
             else {
@@ -281,7 +281,7 @@ public:
 
 public: // attributes
     Control *control;
-    SubstitutionEnvironment env;
+    SubstitutionEnvironment *env;
     RewriteType rewriteType;
     RewriteName rewriteName;
 };
@@ -309,9 +309,9 @@ FullySpecifiedType ContextSubstitution::apply(const Name *name, Rewrite *rewrite
                      << r.scope()->owner()->column();
 
             ContextSubstitution subst(_context, s->scope());
-            rewrite->env.enter(&subst);
+            rewrite->env->enter(&subst);
             FullySpecifiedType ty = rewrite->rewriteType(s->type());
-            rewrite->env.leave();
+            rewrite->env->leave();
 
             return ty;
         }
@@ -348,7 +348,7 @@ FullySpecifiedType SubstitutionMap::apply(const Name *name, Rewrite *) const
 }
 
 FullySpecifiedType CPlusPlus::rewriteType(const FullySpecifiedType &type,
-                                          const SubstitutionEnvironment &env,
+                                          SubstitutionEnvironment *env,
                                           Control *control)
 {
     Rewrite rewrite(control, env);
@@ -356,7 +356,7 @@ FullySpecifiedType CPlusPlus::rewriteType(const FullySpecifiedType &type,
 }
 
 const Name *CPlusPlus::rewriteName(const Name *name,
-                                   const SubstitutionEnvironment &env,
+                                   SubstitutionEnvironment *env,
                                    Control *control)
 {
     Rewrite rewrite(control, env);

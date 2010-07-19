@@ -572,7 +572,7 @@ QList<LookupItem> ResolveExpression::getMembers(ClassOrNamespace *binding, const
 
                 env.enter(&ctxSubst);
                 env.enter(&map);
-                FullySpecifiedType instantiatedTy = rewriteType(decl->type(), env, _context.control().data());
+                FullySpecifiedType instantiatedTy = rewriteType(decl->type(), &env, _context.control().data());
 
                 Overview oo;
                 oo.setShowReturnTypes(true);
