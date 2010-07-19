@@ -53,6 +53,11 @@ public:
     inline const QString &type() const { return m_type; }
     inline int iconType() const { return m_iconType; }
     inline uint hash() const { return m_hash; }
+    inline bool operator==(const SymbolInformation &other) const
+    {
+        return iconType() == other.iconType() && name() == other.name()
+            && type() == other.type();
+    }
 
     /*!
        \brief Get an icon type sort order. Not pre-calculated - is needed for converting
@@ -69,20 +74,15 @@ private:
     uint m_hash;    //!< precalculated hash value - to speed up qHash
 };
 
-} // namespace Internal
-} // namespace ClassView
-
-inline bool operator==(const ClassView::Internal::SymbolInformation &a,
-                       const ClassView::Internal::SymbolInformation &b)
-{
-    return a.iconType() == b.iconType() && a.name() == b.name() && a.type() == b.type();
-}
-
 //! qHash overload for QHash/QSet
-inline uint qHash(const ClassView::Internal::SymbolInformation &information)
+inline uint qHash(const SymbolInformation &information)
 {
     return information.hash();
 }
+
+
+} // namespace Internal
+} // namespace ClassView
 
 Q_DECLARE_METATYPE(ClassView::Internal::SymbolInformation)
 

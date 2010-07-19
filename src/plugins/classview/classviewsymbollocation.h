@@ -54,6 +54,11 @@ public:
     inline int line() const { return m_line; }
     inline int column() const { return m_column; }
     inline int hash() const { return m_hash; }
+    inline bool operator==(const SymbolLocation &other) const
+    {
+        return line() == other.line() && column() == other.column()
+            && fileName() == other.fileName();
+    }
 
 private:
     QString m_fileName; //!< file name
@@ -62,20 +67,14 @@ private:
     int m_hash;         //!< precalculated hash value for the object, to speed up qHash
 };
 
-} // namespace Internal
-} // namespace ClassView
-
-inline bool operator==(const ClassView::Internal::SymbolLocation &a,
-                       const ClassView::Internal::SymbolLocation &b)
-{
-    return a.line() == b.line() && a.column() == b.column() && a.fileName() == b.fileName();
-}
-
 //! qHash overload for QHash/QSet
-inline uint qHash(const ClassView::Internal::SymbolLocation &location)
+inline uint qHash(const SymbolLocation &location)
 {
     return location.hash();
 }
+
+} // namespace Internal
+} // namespace ClassView
 
 Q_DECLARE_METATYPE(ClassView::Internal::SymbolLocation)
 
