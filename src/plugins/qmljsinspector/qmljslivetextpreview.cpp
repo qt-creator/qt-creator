@@ -41,13 +41,11 @@ class MapObjectWithDebugReference : public Visitor
 
 void MapObjectWithDebugReference::endVisit(UiObjectDefinition* ast)
 {
-    if (ast->qualifiedTypeNameId->name->asString().at(0).isUpper())
-        processRecursive(root, ast);
+    processRecursive(root, ast);
 }
 void MapObjectWithDebugReference::endVisit(UiObjectBinding* ast)
 {
-    if (ast->qualifiedId->name->asString().at(0).isUpper())
-        processRecursive(root, ast);
+    processRecursive(root, ast);
 }
 
 void MapObjectWithDebugReference::processRecursive(const QDeclarativeDebugObjectReference& object, UiObjectMember* ast)
