@@ -2,6 +2,7 @@
 #define QMLOUTLINEMODEL_H
 
 #include "qmljseditor.h"
+#include <utils/changeset.h>
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsicons.h>
 #include <qmljs/qmljslookupcontext.h>
@@ -27,6 +28,16 @@ public:
 
     //QStandardItem
     QVariant data(int role = Qt::UserRole + 1) const;
+    int type() const;
+
+    QmlJS::AST::SourceLocation sourceLocation() const;
+    void setSourceLocation(const QmlJS::AST::SourceLocation &location);
+
+    QmlJS::AST::Node *node() const;
+    void setNode(QmlJS::AST::Node *node);
+
+    QmlJS::AST::UiQualifiedId *idNode() const;
+    void setIdNode(QmlJS::AST::UiQualifiedId *idNode);
 
     QmlOutlineItem &copyValues(const QmlOutlineItem &other); // so that we can assign all values at onc
 
@@ -34,7 +45,10 @@ private:
     QString prettyPrint(const QmlJS::Interpreter::Value *value, QmlJS::Interpreter::Context *context) const;
 
     QmlOutlineModel *m_outlineModel;
+    QmlJS::AST::Node *m_node;
+    QmlJS::AST::UiQualifiedId *m_idNode;
 };
+
 
 class QmlOutlineModel : public QStandardItemModel
 {
@@ -44,8 +58,6 @@ public:
     enum CustomRoles {
         SourceLocationRole = Qt::UserRole + 1,
         ItemTypeRole,
-        NodePointerRole,
-        IdPointerRole
     };
 
     enum ItemTypes {
@@ -54,6 +66,11 @@ public:
     };
 
     QmlOutlineModel(QObject *parent = 0);
+
+    // QStandardItemModel
+    QStringList mimeTypes() const;
+    QMimeData *mimeData(const QModelIndexList &indexes) const;
+    bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex  &parent);
 
     QmlJS::Document::Ptr document() const;
     void update(const SemanticInfo &semanticInfo);
@@ -75,6 +92,11 @@ private:
 private:
     QModelIndex enterNode(const QmlOutlineItem &prototype);
     void leaveNode();
+
+    void reparentNodes(QmlOutlineItem *targetItem, int targetRow, QList<QmlOutlineItem*> itemsToMove);
+    void moveObjectMember(QmlJS::AST::UiObjectMember *toMove, QmlJS::AST::UiObjectMember *newParent,
+                          bool insertionOrderSpecified, QmlJS::AST::UiObjectMember *insertAfter,
+                          Utils::ChangeSet *changeSet, Utils::ChangeSet::Range *addedRange);
 
     QStandardItem *parentItem();
 
@@ -100,7 +122,5 @@ private:
 } // namespace QmlJSEditor
 
 Q_DECLARE_METATYPE(QmlJS::AST::SourceLocation);
-Q_DECLARE_METATYPE(QmlJS::AST::Node*);
-Q_DECLARE_METATYPE(QmlJS::AST::UiQualifiedId*);
 
 #endif // QMLOUTLINEMODEL_H

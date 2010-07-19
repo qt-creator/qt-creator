@@ -25,6 +25,11 @@ QmlJSOutlineTreeView::QmlJSOutlineTreeView(QWidget *parent) :
     // see also CppOutlineTreeView
     setFocusPolicy(Qt::NoFocus);
     setExpandsOnDoubleClick(false);
+
+    setDragEnabled(true);
+    viewport()->setAcceptDrops(true);
+    setDropIndicatorShown(true);
+    setDragDropMode(InternalMove);
 }
 
 QmlJSOutlineFilterModel::QmlJSOutlineFilterModel(QObject *parent) :

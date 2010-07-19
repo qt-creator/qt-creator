@@ -1,8 +1,12 @@
 #include "qmloutlinemodel.h"
 #include "qmljseditor.h"
+#include "qmljsrefactoringchanges.h"
+
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljslookupcontext.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
+#include <qmljs/qmljsrewriter.h>
 
 #include <coreplugin/icore.h>
 #include <QtCore/QDebug>
@@ -20,15 +24,20 @@ namespace QmlJSEditor {
 namespace Internal {
 
 QmlOutlineItem::QmlOutlineItem(QmlOutlineModel *model) :
-    m_outlineModel(model)
+    m_outlineModel(model),
+    m_node(0),
+    m_idNode(0)
 {
+    Qt::ItemFlags defaultFlags = flags();
+    setFlags(Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | defaultFlags);
+    setEditable(false);
 }
 
 QVariant QmlOutlineItem::data(int role) const
 {
     if (role == Qt::ToolTipRole) {
-        AST::SourceLocation location = data(QmlOutlineModel::SourceLocationRole).value<AST::SourceLocation>();
-        AST::UiQualifiedId *uiQualifiedId = data(QmlOutlineModel::IdPointerRole).value<AST::UiQualifiedId*>();
+        AST::SourceLocation location = sourceLocation();
+        AST::UiQualifiedId *uiQualifiedId = m_idNode;
         if (!uiQualifiedId)
             return QVariant();
 
@@ -45,9 +54,46 @@ QVariant QmlOutlineItem::data(int role) const
     return QStandardItem::data(role);
 }
 
+int QmlOutlineItem::type() const
+{
+    return UserType;
+}
+
+QmlJS::AST::SourceLocation QmlOutlineItem::sourceLocation() const
+{
+    return data(QmlOutlineModel::SourceLocationRole).value<QmlJS::AST::SourceLocation>();
+}
+
+void QmlOutlineItem::setSourceLocation(const QmlJS::AST::SourceLocation &location)
+{
+    setData(QVariant::fromValue(location), QmlOutlineModel::SourceLocationRole);
+}
+
+QmlJS::AST::Node *QmlOutlineItem::node() const
+{
+    return m_node;
+}
+
+void QmlOutlineItem::setNode(QmlJS::AST::Node *node)
+{
+    m_node = node;
+}
+
+QmlJS::AST::UiQualifiedId *QmlOutlineItem::idNode() const
+{
+    return m_idNode;
+}
+
+void QmlOutlineItem::setIdNode(QmlJS::AST::UiQualifiedId *idNode)
+{
+    m_idNode = idNode;
+}
+
 QmlOutlineItem &QmlOutlineItem::copyValues(const QmlOutlineItem &other)
 {
     *this = other;
+    m_node = other.m_node;
+    m_idNode = other.m_idNode;
     emitDataChanged();
     return *this;
 }
@@ -71,6 +117,42 @@ QString QmlOutlineItem::prettyPrint(const QmlJS::Interpreter::Value *value, QmlJ
 
     return typeId;
 }
+
+/**
+  Returns mapping of every UiObjectMember object to it's direct UiObjectMember parent object.
+  */
+class ObjectMemberParentVisitor : public AST::Visitor
+{
+public:
+    QHash<AST::UiObjectMember*,AST::UiObjectMember*> operator()(Document::Ptr doc) {
+        parent.clear();
+        if (doc && doc->ast())
+            doc->ast()->accept(this);
+        return parent;
+    }
+
+private:
+    QHash<AST::UiObjectMember*,AST::UiObjectMember*> parent;
+    QList<AST::UiObjectMember *> stack;
+
+    bool preVisit(AST::Node *node)
+    {
+        if (AST::UiObjectMember *objMember = node->uiObjectMemberCast())
+            stack.append(objMember);
+        return true;
+    }
+
+    void postVisit(AST::Node *node)
+    {
+        if (AST::UiObjectMember *objMember = node->uiObjectMemberCast()) {
+            stack.removeLast();
+            if (!stack.isEmpty()) {
+                parent.insert(objMember, stack.last());
+            }
+        }
+    }
+};
+
 
 class QmlOutlineModelSync : protected AST::Visitor
 {
@@ -157,6 +239,78 @@ QmlOutlineModel::QmlOutlineModel(QObject *parent) :
     m_icons = Icons::instance();
     const QString resourcePath = Core::ICore::instance()->resourcePath();
     QmlJS::Icons::instance()->setIconFilesPath(resourcePath + "/qmlicons");
+
+    // TODO: Maybe add a Copy Action?
+    setSupportedDragActions(Qt::MoveAction);
+    setItemPrototype(new QmlOutlineItem(this));
+}
+
+QStringList QmlOutlineModel::mimeTypes() const
+{
+    QStringList types;
+    types << QLatin1String("application/x-qtcreator-qmloutlinemodel");
+    return types;
+}
+
+
+QMimeData *QmlOutlineModel::mimeData(const QModelIndexList &indexes) const
+{
+    if (indexes.count() <= 0)
+        return 0;
+    QStringList types = mimeTypes();
+    QMimeData *data = new QMimeData();
+    QString format = types.at(0);
+    QByteArray encoded;
+    QDataStream stream(&encoded, QIODevice::WriteOnly);
+    stream << indexes.size();
+
+    // We store pointers to the QmlOutlineItems dropped.
+    // This works because we're only supporting drag&drop inside the model
+    for (int i = 0; i < indexes.size(); ++i) {
+        QmlOutlineItem *item = static_cast<QmlOutlineItem*>(itemFromIndex(indexes.at(i)));
+        stream << (quint64)item;
+    }
+    data->setData(format, encoded);
+    return data;
+}
+
+bool QmlOutlineModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int /*column*/, const QModelIndex &parent)
+{
+    if (debug)
+        qDebug() << __FUNCTION__ << row << parent;
+
+    // check if the action is supported
+    if (!data || !(action == Qt::CopyAction || action == Qt::MoveAction))
+        return false;
+
+    // We cannot reparent outside of the root item
+    if (!parent.isValid())
+        return false;
+
+    // check if the format is supported
+    QStringList types = mimeTypes();
+    if (types.isEmpty())
+        return false;
+    QString format = types.at(0);
+    if (!data->hasFormat(format))
+        return false;
+
+    // decode and insert
+    QByteArray encoded = data->data(format);
+    QDataStream stream(&encoded, QIODevice::ReadOnly);
+    int indexSize;
+    stream >> indexSize;
+    QList<QmlOutlineItem*> itemsToMove;
+    for (int i = 0; i < indexSize; ++i) {
+        quint64 itemPtr;
+        stream >> itemPtr;
+        itemsToMove << reinterpret_cast<QmlOutlineItem*>(itemPtr);
+    }
+
+    QmlOutlineItem *targetItem = static_cast<QmlOutlineItem*>(itemFromIndex(parent));
+    reparentNodes(targetItem, row, itemsToMove);
+    // Prevent view from calling insertRow(), removeRow() on it's own
+    return false;
 }
 
 QmlJS::Document::Ptr QmlOutlineModel::document() const
@@ -204,9 +358,9 @@ QModelIndex QmlOutlineModel::enterObjectDefinition(AST::UiObjectDefinition *objD
     }
     prototype.setIcon(m_typeToIcon.value(typeName));
     prototype.setData(ElementType, ItemTypeRole);
-    prototype.setData(QVariant::fromValue(getLocation(objDef)), SourceLocationRole);
-    prototype.setData(QVariant::fromValue(static_cast<AST::Node*>(objDef)), NodePointerRole);
-    prototype.setData(QVariant::fromValue(static_cast<AST::UiQualifiedId*>(objDef->qualifiedTypeNameId)), IdPointerRole);
+    prototype.setSourceLocation(getLocation(objDef));
+    prototype.setNode(objDef);
+    prototype.setIdNode(objDef->qualifiedTypeNameId);
 
     return enterNode(prototype);
 }
@@ -223,9 +377,9 @@ QModelIndex QmlOutlineModel::enterScriptBinding(AST::UiScriptBinding *scriptBind
     prototype.setText(asString(scriptBinding->qualifiedId));
     prototype.setIcon(m_icons->scriptBindingIcon());
     prototype.setData(PropertyType, ItemTypeRole);
-    prototype.setData(QVariant::fromValue(getLocation(scriptBinding)), SourceLocationRole);
-    prototype.setData(QVariant::fromValue(static_cast<AST::Node*>(scriptBinding)), NodePointerRole);
-    prototype.setData(QVariant::fromValue(static_cast<AST::UiQualifiedId*>(scriptBinding->qualifiedId)), IdPointerRole);
+    prototype.setSourceLocation(getLocation(scriptBinding));
+    prototype.setNode(scriptBinding);
+    prototype.setIdNode(scriptBinding->qualifiedId);
 
     return enterNode(prototype);
 }
@@ -242,8 +396,8 @@ QModelIndex QmlOutlineModel::enterPublicMember(AST::UiPublicMember *publicMember
     prototype.setText(publicMember->name->asString());
     prototype.setIcon(m_icons->publicMemberIcon());
     prototype.setData(PropertyType, ItemTypeRole);
-    prototype.setData(QVariant::fromValue(getLocation(publicMember)), SourceLocationRole);
-    prototype.setData(QVariant::fromValue(static_cast<AST::Node*>(publicMember)), NodePointerRole);
+    prototype.setSourceLocation(getLocation(publicMember));
+    prototype.setNode(publicMember);
 
     return enterNode(prototype);
 }
@@ -256,7 +410,8 @@ void QmlOutlineModel::leavePublicMember()
 QmlJS::AST::Node *QmlOutlineModel::nodeForIndex(const QModelIndex &index)
 {
     if (index.isValid()) {
-        return index.data(NodePointerRole).value<QmlJS::AST::Node*>();
+        QmlOutlineItem *item = static_cast<QmlOutlineItem*>(itemFromIndex(index));
+        return item->node();
     }
     return 0;
 }
@@ -330,6 +485,126 @@ void QmlOutlineModel::leaveNode()
 
 
     m_treePos.last()++;
+}
+
+void QmlOutlineModel::reparentNodes(QmlOutlineItem *targetItem, int row, QList<QmlOutlineItem*> itemsToMove)
+{
+    Utils::ChangeSet changeSet;
+
+    AST::UiObjectMember *targetObjectMember = dynamic_cast<AST::UiObjectMember*>(targetItem->node());
+    if (!targetObjectMember)
+        return;
+
+    QList<Utils::ChangeSet::Range> changedRanges;
+
+    for (int i = 0; i < itemsToMove.size(); ++i) {
+        QmlOutlineItem *outlineItem = itemsToMove.at(i);
+        AST::UiObjectMember *sourceObjectMember = dynamic_cast<AST::UiObjectMember*>(outlineItem->node());
+        if (!sourceObjectMember)
+            return;
+
+        bool insertionOrderSpecified = true;
+        AST::UiObjectMember *memberToInsertAfter = 0;
+        {
+            if (row == -1) {
+                insertionOrderSpecified = false;
+            } else if (row > 0) {
+                QmlOutlineItem *outlineItem = static_cast<QmlOutlineItem*>(targetItem->child(row - 1));
+                memberToInsertAfter = dynamic_cast<QmlJS::AST::UiObjectMember*>(outlineItem->node());
+            }
+        }
+
+        Utils::ChangeSet::Range range;
+        if (sourceObjectMember)
+            moveObjectMember(sourceObjectMember, targetObjectMember, insertionOrderSpecified,
+                             memberToInsertAfter, &changeSet, &range);
+        changedRanges << range;
+    }
+
+    QmlJSRefactoringChanges refactoring(QmlJS::ModelManagerInterface::instance(), m_semanticInfo.snapshot);
+    refactoring.changeFile(m_semanticInfo.document->fileName(), changeSet);
+    foreach (const Utils::ChangeSet::Range &range, changedRanges) {
+        refactoring.reindent(m_semanticInfo.document->fileName(), range);
+    }
+    refactoring.apply();
+}
+
+void QmlOutlineModel::moveObjectMember(AST::UiObjectMember *toMove,
+                                       AST::UiObjectMember *newParent,
+                                       bool insertionOrderSpecified,
+                                       AST::UiObjectMember *insertAfter,
+                                       Utils::ChangeSet *changeSet,
+                                       Utils::ChangeSet::Range *addedRange)
+{
+    Q_ASSERT(toMove);
+    Q_ASSERT(newParent);
+    Q_ASSERT(changeSet);
+
+    QHash<QmlJS::AST::UiObjectMember*, QmlJS::AST::UiObjectMember*> parentMembers;
+    {
+        ObjectMemberParentVisitor visitor;
+        parentMembers = visitor(m_semanticInfo.document);
+    }
+
+    AST::UiObjectMember *oldParent = parentMembers.value(toMove);
+    Q_ASSERT(oldParent);
+
+    // make sure that target parent is actually a direct ancestor of target sibling
+    if (insertAfter)
+        newParent = parentMembers.value(insertAfter);
+
+    const QString documentText = m_semanticInfo.document->source();
+
+    if (AST::UiObjectDefinition *objDefinition = dynamic_cast<AST::UiObjectDefinition*>(newParent)) {
+        // target is an element
+
+        Rewriter rewriter(documentText, changeSet, QStringList());
+        rewriter.removeObjectMember(toMove, oldParent);
+
+        AST::UiObjectMemberList *listInsertAfter = 0;
+        if (insertionOrderSpecified) {
+            if (insertAfter) {
+                listInsertAfter = objDefinition->initializer->members;
+                while (listInsertAfter && (listInsertAfter->member != insertAfter))
+                    listInsertAfter = listInsertAfter->next;
+            }
+        }
+
+        if (AST::UiScriptBinding *moveScriptBinding = dynamic_cast<AST::UiScriptBinding*>(toMove)) {
+            const QString propertyName = asString(moveScriptBinding->qualifiedId);
+            QString propertyValue;
+            {
+                const int offset = moveScriptBinding->statement->firstSourceLocation().begin();
+                const int length = moveScriptBinding->statement->lastSourceLocation().end() - offset;
+                propertyValue = documentText.mid(offset, length);
+            }
+            Rewriter::BindingType bindingType = Rewriter::ScriptBinding;
+
+            if (insertionOrderSpecified) {
+                *addedRange = rewriter.addBinding(objDefinition->initializer, propertyName, propertyValue, bindingType, listInsertAfter);
+            } else {
+                *addedRange = rewriter.addBinding(objDefinition->initializer, propertyName, propertyValue, bindingType);
+            }
+        } else {
+            QString strToMove;
+            {
+                const int offset = toMove->firstSourceLocation().begin();
+                const int length = toMove->lastSourceLocation().end() - offset;
+                strToMove = documentText.mid(offset, length);
+            }
+
+            if (insertionOrderSpecified) {
+                *addedRange = rewriter.addObject(objDefinition->initializer, strToMove, listInsertAfter);
+            } else {
+                *addedRange = rewriter.addObject(objDefinition->initializer, strToMove);
+            }
+        }
+    } else {
+        // target is a property
+    }
+
+//    addedRange->start = newParent->lastSourceLocation().offset - 1;
+//    addedRange->end = addedRange->start + strToMove.length();
 }
 
 QStandardItem *QmlOutlineModel::parentItem()
