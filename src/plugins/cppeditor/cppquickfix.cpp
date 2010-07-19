@@ -1383,7 +1383,7 @@ public:
         return QApplication::translate("CppTools::QuickFix", "#include header file");
     }
 
-    bool checkName(const NameAST *ast)
+    bool checkName(NameAST *ast)
     {
         if (ast && isCursorOn(ast)) {
             if (const Name *name = ast->name) {
@@ -1398,7 +1398,7 @@ public:
                     else if (ForwardClassDeclaration *fwd = r.declaration()->asForwardClassDeclaration())
                         fwdClass = fwd;
                     else if (r.declaration()->isClass())
-                        return -1; // nothing to do.
+                        return false; // nothing to do.
                 }
 
                 if (fwdClass)
@@ -1411,6 +1411,8 @@ public:
 
     virtual int match(const QList<AST *> &path)
     {
+        fwdClass = 0;
+
         for (int index = path.size() - 1; index != -1; --index) {
             AST *ast = path.at(index);
             if (NamedTypeSpecifierAST *namedTy = ast->asNamedTypeSpecifier()) {
@@ -1427,6 +1429,8 @@ public:
 
     virtual void createChanges()
     {
+        Q_ASSERT(fwdClass != 0);
+
         if (Class *k = snapshot().findMatchingClassDeclaration(fwdClass)) {
             const QString headerFile = QString::fromUtf8(k->fileName(), k->fileNameLength());
 
