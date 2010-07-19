@@ -290,7 +290,8 @@ void Delta::insert(UiObjectMember *member, UiObjectMember *parentMember, const Q
     if (UiObjectDefinition* uiObjectDef = cast<UiObjectDefinition *>(member)) {
         unsigned begin = uiObjectDef->firstSourceLocation().begin();
         unsigned end = uiObjectDef->lastSourceLocation().end();
-        QString qmlText = doc->source().mid(begin, end - begin);
+        QString qmlText = QString(uiObjectDef->firstSourceLocation().startColumn - 1, QLatin1Char(' '));
+        qmlText += doc->source().midRef(begin, end - begin);
         QStringList importList;
         for (UiImportList *it = doc->qmlProgram()->imports; it; it = it->next) {
             if (!it->import)
@@ -301,12 +302,15 @@ void Delta::insert(UiObjectMember *member, UiObjectMember *parentMember, const Q
             importList << doc->source().mid(importBegin, importEnd - importBegin);
         }
 
+        QString filename = doc->fileName() + QLatin1Char('_') + QString::number(doc->editorRevision())
+                         + QLatin1Char(':') + QString::number(uiObjectDef->firstSourceLocation().startLine-importList.count());
         foreach(const QDeclarativeDebugObjectReference &ref, debugReferences) {
             if (ref.debugId() != -1) {
                 _referenceRefreshRequired = true;
-                ClientProxy::instance()->createQmlObject(qmlText, ref, importList, doc->fileName());
+                ClientProxy::instance()->createQmlObject(qmlText, ref, importList, filename);
             }
         }
+        newObjects += member;
     }
 }
 

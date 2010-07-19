@@ -12,6 +12,7 @@ namespace QmlViewer {
 QmlToolbar::QmlToolbar(QWidget *parent) :
     QToolBar(parent),
     m_emitSignals(true),
+    m_isRunning(false),
     ui(new Ui)
 {
     ui->designmode = new QAction(QIcon(":/qml/images/designmode.png"), tr("Design Mode"), this);

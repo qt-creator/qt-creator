@@ -49,6 +49,7 @@ public:
     Delta() : doNotSendChanges(false) {}
 
     bool doNotSendChanges;
+    QSet<UiObjectMember *> newObjects;
 
     struct Change {
         Change(): script(0), isLiteral(false) {}

@@ -56,6 +56,7 @@ private:
 
 private:
     QHash<QmlJS::AST::UiObjectMember*, QList<QDeclarativeDebugObjectReference> > m_debugIds;
+    QHash<QmlJS::Document::Ptr, QSet<QmlJS::AST::UiObjectMember *> > m_createdObjects;
 
     QmlJS::Document::Ptr m_previousDoc;
     QmlJS::Document::Ptr m_initialDoc; //the document that was loaded by the server

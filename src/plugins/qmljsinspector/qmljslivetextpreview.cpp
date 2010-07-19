@@ -29,23 +29,51 @@ namespace Internal {
 class MapObjectWithDebugReference : public Visitor
 {
     public:
+        MapObjectWithDebugReference() : activated(0) {}
         virtual void endVisit(UiObjectDefinition *ast) ;
         virtual void endVisit(UiObjectBinding *ast) ;
+        virtual bool visit(UiObjectDefinition *ast) ;
+        virtual bool visit(UiObjectBinding *ast) ;
 
         QDeclarativeDebugObjectReference root;
         QString filename;
         QHash<UiObjectMember *, QList<QDeclarativeDebugObjectReference> > result;
+        QSet<QmlJS::AST::UiObjectMember *> lookupObjects;
+        Document::Ptr doc;
     private:
+        int activated;
         void processRecursive(const QDeclarativeDebugObjectReference &object, UiObjectMember *ast);
 };
 
+bool MapObjectWithDebugReference::visit(UiObjectDefinition* ast)
+{
+    if (lookupObjects.contains(ast))
+        activated++;
+    return true;
+}
+
+bool MapObjectWithDebugReference::visit(UiObjectBinding* ast)
+{
+    if (lookupObjects.contains(ast))
+        activated++;
+    return true;
+}
+
 void MapObjectWithDebugReference::endVisit(UiObjectDefinition* ast)
 {
-    processRecursive(root, ast);
+    if (lookupObjects.isEmpty() || activated)
+        processRecursive(root, ast);
+
+    if (lookupObjects.contains(ast))
+        activated--;
 }
 void MapObjectWithDebugReference::endVisit(UiObjectBinding* ast)
 {
-    processRecursive(root, ast);
+    if (lookupObjects.isEmpty() || activated)
+        processRecursive(root, ast);
+
+    if (lookupObjects.contains(ast))
+        activated--;
 }
 
 void MapObjectWithDebugReference::processRecursive(const QDeclarativeDebugObjectReference& object, UiObjectMember* ast)
@@ -54,8 +82,16 @@ void MapObjectWithDebugReference::processRecursive(const QDeclarativeDebugObject
     // the QDeclarativeDebugObjectReference by filename/loc in a fist pass
 
     SourceLocation loc = ast->firstSourceLocation();
-    if (object.source().lineNumber() == int(loc.startLine) && object.source().columnNumber() == int(loc.startColumn) && object.source().url().toLocalFile() == filename) {
-        result[ast] += object;
+    if (object.source().columnNumber() == int(loc.startColumn)) {
+        QString objectFileName = object.source().url().toLocalFile();
+        if (object.source().lineNumber() == int(loc.startLine) && objectFileName == filename) {
+            result[ast] += object;
+        } else if (doc && objectFileName.startsWith(filename + QLatin1Char('_') + QString::number(doc->editorRevision()) + QLatin1Char(':'))) {
+            bool ok;
+            int line = objectFileName.mid(objectFileName.lastIndexOf(':') + 1).toInt(&ok);
+            if (ok && int(loc.startLine) == line + object.source().lineNumber() - 1)
+                result[ast] += object;
+        }
     }
 
     foreach (const QDeclarativeDebugObjectReference &it, object.children()) {
@@ -214,6 +250,28 @@ void QmlJSLiveTextPreview::updateDebugIds(const QDeclarativeDebugObjectReference
         if (!r.isEmpty())
             m_debugIds[root] += r;
     }
+
+    // Map the node of the later created objects.
+    for(QHash<Document::Ptr,QSet<UiObjectMember*> >::const_iterator it = m_createdObjects.constBegin();
+        it != m_createdObjects.constEnd(); ++it) {
+
+        const QmlJS::Document::Ptr &doc = it.key();
+        MapObjectWithDebugReference visitor;
+        visitor.root = rootReference;
+        visitor.filename = doc->fileName();
+        visitor.lookupObjects = it.value();
+        visitor.doc = doc;
+        doc->qmlProgram()->accept(&visitor);
+
+        Delta::DebugIdMap debugIds = visitor.result;
+        Delta delta;
+        delta.doNotSendChanges = true;
+        debugIds = delta(doc, m_previousDoc, debugIds);
+        for(Delta::DebugIdMap::const_iterator it2 = debugIds.constBegin();
+            it2 != debugIds.constEnd(); ++it2) {
+            m_debugIds[it2.key()] += it2.value();
+        }
+    }
 }
 
 void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
@@ -237,6 +295,8 @@ void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
             ClientProxy::instance()->refreshObjectTree();
 
         m_previousDoc = doc;
+        if (!delta.newObjects.isEmpty())
+            m_createdObjects[doc] += delta.newObjects;
     }
 }
 

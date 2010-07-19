@@ -251,6 +251,8 @@ void Inspector::createPreviewForEditor(Core::IEditor *newEditor)
     if (newEditor && newEditor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
         QString filename = newEditor->file()->fileName();
         QmlJS::Document::Ptr doc = modelManager()->snapshot().document(filename);
+        if (!doc || !doc->qmlProgram())
+            return;
 
         if (m_textPreviews.contains(filename)) {
             m_textPreviews.value(filename)->associateEditor(newEditor);
