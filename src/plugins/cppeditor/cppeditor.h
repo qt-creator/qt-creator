@@ -236,13 +236,15 @@ private Q_SLOTS:
     void highlightTypeUsages(int from, int to);
     void finishTypeUsages();
 
+    void markSymbolsNow();
+
     void performQuickFix(int index);
 
 private:
     bool showWarningMessage() const;
     void setShowWarningMessage(bool showWarningMessage);
 
-    void markSymbols(CPlusPlus::Symbol *canonicalSymbol, const SemanticInfo &info);
+    void markSymbols(const QTextCursor &tc, const SemanticInfo &info);
     bool sortedOutline() const;
     CPlusPlus::Symbol *findDefinition(CPlusPlus::Symbol *symbol, const CPlusPlus::Snapshot &snapshot);
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
@@ -305,6 +307,11 @@ private:
     QFutureWatcher<SemanticInfo::Use> m_highlightWatcher;
     unsigned m_highlightRevision; // the editor revision that requested the highlight
     int m_nextHighlightBlockNumber;
+
+    QFuture<QList<int> > m_references;
+    QFutureWatcher<QList<int> > m_referencesWatcher;
+    unsigned m_referencesRevision;
+    int m_referencesCursorPosition;
 };
 
 

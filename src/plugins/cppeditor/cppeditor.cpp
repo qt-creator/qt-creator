@@ -270,15 +270,13 @@ protected:
 };
 
 
-struct FindCanonicalSymbol
+struct CanonicalSymbol
 {
     CPPEditor *editor;
-    QString code;
     TypeOfExpression typeOfExpression;
-    ExpressionUnderCursor expressionUnderCursor;
     SemanticInfo info;
 
-    FindCanonicalSymbol(CPPEditor *editor, const SemanticInfo &info)
+    CanonicalSymbol(CPPEditor *editor, const SemanticInfo &info)
         : editor(editor), info(info)
     {
         typeOfExpression.init(info.doc, info.snapshot);
@@ -289,12 +287,19 @@ struct FindCanonicalSymbol
         return typeOfExpression.context();
     }
 
-    inline bool isIdentifierChar(const QChar &ch) const
+    static inline bool isIdentifierChar(const QChar &ch)
     {
         return ch.isLetterOrNumber() || ch == QLatin1Char('_');
     }
 
-    Symbol *operator()(const QTextCursor &cursor)
+    Scope *getScopeAndExpression(const QTextCursor &cursor, QString *code)
+    {
+        return getScopeAndExpression(editor, info, cursor, code);
+    }
+
+    static Scope *getScopeAndExpression(CPPEditor *editor, const SemanticInfo &info,
+                                        const QTextCursor &cursor,
+                                        QString *code)
     {
         if (! info.doc)
             return 0;
@@ -316,10 +321,30 @@ struct FindCanonicalSymbol
             ++pos;
         tc.setPosition(pos);
 
-        code = expressionUnderCursor(tc);
-        Scope *scope = info.doc->scopeAt(line, col);
+        ExpressionUnderCursor expressionUnderCursor;
+        *code = expressionUnderCursor(tc);
+        return info.doc->scopeAt(line, col);
+    }
 
+    Symbol *operator()(const QTextCursor &cursor)
+    {
+        QString code;
+
+        if (Scope *scope = getScopeAndExpression(cursor, &code))
+            return operator()(scope, code);
+
+        return 0;
+    }
+
+    Symbol *operator()(Scope *scope, const QString &code)
+    {
+        return canonicalSymbol(scope, code, typeOfExpression);
+    }
+
+    static Symbol *canonicalSymbol(Scope *scope, const QString &code, TypeOfExpression &typeOfExpression)
+    {
         const QList<LookupItem> results = typeOfExpression(code, scope, TypeOfExpression::Preprocess);
+
         for (int i = 0; i < results.size(); ++i) { // ### TODO virtual methods and classes.
             const LookupItem &r = results.at(i);
 
@@ -329,6 +354,7 @@ struct FindCanonicalSymbol
 
         return 0;
     }
+
 };
 
 } // end of anonymous namespace
@@ -372,6 +398,10 @@ CPPEditor::CPPEditor(QWidget *parent)
     m_nextHighlightBlockNumber = 0;
     connect(&m_highlightWatcher, SIGNAL(resultsReadyAt(int,int)), SLOT(highlightTypeUsages(int,int)));
     connect(&m_highlightWatcher, SIGNAL(finished()), SLOT(finishTypeUsages()));
+
+    m_referencesRevision = 0;
+    m_referencesCursorPosition = 0;
+    connect(&m_referencesWatcher, SIGNAL(finished()), SLOT(markSymbolsNow()));
 }
 
 CPPEditor::~CPPEditor()
@@ -587,7 +617,7 @@ void CPPEditor::findUsages()
 {
     const SemanticInfo info = m_lastSemanticInfo;
 
-    FindCanonicalSymbol cs(this, info);
+    CanonicalSymbol cs(this, info);
     Symbol *canonicalSymbol = cs(textCursor());
     if (canonicalSymbol) {
         m_modelManager->findUsages(canonicalSymbol, cs.context());
@@ -634,7 +664,7 @@ void CPPEditor::renameUsagesNow()
 {
     const SemanticInfo info = m_lastSemanticInfo;
 
-    FindCanonicalSymbol cs(this, info);
+    CanonicalSymbol cs(this, info);
     if (Symbol *canonicalSymbol = cs(textCursor())) {
         if (canonicalSymbol->identifier() != 0) {
             if (showWarningMessage()) {
@@ -649,40 +679,71 @@ void CPPEditor::renameUsagesNow()
     }
 }
 
-void CPPEditor::markSymbols(Symbol *canonicalSymbol, const SemanticInfo &info)
+void CPPEditor::markSymbolsNow()
 {
-    //updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
+    if (m_references.isCanceled())
+        return;
+    else if (m_referencesCursorPosition != position())
+        return;
+    else if (m_referencesRevision != editorRevision())
+        return;
 
-    abortRename();
+    const SemanticInfo info = m_lastSemanticInfo;
+    TranslationUnit *unit = info.doc->translationUnit();
+    const QList<int> result = m_references.result();
 
     QList<QTextEdit::ExtraSelection> selections;
 
-    if (info.doc && canonicalSymbol) {
-        TranslationUnit *unit = info.doc->translationUnit();
+    foreach (int index, result) {
+        unsigned line, column;
+        unit->getTokenPosition(index, &line, &column);
 
-        LookupContext context(info.doc, info.snapshot);
-        const QList<int> references = m_modelManager->references(canonicalSymbol, context);
-        foreach (int index, references) {
-            unsigned line, column;
-            unit->getTokenPosition(index, &line, &column);
+        if (column)
+            --column;  // adjust the column position.
 
-            if (column)
-                --column;  // adjust the column position.
+        const int len = unit->tokenAt(index).f.length;
 
-            const int len = unit->tokenAt(index).f.length;
+        QTextCursor cursor(document()->findBlockByNumber(line - 1));
+        cursor.setPosition(cursor.position() + column);
+        cursor.setPosition(cursor.position() + len, QTextCursor::KeepAnchor);
 
-            QTextCursor cursor(document()->findBlockByNumber(line - 1));
-            cursor.setPosition(cursor.position() + column);
-            cursor.setPosition(cursor.position() + len, QTextCursor::KeepAnchor);
+        QTextEdit::ExtraSelection sel;
+        sel.format = m_occurrencesFormat;
+        sel.cursor = cursor;
+        selections.append(sel);
 
-            QTextEdit::ExtraSelection sel;
-            sel.format = m_occurrencesFormat;
-            sel.cursor = cursor;
-            selections.append(sel);
-        }
     }
 
     setExtraSelections(CodeSemanticsSelection, selections);
+}
+
+static QList<int> lazyFindReferences(Scope *scope, QString code, const LookupContext &context)
+{
+    TypeOfExpression typeOfExpression;
+    typeOfExpression.init(context.thisDocument(), context.snapshot(), context.bindings());
+    if (Symbol *canonicalSymbol = CanonicalSymbol::canonicalSymbol(scope, code, typeOfExpression))
+        return CppTools::CppModelManagerInterface::instance()->references(canonicalSymbol, context);
+    return QList<int>();
+}
+
+void CPPEditor::markSymbols(const QTextCursor &tc, const SemanticInfo &info)
+{
+    abortRename();
+
+    if (! info.doc)
+        return;
+
+    CanonicalSymbol cs(this, info);
+    QString expression;
+    if (Scope *scope = cs.getScopeAndExpression(this, info, tc, &expression)) {
+        LookupContext context(info.doc, info.snapshot);
+
+        m_references.cancel();
+        m_referencesRevision = info.revision;
+        m_referencesCursorPosition = position();
+        m_references = QtConcurrent::run(&lazyFindReferences, scope, expression, context);
+        m_referencesWatcher.setFuture(m_references);
+    }
 }
 
 void CPPEditor::renameSymbolUnderCursor()
@@ -1792,8 +1853,7 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
     if (! m_renameSelections.isEmpty())
         setExtraSelections(CodeSemanticsSelection, m_renameSelections); // ###
     else {
-        FindCanonicalSymbol cs(this, semanticInfo);
-        markSymbols(cs(textCursor()), semanticInfo);
+        markSymbols(textCursor(), semanticInfo);
     }
 
     m_lastSemanticInfo.forced = false; // clear the forced flag
