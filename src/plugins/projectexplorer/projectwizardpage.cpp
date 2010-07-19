@@ -30,6 +30,7 @@
 #include "projectwizardpage.h"
 #include "ui_projectwizardpage.h"
 
+#include <QtCore/QDir>
 #include <QtCore/QTextStream>
 
 using namespace ProjectExplorer;
@@ -111,12 +112,12 @@ void ProjectWizardPage::setFilesDisplay(const QString &commonPath, const QString
             << "<pre>";
         if (commonPath.isEmpty()) {
             foreach(const QString &f, files)
-                str << f << '\n';
+                str << QDir::toNativeSeparators(f) << '\n';
         } else {
-            str << commonPath << ":\n\n";
+            str << QDir::toNativeSeparators(commonPath) << ":\n\n";
             const int prefixSize = commonPath.size() + 1;
             foreach(const QString &f, files)
-                str << f.right(f.size() - prefixSize) << '\n';
+                str << QDir::toNativeSeparators(f.right(f.size() - prefixSize)) << '\n';
         }
         str << "</pre>";
     }
