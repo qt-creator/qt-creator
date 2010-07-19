@@ -14,9 +14,9 @@
 #include <qmldesignerplugin.h>
 #include "colorwidget.h"
 #include "contextpanetextwidget.h"
+#include "easingcontextpane.h"
 #include "contextpanewidgetimage.h"
 #include "contextpanewidgetrectangle.h"
-
 
 namespace QmlDesigner {
 
@@ -48,9 +48,12 @@ ContextPaneWidget::ContextPaneWidget(QWidget *parent) : QFrame(parent), m_curren
     m_currentWidget = fontWidget;
     QWidget *imageWidget = createImageWidget();
     QWidget *rectangleWidget = createRectangleWidget();
+    QWidget *easingWidget = createEasingWidget();
     layout->addWidget(fontWidget, 0, 1, 2, 1);
+    layout->addWidget(easingWidget, 0, 1, 2, 1);
     layout->addWidget(imageWidget, 0, 1, 2, 1);
     layout->addWidget(rectangleWidget, 0, 1, 2, 1);
+
     setAutoFillBackground(true);
     setContextMenuPolicy(Qt::ActionsContextMenu);
 
@@ -117,6 +120,10 @@ void ContextPaneWidget::setProperties(::QmlJS::PropertyReader *propertyReader)
     if (textWidget)
         textWidget->setProperties(propertyReader);
 
+    EasingContextPane *easingWidget = qobject_cast<EasingContextPane*>(m_currentWidget);
+    if (easingWidget)
+        easingWidget->setProperties(propertyReader);
+
     ContextPaneWidgetImage *imageWidget = qobject_cast<ContextPaneWidgetImage*>(m_currentWidget);
     if (imageWidget)
         imageWidget->setProperties(propertyReader);
@@ -139,6 +146,7 @@ bool ContextPaneWidget::setType(const QString &typeName)
     m_imageWidget->hide();
     m_textWidget->hide();
     m_rectangleWidget->hide();
+    m_easingWidget->hide();
 
     if (typeName.contains("Text")) {
         m_currentWidget = m_textWidget;
@@ -153,6 +161,12 @@ bool ContextPaneWidget::setType(const QString &typeName)
         }
         return true;
     }
+
+    if (m_easingWidget->acceptsType(typeName)) {
+        m_currentWidget = m_easingWidget;
+        m_easingWidget->show();
+        return true;
+    }
     if (typeName.contains("Rectangle")) {
         m_currentWidget = m_rectangleWidget;
         m_rectangleWidget->show();
@@ -163,8 +177,13 @@ bool ContextPaneWidget::setType(const QString &typeName)
         m_imageWidget->show();
         return true;
     }
-
     return false;
+}
+
+bool ContextPaneWidget::acceptsType(const QString &typeName)
+{
+    return typeName.contains("Text") || m_easingWidget->acceptsType(typeName) ||
+            typeName.contains("Rectangle") || typeName.contains("Image");
 }
 
 void ContextPaneWidget::onTogglePane()
@@ -257,6 +276,17 @@ QWidget* ContextPaneWidget::createFontWidget()
     return m_textWidget;
 }
 
+QWidget* ContextPaneWidget::createEasingWidget()
+{
+    m_easingWidget = new EasingContextPane(this);
+
+    connect(m_easingWidget, SIGNAL(propertyChanged(QString,QVariant)), this, SIGNAL(propertyChanged(QString,QVariant)));
+    connect(m_easingWidget, SIGNAL(removeProperty(QString)), this, SIGNAL(removeProperty(QString)));
+    connect(m_easingWidget, SIGNAL(removeAndChangeProperty(QString,QString,QVariant)), this, SIGNAL(removeAndChangeProperty(QString,QString,QVariant)));
+
+    return m_easingWidget;
+}
+
 QWidget *ContextPaneWidget::createImageWidget()
 {
     m_imageWidget = new ContextPaneWidgetImage(this);
@@ -276,7 +306,6 @@ QWidget *ContextPaneWidget::createRectangleWidget()
 
     return m_rectangleWidget;
 }
-
 
 
 } //QmlDesigner

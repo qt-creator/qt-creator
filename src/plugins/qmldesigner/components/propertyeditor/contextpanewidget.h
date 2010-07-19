@@ -14,6 +14,7 @@ namespace QmlDesigner {
 
 class BauhausColorDialog;
 class ContextPaneTextWidget;
+class EasingContextPane;
 class ContextPaneWidgetRectangle;
 class ContextPaneWidgetImage;
 
@@ -31,6 +32,7 @@ public:
     void setProperties(QmlJS::PropertyReader *propertyReader);
     void setPath(const QString &path);
     bool setType(const QString &typeName);
+    bool acceptsType(const QString &typeName);
     QWidget* currentWidget() const { return m_currentWidget; }
 
 public slots:
@@ -48,8 +50,10 @@ private slots:
 
 protected:
     QWidget *createFontWidget();
+    QWidget *createEasingWidget();
     QWidget *createImageWidget();
     QWidget *createRectangleWidget();
+
     void mousePressEvent(QMouseEvent * event);
     void mouseReleaseEvent(QMouseEvent * event);
     void mouseMoveEvent(QMouseEvent * event);
@@ -57,6 +61,7 @@ protected:
 private:
     QWidget *m_currentWidget;
     ContextPaneTextWidget *m_textWidget;
+    EasingContextPane *m_easingWidget;
     ContextPaneWidgetImage *m_imageWidget;
     ContextPaneWidgetRectangle *m_rectangleWidget;
     QPoint m_oldPos;

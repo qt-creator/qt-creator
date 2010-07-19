@@ -15,6 +15,7 @@ include(components/pluginmanager/pluginmanager.pri)
 include(components/themeloader/qts60stylethemeio.pri)
 include(components/stateseditor/stateseditor.pri)
 include(components/resources/resources.pri)
+include(components/easingpane/easingpane.pri)
 
 HEADERS += qmldesignerconstants.h \
     qmldesignerplugin.h \

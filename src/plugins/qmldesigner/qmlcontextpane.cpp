@@ -32,7 +32,7 @@ static inline QString textAt(const Document* doc,
 QmlContextPane::QmlContextPane(QObject *parent) : ::QmlJS::IContextPane(parent), m_blockWriting(false)
 {
     m_node = 0;
-    ContextPaneWidget();
+    contextWidget();
 
     m_propertyOrder
                << QLatin1String("id")
@@ -130,7 +130,7 @@ void QmlContextPane::apply(TextEditor::BaseTextEditorEditable *editor, Document:
         rect.moveTo(reg.boundingRect().topLeft());
         reg = reg.intersect(rect);
 
-        if (name.contains("Text") || name.contains("Rectangle") || name.contains("Image")) {
+        if (contextWidget()->acceptsType(name)) {
             m_node = 0;
             PropertyReader propertyReader(doc, initializer);
             QTextCursor tc(editor->editor()->document());
@@ -148,6 +148,7 @@ void QmlContextPane::apply(TextEditor::BaseTextEditorEditable *editor, Document:
                 contextWidget()->activate(p3 , p1, p2);
             else
                 contextWidget()->rePosition(p3 , p1, p2);
+
             m_blockWriting = true;
             contextWidget()->setPath(doc->path());
             contextWidget()->setProperties(&propertyReader);
