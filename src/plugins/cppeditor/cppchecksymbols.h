@@ -43,7 +43,8 @@ namespace CPlusPlus {
 
 class CheckSymbols:
         protected ASTVisitor,
-        public QtConcurrent::RunFunctionTaskBase<CppEditor::Internal::SemanticInfo::Use>
+        public QRunnable,
+        public QFutureInterface<CppEditor::Internal::SemanticInfo::Use>
 {
 public:
     virtual ~CheckSymbols();
@@ -51,9 +52,18 @@ public:
     typedef CppEditor::Internal::SemanticInfo::Use Use;
 
     virtual void run();
-    void runFunctor();
 
     typedef QFuture<Use> Future;
+
+    Future start()
+    {
+        this->setRunnable(this);
+        this->reportStarted();
+        Future future = this->future();
+        QThreadPool::globalInstance()->start(this, QThread::IdlePriority);
+        return future;
+    }
+
     static Future go(Document::Ptr doc, const LookupContext &context);
 
     static QMap<int, QVector<Use> > chunks(const QFuture<Use> &future, int from, int to)

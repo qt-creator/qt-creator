@@ -51,6 +51,12 @@ using namespace CppEditor::Internal;
 
 namespace {
 
+class FriendlyThread: public QThread
+{
+public:
+    using QThread::msleep;
+};
+
 class CollectTypes: protected SymbolVisitor
 {
     Document::Ptr _doc;
@@ -281,6 +287,7 @@ protected:
 CheckSymbols::Future CheckSymbols::go(Document::Ptr doc, const LookupContext &context)
 {
     Q_ASSERT(doc);
+
     return (new CheckSymbols(doc, context))->start();
 }
 
@@ -301,20 +308,16 @@ CheckSymbols::~CheckSymbols()
 
 void CheckSymbols::run()
 {
-    if (! isCanceled())
-        runFunctor();
-
-    reportFinished();
-}
-
-void CheckSymbols::runFunctor()
-{
     _diagnosticMessages.clear();
 
-    if (_doc->translationUnit()) {
-        accept(_doc->translationUnit()->ast());
-        flush();
+    if (! isCanceled()) {
+        if (_doc->translationUnit()) {
+            accept(_doc->translationUnit()->ast());
+            flush();
+        }
     }
+
+    reportFinished();
 }
 
 bool CheckSymbols::warning(unsigned line, unsigned column, const QString &text, unsigned length)
@@ -687,6 +690,7 @@ void CheckSymbols::flush()
     if (_usages.isEmpty())
         return;
 
+    FriendlyThread::msleep(10); // release some cpu
     reportResults(_usages);
     _usages.clear();
 }
