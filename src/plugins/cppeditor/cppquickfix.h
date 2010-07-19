@@ -62,6 +62,7 @@ public:
 
     CPlusPlus::Document::Ptr document() const;
     const CPlusPlus::Snapshot &snapshot() const;
+    const CPlusPlus::LookupContext &context() const;
 
     virtual int match(TextEditor::QuickFixState *state);
 

@@ -909,8 +909,7 @@ public:
             }
         }
 
-        LookupContext context(document(), snapshot());
-        QSharedPointer<Control> control = context.control();
+        QSharedPointer<Control> control = context().control();
         const Name *trName = control->nameId(control->findOrInsertIdentifier("tr"));
 
         // Check whether we are in a method:
@@ -918,7 +917,7 @@ public:
         {
             if (FunctionDefinitionAST *definition = path.at(i)->asFunctionDefinition()) {
                 Function *function = definition->symbol;
-                ClassOrNamespace *b = context.lookupType(function);
+                ClassOrNamespace *b = context().lookupType(function);
                 if (b) {
                     // Do we have a tr method?
                     foreach(const LookupItem &r, b->find(trName)) {
@@ -1388,14 +1387,12 @@ public:
     {
         if (ast && isCursorOn(ast)) {
             if (const Name *name = ast->name) {
-                context = LookupContext(document(), snapshot());
-
                 unsigned line, column;
                 document()->translationUnit()->getTokenStartPosition(ast->firstToken(), &line, &column);
 
                 fwdClass = 0;
 
-                foreach (const LookupItem &r, context.lookup(name, document()->scopeAt(line, column))) {
+                foreach (const LookupItem &r, context().lookup(name, document()->scopeAt(line, column))) {
                     if (! r.declaration())
                         continue;
                     else if (ForwardClassDeclaration *fwd = r.declaration()->asForwardClassDeclaration())
@@ -1488,7 +1485,6 @@ public:
     }
 
 private:
-    LookupContext context;
     Symbol *fwdClass;
 };
 
@@ -1513,7 +1509,7 @@ int CppQuickFixOperation::match(TextEditor::QuickFixState *state)
     _document = s->info.doc;
     if (_refactoringChanges)
         delete _refactoringChanges;
-    _refactoringChanges = new CppRefactoringChanges(s->snapshot);
+    _refactoringChanges = new CppRefactoringChanges(_document, s->snapshot);
     return match(s->path);
 }
 
@@ -1546,9 +1542,10 @@ Document::Ptr CppQuickFixOperation::document() const
 { return _document; }
 
 const Snapshot &CppQuickFixOperation::snapshot() const
-{
-    return _refactoringChanges->snapshot();
-}
+{ return _refactoringChanges->snapshot(); }
+
+const CPlusPlus::LookupContext &CppQuickFixOperation::context() const
+{ return _refactoringChanges->context(); }
 
 const CPlusPlus::Token &CppQuickFixOperation::tokenAt(unsigned index) const
 { return _document->translationUnit()->tokenAt(index); }

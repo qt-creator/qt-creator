@@ -29,24 +29,33 @@
 
 #include "cpprefactoringchanges.h"
 
-using namespace CPlusPlus;
-using namespace CppTools;
-using namespace TextEditor;
 using namespace CppEditor;
+using namespace CPlusPlus;
 
-CppRefactoringChanges::CppRefactoringChanges(const Snapshot &snapshot)
-    : m_snapshot(snapshot)
+CppRefactoringChanges::CppRefactoringChanges(const Document::Ptr &thisDocument, const Snapshot &snapshot)
+    : m_thisDocument(thisDocument)
+    , m_snapshot(snapshot)
+    , m_context(m_thisDocument, m_snapshot)
     , m_modelManager(CppTools::CppModelManagerInterface::instance())
 {
     Q_ASSERT(m_modelManager);
     m_workingCopy = m_modelManager->workingCopy();
 }
 
-const CPlusPlus::Snapshot &CppRefactoringChanges::snapshot() const
+Document::Ptr CppRefactoringChanges::thisDocument() const
+{
+    return m_thisDocument;
+}
+
+const Snapshot &CppRefactoringChanges::snapshot() const
 {
     return m_snapshot;
 }
 
+const LookupContext &CppRefactoringChanges::context() const
+{
+    return m_context;
+}
 
 QStringList CppRefactoringChanges::apply()
 {

@@ -31,6 +31,7 @@
 #define CPPREFACTORINGCHANGES_H
 
 #include <cplusplus/CppDocument.h>
+#include <cplusplus/LookupContext.h>
 
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <cppeditor/cppeditor_global.h>
@@ -42,15 +43,20 @@ namespace CppEditor {
 class CPPEDITOR_EXPORT CppRefactoringChanges: public TextEditor::RefactoringChanges
 {
 public:
-    CppRefactoringChanges(const CPlusPlus::Snapshot &snapshot);
+    CppRefactoringChanges(const CPlusPlus::Document::Ptr &thisDocument,
+                          const CPlusPlus::Snapshot &snapshot);
 
     virtual QStringList apply();
 
+    CPlusPlus::Document::Ptr thisDocument() const;
     const CPlusPlus::Snapshot &snapshot() const;
     CPlusPlus::Document::Ptr document(const QString &fileName) const;
+    const CPlusPlus::LookupContext &context() const;
 
 private:
+    CPlusPlus::Document::Ptr m_thisDocument;
     CPlusPlus::Snapshot m_snapshot;
+    CPlusPlus::LookupContext m_context;
     CppTools::CppModelManagerInterface *m_modelManager;
     CppTools::CppModelManagerInterface::WorkingCopy m_workingCopy;
 };
