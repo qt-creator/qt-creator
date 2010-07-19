@@ -826,8 +826,6 @@ void QmlJSTextEditor::onDocumentUpdated(QmlJS::Document::Ptr doc)
 
         const SemanticHighlighter::Source source = currentSource(/*force = */ true);
         m_semanticHighlighter->rehighlight(source);
-
-        m_updateOutlineTimer->start();
     } else {
         // show parsing errors
         QList<QTextEdit::ExtraSelection> selections;
@@ -860,18 +858,15 @@ void QmlJSTextEditor::jumpToOutlineElement(int /*index*/)
 
 void QmlJSTextEditor::updateOutlineNow()
 {
-    const Snapshot snapshot = m_modelManager->snapshot();
-    Document::Ptr document = snapshot.document(file()->fileName());
-
-    if (!document)
+    if (!m_semanticInfo.document)
         return;
 
-    if (document->editorRevision() != editorRevision()) {
+    if (m_semanticInfo.document->editorRevision() != editorRevision()) {
         m_updateOutlineTimer->start();
         return;
     }
 
-    m_outlineModel->update(document, snapshot);
+    m_outlineModel->update(m_semanticInfo);
 
     QTreeView *treeView = static_cast<QTreeView*>(m_outlineCombo->view());
     treeView->expandAll();
@@ -1589,6 +1584,9 @@ void QmlJSTextEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
             }
         }
     }
+
+    // update outline
+    m_updateOutlineTimer->start();
 
     // update warning/error extra selections
     QList<QTextEdit::ExtraSelection> selections;
