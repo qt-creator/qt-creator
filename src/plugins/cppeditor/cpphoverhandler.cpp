@@ -289,14 +289,8 @@ void CppHoverHandler::handleLookupItemMatch(const LookupItem &lookupItem, const 
         if (matchingDeclaration->enclosingSymbol()->isClass() ||
             matchingDeclaration->enclosingSymbol()->isNamespace() ||
             matchingDeclaration->enclosingSymbol()->isEnum()) {
-            const QList<const Name *> &names =
-                LookupContext::fullyQualifiedName(matchingDeclaration);
-            const int size = names.size();
-            for (int i = 0; i < size; ++i) {
-                qualifiedName.append(overview.prettyName(names.at(i)));
-                if (i < size - 1)
-                    qualifiedName.append(QLatin1String("::"));
-            }
+            qualifiedName.append(overview.prettyName(
+                    LookupContext::fullyQualifiedName(matchingDeclaration)));
         } else {
             qualifiedName.append(overview.prettyName(matchingDeclaration->name()));
         }

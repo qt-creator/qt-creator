@@ -1257,11 +1257,13 @@ public:
                     Overview prettyPrint;
                     for (unsigned i = 0; i < e->memberCount(); ++i) {
                         if (Declaration *decl = e->memberAt(i)->asDeclaration()) {
-                            values << prettyPrint(decl->name());
+                            values << prettyPrint(LookupContext::fullyQualifiedName(decl));
                         }
                     }
                     // Get the used values
-                    CaseStatementCollector caseValues(document()->translationUnit());
+                    Block *block = switchStatement->symbol;
+                    CaseStatementCollector caseValues(document(), snapshot(),
+                        document()->scopeAt(block->line(), block->column()));
                     QStringList usedValues = caseValues(switchStatement);
                     // save the values that would be added
                     foreach (const QString &usedValue, usedValues)
@@ -1318,7 +1320,15 @@ protected:
     class CaseStatementCollector : public ASTVisitor
     {
     public:
-        CaseStatementCollector(TranslationUnit *unit) : ASTVisitor(unit) {}
+        CaseStatementCollector(Document::Ptr document, const Snapshot &snapshot,
+                               Scope *scope)
+            : ASTVisitor(document->translationUnit()),
+            document(document),
+            scope(scope)
+        {
+            typeOfExpression.init(document, snapshot);
+        }
+
         QStringList operator ()(AST *ast)
         {
             values.clear();
@@ -1330,9 +1340,14 @@ protected:
         bool preVisit(AST *ast) {
             if (CaseStatementAST *cs = ast->asCaseStatement()) {
                 foundCaseStatementLevel = true;
-                if (SimpleNameAST *sm = cs->expression->asSimpleName()) {
-                    Overview prettyPrint;
-                    values << prettyPrint(sm->name);
+                ExpressionAST *expression = cs->expression->asSimpleName();
+                if (!expression)
+                    expression = cs->expression->asQualifiedName();
+                if (expression) {
+                    LookupItem item = typeOfExpression(expression,
+                                                       document,
+                                                       scope).first();
+                    values << prettyPrint(LookupContext::fullyQualifiedName(item.declaration()));
                 }
                 return true;
             } else if (foundCaseStatementLevel) {
@@ -1341,8 +1356,12 @@ protected:
             return true;
         }
 
+        Overview prettyPrint;
         bool foundCaseStatementLevel;
         QStringList values;
+        TypeOfExpression typeOfExpression;
+        Document::Ptr document;
+        Scope *scope;
     };
 
 protected:

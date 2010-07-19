@@ -137,6 +137,18 @@ QString Overview::prettyName(const Name *name) const
     return pp(name);
 }
 
+QString Overview::prettyName(const QList<const Name *> &fullyQualifiedName) const
+{
+    QString result;
+    const int size = fullyQualifiedName.size();
+    for (int i = 0; i < size; ++i) {
+        result.append(prettyName(fullyQualifiedName.at(i)));
+        if (i < size - 1)
+            result.append(QLatin1String("::"));
+    }
+    return result;
+}
+
 QString Overview::prettyType(const FullySpecifiedType &ty, const Name *name) const
 {
     return prettyType(ty, prettyName(name));

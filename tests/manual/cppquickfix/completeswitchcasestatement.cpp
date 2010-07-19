@@ -1,3 +1,17 @@
+namespace Foo {
+enum Orientation {
+    Vertical,
+    Horizontal
+};
+}
+
+class Bar {
+    enum AnEnum {
+        AValue,
+        AnotherValue
+    };
+};
+
 enum Types {
     TypeA,
     TypeC,
@@ -5,6 +19,8 @@ enum Types {
     TypeD,
     TypeE = TypeD
 };
+
+using namespace Foo;
 
 int main()
 {
@@ -42,6 +58,20 @@ int main()
     // Resolve type for expressions as switch condition
     switch (b ? t : t2) {
     case TypeA:;
+    }
+
+    // Namespaces
+    Foo::Orientation o;
+    switch (o) {
+    case Vertical:
+        break;
+    }
+
+    // Class members
+    Bar::AnEnum a;
+    switch (a) {
+    case Bar::AnotherValue:
+        break;
     }
 
     // Not a named type
