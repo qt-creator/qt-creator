@@ -658,7 +658,7 @@ bool CppCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
         QChar characterUnderCursor = editor->characterAt(pos);
         if (!characterUnderCursor.isLetterOrNumber()) {
             const int startOfName = findStartOfName(pos);
-            if (pos - startOfName == 3) {
+            if (pos - startOfName >= 3) {
                 const QChar firstCharacter = editor->characterAt(startOfName);
                 if (firstCharacter.isLetter() || firstCharacter == QLatin1Char('_')) {
                     // Finally check that we're not inside a comment or string (code copied from startOfOperator)
@@ -1724,6 +1724,11 @@ void CppCodeCompletion::completions(QList<TextEditor::CompletionItem> *completio
                 }
             }
         }
+    }
+
+    if (completions->size() == 1) {
+        if (key == completions->first().text)
+            completions->clear();
     }
 }
 

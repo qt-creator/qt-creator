@@ -61,6 +61,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QTimer>
 #include <QtCore/QTimeLine>
+#include <QtCore/QTime>
 #include <QtGui/QAbstractTextDocumentLayout>
 #include <QtGui/QApplication>
 #include <QtGui/QKeyEvent>
@@ -239,6 +240,11 @@ BaseTextEditor::BaseTextEditor(QWidget *parent)
     d->m_highlightBlocksTimer = new QTimer(this);
     d->m_highlightBlocksTimer->setSingleShot(true);
     connect(d->m_highlightBlocksTimer, SIGNAL(timeout()), this, SLOT(_q_highlightBlocks()));
+
+    d->m_requestAutoCompletionTimer = new QTimer(this);
+    d->m_requestAutoCompletionTimer->setSingleShot(true);
+    d->m_requestAutoCompletionTimer->setInterval(500);
+    connect(d->m_requestAutoCompletionTimer, SIGNAL(timeout()), this, SLOT(_q_requestAutoCompletion()));
 
     d->m_animator = 0;
 
@@ -1380,16 +1386,36 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         setTextCursor(cursor);
     }
 
-skip_event:
+    skip_event:
     if (!ro && e->key() == Qt::Key_Delete && d->m_parenthesesMatchingEnabled)
         d->m_parenthesesMatchingTimer->start(50);
 
 
-    if (!ro && d->m_contentsChanged && !e->text().isEmpty() && e->text().at(0).isPrint())
-        emit requestAutoCompletion(editableInterface(), false);
+    if (!ro && d->m_contentsChanged && !e->text().isEmpty() && e->text().at(0).isPrint()) {
+        maybeRequestAutoCompletion(e->text().at(0));
+    }
 
     if (e != original_e)
         delete e;
+}
+
+void BaseTextEditor::maybeRequestAutoCompletion(const QChar &ch)
+{
+    if (ch.isLetterOrNumber() || ch == QLatin1Char('_')) {
+        d->m_requestAutoCompletionRevision = document()->revision();
+        d->m_requestAutoCompletionTimer->start();
+    } else {
+        d->m_requestAutoCompletionTimer->stop();
+        emit requestAutoCompletion(editableInterface(), false);
+    }
+}
+
+void BaseTextEditor::_q_requestAutoCompletion()
+{
+    d->m_requestAutoCompletionTimer->stop();
+
+    if (d->m_requestAutoCompletionRevision == document()->revision())
+        emit requestAutoCompletion(editableInterface(), false);
 }
 
 void BaseTextEditor::insertCodeSnippet(const QTextCursor &cursor_arg, const QString &snippet)
@@ -1908,6 +1934,8 @@ BaseTextEditorPrivate::BaseTextEditorPrivate()
     m_moveLineUndoHack(false),
     m_findScopeVerticalBlockSelection(0),
     m_highlightBlocksTimer(0),
+    m_requestAutoCompletionRevision(0),
+    m_requestAutoCompletionTimer(0),
     m_cursorBlockNumber(-1),
     m_inKeyPressEvent(false)
 {

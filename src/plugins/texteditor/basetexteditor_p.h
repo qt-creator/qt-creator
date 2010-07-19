@@ -263,6 +263,9 @@ public:
     BaseTextEditorPrivateHighlightBlocks m_highlightBlocksInfo;
     QTimer *m_highlightBlocksTimer;
 
+    int m_requestAutoCompletionRevision;
+    QTimer *m_requestAutoCompletionTimer;
+
     QPointer<BaseTextEditorAnimator> m_animator;
     int m_cursorBlockNumber;
 

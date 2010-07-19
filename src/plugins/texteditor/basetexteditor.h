@@ -496,6 +496,7 @@ signals:
     void requestQuickFix(TextEditor::ITextEditable *editor);
 
 private:
+    void maybeRequestAutoCompletion(const QChar &ch);
     void indentOrUnindent(bool doIndent);
     void handleHomeKey(bool anchor);
     void handleBackspaceKey();
@@ -527,13 +528,17 @@ private:
 
     void universalHelper(); // test function for development
 
-    // parentheses matcher
 private slots:
+    // auto completion
+    void _q_requestAutoCompletion();
+
+    // parentheses matcher
     void _q_matchParentheses();
     void _q_highlightBlocks();
     void slotSelectionChanged();
     void _q_animateUpdate(int position, QPointF lastPos, QRectF rect);
     void doFoo();
+
 };
 
 
