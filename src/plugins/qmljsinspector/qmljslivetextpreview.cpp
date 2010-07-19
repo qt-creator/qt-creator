@@ -173,22 +173,47 @@ void QmlJSLiveTextPreview::changeSelectedElements(QList<int> offsets, const QStr
         emit selectedItemsChanged(selectedReferences);
 }
 
+static QList<QDeclarativeDebugObjectReference> findRootObjectRecursive(const QDeclarativeDebugObjectReference &object, const Document::Ptr &doc)
+{
+    QList<QDeclarativeDebugObjectReference> result;
+    if (object.className() == doc->componentName())
+        result += object;
+
+    foreach (const QDeclarativeDebugObjectReference &it, object.children()) {
+        result += findRootObjectRecursive(it, doc);
+    }
+    return result;
+}
+
 void QmlJSLiveTextPreview::updateDebugIds(const QDeclarativeDebugObjectReference &rootReference)
 {
-    QmlJS::Document::Ptr doc = m_initialDoc;
+    if (!m_initialDoc->qmlProgram())
+        return;
 
+    { // Map all the object that comes from the document as it has been loaded by the server.
+        const QmlJS::Document::Ptr &doc = m_initialDoc;
+        MapObjectWithDebugReference visitor;
+        visitor.root = rootReference;
+        visitor.filename = doc->fileName();
+        doc->qmlProgram()->accept(&visitor);
+
+        m_debugIds = visitor.result;
+        Delta delta;
+        delta.doNotSendChanges = true;
+        m_debugIds = delta(doc, m_previousDoc, m_debugIds);
+    }
+
+    const QmlJS::Document::Ptr &doc = m_previousDoc;
     if (!doc->qmlProgram())
         return;
 
-    MapObjectWithDebugReference visitor;
-    visitor.root = rootReference;
-    visitor.filename = doc->fileName();
-    doc->qmlProgram()->accept(&visitor);
-
-    m_debugIds = visitor.result;
-    Delta delta;
-    delta.doNotSendChanges = true;
-    m_debugIds = delta(doc, m_previousDoc, m_debugIds);
+    // Map the root nodes of the document.
+    if(doc->qmlProgram()->members &&  doc->qmlProgram()->members->member) {
+        UiObjectMember* root = doc->qmlProgram()->members->member;
+        QList< QDeclarativeDebugObjectReference > r = findRootObjectRecursive(rootReference, doc);
+        if (!r.isEmpty())
+            m_debugIds[root] += r;
+    }
 }
 
 void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
