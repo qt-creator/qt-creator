@@ -439,7 +439,7 @@ CppCodeCompletion::CppCodeCompletion(CppModelManager *manager)
       m_editor(0),
       m_startPosition(-1),
       m_shouldRestartCompletion(false),
-      m_forcedCompletion(false),
+      m_automaticCompletion(false),
       m_completionOperator(T_EOF_SYMBOL),
       m_objcEnabled(true)
 {
@@ -639,19 +639,17 @@ bool CppCodeCompletion::shouldRestartCompletion()
 bool CppCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
 {
     m_editor = editor;
+    m_automaticCompletion = false;
 
     const int pos = editor->position();
     unsigned token = T_EOF_SYMBOL;
 
     if (startOfOperator(editor, pos, &token, /*want function call=*/ true) != pos) {
         if (token == T_POUND) {
-            if (TextEditor::BaseTextEditor *edit = qobject_cast<TextEditor::BaseTextEditor *>(editor->widget())) {
-                QTextCursor tc(edit->document());
-                tc.setPosition(pos);
-                return tc.positionInBlock() == 1;
-            }
-
-            return false;
+            int line, column;
+            editor->convertPosition(pos, &line, &column);
+            if (column != 1)
+                return false;
         }
 
         return true;
@@ -676,8 +674,10 @@ bool CppCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
                     const int tokenIdx = SimpleLexer::tokenBefore(tokens, qMax(0, tc.positionInBlock() - 1));
                     const Token tk = (tokenIdx == -1) ? Token() : tokens.at(tokenIdx);
 
-                    if (!tk.isComment() && !tk.isLiteral())
+                    if (!tk.isComment() && !tk.isLiteral()) {
+                        m_automaticCompletion = true;
                         return true;
+                    }
                 }
             }
         }
@@ -1759,6 +1759,9 @@ QList<TextEditor::CompletionItem> CppCodeCompletion::getCompletions()
 
 bool CppCodeCompletion::typedCharCompletes(const TextEditor::CompletionItem &item, QChar typedChar)
 {
+    if (m_automaticCompletion)
+        return false;
+
     if (item.data.canConvert<QString>()) // snippet
         return false;
 
@@ -1948,6 +1951,7 @@ bool CppCodeCompletion::partiallyComplete(const QList<TextEditor::CompletionItem
 
 void CppCodeCompletion::cleanup()
 {
+    m_automaticCompletion = false;
     m_completions.clear();
 
     // Set empty map in order to avoid referencing old versions of the documents

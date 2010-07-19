@@ -147,7 +147,7 @@ private:
     int m_startPosition;     // Position of the cursor from which completion started
     bool m_shouldRestartCompletion;
 
-    bool m_forcedCompletion;
+    bool m_automaticCompletion;
     unsigned m_completionOperator;
     bool m_objcEnabled;
 
