@@ -62,11 +62,6 @@ QString FindInCurrentFile::displayName() const
     return tr("Current File");
 }
 
-QKeySequence FindInCurrentFile::defaultShortcut() const
-{
-    return QKeySequence();
-}
-
 Utils::FileIterator *FindInCurrentFile::files()
 {
     QStringList fileList;

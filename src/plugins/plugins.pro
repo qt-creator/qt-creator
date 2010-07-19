@@ -128,6 +128,7 @@ plugin_cpptools.subdir = cpptools
 plugin_cpptools.depends = plugin_projectexplorer
 plugin_cpptools.depends += plugin_coreplugin
 plugin_cpptools.depends += plugin_texteditor
+plugin_cpptools.depends += plugin_find
 
 plugin_bookmarks.subdir = bookmarks
 plugin_bookmarks.depends = plugin_projectexplorer

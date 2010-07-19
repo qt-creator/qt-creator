@@ -32,9 +32,11 @@
 
 #include "find_global.h"
 
-#include <QtCore/QVariant>
-
 #include <coreplugin/ioutputpane.h>
+
+#include <QtCore/QVariant>
+#include <QtCore/QStringList>
+#include <QtGui/QIcon>
 
 QT_BEGIN_NAMESPACE
 class QFont;
@@ -49,14 +51,34 @@ class SearchResultWindow;
 
 struct FIND_EXPORT SearchResultItem
 {
-    QString fileName;
-    int lineNumber;
-    QString lineText;
-    int searchTermStart;
-    int searchTermLength;
-    int index; // SearchResultWindow sets the index
-    QVariant userData;
-    // whatever information we also need here
+    SearchResultItem()
+        : textMarkPos(-1),
+        textMarkLength(0),
+        lineNumber(-1),
+        useTextEditorFont(false)
+    {
+    }
+
+    SearchResultItem(const SearchResultItem &other)
+        : path(other.path),
+        text(other.text),
+        textMarkPos(other.textMarkPos),
+        textMarkLength(other.textMarkLength),
+        icon(other.icon),
+        lineNumber(other.lineNumber),
+        useTextEditorFont(other.useTextEditorFont),
+        userData(other.userData)
+    {
+    }
+
+    QStringList path; // hierarchy to the parent item of this item
+    QString text; // text to show for the item itself
+    int textMarkPos; // 0-based starting position for a mark (-1 for no mark)
+    int textMarkLength; // length of the mark (0 for no mark)
+    QIcon icon; // icon to show in front of the item (by be null icon to hide)
+    int lineNumber; // (0 or -1 for no line number)
+    bool useTextEditorFont;
+    QVariant userData; // user data for identification of the item
 };
 
 class FIND_EXPORT SearchResult : public QObject
@@ -78,6 +100,11 @@ public:
     enum SearchMode {
         SearchOnly,
         SearchAndReplace
+    };
+
+    enum AddMode {
+        AddSorted,
+        AddOrdered
     };
 
     SearchResultWindow();
@@ -110,7 +137,7 @@ public:
     // search result object only lives till next startnewsearch call
     SearchResult *startNewSearch(SearchMode searchOrSearchAndReplace = SearchOnly);
 
-    void addResults(QList<SearchResultItem> &items);
+    void addResults(QList<SearchResultItem> &items, AddMode mode);
 public slots:
     void clearContents();
     void addResult(const QString &fileName, int lineNumber, const QString &lineText,
@@ -119,7 +146,7 @@ public slots:
 
 private slots:
     void handleExpandCollapseToolButton(bool checked);
-    void handleJumpToSearchResult(int index, bool checked);
+    void handleJumpToSearchResult(const SearchResultItem &item);
     void handleReplaceButton();
     void showNoMatchesFound();
 
@@ -134,5 +161,7 @@ private:
 };
 
 } // namespace Find
+
+Q_DECLARE_METATYPE(Find::SearchResultItem)
 
 #endif // SEARCHRESULTWINDOW_H

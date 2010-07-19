@@ -34,10 +34,6 @@
 
 #include <locator/ilocatorfilter.h>
 
-namespace Core {
-class EditorManager;
-}
-
 namespace CppTools {
 namespace Internal {
 
@@ -47,7 +43,7 @@ class CppLocatorFilter : public Locator::ILocatorFilter
 {
     Q_OBJECT
 public:
-    CppLocatorFilter(CppModelManager *manager, Core::EditorManager *editorManager);
+    CppLocatorFilter(CppModelManager *manager);
     ~CppLocatorFilter();
 
     QString displayName() const { return tr("Classes and Methods"); }
@@ -66,7 +62,6 @@ private slots:
 
 private:
     CppModelManager *m_manager;
-    Core::EditorManager *m_editorManager;
 
     struct Info {
         Info(): dirty(true) {}

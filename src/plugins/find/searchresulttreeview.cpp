@@ -46,6 +46,7 @@ SearchResultTreeView::SearchResultTreeView(QWidget *parent)
     setItemDelegate(new SearchResultTreeItemDelegate(this));
     setIndentation(14);
     setUniformRowHeights(true);
+    setExpandsOnDoubleClick(false);
     header()->hide();
 
     connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(emitJumpToSearchResult(QModelIndex)));
@@ -66,24 +67,20 @@ void SearchResultTreeView::clear()
     m_model->clear();
 }
 
-void SearchResultTreeView::appendResultLines(const QList<Find::SearchResultItem> &items)
+void SearchResultTreeView::addResults(const QList<Find::SearchResultItem> &items, SearchResultWindow::AddMode mode)
 {
-    const QList<int> &insertedFileIndices = m_model->addResultLines(items);
-    if (m_autoExpandResults && !insertedFileIndices.isEmpty()) {
-        foreach (int index, insertedFileIndices)
-            setExpanded(model()->index(index, 0), true);
+    QList<QModelIndex> addedParents = m_model->addResults(items, mode);
+    if (m_autoExpandResults && !addedParents.isEmpty()) {
+        foreach (const QModelIndex &index, addedParents)
+            setExpanded(index, true);
     }
 }
 
 void SearchResultTreeView::emitJumpToSearchResult(const QModelIndex &index)
 {
-    if (model()->data(index, ItemDataRoles::TypeRole).toString().compare(QLatin1String("row")) != 0)
-        return;
+    SearchResultItem item = model()->data(index, ItemDataRoles::ResultItemRole).value<SearchResultItem>();
 
-    int position = model()->data(index, ItemDataRoles::ResultIndexRole).toInt();
-    int checked = model()->data(index, Qt::CheckStateRole).toBool();
-
-    emit jumpToSearchResult(position, checked);
+    emit jumpToSearchResult(item);
 }
 
 void SearchResultTreeView::keyPressEvent(QKeyEvent *e)

@@ -31,8 +31,8 @@
 
 using namespace CppTools::Internal;
 
-CppClassesFilter::CppClassesFilter(CppModelManager *manager, Core::EditorManager *editorManager)
-    : CppLocatorFilter(manager, editorManager)
+CppClassesFilter::CppClassesFilter(CppModelManager *manager)
+    : CppLocatorFilter(manager)
 {
     setShortcutString("c");
     setIncludedByDefault(false);

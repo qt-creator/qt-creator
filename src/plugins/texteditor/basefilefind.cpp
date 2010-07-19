@@ -153,15 +153,16 @@ void BaseFileFind::displayResult(int index) {
     QList<Find::SearchResultItem> items; // this conversion is stupid...
     foreach (const Utils::FileSearchResult &result, results) {
         Find::SearchResultItem item;
-        item.fileName = result.fileName;
+        item.path = QStringList() << QDir::toNativeSeparators(result.fileName);
         item.lineNumber = result.lineNumber;
-        item.lineText = result.matchingLine;
-        item.searchTermLength = result.matchLength;
-        item.searchTermStart = result.matchStart;
+        item.text = result.matchingLine;
+        item.textMarkLength = result.matchLength;
+        item.textMarkPos = result.matchStart;
+        item.useTextEditorFont = true;
         item.userData = result.regexpCapturedTexts;
         items << item;
     }
-    m_resultWindow->addResults(items);
+    m_resultWindow->addResults(items, Find::SearchResultWindow::AddOrdered);
     if (m_resultLabel)
         m_resultLabel->setText(tr("%1 found").arg(m_resultWindow->numberOfResults()));
 }
@@ -250,7 +251,11 @@ void BaseFileFind::updateComboEntries(QComboBox *combo, bool onTop)
 
 void BaseFileFind::openEditor(const Find::SearchResultItem &item)
 {
-    TextEditor::BaseTextEditor::openEditorAt(item.fileName, item.lineNumber, item.searchTermStart);
+    if (item.path.size() > 0) {
+        TextEditor::BaseTextEditor::openEditorAt(item.path.first(), item.lineNumber, item.textMarkPos);
+    } else {
+        Core::EditorManager::instance()->openEditor(item.text);
+    }
 }
 
 // #pragma mark Static methods
@@ -263,7 +268,7 @@ static void applyChanges(QTextDocument *doc, const QString &text, const QList<Fi
         const int blockNumber = item.lineNumber - 1;
         QTextCursor tc(doc->findBlockByNumber(blockNumber));
 
-        const int cursorPosition = tc.position() + item.searchTermStart;
+        const int cursorPosition = tc.position() + item.textMarkPos;
 
         int cursorIndex = 0;
         for (; cursorIndex < changes.size(); ++cursorIndex) {
@@ -277,7 +282,7 @@ static void applyChanges(QTextDocument *doc, const QString &text, const QList<Fi
             continue; // skip this change.
 
         tc.setPosition(cursorPosition);
-        tc.setPosition(tc.position() + item.searchTermLength,
+        tc.setPosition(tc.position() + item.textMarkLength,
                        QTextCursor::KeepAnchor);
         QString substitutionText;
         if (item.userData.canConvert<QStringList>() && !item.userData.toStringList().isEmpty())
@@ -302,7 +307,7 @@ QStringList BaseFileFind::replaceAll(const QString &text,
     QHash<QString, QList<Find::SearchResultItem> > changes;
 
     foreach (const Find::SearchResultItem &item, items)
-        changes[item.fileName].append(item);
+        changes[item.path.first()].append(item);
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
 

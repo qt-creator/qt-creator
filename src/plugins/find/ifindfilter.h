@@ -34,9 +34,9 @@
 #include "textfindconstants.h"
 
 #include <QtGui/QTextDocument>
+#include <QtGui/QKeySequence>
 
 QT_BEGIN_NAMESPACE
-class QKeySequence;
 class QWidget;
 class QSettings;
 QT_END_NAMESPACE
@@ -53,7 +53,7 @@ public:
     virtual QString id() const = 0;
     virtual QString displayName() const = 0;
     virtual bool isEnabled() const = 0;
-    virtual QKeySequence defaultShortcut() const = 0;
+    virtual QKeySequence defaultShortcut() const { return QKeySequence(); }
     virtual bool isReplaceSupported() const { return false; }
     virtual FindFlags supportedFindFlags() const;
 

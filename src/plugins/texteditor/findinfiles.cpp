@@ -57,11 +57,6 @@ QString FindInFiles::displayName() const
     return tr("Files on File System");
 }
 
-QKeySequence FindInFiles::defaultShortcut() const
-{
-    return QKeySequence();
-}
-
 void FindInFiles::findAll(const QString &txt, Find::FindFlags findFlags)
 {
     updateComboEntries(m_directory, true);

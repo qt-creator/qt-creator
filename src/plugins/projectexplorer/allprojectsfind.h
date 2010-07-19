@@ -54,7 +54,6 @@ public:
     QString displayName() const;
 
     bool isEnabled() const;
-    QKeySequence defaultShortcut() const;
 
     QWidget *createConfigWidget();
     void writeSettings(QSettings *settings);

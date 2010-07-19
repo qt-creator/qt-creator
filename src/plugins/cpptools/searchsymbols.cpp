@@ -32,9 +32,16 @@
 #include <Literals.h>
 #include <Scope.h>
 #include <Names.h>
+#include <cplusplus/LookupContext.h>
 
 using namespace CPlusPlus;
 using namespace CppTools::Internal;
+
+SearchSymbols::SymbolTypes SearchSymbols::AllTypes =
+        SearchSymbols::Classes
+        | SearchSymbols::Functions
+        | SearchSymbols::Enums
+        | SearchSymbols::Declarations;
 
 SearchSymbols::SearchSymbols():
     symbolsToSearchFor(Classes | Functions | Enums),
@@ -204,13 +211,17 @@ QString SearchSymbols::symbolName(const Symbol *symbol) const
 void SearchSymbols::appendItem(const QString &name,
                                const QString &info,
                                ModelItemInfo::ItemType type,
-                               const Symbol *symbol)
+                               Symbol *symbol)
 {
     if (!symbol->name())
         return;
 
+    QStringList fullyQualifiedName;
+    foreach (const Name *name, LookupContext::fullyQualifiedName(symbol))
+        fullyQualifiedName.append(overview.prettyName(name));
     const QIcon icon = icons.iconForSymbol(symbol);
     items.append(ModelItemInfo(name, info, type,
+                               fullyQualifiedName,
                                QString::fromUtf8(symbol->fileName(), symbol->fileNameLength()),
                                symbol->line(),
                                symbol->column() - 1, // 1-based vs 0-based column

@@ -52,12 +52,14 @@ struct ModelItemInfo
 
     ModelItemInfo()
         : type(Declaration),
-          line(0)
+          line(0),
+          column(0)
     { }
 
     ModelItemInfo(const QString &symbolName,
                   const QString &symbolType,
                   ItemType type,
+                  QStringList fullyQualifiedName,
                   const QString &fileName,
                   int line,
                   int column,
@@ -65,15 +67,28 @@ struct ModelItemInfo
         : symbolName(symbolName),
           symbolType(symbolType),
           type(type),
+          fullyQualifiedName(fullyQualifiedName),
           fileName(fileName),
           line(line),
           column(column),
           icon(icon)
     { }
 
+    ModelItemInfo(const ModelItemInfo &otherInfo)
+        : symbolName(otherInfo.symbolName),
+          symbolType(otherInfo.symbolType),
+          type(otherInfo.type),
+          fullyQualifiedName(otherInfo.fullyQualifiedName),
+          fileName(otherInfo.fileName),
+          line(otherInfo.line),
+          column(otherInfo.column),
+          icon(otherInfo.icon)
+    {  }
+
     QString symbolName;
     QString symbolType;
     ItemType type;
+    QStringList fullyQualifiedName;
     QString fileName;
     int line;
     int column;
@@ -90,7 +105,10 @@ public:
         Enums        = 0x4,
         Declarations = 0x8
     };
+
     Q_DECLARE_FLAGS(SymbolTypes, SymbolType)
+
+    static SymbolTypes AllTypes;
 
     SearchSymbols();
 
@@ -121,7 +139,7 @@ protected:
     void appendItem(const QString &name,
                     const QString &info,
                     ModelItemInfo::ItemType type,
-                    const CPlusPlus::Symbol *symbol);
+                    CPlusPlus::Symbol *symbol);
 
 private:
     QString findOrInsert(const QString &s)

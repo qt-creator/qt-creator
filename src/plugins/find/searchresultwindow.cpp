@@ -45,6 +45,7 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QSettings>
 #include <QtCore/QDebug>
+#include <QtCore/QDir>
 #include <QtGui/QListWidget>
 #include <QtGui/QToolButton>
 #include <QtGui/QLineEdit>
@@ -55,7 +56,6 @@
 
 static const char SETTINGSKEYSECTIONNAME[] = "SearchResults";
 static const char SETTINGSKEYEXPANDRESULTS[] = "ExpandResults";
-
 
 namespace Find {
 
@@ -204,13 +204,14 @@ namespace Internal {
         static const bool m_initiallyExpand = false;
         QStackedWidget *m_widget;
         SearchResult *m_currentSearch;
-        QList<SearchResultItem> m_items;
+        int m_itemCount;
         bool m_isShowingReplaceUI;
         bool m_focusReplaceEdit;
     };
 
     SearchResultWindowPrivate::SearchResultWindowPrivate()
         : m_currentSearch(0),
+        m_itemCount(0),
         m_isShowingReplaceUI(false),
         m_focusReplaceEdit(false)
     {
@@ -338,8 +339,8 @@ SearchResultWindow::SearchResultWindow() : d(new SearchResultWindowPrivate)
     d->m_replaceButton->setAutoRaise(true);
     d->m_replaceTextEdit->setTabOrder(d->m_replaceTextEdit, d->m_searchResultTreeView);
 
-    connect(d->m_searchResultTreeView, SIGNAL(jumpToSearchResult(int,bool)),
-            this, SLOT(handleJumpToSearchResult(int,bool)));
+    connect(d->m_searchResultTreeView, SIGNAL(jumpToSearchResult(SearchResultItem)),
+            this, SLOT(handleJumpToSearchResult(SearchResultItem)));
     connect(d->m_expandCollapseAction, SIGNAL(toggled(bool)), this, SLOT(handleExpandCollapseToolButton(bool)));
     connect(d->m_replaceTextEdit, SIGNAL(returnPressed()), this, SLOT(handleReplaceButton()));
     connect(d->m_replaceButton, SIGNAL(clicked()), this, SLOT(handleReplaceButton()));
@@ -359,7 +360,7 @@ SearchResultWindow::~SearchResultWindow()
     d->m_currentSearch = 0;
     delete d->m_widget;
     d->m_widget = 0;
-    d->m_items.clear();
+    d->m_itemCount = 0;
     delete d;
 }
 
@@ -428,13 +429,13 @@ QList<SearchResultItem> SearchResultWindow::checkedItems() const
     const int fileCount = model->rowCount(QModelIndex());
     for (int i = 0; i < fileCount; ++i) {
         QModelIndex fileIndex = model->index(i, 0, QModelIndex());
-        Internal::SearchResultFile *fileItem = static_cast<Internal::SearchResultFile *>(fileIndex.internalPointer());
+        Internal::SearchResultTreeItem *fileItem = static_cast<Internal::SearchResultTreeItem *>(fileIndex.internalPointer());
         Q_ASSERT(fileItem != 0);
         for (int rowIndex = 0; rowIndex < fileItem->childrenCount(); ++rowIndex) {
             QModelIndex textIndex = model->index(rowIndex, 0, fileIndex);
-            Internal::SearchResultTextRow *rowItem = static_cast<Internal::SearchResultTextRow *>(textIndex.internalPointer());
+            Internal::SearchResultTreeItem *rowItem = static_cast<Internal::SearchResultTreeItem *>(textIndex.internalPointer());
             if (rowItem->checkState())
-                result << d->m_items.at(rowItem->index());
+                result << rowItem->item;
         }
     }
     return result;
@@ -492,7 +493,7 @@ SearchResult *SearchResultWindow::startNewSearch(SearchMode searchOrSearchAndRep
 */
 void SearchResultWindow::finishSearch()
 {
-    if (d->m_items.count()) {
+    if (d->m_itemCount > 0) {
         d->m_replaceButton->setEnabled(true);
     } else {
         showNoMatchesFound();
@@ -509,7 +510,7 @@ void SearchResultWindow::clearContents()
     d->m_replaceButton->setEnabled(false);
     d->m_replaceTextEdit->clear();
     d->m_searchResultTreeView->clear();
-    d->m_items.clear();
+    d->m_itemCount = 0;
     d->m_widget->setCurrentWidget(d->m_searchResultTreeView);
     navigateStateChanged();
 }
@@ -541,7 +542,7 @@ bool SearchResultWindow::isEmpty() const
 */
 int SearchResultWindow::numberOfResults() const
 {
-    return d->m_items.count();
+    return d->m_itemCount;
 }
 
 /*!
@@ -559,7 +560,7 @@ bool SearchResultWindow::hasFocus()
 */
 bool SearchResultWindow::canFocus()
 {
-    return !d->m_items.isEmpty();
+    return d->m_itemCount > 0;
 }
 
 /*!
@@ -568,7 +569,7 @@ bool SearchResultWindow::canFocus()
 */
 void SearchResultWindow::setFocus()
 {
-    if (!d->m_items.isEmpty()) {
+    if (d->m_itemCount > 0) {
         if (!d->m_isShowingReplaceUI) {
             d->m_searchResultTreeView->setFocus();
         } else {
@@ -597,10 +598,10 @@ void SearchResultWindow::setTextEditorFont(const QFont &font)
     \fn void SearchResultWindow::handleJumpToSearchResult(int index, bool)
     \internal
 */
-void SearchResultWindow::handleJumpToSearchResult(int index, bool /* checked */)
+void SearchResultWindow::handleJumpToSearchResult(const SearchResultItem &item)
 {
     QTC_ASSERT(d->m_currentSearch, return);
-    d->m_currentSearch->activated(d->m_items.at(index));
+    d->m_currentSearch->activated(item);
 }
 
 /*!
@@ -619,13 +620,14 @@ void SearchResultWindow::addResult(const QString &fileName, int lineNumber, cons
     int searchTermStart, int searchTermLength, const QVariant &userData)
 {
     SearchResultItem item;
-    item.fileName = fileName;
+    item.path = QStringList() << QDir::toNativeSeparators(fileName);
     item.lineNumber = lineNumber;
-    item.lineText = rowText;
-    item.searchTermStart = searchTermStart;
-    item.searchTermLength = searchTermLength;
+    item.text = rowText;
+    item.textMarkPos = searchTermStart;
+    item.textMarkLength = searchTermLength;
+    item.useTextEditorFont = true;
     item.userData = userData;
-    addResults(QList<SearchResultItem>() << item);
+    addResults(QList<SearchResultItem>() << item, AddOrdered);
 }
 
 /*!
@@ -635,17 +637,11 @@ void SearchResultWindow::addResult(const QString &fileName, int lineNumber, cons
 
     \sa addResult()
 */
-void SearchResultWindow::addResults(QList<SearchResultItem> &items)
+void SearchResultWindow::addResults(QList<SearchResultItem> &items, AddMode mode)
 {
-    int index = d->m_items.size();
-    bool firstItems = (index == 0);
-    for (int i = 0; i < items.size(); ++i) {
-        items[i].index = index;
-        ++index;
-    }
-
-    d->m_items << items;
-    d->m_searchResultTreeView->appendResultLines(items);
+    bool firstItems = (d->m_itemCount == 0);
+    d->m_itemCount += items.size();
+    d->m_searchResultTreeView->addResults(items, mode);
     if (firstItems) {
         d->m_replaceTextEdit->setEnabled(true);
         // We didn't have an item before, set the focus to the search widget
@@ -713,7 +709,7 @@ int SearchResultWindow::priorityInStatusBar() const
 */
 bool SearchResultWindow::canNext()
 {
-    return d->m_items.count() > 0;
+    return d->m_itemCount > 0;
 }
 
 /*!
@@ -722,7 +718,7 @@ bool SearchResultWindow::canNext()
 */
 bool SearchResultWindow::canPrevious()
 {
-    return d->m_items.count() > 0;
+    return d->m_itemCount > 0;
 }
 
 /*!
@@ -731,7 +727,7 @@ bool SearchResultWindow::canPrevious()
 */
 void SearchResultWindow::goToNext()
 {
-    if (d->m_items.count() == 0)
+    if (d->m_itemCount == 0)
         return;
     QModelIndex idx = d->m_searchResultTreeView->model()->next(d->m_searchResultTreeView->currentIndex());
     if (idx.isValid()) {

@@ -313,7 +313,11 @@ void CppFindReferences::searchFinished()
 
 void CppFindReferences::openEditor(const Find::SearchResultItem &item)
 {
-    TextEditor::BaseTextEditor::openEditorAt(item.fileName, item.lineNumber, item.searchTermStart);
+    if (item.path.size() > 0) {
+        TextEditor::BaseTextEditor::openEditorAt(item.path.first(), item.lineNumber, item.textMarkPos);
+    } else {
+        Core::EditorManager::instance()->openEditor(item.text);
+    }
 }
 
 

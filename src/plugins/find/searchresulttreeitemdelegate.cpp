@@ -48,53 +48,77 @@ SearchResultTreeItemDelegate::SearchResultTreeItemDelegate(QObject *parent)
 
 void SearchResultTreeItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    if (index.model()->data(index, ItemDataRoles::TypeRole).toString().compare(QLatin1String("file")) == 0) {
-        QItemDelegate::paint(painter, option, index);
-    } else {
-        painter->save();
+    painter->save();
 
-        QStyleOptionViewItemV3 opt = setOptions(index, option);
-        painter->setFont(opt.font);
+    QStyleOptionViewItemV3 opt = setOptions(index, option);
+    painter->setFont(opt.font);
 
-        QItemDelegate::drawBackground(painter, opt, index);
+    QItemDelegate::drawBackground(painter, opt, index);
 
-        int lineNumberAreaWidth = drawLineNumber(painter, opt, index);
+    int iconAreaWidth = drawIcon(painter, opt, opt.rect, index);
+    QRect resultRowRect(opt.rect.adjusted(iconAreaWidth, 0, 0, 0));
 
-        QRect resultRowRect(opt.rect.adjusted(lineNumberAreaWidth, 0, 0, 0));
-        QString displayString = index.model()->data(index, Qt::DisplayRole).toString();
-        drawMarker(painter, index, displayString, resultRowRect);
+    int lineNumberAreaWidth = drawLineNumber(painter, opt, resultRowRect, index);
+    resultRowRect.adjust(lineNumberAreaWidth, 0, 0, 0);
 
-        // Draw the text and focus/selection
-        QItemDelegate::drawDisplay(painter, opt, resultRowRect, displayString);
-        QItemDelegate::drawFocus(painter, opt, opt.rect);
+    QString displayString = index.model()->data(index, Qt::DisplayRole).toString();
+    drawMarker(painter, index, displayString, resultRowRect);
 
-        QVariant value = index.data(Qt::CheckStateRole);
-        if (value.isValid()) {
-            Qt::CheckState checkState = Qt::Unchecked;
-            checkState = static_cast<Qt::CheckState>(value.toInt());
-            QRect checkRect = check(opt, opt.rect, value);
-
-            QRect emptyRect;
-            doLayout(opt, &checkRect, &emptyRect, &emptyRect, false);
-
-            QItemDelegate::drawCheck(painter, opt, checkRect, checkState);
-        }
-
-        painter->restore();
+    // Show number of subresults in displayString
+    if (index.model()->hasChildren(index)) {
+        displayString += QString::fromLatin1(" (")
+                         + QString::number(index.model()->rowCount(index))
+                         + QLatin1Char(')');
     }
+
+    // Draw the text and focus/selection
+    QItemDelegate::drawDisplay(painter, opt, resultRowRect, displayString);
+    QItemDelegate::drawFocus(painter, opt, opt.rect);
+
+    QVariant value = index.data(Qt::CheckStateRole);
+    if (value.isValid()) {
+        Qt::CheckState checkState = Qt::Unchecked;
+        checkState = static_cast<Qt::CheckState>(value.toInt());
+        QRect checkRect = check(opt, opt.rect, value);
+
+        QRect emptyRect;
+        doLayout(opt, &checkRect, &emptyRect, &emptyRect, false);
+
+        QItemDelegate::drawCheck(painter, opt, checkRect, checkState);
+    }
+
+    painter->restore();
+}
+
+int SearchResultTreeItemDelegate::drawIcon(QPainter *painter, const QStyleOptionViewItemV3 &option,
+                                                 const QRect &rect,
+                                                 const QModelIndex &index) const
+{
+    static const int iconWidth = 16;
+    static const int iconPadding = 4;
+    QIcon icon = index.model()->data(index, ItemDataRoles::ResultIconRole).value<QIcon>();
+    if (icon.isNull())
+        return 0;
+    QRect iconRect = rect.adjusted(iconPadding, 0, /*is set below anyhow*/0, 0);
+    iconRect.setWidth(iconWidth);
+    QItemDelegate::drawDecoration(painter, option, iconRect, icon.pixmap(iconWidth));
+    return iconWidth + iconPadding;
 }
 
 int SearchResultTreeItemDelegate::drawLineNumber(QPainter *painter, const QStyleOptionViewItemV3 &option,
+                                                 const QRect &rect,
                                                  const QModelIndex &index) const
 {
     static const int lineNumberAreaHorizontalPadding = 4;
-    const bool isSelected = option.state & QStyle::State_Selected;
     int lineNumber = index.model()->data(index, ItemDataRoles::ResultLineNumberRole).toInt();
+    if (lineNumber < 1)
+        return 0;
+    const bool isSelected = option.state & QStyle::State_Selected;
     int lineNumberDigits = (int)floor(log10((double)lineNumber)) + 1;
     int minimumLineNumberDigits = qMax((int)m_minimumLineNumberDigits, lineNumberDigits);
     int fontWidth = painter->fontMetrics().width(QString(minimumLineNumberDigits, QLatin1Char('0')));
     int lineNumberAreaWidth = lineNumberAreaHorizontalPadding + fontWidth + lineNumberAreaHorizontalPadding;
-    QRect lineNumberAreaRect(option.rect);
+    QRect lineNumberAreaRect(rect);
     lineNumberAreaRect.setWidth(lineNumberAreaWidth);
 
     QPalette::ColorGroup cg = QPalette::Normal;
@@ -123,10 +147,12 @@ int SearchResultTreeItemDelegate::drawLineNumber(QPainter *painter, const QStyle
 void SearchResultTreeItemDelegate::drawMarker(QPainter *painter, const QModelIndex &index, const QString text,
                                               const QRect &rect) const
 {
-    const int textMargin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
     int searchTermStart = index.model()->data(index, ItemDataRoles::SearchTermStartRole).toInt();
-    int searchTermStartPixels = painter->fontMetrics().width(text.left(searchTermStart));
     int searchTermLength = index.model()->data(index, ItemDataRoles::SearchTermLengthRole).toInt();
+    if (searchTermStart < 0 || searchTermLength < 1)
+        return;
+    const int textMargin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
+    int searchTermStartPixels = painter->fontMetrics().width(text.left(searchTermStart));
     int searchTermLengthPixels = painter->fontMetrics().width(text.mid(searchTermStart, searchTermLength));
     QRect resultHighlightRect(rect);
     resultHighlightRect.setLeft(resultHighlightRect.left() + searchTermStartPixels + textMargin - 1); // -1: Cosmetics

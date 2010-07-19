@@ -37,6 +37,7 @@
 #include "cppmodelmanager.h"
 #include "cpptoolsconstants.h"
 #include "cpplocatorfilter.h"
+#include "symbolsfindfilter.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -111,14 +112,13 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     CppCodeCompletion *completion = new CppCodeCompletion(m_modelManager);
     addAutoReleasedObject(completion);
 
-    CppLocatorFilter *locatorFilter = new CppLocatorFilter(m_modelManager,
-                                                                 core->editorManager());
-    addAutoReleasedObject(locatorFilter);
-    addAutoReleasedObject(new CppClassesFilter(m_modelManager, core->editorManager()));
-    addAutoReleasedObject(new CppFunctionsFilter(m_modelManager, core->editorManager()));
+    addAutoReleasedObject(new CppLocatorFilter(m_modelManager));
+    addAutoReleasedObject(new CppClassesFilter(m_modelManager));
+    addAutoReleasedObject(new CppFunctionsFilter(m_modelManager));
     addAutoReleasedObject(new CppCurrentDocumentFilter(m_modelManager, core->editorManager()));
     addAutoReleasedObject(new CompletionSettingsPage);
     addAutoReleasedObject(new CppFileSettingsPage(m_fileSettings));
+    addAutoReleasedObject(new SymbolsFindFilter(m_modelManager));
 
     // Menus
     Core::ActionContainer *mtools = am->actionContainer(Core::Constants::M_TOOLS);

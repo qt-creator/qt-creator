@@ -72,11 +72,6 @@ bool AllProjectsFind::isEnabled() const
             && m_plugin->session()->projects().count() > 0;
 }
 
-QKeySequence AllProjectsFind::defaultShortcut() const
-{
-    return QKeySequence();
-}
-
 Utils::FileIterator *AllProjectsFind::files()
 {
     Q_ASSERT(m_plugin->session());

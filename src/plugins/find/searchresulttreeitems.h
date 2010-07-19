@@ -30,35 +30,31 @@
 #ifndef SEARCHRESULTTREEITEMS_H
 #define SEARCHRESULTTREEITEMS_H
 
+#include "searchresultwindow.h"
+
 #include <QtCore/QString>
 #include <QtCore/QList>
 #include <QtCore/qnamespace.h>
+#include <QtGui/QIcon>
 
 namespace Find {
 namespace Internal {
 
-class SearchResultTreeItem;
-class SearchResultFile;
-
 class SearchResultTreeItem
 {
 public:
-    enum ItemType
-    {
-        Root,
-        ResultRow,
-        ResultFile
-    };
-
-    SearchResultTreeItem(ItemType type = Root, const SearchResultTreeItem *parent = NULL);
+    SearchResultTreeItem(const SearchResultItem &item = SearchResultItem(),
+                         const SearchResultTreeItem *parent = NULL);
     virtual ~SearchResultTreeItem();
 
-    ItemType itemType() const;
+    bool isLeaf() const;
     const SearchResultTreeItem *parent() const;
     SearchResultTreeItem *childAt(int index) const;
-    int insertionIndex(SearchResultFile *child) const;
+    int insertionIndex(const QString &text, SearchResultTreeItem **existingItem) const;
+    int insertionIndex(const SearchResultItem &item, SearchResultTreeItem **existingItem) const;
     void insertChild(int index, SearchResultTreeItem *child);
-    void appendChild(SearchResultTreeItem *child);
+    void insertChild(int index, const SearchResultItem &item);
+    void appendChild(const SearchResultItem &item);
     int childrenCount() const;
     int rowOfItem() const;
     void clearChildren();
@@ -69,43 +65,17 @@ public:
     Qt::CheckState checkState() const;
     void setCheckState(Qt::CheckState checkState);
 
+    bool isGenerated() const { return m_isGenerated; }
+    void setGenerated(bool value) { m_isGenerated = value; }
+
+    SearchResultItem item;
+
 private:
-    ItemType m_type;
     const SearchResultTreeItem *m_parent;
     QList<SearchResultTreeItem *> m_children;
     bool m_isUserCheckable;
     Qt::CheckState m_checkState;
-};
-
-class SearchResultTextRow : public SearchResultTreeItem
-{
-public:
-    SearchResultTextRow(int index, int lineNumber, const QString &rowText, int searchTermStart,
-                        int searchTermLength, const SearchResultTreeItem *parent);
-    int index() const;
-    QString rowText() const;
-    int lineNumber() const;
-    int searchTermStart() const;
-    int searchTermLength() const;
-
-private:
-    int m_index;
-    int m_lineNumber;
-    QString m_rowText;
-    int m_searchTermStart;
-    int m_searchTermLength;
-};
-
-class SearchResultFile : public SearchResultTreeItem
-{
-public:
-    SearchResultFile(const QString &fileName, const SearchResultTreeItem *parent);
-    QString fileName() const;
-    void appendResultLine(int index, int lineNumber, const QString &rowText, int searchTermStart,
-                          int searchTermLength);
-
-private:
-    QString m_fileName;
+    bool m_isGenerated;
 };
 
 } // namespace Internal

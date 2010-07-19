@@ -53,7 +53,6 @@ public:
 
     QString id() const;
     QString displayName() const;
-    QKeySequence defaultShortcut() const;
     void findAll(const QString &txt, Find::FindFlags findFlags);
     QWidget *createConfigWidget();
     void writeSettings(QSettings *settings);

@@ -31,8 +31,8 @@
 
 using namespace CppTools::Internal;
 
-CppFunctionsFilter::CppFunctionsFilter(CppModelManager *manager, Core::EditorManager *editorManager)
-    : CppLocatorFilter(manager, editorManager)
+CppFunctionsFilter::CppFunctionsFilter(CppModelManager *manager)
+    : CppLocatorFilter(manager)
 {
     setShortcutString(QString(QLatin1Char('m')));
     setIncludedByDefault(false);

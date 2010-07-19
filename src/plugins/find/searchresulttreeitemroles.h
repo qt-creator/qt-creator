@@ -30,22 +30,21 @@
 #ifndef SEARCHRESULTTREEITEMROLES_H
 #define SEARCHRESULTTREEITEMROLES_H
 
+#include <QtGui/QAbstractItemView>
+
 namespace Find {
 namespace Internal {
 namespace ItemDataRoles {
 
 enum Roles
 {
-    TypeRole = Qt::UserRole,
-    FileNameRole,
-    ResultLinesCountRole,
-    ResultIndexRole,
+    ResultItemRole = Qt::UserRole,
     ResultLineRole,
     ResultLineNumberRole,
+    ResultIconRole,
     SearchTermStartRole,
     SearchTermLengthRole,
-    RowOfItem, // The ?-th child of its parent is this this item
-    TextRole // for files == FileNameRole, for results == ResultLineRole
+    RowOfItem // The ?-th child of its parent is this this item
 };
 
 } // namespace Internal

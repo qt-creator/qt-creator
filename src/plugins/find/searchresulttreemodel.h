@@ -41,8 +41,6 @@ namespace Find {
 namespace Internal {
 
 class SearchResultTreeItem;
-class SearchResultTextRow;
-class SearchResultFile;
 
 class SearchResultTreeModel : public QAbstractItemModel
 {
@@ -64,10 +62,10 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
-    QModelIndex next(const QModelIndex &idx, bool includeTopLevel = false) const;
-    QModelIndex prev(const QModelIndex &idx, bool includeTopLevel = false) const;
+    QModelIndex next(const QModelIndex &idx, bool includeGenerated = false) const;
+    QModelIndex prev(const QModelIndex &idx, bool includeGenerated = false) const;
 
-    QList<int> addResultLines(const QList<SearchResultItem> &items);
+    QList<QModelIndex> addResults(const QList<SearchResultItem> &items, SearchResultWindow::AddMode mode);
 
     QModelIndex find(const QRegExp &expr, const QModelIndex &index, QTextDocument::FindFlags flags);
     QModelIndex find(const QString &term, const QModelIndex &index, QTextDocument::FindFlags flags);
@@ -80,15 +78,18 @@ public slots:
     void clear();
 
 private:
-    void appendResultLines(const QList<SearchResultItem> &items);
-    int addResultFile(const QString &fileName);
-    QVariant data(const SearchResultTextRow *row, int role) const;
-    QVariant data(const SearchResultFile *file, int role) const;
-    void initializeData();
-    void disposeData();
+    QModelIndex index(SearchResultTreeItem *item) const;
+    void addResultsToCurrentParent(const QList<SearchResultItem> &items, SearchResultWindow::AddMode mode);
+    QSet<SearchResultTreeItem *> addPath(const QStringList &path);
+    QVariant data(const SearchResultTreeItem *row, int role) const;
+    QModelIndex nextIndex(const QModelIndex &idx) const;
+    QModelIndex prevIndex(const QModelIndex &idx) const;
+    SearchResultTreeItem *treeItemAtIndex(const QModelIndex &idx) const;
 
     SearchResultTreeItem *m_rootItem;
-    SearchResultFile *m_lastAddedResultFile;
+    SearchResultTreeItem *m_currentParent;
+    QModelIndex m_currentIndex;
+    QStringList m_currentPath; // the path that belongs to the current parent
     QFont m_textEditorFont;
     bool m_showReplaceUI;
 };

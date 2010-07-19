@@ -24,7 +24,8 @@ HEADERS += completionsettingspage.h \
     cppdoxygen.h \
     cppfilesettingspage.h \
     cppfindreferences.h \
-    cppcodeformatter.h
+    cppcodeformatter.h \
+    symbolsfindfilter.h
 
 SOURCES += completionsettingspage.cpp \
     cppclassesfilter.cpp \
@@ -40,7 +41,8 @@ SOURCES += completionsettingspage.cpp \
     cppfilesettingspage.cpp \
     abstracteditorsupport.cpp \
     cppfindreferences.cpp \
-    cppcodeformatter.cpp
+    cppcodeformatter.cpp \
+    symbolsfindfilter.cpp
 
 FORMS += completionsettingspage.ui \
     cppfilesettingspage.ui

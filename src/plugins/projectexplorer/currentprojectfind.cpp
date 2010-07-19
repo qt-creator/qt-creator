@@ -70,11 +70,6 @@ bool CurrentProjectFind::isEnabled() const
     return m_plugin->currentProject() != 0 && BaseFileFind::isEnabled();
 }
 
-QKeySequence CurrentProjectFind::defaultShortcut() const
-{
-    return QKeySequence();
-}
-
 Utils::FileIterator *CurrentProjectFind::files()
 {
     Project *project = m_plugin->currentProject();

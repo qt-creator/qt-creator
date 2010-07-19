@@ -17,5 +17,6 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
         <dependency name="TextEditor" version="2.1.80"/>
         <dependency name="ProjectExplorer" version="2.1.80"/>
         <dependency name="Locator" version="2.1.80"/>
+        <dependency name="Find" version="2.1.80"/>
     </dependencyList>
 </plugin>

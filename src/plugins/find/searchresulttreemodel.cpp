@@ -46,7 +46,7 @@ using namespace Find::Internal;
 
 SearchResultTreeModel::SearchResultTreeModel(QObject *parent)
     : QAbstractItemModel(parent)
-    , m_lastAddedResultFile(0)
+    , m_currentParent(0)
     , m_showReplaceUI(false)
 {
     m_rootItem = new SearchResultTreeItem;
@@ -70,13 +70,13 @@ void SearchResultTreeModel::setTextEditorFont(const QFont &font)
     layoutChanged();
 }
 
-Qt::ItemFlags SearchResultTreeModel::flags(const QModelIndex &index) const
+Qt::ItemFlags SearchResultTreeModel::flags(const QModelIndex &idx) const
 {
-    Qt::ItemFlags flags = QAbstractItemModel::flags(index);
+    Qt::ItemFlags flags = QAbstractItemModel::flags(idx);
 
-    if (index.isValid()) {
-        if (const SearchResultTreeItem *item = static_cast<const SearchResultTreeItem*>(index.internalPointer())) {
-            if (item->itemType() == SearchResultTreeItem::ResultRow && item->isUserCheckable()) {
+    if (idx.isValid()) {
+        if (const SearchResultTreeItem *item = treeItemAtIndex(idx)) {
+            if (item->isLeaf() && item->isUserCheckable()) {
                 flags |= Qt::ItemIsUserCheckable;
             }
         }
@@ -96,7 +96,7 @@ QModelIndex SearchResultTreeModel::index(int row, int column,
     if (!parent.isValid())
         parentItem = m_rootItem;
     else
-        parentItem = static_cast<const SearchResultTreeItem*>(parent.internalPointer());
+        parentItem = treeItemAtIndex(parent);
 
     const SearchResultTreeItem *childItem = parentItem->childAt(row);
     if (childItem)
@@ -105,12 +105,17 @@ QModelIndex SearchResultTreeModel::index(int row, int column,
         return QModelIndex();
 }
 
-QModelIndex SearchResultTreeModel::parent(const QModelIndex &index) const
+QModelIndex SearchResultTreeModel::index(SearchResultTreeItem *item) const
 {
-    if (!index.isValid())
+    return createIndex(item->rowOfItem(), 0, (void *)item);
+}
+
+QModelIndex SearchResultTreeModel::parent(const QModelIndex &idx) const
+{
+    if (!idx.isValid())
         return QModelIndex();
 
-    const SearchResultTreeItem *childItem = static_cast<const SearchResultTreeItem*>(index.internalPointer());
+    const SearchResultTreeItem *childItem = treeItemAtIndex(idx);
     const SearchResultTreeItem *parentItem = childItem->parent();
 
     if (parentItem == m_rootItem)
@@ -129,7 +134,7 @@ int SearchResultTreeModel::rowCount(const QModelIndex &parent) const
     if (!parent.isValid())
         parentItem = m_rootItem;
     else
-        parentItem = static_cast<const SearchResultTreeItem*>(parent.internalPointer());
+        parentItem = treeItemAtIndex(parent);
 
     return parentItem->childrenCount();
 }
@@ -140,48 +145,41 @@ int SearchResultTreeModel::columnCount(const QModelIndex &parent) const
     return 1;
 }
 
-QVariant SearchResultTreeModel::data(const QModelIndex &index, int role) const
+SearchResultTreeItem *SearchResultTreeModel::treeItemAtIndex(const QModelIndex &idx) const
 {
-    if (!index.isValid())
-        return QVariant();
+    return static_cast<SearchResultTreeItem*>(idx.internalPointer());
+}
 
-    const SearchResultTreeItem *item = static_cast<const SearchResultTreeItem*>(index.internalPointer());
+QVariant SearchResultTreeModel::data(const QModelIndex &idx, int role) const
+{
+    if (!idx.isValid())
+        return QVariant();
 
     QVariant result;
 
-    if (role == Qt::SizeHintRole)
-    {
+    if (role == Qt::SizeHintRole) {
+        // TODO we should not use editor font height if that is not used by any item
         const int appFontHeight = QApplication::fontMetrics().height();
         const int editorFontHeight = QFontMetrics(m_textEditorFont).height();
         result = QSize(0, qMax(appFontHeight, editorFontHeight));
-    }
-    else if (item->itemType() == SearchResultTreeItem::ResultRow)
-    {
-        const SearchResultTextRow *row = static_cast<const SearchResultTextRow *>(item);
-        result = data(row, role);
-    }
-    else if (item->itemType() == SearchResultTreeItem::ResultFile)
-    {
-        const SearchResultFile *file = static_cast<const SearchResultFile *>(item);
-        result = data(file, role);
+    } else {
+        result = data(treeItemAtIndex(idx), role);
     }
 
     return result;
 }
 
-bool SearchResultTreeModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool SearchResultTreeModel::setData(const QModelIndex &idx, const QVariant &value, int role)
 {
     if (role == Qt::CheckStateRole) {
-        SearchResultTreeItem *item = static_cast<SearchResultTreeItem*>(index.internalPointer());
-        SearchResultTextRow *row = static_cast<SearchResultTextRow *>(item);
         Qt::CheckState checkState = static_cast<Qt::CheckState>(value.toInt());
-        row->setCheckState(checkState);
+        treeItemAtIndex(idx)->setCheckState(checkState);
         return true;
     }
-    return QAbstractItemModel::setData(index, value, role);
+    return QAbstractItemModel::setData(idx, value, role);
 }
 
-QVariant SearchResultTreeModel::data(const SearchResultTextRow *row, int role) const
+QVariant SearchResultTreeModel::data(const SearchResultTreeItem *row, int role) const
 {
     QVariant result;
 
@@ -192,81 +190,46 @@ QVariant SearchResultTreeModel::data(const SearchResultTextRow *row, int role) c
             result = row->checkState();
         break;
     case Qt::ToolTipRole:
-        result = row->rowText().trimmed();
+        result = row->item.text.trimmed();
         break;
     case Qt::FontRole:
-        result = m_textEditorFont;
+        if (row->item.useTextEditorFont)
+            result = m_textEditorFont;
+        else
+            result = QVariant();
         break;
-    case ItemDataRoles::TextRole:
     case ItemDataRoles::ResultLineRole:
     case Qt::DisplayRole:
-        result = row->rowText();
+        result = row->item.text;
         break;
-    case ItemDataRoles::ResultIndexRole:
-        result = row->index();
+    case ItemDataRoles::ResultItemRole:
+        result = qVariantFromValue(row->item);
         break;
     case ItemDataRoles::ResultLineNumberRole:
-        result = row->lineNumber();
+        result = row->item.lineNumber;
+        break;
+    case ItemDataRoles::ResultIconRole:
+        result = row->item.icon;
         break;
     case ItemDataRoles::SearchTermStartRole:
-        result = row->searchTermStart();
+        result = row->item.textMarkPos;
         break;
     case ItemDataRoles::SearchTermLengthRole:
-        result = row->searchTermLength();
+        result = row->item.textMarkLength;
         break;
-    case ItemDataRoles::TypeRole:
-        result = QLatin1String("row");
-        break;
-    case ItemDataRoles::FileNameRole:
-        {
-            if (row->parent()->itemType() == SearchResultTreeItem::ResultFile) {
-                const SearchResultFile *file = static_cast<const SearchResultFile *>(row->parent());
-                result = file->fileName();
-            }
-            break;
-        }
+// TODO this looks stupid in case of symbol tree, is it necessary?
+//    case Qt::BackgroundRole:
+//        if (row->parent() && row->parent()->parent())
+//            result = QVariant();
+//        else
+//            result = QApplication::palette().base().color().darker(105);
+//        break;
     default:
         result = QVariant();
         break;
     }
 
     return result;
-}
-
-QVariant SearchResultTreeModel::data(const SearchResultFile *file, int role) const
-{
-    switch (role)
-    {
-#if 0
-    case Qt::CheckStateRole:
-        if (file->isUserCheckable())
-            return QVariant(file->checkState());
-#endif
-    case Qt::BackgroundRole: {
-        const QColor baseColor = QApplication::palette().base().color();
-        return QVariant(baseColor.darker(105));
-        break;
-    }
-    case Qt::DisplayRole: {
-        const QString result =
-                QDir::toNativeSeparators(file->fileName())
-                + QString::fromLatin1(" (")
-                + QString::number(file->childrenCount())
-                + QLatin1Char(')');
-        return QVariant(result);
-    }
-    case ItemDataRoles::TextRole:
-    case ItemDataRoles::FileNameRole:
-    case Qt::ToolTipRole:
-        return QVariant(QDir::toNativeSeparators(file->fileName()));
-    case ItemDataRoles::ResultLinesCountRole:
-        return QVariant(file->childrenCount());
-    case ItemDataRoles::TypeRole:
-        return QVariant(QLatin1String("file"));
-    default:
-        break;
-    }
-    return QVariant();
 }
 
 QVariant SearchResultTreeModel::headerData(int section, Qt::Orientation orientation,
@@ -279,144 +242,196 @@ QVariant SearchResultTreeModel::headerData(int section, Qt::Orientation orientat
 }
 
 /**
- * Adds a file to the list of results and returns the index at which it was inserted.
+ * Makes sure that the nodes for a specific path exist and sets
+ * m_currentParent to the last final
  */
-int SearchResultTreeModel::addResultFile(const QString &fileName)
+QSet<SearchResultTreeItem *> SearchResultTreeModel::addPath(const QStringList &path)
 {
-#ifdef Q_OS_WIN
-    if (fileName.contains(QLatin1Char('\\')))
-        qWarning("SearchResultTreeModel::appendResultFile: File name with native separators added %s.\n", qPrintable(fileName));
-#endif
-    m_lastAddedResultFile = new SearchResultFile(fileName, m_rootItem);
-
-    if (m_showReplaceUI) {
-        m_lastAddedResultFile->setIsUserCheckable(true);
-        m_lastAddedResultFile->setCheckState(Qt::Checked);
+    QSet<SearchResultTreeItem *> pathNodes;
+    SearchResultTreeItem *currentItem = m_rootItem;
+    QModelIndex currentItemIndex = QModelIndex();
+    SearchResultTreeItem *partItem = 0;
+    QStringList currentPath;
+    foreach (const QString &part, path) {
+        const int insertionIndex = currentItem->insertionIndex(part, &partItem);
+        if (!partItem) {
+            SearchResultItem item;
+            item.path = currentPath;
+            item.text = part;
+            partItem = new SearchResultTreeItem(item, currentItem);
+            if (m_showReplaceUI) {
+                partItem->setIsUserCheckable(true);
+                partItem->setCheckState(Qt::Checked);
+            }
+            partItem->setGenerated(true);
+            beginInsertRows(currentItemIndex, insertionIndex, insertionIndex);
+            currentItem->insertChild(insertionIndex, partItem);
+            endInsertRows();
+        }
+        pathNodes << partItem;
+        currentItemIndex = index(insertionIndex, 0, currentItemIndex);
+        currentItem = partItem;
+        currentPath << part;
     }
 
-    const int index = m_rootItem->insertionIndex(m_lastAddedResultFile);
-    beginInsertRows(QModelIndex(), index, index);
-    m_rootItem->insertChild(index, m_lastAddedResultFile);
-    endInsertRows();
-    return index;
+    m_currentParent = currentItem;
+    m_currentPath = currentPath;
+    m_currentIndex = currentItemIndex;
+    return pathNodes;
 }
 
-void SearchResultTreeModel::appendResultLines(const QList<SearchResultItem> &items)
+void SearchResultTreeModel::addResultsToCurrentParent(const QList<SearchResultItem> &items, SearchResultWindow::AddMode mode)
 {
-    if (!m_lastAddedResultFile)
+    if (!m_currentParent)
         return;
 
-    QModelIndex lastFile(createIndex(m_lastAddedResultFile->rowOfItem(), 0, m_lastAddedResultFile));
-
-    beginInsertRows(lastFile, m_lastAddedResultFile->childrenCount(), m_lastAddedResultFile->childrenCount() + items.count());
-    foreach (const SearchResultItem &item, items) {
-        m_lastAddedResultFile->appendResultLine(item.index,
-                                                item.lineNumber,
-                                                item.lineText,
-                                                item.searchTermStart,
-                                                item.searchTermLength);
+    if (mode == SearchResultWindow::AddOrdered) {
+        // this is the mode for e.g. text search
+        beginInsertRows(m_currentIndex, m_currentParent->childrenCount(), m_currentParent->childrenCount() + items.count());
+        foreach (const SearchResultItem &item, items) {
+            m_currentParent->appendChild(item);
+        }
+        endInsertRows();
+    } else if (mode == SearchResultWindow::AddSorted) {
+        foreach (const SearchResultItem &item, items) {
+            SearchResultTreeItem *existingItem;
+            const int insertionIndex = m_currentParent->insertionIndex(item, &existingItem);
+            if (existingItem) {
+                existingItem->setGenerated(false);
+                existingItem->item = item;
+                QModelIndex itemIndex = m_currentIndex.child(insertionIndex, 0);
+                dataChanged(itemIndex, itemIndex);
+            } else {
+                beginInsertRows(m_currentIndex, insertionIndex, insertionIndex);
+                m_currentParent->insertChild(insertionIndex, item);
+                endInsertRows();
+            }
+        }
     }
-    endInsertRows();
+    dataChanged(m_currentIndex, m_currentIndex); // Make sure that the number after the file name gets updated
+}
 
-    dataChanged(lastFile, lastFile); // Make sure that the number after the file name gets updated
+static bool lessThanByPath(const SearchResultItem &a, const SearchResultItem &b)
+{
+    if (a.path.size() < b.path.size())
+        return true;
+    if (a.path.size() > b.path.size())
+        return false;
+    for (int i = 0; i < a.path.size(); ++i) {
+        if (a.path.at(i) < b.path.at(i))
+            return true;
+        if (a.path.at(i) > b.path.at(i))
+            return false;
+    }
+    return false;
 }
 
 /**
- * Adds the search result to the list of results, creating a new file entry when
- * necessary. Returns the insertion index when a new file entry was created.
+ * Adds the search result to the list of results, creating nodes for the path when
+ * necessary.
  */
-QList<int> SearchResultTreeModel::addResultLines(const QList<SearchResultItem> &items)
+QList<QModelIndex> SearchResultTreeModel::addResults(const QList<SearchResultItem> &items, SearchResultWindow::AddMode mode)
 {
-    QList<int> insertedFileIndices;
+    QSet<SearchResultTreeItem *> pathNodes;
+    QList<SearchResultItem> sortedItems = items;
+    qStableSort(sortedItems.begin(), sortedItems.end(), lessThanByPath);
     QList<SearchResultItem> itemSet;
-    foreach (const SearchResultItem &item, items) {
-        if (!m_lastAddedResultFile || (m_lastAddedResultFile->fileName() != item.fileName)) {
+    foreach (const SearchResultItem &item, sortedItems) {
+        if (!m_currentParent || (m_currentPath != item.path)) {
+            // first add all the items from before
             if (!itemSet.isEmpty()) {
-                appendResultLines(itemSet);
+                addResultsToCurrentParent(itemSet, mode);
                 itemSet.clear();
             }
-            insertedFileIndices << addResultFile(item.fileName);
+            // switch parent
+            pathNodes += addPath(item.path);
         }
         itemSet << item;
     }
     if (!itemSet.isEmpty()) {
-        appendResultLines(itemSet);
+        addResultsToCurrentParent(itemSet, mode);
         itemSet.clear();
     }
-    return insertedFileIndices;
+    QList<QModelIndex> pathIndices;
+    foreach (SearchResultTreeItem *item, pathNodes)
+        pathIndices << index(item);
+    return pathIndices;
 }
 
 void SearchResultTreeModel::clear()
 {
-    m_lastAddedResultFile = NULL;
+    m_currentParent = NULL;
     m_rootItem->clearChildren();
     reset();
 }
 
-QModelIndex SearchResultTreeModel::next(const QModelIndex &idx, bool includeTopLevel) const
+QModelIndex SearchResultTreeModel::nextIndex(const QModelIndex &idx) const
 {
-    QModelIndex parent = idx.parent();
-    if (parent.isValid()) {
-        int row = idx.row();
-        if (row + 1 < rowCount(parent)) {
-            // Same parent
-            return index(row + 1, 0, parent);
-        } else {
-            // Next parent
-            int parentRow = parent.row();
-            QModelIndex nextParent;
-            if (parentRow + 1 < rowCount()) {
-                nextParent = index(parentRow + 1, 0);
-            } else {
-                // Wrap around
-                nextParent = index(0,0);
-            }
-            if (includeTopLevel)
-                return nextParent;
-            return nextParent.child(0, 0);
-        }
-    } else {
-        // We are on a top level item
-        return idx.child(0,0);
+    // pathological
+    if (!idx.isValid())
+        return index(0, 0);
+
+    if (rowCount(idx) > 0) {
+        // node with children
+        return idx.child(0, 0);
     }
-    return QModelIndex();
+    // leaf node
+    QModelIndex nextIndex;
+    QModelIndex current = idx;
+    while (!nextIndex.isValid()) {
+        int row = current.row();
+        current = current.parent();
+        if (row + 1 < rowCount(current)) {
+            // Same parent has another child
+            nextIndex = index(row + 1, 0, current);
+        } else {
+            // go up one parent
+            if (!current.isValid()) {
+                nextIndex = index(0, 0);
+            }
+        }
+    }
+    return nextIndex;
 }
 
-QModelIndex SearchResultTreeModel::prev(const QModelIndex &idx, bool includeTopLevel) const
+QModelIndex SearchResultTreeModel::next(const QModelIndex &idx, bool includeGenerated) const
 {
-    QModelIndex parent = idx.parent();
-    if (parent.isValid()) {
-        int row = idx.row();
-        if (row  > 0) {
-            // Same parent
-            return index(row - 1, 0, parent);
-        } else {
-            if (includeTopLevel)
-                return parent;
-            // Prev parent
-            int parentRow = parent.row();
-            QModelIndex prevParent;
-            if (parentRow > 0 ) {
-                prevParent = index(parentRow - 1, 0);
-            } else {
-                // Wrap around
-                prevParent = index(rowCount() - 1, 0);
-            }
-            return prevParent.child(rowCount(prevParent) - 1, 0);
-        }
-    } else {
-        // We are on a top level item
-        int row = idx.row();
-        QModelIndex prevParent;
+    QModelIndex value = idx;
+    do {
+        value = nextIndex(value);
+    } while (value != idx && !includeGenerated && treeItemAtIndex(value)->isGenerated());
+    return value;
+}
+
+QModelIndex SearchResultTreeModel::prevIndex(const QModelIndex &idx) const
+{
+    QModelIndex current = idx;
+    bool checkForChildren = true;
+    if (current.isValid()) {
+        int row = current.row();
         if (row > 0) {
-            prevParent = index(row - 1, 0);
+            current = index(row - 1, 0, current.parent());
         } else {
-            // wrap around
-            prevParent = index(rowCount() -1, 0);
+            current = current.parent();
+            checkForChildren = !current.isValid();
         }
-        return prevParent.child(rowCount(prevParent) -1,0);
     }
-    return QModelIndex();
+    if (checkForChildren) {
+        // traverse down the hierarchy
+        while (int rc = rowCount(current)) {
+            current = index(rc - 1, 0, current);
+        }
+    }
+    return current;
+}
+
+QModelIndex SearchResultTreeModel::prev(const QModelIndex &idx, bool includeGenerated) const
+{
+    QModelIndex value = idx;
+    do {
+        value = prevIndex(value);
+    } while (value != idx && !includeGenerated && treeItemAtIndex(value)->isGenerated());
+    return value;
 }
 
 QModelIndex SearchResultTreeModel::find(const QRegExp &expr, const QModelIndex &index, QTextDocument::FindFlags flags)
@@ -431,7 +446,7 @@ QModelIndex SearchResultTreeModel::find(const QRegExp &expr, const QModelIndex &
         else
             currentIndex = next(currentIndex, true);
         if (currentIndex.isValid()) {
-            const QString &text = data(currentIndex, ItemDataRoles::TextRole).toString();
+            const QString &text = data(currentIndex, ItemDataRoles::ResultLineRole).toString();
             if (expr.indexIn(text) != -1)
                 resultIndex = currentIndex;
         }
@@ -452,7 +467,7 @@ QModelIndex SearchResultTreeModel::find(const QString &term, const QModelIndex &
         else
             currentIndex = next(currentIndex, true);
         if (currentIndex.isValid()) {
-            const QString &text = data(currentIndex, ItemDataRoles::TextRole).toString();
+            const QString &text = data(currentIndex, ItemDataRoles::ResultLineRole).toString();
             QTextDocument doc(text);
             if (!doc.find(term, 0, flags).isNull())
                 resultIndex = currentIndex;

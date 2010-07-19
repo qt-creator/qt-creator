@@ -40,7 +40,7 @@ class CppFunctionsFilter : public CppLocatorFilter
     Q_OBJECT
 
 public:
-    CppFunctionsFilter(CppModelManager *manager, Core::EditorManager *editorManager);
+    CppFunctionsFilter(CppModelManager *manager);
     ~CppFunctionsFilter();
 
     QString displayName() const { return tr("Methods"); }

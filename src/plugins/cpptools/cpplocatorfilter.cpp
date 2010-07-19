@@ -30,8 +30,6 @@
 #include "cpplocatorfilter.h"
 #include "cppmodelmanager.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 
@@ -39,9 +37,8 @@
 
 using namespace CppTools::Internal;
 
-CppLocatorFilter::CppLocatorFilter(CppModelManager *manager, Core::EditorManager *editorManager)
+CppLocatorFilter::CppLocatorFilter(CppModelManager *manager)
     : m_manager(manager),
-    m_editorManager(editorManager),
     m_forceNewSearchList(true)
 {
     setShortcutString(QString(QLatin1Char(':')));
