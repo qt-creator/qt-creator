@@ -320,7 +320,6 @@ static inline ITextEditable *editableAt(const QString &fileName, int line, int c
 static void addDeclaration(Document::Ptr doc, const Class *cl, const QString &functionName)
 {
     const QString docFileName = doc->fileName();
-    TranslationUnit *unit = doc->translationUnit();
     QString declaration = QLatin1String("void ");
     declaration += functionName;
     declaration += QLatin1String(";\n");
