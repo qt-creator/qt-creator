@@ -159,6 +159,10 @@ const Name *LookupContext::minimalName(const Name *name,
                                        Scope *scope,
                                        ClassOrNamespace *target) const
 {
+    Q_UNUSED(name);
+    Q_UNUSED(scope);
+    Q_UNUSED(target);
+
     qWarning() << "TODO:" << Q_FUNC_INFO;
 
 #if 0

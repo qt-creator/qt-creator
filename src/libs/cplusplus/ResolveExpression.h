@@ -59,7 +59,7 @@ protected:
     QList<LookupItem> switchResults(const QList<LookupItem> &symbols);
     FullySpecifiedType instantiate(const Name *className, Symbol *candidate) const;
 
-    Q_DECL_DEPRECATED QList<LookupItem> getMembers(ClassOrNamespace *binding, const Name *memberName) const;
+    QList<LookupItem> getMembers(ClassOrNamespace *binding, const Name *memberName) const;
 
     void thisObject();
 

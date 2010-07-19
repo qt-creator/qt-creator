@@ -58,7 +58,7 @@ public:
 
     virtual QStringList apply();
 
-    Q_DECL_DEPRECATED int positionInFile(const QString &fileName, int line, int column = 0) const;
+    int positionInFile(const QString &fileName, int line, int column = 0) const;
 
     static BaseTextEditor *editorForFile(const QString &fileName,
                                          bool openIfClosed = false);

@@ -231,8 +231,8 @@ public:
     static QList<const Name *> fullyQualifiedName(Symbol *symbol);
     static QList<const Name *> path(Symbol *symbol);
 
-    Q_DECL_DEPRECATED const Name *minimalName(const Name *name, Scope *source,
-                                              ClassOrNamespace *target) const;
+    const Name *minimalName(const Name *name, Scope *source,
+                            ClassOrNamespace *target) const;
 
 private:
     // The current expression.
