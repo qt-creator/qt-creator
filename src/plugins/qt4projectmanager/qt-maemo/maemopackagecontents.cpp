@@ -175,11 +175,9 @@ void MaemoPackageContents::fromMap(const QVariantMap &map)
 
 QString MaemoPackageContents::remoteExecutableFilePath() const
 {
-    if (m_remoteExecutableFilePath.isEmpty()) {
-        m_remoteExecutableFilePath = QLatin1String("/usr/local/bin/")
-                                     + m_packageStep->executableFileName();
-    }
-    return m_remoteExecutableFilePath;
+    return m_remoteExecutableFilePath.isEmpty()
+        ? QLatin1String("/usr/local/bin/") + m_packageStep->executableFileName()
+        : m_remoteExecutableFilePath;
 }
 
 } // namespace Qt4ProjectManager
