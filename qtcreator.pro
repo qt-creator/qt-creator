@@ -11,4 +11,3 @@ TEMPLATE  = subdirs
 CONFIG   += ordered
 
 SUBDIRS = src share
-WITH_TESTS:SUBDIRS += tests
