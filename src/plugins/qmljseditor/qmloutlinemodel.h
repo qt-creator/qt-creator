@@ -57,7 +57,12 @@ public:
 
     QmlJS::Document::Ptr document() const;
     void update(const SemanticInfo &semanticInfo);
+    QmlJS::AST::Node *nodeForIndex(const QModelIndex &index);
 
+signals:
+    void updated();
+
+private:
     QModelIndex enterObjectDefinition(QmlJS::AST::UiObjectDefinition *objectDefinition);
     void leaveObjectDefiniton();
 
@@ -66,11 +71,6 @@ public:
 
     QModelIndex enterPublicMember(QmlJS::AST::UiPublicMember *publicMember);
     void leavePublicMember();
-
-    QmlJS::AST::Node *nodeForIndex(const QModelIndex &index);
-
-signals:
-    void updated();
 
 private:
     QModelIndex enterNode(const QmlOutlineItem &prototype);
