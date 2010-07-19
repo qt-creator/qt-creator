@@ -81,6 +81,8 @@ protected:
 
     const CPlusPlus::Token &tokenAt(unsigned index) const;
 
+    CPlusPlus::Scope *scopeAt(unsigned index) const;
+
     int startOf(unsigned index) const;
     int startOf(const CPlusPlus::AST *ast) const;
     int endOf(unsigned index) const;

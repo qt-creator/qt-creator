@@ -1492,6 +1492,66 @@ private:
     Symbol *fwdClass;
 };
 
+class AddLocalDeclarationOp: public CppQuickFixOperation
+{
+public:
+    AddLocalDeclarationOp(TextEditor::BaseTextEditor *editor)
+        : CppQuickFixOperation(editor), binaryAST(0)
+    {
+    }
+
+    virtual QString description() const
+    {
+        return QApplication::translate("CppTools::QuickFix", "Add local declaration");
+    }
+
+    virtual int match(const QList<AST *> &path)
+    {
+        for (int index = path.size() - 1; index != -1; --index) {
+            if (BinaryExpressionAST *binary = path.at(index)->asBinaryExpression()) {
+                if (binary->left_expression && binary->right_expression && tokenAt(binary->binary_op_token).is(T_EQUAL)) {
+                    if (isCursorOn(binary->left_expression) && binary->left_expression->asSimpleName() != 0) {
+                        SimpleNameAST *nameAST = binary->left_expression->asSimpleName();
+                        if (context().lookup(nameAST->name, scopeAt(nameAST->firstToken())).isEmpty()) {
+                            binaryAST = binary;
+                            typeOfExpression.init(document(), snapshot(), context().bindings());
+                            return index;
+                        }
+                    }
+                }
+            }
+        }
+
+        return -1;
+    }
+
+    virtual void createChanges()
+    {
+        const QList<LookupItem> result = typeOfExpression(textOf(binaryAST->right_expression),
+                                                          scopeAt(binaryAST->firstToken()),
+                                                          TypeOfExpression::Preprocess);
+
+        if (! result.isEmpty()) {
+            Overview oo;
+            QString ty = oo(result.first().type());
+            if (! ty.isEmpty()) {
+                const QChar ch = ty.at(ty.size() - 1);
+
+                if (ch.isLetterOrNumber() || ch == QLatin1Char(' ') || ch == QLatin1Char('>'))
+                    ty += QLatin1Char(' ');
+
+                Utils::ChangeSet changes;
+                changes.insert(startOf(binaryAST), ty);
+                refactoringChanges()->changeFile(fileName(), changes);
+            }
+        }
+    }
+
+private:
+    TypeOfExpression typeOfExpression;
+    BinaryExpressionAST *binaryAST;
+};
+
 } // end of anonymous namespace
 
 
@@ -1550,6 +1610,13 @@ const Snapshot &CppQuickFixOperation::snapshot() const
 
 const CPlusPlus::LookupContext &CppQuickFixOperation::context() const
 { return _refactoringChanges->context(); }
+
+CPlusPlus::Scope *CppQuickFixOperation::scopeAt(unsigned index) const
+{
+    unsigned line, column;
+    document()->translationUnit()->getTokenStartPosition(index, &line, &column);
+    return document()->scopeAt(line, column);
+}
 
 const CPlusPlus::Token &CppQuickFixOperation::tokenAt(unsigned index) const
 { return _document->translationUnit()->tokenAt(index); }
@@ -1693,6 +1760,7 @@ QList<TextEditor::QuickFixOperation::Ptr> CppQuickFixFactory::quickFixOperations
     QSharedPointer<ConvertNumericToDecimal> convertNumericToDecimal(new ConvertNumericToDecimal(editor));
     QSharedPointer<CompleteSwitchCaseStatement> completeSwitchCaseStatement(new CompleteSwitchCaseStatement(editor));
     QSharedPointer<FixForwardDeclarationOp> fixForwardDeclarationOp(new FixForwardDeclarationOp(editor));
+    QSharedPointer<AddLocalDeclarationOp> addLocalDeclarationOp(new AddLocalDeclarationOp(editor));
     QSharedPointer<DeclFromDef> declFromDef(new DeclFromDef(editor));
 
     quickFixOperations.append(rewriteLogicalAndOp);
@@ -1710,6 +1778,7 @@ QList<TextEditor::QuickFixOperation::Ptr> CppQuickFixFactory::quickFixOperations
     quickFixOperations.append(convertNumericToDecimal);
     quickFixOperations.append(completeSwitchCaseStatement);
     quickFixOperations.append(fixForwardDeclarationOp);
+    quickFixOperations.append(addLocalDeclarationOp);
 
 #if 0
     quickFixOperations.append(declFromDef);
