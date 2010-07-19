@@ -60,6 +60,11 @@ void QDeclarativeDesignDebugServer::messageReceived(const QByteArray &message)
         QStringList imports;
         ds >> qml >> parentId >> imports >> filename;
         emit objectCreationRequested(qml, objectForId(parentId), imports, filename);
+    } else if (type == "DESTROY_OBJECT") {
+        int debugId;
+        ds >> debugId;
+        if (QObject* obj = objectForId(debugId))
+            obj->deleteLater();
     }
 }
 

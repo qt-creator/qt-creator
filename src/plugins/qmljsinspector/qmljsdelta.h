@@ -72,9 +72,15 @@ public:
     static bool compare(QmlJS::AST::UiQualifiedId *id, QmlJS::AST::UiQualifiedId *other);
     static QmlJS::AST::UiObjectMemberList *objectMembers(QmlJS::AST::UiObjectMember *object);
 
+
 private:
     void insert(UiObjectMember *member, UiObjectMember *parentMember,
                 const QList<QDeclarativeDebugObjectReference> &debugReferences, const Document::Ptr &doc);
+    void update(UiObjectDefinition* oldObject, const QmlJS::Document::Ptr& oldDoc,
+                UiObjectDefinition* newObject, const QmlJS::Document::Ptr& newDoc,
+                const QList<QDeclarativeDebugObjectReference >& debugReferences);
+    void remove(const QList< QDeclarativeDebugObjectReference > &debugReferences);
+
     void updateScriptBinding(const QDeclarativeDebugObjectReference &objectReference,
                              QmlJS::AST::UiScriptBinding *scriptBinding,
                              const QString &propertyName,
@@ -84,9 +90,6 @@ private:
                             const QString &methodName,
                             const QString &methodBody);
 
-    void update(UiObjectDefinition* oldObject, const QmlJS::Document::Ptr& oldDoc,
-                UiObjectDefinition* newObject, const QmlJS::Document::Ptr& newDoc,
-                const QList<QDeclarativeDebugObjectReference >& debugReferences);
 
 private:
     QmlJS::Document::Ptr _doc;

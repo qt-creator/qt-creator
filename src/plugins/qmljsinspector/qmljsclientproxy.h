@@ -106,6 +106,7 @@ public slots:
     void changeToSelectMarqueeTool();
     void createQmlObject(const QString &qmlText, const QDeclarativeDebugObjectReference &parent,
                          const QStringList &imports, const QString &filename = QString());
+    void destroyQmlObject(int debugId);
 
 private slots:
     void contextChanged();

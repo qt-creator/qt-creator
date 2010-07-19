@@ -310,7 +310,7 @@ void Delta::insert(UiObjectMember *member, UiObjectMember *parentMember, const Q
     }
 }
 
-void QmlJSInspector::Internal::Delta::update(UiObjectDefinition* oldObject, const QmlJS::Document::Ptr& oldDoc,
+void Delta::update(UiObjectDefinition* oldObject, const QmlJS::Document::Ptr& oldDoc,
                                              UiObjectDefinition* newObject, const QmlJS::Document::Ptr& newDoc,
                                              const QList< QDeclarativeDebugObjectReference >& debugReferences)
 {
@@ -396,6 +396,15 @@ void QmlJSInspector::Internal::Delta::update(UiObjectDefinition* oldObject, cons
     }
 }
 
+void Delta::remove(const QList< QDeclarativeDebugObjectReference >& debugReferences)
+{
+    foreach (const QDeclarativeDebugObjectReference &ref, debugReferences) {
+        if (ref.debugId() != -1)
+            ClientProxy::instance()->destroyQmlObject(ref.debugId()); // ### remove
+    }
+}
+
+
 
 
 Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::Ptr &doc2, const DebugIdMap &debugIds)
@@ -438,7 +447,6 @@ Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::P
         }
         //qDebug() << "Delta::operator():  match "<< label(x, doc1) << "with parent " << label(parents1.parent.value(x), doc1)
         //     << " to "<< label(y, doc2) << "with parent " << label(parents2.parent.value(y), doc2);
-        
 
         if (!M.contains(parents1.parent.value(x),parents2.parent.value(y))) {
             qDebug () << "Delta::operator():  move " << label(y, doc2) << " from " << label(parents1.parent.value(x), doc1)
@@ -454,7 +462,10 @@ Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::P
         if (!cast<UiObjectDefinition *>(x))
             continue;
         if (!M.way1.contains(x)) {
-            qDebug () << "Delta::operator():  remove " << label(x, doc1) << " ### TODO";
+            qDebug () << "Delta::operator():  remove " << label(x, doc1);
+            QList< QDeclarativeDebugObjectReference > ids = debugIds.value(x);
+            if (!ids.isEmpty())
+                remove(ids);
             continue;
         }
     }

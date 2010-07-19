@@ -231,6 +231,19 @@ void QmlJSDesignDebugClient::createQmlObject(const QString &qmlText, const QDecl
     sendMessage(message);
 }
 
+void QmlJSDesignDebugClient::destroyQmlObject(int debugId)
+{
+    if (!m_connection || !m_connection->isConnected())
+        return;
+    QByteArray message;
+    QDataStream ds(&message, QIODevice::WriteOnly);
+
+    ds << QByteArray("DESTROY_OBJECT")  << debugId;
+
+    sendMessage(message);
+}
+
+
 void QmlJSDesignDebugClient::applyChangesToQmlFile()
 {
     if (!m_connection || !m_connection->isConnected())

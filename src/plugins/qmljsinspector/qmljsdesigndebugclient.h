@@ -66,6 +66,7 @@ public:
 
     void createQmlObject(const QString &qmlText, const QDeclarativeDebugObjectReference &parentRef,
                          const QStringList &imports, const QString &filename);
+    void destroyQmlObject(int debugId);
 
     void applyChangesToQmlFile();
     void applyChangesFromQmlFile();

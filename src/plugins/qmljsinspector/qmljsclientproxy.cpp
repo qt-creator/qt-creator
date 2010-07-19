@@ -439,6 +439,13 @@ void ClientProxy::createQmlObject(const QString &qmlText, const QDeclarativeDebu
         m_designClient->createQmlObject(qmlText, parentRef, imports, filename);
 }
 
+void QmlJSInspector::Internal::ClientProxy::destroyQmlObject(int debugId)
+{
+    if (isDesignClientConnected())
+        m_designClient->destroyQmlObject(debugId);
+}
+
+
 bool ClientProxy::isDesignClientConnected() const
 {
     return (m_designClient && m_conn->isConnected());
