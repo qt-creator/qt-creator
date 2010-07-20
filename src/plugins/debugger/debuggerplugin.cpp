@@ -2721,34 +2721,12 @@ bool DebuggerPlugin::isRegisterViewVisible() const
     return d->m_registerDock->toggleViewAction()->isChecked();
 }
 
-
-//////////////////////////////////////////////////////////////////////
-//
-// Testing
-//
-//////////////////////////////////////////////////////////////////////
-
-/*
-void DebuggerPlugin::runTest(const QString &fileName)
+bool DebuggerPlugin::coreAboutToClose()
 {
-    DebuggerStartParameters sp;
-    sp.executable = fileName;
-    sp.processArgs = QStringList() << "--run-debuggee";
-    sp.workingDirectory.clear();
-    startDebugger(m_debuggerRunControlFactory->create(sp));
-}
-*/
-
-bool DebuggerListener::coreAboutToClose()
-{
-    DebuggerPlugin *plugin = DebuggerPlugin::instance();
-    if (!plugin)
-        return true;
-
     // FIXME: Iterate over all running debuggers.
     // Ask to terminate the session.
     bool cleanTermination = false;
-    switch (plugin->state()) {
+    switch (state()) {
     case DebuggerNotReady:
     case DebuggerFinished:
     case InferiorUnrunnable:
@@ -2784,7 +2762,7 @@ bool DebuggerListener::coreAboutToClose()
            "Terminating the session in the current"
            " state (%1) can leave the target in an inconsistent state."
            " Would you still like to terminate it?")
-        .arg(_(DebuggerEngine::stateName(plugin->state())));
+        .arg(_(DebuggerEngine::stateName(state())));
 
     const QString title
             = QCoreApplication::translate("Debugger::Internal::DebuggerListener",
@@ -2796,9 +2774,32 @@ bool DebuggerListener::coreAboutToClose()
     if (answer != QMessageBox::Yes)
         return false;
 
-    plugin->d->exitDebugger();
+    d->exitDebugger();
     QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
     return true;
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// Testing
+//
+//////////////////////////////////////////////////////////////////////
+
+/*
+void DebuggerPlugin::runTest(const QString &fileName)
+{
+    DebuggerStartParameters sp;
+    sp.executable = fileName;
+    sp.processArgs = QStringList() << "--run-debuggee";
+    sp.workingDirectory.clear();
+    startDebugger(m_debuggerRunControlFactory->create(sp));
+}
+*/
+
+bool DebuggerListener::coreAboutToClose()
+{
+    DebuggerPlugin *plugin = DebuggerPlugin::instance();
+    return plugin && plugin->coreAboutToClose();
 }
 
 } // namespace Debugger

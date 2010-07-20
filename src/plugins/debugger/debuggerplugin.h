@@ -73,6 +73,7 @@ public:
     QVariant sessionValue(const QString &name);
     void setSessionValue(const QString &name, const QVariant &value);
     void setConfigValue(const QString &name, const QVariant &value);
+    bool coreAboutToClose();
 
     void resetLocation();
     void gotoLocation(const QString &fileName, int lineNumber, bool setMarker);
