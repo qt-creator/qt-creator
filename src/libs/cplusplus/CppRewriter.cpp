@@ -382,6 +382,9 @@ FullySpecifiedType UseQualifiedNames::apply(const Name *name, Rewrite *rewrite) 
     SubstitutionEnvironment *env = rewrite->env;
     Scope *scope = env->scope();
 
+    if (name->isQualifiedNameId() || name->isTemplateNameId())
+        return FullySpecifiedType();
+
     if (! scope)
         return FullySpecifiedType();
 
