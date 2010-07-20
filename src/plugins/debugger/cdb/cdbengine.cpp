@@ -646,10 +646,10 @@ void CdbEnginePrivate::endDebugging(bool detachOnly)
     if (endSession(&errorMessage)) {
         STATE_DEBUG(Q_FUNC_INFO, __LINE__, "notifyEngineShutdownOk");
         m_engine->notifyEngineShutdownOk();
-        errorMessage = QString::fromLatin1("There were errors trying to end debugging:\n%1").arg(errorMessage);
-        m_engine->showMessage(errorMessage, LogError);
     } else {
         STATE_DEBUG(Q_FUNC_INFO, __LINE__, "notifyEngineShutdownFailed");
+        errorMessage = QString::fromLatin1("There were errors trying to end debugging:\n%1").arg(errorMessage);
+        m_engine->showMessage(errorMessage, LogError);
         m_engine->notifyEngineShutdownFailed();
     }
 }
