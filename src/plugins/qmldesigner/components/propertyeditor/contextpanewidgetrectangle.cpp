@@ -61,7 +61,7 @@ void ContextPaneWidgetRectangle::setProperties(QmlJS::PropertyReader *propertyRe
         ui->borderColorButton->setColor(propertyReader->readProperty("border.color").toString());
         m_hasBorder = true;
     } else {
-        ui->borderColorButton->setColor(QLatin1String("black"));
+        ui->borderColorButton->setColor(QLatin1String("transparent"));
     }
 
     if (propertyReader->hasProperty(QLatin1String("border.width")))
@@ -76,12 +76,13 @@ void ContextPaneWidgetRectangle::setProperties(QmlJS::PropertyReader *propertyRe
 
     if (m_hasGradient) {
         ui->colorGradient->setChecked(true);
-        ui->gradientLine->setEnabled(true);
-        ui->gradientLabel->setEnabled(true);
+        //ui->gradientLine->setEnabled(true);
+        //ui->gradientLabel->setEnabled(true);
         ui->gradientLine->setGradient(propertyReader->parseGradient("gradient"));
     } else {
-        ui->gradientLine->setEnabled(false);
-        ui->gradientLabel->setEnabled(false);
+        //ui->gradientLine->setEnabled(false);
+        //ui->gradientLabel->setEnabled(false);
+        setColor();
     }
 
     if (m_gradientTimer > 0) {
@@ -99,7 +100,7 @@ void ContextPaneWidgetRectangle::onBorderColorButtonToggled(bool flag)
     }
     ContextPaneWidget *parentContextWidget = qobject_cast<ContextPaneWidget*>(parentWidget());
     QPoint p = mapToGlobal(ui->borderColorButton->pos());
-    parentContextWidget->colorDialog()->setupColor(ui->borderColorButton->color());
+    parentContextWidget->colorDialog()->setupColor(ui->borderColorButton->convertedColor());
     p = parentContextWidget->colorDialog()->parentWidget()->mapFromGlobal(p);
     parentContextWidget->onShowColorDialog(flag, p);
 }
@@ -112,7 +113,7 @@ void ContextPaneWidgetRectangle::onColorButtonToggled(bool flag )
     }
     ContextPaneWidget *parentContextWidget = qobject_cast<ContextPaneWidget*>(parentWidget());
     QPoint p = mapToGlobal(ui->colorColorButton->pos());
-    parentContextWidget->colorDialog()->setupColor(ui->colorColorButton->color());
+    parentContextWidget->colorDialog()->setupColor(ui->colorColorButton->convertedColor());
     p = parentContextWidget->colorDialog()->parentWidget()->mapFromGlobal(p);
     parentContextWidget->onShowColorDialog(flag, p);
 }
@@ -229,6 +230,17 @@ void ContextPaneWidgetRectangle::changeEvent(QEvent *e)
     default:
         break;
     }
+}
+
+void ContextPaneWidgetRectangle::setColor()
+{
+    QLinearGradient gradient;
+    QGradientStops stops;
+    QColor color = ui->colorColorButton->convertedColor();
+    stops.append(QGradientStop(0, color));
+    stops.append(QGradientStop(1, color));
+    gradient.setStops(stops);
+    ui->gradientLine->setGradient(gradient);
 }
 
 } //QmlDesigner

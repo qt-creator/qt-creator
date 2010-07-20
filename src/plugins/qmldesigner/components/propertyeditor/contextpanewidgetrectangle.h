@@ -47,6 +47,7 @@ protected:
     void timerEvent(QTimerEvent *event);
 
 private:
+    void setColor();
     Ui::ContextPaneWidgetRectangle *ui;
     bool m_hasBorder;
     bool m_hasGradient;
