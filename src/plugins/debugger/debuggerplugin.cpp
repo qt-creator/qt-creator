@@ -1906,7 +1906,7 @@ void DebuggerPluginPrivate::toggleBreakpoint(const QString &fileName, int lineNu
 
 void DebuggerPluginPrivate::requestMark(ITextEditor *editor, int lineNumber)
 {
-    if (isDebuggable(editor))
+    if (isDebuggable(editor) && editor && editor->file())
         toggleBreakpoint(editor->file()->fileName(), lineNumber);
 }
 

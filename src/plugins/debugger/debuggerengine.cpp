@@ -1193,6 +1193,7 @@ void DebuggerEnginePrivate::doInterruptInferior()
 
 void DebuggerEnginePrivate::doShutdownInferior()
 {
+    QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
     m_engine->resetLocation();
     m_targetState = DebuggerFinished;
     m_engine->showMessage(_("CALL: SHUTDOWN INFERIOR"));
