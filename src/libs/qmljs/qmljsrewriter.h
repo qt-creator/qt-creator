@@ -77,8 +77,8 @@ public:
     static AST::UiObjectMemberList *searchMemberToInsertAfter(AST::UiObjectMemberList *members, const QString &propertyName, const QStringList &propertyOrder);
     static QString flatten(AST::UiQualifiedId *first);
 
-    bool includeSurroundingWhitespace(int &start, int &end) const;
-    void includeLeadingEmptyLine(int &start) const;
+    static bool includeSurroundingWhitespace(const QString &source, int &start, int &end);
+    static void includeLeadingEmptyLine(const QString &source, int &start);
 
 private:
     void replaceMemberValue(AST::UiObjectMember *propertyMember,

@@ -404,29 +404,29 @@ void Rewriter::removeMember(UiObjectMember *member)
     int start = member->firstSourceLocation().offset;
     int end = member->lastSourceLocation().end();
 
-    includeSurroundingWhitespace(start, end);
+    includeSurroundingWhitespace(m_originalText, start, end);
 
     m_changeSet->remove(start, end);
 }
 
-bool Rewriter::includeSurroundingWhitespace(int &start, int &end) const
+bool Rewriter::includeSurroundingWhitespace(const QString &source, int &start, int &end)
 {
     bool includeStartingWhitespace = true;
     bool paragraphFound = false;
 
     if (end >= 0) {
-        QChar c = m_originalText.at(end);
+        QChar c = source.at(end);
 
         while (c.isSpace()) {
             ++end;
             if (c.unicode() == 10) {
                 paragraphFound = true;
                 break;
-            } else if (end == m_originalText.length()) {
+            } else if (end == source.length()) {
                 break;
             }
 
-            c = m_originalText.at(end);
+            c = source.at(end);
         }
 
         includeStartingWhitespace = paragraphFound;
@@ -435,7 +435,7 @@ bool Rewriter::includeSurroundingWhitespace(int &start, int &end) const
     paragraphFound = false;
     if (includeStartingWhitespace) {
         while (start > 0) {
-            const QChar c = m_originalText.at(start - 1);
+            const QChar c = source.at(start - 1);
 
             if (c.unicode() == 10) {
                 paragraphFound = true;
@@ -453,9 +453,9 @@ bool Rewriter::includeSurroundingWhitespace(int &start, int &end) const
     return paragraphFound;
 }
 
-void Rewriter::includeLeadingEmptyLine(int &start) const
+void Rewriter::includeLeadingEmptyLine(const QString &source, int &start)
 {
-    QTextDocument doc(m_originalText);
+    QTextDocument doc(source);
 
     if (start == 0)
         return;
@@ -591,10 +591,10 @@ void Rewriter::removeObjectMember(UiObjectMember *member, UiObjectMember *parent
     if (UiArrayBinding *parentArray = cast<UiArrayBinding *>(parent)) {
         extendToLeadingOrTrailingComma(parentArray, member, start, end);
     } else {
-        includeSurroundingWhitespace(start, end);
+        includeSurroundingWhitespace(m_originalText, start, end);
     }
 
-    includeLeadingEmptyLine(start);
+    includeLeadingEmptyLine(m_originalText, start);
     m_changeSet->remove(start, end);
 }
 
@@ -617,16 +617,16 @@ void Rewriter::extendToLeadingOrTrailingComma(UiArrayBinding *parentArray,
     if (currentMember->commaToken.isValid()) {
         // leading comma
         start = currentMember->commaToken.offset;
-        if (includeSurroundingWhitespace(start, end))
+        if (includeSurroundingWhitespace(m_originalText, start, end))
             --end;
     } else if (currentMember->next && currentMember->next->commaToken.isValid()) {
         // trailing comma
         end = currentMember->next->commaToken.end();
-        includeSurroundingWhitespace(start, end);
+        includeSurroundingWhitespace(m_originalText, start, end);
     } else {
         // array with 1 element, so remove the complete binding
         start = parentArray->firstSourceLocation().offset;
         end = parentArray->lastSourceLocation().end();
-        includeSurroundingWhitespace(start, end);
+        includeSurroundingWhitespace(m_originalText, start, end);
     }
 }
