@@ -176,8 +176,6 @@ BreakpointData *BreakpointData::clone() const
 {
     BreakpointData *data = new BreakpointData();
     data->m_handler = m_handler;
-    data->m_markerFileName = m_markerFileName;
-    data->m_markerLineNumber = m_markerLineNumber;
     data->enabled = enabled;
     data->type = type;
     data->fileName = fileName;
@@ -188,6 +186,15 @@ BreakpointData *BreakpointData::clone() const
     data->threadSpec = threadSpec;
     data->funcName = funcName;
     data->useFullPath = useFullPath;
+    if (isSetByFunction()) {
+        // FIXME: Would removing it be better then leaving this 
+        // "history" around?
+        data->m_markerFileName = m_markerFileName;
+        data->m_markerLineNumber = m_markerLineNumber;
+    } else {
+        data->m_markerFileName = fileName;
+        data->m_markerLineNumber = lineNumber.toInt();
+    }
     return data;
 }
 

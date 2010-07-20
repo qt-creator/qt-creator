@@ -112,6 +112,9 @@ public:
     void setMarkerLineNumber(int lineNumber);
     int markerLineNumber() const { return m_markerLineNumber; }
 
+    bool isSetByFunction() const { return !funcName.isEmpty(); }
+    bool isSetByFileAndLine() const { return !fileName.isEmpty(); }
+
 private:
     // Taken from either user input or gdb responses.
     QString m_markerFileName; // Used to locate the marker.

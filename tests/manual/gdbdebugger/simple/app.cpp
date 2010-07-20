@@ -1869,7 +1869,6 @@ int main(int argc, char *argv[])
     //testWCout0();
     //testWCout();
     testColor();
-    return 0;
     testQRegion();
     testStuff();
     testPeekAndPoke3();
@@ -1949,7 +1948,6 @@ int main(int argc, char *argv[])
     //*(int *)0 = 0;
 
     testQObject(argc, argv);
-
 
     //QColor color(255,128,10);
     //QFont font;
