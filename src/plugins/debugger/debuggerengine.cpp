@@ -1411,7 +1411,7 @@ void DebuggerEngine::quitDebugger()
     showMessage("QUIT DEBUGGER REQUESTED");
     d->m_targetState = DebuggerFinished;
     if (state() == InferiorStopOk) {
-        d->doShutdownInferior();
+        d->queueShutdownInferior();
     } else if (state() == InferiorRunOk) {
         d->doInterruptInferior();
     } else {

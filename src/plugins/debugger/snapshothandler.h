@@ -38,11 +38,9 @@
 namespace Debugger {
 
 class DebuggerRunControl;
-class DebuggerStartParameters;
 
 namespace Internal {
 
-class SessionEngine;
 class DebuggerEngine;
 
 
@@ -58,7 +56,7 @@ class SnapshotHandler : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    explicit SnapshotHandler(SessionEngine *engine);
+    explicit SnapshotHandler();
     ~SnapshotHandler();
 
     // Called from SnapshotHandler after a new snapshot has been added
@@ -82,7 +80,6 @@ private:
     DebuggerEngine *engineAt(int i) const;
     void removeSnapshot(int index);
 
-    SessionEngine *m_engine;
     int m_currentIndex;
     QList< QPointer<DebuggerRunControl> > m_snapshots;
     const QVariant m_positionIcon;

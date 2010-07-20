@@ -1112,7 +1112,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_sessionEngine = new SessionEngine;
 
     // Snapshot
-    m_snapshotHandler = new SnapshotHandler(m_sessionEngine);
+    m_snapshotHandler = new SnapshotHandler;
     m_snapshotWindow->setModel(m_snapshotHandler->model());
 
     // Debug mode setup

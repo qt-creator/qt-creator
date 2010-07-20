@@ -60,7 +60,6 @@ private:
     void keyPressEvent(QKeyEvent *ev);
     void contextMenuEvent(QContextMenuEvent *ev);
     void removeSnapshots(const QModelIndexList &list);
-    void removeSnapshots(QList<int> rows);
 
     bool m_alwaysResizeColumnsToContents;
 };

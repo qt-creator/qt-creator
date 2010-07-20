@@ -116,9 +116,8 @@ QDebug operator<<(QDebug d, const  SnapshotData &f)
 //
 ////////////////////////////////////////////////////////////////////////
 
-SnapshotHandler::SnapshotHandler(SessionEngine *engine)
-  : m_engine(engine),
-    m_positionIcon(QIcon(":/debugger/images/location_16.png")),
+SnapshotHandler::SnapshotHandler()
+  : m_positionIcon(QIcon(":/debugger/images/location_16.png")),
     m_emptyIcon(QIcon(":/debugger/images/debugger_empty_14.png"))
 {
     m_currentIndex = -1;
@@ -223,28 +222,25 @@ bool SnapshotHandler::setData
     }
     if (index.isValid() && role == RequestActivateSnapshotRole) {
         m_currentIndex = index.row();
-        qDebug() << "ACTIVATING INDEX: " << m_currentIndex
-            << " OF " << size();
+        //qDebug() << "ACTIVATING INDEX: " << m_currentIndex << " OF " << size();
         DebuggerPlugin::displayDebugger(m_snapshots.at(m_currentIndex));
         reset();
+        return true;
+    }
+    if (index.isValid() && role == RequestRemoveSnapshotRole) {
+        DebuggerEngine *engine = engineAt(index.row());
+        //qDebug() << "REMOVING " << engine;
+        QTC_ASSERT(engine, return false);
+        engine->quitDebugger();
         return true;
     }
     return false;
 }
 
-
 #if 0
     // See http://sourceware.org/bugzilla/show_bug.cgi?id=11241.
     setState(EngineSetupRequested);
     postCommand("set stack-cache off");
-
-    QMessageBox *mb = showMessageBox(QMessageBox::Critical,
-        tr("Snapshot Reloading"),
-        tr("In order to load snapshots the debugged process needs "
-         "to be stopped. Continuation will not be possible afterwards.\n"
-         "Do you want to stop the debugged process and load the selected "
-         "snapshot?"), QMessageBox::Ok | QMessageBox::Cancel);
-    if (mb->exec() == QMessageBox::Cancel)
 #endif
 
 void SnapshotHandler::removeAll()

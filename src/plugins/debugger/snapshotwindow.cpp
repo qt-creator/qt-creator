@@ -93,24 +93,8 @@ void SnapshotWindow::rowActivated(const QModelIndex &index)
 void SnapshotWindow::removeSnapshots(const QModelIndexList &indexes)
 {
     QTC_ASSERT(!indexes.isEmpty(), return);
-    QList<int> list;
     foreach (const QModelIndex &idx, indexes)
-        list.append(idx.row());
-    removeSnapshots(list);
-}
-
-void SnapshotWindow::removeSnapshots(QList<int> list)
-{
-    if (list.empty())
-        return;
-    const int firstRow = list.front();
-    qSort(list.begin(), list.end());
-    for (int i = list.size(); --i >= 0; )
-        model()->setData(QModelIndex(), list.at(i), RequestRemoveSnapshotRole);
-
-    const int row = qMin(firstRow, model()->rowCount() - 1);
-    if (row >= 0)
-        setCurrentIndex(model()->index(row, 0));
+        model()->setData(idx, QVariant(), RequestRemoveSnapshotRole);
 }
 
 void SnapshotWindow::keyPressEvent(QKeyEvent *ev)
@@ -137,6 +121,11 @@ void SnapshotWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     menu.addSeparator();
 
+    QAction *actRemove = menu.addAction(tr("Remove Snapshot"));
+    actRemove->setEnabled(idx.isValid());
+
+    menu.addSeparator();
+
     QAction *actAdjust = menu.addAction(tr("Adjust Column Widths to Contents"));
 
     QAction *actAlwaysAdjust =
@@ -152,6 +141,8 @@ void SnapshotWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     if (act == actCreate)
         model()->setData(idx, idx.row(), RequestMakeSnapshotRole);
+    else if (act == actRemove)
+        model()->setData(idx, idx.row(), RequestRemoveSnapshotRole);
     else if (act == actAdjust)
         resizeColumnsToContents();
     else if (act == actAlwaysAdjust)
