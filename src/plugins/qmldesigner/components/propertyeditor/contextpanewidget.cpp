@@ -89,6 +89,7 @@ void ContextPaneWidget::activate(const QPoint &pos, const QPoint &alternative, c
 
 void ContextPaneWidget::rePosition(const QPoint &position, const QPoint &alternative, const QPoint &alternative2)
 {
+    show();
     if ((position.x()  + width()) < parentWidget()->width())
         move(position);
     else
@@ -96,6 +97,8 @@ void ContextPaneWidget::rePosition(const QPoint &position, const QPoint &alterna
 
     if (pos().y() < 0)
         move(alternative2);
+    if ((pos().y() + height()) > parentWidget()->height())
+        hide();
 }
 
 void ContextPaneWidget::deactivate()
