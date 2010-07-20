@@ -237,7 +237,7 @@ void TcfTrkGdbAdapter::handleTcfTrkRunControlModuleLoadContextSuspendedEvent(con
                 //    + QByteArray::number(m_session.codeseg));
                 m_engine->postCommand("symbol-file \"" + symbolFile + "\"");
             }
-            foreach(const QByteArray &s, Symbian::gdbStartupSequence())
+            foreach (const QByteArray &s, Symbian::gdbStartupSequence())
                 m_engine->postCommand(s);
             m_engine->postCommand("target remote " + gdbServerName().toLatin1(),
                                   CB(handleTargetRemote));
@@ -299,7 +299,7 @@ void TcfTrkGdbAdapter::tcftrkEvent(const TcfTrkEvent &e)
             const TcfTrkRunControlContextSuspendedEvent &se = static_cast<const TcfTrkRunControlContextSuspendedEvent &>(e);
             const unsigned threadId = RunControlContext::threadIdFromTcdfId(se.id());
             const QString reason = QString::fromUtf8(se.reasonID());
-            showMessage(QString::fromLatin1("Reset snapshot (Thread 0x%1 stopped: '%2')").
+            showMessage(_("Reset snapshot (Thread 0x%1 stopped: '%2')").
                         arg(threadId, 0, 16).arg(reason));
             // Stopped in a new thread: Add.
             m_snapshot.reset();
@@ -544,7 +544,7 @@ void TcfTrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         const uint signalNumber = cmd.mid(1).toUInt(&ok, 16);
         //TODO: Meaning of the message is not clear.
         sendGdbServerAck();
-        logMessage(QString::fromLatin1("Not implemented 'Continue with signal' %1: ").arg(signalNumber), LogWarning);
+        logMessage(_("Not implemented 'Continue with signal' %1: ").arg(signalNumber), LogWarning);
         sendGdbServerMessage("O" + QByteArray("Console output").toHex());
         sendGdbServerMessage("W81"); // "Process exited with result 1
         sendTrkContinue();
@@ -646,7 +646,7 @@ void TcfTrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
             sendGdbServerMessage("E20", "Data length mismatch " + cmd);
             return;
         }
-        logMessage(QString::fromLatin1("Writing %1 bytes from 0x%2: %3").
+        logMessage(_("Writing %1 bytes from 0x%2: %3").
                    arg(addrLength.second).arg(addrLength.first, 0, 16).
                    arg(QString::fromAscii(data.toHex())));
         m_trkDevice->sendMemorySetCommand(TcfTrkCallback(this, &TcfTrkGdbAdapter::handleWriteMemory),
@@ -680,7 +680,7 @@ void TcfTrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         const QPair<uint, uint> regnumValue = parseGdbWriteRegisterWriteRequest(cmd);
         // FIXME: Assume all goes well.
         m_snapshot.setRegisterValue(m_session.tid, regnumValue.first, regnumValue.second);
-        logMessage(QString::fromLatin1("Setting register #%1 to 0x%2").arg(regnumValue.first).arg(regnumValue.second, 0, 16));
+        logMessage(_("Setting register #%1 to 0x%2").arg(regnumValue.first).arg(regnumValue.second, 0, 16));
         m_trkDevice->sendRegistersSetCommand(TcfTrkCallback(this, &TcfTrkGdbAdapter::handleWriteRegister),
                                              currentThreadContextId(), regnumValue.first, regnumValue.second,
                                              QVariant(regnumValue.first));
@@ -803,7 +803,7 @@ void TcfTrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
 
     else if (cmd == "s" || cmd.startsWith("vCont;s")) {
         const uint pc = m_snapshot.registerValue(m_session.tid, RegisterPC);
-        logMessage(msgGdbPacket(QString::fromLatin1("Step range from 0x%1").
+        logMessage(msgGdbPacket(_("Step range from 0x%1").
                                 arg(pc, 0, 16)));
         sendGdbServerAck();
         m_running = true;
@@ -905,7 +905,7 @@ void TcfTrkGdbAdapter::gdbSetCurrentThread(const QByteArray &cmd, const char *wh
     const QByteArray id = cmd.mid(2);
     const int threadId = id == "-1" ? -1 : id.toInt(0, 16);
     const QByteArray message = QByteArray(why) + QByteArray::number(threadId);
-    logMessage(msgGdbPacket(QString::fromLatin1(message)));
+    logMessage(msgGdbPacket(_(message)));
     // Set thread for subsequent operations (`m', `M', `g', `G', et.al.).
     // for 'other operations.  0 - any thread
     //$Hg0#df
@@ -977,7 +977,7 @@ void TcfTrkGdbAdapter::startAdapter()
     connect(m_gdbServer, SIGNAL(newConnection()),
         this, SLOT(handleGdbConnection()));
 
-    logMessage(QString::fromLatin1("Connecting to TCF TRK on %1:%2")
+    logMessage(_("Connecting to TCF TRK on %1:%2")
                .arg(tcfTrkAddress).arg(tcfTrkPort));
     tcfTrkSocket->connectToHost(tcfTrkAddress, tcfTrkPort);
 }
@@ -985,9 +985,10 @@ void TcfTrkGdbAdapter::startAdapter()
 void TcfTrkGdbAdapter::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-    m_trkDevice->sendProcessStartCommand(TcfTrkCallback(this, &TcfTrkGdbAdapter::handleCreateProcess),
-                                         m_remoteExecutable, m_uid, m_remoteArguments,
-                                         QString(), true);
+    m_trkDevice->sendProcessStartCommand(
+        TcfTrkCallback(this, &TcfTrkGdbAdapter::handleCreateProcess),
+        m_remoteExecutable, m_uid, m_remoteArguments,
+        QString(), true);
 }
 
 void TcfTrkGdbAdapter::addThread(unsigned id)
@@ -1009,7 +1010,7 @@ void TcfTrkGdbAdapter::handleCreateProcess(const TcfTrkCommandResult &result)
         qDebug() << "ProcessCreated: " << result.toString();
     if (!result) {
         const QString errorMessage = result.errorString();
-        logMessage(QString::fromLatin1("Failed to start process: %1").arg(errorMessage), LogError);
+        logMessage(_("Failed to start process: %1").arg(errorMessage), LogError);
         m_engine->notifyInferiorSetupFailed(result.errorString());
         return;
     }
@@ -1030,7 +1031,8 @@ void TcfTrkGdbAdapter::handleCreateProcess(const TcfTrkCommandResult &result)
 
 void TcfTrkGdbAdapter::runEngine()
 {
-    m_engine->notifyInferiorStopOk();
+    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
+    m_engine->notifyEngineRunAndInferiorStopOk();
     // Trigger the initial "continue" manually.
     m_engine->continueInferiorInternal();
 }
@@ -1052,7 +1054,8 @@ void TcfTrkGdbAdapter::write(const QByteArray &data)
             data1.chop(1);
         bool ok;
         const uint addr = data1.toUInt(&ok, 0);
-        logMessage(QString::fromLatin1("Direct step (@#) 0x%1: not implemented").arg(addr, 0, 16), LogError);
+        logMessage(_("Direct step (@#) 0x%1: not implemented").arg(addr, 0, 16),
+            LogError);
         // directStep(addr);
         return;
     }
@@ -1115,7 +1118,8 @@ void TcfTrkGdbAdapter::handleWriteRegister(const TcfTrkCommandResult &result)
     if (result) {
         sendGdbServerMessage("OK");
     } else {
-        logMessage(QString::fromLatin1("ERROR writing register #%1: %2").arg(registerNumber).arg(result.errorString()), LogError);
+        logMessage(_("ERROR writing register #%1: %2")
+            .arg(registerNumber).arg(result.errorString()), LogError);
         sendGdbServerMessage("E01");
     }
 }
@@ -1353,7 +1357,7 @@ void TcfTrkGdbAdapter::sendTrkStepRange()
     uint to = m_snapshot.lineToAddress;
     const uint pc = m_snapshot.registerValue(m_session.tid, RegisterPC);
     if (from <= pc && pc <= to) {
-        const QString msg = QString::fromLatin1("Step in 0x%1 .. 0x%2 instead of 0x%3...").
+        const QString msg = _("Step in 0x%1 .. 0x%2 instead of 0x%3...").
                             arg(from, 0, 16).arg(to, 0, 16).arg(pc, 0, 16);
         showMessage(msg);
     } else {
@@ -1365,18 +1369,20 @@ void TcfTrkGdbAdapter::sendTrkStepRange()
           (m_snapshot.stepOver ? RM_STEP_OVER       : RM_STEP_INTO) :
           (m_snapshot.stepOver ? RM_STEP_OVER_RANGE : RM_STEP_INTO_RANGE);
 
-    logMessage(QString::fromLatin1("Stepping from 0x%1 to 0x%2 (current PC=0x%3), mode %4").
+    logMessage(_("Stepping from 0x%1 to 0x%2 (current PC=0x%3), mode %4").
                arg(from, 0, 16).arg(to, 0, 16).arg(pc).arg(int(mode)));
-    m_trkDevice->sendRunControlResumeCommand(TcfTrkCallback(this, &TcfTrkGdbAdapter::handleStep),
-                                             currentThreadContextId(),
-                                             mode, 1, from, to);
+    m_trkDevice->sendRunControlResumeCommand(
+        TcfTrkCallback(this, &TcfTrkGdbAdapter::handleStep),
+        currentThreadContextId(),
+        mode, 1, from, to);
 }
 
 void TcfTrkGdbAdapter::handleStep(const TcfTrkCommandResult &result)
 {
 
     if (!result) { // Try fallback with Continue.
-        logMessage(QString::fromLatin1("Error while stepping: %1 (fallback to 'continue')").arg(result.errorString()), LogWarning);
+        logMessage(_("Error while stepping: %1 (fallback to 'continue')").
+            arg(result.errorString()), LogWarning);
         sendTrkContinue();
         // Doing nothing as below does not work as gdb seems to insist on
         // making some progress through a 'step'.

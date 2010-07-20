@@ -432,7 +432,7 @@ void DebuggerEngine::handleCommand(int role, const QVariant &value)
             break;
 
         case RequestExecInterruptRole:
-            d->doInterruptInferior();
+            requestInterruptInferior();
             break;
 
         case RequestExecResetRole:
@@ -1410,6 +1410,11 @@ void DebuggerEngine::quitDebugger()
 {
     showMessage("QUIT DEBUGGER REQUESTED");
     shutdownInferior();
+}
+
+void DebuggerEngine::requestInterruptInferior()
+{
+    d->doInterruptInferior();
 }
 
 } // namespace Internal

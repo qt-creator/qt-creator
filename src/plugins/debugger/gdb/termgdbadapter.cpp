@@ -143,7 +143,6 @@ void TermGdbAdapter::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
     m_engine->notifyEngineRunAndInferiorStopOk();
-    m_engine->notifyInferiorRunRequested();
     m_engine->continueInferiorInternal();
 }
 

@@ -54,6 +54,7 @@ AbstractGdbAdapter::~AbstractGdbAdapter()
 
 //void AbstractGdbAdapter::runEngine()
 //{
+//    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
 //}
 
 /*

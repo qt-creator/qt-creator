@@ -173,6 +173,8 @@ protected:
     virtual void continueInferior() {}
     virtual void interruptInferior() {}
 
+    virtual void requestInterruptInferior();
+
     virtual void executeRunToLine(const QString &fileName, int lineNumber)
         { Q_UNUSED(fileName); Q_UNUSED(lineNumber); }
     virtual void executeRunToFunction(const QString &functionName)

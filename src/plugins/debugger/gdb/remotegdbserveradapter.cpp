@@ -225,8 +225,8 @@ void RemoteGdbServerAdapter::handleTargetRemote(const GdbResponse &record)
 
 void RemoteGdbServerAdapter::runEngine()
 {
+    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
     m_engine->notifyEngineRunAndInferiorStopOk();
-    m_engine->notifyInferiorRunRequested();
     m_engine->continueInferiorInternal();
 }
 

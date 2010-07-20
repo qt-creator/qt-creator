@@ -1615,6 +1615,8 @@ void TrkGdbAdapter::handleTargetRemote(const GdbResponse &record)
 
 void TrkGdbAdapter::runEngine()
 {
+    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
+    m_engine->notifyEngineRunAndInferiorStopOk();
     m_engine->continueInferiorInternal();
 }
 

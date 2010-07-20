@@ -654,13 +654,13 @@ void GdbEngine::interruptInferior()
 
 void GdbEngine::interruptInferiorTemporarily()
 {
-    interruptInferior();
     foreach (const GdbCommand &cmd, m_commandsToRunOnTemporaryBreak) {
         if (cmd.flags & LosesChild) {
             notifyInferiorIll();
-            break;
+            return;
         }
     }
+    requestInterruptInferior();
 }
 
 void GdbEngine::maybeHandleInferiorPidChanged(const QString &pid0)
@@ -1798,9 +1798,10 @@ unsigned GdbEngine::debuggerCapabilities() const
 
 void GdbEngine::continueInferiorInternal()
 {
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    notifyInferiorRunRequested();
+    showStatusMessage(tr("Running requested..."), 5000);
     QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
-    //QTC_ASSERT(state() == InferiorStopOk || state() == InferiorSetupRequested,
-    //           qDebug() << state());
     postCommand("-exec-continue", RunRequest, CB(handleExecuteContinue));
 }
 
@@ -1815,9 +1816,7 @@ void GdbEngine::continueInferior()
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     resetLocation();
     setTokenBarrier();
-    notifyInferiorRunRequested();
     continueInferiorInternal();
-    showStatusMessage(tr("Running requested..."), 5000);
 }
 
 void GdbEngine::executeStep()
@@ -1953,7 +1952,6 @@ void GdbEngine::executeRunToFunction(const QString &functionName)
     setTokenBarrier();
     postCommand("-break-insert -t " + functionName.toLatin1());
     showStatusMessage(tr("Run to function %1 requested...").arg(functionName), 5000);
-    notifyInferiorRunRequested();
     continueInferiorInternal();
     //postCommand("-exec-continue", handleExecuteRunToFunction);
 }
