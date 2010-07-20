@@ -437,8 +437,11 @@ Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::P
             continue;
 
         if (!M.way2.contains(y)) {
-            qDebug () << "Delta::operator():  insert " << label(y, doc2) << " to " << label(parents2.parent.value(y), doc2);
-            insert(y, parents2.parent.value(y), newDebuggIds.value(parents2.parent.value(y)), doc2);
+            UiObjectMember* parent = parents2.parent.value(y);
+            if (!M.way2.contains(parent))
+                continue;
+            qDebug () << "Delta::operator():  insert " << label(y, doc2) << " to " << label(parent, doc2);
+            insert(y, parent, newDebuggIds.value(parent), doc2);
             continue;
         }
         UiObjectMember *x = M.way2[y];
