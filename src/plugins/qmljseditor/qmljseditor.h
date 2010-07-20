@@ -118,6 +118,7 @@ public:
 
     // Returns the declaring member
     QmlJS::AST::Node *declaringMember(int cursorPosition) const;
+    QmlJS::AST::Node *declaringMemberNoProperties(int cursorPosition) const;
 
     // Returns the AST node under cursor
     QmlJS::AST::Node *nodeUnderCursor(int cursorPosition) const;

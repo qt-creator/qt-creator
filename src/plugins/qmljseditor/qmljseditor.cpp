@@ -511,6 +511,33 @@ AST::Node *SemanticInfo::declaringMember(int cursorPosition) const
     return declaringMember;
 }
 
+QmlJS::AST::Node *SemanticInfo::declaringMemberNoProperties(int cursorPosition) const
+{
+   AST::Node *node = declaringMember(cursorPosition);
+
+   if (UiObjectDefinition *objectDefinition = cast<UiObjectDefinition*>(node)) {
+       QString name = objectDefinition->qualifiedTypeNameId->name->asString();
+       if (!name.isNull() && name.at(0).isLower()) {
+           QList<AST::Node *> path = astPath(cursorPosition);
+           if (path.size() > 1)
+               return path.at(path.size() - 2);
+       } else if (name.contains("GradientStop")) {
+           QList<AST::Node *> path = astPath(cursorPosition);
+           if (path.size() > 2)
+               return path.at(path.size() - 3);
+       }
+   } else if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(node)) {
+       QString name = objectBinding->qualifiedTypeNameId->name->asString();
+       if (name.contains("Gradient")) {
+           QList<AST::Node *> path = astPath(cursorPosition);
+           if (path.size() > 1)
+               return path.at(path.size() - 2);
+       }
+   }
+
+   return node;
+}
+
 QList<AST::Node *> SemanticInfo::astPath(int cursorPosition) const
 {
     QList<AST::Node *> path;
