@@ -660,7 +660,7 @@ void CPPEditor::hideRenameNotification()
     Core::EditorManager::instance()->hideEditorInfoBar(QLatin1String("CppEditor.Rename"));
 }
 
-void CPPEditor::renameUsagesNow()
+void CPPEditor::renameUsagesNow(const QString &replacement)
 {
     const SemanticInfo info = m_lastSemanticInfo;
 
@@ -674,7 +674,7 @@ void CPPEditor::renameUsagesNow()
                                                                    this, SLOT(hideRenameNotification()));
             }
 
-            m_modelManager->renameUsages(canonicalSymbol, cs.context());
+            m_modelManager->renameUsages(canonicalSymbol, cs.context(), replacement);
         }
     }
 }

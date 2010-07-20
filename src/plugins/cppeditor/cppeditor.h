@@ -192,7 +192,7 @@ public Q_SLOTS:
     void renameSymbolUnderCursor();
     void renameUsages();
     void findUsages();
-    void renameUsagesNow();
+    void renameUsagesNow(const QString &replacement = QString());
     void hideRenameNotification();
 
 protected:

@@ -66,7 +66,8 @@ Q_SIGNALS:
 
 public:
     void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
-    void renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
+    void renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context,
+                      const QString &replacement = QString());
 
     void findMacroUses(const CPlusPlus::Macro &macro);
 

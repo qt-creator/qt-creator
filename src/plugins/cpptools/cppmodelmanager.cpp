@@ -794,10 +794,11 @@ void CppModelManager::findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::Loo
         m_findReferences->findUsages(symbol, context);
 }
 
-void CppModelManager::renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context)
+void CppModelManager::renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context,
+                                   const QString &replacement)
 {
     if (symbol->identifier())
-        m_findReferences->renameUsages(symbol, context);
+        m_findReferences->renameUsages(symbol, context, replacement);
 }
 
 void CppModelManager::findMacroUsages(const CPlusPlus::Macro &macro)

@@ -53,6 +53,7 @@
 #include <Names.h>
 #include <Literals.h>
 
+#include <cppeditor/cppeditor.h>
 #include <cppeditor/cpprefactoringchanges.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cppmodelmanagerinterface.h>
@@ -1576,6 +1577,75 @@ private:
     BinaryExpressionAST *binaryAST;
 };
 
+/*
+ * Turns "an_example_symbol" into "anExampleSymbol" and
+ * "AN_EXAMPLE_SYMBOL" into "AnExampleSymbol".
+ */
+class ToCamelCaseConverter : public CppQuickFixOperation
+{
+public:
+    ToCamelCaseConverter(TextEditor::BaseTextEditor *editor)
+        : CppQuickFixOperation(editor)
+    {}
+
+    virtual QString description() const
+    {
+        return QApplication::translate("CppTools::QuickFix", "Convert to Camel Case ...");
+    }
+
+    virtual int match(const QList<AST *> &path)
+    {
+        if (path.isEmpty())
+            return -1;
+
+        AST * const ast = path.last();
+        const Name *name = 0;
+        if (const NameAST * const nameAst = ast->asName()) {
+            if (nameAst->name && nameAst->name->asNameId())
+                name = nameAst->name;
+        } else if (const NamespaceAST * const namespaceAst = ast->asNamespace()) {
+            name = namespaceAst->symbol->name();
+        }
+
+        if (!name)
+            return -1;
+
+        m_name = QString::fromUtf8(name->identifier()->chars());
+        if (m_name.length() < 3)
+            return -1;
+        for (int i = 1; i < m_name.length() - 1; ++i) {
+            if (isConvertibleUnderscore(i))
+                return path.size() - 1;
+        }
+
+        return -1;
+    }
+
+    virtual void createChanges()
+    {
+        for (int i = 1; i < m_name.length(); ++i) {
+            QCharRef c = m_name[i];
+            if (c.isUpper()) {
+                c = c.toLower();
+            } else if (i < m_name.length() - 1
+                && isConvertibleUnderscore(i)) {
+                m_name.remove(i, 1);
+                m_name[i] = m_name.at(i).toUpper();
+            }
+        }
+        static_cast<CppEditor::Internal::CPPEditor*>(editor())->renameUsagesNow(m_name);
+    }
+
+private:
+    bool isConvertibleUnderscore(int pos) const
+    {
+        return m_name.at(pos) == QLatin1Char('_') && m_name.at(pos+1).isLetter()
+            && !(pos == 1 && m_name.at(0) == QLatin1Char('m'));
+    }
+
+    QString m_name;
+};
+
 } // end of anonymous namespace
 
 
@@ -1785,6 +1855,7 @@ QList<TextEditor::QuickFixOperation::Ptr> CppQuickFixFactory::quickFixOperations
     QSharedPointer<CompleteSwitchCaseStatement> completeSwitchCaseStatement(new CompleteSwitchCaseStatement(editor));
     QSharedPointer<FixForwardDeclarationOp> fixForwardDeclarationOp(new FixForwardDeclarationOp(editor));
     QSharedPointer<AddLocalDeclarationOp> addLocalDeclarationOp(new AddLocalDeclarationOp(editor));
+    QSharedPointer<ToCamelCaseConverter> toCamelCase(new ToCamelCaseConverter(editor));
     QSharedPointer<DeclFromDef> declFromDef(new DeclFromDef(editor));
 
     quickFixOperations.append(rewriteLogicalAndOp);
@@ -1803,6 +1874,7 @@ QList<TextEditor::QuickFixOperation::Ptr> CppQuickFixFactory::quickFixOperations
     quickFixOperations.append(completeSwitchCaseStatement);
     quickFixOperations.append(fixForwardDeclarationOp);
     quickFixOperations.append(addLocalDeclarationOp);
+    quickFixOperations.append(toCamelCase);
 
 #if 0
     quickFixOperations.append(declFromDef);

@@ -236,10 +236,12 @@ void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::L
     findAll_helper(symbol, context);
 }
 
-void CppFindReferences::renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context)
+void CppFindReferences::renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context,
+                                     const QString &replacement)
 {
     if (const Identifier *id = symbol->identifier()) {
-        const QString textToReplace = QString::fromUtf8(id->chars(), id->size());
+        const QString textToReplace = replacement.isEmpty()
+                ? QString::fromUtf8(id->chars(), id->size()) : replacement;
 
         Find::SearchResult *search = _resultWindow->startNewSearch(Find::SearchResultWindow::SearchAndReplace);
         _resultWindow->setTextToReplace(textToReplace);

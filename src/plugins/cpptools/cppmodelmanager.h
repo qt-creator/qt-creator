@@ -118,7 +118,8 @@ public:
 
     virtual QList<int> references(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
 
-    virtual void renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
+    virtual void renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context,
+                              const QString &replacement = QString());
     virtual void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
 
     virtual void findMacroUsages(const CPlusPlus::Macro &macro);
