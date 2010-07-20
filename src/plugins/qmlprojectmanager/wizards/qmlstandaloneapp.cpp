@@ -55,6 +55,16 @@ QString QmlStandaloneApp::symbianUidForPath(const QString &path)
             + QString::fromLatin1("%1").arg(hash, 7, 16, QLatin1Char('0')).right(7);
 }
 
+void QmlStandaloneApp::setMainQmlFile(const QString &qmlFile)
+{
+    m_mainQmlFile.setFile(qmlFile);
+}
+
+QString QmlStandaloneApp::mainQmlFile() const
+{
+    return path(MainQml, Target);
+}
+
 void QmlStandaloneApp::setOrientation(Orientation orientation)
 {
     m_orientation = orientation;
@@ -77,10 +87,7 @@ QString QmlStandaloneApp::projectName() const
 
 void QmlStandaloneApp::setProjectPath(const QString &path)
 {
-    m_projectPath = path;
-    if (!(m_projectPath.endsWith(QLatin1Char('\\'))
-        || m_projectPath.endsWith(QLatin1Char('/'))))
-        m_projectPath.append(QDir::separator());
+    m_projectPath.setFile(path);
 }
 
 void QmlStandaloneApp::setSymbianSvgIcon(const QString &icon)
@@ -101,7 +108,7 @@ void QmlStandaloneApp::setSymbianTargetUid(const QString &uid)
 QString QmlStandaloneApp::symbianTargetUid() const
 {
     return !m_symbianTargetUid.isEmpty() ? m_symbianTargetUid
-        : symbianUidForPath(m_projectPath + m_projectName);
+        : symbianUidForPath(path(AppProfile, Target));
 }
 
 void QmlStandaloneApp::setLoadDummyData(bool loadIt)
@@ -126,11 +133,12 @@ bool QmlStandaloneApp::networkEnabled() const
 
 QString QmlStandaloneApp::path(Path path, Location location) const
 {
+    const QString qmlRootFolder = QLatin1String("qml/")
+                                  + (useExistingMainQml() ? m_mainQmlFile.dir().dirName() : m_projectName)
+                                  + QLatin1Char('/');
     const QString sourceRoot = QLatin1String(":/qmlproject/wizards/templates/");
     const QString cppSourceSubDir = QLatin1String("cpp/");
-    const QString qmlSourceSubDir = QLatin1String("qml/");
     const QString cppTargetSubDir = cppSourceSubDir;
-    const QString qmlTargetSubDir = qmlSourceSubDir;
     const QString qmlExtension = QLatin1String(".qml");
     const QString mainCpp = QLatin1String("main.cpp");
     const QString appViewCpp = QLatin1String("qmlapplicationview.cpp");
@@ -141,42 +149,50 @@ QString QmlStandaloneApp::path(Path path, Location location) const
     switch (location) {
         case Source: {
             switch (path) {
-                case MainQml:           return sourceRoot + qmlSourceSubDir + QLatin1String("app.qml");
+                case MainQml:           return sourceRoot + QLatin1String("qml/app/app.qml");
                 case AppProfile:        return sourceRoot + QLatin1String("app.pro");
                 case MainCpp:           return sourceRoot + cppSourceSubDir + mainCpp;
                 case AppViewerCpp:      return sourceRoot + cppSourceSubDir + appViewCpp;
                 case AppViewerH:        return sourceRoot + cppSourceSubDir + appViewH;
                 case SymbianSvgIcon:    return !m_symbianSvgIcon.isEmpty() ? m_symbianSvgIcon
-                                                    :sourceRoot + cppSourceSubDir + symbianIcon;
+                                                    : sourceRoot + cppSourceSubDir + symbianIcon;
                 default:                qFatal(errorMessage);
             }
         }
         case Target: {
-            const QString pathBase = m_projectPath + m_projectName + QDir::separator();
+            const QString pathBase = m_projectPath.absoluteFilePath() + QLatin1Char('/')
+                                     + m_projectName + QLatin1Char('/');
             switch (path) {
-                case MainQml:           return pathBase + qmlTargetSubDir + m_projectName + qmlExtension;
+                case MainQml:           return useExistingMainQml() ? m_mainQmlFile.canonicalFilePath()
+                                                    : pathBase + qmlRootFolder + m_projectName + qmlExtension;
                 case AppProfile:        return pathBase + m_projectName + QLatin1String(".pro");
+                case AppProfilePath:    return pathBase;
                 case MainCpp:           return pathBase + cppTargetSubDir + mainCpp;
                 case AppViewerCpp:      return pathBase + cppTargetSubDir + appViewCpp;
                 case AppViewerH:        return pathBase + cppTargetSubDir + appViewH;
                 case SymbianSvgIcon:    return pathBase + cppTargetSubDir + symbianIcon;
+                case QmlDir:            return pathBase + qmlRootFolder;
                 default:                qFatal(errorMessage);
             }
         }
         case AppProfileRelative: {
+            const QDir appProFilePath(this->path(AppProfilePath, Target));
             switch (path) {
-                case MainQml:           return qmlTargetSubDir + m_projectName + qmlExtension;
+                case MainQml:           return useExistingMainQml() ? appProFilePath.relativeFilePath(m_mainQmlFile.canonicalFilePath())
+                                                        : qmlRootFolder + m_projectName + qmlExtension;
                 case MainCpp:           return cppTargetSubDir + mainCpp;
                 case AppViewerCpp:      return cppTargetSubDir + appViewCpp;
                 case AppViewerH:        return cppTargetSubDir + appViewH;
                 case SymbianSvgIcon:    return cppTargetSubDir + symbianIcon;
-                case QmlDir:            return QString(qmlTargetSubDir).remove(qmlTargetSubDir.length() - 1, 1);
+                case QmlDir:            return useExistingMainQml() ? appProFilePath.relativeFilePath(m_mainQmlFile.canonicalPath())
+                                                        : QString(qmlRootFolder).remove(qmlRootFolder.length() - 1, 1);
                 default:                qFatal(errorMessage);
             }
         }
         default: { /* case MainCppRelative: */
             switch (path) {
-                case MainQml:           return qmlTargetSubDir + m_projectName + qmlExtension;
+                case MainQml:           return useExistingMainQml() ? qmlRootFolder + m_mainQmlFile.fileName()
+                                                        : QString(qmlRootFolder + m_projectName + qmlExtension);
                 default:                qFatal(errorMessage);
             }
         }
@@ -310,7 +326,8 @@ Core::GeneratedFiles QmlStandaloneApp::generateFiles(QString *errorMessage) cons
     generatedProFile.setAttributes(Core::GeneratedFile::OpenProjectAttribute);
     files.append(generatedProFile);
 
-    files.append(generateFileCopy(path(MainQml, Source), path(MainQml, Target), true));
+    if (!useExistingMainQml())
+        files.append(generateFileCopy(path(MainQml, Source), path(MainQml, Target), true));
 
     Core::GeneratedFile generatedMainCppFile(path(MainCpp, Target));
     generatedMainCppFile.setContents(generateMainCpp(errorMessage));
@@ -323,6 +340,11 @@ Core::GeneratedFiles QmlStandaloneApp::generateFiles(QString *errorMessage) cons
     return files;
 }
 #endif // CREATORLESSTEST
+
+bool QmlStandaloneApp::useExistingMainQml() const
+{
+    return !m_mainQmlFile.filePath().isEmpty();
+}
 
 } // namespace Internal
 } // namespace QmlProjectManager

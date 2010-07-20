@@ -77,7 +77,8 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
     addAutoReleasedObject(manager);
     addAutoReleasedObject(new Internal::QmlProjectRunConfigurationFactory);
     addAutoReleasedObject(new Internal::QmlRunControlFactory);
-    addAutoReleasedObject(new QmlNewStandaloneAppWizard);
+    addAutoReleasedObject(new QmlStandaloneAppWizard(QmlStandaloneAppWizard::NewQmlFile));
+    addAutoReleasedObject(new QmlStandaloneAppWizard(QmlStandaloneAppWizard::ImportQmlFile));
     addAutoReleasedObject(new QmlProjectApplicationWizard);
     addAutoReleasedObject(new QmlProjectImportWizard);
 

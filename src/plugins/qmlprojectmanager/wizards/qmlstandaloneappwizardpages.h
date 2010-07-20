@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef QMLSTANDALONEAPPWIZARDOPTIONPAGE_H
-#define QMLSTANDALONEAPPWIZARDOPTIONPAGE_H
+#ifndef QMLSTANDALONEAPPWIZARDPAGES_H
+#define QMLSTANDALONEAPPWIZARDPAGES_H
 
 #include <QtGui/QWizardPage>
 #include "qmlstandaloneapp.h"
@@ -36,16 +36,31 @@
 namespace QmlProjectManager {
 namespace Internal {
 
-class QmlStandaloneAppWizardOptionPage : public QWizardPage
+class QmlStandaloneAppWizardSourcesPage : public QWizardPage
 {
     Q_OBJECT
-    Q_DISABLE_COPY(QmlStandaloneAppWizardOptionPage)
+    Q_DISABLE_COPY(QmlStandaloneAppWizardSourcesPage)
 
 public:
-    explicit QmlStandaloneAppWizardOptionPage(QWidget *parent = 0);
-    virtual ~QmlStandaloneAppWizardOptionPage();
+    explicit QmlStandaloneAppWizardSourcesPage(QWidget *parent = 0);
+    virtual ~QmlStandaloneAppWizardSourcesPage();
 
+    QString mainQmlFile() const;
     virtual bool isComplete() const;
+    void setMainQmlFileChooserVisible(bool visible);
+
+private:
+    class QmlStandaloneAppWizardSourcesPagePrivate *m_d;
+};
+
+class QmlStandaloneAppWizardOptionsPage : public QWizardPage
+{
+    Q_OBJECT
+    Q_DISABLE_COPY(QmlStandaloneAppWizardOptionsPage)
+
+public:
+    explicit QmlStandaloneAppWizardOptionsPage(QWidget *parent = 0);
+    virtual ~QmlStandaloneAppWizardOptionsPage();
 
     void setOrientation(QmlStandaloneApp::Orientation orientation);
     QmlStandaloneApp::Orientation orientation() const;
@@ -62,10 +77,10 @@ private slots:
     void openSymbianSvgIcon(); // Via file open dialog
 
 private:
-    class QmlStandaloneAppWizardOptionPagePrivate *m_d;
+    class QmlStandaloneAppWizardOptionsPagePrivate *m_d;
 };
 
 } // end of namespace Internal
 } // end of namespace QmlProjectManager
 
-#endif // QMLSTANDALONEAPPWIZARDOPTIONPAGE_H
+#endif // QMLSTANDALONEAPPWIZARDPAGES_H

@@ -28,12 +28,15 @@
 **************************************************************************/
 
 #include "qmlstandaloneappwizard.h"
-#include "qmlstandaloneappwizardoptionspage.h"
+#include "qmlstandaloneappwizardpages.h"
 #include "qmlstandaloneapp.h"
 
 #include "qmlprojectconstants.h"
 
+#include <projectexplorer/baseprojectwizarddialog.h>
 #include <projectexplorer/customwizard/customwizard.h>
+#include <projectexplorer/projectexplorer.h>
+#include <coreplugin/editormanager/editormanager.h>
 
 #include <QtGui/QIcon>
 
@@ -48,103 +51,142 @@
 namespace QmlProjectManager {
 namespace Internal {
 
-class QmlNewStandaloneAppWizardDialog : public ProjectExplorer::BaseProjectWizardDialog
+class QmlStandaloneAppWizardDialog : public ProjectExplorer::BaseProjectWizardDialog
 {
     Q_OBJECT
 
 public:
-    explicit QmlNewStandaloneAppWizardDialog(QWidget *parent = 0);
+    explicit QmlStandaloneAppWizardDialog(QmlStandaloneAppWizard::WizardType type, QWidget *parent = 0);
 
 private:
-    class QmlStandaloneAppWizardOptionPage *m_qmlOptionsPage;
-    friend class QmlNewStandaloneAppWizard;
+    QmlStandaloneAppWizard::WizardType m_type;
+    class QmlStandaloneAppWizardSourcesPage *m_qmlSourcesPage;
+    class QmlStandaloneAppWizardOptionsPage *m_qmlOptionsPage;
+    friend class QmlStandaloneAppWizard;
 };
 
-QmlNewStandaloneAppWizardDialog::QmlNewStandaloneAppWizardDialog(QWidget *parent)
+QmlStandaloneAppWizardDialog::QmlStandaloneAppWizardDialog(QmlStandaloneAppWizard::WizardType type,
+                                                           QWidget *parent)
     : ProjectExplorer::BaseProjectWizardDialog(parent)
+    , m_type(type)
 {
-    setWindowTitle(tr("New Standalone QML Project"));
-    setIntroDescription(tr("This wizard generates a Standalone QML application project."));
+    setWindowTitle(m_type == QmlStandaloneAppWizard::NewQmlFile
+                       ? tr("New Standalone QML Project")
+                       : tr("Standalone QML Project from existing QML Project"));
+    setIntroDescription(m_type == QmlStandaloneAppWizard::NewQmlFile
+                       ? tr("This wizard generates a Standalone QML application project.")
+                       : tr("This wizard imports an existing QML application and creates a standalone version of it."));
 
-    m_qmlOptionsPage = new QmlStandaloneAppWizardOptionPage;
+    m_qmlSourcesPage = new QmlStandaloneAppWizardSourcesPage;
+    m_qmlSourcesPage->setMainQmlFileChooserVisible(m_type == QmlStandaloneAppWizard::ImportQmlFile);
+    if (m_type == QmlStandaloneAppWizard::ImportQmlFile) {
+        const int qmlSourcesPagePageId = addPage(m_qmlSourcesPage);
+        wizardProgress()->item(qmlSourcesPagePageId)->setTitle(tr("Qml Sources"));
+    }
 
+    m_qmlOptionsPage = new QmlStandaloneAppWizardOptionsPage;
     const int qmlOptionsPagePageId = addPage(m_qmlOptionsPage);
     wizardProgress()->item(qmlOptionsPagePageId)->setTitle(tr("Qml App options"));
 }
 
-QmlNewStandaloneAppWizard::QmlNewStandaloneAppWizard()
-    : Core::BaseFileWizard(parameters())
-    , m_standaloneApp(new QmlStandaloneApp)
-    , m_wizardDialog(0)
+class QmlStandaloneAppWizardPrivate
 {
+    QmlStandaloneAppWizard::WizardType type;
+    class QmlStandaloneApp *standaloneApp;
+    class QmlStandaloneAppWizardDialog *wizardDialog;
+    friend class QmlStandaloneAppWizard;
+};
+
+QmlStandaloneAppWizard::QmlStandaloneAppWizard(WizardType type)
+    : Core::BaseFileWizard(parameters(type))
+    , m_d(new QmlStandaloneAppWizardPrivate)
+{
+    m_d->type = type;
+    m_d->standaloneApp = new QmlStandaloneApp;
+    m_d->wizardDialog = 0;
 }
 
-QmlNewStandaloneAppWizard::~QmlNewStandaloneAppWizard()
+QmlStandaloneAppWizard::~QmlStandaloneAppWizard()
 {
-    delete m_standaloneApp;
+    delete m_d->standaloneApp;
 }
 
-Core::BaseFileWizardParameters QmlNewStandaloneAppWizard::parameters()
+Core::BaseFileWizardParameters QmlStandaloneAppWizard::parameters(WizardType type)
 {
     Core::BaseFileWizardParameters parameters(ProjectWizard);
     parameters.setIcon(QIcon(QLatin1String(Constants::QML_WIZARD_ICON)));
-    parameters.setDisplayName(tr("Qt QML Standalone Application"));
-    parameters.setId(QLatin1String("QA.QML Standalone Application"));
-    parameters.setDescription(tr("Creates a standalone, mobile-deployable Qt QML application "
-                                 "project. A lightweight Qt/C++ application with a QDeclarativeView "
-                                 "and a single QML file will be created."));
+    parameters.setDisplayName(type == QmlStandaloneAppWizard::NewQmlFile
+                              ? tr("Qt QML New Standalone Application")
+                              : tr("Qt QML Imported Standalone Application"));
+    parameters.setId(QLatin1String(type == QmlStandaloneAppWizard::NewQmlFile
+                                   ? "QA.QML New Standalone Application"
+                                   : "QA.QML Imported Standalone Application"));
+    parameters.setDescription(type == QmlStandaloneAppWizard::NewQmlFile
+                              ? tr("Creates a standalone, mobile-deployable Qt QML application "
+                                   "project. A lightweight Qt/C++ application with a QDeclarativeView "
+                                   "and a single QML file will be created.")
+                              : tr("Creates a standalone, mobile-deployable Qt QML application "
+                                   "project. An erxisting QML project will be imported and a lightweight "
+                                   "Qt/C++ application with a QDeclarativeView will be created for it."));
     parameters.setCategory(QLatin1String(Constants::QML_WIZARD_CATEGORY));
     parameters.setDisplayCategory(QCoreApplication::translate(Constants::QML_WIZARD_TR_SCOPE,
                                                               Constants::QML_WIZARD_TR_CATEGORY));
     return parameters;
 }
 
-QWizard *QmlNewStandaloneAppWizard::createWizardDialog(QWidget *parent,
-                                                       const QString &defaultPath,
-                                                       const WizardPageList &extensionPages) const
+QWizard *QmlStandaloneAppWizard::createWizardDialog(QWidget *parent,
+                                                    const QString &defaultPath,
+                                                    const WizardPageList &extensionPages) const
 {
-    m_wizardDialog = new QmlNewStandaloneAppWizardDialog(parent);
+    m_d->wizardDialog = new QmlStandaloneAppWizardDialog(m_d->type, parent);
 
-    m_wizardDialog->setPath(defaultPath);
-    m_wizardDialog->setProjectName(QmlNewStandaloneAppWizardDialog::uniqueProjectName(defaultPath));
-    m_wizardDialog->m_qmlOptionsPage->setSymbianSvgIcon(m_standaloneApp->symbianSvgIcon());
-    m_wizardDialog->m_qmlOptionsPage->setOrientation(m_standaloneApp->orientation());
-    m_wizardDialog->m_qmlOptionsPage->setNetworkEnabled(m_standaloneApp->networkEnabled());
-    m_wizardDialog->m_qmlOptionsPage->setLoadDummyData(m_standaloneApp->loadDummyData());
-    connect(m_wizardDialog, SIGNAL(introPageLeft(QString, QString)), SLOT(useProjectPath(QString, QString)));
+    m_d->wizardDialog->setPath(defaultPath);
+    m_d->wizardDialog->setProjectName(QmlStandaloneAppWizardDialog::uniqueProjectName(defaultPath));
+    m_d->wizardDialog->m_qmlOptionsPage->setSymbianSvgIcon(m_d->standaloneApp->symbianSvgIcon());
+    m_d->wizardDialog->m_qmlOptionsPage->setOrientation(m_d->standaloneApp->orientation());
+    m_d->wizardDialog->m_qmlOptionsPage->setNetworkEnabled(m_d->standaloneApp->networkEnabled());
+    m_d->wizardDialog->m_qmlOptionsPage->setLoadDummyData(m_d->standaloneApp->loadDummyData());
+    connect(m_d->wizardDialog, SIGNAL(introPageLeft(QString, QString)), SLOT(useProjectPath(QString, QString)));
 
     foreach (QWizardPage *p, extensionPages)
-        BaseFileWizard::applyExtensionPageShortTitle(m_wizardDialog, m_wizardDialog->addPage(p));
+        BaseFileWizard::applyExtensionPageShortTitle(m_d->wizardDialog, m_d->wizardDialog->addPage(p));
 
-    return m_wizardDialog;
+    return m_d->wizardDialog;
 }
 
-Core::GeneratedFiles QmlNewStandaloneAppWizard::generateFiles(const QWizard *w,
-                                                              QString *errorMessage) const
+Core::GeneratedFiles QmlStandaloneAppWizard::generateFiles(const QWizard *w,
+                                                           QString *errorMessage) const
 {
     Q_UNUSED(errorMessage)
 
-    const QmlNewStandaloneAppWizardDialog *wizard = qobject_cast<const QmlNewStandaloneAppWizardDialog*>(w);
+    const QmlStandaloneAppWizardDialog *wizard = qobject_cast<const QmlStandaloneAppWizardDialog*>(w);
 
-    m_standaloneApp->setProjectName(wizard->projectName());
-    m_standaloneApp->setProjectPath(wizard->path());
-    m_standaloneApp->setSymbianTargetUid(wizard->m_qmlOptionsPage->symbianUid());
-    m_standaloneApp->setSymbianSvgIcon(wizard->m_qmlOptionsPage->symbianSvgIcon());
-    m_standaloneApp->setOrientation(wizard->m_qmlOptionsPage->orientation());
-    m_standaloneApp->setNetworkEnabled(wizard->m_qmlOptionsPage->networkEnabled());
+    m_d->standaloneApp->setProjectName(wizard->projectName());
+    m_d->standaloneApp->setProjectPath(wizard->path());
+    m_d->standaloneApp->setSymbianTargetUid(wizard->m_qmlOptionsPage->symbianUid());
+    m_d->standaloneApp->setSymbianSvgIcon(wizard->m_qmlOptionsPage->symbianSvgIcon());
+    m_d->standaloneApp->setOrientation(wizard->m_qmlOptionsPage->orientation());
+    m_d->standaloneApp->setNetworkEnabled(wizard->m_qmlOptionsPage->networkEnabled());
+    if (m_d->type == QmlStandaloneAppWizard::ImportQmlFile)
+        m_d->standaloneApp->setMainQmlFile(wizard->m_qmlSourcesPage->mainQmlFile());
 
-    return m_standaloneApp->generateFiles(errorMessage);
+    return m_d->standaloneApp->generateFiles(errorMessage);
 }
 
-bool QmlNewStandaloneAppWizard::postGenerateFiles(const QWizard *wizard, const Core::GeneratedFiles &l, QString *errorMessage)
+bool QmlStandaloneAppWizard::postGenerateFiles(const QWizard *wizard, const Core::GeneratedFiles &l, QString *errorMessage)
 {
     Q_UNUSED(wizard)
-    return ProjectExplorer::CustomProjectWizard::postGenerateOpen(l, errorMessage);
+    const bool success = ProjectExplorer::CustomProjectWizard::postGenerateOpen(l, errorMessage);
+    if (success && m_d->type == QmlStandaloneAppWizard::ImportQmlFile) {
+        ProjectExplorer::ProjectExplorerPlugin::instance()->setCurrentFile(0, m_d->standaloneApp->mainQmlFile());
+        Core::EditorManager::instance()->openEditor(m_d->standaloneApp->mainQmlFile());
+    }
+    return success;
 }
 
-void QmlNewStandaloneAppWizard::useProjectPath(const QString &projectName, const QString &projectPath)
+void QmlStandaloneAppWizard::useProjectPath(const QString &projectName, const QString &projectPath)
 {
-    m_wizardDialog->m_qmlOptionsPage->setSymbianUid(QmlStandaloneApp::symbianUidForPath(projectPath + projectName));
+    m_d->wizardDialog->m_qmlOptionsPage->setSymbianUid(QmlStandaloneApp::symbianUidForPath(projectPath + projectName));
 }
 
 } // namespace Internal

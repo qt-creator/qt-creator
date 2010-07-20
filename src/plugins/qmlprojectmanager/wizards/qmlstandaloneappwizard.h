@@ -31,19 +31,23 @@
 #define QMLSTANDALONEAPPWIZARD_H
 
 #include <coreplugin/basefilewizard.h>
-#include <projectexplorer/baseprojectwizarddialog.h>
 
 namespace QmlProjectManager {
 namespace Internal {
 
-class QmlNewStandaloneAppWizard : public Core::BaseFileWizard
+class QmlStandaloneAppWizard : public Core::BaseFileWizard
 {
     Q_OBJECT
 
 public:
-    QmlNewStandaloneAppWizard();
-    virtual ~QmlNewStandaloneAppWizard();
-    static Core::BaseFileWizardParameters parameters();
+    enum WizardType {
+        NewQmlFile,
+        ImportQmlFile
+    };
+
+    QmlStandaloneAppWizard(WizardType type);
+    virtual ~QmlStandaloneAppWizard();
+    static Core::BaseFileWizardParameters parameters(WizardType type);
 
 protected:
     QWizard *createWizardDialog(QWidget *parent, const QString &defaultPath,
@@ -57,8 +61,7 @@ protected slots:
     void useProjectPath(const QString &projectName, const QString &projectPath);
 
 private:
-    class QmlStandaloneApp *m_standaloneApp;
-    mutable class QmlNewStandaloneAppWizardDialog *m_wizardDialog;
+    class QmlStandaloneAppWizardPrivate *m_d;
 };
 
 } // end of namespace Internal

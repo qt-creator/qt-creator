@@ -7,7 +7,7 @@ HEADERS = cpp/qmlapplicationview.h
 INCLUDEPATH += cpp
 
 # DEPLOYMENTFOLDERS #
-DEPLOYMENTFOLDERS = qml
+DEPLOYMENTFOLDERS = qml/app
 
 # Avoid auto screen rotation
 # ORIENTATIONLOCK #
@@ -23,6 +23,7 @@ symbian {
     ICON = cpp/symbianicon.svg
     for(deploymentfolder, DEPLOYMENTFOLDERS) {
         eval(item$${deploymentfolder}.sources = $${deploymentfolder})
+        eval(item$${deploymentfolder}.path = qml)
         eval(DEPLOYMENT += item$${deploymentfolder})
     }
     contains(DEFINES, ORIENTATIONLOCK):LIBS += -lavkon -leikcore -leiksrv -lcone
@@ -31,12 +32,15 @@ symbian {
     # Ossi will want to kill me when he reads this
     # TODO: let Ossi create a (post link step) deployment for windows
     !contains(CONFIG, build_pass):for(deploymentfolder, DEPLOYMENTFOLDERS) {
-        system($$QMAKE_COPY_DIR $$deploymentfolder $${OUTDIR} $$replace(OUT_PWD, /, \\)\\$$deploymentfolder\\)
+        pathSegments = $$split(deploymentfolder, /)
+        sourceAndTarget = $$deploymentfolder $$OUT_PWD/qml/$$last(pathSegments)
+        system($$QMAKE_COPY_DIR $$replace(sourceAndTarget, /, \\))
     }
 } else {
     # TODO: make this work
     for(deploymentfolder, DEPLOYMENTFOLDERS) {
         eval(item$${deploymentfolder}.files = $${deploymentfolder})
+        eval(item$${deploymentfolder}.path = qml)
         eval(INSTALLS += item$${deploymentfolder})
     }
 }

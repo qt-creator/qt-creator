@@ -31,6 +31,8 @@
 #define QMLSTANDALONEAPP_H
 
 #include <QtCore/QString>
+#include <QtCore/QFileInfo>
+
 #ifndef CREATORLESSTEST
 #include <coreplugin/basefilewizard.h>
 #endif // CREATORLESSTEST
@@ -51,6 +53,7 @@ public:
         MainQml,
         MainCpp,
         AppProfile,
+        AppProfilePath,
         AppViewerCpp,
         AppViewerH,
         SymbianSvgIcon,
@@ -66,6 +69,8 @@ public:
 
     QmlStandaloneApp();
 
+    void setMainQmlFile(const QString &qmlFile);
+    QString mainQmlFile() const;
     void setOrientation(Orientation orientation);
     Orientation orientation() const;
     void setProjectName(const QString &name);
@@ -86,19 +91,21 @@ public:
 #else
     bool generateFiles(QString *errorMessage) const;
 #endif // CREATORLESSTEST
+    QString path(Path path, Location location) const;
+    bool useExistingMainQml() const;
 
 private:
-    QString path(Path path, Location location) const;
     QByteArray generateMainCpp(const QString *errorMessage) const;
     QByteArray generateProFile(const QString *errorMessage) const;
 
     QString m_projectName;
-    QString m_projectPath;
+    QFileInfo m_projectPath;
     QString m_symbianSvgIcon;
     QString m_symbianTargetUid;
     bool m_loadDummyData;
     Orientation m_orientation;
     bool m_networkEnabled;
+    QFileInfo m_mainQmlFile;
 };
 
 } // end of namespace Internal
