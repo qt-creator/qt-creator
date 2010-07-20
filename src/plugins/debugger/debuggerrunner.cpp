@@ -174,9 +174,8 @@ RunControl *DebuggerRunControlFactory::create
 DebuggerRunControl *DebuggerRunControlFactory::create(const DebuggerStartParameters &sp,
     RunConfiguration *runConfiguration)
 {
-    DebuggerRunControl *runControl = new DebuggerRunControl(runConfiguration);
-    runControl->setEnabledEngines(m_enabledEngines);
-    runControl->createEngine(sp);
+    DebuggerRunControl *runControl =
+        new DebuggerRunControl(runConfiguration, m_enabledEngines, sp);
     if (!runControl->engine()) {
         qDebug() << "FAILED TO CREATE ENGINE";
         delete runControl;
@@ -187,7 +186,8 @@ DebuggerRunControl *DebuggerRunControlFactory::create(const DebuggerStartParamet
     return runControl;
 }
 
-QWidget *DebuggerRunControlFactory::createConfigurationWidget(RunConfiguration *runConfiguration)
+QWidget *DebuggerRunControlFactory::createConfigurationWidget
+    (RunConfiguration *runConfiguration)
 {
     // NBS TODO: Add GDB-specific configuration widget
     Q_UNUSED(runConfiguration)
@@ -201,12 +201,14 @@ QWidget *DebuggerRunControlFactory::createConfigurationWidget(RunConfiguration *
 //
 ////////////////////////////////////////////////////////////////////////
 
-DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration)
+DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
+        DebuggerEngineType enabledEngines, const DebuggerStartParameters &sp)
     : RunControl(runConfiguration, ProjectExplorer::Constants::DEBUGMODE)
 {
     m_running = false;
+    m_enabledEngines = enabledEngines;
     m_engine = 0;
-    m_enabledEngines = AllEngineTypes;
+    createEngine(sp);
 }
 
 DebuggerRunControl::~DebuggerRunControl()
@@ -316,15 +318,9 @@ DebuggerEngineType DebuggerRunControl::engineForMode(DebuggerStartMode startMode
 #endif
 }
 
-void DebuggerRunControl::setEnabledEngines(DebuggerEngineType enabledEngines)
-{
-    m_enabledEngines = enabledEngines;
-}
-
 void DebuggerRunControl::createEngine(const DebuggerStartParameters &sp)
 {
     // Figure out engine according to toolchain, executable, attach or default.
-
     DebuggerEngineType engineType = NoEngineType;
     QString errorMessage;
     QString settingsIdHint;

@@ -59,21 +59,21 @@ class DEBUGGER_EXPORT DebuggerRunControlFactory
 public:
     DebuggerRunControlFactory(QObject *parent, DebuggerEngineType enabledEngines);
 
-    // ProjectExplorer::IRunControlFactory
-    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
-        const QString &mode) const;
-    ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration
-        *runConfiguration, const QString &mode);
-    QString displayName() const;
-    QWidget *createConfigurationWidget(ProjectExplorer::RunConfiguration
-        *runConfiguration);
-
     // This is used by the "Non-Standard" scenarios, e.g. Attach to Core.
     // FIXME: What to do in case of a 0 runConfiguration?
+    typedef ProjectExplorer::RunConfiguration RunConfiguration;
+    typedef ProjectExplorer::RunControl RunControl;
     DebuggerRunControl *create(const DebuggerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration = 0);
+        RunConfiguration *runConfiguration = 0);
 
+    // ProjectExplorer::IRunControlFactory
+    // FIXME: Used by qmljsinspector.cpp:469
+    RunControl *create(RunConfiguration *runConfiguration, const QString &mode);
+    bool canRun(RunConfiguration *runConfiguration, const QString &mode) const;
 private:
+    QString displayName() const;
+    QWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
+
     DebuggerEngineType m_enabledEngines;
 };
 
@@ -86,7 +86,8 @@ class DEBUGGER_EXPORT DebuggerRunControl
     Q_OBJECT
 
 public:
-    DebuggerRunControl(ProjectExplorer::RunConfiguration *runConfiguration);
+    DebuggerRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
+        DebuggerEngineType enabledEngines, const DebuggerStartParameters &sp);
     ~DebuggerRunControl();
 
     // ProjectExplorer::RunControl
