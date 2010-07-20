@@ -93,6 +93,7 @@ signals:
     void zoomToolActivated();
     void animationSpeedChanged(qreal slowdownFactor);
     void designModeBehaviorChanged(bool inDesignMode);
+    void serverReloaded();
 
 public slots:
     void queryEngineContext(int id);

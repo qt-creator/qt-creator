@@ -139,6 +139,7 @@ Inspector::Inspector(QObject *parent)
     connect(m_clientProxy, SIGNAL(aboutToReloadEngines()), SLOT(aboutToReloadEngines()));
     connect(m_clientProxy, SIGNAL(enginesChanged()), SLOT(updateEngineList()));
     connect(m_clientProxy, SIGNAL(aboutToDisconnect()), SLOT(disconnectWidgets()));
+    connect(m_clientProxy, SIGNAL(serverReloaded()), this, SLOT(serverReloaded()));
 
     connect(Debugger::DebuggerPlugin::instance(),
             SIGNAL(stateChanged(int)), this, SLOT(debuggerStateChanged(int)));
@@ -224,20 +225,40 @@ void Inspector::initializeDocuments()
     if (!modelManager())
         return;
 
-    QmlJS::Snapshot snapshot = modelManager()->snapshot();
+    m_loadedSnapshot = modelManager()->snapshot();
     Core::EditorManager *em = Core::EditorManager::instance();
     connect(em, SIGNAL(editorAboutToClose(Core::IEditor*)), SLOT(removePreviewForEditor(Core::IEditor*)));
     connect(em, SIGNAL(editorOpened(Core::IEditor*)), SLOT(createPreviewForEditor(Core::IEditor*)));
 
     // initial update
-    foreach (QmlJS::Document::Ptr doc, snapshot) {
-        QmlJSLiveTextPreview *preview = new QmlJSLiveTextPreview(doc, this);
+#if 0
+    foreach (Core::IEditor *editor, em->openedEditors()) {
+        createPreviewForEditor(editor);
+    }
+#else
+    foreach (QmlJS::Document::Ptr doc, m_loadedSnapshot) {
+        QmlJSLiveTextPreview *preview = new QmlJSLiveTextPreview(doc, doc, this);
         connect(preview,
                 SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
                 SLOT(changeSelectedItems(QList<QDeclarativeDebugObjectReference>)));
         m_textPreviews.insert(doc->fileName(), preview);
     }
+#endif
 }
+
+void Inspector::serverReloaded()
+{
+    QmlJS::Snapshot snapshot = modelManager()->snapshot();
+    m_loadedSnapshot = snapshot;
+    for (QHash<QString, QmlJSLiveTextPreview *>::const_iterator it = m_textPreviews.constBegin();
+         it != m_textPreviews.constEnd(); ++it) {
+        Document::Ptr doc = snapshot.document(it.key());
+        it.value()->resetInitialDoc(doc);
+    }
+    ClientProxy::instance()->queryEngineContext(0);
+    //ClientProxy::instance()->refreshObjectTree();
+}
+
 
 void Inspector::removePreviewForEditor(Core::IEditor *oldEditor)
 {
@@ -253,12 +274,14 @@ void Inspector::createPreviewForEditor(Core::IEditor *newEditor)
         QmlJS::Document::Ptr doc = modelManager()->snapshot().document(filename);
         if (!doc || !doc->qmlProgram())
             return;
+        QmlJS::Document::Ptr initdoc = m_loadedSnapshot.document(filename);
+        if (!initdoc)
+            initdoc = doc;
 
         if (m_textPreviews.contains(filename)) {
             m_textPreviews.value(filename)->associateEditor(newEditor);
         } else {
-
-            QmlJSLiveTextPreview *preview = new QmlJSLiveTextPreview(doc, this);
+            QmlJSLiveTextPreview *preview = new QmlJSLiveTextPreview(doc, initdoc, this);
             connect(preview,
                     SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
                     SLOT(changeSelectedItems(QList<QDeclarativeDebugObjectReference>)));

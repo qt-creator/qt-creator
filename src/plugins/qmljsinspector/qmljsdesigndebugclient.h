@@ -81,6 +81,7 @@ signals:
     void zoomToolActivated();
     void animationSpeedChanged(qreal slowdownFactor);
     void designModeBehaviorChanged(bool inDesignMode);
+    void reloaded(); // the server has reloaded the document
 
 protected:
     virtual void messageReceived(const QByteArray &);

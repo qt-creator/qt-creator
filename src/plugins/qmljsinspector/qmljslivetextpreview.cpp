@@ -131,9 +131,10 @@ void QmlJSLiveTextPreview::unassociateEditor(Core::IEditor *oldEditor)
     }
 }
 
-QmlJSLiveTextPreview::QmlJSLiveTextPreview(QmlJS::Document::Ptr doc, QObject *parent) :
-    QObject(parent), m_previousDoc(doc), m_initialDoc(doc)
+QmlJSLiveTextPreview::QmlJSLiveTextPreview(const QmlJS::Document::Ptr &doc, const QmlJS::Document::Ptr &initDoc, QObject* parent) :
+    QObject(parent), m_previousDoc(doc), m_initialDoc(initDoc)
 {
+    Q_ASSERT(doc->fileName() == initDoc->fileName());
     ClientProxy *clientProxy = ClientProxy::instance();
     m_filename = doc->fileName();
 
@@ -150,6 +151,15 @@ QmlJSLiveTextPreview::QmlJSLiveTextPreview(QmlJS::Document::Ptr doc, QObject *pa
     foreach(Core::IEditor *editor, editors)
         associateEditor(editor);
 }
+
+void QmlJSLiveTextPreview::resetInitialDoc(const QmlJS::Document::Ptr &doc)
+{
+    m_initialDoc = doc;
+    m_previousDoc = doc;
+    m_createdObjects.clear();
+    m_debugIds.clear();
+}
+
 
 QList<QDeclarativeDebugObjectReference > QmlJSLiveTextPreview::objectReferencesForOffset(quint32 offset) const
 {
@@ -234,9 +244,11 @@ void QmlJSLiveTextPreview::updateDebugIds(const QDeclarativeDebugObjectReference
         doc->qmlProgram()->accept(&visitor);
 
         m_debugIds = visitor.result;
-        Delta delta;
-        delta.doNotSendChanges = true;
-        m_debugIds = delta(doc, m_previousDoc, m_debugIds);
+        if (doc != m_previousDoc) {
+            Delta delta;
+            delta.doNotSendChanges = true;
+            m_debugIds = delta(doc, m_previousDoc, m_debugIds);
+        }
     }
 
     const QmlJS::Document::Ptr &doc = m_previousDoc;
@@ -264,9 +276,11 @@ void QmlJSLiveTextPreview::updateDebugIds(const QDeclarativeDebugObjectReference
         doc->qmlProgram()->accept(&visitor);
 
         Delta::DebugIdMap debugIds = visitor.result;
-        Delta delta;
-        delta.doNotSendChanges = true;
-        debugIds = delta(doc, m_previousDoc, debugIds);
+        if (doc != m_previousDoc) {
+            Delta delta;
+            delta.doNotSendChanges = true;
+            debugIds = delta(doc, m_previousDoc, debugIds);
+        }
         for(Delta::DebugIdMap::const_iterator it2 = debugIds.constBegin();
             it2 != debugIds.constEnd(); ++it2) {
             m_debugIds[it2.key()] += it2.value();

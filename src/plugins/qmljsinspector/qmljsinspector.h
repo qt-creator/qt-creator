@@ -99,6 +99,7 @@ signals:
 public slots:
     void setSimpleDockWidgetArrangement();
     void reloadQmlViewer();
+    void serverReloaded();
 
 private slots:
     void gotoObjectReferenceDefinition(const QDeclarativeDebugObjectReference &obj);
@@ -152,6 +153,7 @@ private:
 
     // Qml/JS integration
     QHash<QString, QmlJSLiveTextPreview *> m_textPreviews;
+    QmlJS::Snapshot m_loadedSnapshot; //the snapshot loaded by the viewer
 };
 
 } // Internal

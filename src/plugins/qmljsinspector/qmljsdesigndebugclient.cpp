@@ -96,6 +96,8 @@ void QmlJSDesignDebugClient::messageReceived(const QByteArray &message)
         bool inDesignMode;
         ds >> inDesignMode;
         emit designModeBehaviorChanged(inDesignMode);
+    } else if (type == "RELOADED") {
+        emit reloaded();
     }
 }
 

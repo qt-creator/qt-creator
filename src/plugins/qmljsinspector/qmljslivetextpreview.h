@@ -33,7 +33,7 @@ class QmlJSLiveTextPreview : public QObject
     Q_OBJECT
 
 public:
-    explicit QmlJSLiveTextPreview(QmlJS::Document::Ptr doc, QObject *parent = 0);
+    explicit QmlJSLiveTextPreview(const QmlJS::Document::Ptr &doc, const QmlJS::Document::Ptr &initDoc, QObject *parent = 0);
     static QmlJS::ModelManagerInterface *modelManager();
     //void updateDocuments();
 
@@ -41,6 +41,7 @@ public:
     void unassociateEditor(Core::IEditor *editor);
     void setActiveObject(const QDeclarativeDebugObjectReference &object);
     void mapObjectToQml(const QDeclarativeDebugObjectReference &object);
+    void resetInitialDoc(const QmlJS::Document::Ptr &doc);
 
 signals:
     void selectedItemsChanged(const QList<QDeclarativeDebugObjectReference> &objects);

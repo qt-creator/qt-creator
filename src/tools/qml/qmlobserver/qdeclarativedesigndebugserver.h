@@ -62,6 +62,7 @@ public:
     void setCurrentObjects(QList<QObject*> items);
     void setAnimationSpeed(qreal slowdownFactor);
     void setCurrentTool(QmlViewer::Constants::DesignTool toolId);
+    void reloaded();
 
 Q_SIGNALS:
     void currentObjectsChanged(const QList<QObject*> &objects);

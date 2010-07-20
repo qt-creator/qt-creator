@@ -119,7 +119,7 @@ void ClientProxy::refreshObjectTree()
         m_objectTreeQuery = m_client->queryObjectRecursive(m_rootObject, this);
 
         if (!m_objectTreeQuery->isWaiting()) {
-            objectTreeFetched();
+            objectTreeFetched(m_objectTreeQuery->state());
         } else {
             connect(m_objectTreeQuery,
                     SIGNAL(stateChanged(QDeclarativeDebugQuery::State)),
@@ -143,12 +143,13 @@ void ClientProxy::onCurrentObjectsChanged(const QList<int> &debugIds)
             // So the only choice that remains is to update the complete tree when we have an unknown debug id.
             if (!m_objectTreeQuery)
                 m_objectTreeQuery = m_client->queryObjectRecursive(m_rootObject, this);
+            break;
         }
     }
 
     if (m_objectTreeQuery) {
         if (!m_objectTreeQuery->isWaiting()) {
-            objectTreeFetched();
+            objectTreeFetched(m_objectTreeQuery->state());
         } else {
             connect(m_objectTreeQuery,
                     SIGNAL(stateChanged(QDeclarativeDebugQuery::State)),
@@ -222,6 +223,7 @@ void ClientProxy::connectionStateChanged()
                         SIGNAL(animationSpeedChanged(qreal)), SIGNAL(animationSpeedChanged(qreal)));
                 connect(m_designClient,
                         SIGNAL(designModeBehaviorChanged(bool)), SIGNAL(designModeBehaviorChanged(bool)));
+                connect(m_designClient, SIGNAL(reloaded()), this, SIGNAL(serverReloaded()));
             }
 
             (void) new DebuggerClient(m_conn);
@@ -373,6 +375,11 @@ void ClientProxy::contextChanged()
 
 void ClientProxy::objectTreeFetched(QDeclarativeDebugQuery::State state)
 {
+    if (state == QDeclarativeDebugQuery::Error) {
+        delete m_objectTreeQuery;
+        m_objectTreeQuery = 0;
+    }
+
     if (state != QDeclarativeDebugQuery::Completed) {
         m_rootObject = QDeclarativeDebugObjectReference();
         return;

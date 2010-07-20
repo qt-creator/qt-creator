@@ -117,3 +117,14 @@ void QDeclarativeDesignDebugServer::setAnimationSpeed(qreal slowdownFactor)
 
     sendMessage(message);
 }
+
+void QDeclarativeDesignDebugServer::reloaded()
+{
+    QByteArray message;
+    QDataStream ds(&message, QIODevice::WriteOnly);
+
+    ds << QByteArray("RELOADED");
+
+    sendMessage(message);
+}
+

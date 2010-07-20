@@ -202,8 +202,8 @@ void QDeclarativeDesignView::createQmlObject(const QString &qml, QObject *parent
     QObject *newObject = component.create(parentContext);
     if (newObject) {
         newObject->setParent(parent);
-        QDeclarativeItem *parentItem = dynamic_cast<QDeclarativeItem*>(parent);
-        QDeclarativeItem *newItem    = dynamic_cast<QDeclarativeItem*>(newObject);
+        QDeclarativeItem *parentItem = qobject_cast<QDeclarativeItem*>(parent);
+        QDeclarativeItem *newItem    = qobject_cast<QDeclarativeItem*>(newObject);
         if (parentItem && newItem) {
             newItem->setParentItem(parentItem);
         }
@@ -533,6 +533,7 @@ void QDeclarativeDesignView::onStatusChanged(QDeclarativeView::Status status)
             m_subcomponentEditorTool->pushContext(rootObject());
             emit executionStarted(1.0f);
         }
+        qmlDesignDebugServer()->reloaded();
     }
 }
 
