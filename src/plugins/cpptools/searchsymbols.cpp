@@ -213,5 +213,6 @@ void SearchSymbols::appendItem(const QString &name,
     items.append(ModelItemInfo(name, info, type,
                                QString::fromUtf8(symbol->fileName(), symbol->fileNameLength()),
                                symbol->line(),
+                               symbol->column() - 1, // 1-based vs 0-based column
                                icon));
 }

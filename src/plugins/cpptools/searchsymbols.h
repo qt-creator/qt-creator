@@ -60,12 +60,14 @@ struct ModelItemInfo
                   ItemType type,
                   const QString &fileName,
                   int line,
+                  int column,
                   const QIcon &icon)
         : symbolName(symbolName),
           symbolType(symbolType),
           type(type),
           fileName(fileName),
           line(line),
+          column(column),
           icon(icon)
     { }
 
@@ -74,6 +76,7 @@ struct ModelItemInfo
     ItemType type;
     QString fileName;
     int line;
+    int column;
     QIcon icon;
 };
 
