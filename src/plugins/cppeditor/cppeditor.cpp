@@ -743,6 +743,11 @@ void CPPEditor::markSymbols(const QTextCursor &tc, const SemanticInfo &info)
         m_referencesCursorPosition = position();
         m_references = QtConcurrent::run(&lazyFindReferences, scope, expression, context);
         m_referencesWatcher.setFuture(m_references);
+    } else {
+        const QList<QTextEdit::ExtraSelection> selections = extraSelections(CodeSemanticsSelection);
+
+        if (! selections.isEmpty())
+            setExtraSelections(CodeSemanticsSelection, QList<QTextEdit::ExtraSelection>());
     }
 }
 
