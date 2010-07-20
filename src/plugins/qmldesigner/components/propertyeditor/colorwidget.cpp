@@ -84,7 +84,8 @@ static inline QColor properColor(const QString &str)
             lalpha = 255;
     }
     QColor lcolor(lcolorStr);
-    lcolor.setAlpha(lalpha);
+    if (lcolorStr.contains('#'))
+        lcolor.setAlpha(lalpha);
     return lcolor;
 }
 
@@ -109,6 +110,18 @@ static inline bool isColorString(const QString &colorString)
     return ok;
 }
 
+static inline QPixmap tilePixMap(int size)
+{
+    const int checkerbordSize= size;
+    QPixmap tilePixmap(checkerbordSize * 2, checkerbordSize * 2);
+    tilePixmap.fill(Qt::white);
+    QPainter tilePainter(&tilePixmap);
+    QColor color(220, 220, 220);
+    tilePainter.fillRect(0, 0, checkerbordSize, checkerbordSize, color);
+    tilePainter.fillRect(checkerbordSize, checkerbordSize, checkerbordSize, checkerbordSize, color);
+    return tilePixmap;
+}
+
 namespace QmlDesigner {
 
 void ColorWidget::registerDeclarativeTypes() {
@@ -131,18 +144,24 @@ void ColorButton::setColor(const QString &colorStr)
     emit colorChanged();
 }
 
+QColor ColorButton::convertedColor() const
+{
+    return properColor(m_colorString);
+}
+
 void ColorButton::paintEvent(QPaintEvent *event)
 {
     QToolButton::paintEvent(event);
     if (!isEnabled())
         return;
 
-    QColor color(m_colorString);
+    QColor color = properColor(m_colorString);
 
     QPainter p(this);
 
 
-    QRect r(0, 0, width() - 2, height() - 2);
+    QRect r(0, 0, width() - 2, height() - 2);    
+    p.drawTiledPixmap(r.adjusted(1, 1, -1, -1), tilePixMap(9));
     if (isEnabled())
         p.setBrush(color);
     else
@@ -591,6 +610,9 @@ void GradientLine::paintEvent(QPaintEvent *event)
     p.setBrush(Qt::NoBrush);
     p.setPen(QColor(0x444444));
     p.drawRect(9, 31, width() - 14, height() - 32);
+
+
+    p.drawTiledPixmap(9, 31, width() - 16, height() - 34, tilePixMap(8));
 
     p.setBrush(linearGradient);
     p.setPen(QColor(0x222222));

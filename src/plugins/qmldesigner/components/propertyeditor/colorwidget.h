@@ -63,6 +63,7 @@ public:
 
     void setColor(const QString &colorStr);
     QString color() const { return m_colorString; }
+    QColor convertedColor() const;
     bool noColor() const { return m_noColor; }
     void setNoColor(bool f) { m_noColor = f; update(); }
     bool showArrow() const { return m_showArrow; }
@@ -212,7 +213,7 @@ private:
     void setup();
     void updateGradient();
     int currentColorIndex() const { return m_colorIndex; }
-    void setCurrentIndex(int i);
+    void setCurrentIndex(int i);    
 
     QColor m_activeColor;
     QmlItemNode m_itemNode;
