@@ -413,6 +413,7 @@ bool Rewriter::includeSurroundingWhitespace(const QString &source, int &start, i
 {
     bool includeStartingWhitespace = true;
     bool paragraphFound = false;
+    bool paragraphSkipped = false;
 
     if (end >= 0) {
         QChar c = source.at(end);
@@ -421,6 +422,7 @@ bool Rewriter::includeSurroundingWhitespace(const QString &source, int &start, i
             ++end;
             if (c.unicode() == 10) {
                 paragraphFound = true;
+                paragraphSkipped = true;
                 break;
             } else if (end == source.length()) {
                 break;
@@ -447,7 +449,7 @@ bool Rewriter::includeSurroundingWhitespace(const QString &source, int &start, i
             --start;
         }
     }
-    if (!paragraphFound) //keep the line ending
+    if (!paragraphFound && paragraphSkipped) //keep the line ending
         --end;
 
     return paragraphFound;
