@@ -264,6 +264,7 @@ public:
     QTimer *m_highlightBlocksTimer;
 
     int m_requestAutoCompletionRevision;
+    int m_requestAutoCompletionPosition;
     QTimer *m_requestAutoCompletionTimer;
 
     QPointer<BaseTextEditorAnimator> m_animator;

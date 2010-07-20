@@ -1403,6 +1403,7 @@ void BaseTextEditor::maybeRequestAutoCompletion(const QChar &ch)
 {
     if (ch.isLetterOrNumber() || ch == QLatin1Char('_')) {
         d->m_requestAutoCompletionRevision = document()->revision();
+        d->m_requestAutoCompletionPosition = position();
         d->m_requestAutoCompletionTimer->start();
     } else {
         d->m_requestAutoCompletionTimer->stop();
@@ -1414,7 +1415,8 @@ void BaseTextEditor::_q_requestAutoCompletion()
 {
     d->m_requestAutoCompletionTimer->stop();
 
-    if (d->m_requestAutoCompletionRevision == document()->revision())
+    if (d->m_requestAutoCompletionRevision == document()->revision() &&
+            d->m_requestAutoCompletionPosition == position())
         emit requestAutoCompletion(editableInterface(), false);
 }
 
@@ -1935,6 +1937,7 @@ BaseTextEditorPrivate::BaseTextEditorPrivate()
     m_findScopeVerticalBlockSelection(0),
     m_highlightBlocksTimer(0),
     m_requestAutoCompletionRevision(0),
+    m_requestAutoCompletionPosition(0),
     m_requestAutoCompletionTimer(0),
     m_cursorBlockNumber(-1),
     m_inKeyPressEvent(false)
