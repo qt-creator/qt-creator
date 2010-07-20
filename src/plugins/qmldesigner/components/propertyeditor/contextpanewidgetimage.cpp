@@ -57,7 +57,12 @@ void ContextPaneWidgetImage::setProperties(QmlJS::PropertyReader *propertyReader
     if (propertyReader->hasProperty(QLatin1String("source"))) {
         QString source = propertyReader->readProperty(QLatin1String("source")).toString();
         ui->fileWidget->setFileName(source);
-        setPixmap(m_path + '/' + source);
+        if (QFile::exists(m_path + '/' + source))
+            setPixmap(m_path + '/' + source);
+        else
+            setPixmap(source);
+    } else {
+        ui->sizeLabel->setText("");
     }
 }
 
@@ -104,6 +109,7 @@ void ContextPaneWidgetImage::setPixmap(const QString &fileName)
 
     if (QFile(fileName).exists()) {
         QPixmap source(fileName);
+        ui->sizeLabel->setText(QString::number(source.width()) + 'x' + QString::number(source.height()));
         QPainter p(&pix);
         if (ui->stretchRadioButton->isChecked()) {
             p.drawPixmap(0,0,76,76, source);
@@ -131,6 +137,8 @@ void ContextPaneWidgetImage::setPixmap(const QString &fileName)
             int offset = (76 - cropped.width()) / 2;
             p.drawPixmap(offset, 0, cropped.width(), 76, source);
         }
+    } else {
+        ui->sizeLabel->setText("");
     }
 
     ui->label->setPixmap(pix);
