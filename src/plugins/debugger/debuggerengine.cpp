@@ -685,8 +685,6 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
 
     d->m_runControl = runControl;
 
-    QTC_ASSERT(state() == DebuggerNotReady, qDebug() << state());
-
     d->m_inferiorPid = d->m_startParameters.attachPID > 0
         ? d->m_startParameters.attachPID : 0;
 
@@ -700,7 +698,10 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
     theDebuggerAction(OperateByInstruction)
         ->setEnabled(engineCapabilities & DisassemblerCapability);
 
+    QTC_ASSERT(state() == DebuggerNotReady || state() == DebuggerFinished,
+         qDebug() << state());
     setState(EngineSetupRequested);
+
     setupEngine();
 }
 
@@ -870,8 +871,15 @@ void DebuggerEngine::addToWatchWindow()
 }
 
 // Called from RunControl.
+void DebuggerEngine::handleStartFailed()
+{
+    d->m_runControl = 0;
+}
+
+// Called from RunControl.
 void DebuggerEngine::handleFinished()
 {
+    d->m_runControl = 0;
     modulesHandler()->removeAll();
     stackHandler()->removeAll();
     threadsHandler()->removeAll();
@@ -983,7 +991,7 @@ static bool isAllowedTransition(DebuggerState from, DebuggerState to)
     case EngineSetupRequested:
         return to == EngineSetupOk || to == EngineSetupFailed;
     case EngineSetupFailed:
-        // FIXME: In therory it's the engine's task to go into a 
+        // FIXME: In therory it's the engine's task to go into a
         // proper "Shutdown" state before calling notifyEngineSetupFailed
         //return to == DebuggerFinished;
         return to == EngineShutdownRequested;
@@ -1034,7 +1042,7 @@ static bool isAllowedTransition(DebuggerState from, DebuggerState to)
         return to == DebuggerFinished;
 
     case DebuggerFinished:
-        return false;
+        return to == EngineSetupRequested; // Happens on restart.
     }
 
     qDebug() << "UNKNOWN STATE:" << from;
@@ -1046,7 +1054,9 @@ void DebuggerEngine::notifyEngineSetupFailed()
     showMessage(_("NOTE: ENGINE SETUP FAILED"));
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     setState(EngineSetupFailed);
-    d->m_runControl->startFailed();
+    QTC_ASSERT(d->m_runControl, /**/);
+    if (d->m_runControl)
+        d->m_runControl->startFailed();
     d->queueShutdownEngine();
 }
 
@@ -1055,7 +1065,9 @@ void DebuggerEngine::notifyEngineSetupOk()
     showMessage(_("NOTE: ENGINE SETUP OK"));
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     setState(EngineSetupOk);
-    d->m_runControl->startSuccessful();
+    QTC_ASSERT(d->m_runControl, /**/);
+    if (d->m_runControl)
+        d->m_runControl->startSuccessful();
     showMessage(_("QUEUE: SETUP INFERIOR"));
     QTimer::singleShot(0, d, SLOT(doSetupInferior()));
 }

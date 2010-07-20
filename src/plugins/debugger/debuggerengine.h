@@ -213,6 +213,7 @@ public:
     QAbstractItemModel *sourceFilesModel() const;
 
     void handleFinished();
+    void handleStartFailed();
     bool debuggerActionsEnabled() const;
     static bool debuggerActionsEnabled(DebuggerState state);
     void showModuleSymbols(const QString &moduleName, const Symbols &symbols);

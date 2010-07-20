@@ -470,6 +470,7 @@ void DebuggerRunControl::startFailed()
 {
     m_running = false;
     emit finished();
+    engine()->handleStartFailed();
 }
 
 void DebuggerRunControl::handleStarted()
