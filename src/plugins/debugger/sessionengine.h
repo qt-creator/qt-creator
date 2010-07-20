@@ -35,8 +35,6 @@
 namespace Debugger {
 namespace Internal {
 
-class SnapshotHandler;
-
 // This class contains data serving as a template for debugger engines
 // started during a session.
 
@@ -57,11 +55,6 @@ public:
 
     void loadSessionData();
     void saveSessionData();
-
-public:
-    // The global set of snapshots.
-    SnapshotHandler *m_snapshotHandler;
-    // The model serving as command dispatcher.
 };
 
 

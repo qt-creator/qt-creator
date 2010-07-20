@@ -28,7 +28,6 @@
 **************************************************************************/
 
 #include "sessionengine.h"
-#include "snapshothandler.h"
 #include "breakhandler.h"
 #include "watchhandler.h"
 
@@ -39,8 +38,7 @@ namespace Internal {
 // started during a session.
 
 SessionEngine::SessionEngine()
-    : DebuggerEngine(DebuggerStartParameters()),
-      m_snapshotHandler(new SnapshotHandler(this))
+    : DebuggerEngine(DebuggerStartParameters())
 {
 }
 

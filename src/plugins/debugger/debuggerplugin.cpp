@@ -1016,6 +1016,7 @@ public:
     DebuggerPlugin *m_plugin;
 
     QList<QPointer<DebuggerRunControl> > m_allRunControls;
+    SnapshotHandler *m_snapshotHandler;
 };
 
 DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
@@ -1055,6 +1056,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
     m_debugMode = 0;
     m_uiSwitcher = 0;
     m_state = DebuggerNotReady;
+    m_snapshotHandler = 0;
 }
 
 bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *errorMessage)
@@ -1108,7 +1110,10 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
 
     // Session related data
     m_sessionEngine = new SessionEngine;
-    m_snapshotWindow->setModel(m_sessionEngine->m_snapshotHandler->model());
+
+    // Snapshot
+    m_snapshotHandler = new SnapshotHandler(m_sessionEngine);
+    m_snapshotWindow->setModel(m_snapshotHandler->model());
 
     // Debug mode setup
     m_debugMode = new DebugMode(this);
@@ -2701,13 +2706,13 @@ void DebuggerPlugin::createNewDock(QWidget *widget)
 void DebuggerPlugin::runControlStarted(DebuggerRunControl *runControl)
 {
     d->connectEngine(runControl->engine());
-    d->m_sessionEngine->m_snapshotHandler->appendSnapshot(runControl);
+    d->m_snapshotHandler->appendSnapshot(runControl);
 }
 
 void DebuggerPlugin::runControlFinished(DebuggerRunControl *runControl)
 {
     Q_UNUSED(runControl);
-    d->m_sessionEngine->m_snapshotHandler->removeSnapshot(runControl);
+    d->m_snapshotHandler->removeSnapshot(runControl);
     d->disconnectEngine();
 }
 
