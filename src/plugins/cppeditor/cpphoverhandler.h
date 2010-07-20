@@ -30,12 +30,12 @@
 #ifndef CPPHOVERHANDLER_H
 #define CPPHOVERHANDLER_H
 
+#include <cplusplus/CppDocument.h>
 #include <utils/htmldocextractor.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QList>
-
-#include <cplusplus/CppDocument.h>
+#include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE
 class QPoint;
@@ -43,6 +43,7 @@ QT_END_NAMESPACE
 
 namespace CPlusPlus {
 class LookupItem;
+class LookupContext;
 }
 
 namespace Core {
@@ -83,7 +84,7 @@ private:
             Typedef,
             Var,
             Macro,
-            Include,
+            Brief,
             Function
         };
 
@@ -101,11 +102,17 @@ private:
     bool matchIncludeFile(const CPlusPlus::Document::Ptr &document, unsigned line);
     bool matchMacroInUse(const CPlusPlus::Document::Ptr &document, unsigned pos);
     void handleLookupItemMatch(const CPlusPlus::LookupItem &lookupItem,
+                               const CPlusPlus::LookupContext &lookupContext,
                                const bool assignTooltip);
 
     void evaluateHelpCandidates();
     bool helpIdExists(const QString &helpId) const;
-    QString getDocContents();
+    QString getDocContents() const;
+    QString getDocContents(const HelpCandidate &helpCandidate) const;
+
+    void generateDiagramTooltip(const bool integrateDocs);
+    void generateNormalTooltip(const bool integrateDocs);
+    void addF1ToTooltip();
 
     static TextEditor::BaseTextEditor *baseTextEditor(TextEditor::ITextEditor *editor);
 
@@ -113,6 +120,7 @@ private:
     int m_matchingHelpCandidate;
     QList<HelpCandidate> m_helpCandidates;
     QString m_toolTip;
+    QList<QStringList> m_classHierarchy;
     Utils::HtmlDocExtractor m_htmlDocExtractor;
 };
 

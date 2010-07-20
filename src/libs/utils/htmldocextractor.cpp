@@ -96,7 +96,7 @@ QString HtmlDocExtractor::getClassOrNamespaceDescription(const QString &html,
         contents = findByPattern(html, pattern);
     }
     if (!contents.isEmpty())
-        contents.replace(QLatin1String("<h2>Detailed Description</h2>"), name);
+        contents.remove(QLatin1String("Detailed Description"));
 
     formatContents(&contents);
     return contents;

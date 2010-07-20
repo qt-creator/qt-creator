@@ -5,5 +5,7 @@
         <file>CppEditor.mimetypes.xml</file>
         <file>images/qt_c.png</file>
         <file>images/f1.png</file>
+        <file>images/larrow.png</file>
+        <file>images/rightarrow.png</file>
     </qresource>
 </RCC>
