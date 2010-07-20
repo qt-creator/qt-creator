@@ -2744,21 +2744,35 @@ bool DebuggerListener::coreAboutToClose()
     DebuggerPlugin *plugin = DebuggerPlugin::instance();
     if (!plugin)
         return true;
+
+    // FIXME: Iterate over all running debuggers.
     // Ask to terminate the session.
     bool cleanTermination = false;
     switch (plugin->state()) {
     case DebuggerNotReady:
-        return true;
-    case EngineSetupOk:     // Most importantly, terminating a running
-    case EngineSetupFailed: // debuggee can cause problems.
+    case DebuggerFinished:
     case InferiorUnrunnable:
+        return true;
+    case EngineSetupRequested:
+    case EngineSetupOk:
+    case EngineSetupFailed:
+    case InferiorSetupRequested:
     case InferiorSetupFailed:
+    case EngineRunRequested:
+    case InferiorRunRequested:
+    case InferiorRunOk:
+    case InferiorStopRequested:
     case InferiorStopOk:
+    case InferiorShutdownRequested:
+    case EngineShutdownRequested:
     case InferiorShutdownOk:
-        cleanTermination = true;
-        break;
-    default:
-        break;
+    case InferiorShutdownFailed:
+    case InferiorStopFailed:
+    case EngineRunFailed:
+    case InferiorRunFailed:
+    case EngineShutdownOk:
+    case EngineShutdownFailed:
+        return false;
     }
 
     const QString question = cleanTermination ?
