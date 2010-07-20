@@ -268,6 +268,11 @@ public slots:
         QTimer::singleShot(0, this, SLOT(doFinishDebugger()));
     }
 
+    void raiseApplication() {
+        m_runControl->bringApplicationToForeground(m_inferiorPid);
+    }
+
+
 public:
     DebuggerState state() const { return m_state; }
 
@@ -1365,7 +1370,7 @@ void DebuggerEngine::notifyInferiorPid(qint64 pid)
     if (d->m_inferiorPid == pid)
         return;
     d->m_inferiorPid = pid;
-    QTimer::singleShot(0, this, SLOT(raiseApplication()));
+    QTimer::singleShot(0, d, SLOT(raiseApplication()));
 }
 
 qint64 DebuggerEngine::inferiorPid() const
@@ -1376,11 +1381,6 @@ qint64 DebuggerEngine::inferiorPid() const
 DebuggerPlugin *DebuggerEngine::plugin() const
 {
     return DebuggerPlugin::instance();
-}
-
-void DebuggerEngine::raiseApplication()
-{
-    d->m_runControl->bringApplicationToForeground(d->m_inferiorPid);
 }
 
 void DebuggerEngine::openFile(const QString &fileName, int lineNumber)

@@ -251,7 +251,6 @@ public:
     void openFile(const QString &fileName, int lineNumber = -1);
     void gotoLocation(const QString &fileName, int lineNumber, bool setMarker);
     void gotoLocation(const StackFrame &frame, bool setMarker);
-    Q_SLOT void raiseApplication();
     virtual void quitDebugger(); // called by DebuggerRunControl
 
 protected:
