@@ -62,6 +62,7 @@ public:
     // returns the object references for the given url.
     QList<QDeclarativeDebugObjectReference> objectReferences(const QUrl &url = QUrl()) const;
     QDeclarativeDebugObjectReference objectReferenceForId(int debugId) const;
+    QDeclarativeDebugObjectReference rootObjectReference() const;
     void refreshObjectTree();
 
     bool isConnected() const;

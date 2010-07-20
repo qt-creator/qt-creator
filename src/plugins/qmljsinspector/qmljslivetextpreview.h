@@ -49,6 +49,7 @@ signals:
 private slots:
     void changeSelectedElements(QList<int> offsets, const QString &wordAtCursor);
     void documentChanged(QmlJS::Document::Ptr doc);
+public slots:
     void updateDebugIds(const QDeclarativeDebugObjectReference &rootReference);
 
 private:

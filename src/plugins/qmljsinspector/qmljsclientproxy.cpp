@@ -262,6 +262,12 @@ QDeclarativeDebugObjectReference ClientProxy::objectReferenceForId(int debugId) 
     return objectReferenceForId(debugId, m_rootObject);
 }
 
+QDeclarativeDebugObjectReference QmlJSInspector::Internal::ClientProxy::rootObjectReference() const
+{
+    return m_rootObject;
+}
+
+
 QDeclarativeDebugObjectReference ClientProxy::objectReferenceForId(int debugId,
                                                                    const QDeclarativeDebugObjectReference &objectRef) const
 {

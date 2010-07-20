@@ -144,12 +144,6 @@ QmlJSLiveTextPreview::QmlJSLiveTextPreview(const QmlJS::Document::Ptr &doc, cons
     connect(clientProxy,
             SIGNAL(objectTreeUpdated(QDeclarativeDebugObjectReference)),
             SLOT(updateDebugIds(QDeclarativeDebugObjectReference)));
-
-    Core::EditorManager *em = Core::EditorManager::instance();
-    QList<Core::IEditor *> editors = em->editorsForFileName(m_filename);
-
-    foreach(Core::IEditor *editor, editors)
-        associateEditor(editor);
 }
 
 void QmlJSLiveTextPreview::resetInitialDoc(const QmlJS::Document::Ptr &doc)

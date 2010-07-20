@@ -231,19 +231,9 @@ void Inspector::initializeDocuments()
     connect(em, SIGNAL(editorOpened(Core::IEditor*)), SLOT(createPreviewForEditor(Core::IEditor*)));
 
     // initial update
-#if 0
     foreach (Core::IEditor *editor, em->openedEditors()) {
         createPreviewForEditor(editor);
     }
-#else
-    foreach (QmlJS::Document::Ptr doc, m_loadedSnapshot) {
-        QmlJSLiveTextPreview *preview = new QmlJSLiveTextPreview(doc, doc, this);
-        connect(preview,
-                SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
-                SLOT(changeSelectedItems(QList<QDeclarativeDebugObjectReference>)));
-        m_textPreviews.insert(doc->fileName(), preview);
-    }
-#endif
 }
 
 void Inspector::serverReloaded()
@@ -286,6 +276,7 @@ void Inspector::createPreviewForEditor(Core::IEditor *newEditor)
                     SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
                     SLOT(changeSelectedItems(QList<QDeclarativeDebugObjectReference>)));
             m_textPreviews.insert(newEditor->file()->fileName(), preview);
+            preview->updateDebugIds(m_clientProxy->rootObjectReference());
         }
     }
 }
