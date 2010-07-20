@@ -456,11 +456,10 @@ void HelpPlugin::resetFilter()
             engine->removeCustomFilter(filter);
     }
 
-    const QLatin1String weAddedFilterKey("UnfilteredFilterInserted");
-    const QLatin1String previousFilterNameKey("UnfilteredFilterName");
-    if (engine->customValue(weAddedFilterKey).toInt() == 1) {
-        // we added a filter at some point, remove previously added filter
-        const QString &filter = engine->customValue(previousFilterNameKey).toString();
+    // we added a filter at some point, remove previously added filter
+    if (engine->customValue(Help::Constants::WeAddedFilterKey).toInt() == 1) {
+        const QString &filter =
+            engine->customValue(Help::Constants::PreviousFilterNameKey).toString();
         if (!filter.isEmpty())
             engine->removeCustomFilter(filter);
     }
@@ -469,8 +468,8 @@ void HelpPlugin::resetFilter()
     const QString filterName = tr("Unfiltered");
     engine->removeCustomFilter(filterName);
     engine->addCustomFilter(filterName, QStringList());
-    engine->setCustomValue(weAddedFilterKey, 1);
-    engine->setCustomValue(previousFilterNameKey, filterName);
+    engine->setCustomValue(Help::Constants::WeAddedFilterKey, 1);
+    engine->setCustomValue(Help::Constants::PreviousFilterNameKey, filterName);
     engine->setCurrentFilter(filterName);
 
     updateFilterComboBox();

@@ -106,9 +106,20 @@ void FilterSettingsPage::updateFilterPage()
     m_ui.attributeWidget->clear();
 
     m_filterMapBackup.clear();
+
+    QString lastTrUnfiltered;
+    const QString trUnfiltered = tr("Unfiltered");
     const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
+    if (engine.customValue(Help::Constants::WeAddedFilterKey).toInt() == 1) {
+        lastTrUnfiltered =
+            engine.customValue(Help::Constants::PreviousFilterNameKey).toString();
+    }
+
     const QStringList &filters = engine.customFilters();
     foreach (const QString &filter, filters) {
+        if (filter == trUnfiltered || filter == lastTrUnfiltered)
+            continue;
+
         const QStringList &attributes = engine.filterAttributes(filter);
         m_filterMapBackup.insert(filter, attributes);
         if (!m_filterMap.contains(filter))
