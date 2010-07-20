@@ -55,11 +55,13 @@ Rewriter::Rewriter(const QString &originalText,
 void Rewriter::addBinding(AST::UiObjectInitializer *ast,
                           const QString &propertyName,
                           const QString &propertyValue,
-                          BindingType bindingType)
+                          BindingType bindingType,
+                          UiObjectMemberList *insertAfter)
 {
-    UiObjectMemberList *insertAfter = searchMemberToInsertAfter(ast->members,
-                                                                propertyName,
-                                                                m_propertyOrder);
+    if (!insertAfter)
+        insertAfter = searchMemberToInsertAfter(ast->members,
+                                                propertyName,
+                                                m_propertyOrder);
     SourceLocation endOfPreviousMember;
     SourceLocation startOfNextMember;
 
@@ -568,9 +570,10 @@ void Rewriter::appendToArrayBinding(UiArrayBinding *arrayBinding,
     m_changeSet->insert(insertionPoint, QLatin1String(",\n") + content);
 }
 
-void Rewriter::addObject(UiObjectInitializer *ast, const QString &content)
+void Rewriter::addObject(UiObjectInitializer *ast, const QString &content, UiObjectMemberList *insertAfter = 0)
 {
-    UiObjectMemberList *insertAfter = searchMemberToInsertAfter(ast->members, m_propertyOrder);
+    if (!insertAfter)
+        insertAfter = searchMemberToInsertAfter(ast->members, m_propertyOrder);
 
     int insertionPoint;
     QString textToInsert;
