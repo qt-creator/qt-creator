@@ -132,6 +132,10 @@ public:
     int visibilityForObjCAccessSpecifier(int tokenKind) const;
     bool isObjCClassMethod(int tokenKind) const;
 
+    unsigned location(DeclaratorAST *ast) const;
+    unsigned location(CoreDeclaratorAST *ast) const;
+    unsigned location(NameAST *ast) const;
+
 private:
     class Data;
     friend class Data;

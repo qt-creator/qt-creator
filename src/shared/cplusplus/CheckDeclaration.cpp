@@ -131,18 +131,6 @@ void CheckDeclaration::checkFunctionArguments(Function *fun)
     }
 }
 
-unsigned CheckDeclaration::locationOfDeclaratorId(DeclaratorAST *declarator) const
-{
-    if (declarator && declarator->core_declarator) {
-        if (DeclaratorIdAST *declaratorId = declarator->core_declarator->asDeclaratorId())
-            return declaratorId->firstToken();
-        else if (NestedDeclaratorAST *nested = declarator->core_declarator->asNestedDeclarator())
-            return locationOfDeclaratorId(nested->declarator);
-    }
-
-    return 0;
-}
-
 bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
 {
     FullySpecifiedType ty = semantic()->check(ast->decl_specifier_list, _scope);
@@ -198,7 +186,7 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
         FullySpecifiedType declTy = semantic()->check(it->value, qualTy,
                                                       _scope, &name);
 
-        unsigned location = locationOfDeclaratorId(it->value);
+        unsigned location = semantic()->location(it->value);
         if (! location) {
             if (it->value)
                 location = it->value->firstToken();
@@ -310,7 +298,7 @@ bool CheckDeclaration::visit(ExceptionDeclarationAST *ast)
     FullySpecifiedType declTy = semantic()->check(ast->declarator, qualTy,
                                                   _scope, &name);
 
-    unsigned location = locationOfDeclaratorId(ast->declarator);
+    unsigned location = semantic()->location(ast->declarator);
     if (! location) {
         if (ast->declarator)
             location = ast->declarator->firstToken();
@@ -351,8 +339,12 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
         fun->setUnavailable(true);
     fun->members()->setStartOffset(funStartOffset);
     fun->members()->setEndOffset(tokenAt(ast->lastToken() - 1).end());
-    if (ast->declarator)
-        fun->setSourceLocation(ast->declarator->firstToken(), translationUnit());
+    if (ast->declarator) {
+        unsigned loc = semantic()->location(ast->declarator);
+        if (! loc)
+            loc = ast->declarator->firstToken();
+        fun->setSourceLocation(loc, translationUnit());
+    }
     fun->setName(name);
     fun->setTemplateParameters(_templateParameters);
     fun->setVisibility(semantic()->currentVisibility());
@@ -450,7 +442,7 @@ bool CheckDeclaration::visit(NamespaceAliasDefinitionAST *ast)
 
 bool CheckDeclaration::visit(ParameterDeclarationAST *ast)
 {
-    unsigned sourceLocation = locationOfDeclaratorId(ast->declarator);
+    unsigned sourceLocation = semantic()->location(ast->declarator);
     if (! sourceLocation) {
         if (ast->declarator)
             sourceLocation = ast->declarator->firstToken();

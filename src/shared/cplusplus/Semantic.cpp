@@ -316,4 +316,38 @@ int Semantic::visibilityForClassKey(int tokenKind) const
     }
 }
 
+unsigned Semantic::location(DeclaratorAST *ast) const
+{
+    if (! ast)
+        return 0;
 
+    else if (CPlusPlus::CoreDeclaratorAST *core = ast->core_declarator)
+        return location(core);
+
+    return ast->firstToken();
+}
+
+unsigned Semantic::location(CoreDeclaratorAST *ast) const
+{
+    if (! ast)
+        return 0;
+
+    else if (CPlusPlus::DeclaratorIdAST *declaratorId = ast->asDeclaratorId())
+        return location(declaratorId->name);
+
+    else if (CPlusPlus::NestedDeclaratorAST *nested = ast->asNestedDeclarator())
+        return location(nested->declarator);
+
+    return ast->firstToken();
+}
+
+unsigned Semantic::location(NameAST *ast) const
+{
+    if (! ast)
+        return 0;
+
+    else if (CPlusPlus::QualifiedNameAST *qualifiedName = ast->asQualifiedName())
+        return location(qualifiedName->unqualified_name);
+
+    return ast->firstToken();
+}
