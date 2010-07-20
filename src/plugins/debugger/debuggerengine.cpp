@@ -392,6 +392,8 @@ DebuggerEngine::DebuggerEngine(const DebuggerStartParameters &startParameters)
 
 DebuggerEngine::~DebuggerEngine()
 {
+    disconnect();
+    delete d;
 }
 
 void DebuggerEngine::showStatusMessage(const QString &msg, int timeout) const
