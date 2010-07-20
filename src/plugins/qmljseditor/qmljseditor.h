@@ -256,6 +256,8 @@ protected:
     void contextMenuEvent(QContextMenuEvent *e);
     bool event(QEvent *e);
     void wheelEvent(QWheelEvent *event);
+    void resizeEvent(QResizeEvent *event);
+    void scrollContentsBy(int dx, int dy);
     TextEditor::BaseTextEditorEditable *createEditableInterface();
     void createToolBar(QmlJSEditorEditable *editable);
     TextEditor::BaseTextEditor::Link findLinkAt(const QTextCursor &cursor, bool resolveTarget = true);
@@ -277,6 +279,7 @@ private:
 
     SemanticHighlighter::Source currentSource(bool force = false);
     QModelIndex indexForPosition(unsigned cursorPosition, const QModelIndex &rootIndex = QModelIndex()) const;
+    bool hideContextPane();
 
     const Core::Context m_context;
 

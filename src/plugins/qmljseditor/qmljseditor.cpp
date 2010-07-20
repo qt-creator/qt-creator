@@ -1352,8 +1352,7 @@ bool QmlJSTextEditor::event(QEvent *e)
     switch (e->type()) {
     case QEvent::ShortcutOverride:
         if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape && m_contextPane) {
-            if ((m_contextPane) && m_contextPane->widget()->isVisible()) {
-                m_contextPane->apply(editableInterface(),  m_semanticInfo.document, m_semanticInfo.snapshot, 0, false);
+            if (hideContextPane()) {
                 e->accept();
                 return true;
             }
@@ -1369,10 +1368,27 @@ bool QmlJSTextEditor::event(QEvent *e)
 
 void QmlJSTextEditor::wheelEvent(QWheelEvent *event)
 {
+    bool visible = false;
+    if (m_contextPane && m_contextPane->widget()->isVisible())
+        visible = true;
+
     BaseTextEditor::wheelEvent(event);
-    if (m_contextPane)
-        m_contextPane->apply(editableInterface(),  m_semanticInfo.document, m_semanticInfo.snapshot, m_semanticInfo.declaringMember(position()), true);
+
+    if (visible)
+        m_contextPane->apply(editableInterface(),  m_semanticInfo.document, m_semanticInfo.snapshot, m_semanticInfo.declaringMemberNoProperties(position()), true);
 }
+
+void QmlJSTextEditor::resizeEvent(QResizeEvent *event)
+{
+    BaseTextEditor::resizeEvent(event);
+    hideContextPane();
+}
+
+ void QmlJSTextEditor::scrollContentsBy(int dx, int dy)
+ {
+     BaseTextEditor::scrollContentsBy(dx, dy);
+     hideContextPane();
+ }
 
 void QmlJSTextEditor::unCommentSelection()
 {
@@ -1603,7 +1619,7 @@ void QmlJSTextEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
         m_semanticInfo.declarations = findDeclarations(doc->ast());
 
         if (m_contextPane) {
-            Node *newNode = m_semanticInfo.declaringMember(position());
+            Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
             if (newNode) {
                 m_contextPane->apply(editableInterface(), doc, m_semanticInfo.snapshot, newNode, true);
                 m_oldCursorPosition = position();
@@ -1626,8 +1642,8 @@ void QmlJSTextEditor::onCursorPositionChanged()
 
 
     if (m_contextPane) {
-        Node *newNode = m_semanticInfo.declaringMember(position());
-        Node *oldNode = m_semanticInfo.declaringMember(m_oldCursorPosition);
+        Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
+        Node *oldNode = m_semanticInfo.declaringMemberNoProperties(m_oldCursorPosition);
         if (oldNode != newNode)
             m_contextPane->apply(editableInterface(), m_semanticInfo.document, m_semanticInfo.snapshot, newNode, false);
         m_oldCursorPosition = position();
@@ -1656,6 +1672,14 @@ QModelIndex QmlJSTextEditor::indexForPosition(unsigned cursorPosition, const QMo
         lastIndex = indexForPosition(cursorPosition, lastIndex);
     }
     return lastIndex;
+}
+
+bool QmlJSTextEditor::hideContextPane()
+{
+    bool b = (m_contextPane) && m_contextPane->widget()->isVisible();
+    if (b)
+        m_contextPane->apply(editableInterface(),  m_semanticInfo.document, m_semanticInfo.snapshot, 0, false);
+    return b;
 }
 
 SemanticHighlighter::Source QmlJSTextEditor::currentSource(bool force)
