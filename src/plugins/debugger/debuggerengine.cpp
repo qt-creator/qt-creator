@@ -263,8 +263,10 @@ public slots:
     }
 
     void queueFinishDebugger() {
-        m_engine->setState(DebuggerFinished, true);
-        m_engine->showMessage(_("QUEUE: SHUTDOWN INFERIOR"));
+        QTC_ASSERT(state() == EngineShutdownOk
+            || state() == EngineShutdownFailed, qDebug() << state());
+        m_engine->setState(DebuggerFinished);
+        m_engine->showMessage(_("QUEUE: FINISH DEBUGGER"));
         QTimer::singleShot(0, this, SLOT(doFinishDebugger()));
     }
 
@@ -1248,8 +1250,7 @@ void DebuggerEngine::notifyInferiorIll()
 
 void DebuggerEnginePrivate::doShutdownEngine()
 {
-    QTC_ASSERT(state() == EngineShutdownRequested
-           || state() == InferiorShutdownOk, qDebug() << state());
+    QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
     m_targetState = DebuggerFinished;
     m_engine->showMessage(_("CALL: SHUTDOWN ENGINE"));
     m_engine->shutdownEngine();
@@ -1260,7 +1261,7 @@ void DebuggerEngine::notifyEngineShutdownOk()
     showMessage(_("NOTE: ENGINE SHUTDOWN OK"));
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
     setState(EngineShutdownOk);
-    QTimer::singleShot(0, d, SLOT(doFinishDebugger()));
+    d->queueFinishDebugger();
 }
 
 void DebuggerEngine::notifyEngineShutdownFailed()
@@ -1268,16 +1269,14 @@ void DebuggerEngine::notifyEngineShutdownFailed()
     showMessage(_("NOTE: ENGINE SHUTDOWN FAILED"));
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
     setState(EngineShutdownFailed);
-    QTimer::singleShot(0, d, SLOT(doFinishDebugger()));
+    d->queueFinishDebugger();
 }
 
 void DebuggerEnginePrivate::doFinishDebugger()
 {
     m_engine->showMessage(_("NOTE: FINISH DEBUGGER"));
-    QTC_ASSERT(state() == EngineShutdownOk
-        || state() == EngineShutdownFailed, qDebug() << state());
+    QTC_ASSERT(state() == DebuggerFinished, qDebug() << state());
     m_engine->resetLocation();
-    m_engine->setState(DebuggerFinished);
     m_runControl->debuggingFinished();
 }
 
@@ -1303,6 +1302,7 @@ void DebuggerEngine::notifyEngineIll()
 void DebuggerEngine::notifyEngineSpontaneousShutdown()
 {
     showMessage(_("NOTE: ENGINE SPONTANEOUS SHUTDOWN"));
+    setState(EngineShutdownOk, true);
     d->queueFinishDebugger();
 }
 
