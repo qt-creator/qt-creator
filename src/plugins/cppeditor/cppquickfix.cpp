@@ -1513,7 +1513,20 @@ public:
                 if (binary->left_expression && binary->right_expression && tokenAt(binary->binary_op_token).is(T_EQUAL)) {
                     if (isCursorOn(binary->left_expression) && binary->left_expression->asSimpleName() != 0) {
                         SimpleNameAST *nameAST = binary->left_expression->asSimpleName();
-                        if (context().lookup(nameAST->name, scopeAt(nameAST->firstToken())).isEmpty()) {
+                        const QList<LookupItem> results = context().lookup(nameAST->name, scopeAt(nameAST->firstToken()));
+                        Declaration *decl = 0;
+                        foreach (const LookupItem &r, results) {
+                            if (! r.declaration())
+                                continue;
+                            else if (Declaration *d = r.declaration()->asDeclaration()) {
+                                if (! d->type()->isFunctionType()) {
+                                    decl = d;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (! decl) {
                             binaryAST = binary;
                             typeOfExpression.init(document(), snapshot(), context().bindings());
                             return index;
