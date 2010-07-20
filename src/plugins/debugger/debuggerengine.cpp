@@ -1409,7 +1409,15 @@ void DebuggerEngine::setActive(bool on)
 void DebuggerEngine::quitDebugger()
 {
     showMessage("QUIT DEBUGGER REQUESTED");
-    shutdownInferior();
+    d->m_targetState = DebuggerFinished;
+    if (state() == InferiorStopOk) {
+        d->doShutdownInferior();
+    } else if (state() == InferiorRunOk) {
+        d->doInterruptInferior();
+    } else {
+        // FIXME: We should disable the actions connected to that
+        notifyInferiorIll();
+    }
 }
 
 void DebuggerEngine::requestInterruptInferior()
