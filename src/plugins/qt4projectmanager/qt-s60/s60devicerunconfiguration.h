@@ -79,6 +79,9 @@ public:
     QString serialPortName() const;
     void setSerialPortName(const QString &name);
 
+    char installationDrive() const;
+    void setInstallationDrive(char drive);
+
     QString targetName() const;
     QString packageFileNameWithTargetInfo() const;
     QString symbianPlatform() const;
@@ -92,6 +95,9 @@ public:
 
     QStringList commandLineArguments() const;
     void setCommandLineArguments(const QStringList &args);
+
+    bool silentInstall() const;
+    void setSilentInstall(bool v);
 
     ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
 
@@ -119,6 +125,9 @@ private:
     ProjectExplorer::BuildConfiguration *m_activeBuildConfiguration;
     QString m_serialPortName;
     QStringList m_commandLineArguments;
+
+    char m_installationDrive;
+    bool m_silentInstall;
 };
 
 class S60DeviceRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
@@ -196,6 +205,7 @@ private:
     bool m_handleDeviceRemoval;
     QFutureInterface<void> *m_deployProgress;
     trk::Launcher *m_launcher;
+    char m_installationDrive;
 };
 
 // Configure launcher to run the application

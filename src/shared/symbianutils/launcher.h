@@ -95,10 +95,12 @@ public:
     void setCommandLineArgs(const QStringList &args);
     bool startServer(QString *errorMessage);
     void setInstallationMode(InstallationMode installation);
+    void setInstallationDrive(char drive);
     void setVerbose(int v);
     void setSerialFrame(bool b);
 
     InstallationMode installationMode() const;
+    char installationDrive() const;
 
     bool serialFrame() const;
     // Close device or leave it open

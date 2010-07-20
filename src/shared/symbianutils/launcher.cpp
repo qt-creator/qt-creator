@@ -104,6 +104,7 @@ struct LauncherPrivate {
     CrashReportState m_crashReportState;
     Launcher::InstallationMode m_installationMode;
     Launcher::InstallationMode m_currentInstallationStep;
+    char m_installationDrive;
 };
 
 LauncherPrivate::LauncherPrivate(const TrkDevicePtr &d) :
@@ -112,7 +113,8 @@ LauncherPrivate::LauncherPrivate(const TrkDevicePtr &d) :
     m_verbose(0),
     m_closeDevice(true),
     m_installationMode(Launcher::InstallationModeSilentAndUser),
-    m_currentInstallationStep(Launcher::InstallationModeSilent)
+    m_currentInstallationStep(Launcher::InstallationModeSilent),
+    m_installationDrive('C')
 {
     if (m_device.isNull())
         m_device = TrkDevicePtr(new TrkDevice);
@@ -154,6 +156,11 @@ void Launcher::setState(State s)
 void Launcher::setInstallationMode(InstallationMode installation)
 {
     d->m_installationMode = installation;
+}
+
+void Launcher::setInstallationDrive(char drive)
+{
+    d->m_installationDrive = drive;
 }
 
 void Launcher::addStartupActions(trk::Launcher::Actions startupActions)
@@ -226,6 +233,11 @@ void Launcher::setCloseDevice(bool c)
 Launcher::InstallationMode Launcher::installationMode() const
 {
     return d->m_installationMode;
+}
+
+char Launcher::installationDrive() const
+{
+    return d->m_installationDrive;
 }
 
 bool Launcher::startServer(QString *errorMessage)
@@ -862,7 +874,7 @@ void Launcher::installRemotePackageSilently()
     emit installingStarted();
     d->m_currentInstallationStep = InstallationModeSilent;
     QByteArray ba;
-    ba.append('C');
+    ba.append((char)QChar::toUpper((ushort)d->m_installationDrive));
     appendString(&ba, d->m_installFileName.toLocal8Bit(), TargetByteOrder, false);
     d->m_device->sendTrkMessage(TrkInstallFile, TrkCallback(this, &Launcher::handleInstallPackageFinished), ba);
 }

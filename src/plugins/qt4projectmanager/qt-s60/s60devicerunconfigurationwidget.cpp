@@ -55,6 +55,7 @@
 #include <QtGui/QSpacerItem>
 #include <QtGui/QMainWindow>
 #include <QtGui/QMessageBox>
+#include <QtGui/QCheckBox>
 
 Q_DECLARE_METATYPE(SymbianUtils::SymbianDevice)
 
@@ -66,6 +67,9 @@ enum { wantUpdateSerialDevicesButton = 1 };
 
 namespace Qt4ProjectManager {
 namespace Internal {
+
+const char STARTING_DRIVE_LETTER = 'C';
+const char LAST_DRIVE_LETTER = 'Z';
 
 S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
             S60DeviceRunConfiguration *runConfiguration,
@@ -80,7 +84,9 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
     m_deviceInfoButton(new QToolButton),
     m_deviceInfoDescriptionLabel(new QLabel(tr("Device:"))),
     m_deviceInfoLabel(new QLabel),
-    m_infoTimeOutTimer(0)
+    m_infoTimeOutTimer(0),
+    m_installationDriveCombo(new QComboBox),
+    m_silentInstallCheckBox(new QCheckBox(tr("Silent installation")))
 {
     m_detailsWidget->setState(Utils::DetailsWidget::NoSummary);
     updateTargetInformation();
@@ -104,6 +110,23 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
     formLayout->addRow(nameLabel, m_nameLineEdit);
     formLayout->addRow(tr("Arguments:"), m_argumentsLineEdit);
     formLayout->addRow(tr("Installation file:"), m_sisFileLabel);
+
+    // Installation Drive control
+    updateInstallationDrives();
+    m_installationDriveCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    connect(m_installationDriveCombo, SIGNAL(activated(int)), this, SLOT(setInstallationDrive(int)));
+    QHBoxLayout *installationDriveHBoxLayout = new QHBoxLayout;
+    installationDriveHBoxLayout->addWidget(m_installationDriveCombo);
+    installationDriveHBoxLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
+    formLayout->addRow(tr("Installation drive:"), installationDriveHBoxLayout);
+
+    // Non-silent installs are a fallback if one wants to override missing dependencies.
+    m_silentInstallCheckBox->setChecked(m_runConfiguration->silentInstall());
+    m_silentInstallCheckBox->setToolTip(tr("Silent installation is an installation mode "
+                                           "that does not require user's intervention. "
+                                           "In case it fails the non silent installation is launched."));
+    connect(m_silentInstallCheckBox, SIGNAL(stateChanged(int)), this, SLOT(silentInstallChanged(int)));
+    formLayout->addRow(m_silentInstallCheckBox);
 
     updateSerialDevices();
     connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(updated()),
@@ -142,6 +165,25 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
             this, SLOT(argumentsEdited(QString)));
     connect(m_runConfiguration, SIGNAL(targetInformationChanged()),
             this, SLOT(updateTargetInformation()));
+}
+
+void S60DeviceRunConfigurationWidget::updateInstallationDrives()
+{
+    m_installationDriveCombo->clear();
+    for (int i = STARTING_DRIVE_LETTER; i <= LAST_DRIVE_LETTER; ++i) {
+        m_installationDriveCombo->addItem(QString("%1:").arg((char)i), qVariantFromValue(i));
+    }
+   int index = (char)QChar::toUpper((uint)m_runConfiguration->installationDrive())-STARTING_DRIVE_LETTER;
+
+   Q_ASSERT(index>= 0 && index <= LAST_DRIVE_LETTER-STARTING_DRIVE_LETTER);
+
+   m_installationDriveCombo->setCurrentIndex(index);
+}
+
+void S60DeviceRunConfigurationWidget::silentInstallChanged(int state)
+{
+    bool isSilent = state == Qt::Checked;
+    m_runConfiguration->setSilentInstall(isSilent);
 }
 
 void S60DeviceRunConfigurationWidget::updateSerialDevices()
@@ -206,6 +248,11 @@ void S60DeviceRunConfigurationWidget::argumentsEdited(const QString &text)
 void S60DeviceRunConfigurationWidget::updateTargetInformation()
 {
     m_sisFileLabel->setText(QDir::toNativeSeparators(m_runConfiguration->signedPackage()));
+}
+
+void S60DeviceRunConfigurationWidget::setInstallationDrive(int index)
+{
+    m_runConfiguration->setInstallationDrive((char)(STARTING_DRIVE_LETTER + index));
 }
 
 void S60DeviceRunConfigurationWidget::setSerialPort(int index)

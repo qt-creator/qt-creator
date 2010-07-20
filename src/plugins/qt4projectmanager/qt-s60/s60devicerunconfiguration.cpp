@@ -72,6 +72,8 @@ const char * const PRO_FILE_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.Pro
 const char * const SERIAL_PORT_NAME_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.SerialPortName");
 const char * const COMMUNICATION_TYPE_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.CommunicationType");
 const char * const COMMAND_LINE_ARGUMENTS_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.CommandLineArguments");
+const char * const INSTALLATION_DRIVE_LETTER_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.InstallationDriveLetter");
+const char * const SILENT_INSTALL_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.SilentInstall");
 
 const int    PROGRESS_DEPLOYBASE = 0;
 const int    PROGRESS_PACKAGEDEPLOYED = 100;
@@ -115,10 +117,11 @@ S60DeviceRunConfiguration::S60DeviceRunConfiguration(Target *parent, const QStri
     m_proFilePath(proFilePath),
     m_activeBuildConfiguration(0),
 #ifdef Q_OS_WIN
-    m_serialPortName(QLatin1String("COM5"))
+    m_serialPortName(QLatin1String("COM5")),
 #else
-    m_serialPortName(QLatin1String(SymbianUtils::SymbianDeviceManager::linuxBlueToothDeviceRootC) + QLatin1Char('0'))
+    m_serialPortName(QLatin1String(SymbianUtils::SymbianDeviceManager::linuxBlueToothDeviceRootC) + QLatin1Char('0')),
 #endif
+    m_installationDrive('C')
 {
     ctor();
 }
@@ -127,7 +130,8 @@ S60DeviceRunConfiguration::S60DeviceRunConfiguration(Target *target, S60DeviceRu
     RunConfiguration(target, source),
     m_proFilePath(source->m_proFilePath),
     m_activeBuildConfiguration(0),
-    m_serialPortName(source->m_serialPortName)
+    m_serialPortName(source->m_serialPortName),
+    m_installationDrive(source->m_installationDrive)
 {
     ctor();
 }
@@ -221,6 +225,8 @@ QVariantMap S60DeviceRunConfiguration::toMap() const
     map.insert(QLatin1String(PRO_FILE_KEY), projectDir.relativeFilePath(m_proFilePath));
     map.insert(QLatin1String(SERIAL_PORT_NAME_KEY), m_serialPortName);
     map.insert(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY), m_commandLineArguments);
+    map.insert(QLatin1String(INSTALLATION_DRIVE_LETTER_KEY), QChar(m_installationDrive));
+    map.insert(QLatin1String(SILENT_INSTALL_KEY), QVariant(m_silentInstall));
 
     return map;
 }
@@ -232,6 +238,9 @@ bool S60DeviceRunConfiguration::fromMap(const QVariantMap &map)
     m_proFilePath = projectDir.filePath(map.value(QLatin1String(PRO_FILE_KEY)).toString());
     m_serialPortName = map.value(QLatin1String(SERIAL_PORT_NAME_KEY)).toString().trimmed();
     m_commandLineArguments = map.value(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY)).toStringList();
+    m_installationDrive = map.value(QLatin1String(INSTALLATION_DRIVE_LETTER_KEY), QChar('C'))
+                          .toChar().toAscii();
+    m_silentInstall = map.value(QLatin1String(SILENT_INSTALL_KEY), QVariant(true)).toBool();
 
     return RunConfiguration::fromMap(map);
 }
@@ -248,6 +257,16 @@ void S60DeviceRunConfiguration::setSerialPortName(const QString &name)
         return;
     m_serialPortName = candidate;
     emit serialPortNameChanged();
+}
+
+char S60DeviceRunConfiguration::installationDrive() const
+{
+    return m_installationDrive;
+}
+
+void S60DeviceRunConfiguration::setInstallationDrive(char drive)
+{
+    m_installationDrive = drive;
 }
 
 QString S60DeviceRunConfiguration::targetName() const
@@ -404,6 +423,16 @@ void S60DeviceRunConfiguration::setCommandLineArguments(const QStringList &args)
     m_commandLineArguments = args;
 }
 
+bool S60DeviceRunConfiguration::silentInstall() const
+{
+    return m_silentInstall;
+}
+
+void S60DeviceRunConfiguration::setSilentInstall(bool v)
+{
+    m_silentInstall = v;
+}
+
 // ======== S60DeviceRunConfigurationFactory
 
 S60DeviceRunConfigurationFactory::S60DeviceRunConfigurationFactory(QObject *parent) :
@@ -511,6 +540,7 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfigurat
     m_targetName = s60runConfig->targetName();
     m_commandLineArguments = s60runConfig->commandLineArguments();
     m_qtDir = activeBuildConf->qtVersion()->versionInfo().value("QT_INSTALL_DATA");
+    m_installationDrive = s60runConfig->installationDrive();
     if (const QtVersion *qtv = s60runConfig->qtVersion())
         m_qtBinPath = qtv->versionInfo().value(QLatin1String("QT_INSTALL_BINS"));
     QTC_ASSERT(!m_qtBinPath.isEmpty(), return);
@@ -608,10 +638,10 @@ void S60DeviceRunControlBase::startDeployment()
         connect(m_launcher, SIGNAL(processStopped(uint,uint,uint,QString)),
                 this, SLOT(processStopped(uint,uint,uint,QString)));
 
-        //TODO sisx destination and file path user definable
         if (!m_commandLineArguments.isEmpty())
             m_launcher->setCommandLineArgs(m_commandLineArguments);
-        const QString runFileName = QString::fromLatin1("C:\\sys\\bin\\%1.exe").arg(m_targetName);
+			
+        const QString runFileName = QString::fromLatin1("%1:\\sys\\bin\\%2.exe").arg(m_installationDrive).arg(m_targetName);
         initLauncher(runFileName, m_launcher);
         const trk::PromptStartCommunicationResult src =
                 S60RunConfigBluetoothStarter::startCommunication(m_launcher->trkDevice(),

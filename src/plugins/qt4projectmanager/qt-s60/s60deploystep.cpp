@@ -128,6 +128,8 @@ bool S60DeployStep::init()
     m_serialPortFriendlyName = SymbianUtils::SymbianDeviceManager::instance()->friendlyNameForPort(m_serialPortName);
     m_packageFileNameWithTarget = runConfiguration->packageFileNameWithTargetInfo();
     m_signedPackage = runConfiguration->signedPackage();
+    m_installationDrive = runConfiguration->installationDrive();
+    m_silentInstall = runConfiguration->silentInstall();
 
     setDisplayName(tr("Deploy", "Qt4 DeployStep display name."));
     QString message;
@@ -250,11 +252,14 @@ void S60DeployStep::startDeployment()
     Q_ASSERT(m_launcher);
 
     setupConnections();
-    //TODO sisx destination and file path user definable
-    const QString copyDst = QString::fromLatin1("C:\\Data\\%1").arg(QFileInfo(m_signedPackage).fileName());
+
+    const QString copyDst = QString::fromLatin1("%1:\\Data\\%2").arg(m_installationDrive).arg(QFileInfo(m_signedPackage).fileName());
 
     m_launcher->setCopyFileName(m_signedPackage, copyDst);
     m_launcher->setInstallFileName(copyDst);
+    m_launcher->setInstallationDrive(m_installationDrive);
+    m_launcher->setInstallationMode(m_silentInstall?trk::Launcher::InstallationModeSilent:
+                                                    trk::Launcher::InstallationModeUser);
     m_launcher->addStartupActions(trk::Launcher::ActionCopyInstall);
 
     appendMessage(tr("Package: %1\nDeploying application to '%2'...").arg(m_signedPackage, m_serialPortFriendlyName), false);
@@ -347,7 +352,7 @@ void S60DeployStep::printCopyingNotice()
 
 void S60DeployStep::printInstallingNotice()
 {
-    appendMessage(tr("Installing application..."), false);
+    appendMessage(tr("Installing application on drive %1:...").arg(m_installationDrive), false);
 }
 
 void S60DeployStep::printInstallingFinished()

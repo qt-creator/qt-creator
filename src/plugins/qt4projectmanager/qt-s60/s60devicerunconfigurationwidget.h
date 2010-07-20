@@ -39,6 +39,7 @@ class QTimer;
 class QLineEdit;
 class QComboBox;
 class QToolButton;
+class QCheckBox;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -72,12 +73,15 @@ private slots:
     void displayNameEdited(const QString &text);
     void argumentsEdited(const QString &text);
     void updateTargetInformation();
+    void updateInstallationDrives();
     void updateSerialDevices();
+    void setInstallationDrive(int index);
     void setSerialPort(int index);
     void updateDeviceInfo();
     void clearDeviceInfo();
     void slotLauncherStateChanged(int);
     void slotWaitingForTrkClosed();
+    void silentInstallChanged(int);
 
 private:
     inline SymbianUtils::SymbianDevice device(int i) const;
@@ -96,6 +100,8 @@ private:
     QLabel *m_deviceInfoLabel;
     QTimer *m_infoTimeOutTimer;
     QPointer<trk::Launcher> m_infoLauncher;
+    QComboBox *m_installationDriveCombo;
+    QCheckBox *m_silentInstallCheckBox;
 };
 
 } // namespace Internal

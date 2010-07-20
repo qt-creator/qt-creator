@@ -143,7 +143,8 @@ private:
 
     QEventLoop *m_eventLoop;
     bool m_deployResult;
-
+    char m_installationDrive;
+    bool m_silentInstall;
 };
 
 class S60DeployStepWidget : public ProjectExplorer::BuildStepConfigWidget
