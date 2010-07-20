@@ -183,10 +183,11 @@ STDMETHODIMP CdbDebugEventCallback::UnloadModule(
     __in ULONG64 BaseOffset
     )
 {
-    Q_UNUSED(ImageBaseName)
     Q_UNUSED(BaseOffset)
     if (debugCDB > 1)
         qDebug() << Q_FUNC_INFO << ImageBaseName;
+    if (!ImageBaseName)
+        return S_OK;
     m_pEngine->m_d->handleModuleUnload(QString::fromUtf16(reinterpret_cast<const ushort *>(ImageBaseName)));
     handleModuleUnload();
     m_pEngine->m_d->updateModules();
