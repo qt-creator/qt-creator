@@ -34,7 +34,6 @@
 #include <Literals.h>
 #include <Names.h>
 #include <Scope.h>
-#include <cplusplus/Overview.h>
 
 #include <QtCore/QVarLengthArray>
 #include <QtCore/QDebug>
@@ -121,7 +120,7 @@ public:
         {
             FullySpecifiedType ty = rewrite->env->apply(type->name(), rewrite);
             if (! ty->isUndefinedType())
-                temps.append(ty);
+                temps.append(rewrite->rewriteType(ty));
             else {
                 const Name *name = rewrite->rewriteName(type->name());
                 temps.append(control()->namedType(name));
@@ -287,57 +286,39 @@ public: // attributes
     RewriteName rewriteName;
 };
 
-SubstitutionEnvironment::SubstitutionEnvironment()
-    : _scope(0)
+ContextSubstitution::ContextSubstitution(const LookupContext &context, Scope *scope)
+    : _context(context), _scope(scope)
 {
 }
 
-FullySpecifiedType SubstitutionEnvironment::apply(const Name *name, Rewrite *rewrite) const
+ContextSubstitution::~ContextSubstitution()
 {
-    if (name) {
-        for (int index = _substs.size() - 1; index != -1; --index) {
-            const Substitution *subst = _substs.at(index);
+}
 
-            FullySpecifiedType ty = subst->apply(name, rewrite);
-            if (! ty->isUndefinedType())
-                return ty;
+FullySpecifiedType ContextSubstitution::apply(const Name *name, Rewrite *rewrite) const
+{
+    const QList<LookupItem> candidates = _context.lookup(name, _scope);
+
+    foreach (const LookupItem &r, candidates) {
+        Symbol *s = r.declaration();
+        if (s->isDeclaration() && s->isTypedef()) {
+            qDebug() << "resolved typedef:" << s->fileName() << s->line() << s->column();
+
+            qDebug() << "scope is:" << r.scope()->owner()->fileName()
+                     << r.scope()->owner()->line()
+                     << r.scope()->owner()->column();
+
+            ContextSubstitution subst(_context, s->scope());
+            rewrite->env->enter(&subst);
+            FullySpecifiedType ty = rewrite->rewriteType(s->type());
+            rewrite->env->leave();
+
+            return ty;
         }
     }
-
     return FullySpecifiedType();
 }
 
-void SubstitutionEnvironment::enter(Substitution *subst)
-{
-    _substs.append(subst);
-}
-
-void SubstitutionEnvironment::leave()
-{
-    _substs.removeLast();
-}
-
-Scope *SubstitutionEnvironment::scope() const
-{
-    return _scope;
-}
-
-Scope *SubstitutionEnvironment::switchScope(Scope *scope)
-{
-    Scope *previous = _scope;
-    _scope = scope;
-    return previous;
-}
-
-const LookupContext &SubstitutionEnvironment::context() const
-{
-    return _context;
-}
-
-void SubstitutionEnvironment::setContext(const LookupContext &context)
-{
-    _context = context;
-}
 
 SubstitutionMap::SubstitutionMap()
 {
@@ -365,49 +346,6 @@ FullySpecifiedType SubstitutionMap::apply(const Name *name, Rewrite *) const
 
     return FullySpecifiedType();
 }
-
-
-UseQualifiedNames::UseQualifiedNames()
-{
-
-}
-
-UseQualifiedNames::~UseQualifiedNames()
-{
-
-}
-
-FullySpecifiedType UseQualifiedNames::apply(const Name *name, Rewrite *rewrite) const
-{
-    SubstitutionEnvironment *env = rewrite->env;
-    Scope *scope = env->scope();
-
-    if (! scope)
-        return FullySpecifiedType();
-
-    const LookupContext &context = env->context();
-    Control *control = rewrite->control;
-
-    const QList<LookupItem> results = context.lookup(name, scope);
-    foreach (const LookupItem &r, results) {
-        if (Symbol *d = r.declaration()) {
-            const Name *n = 0;
-            foreach (const Name *c,  LookupContext::fullyQualifiedName(d)) {
-                if (! n)
-                    n = c;
-                else
-                    n = control->qualifiedNameId(n, c);
-            }
-
-            return control->namedType(n);
-        }
-
-        return r.type();
-    }
-
-    return FullySpecifiedType();
-}
-
 
 FullySpecifiedType CPlusPlus::rewriteType(const FullySpecifiedType &type,
                                           SubstitutionEnvironment *env,

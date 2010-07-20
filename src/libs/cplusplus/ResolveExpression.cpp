@@ -568,10 +568,9 @@ QList<LookupItem> ResolveExpression::getMembers(ClassOrNamespace *binding, const
                 }
 
                 SubstitutionEnvironment env;
-                if (m.scope())
-                    env.switchScope(m.scope());
-                env.setContext(_context);
+                ContextSubstitution ctxSubst(_context, m.scope());
 
+                env.enter(&ctxSubst);
                 env.enter(&map);
                 FullySpecifiedType instantiatedTy = rewriteType(decl->type(), &env, _context.control().data());
 

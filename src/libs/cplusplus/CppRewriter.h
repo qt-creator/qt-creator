@@ -51,26 +51,50 @@ public:
 class CPLUSPLUS_EXPORT SubstitutionEnvironment
 {
     Q_DISABLE_COPY(SubstitutionEnvironment)
+    QList<Substitution *> substs;
 
 public:
-    SubstitutionEnvironment();
+    SubstitutionEnvironment() {}
 
-    FullySpecifiedType apply(const Name *name, Rewrite *rewrite) const;
+    FullySpecifiedType apply(const Name *name, Rewrite *rewrite) const
+    {
+        if (name) {
+            for (int index = substs.size() - 1; index != -1; --index) {
+                const Substitution *subst = substs.at(index);
 
-    void enter(Substitution *subst);
-    void leave();
+                FullySpecifiedType ty = subst->apply(name, rewrite);
+                if (! ty->isUndefinedType())
+                    return ty;
+            }
+        }
 
-    Scope *scope() const;
-    Scope *switchScope(Scope *scope);
+        return FullySpecifiedType();
+    }
 
-    const LookupContext &context() const;
-    void setContext(const LookupContext &context);
+    void enter(Substitution *subst)
+    {
+        substs.append(subst);
+    }
+
+    void leave()
+    {
+        substs.removeLast();
+    }
+};
+
+class CPLUSPLUS_EXPORT ContextSubstitution: public Substitution
+{
+public:
+    ContextSubstitution(const LookupContext &context, Scope *scope);
+    virtual ~ContextSubstitution();
+
+    virtual FullySpecifiedType apply(const Name *name, Rewrite *rewrite) const;
 
 private:
-    QList<Substitution *> _substs;
-    Scope *_scope;
     LookupContext _context;
+    Scope *_scope;
 };
+
 
 class CPLUSPLUS_EXPORT SubstitutionMap: public Substitution
 {
@@ -84,17 +108,6 @@ public:
 private:
     QList<QPair<const Name *, FullySpecifiedType> > _map;
 };
-
-class CPLUSPLUS_EXPORT UseQualifiedNames: public Substitution
-{
-public:
-    UseQualifiedNames();
-    virtual ~UseQualifiedNames();
-
-    virtual FullySpecifiedType apply(const Name *name, Rewrite *rewrite) const;
-};
-
-
 
 CPLUSPLUS_EXPORT FullySpecifiedType rewriteType(const FullySpecifiedType &type,
                                                 SubstitutionEnvironment *env,
