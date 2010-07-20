@@ -570,7 +570,7 @@ void Rewriter::appendToArrayBinding(UiArrayBinding *arrayBinding,
     m_changeSet->insert(insertionPoint, QLatin1String(",\n") + content);
 }
 
-void Rewriter::addObject(UiObjectInitializer *ast, const QString &content, UiObjectMemberList *insertAfter = 0)
+void Rewriter::addObject(UiObjectInitializer *ast, const QString &content, UiObjectMemberList *insertAfter)
 {
     if (!insertAfter)
         insertAfter = searchMemberToInsertAfter(ast->members, m_propertyOrder);
