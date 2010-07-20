@@ -1012,7 +1012,8 @@ class Dumper:
         self.useFancy = "fancy" in options
         self.passExceptions = "pe" in options
         self.autoDerefPointers = "autoderef" in options
-        self.ns = qqNs
+        #self.ns = qqNs
+        self.ns = qtNamespace()
 
         #warn("NAMESPACE: '%s'" % self.ns)
         #warn("VARIABLES: %s" % varList)
