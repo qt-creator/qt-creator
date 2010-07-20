@@ -392,10 +392,6 @@ void DebuggerRunControl::setCustomEnvironment(ProjectExplorer::Environment env)
     m_engine->startParameters().environment = env.toStringList();
 }
 
-void DebuggerRunControl::init()
-{
-}
-
 bool DebuggerRunControl::checkDebugConfiguration(int toolChain,
                                               QString *errorMessage,
                                               QString *settingsCategory /* = 0 */,

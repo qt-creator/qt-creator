@@ -120,8 +120,6 @@ private slots:
     void handleFinished();
 
 private:
-    void init();
-
     DebuggerEngineType engineForExecutable(const QString &executable);
     DebuggerEngineType engineForMode(DebuggerStartMode mode);
 
