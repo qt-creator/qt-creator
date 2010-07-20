@@ -33,8 +33,9 @@ ContextPaneWidget::ContextPaneWidget(QWidget *parent) : QFrame(parent), m_curren
     setGraphicsEffect(m_dropShadowEffect);
 
     QGridLayout *layout = new QGridLayout(this);
-    layout->setMargin(2);
-    layout->setContentsMargins(2, 4, 2, 2);
+    layout->setMargin(0);
+    layout->setContentsMargins(1, 1, 1, 1);
+    layout->setSpacing(0);
     QToolButton *toolButton = new QToolButton(this);    
     QIcon icon(style()->standardIcon(QStyle::SP_DockWidgetCloseButton));
     toolButton->setIcon(icon);
