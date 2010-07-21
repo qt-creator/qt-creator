@@ -42,7 +42,7 @@ class HelpMode : public Core::BaseMode
     Q_OBJECT
 
 public:
-    HelpMode(QWidget *widget, QWidget *centralWidget, QObject *parent = 0);
+    HelpMode(QWidget *widget, QObject *parent = 0);
 };
 
 } // namespace Internal

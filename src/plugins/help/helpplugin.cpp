@@ -296,6 +296,11 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     mainWidgetLayout->addWidget(createToolBar());
     mainWidgetLayout->addWidget(m_centralWidget);
 
+    if (QLayout *layout = m_centralWidget->layout()) {
+        layout->setSpacing(0);
+        layout->addWidget(new Core::FindToolBarPlaceHolder(m_centralWidget));
+    }
+
     HelpIndexFilter *helpIndexFilter = new HelpIndexFilter();
     addAutoReleasedObject(helpIndexFilter);
     connect(helpIndexFilter, SIGNAL(linkActivated(QUrl)), this,
@@ -310,7 +315,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     connect(m_core->modeManager(), SIGNAL(currentModeChanged(Core::IMode*,
         Core::IMode*)), this, SLOT(modeChanged(Core::IMode*, Core::IMode*)));
 
-    addAutoReleasedObject(m_mode = new HelpMode(m_splitter, m_centralWidget));
+    addAutoReleasedObject(m_mode = new HelpMode(m_splitter));
     m_mode->setContext(modecontext);
 
     return true;
