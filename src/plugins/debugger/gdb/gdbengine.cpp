@@ -1536,7 +1536,7 @@ void GdbEngine::handleHasPython(const GdbResponse &response)
             cmd += ' ';
             cmd += startParameters().startMode == StartRemoteGdb
                ? startParameters().remoteDumperLib
-               : cmd += qtDumperLibraryName().toLocal8Bit();
+               : qtDumperLibraryName().toLocal8Bit();
             postCommand(cmd);
             m_debuggingHelperState = DebuggingHelperLoadTried;
         }
