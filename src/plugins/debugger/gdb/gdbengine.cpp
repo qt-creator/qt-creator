@@ -177,6 +177,8 @@ static QByteArray parsePlainConsoleStream(const GdbResponse &response)
 GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters)
   : DebuggerEngine(startParameters)
 {
+    qRegisterMetaType<WatchData>("WatchData");
+
     m_commandTimer = new QTimer(this);
     m_commandTimer->setSingleShot(true);
     connect(m_commandTimer, SIGNAL(timeout()), SLOT(commandTimeout()));
