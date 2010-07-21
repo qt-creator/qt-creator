@@ -74,7 +74,7 @@ public:
     void populate(QList<ProcData> processes, const QString &excludePid = QString());
 
 private:
-    enum { processImageRole = Qt::UserRole };
+    enum { ProcessImageRole = Qt::UserRole, ProcessNameRole };
 
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
 
@@ -121,8 +121,12 @@ QString ProcessListFilterModel::executableForPid(const QString &pid) const
     const int rowCount = m_model->rowCount();
     for (int r = 0; r < rowCount; r++) {
         const QStandardItem *item = m_model->item(r, 0);
-        if (item->text() == pid)
-            return item->data(processImageRole).toString();
+        if (item->text() == pid) {
+            QString name = item->data(ProcessImageRole).toString();
+            if (name.isEmpty())
+                name = item->data(ProcessNameRole).toString();
+            return name;
+        }
     }
     return QString();
 }
@@ -135,18 +139,18 @@ void ProcessListFilterModel::populate(QList<ProcData> processes, const QString &
         m_model->removeRows(0, rowCount);
 
     QStandardItem *root  = m_model->invisibleRootItem();
-    foreach(const ProcData &proc, processes) {
+    foreach (const ProcData &proc, processes) {
         QList<QStandardItem *> row;
         row.append(new QStandardItem(proc.ppid));
-        row.front()->setData(QVariant(proc.image), processImageRole);
+        QString name = proc.image.isEmpty() ? proc.name : proc.image;
+        row.back()->setData(name, ProcessImageRole);
         row.append(new QStandardItem(proc.name));
-        if (!proc.image.isEmpty())
-            row.back()->setToolTip(proc.image);
+        row.back()->setToolTip(proc.image);
         row.append(new QStandardItem(proc.state));
 
         if (proc.ppid == excludePid)
-            foreach(QStandardItem *i, row)
-                i->setEnabled(false);
+            foreach (QStandardItem *item, row)
+                item->setEnabled(false);
         root->appendRow(row);
     }
 }
@@ -412,7 +416,7 @@ QString AttachExternalDialog::executable() const
 
 void AttachExternalDialog::pidChanged(const QString &pid)
 {
-    bool enabled = !pid.isEmpty() && pid != QLatin1String("0") && pid != m_selfPid;;
+    bool enabled = !pid.isEmpty() && pid != QLatin1String("0") && pid != m_selfPid;
     okButton()->setEnabled(enabled);
 }
 

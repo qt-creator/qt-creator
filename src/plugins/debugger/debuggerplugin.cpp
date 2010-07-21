@@ -1694,6 +1694,7 @@ void DebuggerPluginPrivate::attachExternalApplication
     }
     DebuggerStartParameters sp;
     sp.attachPID = pid;
+    sp.displayName = tr("Process %1").arg(pid);
     sp.executable = binary;
     sp.crashParameter = crashParameter;
     sp.startMode = crashParameter.isEmpty() ? AttachExternal:AttachCrashedExternal;
@@ -1718,7 +1719,7 @@ void DebuggerPluginPrivate::attachCore(const QString &core, const QString &exe)
     DebuggerStartParameters sp;
     sp.executable = exe;
     sp.coreFile = core;
-    sp.displayName = tr("Core file: \"%1\"").arg(core);
+    sp.displayName = tr("Core file \"%1\"").arg(core);
     sp.startMode = AttachCore;
     DebuggerRunControl *rc = createDebugger(sp);
     startDebugger(rc);
@@ -2187,7 +2188,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     //const bool running = m_state == InferiorRunOk;
 
     m_startExternalAction->setEnabled(!started && !starting);
-    m_attachExternalAction->setEnabled(!started && !starting);
+    m_attachExternalAction->setEnabled(true);
 #ifdef Q_OS_WIN
     m_attachCoreAction->setEnabled(false);
 #else
