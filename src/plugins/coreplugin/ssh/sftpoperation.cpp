@@ -31,7 +31,6 @@
 
 #include "sftpoutgoingpacket_p.h"
 
-#include <QtCore/QTime>
 #include <QtCore/QFile>
 
 namespace Core {
@@ -44,8 +43,9 @@ AbstractSftpOperation::AbstractSftpOperation(SftpJobId jobId) : jobId(jobId)
 AbstractSftpOperation::~AbstractSftpOperation() { }
 
 
-SftpMakeDir::SftpMakeDir(SftpJobId jobId, const QString &path)
-    : AbstractSftpOperation(jobId), remoteDir(path)
+SftpMakeDir::SftpMakeDir(SftpJobId jobId, const QString &path,
+    const SftpUploadDir::Ptr &parentJob)
+    : AbstractSftpOperation(jobId), parentJob(parentJob), remoteDir(path)
 {
 }
 
@@ -132,6 +132,8 @@ AbstractSftpTransfer::AbstractSftpTransfer(SftpJobId jobId, const QString &remot
 {
 }
 
+AbstractSftpTransfer::~AbstractSftpTransfer() {}
+
 void AbstractSftpTransfer::calculateInFlightCount(quint32 chunkSize)
 {
     if (fileSize == 0) {
@@ -159,18 +161,23 @@ SftpOutgoingPacket &SftpDownload::initialPacket(SftpOutgoingPacket &packet)
 }
 
 
-SftpUpload::SftpUpload(SftpJobId jobId, const QString &remotePath,
-    const QSharedPointer<QFile> &localFile, SftpOverwriteMode mode)
-    : AbstractSftpTransfer(jobId, remotePath, localFile), mode(mode)
+SftpUploadFile::SftpUploadFile(SftpJobId jobId, const QString &remotePath,
+    const QSharedPointer<QFile> &localFile, SftpOverwriteMode mode,
+    const SftpUploadDir::Ptr &parentJob)
+    : AbstractSftpTransfer(jobId, remotePath, localFile),
+      parentJob(parentJob), mode(mode)
 {
     fileSize = localFile->size();
 }
 
-SftpOutgoingPacket &SftpUpload::initialPacket(SftpOutgoingPacket &packet)
+SftpOutgoingPacket &SftpUploadFile::initialPacket(SftpOutgoingPacket &packet)
 {
     state = OpenRequested;
     return packet.generateOpenFileForWriting(remotePath, mode, jobId);
 }
+
+
+SftpUploadDir::~SftpUploadDir() {}
 
 } // namespace Internal
 } // namespace Core

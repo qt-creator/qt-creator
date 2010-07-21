@@ -84,6 +84,8 @@ private:
 
     void handleStatusGeneric(const JobMap::Iterator &it,
         const SftpStatusResponse &response);
+    void handleMkdirStatus(const JobMap::Iterator &it,
+        const SftpStatusResponse &response);
     void handleLsStatus(const JobMap::Iterator &it,
         const SftpStatusResponse &response);
     void handleGetStatus(const JobMap::Iterator &it,

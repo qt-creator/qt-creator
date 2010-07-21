@@ -92,6 +92,8 @@ public:
         const QString &remoteFilePath, SftpOverwriteMode mode);
     SftpJobId downloadFile(const QString &remoteFilePath,
         const QString &localFilePath, SftpOverwriteMode mode);
+    SftpJobId uploadDir(const QString &localDirPath,
+        const QString &remoteParentDirPath);
 
     ~SftpChannel();
 

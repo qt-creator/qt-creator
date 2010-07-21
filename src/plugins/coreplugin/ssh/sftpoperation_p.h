@@ -33,6 +33,7 @@
 #include "sftpdefs.h"
 
 #include <QtCore/QByteArray>
+#include <QtCore/QList>
 #include <QtCore/QMap>
 #include <QtCore/QSharedPointer>
 
@@ -49,7 +50,7 @@ struct AbstractSftpOperation
 {
     typedef QSharedPointer<AbstractSftpOperation> Ptr;
     enum Type {
-        ListDir, MakeDir, RmDir, Rm, Rename, CreateFile, Download, Upload
+        ListDir, MakeDir, RmDir, Rm, Rename, CreateFile, Download, UploadFile
     };
 
     AbstractSftpOperation(SftpJobId jobId);
@@ -64,14 +65,18 @@ private:
     AbstractSftpOperation &operator=(const AbstractSftpOperation &);
 };
 
+class SftpUploadDir;
+
 struct SftpMakeDir : public AbstractSftpOperation
 {
     typedef QSharedPointer<SftpMakeDir> Ptr;
 
-    SftpMakeDir(SftpJobId jobId, const QString &path);
+    SftpMakeDir(SftpJobId jobId, const QString &path,
+        const QSharedPointer<SftpUploadDir> &parentJob = QSharedPointer<SftpUploadDir>());
     virtual Type type() const { return MakeDir; }
     virtual SftpOutgoingPacket &initialPacket(SftpOutgoingPacket &packet);
 
+    const QSharedPointer<SftpUploadDir> parentJob;
     const QString remoteDir;
 };
 
@@ -152,6 +157,7 @@ struct AbstractSftpTransfer : public AbstractSftpOperationWithHandle
 
     AbstractSftpTransfer(SftpJobId jobId, const QString &remotePath,
         const QSharedPointer<QFile> &localFile);
+    ~AbstractSftpTransfer();
     void calculateInFlightCount(quint32 chunkSize);
 
     static const int MaxInFlightCount;
@@ -175,16 +181,45 @@ struct SftpDownload : public AbstractSftpTransfer
     SftpJobId eofId;
 };
 
-struct SftpUpload : public AbstractSftpTransfer
+struct SftpUploadFile : public AbstractSftpTransfer
 {
-    typedef QSharedPointer<SftpUpload> Ptr;
+    typedef QSharedPointer<SftpUploadFile> Ptr;
 
-    SftpUpload(SftpJobId jobId, const QString &remotePath,
-        const QSharedPointer<QFile> &localFile, SftpOverwriteMode mode);
-    virtual Type type() const { return Upload; }
+    SftpUploadFile(SftpJobId jobId, const QString &remotePath,
+        const QSharedPointer<QFile> &localFile, SftpOverwriteMode mode,
+        const QSharedPointer<SftpUploadDir> &parentJob = QSharedPointer<SftpUploadDir>());
+    virtual Type type() const { return UploadFile; }
     virtual SftpOutgoingPacket &initialPacket(SftpOutgoingPacket &packet);
 
+    const QSharedPointer<SftpUploadDir> parentJob;
     SftpOverwriteMode mode;
+};
+
+// Composite operation.
+struct SftpUploadDir
+{
+    typedef QSharedPointer<SftpUploadDir> Ptr;
+
+    struct Dir {
+        Dir(const QString &l, const QString &r) : localDir(l), remoteDir(r) {}
+        QString localDir;
+        QString remoteDir;
+    };
+
+    SftpUploadDir(SftpJobId jobId) : jobId(jobId), hasError(false) {}
+    ~SftpUploadDir();
+
+    void setError()
+    {
+        hasError = true;
+        uploadsInProgress.clear();
+        mkdirsInProgress.clear();
+    }
+
+    const SftpJobId jobId;
+    bool hasError;
+    QList<SftpUploadFile::Ptr> uploadsInProgress;
+    QMap<SftpMakeDir::Ptr, Dir> mkdirsInProgress;
 };
 
 } // namespace Internal

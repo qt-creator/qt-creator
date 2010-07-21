@@ -34,6 +34,7 @@
 #include "sshexception_p.h"
 #include "sshsendfacility_p.h"
 
+#include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QWeakPointer>
 
@@ -138,8 +139,8 @@ SftpJobId SftpChannel::uploadFile(const QString &localFilePath,
     QSharedPointer<QFile> localFile(new QFile(localFilePath));
     if (!localFile->open(QIODevice::ReadOnly))
         return SftpInvalidJob;
-    return d->createJob(Internal::SftpUpload::Ptr(
-        new Internal::SftpUpload(++d->m_nextJobId, remoteFilePath, localFile, mode)));
+    return d->createJob(Internal::SftpUploadFile::Ptr(
+        new Internal::SftpUploadFile(++d->m_nextJobId, remoteFilePath, localFile, mode)));
 }
 
 SftpJobId SftpChannel::downloadFile(const QString &remoteFilePath,
@@ -157,6 +158,26 @@ SftpJobId SftpChannel::downloadFile(const QString &remoteFilePath,
         return SftpInvalidJob;
     return d->createJob(Internal::SftpDownload::Ptr(
         new Internal::SftpDownload(++d->m_nextJobId, remoteFilePath, localFile)));
+}
+
+SftpJobId SftpChannel::uploadDir(const QString &localDirPath,
+    const QString &remoteParentDirPath)
+{
+    if (state() != Initialized)
+        return SftpInvalidJob;
+    const QDir localDir(localDirPath);
+    if (!localDir.exists() || !localDir.isReadable())
+        return SftpInvalidJob;
+    const Internal::SftpUploadDir::Ptr uploadDirOp(
+        new Internal::SftpUploadDir(++d->m_nextJobId));
+    const QString remoteDirPath
+        = remoteParentDirPath + QLatin1Char('/') + localDir.dirName();
+    const Internal::SftpMakeDir::Ptr mkdirOp(
+        new Internal::SftpMakeDir(++d->m_nextJobId, remoteDirPath, uploadDirOp));
+    uploadDirOp->mkdirsInProgress.insert(mkdirOp,
+        Internal::SftpUploadDir::Dir(localDirPath, remoteDirPath));
+    d->createJob(mkdirOp);
+    return uploadDirOp->jobId;
 }
 
 SftpChannel::~SftpChannel()
@@ -300,7 +321,7 @@ void SftpChannelPrivate::handleHandle()
     case AbstractSftpOperation::Download:
         handleGetHandle(it);
         break;
-    case AbstractSftpOperation::Upload:
+    case AbstractSftpOperation::UploadFile:
         handlePutHandle(it);
         break;
     default:
@@ -332,7 +353,9 @@ void SftpChannelPrivate::handleGetHandle(const JobMap::Iterator &it)
 
 void SftpChannelPrivate::handlePutHandle(const JobMap::Iterator &it)
 {
-    SftpUpload::Ptr op = it.value().staticCast<SftpUpload>();
+    SftpUploadFile::Ptr op = it.value().staticCast<SftpUploadFile>();
+    if (op->parentJob && op->parentJob->hasError)
+        sendTransferCloseHandle(op, it.key());
 
     // OpenSSH does not implement the RFC's append functionality, so we
     // have to emulate it.
@@ -359,10 +382,12 @@ void SftpChannelPrivate::handleStatus()
     case AbstractSftpOperation::Download:
         handleGetStatus(it, response);
         break;
-    case AbstractSftpOperation::Upload:
+    case AbstractSftpOperation::UploadFile:
         handlePutStatus(it, response);
         break;
     case AbstractSftpOperation::MakeDir:
+        handleMkdirStatus(it, response);
+        break;
     case AbstractSftpOperation::RmDir:
     case AbstractSftpOperation::Rm:
     case AbstractSftpOperation::Rename:
@@ -378,6 +403,76 @@ void SftpChannelPrivate::handleStatusGeneric(const JobMap::Iterator &it,
     AbstractSftpOperation::Ptr op = it.value();
     const QString error = errorMessage(response, SSH_TR("Unknown error."));
     createDelayedJobFinishedSignal(op->jobId, error);
+    m_jobs.erase(it);
+}
+
+void SftpChannelPrivate::handleMkdirStatus(const JobMap::Iterator &it,
+    const SftpStatusResponse &response)
+{
+    SftpMakeDir::Ptr op = it.value().staticCast<SftpMakeDir>();
+    if (op->parentJob == SftpUploadDir::Ptr()) {
+        handleStatusGeneric(it, response);
+        return;
+    }
+    if (op->parentJob->hasError) {
+        m_jobs.erase(it);
+        return;
+    }
+
+    typedef QMap<SftpMakeDir::Ptr, SftpUploadDir::Dir>::Iterator DirIt;
+    DirIt dirIt = op->parentJob->mkdirsInProgress.find(op);
+    Q_ASSERT(dirIt != op->parentJob->mkdirsInProgress.end());
+    const QString &remoteDir = dirIt.value().remoteDir;
+    if (response.status == SSH_FX_OK) {
+        createDelayedDataAvailableSignal(op->parentJob->jobId,
+            SSH_TR("Created remote directory '%1'.").arg(remoteDir));
+    } else if (response.status == SSH_FX_FAILURE) {
+        createDelayedDataAvailableSignal(op->parentJob->jobId,
+            SSH_TR("Remote directory '%1' already exists.").arg(remoteDir));
+    } else {
+        op->parentJob->setError();
+        createDelayedJobFinishedSignal(op->parentJob->jobId,
+            SSH_TR("Error creating directory '%1': %2")
+            .arg(remoteDir, response.errorString));
+        m_jobs.erase(it);
+        return;
+    }
+
+    QDir localDir(dirIt.value().localDir);
+    const QFileInfoList &dirInfos
+        = localDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
+    foreach (const QFileInfo &dirInfo, dirInfos) {
+        const QString remoteSubDir = remoteDir + '/' + dirInfo.fileName();
+        const SftpMakeDir::Ptr mkdirOp(
+            new SftpMakeDir(++m_nextJobId, remoteSubDir, op->parentJob));
+        op->parentJob->mkdirsInProgress.insert(mkdirOp,
+            SftpUploadDir::Dir(dirInfo.absoluteFilePath(), remoteSubDir));
+        createJob(mkdirOp);
+    }
+
+    const QFileInfoList &fileInfos = localDir.entryInfoList(QDir::Files);
+    foreach (const QFileInfo &fileInfo, fileInfos) {
+        QSharedPointer<QFile> localFile(new QFile(fileInfo.absoluteFilePath()));
+        if (!localFile->open(QIODevice::ReadOnly)) {
+            op->parentJob->setError();
+            createDelayedJobFinishedSignal(op->parentJob->jobId,
+                SSH_TR("Could not open local file '%1': %2")
+                .arg(fileInfo.absoluteFilePath(), localFile->error()));
+            m_jobs.erase(it);
+            return;
+        }
+
+        const QString remoteFilePath = remoteDir + '/' + fileInfo.fileName();
+        SftpUploadFile::Ptr uploadFileOp(new SftpUploadFile(++m_nextJobId,
+            remoteFilePath, localFile, SftpOverwriteExisting, op->parentJob));
+        createJob(uploadFileOp);
+        op->parentJob->uploadsInProgress.append(uploadFileOp);
+    }
+
+    op->parentJob->mkdirsInProgress.erase(dirIt);
+    if (op->parentJob->mkdirsInProgress.isEmpty()
+        && op->parentJob->uploadsInProgress.isEmpty())
+        createDelayedJobFinishedSignal(op->parentJob->jobId);
     m_jobs.erase(it);
 }
 
@@ -457,29 +552,69 @@ void SftpChannelPrivate::handleGetStatus(const JobMap::Iterator &it,
 void SftpChannelPrivate::handlePutStatus(const JobMap::Iterator &it,
     const SftpStatusResponse &response)
 {
-    SftpUpload::Ptr job = it.value().staticCast<SftpUpload>();
+    SftpUploadFile::Ptr job = it.value().staticCast<SftpUploadFile>();
     switch (job->state) {
-    case SftpUpload::OpenRequested:
-        createDelayedJobFinishedSignal(job->jobId,
-            errorMessage(response.errorString,
-                SSH_TR("Failed to open remote file for writing.")));
+    case SftpUploadFile::OpenRequested: {
+        bool emitError = false;
+        if (job->parentJob) {
+            if (!job->parentJob->hasError) {
+                job->parentJob->setError();
+                emitError = true;
+            }
+        } else {
+            emitError = true;
+        }
+
+        if (emitError) {
+            createDelayedJobFinishedSignal(job->jobId,
+                errorMessage(response.errorString,
+                    SSH_TR("Failed to open remote file for writing.")));
+        }
         m_jobs.erase(it);
         break;
-    case SftpUpload::Open:
+    }
+    case SftpUploadFile::Open:
+        if (job->hasError || (job->parentJob && job->parentJob->hasError)) {
+            job->hasError = true;
+            finishTransferRequest(it);
+            return;
+        }
+
         if (response.status == SSH_FX_OK) {
             sendWriteRequest(it);
-        } else if(!job->hasError) {
+        } else {
+            if (job->parentJob)
+                job->parentJob->setError();
             reportRequestError(job, errorMessage(response.errorString,
                 SSH_TR("Failed to write remote file.")));
             finishTransferRequest(it);
         }
         break;
-    case SftpUpload::CloseRequested:
+    case SftpUploadFile::CloseRequested:
         Q_ASSERT(job->inFlightCount == 1);
-        if (!job->hasError) {
-            const QString error = errorMessage(response,
+        if (job->hasError || (job->parentJob && job->parentJob->hasError)) {
+            m_jobs.erase(it);
+            return;
+        }
+
+        if (response.status == SSH_FX_OK) {
+            if (job->parentJob) {
+                job->parentJob->uploadsInProgress.removeOne(job);
+                if (job->parentJob->mkdirsInProgress.isEmpty()
+                    && job->parentJob->uploadsInProgress.isEmpty())
+                    createDelayedJobFinishedSignal(job->parentJob->jobId);
+            } else {
+                createDelayedJobFinishedSignal(job->jobId);
+            }
+        } else {
+            const QString error = errorMessage(response.errorString,
                 SSH_TR("Failed to close remote file."));
-            createDelayedJobFinishedSignal(job->jobId, error);
+            if (job->parentJob) {
+                job->parentJob->setError();
+                createDelayedJobFinishedSignal(job->parentJob->jobId, error);
+            } else {
+                createDelayedJobFinishedSignal(job->jobId, error);
+            }
         }
         m_jobs.erase(it);
         break;
@@ -559,7 +694,7 @@ void SftpChannelPrivate::handleAttrs()
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Unexpected SSH_FXP_ATTRS packet.");
     }
-    Q_ASSERT(transfer->type() == AbstractSftpOperation::Upload
+    Q_ASSERT(transfer->type() == AbstractSftpOperation::UploadFile
         || transfer->type() == AbstractSftpOperation::Download);
 
     if (transfer->type() == AbstractSftpOperation::Download) {
@@ -573,11 +708,19 @@ void SftpChannelPrivate::handleAttrs()
         op->statRequested = false;
         spawnReadRequests(op);
     } else {
-        SftpUpload::Ptr op = transfer.staticCast<SftpUpload>();
+        SftpUploadFile::Ptr op = transfer.staticCast<SftpUploadFile>();
+        if (op->parentJob && op->parentJob->hasError) {
+            op->hasError = true;
+            sendTransferCloseHandle(op, op->jobId);
+            return;
+        }
+
         if (response.attrs.sizePresent) {
             op->offset = response.attrs.size;
             spawnWriteRequests(it);
         } else {
+            if (op->parentJob)
+                op->parentJob->setError();
             reportRequestError(op, SSH_TR("Cannot append to remote file: "
                 "Server does not support file size attribute."));
             sendTransferCloseHandle(op, op->jobId);
@@ -662,13 +805,13 @@ void SftpChannelPrivate::removeTransferRequest(const JobMap::Iterator &it)
 
 void SftpChannelPrivate::sendWriteRequest(const JobMap::Iterator &it)
 {
-    SftpUpload::Ptr job = it.value().staticCast<SftpUpload>();
+    SftpUploadFile::Ptr job = it.value().staticCast<SftpUploadFile>();
     QByteArray data = job->localFile->read(AbstractSftpPacket::MaxDataSize);
     if (job->localFile->error() != QFile::NoError) {
-        if (!job->hasError) {
-            reportRequestError(job, SSH_TR("Error reading local file: %1")
-                .arg(job->localFile->errorString()));
-        }
+        if (job->parentJob)
+            job->parentJob->setError();
+        reportRequestError(job, SSH_TR("Error reading local file: %1")
+            .arg(job->localFile->errorString()));
         finishTransferRequest(it);
     } else if (data.isEmpty()) {
         finishTransferRequest(it);
@@ -681,10 +824,10 @@ void SftpChannelPrivate::sendWriteRequest(const JobMap::Iterator &it)
 
 void SftpChannelPrivate::spawnWriteRequests(const JobMap::Iterator &it)
 {
-    SftpUpload::Ptr op = it.value().staticCast<SftpUpload>();
+    SftpUploadFile::Ptr op = it.value().staticCast<SftpUploadFile>();
     op->calculateInFlightCount(AbstractSftpPacket::MaxDataSize);
     sendWriteRequest(it);
-    for (int i = 1; i < op->inFlightCount; ++i)
+    for (int i = 1; !op->hasError && i < op->inFlightCount; ++i)
         sendWriteRequest(m_jobs.insert(++m_nextJobId, op));
 }
 
