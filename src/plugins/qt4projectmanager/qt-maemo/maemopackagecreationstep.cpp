@@ -190,6 +190,7 @@ bool MaemoPackageCreationStep::createPackage()
 
         QByteArray rulesContents = rulesFile.readAll();
         rulesContents.replace("DESTDIR", "INSTALL_ROOT");
+        rulesContents.replace("dh_shlibdeps", "# dh_shlibdeps");
 
         // Would be the right solution, but does not work (on Windows),
         // because dpkg-genchanges doesn't know about it (and can't be told).
