@@ -239,10 +239,12 @@ PropertyReader::PropertyReader(Document::Ptr doc, AST::UiObjectInitializer *ast)
     }
 }
 
-QLinearGradient PropertyReader::parseGradient(const QString &propertyName) const
+QLinearGradient PropertyReader::parseGradient(const QString &propertyName,  bool *isBound) const
 {
     if (!m_doc)
         return QLinearGradient();
+
+    *isBound = false;
 
     for (UiObjectMemberList *members = m_ast->members; members; members = members->next) {
         UiObjectMember *member = members->member;
@@ -265,6 +267,8 @@ QLinearGradient PropertyReader::parseGradient(const QString &propertyName) const
                         if (localParser.hasProperty("color") && localParser.hasProperty("position")) {
                             QColor color = localParser.readProperty("color").value<QColor>();
                             qreal position = localParser.readProperty("position").toReal();
+                            if (localParser.isBindingOrEnum("color") || localParser.isBindingOrEnum("position"))
+                                *isBound = true;
                             stops.append( QPair<qreal, QColor>(position, color));
                         }
                     }

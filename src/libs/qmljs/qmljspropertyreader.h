@@ -62,7 +62,7 @@ public:
             return QVariant();
     }
 
-    QLinearGradient parseGradient(const QString &propertyName) const;
+    QLinearGradient parseGradient(const QString &propertyName, bool *isBound) const;
 
     QStringList properties() const
     { return m_properties.keys(); }
