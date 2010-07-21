@@ -46,33 +46,14 @@ namespace Internal {
 class Delta
 {
 public:
-    Delta() : doNotSendChanges(false) {}
-
-    bool doNotSendChanges;
     QSet<UiObjectMember *> newObjects;
-
-    struct Change {
-        Change(): script(0), isLiteral(false) {}
-
-        QmlJS::AST::UiScriptBinding *script;
-        bool isLiteral;
-        QDeclarativeDebugObjectReference ref;
-    };
 
     typedef QHash< UiObjectMember*, QList<QDeclarativeDebugObjectReference > > DebugIdMap;
     DebugIdMap operator()(const QmlJS::Document::Ptr &doc1, const QmlJS::Document::Ptr &doc2, const DebugIdMap &debugIds);
 
-    QList<Change> changes() const;
 
     QmlJS::Document::Ptr document() const;
     QmlJS::Document::Ptr previousDocument() const;
-
-public:
-    bool referenceRefreshRequired() const;
-    static bool compare(UiSourceElement *source, UiSourceElement *other);
-    static bool compare(QmlJS::AST::UiQualifiedId *id, QmlJS::AST::UiQualifiedId *other);
-    static QmlJS::AST::UiObjectMemberList *objectMembers(QmlJS::AST::UiObjectMember *object);
-
 
 private:
     void insert(UiObjectMember *member, UiObjectMember *parentMember,
@@ -82,22 +63,23 @@ private:
                 const QList<QDeclarativeDebugObjectReference >& debugReferences);
     void remove(const QList< QDeclarativeDebugObjectReference > &debugReferences);
 
-    void updateScriptBinding(const QDeclarativeDebugObjectReference &objectReference,
+protected:
+    virtual void updateScriptBinding(const QDeclarativeDebugObjectReference &objectReference,
                              QmlJS::AST::UiScriptBinding *scriptBinding,
                              const QString &propertyName,
                              const QString &scriptCode);
-    void updateMethodBody(const QDeclarativeDebugObjectReference &objectReference,
+    virtual void updateMethodBody(const QDeclarativeDebugObjectReference &objectReference,
                             UiScriptBinding *scriptBinding,
                             const QString &methodName,
                             const QString &methodBody);
-
+    virtual void resetBindingForObject(int debugId, const QString &propertyName);
+    virtual void removeObject(int debugId);
+    virtual void createObject(const QString &qmlText, const QDeclarativeDebugObjectReference &ref,
+                         const QStringList &importList, const QString &filename);
 
 private:
-    QmlJS::Document::Ptr _doc;
-    QmlJS::Document::Ptr _previousDoc;
-    QList<Change> _changes;
-    QUrl _url;
-    bool _referenceRefreshRequired;
+    QmlJS::Document::Ptr m_currentDoc;
+    QmlJS::Document::Ptr m_previousDoc;
 };
 
 } // namespace Internal

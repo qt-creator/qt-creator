@@ -269,7 +269,6 @@ void QmlJSLiveTextPreview::updateDebugIds(const QDeclarativeDebugObjectReference
         m_debugIds = visitor.result;
         if (doc != m_previousDoc) {
             Delta delta;
-            delta.doNotSendChanges = true;
             m_debugIds = delta(doc, m_previousDoc, m_debugIds);
         }
     }
@@ -301,7 +300,6 @@ void QmlJSLiveTextPreview::updateDebugIds(const QDeclarativeDebugObjectReference
         Delta::DebugIdMap debugIds = visitor.result;
         if (doc != m_previousDoc) {
             Delta delta;
-            delta.doNotSendChanges = true;
             debugIds = delta(doc, m_previousDoc, debugIds);
         }
         for(Delta::DebugIdMap::const_iterator it2 = debugIds.constBegin();
@@ -310,6 +308,141 @@ void QmlJSLiveTextPreview::updateDebugIds(const QDeclarativeDebugObjectReference
         }
     }
 }
+
+
+class UpdateObserver : public Delta {
+private:
+    static inline QString stripQuotes(const QString &str)
+    {
+        if ((str.startsWith(QLatin1Char('"')) && str.endsWith(QLatin1Char('"')))
+                || (str.startsWith(QLatin1Char('\'')) && str.endsWith(QLatin1Char('\''))))
+            return str.mid(1, str.length() - 2);
+
+        return str;
+    }
+
+    static inline QString deEscape(const QString &value)
+    {
+        QString result = value;
+
+        result.replace(QLatin1String("\\\\"), QLatin1String("\\"));
+        result.replace(QLatin1String("\\\""), QLatin1String("\""));
+        result.replace(QLatin1String("\\\t"), QLatin1String("\t"));
+        result.replace(QLatin1String("\\\r"), QLatin1String("\\\r"));
+        result.replace(QLatin1String("\\\n"), QLatin1String("\n"));
+
+        return result;
+    }
+
+    static QString cleanExpression(const QString &expression, UiScriptBinding *scriptBinding)
+    {
+        QString trimmedExpression = expression.trimmed();
+
+        if (ExpressionStatement *expStatement = cast<ExpressionStatement*>(scriptBinding->statement)) {
+            if (expStatement->semicolonToken.isValid())
+                trimmedExpression.chop(1);
+        }
+
+        return deEscape(stripQuotes(trimmedExpression));
+    }
+
+    static bool isLiteralValue(ExpressionNode *expr)
+    {
+        if (cast<NumericLiteral*>(expr))
+            return true;
+        else if (cast<StringLiteral*>(expr))
+            return true;
+        else if (UnaryPlusExpression *plusExpr = cast<UnaryPlusExpression*>(expr))
+            return isLiteralValue(plusExpr->expression);
+        else if (UnaryMinusExpression *minusExpr = cast<UnaryMinusExpression*>(expr))
+            return isLiteralValue(minusExpr->expression);
+        else if (cast<TrueLiteral*>(expr))
+            return true;
+        else if (cast<FalseLiteral*>(expr))
+            return true;
+        else
+            return false;
+    }
+
+    static inline bool isLiteralValue(UiScriptBinding *script)
+    {
+        if (!script || !script->statement)
+            return false;
+
+        ExpressionStatement *exprStmt = cast<ExpressionStatement *>(script->statement);
+        if (exprStmt)
+            return isLiteralValue(exprStmt->expression);
+        else
+            return false;
+    }
+
+    static QVariant castToLiteral(const QString &expression, UiScriptBinding *scriptBinding)
+    {
+        const QString cleanedValue = cleanExpression(expression, scriptBinding);
+        QVariant castedExpression;
+
+        ExpressionStatement *expStatement = cast<ExpressionStatement*>(scriptBinding->statement);
+
+        switch(expStatement->expression->kind) {
+            case Node::Kind_NumericLiteral:
+            case Node::Kind_UnaryPlusExpression:
+            case Node::Kind_UnaryMinusExpression:
+                castedExpression = QVariant(cleanedValue).toReal();
+                break;
+            case Node::Kind_StringLiteral:
+                castedExpression = QVariant(cleanedValue).toString();
+                break;
+            case Node::Kind_TrueLiteral:
+            case Node::Kind_FalseLiteral:
+                castedExpression = QVariant(cleanedValue).toBool();
+                break;
+            default:
+                castedExpression = cleanedValue;
+                break;
+        }
+
+        return castedExpression;
+    }
+
+protected:
+    virtual void updateMethodBody(const QDeclarativeDebugObjectReference& objectReference,
+                                  UiScriptBinding* scriptBinding, const QString& methodName, const QString& methodBody)
+    {
+        Q_UNUSED(scriptBinding);
+        ClientProxy::instance()->setMethodBodyForObject(objectReference.debugId(), methodName, methodBody);
+    }
+
+    virtual void updateScriptBinding(const QDeclarativeDebugObjectReference& objectReference,
+                                     UiScriptBinding* scriptBinding, const QString& propertyName, const QString& scriptCode)
+    {
+        QVariant expr = scriptCode;
+        const bool isLiteral = isLiteralValue(scriptBinding);
+        if (isLiteral)
+            expr = castToLiteral(scriptCode, scriptBinding);
+        ClientProxy::instance()->setBindingForObject(objectReference.debugId(), propertyName, expr, isLiteral);
+    }
+
+    virtual void resetBindingForObject(int debugId, const QString &propertyName)
+    {
+        ClientProxy::instance()->resetBindingForObject(debugId, propertyName);
+    }
+
+    virtual void removeObject(int debugId)
+    {
+        ClientProxy::instance()->destroyQmlObject(debugId);
+    }
+
+    virtual void createObject(const QString& qmlText, const QDeclarativeDebugObjectReference& ref,
+                         const QStringList& importList, const QString& filename)
+    {
+        referenceRefreshRequired = true;
+        ClientProxy::instance()->createQmlObject(qmlText, ref, importList, filename);
+    }
+
+public:
+    UpdateObserver() : referenceRefreshRequired(false) {}
+    bool referenceRefreshRequired;
+};
 
 void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
 {
@@ -325,10 +458,10 @@ void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
     if (doc && m_previousDoc && doc->fileName() == m_previousDoc->fileName()
         && doc->qmlProgram() && m_previousDoc->qmlProgram())
     {
-        Delta delta;
+        UpdateObserver delta;
         m_debugIds = delta(m_previousDoc, doc, m_debugIds);
 
-        if (delta.referenceRefreshRequired())
+        if (delta.referenceRefreshRequired)
             ClientProxy::instance()->refreshObjectTree();
 
         m_previousDoc = doc;

@@ -315,9 +315,6 @@ static QHash<QString, UiObjectMember*> extractProperties(UiObjectDefinition *obj
 
 void Delta::insert(UiObjectMember *member, UiObjectMember *parentMember, const QList<QDeclarativeDebugObjectReference > &debugReferences, const Document::Ptr &doc)
 {
-    if (doNotSendChanges)
-        return;
-
     if (!member || !parentMember)
         return;
 
@@ -341,8 +338,7 @@ void Delta::insert(UiObjectMember *member, UiObjectMember *parentMember, const Q
                          + QLatin1Char(':') + QString::number(uiObjectDef->firstSourceLocation().startLine-importList.count());
         foreach(const QDeclarativeDebugObjectReference &ref, debugReferences) {
             if (ref.debugId() != -1) {
-                _referenceRefreshRequired = true;
-                ClientProxy::instance()->createQmlObject(qmlText, ref, importList, filename);
+                createObject(qmlText, ref, importList, filename);
             }
         }
         newObjects += member;
@@ -354,9 +350,6 @@ void Delta::update(UiObjectDefinition* oldObject, const QmlJS::Document::Ptr& ol
                    UiObjectDefinition* newObject, const QmlJS::Document::Ptr& newDoc,
                    const QList< QDeclarativeDebugObjectReference >& debugReferences)
 {
-    if (doNotSendChanges)
-        return;
-
     Q_ASSERT (oldObject && newObject);
     QSet<QString> presentBinding;
 
@@ -391,18 +384,15 @@ void Delta::update(UiObjectDefinition* oldObject, const QmlJS::Document::Ptr& ol
         }
     }
 
-    if (doNotSendChanges)
-        return;
-
     //reset property that are not present in the new object.
     for (QHash<QString, UiObjectMember *>::const_iterator it2 = oldProperties.constBegin();
          it2 != oldProperties.constEnd(); ++it2) {
 
         if (!newProperties.contains(it2.key())) {
-            if (UiScriptBinding *previousScript = cast<UiScriptBinding *>(*it2)) {
+            if (cast<UiScriptBinding *>(*it2)) {
                 foreach (const QDeclarativeDebugObjectReference &ref, debugReferences) {
                     if (ref.debugId() != -1)
-                        ClientProxy::instance()->resetBindingForObject(ref.debugId(), it2.key()); // ### remove
+                        resetBindingForObject(ref.debugId(), it2.key());
                 }
             }
         }
@@ -413,7 +403,7 @@ void Delta::remove(const QList< QDeclarativeDebugObjectReference >& debugReferen
 {
     foreach (const QDeclarativeDebugObjectReference &ref, debugReferences) {
         if (ref.debugId() != -1)
-            ClientProxy::instance()->destroyQmlObject(ref.debugId()); // ### remove
+            removeObject(ref.debugId());
     }
 }
 
@@ -426,7 +416,6 @@ Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::P
     QHash< UiObjectMember*, QList<QDeclarativeDebugObjectReference > > newDebuggIds;
 
     Map M = Mapping(doc1, doc2);
-    _referenceRefreshRequired = false;
 
     BuildParentHash parents2;
     doc2->qmlProgram()->accept(&parents2);
@@ -486,186 +475,28 @@ Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::P
     return newDebuggIds;
 }
 
-static bool isLiteralValue(ExpressionNode *expr)
-{
-    if (cast<NumericLiteral*>(expr))
-        return true;
-    else if (cast<StringLiteral*>(expr))
-        return true;
-    else if (UnaryPlusExpression *plusExpr = cast<UnaryPlusExpression*>(expr))
-        return isLiteralValue(plusExpr->expression);
-    else if (UnaryMinusExpression *minusExpr = cast<UnaryMinusExpression*>(expr))
-        return isLiteralValue(minusExpr->expression);
-    else if (cast<TrueLiteral*>(expr))
-        return true;
-    else if (cast<FalseLiteral*>(expr))
-        return true;
-    else
-        return false;
-}
-
-static inline bool isLiteralValue(UiScriptBinding *script)
-{
-    if (!script || !script->statement)
-        return false;
-
-    ExpressionStatement *exprStmt = cast<ExpressionStatement *>(script->statement);
-    if (exprStmt)
-        return isLiteralValue(exprStmt->expression);
-    else
-        return false;
-}
-
-static inline QString stripQuotes(const QString &str)
-{
-    if ((str.startsWith(QLatin1Char('"')) && str.endsWith(QLatin1Char('"')))
-            || (str.startsWith(QLatin1Char('\'')) && str.endsWith(QLatin1Char('\''))))
-        return str.mid(1, str.length() - 2);
-
-    return str;
-}
-
-static inline QString deEscape(const QString &value)
-{
-    QString result = value;
-
-    result.replace(QLatin1String("\\\\"), QLatin1String("\\"));
-    result.replace(QLatin1String("\\\""), QLatin1String("\""));
-    result.replace(QLatin1String("\\\t"), QLatin1String("\t"));
-    result.replace(QLatin1String("\\\r"), QLatin1String("\\\r"));
-    result.replace(QLatin1String("\\\n"), QLatin1String("\n"));
-
-    return result;
-}
-
-static QString cleanExpression(const QString &expression, UiScriptBinding *scriptBinding)
-{
-    QString trimmedExpression = expression.trimmed();
-
-    if (ExpressionStatement *expStatement = cast<ExpressionStatement*>(scriptBinding->statement)) {
-        if (expStatement->semicolonToken.isValid())
-            trimmedExpression.chop(1);
-    }
-
-    return deEscape(stripQuotes(trimmedExpression));
-}
-
-static QVariant castToLiteral(const QString &expression, UiScriptBinding *scriptBinding)
-{
-    const QString cleanedValue = cleanExpression(expression, scriptBinding);
-    QVariant castedExpression;
-
-    ExpressionStatement *expStatement = cast<ExpressionStatement*>(scriptBinding->statement);
-
-    switch(expStatement->expression->kind) {
-    case Node::Kind_NumericLiteral:
-    case Node::Kind_UnaryPlusExpression:
-    case Node::Kind_UnaryMinusExpression:
-        castedExpression = QVariant(cleanedValue).toReal();
-        break;
-    case Node::Kind_StringLiteral:
-        castedExpression = QVariant(cleanedValue).toString();
-        break;
-    case Node::Kind_TrueLiteral:
-    case Node::Kind_FalseLiteral:
-        castedExpression = QVariant(cleanedValue).toBool();
-        break;
-    default:
-        castedExpression = cleanedValue;
-        break;
-    }
-
-    return castedExpression;
-}
-
-void Delta::updateMethodBody(const QDeclarativeDebugObjectReference &objectReference,
-                               UiScriptBinding *scriptBinding,
-                               const QString &methodName,
-                               const QString &methodBody)
-{
-    Change change;
-    change.script = scriptBinding;
-    change.ref = objectReference;
-    change.isLiteral = false;
-    _changes.append(change);
-
-    ClientProxy::instance()->setMethodBodyForObject(objectReference.debugId(), methodName, methodBody); // ### remove
-}
-
-void Delta::updateScriptBinding(const QDeclarativeDebugObjectReference &objectReference,
-                                UiScriptBinding *scriptBinding,
-                                const QString &propertyName,
-                                const QString &scriptCode)
-{
-    if (doNotSendChanges)
-        return;
-    QVariant expr = scriptCode;
-
-    const bool isLiteral = isLiteralValue(scriptBinding);
-    if (isLiteral)
-        expr = castToLiteral(scriptCode, scriptBinding);
-
-    Change change;
-    change.script = scriptBinding;
-    change.ref = objectReference;
-    change.isLiteral = isLiteral;
-    _changes.append(change);
-
-    ClientProxy::instance()->setBindingForObject(objectReference.debugId(), propertyName, expr, isLiteral); // ### remove
-}
-
-bool Delta::compare(UiQualifiedId *id, UiQualifiedId *other)
-{
-    if (id == other)
-        return true;
-
-    else if (id && other) {
-        if (id->name && other->name) {
-            if (id->name->asString() == other->name->asString())
-                return compare(id->next, other->next);
-        }
-    }
-
-    return false;
-}
-
-bool Delta::compare(UiSourceElement *source, UiSourceElement *other)
-{
-    if (source == other)
-        return true;
-
-    else if (source && other) {
-        if (source->sourceElement && other->sourceElement) {
-            FunctionDeclaration *decl = cast<FunctionDeclaration*>(source->sourceElement);
-            FunctionDeclaration *otherDecl = cast<FunctionDeclaration*>(other->sourceElement);
-            if (decl && otherDecl
-                && decl->name && otherDecl->name
-                && decl->name->asString() == otherDecl->name->asString())
-            {
-                    return true;
-            }
-        }
-    }
-
-    return false;
-}
-
 Document::Ptr Delta::document() const
 {
-    return _doc;
+    return m_currentDoc;
 }
 
 Document::Ptr Delta::previousDocument() const
 {
-    return _previousDoc;
+    return m_previousDoc;
 }
 
-QList<Delta::Change> Delta::changes() const
-{
-    return _changes;
-}
+void QmlJSInspector::Internal::Delta::createObject(const QString &, const QDeclarativeDebugObjectReference &,
+                                                   const QStringList &, const QString&)
+{}
+void QmlJSInspector::Internal::Delta::removeObject(int)
+{}
+void QmlJSInspector::Internal::Delta::resetBindingForObject(int, const QString &)
+{}
+void QmlJSInspector::Internal::Delta::updateMethodBody(const QDeclarativeDebugObjectReference &,
+                                                       UiScriptBinding *, const QString &, const QString &)
+{}
 
-bool Delta::referenceRefreshRequired() const
-{
-    return _referenceRefreshRequired;
-}
+void QmlJSInspector::Internal::Delta::updateScriptBinding(const QDeclarativeDebugObjectReference &,
+                                                          UiScriptBinding *, const QString &, const QString &)
+{}
+
