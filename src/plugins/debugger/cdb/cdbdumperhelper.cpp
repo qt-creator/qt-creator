@@ -435,10 +435,19 @@ static inline bool getSymbolAddress(CIDebugSymbols *sg,
 
 bool CdbDumperHelper::initResolveSymbols(QString *errorMessage)
 {
-    // Resolve the symbols we need (potentially namespaced).
+    // Resolve the symbols we need.
     // There is a 'qDumpInBuffer' in QtCore as well.
     if (loadDebug)
         qDebug() << Q_FUNC_INFO;
+#if 1
+    // Symbols in the debugging helpers are never namespaced.
+    // Keeping the old code for now. ### maybe use as fallback?
+    const QString dumperModuleName = QLatin1String(dumperModuleNameC);
+    m_dumpObjectSymbol = dumperModuleName + QLatin1String("!qDumpObjectData440");
+    QString inBufferSymbol = dumperModuleName + QLatin1String("!qDumpInBuffer");
+    QString outBufferSymbol = dumperModuleName + QLatin1String("!qDumpOutBuffer");
+    bool rc;
+#else
     m_dumpObjectSymbol = QLatin1String("*qDumpObjectData440");
     QString inBufferSymbol = QLatin1String("*qDumpInBuffer");
     QString outBufferSymbol = QLatin1String("*qDumpOutBuffer");
@@ -448,6 +457,7 @@ bool CdbDumperHelper::initResolveSymbols(QString *errorMessage)
                     && resolveSymbol(m_coreEngine->interfaces().debugSymbols, dumperModuleName, &outBufferSymbol, errorMessage) == ResolveSymbolOk;
     if (!rc)
         return false;
+#endif
     //  Determine buffer addresses, sizes and alloc buffer
     rc = getSymbolAddress(m_coreEngine->interfaces().debugSymbols, inBufferSymbol, &m_inBufferAddress, &m_inBufferSize, errorMessage)
          && getSymbolAddress(m_coreEngine->interfaces().debugSymbols, outBufferSymbol, &m_outBufferAddress, &m_outBufferSize, errorMessage);
