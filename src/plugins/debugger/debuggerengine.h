@@ -152,7 +152,7 @@ public:
     virtual bool isSynchroneous() const { return false; }
     virtual QString qtNamespace() const { return QString(); }
 
-    virtual void makeSnapshot() {}
+    virtual void createSnapshot() {}
     virtual void updateAll() {}
 
     virtual void attemptBreakpointSynchronization() {}

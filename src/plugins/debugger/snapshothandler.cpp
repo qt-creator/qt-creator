@@ -214,10 +214,10 @@ bool SnapshotHandler::setData
     (const QModelIndex &index, const QVariant &value, int role)
 {
     Q_UNUSED(value);
-    if (index.isValid() && role == RequestMakeSnapshotRole) {
+    if (index.isValid() && role == RequestCreateSnapshotRole) {
         DebuggerEngine *engine = engineAt(index.row());
         QTC_ASSERT(engine, return false);
-        engine->makeSnapshot();
+        engine->createSnapshot();
         return true;
     }
     if (index.isValid() && role == RequestActivateSnapshotRole) {

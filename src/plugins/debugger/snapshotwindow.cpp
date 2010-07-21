@@ -140,7 +140,7 @@ void SnapshotWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *act = menu.exec(ev->globalPos());
 
     if (act == actCreate)
-        model()->setData(idx, idx.row(), RequestMakeSnapshotRole);
+        model()->setData(idx, idx.row(), RequestCreateSnapshotRole);
     else if (act == actRemove)
         model()->setData(idx, idx.row(), RequestRemoveSnapshotRole);
     else if (act == actAdjust)

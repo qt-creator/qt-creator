@@ -477,8 +477,8 @@ void DebuggerEngine::handleCommand(int role, const QVariant &value)
             d->queueShutdownInferior();
             break;
 
-        case RequestMakeSnapshotRole:
-            makeSnapshot();
+        case RequestCreateSnapshotRole:
+            createSnapshot();
             break;
 
         case RequestActivationRole:

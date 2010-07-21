@@ -1177,8 +1177,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_actions.watchAction2 = new QAction(tr("Add to Watch Window"), this);
     m_actions.watchAction2->setProperty(Role, RequestExecWatchRole);
 
-    m_actions.snapshotAction = new QAction(tr("Snapshot"), this);
-    m_actions.snapshotAction->setProperty(Role, RequestExecSnapshotRole);
+    m_actions.snapshotAction = new QAction(tr("Create Snapshot"), this);
+    m_actions.snapshotAction->setProperty(Role, RequestCreateSnapshotRole);
     m_actions.snapshotAction->setIcon(
         QIcon(":/debugger/images/debugger_snapshot_small.png"));
 

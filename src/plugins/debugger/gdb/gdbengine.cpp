@@ -2968,7 +2968,7 @@ void GdbEngine::handleThreadListIds(const GdbResponse &response)
 //
 //////////////////////////////////////////////////////////////////////
 
-void GdbEngine::makeSnapshot()
+void GdbEngine::createSnapshot()
 {
     QString fileName;
     QTemporaryFile tf(QDir::tempPath() + _("/gdbsnapshot"));

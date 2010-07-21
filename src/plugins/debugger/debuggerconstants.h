@@ -250,7 +250,7 @@ enum ModelRoles
 
     // Snapshots
     SnapshotCapabilityRole,
-    RequestMakeSnapshotRole,
+    RequestCreateSnapshotRole,
     RequestActivateSnapshotRole,
     RequestRemoveSnapshotRole,
 
