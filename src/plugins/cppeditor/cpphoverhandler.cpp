@@ -63,14 +63,6 @@ using namespace CPlusPlus;
 using namespace Core;
 
 namespace {
-    QString removeQualificationIfAny(const QString &name) {
-        int index = name.lastIndexOf(QLatin1Char(':'));
-        if (index == -1)
-            return name;
-        else
-            return name.right(name.length() - index - 1);
-    }
-
     void moveCursorToEndOfName(QTextCursor *tc) {
         QTextDocument *doc = tc->document();
         if (!doc)
@@ -334,33 +326,43 @@ void CppHoverHandler::handleLookupItemMatch(const LookupItem &lookupItem,
             }
         }
 
-        HelpCandidate::Category helpCategory;
+        HelpCandidate::Category helpCategory = HelpCandidate::Unknown;
         if (matchingDeclaration->isNamespace() ||
             matchingDeclaration->isClass() ||
             matchingDeclaration->isForwardClassDeclaration()) {
             helpCategory = HelpCandidate::ClassOrNamespace;
-        } else if (matchingDeclaration->isEnum()) {
+        } else if (matchingDeclaration->isEnum() ||
+                   matchingDeclaration->enclosingSymbol()->isEnum()) {
             helpCategory = HelpCandidate::Enum;
         } else if (matchingDeclaration->isTypedef()) {
             helpCategory = HelpCandidate::Typedef;
-        } else if (matchingDeclaration->isStatic() &&
-                   !matchingDeclaration->type()->isFunctionType()) {
-            helpCategory = HelpCandidate::Var;
-        } else {
+        } else if (matchingDeclaration->isFunction() ||
+                  (matchingType.isValid() && matchingType->isFunctionType())){
             helpCategory = HelpCandidate::Function;
         }
 
-        // Help identifiers are simply the name with no signature, arguments or return type.
-        // They might or might not include a qualification. This is why two candidates are created.
-        overview.setShowArgumentNames(false);
-        overview.setShowReturnTypes(false);
-        overview.setShowFunctionSignatures(false);
-        const QString &simpleName = overview.prettyName(matchingDeclaration->name());
-        overview.setShowFunctionSignatures(true);
-        const QString &specifierId = overview.prettyType(matchingType, simpleName);
+        if (helpCategory != HelpCandidate::Unknown) {
+            // Help identifiers are simply the name with no signature, arguments or return type.
+            // They might or might not include a qualification. So two candidates are created.
+            overview.setShowArgumentNames(false);
+            overview.setShowReturnTypes(false);
+            overview.setShowFunctionSignatures(false);
+            const QString &simpleName = overview.prettyName(matchingDeclaration->name());
 
-        m_helpCandidates.append(HelpCandidate(simpleName, specifierId, helpCategory));
-        m_helpCandidates.append(HelpCandidate(qualifiedName, specifierId, helpCategory));
+            QString mark;
+            if (matchingType.isValid() && matchingType->isFunctionType()) {
+                overview.setShowFunctionSignatures(true);
+                mark = overview.prettyType(matchingType, simpleName);
+            } else if (matchingDeclaration->enclosingSymbol()->isEnum()) {
+                Symbol *enumSymbol = matchingDeclaration->enclosingSymbol()->asEnum();
+                mark = overview.prettyName(enumSymbol->name());
+            } else {
+                mark = simpleName;
+            }
+
+            m_helpCandidates.append(HelpCandidate(simpleName, mark, helpCategory));
+            m_helpCandidates.append(HelpCandidate(qualifiedName, mark, helpCategory));
+        }
     }
 }
 
@@ -395,30 +397,25 @@ QString CppHoverHandler::getDocContents(const HelpCandidate &help) const
     QMap<QString, QUrl> helpLinks =
         Core::HelpManager::instance()->linksForIdentifier(help.m_helpId);
     foreach (const QUrl &url, helpLinks) {
-        // The help id might or might not be qualified. But anchors and marks are not qualified.
-        const QString &name = removeQualificationIfAny(help.m_helpId);
         const QByteArray &html = Core::HelpManager::instance()->fileData(url);
         switch (help.m_category) {
         case HelpCandidate::Brief:
-            contents = m_htmlDocExtractor.getClassOrNamespaceBrief(html, name);
+            contents = m_htmlDocExtractor.getClassOrNamespaceBrief(html, help.m_docMark);
             break;
         case HelpCandidate::ClassOrNamespace:
-            contents = m_htmlDocExtractor.getClassOrNamespaceDescription(html, name);
+            contents = m_htmlDocExtractor.getClassOrNamespaceDescription(html, help.m_docMark);
             break;
         case HelpCandidate::Function:
-            contents = m_htmlDocExtractor.getFunctionDescription(html, help.m_markId, name);
+            contents = m_htmlDocExtractor.getFunctionDescription(html, help.m_docMark);
             break;
         case HelpCandidate::Enum:
-            contents = m_htmlDocExtractor.getEnumDescription(html, name);
+            contents = m_htmlDocExtractor.getEnumDescription(html, help.m_docMark);
             break;
         case HelpCandidate::Typedef:
-            contents = m_htmlDocExtractor.getTypedefDescription(html, name);
-            break;
-        case HelpCandidate::Var:
-            contents = m_htmlDocExtractor.getVarDescription(html, name);
+            contents = m_htmlDocExtractor.getTypedefDescription(html, help.m_docMark);
             break;
         case HelpCandidate::Macro:
-            contents = m_htmlDocExtractor.getMacroDescription(html, help.m_markId, name);
+            contents = m_htmlDocExtractor.getMacroDescription(html, help.m_docMark);
             break;
         default:
             break;

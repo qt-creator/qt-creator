@@ -82,17 +82,17 @@ private:
             ClassOrNamespace,
             Enum,
             Typedef,
-            Var,
             Macro,
             Brief,
-            Function
+            Function,
+            Unknown
         };
 
-        HelpCandidate(const QString &helpId, const QString &markId, Category category) :
-            m_helpId(helpId), m_markId(markId), m_category(category)
+        HelpCandidate(const QString &helpId, const QString &docMark, Category category) :
+            m_helpId(helpId), m_docMark(docMark), m_category(category)
         {}
         QString m_helpId;
-        QString m_markId;
+        QString m_docMark;
         Category m_category;
     };
 

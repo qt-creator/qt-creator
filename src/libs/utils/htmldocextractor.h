@@ -44,37 +44,22 @@ public:
     void setLengthReference(const int reference, const bool truncateAtParagraph);
     void setFormatContents(const bool format);
 
-    QString getClassOrNamespaceBrief(const QString &html, const QString &name) const;
-    QString getClassOrNamespaceDescription(const QString &html, const QString &name) const;
-    QString getEnumDescription(const QString &html, const QString &name) const;
-    QString getTypedefDescription(const QString &html, const QString &name) const;
-    QString getVarDescription(const QString &html, const QString &name) const;
-    QString getMacroDescription(const QString &html,
-                                const QString &mark,
-                                const QString &anchorName) const;
+    QString getClassOrNamespaceBrief(const QString &html, const QString &mark) const;
+    QString getClassOrNamespaceDescription(const QString &html, const QString &mark) const;
+    QString getEnumDescription(const QString &html, const QString &mark) const;
+    QString getTypedefDescription(const QString &html, const QString &mark) const;
+    QString getMacroDescription(const QString &html, const QString &mark) const;
     QString getFunctionDescription(const QString &html,
                                    const QString &mark,
-                                   const QString &anchorName,
                                    const bool mainOverload = true) const;
 
 private:
-    QString assemble(const QString& elementAttr, const QString &elementTemplate) const;
-    QString getContentsByAnchor(const QString &html,
-                                const QString &name,
-                                const bool relaxedMatch) const;
-    QString getContentsByMarks(const QString &html,
-                               const QString &id,
-                               const bool mainOverload) const;
     QString getClassOrNamespaceMemberDescription(const QString &html,
-                                                 const QString &mark,
-                                                 const QString &anchorName,
-                                                 const bool mainOverload,
-                                                 const bool relaxedMatch = false) const;
-
-    QString findByMarks(const QString &html,
-                        const QString &startMark,
-                        const QString &endMark) const;
-    QString findByPattern(const QString &html, const QString &pattern) const;
+                                                 const QString &startMark,
+                                                 const QString &endMark) const;
+    QString getContentsByMarks(const QString &html,
+                               QString startMark,
+                               QString endMark) const;
 
     void formatContents(QString *html) const;
 
@@ -90,8 +75,6 @@ private:
     static void replaceNonStyledHeadingsForBold(QString *html);
     static void replaceTablesForSimpleLines(QString *html);
     static void replaceListsForSimpleLines(QString *html);
-
-    static QString cleanReference(const QString &reference);
 
     int m_lengthReference;
     bool m_truncateAtParagraph;
