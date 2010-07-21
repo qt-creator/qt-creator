@@ -681,7 +681,7 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
 
 void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
 {
-     if (!isSessionEngine()) {
+    if (!isSessionEngine()) {
         d->m_progress.setProgressRange(0, 100);
         Core::FutureProgress *fp = Core::ICore::instance()->progressManager()
             ->addTask(d->m_progress.future(),

@@ -2374,7 +2374,7 @@ void DebuggerPluginPrivate::interruptDebuggingRequest()
 
 void DebuggerPluginPrivate::exitDebugger()
 {
-    // The engine will finally call setState(DebuggerNotReady) which
+    // The engine will finally call setState(DebuggerFinished) which
     // in turn will handle the cleanup.
     notifyCurrentEngine(RequestExecExitRole);
     m_codeModelSnapshot = CPlusPlus::Snapshot();
