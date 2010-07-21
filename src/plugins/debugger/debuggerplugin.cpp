@@ -377,6 +377,8 @@ const char * const ADD_TO_WATCH_KEY         = "Ctrl+Alt+Q";
 const char * const SNAPSHOT_KEY             = "Ctrl+D,Ctrl+S";
 #endif
 
+const char * const GDBRUNNING               = "Gdb.Running";
+
 } // namespace Constants
 } // namespace Debugger
 
