@@ -153,9 +153,13 @@ void ContextPaneWidgetRectangle::onGradientClicked()
 {
     if (ui->colorGradient->isChecked()) {
         m_hasGradient = true;
-        emit removeAndChangeProperty("color", "gradient", " Gradient { }", false);
-        ui->gradientLine->setEnabled(true);
-        ui->gradientLabel->setEnabled(true);
+        QLinearGradient gradient;
+        QGradientStops stops;
+        QColor color = ui->colorColorButton->convertedColor();
+        stops.append(QGradientStop(0, ui->colorColorButton->convertedColor()));
+        stops.append(QGradientStop(1, Qt::white));
+        gradient.setStops(stops);
+        ui->gradientLine->setGradient(gradient);
     }
 }
 
