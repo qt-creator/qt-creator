@@ -74,11 +74,18 @@ void ContextPaneWidgetRectangle::setProperties(QmlJS::PropertyReader *propertyRe
     if (m_none)
         ui->colorNone->setChecked(true);
 
+    ui->gradientLabel->setEnabled(true);
+    ui->gradientLine->setEnabled(true);
+
     if (m_hasGradient) {
+        bool isBound;
         ui->colorGradient->setChecked(true);
-        //ui->gradientLine->setEnabled(true);
-        //ui->gradientLabel->setEnabled(true);
-        ui->gradientLine->setGradient(propertyReader->parseGradient("gradient"));
+        ui->gradientLine->setGradient(propertyReader->parseGradient("gradient", &isBound));
+        if (isBound) {
+            ui->gradientLabel->setEnabled(false);
+            ui->gradientLine->setEnabled(false);
+            ui->colorColorButton->setColor("invalidColor");
+        }
     } else {
         //ui->gradientLine->setEnabled(false);
         //ui->gradientLabel->setEnabled(false);
