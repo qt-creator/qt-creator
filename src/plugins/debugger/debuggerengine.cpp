@@ -233,12 +233,7 @@ public:
         m_threadsHandler(engine),
         m_watchHandler(engine),
         m_disassemblerViewAgent(engine)
-    {
-        m_progress.setProgressRange(0, 100);
-        Core::FutureProgress *fp = Core::ICore::instance()->progressManager()
-            ->addTask(m_progress.future(), tr("Launching"), _("Debugger.Launcher"));
-        fp->setKeepOnFinish(false);
-    }
+    {}
 
     ~DebuggerEnginePrivate() {}
 
@@ -686,7 +681,14 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
 
 void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
 {
-    d->m_progress.reportStarted();
+     if (!isSessionEngine()) {
+        d->m_progress.setProgressRange(0, 100);
+        Core::FutureProgress *fp = Core::ICore::instance()->progressManager()
+            ->addTask(d->m_progress.future(),
+            tr("Launching"), _("Debugger.Launcher"));
+        fp->setKeepOnFinish(false);
+        d->m_progress.reportStarted();
+    }
     QTC_ASSERT(runControl, notifyEngineSetupFailed(); return);
     QTC_ASSERT(!d->m_runControl, notifyEngineSetupFailed(); return);
 
