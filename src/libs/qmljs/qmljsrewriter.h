@@ -59,8 +59,13 @@ public:
     void addBinding(AST::UiObjectInitializer *ast,
                     const QString &propertyName,
                     const QString &propertyValue,
+                    BindingType bindingType);
+
+    void addBinding(AST::UiObjectInitializer *ast,
+                    const QString &propertyName,
+                    const QString &propertyValue,
                     BindingType bindingType,
-                    AST::UiObjectMemberList *insertAfter = 0);
+                    AST::UiObjectMemberList *insertAfter);
 
     void changeProperty(AST::UiObjectInitializer *ast,
                         const QString &propertyName,
@@ -71,7 +76,8 @@ public:
 
     void appendToArrayBinding(AST::UiArrayBinding *arrayBinding,
                               const QString &content);
-    void addObject(AST::UiObjectInitializer *ast, const QString &content, AST::UiObjectMemberList *insertAfter = 0);
+    void addObject(AST::UiObjectInitializer *ast, const QString &content);
+    void addObject(AST::UiObjectInitializer *ast, const QString &content, AST::UiObjectMemberList *insertAfter);
     void removeObjectMember(AST::UiObjectMember *member, AST::UiObjectMember *parent);
 
     static AST::UiObjectMemberList *searchMemberToInsertAfter(AST::UiObjectMemberList *members, const QStringList &propertyOrder);
