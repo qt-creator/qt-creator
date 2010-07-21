@@ -307,8 +307,8 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
         SLOT(switchToHelpMode(QUrl)));
 
     QDesktopServices::setUrlHandler("qthelp", this, "handleHelpRequest");
-    connect(m_core->modeManager(), SIGNAL(currentModeChanged(Core::IMode*)),
-        this, SLOT(modeChanged(Core::IMode*)));
+    connect(m_core->modeManager(), SIGNAL(currentModeChanged(Core::IMode*,
+        Core::IMode*)), this, SLOT(modeChanged(Core::IMode*, Core::IMode*)));
 
     addAutoReleasedObject(m_mode = new HelpMode(m_splitter, m_centralWidget));
     m_mode->setContext(modecontext);
@@ -570,23 +570,21 @@ void HelpPlugin::slotHideRightPane()
     Core::RightPaneWidget::instance()->setShown(false);
 }
 
-void HelpPlugin::modeChanged(Core::IMode *mode)
+void HelpPlugin::modeChanged(Core::IMode *mode, Core::IMode *old)
 {
-    if (mode == m_mode && m_firstModeChange) {
-        m_firstModeChange = false;
-
-        qApp->processEvents();
+    Q_UNUSED(old)
+    if (mode == m_mode) {
         qApp->setOverrideCursor(Qt::WaitCursor);
-
-        m_helpManager->setupGuiHelpEngine();
-        setupUi();
-        resetFilter();
-        OpenPagesManager::instance().setupInitialPages();
-
-        qApp->restoreOverrideCursor();
-    } else if (mode == m_mode && !m_firstModeChange) {
-        qApp->setOverrideCursor(Qt::WaitCursor);
-        m_helpManager->setupGuiHelpEngine();
+        if (m_firstModeChange) {
+            qApp->processEvents();
+            m_helpManager->setupGuiHelpEngine();
+            setupUi();
+            resetFilter();
+            m_firstModeChange = false;
+            OpenPagesManager::instance().setupInitialPages();
+        } else {
+            m_helpManager->setupGuiHelpEngine();
+        }
         qApp->restoreOverrideCursor();
     }
 }

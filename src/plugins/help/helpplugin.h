@@ -73,7 +73,7 @@ public:
     ShutdownFlag aboutToShutdown();
 
 private slots:
-    void modeChanged(Core::IMode *mode);
+    void modeChanged(Core::IMode *mode, Core::IMode *old);
 
     void activateContext();
     void activateIndex();
