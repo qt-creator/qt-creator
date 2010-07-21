@@ -55,27 +55,30 @@ public:
              const QStringList &propertyOrder);
 
     Range addBinding(AST::UiObjectInitializer *ast,
-                    const QString &propertyName,
-                    const QString &propertyValue,
-                    BindingType bindingType);
+                     const QString &propertyName,
+                     const QString &propertyValue,
+                     BindingType bindingType);
 
     Range addBinding(AST::UiObjectInitializer *ast,
-                    const QString &propertyName,
-                    const QString &propertyValue,
-                    BindingType bindingType,
-                    AST::UiObjectMemberList *insertAfter);
+                     const QString &propertyName,
+                     const QString &propertyValue,
+                     BindingType bindingType,
+                     AST::UiObjectMemberList *insertAfter);
 
-    void changeProperty(AST::UiObjectInitializer *ast,
-                        const QString &propertyName,
-                        const QString &newValue,
-                        BindingType binding);
+    void changeBinding(AST::UiObjectInitializer *ast,
+                       const QString &propertyName,
+                       const QString &newValue,
+                       BindingType binding);
 
-    void removeProperty(AST::UiObjectInitializer *ast, const QString &propertyName);
+    void removeBindingByName(AST::UiObjectInitializer *ast, const QString &propertyName);
 
     void appendToArrayBinding(AST::UiArrayBinding *arrayBinding,
                               const QString &content);
+
     Range addObject(AST::UiObjectInitializer *ast, const QString &content);
     Range addObject(AST::UiObjectInitializer *ast, const QString &content, AST::UiObjectMemberList *insertAfter);
+
+
     void removeObjectMember(AST::UiObjectMember *member, AST::UiObjectMember *parent);
 
     static AST::UiObjectMemberList *searchMemberToInsertAfter(AST::UiObjectMemberList *members, const QStringList &propertyOrder);

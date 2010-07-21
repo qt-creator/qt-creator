@@ -229,10 +229,10 @@ QString Rewriter::flatten(UiQualifiedId *first)
     return flatId;
 }
 
-void Rewriter::changeProperty(UiObjectInitializer *ast,
-                              const QString &propertyName,
-                              const QString &newValue,
-                              BindingType binding)
+void Rewriter::changeBinding(UiObjectInitializer *ast,
+                             const QString &propertyName,
+                             const QString &newValue,
+                             BindingType binding)
 {
     QString prefix, suffix;
     int dotIdx = propertyName.indexOf(QLatin1Char('.'));
@@ -269,7 +269,7 @@ void Rewriter::changeProperty(UiObjectInitializer *ast,
         else if (!prefix.isEmpty()) {
             if (UiObjectDefinition *def = cast<UiObjectDefinition *>(member)) {
                 if (flatten(def->qualifiedTypeNameId) == prefix) {
-                    changeProperty(def->initializer, suffix, newValue, binding);
+                    changeBinding(def->initializer, suffix, newValue, binding);
                 }
             }
         }
@@ -357,7 +357,7 @@ void Rewriter::insertIntoArray(UiArrayBinding *ast, const QString &newValue)
     m_changeSet->insert(insertionPoint, QLatin1String(",\n") + newValue);
 }
 
-void Rewriter::removeProperty(UiObjectInitializer *ast, const QString &propertyName)
+void Rewriter::removeBindingByName(UiObjectInitializer *ast, const QString &propertyName)
 {
     QString prefix;
     int dotIdx = propertyName.indexOf(QLatin1Char('.'));

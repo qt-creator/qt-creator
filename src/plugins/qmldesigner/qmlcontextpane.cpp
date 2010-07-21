@@ -199,7 +199,7 @@ void QmlContextPane::setProperty(const QString &propertyName, const QVariant &va
 
         PropertyReader propertyReader(m_doc, initializer);
         if (propertyReader.hasProperty(propertyName)) {
-            rewriter.changeProperty(initializer, propertyName, stringValue, bindingType);
+            rewriter.changeBinding(initializer, propertyName, stringValue, bindingType);
         } else {
             rewriter.addBinding(initializer, propertyName, stringValue, bindingType);
         }
@@ -249,7 +249,7 @@ void QmlContextPane::removeProperty(const QString &propertyName)
         if (propertyReader.hasProperty(propertyName)) {
             Utils::ChangeSet changeSet;
             Rewriter rewriter(m_doc->source(), &changeSet, m_propertyOrder);
-            rewriter.removeProperty(initializer, propertyName);
+            rewriter.removeBindingByName(initializer, propertyName);
             QTextCursor tc(m_editor->editor()->document());
             changeSet.apply(&tc);
         }
