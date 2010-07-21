@@ -108,7 +108,6 @@ public:
     bool isRegisterViewVisible() const;
 
 public slots:
-    void exitDebugger();  // FIXME: remove
     void clearCppCodeModelSnapshot();
     void ensureLogVisible();
 

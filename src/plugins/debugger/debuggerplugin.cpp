@@ -2667,11 +2667,6 @@ void DebuggerPlugin::activateDebugMode()
     d->activateDebugMode();
 }
 
-void DebuggerPlugin::exitDebugger()
-{
-    d->exitDebugger();
-}
-
 void DebuggerPlugin::createNewDock(QWidget *widget)
 {
     QDockWidget *dockWidget =
