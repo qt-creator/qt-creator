@@ -359,13 +359,19 @@ void QemuRuntimeManager::startRuntime()
         m_qemuProcess->setProcessEnvironment(env);
         m_qemuProcess->setWorkingDirectory(rt.m_root);
 
-        const QString app = root + (QFileInfo(rt.m_bin).isRelative()
+        // This is complex because of extreme MADDE weirdness.
+        const bool pathIsRelative = QFileInfo(rt.m_bin).isRelative();
+        const QString app =
+#ifdef Q_OS_WIN
+        root % (pathIsRelative
             ? QLatin1String("madlib/") % rt.m_bin // Fremantle.
             : rt.m_bin)                           // Haramattan.
-#ifdef Q_OS_WIN
-            % QLatin1String(".exe")
+            % QLatin1String(".exe");
+#else
+        pathIsRelative
+            ? root % QLatin1String("madlib/") % rt.m_bin // Fremantle.
+            : rt.m_bin;                                  // Haramattan.
 #endif
-        ;   // keep
 
         m_qemuProcess->start(app % QLatin1Char(' ') % rt.m_args,
             QIODevice::ReadWrite);
@@ -512,12 +518,18 @@ bool QemuRuntimeManager::targetUsesRuntimeConfig(Target *target)
 
     MaemoRunConfiguration *mrc =
         qobject_cast<MaemoRunConfiguration *> (target->activeRunConfiguration());
-    if (mrc) {
-        const MaemoDeviceConfig &config = mrc->deviceConfig();
-        if (config.isValid() && config.type == MaemoDeviceConfig::Simulator)
-            return true;
-    }
-    return false;
+    if (!mrc)
+        return false;
+    Qt4BuildConfiguration *bc
+        = qobject_cast<Qt4BuildConfiguration *>(target->activeBuildConfiguration());
+    if (!bc)
+        return false;
+    QtVersion *version = bc->qtVersion();
+    if (!version || !m_runtimes.contains(version->uniqueId()))
+        return false;
+
+    const MaemoDeviceConfig &config = mrc->deviceConfig();
+    return config.isValid() && config.type == MaemoDeviceConfig::Simulator;
 }
 
 QString QemuRuntimeManager::maddeRoot(const QString &qmake) const
