@@ -96,6 +96,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
 #include <texteditor/basetexteditor.h>
@@ -940,6 +941,7 @@ public slots:
     DebuggerState state() const { return m_state; }
 
     void updateState(DebuggerEngine *engine);
+    void onCurrentProjectChanged(ProjectExplorer::Project *project);
 
     void resetLocation();
     void gotoLocation(const QString &file, int line, bool setMarker);
@@ -1617,7 +1619,33 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     setInitialState();
     connectEngine(m_sessionEngine, false);
 
+    connect(sessionManager(),
+            SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
+            SLOT(onCurrentProjectChanged(ProjectExplorer::Project*)));
+
     return true;
+}
+
+void DebuggerPluginPrivate::onCurrentProjectChanged(ProjectExplorer::Project *project)
+{
+    QTC_ASSERT(project, return);
+    ProjectExplorer::Target *target = project->activeTarget();
+    QTC_ASSERT(target, return);
+    ProjectExplorer::RunConfiguration *activeRc = target->activeRunConfiguration();
+    QTC_ASSERT(activeRc, return);
+    for (int i = 0, n = m_snapshotHandler->size(); i != n; ++i) {
+        DebuggerRunControl *runControl = m_snapshotHandler->at(i);
+        RunConfiguration *rc = runControl->runConfiguration();
+        if (rc == activeRc) {
+            m_snapshotHandler->setCurrentIndex(i);
+            DebuggerEngine *engine = runControl->engine();
+            updateState(engine);
+            return;
+        }
+    }
+    // No corresponding debugger found. So we are ready to start one.
+    ICore *core = ICore::instance();
+    core->updateAdditionalContexts(m_gdbRunningContext, Core::Context());
 }
 
 void DebuggerPluginPrivate::onAction()
@@ -2163,7 +2191,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         cleanupViews();
     }
 
-    const bool startIsContinue = (m_state == InferiorStopOk);
+    const bool startIsContinue = (engine->state() == InferiorStopOk);
     ICore *core = ICore::instance();
     if (startIsContinue)
         core->updateAdditionalContexts(Core::Context(), m_gdbRunningContext);

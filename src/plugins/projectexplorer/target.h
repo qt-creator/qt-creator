@@ -65,11 +65,11 @@ public:
 
     // Running
     QList<RunConfiguration *> runConfigurations() const;
-    void addRunConfiguration(RunConfiguration* runConfiguration);
-    void removeRunConfiguration(RunConfiguration* runConfiguration);
+    void addRunConfiguration(RunConfiguration *runConfiguration);
+    void removeRunConfiguration(RunConfiguration *runConfiguration);
 
-    RunConfiguration* activeRunConfiguration() const;
-    void setActiveRunConfiguration(RunConfiguration* runConfiguration);
+    RunConfiguration *activeRunConfiguration() const;
+    void setActiveRunConfiguration(RunConfiguration *runConfiguration);
 
     // Returns whether this target is actually available at he time
     // of the call. A target may become unavailable e.g. when a Qt version
