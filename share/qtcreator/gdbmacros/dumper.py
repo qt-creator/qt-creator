@@ -116,8 +116,10 @@ def lookupType(typestring):
         try:
             #warn("LOOKING UP '%s'" % ts)
             type = gdb.lookup_type(ts)
-        except:
+        except RuntimeError, error:
             # Can throw "RuntimeError: No type named class Foo."
+            warn("LOOKING UP '%s': %s " % (ts, error))
+        except:
             #warn("LOOKING UP '%s' FAILED" % ts)
             pass
         #warn("  RESULT: '%s'" % type)
@@ -430,8 +432,11 @@ def listOfLocals(varList):
     try:
         frame = gdb.selected_frame()
         #warn("FRAME %s: " % frame)
-    except RuntimeError:
-        warn("FRAME NOT ACCESSIBLE")
+    except RuntimeError, error:
+        warn("FRAME NOT ACCESSIBLE: %s" % error)
+        return []
+    except:
+        warn("FRAME NOT ACCESSIBLE FOR UNKNOWN REASONS")
         return []
 
     # gdb-6.8-symbianelf fails here
@@ -445,8 +450,11 @@ def listOfLocals(varList):
         try:
             block = frame.block()
             #warn("BLOCK: %s " % block)
+        except RuntimeError, error:
+            warn("FRAME NOT ACCESSIBLE: %s" % error)
+            return items
         except:
-            warn("BLOCK NOT ACCESSIBLE")
+            warn("BLOCK NOT ACCESSIBLE FOR UNKNOWN REASONS")
             return items
 
         while True:
