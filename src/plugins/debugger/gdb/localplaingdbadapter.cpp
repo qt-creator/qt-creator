@@ -127,7 +127,11 @@ void LocalPlainGdbAdapter::checkForReleaseBuild()
     args.append(startParameters().executable);
     proc.start(_("objdump"), args);
     proc.closeWriteChannel();
-    QTC_ASSERT(proc.waitForStarted(), qDebug() << "UNABLE TO RUN OBJDUMP");
+    if (!proc.waitForStarted()) {
+        showMessage(_("OBJDUMP PROCESS COULD NOT BE STARTED. "
+            "RELEASE BUILD CHECK WILL FAIL"));
+        return;
+    }
     proc.waitForFinished();
     QByteArray ba = proc.readAllStandardOutput();
     // This should yield something like
