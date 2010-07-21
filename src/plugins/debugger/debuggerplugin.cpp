@@ -51,10 +51,11 @@
 #include "threadswindow.h"
 #include "watchwindow.h"
 
-#include "watchutils.h"
 #include "breakhandler.h"
-#include "snapshothandler.h"
 #include "sessionengine.h"
+#include "snapshothandler.h"
+#include "threadshandler.h"
+#include "watchutils.h"
 
 #ifdef Q_OS_WIN
 #  include "shared/peutils.h"
@@ -2136,6 +2137,9 @@ void DebuggerPluginPrivate::setInitialState()
 
 void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 {
+    //m_threadBox->setModel(engine->threadsModel());
+    //m_threadBox->setModel(engine->threadsModel());
+    m_threadBox->setCurrentIndex(engine->threadsHandler()->currentThread());
     m_watchersWindow->setVisible(
         m_watchersWindow->model()->rowCount(QModelIndex()) > 0);
     m_returnWindow->setVisible(
@@ -2192,15 +2196,10 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         || m_state == InferiorUnrunnable;
 
     const bool running = m_state == InferiorRunOk;
-// FIXME ABC
-//    if (running)
-//        threadsHandler()->notifyRunning();
     const bool stopped = m_state == InferiorStopOk;
 
     if (stopped)
         QApplication::alert(mainWindow(), 3000);
-
-    //qDebug() << "FLAGS: " << stoppable << running << stopped;
 
     m_actions.watchAction1->setEnabled(true);
     m_actions.watchAction2->setEnabled(true);

@@ -1347,6 +1347,9 @@ public:
             //sleep(1);
             std::cerr << m_id;
         }
+        if (m_id == 2) {
+            ++j;
+        }
         std::cerr << j;
     }
 
@@ -1937,7 +1940,7 @@ int main(int argc, char *argv[])
 #    endif
     testQStringList();
     testStruct();
-    // testQThread();
+    //testQThread();
     testQVariant1();
     testQVariant2();
     testQVariant3();

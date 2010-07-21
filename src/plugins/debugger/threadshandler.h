@@ -96,9 +96,10 @@ class ThreadsHandler : public QAbstractTableModel
 public:
     explicit ThreadsHandler(DebuggerEngine *engine);
 
+    int currentThread() const { return m_currentIndex; }
+    void setCurrentThread(int index);
     int currentThreadId() const;
     void setCurrentThreadId(int id);
-    void setCurrentThread(int index);
     int indexOf(int threadId) const;
 
     void selectThread(int index);

@@ -32,6 +32,7 @@
 #include "debuggerconstants.h"
 #include "debuggerengine.h"
 
+#include <QtCore/QDebug>
 #include <QtCore/QTextStream>
 
 namespace Debugger {
@@ -59,21 +60,6 @@ void ThreadData::notifyRunning()
     lineNumber = -1;
 }
 
-
-int id;
-QString targetId;
-QString core;
-
-// State information when stopped
-void notifyRunning(); // Clear state information
-
-int frameLevel;
-quint64 address;
-QString function;
-QString fileName;
-QString state;
-int lineNumber;
-
 static inline QString threadToolTip(const ThreadData &thread)
 {
     const char tableRowStartC[] = "<tr><td>";
@@ -94,7 +80,7 @@ static inline QString threadToolTip(const ThreadData &thread)
         str << tableRowStartC << ThreadsHandler::tr("Core:")
         << tableRowSeparatorC << thread.core << tableRowEndC;
 
-    if (thread.address) {        
+    if (thread.address) {
         str << tableRowStartC << ThreadsHandler::tr("Stopped&nbsp;at:")
                 << tableRowSeparatorC;
         if (!thread.function.isEmpty())
@@ -166,7 +152,8 @@ QVariant ThreadsHandler::data(const QModelIndex &index, int role) const
         }
     case Qt::ToolTipRole:
         return threadToolTip(thread);
-    case Qt::DecorationRole: // Return icon that indicates whether this is the active stack frame
+    case Qt::DecorationRole:
+        // Return icon that indicates whether this is the active stack frame
         if (index.column() == 0)
             return (index.row() == m_currentIndex) ? m_positionIcon : m_emptyIcon;
         break;
@@ -256,8 +243,8 @@ void ThreadsHandler::setThreads(const Threads &threads)
 {
     m_threads = threads;
     if (m_currentIndex >= m_threads.size())
-        m_currentIndex = m_threads.size() - 1;
-    reset();
+        m_currentIndex = -1;
+    layoutChanged();
 }
 
 Threads ThreadsHandler::threads() const
@@ -269,7 +256,7 @@ void ThreadsHandler::removeAll()
 {
     m_threads.clear();
     m_currentIndex = 0;
-    reset();
+    layoutChanged();
 }
 
 void ThreadsHandler::notifyRunning()

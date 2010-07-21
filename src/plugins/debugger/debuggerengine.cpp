@@ -1362,6 +1362,10 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
     if (!forced && !isAllowedTransition(oldState, state))
         qDebug() << "UNEXPECTED STATE TRANSITION: " << msg;
 
+    const bool running = d->m_state == InferiorRunOk;
+    if (running)
+        threadsHandler()->notifyRunning();
+
     showMessage(msg, LogDebug);
     plugin()->updateState(this);
 }

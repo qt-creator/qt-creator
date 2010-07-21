@@ -2913,8 +2913,10 @@ void GdbEngine::handleThreadInfo(const GdbResponse &response)
             threads.append(thread);
         }
         threadsHandler()->setThreads(threads);
-        const int currentThreadId = response.data.findChild("current-thread-id").data().toInt();
+        const int currentThreadId =
+            response.data.findChild("current-thread-id").data().toInt();
         threadsHandler()->setCurrentThreadId(currentThreadId);
+        plugin()->updateState(this); // Adjust Threads combobox.
     } else {
         // Fall back for older versions: Try to get at least a list
         // of running threads.
