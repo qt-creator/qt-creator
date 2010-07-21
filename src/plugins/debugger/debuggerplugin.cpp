@@ -378,8 +378,6 @@ const char * const ADD_TO_WATCH_KEY         = "Ctrl+Alt+Q";
 const char * const SNAPSHOT_KEY             = "Ctrl+D,Ctrl+S";
 #endif
 
-const char * const GDBRUNNING               = "Gdb.Running";
-
 } // namespace Constants
 } // namespace Debugger
 
@@ -829,7 +827,7 @@ static bool isCurrentProjectCppBased()
 struct DebuggerActions
 {
     QAction *continueAction;
-    QAction *stopAction;
+    QAction *interruptAction;
     QAction *resetAction; // FIXME: Should not be needed in a stable release
     QAction *stepAction;
     QAction *stepOutAction;
@@ -964,7 +962,8 @@ public:
 
     QString m_previousMode;
     TextEditor::BaseTextMark *m_locationMark;
-    Core::Context m_gdbRunningContext;
+    Core::Context m_continuableContext;
+    Core::Context m_interruptibleContext;
     AttachRemoteParameters m_attachRemoteParameters;
 
     QAction *m_startExternalAction;
@@ -1056,7 +1055,9 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
     m_sessionEngine = 0;
     m_debugMode = 0;
     m_locationMark = 0;
-    m_gdbRunningContext = Core::Context(0);
+
+    m_continuableContext = Core::Context(0);
+    m_interruptibleContext = Core::Context(0);
 
     m_debugMode = 0;
     m_uiSwitcher = 0;
@@ -1066,6 +1067,9 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
 
 bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *errorMessage)
 {
+    m_continuableContext = Core::Context("Gdb.Continuable");
+    m_interruptibleContext = Core::Context("Gdb.Interruptible");
+
     // FIXME: Move part of this to extensionsInitialized()?
     ICore *core = ICore::instance();
     QTC_ASSERT(core, return false);
@@ -1133,9 +1137,9 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_actions.continueAction->setIcon(continueIcon);
     m_actions.continueAction->setProperty(Role, RequestExecContinueRole);
 
-    m_actions.stopAction = new QAction(tr("Interrupt"), this);
-    m_actions.stopAction->setIcon(m_interruptIcon);
-    m_actions.stopAction->setProperty(Role, RequestExecInterruptRole);
+    m_actions.interruptAction = new QAction(tr("Interrupt"), this);
+    m_actions.interruptAction->setIcon(m_interruptIcon);
+    m_actions.interruptAction->setProperty(Role, RequestExecInterruptRole);
 
     m_actions.resetAction = new QAction(tr("Abort Debugging"), this);
     m_actions.resetAction->setProperty(Role, RequestExecResetRole);
@@ -1221,7 +1225,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     connect(m_actions.snapshotAction, SIGNAL(triggered()), SLOT(onAction()));
     connect(m_actions.frameDownAction, SIGNAL(triggered()), SLOT(onAction()));
     connect(m_actions.frameUpAction, SIGNAL(triggered()), SLOT(onAction()));
-    connect(m_actions.stopAction, SIGNAL(triggered()), SLOT(interruptDebuggingRequest()));
+    connect(m_actions.interruptAction, SIGNAL(triggered()), SLOT(interruptDebuggingRequest()));
     connect(m_actions.resetAction, SIGNAL(triggered()), SLOT(onAction()));
     connect(&m_statusTimer, SIGNAL(timeout()), SLOT(clearStatusMessage()));
 
@@ -1293,8 +1297,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
         errorMessage->clear();
     }
 
-    m_gdbRunningContext = Core::Context(Constants::GDBRUNNING);
-
     // Register factory of DebuggerRunControl.
     m_debuggerRunControlFactory = new DebuggerRunControlFactory
         (m_plugin, DebuggerEngineType(cmdLineEnabledEngines));
@@ -1343,7 +1345,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
         am->actionContainer(PE::M_DEBUG_STARTDEBUGGING);
 
     cmd = am->registerAction(m_actions.continueAction,
-        PE::DEBUG, m_gdbRunningContext);
+        PE::DEBUG, m_continuableContext);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_startExternalAction,
@@ -1376,7 +1378,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     cmd->setAttribute(Command::CA_Hide);
     m_uiSwitcher->addMenuAction(cmd, CC::G_DEFAULT_ONE);
 
-    cmd = am->registerAction(m_actions.stopAction,
+    cmd = am->registerAction(m_actions.interruptAction,
         Constants::INTERRUPT, globalcontext);
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setAttribute(Command::CA_UpdateIcon);
@@ -1645,7 +1647,7 @@ void DebuggerPluginPrivate::onCurrentProjectChanged(ProjectExplorer::Project *pr
     }
     // No corresponding debugger found. So we are ready to start one.
     ICore *core = ICore::instance();
-    core->updateAdditionalContexts(m_gdbRunningContext, Core::Context());
+    core->updateAdditionalContexts(m_continuableContext, Core::Context());
 }
 
 void DebuggerPluginPrivate::onAction()
@@ -2142,9 +2144,9 @@ void DebuggerPluginPrivate::setInitialState()
     m_actions.snapshotAction->setEnabled(false);
     theDebuggerAction(OperateByInstruction)->setEnabled(false);
 
-    m_actions.stopAction->setIcon(m_stopIcon);
-    m_actions.stopAction->setText(tr("Stop Debugger"));
-    m_actions.stopAction->setEnabled(false);
+    m_actions.interruptAction->setIcon(m_stopIcon);
+    m_actions.interruptAction->setText(tr("Stop Debugger"));
+    m_actions.interruptAction->setEnabled(false);
     m_actions.resetAction->setEnabled(false);
 
     m_actions.stepAction->setEnabled(false);
@@ -2194,9 +2196,9 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     const bool startIsContinue = (engine->state() == InferiorStopOk);
     ICore *core = ICore::instance();
     if (startIsContinue)
-        core->updateAdditionalContexts(Core::Context(), m_gdbRunningContext);
+        core->updateAdditionalContexts(Core::Context(), m_continuableContext);
     else
-        core->updateAdditionalContexts(m_gdbRunningContext, Core::Context());
+        core->updateAdditionalContexts(m_continuableContext, Core::Context());
 
     const bool started = m_state == InferiorRunOk
         || m_state == InferiorRunRequested
@@ -2241,14 +2243,14 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 
     const bool interruptIsExit = !running;
     if (interruptIsExit) {
-        m_actions.stopAction->setIcon(m_stopIcon);
-        m_actions.stopAction->setText(tr("Stop Debugger"));
+        m_actions.interruptAction->setIcon(m_stopIcon);
+        m_actions.interruptAction->setText(tr("Stop Debugger"));
     } else {
-        m_actions.stopAction->setIcon(m_interruptIcon);
-        m_actions.stopAction->setText(tr("Interrupt"));
+        m_actions.interruptAction->setIcon(m_interruptIcon);
+        m_actions.interruptAction->setText(tr("Interrupt"));
     }
 
-    m_actions.stopAction->setEnabled(stoppable);
+    m_actions.interruptAction->setEnabled(stoppable);
     m_actions.resetAction->setEnabled(m_state != DebuggerNotReady);
 
     m_actions.stepAction->setEnabled(stopped);
