@@ -35,6 +35,7 @@ QmlJSOutlineTreeView::QmlJSOutlineTreeView(QWidget *parent) :
 QmlJSOutlineFilterModel::QmlJSOutlineFilterModel(QObject *parent) :
     QSortFilterProxyModel(parent)
 {
+    setDynamicSortFilter(true);
 }
 
 bool QmlJSOutlineFilterModel::filterAcceptsRow(int sourceRow,
