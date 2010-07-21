@@ -304,7 +304,6 @@ void CppHoverHandler::handleLookupItemMatch(const LookupItem &lookupItem,
     Overview overview;
     overview.setShowArgumentNames(true);
     overview.setShowReturnTypes(true);
-    overview.setShowFullyQualifiedNamed(true);
 
     if (!matchingDeclaration && assignTooltip) {
         m_toolTip = overview.prettyType(matchingType, QString());
@@ -356,7 +355,6 @@ void CppHoverHandler::handleLookupItemMatch(const LookupItem &lookupItem,
         overview.setShowArgumentNames(false);
         overview.setShowReturnTypes(false);
         overview.setShowFunctionSignatures(false);
-        overview.setShowFullyQualifiedNamed(false);
         const QString &simpleName = overview.prettyName(matchingDeclaration->name());
         overview.setShowFunctionSignatures(true);
         const QString &specifierId = overview.prettyType(matchingType, simpleName);

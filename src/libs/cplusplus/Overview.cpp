@@ -44,7 +44,6 @@ Overview::Overview()
       _showArgumentNames(false),
       _showReturnTypes(false),
       _showFunctionSignatures(true),
-      _showFullyQualifiedNames(false),
       _showDefaultArguments(true)
 { }
 
@@ -109,16 +108,6 @@ bool Overview::showFunctionSignatures() const
 void Overview::setShowFunctionSignatures(bool showFunctionSignatures)
 {
     _showFunctionSignatures = showFunctionSignatures;
-}
-
-bool Overview::showFullyQualifiedNames() const
-{
-    return _showFullyQualifiedNames;
-}
-
-void Overview::setShowFullyQualifiedNamed(bool showFullyQualifiedNames)
-{
-    _showFullyQualifiedNames = showFullyQualifiedNames;
 }
 
 bool Overview::showDefaultArguments() const

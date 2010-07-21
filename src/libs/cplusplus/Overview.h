@@ -53,9 +53,6 @@ public:
     bool showFunctionSignatures() const;
     void setShowFunctionSignatures(bool showFunctionSignatures);
 
-    bool showFullyQualifiedNames() const;
-    void setShowFullyQualifiedNamed(bool showFullyQualifiedNames);
-
     bool showDefaultArguments() const;
     void setShowDefaultArguments(bool showDefaultArguments);
 
@@ -94,7 +91,6 @@ private:
     bool _showArgumentNames: 1;
     bool _showReturnTypes: 1;
     bool _showFunctionSignatures: 1;
-    bool _showFullyQualifiedNames: 1;
     bool _showDefaultArguments: 1;
 };
 

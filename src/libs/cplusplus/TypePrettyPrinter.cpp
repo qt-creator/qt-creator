@@ -41,35 +41,6 @@
 using namespace CPlusPlus;
 
 
-static QString fullyQualifiedName(Symbol *symbol, const Overview *overview)
-{
-    QStringList nestedNameSpecifier;
-
-    for (Scope *scope = symbol->scope(); scope && scope->enclosingScope();
-         scope = scope->enclosingScope())
-    {
-        Symbol *owner = scope->owner();
-
-        if (! owner) {
-            qWarning() << "invalid scope."; // ### better message.
-            continue;
-        }
-
-        if (! owner->name())
-            nestedNameSpecifier.prepend(QLatin1String("$anonymous"));
-
-        else {
-            const QString name = overview->prettyName(owner->name());
-
-            nestedNameSpecifier.prepend(name);
-        }
-    }
-
-    nestedNameSpecifier.append(overview->prettyName(symbol->name()));
-
-    return nestedNameSpecifier.join(QLatin1String("::"));
-}
-
 TypePrettyPrinter::TypePrettyPrinter(const Overview *overview)
     : _overview(overview)
     , _needsParens(false)
@@ -171,20 +142,14 @@ void TypePrettyPrinter::visit(Namespace *type)
 
 void TypePrettyPrinter::visit(Class *classTy)
 {
-    if (overview()->showFullyQualifiedNames())
-        _text.prepend(fullyQualifiedName(classTy, overview()));
-    else
-        _text.prepend(overview()->prettyName(classTy->name()));
+    _text.prepend(overview()->prettyName(classTy->name()));
     prependCv(_fullySpecifiedType);
 }
 
 
 void TypePrettyPrinter::visit(Enum *type)
 {
-    if (overview()->showFullyQualifiedNames())
-        _text.prepend(fullyQualifiedName(type, overview()));
-    else
-        _text.prepend(overview()->prettyName(type->name()));
+    _text.prepend(overview()->prettyName(type->name()));
     prependCv(_fullySpecifiedType);
 }
 
