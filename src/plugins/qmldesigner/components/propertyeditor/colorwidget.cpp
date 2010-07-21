@@ -599,60 +599,68 @@ void GradientLine::paintEvent(QPaintEvent *event)
 {
     QWidget::paintEvent(event);
 
-    if (!isEnabled())
-        return;
     QPainter p(this);
 
+    if (!isEnabled()) {
+        p.setBrush(Qt::NoBrush);
+        p.setPen(QColor(0x444444));
+        p.drawRect(9, 31, width() - 14, height() - 32);
 
-    QLinearGradient linearGradient(QPointF(0, 0), QPointF(width(), 0));
+        p.drawTiledPixmap(10, 32, width() - 16, height() - 34, tilePixMap(8));
+    } else {
 
-    for (int i =0; i < m_stops.size(); i++)
-         linearGradient.setColorAt(m_stops.at(i), m_colorList.at(i));
+        QLinearGradient linearGradient(QPointF(0, 0), QPointF(width(), 0));
 
-    p.setBrush(Qt::NoBrush);
-    p.setPen(QColor(0x444444));
-    p.drawRect(9, 31, width() - 14, height() - 32);
+        for (int i =0; i < m_stops.size(); i++)
+            linearGradient.setColorAt(m_stops.at(i), m_colorList.at(i));
+
+        p.setBrush(Qt::NoBrush);
+        p.setPen(QColor(0x444444));
+        p.drawRect(9, 31, width() - 14, height() - 32);
 
 
-    p.drawTiledPixmap(9, 31, width() - 16, height() - 34, tilePixMap(8));
+        p.drawTiledPixmap(9, 31, width() - 16, height() - 34, tilePixMap(8));
 
-    p.setBrush(linearGradient);
-    p.setPen(QColor(0x222222));
-    p.drawRect(8, 30, width() - 14, height() - 32);
-    p.setPen(QColor(255, 255, 255, 40));
-    p.drawRect(9, 31, width() - 16, height() - 34);
+        p.setBrush(linearGradient);
+        p.setPen(QColor(0x222222));
+        p.drawRect(8, 30, width() - 14, height() - 32);
+        p.setPen(QColor(255, 255, 255, 40));
+        p.drawRect(9, 31, width() - 16, height() - 34);
 
-    p.setPen(Qt::black);
+        p.setPen(Qt::black);
 
-    for (int i =0; i < m_colorList.size(); i++) {
-        int localYOffset = 0;
-        QColor arrowColor(Qt::black);
-        if (i == currentColorIndex()) {
-            localYOffset = m_yOffset;
-            arrowColor = QColor(0x909090);
+        for (int i =0; i < m_colorList.size(); i++) {
+            int localYOffset = 0;
+            QColor arrowColor(Qt::black);
+            if (i == currentColorIndex()) {
+                localYOffset = m_yOffset;
+                arrowColor = QColor(0x909090);
+            }
+            p.setPen(arrowColor);
+            if (i == 0 || i == (m_colorList.size() - 1))
+                localYOffset = 0;
+
+            int pos = qreal((width() - 16)) * m_stops.at(i) + 9;
+            p.setBrush(arrowColor);
+            QVector<QPointF> points;
+            points.append(QPointF(pos + 0.5, 28.5 + localYOffset)); //triangle
+            points.append(QPointF(pos - 3.5, 22.5 + localYOffset));
+            points.append(QPointF(pos + 4.5, 22.5 + localYOffset));
+            p.setRenderHint(QPainter::Antialiasing, true);
+            p.drawPolygon(points);
+            p.setRenderHint(QPainter::Antialiasing, false);
+            p.setBrush(Qt::NoBrush);
+            p.setPen(QColor(0x424242));
+            p.drawRect(pos - 4, 9 + localYOffset, 10, 11);
+
+            p.drawTiledPixmap(pos - 4, 9 + localYOffset, 9, 10, tilePixMap(5));
+            p.setPen(QColor(0x424242));
+            p.setBrush(m_colorList.at(i));
+            p.drawRect(pos - 5, 8 + localYOffset, 10, 11);
+            p.setBrush(Qt::NoBrush);
+            p.setPen(QColor(255, 255, 255, 30));
+            p.drawRect(pos - 4, 9 + localYOffset, 8, 9);
         }
-        p.setPen(arrowColor);
-        if (i == 0 || i == (m_colorList.size() - 1))
-            localYOffset = 0;
-
-        int pos = qreal((width() - 16)) * m_stops.at(i) + 9;
-        p.setBrush(arrowColor);
-        QVector<QPointF> points;
-        points.append(QPointF(pos + 0.5, 28.5 + localYOffset)); //triangle
-        points.append(QPointF(pos - 3.5, 22.5 + localYOffset));
-        points.append(QPointF(pos + 4.5, 22.5 + localYOffset));
-        p.setRenderHint(QPainter::Antialiasing, true);
-        p.drawPolygon(points);
-        p.setRenderHint(QPainter::Antialiasing, false);
-        p.setBrush(Qt::NoBrush);
-        p.setPen(QColor(0x424242));
-        p.drawRect(pos - 4, 9 + localYOffset, 10, 11);
-        p.setPen(QColor(0x141414));
-        p.setBrush(m_colorList.at(i));
-        p.drawRect(pos - 5, 8 + localYOffset, 10, 11);
-        p.setBrush(Qt::NoBrush);
-        p.setPen(QColor(255, 255, 255, 30));
-        p.drawRect(pos - 4, 9 + localYOffset, 8, 9);
     }
 }
 
