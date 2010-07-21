@@ -70,6 +70,8 @@ static inline QString properName(const QColor &color)
 
 static inline QColor properColor(const QString &str)
 {
+    if (str.isNull())
+        return QColor();
     int lalpha = 255;
     QString lcolorStr = str;
     if (lcolorStr.at(0) == '#' && lcolorStr.length() == 9) {
