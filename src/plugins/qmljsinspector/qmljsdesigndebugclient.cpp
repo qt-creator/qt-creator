@@ -215,7 +215,7 @@ void QmlJSDesignDebugClient::changeToZoomTool()
     sendMessage(message);
 }
 
-void QmlJSDesignDebugClient::createQmlObject(const QString &qmlText, const QDeclarativeDebugObjectReference &parentRef,
+void QmlJSDesignDebugClient::createQmlObject(const QString &qmlText, int parentDebugId,
                                              const QStringList &imports, const QString &filename)
 {
     if (!m_connection || !m_connection->isConnected())
@@ -226,7 +226,7 @@ void QmlJSDesignDebugClient::createQmlObject(const QString &qmlText, const QDecl
 
     ds << QByteArray("CREATE_OBJECT")
        << qmlText
-       << parentRef.debugId()
+       << parentDebugId
        << imports
        << filename;
 

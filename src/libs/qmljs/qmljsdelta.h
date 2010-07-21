@@ -30,48 +30,44 @@
 #ifndef QMLJSDELTA_H
 #define QMLJSDELTA_H
 
-#include "qmljsprivateapi.h"
-
 #include <qmljs/qmljsdocument.h>
-#include <qmljs/parser/qmljsastvisitor_p.h>
-#include <qmljs/parser/qmljsastfwd_p.h>
-#include <qmljs/parser/qmljsast_p.h>
+#include <qmljs/qmljs_global.h>
 
 namespace QmlJS {
 
-class Delta
+class QMLJS_EXPORT Delta
 {
 public:
-    QSet<AST::UiObjectMember *> newObjects;
-
-    typedef QHash<AST::UiObjectMember*, QList<QDeclarativeDebugObjectReference > > DebugIdMap;
+    typedef int DebugId;
+    typedef QHash<AST::UiObjectMember*, QList<DebugId> > DebugIdMap;
     DebugIdMap operator()(const QmlJS::Document::Ptr &doc1, const QmlJS::Document::Ptr &doc2, const DebugIdMap &debugIds);
 
+    QSet<AST::UiObjectMember *> newObjects;
 
     QmlJS::Document::Ptr document() const;
     QmlJS::Document::Ptr previousDocument() const;
 
 private:
     void insert(AST::UiObjectMember *member, AST::UiObjectMember *parentMember,
-                const QList<QDeclarativeDebugObjectReference> &debugReferences, const Document::Ptr &doc);
+                const QList<DebugId> &debugReferences, const Document::Ptr &doc);
     void update(AST::UiObjectDefinition* oldObject, const QmlJS::Document::Ptr& oldDoc,
                 AST::UiObjectDefinition* newObject, const QmlJS::Document::Ptr& newDoc,
-                const QList<QDeclarativeDebugObjectReference >& debugReferences);
-    void remove(const QList< QDeclarativeDebugObjectReference > &debugReferences);
+                const QList<DebugId>& debugReferences);
+    void remove(const QList<DebugId> &debugReferences);
 
 protected:
-    virtual void updateScriptBinding(const QDeclarativeDebugObjectReference &objectReference,
+    virtual void updateScriptBinding(DebugId objectReference,
                              AST::UiScriptBinding *scriptBinding,
                              const QString &propertyName,
                              const QString &scriptCode);
-    virtual void updateMethodBody(const QDeclarativeDebugObjectReference &objectReference,
+    virtual void updateMethodBody(DebugId objectReference,
                             AST::UiScriptBinding *scriptBinding,
                             const QString &methodName,
                             const QString &methodBody);
     virtual void resetBindingForObject(int debugId, const QString &propertyName);
     virtual void removeObject(int debugId);
-    virtual void createObject(const QString &qmlText, const QDeclarativeDebugObjectReference &ref,
-                         const QStringList &importList, const QString &filename);
+    virtual void createObject(const QString &qmlText, DebugId ref,
+                              const QStringList &importList, const QString &filename);
 
 private:
     QmlJS::Document::Ptr m_currentDoc;

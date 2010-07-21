@@ -106,7 +106,7 @@ public slots:
     void changeToZoomTool();
     void changeToSelectTool();
     void changeToSelectMarqueeTool();
-    void createQmlObject(const QString &qmlText, const QDeclarativeDebugObjectReference &parent,
+    void createQmlObject(const QString &qmlText, int parentDebugId,
                          const QStringList &imports, const QString &filename = QString());
     void destroyQmlObject(int debugId);
 

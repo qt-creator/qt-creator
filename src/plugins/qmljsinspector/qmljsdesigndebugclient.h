@@ -64,7 +64,7 @@ public:
     void changeToSelectMarqueeTool();
     void changeToZoomTool();
 
-    void createQmlObject(const QString &qmlText, const QDeclarativeDebugObjectReference &parentRef,
+    void createQmlObject(const QString &qmlText, int parentDebugId,
                          const QStringList &imports, const QString &filename);
     void destroyQmlObject(int debugId);
 

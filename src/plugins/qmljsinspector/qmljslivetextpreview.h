@@ -82,11 +82,11 @@ public slots:
     void updateDebugIds(const QDeclarativeDebugObjectReference &rootReference);
 
 private:
-    QList<QDeclarativeDebugObjectReference > objectReferencesForOffset(quint32 offset) const;
+    QList<int> objectReferencesForOffset(quint32 offset) const;
     QVariant castToLiteral(const QString &expression, QmlJS::AST::UiScriptBinding *scriptBinding);
 
 private:
-    QHash<QmlJS::AST::UiObjectMember*, QList<QDeclarativeDebugObjectReference> > m_debugIds;
+    QHash<QmlJS::AST::UiObjectMember*, QList<int> > m_debugIds;
     QHash<QmlJS::Document::Ptr, QSet<QmlJS::AST::UiObjectMember *> > m_createdObjects;
 
     QmlJS::Document::Ptr m_previousDoc;

@@ -28,12 +28,14 @@
 **************************************************************************/
 
 #include "qmljsdelta.h"
-#include "qmljsclientproxy.h"
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 
+
 #include <typeinfo>
 #include <QtCore/QDebug>
+#include <QtCore/QStringList>
+
 
 using namespace QmlJS::AST;
 
@@ -314,7 +316,7 @@ static QHash<QString, UiObjectMember*> extractProperties(UiObjectDefinition *obj
 
 namespace QmlJS {
 
-void Delta::insert(UiObjectMember *member, UiObjectMember *parentMember, const QList<QDeclarativeDebugObjectReference > &debugReferences, const Document::Ptr &doc)
+void Delta::insert(UiObjectMember *member, UiObjectMember *parentMember, const QList<DebugId> &debugReferences, const Document::Ptr &doc)
 {
     if (!member || !parentMember)
         return;
@@ -337,9 +339,9 @@ void Delta::insert(UiObjectMember *member, UiObjectMember *parentMember, const Q
 
         QString filename = doc->fileName() + QLatin1Char('_') + QString::number(doc->editorRevision())
                          + QLatin1Char(':') + QString::number(uiObjectDef->firstSourceLocation().startLine-importList.count());
-        foreach(const QDeclarativeDebugObjectReference &ref, debugReferences) {
-            if (ref.debugId() != -1) {
-                createObject(qmlText, ref, importList, filename);
+        foreach(DebugId debugId, debugReferences) {
+            if (debugId != -1) {
+                createObject(qmlText, debugId, importList, filename);
             }
         }
         newObjects += member;
@@ -349,7 +351,7 @@ void Delta::insert(UiObjectMember *member, UiObjectMember *parentMember, const Q
 
 void Delta::update(UiObjectDefinition* oldObject, const QmlJS::Document::Ptr& oldDoc,
                    UiObjectDefinition* newObject, const QmlJS::Document::Ptr& newDoc,
-                   const QList< QDeclarativeDebugObjectReference >& debugReferences)
+                   const QList<DebugId>& debugReferences)
 {
     Q_ASSERT (oldObject && newObject);
     QSet<QString> presentBinding;
@@ -366,8 +368,8 @@ void Delta::update(UiObjectDefinition* oldObject, const QmlJS::Document::Ptr& ol
             const QString scriptCode = _scriptCode(script, newDoc);
             UiScriptBinding *previousScript = cast<UiScriptBinding *>(oldMember);
             if (!previousScript || _scriptCode(previousScript, oldDoc) != scriptCode) {
-                foreach (const QDeclarativeDebugObjectReference &ref, debugReferences) {
-                    if (ref.debugId() != -1)
+                foreach (DebugId ref, debugReferences) {
+                    if (ref != -1)
                         updateScriptBinding(ref, script, property, scriptCode);
                 }
             }
@@ -377,8 +379,8 @@ void Delta::update(UiObjectDefinition* oldObject, const QmlJS::Document::Ptr& ol
             UiSourceElement *previousSource = cast<UiSourceElement*>(oldMember);
 
             if (!previousSource || _methodCode(previousSource, oldDoc) != methodCode) {
-                foreach (const QDeclarativeDebugObjectReference &ref, debugReferences) {
-                    if (ref.debugId() != -1)
+                foreach (DebugId ref, debugReferences) {
+                    if (ref != -1)
                         updateMethodBody(ref, script, methodName, methodCode);
                 }
             }
@@ -391,20 +393,20 @@ void Delta::update(UiObjectDefinition* oldObject, const QmlJS::Document::Ptr& ol
 
         if (!newProperties.contains(it2.key())) {
             if (cast<UiScriptBinding *>(*it2)) {
-                foreach (const QDeclarativeDebugObjectReference &ref, debugReferences) {
-                    if (ref.debugId() != -1)
-                        resetBindingForObject(ref.debugId(), it2.key());
+                foreach (DebugId ref, debugReferences) {
+                    if (ref != -1)
+                        resetBindingForObject(ref, it2.key());
                 }
             }
         }
     }
 }
 
-void Delta::remove(const QList< QDeclarativeDebugObjectReference >& debugReferences)
+void Delta::remove(const QList<DebugId>& debugReferences)
 {
-    foreach (const QDeclarativeDebugObjectReference &ref, debugReferences) {
-        if (ref.debugId() != -1)
-            removeObject(ref.debugId());
+    foreach (DebugId ref, debugReferences) {
+        if (ref != -1)
+            removeObject(ref);
     }
 }
 
@@ -414,7 +416,7 @@ Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::P
     Q_ASSERT(doc1->qmlProgram());
     Q_ASSERT(doc2->qmlProgram());
 
-    QHash< UiObjectMember*, QList<QDeclarativeDebugObjectReference > > newDebuggIds;
+    Delta::DebugIdMap newDebuggIds;
 
     Map M = Mapping(doc1, doc2);
 
@@ -445,7 +447,7 @@ Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::P
         Q_ASSERT(cast<UiObjectDefinition *>(x));
 
         if (debugIds.contains(x)) {
-            QList< QDeclarativeDebugObjectReference > ids = debugIds[x];
+            QList<DebugId> ids = debugIds[x];
             newDebuggIds[y] = ids;
             update(cast<UiObjectDefinition *>(x), doc1, cast<UiObjectDefinition *>(y), doc2, ids);
         }
@@ -467,7 +469,7 @@ Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::P
             continue;
         if (!M.way1.contains(x)) {
             qDebug () << "Delta::operator():  remove " << label(x, doc1);
-            QList< QDeclarativeDebugObjectReference > ids = debugIds.value(x);
+            QList<DebugId> ids = debugIds.value(x);
             if (!ids.isEmpty())
                 remove(ids);
             continue;
@@ -486,19 +488,16 @@ Document::Ptr Delta::previousDocument() const
     return m_previousDoc;
 }
 
-void Delta::createObject(const QString &, const QDeclarativeDebugObjectReference &,
-                         const QStringList &, const QString&)
+void Delta::createObject(const QString &, DebugId, const QStringList &, const QString&)
 {}
 void Delta::removeObject(int)
 {}
 void Delta::resetBindingForObject(int, const QString &)
 {}
-void Delta::updateMethodBody(const QDeclarativeDebugObjectReference &,
-                             UiScriptBinding *, const QString &, const QString &)
+void Delta::updateMethodBody(DebugId, UiScriptBinding *, const QString &, const QString &)
 {}
 
-void Delta::updateScriptBinding(const QDeclarativeDebugObjectReference &,
-                                UiScriptBinding *, const QString &, const QString &)
+void Delta::updateScriptBinding(DebugId, UiScriptBinding *, const QString &, const QString &)
 {}
 
 } //namespace QmlJs

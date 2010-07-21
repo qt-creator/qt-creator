@@ -30,7 +30,6 @@
 #include "qmljsinspector.h"
 #include "qmljsclientproxy.h"
 #include "qmljsinspectorcontext.h"
-#include "qmljsdelta.h"
 #include "qmljslivetextpreview.h"
 #include "qmljsprivateapi.h"
 
@@ -38,6 +37,7 @@
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsdocument.h>
+#include <qmljs/qmljsdelta.h>
 
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggerconstants.h>

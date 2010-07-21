@@ -31,11 +31,12 @@
 
 #include "qmljsclientproxy.h"
 #include "qmljslivetextpreview.h"
-#include "qmljsdelta.h"
 #include "qmljsprivateapi.h"
 
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljseditor/qmljseditor.h>
+#include <qmljs/qmljsdelta.h>
+#include <qmljs/parser/qmljsast_p.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <coreplugin/icore.h>
@@ -59,6 +60,7 @@ namespace Internal {
 class MapObjectWithDebugReference : public Visitor
 {
     public:
+        typedef QList<int> DebugIdList;
         MapObjectWithDebugReference() : activated(0) {}
         virtual void endVisit(UiObjectDefinition *ast) ;
         virtual void endVisit(UiObjectBinding *ast) ;
@@ -67,7 +69,7 @@ class MapObjectWithDebugReference : public Visitor
 
         QDeclarativeDebugObjectReference root;
         QString filename;
-        QHash<UiObjectMember *, QList<QDeclarativeDebugObjectReference> > result;
+        QHash<UiObjectMember *, DebugIdList> result;
         QSet<QmlJS::AST::UiObjectMember *> lookupObjects;
         Document::Ptr doc;
     private:
@@ -115,12 +117,12 @@ void MapObjectWithDebugReference::processRecursive(const QDeclarativeDebugObject
     if (object.source().columnNumber() == int(loc.startColumn)) {
         QString objectFileName = object.source().url().toLocalFile();
         if (object.source().lineNumber() == int(loc.startLine) && objectFileName == filename) {
-            result[ast] += object;
+            result[ast] += object.debugId();
         } else if (doc && objectFileName.startsWith(filename + QLatin1Char('_') + QString::number(doc->editorRevision()) + QLatin1Char(':'))) {
             bool ok;
             int line = objectFileName.mid(objectFileName.lastIndexOf(':') + 1).toInt(&ok);
             if (ok && int(loc.startLine) == line + object.source().lineNumber() - 1)
-                result[ast] += object;
+                result[ast] += object.debugId();
         }
     }
 
@@ -185,10 +187,10 @@ void QmlJSLiveTextPreview::resetInitialDoc(const QmlJS::Document::Ptr &doc)
 }
 
 
-QList<QDeclarativeDebugObjectReference > QmlJSLiveTextPreview::objectReferencesForOffset(quint32 offset) const
+QList<int> QmlJSLiveTextPreview::objectReferencesForOffset(quint32 offset) const
 {
-    QList<QDeclarativeDebugObjectReference > result;
-    QHashIterator<QmlJS::AST::UiObjectMember*, QList<QDeclarativeDebugObjectReference > > iter(m_debugIds);
+    QList<int> result;
+    QHashIterator<QmlJS::AST::UiObjectMember*, QList<int> > iter(m_debugIds);
     while(iter.hasNext()) {
         iter.next();
         QmlJS::AST::UiObjectMember *member = iter.key();
@@ -217,16 +219,16 @@ void QmlJSLiveTextPreview::changeSelectedElements(QList<int> offsets, const QStr
         }
     }
 
-    QList<QDeclarativeDebugObjectReference> selectedReferences;
+    QList<int> selectedReferences;
     bool containsReference = false;
 
     foreach(int offset, offsets) {
         if (offset >= 0) {
-            QList<QDeclarativeDebugObjectReference> list = objectReferencesForOffset(offset);
+            QList<int> list = objectReferencesForOffset(offset);
 
             if (!containsReference && objectRefUnderCursor.debugId() != -1) {
-                foreach(const QDeclarativeDebugObjectReference &ref, list) {
-                    if (ref.debugId() == objectRefUnderCursor.debugId()) {
+                foreach(int id, list) {
+                    if (id == objectRefUnderCursor.debugId()) {
                         containsReference = true;
                         break;
                     }
@@ -237,17 +239,21 @@ void QmlJSLiveTextPreview::changeSelectedElements(QList<int> offsets, const QStr
     }
 
     if (!containsReference && objectRefUnderCursor.debugId() != -1)
-        selectedReferences << objectRefUnderCursor;
+        selectedReferences << objectRefUnderCursor.debugId();
 
-    if (!selectedReferences.isEmpty())
-        emit selectedItemsChanged(selectedReferences);
+    if (!selectedReferences.isEmpty()) {
+        QList<QDeclarativeDebugObjectReference> refs;
+        foreach(int i, selectedReferences)
+            refs << QDeclarativeDebugObjectReference(i);
+        emit selectedItemsChanged(refs);
+    }
 }
 
-static QList<QDeclarativeDebugObjectReference> findRootObjectRecursive(const QDeclarativeDebugObjectReference &object, const Document::Ptr &doc)
+static QList<int> findRootObjectRecursive(const QDeclarativeDebugObjectReference &object, const Document::Ptr &doc)
 {
-    QList<QDeclarativeDebugObjectReference> result;
+    QList<int> result;
     if (object.className() == doc->componentName())
-        result += object;
+        result += object.debugId();
 
     foreach (const QDeclarativeDebugObjectReference &it, object.children()) {
         result += findRootObjectRecursive(it, doc);
@@ -281,7 +287,7 @@ void QmlJSLiveTextPreview::updateDebugIds(const QDeclarativeDebugObjectReference
     // Map the root nodes of the document.
     if(doc->qmlProgram()->members &&  doc->qmlProgram()->members->member) {
         UiObjectMember* root = doc->qmlProgram()->members->member;
-        QList< QDeclarativeDebugObjectReference > r = findRootObjectRecursive(rootReference, doc);
+        QList<int> r = findRootObjectRecursive(rootReference, doc);
         if (!r.isEmpty())
             m_debugIds[root] += r;
     }
@@ -406,21 +412,21 @@ private:
     }
 
 protected:
-    virtual void updateMethodBody(const QDeclarativeDebugObjectReference& objectReference,
-                                  UiScriptBinding* scriptBinding, const QString& methodName, const QString& methodBody)
+    virtual void updateMethodBody(DebugId debugId, UiScriptBinding* scriptBinding,
+                                  const QString& methodName, const QString& methodBody)
     {
         Q_UNUSED(scriptBinding);
-        ClientProxy::instance()->setMethodBodyForObject(objectReference.debugId(), methodName, methodBody);
+        ClientProxy::instance()->setMethodBodyForObject(debugId, methodName, methodBody);
     }
 
-    virtual void updateScriptBinding(const QDeclarativeDebugObjectReference& objectReference,
-                                     UiScriptBinding* scriptBinding, const QString& propertyName, const QString& scriptCode)
+virtual void updateScriptBinding(DebugId debugId, UiScriptBinding* scriptBinding,
+                                 const QString& propertyName, const QString& scriptCode)
     {
         QVariant expr = scriptCode;
         const bool isLiteral = isLiteralValue(scriptBinding);
         if (isLiteral)
             expr = castToLiteral(scriptCode, scriptBinding);
-        ClientProxy::instance()->setBindingForObject(objectReference.debugId(), propertyName, expr, isLiteral);
+        ClientProxy::instance()->setBindingForObject(debugId, propertyName, expr, isLiteral);
     }
 
     virtual void resetBindingForObject(int debugId, const QString &propertyName)
@@ -433,7 +439,7 @@ protected:
         ClientProxy::instance()->destroyQmlObject(debugId);
     }
 
-    virtual void createObject(const QString& qmlText, const QDeclarativeDebugObjectReference& ref,
+    virtual void createObject(const QString& qmlText, DebugId ref,
                          const QStringList& importList, const QString& filename)
     {
         referenceRefreshRequired = true;

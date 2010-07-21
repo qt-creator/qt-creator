@@ -445,11 +445,11 @@ void ClientProxy::changeToSelectMarqueeTool()
         m_designClient->changeToSelectMarqueeTool();
 }
 
-void ClientProxy::createQmlObject(const QString &qmlText, const QDeclarativeDebugObjectReference &parentRef,
+void ClientProxy::createQmlObject(const QString &qmlText, int parentDebugId,
                                   const QStringList &imports, const QString &filename)
 {
     if (isDesignClientConnected())
-        m_designClient->createQmlObject(qmlText, parentRef, imports, filename);
+        m_designClient->createQmlObject(qmlText, parentDebugId, imports, filename);
 }
 
 void QmlJSInspector::Internal::ClientProxy::destroyQmlObject(int debugId)

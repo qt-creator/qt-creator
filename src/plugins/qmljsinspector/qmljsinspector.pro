@@ -17,7 +17,6 @@ qmljsinspectorcontext.h \
 qmljsinspectorplugin.h \
 qmljsclientproxy.h \
 qmljsinspector.h \
-qmljsdelta.h \
 qmlinspectortoolbar.h \
 qmljslivetextpreview.h \
 qmljsdesigndebugclient.h
@@ -28,7 +27,6 @@ qmljsinspectorcontext.cpp \
 qmljsinspectorplugin.cpp \
 qmljsclientproxy.cpp \
 qmljsinspector.cpp \
-qmljsdelta.cpp \
 qmlinspectortoolbar.cpp \
 qmljslivetextpreview.cpp \
 qmljsdesigndebugclient.cpp
