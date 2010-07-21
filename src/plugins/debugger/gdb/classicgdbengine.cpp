@@ -751,7 +751,12 @@ void GdbEngine::handleDebuggingHelperVersionCheckClassic(const GdbResponse &resp
         QString value = _(response.data.findChild("value").data());
         QString debuggeeQtVersion = value.section(QLatin1Char('"'), 1, 1);
         QString dumperQtVersion = m_dumperHelper.qtVersionString();
-        if (dumperQtVersion != debuggeeQtVersion) {
+        if (debuggeeQtVersion.isEmpty()) {
+            showMessage(_("DUMPER VERSION CHECK SKIPPED, NO qVersion() OUTPUT IN")
+                + response.toString());
+        } else if (dumperQtVersion.isEmpty()) {
+            showMessage(_("DUMPER VERSION CHECK SKIPPED, NO VERSION STRING"));
+        } else if (dumperQtVersion != debuggeeQtVersion) {
             showMessageBox(QMessageBox::Warning,
                 tr("Debugging helpers: Qt version mismatch"),
                 tr("The Qt version used to build the debugging helpers (%1) "
