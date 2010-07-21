@@ -31,14 +31,10 @@
 #define QMLJSREWRITER_H
 
 #include <qmljs/qmljs_global.h>
-
 #include <qmljs/parser/qmljsastfwd_p.h>
+#include <utils/changeset.h>
 
 #include <QtCore/QStringList>
-
-namespace Utils {
-class ChangeSet;
-}
 
 namespace QmlJS {
 
@@ -51,17 +47,19 @@ public:
         ArrayBinding
     };
 
+    typedef Utils::ChangeSet::Range Range;
+
 public:
     Rewriter(const QString &originalText,
              Utils::ChangeSet *changeSet,
              const QStringList &propertyOrder);
 
-    void addBinding(AST::UiObjectInitializer *ast,
+    Range addBinding(AST::UiObjectInitializer *ast,
                     const QString &propertyName,
                     const QString &propertyValue,
                     BindingType bindingType);
 
-    void addBinding(AST::UiObjectInitializer *ast,
+    Range addBinding(AST::UiObjectInitializer *ast,
                     const QString &propertyName,
                     const QString &propertyValue,
                     BindingType bindingType,
@@ -76,8 +74,8 @@ public:
 
     void appendToArrayBinding(AST::UiArrayBinding *arrayBinding,
                               const QString &content);
-    void addObject(AST::UiObjectInitializer *ast, const QString &content);
-    void addObject(AST::UiObjectInitializer *ast, const QString &content, AST::UiObjectMemberList *insertAfter);
+    Range addObject(AST::UiObjectInitializer *ast, const QString &content);
+    Range addObject(AST::UiObjectInitializer *ast, const QString &content, AST::UiObjectMemberList *insertAfter);
     void removeObjectMember(AST::UiObjectMember *member, AST::UiObjectMember *parent);
 
     static AST::UiObjectMemberList *searchMemberToInsertAfter(AST::UiObjectMemberList *members, const QStringList &propertyOrder);
