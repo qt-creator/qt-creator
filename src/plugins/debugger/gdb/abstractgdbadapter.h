@@ -92,8 +92,6 @@ protected:
         { return m_engine->startParameters(); }
     void showMessage(const QString &msg, int channel = LogDebug, int timeout = 1)
         { m_engine->showMessage(msg, channel, timeout); }
-    void showMessageBox(int icon, const QString &title, const QString &text) const
-        { m_engine->showMessageBox(icon, title, text); }
 
     GdbEngine * const m_engine;
 };

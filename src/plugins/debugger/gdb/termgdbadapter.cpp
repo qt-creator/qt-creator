@@ -167,7 +167,7 @@ void TermGdbAdapter::interruptInferior()
 
 void TermGdbAdapter::stubMessage(const QString &msg, bool)
 {
-    showMessageBox(QMessageBox::Critical, tr("Debugger Error"), msg);
+    DebuggerEngine::showMessageBox(QMessageBox::Critical, tr("Debugger Error"), msg);
 }
 
 void TermGdbAdapter::stubExited()

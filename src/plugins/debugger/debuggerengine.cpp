@@ -1422,7 +1422,7 @@ qint64 DebuggerEngine::inferiorPid() const
     return d->m_inferiorPid;
 }
 
-DebuggerPlugin *DebuggerEngine::plugin() const
+DebuggerPlugin *DebuggerEngine::plugin()
 {
     return DebuggerPlugin::instance();
 }
@@ -1473,6 +1473,12 @@ void DebuggerEngine::progressPing()
 {
     int progress = d->m_progress.progressValue();
     d->m_progress.setProgressValue(qMin(70, progress + 1));
+}
+
+QMessageBox *DebuggerEngine::showMessageBox(int icon, const QString &title,
+    const QString &text, int buttons)
+{
+    return plugin()->showMessageBox(icon, title, text, buttons);
 }
 
 } // namespace Internal

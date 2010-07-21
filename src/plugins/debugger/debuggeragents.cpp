@@ -126,7 +126,7 @@ void MemoryViewAgent::createBinEditor(quint64 addr)
         QMetaObject::invokeMethod(editor->widget(), "setLazyData",
             Q_ARG(quint64, addr), Q_ARG(int, DataRange), Q_ARG(int, BinBlockSize));
     } else {
-        DebuggerPlugin::instance()->showMessageBox(QMessageBox::Warning,
+        DebuggerEngine::showMessageBox(QMessageBox::Warning,
             tr("No memory viewer available"),
             tr("The memory contents cannot be shown as no viewer plugin "
                "for binary data has been loaded."));

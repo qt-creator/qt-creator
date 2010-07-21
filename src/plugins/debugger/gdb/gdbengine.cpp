@@ -4232,12 +4232,6 @@ void GdbEngine::handleAdapterCrashed(const QString &msg)
         showMessageBox(QMessageBox::Critical, tr("Adapter crashed"), msg);
 }
 
-QMessageBox *GdbEngine::showMessageBox(int icon, const QString &title,
-    const QString &text, int buttons)
-{
-    return plugin()->showMessageBox(icon, title, text, buttons);
-}
-
 void GdbEngine::setUseDebuggingHelpers(const QVariant &on)
 {
     //qDebug() << "SWITCHING ON/OFF DUMPER DEBUGGING:" << on;

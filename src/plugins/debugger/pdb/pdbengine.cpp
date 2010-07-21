@@ -560,7 +560,7 @@ void PdbEngine::handlePdbError(QProcess::ProcessError error)
     default:
         //setState(EngineShutdownRequested, true);
         m_pdbProc.kill();
-        plugin()->showMessageBox(QMessageBox::Critical, tr("Pdb I/O Error"),
+        showMessageBox(QMessageBox::Critical, tr("Pdb I/O Error"),
                        errorMessage(error));
         break;
     }

@@ -43,6 +43,7 @@
 QT_BEGIN_NAMESPACE
 class QDebug;
 class QPoint;
+class QMessageBox;
 QT_END_NAMESPACE
 
 namespace TextEditor {
@@ -161,6 +162,10 @@ public:
     virtual void assignValueInDebugger(const QString &expr, const QString &value)
         { Q_UNUSED(expr); Q_UNUSED(value); }
 
+    // Convenience
+    static QMessageBox *showMessageBox
+        (int icon, const QString &title, const QString &text, int buttons = 0);
+
 protected:
     virtual void detachDebugger() {}
     virtual void executeStep() {}
@@ -188,7 +193,7 @@ protected:
     virtual void frameDown();
 
 public:
-    DebuggerPlugin *plugin() const;
+    static DebuggerPlugin *plugin();
     const DebuggerStartParameters &startParameters() const;
     DebuggerStartParameters &startParameters();
 

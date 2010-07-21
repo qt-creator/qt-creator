@@ -89,9 +89,6 @@ public:
     static void startDebugger(ProjectExplorer::RunControl *runControl);
     static void displayDebugger(ProjectExplorer::RunControl *runControl);
 
-    QMessageBox *showMessageBox(int icon, const QString &title,
-        const QString &text, int buttons = 0);
-
     const CPlusPlus::Snapshot &cppCodeModelSnapshot() const;
 
     QIcon locationMarkIcon() const;
@@ -118,6 +115,9 @@ signals:
     void stateChanged(int);
 
 private:
+    QMessageBox *showMessageBox(int icon, const QString &title,
+        const QString &text, int buttons = 0);
+
     friend class Internal::DebuggerEngine;
     friend class Internal::DebuggerListener;
 
