@@ -33,8 +33,9 @@
 #include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
-class QPlainTextEdit;
+class QCursor;
 class QLineEdit;
+class QPlainTextEdit;
 QT_END_NAMESPACE
 
 namespace Debugger {

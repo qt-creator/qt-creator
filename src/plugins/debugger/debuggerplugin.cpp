@@ -1269,7 +1269,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     localsAndWatchers->addWidget(m_localsWindow);
     localsAndWatchers->addWidget(m_returnWindow);
     localsAndWatchers->addWidget(m_watchersWindow);
-    //localsAndWatchers->addWidget(m_tooltipWindow);
     localsAndWatchers->setStretchFactor(0, 3);
     localsAndWatchers->setStretchFactor(1, 1);
     localsAndWatchers->setStretchFactor(2, 1);
@@ -2028,33 +2027,19 @@ void DebuggerPluginPrivate::setBusyCursor(bool busy)
     //STATE_DEBUG("BUSY FROM: " << m_busy << " TO: " << busy);
     if (busy == m_busy)
         return;
-
     m_busy = busy;
-
     QCursor cursor(busy ? Qt::BusyCursor : Qt::ArrowCursor);
     m_breakWindow->setCursor(cursor);
-    m_returnWindow->setCursor(cursor);
     m_localsWindow->setCursor(cursor);
     m_modulesWindow->setCursor(cursor);
     m_outputWindow->setCursor(cursor);
     m_registerWindow->setCursor(cursor);
-    m_stackWindow->setCursor(cursor);
-    m_sourceFilesWindow->setCursor(cursor);
-    m_threadsWindow->setCursor(cursor);
-    //m_tooltipWindow->setCursor(cursor);
-    m_watchersWindow->setCursor(cursor);
-
-    m_breakWindow->setCursor(cursor);
     m_returnWindow->setCursor(cursor);
-    m_localsWindow->setCursor(cursor);
-    m_modulesWindow->setCursor(cursor);
-    m_outputWindow->setCursor(cursor);
-    m_registerWindow->setCursor(cursor);
-    m_stackWindow->setCursor(cursor);
     m_sourceFilesWindow->setCursor(cursor);
+    m_stackWindow->setCursor(cursor);
     m_threadsWindow->setCursor(cursor);
-    //m_tooltipWindow->setCursor(cursor);
     m_watchersWindow->setCursor(cursor);
+    m_snapshotWindow->setCursor(cursor);
 }
 
 void DebuggerPluginPrivate::setSimpleDockWidgetArrangement(const QString &activeLanguage)
@@ -2260,6 +2245,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 
     const bool notbusy = m_state == InferiorStopOk
         || m_state == DebuggerNotReady
+        || m_state == DebuggerFinished
         || m_state == InferiorUnrunnable;
     setBusyCursor(!notbusy);
 

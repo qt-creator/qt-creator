@@ -446,8 +446,8 @@ void DebuggerOutputWindow::clearContents()
 
 void DebuggerOutputWindow::setCursor(const QCursor &cursor)
 {
-    m_combinedText->setCursor(cursor);
-    m_inputText->setCursor(cursor);
+    m_combinedText->viewport()->setCursor(cursor);
+    m_inputText->viewport()->setCursor(cursor);
     QWidget::setCursor(cursor);
 }
 
