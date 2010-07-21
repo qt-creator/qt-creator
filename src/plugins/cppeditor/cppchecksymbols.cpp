@@ -690,7 +690,6 @@ void CheckSymbols::flush()
     if (_usages.isEmpty())
         return;
 
-    FriendlyThread::msleep(10); // release some cpu
     reportResults(_usages);
     _usages.clear();
 }
