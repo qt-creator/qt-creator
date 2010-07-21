@@ -58,7 +58,8 @@ static void addNames(const Name *name, QList<const Name *> *names, bool addAllNa
     else if (const QualifiedNameId *q = name->asQualifiedNameId()) {
         addNames(q->base(), names);
         addNames(q->name(), names);
-    } else if (addAllNames || name->isNameId() || name->isTemplateNameId()) {
+    } else if (addAllNames || name->isNameId() || name->isTemplateNameId()
+               || name->asDestructorNameId()) {
         names->append(name);
     }
 }
