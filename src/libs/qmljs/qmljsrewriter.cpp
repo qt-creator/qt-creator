@@ -490,6 +490,23 @@ void Rewriter::includeLeadingEmptyLine(const QString &source, int &start)
     start = prevBlock.position();
 }
 
+void Rewriter::includeEmptyGroupedProperty(UiObjectDefinition *groupedProperty, UiObjectMember *memberToBeRemoved, int &start, int &end)
+{
+    if (groupedProperty->qualifiedTypeNameId
+            && groupedProperty->qualifiedTypeNameId->name->asString().at(0).isLower()) {
+        // grouped property
+        UiObjectMemberList *memberIter = groupedProperty->initializer->members;
+        while (memberIter) {
+            if (memberIter->member != memberToBeRemoved) {
+                return;
+            }
+            memberIter = memberIter->next;
+        }
+        start = groupedProperty->firstSourceLocation().begin();
+        end = groupedProperty->lastSourceLocation().end();
+    }
+}
+
 #if 0
 UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(UiObjectMemberList *members, const QStringList &propertyOrder)
 {
@@ -610,6 +627,9 @@ void Rewriter::removeObjectMember(UiObjectMember *member, UiObjectMember *parent
     if (UiArrayBinding *parentArray = cast<UiArrayBinding *>(parent)) {
         extendToLeadingOrTrailingComma(parentArray, member, start, end);
     } else {
+        if (UiObjectDefinition *parentObjectDefinition = cast<UiObjectDefinition *>(parent)) {
+            includeEmptyGroupedProperty(parentObjectDefinition, member, start, end);
+        }
         includeSurroundingWhitespace(m_originalText, start, end);
     }
 

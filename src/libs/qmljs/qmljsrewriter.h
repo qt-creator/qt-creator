@@ -78,7 +78,6 @@ public:
     Range addObject(AST::UiObjectInitializer *ast, const QString &content);
     Range addObject(AST::UiObjectInitializer *ast, const QString &content, AST::UiObjectMemberList *insertAfter);
 
-
     void removeObjectMember(AST::UiObjectMember *member, AST::UiObjectMember *parent);
 
     static AST::UiObjectMemberList *searchMemberToInsertAfter(AST::UiObjectMemberList *members, const QStringList &propertyOrder);
@@ -87,6 +86,7 @@ public:
 
     static bool includeSurroundingWhitespace(const QString &source, int &start, int &end);
     static void includeLeadingEmptyLine(const QString &source, int &start);
+    static void includeEmptyGroupedProperty(AST::UiObjectDefinition *groupedProperty, AST::UiObjectMember *memberToBeRemoved, int &start, int &end);
 
 private:
     void replaceMemberValue(AST::UiObjectMember *propertyMember,
