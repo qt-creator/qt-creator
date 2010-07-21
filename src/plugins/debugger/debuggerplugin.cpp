@@ -2672,11 +2672,6 @@ void DebuggerPlugin::exitDebugger()
     d->exitDebugger();
 }
 
-int DebuggerPlugin::state() const
-{
-    return d->state();
-}
-
 void DebuggerPlugin::createNewDock(QWidget *widget)
 {
     QDockWidget *dockWidget =
@@ -2717,7 +2712,7 @@ bool DebuggerPlugin::coreAboutToClose()
     // FIXME: Iterate over all running debuggers.
     // Ask to terminate the session.
     bool cleanTermination = false;
-    switch (state()) {
+    switch (d->state()) {
     case DebuggerNotReady:
     case DebuggerFinished:
     case InferiorUnrunnable:
@@ -2753,11 +2748,12 @@ bool DebuggerPlugin::coreAboutToClose()
            "Terminating the session in the current"
            " state (%1) can leave the target in an inconsistent state."
            " Would you still like to terminate it?")
-        .arg(_(DebuggerEngine::stateName(state())));
+        .arg(_(DebuggerEngine::stateName(d->state())));
 
     const QString title
             = QCoreApplication::translate("Debugger::Internal::DebuggerListener",
-                                          "Close Debugging Session");                                                          QMessageBox::StandardButton answer =
+                                          "Close Debugging Session");
+    QMessageBox::StandardButton answer =
         QMessageBox::question(DebuggerUISwitcher::instance()->mainWindow(),
             title, question,
             QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);

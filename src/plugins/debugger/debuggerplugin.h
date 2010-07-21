@@ -95,7 +95,6 @@ public:
     const CPlusPlus::Snapshot &cppCodeModelSnapshot() const;
 
     QIcon locationMarkIcon() const;
-    int state() const;  // Last reported state of last active engine.
     bool isReverseDebugging() const;
     void createNewDock(QWidget *widget);
     void runControlStarted(DebuggerRunControl *runControl);
