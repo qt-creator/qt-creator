@@ -78,7 +78,7 @@ void CoreGdbAdapter::startAdapter()
 
 #ifndef EXE_FROM_CORE
     if (m_executable.isEmpty()) {
-        showMessageBox(QMessageBox::Warning, tr("Error Loading Symbols"),
+        DebuggerEngine::showMessageBox(QMessageBox::Warning, tr("Error Loading Symbols"),
                        tr("No executable to load symbols from specified."));
     }
     m_engine->handleAdapterStarted();
