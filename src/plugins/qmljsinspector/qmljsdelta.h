@@ -37,18 +37,14 @@
 #include <qmljs/parser/qmljsastfwd_p.h>
 #include <qmljs/parser/qmljsast_p.h>
 
-using namespace QmlJS;
-using namespace QmlJS::AST;
-
-namespace QmlJSInspector {
-namespace Internal {
+namespace QmlJS {
 
 class Delta
 {
 public:
-    QSet<UiObjectMember *> newObjects;
+    QSet<AST::UiObjectMember *> newObjects;
 
-    typedef QHash< UiObjectMember*, QList<QDeclarativeDebugObjectReference > > DebugIdMap;
+    typedef QHash<AST::UiObjectMember*, QList<QDeclarativeDebugObjectReference > > DebugIdMap;
     DebugIdMap operator()(const QmlJS::Document::Ptr &doc1, const QmlJS::Document::Ptr &doc2, const DebugIdMap &debugIds);
 
 
@@ -56,20 +52,20 @@ public:
     QmlJS::Document::Ptr previousDocument() const;
 
 private:
-    void insert(UiObjectMember *member, UiObjectMember *parentMember,
+    void insert(AST::UiObjectMember *member, AST::UiObjectMember *parentMember,
                 const QList<QDeclarativeDebugObjectReference> &debugReferences, const Document::Ptr &doc);
-    void update(UiObjectDefinition* oldObject, const QmlJS::Document::Ptr& oldDoc,
-                UiObjectDefinition* newObject, const QmlJS::Document::Ptr& newDoc,
+    void update(AST::UiObjectDefinition* oldObject, const QmlJS::Document::Ptr& oldDoc,
+                AST::UiObjectDefinition* newObject, const QmlJS::Document::Ptr& newDoc,
                 const QList<QDeclarativeDebugObjectReference >& debugReferences);
     void remove(const QList< QDeclarativeDebugObjectReference > &debugReferences);
 
 protected:
     virtual void updateScriptBinding(const QDeclarativeDebugObjectReference &objectReference,
-                             QmlJS::AST::UiScriptBinding *scriptBinding,
+                             AST::UiScriptBinding *scriptBinding,
                              const QString &propertyName,
                              const QString &scriptCode);
     virtual void updateMethodBody(const QDeclarativeDebugObjectReference &objectReference,
-                            UiScriptBinding *scriptBinding,
+                            AST::UiScriptBinding *scriptBinding,
                             const QString &methodName,
                             const QString &methodBody);
     virtual void resetBindingForObject(int debugId, const QString &propertyName);
@@ -82,8 +78,7 @@ private:
     QmlJS::Document::Ptr m_previousDoc;
 };
 
-} // namespace Internal
-} // namespace QmlJSInspector
+} // namespace QmlJS
 
 #endif // QMLJSDELTA_H
 

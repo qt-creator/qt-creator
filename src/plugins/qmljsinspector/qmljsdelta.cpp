@@ -35,11 +35,10 @@
 #include <typeinfo>
 #include <QtCore/QDebug>
 
-using namespace QmlJS;
 using namespace QmlJS::AST;
-using namespace QmlJSInspector::Internal;
 
 namespace {
+using namespace QmlJS;
 
 /*!
     Build a hash of the parents
@@ -313,6 +312,8 @@ static QHash<QString, UiObjectMember*> extractProperties(UiObjectDefinition *obj
 
 } //end namespace
 
+namespace QmlJS {
+
 void Delta::insert(UiObjectMember *member, UiObjectMember *parentMember, const QList<QDeclarativeDebugObjectReference > &debugReferences, const Document::Ptr &doc)
 {
     if (!member || !parentMember)
@@ -485,18 +486,20 @@ Document::Ptr Delta::previousDocument() const
     return m_previousDoc;
 }
 
-void QmlJSInspector::Internal::Delta::createObject(const QString &, const QDeclarativeDebugObjectReference &,
-                                                   const QStringList &, const QString&)
+void Delta::createObject(const QString &, const QDeclarativeDebugObjectReference &,
+                         const QStringList &, const QString&)
 {}
-void QmlJSInspector::Internal::Delta::removeObject(int)
+void Delta::removeObject(int)
 {}
-void QmlJSInspector::Internal::Delta::resetBindingForObject(int, const QString &)
+void Delta::resetBindingForObject(int, const QString &)
 {}
-void QmlJSInspector::Internal::Delta::updateMethodBody(const QDeclarativeDebugObjectReference &,
-                                                       UiScriptBinding *, const QString &, const QString &)
+void Delta::updateMethodBody(const QDeclarativeDebugObjectReference &,
+                             UiScriptBinding *, const QString &, const QString &)
 {}
 
-void QmlJSInspector::Internal::Delta::updateScriptBinding(const QDeclarativeDebugObjectReference &,
-                                                          UiScriptBinding *, const QString &, const QString &)
+void Delta::updateScriptBinding(const QDeclarativeDebugObjectReference &,
+                                UiScriptBinding *, const QString &, const QString &)
 {}
+
+} //namespace QmlJs
 

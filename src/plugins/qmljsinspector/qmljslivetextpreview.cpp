@@ -47,6 +47,7 @@
 
 #include <QDebug>
 
+using namespace QmlJS;
 using namespace QmlJS::AST;
 
 namespace QmlJSInspector {
