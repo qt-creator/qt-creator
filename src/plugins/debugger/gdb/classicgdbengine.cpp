@@ -695,16 +695,15 @@ bool GdbEngine::checkDebuggingHelpersClassic()
     if (!qtDumperLibraryEnabled())
         return false;
     const QString lib = qtDumperLibraryName();
-    const QFileInfo fi(lib);
-    if (!fi.exists()) {
-        const QStringList &locations = qtDumperLibraryLocations();
-        const QString loc = locations.join(QLatin1String(", "));
-        const QString msg = tr("The debugging helper library was not found at %1.").arg(loc);
-        showMessage(msg);
-        showQtDumperLibraryWarning(msg);
-        return false;
-    }
-    return true;
+    if (QFileInfo(lib).exists())
+        return true;
+    const QStringList &locations = qtDumperLibraryLocations();
+    const QString loc = locations.join(QLatin1String(", "));
+    const QString msg = tr("The debugging helper library was not found at %1.")
+            .arg(loc);
+    showMessage(msg);
+    showQtDumperLibraryWarning(msg); // This might build the library.
+    return QFileInfo(lib).exists();
 }
 
 void GdbEngine::handleQueryDebuggingHelperClassic(const GdbResponse &response)

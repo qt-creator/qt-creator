@@ -803,8 +803,9 @@ void QtDumperHelper::clear()
 QString QtDumperHelper::msgDumperOutdated(double requiredVersion, double currentVersion)
 {
     return QCoreApplication::translate("QtDumperHelper",
-                                       "Found an outdated version of the debugging helper library (%1); version %2 is required.").
-                                       arg(currentVersion).arg(requiredVersion);
+       "Found an outdated version of the debugging helper library (%1); "
+       "version %2 is required.").
+       arg(currentVersion).arg(requiredVersion);
 }
 
 static inline void formatQtVersion(int v, QTextStream &str)
@@ -840,9 +841,9 @@ QString QtDumperHelper::toString(bool debug) const
     }
     const QString nameSpace = m_qtNamespace.isEmpty() ? QCoreApplication::translate("QtDumperHelper", "<none>") : m_qtNamespace;
     return QCoreApplication::translate("QtDumperHelper",
-                                       "%n known types, Qt version: %1, Qt namespace: %2 Dumper version: %3",
-                                       0, QCoreApplication::CodecForTr,
-                                       m_nameTypeMap.size()).arg(qtVersionString(), nameSpace).arg(m_dumperVersion);
+       "%n known types, Qt version: %1, Qt namespace: %2 Dumper version: %3",
+       0, QCoreApplication::CodecForTr,
+       m_nameTypeMap.size()).arg(qtVersionString(), nameSpace).arg(m_dumperVersion);
 }
 
 QtDumperHelper::Type QtDumperHelper::simpleType(const QString &simpleType) const

@@ -145,6 +145,10 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
     sp.useTerminal = rc->runMode() == LocalApplicationRunConfiguration::Console;
     sp.dumperLibrary = rc->dumperLibrary();
     sp.dumperLibraryLocations = rc->dumperLibraryLocations();
+    // FIXME: If it's not yet build this will be empty and not filled
+    // when rebuild as the runConfiguration is not stored and therefore
+    // cannot be used to retrieve the dumper location.
+    //qDebug() << "DUMPER: " << sp.dumperLibrary << sp.dumperLibraryLocations;
     sp.displayName = rc->displayName();
 
     // Find qtInstallPath.
@@ -171,7 +175,8 @@ RunControl *DebuggerRunControlFactory::create
     return create(sp, runConfiguration);
 }
 
-DebuggerRunControl *DebuggerRunControlFactory::create(const DebuggerStartParameters &sp,
+DebuggerRunControl *DebuggerRunControlFactory::create(
+    const DebuggerStartParameters &sp,
     RunConfiguration *runConfiguration)
 {
     DebuggerRunControl *runControl =

@@ -236,7 +236,7 @@ public:
     bool qtDumperLibraryEnabled() const;
     QString qtDumperLibraryName() const;
     QStringList qtDumperLibraryLocations() const;
-    void showQtDumperLibraryWarning(const QString &details = QString());
+    void showQtDumperLibraryWarning(const QString &details);
 
     static const char *stateName(int s);
 
