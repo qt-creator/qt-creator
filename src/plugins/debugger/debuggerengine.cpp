@@ -48,6 +48,8 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/progressmanager/futureprogress.h>
 
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/environment.h>
@@ -68,6 +70,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QTimer>
+#include <QtCore/QFutureInterface>
 
 #include <QtGui/QAbstractItemView>
 #include <QtGui/QStandardItemModel>
@@ -230,7 +233,14 @@ public:
         m_threadsHandler(engine),
         m_watchHandler(engine),
         m_disassemblerViewAgent(engine)
-    {}
+    {
+        m_progress.setProgressRange(0, 100);
+        Core::FutureProgress *fp = Core::ICore::instance()->progressManager()
+            ->addTask(m_progress.future(), tr("Launching"), _("Debugger.Launcher"));
+        fp->setKeepOnFinish(false);
+    }
+
+    ~DebuggerEnginePrivate() {}
 
 public slots:
     void breakpointSetRemoveMarginActionTriggered();
@@ -304,6 +314,7 @@ public:
     ThreadsHandler m_threadsHandler;
     WatchHandler m_watchHandler;
     DisassemblerViewAgent m_disassemblerViewAgent;
+    QFutureInterface<void> m_progress;
 };
 
 void DebuggerEnginePrivate::breakpointSetRemoveMarginActionTriggered()
@@ -675,6 +686,7 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
 
 void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
 {
+    d->m_progress.reportStarted();
     QTC_ASSERT(runControl, notifyEngineSetupFailed(); return);
     QTC_ASSERT(!d->m_runControl, notifyEngineSetupFailed(); return);
 
@@ -704,6 +716,7 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
          qDebug() << state());
     setState(EngineSetupRequested);
 
+    d->m_progress.setProgressValue(20);
     setupEngine();
 }
 
@@ -876,6 +889,10 @@ void DebuggerEngine::addToWatchWindow()
 void DebuggerEngine::handleStartFailed()
 {
     d->m_runControl = 0;
+
+    d->m_progress.setProgressValue(90);
+    d->m_progress.reportCanceled();
+    d->m_progress.reportFinished();
 }
 
 // Called from RunControl.
@@ -891,6 +908,9 @@ void DebuggerEngine::handleFinished()
     QTC_ASSERT(sessionTemplate != this, /**/);
     breakHandler()->storeToTemplate(sessionTemplate->breakHandler());
     watchHandler()->storeToTemplate(sessionTemplate->watchHandler());
+
+    d->m_progress.setProgressValue(100);
+    d->m_progress.reportFinished();
 }
 
 const DebuggerStartParameters &DebuggerEngine::startParameters() const
@@ -1068,17 +1088,21 @@ void DebuggerEngine::notifyEngineSetupOk()
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     setState(EngineSetupOk);
     QTC_ASSERT(d->m_runControl, /**/);
-    if (d->m_runControl)
+    if (d->m_runControl) {
+        d->m_progress.setProgressValue(100);
+        d->m_progress.reportFinished();
         d->m_runControl->startSuccessful();
+    }
     showMessage(_("QUEUE: SETUP INFERIOR"));
     QTimer::singleShot(0, d, SLOT(doSetupInferior()));
 }
 
 void DebuggerEnginePrivate::doSetupInferior()
 {
-    QTC_ASSERT(state() == EngineSetupOk, qDebug() << state());
-    m_engine->setState(InferiorSetupRequested);
     m_engine->showMessage(_("CALL: SETUP INFERIOR"));
+    QTC_ASSERT(state() == EngineSetupOk, qDebug() << state());
+    m_progress.setProgressValue(25);
+    m_engine->setState(InferiorSetupRequested);
     m_engine->setupInferior();
 }
 
@@ -1101,6 +1125,7 @@ void DebuggerEnginePrivate::doRunEngine()
 {
     m_engine->showMessage(_("CALL: RUN ENGINE"));
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
+    m_progress.setProgressValue(30);
     m_engine->runEngine();
 }
 
@@ -1436,6 +1461,12 @@ void DebuggerEngine::quitDebugger()
 void DebuggerEngine::requestInterruptInferior()
 {
     d->doInterruptInferior();
+}
+
+void DebuggerEngine::progressPing()
+{
+    int progress = d->m_progress.progressValue();
+    d->m_progress.setProgressValue(qMin(70, progress + 1));
 }
 
 } // namespace Internal

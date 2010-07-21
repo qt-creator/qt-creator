@@ -38,7 +38,6 @@
 #include "watchutils.h"
 
 #include <QtCore/QByteArray>
-#include <QtCore/QFutureInterface>
 #include <QtCore/QHash>
 #include <QtCore/QMap>
 #include <QtCore/QMultiMap>
@@ -336,7 +335,6 @@ private: ////////// Inferior Management //////////
     void handleInfoProc(const GdbResponse &response);
 
     QByteArray m_entryPoint;
-    QFutureInterface<void> *m_progress;
 
 private: ////////// View & Data Stuff //////////
 

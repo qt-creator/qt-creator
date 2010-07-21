@@ -72,8 +72,6 @@
 #include <texteditor/itexteditor.h>
 #include <projectexplorer/toolchain.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/progressmanager/progressmanager.h>
-#include <coreplugin/progressmanager/futureprogress.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
@@ -179,8 +177,6 @@ static QByteArray parsePlainConsoleStream(const GdbResponse &response)
 GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters)
   : DebuggerEngine(startParameters)
 {
-    m_progress = 0;
-
     m_commandTimer = new QTimer(this);
     m_commandTimer->setSingleShot(true);
     connect(m_commandTimer, SIGNAL(timeout()), SLOT(commandTimeout()));
@@ -260,8 +256,6 @@ void GdbEngine::initializeVariables()
 #ifdef Q_OS_LINUX
     m_entryPoint.clear();
 #endif
-    delete m_progress;
-    m_progress = 0;
 }
 
 QString GdbEngine::errorMessage(QProcess::ProcessError error)
@@ -400,14 +394,14 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 QByteArray id = result.findChild("id").data();
                 if (!id.isEmpty())
                     showStatusMessage(tr("Library %1 loaded").arg(_(id)), 1000);
-                int progress = m_progress->progressValue();
-                m_progress->setProgressValue(qMin(70, progress + 1));
+                progressPing();
                 invalidateSourcesList();
             } else if (asyncClass == "library-unloaded") {
                 // Archer has 'id="/usr/lib/libdrm.so.2",
                 // target-name="/usr/lib/libdrm.so.2",
                 // host-name="/usr/lib/libdrm.so.2"
                 QByteArray id = result.findChild("id").data();
+                progressPing();
                 showStatusMessage(tr("Library %1 unloaded").arg(_(id)), 1000);
                 invalidateSourcesList();
             } else if (asyncClass == "thread-group-added") {
@@ -417,8 +411,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 // Archer had only "{id="28902"}" at some point of 6.8.x.
                 // *-started seems to be standard in 7.1, but in early
                 // 7.0.x, there was a *-created instead.
-                const int progress = m_progress->progressValue();
-                m_progress->setProgressValue(qMin(70, progress + 1));
+                progressPing();
                 // 7.1.50 has thread-group-started,id="i1",pid="3529"
                 QByteArray id = result.findChild("id").data();
                 showStatusMessage(tr("Thread group %1 created").arg(_(id)), 1000);
@@ -538,10 +531,6 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             if (resultClass == "done") {
                 response.resultClass = GdbResultDone;
             } else if (resultClass == "running") {
-                if (m_progress) {
-                    m_progress->setProgressValue(100);
-                    m_progress->reportFinished();
-                }
                 // FIXME: Handle this in the individual result handlers.
                 //if (state() == InferiorStopOk) { // Result of manual command.
                 //    resetLocation();
@@ -1658,12 +1647,6 @@ void GdbEngine::notifyAdapterShutdownOk()
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
     showMessage(_("INITIATE GDBENGINE SHUTDOWN IN STATE %1, PROC: %2")
         .arg(lastGoodState()).arg(gdbProc()->state()));
-    if (m_progress) {
-        m_progress->setProgressValue(90);
-        m_progress->reportCanceled();
-        m_progress->reportFinished();
-    }
-
     m_commandsDoneCallback = 0;
     postCommand("-gdb-exit", GdbEngine::ExitRequest, CB(handleGdbExit));
 }
@@ -1755,13 +1738,6 @@ void GdbEngine::setupEngine()
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     QTC_ASSERT(m_debuggingHelperState == DebuggingHelperUninitialized, /**/);
 
-    m_progress = new QFutureInterface<void>();
-    m_progress->setProgressRange(0, 100);
-    Core::FutureProgress *fp = Core::ICore::instance()->progressManager()
-        ->addTask(m_progress->future(), tr("Launching"), _("Debugger.Launcher"));
-    fp->setKeepOnFinish(false);
-    m_progress->reportStarted();
-
     //qDebug() << "CREATED ADAPTER: " << m_gdbAdapter;
 
     if (m_gdbAdapter->dumperHandling() != AbstractGdbAdapter::DumperNotAvailable) {
@@ -1773,7 +1749,6 @@ void GdbEngine::setupEngine()
                 this, SLOT(recheckDebuggingHelperAvailabilityClassic()));
     }
 
-    m_progress->setProgressValue(20);
     QTC_ASSERT(state() == EngineSetupRequested, /**/);
     m_gdbAdapter->startAdapter();
 }
@@ -4170,8 +4145,6 @@ void GdbEngine::handleAdapterStartFailed(const QString &msg, const QString &sett
 void GdbEngine::handleAdapterStarted()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-    if (m_progress)
-        m_progress->setProgressValue(25);
     showMessage(_("ADAPTER SUCCESSFULLY STARTED"));
     notifyEngineSetupOk();
 }

@@ -212,6 +212,7 @@ public:
     //QAbstractItemModel *snapshotModel() const;
     QAbstractItemModel *sourceFilesModel() const;
 
+    void progressPing();
     void handleFinished();
     void handleStartFailed();
     bool debuggerActionsEnabled() const;
