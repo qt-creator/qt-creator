@@ -30,11 +30,17 @@ symbian {
     contains(DEFINES, NETWORKACCESS):TARGET.CAPABILITY += NetworkServices
 } else:win32 {
     # Ossi will want to kill me when he reads this
-    # TODO: let Ossi create a (post link step) deployment for windows
-    !contains(CONFIG, build_pass):for(deploymentfolder, DEPLOYMENTFOLDERS) {
-        pathSegments = $$split(deploymentfolder, /)
-        sourceAndTarget = $$deploymentfolder $$OUT_PWD/qml/$$last(pathSegments)
-        system($$QMAKE_COPY_DIR $$replace(sourceAndTarget, /, \\))
+    # TODO: Let Ossi do some deployment-via-qmake magic
+    !isEqual(PWD,$$OUT_PWD):!contains(CONFIG, build_pass) {
+        copyCommand = @echo Copying Qml files...
+        for(deploymentfolder, DEPLOYMENTFOLDERS) {
+            pathSegments = $$split(deploymentfolder, /)
+            sourceAndTarget = $$PWD/$$deploymentfolder $$OUT_PWD/qml/$$last(pathSegments)
+            copyCommand += && $(COPY_DIR) $$replace(sourceAndTarget, /, \\)
+        }
+        copyqmlfiles.commands = $$copyCommand
+        first.depends = $(first) copyqmlfiles
+        QMAKE_EXTRA_TARGETS += first copyqmlfiles
     }
 } else {
     # TODO: make this work
