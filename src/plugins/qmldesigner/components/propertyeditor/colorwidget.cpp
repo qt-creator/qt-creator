@@ -684,13 +684,9 @@ void GradientLine::mousePressEvent(QMouseEvent *event)
                 setCurrentIndex(draggedIndex);
                 update();
             }
-        } else {
-            QWidget::mousePressEvent(event);
         }
         if (draggedIndex == -1)
             m_create = true;
-    } else {
-        QWidget::mousePressEvent(event);
     }
     setFocus(Qt::MouseFocusReason);
 }
@@ -706,6 +702,7 @@ void GradientLine::mouseDoubleClickEvent(QMouseEvent *event)
 void GradientLine::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
+        event->accept();
         if (m_dragActive == false && m_create) {
             qreal stopPos = qreal(event->pos().x() - 9) / qreal((width() - 15));
             int index = -1;
@@ -720,14 +717,11 @@ void GradientLine::mouseReleaseEvent(QMouseEvent *event)
                 updateGradient();
             }
         }
-        event->accept();
     }
     m_dragActive = false;
     m_yOffset = 0;
     update();
-    updateGradient();
-
-    //QWidget::mouseReleaseEvent(event);
+    setFocus(Qt::MouseFocusReason);
 }
 
 void GradientLine::mouseMoveEvent(QMouseEvent *event)
@@ -762,8 +756,6 @@ void GradientLine::mouseMoveEvent(QMouseEvent *event)
         m_dragStart = event->pos();
         update();
     }
-
-    //QWidget::mouseMoveEvent(event);
 }
 
 void GradientLine::setup()
@@ -841,7 +833,7 @@ void GradientLine::setCurrentIndex(int i)
     if (i == m_colorIndex)
         return;
     m_colorIndex = i;
-    setActiveColor(m_colorList.at(i));
+    m_activeColor = m_colorList.at(i); 
     emit activeColorChanged();
     update();
 }
