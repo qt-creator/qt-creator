@@ -63,7 +63,7 @@ private:
                                QString startMark,
                                QString endMark) const;
 
-    void formatContents(QString *html) const;
+    void processOutput(QString *html) const;
 
     static void stripAllHtml(QString *html);
     static void stripHeadings(QString *html);
