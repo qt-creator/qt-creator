@@ -40,7 +40,7 @@ const char * const MODE_DEBUG           = "Debugger.Mode.Debug";
 const int          P_MODE_DEBUG         = 85;
 const char * const LANG_CPP             = "C++";
 // common actions
-const char * const INTERRUPT            = "Debugger.Interrupt";
+const char * const STOP            = "Debugger.Interrupt";
 const char * const RESET                = "Debugger.Reset";
 const char * const STEP                 = "Debugger.StepLine";
 const char * const STEPOUT              = "Debugger.StepOut";

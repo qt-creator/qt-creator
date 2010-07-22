@@ -347,7 +347,7 @@ const char * const FRAME_UP             = "Debugger.FrameUp";
 const char * const FRAME_DOWN           = "Debugger.FrameDown";
 
 #ifdef Q_WS_MAC
-const char * const INTERRUPT_KEY            = "Shift+F5";
+const char * const STOP_KEY                 = "Shift+F5";
 const char * const RESET_KEY                = "Ctrl+Shift+F5";
 const char * const STEP_KEY                 = "F7";
 const char * const STEPOUT_KEY              = "Shift+F7";
@@ -362,7 +362,7 @@ const char * const BREAK_AT_MAIN_KEY        = "Ctrl+D,Ctrl+M";
 const char * const ADD_TO_WATCH_KEY         = "Ctrl+D,Ctrl+W";
 const char * const SNAPSHOT_KEY             = "Ctrl+D,Ctrl+S";
 #else
-const char * const INTERRUPT_KEY            = "Shift+F5";
+const char * const STOP_KEY                 = "Shift+F5";
 const char * const RESET_KEY                = "Ctrl+Shift+F5";
 const char * const STEP_KEY                 = "F11";
 const char * const STEPOUT_KEY              = "Shift+F11";
@@ -827,7 +827,8 @@ static bool isCurrentProjectCppBased()
 struct DebuggerActions
 {
     QAction *continueAction;
-    QAction *interruptAction;
+    QAction *stopAction;
+    QAction *interruptAction; // on the fat debug button
     QAction *resetAction; // FIXME: Should not be needed in a stable release
     QAction *stepAction;
     QAction *stepOutAction;
@@ -1137,6 +1138,10 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_actions.continueAction->setIcon(continueIcon);
     m_actions.continueAction->setProperty(Role, RequestExecContinueRole);
 
+    m_actions.stopAction = new QAction(tr("Stop Debugger"), this);
+    m_actions.stopAction->setProperty(Role, RequestExecExitRole);
+    m_actions.stopAction->setIcon(m_stopIcon);
+
     m_actions.interruptAction = new QAction(tr("Interrupt"), this);
     m_actions.interruptAction->setIcon(m_interruptIcon);
     m_actions.interruptAction->setProperty(Role, RequestExecInterruptRole);
@@ -1225,6 +1230,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     connect(m_actions.snapshotAction, SIGNAL(triggered()), SLOT(onAction()));
     connect(m_actions.frameDownAction, SIGNAL(triggered()), SLOT(onAction()));
     connect(m_actions.frameUpAction, SIGNAL(triggered()), SLOT(onAction()));
+    connect(m_actions.stopAction, SIGNAL(triggered()), SLOT(onAction()));
     connect(m_actions.interruptAction, SIGNAL(triggered()), SLOT(interruptDebuggingRequest()));
     connect(m_actions.resetAction, SIGNAL(triggered()), SLOT(onAction()));
     connect(&m_statusTimer, SIGNAL(timeout()), SLOT(clearStatusMessage()));
@@ -1378,13 +1384,20 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     cmd->setAttribute(Command::CA_Hide);
     m_uiSwitcher->addMenuAction(cmd, CC::G_DEFAULT_ONE);
 
-    cmd = am->registerAction(m_actions.interruptAction,
-        Constants::INTERRUPT, globalcontext);
+    cmd = am->registerAction(m_actions.stopAction,
+        Constants::STOP, globalcontext);
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setAttribute(Command::CA_UpdateIcon);
-    cmd->setDefaultKeySequence(QKeySequence(Constants::INTERRUPT_KEY));
-    cmd->setDefaultText(tr("Stop Debugger/Interrupt Debugger"));
+    //cmd->setDefaultKeySequence(QKeySequence(Constants::STOP_KEY));
+    cmd->setDefaultText(tr("Stop Debugger"));
     m_uiSwitcher->addMenuAction(cmd, CC::G_DEFAULT_ONE);
+
+    cmd = am->registerAction(m_actions.interruptAction,
+        PE::DEBUG, m_interruptibleContext);
+    cmd->setAttribute(Command::CA_UpdateText);
+    cmd->setAttribute(Command::CA_UpdateIcon);
+    cmd->setDefaultKeySequence(QKeySequence(Constants::STOP_KEY));
+    cmd->setDefaultText(tr("Interrupt Debugger"));
 
     cmd = am->registerAction(m_actions.resetAction,
         Constants::RESET, globalcontext);
@@ -1585,7 +1598,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     hbox->setMargin(0);
     hbox->setSpacing(0);
     hbox->addWidget(toolButton(am->command(PE::DEBUG)->action()));
-    hbox->addWidget(toolButton(am->command(INTERRUPT)->action()));
+    hbox->addWidget(toolButton(am->command(STOP)->action()));
     hbox->addWidget(toolButton(am->command(NEXT)->action()));
     hbox->addWidget(toolButton(am->command(STEP)->action()));
     hbox->addWidget(toolButton(am->command(STEPOUT)->action()));
@@ -2144,9 +2157,7 @@ void DebuggerPluginPrivate::setInitialState()
     m_actions.snapshotAction->setEnabled(false);
     theDebuggerAction(OperateByInstruction)->setEnabled(false);
 
-    m_actions.interruptAction->setIcon(m_stopIcon);
-    m_actions.interruptAction->setText(tr("Stop Debugger"));
-    m_actions.interruptAction->setEnabled(false);
+    m_actions.stopAction->setEnabled(false);
     m_actions.resetAction->setEnabled(false);
 
     m_actions.stepAction->setEnabled(false);
@@ -2193,12 +2204,17 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         cleanupViews();
     }
 
-    const bool startIsContinue = (engine->state() == InferiorStopOk);
+    const bool isContinuable = (engine->state() == InferiorStopOk);
+    const bool isInterruptible = (engine->state() == InferiorRunOk);
     ICore *core = ICore::instance();
-    if (startIsContinue)
+    if (isContinuable) {
         core->updateAdditionalContexts(Core::Context(), m_continuableContext);
-    else
+    } else if (isInterruptible) {
+        core->updateAdditionalContexts(Core::Context(), m_interruptibleContext);
+    } else {
         core->updateAdditionalContexts(m_continuableContext, Core::Context());
+        core->updateAdditionalContexts(m_interruptibleContext, Core::Context());
+    }
 
     const bool started = m_state == InferiorRunOk
         || m_state == InferiorRunRequested
@@ -2206,7 +2222,6 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         || m_state == InferiorStopOk;
 
     const bool starting = m_state == EngineSetupRequested;
-    //const bool running = m_state == InferiorRunOk;
 
     m_startExternalAction->setEnabled(!started && !starting);
     m_attachExternalAction->setEnabled(true);
@@ -2222,8 +2237,6 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     m_detachAction->setEnabled(detachable);
 
     const bool stoppable = m_state == InferiorRunOk
-        //|| m_state == InferiorRunRequested
-        //|| m_state == InferiorStopRequested
         || m_state == InferiorStopOk
         || m_state == InferiorUnrunnable;
 
@@ -2241,17 +2254,22 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 
     theDebuggerAction(OperateByInstruction)->setEnabled(!running);
 
-    const bool interruptIsExit = !running;
-    if (interruptIsExit) {
-        m_actions.interruptAction->setIcon(m_stopIcon);
-        m_actions.interruptAction->setText(tr("Stop Debugger"));
-    } else {
-        m_actions.interruptAction->setIcon(m_interruptIcon);
-        m_actions.interruptAction->setText(tr("Interrupt"));
-    }
-
+    m_actions.stopAction->setEnabled(stopped);
     m_actions.interruptAction->setEnabled(stoppable);
     m_actions.resetAction->setEnabled(m_state != DebuggerNotReady);
+
+#if 1
+    // This is only needed when we insist on using Shift-F5 for Interrupt.
+    // Removing the block makes F5 interrupt when running and continue when stopped.
+    Core::ActionManager *am = core->actionManager();
+    if (stopped) {
+        am->command(Constants::STOP)->setKeySequence(QKeySequence(STOP_KEY));
+        am->command(PE::DEBUG)->setKeySequence(QKeySequence("F5"));
+    } else {
+        am->command(Constants::STOP)->setKeySequence(QKeySequence());
+        am->command(PE::DEBUG)->setKeySequence(QKeySequence(STOP_KEY));
+    }
+#endif
 
     m_actions.stepAction->setEnabled(stopped);
     m_actions.stepOutAction->setEnabled(stopped);
