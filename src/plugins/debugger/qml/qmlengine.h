@@ -119,7 +119,6 @@ private:
     bool supportsThreads() const { return true; }
     void maybeBreakNow(bool byFunction);
     void updateWatchData(const WatchData &data);
-    void updateLocals();
 
     unsigned int debuggerCapabilities() const;
 

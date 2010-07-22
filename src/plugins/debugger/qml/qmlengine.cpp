@@ -331,7 +331,6 @@ void QmlEngine::setupConnection()
  #endif
 
     notifyEngineRunAndInferiorStopOk();
-    qDebug() << "CONNECTION SUCCESSFUL";
 
 //    reloadEngines();
 //    continueInferior();
@@ -352,7 +351,6 @@ void QmlEngine::continueInferior()
 
 void QmlEngine::interruptInferior()
 {
-    qDebug() << "INTERRUPT";
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
     rs << QByteArray("INTERRUPT");
@@ -520,17 +518,11 @@ void QmlEngine::assignValueInDebugger(const QString &expression,
     const QString &value)
 {
     XSDEBUG("ASSIGNING: " << expression + '=' + value);
-    updateLocals();
-}
-
-void QmlEngine::updateLocals()
-{
-    qDebug() << "UPDATE LOCALS";
 }
 
 void QmlEngine::updateWatchData(const WatchData &data)
 {
-    qDebug() << "UPDATE WATCH DATA" << data.toString();
+//    qDebug() << "UPDATE WATCH DATA" << data.toString();
     //watchHandler()->rebuildModel();
     showStatusMessage(tr("Stopped."), 5000);
 
@@ -659,7 +651,6 @@ void QmlEngine::messageReceived(const QByteArray &message)
         watchHandler()->beginCycle();
         foreach (WatchData data, locals) {
             data.iname = "local." + data.exp;
-            qDebug() << data.iname << data.value;
             watchHandler()->insertData(data);
             if (watchHandler()->expandedINames().contains(data.iname))
                 expandObject(data.iname, data.objectId);
