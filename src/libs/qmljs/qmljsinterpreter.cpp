@@ -2960,7 +2960,7 @@ const Value *ASTVariableReference::value(Context *context) const
 }
 
 ASTFunctionValue::ASTFunctionValue(FunctionDeclaration *ast, const QmlJS::Document *doc, Engine *engine)
-    : FunctionValue(engine), _doc(doc), _ast(ast)
+    : FunctionValue(engine), _ast(ast), _doc(doc)
 {
     setPrototype(engine->functionPrototype());
 
