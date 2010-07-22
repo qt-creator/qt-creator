@@ -20,12 +20,13 @@
 
 namespace QmlDesigner {
 
-ContextPaneWidget::ContextPaneWidget(QWidget *parent) : QFrame(parent), m_currentWidget(0), m_xPos(-1)
+ContextPaneWidget::ContextPaneWidget(QWidget *parent) : QFrame(parent), m_currentWidget(0)
 {
     setFrameStyle(QFrame::NoFrame);
     setFrameShape(QFrame::StyledPanel);
     setFrameShadow(QFrame::Sunken);
     m_oldPos = QPoint(-1, -1);
+    m_pos = QPoint(-1, -1);
 
     m_dropShadowEffect = new QGraphicsDropShadowEffect;
     m_dropShadowEffect->setBlurRadius(6);
@@ -81,6 +82,8 @@ void ContextPaneWidget::activate(const QPoint &pos, const QPoint &alternative, c
     foreach (ColorButton *colorButton, findChildren<ColorButton*>()) {
             colorButton->setChecked(false);
     }
+    show();
+    update();
     resize(sizeHint());
     show();
     rePosition(pos, alternative, alternative2);
@@ -89,7 +92,6 @@ void ContextPaneWidget::activate(const QPoint &pos, const QPoint &alternative, c
 
 void ContextPaneWidget::rePosition(const QPoint &position, const QPoint &alternative, const QPoint &alternative2)
 {
-    show();
     if ((position.x()  + width()) < parentWidget()->width())
         move(position);
     else
@@ -99,6 +101,13 @@ void ContextPaneWidget::rePosition(const QPoint &position, const QPoint &alterna
         move(alternative2);
     if ((pos().y() + height()) > parentWidget()->height())
         hide();
+
+    m_originalPos = pos();
+
+    if (m_pos.x() > 0) {
+        move(m_pos);
+        show();
+    }
 }
 
 void ContextPaneWidget::deactivate()
@@ -163,22 +172,26 @@ bool ContextPaneWidget::setType(const QString &typeName)
         } else if (typeName.contains("TextEdit")) {
             m_textWidget->setStyleVisible(false);
         }
+        resize(sizeHint());
         return true;
     }
 
     if (m_easingWidget->acceptsType(typeName)) {
         m_currentWidget = m_easingWidget;
         m_easingWidget->show();
+        resize(sizeHint());
         return true;
     }
     if (typeName.contains("Rectangle")) {
         m_currentWidget = m_rectangleWidget;
         m_rectangleWidget->show();
+        resize(sizeHint());
         return true;
     }
     if (typeName.contains("Image")) {
         m_currentWidget = m_imageWidget;
         m_imageWidget->show();
+        resize(sizeHint());
         return true;
     }
     return false;
@@ -244,6 +257,7 @@ void ContextPaneWidget::mouseMoveEvent(QMouseEvent * event)
                 if (newPos.x() > 0 && newPos.y() > 0 && (newPos.x() + width()) < parentWidget()->width() && (newPos.y() + height()) < parentWidget()->height()) {
                     m_bauhausColorDialog->move(m_bauhausColorDialog->pos() + diff);
                     move(newPos);
+                    m_pos = newPos;
                 }
             }
         } else {
@@ -267,7 +281,7 @@ void ContextPaneWidget::onDisable()
 void  ContextPaneWidget::onResetPosition()
 {
     move(m_originalPos);
-    m_xPos = -1;
+    m_pos = QPoint(-1,-1);
 }
 
 QWidget* ContextPaneWidget::createFontWidget()

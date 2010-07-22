@@ -69,7 +69,7 @@ private:
     QGraphicsOpacityEffect *m_opacityEffect;
     QWeakPointer<BauhausColorDialog> m_bauhausColorDialog;
     QString m_colorName;
-    int m_xPos;
+    QPoint m_pos;
     QPoint m_originalPos;
 };
 
