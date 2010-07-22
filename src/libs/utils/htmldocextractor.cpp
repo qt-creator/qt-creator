@@ -47,16 +47,21 @@ namespace {
 HtmlDocExtractor::HtmlDocExtractor() :
     m_lengthReference(-1),
     m_truncateAtParagraph(false),
-    m_formatContents(true)
+    m_formatContents(true),
+    m_extendedExtraction(false)
 {}
 
-void HtmlDocExtractor::setLengthReference(const int length, const bool truncateAtParagraph)
+void HtmlDocExtractor::extractFirstParagraphOnly()
+{ m_extendedExtraction = false; }
+
+void HtmlDocExtractor::extractExtendedContents(const int length, const bool truncateAtParagraph)
 {
     m_lengthReference = length;
     m_truncateAtParagraph = truncateAtParagraph;
+    m_extendedExtraction = true;
 }
 
-void HtmlDocExtractor::setFormatContents(const bool format)
+void HtmlDocExtractor::applyFormatting(const bool format)
 { m_formatContents = format; }
 
 QString HtmlDocExtractor::getClassOrNamespaceBrief(const QString &html, const QString &mark) const
@@ -66,7 +71,6 @@ QString HtmlDocExtractor::getClassOrNamespaceBrief(const QString &html, const QS
         contents.remove(QLatin1String("<a href=\"#details\">More...</a>"));
         contents.prepend(QLatin1String("<nobr>"));
         contents.append(QLatin1String("</nobr>"));
-        formatContents(&contents);
     }
 
     return contents;
@@ -75,6 +79,9 @@ QString HtmlDocExtractor::getClassOrNamespaceBrief(const QString &html, const QS
 QString HtmlDocExtractor::getClassOrNamespaceDescription(const QString &html,
                                                          const QString &mark) const
 {
+    if (!m_extendedExtraction)
+        return getClassOrNamespaceBrief(html, mark);
+
     QString contents = getContentsByMarks(html, mark + QLatin1String("-description"), mark);
     if (!contents.isEmpty() && m_formatContents) {
         contents.remove(QLatin1String("Detailed Description"));
@@ -178,8 +185,18 @@ QString HtmlDocExtractor::getContentsByMarks(const QString &html,
 
 void HtmlDocExtractor::formatContents(QString *html) const
 {
-    if (html->isEmpty())
-        return;
+    if (!m_extendedExtraction) {
+        int paragraph = html->indexOf(QLatin1String("</p>"));
+        if (paragraph != -1) {
+            paragraph += 4;
+            html->truncate(paragraph);
+        } else {
+            // Some enumerations don't have paragraphs and just a table with the items. In such
+            // cases the the html is cleared to avoid showing more that desired.
+            html->clear();
+            return;
+        }
+    }
 
     if (m_formatContents) {
         stripBold(html);
@@ -192,9 +209,28 @@ void HtmlDocExtractor::formatContents(QString *html) const
         stripTagsStyles(html);
         stripHeadings(html);
         stripImagens(html);
+        stripEmptyParagraphs(html);
+
+        if (!m_extendedExtraction) {
+            if (!html->endsWith(QLatin1String(".</p>"))) {
+                // <p>For paragraphs similar to this. Example:</p>
+                const int lastDot = html->lastIndexOf(QLatin1Char('.'));
+                if (lastDot != -1) {
+                    html->truncate(lastDot);
+                    html->append(QLatin1String(".</p>"));
+                }
+            }
+        }
+
+        const int noBreakLimit = 140;
+        const int paragraph = html->indexOf(QLatin1String("<p>"));
+        if (paragraph > 0 && paragraph <= noBreakLimit) {
+            html->insert(paragraph, QLatin1String("</nobr>"));
+            html->prepend(QLatin1String("<nobr>"));
+        }
     }
 
-    if (m_lengthReference > -1 && html->length() > m_lengthReference) {
+    if (m_extendedExtraction && m_lengthReference > -1 && html->length() > m_lengthReference) {
         if (m_truncateAtParagraph) {
             const int nextBegin = html->indexOf(QLatin1String("<p>"), m_lengthReference);
             QRegExp exp = createMinimalExp(QLatin1String("</p>|<br />"));
@@ -260,6 +296,11 @@ void HtmlDocExtractor::stripBold(QString *html)
 {
     html->remove(QLatin1String("<b>"));
     html->remove(QLatin1String("</b>"));
+}
+
+void HtmlDocExtractor::stripEmptyParagraphs(QString *html)
+{
+    html->remove(QLatin1String("<p></p>"));
 }
 
 void HtmlDocExtractor::replaceNonStyledHeadingsForBold(QString *html)

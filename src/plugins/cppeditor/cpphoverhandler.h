@@ -107,11 +107,11 @@ private:
 
     void evaluateHelpCandidates();
     bool helpIdExists(const QString &helpId) const;
-    QString getDocContents() const;
-    QString getDocContents(const HelpCandidate &helpCandidate) const;
+    QString getDocContents(const bool extended);
+    QString getDocContents(const HelpCandidate &helpCandidate, const bool extended);
 
-    void generateDiagramTooltip(const bool integrateDocs);
-    void generateNormalTooltip(const bool integrateDocs);
+    void generateDiagramTooltip(const bool extendTooltips);
+    void generateNormalTooltip(const bool extendTooltips);
     void addF1ToTooltip();
 
     static TextEditor::BaseTextEditor *baseTextEditor(TextEditor::ITextEditor *editor);

@@ -118,8 +118,6 @@ CppHoverHandler::CppHoverHandler(QObject *parent)
     m_modelManager =
         ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
 
-    m_htmlDocExtractor.setLengthReference(1000, true);
-
     // Listen for editor opened events in order to connect to tooltip/helpid requests
     connect(ICore::instance()->editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
             this, SLOT(editorOpened(Core::IEditor *)));
@@ -174,9 +172,9 @@ void CppHoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint 
         QToolTip::hideText();
     } else {
         if (!m_classHierarchy.isEmpty())
-            generateDiagramTooltip(baseEditor->displaySettings().m_integrateDocsIntoTooltips);
+            generateDiagramTooltip(baseEditor->displaySettings().m_extendTooltips);
         else
-            generateNormalTooltip(baseEditor->displaySettings().m_integrateDocsIntoTooltips);
+            generateNormalTooltip(baseEditor->displaySettings().m_extendTooltips);
 
         if (m_matchingHelpCandidate != -1)
             addF1ToTooltip();
@@ -384,15 +382,20 @@ bool CppHoverHandler::helpIdExists(const QString &helpId) const
     return false;
 }
 
-QString CppHoverHandler::getDocContents() const
+QString CppHoverHandler::getDocContents(const bool extended)
 {
     Q_ASSERT(m_matchingHelpCandidate >= 0);
 
-    return getDocContents(m_helpCandidates.at(m_matchingHelpCandidate));
+    return getDocContents(m_helpCandidates.at(m_matchingHelpCandidate), extended);
 }
 
-QString CppHoverHandler::getDocContents(const HelpCandidate &help) const
+QString CppHoverHandler::getDocContents(const HelpCandidate &help, const bool extended)
 {
+    if (extended)
+        m_htmlDocExtractor.extractExtendedContents(1500, true);
+    else
+        m_htmlDocExtractor.extractFirstParagraphOnly();
+
     QString contents;
     QMap<QString, QUrl> helpLinks =
         Core::HelpManager::instance()->linksForIdentifier(help.m_helpId);
@@ -427,7 +430,7 @@ QString CppHoverHandler::getDocContents(const HelpCandidate &help) const
     return contents;
 }
 
-void CppHoverHandler::generateDiagramTooltip(const bool integrateDocs)
+void CppHoverHandler::generateDiagramTooltip(const bool extendTooltips)
 {
     QString clazz = m_toolTip;
 
@@ -457,75 +460,71 @@ void CppHoverHandler::generateDiagramTooltip(const bool integrateDocs)
     diagram.append(QLatin1String("</table>"));
     m_toolTip = diagram;
 
-    if (integrateDocs) {
-        if (m_matchingHelpCandidate != -1) {
-            m_toolTip.append(getDocContents());
-        } else {
-            // Look for documented base classes. Diagram the nearest one or the nearest ones (in
-            // the case there are many at the same level).
-            int helpLevel = 0;
-            QList<int> baseClassesWithHelp;
-            for (int i = 0; i < m_classHierarchy.size(); ++i) {
-                const QStringList &hierarchy = m_classHierarchy.at(i);
-                if (helpLevel != 0 && hierarchy.size() != helpLevel)
-                    break;
+    if (m_matchingHelpCandidate != -1) {
+        m_toolTip.append(getDocContents(extendTooltips));
+    } else {
+        // Look for documented base classes. Diagram the nearest one or the nearest ones (in
+        // the case there are many at the same level).
+        int helpLevel = 0;
+        QList<int> baseClassesWithHelp;
+        for (int i = 0; i < m_classHierarchy.size(); ++i) {
+            const QStringList &hierarchy = m_classHierarchy.at(i);
+            if (helpLevel != 0 && hierarchy.size() != helpLevel)
+                break;
 
-                const QString &name = hierarchy.last();
-                if (helpIdExists(name)) {
-                    baseClassesWithHelp.append(i);
-                    if (helpLevel == 0)
-                        helpLevel = hierarchy.size();
-                }
+            const QString &name = hierarchy.last();
+            if (helpIdExists(name)) {
+                baseClassesWithHelp.append(i);
+                if (helpLevel == 0)
+                    helpLevel = hierarchy.size();
             }
+        }
 
-            if (!baseClassesWithHelp.isEmpty()) {
-                // Choose the first one as the help match.
-                QString base = m_classHierarchy.at(baseClassesWithHelp.at(0)).last();
-                HelpCandidate help(base, base, HelpCandidate::ClassOrNamespace);
-                m_helpCandidates.append(help);
-                m_matchingHelpCandidate = m_helpCandidates.size() - 1;
+        if (!baseClassesWithHelp.isEmpty()) {
+            // Choose the first one as the help match.
+            QString base = m_classHierarchy.at(baseClassesWithHelp.at(0)).last();
+            HelpCandidate help(base, base, HelpCandidate::ClassOrNamespace);
+            m_helpCandidates.append(help);
+            m_matchingHelpCandidate = m_helpCandidates.size() - 1;
 
-                if (baseClassesWithHelp.size() == 1 && helpLevel == 1) {
-                    m_toolTip.append(getDocContents(help));
-                } else {
-                    foreach (int hierarchyIndex, baseClassesWithHelp) {
-                        m_toolTip.append(QLatin1String("<p>"));
-                        const QStringList &hierarchy = m_classHierarchy.at(hierarchyIndex);
-                        Q_ASSERT(helpLevel <= hierarchy.size());
+            if (baseClassesWithHelp.size() == 1 && helpLevel == 1) {
+                m_toolTip.append(getDocContents(help, extendTooltips));
+            } else {
+                foreach (int hierarchyIndex, baseClassesWithHelp) {
+                    m_toolTip.append(QLatin1String("<p>"));
+                    const QStringList &hierarchy = m_classHierarchy.at(hierarchyIndex);
+                    Q_ASSERT(helpLevel <= hierarchy.size());
 
-                        // Following contents are inside tables so they are on the exact same
-                        // alignment as the top level diagram.
-                        diagram = QString(QLatin1String("<table><tr><td>%1</td>")).arg(clazz);
-                        for (int i = 0; i < helpLevel; ++i) {
-                            diagram.append(
-                                QLatin1String("<td><img src=\":/cppeditor/images/rightarrow.png\">"
-                                              "</td><td>") %
-                                hierarchy.at(i) %
-                                QLatin1String("</td>"));
-                        }
-                        diagram.append(QLatin1String("</tr></table>"));
-
-                        base = hierarchy.at(helpLevel - 1);
-                        QString contents =
-                            getDocContents(HelpCandidate(base, base, HelpCandidate::Brief));
-                        if (!contents.isEmpty()) {
-                            m_toolTip.append(diagram % QLatin1String("<table><tr><td>") %
-                                             contents % QLatin1String("</td></tr></table>"));
-                        }
-                        m_toolTip.append(QLatin1String("</p>"));
+                    // Following contents are inside tables so they are on the exact same
+                    // alignment as the top level diagram.
+                    diagram = QString(QLatin1String("<table><tr><td>%1</td>")).arg(clazz);
+                    for (int i = 0; i < helpLevel; ++i) {
+                        diagram.append(
+                            QLatin1String("<td><img src=\":/cppeditor/images/rightarrow.png\">"
+                                          "</td><td>") %
+                            hierarchy.at(i) %
+                            QLatin1String("</td>"));
                     }
+                    diagram.append(QLatin1String("</tr></table>"));
+
+                    base = hierarchy.at(helpLevel - 1);
+                    QString contents =
+                        getDocContents(HelpCandidate(base, base, HelpCandidate::Brief), false);
+                    if (!contents.isEmpty()) {
+                        m_toolTip.append(diagram % QLatin1String("<table><tr><td>") %
+                                         contents % QLatin1String("</td></tr></table>"));
+                    }
+                    m_toolTip.append(QLatin1String("</p>"));
                 }
             }
         }
     }
 }
 
-void CppHoverHandler::generateNormalTooltip(const bool integrateDocs)
+void CppHoverHandler::generateNormalTooltip(const bool extendTooltips)
 {
     if (m_matchingHelpCandidate != -1) {
-        QString contents;
-        if (integrateDocs)
-            contents = getDocContents();
+        const QString &contents = getDocContents(extendTooltips);
         if (!contents.isEmpty()) {
             HelpCandidate::Category cat = m_helpCandidates.at(m_matchingHelpCandidate).m_category;
             if (cat == HelpCandidate::ClassOrNamespace)

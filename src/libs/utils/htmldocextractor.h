@@ -41,8 +41,10 @@ class QTCREATOR_UTILS_EXPORT HtmlDocExtractor
 public:
     HtmlDocExtractor();
 
-    void setLengthReference(const int reference, const bool truncateAtParagraph);
-    void setFormatContents(const bool format);
+    void extractFirstParagraphOnly();
+    void extractExtendedContents(const int lengthReference, const bool truncateAtParagraph);
+
+    void applyFormatting(const bool format);
 
     QString getClassOrNamespaceBrief(const QString &html, const QString &mark) const;
     QString getClassOrNamespaceDescription(const QString &html, const QString &mark) const;
@@ -72,6 +74,7 @@ private:
     static void stripTeletypes(QString *html);
     static void stripImagens(QString *html);
     static void stripBold(QString *html);
+    static void stripEmptyParagraphs(QString *html);
     static void replaceNonStyledHeadingsForBold(QString *html);
     static void replaceTablesForSimpleLines(QString *html);
     static void replaceListsForSimpleLines(QString *html);
@@ -79,6 +82,7 @@ private:
     int m_lengthReference;
     bool m_truncateAtParagraph;
     bool m_formatContents;
+    bool m_extendedExtraction;
 };
 
 } // namespace Utils

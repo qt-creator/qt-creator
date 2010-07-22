@@ -57,7 +57,7 @@ struct TEXTEDITOR_EXPORT DisplaySettings
     bool m_markTextChanges;
     bool m_autoFoldFirstComment;
     bool m_centerCursorOnScroll;
-    bool m_integrateDocsIntoTooltips;
+    bool m_extendTooltips;
 
     bool equals(const DisplaySettings &ds) const;
 };
