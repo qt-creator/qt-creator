@@ -347,20 +347,28 @@ QModelIndex QmlOutlineModel::enterObjectDefinition(AST::UiObjectDefinition *objD
     QmlOutlineItem prototype(this);
 
     const QString typeName = asString(objDef->qualifiedTypeNameId);
-    const QString id = getId(objDef);
-    if (!id.isEmpty()) {
-        prototype.setText(id);
+
+    if (typeName.at(0).isUpper()) {
+        const QString id = getId(objDef);
+        if (!id.isEmpty()) {
+            prototype.setText(id);
+        } else {
+            prototype.setText(typeName);
+        }
+        if (!m_typeToIcon.contains(typeName)) {
+            m_typeToIcon.insert(typeName, getIcon(objDef));
+        }
+        prototype.setIcon(m_typeToIcon.value(typeName));
+        prototype.setData(ElementType, ItemTypeRole);
+        prototype.setIdNode(objDef->qualifiedTypeNameId);
     } else {
+        // it's a grouped propery like 'anchors'
         prototype.setText(typeName);
+        prototype.setIcon(m_icons->scriptBindingIcon());
+        prototype.setData(PropertyType, ItemTypeRole);
     }
-    if (!m_typeToIcon.contains(typeName)) {
-        m_typeToIcon.insert(typeName, getIcon(objDef));
-    }
-    prototype.setIcon(m_typeToIcon.value(typeName));
-    prototype.setData(ElementType, ItemTypeRole);
     prototype.setSourceLocation(getLocation(objDef));
     prototype.setNode(objDef);
-    prototype.setIdNode(objDef->qualifiedTypeNameId);
 
     return enterNode(prototype);
 }

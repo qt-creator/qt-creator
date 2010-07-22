@@ -44,8 +44,7 @@ bool QmlJSOutlineFilterModel::filterAcceptsRow(int sourceRow,
     if (m_filterBindings) {
         QModelIndex sourceIndex = sourceModel()->index(sourceRow, 0, sourceParent);
         QVariant itemType = sourceIndex.data(QmlOutlineModel::ItemTypeRole);
-        Q_ASSERT(itemType.isValid());
-        if (itemType.isValid() && itemType == QmlOutlineModel::PropertyType) {
+        if (itemType == QmlOutlineModel::PropertyType) {
             return false;
         }
     }
