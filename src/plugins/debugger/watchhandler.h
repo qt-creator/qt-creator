@@ -201,7 +201,7 @@ private:
     QHash<QString, QStringList> m_reportedTypeFormats;
 
     // Items expanded in the Locals & Watchers view.
-    QSet<QByteArray> m_expandedINames; 
+    QSet<QByteArray> m_expandedINames;
 
     WatchModel *m_return;
     WatchModel *m_locals;

@@ -206,7 +206,9 @@ void WatchWindow::mouseDoubleClickEvent(QMouseEvent *ev)
 {
     const QModelIndex idx = indexAt(ev->pos());
     if (!idx.isValid()) {
-        setModelData(RequestWatchExpressionRole, QString("<Edit>"));
+        // The "<Edit>" string.
+        QVariant placeHolder = model()->data(idx, WatcherEditPlaceHolderRole);
+        setModelData(RequestWatchExpressionRole, placeHolder);
         return;
     }
     QTreeView::mouseDoubleClickEvent(ev);

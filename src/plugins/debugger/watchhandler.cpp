@@ -599,10 +599,20 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
 
         case EngineActionsEnabledRole:
             return engine()->debuggerActionsEnabled();
+
+        case WatcherEditPlaceHolderRole:
+            return m_handler->watcherEditPlaceHolder();
     }
 
     const WatchItem *item = watchItem(idx);
     const WatchItem &data = *item;
+
+    if (data.name == m_handler->watcherEditPlaceHolder()) {
+        if (idx.column() == 0 &&
+                (role == Qt::EditRole || role == Qt::DisplayRole))
+            return data.name;
+        return QVariant();
+    }
 
     switch (role) {
         case Qt::EditRole:
@@ -822,12 +832,21 @@ Qt::ItemFlags WatchModel::flags(const QModelIndex &idx) const
 
     const WatchData &data = *watchItem(idx);
 
-    if (data.isWatcher() && idx.column() == 0)
-        return editable; // watcher names are editable
-    if (data.isWatcher() && idx.column() == 2)
-        return editable; // watcher types are
-    if (idx.column() == 1 && data.valueEditable)
-        return editable; // locals and watcher values are sometimes editable
+    if (idx.column() == 0)
+        return editable; // Watcher names are editable.
+
+    if (data.isWatcher()) {
+        if (data.name != m_handler->watcherEditPlaceHolder()) {
+            // FIXME: Forcing types is not implemented yet.
+            //if (idx.column() == 2)
+            //    return editable; // Watcher types can be set by force.
+            if (idx.column() == 1 && data.valueEditable)
+                return editable; // Watcher values are sometimes editable.
+        }
+    } else {
+        if (idx.column() == 1 && data.valueEditable)
+            return editable; // Locals values are sometimes editable.
+    }
     return notEditable;
 }
 
@@ -1229,6 +1248,10 @@ QByteArray WatchHandler::watcherName(const QByteArray &exp)
 
 void WatchHandler::watchExpression(const QString &exp)
 {
+    // Do not insert multiple placeholders.
+    if (exp == watcherEditPlaceHolder() && m_watcherNames.contains(exp.toLatin1()))
+        return;
+
     // FIXME: 'exp' can contain illegal characters
     WatchData data;
     data.exp = exp.toLatin1();
