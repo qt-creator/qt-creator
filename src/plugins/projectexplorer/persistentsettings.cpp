@@ -89,8 +89,13 @@ QVariant PersistentSettingsReader::readValue(const QDomElement &valElement) cons
     QVariant v;
 
     if (name == QLatin1String("value")) {
-        v.setValue(valElement.text());
-        v.convert(QVariant::nameToType(type.toLatin1().data()));
+        if(type == QLatin1String("QChar")) {
+            //Workaround: QTBUG-12345
+            v.setValue(QChar(valElement.text().at(0)));
+        } else {
+            v.setValue(valElement.text());
+            v.convert(QVariant::nameToType(type.toLatin1().data()));
+        }
     } else if (name == QLatin1String("valuelist")) {
         QDomElement child = valElement.firstChildElement();
         QList<QVariant> valList;
