@@ -430,7 +430,13 @@ void QmlEngine::executeJumpToLine(const QString &fileName, int lineNumber)
 void QmlEngine::activateFrame(int index)
 {
     Q_UNUSED(index)
-    qDebug() << Q_FUNC_INFO << index;
+
+    QByteArray reply;
+    QDataStream rs(&reply, QIODevice::WriteOnly);
+    rs << QByteArray("ACTIVATE_FRAME");
+    rs << index;
+    sendMessage(reply);
+
     gotoLocation(stackHandler()->frames().value(index), true);
 }
 
@@ -585,8 +591,6 @@ void QmlEngine::messageReceived(const QByteArray &message)
     QByteArray command;
     stream >> command;
 
-    qDebug() << "RECEIVED COMMAND: " << command;
-
     showMessage(_("RECEIVED RESPONSE: ") + quoteUnprintableLatin1(message));
     if (command == "STOPPED") {
         notifyInferiorSpontaneousStop();
@@ -647,6 +651,19 @@ void QmlEngine::messageReceived(const QByteArray &message)
             if (watchHandler()->expandedINames().contains(data.iname)) 
                 expandObject(data.iname, data.objectId);
         }
+    } else if (command == "LOCALS") {
+        QList<WatchData> locals;
+        int frameId;
+        stream >> frameId >> locals;
+        watchHandler()->beginCycle();
+        foreach (WatchData data, locals) {
+            data.iname = "local." + data.exp;
+            qDebug() << data.iname << data.value;
+            watchHandler()->insertData(data);
+            if (watchHandler()->expandedINames().contains(data.iname))
+                expandObject(data.iname, data.objectId);
+        }
+        watchHandler()->endCycle();
     } else {
         qDebug() << Q_FUNC_INFO << "Unknown command: " << command;
     }

@@ -335,7 +335,32 @@ void JSDebuggerAgent::messageReceived(const QByteArray& message)
         rs << QByteArray("EXPANDED") << requestId << result;
         sendMessage(reply);
         state = oldState;
+    } else if (command == "ACTIVATE_FRAME") {
+        State oldState = state;
+        state = Stopped;
 
+        int frameId;
+        ds >> frameId;
+
+        int deep = 0;
+        QScriptContext *ctx = engine()->currentContext();
+        while (ctx && deep < frameId) {
+            ctx = ctx->parentContext();
+            deep++;
+        }
+
+        QList<JSAgentWatchData> locals;
+        if (ctx)
+            locals = expandObject(ctx->activationObject());
+        recordKnownObjects(locals);
+
+        // Clear any exceptions occurred during locals evaluation.
+        engine()->clearExceptions();
+
+        QByteArray reply;
+        QDataStream rs(&reply, QIODevice::WriteOnly);
+        rs << QByteArray("LOCALS") << frameId << locals;
+        sendMessage(reply);
     } else {
         qDebug() << Q_FUNC_INFO << "Unknown command" << command;
     }
