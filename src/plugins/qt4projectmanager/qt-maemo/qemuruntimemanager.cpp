@@ -110,6 +110,10 @@ QemuRuntimeManager::QemuRuntimeManager(QObject *parent)
         SLOT(qemuProcessError(QProcess::ProcessError)));
     connect(m_qemuProcess, SIGNAL(finished(int, QProcess::ExitStatus)), this,
         SLOT(qemuProcessFinished()));
+    connect(m_qemuProcess, SIGNAL(readyReadStandardOutput()), this,
+        SLOT(qemuOutput()));
+    connect(m_qemuProcess, SIGNAL(readyReadStandardError()), this,
+        SLOT(qemuOutput()));
     connect(this, SIGNAL(qemuProcessStatus(QemuStatus, QString)),
         this, SLOT(qemuStatusChanged(QemuStatus, QString)));
 }
@@ -285,7 +289,7 @@ void QemuRuntimeManager::runConfigurationRemoved(ProjectExplorer::RunConfigurati
 void QemuRuntimeManager::runConfigurationChanged(ProjectExplorer::RunConfiguration *rc)
 {
     if (rc)
-        m_qemuAction->setEnabled(targetUsesRuntimeConfig(rc->target()));
+        m_qemuAction->setEnabled(targetUsesMatchingRuntimeConfig(rc->target()));
 }
 
 void QemuRuntimeManager::buildConfigurationAdded(ProjectExplorer::BuildConfiguration *bc)
@@ -321,7 +325,7 @@ void QemuRuntimeManager::environmentChanged()
 
 void QemuRuntimeManager::deviceConfigurationChanged(ProjectExplorer::Target *target)
 {
-    m_qemuAction->setEnabled(targetUsesRuntimeConfig(target));
+    m_qemuAction->setEnabled(targetUsesMatchingRuntimeConfig(target));
 }
 
 void QemuRuntimeManager::startRuntime()
@@ -330,38 +334,33 @@ void QemuRuntimeManager::startRuntime()
     Project *p = ProjectExplorerPlugin::instance()->session()->startupProject();
     if (!p)
         return;
-
-    Qt4Target *qt4Target = qobject_cast<Qt4Target*> (p->activeTarget());
-    if (!qt4Target)
+    QtVersion *version;
+    if (!targetUsesMatchingRuntimeConfig(p->activeTarget(), &version)) {
+        qWarning("Strange: Qemu button was enabled, but target does not match.");
         return;
+    }
 
-    Qt4BuildConfiguration *bc = qt4Target->activeBuildConfiguration();
-    if (!bc)
-        return;
-
-    QtVersion *version = bc->qtVersion();
-    if (version && m_runtimes.contains(version->uniqueId())) {
-        m_runningQtId = version->uniqueId();
-        const QString root =
-            QDir::toNativeSeparators(maddeRoot(version->qmakeCommand())
+    m_runningQtId = version->uniqueId();
+    const QString root
+        = QDir::toNativeSeparators(maddeRoot(version->qmakeCommand())
             + QLatin1Char('/'));
-        const Runtime rt = m_runtimes.value(version->uniqueId());
-        QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    const Runtime rt = m_runtimes.value(version->uniqueId());
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
 #ifdef Q_OS_WIN
-        const QLatin1Char colon(';');
-        const QLatin1String key("PATH");
-        env.insert(key, env.value(key) % colon % root % QLatin1String("bin"));
-        env.insert(key, env.value(key) % colon % root % QLatin1String("madlib"));
+    const QLatin1Char colon(';');
+    const QLatin1String key("PATH");
+    env.insert(key, env.value(key) % colon % root % QLatin1String("bin"));
+    env.insert(key, env.value(key) % colon % root % QLatin1String("madlib"));
 #elif defined(Q_OS_UNIX)
-        const QLatin1String key("LD_LIBRARY_PATH");
-        env.insert(key, env.value(key) % QLatin1Char(':') % rt.m_libPath);
+    const QLatin1String key("LD_LIBRARY_PATH");
+    env.insert(key, env.value(key) % QLatin1Char(':') % rt.m_libPath);
 #endif
-        m_qemuProcess->setProcessEnvironment(env);
-        m_qemuProcess->setWorkingDirectory(rt.m_root);
+    m_qemuProcess->setProcessEnvironment(env);
+    m_qemuProcess->setWorkingDirectory(rt.m_root);
 
-        // This is complex because of extreme MADDE weirdness.
-        const bool pathIsRelative = QFileInfo(rt.m_bin).isRelative();
-        const QString app =
+    // This is complex because of extreme MADDE weirdness.
+    const bool pathIsRelative = QFileInfo(rt.m_bin).isRelative();
+    const QString app =
 #ifdef Q_OS_WIN
         root % (pathIsRelative
             ? QLatin1String("madlib/") % rt.m_bin // Fremantle.
@@ -373,15 +372,14 @@ void QemuRuntimeManager::startRuntime()
             : rt.m_bin;                                  // Haramattan.
 #endif
 
-        m_qemuProcess->start(app % QLatin1Char(' ') % rt.m_args,
-            QIODevice::ReadWrite);
-        if (!m_qemuProcess->waitForStarted())
-            return;
+    m_qemuProcess->start(app % QLatin1Char(' ') % rt.m_args,
+        QIODevice::ReadWrite);
+    if (!m_qemuProcess->waitForStarted())
+        return;
 
-        emit qemuProcessStatus(QemuStarting);
-        connect(m_qemuAction, SIGNAL(triggered()), this, SLOT(terminateRuntime()));
-        disconnect(m_qemuAction, SIGNAL(triggered()), this, SLOT(startRuntime()));
-    }
+    emit qemuProcessStatus(QemuStarting);
+    connect(m_qemuAction, SIGNAL(triggered()), this, SLOT(terminateRuntime()));
+    disconnect(m_qemuAction, SIGNAL(triggered()), this, SLOT(startRuntime()));
 }
 
 void QemuRuntimeManager::terminateRuntime()
@@ -401,14 +399,20 @@ void QemuRuntimeManager::qemuProcessFinished()
 {
     m_runningQtId = -1;
     QemuStatus status = QemuFinished;
+    QString error;
 
     if (!m_userTerminated) {
-        status = m_qemuProcess->exitStatus() == QProcess::CrashExit
-            ? QemuCrashed : QemuFinished;
+        if (m_qemuProcess->exitStatus() == QProcess::CrashExit) {
+            status = QemuCrashed;
+            error = m_qemuProcess->errorString();
+        } else if (m_qemuProcess->exitCode() != 0) {
+            error = tr("Qemu finished with error: Exit code was %1.")
+                .arg(m_qemuProcess->exitCode());
+        }
     }
 
     m_userTerminated = false;
-    emit qemuProcessStatus(status);
+    emit qemuProcessStatus(status, error);
 }
 
 void QemuRuntimeManager::qemuProcessError(QProcess::ProcessError error)
@@ -433,6 +437,7 @@ void QemuRuntimeManager::qemuStatusChanged(QemuStatus status, const QString &err
             message = tr("Qemu crashed");
             break;
         case QemuFinished:
+            message = error;
             break;
         case QemuUserReason:
             message = error;
@@ -444,6 +449,12 @@ void QemuRuntimeManager::qemuStatusChanged(QemuStatus status, const QString &err
     if (!message.isEmpty())
         QMessageBox::warning(0, tr("Qemu error"), message);
     updateStarterIcon(running);
+}
+
+void QemuRuntimeManager::qemuOutput()
+{
+    qDebug("%s", m_qemuProcess->readAllStandardOutput().data());
+    qDebug("%s", m_qemuProcess->readAllStandardError().data());
 }
 
 // -- private
@@ -498,7 +509,7 @@ void QemuRuntimeManager::toggleStarterButton(Target *target)
         isRunning = false;
 
     m_qemuAction->setEnabled(m_runtimes.contains(uniqueId)
-        && targetUsesRuntimeConfig(target) && !isRunning);
+        && targetUsesMatchingRuntimeConfig(target) && !isRunning);
 }
 
 bool QemuRuntimeManager::sessionHasMaemoTarget() const
@@ -511,7 +522,8 @@ bool QemuRuntimeManager::sessionHasMaemoTarget() const
     return result;
 }
 
-bool QemuRuntimeManager::targetUsesRuntimeConfig(Target *target)
+bool QemuRuntimeManager::targetUsesMatchingRuntimeConfig(Target *target,
+    QtVersion **qtVersion)
 {
     if (!target)
         return false;
@@ -528,6 +540,8 @@ bool QemuRuntimeManager::targetUsesRuntimeConfig(Target *target)
     if (!version || !m_runtimes.contains(version->uniqueId()))
         return false;
 
+    if (qtVersion)
+        *qtVersion = version;
     const MaemoDeviceConfig &config = mrc->deviceConfig();
     return config.isValid() && config.type == MaemoDeviceConfig::Simulator;
 }
