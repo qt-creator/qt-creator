@@ -69,40 +69,24 @@ public:
 
     static DebuggerPlugin *instance();
 
-    QVariant configValue(const QString &name) const;
-    QVariant sessionValue(const QString &name);
-    void setSessionValue(const QString &name, const QVariant &value);
-    void setConfigValue(const QString &name, const QVariant &value);
-    bool coreAboutToClose();
-
-    void resetLocation();
-    void gotoLocation(const QString &fileName, int lineNumber, bool setMarker);
-    void activatePreviousMode();
-    void activateDebugMode();
-    void openTextEditor(const QString &titlePattern, const QString &contents);
-
-    void readSettings();
-    void writeSettings() const;
-
     static DebuggerRunControl *createDebugger(const DebuggerStartParameters &sp,
         ProjectExplorer::RunConfiguration *rc = 0);
     static void startDebugger(ProjectExplorer::RunControl *runControl);
     static void displayDebugger(ProjectExplorer::RunControl *runControl);
 
-    const CPlusPlus::Snapshot &cppCodeModelSnapshot() const;
-
-    QIcon locationMarkIcon() const;
-    bool isReverseDebugging() const;
-    void createNewDock(QWidget *widget);
-    void runControlStarted(DebuggerRunControl *runControl);
-    void runControlFinished(DebuggerRunControl *runControl);
-
-    // This contains per-session data like breakpoints and watched
-    // expression. It serves as a template for new engine instantiations.
-    Internal::DebuggerEngine *sessionTemplate();
+    QVariant sessionValue(const QString &name);
+    void setSessionValue(const QString &name, const QVariant &value);
+    QVariant configValue(const QString &name) const;
+    void setConfigValue(const QString &name, const QVariant &value);
     void updateState(Internal::DebuggerEngine *engine);
 
+    QIcon locationMarkIcon() const;
+    void activateDebugMode();
+
+    const CPlusPlus::Snapshot &cppCodeModelSnapshot() const;
     bool isRegisterViewVisible() const;
+
+    void openTextEditor(const QString &titlePattern, const QString &contents);
 
 public slots:
     void clearCppCodeModelSnapshot();
@@ -115,11 +99,31 @@ signals:
     void stateChanged(int);
 
 private:
-    QMessageBox *showMessageBox(int icon, const QString &title,
-        const QString &text, int buttons = 0);
-
     friend class Internal::DebuggerEngine;
     friend class Internal::DebuggerListener;
+
+    friend class DebuggerPluginPrivate;
+    friend class DebuggerRunControl;
+
+    bool coreAboutToClose();
+
+    void resetLocation();
+    void gotoLocation(const QString &fileName, int lineNumber, bool setMarker);
+    void activatePreviousMode();
+    void readSettings();
+    void writeSettings() const;
+
+    bool isReverseDebugging() const;
+    void createNewDock(QWidget *widget);
+    void runControlStarted(DebuggerRunControl *runControl);
+    void runControlFinished(DebuggerRunControl *runControl);
+
+    // This contains per-session data like breakpoints and watched
+    // expression. It serves as a template for new engine instantiations.
+    Internal::DebuggerEngine *sessionTemplate();
+
+    QMessageBox *showMessageBox(int icon, const QString &title,
+        const QString &text, int buttons = 0);
 
     Q_SLOT void emitShutdownFinished();
     bool initialize(const QStringList &arguments, QString *errorMessage);
@@ -128,8 +132,6 @@ private:
 
     QWidget *mainWindow() const;
 
-private:
-    friend class DebuggerPluginPrivate;
     DebuggerPluginPrivate *d;
 };
 

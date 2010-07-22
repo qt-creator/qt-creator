@@ -208,7 +208,8 @@ QWidget *DebuggerRunControlFactory::createConfigurationWidget
 
 DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
         DebuggerEngineType enabledEngines, const DebuggerStartParameters &sp)
-    : RunControl(runConfiguration, ProjectExplorer::Constants::DEBUGMODE)
+    : RunControl(runConfiguration, ProjectExplorer::Constants::DEBUGMODE),
+      m_myRunConfiguration(runConfiguration)
 {
     m_running = false;
     m_enabledEngines = enabledEngines;

@@ -86,7 +86,8 @@ class DEBUGGER_EXPORT DebuggerRunControl
     Q_OBJECT
 
 public:
-    DebuggerRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
+    typedef ProjectExplorer::RunConfiguration RunConfiguration;
+    DebuggerRunControl(RunConfiguration *runConfiguration,
         DebuggerEngineType enabledEngines, const DebuggerStartParameters &sp);
     ~DebuggerRunControl();
 
@@ -104,6 +105,7 @@ public:
     void startFailed();
     void startSuccessful();
     void debuggingFinished();
+    RunConfiguration *runConfiguration() const { return m_myRunConfiguration.data(); }
 
     DebuggerState state() const;
     Internal::DebuggerEngine *engine();
@@ -124,6 +126,7 @@ private:
     DebuggerEngineType engineForMode(DebuggerStartMode mode);
 
     Internal::DebuggerEngine *m_engine;
+    const QWeakPointer<RunConfiguration> m_myRunConfiguration;
     bool m_running;
     DebuggerEngineType m_enabledEngines;
     QString m_errorMessage;

@@ -45,7 +45,8 @@ QT_END_NAMESPACE
 namespace Core {
 namespace Internal {
 
-class FancyTab : public QObject{
+class FancyTab : public QObject
+{
     Q_OBJECT
 
     Q_PROPERTY(float fader READ fader WRITE setFader)
@@ -112,7 +113,7 @@ public:
     void setTabToolTip(int index, QString toolTip) { m_tabs[index]->toolTip = toolTip; }
     QString tabToolTip(int index) const { return m_tabs.at(index)->toolTip; }
 
-    QIcon tabIcon(int index) const {return m_tabs.at(index)->icon; }
+    QIcon tabIcon(int index) const { return m_tabs.at(index)->icon; }
     QString tabText(int index) const { return m_tabs.at(index)->text; }
     int count() const {return m_tabs.count(); }
     QRect tabRect(int index) const;

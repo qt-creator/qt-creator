@@ -186,7 +186,6 @@ struct ProjectExplorerPluginPrivate {
 
     QString m_lastOpenDirectory;
     RunConfiguration *m_delayedRunConfiguration; // TODO this is not right
-    RunControl *m_debuggingRunControl;
     QString m_runMode;
     QString m_projectFilterString;
     Internal::MiniProjectTargetSelector * m_targetSelector;
@@ -200,7 +199,6 @@ ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate() :
     m_currentProject(0),
     m_currentNode(0),
     m_delayedRunConfiguration(0),
-    m_debuggingRunControl(0),
     m_projectsMode(0)
 {
 }
@@ -1319,9 +1317,6 @@ void ProjectExplorerPlugin::startRunControl(RunControl *runControl, const QStrin
     connect(runControl, SIGNAL(finished()),
             this, SLOT(runControlFinished()));
 
-    if (runMode == ProjectExplorer::Constants::DEBUGMODE)
-        d->m_debuggingRunControl = runControl;
-
     runControl->start();
     updateRunActions();
 }
@@ -1788,7 +1783,7 @@ void ProjectExplorerPlugin::runProjectImpl(Project *pro, QString mode)
 void ProjectExplorerPlugin::debugProject()
 {
     Project *pro = startupProject();
-    if (!pro || d->m_debuggingRunControl )
+    if (!pro)
         return;
 
     runProjectImpl(pro, ProjectExplorer::Constants::DEBUGMODE);
@@ -1821,9 +1816,6 @@ bool ProjectExplorerPlugin::showBuildConfigDialog()
 
 void ProjectExplorerPlugin::runControlFinished()
 {
-    if (sender() == d->m_debuggingRunControl)
-        d->m_debuggingRunControl = 0;
-
     updateRunActions();
 }
 
@@ -1934,7 +1926,7 @@ void ProjectExplorerPlugin::updateRunActions()
 
     bool canRun = findRunControlFactory(activeRC, ProjectExplorer::Constants::RUNMODE)
                   && activeRC->isEnabled();
-    const bool canDebug = !d->m_debuggingRunControl && findRunControlFactory(activeRC, ProjectExplorer::Constants::DEBUGMODE)
+    const bool canDebug = findRunControlFactory(activeRC, ProjectExplorer::Constants::DEBUGMODE)
                           && activeRC->isEnabled();
     const bool building = d->m_buildManager->isBuilding();
 

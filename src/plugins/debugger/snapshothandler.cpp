@@ -286,5 +286,10 @@ void SnapshotHandler::setCurrentIndex(int index)
     reset();
 }
 
+DebuggerRunControl *SnapshotHandler::at(int i)
+{
+    return m_snapshots.at(i).data();
+}
+
 } // namespace Internal
 } // namespace Debugger
