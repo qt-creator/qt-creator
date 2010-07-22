@@ -1199,7 +1199,7 @@ std::string testStdString()
     return str;
 }
 
-std::vector<int> testStdVector()
+void testStdVector()
 {
     std::vector<int *> plist1;
     plist1.push_back(new int(1));
@@ -1233,8 +1233,9 @@ std::vector<int> testStdVector()
     std::vector<bool> vec;
     vec.push_back(true);
     vec.push_back(false);
-
-    return flist2;
+    vec.push_back(false);
+    vec.push_back(true);
+    vec.push_back(false);
 }
 
 void testQStandardItemModel()

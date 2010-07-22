@@ -1969,10 +1969,21 @@ def qdump__std__string(d, item):
 
 def qdump__std__vector(d, item):
     impl = item.value["_M_impl"]
-    start = impl["_M_start"]
-    finish = impl["_M_finish"]
+    type = item.value.type.template_argument(0)
     alloc = impl["_M_end_of_storage"]
-    size = finish - start
+    isBool = str(type) == 'bool'
+    if isBool:
+        start = impl["_M_start"]["_M_p"]
+        finish = impl["_M_finish"]["_M_p"]
+        # FIXME: 32 is sizeof(unsigned long) * CHAR_BIT
+        storagesize = 32
+        size = (finish - start) * storagesize
+        size += impl["_M_finish"]["_M_offset"]
+        size -= impl["_M_start"]["_M_offset"]
+    else:
+        start = impl["_M_start"]
+        finish = impl["_M_finish"]
+        size = finish - start
 
     check(0 <= size and size <= 1000 * 1000 * 1000)
     check(finish <= alloc)
@@ -1983,11 +1994,18 @@ def qdump__std__vector(d, item):
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded(item):
-        with Children(d, [size, 10000], item.value.type.template_argument(0)):
-            p = start
-            for i in d.childRange():
-                d.putItem(Item(p.dereference(), item.iname, i))
-                p += 1
+        if isBool:
+            with Children(d, [size, 10000], type):
+                for i in d.childRange():
+                    q = start + i / storagesize
+                    data = (q.dereference() >> (i % storagesize)) & 1
+                    d.putBoolItem(str(i), select(data, "true", "false"))
+        else:
+            with Children(d, [size, 10000], type):
+                p = start
+                for i in d.childRange():
+                    d.putItem(Item(p.dereference(), item.iname, i))
+                    p += 1
 
 
 def qdump__string(d, item):
