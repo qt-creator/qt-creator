@@ -1,4 +1,4 @@
-<plugin name="HelloWorld" version="2.0.80" compatVersion="2.0.80">
+<plugin name="HelloWorld" version="2.1.0" compatVersion="2.1.0">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2010 Nokia Corporation</copyright>
     <license>
@@ -13,6 +13,6 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <description>Hello World sample plugin.</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="Core" version="2.0.80"/>
+        <dependency name="Core" version="2.1.0"/>
     </dependencyList>
 </plugin>
