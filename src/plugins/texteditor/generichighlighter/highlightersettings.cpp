@@ -155,7 +155,8 @@ void HighlighterSettings::assignInitialIgnoredPatterns()
         << QLatin1String("README")
         << QLatin1String("INSTALL")
         << QLatin1String("COPYING")
-        << QLatin1String("NEWS");
+        << QLatin1String("NEWS")
+        << QLatin1String("qmldir");
     setExpressionsFromList(patterns);
 }
 
