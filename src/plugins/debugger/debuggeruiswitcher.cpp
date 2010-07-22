@@ -36,22 +36,21 @@
 #include <utils/savedaction.h>
 #include <utils/styledbar.h>
 #include <utils/qtcassert.h>
-#include <coreplugin/actionmanager/command.h>
-#include <debugger/debuggerconstants.h>
-#include <debugger/debuggeractions.h>
 
-#include <coreplugin/modemanager.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/basemode.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/findplaceholder.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
-#include <coreplugin/rightpane.h>
-#include <coreplugin/outputpane.h>
+#include <coreplugin/modemanager.h>
 #include <coreplugin/navigationwidget.h>
-#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/outputpane.h>
+#include <coreplugin/rightpane.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <QtGui/QActionGroup>
@@ -92,8 +91,6 @@ struct DebuggerUISwitcherPrivate
     int m_activeLanguage;
     bool m_isActiveMode;
     bool m_changingUI;
-
-    const static int StackIndexRole = Qt::UserRole + 11;
 
     Core::ActionContainer *m_languageMenu;
     Core::ActionContainer *m_viewsMenu;
@@ -301,7 +298,6 @@ void DebuggerUISwitcher::changeDebuggerUI(const QString &langName)
         }
 
         d->m_languageMenu->menu()->setTitle(tr("Language") + " (" + langName + ")");
-        QHashIterator<int, Core::Command *> iter(d->m_menuCommands);
 
         Core::ICore *core = Core::ICore::instance();
         const Core::Context &oldContexts = d->m_contextsForLanguage.value(d->m_activeLanguage);
