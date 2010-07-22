@@ -31,10 +31,10 @@ public:
 private:
     bool isCursorSynchronized() const;
     QWidget *dummyWidget() const;
+    void updateFilterMenu();
 
 private slots:
     void toggleCursorSynchronization();
-    void updateFilterMenu();
     void updateCurrentEditor(Core::IEditor *editor);
 
 private:

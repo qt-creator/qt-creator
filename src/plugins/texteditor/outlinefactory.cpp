@@ -39,7 +39,6 @@ OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
     m_filterButton->setPopupMode(QToolButton::InstantPopup);
     m_filterMenu = new QMenu(m_filterButton);
     m_filterButton->setMenu(m_filterMenu);
-    connect(m_filterMenu, SIGNAL(aboutToShow()), this, SLOT(updateFilterMenu()));
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     connect(editorManager, SIGNAL(currentEditorChanged(Core::IEditor*)),
@@ -108,6 +107,7 @@ void OutlineWidgetStack::updateFilterMenu()
             m_filterMenu->addAction(filterAction);
         }
     }
+    m_filterButton->setEnabled(!m_filterMenu->actions().isEmpty());
 }
 
 void OutlineWidgetStack::updateCurrentEditor(Core::IEditor *editor)
@@ -138,6 +138,8 @@ void OutlineWidgetStack::updateCurrentEditor(Core::IEditor *editor)
             addWidget(newWidget);
             setCurrentWidget(newWidget);
         }
+
+        updateFilterMenu();
     }
 }
 
