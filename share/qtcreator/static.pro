@@ -31,6 +31,7 @@ DATA_DIRS = \
     styles \
     gdbmacros \
     qmldesigner \
+    qmlicons \
     qml-type-descriptions \
     generic-highlighter
 
