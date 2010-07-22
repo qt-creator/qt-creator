@@ -87,10 +87,11 @@ QDataStream& operator>>(QDataStream& s, WatchData &data)
     QString value;
     QString type;
     bool hasChildren;
-    s >> data.exp >> data.name >> value >> type >> hasChildren;
+    s >> data.exp >> data.name >> value >> type >> hasChildren >> data.objectId;
     data.setType(type, false);
     data.setValue(value);
     data.setHasChildren(hasChildren);
+    data.setAllUnneeded();
     return s;
 }
 
@@ -526,12 +527,16 @@ void QmlEngine::updateWatchData(const WatchData &data)
     //watchHandler()->rebuildModel();
     showStatusMessage(tr("Stopped."), 5000);
 
-    if (!data.name.isEmpty()) {
+    if (!data.name.isEmpty() && data.isValueNeeded()) {
         QByteArray reply;
         QDataStream rs(&reply, QIODevice::WriteOnly);
         rs << QByteArray("EXEC");
         rs << data.iname << data.name;
         sendMessage(reply);
+    }
+
+    if (!data.name.isEmpty() && data.isChildrenNeeded() && watchHandler()->isExpandedIName(data.iname)) {
+        expandObject(data.iname, data.objectId);
     }
 
     {
@@ -542,6 +547,16 @@ void QmlEngine::updateWatchData(const WatchData &data)
         sendMessage(reply);
     }
 }
+
+void QmlEngine::expandObject(const QByteArray& iname, quint64 objectId)
+{
+    QByteArray reply;
+    QDataStream rs(&reply, QIODevice::WriteOnly);
+    rs << QByteArray("EXPAND");
+    rs << iname << objectId;
+    sendMessage(reply);
+}
+
 
 DebuggerEngine *createQmlEngine(const DebuggerStartParameters &sp)
 {
@@ -599,11 +614,17 @@ void QmlEngine::messageReceived(const QByteArray &message)
         foreach (WatchData data, watches) {
             data.iname = watchHandler()->watcherName(data.exp);
             watchHandler()->insertData(data);
+
+            if (watchHandler()->expandedINames().contains(data.iname))
+                expandObject(data.iname, data.objectId);
         }
 
         foreach (WatchData data, locals) {
             data.iname = "local." + data.exp;
             watchHandler()->insertData(data);
+
+            if (watchHandler()->expandedINames().contains(data.iname))
+                expandObject(data.iname, data.objectId);
         }
 
         watchHandler()->endCycle();
@@ -614,6 +635,18 @@ void QmlEngine::messageReceived(const QByteArray &message)
         stream >> iname >> data;
         data.iname = iname;
         watchHandler()->insertData(data);
+
+    } else if (command == "EXPANDED") {
+        QList<WatchData> result;
+        QByteArray iname;
+        stream >> iname >> result;
+        foreach (WatchData data, result) {
+            data.iname = iname + '.' + data.exp;
+            watchHandler()->insertData(data);
+
+            if (watchHandler()->expandedINames().contains(data.iname)) 
+                expandObject(data.iname, data.objectId);
+        }
     } else {
         qDebug() << Q_FUNC_INFO << "Unknown command: " << command;
     }

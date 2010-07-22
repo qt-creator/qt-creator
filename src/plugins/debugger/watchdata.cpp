@@ -25,6 +25,7 @@ WatchData::WatchData() :
     valueEditable(true),
     error(false),
     source(0),
+    objectId(0),
     state(InitialState),
     changed(false)
 {

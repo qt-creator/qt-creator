@@ -62,6 +62,8 @@
 
 QT_BEGIN_NAMESPACE
 
+class JSAgentWatchData;
+
 class JSDebuggerAgent : public QDeclarativeDebugService , public QScriptEngineAgent
 { Q_OBJECT
 public:
@@ -100,6 +102,7 @@ public slots:
 //    void pauses();
 
 private:
+
     enum State {
         NoState,
         SteppingIntoState,
@@ -114,10 +117,14 @@ private:
     void continueExec();
     void stopped();
 
+
+    void recordKnownObjects(const QList<JSAgentWatchData> &);
+
     QEventLoop loop;
     QHash <qint64, QString> filenames;
     QSet< QPair<QString, qint32> > breakpointList;
     QStringList watchExpressions;
+    QSet<qint64> knownObjectIds;
 
     Q_DISABLE_COPY(JSDebuggerAgent)
 };

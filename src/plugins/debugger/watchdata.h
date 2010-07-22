@@ -130,6 +130,7 @@ public:
 
 public:
     int source;  // Originated from dumper or symbol evaluation? (CDB only)
+    quint64 objectId; // Object id used for the QMLEngine
     int state;
     bool changed;
 };

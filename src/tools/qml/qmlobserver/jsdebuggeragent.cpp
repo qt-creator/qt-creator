@@ -52,13 +52,13 @@
 
 QT_BEGIN_NAMESPACE
 
-namespace {
 struct JSAgentWatchData {
     QByteArray exp;
     QString name;
     QString value;
     QString type;
     bool hasChildren;
+    quint64 objectId;
 
     static JSAgentWatchData fromScriptValue(const QString &expression, const QScriptValue &value)
     {
@@ -67,6 +67,7 @@ struct JSAgentWatchData {
         data.name = expression;
         data.hasChildren = false;
         data.value = value.toString();
+        data.objectId = value.objectId();
         if (value.isArray()) {
             data.type = QLatin1String("Array");
             data.value = QString::fromLatin1("[Array of length %1]").arg(value.property("length").toString());
@@ -113,9 +114,24 @@ struct JSAgentWatchData {
 
 QDataStream& operator<<(QDataStream& s, const JSAgentWatchData& data)
 {
-    return s << data.exp << data.name << data.value << data.type << data.hasChildren;
+    return s << data.exp << data.name << data.value << data.type << data.hasChildren << data.objectId;
 }
 
+static QList<JSAgentWatchData> expandObject(const QScriptValue &object)
+{
+    QList<JSAgentWatchData> result;
+    QScriptValueIterator it(object);
+    while (it.hasNext()) {
+        it.next();
+        result << JSAgentWatchData::fromScriptValue(it.name(), it.value());
+    }
+    return result;
+}
+
+void JSDebuggerAgent::recordKnownObjects(const QList<JSAgentWatchData>& list)
+{
+    foreach (const JSAgentWatchData &data, list)
+        knownObjectIds << data.objectId;
 }
 
 
@@ -289,12 +305,34 @@ void JSDebuggerAgent::messageReceived(const QByteArray& message)
         ds >> id >> expr;
 
         JSAgentWatchData data = JSAgentWatchData::fromScriptValue(expr, engine()->evaluate(expr));
+        knownObjectIds << data.objectId;
         // Clear any exceptions occurred during locals evaluation.
         engine()->clearExceptions();
 
         QByteArray reply;
         QDataStream rs(&reply, QIODevice::WriteOnly);
         rs << QByteArray("RESULT") << id << data;
+        sendMessage(reply);
+        state = oldState;
+    } else if (command == "EXPAND") {
+        State oldState = state;
+        state = Stopped;
+        QByteArray requestId;
+        quint64 objectId;
+        ds >> requestId >> objectId;
+        QScriptValue v;
+        if (knownObjectIds.contains(objectId))
+            v = engine()->objectById(objectId);
+
+        QList<JSAgentWatchData> result = expandObject(v);
+        recordKnownObjects(result);
+
+        // Clear any exceptions occurred during locals evaluation.
+        engine()->clearExceptions();
+
+        QByteArray reply;
+        QDataStream rs(&reply, QIODevice::WriteOnly);
+        rs << QByteArray("EXPANDED") << requestId << result;
         sendMessage(reply);
         state = oldState;
 
@@ -307,6 +345,7 @@ void JSDebuggerAgent::messageReceived(const QByteArray& message)
 
 void JSDebuggerAgent::stopped()
 {
+    knownObjectIds.clear();
     state = Stopped;
     QList<QPair<QString, QPair<QString, qint32> > > backtrace;
 
@@ -335,17 +374,14 @@ void JSDebuggerAgent::stopped()
         backtrace.append(qMakePair(functionName, qMakePair( QUrl(info.fileName()).toLocalFile(), info.lineNumber() ) ) );
     }
     QList<JSAgentWatchData> watches;
-    foreach (const QString &expr, watchExpressions) {
+    foreach (const QString &expr, watchExpressions)
         watches << JSAgentWatchData::fromScriptValue(expr,  engine()->evaluate(expr));
-    }
 
-    QList<JSAgentWatchData> locals;
     QScriptValue activationObject = engine()->currentContext()->activationObject();
-    QScriptValueIterator it(activationObject);
-    while (it.hasNext()) {
-        it.next();
-        locals << JSAgentWatchData::fromScriptValue(it.name(), it.value());
-    }
+    QList<JSAgentWatchData> locals = expandObject(activationObject);
+
+    recordKnownObjects(watches);
+    recordKnownObjects(locals);
 
     // Clear any exceptions occurred during locals evaluation.
     engine()->clearExceptions();

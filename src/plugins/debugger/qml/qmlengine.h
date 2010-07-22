@@ -128,6 +128,8 @@ signals:
     void sendMessage(const QByteArray &msg);
 
 private:
+    void expandObject(const QByteArray &iname, quint64 objectId);
+
 #if 0
     void createDockWidgets();
     bool connectToViewer(); // using host, port from widgets
