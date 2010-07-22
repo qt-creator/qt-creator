@@ -28,7 +28,7 @@
 **************************************************************************/
 
 
-#include "S60deployStep.h"
+#include "S60deploystep.h"
 
 #include "qt4buildconfiguration.h"
 #include "s60devicerunconfiguration.h"
