@@ -1661,6 +1661,7 @@ void DebuggerPluginPrivate::onCurrentProjectChanged(ProjectExplorer::Project *pr
     // No corresponding debugger found. So we are ready to start one.
     ICore *core = ICore::instance();
     core->updateAdditionalContexts(m_continuableContext, Core::Context());
+    core->updateAdditionalContexts(m_interruptibleContext, Core::Context());
 }
 
 void DebuggerPluginPrivate::onAction()
