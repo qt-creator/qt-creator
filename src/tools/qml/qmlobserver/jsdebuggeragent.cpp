@@ -121,6 +121,7 @@ static QList<JSAgentWatchData> expandObject(const QScriptValue &object)
 {
     QList<JSAgentWatchData> result;
     QScriptValueIterator it(object);
+    QByteArray expPrefix = '@' + QByteArray::number(object.objectId(), 16) + "->";
     while (it.hasNext()) {
         it.next();
         if (it.flags() & QScriptValue::SkipInEnumeration)
@@ -130,7 +131,9 @@ static QList<JSAgentWatchData> expandObject(const QScriptValue &object)
             //  and it is not usefull in the debugger.
             continue;
         }
-        result << JSAgentWatchData::fromScriptValue(it.name(), it.value());
+        JSAgentWatchData data = JSAgentWatchData::fromScriptValue(it.name(), it.value());
+        data.exp.prepend(expPrefix);
+        result << data;
     }
     return result;
 }
@@ -368,6 +371,31 @@ void JSDebuggerAgent::messageReceived(const QByteArray& message)
         QDataStream rs(&reply, QIODevice::WriteOnly);
         rs << QByteArray("LOCALS") << frameId << locals;
         sendMessage(reply);
+
+    } else if (command == "SET_PROPERTY") {
+        State oldState = state;
+        state = Stopped;
+
+        QByteArray id;
+        qint64 objectId;
+        QString property;
+        QString value;
+        ds >> id >> objectId >> property >> value;
+
+        if (knownObjectIds.contains(objectId)) {
+            QScriptValue object;
+            object = engine()->objectById(objectId);
+
+            if(object.isObject()) {
+                QScriptValue result = engine()->evaluate(value);
+                object.setProperty(property, result);
+            }
+
+            // Clear any exceptions occurred during locals evaluation.
+            engine()->clearExceptions();
+        }
+        state = oldState;
+        //TODO: feedback
     } else {
         qDebug() << Q_FUNC_INFO << "Unknown command" << command;
     }
@@ -414,6 +442,7 @@ void JSDebuggerAgent::stopped()
 
     recordKnownObjects(watches);
     recordKnownObjects(locals);
+    knownObjectIds << activationObject.objectId();
 
     // Clear any exceptions occurred during locals evaluation.
     engine()->clearExceptions();

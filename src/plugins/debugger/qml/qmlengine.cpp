@@ -517,7 +517,19 @@ void QmlEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEd
 void QmlEngine::assignValueInDebugger(const QString &expression,
     const QString &value)
 {
-    XSDEBUG("ASSIGNING: " << expression + '=' + value);
+    QRegExp inObject("@([0-9a-fA-F]+)->(.+)");
+    if (inObject.exactMatch(expression)) {
+        bool ok = false;
+        quint64 objectId = inObject.cap(1).toULongLong(&ok, 16);
+        QString property = inObject.cap(2);
+        if (ok && objectId > 0 && !property.isEmpty()) {
+            QByteArray reply;
+            QDataStream rs(&reply, QIODevice::WriteOnly);
+            rs << QByteArray("SET_PROPERTY");
+            rs << expression.toUtf8() << objectId << property << value;
+            sendMessage(reply);
+        }
+    }
 }
 
 void QmlEngine::updateWatchData(const WatchData &data)
