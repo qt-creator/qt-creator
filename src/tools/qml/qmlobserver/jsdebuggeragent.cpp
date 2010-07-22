@@ -125,6 +125,11 @@ static QList<JSAgentWatchData> expandObject(const QScriptValue &object)
         it.next();
         if (it.flags() & QScriptValue::SkipInEnumeration)
             continue;
+        if (object.isQObject() && it.value().isFunction()) {
+            // cosmetics: skip all signals and slot, there is too many of them,
+            //  and it is not usefull in the debugger.
+            continue;
+        }
         result << JSAgentWatchData::fromScriptValue(it.name(), it.value());
     }
     return result;
