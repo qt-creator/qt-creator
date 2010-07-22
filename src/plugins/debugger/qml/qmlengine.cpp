@@ -113,7 +113,7 @@ public:
 
     void sendMessage(const QByteArray &msg)
     {
-        QTC_ASSERT(isConnected(), /**/);
+        QTC_kASSERT(isConnected(), /**/);
         qDebug() << "SENDING: " << quoteUnprintableLatin1(msg);
         QDeclarativeDebugClient::sendMessage(msg);
     }

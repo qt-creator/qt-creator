@@ -491,7 +491,7 @@ void QmlOutlineModel::reparentNodes(QmlOutlineItem *targetItem, int row, QList<Q
 {
     Utils::ChangeSet changeSet;
 
-    AST::UiObjectMember *targetObjectMember = dynamic_cast<AST::UiObjectMember*>(targetItem->node());
+    AST::UiObjectMember *targetObjectMember = targetItem->node()->uiObjectMemberCast();
     if (!targetObjectMember)
         return;
 
@@ -499,7 +499,7 @@ void QmlOutlineModel::reparentNodes(QmlOutlineItem *targetItem, int row, QList<Q
 
     for (int i = 0; i < itemsToMove.size(); ++i) {
         QmlOutlineItem *outlineItem = itemsToMove.at(i);
-        AST::UiObjectMember *sourceObjectMember = dynamic_cast<AST::UiObjectMember*>(outlineItem->node());
+        AST::UiObjectMember *sourceObjectMember = outlineItem->node()->uiObjectMemberCast();
         if (!sourceObjectMember)
             return;
 
@@ -510,7 +510,7 @@ void QmlOutlineModel::reparentNodes(QmlOutlineItem *targetItem, int row, QList<Q
                 insertionOrderSpecified = false;
             } else if (row > 0) {
                 QmlOutlineItem *outlineItem = static_cast<QmlOutlineItem*>(targetItem->child(row - 1));
-                memberToInsertAfter = dynamic_cast<QmlJS::AST::UiObjectMember*>(outlineItem->node());
+                memberToInsertAfter = outlineItem->node()->uiObjectMemberCast();
             }
         }
 
@@ -555,7 +555,7 @@ void QmlOutlineModel::moveObjectMember(AST::UiObjectMember *toMove,
 
     const QString documentText = m_semanticInfo.document->source();
 
-    if (AST::UiObjectDefinition *objDefinition = dynamic_cast<AST::UiObjectDefinition*>(newParent)) {
+    if (AST::UiObjectDefinition *objDefinition = AST::cast<AST::UiObjectDefinition*>(newParent)) {
         // target is an element
 
         Rewriter rewriter(documentText, changeSet, QStringList());
@@ -570,7 +570,7 @@ void QmlOutlineModel::moveObjectMember(AST::UiObjectMember *toMove,
             }
         }
 
-        if (AST::UiScriptBinding *moveScriptBinding = dynamic_cast<AST::UiScriptBinding*>(toMove)) {
+        if (AST::UiScriptBinding *moveScriptBinding = AST::cast<AST::UiScriptBinding*>(toMove)) {
             const QString propertyName = asString(moveScriptBinding->qualifiedId);
             QString propertyValue;
             {
@@ -602,9 +602,6 @@ void QmlOutlineModel::moveObjectMember(AST::UiObjectMember *toMove,
     } else {
         // target is a property
     }
-
-//    addedRange->start = newParent->lastSourceLocation().offset - 1;
-//    addedRange->end = addedRange->start + strToMove.length();
 }
 
 QStandardItem *QmlOutlineModel::parentItem()
@@ -667,12 +664,12 @@ QIcon QmlOutlineModel::getIcon(AST::UiObjectDefinition *objDef) {
 QString QmlOutlineModel::getId(AST::UiObjectDefinition *objDef) {
     QString id;
     for (AST::UiObjectMemberList *it = objDef->initializer->members; it; it = it->next) {
-        if (AST::UiScriptBinding *binding = dynamic_cast<AST::UiScriptBinding*>(it->member)) {
+        if (AST::UiScriptBinding *binding = AST::cast<AST::UiScriptBinding*>(it->member)) {
             if (binding->qualifiedId->name->asString() == "id") {
-                AST::ExpressionStatement *expr = dynamic_cast<AST::ExpressionStatement*>(binding->statement);
+                AST::ExpressionStatement *expr = AST::cast<AST::ExpressionStatement*>(binding->statement);
                 if (!expr)
                     continue;
-                AST::IdentifierExpression *idExpr = dynamic_cast<AST::IdentifierExpression*>(expr->expression);
+                AST::IdentifierExpression *idExpr = AST::cast<AST::IdentifierExpression*>(expr->expression);
                 if (!idExpr)
                     continue;
                 id = idExpr->name->asString();
