@@ -40,15 +40,15 @@ void ContextPaneWidgetImage::setProperties(QmlJS::PropertyReader *propertyReader
 
         ui->stretchRadioButton->setChecked(true);
 
-        if (fillMode == "Tile")
+        if (fillMode == "Image.Tile" || fillMode == "Tile")
             ui->tileRadioButton->setChecked(true);
-        if (fillMode == "TileVertically")
+        if (fillMode == "Image.TileVertically" || fillMode == "TileVertically")
             ui->horizontalStretchRadioButton->setChecked(true);
-        if (fillMode == "TileHorizontally")
+        if (fillMode == "Image.TileHorizontally" || fillMode == "TileHorizontally")
             ui->verticalStretchRadioButton->setChecked(true);
-        if (fillMode == "PreserveAspectFit")
+        if (fillMode == "Image.PreserveAspectFit" || fillMode == "PreserveAspectFit")
             ui->preserveAspectFitRadioButton->setChecked(true);
-        if (fillMode == "PreserveAspectCrop")
+        if (fillMode == "Image.PreserveAspectCrop" || fillMode == "PreserveAspectCrop")
             ui->cropAspectFitRadioButton->setChecked(true);
     } else {
         ui->stretchRadioButton->setChecked(true);
@@ -76,19 +76,19 @@ void ContextPaneWidgetImage::onStretchChanged()
 {
     QString stretch;
     if (ui->stretchRadioButton->isChecked())
-        stretch = QLatin1String("Stretch");
+        stretch = QLatin1String("Image.Stretch");
     else if (ui->tileRadioButton->isChecked())
-        stretch = QLatin1String("Tile");
+        stretch = QLatin1String("Image.Tile");
     else if (ui->horizontalStretchRadioButton->isChecked())
-        stretch = QLatin1String("TileVertically");
+        stretch = QLatin1String("Image.TileVertically");
     else if (ui->verticalStretchRadioButton->isChecked())
-        stretch = QLatin1String("TileHorizontally");
+        stretch = QLatin1String("Image.TileHorizontally");
     else if (ui->preserveAspectFitRadioButton->isChecked())
-        stretch = QLatin1String("PreserveAspectFit");
+        stretch = QLatin1String("Image.PreserveAspectFit");
     else if (ui->cropAspectFitRadioButton->isChecked())
-        stretch = QLatin1String("PreserveAspectCrop");
+        stretch = QLatin1String("Image.PreserveAspectCrop");
 
-    if (stretch == QLatin1String("Stretch"))
+    if (stretch == QLatin1String("Image.Stretch"))
         emit removeProperty(QLatin1String("fillMode"));
     else
         emit propertyChanged(QLatin1String("fillMode"), stretch);

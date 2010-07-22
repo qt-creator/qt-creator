@@ -200,9 +200,6 @@ void ContextPaneWidgetRectangle::onGradientLineDoubleClicked(const QPoint &p)
     parentContextWidget->colorDialog()->setupColor(ui->gradientLine->activeColor());
     pos = parentContextWidget->colorDialog()->parentWidget()->mapFromGlobal(pos);
     parentContextWidget->onShowColorDialog(true, pos);
-
-
-
 }
 
 void ContextPaneWidgetRectangle::onUpdateGradient()
