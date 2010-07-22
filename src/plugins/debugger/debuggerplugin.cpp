@@ -1643,11 +1643,13 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
 
 void DebuggerPluginPrivate::onCurrentProjectChanged(ProjectExplorer::Project *project)
 {
-    QTC_ASSERT(project, return);
-    ProjectExplorer::Target *target = project->activeTarget();
-    QTC_ASSERT(target, return);
-    ProjectExplorer::RunConfiguration *activeRc = target->activeRunConfiguration();
-    QTC_ASSERT(activeRc, return);
+    ProjectExplorer::RunConfiguration *activeRc = 0;
+    if (project) {
+        ProjectExplorer::Target *target = project->activeTarget();
+        QTC_ASSERT(target, return);
+        activeRc = target->activeRunConfiguration();
+        QTC_ASSERT(activeRc, /**/);
+    }
     for (int i = 0, n = m_snapshotHandler->size(); i != n; ++i) {
         DebuggerRunControl *runControl = m_snapshotHandler->at(i);
         RunConfiguration *rc = runControl->runConfiguration();
