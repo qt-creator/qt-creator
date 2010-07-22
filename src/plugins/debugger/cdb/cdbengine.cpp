@@ -443,7 +443,6 @@ void CdbEngine::runEngine()
     if (debugCDBExecution)
         qDebug("runEngine");
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
-    showStatusMessage("Starting Debugger", messageTimeOut);
 
     const DebuggerStartParameters &sp = startParameters();
     bool rc = false;
