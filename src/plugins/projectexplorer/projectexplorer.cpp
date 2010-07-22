@@ -637,7 +637,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // deploy action (context menu)
     d->m_deployActionContextMenu = new Utils::ParameterAction(tr("Deploy Project"), tr("Deploy Project \"%1\""),
                                                               Utils::ParameterAction::AlwaysEnabled, this);
-    cmd = am->registerAction(d->m_rebuildActionContextMenu, Constants::DEPLOYCM, globalcontext);
+    cmd = am->registerAction(d->m_deployActionContextMenu, Constants::DEPLOYCM, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDefaultText(d->m_deployActionContextMenu->text());
     mproject->addAction(cmd, Constants::G_PROJECT_BUILD);
