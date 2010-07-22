@@ -55,6 +55,7 @@
 #include <QtCore/QTimer>
 
 #include <QtGui/QApplication>
+#include <QtGui/QMessageBox>
 #include <QtGui/QToolTip>
 
 #include <QtScript/QScriptContext>
@@ -263,9 +264,10 @@ void ScriptEngine::setupInferior()
     showMessage(_("SCRIPT FILE: ") + m_scriptFileName);
     QFile scriptFile(m_scriptFileName);
     if (!scriptFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
-        showMessage(_("Cannot open %1: %2").
-          arg(m_scriptFileName, scriptFile.errorString()), LogError);
-        notifyEngineSetupFailed();
+        showMessageBox(QMessageBox::Critical, tr("Error:"),
+            _("Cannot open script file %1:\n%2").
+          arg(m_scriptFileName, scriptFile.errorString()));
+        notifyInferiorSetupFailed();
         return;
     }
     QTextStream stream(&scriptFile);
