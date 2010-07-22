@@ -68,8 +68,10 @@ static inline void getBasicModuleParameters(const DEBUG_MODULE_PARAMETERS &p,
                                             Module *module)
 {
     const QString hexPrefix = QLatin1String("0x");
-    module->symbolsRead = (p.Flags & DEBUG_MODULE_USER_MODE)
-                          && (p.SymbolType != DEBUG_SYMTYPE_NONE);
+    if ((p.Flags & DEBUG_MODULE_USER_MODE) && (p.SymbolType != DEBUG_SYMTYPE_NONE))
+        module->symbolsRead = Module::ReadOk;
+    else
+        module->symbolsRead = Module::ReadFailed;
     module->startAddress = hexPrefix + QString::number(p.Base, 16);
     module->endAddress = hexPrefix + QString::number((p.Base + p.Size), 16);
 }
