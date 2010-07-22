@@ -92,16 +92,16 @@ struct JSAgentWatchData {
             data.type = QLatin1String("String");
         } else if (value.isVariant()) {
             data.type = QLatin1String("Variant");
+        } else if (value.isQObject()) {
+            const QObject *obj = value.toQObject();
+            data.value = QString::fromLatin1("[%1]").arg(obj->metaObject()->className());
+            data.type = QLatin1String("Object");
+            data.hasChildren = true;
         } else if (value.isObject()) {
             data.type = QLatin1String("Object");
             data.hasChildren = true;
+            data.type = QLatin1String("Object");
             data.value = QLatin1String("[Object]");
-/*        } else if (value.isQMetaObject()) {
-            data.setType(QLatin1String("QMetaObject"), false);
-            data.setValue(QString(QLatin1Char(' ')));
-        } else if (value.isQObject()) {
-            data.type = QLatin1String("QObject");
-            data.hasChildren = true;*/
         } else if (value.isNull()) {
             data.type = QLatin1String("<null>");
         } else {
@@ -123,6 +123,8 @@ static QList<JSAgentWatchData> expandObject(const QScriptValue &object)
     QScriptValueIterator it(object);
     while (it.hasNext()) {
         it.next();
+        if (it.flags() & QScriptValue::SkipInEnumeration)
+            continue;
         result << JSAgentWatchData::fromScriptValue(it.name(), it.value());
     }
     return result;
