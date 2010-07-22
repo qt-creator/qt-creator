@@ -496,10 +496,12 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             // Show some messages to give the impression something happens.
             if (data.startsWith("Reading symbols from ")) {
                 showStatusMessage(tr("Reading %1...").arg(_(data.mid(21))), 1000);
+                progressPing();
                 invalidateSourcesList();
             } else if (data.startsWith("[New ") || data.startsWith("[Thread ")) {
                 if (data.endsWith('\n'))
                     data.chop(1);
+                progressPing();
                 showStatusMessage(_(data), 1000);
             }
             break;

@@ -682,7 +682,7 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
 void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
 {
     if (!isSessionEngine()) {
-        d->m_progress.setProgressRange(0, 100);
+        d->m_progress.setProgressRange(0, 1000);
         Core::FutureProgress *fp = Core::ICore::instance()->progressManager()
             ->addTask(d->m_progress.future(),
             tr("Launching"), _("Debugger.Launcher"));
@@ -718,7 +718,7 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
          qDebug() << state());
     setState(EngineSetupRequested);
 
-    d->m_progress.setProgressValue(20);
+    d->m_progress.setProgressValue(200);
     setupEngine();
 }
 
@@ -890,9 +890,10 @@ void DebuggerEngine::addToWatchWindow()
 // Called from RunControl.
 void DebuggerEngine::handleStartFailed()
 {
+    showMessage("HANDLE RUNCONTROL START FAILED");
     d->m_runControl = 0;
 
-    d->m_progress.setProgressValue(90);
+    d->m_progress.setProgressValue(900);
     d->m_progress.reportCanceled();
     d->m_progress.reportFinished();
 }
@@ -900,6 +901,7 @@ void DebuggerEngine::handleStartFailed()
 // Called from RunControl.
 void DebuggerEngine::handleFinished()
 {
+    showMessage("HANDLE RUNCONTROL FINISHED");
     d->m_runControl = 0;
     modulesHandler()->removeAll();
     stackHandler()->removeAll();
@@ -911,7 +913,7 @@ void DebuggerEngine::handleFinished()
     breakHandler()->storeToTemplate(sessionTemplate->breakHandler());
     watchHandler()->storeToTemplate(sessionTemplate->watchHandler());
 
-    d->m_progress.setProgressValue(100);
+    d->m_progress.setProgressValue(1000);
     d->m_progress.reportFinished();
 }
 
@@ -1090,11 +1092,8 @@ void DebuggerEngine::notifyEngineSetupOk()
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     setState(EngineSetupOk);
     QTC_ASSERT(d->m_runControl, /**/);
-    if (d->m_runControl) {
-        d->m_progress.setProgressValue(100);
-        d->m_progress.reportFinished();
+    if (d->m_runControl)
         d->m_runControl->startSuccessful();
-    }
     showMessage(_("QUEUE: SETUP INFERIOR"));
     QTimer::singleShot(0, d, SLOT(doSetupInferior()));
 }
@@ -1103,7 +1102,7 @@ void DebuggerEnginePrivate::doSetupInferior()
 {
     m_engine->showMessage(_("CALL: SETUP INFERIOR"));
     QTC_ASSERT(state() == EngineSetupOk, qDebug() << state());
-    m_progress.setProgressValue(25);
+    m_progress.setProgressValue(250);
     m_engine->setState(InferiorSetupRequested);
     m_engine->setupInferior();
 }
@@ -1127,13 +1126,15 @@ void DebuggerEnginePrivate::doRunEngine()
 {
     m_engine->showMessage(_("CALL: RUN ENGINE"));
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
-    m_progress.setProgressValue(30);
+    m_progress.setProgressValue(300);
     m_engine->runEngine();
 }
 
 void DebuggerEngine::notifyInferiorUnrunnable()
 {
     showMessage(_("NOTE: INFERIOR UNRUNNABLE"));
+    d->m_progress.setProgressValue(1000);
+    d->m_progress.reportFinished();
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
     setState(InferiorUnrunnable);
 }
@@ -1142,6 +1143,9 @@ void DebuggerEngine::notifyEngineRunFailed()
 {
     showMessage(_("NOTE: ENGINE RUN FAILED"));
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
+    d->m_progress.setProgressValue(900);
+    d->m_progress.reportCanceled();
+    d->m_progress.reportFinished();
     setState(EngineRunFailed);
     d->queueShutdownInferior();
 }
@@ -1149,6 +1153,8 @@ void DebuggerEngine::notifyEngineRunFailed()
 void DebuggerEngine::notifyEngineRunAndInferiorRunOk()
 {
     showMessage(_("NOTE: ENGINE RUN AND INFERIOR RUN OK"));
+    d->m_progress.setProgressValue(1000);
+    d->m_progress.reportFinished();
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
     setState(InferiorRunRequested);
     notifyInferiorRunOk();
@@ -1157,6 +1163,8 @@ void DebuggerEngine::notifyEngineRunAndInferiorRunOk()
 void DebuggerEngine::notifyEngineRunAndInferiorStopOk()
 {
     showMessage(_("NOTE: ENGINE RUN AND INFERIOR STOP OK"));
+    d->m_progress.setProgressValue(1000);
+    d->m_progress.reportFinished();
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
     setState(InferiorStopRequested);
     notifyInferiorStopOk();
@@ -1471,8 +1479,8 @@ void DebuggerEngine::requestInterruptInferior()
 
 void DebuggerEngine::progressPing()
 {
-    int progress = d->m_progress.progressValue();
-    d->m_progress.setProgressValue(qMin(70, progress + 1));
+    int progress = qMin(d->m_progress.progressValue() + 2, 800);
+    d->m_progress.setProgressValue(progress);
 }
 
 QMessageBox *DebuggerEngine::showMessageBox(int icon, const QString &title,

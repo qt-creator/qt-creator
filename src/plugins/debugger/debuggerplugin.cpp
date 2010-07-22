@@ -2262,7 +2262,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     // This is only needed when we insist on using Shift-F5 for Interrupt.
     // Removing the block makes F5 interrupt when running and continue when stopped.
     Core::ActionManager *am = core->actionManager();
-    if (stopped) {
+    if (m_state == InferiorStopOk || m_state == InferiorUnrunnable) {
         am->command(Constants::STOP)->setKeySequence(QKeySequence(STOP_KEY));
         am->command(PE::DEBUG)->setKeySequence(QKeySequence("F5"));
     } else {
