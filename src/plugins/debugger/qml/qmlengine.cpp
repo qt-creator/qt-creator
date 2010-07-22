@@ -545,6 +545,9 @@ void QmlEngine::updateWatchData(const WatchData &data)
         rs << watchHandler()->watchedExpressions();
         sendMessage(reply);
     }
+
+    if (!data.isSomethingNeeded())
+        watchHandler()->insertData(data);
 }
 
 void QmlEngine::expandObject(const QByteArray& iname, quint64 objectId)
