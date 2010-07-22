@@ -176,8 +176,8 @@ Core::NavigationView OutlineFactory::createWidget()
     Core::NavigationView n;
     OutlineWidgetStack *placeHolder = new OutlineWidgetStack(this);
     n.widget = placeHolder;
-    n.dockToolBarWidgets.append(placeHolder->toggleSyncButton());
     n.dockToolBarWidgets.append(placeHolder->filterButton());
+    n.dockToolBarWidgets.append(placeHolder->toggleSyncButton());
     return n;
 }
 
