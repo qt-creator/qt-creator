@@ -345,6 +345,7 @@ void QmlEngine::continueInferior()
     QDataStream rs(&reply, QIODevice::WriteOnly);
     rs << QByteArray("CONTINUE");
     sendMessage(reply);
+    resetLocation();
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
 }
