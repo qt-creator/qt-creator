@@ -81,6 +81,19 @@
 namespace Debugger {
 namespace Internal {
 
+QDataStream& operator>>(QDataStream& s, WatchData &data)
+{
+    data = WatchData();
+    QString value;
+    QString type;
+    bool hasChildren;
+    s >> data.exp >> data.name >> value >> type >> hasChildren;
+    data.setType(type, false);
+    data.setValue(value);
+    data.setHasChildren(hasChildren);
+    return s;
+}
+
 class QmlResponse
 {
 public:
@@ -530,74 +543,6 @@ void QmlEngine::updateWatchData(const WatchData &data)
     }
 }
 
-void QmlEngine::updateSubItem(WatchData &data, const QVariant &value)
-{
-    QList<WatchData> children;
-    switch (value.userType()) {
-        case QVariant::Invalid:{
-            const QString nullValue = QLatin1String("<undefined>");
-            data.setType(nullValue, false);
-            data.setValue(nullValue);
-            break;}
-        case QVariant::Map: {
-            data.setType(QString::fromLatin1("Object"), false);
-            QVariantMap map = value.toMap();
-            for (QVariantMap::const_iterator it = map.constBegin(); it != map.constEnd(); ++it) {
-                WatchData childData;
-                childData.iname = data.iname + '.' + it.key().toLatin1();
-                childData.exp = it.key().toLatin1();
-                childData.name = it.key();
-                updateSubItem(childData, it.value());
-                children.append(childData);
-            }
-            break;
-        }
-        case QVariant::List: {
-            data.setType(QString::fromLatin1("Array"), false);
-            QVariantList list = value.toList();
-            QStringList values;
-            for (int i = 0; i < list.count(); ++i) {
-                WatchData childData;
-                childData.exp = QByteArray::number(i);
-                childData.iname = data.iname + '.' + childData.exp;
-                childData.name = QString::number(i);
-                updateSubItem(childData, list.at(i));
-                children.append(childData);
-                values.append(list.at(i).toString());
-            }
-            data.setValue(QLatin1Char('[') + values.join(QLatin1String(",")) + QLatin1Char(']'));
-            break;
-        }
-        case QVariant::Bool:
-            data.setType(QLatin1String("Bool"), false);
-            data.setValue(value.toBool() ? QLatin1String("true") : QLatin1String("false"));
-            data.setHasChildren(false);
-            break;
-        case QVariant::Date:
-        case QVariant::DateTime:
-        case QVariant::Time:
-            data.setType(QLatin1String("Date"), false);
-            data.setValue(value.toDateTime().toString());
-            data.setHasChildren(false);
-            break;
-        case QVariant::UInt:
-        case QVariant::Int:
-        case QVariant::Double:
-            data.setType(QLatin1String("Number"), false);
-            data.setValue(QString::number(value.toDouble()));
-            break;
-        case QVariant::String:
-            data.setType(QLatin1String("String"), false);
-            data.setValue(value.toString());
-            break;
-        default:
-            data.setType(QString::fromLatin1(value.typeName()), false);
-            data.setValue(value.toString());
-    }
-    data.setHasChildren(!children.isEmpty());
-    watchHandler()->insertData(data);
-}
-
 DebuggerEngine *createQmlEngine(const DebuggerStartParameters &sp)
 {
     return new QmlEngine(sp);
@@ -632,8 +577,8 @@ void QmlEngine::messageReceived(const QByteArray &message)
         notifyInferiorSpontaneousStop();
 
         QList<QPair<QString, QPair<QString, qint32> > > backtrace;
-        QList<QPair<QString, QVariant> > watches;
-        QVariant locals;
+        QList<WatchData> watches;
+        QList<WatchData> locals;
         stream >> backtrace >> watches >> locals;
 
         StackFrames stackFrames;
@@ -651,33 +596,23 @@ void QmlEngine::messageReceived(const QByteArray &message)
 
         watchHandler()->beginCycle();
 
-        typedef QPair<QString, QVariant > Iterator2;
-        foreach (const Iterator2 &it, watches) {
-            WatchData data;
-            data.name = it.first;
-            data.exp = it.first.toUtf8();
+        foreach (WatchData data, watches) {
             data.iname = watchHandler()->watcherName(data.exp);
-            updateSubItem(data, it.second);
+            watchHandler()->insertData(data);
         }
 
-//        QVariantMap localsMap = locals.toMap();
-//        for (QVariantMap::const_iterator it = localsMap.constBegin(); it != localsMap.constEnd(); it++)
-        {
-            WatchData localData;
-            localData.iname = "local";
-            localData.name = QLatin1String("local");
-            updateSubItem(localData, locals);
+        foreach (WatchData data, locals) {
+            data.iname = "local." + data.exp;
+            watchHandler()->insertData(data);
         }
 
         watchHandler()->endCycle();
 
     } else if (command == "RESULT") {
         WatchData data;
-        QVariant variant;
-        stream >> data.iname >> data.name >> variant;
-        data.exp = data.name.toUtf8();
-        updateSubItem(data, variant);
-        qDebug() << Q_FUNC_INFO << this << data.name << data.iname << variant;
+        QByteArray iname;
+        stream >> iname >> data;
+        data.iname = iname;
         watchHandler()->insertData(data);
     } else {
         qDebug() << Q_FUNC_INFO << "Unknown command: " << command;
