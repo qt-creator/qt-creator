@@ -2672,6 +2672,27 @@ void GdbEngine::handleModulesList(const GdbResponse &response)
 }
 
 
+void GdbEngine::examineModules()
+{
+    foreach (Module module, modulesHandler()->modules()) {
+        if (module.symbolsType == Module::UnknownType) {
+            QProcess proc;
+            qDebug() << _("objdump -h \"%1\"").arg(module.moduleName);
+            proc.start(_("objdump -h \"%1\"").arg(module.moduleName));
+            if (!proc.waitForStarted())
+                continue;
+            if (!proc.waitForFinished())
+                continue;
+            QByteArray ba = proc.readAllStandardOutput();
+            if (ba.contains(".gdb_index"))
+                module.symbolsType = Module::FastSymbols;
+            else
+                module.symbolsType = Module::PlainSymbols;
+            modulesHandler()->updateModule(module.moduleName, module);
+        }
+    }
+}
+
 //////////////////////////////////////////////////////////////////////
 //
 // Source files specific stuff

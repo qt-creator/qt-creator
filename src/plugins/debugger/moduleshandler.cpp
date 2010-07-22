@@ -70,9 +70,10 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role);
 
     void clearModel();
-    void addModule(const Module &m);
+    void addModule(const Module &module);
     void removeModule(const QString &moduleName);
-    void setModules(const Modules &m);
+    void setModules(const Modules &modules);
+    void updateModule(const QString &moduleName, const Module &module);
 
     const Modules &modules() const { return m_modules; }
 
@@ -167,6 +168,10 @@ bool ModulesModel::setData(const QModelIndex &index, const QVariant &value, int 
             m_engine->reloadModules();
             return true;
 
+        case RequestExamineModulesRole:
+            m_engine->examineModules();
+            return true;
+
         case RequestModuleSymbolsRole:
             m_engine->loadSymbols(value.toString());
             return true;
@@ -216,10 +221,17 @@ void ModulesModel::removeModule(const QString &moduleName)
 {
     const int index = indexOfModule(moduleName);
     QTC_ASSERT(index != -1, return);
-
     beginRemoveRows(QModelIndex(), index, index);
     m_modules.removeAt(index);
     endRemoveRows();
+}
+
+void ModulesModel::updateModule(const QString &moduleName, const Module &module)
+{
+    const int index = indexOfModule(moduleName);
+    QTC_ASSERT(index != -1, return);
+    m_modules[index] = module;
+    reset();
 }
 
 //////////////////////////////////////////////////////////////////
@@ -253,6 +265,11 @@ void ModulesHandler::addModule(const Module &module)
 void ModulesHandler::removeModule(const QString &moduleName)
 {
     m_model->removeModule(moduleName);
+}
+
+void ModulesHandler::updateModule(const QString &moduleName, const Module &module)
+{
+    m_model->updateModule(moduleName, module);
 }
 
 void ModulesHandler::setModules(const Modules &modules)

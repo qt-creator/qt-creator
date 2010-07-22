@@ -110,6 +110,7 @@ public:
     void setModules(const Modules &modules);
     void addModule(const Module &module);
     void removeModule(const QString &moduleName);
+    void updateModule(const QString &moduleName, const Module &module);
 
     Modules modules() const;
     void removeAll();

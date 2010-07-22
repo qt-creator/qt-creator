@@ -136,6 +136,7 @@ public:
     virtual void activateFrame(int index) { Q_UNUSED(index); }
 
     virtual void reloadModules() {}
+    virtual void examineModules() {}
     virtual void loadSymbols(const QString &moduleName)
         { Q_UNUSED(moduleName); }
     virtual void loadAllSymbols() {}

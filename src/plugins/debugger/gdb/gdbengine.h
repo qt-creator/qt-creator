@@ -368,6 +368,7 @@ private: ////////// View & Data Stuff //////////
     virtual void loadAllSymbols();
     virtual void requestModuleSymbols(const QString &moduleName);
     virtual void reloadModules();
+    virtual void examineModules();
     void reloadModulesInternal();
     void handleModulesList(const GdbResponse &response);
 

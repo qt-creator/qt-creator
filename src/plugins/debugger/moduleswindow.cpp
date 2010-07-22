@@ -107,35 +107,55 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
         model()->data(index, EngineCapabilitiesRole).toInt();
 
     QMenu menu;
-    QAction *act0 = new QAction(tr("Update Module List"), &menu);
-    act0->setEnabled(enabled && (capabilities & ReloadModuleCapability));
-    QAction *act3 = new QAction(tr("Show Source Files for Module \"%1\"").arg(name), &menu);
-    act3->setEnabled(enabled && (capabilities & ReloadModuleCapability));
-    QAction *act4 = new QAction(tr("Load Symbols for All Modules"), &menu);
-    act4->setEnabled(enabled && (capabilities & ReloadModuleSymbolsCapability));
-    QAction *act5 = 0;
-    QAction *act6 = 0;
-    QAction *act7 = 0;
+
+    QAction *actUpdateModuleList
+        = new QAction(tr("Update Module List"), &menu);
+    actUpdateModuleList
+        ->setEnabled(enabled && (capabilities & ReloadModuleCapability));
+
+    QAction *actShowSourceFiles
+        = new QAction(tr("Show Source Files for Module \"%1\"").arg(name), &menu);
+    actShowSourceFiles
+        ->setEnabled(enabled && (capabilities & ReloadModuleCapability));
+
+    QAction *actLoadSymbolsForAllModules
+        = new QAction(tr("Load Symbols for All Modules"), &menu);
+    actLoadSymbolsForAllModules
+        -> setEnabled(enabled && (capabilities & ReloadModuleSymbolsCapability));
+
+    QAction *actExamineAllModules
+        = new QAction(tr("Examine All Modules"), &menu);
+    actExamineAllModules
+        -> setEnabled(enabled && (capabilities & ReloadModuleSymbolsCapability));
+
+    QAction *actLoadSymbolsForModule = 0;
+    QAction *actEditFile = 0;
+    QAction *actShowSymbols = 0;
     if (name.isEmpty()) {
-        act5 = new QAction(tr("Load Symbols for Module"), &menu);
-        act5->setEnabled(false);
-        act6 = new QAction(tr("Edit File"), &menu);
-        act6->setEnabled(false);
-        act7 = new QAction(tr("Show Symbols"), &menu);
-        act7->setEnabled(false);
+        actLoadSymbolsForModule = new QAction(tr("Load Symbols for Module"), &menu);
+        actLoadSymbolsForModule->setEnabled(false);
+        actEditFile = new QAction(tr("Edit File"), &menu);
+        actEditFile->setEnabled(false);
+        actShowSymbols = new QAction(tr("Show Symbols"), &menu);
+        actShowSymbols->setEnabled(false);
     } else {
-        act5 = new QAction(tr("Load Symbols for Module \"%1\"").arg(name), &menu);
-        act5->setEnabled(capabilities & ReloadModuleSymbolsCapability);
-        act6 = new QAction(tr("Edit File \"%1\"").arg(name), &menu);
-        act7 = new QAction(tr("Show Symbols in File \"%1\"").arg(name), &menu);
+        actLoadSymbolsForModule
+            = new QAction(tr("Load Symbols for Module \"%1\"").arg(name), &menu);
+        actLoadSymbolsForModule
+            ->setEnabled(capabilities & ReloadModuleSymbolsCapability);
+        actEditFile
+            = new QAction(tr("Edit File \"%1\"").arg(name), &menu);
+        actShowSymbols
+            = new QAction(tr("Show Symbols in File \"%1\"").arg(name), &menu);
     }
 
-    menu.addAction(act0);
-    //menu.addAction(act3); // FIXME
-    menu.addAction(act4);
-    menu.addAction(act5);
-    menu.addAction(act6);
-    //menu.addAction(act7); // FIXME
+    menu.addAction(actUpdateModuleList);
+    //menu.addAction(actShowSourceFiles); // FIXME
+    menu.addAction(actLoadSymbolsForAllModules);
+    menu.addAction(actExamineAllModules);
+    menu.addAction(actLoadSymbolsForModule);
+    menu.addAction(actEditFile);
+    //menu.addAction(actShowSymbols); // FIXME
     menu.addSeparator();
     QAction *actAdjustColumnWidths =
         menu.addAction(tr("Adjust Column Widths to Contents"));
@@ -148,21 +168,23 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QAction *act = menu.exec(ev->globalPos());
 
-    if (act == act0) {
+    if (act == actUpdateModuleList) {
         setModelData(RequestReloadModulesRole);
     } else if (act == actAdjustColumnWidths) {
         resizeColumnsToContents();
     } else if (act == actAlwaysAdjustColumnWidth) {
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
-    //} else if (act == act3) {
+    //} else if (act == actShowSourceFiles) {
     //    emit displaySourceRequested(name);
-    } else if (act == act4) {
+    } else if (act == actLoadSymbolsForAllModules) {
         setModelData(RequestAllSymbolsRole);
-    } else if (act == act5) {
+    } else if (act == actExamineAllModules) {
+        setModelData(RequestExamineModulesRole);
+    } else if (act == actLoadSymbolsForModule) {
         setModelData(RequestModuleSymbolsRole, name);
-    } else if (act == act6) {
+    } else if (act == actEditFile) {
         setModelData(RequestOpenFileRole, name);
-    } else if (act == act7) {
+    } else if (act == actShowSymbols) {
         setModelData(RequestModuleSymbolsRole, name);
     }
 }

@@ -237,6 +237,7 @@ enum ModelRoles
 
     // Modules
     RequestReloadModulesRole,
+    RequestExamineModulesRole,
     RequestModuleSymbolsRole,
     RequestAllSymbolsRole,
     RequestOpenFileRole,
