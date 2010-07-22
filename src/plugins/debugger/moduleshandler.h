@@ -70,12 +70,23 @@ typedef QList<Symbol> Symbols;
 class Module
 {
 public:
-    Module() : symbolsRead(false) {}
+    Module() : symbolsRead(UnknownReadState), symbolsType(UnknownType) {}
 
 public:
+    enum SymbolReadState {
+        UnknownReadState,  // Not tried.
+        ReadFailed,        // Tried to read, but failed.
+        ReadOk,            // Dwarf index available.
+    };
+    enum SymbolType {
+        UnknownType,       // Unknown.
+        PlainSymbols,      // Ordinary symbols available.
+        FastSymbols,       // Dwarf index available.
+    };
     QString moduleName;
     QString modulePath;
-    bool symbolsRead;
+    SymbolReadState symbolsRead;
+    SymbolType symbolsType;
     QString startAddress;
     QString endAddress;
 };

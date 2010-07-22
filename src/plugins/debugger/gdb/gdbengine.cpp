@@ -2639,7 +2639,8 @@ void GdbEngine::handleModulesList(const GdbResponse &response)
             if (line.startsWith(__("0x"))) {
                 ts >> module.startAddress >> module.endAddress >> symbolsRead;
                 module.moduleName = ts.readLine().trimmed();
-                module.symbolsRead = (symbolsRead == __("Yes"));
+                module.symbolsRead =
+                    (symbolsRead == __("Yes") ? Module::ReadOk : Module::ReadFailed);
                 modules.append(module);
             } else if (line.trimmed().startsWith(__("No"))) {
                 // gdb 6.4 symbianelf
@@ -2658,7 +2659,8 @@ void GdbEngine::handleModulesList(const GdbResponse &response)
             foreach (const GdbMi &item, response.data.children()) {
                 Module module;
                 module.moduleName = QString::fromLocal8Bit(item.findChild("path").data());
-                module.symbolsRead = (item.findChild("state").data() == "Y");
+                module.symbolsRead = (item.findChild("state").data() == "Y")
+                        ? Module::ReadOk : Module::ReadFailed;
                 module.startAddress = _(item.findChild("loaded_addr").data());
                 //: End address of loaded module
                 module.endAddress = tr("<unknown>", "address");

@@ -80,14 +80,11 @@ private:
     int indexOfModule(const QString &name) const;
 
     DebuggerEngine *m_engine;
-    const QVariant m_yes;
-    const QVariant m_no;
     Modules m_modules;
 };
 
 ModulesModel::ModulesModel(ModulesHandler *parent, DebuggerEngine *engine)
-  : QAbstractItemModel(parent),
-    m_engine(engine), m_yes(tr("yes")), m_no(tr("no"))
+  : QAbstractItemModel(parent), m_engine(engine)
 {}
 
 QVariant ModulesModel::headerData(int section,
@@ -98,6 +95,7 @@ QVariant ModulesModel::headerData(int section,
             tr("Module name") + "        ",
             tr("Module path") + "        ",
             tr("Symbols read") + "        ",
+            tr("Symbols type") + "        ",
             tr("Start address") + "        ",
             tr("End address") + "        "
         };
@@ -134,13 +132,25 @@ QVariant ModulesModel::data(const QModelIndex &index, int role) const
             break;
         case 2:
             if (role == Qt::DisplayRole)
-                return module.symbolsRead ? m_yes : m_no;
+                switch (module.symbolsRead) {
+                    case Module::UnknownReadState: return tr("unknown");
+                    case Module::ReadFailed: return tr("no");
+                    case Module::ReadOk: return tr("yes");
+                }
             break;
         case 3:
             if (role == Qt::DisplayRole)
-                return module.startAddress;
+                switch (module.symbolsType) {
+                    case Module::UnknownType: return tr("unknown");
+                    case Module::PlainSymbols: return tr("plain");
+                    case Module::FastSymbols: return tr("fast");
+                }
             break;
         case 4:
+            if (role == Qt::DisplayRole)
+                return module.startAddress;
+            break;
+        case 5:
             if (role == Qt::DisplayRole)
                 return module.endAddress;
             break;
