@@ -276,6 +276,7 @@ public slots:
     }
 
     void raiseApplication() {
+        QTC_ASSERT(m_runControl, return);
         m_runControl->bringApplicationToForeground(m_inferiorPid);
     }
 
@@ -675,8 +676,9 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
 {
     //if (msg.size() && msg.at(0).isUpper() && msg.at(1).isUpper())
     //    qDebug() << qPrintable(msg) << "IN STATE" << state();
-    d->m_runControl->showMessage(msg, channel);
     plugin()->showMessage(msg, channel, timeout);
+    QTC_ASSERT(d->m_runControl, return);
+    d->m_runControl->showMessage(msg, channel);
 }
 
 void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
@@ -1080,9 +1082,8 @@ void DebuggerEngine::notifyEngineSetupFailed()
     showMessage(_("NOTE: ENGINE SETUP FAILED"));
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     setState(EngineSetupFailed);
-    QTC_ASSERT(d->m_runControl, /**/);
-    if (d->m_runControl)
-        d->m_runControl->startFailed();
+    QTC_ASSERT(d->m_runControl, return);
+    d->m_runControl->startFailed();
     d->queueShutdownEngine();
 }
 
@@ -1091,9 +1092,8 @@ void DebuggerEngine::notifyEngineSetupOk()
     showMessage(_("NOTE: ENGINE SETUP OK"));
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     setState(EngineSetupOk);
-    QTC_ASSERT(d->m_runControl, /**/);
-    if (d->m_runControl)
-        d->m_runControl->startSuccessful();
+    QTC_ASSERT(d->m_runControl, return);
+    d->m_runControl->startSuccessful();
     showMessage(_("QUEUE: SETUP INFERIOR"));
     QTimer::singleShot(0, d, SLOT(doSetupInferior()));
 }
@@ -1312,6 +1312,7 @@ void DebuggerEnginePrivate::doFinishDebugger()
     m_engine->showMessage(_("NOTE: FINISH DEBUGGER"));
     QTC_ASSERT(state() == DebuggerFinished, qDebug() << state());
     m_engine->resetLocation();
+    QTC_ASSERT(m_runControl, return);
     m_runControl->debuggingFinished();
 }
 
