@@ -213,7 +213,6 @@ void QmlContextPane::setProperty(const QString &propertyName, const QVariant &va
         changeSet.apply(&tc);
 
         if (line > 0) {
-            qDebug() << line;
             TextEditor::TabSettings ts = m_editor->editor()->tabSettings();
             QmlJSIndenter indenter;
             indenter.setTabSize(ts.m_tabSize);
@@ -260,6 +259,8 @@ void QmlContextPane::setEnabled(bool b)
 {
     if (m_widget)
         m_widget->currentWidget()->setEnabled(b);
+    if (!b)
+        m_widget->hide();
 }
 
 
