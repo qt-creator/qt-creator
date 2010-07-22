@@ -361,7 +361,7 @@ void ClientProxy::contextChanged()
             m_rootObject = QDeclarativeDebugObjectReference();
             emit objectTreeUpdated(m_rootObject);
         } else {
-            m_rootObject = m_contextQuery->rootContext().objects().first();
+            m_rootObject = m_contextQuery->rootContext().objects().last();
         }
 
         delete m_contextQuery;
