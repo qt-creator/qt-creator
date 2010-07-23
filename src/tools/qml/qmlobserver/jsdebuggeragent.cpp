@@ -303,9 +303,9 @@ void JSDebuggerAgent::exceptionThrow(qint64 scriptId,
                                    bool hasHandler)
 {
     Q_UNUSED(scriptId);
-    Q_UNUSED(exception);
-    Q_UNUSED(hasHandler);
-/* ... */
+//    qDebug() << Q_FUNC_INFO << exception.toString() << hasHandler;
+    if (!hasHandler && state != Stopped)
+        stopped(true, exception);
 }
 
 /*!
@@ -427,7 +427,7 @@ void JSDebuggerAgent::messageReceived(const QByteArray& message)
     QDeclarativeDebugService::messageReceived(message);
 }
 
-void JSDebuggerAgent::stopped()
+void JSDebuggerAgent::stopped(bool becauseOfException, const QScriptValue& exception)
 {
     knownObjectIds.clear();
     state = Stopped;
@@ -464,12 +464,14 @@ void JSDebuggerAgent::stopped()
 
     QList<JSAgentWatchData> locals = getLocals(engine()->currentContext());
 
-    // Clear any exceptions occurred during locals evaluation.
-    engine()->clearExceptions();
+    if (!becauseOfException) {
+        // Clear any exceptions occurred during locals evaluation.
+        engine()->clearExceptions();
+    }
 
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
-    rs << QByteArray("STOPPED") << backtrace << watches << locals;
+    rs << QByteArray("STOPPED") << backtrace << watches << locals << becauseOfException << exception.toString();
     sendMessage(reply);
 
     loop.exec(QEventLoop::ExcludeUserInputEvents);

@@ -59,6 +59,7 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QMessageBox>
 #include <QtGui/QToolTip>
+#include <QtGui/QTextDocument>
 
 #include <QtNetwork/QTcpSocket>
 #include <QtNetwork/QHostAddress>
@@ -73,6 +74,7 @@
 #   define SDEBUG(s)
 #endif
 # define XSDEBUG(s) qDebug() << s
+
 
 
 namespace Debugger {
@@ -655,6 +657,16 @@ void QmlEngine::messageReceived(const QByteArray &message)
         //ensure we got the right ui right now
         Debugger::DebuggerUISwitcher *uiSwitcher = Debugger::DebuggerUISwitcher::instance();
         uiSwitcher->setActiveLanguage("C++");
+
+        bool becauseOfexception;
+        stream >> becauseOfexception;
+        if (becauseOfexception) {
+            QString error;
+            stream >> error;
+
+            QString msg = tr("<p>An Uncaught Exception occured in <i>%1</i>:</p><p>%2</p>").arg(stackFrames.value(0).file, Qt::escape(error));
+            showMessageBox(QMessageBox::Information, tr("Uncaught Exception"), msg);
+        }
 
 
     } else if (command == "RESULT") {

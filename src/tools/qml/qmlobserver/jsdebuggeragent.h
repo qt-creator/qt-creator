@@ -54,6 +54,7 @@
 //
 
 #include <QtScript/qscriptengineagent.h>
+#include <QtScript/QScriptValue>
 #include <QtCore/QEventLoop>
 #include <QtCore/QSet>
 #include <private/qdeclarativedebugservice_p.h>
@@ -118,7 +119,7 @@ private:
     int stepCount;
 
     void continueExec();
-    void stopped();
+    void stopped(bool becauseOfException = false, const QScriptValue &exception = QScriptValue());
 
 
     void recordKnownObjects(const QList<JSAgentWatchData> &);
