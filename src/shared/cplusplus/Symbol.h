@@ -90,10 +90,10 @@ public:
     /// Returns this Symbol's source location.
     unsigned sourceLocation() const;
 
-    /// Returns this Symbol's line number.
+    /// \returns this Symbol's line number. The line number is 1-based.
     unsigned line() const;
 
-    /// Returns this Symbol's column number.
+    /// \returns this Symbol's column number. The column number is 1-based.
     unsigned column() const;
 
     /// Returns this Symbol's file name.
