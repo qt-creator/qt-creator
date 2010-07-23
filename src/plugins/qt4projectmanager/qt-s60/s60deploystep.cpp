@@ -139,6 +139,18 @@ bool S60DeployStep::init()
         appendMessage(message, true);
         return false;
     }
+    // Prompt the user to start up the Blue tooth connection
+    const trk::PromptStartCommunicationResult src =
+            S60RunConfigBluetoothStarter::startCommunication(m_launcher->trkDevice(),
+                                                             0, &message);
+    if (src != trk::PromptStartCommunicationConnected) {
+        if (!message.isEmpty())
+            trk::Launcher::releaseToDeviceManager(m_launcher);
+        delete m_launcher;
+        m_launcher = 0;
+        appendMessage(message, true);
+        return false;
+    }
     return true;
 }
 
@@ -237,36 +249,21 @@ void S60DeployStep::startDeployment()
 {
     Q_ASSERT(m_launcher);
 
+    setupConnections();
+    //TODO sisx destination and file path user definable
+    const QString copyDst = QString::fromLatin1("C:\\Data\\%1").arg(QFileInfo(m_signedPackage).fileName());
+
+    m_launcher->setCopyFileName(m_signedPackage, copyDst);
+    m_launcher->setInstallFileName(copyDst);
+    m_launcher->addStartupActions(trk::Launcher::ActionCopyInstall);
+
+    appendMessage(tr("Package: %1\nDeploying application to '%2'...").arg(m_signedPackage, m_serialPortFriendlyName), false);
+
     QString errorMessage;
-    bool success = false;
-    do {
-        setupConnections();
-        //TODO sisx destination and file path user definable
-        const QString copyDst = QString::fromLatin1("C:\\Data\\%1").arg(QFileInfo(m_signedPackage).fileName());
-
-        m_launcher->setCopyFileName(m_signedPackage, copyDst);
-        m_launcher->setInstallFileName(copyDst);
-        m_launcher->addStartupActions(trk::Launcher::ActionCopyInstall);
-
-        appendMessage(tr("Package: %1\nDeploying application to '%2'...").arg(m_signedPackage, m_serialPortFriendlyName), false);
-
-        // Prompt the user to start up the Blue tooth connection
-        const trk::PromptStartCommunicationResult src =
-                S60RunConfigBluetoothStarter::startCommunication(m_launcher->trkDevice(),
-                                                                 0, &errorMessage);
-        if (src != trk::PromptStartCommunicationConnected)
-            break;
-        if (!m_launcher->startServer(&errorMessage)) {
-            errorMessage = tr("Could not connect to phone on port '%1': %2\n"
-                              "Check if the phone is connected and App TRK is running.").arg(m_serialPortName, errorMessage);
-            break;
-        }
-        success = true;
-    } while (false);
-
-    if (!success) {
-        if (!errorMessage.isEmpty())
-            appendMessage(errorMessage, true);
+    if (!m_launcher->startServer(&errorMessage)) {
+        errorMessage = tr("Could not connect to phone on port '%1': %2\n"
+                          "Check if the phone is connected and App TRK is running.").arg(m_serialPortName, errorMessage);
+        appendMessage(errorMessage, true);
         stop();
         emit finished();
     }
