@@ -95,10 +95,12 @@ MemoryViewAgent::MemoryViewAgent(DebuggerEngine *engine, const QString &addr)
 
 MemoryViewAgent::~MemoryViewAgent()
 {
-    foreach (QPointer<Core::IEditor> editor, m_editors) {
+    Core::EditorManager *editorManager = Core::EditorManager::instance();
+    QList<Core::IEditor *> editors;
+    foreach (QPointer<Core::IEditor> editor, m_editors)
         if (editor)
-            editor->deleteLater();
-    }
+            editors.append(editor.data());
+    editorManager->closeEditors(editors);
 }
 
 void MemoryViewAgent::createBinEditor(quint64 addr)
@@ -232,8 +234,9 @@ DisassemblerViewAgent::DisassemblerViewAgent(DebuggerEngine *engine)
 
 DisassemblerViewAgent::~DisassemblerViewAgent()
 {
+    Core::EditorManager *editorManager = Core::EditorManager::instance();
     if (d->editor)
-        d->editor->deleteLater();
+        editorManager->closeEditors(QList<Core::IEditor *>() << d->editor);
     d->editor = 0;
     delete d->locationMark;
     d->locationMark = 0;
@@ -244,9 +247,6 @@ DisassemblerViewAgent::~DisassemblerViewAgent()
 void DisassemblerViewAgent::cleanup()
 {
     d->cache.clear();
-    //if (d->editor)
-    //    d->editor->deleteLater();
-    //d->editor = 0;
 }
 
 void DisassemblerViewAgent::resetLocation()
