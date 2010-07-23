@@ -52,7 +52,8 @@
 
 QT_BEGIN_NAMESPACE
 
-struct JSAgentWatchData {
+class JSAgentWatchData {
+public:
     QByteArray exp;
     QString name;
     QString value;
@@ -144,6 +145,20 @@ void JSDebuggerAgent::recordKnownObjects(const QList<JSAgentWatchData>& list)
         knownObjectIds << data.objectId;
 }
 
+QList<JSAgentWatchData> JSDebuggerAgent::getLocals(QScriptContext *ctx)
+{
+    QList<JSAgentWatchData> locals;
+    if (ctx) {
+        QScriptValue activationObject = ctx->activationObject();
+        QScriptValue thisObject = ctx->thisObject();
+        locals = expandObject(activationObject);
+        if (thisObject.isObject() && thisObject.objectId() != engine()->globalObject().objectId())
+            locals.prepend(JSAgentWatchData::fromScriptValue("this", thisObject));
+        recordKnownObjects(locals);
+        knownObjectIds << activationObject.objectId();
+    }
+    return locals;
+}
 
 /*!
   Constructs a new agent for the given \a engine. The agent will
@@ -359,10 +374,7 @@ void JSDebuggerAgent::messageReceived(const QByteArray& message)
             deep++;
         }
 
-        QList<JSAgentWatchData> locals;
-        if (ctx)
-            locals = expandObject(ctx->activationObject());
-        recordKnownObjects(locals);
+        QList<JSAgentWatchData> locals = getLocals(ctx);
 
         // Clear any exceptions occurred during locals evaluation.
         engine()->clearExceptions();
@@ -371,7 +383,7 @@ void JSDebuggerAgent::messageReceived(const QByteArray& message)
         QDataStream rs(&reply, QIODevice::WriteOnly);
         rs << QByteArray("LOCALS") << frameId << locals;
         sendMessage(reply);
-
+        state = oldState;
     } else if (command == "SET_PROPERTY") {
         State oldState = state;
         state = Stopped;
@@ -436,13 +448,9 @@ void JSDebuggerAgent::stopped()
     QList<JSAgentWatchData> watches;
     foreach (const QString &expr, watchExpressions)
         watches << JSAgentWatchData::fromScriptValue(expr,  engine()->evaluate(expr));
-
-    QScriptValue activationObject = engine()->currentContext()->activationObject();
-    QList<JSAgentWatchData> locals = expandObject(activationObject);
-
     recordKnownObjects(watches);
-    recordKnownObjects(locals);
-    knownObjectIds << activationObject.objectId();
+
+    QList<JSAgentWatchData> locals = getLocals(engine()->currentContext());
 
     // Clear any exceptions occurred during locals evaluation.
     engine()->clearExceptions();

@@ -63,6 +63,7 @@
 QT_BEGIN_NAMESPACE
 
 class JSAgentWatchData;
+class QScriptContext;
 
 class JSDebuggerAgent : public QDeclarativeDebugService , public QScriptEngineAgent
 { Q_OBJECT
@@ -119,6 +120,7 @@ private:
 
 
     void recordKnownObjects(const QList<JSAgentWatchData> &);
+    QList<JSAgentWatchData> getLocals(QScriptContext *);
 
     QEventLoop loop;
     QHash <qint64, QString> filenames;
