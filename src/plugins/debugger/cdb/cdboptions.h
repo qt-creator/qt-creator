@@ -51,7 +51,8 @@ public:
     // A set of flags for comparison function.
     enum ChangeFlags { InitializationOptionsChanged = 0x1,
                        DebuggerPathsChanged = 0x2,
-                       SymbolOptionsChanged = 0x4 };
+                       SymbolOptionsChanged = 0x4,
+                       FastLoadDebuggingHelpersChanged = 0x8 };
     unsigned compare(const CdbOptions &s) const;
 
     bool enabled;
@@ -59,6 +60,7 @@ public:
     QStringList symbolPaths;
     QStringList sourcePaths;
     bool verboseSymbolLoading;
+    bool fastLoadDebuggingHelpers;
 };
 
 inline bool operator==(const CdbOptions &s1, const CdbOptions &s2)

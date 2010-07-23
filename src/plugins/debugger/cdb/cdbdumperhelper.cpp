@@ -307,7 +307,8 @@ CdbDumperHelper::CdbDumperHelper(DebuggerManager *manager,
     m_outBufferSize(0),
     m_buffer(0),
     m_dumperCallThread(0),
-    m_goCommand(goCommand(m_dumperCallThread))
+    m_goCommand(goCommand(m_dumperCallThread)),
+    m_fastSymbolResolution(true)
 {
 }
 
@@ -439,25 +440,25 @@ bool CdbDumperHelper::initResolveSymbols(QString *errorMessage)
     // There is a 'qDumpInBuffer' in QtCore as well.
     if (loadDebug)
         qDebug() << Q_FUNC_INFO;
-#if 1
-    // Symbols in the debugging helpers are never namespaced.
-    // Keeping the old code for now. ### maybe use as fallback?
-    const QString dumperModuleName = QLatin1String(dumperModuleNameC);
-    m_dumpObjectSymbol = dumperModuleName + QLatin1String("!qDumpObjectData440");
-    QString inBufferSymbol = dumperModuleName + QLatin1String("!qDumpInBuffer");
-    QString outBufferSymbol = dumperModuleName + QLatin1String("!qDumpOutBuffer");
     bool rc;
-#else
-    m_dumpObjectSymbol = QLatin1String("*qDumpObjectData440");
-    QString inBufferSymbol = QLatin1String("*qDumpInBuffer");
-    QString outBufferSymbol = QLatin1String("*qDumpOutBuffer");
     const QString dumperModuleName = QLatin1String(dumperModuleNameC);
-    bool rc = resolveSymbol(m_coreEngine->interfaces().debugSymbols, &m_dumpObjectSymbol, errorMessage) == ResolveSymbolOk
-                    && resolveSymbol(m_coreEngine->interfaces().debugSymbols, dumperModuleName, &inBufferSymbol, errorMessage) == ResolveSymbolOk
-                    && resolveSymbol(m_coreEngine->interfaces().debugSymbols, dumperModuleName, &outBufferSymbol, errorMessage) == ResolveSymbolOk;
-    if (!rc)
-        return false;
-#endif
+    QString inBufferSymbol, outBufferSymbol;
+    if (m_fastSymbolResolution) {
+        // Symbols in the debugging helpers are never namespaced.
+        m_dumpObjectSymbol = dumperModuleName + QLatin1String("!qDumpObjectData440");
+        inBufferSymbol = dumperModuleName + QLatin1String("!qDumpInBuffer");
+        outBufferSymbol = dumperModuleName + QLatin1String("!qDumpOutBuffer");
+    } else {
+        // Classical approach of loading the dumper symbols. Takes some time though.
+        m_dumpObjectSymbol = QLatin1String("*qDumpObjectData440");
+        inBufferSymbol = QLatin1String("*qDumpInBuffer");
+        outBufferSymbol = QLatin1String("*qDumpOutBuffer");
+        bool rc = resolveSymbol(m_coreEngine->interfaces().debugSymbols, &m_dumpObjectSymbol, errorMessage) == ResolveSymbolOk
+                        && resolveSymbol(m_coreEngine->interfaces().debugSymbols, dumperModuleName, &inBufferSymbol, errorMessage) == ResolveSymbolOk
+                        && resolveSymbol(m_coreEngine->interfaces().debugSymbols, dumperModuleName, &outBufferSymbol, errorMessage) == ResolveSymbolOk;
+        if (!rc)
+            return false;
+    }
     //  Determine buffer addresses, sizes and alloc buffer
     rc = getSymbolAddress(m_coreEngine->interfaces().debugSymbols, inBufferSymbol, &m_inBufferAddress, &m_inBufferSize, errorMessage)
          && getSymbolAddress(m_coreEngine->interfaces().debugSymbols, outBufferSymbol, &m_outBufferAddress, &m_outBufferSize, errorMessage);

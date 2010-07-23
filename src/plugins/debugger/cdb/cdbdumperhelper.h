@@ -92,6 +92,8 @@ public:
     State state() const    { return m_state; }
     bool isEnabled() const { return m_state != Disabled; }
 
+    void setFastSymbolResolution(bool b) { m_fastSymbolResolution = b; }
+
     // Disable in case of a debuggee crash.
     void disable();
 
@@ -156,6 +158,7 @@ private:
     QtDumperHelper m_helper;
     unsigned long m_dumperCallThread;
     QString m_goCommand;
+    bool m_fastSymbolResolution;
 };
 
 } // namespace Internal

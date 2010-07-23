@@ -85,10 +85,20 @@
       <string>Other Options</string>
      </property>
      <layout class="QFormLayout" name="formLayout_3">
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+      </property>
       <item row="0" column="0" colspan="2">
        <widget class="QCheckBox" name="verboseSymbolLoadingCheckBox">
         <property name="text">
          <string>Verbose symbol loading</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="fastLoadDebuggingHelpersCheckBox">
+        <property name="text">
+         <string>fast loading of debugging helpers</string>
         </property>
        </widget>
       </item>
