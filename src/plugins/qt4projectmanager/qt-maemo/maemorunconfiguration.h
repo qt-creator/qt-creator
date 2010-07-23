@@ -55,6 +55,7 @@ class MaemoDeviceConfigListModel;
 class MaemoDeployStep;
 class MaemoManager;
 class MaemoPackageCreationStep;
+class MaemoRemoteMountsModel;
 class MaemoRunConfigurationFactory;
 class MaemoToolChain;
 
@@ -110,6 +111,7 @@ private:
     QString m_proFilePath;
     mutable QString m_gdbPath;
     MaemoDeviceConfigListModel *m_devConfigModel;
+    MaemoRemoteMountsModel *m_remoteMounts;
     QStringList m_arguments;
 };
 

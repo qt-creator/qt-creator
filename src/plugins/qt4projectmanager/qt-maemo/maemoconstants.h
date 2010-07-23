@@ -66,6 +66,9 @@ static const QLatin1String LastDeployedFilesKey(PREFIX ".LastDeployedFiles");
 static const QLatin1String LastDeployedRemotePathsKey(PREFIX ".LastDeployedRemotePaths");
 static const QLatin1String LastDeployedTimesKey(PREFIX ".LastDeployedTimes");
 static const QLatin1String ProFileKey(".ProFile");
+static const QLatin1String ExportedLocalDirsKey(".ExportedLocalDirs");
+static const QLatin1String RemoteMountPointsKey(".RemoteMountPoints");
+static const QLatin1String MountPortsKey(".MountPorts");
 
 } // namespace Internal
 } // namespace Qt4ProjectManager

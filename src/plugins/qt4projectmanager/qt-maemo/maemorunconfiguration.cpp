@@ -33,6 +33,7 @@
 #include "maemodeploystep.h"
 #include "maemodeviceconfiglistmodel.h"
 #include "maemoglobal.h"
+#include "maemoremotemountsmodel.h"
 #include "maemorunconfigurationwidget.h"
 #include "maemotoolchain.h"
 #include "qemuruntimemanager.h"
@@ -77,6 +78,7 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
 void MaemoRunConfiguration::init()
 {
     m_devConfigModel = new MaemoDeviceConfigListModel(this);
+    m_remoteMounts = new MaemoRemoteMountsModel(this);
     setDisplayName(QFileInfo(m_proFilePath).completeBaseName());
 
     updateDeviceConfigurations();
@@ -135,6 +137,7 @@ QVariantMap MaemoRunConfiguration::toMap() const
     const QDir dir = QDir(target()->project()->projectDirectory());
     map.insert(ProFileKey, dir.relativeFilePath(m_proFilePath));
     map.unite(m_devConfigModel->toMap());
+    map.unite(m_remoteMounts->toMap());
     return map;
 }
 
@@ -147,6 +150,7 @@ bool MaemoRunConfiguration::fromMap(const QVariantMap &map)
     const QDir dir = QDir(target()->project()->projectDirectory());
     m_proFilePath = dir.filePath(map.value(ProFileKey).toString());
     m_devConfigModel->fromMap(map);
+    m_remoteMounts->fromMap(map);
 
     return true;
 }
