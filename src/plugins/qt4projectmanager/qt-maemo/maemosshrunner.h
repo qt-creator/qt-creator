@@ -44,6 +44,8 @@
 
 #include <QtCore/QStringList>
 
+QT_FORWARD_DECLARE_CLASS(QProcess)
+
 namespace Core {
     class SftpChannel;
     class SshConnection;
@@ -84,9 +86,18 @@ private slots:
     void handleConnectionFailure();
     void handleInitialCleanupFinished(int exitStatus);
     void handleRemoteProcessFinished(int exitStatus);
+    void handleUploaderInitialized();
+    void handleUploaderInitializationFailed(const QString &reason);
+    void handleUploadFinished(Core::SftpJobId jobId, const QString &error);
+    void handleMountProcessStarted();
+    void handleMountProcessFinished(int exitStatus);
 
 private:
-    void killRemoteProcs(bool initialCleanup);
+    void cleanup(bool initialCleanup);
+    void deployUtfsClient();
+    void mount();
+    QString utfsClientOnDevice() const;
+    QString utfsServer() const;
 
     MaemoRunConfiguration * const m_runConfig; // TODO this pointer can be invalid
     const MaemoDeviceConfig m_devConfig;
@@ -94,7 +105,12 @@ private:
     QSharedPointer<Core::SshConnection> m_connection;
     QSharedPointer<Core::SshRemoteProcess> m_runner;
     QSharedPointer<Core::SshRemoteProcess> m_initialCleaner;
+    QSharedPointer<Core::SshRemoteProcess> m_mountProcess;
+    QSharedPointer<Core::SftpChannel> m_utfsClientUploader;
     QStringList m_procsToKill;
+    QList<QProcess *> m_utfsServers;
+
+    Core::SftpJobId m_uploadJobId;
     bool m_stop;
 };
 

@@ -108,6 +108,7 @@ signals:
     /*
      * This signal is only emitted by the "List Directory" operation,
      * one file at a time.
+     // TODO: Also emit for each file copied by uploadDir().
      */
     void dataAvailable(SftpJobId job, const QString &data);
 

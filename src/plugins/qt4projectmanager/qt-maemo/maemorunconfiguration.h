@@ -75,7 +75,10 @@ public:
     Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
 
     MaemoDeployStep *deployStep() const;
+    MaemoRemoteMountsModel *remoteMounts() const { return m_remoteMounts; }
+    QString localHostAddressFromDevice() const;
 
+    const MaemoToolChain *toolchain() const;
     QString maddeRoot() const;
     QString localExecutableFilePath() const;
     QString remoteExecutableFilePath() const;
@@ -106,7 +109,6 @@ private slots:
 
 private:
     void init();
-    const MaemoToolChain *toolchain() const;
 
     QString m_proFilePath;
     mutable QString m_gdbPath;

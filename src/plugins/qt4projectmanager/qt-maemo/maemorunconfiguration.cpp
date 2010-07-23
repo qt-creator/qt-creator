@@ -190,6 +190,12 @@ MaemoDeployStep *MaemoRunConfiguration::deployStep() const
     return step;
 }
 
+QString MaemoRunConfiguration::localHostAddressFromDevice() const
+{
+    // TODO: From user
+    return QLatin1String("192.168.2.14");
+}
+
 QString MaemoRunConfiguration::maddeRoot() const
 {
     if (const MaemoToolChain *tc = toolchain())
