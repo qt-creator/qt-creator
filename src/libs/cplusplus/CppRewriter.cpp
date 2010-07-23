@@ -34,7 +34,7 @@
 #include <Literals.h>
 #include <Names.h>
 #include <Scope.h>
-#include <cplusplus/Overview.h>
+#include <Overview.h>
 
 #include <QtCore/QVarLengthArray>
 #include <QtCore/QDebug>
