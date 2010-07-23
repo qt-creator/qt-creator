@@ -86,25 +86,25 @@ static inline bool renameFile(const QString &sourceName, const QString &targetNa
 // #pragma mark -- S60DeployStep
 
 S60DeployStep::S60DeployStep(ProjectExplorer::BuildConfiguration *bc, const QString &id) :
-        BuildStep(bc, id), m_timer(0), m_launcher(0),
+        BuildStep(bc, id), m_timer(0),
         m_releaseDeviceAfterLauncherFinish(true), m_handleDeviceRemoval(true),
-        m_eventLoop(0)
+        m_launcher(0), m_eventLoop(0)
 {
 }
 
 S60DeployStep::S60DeployStep(ProjectExplorer::BuildConfiguration *bc,
                              S60DeployStep *bs):
-        BuildStep(bc, bs), m_timer(0), m_launcher(0),
+        BuildStep(bc, bs), m_timer(0),
         m_releaseDeviceAfterLauncherFinish(bs->m_releaseDeviceAfterLauncherFinish),
         m_handleDeviceRemoval(bs->m_handleDeviceRemoval),
-        m_eventLoop(0)
+        m_launcher(0), m_eventLoop(0)
 {
 }
 
 S60DeployStep::S60DeployStep(ProjectExplorer::BuildConfiguration *bc):
         BuildStep(bc, QLatin1String(S60_DEPLOY_STEP_ID)), m_timer(0),
-        m_launcher(0), m_releaseDeviceAfterLauncherFinish(true),
-        m_handleDeviceRemoval(true), m_eventLoop(0)
+        m_releaseDeviceAfterLauncherFinish(true),
+        m_handleDeviceRemoval(true), m_launcher(0), m_eventLoop(0)
 {
 }
 
