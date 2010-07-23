@@ -33,6 +33,7 @@
 #include "debuggerplugin.h"
 #include "debuggerdialogs.h"
 #include "debuggerstringutils.h"
+#include "debuggeruiswitcher.h"
 
 #include "breakhandler.h"
 #include "moduleshandler.h"
@@ -72,10 +73,6 @@
 #   define SDEBUG(s)
 #endif
 # define XSDEBUG(s) qDebug() << s
-
-#define CB(callback) &QmlEngine::callback, STRINGIFY(callback)
-
-//#define USE_CONGESTION_CONTROL
 
 
 namespace Debugger {
@@ -654,6 +651,11 @@ void QmlEngine::messageReceived(const QByteArray &message)
             sendPing();
         else
             watchHandler()->endCycle();
+
+        //ensure we got the right ui right now
+        Debugger::DebuggerUISwitcher *uiSwitcher = Debugger::DebuggerUISwitcher::instance();
+        uiSwitcher->setActiveLanguage("C++");
+
 
     } else if (command == "RESULT") {
         WatchData data;
