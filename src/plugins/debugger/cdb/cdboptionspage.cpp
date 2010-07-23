@@ -85,7 +85,7 @@ void CdbOptionsPageWidget::setOptions(CdbOptions &o)
     m_ui.symbolPathListEditor->setPathList(o.symbolPaths);
     m_ui.sourcePathListEditor->setPathList(o.sourcePaths);
     m_ui.verboseSymbolLoadingCheckBox->setChecked(o.verboseSymbolLoading);
-
+    m_ui.fastLoadDebuggingHelpersCheckBox->setChecked(o.fastLoadDebuggingHelpers);
 }
 
 CdbOptions CdbOptionsPageWidget::options() const
@@ -96,6 +96,7 @@ CdbOptions CdbOptionsPageWidget::options() const
     rc.symbolPaths = m_ui.symbolPathListEditor->pathList();
     rc.sourcePaths = m_ui.sourcePathListEditor->pathList();
     rc.verboseSymbolLoading = m_ui.verboseSymbolLoadingCheckBox->isChecked();
+    rc.fastLoadDebuggingHelpers = m_ui.fastLoadDebuggingHelpersCheckBox->isChecked();
     return rc;
 }
 
@@ -132,7 +133,8 @@ QString CdbOptionsPageWidget::searchKeywords() const
     QString rc;
     QTextStream(&rc) << m_ui.pathLabel->text() << ' ' << m_ui.symbolPathLabel->text()
             << ' ' << m_ui.sourcePathLabel->text()
-            << ' ' << m_ui.verboseSymbolLoadingCheckBox->text();
+            << ' ' << m_ui.verboseSymbolLoadingCheckBox->text()
+            << ' ' << m_ui.fastLoadDebuggingHelpersCheckBox->text();
     rc.remove(QLatin1Char('&'));
     return rc;
 }
