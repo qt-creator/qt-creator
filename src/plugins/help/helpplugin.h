@@ -108,6 +108,9 @@ private:
     HelpViewer* viewerForContextMode();
     void createRightPaneContextViewer();
 
+    void setup();
+    int contextHelpOption() const;
+
 private:
     HelpMode *m_mode;
     Core::ICore *m_core;

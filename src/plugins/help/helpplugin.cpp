@@ -580,16 +580,7 @@ void HelpPlugin::modeChanged(Core::IMode *mode, Core::IMode *old)
     Q_UNUSED(old)
     if (mode == m_mode) {
         qApp->setOverrideCursor(Qt::WaitCursor);
-        if (m_firstModeChange) {
-            qApp->processEvents();
-            m_helpManager->setupGuiHelpEngine();
-            setupUi();
-            resetFilter();
-            m_firstModeChange = false;
-            OpenPagesManager::instance().setupInitialPages();
-        } else {
-            m_helpManager->setupGuiHelpEngine();
-        }
+        setup();
         qApp->restoreOverrideCursor();
     }
 }
@@ -643,10 +634,9 @@ HelpViewer* HelpPlugin::viewerForContextMode()
     using namespace Core;
 
     bool showSideBySide = false;
-    const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
     RightPanePlaceHolder *placeHolder = RightPanePlaceHolder::current();
-    switch (engine.customValue(QLatin1String("ContextHelpOption"), 0).toInt()) {
-        case 0: {
+    switch (contextHelpOption()) {
+        case Help::Constants::SideBySideIfPossible: {
             // side by side if possible
             if (IEditor *editor = EditorManager::instance()->currentEditor()) {
                 if (!placeHolder || !placeHolder->isVisible()) {
@@ -659,7 +649,7 @@ HelpViewer* HelpPlugin::viewerForContextMode()
                 }
             }
         }   // fall through
-        case 1: {
+        case Help::Constants::SideBySideAlways: {
             // side by side
             showSideBySide = true;
         }   break;
@@ -899,6 +889,25 @@ void HelpPlugin::handleHelpRequest(const QUrl &url)
     } else {
         switchToHelpMode(newUrl);
     }
+}
+
+void HelpPlugin::setup()
+{
+    m_helpManager->setupGuiHelpEngine();
+    if (m_firstModeChange) {
+        qApp->processEvents();
+        setupUi();
+        resetFilter();
+        m_firstModeChange = false;
+        OpenPagesManager::instance().setupInitialPages();
+    }
+}
+
+int HelpPlugin::contextHelpOption() const
+{
+    const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
+    return engine.customValue(QLatin1String("ContextHelpOption"),
+        Help::Constants::SideBySideIfPossible).toInt();
 }
 
 Q_EXPORT_PLUGIN(HelpPlugin)

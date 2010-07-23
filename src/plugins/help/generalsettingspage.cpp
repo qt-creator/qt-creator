@@ -108,10 +108,12 @@ QWidget *GeneralSettingsPage::createPage(QWidget *parent)
     }
     m_ui.homePageLineEdit->setText(m_homePage);
 
-    int startOption = engine.customValue(QLatin1String("StartOption"), 2).toInt();
+    const int startOption = engine.customValue(QLatin1String("StartOption"),
+        Help::Constants::ShowLastPages).toInt();
     m_ui.helpStartComboBox->setCurrentIndex(startOption);
 
-    int helpOption = engine.customValue(QLatin1String("ContextHelpOption"), 0).toInt();
+    const int helpOption = engine.customValue(QLatin1String("ContextHelpOption"),
+        Help::Constants::SideBySideIfPossible).toInt();
     m_ui.contextHelpComboBox->setCurrentIndex(helpOption);
 
     connect(m_ui.currentPageButton, SIGNAL(clicked()), this, SLOT(setCurrentPage()));
@@ -179,8 +181,6 @@ void GeneralSettingsPage::apply()
 
     const int helpOption = m_ui.contextHelpComboBox->currentIndex();
     engine->setCustomValue(QLatin1String("ContextHelpOption"), helpOption);
-
-    // no need to call setup on the gui engine since we use only core engine
 }
 
 void GeneralSettingsPage::setCurrentPage()
