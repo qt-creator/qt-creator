@@ -103,6 +103,8 @@ public slots:
 //    void pauses();
 
 private:
+    class SetupExecEnv;
+    friend class SetupExecEnv;
 
     enum State {
         NoState,

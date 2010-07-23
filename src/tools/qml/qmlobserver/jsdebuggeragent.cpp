@@ -52,6 +52,26 @@
 
 QT_BEGIN_NAMESPACE
 
+class JSDebuggerAgent::SetupExecEnv {
+    JSDebuggerAgent* agent;
+    JSDebuggerAgent::State previousState;
+    bool hadException;
+public:
+    SetupExecEnv(JSDebuggerAgent *a)
+        : agent(a),
+          previousState(a->state),
+          hadException(a->engine()->hasUncaughtException())
+        {
+            agent->state = JSDebuggerAgent::Stopped;
+        }
+
+    ~SetupExecEnv() {
+        if (!hadException && agent->engine()->hasUncaughtException())
+            agent->engine()->clearExceptions();
+        agent->state = previousState;
+    }
+};
+
 class JSAgentWatchData {
 public:
     QByteArray exp;
@@ -323,25 +343,22 @@ void JSDebuggerAgent::messageReceived(const QByteArray& message)
         state = NoState;
         continueExec();
     } else if (command == "EXEC") {
-        State oldState = state;
-        state = Stopped;
+        SetupExecEnv execEnv(this);
+
         QByteArray id;
         QString expr;
         ds >> id >> expr;
 
         JSAgentWatchData data = JSAgentWatchData::fromScriptValue(expr, engine()->evaluate(expr));
         knownObjectIds << data.objectId;
-        // Clear any exceptions occurred during locals evaluation.
-        engine()->clearExceptions();
 
         QByteArray reply;
         QDataStream rs(&reply, QIODevice::WriteOnly);
         rs << QByteArray("RESULT") << id << data;
         sendMessage(reply);
-        state = oldState;
     } else if (command == "EXPAND") {
-        State oldState = state;
-        state = Stopped;
+        SetupExecEnv execEnv(this);
+
         QByteArray requestId;
         quint64 objectId;
         ds >> requestId >> objectId;
@@ -352,17 +369,13 @@ void JSDebuggerAgent::messageReceived(const QByteArray& message)
         QList<JSAgentWatchData> result = expandObject(v);
         recordKnownObjects(result);
 
-        // Clear any exceptions occurred during locals evaluation.
-        engine()->clearExceptions();
-
         QByteArray reply;
         QDataStream rs(&reply, QIODevice::WriteOnly);
         rs << QByteArray("EXPANDED") << requestId << result;
         sendMessage(reply);
-        state = oldState;
+
     } else if (command == "ACTIVATE_FRAME") {
-        State oldState = state;
-        state = Stopped;
+        SetupExecEnv execEnv(this);
 
         int frameId;
         ds >> frameId;
@@ -376,17 +389,12 @@ void JSDebuggerAgent::messageReceived(const QByteArray& message)
 
         QList<JSAgentWatchData> locals = getLocals(ctx);
 
-        // Clear any exceptions occurred during locals evaluation.
-        engine()->clearExceptions();
-
         QByteArray reply;
         QDataStream rs(&reply, QIODevice::WriteOnly);
         rs << QByteArray("LOCALS") << frameId << locals;
         sendMessage(reply);
-        state = oldState;
     } else if (command == "SET_PROPERTY") {
-        State oldState = state;
-        state = Stopped;
+        SetupExecEnv execEnv(this);
 
         QByteArray id;
         qint64 objectId;
@@ -402,11 +410,8 @@ void JSDebuggerAgent::messageReceived(const QByteArray& message)
                 QScriptValue result = engine()->evaluate(value);
                 object.setProperty(property, result);
             }
-
-            // Clear any exceptions occurred during locals evaluation.
-            engine()->clearExceptions();
         }
-        state = oldState;
+
         //TODO: feedback
     } else if (command == "PING") {
         int ping;
