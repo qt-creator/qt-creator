@@ -1,4 +1,4 @@
-<plugin name="CppEditor" version="2.1.0" compatVersion="2.1.0">
+<plugin name="CppEditor" version="2.0.81" compatVersion="2.0.81">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2010 Nokia Corporation</copyright>
     <license>
@@ -14,8 +14,8 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <description>C/C++ editor component.</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="Core" version="2.1.0"/>
-        <dependency name="TextEditor" version="2.1.0"/>
-        <dependency name="CppTools" version="2.1.0"/>
+        <dependency name="Core" version="2.0.81"/>
+        <dependency name="TextEditor" version="2.0.81"/>
+        <dependency name="CppTools" version="2.0.81"/>
     </dependencyList>
 </plugin>

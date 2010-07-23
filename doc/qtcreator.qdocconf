@@ -19,12 +19,12 @@ sources.fileextensions  = "qtcreator.qdoc addressbook-sdk.qdoc"
 
 qhp.projects            = QtCreator
 qhp.QtCreator.file             = qtcreator.qhp
-qhp.QtCreator.namespace        = com.nokia.qtcreator.210
+qhp.QtCreator.namespace        = com.nokia.qtcreator.2081
 qhp.QtCreator.virtualFolder    = doc
 qhp.QtCreator.indexTitle       = Qt Creator
-qhp.QtCreator.filterAttributes = qtcreator 2.1.0
-qhp.QtCreator.customFilters.QtCreator.name = Qt Creator 2.1.0
-qhp.QtCreator.customFilters.QtCreator.filterAttributes = qtcreator 2.1.0
+qhp.QtCreator.filterAttributes = qtcreator 2.0.81
+qhp.QtCreator.customFilters.QtCreator.name = Qt Creator 2.0.81
+qhp.QtCreator.customFilters.QtCreator.filterAttributes = qtcreator 2.0.81
 qhp.QtCreator.indexRoot        =
 qhp.QtCreator.extraFiles       = \
                           style/style.css \
