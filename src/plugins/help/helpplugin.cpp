@@ -897,8 +897,7 @@ void HelpPlugin::handleHelpRequest(const QUrl &url)
         if (HelpViewer* viewer = viewerForContextMode())
             viewer->setSource(newUrl);
     } else {
-        activateHelpMode();
-        m_centralWidget->setSource(newUrl);
+        switchToHelpMode(newUrl);
     }
 }
 
