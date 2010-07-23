@@ -65,7 +65,7 @@ private:
     AbstractSftpOperation &operator=(const AbstractSftpOperation &);
 };
 
-class SftpUploadDir;
+struct SftpUploadDir;
 
 struct SftpMakeDir : public AbstractSftpOperation
 {
