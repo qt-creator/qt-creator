@@ -82,15 +82,14 @@ public:
     char installationDrive() const;
     void setInstallationDrive(char drive);
 
+    QStringList packageFileNamesWithTargetInfo() const;
+    QStringList packageTemplateFileNames() const;
+    QString appPackageTemplateFileName() const;
     QString targetName() const;
-    QString packageFileNameWithTargetInfo() const;
-    QString symbianPlatform() const;
-    QString symbianTarget() const;
-    bool isDebug() const;
-    QString packageTemplateFileName() const;
 
     QString localExecutableFileName() const;
-    QString signedPackage() const;
+    QStringList signedPackages() const;
+    QString appSignedPackage() const;
     const QtVersion *qtVersion() const;
 
     QStringList commandLineArguments() const;
@@ -107,6 +106,7 @@ signals:
     void targetInformationChanged();
     void serialPortNameChanged();
 
+
 private slots:
     void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
     void updateActiveBuildConfiguration(ProjectExplorer::BuildConfiguration *buildConfiguration);
@@ -116,6 +116,9 @@ protected:
     virtual bool fromMap(const QVariantMap &map);
 
 private:
+    QString symbianPlatform() const;
+    QString symbianTarget() const;
+    bool isDebug() const;
     ProjectExplorer::ToolChain::ToolChainType toolChainType(ProjectExplorer::BuildConfiguration *configuration) const;
     void ctor();
 
@@ -197,7 +200,6 @@ private:
     QString m_serialPortFriendlyName;
     QString m_targetName;
     QStringList m_commandLineArguments;
-    QString m_workingDirectory;
     QString m_executableFileName;
     QString m_qtDir;
     QString m_qtBinPath;

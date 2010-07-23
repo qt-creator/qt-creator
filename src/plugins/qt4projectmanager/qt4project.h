@@ -136,6 +136,7 @@ public:
     ProjectExplorer::BuildConfigWidget *createConfigWidget();
     QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 
+    QList<Internal::Qt4ProFileNode *> leafProFiles() const;
     QList<Internal::Qt4ProFileNode *> applicationProFiles() const;
     bool hasApplicationProFile(const QString &path) const;
     QStringList applicationProFilePathes(const QString &prepend = QString()) const;
@@ -191,6 +192,7 @@ private:
     void updateCodeModel();
     void updateFileList();
 
+    static void collectLeafProFiles(QList<Internal::Qt4ProFileNode *> &list, Internal::Qt4ProFileNode *node);
     static void collectApplicationProFiles(QList<Internal::Qt4ProFileNode *> &list, Internal::Qt4ProFileNode *node);
     static void findProFile(const QString& fileName, Internal::Qt4ProFileNode *root, QList<Internal::Qt4ProFileNode *> &list);
     static bool hasSubNode(Internal::Qt4PriFileNode *root, const QString &path);

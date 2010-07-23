@@ -247,7 +247,7 @@ void S60DeviceRunConfigurationWidget::argumentsEdited(const QString &text)
 
 void S60DeviceRunConfigurationWidget::updateTargetInformation()
 {
-    m_sisFileLabel->setText(QDir::toNativeSeparators(m_runConfiguration->signedPackage()));
+    m_sisFileLabel->setText(QDir::toNativeSeparators(m_runConfiguration->appPackageTemplateFileName()));
 }
 
 void S60DeviceRunConfigurationWidget::setInstallationDrive(int index)

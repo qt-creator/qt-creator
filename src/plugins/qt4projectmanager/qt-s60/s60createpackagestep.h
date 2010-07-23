@@ -59,7 +59,8 @@ public:
     ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, ProjectExplorer::BuildStep *product);
 };
 
-class S60CreatePackageStep : public MakeStep {
+class S60CreatePackageStep : public ProjectExplorer::BuildStep
+{
     Q_OBJECT
     friend class S60CreatePackageStepFactory;
 public:
@@ -72,6 +73,7 @@ public:
     virtual ~S60CreatePackageStep();
 
     virtual bool init();
+    virtual void run(QFutureInterface<bool> &fi);
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const;
 
@@ -91,13 +93,38 @@ protected:
     S60CreatePackageStep(ProjectExplorer::BuildConfiguration *bc, const QString &id);
     bool fromMap(const QVariantMap &map);
 
+    Qt4BuildConfiguration *qt4BuildConfiguration() const;
+
+private slots:
+    void slotProcessFinished(int, QProcess::ExitStatus);
+    void processReadyReadStdOutput();
+    void processReadyReadStdError();
+    void taskAdded(const ProjectExplorer::Task &task);
+    void outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format);
+    void checkForCancel();
+
 private:
+    void stdOutput(const QString &line);
+    void stdError(const QString &line);
+    bool startProcess();
+    QStringList m_workingDirectories;
+
+    QString m_makeCmd;
+    ProjectExplorer::Environment m_environment;
+    QStringList m_args;
+
     void ctor_package();
 
     SigningMode m_signingMode;
     QString m_customSignaturePath;
     QString m_customKeyPath;
     bool m_createSmartInstaller;
+    ProjectExplorer::IOutputParser *m_outputParserChain;
+
+    QProcess *m_process;
+    QTimer *m_timer;
+    QEventLoop *m_eventLoop;
+    QFutureInterface<bool> *m_futureInterface;
 };
 
 class S60CreatePackageStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget

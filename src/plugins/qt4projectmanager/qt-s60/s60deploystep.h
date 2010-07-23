@@ -129,8 +129,8 @@ signals:
 private:
     QString m_serialPortName;
     QString m_serialPortFriendlyName;
-    QString m_packageFileNameWithTarget; // Support for 4.6.1
-    QString m_signedPackage;
+    QStringList m_packageFileNamesWithTarget; // Support for 4.6.1
+    QStringList m_signedPackages;
 
     QTimer *m_timer;
 

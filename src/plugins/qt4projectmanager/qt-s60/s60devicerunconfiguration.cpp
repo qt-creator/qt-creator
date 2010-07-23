@@ -286,16 +286,22 @@ static inline QString fixBaseNameTarget(const QString &in)
     return in;
 }
 
-QString S60DeviceRunConfiguration::packageFileNameWithTargetInfo() const
+QStringList S60DeviceRunConfiguration::packageFileNamesWithTargetInfo() const
 {
-    TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()->targetInformation(m_proFilePath);
-    if (!ti.valid)
-        return QString();
-    QString baseFileName = ti.buildDir + QLatin1Char('/') + ti.target;
-    baseFileName += QLatin1Char('_')
-                    + (isDebug() ? QLatin1String("debug") : QLatin1String("release"))
-                    + QLatin1Char('-') + symbianPlatform() + QLatin1String(".sis");
-    return baseFileName;
+    QList<Qt4ProFileNode *> leafs = qt4Target()->qt4Project()->leafProFiles();
+
+    QStringList result;
+    foreach (Qt4ProFileNode *qt4ProFileNode, leafs) {
+        TargetInformation ti = qt4ProFileNode->targetInformation();
+        if (!ti.valid)
+            continue;
+        QString baseFileName = ti.buildDir + QLatin1Char('/') + ti.target;
+        baseFileName += QLatin1Char('_')
+                + (isDebug() ? QLatin1String("debug") : QLatin1String("release"))
+                + QLatin1Char('-') + symbianPlatform() + QLatin1String(".sis");
+        result << baseFileName;
+    }
+    return result;
 }
 
 QString S60DeviceRunConfiguration::symbianPlatform() const
@@ -323,13 +329,26 @@ QString S60DeviceRunConfiguration::symbianTarget() const
     return isDebug() ? QLatin1String("udeb") : QLatin1String("urel");
 }
 
-QString S60DeviceRunConfiguration::packageTemplateFileName() const
+QStringList S60DeviceRunConfiguration::packageTemplateFileNames() const
+{
+    QList<Qt4ProFileNode *> list = qt4Target()->qt4Project()->leafProFiles();
+    QStringList result;
+    foreach (Qt4ProFileNode *node, list) {
+        TargetInformation ti = node->targetInformation();
+        if (ti.valid)
+            result << ti.buildDir + QLatin1Char('/') + ti.target + QLatin1String("_template.pkg");
+    }
+    return result;
+}
+
+QString S60DeviceRunConfiguration::appPackageTemplateFileName() const
 {
     TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()->targetInformation(m_proFilePath);
     if (!ti.valid)
         return QString();
     return ti.buildDir + QLatin1Char('/') + ti.target + QLatin1String("_template.pkg");
 }
+
 
 /* Grep a package file for the '.exe' file. Curently for use on Linux only
  * as the '.pkg'-files on Windows do not contain drive letters, which is not
@@ -373,7 +392,7 @@ QString S60DeviceRunConfiguration::localExecutableFileName() const
     switch (toolChainType()) {
     case ToolChain::GCCE_GNUPOC:
     case ToolChain::RVCT_ARMV5_GNUPOC:
-        localExecutable = executableFromPackageUnix(packageTemplateFileName());
+        localExecutable = executableFromPackageUnix(appPackageTemplateFileName());
         break;
     default: {
             const QtVersion *qtv = qtVersion();
@@ -403,7 +422,21 @@ bool S60DeviceRunConfiguration::runSmartInstaller() const
     return false;
 }
 
-QString S60DeviceRunConfiguration::signedPackage() const
+QStringList S60DeviceRunConfiguration::signedPackages() const
+{
+    QList<Qt4ProFileNode *> list = qt4Target()->qt4Project()->leafProFiles();
+    QStringList result;
+    foreach (Qt4ProFileNode *node, list) {
+        TargetInformation ti = node->targetInformation();
+        if (ti.valid)
+            result << ti.buildDir + QLatin1Char('/') + ti.target
+                      + (runSmartInstaller() ? QLatin1String("_installer") : QLatin1String(""))
+                      + QLatin1String(".sis");
+    }
+    return result;
+}
+
+QString S60DeviceRunConfiguration::appSignedPackage() const
 {
     TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()->targetInformation(m_proFilePath);
     if (!ti.valid)
@@ -640,7 +673,6 @@ void S60DeviceRunControlBase::startDeployment()
 
         if (!m_commandLineArguments.isEmpty())
             m_launcher->setCommandLineArgs(m_commandLineArguments);
-			
         const QString runFileName = QString::fromLatin1("%1:\\sys\\bin\\%2.exe").arg(m_installationDrive).arg(m_targetName);
         initLauncher(runFileName, m_launcher);
         const trk::PromptStartCommunicationResult src =

@@ -31,13 +31,18 @@
 
 #include "qt4projectmanagerconstants.h"
 #include "qt4buildconfiguration.h"
+#include "qt4nodes.h"
+#include "qt4project.h"
 #include "abldparser.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/gnumakeparser.h>
+#include <projectexplorer/task.h>
 
 #include <QtCore/QDir>
+#include <QtCore/QTimer>
 
 using namespace Qt4ProjectManager::Internal;
 
@@ -49,30 +54,41 @@ namespace {
     const char * const SMART_INSTALLER_KEY("Qt4ProjectManager.S60CreatorPackageStep.SmartInstaller");
 }
 
-// #pragma mark -- S60SignBuildStep
-
 S60CreatePackageStep::S60CreatePackageStep(ProjectExplorer::BuildConfiguration *bc) :
-    MakeStep(bc, QLatin1String(SIGN_BS_ID)),
+    BuildStep(bc, QLatin1String(SIGN_BS_ID)),
     m_signingMode(SignSelf),
-    m_createSmartInstaller(false)
+    m_createSmartInstaller(false),
+    m_outputParserChain(0),
+    m_process(0),
+    m_timer(0),
+    m_eventLoop(0),
+    m_futureInterface(0)
 {
     ctor_package();
 }
 
 S60CreatePackageStep::S60CreatePackageStep(ProjectExplorer::BuildConfiguration *bc, S60CreatePackageStep *bs) :
-    MakeStep(bc, bs),
+    BuildStep(bc, bs),
     m_signingMode(bs->m_signingMode),
     m_customSignaturePath(bs->m_customSignaturePath),
     m_customKeyPath(bs->m_customKeyPath),
-    m_createSmartInstaller(bs->m_createSmartInstaller)
+    m_createSmartInstaller(bs->m_createSmartInstaller),
+    m_outputParserChain(0),
+    m_timer(0),
+    m_eventLoop(0),
+    m_futureInterface(0)
 {
     ctor_package();
 }
 
 S60CreatePackageStep::S60CreatePackageStep(ProjectExplorer::BuildConfiguration *bc, const QString &id) :
-    MakeStep(bc, id),
+    BuildStep(bc, id),
     m_signingMode(SignSelf),
-    m_createSmartInstaller(false)
+    m_createSmartInstaller(false),
+    m_outputParserChain(0),
+    m_timer(0),
+    m_eventLoop(0),
+    m_futureInterface(0)
 {
     ctor_package();
 }
@@ -88,7 +104,7 @@ S60CreatePackageStep::~S60CreatePackageStep()
 
 QVariantMap S60CreatePackageStep::toMap() const
 {
-    QVariantMap map(MakeStep::toMap());
+    QVariantMap map(BuildStep::toMap());
     map.insert(QLatin1String(SIGNMODE_KEY), (int)m_signingMode);
     map.insert(QLatin1String(CERTIFICATE_KEY), m_customSignaturePath);
     map.insert(QLatin1String(KEYFILE_KEY), m_customKeyPath);
@@ -102,33 +118,223 @@ bool S60CreatePackageStep::fromMap(const QVariantMap &map)
     m_customSignaturePath = map.value(QLatin1String(CERTIFICATE_KEY)).toString();
     m_customKeyPath = map.value(QLatin1String(KEYFILE_KEY)).toString();
     m_createSmartInstaller = map.value(QLatin1String(SMART_INSTALLER_KEY), false).toBool();
-    return MakeStep::fromMap(map);
+    return BuildStep::fromMap(map);
+}
+
+Qt4BuildConfiguration *S60CreatePackageStep::qt4BuildConfiguration() const
+{
+    return static_cast<Qt4BuildConfiguration *>(buildConfiguration());
 }
 
 bool S60CreatePackageStep::init()
 {
-    if (!MakeStep::init())
-        return false;
-    Qt4BuildConfiguration *bc = qt4BuildConfiguration();
-    ProjectExplorer::Environment environment = bc->environment();
-    setEnvironment(environment);
-    QStringList args;
-    if (m_createSmartInstaller)
-        args << QLatin1String("installer_sis");
-    else
-        args << QLatin1String("sis");
-    if (signingMode() == SignCustom) {
-        args << QLatin1String("QT_SIS_CERTIFICATE=") + QDir::toNativeSeparators(customSignaturePath())
-             << QLatin1String("QT_SIS_KEY=") + QDir::toNativeSeparators(customKeyPath());
-    }
-    setArguments(args); // overwrite any stuff done in make step
+    Qt4Project *pro = qobject_cast<Qt4Project *>(buildConfiguration()->target()->project());
 
-    ProjectExplorer::GnuMakeParser *parser = new ProjectExplorer::GnuMakeParser;
-    parser->appendOutputParser(new Qt4ProjectManager::AbldParser);
-    setOutputParser(parser);
+    QList<Qt4ProFileNode *> nodes = pro->leafProFiles();
+
+    m_workingDirectories.clear();
+    foreach (Qt4ProFileNode *node, nodes)
+        m_workingDirectories << node->buildDir();
+
+    m_makeCmd = qt4BuildConfiguration()->makeCommand();
+    if (!QFileInfo(m_makeCmd).isAbsolute()) {
+        // Try to detect command in environment
+        const QString tmp = buildConfiguration()->environment().searchInPath(m_makeCmd);
+        if (tmp.isEmpty()) {
+            emit addOutput(tr("Could not find make command: %1 in the build environment").arg(m_makeCmd), BuildStep::ErrorOutput);
+            return false;
+        }
+        m_makeCmd = tmp;
+    }
+
+    m_environment = qt4BuildConfiguration()->environment();
+
+    m_args.clear();
+    if (m_createSmartInstaller)
+        m_args << QLatin1String("installer_sis");
+    else
+        m_args << QLatin1String("sis");
+    if (signingMode() == SignCustom) {
+        m_args << QLatin1String("QT_SIS_CERTIFICATE=") + QDir::toNativeSeparators(customSignaturePath())
+               << QLatin1String("QT_SIS_KEY=") + QDir::toNativeSeparators(customKeyPath());
+    }
+
+    delete m_outputParserChain;
+    m_outputParserChain = new ProjectExplorer::GnuMakeParser;
+    m_outputParserChain->appendOutputParser(new Qt4ProjectManager::AbldParser);
+    connect(m_outputParserChain, SIGNAL(addOutput(QString, ProjectExplorer::BuildStep::OutputFormat)),
+            this, SLOT(outputAdded(QString, ProjectExplorer::BuildStep::OutputFormat)));
+    connect(m_outputParserChain, SIGNAL(addTask(ProjectExplorer::Task)),
+            this, SLOT(taskAdded(ProjectExplorer::Task)));
 
     return true;
 }
+
+void S60CreatePackageStep::run(QFutureInterface<bool> &fi)
+{
+    m_futureInterface = &fi;
+
+    if (m_workingDirectories.isEmpty()) {
+        fi.reportResult(true);
+        return;
+    }
+
+    // Setup everything...
+    m_process = new QProcess();
+    m_process->setEnvironment(m_environment.toStringList());
+
+    connect(m_process, SIGNAL(readyReadStandardOutput()),
+            this, SLOT(processReadyReadStdOutput()),
+            Qt::DirectConnection);
+    connect(m_process, SIGNAL(readyReadStandardError()),
+            this, SLOT(processReadyReadStdError()),
+            Qt::DirectConnection);
+
+    connect(m_process, SIGNAL(finished(int, QProcess::ExitStatus)),
+            this, SLOT(slotProcessFinished(int, QProcess::ExitStatus)),
+            Qt::DirectConnection);
+
+    m_timer = new QTimer();
+    connect(m_timer, SIGNAL(timeout()), this, SLOT(checkForCancel()), Qt::DirectConnection);
+    m_timer->start(500);
+    m_eventLoop = new QEventLoop;
+
+    bool returnValue = false;
+    if (startProcess())
+        returnValue = m_eventLoop->exec();
+
+    // Finished
+    m_timer->stop();
+    delete m_timer;
+    m_timer = 0;
+
+    delete m_process;
+    m_process = 0;
+    delete m_eventLoop;
+    m_eventLoop = 0;
+    fi.reportResult(returnValue);
+    m_futureInterface = 0;
+
+    return;
+}
+
+void S60CreatePackageStep::slotProcessFinished(int, QProcess::ExitStatus)
+{
+    QString line = QString::fromLocal8Bit(m_process->readAllStandardError());
+    if (!line.isEmpty())
+        stdError(line);
+
+    line = QString::fromLocal8Bit(m_process->readAllStandardOutput());
+    if (!line.isEmpty())
+        stdOutput(line);
+
+    bool returnValue = false;
+    if (m_process->exitStatus() == QProcess::NormalExit && m_process->exitCode() == 0) {
+        emit addOutput(tr("The process \"%1\" exited normally.")
+                       .arg(QDir::toNativeSeparators(m_makeCmd)),
+                       BuildStep::MessageOutput);
+        returnValue = true;
+    } else if (m_process->exitStatus() == QProcess::NormalExit) {
+        emit addOutput(tr("The process \"%1\" exited with code %2.")
+                       .arg(QDir::toNativeSeparators(m_makeCmd), QString::number(m_process->exitCode())),
+                       BuildStep::ErrorMessageOutput);
+    } else {
+        emit addOutput(tr("The process \"%1\" crashed.").arg(QDir::toNativeSeparators(m_makeCmd)), BuildStep::ErrorMessageOutput);
+    }
+
+    if (m_workingDirectories.isEmpty() || !returnValue) {
+        m_eventLoop->exit(returnValue);
+    } else {
+        // Success, do next
+        if (!startProcess())
+            m_eventLoop->exit(returnValue);
+    }
+}
+
+bool S60CreatePackageStep::startProcess()
+{
+    QString workingDirectory = m_workingDirectories.takeFirst();
+    QDir wd(workingDirectory);
+    if (!wd.exists())
+        wd.mkpath(wd.absolutePath());
+
+    m_process->setWorkingDirectory(workingDirectory);
+
+    // Go for it!
+    m_process->start(m_makeCmd, m_args);
+    if (!m_process->waitForStarted()) {
+        emit addOutput(tr("Could not start process \"%1\" in %2")
+                       .arg(QDir::toNativeSeparators(m_makeCmd),
+                            workingDirectory),
+                       BuildStep::ErrorMessageOutput);
+        return false;
+    }
+    emit addOutput(tr("Starting: \"%1\" %2 in %3\n")
+                   .arg(QDir::toNativeSeparators(m_makeCmd),
+                        m_args.join(" "),
+                        workingDirectory),
+                   BuildStep::MessageOutput);
+    return true;
+}
+
+void S60CreatePackageStep::processReadyReadStdOutput()
+{
+    m_process->setReadChannel(QProcess::StandardOutput);
+    while (m_process->canReadLine()) {
+        QString line = QString::fromLocal8Bit(m_process->readLine());
+        stdOutput(line);
+    }
+}
+
+void S60CreatePackageStep::stdOutput(const QString &line)
+{
+    if (m_outputParserChain)
+        m_outputParserChain->stdOutput(line);
+    emit addOutput(line, BuildStep::NormalOutput);
+}
+
+void S60CreatePackageStep::processReadyReadStdError()
+{
+    m_process->setReadChannel(QProcess::StandardError);
+    while (m_process->canReadLine()) {
+        QString line = QString::fromLocal8Bit(m_process->readLine());
+        stdError(line);
+    }
+}
+
+void S60CreatePackageStep::stdError(const QString &line)
+{
+    if (m_outputParserChain)
+        m_outputParserChain->stdError(line);
+    emit addOutput(line, BuildStep::ErrorOutput);
+}
+
+void S60CreatePackageStep::checkForCancel()
+{
+    if (m_futureInterface->isCanceled() && m_timer->isActive()) {
+        m_timer->stop();
+        m_process->terminate();
+        m_process->waitForFinished(5000);
+        m_process->kill();
+    }
+}
+
+void S60CreatePackageStep::taskAdded(const ProjectExplorer::Task &task)
+{
+    ProjectExplorer::Task editable(task);
+    QString filePath = QDir::cleanPath(task.file.trimmed());
+    if (!filePath.isEmpty() && !QDir::isAbsolutePath(filePath)) {
+        // TODO which kind of tasks do we get from package building?
+        // No absoulte path
+    }
+    emit addTask(editable);
+}
+
+void S60CreatePackageStep::outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format)
+{
+    emit addOutput(string, format);
+}
+
 
 bool S60CreatePackageStep::immutable() const
 {

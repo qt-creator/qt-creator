@@ -126,8 +126,9 @@ bool S60DeployStep::init()
     }
     m_serialPortName = runConfiguration->serialPortName();
     m_serialPortFriendlyName = SymbianUtils::SymbianDeviceManager::instance()->friendlyNameForPort(m_serialPortName);
-    m_packageFileNameWithTarget = runConfiguration->packageFileNameWithTargetInfo();
-    m_signedPackage = runConfiguration->signedPackage();
+    m_packageFileNamesWithTarget = runConfiguration->packageFileNamesWithTargetInfo();
+    m_signedPackages = runConfiguration->signedPackages();
+
     m_installationDrive = runConfiguration->installationDrive();
     m_silentInstall = runConfiguration->silentInstall();
 
@@ -174,31 +175,31 @@ void S60DeployStep::appendMessage(const QString &error, bool isError)
 
 bool S60DeployStep::processPackageName(QString &errorMessage)
 {
-    QFileInfo packageInfo(m_signedPackage);
-    {
+    for (int i = 0; i < m_signedPackages.count(); ++i) {
+        QFileInfo packageInfo(m_signedPackages.at(i));
         // support for 4.6.1 and pre, where make sis creates 'targetname_armX_udeb.sis' instead of 'targetname.sis'
-        QFileInfo packageWithTargetInfo(m_packageFileNameWithTarget);
+        QFileInfo packageWithTargetInfo(m_packageFileNamesWithTarget.at(i));
         // does the 4.6.1 version exist?
         if (packageWithTargetInfo.exists() && packageWithTargetInfo.isFile()) {
             // is the 4.6.1 version newer? (to guard against behavior change Qt Creator 1.3 --> 2.0)
             if (!packageInfo.exists() || packageInfo.lastModified() < packageWithTargetInfo.lastModified()) { //TODO change the QtCore
                 // the 'targetname_armX_udeb.sis' crap exists and is new, rename it
                 appendMessage(tr("Renaming new package '%1' to '%2'")
-                              .arg(QDir::toNativeSeparators(m_packageFileNameWithTarget),
-                                   QDir::toNativeSeparators(m_signedPackage)), false);
-                return renameFile(m_packageFileNameWithTarget, m_signedPackage, &errorMessage);
+                              .arg(QDir::toNativeSeparators(m_packageFileNamesWithTarget.at(i)),
+                                   QDir::toNativeSeparators(m_signedPackages.at(i))), false);
+                return renameFile(m_packageFileNamesWithTarget.at(i), m_signedPackages.at(i), &errorMessage);
             } else {
                 // the 'targetname_armX_udeb.sis' crap exists but is old, remove it
                 appendMessage(tr("Removing old package '%1'")
-                              .arg(QDir::toNativeSeparators(m_packageFileNameWithTarget)),
+                              .arg(QDir::toNativeSeparators(m_packageFileNamesWithTarget.at(i))),
                               false);
-                ensureDeleteFile(m_packageFileNameWithTarget, &errorMessage);
+                ensureDeleteFile(m_packageFileNamesWithTarget.at(i), &errorMessage);
             }
         }
-    }
-    if (!packageInfo.exists() || !packageInfo.isFile()) {
-        errorMessage = tr("Package file not found");
-        return false;
+        if (!packageInfo.exists() || !packageInfo.isFile()) {
+            errorMessage = tr("'%1': Package file not found").arg(m_signedPackages.at(i));
+            return false;
+        }
     }
     return true;
 }
@@ -217,7 +218,7 @@ void S60DeployStep::start()
     if (processPackageName(errorMessage)) {
         startDeployment();
     } else {
-        errorMessage = tr("Failed to find package '%1': %2").arg(m_signedPackage, errorMessage);
+        errorMessage = tr("Failed to find package %1").arg(errorMessage);
         appendMessage(errorMessage, true);
         stop();
         emit finished();
@@ -253,16 +254,19 @@ void S60DeployStep::startDeployment()
 
     setupConnections();
 
-    const QString copyDst = QString::fromLatin1("%1:\\Data\\%2").arg(m_installationDrive).arg(QFileInfo(m_signedPackage).fileName());
+    QStringList copyDst;
+    foreach (const QString &signedPackage, m_signedPackages)
+        copyDst << QString::fromLatin1("%1:\\Data\\%1").arg(m_installationDrive).arg(QFileInfo(signedPackage).fileName());
 
-    m_launcher->setCopyFileName(m_signedPackage, copyDst);
-    m_launcher->setInstallFileName(copyDst);
+    m_launcher->setCopyFileNames(m_signedPackages, copyDst);
+    m_launcher->setInstallFileNames(copyDst);
     m_launcher->setInstallationDrive(m_installationDrive);
     m_launcher->setInstallationMode(m_silentInstall?trk::Launcher::InstallationModeSilentAndUser:
                                                     trk::Launcher::InstallationModeUser);
     m_launcher->addStartupActions(trk::Launcher::ActionCopyInstall);
 
-    appendMessage(tr("Package: %1\nDeploying application to '%2'...").arg(m_signedPackage, m_serialPortFriendlyName), false);
+    // TODO readd information about packages? msgListFile(m_signedPackage)
+    appendMessage(tr("Deploying application to '%2'...").arg(m_serialPortFriendlyName), false);
 
     QString errorMessage;
     if (!m_launcher->startServer(&errorMessage)) {

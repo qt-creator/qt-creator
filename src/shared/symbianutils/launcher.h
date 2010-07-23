@@ -89,9 +89,9 @@ public:
     void setTrkServerName(const QString &name);
     QString trkServerName() const;
     void setFileName(const QString &name);
-    void setCopyFileName(const QString &srcName, const QString &dstName);
+    void setCopyFileNames(const QStringList &srcName, const QStringList &dstName);
     void setDownloadFileName(const QString &srcName, const QString &dstName);
-    void setInstallFileName(const QString &name);
+    void setInstallFileNames(const QStringList &names);
     void setCommandLineArgs(const QStringList &args);
     bool startServer(QString *errorMessage);
     void setInstallationMode(InstallationMode installation);
