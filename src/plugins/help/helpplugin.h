@@ -52,6 +52,7 @@ namespace Help {
 namespace Internal {
 class CentralWidget;
 class DocSettingsPage;
+class ExternalHelpWindow;
 class FilterSettingsPage;
 class GeneralSettingsPage;
 class HelpMode;
@@ -73,6 +74,7 @@ public:
     ShutdownFlag aboutToShutdown();
 
 private slots:
+    void showExternalWindow();
     void modeChanged(Core::IMode *mode, Core::IMode *old);
 
     void activateContext();
@@ -94,6 +96,8 @@ private slots:
     void updateSideBarSource(const QUrl &newUrl);
 
     void fontChanged();
+    void contextHelpOptionChanged();
+
     void updateCloseButton();
     void setupHelpEngineIfNeeded();
 
@@ -141,6 +145,9 @@ private:
     QString m_oldAttrValue;
     QString m_styleProperty;
     QString m_idFromContext;
+
+    Core::IMode* m_oldMode;
+    ExternalHelpWindow *m_externalWindow;
 };
 
 } // namespace Internal

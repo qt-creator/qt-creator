@@ -37,8 +37,10 @@
 #include "xbelsupport.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icore.h>
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/QSettings>
 #include <QtCore/QTextStream>
 
 #include <QtGui/QApplication>
@@ -53,6 +55,7 @@
 using namespace Help::Internal;
 
 GeneralSettingsPage::GeneralSettingsPage()
+    : m_helpManager(0)
 {
     m_font = qApp->font();
 #if !defined(QT_NO_WEBKIT)
@@ -94,6 +97,7 @@ QWidget *GeneralSettingsPage::createPage(QWidget *parent)
     m_ui.sizeComboBox->setEditable(false);
     m_ui.styleComboBox->setEditable(false);
 
+    m_helpManager->setupGuiHelpEngine();
     const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
     m_font = qVariantValue<QFont>(engine.customValue(QLatin1String("font"), m_font));
 
@@ -112,9 +116,9 @@ QWidget *GeneralSettingsPage::createPage(QWidget *parent)
         Help::Constants::ShowLastPages).toInt();
     m_ui.helpStartComboBox->setCurrentIndex(startOption);
 
-    const int helpOption = engine.customValue(QLatin1String("ContextHelpOption"),
+    m_contextOption = engine.customValue(QLatin1String("ContextHelpOption"),
         Help::Constants::SideBySideIfPossible).toInt();
-    m_ui.contextHelpComboBox->setCurrentIndex(helpOption);
+    m_ui.contextHelpComboBox->setCurrentIndex(m_contextOption);
 
     connect(m_ui.currentPageButton, SIGNAL(clicked()), this, SLOT(setCurrentPage()));
     connect(m_ui.blankPageButton, SIGNAL(clicked()), this, SLOT(setBlankPage()));
@@ -166,10 +170,11 @@ void GeneralSettingsPage::apply()
         newFont.setWeight(weight);
 
     QHelpEngineCore *engine = &LocalHelpManager::helpEngine();
-    engine->setCustomValue(QLatin1String("font"), newFont);
-
-    if (newFont != m_font)
+    if (newFont != m_font) {
+        m_font = newFont;
+        engine->setCustomValue(QLatin1String("font"), newFont);
         emit fontChanged();
+    }
 
     QString homePage = m_ui.homePageLineEdit->text();
     if (homePage.isEmpty())
@@ -180,7 +185,17 @@ void GeneralSettingsPage::apply()
     engine->setCustomValue(QLatin1String("StartOption"), startOption);
 
     const int helpOption = m_ui.contextHelpComboBox->currentIndex();
-    engine->setCustomValue(QLatin1String("ContextHelpOption"), helpOption);
+    if (m_contextOption != helpOption) {
+        m_contextOption = helpOption;
+        engine->setCustomValue(QLatin1String("ContextHelpOption"), helpOption);
+
+        QSettings *settings = Core::ICore::instance()->settings();
+        settings->beginGroup(Help::Constants::ID_MODE_HELP);
+        settings->setValue(QLatin1String("ContextHelpOption"), helpOption);
+        settings->endGroup();
+
+        emit contextHelpOptionChanged();
+    }
 }
 
 void GeneralSettingsPage::setCurrentPage()
@@ -326,4 +341,9 @@ int GeneralSettingsPage::closestPointSizeIndex(int desiredPointSize) const
 bool GeneralSettingsPage::matches(const QString &s) const
 {
     return m_searchKeywords.contains(s, Qt::CaseInsensitive);
+}
+
+void GeneralSettingsPage::setHelpManager(LocalHelpManager *manager)
+{
+    m_helpManager = manager;
 }

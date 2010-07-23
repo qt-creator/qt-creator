@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>GeneralSettingsPage</class>
  <widget class="QWidget" name="GeneralSettingsPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>498</width>
+    <height>304</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
@@ -167,6 +175,11 @@
           <item>
            <property name="text">
             <string>Always Start Full Help</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Always Show Help in External Window</string>
            </property>
           </item>
          </widget>

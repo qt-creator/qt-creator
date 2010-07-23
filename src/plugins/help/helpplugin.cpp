@@ -33,6 +33,7 @@
 #include "centralwidget.h"
 #include "contentwindow.h"
 #include "docsettingspage.h"
+#include "externalhelpwindow.h"
 #include "filtersettingspage.h"
 #include "generalsettingspage.h"
 #include "helpconstants.h"
@@ -68,6 +69,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QLibraryInfo>
+#include <QtCore/QTimer>
 #include <QtCore/QTranslator>
 #include <QtCore/qplugin.h>
 
@@ -75,6 +77,7 @@
 #include <QtGui/QComboBox>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QShortcut>
+#include <QtGui/QStackedLayout>
 #include <QtGui/QSplitter>
 #include <QtGui/QToolBar>
 
@@ -113,7 +116,9 @@ HelpPlugin::HelpPlugin()
     m_searchItem(0),
     m_bookmarkItem(0),
     m_sideBar(0),
-    m_firstModeChange(true)
+    m_firstModeChange(true),
+    m_oldMode(0),
+    m_externalWindow(new ExternalHelpWindow(0))
 {
 }
 
@@ -150,8 +155,11 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     addAutoReleasedObject(m_filterSettingsPage = new FilterSettingsPage());
     addAutoReleasedObject(m_generalSettingsPage = new GeneralSettingsPage());
 
+    m_generalSettingsPage->setHelpManager(m_helpManager);
     connect(m_generalSettingsPage, SIGNAL(fontChanged()), this,
         SLOT(fontChanged()));
+    connect(m_generalSettingsPage, SIGNAL(contextHelpOptionChanged()), this,
+        SLOT(contextHelpOptionChanged()));
     connect(Core::HelpManager::instance(), SIGNAL(helpRequested(QUrl)), this,
         SLOT(handleHelpRequest(QUrl)));
     m_filterSettingsPage->setHelpManager(m_helpManager);
@@ -315,8 +323,19 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     connect(m_core->modeManager(), SIGNAL(currentModeChanged(Core::IMode*,
         Core::IMode*)), this, SLOT(modeChanged(Core::IMode*, Core::IMode*)));
 
-    addAutoReleasedObject(m_mode = new HelpMode(m_splitter));
+    if (contextHelpOption() == Help::Constants::ExternalHelpAlways) {
+        m_mode = new HelpMode(new QWidget);
+        m_mode->setEnabled(false);
+        m_externalWindow->setCentralWidget(m_splitter);
+        QTimer::singleShot(0, this, SLOT(showExternalWindow()));
+    } else {
+        m_mode = new HelpMode(m_splitter);
+    }
+    addAutoReleasedObject(m_mode);
     m_mode->setContext(modecontext);
+    
+    connect(Core::ICore::instance(), SIGNAL(coreAboutToClose()),
+        m_externalWindow, SLOT(close()));
 
     return true;
 }
@@ -351,6 +370,8 @@ ExtensionSystem::IPlugin::ShutdownFlag HelpPlugin::aboutToShutdown()
 {
     if (m_sideBar)
         m_sideBar->saveSettings(m_core->settings(), QLatin1String("HelpSideBar"));
+    delete m_externalWindow;
+
     return SynchronousShutdown;
 }
 
@@ -555,7 +576,10 @@ void HelpPlugin::createRightPaneContextViewer()
 
 void HelpPlugin::activateHelpMode()
 {
-    m_core->modeManager()->activateMode(QLatin1String(Constants::ID_MODE_HELP));
+    if (contextHelpOption() != Help::Constants::ExternalHelpAlways)
+        m_core->modeManager()->activateMode(QLatin1String(Constants::ID_MODE_HELP));
+    else
+        showExternalWindow();
 }
 
 void HelpPlugin::switchToHelpMode()
@@ -575,10 +599,17 @@ void HelpPlugin::slotHideRightPane()
     Core::RightPaneWidget::instance()->setShown(false);
 }
 
+void HelpPlugin::showExternalWindow()
+{
+    setup();
+    m_externalWindow->show();
+    m_externalWindow->activateWindow();
+}
+
 void HelpPlugin::modeChanged(Core::IMode *mode, Core::IMode *old)
 {
-    Q_UNUSED(old)
     if (mode == m_mode) {
+        m_oldMode = old;
         qApp->setOverrideCursor(Qt::WaitCursor);
         setup();
         qApp->restoreOverrideCursor();
@@ -622,10 +653,65 @@ void HelpPlugin::fontChanged()
     }
 }
 
+QStackedLayout * layoutForWidget(QWidget *parent, QWidget *widget)
+{
+    QList<QStackedLayout*> list = parent->findChildren<QStackedLayout*>();
+    foreach (QStackedLayout *layout, list) {
+        const int index = layout->indexOf(widget);
+        if (index >= 0)
+            return layout;
+    }
+    return 0;
+}
+
+void HelpPlugin::contextHelpOptionChanged()
+{
+    setup();
+    QWidget *modeWidget = m_mode->widget();
+    if (modeWidget == m_splitter
+        && contextHelpOption() == Help::Constants::ExternalHelpAlways) {
+        if (QWidget *widget = m_splitter->parentWidget()) {
+            if (QStackedLayout *layout = layoutForWidget(widget, m_splitter)) {
+                const int index = layout->indexOf(m_splitter);
+                layout->removeWidget(m_splitter);
+                m_mode->setWidget(new QWidget);
+                layout->insertWidget(index, m_mode->widget());
+                m_externalWindow->setCentralWidget(m_splitter);
+                m_splitter->show();
+
+                slotHideRightPane();
+                m_mode->setEnabled(false);
+                m_externalWindow->show();
+                
+                if (m_oldMode && m_mode == m_core->modeManager()->currentMode())
+                    m_core->modeManager()->activateMode(m_oldMode->id());
+            }
+        }
+    } else if (modeWidget != m_splitter
+        && contextHelpOption() != Help::Constants::ExternalHelpAlways) {
+        QStackedLayout *wLayout = layoutForWidget(modeWidget->parentWidget(),
+            modeWidget);
+        if (wLayout && m_splitter->parentWidget()->layout()) {
+            const int index = wLayout->indexOf(modeWidget);
+            QWidget *tmp = wLayout->widget(index);
+            wLayout->removeWidget(modeWidget);
+            delete tmp;
+
+            m_splitter->parentWidget()->layout()->removeWidget(m_splitter);
+            m_mode->setWidget(m_splitter);
+            wLayout->insertWidget(index, m_splitter);
+
+            m_mode->setEnabled(true);
+            m_externalWindow->close();
+        }
+    }
+}
+
 void HelpPlugin::setupHelpEngineIfNeeded()
 {
     m_helpManager->setEngineNeedsUpdate();
-    if (Core::ModeManager::instance()->currentMode() == m_mode)
+    if (Core::ModeManager::instance()->currentMode() == m_mode
+        || contextHelpOption() == Help::Constants::ExternalHelpAlways)
         m_helpManager->setupGuiHelpEngine();
 }
 
@@ -905,6 +991,11 @@ void HelpPlugin::setup()
 
 int HelpPlugin::contextHelpOption() const
 {
+    QSettings *settings = Core::ICore::instance()->settings();
+    const QString key = Help::Constants::ID_MODE_HELP + QLatin1String("/ContextHelpOption");
+    if (settings->contains(key))
+        return settings->value(key, Help::Constants::SideBySideIfPossible).toInt();
+
     const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
     return engine.customValue(QLatin1String("ContextHelpOption"),
         Help::Constants::SideBySideIfPossible).toInt();

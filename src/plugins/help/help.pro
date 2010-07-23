@@ -28,7 +28,8 @@ HEADERS += \
     openpageswidget.h \
     remotehelpfilter.h \
     searchwidget.h \
-    xbelsupport.h
+    xbelsupport.h \
+    externalhelpwindow.h
 
 SOURCES += \
     centralwidget.cpp \
@@ -49,8 +50,9 @@ SOURCES += \
     openpageswidget.cpp \
     remotehelpfilter.cpp \
     searchwidget.cpp \
-    xbelsupport.cpp
-
+    xbelsupport.cpp \
+    externalhelpwindow.cpp
+    
 FORMS += docsettingspage.ui \
     filtersettingspage.ui \
     generalsettingspage.ui \
