@@ -212,6 +212,9 @@
      <property name="specialValueText">
       <string>INVALID</string>
      </property>
+     <property name="keyboardTracking">
+      <bool>false</bool>
+     </property>
      <property name="suffix">
       <string> ms</string>
      </property>
@@ -253,6 +256,9 @@
      <property name="specialValueText">
       <string>INVALID</string>
      </property>
+     <property name="keyboardTracking">
+      <bool>false</bool>
+     </property>
      <property name="decimals">
       <number>3</number>
      </property>
@@ -291,6 +297,9 @@
      <property name="specialValueText">
       <string>INVALID</string>
      </property>
+     <property name="keyboardTracking">
+      <bool>false</bool>
+     </property>
      <property name="decimals">
       <number>3</number>
      </property>
@@ -328,6 +337,9 @@
      </property>
      <property name="specialValueText">
       <string>INVALID</string>
+     </property>
+     <property name="keyboardTracking">
+      <bool>false</bool>
      </property>
      <property name="decimals">
       <number>3</number>
