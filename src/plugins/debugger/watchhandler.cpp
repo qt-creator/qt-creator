@@ -599,26 +599,18 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
 
         case EngineActionsEnabledRole:
             return engine()->debuggerActionsEnabled();
-
-        case WatcherEditPlaceHolderRole:
-            return m_handler->watcherEditPlaceHolder();
     }
 
     const WatchItem *item = watchItem(idx);
     const WatchItem &data = *item;
-
-    if (data.name == m_handler->watcherEditPlaceHolder()) {
-        if (idx.column() == 0 &&
-                (role == Qt::EditRole || role == Qt::DisplayRole))
-            return data.name;
-        return QVariant();
-    }
 
     switch (role) {
         case Qt::EditRole:
         case Qt::DisplayRole: {
             switch (idx.column()) {
                 case 0:
+                    if (data.name.isEmpty() && role == Qt::DisplayRole)
+                        return tr("<Edit>");
                     if (data.name == QLatin1String("*") && item->parent)
                         return QVariant(QLatin1Char('*') + item->parent->name);
                     return data.name;
@@ -836,7 +828,7 @@ Qt::ItemFlags WatchModel::flags(const QModelIndex &idx) const
         return editable; // Watcher names are editable.
 
     if (data.isWatcher()) {
-        if (data.name != m_handler->watcherEditPlaceHolder()) {
+        if (!data.name.isEmpty()) {
             // FIXME: Forcing types is not implemented yet.
             //if (idx.column() == 2)
             //    return editable; // Watcher types can be set by force.
@@ -1249,7 +1241,7 @@ QByteArray WatchHandler::watcherName(const QByteArray &exp)
 void WatchHandler::watchExpression(const QString &exp)
 {
     // Do not insert multiple placeholders.
-    if (exp == watcherEditPlaceHolder() && m_watcherNames.contains(exp.toLatin1()))
+    if (exp.isEmpty() && m_watcherNames.contains(QByteArray()))
         return;
 
     // FIXME: 'exp' can contain illegal characters
@@ -1257,7 +1249,7 @@ void WatchHandler::watchExpression(const QString &exp)
     data.exp = exp.toLatin1();
     data.name = exp;
     m_watcherNames[data.exp] = watcherCounter++;
-    if (exp.isEmpty() || exp == watcherEditPlaceHolder())
+    if (exp.isEmpty())
         data.setAllUnneeded();
     data.iname = watcherName(data.exp);
     if (m_engine->isSynchroneous() && !m_engine->isSessionEngine())
@@ -1416,7 +1408,7 @@ QStringList WatchHandler::watchedExpressions() const
     while (it.hasNext()) {
         it.next();
         const QString &watcherName = it.key();
-        if (!watcherName.isEmpty() && watcherName != watcherEditPlaceHolder())
+        if (!watcherName.isEmpty())
             watcherNames.push_back(watcherName);
     }
     return watcherNames;
@@ -1526,12 +1518,6 @@ WatchData *WatchHandler::findItem(const QByteArray &iname) const
     const WatchModel *model = modelForIName(iname);
     QTC_ASSERT(model, return 0);
     return model->findItem(iname, model->m_root);
-}
-
-QString WatchHandler::watcherEditPlaceHolder()
-{
-    static const QString rc = tr("<Edit>");
-    return rc;
 }
 
 void WatchHandler::setFormat(const QString &type, int format)

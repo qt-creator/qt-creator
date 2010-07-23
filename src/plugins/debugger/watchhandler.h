@@ -171,7 +171,6 @@ public:
     QByteArray typeFormatRequests() const;
     QByteArray individualFormatRequests() const;
 
-    static QString watcherEditPlaceHolder();
     int format(const QByteArray &iname) const;
 
     void addTypeFormats(const QString &type, const QStringList &formats);

@@ -206,9 +206,8 @@ void WatchWindow::mouseDoubleClickEvent(QMouseEvent *ev)
 {
     const QModelIndex idx = indexAt(ev->pos());
     if (!idx.isValid()) {
-        // The "<Edit>" string.
-        QVariant placeHolder = model()->data(idx, WatcherEditPlaceHolderRole);
-        setModelData(RequestWatchExpressionRole, placeHolder);
+        // The "<Edit>" case.
+        watchExpression(QString());
         return;
     }
     QTreeView::mouseDoubleClickEvent(ev);
@@ -410,7 +409,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == actAlwaysAdjustColumnWidth) {
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
     } else if (act == actInsertNewWatchItem) {
-        watchExpression(WatchHandler::watcherEditPlaceHolder());
+        watchExpression(QString());
     } else if (act == actOpenMemoryEditAtVariableAddress) {
         setModelData(RequestShowMemoryRole, address);
     } else if (act == actOpenMemoryEditAtPointerValue) {

@@ -1169,7 +1169,7 @@ class Dumper:
             self.put('name="%s",' % escapedExp)
             self.put('exp="%s",' % escapedExp)
             handled = False
-            if exp == "<Edit>" or len(exp) == 0:
+            if len(exp) == 0: # The <Edit> case
                 self.putValue(" ")
                 self.putType(" ")
                 self.putNumChild(0)

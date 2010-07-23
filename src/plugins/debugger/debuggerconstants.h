@@ -214,7 +214,6 @@ enum ModelRoles
     LocalsPointerValueRole, // Pointer value (address) as quint64
     LocalsIsWatchpointAtAddressRole,
     LocalsIsWatchpointAtPointerValueRole,
-    WatcherEditPlaceHolderRole,
     RequestWatchPointRole,
     RequestToggleWatchRole,
     RequestToolTipByExpressionRole,

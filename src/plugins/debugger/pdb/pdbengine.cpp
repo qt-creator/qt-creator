@@ -735,10 +735,7 @@ void PdbEngine::updateLocals()
         it.next();
         if (!watchers.isEmpty())
             watchers += "##";
-        if (it.key() == WatchHandler::watcherEditPlaceHolder().toLatin1())
-            watchers += "<Edit>#watch." + QByteArray::number(it.value());
-        else
-            watchers += it.key() + "#watch." + QByteArray::number(it.value());
+        watchers += it.key() + "#watch." + QByteArray::number(it.value());
     }
 
     QByteArray options;
