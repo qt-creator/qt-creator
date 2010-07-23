@@ -176,7 +176,7 @@ public:
 ///////////////////////////////////////////////////////////////////////
 
 QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters)
-    : DebuggerEngine(startParameters)
+    : DebuggerEngine(startParameters), m_ping(0)
 {
 /*
     m_conn = 0;
@@ -339,7 +339,6 @@ void QmlEngine::setupConnection()
 void QmlEngine::continueInferior()
 {
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
-    SDEBUG("QmlEngine::continueInferior()");
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
     rs << QByteArray("CONTINUE");
@@ -359,7 +358,6 @@ void QmlEngine::interruptInferior()
 
 void QmlEngine::executeStep()
 {
-    SDEBUG("QmlEngine::executeStep()");
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
     rs << QByteArray("STEPINTO");
@@ -370,7 +368,6 @@ void QmlEngine::executeStep()
 
 void QmlEngine::executeStepI()
 {
-    SDEBUG("QmlEngine::executeStepI()");
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
     rs << QByteArray("STEPINTO");
@@ -381,7 +378,6 @@ void QmlEngine::executeStepI()
 
 void QmlEngine::executeStepOut()
 {
-    SDEBUG("QmlEngine::executeStepOut()");
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
     rs << QByteArray("STEPOUT");
@@ -398,7 +394,6 @@ void QmlEngine::executeNext()
     sendMessage(reply);
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
-    SDEBUG("QmlEngine::nextExec()");
 }
 
 void QmlEngine::executeNextI()
@@ -571,6 +566,17 @@ void QmlEngine::expandObject(const QByteArray& iname, quint64 objectId)
     sendMessage(reply);
 }
 
+void QmlEngine::sendPing()
+{
+    m_ping++;
+    QByteArray reply;
+    QDataStream rs(&reply, QIODevice::WriteOnly);
+    rs << QByteArray("PING");
+    rs << m_ping;
+    sendMessage(reply);
+}
+
+
 
 DebuggerEngine *createQmlEngine(const DebuggerStartParameters &sp)
 {
@@ -622,24 +628,32 @@ void QmlEngine::messageReceived(const QByteArray &message)
         stackHandler()->setFrames(stackFrames);
 
         watchHandler()->beginCycle();
+        bool needPing = false;
 
         foreach (WatchData data, watches) {
             data.iname = watchHandler()->watcherName(data.exp);
             watchHandler()->insertData(data);
 
-            if (watchHandler()->expandedINames().contains(data.iname))
+            if (watchHandler()->expandedINames().contains(data.iname)) {
+                needPing = true;
                 expandObject(data.iname, data.objectId);
+            }
         }
 
         foreach (WatchData data, locals) {
             data.iname = "local." + data.exp;
             watchHandler()->insertData(data);
 
-            if (watchHandler()->expandedINames().contains(data.iname))
+            if (watchHandler()->expandedINames().contains(data.iname)) {
+                needPing = true;
                 expandObject(data.iname, data.objectId);
+            }
         }
 
-        watchHandler()->endCycle();
+        if (needPing)
+            sendPing();
+        else
+            watchHandler()->endCycle();
 
     } else if (command == "RESULT") {
         WatchData data;
@@ -652,25 +666,42 @@ void QmlEngine::messageReceived(const QByteArray &message)
         QList<WatchData> result;
         QByteArray iname;
         stream >> iname >> result;
+        bool needPing = false;
         foreach (WatchData data, result) {
             data.iname = iname + '.' + data.exp;
             watchHandler()->insertData(data);
 
-            if (watchHandler()->expandedINames().contains(data.iname)) 
+            if (watchHandler()->expandedINames().contains(data.iname)) {
+                needPing = true;
                 expandObject(data.iname, data.objectId);
+            }
         }
+        if (needPing)
+            sendPing();
     } else if (command == "LOCALS") {
         QList<WatchData> locals;
         int frameId;
         stream >> frameId >> locals;
         watchHandler()->beginCycle();
+        bool needPing = false;
         foreach (WatchData data, locals) {
             data.iname = "local." + data.exp;
             watchHandler()->insertData(data);
-            if (watchHandler()->expandedINames().contains(data.iname))
+            if (watchHandler()->expandedINames().contains(data.iname)) {
+                needPing = true;
                 expandObject(data.iname, data.objectId);
+            }
         }
-        watchHandler()->endCycle();
+        if (needPing)
+            sendPing();
+        else
+            watchHandler()->endCycle();
+
+    } else if (command == "PONG") {
+        int ping;
+        stream >> ping;
+        if (ping == m_ping)
+            watchHandler()->endCycle();
     } else {
         qDebug() << Q_FUNC_INFO << "Unknown command: " << command;
     }

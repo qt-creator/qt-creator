@@ -70,6 +70,7 @@ class DEBUGGER_EXPORT QmlEngine : public DebuggerEngine
 {
     Q_OBJECT
 
+    int m_ping;
 public:
     explicit QmlEngine(const DebuggerStartParameters &startParameters);
     ~QmlEngine();
@@ -117,7 +118,6 @@ private:
     void reloadFullStack() {}
 
     bool supportsThreads() const { return true; }
-    void maybeBreakNow(bool byFunction);
     void updateWatchData(const WatchData &data);
 
     unsigned int debuggerCapabilities() const;
@@ -128,6 +128,7 @@ signals:
 
 private:
     void expandObject(const QByteArray &iname, quint64 objectId);
+    void sendPing();
 
 #if 0
     void createDockWidgets();

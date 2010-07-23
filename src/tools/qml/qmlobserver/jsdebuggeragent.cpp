@@ -408,6 +408,13 @@ void JSDebuggerAgent::messageReceived(const QByteArray& message)
         }
         state = oldState;
         //TODO: feedback
+    } else if (command == "PING") {
+        int ping;
+        ds >> ping;
+        QByteArray reply;
+        QDataStream rs(&reply, QIODevice::WriteOnly);
+        rs << QByteArray("PONG") << ping;
+        sendMessage(reply);
     } else {
         qDebug() << Q_FUNC_INFO << "Unknown command" << command;
     }
