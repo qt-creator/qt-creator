@@ -46,8 +46,8 @@ def testMath():
     print cube(5)
 
 def main():
-    #testMath()
-    testApp()
+    testMath()
+    #testApp()
     return 0
 
 if __name__ == '__main__':

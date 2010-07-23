@@ -105,6 +105,9 @@ private:
     bool isSynchroneous() const { return true; }
     void updateWatchData(const WatchData &data);
 
+signals:
+    void outputReady(const QByteArray &data);
+
 private:
     QString errorMessage(QProcess::ProcessError error) const;
     unsigned debuggerCapabilities() const;
@@ -113,10 +116,14 @@ private:
     Q_SLOT void handlePdbError(QProcess::ProcessError error);
     Q_SLOT void readPdbStandardOutput();
     Q_SLOT void readPdbStandardError();
+    Q_SLOT void handleOutput2(const QByteArray &data);
     void handleResponse(const QByteArray &ba);
+    void handleOutput(const QByteArray &data);
     void updateAll();
+    void updateLocals();
     void handleUpdateAll(const PdbResponse &response);
     void handleFirstCommand(const PdbResponse &response);
+    void handleExecuteDebuggerCommand(const PdbResponse &response);
 
     typedef void (PdbEngine::*PdbCommandCallback)
         (const PdbResponse &response);
@@ -139,7 +146,6 @@ private:
     void handleListLocals(const PdbResponse &response);
     void handleListModules(const PdbResponse &response);
     void handleListSymbols(const PdbResponse &response);
-    void handleLoadDumper(const PdbResponse &response);
     void handleBreakInsert(const PdbResponse &response);
 
     void handleChildren(const WatchData &data0, const GdbMi &item,
@@ -149,6 +155,7 @@ private:
                      PdbCommandCallback callback = 0,
                      const char *callbackName = 0,
                      const QVariant &cookie = QVariant());
+    void postDirectCommand(const QByteArray &command);
 
     QQueue<PdbCommand> m_commands;
 

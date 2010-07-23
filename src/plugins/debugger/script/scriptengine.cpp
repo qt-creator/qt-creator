@@ -327,7 +327,8 @@ void ScriptEngine::importExtensions()
                      "Make sure that the bindings have been built, "
                      "and that this executable and the plugins are "
                      "using compatible Qt libraries.",
-                     qPrintable(failExtensions.join(QLatin1String(", "))), qPrintable(dir.absolutePath()));
+                     qPrintable(failExtensions.join(QLatin1String(", "))),
+                        qPrintable(dir.absolutePath()));
         }
     }
     return; // failExtensions.isEmpty();
@@ -336,12 +337,12 @@ void ScriptEngine::importExtensions()
 void ScriptEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
-    SDEBUG("ScriptEngine::runEngine()");
     notifyEngineRunAndInferiorRunOk();
     showStatusMessage(tr("Running requested..."), 5000);
     showMessage(QLatin1String("Running: ") + m_scriptFileName, LogMisc);
     importExtensions();
-    const QScriptValue result = m_scriptEngine->evaluate(m_scriptContents, m_scriptFileName);
+    const QScriptValue result =
+        m_scriptEngine->evaluate(m_scriptContents, m_scriptFileName);
     QString msg;
     if (m_scriptEngine->hasUncaughtException()) {
         msg = _("An exception occurred during execution at line: %1\n%2\n")

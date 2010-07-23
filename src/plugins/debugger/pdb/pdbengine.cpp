@@ -61,8 +61,8 @@
 #include <QtCore/QVariant>
 
 #include <QtGui/QApplication>
-#include <QtGui/QToolTip>
 #include <QtGui/QMessageBox>
+#include <QtGui/QToolTip>
 
 
 #define DEBUG_SCRIPT 1
@@ -94,12 +94,26 @@ PdbEngine::~PdbEngine()
 
 void PdbEngine::executeDebuggerCommand(const QString &command)
 {
-    XSDEBUG("PdbEngine::executeDebuggerCommand:" << command);
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    //XSDEBUG("PdbEngine::executeDebuggerCommand:" << command);
     if (state() == DebuggerNotReady) {
         showMessage(_("PDB PROCESS NOT RUNNING, PLAIN CMD IGNORED: ") + command);
         return;
     }
-    m_pdbProc.write(command.toLatin1() + "\n");
+    QTC_ASSERT(m_pdbProc.state() == QProcess::Running, notifyEngineIll());
+    postCommand(command.toLatin1(), CB(handleExecuteDebuggerCommand));
+}
+
+void PdbEngine::handleExecuteDebuggerCommand(const PdbResponse &response)
+{
+    Q_UNUSED(response);
+}
+
+void PdbEngine::postDirectCommand(const QByteArray &command)
+{
+    QTC_ASSERT(m_pdbProc.state() == QProcess::Running, notifyEngineIll());
+    showMessage(_(command), LogInput);
+    m_pdbProc.write(command + "\n");
 }
 
 void PdbEngine::postCommand(const QByteArray &command,
@@ -108,12 +122,14 @@ void PdbEngine::postCommand(const QByteArray &command,
                  const char *callbackName,
                  const QVariant &cookie)
 {
+    QTC_ASSERT(m_pdbProc.state() == QProcess::Running, notifyEngineIll());
     PdbCommand cmd;
     cmd.command = command;
     cmd.callback = callback;
     cmd.callbackName = callbackName;
     cmd.cookie = cookie;
     m_commands.enqueue(cmd);
+    qDebug() << "ENQUEUE: " << command << cmd.callbackName;
     showMessage(_(cmd.command), LogInput);
     m_pdbProc.write(cmd.command + "\n");
 }
@@ -127,7 +143,6 @@ void PdbEngine::shutdownInferior()
 void PdbEngine::shutdownEngine()
 {
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
-    SDEBUG("PdbEngine::shutdownEngine()");
     m_pdbProc.kill();
 }
 
@@ -135,24 +150,8 @@ void PdbEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
 
-    m_scriptFileName = QFileInfo(startParameters().executable).absoluteFilePath();
-    QFile scriptFile(m_scriptFileName);
-    if (!scriptFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
-        //showMessage("STARTING " +m_scriptFileName + "FAILED");
-        showMessage(QString::fromLatin1("Cannot open %1: %2").
-                   arg(m_scriptFileName, scriptFile.errorString()), LogError);
-        notifyEngineSetupFailed();
-        return;
-    }
-    m_pdbProc.disconnect(); // From any previous runs
-
-    m_pdb = _("/usr/bin/python");
+    m_pdb = _("python");
     showMessage(_("STARTING PDB ") + m_pdb);
-    QStringList gdbArgs;
-    gdbArgs += _("-i");
-    gdbArgs += _("/usr/bin/pdb");
-    gdbArgs += m_scriptFileName;
-    //gdbArgs += args;
 
     connect(&m_pdbProc, SIGNAL(error(QProcess::ProcessError)),
         SLOT(handlePdbError(QProcess::ProcessError)));
@@ -163,13 +162,15 @@ void PdbEngine::setupEngine()
     connect(&m_pdbProc, SIGNAL(readyReadStandardError()),
         SLOT(readPdbStandardError()));
 
+    connect(this, SIGNAL(outputReady(QByteArray)),
+        SLOT(handleOutput2(QByteArray)), Qt::QueuedConnection);
+
     // We will stop immediatly, so setup a proper callback.
     PdbCommand cmd;
     cmd.callback = &PdbEngine::handleFirstCommand;
     m_commands.enqueue(cmd);
 
-    m_pdbProc.start(m_pdb, gdbArgs);
-    //qDebug() << "STARTING:" << m_pdb << gdbArgs;
+    m_pdbProc.start(m_pdb, QStringList() << _("-i"));
 
     if (!m_pdbProc.waitForStarted()) {
         const QString msg = tr("Unable to start pdb '%1': %2")
@@ -189,21 +190,33 @@ void PdbEngine::setupEngine()
 void PdbEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-    attemptBreakpointSynchronization();
 
-    showMessage(_("PDB STARTED, INITIALIZING IT"));
-    const QByteArray dumperSourcePath =
-        Core::ICore::instance()->resourcePath().toLocal8Bit() + "/gdbmacros/";
-    postCommand("execfile('" + dumperSourcePath + "pdumper.py')",
-        CB(handleLoadDumper));
+    QString fileName = QFileInfo(startParameters().executable).absoluteFilePath();
+    QFile scriptFile(fileName);
+    if (!scriptFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
+        showMessageBox(QMessageBox::Critical, tr("Python Error"),
+            _("Cannot open script file %1:\n%2").
+               arg(fileName, scriptFile.errorString()));
+        notifyInferiorSetupFailed();
+        return;
+    }
+    notifyInferiorSetupOk();
 }
 
 void PdbEngine::runEngine()
 {
+    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
     showStatusMessage(tr("Running requested..."), 5000);
-    SDEBUG("PdbEngine::runEngine()");
-    notifyEngineRunAndInferiorRunOk();
-    postCommand("continue", CB(handleUpdateAll));
+    const QByteArray dumperSourcePath =
+        Core::ICore::instance()->resourcePath().toLocal8Bit() + "/gdbmacros/";
+    QString fileName = QFileInfo(startParameters().executable).absoluteFilePath();
+    postDirectCommand("import sys");
+    postDirectCommand("sys.argv.append('" + fileName.toLocal8Bit() + "')");
+    postDirectCommand("execfile('/usr/bin/pdb')");
+    postDirectCommand("execfile('" + dumperSourcePath + "pdumper.py')");
+    attemptBreakpointSynchronization();
+    notifyEngineRunAndInferiorStopOk();
+    continueInferior();
 }
 
 void PdbEngine::interruptInferior()
@@ -388,7 +401,7 @@ void PdbEngine::loadAllSymbols()
 
 void PdbEngine::reloadModules()
 {
-    postCommand("qdebug('listmodules')", CB(handleListModules));
+    //postCommand("qdebug('listmodules')", CB(handleListModules));
 }
 
 void PdbEngine::handleListModules(const PdbResponse &response)
@@ -549,6 +562,7 @@ void PdbEngine::updateWatchData(const WatchData &data)
 
 void PdbEngine::handlePdbError(QProcess::ProcessError error)
 {
+    qDebug() << "HANDLE PDB ERROR";
     showMessage(_("HANDLE PDB ERROR"));
     switch (error) {
     case QProcess::Crashed:
@@ -595,6 +609,7 @@ QString PdbEngine::errorMessage(QProcess::ProcessError error) const
 
 void PdbEngine::handlePdbFinished(int code, QProcess::ExitStatus type)
 {
+    qDebug() << "PDB FINISHED";
     showMessage(_("PDB PROCESS FINISHED, status %1, code %2").arg(type).arg(code));
     notifyEngineSpontaneousShutdown();
 }
@@ -602,35 +617,57 @@ void PdbEngine::handlePdbFinished(int code, QProcess::ExitStatus type)
 void PdbEngine::readPdbStandardError()
 {
     QByteArray err = m_pdbProc.readAllStandardError();
-    qWarning() << "Unexpected pdb stderr:" << err;
-    showMessage(_("Unexpected pdb stderr: " + err));
+    qDebug() << "\nPDB STDERR" << err;
+    //qWarning() << "Unexpected pdb stderr:" << err;
+    //showMessage(_("Unexpected pdb stderr: " + err));
+    //handleOutput(err);
 }
 
 void PdbEngine::readPdbStandardOutput()
 {
-    m_inbuffer.append(m_pdbProc.readAllStandardOutput());
-    //qDebug() << "BUFFER FROM: '" << m_inbuffer << "'";
-    int pos = 1;
-    while ((pos = m_inbuffer.indexOf("(Pdb)")) != -1) {
-        PdbResponse response;
-        response.data = m_inbuffer.left(pos).trimmed();
-        showMessage(_(response.data));
-        m_inbuffer = m_inbuffer.mid(pos + 6);
-        QTC_ASSERT(!m_commands.isEmpty(),
-            qDebug() << "RESPONSE: " << response.data; return)
-        PdbCommand cmd = m_commands.dequeue();
-        response.cookie = cmd.cookie;
-        if (cmd.callback) {
-            //qDebug() << "EXECUTING CALLBACK " << cmd.callbackName
-            //    << " RESPONSE: " << response.data;
-            (this->*cmd.callback)(response);
-        } else {
-            qDebug() << "NO CALLBACK FOR RESPONSE: " << response.data;
-        }
-    }
-    //qDebug() << "BUFFER LEFT: '" << m_inbuffer << "'";
+    QByteArray out = m_pdbProc.readAllStandardOutput();
+    qDebug() << "\nPDB STDOUT" << out;
+    handleOutput(out);
 }
 
+void PdbEngine::handleOutput(const QByteArray &data)
+{
+    //qDebug() << "READ: " << data;
+    m_inbuffer.append(data);
+    qDebug() << "BUFFER FROM: '" << m_inbuffer << "'";
+    while (true) {
+        int pos = m_inbuffer.indexOf("(Pdb)");
+        if (pos == -1)
+            pos = m_inbuffer.indexOf(">>>");
+        if (pos == -1)
+            break;
+        QByteArray response = m_inbuffer.left(pos).trimmed();
+        m_inbuffer = m_inbuffer.mid(pos + 6);
+        emit outputReady(response);
+    }
+    qDebug() << "BUFFER LEFT: '" << m_inbuffer << "'";
+    //m_inbuffer.clear();
+}
+
+
+void PdbEngine::handleOutput2(const QByteArray &data)
+{
+    PdbResponse response;
+    response.data = data;
+    showMessage(_(data));
+    QTC_ASSERT(!m_commands.isEmpty(), qDebug() << "RESPONSE: " << data; return)
+    PdbCommand cmd = m_commands.dequeue();
+    response.cookie = cmd.cookie;
+    qDebug() << "DEQUE: " << cmd.command << cmd.callbackName;
+    if (cmd.callback) {
+        //qDebug() << "EXECUTING CALLBACK " << cmd.callbackName
+        //    << " RESPONSE: " << response.data;
+        (this->*cmd.callback)(response);
+    } else {
+        qDebug() << "NO CALLBACK FOR RESPONSE: " << response.data;
+    }
+}
+/*
 void PdbEngine::handleResponse(const QByteArray &response0)
 {
     QByteArray response = response0;
@@ -649,7 +686,7 @@ void PdbEngine::handleResponse(const QByteArray &response0)
         if (pos1 != -1 && pos2 != -1) {
             int lineNumber = response.mid(pos1 + 1, pos2 - pos1 - 1).toInt();
             QByteArray fileName = response.mid(2, pos1 - 2);
-            qDebug() << " " << pos1 << pos2 << lineNumber << fileName 
+            qDebug() << " " << pos1 << pos2 << lineNumber << fileName
                 << response.mid(pos1 + 1, pos2 - pos1 - 1);
             StackFrame frame;
             frame.file = _(fileName);
@@ -663,6 +700,7 @@ void PdbEngine::handleResponse(const QByteArray &response0)
     }
     qDebug() << "COULD NOT PARSE RESPONSE: '" << response << "'";
 }
+*/
 
 void PdbEngine::handleFirstCommand(const PdbResponse &response)
 {
@@ -677,6 +715,12 @@ void PdbEngine::handleUpdateAll(const PdbResponse &response)
 }
 
 void PdbEngine::updateAll()
+{
+    postCommand("bt", CB(handleBacktrace));
+    //updateLocals();
+}
+
+void PdbEngine::updateLocals()
 {
     WatchHandler *handler = watchHandler();
 
@@ -706,7 +750,6 @@ void PdbEngine::updateAll()
         options += "defaults,";
     options.chop(1);
 
-    postCommand("bt", CB(handleBacktrace));
     postCommand("qdebug('" + options + "','"
         + handler->expansionRequests() + "','"
         + handler->typeFormatRequests() + "','"
@@ -741,7 +784,7 @@ void PdbEngine::handleBacktrace(const PdbResponse &response)
             if (pos1 != -1 && pos2 != -1) {
                 int lineNumber = line.mid(pos1 + 1, pos2 - pos1 - 1).toInt();
                 QByteArray fileName = line.mid(2, pos1 - 2);
-                //qDebug() << " " << pos1 << pos2 << lineNumber << fileName 
+                //qDebug() << " " << pos1 << pos2 << lineNumber << fileName
                 //    << line.mid(pos1 + 1, pos2 - pos1 - 1);
                 StackFrame frame;
                 frame.file = _(fileName);
@@ -758,8 +801,8 @@ void PdbEngine::handleBacktrace(const PdbResponse &response)
         }
     }
     const int frameCount = stackFrames.size();
-    for (int i = 0; i != frameCount; ++i) 
-        stackFrames[i].level = frameCount - stackFrames[i].level - 1; 
+    for (int i = 0; i != frameCount; ++i)
+        stackFrames[i].level = frameCount - stackFrames[i].level - 1;
     stackHandler()->setFrames(stackFrames);
 
     // Select current frame.
@@ -768,6 +811,8 @@ void PdbEngine::handleBacktrace(const PdbResponse &response)
         stackHandler()->setCurrentIndex(currentIndex);
         gotoLocation(stackFrames.at(currentIndex), true);
     }
+
+    updateLocals();
 }
 
 void PdbEngine::handleListLocals(const PdbResponse &response)
@@ -790,14 +835,6 @@ void PdbEngine::handleListLocals(const PdbResponse &response)
         parseWatchData(handler->expandedINames(), dummy, child, &list);
     }
     handler->insertBulkData(list);
-}
-
-void PdbEngine::handleLoadDumper(const PdbResponse &response)
-{
-    Q_UNUSED(response);
-    //qDebug() << " DUMPERS LOADED '" << response.data << "'";
-    //continueInferior();
-    notifyInferiorSetupOk();
 }
 
 unsigned PdbEngine::debuggerCapabilities() const
