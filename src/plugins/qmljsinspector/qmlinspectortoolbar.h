@@ -89,6 +89,7 @@ private:
     QAction *m_fourthAnimSpeedAction;
     QAction *m_eighthAnimSpeedAction;
     QAction *m_tenthAnimSpeedAction;
+    QAction *m_menuPauseAction;
 
     bool m_emitSignals;
     bool m_isRunning;

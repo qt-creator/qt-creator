@@ -190,7 +190,8 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     QMenu *playSpeedMenu = new QMenu(configBar);
     QActionGroup *playSpeedMenuActions = new QActionGroup(this);
     playSpeedMenuActions->setExclusive(true);
-
+    playSpeedMenu->addAction(tr("Animation Speed"));
+    playSpeedMenu->addSeparator();
     m_defaultAnimSpeedAction = playSpeedMenu->addAction(tr("1x"), this, SLOT(changeToDefaultAnimSpeed()));
     m_defaultAnimSpeedAction->setCheckable(true);
     m_defaultAnimSpeedAction->setChecked(true);
@@ -211,6 +212,10 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     m_tenthAnimSpeedAction = playSpeedMenu->addAction(tr("0.1x"), this, SLOT(changeToTenthAnimSpeed()));
     m_tenthAnimSpeedAction->setCheckable(true);
     playSpeedMenuActions->addAction(m_tenthAnimSpeedAction);
+
+    m_menuPauseAction = playSpeedMenu->addAction(tr("Pause"), this, SLOT(activatePauseOnClick()));
+    m_menuPauseAction->setCheckable(true);
+    playSpeedMenuActions->addAction(m_menuPauseAction);
 
     configBarLayout->addWidget(createToolButton(am->command(ProjectExplorer::Constants::DEBUG)->action()));
     configBarLayout->addWidget(createToolButton(am->command(ProjectExplorer::Constants::STOP)->action()));
