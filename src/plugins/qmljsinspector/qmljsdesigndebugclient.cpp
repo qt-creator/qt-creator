@@ -43,6 +43,8 @@
 #include "qmljsclientproxy.h"
 #include "qmljsinspectorconstants.h"
 
+#include <QColor>
+
 namespace QmlJSInspector {
 namespace Internal {
 
@@ -98,6 +100,10 @@ void QmlJSDesignDebugClient::messageReceived(const QByteArray &message)
         emit designModeBehaviorChanged(inDesignMode);
     } else if (type == "RELOADED") {
         emit reloaded();
+    } else if (type == "COLOR_CHANGED") {
+        QColor col;
+        ds >> col;
+        emit selectedColorChanged(col);
     }
 }
 

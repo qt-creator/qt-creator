@@ -1,5 +1,7 @@
 #include "qdeclarativedesigndebugserver.h"
+
 #include <QStringList>
+#include <QColor>
 
 #include <QDebug>
 
@@ -128,3 +130,13 @@ void QDeclarativeDesignDebugServer::reloaded()
     sendMessage(message);
 }
 
+void QDeclarativeDesignDebugServer::selectedColorChanged(const QColor &color)
+{
+    QByteArray message;
+    QDataStream ds(&message, QIODevice::WriteOnly);
+
+    ds << QByteArray("COLOR_CHANGED")
+       << color;
+
+    sendMessage(message);
+}

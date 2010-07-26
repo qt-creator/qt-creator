@@ -18,5 +18,6 @@
         <file>images/zoom-small.png</file>
         <file>images/select-marquee-small.png</file>
         <file>images/designmode.png</file>
+        <file>images/color-picker-small-hicontrast.png</file>
     </qresource>
 </RCC>

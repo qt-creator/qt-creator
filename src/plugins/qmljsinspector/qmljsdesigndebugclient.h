@@ -75,6 +75,7 @@ public:
 
 signals:
     void currentObjectsChanged(const QList<int> &debugIds);
+    void selectedColorChanged(const QColor &color);
     void colorPickerActivated();
     void selectToolActivated();
     void selectMarqueeToolActivated();

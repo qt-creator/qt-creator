@@ -47,6 +47,7 @@
 
 QT_BEGIN_NAMESPACE
 
+class QColor;
 class QDeclarativeEngine;
 class QDeclarativeContext;
 class QDeclarativeWatcher;
@@ -63,6 +64,9 @@ public:
     void setAnimationSpeed(qreal slowdownFactor);
     void setCurrentTool(QmlViewer::Constants::DesignTool toolId);
     void reloaded();
+
+public Q_SLOTS:
+    void selectedColorChanged(const QColor &color);
 
 Q_SIGNALS:
     void currentObjectsChanged(const QList<QObject*> &objects);

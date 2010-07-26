@@ -4,12 +4,16 @@
 #include <QObject>
 
 QT_FORWARD_DECLARE_CLASS(QAction);
+QT_FORWARD_DECLARE_CLASS(QColor);
 
 namespace Core {
     class Context;
 }
 
 namespace QmlJSInspector {
+
+class ToolBarColorBox;
+
 namespace Internal {
 
 class QmlInspectorToolbar : public QObject
@@ -40,6 +44,7 @@ public slots:
     void activateZoomTool();
     void changeAnimationSpeed(qreal slowdownFactor);
     void setDesignModeBehavior(bool inDesignMode);
+    void setSelectedColor(const QColor &color);
 
 signals:
     void animationSpeedChanged(qreal slowdownFactor = 1.0f);
@@ -90,6 +95,8 @@ private:
     QAction *m_eighthAnimSpeedAction;
     QAction *m_tenthAnimSpeedAction;
     QAction *m_menuPauseAction;
+
+    ToolBarColorBox *m_colorBox;
 
     bool m_emitSignals;
     bool m_isRunning;

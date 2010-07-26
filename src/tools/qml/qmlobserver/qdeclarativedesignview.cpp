@@ -58,6 +58,8 @@ QDeclarativeDesignView::QDeclarativeDesignView(QWidget *parent) :
     connect(this, SIGNAL(statusChanged(QDeclarativeView::Status)), SLOT(onStatusChanged(QDeclarativeView::Status)));
 
     connect(m_colorPickerTool, SIGNAL(selectedColorChanged(QColor)), SIGNAL(selectedColorChanged(QColor)));
+    connect(m_colorPickerTool, SIGNAL(selectedColorChanged(QColor)),
+            qmlDesignDebugServer(), SLOT(selectedColorChanged(QColor)));
 
     createToolbar();
 }

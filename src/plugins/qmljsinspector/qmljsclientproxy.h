@@ -95,6 +95,7 @@ signals:
     void animationSpeedChanged(qreal slowdownFactor);
     void designModeBehaviorChanged(bool inDesignMode);
     void serverReloaded();
+    void selectedColorChanged(const QColor &color);
 
 public slots:
     void queryEngineContext(int id);

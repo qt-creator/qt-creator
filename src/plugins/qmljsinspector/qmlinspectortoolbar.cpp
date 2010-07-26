@@ -1,5 +1,6 @@
 #include "qmlinspectortoolbar.h"
 #include "qmljsinspectorconstants.h"
+#include "qmljstoolbarcolorbox.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
@@ -41,6 +42,8 @@ QmlInspectorToolbar::QmlInspectorToolbar(QObject *parent) :
     m_fourthAnimSpeedAction(0),
     m_eighthAnimSpeedAction(0),
     m_tenthAnimSpeedAction(0),
+    m_menuPauseAction(0),
+    m_colorBox(0),
     m_emitSignals(true),
     m_isRunning(false),
     m_animationSpeed(1.0f),
@@ -242,6 +245,12 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::ZOOM_ACTION)->action()));
     configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::COLOR_PICKER_ACTION)->action()));
 
+    m_colorBox = new ToolBarColorBox(configBar);
+    m_colorBox->setMinimumSize(20, 20);
+    m_colorBox->setMaximumSize(20, 20);
+    m_colorBox->setInnerBorderColor(QColor(192,192,192));
+    m_colorBox->setOuterBorderColor(QColor(58,58,58));
+    configBarLayout->addWidget(m_colorBox);
     //configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::TO_QML_ACTION)->action()));
 
     configBarLayout->addStretch();
@@ -389,6 +398,11 @@ void QmlInspectorToolbar::activateZoomOnClick()
         if (m_emitSignals)
             emit zoomToolSelected();
     }
+}
+
+void QmlInspectorToolbar::setSelectedColor(const QColor &color)
+{
+    m_colorBox->setColor(color);
 }
 
 void QmlInspectorToolbar::activateFromQml()

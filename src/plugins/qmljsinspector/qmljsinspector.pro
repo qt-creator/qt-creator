@@ -19,6 +19,7 @@ qmljsclientproxy.h \
 qmljsinspector.h \
 qmlinspectortoolbar.h \
 qmljslivetextpreview.h \
+qmljstoolbarcolorbox.h \
 qmljsdesigndebugclient.h
 
 SOURCES += \
@@ -29,6 +30,7 @@ qmljsclientproxy.cpp \
 qmljsinspector.cpp \
 qmlinspectortoolbar.cpp \
 qmljslivetextpreview.cpp \
+qmljstoolbarcolorbox.cpp \
 qmljsdesigndebugclient.cpp
 
 OTHER_FILES += QmlJSInspector.pluginspec

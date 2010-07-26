@@ -80,6 +80,8 @@ bool ClientProxy::connectToViewer(const QString &host, quint16 port)
                    SIGNAL(animationSpeedChanged(qreal)), this, SIGNAL(animationSpeedChanged(qreal)));
         disconnect(m_designClient,
                    SIGNAL(designModeBehaviorChanged(bool)), this, SIGNAL(designModeBehaviorChanged(bool)));
+        disconnect(m_designClient,
+                   SIGNAL(selectedColorChanged(QColor)), this, SIGNAL(selectedColorChanged(QColor)));
 
         emit aboutToDisconnect();
 
@@ -224,6 +226,7 @@ void ClientProxy::connectionStateChanged()
                 connect(m_designClient,
                         SIGNAL(designModeBehaviorChanged(bool)), SIGNAL(designModeBehaviorChanged(bool)));
                 connect(m_designClient, SIGNAL(reloaded()), this, SIGNAL(serverReloaded()));
+                connect(m_designClient, SIGNAL(selectedColorChanged(QColor)), SIGNAL(selectedColorChanged(QColor)));
             }
 
             (void) new DebuggerClient(m_conn);
