@@ -51,7 +51,7 @@ namespace Internal {
 class QmlJSQuickFixCollector;
 } // end of namespace Internal
 
-class QMLJS_EXPORT QmlJSQuickFixState: public TextEditor::QuickFixState
+class QmlJSQuickFixState: public TextEditor::QuickFixState
 {
     friend class Internal::QmlJSQuickFixCollector;
 
@@ -69,7 +69,7 @@ private:
     Internal::SemanticInfo _semanticInfo;
 };
 
-class QMLJS_EXPORT QmlJSQuickFixOperation: public TextEditor::QuickFixOperation
+class QmlJSQuickFixOperation: public TextEditor::QuickFixOperation
 {
     Q_DISABLE_COPY(QmlJSQuickFixOperation)
 
@@ -96,7 +96,7 @@ private:
     QScopedPointer<QmlJSRefactoringChanges> _refactoringChanges;
 };
 
-class QMLJS_EXPORT QmlJSQuickFixFactory: public TextEditor::QuickFixFactory
+class QmlJSQuickFixFactory: public TextEditor::QuickFixFactory
 {
     Q_OBJECT
 
