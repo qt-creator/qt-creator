@@ -553,6 +553,11 @@ void QDeclarativeDesignView::onCurrentObjectsChanged(QList<QObject*> objects)
     highlight(items, IgnoreContext);
 }
 
+QString QDeclarativeDesignView::idStringForObject(QObject *obj)
+{
+    return qmlDesignDebugServer()->idStringForObject(obj);
+}
+
 QToolBar *QDeclarativeDesignView::toolbar() const
 {
     return m_toolbar;

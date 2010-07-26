@@ -45,6 +45,8 @@
 #include <private/qdeclarativedebugservice_p.h>
 #include "qmlviewerconstants.h"
 
+#include <QHash>
+
 QT_BEGIN_NAMESPACE
 
 class QColor;
@@ -64,6 +66,8 @@ public:
     void setAnimationSpeed(qreal slowdownFactor);
     void setCurrentTool(QmlViewer::Constants::DesignTool toolId);
     void reloaded();
+
+    QString idStringForObject(QObject *obj) const;
 
 public Q_SLOTS:
     void selectedColorChanged(const QColor &color);
@@ -89,6 +93,7 @@ protected:
     virtual void messageReceived(const QByteArray &);
 
 private:
+    QHash<int, QString> m_stringIdForObjectId;
 
 };
 

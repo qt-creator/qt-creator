@@ -401,8 +401,11 @@ void ClientProxy::objectTreeFetched(QDeclarativeDebugQuery::State state)
 
     emit objectTreeUpdated(m_rootObject);
 
-    if (isDesignClientConnected() && !m_designClient->selectedItemIds().isEmpty()) {
-        onCurrentObjectsChanged(m_designClient->selectedItemIds());
+    if (isDesignClientConnected()) {
+        if (!m_designClient->selectedItemIds().isEmpty())
+            onCurrentObjectsChanged(m_designClient->selectedItemIds());
+
+        m_designClient->setObjectIdList(QList<QDeclarativeDebugObjectReference>() << m_rootObject);
     }
 
 }

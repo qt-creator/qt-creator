@@ -130,6 +130,40 @@ void QmlJSDesignDebugClient::setSelectedItemsByObjectId(const QList<QDeclarative
     sendMessage(message);
 }
 
+void recurseObjectIdList(const QDeclarativeDebugObjectReference &ref, QList<int> &debugIds, QList<QString> &objectIds)
+{
+    debugIds << ref.debugId();
+    objectIds << ref.idString();
+    foreach(const QDeclarativeDebugObjectReference &child, ref.children()) {
+        recurseObjectIdList(child, debugIds, objectIds);
+    }
+}
+
+void QmlJSDesignDebugClient::setObjectIdList(const QList<QDeclarativeDebugObjectReference> &objectRoots)
+{
+    QByteArray message;
+    QDataStream ds(&message, QIODevice::WriteOnly);
+
+    QList<int> debugIds;
+    QList<QString> objectIds;
+
+    foreach(const QDeclarativeDebugObjectReference &ref, objectRoots) {
+        recurseObjectIdList(ref, debugIds, objectIds);
+    }
+
+    ds << QByteArray("OBJECT_ID_LIST")
+       << debugIds.length();
+
+    Q_ASSERT(debugIds.length() == objectIds.length());
+
+    for(int i = 0; i < debugIds.length(); ++i) {
+        ds << debugIds[i] << objectIds[i];
+    }
+
+    sendMessage(message);
+}
+
+
 void QmlJSDesignDebugClient::reloadViewer()
 {
     if (!m_connection || !m_connection->isConnected())

@@ -155,17 +155,17 @@ QList<QObject*> AbstractFormEditorTool::toObjectList(const QList<QGraphicsItem*>
     return objects;
 }
 
-QString AbstractFormEditorTool::titleForItem(const QGraphicsItem *item)
+QString AbstractFormEditorTool::titleForItem(QGraphicsItem *item)
 {
     QString className("QGraphicsItem");
     QString objectStringId;
 
-    const QGraphicsObject *gfxObject = item->toGraphicsObject();
+    QGraphicsObject *gfxObject = item->toGraphicsObject();
     if (gfxObject) {
         className = gfxObject->metaObject()->className();
         className.replace(QRegExp("_QMLTYPE_\\d+"), "");
 
-        const QDeclarativeItem *declarativeItem = qobject_cast<const QDeclarativeItem*>(gfxObject);
+        QDeclarativeItem *declarativeItem = qobject_cast<QDeclarativeItem*>(gfxObject);
         if (declarativeItem) {
             //QDeclarativeData *ddata = QDeclarativeData::get(declarativeItem);
             //ddata->context->findObjectId(declarativeItem);
@@ -175,6 +175,7 @@ QString AbstractFormEditorTool::titleForItem(const QGraphicsItem *item)
 //                QDeclarativeContextData *cdata = QDeclarativeContextData::get(context);
 //                if (cdata)
 //                    objectStringId = cdata->findObjectId(declarativeItem);
+                objectStringId = QDeclarativeDesignView::idStringForObject(declarativeItem);
             }
         }
 

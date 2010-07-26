@@ -81,7 +81,7 @@ public:
     bool topItemIsResizeHandle(const QList<QGraphicsItem*> &itemList);
     bool topSelectedItemIsMovable(const QList<QGraphicsItem*> &itemList);
 
-    static QString titleForItem(const QGraphicsItem *item);
+    static QString titleForItem(QGraphicsItem *item);
     static QList<QObject*> toObjectList(const QList<QGraphicsItem*> &itemList);
     static QList<QGraphicsObject*> toGraphicsObjectList(const QList<QGraphicsItem*> &itemList);
     static QGraphicsItem* topMovableGraphicsItem(const QList<QGraphicsItem*> &itemList);

@@ -67,6 +67,18 @@ void QDeclarativeDesignDebugServer::messageReceived(const QByteArray &message)
         ds >> debugId;
         if (QObject* obj = objectForId(debugId))
             obj->deleteLater();
+    } else if (type == "OBJECT_ID_LIST") {
+        int itemCount;
+        ds >> itemCount;
+        m_stringIdForObjectId.clear();
+        for(int i = 0; i < itemCount; ++i) {
+            int itemDebugId;
+            QString itemIdString;
+            ds >> itemDebugId
+               >> itemIdString;
+
+            m_stringIdForObjectId.insert(itemDebugId, itemIdString);
+        }
     }
 }
 
@@ -139,4 +151,11 @@ void QDeclarativeDesignDebugServer::selectedColorChanged(const QColor &color)
        << color;
 
     sendMessage(message);
+}
+
+QString QDeclarativeDesignDebugServer::idStringForObject(QObject *obj) const
+{
+    int id = idForObject(obj);
+    QString idString = m_stringIdForObjectId.value(id, QString());
+    return idString;
 }
