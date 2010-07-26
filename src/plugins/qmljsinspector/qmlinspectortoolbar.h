@@ -52,7 +52,7 @@ signals:
     void zoomToolSelected();
 
     void applyChangesToQmlFileSelected();
-    void applyChangesFromQmlFileSelected();
+    void applyChangesFromQmlFileTriggered(bool isChecked);
 
 private slots:
     void activateDesignModeOnClick();

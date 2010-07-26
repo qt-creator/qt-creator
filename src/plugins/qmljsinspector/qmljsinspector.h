@@ -92,7 +92,6 @@ public:
     QDeclarativeDebugExpressionQuery *setBindingForObject(int objectDebugId, const QString &objectId,
                                                           const QString &propertyName, const QVariant &value,
                                                           bool isLiteralValue);
-
 signals:
     void statusMessage(const QString &text);
 
@@ -100,6 +99,7 @@ public slots:
     void setSimpleDockWidgetArrangement();
     void reloadQmlViewer();
     void serverReloaded();
+    void setApplyChangesToQmlObserver(bool applyChanges);
 
 private slots:
     void gotoObjectReferenceDefinition(const QDeclarativeDebugObjectReference &obj);

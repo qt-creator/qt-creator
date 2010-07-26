@@ -75,11 +75,14 @@ public:
 signals:
     void selectedItemsChanged(const QList<QDeclarativeDebugObjectReference> &objects);
 
+public slots:
+    void setApplyChangesToQmlObserver(bool applyChanges);
+    void updateDebugIds(const QDeclarativeDebugObjectReference &rootReference);
+
 private slots:
     void changeSelectedElements(QList<int> offsets, const QString &wordAtCursor);
     void documentChanged(QmlJS::Document::Ptr doc);
-public slots:
-    void updateDebugIds(const QDeclarativeDebugObjectReference &rootReference);
+
 
 private:
     QList<int> objectReferencesForOffset(quint32 offset) const;
@@ -94,6 +97,9 @@ private:
     QString m_filename;
 
     QList<QWeakPointer<QmlJSEditor::Internal::QmlJSTextEditor> > m_editors;
+
+    bool m_applyChangesToQmlObserver;
+    QmlJS::Document::Ptr m_docWithUnappliedChanges;
 
 };
 

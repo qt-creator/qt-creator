@@ -636,3 +636,13 @@ bool Inspector::addQuotesForData(const QVariant &value) const
 
     return false;
 }
+
+void Inspector::setApplyChangesToQmlObserver(bool applyChanges)
+{
+    QHashIterator<QString, QmlJSLiveTextPreview *> iter(m_textPreviews);
+    while(iter.hasNext()) {
+        iter.next();
+        iter.value()->setApplyChangesToQmlObserver(applyChanges);
+    }
+}
+

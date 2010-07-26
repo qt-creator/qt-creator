@@ -164,7 +164,7 @@ void QmlJSLiveTextPreview::unassociateEditor(Core::IEditor *oldEditor)
 }
 
 QmlJSLiveTextPreview::QmlJSLiveTextPreview(const QmlJS::Document::Ptr &doc, const QmlJS::Document::Ptr &initDoc, QObject* parent) :
-    QObject(parent), m_previousDoc(doc), m_initialDoc(initDoc)
+    QObject(parent), m_previousDoc(doc), m_initialDoc(initDoc), m_applyChangesToQmlObserver(true)
 {
     Q_ASSERT(doc->fileName() == initDoc->fileName());
     ClientProxy *clientProxy = ClientProxy::instance();
@@ -184,6 +184,7 @@ void QmlJSLiveTextPreview::resetInitialDoc(const QmlJS::Document::Ptr &doc)
     m_previousDoc = doc;
     m_createdObjects.clear();
     m_debugIds.clear();
+    m_docWithUnappliedChanges.clear();
 }
 
 
@@ -462,19 +463,37 @@ void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
     if (!core->hasContext(dbgcontext))
         return;
 
-    if (doc && m_previousDoc && doc->fileName() == m_previousDoc->fileName()
-        && doc->qmlProgram() && m_previousDoc->qmlProgram())
-    {
-        UpdateObserver delta;
-        m_debugIds = delta(m_previousDoc, doc, m_debugIds);
+    if (m_applyChangesToQmlObserver) {
+        m_docWithUnappliedChanges.clear();
 
-        if (delta.referenceRefreshRequired)
-            ClientProxy::instance()->refreshObjectTree();
+        if (doc && m_previousDoc && doc->fileName() == m_previousDoc->fileName()
+            && doc->qmlProgram() && m_previousDoc->qmlProgram())
+        {
+            UpdateObserver delta;
+            m_debugIds = delta(m_previousDoc, doc, m_debugIds);
 
-        m_previousDoc = doc;
-        if (!delta.newObjects.isEmpty())
-            m_createdObjects[doc] += delta.newObjects;
+            if (delta.referenceRefreshRequired)
+                ClientProxy::instance()->refreshObjectTree();
+
+            m_previousDoc = doc;
+            if (!delta.newObjects.isEmpty())
+                m_createdObjects[doc] += delta.newObjects;
+        }
+    } else {
+        m_docWithUnappliedChanges = doc;
     }
+}
+
+void QmlJSLiveTextPreview::setApplyChangesToQmlObserver(bool applyChanges)
+{
+    if (applyChanges && !m_applyChangesToQmlObserver) {
+        if (m_docWithUnappliedChanges) {
+            m_applyChangesToQmlObserver = true;
+            documentChanged(m_docWithUnappliedChanges);
+        }
+    }
+
+    m_applyChangesToQmlObserver = applyChanges;
 }
 
 } // namespace Internal

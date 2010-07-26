@@ -166,6 +166,7 @@ void InspectorPlugin::extensionsInitialized()
     connect(m_toolbar, SIGNAL(zoomToolSelected()), _clientProxy, SLOT(changeToZoomTool()));
     connect(m_toolbar, SIGNAL(selectToolSelected()), _clientProxy, SLOT(changeToSelectTool()));
     connect(m_toolbar, SIGNAL(marqueeSelectToolSelected()), _clientProxy, SLOT(changeToSelectMarqueeTool()));
+    connect(m_toolbar, SIGNAL(applyChangesFromQmlFileTriggered(bool)), _inspector, SLOT(setApplyChangesToQmlObserver(bool)));
 
     connect(_clientProxy, SIGNAL(colorPickerActivated()), m_toolbar, SLOT(activateColorPicker()));
     connect(_clientProxy, SIGNAL(selectToolActivated()), m_toolbar, SLOT(activateSelectTool()));
