@@ -217,6 +217,9 @@ QVariant SearchResultTreeModel::data(const SearchResultTreeItem *row, int role) 
     case ItemDataRoles::SearchTermLengthRole:
         result = row->item.textMarkLength;
         break;
+    case ItemDataRoles::IsGeneratedRole:
+        result = row->isGenerated();
+        break;
 // TODO this looks stupid in case of symbol tree, is it necessary?
 //    case Qt::BackgroundRole:
 //        if (row->parent() && row->parent()->parent())

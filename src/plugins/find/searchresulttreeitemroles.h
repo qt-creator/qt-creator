@@ -44,7 +44,7 @@ enum Roles
     ResultIconRole,
     SearchTermStartRole,
     SearchTermLengthRole,
-    RowOfItem // The ?-th child of its parent is this this item
+    IsGeneratedRole
 };
 
 } // namespace Internal

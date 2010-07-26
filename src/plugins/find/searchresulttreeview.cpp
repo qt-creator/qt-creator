@@ -46,7 +46,7 @@ SearchResultTreeView::SearchResultTreeView(QWidget *parent)
     setItemDelegate(new SearchResultTreeItemDelegate(this));
     setIndentation(14);
     setUniformRowHeights(true);
-    setExpandsOnDoubleClick(false);
+    setExpandsOnDoubleClick(true);
     header()->hide();
 
     connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(emitJumpToSearchResult(QModelIndex)));
@@ -78,6 +78,8 @@ void SearchResultTreeView::addResults(const QList<Find::SearchResultItem> &items
 
 void SearchResultTreeView::emitJumpToSearchResult(const QModelIndex &index)
 {
+    if (model()->data(index, ItemDataRoles::IsGeneratedRole).toBool())
+        return;
     SearchResultItem item = model()->data(index, ItemDataRoles::ResultItemRole).value<SearchResultItem>();
 
     emit jumpToSearchResult(item);
