@@ -20,7 +20,8 @@
 
 namespace QmlDesigner {
 
-ContextPaneWidget::ContextPaneWidget(QWidget *parent) : QFrame(parent), m_currentWidget(0)
+
+DragWidget::DragWidget(QWidget *parent) : QFrame(parent)
 {
     setFrameStyle(QFrame::NoFrame);
     setFrameShape(QFrame::StyledPanel);
@@ -32,6 +33,66 @@ ContextPaneWidget::ContextPaneWidget(QWidget *parent) : QFrame(parent), m_curren
     m_dropShadowEffect->setBlurRadius(6);
     m_dropShadowEffect->setOffset(2, 2);
     setGraphicsEffect(m_dropShadowEffect);
+}
+
+void DragWidget::mousePressEvent(QMouseEvent * event)
+{
+    if (event->button() ==  Qt::LeftButton) {
+        m_oldPos = event->globalPos();
+        m_opacityEffect = new QGraphicsOpacityEffect;
+        setGraphicsEffect(m_opacityEffect);
+        event->accept();
+    }
+    QFrame::mousePressEvent(event);
+}
+
+void DragWidget::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() ==  Qt::LeftButton) {
+        m_oldPos = QPoint(-1, -1);
+        m_dropShadowEffect = new QGraphicsDropShadowEffect;
+        m_dropShadowEffect->setBlurRadius(6);
+        m_dropShadowEffect->setOffset(2, 2);
+        setGraphicsEffect(m_dropShadowEffect);
+    }
+    QFrame::mouseReleaseEvent(event);
+}
+
+void DragWidget::mouseMoveEvent(QMouseEvent * event)
+{
+    if (event->buttons() &&  Qt::LeftButton) {
+        if (pos().x() < 10  && event->pos().x() < -20)
+            return;
+        if (m_oldPos != QPoint(-1, -1)) {
+            QPoint diff = event->globalPos() - m_oldPos;
+            QPoint newPos = pos() + diff;
+            if (newPos.x() > 0 && newPos.y() > 0 && (newPos.x() + width()) < parentWidget()->width() && (newPos.y() + height()) < parentWidget()->height()) {
+                if (m_secondaryTarget)
+                    m_secondaryTarget->move(m_secondaryTarget->pos() + diff);
+                move(newPos);
+                m_pos = newPos;
+            }
+        } else {
+            m_opacityEffect = new QGraphicsOpacityEffect;
+            setGraphicsEffect(m_opacityEffect);
+        }
+        m_oldPos = event->globalPos();
+        event->accept();
+    }
+}
+
+ContextPaneWidget::ContextPaneWidget(QWidget *parent) : DragWidget(parent), m_currentWidget(0)
+{
+//    setFrameStyle(QFrame::NoFrame);
+//    setFrameShape(QFrame::StyledPanel);
+//    setFrameShadow(QFrame::Sunken);
+//    m_oldPos = QPoint(-1, -1);
+//    m_pos = QPoint(-1, -1);
+
+//    m_dropShadowEffect = new QGraphicsDropShadowEffect;
+//    m_dropShadowEffect->setBlurRadius(6);
+//    m_dropShadowEffect->setOffset(2, 2);
+//    setGraphicsEffect(m_dropShadowEffect);
 
     QGridLayout *layout = new QGridLayout(this);
     layout->setMargin(0);
@@ -122,6 +183,7 @@ BauhausColorDialog *ContextPaneWidget::colorDialog()
     if (m_bauhausColorDialog.isNull()) {
         m_bauhausColorDialog = new BauhausColorDialog(parentWidget());
         m_bauhausColorDialog->hide();
+        setSecondaryTarget(m_bauhausColorDialog.data());
     }
 
     return m_bauhausColorDialog.data();
@@ -219,53 +281,6 @@ void ContextPaneWidget::onShowColorDialog(bool checked, const QPoint &p)
         colorDialog()->raise();
     } else {
         colorDialog()->hide();
-    }
-}
-
-void ContextPaneWidget::mousePressEvent(QMouseEvent * event)
-{
-    if (event->button() ==  Qt::LeftButton) {
-        m_oldPos = event->globalPos();
-        m_opacityEffect = new QGraphicsOpacityEffect;
-        setGraphicsEffect(m_opacityEffect);
-        event->accept();
-    }
-    QFrame::mousePressEvent(event);
-}
-
-void ContextPaneWidget::mouseReleaseEvent(QMouseEvent *event)
-{
-    if (event->button() ==  Qt::LeftButton) {
-        m_oldPos = QPoint(-1, -1);
-        m_dropShadowEffect = new QGraphicsDropShadowEffect;
-        m_dropShadowEffect->setBlurRadius(6);
-        m_dropShadowEffect->setOffset(2, 2);
-        setGraphicsEffect(m_dropShadowEffect);
-    }
-    QFrame::mouseReleaseEvent(event);
-}
-
-void ContextPaneWidget::mouseMoveEvent(QMouseEvent * event)
-{
-    if (event->buttons() &&  Qt::LeftButton) {
-        if (pos().x() < 10  && event->pos().x() < -20)
-            return;
-        if (m_oldPos != QPoint(-1, -1)) {
-            QPoint diff = event->globalPos() - m_oldPos;
-            if (m_bauhausColorDialog) {
-                QPoint newPos = pos() + diff;
-                if (newPos.x() > 0 && newPos.y() > 0 && (newPos.x() + width()) < parentWidget()->width() && (newPos.y() + height()) < parentWidget()->height()) {
-                    m_bauhausColorDialog->move(m_bauhausColorDialog->pos() + diff);
-                    move(newPos);
-                    m_pos = newPos;
-                }
-            }
-        } else {
-            m_opacityEffect = new QGraphicsOpacityEffect;
-            setGraphicsEffect(m_opacityEffect);
-        }
-        m_oldPos = event->globalPos();
-        event->accept();
     }
 }
 

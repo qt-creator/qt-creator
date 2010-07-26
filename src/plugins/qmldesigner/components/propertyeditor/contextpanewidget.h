@@ -18,7 +18,29 @@ class EasingContextPane;
 class ContextPaneWidgetRectangle;
 class ContextPaneWidgetImage;
 
-class ContextPaneWidget : public QFrame
+class DragWidget : public QFrame
+{
+    Q_OBJECT
+
+public:
+    explicit DragWidget(QWidget *parent = 0);
+    void setSecondaryTarget(QWidget* w)
+    { m_secondaryTarget = w; }
+
+protected:
+    QPoint m_pos;
+    void mousePressEvent(QMouseEvent * event);
+    void mouseReleaseEvent(QMouseEvent * event);
+    void mouseMoveEvent(QMouseEvent * event);
+
+private:
+    QGraphicsDropShadowEffect *m_dropShadowEffect;
+    QGraphicsOpacityEffect *m_opacityEffect;
+    QPoint m_oldPos;
+    QWeakPointer<QWidget> m_secondaryTarget;
+};
+
+class ContextPaneWidget : public DragWidget
 {
     Q_OBJECT
 
@@ -52,24 +74,16 @@ protected:
     QWidget *createFontWidget();
     QWidget *createEasingWidget();
     QWidget *createImageWidget();
-    QWidget *createRectangleWidget();
-
-    void mousePressEvent(QMouseEvent * event);
-    void mouseReleaseEvent(QMouseEvent * event);
-    void mouseMoveEvent(QMouseEvent * event);
+    QWidget *createRectangleWidget();    
 
 private:
     QWidget *m_currentWidget;
     ContextPaneTextWidget *m_textWidget;
     EasingContextPane *m_easingWidget;
     ContextPaneWidgetImage *m_imageWidget;
-    ContextPaneWidgetRectangle *m_rectangleWidget;
-    QPoint m_oldPos;
-    QGraphicsDropShadowEffect *m_dropShadowEffect;
-    QGraphicsOpacityEffect *m_opacityEffect;
+    ContextPaneWidgetRectangle *m_rectangleWidget;        
     QWeakPointer<BauhausColorDialog> m_bauhausColorDialog;
     QString m_colorName;
-    QPoint m_pos;
     QPoint m_originalPos;
 };
 
