@@ -4,16 +4,39 @@
 #include <QFile>
 #include <QPixmap>
 #include <QPainter>
+#include <QGraphicsEffect>
 
 namespace QmlDesigner {
+
+bool LabelFilter::eventFilter(QObject *, QEvent *event)
+{
+    if (event->type() == QEvent::MouseButtonPress) {
+        return true;
+    }
+    if (event->type() == QEvent::MouseButtonRelease) {
+        return true;
+    }
+    if (event->type() == QEvent::MouseButtonDblClick) {
+        emit doubleClicked();
+        event->accept();
+        return true;
+    }
+    return false;
+}
 
 ContextPaneWidgetImage::ContextPaneWidgetImage(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ContextPaneWidgetImage)
 {
+    LabelFilter *labelFilter = new LabelFilter(this);
+
     ui->setupUi(this);
     ui->fileWidget->setShowComboBox(true);
     ui->fileWidget->setFilter("*.png *.gif *.jpg");
+    ui->label->setToolTip(tr("double click for preview"));
+    ui->label->installEventFilter(labelFilter);
+    m_previewDialog = new PreviewDialog(this);
+    m_previewDialog->hide();
 
     connect(ui->stretchRadioButton, SIGNAL(toggled(bool)), this, SLOT(onStretchChanged()));
     connect(ui->tileRadioButton, SIGNAL(toggled(bool)), this, SLOT(onStretchChanged()));
@@ -23,6 +46,7 @@ ContextPaneWidgetImage::ContextPaneWidgetImage(QWidget *parent) :
     connect(ui->cropAspectFitRadioButton, SIGNAL(toggled(bool)), this, SLOT(onStretchChanged()));
 
     connect(ui->fileWidget, SIGNAL(fileNameChanged(QUrl)), this, SLOT(onFileNameChanged()));
+    connect(labelFilter, SIGNAL(doubleClicked()), this, SLOT(onPixmapDoubleClicked()));
 }
 
 ContextPaneWidgetImage::~ContextPaneWidgetImage()
@@ -102,6 +126,29 @@ void ContextPaneWidgetImage::onFileNameChanged()
         emit propertyChanged(QLatin1String("source"), QString(QLatin1Char('\"') + ui->fileWidget->fileName() + QLatin1Char('\"')));
 }
 
+void ContextPaneWidgetImage::onPixmapDoubleClicked()
+{
+    m_previewDialog->setParent(parentWidget()->parentWidget());
+    QPoint p = parentWidget()->pos();
+    p = p + QPoint(-20, -20);
+    m_previewDialog->show();
+    m_previewDialog->update();
+    m_previewDialog->move(p);
+    m_previewDialog->resize(m_previewDialog->sizeHint());
+    if ((m_previewDialog->pos().x() + m_previewDialog->width()) > m_previewDialog->parentWidget()->width())
+        m_previewDialog->move(m_previewDialog->parentWidget()->width() - (m_previewDialog->width()) - 40, p.y());
+
+    if ((m_previewDialog->pos().y() + m_previewDialog->height()) > m_previewDialog->parentWidget()->height())
+        m_previewDialog->move(m_previewDialog->pos().x(), m_previewDialog->parentWidget()->height() - (m_previewDialog->height()) - 40);
+
+    if (m_previewDialog->pos().x() < 0)
+        m_previewDialog->move(0, m_previewDialog->pos().y());
+    if (m_previewDialog->pos().y() < 0)
+        m_previewDialog->move(m_previewDialog->pos().x(), 0);
+
+    m_previewDialog->raise();
+}
+
 void ContextPaneWidgetImage::setPixmap(const QString &fileName)
 {
     QPixmap pix(76,76);
@@ -109,6 +156,7 @@ void ContextPaneWidgetImage::setPixmap(const QString &fileName)
 
     if (QFile(fileName).exists()) {
         QPixmap source(fileName);
+        m_previewDialog->setPixmap(source);
         ui->sizeLabel->setText(QString::number(source.width()) + 'x' + QString::number(source.height()));
         QPainter p(&pix);
         if (ui->stretchRadioButton->isChecked()) {
@@ -154,6 +202,36 @@ void ContextPaneWidgetImage::changeEvent(QEvent *e)
     default:
         break;
     }
+}
+
+PreviewDialog::PreviewDialog(QWidget *parent) : DragWidget(parent)
+{
+    setAutoFillBackground(true);
+
+    m_label = new QLabel(this);
+
+    QGridLayout *layout = new QGridLayout(this);
+    layout->setMargin(0);
+    layout->setContentsMargins(1, 1, 1, 1);
+    layout->setSpacing(0);
+    QToolButton *toolButton = new QToolButton(this);
+    QIcon icon(style()->standardIcon(QStyle::SP_DockWidgetCloseButton));
+    toolButton->setIcon(icon);
+    toolButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
+    toolButton->setFixedSize(icon.availableSizes().value(0) + QSize(4, 4));
+    connect(toolButton, SIGNAL(clicked()), this, SLOT(onTogglePane()));
+    layout->addWidget(toolButton, 0, 0, 1, 1);
+    layout->addWidget(m_label, 0, 1, 2, 2);
+}
+
+void PreviewDialog::setPixmap(const QPixmap &p)
+{
+    m_label->setPixmap(p);
+}
+
+void PreviewDialog::onTogglePane()
+{
+    hide();
 }
 
 } //QmlDesigner
