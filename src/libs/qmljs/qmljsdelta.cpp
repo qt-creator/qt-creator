@@ -185,12 +185,20 @@ Map MatchFragment(UiObjectMember *x, UiObjectMember *y, const Map &M, Document::
     QList<UiObjectMember *> list2 = children(y);
     for (int i = 0; i < list1.count(); i++) {
         QString l = label(list1[i], doc1);
+        int foundJ = -1;
+        Map M3;
         for (int j = 0; j < list2.count(); j++) {
             if (l != label(list2[j], doc2))
                 continue;
-            M2 += MatchFragment(list1[i], list2[j], M, doc1, doc2);
-            list2.removeAt(j);
-            break;
+            Map M4 = MatchFragment(list1[i], list2[j], M, doc1, doc2);
+            if (M4.count() > M3.count()) {
+                M3 = M4;
+                foundJ = j;
+            }
+        }
+        if (foundJ != -1) {
+            list2.removeAt(foundJ);
+            M2 += M3;
         }
     }
     return M2;
