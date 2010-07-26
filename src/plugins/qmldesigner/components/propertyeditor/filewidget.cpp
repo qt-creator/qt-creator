@@ -117,10 +117,14 @@ void FileWidget::setFileName(const QUrl &fileName)
         return;
 
     m_fileName = fileName;
-    if (m_lineEdit->text() != fileName.toString())
+    if (m_lineEdit->text() != fileName.toString()) {
         m_lineEdit->setText(fileName.toString());
-    if (m_comboBox->currentText() != fileName.toString())
+        m_lineEdit->setToolTip(m_fileName.toString());
+    }
+    if (m_comboBox->currentText() != fileName.toString()) {
         m_comboBox->setEditText(m_fileName.toString());
+        m_comboBox->setToolTip(m_fileName.toString());
+    }
     emit fileNameChanged(fileName);
 }
 

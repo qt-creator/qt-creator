@@ -236,7 +236,7 @@ class BauhausColorDialog : public QFrame {
 
     Q_OBJECT
 
-    Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)               
+    Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
 
 public:
     BauhausColorDialog(QWidget *parent = 0);
