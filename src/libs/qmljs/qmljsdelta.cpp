@@ -62,7 +62,6 @@ bool BuildParentHash::preVisit(Node* ast)
     return true;
 }
 
-
 void BuildParentHash::postVisit(Node* ast)
 {
     if (ast->uiObjectMemberCast()) {
@@ -99,7 +98,12 @@ static QString label(UiObjectMember *member, Document::Ptr doc)
     } else if(UiArrayBinding *foo = cast<UiArrayBinding *>(member)) {
         str = label(foo->qualifiedId) + QLatin1String("[]");
     } else if(UiScriptBinding *foo = cast<UiScriptBinding *>(member)) {
-        Q_UNUSED(foo)
+        str = label(foo->qualifiedId) + QLatin1Char(':');
+        if (foo->statement) {
+            quint32 start = foo->statement->firstSourceLocation().begin();
+            quint32 end = foo->statement->lastSourceLocation().end();
+            str += doc->source().midRef(start, end-start);
+        }
     } else {
         quint32 start = member->firstSourceLocation().begin();
         quint32 end = member->lastSourceLocation().end();
