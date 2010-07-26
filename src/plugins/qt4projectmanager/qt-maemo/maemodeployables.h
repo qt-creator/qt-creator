@@ -54,7 +54,6 @@ namespace Internal {
 
 class MaemoDeployableListModel;
 class Qt4BuildConfiguration;
-class Qt4NodesWatcher;
 class Qt4ProFileNode;
 
 class MaemoDeployables : public QObject
@@ -75,12 +74,12 @@ signals:
 
 private:
     Q_SLOT void createModels();
+    Q_SLOT void init();
     void createModels(const Qt4ProFileNode *proFileNode);
     const Qt4BuildConfiguration *qt4BuildConfiguration() const;
 
     QList<MaemoDeployableListModel *> m_listModels;
     const ProjectExplorer::BuildStep * const m_buildStep;
-    Qt4NodesWatcher *m_proFilesWatcher;
 };
 
 } // namespace Qt4ProjectManager

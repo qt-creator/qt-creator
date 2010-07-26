@@ -46,7 +46,6 @@
 
 #include <projectexplorer/buildstep.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
-#include <qt4projectmanager/qt4nodes.h>
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4target.h>
 
@@ -56,24 +55,24 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 MaemoDeployables::MaemoDeployables(const ProjectExplorer::BuildStep *buildStep)
-    : m_buildStep(buildStep), m_proFilesWatcher(0)
+    : m_buildStep(buildStep)
 {
-    QTimer::singleShot(0, this, SLOT(createModels()));
+    QTimer::singleShot(0, this, SLOT(init()));
+}
+
+void MaemoDeployables::init()
+{
+    createModels();
+    connect(qt4BuildConfiguration()->qt4Target()->qt4Project(),
+        SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
+        this, SLOT(createModels()));
 }
 
 void MaemoDeployables::createModels()
 {
     m_listModels.clear();
-    Qt4ProFileNode *rootNode
-        = qt4BuildConfiguration()->qt4Target()->qt4Project()->rootProjectNode();
-    createModels(rootNode);
-    if (!m_proFilesWatcher) {
-        m_proFilesWatcher = new Qt4NodesWatcher(this);
-        connect(m_proFilesWatcher,
-            SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
-            this, SLOT(createModels()));
-        rootNode->registerWatcher(m_proFilesWatcher);
-    }
+    createModels(qt4BuildConfiguration()->qt4Target()->qt4Project()
+        ->rootProjectNode());
     emit modelsCreated();
 }
 
