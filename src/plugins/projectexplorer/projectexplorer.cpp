@@ -909,16 +909,8 @@ void ProjectExplorerPlugin::newProject()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::newProject";
 
-    QString defaultLocation;
-    if (currentProject()) {
-        QDir dir(currentProject()->projectDirectory());
-        dir.cdUp();
-        defaultLocation = dir.absolutePath();
-    }
-
     Core::ICore::instance()->showNewItemDialog(tr("New Project", "Title of dialog"),
-                              Core::IWizard::wizardsOfKind(Core::IWizard::ProjectWizard),
-                              defaultLocation);
+                              Core::IWizard::wizardsOfKind(Core::IWizard::ProjectWizard));
     updateActions();
 }
 
