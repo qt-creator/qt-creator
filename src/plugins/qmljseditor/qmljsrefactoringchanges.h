@@ -40,7 +40,7 @@ class ModelManagerInterface;
 
 namespace QmlJSEditor {
 
-class QmlJSRefactoringChanges: public TextEditor::RefactoringChanges
+class QMLJS_EXPORT QmlJSRefactoringChanges: public TextEditor::RefactoringChanges
 {
 public:
     QmlJSRefactoringChanges(QmlJS::ModelManagerInterface *modelManager,

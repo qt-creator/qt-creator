@@ -35,17 +35,10 @@
 namespace QmlJSEditor {
 namespace Internal {
 
-class ComponentFromObjectDef: public QmlJSQuickFixOperation
+class ComponentFromObjectDef: public QmlJSQuickFixFactory
 {
 public:
-    ComponentFromObjectDef(TextEditor::BaseTextEditor *editor);
-
-    virtual QString description() const;
-    virtual void createChanges();
-    virtual int check();
-
-private:
-    QmlJS::AST::UiObjectDefinition *_objDef;
+    virtual QList<QmlJSQuickFixOperation::Ptr> match(const QmlJSQuickFixState &state);
 };
 
 } // namespace Internal

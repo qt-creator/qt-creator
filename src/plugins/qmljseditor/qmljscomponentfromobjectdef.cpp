@@ -40,11 +40,10 @@
 #include <QtCore/QFileInfo>
 
 using namespace QmlJS::AST;
+using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
 
-ComponentFromObjectDef::ComponentFromObjectDef(TextEditor::BaseTextEditor *editor)
-    : QmlJSQuickFixOperation(editor), _objDef(0)
-{}
+namespace {
 
 static QString getId(UiObjectDefinition *def)
 {
@@ -74,60 +73,71 @@ static QString getId(UiObjectDefinition *def)
     return QString();
 }
 
-QString ComponentFromObjectDef::description() const
+class Operation: public QmlJSQuickFixOperation
 {
-    return QCoreApplication::translate("QmlJSEditor::ComponentFromObjectDef",
-                                       "Extract Component");
-}
+    UiObjectDefinition *_objDef;
 
-void ComponentFromObjectDef::createChanges()
-{
-    Q_ASSERT(_objDef != 0);
-
-    QString componentName = getId(_objDef);
-    componentName[0] = componentName.at(0).toUpper();
-
-    const QString path = editor()->file()->fileName();
-    const QString newFileName = QFileInfo(path).path() + QDir::separator() + componentName + QLatin1String(".qml");
-
-    QString imports;
-    UiProgram *prog = semanticInfo().document->qmlProgram();
-    if (prog && prog->imports) {
-        const int start = startPosition(prog->imports->firstSourceLocation());
-        const int end = startPosition(prog->members->member->firstSourceLocation());
-        imports = textOf(start, end);
+public:
+    Operation(const QmlJSQuickFixState &state, UiObjectDefinition *objDef)
+        : QmlJSQuickFixOperation(state, 0)
+        , _objDef(objDef)
+    {
+        setDescription(QCoreApplication::translate("QmlJSEditor::ComponentFromObjectDef",
+                                                   "Extract Component"));
     }
 
-    const int start = startPosition(_objDef->firstSourceLocation());
-    const int end = startPosition(_objDef->lastSourceLocation());
-    const QString txt = imports + textOf(start, end) + QLatin1String("}\n");
+    virtual void createChanges()
+    {
+        Q_ASSERT(_objDef != 0);
 
-    Utils::ChangeSet changes;
-    changes.replace(start, end, componentName + QLatin1String(" {\n"));
-    qmljsRefactoringChanges()->changeFile(fileName(), changes);
-    qmljsRefactoringChanges()->reindent(fileName(), range(start, end + 1));
+        QString componentName = getId(_objDef);
+        componentName[0] = componentName.at(0).toUpper();
 
-    qmljsRefactoringChanges()->createFile(newFileName, txt);
-    qmljsRefactoringChanges()->reindent(newFileName, range(0, txt.length() - 1));
-}
+        const QString path = fileName();
+        const QString newFileName = QFileInfo(path).path() + QDir::separator() + componentName + QLatin1String(".qml");
 
-int ComponentFromObjectDef::check()
+        QString imports;
+        UiProgram *prog = state().semanticInfo().document->qmlProgram();
+        if (prog && prog->imports) {
+            const int start = startPosition(prog->imports->firstSourceLocation());
+            const int end = startPosition(prog->members->member->firstSourceLocation());
+            imports = state().textOf(start, end);
+        }
+
+        const int start = startPosition(_objDef->firstSourceLocation());
+        const int end = startPosition(_objDef->lastSourceLocation());
+        const QString txt = imports + state().textOf(start, end)
+                + QLatin1String("}\n");
+
+        Utils::ChangeSet changes;
+        changes.replace(start, end, componentName + QLatin1String(" {\n"));
+        refactoringChanges()->changeFile(fileName(), changes);
+        refactoringChanges()->reindent(fileName(), range(start, end + 1));
+
+        refactoringChanges()->createFile(newFileName, txt);
+        refactoringChanges()->reindent(newFileName, range(0, txt.length() - 1));
+    }
+};
+
+} // end of anonymous namespace
+
+QList<QmlJSQuickFixOperation::Ptr> ComponentFromObjectDef::match(const QmlJSQuickFixState &state)
 {
-    _objDef = 0;
-    const int pos = textCursor().position();
+    QList<QmlJSQuickFixOperation::Ptr> result;
+    const int pos = state.textCursor().position();
 
-    QList<Node *> path = semanticInfo().astPath(pos);
+    QList<Node *> path = state.semanticInfo().astPath(pos);
     for (int i = path.size() - 1; i >= 0; --i) {
         Node *node = path.at(i);
         if (UiObjectDefinition *objDef = cast<UiObjectDefinition *>(node)) {
             if (i > 0 && !cast<UiProgram*>(path.at(i - 1))) { // node is not the root node
                 if (!getId(objDef).isEmpty()) {
-                    _objDef = objDef;
-                    return 0;
+                    result.append(QmlJSQuickFixOperation::Ptr(new Operation(state, objDef)));
+                    return result;
                 }
             }
         }
     }
 
-    return -1;
+    return result;
 }

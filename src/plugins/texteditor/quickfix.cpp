@@ -37,58 +37,56 @@
 
 #include <QtCore/QDebug>
 
-using TextEditor::RefactoringChanges;
-using TextEditor::QuickFixOperation;
-using TextEditor::QuickFixCollector;
-using TextEditor::IQuickFixFactory;
+using namespace TextEditor;
 
-QuickFixOperation::QuickFixOperation(TextEditor::BaseTextEditor *editor)
+QuickFixState::QuickFixState(TextEditor::BaseTextEditor *editor)
     : _editor(editor)
+    , _textCursor(editor->textCursor())
 {
 }
 
-QuickFixOperation::~QuickFixOperation()
+QuickFixState::~QuickFixState()
 {
 }
 
-TextEditor::BaseTextEditor *QuickFixOperation::editor() const
+TextEditor::BaseTextEditor *QuickFixState::editor() const
 {
     return _editor;
 }
 
-QTextCursor QuickFixOperation::textCursor() const
+QTextCursor QuickFixState::textCursor() const
 {
     return _textCursor;
 }
 
-void QuickFixOperation::setTextCursor(const QTextCursor &cursor)
+void QuickFixState::setCursor(const QTextCursor &cursor)
 {
     _textCursor = cursor;
 }
 
-int QuickFixOperation::selectionStart() const
+int QuickFixState::selectionStart() const
 {
     return _textCursor.selectionStart();
 }
 
-int QuickFixOperation::selectionEnd() const
+int QuickFixState::selectionEnd() const
 {
     return _textCursor.selectionEnd();
 }
 
-int QuickFixOperation::position(int line, int column) const
+int QuickFixState::position(int line, int column) const
 {
     QTextDocument *doc = editor()->document();
     return doc->findBlockByNumber(line - 1).position() + column - 1;
 }
 
-QChar QuickFixOperation::charAt(int offset) const
+QChar QuickFixState::charAt(int offset) const
 {
     QTextDocument *doc = _textCursor.document();
     return doc->characterAt(offset);
 }
 
-QString QuickFixOperation::textOf(int start, int end) const
+QString QuickFixState::textOf(int start, int end) const
 {
     QTextCursor tc = _textCursor;
     tc.setPosition(start);
@@ -96,51 +94,98 @@ QString QuickFixOperation::textOf(int start, int end) const
     return tc.selectedText();
 }
 
-TextEditor::RefactoringChanges::Range QuickFixOperation::range(int start, int end)
+TextEditor::RefactoringChanges::Range QuickFixState::range(int start, int end)
 {
     return TextEditor::RefactoringChanges::Range(start, end);
+}
+
+QuickFixOperation::QuickFixOperation(int priority)
+{
+    setPriority(priority);
+}
+
+QuickFixOperation::~QuickFixOperation()
+{
+}
+
+int QuickFixOperation::priority() const
+{
+    return _priority;
+}
+
+void QuickFixOperation::setPriority(int priority)
+{
+    _priority = priority;
+}
+
+QString QuickFixOperation::description() const
+{
+    return _description;
+}
+
+void QuickFixOperation::setDescription(const QString &description)
+{
+    _description = description;
 }
 
 void QuickFixOperation::perform()
 {
     createChanges();
-    apply();
+    refactoringChanges()->apply();
+}
+
+QuickFixFactory::QuickFixFactory(QObject *parent)
+    : QObject(parent)
+{
+}
+
+QuickFixFactory::~QuickFixFactory()
+{
 }
 
 QuickFixCollector::QuickFixCollector()
     : _editable(0)
-{ }
+{
+}
 
 QuickFixCollector::~QuickFixCollector()
-{ }
+{
+}
 
 TextEditor::ITextEditable *QuickFixCollector::editor() const
-{ return _editable; }
+{
+    return _editable;
+}
 
 int QuickFixCollector::startPosition() const
-{ return _editable->position(); }
+{
+    return _editable->position();
+}
 
 bool QuickFixCollector::triggersCompletion(TextEditor::ITextEditable *)
-{ return false; }
+{
+    return false;
+}
 
 int QuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
 {
     Q_ASSERT(editable != 0);
 
     _editable = editable;
+    TextEditor::BaseTextEditor *editor = qobject_cast<TextEditor::BaseTextEditor *>(editable->widget());
+    Q_ASSERT(editor != 0);
 
-    if (TextEditor::QuickFixState *state = initializeCompletion(editable)) {
-        TextEditor::BaseTextEditor *editor = qobject_cast<TextEditor::BaseTextEditor *>(editable->widget());
-        Q_ASSERT(editor != 0);
+    if (TextEditor::QuickFixState *state = initializeCompletion(editor)) {
+        QMap<int, QList<QuickFixOperation::Ptr> > matchedOps;
 
-        const QList<TextEditor::QuickFixOperation::Ptr> quickFixOperations = this->quickFixOperations(editor);
-        QMap<int, QList<TextEditor::QuickFixOperation::Ptr> > matchedOps;
+        foreach (QuickFixFactory *factory, quickFixFactories()) {
+            QList<QuickFixOperation::Ptr> ops = factory->matchingOperations(state);
 
-        foreach (TextEditor::QuickFixOperation::Ptr op, quickFixOperations) {
-            op->setTextCursor(editor->textCursor());
-            int priority = op->match(state);
-            if (priority != -1)
-                matchedOps[priority].append(op);
+            foreach (QuickFixOperation::Ptr op, ops) {
+                const int priority = op->priority();
+                if (priority != -1)
+                    matchedOps[priority].append(op);
+            }
         }
 
         QMapIterator<int, QList<TextEditor::QuickFixOperation::Ptr> > it(matchedOps);
@@ -184,27 +229,4 @@ void QuickFixCollector::fix(const TextEditor::CompletionItem &item)
 void QuickFixCollector::cleanup()
 {
     _quickFixes.clear();
-}
-
-QList<TextEditor::QuickFixOperation::Ptr> QuickFixCollector::quickFixOperations(TextEditor::BaseTextEditor *editor) const
-{
-    QList<TextEditor::IQuickFixFactory *> factories =
-            ExtensionSystem::PluginManager::instance()->getObjects<TextEditor::IQuickFixFactory>();
-
-    QList<TextEditor::QuickFixOperation::Ptr> quickFixOperations;
-
-    foreach (TextEditor::IQuickFixFactory *factory, factories)
-        quickFixOperations += factory->quickFixOperations(editor);
-
-    return quickFixOperations;
-}
-
-IQuickFixFactory::IQuickFixFactory(QObject *parent)
-    : QObject(parent)
-{
-}
-
-IQuickFixFactory::~IQuickFixFactory()
-{
-
 }

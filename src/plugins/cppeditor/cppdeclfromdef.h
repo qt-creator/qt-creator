@@ -41,23 +41,15 @@ class ClassOrNamespace;
 namespace CppEditor {
 namespace Internal {
 
-class DeclFromDef: public CppQuickFixOperation
+class DeclFromDef: public CppQuickFixFactory
 {
 public:
-    DeclFromDef(TextEditor::BaseTextEditor *editor);
-
-    virtual int match(const QList<CPlusPlus::AST *> &path);
-    virtual QString description() const;
-    virtual void createChanges();
+    virtual QList<CppQuickFixOperation::Ptr> match(const CppQuickFixState &state);
 
 protected:
-    virtual QString generateDeclaration(CPlusPlus::Function *method,
-                                        CPlusPlus::ClassOrNamespace *targetBinding);
-
-private:
-    QString m_targetFileName;
-    QString m_targetSymbolName;
-    QString m_decl;
+    static QString generateDeclaration(const CppQuickFixState &state,
+                                       CPlusPlus::Function *method,
+                                       CPlusPlus::ClassOrNamespace *targetBinding);
 };
 
 

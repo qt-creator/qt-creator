@@ -42,15 +42,38 @@
 namespace TextEditor {
 
 class BaseTextEditor;
-class QuickFixOperation;
 
 class TEXTEDITOR_EXPORT QuickFixState
 {
-    Q_DISABLE_COPY(QuickFixState)
-
 public:
-    QuickFixState() {}
-    virtual ~QuickFixState() {}
+    QuickFixState(TextEditor::BaseTextEditor *editor);
+    virtual ~QuickFixState();
+
+    TextEditor::BaseTextEditor *editor() const;
+
+    QTextCursor textCursor() const;
+    void setCursor(const QTextCursor &cursor);
+
+    int selectionStart() const;
+    int selectionEnd() const;
+
+    /**
+     * Calculates the offset in the document for the given line and column.
+     *
+     * \param line The line number, 1-based.
+     * \param column The column number, 1-based.
+     * \return The offset in the \c QTextDocument of the editor.
+     */
+    int position(int line, int column) const;
+
+    QChar charAt(int offset) const;
+    QString textOf(int start, int end) const;
+
+    static TextEditor::RefactoringChanges::Range range(int start, int end);
+
+private:
+    TextEditor::BaseTextEditor *_editor;
+    QTextCursor _textCursor;
 };
 
 class TEXTEDITOR_EXPORT QuickFixOperation
@@ -61,40 +84,37 @@ public:
     typedef QSharedPointer<QuickFixOperation> Ptr;
 
 public:
-    QuickFixOperation(TextEditor::BaseTextEditor *editor);
+    QuickFixOperation(int priority = -1);
     virtual ~QuickFixOperation();
 
-    virtual QString description() const = 0;
+    virtual int priority() const;
+    void setPriority(int priority);
+    virtual QString description() const;
+    void setDescription(const QString &description);
+
+    virtual void perform();
+
     virtual void createChanges() = 0;
 
-    virtual int match(QuickFixState *state) = 0;
-
-    void perform();
-
-    TextEditor::BaseTextEditor *editor() const;
-
-    QTextCursor textCursor() const;
-    void setTextCursor(const QTextCursor &cursor);
-
-    int selectionStart() const;
-    int selectionEnd() const;
-
-    int position(int line, int column) const;
-
-    QChar charAt(int offset) const;
-    QString textOf(int start, int end) const;
-
-    static TextEditor::RefactoringChanges::Range range(int start, int end);
-
 protected:
-    virtual void apply() = 0;
     virtual TextEditor::RefactoringChanges *refactoringChanges() const = 0;
 
 private:
     TextEditor::BaseTextEditor *_editor;
-    QTextCursor _textCursor;
+    int _priority;
+    QString _description;
 };
 
+class TEXTEDITOR_EXPORT QuickFixFactory: public QObject
+{
+    Q_OBJECT
+
+public:
+    QuickFixFactory(QObject *parent = 0);
+    virtual ~QuickFixFactory() = 0;
+
+    virtual QList<QuickFixOperation::Ptr> matchingOperations(QuickFixState *state) = 0;
+};
 
 class TEXTEDITOR_EXPORT QuickFixCollector: public TextEditor::IQuickFixCollector
 {
@@ -114,23 +134,13 @@ public:
     virtual void fix(const TextEditor::CompletionItem &item);
     virtual void cleanup();
 
-    virtual TextEditor::QuickFixState *initializeCompletion(TextEditor::ITextEditable *editable) = 0;
-    virtual QList<TextEditor::QuickFixOperation::Ptr> quickFixOperations(TextEditor::BaseTextEditor *editor) const;
+    virtual TextEditor::QuickFixState *initializeCompletion(BaseTextEditor *editable) = 0;
+
+    virtual QList<QuickFixFactory *> quickFixFactories() const = 0;
 
 private:
     TextEditor::ITextEditable *_editable;
-    QList<TextEditor::QuickFixOperation::Ptr> _quickFixes;
-};
-
-class TEXTEDITOR_EXPORT IQuickFixFactory: public QObject
-{
-    Q_OBJECT
-
-public:
-    IQuickFixFactory(QObject *parent = 0);
-    virtual ~IQuickFixFactory();
-
-    virtual QList<QuickFixOperation::Ptr> quickFixOperations(TextEditor::BaseTextEditor *editor) = 0;
+    QList<QuickFixOperation::Ptr> _quickFixes;
 };
 
 } // end of namespace TextEditor

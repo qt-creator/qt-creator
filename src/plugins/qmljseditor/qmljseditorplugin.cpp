@@ -179,6 +179,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
 
     m_quickFixCollector = new QmlJSQuickFixCollector;
     addAutoReleasedObject(m_quickFixCollector);
+    QmlJSQuickFixCollector::registerQuickFixes(this);
 
     addAutoReleasedObject(new QmlJSOutlineWidgetFactory);
 

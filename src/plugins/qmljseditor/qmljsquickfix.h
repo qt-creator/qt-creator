@@ -31,48 +31,84 @@
 #define QMLJSQUICKFIX_H
 
 #include "qmljseditor.h"
+#include "qmljsrefactoringchanges.h"
 
 #include <texteditor/quickfix.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
 #include <qmljs/qmljsdocument.h>
+
+namespace ExtensionSystem {
+class IPlugin;
+}
 
 namespace QmlJS {
     class ModelManagerInterface;
 }
 
 namespace QmlJSEditor {
-class QmlJSRefactoringChanges;
 
 namespace Internal {
+class QmlJSQuickFixCollector;
+} // end of namespace Internal
 
-class QmlJSQuickFixOperation: public TextEditor::QuickFixOperation
+class QMLJS_EXPORT QmlJSQuickFixState: public TextEditor::QuickFixState
 {
-    Q_DISABLE_COPY(QmlJSQuickFixOperation)
+    friend class Internal::QmlJSQuickFixCollector;
 
 public:
-    QmlJSQuickFixOperation(TextEditor::BaseTextEditor *editor);
-    virtual ~QmlJSQuickFixOperation();
+    QmlJSQuickFixState(TextEditor::BaseTextEditor *editor);
+    typedef Utils::ChangeSet::Range Range;
 
+    Internal::SemanticInfo semanticInfo() const;
+    QmlJS::Snapshot snapshot() const;
     QmlJS::Document::Ptr document() const;
-    const QmlJS::Snapshot &snapshot() const;
-    const SemanticInfo &semanticInfo() const;
-
-    virtual int check() = 0;
-    virtual int match(TextEditor::QuickFixState *state);
-
-protected:
-    QString fileName() const;
-
-    virtual void apply();
-    QmlJSRefactoringChanges *qmljsRefactoringChanges() const;
-    virtual TextEditor::RefactoringChanges *refactoringChanges() const;
 
     unsigned startPosition(const QmlJS::AST::SourceLocation &loc) const;
 
 private:
-    SemanticInfo _semanticInfo;
-    QmlJSRefactoringChanges *_refactoringChanges;
+    Internal::SemanticInfo _semanticInfo;
 };
+
+class QMLJS_EXPORT QmlJSQuickFixOperation: public TextEditor::QuickFixOperation
+{
+    Q_DISABLE_COPY(QmlJSQuickFixOperation)
+
+public:
+    QmlJSQuickFixOperation(const QmlJSQuickFixState &state, int priority = -1);
+    virtual ~QmlJSQuickFixOperation();
+
+    const QmlJSQuickFixState &state() const;
+
+protected:
+    QString fileName() const;
+
+    QmlJSRefactoringChanges *refactoringChanges() const;
+
+protected: // Utility functions forwarding to QmlJSQuickFixState
+    unsigned startPosition(const QmlJS::AST::SourceLocation &loc) const
+    { return state().startPosition(loc); }
+
+    static QmlJSQuickFixState::Range range(int start, int end)
+    { return QmlJSQuickFixState::range(start, end); }
+
+private:
+    QmlJSQuickFixState _state;
+    QScopedPointer<QmlJSRefactoringChanges> _refactoringChanges;
+};
+
+class QMLJS_EXPORT QmlJSQuickFixFactory: public TextEditor::QuickFixFactory
+{
+    Q_OBJECT
+
+public:
+    QmlJSQuickFixFactory();
+    virtual ~QmlJSQuickFixFactory();
+
+    virtual QList<TextEditor::QuickFixOperation::Ptr> matchingOperations(TextEditor::QuickFixState *state);
+    virtual QList<QmlJSQuickFixOperation::Ptr> match(const QmlJSQuickFixState &state) = 0;
+};
+
+namespace Internal {
 
 class QmlJSQuickFixCollector: public TextEditor::QuickFixCollector
 {
@@ -83,8 +119,11 @@ public:
     virtual ~QmlJSQuickFixCollector();
 
     virtual bool supportsEditor(TextEditor::ITextEditable *editor);
-    virtual TextEditor::QuickFixState *initializeCompletion(TextEditor::ITextEditable *editable);
-    virtual QList<TextEditor::QuickFixOperation::Ptr> quickFixOperations(TextEditor::BaseTextEditor *editor) const;
+    virtual TextEditor::QuickFixState *initializeCompletion(TextEditor::BaseTextEditor *editor);
+
+    virtual QList<TextEditor::QuickFixFactory *> quickFixFactories() const;
+
+    static void registerQuickFixes(ExtensionSystem::IPlugin *plugIn);
 };
 
 } // end of namespace Internal

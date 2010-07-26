@@ -45,6 +45,7 @@
 #include <QtCore/QCoreApplication>
 
 using namespace CPlusPlus;
+using namespace CppEditor;
 using namespace CppEditor::Internal;
 using namespace CppTools;
 
@@ -146,22 +147,54 @@ QString prettyMinimalType(const FullySpecifiedType &ty,
         return oo(ty);
 }
 
+class Operation: public CppQuickFixOperation
+{
+public:
+    Operation(const CppQuickFixState &state, int priority,
+              const QString &targetFileName, const QString &targetSymbolName,
+              const QString &decl)
+        : CppQuickFixOperation(state, priority)
+        , m_targetFileName(targetFileName)
+        , m_targetSymbolName(targetSymbolName)
+        , m_decl(decl)
+    {
+        setDescription(QCoreApplication::tr("Create Declaration from Definition",
+                                            "CppEditor::DeclFromDef"));
+    }
+
+    void createChanges()
+    {
+        CppRefactoringChanges *changes = refactoringChanges();
+
+        Document::Ptr targetDoc = changes->document(m_targetFileName);
+        InsertionPointFinder findInsertionPoint(targetDoc, m_targetSymbolName);
+        int line = 0, column = 0;
+        findInsertionPoint(&line, &column);
+
+        int targetPosition1 = changes->positionInFile(m_targetFileName, line, column);
+        int targetPosition2 = changes->positionInFile(m_targetFileName, line + 1, 0) - 1;
+
+        Utils::ChangeSet target;
+        target.insert(targetPosition1, m_decl);
+        changes->changeFile(m_targetFileName, target);
+
+        changes->reindent(m_targetFileName,
+                          Utils::ChangeSet::Range(targetPosition1, targetPosition2));
+
+        changes->openEditor(m_targetFileName, line, column);
+    }
+
+private:
+    QString m_targetFileName;
+    QString m_targetSymbolName;
+    QString m_decl;
+};
+
 } // anonymous namespace
 
-DeclFromDef::DeclFromDef(TextEditor::BaseTextEditor *editor)
-    : CppQuickFixOperation(editor)
-{}
-
-QString DeclFromDef::description() const
+QList<CppQuickFixOperation::Ptr> DeclFromDef::match(const CppQuickFixState &state)
 {
-    return QCoreApplication::tr("Create Declaration from Definition", "DeclFromDef");
-}
-
-int DeclFromDef::match(const QList<CPlusPlus::AST *> &path)
-{
-    m_targetFileName.clear();
-    m_targetSymbolName.clear();
-    m_decl.clear();
+    const QList<AST *> &path = state.path();
 
     FunctionDefinitionAST *funDef = 0;
     int idx = 0;
@@ -171,62 +204,40 @@ int DeclFromDef::match(const QList<CPlusPlus::AST *> &path)
             if (!funDef)
                 funDef = candidate;
         } else if (node->asClassSpecifier()) {
-            return -1;
+            return noResult();
         }
     }
 
     if (!funDef || !funDef->symbol)
-        return -1;
+        return noResult();
 
     Function *method = funDef->symbol;
-    LookupContext context(document(), snapshot());
 
-    if (ClassOrNamespace *targetBinding = context.lookupParent(method)) {
+    if (ClassOrNamespace *targetBinding = state.context().lookupParent(method)) {
         foreach (Symbol *s, targetBinding->symbols()) {
             if (Class *clazz = s->asClass()) {
-                m_targetFileName = QLatin1String(clazz->fileName());
-                m_targetSymbolName = QLatin1String(clazz->identifier()->chars());
-
-                m_decl = generateDeclaration(method, targetBinding);
-
-                return idx;
+                return singleResult(new Operation(state, idx,
+                                                  QLatin1String(clazz->fileName()),
+                                                  QLatin1String(clazz->identifier()->chars()),
+                                                  generateDeclaration(state,
+                                                                      method,
+                                                                      targetBinding)));
             } // ### TODO: support insertion into namespaces
         }
     }
 
-    return -1;
+    return noResult();
 }
 
-void DeclFromDef::createChanges()
+QString DeclFromDef::generateDeclaration(const CppQuickFixState &state,
+                                         Function *method,
+                                         ClassOrNamespace *targetBinding)
 {
-    CppRefactoringChanges *changes = refactoringChanges();
-
-    Document::Ptr targetDoc = changes->document(m_targetFileName);
-    InsertionPointFinder findInsertionPoint(targetDoc, m_targetSymbolName);
-    int line = 0, column = 0;
-    findInsertionPoint(&line, &column);
-
-    int targetPosition1 = changes->positionInFile(m_targetFileName, line, column);
-    int targetPosition2 = changes->positionInFile(m_targetFileName, line + 1, 0) - 1;
-
-    Utils::ChangeSet target;
-    target.insert(targetPosition1, m_decl);
-    changes->changeFile(m_targetFileName, target);
-
-    changes->reindent(m_targetFileName,
-                      Utils::ChangeSet::Range(targetPosition1, targetPosition2));
-
-    changes->openEditor(m_targetFileName, line, column);
-}
-
-QString DeclFromDef::generateDeclaration(Function *method, ClassOrNamespace *targetBinding)
-{
-    LookupContext context(document(), snapshot());
     Overview oo;
     QString decl;
 
     decl.append(prettyMinimalType(method->returnType(),
-                                  context,
+                                  state.context(),
                                   method->scope(),
                                   targetBinding));
 
@@ -238,7 +249,7 @@ QString DeclFromDef::generateDeclaration(Function *method, ClassOrNamespace *tar
             decl.append(QLatin1String(", "));
         Argument *arg = method->argumentAt(argIdx)->asArgument();
         decl.append(prettyMinimalType(arg->type(),
-                                      context,
+                                      state.context(),
                                       method->members(),
                                       targetBinding));
         decl.append(QLatin1Char(' '));

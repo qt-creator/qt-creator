@@ -30,6 +30,7 @@ SOURCES += cppplugin.cpp \
     cppfilewizard.cpp \
     cppclasswizard.cpp \
     cppquickfix.cpp \
+    cppquickfixes.cpp \
     cpprefactoringchanges.cpp \
     cppchecksymbols.cpp \
     cppsemanticinfo.cpp \

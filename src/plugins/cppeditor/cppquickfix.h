@@ -30,58 +30,59 @@
 #ifndef CPPQUICKFIX_H
 #define CPPQUICKFIX_H
 
+#include "cpprefactoringchanges.h"
+#include "cppsemanticinfo.h"
+
+#include <ASTfwd.h>
+#include <cplusplus/CppDocument.h>
 #include <texteditor/icompletioncollector.h>
 #include <texteditor/quickfix.h>
-
-#include <cplusplus/CppDocument.h>
-#include <ASTfwd.h>
-
 #include <utils/changeset.h>
 
 #include <QtCore/QSharedPointer>
 #include <QtGui/QTextCursor>
 
-#include "cpprefactoringchanges.h"
-
 namespace CppTools {
     class CppModelManagerInterface;
 } // end of namespace CppTools
 
-namespace CppEditor {
-namespace Internal {
+namespace ExtensionSystem {
+class IPlugin;
+}
 
-class CppQuickFixOperation: public TextEditor::QuickFixOperation
+namespace CppEditor {
+
+namespace Internal {
+class CppQuickFixCollector;
+} // end of namespace Internal
+
+class CPPEDITOR_EXPORT CppQuickFixState: public TextEditor::QuickFixState
 {
-    Q_DISABLE_COPY(CppQuickFixOperation)
+    friend class Internal::CppQuickFixCollector;
 
 public:
-    CppQuickFixOperation(TextEditor::BaseTextEditor *editor);
-    virtual ~CppQuickFixOperation();
+    CppQuickFixState(TextEditor::BaseTextEditor *editor);
+    typedef Utils::ChangeSet::Range Range;
 
-    virtual int match(const QList<CPlusPlus::AST *> &path) = 0;
-
+    const QList<CPlusPlus::AST *> &path() const;
+    CPlusPlus::Snapshot snapshot() const;
     CPlusPlus::Document::Ptr document() const;
-    const CPlusPlus::Snapshot &snapshot() const;
-    const CPlusPlus::LookupContext &context() const;
+    CppEditor::Internal::SemanticInfo semanticInfo() const;
+    CPlusPlus::LookupContext context() const;
 
-    virtual int match(TextEditor::QuickFixState *state);
-
-protected:
-    using TextEditor::QuickFixOperation::range;
-    using TextEditor::QuickFixOperation::textOf;
-    using TextEditor::QuickFixOperation::charAt;
-
-    Utils::ChangeSet::Range range(unsigned tokenIndex) const;
-    Utils::ChangeSet::Range range(CPlusPlus::AST *ast) const;
-
-    QString fileName() const;
-
-    virtual void apply();
-    virtual CppRefactoringChanges *refactoringChanges() const;
-
-    const CPlusPlus::Token &tokenAt(unsigned index) const;
+    using TextEditor::QuickFixState::range;
+    using TextEditor::QuickFixState::textOf;
+    using TextEditor::QuickFixState::charAt;
 
     CPlusPlus::Scope *scopeAt(unsigned index) const;
+
+    bool isCursorOn(unsigned tokenIndex) const;
+    bool isCursorOn(const CPlusPlus::AST *ast) const;
+
+    Range range(unsigned tokenIndex) const;
+    Range range(CPlusPlus::AST *ast) const;
+
+    const CPlusPlus::Token &tokenAt(unsigned index) const;
 
     int startOf(unsigned index) const;
     int startOf(const CPlusPlus::AST *ast) const;
@@ -89,16 +90,67 @@ protected:
     int endOf(const CPlusPlus::AST *ast) const;
     void startAndEndOf(unsigned index, int *start, int *end) const;
 
-    bool isCursorOn(unsigned tokenIndex) const;
-    bool isCursorOn(const CPlusPlus::AST *ast) const;
-
     QString textOf(const CPlusPlus::AST *ast) const;
 
 private:
-    CppRefactoringChanges *_refactoringChanges;
-    CPlusPlus::Document::Ptr _document;
-    CPlusPlus::AST *_topLevelNode;
+    QList<CPlusPlus::AST *> _path;
+    CPlusPlus::Snapshot _snapshot;
+    CppEditor::Internal::SemanticInfo _semanticInfo;
+    CPlusPlus::LookupContext _context;
 };
+
+class CPPEDITOR_EXPORT CppQuickFixOperation: public TextEditor::QuickFixOperation
+{
+    Q_DISABLE_COPY(CppQuickFixOperation)
+
+public:
+    CppQuickFixOperation(const CppQuickFixState &state, int priority = -1);
+    virtual ~CppQuickFixOperation();
+
+protected:
+    QString fileName() const;
+
+    CppRefactoringChanges *refactoringChanges() const;
+
+    const CppQuickFixState &state() const;
+
+protected: // Utility functions forwarding to CppQuickFixState
+    typedef Utils::ChangeSet::Range Range;
+
+    bool isCursorOn(unsigned tokenIndex) const { return state().isCursorOn(tokenIndex); }
+    bool isCursorOn(const CPlusPlus::AST *ast) const { return state().isCursorOn(ast); }
+
+    Range range(int start, int end) const { return CppQuickFixState::range(start, end); }
+    Range range(unsigned tokenIndex) const { return state().range(tokenIndex); }
+    Range range(CPlusPlus::AST *ast) const { return state().range(ast); }
+
+    int startOf(unsigned index) const { return state().startOf(index); }
+    int startOf(const CPlusPlus::AST *ast) const { return state().startOf(ast); }
+    int endOf(unsigned index) const { return state().endOf(index); }
+    int endOf(const CPlusPlus::AST *ast) const { return state().endOf(ast); }
+
+private:
+    CppQuickFixState _state;
+    QScopedPointer<CppRefactoringChanges> _refactoringChanges;
+};
+
+class CPPEDITOR_EXPORT CppQuickFixFactory: public TextEditor::QuickFixFactory
+{
+    Q_OBJECT
+
+public:
+    CppQuickFixFactory();
+    virtual ~CppQuickFixFactory();
+
+    virtual QList<TextEditor::QuickFixOperation::Ptr> matchingOperations(TextEditor::QuickFixState *state);
+    virtual QList<CppQuickFixOperation::Ptr> match(const CppQuickFixState &state) = 0;
+
+protected:
+    static QList<CppQuickFixOperation::Ptr> singleResult(CppQuickFixOperation *operation);
+    static QList<CppQuickFixOperation::Ptr> noResult();
+};
+
+namespace Internal {
 
 class CppQuickFixCollector: public TextEditor::QuickFixCollector
 {
@@ -109,21 +161,11 @@ public:
     virtual ~CppQuickFixCollector();
 
     virtual bool supportsEditor(TextEditor::ITextEditable *editor);
-    virtual TextEditor::QuickFixState *initializeCompletion(TextEditor::ITextEditable *editable);
-};
+    virtual TextEditor::QuickFixState *initializeCompletion(TextEditor::BaseTextEditor *editor);
 
-class CppQuickFixFactory: public TextEditor::IQuickFixFactory
-{
-    Q_OBJECT
+    virtual QList<TextEditor::QuickFixFactory *> quickFixFactories() const;
 
-public:
-    CppQuickFixFactory(QObject *parent = 0);
-    virtual ~CppQuickFixFactory();
-
-    /*
-     * Returns true if this IQuickFixFactory can be used with the given editor.
-     */
-    virtual QList<TextEditor::QuickFixOperation::Ptr> quickFixOperations(TextEditor::BaseTextEditor *editor);
+    static void registerQuickFixes(ExtensionSystem::IPlugin *plugIn);
 };
 
 } // end of namespace Internal

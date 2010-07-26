@@ -63,6 +63,7 @@
 
 #include <QtGui/QMenu>
 
+using namespace CppEditor;
 using namespace CppEditor::Internal;
 
 enum { QUICKFIX_INTERVAL = 20 };
@@ -208,8 +209,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
 
     m_quickFixCollector = new CppQuickFixCollector;
     addAutoReleasedObject(m_quickFixCollector);
-
-    addAutoReleasedObject(new CppQuickFixFactory);
+    CppQuickFixCollector::registerQuickFixes(this);
 
     CppFileWizard::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
 

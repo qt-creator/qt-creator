@@ -5,7 +5,7 @@ int main()
     074;
     0x856A;
     // with type specifier
-    199L;
+    199LL;
     074L;
     0xFA0Bu;
     // uppercase X
