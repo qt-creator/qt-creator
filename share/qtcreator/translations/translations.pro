@@ -12,6 +12,7 @@ defineReplace(prependAll) {
 XMLPATTERNS = $$targetPath($$[QT_INSTALL_BINS]/xmlpatterns)
 LUPDATE = $$targetPath($$[QT_INSTALL_BINS]/lupdate) -locations relative -no-ui-lines -no-sort
 LRELEASE = $$targetPath($$[QT_INSTALL_BINS]/lrelease)
+LCONVERT = $$targetPath($$[QT_INSTALL_BINS]/lconvert)
 
 TRANSLATIONS = $$prependAll(LANGUAGES, $$PWD/qtcreator_,.ts)
 
@@ -19,18 +20,54 @@ MIME_TR_H = $$OUT_PWD/mime_tr.h
 CUSTOMWIZARD_TR_H = $$OUT_PWD/customwizard_tr.h
 
 for(dir, $$list($$files($$IDE_SOURCE_TREE/src/plugins/*))):MIMETYPES_FILES += $$files($$dir/*.mimetypes.xml)
-MIMETYPES_FILES = \"$$join(MIMETYPES_FILES, \", \")\"
+MIMETYPES_FILES = \"$$join(MIMETYPES_FILES, |)\"
 
 for(dir, $$list($$files($$IDE_SOURCE_TREE/share/qtcreator/templates/wizards/*))):CUSTOMWIZARD_FILES += $$files($$dir/wizard.xml)
-CUSTOMWIZARD_FILES = \"$$join(CUSTOMWIZARD_FILES, \", \")\"
+CUSTOMWIZARD_FILES = \"$$join(CUSTOMWIZARD_FILES, |)\"
 
-QMAKE_SUBSTITUTES += extract-mimetypes.xq.in
-QMAKE_SUBSTITUTES += extract-customwizards.xq.in
-ts.commands += \
-    $$XMLPATTERNS -output $$MIME_TR_H $$PWD/extract-mimetypes.xq && \
-    $$XMLPATTERNS -output $$CUSTOMWIZARD_TR_H $$PWD/extract-customwizards.xq && \
-    (cd $$IDE_SOURCE_TREE && $$LUPDATE src share/qtcreator/qmldesigner $$MIME_TR_H $$CUSTOMWIZARD_TR_H -ts $$TRANSLATIONS) && \
-    $$QMAKE_DEL_FILE $$MIME_TR_H
+extract.commands += \
+    $$XMLPATTERNS -output $$MIME_TR_H -param files=$$MIMETYPES_FILES $$PWD/extract-mimetypes.xq $$escape_expand(\\n\\t) \
+    $$XMLPATTERNS -output $$CUSTOMWIZARD_TR_H -param files=$$CUSTOMWIZARD_FILES $$PWD/extract-customwizards.xq
+QMAKE_EXTRA_TARGETS += extract
+
+files = $$files($$PWD/*_??.ts) $$PWD/qtcreator_untranslated.ts
+for(file, files) {
+    lang = $$replace(file, .*_(.*)\\.ts, \\1)
+    v = ts-$${lang}.commands
+    $$v = cd $$IDE_SOURCE_TREE && $$LUPDATE src share/qtcreator/qmldesigner $$MIME_TR_H $$CUSTOMWIZARD_TR_H -ts $$file
+    v = ts-$${lang}.depends
+    $$v = extract
+    QMAKE_EXTRA_TARGETS += ts-$$lang
+}
+ts-all.commands = cd $$IDE_SOURCE_TREE && $$LUPDATE src share/qtcreator/qmldesigner $$MIME_TR_H $$CUSTOMWIZARD_TR_H -ts $$files
+ts-all.depends = extract
+QMAKE_EXTRA_TARGETS += ts-all
+
+check-ts.commands = (cd $$PWD && perl check-ts.pl)
+check-ts.depends = ts-all
+QMAKE_EXTRA_TARGETS += check-ts
+
+isEqual(QMAKE_DIR_SEP, /) {
+    commit-ts.commands = \
+        cd $$IDE_SOURCE_TREE; \
+        for f in `git diff-files --name-only share/qtcreator/translations/*_??.ts`; do \
+            $$LCONVERT -locations none -i \$\$f -o \$\$f; \
+        done; \
+        git add share/qtcreator/translations/*_??.ts && git commit
+} else {
+    wd = $$replace(IDE_SOURCE_TREE, /, \\)
+    commit-ts.commands = \
+        cd $$wd && \
+        for /f usebackq %%f in (`git diff-files --name-only share/qtcreator/translations/*_??.ts`) do \
+            $$LCONVERT -locations none -i %%f -o %%f $$escape_expand(\\n\\t) \
+        cd $$wd && git add share/qtcreator/translations/*_??.ts && git commit
+}
+QMAKE_EXTRA_TARGETS += commit-ts
+
+ts.commands = \
+    @echo \"The \'ts\' target has been removed in favor of more fine-grained targets.\" && \
+    echo \"Use \'ts-<lang>\' instead. To add a language, use \'ts-untranslated\',\" && \
+    echo \"rename the file and re-run \'qmake\'.\"
 QMAKE_EXTRA_TARGETS += ts
 
 TEMPLATE = app

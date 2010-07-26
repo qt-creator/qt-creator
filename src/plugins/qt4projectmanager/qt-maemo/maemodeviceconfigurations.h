@@ -96,7 +96,7 @@ public:
     QList<MaemoDeviceConfig> devConfigs() const { return m_devConfigs; }
     void setDevConfigs(const QList<MaemoDeviceConfig> &devConfigs);
     MaemoDeviceConfig find(const QString &name) const;
-    MaemoDeviceConfig find(int id) const;
+    MaemoDeviceConfig find(quint64 id) const;
 
 signals:
     void updated();

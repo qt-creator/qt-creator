@@ -107,6 +107,7 @@ private slots:
     void qemuProcessFinished();
     void qemuProcessError(QProcess::ProcessError error);
     void qemuStatusChanged(QemuStatus status, const QString &error);
+    void qemuOutput();
 
 private:
     QemuRuntimeManager(QObject *parent);
@@ -117,7 +118,8 @@ private:
 
     void updateStarterIcon(bool running);
     void toggleStarterButton(ProjectExplorer::Target *target);
-    bool targetUsesRuntimeConfig(ProjectExplorer::Target *target);
+    bool targetUsesMatchingRuntimeConfig(ProjectExplorer::Target *target,
+        QtVersion **qtVersion = 0);
 
     QString maddeRoot(const QString &qmake) const;
     QString targetRoot(const QString &qmake) const;

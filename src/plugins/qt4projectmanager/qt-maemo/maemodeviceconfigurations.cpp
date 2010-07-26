@@ -110,7 +110,7 @@ MaemoDeviceConfig::MaemoDeviceConfig(const QSettings &settings,
     : name(settings.value(NameKey).toString()),
       type(static_cast<DeviceType>(settings.value(TypeKey, DefaultDeviceType).toInt())),
       gdbServerPort(settings.value(GdbServerPortKey, defaultGdbServerPort(type)).toInt()),
-      internalId(settings.value(InternalIdKey, nextId).toInt())
+      internalId(settings.value(InternalIdKey, nextId).toULongLong())
 {
     if (internalId == nextId)
         ++nextId;
@@ -222,7 +222,7 @@ MaemoDeviceConfig MaemoDeviceConfigurations::find(const QString &name) const
     return resultIt == m_devConfigs.constEnd() ? MaemoDeviceConfig() : *resultIt;
 }
 
-MaemoDeviceConfig MaemoDeviceConfigurations::find(int id) const
+MaemoDeviceConfig MaemoDeviceConfigurations::find(quint64 id) const
 {
     QList<MaemoDeviceConfig>::ConstIterator resultIt =
         std::find_if(m_devConfigs.constBegin(), m_devConfigs.constEnd(),

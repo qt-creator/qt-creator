@@ -151,7 +151,7 @@ void ApplicationLauncher::readStandardError()
 {
     QByteArray data = m_guiProcess->readAllStandardError();
     emit appendOutput(m_outputCodec->toUnicode(
-            data.constData(), data.length(), &m_outputCodecState),
+            data.constData(), data.length(), &m_errorCodecState),
                       true);
 }
 

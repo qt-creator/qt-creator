@@ -215,13 +215,12 @@ public:
             && file.open(QIODevice::ReadOnly)) {
             m_fileName = fileName;
             qint64 maxRange = 64 * 1024 * 1024;
-            if (file.size() <= maxRange) {
+            if (file.size() <= maxRange)
                 m_editor->setData(file.readAll());
-            } else {
+            else
                 m_editor->setLazyData(offset, maxRange);
-                m_editor->editorInterface()->
-                        setDisplayName(QFileInfo(fileName).fileName());
-            }
+            m_editor->editorInterface()->
+                setDisplayName(QFileInfo(fileName).fileName());
             file.close();
             return true;
         }

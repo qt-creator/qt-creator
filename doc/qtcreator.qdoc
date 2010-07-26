@@ -468,7 +468,7 @@
     \endlist
 
     Certain actions in Qt Creator trigger a mode change. Clicking on
-    \gui {Debug} > \gui {Start debugging} > \gui {Start debugging}
+    \gui {Debug} > \gui {Start Debugging} > \gui {Start Debugging}
     automatically switches to \gui {Debug} mode.
 
 
