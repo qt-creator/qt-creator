@@ -36,20 +36,21 @@
 
 #include "maemodeviceconfiglistmodel.h"
 #include "maemomanager.h"
+#include "maemoremotemountsmodel.h"
 #include "maemorunconfiguration.h"
 #include "maemosettingspage.h"
 
 #include <coreplugin/icore.h>
 
 #include <QtGui/QComboBox>
-#include <QtGui/QCheckBox>
-#include <QtGui/QDesktopServices>
+#include <QtGui/QFileDialog>
 #include <QtGui/QFormLayout>
-#include <QtGui/QFrame>
+#include <QtGui/QGroupBox>
 #include <QtGui/QHBoxLayout>
+#include <QtGui/QHeaderView>
 #include <QtGui/QLabel>
 #include <QtGui/QLineEdit>
-#include <QtGui/QRadioButton>
+#include <QtGui/QTableView>
 #include <QtGui/QToolButton>
 
 namespace Qt4ProjectManager {
@@ -59,12 +60,14 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
         MaemoRunConfiguration *runConfiguration, QWidget *parent)
     : QWidget(parent), m_runConfiguration(runConfiguration)
 {
-    QFormLayout *mainLayout = new QFormLayout;
+    QVBoxLayout *mainLayout = new QVBoxLayout;
     setLayout(mainLayout);
 
-    mainLayout->setFormAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    QFormLayout *formLayout = new QFormLayout;
+    mainLayout->addLayout(formLayout);
+    formLayout->setFormAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     m_configNameLineEdit = new QLineEdit(m_runConfiguration->displayName());
-    mainLayout->addRow(tr("Run configuration name:"), m_configNameLineEdit);
+    formLayout->addRow(tr("Run configuration name:"), m_configNameLineEdit);
 
     QWidget *devConfWidget = new QWidget;
     QHBoxLayout *devConfLayout = new QHBoxLayout(devConfWidget);
@@ -83,13 +86,53 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     debuggerConfLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
     devConfLayout->addWidget(debuggerConfLabel);
 
-    mainLayout->addRow(new QLabel(tr("Device configuration:")), devConfWidget);
+    formLayout->addRow(new QLabel(tr("Device configuration:")), devConfWidget);
     m_executableLabel = new QLabel(m_runConfiguration->localExecutableFilePath());
-    mainLayout->addRow(tr("Executable:"), m_executableLabel);
+    formLayout->addRow(tr("Executable:"), m_executableLabel);
     m_argsLineEdit = new QLineEdit(m_runConfiguration->arguments().join(" "));
-    mainLayout->addRow(tr("Arguments:"), m_argsLineEdit);
+    formLayout->addRow(tr("Arguments:"), m_argsLineEdit);
+
+    mainLayout->addSpacing(20);
+    QGroupBox *mountViewBox = new QGroupBox;
+#ifndef Q_OS_WIN
+    mainLayout->addWidget(mountViewBox);
+#endif
+    mountViewBox->setTitle(tr("Local Directories to mount from device"));
+    QVBoxLayout *mountViewLayout = new QVBoxLayout(mountViewBox);
+    QHBoxLayout *hostAddressLayout = new QHBoxLayout;
+    mountViewLayout->addLayout(hostAddressLayout);
+    QLabel *hostNameLabel
+        = new QLabel(tr("This host's address from the device:"));
+    m_hostAddressLineEdit = new QLineEdit;
+    m_hostAddressLineEdit->setText(m_runConfiguration->localHostAddressFromDevice());
+    connect(m_hostAddressLineEdit, SIGNAL(editingFinished()), this,
+        SLOT(handleHostAddressChanged()));
+    hostAddressLayout->addWidget(hostNameLabel);
+    hostAddressLayout->addWidget(m_hostAddressLineEdit);
+    hostAddressLayout->addStretch(1);
+    QHBoxLayout *tableLayout = new QHBoxLayout;
+    mountViewLayout->addLayout(tableLayout);
+    m_mountView = new QTableView;
+    m_mountView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+    m_mountView->setSelectionBehavior(QTableView::SelectRows);
+    m_mountView->setModel(m_runConfiguration->remoteMounts());
+    tableLayout->addWidget(m_mountView);
+    QVBoxLayout *mountViewButtonsLayout = new QVBoxLayout;
+    tableLayout->addLayout(mountViewButtonsLayout);
+    QToolButton *addMountButton = new QToolButton;
+    QIcon plusIcon;
+    plusIcon.addFile(QLatin1String(":/core/images/plus.png"));
+    addMountButton->setIcon(plusIcon);
+    mountViewButtonsLayout->addWidget(addMountButton);
+    m_removeMountButton = new QToolButton;
+    QIcon minusIcon;
+    minusIcon.addFile(QLatin1String(":/core/images/minus.png"));
+    m_removeMountButton->setIcon(minusIcon);
+    mountViewButtonsLayout->addWidget(m_removeMountButton);
+    mountViewButtonsLayout->addStretch(1);
 
     handleCurrentDeviceConfigChanged();
+    enableOrDisableRemoveButton();
     connect(m_configNameLineEdit, SIGNAL(textEdited(QString)), this,
         SLOT(configNameEdited(QString)));
     connect(m_argsLineEdit, SIGNAL(textEdited(QString)), this,
@@ -104,6 +147,13 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
         SLOT(showSettingsDialog(QString)));
     connect(debuggerConfLabel, SIGNAL(linkActivated(QString)), this,
         SLOT(showSettingsDialog(QString)));
+    connect(addMountButton, SIGNAL(clicked()), this, SLOT(addMount()));
+    connect(m_removeMountButton, SIGNAL(clicked()), this, SLOT(removeMount()));
+    connect(m_mountView, SIGNAL(doubleClicked(QModelIndex)), this,
+        SLOT(changeLocalMountDir(QModelIndex)));
+    connect(m_mountView->selectionModel(),
+        SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this,
+        SLOT(enableOrDisableRemoveButton()));
 }
 
 void MaemoRunConfigurationWidget::configNameEdited(const QString &text)
@@ -141,6 +191,55 @@ void MaemoRunConfigurationWidget::handleCurrentDeviceConfigChanged()
 void MaemoRunConfigurationWidget::setCurrentDeviceConfig(int index)
 {
     m_runConfiguration->deviceConfigModel()->setCurrentIndex(index);
+}
+
+void MaemoRunConfigurationWidget::enableOrDisableRemoveButton()
+{
+    const QModelIndexList selectedRows
+        = m_mountView->selectionModel()->selectedRows();
+    m_removeMountButton->setEnabled(!selectedRows.isEmpty());
+}
+
+void MaemoRunConfigurationWidget::addMount()
+{
+    const QString localDir = QFileDialog::getExistingDirectory(this,
+        tr("Choose directory to mount"));
+    if (!localDir.isEmpty()) {
+        MaemoRemoteMountsModel * const mountsModel
+            = m_runConfiguration->remoteMounts();
+        mountsModel->addMountSpecification(localDir);
+        m_mountView->edit(mountsModel->index(mountsModel->mountSpecificationCount() - 1,
+            mountsModel->RemoteMountPointRow));
+    }
+}
+
+void MaemoRunConfigurationWidget::removeMount()
+{
+    const QModelIndexList selectedRows
+        = m_mountView->selectionModel()->selectedRows();
+    if (!selectedRows.isEmpty()) {
+        m_runConfiguration->remoteMounts()
+            ->removeMountSpecificationAt(selectedRows.first().row());
+    }
+}
+
+void MaemoRunConfigurationWidget::changeLocalMountDir(const QModelIndex &index)
+{
+    if (index.column() == MaemoRemoteMountsModel::LocalDirRow) {
+        MaemoRemoteMountsModel * const mountsModel
+            = m_runConfiguration->remoteMounts();
+        const QString oldDir
+            = mountsModel->mountSpecificationAt(index.row()).localDir;
+        const QString localDir = QFileDialog::getExistingDirectory(this,
+            tr("Choose directory to mount"), oldDir);
+        if (!localDir.isEmpty())
+            mountsModel->setLocalDir(index.row(), localDir);
+    }
+}
+
+void MaemoRunConfigurationWidget::handleHostAddressChanged()
+{
+    m_runConfiguration->setLocalHostAddressFromDevice(m_hostAddressLineEdit->text());
 }
 
 } // namespace Internal

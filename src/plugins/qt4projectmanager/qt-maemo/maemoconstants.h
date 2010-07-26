@@ -69,6 +69,7 @@ static const QLatin1String ProFileKey(".ProFile");
 static const QLatin1String ExportedLocalDirsKey(".ExportedLocalDirs");
 static const QLatin1String RemoteMountPointsKey(".RemoteMountPoints");
 static const QLatin1String MountPortsKey(".MountPorts");
+static const QLatin1String HostAddressFromDeviceKey(".HostAddressFromDevice");
 
 } // namespace Internal
 } // namespace Qt4ProjectManager

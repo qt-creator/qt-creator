@@ -35,9 +35,6 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 namespace {
-const int LocalDirRow = 0;
-const int RemoteMountPointRow = 1;
-const int PortRow = 2;
 const QLatin1String InvalidMountPoint("/");
 } // anonymous namespace
 
@@ -46,7 +43,7 @@ MaemoRemoteMountsModel::MountSpecification::MountSpecification(const QString &l,
 
 bool MaemoRemoteMountsModel::MountSpecification::isValid() const
 {
-    return remoteMountPoint == InvalidMountPoint;
+    return remoteMountPoint != InvalidMountPoint;
 }
 
 
@@ -79,6 +76,23 @@ void MaemoRemoteMountsModel::removeMountSpecificationAt(int pos)
     beginRemoveRows(QModelIndex(), pos, pos);
     m_mountSpecs.removeAt(pos);
     endRemoveRows();
+}
+
+void MaemoRemoteMountsModel::setLocalDir(int pos, const QString &localDir)
+{
+    Q_ASSERT(pos >= 0 && pos < rowCount());
+    m_mountSpecs[pos].localDir = localDir;
+    const QModelIndex currentIndex = index(pos, LocalDirRow);
+    emit dataChanged(currentIndex, currentIndex);
+}
+
+bool MaemoRemoteMountsModel::hasValidMountSpecifications() const
+{
+    foreach (const MountSpecification &m, m_mountSpecs) {
+        if (m.isValid())
+            return true;
+    }
+    return false;
 }
 
 QVariantMap MaemoRemoteMountsModel::toMap() const

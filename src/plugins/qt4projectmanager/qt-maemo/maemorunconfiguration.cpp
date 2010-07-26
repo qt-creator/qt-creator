@@ -55,6 +55,8 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
+namespace { const QLatin1String DefaultHostAddress("192.168.2.14"); }
+
 using namespace ProjectExplorer;
 
 MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
@@ -79,6 +81,7 @@ void MaemoRunConfiguration::init()
 {
     m_devConfigModel = new MaemoDeviceConfigListModel(this);
     m_remoteMounts = new MaemoRemoteMountsModel(this);
+    m_hostAddressFromDevice = DefaultHostAddress;
     setDisplayName(QFileInfo(m_proFilePath).completeBaseName());
 
     updateDeviceConfigurations();
@@ -136,6 +139,7 @@ QVariantMap MaemoRunConfiguration::toMap() const
     map.insert(ArgumentsKey, m_arguments);
     const QDir dir = QDir(target()->project()->projectDirectory());
     map.insert(ProFileKey, dir.relativeFilePath(m_proFilePath));
+    map.insert(HostAddressFromDeviceKey, m_hostAddressFromDevice);
     map.unite(m_devConfigModel->toMap());
     map.unite(m_remoteMounts->toMap());
     return map;
@@ -149,6 +153,8 @@ bool MaemoRunConfiguration::fromMap(const QVariantMap &map)
     m_arguments = map.value(ArgumentsKey).toStringList();
     const QDir dir = QDir(target()->project()->projectDirectory());
     m_proFilePath = dir.filePath(map.value(ProFileKey).toString());
+    m_hostAddressFromDevice = map.value(HostAddressFromDeviceKey,
+        DefaultHostAddress).toString();
     m_devConfigModel->fromMap(map);
     m_remoteMounts->fromMap(map);
 
@@ -192,8 +198,12 @@ MaemoDeployStep *MaemoRunConfiguration::deployStep() const
 
 QString MaemoRunConfiguration::localHostAddressFromDevice() const
 {
-    // TODO: From user
-    return QLatin1String("192.168.2.14");
+    return m_hostAddressFromDevice;
+}
+
+void MaemoRunConfiguration::setLocalHostAddressFromDevice(const QString &address)
+{
+    m_hostAddressFromDevice = address;
 }
 
 QString MaemoRunConfiguration::maddeRoot() const

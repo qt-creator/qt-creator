@@ -41,6 +41,9 @@ QT_BEGIN_NAMESPACE
 class QComboBox;
 class QLabel;
 class QLineEdit;
+class QModelIndex;
+class QTableView;
+class QToolButton;
 QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
@@ -62,13 +65,20 @@ private slots:
     void updateTargetInformation();
     void handleCurrentDeviceConfigChanged();
     void setCurrentDeviceConfig(int index);
+    void addMount();
+    void removeMount();
+    void changeLocalMountDir(const QModelIndex &index);
+    void enableOrDisableRemoveButton();
+    void handleHostAddressChanged();
 
 private:
     QLineEdit *m_configNameLineEdit;
     QLineEdit *m_argsLineEdit;
     QLabel *m_executableLabel;
-    QLabel *m_debuggerLabel;
     QComboBox *m_devConfBox;
+    QLineEdit *m_hostAddressLineEdit;
+    QTableView *m_mountView;
+    QToolButton *m_removeMountButton;
     MaemoRunConfiguration *m_runConfiguration;
 };
 

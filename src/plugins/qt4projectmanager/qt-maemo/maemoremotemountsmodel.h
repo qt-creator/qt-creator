@@ -54,12 +54,18 @@ public:
     explicit MaemoRemoteMountsModel(QObject *parent = 0);
     int mountSpecificationCount() const { return m_mountSpecs.count(); }
     MountSpecification mountSpecificationAt(int pos) const { return m_mountSpecs.at(pos); }
+    bool hasValidMountSpecifications() const;
 
     void addMountSpecification(const QString &localDir);
     void removeMountSpecificationAt(int pos);
+    void setLocalDir(int pos, const QString &localDir);
 
     QVariantMap toMap() const;
     void fromMap(const QVariantMap &map);
+
+    static const int LocalDirRow = 0;
+    static const int RemoteMountPointRow = 1;
+    static const int PortRow = 2;
 
 private:
     virtual int columnCount(const QModelIndex& = QModelIndex()) const;

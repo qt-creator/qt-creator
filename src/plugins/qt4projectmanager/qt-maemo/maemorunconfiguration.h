@@ -77,6 +77,7 @@ public:
     MaemoDeployStep *deployStep() const;
     MaemoRemoteMountsModel *remoteMounts() const { return m_remoteMounts; }
     QString localHostAddressFromDevice() const;
+    void setLocalHostAddressFromDevice(const QString &address);
 
     const MaemoToolChain *toolchain() const;
     QString maddeRoot() const;
@@ -115,6 +116,7 @@ private:
     MaemoDeviceConfigListModel *m_devConfigModel;
     MaemoRemoteMountsModel *m_remoteMounts;
     QStringList m_arguments;
+    QString m_hostAddressFromDevice;
 };
 
     } // namespace Internal
