@@ -77,6 +77,8 @@ void QmlContextPane::apply(TextEditor::BaseTextEditorEditable *editor, Document:
     if (update && editor != m_editor)
         return; //do not update for different editor
 
+    m_blockWriting = true;
+
     LookupContext::Ptr lookupContext = LookupContext::create(doc, snapshot, QList<Node*>());
     const Interpreter::ObjectValue *scopeObject = doc->bind()->findQmlObject(node);
 
@@ -148,11 +150,8 @@ void QmlContextPane::apply(TextEditor::BaseTextEditorEditable *editor, Document:
                 contextWidget()->activate(p3 , p1, p2);
             else
                 contextWidget()->rePosition(p3 , p1, p2);
-
-            m_blockWriting = true;
             contextWidget()->setPath(doc->path());
-            contextWidget()->setProperties(&propertyReader);
-            m_blockWriting = false;
+            contextWidget()->setProperties(&propertyReader); 
             m_doc = doc;
             m_node = node;
         } else {
@@ -165,6 +164,8 @@ void QmlContextPane::apply(TextEditor::BaseTextEditorEditable *editor, Document:
         contextWidget()->hide();
         contextWidget()->colorDialog()->hide();
     }
+
+    m_blockWriting = false;
 
 }
 
