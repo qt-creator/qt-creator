@@ -258,7 +258,7 @@ void S60DeployStep::startDeployment()
     m_launcher->setCopyFileName(m_signedPackage, copyDst);
     m_launcher->setInstallFileName(copyDst);
     m_launcher->setInstallationDrive(m_installationDrive);
-    m_launcher->setInstallationMode(m_silentInstall?trk::Launcher::InstallationModeSilent:
+    m_launcher->setInstallationMode(m_silentInstall?trk::Launcher::InstallationModeSilentAndUser:
                                                     trk::Launcher::InstallationModeUser);
     m_launcher->addStartupActions(trk::Launcher::ActionCopyInstall);
 
