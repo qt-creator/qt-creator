@@ -296,9 +296,9 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     Aggregation::Aggregate *agg = new Aggregation::Aggregate;
     agg->add(m_centralWidget);
     agg->add(new HelpFindSupport(m_centralWidget));
-    m_mainWidget = new QWidget;
-    m_splitter->addWidget(m_mainWidget);
-    QVBoxLayout *mainWidgetLayout = new QVBoxLayout(m_mainWidget);
+    QWidget *mainWidget = new QWidget;
+    m_splitter->addWidget(mainWidget);
+    QVBoxLayout *mainWidgetLayout = new QVBoxLayout(mainWidget);
     mainWidgetLayout->setMargin(0);
     mainWidgetLayout->setSpacing(0);
     mainWidgetLayout->addWidget(createToolBar());
