@@ -68,7 +68,7 @@ public:
     CPlusPlus::Snapshot snapshot() const;
     CPlusPlus::Document::Ptr document() const;
     CppEditor::Internal::SemanticInfo semanticInfo() const;
-    CPlusPlus::LookupContext context() const;
+    const CPlusPlus::LookupContext &context() const;
 
     using TextEditor::QuickFixState::range;
     using TextEditor::QuickFixState::textOf;

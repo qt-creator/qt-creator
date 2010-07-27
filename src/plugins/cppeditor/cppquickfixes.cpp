@@ -1726,8 +1726,5 @@ void CppQuickFixCollector::registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
     plugIn->addAutoReleasedObject(new FixForwardDeclarationOp);
     plugIn->addAutoReleasedObject(new AddLocalDeclarationOp);
     plugIn->addAutoReleasedObject(new ToCamelCaseConverter);
-
-#if NOT_YET
     plugIn->addAutoReleasedObject(new Internal::DeclFromDef);
-#endif
 }

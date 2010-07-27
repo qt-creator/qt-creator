@@ -81,7 +81,7 @@ SemanticInfo CppQuickFixState::semanticInfo() const
     return _semanticInfo;
 }
 
-LookupContext CppQuickFixState::context() const
+const LookupContext &CppQuickFixState::context() const
 {
     return _context;
 }

@@ -159,7 +159,7 @@ QStringList RefactoringChanges::apply()
         BaseTextEditor *editor = editorForFile(m_fileNameToShow);
         editorManager->activateEditor(editor->editableInterface());
         if (m_lineToShow != -1)
-            editor->gotoLine(m_lineToShow + 1, m_columnToShow + 1);
+            editor->gotoLine(m_lineToShow + 1, m_columnToShow);
     }
 
     return changed.toList();
@@ -205,6 +205,11 @@ BaseTextEditor *RefactoringChanges::editorForNewFile(const QString &fileName)
     return editorForFile(fileName, true);
 }
 
+/**
+ * \param fileName the file to open
+ * \param line the line to focus on, 0-based
+ * \param column the column to focus on, 0-based
+ */
 void RefactoringChanges::openEditor(const QString &fileName, int line, int column)
 {
     m_fileNameToShow = fileName;

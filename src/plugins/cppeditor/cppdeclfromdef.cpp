@@ -39,6 +39,7 @@
 #include <Symbols.h>
 #include <TranslationUnit.h>
 #include <cplusplus/ASTPath.h>
+#include <cplusplus/InsertionPointLocator.h>
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
 
@@ -52,84 +53,6 @@ using namespace CppTools;
 using CppEditor::CppRefactoringChanges;
 
 namespace {
-
-class InsertionPointFinder: public ASTVisitor
-{
-public:
-    InsertionPointFinder(Document::Ptr doc, const QString &className)
-        : ASTVisitor(doc->translationUnit())
-        , _doc(doc)
-        , _className(className)
-    {}
-
-    void operator()(int *line, int *column)
-    {
-        if (!line && !column)
-            return;
-        _line = 0;
-        _column = 0;
-
-        AST *ast = translationUnit()->ast();
-        accept(ast);
-
-        if (line)
-            *line = _line - 1;
-        if (column)
-            *column = _column - 1;
-    }
-
-protected:
-    using ASTVisitor::visit;
-
-    bool visit(ClassSpecifierAST *ast)
-    {
-        if (!ast->symbol || _className != QLatin1String(ast->symbol->identifier()->chars()))
-            return true;
-
-        unsigned currentVisibility = (tokenKind(ast->classkey_token) == T_CLASS) ? T_PUBLIC : T_PRIVATE;
-        unsigned insertBefore = 0;
-
-        for (DeclarationListAST *iter = ast->member_specifier_list; iter; iter = iter->next) {
-            DeclarationAST *decl = iter->value;
-            if (AccessDeclarationAST *xsDecl = decl->asAccessDeclaration()) {
-                const unsigned token = xsDecl->access_specifier_token;
-                const int kind = tokenKind(token);
-                if (kind == T_PUBLIC) {
-                    currentVisibility = T_PUBLIC;
-                } else if (kind == T_PROTECTED) {
-                    if (currentVisibility == T_PUBLIC) {
-                        insertBefore = token;
-                        break;
-                    } else {
-                        currentVisibility = T_PROTECTED;
-                    }
-                } else if (kind == T_PRIVATE) {
-                    if (currentVisibility == T_PUBLIC
-                            || currentVisibility == T_PROTECTED) {
-                        insertBefore = token;
-                        break;
-                    } else {
-                        currentVisibility = T_PRIVATE;
-                    }
-                }
-            }
-        }
-
-        if (!insertBefore)
-            insertBefore = ast->rbrace_token;
-
-        getTokenStartPosition(insertBefore, &_line, &_column);
-
-        return false;
-    }
-
-private:
-    Document::Ptr _doc;
-    QString _className;
-
-    unsigned _line;
-    unsigned _column;
-};
 
 QString prettyMinimalType(const FullySpecifiedType &ty,
                           const LookupContext &context,
@@ -151,11 +74,11 @@ class Operation: public CppQuickFixOperation
 {
 public:
     Operation(const CppQuickFixState &state, int priority,
-              const QString &targetFileName, const QString &targetSymbolName,
+              const QString &targetFileName, const Class *targetSymbol,
               const QString &decl)
         : CppQuickFixOperation(state, priority)
         , m_targetFileName(targetFileName)
-        , m_targetSymbolName(targetSymbolName)
+        , m_targetSymbol(targetSymbol)
         , m_decl(decl)
     {
         setDescription(QCoreApplication::tr("Create Declaration from Definition",
@@ -167,26 +90,25 @@ public:
         CppRefactoringChanges *changes = refactoringChanges();
 
         Document::Ptr targetDoc = changes->document(m_targetFileName);
-        InsertionPointFinder findInsertionPoint(targetDoc, m_targetSymbolName);
-        int line = 0, column = 0;
-        findInsertionPoint(&line, &column);
+        InsertionPointLocator locator(targetDoc);
+        const InsertionLocation loc = locator.methodDeclarationInClass(m_targetSymbol, InsertionPointLocator::Public);
 
-        int targetPosition1 = changes->positionInFile(m_targetFileName, line, column);
-        int targetPosition2 = changes->positionInFile(m_targetFileName, line + 1, 0) - 1;
+        int targetPosition1 = changes->positionInFile(m_targetFileName, loc.line() - 1, loc.column() - 1);
+        int targetPosition2 = changes->positionInFile(m_targetFileName, loc.line(), 0) - 1;
 
         Utils::ChangeSet target;
-        target.insert(targetPosition1, m_decl);
+        target.insert(targetPosition1, loc.prefix() + m_decl);
         changes->changeFile(m_targetFileName, target);
 
         changes->reindent(m_targetFileName,
                           Utils::ChangeSet::Range(targetPosition1, targetPosition2));
 
-        changes->openEditor(m_targetFileName, line, column);
+        changes->openEditor(m_targetFileName, loc.line() - 1, loc.column() - 1);
     }
 
 private:
     QString m_targetFileName;
-    QString m_targetSymbolName;
+    const Class *m_targetSymbol;
     QString m_decl;
 };
 
@@ -201,7 +123,7 @@ QList<CppQuickFixOperation::Ptr> DeclFromDef::match(const CppQuickFixState &stat
     for (; idx < path.size(); ++idx) {
         AST *node = path.at(idx);
         if (FunctionDefinitionAST *candidate = node->asFunctionDefinition()) {
-            if (!funDef)
+            if (!funDef && state.isCursorOn(candidate) && !state.isCursorOn(candidate->function_body))
                 funDef = candidate;
         } else if (node->asClassSpecifier()) {
             return noResult();
@@ -218,7 +140,7 @@ QList<CppQuickFixOperation::Ptr> DeclFromDef::match(const CppQuickFixState &stat
             if (Class *clazz = s->asClass()) {
                 return singleResult(new Operation(state, idx,
                                                   QLatin1String(clazz->fileName()),
-                                                  QLatin1String(clazz->identifier()->chars()),
+                                                  clazz,
                                                   generateDeclaration(state,
                                                                       method,
                                                                       targetBinding)));
