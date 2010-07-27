@@ -2877,6 +2877,8 @@ const Value *Engine::defaultValueForBuiltinType(const QString &typeName) const
         return booleanValue();
     else if (typeName == QLatin1String("int") || typeName == QLatin1String("real"))
         return numberValue();
+    else if (typeName == QLatin1String("color"))
+        return colorValue();
     // ### more types...
 
     return undefinedValue();
