@@ -68,6 +68,7 @@ void QmlInspectorToolbar::setEnabled(bool value)
     m_colorPickerAction->setEnabled(value);
     //m_toQmlAction->setEnabled(value);
     m_fromQmlAction->setEnabled(value);
+    m_colorBox->setEnabled(value);
 }
 
 void QmlInspectorToolbar::enable()
