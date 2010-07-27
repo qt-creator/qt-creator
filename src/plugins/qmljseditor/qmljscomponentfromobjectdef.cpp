@@ -75,26 +75,27 @@ static QString getIdProperty(UiObjectDefinition *def)
 
 class Operation: public QmlJSQuickFixOperation
 {
-    UiObjectDefinition *_objDef;
+    UiObjectDefinition *m_objDef;
+    QString m_componentName;
 
 public:
     Operation(const QmlJSQuickFixState &state, UiObjectDefinition *objDef)
         : QmlJSQuickFixOperation(state, 0)
-        , _objDef(objDef)
+        , m_objDef(objDef)
     {
+        Q_ASSERT(m_objDef != 0);
+
+        m_componentName = getIdProperty(m_objDef);
+        m_componentName[0] = m_componentName.at(0).toUpper();
+
         setDescription(QCoreApplication::translate("QmlJSEditor::ComponentFromObjectDef",
-                                                   "Extract Component"));
+                                                   "Move Component into '%1.qml'").arg(m_componentName));
     }
 
     virtual void createChanges()
     {
-        Q_ASSERT(_objDef != 0);
-
-        QString componentName = getIdProperty(_objDef);
-        componentName[0] = componentName.at(0).toUpper();
-
-        const QString path = fileName();
-        const QString newFileName = QFileInfo(path).path() + QDir::separator() + componentName + QLatin1String(".qml");
+        const QString newFileName = QFileInfo(fileName()).path()
+                + QDir::separator() + m_componentName + QLatin1String(".qml");
 
         QString imports;
         UiProgram *prog = state().semanticInfo().document->qmlProgram();
@@ -104,13 +105,13 @@ public:
             imports = state().textOf(start, end);
         }
 
-        const int start = startPosition(_objDef->firstSourceLocation());
-        const int end = startPosition(_objDef->lastSourceLocation());
+        const int start = startPosition(m_objDef->firstSourceLocation());
+        const int end = startPosition(m_objDef->lastSourceLocation());
         const QString txt = imports + state().textOf(start, end)
                 + QLatin1String("}\n");
 
         Utils::ChangeSet changes;
-        changes.replace(start, end, componentName + QLatin1String(" {\n"));
+        changes.replace(start, end, m_componentName + QLatin1String(" {\n"));
         refactoringChanges()->changeFile(fileName(), changes);
         refactoringChanges()->reindent(fileName(), range(start, end + 1));
 
@@ -130,7 +131,8 @@ QList<QmlJSQuickFixOperation::Ptr> ComponentFromObjectDef::match(const QmlJSQuic
     for (int i = path.size() - 1; i >= 0; --i) {
         Node *node = path.at(i);
         if (UiObjectDefinition *objDef = cast<UiObjectDefinition *>(node)) {
-            if (i > 0 && !cast<UiProgram*>(path.at(i - 1))) { // node is not the root node
+             // check that the node is not the root node
+            if (i > 0 && !cast<UiProgram*>(path.at(i - 1))) {
                 if (!getIdProperty(objDef).isEmpty()) {
                     result.append(QmlJSQuickFixOperation::Ptr(new Operation(state, objDef)));
                     return result;
