@@ -49,7 +49,7 @@
 #include <QtCore/QSharedPointer>
 
 QT_BEGIN_NAMESPACE
-class ProFileOption;
+struct ProFileOption;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer { class BuildStep; }
