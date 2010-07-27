@@ -79,7 +79,7 @@ void MaemoSshRunner::start()
 {
     m_stop = false;
     if (m_connection)
-    disconnect(m_connection.data(), 0, this, 0);
+        disconnect(m_connection.data(), 0, this, 0);
     const bool reUse = m_connection
         && m_connection->state() == SshConnection::Connected
         && m_connection->connectionParameters() == m_devConfig.server;

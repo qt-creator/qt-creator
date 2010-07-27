@@ -34,17 +34,18 @@
 #include <qt4projectmanager/qt4nodes.h>
 
 #include <QtCore/QCryptographicHash>
+#include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
 MaemoDeployableListModel::MaemoDeployableListModel(const Qt4ProFileNode *proFileNode,
-    const QString &qConfigFile, QObject *parent)
+    const QSharedPointer<ProFileOption> &proFileOption, QObject *parent)
     : QAbstractTableModel(parent),
       m_proFileNode(proFileNode),
       m_modified(false),
-      m_proFileWrapper(new ProFileWrapper(m_proFileNode->path(), qConfigFile))
+      m_proFileWrapper(new ProFileWrapper(m_proFileNode->path(), proFileOption))
 {
     buildModel();
 }
@@ -62,8 +63,18 @@ bool MaemoDeployableListModel::buildModel()
             : QLatin1String("/usr/local/bin");
         m_deployables.prepend(MaemoDeployable(localExecutableFilePath(),
             remoteDir));
-        if (!m_proFileWrapper->addInstallsTarget(remoteDir))
+        QFile projectFile(m_proFileNode->path());
+        if (!projectFile.open(QIODevice::WriteOnly | QIODevice::Append)) {
             qWarning("Error updating .pro file.");
+            return false;
+        }
+        QString installsString
+            = QLatin1String("maemo5|maemo6 {\n    target.path = ")
+                + remoteDir + QLatin1String("\n    INSTALLS += target\n}\n");
+        if (!projectFile.write(installsString.toLocal8Bit())) {
+            qWarning("Error updating .pro file.");
+            return false;
+        }
     } else {
         m_deployables.prepend(MaemoDeployable(localExecutableFilePath(),
             installs.targetPath));

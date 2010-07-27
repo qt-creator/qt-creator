@@ -36,7 +36,12 @@
 #include <QtCore/QHash>
 #include <QtCore/QList>
 #include <QtCore/QScopedPointer>
+#include <QtCore/QSharedPointer>
 #include <QtCore/QString>
+
+QT_BEGIN_NAMESPACE
+class ProFileOption;
+QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -48,7 +53,7 @@ class MaemoDeployableListModel : public QAbstractTableModel
     Q_OBJECT
 public:
     MaemoDeployableListModel(const Qt4ProFileNode *proFileNode,
-        const QString &qConfigFile, QObject *parent);
+        const QSharedPointer<ProFileOption> &proFileOption, QObject *parent);
     ~MaemoDeployableListModel();
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;

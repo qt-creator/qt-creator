@@ -42,8 +42,8 @@
 #include "maemodeployables.h"
 
 #include "maemodeployablelistmodel.h"
-#include "maemotoolchain.h"
 
+#include <profileevaluator.h>
 #include <projectexplorer/buildstep.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4project.h>
@@ -55,13 +55,17 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 MaemoDeployables::MaemoDeployables(const ProjectExplorer::BuildStep *buildStep)
-    : m_buildStep(buildStep)
+    : m_proFileOption(new ProFileOption), m_buildStep(buildStep)
 {
     QTimer::singleShot(0, this, SLOT(init()));
 }
 
+MaemoDeployables::~MaemoDeployables() {}
+
 void MaemoDeployables::init()
 {
+    m_proFileOption->properties
+        = qt4BuildConfiguration()->qtVersion()->versionInfo();
     createModels();
     connect(qt4BuildConfiguration()->qt4Target()->qt4Project(),
         SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
@@ -82,15 +86,10 @@ void MaemoDeployables::createModels(const Qt4ProFileNode *proFileNode)
     switch (type) {
     case ApplicationTemplate:
     case LibraryTemplate:
-    case ScriptTemplate: {
-        const MaemoToolChain * const tc
-            = dynamic_cast<MaemoToolChain *>(qt4BuildConfiguration()->toolChain());
-        Q_ASSERT(tc);
-        const QString qConfigFile = tc->sysrootRoot()
-            + QLatin1String("/usr/share/qt/mkspecs/qconfig.pri");
-        m_listModels << new MaemoDeployableListModel(proFileNode, qConfigFile, this);
+    case ScriptTemplate:
+        m_listModels
+            << new MaemoDeployableListModel(proFileNode, m_proFileOption, this);
         break;
-    }
     case SubDirsTemplate: {
         const QList<ProjectExplorer::ProjectNode *> &subProjects
             = proFileNode->subProjectNodes();

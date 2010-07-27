@@ -27,11 +27,10 @@ namespace {
 
 
 ProFileWrapper::ProFileWrapper(const QString &proFileName,
-    const QString &qConfigFile)
+    const QSharedPointer<ProFileOption> &proFileOption)
     : m_proFileName(proFileName), m_proDir(QFileInfo(m_proFileName).dir()),
-      m_proFileOption(new ProFileOption)
+      m_proFileOption(proFileOption)
 {
-    m_proFileOption->cachefile = qConfigFile;
     parseProFile(ParseFromFile);
 }
 
@@ -226,6 +225,7 @@ void ProFileWrapper::parseProFile(ParseType type) const
 {
     m_proFileReader.reset(new ProFileReader(m_proFileOption.data()));
     m_proFileReader->setCumulative(false);
+    // TODO: Set output dir to build dir?
     if (type == ParseFromLines) {
         m_proFile = m_proFileReader->parsedProFile(m_proFileName, false,
             m_proFileContents.join("\n"));

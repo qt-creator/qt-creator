@@ -3,6 +3,7 @@
 
 #include <QtCore/QDir>
 #include <QtCore/QScopedPointer>
+#include <QtCore/QSharedPointer>
 #include <QtCore/QString>
 #include <QtCore/QString>
 
@@ -18,7 +19,8 @@ class ProFileReader;
 class ProFileWrapper
 {
 public:
-    ProFileWrapper(const QString &proFileName, const QString &qConfigFile);
+    ProFileWrapper(const QString &proFileName,
+        const QSharedPointer<ProFileOption> &proFileOption);
     ~ProFileWrapper();
 
     void reload();
@@ -66,8 +68,8 @@ private:
 
     const QString m_proFileName;
     const QDir m_proDir;
+    const QSharedPointer<ProFileOption> m_proFileOption;
     mutable QStringList m_proFileContents;
-    const QScopedPointer<ProFileOption> m_proFileOption;
     mutable QScopedPointer<ProFileReader> m_proFileReader;
     mutable ProFile *m_proFile;
 };
