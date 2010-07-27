@@ -558,6 +558,30 @@ QString QDeclarativeDesignView::idStringForObject(QObject *obj)
     return qmlDesignDebugServer()->idStringForObject(obj);
 }
 
+// adjusts bounding boxes on edges of screen to be visible
+QRectF QDeclarativeDesignView::adjustToScreenBoundaries(const QRectF &boundingRectInSceneSpace)
+{
+    int marginFromEdge = 1;
+    QRectF boundingRect(boundingRectInSceneSpace);
+    if (qAbs(boundingRect.left()) - 1 < 2) {
+        boundingRect.setLeft(marginFromEdge);
+    }
+
+    if (boundingRect.right() >= rect().right() ) {
+        boundingRect.setRight(rect().right() - marginFromEdge);
+    }
+
+    if (qAbs(boundingRect.top()) - 1 < 2) {
+        boundingRect.setTop(marginFromEdge);
+    }
+
+    if (boundingRect.bottom() >= rect().bottom() ) {
+        boundingRect.setBottom(rect().bottom() - marginFromEdge);
+    }
+
+    return boundingRect;
+}
+
 QToolBar *QDeclarativeDesignView::toolbar() const
 {
     return m_toolbar;

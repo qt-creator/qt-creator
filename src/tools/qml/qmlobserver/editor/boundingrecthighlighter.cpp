@@ -179,8 +179,8 @@ void BoundingRectHighlighter::highlightAll(bool animate)
 
         QPolygonF boundingRectInSceneSpace(item->mapToScene(itemAndChildRect));
         QPolygonF boundingRectInLayerItemSpace = mapFromScene(boundingRectInSceneSpace);
-        QRectF bboxRect = boundingRectInLayerItemSpace.boundingRect();
-        QRectF edgeRect = boundingRectInLayerItemSpace.boundingRect();
+        QRectF bboxRect = m_view->adjustToScreenBoundaries(boundingRectInLayerItemSpace.boundingRect());
+        QRectF edgeRect = bboxRect;
         edgeRect.adjust(-1, -1, 1, 1);
 
         box->highlightPolygon->setPolygon(QPolygonF(bboxRect));

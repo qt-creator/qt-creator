@@ -94,7 +94,8 @@ void SelectionIndicator::setItems(const QList<QGraphicsObject*> &itemList)
         QPolygonF boundingShapeInSceneSpace;
         addBoundingRectToPolygon(item, boundingShapeInSceneSpace);
 
-        QPolygonF boundingRectInLayerItemSpace = m_layerItem->mapFromScene(boundingShapeInSceneSpace);
+        QRectF boundingRect = m_view->adjustToScreenBoundaries(boundingShapeInSceneSpace.boundingRect());
+        QPolygonF boundingRectInLayerItemSpace = m_layerItem->mapFromScene(boundingRect);
 
         QPen pen;
         pen.setColor(QColor(108, 141, 221));
