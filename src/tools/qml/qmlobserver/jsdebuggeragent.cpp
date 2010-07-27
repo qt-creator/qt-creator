@@ -455,7 +455,10 @@ void JSDebuggerAgent::stopped(bool becauseOfException, const QScriptValue& excep
                 functionName = QLatin1String("<global>");
             }
         }
-        backtrace.append(qMakePair(functionName, qMakePair( QUrl(info.fileName()).toLocalFile(), info.lineNumber() ) ) );
+        int lineNumber = info.lineNumber();
+        if (lineNumber == -1) // if the line number is unknown, fallback to the function line number
+            lineNumber = info.functionStartLineNumber();
+        backtrace.append(qMakePair(functionName, qMakePair( QUrl(info.fileName()).toLocalFile(), lineNumber ) ) );
     }
     QList<JSAgentWatchData> watches;
     foreach (const QString &expr, watchExpressions)
