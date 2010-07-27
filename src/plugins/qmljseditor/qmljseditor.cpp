@@ -960,31 +960,37 @@ void QmlJSTextEditor::updateUsesNow()
 
     setExtraSelections(CodeSemanticsSelection, selections);
 
-    setSelectedElement();
+    setSelectedElements();
 }
 
 class SelectedElement: protected Visitor
 {
-    unsigned cursorPositionStart;
-    unsigned cursorPositionEnd;
-    QList<UiObjectMember *> selectedMembers;
+    unsigned m_cursorPositionStart;
+    unsigned m_cursorPositionEnd;
+    QList<UiObjectMember *> m_selectedMembers;
+    Document::Ptr m_document;
+    Snapshot m_snapshot;
+    LookupContext::Ptr m_lookupContext;
 
 public:
     SelectedElement()
-        : cursorPositionStart(0), cursorPositionEnd(0) {}
+        : m_cursorPositionStart(0), m_cursorPositionEnd(0) {}
 
-    QList<UiObjectMember *> operator()(Node *root, unsigned startPosition, unsigned endPosition)
+    QList<UiObjectMember *> operator()(Document::Ptr doc, Snapshot snapshot, unsigned startPosition, unsigned endPosition)
     {
-        cursorPositionStart = startPosition;
-        cursorPositionEnd = endPosition;
-        selectedMembers.clear();
-        Node::accept(root, this);
-        return selectedMembers;
+        m_document = doc;
+        m_snapshot = snapshot;
+        m_lookupContext = LookupContext::create(m_document, m_snapshot, QList<Node*>());
+        m_cursorPositionStart = startPosition;
+        m_cursorPositionEnd = endPosition;
+        m_selectedMembers.clear();
+        Node::accept(doc->qmlProgram(), this);
+        return m_selectedMembers;
     }
 
 protected:
 
-    bool isAcceptableParent(UiObjectMember *member) const
+    bool isSelectable(UiObjectMember *member) const
     {
         UiQualifiedId *id = 0;
         if (UiObjectDefinition *def = cast<UiObjectDefinition *>(member))
@@ -1011,6 +1017,20 @@ protected:
         return 0;
     }
 
+    bool hasVisualPresentation(Node *ast)
+    {
+        Bind *bind = m_document->bind();
+        const Interpreter::ObjectValue *objValue = bind->findQmlObject(ast);
+        QStringList prototypes;
+
+        while (objValue) {
+            prototypes.append(objValue->className());
+            objValue = objValue->prototype(m_lookupContext->context());
+        }
+
+        return prototypes.contains(QString("QGraphicsObject"));
+    }
+
     bool isIdBinding(UiObjectMember *member) const
     {
         if (UiScriptBinding *script = cast<UiScriptBinding *>(member)) {
@@ -1032,22 +1052,22 @@ protected:
 
     bool containsCursor(unsigned begin, unsigned end)
     {
-        return cursorPositionStart >= begin && cursorPositionEnd <= end;
+        return m_cursorPositionStart >= begin && m_cursorPositionEnd <= end;
     }
 
     bool intersectsCursor(unsigned begin, unsigned end)
     {
-        return (cursorPositionEnd >= begin && cursorPositionStart <= end);
+        return (m_cursorPositionEnd >= begin && m_cursorPositionStart <= end);
     }
 
     bool isRangeSelected() const
     {
-        return (cursorPositionStart != cursorPositionEnd);
+        return (m_cursorPositionStart != m_cursorPositionEnd);
     }
 
     virtual void postVisit(Node *ast)
     {
-        if ((cursorPositionStart == cursorPositionEnd && !selectedMembers.isEmpty()))
+        if (!isRangeSelected() && !m_selectedMembers.isEmpty())
             return; // nothing to do, we already have the results.
 
         if (UiObjectMember *member = ast->uiObjectMemberCast()) {
@@ -1057,23 +1077,17 @@ protected:
             if ((isRangeSelected() && intersectsCursor(begin, end))
             || (!isRangeSelected() && containsCursor(begin, end)))
             {
-                if (UiObjectInitializer *init = initializer(member)) {
-                    for (UiObjectMemberList *it = init->members; it; it = it->next) {
-                        if ((isRangeSelected() && isAcceptableParent(member))
-                         || (!isRangeSelected() && isIdBinding(it->member))) {
-                            selectedMembers << member;
-                            // move start towards end; this facilitates multiselection so that root is usually ignored.
-                            cursorPositionStart = qMin(end, cursorPositionEnd);
-                            break;
-                        }
-                    }
+                if (initializer(member) && isSelectable(member) && hasVisualPresentation(member)) {
+                    m_selectedMembers << member;
+                    // move start towards end; this facilitates multiselection so that root is usually ignored.
+                    m_cursorPositionStart = qMin(end, m_cursorPositionEnd);
                 }
             }
         }
     }
 };
 
-void QmlJSTextEditor::setSelectedElement()
+void QmlJSTextEditor::setSelectedElements()
 {
     QTextCursor tc = textCursor();
     QString wordAtCursor;
@@ -1093,10 +1107,11 @@ void QmlJSTextEditor::setSelectedElement()
         endPos = textCursor().position();
     }
 
-    if (Document::Ptr doc = m_semanticInfo.document) {
+    if (m_semanticInfo.document) {
         SelectedElement selectedMembers;
 
-        QList<UiObjectMember *> members = selectedMembers(doc->qmlProgram(), startPos, endPos);
+        QList<UiObjectMember *> members = selectedMembers(m_semanticInfo.document, m_semanticInfo.snapshot,
+                                                          startPos, endPos);
 
         if (!members.isEmpty()) {
             foreach(UiObjectMember *m, members) {

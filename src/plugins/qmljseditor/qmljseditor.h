@@ -274,7 +274,7 @@ private:
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
     bool isClosingBrace(const QList<QmlJS::Token> &tokens) const;
 
-    void setSelectedElement();
+    void setSelectedElements();
     QString wordUnderCursor() const;
 
     SemanticHighlighter::Source currentSource(bool force = false);

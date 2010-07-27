@@ -211,36 +211,43 @@ void QmlJSLiveTextPreview::changeSelectedElements(QList<int> offsets, const QStr
     ClientProxy *clientProxy = ClientProxy::instance();
 
     QDeclarativeDebugObjectReference objectRefUnderCursor;
-
-    QList<QDeclarativeDebugObjectReference> refs = clientProxy->objectReferences();
-    foreach (const QDeclarativeDebugObjectReference &ref, refs) {
-        if (ref.idString() == wordAtCursor) {
-            objectRefUnderCursor = ref;
-            break;
+    if (!wordAtCursor.isEmpty() && wordAtCursor[0].isUpper()) {
+        QList<QDeclarativeDebugObjectReference> refs = clientProxy->objectReferences();
+        foreach (const QDeclarativeDebugObjectReference &ref, refs) {
+            if (ref.idString() == wordAtCursor) {
+                objectRefUnderCursor = ref;
+                break;
+            }
         }
     }
 
     QList<int> selectedReferences;
-    bool containsReference = false;
+    bool containsReferenceUnderCursor = false;
 
     foreach(int offset, offsets) {
         if (offset >= 0) {
             QList<int> list = objectReferencesForOffset(offset);
 
-            if (!containsReference && objectRefUnderCursor.debugId() != -1) {
+            if (!containsReferenceUnderCursor && objectRefUnderCursor.debugId() != -1) {
                 foreach(int id, list) {
                     if (id == objectRefUnderCursor.debugId()) {
-                        containsReference = true;
+                        containsReferenceUnderCursor = true;
                         break;
                     }
                 }
             }
+
             selectedReferences << list;
         }
     }
 
-    if (!containsReference && objectRefUnderCursor.debugId() != -1)
+    // fallback: use ref under cursor if nothing else is found
+    if (selectedReferences.isEmpty()
+        && !containsReferenceUnderCursor
+        && objectRefUnderCursor.debugId() != -1)
+    {
         selectedReferences << objectRefUnderCursor.debugId();
+    }
 
     if (!selectedReferences.isEmpty()) {
         QList<QDeclarativeDebugObjectReference> refs;

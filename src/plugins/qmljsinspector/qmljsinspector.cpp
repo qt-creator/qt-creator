@@ -276,6 +276,7 @@ void Inspector::createPreviewForEditor(Core::IEditor *newEditor)
                     SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
                     SLOT(changeSelectedItems(QList<QDeclarativeDebugObjectReference>)));
             m_textPreviews.insert(newEditor->file()->fileName(), preview);
+            preview->associateEditor(newEditor);
             preview->updateDebugIds(m_clientProxy->rootObjectReference());
         }
     }
