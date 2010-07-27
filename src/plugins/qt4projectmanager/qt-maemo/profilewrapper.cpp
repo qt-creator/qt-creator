@@ -225,6 +225,7 @@ QString ProFileWrapper::absFilePath(const QString &relFilePath) const
 void ProFileWrapper::parseProFile(ParseType type) const
 {
     m_proFileReader.reset(new ProFileReader(m_proFileOption.data()));
+    m_proFileReader->setCumulative(false);
     if (type == ParseFromLines) {
         m_proFile = m_proFileReader->parsedProFile(m_proFileName, false,
             m_proFileContents.join("\n"));
