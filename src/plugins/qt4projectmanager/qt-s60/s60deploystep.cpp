@@ -256,7 +256,7 @@ void S60DeployStep::startDeployment()
 
     QStringList copyDst;
     foreach (const QString &signedPackage, m_signedPackages)
-        copyDst << QString::fromLatin1("%1:\\Data\\%1").arg(m_installationDrive).arg(QFileInfo(signedPackage).fileName());
+        copyDst << QString::fromLatin1("%1:\\Data\\%2").arg(m_installationDrive).arg(QFileInfo(signedPackage).fileName());
 
     m_launcher->setCopyFileNames(m_signedPackages, copyDst);
     m_launcher->setInstallFileNames(copyDst);
