@@ -85,9 +85,10 @@ void OutputFormatter::append(const QString &text, const QTextCharFormat &format)
 
 static QColor mix_colors(QColor a, QColor b)
 {
-    return QColor((a.red() + b.red()) / 2, (a.green() + b.green()) / 2,
-                  (a.blue() + b.blue()) / 2, (a.alpha() + b.alpha()) / 2);
+    return QColor((a.red() + 2 * b.red()) / 3, (a.green() + 2 * b.green()) / 3,
+                  (a.blue() + 2* b.blue()) / 3, (a.alpha() + 2 * b.alpha()) / 3);
 }
+
 
 void OutputFormatter::initFormats()
 {
@@ -102,11 +103,11 @@ void OutputFormatter::initFormats()
 
     // NormalMessageFormat
     m_formats[NormalMessageFormat].setFont(boldFont);
-    m_formats[NormalMessageFormat].setForeground(mix_colors(QColor(Qt::blue), p.color(QPalette::Text)));
+    m_formats[NormalMessageFormat].setForeground(mix_colors(p.color(QPalette::Text), QColor(Qt::blue)));
 
     // ErrorMessageFormat
     m_formats[ErrorMessageFormat].setFont(boldFont);
-    m_formats[ErrorMessageFormat].setForeground(mix_colors(QColor(Qt::red), p.color(QPalette::Text)));
+    m_formats[ErrorMessageFormat].setForeground(mix_colors(p.color(QPalette::Text), QColor(Qt::red)));
 
     // StdOutFormat
     m_formats[StdOutFormat].setFont(font);
@@ -114,7 +115,7 @@ void OutputFormatter::initFormats()
 
     // StdErrFormat
     m_formats[StdErrFormat].setFont(font);
-    m_formats[StdErrFormat].setForeground(mix_colors(QColor(Qt::red), p.color(QPalette::Text)));
+    m_formats[StdErrFormat].setForeground(mix_colors(p.color(QPalette::Text), QColor(Qt::red)));
 }
 
 void OutputFormatter::handleLink(const QString &href)

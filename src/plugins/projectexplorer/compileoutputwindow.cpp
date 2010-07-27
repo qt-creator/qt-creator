@@ -97,8 +97,8 @@ QWidget *CompileOutputWindow::outputWidget(QWidget *)
 
 static QColor mix_colors(QColor a, QColor b)
 {
-    return QColor((a.red() + b.red()) / 2, (a.green() + b.green()) / 2,
-                  (a.blue() + b.blue()) / 2, (a.alpha() + b.alpha()) / 2);
+    return QColor((a.red() + 2 * b.red()) / 3, (a.green() + 2 * b.green()) / 3,
+                  (a.blue() + 2* b.blue()) / 3, (a.alpha() + 2 * b.alpha()) / 3);
 }
 
 void CompileOutputWindow::appendText(const QString &text, ProjectExplorer::BuildStep::OutputFormat format)
