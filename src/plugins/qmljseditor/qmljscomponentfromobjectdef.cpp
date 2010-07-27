@@ -45,7 +45,7 @@ using namespace QmlJSEditor::Internal;
 
 namespace {
 
-static QString getId(UiObjectDefinition *def)
+static QString getIdProperty(UiObjectDefinition *def)
 {
     if (def && def->initializer) {
         for (UiObjectMemberList *iter = def->initializer->members; iter; iter = iter->next) {
@@ -90,7 +90,7 @@ public:
     {
         Q_ASSERT(_objDef != 0);
 
-        QString componentName = getId(_objDef);
+        QString componentName = getIdProperty(_objDef);
         componentName[0] = componentName.at(0).toUpper();
 
         const QString path = fileName();
@@ -131,7 +131,7 @@ QList<QmlJSQuickFixOperation::Ptr> ComponentFromObjectDef::match(const QmlJSQuic
         Node *node = path.at(i);
         if (UiObjectDefinition *objDef = cast<UiObjectDefinition *>(node)) {
             if (i > 0 && !cast<UiProgram*>(path.at(i - 1))) { // node is not the root node
-                if (!getId(objDef).isEmpty()) {
+                if (!getIdProperty(objDef).isEmpty()) {
                     result.append(QmlJSQuickFixOperation::Ptr(new Operation(state, objDef)));
                     return result;
                 }

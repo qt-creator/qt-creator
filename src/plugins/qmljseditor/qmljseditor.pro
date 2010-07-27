@@ -45,7 +45,8 @@ SOURCES += \
     qmljscomponentfromobjectdef.cpp \
     qmljsoutline.cpp \
     qmloutlinemodel.cpp \
-    qmltaskmanager.cpp
+    qmltaskmanager.cpp \
+    qmljsquickfixes.cpp
 
 RESOURCES += qmljseditor.qrc
 OTHER_FILES += QmlJSEditor.pluginspec QmlJSEditor.mimetypes.xml

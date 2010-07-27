@@ -38,7 +38,6 @@
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
-#include <QtGui/QApplication>
 #include <QtCore/QDebug>
 
 using namespace QmlJS;
@@ -47,81 +46,6 @@ using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
 using namespace TextEditor;
 using TextEditor::RefactoringChanges;
-
-namespace {
-
-class SplitInitializerOp: public QmlJSQuickFixFactory
-{
-public:
-    virtual QList<QmlJSQuickFixOperation::Ptr> match(const QmlJSQuickFixState &state)
-    {
-        QList<QmlJSQuickFixOperation::Ptr> result;
-
-        UiObjectInitializer *objectInitializer = 0;
-
-        const int pos = state.textCursor().position();
-
-        if (QmlJS::AST::Node *member = state.semanticInfo().declaringMember(pos)) {
-            if (QmlJS::AST::UiObjectBinding *b = QmlJS::AST::cast<QmlJS::AST::UiObjectBinding *>(member)) {
-                if (b->initializer->lbraceToken.startLine == b->initializer->rbraceToken.startLine)
-                    objectInitializer = b->initializer;
-
-            } else if (QmlJS::AST::UiObjectDefinition *b = QmlJS::AST::cast<QmlJS::AST::UiObjectDefinition *>(member)) {
-                if (b->initializer->lbraceToken.startLine == b->initializer->rbraceToken.startLine)
-                    objectInitializer = b->initializer;
-            }
-        }
-
-        if (objectInitializer)
-            result.append(QSharedPointer<QmlJSQuickFixOperation>(new Operation(state, objectInitializer)));
-        return result;
-    }
-
-    virtual QString description() const
-    {
-        return QApplication::translate("QmlJSEditor::QuickFix", "Split initializer");
-    }
-
-private:
-    class Operation: public QmlJSQuickFixOperation
-    {
-        UiObjectInitializer *_objectInitializer;
-
-    public:
-        Operation(const QmlJSQuickFixState &state, UiObjectInitializer *objectInitializer)
-            : QmlJSQuickFixOperation(state, 0)
-            , _objectInitializer(objectInitializer)
-        {}
-
-        virtual void createChanges()
-        {
-            Q_ASSERT(_objectInitializer != 0);
-
-            Utils::ChangeSet changes;
-
-            for (QmlJS::AST::UiObjectMemberList *it = _objectInitializer->members; it; it = it->next) {
-                if (QmlJS::AST::UiObjectMember *member = it->member) {
-                    const QmlJS::AST::SourceLocation loc = member->firstSourceLocation();
-
-                    // insert a newline at the beginning of this binding
-                    changes.insert(startPosition(loc), QLatin1String("\n"));
-                }
-            }
-
-            // insert a newline before the closing brace
-            changes.insert(startPosition(_objectInitializer->rbraceToken),
-                           QLatin1String("\n"));
-
-            refactoringChanges()->changeFile(fileName(), changes);
-            refactoringChanges()->reindent(fileName(),
-                                           range(startPosition(_objectInitializer->lbraceToken),
-                                                 startPosition(_objectInitializer->rbraceToken)));
-
-        }
-    };
-};
-
-} // end of anonymous namespace
 
 QmlJSQuickFixState::QmlJSQuickFixState(TextEditor::BaseTextEditor *editor)
     : QuickFixState(editor)
@@ -231,10 +155,4 @@ QList<TextEditor::QuickFixFactory *> QmlJSQuickFixCollector::quickFixFactories()
     foreach (QmlJSQuickFixFactory *f, pm->getObjects<QmlJSEditor::QmlJSQuickFixFactory>())
         results.append(f);
     return results;
-}
-
-void QmlJSQuickFixCollector::registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
-{
-    plugIn->addAutoReleasedObject(new SplitInitializerOp);
-    plugIn->addAutoReleasedObject(new ComponentFromObjectDef);
 }
