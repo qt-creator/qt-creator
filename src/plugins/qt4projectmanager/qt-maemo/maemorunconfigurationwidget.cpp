@@ -34,6 +34,7 @@
 
 #include "maemorunconfigurationwidget.h"
 
+#include "deviceenvreader.h"
 #include "maemodeviceconfiglistmodel.h"
 #include "maemomanager.h"
 #include "maemoremotemountsmodel.h"
@@ -41,6 +42,7 @@
 #include "maemosettingspage.h"
 
 #include <coreplugin/icore.h>
+#include <projectexplorer/environmenteditmodel.h>
 
 #include <QtGui/QComboBox>
 #include <QtGui/QFileDialog>
@@ -50,6 +52,7 @@
 #include <QtGui/QHeaderView>
 #include <QtGui/QLabel>
 #include <QtGui/QLineEdit>
+#include <QtGui/QPushButton>
 #include <QtGui/QTableView>
 #include <QtGui/QToolButton>
 
@@ -58,7 +61,9 @@ namespace Internal {
 
 MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
         MaemoRunConfiguration *runConfiguration, QWidget *parent)
-    : QWidget(parent), m_runConfiguration(runConfiguration)
+    : QWidget(parent),
+    m_runConfiguration(runConfiguration),
+    m_deviceEnvReader(new DeviceEnvReader(this, runConfiguration))
 {
     QVBoxLayout *mainLayout = new QVBoxLayout;
     setLayout(mainLayout);
@@ -131,8 +136,35 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     mountViewButtonsLayout->addWidget(m_removeMountButton);
     mountViewButtonsLayout->addStretch(1);
 
+    QWidget *baseEnvironmentWidget = new QWidget;
+    QHBoxLayout *baseEnvironmentLayout = new QHBoxLayout(baseEnvironmentWidget);
+    baseEnvironmentLayout->setMargin(0);
+    QLabel *label = new QLabel(tr("Base environment for this runconfiguration:"), this);
+    baseEnvironmentLayout->addWidget(label);
+    QComboBox *m_baseEnvironmentComboBox = new QComboBox(this);
+    m_baseEnvironmentComboBox->addItems(QStringList() << tr("Clean Environment")
+        << tr("System Environment"));
+    m_baseEnvironmentComboBox->setEnabled(false);
+    m_baseEnvironmentComboBox->setCurrentIndex(1);  // TODO: see next
+    //m_baseEnvironmentComboBox->setCurrentIndex(rc->baseEnvironmentBase());
+    //connect(m_baseEnvironmentComboBox, SIGNAL(currentIndexChanged(int)),
+    //        this, SLOT(baseEnvironmentSelected(int)));
+    baseEnvironmentLayout->addWidget(m_baseEnvironmentComboBox);
+    m_fetchEnv = new QPushButton(tr("Fetch Device Environment"));
+    connect(m_fetchEnv, SIGNAL(pressed()), this, SLOT(fetchEnvironment()));
+    baseEnvironmentLayout->addStretch(10);
+    baseEnvironmentLayout->addWidget(m_fetchEnv);
+
+    m_environmentWidget = new ProjectExplorer::EnvironmentWidget(this, baseEnvironmentWidget);
+    m_environmentWidget->setBaseEnvironment(m_deviceEnvReader->deviceEnvironment());
+    m_environmentWidget->setBaseEnvironmentText(tr("System Environment")); // TODO: see next
+    //m_environmentWidget->setBaseEnvironmentText(rc->baseEnvironmentText());
+    // m_environmentWidget->setUserChanges(rc->userEnvironmentChanges());
+    mainLayout->addWidget(m_environmentWidget);
+
     handleCurrentDeviceConfigChanged();
     enableOrDisableRemoveButton();
+
     connect(m_configNameLineEdit, SIGNAL(textEdited(QString)), this,
         SLOT(configNameEdited(QString)));
     connect(m_argsLineEdit, SIGNAL(textEdited(QString)), this,
@@ -154,6 +186,8 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     connect(m_mountView->selectionModel(),
         SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this,
         SLOT(enableOrDisableRemoveButton()));
+    connect(m_deviceEnvReader, SIGNAL(finished()), this,
+        SLOT(fetchEnvironmentFinished()));
 }
 
 void MaemoRunConfigurationWidget::configNameEdited(const QString &text)
@@ -240,6 +274,18 @@ void MaemoRunConfigurationWidget::changeLocalMountDir(const QModelIndex &index)
 void MaemoRunConfigurationWidget::handleHostAddressChanged()
 {
     m_runConfiguration->setLocalHostAddressFromDevice(m_hostAddressLineEdit->text());
+}
+
+void MaemoRunConfigurationWidget::fetchEnvironment()
+{
+    m_deviceEnvReader->start();
+    m_fetchEnv->setEnabled(false);
+}
+
+void MaemoRunConfigurationWidget::fetchEnvironmentFinished()
+{
+    m_fetchEnv->setEnabled(true);
+    m_environmentWidget->setBaseEnvironment(m_deviceEnvReader->deviceEnvironment());
 }
 
 } // namespace Internal

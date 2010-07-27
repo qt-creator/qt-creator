@@ -42,13 +42,19 @@ class QComboBox;
 class QLabel;
 class QLineEdit;
 class QModelIndex;
+class QPushButton;
 class QTableView;
 class QToolButton;
 QT_END_NAMESPACE
 
+namespace ProjectExplorer {
+    class EnvironmentWidget;
+}
+
 namespace Qt4ProjectManager {
 namespace Internal {
 
+class DeviceEnvReader;
 class MaemoRunConfiguration;
 
 class MaemoRunConfigurationWidget : public QWidget
@@ -70,6 +76,8 @@ private slots:
     void changeLocalMountDir(const QModelIndex &index);
     void enableOrDisableRemoveButton();
     void handleHostAddressChanged();
+    void fetchEnvironment();
+    void fetchEnvironmentFinished();
 
 private:
     QLineEdit *m_configNameLineEdit;
@@ -80,6 +88,10 @@ private:
     QTableView *m_mountView;
     QToolButton *m_removeMountButton;
     MaemoRunConfiguration *m_runConfiguration;
+
+    QPushButton *m_fetchEnv;
+    DeviceEnvReader *m_deviceEnvReader;
+    ProjectExplorer::EnvironmentWidget *m_environmentWidget;
 };
 
 } // namespace Internal
