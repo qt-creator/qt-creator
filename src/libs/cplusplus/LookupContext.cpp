@@ -164,6 +164,7 @@ const Name *LookupContext::minimalName(const Name *name,
     Q_UNUSED(target);
 
     qWarning() << "TODO:" << Q_FUNC_INFO;
+    return name;
 
 #if 0
     Q_ASSERT(name);
@@ -197,7 +198,6 @@ const Name *LookupContext::minimalName(const Name *name,
     else
         return lastWorking;
 #endif
-    return 0;
 }
 
 
