@@ -42,6 +42,8 @@
 #include <debugger/debuggerconstants.h>
 
 #include <FullySpecifiedType.h>
+#include <Names.h>
+#include <CoreTypes.h>
 #include <Scope.h>
 #include <Symbol.h>
 #include <Symbols.h>
@@ -63,6 +65,14 @@ using namespace CPlusPlus;
 using namespace Core;
 
 namespace {
+    QString removeClassNameQualification(const QString &name) {
+        const int index = name.lastIndexOf(QLatin1Char(':'));
+        if (index == -1)
+            return name;
+        else
+            return name.right(name.length() - index - 1);
+    }
+
     void moveCursorToEndOfName(QTextCursor *tc) {
         QTextDocument *doc = tc->document();
         if (!doc)
@@ -85,7 +95,8 @@ namespace {
                 const QList<Symbol *> &symbols = baseClass->symbols();
                 foreach (Symbol *baseSymbol, symbols) {
                     if (baseSymbol->isClass()) {
-                        hierarchy->back().append(overview.prettyName(baseSymbol->name()));
+                        hierarchy->back().append(overview.prettyName(
+                            LookupContext::fullyQualifiedName(baseSymbol)));
                         buildClassHierarchyHelper(baseSymbol, context, overview, hierarchy);
                         hierarchy->append(hierarchy->back());
                         hierarchy->back().removeLast();
@@ -207,40 +218,39 @@ void CppHoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
     int column = 0;
     editor->convertPosition(pos, &line, &column);
 
-    if (!matchDiagnosticMessage(doc, line) &&
-        !matchIncludeFile(doc, line) &&
-        !matchMacroInUse(doc, pos)) {
+    if (!matchDiagnosticMessage(doc, line)) {
+        if (!matchIncludeFile(doc, line) && !matchMacroInUse(doc, pos)) {
+            TextEditor::BaseTextEditor *baseEditor = baseTextEditor(editor);
+            if (!baseEditor)
+                return;
 
-        TextEditor::BaseTextEditor *baseEditor = baseTextEditor(editor);
-        if (!baseEditor)
-            return;
+            bool extraSelectionTooltip = false;
+            if (!baseEditor->extraSelectionTooltip(pos).isEmpty()) {
+                m_toolTip = baseEditor->extraSelectionTooltip(pos);
+                extraSelectionTooltip = true;
+            }
 
-        bool extraSelectionTooltip = false;
-        if (!baseEditor->extraSelectionTooltip(pos).isEmpty()) {
-            m_toolTip = baseEditor->extraSelectionTooltip(pos);
-            extraSelectionTooltip = true;
+            QTextCursor tc(baseEditor->document());
+            tc.setPosition(pos);
+            moveCursorToEndOfName(&tc);
+
+            // Fetch the expression's code
+            ExpressionUnderCursor expressionUnderCursor;
+            const QString &expression = expressionUnderCursor(tc);
+            Scope *scope = doc->scopeAt(line, column);
+
+            TypeOfExpression typeOfExpression;
+            typeOfExpression.init(doc, snapshot);
+            const QList<LookupItem> &lookupItems = typeOfExpression(expression, scope);
+            if (lookupItems.isEmpty())
+                return;
+
+            const LookupItem &lookupItem = lookupItems.first(); // ### TODO: select best candidate.
+            handleLookupItemMatch(lookupItem, typeOfExpression.context(), !extraSelectionTooltip);
         }
 
-        QTextCursor tc(baseEditor->document());
-        tc.setPosition(pos);
-        moveCursorToEndOfName(&tc);
-
-        // Fetch the expression's code
-        ExpressionUnderCursor expressionUnderCursor;
-        const QString &expression = expressionUnderCursor(tc);
-        Scope *scope = doc->scopeAt(line, column);
-
-        TypeOfExpression typeOfExpression;
-        typeOfExpression.init(doc, snapshot);
-        const QList<LookupItem> &lookupItems = typeOfExpression(expression, scope);
-        if (lookupItems.isEmpty())
-            return;
-
-        const LookupItem &lookupItem = lookupItems.first(); // ### TODO: select the best candidate.
-        handleLookupItemMatch(lookupItem, typeOfExpression.context(), !extraSelectionTooltip);
+        evaluateHelpCandidates();
     }
-
-    evaluateHelpCandidates();
 }
 
 bool CppHoverHandler::matchDiagnosticMessage(const CPlusPlus::Document::Ptr &document,
@@ -298,19 +308,19 @@ void CppHoverHandler::handleLookupItemMatch(const LookupItem &lookupItem,
     if (!matchingDeclaration && assignTooltip) {
         m_toolTip = overview.prettyType(matchingType, QString());
     } else {
-        QString qualifiedName;
+        QString name;
         if (matchingDeclaration->enclosingSymbol()->isClass() ||
             matchingDeclaration->enclosingSymbol()->isNamespace() ||
             matchingDeclaration->enclosingSymbol()->isEnum()) {
-            qualifiedName.append(overview.prettyName(
-                    LookupContext::fullyQualifiedName(matchingDeclaration)));
+            name.append(overview.prettyName(
+                LookupContext::fullyQualifiedName(matchingDeclaration)));
 
             if (matchingDeclaration->isClass() ||
                 matchingDeclaration->isForwardClassDeclaration()) {
                 buildClassHierarchy(matchingDeclaration, context, overview, &m_classHierarchy);
             }
         } else {
-            qualifiedName.append(overview.prettyName(matchingDeclaration->name()));
+            name.append(overview.prettyName(matchingDeclaration->name()));
         }
 
         if (assignTooltip) {
@@ -318,9 +328,9 @@ void CppHoverHandler::handleLookupItemMatch(const LookupItem &lookupItem,
                 matchingDeclaration->isNamespace() ||
                 matchingDeclaration->isForwardClassDeclaration() ||
                 matchingDeclaration->isEnum()) {
-                m_toolTip = qualifiedName;
+                m_toolTip = name;
             } else {
-                m_toolTip = overview.prettyType(matchingType, qualifiedName);
+                m_toolTip = overview.prettyType(matchingType, name);
             }
         }
 
@@ -337,39 +347,69 @@ void CppHoverHandler::handleLookupItemMatch(const LookupItem &lookupItem,
         } else if (matchingDeclaration->isFunction() ||
                   (matchingType.isValid() && matchingType->isFunctionType())){
             helpCategory = HelpCandidate::Function;
+        } else if (matchingDeclaration->isDeclaration() && matchingType.isValid()) {
+            const Name *typeName = 0;
+            if (matchingType->isNamedType()) {
+                typeName = matchingType->asNamedType()->name();
+            } else if (matchingType->isPointerType() || matchingType->isReferenceType()) {
+                FullySpecifiedType type;
+                if (matchingType->isPointerType())
+                    type = matchingType->asPointerType()->elementType();
+                else
+                    type = matchingType->asReferenceType()->elementType();
+                if (type->isNamedType())
+                    typeName = type->asNamedType()->name();
+            }
+
+            if (typeName) {
+                if (ClassOrNamespace *clazz = context.lookupType(typeName, lookupItem.scope())) {
+                    if (!clazz->symbols().isEmpty()) {
+                        Symbol *symbol = clazz->symbols().at(0);
+                        matchingDeclaration = symbol;
+                        name = overview.prettyName(LookupContext::fullyQualifiedName(symbol));
+                        m_toolTip = name;
+                        buildClassHierarchy(symbol, context, overview, &m_classHierarchy);
+                        helpCategory = HelpCandidate::ClassOrNamespace;
+                    }
+                }
+            }
         }
 
         if (helpCategory != HelpCandidate::Unknown) {
-            // Help identifiers are simply the name with no signature, arguments or return type.
-            // They might or might not include a qualification. So two candidates are created.
-            overview.setShowArgumentNames(false);
-            overview.setShowReturnTypes(false);
-            overview.setShowFunctionSignatures(false);
-            const QString &simpleName = overview.prettyName(matchingDeclaration->name());
+            QString docMark = overview.prettyName(matchingDeclaration->name());
 
-            QString mark;
             if (matchingType.isValid() && matchingType->isFunctionType()) {
-                overview.setShowFunctionSignatures(true);
-                mark = overview.prettyType(matchingType, simpleName);
+                // Functions marks can be found either by the main overload or signature based
+                // (with no argument names and no return). Help ids have no signature at all.
+                overview.setShowArgumentNames(false);
+                overview.setShowReturnTypes(false);
+                docMark = overview.prettyType(matchingType, docMark);
+                overview.setShowFunctionSignatures(false);
+                const QString &functionName = overview.prettyName(matchingDeclaration->name());
+                m_helpCandidates.append(HelpCandidate(functionName, docMark, helpCategory));
             } else if (matchingDeclaration->enclosingSymbol()->isEnum()) {
                 Symbol *enumSymbol = matchingDeclaration->enclosingSymbol()->asEnum();
-                mark = overview.prettyName(enumSymbol->name());
-            } else {
-                mark = simpleName;
+                docMark = overview.prettyName(enumSymbol->name());
             }
 
-            m_helpCandidates.append(HelpCandidate(simpleName, mark, helpCategory));
-            m_helpCandidates.append(HelpCandidate(qualifiedName, mark, helpCategory));
+            m_helpCandidates.append(HelpCandidate(name, docMark, helpCategory));
         }
     }
 }
 
 void CppHoverHandler::evaluateHelpCandidates()
 {
-    for (int i = 0; i < m_helpCandidates.size(); ++i) {
+    for (int i = 0; i < m_helpCandidates.size() && m_matchingHelpCandidate == -1; ++i) {
         if (helpIdExists(m_helpCandidates.at(i).m_helpId)) {
             m_matchingHelpCandidate = i;
-            return;
+        } else {
+            // There are class help ids with and without qualification.
+            HelpCandidate &candidate = m_helpCandidates[i];
+            const QString &helpId = removeClassNameQualification(candidate.m_helpId);
+            if (helpIdExists(helpId)) {
+                candidate.m_helpId = helpId;
+                m_matchingHelpCandidate = i;
+            }
         }
     }
 }
