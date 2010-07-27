@@ -35,6 +35,11 @@
 #include <projectexplorer/buildstep.h>
 #include <qt4projectmanager/makestep.h>
 
+#include <QMutex>
+#include <QWaitCondition>
+
+class QSettings;
+
 namespace Qt4ProjectManager {
 namespace Internal {
 
@@ -58,6 +63,7 @@ public:
     bool canClone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, ProjectExplorer::BuildStep *product) const;
     ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep::Type type, ProjectExplorer::BuildStep *product);
 };
+
 
 class S60CreatePackageStep : public ProjectExplorer::BuildStep
 {
@@ -85,8 +91,17 @@ public:
     void setCustomSignaturePath(const QString &path);
     QString customKeyPath() const;
     void setCustomKeyPath(const QString &path);
+    QString passphrase() const   ;
+    void setPassphrase(const QString &passphrase);
+    QString keyId() const;
+    void setKeyId(const QString &keyId);
     bool createsSmartInstaller() const;
     void setCreatesSmartInstaller(bool value);
+
+    void resetPassphrases();
+
+signals:
+    void badPassphrase();
 
 protected:
     S60CreatePackageStep(ProjectExplorer::BuildConfiguration *bc, S60CreatePackageStep *bs);
@@ -102,11 +117,25 @@ private slots:
     void taskAdded(const ProjectExplorer::Task &task);
     void outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format);
     void checkForCancel();
+    void definePassphrase();
 
 private:
+    enum ErrorType {
+        ErrorNone = 0,
+        ErrorUndefined,
+        ErrorBadPassphrase
+    };
+
     void stdOutput(const QString &line);
     void stdError(const QString &line);
     bool startProcess();
+
+    QString generateKeyId(const QString &keyPath) const;
+    QString loadPassphraseForKey(const QString &keyId);
+    void savePassphraseForKey(const QString &keyId, const QString &passphrase);
+    QString elucidatePassphrase(QByteArray obfuscatedPassphrase, const QString &key) const;
+    QByteArray obfuscatePassphrase(const QString &passphrase, const QString &key) const;
+
     QStringList m_workingDirectories;
 
     QString m_makeCmd;
@@ -118,6 +147,8 @@ private:
     SigningMode m_signingMode;
     QString m_customSignaturePath;
     QString m_customKeyPath;
+    QString m_passphrase;
+    QString m_keyId;
     bool m_createSmartInstaller;
     ProjectExplorer::IOutputParser *m_outputParserChain;
 
@@ -125,6 +156,12 @@ private:
     QTimer *m_timer;
     QEventLoop *m_eventLoop;
     QFutureInterface<bool> *m_futureInterface;
+    ErrorType m_errorType;
+
+    QWaitCondition m_waitCondition;
+    QMutex m_mutex;
+
+    QSettings *m_settings;
 };
 
 class S60CreatePackageStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
@@ -139,6 +176,7 @@ public:
 private slots:
     void updateUi();
     void updateFromUi();
+    void resetPassphrases();
 
 private:
     S60CreatePackageStep *m_signStep;

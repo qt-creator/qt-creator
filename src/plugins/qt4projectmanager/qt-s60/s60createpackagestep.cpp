@@ -34,6 +34,8 @@
 #include "qt4nodes.h"
 #include "qt4project.h"
 #include "abldparser.h"
+#include "signsisparser.h"
+#include "passphraseforkeydialog.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/target.h>
@@ -43,6 +45,10 @@
 
 #include <QtCore/QDir>
 #include <QtCore/QTimer>
+#include <QtCore/QCryptographicHash>
+
+#include <QSettings>
+#include <QMessageBox>
 
 using namespace Qt4ProjectManager::Internal;
 
@@ -52,6 +58,10 @@ namespace {
     const char * const CERTIFICATE_KEY("Qt4ProjectManager.S60CreatePackageStep.Certificate");
     const char * const KEYFILE_KEY("Qt4ProjectManager.S60CreatePackageStep.Keyfile");
     const char * const SMART_INSTALLER_KEY("Qt4ProjectManager.S60CreatorPackageStep.SmartInstaller");
+
+    const char * const MAKE_PASSPHRASE_ARGUMENT("QT_SIS_PASSPHRASE=");
+    const char * const MAKE_KEY_ARGUMENT("QT_SIS_KEY=");
+    const char * const MAKE_CERTIFICATE_ARGUMENT("QT_SIS_CERTIFICATE=");
 }
 
 S60CreatePackageStep::S60CreatePackageStep(ProjectExplorer::BuildConfiguration *bc) :
@@ -62,7 +72,9 @@ S60CreatePackageStep::S60CreatePackageStep(ProjectExplorer::BuildConfiguration *
     m_process(0),
     m_timer(0),
     m_eventLoop(0),
-    m_futureInterface(0)
+    m_futureInterface(0),
+    m_errorType(ErrorNone),
+    m_settings(0)
 {
     ctor_package();
 }
@@ -72,11 +84,14 @@ S60CreatePackageStep::S60CreatePackageStep(ProjectExplorer::BuildConfiguration *
     m_signingMode(bs->m_signingMode),
     m_customSignaturePath(bs->m_customSignaturePath),
     m_customKeyPath(bs->m_customKeyPath),
+    m_passphrase(bs->m_passphrase),
     m_createSmartInstaller(bs->m_createSmartInstaller),
     m_outputParserChain(0),
     m_timer(0),
     m_eventLoop(0),
-    m_futureInterface(0)
+    m_futureInterface(0),
+    m_errorType(ErrorNone),
+    m_settings(0)
 {
     ctor_package();
 }
@@ -88,7 +103,9 @@ S60CreatePackageStep::S60CreatePackageStep(ProjectExplorer::BuildConfiguration *
     m_outputParserChain(0),
     m_timer(0),
     m_eventLoop(0),
-    m_futureInterface(0)
+    m_futureInterface(0),
+    m_errorType(ErrorNone),
+    m_settings(0)
 {
     ctor_package();
 }
@@ -96,6 +113,11 @@ S60CreatePackageStep::S60CreatePackageStep(ProjectExplorer::BuildConfiguration *
 void S60CreatePackageStep::ctor_package()
 {
     setDisplayName(tr("Create SIS Package", "Create SIS package build step name"));
+    connect(this, SIGNAL(badPassphrase()),
+            this, SLOT(definePassphrase()), Qt::QueuedConnection);
+
+    m_settings = new QSettings(QSettings::IniFormat, QSettings::UserScope,
+                                 QLatin1String("Nokia"), QLatin1String("QtCreatorKeys"), this);
 }
 
 S60CreatePackageStep::~S60CreatePackageStep()
@@ -116,7 +138,7 @@ bool S60CreatePackageStep::fromMap(const QVariantMap &map)
 {
     m_signingMode = (SigningMode)map.value(QLatin1String(SIGNMODE_KEY)).toInt();
     m_customSignaturePath = map.value(QLatin1String(CERTIFICATE_KEY)).toString();
-    m_customKeyPath = map.value(QLatin1String(KEYFILE_KEY)).toString();
+    setCustomKeyPath(map.value(QLatin1String(KEYFILE_KEY)).toString());
     m_createSmartInstaller = map.value(QLatin1String(SMART_INSTALLER_KEY), false).toBool();
     return BuildStep::fromMap(map);
 }
@@ -155,19 +177,83 @@ bool S60CreatePackageStep::init()
     else
         m_args << QLatin1String("sis");
     if (signingMode() == SignCustom) {
-        m_args << QLatin1String("QT_SIS_CERTIFICATE=") + QDir::toNativeSeparators(customSignaturePath())
-               << QLatin1String("QT_SIS_KEY=") + QDir::toNativeSeparators(customKeyPath());
+        m_args << QLatin1String(MAKE_CERTIFICATE_ARGUMENT) + QDir::toNativeSeparators(customSignaturePath())
+               << QLatin1String(MAKE_KEY_ARGUMENT) + QDir::toNativeSeparators(customKeyPath());
+
+        setPassphrase(loadPassphraseForKey(m_keyId));
+
+        if (!passphrase().isEmpty()) {
+            m_args << QLatin1String(MAKE_PASSPHRASE_ARGUMENT) + passphrase();
+        }
     }
 
     delete m_outputParserChain;
     m_outputParserChain = new ProjectExplorer::GnuMakeParser;
     m_outputParserChain->appendOutputParser(new Qt4ProjectManager::AbldParser);
+    m_outputParserChain->appendOutputParser(new Qt4ProjectManager::SignsisParser);
+
     connect(m_outputParserChain, SIGNAL(addOutput(QString, ProjectExplorer::BuildStep::OutputFormat)),
             this, SLOT(outputAdded(QString, ProjectExplorer::BuildStep::OutputFormat)));
     connect(m_outputParserChain, SIGNAL(addTask(ProjectExplorer::Task)),
-            this, SLOT(taskAdded(ProjectExplorer::Task)));
+            this, SLOT(taskAdded(ProjectExplorer::Task)), Qt::DirectConnection);
 
     return true;
+}
+
+void S60CreatePackageStep::definePassphrase()
+{
+    PassphraseForKeyDialog *passwordDialog
+            = new PassphraseForKeyDialog(QFileInfo(customKeyPath()).fileName());
+    if (passwordDialog->exec()) {
+        setPassphrase(passwordDialog->passphrase());
+        if (passwordDialog->savePassphrase())
+            savePassphraseForKey(m_keyId, passphrase());
+    } else
+        m_errorType = ErrorUndefined;
+    delete passwordDialog;
+    passwordDialog = 0;
+
+    m_waitCondition.wakeAll();
+}
+
+void S60CreatePackageStep::savePassphraseForKey(const QString &keyId, const QString &passphrase)
+{
+    m_settings->beginGroup("keys");
+    if (passphrase.isEmpty())
+        m_settings->remove(keyId);
+    else
+        m_settings->setValue(keyId, obfuscatePassphrase(passphrase, keyId));
+    m_settings->endGroup();
+}
+
+QString S60CreatePackageStep::loadPassphraseForKey(const QString &keyId)
+{
+    m_settings->beginGroup("keys");
+    QString passphrase = elucidatePassphrase(m_settings->value(keyId, QByteArray()).toByteArray(), keyId);
+    m_settings->endGroup();
+    return passphrase;
+}
+
+QByteArray S60CreatePackageStep::obfuscatePassphrase(const QString &passphrase, const QString &key) const
+{
+    QByteArray byteArray = passphrase.toUtf8();
+    char *data = byteArray.data();
+    const QChar *keyData = key.data();
+    int keyDataSize = key.size();
+    for (int i = 0; i <byteArray.size(); ++i)
+        data[i] = data[i]^keyData[i%keyDataSize].toAscii();
+    return byteArray.toBase64();
+}
+
+QString S60CreatePackageStep::elucidatePassphrase(QByteArray obfuscatedPassphrase, const QString &key) const
+{
+    QByteArray byteArray = QByteArray::fromBase64(obfuscatedPassphrase);
+    char *data = byteArray.data();
+    const QChar *keyData = key.data();
+    int keyDataSize = key.size();
+    for (int i = 0; i < byteArray.size(); ++i)
+        data[i] = data[i]^keyData[i%keyDataSize].toAscii();
+    return byteArray.data();
 }
 
 void S60CreatePackageStep::run(QFutureInterface<bool> &fi)
@@ -242,6 +328,33 @@ void S60CreatePackageStep::slotProcessFinished(int, QProcess::ExitStatus)
         emit addOutput(tr("The process \"%1\" crashed.").arg(QDir::toNativeSeparators(m_makeCmd)), BuildStep::ErrorMessageOutput);
     }
 
+    switch (m_errorType) {
+    case ErrorUndefined:
+        m_eventLoop->exit(false);
+        return;
+    case ErrorBadPassphrase: {
+        emit badPassphrase();
+        QMutexLocker locker(&m_mutex);
+        //waiting for the user to input new passphrase or to abort
+        m_waitCondition.wait(&m_mutex);
+        if( m_errorType == ErrorUndefined ) {
+            m_eventLoop->exit(true);
+            return;
+        } else {
+            QRegExp passphraseRegExp("^"+QLatin1String(MAKE_PASSPHRASE_ARGUMENT)+"(.+)$");
+            int index = m_args.indexOf(passphraseRegExp);
+            if (index>=0)
+                m_args.removeAt(index);
+            if (!passphrase().isEmpty())
+                m_args << QLatin1String(MAKE_PASSPHRASE_ARGUMENT) + passphrase();
+        }
+        break;
+    }
+    default:
+        m_workingDirectories.removeFirst();
+        break;
+    }
+
     if (m_workingDirectories.isEmpty() || !returnValue) {
         m_eventLoop->exit(returnValue);
     } else {
@@ -253,7 +366,8 @@ void S60CreatePackageStep::slotProcessFinished(int, QProcess::ExitStatus)
 
 bool S60CreatePackageStep::startProcess()
 {
-    QString workingDirectory = m_workingDirectories.takeFirst();
+    m_errorType = ErrorNone;
+    QString workingDirectory = m_workingDirectories.first();
     QDir wd(workingDirectory);
     if (!wd.exists())
         wd.mkpath(wd.absolutePath());
@@ -327,14 +441,34 @@ void S60CreatePackageStep::taskAdded(const ProjectExplorer::Task &task)
         // TODO which kind of tasks do we get from package building?
         // No absoulte path
     }
+    if (task.type == ProjectExplorer::Task::Error) {
+        if (task.description.contains(QLatin1String("bad password"))
+                || task.description.contains(QLatin1String("bad decrypt")))
+            m_errorType = ErrorBadPassphrase;
+        else if (m_errorType == ErrorNone)
+            m_errorType = ErrorUndefined;
+    }
     emit addTask(editable);
+}
+
+QString S60CreatePackageStep::generateKeyId(const QString &keyPath) const
+{
+    if (keyPath.isEmpty())
+        return QString();
+
+    QFile file(keyPath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return QString();
+
+    //key file is quite small in size
+    return QCryptographicHash::hash(file.readAll(),
+                                    QCryptographicHash::Md5).toHex();
 }
 
 void S60CreatePackageStep::outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format)
 {
     emit addOutput(string, format);
 }
-
 
 bool S60CreatePackageStep::immutable() const
 {
@@ -374,6 +508,27 @@ QString S60CreatePackageStep::customKeyPath() const
 void S60CreatePackageStep::setCustomKeyPath(const QString &path)
 {
     m_customKeyPath = path;
+    m_keyId = generateKeyId(m_customKeyPath);
+}
+
+QString S60CreatePackageStep::passphrase() const
+{
+    return m_passphrase;
+}
+
+void S60CreatePackageStep::setPassphrase(const QString &passphrase)
+{
+    m_passphrase = passphrase;
+}
+
+QString S60CreatePackageStep::keyId() const
+{
+    return m_keyId;
+}
+
+void S60CreatePackageStep::setKeyId(const QString &keyId)
+{
+    m_keyId = keyId;
 }
 
 bool S60CreatePackageStep::createsSmartInstaller() const
@@ -385,6 +540,17 @@ void S60CreatePackageStep::setCreatesSmartInstaller(bool value)
 {
     m_createSmartInstaller = value;
     static_cast<Qt4BuildConfiguration *>(buildConfiguration())->emitS60CreatesSmartInstallerChanged();
+}
+
+void S60CreatePackageStep::resetPassphrases()
+{
+    m_settings->beginGroup("keys");
+    QStringList keys = m_settings->allKeys();
+    foreach (QString key, keys) {
+        m_settings->setValue(key, "");
+    }
+    m_settings->remove("");
+    m_settings->endGroup();
 }
 
 // #pragma mark -- S60SignBuildStepFactory
@@ -478,6 +644,8 @@ S60CreatePackageStepConfigWidget::S60CreatePackageStepConfigWidget(S60CreatePack
             this, SLOT(updateFromUi()));
     connect(m_ui.smartInstaller, SIGNAL(clicked()),
             this, SLOT(updateFromUi()));
+    connect(m_ui.resetPassphrasesButton, SIGNAL(clicked()),
+            this, SLOT(resetPassphrases()));
 }
 
 void S60CreatePackageStepConfigWidget::updateUi()
@@ -502,6 +670,19 @@ void S60CreatePackageStepConfigWidget::updateFromUi()
     m_signStep->setCustomKeyPath(m_ui.keyFilePath->path());
     m_signStep->setCreatesSmartInstaller(m_ui.smartInstaller->isChecked());
     updateUi();
+}
+
+void S60CreatePackageStepConfigWidget::resetPassphrases()
+{
+    QMessageBox msgBox(QMessageBox::Question, tr("Reset passwords"),
+                       tr("Do you want to reset all saved passwords for used keys?"),
+                       QMessageBox::Yes|QMessageBox::No, this);
+    msgBox.button(QMessageBox::Yes)->setText(tr("Reset"));
+    msgBox.button(QMessageBox::No)->setText(tr("Cancel"));
+    msgBox.setDefaultButton(QMessageBox::No);
+    msgBox.setEscapeButton(QMessageBox::No);
+    if (msgBox.exec() == QMessageBox::Yes)
+        m_signStep->resetPassphrases();
 }
 
 QString S60CreatePackageStepConfigWidget::summaryText() const
