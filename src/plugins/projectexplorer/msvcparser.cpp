@@ -63,7 +63,7 @@ void MsvcParser::stdOutput(const QString &line)
                           Constants::TASK_CATEGORY_COMPILE));
         return;
     }
-    IOutputParser::stdError(line);
+    IOutputParser::stdOutput(line);
 }
 
 Task::TaskType MsvcParser::toType(int number)

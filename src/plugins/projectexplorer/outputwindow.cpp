@@ -505,8 +505,10 @@ QString OutputWindow::doNewlineEnfocement(const QString &out)
     return s;
 }
 
-void OutputWindow::appendApplicationOutput(const QString &out, bool onStdErr)
+void OutputWindow::appendApplicationOutput(const QString &output, bool onStdErr)
 {
+    QString out = output;
+    out.remove(QLatin1Char('\r'));
     setMaximumBlockCount(MaxBlockCount);
     const bool atBottom = isScrollbarAtBottom();
     m_formatter->appendApplicationOutput(doNewlineEnfocement(out), onStdErr);
@@ -515,8 +517,10 @@ void OutputWindow::appendApplicationOutput(const QString &out, bool onStdErr)
     enableUndoRedo();
 }
 
-void OutputWindow::appendApplicationOutputInline(const QString &out, bool onStdErr)
+void OutputWindow::appendApplicationOutputInline(const QString &output, bool onStdErr)
 {
+    QString out = output;
+    out.remove(QLatin1Char('\r'));
     m_scrollToBottom = true;
     setMaximumBlockCount(MaxBlockCount);
 
@@ -547,8 +551,10 @@ void OutputWindow::appendApplicationOutputInline(const QString &out, bool onStdE
     enableUndoRedo();
 }
 
-void OutputWindow::appendMessage(const QString &out, bool isError)
+void OutputWindow::appendMessage(const QString &output, bool isError)
 {
+    QString out = output;
+    out.remove(QLatin1Char('\r'));
     setMaximumBlockCount(MaxBlockCount);
     const bool atBottom = isScrollbarAtBottom();
     m_formatter->appendMessage(doNewlineEnfocement(out), isError);
@@ -558,8 +564,10 @@ void OutputWindow::appendMessage(const QString &out, bool isError)
 }
 
 // TODO rename
-void OutputWindow::appendText(const QString &text, const QTextCharFormat &format, int maxLineCount)
+void OutputWindow::appendText(const QString &textIn, const QTextCharFormat &format, int maxLineCount)
 {
+    QString text = textIn;
+    text.remove(QLatin1Char('\r'));
     if (document()->blockCount() > maxLineCount)
         return;
     const bool atBottom = isScrollbarAtBottom();
