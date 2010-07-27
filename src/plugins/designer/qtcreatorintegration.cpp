@@ -36,6 +36,7 @@
 #include <widgethost.h>
 
 #include <cpptools/cppmodelmanagerinterface.h>
+#include <cplusplus/InsertionPointLocator.h>
 #include <cplusplus/Symbols.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/CoreTypes.h>
@@ -324,49 +325,23 @@ static void addDeclaration(Document::Ptr doc, const Class *cl, const QString &fu
     declaration += functionName;
     declaration += QLatin1String(";\n");
 
-    // functionName comes already with argument names (if designer managed to
-    // do that).  First, let's try to find any method which is a private slot
-    // (then we don't need to add "private slots:" statement)
-    const unsigned mCount = cl->memberCount();
-    for (unsigned j = 0; j < mCount; j++) { // go through all members
-        if (const Declaration *decl = cl->memberAt(j)->asDeclaration())
-            if (const Function *fun = decl->type()->asFunctionType())  {
-                // we are only interested in declarations of methods.
-                if (fun->isSlot() && fun->isPrivate()) {
+    InsertionPointLocator find(doc);
+    const InsertionLocation loc = find.methodDeclarationInClass(cl, InsertionPointLocator::PrivateSlot);
 
-                    //
-                    // ### FIXME: change this to use the Refactoring changes and the AST to find the correct insertion position
-                    //
+    //
+    // ### FIXME: change this to use the Refactoring changes!
+    //
 
-                    const int line = fun->line(); // this is the beginning of function name: "void ^foo(...)"
-                    const int column = 0;
-                    if (ITextEditable *editable = editableAt(docFileName, line, column)) {
-                        BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(editable->widget());
-                        if (editor) {
-                            QTextCursor tc = editor->textCursor();
-                            int pos = tc.position();
-                            tc.beginEditBlock();
-                            tc.insertText(declaration);
-                            tc.setPosition(pos, QTextCursor::KeepAnchor);
-                            editor->indentInsertedText(tc);
-                            tc.endEditBlock();
-                        }
-                    }
-                    return;
-                }
-            }
-    }
-
-    // We didn't find any method under "private slots:", let's add "private slots:". Below code
-    // adds "private slots:" by the end of the class definition.
-
-    if (ITextEditable *editable = editableAt(docFileName, cl->line(), cl->column())) {
-        int classEndPosition = findClassEndPosition(editable->contents(), editable->position());
-        if (classEndPosition >= 0) {
-            int line, column;
-            editable->convertPosition(classEndPosition, &line, &column); // converts back position into a line and column
-            editable->gotoLine(line, column);  // go to position (we should be just before closing } of the class)
-            editable->insert(QLatin1String("\nprivate slots:\n    ") + declaration);
+    if (ITextEditable *editable = editableAt(docFileName, loc.line(), loc.column() - 1)) {
+        BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(editable->widget());
+        if (editor) {
+            QTextCursor tc = editor->textCursor();
+            int pos = tc.position();
+            tc.beginEditBlock();
+            tc.insertText(loc.prefix() + declaration);
+            tc.setPosition(pos, QTextCursor::KeepAnchor);
+            editor->indentInsertedText(tc);
+            tc.endEditBlock();
         }
     }
 }
@@ -486,6 +461,24 @@ static inline QString uiClassName(QString formObjectName)
     return formObjectName;
 }
 
+static Document::Ptr getParsedDocument(const QString &fileName, CppTools::CppModelManagerInterface::WorkingCopy &workingCopy, Snapshot &snapshot)
+{
+    QString src;
+    if (workingCopy.contains(fileName)) {
+        src = workingCopy.source(fileName);
+    } else {
+        QFile file(fileName);
+        if (file.open(QFile::ReadOnly))
+            src = QTextStream(&file).readAll(); // ### FIXME
+    }
+
+    QByteArray source = snapshot.preprocessedCode(src, fileName);
+
+    Document::Ptr doc = snapshot.documentFromSource(source, fileName);
+    doc->check();
+    return doc;
+}
+
 // Goto slot invoked by the designer context menu. Either navigates
 // to an existing slot function or create a new one.
 
@@ -583,7 +576,9 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
         }
     } else {
         // add function declaration to cl
-        addDeclaration(doc, cl, functionNameWithParameterNames);
+        CppTools::CppModelManagerInterface::WorkingCopy workingCopy = cppModelManagerInstance()->workingCopy();
+        Document::Ptr tmpDoc = getParsedDocument(doc->fileName(), workingCopy, docTable);
+        addDeclaration(tmpDoc, cl, functionNameWithParameterNames);
 
         // add function definition to cpp file
         sourceDoc = addDefinition(docTable, doc->fileName(), className, functionNameWithParameterNames, &line);

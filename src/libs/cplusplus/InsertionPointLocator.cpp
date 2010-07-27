@@ -57,7 +57,7 @@ static QString generate(InsertionPointLocator::AccessSpec xsSpec)
         return QLatin1String("protected slots:\n");
 
     case InsertionPointLocator::PrivateSlot:
-        return QLatin1String("private slot:\n");
+        return QLatin1String("private slots:\n");
 
     case InsertionPointLocator::Signals:
         return QLatin1String("signals:\n");
@@ -158,8 +158,8 @@ protected:
         }
 
         // try to find a fitting access spec to insert in front of:
-        AccessRange best = ranges.first();
-        for (int i = ranges.size() - 1; i > 0; --i) {
+        AccessRange best = ranges.last();
+        for (int i = ranges.size() - 2; i > 0; --i) {
             const AccessRange &range = ranges.at(i);
             if (distance(range.xsSpec, xsSpec) < distance(best.xsSpec, xsSpec))
                 best = range;
