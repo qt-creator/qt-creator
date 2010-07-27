@@ -3063,7 +3063,8 @@ bool ASTPropertyReference::getSourceLocation(QString *fileName, int *line, int *
 
 const Value *ASTPropertyReference::value(Context *context) const
 {
-    if (_ast->expression) {
+    if (_ast->expression
+            && (!_ast->memberType || _ast->memberType->asString() == QLatin1String("variant"))) {
         Evaluate check(context);
         return check(_ast->expression);
     }
