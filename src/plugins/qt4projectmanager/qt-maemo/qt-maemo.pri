@@ -27,7 +27,8 @@ HEADERS += \
     $$PWD/maemosshrunner.h \
     $$PWD/maemodebugsupport.h \
     $$PWD/maemodeviceconfiglistmodel.h \
-    $$PWD/maemoremotemountsmodel.h
+    $$PWD/maemoremotemountsmodel.h \
+    $$PWD/deviceenvreader.h
 
 SOURCES += \
     $$PWD/maemoconfigtestdialog.cpp \
@@ -56,7 +57,8 @@ SOURCES += \
     $$PWD/maemosshrunner.cpp \
     $$PWD/maemodebugsupport.cpp \
     $$PWD/maemodeviceconfiglistmodel.cpp \
-    $$PWD/maemoremotemountsmodel.cpp
+    $$PWD/maemoremotemountsmodel.cpp \
+    $$PWD/deviceenvreader.cpp
 
 FORMS += \
     $$PWD/maemoconfigtestdialog.ui \
