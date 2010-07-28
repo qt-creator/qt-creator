@@ -63,6 +63,7 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
         MaemoRunConfiguration *runConfiguration, QWidget *parent)
     : QWidget(parent),
     m_runConfiguration(runConfiguration),
+    m_ignoreChange(false),
     m_deviceEnvReader(new MaemoDeviceEnvReader(this, runConfiguration))
 {
     QVBoxLayout *mainLayout = new QVBoxLayout;
@@ -85,7 +86,7 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
         .arg(QLatin1String("deviceconfig")));
     addDevConfLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
     devConfLayout->addWidget(addDevConfLabel);
-    
+
     QLabel *debuggerConfLabel = new QLabel(tr("<a href=\"%1\">Set Debugger</a>")
         .arg(QLatin1String("debugger")));
     debuggerConfLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
@@ -141,25 +142,20 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     baseEnvironmentLayout->setMargin(0);
     QLabel *label = new QLabel(tr("Base environment for this runconfiguration:"), this);
     baseEnvironmentLayout->addWidget(label);
-    QComboBox *m_baseEnvironmentComboBox = new QComboBox(this);
+    m_baseEnvironmentComboBox = new QComboBox(this);
     m_baseEnvironmentComboBox->addItems(QStringList() << tr("Clean Environment")
         << tr("System Environment"));
-    m_baseEnvironmentComboBox->setEnabled(false);
-    m_baseEnvironmentComboBox->setCurrentIndex(1);  // TODO: see next
-    //m_baseEnvironmentComboBox->setCurrentIndex(rc->baseEnvironmentBase());
-    //connect(m_baseEnvironmentComboBox, SIGNAL(currentIndexChanged(int)),
-    //        this, SLOT(baseEnvironmentSelected(int)));
+    m_baseEnvironmentComboBox->setCurrentIndex(m_runConfiguration->baseEnvironmentBase());
     baseEnvironmentLayout->addWidget(m_baseEnvironmentComboBox);
+
     m_fetchEnv = new QPushButton(tr("Fetch Device Environment"));
-    connect(m_fetchEnv, SIGNAL(pressed()), this, SLOT(fetchEnvironment()));
-    baseEnvironmentLayout->addStretch(10);
     baseEnvironmentLayout->addWidget(m_fetchEnv);
+    baseEnvironmentLayout->addStretch(10);
 
     m_environmentWidget = new ProjectExplorer::EnvironmentWidget(this, baseEnvironmentWidget);
     m_environmentWidget->setBaseEnvironment(m_deviceEnvReader->deviceEnvironment());
-    m_environmentWidget->setBaseEnvironmentText(tr("System Environment")); // TODO: see next
-    //m_environmentWidget->setBaseEnvironmentText(rc->baseEnvironmentText());
-    // m_environmentWidget->setUserChanges(rc->userEnvironmentChanges());
+    m_environmentWidget->setBaseEnvironmentText(m_runConfiguration->baseEnvironmentText());
+    m_environmentWidget->setUserChanges(m_runConfiguration->userEnvironmentChanges());
     mainLayout->addWidget(m_environmentWidget);
 
     handleCurrentDeviceConfigChanged();
@@ -186,8 +182,20 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     connect(m_mountView->selectionModel(),
         SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this,
         SLOT(enableOrDisableRemoveButton()));
-    connect(m_deviceEnvReader, SIGNAL(finished()), this,
-        SLOT(fetchEnvironmentFinished()));
+
+    connect(m_environmentWidget, SIGNAL(userChangesChanged()), this,
+        SLOT(userChangesEdited()));
+    connect(m_baseEnvironmentComboBox, SIGNAL(currentIndexChanged(int)),
+        this, SLOT(baseEnvironmentSelected(int)));
+    connect(m_runConfiguration, SIGNAL(baseEnvironmentChanged()),
+        this, SLOT(baseEnvironmentChanged()));
+    connect(m_runConfiguration, SIGNAL(systemEnvironmentChanged()),
+        this, SLOT(systemEnvironmentChanged()));
+    connect(m_runConfiguration,
+        SIGNAL(userEnvironmentChangesChanged(QList<ProjectExplorer::EnvironmentItem>)),
+        this, SLOT(userEnvironmentChangesChanged(QList<ProjectExplorer::EnvironmentItem>)));
+    connect(m_fetchEnv, SIGNAL(pressed()), this, SLOT(fetchEnvironment()));
+    connect(m_deviceEnvReader, SIGNAL(finished()), this, SLOT(fetchEnvironmentFinished()));
 }
 
 void MaemoRunConfigurationWidget::configNameEdited(const QString &text)
@@ -285,7 +293,46 @@ void MaemoRunConfigurationWidget::fetchEnvironment()
 void MaemoRunConfigurationWidget::fetchEnvironmentFinished()
 {
     m_fetchEnv->setEnabled(true);
-    m_environmentWidget->setBaseEnvironment(m_deviceEnvReader->deviceEnvironment());
+    m_runConfiguration->setSystemEnvironment(m_deviceEnvReader->deviceEnvironment());
+}
+
+void MaemoRunConfigurationWidget::userChangesEdited()
+{
+    m_ignoreChange = true;
+    m_runConfiguration->setUserEnvironmentChanges(m_environmentWidget->userChanges());
+    m_ignoreChange = false;
+}
+
+void MaemoRunConfigurationWidget::baseEnvironmentSelected(int index)
+{
+    m_ignoreChange = true;
+    m_runConfiguration->setBaseEnvironmentBase(MaemoRunConfiguration::BaseEnvironmentBase(index));
+
+    m_environmentWidget->setBaseEnvironment(m_runConfiguration->baseEnvironment());
+    m_environmentWidget->setBaseEnvironmentText(m_runConfiguration->baseEnvironmentText());
+    m_ignoreChange = false;
+}
+
+void MaemoRunConfigurationWidget::baseEnvironmentChanged()
+{
+    if (m_ignoreChange)
+        return;
+
+    m_baseEnvironmentComboBox->setCurrentIndex(m_runConfiguration->baseEnvironmentBase());
+    m_environmentWidget->setBaseEnvironment(m_runConfiguration->baseEnvironment());
+    m_environmentWidget->setBaseEnvironmentText(m_runConfiguration->baseEnvironmentText());
+}
+
+void MaemoRunConfigurationWidget::systemEnvironmentChanged()
+{
+    m_environmentWidget->setBaseEnvironment(m_runConfiguration->systemEnvironment());
+}
+
+void MaemoRunConfigurationWidget::userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &userChanges)
+{
+    if (m_ignoreChange)
+        return;
+    m_environmentWidget->setUserChanges(userChanges);
 }
 
 } // namespace Internal

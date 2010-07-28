@@ -34,6 +34,7 @@
 #include "maemodeviceconfigurations.h"
 #include "maemodeployable.h"
 
+#include <projectexplorer/environment.h>
 #include <projectexplorer/runconfiguration.h>
 
 #include <QtCore/QDateTime>
@@ -65,6 +66,11 @@ class MaemoRunConfiguration : public ProjectExplorer::RunConfiguration
     friend class MaemoRunConfigurationFactory;
 
 public:
+    enum BaseEnvironmentBase {
+        CleanEnvironmentBase = 0,
+        SystemEnvironmentBase = 1
+    };
+
     MaemoRunConfiguration(Qt4Target *parent, const QString &proFilePath);
     virtual ~MaemoRunConfiguration();
 
@@ -96,9 +102,26 @@ public:
 
     virtual QVariantMap toMap() const;
 
+    QString baseEnvironmentText() const;
+    BaseEnvironmentBase baseEnvironmentBase() const;
+    void setBaseEnvironmentBase(BaseEnvironmentBase env);
+
+    ProjectExplorer::Environment environment() const;
+    ProjectExplorer::Environment baseEnvironment() const;
+
+    QList<ProjectExplorer::EnvironmentItem> userEnvironmentChanges() const;
+    void setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff);
+
+    ProjectExplorer::Environment systemEnvironment() const;
+    void setSystemEnvironment(const ProjectExplorer::Environment &environment);
+
 signals:
     void deviceConfigurationChanged(ProjectExplorer::Target *target);
     void targetInformationChanged() const;
+
+    void baseEnvironmentChanged();
+    void systemEnvironmentChanged();
+    void userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &diff);
 
 protected:
     MaemoRunConfiguration(Qt4Target *parent, MaemoRunConfiguration *source);
@@ -111,12 +134,17 @@ private slots:
 private:
     void init();
 
+private:
     QString m_proFilePath;
     mutable QString m_gdbPath;
     MaemoDeviceConfigListModel *m_devConfigModel;
     MaemoRemoteMountsModel *m_remoteMounts;
     QStringList m_arguments;
     QString m_hostAddressFromDevice;
+
+    BaseEnvironmentBase m_baseEnvironmentBase;
+    ProjectExplorer::Environment m_systemEnvironment;
+    QList<ProjectExplorer::EnvironmentItem> m_userEnvironmentChanges;
 };
 
     } // namespace Internal

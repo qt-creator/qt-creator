@@ -63,6 +63,7 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
         const QString &proFilePath)
     : RunConfiguration(parent, QLatin1String(MAEMO_RC_ID))
     , m_proFilePath(proFilePath)
+    , m_baseEnvironmentBase(SystemEnvironmentBase)
 {
     init();
 }
@@ -73,6 +74,9 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
     , m_proFilePath(source->m_proFilePath)
     , m_gdbPath(source->m_gdbPath)
     , m_arguments(source->m_arguments)
+    , m_baseEnvironmentBase(source->m_baseEnvironmentBase)
+    , m_systemEnvironment(source->m_systemEnvironment)
+    , m_userEnvironmentChanges(source->m_userEnvironmentChanges)
 {
     init();
 }
@@ -140,6 +144,9 @@ QVariantMap MaemoRunConfiguration::toMap() const
     const QDir dir = QDir(target()->project()->projectDirectory());
     map.insert(ProFileKey, dir.relativeFilePath(m_proFilePath));
     map.insert(HostAddressFromDeviceKey, m_hostAddressFromDevice);
+    map.insert(BaseEnvironmentBaseKey, m_baseEnvironmentBase);
+    map.insert(UserEnvironmentChangesKey,
+        ProjectExplorer::EnvironmentItem::toStringList(m_userEnvironmentChanges));
     map.unite(m_devConfigModel->toMap());
     map.unite(m_remoteMounts->toMap());
     return map;
@@ -155,6 +162,11 @@ bool MaemoRunConfiguration::fromMap(const QVariantMap &map)
     m_proFilePath = dir.filePath(map.value(ProFileKey).toString());
     m_hostAddressFromDevice = map.value(HostAddressFromDeviceKey,
         DefaultHostAddress).toString();
+    m_userEnvironmentChanges =
+        ProjectExplorer::EnvironmentItem::fromStringList(map.value(UserEnvironmentChangesKey)
+        .toStringList());
+    m_baseEnvironmentBase = static_cast<BaseEnvironmentBase> (map.value(BaseEnvironmentBaseKey,
+        SystemEnvironmentBase).toInt());
     m_devConfigModel->fromMap(map);
     m_remoteMounts->fromMap(map);
 
@@ -273,6 +285,68 @@ void MaemoRunConfiguration::setArguments(const QStringList &args)
 void MaemoRunConfiguration::updateDeviceConfigurations()
 {
     emit deviceConfigurationChanged(target());
+}
+
+QString MaemoRunConfiguration::baseEnvironmentText() const
+{
+    if (m_baseEnvironmentBase == CleanEnvironmentBase)
+        return tr("Clean Environment");
+    else  if (m_baseEnvironmentBase == SystemEnvironmentBase)
+        return tr("System Environment");
+    return QString();
+}
+
+MaemoRunConfiguration::BaseEnvironmentBase MaemoRunConfiguration::baseEnvironmentBase() const
+{
+    return m_baseEnvironmentBase;
+}
+
+void MaemoRunConfiguration::setBaseEnvironmentBase(BaseEnvironmentBase env)
+{
+    if (m_baseEnvironmentBase != env) {
+        m_baseEnvironmentBase = env;
+        emit baseEnvironmentChanged();
+    }
+}
+
+ProjectExplorer::Environment MaemoRunConfiguration::environment() const
+{
+    ProjectExplorer::Environment env = baseEnvironment();
+    env.modify(userEnvironmentChanges());
+    return env;
+}
+
+ProjectExplorer::Environment MaemoRunConfiguration::baseEnvironment() const
+{
+    return (m_baseEnvironmentBase == SystemEnvironmentBase ? systemEnvironment()
+        : ProjectExplorer::Environment());
+}
+
+QList<ProjectExplorer::EnvironmentItem> MaemoRunConfiguration::userEnvironmentChanges() const
+{
+    return m_userEnvironmentChanges;
+}
+
+void MaemoRunConfiguration::setUserEnvironmentChanges(
+    const QList<ProjectExplorer::EnvironmentItem> &diff)
+{
+    if (m_userEnvironmentChanges != diff) {
+        m_userEnvironmentChanges = diff;
+        emit userEnvironmentChangesChanged(diff);
+    }
+}
+
+ProjectExplorer::Environment MaemoRunConfiguration::systemEnvironment() const
+{
+    return m_systemEnvironment;
+}
+
+void MaemoRunConfiguration::setSystemEnvironment(const ProjectExplorer::Environment &environment)
+{
+    if (m_systemEnvironment.size() == 0 || m_systemEnvironment != environment) {
+        m_systemEnvironment = environment;
+        emit systemEnvironmentChanged();
+    }
 }
 
 } // namespace Internal

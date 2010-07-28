@@ -45,7 +45,6 @@ namespace Qt4ProjectManager {
 MaemoDeviceEnvReader::MaemoDeviceEnvReader(QObject *parent, MaemoRunConfiguration *config)
     : QObject(parent)
     , m_stop(false)
-    , m_runConfig(config)
     , m_devConfig(config->deviceConfig())
 {
 }
@@ -91,7 +90,7 @@ void MaemoDeviceEnvReader::stop()
 
 void MaemoDeviceEnvReader::setEnvironment()
 {
-    if (m_remoteOutput.isEmpty() && !m_runConfig.isNull())
+    if (m_remoteOutput.isEmpty())
         return;
     m_env = ProjectExplorer::Environment(m_remoteOutput.split(QLatin1Char('\n'),
         QString::SkipEmptyParts));
@@ -102,7 +101,8 @@ void MaemoDeviceEnvReader::executeRemoteCall()
     if (m_stop)
         return;
 
-    const QByteArray remoteCall("source ./.profile;source /etc/profile;env");
+    const QByteArray remoteCall("test -f /etc/profile && source /etc/profile; "
+        "test -f ~/.profile && source ~/.profile; env");
     m_remoteProcess = m_connection->createRemoteProcess(remoteCall);
 
     connect(m_remoteProcess.data(), SIGNAL(closed(int)), this,

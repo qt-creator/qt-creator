@@ -40,7 +40,6 @@
 #include <projectexplorer/environment.h>
 
 #include <QtCore/QObject>
-#include <QtCore/QPointer>
 
 namespace Core {
     class SshConnection;
@@ -83,7 +82,6 @@ private:
     bool m_stop;
     QString m_remoteOutput;
     ProjectExplorer::Environment m_env;
-    QPointer<MaemoRunConfiguration> m_runConfig;
     MaemoDeviceConfig m_devConfig;
     QSharedPointer<Core::SshConnection> m_connection;
     QSharedPointer<Core::SshRemoteProcess> m_remoteProcess;

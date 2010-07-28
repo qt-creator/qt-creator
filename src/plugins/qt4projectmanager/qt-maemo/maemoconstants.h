@@ -65,11 +65,13 @@ static const QLatin1String LastDeployedHostsKey(PREFIX ".LastDeployedHosts");
 static const QLatin1String LastDeployedFilesKey(PREFIX ".LastDeployedFiles");
 static const QLatin1String LastDeployedRemotePathsKey(PREFIX ".LastDeployedRemotePaths");
 static const QLatin1String LastDeployedTimesKey(PREFIX ".LastDeployedTimes");
-static const QLatin1String ProFileKey(".ProFile");
-static const QLatin1String ExportedLocalDirsKey(".ExportedLocalDirs");
-static const QLatin1String RemoteMountPointsKey(".RemoteMountPoints");
-static const QLatin1String MountPortsKey(".MountPorts");
-static const QLatin1String HostAddressFromDeviceKey(".HostAddressFromDevice");
+static const QLatin1String ProFileKey(PREFIX ".ProFile");
+static const QLatin1String ExportedLocalDirsKey(PREFIX ".ExportedLocalDirs");
+static const QLatin1String RemoteMountPointsKey(PREFIX ".RemoteMountPoints");
+static const QLatin1String MountPortsKey(PREFIX ".MountPorts");
+static const QLatin1String HostAddressFromDeviceKey(PREFIX ".HostAddressFromDevice");
+static const QLatin1String BaseEnvironmentBaseKey(PREFIX ".BaseEnvironmentBase");
+static const QLatin1String UserEnvironmentChangesKey(PREFIX ".UserEnvironmentChanges");
 
 } // namespace Internal
 } // namespace Qt4ProjectManager

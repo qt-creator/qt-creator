@@ -48,6 +48,7 @@ class QToolButton;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
+    struct EnvironmentItem;
     class EnvironmentWidget;
 }
 
@@ -78,6 +79,11 @@ private slots:
     void handleHostAddressChanged();
     void fetchEnvironment();
     void fetchEnvironmentFinished();
+    void userChangesEdited();
+    void baseEnvironmentSelected(int index);
+    void baseEnvironmentChanged();
+    void systemEnvironmentChanged();
+    void userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &userChanges);
 
 private:
     QLineEdit *m_configNameLineEdit;
@@ -89,7 +95,9 @@ private:
     QToolButton *m_removeMountButton;
     MaemoRunConfiguration *m_runConfiguration;
 
+    bool m_ignoreChange;
     QPushButton *m_fetchEnv;
+    QComboBox *m_baseEnvironmentComboBox;
     MaemoDeviceEnvReader *m_deviceEnvReader;
     ProjectExplorer::EnvironmentWidget *m_environmentWidget;
 };
