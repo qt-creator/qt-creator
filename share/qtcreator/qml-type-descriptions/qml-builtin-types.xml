@@ -277,7 +277,7 @@
     </type>
     <type name="QDeclarativeStateOperation" extends="Qt.QtObject"/>
     <type name="QDeclarativeValueType" extends="Qt.QtObject"/>
-    <type name="QDeclarativeVisualDataModelParts" extends="Qt.QtObject"/>
+    <type name="QDeclarativeVisualDataModelParts" extends="QDeclarativeVisualDataModelParts"/>
     <type name="QDeclarativeVisualModel" extends="Qt.QtObject">
         <property name="count" type="int"/>
         <signal name="countChanged"/>
@@ -976,6 +976,8 @@
             <enumerator name="Key_MediaPrevious" value="16777346"/>
             <enumerator name="Key_MediaNext" value="16777347"/>
             <enumerator name="Key_MediaRecord" value="16777348"/>
+            <enumerator name="Key_MediaPause" value="16777349"/>
+            <enumerator name="Key_MediaTogglePlayPause" value="16777350"/>
             <enumerator name="Key_HomePage" value="16777360"/>
             <enumerator name="Key_Favorites" value="16777361"/>
             <enumerator name="Key_Search" value="16777362"/>
@@ -1110,8 +1112,11 @@
             <enumerator name="Key_Call" value="17825796"/>
             <enumerator name="Key_Hangup" value="17825797"/>
             <enumerator name="Key_Flip" value="17825798"/>
-            <enumerator name="Key_Camera" value="17825799"/>
-            <enumerator name="Key_CameraFocus" value="17825800"/>
+            <enumerator name="Key_ToggleCallHangup" value="17825799"/>
+            <enumerator name="Key_VoiceDial" value="17825800"/>
+            <enumerator name="Key_LastNumberRedial" value="17825801"/>
+            <enumerator name="Key_Camera" value="17825824"/>
+            <enumerator name="Key_CameraFocus" value="17825825"/>
             <enumerator name="Key_unknown" value="33554431"/>
         </enum>
         <enum name="ArrowType">
@@ -1376,6 +1381,7 @@
         <enum name="LayoutDirection">
             <enumerator name="LeftToRight" value="0"/>
             <enumerator name="RightToLeft" value="1"/>
+            <enumerator name="LayoutDirectionAuto" value="2"/>
         </enum>
         <enum name="DropAction">
             <enumerator name="CopyAction" value="1"/>
@@ -1451,6 +1457,13 @@
             <enumerator name="MaximumSize" value="2"/>
             <enumerator name="MinimumDescent" value="3"/>
             <enumerator name="NSizeHints" value="4"/>
+        </enum>
+        <enum name="GestureState">
+            <enumerator name="NoGesture" value="0"/>
+            <enumerator name="GestureStarted" value="1"/>
+            <enumerator name="GestureUpdated" value="2"/>
+            <enumerator name="GestureFinished" value="3"/>
+            <enumerator name="GestureCanceled" value="4"/>
         </enum>
     </type>
     <type name="Qt.AnchorAnimation" version="4.7" extends="Qt.Animation">
@@ -1582,6 +1595,7 @@
         <property name="minimumY" type="qreal"/>
         <property name="maximumY" type="qreal"/>
         <property name="active" type="bool"/>
+        <property name="filterChildren" type="bool"/>
         <signal name="targetChanged"/>
         <signal name="axisChanged"/>
         <signal name="minimumXChanged"/>
@@ -1589,6 +1603,7 @@
         <signal name="minimumYChanged"/>
         <signal name="maximumYChanged"/>
         <signal name="activeChanged"/>
+        <signal name="filterChildrenChanged"/>
     </type>
     <type name="Qt.Easing" version="4.7" extends="QDeclarativeValueType">
         <enum name="Type">
@@ -1659,9 +1674,9 @@
         <property name="contentHeight" type="qreal"/>
         <property name="contentX" type="qreal"/>
         <property name="contentY" type="qreal"/>
+        <property name="contentItem" type="Qt.Item"/>
         <property name="horizontalVelocity" type="qreal"/>
         <property name="verticalVelocity" type="qreal"/>
-        <property name="overShoot" type="bool"/>
         <property name="boundsBehavior" type="BoundsBehavior"/>
         <property name="maximumFlickVelocity" type="qreal"/>
         <property name="flickDeceleration" type="qreal"/>
@@ -1671,7 +1686,6 @@
         <property name="flicking" type="bool"/>
         <property name="flickingHorizontally" type="bool"/>
         <property name="flickingVertically" type="bool"/>
-        <property name="flickDirection" type="FlickableDirection"/>
         <property name="flickableDirection" type="FlickableDirection"/>
         <property name="interactive" type="bool"/>
         <property name="pressDelay" type="int"/>
@@ -1698,7 +1712,6 @@
         <signal name="pageChanged"/>
         <signal name="flickableDirectionChanged"/>
         <signal name="interactiveChanged"/>
-        <signal name="overShootChanged"/>
         <signal name="boundsBehaviorChanged"/>
         <signal name="maximumFlickVelocityChanged"/>
         <signal name="flickDecelerationChanged"/>
@@ -1832,6 +1845,8 @@
         <property name="cellWidth" type="int"/>
         <property name="cellHeight" type="int"/>
         <property name="snapMode" type="SnapMode"/>
+        <property name="header" type="Qt.Component"/>
+        <property name="footer" type="Qt.Component"/>
         <signal name="countChanged"/>
         <signal name="currentIndexChanged"/>
         <signal name="cellWidthChanged"/>
@@ -1848,6 +1863,8 @@
         <signal name="keyNavigationWrapsChanged"/>
         <signal name="cacheBufferChanged"/>
         <signal name="snapModeChanged"/>
+        <signal name="headerChanged"/>
+        <signal name="footerChanged"/>
         <method name="moveCurrentIndexUp"/>
         <method name="moveCurrentIndexDown"/>
         <method name="moveCurrentIndexLeft"/>
@@ -1870,11 +1887,9 @@
             <enumerator name="TileVertically" value="4"/>
             <enumerator name="TileHorizontally" value="5"/>
         </enum>
-        <property name="pixmap" type="QPixmap"/>
         <property name="fillMode" type="FillMode"/>
         <property name="paintedWidth" type="qreal"/>
         <property name="paintedHeight" type="qreal"/>
-        <signal name="pixmapChanged"/>
         <signal name="fillModeChanged"/>
         <signal name="paintedGeometryChanged"/>
     </type>
@@ -1912,11 +1927,11 @@
         <property name="baselineOffset" type="qreal"/>
         <property name="clip" type="bool"/>
         <property name="focus" type="bool"/>
-        <property name="wantsFocus" type="bool"/>
+        <property name="activeFocus" type="bool"/>
         <property name="transform" type="QGraphicsTransform" isList="true"/>
         <property name="transformOrigin" type="TransformOrigin"/>
+        <property name="transformOriginPoint" type="QPointF"/>
         <property name="smooth" type="bool"/>
-        <signal name="childrenChanged"/>
         <signal name="childrenRectChanged">
             <param type="QRectF"/>
         </signal>
@@ -1929,7 +1944,7 @@
         <signal name="focusChanged">
             <param type="bool"/>
         </signal>
-        <signal name="wantsFocusChanged">
+        <signal name="activeFocusChanged">
             <param type="bool"/>
         </signal>
         <signal name="parentChanged">
@@ -1954,7 +1969,11 @@
             <param name="x" type="qreal"/>
             <param name="y" type="qreal"/>
         </method>
-        <method name="forceFocus"/>
+        <method name="forceActiveFocus"/>
+        <method name="childAt" type="QDeclarativeItem*">
+            <param name="x" type="qreal"/>
+            <param name="y" type="qreal"/>
+        </method>
     </type>
     <type name="Qt.KeyNavigation" version="4.7" extends="Qt.QtObject">
         <enum name="Priority">
@@ -2529,36 +2548,19 @@
         <signal name="reversingModeChanged"/>
         <signal name="maximumEasingTimeChanged"/>
     </type>
-    <type name="Qt.SmoothedFollow" version="4.7" extends="Qt.QtObject">
-        <enum name="ReversingMode">
-            <enumerator name="Eased" value="0"/>
-            <enumerator name="Immediate" value="1"/>
-            <enumerator name="Sync" value="2"/>
-        </enum>
+    <type name="Qt.SpringAnimation" version="4.7" extends="Qt.Animation">
         <property name="to" type="qreal"/>
-        <property name="velocity" type="qreal"/>
-        <property name="duration" type="int"/>
-        <property name="reversingMode" type="ReversingMode"/>
-        <property name="maximumEasingTime" type="qreal"/>
-        <property name="enabled" type="bool"/>
-        <signal name="velocityChanged"/>
-        <signal name="durationChanged"/>
-        <signal name="reversingModeChanged"/>
-        <signal name="maximumEasingTimeChanged"/>
-        <signal name="enabledChanged"/>
-    </type>
-    <type name="Qt.SpringFollow" version="4.7" extends="Qt.QtObject">
-        <property name="to" type="qreal"/>
+        <property name="from" type="qreal"/>
         <property name="velocity" type="qreal"/>
         <property name="spring" type="qreal"/>
         <property name="damping" type="qreal"/>
         <property name="epsilon" type="qreal"/>
-        <property name="enabled" type="bool"/>
-        <property name="value" type="qreal"/>
         <property name="modulus" type="qreal"/>
         <property name="mass" type="qreal"/>
-        <property name="inSync" type="bool"/>
-        <signal name="valueChanged">
+        <signal name="toChanged">
+            <param type="qreal"/>
+        </signal>
+        <signal name="fromChanged">
             <param type="qreal"/>
         </signal>
         <signal name="modulusChanged"/>
@@ -2730,8 +2732,7 @@
         <property name="selectionStart" type="int"/>
         <property name="selectionEnd" type="int"/>
         <property name="selectedText" type="string"/>
-        <property name="focusOnPress" type="bool"/>
-        <property name="showInputPanelOnFocus" type="bool"/>
+        <property name="activeFocusOnPress" type="bool"/>
         <property name="persistentSelection" type="bool"/>
         <property name="textMargin" type="qreal"/>
         <property name="inputMethodHints" type="Qt.InputMethodHints"/>
@@ -2774,8 +2775,8 @@
             <param name="isCursorVisible" type="bool"/>
         </signal>
         <signal name="cursorDelegateChanged"/>
-        <signal name="focusOnPressChanged">
-            <param name="focusIsPressed" type="bool"/>
+        <signal name="activeFocusOnPressChanged">
+            <param name="activeFocusOnPressed" type="bool"/>
         </signal>
         <signal name="persistentSelectionChanged">
             <param name="isPersistentSelection" type="bool"/>
@@ -2786,12 +2787,27 @@
         <signal name="selectByMouseChanged">
             <param name="selectByMouse" type="bool"/>
         </signal>
-        <signal name="showInputPanelOnFocusChanged">
-            <param name="showOnFocus" type="bool"/>
-        </signal>
         <method name="selectAll"/>
+        <method name="selectWord"/>
+        <method name="select">
+            <param name="start" type="int"/>
+            <param name="end" type="int"/>
+        </method>
+        <method name="cut"/>
+        <method name="copy"/>
+        <method name="paste"/>
         <method name="openSoftwareInputPanel"/>
         <method name="closeSoftwareInputPanel"/>
+        <method name="positionToRectangle" type="QRectF">
+            <param type="int"/>
+        </method>
+        <method name="positionAt" type="int">
+            <param name="x" type="int"/>
+            <param name="y" type="int"/>
+        </method>
+        <method name="moveCursorSelection">
+            <param name="pos" type="int"/>
+        </method>
     </type>
     <type name="Qt.TextInput" version="4.7" defaultProperty="data" extends="QDeclarativePaintedItem">
         <enum name="EchoMode">
@@ -2814,7 +2830,7 @@
         <property name="readOnly" type="bool"/>
         <property name="cursorVisible" type="bool"/>
         <property name="cursorPosition" type="int"/>
-        <property name="cursorRect" type="QRect"/>
+        <property name="cursorRectangle" type="QRect"/>
         <property name="cursorDelegate" type="Qt.Component"/>
         <property name="selectionStart" type="int"/>
         <property name="selectionEnd" type="int"/>
@@ -2825,8 +2841,7 @@
         <property name="inputMethodHints" type="Qt.InputMethodHints"/>
         <property name="acceptableInput" type="bool"/>
         <property name="echoMode" type="EchoMode"/>
-        <property name="focusOnPress" type="bool"/>
-        <property name="showInputPanelOnFocus" type="bool"/>
+        <property name="activeFocusOnPress" type="bool"/>
         <property name="passwordCharacter" type="string"/>
         <property name="displayText" type="string"/>
         <property name="autoScroll" type="bool"/>
@@ -2871,11 +2886,9 @@
             <param name="echoMode" type="EchoMode"/>
         </signal>
         <signal name="passwordCharacterChanged"/>
-        <signal name="displayTextChanged">
-            <param name="text" type="string"/>
-        </signal>
-        <signal name="focusOnPressChanged">
-            <param name="focusOnPress" type="bool"/>
+        <signal name="displayTextChanged"/>
+        <signal name="activeFocusOnPressChanged">
+            <param name="activeFocusOnPress" type="bool"/>
         </signal>
         <signal name="autoScrollChanged">
             <param name="autoScroll" type="bool"/>
@@ -2883,12 +2896,20 @@
         <signal name="selectByMouseChanged">
             <param name="selectByMouse" type="bool"/>
         </signal>
-        <signal name="showInputPanelOnFocusChanged">
-            <param name="showOnFocus" type="bool"/>
-        </signal>
         <method name="selectAll"/>
-        <method name="xToPosition" type="int">
+        <method name="selectWord"/>
+        <method name="select">
+            <param name="start" type="int"/>
+            <param name="end" type="int"/>
+        </method>
+        <method name="cut"/>
+        <method name="copy"/>
+        <method name="paste"/>
+        <method name="positionAt" type="int">
             <param name="x" type="int"/>
+        </method>
+        <method name="positionToRectangle" type="QRectF">
+            <param name="pos" type="int"/>
         </method>
         <method name="moveCursorSelection">
             <param name="pos" type="int"/>
@@ -3035,8 +3056,62 @@
             <param name="index" type="int"/>
         </method>
     </type>
+    <type name="Qt.labs.gestures.Gesture" version="1.0" extends="Qt.QtObject">
+        <property name="state" type="Qt.GestureState"/>
+        <property name="gestureType" type="Qt.GestureType"/>
+        <property name="gestureCancelPolicy" type="QGesture.GestureCancelPolicy"/>
+        <property name="hotSpot" type="QPointF"/>
+        <property name="hasHotSpot" type="bool"/>
+    </type>
     <type name="Qt.labs.gestures.GestureArea" version="1.0" defaultProperty="data" extends="Qt.Item">
-        <property name="gesture" type="QGesture"/>
+        <property name="gesture" type="Qt.labs.gestures.Gesture"/>
+    </type>
+    <type name="Qt.labs.gestures.PanGesture" version="1.0" extends="Qt.labs.gestures.Gesture">
+        <property name="lastOffset" type="QPointF"/>
+        <property name="offset" type="QPointF"/>
+        <property name="delta" type="QPointF"/>
+        <property name="acceleration" type="qreal"/>
+    </type>
+    <type name="Qt.labs.gestures.PinchGesture" version="1.0" extends="Qt.labs.gestures.Gesture">
+        <enum name="ChangeFlag">
+            <enumerator name="ScaleFactorChanged" value="1"/>
+            <enumerator name="RotationAngleChanged" value="2"/>
+            <enumerator name="CenterPointChanged" value="4"/>
+        </enum>
+        <enum name="ChangeFlags">
+            <enumerator name="ScaleFactorChanged" value="1"/>
+            <enumerator name="RotationAngleChanged" value="2"/>
+            <enumerator name="CenterPointChanged" value="4"/>
+        </enum>
+        <property name="totalChangeFlags" type="ChangeFlags"/>
+        <property name="changeFlags" type="ChangeFlags"/>
+        <property name="totalScaleFactor" type="qreal"/>
+        <property name="lastScaleFactor" type="qreal"/>
+        <property name="scaleFactor" type="qreal"/>
+        <property name="totalRotationAngle" type="qreal"/>
+        <property name="lastRotationAngle" type="qreal"/>
+        <property name="rotationAngle" type="qreal"/>
+        <property name="startCenterPoint" type="QPointF"/>
+        <property name="lastCenterPoint" type="QPointF"/>
+        <property name="centerPoint" type="QPointF"/>
+    </type>
+    <type name="Qt.labs.gestures.SwipeGesture" version="1.0" extends="Qt.labs.gestures.Gesture">
+        <enum name="SwipeDirection">
+            <enumerator name="NoDirection" value="0"/>
+            <enumerator name="Left" value="1"/>
+            <enumerator name="Right" value="2"/>
+            <enumerator name="Up" value="3"/>
+            <enumerator name="Down" value="4"/>
+        </enum>
+        <property name="horizontalDirection" type="SwipeDirection"/>
+        <property name="verticalDirection" type="SwipeDirection"/>
+        <property name="swipeAngle" type="qreal"/>
+    </type>
+    <type name="Qt.labs.gestures.TapAndHoldGesture" version="1.0" extends="Qt.labs.gestures.Gesture">
+        <property name="position" type="QPointF"/>
+    </type>
+    <type name="Qt.labs.gestures.TapGesture" version="1.0" extends="Qt.labs.gestures.Gesture">
+        <property name="position" type="QPointF"/>
     </type>
     <type name="Qt.labs.particles.ParticleMotion" version="1.0" extends="Qt.QtObject"/>
     <type name="Qt.labs.particles.ParticleMotionGravity" version="1.0" extends="Qt.labs.particles.ParticleMotion">
@@ -3092,7 +3167,7 @@
             <param name="count" type="int"/>
         </method>
     </type>
-    <type name="org.webkit.WebView" version="1.0" defaultProperty="data" extends="Qt.Item">
+    <type name="QtWebKit.WebView" version="1.0" defaultProperty="data" extends="Qt.Item">
         <enum name="Status">
             <enumerator name="Null" value="0"/>
             <enumerator name="Ready" value="1"/>
@@ -3101,7 +3176,6 @@
         </enum>
         <property name="title" type="string"/>
         <property name="icon" type="QPixmap"/>
-        <property name="zoomFactor" type="qreal"/>
         <property name="statusText" type="string"/>
         <property name="html" type="string"/>
         <property name="pressGrabTime" type="int"/>
@@ -3135,7 +3209,6 @@
         <signal name="statusTextChanged"/>
         <signal name="htmlChanged"/>
         <signal name="pressGrabTimeChanged"/>
-        <signal name="zoomFactorChanged"/>
         <signal name="newWindowComponentChanged"/>
         <signal name="newWindowParentChanged"/>
         <signal name="renderingEnabledChanged"/>
