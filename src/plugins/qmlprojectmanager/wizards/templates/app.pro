@@ -22,9 +22,12 @@ symbian {
     TARGET.UID3 = 0xE1111234
     ICON = cpp/symbianicon.svg
     for(deploymentfolder, DEPLOYMENTFOLDERS) {
-        eval(item$${deploymentfolder}.sources = $${deploymentfolder})
-        eval(item$${deploymentfolder}.path = qml)
-        eval(DEPLOYMENT += item$${deploymentfolder})
+        item = item$${deploymentfolder}
+        itemsources = $${item}.sources
+        $$itemsources = $${deploymentfolder}
+        itempath = $${item}.path
+        $$itempath = qml
+        DEPLOYMENT += $$item
     }
     contains(DEFINES, ORIENTATIONLOCK):LIBS += -lavkon -leikcore -leiksrv -lcone
     contains(DEFINES, NETWORKACCESS):TARGET.CAPABILITY += NetworkServices
@@ -45,8 +48,11 @@ symbian {
 } else {
     # TODO: make this work
     for(deploymentfolder, DEPLOYMENTFOLDERS) {
-        eval(item$${deploymentfolder}.files = $${deploymentfolder})
-        eval(item$${deploymentfolder}.path = qml)
-        eval(INSTALLS += item$${deploymentfolder})
+        item = item$${deploymentfolder}
+        itemfiles = $${item}.files
+        $$itemfiles = $${deploymentfolder}
+        itempath = $${item}.path
+        $$itempath = qml
+        INSTALLS += $$item
     }
 }
