@@ -217,15 +217,6 @@
         <property name="heightRatio" type="qreal"/>
         <signal name="pageChanged"/>
     </type>
-    <type name="QDeclarativeGraphicsWidget" defaultProperty="children" extends="Qt.QGraphicsWidget">
-        <property name="anchors" type="QDeclarativeAnchors"/>
-        <property name="left" type="QDeclarativeAnchorLine"/>
-        <property name="right" type="QDeclarativeAnchorLine"/>
-        <property name="horizontalCenter" type="QDeclarativeAnchorLine"/>
-        <property name="top" type="QDeclarativeAnchorLine"/>
-        <property name="bottom" type="QDeclarativeAnchorLine"/>
-        <property name="verticalCenter" type="QDeclarativeAnchorLine"/>
-    </type>
     <type name="QDeclarativeImageBase" defaultProperty="data" extends="Qt.Item">
         <enum name="Status">
             <enumerator name="Null" value="0"/>
@@ -277,7 +268,7 @@
     </type>
     <type name="QDeclarativeStateOperation" extends="Qt.QtObject"/>
     <type name="QDeclarativeValueType" extends="Qt.QtObject"/>
-    <type name="QDeclarativeVisualDataModelParts" extends="QDeclarativeVisualDataModelParts"/>
+    <type name="QDeclarativeVisualDataModelParts" extends="Qt.QtObject"/>
     <type name="QDeclarativeVisualModel" extends="Qt.QtObject">
         <property name="count" type="int"/>
         <signal name="countChanged"/>
@@ -2455,24 +2446,14 @@
         <property name="restoreEntryValues" type="bool"/>
         <property name="explicit" type="bool"/>
     </type>
-    <type name="Qt.QGraphicsWidget" version="4.7" defaultProperty="children" extends="QGraphicsObject">
-        <property name="palette" type="QPalette"/>
-        <property name="font" type="QFont"/>
-        <property name="layoutDirection" type="Qt.LayoutDirection"/>
-        <property name="size" type="QSizeF"/>
-        <property name="minimumSize" type="QSizeF"/>
-        <property name="preferredSize" type="QSizeF"/>
-        <property name="maximumSize" type="QSizeF"/>
-        <property name="sizePolicy" type="QSizePolicy"/>
-        <property name="focusPolicy" type="Qt.FocusPolicy"/>
-        <property name="windowFlags" type="Qt.WindowFlags"/>
-        <property name="windowTitle" type="string"/>
-        <property name="geometry" type="QRectF"/>
-        <property name="autoFillBackground" type="bool"/>
-        <property name="layout" type="QGraphicsLayout"/>
-        <signal name="geometryChanged"/>
-        <signal name="layoutChanged"/>
-        <method name="close" type="bool"/>
+    <type name="Qt.QGraphicsWidget" version="4.7" defaultProperty="children" extends="__extended__.Qt.QGraphicsWidget">
+        <property name="anchors" type="QDeclarativeAnchors"/>
+        <property name="left" type="QDeclarativeAnchorLine"/>
+        <property name="right" type="QDeclarativeAnchorLine"/>
+        <property name="horizontalCenter" type="QDeclarativeAnchorLine"/>
+        <property name="top" type="QDeclarativeAnchorLine"/>
+        <property name="bottom" type="QDeclarativeAnchorLine"/>
+        <property name="verticalCenter" type="QDeclarativeAnchorLine"/>
     </type>
     <type name="Qt.QtObject" version="4.7">
         <property name="objectName" type="string"/>
@@ -3239,6 +3220,25 @@
             <param name="clickY" type="int"/>
             <param name="maxzoom" type="qreal"/>
         </method>
+    </type>
+    <type name="__extended__.Qt.QGraphicsWidget" version="4.7" defaultProperty="children" extends="QGraphicsObject">
+        <property name="palette" type="QPalette"/>
+        <property name="font" type="QFont"/>
+        <property name="layoutDirection" type="Qt.LayoutDirection"/>
+        <property name="size" type="QSizeF"/>
+        <property name="minimumSize" type="QSizeF"/>
+        <property name="preferredSize" type="QSizeF"/>
+        <property name="maximumSize" type="QSizeF"/>
+        <property name="sizePolicy" type="QSizePolicy"/>
+        <property name="focusPolicy" type="Qt.FocusPolicy"/>
+        <property name="windowFlags" type="Qt.WindowFlags"/>
+        <property name="windowTitle" type="string"/>
+        <property name="geometry" type="QRectF"/>
+        <property name="autoFillBackground" type="bool"/>
+        <property name="layout" type="QGraphicsLayout"/>
+        <signal name="geometryChanged"/>
+        <signal name="layoutChanged"/>
+        <method name="close" type="bool"/>
     </type>
     <type name="Script">
         <property name="script" type="string"/>
