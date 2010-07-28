@@ -13,6 +13,8 @@ int main(int argc, char *argv[])
 
 #ifdef Q_OS_SYMBIAN
     qmlApp.showFullScreen();
+#elif defined(Q_WS_MAEMO_5) || defined(Q_WS_MAEMO_6)
+    qmlApp.showMaximized();
 #else
     qmlApp.setGeometry(QRect(100, 100, 360, 640));
     qmlApp.show();

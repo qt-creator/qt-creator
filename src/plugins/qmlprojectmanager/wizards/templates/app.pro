@@ -45,14 +45,17 @@ symbian {
         first.depends = $(first) copyqmlfiles
         QMAKE_EXTRA_TARGETS += first copyqmlfiles
     }
-} else {
-    # TODO: make this work
+} else:if(maemo5|maemo6) {
     for(deploymentfolder, DEPLOYMENTFOLDERS) {
         item = item$${deploymentfolder}
         itemfiles = $${item}.files
         $$itemfiles = $${deploymentfolder}
         itempath = $${item}.path
-        $$itempath = qml
+        $$itempath = /opt/share/qml
         INSTALLS += $$item
     }
+    target.path = /opt/bin
+    INSTALLS += target
+} else {
+   # TODO: make this work
 }
