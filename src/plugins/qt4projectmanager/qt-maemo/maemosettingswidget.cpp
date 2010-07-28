@@ -218,6 +218,7 @@ void MaemoSettingsWidget::fillInValues()
     m_ui->userLineEdit->setText(currentConfig().server.uname);
     m_ui->pwdLineEdit->setText(currentConfig().server.pwd);
     m_ui->keyFileLineEdit->setPath(currentConfig().server.privateKeyFile);
+    m_ui->showPasswordCheckBox->setChecked(false);
 
     const bool isSimulator
         = currentConfig().type == MaemoDeviceConfig::Simulator;
@@ -315,6 +316,12 @@ void MaemoSettingsWidget::passwordEditingFinished()
 void MaemoSettingsWidget::keyFileEditingFinished()
 {
     currentConfig().server.privateKeyFile = m_ui->keyFileLineEdit->path();
+}
+
+void MaemoSettingsWidget::showPassword(bool showClearText)
+{
+    m_ui->pwdLineEdit->setEchoMode(showClearText
+        ? QLineEdit::Normal : QLineEdit::Password);
 }
 
 void MaemoSettingsWidget::testConfig()

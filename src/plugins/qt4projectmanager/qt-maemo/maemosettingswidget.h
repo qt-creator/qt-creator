@@ -83,6 +83,7 @@ private slots:
     void userNameEditingFinished();
     void passwordEditingFinished();
     void keyFileEditingFinished();
+    void showPassword(bool showClearText);
 
     // For configuration testing.
     void testConfig();

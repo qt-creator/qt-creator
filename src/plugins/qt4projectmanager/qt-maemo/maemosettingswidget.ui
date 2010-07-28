@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>596</width>
-    <height>352</height>
+    <height>354</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -266,11 +266,22 @@
             </widget>
            </item>
            <item row="7" column="1">
-            <widget class="QLineEdit" name="pwdLineEdit">
-             <property name="echoMode">
-              <enum>QLineEdit::Password</enum>
-             </property>
-            </widget>
+            <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <item>
+              <widget class="QLineEdit" name="pwdLineEdit">
+               <property name="echoMode">
+                <enum>QLineEdit::Password</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="showPasswordCheckBox">
+               <property name="text">
+                <string>Show password</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
            <item row="8" column="0">
             <widget class="QLabel" name="keyLabel">
@@ -410,7 +421,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>419</x>
-     <y>269</y>
+     <y>268</y>
     </hint>
     <hint type="destinationlabel">
      <x>422</x>
@@ -425,8 +436,8 @@
    <slot>passwordEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>419</x>
-     <y>300</y>
+     <x>291</x>
+     <y>299</y>
     </hint>
     <hint type="destinationlabel">
      <x>423</x>
@@ -706,6 +717,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>showPasswordCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MaemoSettingsWidget</receiver>
+   <slot>showPassword(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>290</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>3</x>
+     <y>262</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>configNameEditingFinished()</slot>
@@ -725,5 +752,6 @@
   <slot>gdbServerPortEditingFinished()</slot>
   <slot>currentConfigChanged(int)</slot>
   <slot>showGenerateSshKeyDialog()</slot>
+  <slot>showPassword(bool)</slot>
  </slots>
 </ui>
