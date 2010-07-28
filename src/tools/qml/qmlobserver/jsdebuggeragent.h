@@ -93,9 +93,9 @@ public:
     void exceptionCatch(qint64 scriptId,
                         const QScriptValue &exception);
 
-/*    bool supportsExtension(Extension extension) const;
+    bool supportsExtension(Extension extension) const;
     QVariant extension(Extension extension,
-                       const QVariant &argument = QVariant());*/
+                       const QVariant &argument = QVariant());
 
     void messageReceived(const QByteArray &);
     void enabledChanged(bool);

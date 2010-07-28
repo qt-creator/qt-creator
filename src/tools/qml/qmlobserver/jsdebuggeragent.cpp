@@ -273,13 +273,11 @@ void JSDebuggerAgent::positionChange(qint64 scriptId,
         }
     }
 
-
     switch (state) {
     case NoState:
     case Stopped:
         // Do nothing
         break;
-
     case SteppingOutState:
         if (stepDepth >= 0)
             break;
@@ -317,6 +315,22 @@ void JSDebuggerAgent::exceptionCatch(qint64 scriptId,
     Q_UNUSED(scriptId);
     Q_UNUSED(exception);
 }
+
+bool JSDebuggerAgent::supportsExtension(QScriptEngineAgent::Extension extension) const
+{
+    return extension == QScriptEngineAgent::DebuggerInvocationRequest;
+}
+
+QVariant JSDebuggerAgent::extension(QScriptEngineAgent::Extension extension, const QVariant& argument)
+{
+    if (extension == QScriptEngineAgent::DebuggerInvocationRequest) {
+        stopped();
+        return QVariant();
+    }
+    return QScriptEngineAgent::extension(extension, argument);
+}
+
+
 
 void JSDebuggerAgent::messageReceived(const QByteArray& message)
 {
