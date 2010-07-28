@@ -64,9 +64,9 @@ static QString generate(InsertionPointLocator::AccessSpec xsSpec)
     }
 }
 
-static int distance(InsertionPointLocator::AccessSpec one, InsertionPointLocator::AccessSpec two)
+static int ordering(InsertionPointLocator::AccessSpec xsSpec)
 {
-    static QList<InsertionPointLocator::AccessSpec> distances = QList<InsertionPointLocator::AccessSpec>()
+    static QList<InsertionPointLocator::AccessSpec> order = QList<InsertionPointLocator::AccessSpec>()
             << InsertionPointLocator::Public
             << InsertionPointLocator::PublicSlot
             << InsertionPointLocator::Signals
@@ -76,7 +76,7 @@ static int distance(InsertionPointLocator::AccessSpec one, InsertionPointLocator
             << InsertionPointLocator::Private
             ;
 
-    return distances.indexOf(one) - distances.indexOf(two);
+    return order.indexOf(xsSpec);
 }
 
 struct AccessRange
@@ -134,39 +134,62 @@ protected:
                     ast->lbrace_token,
                     ast->rbrace_token);
 
-        QPair<unsigned, bool> result = findMatch(ranges, _xsSpec);
+        unsigned beforeToken = 0;
+        bool needsPrefix = false;
+        bool needsSuffix = false;
+        findMatch(ranges, _xsSpec, beforeToken, needsPrefix, needsSuffix);
 
         unsigned line = 0, column = 0;
-        getTokenStartPosition(result.first, &line, &column);
+        getTokenStartPosition(beforeToken, &line, &column);
 
         QString prefix;
-        if (!result.second)
+        if (needsPrefix)
             prefix = generate(_xsSpec);
 
-        _result = InsertionLocation(prefix, line, column);
+        QString suffix;
+        if (needsSuffix)
+            suffix = QLatin1Char('\n');
+
+        _result = InsertionLocation(prefix, suffix, line, column);
         return false;
     }
 
-    static QPair<unsigned, bool> findMatch(const QList<AccessRange> &ranges,
-                                           InsertionPointLocator::AccessSpec xsSpec)
+    static void findMatch(const QList<AccessRange> &ranges,
+                          InsertionPointLocator::AccessSpec xsSpec,
+                          unsigned &beforeToken,
+                          bool &needsPrefix,
+                          bool &needsSuffix)
     {
+        Q_ASSERT(!ranges.isEmpty());
+        const int lastIndex = ranges.size() - 1;
+
         // try an exact match, and ignore the first (default) access spec:
-        for (int i = ranges.size() - 1; i > 0; --i) {
+        for (int i = lastIndex; i > 0; --i) {
             const AccessRange &range = ranges.at(i);
-            if (range.xsSpec == xsSpec)
-                return qMakePair(range.end, true);
+            if (range.xsSpec == xsSpec) {
+                beforeToken = range.end;
+                needsPrefix = false;
+                needsSuffix = (i != lastIndex);
+                return;
+            }
         }
 
-        // try to find a fitting access spec to insert in front of:
-        AccessRange best = ranges.last();
-        for (int i = ranges.size() - 2; i > 0; --i) {
-            const AccessRange &range = ranges.at(i);
-            if (distance(range.xsSpec, xsSpec) < distance(best.xsSpec, xsSpec))
-                best = range;
+        // try to find a fitting access spec to insert XXX:
+        for (int i = lastIndex; i > 0; --i) {
+            const AccessRange &current = ranges.at(i);
+
+            if (ordering(xsSpec) > ordering(current.xsSpec)) {
+                beforeToken = current.end;
+                needsPrefix = true;
+                needsSuffix = (i != lastIndex);
+                return;
+            }
         }
 
         // otherwise:
-        return qMakePair(ranges.first().end, false);
+        beforeToken = ranges.first().end;
+        needsPrefix = true;
+        needsSuffix = (ranges.size() != 1);
     }
 
     QList<AccessRange> collectAccessRanges(DeclarationListAST *decls,
@@ -237,8 +260,10 @@ InsertionLocation::InsertionLocation()
     , m_column(0)
 {}
 
-InsertionLocation::InsertionLocation(const QString &prefix, unsigned line, unsigned column)
+InsertionLocation::InsertionLocation(const QString &prefix, const QString &suffix,
+                                     unsigned line, unsigned column)
     : m_prefix(prefix)
+    , m_suffix(suffix)
     , m_line(line)
     , m_column(column)
 {}

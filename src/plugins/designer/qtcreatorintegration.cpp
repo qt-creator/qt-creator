@@ -275,44 +275,6 @@ static bool isEndingQuote(const QString &contents, int quoteIndex)
     return endingQuote;
 }
 
-// TODO: Wait for robust Roberto's code using AST or whatever for that. Current implementation is hackish.
-static int findClassEndPosition(const QString &headerContents, int classStartPosition)
-{
-    const QString contents = headerContents.mid(classStartPosition); // we start serching from the beginning of class declaration
-    // We need to find the position of class closing "}"
-    int openedBlocksCount = 0; // counter of nested {} blocks
-    int idx = 0; // index of current position in the contents
-    while (true) {
-        if (idx < 0 || idx >= contents.length()) // indexOf returned -1, that means we don't have closing comment mark
-            break;
-        if (contents.mid(idx, 2) == QLatin1String("//")) {
-            idx = contents.indexOf(QLatin1Char('\n'), idx + 2) + 1; // drop everything up to the end of line
-        } else if (contents.mid(idx, 2) == QLatin1String("/*")) {
-            idx = contents.indexOf(QLatin1String("*/"), idx + 2) + 2; // drop everything up to the nearest */
-        } else if (contents.mid(idx, 4) == QLatin1String("'\\\"'")) {
-            idx += 4; // drop it
-        } else if (contents.at(idx) == QLatin1Char('\"')) {
-            do {
-                idx = contents.indexOf(QLatin1Char('\"'), idx + 1); // drop everything up to the nearest "
-            } while (idx > 0 && !isEndingQuote(contents, idx)); // if the nearest " is preceded by \ (or by \\\ or by \\\\\, but not by \\ nor \\\\) we find next one
-            if (idx < 0)
-                break;
-            idx++;
-        } else {
-            if (contents.at(idx) == QLatin1Char('{')) {
-                openedBlocksCount++;
-            } else if (contents.at(idx) == QLatin1Char('}')) {
-                openedBlocksCount--;
-                if (openedBlocksCount == 0) {
-                    return classStartPosition + idx;
-                }
-            }
-            idx++;
-        }
-    }
-    return -1;
-}
-
 static inline ITextEditable *editableAt(const QString &fileName, int line, int column)
 {
     return qobject_cast<ITextEditable *>(TextEditor::BaseTextEditor::openEditorAt(fileName, line, column));
@@ -329,7 +291,7 @@ static void addDeclaration(Document::Ptr doc, const Class *cl, const QString &fu
     const InsertionLocation loc = find.methodDeclarationInClass(cl, InsertionPointLocator::PrivateSlot);
 
     //
-    // ### FIXME: change this to use the Refactoring changes!
+    // ### FIXME: change this to use the Refactoring changes.
     //
 
     if (ITextEditable *editable = editableAt(docFileName, loc.line(), loc.column() - 1)) {
@@ -338,7 +300,7 @@ static void addDeclaration(Document::Ptr doc, const Class *cl, const QString &fu
             QTextCursor tc = editor->textCursor();
             int pos = tc.position();
             tc.beginEditBlock();
-            tc.insertText(loc.prefix() + declaration);
+            tc.insertText(loc.prefix() + declaration + loc.suffix());
             tc.setPosition(pos, QTextCursor::KeepAnchor);
             editor->indentInsertedText(tc);
             tc.endEditBlock();
@@ -370,6 +332,11 @@ static Document::Ptr addDefinition(const CPlusPlus::Snapshot &docTable,
         // we take only those documents which have the same filename
         if (headerBaseName == sourceFI.baseName()) {
             if (ITextEditable *editable = editableAt(doc->fileName(), 0, 0)) {
+
+                //
+                // ### FIXME: use the InsertionPointLocator to insert at the correct place.
+                //
+
                 const QString contents = editable->contents();
                 int column;
                 editable->convertPosition(contents.length(), line, &column);

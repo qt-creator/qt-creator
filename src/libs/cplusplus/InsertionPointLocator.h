@@ -33,7 +33,7 @@
 #include <CPlusPlusForwardDeclarations.h>
 #include <Symbols.h>
 
-#include <cplusplus/CppDocument.h>
+#include "CppDocument.h"
 
 namespace CPlusPlus {
 
@@ -41,18 +41,22 @@ class CPLUSPLUS_EXPORT InsertionLocation
 {
 public:
     InsertionLocation();
-    InsertionLocation(const QString &prefix, unsigned line, unsigned column);
+    InsertionLocation(const QString &prefix, const QString &suffix, unsigned line, unsigned column);
 
     /// \returns The prefix to insert before any other text.
     QString prefix() const
     { return m_prefix; }
 
+    /// \returns The suffix to insert after the other inserted text.
+    QString suffix() const
+    { return m_suffix; }
+
     /// \returns The line where to insert. The line number is 1-based.
-    int line() const
+    unsigned line() const
     { return m_line; }
 
     /// \returns The column where to insert. The column number is 1-based.
-    int column() const
+    unsigned column() const
     { return m_column; }
 
     bool isValid() const
@@ -60,6 +64,7 @@ public:
 
 private:
     QString m_prefix;
+    QString m_suffix;
     unsigned m_line;
     unsigned m_column;
 };
