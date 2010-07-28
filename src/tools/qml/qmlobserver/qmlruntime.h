@@ -67,6 +67,7 @@ class NetworkAccessManagerFactory;
 class QTranslator;
 class QActionGroup;
 class QMenuBar;
+class QSplitter;
 
 class QDeclarativeViewer
     : public QMainWindow
@@ -151,9 +152,10 @@ private slots:
     void warningsWidgetOpened();
     void warningsWidgetClosed();
 
-    void updateSizeHints();
 
 private:
+    void updateSizeHints(bool initial = false);
+
     QString getVideoFileName();
 
     LoggerWidget *loggerWindow;
@@ -198,6 +200,8 @@ private:
     NetworkAccessManagerFactory *namFactory;
 
     bool useQmlFileBrowser;
+
+    QSplitter *m_splitter;
 
     QTranslator *translator;
     void loadTranslationFile(const QString& directory);
