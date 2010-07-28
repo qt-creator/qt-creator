@@ -70,7 +70,7 @@ static inline QString properName(const QColor &color)
 
 static inline QColor properColor(const QString &str)
 {
-    if (str.isNull())
+    if (str.isEmpty())
         return QColor();
     int lalpha = 255;
     QString lcolorStr = str;
