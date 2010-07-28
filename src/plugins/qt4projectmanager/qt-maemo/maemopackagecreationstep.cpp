@@ -199,10 +199,6 @@ bool MaemoPackageCreationStep::createPackage()
         rulesContents.replace("DESTDIR", "INSTALL_ROOT");
         rulesContents.replace("dh_shlibdeps", "# dh_shlibdeps");
 
-        // Would be the right solution, but does not work (on Windows),
-        // because dpkg-genchanges doesn't know about it (and can't be told).
-        // rulesContents.replace("dh_builddeb", "dh_builddeb --destdir=.");
-
         rulesFile.resize(0);
         rulesFile.write(rulesContents);
         if (rulesFile.error() != QFile::NoError) {
@@ -224,7 +220,7 @@ bool MaemoPackageCreationStep::createPackage()
         }
     }
 
-    if (!runCommand(QLatin1String("dpkg-buildpackage -nc -uc -us")))
+    if (!runCommand(QLatin1String("dh_installdirs")))
         return false;
 
     // Workaround for non-working dh_builddeb --destdir=.
@@ -248,6 +244,22 @@ bool MaemoPackageCreationStep::createPackage()
                 .arg(packageSourceDir, buildDir));
             return false;
         }
+
+        if (!QFile::copy(d.localFilePath, targetFile)) {
+            raiseError(tr("Packaging Error: Could not copy '%1' to '%2'.")
+                       .arg(QDir::toNativeSeparators(d.localFilePath))
+                       .arg(QDir::toNativeSeparators(targetFile)));
+            return false;
+        }
+    }
+
+    const QStringList commands = QStringList() << QLatin1String("dh_link")
+        << QLatin1String("dh_fixperms") << QLatin1String("dh_installdeb")
+        << QLatin1String("dh_gencontrol") << QLatin1String("dh_md5sums")
+        << QLatin1String("dh_builddeb --destdir=.");
+    foreach (const QString &command, commands) {
+        if (!runCommand(command))
+            return false;
     }
 
     emit addOutput(tr("Package created."), BuildStep::MessageOutput);
