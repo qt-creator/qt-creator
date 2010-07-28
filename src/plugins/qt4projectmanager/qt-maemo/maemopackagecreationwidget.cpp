@@ -66,6 +66,8 @@ MaemoPackageCreationWidget::MaemoPackageCreationWidget(MaemoPackageCreationStep 
     m_ui->minor->setValue(list.value(1, QLatin1String("0")).toInt());
     m_ui->patch->setValue(list.value(2, QLatin1String("0")).toInt());
     versionInfoChanged();
+    connect(m_step, SIGNAL(packageFilePathChanged()), this,
+        SIGNAL(updateSummary()));
 }
 
 void MaemoPackageCreationWidget::init()
@@ -94,7 +96,6 @@ void MaemoPackageCreationWidget::versionInfoChanged()
 {
     m_step->setVersionString(m_ui->major->text() + QLatin1Char('.')
         + m_ui->minor->text() + QLatin1Char('.') + m_ui->patch->text());
-    emit updateSummary();
 }
 
 } // namespace Internal

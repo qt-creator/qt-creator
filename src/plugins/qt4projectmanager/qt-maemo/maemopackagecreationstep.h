@@ -75,6 +75,9 @@ public:
     QString versionString() const;
     void setVersionString(const QString &version);
 
+signals:
+    void packageFilePathChanged();
+
 private slots:
     void handleBuildOutput();
 
@@ -82,6 +85,7 @@ private:
     MaemoPackageCreationStep(ProjectExplorer::BuildConfiguration *buildConfig,
                              MaemoPackageCreationStep *other);
 
+    void ctor();
     virtual bool init();
     virtual void run(QFutureInterface<bool> &fi);
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();

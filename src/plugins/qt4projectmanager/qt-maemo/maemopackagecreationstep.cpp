@@ -78,6 +78,7 @@ MaemoPackageCreationStep::MaemoPackageCreationStep(BuildConfiguration *buildConf
       m_packagingEnabled(true),
       m_versionString(DefaultVersionNumber)
 {
+    ctor();
 }
 
 MaemoPackageCreationStep::MaemoPackageCreationStep(BuildConfiguration *buildConfig,
@@ -86,10 +87,17 @@ MaemoPackageCreationStep::MaemoPackageCreationStep(BuildConfiguration *buildConf
       m_packagingEnabled(other->m_packagingEnabled),
       m_versionString(other->m_versionString)
 {
+    ctor();
 }
 
 MaemoPackageCreationStep::~MaemoPackageCreationStep()
 {
+}
+
+void MaemoPackageCreationStep::ctor()
+{
+    connect(buildConfiguration(), SIGNAL(buildDirectoryChanged()), this,
+        SIGNAL(packageFilePathChanged()));
 }
 
 bool MaemoPackageCreationStep::init()
@@ -367,6 +375,7 @@ QString MaemoPackageCreationStep::versionString() const
 void MaemoPackageCreationStep::setVersionString(const QString &version)
 {
     m_versionString = version;
+    emit packageFilePathChanged();
 }
 
 QString MaemoPackageCreationStep::nativePath(const QFile &file) const
