@@ -143,10 +143,21 @@ public:
     virtual ~CppQuickFixFactory();
 
     virtual QList<TextEditor::QuickFixOperation::Ptr> matchingOperations(TextEditor::QuickFixState *state);
+    /*!
+        Implement this method to match and create the appropriate
+        CppQuickFixOperation objects.
+     */
     virtual QList<CppQuickFixOperation::Ptr> match(const CppQuickFixState &state) = 0;
 
 protected:
+    /*!
+        Creates a list of 1 single element: the shared-pointer to the given
+        operation. This shared-pointer takes over the ownership (meaning the
+        responsibility to delete the operation).
+     */
     static QList<CppQuickFixOperation::Ptr> singleResult(CppQuickFixOperation *operation);
+
+    /// Utility method which creates an empty list.
     static QList<CppQuickFixOperation::Ptr> noResult();
 };
 
@@ -165,6 +176,7 @@ public:
 
     virtual QList<TextEditor::QuickFixFactory *> quickFixFactories() const;
 
+    /// Registers all quick-fixes in this plug-in as auto-released objects.
     static void registerQuickFixes(ExtensionSystem::IPlugin *plugIn);
 };
 

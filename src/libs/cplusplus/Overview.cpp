@@ -158,6 +158,8 @@ QString Overview::prettyType(const FullySpecifiedType &ty,
  * \param the name for the named-type to use
  * \param the control where the name is registered
  * \return the pretty-printed name
+ *
+ * \todo Remove this method, and do it "for real" using the class CPlusPlus::Rewrite.
  */
 QString Overview::prettyTypeWithName(const FullySpecifiedType &type,
                                      const Name *name,

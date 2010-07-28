@@ -59,11 +59,6 @@ QTextCursor QuickFixState::textCursor() const
     return _textCursor;
 }
 
-void QuickFixState::setCursor(const QTextCursor &cursor)
-{
-    _textCursor = cursor;
-}
-
 int QuickFixState::selectionStart() const
 {
     return _textCursor.selectionStart();

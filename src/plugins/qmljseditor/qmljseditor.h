@@ -55,6 +55,9 @@ namespace QmlJS {
     class IContextPane;
 }
 
+/*!
+    The top-level namespace of the QmlJSEditor plug-in.
+ */
 namespace QmlJSEditor {
 class Highlighter;
 

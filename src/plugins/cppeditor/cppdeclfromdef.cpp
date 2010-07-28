@@ -54,6 +54,7 @@ using CppEditor::CppRefactoringChanges;
 
 namespace {
 
+//! \todo This method should probably be changed when Overview#prettyTypeWithName is removed.
 QString prettyMinimalType(const FullySpecifiedType &ty,
                           const LookupContext &context,
                           Scope *source,
@@ -144,7 +145,7 @@ QList<CppQuickFixOperation::Ptr> DeclFromDef::match(const CppQuickFixState &stat
                                                   generateDeclaration(state,
                                                                       method,
                                                                       targetBinding)));
-            } // ### TODO: support insertion into namespaces
+            } //! \todo support insertion into namespaces
         }
     }
 

@@ -40,6 +40,10 @@
 
 namespace TextEditor {
 
+/*!
+    This class batches changes to multiple file, which are applied as a single big
+    change.
+ */
 class TEXTEDITOR_EXPORT RefactoringChanges
 {
 public:
@@ -56,6 +60,11 @@ public:
 
     void reindent(const QString &fileName, const Range &range);
 
+    /*!
+        Applies all changes to open editors or to text files.
+
+        \return The list of changed files, including newly-created ones.
+     */
     virtual QStringList apply();
 
     int positionInFile(const QString &fileName, int line, int column = 0) const;

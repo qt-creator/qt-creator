@@ -262,19 +262,6 @@ static Document::Ptr findDefinition(Function *functionDeclaration, int *line)
     return Document::Ptr();
 }
 
-static bool isEndingQuote(const QString &contents, int quoteIndex)
-{
-    bool endingQuote = true;
-    if (quoteIndex > 0) {
-        int previous = 1;
-        while (contents.at(quoteIndex - previous) == QLatin1Char('\\')) {
-            previous++;
-            endingQuote = !endingQuote;
-        }
-    }
-    return endingQuote;
-}
-
 static inline ITextEditable *editableAt(const QString &fileName, int line, int column)
 {
     return qobject_cast<ITextEditable *>(TextEditor::BaseTextEditor::openEditorAt(fileName, line, column));
@@ -291,7 +278,7 @@ static void addDeclaration(Document::Ptr doc, const Class *cl, const QString &fu
     const InsertionLocation loc = find.methodDeclarationInClass(cl, InsertionPointLocator::PrivateSlot);
 
     //
-    // ### FIXME: change this to use the Refactoring changes.
+    //! \todo change this to use the Refactoring changes.
     //
 
     if (ITextEditable *editable = editableAt(docFileName, loc.line(), loc.column() - 1)) {
@@ -332,13 +319,13 @@ static Document::Ptr addDefinition(const CPlusPlus::Snapshot &docTable,
         // we take only those documents which have the same filename
         if (headerBaseName == sourceFI.baseName()) {
             //
-            // ### FIXME: change this to use the Refactoring changes.
+            //! \todo change this to use the Refactoring changes.
             //
 
             if (ITextEditable *editable = editableAt(doc->fileName(), 0, 0)) {
 
                 //
-                // ### FIXME: use the InsertionPointLocator to insert at the correct place.
+                //! \todo use the InsertionPointLocator to insert at the correct place.
                 // (we'll have to extend that class first to do definition insertions)
 
                 const QString contents = editable->contents();
