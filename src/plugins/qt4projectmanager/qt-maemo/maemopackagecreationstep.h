@@ -56,7 +56,7 @@ namespace Internal {
 
 class MaemoDeployStep;
 class MaemoToolChain;
-class ProFileWrapper;
+class MaemoProFileWrapper;
 class Qt4BuildConfiguration;
 
 class MaemoPackageCreationStep : public ProjectExplorer::BuildStep

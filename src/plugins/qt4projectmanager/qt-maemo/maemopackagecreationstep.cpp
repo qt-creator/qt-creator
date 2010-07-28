@@ -42,12 +42,12 @@
 #include "maemopackagecreationstep.h"
 
 #include "maemoconstants.h"
-#include "maemoglobal.h"
-#include "maemopackagecreationwidget.h"
 #include "maemodeployables.h"
 #include "maemodeploystep.h"
+#include "maemoglobal.h"
+#include "maemopackagecreationwidget.h"
+#include "maemoprofilewrapper.h"
 #include "maemotoolchain.h"
-#include "profilewrapper.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qt4buildconfiguration.h>

@@ -34,8 +34,8 @@
 
 #include "maemorunconfigurationwidget.h"
 
-#include "deviceenvreader.h"
 #include "maemodeviceconfiglistmodel.h"
+#include "maemodeviceenvreader.h"
 #include "maemomanager.h"
 #include "maemoremotemountsmodel.h"
 #include "maemorunconfiguration.h"
@@ -63,7 +63,7 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
         MaemoRunConfiguration *runConfiguration, QWidget *parent)
     : QWidget(parent),
     m_runConfiguration(runConfiguration),
-    m_deviceEnvReader(new DeviceEnvReader(this, runConfiguration))
+    m_deviceEnvReader(new MaemoDeviceEnvReader(this, runConfiguration))
 {
     QVBoxLayout *mainLayout = new QVBoxLayout;
     setLayout(mainLayout);

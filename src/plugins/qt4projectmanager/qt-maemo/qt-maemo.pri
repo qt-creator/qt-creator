@@ -15,8 +15,8 @@ HEADERS += \
     $$PWD/maemopackagecreationfactory.h \
     $$PWD/maemopackagecreationwidget.h \
     $$PWD/maemodeployablelistmodel.h \
-    $$PWD/qemuruntimemanager.h \
-    $$PWD/profilewrapper.h \
+    $$PWD/maemoqemumanager.h \
+    $$PWD/maemoprofilewrapper.h \
     $$PWD/maemodeployables.h \
     $$PWD/maemodeployable.h \
     $$PWD/maemodeployablelistwidget.h \
@@ -28,7 +28,7 @@ HEADERS += \
     $$PWD/maemodebugsupport.h \
     $$PWD/maemodeviceconfiglistmodel.h \
     $$PWD/maemoremotemountsmodel.h \
-    $$PWD/deviceenvreader.h
+    $$PWD/maemodeviceenvreader.h
 
 SOURCES += \
     $$PWD/maemoconfigtestdialog.cpp \
@@ -46,8 +46,8 @@ SOURCES += \
     $$PWD/maemopackagecreationfactory.cpp \
     $$PWD/maemopackagecreationwidget.cpp \
     $$PWD/maemodeployablelistmodel.cpp \
-    $$PWD/qemuruntimemanager.cpp \
-    $$PWD/profilewrapper.cpp \
+    $$PWD/maemoqemumanager.cpp \
+    $$PWD/maemoprofilewrapper.cpp \
     $$PWD/maemodeployables.cpp \
     $$PWD/maemodeployablelistwidget.cpp \
     $$PWD/maemodeploystep.cpp \
@@ -58,7 +58,7 @@ SOURCES += \
     $$PWD/maemodebugsupport.cpp \
     $$PWD/maemodeviceconfiglistmodel.cpp \
     $$PWD/maemoremotemountsmodel.cpp \
-    $$PWD/deviceenvreader.cpp
+    $$PWD/maemodeviceenvreader.cpp
 
 FORMS += \
     $$PWD/maemoconfigtestdialog.ui \

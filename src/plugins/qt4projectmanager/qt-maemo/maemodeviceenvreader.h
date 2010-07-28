@@ -35,11 +35,12 @@
 #ifndef DEVICEENVREADER_H
 #define DEVICEENVREADER_H
 
+#include "maemodeviceconfigurations.h"
+
+#include <projectexplorer/environment.h>
+
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
-
-#include "maemodeviceconfigurations.h"
-#include <projectexplorer/environment.h>
 
 namespace Core {
     class SshConnection;
@@ -51,12 +52,12 @@ namespace Qt4ProjectManager {
 
 class MaemoRunConfiguration;
 
-class DeviceEnvReader : public QObject
+class MaemoDeviceEnvReader : public QObject
 {
     Q_OBJECT
 public:
-    DeviceEnvReader(QObject *parent, MaemoRunConfiguration *config);
-    ~DeviceEnvReader();
+    MaemoDeviceEnvReader(QObject *parent, MaemoRunConfiguration *config);
+    ~MaemoDeviceEnvReader();
 
     void start();
     void stop();
@@ -82,9 +83,8 @@ private:
     bool m_stop;
     QString m_remoteOutput;
     ProjectExplorer::Environment m_env;
-
-    MaemoDeviceConfig m_devConfig;
     QPointer<MaemoRunConfiguration> m_runConfig;
+    MaemoDeviceConfig m_devConfig;
     QSharedPointer<Core::SshConnection> m_connection;
     QSharedPointer<Core::SshRemoteProcess> m_remoteProcess;
 };

@@ -16,12 +16,12 @@ namespace Qt4ProjectManager {
 namespace Internal {
 class ProFileReader;
 
-class ProFileWrapper
+class MaemoProFileWrapper
 {
 public:
-    ProFileWrapper(const QString &proFileName,
+    MaemoProFileWrapper(const QString &proFileName,
         const QSharedPointer<ProFileOption> &proFileOption);
-    ~ProFileWrapper();
+    ~MaemoProFileWrapper();
 
     void reload();
 

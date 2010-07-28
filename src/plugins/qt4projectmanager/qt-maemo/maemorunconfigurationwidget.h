@@ -54,7 +54,7 @@ namespace ProjectExplorer {
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class DeviceEnvReader;
+class MaemoDeviceEnvReader;
 class MaemoRunConfiguration;
 
 class MaemoRunConfigurationWidget : public QWidget
@@ -90,7 +90,7 @@ private:
     MaemoRunConfiguration *m_runConfiguration;
 
     QPushButton *m_fetchEnv;
-    DeviceEnvReader *m_deviceEnvReader;
+    MaemoDeviceEnvReader *m_deviceEnvReader;
     ProjectExplorer::EnvironmentWidget *m_environmentWidget;
 };
 

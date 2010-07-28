@@ -46,7 +46,7 @@ class MaemoPackageCreationFactory;
 class MaemoRunControlFactory;
 class MaemoRunConfigurationFactory;
 class MaemoSettingsPage;
-class QemuRuntimeManager;
+class MaemoQemuManager;
 
 class MaemoManager : public QObject
 {
@@ -70,7 +70,7 @@ private:
     MaemoPackageCreationFactory *m_packageCreationFactory;
     MaemoDeployStepFactory *m_deployStepFactory;
     MaemoSettingsPage *m_settingsPage;
-    QemuRuntimeManager *m_qemuRuntimeManager;
+    MaemoQemuManager *m_qemuRuntimeManager;
 };
 
     } // namespace Internal

@@ -33,10 +33,10 @@
 #include "maemodeploystepfactory.h"
 #include "maemodeviceconfigurations.h"
 #include "maemopackagecreationfactory.h"
+#include "maemoqemumanager.h"
 #include "maemorunfactories.h"
 #include "maemosettingspage.h"
 #include "maemotoolchain.h"
-#include "qemuruntimemanager.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <qt4projectmanager/qtversionmanager.h>
@@ -64,7 +64,7 @@ MaemoManager::MaemoManager()
     Q_ASSERT(!m_instance);
 
     m_instance = this;
-    QemuRuntimeManager::instance(this);
+    MaemoQemuManager::instance(this);
     MaemoDeviceConfigurations::instance(this);
 
     PluginManager *pluginManager = PluginManager::instance();

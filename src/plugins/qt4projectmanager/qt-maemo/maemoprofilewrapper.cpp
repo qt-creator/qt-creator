@@ -1,4 +1,4 @@
-#include "profilewrapper.h"
+#include "maemoprofilewrapper.h"
 
 #include <prowriter.h>
 #include <qt4projectmanager/profilereader.h>
@@ -26,7 +26,7 @@ namespace {
 }
 
 
-ProFileWrapper::ProFileWrapper(const QString &proFileName,
+MaemoProFileWrapper::MaemoProFileWrapper(const QString &proFileName,
     const QSharedPointer<ProFileOption> &proFileOption)
     : m_proFileName(proFileName), m_proDir(QFileInfo(m_proFileName).dir()),
       m_proFileOption(proFileOption)
@@ -34,14 +34,14 @@ ProFileWrapper::ProFileWrapper(const QString &proFileName,
     parseProFile(ParseFromFile);
 }
 
-ProFileWrapper::~ProFileWrapper() {}
+MaemoProFileWrapper::~MaemoProFileWrapper() {}
 
-void ProFileWrapper::reload()
+void MaemoProFileWrapper::reload()
 {
     parseProFile(ParseFromFile);
 }
 
-ProFileWrapper::InstallsList ProFileWrapper::installs() const
+MaemoProFileWrapper::InstallsList MaemoProFileWrapper::installs() const
 {
     InstallsList list;
 
@@ -75,7 +75,7 @@ ProFileWrapper::InstallsList ProFileWrapper::installs() const
     return list;
 }
 
-bool ProFileWrapper::addInstallsElem(const QString &path,
+bool MaemoProFileWrapper::addInstallsElem(const QString &path,
     const QString &absFilePath, const QString &var)
 {
     QString varName = var;
@@ -92,12 +92,12 @@ bool ProFileWrapper::addInstallsElem(const QString &path,
         && addVarValue(InstallsVar, varName);
 }
 
-bool ProFileWrapper::addInstallsTarget(const QString &path)
+bool MaemoProFileWrapper::addInstallsTarget(const QString &path)
 {
     return addInstallsElem(path, QString(), TargetVar);
 }
 
-bool ProFileWrapper::removeInstallsElem(const QString &path,
+bool MaemoProFileWrapper::removeInstallsElem(const QString &path,
     const QString &file)
 {
     const InstallsElem &elem = findInstallsElem(path, file);
@@ -116,7 +116,7 @@ bool ProFileWrapper::removeInstallsElem(const QString &path,
     return true;
 }
 
-bool ProFileWrapper::replaceInstallPath(const QString &oldPath,
+bool MaemoProFileWrapper::replaceInstallPath(const QString &oldPath,
     const QString &file, const QString &newPath)
 {
     const InstallsElem &elem = findInstallsElem(oldPath, file);
@@ -134,12 +134,12 @@ bool ProFileWrapper::replaceInstallPath(const QString &oldPath,
     return addInstallsElem(newPath, file);
 }
 
-QStringList ProFileWrapper::varValues(const QString &var) const
+QStringList MaemoProFileWrapper::varValues(const QString &var) const
 {
     return m_proFileReader->values(var, m_proFile);
 }
 
-bool ProFileWrapper::addVarValue(const QString &var, const QString &value)
+bool MaemoProFileWrapper::addVarValue(const QString &var, const QString &value)
 {
     if (varValues(var).contains(value))
         return true;
@@ -152,7 +152,7 @@ bool ProFileWrapper::addVarValue(const QString &var, const QString &value)
     return writeProFileContents();
 }
 
-bool ProFileWrapper::addFile(const QString &var, const QString &absFilePath)
+bool MaemoProFileWrapper::addFile(const QString &var, const QString &absFilePath)
 {
     if (!readProFileContents())
         return false;
@@ -162,7 +162,7 @@ bool ProFileWrapper::addFile(const QString &var, const QString &absFilePath)
     return writeProFileContents();
 }
 
-bool ProFileWrapper::removeVarValue(const QString &var, const QString &value)
+bool MaemoProFileWrapper::removeVarValue(const QString &var, const QString &value)
 {
     if (!readProFileContents())
         return false;
@@ -178,7 +178,7 @@ bool ProFileWrapper::removeVarValue(const QString &var, const QString &value)
     }
 }
 
-bool ProFileWrapper::removeFile(const QString &var, const QString &absFilePath)
+bool MaemoProFileWrapper::removeFile(const QString &var, const QString &absFilePath)
 {
     if (!readProFileContents())
         return false;
@@ -193,7 +193,7 @@ bool ProFileWrapper::removeFile(const QString &var, const QString &absFilePath)
     }
 }
 
-bool ProFileWrapper::replaceVarValue(const QString &var,
+bool MaemoProFileWrapper::replaceVarValue(const QString &var,
     const QString &oldValue, const QString &newValue)
 {
     if (!readProFileContents())
@@ -211,7 +211,7 @@ bool ProFileWrapper::replaceVarValue(const QString &var,
     return writeProFileContents();
 }
 
-QString ProFileWrapper::absFilePath(const QString &relFilePath) const
+QString MaemoProFileWrapper::absFilePath(const QString &relFilePath) const
 {
     // I'd rather use QDir::cleanPath(), but that doesn't work well
     // enough for redundant ".." dirs.
@@ -221,7 +221,7 @@ QString ProFileWrapper::absFilePath(const QString &relFilePath) const
         .canonicalFilePath();
 }
 
-void ProFileWrapper::parseProFile(ParseType type) const
+void MaemoProFileWrapper::parseProFile(ParseType type) const
 {
     m_proFileReader.reset(new ProFileReader(m_proFileOption.data()));
     m_proFileReader->setCumulative(false);
@@ -244,7 +244,7 @@ void ProFileWrapper::parseProFile(ParseType type) const
     m_proFile->deref();
 }
 
-bool ProFileWrapper::writeProFileContents()
+bool MaemoProFileWrapper::writeProFileContents()
 {
     QFile proFileOnDisk(m_proFileName);
     if (!proFileOnDisk.open(QIODevice::WriteOnly)) {
@@ -262,7 +262,7 @@ bool ProFileWrapper::writeProFileContents()
     return true;
 }
 
-bool ProFileWrapper::readProFileContents()
+bool MaemoProFileWrapper::readProFileContents()
 {
     if (!m_proFileContents.isEmpty())
         return true;
@@ -278,7 +278,7 @@ bool ProFileWrapper::readProFileContents()
     return true;
 }
 
-ProFileWrapper::InstallsElem ProFileWrapper::findInstallsElem(const QString &path,
+MaemoProFileWrapper::InstallsElem MaemoProFileWrapper::findInstallsElem(const QString &path,
     const QString &file) const
 {
     const QStringList &elems = varValues(InstallsVar);

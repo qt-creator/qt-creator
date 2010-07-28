@@ -67,12 +67,12 @@ struct Runtime
     QString m_gdbServerPort;
 };
 
-class QemuRuntimeManager : public QObject
+class MaemoQemuManager : public QObject
 {
     Q_OBJECT
 
 public:
-    static QemuRuntimeManager& instance(QObject *parent = 0);
+    static MaemoQemuManager& instance(QObject *parent = 0);
 
     bool runtimeForQtVersion(int uniqueId, Runtime *rt) const;
 
@@ -110,8 +110,8 @@ private slots:
     void qemuOutput();
 
 private:
-    QemuRuntimeManager(QObject *parent);
-    ~QemuRuntimeManager();
+    MaemoQemuManager(QObject *parent);
+    ~MaemoQemuManager();
 
     void setupRuntimes();
     bool sessionHasMaemoTarget() const;
@@ -138,7 +138,7 @@ private:
     bool m_userTerminated;
     QIcon m_qemuStarterIcon;
     QMap<int, Runtime> m_runtimes;
-    static QemuRuntimeManager *m_instance;
+    static MaemoQemuManager *m_instance;
 };
 
     }   // namespace Qt4ProjectManager

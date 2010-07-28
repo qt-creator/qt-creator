@@ -45,7 +45,7 @@ QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
 namespace Internal {
-class ProFileWrapper;
+class MaemoProFileWrapper;
 class Qt4ProFileNode;
 
 class MaemoDeployableListModel : public QAbstractTableModel
@@ -83,7 +83,7 @@ private:
     const Qt4ProFileNode * const m_proFileNode;
     QList<MaemoDeployable> m_deployables;
     mutable bool m_modified;
-    const QScopedPointer<ProFileWrapper> m_proFileWrapper;
+    const QScopedPointer<MaemoProFileWrapper> m_proFileWrapper;
 };
 
 } // namespace Qt4ProjectManager

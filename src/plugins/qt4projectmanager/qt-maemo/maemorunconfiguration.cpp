@@ -33,10 +33,10 @@
 #include "maemodeploystep.h"
 #include "maemodeviceconfiglistmodel.h"
 #include "maemoglobal.h"
+#include "maemoqemumanager.h"
 #include "maemoremotemountsmodel.h"
 #include "maemorunconfigurationwidget.h"
 #include "maemotoolchain.h"
-#include "qemuruntimemanager.h"
 #include "qtoutputformatter.h"
 
 #include <coreplugin/icore.h>
@@ -259,7 +259,7 @@ QString MaemoRunConfiguration::runtimeGdbServerPort() const
     if (Qt4BuildConfiguration *qt4bc = activeQt4BuildConfiguration()) {
         Runtime rt;
         const int id = qt4bc->qtVersion()->uniqueId();
-        if (QemuRuntimeManager::instance().runtimeForQtVersion(id, &rt))
+        if (MaemoQemuManager::instance().runtimeForQtVersion(id, &rt))
             return rt.m_gdbServerPort;
     }
     return QLatin1String("13219");

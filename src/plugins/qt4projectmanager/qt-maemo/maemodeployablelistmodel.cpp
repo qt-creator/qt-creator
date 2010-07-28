@@ -29,7 +29,7 @@
 
 #include "maemodeployablelistmodel.h"
 
-#include "profilewrapper.h"
+#include "maemoprofilewrapper.h"
 
 #include <qt4projectmanager/qt4nodes.h>
 
@@ -45,7 +45,7 @@ MaemoDeployableListModel::MaemoDeployableListModel(const Qt4ProFileNode *proFile
     : QAbstractTableModel(parent),
       m_proFileNode(proFileNode),
       m_modified(false),
-      m_proFileWrapper(new ProFileWrapper(m_proFileNode->path(), proFileOption))
+      m_proFileWrapper(new MaemoProFileWrapper(m_proFileNode->path(), proFileOption))
 {
     buildModel();
 }
@@ -56,7 +56,7 @@ bool MaemoDeployableListModel::buildModel()
 {
     m_deployables.clear();
 
-    const ProFileWrapper::InstallsList &installs = m_proFileWrapper->installs();
+    const MaemoProFileWrapper::InstallsList &installs = m_proFileWrapper->installs();
     if (installs.targetPath.isEmpty()) {
         const QString remoteDir = m_proFileNode->projectType() == LibraryTemplate
             ? QLatin1String("/usr/local/lib")
@@ -79,7 +79,7 @@ bool MaemoDeployableListModel::buildModel()
         m_deployables.prepend(MaemoDeployable(localExecutableFilePath(),
             installs.targetPath));
     }
-    foreach (const ProFileWrapper::InstallsElem &elem, installs.normalElems) {
+    foreach (const MaemoProFileWrapper::InstallsElem &elem, installs.normalElems) {
         foreach (const QString &file, elem.files) {
             m_deployables << MaemoDeployable(m_proFileWrapper->absFilePath(file),
                 elem.path);

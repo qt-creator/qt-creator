@@ -32,7 +32,8 @@
 **
 ****************************************************************************/
 
-#include "deviceenvreader.h"
+#include "maemodeviceenvreader.h"
+
 #include "maemorunconfiguration.h"
 
 #include <coreplugin/ssh/sshconnection.h>
@@ -41,7 +42,7 @@
 namespace Qt4ProjectManager {
     namespace Internal {
 
-DeviceEnvReader::DeviceEnvReader(QObject *parent, MaemoRunConfiguration *config)
+MaemoDeviceEnvReader::MaemoDeviceEnvReader(QObject *parent, MaemoRunConfiguration *config)
     : QObject(parent)
     , m_stop(false)
     , m_runConfig(config)
@@ -49,11 +50,11 @@ DeviceEnvReader::DeviceEnvReader(QObject *parent, MaemoRunConfiguration *config)
 {
 }
 
-DeviceEnvReader::~DeviceEnvReader()
+MaemoDeviceEnvReader::~MaemoDeviceEnvReader()
 {
 }
 
-void DeviceEnvReader::start()
+void MaemoDeviceEnvReader::start()
 {
     m_stop = false;
     if (m_connection)
@@ -77,7 +78,7 @@ void DeviceEnvReader::start()
         m_connection->connectToHost(m_devConfig.server);
 }
 
-void DeviceEnvReader::stop()
+void MaemoDeviceEnvReader::stop()
 {
     m_stop = true;
     disconnect(m_connection.data(), 0, this, 0);
@@ -88,7 +89,7 @@ void DeviceEnvReader::stop()
     }
 }
 
-void DeviceEnvReader::setEnvironment()
+void MaemoDeviceEnvReader::setEnvironment()
 {
     if (m_remoteOutput.isEmpty() && !m_runConfig.isNull())
         return;
@@ -96,7 +97,7 @@ void DeviceEnvReader::setEnvironment()
         QString::SkipEmptyParts));
 }
 
-void DeviceEnvReader::executeRemoteCall()
+void MaemoDeviceEnvReader::executeRemoteCall()
 {
     if (m_stop)
         return;
@@ -115,14 +116,14 @@ void DeviceEnvReader::executeRemoteCall()
     m_remoteProcess->start();
 }
 
-void DeviceEnvReader::handleConnectionFailure()
+void MaemoDeviceEnvReader::handleConnectionFailure()
 {
     emit error(tr("Could not connect to host: %1")
         .arg(m_connection->errorString()));
     emit finished();
 }
 
-void DeviceEnvReader::remoteProcessFinished(int exitCode)
+void MaemoDeviceEnvReader::remoteProcessFinished(int exitCode)
 {
     Q_ASSERT(exitCode == Core::SshRemoteProcess::FailedToStart
         || exitCode == Core::SshRemoteProcess::KilledBySignal
@@ -140,12 +141,12 @@ void DeviceEnvReader::remoteProcessFinished(int exitCode)
     emit finished();
 }
 
-void DeviceEnvReader::remoteOutput(const QByteArray &data)
+void MaemoDeviceEnvReader::remoteOutput(const QByteArray &data)
 {
     m_remoteOutput.append(QString::fromUtf8(data));
 }
 
-void DeviceEnvReader::remoteErrorOutput(const QByteArray &data)
+void MaemoDeviceEnvReader::remoteErrorOutput(const QByteArray &data)
 {
     emit error(data);
 }
