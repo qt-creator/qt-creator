@@ -1227,6 +1227,7 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
                 *indentDepth += m_indentSize;
         } else if (topState.type != defun_open
                 && topState.type != block_open
+                && topState.type != substatement_open
                 && !topWasMaybeElse) {
             *indentDepth = topState.savedIndentDepth;
         }

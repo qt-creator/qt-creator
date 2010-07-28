@@ -45,6 +45,7 @@ private Q_SLOTS:
     void singleLineEnum();
     void functionReturnType();
     void streamOp();
+    void blockStmtInIf();
 };
 
 struct Line {
@@ -813,6 +814,23 @@ void tst_CodeFormatter::streamOp()
          << Line("           foo - blah(1)")
          << Line("        << '?'")
          << Line("        << \"\\n\";")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::blockStmtInIf()
+{
+    QList<Line> data;
+    data
+         << Line("void foo () {")
+         << Line("    if (a) {")
+         << Line("        {")
+         << Line("            foo;")
+         << Line("        }")
+         << Line("    } else {")
+         << Line("        {")
+         << Line("            foo;")
+         << Line("        }")
          ;
     checkIndent(data);
 }
