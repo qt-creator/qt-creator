@@ -331,11 +331,15 @@ static Document::Ptr addDefinition(const CPlusPlus::Snapshot &docTable,
         const QFileInfo sourceFI(doc->fileName());
         // we take only those documents which have the same filename
         if (headerBaseName == sourceFI.baseName()) {
+            //
+            // ### FIXME: change this to use the Refactoring changes.
+            //
+
             if (ITextEditable *editable = editableAt(doc->fileName(), 0, 0)) {
 
                 //
                 // ### FIXME: use the InsertionPointLocator to insert at the correct place.
-                //
+                // (we'll have to extend that class first to do definition insertions)
 
                 const QString contents = editable->contents();
                 int column;
