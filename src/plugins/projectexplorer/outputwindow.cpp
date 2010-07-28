@@ -532,7 +532,8 @@ void OutputWindow::appendApplicationOutputInline(const QString &output, bool onS
     if (!enforceNewline) {
         newline = out.indexOf(QLatin1Char('\n'));
         moveCursor(QTextCursor::End);
-        m_formatter->appendApplicationOutput(newline < 0 ? out : out.left(newline), onStdErr); // doesn't enforce new paragraph like appendPlainText
+        if (newline != -1)
+            m_formatter->appendApplicationOutput(out.left(newline), onStdErr); // doesn't enforce new paragraph like appendPlainText
     }
 
     QString s = out.mid(newline+1);
