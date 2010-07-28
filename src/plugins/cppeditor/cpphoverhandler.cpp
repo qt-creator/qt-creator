@@ -60,6 +60,8 @@
 #include <QtGui/QToolTip>
 #include <QtGui/QTextCursor>
 
+#include <algorithm>
+
 using namespace CppEditor::Internal;
 using namespace CPlusPlus;
 using namespace Core;
@@ -95,11 +97,14 @@ namespace {
                 const QList<Symbol *> &symbols = baseClass->symbols();
                 foreach (Symbol *baseSymbol, symbols) {
                     if (baseSymbol->isClass()) {
-                        hierarchy->back().append(overview.prettyName(
-                            LookupContext::fullyQualifiedName(baseSymbol)));
-                        buildClassHierarchyHelper(baseSymbol, context, overview, hierarchy);
-                        hierarchy->append(hierarchy->back());
-                        hierarchy->back().removeLast();
+                        const QString &qualifiedName = overview.prettyName(
+                                LookupContext::fullyQualifiedName(baseSymbol));
+                        if (!qualifiedName.isEmpty()) {
+                            hierarchy->back().append(qualifiedName);
+                            buildClassHierarchyHelper(baseSymbol, context, overview, hierarchy);
+                            hierarchy->append(hierarchy->back());
+                            hierarchy->back().removeLast();
+                        }
                     }
                 }
             }
@@ -475,6 +480,10 @@ void CppHoverHandler::generateDiagramTooltip(const bool extendTooltips)
     QString clazz = m_toolTip;
 
     qSort(m_classHierarchy.begin(), m_classHierarchy.end(), ClassHierarchyComp());
+
+    // Remove duplicates (in case there are any).
+    m_classHierarchy.erase(std::unique(m_classHierarchy.begin(), m_classHierarchy.end()),
+                           m_classHierarchy.end());
 
     QStringList directBaseClasses;
     foreach (const QStringList &hierarchy, m_classHierarchy) {
