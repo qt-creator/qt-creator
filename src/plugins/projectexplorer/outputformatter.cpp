@@ -83,6 +83,14 @@ void OutputFormatter::append(const QString &text, const QTextCharFormat &format)
     cursor.insertText(text, format);
 }
 
+void OutputFormatter::clearLastLine()
+{
+    QTextCursor cursor(m_plainTextEdit->document());
+    cursor.movePosition(QTextCursor::End);
+    cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
+    cursor.removeSelectedText();
+}
+
 static QColor mix_colors(QColor a, QColor b)
 {
     return QColor((a.red() + 2 * b.red()) / 3, (a.green() + 2 * b.green()) / 3,

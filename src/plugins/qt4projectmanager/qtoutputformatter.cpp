@@ -48,39 +48,102 @@ QtOutputFormatter::QtOutputFormatter(Qt4Project *project)
 
 }
 
-void QtOutputFormatter::appendApplicationOutput(const QString &text, bool onStdErr)
+LinkResult QtOutputFormatter::matchLine(const QString &line) const
 {
-    QTextCharFormat linkFormat;
-    linkFormat.setForeground(plainTextEdit()->palette().link().color());
-    linkFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
-    linkFormat.setAnchor(true);
-
-    // Create links from QML errors (anything of the form "file:///...:[line]:[column]:")
-    if (m_qmlError.indexIn(text) != -1) {
-        const int matchPos = m_qmlError.pos(1);
-        const QString leader = text.left(matchPos);
-        append(leader, onStdErr ? StdErrFormat : StdOutFormat);
-
-        const QString matched = m_qmlError.cap(1);
-        linkFormat.setAnchorHref(matched);
-        append(matched, linkFormat);
-
-        int index = matchPos + m_qmlError.matchedLength() - 1;
-        append(text.mid(index), onStdErr ? StdErrFormat : StdOutFormat);
-    } else if (m_qtError.indexIn(text) != -1) {
-        const int matchPos = m_qtError.pos(1);
-        const QString leader = text.left(matchPos);
-        append(leader, onStdErr ? StdErrFormat : StdOutFormat);
-
-        const QString matched = m_qtError.cap(1);
-        linkFormat.setAnchorHref(m_qtError.cap(1));
-        append(matched, linkFormat);
-
-        int index = matchPos + m_qtError.matchedLength() - 1;
-        append(text.mid(index), onStdErr ? StdErrFormat : StdOutFormat);
-    } else {
-        append(text, onStdErr ? StdErrFormat : StdOutFormat);
+    LinkResult lr;
+    lr.start = -1;
+    lr.end = -1;
+    if (m_qmlError.indexIn(line) != -1) {
+        lr.href = m_qmlError.cap(1);
+        lr.start = m_qmlError.pos(1);
+        lr.end = lr.start + lr.href.length();
+    } else if (m_qtError.indexIn(line) != -1) {
+        lr.href = m_qtError.cap(1);
+        lr.start = m_qtError.pos(1);
+        lr.end = lr.start + lr.href.length();
     }
+    return lr;
+}
+
+void QtOutputFormatter::appendApplicationOutput(const QString &txt, bool onStdErr)
+{
+    // Do the initialization lazily, as we don't have a plaintext edit
+    // in the ctor
+    if (!m_linkFormat.isValid()) {
+        m_linkFormat.setForeground(plainTextEdit()->palette().link().color());
+        m_linkFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+        m_linkFormat.setAnchor(true);
+    }
+
+    QString text = txt;
+    text.remove(QLatin1Char('\r'));
+
+    int start = 0;
+    int pos = txt.indexOf(QLatin1Char('\n'));
+    while (pos != -1) {
+        // Line identified
+        if (!m_lastLine.isEmpty()) {
+            // Line continuation
+            const QString newPart = txt.mid(start, pos - start + 1);
+            const QString line = m_lastLine + newPart;
+            LinkResult lr = matchLine(line);
+            if (!lr.href.isEmpty()) {
+                // Found something && line continuation
+                clearLastLine();
+                appendLine(lr, line, onStdErr);
+            } else {
+                // Found nothing, just emit the new part
+                append(newPart, onStdErr ? StdErrFormat : StdOutFormat);
+            }
+            // Handled line continuation
+            m_lastLine.clear();
+        } else {
+            const QString line = txt.mid(start, pos - start + 1);
+            LinkResult lr = matchLine(line);
+            if (!lr.href.isEmpty()) {
+                appendLine(lr, line, onStdErr);
+            } else {
+                append(line, onStdErr ? StdErrFormat : StdOutFormat);
+            }
+
+        }
+        start = pos + 1;
+        pos = txt.indexOf(QLatin1Char('\n'), start);
+    }
+
+    // Handle left over stuff
+    if (start < txt.length()) {
+        if (!m_lastLine.isEmpty()) {
+            // Line continuation
+            const QString newPart = txt.mid(start);
+            m_lastLine.append(newPart);
+            LinkResult lr = matchLine(m_lastLine);
+            if (!lr.href.isEmpty()) {
+                // Found something && line continuation
+                clearLastLine();
+                appendLine(lr, m_lastLine, onStdErr);
+            } else {
+                // Found nothing, just emit the new part
+                append(newPart, onStdErr ? StdErrFormat : StdOutFormat);
+            }
+        } else {
+            m_lastLine = txt.mid(start);
+            LinkResult lr = matchLine(m_lastLine);
+            if (!lr.href.isEmpty()) {
+                appendLine(lr, m_lastLine, onStdErr);
+            } else {
+                append(m_lastLine, onStdErr ? StdErrFormat : StdOutFormat);
+            }
+        }
+    }
+}
+
+void QtOutputFormatter::appendLine(LinkResult lr, const QString &line, bool onStdErr)
+{
+    append(line.left(lr.start), onStdErr ? StdErrFormat : StdOutFormat);
+    m_linkFormat.setAnchorHref(lr.href);
+    append(line.mid(lr.start, lr.end - lr.start), m_linkFormat);
+    append(line.mid(lr.end), onStdErr ? StdErrFormat : StdOutFormat);
 }
 
 void QtOutputFormatter::handleLink(const QString &href)

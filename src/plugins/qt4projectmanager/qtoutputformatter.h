@@ -32,11 +32,19 @@
 
 #include <projectexplorer/outputformatter.h>
 #include <QtCore/QRegExp>
-#include <QSharedPointer>
+#include <QtCore/QSharedPointer>
+#include <QtGui/QTextCharFormat>
 
 namespace Qt4ProjectManager
 {
 class Qt4Project;
+
+struct LinkResult
+{
+    int start;
+    int end;
+    QString href;
+};
 
 class QtOutputFormatter: public ProjectExplorer::OutputFormatter
 {
@@ -48,9 +56,14 @@ public:
     virtual void handleLink(const QString &href);
 
 private:
+    LinkResult matchLine(const QString &line) const;
+    void appendLine(LinkResult lr, const QString &line, bool onStdError);
+
     QRegExp m_qmlError;
     QRegExp m_qtError;
     QWeakPointer<Qt4Project> m_project;
+    QTextCharFormat m_linkFormat;
+    QString m_lastLine;
 };
 
 
