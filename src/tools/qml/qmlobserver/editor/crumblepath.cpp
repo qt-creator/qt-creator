@@ -181,8 +181,6 @@ void CrumblePath::resizeEvent(QResizeEvent *)
 
 void CrumblePath::resizeButtons()
 {
-    Q_ASSERT(!m_buttons.isEmpty());
-
     int buttonWidth = 0;
     if (m_buttons.length() > 1) {
         QPoint nextElementPosition(0,0);
@@ -202,7 +200,7 @@ void CrumblePath::resizeButtons()
                 button->stackUnder(m_buttons[i - 1]);
         }
 
-    } else {
+    } else if (m_buttons.length() == 1) {
         QWidget *button = m_buttons[0];
         int buttonWidth = 2 * width() / (3 * m_buttons.length());
 
