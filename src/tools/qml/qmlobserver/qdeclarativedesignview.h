@@ -19,6 +19,7 @@ class LayerItem;
 class BoundingRectHighlighter;
 class SubcomponentEditorTool;
 class QmlToolbar;
+class CrumblePath;
 
 class QDeclarativeDesignView : public QDeclarativeView
 {
@@ -52,6 +53,7 @@ public:
     QList<QGraphicsItem*> selectableItems(const QRectF &sceneRect, Qt::ItemSelectionMode selectionMode) const;
     QGraphicsItem *currentRootItem() const;
 
+    CrumblePath *crumblePathWidget() const;
     QToolBar *toolbar() const;
     static QString idStringForObject(QObject *obj);
     QRectF adjustToScreenBoundaries(const QRectF &boundingRectInSceneSpace);
@@ -127,6 +129,7 @@ private:
     qreal m_slowdownFactor;
 
     QmlToolbar *m_toolbar;
+    CrumblePath *m_crumblePath;
 };
 
 } //namespace QmlViewer

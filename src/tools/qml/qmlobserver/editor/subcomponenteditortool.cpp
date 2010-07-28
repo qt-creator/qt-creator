@@ -2,6 +2,7 @@
 #include "qdeclarativedesignview.h"
 #include "subcomponentmasklayeritem.h"
 #include "layeritem.h"
+#include "crumblepath.h"
 
 #include <QGraphicsItem>
 #include <QGraphicsObject>
@@ -19,7 +20,8 @@ const qreal MaxOpacity = 0.5f;
 SubcomponentEditorTool::SubcomponentEditorTool(QDeclarativeDesignView *view)
     : AbstractFormEditorTool(view),
     m_animIncrement(0.05f),
-    m_animTimer(new QTimer(this))
+    m_animTimer(new QTimer(this)),
+    m_crumblePathWidget(0)
 {
     m_mask = new SubcomponentMaskLayerItem(view, view->manipulatorLayer());
     connect(m_animTimer, SIGNAL(timeout()), SLOT(animate()));
@@ -122,6 +124,9 @@ void SubcomponentEditorTool::clear()
     m_mask->setCurrentItem(0);
     m_animTimer->stop();
     m_mask->hide();
+
+    if (m_crumblePathWidget)
+        m_crumblePathWidget->clear();
 }
 
 void SubcomponentEditorTool::graphicsObjectsChanged(const QList<QGraphicsObject*> &/*itemList*/)
@@ -225,6 +230,8 @@ void SubcomponentEditorTool::pushContext(QGraphicsObject *contextItem)
 {
     connect(contextItem, SIGNAL(destroyed(QObject*)), SLOT(contextDestroyed(QObject*)));
     m_currentContext.push(contextItem);
+    if (m_crumblePathWidget)
+        m_crumblePathWidget->pushElement(titleForItem(contextItem));
 }
 
 void SubcomponentEditorTool::aboutToPopContext()
@@ -241,6 +248,9 @@ QGraphicsObject *SubcomponentEditorTool::popContext()
 {
     QGraphicsObject *popped = m_currentContext.pop();
 
+    if (m_crumblePathWidget)
+        m_crumblePathWidget->popElement();
+
     disconnect(popped, SIGNAL(xChanged()), this, SLOT(refresh()));
     disconnect(popped, SIGNAL(yChanged()), this, SLOT(refresh()));
     disconnect(popped, SIGNAL(scaleChanged()), this, SLOT(refresh()));
@@ -251,6 +261,8 @@ QGraphicsObject *SubcomponentEditorTool::popContext()
         m_mask->setCurrentItem(m_currentContext.top());
         m_mask->setOpacity(MaxOpacity);
         m_mask->setVisible(true);
+    } else {
+        m_mask->setVisible(false);
     }
 
     return popped;
@@ -273,10 +285,42 @@ void SubcomponentEditorTool::contextDestroyed(QObject *contextToDestroy)
     // pop out the whole context - it might not be safe anymore.
     while (m_currentContext.size() > 1) {
         m_currentContext.pop();
+        if (m_crumblePathWidget)
+            m_crumblePathWidget->popElement();
     }
 
+
     m_mask->setVisible(false);
+}
+
+void SubcomponentEditorTool::setCrumblePathWidget(CrumblePath *pathWidget)
+{
+    m_crumblePathWidget = pathWidget;
+
+    if (m_crumblePathWidget) {
+        connect(m_crumblePathWidget, SIGNAL(elementClicked(int)), SLOT(setContext(int)));
+        connect(m_crumblePathWidget, SIGNAL(elementContextMenuRequested(int)), SLOT(openContextMenuForContext(int)));
+    }
+}
+
+void SubcomponentEditorTool::setContext(int contextIndex)
+{
+    Q_ASSERT(contextIndex >= 0);
+
+    // sometimes we have to delete the context while user was still clicking around,
+    // so just bail out.
+    if (contextIndex >= m_currentContext.size() -1)
+        return;
+
+    while (m_currentContext.size() - 1 > contextIndex) {
+        popContext();
+    }
+}
+
+void SubcomponentEditorTool::openContextMenuForContext(int /*contextIndex*/)
+{
 
 }
+
 
 } // namespace QmlViewer

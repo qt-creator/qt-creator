@@ -195,9 +195,9 @@ void SelectionTool::createContextMenu(QList<QGraphicsItem*> itemList, QPoint glo
         ++i;
     }
     // add root item separately
-    QString itemTitle = QString(tr("%1 (root)")).arg(titleForItem(view()->currentRootItem()));
-    contextMenu.addAction(itemTitle, this, SLOT(contextMenuElementSelected()));
-    m_contextMenuItemList.append(view()->currentRootItem());
+//    QString itemTitle = QString(tr("%1")).arg(titleForItem(view()->currentRootItem()));
+//    contextMenu.addAction(itemTitle, this, SLOT(contextMenuElementSelected()));
+//    m_contextMenuItemList.append(view()->currentRootItem());
 
     contextMenu.exec(globalPos);
     m_contextMenuItemList.clear();

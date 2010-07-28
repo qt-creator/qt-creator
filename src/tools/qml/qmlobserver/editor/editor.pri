@@ -15,7 +15,8 @@ HEADERS += \
            $$PWD/zoomtool.h \
            $$PWD/colorpickertool.h \
            $$PWD/qmltoolbar.h \
-           $$PWD/toolbarcolorbox.h
+           $$PWD/toolbarcolorbox.h \
+           $$PWD/crumblepath.h
 
 SOURCES += \
            $$PWD/abstractformeditortool.cpp \
@@ -31,7 +32,8 @@ SOURCES += \
            $$PWD/zoomtool.cpp \
            $$PWD/colorpickertool.cpp \
            $$PWD/qmltoolbar.cpp \
-           $$PWD/toolbarcolorbox.cpp
+           $$PWD/toolbarcolorbox.cpp \
+           $$PWD/crumblepath.cpp
 
 RESOURCES += $$PWD/editor.qrc
 

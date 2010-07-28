@@ -55,6 +55,7 @@
 #endif
 
 #include "qdeclarativedesignview.h"
+#include "crumblepath.h"
 #include "qmlruntime.h"
 #include <qdeclarativecontext.h>
 #include <qdeclarativeengine.h>
@@ -64,6 +65,7 @@
 #include <private/qabstractanimation_p.h>
 #include <private/qdeclarativeengine_p.h>
 
+#include <QSplitter>
 #include <QSettings>
 #include <QXmlStreamReader>
 #include <QBuffer>
@@ -92,6 +94,7 @@
 #include <QNetworkProxyFactory>
 #include <QKeyEvent>
 #include <QToolBar>
+#include <QDockWidget>
 #include <QMutex>
 #include <QMutexLocker>
 #include "proxysettings.h"
@@ -585,6 +588,26 @@ QDeclarativeViewer::QDeclarativeViewer(QWidget *parent, Qt::WindowFlags flags)
     canvas = new QmlViewer::QDeclarativeDesignView(this);
     addToolBar(Qt::TopToolBarArea, canvas->toolbar());
 
+    QSplitter *crumblePathSplitter = new QSplitter(this);
+    crumblePathSplitter->setOrientation(Qt::Vertical);
+    crumblePathSplitter->addWidget(canvas->crumblePathWidget());
+    crumblePathSplitter->addWidget(canvas);
+    crumblePathSplitter->setHandleWidth(1);
+    crumblePathSplitter->setCollapsible(0, false);
+    crumblePathSplitter->setCollapsible(1, false);
+
+//    QDockWidget *crumblePathWidget = new QDockWidget("Context path", this);
+//    crumblePathWidget->setWidget();
+//    crumblePathWidget->setAllowedAreas(Qt::TopDockWidgetArea);
+//    crumblePathWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
+//    crumblePathWidget->setTitleBarWidget(new QWidget(this));
+//    crumblePathWidget->setMinimumHeight(24);
+//    crumblePathWidget->setMaximumHeight(24);
+    setDocumentMode(true);
+    setDockNestingEnabled(true);
+
+    //addDockWidget(Qt::TopDockWidgetArea, crumblePathWidget);
+
     canvas->setAttribute(Qt::WA_OpaquePaintEvent);
     canvas->setAttribute(Qt::WA_NoSystemBackground);
 
@@ -605,7 +628,7 @@ QDeclarativeViewer::QDeclarativeViewer(QWidget *parent, Qt::WindowFlags flags)
         setMenuBar(0);
     }
 
-    setCentralWidget(canvas);
+    setCentralWidget(crumblePathSplitter);
 
     namFactory = new NetworkAccessManagerFactory;
     canvas->engine()->setNetworkAccessManagerFactory(namFactory);

@@ -160,33 +160,31 @@ QString AbstractFormEditorTool::titleForItem(QGraphicsItem *item)
     QString className("QGraphicsItem");
     QString objectStringId;
 
+    QString constructedName;
+
     QGraphicsObject *gfxObject = item->toGraphicsObject();
     if (gfxObject) {
         className = gfxObject->metaObject()->className();
+
         className.replace(QRegExp("_QMLTYPE_\\d+"), "");
+        className.replace(QRegExp("_QML_\\d+"), "");
+        if (className.startsWith(QLatin1String("QDeclarative")))
+            className = className.replace(QLatin1String("QDeclarative"), "");
 
         QDeclarativeItem *declarativeItem = qobject_cast<QDeclarativeItem*>(gfxObject);
         if (declarativeItem) {
-            //QDeclarativeData *ddata = QDeclarativeData::get(declarativeItem);
-            //ddata->context->findObjectId(declarativeItem);
-
-            QDeclarativeContext *context = QDeclarativeEngine::contextForObject(declarativeItem);
-            if (context) {
-//                QDeclarativeContextData *cdata = QDeclarativeContextData::get(context);
-//                if (cdata)
-//                    objectStringId = cdata->findObjectId(declarativeItem);
-                objectStringId = QDeclarativeDesignView::idStringForObject(declarativeItem);
-            }
+            objectStringId = QDeclarativeDesignView::idStringForObject(declarativeItem);
         }
 
-        if (objectStringId.isEmpty())
-            objectStringId = gfxObject->objectName();
-
-        if (!objectStringId.isEmpty())
-            return tr("%1 (%2)").arg(objectStringId, className);
+        if (!objectStringId.isEmpty()) {
+            constructedName = objectStringId + " (" + className + ")";
+        } else {
+            if (!gfxObject->objectName().isEmpty())
+                constructedName = gfxObject->objectName() + " (" + className + ")";
+        }
     }
 
-    return tr("(%1, type %2)").arg(className, QString::number(item->type()));
+    return className;
 }
 
 

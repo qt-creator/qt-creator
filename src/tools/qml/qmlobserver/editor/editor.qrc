@@ -10,5 +10,11 @@
         <file>images/zoom.png</file>
         <file>images/to-qml.png</file>
         <file>images/designmode.png</file>
+        <file>images/segment-end.png</file>
+        <file>images/segment-selected.png</file>
+        <file>images/segment.png</file>
+        <file>images/segment-hover-end.png</file>
+        <file>images/segment-hover.png</file>
+        <file>images/segment-selected-end.png</file>
     </qresource>
 </RCC>

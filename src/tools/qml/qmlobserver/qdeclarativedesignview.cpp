@@ -7,6 +7,7 @@
 #include "boundingrecthighlighter.h"
 #include "subcomponenteditortool.h"
 #include "qmltoolbar.h"
+#include "crumblepath.h"
 
 #include <QDeclarativeItem>
 #include <QDeclarativeEngine>
@@ -31,12 +32,15 @@ QDeclarativeDesignView::QDeclarativeDesignView(QWidget *parent) :
     m_slowdownFactor(1.0f),
     m_toolbar(0)
 {
+    m_crumblePath = new CrumblePath(0);
+
     m_manipulatorLayer = new LayerItem(scene());
     m_selectionTool = new SelectionTool(this);
     m_zoomTool = new ZoomTool(this);
     m_colorPickerTool = new ColorPickerTool(this);
     m_boundingRectHighlighter = new BoundingRectHighlighter(this);
     m_subcomponentEditorTool = new SubcomponentEditorTool(this);
+    m_subcomponentEditorTool->setCrumblePathWidget(m_crumblePath);
     m_currentTool = m_selectionTool;
 
     setMouseTracking(true);
@@ -580,6 +584,11 @@ QRectF QDeclarativeDesignView::adjustToScreenBoundaries(const QRectF &boundingRe
     }
 
     return boundingRect;
+}
+
+CrumblePath *QDeclarativeDesignView::crumblePathWidget() const
+{
+    return m_crumblePath;
 }
 
 QToolBar *QDeclarativeDesignView::toolbar() const
