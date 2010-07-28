@@ -65,7 +65,6 @@
 #include <private/qabstractanimation_p.h>
 #include <private/qdeclarativeengine_p.h>
 
-#include <QSplitter>
 #include <QSettings>
 #include <QXmlStreamReader>
 #include <QBuffer>
@@ -550,8 +549,8 @@ QDeclarativeViewer::QDeclarativeViewer(QWidget *parent, Qt::WindowFlags flags)
       , m_scriptOptions(0)
       , tester(0)
       , useQmlFileBrowser(true)
+      , m_centralWidget(0)
       , translator(0)
-      , m_splitter(0)
 {
     QDeclarativeViewer::registerTypes();
     setWindowTitle(tr("Qt QML Viewer"));
@@ -588,17 +587,14 @@ QDeclarativeViewer::QDeclarativeViewer(QWidget *parent, Qt::WindowFlags flags)
     canvas = new QmlViewer::QDeclarativeDesignView(this);
     addToolBar(Qt::TopToolBarArea, canvas->toolbar());
 
-    m_splitter = new QSplitter(this);
-    m_splitter->setOrientation(Qt::Vertical);
-    m_splitter->addWidget(canvas->crumblePathWidget());
+    m_centralWidget = new QWidget(this);
+    QVBoxLayout *layout = new QVBoxLayout(m_centralWidget);
+    layout->setMargin(0);
+    layout->setSpacing(0);
+    layout->addWidget(canvas->crumblePathWidget());
+    layout->addWidget(canvas);
     canvas->crumblePathWidget()->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-    m_splitter->addWidget(canvas);
-    m_splitter->setHandleWidth(1);
-    m_splitter->setStretchFactor(0, 0);
-    m_splitter->setStretchFactor(0, 1000);
-    m_splitter->setCollapsible(0, false);
-    m_splitter->setCollapsible(1, false);
-    m_splitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_centralWidget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
     //canvas->setSizePolicy(Qt:);
     canvas->setAttribute(Qt::WA_OpaquePaintEvent);
@@ -621,7 +617,7 @@ QDeclarativeViewer::QDeclarativeViewer(QWidget *parent, Qt::WindowFlags flags)
         setMenuBar(0);
     }
 
-    setCentralWidget(m_splitter);
+    setCentralWidget(m_centralWidget);
 
     namFactory = new NetworkAccessManagerFactory;
     canvas->engine()->setNetworkAccessManagerFactory(namFactory);
@@ -1422,11 +1418,11 @@ void QDeclarativeViewer::updateSizeHints(bool initial)
         QSize newWindowSize = initial ? initialSize : canvas->sizeHint();
         //qWarning() << "USH:" << (initial ? "INIT:" : "V2R:") << "setting fixed size " << newWindowSize;
         if (!isFullScreen() && !isMaximized()) {
+            m_centralWidget->setFixedSize(newWindowSize.width(), newWindowSize.height() + 32);
             canvas->setFixedSize(newWindowSize);
             resize(1, 1);
             layout()->setSizeConstraint(QLayout::SetFixedSize);
             layout()->activate();
-
         }
     }
     //qWarning() << "USH: R2V: setting free size ";
@@ -1436,6 +1432,9 @@ void QDeclarativeViewer::updateSizeHints(bool initial)
     setMaximumSize(QSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX));
     canvas->setMinimumSize(QSize(0,0));
     canvas->setMaximumSize(QSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX));
+
+    m_centralWidget->setMinimumSize(QSize(0,0));
+    m_centralWidget->setMaximumSize(QSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX));
 
     isRecursive = false;
 }

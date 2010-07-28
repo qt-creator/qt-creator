@@ -201,7 +201,7 @@ private:
 
     bool useQmlFileBrowser;
 
-    QSplitter *m_splitter;
+    QWidget *m_centralWidget;
 
     QTranslator *translator;
     void loadTranslationFile(const QString& directory);
