@@ -37,7 +37,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/applicationlauncher.h>
 #include <utils/qtcassert.h>
-#include <debugger/debuggerconstants.h>
 
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggeruiswitcher.h>
@@ -147,8 +146,12 @@ QmlRunControlFactory::~QmlRunControlFactory()
 bool QmlRunControlFactory::canRun(RunConfiguration *runConfiguration,
                                   const QString &mode) const
 {
-    Q_UNUSED(mode);
-    return (qobject_cast<QmlProjectRunConfiguration*>(runConfiguration) != 0);
+    QmlProjectRunConfiguration *config = qobject_cast<QmlProjectRunConfiguration*>(runConfiguration);
+    if (mode == ProjectExplorer::Constants::RUNMODE) {
+        return config != 0;
+    } else {
+        return (config != 0) && Debugger::DebuggerUISwitcher::instance()->supportedLanguages().contains(Qml::Constants::LANG_QML);
+    }
 }
 
 RunControl *QmlRunControlFactory::create(RunConfiguration *runConfiguration,
