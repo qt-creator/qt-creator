@@ -27,41 +27,56 @@
 **
 **************************************************************************/
 
-#ifndef SELECTIONINDICATOR_H
-#define SELECTIONINDICATOR_H
+#ifndef RUBBERBANDSELECTIONMANIPULATOR_H
+#define RUBBERBANDSELECTIONMANIPULATOR_H
 
-#include <QWeakPointer>
-#include <QGraphicsPolygonItem>
-#include "layeritem.h"
+
+#include "selectionrectangle.h"
 
 namespace QmlViewer {
 
 class QDeclarativeDesignView;
 
-class SelectionIndicator
+class RubberBandSelectionManipulator
 {
 public:
-    SelectionIndicator(QDeclarativeDesignView* editorView, LayerItem *layerItem);
-    ~SelectionIndicator();
+    enum SelectionType {
+        ReplaceSelection,
+        AddToSelection,
+        RemoveFromSelection
+    };
 
-    void show();
-    void hide();
+
+    RubberBandSelectionManipulator(QGraphicsObject *layerItem, QDeclarativeDesignView *editorView);
+
+    void setItems(const QList<QGraphicsItem*> &itemList);
+
+    void begin(const QPointF& beginPoint);
+    void update(const QPointF& updatePoint);
+    void end();
 
     void clear();
 
-    void setItems(const QList<QGraphicsObject*> &itemList);
-    void updateItems(const QList<QGraphicsObject*> &itemList);
+    void select(SelectionType selectionType);
+
+    QPointF beginPoint() const;
+
+    bool isActive() const;
+
+protected:
+    QGraphicsItem *topFormEditorItem(const QList<QGraphicsItem*> &itemList);
+
 
 private:
-    QPolygonF addBoundingRectToPolygon(QGraphicsItem *item, QPolygonF &polygon);
-
-private:
-    QHash<QGraphicsItem*, QGraphicsPolygonItem *> m_indicatorShapeHash;
-    QWeakPointer<LayerItem> m_layerItem;
-    QDeclarativeDesignView *m_view;
-
+    QList<QGraphicsItem*> m_itemList;
+    QList<QGraphicsItem*> m_oldSelectionList;
+    SelectionRectangle m_selectionRectangleElement;
+    QPointF m_beginPoint;
+    QDeclarativeDesignView *m_editorView;
+    QGraphicsItem *m_beginFormEditorItem;
+    bool m_isActive;
 };
 
 }
 
-#endif // SELECTIONINDICATOR_H
+#endif // RUBBERBANDSELECTIONMANIPULATOR_H

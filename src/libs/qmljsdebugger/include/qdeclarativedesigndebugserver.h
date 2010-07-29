@@ -44,6 +44,7 @@
 
 #include <private/qdeclarativedebugservice_p.h>
 #include "qmlviewerconstants.h"
+#include "qmljsdebugger_global.h"
 
 #include <QHash>
 
@@ -55,7 +56,7 @@ class QDeclarativeContext;
 class QDeclarativeWatcher;
 class QDataStream;
 
-class QDeclarativeDesignDebugServer : public QDeclarativeDebugService
+class QMLJSDEBUGGER_EXPORT QDeclarativeDesignDebugServer : public QDeclarativeDebugService
 {
     Q_OBJECT
 public:

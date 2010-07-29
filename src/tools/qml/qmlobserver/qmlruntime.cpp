@@ -54,8 +54,9 @@
 #  include "ui_recopts.h"
 #endif
 
-#include "qdeclarativedesignview.h"
-#include "crumblepath.h"
+#include <qdeclarativedesignview.h>
+#include <crumblepath.h>
+
 #include "qmlruntime.h"
 #include <qdeclarativecontext.h>
 #include <qdeclarativeengine.h>

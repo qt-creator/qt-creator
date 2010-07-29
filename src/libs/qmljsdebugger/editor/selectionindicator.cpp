@@ -37,7 +37,7 @@
 
 namespace QmlViewer {
 
-SelectionIndicator::SelectionIndicator(QDeclarativeDesignView *editorView, LayerItem *layerItem)
+SelectionIndicator::SelectionIndicator(QDeclarativeDesignView *editorView, QGraphicsObject *layerItem)
     : m_layerItem(layerItem), m_view(editorView)
 {
 }

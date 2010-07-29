@@ -5,6 +5,7 @@ include(qml.pri)
 
 SOURCES += main.cpp 
 
+include(../../../libs/qmljsdebugger/qmljsdebugger.pri)
 include(../../../../qtcreator.pri)
 include(../../../private_headers.pri)
 DESTDIR = $$IDE_BIN_PATH

@@ -34,7 +34,7 @@
 
 namespace QmlViewer {
 
-RubberBandSelectionManipulator::RubberBandSelectionManipulator(LayerItem *layerItem, QDeclarativeDesignView *editorView)
+RubberBandSelectionManipulator::RubberBandSelectionManipulator(QGraphicsObject *layerItem, QDeclarativeDesignView *editorView)
     : m_selectionRectangleElement(layerItem),
     m_editorView(editorView),
     m_beginFormEditorItem(0),

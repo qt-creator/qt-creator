@@ -1,4 +1,5 @@
 #include "qdeclarativedesignview.h"
+#include "qdeclarativedesignview_p.h"
 #include "qdeclarativedesigndebugserver.h"
 #include "selectiontool.h"
 #include "zoomtool.h"
@@ -25,23 +26,34 @@ namespace QmlViewer {
 
 Q_GLOBAL_STATIC(QDeclarativeDesignDebugServer, qmlDesignDebugServer)
 
-QDeclarativeDesignView::QDeclarativeDesignView(QWidget *parent) :
-    QDeclarativeView(parent),
-    m_designModeBehavior(false),
-    m_executionPaused(false),
-    m_slowdownFactor(1.0f),
-    m_toolbar(0)
+QDeclarativeDesignViewPrivate::QDeclarativeDesignViewPrivate() :
+    designModeBehavior(false),
+    executionPaused(false),
+    slowdownFactor(1.0f),
+    toolbar(0)
 {
-    m_crumblePath = new CrumblePath(0);
 
-    m_manipulatorLayer = new LayerItem(scene());
-    m_selectionTool = new SelectionTool(this);
-    m_zoomTool = new ZoomTool(this);
-    m_colorPickerTool = new ColorPickerTool(this);
-    m_boundingRectHighlighter = new BoundingRectHighlighter(this);
-    m_subcomponentEditorTool = new SubcomponentEditorTool(this);
-    m_subcomponentEditorTool->setCrumblePathWidget(m_crumblePath);
-    m_currentTool = m_selectionTool;
+}
+
+QDeclarativeDesignViewPrivate::~QDeclarativeDesignViewPrivate()
+{
+}
+
+QDeclarativeDesignView::QDeclarativeDesignView(QWidget *parent) :
+    QDeclarativeView(parent)
+{
+    data = new QDeclarativeDesignViewPrivate;
+
+    data->crumblePath = new CrumblePath(0);
+
+    data->manipulatorLayer = new LayerItem(scene());
+    data->selectionTool = new SelectionTool(this);
+    data->zoomTool = new ZoomTool(this);
+    data->colorPickerTool = new ColorPickerTool(this);
+    data->boundingRectHighlighter = new BoundingRectHighlighter(this);
+    data->subcomponentEditorTool = new SubcomponentEditorTool(this);
+    data->subcomponentEditorTool->setCrumblePathWidget(data->crumblePath);
+    data->currentTool = data->selectionTool;
 
     setMouseTracking(true);
 
@@ -61,8 +73,8 @@ QDeclarativeDesignView::QDeclarativeDesignView(QWidget *parent) :
 
     connect(this, SIGNAL(statusChanged(QDeclarativeView::Status)), SLOT(onStatusChanged(QDeclarativeView::Status)));
 
-    connect(m_colorPickerTool, SIGNAL(selectedColorChanged(QColor)), SIGNAL(selectedColorChanged(QColor)));
-    connect(m_colorPickerTool, SIGNAL(selectedColorChanged(QColor)),
+    connect(data->colorPickerTool, SIGNAL(selectedColorChanged(QColor)), SIGNAL(selectedColorChanged(QColor)));
+    connect(data->colorPickerTool, SIGNAL(selectedColorChanged(QColor)),
             qmlDesignDebugServer(), SLOT(selectedColorChanged(QColor)));
 
     createToolbar();
@@ -74,7 +86,7 @@ QDeclarativeDesignView::~QDeclarativeDesignView()
 
 void QDeclarativeDesignView::reloadView()
 {
-    m_subcomponentEditorTool->clear();
+    data->subcomponentEditorTool->clear();
     clearHighlight();
     emit reloadRequested();
 }
@@ -100,8 +112,8 @@ void QDeclarativeDesignView::mousePressEvent(QMouseEvent *event)
         QDeclarativeView::mousePressEvent(event);
         return;
     }
-    m_cursorPos = event->pos();
-    m_currentTool->mousePressEvent(event);
+    data->cursorPos = event->pos();
+    data->currentTool->mousePressEvent(event);
 }
 
 void QDeclarativeDesignView::mouseMoveEvent(QMouseEvent *event)
@@ -111,7 +123,7 @@ void QDeclarativeDesignView::mouseMoveEvent(QMouseEvent *event)
         QDeclarativeView::mouseMoveEvent(event);
         return;
     }
-    m_cursorPos = event->pos();
+    data->cursorPos = event->pos();
 
     QList<QGraphicsItem*> selItems = selectableItems(event->pos());
     if (!selItems.isEmpty()) {
@@ -120,11 +132,11 @@ void QDeclarativeDesignView::mouseMoveEvent(QMouseEvent *event)
         setToolTip(QString());
     }
     if (event->buttons()) {
-        m_subcomponentEditorTool->mouseMoveEvent(event);
-        m_currentTool->mouseMoveEvent(event);
+        data->subcomponentEditorTool->mouseMoveEvent(event);
+        data->currentTool->mouseMoveEvent(event);
     } else {
-        m_subcomponentEditorTool->hoverMoveEvent(event);
-        m_currentTool->hoverMoveEvent(event);
+        data->subcomponentEditorTool->hoverMoveEvent(event);
+        data->currentTool->hoverMoveEvent(event);
     }
 }
 
@@ -134,12 +146,12 @@ void QDeclarativeDesignView::mouseReleaseEvent(QMouseEvent *event)
         QDeclarativeView::mouseReleaseEvent(event);
         return;
     }
-    m_subcomponentEditorTool->mouseReleaseEvent(event);
+    data->subcomponentEditorTool->mouseReleaseEvent(event);
 
-    m_cursorPos = event->pos();
-    m_currentTool->mouseReleaseEvent(event);
+    data->cursorPos = event->pos();
+    data->currentTool->mouseReleaseEvent(event);
 
-    qmlDesignDebugServer()->setCurrentObjects(AbstractFormEditorTool::toObjectList(selectedItems()));
+    //qmlDesignDebugServer()->setCurrentObjects(AbstractFormEditorTool::toObjectList(selectedItems()));
 }
 
 void QDeclarativeDesignView::keyPressEvent(QKeyEvent *event)
@@ -148,7 +160,7 @@ void QDeclarativeDesignView::keyPressEvent(QKeyEvent *event)
         QDeclarativeView::keyPressEvent(event);
         return;
     }
-    m_currentTool->keyPressEvent(event);
+    data->currentTool->keyPressEvent(event);
 }
 
 void QDeclarativeDesignView::keyReleaseEvent(QKeyEvent *event)
@@ -174,11 +186,11 @@ void QDeclarativeDesignView::keyReleaseEvent(QKeyEvent *event)
     case Qt::Key_Enter:
     case Qt::Key_Return:
         if (!selectedItems().isEmpty())
-            m_subcomponentEditorTool->setCurrentItem(selectedItems().first());
+            data->subcomponentEditorTool->setCurrentItem(selectedItems().first());
         break;
     case Qt::Key_Space:
-        if (m_executionPaused) {
-            continueExecution(m_slowdownFactor);
+        if (data->executionPaused) {
+            continueExecution(data->slowdownFactor);
         } else {
             pauseExecution();
         }
@@ -187,7 +199,7 @@ void QDeclarativeDesignView::keyReleaseEvent(QKeyEvent *event)
         break;
     }
 
-    m_currentTool->keyReleaseEvent(event);
+    data->currentTool->keyReleaseEvent(event);
 }
 
 void QDeclarativeDesignView::createQmlObject(const QString &qml, QObject *parent, const QStringList &importList, const QString &filename)
@@ -218,7 +230,7 @@ void QDeclarativeDesignView::createQmlObject(const QString &qml, QObject *parent
 
 QGraphicsItem *QDeclarativeDesignView::currentRootItem() const
 {
-    return m_subcomponentEditorTool->currentRootItem();
+    return data->subcomponentEditorTool->currentRootItem();
 }
 
 void QDeclarativeDesignView::mouseDoubleClickEvent(QMouseEvent *event)
@@ -238,10 +250,10 @@ void QDeclarativeDesignView::mouseDoubleClickEvent(QMouseEvent *event)
     }
 
     if (itemToEnter)
-        itemToEnter = m_subcomponentEditorTool->firstChildOfContext(itemToEnter);
+        itemToEnter = data->subcomponentEditorTool->firstChildOfContext(itemToEnter);
 
-    m_subcomponentEditorTool->setCurrentItem(itemToEnter);
-    m_subcomponentEditorTool->mouseDoubleClickEvent(event);
+    data->subcomponentEditorTool->setCurrentItem(itemToEnter);
+    data->subcomponentEditorTool->mouseDoubleClickEvent(event);
 
     if ((event->buttons() & Qt::LeftButton) && itemToEnter) {
         QGraphicsObject *objectToEnter = itemToEnter->toGraphicsObject();
@@ -252,37 +264,37 @@ void QDeclarativeDesignView::mouseDoubleClickEvent(QMouseEvent *event)
 }
 void QDeclarativeDesignView::wheelEvent(QWheelEvent *event)
 {
-    if (!m_designModeBehavior) {
+    if (!data->designModeBehavior) {
         QDeclarativeView::wheelEvent(event);
         return;
     }
-    m_currentTool->wheelEvent(event);
+    data->currentTool->wheelEvent(event);
 }
 
 void QDeclarativeDesignView::setDesignModeBehavior(bool value)
 {
     emit designModeBehaviorChanged(value);
 
-    m_toolbar->setDesignModeBehavior(value);
+    data->toolbar->setDesignModeBehavior(value);
     qmlDesignDebugServer()->setDesignModeBehavior(value);
 
-    m_designModeBehavior = value;
-    if (m_subcomponentEditorTool) {
-        m_subcomponentEditorTool->clear();
+    data->designModeBehavior = value;
+    if (data->subcomponentEditorTool) {
+        data->subcomponentEditorTool->clear();
         clearHighlight();
         setSelectedItems(QList<QGraphicsItem*>());
 
         if (rootObject())
-            m_subcomponentEditorTool->pushContext(rootObject());
+            data->subcomponentEditorTool->pushContext(rootObject());
     }
 
-    if (!m_designModeBehavior)
+    if (!data->designModeBehavior)
         clearEditorItems();
 }
 
 bool QDeclarativeDesignView::designModeBehavior() const
 {
-    return m_designModeBehavior;
+    return data->designModeBehavior;
 }
 
 void QDeclarativeDesignView::changeTool(Constants::DesignTool tool, Constants::ToolFlags /*flags*/)
@@ -293,30 +305,30 @@ void QDeclarativeDesignView::changeTool(Constants::DesignTool tool, Constants::T
         break;
     case Constants::NoTool:
     default:
-        m_currentTool = 0;
+        data->currentTool = 0;
         break;
     }
 }
 
 void QDeclarativeDesignView::setSelectedItems(QList<QGraphicsItem *> items)
 {
-    m_currentSelection.clear();
+    data->currentSelection.clear();
     foreach(QGraphicsItem *item, items) {
         if (item) {
             QGraphicsObject *obj = item->toGraphicsObject();
             if (obj)
-                m_currentSelection << obj;
+                data->currentSelection << obj;
         }
     }
-    m_currentTool->updateSelectedItems();
+    data->currentTool->updateSelectedItems();
 }
 
 QList<QGraphicsItem *> QDeclarativeDesignView::selectedItems()
 {
     QList<QGraphicsItem *> selection;
-    foreach(const QWeakPointer<QGraphicsObject> &selectedObject, m_currentSelection) {
+    foreach(const QWeakPointer<QGraphicsObject> &selectedObject, data->currentSelection) {
         if (selectedObject.isNull()) {
-            m_currentSelection.removeOne(selectedObject);
+            data->currentSelection.removeOne(selectedObject);
         } else {
             selection << selectedObject.data();
         }
@@ -325,14 +337,9 @@ QList<QGraphicsItem *> QDeclarativeDesignView::selectedItems()
     return selection;
 }
 
-AbstractFormEditorTool *QDeclarativeDesignView::currentTool() const
-{
-    return m_currentTool;
-}
-
 void QDeclarativeDesignView::clearHighlight()
 {
-    m_boundingRectHighlighter->clear();
+    data->boundingRectHighlighter->clear();
 }
 
 void QDeclarativeDesignView::highlight(QGraphicsItem * item, ContextFlags flags)
@@ -349,7 +356,7 @@ void QDeclarativeDesignView::highlight(QList<QGraphicsItem *> items, ContextFlag
     foreach(QGraphicsItem *item, items) {
         QGraphicsItem *child = item;
         if (flags & ContextSensitive)
-            child = m_subcomponentEditorTool->firstChildOfContext(item);
+            child = data->subcomponentEditorTool->firstChildOfContext(item);
 
         if (child) {
             QGraphicsObject *childObject = child->toGraphicsObject();
@@ -358,12 +365,12 @@ void QDeclarativeDesignView::highlight(QList<QGraphicsItem *> items, ContextFlag
         }
     }
 
-    m_boundingRectHighlighter->highlight(objectList);
+    data->boundingRectHighlighter->highlight(objectList);
 }
 
 bool QDeclarativeDesignView::mouseInsideContextItem() const
 {
-    return m_subcomponentEditorTool->containsCursor(m_cursorPos.toPoint());
+    return data->subcomponentEditorTool->containsCursor(data->cursorPos.toPoint());
 }
 
 QList<QGraphicsItem*> QDeclarativeDesignView::selectableItems(const QPointF &scenePos) const
@@ -387,8 +394,8 @@ QList<QGraphicsItem*> QDeclarativeDesignView::selectableItems(const QRectF &scen
 
 void QDeclarativeDesignView::changeToSingleSelectTool()
 {
-    m_currentToolMode = Constants::SelectionToolMode;
-    m_selectionTool->setRubberbandSelectionMode(false);
+    data->currentToolMode = Constants::SelectionToolMode;
+    data->selectionTool->setRubberbandSelectionMode(false);
 
     changeToSelectTool();
 
@@ -398,20 +405,20 @@ void QDeclarativeDesignView::changeToSingleSelectTool()
 
 void QDeclarativeDesignView::changeToSelectTool()
 {
-    if (m_currentTool == m_selectionTool)
+    if (data->currentTool == data->selectionTool)
         return;
 
-    m_currentTool->clear();
-    m_currentTool = m_selectionTool;
-    m_currentTool->clear();
-    m_currentTool->updateSelectedItems();
+    data->currentTool->clear();
+    data->currentTool = data->selectionTool;
+    data->currentTool->clear();
+    data->currentTool->updateSelectedItems();
 }
 
 void QDeclarativeDesignView::changeToMarqueeSelectTool()
 {
     changeToSelectTool();
-    m_currentToolMode = Constants::MarqueeSelectionToolMode;
-    m_selectionTool->setRubberbandSelectionMode(true);
+    data->currentToolMode = Constants::MarqueeSelectionToolMode;
+    data->selectionTool->setRubberbandSelectionMode(true);
 
     emit marqueeSelectToolActivated();
     qmlDesignDebugServer()->setCurrentTool(Constants::MarqueeSelectionToolMode);
@@ -419,10 +426,10 @@ void QDeclarativeDesignView::changeToMarqueeSelectTool()
 
 void QDeclarativeDesignView::changeToZoomTool()
 {
-    m_currentToolMode = Constants::ZoomMode;
-    m_currentTool->clear();
-    m_currentTool = m_zoomTool;
-    m_currentTool->clear();
+    data->currentToolMode = Constants::ZoomMode;
+    data->currentTool->clear();
+    data->currentTool = data->zoomTool;
+    data->currentTool->clear();
 
     emit zoomToolActivated();
     qmlDesignDebugServer()->setCurrentTool(Constants::ZoomMode);
@@ -430,13 +437,13 @@ void QDeclarativeDesignView::changeToZoomTool()
 
 void QDeclarativeDesignView::changeToColorPickerTool()
 {
-    if (m_currentTool == m_colorPickerTool)
+    if (data->currentTool == data->colorPickerTool)
         return;
 
-    m_currentToolMode = Constants::ColorPickerMode;
-    m_currentTool->clear();
-    m_currentTool = m_colorPickerTool;
-    m_currentTool->clear();
+    data->currentToolMode = Constants::ColorPickerMode;
+    data->currentTool->clear();
+    data->currentTool = data->colorPickerTool;
+    data->currentTool->clear();
 
     emit colorPickerActivated();
     qmlDesignDebugServer()->setCurrentTool(Constants::ColorPickerMode);
@@ -444,10 +451,10 @@ void QDeclarativeDesignView::changeToColorPickerTool()
 
 void QDeclarativeDesignView::changeAnimationSpeed(qreal slowdownFactor)
 {
-    m_slowdownFactor = slowdownFactor;
+    data->slowdownFactor = slowdownFactor;
 
-    if (m_slowdownFactor != 0) {
-        continueExecution(m_slowdownFactor);
+    if (data->slowdownFactor != 0) {
+        continueExecution(data->slowdownFactor);
     } else {
         pauseExecution();
     }
@@ -457,17 +464,17 @@ void QDeclarativeDesignView::continueExecution(qreal slowdownFactor)
 {
     Q_ASSERT(slowdownFactor > 0);
 
-    m_slowdownFactor = slowdownFactor;
+    data->slowdownFactor = slowdownFactor;
     static const qreal animSpeedSnapDelta = 0.01f;
-    bool useStandardSpeed = (qAbs(1.0f - m_slowdownFactor) < animSpeedSnapDelta);
+    bool useStandardSpeed = (qAbs(1.0f - data->slowdownFactor) < animSpeedSnapDelta);
 
     QUnifiedTimer *timer = QUnifiedTimer::instance();
-    timer->setSlowdownFactor(m_slowdownFactor);
+    timer->setSlowdownFactor(data->slowdownFactor);
     timer->setSlowModeEnabled(!useStandardSpeed);
-    m_executionPaused = false;
+    data->executionPaused = false;
 
-    emit executionStarted(m_slowdownFactor);
-    qmlDesignDebugServer()->setAnimationSpeed(m_slowdownFactor);
+    emit executionStarted(data->slowdownFactor);
+    qmlDesignDebugServer()->setAnimationSpeed(data->slowdownFactor);
 }
 
 void QDeclarativeDesignView::pauseExecution()
@@ -475,7 +482,7 @@ void QDeclarativeDesignView::pauseExecution()
     QUnifiedTimer *timer = QUnifiedTimer::instance();
     timer->setSlowdownFactor(0);
     timer->setSlowModeEnabled(true);
-    m_executionPaused = true;
+    data->executionPaused = true;
 
     emit executionPaused();
     qmlDesignDebugServer()->setAnimationSpeed(0);
@@ -486,15 +493,15 @@ void QDeclarativeDesignView::applyChangesFromClient()
 
 }
 
-LayerItem *QDeclarativeDesignView::manipulatorLayer() const
+QGraphicsObject *QDeclarativeDesignView::manipulatorLayer() const
 {
-    return m_manipulatorLayer;
+    return data->manipulatorLayer;
 }
 
 QList<QGraphicsItem*> QDeclarativeDesignView::filterForSelection(QList<QGraphicsItem*> &itemlist) const
 {
     foreach(QGraphicsItem *item, itemlist) {
-        if (isEditorItem(item) || !m_subcomponentEditorTool->isChildOfContext(item))
+        if (isEditorItem(item) || !data->subcomponentEditorTool->isChildOfContext(item))
             itemlist.removeOne(item);
     }
 
@@ -505,10 +512,10 @@ QList<QGraphicsItem*> QDeclarativeDesignView::filterForCurrentContext(QList<QGra
 {
     foreach(QGraphicsItem *item, itemlist) {
 
-        if (isEditorItem(item) || !m_subcomponentEditorTool->isDirectChildOfContext(item)) {
+        if (isEditorItem(item) || !data->subcomponentEditorTool->isDirectChildOfContext(item)) {
 
             // if we're a child, but not directly, replace with the parent that is directly in context.
-            if (QGraphicsItem *contextParent = m_subcomponentEditorTool->firstChildOfContext(item)) {
+            if (QGraphicsItem *contextParent = data->subcomponentEditorTool->firstChildOfContext(item)) {
                 if (contextParent != item) {
                     if (itemlist.contains(contextParent)) {
                         itemlist.removeOne(item);
@@ -536,7 +543,7 @@ void QDeclarativeDesignView::onStatusChanged(QDeclarativeView::Status status)
 {
     if (status == QDeclarativeView::Ready) {
         if (rootObject()) {
-            m_subcomponentEditorTool->pushContext(rootObject());
+            data->subcomponentEditorTool->pushContext(rootObject());
             emit executionStarted(1.0f);
         }
         qmlDesignDebugServer()->reloaded();
@@ -588,44 +595,44 @@ QRectF QDeclarativeDesignView::adjustToScreenBoundaries(const QRectF &boundingRe
 
 CrumblePath *QDeclarativeDesignView::crumblePathWidget() const
 {
-    return m_crumblePath;
+    return data->crumblePath;
 }
 
 QToolBar *QDeclarativeDesignView::toolbar() const
 {
-    return m_toolbar;
+    return data->toolbar;
 }
 
 void QDeclarativeDesignView::createToolbar()
 {
-    m_toolbar = new QmlToolbar(this);
-    connect(this, SIGNAL(selectedColorChanged(QColor)), m_toolbar, SLOT(setColorBoxColor(QColor)));
+    data->toolbar = new QmlToolbar(this);
+    connect(this, SIGNAL(selectedColorChanged(QColor)), data->toolbar, SLOT(setColorBoxColor(QColor)));
 
-    connect(this, SIGNAL(designModeBehaviorChanged(bool)), m_toolbar, SLOT(setDesignModeBehavior(bool)));
+    connect(this, SIGNAL(designModeBehaviorChanged(bool)), data->toolbar, SLOT(setDesignModeBehavior(bool)));
 
-    connect(m_toolbar, SIGNAL(designModeBehaviorChanged(bool)), this, SLOT(setDesignModeBehavior(bool)));
-    connect(m_toolbar, SIGNAL(executionStarted()), this, SLOT(continueExecution()));
-    connect(m_toolbar, SIGNAL(executionPaused()), this, SLOT(pauseExecution()));
-    connect(m_toolbar, SIGNAL(colorPickerSelected()), this, SLOT(changeToColorPickerTool()));
-    connect(m_toolbar, SIGNAL(zoomToolSelected()), this, SLOT(changeToZoomTool()));
-    connect(m_toolbar, SIGNAL(selectToolSelected()), this, SLOT(changeToSingleSelectTool()));
-    connect(m_toolbar, SIGNAL(marqueeSelectToolSelected()), this, SLOT(changeToMarqueeSelectTool()));
+    connect(data->toolbar, SIGNAL(designModeBehaviorChanged(bool)), this, SLOT(setDesignModeBehavior(bool)));
+    connect(data->toolbar, SIGNAL(executionStarted()), this, SLOT(continueExecution()));
+    connect(data->toolbar, SIGNAL(executionPaused()), this, SLOT(pauseExecution()));
+    connect(data->toolbar, SIGNAL(colorPickerSelected()), this, SLOT(changeToColorPickerTool()));
+    connect(data->toolbar, SIGNAL(zoomToolSelected()), this, SLOT(changeToZoomTool()));
+    connect(data->toolbar, SIGNAL(selectToolSelected()), this, SLOT(changeToSingleSelectTool()));
+    connect(data->toolbar, SIGNAL(marqueeSelectToolSelected()), this, SLOT(changeToMarqueeSelectTool()));
 
-    connect(m_toolbar, SIGNAL(applyChangesFromQmlFileSelected()), SLOT(applyChangesFromClient()));
+    connect(data->toolbar, SIGNAL(applyChangesFromQmlFileSelected()), SLOT(applyChangesFromClient()));
 
-    connect(this, SIGNAL(executionStarted(qreal)), m_toolbar, SLOT(startExecution()));
-    connect(this, SIGNAL(executionPaused()), m_toolbar, SLOT(pauseExecution()));
+    connect(this, SIGNAL(executionStarted(qreal)), data->toolbar, SLOT(startExecution()));
+    connect(this, SIGNAL(executionPaused()), data->toolbar, SLOT(pauseExecution()));
 
-    connect(this, SIGNAL(selectToolActivated()), m_toolbar, SLOT(activateSelectTool()));
+    connect(this, SIGNAL(selectToolActivated()), data->toolbar, SLOT(activateSelectTool()));
 
     // disabled features
-    //connect(m_toolbar, SIGNAL(applyChangesToQmlFileSelected()), SLOT(applyChangesToClient()));
-    //connect(this, SIGNAL(resizeToolActivated()), m_toolbar, SLOT(activateSelectTool()));
-    //connect(this, SIGNAL(moveToolActivated()),   m_toolbar, SLOT(activateSelectTool()));
+    //connect(d->m_toolbar, SIGNAL(applyChangesToQmlFileSelected()), SLOT(applyChangesToClient()));
+    //connect(this, SIGNAL(resizeToolActivated()), d->m_toolbar, SLOT(activateSelectTool()));
+    //connect(this, SIGNAL(moveToolActivated()),   d->m_toolbar, SLOT(activateSelectTool()));
 
-    connect(this, SIGNAL(colorPickerActivated()), m_toolbar, SLOT(activateColorPicker()));
-    connect(this, SIGNAL(zoomToolActivated()), m_toolbar, SLOT(activateZoom()));
-    connect(this, SIGNAL(marqueeSelectToolActivated()), m_toolbar, SLOT(activateMarqueeSelectTool()));
+    connect(this, SIGNAL(colorPickerActivated()), data->toolbar, SLOT(activateColorPicker()));
+    connect(this, SIGNAL(zoomToolActivated()), data->toolbar, SLOT(activateZoom()));
+    connect(this, SIGNAL(marqueeSelectToolActivated()), data->toolbar, SLOT(activateMarqueeSelectTool()));
 }
 
 } //namespace QmlViewer

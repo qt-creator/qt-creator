@@ -27,36 +27,41 @@
 **
 **************************************************************************/
 
-#ifndef SELECTIONRECTANGLE_H
-#define SELECTIONRECTANGLE_H
+#ifndef SELECTIONINDICATOR_H
+#define SELECTIONINDICATOR_H
 
 #include <QWeakPointer>
-#include <QGraphicsRectItem>
-#include "layeritem.h"
+#include <QGraphicsPolygonItem>
+#include <QGraphicsObject>
 
 namespace QmlViewer {
 
-class SelectionRectangle
+class QDeclarativeDesignView;
+
+class SelectionIndicator
 {
 public:
-    SelectionRectangle(LayerItem *layerItem);
-    ~SelectionRectangle();
+    SelectionIndicator(QDeclarativeDesignView* editorView, QGraphicsObject *layerItem);
+    ~SelectionIndicator();
 
     void show();
     void hide();
 
     void clear();
 
-    void setRect(const QPointF &firstPoint,
-                 const QPointF &secondPoint);
-
-    QRectF rect() const;
+    void setItems(const QList<QGraphicsObject*> &itemList);
+    void updateItems(const QList<QGraphicsObject*> &itemList);
 
 private:
-    QGraphicsRectItem *m_controlShape;
-    QWeakPointer<LayerItem> m_layerItem;
+    QPolygonF addBoundingRectToPolygon(QGraphicsItem *item, QPolygonF &polygon);
+
+private:
+    QHash<QGraphicsItem*, QGraphicsPolygonItem *> m_indicatorShapeHash;
+    QWeakPointer<QGraphicsObject> m_layerItem;
+    QDeclarativeDesignView *m_view;
+
 };
 
 }
 
-#endif // SELECTIONRECTANGLE_H
+#endif // SELECTIONINDICATOR_H

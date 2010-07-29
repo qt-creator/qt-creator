@@ -45,7 +45,7 @@ public:
     int type() const { return Constants::EditorItemType; }
 };
 
-SelectionRectangle::SelectionRectangle(LayerItem *layerItem)
+SelectionRectangle::SelectionRectangle(QGraphicsObject *layerItem)
     : m_controlShape(new SelectionRectShape(layerItem)),
     m_layerItem(layerItem)
 {

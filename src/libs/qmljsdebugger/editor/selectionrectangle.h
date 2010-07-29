@@ -27,56 +27,36 @@
 **
 **************************************************************************/
 
-#ifndef RUBBERBANDSELECTIONMANIPULATOR_H
-#define RUBBERBANDSELECTIONMANIPULATOR_H
+#ifndef SELECTIONRECTANGLE_H
+#define SELECTIONRECTANGLE_H
 
-
-#include "selectionrectangle.h"
+#include <QWeakPointer>
+#include <QGraphicsRectItem>
+#include <QGraphicsObject>
 
 namespace QmlViewer {
 
-class QDeclarativeDesignView;
-
-class RubberBandSelectionManipulator
+class SelectionRectangle
 {
 public:
-    enum SelectionType {
-        ReplaceSelection,
-        AddToSelection,
-        RemoveFromSelection
-    };
+    SelectionRectangle(QGraphicsObject *layerItem);
+    ~SelectionRectangle();
 
-
-    RubberBandSelectionManipulator(LayerItem *layerItem, QDeclarativeDesignView *editorView);
-
-    void setItems(const QList<QGraphicsItem*> &itemList);
-
-    void begin(const QPointF& beginPoint);
-    void update(const QPointF& updatePoint);
-    void end();
+    void show();
+    void hide();
 
     void clear();
 
-    void select(SelectionType selectionType);
+    void setRect(const QPointF &firstPoint,
+                 const QPointF &secondPoint);
 
-    QPointF beginPoint() const;
-
-    bool isActive() const;
-
-protected:
-    QGraphicsItem *topFormEditorItem(const QList<QGraphicsItem*> &itemList);
-
+    QRectF rect() const;
 
 private:
-    QList<QGraphicsItem*> m_itemList;
-    QList<QGraphicsItem*> m_oldSelectionList;
-    SelectionRectangle m_selectionRectangleElement;
-    QPointF m_beginPoint;
-    QDeclarativeDesignView *m_editorView;
-    QGraphicsItem *m_beginFormEditorItem;
-    bool m_isActive;
+    QGraphicsRectItem *m_controlShape;
+    QWeakPointer<QGraphicsObject> m_layerItem;
 };
 
 }
 
-#endif // RUBBERBANDSELECTIONMANIPULATOR_H
+#endif // SELECTIONRECTANGLE_H

@@ -1,10 +1,9 @@
 QT += declarative script network sql
+
 contains(QT_CONFIG, opengl) {
     QT += opengl
     DEFINES += GL_SUPPORTED
 }
-
-include($$PWD/editor/editor.pri)
 
 INCLUDEPATH += $$PWD
 
@@ -12,22 +11,16 @@ HEADERS += $$PWD/qmlruntime.h \
            $$PWD/proxysettings.h \
            $$PWD/qdeclarativetester.h \
            $$PWD/deviceorientation.h \
-           $$PWD/loggerwidget.h \
-           $$PWD/qdeclarativedesigndebugserver.h \
-           $$PWD/qdeclarativedesignview.h \
-           $$PWD/jsdebuggeragent.h
+           $$PWD/loggerwidget.h
 
 
 SOURCES += $$PWD/qmlruntime.cpp \
            $$PWD/proxysettings.cpp \
            $$PWD/qdeclarativetester.cpp \
-           $$PWD/loggerwidget.cpp \
-           $$PWD/qdeclarativedesigndebugserver.cpp \
-           $$PWD/qdeclarativedesignview.cpp \
-           $$PWD/jsdebuggeragent.cpp
-
+           $$PWD/loggerwidget.cpp
 
 RESOURCES += $$PWD/qmlruntime.qrc
+
 maemo5 {
     QT += dbus
     HEADERS += $$PWD/texteditautoresizer_maemo5.h

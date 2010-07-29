@@ -8,15 +8,13 @@ HEADERS += \
            $$PWD/rubberbandselectionmanipulator.h \
            $$PWD/selectionrectangle.h \
            $$PWD/selectionindicator.h \
-           $$PWD/qmlviewerconstants.h \
            $$PWD/boundingrecthighlighter.h \
            $$PWD/subcomponenteditortool.h \
            $$PWD/subcomponentmasklayeritem.h \
            $$PWD/zoomtool.h \
            $$PWD/colorpickertool.h \
            $$PWD/qmltoolbar.h \
-           $$PWD/toolbarcolorbox.h \
-           $$PWD/crumblepath.h
+           $$PWD/toolbarcolorbox.h
 
 SOURCES += \
            $$PWD/abstractformeditortool.cpp \

@@ -60,13 +60,14 @@
 #include <private/qdeclarativedebugservice_p.h>
 #include <QtCore/QStringList>
 
+#include "qmljsdebugger_global.h"
 
 QT_BEGIN_NAMESPACE
 
 class JSAgentWatchData;
 class QScriptContext;
 
-class JSDebuggerAgent : public QDeclarativeDebugService , public QScriptEngineAgent
+class QMLJSDEBUGGER_EXPORT JSDebuggerAgent : public QDeclarativeDebugService , public QScriptEngineAgent
 { Q_OBJECT
 public:
     JSDebuggerAgent(QScriptEngine *engine);

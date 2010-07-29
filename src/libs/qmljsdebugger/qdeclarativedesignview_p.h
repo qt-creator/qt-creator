@@ -27,46 +27,56 @@
 **
 **************************************************************************/
 
-#ifndef CRUMBLEPATH_H
-#define CRUMBLEPATH_H
+#ifndef QDECLARATIVEDESIGNVIEW_P_H
+#define QDECLARATIVEDESIGNVIEW_P_H
 
-#include <QWidget>
-#include <QList>
-
-QT_FORWARD_DECLARE_CLASS(QResizeEvent);
+#include <QWeakPointer>
+#include <QPointF>
 
 namespace QmlViewer {
 
-class CrumblePathButton;
+class QDeclarativeDesignView;
+class SelectionTool;
+class ZoomTool;
+class ColorPickerTool;
+class LayerItem;
+class BoundingRectHighlighter;
+class SubcomponentEditorTool;
+class QmlToolbar;
+class CrumblePath;
+class AbstractFormEditorTool;
 
-class CrumblePath : public QWidget
+class QDeclarativeDesignViewPrivate
 {
-    Q_OBJECT
+
 public:
-    explicit CrumblePath(QWidget *parent = 0);
-    ~CrumblePath();
-    void pushElement(const QString &title);
-    void popElement();
-    void clear();
+    QDeclarativeDesignViewPrivate();
+    ~QDeclarativeDesignViewPrivate();
 
-signals:
-    void elementClicked(int index);
-    void elementContextMenuRequested(int index);
+    QPointF cursorPos;
+    QList<QWeakPointer<QGraphicsObject> > currentSelection;
 
-protected:
-    void resizeEvent(QResizeEvent *);
+    Constants::DesignTool currentToolMode;
+    AbstractFormEditorTool *currentTool;
 
-private slots:
-    void mapClickToIndex();
-    void mapContextMenuRequestToIndex();
+    SelectionTool *selectionTool;
+    ZoomTool *zoomTool;
+    ColorPickerTool *colorPickerTool;
+    SubcomponentEditorTool *subcomponentEditorTool;
+    LayerItem *manipulatorLayer;
 
-private:
-    void resizeButtons();
+    BoundingRectHighlighter *boundingRectHighlighter;
 
-private:
-    QList<CrumblePathButton*> m_buttons;
+    bool designModeBehavior;
+
+    bool executionPaused;
+    qreal slowdownFactor;
+
+    QmlToolbar *toolbar;
+    CrumblePath *crumblePath;
+
 };
 
 } // namespace QmlViewer
 
-#endif // CRUMBLEPATH_H
+#endif // QDECLARATIVEDESIGNVIEW_P_H
