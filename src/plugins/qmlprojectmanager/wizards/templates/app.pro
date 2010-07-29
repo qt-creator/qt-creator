@@ -1,13 +1,9 @@
-QT += declarative
-
-# MAINQML #
-OTHER_FILES = qml/app.qml
-SOURCES = cpp/main.cpp cpp/qmlapplicationview.cpp
-HEADERS = cpp/qmlapplicationview.h
-INCLUDEPATH += cpp
-
+# Add more folders to ship with the application, here
 # DEPLOYMENTFOLDERS #
-DEPLOYMENTFOLDERS = qml/app
+folder_01.source = qml/app
+folder_01.target = qml
+DEPLOYMENTFOLDERS = folder_01
+# DEPLOYMENTFOLDERS_END #
 
 # Avoid auto screen rotation
 # ORIENTATIONLOCK #
@@ -17,45 +13,71 @@ DEFINES += ORIENTATIONLOCK
 # NETWORKACCESS #
 DEFINES += NETWORKACCESS
 
+# MAINQML #
+OTHER_FILES = qml/app/app.qml
+
+# TARGETUID3 #
+symbian:TARGET.UID3 = 0xE1111234
+
+
+
+
+# Edit the code below on your own risk.
+
+QT += declarative
+
+SOURCES = cpp/main.cpp cpp/qmlapplicationview.cpp
+HEADERS = cpp/qmlapplicationview.h
+INCLUDEPATH += cpp
+
 symbian {
-    # TARGETUID3 #
-    TARGET.UID3 = 0xE1111234
     ICON = cpp/symbianicon.svg
+    contains(DEFINES, ORIENTATIONLOCK):LIBS += -lavkon -leikcore -leiksrv -lcone
+    contains(DEFINES, NETWORKACCESS):TARGET.CAPABILITY += NetworkServices
     for(deploymentfolder, DEPLOYMENTFOLDERS) {
         item = item$${deploymentfolder}
         itemsources = $${item}.sources
-        $$itemsources = $${deploymentfolder}
+        $$itemsources = $$eval($${deploymentfolder}.source)
         itempath = $${item}.path
-        $$itempath = qml
+        $$itempath= $$eval($${deploymentfolder}.target)
         DEPLOYMENT += $$item
     }
-    contains(DEFINES, ORIENTATIONLOCK):LIBS += -lavkon -leikcore -leiksrv -lcone
-    contains(DEFINES, NETWORKACCESS):TARGET.CAPABILITY += NetworkServices
 } else:win32 {
-    # Ossi will want to kill me when he reads this
-    # TODO: Let Ossi do some deployment-via-qmake magic
-    !isEqual(PWD,$$OUT_PWD):!contains(CONFIG, build_pass) {
-        copyCommand = @echo Copying Qml files...
+    !isEqual(PWD,$$OUT_PWD) {
+        copyCommand = @echo Copying application data...
         for(deploymentfolder, DEPLOYMENTFOLDERS) {
-            pathSegments = $$split(deploymentfolder, /)
-            sourceAndTarget = $$PWD/$$deploymentfolder $$OUT_PWD/qml/$$last(pathSegments)
+            source = $$eval($${deploymentfolder}.source)
+            target = $$eval($${deploymentfolder}.target)
+            pathSegments = $$split(source, /)
+            sourceAndTarget = $$PWD/$$source $$OUT_PWD/$$target/$$last(pathSegments)
             copyCommand += && $(COPY_DIR) $$replace(sourceAndTarget, /, \\)
         }
-        copyqmlfiles.commands = $$copyCommand
-        first.depends = $(first) copyqmlfiles
-        QMAKE_EXTRA_TARGETS += first copyqmlfiles
+        copydeploymentfolders.commands = $$copyCommand
+        first.depends = $(first) copydeploymentfolders
+        QMAKE_EXTRA_TARGETS += first copydeploymentfolders
     }
 } else:if(maemo5|maemo6) {
     for(deploymentfolder, DEPLOYMENTFOLDERS) {
         item = item$${deploymentfolder}
         itemfiles = $${item}.files
-        $$itemfiles = $${deploymentfolder}
+        $$itemfiles = $$eval($${deploymentfolder}.source)
         itempath = $${item}.path
-        $$itempath = /opt/share/qml
+        $$itempath = /opt/share/$$eval($${deploymentfolder}.target)
         INSTALLS += $$item
     }
     target.path = /opt/bin
     INSTALLS += target
-} else {
-   # TODO: make this work
+} else { #linux
+    !isEqual(PWD,$$OUT_PWD) {
+        copyCommand = @echo Copying application data...
+        for(deploymentfolder, DEPLOYMENTFOLDERS) {
+            source = $$eval($${deploymentfolder}.source)
+            target = $$OUT_PWD/$$eval($${deploymentfolder}.target)/$$last(pathSegments)
+            copyCommand += && $(MKDIR) $$target
+            copyCommand += && $(COPY_DIR) $$PWD/$$source $$target
+        }
+        copydeploymentfolders.commands = $$copyCommand
+        first.depends = $(first) copydeploymentfolders
+        QMAKE_EXTRA_TARGETS += first copydeploymentfolders
+    }
 }

@@ -271,7 +271,13 @@ QByteArray QmlStandaloneApp::generateProFile(const QString *errorMessage) const
         } else if (line.contains(QLatin1String("# TARGETUID3"))) {
             valueOnNextLine = symbianTargetUid();
         } else if (line.contains(QLatin1String("# DEPLOYMENTFOLDERS"))) {
-            valueOnNextLine = path(QmlDir, AppProfileRelative);
+            // Eat lines
+            do {
+                line = in.readLine();
+            } while (!(line.isNull() || line.contains(QLatin1String("# DEPLOYMENTFOLDERS_END"))));
+            out << "folder_01.source = " << path(QmlDir, AppProfileRelative) << endl;
+            out << "folder_01.target = qml" << endl;
+            out << "DEPLOYMENTFOLDERS = folder_01" << endl;
         } else if (line.contains(QLatin1String("# ORIENTATIONLOCK")) && m_orientation == QmlStandaloneApp::Auto) {
             uncommentNextLine = true;
         } else if (line.contains(QLatin1String("# NETWORKACCESS")) && !m_networkEnabled) {
