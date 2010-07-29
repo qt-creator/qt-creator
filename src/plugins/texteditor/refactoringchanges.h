@@ -67,22 +67,27 @@ public:
      */
     virtual QStringList apply();
 
-    int positionInFile(const QString &fileName, int line, int column = 0) const;
+    // 1-based
+    int positionInFile(const QString &fileName, unsigned line, unsigned column) const;
 
     static BaseTextEditor *editorForFile(const QString &fileName,
                                          bool openIfClosed = false);
     static BaseTextEditor *editorForNewFile(const QString &fileName);
 
-    /** line and column are zero-based */
-    void openEditor(const QString &fileName, int line, int column);
+    /**
+     * \param fileName the file to open
+     * \param line the line to focus on, 1-based
+     * \param column the column to focus on, 1-based
+     */
+    void openEditor(const QString &fileName, unsigned line, unsigned column);
 
 private:
     QMap<QString, QString> m_contentsByCreatedFile;
     QMap<QString, Utils::ChangeSet> m_changesByFile;
     QMap<QString, QList<Range> > m_indentRangesByFile;
     QString m_fileNameToShow;
-    int m_lineToShow;
-    int m_columnToShow;
+    unsigned m_lineToShow;
+    unsigned m_columnToShow;
 };
 
 } // namespace TextEditor

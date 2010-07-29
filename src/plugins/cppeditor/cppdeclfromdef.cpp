@@ -93,9 +93,10 @@ public:
         Document::Ptr targetDoc = changes->document(m_targetFileName);
         InsertionPointLocator locator(targetDoc);
         const InsertionLocation loc = locator.methodDeclarationInClass(m_targetSymbol, InsertionPointLocator::Public);
+        Q_ASSERT(loc.isValid());
 
-        int targetPosition1 = changes->positionInFile(m_targetFileName, loc.line() - 1, loc.column() - 1);
-        int targetPosition2 = changes->positionInFile(m_targetFileName, loc.line(), 0) - 1;
+        int targetPosition1 = changes->positionInFile(m_targetFileName, loc.line(), loc.column());
+        int targetPosition2 = qMax(0, changes->positionInFile(m_targetFileName, loc.line(), 1) - 1);
 
         Utils::ChangeSet target;
         target.insert(targetPosition1, loc.prefix() + m_decl);
@@ -104,7 +105,7 @@ public:
         changes->reindent(m_targetFileName,
                           Utils::ChangeSet::Range(targetPosition1, targetPosition2));
 
-        changes->openEditor(m_targetFileName, loc.line() - 1, loc.column() - 1);
+        changes->openEditor(m_targetFileName, loc.line(), loc.column());
     }
 
 private:

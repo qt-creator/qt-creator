@@ -158,17 +158,20 @@ QStringList RefactoringChanges::apply()
         Core::EditorManager *editorManager = Core::EditorManager::instance();
         BaseTextEditor *editor = editorForFile(m_fileNameToShow);
         editorManager->activateEditor(editor->editableInterface());
-        if (m_lineToShow != -1)
-            editor->gotoLine(m_lineToShow + 1, m_columnToShow);
+        if (m_lineToShow != 0) {
+            editor->gotoLine(m_lineToShow, qMax(0, int(m_columnToShow) - 1));
+        }
     }
 
     return changed.toList();
 }
 
-int RefactoringChanges::positionInFile(const QString &fileName, int line, int column) const
+int RefactoringChanges::positionInFile(const QString &fileName, unsigned line, unsigned column) const
 {
     if (BaseTextEditor *editor = editorForFile(fileName, true)) {
-        return editor->document()->findBlockByNumber(line).position() + column;
+        Q_ASSERT(line != 0);
+        Q_ASSERT(column != 0);
+        return editor->document()->findBlockByNumber(line - 1).position() + column - 1;
     } else {
         return -1;
     }
@@ -205,12 +208,7 @@ BaseTextEditor *RefactoringChanges::editorForNewFile(const QString &fileName)
     return editorForFile(fileName, true);
 }
 
-/**
- * \param fileName the file to open
- * \param line the line to focus on, 0-based
- * \param column the column to focus on, 0-based
- */
-void RefactoringChanges::openEditor(const QString &fileName, int line, int column)
+void RefactoringChanges::openEditor(const QString &fileName, unsigned line, unsigned column)
 {
     m_fileNameToShow = fileName;
     m_lineToShow = line;
