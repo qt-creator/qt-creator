@@ -135,8 +135,9 @@ bool S60DeployStep::init()
     setDisplayName(tr("Deploy", "Qt4 DeployStep display name."));
     QString message;
     m_launcher = trk::Launcher::acquireFromDeviceManager(m_serialPortName, this, &message);
-    if (!message.isEmpty()) {
-        trk::Launcher::releaseToDeviceManager(m_launcher);
+    if (!message.isEmpty() || !m_launcher) {
+        if (m_launcher)
+            trk::Launcher::releaseToDeviceManager(m_launcher);
         delete m_launcher;
         m_launcher = 0;
         appendMessage(message, true);

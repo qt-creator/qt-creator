@@ -1033,6 +1033,8 @@ Launcher *Launcher::acquireFromDeviceManager(const QString &serverName,
 // Preliminary release of device, disconnecting the signal.
 void Launcher::releaseToDeviceManager(Launcher *launcher)
 {
+    Q_ASSERT(launcher);
+
     SymbianUtils::SymbianDeviceManager *sdm = SymbianUtils::SymbianDeviceManager::instance();
     // Disentangle launcher and its device, remove connection from destroyed
     launcher->setCloseDevice(false);
