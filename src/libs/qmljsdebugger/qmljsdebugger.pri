@@ -1,5 +1,5 @@
 INCLUDEPATH += $$PWD/include
 DEPENDPATH += $$PWD $$PWD/include $$PWD/editor
-QT += declarative
+QT += declarative script
 
 LIBS *= -l$$qtLibraryTarget(QmlJSDebugger)
