@@ -1,4 +1,4 @@
-QT += declarative
+QT += declarative script
 INCLUDEPATH += $$PWD $$PWD/include editor
 DEPENDPATH += $$PWD $$PWD/include editor
 
