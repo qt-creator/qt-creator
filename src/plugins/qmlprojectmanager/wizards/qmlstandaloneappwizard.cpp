@@ -126,7 +126,7 @@ Core::BaseFileWizardParameters QmlStandaloneAppWizard::parameters(WizardType typ
                                    "project. A lightweight Qt/C++ application with a QDeclarativeView "
                                    "and a single QML file will be created.")
                               : tr("Creates a standalone, mobile-deployable Qt QML application "
-                                   "project. An erxisting QML project will be imported and a lightweight "
+                                   "project. An existing QML project will be imported and a lightweight "
                                    "Qt/C++ application with a QDeclarativeView will be created for it."));
     parameters.setCategory(QLatin1String(Constants::QML_WIZARD_CATEGORY));
     parameters.setDisplayCategory(QCoreApplication::translate(Constants::QML_WIZARD_TR_SCOPE,
