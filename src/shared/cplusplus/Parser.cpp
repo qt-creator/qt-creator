@@ -3417,9 +3417,7 @@ bool Parser::parseBuiltinTypeSpecifier(SpecifierListAST *&node)
                 node = new (_pool) SpecifierListAST(ast);
                 return true;
             }
-            printf("typeof: before rewind, token ahead: %s (%d)\n", tok().spell(), cursor());
             rewind(lparen_token);
-            printf("typeof:  after rewind, token ahead: %s (%d)\n", tok().spell(), cursor());
         }
         parseUnaryExpression(ast->expression);
         node = new (_pool) SpecifierListAST(ast);
@@ -4414,9 +4412,7 @@ bool Parser::parseUnaryExpression(ExpressionAST *&node)
                 node = ast;
                 return true;
             } else {
-                printf("sizeof: before rewind, token ahead: %s\n", tok().spell());
                 rewind(lparen_token);
-                printf("sizeof:  after rewind, token ahead: %s\n", tok().spell());
             }
         }
 
