@@ -54,23 +54,6 @@ using CppEditor::CppRefactoringChanges;
 
 namespace {
 
-//! \todo This method should probably be changed when Overview#prettyTypeWithName is removed.
-QString prettyMinimalType(const FullySpecifiedType &ty,
-                          const LookupContext &context,
-                          Scope *source,
-                          ClassOrNamespace *target)
-{
-    Overview oo;
-
-    if (const NamedType *namedTy = ty->asNamedType())
-        return oo.prettyTypeWithName(ty, context.minimalName(namedTy->name(),
-                                                             source,
-                                                             target),
-                                     context.control().data());
-    else
-        return oo(ty);
-}
-
 class Operation: public CppQuickFixOperation
 {
 public:
@@ -103,7 +86,7 @@ public:
         changes->changeFile(m_targetFileName, target);
 
         changes->reindent(m_targetFileName,
-                          Utils::ChangeSet::Range(targetPosition1, targetPosition2));
+                          Utils::ChangeSet::Range(targetPosition2, targetPosition1));
 
         changes->openEditor(m_targetFileName, loc.line(), loc.column());
     }
@@ -157,29 +140,16 @@ QString DeclFromDef::generateDeclaration(const CppQuickFixState &state,
                                          Function *method,
                                          ClassOrNamespace *targetBinding)
 {
+    Q_UNUSED(targetBinding);
+
     Overview oo;
+    oo.setShowFunctionSignatures(true);
+    oo.setShowReturnTypes(true);
+    oo.setShowArgumentNames(true);
+
     QString decl;
-
-    decl.append(prettyMinimalType(method->returnType(),
-                                  state.context(),
-                                  method->scope(),
-                                  targetBinding));
-
-    decl.append(QLatin1Char(' '));
-    decl.append(QLatin1String(method->name()->identifier()->chars()));
-    decl.append(QLatin1Char('('));
-    for (unsigned argIdx = 0; argIdx < method->argumentCount(); ++argIdx) {
-        if (argIdx > 0)
-            decl.append(QLatin1String(", "));
-        Argument *arg = method->argumentAt(argIdx)->asArgument();
-        decl.append(prettyMinimalType(arg->type(),
-                                      state.context(),
-                                      method->members(),
-                                      targetBinding));
-        decl.append(QLatin1Char(' '));
-        decl.append(oo(arg->name()));
-    }
-    decl.append(QLatin1String(");\n\n"));
+    decl += oo(method->type(), method->identity());
+    decl += QLatin1String(";\n");
 
     return decl;
 }

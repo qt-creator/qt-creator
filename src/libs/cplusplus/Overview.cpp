@@ -150,24 +150,3 @@ QString Overview::prettyType(const FullySpecifiedType &ty,
     return pp(ty, name);
 }
 
-/**
- * Pretty-prints the given fully-specified type, but replacing the contained
- * type with the given name.
- *
- * \param type the fully-specified type to convert to string
- * \param the name for the named-type to use
- * \param the control where the name is registered
- * \return the pretty-printed name
- *
- * \todo Remove this method, and do it "for real" using the class CPlusPlus::Rewrite.
- */
-QString Overview::prettyTypeWithName(const FullySpecifiedType &type,
-                                     const Name *name,
-                                     Control *control)
-{
-    NamedType *namedTy = control->namedType(name);
-    FullySpecifiedType newTy = type;
-    newTy.setType(namedTy);
-
-    return prettyType(newTy);
-}
