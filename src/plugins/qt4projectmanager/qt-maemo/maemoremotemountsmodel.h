@@ -53,6 +53,7 @@ public:
 
     explicit MaemoRemoteMountsModel(QObject *parent = 0);
     int mountSpecificationCount() const { return m_mountSpecs.count(); }
+    int validMountSpecificationCount() const;
     MountSpecification mountSpecificationAt(int pos) const { return m_mountSpecs.at(pos); }
     bool hasValidMountSpecifications() const;
 

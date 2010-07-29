@@ -52,6 +52,8 @@ namespace ProjectExplorer {
     class EnvironmentWidget;
 }
 
+namespace Utils { class DetailsWidget; }
+
 namespace Qt4ProjectManager {
 namespace Internal {
 
@@ -84,6 +86,7 @@ private slots:
     void baseEnvironmentChanged();
     void systemEnvironmentChanged();
     void userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &userChanges);
+    void handleRemoteMountsChanged();
 
 private:
     QLineEdit *m_configNameLineEdit;
@@ -93,6 +96,7 @@ private:
     QLineEdit *m_hostAddressLineEdit;
     QTableView *m_mountView;
     QToolButton *m_removeMountButton;
+    Utils::DetailsWidget *m_detailsContainer;
     MaemoRunConfiguration *m_runConfiguration;
 
     bool m_ignoreChange;

@@ -86,6 +86,16 @@ void MaemoRemoteMountsModel::setLocalDir(int pos, const QString &localDir)
     emit dataChanged(currentIndex, currentIndex);
 }
 
+int MaemoRemoteMountsModel::validMountSpecificationCount() const
+{
+    int count = 0;
+    foreach (const MountSpecification &m, m_mountSpecs) {
+        if (m.isValid())
+            ++count;
+    }
+    return count;
+}
+
 bool MaemoRemoteMountsModel::hasValidMountSpecifications() const
 {
     foreach (const MountSpecification &m, m_mountSpecs) {
@@ -168,7 +178,7 @@ QVariant MaemoRemoteMountsModel::data(const QModelIndex &index, int role) const
             return mountSpec.remoteMountPoint;
         break;
     case PortRow:
-        if (role == Qt::DisplayRole)
+        if (role == Qt::DisplayRole || role == Qt::EditRole)
             return mountSpec.port;
         break;
     }

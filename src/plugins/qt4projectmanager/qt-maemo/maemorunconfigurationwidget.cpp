@@ -43,6 +43,7 @@
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/environmenteditmodel.h>
+#include <utils/detailswidget.h>
 
 #include <QtGui/QComboBox>
 #include <QtGui/QFileDialog>
@@ -99,12 +100,13 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     formLayout->addRow(tr("Arguments:"), m_argsLineEdit);
 
     mainLayout->addSpacing(20);
-    QGroupBox *mountViewBox = new QGroupBox;
+    m_detailsContainer = new Utils::DetailsWidget(this);
+    QWidget *mountViewWidget = new QWidget;
+    m_detailsContainer->setWidget(mountViewWidget);
 #ifndef Q_OS_WIN
-    mainLayout->addWidget(mountViewBox);
+    mainLayout->addWidget(m_detailsContainer);
 #endif
-    mountViewBox->setTitle(tr("Local Directories to mount from device"));
-    QVBoxLayout *mountViewLayout = new QVBoxLayout(mountViewBox);
+    QVBoxLayout *mountViewLayout = new QVBoxLayout(mountViewWidget);
     QHBoxLayout *hostAddressLayout = new QHBoxLayout;
     mountViewLayout->addLayout(hostAddressLayout);
     QLabel *hostNameLabel
@@ -160,6 +162,7 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
 
     handleCurrentDeviceConfigChanged();
     enableOrDisableRemoveButton();
+    handleRemoteMountsChanged();
 
     connect(m_configNameLineEdit, SIGNAL(textEdited(QString)), this,
         SLOT(configNameEdited(QString)));
@@ -175,6 +178,7 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
         SLOT(showSettingsDialog(QString)));
     connect(debuggerConfLabel, SIGNAL(linkActivated(QString)), this,
         SLOT(showSettingsDialog(QString)));
+
     connect(addMountButton, SIGNAL(clicked()), this, SLOT(addMount()));
     connect(m_removeMountButton, SIGNAL(clicked()), this, SLOT(removeMount()));
     connect(m_mountView, SIGNAL(doubleClicked(QModelIndex)), this,
@@ -182,6 +186,17 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     connect(m_mountView->selectionModel(),
         SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this,
         SLOT(enableOrDisableRemoveButton()));
+    connect(m_runConfiguration->remoteMounts(),
+        SIGNAL(rowsInserted(QModelIndex, int, int)), this,
+        SLOT(handleRemoteMountsChanged()));
+    connect(m_runConfiguration->remoteMounts(),
+        SIGNAL(rowsRemoved(QModelIndex, int, int)), this,
+        SLOT(handleRemoteMountsChanged()));
+    connect(m_runConfiguration->remoteMounts(),
+        SIGNAL(dataChanged(QModelIndex, QModelIndex)), this,
+        SLOT(handleRemoteMountsChanged()));
+    connect(m_runConfiguration->remoteMounts(), SIGNAL(modelReset()), this,
+        SLOT(handleRemoteMountsChanged()));
 
     connect(m_environmentWidget, SIGNAL(userChangesChanged()), this,
         SLOT(userChangesEdited()));
@@ -333,6 +348,27 @@ void MaemoRunConfigurationWidget::userEnvironmentChangesChanged(const QList<Proj
     if (m_ignoreChange)
         return;
     m_environmentWidget->setUserChanges(userChanges);
+}
+
+void MaemoRunConfigurationWidget::handleRemoteMountsChanged()
+{
+    const int mountCount
+        = m_runConfiguration->remoteMounts()->validMountSpecificationCount();
+    QString text;
+    switch (mountCount) {
+    case 0:
+        text = tr("No local directories to be mounted from the device.");
+        break;
+    case 1:
+        text = tr("One local directory to be mounted from the device.");
+        break;
+    default:
+        text = tr("%1 local directories to be mounted from the device.")
+            .arg(mountCount);
+        break;
+    }
+    m_detailsContainer->setSummaryText(QLatin1String("<b>") + text
+        + QLatin1String("</b>"));
 }
 
 } // namespace Internal
