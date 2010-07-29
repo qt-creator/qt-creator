@@ -52,5 +52,14 @@ QString MaemoGlobal::remoteCommandPrefix(const QString &commandFilePath)
         .arg(remoteSudo()).arg(commandFilePath);
 }
 
+QString MaemoGlobal::remoteEnvironment(const QList<ProjectExplorer::EnvironmentItem> &list)
+{
+    QString env;
+    QString placeHolder = QLatin1String("%1=%2 ");
+    foreach (const ProjectExplorer::EnvironmentItem &item, list)
+        env.append(placeHolder.arg(item.name).arg(item.value));
+    return env.mid(0, env.size() - 1);
+}
+
 } // namespace Internal
 } // namespace Qt4ProjectManager

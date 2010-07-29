@@ -113,8 +113,10 @@ void MaemoRunControl::startExecution()
 {
     emit appendMessage(this, tr("Starting remote process ..."), false);
     const QString &remoteExe = m_runConfig->remoteExecutableFilePath();
-    m_runner->startExecution(QString::fromLocal8Bit("%1 %2 %3")
-        .arg(MaemoGlobal::remoteCommandPrefix(remoteExe)).arg(remoteExe)
+    m_runner->startExecution(QString::fromLocal8Bit("%1 %2 %3 %4")
+        .arg(MaemoGlobal::remoteCommandPrefix(remoteExe))
+        .arg(MaemoGlobal::remoteEnvironment(m_runConfig->userEnvironmentChanges()))
+        .arg(remoteExe)
         .arg(m_runConfig->arguments().join(QLatin1String(" "))).toUtf8());
 }
 

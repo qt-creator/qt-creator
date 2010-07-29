@@ -31,6 +31,7 @@
 #define MAEMOGLOBAL_H
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/environment.h>
 
 #include <QtCore/QList>
 
@@ -47,6 +48,7 @@ public:
     static QString homeDirOnDevice(const QString &uname);
     static QString remoteSudo();
     static QString remoteCommandPrefix(const QString &commandFilePath);
+    static QString remoteEnvironment(const QList<ProjectExplorer::EnvironmentItem> &list);
 
     template<class T> static T *buildStep(const ProjectExplorer::BuildConfiguration *bc)
     {
