@@ -47,8 +47,10 @@
 
 QT_BEGIN_HEADER
 
+QT_BEGIN_NAMESPACE
 class QIODevice;
 class QBuffer;
+QT_END_NAMESPACE
 
 namespace QmlJsDebugClient {
 
