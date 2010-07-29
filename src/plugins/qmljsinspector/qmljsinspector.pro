@@ -4,8 +4,6 @@ INCLUDEPATH += .
 DEPENDPATH += .
 QT += declarative network
 
-include(../../private_headers.pri)
-
 DEFINES += QMLJSINSPECTOR_LIBRARY
 
 HEADERS += \
@@ -31,7 +29,9 @@ qmljsinspector.cpp \
 qmlinspectortoolbar.cpp \
 qmljslivetextpreview.cpp \
 qmljstoolbarcolorbox.cpp \
-qmljsdesigndebugclient.cpp
+qmljsdesigndebugclient.cpp \
+
+include(../../libs/qmljsdebugclient/qmljsdebugclient-lib.pri)
 
 OTHER_FILES += QmlJSInspector.pluginspec
 RESOURCES += qmljsinspector.qrc
@@ -42,3 +42,4 @@ include(../../plugins/qmlprojectmanager/qmlprojectmanager.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
 include(../../plugins/texteditor/texteditor.pri)
 include(../../plugins/debugger/debugger.pri)
+

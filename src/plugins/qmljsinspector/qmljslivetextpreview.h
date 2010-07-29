@@ -33,12 +33,11 @@
 #include <QObject>
 #include <QWeakPointer>
 
-#include <private/qdeclarativedebug_p.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
 #include <qmljs/qmljsdocument.h>
+#include "qmljsprivateapi.h"
 
 QT_FORWARD_DECLARE_CLASS(QTextDocument)
-QT_FORWARD_DECLARE_CLASS(QDeclarativeDebugObjectReference)
 
 namespace Core {
     class IEditor;

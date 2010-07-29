@@ -35,6 +35,7 @@ SUBDIRS   = plugin_coreplugin \
             plugin_qmljseditor \
             plugin_mercurial \
             plugin_classview \
+            plugin_qmljsinspector \
             debugger/dumper.pro
 
 contains(QT_CONFIG, declarative) {
@@ -43,11 +44,11 @@ contains(QT_CONFIG, declarative) {
 
     include(../private_headers.pri)
     exists($${QT_PRIVATE_HEADERS}/QtDeclarative/private/qdeclarativecontext_p.h) {
-        SUBDIRS += plugin_qmldesigner plugin_qmljsinspector
+        SUBDIRS += plugin_qmldesigner 
     } else {
         warning()
-        warning("QmlDesigner and QmlJSInspector plugins have been disabled")
-        warning("The plugins depend on on private headers from QtDeclarative module.")
+        warning("QmlDesigner plugin have been disabled")
+        warning("The plugin depend on on private headers from QtDeclarative module.")
         warning("To enable them, pass 'QT_PRIVATE_HEADERS=$QTDIR/include' to qmake, where $QTDIR is the source directory of qt.")
         warning()
     }

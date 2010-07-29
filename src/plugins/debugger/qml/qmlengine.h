@@ -32,10 +32,6 @@
 
 #include "debuggerengine.h"
 
-#include "private/qdeclarativedebug_p.h"
-#include "private/qdeclarativedebugclient_p.h"
-#include "private/qdeclarativeenginedebug_p.h"
-
 #include <QtCore/QByteArray>
 #include <QtCore/QHash>
 #include <QtCore/QObject>
@@ -48,14 +44,6 @@
 #include <QtNetwork/QAbstractSocket>
 #include <QtNetwork/QTcpSocket>
 
-
-QT_BEGIN_NAMESPACE
-class QTcpSocket;
-class QDeclarativeDebugConnection;
-class QDeclarativeEngineDebug;
-class QDeclarativeDebugEnginesQuery;
-class QDeclarativeDebugRootContextQuery;
-QT_END_NAMESPACE
 
 namespace Debugger {
 namespace Internal {

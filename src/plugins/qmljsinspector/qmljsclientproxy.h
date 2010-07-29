@@ -34,9 +34,6 @@
 #include <QtCore/QObject>
 
 QT_FORWARD_DECLARE_CLASS(QUrl)
-QT_FORWARD_DECLARE_CLASS(QDeclarativeEngineDebug)
-QT_FORWARD_DECLARE_CLASS(QDeclarativeDebugConnection)
-QT_FORWARD_DECLARE_CLASS(QDeclarativeDebugExpressionQuery)
 
 namespace QmlJSInspector {
 namespace Internal {

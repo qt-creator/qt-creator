@@ -42,8 +42,7 @@
 #ifndef QMLJSDESIGNDEBUGCLIENT_H
 #define QMLJSDESIGNDEBUGCLIENT_H
 
-#include "private/qdeclarativedebug_p.h"
-#include "private/qdeclarativedebugclient_p.h"
+#include "qmljsprivateapi.h"
 
 namespace QmlJSInspector {
 namespace Internal {
