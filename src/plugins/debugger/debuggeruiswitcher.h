@@ -77,6 +77,8 @@ public:
     void addMenuAction(Core::Command *command, const QString &langName,
                        const QString &group = QString());
 
+    QStringList supportedLanguages() const;
+
     // Changes the active language UI to the one specified by langName.
     // Does nothing if automatic switching is toggled off from settings.
     void setActiveLanguage(const QString &langName);
