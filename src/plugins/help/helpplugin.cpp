@@ -857,12 +857,13 @@ void HelpPlugin::highlightSearchTerms()
             if (name.isEmpty())
                 continue;
 
-            if (m_oldAttrValue == name) {
+            if (m_oldAttrValue == name
+                || name.startsWith(m_oldAttrValue + QLatin1Char('-'))) {
                 QWebElement parent = element.parent();
                 parent.setStyleProperty(property, m_styleProperty);
             }
 
-            if (attrValue == name) {
+            if (attrValue == name || name.startsWith(attrValue + QLatin1Char('-'))) {
                 QWebElement parent = element.parent();
                 m_styleProperty = parent.styleProperty(property,
                     QWebElement::InlineStyle);
@@ -871,7 +872,6 @@ void HelpPlugin::highlightSearchTerms()
         }
         m_oldAttrValue = attrValue;
 #endif
-        viewer->findText(m_idFromContext, 0, false, true);
     }
 }
 
