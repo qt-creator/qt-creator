@@ -37,6 +37,7 @@
 #include <qmljs/parser/qmljsastvisitor_p.h>
 
 #include <QtCore/QCoreApplication>
+#include <QtGui/QColor>
 
 namespace QmlJS {
 
@@ -79,6 +80,8 @@ private:
 
     bool _ignoreTypeErrors;
 };
+
+QMLJS_EXPORT QColor toQColor(const QString &qmlColorString);
 
 } // namespace QmlJS
 

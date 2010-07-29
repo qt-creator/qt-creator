@@ -41,6 +41,26 @@ using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJS::Interpreter;
 
+QColor QmlJS::toQColor(const QString &qmlColorString)
+{
+    QColor color;
+    if (qmlColorString.size() == 9 && qmlColorString.at(0) == QLatin1Char('#')) {
+        bool ok;
+        const int alpha = qmlColorString.mid(1, 2).toInt(&ok, 16);
+        if (ok) {
+            QString name(qmlColorString.at(0));
+            name.append(qmlColorString.right(6));
+            if (QColor::isValidColor(name)) {
+                color.setNamedColor(name);
+                color.setAlpha(alpha);
+            }
+        }
+    } else {
+        if (QColor::isValidColor(qmlColorString))
+            color.setNamedColor(qmlColorString);
+    }
+    return color;
+}
 
 namespace {
 
@@ -113,24 +133,7 @@ public:
     virtual void visit(const ColorValue *)
     {
         if (StringLiteral *stringLiteral = cast<StringLiteral *>(_ast)) {
-            const QString colorString = stringLiteral->value->asString();
-
-            bool ok = true;
-            if (colorString.size() == 9 && colorString.at(0) == QLatin1Char('#')) {
-                // #rgba
-                for (int i = 1; i < 9; ++i) {
-                    const QChar c = colorString.at(i);
-                    if ((c >= QLatin1Char('0') && c <= QLatin1Char('9'))
-                        || (c >= QLatin1Char('a') && c <= QLatin1Char('f'))
-                        || (c >= QLatin1Char('A') && c <= QLatin1Char('F')))
-                        continue;
-                    ok = false;
-                    break;
-                }
-            } else {
-                ok = QColor::isValidColor(colorString);
-            }
-            if (!ok)
+            if (!toQColor(stringLiteral->value->asString()).isValid())
                 _message.message = Check::tr("not a valid color");
         } else {
             visit((StringValue *)0);
