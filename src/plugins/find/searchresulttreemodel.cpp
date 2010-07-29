@@ -76,7 +76,7 @@ Qt::ItemFlags SearchResultTreeModel::flags(const QModelIndex &idx) const
 
     if (idx.isValid()) {
         if (const SearchResultTreeItem *item = treeItemAtIndex(idx)) {
-            if (item->isLeaf() && item->isUserCheckable()) {
+            if (item->isUserCheckable()) {
                 flags |= Qt::ItemIsUserCheckable;
             }
         }
@@ -173,11 +173,61 @@ bool SearchResultTreeModel::setData(const QModelIndex &idx, const QVariant &valu
 {
     if (role == Qt::CheckStateRole) {
         Qt::CheckState checkState = static_cast<Qt::CheckState>(value.toInt());
-        treeItemAtIndex(idx)->setCheckState(checkState);
-        return true;
+        return setCheckState(idx, checkState);
     }
     return QAbstractItemModel::setData(idx, value, role);
 }
+
+bool SearchResultTreeModel::setCheckState(const QModelIndex &idx, Qt::CheckState checkState, bool firstCall)
+{
+    SearchResultTreeItem *item = treeItemAtIndex(idx);
+    if (item->checkState() == checkState)
+        return false;
+    item->setCheckState(checkState);
+    if (firstCall) {
+        emit dataChanged(idx, idx);
+        // check parents
+        SearchResultTreeItem *currentItem = item;
+        QModelIndex currentIndex = idx;
+        while (SearchResultTreeItem *parent = currentItem->parent()) {
+            if (parent->isUserCheckable()) {
+                bool hasChecked = false;
+                bool hasUnchecked = false;
+                for (int i = 0; i < parent->childrenCount(); ++i) {
+                    SearchResultTreeItem *child = parent->childAt(i);
+                    if (!child->isUserCheckable())
+                        continue;
+                    if (child->checkState() == Qt::Checked) {
+                        hasChecked = true;
+                    } else if (child->checkState() == Qt::Unchecked) {
+                        hasUnchecked = true;
+                    } else if (child->checkState() == Qt::PartiallyChecked) {
+                        hasChecked = hasUnchecked = true;
+                    }
+                }
+                if (hasChecked && hasUnchecked)
+                    parent->setCheckState(Qt::PartiallyChecked);
+                else if (hasChecked)
+                    parent->setCheckState(Qt::Checked);
+                else
+                    parent->setCheckState(Qt::Unchecked);
+                emit dataChanged(idx.parent(), idx.parent());
+            }
+            currentItem = parent;
+            currentIndex = idx.parent();
+        }
+    }
+    // check children
+    if (int children = item->childrenCount()) {
+        for (int i = 0; i < children; ++i) {
+            setCheckState(idx.child(i, 0), checkState, false);
+        }
+        emit dataChanged(idx.child(0, 0), idx.child(children-1, 0));
+    }
+    return true;
+}
+
+void setDataInternal(const QModelIndex &index, const QVariant &value, int role);
 
 QVariant SearchResultTreeModel::data(const SearchResultTreeItem *row, int role) const
 {

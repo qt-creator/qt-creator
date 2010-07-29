@@ -44,11 +44,11 @@ class SearchResultTreeItem
 {
 public:
     SearchResultTreeItem(const SearchResultItem &item = SearchResultItem(),
-                         const SearchResultTreeItem *parent = NULL);
+                         SearchResultTreeItem *parent = NULL);
     virtual ~SearchResultTreeItem();
 
     bool isLeaf() const;
-    const SearchResultTreeItem *parent() const;
+    SearchResultTreeItem *parent() const;
     SearchResultTreeItem *childAt(int index) const;
     int insertionIndex(const QString &text, SearchResultTreeItem **existingItem) const;
     int insertionIndex(const SearchResultItem &item, SearchResultTreeItem **existingItem) const;
@@ -71,7 +71,7 @@ public:
     SearchResultItem item;
 
 private:
-    const SearchResultTreeItem *m_parent;
+    SearchResultTreeItem *m_parent;
     QList<SearchResultTreeItem *> m_children;
     bool m_isUserCheckable;
     Qt::CheckState m_checkState;

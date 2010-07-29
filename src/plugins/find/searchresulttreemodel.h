@@ -82,6 +82,7 @@ private:
     void addResultsToCurrentParent(const QList<SearchResultItem> &items, SearchResultWindow::AddMode mode);
     QSet<SearchResultTreeItem *> addPath(const QStringList &path);
     QVariant data(const SearchResultTreeItem *row, int role) const;
+    bool setCheckState(const QModelIndex &idx, Qt::CheckState checkState, bool firstCall = true);
     QModelIndex nextIndex(const QModelIndex &idx) const;
     QModelIndex prevIndex(const QModelIndex &idx) const;
     SearchResultTreeItem *treeItemAtIndex(const QModelIndex &idx) const;

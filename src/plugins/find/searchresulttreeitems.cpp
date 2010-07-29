@@ -32,7 +32,7 @@
 using namespace Find::Internal;
 
 SearchResultTreeItem::SearchResultTreeItem(const Find::SearchResultItem &item,
-                                           const SearchResultTreeItem *parent)
+                                           SearchResultTreeItem *parent)
   : item(item),
   m_parent(parent),
   m_isUserCheckable(false),
@@ -92,7 +92,7 @@ SearchResultTreeItem* SearchResultTreeItem::childAt(int index) const
     return m_children.at(index);
 }
 
-const SearchResultTreeItem *SearchResultTreeItem::parent() const
+SearchResultTreeItem *SearchResultTreeItem::parent() const
 {
     return m_parent;
 }

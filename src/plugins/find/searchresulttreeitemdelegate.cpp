@@ -48,6 +48,8 @@ SearchResultTreeItemDelegate::SearchResultTreeItemDelegate(QObject *parent)
 
 void SearchResultTreeItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
+    static const int iconSize = 16;
+
     painter->save();
 
     QStyleOptionViewItemV3 opt = setOptions(index, option);
@@ -55,54 +57,61 @@ void SearchResultTreeItemDelegate::paint(QPainter *painter, const QStyleOptionVi
 
     QItemDelegate::drawBackground(painter, opt, index);
 
-    int iconAreaWidth = drawIcon(painter, opt, opt.rect, index);
-    QRect resultRowRect(opt.rect.adjusted(iconAreaWidth, 0, 0, 0));
+    // ---- do the layout
+    QRect checkRect;
+    QRect pixmapRect;
+    QRect textRect;
 
-    int lineNumberAreaWidth = drawLineNumber(painter, opt, resultRowRect, index);
-    resultRowRect.adjust(lineNumberAreaWidth, 0, 0, 0);
+    // check mark
+    bool checkable = (index.model()->flags(index) & Qt::ItemIsUserCheckable);
+    Qt::CheckState checkState = Qt::Unchecked;
+    if (checkable) {
+        QVariant checkStateData = index.data(Qt::CheckStateRole);
+        checkState = static_cast<Qt::CheckState>(checkStateData.toInt());
+        checkRect = check(opt, opt.rect, checkStateData);
+    }
 
+    // icon
+    QIcon icon = index.model()->data(index, ItemDataRoles::ResultIconRole).value<QIcon>();
+    if (!icon.isNull()) {
+        pixmapRect = QRect(0, 0, iconSize, iconSize);
+    }
+
+    // text
+    textRect = opt.rect.adjusted(0, 0, checkRect.width() + pixmapRect.width(), 0);
+
+    // do layout
+    doLayout(opt, &checkRect, &pixmapRect, &textRect, false);
+
+    // ---- draw the items
+    // icon
+    if (!icon.isNull())
+        QItemDelegate::drawDecoration(painter, opt, pixmapRect, icon.pixmap(iconSize));
+
+    // line numbers
+    int lineNumberAreaWidth = drawLineNumber(painter, opt, textRect, index);
+    textRect.adjust(lineNumberAreaWidth, 0, 0, 0);
+
+    // selected text
     QString displayString = index.model()->data(index, Qt::DisplayRole).toString();
-    drawMarker(painter, index, displayString, resultRowRect);
+    drawMarker(painter, index, displayString, textRect);
 
-    // Show number of subresults in displayString
+    // show number of subresults in displayString
     if (index.model()->hasChildren(index)) {
         displayString += QString::fromLatin1(" (")
                          + QString::number(index.model()->rowCount(index))
                          + QLatin1Char(')');
     }
 
-    // Draw the text and focus/selection
-    QItemDelegate::drawDisplay(painter, opt, resultRowRect, displayString);
+    // text and focus/selection
+    QItemDelegate::drawDisplay(painter, opt, textRect, displayString);
     QItemDelegate::drawFocus(painter, opt, opt.rect);
 
-    QVariant value = index.data(Qt::CheckStateRole);
-    if (value.isValid()) {
-        Qt::CheckState checkState = Qt::Unchecked;
-        checkState = static_cast<Qt::CheckState>(value.toInt());
-        QRect checkRect = check(opt, opt.rect, value);
-
-        QRect emptyRect;
-        doLayout(opt, &checkRect, &emptyRect, &emptyRect, false);
-
+    // check mark
+    if (checkable)
         QItemDelegate::drawCheck(painter, opt, checkRect, checkState);
-    }
 
     painter->restore();
-}
-
-int SearchResultTreeItemDelegate::drawIcon(QPainter *painter, const QStyleOptionViewItemV3 &option,
-                                                 const QRect &rect,
-                                                 const QModelIndex &index) const
-{
-    static const int iconWidth = 16;
-    static const int iconPadding = 4;
-    QIcon icon = index.model()->data(index, ItemDataRoles::ResultIconRole).value<QIcon>();
-    if (icon.isNull())
-        return 0;
-    QRect iconRect = rect.adjusted(iconPadding, 0, /*is set below anyhow*/0, 0);
-    iconRect.setWidth(iconWidth);
-    QItemDelegate::drawDecoration(painter, option, iconRect, icon.pixmap(iconWidth));
-    return iconWidth + iconPadding;
 }
 
 int SearchResultTreeItemDelegate::drawLineNumber(QPainter *painter, const QStyleOptionViewItemV3 &option,
