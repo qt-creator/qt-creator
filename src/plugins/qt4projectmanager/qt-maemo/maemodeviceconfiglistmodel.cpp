@@ -125,7 +125,7 @@ QVariant MaemoDeviceConfigListModel::data(const QModelIndex &index, int role) co
 {
     if (!index.isValid() || index.row() >= rowCount()
         || role != Qt::DisplayRole)
-        return QString();
+        return QVariant();
     return MaemoDeviceConfigurations::instance().devConfigs().at(index.row()).name;
 }
 
