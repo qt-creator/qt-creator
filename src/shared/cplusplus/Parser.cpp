@@ -68,14 +68,14 @@ class DebugRule {
     static int depth;
 
 public:
-    DebugRule(const char *name)
+    DebugRule(const char *name, int kind, unsigned idx)
         : name(name)
     {
-        for (int i = 0; i < depth; ++i)
-            putchar(' ');
+        for (int i = 0; i <= depth; ++i)
+            putchar('-');
 
         ++depth;
-        printf("%s\n", name);
+        printf(" %s, ahead: '%s' (%d)\n", name, Token::name(kind), idx);
     }
 
     ~DebugRule()
@@ -174,7 +174,7 @@ inline bool isRightAssociative(int tokenKind)
 } // end of anonymous namespace
 
 #ifndef CPLUSPLUS_NO_DEBUG_RULE
-#  define DEBUG_THIS_RULE() DebugRule __debug_rule__(__func__)
+#  define DEBUG_THIS_RULE() DebugRule __debug_rule__(__func__, tok().f.kind, cursor())
 #else
 #  define DEBUG_THIS_RULE() do {} while (0)
 #endif
@@ -830,7 +830,6 @@ bool Parser::parseTemplateArgumentList(TemplateArgumentListAST *&node)
 
     unsigned start = cursor();
 
-    DEBUG_THIS_RULE();
     TemplateArgumentListAST **template_argument_ptr = &node;
     ExpressionAST *template_argument = 0;
     if (parseTemplateArgument(template_argument)) {
@@ -3418,7 +3417,9 @@ bool Parser::parseBuiltinTypeSpecifier(SpecifierListAST *&node)
                 node = new (_pool) SpecifierListAST(ast);
                 return true;
             }
+            printf("typeof: before rewind, token ahead: %s (%d)\n", tok().spell(), cursor());
             rewind(lparen_token);
+            printf("typeof:  after rewind, token ahead: %s (%d)\n", tok().spell(), cursor());
         }
         parseUnaryExpression(ast->expression);
         node = new (_pool) SpecifierListAST(ast);
@@ -4413,7 +4414,9 @@ bool Parser::parseUnaryExpression(ExpressionAST *&node)
                 node = ast;
                 return true;
             } else {
+                printf("sizeof: before rewind, token ahead: %s\n", tok().spell());
                 rewind(lparen_token);
+                printf("sizeof:  after rewind, token ahead: %s\n", tok().spell());
             }
         }
 
@@ -5820,6 +5823,10 @@ bool Parser::parseTrailingTypeSpecifierSeq(SpecifierListAST *&node)
 
 void Parser::rewind(unsigned cursor)
 {
+#ifndef CPLUSPLUS_NO_DEBUG_RULE
+    printf("! rewinding from token %d to token %d\n", _tokenIndex, cursor);
+#endif
+
     if (cursor < _translationUnit->tokenCount())
         _tokenIndex = cursor;
     else
