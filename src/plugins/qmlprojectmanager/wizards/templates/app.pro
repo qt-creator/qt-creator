@@ -47,9 +47,8 @@ symbian {
         copyCommand = @echo Copying application data...
         for(deploymentfolder, DEPLOYMENTFOLDERS) {
             source = $$eval($${deploymentfolder}.source)
-            target = $$eval($${deploymentfolder}.target)
             pathSegments = $$split(source, /)
-            sourceAndTarget = $$PWD/$$source $$OUT_PWD/$$target/$$last(pathSegments)
+            sourceAndTarget = $$PWD/$$source $$OUT_PWD/$$eval($${deploymentfolder}.target)/$$last(pathSegments)
             copyCommand += && $(COPY_DIR) $$replace(sourceAndTarget, /, \\)
         }
         copydeploymentfolders.commands = $$copyCommand
@@ -80,10 +79,9 @@ symbian {
     !isEqual(PWD,$$OUT_PWD) {
         copyCommand = @echo Copying application data...
         for(deploymentfolder, DEPLOYMENTFOLDERS) {
-            source = $$eval($${deploymentfolder}.source)
-            target = $$OUT_PWD/$$eval($${deploymentfolder}.target)/$$last(pathSegments)
+            target = $$OUT_PWD/$$eval($${deploymentfolder}.target)
             copyCommand += && $(MKDIR) $$target
-            copyCommand += && $(COPY_DIR) $$PWD/$$source $$target
+            copyCommand += && $(COPY_DIR) $$PWD/$$eval($${deploymentfolder}.source) $$target
         }
         copydeploymentfolders.commands = $$copyCommand
         first.depends = $(first) copydeploymentfolders
