@@ -105,8 +105,8 @@ EditorView::EditorView(QWidget *parent) :
         hbox->setMargin(2);
         m_infoWidgetLabel = new QLabel("Placeholder");
         m_infoWidgetLabel->setForegroundRole(QPalette::ToolTipText);
+        m_infoWidgetLabel->setWordWrap(true);
         hbox->addWidget(m_infoWidgetLabel);
-        hbox->addStretch(1);
 
         m_infoWidgetButton = new QToolButton;
         m_infoWidgetButton->setText(tr("Placeholder"));
