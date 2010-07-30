@@ -36,7 +36,7 @@
   #define BOTAN_USE_GCC_INLINE_ASM 0
 #endif
 
-
+#define BOTAN_USE_QT_SHARED_POINTER
 #define BOTAN_USE_STD_TR1
 
 /* Module definitions */

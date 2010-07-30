@@ -44,6 +44,8 @@
 #define BOTAN_TARGET_OS_IS_WINDOWS
 #define BOTAN_TARGET_OS_HAS_WIN32_VIRTUAL_LOCK
 
+#define BOTAN_USE_QT_SHARED_POINTER
+
 /* Module definitions */
 #if defined(Q_CC_MINGW)
 #   define BOTAN_USE_STD_TR1

@@ -17,6 +17,8 @@
 #include <botan/x509_key.h>
 #include <botan/pkcs8.h>
 
+#include <memory>
+
 namespace Botan {
 
 /**

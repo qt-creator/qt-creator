@@ -235,7 +235,8 @@ HEADERS += algo_factory/algo_cache.h \
         utils/ui.h \
         utils/util.h \
         utils/version.h \
-        utils/xor_buf.h
+        utils/xor_buf.h \
+    utils/sharedpointer.h
 
 win32 {
     HEADERS += entropy/cryptoapi_rng/es_capi.h \
