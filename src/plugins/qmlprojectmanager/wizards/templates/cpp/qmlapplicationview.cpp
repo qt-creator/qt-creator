@@ -1,5 +1,6 @@
 #include "qmlapplicationview.h"
 
+#include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtDeclarative/QDeclarativeComponent>
@@ -23,7 +24,12 @@ QmlApplicationView::QmlApplicationView(const QString &mainQmlFile, QWidget *pare
     : QDeclarativeView(parent)
     , m_d(new QmlApplicationViewPrivate)
 {
+#ifdef Q_OS_MAC
+    m_d->mainQmlFile = QCoreApplication::applicationDirPath()
+            + QLatin1String("/../../Resources/") + mainQmlFile;
+#else
     m_d->mainQmlFile = mainQmlFile;
+#endif
     setSource(QUrl(m_d->mainQmlFile));
     connect(engine(), SIGNAL(quit()), SLOT(close()));
     setResizeMode(QDeclarativeView::SizeRootObjectToView);
