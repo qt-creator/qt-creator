@@ -214,11 +214,11 @@ protected:
                     break;
 
                 case T_PROTECTED:
-                    newXsSpec = isSlot ? InsertionPointLocator::PublicSlot : InsertionPointLocator::Protected;
+                    newXsSpec = isSlot ? InsertionPointLocator::ProtectedSlot : InsertionPointLocator::Protected;
                     break;
 
                 case T_PRIVATE:
-                    newXsSpec = isSlot ? InsertionPointLocator::PublicSlot : InsertionPointLocator::Private;
+                    newXsSpec = isSlot ? InsertionPointLocator::PrivateSlot: InsertionPointLocator::Private;
                     break;
 
                 case T_Q_SIGNALS:
