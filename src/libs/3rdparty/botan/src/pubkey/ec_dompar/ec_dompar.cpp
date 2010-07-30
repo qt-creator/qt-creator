@@ -5,6 +5,8 @@
 #include <botan/hex.h>
 #include <botan/pipe.h>
 
+#include <memory>
+
 namespace Botan {
 
 namespace {
