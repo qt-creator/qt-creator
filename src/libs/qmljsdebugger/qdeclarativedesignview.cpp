@@ -591,8 +591,11 @@ void QDeclarativeDesignViewPrivate::_q_onStatusChanged(QDeclarativeView::Status 
 {
     if (status == QDeclarativeView::Ready) {
         if (q->rootObject()) {
+            if (data->subcomponentEditorTool->contextIndex() != -1)
+                data->subcomponentEditorTool->clear();
             subcomponentEditorTool->pushContext(q->rootObject());
             emit q->executionStarted(1.0f);
+
         }
         qmlDesignDebugServer()->reloaded();
     }
