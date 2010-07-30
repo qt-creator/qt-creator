@@ -584,18 +584,22 @@ bool GitClient::synchronousInit(const QString &workingDirectory)
 bool GitClient::synchronousCheckoutFiles(const QString &workingDirectory,
                                          QStringList files /* = QStringList() */,
                                          QString revision /* = QString() */,
-                                         QString *errorMessage /* = 0 */)
+                                         QString *errorMessage /* = 0 */,
+                                         bool revertStaging /* = true */)
 {
     if (Git::Constants::debug)
         qDebug() << Q_FUNC_INFO << workingDirectory << files;
-    if (revision.isEmpty())
+    if (revertStaging && revision.isEmpty())
         revision = QLatin1String("HEAD");
     if (files.isEmpty())
         files = QStringList(QString(QLatin1Char('.')));
     QByteArray outputText;
     QByteArray errorText;
     QStringList arguments;
-    arguments << QLatin1String("checkout") << revision << QLatin1String("--") << files;
+    arguments << QLatin1String("checkout");
+    if (revertStaging)
+        arguments << revision;
+    arguments << QLatin1String("--") << files;
     const bool rc = synchronousGit(workingDirectory, arguments, &outputText, &errorText);
     if (!rc) {
         const QString fileArg = files.join(QLatin1String(", "));
@@ -1392,7 +1396,10 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
  * reverting a directory pending a sophisticated selection dialog in the
  * VCSBase plugin. */
 
-GitClient::RevertResult GitClient::revertI(QStringList files, bool *ptrToIsDirectory, QString *errorMessage)
+GitClient::RevertResult GitClient::revertI(QStringList files,
+                                           bool *ptrToIsDirectory,
+                                           QString *errorMessage,
+                                           bool revertStaging)
 {
     if (Git::Constants::debug)
         qDebug() << Q_FUNC_INFO << files;
@@ -1454,7 +1461,7 @@ GitClient::RevertResult GitClient::revertI(QStringList files, bool *ptrToIsDirec
     if (Git::Constants::debug)
         qDebug() << Q_FUNC_INFO << data.stagedFiles << data.unstagedFiles << allStagedFiles << allUnstagedFiles << stagedFiles << unstagedFiles;
 
-    if (stagedFiles.empty() && unstagedFiles.empty())
+    if ((!revertStaging || stagedFiles.empty()) && unstagedFiles.empty())
         return RevertUnchanged;
 
     // Ask to revert (to do: Handle lists with a selection dialog)
@@ -1468,19 +1475,22 @@ GitClient::RevertResult GitClient::revertI(QStringList files, bool *ptrToIsDirec
         return RevertCanceled;
 
     // Unstage the staged files
-    if (!stagedFiles.empty() && !synchronousReset(repoDirectory, stagedFiles, errorMessage))
+    if (revertStaging && !stagedFiles.empty() && !synchronousReset(repoDirectory, stagedFiles, errorMessage))
         return RevertFailed;
+    QStringList filesToRevert = unstagedFiles;
+    if (revertStaging)
+        filesToRevert += stagedFiles;
     // Finally revert!
-    if (!synchronousCheckoutFiles(repoDirectory, stagedFiles + unstagedFiles, QString(), errorMessage))
+    if (!synchronousCheckoutFiles(repoDirectory, filesToRevert, QString(), errorMessage, revertStaging))
         return RevertFailed;
     return RevertOk;
 }
 
-void GitClient::revert(const QStringList &files)
+void GitClient::revert(const QStringList &files, bool revertStaging)
 {
     bool isDirectory;
     QString errorMessage;
-    switch (revertI(files, &isDirectory, &errorMessage)) {
+    switch (revertI(files, &isDirectory, &errorMessage, revertStaging)) {
     case RevertOk:
         m_plugin->gitVersionControl()->emitFilesChanged(files);
         break;

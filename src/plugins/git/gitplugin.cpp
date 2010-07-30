@@ -335,8 +335,14 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     parameterActionCommand.second->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+B")));
 
     parameterActionCommand
+            = createFileAction(actionManager, gitContainer,
+                               tr("Undo Unstaged Changes"), tr("Undo Unstaged Changes for \"%1\""),
+                               QLatin1String("Git.UndoUnstaged"), globalcontext,
+                               true, SLOT(undoUnstagedFileChanges()));
+
+    parameterActionCommand
         = createFileAction(actionManager, gitContainer,
-                           tr("Undo Changes"), tr("Undo Changes for \"%1\""),
+                           tr("Undo Uncommitted Changes"), tr("Undo Uncommitted Changes for \"%1\""),
                            QLatin1String("Git.Undo"), globalcontext,
                            true, SLOT(undoFileChanges()));
     parameterActionCommand.second->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+U")));
@@ -560,12 +566,17 @@ void GitPlugin::logProject()
     m_gitClient->log(state.currentProjectTopLevel(), state.relativeCurrentProject());
 }
 
-void GitPlugin::undoFileChanges()
+void GitPlugin::undoFileChanges(bool revertStaging)
 {
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
     Core::FileChangeBlocker fcb(state.currentFile());
-    m_gitClient->revert(QStringList(state.currentFile()));
+    m_gitClient->revert(QStringList(state.currentFile()), revertStaging);
+}
+
+void GitPlugin::undoUnstagedFileChanges()
+{
+    undoFileChanges(false);
 }
 
 void GitPlugin::undoRepositoryChanges()
