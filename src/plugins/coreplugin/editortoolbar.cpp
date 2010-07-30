@@ -77,8 +77,8 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
         m_closeButton(new QToolButton),
         m_lockButton(new QToolButton),
 
-        m_goBackAction(new QAction(QIcon(QLatin1String(":/help/images/previous.png")), EditorManager::tr("Go Back"), parent)),
-        m_goForwardAction(new QAction(QIcon(QLatin1String(":/help/images/next.png")), EditorManager::tr("Go Forward"), parent)),
+        m_goBackAction(new QAction(QIcon(QLatin1String(Constants::ICON_PREV)), EditorManager::tr("Go Back"), parent)),
+        m_goForwardAction(new QAction(QIcon(QLatin1String(Constants::ICON_NEXT)), EditorManager::tr("Go Forward"), parent)),
 
         m_activeToolBar(0),
         m_toolBarPlaceholder(new QWidget),
