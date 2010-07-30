@@ -33,6 +33,8 @@
 
 #include <QtCore/QLibrary>
 
+#include <coreplugin/coreconstants.h>
+
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
@@ -141,7 +143,7 @@ ManhattanStylePrivate::ManhattanStylePrivate() :
     lineeditImage(QLatin1String(":/core/images/inputfield.png")),
     lineeditImage_disabled(QLatin1String(":/core/images/inputfield_disabled.png")),
     extButtonPixmap(QLatin1String(":/core/images/extension.png")),
-    closeButtonPixmap(QLatin1String(":/core/images/closebutton.png"))
+    closeButtonPixmap(QLatin1String(Core::Constants::ICON_CLOSE))
 {
 }
 

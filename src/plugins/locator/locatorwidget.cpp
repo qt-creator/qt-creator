@@ -285,7 +285,7 @@ LocatorWidget::LocatorWidget(LocatorPlugin *qop) :
     layout->setMargin(0);
     layout->addWidget(m_fileLineEdit);
 
-    setWindowIcon(QIcon(":/locator/images/locator.png"));
+    setWindowIcon(QIcon(QLatin1String(":/locator/images/locator.png")));
     QPixmap image(Core::Constants::ICON_MAGNIFIER);
     m_fileLineEdit->setButtonPixmap(Utils::FancyLineEdit::Left, image);
     m_fileLineEdit->setPlaceholderText(tr("Type to locate"));

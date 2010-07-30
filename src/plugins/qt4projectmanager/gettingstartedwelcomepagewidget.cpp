@@ -99,9 +99,9 @@ GettingStartedWelcomePageWidget::GettingStartedWelcomePageWidget(QWidget *parent
     connect(ui->createNewProjectButton, SIGNAL(clicked()), this, SLOT(slotCreateNewProject()));
 
     ui->createNewProjectButton->setIcon(
-            QIcon::fromTheme("document-new", ui->createNewProjectButton->icon()));
+            QIcon::fromTheme(QLatin1String("document-new"), ui->createNewProjectButton->icon()));
     ui->openProjectButton->setIcon(
-            QIcon::fromTheme("document-open", ui->openProjectButton->icon()));
+            QIcon::fromTheme(QLatin1String("document-open"), ui->openProjectButton->icon()));
     QTimer::singleShot(0, this, SLOT(slotSetPrivateQmlExamples()));
 }
 

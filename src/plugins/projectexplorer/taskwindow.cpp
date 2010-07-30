@@ -40,6 +40,7 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
+#include <qt4projectmanager/qt4projectmanagerconstants.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
@@ -525,7 +526,7 @@ TaskWindow::TaskWindow(TaskHub *taskhub) : d(new TaskWindowPrivate)
     d->m_listview->setSelectionMode(QAbstractItemView::SingleSelection);
     Internal::TaskDelegate *tld = new Internal::TaskDelegate(this);
     d->m_listview->setItemDelegate(tld);
-    d->m_listview->setWindowIcon(QIcon(":/qt4projectmanager/images/window.png"));
+    d->m_listview->setWindowIcon(QIcon(QLatin1String(Qt4ProjectManager::Constants::ICON_WINDOW)));
     d->m_listview->setContextMenuPolicy(Qt::ActionsContextMenu);
     d->m_listview->setAttribute(Qt::WA_MacShowFocusRect, false);
 
@@ -560,7 +561,7 @@ TaskWindow::TaskWindow(TaskHub *taskhub) : d(new TaskWindowPrivate)
     connect(d->m_categoriesMenu, SIGNAL(triggered(QAction*)), this, SLOT(filterCategoryTriggered(QAction*)));
 
     d->m_categoriesButton = new QToolButton;
-    d->m_categoriesButton->setIcon(QIcon(":/core/images/filtericon.png"));
+    d->m_categoriesButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));
     d->m_categoriesButton->setToolTip(tr("Filter by categories"));
     d->m_categoriesButton->setAutoRaise(true);
     d->m_categoriesButton->setPopupMode(QToolButton::InstantPopup);

@@ -99,7 +99,7 @@ EasingContextPane::EasingContextPane(QWidget *parent) :
     m_easingGraph->raise();
     setLinear();
 
-    ui->playButton->setIcon(QIcon(":/playicon.png"));
+    ui->playButton->setIcon(QIcon(QLatin1String(":/playicon.png")));
 
 
 
@@ -215,14 +215,14 @@ void EasingContextPane::startAnimation()
         m_simulation->stop();
     else {
         m_simulation->animate(ui->durationSpinBox->value(), m_easingGraph->easingCurve());
-        ui->playButton->setIcon(QIcon(":/stopicon.png"));
+        ui->playButton->setIcon(QIcon(QLatin1String(":/stopicon.png")));
     }
 
 }
 
 void EasingContextPane::switchToGraph()
 {
-    ui->playButton->setIcon(QIcon(":/playicon.png"));
+    ui->playButton->setIcon(QIcon(QLatin1String(":/playicon.png")));
     setGraphDisplayMode(GraphMode);
 }
 

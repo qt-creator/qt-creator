@@ -209,17 +209,17 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     setWindowTitle(tr("Output"));
     connect(m_widgetComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changePage()));
 
-    m_clearButton->setIcon(QIcon(Constants::ICON_CLEAN_PANE));
+    m_clearButton->setIcon(QIcon(QLatin1String(Constants::ICON_CLEAN_PANE)));
     m_clearButton->setToolTip(tr("Clear"));
     connect(m_clearButton, SIGNAL(clicked()), this, SLOT(clearPage()));
 
     m_nextAction = new QAction(this);
-    m_nextAction->setIcon(QIcon(":/core/images/next.png"));
+    m_nextAction->setIcon(QIcon(QLatin1String(Constants::ICON_NEXT)));
     m_nextAction->setText(tr("Next Item"));
     connect(m_nextAction, SIGNAL(triggered()), this, SLOT(slotNext()));
 
     m_prevAction = new QAction(this);
-    m_prevAction->setIcon(QIcon(":/core/images/prev.png"));
+    m_prevAction->setIcon(QIcon(QLatin1String(Constants::ICON_PREV)));
     m_prevAction->setText(tr("Previous Item"));
     connect(m_prevAction, SIGNAL(triggered()), this, SLOT(slotPrev()));
 
@@ -227,7 +227,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     m_minMaxAction->setIcon(m_maximizeIcon);
     m_minMaxAction->setText(tr("Maximize Output Pane"));
 
-    m_closeButton->setIcon(QIcon(":/core/images/closebutton.png"));
+    m_closeButton->setIcon(QIcon(QLatin1String(Constants::ICON_CLOSE)));
     connect(m_closeButton, SIGNAL(clicked()), this, SLOT(slotHide()));
 
     QVBoxLayout *mainlayout = new QVBoxLayout;

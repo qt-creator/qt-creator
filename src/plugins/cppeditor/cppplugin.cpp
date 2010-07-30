@@ -81,11 +81,11 @@ CppEditorFactory::CppEditorFactory(CppPlugin *owner) :
 #if !defined(Q_WS_MAC) && !defined(Q_WS_WIN)
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
     Core::MimeDatabase *mimeDatabase = Core::ICore::instance()->mimeDatabase();
-    iconProvider->registerIconOverlayForMimeType(QIcon(":/cppeditor/images/qt_cpp.png"),
+    iconProvider->registerIconOverlayForMimeType(QIcon(QLatin1String(":/cppeditor/images/qt_cpp.png")),
                                                  mimeDatabase->findByType(QLatin1String(CppEditor::Constants::CPP_SOURCE_MIMETYPE)));
-    iconProvider->registerIconOverlayForMimeType(QIcon(":/cppeditor/images/qt_c.png"),
+    iconProvider->registerIconOverlayForMimeType(QIcon(QLatin1String(":/cppeditor/images/qt_c.png")),
                                                  mimeDatabase->findByType(QLatin1String(CppEditor::Constants::C_SOURCE_MIMETYPE)));
-    iconProvider->registerIconOverlayForMimeType(QIcon(":/cppeditor/images/qt_h.png"),
+    iconProvider->registerIconOverlayForMimeType(QIcon(QLatin1String(":/cppeditor/images/qt_h.png")),
                                                  mimeDatabase->findByType(QLatin1String(CppEditor::Constants::CPP_HEADER_MIMETYPE)));
 #endif
 }

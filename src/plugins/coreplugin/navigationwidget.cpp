@@ -408,10 +408,10 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget, int pos
     toolBarLayout->addWidget(m_navigationComboBox);
 
     QToolButton *splitAction = new QToolButton();
-    splitAction->setIcon(QIcon(":/core/images/splitbutton_horizontal.png"));
+    splitAction->setIcon(QIcon(QLatin1String(Constants::ICON_SPLIT_HORIZONTAL)));
     splitAction->setToolTip(tr("Split"));
     QToolButton *close = new QToolButton();
-    close->setIcon(QIcon(":/core/images/closebutton.png"));
+    close->setIcon(QIcon(QLatin1String(Constants::ICON_CLOSE)));
     close->setToolTip(tr("Close"));
 
     toolBarLayout->addWidget(splitAction);

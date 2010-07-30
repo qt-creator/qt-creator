@@ -175,7 +175,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     error_message->clear();
 
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
-    iconProvider->registerIconOverlayForSuffix(QIcon(":/qmljseditor/images/qmlfile.png"), "qml");
+    iconProvider->registerIconOverlayForSuffix(QIcon(QLatin1String(":/qmljseditor/images/qmlfile.png")), "qml");
 
     m_quickFixCollector = new QmlJSQuickFixCollector;
     addAutoReleasedObject(m_quickFixCollector);

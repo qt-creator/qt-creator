@@ -114,7 +114,7 @@ EditorView::EditorView(QWidget *parent) :
 
         m_infoWidgetCloseButton = new QToolButton;
         m_infoWidgetCloseButton->setAutoRaise(true);
-        m_infoWidgetCloseButton->setIcon(QIcon(":/core/images/clear.png"));
+        m_infoWidgetCloseButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_CLEAR)));
         m_infoWidgetCloseButton->setToolTip(tr("Close"));
 
         hbox->addWidget(m_infoWidgetCloseButton);
@@ -146,7 +146,7 @@ EditorView::EditorView(QWidget *parent) :
 
         m_statusWidgetButton = new QToolButton;
         m_statusWidgetButton->setContentsMargins(0, 0, 0, 0);
-        //m_statusWidgetButton->setIcon(QIcon(":/core/images/clear.png"));
+        //m_statusWidgetButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_CLEAR)));
         hbox->addWidget(m_statusWidgetButton);
 
         m_statusHLine->setVisible(false);

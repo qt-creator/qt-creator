@@ -156,17 +156,17 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
     Debugger::DebuggerUISwitcher *uiSwitcher = pluginManager->getObject<Debugger::DebuggerUISwitcher>();
 
-    m_fromQmlAction = new QAction(QIcon(":/qml/images/from-qml-small.png"), tr("Apply Changes to Document"), this);
-    m_designmodeAction = new QAction(QIcon(":/qml/images/designmode.png"), "Design Mode", this);
+    m_fromQmlAction = new QAction(QIcon(QLatin1String(":/qml/images/from-qml-small.png")), tr("Apply Changes to Document"), this);
+    m_designmodeAction = new QAction(QIcon(QLatin1String(":/qml/images/designmode.png")), QLatin1String("Design Mode"), this); // TODO: tr?
 
-    m_reloadAction = new QAction(QIcon(":/qml/images/reload.png"), "Reload", this);
-    m_playAction = new QAction(QIcon(":/qml/images/play-small.png"), tr("Play animations"), this);
-    m_pauseAction = new QAction(QIcon(":/qml/images/pause-small.png"), tr("Pause animations"), this);
-    m_selectAction = new QAction(QIcon(":/qml/images/select-small.png"), tr("Select"), this);
-    m_selectMarqueeAction = new QAction(QIcon(":/qml/images/select-marquee-small.png"), tr("Select (Marquee)"), this);
-    m_zoomAction = new QAction(QIcon(":/qml/images/zoom-small.png"), tr("Zoom"), this);
-    m_colorPickerAction = new QAction(QIcon(":/qml/images/color-picker-small.png"), tr("Color Picker"), this);
-    m_toQmlAction = new QAction(QIcon(":/qml/images/to-qml-small.png"), tr("Live Preview Changes in QML Viewer"), this);
+    m_reloadAction = new QAction(QIcon(QLatin1String(":/qml/images/reload.png")), QLatin1String("Reload"), this); // TODO: tr?
+    m_playAction = new QAction(QIcon(QLatin1String(":/qml/images/play-small.png")), tr("Play animations"), this);
+    m_pauseAction = new QAction(QIcon(QLatin1String(":/qml/images/pause-small.png")), tr("Pause animations"), this);
+    m_selectAction = new QAction(QIcon(QLatin1String(":/qml/images/select-small.png")), tr("Select"), this);
+    m_selectMarqueeAction = new QAction(QIcon(QLatin1String(":/qml/images/select-marquee-small.png")), tr("Select (Marquee)"), this);
+    m_zoomAction = new QAction(QIcon(QLatin1String(":/qml/images/zoom-small.png")), tr("Zoom"), this);
+    m_colorPickerAction = new QAction(QIcon(QLatin1String(":/qml/images/color-picker-small.png")), tr("Color Picker"), this);
+    m_toQmlAction = new QAction(QIcon(QLatin1String(":/qml/images/to-qml-small.png")), tr("Live Preview Changes in QML Viewer"), this);
 
     m_designmodeAction->setCheckable(true);
     m_designmodeAction->setChecked(false);

@@ -102,6 +102,10 @@ const char * const S60_DEVICE_TARGET_ID("Qt4ProjectManager.Target.S60DeviceTarge
 const char * const MAEMO_DEVICE_TARGET_ID("Qt4ProjectManager.Target.MaemoDeviceTarget");
 const char * const QT_SIMULATOR_TARGET_ID("Qt4ProjectManager.Target.QtSimulatorTarget");
 
+// ICONS
+const char * const ICON_QT_PROJECT = ":/qt4projectmanager/images/qt_project.png";
+const char * const ICON_WINDOW = ":/qt4projectmanager/images/window.png";
+
 } // namespace Constants
 } // namespace Qt4ProjectManager
 

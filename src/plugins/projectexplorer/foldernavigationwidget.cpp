@@ -482,7 +482,7 @@ Core::NavigationView FolderNavigationWidgetFactory::createWidget()
     FolderNavigationWidget *ptw = new FolderNavigationWidget;
     n.widget = ptw;
     QToolButton *toggleSync = new QToolButton;
-    toggleSync->setIcon(QIcon(QLatin1String(":/core/images/linkicon.png")));
+    toggleSync->setIcon(QIcon(QLatin1String(Core::Constants::ICON_LINK)));
     toggleSync->setCheckable(true);
     toggleSync->setChecked(ptw->autoSynchronization());
     toggleSync->setToolTip(tr("Synchronize with Editor"));

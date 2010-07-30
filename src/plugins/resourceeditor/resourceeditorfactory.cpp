@@ -48,7 +48,7 @@ ResourceEditorFactory::ResourceEditorFactory(ResourceEditorPlugin *plugin) :
     m_plugin(plugin)
 {
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
-    iconProvider->registerIconOverlayForSuffix(QIcon(":/resourceeditor/images/qt_qrc.png"),
+    iconProvider->registerIconOverlayForSuffix(QIcon(QLatin1String(":/resourceeditor/images/qt_qrc.png")),
                                                QLatin1String("qrc"));
 }
 

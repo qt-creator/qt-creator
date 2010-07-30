@@ -85,7 +85,7 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
     QmlProjectFileFormat::registerDeclarativeTypes();
 
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
-    iconProvider->registerIconOverlayForSuffix(QIcon(":/qmlproject/images/qmlproject.png"), "qmlproject");
+    iconProvider->registerIconOverlayForSuffix(QIcon(QLatin1String(":/qmlproject/images/qmlproject.png")), "qmlproject");
     return true;
 }
 

@@ -46,6 +46,7 @@
 #include <aggregation/aggregate.h>
 #include <texteditor/basetexteditor.h>
 #include <projectexplorer/project.h>
+#include <qt4projectmanager/qt4projectmanagerconstants.h>
 
 #include <QtGui/QIcon>
 #include <QtGui/QScrollBar>
@@ -222,7 +223,7 @@ void OutputPane::createNewOutputWindow(RunControl *rc)
     if (!found) {
         OutputWindow *ow = new OutputWindow(m_tabWidget);
         ow->setWindowTitle(tr("Application Output Window"));
-        ow->setWindowIcon(QIcon(":/qt4projectmanager/images/window.png"));
+        ow->setWindowIcon(QIcon(QLatin1String(Qt4ProjectManager::Constants::ICON_WINDOW)));
         ow->setFormatter(rc->outputFormatter());
         Aggregation::Aggregate *agg = new Aggregation::Aggregate;
         agg->add(ow);

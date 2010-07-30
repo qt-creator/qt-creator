@@ -110,7 +110,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     m_lockButton->setVisible(false);
 
     m_closeButton->setAutoRaise(true);
-    m_closeButton->setIcon(QIcon(":/core/images/closebutton.png"));
+    m_closeButton->setIcon(QIcon(QLatin1String(Constants::ICON_CLOSE)));
     m_closeButton->setProperty("type", QLatin1String("dockbutton"));
     m_closeButton->setEnabled(false);
 

@@ -22,7 +22,7 @@ ToolBarColorBox::ToolBarColorBox(QWidget *parent) :
     m_borderColorOuter = Qt::white;
     m_borderColorInner = QColor(143, 143 ,143);
 
-    m_copyHexColorAction = new QAction(QIcon(":/qml/images/color-picker-small-hicontrast.png"), tr("Copy Color"), this);
+    m_copyHexColorAction = new QAction(QIcon(QLatin1String(":/qml/images/color-picker-small-hicontrast.png")), tr("Copy Color"), this);
     connect(m_copyHexColorAction, SIGNAL(triggered()), SLOT(copyColorToClipboard()));
     setScaledContents(false);
 }

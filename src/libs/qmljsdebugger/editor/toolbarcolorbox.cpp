@@ -19,7 +19,7 @@ namespace QmlViewer {
 ToolBarColorBox::ToolBarColorBox(QWidget *parent) :
     QLabel(parent)
 {
-    m_copyHexColor = new QAction(QIcon(":/qml/images/color-picker-hicontrast.png"), tr("Copy"), this);
+    m_copyHexColor = new QAction(QIcon(QLatin1String(":/qml/images/color-picker-hicontrast.png")), tr("Copy"), this);
     connect(m_copyHexColor, SIGNAL(triggered()), SLOT(copyColorToClipboard()));
     setScaledContents(false);
 }

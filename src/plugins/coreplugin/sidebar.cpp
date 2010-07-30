@@ -30,6 +30,8 @@
 #include "sidebar.h"
 #include "imode.h"
 
+#include <coreplugin/coreconstants.h>
+
 #include "actionmanager/actionmanager.h"
 #include "actionmanager/command.h"
 
@@ -324,12 +326,12 @@ SideBarWidget::SideBarWidget(SideBar *sideBar, const QString &id)
     m_toolbar->addWidget(m_comboBox);
 
     m_splitButton = new QToolButton;
-    m_splitButton->setIcon(QIcon(":/core/images/splitbutton_horizontal.png"));
+    m_splitButton->setIcon(QIcon(QLatin1String(Constants::ICON_SPLIT_HORIZONTAL)));
     m_splitButton->setToolTip(tr("Split"));
     connect(m_splitButton, SIGNAL(clicked(bool)), this, SIGNAL(splitMe()));
 
     m_closeButton = new QToolButton;
-    m_closeButton->setIcon(QIcon(":/core/images/closebutton.png"));
+    m_closeButton->setIcon(QIcon(QLatin1String(Constants::ICON_CLOSE)));
     m_closeButton->setToolTip(tr("Close"));
 
     connect(m_closeButton, SIGNAL(clicked(bool)), this, SIGNAL(closeMe()));

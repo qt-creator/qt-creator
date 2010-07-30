@@ -51,8 +51,8 @@ namespace Internal {
 ////////////////////////////////////////////////////////////////////////
 
 StackHandler::StackHandler(DebuggerEngine *engine)
-  : m_positionIcon(QIcon(":/debugger/images/location_16.png")),
-    m_emptyIcon(QIcon(":/debugger/images/debugger_empty_14.png"))
+  : m_positionIcon(QIcon(QLatin1String(":/debugger/images/location_16.png"))),
+    m_emptyIcon(QIcon(QLatin1String(":/debugger/images/debugger_empty_14.png")))
 {
     m_engine = engine;
     m_disassemblerViewAgent = new DisassemblerViewAgent(engine);

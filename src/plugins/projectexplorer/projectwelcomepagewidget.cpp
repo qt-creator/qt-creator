@@ -100,9 +100,9 @@ ProjectWelcomePageWidget::ProjectWelcomePageWidget(QWidget *parent) :
     connect(ui->manageSessionsButton, SIGNAL(clicked()), SIGNAL(manageSessions()));
 
     ui->createNewProjectButton->setIcon(
-            QIcon::fromTheme("document-new", ui->createNewProjectButton->icon()));
+            QIcon::fromTheme(QLatin1String("document-new"), ui->createNewProjectButton->icon()));
     ui->openProjectButton->setIcon(
-            QIcon::fromTheme("document-open", ui->openProjectButton->icon()));
+            QIcon::fromTheme(QLatin1String("document-open"), ui->openProjectButton->icon()));
 }
 
 ProjectWelcomePageWidget::~ProjectWelcomePageWidget()

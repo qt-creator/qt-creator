@@ -41,6 +41,7 @@
 #include "maemorunconfiguration.h"
 #include "maemosettingspage.h"
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/environmenteditmodel.h>
 #include <utils/detailswidget.h>
@@ -201,12 +202,12 @@ void MaemoRunConfigurationWidget::addMountWidgets(QVBoxLayout *mainLayout)
     tableLayout->addLayout(mountViewButtonsLayout);
     QToolButton *addMountButton = new QToolButton;
     QIcon plusIcon;
-    plusIcon.addFile(QLatin1String(":/core/images/plus.png"));
+    plusIcon.addFile(QLatin1String(Core::Constants::ICON_PLUS));
     addMountButton->setIcon(plusIcon);
     mountViewButtonsLayout->addWidget(addMountButton);
     m_removeMountButton = new QToolButton;
     QIcon minusIcon;
-    minusIcon.addFile(QLatin1String(":/core/images/minus.png"));
+    minusIcon.addFile(QLatin1String(Core::Constants::ICON_MINUS));
     m_removeMountButton->setIcon(minusIcon);
     mountViewButtonsLayout->addWidget(m_removeMountButton);
     mountViewButtonsLayout->addStretch(1);

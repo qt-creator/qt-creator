@@ -530,7 +530,7 @@ void HelpPlugin::createRightPaneContextViewer()
     hboxLayout->addStretch();
 
     QToolButton *closeButton = new QToolButton();
-    closeButton->setIcon(QIcon(":/core/images/closebutton.png"));
+    closeButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_CLOSE)));
     connect(closeButton, SIGNAL(clicked()), this, SLOT(slotHideRightPane()));
 
     // close button to the right
@@ -866,7 +866,7 @@ QToolBar *HelpPlugin::createToolBar()
         SLOT(updateSideBarSource()));
 
     m_closeButton = new QToolButton();
-    m_closeButton->setIcon(QIcon(":/core/images/closebutton.png"));
+    m_closeButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_CLOSE)));
     m_closeButton->setToolTip(tr("Close current Page"));
     connect(m_closeButton, SIGNAL(clicked()), &OpenPagesManager::instance(),
         SLOT(closeCurrentPage()));

@@ -32,6 +32,8 @@
 #include "centralwidget.h"
 #include "openpagesmodel.h"
 
+#include <coreplugin/coreconstants.h>
+
 #include <QtGui/QApplication>
 #include <QtGui/QPainter>
 
@@ -70,8 +72,8 @@ void OpenPagesDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
 
     if (index.column() == 1 && index.model()->rowCount() > 1
         && option.state & QStyle::State_MouseOver) {
-        QIcon icon((option.state & QStyle::State_Selected)
-            ? ":/core/images/closebutton.png" : ":/core/images/darkclosebutton.png");
+        const QIcon icon(QLatin1String((option.state & QStyle::State_Selected) ?
+                                       Core::Constants::ICON_CLOSE : Core::Constants::ICON_CLOSE_DARK));
 
         const QRect iconRect(option.rect.right() - option.rect.height(),
             option.rect.top(), option.rect.height(), option.rect.height());

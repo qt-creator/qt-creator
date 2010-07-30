@@ -35,6 +35,7 @@
 #include <find/basetextfind.h>
 #include <aggregation/aggregate.h>
 #include <extensionsystem/pluginmanager.h>
+#include <qt4projectmanager/qt4projectmanagerconstants.h>
 
 #include <QtGui/QKeyEvent>
 #include <QtGui/QIcon>
@@ -56,7 +57,7 @@ CompileOutputWindow::CompileOutputWindow(BuildManager * /*bm*/)
 {
     m_outputWindow = new OutputWindow();
     m_outputWindow->setWindowTitle(tr("Compile Output"));
-    m_outputWindow->setWindowIcon(QIcon(":/qt4projectmanager/images/window.png"));
+    m_outputWindow->setWindowIcon(QIcon(QLatin1String(Qt4ProjectManager::Constants::ICON_WINDOW)));
     m_outputWindow->setReadOnly(true);
 
     Aggregation::Aggregate *agg = new Aggregation::Aggregate;

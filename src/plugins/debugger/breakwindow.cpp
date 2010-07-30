@@ -87,7 +87,7 @@ BreakWindow::BreakWindow(QWidget *parent)
     setFrameStyle(QFrame::NoFrame);
     setAttribute(Qt::WA_MacShowFocusRect, false);
     setWindowTitle(tr("Breakpoints"));
-    setWindowIcon(QIcon(":/debugger/images/debugger_breakpoints.png"));
+    setWindowIcon(QIcon(QLatin1String(":/debugger/images/debugger_breakpoints.png")));
     setAlternatingRowColors(act->isChecked());
     setRootIsDecorated(false);
     setIconSize(QSize(10, 10));

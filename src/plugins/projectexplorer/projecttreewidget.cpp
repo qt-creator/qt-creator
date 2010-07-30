@@ -35,6 +35,7 @@
 #include "projectexplorerconstants.h"
 #include "projectmodels.h"
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/qtcassert.h>
@@ -130,7 +131,7 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
             this, SLOT(startupProjectChanged(ProjectExplorer::Project *)));
 
     m_toggleSync = new QToolButton;
-    m_toggleSync->setIcon(QIcon(":/core/images/linkicon.png"));
+    m_toggleSync->setIcon(QIcon(QLatin1String(Core::Constants::ICON_LINK)));
     m_toggleSync->setCheckable(true);
     m_toggleSync->setChecked(autoSynchronization());
     m_toggleSync->setToolTip(tr("Synchronize with Editor"));
@@ -356,7 +357,7 @@ Core::NavigationView ProjectTreeWidgetFactory::createWidget()
     n.widget = ptw;
 
     QToolButton *filter = new QToolButton;
-    filter->setIcon(QIcon(":/core/images/filtericon.png"));
+    filter->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));
     filter->setToolTip(tr("Filter tree"));
     filter->setPopupMode(QToolButton::InstantPopup);
     QMenu *filterMenu = new QMenu(filter);

@@ -443,7 +443,7 @@ public:
     {
         setDisplayName(QCoreApplication::translate("Debugger::Internal::DebugMode", "Debug"));
         setId(MODE_DEBUG);
-        setIcon(QIcon(":/fancyactionbar/images/mode_Debug.png"));
+        setIcon(QIcon(__(":/fancyactionbar/images/mode_Debug.png")));
         setPriority(P_MODE_DEBUG);
     }
 
@@ -1083,9 +1083,9 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     const Core::Context cppeditorcontext(CppEditor::Constants::C_CPPEDITOR);
 
     m_stopIcon = QIcon(_(":/debugger/images/debugger_stop_small.png"));
-    m_stopIcon.addFile(":/debugger/images/debugger_stop.png");
+    m_stopIcon.addFile(__(":/debugger/images/debugger_stop.png"));
     m_interruptIcon = QIcon(_(":/debugger/images/debugger_interrupt_small.png"));
-    m_interruptIcon.addFile(":/debugger/images/debugger_interrupt.png");
+    m_interruptIcon.addFile(__(":/debugger/images/debugger_interrupt.png"));
     m_locationMarkIcon = QIcon(_(":/debugger/images/location_16.png"));
 
     m_busy = false;
@@ -1133,8 +1133,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
         this, SLOT(updateWatchersHeader(int,int,int)), Qt::QueuedConnection);
 
     m_actions.continueAction = new QAction(tr("Continue"), this);
-    QIcon continueIcon = QIcon(":/debugger/images/debugger_continue_small.png");
-    continueIcon.addFile(":/debugger/images/debugger_continue.png");
+    QIcon continueIcon = QIcon(__(":/debugger/images/debugger_continue_small.png"));
+    continueIcon.addFile(__(":/debugger/images/debugger_continue.png"));
     m_actions.continueAction->setIcon(continueIcon);
     m_actions.continueAction->setProperty(Role, RequestExecContinueRole);
 
@@ -1154,17 +1154,17 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_actions.nextAction = new QAction(tr("Step Over"), this);
     m_actions.nextAction->setProperty(Role, RequestExecNextRole);
     m_actions.nextAction->setIcon(
-        QIcon(":/debugger/images/debugger_stepover_small.png"));
+        QIcon(__(":/debugger/images/debugger_stepover_small.png")));
 
     m_actions.stepAction = new QAction(tr("Step Into"), this);
     m_actions.stepAction->setProperty(Role, RequestExecStepRole);
     m_actions.stepAction->setIcon(
-        QIcon(":/debugger/images/debugger_stepinto_small.png"));
+        QIcon(__(":/debugger/images/debugger_stepinto_small.png")));
 
     m_actions.stepOutAction = new QAction(tr("Step Out"), this);
     m_actions.stepOutAction->setProperty(Role, RequestExecStepOutRole);
     m_actions.stepOutAction->setIcon(
-        QIcon(":/debugger/images/debugger_stepout_small.png"));
+        QIcon(__(":/debugger/images/debugger_stepout_small.png")));
 
     m_actions.runToLineAction1 = new QAction(tr("Run to Line"), this);
     m_actions.runToLineAction1->setProperty(Role, RequestExecRunToLineRole);
@@ -1194,14 +1194,14 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_actions.snapshotAction = new QAction(tr("Create Snapshot"), this);
     m_actions.snapshotAction->setProperty(Role, RequestCreateSnapshotRole);
     m_actions.snapshotAction->setIcon(
-        QIcon(":/debugger/images/debugger_snapshot_small.png"));
+        QIcon(__(":/debugger/images/debugger_snapshot_small.png")));
 
     m_actions.reverseDirectionAction =
         new QAction(tr("Reverse Direction"), this);
     m_actions.reverseDirectionAction->setCheckable(true);
     m_actions.reverseDirectionAction->setChecked(false);
     m_actions.reverseDirectionAction->setIcon(
-        QIcon(":/debugger/images/debugger_reversemode_16.png"));
+        QIcon(__(":/debugger/images/debugger_reversemode_16.png")));
     m_actions.reverseDirectionAction->setIconVisibleInMenu(false);
 
     m_actions.frameDownAction =

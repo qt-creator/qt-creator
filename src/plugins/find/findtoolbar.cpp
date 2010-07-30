@@ -91,7 +91,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
 
     connect(m_ui.findEdit, SIGNAL(editingFinished()), this, SLOT(invokeResetIncrementalSearch()));
 
-    m_ui.close->setIcon(QIcon(":/core/images/closebutton.png"));
+    m_ui.close->setIcon(QIcon(QLatin1String(Core::Constants::ICON_CLOSE)));
     connect(m_ui.close, SIGNAL(clicked()), this, SLOT(hideAndResetFocus()));
 
     m_findCompleter->setModel(m_plugin->findCompletionModel());
@@ -201,7 +201,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     m_ui.replaceAllButton->setDefaultAction(cmd->action());
 
     m_caseSensitiveAction = new QAction(tr("Case Sensitive"), this);
-    m_caseSensitiveAction->setIcon(QIcon(":/find/images/casesensitively.png"));
+    m_caseSensitiveAction->setIcon(QIcon(QLatin1String(":/find/images/casesensitively.png")));
     m_caseSensitiveAction->setCheckable(true);
     m_caseSensitiveAction->setChecked(false);
     cmd = am->registerAction(m_caseSensitiveAction, Constants::CASE_SENSITIVE, globalcontext);
@@ -210,7 +210,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     lineEditMenu->addAction(m_caseSensitiveAction);
 
     m_wholeWordAction = new QAction(tr("Whole Words Only"), this);
-    m_wholeWordAction->setIcon(QIcon(":/find/images/wholewords.png"));
+    m_wholeWordAction->setIcon(QIcon(QLatin1String(":/find/images/wholewords.png")));
     m_wholeWordAction->setCheckable(true);
     m_wholeWordAction->setChecked(false);
     cmd = am->registerAction(m_wholeWordAction, Constants::WHOLE_WORDS, globalcontext);
@@ -219,7 +219,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     lineEditMenu->addAction(m_wholeWordAction);
 
     m_regularExpressionAction = new QAction(tr("Use Regular Expressions"), this);
-    m_regularExpressionAction->setIcon(QIcon(":/find/images/regexp.png"));
+    m_regularExpressionAction->setIcon(QIcon(QLatin1String(":/find/images/regexp.png")));
     m_regularExpressionAction->setCheckable(true);
     m_regularExpressionAction->setChecked(false);
     cmd = am->registerAction(m_regularExpressionAction, Constants::REGULAR_EXPRESSIONS, globalcontext);

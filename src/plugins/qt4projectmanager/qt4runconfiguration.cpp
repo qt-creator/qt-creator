@@ -38,6 +38,7 @@
 #include "qt4projectmanagerconstants.h"
 #include "qtoutputformatter.h"
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/variablemanager.h>
@@ -215,7 +216,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
 
     QToolButton *resetButton = new QToolButton(this);
     resetButton->setToolTip(tr("Reset to default"));
-    resetButton->setIcon(QIcon(":/core/images/reset.png"));
+    resetButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_RESET)));
 
     QHBoxLayout *boxlayout = new QHBoxLayout();
     boxlayout->setMargin(0);

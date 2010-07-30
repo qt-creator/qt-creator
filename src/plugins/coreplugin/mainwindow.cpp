@@ -161,13 +161,13 @@ MainWindow::MainWindow() :
 
     setWindowTitle(tr("Qt Creator"));
 #ifndef Q_WS_MAC
-    qApp->setWindowIcon(QIcon(":/core/images/qtcreator_logo_128.png"));
+    QApplication::setWindowIcon(QIcon(QLatin1String(Constants::ICON_QTLOGO_128)));
 #endif
     QCoreApplication::setApplicationName(QLatin1String("QtCreator"));
     QCoreApplication::setApplicationVersion(QLatin1String(Core::Constants::IDE_VERSION_LONG));
     QCoreApplication::setOrganizationName(QLatin1String("Nokia"));
     QSettings::setDefaultFormat(QSettings::IniFormat);
-    QString baseName = qApp->style()->objectName();
+    QString baseName = QApplication::style()->objectName();
 #ifdef Q_WS_X11
     if (baseName == QLatin1String("windows")) {
         // Sometimes we get the standard windows 95 style as a fallback

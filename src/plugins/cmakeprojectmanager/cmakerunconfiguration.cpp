@@ -34,6 +34,7 @@
 #include "cmakeprojectconstants.h"
 #include "cmaketarget.h"
 
+#include <coreplugin/coreconstants.h>
 #include <projectexplorer/environment.h>
 #include <projectexplorer/debugginghelper.h>
 #include <utils/qtcassert.h>
@@ -330,7 +331,7 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
 
     QToolButton *resetButton = new QToolButton();
     resetButton->setToolTip(tr("Reset to default"));
-    resetButton->setIcon(QIcon(":/core/images/reset.png"));
+    resetButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_RESET)));
 
     QHBoxLayout *boxlayout = new QHBoxLayout();
     boxlayout->addWidget(m_workingDirectoryEdit);

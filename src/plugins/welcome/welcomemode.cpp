@@ -129,7 +129,7 @@ QString WelcomeMode::displayName() const
 
 QIcon WelcomeMode::icon() const
 {
-    return QIcon(QLatin1String(":/core/images/qtcreator_logo_32.png"));
+    return QIcon(QLatin1String(Core::Constants::ICON_QTLOGO_32));
 }
 
 int WelcomeMode::priority() const

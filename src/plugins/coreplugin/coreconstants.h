@@ -230,6 +230,13 @@ const char * const ICON_REPLACE          = ":/core/images/replace.png";
 const char * const ICON_RESET            = ":/core/images/reset.png";
 const char * const ICON_MAGNIFIER        = ":/core/images/magnifier.png";
 const char * const ICON_TOGGLE_SIDEBAR   = ":/core/images/sidebaricon.png";
+const char * const ICON_CLOSE            = ":/core/images/closebutton.png";
+const char * const ICON_CLOSE_DARK       = ":/core/images/darkclosebutton.png";
+const char * const ICON_SPLIT_HORIZONTAL = ":/core/images/splitbutton_horizontal.png";
+const char * const ICON_FILTER           = ":/core/images/filtericon.png";
+const char * const ICON_LINK             = ":/core/images/linkicon.png";
+const char * const ICON_QTLOGO_32        = ":/core/images/qtcreator_logo_32.png";
+const char * const ICON_QTLOGO_128       = ":/core/images/qtcreator_logo_128.png";
 
 const char * const WIZARD_CATEGORY_QT = "R.Qt";
 const char * const WIZARD_TR_CATEGORY_QT = QT_TRANSLATE_NOOP("Core", "Qt");

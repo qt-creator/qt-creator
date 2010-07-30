@@ -53,7 +53,7 @@ VersionDialog::VersionDialog(QWidget *parent)
 {
     // We need to set the window icon explicitly here since for some reason the
     // application icon isn't used when the size of the dialog is fixed (at least not on X11/GNOME)
-    setWindowIcon(QIcon(":/core/images/qtcreator_logo_128.png"));
+    setWindowIcon(QIcon(QLatin1String(Constants::ICON_QTLOGO_128)));
 
     setWindowTitle(tr("About Qt Creator"));
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -104,7 +104,7 @@ VersionDialog::VersionDialog(QWidget *parent)
     connect(buttonBox , SIGNAL(rejected()), this, SLOT(reject()));
 
     QLabel *logoLabel = new QLabel;
-    logoLabel->setPixmap(QPixmap(QLatin1String(":/core/images/qtcreator_logo_128.png")));
+    logoLabel->setPixmap(QPixmap(QLatin1String(Constants::ICON_QTLOGO_128)));
     layout->addWidget(logoLabel , 0, 0, 1, 1);
     layout->addWidget(copyRightLabel, 0, 1, 4, 4);
     layout->addWidget(buttonBox, 4, 0, 1, 5);

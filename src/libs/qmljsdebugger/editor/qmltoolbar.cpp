@@ -15,15 +15,15 @@ QmlToolbar::QmlToolbar(QWidget *parent) :
     m_isRunning(false),
     ui(new Ui)
 {
-    ui->designmode = new QAction(QIcon(":/qml/images/designmode.png"), tr("Design Mode"), this);
-    ui->play = new QAction(QIcon(":/qml/images/play.png"), tr("Play"), this);
-    ui->pause = new QAction(QIcon(":/qml/images/pause.png"), tr("Pause"), this);
-    ui->select = new QAction(QIcon(":/qml/images/select.png"), tr("Select"), this);
-    ui->selectMarquee = new QAction(QIcon(":/qml/images/select-marquee.png"), tr("Select (Marquee)"), this);
-    ui->zoom = new QAction(QIcon(":/qml/images/zoom.png"), tr("Zoom"), this);
-    ui->colorPicker = new QAction(QIcon(":/qml/images/color-picker-hicontrast.png"), tr("Color Picker"), this);
-    ui->toQml = new QAction(QIcon(":/qml/images/to-qml.png"), tr("Apply Changes to QML Viewer"), this);
-    ui->fromQml = new QAction(QIcon(":/qml/images/from-qml.png"), tr("Apply Changes to Document"), this);
+    ui->designmode = new QAction(QIcon(QLatin1String(":/qml/images/designmode.png")), tr("Design Mode"), this);
+    ui->play = new QAction(QIcon(QLatin1String(":/qml/images/play.png")), tr("Play"), this);
+    ui->pause = new QAction(QIcon(QLatin1String(":/qml/images/pause.png")), tr("Pause"), this);
+    ui->select = new QAction(QIcon(QLatin1String(":/qml/images/select.png")), tr("Select"), this);
+    ui->selectMarquee = new QAction(QIcon(QLatin1String(":/qml/images/select-marquee.png")), tr("Select (Marquee)"), this);
+    ui->zoom = new QAction(QIcon(QLatin1String(":/qml/images/zoom.png")), tr("Zoom"), this);
+    ui->colorPicker = new QAction(QIcon(QLatin1String(":/qml/images/color-picker-hicontrast.png")), tr("Color Picker"), this);
+    ui->toQml = new QAction(QIcon(QLatin1String(":/qml/images/to-qml.png")), tr("Apply Changes to QML Viewer"), this);
+    ui->fromQml = new QAction(QIcon(QLatin1String(":/qml/images/from-qml.png")), tr("Apply Changes to Document"), this);
     ui->designmode->setCheckable(true);
     ui->designmode->setChecked(false);
 

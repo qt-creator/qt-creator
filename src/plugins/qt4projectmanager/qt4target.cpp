@@ -76,13 +76,13 @@ QIcon iconForId(const QString &id) {
     if (id == QLatin1String(Constants::DESKTOP_TARGET_ID))
         return QIcon(qApp->style()->standardIcon(QStyle::SP_ComputerIcon));
     if (id == QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
-        return QIcon(":/projectexplorer/images/SymbianEmulator.png");
+        return QIcon(QLatin1String(":/projectexplorer/images/SymbianEmulator.png"));
     if (id == QLatin1String(Constants::S60_DEVICE_TARGET_ID))
-        return QIcon(":/projectexplorer/images/SymbianDevice.png");
+        return QIcon(QLatin1String(":/projectexplorer/images/SymbianDevice.png"));
     if (id == QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID))
-        return QIcon(":/projectexplorer/images/MaemoDevice.png");
+        return QIcon(QLatin1String(":/projectexplorer/images/MaemoDevice.png"));
     if (id == QLatin1String(Constants::QT_SIMULATOR_TARGET_ID))
-        return QIcon(":/projectexplorer/images/SymbianEmulator.png");
+        return QIcon(QLatin1String(":/projectexplorer/images/SymbianEmulator.png"));
     return QIcon();
 }
 

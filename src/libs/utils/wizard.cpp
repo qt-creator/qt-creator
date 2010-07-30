@@ -115,7 +115,7 @@ LinearProgressWidget::LinearProgressWidget(WizardProgress *progress, QWidget *pa
     m_dotsItemWidget(0),
     m_disableUpdatesCount(0)
 {
-    m_indicatorPixmap =  QIcon::fromTheme("go-next", QIcon(QLatin1String(":/utils/images/arrow.png"))).pixmap(16);
+    m_indicatorPixmap = QIcon::fromTheme(QLatin1String("go-next"), QIcon(QLatin1String(":/utils/images/arrow.png"))).pixmap(16);
     m_wizardProgress = progress;
     m_mainLayout = new QVBoxLayout(this);
     m_itemWidgetLayout = new QVBoxLayout();

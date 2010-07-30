@@ -187,7 +187,7 @@ void IdItemDelegate::paint(QPainter *painter,
 
     // if the library was also empty, use the default icon
     if (icon.isNull())
-        icon = QIcon(":/ItemLibrary/images/item-default-icon.png");
+        icon = QIcon(QLatin1String(":/ItemLibrary/images/item-default-icon.png"));
 
     // If no icon is present, leave an empty space of 24 pixels anyway
     int pixmapSide = 16;

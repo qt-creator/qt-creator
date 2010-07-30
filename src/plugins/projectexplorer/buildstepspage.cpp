@@ -180,19 +180,19 @@ void BuildStepsPage::addBuildStepWidget(int pos, BuildStep *step)
     s.upButton->setAutoRaise(true);
     s.upButton->setToolTip(tr("Move Up"));
     s.upButton->setFixedSize(buttonSize);
-    s.upButton->setIcon(QIcon(":/core/images/darkarrowup.png"));
+    s.upButton->setIcon(QIcon(QLatin1String(":/core/images/darkarrowup.png")));
 
     s.downButton = new QToolButton(toolWidget);
     s.downButton->setAutoRaise(true);
     s.downButton->setToolTip(tr("Move Down"));
     s.downButton->setFixedSize(buttonSize);
-    s.downButton->setIcon(QIcon(":/core/images/darkarrowdown.png"));
+    s.downButton->setIcon(QIcon(QLatin1String(":/core/images/darkarrowdown.png")));
 
     s.removeButton  = new QToolButton(toolWidget);
     s.removeButton->setAutoRaise(true);
     s.removeButton->setToolTip(tr("Remove Item"));
     s.removeButton->setFixedSize(buttonSize);
-    s.removeButton->setIcon(QIcon(":/core/images/darkclose.png"));
+    s.removeButton->setIcon(QIcon(QLatin1String(":/core/images/darkclose.png")));
 
     toolWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     QHBoxLayout *hbox = new QHBoxLayout();
