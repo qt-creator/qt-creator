@@ -657,6 +657,7 @@ void QDeclarativeViewer::setDesignModeBehavior(bool value)
 
 void QDeclarativeViewer::setDebugMode(bool on)
 {
+    Q_UNUSED(on);
     //if (on)
     {
         new JSDebuggerAgent(QDeclarativeEnginePrivate::getScriptEngine(canvas->engine()));
