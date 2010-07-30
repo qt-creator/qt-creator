@@ -3,7 +3,7 @@
 
 #include <QtGui/QDialog>
 
-class QCheckBox;
+QT_FORWARD_DECLARE_CLASS(QCheckBox);
 
 namespace Qt4ProjectManager {
 

@@ -38,7 +38,9 @@
 #include <QMutex>
 #include <QWaitCondition>
 
+QT_BEGIN_NAMESPACE
 class QSettings;
+QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
 namespace Internal {
