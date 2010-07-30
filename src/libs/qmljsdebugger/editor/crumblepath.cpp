@@ -57,11 +57,10 @@ private:
 CrumblePathButton::CrumblePathButton(const QString &title, QWidget *parent)
     : QPushButton(title, parent)
 {
-    setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
+    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
     setToolTip(title);
     setMinimumHeight(24);
     setMaximumHeight(24);
-
     setStyleSheet(lastSegmentSheet(true));
 }
 
@@ -119,10 +118,14 @@ void CrumblePathButton::setSegmentType(int type)
 // CrumblePath
 //
 CrumblePath::CrumblePath(QWidget *parent) :
-    QWidget(parent)
+    QWidget(parent), m_background(new QWidget(this))
 {
-    setMinimumHeight(24);
-    setMaximumHeight(24);
+    setMinimumHeight(25);
+    setMaximumHeight(25);
+    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
+
+    m_background->setStyleSheet("QWidget { background-color:#2d2d2d;}");
+    m_background->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 }
 
 CrumblePath::~CrumblePath()
@@ -159,12 +162,13 @@ void CrumblePath::popElement()
     last->setParent(0);
     last->deleteLater();
 
-    int segType = CrumblePathButton::MiddleSegment;
+    int segType = CrumblePathButton::MiddleSegment | CrumblePathButton::LastSegment;
     if (!m_buttons.isEmpty()) {
         if (m_buttons.length() == 1)
             segType = CrumblePathButton::FirstSegment | CrumblePathButton::LastSegment;
         m_buttons.last()->setSegmentType(segType);
     }
+    resizeButtons();
 }
 
 void CrumblePath::clear()
@@ -181,33 +185,45 @@ void CrumblePath::resizeEvent(QResizeEvent *)
 
 void CrumblePath::resizeButtons()
 {
-    int buttonWidth = 0;
-    if (m_buttons.length() > 1) {
+    int buttonMinWidth = 0;
+    int buttonMaxWidth = 0;
+    int totalWidthLeft = width();
+
+    if (m_buttons.length() >= 1) {
         QPoint nextElementPosition(0,0);
 
         m_buttons[0]->raise();
         // rearrange all items so that the first item is on top (added last).
         for(int i = 0; i < m_buttons.length() ; ++i) {
-            QWidget *button = m_buttons[i];
-            buttonWidth = (width() + ArrowBorderSize * m_buttons.length()) / m_buttons.length();
-            button->setMaximumWidth(buttonWidth);
-            button->setGeometry(QRect(nextElementPosition, QSize(buttonWidth, button->height())));
+            CrumblePathButton *button = m_buttons[i];
+
+            QFontMetrics fm(button->font());
+            buttonMinWidth = ArrowBorderSize + fm.width(button->text()) + ArrowBorderSize * 2 ;
+            buttonMaxWidth = (totalWidthLeft + ArrowBorderSize * (m_buttons.length() - i)) / (m_buttons.length() - i);
+
+            if (buttonMinWidth > buttonMaxWidth && i < m_buttons.length() - 1) {
+                buttonMinWidth = buttonMaxWidth;
+            } else if (i > 3 && (i == m_buttons.length() - 1)) {
+                buttonMinWidth = width() - nextElementPosition.x();
+                buttonMaxWidth = buttonMinWidth;
+            }
+
+            button->setMinimumWidth(buttonMinWidth);
+            button->setMaximumWidth(buttonMaxWidth);
+            button->move(nextElementPosition);
 
             nextElementPosition.rx() += button->width() - ArrowBorderSize;
+            totalWidthLeft -= button->width();
 
             button->show();
             if (i > 0)
                 button->stackUnder(m_buttons[i - 1]);
         }
 
-    } else if (m_buttons.length() == 1) {
-        QWidget *button = m_buttons[0];
-        int buttonWidth = 2 * width() / (3 * m_buttons.length());
-
-        button->setMaximumWidth(buttonWidth);
-        button->setGeometry(QRect(QPoint(0, 0), QSize(buttonWidth, button->height())));
-        button->show();
     }
+
+    m_background->setGeometry(0,0, width(), height());
+    m_background->update();
 }
 
 void CrumblePath::mapClickToIndex()

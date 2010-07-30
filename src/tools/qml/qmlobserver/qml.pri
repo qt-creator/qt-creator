@@ -21,6 +21,8 @@ SOURCES += $$PWD/qmlruntime.cpp \
 
 RESOURCES += $$PWD/qmlruntime.qrc
 
+OTHER_FILES += toolbarstyle.css
+
 maemo5 {
     QT += dbus
     HEADERS += $$PWD/texteditautoresizer_maemo5.h

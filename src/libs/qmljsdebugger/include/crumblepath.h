@@ -66,6 +66,7 @@ private:
 
 private:
     QList<CrumblePathButton*> m_buttons;
+    QWidget *m_background;
 };
 
 } // namespace QmlViewer

@@ -21,7 +21,7 @@ QmlToolbar::QmlToolbar(QWidget *parent) :
     ui->select = new QAction(QIcon(":/qml/images/select.png"), tr("Select"), this);
     ui->selectMarquee = new QAction(QIcon(":/qml/images/select-marquee.png"), tr("Select (Marquee)"), this);
     ui->zoom = new QAction(QIcon(":/qml/images/zoom.png"), tr("Zoom"), this);
-    ui->colorPicker = new QAction(QIcon(":/qml/images/color-picker.png"), tr("Color Picker"), this);
+    ui->colorPicker = new QAction(QIcon(":/qml/images/color-picker-hicontrast.png"), tr("Color Picker"), this);
     ui->toQml = new QAction(QIcon(":/qml/images/to-qml.png"), tr("Apply Changes to QML Viewer"), this);
     ui->fromQml = new QAction(QIcon(":/qml/images/from-qml.png"), tr("Apply Changes to Document"), this);
     ui->designmode->setCheckable(true);
@@ -47,7 +47,7 @@ QmlToolbar::QmlToolbar(QWidget *parent) :
     addSeparator();
     addAction(ui->zoom);
     addAction(ui->colorPicker);
-    addAction(ui->fromQml);
+    //addAction(ui->fromQml);
 
     ui->colorBox = new ToolBarColorBox(this);
     ui->colorBox->setMinimumSize(24, 24);

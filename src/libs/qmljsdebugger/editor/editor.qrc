@@ -16,5 +16,6 @@
         <file>images/segment-hover-end.png</file>
         <file>images/segment-hover.png</file>
         <file>images/segment-selected-end.png</file>
+        <file>images/color-picker-hicontrast.png</file>
     </qresource>
 </RCC>

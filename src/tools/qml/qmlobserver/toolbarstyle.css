@@ -1,0 +1,28 @@
+QToolBar {
+    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(85, 85, 85, 255), stop:0.3 rgba(79, 79, 79, 255), stop:0.301 rgba(70, 70, 70, 255), stop:1 rgba(57, 57, 57, 255));
+    color: #EEEEEE;
+}
+QToolBar::separator {
+    width: 1px;
+    border-right: 1px solid #6d6d6d;
+    background: #414141;
+}
+QToolButton {
+    border: none;
+    padding-left:4px;
+    padding-right:4px;
+    padding-top:5px;
+    padding-bottom:5px;
+}
+QToolButton:checked {
+    border: none;
+    padding-left:4px;
+    padding-right:4px;
+    padding-top:5px;
+    padding-bottom:5px;
+    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(65, 65, 65, 255), stop:0.3 rgba(59, 59, 59, 255), stop:0.301 rgba(50, 50, 50, 255), stop:1 rgba(37, 37, 37, 255));
+}
+QToolButton:hover {
+    border: none;
+    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(105, 105, 105, 255), stop:0.3 rgba(99, 99, 99, 255), stop:0.301 rgba(90, 90, 90, 255), stop:1 rgba(77, 77, 77, 255));
+}

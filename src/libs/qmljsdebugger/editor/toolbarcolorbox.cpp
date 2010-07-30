@@ -19,7 +19,7 @@ namespace QmlViewer {
 ToolBarColorBox::ToolBarColorBox(QWidget *parent) :
     QLabel(parent)
 {
-    m_copyHexColor = new QAction(tr("Copy"), this);
+    m_copyHexColor = new QAction(QIcon(":/qml/images/color-picker-hicontrast.png"), tr("Copy"), this);
     connect(m_copyHexColor, SIGNAL(triggered()), SLOT(copyColorToClipboard()));
     setScaledContents(false);
 }
@@ -63,7 +63,7 @@ QPixmap ToolBarColorBox::createDragPixmap(int size) const
     QPainter p(&pix);
 
     QColor borderColor1 = QColor(143, 143 ,143);
-    QColor borderColor2 = Qt::white;
+    QColor borderColor2 = QColor(43, 43, 43);
 
     p.setBrush(QBrush(m_color));
     p.setPen(QPen(QBrush(borderColor2),1));

@@ -1,9 +1,10 @@
 <RCC>
-    <qresource prefix="/" >
+    <qresource prefix="/">
         <file>content/Browser.qml</file>
         <file>content/images/up.png</file>
         <file>content/images/folder.png</file>
         <file>content/images/titlebar.sci</file>
         <file>content/images/titlebar.png</file>
+        <file>toolbarstyle.css</file>
     </qresource>
 </RCC>
