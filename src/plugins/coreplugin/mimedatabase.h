@@ -36,6 +36,7 @@
 #include <QtCore/QSharedPointer>
 #include <QtCore/QByteArray>
 #include <QtCore/QMutex>
+#include <QtCore/QFileInfo>
 
 QT_BEGIN_NAMESPACE
 class QIODevice;
