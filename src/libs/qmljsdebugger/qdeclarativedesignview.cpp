@@ -334,9 +334,6 @@ bool QDeclarativeDesignView::designModeBehavior()
     return data->designModeBehavior;
 }
 
-
-
-
 void QDeclarativeDesignViewPrivate::changeTool(Constants::DesignTool tool, Constants::ToolFlags /*flags*/)
 {
     switch(tool) {
@@ -350,7 +347,7 @@ void QDeclarativeDesignViewPrivate::changeTool(Constants::DesignTool tool, Const
     }
 }
 
-void QDeclarativeDesignViewPrivate::setSelectedItems(QList<QGraphicsItem *> items)
+void QDeclarativeDesignViewPrivate::setSelectedItemsForTools(QList<QGraphicsItem *> items)
 {
     currentSelection.clear();
     foreach(QGraphicsItem *item, items) {
@@ -361,6 +358,11 @@ void QDeclarativeDesignViewPrivate::setSelectedItems(QList<QGraphicsItem *> item
         }
     }
     currentTool->updateSelectedItems();
+}
+
+void QDeclarativeDesignViewPrivate::setSelectedItems(QList<QGraphicsItem *> items)
+{
+    setSelectedItemsForTools(items);
     qmlDesignDebugServer()->setCurrentObjects(AbstractFormEditorTool::toObjectList(items));
 }
 
@@ -591,8 +593,8 @@ void QDeclarativeDesignViewPrivate::_q_onStatusChanged(QDeclarativeView::Status 
 {
     if (status == QDeclarativeView::Ready) {
         if (q->rootObject()) {
-            if (data->subcomponentEditorTool->contextIndex() != -1)
-                data->subcomponentEditorTool->clear();
+            if (subcomponentEditorTool->contextIndex() != -1)
+                subcomponentEditorTool->clear();
             subcomponentEditorTool->pushContext(q->rootObject());
             emit q->executionStarted(1.0f);
 
@@ -610,7 +612,7 @@ void QDeclarativeDesignViewPrivate::_q_onCurrentObjectsChanged(QList<QObject*> o
             items << declarativeItem;
     }
 
-    setSelectedItems(items);
+    setSelectedItemsForTools(items);
     clearHighlight();
     highlight(items, QDeclarativeDesignViewPrivate::IgnoreContext);
 }

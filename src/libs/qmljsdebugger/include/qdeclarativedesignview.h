@@ -95,6 +95,7 @@ protected:
     void mouseDoubleClickEvent(QMouseEvent *event);
     void wheelEvent(QWheelEvent *event);
 
+    void setSelectedItemsForTools(QList<QGraphicsItem *> items);
 private:
     Q_DISABLE_COPY(QDeclarativeDesignView)
     Q_PRIVATE_SLOT(d_func(), void _q_reloadView())

@@ -93,6 +93,8 @@ public:
     QList<QGraphicsItem*> selectableItems(const QPointF &scenePos) const;
     QList<QGraphicsItem*> selectableItems(const QRectF &sceneRect, Qt::ItemSelectionMode selectionMode) const;
 
+
+    void setSelectedItemsForTools(QList<QGraphicsItem *> items);
     void setSelectedItems(QList<QGraphicsItem *> items);
     QList<QGraphicsItem *> selectedItems();
 
