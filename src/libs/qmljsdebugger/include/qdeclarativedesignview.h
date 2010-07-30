@@ -48,10 +48,6 @@ class QMLJSDEBUGGER_EXPORT QDeclarativeDesignView : public QDeclarativeView
 {
     Q_OBJECT
 public:
-    enum ContextFlags {
-        IgnoreContext,
-        ContextSensitive
-    };
 
     explicit QDeclarativeDesignView(QWidget *parent = 0);
     ~QDeclarativeDesignView();
@@ -59,33 +55,13 @@ public:
     void setSelectedItems(QList<QGraphicsItem *> items);
     QList<QGraphicsItem *> selectedItems();
 
-    QGraphicsObject *manipulatorLayer() const;
-    void changeTool(Constants::DesignTool tool,
-                    Constants::ToolFlags flags = Constants::NoToolFlags);
-
-    void clearHighlight();
-    void highlight(QList<QGraphicsItem *> item, ContextFlags flags = ContextSensitive);
-    void highlight(QGraphicsItem *item, ContextFlags flags = ContextSensitive);
-
-    bool mouseInsideContextItem() const;
-    bool isEditorItem(QGraphicsItem *item) const;
-
-    QList<QGraphicsItem*> selectableItems(const QPoint &pos) const;
-    QList<QGraphicsItem*> selectableItems(const QPointF &scenePos) const;
-    QList<QGraphicsItem*> selectableItems(const QRectF &sceneRect, Qt::ItemSelectionMode selectionMode) const;
-    QGraphicsItem *currentRootItem() const;
-
     QToolBar *toolbar() const;
     static QString idStringForObject(QObject *obj);
     QRectF adjustToScreenBoundaries(const QRectF &boundingRectInSceneSpace);
 
 public Q_SLOTS:
     void setDesignModeBehavior(bool value);
-    bool designModeBehavior() const;
-    void changeToSingleSelectTool();
-    void changeToMarqueeSelectTool();
-    void changeToZoomTool();
-    void changeToColorPickerTool();
+    bool designModeBehavior();
 
     void changeAnimationSpeed(qreal slowdownFactor);
     void continueExecution(qreal slowdownFactor = 1.0f);
@@ -119,25 +95,21 @@ protected:
     void mouseDoubleClickEvent(QMouseEvent *event);
     void wheelEvent(QWheelEvent *event);
 
-private Q_SLOTS:
-    void reloadView();
-    void onStatusChanged(QDeclarativeView::Status status);
-    void onCurrentObjectsChanged(QList<QObject*> objects);
-    void applyChangesFromClient();
-    void createQmlObject(const QString &qml, QObject *parent,
-                         const QStringList &imports, const QString &filename = QString());
-
-private:
-    void clearEditorItems();
-    void createToolbar();
-    void changeToSelectTool();
-    QList<QGraphicsItem*> filterForCurrentContext(QList<QGraphicsItem*> &itemlist) const;
-    QList<QGraphicsItem*> filterForSelection(QList<QGraphicsItem*> &itemlist) const;
-
-    QDeclarativeDesignViewPrivate *data;
-
 private:
     Q_DISABLE_COPY(QDeclarativeDesignView)
+    Q_PRIVATE_SLOT(d_func(), void _q_reloadView())
+    Q_PRIVATE_SLOT(d_func(), void _q_onStatusChanged(QDeclarativeView::Status))
+    Q_PRIVATE_SLOT(d_func(), void _q_onCurrentObjectsChanged(QList<QObject*>))
+    Q_PRIVATE_SLOT(d_func(), void _q_applyChangesFromClient())
+    Q_PRIVATE_SLOT(d_func(), void _q_createQmlObject(const QString &, QObject *, const QStringList &, const QString &))
+    Q_PRIVATE_SLOT(d_func(), void _q_changeToSingleSelectTool())
+    Q_PRIVATE_SLOT(d_func(), void _q_changeToMarqueeSelectTool())
+    Q_PRIVATE_SLOT(d_func(), void _q_changeToZoomTool())
+    Q_PRIVATE_SLOT(d_func(), void _q_changeToColorPickerTool())
+
+    inline QDeclarativeDesignViewPrivate *d_func() { return data.data(); }
+    QScopedPointer<QDeclarativeDesignViewPrivate> data;
+    friend class QDeclarativeDesignViewPrivate;
 
 };
 

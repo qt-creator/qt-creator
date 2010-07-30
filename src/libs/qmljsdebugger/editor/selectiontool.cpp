@@ -28,9 +28,10 @@
 **************************************************************************/
 
 #include "selectiontool.h"
+#include "layeritem.h"
 
 //#include "resizehandleitem.h"
-#include "qdeclarativedesignview.h"
+#include "qdeclarativedesignview_p.h"
 
 #include <private/qdeclarativeitem_p.h>
 #include <private/qdeclarativecontext_p.h>
@@ -52,9 +53,9 @@ namespace QmlViewer {
 SelectionTool::SelectionTool(QDeclarativeDesignView *editorView)
     : AbstractFormEditorTool(editorView),
     m_rubberbandSelectionMode(false),
-    m_rubberbandSelectionManipulator(editorView->manipulatorLayer(), editorView),
+    m_rubberbandSelectionManipulator(QDeclarativeDesignViewPrivate::get(editorView)->manipulatorLayer, editorView),
     m_singleSelectionManipulator(editorView),
-    m_selectionIndicator(editorView, editorView->manipulatorLayer()),
+    m_selectionIndicator(editorView, QDeclarativeDesignViewPrivate::get(editorView)->manipulatorLayer),
     //m_resizeIndicator(editorView->manipulatorLayer()),
     m_selectOnlyContentItems(true)
 {
@@ -83,7 +84,7 @@ SingleSelectionManipulator::SelectionType SelectionTool::getSelectionType(Qt::Ke
 
 bool SelectionTool::alreadySelected(const QList<QGraphicsItem*> &itemList) const
 {
-    const QList<QGraphicsItem*> selectedItems = view()->selectedItems();
+    const QList<QGraphicsItem*> selectedItems = QDeclarativeDesignViewPrivate::get(view())->selectedItems();
 
     if (selectedItems.isEmpty())
         return false;
@@ -99,7 +100,7 @@ bool SelectionTool::alreadySelected(const QList<QGraphicsItem*> &itemList) const
 
 void SelectionTool::mousePressEvent(QMouseEvent *event)
 {
-    QList<QGraphicsItem*> itemList = view()->selectableItems(event->pos());
+    QList<QGraphicsItem*> itemList = QDeclarativeDesignViewPrivate::get(view())->selectableItems(event->pos());
     SingleSelectionManipulator::SelectionType selectionType = getSelectionType(event->modifiers());
 
     if (event->buttons() & Qt::LeftButton) {
@@ -110,7 +111,7 @@ void SelectionTool::mousePressEvent(QMouseEvent *event)
         } else {
 
             if (itemList.isEmpty()) {
-                view()->setSelectedItems(itemList);
+                QDeclarativeDesignViewPrivate::get(view())->setSelectedItems(itemList);
                 return;
             }
 
@@ -160,7 +161,7 @@ void SelectionTool::mousePressEvent(QMouseEvent *event)
 
 void SelectionTool::createContextMenu(QList<QGraphicsItem*> itemList, QPoint globalPos)
 {
-    if (!view()->mouseInsideContextItem())
+    if (!QDeclarativeDesignViewPrivate::get(view())->mouseInsideContextItem())
         return;
 
     QMenu contextMenu;
@@ -222,7 +223,7 @@ void SelectionTool::contextMenuElementHovered(QAction *action)
 {
     int itemListIndex = action->data().toInt();
     if (itemListIndex >= 0 && itemListIndex < m_contextMenuItemList.length()) {
-        view()->highlight(m_contextMenuItemList.at(itemListIndex));
+        QDeclarativeDesignViewPrivate::get(view())->highlight(m_contextMenuItemList.at(itemListIndex));
     }
 }
 
@@ -277,7 +278,7 @@ void SelectionTool::hoverMoveEvent(QMouseEvent * event)
         QGraphicsItem *topSelectableItem = 0;
         foreach(QGraphicsItem* item, selectableItemList)
         {
-            if (!view()->isEditorItem(item)
+            if (!QDeclarativeDesignViewPrivate::get(view())->isEditorItem(item)
                 /*&& !item->qmlItemNode().isRootNode()
                 && (QGraphicsItem->qmlItemNode().hasShowContent() || !m_selectOnlyContentItems)*/)
             {
@@ -286,9 +287,9 @@ void SelectionTool::hoverMoveEvent(QMouseEvent * event)
             }
         }
 
-        view()->highlight(topSelectableItem);
+        QDeclarativeDesignViewPrivate::get(view())->highlight(topSelectableItem);
     } else {
-        view()->clearHighlight();
+        QDeclarativeDesignViewPrivate::get(view())->clearHighlight();
     }
 
 }
@@ -356,7 +357,7 @@ void SelectionTool::wheelEvent(QWheelEvent *event)
     if (event->orientation() == Qt::Horizontal || m_rubberbandSelectionMode)
         return;
 
-    QList<QGraphicsItem*> itemList = view()->selectableItems(event->pos());
+    QList<QGraphicsItem*> itemList = QDeclarativeDesignViewPrivate::get(view())->selectableItems(event->pos());
 
     int selectedIdx = 0;
     if (!view()->selectedItems().isEmpty()) {

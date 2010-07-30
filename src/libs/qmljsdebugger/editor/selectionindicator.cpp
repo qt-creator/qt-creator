@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "selectionindicator.h"
-#include "qdeclarativedesignview.h"
+#include "qdeclarativedesignview_p.h"
 #include "qmlviewerconstants.h"
 
 #include <QPen>
@@ -75,7 +75,7 @@ QPolygonF SelectionIndicator::addBoundingRectToPolygon(QGraphicsItem *item, QPol
         polygon = polygon.united(item->mapToScene(item->boundingRect()));
 
     foreach(QGraphicsItem *child, item->childItems()) {
-        if (!m_view->isEditorItem(child))
+        if (!QDeclarativeDesignViewPrivate::get(m_view)->isEditorItem(child))
             addBoundingRectToPolygon(child, polygon);
     }
     return polygon;

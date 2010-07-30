@@ -1,5 +1,5 @@
 #include "subcomponenteditortool.h"
-#include "qdeclarativedesignview.h"
+#include "qdeclarativedesignview_p.h"
 #include "subcomponentmasklayeritem.h"
 #include "layeritem.h"
 
@@ -21,7 +21,7 @@ SubcomponentEditorTool::SubcomponentEditorTool(QDeclarativeDesignView *view)
     m_animIncrement(0.05f),
     m_animTimer(new QTimer(this))
 {
-    m_mask = new SubcomponentMaskLayerItem(view, view->manipulatorLayer());
+    m_mask = new SubcomponentMaskLayerItem(view, QDeclarativeDesignViewPrivate::get(view)->manipulatorLayer);
     connect(m_animTimer, SIGNAL(timeout()), SLOT(animate()));
     m_animTimer->setInterval(20);
 }
@@ -71,7 +71,7 @@ void SubcomponentEditorTool::mouseDoubleClickEvent(QMouseEvent *event)
 void SubcomponentEditorTool::hoverMoveEvent(QMouseEvent *event)
 {
     if (!containsCursor(event->pos()) && m_currentContext.size() > 1) {
-        view()->clearHighlight();
+        QDeclarativeDesignViewPrivate::get(view())->clearHighlight();
     }
 }
 
@@ -172,7 +172,7 @@ void SubcomponentEditorTool::setCurrentItem(QGraphicsItem* contextItem)
         m_animIncrement = 0.05f;
         m_animTimer->start();
 
-        view()->clearHighlight();
+        QDeclarativeDesignViewPrivate::get(view())->clearHighlight();
         view()->setSelectedItems(QList<QGraphicsItem*>());
 
         pushContext(gfxObject);

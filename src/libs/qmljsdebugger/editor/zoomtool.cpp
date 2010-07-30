@@ -1,5 +1,5 @@
 #include "zoomtool.h"
-#include "qdeclarativedesignview.h"
+#include "qdeclarativedesignview_p.h"
 
 #include <QMouseEvent>
 #include <QWheelEvent>
@@ -14,7 +14,7 @@ namespace QmlViewer {
 
 ZoomTool::ZoomTool(QDeclarativeDesignView *view) :
         AbstractFormEditorTool(view),
-        m_rubberbandManipulator(view->manipulatorLayer(), view),
+        m_rubberbandManipulator(reinterpret_cast<QGraphicsObject *>(QDeclarativeDesignViewPrivate::get(view)->manipulatorLayer), view),
         m_smoothZoomMultiplier(0.05f),
         m_currentScale(1.0f)
 {

@@ -33,6 +33,8 @@
 #include <QWeakPointer>
 #include <QPointF>
 
+#include "qdeclarativedesignview.h"
+
 namespace QmlViewer {
 
 class QDeclarativeDesignView;
@@ -50,9 +52,16 @@ class QDeclarativeDesignViewPrivate
 {
 
 public:
-    QDeclarativeDesignViewPrivate();
+
+    enum ContextFlags {
+        IgnoreContext,
+        ContextSensitive
+    };
+    
+    QDeclarativeDesignViewPrivate(QDeclarativeDesignView *);
     ~QDeclarativeDesignViewPrivate();
 
+    QDeclarativeDesignView *q;
     QPointF cursorPos;
     QList<QWeakPointer<QGraphicsObject> > currentSelection;
 
@@ -74,6 +83,45 @@ public:
 
     QmlToolbar *toolbar;
 
+    void clearEditorItems();
+    void createToolbar();
+    void changeToSelectTool();
+    QList<QGraphicsItem*> filterForCurrentContext(QList<QGraphicsItem*> &itemlist) const;
+    QList<QGraphicsItem*> filterForSelection(QList<QGraphicsItem*> &itemlist) const;
+
+    QList<QGraphicsItem*> selectableItems(const QPoint &pos) const;
+    QList<QGraphicsItem*> selectableItems(const QPointF &scenePos) const;
+    QList<QGraphicsItem*> selectableItems(const QRectF &sceneRect, Qt::ItemSelectionMode selectionMode) const;
+
+    void setSelectedItems(QList<QGraphicsItem *> items);
+    QList<QGraphicsItem *> selectedItems();
+
+    void changeTool(Constants::DesignTool tool,
+                    Constants::ToolFlags flags = Constants::NoToolFlags);
+
+    void clearHighlight();
+    void highlight(QList<QGraphicsItem *> item, ContextFlags flags = ContextSensitive);
+    void highlight(QGraphicsItem *item, ContextFlags flags = ContextSensitive);
+
+    bool mouseInsideContextItem() const;
+    bool isEditorItem(QGraphicsItem *item) const;
+
+    QGraphicsItem *currentRootItem() const;
+
+
+    void _q_reloadView();
+    void _q_onStatusChanged(QDeclarativeView::Status status);
+    void _q_onCurrentObjectsChanged(QList<QObject*> objects);
+    void _q_applyChangesFromClient();
+    void _q_createQmlObject(const QString &qml, QObject *parent,
+                            const QStringList &imports, const QString &filename = QString());
+
+    void _q_changeToSingleSelectTool();
+    void _q_changeToMarqueeSelectTool();
+    void _q_changeToZoomTool();
+    void _q_changeToColorPickerTool();
+
+    static QDeclarativeDesignViewPrivate *get(QDeclarativeDesignView *v) { return v->d_func(); }
 };
 
 } // namespace QmlViewer
