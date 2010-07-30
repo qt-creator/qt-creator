@@ -31,6 +31,7 @@
 
 #include "icore.h"
 
+#include <QtCore/QDateTime>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
@@ -118,6 +119,18 @@ void HelpManager::registerDocumentation(const QStringList &files)
             } else {
                 qWarning() << "Error registering namespace '" << nameSpace
                     << "' from file '" << file << "':" << m_helpEngine->error();
+            }
+        } else {
+            const QLatin1String key("CreationDate");
+            const QString &newDate = m_helpEngine->metaData(file, key).toString();
+            const QString &oldDate = m_helpEngine->metaData(
+                m_helpEngine->documentationFileName(nameSpace), key).toString();
+            if (QDateTime::fromString(newDate, Qt::ISODate)
+                > QDateTime::fromString(oldDate, Qt::ISODate)) {
+                if (m_helpEngine->unregisterDocumentation(nameSpace)) {
+                    docsChanged = true;
+                    m_helpEngine->registerDocumentation(file);
+                }
             }
         }
     }
@@ -313,16 +326,11 @@ void HelpManager::setupHelpManager()
 
 void HelpManager::verifyDocumenation()
 {
-    QStringList nameSpacesToUnregister;
     const QStringList &registeredDocs = m_helpEngine->registeredDocumentations();
     foreach (const QString &nameSpace, registeredDocs) {
-        const QString &file = m_helpEngine->documentationFileName(nameSpace);
-        if (!QFileInfo(file).exists())
-            nameSpacesToUnregister.append(nameSpace);
+        if (!QFileInfo(m_helpEngine->documentationFileName(nameSpace)).exists())
+            m_nameSpacesToUnregister.append(nameSpace);
     }
-
-    if (!nameSpacesToUnregister.isEmpty())
-        unregisterDocumentation(nameSpacesToUnregister);
 }
 
 }   // Core
