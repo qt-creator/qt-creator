@@ -79,6 +79,7 @@ public:
     Inspector(QObject *parent = 0);
     virtual ~Inspector();
 
+
     bool connectToViewer(); // using host, port from widgets
     void shutdown();
 
@@ -92,8 +93,13 @@ public:
     QDeclarativeDebugExpressionQuery *setBindingForObject(int objectDebugId, const QString &objectId,
                                                           const QString &propertyName, const QVariant &value,
                                                           bool isLiteralValue);
+    static bool showExperimentalWarning();
+    static void setShowExperimentalWarning(bool value);
+
+
 signals:
     void statusMessage(const QString &text);
+    void livePreviewActivated(bool isActivated);
 
 public slots:
     void setSimpleDockWidgetArrangement();
@@ -122,6 +128,8 @@ private slots:
     void removePreviewForEditor(Core::IEditor *newEditor);
     void createPreviewForEditor(Core::IEditor *newEditor);
 
+    void disableLivePreview();
+
 private:
     Debugger::DebuggerRunControl *createDebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig,
                                                            const QString &executableFile = QString(),
@@ -135,6 +143,7 @@ private:
 
     bool addQuotesForData(const QVariant &value) const;
     void resetViews();
+
 
     QmlJS::ModelManagerInterface *modelManager();
     void initializeDocuments();
@@ -150,6 +159,8 @@ private:
     bool m_simultaneousCppAndQmlDebugMode;
     DebugMode m_debugMode;
     ClientProxy *m_clientProxy;
+
+    static bool m_showExperimentalWarning;
 
     // Qml/JS integration
     QHash<QString, QmlJSLiveTextPreview *> m_textPreviews;

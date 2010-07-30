@@ -29,10 +29,12 @@
 
 #include <typeinfo>
 
+#include "qmljsinspector.h"
 #include "qmljsclientproxy.h"
 #include "qmljslivetextpreview.h"
 #include "qmljsprivateapi.h"
 
+#include "qmljsinspectorconstants.h"
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljseditor/qmljseditor.h>
 #include <qmljs/qmljsdelta.h>
@@ -430,6 +432,12 @@ protected:
 virtual void updateScriptBinding(DebugId debugId, UiScriptBinding* scriptBinding,
                                  const QString& propertyName, const QString& scriptCode)
     {
+        if (propertyName  == QLatin1String("id") && !hasUnsyncronizableChanges) {
+            hasUnsyncronizableChanges = true;
+            unsyncronizableChangeLine = scriptBinding->firstSourceLocation().startLine;
+            unsyncronizableChangeColumn = scriptBinding->firstSourceLocation().startColumn;
+        }
+
         QVariant expr = scriptCode;
         const bool isLiteral = isLiteralValue(scriptBinding);
         if (isLiteral)
@@ -455,8 +463,12 @@ virtual void updateScriptBinding(DebugId debugId, UiScriptBinding* scriptBinding
     }
 
 public:
-    UpdateObserver() : referenceRefreshRequired(false) {}
+    UpdateObserver() : referenceRefreshRequired(false), hasUnsyncronizableChanges(false) {}
     bool referenceRefreshRequired;
+    bool hasUnsyncronizableChanges;
+    unsigned unsyncronizableChangeLine;
+    unsigned unsyncronizableChangeColumn;
+
 };
 
 void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
@@ -470,8 +482,16 @@ void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
     if (!core->hasContext(dbgcontext))
         return;
 
+    bool experimentalWarningShown = false;
+
     if (m_applyChangesToQmlObserver) {
         m_docWithUnappliedChanges.clear();
+
+        if (Inspector::showExperimentalWarning()) {
+            showExperimentalWarning();
+            experimentalWarningShown = true;
+            Inspector::setShowExperimentalWarning(false);
+        }
 
         if (doc && m_previousDoc && doc->fileName() == m_previousDoc->fileName()
             && doc->qmlProgram() && m_previousDoc->qmlProgram())
@@ -482,6 +502,9 @@ void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
             if (delta.referenceRefreshRequired)
                 ClientProxy::instance()->refreshObjectTree();
 
+            if (delta.hasUnsyncronizableChanges && !experimentalWarningShown)
+                showSyncWarning(delta.unsyncronizableChangeLine, delta.unsyncronizableChangeColumn);
+
             m_previousDoc = doc;
             if (!delta.newObjects.isEmpty())
                 m_createdObjects[doc] += delta.newObjects;
@@ -489,6 +512,37 @@ void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
     } else {
         m_docWithUnappliedChanges = doc;
     }
+}
+
+void QmlJSLiveTextPreview::showExperimentalWarning()
+{
+    Core::EditorManager *em = Core::EditorManager::instance();
+    em->showEditorInfoBar(Constants::INFO_EXPERIMENTAL,
+                          tr("You changed a QML file in in Live Preview mode, and the changes were applied to the running QML application. "
+                             "This feature is experimental, and behavior can be unexpected."),
+                          tr("Disable Live Preview"), this, SLOT(disableLivePreview()));
+}
+
+void QmlJSLiveTextPreview::showSyncWarning(unsigned line, unsigned column)
+{
+    Core::EditorManager *em = Core::EditorManager::instance();
+    em->showEditorInfoBar(Constants::INFO_OUT_OF_SYNC,
+                          tr("The change at line %1, column %2 cannot be applied without reloading the QML application. "
+                             "You can continue debugging, but behavior can be unexpected.").
+                            arg(QString::number(line), QString::number(column)),
+                           tr("Reload"), this, SLOT(reloadQmlViewer()));
+}
+
+void QmlJSLiveTextPreview::reloadQmlViewer()
+{
+    Core::EditorManager::instance()->hideEditorInfoBar(Constants::INFO_OUT_OF_SYNC);
+    emit reloadQmlViewerRequested();
+}
+
+void QmlJSLiveTextPreview::disableLivePreview()
+{
+    Core::EditorManager::instance()->hideEditorInfoBar(Constants::INFO_EXPERIMENTAL);
+    emit disableLivePreviewRequested();
 }
 
 void QmlJSLiveTextPreview::setApplyChangesToQmlObserver(bool applyChanges)

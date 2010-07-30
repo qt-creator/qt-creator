@@ -73,6 +73,8 @@ public:
 
 signals:
     void selectedItemsChanged(const QList<QDeclarativeDebugObjectReference> &objects);
+    void reloadQmlViewerRequested();
+    void disableLivePreviewRequested();
 
 public slots:
     void setApplyChangesToQmlObserver(bool applyChanges);
@@ -81,11 +83,14 @@ public slots:
 private slots:
     void changeSelectedElements(QList<int> offsets, const QString &wordAtCursor);
     void documentChanged(QmlJS::Document::Ptr doc);
-
+    void disableLivePreview();
+    void reloadQmlViewer();
 
 private:
     QList<int> objectReferencesForOffset(quint32 offset) const;
     QVariant castToLiteral(const QString &expression, QmlJS::AST::UiScriptBinding *scriptBinding);
+    void showSyncWarning(unsigned line, unsigned column);
+    void showExperimentalWarning();
 
 private:
     QHash<QmlJS::AST::UiObjectMember*, QList<int> > m_debugIds;

@@ -116,6 +116,8 @@ enum {
     ConnectionAttemptSimultaneousInterval = 500
 };
 
+bool Inspector::m_showExperimentalWarning = true;
+
 Inspector::Inspector(QObject *parent)
     : QObject(parent),
       m_connectionTimer(new QTimer(this)),
@@ -275,6 +277,9 @@ void Inspector::createPreviewForEditor(Core::IEditor *newEditor)
             connect(preview,
                     SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
                     SLOT(changeSelectedItems(QList<QDeclarativeDebugObjectReference>)));
+            connect(preview, SIGNAL(reloadQmlViewerRequested()), m_clientProxy, SLOT(reloadQmlViewer()));
+            connect(preview, SIGNAL(disableLivePreviewRequested()), SLOT(disableLivePreview()));
+
             m_textPreviews.insert(newEditor->file()->fileName(), preview);
             preview->associateEditor(newEditor);
             preview->updateDebugIds(m_clientProxy->rootObjectReference());
@@ -640,6 +645,7 @@ bool Inspector::addQuotesForData(const QVariant &value) const
 
 void Inspector::setApplyChangesToQmlObserver(bool applyChanges)
 {
+    emit livePreviewActivated(applyChanges);
     QHashIterator<QString, QmlJSLiveTextPreview *> iter(m_textPreviews);
     while(iter.hasNext()) {
         iter.next();
@@ -647,3 +653,17 @@ void Inspector::setApplyChangesToQmlObserver(bool applyChanges)
     }
 }
 
+bool Inspector::showExperimentalWarning()
+{
+    return m_showExperimentalWarning;
+}
+
+void Inspector::setShowExperimentalWarning(bool value)
+{
+    m_showExperimentalWarning = value;
+}
+
+void Inspector::disableLivePreview()
+{
+    setApplyChangesToQmlObserver(false);
+}

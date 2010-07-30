@@ -166,7 +166,7 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     m_selectMarqueeAction = new QAction(QIcon(":/qml/images/select-marquee-small.png"), tr("Select (Marquee)"), this);
     m_zoomAction = new QAction(QIcon(":/qml/images/zoom-small.png"), tr("Zoom"), this);
     m_colorPickerAction = new QAction(QIcon(":/qml/images/color-picker-small.png"), tr("Color Picker"), this);
-    m_toQmlAction = new QAction(QIcon(":/qml/images/to-qml-small.png"), tr("Apply Changes to QML Viewer"), this);
+    m_toQmlAction = new QAction(QIcon(":/qml/images/to-qml-small.png"), tr("Live Preview Changes in QML Viewer"), this);
 
     m_designmodeAction->setCheckable(true);
     m_designmodeAction->setChecked(false);
@@ -399,6 +399,11 @@ void QmlInspectorToolbar::activateZoomOnClick()
         if (m_emitSignals)
             emit zoomToolSelected();
     }
+}
+
+void QmlInspectorToolbar::setLivePreviewChecked(bool value)
+{
+    m_fromQmlAction->setChecked(value);
 }
 
 void QmlInspectorToolbar::setSelectedColor(const QColor &color)

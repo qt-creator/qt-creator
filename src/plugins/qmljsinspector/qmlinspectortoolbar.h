@@ -46,6 +46,8 @@ public slots:
     void setDesignModeBehavior(bool inDesignMode);
     void setSelectedColor(const QColor &color);
 
+    void setLivePreviewChecked(bool value);
+
 signals:
     void animationSpeedChanged(qreal slowdownFactor = 1.0f);
 
