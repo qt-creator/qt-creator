@@ -54,7 +54,7 @@ void ContextPaneWidgetRectangle::setProperties(QmlJS::PropertyReader *propertyRe
         ui->colorColorButton->setColor(str);
 
     } else {
-        ui->colorColorButton->setColor(QLatin1String("black"));
+        ui->colorColorButton->setColor(QLatin1String("white"));
     }
 
     if (propertyReader->hasProperty(QLatin1String("border.color"))) {
