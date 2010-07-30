@@ -282,18 +282,24 @@ void SubcomponentEditorTool::contextDestroyed(QObject *contextToDestroy)
     m_mask->setVisible(false);
 }
 
-void SubcomponentEditorTool::setContext(int contextIndex)
+QGraphicsObject *SubcomponentEditorTool::setContext(int contextIndex)
 {
     Q_ASSERT(contextIndex >= 0);
 
     // sometimes we have to delete the context while user was still clicking around,
     // so just bail out.
     if (contextIndex >= m_currentContext.size() -1)
-        return;
+        return 0;
 
     while (m_currentContext.size() - 1 > contextIndex) {
         popContext();
     }
+    return m_currentContext.top();
+}
+
+int SubcomponentEditorTool::contextIndex() const
+{
+    return m_currentContext.size() - 1;
 }
 
 

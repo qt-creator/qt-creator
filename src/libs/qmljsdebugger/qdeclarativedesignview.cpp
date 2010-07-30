@@ -114,7 +114,11 @@ QDeclarativeDesignView::~QDeclarativeDesignView()
 
 void QDeclarativeDesignView::setInspectorContext(int contextIndex)
 {
-    data->subcomponentEditorTool->setContext(contextIndex);
+    if (data->subcomponentEditorTool->contextIndex() != contextIndex) {
+        QGraphicsObject *object = data->subcomponentEditorTool->setContext(contextIndex);
+        if (object)
+            qmlDesignDebugServer()->setCurrentObjects(QList<QObject*>() << object);
+    }
 }
 
 void QDeclarativeDesignViewPrivate::_q_reloadView()
@@ -184,7 +188,7 @@ void QDeclarativeDesignView::mouseReleaseEvent(QMouseEvent *event)
     data->cursorPos = event->pos();
     data->currentTool->mouseReleaseEvent(event);
 
-    //qmlDesignDebugServer()->setCurrentObjects(AbstractFormEditorTool::toObjectList(selectedItems()));
+    qmlDesignDebugServer()->setCurrentObjects(AbstractFormEditorTool::toObjectList(selectedItems()));
 }
 
 void QDeclarativeDesignView::keyPressEvent(QKeyEvent *event)
@@ -357,6 +361,7 @@ void QDeclarativeDesignViewPrivate::setSelectedItems(QList<QGraphicsItem *> item
         }
     }
     currentTool->updateSelectedItems();
+    qmlDesignDebugServer()->setCurrentObjects(AbstractFormEditorTool::toObjectList(items));
 }
 
 QList<QGraphicsItem *> QDeclarativeDesignViewPrivate::selectedItems()
