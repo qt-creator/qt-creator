@@ -19,7 +19,6 @@ HEADERS += \
     include/jsdebuggeragent.h \
     include/qdeclarativedesignview.h \
     include/qdeclarativedesigndebugserver.h \
-    include/crumblepath.h \
     include/qmlviewerconstants.h \
     include/qmljsdebugger_global.h \
     qdeclarativedesignview_p.h

@@ -75,7 +75,6 @@ public:
     QList<QGraphicsItem*> selectableItems(const QRectF &sceneRect, Qt::ItemSelectionMode selectionMode) const;
     QGraphicsItem *currentRootItem() const;
 
-    CrumblePath *crumblePathWidget() const;
     QToolBar *toolbar() const;
     static QString idStringForObject(QObject *obj);
     QRectF adjustToScreenBoundaries(const QRectF &boundingRectInSceneSpace);
@@ -92,6 +91,8 @@ public Q_SLOTS:
     void continueExecution(qreal slowdownFactor = 1.0f);
     void pauseExecution();
 
+    void setInspectorContext(int contextIndex);
+
 Q_SIGNALS:
     void designModeBehaviorChanged(bool inDesignMode);
     void reloadRequested();
@@ -103,6 +104,10 @@ Q_SIGNALS:
 
     void executionStarted(qreal slowdownFactor);
     void executionPaused();
+
+    void inspectorContextCleared();
+    void inspectorContextPushed(const QString &contextTitle);
+    void inspectorContextPopped();
 
 protected:
     void leaveEvent(QEvent *);

@@ -32,20 +32,22 @@
 
 #include <QWidget>
 #include <QList>
-#include "qmljsdebugger_global.h"
+#include "utils_global.h"
 
 QT_FORWARD_DECLARE_CLASS(QResizeEvent);
 
-namespace QmlViewer {
+namespace Utils {
 
 class CrumblePathButton;
 
-class QMLJSDEBUGGER_EXPORT CrumblePath : public QWidget
+class QTCREATOR_UTILS_EXPORT CrumblePath : public QWidget
 {
     Q_OBJECT
 public:
     explicit CrumblePath(QWidget *parent = 0);
     ~CrumblePath();
+
+public slots:
     void pushElement(const QString &title);
     void popElement();
     void clear();

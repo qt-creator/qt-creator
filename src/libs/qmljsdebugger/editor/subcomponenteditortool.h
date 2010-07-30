@@ -10,7 +10,6 @@ QT_FORWARD_DECLARE_CLASS(QTimer)
 
 namespace QmlViewer {
 
-class CrumblePath;
 class SubcomponentMaskLayerItem;
 
 class SubcomponentEditorTool : public AbstractFormEditorTool
@@ -49,10 +48,14 @@ public:
     QGraphicsObject *popContext();
     QGraphicsObject *currentRootItem() const;
 
-    void setCrumblePathWidget(CrumblePath *pathWidget);
+public slots:
+    void setContext(int contextIndex);
 
 signals:
     void exitContextRequested();
+    void cleared();
+    void contextPushed(const QString &contextTitle);
+    void contextPopped();
 
 protected:
     void selectedItemsChanged(const QList<QGraphicsItem*> &itemList);
@@ -61,8 +64,6 @@ private slots:
     void animate();
     void contextDestroyed(QObject *context);
     void refresh();
-    void setContext(int contextIndex);
-    void openContextMenuForContext(int contextIndex);
 
 private:
     void aboutToPopContext();
@@ -73,9 +74,6 @@ private:
     qreal m_animIncrement;
     SubcomponentMaskLayerItem *m_mask;
     QTimer *m_animTimer;
-
-    CrumblePath *m_crumblePathWidget;
-
 };
 
 } // namespace QmlViewer

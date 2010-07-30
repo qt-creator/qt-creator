@@ -8,8 +8,10 @@ SOURCES += main.cpp
 # hack to get qtLibraryTarget macro working
 TEMPLATE +=lib
 include(../../../libs/qmljsdebugger/qmljsdebugger.pri)
+include(../../../libs/utils/utils.pri)
 mac {
-    libraryTarget = $$qtLibraryTarget(QmlJSDebugger)
+    qmljsLibraryTarget = $$qtLibraryTarget(QmlJSDebugger)
+    utilsLibraryTarget = $$qtLibraryTarget(Utils)
 }
 TEMPLATE -=lib
 
@@ -22,7 +24,8 @@ mac {
     QMAKE_INFO_PLIST=Info_mac.plist
     TARGET=QMLObserver
     ICON=qml.icns
-    QMAKE_POST_LINK=install_name_tool -change @executable_path/../PlugIns/lib$${libraryTarget}.1.dylib @executable_path/../../../../PlugIns/lib$${libraryTarget}.1.dylib \'$$DESTDIR/$${TARGET}.app/Contents/MacOS/$$TARGET\'
+    QMAKE_POST_LINK=install_name_tool -change @executable_path/../PlugIns/lib$${qmljsLibraryTarget}.1.dylib @executable_path/../../../../PlugIns/lib$${qmljsLibraryTarget}.1.dylib \'$$DESTDIR/$${TARGET}.app/Contents/MacOS/$$TARGET\' \
+                 && install_name_tool -change @executable_path/../PlugIns/lib$${utilsLibraryTarget}.1.dylib @executable_path/../../../../PlugIns/lib$${utilsLibraryTarget}.1.dylib \'$$DESTDIR/$${TARGET}.app/Contents/MacOS/$$TARGET\'
 } else {
     TARGET=qmlobserver
 }

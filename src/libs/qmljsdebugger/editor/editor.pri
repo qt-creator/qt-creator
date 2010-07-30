@@ -30,8 +30,7 @@ SOURCES += \
            $$PWD/zoomtool.cpp \
            $$PWD/colorpickertool.cpp \
            $$PWD/qmltoolbar.cpp \
-           $$PWD/toolbarcolorbox.cpp \
-           $$PWD/crumblepath.cpp
+           $$PWD/toolbarcolorbox.cpp
 
 RESOURCES += $$PWD/editor.qrc
 

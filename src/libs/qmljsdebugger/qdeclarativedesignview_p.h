@@ -73,7 +73,6 @@ public:
     qreal slowdownFactor;
 
     QmlToolbar *toolbar;
-    CrumblePath *crumblePath;
 
 };
 

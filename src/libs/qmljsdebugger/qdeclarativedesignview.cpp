@@ -8,7 +8,6 @@
 #include "boundingrecthighlighter.h"
 #include "subcomponenteditortool.h"
 #include "qmltoolbar.h"
-#include "crumblepath.h"
 
 #include <QDeclarativeItem>
 #include <QDeclarativeEngine>
@@ -44,15 +43,12 @@ QDeclarativeDesignView::QDeclarativeDesignView(QWidget *parent) :
 {
     data = new QDeclarativeDesignViewPrivate;
 
-    data->crumblePath = new CrumblePath(0);
-
     data->manipulatorLayer = new LayerItem(scene());
     data->selectionTool = new SelectionTool(this);
     data->zoomTool = new ZoomTool(this);
     data->colorPickerTool = new ColorPickerTool(this);
     data->boundingRectHighlighter = new BoundingRectHighlighter(this);
     data->subcomponentEditorTool = new SubcomponentEditorTool(this);
-    data->subcomponentEditorTool->setCrumblePathWidget(data->crumblePath);
     data->currentTool = data->selectionTool;
 
     setMouseTracking(true);
@@ -77,11 +73,20 @@ QDeclarativeDesignView::QDeclarativeDesignView(QWidget *parent) :
     connect(data->colorPickerTool, SIGNAL(selectedColorChanged(QColor)),
             qmlDesignDebugServer(), SLOT(selectedColorChanged(QColor)));
 
+    connect(data->subcomponentEditorTool, SIGNAL(cleared()), SIGNAL(inspectorContextCleared()));
+    connect(data->subcomponentEditorTool, SIGNAL(contextPushed(QString)), SIGNAL(inspectorContextPushed(QString)));
+    connect(data->subcomponentEditorTool, SIGNAL(contextPopped()), SIGNAL(inspectorContextPopped()));
+
     createToolbar();
 }
 
 QDeclarativeDesignView::~QDeclarativeDesignView()
 {
+}
+
+void QDeclarativeDesignView::setInspectorContext(int contextIndex)
+{
+    data->subcomponentEditorTool->setContext(contextIndex);
 }
 
 void QDeclarativeDesignView::reloadView()
@@ -591,11 +596,6 @@ QRectF QDeclarativeDesignView::adjustToScreenBoundaries(const QRectF &boundingRe
     }
 
     return boundingRect;
-}
-
-CrumblePath *QDeclarativeDesignView::crumblePathWidget() const
-{
-    return data->crumblePath;
 }
 
 QToolBar *QDeclarativeDesignView::toolbar() const

@@ -52,6 +52,9 @@
 namespace QmlViewer {
     class QDeclarativeDesignView;
 }
+namespace Utils {
+    class CrumblePath;
+}
 
 QT_BEGIN_NAMESPACE
 
@@ -202,6 +205,7 @@ private:
     bool useQmlFileBrowser;
 
     QWidget *m_centralWidget;
+    Utils::CrumblePath *m_crumblePathWidget;
 
     QTranslator *translator;
     void loadTranslationFile(const QString& directory);

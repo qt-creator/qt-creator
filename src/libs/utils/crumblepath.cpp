@@ -34,7 +34,7 @@
 #include <QStyle>
 #include <QResizeEvent>
 
-namespace QmlViewer {
+namespace Utils {
 
 static const int ArrowBorderSize = 12;
 
