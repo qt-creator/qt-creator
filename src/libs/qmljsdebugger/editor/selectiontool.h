@@ -76,8 +76,6 @@ public:
 
     void selectedItemsChanged(const QList<QGraphicsItem*> &itemList);
 
-    void graphicsObjectsChanged(const QList<QGraphicsObject*> &itemList);
-
     void selectUnderPoint(QMouseEvent *event);
 
     void setSelectOnlyContentItems(bool selectOnlyContentItems);

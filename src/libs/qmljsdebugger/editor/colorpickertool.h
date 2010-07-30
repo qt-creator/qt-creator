@@ -32,7 +32,6 @@ public:
     void itemsAboutToRemoved(const QList<QGraphicsItem*> &itemList);
 
     void clear();
-    void graphicsObjectsChanged(const QList<QGraphicsObject*> &itemList);
 
 signals:
     void selectedColorChanged(const QColor &color);

@@ -202,10 +202,6 @@ void ZoomTool::clear()
     view()->setCursor(Qt::ArrowCursor);
 }
 
-void ZoomTool::graphicsObjectsChanged(const QList<QGraphicsObject*> &/*itemList*/)
-{
-}
-
 void ZoomTool::selectedItemsChanged(const QList<QGraphicsItem*> &/*itemList*/)
 {
 }

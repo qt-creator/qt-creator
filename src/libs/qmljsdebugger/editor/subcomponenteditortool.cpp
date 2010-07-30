@@ -126,11 +126,6 @@ void SubcomponentEditorTool::clear()
     emit cleared();
 }
 
-void SubcomponentEditorTool::graphicsObjectsChanged(const QList<QGraphicsObject*> &/*itemList*/)
-{
-
-}
-
 void SubcomponentEditorTool::selectedItemsChanged(const QList<QGraphicsItem*> &/*itemList*/)
 {
 

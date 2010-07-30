@@ -33,7 +33,6 @@ public:
     void itemsAboutToRemoved(const QList<QGraphicsItem*> &itemList);
 
     void clear();
-    void graphicsObjectsChanged(const QList<QGraphicsObject*> &itemList);
 
     bool containsCursor(const QPoint &mousePos) const;
     bool itemIsChildOfQmlSubComponent(QGraphicsItem *item) const;

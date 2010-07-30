@@ -411,12 +411,6 @@ void SelectionTool::selectedItemsChanged(const QList<QGraphicsItem*> &itemList)
     //m_resizeIndicator.setItems(toGraphicsObjectList(itemList));
 }
 
-void SelectionTool::graphicsObjectsChanged(const QList<QGraphicsObject*> &itemList)
-{
-    m_selectionIndicator.updateItems(itemList);
-    //m_resizeIndicator.updateItems(itemList);
-}
-
 void SelectionTool::selectUnderPoint(QMouseEvent *event)
 {
     m_singleSelectionManipulator.begin(event->pos());

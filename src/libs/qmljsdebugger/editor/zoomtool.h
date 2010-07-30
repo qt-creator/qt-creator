@@ -34,8 +34,6 @@ public:
     void itemsAboutToRemoved(const QList<QGraphicsItem*> &itemList);
 
     void clear();
-    void graphicsObjectsChanged(const QList<QGraphicsObject*> &itemList);
-
 protected:
     void selectedItemsChanged(const QList<QGraphicsItem*> &itemList);
 

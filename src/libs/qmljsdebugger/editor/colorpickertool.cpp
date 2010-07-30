@@ -65,10 +65,6 @@ void ColorPickerTool::clear()
     view()->setCursor(Qt::CrossCursor);
 }
 
-void ColorPickerTool::graphicsObjectsChanged(const QList<QGraphicsObject*> &/*itemList*/)
-{
-}
-
 void ColorPickerTool::selectedItemsChanged(const QList<QGraphicsItem*> &/*itemList*/)
 {
 }

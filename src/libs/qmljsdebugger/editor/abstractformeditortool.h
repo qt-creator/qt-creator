@@ -72,7 +72,6 @@ public:
     virtual void itemsAboutToRemoved(const QList<QGraphicsItem*> &itemList) = 0;
 
     virtual void clear() = 0;
-    virtual void graphicsObjectsChanged(const QList<QGraphicsObject*> &itemList) = 0;
 
     void updateSelectedItems();
     QList<QGraphicsItem*> items() const;
