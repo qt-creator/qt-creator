@@ -587,21 +587,23 @@ QDeclarativeViewer::QDeclarativeViewer(QWidget *parent, Qt::WindowFlags flags)
 
     canvas = new QmlViewer::QDeclarativeDesignView(this);
     addToolBar(Qt::TopToolBarArea, canvas->toolbar());
-
-    QFile file(":/toolbarstyle.css");
-    file.open(QFile::ReadOnly);
-    QString toolbarStylesheet = QLatin1String(file.readAll());
-
     canvas->toolbar()->setFloatable(false);
     canvas->toolbar()->setMovable(false);
-    canvas->toolbar()->setStyleSheet(toolbarStylesheet);
 
     m_centralWidget = new QWidget(this);
     QVBoxLayout *layout = new QVBoxLayout(m_centralWidget);
     layout->setMargin(0);
     layout->setSpacing(0);
     layout->addWidget(canvas->crumblePathWidget());
+
+#ifndef Q_WS_MAC
+    QFile file(":/toolbarstyle.css");
+    file.open(QFile::ReadOnly);
+    QString toolbarStylesheet = QLatin1String(file.readAll());
+    canvas->toolbar()->setStyleSheet(toolbarStylesheet);
     canvas->crumblePathWidget()->setStyleSheet("QWidget { border-bottom: 1px solid black; }");
+#endif
+
     layout->addWidget(canvas);
     m_centralWidget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
