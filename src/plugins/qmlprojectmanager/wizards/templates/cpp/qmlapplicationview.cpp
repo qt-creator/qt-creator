@@ -33,6 +33,7 @@ QmlApplicationView::QmlApplicationView(const QString &mainQmlFile, QWidget *pare
     setSource(QUrl(m_d->mainQmlFile));
     connect(engine(), SIGNAL(quit()), SLOT(close()));
     setResizeMode(QDeclarativeView::SizeRootObjectToView);
+    setMinimumSize(10, 10); // Prevent size of 0 if Qml document does not specify width/height
 }
 
 QmlApplicationView::~QmlApplicationView()

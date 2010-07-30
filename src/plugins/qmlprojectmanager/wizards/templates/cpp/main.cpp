@@ -16,7 +16,6 @@ int main(int argc, char *argv[])
 #elif defined(Q_WS_MAEMO_5) || defined(Q_WS_MAEMO_6)
     qmlApp.showMaximized();
 #else
-    qmlApp.setGeometry(QRect(100, 100, 360, 640));
     qmlApp.show();
 #endif
     return app.exec();
