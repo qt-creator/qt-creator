@@ -39,6 +39,7 @@
 #include <QtCore/QSharedPointer>
 
 #include "maemodeviceconfigurations.h"
+#include "maemoremotemountsmodel.h"
 
 #include <coreplugin/ssh/sftpdefs.h>
 
@@ -60,11 +61,11 @@ class MaemoSshRunner : public QObject
 {
     Q_OBJECT
 public:
-    MaemoSshRunner(QObject *parent, MaemoRunConfiguration *runConfig);
+    MaemoSshRunner(QObject *parent, MaemoRunConfiguration *runConfig,
+        bool debugging);
     ~MaemoSshRunner();
 
     void setConnection(const QSharedPointer<Core::SshConnection> &connection);
-    void addProcsToKill(const QStringList &appNames);
 
     void start();
     void stop();
@@ -109,9 +110,11 @@ private:
     QSharedPointer<Core::SftpChannel> m_utfsClientUploader;
     QStringList m_procsToKill;
     QList<QProcess *> m_utfsServers;
+    QList<MaemoRemoteMountsModel::MountSpecification> m_mountSpecs;
 
     Core::SftpJobId m_uploadJobId;
     bool m_stop;
+    const bool m_debugging;
 };
 
 } // namespace Internal

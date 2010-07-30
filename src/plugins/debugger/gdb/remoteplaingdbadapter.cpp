@@ -51,6 +51,13 @@ void RemotePlainGdbAdapter::startAdapter()
     emit requestSetup();
 }
 
+void RemotePlainGdbAdapter::setupInferior()
+{
+    AbstractPlainGdbAdapter::setupInferior();
+    m_engine->postCommand("directory "
+        + m_engine->startParameters().remoteSourcesDir);
+}
+
 void RemotePlainGdbAdapter::interruptInferior()
 {
     m_gdbProc.interruptInferior();

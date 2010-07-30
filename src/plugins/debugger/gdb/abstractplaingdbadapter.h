@@ -43,7 +43,7 @@ class AbstractPlainGdbAdapter : public AbstractGdbAdapter
 public:
     AbstractPlainGdbAdapter(GdbEngine *engine, QObject *parent = 0);
 
-    void setupInferior();
+    virtual void setupInferior();
     void runEngine();
 
 protected:

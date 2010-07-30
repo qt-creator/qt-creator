@@ -55,7 +55,11 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-namespace { const QLatin1String DefaultHostAddress("192.168.2.14"); }
+namespace {
+const QLatin1String DefaultHostAddress("192.168.2.14");
+const bool DefaultUseRemoteGdbValue = false;  // TODO: Make true once utfs-server works on Windows.
+const int DefaultGdbMountPort = 10100;
+} // anonymous namespace
 
 using namespace ProjectExplorer;
 
@@ -63,6 +67,9 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
         const QString &proFilePath)
     : RunConfiguration(parent, QLatin1String(MAEMO_RC_ID))
     , m_proFilePath(proFilePath)
+    , m_hostAddressFromDevice(DefaultHostAddress)
+    , m_useRemoteGdb(DefaultUseRemoteGdbValue)
+    , m_gdbMountPort(DefaultGdbMountPort)
     , m_baseEnvironmentBase(SystemEnvironmentBase)
 {
     init();
@@ -74,6 +81,9 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
     , m_proFilePath(source->m_proFilePath)
     , m_gdbPath(source->m_gdbPath)
     , m_arguments(source->m_arguments)
+    , m_hostAddressFromDevice(source->localHostAddressFromDevice())
+    , m_useRemoteGdb(source->useRemoteGdb())
+    , m_gdbMountPort(source->gdbMountPort())
     , m_baseEnvironmentBase(source->m_baseEnvironmentBase)
     , m_systemEnvironment(source->m_systemEnvironment)
     , m_userEnvironmentChanges(source->m_userEnvironmentChanges)
@@ -85,7 +95,6 @@ void MaemoRunConfiguration::init()
 {
     m_devConfigModel = new MaemoDeviceConfigListModel(this);
     m_remoteMounts = new MaemoRemoteMountsModel(this);
-    m_hostAddressFromDevice = DefaultHostAddress;
     setDisplayName(QFileInfo(m_proFilePath).completeBaseName());
 
     updateDeviceConfigurations();
@@ -144,6 +153,8 @@ QVariantMap MaemoRunConfiguration::toMap() const
     const QDir dir = QDir(target()->project()->projectDirectory());
     map.insert(ProFileKey, dir.relativeFilePath(m_proFilePath));
     map.insert(HostAddressFromDeviceKey, m_hostAddressFromDevice);
+    map.insert(UseRemoteGdbKey, useRemoteGdb());
+    map.insert(GdbMountPortKey, gdbMountPort());
     map.insert(BaseEnvironmentBaseKey, m_baseEnvironmentBase);
     map.insert(UserEnvironmentChangesKey,
         ProjectExplorer::EnvironmentItem::toStringList(m_userEnvironmentChanges));
@@ -162,6 +173,8 @@ bool MaemoRunConfiguration::fromMap(const QVariantMap &map)
     m_proFilePath = dir.filePath(map.value(ProFileKey).toString());
     m_hostAddressFromDevice = map.value(HostAddressFromDeviceKey,
         DefaultHostAddress).toString();
+    m_useRemoteGdb = map.value(UseRemoteGdbKey, DefaultUseRemoteGdbValue).toBool();
+    m_gdbMountPort = map.value(GdbMountPortKey, DefaultGdbMountPort).toInt();
     m_userEnvironmentChanges =
         ProjectExplorer::EnvironmentItem::fromStringList(map.value(UserEnvironmentChangesKey)
         .toStringList());
@@ -248,6 +261,26 @@ const QString MaemoRunConfiguration::dumperLib() const
 {
     Qt4BuildConfiguration *qt4bc(activeQt4BuildConfiguration());
     return qt4bc->qtVersion()->debuggingHelperLibrary();
+}
+
+
+QString MaemoRunConfiguration::localDirToMountForRemoteGdb() const
+{
+    const QString projectDir
+        = QDir::fromNativeSeparators(QDir::cleanPath(activeBuildConfiguration()
+            ->target()->project()->projectDirectory()));
+    const QString execDir
+        = QDir::fromNativeSeparators(QFileInfo(localExecutableFilePath()).path());
+    const int length = qMin(projectDir.length(), execDir.length());
+    int lastSeparatorPos = 0;
+    for (int i = 0; i < length; ++i) {
+        if (projectDir.at(i) != execDir.at(i))
+            return projectDir.left(lastSeparatorPos);
+        if (projectDir.at(i) == QLatin1Char('/'))
+            lastSeparatorPos = i;
+    }
+    return projectDir.length() == execDir.length()
+        ? projectDir : projectDir.left(lastSeparatorPos);
 }
 
 QString MaemoRunConfiguration::localExecutableFilePath() const

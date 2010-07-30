@@ -42,15 +42,12 @@
 #include <QtCore/QObject>
 #include <QtCore/QSharedPointer>
 
-#define USE_GDBSERVER
-
 namespace Core { class SftpChannel; }
 
 namespace Debugger {
 class DebuggerRunControl;
 namespace Internal {
-class RemoteGdbServerAdapter;
-class RemotePlainGdbAdapter;
+class AbstractGdbAdapter;
 }
 }
 
@@ -93,19 +90,14 @@ private:
     void handleAdapterSetupFailed(const QString &error);
     void handleAdapterSetupDone();
     void startDebugging();
+    bool useGdb() const;
 
     Debugger::DebuggerRunControl *m_runControl;
     MaemoRunConfiguration * const m_runConfig;
     const MaemoDeviceConfig m_deviceConfig;
     MaemoSshRunner * const m_runner;
 
-
-#ifdef USE_GDBSERVER
-    typedef Debugger::Internal::RemoteGdbServerAdapter GdbAdapter;
-#else
-    typedef Debugger::Internal::RemotePlainGdbAdapter GdbAdapter;
-#endif
-    GdbAdapter *m_gdbAdapter;
+    Debugger::Internal::AbstractGdbAdapter *m_gdbAdapter;
 
     QSharedPointer<Core::SftpChannel> m_uploader;
     Core::SftpJobId m_uploadJob;

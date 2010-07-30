@@ -54,6 +54,8 @@
 #include <QtGui/QLabel>
 #include <QtGui/QLineEdit>
 #include <QtGui/QPushButton>
+#include <QtGui/QRadioButton>
+#include <QtGui/QSpinBox>
 #include <QtGui/QTableView>
 #include <QtGui/QToolButton>
 
@@ -69,7 +71,15 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
 {
     QVBoxLayout *mainLayout = new QVBoxLayout;
     setLayout(mainLayout);
+    addGenericWidgets(mainLayout);
+    mainLayout->addSpacing(20);
+    addDebuggingWidgets(mainLayout);
+    addMountWidgets(mainLayout);
+    addEnvironmentWidgets(mainLayout);
+}
 
+void MaemoRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
+{
     QFormLayout *formLayout = new QFormLayout;
     mainLayout->addLayout(formLayout);
     formLayout->setFormAlignment(Qt::AlignLeft | Qt::AlignVCenter);
@@ -80,7 +90,7 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     QHBoxLayout *devConfLayout = new QHBoxLayout(devConfWidget);
     m_devConfBox = new QComboBox;
     m_devConfBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    m_devConfBox->setModel(runConfiguration->deviceConfigModel());
+    m_devConfBox->setModel(m_runConfiguration->deviceConfigModel());
     devConfLayout->setMargin(0);
     devConfLayout->addWidget(m_devConfBox);
     QLabel *addDevConfLabel= new QLabel(tr("<a href=\"%1\">Manage device configurations</a>")
@@ -99,24 +109,86 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     m_argsLineEdit = new QLineEdit(m_runConfiguration->arguments().join(" "));
     formLayout->addRow(tr("Arguments:"), m_argsLineEdit);
 
-    mainLayout->addSpacing(20);
-    m_detailsContainer = new Utils::DetailsWidget(this);
-    QWidget *mountViewWidget = new QWidget;
-    m_detailsContainer->setWidget(mountViewWidget);
+    connect(addDevConfLabel, SIGNAL(linkActivated(QString)), this,
+        SLOT(showSettingsDialog(QString)));
+    connect(debuggerConfLabel, SIGNAL(linkActivated(QString)), this,
+        SLOT(showSettingsDialog(QString)));
+    connect(m_configNameLineEdit, SIGNAL(textEdited(QString)), this,
+        SLOT(configNameEdited(QString)));
+    connect(m_argsLineEdit, SIGNAL(textEdited(QString)), this,
+        SLOT(argumentsEdited(QString)));
+    connect(m_devConfBox, SIGNAL(activated(int)), this,
+            SLOT(setCurrentDeviceConfig(int)));
+    connect(m_runConfiguration->deviceConfigModel(), SIGNAL(currentChanged()),
+        this, SLOT(handleCurrentDeviceConfigChanged()));
+    connect(m_runConfiguration, SIGNAL(targetInformationChanged()), this,
+        SLOT(updateTargetInformation()));
+    handleCurrentDeviceConfigChanged();
+}
+
+void MaemoRunConfigurationWidget::addDebuggingWidgets(QVBoxLayout *mainLayout)
+{
+    m_debugDetailsContainer = new Utils::DetailsWidget(this);
+    QWidget *debugWidget = new QWidget;
+    m_debugDetailsContainer->setWidget(debugWidget);
 #ifndef Q_OS_WIN
-    mainLayout->addWidget(m_detailsContainer);
+    mainLayout->addWidget(m_debugDetailsContainer);
+#endif
+    QFormLayout *debugLayout = new QFormLayout(debugWidget);
+    QHBoxLayout *debugRadioButtonsLayout = new QHBoxLayout;
+    debugLayout->addRow(debugRadioButtonsLayout);
+    QRadioButton *gdbButton = new QRadioButton(tr("Use remote gdb"));
+    QRadioButton *gdbServerButton = new QRadioButton(tr("Use remote gdbserver"));
+    debugRadioButtonsLayout->addWidget(gdbButton);
+    debugRadioButtonsLayout->addWidget(gdbServerButton);
+    debugRadioButtonsLayout->addStretch(1);
+    QHBoxLayout *debugHostAddressLayout = new QHBoxLayout;
+    m_hostAddressLineEdit2 = new QLineEdit;
+    debugHostAddressLayout->addWidget(m_hostAddressLineEdit2);
+    debugHostAddressLayout->addStretch(1);
+    debugLayout->addRow(tr("This host's address from the device:"),
+        debugHostAddressLayout);
+    m_hostAddressLineEdit2->setText(m_runConfiguration->localHostAddressFromDevice());
+    gdbButton->setChecked(m_runConfiguration->useRemoteGdb());
+    gdbServerButton->setChecked(!gdbButton->isChecked());
+    connect(m_hostAddressLineEdit2, SIGNAL(textEdited(QString)), this,
+        SLOT(handleHostAddressChanged(QString)));
+    connect(gdbButton, SIGNAL(toggled(bool)), this,
+        SLOT(handleDebuggingTypeChanged(bool)));
+    QHBoxLayout *spinBoxLayout = new QHBoxLayout;
+    m_gdbMountPortSpinBox = new QSpinBox;
+    m_gdbMountPortSpinBox->setMinimum(1024);
+    m_gdbMountPortSpinBox->setMaximum((1 << 16) - 1);
+    spinBoxLayout->addWidget(m_gdbMountPortSpinBox);
+    spinBoxLayout->addStretch(1);
+    debugLayout->addRow(tr("Local port for mounting the project directory:"),
+        spinBoxLayout);
+    m_gdbMountPortSpinBox->setValue(m_runConfiguration->gdbMountPort());
+    connect(m_gdbMountPortSpinBox, SIGNAL(valueChanged(int)), this,
+        SLOT(handleGdbMountPortChanged(int)));
+    handleDebuggingTypeChanged(gdbButton->isChecked());
+}
+
+void MaemoRunConfigurationWidget::addMountWidgets(QVBoxLayout *mainLayout)
+{
+
+    m_mountDetailsContainer = new Utils::DetailsWidget(this);
+    QWidget *mountViewWidget = new QWidget;
+    m_mountDetailsContainer->setWidget(mountViewWidget);
+#ifndef Q_OS_WIN
+    mainLayout->addWidget(m_mountDetailsContainer);
 #endif
     QVBoxLayout *mountViewLayout = new QVBoxLayout(mountViewWidget);
     QHBoxLayout *hostAddressLayout = new QHBoxLayout;
     mountViewLayout->addLayout(hostAddressLayout);
     QLabel *hostNameLabel
         = new QLabel(tr("This host's address from the device:"));
-    m_hostAddressLineEdit = new QLineEdit;
-    m_hostAddressLineEdit->setText(m_runConfiguration->localHostAddressFromDevice());
-    connect(m_hostAddressLineEdit, SIGNAL(editingFinished()), this,
-        SLOT(handleHostAddressChanged()));
+    m_hostAddressLineEdit1 = new QLineEdit;
+    m_hostAddressLineEdit1->setText(m_runConfiguration->localHostAddressFromDevice());
+    connect(m_hostAddressLineEdit1, SIGNAL(textEdited(QString)), this,
+        SLOT(handleHostAddressChanged(QString)));
     hostAddressLayout->addWidget(hostNameLabel);
-    hostAddressLayout->addWidget(m_hostAddressLineEdit);
+    hostAddressLayout->addWidget(m_hostAddressLineEdit1);
     hostAddressLayout->addStretch(1);
     QHBoxLayout *tableLayout = new QHBoxLayout;
     mountViewLayout->addLayout(tableLayout);
@@ -139,10 +211,34 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     mountViewButtonsLayout->addWidget(m_removeMountButton);
     mountViewButtonsLayout->addStretch(1);
 
+    connect(addMountButton, SIGNAL(clicked()), this, SLOT(addMount()));
+    connect(m_removeMountButton, SIGNAL(clicked()), this, SLOT(removeMount()));
+    connect(m_mountView, SIGNAL(doubleClicked(QModelIndex)), this,
+        SLOT(changeLocalMountDir(QModelIndex)));
+    connect(m_mountView->selectionModel(),
+        SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this,
+        SLOT(enableOrDisableRemoveMountSpecButton()));
+    connect(m_runConfiguration->remoteMounts(),
+        SIGNAL(rowsInserted(QModelIndex, int, int)), this,
+        SLOT(handleRemoteMountsChanged()));
+    connect(m_runConfiguration->remoteMounts(),
+        SIGNAL(rowsRemoved(QModelIndex, int, int)), this,
+        SLOT(handleRemoteMountsChanged()));
+    connect(m_runConfiguration->remoteMounts(),
+        SIGNAL(dataChanged(QModelIndex, QModelIndex)), this,
+        SLOT(handleRemoteMountsChanged()));
+    connect(m_runConfiguration->remoteMounts(), SIGNAL(modelReset()), this,
+        SLOT(handleRemoteMountsChanged()));
+    enableOrDisableRemoveMountSpecButton();
+    handleRemoteMountsChanged();
+}
+
+void MaemoRunConfigurationWidget::addEnvironmentWidgets(QVBoxLayout *mainLayout)
+{
     QWidget *baseEnvironmentWidget = new QWidget;
     QHBoxLayout *baseEnvironmentLayout = new QHBoxLayout(baseEnvironmentWidget);
     baseEnvironmentLayout->setMargin(0);
-    QLabel *label = new QLabel(tr("Base environment for this runconfiguration:"), this);
+    QLabel *label = new QLabel(tr("Base environment for this run configuration:"), this);
     baseEnvironmentLayout->addWidget(label);
     m_baseEnvironmentComboBox = new QComboBox(this);
     m_baseEnvironmentComboBox->addItems(QStringList() << tr("Clean Environment")
@@ -159,44 +255,6 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     m_environmentWidget->setBaseEnvironmentText(m_runConfiguration->baseEnvironmentText());
     m_environmentWidget->setUserChanges(m_runConfiguration->userEnvironmentChanges());
     mainLayout->addWidget(m_environmentWidget);
-
-    handleCurrentDeviceConfigChanged();
-    enableOrDisableRemoveButton();
-    handleRemoteMountsChanged();
-
-    connect(m_configNameLineEdit, SIGNAL(textEdited(QString)), this,
-        SLOT(configNameEdited(QString)));
-    connect(m_argsLineEdit, SIGNAL(textEdited(QString)), this,
-        SLOT(argumentsEdited(QString)));
-    connect(m_devConfBox, SIGNAL(activated(int)), this,
-            SLOT(setCurrentDeviceConfig(int)));
-    connect(runConfiguration->deviceConfigModel(), SIGNAL(currentChanged()),
-        this, SLOT(handleCurrentDeviceConfigChanged()));
-    connect(m_runConfiguration, SIGNAL(targetInformationChanged()), this,
-        SLOT(updateTargetInformation()));
-    connect(addDevConfLabel, SIGNAL(linkActivated(QString)), this,
-        SLOT(showSettingsDialog(QString)));
-    connect(debuggerConfLabel, SIGNAL(linkActivated(QString)), this,
-        SLOT(showSettingsDialog(QString)));
-
-    connect(addMountButton, SIGNAL(clicked()), this, SLOT(addMount()));
-    connect(m_removeMountButton, SIGNAL(clicked()), this, SLOT(removeMount()));
-    connect(m_mountView, SIGNAL(doubleClicked(QModelIndex)), this,
-        SLOT(changeLocalMountDir(QModelIndex)));
-    connect(m_mountView->selectionModel(),
-        SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this,
-        SLOT(enableOrDisableRemoveButton()));
-    connect(m_runConfiguration->remoteMounts(),
-        SIGNAL(rowsInserted(QModelIndex, int, int)), this,
-        SLOT(handleRemoteMountsChanged()));
-    connect(m_runConfiguration->remoteMounts(),
-        SIGNAL(rowsRemoved(QModelIndex, int, int)), this,
-        SLOT(handleRemoteMountsChanged()));
-    connect(m_runConfiguration->remoteMounts(),
-        SIGNAL(dataChanged(QModelIndex, QModelIndex)), this,
-        SLOT(handleRemoteMountsChanged()));
-    connect(m_runConfiguration->remoteMounts(), SIGNAL(modelReset()), this,
-        SLOT(handleRemoteMountsChanged()));
 
     connect(m_environmentWidget, SIGNAL(userChangesChanged()), this,
         SLOT(userChangesEdited()));
@@ -250,7 +308,7 @@ void MaemoRunConfigurationWidget::setCurrentDeviceConfig(int index)
     m_runConfiguration->deviceConfigModel()->setCurrentIndex(index);
 }
 
-void MaemoRunConfigurationWidget::enableOrDisableRemoveButton()
+void MaemoRunConfigurationWidget::enableOrDisableRemoveMountSpecButton()
 {
     const QModelIndexList selectedRows
         = m_mountView->selectionModel()->selectedRows();
@@ -294,9 +352,26 @@ void MaemoRunConfigurationWidget::changeLocalMountDir(const QModelIndex &index)
     }
 }
 
-void MaemoRunConfigurationWidget::handleHostAddressChanged()
+void MaemoRunConfigurationWidget::handleHostAddressChanged(const QString &newAddress)
 {
-    m_runConfiguration->setLocalHostAddressFromDevice(m_hostAddressLineEdit->text());
+    m_hostAddressLineEdit1->setText(newAddress);
+    m_hostAddressLineEdit2->setText(newAddress);
+    m_runConfiguration->setLocalHostAddressFromDevice(newAddress);
+}
+
+void MaemoRunConfigurationWidget::handleDebuggingTypeChanged(bool useGdb)
+{
+    m_runConfiguration->setUseRemoteGdb(useGdb);
+    const QString detailsText = useGdb ? tr("Use gdb") : tr("Use gdbserver");
+    m_debugDetailsContainer->setSummaryText(tr("<b>Debugging details:</b> ")
+        + detailsText);
+    m_hostAddressLineEdit2->setEnabled(useGdb);
+    m_gdbMountPortSpinBox->setEnabled(useGdb);
+}
+
+void MaemoRunConfigurationWidget::handleGdbMountPortChanged(int port)
+{
+    m_runConfiguration->setGdbMountPort(port);
 }
 
 void MaemoRunConfigurationWidget::fetchEnvironment()
@@ -367,7 +442,7 @@ void MaemoRunConfigurationWidget::handleRemoteMountsChanged()
             .arg(mountCount);
         break;
     }
-    m_detailsContainer->setSummaryText(QLatin1String("<b>") + text
+    m_mountDetailsContainer->setSummaryText(QLatin1String("<b>") + text
         + QLatin1String("</b>"));
 }
 

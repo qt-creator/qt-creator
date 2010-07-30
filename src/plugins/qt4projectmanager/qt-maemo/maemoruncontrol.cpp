@@ -57,7 +57,7 @@ MaemoRunControl::MaemoRunControl(RunConfiguration *rc)
     : RunControl(rc, ProjectExplorer::Constants::RUNMODE)
     , m_runConfig(qobject_cast<MaemoRunConfiguration *>(rc))
     , m_devConfig(m_runConfig ? m_runConfig->deviceConfig() : MaemoDeviceConfig())
-    , m_runner(new MaemoSshRunner(this, m_runConfig))
+    , m_runner(new MaemoSshRunner(this, m_runConfig, false))
     , m_running(false)
 {
 }

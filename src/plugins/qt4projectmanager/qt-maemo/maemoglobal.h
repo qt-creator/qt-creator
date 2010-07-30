@@ -49,6 +49,7 @@ public:
     static QString remoteSudo();
     static QString remoteCommandPrefix(const QString &commandFilePath);
     static QString remoteEnvironment(const QList<ProjectExplorer::EnvironmentItem> &list);
+    static QString remoteProjectSourcesMountPoint();
 
     template<class T> static T *buildStep(const ProjectExplorer::BuildConfiguration *bc)
     {

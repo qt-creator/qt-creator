@@ -43,8 +43,10 @@ class QLabel;
 class QLineEdit;
 class QModelIndex;
 class QPushButton;
+class QSpinBox;
 class QTableView;
 class QToolButton;
+class QVBoxLayout;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -77,8 +79,10 @@ private slots:
     void addMount();
     void removeMount();
     void changeLocalMountDir(const QModelIndex &index);
-    void enableOrDisableRemoveButton();
-    void handleHostAddressChanged();
+    void enableOrDisableRemoveMountSpecButton();
+    void handleHostAddressChanged(const QString &newAddress);
+    void handleDebuggingTypeChanged(bool useGdb);
+    void handleGdbMountPortChanged(int port);
     void fetchEnvironment();
     void fetchEnvironmentFinished();
     void userChangesEdited();
@@ -89,14 +93,22 @@ private slots:
     void handleRemoteMountsChanged();
 
 private:
+    void addGenericWidgets(QVBoxLayout *mainLayout);
+    void addDebuggingWidgets(QVBoxLayout *mainLayout);
+    void addMountWidgets(QVBoxLayout *mainLayout);
+    void addEnvironmentWidgets(QVBoxLayout *mainLayout);
+
     QLineEdit *m_configNameLineEdit;
     QLineEdit *m_argsLineEdit;
     QLabel *m_executableLabel;
     QComboBox *m_devConfBox;
-    QLineEdit *m_hostAddressLineEdit;
+    QLineEdit *m_hostAddressLineEdit1;
+    QLineEdit *m_hostAddressLineEdit2;
+    QSpinBox *m_gdbMountPortSpinBox;
     QTableView *m_mountView;
     QToolButton *m_removeMountButton;
-    Utils::DetailsWidget *m_detailsContainer;
+    Utils::DetailsWidget *m_mountDetailsContainer;
+    Utils::DetailsWidget *m_debugDetailsContainer;
     MaemoRunConfiguration *m_runConfiguration;
 
     bool m_ignoreChange;

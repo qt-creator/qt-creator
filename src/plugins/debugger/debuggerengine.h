@@ -75,20 +75,23 @@ public:
     bool useTerminal;
     bool breakAtMain;
     QString crashParameter; // for AttachCrashedExternal
+
     // for remote debugging
     QString remoteChannel;
     QString remoteArchitecture;
     QString symbolFileName;
     QString serverStartScript;
     QString sysRoot;
+    QByteArray remoteDumperLib;
+    QByteArray remoteSourcesDir;
+    Core::SshConnectionParameters connParams;
+
     QString debuggerCommand;
     int toolChainType;
-    QByteArray remoteDumperLib;
     QString qtInstallPath;
 
     QString dumperLibrary;
     QStringList dumperLibraryLocations;
-    Core::SshConnectionParameters connParams;
     DebuggerStartMode startMode;
 };
 

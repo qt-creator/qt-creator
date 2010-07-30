@@ -51,6 +51,7 @@ signals:
 
 private:
     void startAdapter();
+    void setupInferior();
     void interruptInferior();
     void shutdownInferior();
     void shutdownAdapter();

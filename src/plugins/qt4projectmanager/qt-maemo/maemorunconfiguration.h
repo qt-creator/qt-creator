@@ -96,9 +96,14 @@ public:
     MaemoDeviceConfig deviceConfig() const;
     MaemoDeviceConfigListModel *deviceConfigModel() const;
     QString runtimeGdbServerPort() const;
+    bool useRemoteGdb() const { return m_useRemoteGdb; }
+    void setUseRemoteGdb(bool useRemoteGdb) { m_useRemoteGdb = useRemoteGdb; }
+    int gdbMountPort() const { return m_gdbMountPort; }
+    void setGdbMountPort(int port) { m_gdbMountPort = port; }
 
     const QString gdbCmd() const;
     const QString dumperLib() const;
+    QString localDirToMountForRemoteGdb() const;
 
     virtual QVariantMap toMap() const;
 
@@ -141,6 +146,8 @@ private:
     MaemoRemoteMountsModel *m_remoteMounts;
     QStringList m_arguments;
     QString m_hostAddressFromDevice;
+    bool m_useRemoteGdb;
+    int m_gdbMountPort;
 
     BaseEnvironmentBase m_baseEnvironmentBase;
     ProjectExplorer::Environment m_systemEnvironment;

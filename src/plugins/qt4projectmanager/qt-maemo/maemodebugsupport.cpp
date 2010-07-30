@@ -48,6 +48,7 @@
 #include <debugger/gdb/remoteplaingdbadapter.h>
 #include <projectexplorer/toolchain.h>
 
+#include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 
 using namespace Core;
@@ -62,20 +63,28 @@ RunControl *MaemoDebugSupport::createDebugRunControl(MaemoRunConfiguration *runC
 {
     DebuggerStartParameters params;
     const MaemoDeviceConfig &devConf = runConfig->deviceConfig();
-#ifdef USE_GDBSERVER
-    params.startMode = AttachToRemote;
-    params.executable = runConfig->localExecutableFilePath();
-    params.debuggerCommand = runConfig->gdbCmd();
-    params.remoteChannel = devConf.server.host + QLatin1Char(':')
-        + gdbServerPort(runConfig, devConf);
-    params.remoteArchitecture = QLatin1String("arm");
-#else
-    params.startMode = StartRemoteGdb;
-    params.executable = runConfig->remoteExecutableFilePath();
-    params.debuggerCommand = MaemoGlobal::remoteCommandPrefix(runConfig->remoteExecutableFilePath())
-        + QLatin1String(" /usr/bin/gdb");
-    params.connParams = devConf.server;
-#endif
+    if (runConfig->useRemoteGdb()) {
+        params.startMode = StartRemoteGdb;
+        params.executable = runConfig->remoteExecutableFilePath();
+        params.debuggerCommand
+            = MaemoGlobal::remoteCommandPrefix(runConfig->remoteExecutableFilePath())
+                + QLatin1String(" /usr/bin/gdb");
+        params.connParams = devConf.server;
+        const QString execDirAbs
+            = QDir::fromNativeSeparators(QFileInfo(runConfig->localExecutableFilePath()).path());
+        const QString execDirRel
+            = QDir(runConfig->localDirToMountForRemoteGdb()).relativeFilePath(execDirAbs);
+        params.remoteSourcesDir
+            = QString(MaemoGlobal::remoteProjectSourcesMountPoint()
+                + QLatin1Char('/') + execDirRel).toUtf8();
+    } else {
+        params.startMode = AttachToRemote;
+        params.executable = runConfig->localExecutableFilePath();
+        params.debuggerCommand = runConfig->gdbCmd();
+        params.remoteChannel = devConf.server.host + QLatin1Char(':')
+            + gdbServerPort(runConfig, devConf);
+        params.remoteArchitecture = QLatin1String("arm");
+    }
     params.processArgs = runConfig->arguments();
     params.sysRoot = runConfig->sysRoot();
     params.toolChainType = ToolChain::GCC_MAEMO;
@@ -93,24 +102,22 @@ MaemoDebugSupport::MaemoDebugSupport(MaemoRunConfiguration *runConfig,
     DebuggerRunControl *runControl)
     : QObject(runControl), m_runControl(runControl), m_runConfig(runConfig),
       m_deviceConfig(m_runConfig->deviceConfig()),
-      m_runner(new MaemoSshRunner(this, m_runConfig))
+      m_runner(new MaemoSshRunner(this, m_runConfig, true))
 {
     GdbEngine *engine = qobject_cast<GdbEngine *>(m_runControl->engine());
     Q_ASSERT(engine);
-    m_gdbAdapter = qobject_cast<GdbAdapter *>(engine->gdbAdapter());
+    m_gdbAdapter = engine->gdbAdapter();
     Q_ASSERT(m_gdbAdapter);
     connect(m_gdbAdapter, SIGNAL(requestSetup()), this,
         SLOT(handleAdapterSetupRequested()));
     connect(m_runControl, SIGNAL(finished()), this,
         SLOT(handleDebuggingFinished()));
-#ifdef USE_GDBSERVER
-    m_runner->addProcsToKill(QStringList() << QLatin1String("gdbserver"));
-#else
-    m_runner->addProcsToKill(QStringList() << QLatin1String("gdb"));
-#endif
 }
 
-MaemoDebugSupport::~MaemoDebugSupport() {}
+MaemoDebugSupport::~MaemoDebugSupport()
+{
+    stopSsh();
+}
 
 void MaemoDebugSupport::handleAdapterSetupRequested()
 {
@@ -209,23 +216,22 @@ void MaemoDebugSupport::handleSftpJobFinished(Core::SftpJobId job,
 
 void MaemoDebugSupport::startDebugging()
 {
-#ifdef USE_GDBSERVER
-    connect(m_runner, SIGNAL(remoteErrorOutput(QByteArray)), this,
-        SLOT(handleRemoteErrorOutput(QByteArray)));
-    connect(m_runner, SIGNAL(remoteOutput(QByteArray)), this,
-        SLOT(handleRemoteOutput(QByteArray)));
-    connect(m_runner, SIGNAL(remoteProcessStarted()), this,
-        SLOT(handleRemoteProcessStarted()));
-    const QString &remoteExe = m_runConfig->remoteExecutableFilePath();
-    m_runner->startExecution(QString::fromLocal8Bit("%1 gdbserver :%2 %3 %4")
-        .arg(MaemoGlobal::remoteCommandPrefix(remoteExe))
-        .arg(gdbServerPort(m_runConfig, m_deviceConfig))
-        .arg(remoteExe).arg(m_runConfig->arguments()
-        .join(QLatin1String(" "))).toUtf8());
-#else
-    stopSsh();
-    handleAdapterSetupDone();
-#endif
+    if (useGdb()) {
+        handleAdapterSetupDone();
+    } else {
+        connect(m_runner, SIGNAL(remoteErrorOutput(QByteArray)), this,
+            SLOT(handleRemoteErrorOutput(QByteArray)));
+        connect(m_runner, SIGNAL(remoteOutput(QByteArray)), this,
+            SLOT(handleRemoteOutput(QByteArray)));
+        connect(m_runner, SIGNAL(remoteProcessStarted()), this,
+            SLOT(handleRemoteProcessStarted()));
+        const QString &remoteExe = m_runConfig->remoteExecutableFilePath();
+        m_runner->startExecution(QString::fromLocal8Bit("%1 gdbserver :%2 %3 %4")
+            .arg(MaemoGlobal::remoteCommandPrefix(remoteExe))
+            .arg(gdbServerPort(m_runConfig, m_deviceConfig))
+            .arg(remoteExe).arg(m_runConfig->arguments()
+            .join(QLatin1String(" "))).toUtf8());
+    }
 }
 
 void MaemoDebugSupport::handleRemoteProcessStarted()
@@ -261,7 +267,11 @@ void MaemoDebugSupport::stopSsh()
 
 void MaemoDebugSupport::handleAdapterSetupFailed(const QString &error)
 {
-    m_gdbAdapter->handleSetupFailed(tr("Initial setup failed: %1").arg(error));
+    const QString msg = tr("Initial setup failed: %1").arg(error);
+    if (useGdb())
+        qobject_cast<RemotePlainGdbAdapter *>(m_gdbAdapter)->handleSetupFailed(msg);
+    else
+        qobject_cast<RemoteGdbServerAdapter*>(m_gdbAdapter)->handleSetupFailed(msg);
     m_stopped = true;
     stopSsh();
 }
@@ -269,7 +279,10 @@ void MaemoDebugSupport::handleAdapterSetupFailed(const QString &error)
 void MaemoDebugSupport::handleAdapterSetupDone()
 {
     m_adapterStarted = true;
-    m_gdbAdapter->handleSetupDone();
+    if (useGdb())
+        qobject_cast<RemotePlainGdbAdapter *>(m_gdbAdapter)->handleSetupDone();
+    else
+        qobject_cast<RemoteGdbServerAdapter*>(m_gdbAdapter)->handleSetupDone();
 }
 
 QString MaemoDebugSupport::gdbServerPort(const MaemoRunConfiguration *rc,
@@ -286,6 +299,11 @@ QString MaemoDebugSupport::gdbServerPort(const MaemoRunConfiguration *rc,
 QString MaemoDebugSupport::uploadDir(const MaemoDeviceConfig &devConf)
 {
     return MaemoGlobal::homeDirOnDevice(devConf.server.uname);
+}
+
+bool MaemoDebugSupport::useGdb() const
+{
+    return m_runControl->engine()->startParameters().startMode == StartRemoteGdb;
 }
 
 } // namespace Internal
