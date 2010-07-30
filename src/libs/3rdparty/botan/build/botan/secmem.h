@@ -339,6 +339,9 @@ class MemoryVector : public MemoryRegion<T>
       */
       MemoryVector(const MemoryRegion<T>& in1, const MemoryRegion<T>& in2)
          { MemoryRegion<T>::init(false); set(in1); append(in2); }
+
+      using MemoryRegion<T>::set;
+      using MemoryRegion<T>::append;
    };
 
 /**
@@ -393,6 +396,9 @@ class SecureVector : public MemoryRegion<T>
       */
       SecureVector(const MemoryRegion<T>& in1, const MemoryRegion<T>& in2)
          { MemoryRegion<T>::init(true); set(in1); append(in2); }
+
+      using MemoryRegion<T>::set;
+      using MemoryRegion<T>::append;
    };
 
 /**
@@ -428,6 +434,10 @@ class SecureBuffer : public MemoryRegion<T>
       */
       SecureBuffer(const T in[], u32bit n)
          { MemoryRegion<T>::init(true, L); copy(in, n); }
+
+      using MemoryRegion<T>::set;
+      using MemoryRegion<T>::copy;
+
    private:
       SecureBuffer<T, L>& operator=(const MemoryRegion<T>& in)
          { if(this != &in) set(in); return (*this); }
