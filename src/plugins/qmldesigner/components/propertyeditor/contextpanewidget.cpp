@@ -110,11 +110,13 @@ ContextPaneWidget::ContextPaneWidget(QWidget *parent) : DragWidget(parent), m_cu
     QWidget *fontWidget = createFontWidget();
     m_currentWidget = fontWidget;
     QWidget *imageWidget = createImageWidget();
+    QWidget *borderImageWidget = createBorderImageWidget();
     QWidget *rectangleWidget = createRectangleWidget();
     QWidget *easingWidget = createEasingWidget();
     layout->addWidget(fontWidget, 0, 1, 2, 1);
     layout->addWidget(easingWidget, 0, 1, 2, 1);
     layout->addWidget(imageWidget, 0, 1, 2, 1);
+    layout->addWidget(borderImageWidget, 0, 1, 2, 1);
     layout->addWidget(rectangleWidget, 0, 1, 2, 1);
 
     setAutoFillBackground(true);
@@ -219,6 +221,7 @@ void ContextPaneWidget::setPath(const QString &path)
 bool ContextPaneWidget::setType(const QString &typeName)
 {
     m_imageWidget->hide();
+    m_borderImageWidget->hide();
     m_textWidget->hide();
     m_rectangleWidget->hide();
     m_easingWidget->hide();
@@ -250,6 +253,14 @@ bool ContextPaneWidget::setType(const QString &typeName)
         resize(sizeHint());
         return true;
     }
+
+    if (typeName.contains("BorderImage")) {
+        m_currentWidget = m_borderImageWidget;
+        m_borderImageWidget->show();
+        resize(sizeHint());
+        return true;
+    }
+
     if (typeName.contains("Image")) {
         m_currentWidget = m_imageWidget;
         m_imageWidget->show();
@@ -328,6 +339,17 @@ QWidget *ContextPaneWidget::createImageWidget()
     connect(m_imageWidget, SIGNAL(removeAndChangeProperty(QString,QString,QVariant, bool)), this, SIGNAL(removeAndChangeProperty(QString,QString,QVariant, bool)));
 
     return m_imageWidget;
+}
+
+QWidget *ContextPaneWidget::createBorderImageWidget()
+{
+    m_borderImageWidget = new ContextPaneWidgetImage(this, true);
+    connect(m_borderImageWidget, SIGNAL(propertyChanged(QString,QVariant)), this, SIGNAL(propertyChanged(QString,QVariant)));
+    connect(m_borderImageWidget, SIGNAL(removeProperty(QString)), this, SIGNAL(removeProperty(QString)));
+    connect(m_borderImageWidget, SIGNAL(removeAndChangeProperty(QString,QString,QVariant, bool)), this, SIGNAL(removeAndChangeProperty(QString,QString,QVariant, bool)));
+
+    return m_borderImageWidget;
+
 }
 
 QWidget *ContextPaneWidget::createRectangleWidget()

@@ -74,6 +74,7 @@ protected:
     QWidget *createFontWidget();
     QWidget *createEasingWidget();
     QWidget *createImageWidget();
+    QWidget *createBorderImageWidget();
     QWidget *createRectangleWidget();    
 
 private:
@@ -81,6 +82,7 @@ private:
     ContextPaneTextWidget *m_textWidget;
     EasingContextPane *m_easingWidget;
     ContextPaneWidgetImage *m_imageWidget;
+    ContextPaneWidgetImage *m_borderImageWidget;
     ContextPaneWidgetRectangle *m_rectangleWidget;        
     QWeakPointer<BauhausColorDialog> m_bauhausColorDialog;
     QString m_colorName;
