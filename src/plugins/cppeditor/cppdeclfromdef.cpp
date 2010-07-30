@@ -59,14 +59,27 @@ class Operation: public CppQuickFixOperation
 public:
     Operation(const CppQuickFixState &state, int priority,
               const QString &targetFileName, const Class *targetSymbol,
+              InsertionPointLocator::AccessSpec xsSpec,
               const QString &decl)
         : CppQuickFixOperation(state, priority)
         , m_targetFileName(targetFileName)
         , m_targetSymbol(targetSymbol)
+        , m_xsSpec(xsSpec)
         , m_decl(decl)
     {
-        setDescription(QCoreApplication::tr("Create Declaration from Definition",
-                                            "CppEditor::DeclFromDef"));
+        QString type;
+        switch (xsSpec) {
+        case InsertionPointLocator::Public: type = QLatin1String("public"); break;
+        case InsertionPointLocator::Protected: type = QLatin1String("protected"); break;
+        case InsertionPointLocator::Private: type = QLatin1String("private"); break;
+        case InsertionPointLocator::PublicSlot: type = QLatin1String("public slot"); break;
+        case InsertionPointLocator::ProtectedSlot: type = QLatin1String("protected slot"); break;
+        case InsertionPointLocator::PrivateSlot: type = QLatin1String("private slot"); break;
+        default: break;
+        }
+
+        setDescription(QCoreApplication::tr("Create %1 Declaration from Definition",
+                                            "CppEditor::DeclFromDef").arg(type));
     }
 
     void createChanges()
@@ -75,7 +88,7 @@ public:
 
         Document::Ptr targetDoc = changes->document(m_targetFileName);
         InsertionPointLocator locator(targetDoc);
-        const InsertionLocation loc = locator.methodDeclarationInClass(m_targetSymbol, InsertionPointLocator::Public);
+        const InsertionLocation loc = locator.methodDeclarationInClass(m_targetSymbol, m_xsSpec);
         Q_ASSERT(loc.isValid());
 
         int targetPosition1 = changes->positionInFile(m_targetFileName, loc.line(), loc.column());
@@ -94,6 +107,7 @@ public:
 private:
     QString m_targetFileName;
     const Class *m_targetSymbol;
+    InsertionPointLocator::AccessSpec m_xsSpec;
     QString m_decl;
 };
 
@@ -123,12 +137,30 @@ QList<CppQuickFixOperation::Ptr> DeclFromDef::match(const CppQuickFixState &stat
     if (ClassOrNamespace *targetBinding = state.context().lookupParent(method)) {
         foreach (Symbol *s, targetBinding->symbols()) {
             if (Class *clazz = s->asClass()) {
-                return singleResult(new Operation(state, idx,
-                                                  QLatin1String(clazz->fileName()),
-                                                  clazz,
-                                                  generateDeclaration(state,
-                                                                      method,
-                                                                      targetBinding)));
+                QList<CppQuickFixOperation::Ptr> results;
+                const QLatin1String fn(clazz->fileName());
+                const QString decl = generateDeclaration(state,
+                                                         method,
+                                                         targetBinding);
+                results.append(singleResult(new Operation(state, idx, fn, clazz,
+                                                          InsertionPointLocator::Public,
+                                                          decl)));
+                results.append(singleResult(new Operation(state, idx, fn, clazz,
+                                                          InsertionPointLocator::Protected,
+                                                          decl)));
+                results.append(singleResult(new Operation(state, idx, fn, clazz,
+                                                          InsertionPointLocator::Private,
+                                                          decl)));
+                results.append(singleResult(new Operation(state, idx, fn, clazz,
+                                                          InsertionPointLocator::PublicSlot,
+                                                          decl)));
+                results.append(singleResult(new Operation(state, idx, fn, clazz,
+                                                          InsertionPointLocator::ProtectedSlot,
+                                                          decl)));
+                results.append(singleResult(new Operation(state, idx, fn, clazz,
+                                                          InsertionPointLocator::PrivateSlot,
+                                                          decl)));
+                return results;
             } //! \todo support insertion into namespaces
         }
     }
