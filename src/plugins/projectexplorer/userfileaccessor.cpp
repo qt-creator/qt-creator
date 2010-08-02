@@ -1250,7 +1250,7 @@ QVariantMap Version6Handler::update(Project *, const QVariantMap &map)
 
             QVariantMap buildSteps;
             QVariantMap cleanSteps;
-            QVariantMap &originalBc = targetIt.value().toMap();
+            const QVariantMap &originalBc = targetIt.value().toMap();
             QVariantMap newBc;
 
             QMapIterator<QString, QVariant> bcIt(originalBc);
