@@ -7,7 +7,6 @@
         <file>images/play.png</file>
         <file>images/pause.png</file>
         <file>images/from-qml.png</file>
-        <file>images/zoom.png</file>
         <file>images/to-qml.png</file>
         <file>images/designmode.png</file>
         <file>images/segment-end.png</file>
@@ -17,5 +16,15 @@
         <file>images/segment-hover.png</file>
         <file>images/segment-selected-end.png</file>
         <file>images/color-picker-hicontrast.png</file>
+        <file>images/zoom.png</file>
+        <file>images/color-picker-24.png</file>
+        <file>images/designmode-24.png</file>
+        <file>images/from-qml-24.png</file>
+        <file>images/pause-24.png</file>
+        <file>images/play-24.png</file>
+        <file>images/to-qml-24.png</file>
+        <file>images/zoom-24.png</file>
+        <file>images/select-24.png</file>
+        <file>images/select-marquee-24.png</file>
     </qresource>
 </RCC>
