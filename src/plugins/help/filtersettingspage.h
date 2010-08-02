@@ -36,8 +36,6 @@
 namespace Help {
 namespace Internal {
 
-class LocalHelpManager;
-
 class FilterSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
@@ -57,8 +55,6 @@ public:
     void finish() {}
     virtual bool matches(const QString &s) const;
 
-    void setHelpManager(LocalHelpManager *manager);
-
 signals:
     void filtersChanged();
 
@@ -77,8 +73,6 @@ private:
 
     QString m_searchKeywords;
     QStringList m_removedFilters;
-
-    LocalHelpManager *m_helpManager;
 };
 
 } // namespace Help

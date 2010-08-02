@@ -161,7 +161,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
         SLOT(contextHelpOptionChanged()));
     connect(Core::HelpManager::instance(), SIGNAL(helpRequested(QUrl)), this,
         SLOT(handleHelpRequest(QUrl)));
-    m_filterSettingsPage->setHelpManager(m_helpManager);
+
     connect(m_filterSettingsPage, SIGNAL(filtersChanged()), this,
         SLOT(setupHelpEngineIfNeeded()));
     connect(Core::HelpManager::instance(), SIGNAL(documentationChanged()), this,

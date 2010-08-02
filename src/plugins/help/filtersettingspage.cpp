@@ -31,7 +31,6 @@
 
 #include "filternamedialog.h"
 #include "helpconstants.h"
-#include "helpmanager.h"
 
 #include <coreplugin/helpmanager.h>
 
@@ -40,12 +39,9 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 
-#include <QtHelp/QHelpEngine>
-
 using namespace Help::Internal;
 
 FilterSettingsPage::FilterSettingsPage()
-    : m_helpManager(0)
 {
 }
 
@@ -79,8 +75,7 @@ QWidget *FilterSettingsPage::createPage(QWidget *parent)
     QWidget *widget = new QWidget(parent);
     m_ui.setupUi(widget);
 
-    m_helpManager->setupGuiHelpEngine();
-    updateFilterPage(); // does call setupData on the engine
+    updateFilterPage();
 
     connect(m_ui.attributeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)),
         this, SLOT(updateFilterMap()));
@@ -109,25 +104,28 @@ void FilterSettingsPage::updateFilterPage()
 
     QString lastTrUnfiltered;
     const QString trUnfiltered = tr("Unfiltered");
-    const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
-    if (engine.customValue(Help::Constants::WeAddedFilterKey).toInt() == 1) {
+    Core::HelpManager *manager = Core::HelpManager::instance();
+    if (manager->customValue(Help::Constants::WeAddedFilterKey).toInt() == 1) {
         lastTrUnfiltered =
-            engine.customValue(Help::Constants::PreviousFilterNameKey).toString();
+            manager->customValue(Help::Constants::PreviousFilterNameKey).toString();
     }
 
-    const QStringList &filters = engine.customFilters();
-    foreach (const QString &filter, filters) {
+    QSet<QString> attributes;
+    const Core::HelpManager::Filters &filters = manager->filters();
+
+    Core::HelpManager::Filters::const_iterator it;
+    for (it = filters.constBegin(); it != filters.constEnd(); ++it) {
+        const QString &filter = it.key();
         if (filter == trUnfiltered || filter == lastTrUnfiltered)
             continue;
 
-        const QStringList &attributes = engine.filterAttributes(filter);
-        m_filterMapBackup.insert(filter, attributes);
+        attributes += it.value().toSet();
+        m_filterMapBackup.insert(filter, it.value());
         if (!m_filterMap.contains(filter))
-            m_filterMap.insert(filter, attributes);
+            m_filterMap.insert(filter, it.value());
     }
     m_ui.filterWidget->addItems(m_filterMap.keys());
 
-    const QStringList &attributes = engine.filterAttributes();
     foreach (const QString &attribute, attributes)
         new QTreeWidgetItem(m_ui.attributeWidget, QStringList(attribute));
 
@@ -227,13 +225,13 @@ void FilterSettingsPage::apply()
     }
 
     if (changed) {
-        QHelpEngineCore *engine = &LocalHelpManager::helpEngine();
+        Core::HelpManager *manager = Core::HelpManager::instance();
         foreach (const QString &filter, m_removedFilters)
-           engine->removeCustomFilter(filter);
+           manager->removeUserDefinedFilter(filter);
 
         FilterMap::const_iterator it;
         for (it = m_filterMap.constBegin(); it != m_filterMap.constEnd(); ++it)
-            engine->addCustomFilter(it.key(), it.value());
+            manager->addUserDefinedFilter(it.key(), it.value());
 
         // emit this signal to the help plugin, since we don't want
         // to force gui help engine setup if we are not in help mode
@@ -244,9 +242,4 @@ void FilterSettingsPage::apply()
 bool FilterSettingsPage::matches(const QString &s) const
 {
     return m_searchKeywords.contains(s, Qt::CaseInsensitive);
-}
-
-void FilterSettingsPage::setHelpManager(LocalHelpManager *manager)
-{
-    m_helpManager = manager;
 }
