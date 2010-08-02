@@ -1726,9 +1726,8 @@ void CppCodeCompletion::completions(QList<TextEditor::CompletionItem> *completio
         }
     }
 
-    if (completions->size() == 1) {
-        if (key == completions->first().text)
-            completions->clear();
+    if (m_automaticCompletion && completions->size() == 1 && key == completions->first().text) {
+        completions->clear();
     }
 }
 
