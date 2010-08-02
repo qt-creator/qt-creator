@@ -601,9 +601,12 @@ void HelpPlugin::slotHideRightPane()
 
 void HelpPlugin::showExternalWindow()
 {
+    bool firstTime = m_firstModeChange;
     setup();
     m_externalWindow->show();
     m_externalWindow->activateWindow();
+    if (firstTime)
+        Core::ICore::instance()->mainWindow()->activateWindow();
 }
 
 void HelpPlugin::modeChanged(Core::IMode *mode, Core::IMode *old)
