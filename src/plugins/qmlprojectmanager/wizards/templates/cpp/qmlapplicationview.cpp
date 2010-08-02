@@ -26,7 +26,7 @@ QmlApplicationView::QmlApplicationView(const QString &mainQmlFile, QWidget *pare
 {
 #ifdef Q_OS_MAC
     m_d->mainQmlFile = QCoreApplication::applicationDirPath()
-            + QLatin1String("/../../Resources/") + mainQmlFile;
+            + QLatin1String("/../Resources/") + mainQmlFile;
 #else
     m_d->mainQmlFile = mainQmlFile;
 #endif

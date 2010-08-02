@@ -67,13 +67,17 @@ symbian {
     target.path = /opt/bin
     INSTALLS += target
 } else:macx {
-    for(deploymentfolder, DEPLOYMENTFOLDERS) {
-        item = item$${deploymentfolder}
-        itemsources = $${item}.files
-        $$itemsources = $$eval($${deploymentfolder}.source)
-        itempath = $${item}.path
-        $$itempath = Resources/$$eval($${deploymentfolder}.target)
-        QMAKE_BUNDLE_DATA += $$item
+    !isEqual(PWD,$$OUT_PWD) {
+        copyCommand = @echo Copying application data...
+        for(deploymentfolder, DEPLOYMENTFOLDERS) {
+            target = $$OUT_PWD/$${TARGET}.app/Contents/Resources/$$eval($${deploymentfolder}.target)
+            copyCommand += && $(MKDIR) $$target
+            copyCommand += && $(COPY_DIR) $$PWD/$$eval($${deploymentfolder}.source) $$target
+        }
+        copydeploymentfolders.commands = $$copyCommand
+        first.depends = $(first) copydeploymentfolders
+        QMAKE_EXTRA_TARGETS += first copydeploymentfolders
+message($$copyCommand)
     }
 } else { #linux
     !isEqual(PWD,$$OUT_PWD) {
