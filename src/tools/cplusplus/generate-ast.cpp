@@ -1112,10 +1112,8 @@ void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
     for (DeclarationListAST *iter = xUnit->declaration_list; iter; iter = iter->next) {
         if (FunctionDefinitionAST *funDef = iter->value->asFunctionDefinition()) {
             if (const QualifiedNameId *qName = funDef->symbol->name()->asQualifiedNameId()) {
-                if (qName->nameCount() != 2)
-                    continue;
-                const QString className = oo(qName->nameAt(0));
-                const QString methodName = oo(qName->nameAt(1));
+                const QString className = oo(qName->base());
+                const QString methodName = oo(qName->name());
 
                 QTextCursor cursor(&cpp_document);
 
