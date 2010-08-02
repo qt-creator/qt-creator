@@ -44,8 +44,10 @@ using namespace Qt4ProjectManager::Internal;
 static QString gcceCommand(const QString &dir)
 {
     ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
-    if (!dir.isEmpty())
+    if (!dir.isEmpty()) {
         env.prependOrSetPath(dir + QLatin1String("/bin"));
+        env.prependOrSetPath(dir);
+    }
     QString gcce = QLatin1String("arm-none-symbianelf-gcc");
 #ifdef Q_OS_WIN
     gcce += QLatin1String(".exe");
