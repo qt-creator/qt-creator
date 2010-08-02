@@ -412,6 +412,8 @@ void ContextPaneWidgetImage::changeEvent(QEvent *e)
     case QEvent::LanguageChange:
         if (ui)
             ui->retranslateUi(this);
+        if (uiBorderImage)
+            uiBorderImage->retranslateUi(this);
         break;
     default:
         break;
