@@ -58,6 +58,7 @@ signals:
 
 protected:
     void resizeEvent(QResizeEvent *);
+    void paintEvent(QPaintEvent *);
 
 private slots:
     void mapClickToIndex();
@@ -65,8 +66,10 @@ private slots:
 
 private:
     void resizeButtons();
+    void setBackgroundStyle();
 
 private:
+    QColor m_baseColor;
     QList<CrumblePathButton*> m_buttons;
     QWidget *m_background;
 };

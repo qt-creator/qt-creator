@@ -88,6 +88,8 @@ public:
     static void drawCornerImage(const QImage &img, QPainter *painter, QRect rect,
                          int left = 0, int top = 0, int right = 0, int bottom = 0);
 
+    static void tintImage(QImage &img, const QColor &tintColor);
+
 private:
     static QColor m_baseColor;
     static QColor m_requestedBaseColor;

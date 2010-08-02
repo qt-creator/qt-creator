@@ -28,11 +28,14 @@
 **************************************************************************/
 
 #include "crumblepath.h"
+#include "stylehelper.h"
 
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QStyle>
 #include <QResizeEvent>
+#include <QPainter>
+#include <QImage>
 
 namespace Utils {
 
@@ -49,69 +52,126 @@ public:
 
     explicit CrumblePathButton(const QString &title, QWidget *parent = 0);
     void setSegmentType(int type);
+protected:
+    void paintEvent(QPaintEvent *);
+    void mouseMoveEvent(QMouseEvent *e);
+    void leaveEvent(QEvent *);
+    void mousePressEvent(QMouseEvent *e);
+    void mouseReleaseEvent(QMouseEvent *e);
+
 private:
-    static QString middleSegmentSheet(bool useLeftPadding);
-    static QString lastSegmentSheet(bool useLeftPadding);
+    void tintImages();
+
+private:
+    bool m_isHovering;
+    bool m_isPressed;
+    bool m_isEnd;
+    QColor m_baseColor;
+    QImage m_segment;
+    QImage m_segmentEnd;
+    QImage m_segmentSelected;
+    QImage m_segmentSelectedEnd;
+    QImage m_segmentHover;
+    QImage m_segmentHoverEnd;
+    QPoint m_textPos;
 };
 
 CrumblePathButton::CrumblePathButton(const QString &title, QWidget *parent)
-    : QPushButton(title, parent)
+    : QPushButton(title, parent), m_isHovering(false), m_isPressed(false), m_isEnd(true)
 {
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
     setToolTip(title);
     setMinimumHeight(24);
     setMaximumHeight(24);
-    setStyleSheet(lastSegmentSheet(true));
+    setMouseTracking(true);
+    m_textPos.setX(18);
+    m_textPos.setY(height());
+    m_baseColor = StyleHelper::baseColor();
+
+    m_segment = QImage(":/utils/images/crumblepath-segment.png");
+    m_segmentSelected = QImage(":/utils/images/crumblepath-segment-selected.png");
+    m_segmentHover = QImage(":/utils/images/crumblepath-segment-hover.png");
+    m_segmentEnd = QImage(":/utils/images/crumblepath-segment-end.png");
+    m_segmentSelectedEnd = QImage(":/utils/images/crumblepath-segment-selected-end.png");
+    m_segmentHoverEnd = QImage(":/utils/images/crumblepath-segment-hover-end.png");
+
+    tintImages();
 }
 
-QString CrumblePathButton::middleSegmentSheet(bool useLeftPadding)
+void CrumblePathButton::paintEvent(QPaintEvent *)
 {
-    QString sheet = QString(
-                "QPushButton {"
-                "text-align: left;"
-                "color: #eeeeee;"
-                "border-image: url(:/qml/images/segment.png)  0 12 0 2;"
-                "border-width: 0 12px 0 2px;"
-                "padding-left:%1px;"
-                "}"
-                "QPushButton:hover {"
-                "    border-image: url(:/qml/images/segment-hover.png)  0 12 0 2;"
-                "}"
-                "QPushButton:pressed {"
-                "    border-image: url(:/qml/images/segment-selected.png)  0 12 0 2;"
-                "}"
-                ).arg(useLeftPadding ? "18" : "4");
-    return sheet;
+    QPainter p(this);
+    QRect geom(0, 0, geometry().width(), geometry().height());
+
+    if (StyleHelper::baseColor() != m_baseColor) {
+        m_baseColor = StyleHelper::baseColor();
+        tintImages();
+    }
+
+    if (m_isEnd) {
+        if (m_isPressed) {
+            Utils::StyleHelper::drawCornerImage(m_segmentSelectedEnd, &p, geom, 2, 0, 2, 0);
+        } else if (m_isHovering) {
+            Utils::StyleHelper::drawCornerImage(m_segmentHoverEnd, &p, geom, 2, 0, 2, 0);
+        } else {
+            Utils::StyleHelper::drawCornerImage(m_segmentEnd, &p, geom, 2, 0, 2, 0);
+        }
+    } else {
+        if (m_isPressed) {
+            Utils::StyleHelper::drawCornerImage(m_segmentSelected, &p, geom, 2, 0, 12, 0);
+        } else if (m_isHovering) {
+            Utils::StyleHelper::drawCornerImage(m_segmentHover, &p, geom, 2, 0, 12, 0);
+        } else {
+            Utils::StyleHelper::drawCornerImage(m_segment, &p, geom, 2, 0, 12, 0);
+        }
+    }
+    p.setPen(StyleHelper::panelTextColor());
+    p.drawText(QRectF(m_textPos.x(), 4, geom.width(), geom.height()), text());
 }
 
-QString CrumblePathButton::lastSegmentSheet(bool useLeftPadding)
+void CrumblePathButton::tintImages()
 {
-    QString sheet = QString(
-                "QPushButton {"
-                "text-align: left;"
-                "color: #eeeeee;"
-                "border-image: url(:/qml/images/segment-end.png)  0 2 0 2;"
-                "border-width: 0 2px 0 2px;"
-                "padding-left:%1px;"
-                "}"
-                "QPushButton:hover {"
-                "    border-image: url(:/qml/images/segment-hover-end.png)  0 2 0 2;"
-                "}"
-                "QPushButton:pressed {"
-                "    border-image: url(:/qml/images/segment-selected-end.png)  0 2 0 2;"
-                "}"
-                ).arg(useLeftPadding ? "18" : "4");
-    return sheet;
+    StyleHelper::tintImage(m_segmentEnd, m_baseColor);
+    StyleHelper::tintImage(m_segmentSelectedEnd, m_baseColor);
+    StyleHelper::tintImage(m_segmentHoverEnd, m_baseColor);
+    StyleHelper::tintImage(m_segmentSelected, m_baseColor);
+    StyleHelper::tintImage(m_segmentHover, m_baseColor);
+    StyleHelper::tintImage(m_segment, m_baseColor);
+}
+
+void CrumblePathButton::leaveEvent(QEvent *e)
+{
+    QPushButton::leaveEvent(e);
+    m_isHovering = false;
+    update();
+}
+
+void CrumblePathButton::mouseMoveEvent(QMouseEvent *e)
+{
+    QPushButton::mouseMoveEvent(e);
+    m_isHovering = true;
+    update();
+}
+
+void CrumblePathButton::mousePressEvent(QMouseEvent *e)
+{
+    QPushButton::mousePressEvent(e);
+    m_isPressed = true;
+    update();
+}
+
+void CrumblePathButton::mouseReleaseEvent(QMouseEvent *e)
+{
+    QPushButton::mouseReleaseEvent(e);
+    m_isPressed = false;
+    update();
 }
 
 void CrumblePathButton::setSegmentType(int type)
 {
     bool useLeftPadding = !(type & FirstSegment);
-    if (type & LastSegment) {
-        setStyleSheet(lastSegmentSheet(useLeftPadding));
-    } else if (type & MiddleSegment) {
-        setStyleSheet(middleSegmentSheet(useLeftPadding));
-    }
+    m_isEnd = (type & LastSegment);
+    m_textPos.setX(useLeftPadding ? 18 : 4);
 }
 
 //
@@ -120,11 +180,13 @@ void CrumblePathButton::setSegmentType(int type)
 CrumblePath::CrumblePath(QWidget *parent) :
     QWidget(parent), m_background(new QWidget(this))
 {
+    m_baseColor = StyleHelper::baseColor();
+
     setMinimumHeight(25);
     setMaximumHeight(25);
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
 
-    m_background->setStyleSheet("QWidget { background-color:#2d2d2d;}");
+    setBackgroundStyle();
     m_background->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 }
 
@@ -132,6 +194,11 @@ CrumblePath::~CrumblePath()
 {
     qDeleteAll(m_buttons);
     m_buttons.clear();
+}
+
+void CrumblePath::setBackgroundStyle()
+{
+    m_background->setStyleSheet("QWidget { background-color:" + m_baseColor.name() + ";}");
 }
 
 void CrumblePath::pushElement(const QString &title)
@@ -246,6 +313,16 @@ void CrumblePath::mapContextMenuRequestToIndex()
             return;
         }
     }
+}
+
+void CrumblePath::paintEvent(QPaintEvent *event)
+{
+    if (StyleHelper::baseColor() != m_baseColor) {
+        m_baseColor = StyleHelper::baseColor();
+        setBackgroundStyle();
+    }
+
+    QWidget::paintEvent(event);
 }
 
 } // namespace QmlViewer

@@ -479,4 +479,28 @@ void StyleHelper::drawCornerImage(const QImage &img, QPainter *painter, QRect re
     }
 }
 
+// Tints an image with tintColor, while preserving alpha and lightness
+void StyleHelper::tintImage(QImage &img, const QColor &tintColor)
+{
+    QPainter p(&img);
+    p.setCompositionMode(QPainter::CompositionMode_Screen);
+
+    for (int x = 0; x < img.width(); ++x) {
+        for (int y = 0; y < img.height(); ++y) {
+            QRgb rgbColor = img.pixel(x, y);
+            int alpha = qAlpha(rgbColor);
+            QColor c = QColor(rgbColor);
+
+            if (alpha > 0) {
+                c.toHsl();
+                qreal l = c.lightnessF();
+                QColor newColor = QColor::fromHslF(tintColor.hslHueF(), tintColor.hslSaturationF(), l);
+                newColor.setAlpha(alpha);
+                img.setPixel(x, y, newColor.rgba());
+            }
+        }
+    }
+}
+
+
 } // namespace Utils

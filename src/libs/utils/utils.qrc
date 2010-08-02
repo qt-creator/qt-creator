@@ -2,5 +2,11 @@
     <qresource prefix="/utils">
         <file>images/removesubmitfield.png</file>
         <file>images/arrow.png</file>
+        <file>images/crumblepath-segment.png</file>
+        <file>images/crumblepath-segment-end.png</file>
+        <file>images/crumblepath-segment-hover-end.png</file>
+        <file>images/crumblepath-segment-hover.png</file>
+        <file>images/crumblepath-segment-selected-end.png</file>
+        <file>images/crumblepath-segment-selected.png</file>
     </qresource>
 </RCC>
