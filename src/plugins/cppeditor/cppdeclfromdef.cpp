@@ -168,7 +168,7 @@ QList<CppQuickFixOperation::Ptr> DeclFromDef::match(const CppQuickFixState &stat
     return noResult();
 }
 
-QString DeclFromDef::generateDeclaration(const CppQuickFixState &state,
+QString DeclFromDef::generateDeclaration(const CppQuickFixState &,
                                          Function *method,
                                          ClassOrNamespace *targetBinding)
 {
