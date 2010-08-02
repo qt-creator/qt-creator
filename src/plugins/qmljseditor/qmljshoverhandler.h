@@ -31,23 +31,18 @@
 #define QMLJSHOVERHANDLER_H
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <qmljs/qmljslookupcontext.h>
+
 #include <QtCore/QObject>
+#include <QtCore/QStringList>
+#include <QtGui/QColor>
 
 QT_BEGIN_NAMESPACE
 class QPoint;
-class QStringList;
 QT_END_NAMESPACE
 
 namespace Core {
 class IEditor;
-}
-
-namespace QmlJS {
-    namespace Interpreter {
-        class Engine;
-        class Context;
-        class Value;
-    }
 }
 
 namespace TextEditor {
@@ -56,6 +51,9 @@ class ITextEditor;
 
 namespace QmlJSEditor {
 namespace Internal {
+
+class SemanticInfo;
+class QmlJSTextEditor;
 
 class HoverHandler : public QObject
 {
@@ -72,14 +70,26 @@ private slots:
     void editorOpened(Core::IEditor *editor);
 
 private:
-    void updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int pos);
-    QString prettyPrint(const QmlJS::Interpreter::Value *value, QmlJS::Interpreter::Context *context,
-                        QStringList *baseClasses) const;
+    void resetMatchings();
+    void identifyMatch(TextEditor::ITextEditor *editor, int pos);
+    bool matchDiagnosticMessage(QmlJSTextEditor *qmlEditor, int pos);
+    bool matchColorItem(const QmlJS::LookupContext::Ptr &lookupContext,
+                        const QmlJS::Document::Ptr &qmlDocument,
+                        const QList<QmlJS::AST::Node *> &astPath,
+                        unsigned pos);
+    void handleOrdinaryMatch(const QmlJS::LookupContext::Ptr &lookupContext,
+                             QmlJS::AST::Node *node);
 
-private:
+    void evaluateHelpCandidates();
+
+    QString prettyPrint(const QmlJS::Interpreter::Value *value,
+                        QmlJS::Interpreter::Context *context);
+
     QmlJS::ModelManagerInterface *m_modelManager;
-    QString m_helpId;
+    int m_matchingHelpCandidate;
+    QStringList m_helpCandidates;
     QString m_toolTip;
+    QColor m_colorTip;
 };
 
 } // namespace Internal

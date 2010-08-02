@@ -4,8 +4,10 @@ DEFINES += TEXTEDITOR_LIBRARY
 QT += xml network
 include(../../qtcreatorplugin.pri)
 include(texteditor_dependencies.pri)
-INCLUDEPATH += generichighlighter
-DEPENDPATH += generichighlighter
+INCLUDEPATH += generichighlighter \
+    tooltip
+DEPENDPATH += generichighlighter \
+    tooltip
 SOURCES += texteditorplugin.cpp \
     textfilewizard.cpp \
     plaintexteditor.cpp \
@@ -62,7 +64,10 @@ SOURCES += texteditorplugin.cpp \
     generichighlighter/definitiondownloader.cpp \
     refactoringchanges.cpp \
     refactoroverlay.cpp \
-    outlinefactory.cpp
+    outlinefactory.cpp \
+    tooltip/tooltip.cpp \
+    tooltip/tips.cpp \
+    tooltip/tipcontents.cpp
 
 HEADERS += texteditorplugin.h \
     textfilewizard.h \
@@ -128,7 +133,10 @@ HEADERS += texteditorplugin.h \
     refactoringchanges.h \
     refactoroverlay.h \
     outlinefactory.h \
-    ioutlinewidget.h
+    ioutlinewidget.h \
+    tooltip/tooltip.h \
+    tooltip/tips.h \
+    tooltip/tipcontents.h
 
 FORMS += behaviorsettingspage.ui \
     displaysettingspage.ui \

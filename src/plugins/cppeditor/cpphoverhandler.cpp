@@ -39,6 +39,7 @@
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/displaysettings.h>
+#include <texteditor/tooltip/tooltip.h>
 #include <debugger/debuggerconstants.h>
 
 #include <FullySpecifiedType.h>
@@ -57,7 +58,6 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QtAlgorithms>
 #include <QtCore/QStringBuilder>
-#include <QtGui/QToolTip>
 #include <QtGui/QTextCursor>
 
 #include <algorithm>
@@ -159,7 +159,7 @@ void CppHoverHandler::updateContextHelpId(TextEditor::ITextEditor *editor, int p
 
     // If the tooltip is visible and there is a help match, this match is used to update the help
     // id. Otherwise, the identification process happens.
-    if (!QToolTip::isVisible() || m_matchingHelpCandidate == -1)
+    if (!TextEditor::ToolTip::instance()->isVisible() || m_matchingHelpCandidate == -1)
         identifyMatch(editor, pos);
 
     if (m_matchingHelpCandidate != -1)
@@ -185,7 +185,7 @@ void CppHoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint 
     identifyMatch(editor, pos);
 
     if (m_toolTip.isEmpty()) {
-        QToolTip::hideText();
+        TextEditor::ToolTip::instance()->hide();
     } else {
         if (!m_classHierarchy.isEmpty())
             generateDiagramTooltip(baseEditor->displaySettings().m_extendTooltips);
@@ -203,7 +203,7 @@ void CppHoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint 
 #endif
         );
 
-        QToolTip::showText(pnt, m_toolTip);
+        TextEditor::ToolTip::instance()->showText(pnt, m_toolTip, editor->widget());
     }
 }
 
