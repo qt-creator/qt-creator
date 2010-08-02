@@ -518,8 +518,9 @@ void QmlJSLiveTextPreview::showExperimentalWarning()
 {
     Core::EditorManager *em = Core::EditorManager::instance();
     em->showEditorInfoBar(Constants::INFO_EXPERIMENTAL,
-                          tr("You changed a QML file in in Live Preview mode, and the changes were applied to the running QML application. "
-                             "This feature is experimental, and behavior can be unexpected."),
+                          tr("You changed a QML file in Live Preview mode, which modifies the running QML application. "
+                             "In case of unexpected behavior, please reload the QML application. "
+                             ),
                           tr("Disable Live Preview"), this, SLOT(disableLivePreview()));
 }
 
