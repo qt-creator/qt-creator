@@ -32,6 +32,7 @@
 #include "qmljsinspectorcontext.h"
 #include "qmljslivetextpreview.h"
 #include "qmljsprivateapi.h"
+#include "qmljscontextcrumblepath.h"
 
 #include <qmljseditor/qmljseditorconstants.h>
 
@@ -323,7 +324,7 @@ void Inspector::startQmlProjectDebugger()
 
 void Inspector::resetViews()
 {
-//#warning reset the views here
+    m_crumblePath->clear();
 }
 
 void Inspector::simultaneouslyDebugQmlCppApplication()
@@ -565,34 +566,15 @@ void Inspector::reloadQmlViewer()
 
 void Inspector::setSimpleDockWidgetArrangement()
 {
-#if 0
     Utils::FancyMainWindow *mainWindow = Debugger::DebuggerUISwitcher::instance()->mainWindow();
 
     mainWindow->setTrackingEnabled(false);
-    QList<QDockWidget *> dockWidgets = mainWindow->dockWidgets();
-    foreach (QDockWidget *dockWidget, dockWidgets) {
-        if (m_dockWidgets.contains(dockWidget)) {
-            dockWidget->setFloating(false);
-            mainWindow->removeDockWidget(dockWidget);
-        }
-    }
-
-    foreach (QDockWidget *dockWidget, dockWidgets) {
-        if (m_dockWidgets.contains(dockWidget)) {
-            mainWindow->addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
-            dockWidget->show();
-        }
-    }
-    mainWindow->splitDockWidget(mainWindow->toolBarDockWidget(), m_propertyWatcherDock, Qt::Vertical);
-    //mainWindow->tabifyDockWidget(m_frameRateDock, m_propertyWatcherDock);
-    mainWindow->tabifyDockWidget(m_propertyWatcherDock, m_expressionQueryDock);
-    mainWindow->tabifyDockWidget(m_propertyWatcherDock, m_inspectorOutputDock);
-    m_propertyWatcherDock->raise();
-
-    m_inspectorOutputDock->setVisible(false);
+    mainWindow->removeDockWidget(m_crumblePathDock);
+    mainWindow->addDockWidget(Qt::BottomDockWidgetArea, m_crumblePathDock);
+    mainWindow->splitDockWidget(mainWindow->toolBarDockWidget(), m_crumblePathDock, Qt::Vertical);
+    //m_crumblePathDock->setVisible(true);
 
     mainWindow->setTrackingEnabled(true);
-#endif
 }
 
 void Inspector::setSelectedItemsByObjectReference(QList<QDeclarativeDebugObjectReference> objectReferences)
@@ -649,6 +631,18 @@ bool Inspector::addQuotesForData(const QVariant &value) const
     }
 
     return false;
+}
+
+void Inspector::createDockWidgets()
+{
+    m_crumblePath = new ContextCrumblePath;
+    m_crumblePath->setWindowTitle("Context Path");
+    Debugger::DebuggerUISwitcher *uiSwitcher = Debugger::DebuggerUISwitcher::instance();
+    m_crumblePathDock = uiSwitcher->createDockWidget(QmlJSInspector::Constants::LANG_QML,
+                                                                m_crumblePath, Qt::BottomDockWidgetArea);
+    m_crumblePathDock->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
+    m_crumblePathDock->setTitleBarWidget(new QWidget(m_crumblePathDock));
+    connect(m_clientProxy, SIGNAL(contextPathUpdated(QStringList)), m_crumblePath, SLOT(updateContextPath(QStringList)));
 }
 
 bool Inspector::showExperimentalWarning()

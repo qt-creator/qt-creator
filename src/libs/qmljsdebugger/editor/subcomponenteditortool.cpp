@@ -122,7 +122,9 @@ void SubcomponentEditorTool::clear()
     m_mask->setCurrentItem(0);
     m_animTimer->stop();
     m_mask->hide();
+    m_path.clear();
 
+    emit contextPathChanged(m_path);
     emit cleared();
 }
 
@@ -222,7 +224,11 @@ void SubcomponentEditorTool::pushContext(QGraphicsObject *contextItem)
 {
     connect(contextItem, SIGNAL(destroyed(QObject*)), SLOT(contextDestroyed(QObject*)));
     m_currentContext.push(contextItem);
-    emit contextPushed(titleForItem(contextItem));
+    QString title = titleForItem(contextItem);
+    emit contextPushed(title);
+
+    m_path << title;
+    emit contextPathChanged(m_path);
 }
 
 void SubcomponentEditorTool::aboutToPopContext()
@@ -238,6 +244,7 @@ void SubcomponentEditorTool::aboutToPopContext()
 QGraphicsObject *SubcomponentEditorTool::popContext()
 {
     QGraphicsObject *popped = m_currentContext.pop();
+    m_path.removeLast();
 
     emit contextPopped();
 
@@ -275,11 +282,12 @@ void SubcomponentEditorTool::contextDestroyed(QObject *contextToDestroy)
     // pop out the whole context - it might not be safe anymore.
     while (m_currentContext.size() > 1) {
         m_currentContext.pop();
+        m_path.removeLast();
         emit contextPopped();
     }
-
-
     m_mask->setVisible(false);
+
+    emit contextPathChanged(m_path);
 }
 
 QGraphicsObject *SubcomponentEditorTool::setContext(int contextIndex)

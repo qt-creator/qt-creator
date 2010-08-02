@@ -3,6 +3,7 @@
 
 #include "abstractformeditortool.h"
 #include <QStack>
+#include <QStringList>
 
 QT_FORWARD_DECLARE_CLASS(QGraphicsObject)
 QT_FORWARD_DECLARE_CLASS(QPoint)
@@ -54,6 +55,7 @@ signals:
     void cleared();
     void contextPushed(const QString &contextTitle);
     void contextPopped();
+    void contextPathChanged(const QStringList &path);
 
 protected:
     void selectedItemsChanged(const QList<QGraphicsItem*> &itemList);
@@ -68,6 +70,7 @@ private:
 
 private:
     QStack<QGraphicsObject *> m_currentContext;
+    QStringList m_path;
 
     qreal m_animIncrement;
     SubcomponentMaskLayerItem *m_mask;

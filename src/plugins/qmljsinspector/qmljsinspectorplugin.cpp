@@ -132,13 +132,7 @@ bool InspectorPlugin::initialize(const QStringList &arguments, QString *errorStr
 
     uiSwitcher->addLanguage(LANG_QML, Core::Context(C_INSPECTOR));
 
-#ifdef __GNUC__
-#  warning set up the QML/JS Inspector UI
-#endif
-
-#if 0
     _inspector->createDockWidgets();
-#endif
 
     return true;
 }
@@ -177,6 +171,8 @@ void InspectorPlugin::extensionsInitialized()
     connect(_clientProxy, SIGNAL(selectedColorChanged(QColor)), m_toolbar, SLOT(setSelectedColor(QColor)));
 
     connect(_clientProxy, SIGNAL(animationSpeedChanged(qreal)), m_toolbar, SLOT(changeAnimationSpeed(qreal)));
+
+
 }
 
 void InspectorPlugin::activateDebuggerForProject(ProjectExplorer::Project *project, const QString &runMode)
@@ -214,12 +210,8 @@ void InspectorPlugin::prepareDebugger(Core::IMode *mode)
 
 void InspectorPlugin::setDockWidgetArrangement(const QString &activeLanguage)
 {
-    Q_UNUSED(activeLanguage);
-
-#if 0
-    if (activeLanguage == Qml::Constants::LANG_QML || activeLanguage.isEmpty())
-        m_inspector->setSimpleDockWidgetArrangement();
-#endif
+    if (activeLanguage == QmlJSInspector::Constants::LANG_QML || activeLanguage.isEmpty())
+        _inspector->setSimpleDockWidgetArrangement();
 }
 
 

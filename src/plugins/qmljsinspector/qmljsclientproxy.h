@@ -93,6 +93,7 @@ signals:
     void designModeBehaviorChanged(bool inDesignMode);
     void serverReloaded();
     void selectedColorChanged(const QColor &color);
+    void contextPathUpdated(const QStringList &contextPath);
 
 public slots:
     void queryEngineContext(int id);

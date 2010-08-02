@@ -58,11 +58,14 @@ namespace QmlJS {
     class ModelManagerInterface;
 }
 
+QT_FORWARD_DECLARE_CLASS(QDockWidget)
+
 namespace QmlJSInspector {
 namespace Internal {
 
 class ClientProxy;
 class InspectorContext;
+class ContextCrumblePath;
 class QmlJSLiveTextPreview;
 
 class Inspector : public QObject
@@ -96,6 +99,7 @@ public:
     static bool showExperimentalWarning();
     static void setShowExperimentalWarning(bool value);
 
+    void createDockWidgets();
 
 signals:
     void statusMessage(const QString &text);
@@ -163,6 +167,9 @@ private:
 
     static bool m_showExperimentalWarning;
     bool m_listeningToEditorManager;
+
+    ContextCrumblePath *m_crumblePath;
+    QDockWidget *m_crumblePathDock;
 
     // Qml/JS integration
     QHash<QString, QmlJSLiveTextPreview *> m_textPreviews;

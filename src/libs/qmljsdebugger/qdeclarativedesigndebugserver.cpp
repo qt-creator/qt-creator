@@ -153,6 +153,17 @@ void QDeclarativeDesignDebugServer::selectedColorChanged(const QColor &color)
     sendMessage(message);
 }
 
+void QDeclarativeDesignDebugServer::contextPathUpdated(const QStringList &contextPath)
+{
+    QByteArray message;
+    QDataStream ds(&message, QIODevice::WriteOnly);
+
+    ds << QByteArray("CONTEXT_PATH_UPDATED")
+       << contextPath;
+
+    sendMessage(message);
+}
+
 QString QDeclarativeDesignDebugServer::idStringForObject(QObject *obj) const
 {
     int id = idForObject(obj);

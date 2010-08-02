@@ -85,6 +85,7 @@ signals:
     void animationSpeedChanged(qreal slowdownFactor);
     void designModeBehaviorChanged(bool inDesignMode);
     void reloaded(); // the server has reloaded the document
+    void contextPathUpdated(const QStringList &path);
 
 protected:
     virtual void messageReceived(const QByteArray &);

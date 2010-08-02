@@ -67,11 +67,11 @@ public:
     void setAnimationSpeed(qreal slowdownFactor);
     void setCurrentTool(QmlViewer::Constants::DesignTool toolId);
     void reloaded();
-
     QString idStringForObject(QObject *obj) const;
 
 public Q_SLOTS:
     void selectedColorChanged(const QColor &color);
+    void contextPathUpdated(const QStringList &contextPath);
 
 Q_SIGNALS:
     void currentObjectsChanged(const QList<QObject*> &objects);

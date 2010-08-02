@@ -104,6 +104,7 @@ QDeclarativeDesignView::QDeclarativeDesignView(QWidget *parent) :
     connect(data->subcomponentEditorTool, SIGNAL(cleared()), SIGNAL(inspectorContextCleared()));
     connect(data->subcomponentEditorTool, SIGNAL(contextPushed(QString)), SIGNAL(inspectorContextPushed(QString)));
     connect(data->subcomponentEditorTool, SIGNAL(contextPopped()), SIGNAL(inspectorContextPopped()));
+    connect(data->subcomponentEditorTool, SIGNAL(contextPathChanged(QStringList)), qmlDesignDebugServer(), SLOT(contextPathUpdated(QStringList)));
 
     data->createToolbar();
 }

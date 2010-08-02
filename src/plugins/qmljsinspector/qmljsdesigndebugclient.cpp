@@ -104,6 +104,10 @@ void QmlJSDesignDebugClient::messageReceived(const QByteArray &message)
         QColor col;
         ds >> col;
         emit selectedColorChanged(col);
+    } else if (type == "CONTEXT_PATH_UPDATED") {
+        QStringList contextPath;
+        ds >> contextPath;
+        emit contextPathUpdated(contextPath);
     }
 }
 
