@@ -3822,7 +3822,9 @@ bool Parser::parsePrimaryExpression(ExpressionAST *&node)
     default: {
         NameAST *name = 0;
         if (parseNameId(name)) {
-            node = name;
+            IdExpressionAST *ast = new (_pool) IdExpressionAST;
+            ast->name = name;
+            node = ast;
             return true;
         }
         break;

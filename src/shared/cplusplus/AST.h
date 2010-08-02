@@ -201,6 +201,7 @@ public:
     virtual FunctionDeclaratorAST *asFunctionDeclarator() { return 0; }
     virtual FunctionDefinitionAST *asFunctionDefinition() { return 0; }
     virtual GotoStatementAST *asGotoStatement() { return 0; }
+    virtual IdExpressionAST *asIdExpression() { return 0; }
     virtual IfStatementAST *asIfStatement() { return 0; }
     virtual LabeledStatementAST *asLabeledStatement() { return 0; }
     virtual LambdaCaptureAST *asLambdaCapture() { return 0; }
@@ -337,7 +338,7 @@ public:
     virtual DeclarationAST *clone(MemoryPool *pool) const = 0;
 };
 
-class CPLUSPLUS_EXPORT NameAST: public ExpressionAST
+class CPLUSPLUS_EXPORT NameAST: public AST
 {
 public: // annotations
     const Name *name;
@@ -959,6 +960,28 @@ public:
     virtual unsigned lastToken() const;
 
     virtual BaseSpecifierAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class CPLUSPLUS_EXPORT IdExpressionAST: public ExpressionAST
+{
+public:
+    NameAST *name;
+
+public:
+    IdExpressionAST()
+        : name(0)
+    {}
+
+    virtual IdExpressionAST *asIdExpression() { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual IdExpressionAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);

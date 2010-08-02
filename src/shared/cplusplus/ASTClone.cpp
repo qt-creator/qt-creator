@@ -273,6 +273,14 @@ BaseSpecifierAST *BaseSpecifierAST::clone(MemoryPool *pool) const
     return ast;
 }
 
+IdExpressionAST *IdExpressionAST::clone(MemoryPool *pool) const
+{
+    IdExpressionAST *ast = new (pool) IdExpressionAST;
+    if (name)
+        ast->name = name->clone(pool);
+    return ast;
+}
+
 CompoundExpressionAST *CompoundExpressionAST::clone(MemoryPool *pool) const
 {
     CompoundExpressionAST *ast = new (pool) CompoundExpressionAST;

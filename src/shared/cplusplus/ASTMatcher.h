@@ -90,6 +90,7 @@ public:
     virtual bool match(FunctionDeclaratorAST *node, FunctionDeclaratorAST *pattern);
     virtual bool match(FunctionDefinitionAST *node, FunctionDefinitionAST *pattern);
     virtual bool match(GotoStatementAST *node, GotoStatementAST *pattern);
+    virtual bool match(IdExpressionAST *node, IdExpressionAST *pattern);
     virtual bool match(IfStatementAST *node, IfStatementAST *pattern);
     virtual bool match(LabeledStatementAST *node, LabeledStatementAST *pattern);
     virtual bool match(LinkageBodyAST *node, LinkageBodyAST *pattern);

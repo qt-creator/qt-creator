@@ -275,6 +275,12 @@ virtual bool visit(BaseSpecifierAST *ast)
     return false;
 }
 
+virtual bool visit(IdExpressionAST *ast)
+{
+    nonterminal(ast->name);
+    return false;
+}
+
 virtual bool visit(CompoundExpressionAST *ast)
 {
     if (ast->lparen_token)

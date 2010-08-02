@@ -136,6 +136,12 @@ void ResolveExpression::addResult(const FullySpecifiedType &ty, Scope *scope)
     _results.append(item);
 }
 
+bool ResolveExpression::visit(IdExpressionAST *ast)
+{
+    accept(ast->name);
+    return false;
+}
+
 bool ResolveExpression::visit(BinaryExpressionAST *ast)
 {
     if (tokenKind(ast->binary_op_token) == T_COMMA && ast->right_expression && ast->right_expression->asQtMethod() != 0) {

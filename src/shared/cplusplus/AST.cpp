@@ -4211,3 +4211,21 @@ unsigned AttributeSpecifierAST::lastToken() const
     return 0;
 }
 
+/** \generated */
+unsigned IdExpressionAST::firstToken() const
+{
+    if (name)
+        if (unsigned candidate = name->firstToken())
+            return candidate;
+    return 0;
+}
+
+/** \generated */
+unsigned IdExpressionAST::lastToken() const
+{
+    if (name)
+        if (unsigned candidate = name->lastToken())
+            return candidate;
+    return 0;
+}
+

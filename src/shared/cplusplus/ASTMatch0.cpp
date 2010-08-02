@@ -201,6 +201,14 @@ bool BaseSpecifierAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
+bool IdExpressionAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (IdExpressionAST *_other = pattern->asIdExpression())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
 bool CompoundExpressionAST::match0(AST *pattern, ASTMatcher *matcher)
 {
     if (CompoundExpressionAST *_other = pattern->asCompoundExpression())

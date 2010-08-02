@@ -151,6 +151,7 @@ public:
     virtual bool visit(FunctionDeclaratorAST *) { return true; }
     virtual bool visit(FunctionDefinitionAST *) { return true; }
     virtual bool visit(GotoStatementAST *) { return true; }
+    virtual bool visit(IdExpressionAST *) { return true; }
     virtual bool visit(IfStatementAST *) { return true; }
     virtual bool visit(LabeledStatementAST *) { return true; }
     virtual bool visit(LinkageBodyAST *) { return true; }
@@ -293,6 +294,7 @@ public:
     virtual void endVisit(FunctionDeclaratorAST *) { }
     virtual void endVisit(FunctionDefinitionAST *) { }
     virtual void endVisit(GotoStatementAST *) { }
+    virtual void endVisit(IdExpressionAST *) { }
     virtual void endVisit(IfStatementAST *) { }
     virtual void endVisit(LabeledStatementAST *) { }
     virtual void endVisit(LinkageBodyAST *) { }

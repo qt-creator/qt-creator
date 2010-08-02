@@ -116,8 +116,8 @@ void tst_AST::simple_name_1()
     AST *ast = unit->ast();
 
     QVERIFY(ast != 0);
-    QVERIFY(ast->asSimpleName() != 0);
-    QCOMPARE(ast->asSimpleName()->identifier_token, 1U);
+    QVERIFY(ast->asIdExpression()->name->asSimpleName() != 0);
+    QCOMPARE(ast->asIdExpression()->name->asSimpleName()->identifier_token, 1U);
 }
 
 void tst_AST::template_id_1()
@@ -126,15 +126,15 @@ void tst_AST::template_id_1()
     AST *ast = unit->ast();
 
     QVERIFY(ast != 0);
-    QVERIFY(ast->asTemplateId() != 0);
-    QCOMPARE(ast->asTemplateId()->identifier_token, 1U);
-    QCOMPARE(ast->asTemplateId()->less_token, 2U);
-    QVERIFY(ast->asTemplateId()->template_argument_list != 0);
-    QVERIFY(ast->asTemplateId()->template_argument_list->value != 0);
-    QVERIFY(ast->asTemplateId()->template_argument_list->value->asNumericLiteral() != 0);
-    QCOMPARE(ast->asTemplateId()->template_argument_list->value->asNumericLiteral()->literal_token, 3U);
-    QVERIFY(ast->asTemplateId()->template_argument_list->next == 0);
-    QCOMPARE(ast->asTemplateId()->greater_token, 4U);
+    QVERIFY(ast->asIdExpression()->name->asTemplateId() != 0);
+    QCOMPARE(ast->asIdExpression()->name->asTemplateId()->identifier_token, 1U);
+    QCOMPARE(ast->asIdExpression()->name->asTemplateId()->less_token, 2U);
+    QVERIFY(ast->asIdExpression()->name->asTemplateId()->template_argument_list != 0);
+    QVERIFY(ast->asIdExpression()->name->asTemplateId()->template_argument_list->value != 0);
+    QVERIFY(ast->asIdExpression()->name->asTemplateId()->template_argument_list->value->asNumericLiteral() != 0);
+    QCOMPARE(ast->asIdExpression()->name->asTemplateId()->template_argument_list->value->asNumericLiteral()->literal_token, 3U);
+    QVERIFY(ast->asIdExpression()->name->asTemplateId()->template_argument_list->next == 0);
+    QCOMPARE(ast->asIdExpression()->name->asTemplateId()->greater_token, 4U);
 }
 
 void tst_AST::new_expression_1()
@@ -213,7 +213,7 @@ void tst_AST::condition_1()
     QVERIFY(ltExpr->left_expression);
     QVERIFY(ltExpr->right_expression);
 
-    SimpleNameAST *x = ltExpr->left_expression->asSimpleName();
+    SimpleNameAST *x = ltExpr->left_expression->asIdExpression()->name->asSimpleName();
     QVERIFY(x);
     QCOMPARE(unit->spell(x->identifier_token), "x");
 
@@ -227,7 +227,7 @@ void tst_AST::condition_1()
     QVERIFY(gtExpr->left_expression);
     QVERIFY(gtExpr->right_expression);
 
-    SimpleNameAST *y = gtExpr->left_expression->asSimpleName();
+    SimpleNameAST *y = gtExpr->left_expression->asIdExpression()->name->asSimpleName();
     QVERIFY(y);
     QCOMPARE(unit->spell(y->identifier_token), "y");
 
@@ -240,7 +240,7 @@ void tst_AST::condition_1()
     QVERIFY(intType);
     // ### here we could check if the type is an actual int
 
-    SimpleNameAST *a = cast->expression->asSimpleName();
+    SimpleNameAST *a = cast->expression->asIdExpression()->name->asSimpleName();
     QVERIFY(a);
     QCOMPARE(unit->spell(a->identifier_token), "a");
 }
@@ -285,7 +285,7 @@ void tst_AST::conditional_1()
     QVERIFY(ltExpr->left_expression);
     QVERIFY(ltExpr->right_expression);
 
-    SimpleNameAST *x = ltExpr->left_expression->asSimpleName();
+    SimpleNameAST *x = ltExpr->left_expression->asIdExpression()->name->asSimpleName();
     QVERIFY(x);
     QCOMPARE(unit->spell(x->identifier_token), "x");
 
@@ -299,7 +299,7 @@ void tst_AST::conditional_1()
     QVERIFY(gtExpr->left_expression);
     QVERIFY(gtExpr->right_expression);
 
-    SimpleNameAST *y = gtExpr->left_expression->asSimpleName();
+    SimpleNameAST *y = gtExpr->left_expression->asIdExpression()->name->asSimpleName();
     QVERIFY(y);
     QCOMPARE(unit->spell(y->identifier_token), "y");
 
@@ -318,7 +318,7 @@ void tst_AST::conditional_1()
     QVERIFY(intSpec);
     QCOMPARE(unit->spell(intSpec->specifier_token), "int");
 
-    SimpleNameAST *a = cast->expression->asSimpleName();
+    SimpleNameAST *a = cast->expression->asIdExpression()->name->asSimpleName();
     QVERIFY(a);
     QCOMPARE(unit->spell(a->identifier_token), "a");
 
@@ -326,7 +326,7 @@ void tst_AST::conditional_1()
     QVERIFY(equals);
     QCOMPARE(unit->tokenKind(equals->binary_op_token), (int) T_EQUAL_EQUAL);
 
-    x = equals->left_expression->asSimpleName();
+    x = equals->left_expression->asIdExpression()->name->asSimpleName();
     QVERIFY(x);
     QCOMPARE(unit->spell(x->identifier_token), "x");
 
@@ -338,7 +338,7 @@ void tst_AST::conditional_1()
     QVERIFY(assignment);
     QCOMPARE(unit->tokenKind(assignment->binary_op_token), (int) T_EQUAL);
 
-    y = assignment->left_expression->asSimpleName();
+    y = assignment->left_expression->asIdExpression()->name->asSimpleName();
     QVERIFY(y);
     QCOMPARE(unit->spell(y->identifier_token), "y");
 
@@ -434,7 +434,7 @@ void tst_AST::if_statement_1()
     QVERIFY(then_stmt->expression != 0);
     QCOMPARE(then_stmt->semicolon_token, 6U);
 
-    SimpleNameAST *id_expr = then_stmt->expression->asSimpleName();
+    SimpleNameAST *id_expr = then_stmt->expression->asIdExpression()->name->asSimpleName();
     QVERIFY(id_expr != 0);
     QCOMPARE(id_expr->identifier_token, 5U);
 }
@@ -490,7 +490,7 @@ void tst_AST::if_else_statement()
     QVERIFY(then_stmt->expression != 0);
     QCOMPARE(then_stmt->semicolon_token, 6U);
 
-    SimpleNameAST *a_id_expr = then_stmt->expression->asSimpleName();
+    SimpleNameAST *a_id_expr = then_stmt->expression->asIdExpression()->name->asSimpleName();
     QVERIFY(a_id_expr != 0);
     QCOMPARE(a_id_expr->identifier_token, 5U);
 
@@ -500,7 +500,7 @@ void tst_AST::if_else_statement()
     QVERIFY(else_stmt->expression != 0);
     QCOMPARE(else_stmt->semicolon_token, 9U);
 
-    SimpleNameAST *b_id_expr = else_stmt->expression->asSimpleName();
+    SimpleNameAST *b_id_expr = else_stmt->expression->asIdExpression()->name->asSimpleName();
     QVERIFY(b_id_expr != 0);
     QCOMPARE(b_id_expr->identifier_token, 8U);
 }
@@ -521,8 +521,8 @@ void tst_AST::while_statement()
     QVERIFY(stmt->statement != 0);
 
     // check condition
-    QVERIFY(stmt->condition->asSimpleName() != 0);
-    QCOMPARE(stmt->condition->asSimpleName()->identifier_token, 3U);
+    QVERIFY(stmt->condition->asIdExpression()->name->asSimpleName() != 0);
+    QCOMPARE(stmt->condition->asIdExpression()->name->asSimpleName()->identifier_token, 3U);
 
     // check the `body' statement
     CompoundStatementAST *body_stmt = stmt->statement->asCompoundStatement();
@@ -562,8 +562,8 @@ void tst_AST::while_condition_statement()
     QCOMPARE(condition->declarator->core_declarator->asDeclaratorId()->name->asSimpleName()->identifier_token, 4U);
     QVERIFY(condition->declarator->postfix_declarator_list == 0);
     QVERIFY(condition->declarator->initializer != 0);
-    QVERIFY(condition->declarator->initializer->asSimpleName() != 0);
-    QCOMPARE(condition->declarator->initializer->asSimpleName()->identifier_token, 6U);
+    QVERIFY(condition->declarator->initializer->asIdExpression()->name->asSimpleName() != 0);
+    QCOMPARE(condition->declarator->initializer->asIdExpression()->name->asSimpleName()->identifier_token, 6U);
 
     // check the `body' statement
     CompoundStatementAST *body_stmt = stmt->statement->asCompoundStatement();
@@ -816,14 +816,14 @@ void tst_AST::normal_array_access()
     { // check the left-hand side:
         ExpressionAST *lhs = arrayExpr->base_expression;
         QVERIFY(lhs);
-        SimpleNameAST *a = lhs->asSimpleName();
+        SimpleNameAST *a = lhs->asIdExpression()->name->asSimpleName();
         QVERIFY(a);
         QCOMPARE(QLatin1String(unit->identifier(a->identifier_token)->chars()), QLatin1String("a"));
     }
 
     { // check the right-hand side:
         QVERIFY(arrayExpr->expression);
-        SimpleNameAST *b = arrayExpr->expression->asSimpleName();
+        SimpleNameAST *b = arrayExpr->expression->asIdExpression()->name->asSimpleName();
         QVERIFY(b);
         QCOMPARE(QLatin1String(unit->identifier(b->identifier_token)->chars()), QLatin1String("b"));
     }
@@ -860,14 +860,14 @@ void tst_AST::array_access_with_nested_expression()
         QVERIFY(lhs);
         NestedExpressionAST *nested_a = lhs->asNestedExpression();
         QVERIFY(nested_a && nested_a->expression);
-        SimpleNameAST *a = nested_a->expression->asSimpleName();
+        SimpleNameAST *a = nested_a->expression->asIdExpression()->name->asSimpleName();
         QVERIFY(a);
         QCOMPARE(QLatin1String(unit->identifier(a->identifier_token)->chars()), QLatin1String("a"));
     }
 
     { // check the RHS:
         QVERIFY(arrayExpr->expression);
-        SimpleNameAST *b = arrayExpr->expression->asSimpleName();
+        SimpleNameAST *b = arrayExpr->expression->asIdExpression()->name->asSimpleName();
         QVERIFY(b);
         QCOMPARE(QLatin1String(unit->identifier(b->identifier_token)->chars()), QLatin1String("b"));
     }
@@ -946,7 +946,7 @@ void tst_AST::objc_msg_send_expression()
         QVERIFY(msgExpr);
 
         QVERIFY(msgExpr->receiver_expression);
-        SimpleNameAST *receiver = msgExpr->receiver_expression->asSimpleName();
+        SimpleNameAST *receiver = msgExpr->receiver_expression->asIdExpression()->name->asSimpleName();
         QVERIFY(receiver);
         QCOMPARE(QLatin1String(unit->identifier(receiver->identifier_token)->chars()), QLatin1String("obj"));
 

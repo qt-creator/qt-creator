@@ -863,13 +863,15 @@ public:
         if (path.size() > 1) {
             if (CallAST *call = path.at(path.size() - 2)->asCall()) {
                 if (call->base_expression) {
-                    if (SimpleNameAST *functionName = call->base_expression->asSimpleName()) {
-                        const QByteArray id(state.tokenAt(functionName->identifier_token).identifier->chars());
+                    if (IdExpressionAST *idExpr = call->base_expression->asIdExpression()) {
+                        if (SimpleNameAST *functionName = idExpr->name->asSimpleName()) {
+                            const QByteArray id(state.tokenAt(functionName->identifier_token).identifier->chars());
 
-                        if (id == "QT_TRANSLATE_NOOP" || id == "tr" || id == "trUtf8"
-                                || (type == TypeString && (id == "QLatin1String" || id == "QLatin1Literal"))
-                                || (type == TypeChar && id == "QLatin1Char"))
-                            return noResult(); // skip it
+                            if (id == "QT_TRANSLATE_NOOP" || id == "tr" || id == "trUtf8"
+                                    || (type == TypeString && (id == "QLatin1String" || id == "QLatin1Literal"))
+                                    || (type == TypeChar && id == "QLatin1Char"))
+                                return noResult(); // skip it
+                        }
                     }
                 }
             }
@@ -958,14 +960,16 @@ public:
         if (path.size() >= 2) {
             if (CallAST *call = path.at(path.size() - 2)->asCall()) {
                 if (call->base_expression) {
-                    if (SimpleNameAST *functionName = call->base_expression->asSimpleName()) {
-                        const QByteArray id(state.tokenAt(functionName->identifier_token).identifier->chars());
+                    if (IdExpressionAST *idExpr = call->base_expression->asIdExpression()) {
+                        if (SimpleNameAST *functionName = idExpr->name->asSimpleName()) {
+                            const QByteArray id(state.tokenAt(functionName->identifier_token).identifier->chars());
 
-                        if (id == "tr" || id == "trUtf8"
-                                || id == "translate"
-                                || id == "QT_TRANSLATE_NOOP"
-                                || id == "QLatin1String" || id == "QLatin1Literal")
-                            return noResult(); // skip it
+                            if (id == "tr" || id == "trUtf8"
+                                    || id == "translate"
+                                    || id == "QT_TRANSLATE_NOOP"
+                                    || id == "QLatin1String" || id == "QLatin1Literal")
+                                return noResult(); // skip it
+                        }
                     }
                 }
             }
@@ -1075,11 +1079,13 @@ public:
         else if (path.size() > 1) {
             if (CallAST *call = path.at(path.size() - 2)->asCall()) {
                 if (call->base_expression) {
-                    if (SimpleNameAST *functionName = call->base_expression->asSimpleName()) {
-                        const QByteArray id(state.tokenAt(functionName->identifier_token).identifier->chars());
+                    if (IdExpressionAST *idExpr = call->base_expression->asIdExpression()) {
+                        if (SimpleNameAST *functionName = idExpr->name->asSimpleName()) {
+                            const QByteArray id(state.tokenAt(functionName->identifier_token).identifier->chars());
 
-                        if (id == "QLatin1String" || id == "QLatin1Literal")
-                            qlatin1Call = call;
+                            if (id == "QLatin1String" || id == "QLatin1Literal")
+                                qlatin1Call = call;
+                        }
                     }
                 }
             }
@@ -1365,14 +1371,14 @@ protected:
         bool preVisit(AST *ast) {
             if (CaseStatementAST *cs = ast->asCaseStatement()) {
                 foundCaseStatementLevel = true;
-                ExpressionAST *expression = cs->expression->asSimpleName();
-                if (!expression)
-                    expression = cs->expression->asQualifiedName();
-                if (expression) {
-                    LookupItem item = typeOfExpression(expression,
-                                                       document,
-                                                       scope).first();
-                    values << prettyPrint(LookupContext::fullyQualifiedName(item.declaration()));
+                if (ExpressionAST *expression = cs->expression->asIdExpression()) {
+                    QList<LookupItem> candidates = typeOfExpression(expression,
+                                                                    document,
+                                                                    scope);
+                    if (!candidates .isEmpty() && candidates.first().declaration()) {
+                        Symbol *decl = candidates.first().declaration();
+                        values << prettyPrint(LookupContext::fullyQualifiedName(decl));
+                    }
                 }
                 return true;
             } else if (foundCaseStatementLevel) {
@@ -1555,8 +1561,9 @@ public:
         for (int index = path.size() - 1; index != -1; --index) {
             if (BinaryExpressionAST *binary = path.at(index)->asBinaryExpression()) {
                 if (binary->left_expression && binary->right_expression && state.tokenAt(binary->binary_op_token).is(T_EQUAL)) {
-                    if (state.isCursorOn(binary->left_expression) && binary->left_expression->asSimpleName() != 0) {
-                        SimpleNameAST *nameAST = binary->left_expression->asSimpleName();
+                    IdExpressionAST *idExpr = binary->left_expression->asIdExpression();
+                    if (state.isCursorOn(binary->left_expression) && idExpr && idExpr->name->asSimpleName() != 0) {
+                        SimpleNameAST *nameAST = idExpr->name->asSimpleName();
                         const QList<LookupItem> results = state.context().lookup(nameAST->name, state.scopeAt(nameAST->firstToken()));
                         Declaration *decl = 0;
                         foreach (const LookupItem &r, results) {

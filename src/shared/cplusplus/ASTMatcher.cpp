@@ -427,6 +427,19 @@ bool ASTMatcher::match(BaseSpecifierAST *node, BaseSpecifierAST *pattern)
     return true;
 }
 
+bool ASTMatcher::match(IdExpressionAST *node, IdExpressionAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    if (! pattern->name)
+        pattern->name = node->name;
+    else if (! AST::match(node->name, pattern->name, this))
+        return false;
+
+    return true;
+}
+
 bool ASTMatcher::match(CompoundExpressionAST *node, CompoundExpressionAST *pattern)
 {
     (void) node;

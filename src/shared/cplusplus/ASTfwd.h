@@ -108,6 +108,7 @@ class ForeachStatementAST;
 class FunctionDeclaratorAST;
 class FunctionDefinitionAST;
 class GotoStatementAST;
+class IdExpressionAST;
 class IfStatementAST;
 class LabeledStatementAST;
 class LambdaCaptureAST;

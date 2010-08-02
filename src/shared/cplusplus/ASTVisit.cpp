@@ -205,6 +205,14 @@ void BaseSpecifierAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
+void IdExpressionAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(name, visitor);
+    }
+    visitor->endVisit(this);
+}
+
 void CompoundExpressionAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
