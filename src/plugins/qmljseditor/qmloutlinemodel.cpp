@@ -401,7 +401,8 @@ QModelIndex QmlOutlineModel::enterPublicMember(AST::UiPublicMember *publicMember
 {
     QmlOutlineItem prototype(this);
 
-    prototype.setText(publicMember->name->asString());
+    if (publicMember->name)
+        prototype.setText(publicMember->name->asString());
     prototype.setIcon(m_icons->publicMemberIcon());
     prototype.setData(PropertyType, ItemTypeRole);
     prototype.setSourceLocation(getLocation(publicMember));
