@@ -410,7 +410,8 @@ void ContextPaneWidgetImage::changeEvent(QEvent *e)
     QWidget::changeEvent(e);
     switch (e->type()) {
     case QEvent::LanguageChange:
-        ui->retranslateUi(this);
+        if (ui)
+            ui->retranslateUi(this);
         break;
     default:
         break;
