@@ -37,7 +37,6 @@ namespace Help {
 namespace Internal {
 
 class CentralWidget;
-class LocalHelpManager;
 
 class GeneralSettingsPage : public Core::IOptionsPage
 {
@@ -57,10 +56,9 @@ public:
     void finish() {}
     virtual bool matches(const QString &s) const;
 
-    void setHelpManager(LocalHelpManager *manager);
-
 signals:
     void fontChanged();
+    void startOptionChanged();
     void contextHelpOptionChanged();
 
 private slots:
@@ -85,8 +83,6 @@ private:
 
     QString m_searchKeywords;
     Ui::GeneralSettingsPage m_ui;
-
-    LocalHelpManager *m_helpManager;
 };
 
     }   // Internal

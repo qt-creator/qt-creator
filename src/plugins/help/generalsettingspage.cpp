@@ -37,6 +37,7 @@
 #include "xbelsupport.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 
 #include <QtCore/QCoreApplication>
@@ -46,8 +47,6 @@
 #include <QtGui/QApplication>
 #include <QtGui/QFileDialog>
 
-#include <QtHelp/QHelpEngine>
-
 #if !defined(QT_NO_WEBKIT)
 #include <QtWebKit/QWebSettings>
 #endif
@@ -55,7 +54,6 @@
 using namespace Help::Internal;
 
 GeneralSettingsPage::GeneralSettingsPage()
-    : m_helpManager(0)
 {
     m_font = qApp->font();
 #if !defined(QT_NO_WEBKIT)
@@ -97,26 +95,27 @@ QWidget *GeneralSettingsPage::createPage(QWidget *parent)
     m_ui.sizeComboBox->setEditable(false);
     m_ui.styleComboBox->setEditable(false);
 
-    m_helpManager->setupGuiHelpEngine();
-    const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
-    m_font = qVariantValue<QFont>(engine.customValue(QLatin1String("font"), m_font));
+    Core::HelpManager *manager = Core::HelpManager::instance();
+    m_font = qVariantValue<QFont>(manager->customValue(QLatin1String("font"),
+        m_font));
 
     updateFontSize();
     updateFontStyle();
     updateFontFamily();
 
-    m_homePage = engine.customValue(QLatin1String("HomePage"), QString()).toString();
+    m_homePage = manager->customValue(QLatin1String("HomePage"), QString())
+        .toString();
     if (m_homePage.isEmpty()) {
-        m_homePage = engine.customValue(QLatin1String("DefaultHomePage"),
+        m_homePage = manager->customValue(QLatin1String("DefaultHomePage"),
             Help::Constants::AboutBlank).toString();
     }
     m_ui.homePageLineEdit->setText(m_homePage);
 
-    const int startOption = engine.customValue(QLatin1String("StartOption"),
+    const int startOption = manager->customValue(QLatin1String("StartOption"),
         Help::Constants::ShowLastPages).toInt();
     m_ui.helpStartComboBox->setCurrentIndex(startOption);
 
-    m_contextOption = engine.customValue(QLatin1String("ContextHelpOption"),
+    m_contextOption = manager->customValue(QLatin1String("ContextHelpOption"),
         Help::Constants::SideBySideIfPossible).toInt();
     m_ui.contextHelpComboBox->setCurrentIndex(m_contextOption);
 
@@ -169,25 +168,25 @@ void GeneralSettingsPage::apply()
     if (weight >= 0)    // Weight < 0 asserts...
         newFont.setWeight(weight);
 
-    QHelpEngineCore *engine = &LocalHelpManager::helpEngine();
+    Core::HelpManager *manager = Core::HelpManager::instance();
     if (newFont != m_font) {
         m_font = newFont;
-        engine->setCustomValue(QLatin1String("font"), newFont);
+        manager->setCustomValue(QLatin1String("font"), newFont);
         emit fontChanged();
     }
 
     QString homePage = m_ui.homePageLineEdit->text();
     if (homePage.isEmpty())
         homePage = Help::Constants::AboutBlank;
-    engine->setCustomValue(QLatin1String("HomePage"), homePage);
+    manager->setCustomValue(QLatin1String("HomePage"), homePage);
 
     const int startOption = m_ui.helpStartComboBox->currentIndex();
-    engine->setCustomValue(QLatin1String("StartOption"), startOption);
+    manager->setCustomValue(QLatin1String("StartOption"), startOption);
 
     const int helpOption = m_ui.contextHelpComboBox->currentIndex();
     if (m_contextOption != helpOption) {
         m_contextOption = helpOption;
-        engine->setCustomValue(QLatin1String("ContextHelpOption"), helpOption);
+        manager->setCustomValue(QLatin1String("ContextHelpOption"), helpOption);
 
         QSettings *settings = Core::ICore::instance()->settings();
         settings->beginGroup(Help::Constants::ID_MODE_HELP);
@@ -212,8 +211,8 @@ void GeneralSettingsPage::setBlankPage()
 
 void GeneralSettingsPage::setDefaultPage()
 {
-    const QString &defaultHomePage = LocalHelpManager::helpEngine()
-        .customValue(QLatin1String("DefaultHomePage"), QString()).toString();
+    const QString &defaultHomePage = Core::HelpManager::instance()
+        ->customValue(QLatin1String("DefaultHomePage"), QString()).toString();
     m_ui.homePageLineEdit->setText(defaultHomePage);
 }
 
@@ -341,9 +340,4 @@ int GeneralSettingsPage::closestPointSizeIndex(int desiredPointSize) const
 bool GeneralSettingsPage::matches(const QString &s) const
 {
     return m_searchKeywords.contains(s, Qt::CaseInsensitive);
-}
-
-void GeneralSettingsPage::setHelpManager(LocalHelpManager *manager)
-{
-    m_helpManager = manager;
 }

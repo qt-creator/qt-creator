@@ -155,7 +155,6 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     addAutoReleasedObject(m_filterSettingsPage = new FilterSettingsPage());
     addAutoReleasedObject(m_generalSettingsPage = new GeneralSettingsPage());
 
-    m_generalSettingsPage->setHelpManager(m_helpManager);
     connect(m_generalSettingsPage, SIGNAL(fontChanged()), this,
         SLOT(fontChanged()));
     connect(m_generalSettingsPage, SIGNAL(contextHelpOptionChanged()), this,
@@ -166,6 +165,8 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     connect(m_filterSettingsPage, SIGNAL(filtersChanged()), this,
         SLOT(setupHelpEngineIfNeeded()));
     connect(Core::HelpManager::instance(), SIGNAL(documentationChanged()), this,
+        SLOT(setupHelpEngineIfNeeded()));
+    connect(Core::HelpManager::instance(), SIGNAL(collectionFileChanged()), this,
         SLOT(setupHelpEngineIfNeeded()));
 
     m_splitter = new Core::MiniSplitter;
