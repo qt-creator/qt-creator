@@ -143,17 +143,8 @@ void MaemoRunConfigurationWidget::addDebuggingWidgets(QVBoxLayout *mainLayout)
     debugRadioButtonsLayout->addWidget(gdbButton);
     debugRadioButtonsLayout->addWidget(gdbServerButton);
     debugRadioButtonsLayout->addStretch(1);
-    QHBoxLayout *debugHostAddressLayout = new QHBoxLayout;
-    m_hostAddressLineEdit2 = new QLineEdit;
-    debugHostAddressLayout->addWidget(m_hostAddressLineEdit2);
-    debugHostAddressLayout->addStretch(1);
-    debugLayout->addRow(tr("This host's address from the device:"),
-        debugHostAddressLayout);
-    m_hostAddressLineEdit2->setText(m_runConfiguration->localHostAddressFromDevice());
     gdbButton->setChecked(m_runConfiguration->useRemoteGdb());
     gdbServerButton->setChecked(!gdbButton->isChecked());
-    connect(m_hostAddressLineEdit2, SIGNAL(textEdited(QString)), this,
-        SLOT(handleHostAddressChanged(QString)));
     connect(gdbButton, SIGNAL(toggled(bool)), this,
         SLOT(handleDebuggingTypeChanged(bool)));
     QHBoxLayout *spinBoxLayout = new QHBoxLayout;
@@ -180,17 +171,6 @@ void MaemoRunConfigurationWidget::addMountWidgets(QVBoxLayout *mainLayout)
     mainLayout->addWidget(m_mountDetailsContainer);
 #endif
     QVBoxLayout *mountViewLayout = new QVBoxLayout(mountViewWidget);
-    QHBoxLayout *hostAddressLayout = new QHBoxLayout;
-    mountViewLayout->addLayout(hostAddressLayout);
-    QLabel *hostNameLabel
-        = new QLabel(tr("This host's address from the device:"));
-    m_hostAddressLineEdit1 = new QLineEdit;
-    m_hostAddressLineEdit1->setText(m_runConfiguration->localHostAddressFromDevice());
-    connect(m_hostAddressLineEdit1, SIGNAL(textEdited(QString)), this,
-        SLOT(handleHostAddressChanged(QString)));
-    hostAddressLayout->addWidget(hostNameLabel);
-    hostAddressLayout->addWidget(m_hostAddressLineEdit1);
-    hostAddressLayout->addStretch(1);
     QHBoxLayout *tableLayout = new QHBoxLayout;
     mountViewLayout->addLayout(tableLayout);
     m_mountView = new QTableView;
@@ -353,20 +333,12 @@ void MaemoRunConfigurationWidget::changeLocalMountDir(const QModelIndex &index)
     }
 }
 
-void MaemoRunConfigurationWidget::handleHostAddressChanged(const QString &newAddress)
-{
-    m_hostAddressLineEdit1->setText(newAddress);
-    m_hostAddressLineEdit2->setText(newAddress);
-    m_runConfiguration->setLocalHostAddressFromDevice(newAddress);
-}
-
 void MaemoRunConfigurationWidget::handleDebuggingTypeChanged(bool useGdb)
 {
     m_runConfiguration->setUseRemoteGdb(useGdb);
     const QString detailsText = useGdb ? tr("Use gdb") : tr("Use gdbserver");
     m_debugDetailsContainer->setSummaryText(tr("<b>Debugging details:</b> ")
         + detailsText);
-    m_hostAddressLineEdit2->setEnabled(useGdb);
     m_gdbMountPortSpinBox->setEnabled(useGdb);
 }
 

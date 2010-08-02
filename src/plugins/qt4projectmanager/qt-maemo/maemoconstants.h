@@ -69,7 +69,6 @@ static const QLatin1String ProFileKey(PREFIX ".ProFile");
 static const QLatin1String ExportedLocalDirsKey(PREFIX ".ExportedLocalDirs");
 static const QLatin1String RemoteMountPointsKey(PREFIX ".RemoteMountPoints");
 static const QLatin1String MountPortsKey(PREFIX ".MountPorts");
-static const QLatin1String HostAddressFromDeviceKey(PREFIX ".HostAddressFromDevice");
 static const QLatin1String BaseEnvironmentBaseKey(PREFIX ".BaseEnvironmentBase");
 static const QLatin1String UserEnvironmentChangesKey(PREFIX ".UserEnvironmentChanges");
 static const QLatin1String UseRemoteGdbKey(PREFIX ".UseRemoteGdb");

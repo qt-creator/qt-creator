@@ -288,9 +288,8 @@ void MaemoSshRunner::mount()
         const QString chmod = QString::fromLocal8Bit("%1 chmod a+r+w+x %2")
             .arg(MaemoGlobal::remoteSudo(), mountSpec.remoteMountPoint);
         const QString utfsClient
-            = QString::fromLocal8Bit("%1 -l %2 -r %2 -c %3:%2 %4")
+            = QString::fromLocal8Bit("%1 -l %2 -r %2 -c `echo $SSH_CLIENT|cut -d ' ' -f 1`:%2 %4")
                   .arg(utfsClientOnDevice()).arg(port)
-                  .arg(m_runConfig->localHostAddressFromDevice())
                   .arg(mountSpec.remoteMountPoint);
         remoteCall += andOp + mkdir + andOp + chmod + andOp + utfsClient;
     }

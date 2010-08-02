@@ -56,7 +56,6 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 namespace {
-const QLatin1String DefaultHostAddress("192.168.2.14");
 const bool DefaultUseRemoteGdbValue = false;  // TODO: Make true once utfs-server works on Windows.
 const int DefaultGdbMountPort = 10100;
 } // anonymous namespace
@@ -67,7 +66,6 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
         const QString &proFilePath)
     : RunConfiguration(parent, QLatin1String(MAEMO_RC_ID))
     , m_proFilePath(proFilePath)
-    , m_hostAddressFromDevice(DefaultHostAddress)
     , m_useRemoteGdb(DefaultUseRemoteGdbValue)
     , m_gdbMountPort(DefaultGdbMountPort)
     , m_baseEnvironmentBase(SystemEnvironmentBase)
@@ -81,7 +79,6 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
     , m_proFilePath(source->m_proFilePath)
     , m_gdbPath(source->m_gdbPath)
     , m_arguments(source->m_arguments)
-    , m_hostAddressFromDevice(source->localHostAddressFromDevice())
     , m_useRemoteGdb(source->useRemoteGdb())
     , m_gdbMountPort(source->gdbMountPort())
     , m_baseEnvironmentBase(source->m_baseEnvironmentBase)
@@ -152,7 +149,6 @@ QVariantMap MaemoRunConfiguration::toMap() const
     map.insert(ArgumentsKey, m_arguments);
     const QDir dir = QDir(target()->project()->projectDirectory());
     map.insert(ProFileKey, dir.relativeFilePath(m_proFilePath));
-    map.insert(HostAddressFromDeviceKey, m_hostAddressFromDevice);
     map.insert(UseRemoteGdbKey, useRemoteGdb());
     map.insert(GdbMountPortKey, gdbMountPort());
     map.insert(BaseEnvironmentBaseKey, m_baseEnvironmentBase);
@@ -171,8 +167,6 @@ bool MaemoRunConfiguration::fromMap(const QVariantMap &map)
     m_arguments = map.value(ArgumentsKey).toStringList();
     const QDir dir = QDir(target()->project()->projectDirectory());
     m_proFilePath = dir.filePath(map.value(ProFileKey).toString());
-    m_hostAddressFromDevice = map.value(HostAddressFromDeviceKey,
-        DefaultHostAddress).toString();
     m_useRemoteGdb = map.value(UseRemoteGdbKey, DefaultUseRemoteGdbValue).toBool();
     m_gdbMountPort = map.value(GdbMountPortKey, DefaultGdbMountPort).toInt();
     m_userEnvironmentChanges =
@@ -219,16 +213,6 @@ MaemoDeployStep *MaemoRunConfiguration::deployStep() const
     Q_ASSERT_X(step, Q_FUNC_INFO,
         "Impossible: Maemo build configuration without deploy step.");
     return step;
-}
-
-QString MaemoRunConfiguration::localHostAddressFromDevice() const
-{
-    return m_hostAddressFromDevice;
-}
-
-void MaemoRunConfiguration::setLocalHostAddressFromDevice(const QString &address)
-{
-    m_hostAddressFromDevice = address;
 }
 
 QString MaemoRunConfiguration::maddeRoot() const

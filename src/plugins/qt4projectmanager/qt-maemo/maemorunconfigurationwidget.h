@@ -80,7 +80,6 @@ private slots:
     void removeMount();
     void changeLocalMountDir(const QModelIndex &index);
     void enableOrDisableRemoveMountSpecButton();
-    void handleHostAddressChanged(const QString &newAddress);
     void handleDebuggingTypeChanged(bool useGdb);
     void handleGdbMountPortChanged(int port);
     void fetchEnvironment();
@@ -102,8 +101,6 @@ private:
     QLineEdit *m_argsLineEdit;
     QLabel *m_executableLabel;
     QComboBox *m_devConfBox;
-    QLineEdit *m_hostAddressLineEdit1;
-    QLineEdit *m_hostAddressLineEdit2;
     QSpinBox *m_gdbMountPortSpinBox;
     QTableView *m_mountView;
     QToolButton *m_removeMountButton;
