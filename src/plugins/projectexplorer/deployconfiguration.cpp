@@ -79,7 +79,7 @@ QVariantMap DeployConfiguration::toMap() const
 {
     QVariantMap map(ProjectConfiguration::toMap());
     map.insert(QLatin1String(BUILD_STEP_LIST_COUNT), 1);
-    map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) % QLatin1String("0"), m_stepList->toMap());
+    map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) + QLatin1String("0"), m_stepList->toMap());
 
     return map;
 }
@@ -96,7 +96,7 @@ bool DeployConfiguration::fromMap(const QVariantMap &map)
 
     int maxI = map.value(QLatin1String(BUILD_STEP_LIST_COUNT), 0).toInt();
     Q_ASSERT(maxI == 1);
-    QVariantMap data = map.value(QLatin1String(BUILD_STEP_LIST_PREFIX) % QLatin1String("0")).toMap();
+    QVariantMap data = map.value(QLatin1String(BUILD_STEP_LIST_PREFIX) + QLatin1String("0")).toMap();
     if (!data.isEmpty()) {
         m_stepList = new BuildStepList(this, data);
         if (m_stepList->isNull()) {
