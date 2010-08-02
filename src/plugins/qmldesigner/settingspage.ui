@@ -107,7 +107,17 @@
       <item>
        <widget class="QCheckBox" name="textEditHelperCheckBox">
         <property name="text">
-         <string>Text Quick Toolbar</string>
+         <string>Enable Quick Toolbar</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="textEditHelperCheckBoxPin">
+        <property name="toolTip">
+         <string>If enabled the toolbar will remain pinned to an absolute position.</string>
+        </property>
+        <property name="text">
+         <string>Pin Quick Toolbar</string>
         </property>
        </widget>
       </item>
