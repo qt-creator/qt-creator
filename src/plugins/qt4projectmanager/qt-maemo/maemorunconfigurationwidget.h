@@ -43,7 +43,6 @@ class QLabel;
 class QLineEdit;
 class QModelIndex;
 class QPushButton;
-class QSpinBox;
 class QTableView;
 class QToolButton;
 class QVBoxLayout;
@@ -81,7 +80,6 @@ private slots:
     void changeLocalMountDir(const QModelIndex &index);
     void enableOrDisableRemoveMountSpecButton();
     void handleDebuggingTypeChanged(bool useGdb);
-    void handleGdbMountPortChanged(int port);
     void fetchEnvironment();
     void fetchEnvironmentFinished();
     void userChangesEdited();
@@ -101,7 +99,6 @@ private:
     QLineEdit *m_argsLineEdit;
     QLabel *m_executableLabel;
     QComboBox *m_devConfBox;
-    QSpinBox *m_gdbMountPortSpinBox;
     QTableView *m_mountView;
     QToolButton *m_removeMountButton;
     Utils::DetailsWidget *m_mountDetailsContainer;

@@ -63,12 +63,12 @@ public:
     Core::SshConnectionParameters server;
     QString name;
     DeviceType type;
-    int gdbServerPort;
+    int debuggingPort;
     quint64 internalId;
 
 private:
     int defaultSshPort(DeviceType type) const;
-    int defaultGdbServerPort(DeviceType type) const;
+    int defaultDebuggingPort(DeviceType type) const;
     QString defaultHost(DeviceType type) const;
 
 };

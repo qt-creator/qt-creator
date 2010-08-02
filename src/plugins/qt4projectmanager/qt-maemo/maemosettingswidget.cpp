@@ -114,7 +114,7 @@ QString MaemoSettingsWidget::searchKeywords() const
 {
     QString rc;
     QTextStream(&rc) << m_ui->configurationLabel->text()
-        << ' ' << m_ui->gdbServerLabel->text()
+        << ' ' << m_ui->debuggingPortLabel->text()
         << ' ' << m_ui->sshPortLabel->text()
         << ' ' << m_ui->keyButton->text()
         << ' ' << m_ui->passwordButton->text()
@@ -213,7 +213,7 @@ void MaemoSettingsWidget::fillInValues()
     m_ui->nameLineEdit->setText(currentConfig().name);
     m_ui->hostLineEdit->setText(currentConfig().server.host);
     m_ui->sshPortSpinBox->setValue(currentConfig().server.port);
-    m_ui->gdbServerPortSpinBox->setValue(currentConfig().gdbServerPort);
+    m_ui->gdbServerPortSpinBox->setValue(currentConfig().debuggingPort);
     m_ui->timeoutSpinBox->setValue(currentConfig().server.timeout);
     m_ui->userLineEdit->setText(currentConfig().server.uname);
     m_ui->pwdLineEdit->setText(currentConfig().server.pwd);
@@ -295,7 +295,7 @@ void MaemoSettingsWidget::sshPortEditingFinished()
 
 void MaemoSettingsWidget::gdbServerPortEditingFinished()
 {
-    currentConfig().gdbServerPort = m_ui->gdbServerPortSpinBox->value();
+    currentConfig().debuggingPort = m_ui->gdbServerPortSpinBox->value();
 }
 
 void MaemoSettingsWidget::timeoutEditingFinished()

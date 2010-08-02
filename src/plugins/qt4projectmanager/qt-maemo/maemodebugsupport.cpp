@@ -292,7 +292,7 @@ QString MaemoDebugSupport::gdbServerPort(const MaemoRunConfiguration *rc,
     // something in the config dialog, but we will make sure we use
     // the right port from the information file.
     return devConf.type == MaemoDeviceConfig::Physical
-        ? QString::number(devConf.gdbServerPort)
+        ? QString::number(devConf.debuggingPort)
         : rc->runtimeGdbServerPort();
 }
 

@@ -184,7 +184,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QLabel" name="gdbServerLabel">
+              <widget class="QLabel" name="debuggingPortLabel">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
                  <horstretch>0</horstretch>
@@ -192,7 +192,7 @@
                 </sizepolicy>
                </property>
                <property name="text">
-                <string>Gdb server:</string>
+                <string>Debugging:</string>
                </property>
               </widget>
              </item>

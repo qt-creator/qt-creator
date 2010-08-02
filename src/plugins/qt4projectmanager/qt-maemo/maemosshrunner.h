@@ -90,13 +90,15 @@ private slots:
     void handleUploaderInitialized();
     void handleUploaderInitializationFailed(const QString &reason);
     void handleUploadFinished(Core::SftpJobId jobId, const QString &error);
-    void handleMountProcessFinished(int exitStatus);
+    void handleUtfsClientsStarted();
+    void handleUtfsClientsFinished(int exitStatus);
     void handleUtfsServerErrorOutput();
 
 private:
     void cleanup(bool initialCleanup);
     void deployUtfsClient();
-    void mount();
+    void startUtfsClients();
+    void startUtfsServers();
     QString utfsClientOnDevice() const;
     QString utfsServer() const;
 

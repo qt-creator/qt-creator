@@ -56,7 +56,6 @@
 #include <QtGui/QLineEdit>
 #include <QtGui/QPushButton>
 #include <QtGui/QRadioButton>
-#include <QtGui/QSpinBox>
 #include <QtGui/QTableView>
 #include <QtGui/QToolButton>
 
@@ -132,9 +131,7 @@ void MaemoRunConfigurationWidget::addDebuggingWidgets(QVBoxLayout *mainLayout)
     m_debugDetailsContainer = new Utils::DetailsWidget(this);
     QWidget *debugWidget = new QWidget;
     m_debugDetailsContainer->setWidget(debugWidget);
-#ifndef Q_OS_WIN
     mainLayout->addWidget(m_debugDetailsContainer);
-#endif
     QFormLayout *debugLayout = new QFormLayout(debugWidget);
     QHBoxLayout *debugRadioButtonsLayout = new QHBoxLayout;
     debugLayout->addRow(debugRadioButtonsLayout);
@@ -147,17 +144,6 @@ void MaemoRunConfigurationWidget::addDebuggingWidgets(QVBoxLayout *mainLayout)
     gdbServerButton->setChecked(!gdbButton->isChecked());
     connect(gdbButton, SIGNAL(toggled(bool)), this,
         SLOT(handleDebuggingTypeChanged(bool)));
-    QHBoxLayout *spinBoxLayout = new QHBoxLayout;
-    m_gdbMountPortSpinBox = new QSpinBox;
-    m_gdbMountPortSpinBox->setMinimum(1024);
-    m_gdbMountPortSpinBox->setMaximum((1 << 16) - 1);
-    spinBoxLayout->addWidget(m_gdbMountPortSpinBox);
-    spinBoxLayout->addStretch(1);
-    debugLayout->addRow(tr("Local port for mounting the project directory:"),
-        spinBoxLayout);
-    m_gdbMountPortSpinBox->setValue(m_runConfiguration->gdbMountPort());
-    connect(m_gdbMountPortSpinBox, SIGNAL(valueChanged(int)), this,
-        SLOT(handleGdbMountPortChanged(int)));
     handleDebuggingTypeChanged(gdbButton->isChecked());
 }
 
@@ -167,9 +153,7 @@ void MaemoRunConfigurationWidget::addMountWidgets(QVBoxLayout *mainLayout)
     m_mountDetailsContainer = new Utils::DetailsWidget(this);
     QWidget *mountViewWidget = new QWidget;
     m_mountDetailsContainer->setWidget(mountViewWidget);
-#ifndef Q_OS_WIN
     mainLayout->addWidget(m_mountDetailsContainer);
-#endif
     QVBoxLayout *mountViewLayout = new QVBoxLayout(mountViewWidget);
     QHBoxLayout *tableLayout = new QHBoxLayout;
     mountViewLayout->addLayout(tableLayout);
@@ -339,12 +323,6 @@ void MaemoRunConfigurationWidget::handleDebuggingTypeChanged(bool useGdb)
     const QString detailsText = useGdb ? tr("Use gdb") : tr("Use gdbserver");
     m_debugDetailsContainer->setSummaryText(tr("<b>Debugging details:</b> ")
         + detailsText);
-    m_gdbMountPortSpinBox->setEnabled(useGdb);
-}
-
-void MaemoRunConfigurationWidget::handleGdbMountPortChanged(int port)
-{
-    m_runConfiguration->setGdbMountPort(port);
 }
 
 void MaemoRunConfigurationWidget::fetchEnvironment()

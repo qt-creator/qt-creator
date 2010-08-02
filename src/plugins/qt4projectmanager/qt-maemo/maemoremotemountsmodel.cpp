@@ -39,7 +39,7 @@ const QLatin1String InvalidMountPoint("/");
 } // anonymous namespace
 
 MaemoRemoteMountsModel::MountSpecification::MountSpecification(const QString &l,
-    const QString &r, int p) : localDir(l), remoteMountPoint(r), port(p) {}
+    const QString &r, int p) : localDir(l), remoteMountPoint(r), remotePort(p) {}
 
 bool MaemoRemoteMountsModel::MountSpecification::isValid() const
 {
@@ -54,10 +54,10 @@ MaemoRemoteMountsModel::MaemoRemoteMountsModel(QObject *parent) :
 
 void MaemoRemoteMountsModel::addMountSpecification(const QString &localDir)
 {
-    int port = 10000;
+    int port = 10100;
     int i = 0;
     while (i < rowCount()) {
-        if (mountSpecificationAt(i).port == port) {
+        if (mountSpecificationAt(i).remotePort == port) {
             ++port;
             i = 0;
         } else {
@@ -114,7 +114,7 @@ QVariantMap MaemoRemoteMountsModel::toMap() const
     foreach (const MountSpecification &mountSpec, m_mountSpecs) {
         localDirsList << mountSpec.localDir;
         remoteMountPointsList << mountSpec.remoteMountPoint;
-        mountPortsList << mountSpec.port;
+        mountPortsList << mountSpec.remotePort;
     }
     map.insert(ExportedLocalDirsKey, localDirsList);
     map.insert(RemoteMountPointsKey, remoteMountPointsList);
@@ -157,7 +157,7 @@ QVariant MaemoRemoteMountsModel::headerData(int section,
     switch (section) {
     case LocalDirRow: return tr("Local directory");
     case RemoteMountPointRow: return tr("Remote mount point");
-    case PortRow: return tr("Local port");
+    case PortRow: return tr("Remote port");
     default: return QVariant();
     }
 }
@@ -179,7 +179,7 @@ QVariant MaemoRemoteMountsModel::data(const QModelIndex &index, int role) const
         break;
     case PortRow:
         if (role == Qt::DisplayRole || role == Qt::EditRole)
-            return mountSpec.port;
+            return mountSpec.remotePort;
         break;
     }
     return QVariant();
@@ -208,10 +208,10 @@ bool MaemoRemoteMountsModel::setData(const QModelIndex &index,
     case PortRow: {
         const int newPort = value.toInt();
         for (int i = 0; i < m_mountSpecs.count(); ++i) {
-            if (i != index.row() && m_mountSpecs.at(i).port == newPort)
+            if (i != index.row() && m_mountSpecs.at(i).remotePort == newPort)
                 return false;
         }
-        m_mountSpecs[index.row()].port = newPort;
+        m_mountSpecs[index.row()].remotePort = newPort;
         set = true;
         break;
     }

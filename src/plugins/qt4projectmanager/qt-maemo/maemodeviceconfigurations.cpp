@@ -56,7 +56,7 @@ namespace {
     const QLatin1String TypeKey("Type");
     const QLatin1String HostKey("Host");
     const QLatin1String SshPortKey("SshPort");
-    const QLatin1String GdbServerPortKey("GdbServerPort");
+    const QLatin1String DebuggingPortKey("GdbServerPort");
     const QLatin1String UserNameKey("Uname");
     const QLatin1String AuthKey("Authentication");
     const QLatin1String KeyFileKey("KeyFile");
@@ -94,7 +94,7 @@ private:
 MaemoDeviceConfig::MaemoDeviceConfig(const QString &name, MaemoDeviceConfig::DeviceType devType)
     : name(name),
       type(devType),
-      gdbServerPort(defaultGdbServerPort(type)),
+      debuggingPort(defaultDebuggingPort(type)),
       internalId(MaemoDeviceConfigurations::instance().m_nextId++)
 {
     server.host = defaultHost(type);
@@ -109,7 +109,7 @@ MaemoDeviceConfig::MaemoDeviceConfig(const QSettings &settings,
                                      quint64 &nextId)
     : name(settings.value(NameKey).toString()),
       type(static_cast<DeviceType>(settings.value(TypeKey, DefaultDeviceType).toInt())),
-      gdbServerPort(settings.value(GdbServerPortKey, defaultGdbServerPort(type)).toInt()),
+      debuggingPort(settings.value(DebuggingPortKey, defaultDebuggingPort(type)).toInt()),
       internalId(settings.value(InternalIdKey, nextId).toULongLong())
 {
     if (internalId == nextId)
@@ -136,7 +136,7 @@ int MaemoDeviceConfig::defaultSshPort(DeviceType type) const
     return type == Physical ? DefaultSshPortHW : DefaultSshPortSim;
 }
 
-int MaemoDeviceConfig::defaultGdbServerPort(DeviceType type) const
+int MaemoDeviceConfig::defaultDebuggingPort(DeviceType type) const
 {
     return type == Physical ? DefaultGdbServerPortHW : DefaultGdbServerPortSim;
 }
@@ -157,7 +157,7 @@ void MaemoDeviceConfig::save(QSettings &settings) const
     settings.setValue(TypeKey, type);
     settings.setValue(HostKey, server.host);
     settings.setValue(SshPortKey, server.port);
-    settings.setValue(GdbServerPortKey, gdbServerPort);
+    settings.setValue(DebuggingPortKey, debuggingPort);
     settings.setValue(UserNameKey, server.uname);
     settings.setValue(AuthKey, server.authType);
     settings.setValue(PasswordKey, server.pwd);

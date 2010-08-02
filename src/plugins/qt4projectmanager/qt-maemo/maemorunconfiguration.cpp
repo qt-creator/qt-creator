@@ -56,8 +56,7 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 namespace {
-const bool DefaultUseRemoteGdbValue = false;  // TODO: Make true once utfs-server works on Windows.
-const int DefaultGdbMountPort = 10100;
+const bool DefaultUseRemoteGdbValue = false;  // TODO: Make true once it works reliably on Windows
 } // anonymous namespace
 
 using namespace ProjectExplorer;
@@ -67,7 +66,6 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
     : RunConfiguration(parent, QLatin1String(MAEMO_RC_ID))
     , m_proFilePath(proFilePath)
     , m_useRemoteGdb(DefaultUseRemoteGdbValue)
-    , m_gdbMountPort(DefaultGdbMountPort)
     , m_baseEnvironmentBase(SystemEnvironmentBase)
 {
     init();
@@ -80,7 +78,6 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
     , m_gdbPath(source->m_gdbPath)
     , m_arguments(source->m_arguments)
     , m_useRemoteGdb(source->useRemoteGdb())
-    , m_gdbMountPort(source->gdbMountPort())
     , m_baseEnvironmentBase(source->m_baseEnvironmentBase)
     , m_systemEnvironment(source->m_systemEnvironment)
     , m_userEnvironmentChanges(source->m_userEnvironmentChanges)
@@ -150,7 +147,6 @@ QVariantMap MaemoRunConfiguration::toMap() const
     const QDir dir = QDir(target()->project()->projectDirectory());
     map.insert(ProFileKey, dir.relativeFilePath(m_proFilePath));
     map.insert(UseRemoteGdbKey, useRemoteGdb());
-    map.insert(GdbMountPortKey, gdbMountPort());
     map.insert(BaseEnvironmentBaseKey, m_baseEnvironmentBase);
     map.insert(UserEnvironmentChangesKey,
         ProjectExplorer::EnvironmentItem::toStringList(m_userEnvironmentChanges));
@@ -168,7 +164,6 @@ bool MaemoRunConfiguration::fromMap(const QVariantMap &map)
     const QDir dir = QDir(target()->project()->projectDirectory());
     m_proFilePath = dir.filePath(map.value(ProFileKey).toString());
     m_useRemoteGdb = map.value(UseRemoteGdbKey, DefaultUseRemoteGdbValue).toBool();
-    m_gdbMountPort = map.value(GdbMountPortKey, DefaultGdbMountPort).toInt();
     m_userEnvironmentChanges =
         ProjectExplorer::EnvironmentItem::fromStringList(map.value(UserEnvironmentChangesKey)
         .toStringList());

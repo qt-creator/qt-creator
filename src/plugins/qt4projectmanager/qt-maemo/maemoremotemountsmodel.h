@@ -48,7 +48,7 @@ public:
 
         QString localDir;
         QString remoteMountPoint;
-        int port;
+        int remotePort;
     };
 
     explicit MaemoRemoteMountsModel(QObject *parent = 0);

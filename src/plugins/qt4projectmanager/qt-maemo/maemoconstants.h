@@ -72,7 +72,6 @@ static const QLatin1String MountPortsKey(PREFIX ".MountPorts");
 static const QLatin1String BaseEnvironmentBaseKey(PREFIX ".BaseEnvironmentBase");
 static const QLatin1String UserEnvironmentChangesKey(PREFIX ".UserEnvironmentChanges");
 static const QLatin1String UseRemoteGdbKey(PREFIX ".UseRemoteGdb");
-static const QLatin1String GdbMountPortKey(PREFIX ".GdbMountPort");
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
