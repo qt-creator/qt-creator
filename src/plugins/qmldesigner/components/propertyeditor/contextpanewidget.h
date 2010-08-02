@@ -68,7 +68,7 @@ signals:
 
 private slots:
     void onDisable();
-    void onResetPosition();
+    void onResetPosition(bool toggle);
 
 protected:
     QWidget *createFontWidget();
@@ -83,8 +83,9 @@ private:
     EasingContextPane *m_easingWidget;
     ContextPaneWidgetImage *m_imageWidget;
     ContextPaneWidgetImage *m_borderImageWidget;
-    ContextPaneWidgetRectangle *m_rectangleWidget;        
+    ContextPaneWidgetRectangle *m_rectangleWidget;
     QWeakPointer<BauhausColorDialog> m_bauhausColorDialog;
+    QAction * m_resetAction;
     QString m_colorName;
     QPoint m_originalPos;
 };

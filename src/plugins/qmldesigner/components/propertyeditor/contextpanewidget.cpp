@@ -20,6 +20,24 @@
 
 namespace QmlDesigner {
 
+/* XPM */
+static const char * const line_xpm[] = {
+        "12 12 2 1",
+        " 	c None",
+        ".	c #000000",
+        "            ",
+        "            ",
+        "            ",
+        "            ",
+        "            ",
+        "            ",
+        "            ",
+        "            ",
+        "            ",
+        "            ",
+        "  ........  ",
+        "            "};
+
 
 DragWidget::DragWidget(QWidget *parent) : QFrame(parent)
 {
@@ -98,11 +116,11 @@ ContextPaneWidget::ContextPaneWidget(QWidget *parent) : DragWidget(parent), m_cu
     layout->setMargin(0);
     layout->setContentsMargins(1, 1, 1, 1);
     layout->setSpacing(0);
-    QToolButton *toolButton = new QToolButton(this);    
-    QIcon icon(style()->standardIcon(QStyle::SP_DockWidgetCloseButton));
-    toolButton->setIcon(icon);
-    toolButton->setToolButtonStyle(Qt::ToolButtonIconOnly);    
-    toolButton->setFixedSize(icon.availableSizes().value(0) + QSize(4, 4));
+    QToolButton *toolButton = new QToolButton(this);
+    toolButton->setIcon(QPixmap::fromImage(QImage(line_xpm)));
+    toolButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
+    toolButton->setFixedSize(14, 14);
+    toolButton->setToolTip(tr("Hides this toolbar. This toolbar can be permantly disabled in the options or in the context menu."));
     connect(toolButton, SIGNAL(clicked()), this, SLOT(onTogglePane()));
     layout->addWidget(toolButton, 0, 0, 1, 1);
     colorDialog();
@@ -122,9 +140,10 @@ ContextPaneWidget::ContextPaneWidget(QWidget *parent) : DragWidget(parent), m_cu
     setAutoFillBackground(true);
     setContextMenuPolicy(Qt::ActionsContextMenu);
 
-    QAction *resetAction = new QAction(tr("Reset position"), this);
-    addAction(resetAction);
-    connect(resetAction, SIGNAL(triggered()), this, SLOT(onResetPosition()));
+    m_resetAction = new QAction(tr("Pin toolbar"), this);
+    m_resetAction->setCheckable(true);
+    addAction(m_resetAction);
+    connect(m_resetAction, SIGNAL(triggered(bool)), this, SLOT(onResetPosition(bool)));
 
     QAction *disableAction = new QAction(tr("Disable permanently"), this);
     addAction(disableAction);
@@ -151,6 +170,7 @@ void ContextPaneWidget::activate(const QPoint &pos, const QPoint &alternative, c
     show();
     rePosition(pos, alternative, alternative2);
     raise();
+    m_resetAction->setChecked(Internal::BauhausPlugin::pluginInstance()->settings().pinContextPane);
 }
 
 void ContextPaneWidget::rePosition(const QPoint &position, const QPoint &alternative, const QPoint &alternative2)
@@ -167,7 +187,7 @@ void ContextPaneWidget::rePosition(const QPoint &position, const QPoint &alterna
 
     m_originalPos = pos();
 
-    if (m_pos.x() > 0) {
+    if (m_pos.x() > 0 && (Internal::BauhausPlugin::pluginInstance()->settings().pinContextPane)) {
         move(m_pos);
         show();
     }
@@ -304,10 +324,16 @@ void ContextPaneWidget::onDisable()
     colorDialog()->hide();
 }
 
-void  ContextPaneWidget::onResetPosition()
+void  ContextPaneWidget::onResetPosition(bool toggle)
 {
-    move(m_originalPos);
-    m_pos = QPoint(-1,-1);
+    DesignerSettings designerSettings = Internal::BauhausPlugin::pluginInstance()->settings();
+    designerSettings.pinContextPane = toggle;
+    Internal::BauhausPlugin::pluginInstance()->setSettings(designerSettings);
+
+    if (!toggle) {
+        m_pos = QPoint(-1,-1);
+        move(m_originalPos);
+    }
 }
 
 QWidget* ContextPaneWidget::createFontWidget()
