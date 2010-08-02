@@ -32,6 +32,7 @@
 
 #include "core_global.h"
 
+#include <QtCore/QHash>
 #include <QtCore/QMap>
 #include <QtCore/QObject>
 #include <QtCore/QString>
@@ -51,6 +52,8 @@ class CORE_EXPORT HelpManager : public QObject
     Q_DISABLE_COPY(HelpManager)
 
 public:
+    typedef QHash<QString, QStringList> Filters;
+
     explicit HelpManager(QObject *parent = 0);
     virtual ~HelpManager();
 
@@ -72,9 +75,20 @@ public:
     QString namespaceFromFile(const QString &file) const;
     QString fileFromNamespace(const QString &nameSpace) const;
 
+    void setCustomValue(const QString &key, const QVariant &value);
+    QVariant customValue(const QString &key, const QVariant &value = QVariant()) const;
+
+    Filters filters() const;
+    Filters fixedFilters() const;
+
+    Filters userDefinedFilters() const;
+    void removeUserDefinedFilter(const QString &filter);
+    void addUserDefinedFilter(const QString &filter, const QStringList &attr);
+
 signals:
     void setupFinished();
     void documentationChanged();
+    void collectionFileChanged();
     void helpRequested(const QUrl &url);
 
 private slots:
@@ -89,6 +103,7 @@ private:
 
     QStringList m_filesToRegister;
     QStringList m_nameSpacesToUnregister;
+    QHash<QString, QVariant> m_customValues;
 
     static HelpManager *m_instance;
 };

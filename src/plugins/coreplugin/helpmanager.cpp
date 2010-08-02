@@ -286,6 +286,94 @@ QString HelpManager::fileFromNamespace(const QString &nameSpace) const
     return m_helpEngine->documentationFileName(nameSpace);
 }
 
+void HelpManager::setCustomValue(const QString &key, const QVariant &value)
+{
+    if (m_needsSetup) {
+        m_customValues.insert(key, value);
+        return;
+    }
+    if (m_helpEngine->setCustomValue(key, value))
+        emit collectionFileChanged();
+}
+
+QVariant HelpManager::customValue(const QString &key, const QVariant &value) const
+{
+    if (m_needsSetup)
+        return QVariant();
+    return m_helpEngine->customValue(key, value);
+}
+
+HelpManager::Filters HelpManager::filters() const
+{
+    if (m_needsSetup)
+        return Filters();
+
+    Filters filters;
+    const QStringList &customFilters = m_helpEngine->customFilters();
+    foreach (const QString &filter, customFilters)
+        filters.insert(filter, m_helpEngine->filterAttributes(filter));
+    return filters;
+}
+
+HelpManager::Filters HelpManager::fixedFilters() const
+{
+    Filters fixedFilters;
+    if (m_needsSetup)
+        return fixedFilters;
+
+    const QLatin1String sqlite("QSQLITE");
+    const QLatin1String name("HelpManager::fixedCustomFilters");
+
+    DbCleaner cleaner(name);
+    QSqlDatabase db = QSqlDatabase::addDatabase(sqlite, name);
+    if (db.driver() && db.driver()->lastError().type() == QSqlError::NoError) {
+        const QStringList &registeredDocs = m_helpEngine->registeredDocumentations();
+        foreach (const QString &nameSpace, registeredDocs) {
+            db.setDatabaseName(m_helpEngine->documentationFileName(nameSpace));
+            if (db.open()) {
+                QSqlQuery query = QSqlQuery(db);
+                query.setForwardOnly(true);
+                query.exec(QLatin1String("SELECT Name FROM FilterNameTable"));
+                while (query.next()) {
+                    const QString &filter = query.value(0).toString();
+                    fixedFilters.insert(filter, m_helpEngine->filterAttributes(filter));
+                }
+            }
+        }
+    }
+    return fixedFilters;
+}
+
+HelpManager::Filters HelpManager::userDefinedFilters() const
+{
+    if (m_needsSetup)
+        return Filters();
+
+    Filters all = filters();
+    const Filters &fixed = fixedFilters();
+    for (Filters::const_iterator it = fixed.constBegin(); it != fixed.constEnd(); ++it)
+        all.remove(it.key());
+    return all;
+}
+
+void HelpManager::removeUserDefinedFilter(const QString &filter)
+{
+    if (m_needsSetup)
+        return;
+
+    if (m_helpEngine->removeCustomFilter(filter))
+        emit collectionFileChanged();
+}
+
+void HelpManager::addUserDefinedFilter(const QString &filter, const QStringList &attr)
+{
+    if (m_needsSetup)
+        return;
+
+    if (m_helpEngine->addCustomFilter(filter, attr))
+        emit collectionFileChanged();
+}
+
 // -- private slots
 
 void HelpManager::setupHelpManager()
@@ -318,6 +406,10 @@ void HelpManager::setupHelpManager()
         registerDocumentation(m_filesToRegister);
         m_filesToRegister.clear();
     }
+
+    QHash<QString, QVariant>::const_iterator it;
+    for (it = m_customValues.constBegin(); it != m_customValues.constEnd(); ++it)
+        setCustomValue(it.key(), it.value());
 
     emit setupFinished();
 }
