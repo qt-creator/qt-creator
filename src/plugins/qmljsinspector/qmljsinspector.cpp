@@ -124,7 +124,8 @@ Inspector::Inspector(QObject *parent)
       m_connectionAttempts(0),
       m_cppDebuggerState(0),
       m_simultaneousCppAndQmlDebugMode(false),
-      m_debugMode(StandaloneMode)
+      m_debugMode(StandaloneMode),
+      m_listeningToEditorManager(false)
 {
     m_clientProxy = ClientProxy::instance();
 
@@ -160,11 +161,10 @@ void Inspector::disconnectWidgets()
 
 void Inspector::disconnected()
 {
-    Core::EditorManager *em = Core::EditorManager::instance();
-    disconnect(em, SIGNAL(editorAboutToClose(Core::IEditor*)), this, SLOT(removePreviewForEditor(Core::IEditor*)));
-    disconnect(em, SIGNAL(editorOpened(Core::IEditor*)), this, SLOT(createPreviewForEditor(Core::IEditor*)));
     resetViews();
     updateMenuActions();
+
+    applyChangesToQmlObserverHelper(false);
 }
 
 void Inspector::aboutToReloadEngines()
@@ -227,15 +227,21 @@ void Inspector::initializeDocuments()
     if (!modelManager())
         return;
 
-    m_loadedSnapshot = modelManager()->snapshot();
     Core::EditorManager *em = Core::EditorManager::instance();
-    connect(em, SIGNAL(editorAboutToClose(Core::IEditor*)), SLOT(removePreviewForEditor(Core::IEditor*)));
-    connect(em, SIGNAL(editorOpened(Core::IEditor*)), SLOT(createPreviewForEditor(Core::IEditor*)));
+    m_loadedSnapshot = modelManager()->snapshot();
+
+    if (!m_listeningToEditorManager) {
+        m_listeningToEditorManager = true;
+        connect(em, SIGNAL(editorAboutToClose(Core::IEditor*)), SLOT(removePreviewForEditor(Core::IEditor*)));
+        connect(em, SIGNAL(editorOpened(Core::IEditor*)), SLOT(createPreviewForEditor(Core::IEditor*)));
+    }
 
     // initial update
     foreach (Core::IEditor *editor, em->openedEditors()) {
         createPreviewForEditor(editor);
     }
+
+    applyChangesToQmlObserverHelper(true);
 }
 
 void Inspector::serverReloaded()
@@ -261,7 +267,9 @@ void Inspector::removePreviewForEditor(Core::IEditor *oldEditor)
 
 void Inspector::createPreviewForEditor(Core::IEditor *newEditor)
 {
-    if (newEditor && newEditor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
+    if (newEditor && newEditor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID
+        && m_clientProxy->isConnected())
+    {
         QString filename = newEditor->file()->fileName();
         QmlJS::Document::Ptr doc = modelManager()->snapshot().document(filename);
         if (!doc || !doc->qmlProgram())
@@ -643,16 +651,6 @@ bool Inspector::addQuotesForData(const QVariant &value) const
     return false;
 }
 
-void Inspector::setApplyChangesToQmlObserver(bool applyChanges)
-{
-    emit livePreviewActivated(applyChanges);
-    QHashIterator<QString, QmlJSLiveTextPreview *> iter(m_textPreviews);
-    while(iter.hasNext()) {
-        iter.next();
-        iter.value()->setApplyChangesToQmlObserver(applyChanges);
-    }
-}
-
 bool Inspector::showExperimentalWarning()
 {
     return m_showExperimentalWarning;
@@ -661,6 +659,21 @@ bool Inspector::showExperimentalWarning()
 void Inspector::setShowExperimentalWarning(bool value)
 {
     m_showExperimentalWarning = value;
+}
+
+void Inspector::setApplyChangesToQmlObserver(bool applyChanges)
+{
+    emit livePreviewActivated(applyChanges);
+    applyChangesToQmlObserverHelper(applyChanges);
+}
+
+void Inspector::applyChangesToQmlObserverHelper(bool applyChanges)
+{
+    QHashIterator<QString, QmlJSLiveTextPreview *> iter(m_textPreviews);
+    while(iter.hasNext()) {
+        iter.next();
+        iter.value()->setApplyChangesToQmlObserver(applyChanges);
+    }
 }
 
 void Inspector::disableLivePreview()

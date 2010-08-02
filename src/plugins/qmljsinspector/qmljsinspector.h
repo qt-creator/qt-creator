@@ -147,6 +147,7 @@ private:
 
     QmlJS::ModelManagerInterface *modelManager();
     void initializeDocuments();
+    void applyChangesToQmlObserverHelper(bool applyChanges);
 
 private:
     QWeakPointer<QDeclarativeEngineDebug> m_client;
@@ -161,6 +162,7 @@ private:
     ClientProxy *m_clientProxy;
 
     static bool m_showExperimentalWarning;
+    bool m_listeningToEditorManager;
 
     // Qml/JS integration
     QHash<QString, QmlJSLiveTextPreview *> m_textPreviews;
