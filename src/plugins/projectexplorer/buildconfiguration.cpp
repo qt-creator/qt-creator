@@ -101,7 +101,7 @@ QVariantMap BuildConfiguration::toMap() const
 
     map.insert(QLatin1String(BUILD_STEP_LIST_COUNT), m_stepLists.count());
     for (int i = 0; i < m_stepLists.count(); ++i)
-        map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) % QString::number(i), m_stepLists.at(i)->toMap());
+        map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) + QString::number(i), m_stepLists.at(i)->toMap());
 
     return map;
 }
@@ -119,7 +119,7 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
 
     int maxI = map.value(QLatin1String(BUILD_STEP_LIST_COUNT), 0).toInt();
     for (int i = 0; i < maxI; ++i) {
-        QVariantMap data = map.value(QLatin1String(BUILD_STEP_LIST_PREFIX) % QString::number(i)).toMap();
+        QVariantMap data = map.value(QLatin1String(BUILD_STEP_LIST_PREFIX) + QString::number(i)).toMap();
         if (data.isEmpty()) {
             qWarning() << "No data for build step list" << i << "found!";
             continue;
