@@ -69,7 +69,8 @@ void ExternalHelpWindow::closeEvent(QCloseEvent *event)
 bool ExternalHelpWindow::eventFilter(QObject *obj, QEvent *event)
 {
     if (obj == this) {
-        if (QKeyEvent *keyEvent = static_cast<QKeyEvent*> (event)) {
+        if (event->type() == QEvent::KeyPress) {
+            QKeyEvent *keyEvent = static_cast<QKeyEvent*> (event);
             switch (keyEvent->key()) {
                 case Qt::Key_Escape:
                     Core::ICore::instance()->mainWindow()->activateWindow();
