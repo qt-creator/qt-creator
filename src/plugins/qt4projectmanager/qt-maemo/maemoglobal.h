@@ -30,7 +30,7 @@
 #ifndef MAEMOGLOBAL_H
 #define MAEMOGLOBAL_H
 
-#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/environment.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -53,9 +53,9 @@ public:
     static QString remoteEnvironment(const QList<ProjectExplorer::EnvironmentItem> &list);
     static QString remoteProjectSourcesMountPoint();
 
-    template<class T> static T *buildStep(const ProjectExplorer::BuildConfiguration *bc)
+    template<class T> static T *buildStep(const ProjectExplorer::DeployConfiguration *dc)
     {
-        ProjectExplorer::BuildStepList *bsl = bc->stepList(QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY));
+        ProjectExplorer::BuildStepList *bsl = dc->stepList();
         if (!bsl)
             return 0;
         const QList<ProjectExplorer::BuildStep *> &buildSteps = bsl->steps();

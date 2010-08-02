@@ -328,7 +328,7 @@ const MaemoToolChain *MaemoPackageCreationStep::maemoToolChain() const
 MaemoDeployStep *MaemoPackageCreationStep::deployStep() const
 {
     MaemoDeployStep * const deployStep
-        = MaemoGlobal::buildStep<MaemoDeployStep>(buildConfiguration());
+        = MaemoGlobal::buildStep<MaemoDeployStep>(target()->activeDeployConfiguration());
     Q_ASSERT(deployStep &&
         "Fatal error: Maemo build configuration without deploy step.");
     return deployStep;

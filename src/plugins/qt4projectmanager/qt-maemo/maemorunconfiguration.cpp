@@ -204,7 +204,7 @@ const QString MaemoRunConfiguration::gdbCmd() const
 MaemoDeployStep *MaemoRunConfiguration::deployStep() const
 {
     MaemoDeployStep * const step
-        = MaemoGlobal::buildStep<MaemoDeployStep>(activeQt4BuildConfiguration());
+        = MaemoGlobal::buildStep<MaemoDeployStep>(target()->activeDeployConfiguration());
     Q_ASSERT_X(step, Q_FUNC_INFO,
         "Impossible: Maemo build configuration without deploy step.");
     return step;

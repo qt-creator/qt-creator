@@ -158,7 +158,7 @@ void MaemoDeployStep::getDeployTimesFromMap(const QVariantMap &map)
 const MaemoPackageCreationStep *MaemoDeployStep::packagingStep() const
 {
     const MaemoPackageCreationStep * const step
-        = MaemoGlobal::buildStep<MaemoPackageCreationStep>(buildConfiguration());
+        = MaemoGlobal::buildStep<MaemoPackageCreationStep>(target()->activeDeployConfiguration());
     Q_ASSERT_X(step, Q_FUNC_INFO,
         "Impossible: Maemo build configuration without packaging step.");
     return step;
