@@ -164,7 +164,6 @@ void Inspector::disconnected()
 {
     resetViews();
     updateMenuActions();
-
     applyChangesToQmlObserverHelper(false);
 }
 
@@ -324,7 +323,7 @@ void Inspector::startQmlProjectDebugger()
 
 void Inspector::resetViews()
 {
-    m_crumblePath->clear();
+    m_crumblePath->updateContextPath(QStringList());
 }
 
 void Inspector::simultaneouslyDebugQmlCppApplication()
@@ -572,7 +571,6 @@ void Inspector::setSimpleDockWidgetArrangement()
     mainWindow->removeDockWidget(m_crumblePathDock);
     mainWindow->addDockWidget(Qt::BottomDockWidgetArea, m_crumblePathDock);
     mainWindow->splitDockWidget(mainWindow->toolBarDockWidget(), m_crumblePathDock, Qt::Vertical);
-    //m_crumblePathDock->setVisible(true);
 
     mainWindow->setTrackingEnabled(true);
 }

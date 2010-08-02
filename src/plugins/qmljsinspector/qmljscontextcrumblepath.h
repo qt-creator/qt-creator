@@ -16,7 +16,8 @@ public:
 
 public slots:
     void updateContextPath(const QStringList &path);
-
+private:
+    bool m_isEmpty;
 };
 
 } // namespace Internal
