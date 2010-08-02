@@ -382,7 +382,9 @@ bool Target::fromMap(const QVariantMap &map)
         const QString key(QString::fromLatin1(DC_KEY_PREFIX) + QString::number(i));
         if (!map.contains(key))
             return false;
-        DeployConfiguration *dc(deployConfigurationFactory()->restore(this, map.value(key).toMap()));
+        DeployConfiguration *dc = 0;
+        if (deployConfigurationFactory())
+            dc = deployConfigurationFactory()->restore(this, map.value(key).toMap());
         if (!dc)
             continue;
         addDeployConfiguration(dc);
