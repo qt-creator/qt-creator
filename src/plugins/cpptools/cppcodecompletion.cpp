@@ -696,6 +696,10 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         // always remove duplicates
         m_completions = removeDuplicates(m_completions);
     }
+
+    for (int i = 0; i < m_completions.size(); ++i)
+        m_completions[i].originalIndex = i;
+
     return index;
 }
 

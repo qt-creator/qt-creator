@@ -204,6 +204,21 @@ QChar CompletionWidget::typedChar() const
     return m_completionListView->m_typedChar;
 }
 
+CompletionItem CompletionWidget::currentCompletionItem() const
+{
+    return m_completionListView->currentCompletionItem();
+}
+
+bool CompletionWidget::explicitlySelected() const
+{
+    return m_completionListView->explicitlySelected();
+}
+
+void CompletionWidget::setCurrentIndex(int index)
+{
+    m_completionListView->setCurrentIndex(m_completionListView->model()->index(index, 0));
+}
+
 void CompletionWidget::updatePositionAndSize(int startPos)
 {
     // Determine size by calculating the space of the visible items
@@ -257,7 +272,8 @@ CompletionListView::CompletionListView(CompletionSupport *support, ITextEditable
       m_editorWidget(editor->widget()),
       m_completionWidget(completionWidget),
       m_model(new AutoCompletionModel(this)),
-      m_support(support)
+      m_support(support),
+      m_explicitlySelected(false)
 {
     QTC_ASSERT(m_editorWidget, return);
 
@@ -282,6 +298,20 @@ CompletionListView::CompletionListView(CompletionSupport *support, ITextEditable
 
 CompletionListView::~CompletionListView()
 {
+}
+
+CompletionItem CompletionListView::currentCompletionItem() const
+{
+    int row = currentIndex().row();
+    if (row >= 0 && row < m_model->rowCount())
+        return m_model->itemAt(currentIndex());
+
+    return CompletionItem();
+}
+
+bool CompletionListView::explicitlySelected() const
+{
+    return m_explicitlySelected;
 }
 
 void CompletionListView::maybeShowInfoTip()
@@ -389,6 +419,7 @@ bool CompletionListView::event(QEvent *e)
             return true;
 
         case Qt::Key_Up:
+            m_explicitlySelected = true;
             if (!ke->isAutoRepeat()
                 && currentIndex().row() == 0) {
                 setCurrentIndex(model()->index(model()->rowCount()-1, 0));
@@ -398,6 +429,7 @@ bool CompletionListView::event(QEvent *e)
             break;
 
         case Qt::Key_Down:
+            m_explicitlySelected = true;
             if (!ke->isAutoRepeat()
                 && currentIndex().row() == model()->rowCount()-1) {
                 setCurrentIndex(model()->index(0, 0));

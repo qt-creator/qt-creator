@@ -131,6 +131,8 @@ void CompletionSupport::autoComplete_helper(ITextEditable *editor, bool forced,
     m_editor = editor;
     QList<CompletionItem> completionItems;
 
+    int currentIndex = 0;
+
     if (!m_completionList) {
         if (!forced) {
             const CompletionSettings &completionSettings = m_completionCollector->completionSettings();
@@ -170,9 +172,23 @@ void CompletionSupport::autoComplete_helper(ITextEditable *editor, bool forced,
             m_completionList->closeList();
             return;
         }
+
+        if (m_completionList->explicitlySelected()) {
+            const int originalIndex = m_completionList->currentCompletionItem().originalIndex;
+
+            for (int index = 0; index < completionItems.size(); ++index) {
+                if (completionItems.at(index).originalIndex == originalIndex) {
+                    currentIndex = index;
+                    break;
+                }
+            }
+        }
     }
 
     m_completionList->setCompletionItems(completionItems);
+
+    if (currentIndex)
+        m_completionList->setCurrentIndex(currentIndex);
 
     // Partially complete when completion was forced
     if (forced && m_completionCollector->partiallyComplete(completionItems)) {

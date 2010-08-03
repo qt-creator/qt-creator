@@ -62,6 +62,10 @@ public:
     void showCompletions(int startPos);
 
     QChar typedChar() const;
+    CompletionItem currentCompletionItem() const;
+
+    void setCurrentIndex(int index);
+    bool explicitlySelected() const;
 
 signals:
     void itemSelected(const TextEditor::CompletionItem &item);
@@ -85,6 +89,9 @@ class CompletionListView : public QListView
 
 public:
     ~CompletionListView();
+
+    CompletionItem currentCompletionItem() const;
+    bool explicitlySelected() const;
 
 signals:
     void itemSelected(const TextEditor::CompletionItem &item);
@@ -118,6 +125,7 @@ private:
     QPointer<CompletionInfoFrame> m_infoFrame;
     QTimer m_infoTimer;
     QChar m_typedChar;
+    bool m_explicitlySelected;
 };
 
 } // namespace Internal

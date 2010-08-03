@@ -52,6 +52,7 @@ struct CompletionItem
         : relevance(0),
           duplicateCount(0),
           order(0),
+          originalIndex(0),
           collector(collector)
     { }
 
@@ -65,6 +66,7 @@ struct CompletionItem
     int relevance;
     int duplicateCount;
     int order;
+    int originalIndex;
     ICompletionCollector *collector;
 };
 
