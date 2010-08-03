@@ -235,7 +235,7 @@ bool MaemoTemplatesManager::setVersion(const Project *project,
 
     QString content = QString::fromUtf8(changeLog.readAll());
     content.replace(QRegExp(QLatin1String("\\([a-zA-Z0-9_\\.]+\\)")),
-        QLatin1Char('(') % version % QLatin1Char(')'));
+        QLatin1Char('(') + version + QLatin1Char(')'));
     changeLog.resize(0);
     changeLog.write(content.toUtf8());
     changeLog.close();
