@@ -407,8 +407,34 @@ void SelectionTool::clear()
 
 void SelectionTool::selectedItemsChanged(const QList<QGraphicsItem*> &itemList)
 {
-    m_selectionIndicator.setItems(toGraphicsObjectList(itemList));
+    foreach(QWeakPointer<QGraphicsObject> obj, m_selectedItemList) {
+        if (!obj.isNull()) {
+            disconnect(obj.data(), SIGNAL(xChanged()), this, SLOT(repaintBoundingRects()));
+            disconnect(obj.data(), SIGNAL(yChanged()), this, SLOT(repaintBoundingRects()));
+            disconnect(obj.data(), SIGNAL(widthChanged()), this, SLOT(repaintBoundingRects()));
+            disconnect(obj.data(), SIGNAL(heightChanged()), this, SLOT(repaintBoundingRects()));
+            disconnect(obj.data(), SIGNAL(rotationChanged()), this, SLOT(repaintBoundingRects()));
+        }
+    }
+    QList<QGraphicsObject*> objects = toGraphicsObjectList(itemList);
+    m_selectedItemList.clear();
+
+    foreach(QGraphicsObject *obj, objects) {
+        m_selectedItemList.append(obj);
+        connect(obj, SIGNAL(xChanged()), this, SLOT(repaintBoundingRects()));
+        connect(obj, SIGNAL(yChanged()), this, SLOT(repaintBoundingRects()));
+        connect(obj, SIGNAL(widthChanged()), this, SLOT(repaintBoundingRects()));
+        connect(obj, SIGNAL(heightChanged()), this, SLOT(repaintBoundingRects()));
+        connect(obj, SIGNAL(rotationChanged()), this, SLOT(repaintBoundingRects()));
+    }
+
+    m_selectionIndicator.setItems(m_selectedItemList);
     //m_resizeIndicator.setItems(toGraphicsObjectList(itemList));
+}
+
+void SelectionTool::repaintBoundingRects()
+{
+    m_selectionIndicator.setItems(m_selectedItemList);
 }
 
 void SelectionTool::selectUnderPoint(QMouseEvent *event)

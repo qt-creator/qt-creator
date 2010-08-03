@@ -49,8 +49,7 @@ public:
 
     void clear();
 
-    void setItems(const QList<QGraphicsObject*> &itemList);
-    void updateItems(const QList<QGraphicsObject*> &itemList);
+    void setItems(const QList<QWeakPointer<QGraphicsObject> > &itemList);
 
 private:
     QPolygonF addBoundingRectToPolygon(QGraphicsItem *item, QPolygonF &polygon);

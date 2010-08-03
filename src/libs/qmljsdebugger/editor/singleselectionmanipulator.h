@@ -30,7 +30,6 @@
 #ifndef SINGLESELECTIONMANIPULATOR_H
 #define SINGLESELECTIONMANIPULATOR_H
 
-#include "selectionrectangle.h"
 #include <QPointF>
 #include <QList>
 

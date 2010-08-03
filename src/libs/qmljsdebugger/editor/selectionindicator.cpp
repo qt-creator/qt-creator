@@ -81,13 +81,18 @@ QPolygonF SelectionIndicator::addBoundingRectToPolygon(QGraphicsItem *item, QPol
     return polygon;
 }
 
-void SelectionIndicator::setItems(const QList<QGraphicsObject*> &itemList)
+void SelectionIndicator::setItems(const QList<QWeakPointer<QGraphicsObject> > &itemList)
 {
     clear();
 
     // set selections to also all children if they are not editor items
 
-    foreach (QGraphicsItem *item, itemList) {
+    foreach (QWeakPointer<QGraphicsObject> obj, itemList) {
+        if (obj.isNull())
+            continue;
+
+        QGraphicsItem *item = obj.data();
+
         QGraphicsPolygonItem *newSelectionIndicatorGraphicsItem = new QGraphicsPolygonItem(m_layerItem.data());
         m_indicatorShapeHash.insert(item, newSelectionIndicatorGraphicsItem);
 
@@ -103,18 +108,6 @@ void SelectionIndicator::setItems(const QList<QGraphicsObject*> &itemList)
         newSelectionIndicatorGraphicsItem->setFlag(QGraphicsItem::ItemIsSelectable, false);
         newSelectionIndicatorGraphicsItem->setPolygon(boundingRectInLayerItemSpace);
         newSelectionIndicatorGraphicsItem->setPen(pen);
-    }
-}
-
-void SelectionIndicator::updateItems(const QList<QGraphicsObject*> &itemList)
-{
-    foreach (QGraphicsItem *item, itemList) {
-        if (m_indicatorShapeHash.contains(item)) {
-            QGraphicsPolygonItem *indicatorGraphicsItem =  m_indicatorShapeHash.value(item);
-            QPolygonF boundingRectInSceneSpace(item->mapToScene(item->boundingRect()));
-            QPolygonF boundingRectInLayerItemSpace = m_layerItem->mapFromScene(boundingRectInSceneSpace);
-            indicatorGraphicsItem->setPolygon(boundingRectInLayerItemSpace);
-        }
     }
 }
 

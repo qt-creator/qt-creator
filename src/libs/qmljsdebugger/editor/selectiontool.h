@@ -85,6 +85,7 @@ public:
 private slots:
     void contextMenuElementSelected();
     void contextMenuElementHovered(QAction *action);
+    void repaintBoundingRects();
 
 private:
     void createContextMenu(QList<QGraphicsItem*> itemList, QPoint globalPos);
@@ -99,6 +100,8 @@ private:
     //ResizeIndicator m_resizeIndicator;
     QTime m_mousePressTimer;
     bool m_selectOnlyContentItems;
+
+    QList<QWeakPointer<QGraphicsObject> > m_selectedItemList;
 
     QList<QGraphicsItem*> m_contextMenuItemList;
 };
