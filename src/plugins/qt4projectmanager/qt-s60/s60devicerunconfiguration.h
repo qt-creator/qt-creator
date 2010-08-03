@@ -193,7 +193,7 @@ private slots:
     void reportDeployFinished();
 
 private:
-    void startDeployment();
+    void startLaunching();
 
     ProjectExplorer::ToolChain::ToolChainType m_toolChain;
     QString m_serialPortName;

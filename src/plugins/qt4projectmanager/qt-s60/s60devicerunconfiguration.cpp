@@ -603,8 +603,8 @@ void S60DeviceRunControlBase::start()
 {
     m_deployProgress = new QFutureInterface<void>;
     Core::ICore::instance()->progressManager()->addTask(m_deployProgress->future(),
-                                                        tr("Deploying"),
-                                                        QLatin1String("Symbian.Deploy"));
+                                                        tr("Launching"),
+                                                        QLatin1String("Symbian.Launch"));
     m_deployProgress->setProgressRange(0, PROGRESS_MAX);
     m_deployProgress->setProgressValue(0);
     m_deployProgress->reportStarted();
@@ -631,7 +631,7 @@ void S60DeviceRunControlBase::start()
         return;
     }
 
-    startDeployment();
+    startLaunching();
 }
 
 static inline void stopProcess(QProcess *p)
@@ -657,7 +657,7 @@ bool S60DeviceRunControlBase::isRunning() const
     return false;
 }
 
-void S60DeviceRunControlBase::startDeployment()
+void S60DeviceRunControlBase::startLaunching()
 {
     QString errorMessage;
     bool success = false;
