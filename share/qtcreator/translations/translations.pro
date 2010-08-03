@@ -32,7 +32,7 @@ QMAKE_EXTRA_TARGETS += extract
 
 files = $$files($$PWD/*_??.ts) $$PWD/qtcreator_untranslated.ts
 for(file, files) {
-    lang = $$replace(file, .*_(.*)\\.ts, \\1)
+    lang = $$replace(file, .*_([^/]*)\\.ts, \\1)
     v = ts-$${lang}.commands
     $$v = cd $$IDE_SOURCE_TREE && $$LUPDATE src share/qtcreator/qmldesigner $$MIME_TR_H $$CUSTOMWIZARD_TR_H -ts $$file
     v = ts-$${lang}.depends
