@@ -143,12 +143,6 @@ void SubcomponentEditorTool::setCurrentItem(QGraphicsItem* contextItem)
     if (!gfxObject)
         return;
 
-    connect(gfxObject, SIGNAL(xChanged()), SLOT(refresh()));
-    connect(gfxObject, SIGNAL(yChanged()), SLOT(refresh()));
-    connect(gfxObject, SIGNAL(scaleChanged()), SLOT(refresh()));
-    connect(gfxObject, SIGNAL(widthChanged()), SLOT(refresh()));
-    connect(gfxObject, SIGNAL(heightChanged()), SLOT(refresh()));
-
     //QString parentClassName = gfxObject->metaObject()->className();
     //if (parentClassName.contains(QRegExp("_QMLTYPE_\\d+")))
 
@@ -223,7 +217,13 @@ bool SubcomponentEditorTool::itemIsChildOfQmlSubComponent(QGraphicsItem *item) c
 
 void SubcomponentEditorTool::pushContext(QGraphicsObject *contextItem)
 {
-    connect(contextItem, SIGNAL(destroyed(QObject*)), SLOT(contextDestroyed(QObject*)));
+    connect(contextItem, SIGNAL(destroyed(QObject*)), this, SLOT(contextDestroyed(QObject*)));
+    connect(contextItem, SIGNAL(xChanged()), this, SLOT(resizeMask()));
+    connect(contextItem, SIGNAL(yChanged()), this, SLOT(resizeMask()));
+    connect(contextItem, SIGNAL(widthChanged()), this, SLOT(resizeMask()));
+    connect(contextItem, SIGNAL(heightChanged()), this, SLOT(resizeMask()));
+    connect(contextItem, SIGNAL(rotationChanged()), this, SLOT(resizeMask()));
+
     m_currentContext.push(contextItem);
     QString title = titleForItem(contextItem);
     emit contextPushed(title);
@@ -250,14 +250,15 @@ QGraphicsObject *SubcomponentEditorTool::popContext()
 
     emit contextPopped();
 
-    disconnect(popped, SIGNAL(xChanged()), this, SLOT(refresh()));
-    disconnect(popped, SIGNAL(yChanged()), this, SLOT(refresh()));
-    disconnect(popped, SIGNAL(scaleChanged()), this, SLOT(refresh()));
-    disconnect(popped, SIGNAL(widthChanged()), this, SLOT(refresh()));
-    disconnect(popped, SIGNAL(heightChanged()), this, SLOT(refresh()));
+    disconnect(popped, SIGNAL(xChanged()), this, SLOT(resizeMask()));
+    disconnect(popped, SIGNAL(yChanged()), this, SLOT(resizeMask()));
+    disconnect(popped, SIGNAL(scaleChanged()), this, SLOT(resizeMask()));
+    disconnect(popped, SIGNAL(widthChanged()), this, SLOT(resizeMask()));
+    disconnect(popped, SIGNAL(heightChanged()), this, SLOT(resizeMask()));
 
     if (m_currentContext.size() > 1) {
-        m_mask->setCurrentItem(m_currentContext.top());
+        QGraphicsObject *item = m_currentContext.top();
+        m_mask->setCurrentItem(item);
         m_mask->setOpacity(MaxOpacity);
         m_mask->setVisible(true);
     } else {
@@ -267,9 +268,10 @@ QGraphicsObject *SubcomponentEditorTool::popContext()
     return popped;
 }
 
-void SubcomponentEditorTool::refresh()
+void SubcomponentEditorTool::resizeMask()
 {
-    m_mask->setCurrentItem(m_currentContext.top());
+    QGraphicsObject *item = m_currentContext.top();
+    m_mask->setCurrentItem(item);
 }
 
 QGraphicsObject *SubcomponentEditorTool::currentRootItem() const

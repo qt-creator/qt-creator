@@ -63,7 +63,7 @@ protected:
 private slots:
     void animate();
     void contextDestroyed(QObject *context);
-    void refresh();
+    void resizeMask();
 
 private:
     QGraphicsObject *popContext();

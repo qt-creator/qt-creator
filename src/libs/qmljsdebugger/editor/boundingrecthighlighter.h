@@ -34,6 +34,7 @@ private slots:
 private:
     BoundingBox *boxFor(QGraphicsObject *item) const;
     void highlightAll(bool animate);
+    BoundingBox *createBoundingBox(QGraphicsObject *itemToHighlight);
 
 private:
     Q_DISABLE_COPY(BoundingRectHighlighter);

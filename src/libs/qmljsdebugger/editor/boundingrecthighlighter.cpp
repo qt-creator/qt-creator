@@ -99,14 +99,18 @@ void BoundingRectHighlighter::clear()
     if (m_boxes.length()) {
         m_animTimer->stop();
 
+        foreach(BoundingBox *box, m_boxes) {
+            if (!box->highlightedObject.isNull()) {
+                disconnect(box->highlightedObject.data(), SIGNAL(xChanged()), this, SLOT(refresh()));
+                disconnect(box->highlightedObject.data(), SIGNAL(yChanged()), this, SLOT(refresh()));
+                disconnect(box->highlightedObject.data(), SIGNAL(widthChanged()), this, SLOT(refresh()));
+                disconnect(box->highlightedObject.data(), SIGNAL(heightChanged()), this, SLOT(refresh()));
+                disconnect(box->highlightedObject.data(), SIGNAL(rotationChanged()), this, SLOT(refresh()));
+            }
+        }
+
         qDeleteAll(m_boxes);
         m_boxes.clear();
-
-//        disconnect(m_highlightedObject.data(), SIGNAL(xChanged()), this, SLOT(refresh()));
-//        disconnect(m_highlightedObject.data(), SIGNAL(yChanged()), this, SLOT(refresh()));
-//        disconnect(m_highlightedObject.data(), SIGNAL(widthChanged()), this, SLOT(refresh()));
-//        disconnect(m_highlightedObject.data(), SIGNAL(heightChanged()), this, SLOT(refresh()));
-//        disconnect(m_highlightedObject.data(), SIGNAL(rotationChanged()), this, SLOT(refresh()));
     }
 }
 
@@ -132,7 +136,7 @@ void BoundingRectHighlighter::highlight(QList<QGraphicsObject*> items)
     foreach(QGraphicsObject *itemToHighlight, items) {
         BoundingBox *box = boxFor(itemToHighlight);
         if (!box) {
-            box = new BoundingBox(itemToHighlight, this);
+            box = createBoundingBox(itemToHighlight);
             animate = true;
         }
 
@@ -157,7 +161,7 @@ void BoundingRectHighlighter::highlight(QGraphicsObject* itemToHighlight)
 
     BoundingBox *box = boxFor(itemToHighlight);
     if (!box) {
-        box = new BoundingBox(itemToHighlight, this);
+        box = createBoundingBox(itemToHighlight);
         m_boxes << box;
         animate = true;
         qSort(m_boxes);
@@ -166,11 +170,24 @@ void BoundingRectHighlighter::highlight(QGraphicsObject* itemToHighlight)
     highlightAll(animate);
 }
 
+BoundingBox *BoundingRectHighlighter::createBoundingBox(QGraphicsObject *itemToHighlight)
+{
+    BoundingBox *box = new BoundingBox(itemToHighlight, this);
+
+    connect(itemToHighlight, SIGNAL(xChanged()), this, SLOT(refresh()));
+    connect(itemToHighlight, SIGNAL(yChanged()), this, SLOT(refresh()));
+    connect(itemToHighlight, SIGNAL(widthChanged()), this, SLOT(refresh()));
+    connect(itemToHighlight, SIGNAL(heightChanged()), this, SLOT(refresh()));
+    connect(itemToHighlight, SIGNAL(rotationChanged()), this, SLOT(refresh()));
+
+    return box;
+}
+
 void BoundingRectHighlighter::highlightAll(bool animate)
 {
     foreach(BoundingBox *box, m_boxes) {
         QGraphicsObject *item = box->highlightedObject.data();
-        if (!item) {
+        if (box->highlightedObject.isNull()) {
             m_boxes.removeOne(box);
             continue;
         }
@@ -185,14 +202,6 @@ void BoundingRectHighlighter::highlightAll(bool animate)
 
         box->highlightPolygon->setPolygon(QPolygonF(bboxRect));
         box->highlightPolygonEdge->setPolygon(QPolygonF(edgeRect));
-
-//        if (XXX) {
-//            connect(item, SIGNAL(xChanged()), this, SLOT(refresh()));
-//            connect(item, SIGNAL(yChanged()), this, SLOT(refresh()));
-//            connect(item, SIGNAL(widthChanged()), this, SLOT(refresh()));
-//            connect(item, SIGNAL(heightChanged()), this, SLOT(refresh()));
-//            connect(item, SIGNAL(rotationChanged()), this, SLOT(refresh()));
-//        }
 
         if (animate)
             box->highlightPolygonEdge->setOpacity(0);

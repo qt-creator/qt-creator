@@ -24,8 +24,28 @@ int SubcomponentMaskLayerItem::type() const
     return Constants::EditorItemType;
 }
 
+static QRectF resizeRect(const QRectF &newRect, const QRectF &oldRect)
+{
+    QRectF result = newRect;
+    if (oldRect.left() < newRect.left())
+        result.setLeft(oldRect.left());
+
+    if (oldRect.top() < newRect.top())
+        result.setTop(oldRect.top());
+
+    if (oldRect.right() > newRect.right())
+        result.setRight(oldRect.right());
+
+    if (oldRect.bottom() > newRect.bottom())
+        result.setBottom(oldRect.bottom());
+
+    return result;
+}
+
+
 void SubcomponentMaskLayerItem::setCurrentItem(QGraphicsItem *item)
 {
+    QGraphicsItem *prevItem = m_currentItem;
     m_currentItem = item;
 
     if (!m_currentItem)
@@ -38,11 +58,17 @@ void SubcomponentMaskLayerItem::setCurrentItem(QGraphicsItem *item)
     QPolygonF itemPoly(itemRect);
     itemPoly = item->mapToScene(itemPoly);
 
-    QRectF borderRect = itemPoly.boundingRect();
+    // if updating the same item as before, resize the rectangle only bigger, not smaller.
+    if (prevItem == item && prevItem != 0) {
+        m_itemPolyRect = resizeRect(itemPoly.boundingRect(), m_itemPolyRect);
+    } else {
+        m_itemPolyRect = itemPoly.boundingRect();
+    }
+    QRectF borderRect = m_itemPolyRect;
     borderRect.adjust(-1, -1, 1, 1);
     m_borderRect->setRect(borderRect);
 
-    itemPoly = viewPoly.subtracted(QPolygonF(itemPoly.boundingRect()));
+    itemPoly = viewPoly.subtracted(QPolygonF(m_itemPolyRect));
     setPolygon(itemPoly);
 }
 
