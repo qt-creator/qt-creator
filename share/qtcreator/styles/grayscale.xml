@@ -30,6 +30,8 @@
   Selection
   Occurrences
   Occurrences.Rename
+  Occurrences.Unused
+  VisualWhitespace
 
   -->
 </style-scheme>
