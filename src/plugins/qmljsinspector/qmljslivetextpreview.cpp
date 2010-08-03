@@ -118,7 +118,7 @@ void MapObjectWithDebugReference::processRecursive(const QDeclarativeDebugObject
     SourceLocation loc = ast->firstSourceLocation();
     if (object.source().columnNumber() == int(loc.startColumn)) {
         QString objectFileName = object.source().url().toLocalFile();
-        if (object.source().lineNumber() == int(loc.startLine) && objectFileName == filename) {
+        if (!doc && object.source().lineNumber() == int(loc.startLine) && objectFileName == filename) {
             result[ast] += object.debugId();
         } else if (doc && objectFileName.startsWith(filename + QLatin1Char('_') + QString::number(doc->editorRevision()) + QLatin1Char(':'))) {
             bool ok;
