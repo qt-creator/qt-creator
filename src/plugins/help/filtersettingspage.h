@@ -66,6 +66,9 @@ private slots:
     void removeFilter();
 
 private:
+    void updateFilterDescription(const QString &filter);
+
+private:
     Ui::FilterSettingsPage m_ui;
 
     FilterMap m_filterMap;

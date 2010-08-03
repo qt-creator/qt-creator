@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>419</width>
+    <height>313</height>
    </rect>
   </property>
   <property name="toolTip">
@@ -27,6 +27,18 @@ Add, modify, and remove document filters, which determine the documentation set 
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
          <widget class="QListWidget" name="filterWidget">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>10</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>150</height>
+           </size>
+          </property>
           <property name="uniformItemSizes">
            <bool>true</bool>
           </property>
@@ -43,6 +55,18 @@ Add, modify, and remove document filters, which determine the documentation set 
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
          <widget class="QTreeWidget" name="attributeWidget">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>150</height>
+           </size>
+          </property>
           <property name="showDropIndicator" stdset="0">
            <bool>false</bool>
           </property>
@@ -52,9 +76,6 @@ Add, modify, and remove document filters, which determine the documentation set 
           <property name="uniformRowHeights">
            <bool>true</bool>
           </property>
-          <attribute name="headerVisible">
-           <bool>false</bool>
-          </attribute>
           <attribute name="headerVisible">
            <bool>false</bool>
           </attribute>
@@ -69,6 +90,25 @@ Add, modify, and remove document filters, which determine the documentation set 
       </widget>
      </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>50</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>No user defined filters available or no filter selected.</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">

@@ -110,21 +110,23 @@ void FilterSettingsPage::updateFilterPage()
             manager->customValue(Help::Constants::PreviousFilterNameKey).toString();
     }
 
-    QSet<QString> attributes;
-    const Core::HelpManager::Filters &filters = manager->filters();
-
+    Core::HelpManager::Filters filters = manager->userDefinedFilters();
     Core::HelpManager::Filters::const_iterator it;
     for (it = filters.constBegin(); it != filters.constEnd(); ++it) {
         const QString &filter = it.key();
         if (filter == trUnfiltered || filter == lastTrUnfiltered)
             continue;
 
-        attributes += it.value().toSet();
         m_filterMapBackup.insert(filter, it.value());
         if (!m_filterMap.contains(filter))
             m_filterMap.insert(filter, it.value());
     }
     m_ui.filterWidget->addItems(m_filterMap.keys());
+
+    QSet<QString> attributes;
+    filters = manager->filters();
+    for (it = filters.constBegin(); it != filters.constEnd(); ++it)
+        attributes += it.value().toSet();
 
     foreach (const QString &attribute, attributes)
         new QTreeWidgetItem(m_ui.attributeWidget, QStringList(attribute));
@@ -148,6 +150,8 @@ void FilterSettingsPage::updateAttributes(QListWidgetItem *item)
         else
             itm->setCheckState(0, Qt::Unchecked);
     }
+
+    updateFilterDescription(item ? item->text() : QString());
 }
 
 void FilterSettingsPage::updateFilterMap()
@@ -166,6 +170,7 @@ void FilterSettingsPage::updateFilterMap()
             newAtts.append(itm->text(0));
     }
     m_filterMap[filter] = newAtts;
+    updateFilterDescription(filter);
 }
 
 void FilterSettingsPage::addFilter()
@@ -197,6 +202,9 @@ void FilterSettingsPage::removeFilter()
     delete item;
     if (m_ui.filterWidget->count())
         m_ui.filterWidget->setCurrentRow(0);
+
+    item = m_ui.filterWidget->item(m_ui.filterWidget->currentRow());
+    updateFilterDescription(item ? item->text() : QString());
 }
 
 void FilterSettingsPage::apply()
@@ -242,4 +250,25 @@ void FilterSettingsPage::apply()
 bool FilterSettingsPage::matches(const QString &s) const
 {
     return m_searchKeywords.contains(s, Qt::CaseInsensitive);
+}
+
+void FilterSettingsPage::updateFilterDescription(const QString &filter)
+{
+    const QStringList &checkedList = m_filterMap.value(filter);
+    if (!m_filterMap.keys().isEmpty()) {
+        const QString prefix = tr("The filter \"%1\" will").arg(filter);
+        if (checkedList.isEmpty()) {
+            m_ui.label->setText(prefix + tr(" show every documentation file "
+                "available, as no attributes are specified."));
+        } else if (checkedList.count() == 1) {
+            m_ui.label->setText(prefix + tr(" only show documentation files that"
+                " have the attribute %2 specified.").arg(checkedList.first()));
+        } else {
+            m_ui.label->setText(prefix + tr(" only show documentation files that"
+                " have the attributes %2 specified.").arg(checkedList.join(", ")));
+        }
+    } else {
+        m_ui.label->setText(tr("No user defined filters available or no filter "
+            "selected."));
+    }
 }
