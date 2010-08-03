@@ -49,6 +49,9 @@
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 
+#include <QtCore/QTimer>
+#include <QtGui/QMessageBox>
+
 namespace Qt4ProjectManager {
 namespace Internal {
 
@@ -60,18 +63,29 @@ MaemoPackageCreationWidget::MaemoPackageCreationWidget(MaemoPackageCreationStep 
     m_ui->setupUi(this);
     m_ui->skipCheckBox->setChecked(!m_step->isPackagingEnabled());
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    const QStringList list = m_step->versionString().split(QLatin1Char('.'),
-        QString::SkipEmptyParts);
-    m_ui->major->setValue(list.value(0, QLatin1String("0")).toInt());
-    m_ui->minor->setValue(list.value(1, QLatin1String("0")).toInt());
-    m_ui->patch->setValue(list.value(2, QLatin1String("0")).toInt());
-    versionInfoChanged();
-    connect(m_step, SIGNAL(packageFilePathChanged()), this,
-        SIGNAL(updateSummary()));
+    QTimer::singleShot(0, this, SLOT(initVersion()));
 }
 
 void MaemoPackageCreationWidget::init()
 {
+}
+
+void MaemoPackageCreationWidget::initVersion()
+{
+    QString error;
+    QString versionString = m_step->versionString(&error);
+    if (versionString.isEmpty()) {
+        QMessageBox::critical(this, tr("No version available."), error);
+        versionString = MaemoPackageCreationStep::DefaultVersionNumber;
+    }
+    const QStringList list = versionString.split(QLatin1Char('.'),
+        QString::SkipEmptyParts);
+    m_ui->major->setValue(list.value(0, QLatin1String("0")).toInt());
+    m_ui->minor->setValue(list.value(1, QLatin1String("0")).toInt());
+    m_ui->patch->setValue(list.value(2, QLatin1String("0")).toInt());
+    connect(m_step, SIGNAL(packageFilePathChanged()), this,
+        SIGNAL(updateSummary()));
+    versionInfoChanged();
 }
 
 QString MaemoPackageCreationWidget::summaryText() const
@@ -94,8 +108,12 @@ void MaemoPackageCreationWidget::handleSkipButtonToggled(bool checked)
 
 void MaemoPackageCreationWidget::versionInfoChanged()
 {
-    m_step->setVersionString(m_ui->major->text() + QLatin1Char('.')
-        + m_ui->minor->text() + QLatin1Char('.') + m_ui->patch->text());
+    QString error;
+    const bool success = m_step->setVersionString(m_ui->major->text()
+        + QLatin1Char('.') + m_ui->minor->text() + QLatin1Char('.')
+        + m_ui->patch->text(), &error);
+    if (!success)
+        QMessageBox::critical(this, tr("Could not set version number"), error);
 }
 
 } // namespace Internal

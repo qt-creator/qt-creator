@@ -72,8 +72,17 @@ public:
     bool isPackagingEnabled() const { return m_packagingEnabled; }
     void setPackagingEnabled(bool enabled) { m_packagingEnabled = enabled; }
 
-    QString versionString() const;
-    void setVersionString(const QString &version);
+    QString versionString(QString *error) const;
+    bool setVersionString(const QString &version, QString *error);
+
+    static bool preparePackagingProcess(QProcess *proc, const MaemoToolChain *tc,
+        const QString &workingDir, QString *error);
+    static QString packagingCommand(const MaemoToolChain *tc,
+        const QString &commandName);
+    static QString packageFileName(const ProjectExplorer::Project *project,
+        const QString &version);
+
+    static const QLatin1String DefaultVersionNumber;
 
 signals:
     void packageFilePathChanged();
@@ -94,10 +103,11 @@ private:
     virtual bool fromMap(const QVariantMap &map);
 
     bool createPackage();
+    bool removeDirectory(const QString &dirPath);
     bool runCommand(const QString &command);
     QString maddeRoot() const;
     QString targetRoot() const;
-    QString nativePath(const QFile &file) const;
+    static QString nativePath(const QFile &file);
     bool packagingNeeded() const;
     void raiseError(const QString &shortMsg,
                     const QString &detailedMsg = QString());
@@ -110,7 +120,6 @@ private:
     static const QLatin1String CreatePackageId;
 
     bool m_packagingEnabled;
-    QString m_versionString;
     QScopedPointer<QProcess> m_buildProc;
 };
 

@@ -36,6 +36,7 @@
 #include "maemoqemumanager.h"
 #include "maemorunfactories.h"
 #include "maemosettingspage.h"
+#include "maemotemplatesmanager.h"
 #include "maemotoolchain.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -66,6 +67,7 @@ MaemoManager::MaemoManager()
     m_instance = this;
     MaemoQemuManager::instance(this);
     MaemoDeviceConfigurations::instance(this);
+    MaemoTemplatesManager::instance(this);
 
     PluginManager *pluginManager = PluginManager::instance();
     pluginManager->addObject(m_runControlFactory);
