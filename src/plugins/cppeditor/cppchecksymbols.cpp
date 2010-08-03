@@ -789,13 +789,11 @@ void CheckSymbols::addMemberUsage(const QList<LookupItem> &candidates, NameAST *
         if (! c)
             continue;
         else if (! c->isDeclaration())
-            continue;
-        else if (c->isTypedef())
-            continue;
-        else if (c->type()->isFunctionType())
-            continue;
-        else if (! c->enclosingSymbol()->isClass())
-            continue;
+            return;
+        else if (! (c->enclosingSymbol() && c->enclosingSymbol()->isClass()))
+            return; // shadowed
+        else if (c->isTypedef() || c->type()->isFunctionType())
+            return; // shadowed
 
         const Use use(line, column, length, Use::Field);
         addUsage(use);
