@@ -179,12 +179,15 @@ QString AbstractFormEditorTool::titleForItem(QGraphicsItem *item)
         if (!objectStringId.isEmpty()) {
             constructedName = objectStringId + " (" + className + ")";
         } else {
-            if (!gfxObject->objectName().isEmpty())
+            if (!gfxObject->objectName().isEmpty()) {
                 constructedName = gfxObject->objectName() + " (" + className + ")";
+            } else {
+                constructedName = className;
+            }
         }
     }
 
-    return className;
+    return constructedName;
 }
 
 

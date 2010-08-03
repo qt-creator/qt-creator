@@ -126,7 +126,10 @@ void CrumblePathButton::paintEvent(QPaintEvent *)
         }
     }
     p.setPen(StyleHelper::panelTextColor());
-    p.drawText(QRectF(m_textPos.x(), 4, geom.width(), geom.height()), text());
+    QFontMetrics fm(p.font());
+    QString textToDraw = fm.elidedText(text(), Qt::ElideRight, geom.width() - m_textPos.x());
+
+    p.drawText(QRectF(m_textPos.x(), 4, geom.width(), geom.height()), textToDraw);
 }
 
 void CrumblePathButton::tintImages()
