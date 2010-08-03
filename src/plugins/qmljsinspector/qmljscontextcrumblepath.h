@@ -13,6 +13,7 @@ class ContextCrumblePath : public Utils::CrumblePath
 public:
     ContextCrumblePath(QWidget *parent = 0);
     virtual ~ContextCrumblePath();
+    bool isEmpty() const;
 
 public slots:
     void updateContextPath(const QStringList &path);

@@ -75,6 +75,8 @@ public:
     // ### Qt 4.8: remove if we can have access to qdeclarativecontextdata or id's
     void setObjectIdList(const QList<QDeclarativeDebugObjectReference> &objectRoots);
 
+    void setContextPathIndex(int contextPathIndex);
+
 signals:
     void currentObjectsChanged(const QList<int> &debugIds);
     void selectedColorChanged(const QColor &color);

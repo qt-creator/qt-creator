@@ -94,7 +94,7 @@ QDeclarativeDesignView::QDeclarativeDesignView(QWidget *parent) :
     connect(qmlDesignDebugServer(),
             SIGNAL(objectCreationRequested(QString,QObject*,QStringList,QString)),
             SLOT(_q_createQmlObject(QString,QObject*,QStringList,QString)));
-
+    connect(qmlDesignDebugServer(), SIGNAL(contextPathIndexChanged(int)), SLOT(_q_changeContextPathIndex(int)));
     connect(this, SIGNAL(statusChanged(QDeclarativeView::Status)), SLOT(_q_onStatusChanged(QDeclarativeView::Status)));
 
     connect(data->colorPickerTool, SIGNAL(selectedColorChanged(QColor)), SIGNAL(selectedColorChanged(QColor)));
@@ -511,6 +511,11 @@ void QDeclarativeDesignViewPrivate::_q_changeToColorPickerTool()
 
     emit q->colorPickerActivated();
     qmlDesignDebugServer()->setCurrentTool(Constants::ColorPickerMode);
+}
+
+void QDeclarativeDesignViewPrivate::_q_changeContextPathIndex(int index)
+{
+    subcomponentEditorTool->setContext(index);
 }
 
 void QDeclarativeDesignView::changeAnimationSpeed(qreal slowdownFactor)

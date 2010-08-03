@@ -462,10 +462,16 @@ void ClientProxy::createQmlObject(const QString &qmlText, int parentDebugId,
         m_designClient->createQmlObject(qmlText, parentDebugId, imports, filename);
 }
 
-void QmlJSInspector::Internal::ClientProxy::destroyQmlObject(int debugId)
+void ClientProxy::destroyQmlObject(int debugId)
 {
     if (isDesignClientConnected())
         m_designClient->destroyQmlObject(debugId);
+}
+
+void ClientProxy::setContextPathIndex(int contextIndex)
+{
+    if (isDesignClientConnected())
+        m_designClient->setContextPathIndex(contextIndex);
 }
 
 

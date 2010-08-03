@@ -167,6 +167,18 @@ void QmlJSDesignDebugClient::setObjectIdList(const QList<QDeclarativeDebugObject
     sendMessage(message);
 }
 
+void QmlJSDesignDebugClient::setContextPathIndex(int contextPathIndex)
+{
+    if (!m_connection || !m_connection->isConnected())
+        return;
+
+    QByteArray message;
+    QDataStream ds(&message, QIODevice::WriteOnly);
+
+    ds << QByteArray("SET_CONTEXT_PATH_IDX")
+       << contextPathIndex;
+    sendMessage(message);
+}
 
 void QmlJSDesignDebugClient::reloadViewer()
 {

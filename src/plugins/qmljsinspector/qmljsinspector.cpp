@@ -635,12 +635,20 @@ void Inspector::createDockWidgets()
 {
     m_crumblePath = new ContextCrumblePath;
     m_crumblePath->setWindowTitle("Context Path");
+    connect(m_crumblePath, SIGNAL(elementClicked(int)), SLOT(crumblePathElementClicked(int)));
     Debugger::DebuggerUISwitcher *uiSwitcher = Debugger::DebuggerUISwitcher::instance();
     m_crumblePathDock = uiSwitcher->createDockWidget(QmlJSInspector::Constants::LANG_QML,
                                                                 m_crumblePath, Qt::BottomDockWidgetArea);
     m_crumblePathDock->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
     m_crumblePathDock->setTitleBarWidget(new QWidget(m_crumblePathDock));
     connect(m_clientProxy, SIGNAL(contextPathUpdated(QStringList)), m_crumblePath, SLOT(updateContextPath(QStringList)));
+}
+
+void Inspector::crumblePathElementClicked(int pathIndex)
+{
+    if (m_clientProxy->isConnected() && !m_crumblePath->isEmpty()) {
+        m_clientProxy->setContextPathIndex(pathIndex);
+    }
 }
 
 bool Inspector::showExperimentalWarning()

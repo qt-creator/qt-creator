@@ -90,6 +90,8 @@ Q_SIGNALS:
     // 1 < x < 16 = slowdown by some factor
     void animationSpeedChangeRequested(qreal speedFactor);
 
+    void contextPathIndexChanged(int contextPathIndex);
+
 protected:
     virtual void messageReceived(const QByteArray &);
 

@@ -122,6 +122,7 @@ public:
     void _q_changeToMarqueeSelectTool();
     void _q_changeToZoomTool();
     void _q_changeToColorPickerTool();
+    void _q_changeContextPathIndex(int index);
 
     static QDeclarativeDesignViewPrivate *get(QDeclarativeDesignView *v) { return v->d_func(); }
 };

@@ -133,7 +133,7 @@ private slots:
     void createPreviewForEditor(Core::IEditor *newEditor);
 
     void disableLivePreview();
-
+    void crumblePathElementClicked(int);
 private:
     Debugger::DebuggerRunControl *createDebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig,
                                                            const QString &executableFile = QString(),

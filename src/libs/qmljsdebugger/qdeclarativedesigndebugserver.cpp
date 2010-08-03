@@ -79,6 +79,10 @@ void QDeclarativeDesignDebugServer::messageReceived(const QByteArray &message)
 
             m_stringIdForObjectId.insert(itemDebugId, itemIdString);
         }
+    } else if (type == "SET_CONTEXT_PATH_IDX") {
+        int contextPathIndex;
+        ds >> contextPathIndex;
+        emit contextPathIndexChanged(contextPathIndex);
     }
 }
 

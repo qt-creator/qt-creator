@@ -111,6 +111,7 @@ void SubcomponentEditorTool::animate()
             m_animTimer->stop();
             m_mask->setOpacity(0);
             popContext();
+            emit contextPathChanged(m_path);
         }
     }
 
@@ -235,6 +236,7 @@ void SubcomponentEditorTool::aboutToPopContext()
 {
     if (m_currentContext.size() > 2) {
         popContext();
+        emit contextPathChanged(m_path);
     } else {
         m_animIncrement = -0.05f;
         m_animTimer->start();
@@ -302,6 +304,8 @@ QGraphicsObject *SubcomponentEditorTool::setContext(int contextIndex)
     while (m_currentContext.size() - 1 > contextIndex) {
         popContext();
     }
+    emit contextPathChanged(m_path);
+
     return m_currentContext.top();
 }
 

@@ -31,5 +31,10 @@ void ContextCrumblePath::updateContextPath(const QStringList &path)
     }
 }
 
+bool ContextCrumblePath::isEmpty() const
+{
+    return m_isEmpty;
+}
+
 } // namespace Internal
 } // namespace QmlJSInspector

@@ -45,7 +45,7 @@ public:
     void setCurrentItem(QGraphicsItem *contextObject);
 
     void pushContext(QGraphicsObject *contextItem);
-    QGraphicsObject *popContext();
+
     QGraphicsObject *currentRootItem() const;
     QGraphicsObject *setContext(int contextIndex);
     int contextIndex() const;
@@ -66,6 +66,7 @@ private slots:
     void refresh();
 
 private:
+    QGraphicsObject *popContext();
     void aboutToPopContext();
 
 private:
