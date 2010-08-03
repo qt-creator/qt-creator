@@ -24,20 +24,39 @@ namespace QmlDesigner {
 static const char * const line_xpm[] = {
         "12 12 2 1",
         " 	c None",
-        ".	c #000000",
-        "            ",
-        "            ",
-        "            ",
-        "            ",
-        "            ",
-        "            ",
-        "            ",
-        "            ",
-        "            ",
-        "            ",
-        "  ........  ",
-        "            "};
+        ".	c #0c0c0c",
+        "............",
+        ".          .",
+        ".          .",
+        ".          .",
+        ".          .",
+        ".          .",
+        ".          .",
+        ".          .",
+        ".          .",
+        ". ........ .",
+        ".          .",
+        "............"};
 
+/* XPM */
+static char * pin_xpm[] = {
+"12 9 7 1",
+" 	c None",
+".	c #000000",
+"+	c #515151",
+"@	c #A8A8A8",
+"#	c #A9A9A9",
+"$	c #999999",
+"%	c #696969",
+"     .      ",
+"     ......+",
+"     .@@@@@.",
+"     .#####.",
+"+.....$$$$$.",
+"     .%%%%%.",
+"     .......",
+"     ......+",
+"     .      "};
 
 DragWidget::DragWidget(QWidget *parent) : QFrame(parent)
 {
@@ -89,6 +108,7 @@ void DragWidget::mouseMoveEvent(QMouseEvent * event)
                     m_secondaryTarget->move(m_secondaryTarget->pos() + diff);
                 move(newPos);
                 m_pos = newPos;
+                protectedMoved();
             }
         } else {
             m_opacityEffect = new QGraphicsOpacityEffect;
@@ -97,6 +117,11 @@ void DragWidget::mouseMoveEvent(QMouseEvent * event)
         m_oldPos = event->globalPos();
         event->accept();
     }
+}
+
+void DragWidget::protectedMoved()
+{
+
 }
 
 ContextPaneWidget::ContextPaneWidget(QWidget *parent) : DragWidget(parent), m_currentWidget(0)
@@ -116,13 +141,21 @@ ContextPaneWidget::ContextPaneWidget(QWidget *parent) : DragWidget(parent), m_cu
     layout->setMargin(0);
     layout->setContentsMargins(1, 1, 1, 1);
     layout->setSpacing(0);
-    QToolButton *toolButton = new QToolButton(this);
-    toolButton->setIcon(QPixmap::fromImage(QImage(line_xpm)));
-    toolButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-    toolButton->setFixedSize(14, 14);
-    toolButton->setToolTip(tr("Hides this toolbar. This toolbar can be permantly disabled in the options or in the context menu."));
-    connect(toolButton, SIGNAL(clicked()), this, SLOT(onTogglePane()));
-    layout->addWidget(toolButton, 0, 0, 1, 1);
+    m_toolButton = new QToolButton(this);
+    m_toolButton->setAutoRaise(false);
+
+    m_toolButton->setIcon(QPixmap::fromImage(QImage(line_xpm)));
+    m_toolButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
+    m_toolButton->setFixedSize(16, 16);
+
+    if (Internal::BauhausPlugin::pluginInstance()->settings().pinContextPane)
+        setPinButton();
+    else
+        setLineButton();
+
+    m_toolButton->setToolTip(tr("Hides this toolbar. This toolbar can be permantly disabled in the options or in the context menu."));
+    connect(m_toolButton, SIGNAL(clicked()), this, SLOT(onTogglePane()));
+    layout->addWidget(m_toolButton, 0, 0, 1, 1);
     colorDialog();
 
     QWidget *fontWidget = createFontWidget();
@@ -142,12 +175,13 @@ ContextPaneWidget::ContextPaneWidget(QWidget *parent) : DragWidget(parent), m_cu
 
     m_resetAction = new QAction(tr("Pin toolbar"), this);
     m_resetAction->setCheckable(true);
-    addAction(m_resetAction);
-    connect(m_resetAction, SIGNAL(triggered(bool)), this, SLOT(onResetPosition(bool)));
+    addAction(m_resetAction.data());
+    connect(m_resetAction.data(), SIGNAL(triggered(bool)), this, SLOT(onResetPosition(bool)));
 
     QAction *disableAction = new QAction(tr("Disable permanently"), this);
     addAction(disableAction);
-    connect(disableAction, SIGNAL(triggered()), this, SLOT(onDisable())); 
+    connect(disableAction, SIGNAL(triggered()), this, SLOT(onDisable()));
+    m_pinned = false;
 }
 
 ContextPaneWidget::~ContextPaneWidget()
@@ -190,6 +224,9 @@ void ContextPaneWidget::rePosition(const QPoint &position, const QPoint &alterna
     if (m_pos.x() > 0 && (Internal::BauhausPlugin::pluginInstance()->settings().pinContextPane)) {
         move(m_pos);
         show();
+        setPinButton();
+    } else {
+        setLineButton();
     }
 }
 
@@ -300,7 +337,13 @@ void ContextPaneWidget::onTogglePane()
 {
     if (!m_currentWidget)
         return;
-    deactivate();
+    if (m_pinned) {
+        m_pos = QPoint(-1,-1);
+        move(m_originalPos);
+        setLineButton();
+    } else {
+        deactivate();
+    }
 }
 
 void ContextPaneWidget::onShowColorDialog(bool checked, const QPoint &p)
@@ -326,14 +369,18 @@ void ContextPaneWidget::onDisable()
 
 void  ContextPaneWidget::onResetPosition(bool toggle)
 {
-    DesignerSettings designerSettings = Internal::BauhausPlugin::pluginInstance()->settings();
-    designerSettings.pinContextPane = toggle;
-    Internal::BauhausPlugin::pluginInstance()->setSettings(designerSettings);
-
     if (!toggle) {
+        setLineButton();
         m_pos = QPoint(-1,-1);
         move(m_originalPos);
+    } else {
+        setPinButton();
     }
+}
+
+void ContextPaneWidget::protectedMoved()
+{
+    setPinButton();
 }
 
 QWidget* ContextPaneWidget::createFontWidget()
@@ -388,6 +435,44 @@ QWidget *ContextPaneWidget::createRectangleWidget()
     return m_rectangleWidget;
 }
 
+void ContextPaneWidget::setPinButton()
+{
+    m_toolButton->setAutoRaise(true);
+    m_pinned = true;
+
+    m_toolButton->setIcon(QPixmap::fromImage(QImage(pin_xpm)));
+    m_toolButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
+    m_toolButton->setFixedSize(16, 16);
+    m_toolButton->setToolTip(tr("Unpins the toolbar. The toolbar will be moved to its default position."));
+
+    DesignerSettings designerSettings = Internal::BauhausPlugin::pluginInstance()->settings();
+    designerSettings.pinContextPane = true;
+    Internal::BauhausPlugin::pluginInstance()->setSettings(designerSettings);
+    if (m_resetAction) {
+        m_resetAction->blockSignals(true);
+        m_resetAction->setChecked(true);
+        m_resetAction->blockSignals(false);
+    }
+}
+
+void ContextPaneWidget::setLineButton()
+{
+    m_pinned = false;
+    m_toolButton->setAutoRaise(true);
+    m_toolButton->setIcon(QPixmap::fromImage(QImage(line_xpm)));
+    m_toolButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
+    m_toolButton->setFixedSize(16, 16);
+    m_toolButton->setToolTip(tr("Hides this toolbar. This toolbar can be permantly disabled in the options or in the context menu."));
+
+    DesignerSettings designerSettings = Internal::BauhausPlugin::pluginInstance()->settings();
+    designerSettings.pinContextPane = false;
+    Internal::BauhausPlugin::pluginInstance()->setSettings(designerSettings);
+    if (m_resetAction) {
+        m_resetAction->blockSignals(true);
+        m_resetAction->setChecked(false);
+        m_resetAction->blockSignals(false);
+    }
+}
 
 } //QmlDesigner
 

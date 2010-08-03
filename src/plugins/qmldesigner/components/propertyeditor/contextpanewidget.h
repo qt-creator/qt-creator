@@ -5,6 +5,7 @@
 #include <QVariant>
 #include <QGraphicsEffect>
 #include <QWeakPointer>
+#include <QToolButton>
 
 namespace QmlJS {
     class PropertyReader;
@@ -32,6 +33,7 @@ protected:
     void mousePressEvent(QMouseEvent * event);
     void mouseReleaseEvent(QMouseEvent * event);
     void mouseMoveEvent(QMouseEvent * event);
+    void virtual protectedMoved();
 
 private:
     QGraphicsDropShadowEffect *m_dropShadowEffect;
@@ -71,11 +73,18 @@ private slots:
     void onResetPosition(bool toggle);
 
 protected:
+
+    void protectedMoved();
+
+    QToolButton *m_toolButton;
     QWidget *createFontWidget();
     QWidget *createEasingWidget();
     QWidget *createImageWidget();
     QWidget *createBorderImageWidget();
-    QWidget *createRectangleWidget();    
+    QWidget *createRectangleWidget();
+
+    void setPinButton();
+    void setLineButton();
 
 private:
     QWidget *m_currentWidget;
@@ -85,9 +94,10 @@ private:
     ContextPaneWidgetImage *m_borderImageWidget;
     ContextPaneWidgetRectangle *m_rectangleWidget;
     QWeakPointer<BauhausColorDialog> m_bauhausColorDialog;
-    QAction * m_resetAction;
+    QWeakPointer<QAction> m_resetAction;
     QString m_colorName;
     QPoint m_originalPos;
+    bool m_pinned;
 };
 
 } //QmlDesigner
