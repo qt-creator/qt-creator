@@ -187,6 +187,7 @@ QList<JSAgentWatchData> JSDebuggerAgent::getLocals(QScriptContext *ctx)
 */
 JSDebuggerAgent::JSDebuggerAgent(QScriptEngine *engine)
     : QDeclarativeDebugService("JSDebugger"), QScriptEngineAgent(engine)
+    , state(NoState)
 {}
 
 /*!
