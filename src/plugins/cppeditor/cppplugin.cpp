@@ -302,6 +302,9 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
             this, SLOT(onTaskStarted(QString)));
     connect(core->progressManager(), SIGNAL(allTasksFinished(QString)),
             this, SLOT(onAllTasksFinished(QString)));
+
+    connect(core->editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)), SLOT(currentEditorChanged(Core::IEditor*)));
+
     readSettings();
     return true;
 }
@@ -397,6 +400,16 @@ void CppPlugin::onAllTasksFinished(const QString &type)
         m_renameSymbolUnderCursorAction->setEnabled(true);
         m_findUsagesAction->setEnabled(true);
         m_updateCodeModelAction->setEnabled(true);
+    }
+}
+
+void CppPlugin::currentEditorChanged(Core::IEditor *editor)
+{
+    if (! editor)
+        return;
+
+    else if (CPPEditor *textEditor = qobject_cast<CPPEditor *>(editor->widget())) {
+        textEditor->rehighlight(/*force = */ true);
     }
 }
 

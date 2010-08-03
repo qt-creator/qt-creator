@@ -194,6 +194,7 @@ public Q_SLOTS:
     void findUsages();
     void renameUsagesNow(const QString &replacement = QString());
     void hideRenameNotification();
+    void rehighlight(bool force = false);
 
 protected:
     bool event(QEvent *e);

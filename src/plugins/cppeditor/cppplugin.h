@@ -84,6 +84,7 @@ private slots:
     void findUsages();
     void quickFix(TextEditor::ITextEditable *editable);
     void quickFixNow();
+    void currentEditorChanged(Core::IEditor *editor);
 
 private:
     Core::IEditor *createEditor(QWidget *parent);

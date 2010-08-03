@@ -578,6 +578,12 @@ void CPPEditor::abortRename()
     setExtraSelections(CodeSemanticsSelection, m_renameSelections);
 }
 
+void CPPEditor::rehighlight(bool force)
+{
+    const SemanticHighlighter::Source source = currentSource(force);
+    m_semanticHighlighter->rehighlight(source);
+}
+
 void CPPEditor::onDocumentUpdated(Document::Ptr doc)
 {
     if (doc->fileName() != file()->fileName())
@@ -588,9 +594,7 @@ void CPPEditor::onDocumentUpdated(Document::Ptr doc)
 
     if (! m_initialized) {
         m_initialized = true;
-
-        const SemanticHighlighter::Source source = currentSource(/*force = */ true);
-        m_semanticHighlighter->rehighlight(source);
+        rehighlight(/* force = */ true);
     }
 
     m_updateOutlineTimer->start();
