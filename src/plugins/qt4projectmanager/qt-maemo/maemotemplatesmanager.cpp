@@ -36,6 +36,8 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
+#include <qt4projectmanager/qt4nodes.h>
+#include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qt4projectmanager/qt4target.h>
 
@@ -141,11 +143,17 @@ void MaemoTemplatesManager::createTemplatesIfNecessary(ProjectExplorer::Target *
     }
 
     QDir debianDir(packagingTemplatesDir + QLatin1String("/debian"));
-    const QStringList &files
-        = debianDir.entryList(QStringList() << QLatin1String("*.??"),
-              QDir::Files);
-    foreach (const QString &fileName, files)
-        debianDir.remove(fileName);
+    const QStringList &files = debianDir.entryList(QDir::Files);
+    QStringList filesToAddToProject;
+    foreach (const QString &fileName, files) {
+        if (fileName.endsWith(QLatin1String(".ex"), Qt::CaseInsensitive)) {
+            debianDir.remove(fileName);
+        } else
+            filesToAddToProject << debianDir.absolutePath()
+                + QLatin1Char('/') + fileName;
+    }
+    qobject_cast<Qt4Project *>(m_activeProject)->rootProjectNode()
+        ->addFiles(UnknownFileType, filesToAddToProject);
 
     const QString rulesFilePath
         = packagingTemplatesDir + QLatin1String("/debian/rules");
