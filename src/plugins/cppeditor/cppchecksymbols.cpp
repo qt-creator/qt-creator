@@ -662,7 +662,7 @@ bool CheckSymbols::visit(FunctionDefinitionAST *ast)
 
     accept(ast->decl_specifier_list);
 
-    if (ast->declarator && ! ast->symbol->isGenerated()) {
+    if (ast->declarator && ast->symbol && ! ast->symbol->isGenerated()) {
         Function *fun = ast->symbol;
         if (NameAST *declId = declaratorId(ast->declarator)) {
             if (QualifiedNameAST *q = declId->asQualifiedName())
