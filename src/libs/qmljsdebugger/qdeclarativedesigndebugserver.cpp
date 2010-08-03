@@ -83,6 +83,8 @@ void QDeclarativeDesignDebugServer::messageReceived(const QByteArray &message)
         int contextPathIndex;
         ds >> contextPathIndex;
         emit contextPathIndexChanged(contextPathIndex);
+    } else if (type == "CLEAR_COMPONENT_CACHE") {
+        emit clearComponentCacheRequested();
     }
 }
 

@@ -55,6 +55,7 @@ public:
 
     bool setMethodBodyForObject(int objectDebugId, const QString &methodName, const QString &methodBody);
     bool resetBindingForObject(int objectDebugId, const QString &propertyName);
+    void clearComponentCache();
 
     // returns the object references for the given url.
     QList<QDeclarativeDebugObjectReference> objectReferences(const QUrl &url = QUrl()) const;

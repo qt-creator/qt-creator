@@ -108,6 +108,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_changeToZoomTool())
     Q_PRIVATE_SLOT(d_func(), void _q_changeToColorPickerTool())
     Q_PRIVATE_SLOT(d_func(), void _q_changeContextPathIndex(int index))
+    Q_PRIVATE_SLOT(d_func(), void _q_clearComponentCache());
 
     inline QDeclarativeDesignViewPrivate *d_func() { return data.data(); }
     QScopedPointer<QDeclarativeDesignViewPrivate> data;

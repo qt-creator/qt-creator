@@ -76,6 +76,7 @@ public:
     void setObjectIdList(const QList<QDeclarativeDebugObjectReference> &objectRoots);
 
     void setContextPathIndex(int contextPathIndex);
+    void clearComponentCache();
 
 signals:
     void currentObjectsChanged(const QList<int> &debugIds);

@@ -429,7 +429,7 @@ protected:
         ClientProxy::instance()->setMethodBodyForObject(debugId, methodName, methodBody);
     }
 
-virtual void updateScriptBinding(DebugId debugId, UiScriptBinding* scriptBinding,
+    virtual void updateScriptBinding(DebugId debugId, UiScriptBinding* scriptBinding,
                                  const QString& propertyName, const QString& scriptCode)
     {
         if (propertyName  == QLatin1String("id") && !hasUnsyncronizableChanges) {
@@ -508,6 +508,8 @@ void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
             m_previousDoc = doc;
             if (!delta.newObjects.isEmpty())
                 m_createdObjects[doc] += delta.newObjects;
+
+            ClientProxy::instance()->clearComponentCache();
         }
     } else {
         m_docWithUnappliedChanges = doc;

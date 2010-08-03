@@ -91,6 +91,7 @@ Q_SIGNALS:
     void animationSpeedChangeRequested(qreal speedFactor);
 
     void contextPathIndexChanged(int contextPathIndex);
+    void clearComponentCacheRequested();
 
 protected:
     virtual void messageReceived(const QByteArray &);

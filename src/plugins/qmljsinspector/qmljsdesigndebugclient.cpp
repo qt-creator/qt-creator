@@ -180,6 +180,18 @@ void QmlJSDesignDebugClient::setContextPathIndex(int contextPathIndex)
     sendMessage(message);
 }
 
+void QmlJSDesignDebugClient::clearComponentCache()
+{
+    if (!m_connection || !m_connection->isConnected())
+        return;
+
+    QByteArray message;
+    QDataStream ds(&message, QIODevice::WriteOnly);
+
+    ds << QByteArray("CLEAR_COMPONENT_CACHE");
+    sendMessage(message);
+}
+
 void QmlJSDesignDebugClient::reloadViewer()
 {
     if (!m_connection || !m_connection->isConnected())

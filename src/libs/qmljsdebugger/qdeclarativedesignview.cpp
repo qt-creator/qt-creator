@@ -95,6 +95,7 @@ QDeclarativeDesignView::QDeclarativeDesignView(QWidget *parent) :
             SIGNAL(objectCreationRequested(QString,QObject*,QStringList,QString)),
             SLOT(_q_createQmlObject(QString,QObject*,QStringList,QString)));
     connect(qmlDesignDebugServer(), SIGNAL(contextPathIndexChanged(int)), SLOT(_q_changeContextPathIndex(int)));
+    connect(qmlDesignDebugServer(), SIGNAL(clearComponentCacheRequested()), SLOT(_q_clearComponentCache()));
     connect(this, SIGNAL(statusChanged(QDeclarativeView::Status)), SLOT(_q_onStatusChanged(QDeclarativeView::Status)));
 
     connect(data->colorPickerTool, SIGNAL(selectedColorChanged(QColor)), SIGNAL(selectedColorChanged(QColor)));
@@ -266,6 +267,11 @@ void QDeclarativeDesignViewPrivate::_q_createQmlObject(const QString &qml, QObje
             newItem->setParentItem(parentItem);
         }
     }
+}
+
+void QDeclarativeDesignViewPrivate::_q_clearComponentCache()
+{
+    q->engine()->clearComponentCache();
 }
 
 QGraphicsItem *QDeclarativeDesignViewPrivate::currentRootItem() const

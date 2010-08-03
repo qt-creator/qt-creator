@@ -321,7 +321,9 @@ bool ClientProxy::setBindingForObject(int objectDebugId,
     if (propertyName == QLatin1String("id"))
         return false; // Crashes the QMLViewer.
 
-    return m_client->setBindingForObject(objectDebugId, propertyName, value.toString(), isLiteralValue);
+    bool result = m_client->setBindingForObject(objectDebugId, propertyName, value.toString(), isLiteralValue);
+
+    return result;
 }
 
 bool ClientProxy::setMethodBodyForObject(int objectDebugId, const QString &methodName, const QString &methodBody)
@@ -341,6 +343,11 @@ bool ClientProxy::resetBindingForObject(int objectDebugId, const QString& proper
     return m_client->resetBindingForObject(objectDebugId, propertyName);
 }
 
+void ClientProxy::clearComponentCache()
+{
+    if (isDesignClientConnected())
+        m_designClient->clearComponentCache();
+}
 
 void ClientProxy::queryEngineContext(int id)
 {
