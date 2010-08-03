@@ -31,11 +31,8 @@
 #include "qmlexpressionundercursor.h"
 #include "qmljshoverhandler.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/helpmanager.h>
-#include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <debugger/debuggerconstants.h>
 #include <extensionsystem/pluginmanager.h>
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/parser/qmljsast_p.h>
@@ -81,97 +78,22 @@ namespace {
     }
 }
 
-HoverHandler::HoverHandler(QObject *parent) :
-    QObject(parent), m_modelManager(0), m_matchingHelpCandidate(-1)
+HoverHandler::HoverHandler(QObject *parent) : BaseHoverHandler(parent), m_modelManager(0)
 {
     m_modelManager =
         ExtensionSystem::PluginManager::instance()->getObject<QmlJS::ModelManagerInterface>();
-
-    // Listen for editor opened events in order to connect to tooltip/helpid requests
-    connect(ICore::instance()->editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
-            this, SLOT(editorOpened(Core::IEditor *)));
 }
 
-void HoverHandler::editorOpened(IEditor *editor)
+bool HoverHandler::acceptEditor(IEditor *editor)
 {
     QmlJSEditorEditable *qmlEditor = qobject_cast<QmlJSEditorEditable *>(editor);
-    if (!qmlEditor)
-        return;
-
-    connect(qmlEditor, SIGNAL(tooltipRequested(TextEditor::ITextEditor*, QPoint, int)),
-            this, SLOT(showToolTip(TextEditor::ITextEditor*, QPoint, int)));
-
-    connect(qmlEditor, SIGNAL(contextHelpIdRequested(TextEditor::ITextEditor*, int)),
-            this, SLOT(updateContextHelpId(TextEditor::ITextEditor*, int)));
-}
-
-void HoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint &point, int pos)
-{
-    if (!editor)
-        return;
-
-    ICore *core = ICore::instance();
-    const int dbgcontext =
-        core->uniqueIDManager()->uniqueIdentifier(Debugger::Constants::C_DEBUGMODE);
-    if (core->hasContext(dbgcontext))
-        return;
-
-    editor->setContextHelpId(QString());
-
-    identifyMatch(editor, pos);
-
-    if (m_toolTip.isEmpty())
-        TextEditor::ToolTip::instance()->hide();
-    else {
-        const QPoint &pnt = point - QPoint(0,
-#ifdef Q_WS_WIN
-        24
-#else
-        16
-#endif
-        );
-
-        if (m_colorTip.isValid()) {
-            TextEditor::ToolTip::instance()->showColor(pnt, m_colorTip, editor->widget());
-        } else {
-            m_toolTip = Qt::escape(m_toolTip);
-            if (m_matchingHelpCandidate != -1) {
-                m_toolTip = QString::fromUtf8(
-                    "<table><tr><td valign=middle><nobr>%1</td><td>"
-                    "<img src=\":/cppeditor/images/f1.png\"></td></tr></table>").arg(m_toolTip);
-            } else {
-                m_toolTip = QString::fromUtf8("<nobr>%1</nobr>").arg(m_toolTip);
-            }
-            TextEditor::ToolTip::instance()->showText(pnt, m_toolTip, editor->widget());
-        }
-    }
-}
-
-void HoverHandler::updateContextHelpId(TextEditor::ITextEditor *editor, int pos)
-{
-    // If the tooltip is visible and there is a help match, use it to update the help id.
-    // Otherwise, identify the match.
-    if (!TextEditor::ToolTip::instance()->isVisible() || m_matchingHelpCandidate == -1)
-        identifyMatch(editor, pos);
-
-    if (m_matchingHelpCandidate != -1)
-        editor->setContextHelpId(m_helpCandidates.at(m_matchingHelpCandidate));
-    else
-        editor->setContextHelpId(QString());
-}
-
-void HoverHandler::resetMatchings()
-{
-    m_matchingHelpCandidate = -1;
-    m_helpCandidates.clear();
-    m_toolTip.clear();
-    m_colorTip = QColor();
+    if (qmlEditor)
+        return true;
+    return false;
 }
 
 void HoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
 {
-    resetMatchings();
-
     if (!m_modelManager)
         return;
 
@@ -195,8 +117,6 @@ void HoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
         if (!matchColorItem(lookupContext, qmlDocument, astPath, pos))
             handleOrdinaryMatch(lookupContext, semanticInfo.nodeUnderCursor(pos));
     }
-
-    evaluateHelpCandidates();
 }
 
 bool HoverHandler::matchDiagnosticMessage(QmlJSTextEditor *qmlEditor, int pos)
@@ -204,7 +124,7 @@ bool HoverHandler::matchDiagnosticMessage(QmlJSTextEditor *qmlEditor, int pos)
     foreach (const QTextEdit::ExtraSelection &sel,
              qmlEditor->extraSelections(TextEditor::BaseTextEditor::CodeWarningsSelection)) {
         if (pos >= sel.cursor.selectionStart() && pos <= sel.cursor.selectionEnd()) {
-            m_toolTip = sel.format.toolTip();
+            setToolTip(sel.format.toolTip());
             return true;
         }
     }
@@ -260,7 +180,7 @@ bool HoverHandler::matchColorItem(const LookupContext::Ptr &lookupContext,
 
         m_colorTip = QmlJS::toQColor(color);
         if (m_colorTip.isValid()) {
-            m_toolTip = color;
+            setToolTip(color);
             return true;
         }
     }
@@ -272,19 +192,55 @@ void HoverHandler::handleOrdinaryMatch(const LookupContext::Ptr &lookupContext, 
     if (node && !(AST::cast<AST::StringLiteral *>(node) != 0 ||
                   AST::cast<AST::NumericLiteral *>(node) != 0)) {
         const Interpreter::Value *value = lookupContext->evaluate(node);
-        m_toolTip = prettyPrint(value, lookupContext->context());
+        setToolTip(prettyPrint(value, lookupContext->context()));
     }
+}
+
+void HoverHandler::resetExtras()
+{
+    m_colorTip = QColor();
 }
 
 void HoverHandler::evaluateHelpCandidates()
 {
-    for (int i = 0; i < m_helpCandidates.size(); ++i) {
-        QString helpId = m_helpCandidates.at(i);
-        helpId.prepend(QLatin1String("QML."));
-        if (!Core::HelpManager::instance()->linksForIdentifier(helpId).isEmpty()) {
-            m_matchingHelpCandidate = i;
-            m_helpCandidates[i] = helpId;
+    for (int i = 0; i < helpCandidates().size(); ++i) {
+        HelpCandidate helpCandidate = helpCandidates().at(i);
+        helpCandidate.m_helpId.prepend(QLatin1String("QML."));
+        if (helpIdExists(helpCandidate.m_helpId)) {
+            setMatchingHelpCandidate(i);
+            setHelpCandidate(helpCandidate, i);
             break;
+        }
+    }
+}
+
+void HoverHandler::decorateToolTip(TextEditor::ITextEditor *editor)
+{
+    if (matchingHelpCandidate() != -1) {
+        const QString &contents = getDocContents(extendToolTips(editor));
+        if (!contents.isEmpty()) {
+            appendToolTip(contents);
+        } else {
+            QString tip = Qt::escape(toolTip());
+            tip.prepend(QLatin1String("<nobr>"));
+            tip.append(QLatin1String("</nobr>"));
+            setToolTip(tip);
+        }
+    }
+}
+
+void HoverHandler::operateTooltip(TextEditor::ITextEditor *editor, const QPoint &point)
+{
+    if (toolTip().isEmpty())
+        TextEditor::ToolTip::instance()->hide();
+    else {
+        if (m_colorTip.isValid()) {
+            TextEditor::ToolTip::instance()->showColor(point, m_colorTip, editor->widget());
+        } else {
+            if (matchingHelpCandidate() != -1)
+                addF1ToToolTip();
+
+            TextEditor::ToolTip::instance()->showText(point, toolTip(), editor->widget());
         }
     }
 }
@@ -300,13 +256,13 @@ QString HoverHandler::prettyPrint(const QmlJS::Interpreter::Value *value,
             const QString className = objectValue->className();
 
             if (! className.isEmpty())
-                m_helpCandidates.append(className);
+                addHelpCandidate(HelpCandidate(className, HelpCandidate::QML));
 
             objectValue = objectValue->prototype(context);
         } while (objectValue);
 
-        if (! m_helpCandidates.isEmpty())
-            return m_helpCandidates.first();
+        if (! helpCandidates().isEmpty())
+            return helpCandidates().first().m_helpId;
     } else if (const Interpreter::QmlEnumValue *enumValue =
                dynamic_cast<const Interpreter::QmlEnumValue *>(value)) {
         return enumValue->name();

@@ -31,15 +31,11 @@
 #define CPPHOVERHANDLER_H
 
 #include <cplusplus/CppDocument.h>
-#include <utils/htmldocextractor.h>
+#include <texteditor/basehoverhandler.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QList>
 #include <QtCore/QStringList>
-
-QT_BEGIN_NAMESPACE
-class QPoint;
-QT_END_NAMESPACE
 
 namespace CPlusPlus {
 class LookupItem;
@@ -56,48 +52,24 @@ class CppModelManagerInterface;
 
 namespace TextEditor {
 class ITextEditor;
-class BaseTextEditor;
 }
 
 namespace CppEditor {
 namespace Internal {
 
-class CppHoverHandler : public QObject
+class CppHoverHandler : public TextEditor::BaseHoverHandler
 {
     Q_OBJECT
 public:
     CppHoverHandler(QObject *parent = 0);
 
-public slots:
-    void showToolTip(TextEditor::ITextEditor *editor, const QPoint &point, int pos);
-    void updateContextHelpId(TextEditor::ITextEditor *editor, int pos);
-
-private slots:
-    void editorOpened(Core::IEditor *editor);
-
 private:
-    struct HelpCandidate
-    {
-        enum Category {
-            ClassOrNamespace,
-            Enum,
-            Typedef,
-            Macro,
-            Brief,
-            Function,
-            Unknown
-        };
+    virtual bool acceptEditor(Core::IEditor *editor);
+    virtual void identifyMatch(TextEditor::ITextEditor *editor, int pos);
+    virtual void resetExtras();
+    virtual void evaluateHelpCandidates();
+    virtual void decorateToolTip(TextEditor::ITextEditor *editor);
 
-        HelpCandidate(const QString &helpId, const QString &docMark, Category category) :
-            m_helpId(helpId), m_docMark(docMark), m_category(category)
-        {}
-        QString m_helpId;
-        QString m_docMark;
-        Category m_category;
-    };
-
-    void resetMatchings();
-    void identifyMatch(TextEditor::ITextEditor *editor, int pos);
     bool matchDiagnosticMessage(const CPlusPlus::Document::Ptr &document, unsigned line);
     bool matchIncludeFile(const CPlusPlus::Document::Ptr &document, unsigned line);
     bool matchMacroInUse(const CPlusPlus::Document::Ptr &document, unsigned pos);
@@ -105,23 +77,11 @@ private:
                                const CPlusPlus::LookupContext &lookupContext,
                                const bool assignTooltip);
 
-    void evaluateHelpCandidates();
-    bool helpIdExists(const QString &helpId) const;
-    QString getDocContents(const bool extended);
-    QString getDocContents(const HelpCandidate &helpCandidate, const bool extended);
-
     void generateDiagramTooltip(const bool extendTooltips);
     void generateNormalTooltip(const bool extendTooltips);
-    void addF1ToTooltip();
-
-    static TextEditor::BaseTextEditor *baseTextEditor(TextEditor::ITextEditor *editor);
 
     CppTools::CppModelManagerInterface *m_modelManager;
-    int m_matchingHelpCandidate;
-    QList<HelpCandidate> m_helpCandidates;
-    QString m_toolTip;
     QList<QStringList> m_classHierarchy;
-    Utils::HtmlDocExtractor m_htmlDocExtractor;
 };
 
 } // namespace Internal

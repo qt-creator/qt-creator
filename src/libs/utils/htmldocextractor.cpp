@@ -149,6 +149,11 @@ QString HtmlDocExtractor::getFunctionDescription(const QString &html,
     return contents;
 }
 
+QString HtmlDocExtractor::getQMLItemDescription(const QString &html, const QString &mark) const
+{
+    return getClassOrNamespaceDescription(html, mark);
+}
+
 QString HtmlDocExtractor::getClassOrNamespaceMemberDescription(const QString &html,
                                                                const QString &startMark,
                                                                const QString &endMark) const

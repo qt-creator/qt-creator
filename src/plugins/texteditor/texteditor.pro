@@ -67,7 +67,8 @@ SOURCES += texteditorplugin.cpp \
     outlinefactory.cpp \
     tooltip/tooltip.cpp \
     tooltip/tips.cpp \
-    tooltip/tipcontents.cpp
+    tooltip/tipcontents.cpp \
+    basehoverhandler.cpp
 
 HEADERS += texteditorplugin.h \
     textfilewizard.h \
@@ -136,7 +137,8 @@ HEADERS += texteditorplugin.h \
     ioutlinewidget.h \
     tooltip/tooltip.h \
     tooltip/tips.h \
-    tooltip/tipcontents.h
+    tooltip/tipcontents.h \
+    basehoverhandler.h
 
 FORMS += behaviorsettingspage.ui \
     displaysettingspage.ui \

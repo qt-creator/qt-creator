@@ -30,17 +30,12 @@
 #include "cpphoverhandler.h"
 #include "cppeditor.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/helpmanager.h>
-#include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
-#include <texteditor/displaysettings.h>
-#include <texteditor/tooltip/tooltip.h>
-#include <debugger/debuggerconstants.h>
 
 #include <FullySpecifiedType.h>
 #include <Names.h>
@@ -128,89 +123,22 @@ namespace {
     };
 }
 
-CppHoverHandler::CppHoverHandler(QObject *parent)
-    : QObject(parent), m_modelManager(0), m_matchingHelpCandidate(-1)
+CppHoverHandler::CppHoverHandler(QObject *parent) : BaseHoverHandler(parent), m_modelManager(0)
 {
     m_modelManager =
         ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
-
-    // Listen for editor opened events in order to connect to tooltip/helpid requests
-    connect(ICore::instance()->editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
-            this, SLOT(editorOpened(Core::IEditor *)));
 }
 
-void CppHoverHandler::editorOpened(IEditor *editor)
+bool CppHoverHandler::acceptEditor(IEditor *editor)
 {
     CPPEditorEditable *cppEditor = qobject_cast<CPPEditorEditable *>(editor);
-    if (!cppEditor)
-        return;
-
-    connect(cppEditor, SIGNAL(tooltipRequested(TextEditor::ITextEditor*, QPoint, int)),
-            this, SLOT(showToolTip(TextEditor::ITextEditor*, QPoint, int)));
-
-    connect(cppEditor, SIGNAL(contextHelpIdRequested(TextEditor::ITextEditor*, int)),
-            this, SLOT(updateContextHelpId(TextEditor::ITextEditor*, int)));
-}
-
-void CppHoverHandler::updateContextHelpId(TextEditor::ITextEditor *editor, int pos)
-{
-    if (!editor)
-        return;
-
-    // If the tooltip is visible and there is a help match, this match is used to update the help
-    // id. Otherwise, the identification process happens.
-    if (!TextEditor::ToolTip::instance()->isVisible() || m_matchingHelpCandidate == -1)
-        identifyMatch(editor, pos);
-
-    if (m_matchingHelpCandidate != -1)
-        editor->setContextHelpId(m_helpCandidates.at(m_matchingHelpCandidate).m_helpId);
-    else
-        editor->setContextHelpId(QString());
-}
-
-void CppHoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint &point, int pos)
-{
-    TextEditor::BaseTextEditor *baseEditor = baseTextEditor(editor);
-    if (!baseEditor)
-        return;
-
-    editor->setContextHelpId(QString());
-
-    ICore *core = ICore::instance();
-    const int dbgContext =
-        core->uniqueIDManager()->uniqueIdentifier(Debugger::Constants::C_DEBUGMODE);
-    if (core->hasContext(dbgContext))
-        return;
-
-    identifyMatch(editor, pos);
-
-    if (m_toolTip.isEmpty()) {
-        TextEditor::ToolTip::instance()->hide();
-    } else {
-        if (!m_classHierarchy.isEmpty())
-            generateDiagramTooltip(baseEditor->displaySettings().m_extendTooltips);
-        else
-            generateNormalTooltip(baseEditor->displaySettings().m_extendTooltips);
-
-        if (m_matchingHelpCandidate != -1)
-            addF1ToTooltip();
-
-        const QPoint pnt = point - QPoint(0,
-#ifdef Q_WS_WIN
-        24
-#else
-        16
-#endif
-        );
-
-        TextEditor::ToolTip::instance()->showText(pnt, m_toolTip, editor->widget());
-    }
+    if (cppEditor)
+        return true;
+    return false;
 }
 
 void CppHoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
 {
-    resetMatchings();
-
     if (!m_modelManager)
         return;
 
@@ -231,7 +159,7 @@ void CppHoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
 
             bool extraSelectionTooltip = false;
             if (!baseEditor->extraSelectionTooltip(pos).isEmpty()) {
-                m_toolTip = baseEditor->extraSelectionTooltip(pos);
+                setToolTip(baseEditor->extraSelectionTooltip(pos));
                 extraSelectionTooltip = true;
             }
 
@@ -253,8 +181,6 @@ void CppHoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
             const LookupItem &lookupItem = lookupItems.first(); // ### TODO: select best candidate.
             handleLookupItemMatch(lookupItem, typeOfExpression.context(), !extraSelectionTooltip);
         }
-
-        evaluateHelpCandidates();
     }
 }
 
@@ -263,7 +189,7 @@ bool CppHoverHandler::matchDiagnosticMessage(const CPlusPlus::Document::Ptr &doc
 {
     foreach (const Document::DiagnosticMessage &m, document->diagnosticMessages()) {
         if (m.line() == line) {
-            m_toolTip = m.text();
+            setToolTip(m.text());
             return true;
         }
     }
@@ -274,9 +200,9 @@ bool CppHoverHandler::matchIncludeFile(const CPlusPlus::Document::Ptr &document,
 {
     foreach (const Document::Include &includeFile, document->includes()) {
         if (includeFile.line() == line) {
-            m_toolTip = QDir::toNativeSeparators(includeFile.fileName());
+            setToolTip(QDir::toNativeSeparators(includeFile.fileName()));
             const QString &fileName = QFileInfo(includeFile.fileName()).fileName();
-            m_helpCandidates.append(HelpCandidate(fileName, fileName, HelpCandidate::Brief));
+            addHelpCandidate(HelpCandidate(fileName, fileName, HelpCandidate::Brief));
             return true;
         }
     }
@@ -290,8 +216,8 @@ bool CppHoverHandler::matchMacroInUse(const CPlusPlus::Document::Ptr &document, 
             const unsigned begin = use.begin();
             const QString &name = use.macro().name();
             if (pos < begin + name.length()) {
-                m_toolTip = use.macro().toString();
-                m_helpCandidates.append(HelpCandidate(name, name, HelpCandidate::Macro));
+                setToolTip(use.macro().toString());
+                addHelpCandidate(HelpCandidate(name, name, HelpCandidate::Macro));
                 return true;
             }
         }
@@ -311,7 +237,7 @@ void CppHoverHandler::handleLookupItemMatch(const LookupItem &lookupItem,
     overview.setShowReturnTypes(true);
 
     if (!matchingDeclaration && assignTooltip) {
-        m_toolTip = overview.prettyType(matchingType, QString());
+        setToolTip(overview.prettyType(matchingType, QString()));
     } else {
         QString name;
         if (matchingDeclaration->enclosingSymbol()->isClass() ||
@@ -333,9 +259,9 @@ void CppHoverHandler::handleLookupItemMatch(const LookupItem &lookupItem,
                 matchingDeclaration->isNamespace() ||
                 matchingDeclaration->isForwardClassDeclaration() ||
                 matchingDeclaration->isEnum()) {
-                m_toolTip = name;
+                setToolTip(name);
             } else {
-                m_toolTip = overview.prettyType(matchingType, name);
+                setToolTip(overview.prettyType(matchingType, name));
             }
         }
 
@@ -372,7 +298,7 @@ void CppHoverHandler::handleLookupItemMatch(const LookupItem &lookupItem,
                         Symbol *symbol = clazz->symbols().at(0);
                         matchingDeclaration = symbol;
                         name = overview.prettyName(LookupContext::fullyQualifiedName(symbol));
-                        m_toolTip = name;
+                        setToolTip(name);
                         buildClassHierarchy(symbol, context, overview, &m_classHierarchy);
                         helpCategory = HelpCandidate::ClassOrNamespace;
                     }
@@ -391,93 +317,46 @@ void CppHoverHandler::handleLookupItemMatch(const LookupItem &lookupItem,
                 docMark = overview.prettyType(matchingType, docMark);
                 overview.setShowFunctionSignatures(false);
                 const QString &functionName = overview.prettyName(matchingDeclaration->name());
-                m_helpCandidates.append(HelpCandidate(functionName, docMark, helpCategory));
+                addHelpCandidate(HelpCandidate(functionName, docMark, helpCategory));
             } else if (matchingDeclaration->enclosingSymbol()->isEnum()) {
                 Symbol *enumSymbol = matchingDeclaration->enclosingSymbol()->asEnum();
                 docMark = overview.prettyName(enumSymbol->name());
             }
 
-            m_helpCandidates.append(HelpCandidate(name, docMark, helpCategory));
+            addHelpCandidate(HelpCandidate(name, docMark, helpCategory));
         }
     }
 }
 
 void CppHoverHandler::evaluateHelpCandidates()
 {
-    for (int i = 0; i < m_helpCandidates.size() && m_matchingHelpCandidate == -1; ++i) {
-        if (helpIdExists(m_helpCandidates.at(i).m_helpId)) {
-            m_matchingHelpCandidate = i;
+    for (int i = 0; i < helpCandidates().size() && matchingHelpCandidate() == -1; ++i) {
+        if (helpIdExists(helpCandidates().at(i).m_helpId)) {
+            setMatchingHelpCandidate(i);
         } else {
             // There are class help ids with and without qualification.
-            HelpCandidate &candidate = m_helpCandidates[i];
+            HelpCandidate candidate = helpCandidates().at(i);
             const QString &helpId = removeClassNameQualification(candidate.m_helpId);
             if (helpIdExists(helpId)) {
                 candidate.m_helpId = helpId;
-                m_matchingHelpCandidate = i;
+                setHelpCandidate(candidate, i);
+                setMatchingHelpCandidate(i);
             }
         }
     }
 }
 
-bool CppHoverHandler::helpIdExists(const QString &helpId) const
+void CppHoverHandler::decorateToolTip(TextEditor::ITextEditor *editor)
 {
-    QMap<QString, QUrl> helpLinks = Core::HelpManager::instance()->linksForIdentifier(helpId);
-    if (!helpLinks.isEmpty())
-        return true;
-    return false;
-}
-
-QString CppHoverHandler::getDocContents(const bool extended)
-{
-    Q_ASSERT(m_matchingHelpCandidate >= 0);
-
-    return getDocContents(m_helpCandidates.at(m_matchingHelpCandidate), extended);
-}
-
-QString CppHoverHandler::getDocContents(const HelpCandidate &help, const bool extended)
-{
-    if (extended)
-        m_htmlDocExtractor.extractExtendedContents(1500, true);
+    if (!m_classHierarchy.isEmpty())
+        generateDiagramTooltip(extendToolTips(editor));
     else
-        m_htmlDocExtractor.extractFirstParagraphOnly();
-
-    QString contents;
-    QMap<QString, QUrl> helpLinks =
-        Core::HelpManager::instance()->linksForIdentifier(help.m_helpId);
-    foreach (const QUrl &url, helpLinks) {
-        const QByteArray &html = Core::HelpManager::instance()->fileData(url);
-        switch (help.m_category) {
-        case HelpCandidate::Brief:
-            contents = m_htmlDocExtractor.getClassOrNamespaceBrief(html, help.m_docMark);
-            break;
-        case HelpCandidate::ClassOrNamespace:
-            contents = m_htmlDocExtractor.getClassOrNamespaceDescription(html, help.m_docMark);
-            break;
-        case HelpCandidate::Function:
-            contents = m_htmlDocExtractor.getFunctionDescription(html, help.m_docMark);
-            break;
-        case HelpCandidate::Enum:
-            contents = m_htmlDocExtractor.getEnumDescription(html, help.m_docMark);
-            break;
-        case HelpCandidate::Typedef:
-            contents = m_htmlDocExtractor.getTypedefDescription(html, help.m_docMark);
-            break;
-        case HelpCandidate::Macro:
-            contents = m_htmlDocExtractor.getMacroDescription(html, help.m_docMark);
-            break;
-        default:
-            break;
-        }
-
-        if (!contents.isEmpty())
-            break;
-    }
-    return contents;
+        generateNormalTooltip(extendToolTips(editor));
 }
 
 void CppHoverHandler::generateDiagramTooltip(const bool extendTooltips)
 {
-    QString clazz = m_toolTip;
+    QString clazz = toolTip();
 
     qSort(m_classHierarchy.begin(), m_classHierarchy.end(), ClassHierarchyComp());
 
@@ -498,7 +377,7 @@ void CppHoverHandler::generateDiagramTooltip(const bool extendTooltips)
             diagram.append(QString(
                 "<tr><td>%1</td><td>"
                 "<img src=\":/cppeditor/images/rightarrow.png\"></td>"
-                "<td>%2</td></tr>").arg(m_toolTip).arg(directBaseClasses.at(i)));
+                "<td>%2</td></tr>").arg(toolTip()).arg(directBaseClasses.at(i)));
         } else {
             diagram.append(QString(
                 "<tr><td></td><td>"
@@ -507,10 +386,10 @@ void CppHoverHandler::generateDiagramTooltip(const bool extendTooltips)
         }
     }
     diagram.append(QLatin1String("</table>"));
-    m_toolTip = diagram;
+    setToolTip(diagram);
 
-    if (m_matchingHelpCandidate != -1) {
-        m_toolTip.append(getDocContents(extendTooltips));
+    if (matchingHelpCandidate() != -1) {
+        appendToolTip(getDocContents(extendTooltips));
     } else {
         // Look for documented base classes. Diagram the nearest one or the nearest ones (in
         // the case there are many at the same level).
@@ -521,8 +400,18 @@ void CppHoverHandler::generateDiagramTooltip(const bool extendTooltips)
             if (helpLevel != 0 && hierarchy.size() != helpLevel)
                 break;
 
-            const QString &name = hierarchy.last();
+            bool exists = false;
+            QString name = hierarchy.last();
             if (helpIdExists(name)) {
+                exists = true;
+            } else {
+                name = removeClassNameQualification(name);
+                if (helpIdExists(name)) {
+                    exists = true;
+                    m_classHierarchy[i].last() = name;
+                }
+            }
+            if (exists) {
                 baseClassesWithHelp.append(i);
                 if (helpLevel == 0)
                     helpLevel = hierarchy.size();
@@ -533,14 +422,14 @@ void CppHoverHandler::generateDiagramTooltip(const bool extendTooltips)
             // Choose the first one as the help match.
             QString base = m_classHierarchy.at(baseClassesWithHelp.at(0)).last();
             HelpCandidate help(base, base, HelpCandidate::ClassOrNamespace);
-            m_helpCandidates.append(help);
-            m_matchingHelpCandidate = m_helpCandidates.size() - 1;
+            addHelpCandidate(help);
+            setMatchingHelpCandidate(helpCandidates().size() - 1);
 
             if (baseClassesWithHelp.size() == 1 && helpLevel == 1) {
-                m_toolTip.append(getDocContents(help, extendTooltips));
+                appendToolTip(getDocContents(help, extendTooltips));
             } else {
                 foreach (int hierarchyIndex, baseClassesWithHelp) {
-                    m_toolTip.append(QLatin1String("<p>"));
+                    appendToolTip(QLatin1String("<p>"));
                     const QStringList &hierarchy = m_classHierarchy.at(hierarchyIndex);
                     Q_ASSERT(helpLevel <= hierarchy.size());
 
@@ -557,13 +446,13 @@ void CppHoverHandler::generateDiagramTooltip(const bool extendTooltips)
                     diagram.append(QLatin1String("</tr></table>"));
 
                     base = hierarchy.at(helpLevel - 1);
-                    QString contents =
+                    const QString &contents =
                         getDocContents(HelpCandidate(base, base, HelpCandidate::Brief), false);
                     if (!contents.isEmpty()) {
-                        m_toolTip.append(diagram % QLatin1String("<table><tr><td>") %
-                                         contents % QLatin1String("</td></tr></table>"));
+                        appendToolTip(diagram % QLatin1String("<table><tr><td>") %
+                                      contents % QLatin1String("</td></tr></table>"));
                     }
-                    m_toolTip.append(QLatin1String("</p>"));
+                    appendToolTip(QLatin1String("</p>"));
                 }
             }
         }
@@ -572,40 +461,24 @@ void CppHoverHandler::generateDiagramTooltip(const bool extendTooltips)
 
 void CppHoverHandler::generateNormalTooltip(const bool extendTooltips)
 {
-    if (m_matchingHelpCandidate != -1) {
+    if (matchingHelpCandidate() != -1) {
         const QString &contents = getDocContents(extendTooltips);
         if (!contents.isEmpty()) {
-            HelpCandidate::Category cat = m_helpCandidates.at(m_matchingHelpCandidate).m_category;
+            HelpCandidate::Category cat = helpCandidate(matchingHelpCandidate()).m_category;
             if (cat == HelpCandidate::ClassOrNamespace)
-                m_toolTip.append(contents);
+                appendToolTip(contents);
             else
-                m_toolTip = contents;
+                setToolTip(contents);
         } else {
-            m_toolTip = Qt::escape(m_toolTip);
-            m_toolTip.prepend(QLatin1String("<nobr>"));
-            m_toolTip.append(QLatin1String("</nobr>"));
+            QString tip = Qt::escape(toolTip());
+            tip.prepend(QLatin1String("<nobr>"));
+            tip.append(QLatin1String("</nobr>"));
+            setToolTip(tip);
         }
     }
 }
 
-void CppHoverHandler::addF1ToTooltip()
+void CppHoverHandler::resetExtras()
 {
-    m_toolTip = QString(QLatin1String("<table><tr><td valign=middle>%1</td><td>&nbsp;&nbsp;"
-                                      "<img src=\":/cppeditor/images/f1.png\"></td>"
-                                      "</tr></table>")).arg(m_toolTip);
-}
-
-void CppHoverHandler::resetMatchings()
-{
-    m_matchingHelpCandidate = -1;
-    m_helpCandidates.clear();
-    m_toolTip.clear();
     m_classHierarchy.clear();
-}
-
-TextEditor::BaseTextEditor *CppHoverHandler::baseTextEditor(TextEditor::ITextEditor *editor)
-{
-    if (!editor)
-        return 0;
-    return qobject_cast<TextEditor::BaseTextEditor *>(editor->widget());
 }

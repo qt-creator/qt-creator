@@ -32,14 +32,11 @@
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljslookupcontext.h>
+#include <texteditor/basehoverhandler.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
 #include <QtGui/QColor>
-
-QT_BEGIN_NAMESPACE
-class QPoint;
-QT_END_NAMESPACE
 
 namespace Core {
 class IEditor;
@@ -55,23 +52,20 @@ namespace Internal {
 class SemanticInfo;
 class QmlJSTextEditor;
 
-class HoverHandler : public QObject
+class HoverHandler : public TextEditor::BaseHoverHandler
 {
     Q_OBJECT
-
 public:
     HoverHandler(QObject *parent = 0);
 
-public slots:
-    void showToolTip(TextEditor::ITextEditor *editor, const QPoint &point, int pos);
-    void updateContextHelpId(TextEditor::ITextEditor *editor, int pos);
-
-private slots:
-    void editorOpened(Core::IEditor *editor);
-
 private:
-    void resetMatchings();
-    void identifyMatch(TextEditor::ITextEditor *editor, int pos);
+    virtual bool acceptEditor(Core::IEditor *editor);
+    virtual void identifyMatch(TextEditor::ITextEditor *editor, int pos);
+    virtual void resetExtras();
+    virtual void evaluateHelpCandidates();
+    virtual void decorateToolTip(TextEditor::ITextEditor *editor);
+    virtual void operateTooltip(TextEditor::ITextEditor *editor, const QPoint &point);
+
     bool matchDiagnosticMessage(QmlJSTextEditor *qmlEditor, int pos);
     bool matchColorItem(const QmlJS::LookupContext::Ptr &lookupContext,
                         const QmlJS::Document::Ptr &qmlDocument,
@@ -80,15 +74,10 @@ private:
     void handleOrdinaryMatch(const QmlJS::LookupContext::Ptr &lookupContext,
                              QmlJS::AST::Node *node);
 
-    void evaluateHelpCandidates();
-
     QString prettyPrint(const QmlJS::Interpreter::Value *value,
                         QmlJS::Interpreter::Context *context);
 
     QmlJS::ModelManagerInterface *m_modelManager;
-    int m_matchingHelpCandidate;
-    QStringList m_helpCandidates;
-    QString m_toolTip;
     QColor m_colorTip;
 };
 
