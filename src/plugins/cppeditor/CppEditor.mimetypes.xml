@@ -48,6 +48,10 @@
         <glob pattern="*.inl"/>
         <glob pattern="*.moc"/>
         <glob pattern="*.qdoc"/>
+        <glob pattern="*.tcc"/>
+        <glob pattern="*.tpp"/>
+        <glob pattern="*.t++"/>
+        <glob pattern="*.txx"/>
     </mime-type>
 
     <mime-type type="text/x-objcsrc">
