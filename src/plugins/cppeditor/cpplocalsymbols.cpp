@@ -155,6 +155,12 @@ protected:
         return false;
     }
 
+    virtual bool visit(MemInitializerAST *ast)
+    {
+        accept(ast->expression_list);
+        return false;
+    }
+
     virtual bool visit(TemplateIdAST *ast)
     {
         for (TemplateArgumentListAST *arg = ast->template_argument_list; arg; arg = arg->next)

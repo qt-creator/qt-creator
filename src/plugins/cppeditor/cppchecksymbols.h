@@ -93,7 +93,7 @@ protected:
     bool warning(unsigned line, unsigned column, const QString &text, unsigned length = 0);
     bool warning(AST *ast, const QString &text);
 
-    void checkName(NameAST *ast);
+    void checkName(NameAST *ast, Scope *scope = 0);
     void checkNamespace(NameAST *name);
     void addUsage(ClassOrNamespace *b, NameAST *ast);
     void addUsage(const QList<LookupItem> &candidates, NameAST *ast);
@@ -122,6 +122,8 @@ protected:
 
     virtual bool visit(FunctionDefinitionAST *ast);
     virtual bool visit(MemberAccessAST *ast);
+
+    virtual bool visit(MemInitializerAST *ast);
 
     unsigned startOfTemplateDeclaration(TemplateDeclarationAST *ast) const;
     Scope *findScope(AST *ast) const;

@@ -425,17 +425,18 @@ void CheckSymbols::checkNamespace(NameAST *name)
     warning(line, column, QCoreApplication::translate("CheckUndefinedSymbols", "Expected a namespace-name"), length);
 }
 
-void CheckSymbols::checkName(NameAST *ast)
+void CheckSymbols::checkName(NameAST *ast, Scope *scope)
 {
     if (ast && ast->name) {
+        if (! scope)
+            scope = findScope(ast);
+
         if (const Identifier *ident = ast->name->identifier()) {
             const QByteArray id = QByteArray::fromRawData(ident->chars(), ident->size());
             if (_potentialTypes.contains(id)) {
-                Scope *scope = findScope(ast);
                 const QList<LookupItem> candidates = _context.lookup(ast->name, scope);
                 addUsage(candidates, ast);
             } else if (_potentialMembers.contains(id)) {
-                Scope *scope = findScope(ast);
                 const QList<LookupItem> candidates = _context.lookup(ast->name, scope);
                 addMemberUsage(candidates, ast);
             }
@@ -543,6 +544,28 @@ bool CheckSymbols::visit(TemplateDeclarationAST *ast)
 void CheckSymbols::endVisit(TemplateDeclarationAST *)
 {
     _templateDeclarationStack.takeFirst();
+}
+
+bool CheckSymbols::visit(MemInitializerAST *ast)
+{
+    if (_functionDefinitionStack.isEmpty())
+        return false;
+
+    if (ast->name) {
+        FunctionDefinitionAST *enclosingFunction = _functionDefinitionStack.back();
+        if (ClassOrNamespace *binding = _context.lookupType(enclosingFunction->symbol)) {
+            foreach (Symbol *s, binding->symbols()) {
+                if (Class *klass = s->asClass()){
+                    checkName(ast->name, klass->members());
+                    break;
+                }
+            }
+        }
+    }
+
+    accept(ast->expression_list);
+
+    return false;
 }
 
 bool CheckSymbols::visit(FunctionDefinitionAST *ast)
