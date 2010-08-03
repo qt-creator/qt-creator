@@ -107,6 +107,8 @@ QDeclarativeDesignView::QDeclarativeDesignView(QWidget *parent) :
     connect(data->subcomponentEditorTool, SIGNAL(contextPathChanged(QStringList)), qmlDesignDebugServer(), SLOT(contextPathUpdated(QStringList)));
 
     data->createToolbar();
+
+    data->_q_changeToSingleSelectTool();
 }
 
 QDeclarativeDesignView::~QDeclarativeDesignView()
@@ -277,6 +279,13 @@ void QDeclarativeDesignView::mouseDoubleClickEvent(QMouseEvent *event)
         QDeclarativeView::mouseDoubleClickEvent(event);
         return;
     }
+
+    if (data->currentToolMode != Constants::SelectionToolMode
+     && data->currentToolMode != Constants::MarqueeSelectionToolMode)
+    {
+        return;
+    }
+
     QGraphicsItem *itemToEnter = 0;
     QList<QGraphicsItem*> itemList = items(event->pos());
     data->filterForSelection(itemList);
