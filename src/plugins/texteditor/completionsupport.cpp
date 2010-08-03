@@ -93,6 +93,11 @@ void CompletionSupport::cleanupCompletions()
     }
 }
 
+bool CompletionSupport::isActive() const
+{
+    return m_completionList != 0;
+}
+
 void CompletionSupport::autoComplete(ITextEditable *editor, bool forced)
 {
     autoComplete_helper(editor, forced, /*quickFix = */ false);

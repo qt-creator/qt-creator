@@ -1415,6 +1415,9 @@ void BaseTextEditor::_q_requestAutoCompletion()
 {
     d->m_requestAutoCompletionTimer->stop();
 
+    if (CompletionSupport::instance()->isActive())
+        return;
+
     if (d->m_requestAutoCompletionRevision == document()->revision() &&
             d->m_requestAutoCompletionPosition == position())
         emit requestAutoCompletion(editableInterface(), false);
