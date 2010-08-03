@@ -75,7 +75,8 @@ void NavigationTreeView::keyPressEvent(QKeyEvent *event)
     if ((event->key() == Qt::Key_Return
             || event->key() == Qt::Key_Enter)
             && event->modifiers() == 0
-            && currentIndex().isValid()) {
+            && currentIndex().isValid()
+            && state() != QAbstractItemView::EditingState) {
         emit activated(currentIndex());
         return;
     }
