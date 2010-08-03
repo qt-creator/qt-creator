@@ -63,6 +63,7 @@ class CollectTypes: protected SymbolVisitor
     Snapshot _snapshot;
     QSet<QByteArray> _types;
     QSet<QByteArray> _members;
+    QSet<QByteArray> _virtualMethods;
     QList<ScopedSymbol *> _scopes;
     QList<NameAST *> _names;
     bool _mainDocument;
@@ -83,6 +84,11 @@ public:
     const QSet<QByteArray> &members() const
     {
         return _members;
+    }
+
+    const QSet<QByteArray> &virtualMethods() const
+    {
+        return _virtualMethods;
     }
 
     const QList<ScopedSymbol *> &scopes() const
@@ -153,6 +159,18 @@ protected:
         }
     }
 
+    void addVirtualMethod(const Name *name)
+    {
+        if (! name) {
+            return;
+
+        } else if (name->isNameId()) {
+            const Identifier *id = name->identifier();
+            _virtualMethods.insert(QByteArray::fromRawData(id->chars(), id->size()));
+
+        }
+    }
+
     void addScope(ScopedSymbol *symbol)
     {
         if (_mainDocument)
@@ -167,6 +185,9 @@ protected:
 
     virtual bool visit(Function *symbol)
     {
+        if (symbol->isVirtual())
+            addVirtualMethod(symbol->name());
+
         for (TemplateParameters *p = symbol->templateParameters(); p; p = p->previous()) {
             Scope *scope = p->scope();
             for (unsigned i = 0; i < scope->symbolCount(); ++i)
@@ -191,6 +212,11 @@ protected:
 
     virtual bool visit(Declaration *symbol)
     {
+        if (Function *funTy = symbol->type()->asFunctionType()) {
+            if (funTy->isVirtual())
+                addVirtualMethod(symbol->name());
+        }
+
         if (symbol->isTypedef())
             addType(symbol->name());
         else if (! symbol->type()->isFunctionType() && symbol->enclosingSymbol()->isClass())
@@ -298,6 +324,7 @@ CheckSymbols::CheckSymbols(Document::Ptr doc, const LookupContext &context)
     CollectTypes collectTypes(doc, context.snapshot());
     _potentialTypes = collectTypes.types();
     _potentialMembers = collectTypes.members();
+    _potentialVirtualMethods = collectTypes.virtualMethods();
     _scopes = collectTypes.scopes();
     _flushRequested = false;
     _flushLine = 0;
@@ -370,8 +397,23 @@ bool CheckSymbols::visit(UsingDirectiveAST *)
     return true;
 }
 
-bool CheckSymbols::visit(SimpleDeclarationAST *)
+bool CheckSymbols::visit(SimpleDeclarationAST *ast)
 {
+    if (ast->declarator_list && !ast->declarator_list->next) {
+        if (ast->symbols && ! ast->symbols->next && !ast->symbols->value->isGenerated()) {
+            Symbol *decl = ast->symbols->value;
+            if (NameAST *declId = declaratorId(ast->declarator_list->value)) {
+                if (Function *funTy = decl->type()->asFunctionType()) {
+                    if (funTy->isVirtual()) {
+                        addVirtualMethodUsage(declId);
+                    } else if (maybeVirtualMethod(decl->name())) {
+                        addVirtualMethodUsage(_context.lookup(decl->name(), decl->scope()), declId, funTy->argumentCount());
+                    }
+                }
+            }
+        }
+    }
+
     return true;
 }
 
@@ -403,6 +445,52 @@ bool CheckSymbols::visit(MemberAccessAST *ast)
     }
 
     return false;
+}
+
+bool CheckSymbols::visit(CallAST *ast)
+{
+    if (ast->base_expression) {
+        accept(ast->base_expression);
+
+        unsigned argumentCount = 0;
+
+        for (ExpressionListAST *it = ast->expression_list; it; it = it->next)
+            ++argumentCount;
+
+        if (MemberAccessAST *access = ast->base_expression->asMemberAccess()) {
+            if (access->member_name && access->member_name->name) {
+                if (maybeVirtualMethod(access->member_name->name)) {
+                    Scope *scope = findScope(access);
+                    const QByteArray expression = textOf(access);
+
+                    const QList<LookupItem> candidates = typeOfExpression(expression, scope, TypeOfExpression::Preprocess);
+                    addVirtualMethodUsage(candidates, access->member_name, argumentCount);
+                }
+            }
+        } else if (IdExpressionAST *idExpr = ast->base_expression->asIdExpression()) {
+            if (const Name *name = idExpr->name->name) {
+                if (maybeVirtualMethod(name)) {
+                    Scope *scope = findScope(idExpr);
+                    const QByteArray expression = textOf(idExpr);
+
+                    const QList<LookupItem> candidates = typeOfExpression(expression, scope, TypeOfExpression::Preprocess);
+                    addVirtualMethodUsage(candidates, idExpr->name, argumentCount);
+                }
+            }
+        }
+
+        accept(ast->expression_list);
+    }
+
+    return false;
+}
+
+QByteArray CheckSymbols::textOf(AST *ast) const
+{
+    const Token start = tokenAt(ast->firstToken());
+    const Token end = tokenAt(ast->lastToken() - 1);
+    const QByteArray text = _doc->source().mid(start.begin(), end.end() - start.begin());
+    return text;
 }
 
 void CheckSymbols::checkNamespace(NameAST *name)
@@ -573,6 +661,21 @@ bool CheckSymbols::visit(FunctionDefinitionAST *ast)
     _functionDefinitionStack.append(ast);
 
     accept(ast->decl_specifier_list);
+
+    if (ast->declarator && ! ast->symbol->isGenerated()) {
+        Function *fun = ast->symbol;
+        if (NameAST *declId = declaratorId(ast->declarator)) {
+            if (QualifiedNameAST *q = declId->asQualifiedName())
+                declId = q->unqualified_name;
+
+            if (fun->isVirtual()) {
+                addVirtualMethodUsage(declId);
+            } else if (maybeVirtualMethod(fun->name())) {
+                addVirtualMethodUsage(_context.lookup(fun->name(), fun->scope()), declId, fun->argumentCount());
+            }
+        }
+    }
+
     accept(ast->declarator);
     accept(ast->ctor_initializer);
     accept(ast->function_body);
@@ -687,8 +790,61 @@ void CheckSymbols::addMemberUsage(const QList<LookupItem> &candidates, NameAST *
 
         const Use use(line, column, length, Use::Field);
         addUsage(use);
-        //Overview oo;
-        //qDebug() << "added use" << oo(ast->name) << line << column << length;
+        break;
+    }
+}
+
+void CheckSymbols::addVirtualMethodUsage(NameAST *ast)
+{
+    if (! ast)
+        return;
+
+    unsigned startToken = ast->firstToken();
+    if (DestructorNameAST *dtor = ast->asDestructorName())
+        startToken = dtor->identifier_token;
+
+    const Token &tok = tokenAt(startToken);
+    if (tok.generated())
+        return;
+
+    unsigned line, column;
+    getTokenStartPosition(startToken, &line, &column);
+    const unsigned length = tok.length();
+
+    const Use use(line, column, length, Use::VirtualMethod);
+    addUsage(use);
+}
+
+void CheckSymbols::addVirtualMethodUsage(const QList<LookupItem> &candidates, NameAST *ast, unsigned argumentCount)
+{
+    unsigned startToken = ast->firstToken();
+    if (DestructorNameAST *dtor = ast->asDestructorName())
+        startToken = dtor->identifier_token;
+
+    const Token &tok = tokenAt(startToken);
+    if (tok.generated())
+        return;
+
+    unsigned line, column;
+    getTokenStartPosition(startToken, &line, &column);
+    const unsigned length = tok.length();
+
+    foreach (const LookupItem &r, candidates) {
+        Symbol *c = r.declaration();
+        if (! c)
+            continue;
+
+        Function *funTy = r.type()->asFunctionType();
+        if (! funTy)
+            continue;
+        if (! funTy->isVirtual())
+            continue;
+        else if (argumentCount < funTy->minimumArgumentCount())
+            continue;
+
+        const Use use(line, column, length, Use::VirtualMethod);
+        addUsage(use);
+        break;
     }
 }
 
@@ -721,6 +877,30 @@ Scope *CheckSymbols::findScope(AST *ast) const
         scope = _doc->globalSymbols();
 
     return scope;
+}
+
+NameAST *CheckSymbols::declaratorId(DeclaratorAST *ast) const
+{
+    if (ast && ast->core_declarator) {
+        if (NestedDeclaratorAST *nested = ast->core_declarator->asNestedDeclarator())
+            return declaratorId(nested->declarator);
+        else if (DeclaratorIdAST *declId = ast->core_declarator->asDeclaratorId()) {
+            return declId->name;
+        }
+    }
+
+    return 0;
+}
+
+bool CheckSymbols::maybeVirtualMethod(const Name *name) const
+{
+    if (const Identifier *ident = name->identifier()) {
+        const QByteArray id = QByteArray::fromRawData(ident->chars(), ident->size());
+        if (_potentialVirtualMethods.contains(id))
+            return true;
+    }
+
+    return false;
 }
 
 void CheckSymbols::flush()

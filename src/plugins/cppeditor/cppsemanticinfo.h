@@ -51,7 +51,8 @@ public:
         enum {
             Type = 0,
             Local,
-            Field
+            Field,
+            VirtualMethod
         };
 
         Use(unsigned line = 0, unsigned column = 0, unsigned length = 0, unsigned kind = Type)

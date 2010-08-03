@@ -352,6 +352,20 @@ bool Function::hasArguments() const
               (argumentCount() == 1 && argumentAt(0)->type()->isVoidType()));
 }
 
+unsigned Function::minimumArgumentCount() const
+{
+    unsigned index = 0;
+
+    for (; index < _arguments->symbolCount(); ++index) {
+        if (Argument *arg = _arguments->symbolAt(index)->asArgument()) {
+            if (arg->hasInitializer())
+                break;
+        }
+    }
+
+    return index;
+}
+
 bool Function::isVirtual() const
 { return f._isVirtual; }
 

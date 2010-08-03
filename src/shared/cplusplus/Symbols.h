@@ -360,6 +360,7 @@ public:
 
     /** Convenience function that returns whether the function receives any arguments. */
     bool hasArguments() const;
+    unsigned minimumArgumentCount() const;
 
     bool isVirtual() const;
     void setVirtual(bool isVirtual);

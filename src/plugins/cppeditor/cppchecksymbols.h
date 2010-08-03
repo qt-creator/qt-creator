@@ -93,6 +93,8 @@ protected:
     bool warning(unsigned line, unsigned column, const QString &text, unsigned length = 0);
     bool warning(AST *ast, const QString &text);
 
+    QByteArray textOf(AST *ast) const;
+
     void checkName(NameAST *ast, Scope *scope = 0);
     void checkNamespace(NameAST *name);
     void addUsage(ClassOrNamespace *b, NameAST *ast);
@@ -101,6 +103,10 @@ protected:
 
     void checkMemberName(NameAST *ast);
     void addMemberUsage(const QList<LookupItem> &candidates, NameAST *ast);
+    void addVirtualMethodUsage(const QList<LookupItem> &candidates, NameAST *ast, unsigned argumentCount);
+    void addVirtualMethodUsage(NameAST *ast);
+
+    bool maybeVirtualMethod(const Name *name) const;
 
     virtual bool preVisit(AST *);
 
@@ -122,8 +128,11 @@ protected:
 
     virtual bool visit(FunctionDefinitionAST *ast);
     virtual bool visit(MemberAccessAST *ast);
+    virtual bool visit(CallAST *ast);
 
     virtual bool visit(MemInitializerAST *ast);
+
+    NameAST *declaratorId(DeclaratorAST *ast) const;
 
     unsigned startOfTemplateDeclaration(TemplateDeclarationAST *ast) const;
     Scope *findScope(AST *ast) const;
@@ -138,6 +147,7 @@ private:
     QList<Document::DiagnosticMessage> _diagnosticMessages;
     QSet<QByteArray> _potentialTypes;
     QSet<QByteArray> _potentialMembers;
+    QSet<QByteArray> _potentialVirtualMethods;
     QList<ScopedSymbol *> _scopes;
     QList<TemplateDeclarationAST *> _templateDeclarationStack;
     QList<FunctionDefinitionAST *> _functionDefinitionStack;

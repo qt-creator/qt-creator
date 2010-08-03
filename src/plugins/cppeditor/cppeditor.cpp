@@ -968,6 +968,9 @@ void CPPEditor::highlightTypeUsages(int from, int to)
     Q_ASSERT(!chunks.isEmpty());
     QTextBlock b = doc->findBlockByNumber(m_nextHighlightBlockNumber);
 
+    QTextCharFormat virtualMethodFormat; // ### hardcoded;
+    virtualMethodFormat.setFontItalic(true);
+
     QMapIterator<int, QVector<SemanticInfo::Use> > it(chunks);
     while (b.isValid() && it.hasNext()) {
         it.next();
@@ -995,6 +998,10 @@ void CPPEditor::highlightTypeUsages(int from, int to)
 
             case SemanticInfo::Use::Local:
                 formatRange.format = m_localFormat;
+                break;
+
+            case SemanticInfo::Use::VirtualMethod:
+                formatRange.format = virtualMethodFormat;
                 break;
 
             default:
