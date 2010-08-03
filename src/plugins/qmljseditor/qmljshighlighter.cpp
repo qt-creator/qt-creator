@@ -62,11 +62,6 @@ void Highlighter::setQmlEnabled(bool qmlEnabled)
     m_qmlEnabled = qmlEnabled;
 }
 
-QTextCharFormat Highlighter::labelTextCharFormat() const
-{
-    return m_formats[LabelFormat];
-}
-
 static bool checkStartOfBinding(const Token &token)
 {
     switch (token.kind) {
@@ -197,7 +192,7 @@ void Highlighter::highlightBlock(const QString &text)
                             // it's a binding.
                             for (int i = start; i <= index; ++i) {
                                 const Token &tok = tokens.at(i);
-                                setFormat(tok.offset, tok.length, m_formats[LabelFormat]);
+                                setFormat(tok.offset, tok.length, m_formats[FieldFormat]);
                             }
                             break;
                         } else {

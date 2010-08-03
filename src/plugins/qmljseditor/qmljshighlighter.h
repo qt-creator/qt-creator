@@ -56,7 +56,7 @@ public:
         StringFormat,
         TypeFormat,
         KeywordFormat,
-        LabelFormat,
+        FieldFormat,
         CommentFormat,
         VisualWhitespace,
         NumFormats
@@ -65,8 +65,6 @@ public:
     bool isQmlEnabled() const;
     void setQmlEnabled(bool duiEnabled);
     void setFormats(const QVector<QTextCharFormat> &formats);
-
-    QTextCharFormat labelTextCharFormat() const;
 
 protected:
     virtual void highlightBlock(const QString &text);

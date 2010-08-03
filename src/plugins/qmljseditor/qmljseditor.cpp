@@ -1171,7 +1171,7 @@ void QmlJSTextEditor::setFontSettings(const TextEditor::FontSettings &fs)
                 << QLatin1String(TextEditor::Constants::C_STRING)
                 << QLatin1String(TextEditor::Constants::C_TYPE)
                 << QLatin1String(TextEditor::Constants::C_KEYWORD)
-                << QLatin1String(TextEditor::Constants::C_LABEL)
+                << QLatin1String(TextEditor::Constants::C_FIELD)
                 << QLatin1String(TextEditor::Constants::C_COMMENT)
                 << QLatin1String(TextEditor::Constants::C_VISUAL_WHITESPACE);
     }
