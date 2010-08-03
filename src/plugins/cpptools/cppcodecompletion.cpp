@@ -152,7 +152,7 @@ public:
         TextEditor::CompletionItem previousItem = switchCompletionItem(0);
         Symbol *previousSymbol = switchSymbol(symbol);
         accept(symbol->identity());
-        if (_item)
+        if (_item.isValid())
             _item.data = QVariant::fromValue(symbol);
         (void) switchSymbol(previousSymbol);
         return switchCompletionItem(previousItem);
@@ -1407,7 +1407,8 @@ void CppCodeCompletion::addMacros_helper(const Snapshot &snapshot,
 void CppCodeCompletion::addCompletionItem(Symbol *symbol)
 {
     ConvertToCompletionItem toCompletionItem(this);
-    if (TextEditor::CompletionItem item = toCompletionItem(symbol))
+    TextEditor::CompletionItem item = toCompletionItem(symbol);
+    if (item.isValid())
         m_completions.append(item);
 }
 
@@ -1654,7 +1655,8 @@ bool CppCodeCompletion::completeQtMethod(const QList<LookupItem> &results,
                     continue;
                 else if (! wantSignals && ! fun->isSlot())
                     continue;
-                if (TextEditor::CompletionItem item = toCompletionItem(fun)) {
+                TextEditor::CompletionItem item = toCompletionItem(fun);
+                if (item.isValid()) {
                     unsigned count = fun->argumentCount();
                     while (true) {
                         TextEditor::CompletionItem ci = item;

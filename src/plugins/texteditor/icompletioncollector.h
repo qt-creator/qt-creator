@@ -58,9 +58,6 @@ struct CompletionItem
     bool isValid() const
     { return collector != 0; }
 
-    operator bool() const
-    { return collector != 0; }
-
     QString text;
     QString details;
     QIcon icon;
