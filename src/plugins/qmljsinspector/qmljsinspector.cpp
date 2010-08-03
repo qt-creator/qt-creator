@@ -571,7 +571,7 @@ void Inspector::setSimpleDockWidgetArrangement()
     mainWindow->removeDockWidget(m_crumblePathDock);
     mainWindow->addDockWidget(Qt::BottomDockWidgetArea, m_crumblePathDock);
     mainWindow->splitDockWidget(mainWindow->toolBarDockWidget(), m_crumblePathDock, Qt::Vertical);
-
+    m_crumblePathDock->setVisible(true);
     mainWindow->setTrackingEnabled(true);
 }
 
