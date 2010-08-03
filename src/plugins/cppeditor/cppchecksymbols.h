@@ -34,6 +34,8 @@
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/LookupContext.h>
+#include <cplusplus/TypeOfExpression.h>
+
 #include <ASTVisitor.h>
 #include <QtCore/QSet>
 #include <QtCore/QFuture>
@@ -129,6 +131,7 @@ protected:
 private:
     Document::Ptr _doc;
     LookupContext _context;
+    TypeOfExpression typeOfExpression;
     QString _fileName;
     QList<Document::DiagnosticMessage> _diagnosticMessages;
     QSet<QByteArray> _potentialTypes;

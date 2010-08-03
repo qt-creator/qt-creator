@@ -301,6 +301,8 @@ CheckSymbols::CheckSymbols(Document::Ptr doc, const LookupContext &context)
     _scopes = collectTypes.scopes();
     _flushRequested = false;
     _flushLine = 0;
+
+    typeOfExpression.init(_doc, _context.snapshot(), _context.bindings());
 }
 
 CheckSymbols::~CheckSymbols()
@@ -381,6 +383,25 @@ bool CheckSymbols::visit(NamedTypeSpecifierAST *)
 bool CheckSymbols::visit(MemberAccessAST *ast)
 {
     accept(ast->base_expression);
+    if (! ast->member_name)
+        return false;
+
+    if (const Name *name = ast->member_name->name) {
+        if (const Identifier *ident = name->identifier()) {
+            const QByteArray id = QByteArray::fromRawData(ident->chars(), ident->size());
+            if (_potentialMembers.contains(id)) {
+                Scope *scope = findScope(ast);
+
+                const Token start = tokenAt(ast->firstToken());
+                const Token end = tokenAt(ast->lastToken() - 1);
+                const QByteArray expression = _doc->source().mid(start.begin(), end.end() - start.begin());
+
+                const QList<LookupItem> candidates = typeOfExpression(expression, scope, TypeOfExpression::Preprocess);
+                addMemberUsage(candidates, ast->member_name);
+            }
+        }
+    }
+
     return false;
 }
 
@@ -428,10 +449,6 @@ void CheckSymbols::checkMemberName(NameAST *ast)
         if (const Identifier *ident = ast->name->identifier()) {
             const QByteArray id = QByteArray::fromRawData(ident->chars(), ident->size());
             if (_potentialMembers.contains(id)) {
-                Scope *scope = findScope(ast);
-                const QList<LookupItem> candidates = _context.lookup(ast->name, scope);
-                addMemberUsage(candidates, ast);
-            } else if (_potentialMembers.contains(id)) {
                 Scope *scope = findScope(ast);
                 const QList<LookupItem> candidates = _context.lookup(ast->name, scope);
                 addMemberUsage(candidates, ast);
@@ -647,6 +664,7 @@ void CheckSymbols::addMemberUsage(const QList<LookupItem> &candidates, NameAST *
 
         const Use use(line, column, length, Use::Field);
         addUsage(use);
+        //Overview oo;
         //qDebug() << "added use" << oo(ast->name) << line << column << length;
     }
 }
