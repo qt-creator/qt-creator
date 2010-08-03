@@ -4,11 +4,5 @@
         <file>images/qmlfolder.png</file>
         <file>images/qmlproject.png</file>
         <file>images/qml_wizard.png</file>
-        <file>wizards/templates/app.pro</file>
-        <file>wizards/templates/qml/app/app.qml</file>
-        <file>wizards/templates/cpp/qmlapplicationview.h</file>
-        <file>wizards/templates/cpp/symbianicon.svg</file>
-        <file>wizards/templates/cpp/main.cpp</file>
-        <file>wizards/templates/cpp/qmlapplicationview.cpp</file>
     </qresource>
 </RCC>

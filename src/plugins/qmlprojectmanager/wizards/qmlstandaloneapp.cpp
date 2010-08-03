@@ -34,6 +34,10 @@
 #include <QtCore/QRegExp>
 #include <QtCore/QTextStream>
 
+#ifndef CREATORLESSTEST
+#include <coreplugin/icore.h>
+#endif // CREATORLESSTEST
+
 namespace QmlProjectManager {
 namespace Internal {
 
@@ -136,7 +140,11 @@ QString QmlStandaloneApp::path(Path path, Location location) const
     const QString qmlRootFolder = QLatin1String("qml/")
                                   + (useExistingMainQml() ? m_mainQmlFile.dir().dirName() : m_projectName)
                                   + QLatin1Char('/');
+#ifdef CREATORLESSTEST
     const QString sourceRoot = QLatin1String(":/qmlproject/wizards/templates/");
+#else // CREATORLESSTEST
+    const QString sourceRoot = Core::ICore::instance()->resourcePath() + QLatin1String("/templates/qmlapp/");
+#endif // CREATORLESSTEST
     const QString cppSourceSubDir = QLatin1String("cpp/");
     const QString cppTargetSubDir = cppSourceSubDir;
     const QString qmlExtension = QLatin1String(".qml");
