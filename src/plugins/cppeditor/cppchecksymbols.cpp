@@ -464,17 +464,26 @@ bool CheckSymbols::visit(CallAST *ast)
                     const QByteArray expression = textOf(access);
 
                     const QList<LookupItem> candidates = typeOfExpression(expression, scope, TypeOfExpression::Preprocess);
-                    addVirtualMethodUsage(candidates, access->member_name, argumentCount);
+
+                    NameAST *memberName = access->member_name;
+                    if (QualifiedNameAST *q = memberName->asQualifiedName())
+                        memberName = q->unqualified_name;
+
+                    addVirtualMethodUsage(candidates, memberName, argumentCount);
                 }
             }
         } else if (IdExpressionAST *idExpr = ast->base_expression->asIdExpression()) {
             if (const Name *name = idExpr->name->name) {
                 if (maybeVirtualMethod(name)) {
+                    NameAST *exprName = idExpr->name;
+                    if (QualifiedNameAST *q = exprName->asQualifiedName())
+                        exprName = q->unqualified_name;
+
                     Scope *scope = findScope(idExpr);
                     const QByteArray expression = textOf(idExpr);
 
                     const QList<LookupItem> candidates = typeOfExpression(expression, scope, TypeOfExpression::Preprocess);
-                    addVirtualMethodUsage(candidates, idExpr->name, argumentCount);
+                    addVirtualMethodUsage(candidates, exprName, argumentCount);
                 }
             }
         }
