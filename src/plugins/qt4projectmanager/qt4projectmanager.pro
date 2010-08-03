@@ -4,6 +4,7 @@ QT += network
 include(../../qtcreatorplugin.pri)
 include(qt4projectmanager_dependencies.pri)
 HEADERS += qt4deployconfiguration.h \
+    qtparser.h \
     qt4projectmanagerplugin.h \
     qt4projectmanager.h \
     qt4project.h \
@@ -48,6 +49,7 @@ HEADERS += qt4deployconfiguration.h \
     qmakeparser.h \
     qtoutputformatter.h
 SOURCES += qt4deployconfiguration.cpp \
+    qtparser.cpp \
     qt4projectmanagerplugin.cpp \
     qt4projectmanager.cpp \
     qt4project.cpp \

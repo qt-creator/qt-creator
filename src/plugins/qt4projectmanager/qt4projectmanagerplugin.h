@@ -80,6 +80,8 @@ private slots:
 
     void testAbldOutputParsers_data();
     void testAbldOutputParsers();
+    void testQtOutputParser_data();
+    void testQtOutputParser();
 #endif
 
 private:

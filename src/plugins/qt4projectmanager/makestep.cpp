@@ -34,6 +34,7 @@
 #include "qt4target.h"
 #include "qt4buildconfiguration.h"
 #include "qt4projectmanagerconstants.h"
+#include "qtparser.h"
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/gnumakeparser.h>
@@ -170,7 +171,8 @@ bool MakeStep::init()
     setEnabled(true);
     setArguments(args);
 
-    setOutputParser(new ProjectExplorer::GnuMakeParser(workingDirectory));
+    setOutputParser(new QtParser);
+    appendOutputParser(new ProjectExplorer::GnuMakeParser(workingDirectory));
     if (toolchain)
         appendOutputParser(toolchain->outputParser());
 
