@@ -95,8 +95,6 @@ private:
     void attemptBreakpointSynchronization();
 
     void assignValueInDebugger(const QString &expr, const QString &value);
-    void executeDebuggerCommand(const QString &command);
-
     void loadSymbols(const QString &moduleName);
     void loadAllSymbols();
     void requestModuleSymbols(const QString &moduleName);
