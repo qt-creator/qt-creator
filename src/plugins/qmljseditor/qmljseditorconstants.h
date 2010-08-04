@@ -45,6 +45,7 @@ const char * const C_QMLJSEDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("OpenWith::Edi
 const char * const TASK_INDEX = "QmlJSEditor.TaskIndex";
 
 const char * const FOLLOW_SYMBOL_UNDER_CURSOR = "QmlJSEditor.FollowSymbolUnderCursor";
+const char * const SHOW_QT_QUICK_HELPER = "QmlJSEditor.ShowQtQuickHelper";
 
 const char * const QML_MIMETYPE = "application/x-qml";
 const char * const JS_MIMETYPE = "application/javascript";

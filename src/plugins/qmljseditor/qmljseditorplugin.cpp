@@ -155,6 +155,12 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     connect(followSymbolUnderCursorAction, SIGNAL(triggered()), this, SLOT(followSymbolUnderCursor()));
     contextMenu->addAction(cmd);
 
+    QAction *showQuickToolbar = new QAction(tr("Show Qt Quick helper"), this);
+    cmd = am->registerAction(showQuickToolbar, Constants::SHOW_QT_QUICK_HELPER, context);
+    cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Space));
+    connect(showQuickToolbar, SIGNAL(triggered()), this, SLOT(showContextPane()));
+    contextMenu->addAction(cmd);
+
     cmd = am->command(TextEditor::Constants::AUTO_INDENT_SELECTION);
     contextMenu->addAction(cmd);
 
@@ -240,6 +246,15 @@ void QmlJSEditorPlugin::followSymbolUnderCursor()
 
     if (QmlJSTextEditor *editor = qobject_cast<QmlJSTextEditor*>(em->currentEditor()->widget()))
         editor->followSymbolUnderCursor();
+}
+
+void QmlJSEditorPlugin::showContextPane()
+{
+    Core::EditorManager *em = Core::EditorManager::instance();
+
+    if (QmlJSTextEditor *editor = qobject_cast<QmlJSTextEditor*>(em->currentEditor()->widget()))
+        editor->showContextPane();
+
 }
 
 Core::Command *QmlJSEditorPlugin::addToolAction(QAction *a, Core::ActionManager *am,

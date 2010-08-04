@@ -89,6 +89,7 @@ public:
 
 public Q_SLOTS:
     void followSymbolUnderCursor();
+    void showContextPane();
 
 private Q_SLOTS:
     void openPreview();

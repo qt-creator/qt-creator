@@ -227,6 +227,7 @@ public:
 
 public slots:
     void followSymbolUnderCursor();
+    void showContextPane();
     virtual void setFontSettings(const TextEditor::FontSettings &);
 
 signals:

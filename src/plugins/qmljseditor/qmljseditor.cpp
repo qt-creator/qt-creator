@@ -1338,6 +1338,15 @@ void QmlJSTextEditor::followSymbolUnderCursor()
     openLink(findLinkAt(textCursor()));
 }
 
+void QmlJSTextEditor::showContextPane()
+{
+    if (m_contextPane) {
+        Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
+        m_contextPane->apply(editableInterface(), m_semanticInfo.document, m_semanticInfo.snapshot, newNode, false, true);
+        m_oldCursorPosition = position();
+    }
+}
+
 void QmlJSTextEditor::contextMenuEvent(QContextMenuEvent *e)
 {
     QMenu *menu = new QMenu();
@@ -1654,8 +1663,6 @@ void QmlJSTextEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
 
 void QmlJSTextEditor::onCursorPositionChanged()
 {
-
-
     if (m_contextPane) {
         Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
         Node *oldNode = m_semanticInfo.declaringMemberNoProperties(m_oldCursorPosition);
