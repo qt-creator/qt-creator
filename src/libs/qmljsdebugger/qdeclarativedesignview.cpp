@@ -406,18 +406,17 @@ QList<QGraphicsItem *> QDeclarativeDesignView::selectedItems()
     return data->selectedItems();
 }
 
-
 void QDeclarativeDesignViewPrivate::clearHighlight()
 {
     boundingRectHighlighter->clear();
 }
 
-void QDeclarativeDesignViewPrivate::highlight(QGraphicsItem * item, ContextFlags flags)
+void QDeclarativeDesignViewPrivate::highlight(QGraphicsObject * item, ContextFlags flags)
 {
-    highlight(QList<QGraphicsItem*>() << item, flags);
+    highlight(QList<QGraphicsObject*>() << item, flags);
 }
 
-void QDeclarativeDesignViewPrivate::highlight(QList<QGraphicsItem *> items, ContextFlags flags)
+void QDeclarativeDesignViewPrivate::highlight(QList<QGraphicsObject *> items, ContextFlags flags)
 {
     if (items.isEmpty())
         return;
@@ -627,15 +626,19 @@ void QDeclarativeDesignViewPrivate::_q_onStatusChanged(QDeclarativeView::Status 
 void QDeclarativeDesignViewPrivate::_q_onCurrentObjectsChanged(QList<QObject*> objects)
 {
     QList<QGraphicsItem*> items;
+    QList<QGraphicsObject*> gfxObjects;
     foreach(QObject *obj, objects) {
         QDeclarativeItem* declarativeItem = qobject_cast<QDeclarativeItem*>(obj);
-        if (declarativeItem)
+        if (declarativeItem) {
             items << declarativeItem;
+            QGraphicsObject *gfxObj = declarativeItem->toGraphicsObject();
+            if (gfxObj)
+                gfxObjects << gfxObj;
+        }
     }
-
     setSelectedItemsForTools(items);
     clearHighlight();
-    highlight(items, QDeclarativeDesignViewPrivate::IgnoreContext);
+    highlight(gfxObjects, QDeclarativeDesignViewPrivate::IgnoreContext);
 }
 
 QString QDeclarativeDesignView::idStringForObject(QObject *obj)

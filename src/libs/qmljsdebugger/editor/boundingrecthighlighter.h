@@ -22,33 +22,55 @@ class BoundingRectHighlighter : public LayerItem
     Q_OBJECT
 public:
     explicit BoundingRectHighlighter(QDeclarativeDesignView *view);
+    ~BoundingRectHighlighter();
     void clear();
     void highlight(QList<QGraphicsObject*> items);
     void highlight(QGraphicsObject* item);
-    void removeHighlight(QGraphicsObject *item);
 
 private slots:
     void refresh();
     void animTimeout();
+    void itemDestroyed(QObject *);
 
 private:
     BoundingBox *boxFor(QGraphicsObject *item) const;
     void highlightAll(bool animate);
     BoundingBox *createBoundingBox(QGraphicsObject *itemToHighlight);
+    void removeBoundingBox(BoundingBox *box);
+    void freeBoundingBox(BoundingBox *box);
 
 private:
     Q_DISABLE_COPY(BoundingRectHighlighter);
 
     QDeclarativeDesignView *m_view;
-    QList<BoundingBox*> m_boxes;
-//    QList<QWeakPointer<QGraphicsObject> > m_highlightedObjects;
-//    QGraphicsPolygonItem *m_highlightPolygon;
-//    QGraphicsPolygonItem *m_highlightPolygonEdge;
-
+    QList<BoundingBox* > m_boxes;
+    QList<BoundingBox* > m_freeBoxes;
     QTimer *m_animTimer;
     qreal m_animScale;
     int m_animFrame;
 
+};
+
+class BoundingBox : public QObject
+{
+    Q_OBJECT
+public:
+    explicit BoundingBox(QGraphicsObject *itemToHighlight, QGraphicsItem *parentItem, QObject *parent = 0);
+    ~BoundingBox();
+    QWeakPointer<QGraphicsObject> highlightedObject;
+    QGraphicsPolygonItem *highlightPolygon;
+    QGraphicsPolygonItem *highlightPolygonEdge;
+
+private:
+    Q_DISABLE_COPY(BoundingBox);
+
+};
+
+class BoundingBoxPolygonItem : public QGraphicsPolygonItem
+{
+public:
+    explicit BoundingBoxPolygonItem(QGraphicsItem *item);
+    int type() const;
 };
 
 } // namespace QmlViewer

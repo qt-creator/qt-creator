@@ -4,6 +4,7 @@
 
 #include <QGraphicsPolygonItem>
 #include <QTimer>
+#include <QObject>
 
 #include <QDebug>
 
@@ -13,29 +14,9 @@ const qreal AnimDelta = 0.025f;
 const int AnimInterval = 30;
 const int AnimFrames = 10;
 
-class BoundingBoxPolygonItem : public QGraphicsPolygonItem
-{
-public:
-    explicit BoundingBoxPolygonItem(QGraphicsItem *item);
-    int type() const;
-};
-
-class BoundingBox
-{
-public:
-    explicit BoundingBox(QGraphicsObject *itemToHighlight, QGraphicsItem *parentItem);
-    ~BoundingBox();
-    QWeakPointer<QGraphicsObject> highlightedObject;
-    QGraphicsPolygonItem *highlightPolygon;
-    QGraphicsPolygonItem *highlightPolygonEdge;
-
-private:
-    Q_DISABLE_COPY(BoundingBox);
-
-};
-
-BoundingBox::BoundingBox(QGraphicsObject *itemToHighlight, QGraphicsItem *parentItem)
-    : highlightedObject(itemToHighlight),
+BoundingBox::BoundingBox(QGraphicsObject *itemToHighlight, QGraphicsItem *parentItem, QObject *parent)
+    : QObject(parent),
+      highlightedObject(itemToHighlight),
       highlightPolygon(0),
       highlightPolygonEdge(0)
 {
@@ -51,10 +32,6 @@ BoundingBox::BoundingBox(QGraphicsObject *itemToHighlight, QGraphicsItem *parent
 
 BoundingBox::~BoundingBox()
 {
-    delete highlightPolygon;
-    delete highlightPolygonEdge;
-    highlightPolygon = 0;
-    highlightPolygonEdge = 0;
     highlightedObject.clear();
 }
 
@@ -80,6 +57,11 @@ BoundingRectHighlighter::BoundingRectHighlighter(QDeclarativeDesignView *view) :
     connect(m_animTimer, SIGNAL(timeout()), SLOT(animTimeout()));
 }
 
+BoundingRectHighlighter::~BoundingRectHighlighter()
+{
+
+}
+
 void BoundingRectHighlighter::animTimeout()
 {
     ++m_animFrame;
@@ -100,17 +82,8 @@ void BoundingRectHighlighter::clear()
         m_animTimer->stop();
 
         foreach(BoundingBox *box, m_boxes) {
-            if (!box->highlightedObject.isNull()) {
-                disconnect(box->highlightedObject.data(), SIGNAL(xChanged()), this, SLOT(refresh()));
-                disconnect(box->highlightedObject.data(), SIGNAL(yChanged()), this, SLOT(refresh()));
-                disconnect(box->highlightedObject.data(), SIGNAL(widthChanged()), this, SLOT(refresh()));
-                disconnect(box->highlightedObject.data(), SIGNAL(heightChanged()), this, SLOT(refresh()));
-                disconnect(box->highlightedObject.data(), SIGNAL(rotationChanged()), this, SLOT(refresh()));
-            }
+            freeBoundingBox(box);
         }
-
-        qDeleteAll(m_boxes);
-        m_boxes.clear();
     }
 }
 
@@ -131,8 +104,7 @@ void BoundingRectHighlighter::highlight(QList<QGraphicsObject*> items)
 
     bool animate = false;
 
-    QList<BoundingBox*> newBoxes;
-
+    QList<BoundingBox *> newBoxes;
     foreach(QGraphicsObject *itemToHighlight, items) {
         BoundingBox *box = boxFor(itemToHighlight);
         if (!box) {
@@ -172,26 +144,71 @@ void BoundingRectHighlighter::highlight(QGraphicsObject* itemToHighlight)
 
 BoundingBox *BoundingRectHighlighter::createBoundingBox(QGraphicsObject *itemToHighlight)
 {
-    BoundingBox *box = new BoundingBox(itemToHighlight, this);
+    if (!m_freeBoxes.isEmpty()) {
+        BoundingBox *box = m_freeBoxes.last();
+        if (box->highlightedObject.isNull()) {
+            box->highlightedObject = itemToHighlight;
+            box->highlightPolygon->show();
+            box->highlightPolygonEdge->show();
+            m_freeBoxes.removeLast();
+            return box;
+        }
+    }
+
+    BoundingBox *box = new BoundingBox(itemToHighlight, this, this);
 
     connect(itemToHighlight, SIGNAL(xChanged()), this, SLOT(refresh()));
     connect(itemToHighlight, SIGNAL(yChanged()), this, SLOT(refresh()));
     connect(itemToHighlight, SIGNAL(widthChanged()), this, SLOT(refresh()));
     connect(itemToHighlight, SIGNAL(heightChanged()), this, SLOT(refresh()));
     connect(itemToHighlight, SIGNAL(rotationChanged()), this, SLOT(refresh()));
+    connect(itemToHighlight, SIGNAL(destroyed(QObject*)), this, SLOT(itemDestroyed(QObject*)));
 
     return box;
+}
+
+void BoundingRectHighlighter::removeBoundingBox(BoundingBox *box)
+{
+    delete box;
+    box = 0;
+}
+
+void BoundingRectHighlighter::freeBoundingBox(BoundingBox *box)
+{
+    if (!box->highlightedObject.isNull()) {
+        disconnect(box->highlightedObject.data(), SIGNAL(xChanged()), this, SLOT(refresh()));
+        disconnect(box->highlightedObject.data(), SIGNAL(yChanged()), this, SLOT(refresh()));
+        disconnect(box->highlightedObject.data(), SIGNAL(widthChanged()), this, SLOT(refresh()));
+        disconnect(box->highlightedObject.data(), SIGNAL(heightChanged()), this, SLOT(refresh()));
+        disconnect(box->highlightedObject.data(), SIGNAL(rotationChanged()), this, SLOT(refresh()));
+    }
+
+    box->highlightedObject.clear();
+    box->highlightPolygon->hide();
+    box->highlightPolygonEdge->hide();
+    m_boxes.removeOne(box);
+    m_freeBoxes << box;
+}
+
+void BoundingRectHighlighter::itemDestroyed(QObject *obj)
+{
+    foreach(BoundingBox *box, m_boxes) {
+        if (box->highlightedObject.data() == obj) {
+            freeBoundingBox(box);
+            break;
+        }
+    }
 }
 
 void BoundingRectHighlighter::highlightAll(bool animate)
 {
     foreach(BoundingBox *box, m_boxes) {
-        QGraphicsObject *item = box->highlightedObject.data();
-        if (box->highlightedObject.isNull()) {
-            m_boxes.removeOne(box);
-            continue;
+        if (box && box->highlightedObject.isNull()) {
+            // clear all highlights
+            clear();
+            return;
         }
-
+        QGraphicsObject *item = box->highlightedObject.data();
         QRectF itemAndChildRect = item->boundingRect() | item->childrenBoundingRect();
 
         QPolygonF boundingRectInSceneSpace(item->mapToScene(itemAndChildRect));
@@ -210,19 +227,6 @@ void BoundingRectHighlighter::highlightAll(bool animate)
     if (animate) {
         m_animFrame = 0;
         m_animTimer->start();
-    }
-}
-
-void BoundingRectHighlighter::removeHighlight(QGraphicsObject *item)
-{
-    if (!item)
-        return;
-
-    BoundingBox *box = boxFor(item);
-    if (box) {
-        m_boxes.removeOne(box);
-        delete box;
-        box = 0;
     }
 }
 

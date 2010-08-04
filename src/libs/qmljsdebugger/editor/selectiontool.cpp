@@ -223,7 +223,8 @@ void SelectionTool::contextMenuElementHovered(QAction *action)
 {
     int itemListIndex = action->data().toInt();
     if (itemListIndex >= 0 && itemListIndex < m_contextMenuItemList.length()) {
-        QDeclarativeDesignViewPrivate::get(view())->highlight(m_contextMenuItemList.at(itemListIndex));
+        QGraphicsObject *item = m_contextMenuItemList.at(itemListIndex)->toGraphicsObject();
+        QDeclarativeDesignViewPrivate::get(view())->highlight(item);
     }
 }
 
@@ -258,9 +259,10 @@ void SelectionTool::mouseMoveEvent(QMouseEvent *event)
 
 void SelectionTool::hoverMoveEvent(QMouseEvent * event)
 {
-    QList<QGraphicsItem*> itemList = view()->items(event->pos());
-    if (!itemList.isEmpty() && !m_rubberbandSelectionMode) {
-
+// ### commented out until move tool is re-enabled
+//    QList<QGraphicsItem*> itemList = view()->items(event->pos());
+//    if (!itemList.isEmpty() && !m_rubberbandSelectionMode) {
+//
 //        foreach(QGraphicsItem *item, itemList) {
 //            if (item->type() == Constants::ResizeHandleItemType) {
 //                ResizeHandleItem* resizeHandle = ResizeHandleItem::fromGraphicsItem(item);
@@ -271,27 +273,17 @@ void SelectionTool::hoverMoveEvent(QMouseEvent * event)
 //        }
 //        if (topSelectedItemIsMovable(itemList))
 //            view()->changeTool(Constants::MoveToolMode);
-    }
-
-    QList<QGraphicsItem*> selectableItemList = view()->items(event->pos());
+//    }
+    QList<QGraphicsItem*> selectableItemList = QDeclarativeDesignViewPrivate::get(view())->selectableItems(event->pos());
     if (!selectableItemList.isEmpty()) {
-        QGraphicsItem *topSelectableItem = 0;
-        foreach(QGraphicsItem* item, selectableItemList)
-        {
-            if (!QDeclarativeDesignViewPrivate::get(view())->isEditorItem(item)
-                /*&& !item->qmlItemNode().isRootNode()
-                && (QGraphicsItem->qmlItemNode().hasShowContent() || !m_selectOnlyContentItems)*/)
-            {
-                topSelectableItem = item;
-                break;
-            }
-        }
+        QGraphicsObject *item = selectableItemList.first()->toGraphicsObject();
+        if (item)
+            QDeclarativeDesignViewPrivate::get(view())->highlight(item);
 
-        QDeclarativeDesignViewPrivate::get(view())->highlight(topSelectableItem);
-    } else {
-        QDeclarativeDesignViewPrivate::get(view())->clearHighlight();
+        return;
     }
 
+    QDeclarativeDesignViewPrivate::get(view())->clearHighlight();
 }
 
 void SelectionTool::mouseReleaseEvent(QMouseEvent *event)
@@ -416,6 +408,7 @@ void SelectionTool::selectedItemsChanged(const QList<QGraphicsItem*> &itemList)
             disconnect(obj.data(), SIGNAL(rotationChanged()), this, SLOT(repaintBoundingRects()));
         }
     }
+
     QList<QGraphicsObject*> objects = toGraphicsObjectList(itemList);
     m_selectedItemList.clear();
 

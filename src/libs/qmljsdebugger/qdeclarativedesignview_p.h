@@ -102,8 +102,8 @@ public:
                     Constants::ToolFlags flags = Constants::NoToolFlags);
 
     void clearHighlight();
-    void highlight(QList<QGraphicsItem *> item, ContextFlags flags = ContextSensitive);
-    void highlight(QGraphicsItem *item, ContextFlags flags = ContextSensitive);
+    void highlight(QList<QGraphicsObject *> item, ContextFlags flags = ContextSensitive);
+    void highlight(QGraphicsObject *item, ContextFlags flags = ContextSensitive);
 
     bool mouseInsideContextItem() const;
     bool isEditorItem(QGraphicsItem *item) const;
