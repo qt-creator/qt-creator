@@ -91,6 +91,7 @@ private slots:
     void switchToHelpMode();
     void switchToHelpMode(const QUrl &source);
     void slotHideRightPane();
+    void showHideSidebar();
 
     void updateSideBarSource();
     void updateSideBarSource(const QUrl &newUrl);
@@ -114,6 +115,7 @@ private:
 
     void setup();
     int contextHelpOption() const;
+    void connectExternalHelpWindow();
 
 private:
     HelpMode *m_mode;

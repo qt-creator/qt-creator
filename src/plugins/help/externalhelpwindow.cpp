@@ -28,11 +28,19 @@
 **************************************************************************/
 
 #include "externalhelpwindow.h"
-#include "helpconstants.h"
 
+#include "centralwidget.h"
+#include "helpconstants.h"
+#include "openpagesmanager.h"
+
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 
+#include <QtGui/QAction>
+#include <QtGui/QHBoxLayout>
 #include <QtGui/QKeyEvent>
+#include <QtGui/QStatusBar>
+#include <QtGui/QToolButton>
 
 using namespace Help::Internal;
 
@@ -49,7 +57,86 @@ ExternalHelpWindow::ExternalHelpWindow(QWidget *parent)
         resize(640, 480);
 
     settings->endGroup();
+
+    QAction *action = new QAction(this);
+    action->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_I));
+    connect(action, SIGNAL(triggered()), this, SIGNAL(activateIndex()));
+    addAction(action);
+
+    action = new QAction(this);
+    action->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_C));
+    connect(action, SIGNAL(triggered()), this, SIGNAL(activateContents()));
+    addAction(action);
+
+    action = new QAction(this);
+    action->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Slash));
+    connect(action, SIGNAL(triggered()), this, SIGNAL(activateSearch()));
+    addAction(action);
+
+    action = new QAction(this);
+    action->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_B));
+    connect(action, SIGNAL(triggered()), this, SIGNAL(activateBookmarks()));
+    addAction(action);
+
+    action = new QAction(this);
+    action->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_O));
+    connect(action, SIGNAL(triggered()), this, SIGNAL(activateOpenPages()));
+    addAction(action);
+
+    action = new QAction(this);
+    action->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Plus));
+    connect(action, SIGNAL(triggered()), CentralWidget::instance(), SLOT(zoomIn()));
+    addAction(action);
+
+    action = new QAction(this);
+    action->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Minus));
+    connect(action, SIGNAL(triggered()), CentralWidget::instance(), SLOT(zoomOut()));
+    addAction(action);
+
+    action = new QAction(this);
+    action->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_0));
+    connect(action, SIGNAL(triggered()), CentralWidget::instance(), SLOT(resetZoom()));
+    addAction(action);
+
+    QAction *ctrlTab = new QAction(this);
+    connect(ctrlTab, SIGNAL(triggered()), &OpenPagesManager::instance(),
+        SLOT(gotoPreviousPage()));
+    addAction(ctrlTab);
+
+    QAction *ctrlShiftTab = new QAction(this);
+    connect(ctrlShiftTab, SIGNAL(triggered()), &OpenPagesManager::instance(),
+        SLOT(gotoNextPage()));
+    addAction(ctrlShiftTab);
+
+    action = new QAction(QIcon(Core::Constants::ICON_TOGGLE_SIDEBAR),
+        tr("Show Sidebar"), this);
+    connect(action, SIGNAL(triggered()), this, SIGNAL(showHideSidebar()));
+
+#ifdef Q_WS_MAC
+    action->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_0));
+    ctrlTab->setShortcut(QKeySequence(tr("Alt+Tab")));
+    ctrlShiftTab->setShortcut(QKeySequence(tr("Alt+Shift+Tab")));
+#else
+    action->setShortcut(QKeySequence(Qt::ALT + Qt::Key_0));
+    ctrlTab->setShortcut(QKeySequence(tr("Ctrl+Tab")));
+    ctrlShiftTab->setShortcut(QKeySequence(tr("Ctrl+Shift+Tab")));
+#endif
+
+    QToolButton *button = new QToolButton;
+    button->setDefaultAction(action);
+
+    QStatusBar *statusbar = statusBar();
+    statusbar->show();
+    statusbar->setProperty("p_styled", true);
+    statusbar->addPermanentWidget(button);
+
+    QWidget *w = new QWidget;
+    QHBoxLayout *layout = new QHBoxLayout(w);
+    layout->addStretch(1);
+    statusbar->insertWidget(1, w, 1);
+
     installEventFilter(this);
+    setWindowTitle(tr("Qt Creator Offline Help"));
 }
 
 ExternalHelpWindow::~ExternalHelpWindow()

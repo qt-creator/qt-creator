@@ -33,15 +33,26 @@
 #include <QtGui/QMainWindow>
 
 QT_FORWARD_DECLARE_CLASS(QCloseEvent)
+QT_FORWARD_DECLARE_CLASS(QToolButton)
 
 namespace Help {
     namespace Internal {
 
 class ExternalHelpWindow : public QMainWindow
 {
+    Q_OBJECT
+
 public:
     ExternalHelpWindow(QWidget *parent = 0);
     virtual ~ExternalHelpWindow();
+
+signals:
+    void activateIndex();
+    void activateContents();
+    void activateSearch();
+    void activateBookmarks();
+    void activateOpenPages();
+    void showHideSidebar();
 
 protected:
      void closeEvent(QCloseEvent *event);

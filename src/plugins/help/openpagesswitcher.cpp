@@ -124,6 +124,16 @@ bool OpenPagesSwitcher::eventFilter(QObject *object, QEvent *event)
                 emit setCurrentPage(m_openPagesWidget->currentIndex());
                 return true;
             }
+
+            Qt::KeyboardModifier modifier = Qt::ControlModifier;
+#ifdef Q_WS_MAC
+            modifier = Qt::AltModifier;
+#endif
+            if (key == Qt::Key_Backtab
+                && (ke->modifiers() == (modifier | Qt::ShiftModifier)))
+                gotoNextPage();
+            else if (key == Qt::Key_Tab && (ke->modifiers() == modifier))
+                gotoPreviousPage();
         } else if (event->type() == QEvent::KeyRelease) {
             QKeyEvent *ke = static_cast<QKeyEvent*>(event);
             if (ke->modifiers() == 0

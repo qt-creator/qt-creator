@@ -117,8 +117,7 @@ HelpPlugin::HelpPlugin()
     m_bookmarkItem(0),
     m_sideBar(0),
     m_firstModeChange(true),
-    m_oldMode(0),
-    m_externalWindow(new ExternalHelpWindow(0))
+    m_oldMode(0)
 {
 }
 
@@ -208,7 +207,8 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     connect(action, SIGNAL(triggered()), this, SLOT(addBookmark()));
 
     // Add Contents, Index, and Context menu items and a separator to the Help menu
-    action = new QAction(QIcon::fromTheme(QLatin1String("help-contents")), tr(SB_CONTENTS), this);
+    action = new QAction(QIcon::fromTheme(QLatin1String("help-contents")),
+        tr(SB_CONTENTS), this);
     cmd = am->registerAction(action, QLatin1String("Help.Contents"), globalcontext);
     am->actionContainer(M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     connect(action, SIGNAL(triggered()), this, SLOT(activateContents()));
@@ -324,6 +324,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     connect(m_core->modeManager(), SIGNAL(currentModeChanged(Core::IMode*,
         Core::IMode*)), this, SLOT(modeChanged(Core::IMode*, Core::IMode*)));
 
+    m_externalWindow = new ExternalHelpWindow;
     if (contextHelpOption() == Help::Constants::ExternalHelpAlways) {
         m_mode = new HelpMode(new QWidget);
         m_mode->setEnabled(false);
@@ -334,9 +335,6 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     }
     addAutoReleasedObject(m_mode);
     m_mode->setContext(modecontext);
-    
-    connect(Core::ICore::instance(), SIGNAL(coreAboutToClose()),
-        m_externalWindow, SLOT(close()));
 
     return true;
 }
@@ -561,8 +559,8 @@ void HelpPlugin::createRightPaneContextViewer()
         Core::Context(Constants::C_HELP_SIDEBAR), this));
 
     QAction *copy = new QAction(this);
-    Core::Command *cmd = m_core->actionManager()->registerAction(copy, Core::Constants::COPY,
-        Core::Context(Constants::C_HELP_SIDEBAR));
+    Core::Command *cmd = m_core->actionManager()->registerAction(copy,
+        Core::Constants::COPY, Core::Context(Constants::C_HELP_SIDEBAR));
     copy->setText(cmd->action()->text());
     copy->setIcon(cmd->action()->icon());
 
@@ -600,14 +598,21 @@ void HelpPlugin::slotHideRightPane()
     Core::RightPaneWidget::instance()->setShown(false);
 }
 
+void HelpPlugin::showHideSidebar()
+{
+    m_sideBar->setVisible(!m_sideBar->isVisible());
+}
+
 void HelpPlugin::showExternalWindow()
 {
     bool firstTime = m_firstModeChange;
     setup();
     m_externalWindow->show();
     m_externalWindow->activateWindow();
-    if (firstTime)
+    if (firstTime) {
+        connectExternalHelpWindow();
         Core::ICore::instance()->mainWindow()->activateWindow();
+    }
 }
 
 void HelpPlugin::modeChanged(Core::IMode *mode, Core::IMode *old)
@@ -707,6 +712,7 @@ void HelpPlugin::contextHelpOptionChanged()
 
             m_mode->setEnabled(true);
             m_externalWindow->close();
+            m_sideBar->setVisible(true);
         }
     }
 }
@@ -1003,6 +1009,24 @@ int HelpPlugin::contextHelpOption() const
     const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
     return engine.customValue(QLatin1String("ContextHelpOption"),
         Help::Constants::SideBySideIfPossible).toInt();
+}
+
+void HelpPlugin::connectExternalHelpWindow()
+{
+    connect(Core::ICore::instance(), SIGNAL(coreAboutToClose()),
+        m_externalWindow, SLOT(close()));
+    connect(m_externalWindow, SIGNAL(activateIndex()), this,
+        SLOT(activateIndex()));
+    connect(m_externalWindow, SIGNAL(activateContents()), this,
+        SLOT(activateContents()));
+    connect(m_externalWindow, SIGNAL(activateSearch()), this,
+        SLOT(activateSearch()));
+    connect(m_externalWindow, SIGNAL(activateBookmarks()), this,
+        SLOT(activateBookmarks()));
+    connect(m_externalWindow, SIGNAL(activateOpenPages()), this,
+        SLOT(activateOpenPages()));
+    connect(m_externalWindow, SIGNAL(showHideSidebar()), this,
+        SLOT(showHideSidebar()));
 }
 
 Q_EXPORT_PLUGIN(HelpPlugin)
