@@ -1105,6 +1105,7 @@ void CppCodeCompletion::globalCompletion(Scope *currentScope)
         completeNamespace(b);
 
     addKeywords();
+    addMacros(QLatin1String("<configuration>"), context.snapshot());
     addMacros(context.thisDocument()->fileName(), context.snapshot());
 }
 
