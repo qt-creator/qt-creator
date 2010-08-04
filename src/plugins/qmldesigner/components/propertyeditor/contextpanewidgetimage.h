@@ -76,6 +76,7 @@ public:
 
 public slots:
     void onTogglePane();
+    void onSliderMoved(int value);
 
 protected:
     void wheelEvent(QWheelEvent* event);
@@ -83,6 +84,7 @@ protected:
 private:
     PreviewLabel *m_label;
     QSlider *m_slider;
+    QLabel *m_zoomLabel;
     int m_zoom;
     QPixmap m_pixmap;
     bool m_borderImage;

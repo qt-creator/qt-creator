@@ -622,6 +622,13 @@ void PreviewLabel::mouseReleaseEvent(QMouseEvent * event)
 }
 
 
+static inline int limitPositive(int i)
+{
+    if (i >= 0)
+        return i;
+    return 0;
+}
+
 static inline int limit(int i, int zoom)
 {
     static bool flag1 = 1;
@@ -791,9 +798,9 @@ void PreviewDialog::setPixmap(const QPixmap &p, int zoom)
     m_label->adjustSize();
     m_zoom = zoom;
     m_label->setZoom(m_zoom);
-    QSize size = m_label->pixmap()->size() + QSize(44, 44);
-    if (size.width() < 140)
-        size.setWidth(140);
+    QSize size = m_label->pixmap()->size() + QSize(54, 44);
+    if (size.width() < 180)
+        size.setWidth(180);
     resize(size);
 }
 
@@ -803,26 +810,26 @@ void PreviewDialog::wheelEvent(QWheelEvent* event)
     event->accept();
     if (delta >  0) {
         if (m_zoom == 1)
-            m_zoom = 2;
+            setZoom(2);
         else if (m_zoom == 2)
-            m_zoom = 4;
+            setZoom(4);
         else if (m_zoom == 4)
-            m_zoom = 6;
+            setZoom(6);
         else if (m_zoom == 6)
-            m_zoom = 8;
+            setZoom(8);
         else if (m_zoom == 8)
-            m_zoom = 10;
+            setZoom(10);
     } else {
         if (m_zoom == 10)
-            m_zoom = 8;
+            setZoom(8);
         else if (m_zoom == 8)
-            m_zoom = 6;
+            setZoom(6);
         else if (m_zoom == 6)
-            m_zoom = 4;
+            setZoom(4);
         else if (m_zoom == 4)
-            m_zoom = 2;
+            setZoom(2);
         else if (m_zoom == 2)
-            m_zoom = 1;
+            setZoom(1);
     }
     setPixmap(m_pixmap, m_zoom);
 }
@@ -830,6 +837,19 @@ void PreviewDialog::wheelEvent(QWheelEvent* event)
 void PreviewDialog::onTogglePane()
 {
     hide();
+}
+
+void PreviewDialog::onSliderMoved(int value)
+{
+    switch (value) {
+    case 1: setZoom(1); break;
+    case 2: setZoom(2); break;
+    case 3: setZoom(4); break;
+    case 4: setZoom(6); break;
+    case 5: setZoom(8); break;
+    case 6: setZoom(10); break;
+    default: break;
+    }
 }
 
 } //QmlDesigner
