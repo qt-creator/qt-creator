@@ -107,9 +107,6 @@ private:
     // it's an instantiation.
     const TemplateNameId *_templateId;
 
-    // templates
-    QList<ClassOrNamespace *> _instantiations;
-
     friend class CreateBindings;
 };
 

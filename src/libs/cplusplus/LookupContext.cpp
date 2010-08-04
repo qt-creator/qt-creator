@@ -615,7 +615,6 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name) const
         ClassOrNamespace *i = _factory->allocClassOrNamespace(c);
         i->_templateId = templId;
         i->_usings.append(c);
-        c->_instantiations.append(i);
         return i;
     }
 
