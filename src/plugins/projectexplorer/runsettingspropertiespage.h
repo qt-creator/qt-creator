@@ -108,6 +108,7 @@ private:
     DeployConfigurationModel *m_deployConfigurationModel;
     Ui::RunSettingsPropertiesPage *m_ui;
     QWidget *m_runConfigurationWidget;
+    QVBoxLayout *m_runLayout;
     DeployConfigurationWidget *m_deployConfigurationWidget;
     QVBoxLayout *m_deployLayout;
     BuildStepListWidget *m_deploySteps;

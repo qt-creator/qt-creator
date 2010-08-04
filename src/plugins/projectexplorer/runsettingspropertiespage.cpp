@@ -128,6 +128,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
       m_runConfigurationsModel(new RunConfigurationModel(target, this)),
       m_deployConfigurationModel(new DeployConfigurationModel(target, this)),
       m_runConfigurationWidget(0),
+      m_runLayout(0),
       m_deployConfigurationWidget(0),
       m_deployLayout(0),
       m_deploySteps(0),
@@ -139,6 +140,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
     m_ui->setupUi(this);
     m_ui->deployWidget->setContentsMargins(0, 0, 0, 25);
 
+    // deploy part
     m_deployLayout = new QVBoxLayout(m_ui->deployWidget);
     m_deployLayout->setMargin(0);
     m_deployLayout->setSpacing(5);
@@ -147,7 +149,6 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
     m_addDeployMenu = new QMenu(m_ui->addDeployToolButton);
     m_ui->addDeployToolButton->setMenu(m_addDeployMenu);
 
-    // deploy part
     updateDeployConfiguration(m_target->activeDeployConfiguration());
 
     m_ui->addDeployToolButton->setEnabled(m_target->activeDeployConfiguration());
@@ -165,6 +166,10 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
             this, SLOT(activeDeployConfigurationChanged()));
 
     // run part
+    m_runLayout = new QVBoxLayout(m_ui->runWidget);
+    m_runLayout->setMargin(0);
+    m_runLayout->setSpacing(5);
+
     m_addRunMenu = new QMenu(m_ui->addRunToolButton);
     m_ui->addRunToolButton->setMenu(m_addRunMenu);
     m_ui->runConfigurationCombo->setModel(m_runConfigurationsModel);
@@ -174,10 +179,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
     m_ui->removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);
 
     m_runConfigurationWidget = m_target->activeRunConfiguration()->createConfigurationWidget();
-    QVBoxLayout *runLayout = new QVBoxLayout(m_ui->runWidget);
-    runLayout->setMargin(0);
-    runLayout->setSpacing(0);
-    runLayout->addWidget(m_runConfigurationWidget);
+    m_runLayout->addWidget(m_runConfigurationWidget);
 
     connect(m_addRunMenu, SIGNAL(aboutToShow()),
             this, SLOT(aboutToShowAddMenu()));
@@ -257,7 +259,7 @@ void RunSettingsWidget::activeRunConfigurationChanged()
 
     delete m_runConfigurationWidget;
     m_runConfigurationWidget = m_target->activeRunConfiguration()->createConfigurationWidget();
-    layout()->addWidget(m_runConfigurationWidget);
+    m_runLayout->addWidget(m_runConfigurationWidget);
 }
 
 void RunSettingsWidget::currentRunConfigurationChanged(int index)
@@ -279,7 +281,7 @@ void RunSettingsWidget::currentRunConfigurationChanged(int index)
     // Update the run configuration configuration widget
     delete m_runConfigurationWidget;
     m_runConfigurationWidget = selectedRunConfiguration->createConfigurationWidget();
-    layout()->addWidget(m_runConfigurationWidget);
+    m_runLayout->addWidget(m_runConfigurationWidget);
 }
 
 void RunSettingsWidget::currentDeployConfigurationChanged(int index)
