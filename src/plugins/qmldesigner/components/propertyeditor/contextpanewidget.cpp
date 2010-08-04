@@ -178,9 +178,10 @@ ContextPaneWidget::ContextPaneWidget(QWidget *parent) : DragWidget(parent), m_cu
     addAction(m_resetAction.data());
     connect(m_resetAction.data(), SIGNAL(triggered(bool)), this, SLOT(onResetPosition(bool)));
 
-    QAction *disableAction = new QAction(tr("Disable permanently"), this);
-    addAction(disableAction);
-    connect(disableAction, SIGNAL(triggered()), this, SLOT(onDisable()));
+    m_disableAction = new QAction(tr("Show depending on context"), this);
+    addAction(m_disableAction.data());
+    m_disableAction->setCheckable(true);
+    connect(m_disableAction.data(), SIGNAL(toggled(bool)), this, SLOT(onDisable(bool)));
     m_pinned = false;
 }
 
@@ -205,6 +206,7 @@ void ContextPaneWidget::activate(const QPoint &pos, const QPoint &alternative, c
     rePosition(pos, alternative, alternative2);
     raise();
     m_resetAction->setChecked(Internal::BauhausPlugin::pluginInstance()->settings().pinContextPane);
+    m_disableAction->setChecked(Internal::BauhausPlugin::pluginInstance()->settings().enableContextPane);
 }
 
 void ContextPaneWidget::rePosition(const QPoint &position, const QPoint &alternative, const QPoint &alternative2)
@@ -358,13 +360,15 @@ void ContextPaneWidget::onShowColorDialog(bool checked, const QPoint &p)
     }
 }
 
-void ContextPaneWidget::onDisable()
+void ContextPaneWidget::onDisable(bool b)
 {       
     DesignerSettings designerSettings = Internal::BauhausPlugin::pluginInstance()->settings();
-    designerSettings.enableContextPane = false;
+    designerSettings.enableContextPane = b;
     Internal::BauhausPlugin::pluginInstance()->setSettings(designerSettings);
-    hide();
-    colorDialog()->hide();
+    if (!b) {
+        hide();
+        colorDialog()->hide();
+    }
 }
 
 void  ContextPaneWidget::onResetPosition(bool toggle)

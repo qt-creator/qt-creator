@@ -69,7 +69,7 @@ signals:
     void removeAndChangeProperty(const QString &, const QString &, const QVariant &, bool);
 
 private slots:
-    void onDisable();
+    void onDisable(bool);
     void onResetPosition(bool toggle);
 
 protected:
@@ -95,6 +95,7 @@ private:
     ContextPaneWidgetRectangle *m_rectangleWidget;
     QWeakPointer<BauhausColorDialog> m_bauhausColorDialog;
     QWeakPointer<QAction> m_resetAction;
+    QWeakPointer<QAction> m_disableAction;
     QString m_colorName;
     QPoint m_originalPos;
     bool m_pinned;
