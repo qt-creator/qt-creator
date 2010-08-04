@@ -146,7 +146,10 @@ void MaemoTemplatesManager::createTemplatesIfNecessary(ProjectExplorer::Target *
     const QStringList &files = debianDir.entryList(QDir::Files);
     QStringList filesToAddToProject;
     foreach (const QString &fileName, files) {
-        if (fileName.endsWith(QLatin1String(".ex"), Qt::CaseInsensitive)) {
+        if (fileName.endsWith(QLatin1String(".ex"), Qt::CaseInsensitive)
+            || fileName.compare(QLatin1String("README.debian"), Qt::CaseInsensitive) == 0
+            || fileName.compare(QLatin1String("dirs"), Qt::CaseInsensitive) == 0
+            || fileName.compare(QLatin1String("docs"), Qt::CaseInsensitive) == 0) {
             debianDir.remove(fileName);
         } else
             filesToAddToProject << debianDir.absolutePath()
@@ -185,8 +188,7 @@ QString MaemoTemplatesManager::version(const Project *project,
     QString *error) const
 {
     const QString changeLogFilePath
-        = project->projectDirectory() + QLatin1Char('/') + PackagingDirName
-            + QLatin1String("/debian/changelog");
+        = debianDirPath(project) + QLatin1String("/changelog");
     const QString nativePath = QDir::toNativeSeparators(changeLogFilePath);
     QFile changeLog(changeLogFilePath);
     if (!changeLog.exists()) {
@@ -218,9 +220,8 @@ QString MaemoTemplatesManager::version(const Project *project,
 bool MaemoTemplatesManager::setVersion(const Project *project,
     const QString &version, QString *error) const
 {
-    const QString debianDir = project->projectDirectory() + QLatin1Char('/')
-        + PackagingDirName + QLatin1String("/debian/");
-    const QString changeLogFilePath = debianDir + QLatin1String("changelog");
+    const QString changeLogFilePath
+        = debianDirPath(project) + QLatin1String("/changelog");
     const QString nativePath = QDir::toNativeSeparators(changeLogFilePath);
     QFile changeLog(changeLogFilePath);
     if (!changeLog.exists()) {
@@ -245,6 +246,18 @@ bool MaemoTemplatesManager::setVersion(const Project *project,
         return false;
     }
     return true;
+}
+
+QStringList MaemoTemplatesManager::debianFiles(const Project *project) const
+{
+    return QDir(debianDirPath(project))
+        .entryList(QDir::Files, QDir::Name | QDir::IgnoreCase);
+}
+
+QString MaemoTemplatesManager::debianDirPath(const Project *project) const
+{
+    return project->projectDirectory() + QLatin1Char('/')
+        + PackagingDirName + QLatin1String("/debian");
 }
 
 void MaemoTemplatesManager::raiseError(const QString &reason)

@@ -16,7 +16,7 @@
     <verstretch>1</verstretch>
    </sizepolicy>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_3">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QCheckBox" name="skipCheckBox">
      <property name="toolTip">
@@ -28,27 +28,27 @@
     </widget>
    </item>
    <item>
-    <spacer name="verticalSpacer_2">
+    <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Fixed</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>5</height>
+       <height>40</height>
       </size>
      </property>
     </spacer>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
-     <item>
+    <layout class="QFormLayout" name="formLayout">
+     <property name="fieldGrowthPolicy">
+      <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+     </property>
+     <item row="0" column="0">
       <widget class="QLabel" name="label">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -60,28 +60,12 @@
         </font>
        </property>
        <property name="text">
-        <string>Version number:</string>
+        <string>&lt;b&gt;Version number:&lt;/b&gt;</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="0" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_2">
-       <item>
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>13</width>
-           <height>13</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
        <item>
         <widget class="QLabel" name="label_2">
          <property name="sizePolicy">
@@ -175,20 +159,41 @@
        </item>
       </layout>
      </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="editDebianFileLabel">
+       <property name="text">
+        <string>&lt;b&gt;Adapt Debian file:&lt;/b&gt;</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QComboBox" name="debianFilesComboBox"/>
+       </item>
+       <item>
+        <widget class="QPushButton" name="editDebianFileButton">
+         <property name="text">
+          <string>Edit</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
     </layout>
-   </item>
-   <item>
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
    </item>
   </layout>
  </widget>
@@ -217,8 +222,8 @@
    <slot>versionInfoChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>83</x>
-     <y>73</y>
+     <x>241</x>
+     <y>70</y>
     </hint>
     <hint type="destinationlabel">
      <x>461</x>
@@ -233,8 +238,8 @@
    <slot>versionInfoChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>233</x>
-     <y>94</y>
+     <x>338</x>
+     <y>70</y>
     </hint>
     <hint type="destinationlabel">
      <x>5</x>
@@ -249,12 +254,28 @@
    <slot>versionInfoChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>339</x>
-     <y>94</y>
+     <x>435</x>
+     <y>70</y>
     </hint>
     <hint type="destinationlabel">
      <x>466</x>
      <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editDebianFileButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MaemoPackageCreationWidget</receiver>
+   <slot>editDebianFile()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>293</x>
+     <y>94</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>8</x>
+     <y>86</y>
     </hint>
    </hints>
   </connection>
@@ -264,5 +285,6 @@
   <slot>removeFile()</slot>
   <slot>handleSkipButtonToggled(bool)</slot>
   <slot>versionInfoChanged()</slot>
+  <slot>editDebianFile()</slot>
  </slots>
 </ui>

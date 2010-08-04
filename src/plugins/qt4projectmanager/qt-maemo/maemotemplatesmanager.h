@@ -52,6 +52,9 @@ public:
     bool setVersion(const ProjectExplorer::Project *project,
         const QString &version, QString *error) const;
 
+    QString debianDirPath(const ProjectExplorer::Project *project) const;
+    QStringList debianFiles(const ProjectExplorer::Project *project) const;
+
     static const QLatin1String PackagingDirName;
 
 private slots:

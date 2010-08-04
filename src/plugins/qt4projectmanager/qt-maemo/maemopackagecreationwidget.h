@@ -65,8 +65,9 @@ public:
 
 private slots:
     void handleSkipButtonToggled(bool checked);
+    void editDebianFile();
     void versionInfoChanged();
-    void initVersion();
+    void initGui();
 
 private:
     MaemoPackageCreationStep * const m_step;

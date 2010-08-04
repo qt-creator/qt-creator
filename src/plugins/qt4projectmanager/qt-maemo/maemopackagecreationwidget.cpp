@@ -43,11 +43,13 @@
 #include "ui_maemopackagecreationwidget.h"
 
 #include "maemopackagecreationstep.h"
+#include "maemotemplatesmanager.h"
 
-#include <utils/qtcassert.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QTimer>
 #include <QtGui/QMessageBox>
@@ -63,14 +65,14 @@ MaemoPackageCreationWidget::MaemoPackageCreationWidget(MaemoPackageCreationStep 
     m_ui->setupUi(this);
     m_ui->skipCheckBox->setChecked(!m_step->isPackagingEnabled());
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    QTimer::singleShot(0, this, SLOT(initVersion()));
+    QTimer::singleShot(0, this, SLOT(initGui()));
 }
 
 void MaemoPackageCreationWidget::init()
 {
 }
 
-void MaemoPackageCreationWidget::initVersion()
+void MaemoPackageCreationWidget::initGui()
 {
     QString error;
     QString versionString = m_step->versionString(&error);
@@ -86,6 +88,13 @@ void MaemoPackageCreationWidget::initVersion()
     connect(m_step, SIGNAL(packageFilePathChanged()), this,
         SIGNAL(updateSummary()));
     versionInfoChanged();
+
+    const QStringList &debianFiles = MaemoTemplatesManager::instance()
+        ->debianFiles(m_step->buildConfiguration()->target()->project());
+    foreach (const QString &fileName, debianFiles) {
+        if (fileName != QLatin1String("compat"))
+            m_ui->debianFilesComboBox->addItem(fileName);
+    }
 }
 
 QString MaemoPackageCreationWidget::summaryText() const
@@ -103,6 +112,8 @@ void MaemoPackageCreationWidget::handleSkipButtonToggled(bool checked)
     m_ui->major->setEnabled(!checked);
     m_ui->minor->setEnabled(!checked);
     m_ui->patch->setEnabled(!checked);
+    m_ui->debianFilesComboBox->setEnabled(!checked);
+    m_ui->editDebianFileButton->setEnabled(!checked);
     m_step->setPackagingEnabled(!checked);
 }
 
@@ -114,6 +125,14 @@ void MaemoPackageCreationWidget::versionInfoChanged()
         + m_ui->patch->text(), &error);
     if (!success)
         QMessageBox::critical(this, tr("Could not set version number"), error);
+}
+
+void MaemoPackageCreationWidget::editDebianFile()
+{
+    const QString debianFilePath = MaemoTemplatesManager::instance()
+        ->debianDirPath(m_step->buildConfiguration()->target()->project())
+        + QLatin1Char('/') + m_ui->debianFilesComboBox->currentText();
+    Core::EditorManager::instance()->openEditor(debianFilePath);
 }
 
 } // namespace Internal
