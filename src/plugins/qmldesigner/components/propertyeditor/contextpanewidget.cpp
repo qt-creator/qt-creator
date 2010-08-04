@@ -126,17 +126,6 @@ void DragWidget::protectedMoved()
 
 ContextPaneWidget::ContextPaneWidget(QWidget *parent) : DragWidget(parent), m_currentWidget(0)
 {
-//    setFrameStyle(QFrame::NoFrame);
-//    setFrameShape(QFrame::StyledPanel);
-//    setFrameShadow(QFrame::Sunken);
-//    m_oldPos = QPoint(-1, -1);
-//    m_pos = QPoint(-1, -1);
-
-//    m_dropShadowEffect = new QGraphicsDropShadowEffect;
-//    m_dropShadowEffect->setBlurRadius(6);
-//    m_dropShadowEffect->setOffset(2, 2);
-//    setGraphicsEffect(m_dropShadowEffect);
-
     QGridLayout *layout = new QGridLayout(this);
     layout->setMargin(0);
     layout->setContentsMargins(1, 1, 1, 1);
