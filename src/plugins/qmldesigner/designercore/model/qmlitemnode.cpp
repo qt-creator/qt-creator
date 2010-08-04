@@ -90,13 +90,13 @@ QList<QmlItemNode> QmlItemNode::children() const
         QList<ModelNode> modelNodeList;
 
         if (modelNode().hasProperty("children")) {
-            Q_ASSERT(modelNode().property("children").isNodeListProperty());
-            modelNodeList.append(modelNode().nodeListProperty("children").toModelNodeList());
+            if (modelNode().property("children").isNodeListProperty())
+                modelNodeList.append(modelNode().nodeListProperty("children").toModelNodeList());
         }
 
         if (modelNode().hasProperty("data")) {
-            Q_ASSERT(modelNode().property("data").isNodeListProperty());
-            modelNodeList.append(modelNode().nodeListProperty("data").toModelNodeList());
+            if (modelNode().property("data").isNodeListProperty())
+                modelNodeList.append(modelNode().nodeListProperty("data").toModelNodeList());
         }
 
         foreach (const ModelNode &modelNode, modelNodeList) {
@@ -114,13 +114,13 @@ QList<QmlObjectNode> QmlItemNode::resources() const
     if (isValid()) {
         QList<ModelNode> modelNodeList;
         if (modelNode().hasProperty("resources")) {
-            Q_ASSERT(modelNode().property("resources").isNodeListProperty());
-            modelNodeList.append(modelNode().nodeListProperty("resources").toModelNodeList());
+            if (modelNode().property("resources").isNodeListProperty())
+                modelNodeList.append(modelNode().nodeListProperty("resources").toModelNodeList());
         }
 
         if (modelNode().hasProperty("data")) {
-            Q_ASSERT(modelNode().property("data").isNodeListProperty());
-            modelNodeList.append(modelNode().nodeListProperty("data").toModelNodeList());
+            if (modelNode().property("data").isNodeListProperty())
+                modelNodeList.append(modelNode().nodeListProperty("data").toModelNodeList());
         }
 
         foreach (const ModelNode &node, modelNodeList) {
