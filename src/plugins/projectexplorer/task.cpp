@@ -32,12 +32,10 @@
 namespace ProjectExplorer
 {
 
-unsigned int Task::s_nextId = 0;
+unsigned int Task::s_nextId = 1;
 
-Task::Task() : taskId(s_nextId), type(Unknown), line(-1)
-{
-    ++s_nextId;
-}
+Task::Task() : taskId(0), type(Unknown), line(-1)
+{ }
 
 Task::Task(TaskType type_, const QString &description_,
            const QString &file_, int line_, const QString &category_) :
@@ -46,6 +44,9 @@ Task::Task(TaskType type_, const QString &description_,
 {
     ++s_nextId;
 }
+
+bool Task::isNull() const
+{ return taskId == 0; }
 
 //
 // functions

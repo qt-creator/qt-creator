@@ -52,6 +52,8 @@ public:
     Task(TaskType type_, const QString &description_,
          const QString &file_, int line_, const QString &category_);
 
+    bool isNull() const;
+
     unsigned int taskId;
     TaskType type;
     QString description;
