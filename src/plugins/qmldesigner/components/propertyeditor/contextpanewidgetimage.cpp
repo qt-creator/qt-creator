@@ -520,11 +520,14 @@ void PreviewLabel::paintEvent(QPaintEvent *event)
             pen.setColor("#F0F0F0");
             p.setPen(pen);
 
-            p.drawLine(m_left * m_zoom, 4, m_left * m_zoom, height() - 4);
-            p.drawLine(width() - m_right * m_zoom, 4, width() - m_right * m_zoom, height() - 4);
-
-            p.drawLine(4, m_top * m_zoom, width() - 4, m_top * m_zoom);
-            p.drawLine(4, height() - m_bottom * m_zoom, width() - 4, height() - m_bottom * m_zoom);
+            if (m_left >= 0)
+                p.drawLine(m_left * m_zoom, 4, m_left * m_zoom, height() - 4);
+            if (m_right >= 0)
+                p.drawLine(width() - m_right * m_zoom, 4, width() - m_right * m_zoom, height() - 4);
+            if (m_top >= 0)
+                p.drawLine(4, m_top * m_zoom, width() - 4, m_top * m_zoom);
+            if (m_bottom >= 0)
+                p.drawLine(4, height() - m_bottom * m_zoom, width() - 4, height() - m_bottom * m_zoom);
         }
 
         {
@@ -534,11 +537,14 @@ void PreviewLabel::paintEvent(QPaintEvent *event)
             pen.setColor("#101010");
             p.setPen(pen);
 
-            p.drawLine(m_left * m_zoom, 4, m_left * m_zoom, height() - 4);
-            p.drawLine(width() - m_right * m_zoom, 4, width() - m_right * m_zoom, height() - 4);
-
-            p.drawLine(4, m_top * m_zoom, width() - 4, m_top * m_zoom);
-            p.drawLine(4, height() - m_bottom * m_zoom, width() - 4, height() - m_bottom * m_zoom);
+            if (m_left >= 0)
+                p.drawLine(m_left * m_zoom, 4, m_left * m_zoom, height() - 4);
+            if (m_right >= 0)
+                p.drawLine(width() - m_right * m_zoom, 4, width() - m_right * m_zoom, height() - 4);
+            if (m_top >= 0)
+                p.drawLine(4, m_top * m_zoom, width() - 4, m_top * m_zoom);
+            if (m_bottom >= 0)
+                p.drawLine(4, height() - m_bottom * m_zoom, width() - 4, height() - m_bottom * m_zoom);
         }
     }
 }
