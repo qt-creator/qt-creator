@@ -59,6 +59,7 @@ private:
     QPoint m_startPos;
     int m_zoom;
     bool m_borderImage;
+    QLabel *m_hooverInfo;
 };
 
 class PreviewDialog : public DragWidget

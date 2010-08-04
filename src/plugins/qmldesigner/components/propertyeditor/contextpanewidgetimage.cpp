@@ -184,6 +184,33 @@ void PreviewDialog::setZoom(int z)
 {
     m_zoom = z;
     m_label->setZoom(z);
+    switch (m_zoom) {
+    case 1:
+        m_zoomLabel->setText("100%");
+        m_slider->setValue(1);
+        break;
+    case 2:
+        m_zoomLabel->setText("200%");
+        m_slider->setValue(2);
+        break;
+    case 4:
+        m_zoomLabel->setText("400%");
+        m_slider->setValue(3);
+        break;
+    case 6:
+        m_zoomLabel->setText("600%");
+        m_slider->setValue(4);
+        break;
+    case 8:
+        m_zoomLabel->setText("800%");
+        m_slider->setValue(5);
+        break;
+    case 10:
+        m_zoomLabel->setText("1000%");
+        m_slider->setValue(6);
+        break;
+    default: break;
+    }
     setPixmap(m_pixmap, m_zoom);
 }
 
@@ -446,6 +473,18 @@ PreviewLabel::PreviewLabel(QWidget *parent) : QLabel(parent), m_dragging_top(fal
     m_bottom = 2;
     setMouseTracking(true);
     setCursor(QCursor(Qt::ArrowCursor));
+    m_hooverInfo = new QLabel(parentWidget());
+    m_hooverInfo->hide();
+
+    m_hooverInfo->setFrameShape(QFrame::StyledPanel);
+    m_hooverInfo->setFrameShadow(QFrame::Sunken);
+
+    QGraphicsDropShadowEffect *dropShadowEffect = new QGraphicsDropShadowEffect;
+    dropShadowEffect->setBlurRadius(4);
+    dropShadowEffect->setOffset(2, 2);
+    m_hooverInfo->setGraphicsEffect(dropShadowEffect);
+    m_hooverInfo->setAutoFillBackground(true);
+    m_hooverInfo->raise();
 }
 
 void PreviewLabel::setZoom(int z)
@@ -521,22 +560,33 @@ void PreviewLabel::mousePressEvent(QMouseEvent * event)
             QApplication::setOverrideCursor(QCursor(Qt::SizeHorCursor));
             m_dragging_left = true;
             event->accept();
+            m_hooverInfo->setText("Left " + QString::number(m_left));
+            m_hooverInfo->show();
         } else if (rangeCheck(m_top * m_zoom, event->pos().y())) {
             QApplication::setOverrideCursor(QCursor(Qt::SizeVerCursor));
             m_dragging_top = true;
             event->accept();
+            m_hooverInfo->setText("Top " + QString::number(m_top));
+            m_hooverInfo->show();
         } else if (rangeCheck(m_right * m_zoom, width() - event->pos().x())) {
             QApplication::setOverrideCursor(QCursor(Qt::SizeHorCursor));
             m_dragging_right = true;
             event->accept();
+            m_hooverInfo->setText("Right " + QString::number(m_right));
+            m_hooverInfo->show();
         } else if (rangeCheck(m_bottom * m_zoom, height() - event->pos().y())) {
             QApplication::setOverrideCursor(QCursor(Qt::SizeVerCursor));
             m_dragging_bottom = true;
             event->accept();
+            m_hooverInfo->setText("Bottom " + QString::number(m_bottom));
+            m_hooverInfo->show();
         } else {
             QLabel::mousePressEvent(event);
         }
         m_startPos = event->pos();
+        m_hooverInfo->move(mapToParent(event->pos()) + QPoint(0, 40));
+        m_hooverInfo->resize(m_hooverInfo->sizeHint());
+        m_hooverInfo->raise();
     }
 }
 
@@ -546,7 +596,7 @@ void PreviewLabel::mouseReleaseEvent(QMouseEvent * event)
         return QLabel::mouseMoveEvent(event);
 
     if (m_dragging_left || m_dragging_top || m_dragging_right|| m_dragging_bottom) {
-
+        m_hooverInfo->hide();
         if (m_dragging_left)
             emit leftMarginChanged();
 
@@ -617,57 +667,83 @@ void PreviewLabel::mouseMoveEvent(QMouseEvent * event)
     QPoint p = event->pos();
     if (m_dragging_left) {
         m_left += limit(p.x() - m_startPos.x(), m_zoom);
-        event->accept();       
+        m_left = limitPositive(m_left);
+        event->accept();
+        m_hooverInfo->setText("Left " + QString::number(m_left));
         update();
     } else if (m_dragging_top) {
         m_top += limit(p.y() - m_startPos.y(), m_zoom);
+        m_top = limitPositive(m_top);
         event->accept();
+        m_hooverInfo->setText("Top " + QString::number(m_top));
         update();
     }  else if (m_dragging_right) {
         m_right += limit(m_startPos.x() - p.x(), m_zoom);
-        event->accept();        
+        m_right = limitPositive(m_right);
+        event->accept();
+        m_hooverInfo->setText("Right " + QString::number(m_right));
         update();
     } else if (m_dragging_bottom) {
         m_bottom += limit(m_startPos.y() - p.y(), m_zoom);
-        event->accept();        
+        m_bottom = limitPositive(m_bottom);
+        event->accept();
+        m_hooverInfo->setText("Bottom " + QString::number(m_bottom));
         update();
     } else if (rangeCheck(m_left * m_zoom, p.x())) {
         QApplication::setOverrideCursor(QCursor(Qt::SizeHorCursor));
         event->accept();
+        m_hooverInfo->setText("Left " + QString::number(m_left));
+        m_hooverInfo->show();
     } else if (rangeCheck(m_top * m_zoom, p.y())) {
         QApplication::setOverrideCursor(QCursor(Qt::SizeVerCursor));
         event->accept();
+        m_hooverInfo->setText("Top " + QString::number(m_top));
+        m_hooverInfo->show();
     } else if (rangeCheck(m_right * m_zoom, width() - p.x())) {
         QApplication::setOverrideCursor(QCursor(Qt::SizeHorCursor));
         event->accept();
+        m_hooverInfo->setText("Right " + QString::number(m_right));
+        m_hooverInfo->show();
     } else if (rangeCheck(m_bottom * m_zoom, height() - p.y())) {
         QApplication::setOverrideCursor(QCursor(Qt::SizeVerCursor));
         event->accept();
+        m_hooverInfo->setText("Bottom " + QString::number(m_bottom));
+        m_hooverInfo->show();
     } else {
         if (QApplication::overrideCursor())
             QApplication::restoreOverrideCursor();
         QLabel::mouseMoveEvent(event);
+        m_hooverInfo->hide();
     }
     m_startPos = p;
+    m_hooverInfo->move(mapToParent(p) + QPoint(0, 40));
+    m_hooverInfo->resize(m_hooverInfo->sizeHint());
+    m_hooverInfo->raise();
 }
 
 void PreviewLabel::leaveEvent(QEvent* event )
 {
     while (QApplication::overrideCursor())
         QApplication::restoreOverrideCursor();
+    m_hooverInfo->hide();
     QLabel::leaveEvent(event);
 }
 
 PreviewDialog::PreviewDialog(QWidget *parent) : DragWidget(parent)
 {
-    m_zoom = 1;
     m_borderImage = false;
     setAutoFillBackground(true);
 
     m_label = new PreviewLabel(this);
     m_slider = new QSlider(this);
 
-    QGridLayout *layout = new QGridLayout(this);
+    m_zoomLabel = new QLabel(this);
+
+    setZoom(1);
+
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    QHBoxLayout *horizontalLayout = new QHBoxLayout();
+    QHBoxLayout *horizontalLayout2 = new QHBoxLayout();
     layout->setMargin(0);
     layout->setContentsMargins(2, 2, 2, 6);
     layout->setSpacing(4);
@@ -677,20 +753,31 @@ PreviewDialog::PreviewDialog(QWidget *parent) : DragWidget(parent)
     toolButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
     toolButton->setFixedSize(icon.availableSizes().value(0) + QSize(4, 4));
     connect(toolButton, SIGNAL(clicked()), this, SLOT(onTogglePane()));
-    layout->addWidget(toolButton, 0, 0, 1, 1);        
 
     QScrollArea *scrollArea = new QScrollArea(this);
     WheelFilter *wheelFilter = new WheelFilter(scrollArea);
-    //scrollArea->installEventFilter(wheelFilter);
     scrollArea->setWidget(m_label);
     scrollArea->setFrameStyle(QFrame::NoFrame);
     m_slider->setOrientation(Qt::Horizontal);
-    m_slider->setMaximumWidth(120);
-    //layout->addItem(new QSpacerItem(10, 10), 0, 1, 1, 1);
-    layout->addWidget(m_slider, 0, 1, 1, 2);
-    layout->addWidget(scrollArea, 1, 1, 2, 2);
+    m_slider->setRange(1, 6);
+    m_slider->setFixedWidth(80);
+    m_zoomLabel->setFixedWidth(50);
+
+    horizontalLayout->addWidget(toolButton);
+    horizontalLayout->addSpacing(6);
+    horizontalLayout->addWidget(m_slider);
+    horizontalLayout->addSpacing(6);
+    horizontalLayout->addWidget(m_zoomLabel);
+    horizontalLayout->addStretch(1);
+
+    layout->addLayout(horizontalLayout);
+    horizontalLayout2->addSpacing(24);
+    horizontalLayout2->addWidget(scrollArea);
+    layout->addLayout(horizontalLayout2);
 
     wheelFilter->setTarget(this);
+
+    connect(m_slider, SIGNAL(valueChanged(int)), this, SLOT(onSliderMoved(int)));
 
     foreach (QWidget *childWidget, findChildren<QWidget*>()) {
         childWidget->installEventFilter(wheelFilter);
