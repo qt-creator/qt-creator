@@ -435,7 +435,7 @@ void ContextPaneWidget::setPinButton()
 
     m_toolButton->setIcon(QPixmap::fromImage(QImage(pin_xpm)));
     m_toolButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-    m_toolButton->setFixedSize(16, 16);
+    m_toolButton->setFixedSize(20, 20);
     m_toolButton->setToolTip(tr("Unpins the toolbar. The toolbar will be moved to its default position."));
 
     DesignerSettings designerSettings = Internal::BauhausPlugin::pluginInstance()->settings();
@@ -454,7 +454,7 @@ void ContextPaneWidget::setLineButton()
     m_toolButton->setAutoRaise(true);
     m_toolButton->setIcon(QPixmap::fromImage(QImage(line_xpm)));
     m_toolButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-    m_toolButton->setFixedSize(16, 16);
+    m_toolButton->setFixedSize(20, 20);
     m_toolButton->setToolTip(tr("Hides this toolbar. This toolbar can be permantly disabled in the options or in the context menu."));
 
     DesignerSettings designerSettings = Internal::BauhausPlugin::pluginInstance()->settings();
