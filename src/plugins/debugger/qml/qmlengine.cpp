@@ -166,6 +166,7 @@ void QmlEngine::interruptInferior()
     QDataStream rs(&reply, QIODevice::WriteOnly);
     rs << QByteArray("INTERRUPT");
     sendMessage(reply);
+    notifyInferiorStopOk();
 }
 
 void QmlEngine::executeStep()
