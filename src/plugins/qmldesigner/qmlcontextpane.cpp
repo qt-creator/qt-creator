@@ -66,9 +66,9 @@ QmlContextPane::~QmlContextPane()
         m_widget.clear();
 }
 
-void QmlContextPane::apply(TextEditor::BaseTextEditorEditable *editor, Document::Ptr doc, const QmlJS::Snapshot &snapshot, AST::Node *node, bool update)
+void QmlContextPane::apply(TextEditor::BaseTextEditorEditable *editor, Document::Ptr doc, const QmlJS::Snapshot &snapshot, AST::Node *node, bool update, bool force)
 {
-    if (!Internal::BauhausPlugin::pluginInstance()->settings().enableContextPane)
+    if (!Internal::BauhausPlugin::pluginInstance()->settings().enableContextPane && !force)
         return;
 
     if (doc.isNull())
