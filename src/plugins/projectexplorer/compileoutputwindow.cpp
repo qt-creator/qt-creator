@@ -174,7 +174,7 @@ void CompileOutputWindow::registerPositionOf(const Task &task)
     int blocknumber = m_outputWindow->blockCount();
     if (blocknumber > MAX_LINECOUNT)
         return;
-    m_taskPositions.insert(task.taskId, blocknumber - 1);
+    m_taskPositions.insert(task.taskId, blocknumber);
 }
 
 bool CompileOutputWindow::knowsPositionOf(const Task &task)
