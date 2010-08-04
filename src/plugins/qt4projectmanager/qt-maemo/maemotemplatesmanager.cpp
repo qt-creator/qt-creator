@@ -43,6 +43,7 @@
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
+#include <QtCore/QFileSystemWatcher>
 #include <QtCore/QList>
 #include <QtCore/QProcess>
 #include <QtGui/QMessageBox>
@@ -65,7 +66,7 @@ MaemoTemplatesManager *MaemoTemplatesManager::instance(QObject *parent)
 }
 
 MaemoTemplatesManager::MaemoTemplatesManager(QObject *parent) :
-    QObject(parent), m_activeProject(0)
+    QObject(parent), m_activeProject(0), m_fsWatcher(0)
 {
     SessionManager * const session
         = ProjectExplorerPlugin::instance()->session();
@@ -78,6 +79,8 @@ void MaemoTemplatesManager::handleActiveProjectChanged(ProjectExplorer::Project 
 {
     if (m_activeProject)
         disconnect(m_activeProject, 0, this, 0);
+    delete m_fsWatcher;
+    m_fsWatcher = 0;
     m_activeProject= project;
     if (m_activeProject) {
         connect(m_activeProject, SIGNAL(addedTarget(ProjectExplorer::Target*)),
@@ -88,6 +91,17 @@ void MaemoTemplatesManager::handleActiveProjectChanged(ProjectExplorer::Project 
         const QList<Target *> &targets = m_activeProject->targets();
         foreach (Target * const target, targets)
             createTemplatesIfNecessary(target);
+        m_fsWatcher = new QFileSystemWatcher(this);
+        const QString &debianPath = debianDirPath(m_activeProject);
+        const QString changeLogPath = debianPath + QLatin1String("/changelog");
+        m_fsWatcher->addPath(debianPath);
+        m_fsWatcher->addPath(changeLogPath);
+        connect(m_fsWatcher, SIGNAL(directoryChanged(QString)), this,
+            SLOT(handleDebianDirContentsChanged()));
+        connect(m_fsWatcher, SIGNAL(fileChanged(QString)), this,
+            SLOT(handleChangeLogChanged()));
+        handleDebianDirContentsChanged();
+        handleChangeLogChanged();
     }
 }
 
@@ -263,6 +277,16 @@ QString MaemoTemplatesManager::debianDirPath(const Project *project) const
 void MaemoTemplatesManager::raiseError(const QString &reason)
 {
     QMessageBox::critical(0, tr("Error creating Maemo templates"), reason);
+}
+
+void MaemoTemplatesManager::handleChangeLogChanged()
+{
+    emit changeLogChanged(m_activeProject);
+}
+
+void MaemoTemplatesManager::handleDebianDirContentsChanged()
+{
+    emit debianDirContentsChanged(m_activeProject);
 }
 
 } // namespace Internal

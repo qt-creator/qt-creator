@@ -32,6 +32,8 @@
 
 #include <QtCore/QObject>
 
+QT_FORWARD_DECLARE_CLASS(QFileSystemWatcher);
+
 namespace ProjectExplorer {
 class Project;
 class Target;
@@ -57,9 +59,15 @@ public:
 
     static const QLatin1String PackagingDirName;
 
+signals:
+    void debianDirContentsChanged(const ProjectExplorer::Project *project);
+    void changeLogChanged(const ProjectExplorer::Project *project);
+
 private slots:
     void handleActiveProjectChanged(ProjectExplorer::Project *project);
     void createTemplatesIfNecessary(ProjectExplorer::Target *target);
+    void handleDebianDirContentsChanged();
+    void handleChangeLogChanged();
 
 private:
     explicit MaemoTemplatesManager(QObject *parent);
@@ -67,6 +75,7 @@ private:
 
     static MaemoTemplatesManager *m_instance;
     ProjectExplorer::Project *m_activeProject;
+    QFileSystemWatcher *m_fsWatcher;
 };
 
 } // namespace Internal

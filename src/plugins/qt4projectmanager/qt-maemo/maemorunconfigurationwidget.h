@@ -97,7 +97,8 @@ private:
 
     QLineEdit *m_configNameLineEdit;
     QLineEdit *m_argsLineEdit;
-    QLabel *m_executableLabel;
+    QLabel *m_localExecutableLabel;
+    QLabel *m_remoteExecutableLabel;
     QComboBox *m_devConfBox;
     QTableView *m_mountView;
     QToolButton *m_removeMountButton;

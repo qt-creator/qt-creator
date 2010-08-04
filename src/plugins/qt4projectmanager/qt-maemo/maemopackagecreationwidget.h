@@ -68,6 +68,8 @@ private slots:
     void editDebianFile();
     void versionInfoChanged();
     void initGui();
+    void updateDebianFileList(const ProjectExplorer::Project *project);
+    void updateVersionInfo(const ProjectExplorer::Project *project);
 
 private:
     MaemoPackageCreationStep * const m_step;

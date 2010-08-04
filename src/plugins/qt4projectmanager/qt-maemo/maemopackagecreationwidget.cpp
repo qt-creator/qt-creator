@@ -74,6 +74,40 @@ void MaemoPackageCreationWidget::init()
 
 void MaemoPackageCreationWidget::initGui()
 {
+    const ProjectExplorer::Project * const project
+        = m_step->buildConfiguration()->target()->project();
+    updateDebianFileList(project);
+    updateVersionInfo(project);
+    connect(m_step, SIGNAL(packageFilePathChanged()), this,
+        SIGNAL(updateSummary()));
+    versionInfoChanged();
+    connect(MaemoTemplatesManager::instance(),
+        SIGNAL(debianDirContentsChanged(const ProjectExplorer::Project*)),
+        this, SLOT(updateDebianFileList(const ProjectExplorer::Project*)));
+    connect(MaemoTemplatesManager::instance(),
+        SIGNAL(changeLogChanged(const ProjectExplorer::Project*)), this,
+        SLOT(updateVersionInfo(const ProjectExplorer::Project*)));
+}
+
+void MaemoPackageCreationWidget::updateDebianFileList(const ProjectExplorer::Project *project)
+{
+    const ProjectExplorer::Project * const ourProject
+        = m_step->buildConfiguration()->target()->project();
+    if (ourProject == project)
+        m_ui->debianFilesComboBox->clear();
+        const QStringList &debianFiles = MaemoTemplatesManager::instance()
+            ->debianFiles(project);
+        foreach (const QString &fileName, debianFiles) {
+            if (fileName != QLatin1String("compat"))
+                m_ui->debianFilesComboBox->addItem(fileName);
+        }
+}
+
+void MaemoPackageCreationWidget::updateVersionInfo(const ProjectExplorer::Project *project)
+{
+    if (project != m_step->buildConfiguration()->target()->project())
+        return;
+
     QString error;
     QString versionString = m_step->versionString(&error);
     if (versionString.isEmpty()) {
@@ -85,16 +119,6 @@ void MaemoPackageCreationWidget::initGui()
     m_ui->major->setValue(list.value(0, QLatin1String("0")).toInt());
     m_ui->minor->setValue(list.value(1, QLatin1String("0")).toInt());
     m_ui->patch->setValue(list.value(2, QLatin1String("0")).toInt());
-    connect(m_step, SIGNAL(packageFilePathChanged()), this,
-        SIGNAL(updateSummary()));
-    versionInfoChanged();
-
-    const QStringList &debianFiles = MaemoTemplatesManager::instance()
-        ->debianFiles(m_step->buildConfiguration()->target()->project());
-    foreach (const QString &fileName, debianFiles) {
-        if (fileName != QLatin1String("compat"))
-            m_ui->debianFilesComboBox->addItem(fileName);
-    }
 }
 
 QString MaemoPackageCreationWidget::summaryText() const

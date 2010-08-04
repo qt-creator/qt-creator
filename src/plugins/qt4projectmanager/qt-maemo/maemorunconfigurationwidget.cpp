@@ -34,6 +34,8 @@
 
 #include "maemorunconfigurationwidget.h"
 
+#include "maemodeployables.h"
+#include "maemodeploystep.h"
 #include "maemodeviceconfiglistmodel.h"
 #include "maemodeviceenvreader.h"
 #include "maemomanager.h"
@@ -104,8 +106,12 @@ void MaemoRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
     devConfLayout->addWidget(debuggerConfLabel);
 
     formLayout->addRow(new QLabel(tr("Device configuration:")), devConfWidget);
-    m_executableLabel = new QLabel(m_runConfiguration->localExecutableFilePath());
-    formLayout->addRow(tr("Executable:"), m_executableLabel);
+    m_localExecutableLabel
+        = new QLabel(m_runConfiguration->localExecutableFilePath());
+    formLayout->addRow(tr("Executable on host:"), m_localExecutableLabel);
+    m_remoteExecutableLabel
+        = new QLabel(m_runConfiguration->remoteExecutableFilePath());
+    formLayout->addRow(tr("Executable on device:"), m_remoteExecutableLabel);
     m_argsLineEdit = new QLineEdit(m_runConfiguration->arguments().join(" "));
     formLayout->addRow(tr("Arguments:"), m_argsLineEdit);
 
@@ -123,6 +129,8 @@ void MaemoRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
         this, SLOT(handleCurrentDeviceConfigChanged()));
     connect(m_runConfiguration, SIGNAL(targetInformationChanged()), this,
         SLOT(updateTargetInformation()));
+    connect(m_runConfiguration->deployStep()->deployables(),
+        SIGNAL(modelsCreated()), this, SLOT(updateTargetInformation()));
     handleCurrentDeviceConfigChanged();
 }
 
@@ -248,7 +256,8 @@ void MaemoRunConfigurationWidget::argumentsEdited(const QString &text)
 
 void MaemoRunConfigurationWidget::updateTargetInformation()
 {
-    m_executableLabel->setText(m_runConfiguration->localExecutableFilePath());
+    m_localExecutableLabel->setText(m_runConfiguration->localExecutableFilePath());
+    m_remoteExecutableLabel->setText(m_runConfiguration->remoteExecutableFilePath());
 }
 
 void MaemoRunConfigurationWidget::showSettingsDialog(const QString &link)
