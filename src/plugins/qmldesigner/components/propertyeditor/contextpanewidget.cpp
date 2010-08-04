@@ -39,7 +39,7 @@ static const char * const line_xpm[] = {
         "............"};
 
 /* XPM */
-static char * pin_xpm[] = {
+static const char * pin_xpm[] = {
 "12 9 7 1",
 " 	c None",
 ".	c #000000",
