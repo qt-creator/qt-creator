@@ -167,6 +167,9 @@ public:
     QStringList filteredCategories() const { return m_categoryIds; }
     void setFilteredCategories(const QStringList &categoryIds) { m_categoryIds = categoryIds; invalidateFilter(); }
 
+    Task task(const QModelIndex &index) const
+    { return static_cast<TaskModel *>(sourceModel())->task(mapToSource(index)); }
+
 protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
 
@@ -400,6 +403,8 @@ QVariant TaskModel::data(const QModelIndex &index, int role) const
 
 Task TaskModel::task(const QModelIndex &index) const
 {
+    if (!index.isValid())
+        return Task();
     return m_tasks.at(index.row());
 }
 
@@ -649,7 +654,10 @@ void TaskWindow::triggerDefaultHandler(const QModelIndex &index)
         }
     }
     Q_ASSERT(d->m_defaultHandler);
-    Task task(d->m_model->task(index));
+    Task task(d->m_filter->task(index));
+    if (task.isNull())
+        return;
+
     if (d->m_defaultHandler->canHandle(task)) {
         d->m_defaultHandler->handle(task);
     } else {
@@ -666,7 +674,9 @@ void TaskWindow::showContextMenu(const QPoint &position)
     d->m_contextMenuIndex = index;
     cleanContextMenu();
 
-    Task task = d->m_model->task(index);
+    Task task = d->m_filter->task(index);
+    if (task.isNull())
+        return;
 
     QList<ITaskHandler *> handlers = ExtensionSystem::PluginManager::instance()->getObjects<ITaskHandler>();
     foreach(ITaskHandler *handler, handlers) {
@@ -683,7 +693,10 @@ void TaskWindow::showContextMenu(const QPoint &position)
 void TaskWindow::contextMenuEntryTriggered(QAction *action)
 {
     if (action->isEnabled()) {
-        Task task = d->m_model->task(d->m_contextMenuIndex);
+        Task task = d->m_filter->task(d->m_contextMenuIndex);
+        if (task.isNull())
+            return;
+
         ITaskHandler *handler = qobject_cast<ITaskHandler*>(action->data().value<QObject*>());
         if (!handler)
             return;
