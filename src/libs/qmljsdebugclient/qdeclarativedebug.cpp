@@ -59,9 +59,9 @@ private:
     QDeclarativeEngineDebugPrivate *priv;
 };
 
-class QDeclarativeEngineDebugPrivate : public QObjectPrivate
+class QDeclarativeEngineDebugPrivate
 {
-    Q_DECLARE_PUBLIC(QDeclarativeEngineDebug)
+//    Q_DECLARE_PUBLIC(QDeclarativeEngineDebug)
 public:
     QDeclarativeEngineDebugPrivate(QDeclarativeDebugConnection *);
 
@@ -377,9 +377,10 @@ void QDeclarativeEngineDebugPrivate::message(const QByteArray &data)
 }
 
 QDeclarativeEngineDebug::QDeclarativeEngineDebug(QDeclarativeDebugConnection *client, QObject *parent)
-: QObject(*(new QDeclarativeEngineDebugPrivate(client)), parent)
+: QObject(parent), d_ptr(new QDeclarativeEngineDebugPrivate(client))
 {
 }
+QDeclarativeEngineDebug::~QDeclarativeEngineDebug() {}
 
 QDeclarativeDebugPropertyWatch *QDeclarativeEngineDebug::addWatch(const QDeclarativeDebugPropertyReference &property, QObject *parent)
 {

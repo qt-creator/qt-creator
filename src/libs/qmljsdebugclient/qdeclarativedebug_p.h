@@ -70,6 +70,7 @@ class QDeclarativeEngineDebug : public QObject
 Q_OBJECT
 public:
     QDeclarativeEngineDebug(QDeclarativeDebugConnection *, QObject * = 0);
+    ~QDeclarativeEngineDebug();
 
     QDeclarativeDebugPropertyWatch *addWatch(const QDeclarativeDebugPropertyReference &,
                             QObject *parent = 0);
@@ -101,6 +102,8 @@ public:
 
 private:
     Q_DECLARE_PRIVATE(QDeclarativeEngineDebug)
+    Q_DISABLE_COPY(QDeclarativeEngineDebug)
+    QScopedPointer<QDeclarativeEngineDebugPrivate> d_ptr;
 };
 
 
