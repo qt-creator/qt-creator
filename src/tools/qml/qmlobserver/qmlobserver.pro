@@ -4,18 +4,16 @@ QT += declarative
 include(qml.pri)
 
 SOURCES += main.cpp 
+include(../../../../qtcreator.pri)
 
-# hack to get qtLibraryTarget macro working
-TEMPLATE +=lib
 include(../../../libs/qmljsdebugger/qmljsdebugger.pri)
 include(../../../libs/utils/utils.pri)
 mac {
-    qmljsLibraryTarget = $$qtLibraryTarget(QmlJSDebugger)
-    utilsLibraryTarget = $$qtLibraryTarget(Utils)
+    qmljsLibraryTarget = $$qtLibraryName(QmlJSDebugger)
+    utilsLibraryTarget = $$qtLibraryName(Utils)
 }
-TEMPLATE -=lib
 
-include(../../../../qtcreator.pri)
+
 include(../../../private_headers.pri)
 DESTDIR = $$IDE_BIN_PATH
 include(../../../rpath.pri)
