@@ -43,8 +43,6 @@
 
 #include "qdeclarativedebugclient_p.h"
 
-#include <private/qobject_p.h>
-
 namespace QmlJsDebugClient {
 
 class QDeclarativeEngineDebugClient : public QDeclarativeDebugClient
@@ -112,7 +110,7 @@ int QDeclarativeEngineDebugPrivate::getId()
 void QDeclarativeEngineDebugPrivate::remove(QDeclarativeEngineDebug *c, QDeclarativeDebugEnginesQuery *q)
 {
     if (c && q) {
-        QDeclarativeEngineDebugPrivate *p = (QDeclarativeEngineDebugPrivate *)QObjectPrivate::get(c);
+        QDeclarativeEngineDebugPrivate *p = c->d_func();
         p->enginesQuery.remove(q->m_queryId);
     }
 }
@@ -121,7 +119,7 @@ void QDeclarativeEngineDebugPrivate::remove(QDeclarativeEngineDebug *c,
                                    QDeclarativeDebugRootContextQuery *q)
 {
     if (c && q) {
-        QDeclarativeEngineDebugPrivate *p = (QDeclarativeEngineDebugPrivate *)QObjectPrivate::get(c);
+        QDeclarativeEngineDebugPrivate *p = c->d_func();
         p->rootContextQuery.remove(q->m_queryId);
     }
 }
@@ -129,7 +127,7 @@ void QDeclarativeEngineDebugPrivate::remove(QDeclarativeEngineDebug *c,
 void QDeclarativeEngineDebugPrivate::remove(QDeclarativeEngineDebug *c, QDeclarativeDebugObjectQuery *q)
 {
     if (c && q) {
-        QDeclarativeEngineDebugPrivate *p = (QDeclarativeEngineDebugPrivate *)QObjectPrivate::get(c);
+        QDeclarativeEngineDebugPrivate *p = c->d_func();
         p->objectQuery.remove(q->m_queryId);
     }
 }
@@ -137,7 +135,7 @@ void QDeclarativeEngineDebugPrivate::remove(QDeclarativeEngineDebug *c, QDeclara
 void QDeclarativeEngineDebugPrivate::remove(QDeclarativeEngineDebug *c, QDeclarativeDebugExpressionQuery *q)
 {
     if (c && q) {
-        QDeclarativeEngineDebugPrivate *p = (QDeclarativeEngineDebugPrivate *)QObjectPrivate::get(c);
+        QDeclarativeEngineDebugPrivate *p = c->d_func();
         p->expressionQuery.remove(q->m_queryId);
     }
 }
