@@ -274,9 +274,7 @@ QByteArray QmlStandaloneApp::generateProFile(const QString *errorMessage) const
     do {
         line = in.readLine();
 
-        if (line.contains(QLatin1String("# MAINQML"))) {
-            valueOnNextLine = path(MainQml, AppProfileRelative);
-        } else if (line.contains(QLatin1String("# TARGETUID3"))) {
+        if (line.contains(QLatin1String("# TARGETUID3"))) {
             valueOnNextLine = symbianTargetUid();
         } else if (line.contains(QLatin1String("# DEPLOYMENTFOLDERS"))) {
             // Eat lines
