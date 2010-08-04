@@ -48,25 +48,34 @@ class DefinitionDownloader : public QObject
 public:
     DefinitionDownloader(const QUrl &url, const QString &localPath);
 
-    void start();
+    enum Status {
+        NetworkError,
+        WriteError,
+        Ok,
+        Unknown
+    };
+
+    void run();
+    Status status() const;
 
 private:
     QNetworkReply *getData(QNetworkAccessManager *manager) const;
-    void saveData(QNetworkReply *reply) const;
+    void saveData(QNetworkReply *reply);
 
     QUrl m_url;
     QString m_localPath;
+    Status m_status;
 };
 
 // Currently QtConcurrent::map does not support passing member functions for sequence of pointers
 // (only works for operator.*) which is the case for the downloaders held by the manager. Then the
 // reason for the following functor. If something is implemented (for example a type traits) to
 // handle operator->* in QtConcurrent::map this functor will not be necessary since it would be
-// possible to directly pass DefinitionDownloader::start.
+// possible to directly pass DefinitionDownloader::run.
 struct DownloaderStarter
 {
     void operator()(DefinitionDownloader *downloader)
-    { downloader->start(); }
+    { downloader->run(); }
 };
 
 } // namespace Internal

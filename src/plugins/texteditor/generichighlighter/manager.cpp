@@ -58,6 +58,7 @@
 #include <QtCore/QtConcurrentMap>
 #include <QtCore/QUrl>
 #include <QtGui/QDesktopServices>
+#include <QtGui/QMessageBox>
 #include <QtXml/QXmlSimpleReader>
 #include <QtXml/QXmlInputSource>
 #include <QtXml/QXmlStreamReader>
@@ -289,6 +290,14 @@ void Manager::downloadDefinitions(const QList<QUrl> &urls)
         TextEditorSettings::instance()->highlighterSettings().definitionFilesPath() +
         QLatin1Char('/');
 
+    QDir saveDir(savePath);
+    if (!saveDir.exists()) {
+        QMessageBox::critical(0,
+                              tr("Error"),
+                              tr("Please make sure the destination directory exists."));
+        return;
+    }
+
     m_downloaders.clear();
     foreach (const QUrl &url, urls)
         m_downloaders.append(new DefinitionDownloader(url, savePath));
@@ -303,8 +312,28 @@ void Manager::downloadDefinitions(const QList<QUrl> &urls)
 
 void Manager::downloadDefinitionsFinished()
 {
-    foreach (DefinitionDownloader *downloader, m_downloaders)
+    int errors = 0;
+    bool writeError = false;
+    foreach (DefinitionDownloader *downloader, m_downloaders) {
+        DefinitionDownloader::Status status = downloader->status();
+        if (status != DefinitionDownloader::Ok) {
+            ++errors;
+            if (status == DefinitionDownloader::WriteError && !writeError)
+                writeError = true;
+        }
         delete downloader;
+    }
+
+    if (errors > 0) {
+        QString text;
+        if (errors == m_downloaders.size())
+            text = tr("Error downloading selected definition(s).");
+        else
+            text = tr("Error downloading one or more definitions.");
+        if (writeError)
+            text.append(tr("\nPlease check the directory's access rights."));
+        QMessageBox::critical(0, tr("Download Error"), text);
+    }
 
     registerMimeTypes();
     m_downloadingDefinitions = false;

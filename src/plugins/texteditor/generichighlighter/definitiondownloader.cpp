@@ -32,6 +32,7 @@
 #include <QtCore/QLatin1Char>
 #include <QtCore/QEventLoop>
 #include <QtCore/QFile>
+#include <QtCore/QScopedPointer>
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkReply>
@@ -40,33 +41,31 @@ using namespace TextEditor;
 using namespace Internal;
 
 DefinitionDownloader::DefinitionDownloader(const QUrl &url, const QString &localPath) :
-    m_url(url), m_localPath(localPath)
+    m_url(url), m_localPath(localPath), m_status(Unknown)
 {}
 
-void DefinitionDownloader::start()
+void DefinitionDownloader::run()
 {
-    QNetworkReply *reply;
     QNetworkAccessManager manager;
 
     int currentAttempt = 0;
     const int maxAttempts = 5;
     while (currentAttempt < maxAttempts) {
-        reply = getData(&manager);
-        if (reply->error() != QNetworkReply::NoError)
-            break;
+        QScopedPointer<QNetworkReply> reply(getData(&manager));
+        if (reply->error() != QNetworkReply::NoError) {
+            m_status = NetworkError;
+            return;
+        }
 
         ++currentAttempt;
         QVariant variant = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
         if (variant.isValid() && currentAttempt < maxAttempts) {
             m_url = variant.toUrl();
-            delete reply;
         } else if (!variant.isValid()) {
-            saveData(reply);
-            break;
+            saveData(reply.data());
+            return;
         }
     }
-
-    delete reply;
 }
 
 QNetworkReply *DefinitionDownloader::getData(QNetworkAccessManager *manager) const
@@ -81,14 +80,20 @@ QNetworkReply *DefinitionDownloader::getData(QNetworkAccessManager *manager) con
     return reply;
 }
 
-void DefinitionDownloader::saveData(QNetworkReply *reply) const
+void DefinitionDownloader::saveData(QNetworkReply *reply)
 {
     const QString &urlPath = m_url.path();
     const QString &fileName =
         urlPath.right(urlPath.length() - urlPath.lastIndexOf(QLatin1Char('/')) - 1);
     QFile file(m_localPath + fileName);
-    if (!file.open(QIODevice::Text | QIODevice::WriteOnly))
-        return;
-    file.write(reply->readAll());
-    file.close();
+    if (file.open(QIODevice::Text | QIODevice::WriteOnly)) {
+        file.write(reply->readAll());
+        file.close();
+        m_status = Ok;
+    } else {
+        m_status = WriteError;
+    }
 }
+
+DefinitionDownloader::Status DefinitionDownloader::status() const
+{ return m_status; }
