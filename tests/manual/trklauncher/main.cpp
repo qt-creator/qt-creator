@@ -138,7 +138,7 @@ static TrkLauncherPtr parseArguments(const QStringList &arguments, bool *bluetoo
     case Install:
         if (remainingArgsCount == 3 || remainingArgsCount == 2) {
             TrkLauncherPtr launcher = createLauncher(actions, arguments.at(a), serialFrame, verbosity);
-            launcher->setInstallFileName(arguments.at(a + 1));
+            launcher->setInstallFileNames(QStringList() << arguments.at(a + 1));
             if (remainingArgsCount == 3) {
                 launcher->addStartupActions(trk::Launcher::ActionRun);
                 launcher->setFileName(arguments.at(a + 2));
@@ -150,8 +150,8 @@ static TrkLauncherPtr parseArguments(const QStringList &arguments, bool *bluetoo
     case CustomInstall:
         if (remainingArgsCount == 4 || remainingArgsCount == 3) {
             TrkLauncherPtr launcher = createLauncher(actions, arguments.at(a), serialFrame, verbosity);
-            launcher->setCopyFileName(arguments.at(a + 1), arguments.at(a + 2));
-            launcher->setInstallFileName(arguments.at(a + 2));
+            launcher->setCopyFileNames(QStringList() << arguments.at(a + 1), QStringList() << arguments.at(a + 2));
+            launcher->setInstallFileNames(QStringList() << arguments.at(a + 2));
             if (remainingArgsCount == 4) {
                 launcher->addStartupActions(trk::Launcher::ActionRun);
                 launcher->setFileName(arguments.at(a + 3));
@@ -163,7 +163,7 @@ static TrkLauncherPtr parseArguments(const QStringList &arguments, bool *bluetoo
     case Copy:
         if (remainingArgsCount == 3) {
             TrkLauncherPtr launcher = createLauncher(actions, arguments.at(a), serialFrame, verbosity);
-            launcher->setCopyFileName(arguments.at(a + 1), arguments.at(a + 2));
+            launcher->setCopyFileNames(QStringList() << arguments.at(a + 1), QStringList() << arguments.at(a + 2));
             return launcher;
         }
         break;
