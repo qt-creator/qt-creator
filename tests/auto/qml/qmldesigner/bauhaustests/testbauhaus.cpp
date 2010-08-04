@@ -50,7 +50,7 @@ TestBauhaus::TestBauhaus()
 #ifdef Q_OS_WIN
     m_executable = m_creatorDir + "/bin/qtcreator.exe";
 #else
-    m_executable = m_creatorDir + "/bin/qtcreator.bin";
+    m_executable = m_creatorDir + "/bin/qtcreator";
 #endif
 
     Q_ASSERT(QFileInfo(m_executable).exists());
