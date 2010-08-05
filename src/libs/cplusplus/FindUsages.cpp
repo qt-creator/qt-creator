@@ -120,14 +120,6 @@ QString FindUsages::matchingLine(const Token &tk) const
     return matchingLine;
 }
 
-Scope *FindUsages::scopeAt(unsigned tokenIndex) const
-{
-    TranslationUnit *unit = _doc->translationUnit();
-    unsigned line, column;
-    unit->getTokenPosition(tokenIndex, &line, &column);
-    return _doc->scopeAt(line, column);
-}
-
 void FindUsages::reportResult(unsigned tokenIndex, const QList<LookupItem> &candidates)
 {
     if (_processed.contains(tokenIndex))
@@ -214,11 +206,23 @@ void FindUsages::ensureNameIsValid(NameAST *ast)
         ast->name = _sem.check(ast, /*scope = */ 0);
 }
 
+bool FindUsages::visit(FunctionDefinitionAST *ast)
+{
+    AST *thisFunction = _astStack.takeLast();
+    accept(ast->decl_specifier_list);
+    _astStack.append(thisFunction);
+
+    accept(ast->declarator);
+    accept(ast->ctor_initializer);
+    accept(ast->function_body);
+    return false;
+}
+
 bool FindUsages::visit(NamespaceAST *ast)
 {
     const Identifier *id = identifier(ast->identifier_token);
     if (id == _id && ast->symbol) {
-        const QList<LookupItem> candidates = _context.lookup(ast->symbol->name(), scopeAt(ast->identifier_token));
+        const QList<LookupItem> candidates = _context.lookup(ast->symbol->name(), enclosingScope());
         reportResult(ast->identifier_token, candidates);
     }
     return true;
@@ -231,7 +235,7 @@ bool FindUsages::visit(MemInitializerAST *ast)
 
         SimpleNameAST *simple = ast->name->asSimpleName();
         if (identifier(simple->identifier_token) == _id) {
-            const QList<LookupItem> candidates = _context.lookup(simple->name, scopeAt(simple->identifier_token));
+            const QList<LookupItem> candidates = _context.lookup(simple->name, enclosingScope());
             reportResult(simple->identifier_token, candidates);
         }
     }
@@ -335,7 +339,7 @@ bool FindUsages::visit(EnumeratorAST *ast)
 {
     const Identifier *id = identifier(ast->identifier_token);
     if (id == _id) {
-        const QList<LookupItem> candidates = _context.lookup(control()->nameId(id), scopeAt(ast->identifier_token));
+        const QList<LookupItem> candidates = _context.lookup(control()->nameId(id), enclosingScope());
         reportResult(ast->identifier_token, candidates);
     }
 
@@ -348,7 +352,7 @@ bool FindUsages::visit(SimpleNameAST *ast)
 {
     const Identifier *id = identifier(ast->identifier_token);
     if (id == _id) {
-        const QList<LookupItem> candidates = _context.lookup(ast->name, scopeAt(ast->identifier_token));
+        const QList<LookupItem> candidates = _context.lookup(ast->name, enclosingScope());
         reportResult(ast->identifier_token, candidates);
     }
 
@@ -359,7 +363,7 @@ bool FindUsages::visit(DestructorNameAST *ast)
 {
     const Identifier *id = identifier(ast->identifier_token);
     if (id == _id) {
-        const QList<LookupItem> candidates = _context.lookup(ast->name, scopeAt(ast->identifier_token));
+        const QList<LookupItem> candidates = _context.lookup(ast->name, enclosingScope());
         reportResult(ast->identifier_token, candidates);
     }
 
@@ -369,7 +373,7 @@ bool FindUsages::visit(DestructorNameAST *ast)
 bool FindUsages::visit(TemplateIdAST *ast)
 {
     if (_id == identifier(ast->identifier_token)) {
-        const QList<LookupItem> candidates = _context.lookup(ast->name, scopeAt(ast->identifier_token));
+        const QList<LookupItem> candidates = _context.lookup(ast->name, enclosingScope());
         reportResult(ast->identifier_token, candidates);
     }
 
@@ -444,7 +448,7 @@ bool FindUsages::visit(ObjCSelectorAST *ast)
     if (ast->name) {
         const Identifier *id = ast->name->identifier();
         if (id == _id) {
-            const QList<LookupItem> candidates = _context.lookup(ast->name, scopeAt(ast->firstToken()));
+            const QList<LookupItem> candidates = _context.lookup(ast->name, enclosingScope());
             reportResult(ast->firstToken(), candidates);
         }
     }
@@ -461,53 +465,94 @@ bool FindUsages::visit(QtPropertyDeclarationAST *)
 void FindUsages::endVisit(QtPropertyDeclarationAST *)
 { _inQProperty = false; }
 
-bool FindUsages::visit(TemplateDeclarationAST *ast)
-{
-    _templateDeclarationStack.append(ast);
-    return true;
-}
-
-void FindUsages::endVisit(TemplateDeclarationAST *)
-{
-    _templateDeclarationStack.takeFirst();
-}
-
 bool FindUsages::visit(TypenameTypeParameterAST *ast)
 {
-    if (NameAST *name = ast->name) {
-        const Identifier *id = name->name->identifier();
-        if (id == _id) {
-            unsigned start = startOfTemplateDeclaration(_templateDeclarationStack.back());
-            const QList<LookupItem> candidates = _context.lookup(name->name, scopeAt(start));
-            reportResult(ast->name->firstToken(), candidates);
-        }
-    }
+    accept(ast->name);
     accept(ast->type_id);
     return false;
 }
 
 bool FindUsages::visit(TemplateTypeParameterAST *ast)
 {
-    if (NameAST *name = ast->name) {
-        const Identifier *id = name->name->identifier();
-        if (id == _id) {
-            unsigned start = startOfTemplateDeclaration(_templateDeclarationStack.back());
-            const QList<LookupItem> candidates = _context.lookup(name->name, scopeAt(start));
-            reportResult(ast->name->firstToken(), candidates);
-        }
-    }
+    accept(ast->name);
     accept(ast->type_id);
     return false;
 }
 
-unsigned FindUsages::startOfTemplateDeclaration(TemplateDeclarationAST *ast) const
+FunctionDefinitionAST *FindUsages::enclosingFunctionDefinition() const
 {
-    if (ast->declaration) {
-        if (TemplateDeclarationAST *templ = ast->declaration->asTemplateDeclaration())
-            return startOfTemplateDeclaration(templ);
+    for (int index = _astStack.size() - 1; index != -1; --index) {
+        AST *ast = _astStack.at(index);
 
-        return ast->declaration->firstToken();
+        if (FunctionDefinitionAST *funDef = ast->asFunctionDefinition())
+            return funDef;
     }
 
-    return ast->firstToken();
+    return 0;
+}
+
+TemplateDeclarationAST *FindUsages::enclosingTemplateDeclaration() const
+{
+    for (int index = _astStack.size() - 1; index != -1; --index) {
+        AST *ast = _astStack.at(index);
+
+        if (TemplateDeclarationAST *funDef = ast->asTemplateDeclaration())
+            return funDef;
+    }
+
+    return 0;
+}
+
+Scope *FindUsages::enclosingScope()
+{
+    for (int index = _astStack.size() - 1; index != -1; --index) {
+        AST *ast = _astStack.at(index);
+
+        if (NamespaceAST *ns = ast->asNamespace()) {
+            if (ns->symbol)
+                return ns->symbol->members();
+
+        } else if (ClassSpecifierAST *classSpec = ast->asClassSpecifier()) {
+            if (classSpec->symbol)
+                return classSpec->symbol->members();
+
+        } else if (FunctionDefinitionAST *funDef = ast->asFunctionDefinition()) {
+            if (funDef->symbol)
+                return funDef->symbol->members();
+
+        } else if (CompoundStatementAST *blockStmt = ast->asCompoundStatement()) {
+            if (blockStmt->symbol)
+                return blockStmt->symbol->members();
+
+        } else if (IfStatementAST *ifStmt = ast->asIfStatement()) {
+            if (ifStmt->symbol)
+                return ifStmt->symbol->members();
+
+        } else if (WhileStatementAST *whileStmt = ast->asWhileStatement()) {
+            if (whileStmt->symbol)
+                return whileStmt->symbol->members();
+
+        } else if (ForStatementAST *forStmt = ast->asForStatement()) {
+            if (forStmt->symbol)
+                return forStmt->symbol->members();
+
+        } else if (ForeachStatementAST *foreachStmt = ast->asForeachStatement()) {
+            if (foreachStmt->symbol)
+                return foreachStmt->symbol->members();
+
+        }
+    }
+
+    return _doc->globalSymbols();
+}
+
+bool FindUsages::preVisit(AST *ast)
+{
+    _astStack.append(ast);
+    return true;
+}
+
+void FindUsages::postVisit(AST *)
+{
+    _astStack.takeLast();
 }

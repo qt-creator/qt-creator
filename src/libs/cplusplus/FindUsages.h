@@ -72,7 +72,6 @@ protected:
     using ASTVisitor::endVisit;
 
     QString matchingLine(const Token &tk) const;
-    Scope *scopeAt(unsigned tokenIndex) const;
 
     void reportResult(unsigned tokenIndex, const QList<LookupItem> &candidates);
     void reportResult(unsigned tokenIndex);
@@ -81,6 +80,13 @@ protected:
     void checkExpression(unsigned startToken, unsigned endToken);
 
     void ensureNameIsValid(NameAST *ast);
+
+    FunctionDefinitionAST *enclosingFunctionDefinition() const;
+    TemplateDeclarationAST *enclosingTemplateDeclaration() const;
+    Scope *enclosingScope();
+
+    bool preVisit(AST *ast);
+    void postVisit(AST *);
 
     virtual bool visit(NamespaceAST *ast);
     virtual bool visit(MemInitializerAST *ast);
@@ -98,13 +104,11 @@ protected:
     virtual bool visit(QtPropertyDeclarationAST *);
     virtual void endVisit(QtPropertyDeclarationAST *);
 
-    virtual bool visit(TemplateDeclarationAST *ast);
-    virtual void endVisit(TemplateDeclarationAST *ast);
-
     virtual bool visit(TypenameTypeParameterAST *ast);
     virtual bool visit(TemplateTypeParameterAST *ast);
 
-    unsigned startOfTemplateDeclaration(TemplateDeclarationAST *ast) const;
+    virtual bool visit(FunctionDefinitionAST *ast);
+
     static bool compareFullyQualifiedName(const QList<const Name *> &path, const QList<const Name *> &other);
     static bool compareName(const Name *name, const Name *other);
 
@@ -116,8 +120,7 @@ private:
     LookupContext _context;
     QByteArray _source;
     Semantic _sem;
-    QList<QualifiedNameAST *> _qualifiedNameStack;
-    QList<TemplateDeclarationAST *> _templateDeclarationStack;
+    QList<AST *> _astStack;
     QList<int> _references;
     QList<Usage> _usages;
     int _inSimpleDeclaration;
