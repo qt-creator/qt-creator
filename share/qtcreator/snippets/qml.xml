@@ -10,9 +10,9 @@
 <snippet>BorderImage {
     id: <tab>name</tab>
     source: "<tab>file</tab>"
-    width: <tab>int</tab>; height: <tab>int</tab>
-    border.left: <tab>int</tab>; border.top: <tab>int</tab>
-    border.right: <tab>int</tab>; border.bottom: <tab>int</tab>
+    width: <tab>100</tab>; height: <tab>100</tab>
+    border.left: <tab>5</tab>; border.top: <tab>5</tab>
+    border.right: <tab>5</tab>; border.bottom: <tab>5</tab>
 }
 </snippet>
 
@@ -80,9 +80,9 @@
 </snippet>
 <snippet>PauseAnimation { duration: <tab>200</tab> }
 </snippet>
-<snippet>ColorAnimation { from: <tab>color</tab>; to: <tab>color</tab>; duration: <tab>200</tab> }
+<snippet>ColorAnimation { from: <tab>"white"</tab>; to: <tab>"black"</tab>; duration: <tab>200</tab> }
 </snippet>
-<snippet description="Colorize">effect: Colorize { color: "<tab>color</tab>" }
+<snippet description="Colorize">effect: Colorize { color: "<tab>"red"</tab>" }
 </snippet>
 <snippet description="Blur">effect: Blur { blurRadius: "<tab>200</tab>" }
 </snippet>
