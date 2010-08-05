@@ -68,8 +68,10 @@ QmlContextPane::~QmlContextPane()
 
 void QmlContextPane::apply(TextEditor::BaseTextEditorEditable *editor, Document::Ptr doc, const QmlJS::Snapshot &snapshot, AST::Node *node, bool update, bool force)
 {
-    if (!Internal::BauhausPlugin::pluginInstance()->settings().enableContextPane && !force)
+    if (!Internal::BauhausPlugin::pluginInstance()->settings().enableContextPane && !force && !update) {
+        contextWidget()->hide();
         return;
+    }
 
     if (doc.isNull())
         return;
@@ -167,6 +169,36 @@ void QmlContextPane::apply(TextEditor::BaseTextEditorEditable *editor, Document:
 
     m_blockWriting = false;
 
+}
+
+bool QmlContextPane::isAvailable(TextEditor::BaseTextEditorEditable *, Document::Ptr doc, const QmlJS::Snapshot &snapshot, AST::Node *node)
+{
+    if (doc.isNull())
+        return false;
+
+    if (!node)
+        return false;
+
+        LookupContext::Ptr lookupContext = LookupContext::create(doc, snapshot, QList<Node*>());
+        const Interpreter::ObjectValue *scopeObject = doc->bind()->findQmlObject(node);
+
+        QStringList prototypes;
+
+        while (scopeObject) {
+            prototypes.append(scopeObject->className());
+            scopeObject =  scopeObject->prototype(lookupContext->context());
+        }
+
+        if (prototypes.contains("Rectangle") ||
+            prototypes.contains("Image") ||
+            prototypes.contains("BorderImage") ||
+            prototypes.contains("TextEdit") ||
+            prototypes.contains("TextInput") ||
+            prototypes.contains("PropertyAnimation") ||
+            prototypes.contains("Text"))
+            return true;
+
+        return false;
 }
 
 void QmlContextPane::setProperty(const QString &propertyName, const QVariant &value)
