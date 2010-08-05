@@ -345,7 +345,22 @@ struct CanonicalSymbol
     {
         const QList<LookupItem> results = typeOfExpression(code, scope, TypeOfExpression::Preprocess);
 
-        for (int i = 0; i < results.size(); ++i) { // ### TODO virtual methods and classes.
+        for (int i = results.size() - 1; i != -1; --i) {
+            const LookupItem &r = results.at(i);
+
+            if (! r.declaration())
+                break;
+            else if (! r.declaration()->scope())
+                break;
+            else if (! r.declaration()->scope()->isClassScope())
+                break;
+
+            if (Function *funTy = r.declaration()->type()->asFunctionType())
+                if (funTy->isVirtual())
+                    return r.declaration();
+        }
+
+        for (int i = 0; i < results.size(); ++i) {
             const LookupItem &r = results.at(i);
 
             if (r.declaration())
