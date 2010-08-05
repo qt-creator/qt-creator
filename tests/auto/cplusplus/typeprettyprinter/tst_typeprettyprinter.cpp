@@ -54,7 +54,7 @@ FullySpecifiedType fnTy(const QString &name, const FullySpecifiedType &ret, cons
 {
     Function *fn = new Function(unit, 0, nameId(name));
     fn->setReturnType(ret);
-    fn->arguments()->enterSymbol(arg("a0", a0));
+    fn->addMember(arg("a0", a0));
     return FullySpecifiedType(fn);
 }
 
