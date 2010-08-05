@@ -662,7 +662,9 @@ bool CheckSymbols::visit(MemInitializerAST *ast)
 
 bool CheckSymbols::visit(FunctionDefinitionAST *ast)
 {
+    AST *thisFunction = _astStack.takeLast();
     accept(ast->decl_specifier_list);
+    _astStack.append(thisFunction);
 
     if (ast->declarator && ast->symbol && ! ast->symbol->isGenerated()) {
         Function *fun = ast->symbol;
