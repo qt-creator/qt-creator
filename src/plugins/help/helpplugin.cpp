@@ -117,7 +117,9 @@ HelpPlugin::HelpPlugin()
     m_bookmarkItem(0),
     m_sideBar(0),
     m_firstModeChange(true),
-    m_oldMode(0)
+    m_oldMode(0),
+    m_connectWindow(true),
+    m_externalWindow(0)
 {
 }
 
@@ -608,11 +610,10 @@ void HelpPlugin::showExternalWindow()
     bool firstTime = m_firstModeChange;
     setup();
     m_externalWindow->show();
+    connectExternalHelpWindow();
     m_externalWindow->activateWindow();
-    if (firstTime) {
-        connectExternalHelpWindow();
+    if (firstTime)
         Core::ICore::instance()->mainWindow()->activateWindow();
-    }
 }
 
 void HelpPlugin::modeChanged(Core::IMode *mode, Core::IMode *old)
@@ -691,7 +692,8 @@ void HelpPlugin::contextHelpOptionChanged()
                 slotHideRightPane();
                 m_mode->setEnabled(false);
                 m_externalWindow->show();
-                
+                connectExternalHelpWindow();
+
                 if (m_oldMode && m_mode == m_core->modeManager()->currentMode())
                     m_core->modeManager()->activateMode(m_oldMode->id());
             }
@@ -1013,20 +1015,23 @@ int HelpPlugin::contextHelpOption() const
 
 void HelpPlugin::connectExternalHelpWindow()
 {
-    connect(Core::ICore::instance(), SIGNAL(coreAboutToClose()),
-        m_externalWindow, SLOT(close()));
-    connect(m_externalWindow, SIGNAL(activateIndex()), this,
-        SLOT(activateIndex()));
-    connect(m_externalWindow, SIGNAL(activateContents()), this,
-        SLOT(activateContents()));
-    connect(m_externalWindow, SIGNAL(activateSearch()), this,
-        SLOT(activateSearch()));
-    connect(m_externalWindow, SIGNAL(activateBookmarks()), this,
-        SLOT(activateBookmarks()));
-    connect(m_externalWindow, SIGNAL(activateOpenPages()), this,
-        SLOT(activateOpenPages()));
-    connect(m_externalWindow, SIGNAL(showHideSidebar()), this,
-        SLOT(showHideSidebar()));
+    if (m_connectWindow) {
+        m_connectWindow = false;
+        connect(Core::ICore::instance(), SIGNAL(coreAboutToClose()),
+            m_externalWindow, SLOT(close()));
+        connect(m_externalWindow, SIGNAL(activateIndex()), this,
+            SLOT(activateIndex()));
+        connect(m_externalWindow, SIGNAL(activateContents()), this,
+            SLOT(activateContents()));
+        connect(m_externalWindow, SIGNAL(activateSearch()), this,
+            SLOT(activateSearch()));
+        connect(m_externalWindow, SIGNAL(activateBookmarks()), this,
+            SLOT(activateBookmarks()));
+        connect(m_externalWindow, SIGNAL(activateOpenPages()), this,
+            SLOT(activateOpenPages()));
+        connect(m_externalWindow, SIGNAL(showHideSidebar()), this,
+            SLOT(showHideSidebar()));
+    }
 }
 
 Q_EXPORT_PLUGIN(HelpPlugin)

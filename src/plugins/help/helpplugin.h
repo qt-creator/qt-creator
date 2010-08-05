@@ -148,6 +148,7 @@ private:
     QString m_idFromContext;
 
     Core::IMode* m_oldMode;
+    bool m_connectWindow;
     ExternalHelpWindow *m_externalWindow;
 };
 
