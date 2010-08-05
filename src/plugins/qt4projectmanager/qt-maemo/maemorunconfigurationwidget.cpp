@@ -129,7 +129,7 @@ void MaemoRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
     connect(m_runConfiguration, SIGNAL(targetInformationChanged()), this,
         SLOT(updateTargetInformation()));
     connect(m_runConfiguration->deployStep()->deployables(),
-        SIGNAL(modelsCreated()), this, SLOT(updateTargetInformation()));
+        SIGNAL(modelsCreated()), this, SLOT(handleDeploySpecsChanged()));
     handleCurrentDeviceConfigChanged();
 }
 
@@ -256,6 +256,10 @@ void MaemoRunConfigurationWidget::argumentsEdited(const QString &text)
 void MaemoRunConfigurationWidget::updateTargetInformation()
 {
     m_localExecutableLabel->setText(m_runConfiguration->localExecutableFilePath());
+}
+
+void MaemoRunConfigurationWidget::handleDeploySpecsChanged()
+{
     m_remoteExecutableLabel->setText(m_runConfiguration->remoteExecutableFilePath());
 }
 

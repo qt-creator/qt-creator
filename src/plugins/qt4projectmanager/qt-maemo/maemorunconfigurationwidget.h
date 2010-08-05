@@ -88,6 +88,7 @@ private slots:
     void systemEnvironmentChanged();
     void userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &userChanges);
     void handleRemoteMountsChanged();
+    void handleDeploySpecsChanged();
 
 private:
     void addGenericWidgets(QVBoxLayout *mainLayout);
