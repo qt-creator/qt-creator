@@ -176,9 +176,6 @@ static void find_helper(QFutureInterface<Usage> &future,
                         const DependencyTable dependencyTable,
                         Symbol *symbol)
 {
-    QTime tm;
-    tm.start();
-
     const Identifier *symbolId = symbol->identifier();
     Q_ASSERT(symbolId != 0);
 
@@ -200,7 +197,6 @@ static void find_helper(QFutureInterface<Usage> &future,
         files += dependencyTable.filesDependingOn(sourceFile);
     }
     files.removeDuplicates();
-    //qDebug() << "done in:" << tm.elapsed() << "number of files to parse:" << files.size();
 
     future.setProgressRange(0, files.size());
 
@@ -212,7 +208,7 @@ static void find_helper(QFutureInterface<Usage> &future,
     future.setProgressValue(files.size());
 }
 
-static CPlusPlus::DependencyTable dependencyTable(DependencyTable previous, CPlusPlus::Snapshot snapshot)
+static CPlusPlus::DependencyTable dependencyTable(DependencyTable previous, const CPlusPlus::Snapshot &snapshot)
 {
     if (previous.isValidFor(snapshot))
         return previous;
@@ -264,7 +260,6 @@ void CppFindReferences::findAll_helper(Symbol *symbol, const LookupContext &cont
 
     _resultWindow->popup(true);
 
-    const Snapshot snapshot = _modelManager->snapshot();
     const CppTools::CppModelManagerInterface::WorkingCopy workingCopy = _modelManager->workingCopy();
 
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();

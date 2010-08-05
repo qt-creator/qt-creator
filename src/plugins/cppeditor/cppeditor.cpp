@@ -619,7 +619,9 @@ const Macro *CPPEditor::findCanonicalMacro(const QTextCursor &cursor, Document::
 
 void CPPEditor::findUsages()
 {
-    const SemanticInfo info = m_lastSemanticInfo;
+    SemanticInfo info = m_lastSemanticInfo;
+    info.snapshot = CppTools::CppModelManagerInterface::instance()->snapshot();
+    info.snapshot.insert(info.doc);
 
     CanonicalSymbol cs(this, info);
     Symbol *canonicalSymbol = cs(textCursor());
@@ -627,6 +629,28 @@ void CPPEditor::findUsages()
         m_modelManager->findUsages(canonicalSymbol, cs.context());
     } else if (const Macro *macro = findCanonicalMacro(textCursor(), info.doc)) {
         m_modelManager->findMacroUsages(*macro);
+    }
+}
+
+
+void CPPEditor::renameUsagesNow(const QString &replacement)
+{
+    SemanticInfo info = m_lastSemanticInfo;
+    info.snapshot = CppTools::CppModelManagerInterface::instance()->snapshot();
+    info.snapshot.insert(info.doc);
+
+    CanonicalSymbol cs(this, info);
+    if (Symbol *canonicalSymbol = cs(textCursor())) {
+        if (canonicalSymbol->identifier() != 0) {
+            if (showWarningMessage()) {
+                Core::EditorManager::instance()->showEditorInfoBar(QLatin1String("CppEditor.Rename"),
+                                                                   tr("This change cannot be undone."),
+                                                                   tr("Yes, I know what I am doing."),
+                                                                   this, SLOT(hideRenameNotification()));
+            }
+
+            m_modelManager->renameUsages(canonicalSymbol, cs.context(), replacement);
+        }
     }
 }
 
@@ -662,25 +686,6 @@ void CPPEditor::hideRenameNotification()
 {
     setShowWarningMessage(false);
     Core::EditorManager::instance()->hideEditorInfoBar(QLatin1String("CppEditor.Rename"));
-}
-
-void CPPEditor::renameUsagesNow(const QString &replacement)
-{
-    const SemanticInfo info = m_lastSemanticInfo;
-
-    CanonicalSymbol cs(this, info);
-    if (Symbol *canonicalSymbol = cs(textCursor())) {
-        if (canonicalSymbol->identifier() != 0) {
-            if (showWarningMessage()) {
-                Core::EditorManager::instance()->showEditorInfoBar(QLatin1String("CppEditor.Rename"),
-                                                                   tr("This change cannot be undone."),
-                                                                   tr("Yes, I know what I am doing."),
-                                                                   this, SLOT(hideRenameNotification()));
-            }
-
-            m_modelManager->renameUsages(canonicalSymbol, cs.context(), replacement);
-        }
-    }
 }
 
 void CPPEditor::markSymbolsNow()
