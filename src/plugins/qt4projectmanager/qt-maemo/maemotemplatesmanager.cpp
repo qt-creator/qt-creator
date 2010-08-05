@@ -86,9 +86,9 @@ void MaemoTemplatesManager::handleActiveProjectChanged(ProjectExplorer::Project 
 {
     if (m_activeProject)
         disconnect(m_activeProject, 0, this, 0);
+    m_activeProject = project;
     delete m_fsWatcher;
     m_fsWatcher = 0;
-    m_activeProject= project;
     if (m_activeProject) {
         connect(m_activeProject, SIGNAL(addedTarget(ProjectExplorer::Target*)),
             this, SLOT(createTemplatesIfNecessary(ProjectExplorer::Target*)));
@@ -98,17 +98,6 @@ void MaemoTemplatesManager::handleActiveProjectChanged(ProjectExplorer::Project 
         const QList<Target *> &targets = m_activeProject->targets();
         foreach (Target * const target, targets)
             createTemplatesIfNecessary(target);
-        m_fsWatcher = new QFileSystemWatcher(this);
-        m_fsWatcher->addPath(debianDirPath(m_activeProject));
-        m_fsWatcher->addPath(changeLogFilePath(m_activeProject));
-        m_fsWatcher->addPath(controlFilePath(m_activeProject));
-        connect(m_fsWatcher, SIGNAL(directoryChanged(QString)), this,
-            SLOT(handleDebianDirContentsChanged()));
-        connect(m_fsWatcher, SIGNAL(fileChanged(QString)), this,
-            SLOT(handleDebianFileChanged(QString)));
-        handleDebianDirContentsChanged();
-        handleDebianFileChanged(changeLogFilePath(m_activeProject));
-        handleDebianFileChanged(controlFilePath(m_activeProject));
     }
 }
 
@@ -203,6 +192,18 @@ void MaemoTemplatesManager::createTemplatesIfNecessary(ProjectExplorer::Target *
                    .arg(QDir::toNativeSeparators(rulesFilePath)));
         return;
     }
+
+    m_fsWatcher = new QFileSystemWatcher(this);
+    m_fsWatcher->addPath(debianDirPath(m_activeProject));
+    m_fsWatcher->addPath(changeLogFilePath(m_activeProject));
+    m_fsWatcher->addPath(controlFilePath(m_activeProject));
+    connect(m_fsWatcher, SIGNAL(directoryChanged(QString)), this,
+        SLOT(handleDebianDirContentsChanged()));
+    connect(m_fsWatcher, SIGNAL(fileChanged(QString)), this,
+        SLOT(handleDebianFileChanged(QString)));
+    handleDebianDirContentsChanged();
+    handleDebianFileChanged(changeLogFilePath(m_activeProject));
+    handleDebianFileChanged(controlFilePath(m_activeProject));
 }
 
 QString MaemoTemplatesManager::version(const Project *project,
