@@ -117,9 +117,9 @@ tst_HighlighterEngine::tst_HighlighterEngine() :
 
 void tst_HighlighterEngine::initTestCase()
 {
-    QWARN("\n***********************************************************\
-           \n*** Spaces are ignored when comparing text char formats ***\
-           \n***********************************************************");
+            /***********************************************************/
+            /*** Spaces are ignored when comparing text char formats ***/
+            /***********************************************************/
 
     createKeywords();
     createContexts();
