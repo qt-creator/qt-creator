@@ -48,7 +48,7 @@ public:
         unsigned length;
         unsigned kind;
 
-        enum {
+        enum Kind {
             Type = 0,
             Local,
             Field,

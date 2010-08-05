@@ -64,7 +64,6 @@ class CollectTypes: protected SymbolVisitor
     QSet<QByteArray> _types;
     QSet<QByteArray> _members;
     QSet<QByteArray> _virtualMethods;
-    QList<ScopedSymbol *> _scopes;
     QList<NameAST *> _names;
     bool _mainDocument;
 
@@ -89,25 +88,6 @@ public:
     const QSet<QByteArray> &virtualMethods() const
     {
         return _virtualMethods;
-    }
-
-    const QList<ScopedSymbol *> &scopes() const
-    {
-        return _scopes;
-    }
-
-    static Scope *findScope(unsigned tokenOffset, const QList<ScopedSymbol *> &scopes)
-    {
-        for (int i = scopes.size() - 1; i != -1; --i) {
-            Scope *scope = scopes.at(i)->members();
-            const unsigned start = scope->startOffset();
-            const unsigned end = scope->endOffset();
-
-            if (tokenOffset >= start && tokenOffset < end)
-                return scope;
-        }
-
-        return 0;
     }
 
 protected:
@@ -171,12 +151,6 @@ protected:
         }
     }
 
-    void addScope(ScopedSymbol *symbol)
-    {
-        if (_mainDocument)
-            _scopes.append(symbol);
-    }
-
     // nothing to do
     virtual bool visit(UsingNamespaceDirective *) { return true; }
     virtual bool visit(UsingDeclaration *) { return true; }
@@ -194,13 +168,11 @@ protected:
                 accept(scope->symbolAt(i));
         }
 
-        addScope(symbol);
         return true;
     }
 
-    virtual bool visit(Block *symbol)
+    virtual bool visit(Block *)
     {
-        addScope(symbol);
         return true;
     }
 
@@ -233,14 +205,12 @@ protected:
 
     virtual bool visit(Enum *symbol)
     {
-        addScope(symbol);
         addType(symbol->name());
         return true;
     }
 
     virtual bool visit(Namespace *symbol)
     {
-        addScope(symbol);
         addType(symbol->name());
         return true;
     }
@@ -253,7 +223,6 @@ protected:
                 accept(scope->symbolAt(i));
         }
 
-        addScope(symbol);
         addType(symbol->name());
         return true;
     }
@@ -274,16 +243,10 @@ protected:
     virtual bool visit(ObjCBaseClass *) { return true; }
     virtual bool visit(ObjCBaseProtocol *) { return true; }
     virtual bool visit(ObjCPropertyDeclaration *) { return true; }
-
-    virtual bool visit(ObjCMethod *symbol)
-    {
-        addScope(symbol);
-        return true;
-    }
+    virtual bool visit(ObjCMethod *) { return true; }
 
     virtual bool visit(ObjCClass *symbol)
     {
-        addScope(symbol);
         addType(symbol->name());
         return true;
     }
@@ -296,7 +259,6 @@ protected:
 
     virtual bool visit(ObjCProtocol *symbol)
     {
-        addScope(symbol);
         addType(symbol->name());
         return true;
     }
@@ -320,12 +282,12 @@ CheckSymbols::Future CheckSymbols::go(Document::Ptr doc, const LookupContext &co
 CheckSymbols::CheckSymbols(Document::Ptr doc, const LookupContext &context)
     : ASTVisitor(doc->translationUnit()), _doc(doc), _context(context)
 {
-    _fileName = doc->fileName();
     CollectTypes collectTypes(doc, context.snapshot());
+
+    _fileName = doc->fileName();
     _potentialTypes = collectTypes.types();
     _potentialMembers = collectTypes.members();
     _potentialVirtualMethods = collectTypes.virtualMethods();
-    _scopes = collectTypes.scopes();
     _flushRequested = false;
     _flushLine = 0;
 
@@ -369,12 +331,86 @@ bool CheckSymbols::warning(AST *ast, const QString &text)
     return false;
 }
 
-bool CheckSymbols::preVisit(AST *)
+FunctionDefinitionAST *CheckSymbols::enclosingFunctionDefinition() const
 {
+    for (int index = _astStack.size() - 1; index != -1; --index) {
+        AST *ast = _astStack.at(index);
+
+        if (FunctionDefinitionAST *funDef = ast->asFunctionDefinition())
+            return funDef;
+    }
+
+    return 0;
+}
+
+TemplateDeclarationAST *CheckSymbols::enclosingTemplateDeclaration() const
+{
+    for (int index = _astStack.size() - 1; index != -1; --index) {
+        AST *ast = _astStack.at(index);
+
+        if (TemplateDeclarationAST *funDef = ast->asTemplateDeclaration())
+            return funDef;
+    }
+
+    return 0;
+}
+
+Scope *CheckSymbols::enclosingScope() const
+{
+    for (int index = _astStack.size() - 1; index != -1; --index) {
+        AST *ast = _astStack.at(index);
+
+        if (NamespaceAST *ns = ast->asNamespace()) {
+            if (ns->symbol)
+                return ns->symbol->members();
+
+        } else if (ClassSpecifierAST *classSpec = ast->asClassSpecifier()) {
+            if (classSpec->symbol)
+                return classSpec->symbol->members();
+
+        } else if (FunctionDefinitionAST *funDef = ast->asFunctionDefinition()) {
+            if (funDef->symbol)
+                return funDef->symbol->members();
+
+        } else if (CompoundStatementAST *blockStmt = ast->asCompoundStatement()) {
+            if (blockStmt->symbol)
+                return blockStmt->symbol->members();
+
+        } else if (IfStatementAST *ifStmt = ast->asIfStatement()) {
+            if (ifStmt->symbol)
+                return ifStmt->symbol->members();
+
+        } else if (WhileStatementAST *whileStmt = ast->asWhileStatement()) {
+            if (whileStmt->symbol)
+                return whileStmt->symbol->members();
+
+        } else if (ForStatementAST *forStmt = ast->asForStatement()) {
+            if (forStmt->symbol)
+                return forStmt->symbol->members();
+
+        } else if (ForeachStatementAST *foreachStmt = ast->asForeachStatement()) {
+            if (foreachStmt->symbol)
+                return foreachStmt->symbol->members();
+
+        }
+    }
+
+    return _doc->globalSymbols();
+}
+
+bool CheckSymbols::preVisit(AST *ast)
+{
+    _astStack.append(ast);
+
     if (isCanceled())
         return false;
 
     return true;
+}
+
+void CheckSymbols::postVisit(AST *)
+{
+    _astStack.takeLast();
 }
 
 bool CheckSymbols::visit(NamespaceAST *ast)
@@ -385,7 +421,7 @@ bool CheckSymbols::visit(NamespaceAST *ast)
             unsigned line, column;
             getTokenStartPosition(ast->identifier_token, &line, &column);
             Use use(line, column, tok.length());
-            addUsage(use);
+            addUse(use);
         }
     }
 
@@ -405,9 +441,9 @@ bool CheckSymbols::visit(SimpleDeclarationAST *ast)
             if (NameAST *declId = declaratorId(ast->declarator_list->value)) {
                 if (Function *funTy = decl->type()->asFunctionType()) {
                     if (funTy->isVirtual()) {
-                        addVirtualMethodUsage(declId);
+                        addUse(declId, Use::VirtualMethod);
                     } else if (maybeVirtualMethod(decl->name())) {
-                        addVirtualMethodUsage(_context.lookup(decl->name(), decl->scope()), declId, funTy->argumentCount());
+                        addVirtualMethod(_context.lookup(decl->name(), decl->scope()), declId, funTy->argumentCount());
                     }
                 }
             }
@@ -432,14 +468,12 @@ bool CheckSymbols::visit(MemberAccessAST *ast)
         if (const Identifier *ident = name->identifier()) {
             const QByteArray id = QByteArray::fromRawData(ident->chars(), ident->size());
             if (_potentialMembers.contains(id)) {
-                Scope *scope = findScope(ast);
-
                 const Token start = tokenAt(ast->firstToken());
                 const Token end = tokenAt(ast->lastToken() - 1);
                 const QByteArray expression = _doc->source().mid(start.begin(), end.end() - start.begin());
 
-                const QList<LookupItem> candidates = typeOfExpression(expression, scope, TypeOfExpression::Preprocess);
-                addMemberUsage(candidates, ast->member_name);
+                const QList<LookupItem> candidates = typeOfExpression(expression, enclosingScope(), TypeOfExpression::Preprocess);
+                addClassMember(candidates, ast->member_name);
             }
         }
     }
@@ -460,16 +494,16 @@ bool CheckSymbols::visit(CallAST *ast)
         if (MemberAccessAST *access = ast->base_expression->asMemberAccess()) {
             if (access->member_name && access->member_name->name) {
                 if (maybeVirtualMethod(access->member_name->name)) {
-                    Scope *scope = findScope(access);
                     const QByteArray expression = textOf(access);
 
-                    const QList<LookupItem> candidates = typeOfExpression(expression, scope, TypeOfExpression::Preprocess);
+                    const QList<LookupItem> candidates = typeOfExpression(expression, enclosingScope(),
+                                                                          TypeOfExpression::Preprocess);
 
                     NameAST *memberName = access->member_name;
                     if (QualifiedNameAST *q = memberName->asQualifiedName())
                         memberName = q->unqualified_name;
 
-                    addVirtualMethodUsage(candidates, memberName, argumentCount);
+                    addVirtualMethod(candidates, memberName, argumentCount);
                 }
             }
         } else if (IdExpressionAST *idExpr = ast->base_expression->asIdExpression()) {
@@ -479,11 +513,10 @@ bool CheckSymbols::visit(CallAST *ast)
                     if (QualifiedNameAST *q = exprName->asQualifiedName())
                         exprName = q->unqualified_name;
 
-                    Scope *scope = findScope(idExpr);
-                    const QByteArray expression = textOf(idExpr);
+                    const QList<LookupItem> candidates = typeOfExpression(textOf(idExpr), enclosingScope(),
+                                                                          TypeOfExpression::Preprocess);
 
-                    const QList<LookupItem> candidates = typeOfExpression(expression, scope, TypeOfExpression::Preprocess);
-                    addVirtualMethodUsage(candidates, exprName, argumentCount);
+                    addVirtualMethod(candidates, exprName, argumentCount);
                 }
             }
         }
@@ -510,8 +543,7 @@ void CheckSymbols::checkNamespace(NameAST *name)
     unsigned line, column;
     getTokenStartPosition(name->firstToken(), &line, &column);
 
-    Scope *enclosingScope = _doc->scopeAt(line, column);
-    if (ClassOrNamespace *b = _context.lookupType(name->name, enclosingScope)) {
+    if (ClassOrNamespace *b = _context.lookupType(name->name, enclosingScope())) {
         foreach (Symbol *s, b->symbols()) {
             if (s->isNamespace())
                 return;
@@ -526,31 +558,14 @@ void CheckSymbols::checkName(NameAST *ast, Scope *scope)
 {
     if (ast && ast->name) {
         if (! scope)
-            scope = findScope(ast);
+            scope = enclosingScope();
 
-        if (const Identifier *ident = ast->name->identifier()) {
-            const QByteArray id = QByteArray::fromRawData(ident->chars(), ident->size());
-            if (_potentialTypes.contains(id)) {
-                const QList<LookupItem> candidates = _context.lookup(ast->name, scope);
-                addUsage(candidates, ast);
-            } else if (_potentialMembers.contains(id)) {
-                const QList<LookupItem> candidates = _context.lookup(ast->name, scope);
-                addMemberUsage(candidates, ast);
-            }
-        }
-    }
-}
-
-void CheckSymbols::checkMemberName(NameAST *ast)
-{
-    if (ast && ast->name) {
-        if (const Identifier *ident = ast->name->identifier()) {
-            const QByteArray id = QByteArray::fromRawData(ident->chars(), ident->size());
-            if (_potentialMembers.contains(id)) {
-                Scope *scope = findScope(ast);
-                const QList<LookupItem> candidates = _context.lookup(ast->name, scope);
-                addMemberUsage(candidates, ast);
-            }
+        if (maybeType(ast->name)) {
+            const QList<LookupItem> candidates = _context.lookup(ast->name, scope);
+            addType(candidates, ast);
+        } else if (maybeMember(ast->name)) {
+            const QList<LookupItem> candidates = _context.lookup(ast->name, scope);
+            addClassMember(candidates, ast);
         }
     }
 }
@@ -576,8 +591,6 @@ bool CheckSymbols::visit(DestructorNameAST *ast)
 bool CheckSymbols::visit(QualifiedNameAST *ast)
 {
     if (ast->name) {
-        Scope *scope = findScope(ast);
-
         ClassOrNamespace *b = 0;
         if (NestedNameSpecifierListAST *it = ast->nested_name_specifier_list) {
             NestedNameSpecifierAST *nested_name_specifier = it->value;
@@ -587,8 +600,8 @@ bool CheckSymbols::visit(QualifiedNameAST *ast)
                     accept(template_id->template_argument_list);
 
                 const Name *name = class_or_namespace_name->name;
-                b = _context.lookupType(name, scope);
-                addUsage(b, class_or_namespace_name);
+                b = _context.lookupType(name, enclosingScope());
+                addType(b, class_or_namespace_name);
 
                 for (it = it->next; b && it; it = it->next) {
                     NestedNameSpecifierAST *nested_name_specifier = it->value;
@@ -598,14 +611,15 @@ bool CheckSymbols::visit(QualifiedNameAST *ast)
                             accept(template_id->template_argument_list);
 
                         b = b->findType(class_or_namespace_name->name);
-                        addUsage(b, class_or_namespace_name);
+                        addType(b, class_or_namespace_name);
                     }
                 }
             }
         }
 
-        if (b && ast->unqualified_name)
-            addUsage(b->find(ast->unqualified_name->name), ast->unqualified_name);
+        if (b && ast->unqualified_name) {
+            addType(b->find(ast->unqualified_name->name), ast->unqualified_name);
+        }
     }
 
     return false;
@@ -613,62 +627,41 @@ bool CheckSymbols::visit(QualifiedNameAST *ast)
 
 bool CheckSymbols::visit(TypenameTypeParameterAST *ast)
 {
-    if (ast->name && ast->name->name) {
-        if (const Identifier *templId = ast->name->name->identifier()) {
-            const QByteArray id = QByteArray::fromRawData(templId->chars(), templId->size());
-            if (_potentialTypes.contains(id)) {
-                Scope *scope = findScope(_templateDeclarationStack.back());
-                const QList<LookupItem> candidates = _context.lookup(ast->name->name, scope);
-                addUsage(candidates, ast->name);
-            }
-        }
-    }
-    return true;
+    addUse(ast->name, Use::Type);
+    accept(ast->type_id);
+    return false;
 }
 
 bool CheckSymbols::visit(TemplateTypeParameterAST *ast)
 {
-    checkName(ast->name);
-    return true;
-}
-
-bool CheckSymbols::visit(TemplateDeclarationAST *ast)
-{
-    _templateDeclarationStack.append(ast);
-    return true;
-}
-
-void CheckSymbols::endVisit(TemplateDeclarationAST *)
-{
-    _templateDeclarationStack.takeFirst();
+    accept(ast->template_parameter_list);
+    addUse(ast->name, Use::Type);
+    accept(ast->type_id);
+    return false;
 }
 
 bool CheckSymbols::visit(MemInitializerAST *ast)
 {
-    if (_functionDefinitionStack.isEmpty())
-        return false;
-
-    if (ast->name) {
-        FunctionDefinitionAST *enclosingFunction = _functionDefinitionStack.back();
-        if (ClassOrNamespace *binding = _context.lookupType(enclosingFunction->symbol)) {
-            foreach (Symbol *s, binding->symbols()) {
-                if (Class *klass = s->asClass()){
-                    checkName(ast->name, klass->members());
-                    break;
+    if (FunctionDefinitionAST *enclosingFunction = enclosingFunctionDefinition()) {
+        if (ast->name && enclosingFunction->symbol) {
+            if (ClassOrNamespace *binding = _context.lookupType(enclosingFunction->symbol)) {
+                foreach (Symbol *s, binding->symbols()) {
+                    if (Class *klass = s->asClass()){
+                        checkName(ast->name, klass->members());
+                        break;
+                    }
                 }
             }
         }
-    }
 
-    accept(ast->expression_list);
+        accept(ast->expression_list);
+    }
 
     return false;
 }
 
 bool CheckSymbols::visit(FunctionDefinitionAST *ast)
 {
-    _functionDefinitionStack.append(ast);
-
     accept(ast->decl_specifier_list);
 
     if (ast->declarator && ast->symbol && ! ast->symbol->isGenerated()) {
@@ -678,9 +671,9 @@ bool CheckSymbols::visit(FunctionDefinitionAST *ast)
                 declId = q->unqualified_name;
 
             if (fun->isVirtual()) {
-                addVirtualMethodUsage(declId);
+                addUse(declId, Use::VirtualMethod);
             } else if (maybeVirtualMethod(fun->name())) {
-                addVirtualMethodUsage(_context.lookup(fun->name(), fun->scope()), declId, fun->argumentCount());
+                addVirtualMethod(_context.lookup(fun->name(), fun->scope()), declId, fun->argumentCount());
             }
         }
     }
@@ -693,18 +686,46 @@ bool CheckSymbols::visit(FunctionDefinitionAST *ast)
     QList<SemanticInfo::Use> uses;
     foreach (uses, locals.uses) {
         foreach (const SemanticInfo::Use &u, uses)
-            addUsage(u);
+            addUse(u);
     }
-
-    _functionDefinitionStack.removeLast();
 
     flush();
     return false;
 }
 
-void CheckSymbols::addUsage(const Use &use)
+void CheckSymbols::addUse(NameAST *ast, Use::Kind kind)
 {
-    if (_functionDefinitionStack.isEmpty()) {
+    if (! ast)
+        return;
+
+    if (QualifiedNameAST *q = ast->asQualifiedName())
+        ast = q->unqualified_name;
+
+    if (! ast)
+        return; // nothing to do
+    else if (ast->asOperatorFunctionId() != 0 || ast->asConversionFunctionId() != 0)
+        return; // nothing to do
+
+    unsigned startToken = ast->firstToken();
+
+    if (DestructorNameAST *dtor = ast->asDestructorName())
+        startToken = dtor->identifier_token;
+
+    const Token &tok = tokenAt(startToken);
+    if (tok.generated())
+        return;
+
+    unsigned line, column;
+    getTokenStartPosition(startToken, &line, &column);
+    const unsigned length = tok.length();
+
+    const Use use(line, column, length, kind);
+    addUse(use);
+}
+
+void CheckSymbols::addUse(const Use &use)
+{
+    if (! enclosingFunctionDefinition()) {
         if (_usages.size() >= 50) {
             if (_flushRequested && use.line != _flushLine)
                 flush();
@@ -718,7 +739,7 @@ void CheckSymbols::addUsage(const Use &use)
     _usages.append(use);
 }
 
-void CheckSymbols::addUsage(ClassOrNamespace *b, NameAST *ast)
+void CheckSymbols::addType(ClassOrNamespace *b, NameAST *ast)
 {
     if (! b)
         return;
@@ -734,12 +755,12 @@ void CheckSymbols::addUsage(ClassOrNamespace *b, NameAST *ast)
     unsigned line, column;
     getTokenStartPosition(startToken, &line, &column);
     const unsigned length = tok.length();
-    const Use use(line, column, length);
-    addUsage(use);
+    const Use use(line, column, length, Use::Type);
+    addUse(use);
     //qDebug() << "added use" << oo(ast->name) << line << column << length;
 }
 
-void CheckSymbols::addUsage(const QList<LookupItem> &candidates, NameAST *ast)
+void CheckSymbols::addType(const QList<LookupItem> &candidates, NameAST *ast)
 {
     unsigned startToken = ast->firstToken();
     if (DestructorNameAST *dtor = ast->asDestructorName())
@@ -762,15 +783,15 @@ void CheckSymbols::addUsage(const QList<LookupItem> &candidates, NameAST *ast)
         else if (c->isTypedef() || c->isNamespace() ||
                  c->isClass() || c->isEnum() ||
                  c->isForwardClassDeclaration() || c->isTypenameArgument()) {
-            const Use use(line, column, length);
-            addUsage(use);
+            const Use use(line, column, length, Use::Type);
+            addUse(use);
             //qDebug() << "added use" << oo(ast->name) << line << column << length;
             break;
         }
     }
 }
 
-void CheckSymbols::addMemberUsage(const QList<LookupItem> &candidates, NameAST *ast)
+void CheckSymbols::addClassMember(const QList<LookupItem> &candidates, NameAST *ast)
 {
     unsigned startToken = ast->firstToken();
     if (DestructorNameAST *dtor = ast->asDestructorName())
@@ -796,33 +817,12 @@ void CheckSymbols::addMemberUsage(const QList<LookupItem> &candidates, NameAST *
             return; // shadowed
 
         const Use use(line, column, length, Use::Field);
-        addUsage(use);
+        addUse(use);
         break;
     }
 }
 
-void CheckSymbols::addVirtualMethodUsage(NameAST *ast)
-{
-    if (! ast)
-        return;
-
-    unsigned startToken = ast->firstToken();
-    if (DestructorNameAST *dtor = ast->asDestructorName())
-        startToken = dtor->identifier_token;
-
-    const Token &tok = tokenAt(startToken);
-    if (tok.generated())
-        return;
-
-    unsigned line, column;
-    getTokenStartPosition(startToken, &line, &column);
-    const unsigned length = tok.length();
-
-    const Use use(line, column, length, Use::VirtualMethod);
-    addUsage(use);
-}
-
-void CheckSymbols::addVirtualMethodUsage(const QList<LookupItem> &candidates, NameAST *ast, unsigned argumentCount)
+void CheckSymbols::addVirtualMethod(const QList<LookupItem> &candidates, NameAST *ast, unsigned argumentCount)
 {
     unsigned startToken = ast->firstToken();
     if (DestructorNameAST *dtor = ast->asDestructorName())
@@ -850,40 +850,9 @@ void CheckSymbols::addVirtualMethodUsage(const QList<LookupItem> &candidates, Na
             continue;
 
         const Use use(line, column, length, Use::VirtualMethod);
-        addUsage(use);
+        addUse(use);
         break;
     }
-}
-
-unsigned CheckSymbols::startOfTemplateDeclaration(TemplateDeclarationAST *ast) const
-{
-    if (ast->declaration) {
-        if (TemplateDeclarationAST *templ = ast->declaration->asTemplateDeclaration())
-            return startOfTemplateDeclaration(templ);
-
-        return ast->declaration->firstToken();
-    }
-
-    return ast->firstToken();
-}
-
-Scope *CheckSymbols::findScope(AST *ast) const
-{
-    Scope *scope = 0;
-
-    if (ast) {
-        unsigned startToken = ast->firstToken();
-        if (TemplateDeclarationAST *templ = ast->asTemplateDeclaration())
-            startToken = startOfTemplateDeclaration(templ);
-
-        const unsigned tokenOffset = tokenAt(startToken).offset;
-        scope = CollectTypes::findScope(tokenOffset, _scopes);
-    }
-
-    if (! scope)
-        scope = _doc->globalSymbols();
-
-    return scope;
 }
 
 NameAST *CheckSymbols::declaratorId(DeclaratorAST *ast) const
@@ -899,12 +868,40 @@ NameAST *CheckSymbols::declaratorId(DeclaratorAST *ast) const
     return 0;
 }
 
+bool CheckSymbols::maybeType(const Name *name) const
+{
+    if (name) {
+        if (const Identifier *ident = name->identifier()) {
+            const QByteArray id = QByteArray::fromRawData(ident->chars(), ident->size());
+            if (_potentialTypes.contains(id))
+                return true;
+        }
+    }
+
+    return false;
+}
+
+bool CheckSymbols::maybeMember(const Name *name) const
+{
+    if (name) {
+        if (const Identifier *ident = name->identifier()) {
+            const QByteArray id = QByteArray::fromRawData(ident->chars(), ident->size());
+            if (_potentialMembers.contains(id))
+                return true;
+        }
+    }
+
+    return false;
+}
+
 bool CheckSymbols::maybeVirtualMethod(const Name *name) const
 {
-    if (const Identifier *ident = name->identifier()) {
-        const QByteArray id = QByteArray::fromRawData(ident->chars(), ident->size());
-        if (_potentialVirtualMethods.contains(id))
-            return true;
+    if (name) {
+        if (const Identifier *ident = name->identifier()) {
+            const QByteArray id = QByteArray::fromRawData(ident->chars(), ident->size());
+            if (_potentialVirtualMethods.contains(id))
+                return true;
+        }
     }
 
     return false;
