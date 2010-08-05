@@ -169,7 +169,7 @@ void ContextPaneTextWidget::setProperties(QmlJS::PropertyReader *propertyReader)
         ui->styleComboBox->setEnabled(true);
         if (style == QLatin1String("Text.Outline") || style == QLatin1String("Outline"))
             ui->styleComboBox->setCurrentIndex(1);
-        if (style == QLatin1String("Text.Raised") || style == QLatin1String("Raised"))
+        else if (style == QLatin1String("Text.Raised") || style == QLatin1String("Raised"))
             ui->styleComboBox->setCurrentIndex(2);
         else if (style == QLatin1String("Text.Sunken") || style == QLatin1String("Sunken"))
             ui->styleComboBox->setCurrentIndex(3);
