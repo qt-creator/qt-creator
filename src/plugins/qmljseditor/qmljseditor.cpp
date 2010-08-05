@@ -955,11 +955,14 @@ void QmlJSTextEditor::updateCursorPositionNow()
         document()->revision() == semanticInfo().document->editorRevision()) {
         Node *oldNode = m_semanticInfo.declaringMemberNoProperties(m_oldCursorPosition);
         Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
+        if (oldNode != newNode)
+            m_contextPane->apply(editableInterface(), m_semanticInfo.document, m_semanticInfo.snapshot, newNode, false);
         if (oldNode != newNode &&
-            m_contextPane->isAvailable(editableInterface(), m_semanticInfo.document, m_semanticInfo.snapshot, newNode)) {
+            m_contextPane->isAvailable(editableInterface(), m_semanticInfo.document, m_semanticInfo.snapshot, newNode) &&
+            !m_contextPane->widget()->isVisible()) {
             QList<TextEditor::Internal::RefactorMarker> markers;
             if (UiObjectMember *m = newNode->uiObjectMemberCast()) {
-                const int start = m->firstSourceLocation().begin();
+                //const int start = m->firstSourceLocation().begin(); ### we consider moving the icon to the front
                 for (UiQualifiedId *q = qualifiedTypeNameId(m); q; q = q->next) {
                     if (! q->next) {
                         const int end = q->identifierToken.end();
@@ -974,8 +977,6 @@ void QmlJSTextEditor::updateCursorPositionNow()
             }
             setRefactorMarkers(markers);
         }
-        if (oldNode != newNode)
-            m_contextPane->apply(editableInterface(), m_semanticInfo.document, m_semanticInfo.snapshot, newNode, false);
         m_oldCursorPosition = position();
     }
 }
@@ -1393,6 +1394,8 @@ void QmlJSTextEditor::showContextPane()
         Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
         m_contextPane->apply(editableInterface(), m_semanticInfo.document, m_semanticInfo.snapshot, newNode, false, true);
         m_oldCursorPosition = position();
+        QList<TextEditor::Internal::RefactorMarker> markers;
+        setRefactorMarkers(markers);
     }
 }
 
@@ -1684,19 +1687,13 @@ void QmlJSTextEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
     FindIdDeclarations updateIds;
     m_semanticInfo.idLocations = updateIds(doc);
 
-    if (m_contextPane) {
-        m_contextPane->setEnabled(doc->isParsedCorrectly());
-    }
-    if (doc->isParsedCorrectly()) {
-        FindDeclarations findDeclarations;
-        m_semanticInfo.declarations = findDeclarations(doc->ast());
+    FindDeclarations findDeclarations;
+    m_semanticInfo.declarations = findDeclarations(doc->ast());
 
-        if (m_contextPane) {
-            Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
-            if (newNode) {
-                m_contextPane->apply(editableInterface(), doc, m_semanticInfo.snapshot, newNode, true);
-                m_oldCursorPosition = position();
-            }
+    if (m_contextPane) {
+        Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
+        if (newNode) {
+            m_contextPane->apply(editableInterface(), doc, m_semanticInfo.snapshot, newNode, true);
         }
     }
 
