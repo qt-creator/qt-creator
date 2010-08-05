@@ -98,13 +98,13 @@ protected slots:
     void deviceRemoved(const SymbianUtils::SymbianDevice &);
 
 private slots:
-    void printConnectFailed(const QString &errorMessage);
+    void connectFailed(const QString &errorMessage);
     void printCopyingNotice();
-    void printCreateFileFailed(const QString &filename, const QString &errorMessage);
-    void printWriteFileFailed(const QString &filename, const QString &errorMessage);
-    void printCloseFileFailed(const QString &filename, const QString &errorMessage);
+    void createFileFailed(const QString &filename, const QString &errorMessage);
+    void writeFileFailed(const QString &filename, const QString &errorMessage);
+    void closeFileFailed(const QString &filename, const QString &errorMessage);
     void printInstallingNotice();
-    void printInstallFailed(const QString &filename, const QString &errorMessage);
+    void installFailed(const QString &filename, const QString &errorMessage);
     void printInstallingFinished();
     void launcherFinished();
     void slotLauncherStateChanged(int);

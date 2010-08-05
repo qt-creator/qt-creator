@@ -340,7 +340,7 @@ void S60CreatePackageStep::slotProcessFinished(int, QProcess::ExitStatus)
         //waiting for the user to input new passphrase or to abort
         m_waitCondition.wait(&m_mutex);
         if( m_errorType == ErrorUndefined ) {
-            m_eventLoop->exit(true);
+            m_eventLoop->exit(false);
             return;
         } else {
             QRegExp passphraseRegExp("^"+QLatin1String(MAKE_PASSPHRASE_ARGUMENT)+"(.+)$");

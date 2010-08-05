@@ -231,13 +231,14 @@ void S60DeployStep::setupConnections()
     connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(SymbianUtils::SymbianDevice)),
             this, SLOT(deviceRemoved(SymbianUtils::SymbianDevice)));
     connect(m_launcher, SIGNAL(finished()), this, SLOT(launcherFinished()));
-    connect(m_launcher, SIGNAL(canNotConnect(QString)), this, SLOT(printConnectFailed(QString)));
+
+    connect(m_launcher, SIGNAL(canNotConnect(QString)), this, SLOT(connectFailed(QString)));
     connect(m_launcher, SIGNAL(copyingStarted()), this, SLOT(printCopyingNotice()));
-    connect(m_launcher, SIGNAL(canNotCreateFile(QString,QString)), this, SLOT(printCreateFileFailed(QString,QString)));
-    connect(m_launcher, SIGNAL(canNotWriteFile(QString,QString)), this, SLOT(printWriteFileFailed(QString,QString)));
-    connect(m_launcher, SIGNAL(canNotCloseFile(QString,QString)), this, SLOT(printCloseFileFailed(QString,QString)));
+    connect(m_launcher, SIGNAL(canNotCreateFile(QString,QString)), this, SLOT(createFileFailed(QString,QString)));
+    connect(m_launcher, SIGNAL(canNotWriteFile(QString,QString)), this, SLOT(writeFileFailed(QString,QString)));
+    connect(m_launcher, SIGNAL(canNotCloseFile(QString,QString)), this, SLOT(closeFileFailed(QString,QString)));
     connect(m_launcher, SIGNAL(installingStarted()), this, SLOT(printInstallingNotice()));
-    connect(m_launcher, SIGNAL(canNotInstall(QString,QString)), this, SLOT(printInstallFailed(QString,QString)));
+    connect(m_launcher, SIGNAL(canNotInstall(QString,QString)), this, SLOT(installFailed(QString,QString)));
     connect(m_launcher, SIGNAL(installingFinished()), this, SLOT(printInstallingFinished()));
     connect(m_launcher, SIGNAL(stateChanged(int)), this, SLOT(slotLauncherStateChanged(int)));
 }
@@ -275,7 +276,7 @@ void S60DeployStep::startDeployment()
 void S60DeployStep::run(QFutureInterface<bool> &fi)
 {
     m_futureInterface = &fi;
-    m_deployResult = false;
+    m_deployResult = true;
     connect(this, SIGNAL(finished()),
             this, SLOT(launcherFinished()));
     connect(this, SIGNAL(finishNow()),
@@ -322,25 +323,29 @@ void S60DeployStep::slotWaitingForTrkClosed()
     }
 }
 
-void S60DeployStep::printCreateFileFailed(const QString &filename, const QString &errorMessage)
+void S60DeployStep::createFileFailed(const QString &filename, const QString &errorMessage)
 {
     appendMessage(tr("Could not create file %1 on device: %2").arg(filename, errorMessage), true);
+    m_deployResult = false;
 }
 
-void S60DeployStep::printWriteFileFailed(const QString &filename, const QString &errorMessage)
+void S60DeployStep::writeFileFailed(const QString &filename, const QString &errorMessage)
 {
     appendMessage(tr("Could not write to file %1 on device: %2").arg(filename, errorMessage), true);
+    m_deployResult = false;
 }
 
-void S60DeployStep::printCloseFileFailed(const QString &filename, const QString &errorMessage)
+void S60DeployStep::closeFileFailed(const QString &filename, const QString &errorMessage)
 {
     const QString msg = tr("Could not close file %1 on device: %2. It will be closed when App TRK is closed.");
     appendMessage( msg.arg(filename, errorMessage), true);
+    m_deployResult = false;
 }
 
-void S60DeployStep::printConnectFailed(const QString &errorMessage)
+void S60DeployStep::connectFailed(const QString &errorMessage)
 {
     appendMessage(tr("Could not connect to App TRK on device: %1. Restarting App TRK might help.").arg(errorMessage), true);
+    m_deployResult = false;
 }
 
 void S60DeployStep::printCopyingNotice()
@@ -358,9 +363,10 @@ void S60DeployStep::printInstallingFinished()
     appendMessage(tr("Installation has finished"), false);
 }
 
-void S60DeployStep::printInstallFailed(const QString &filename, const QString &errorMessage)
+void S60DeployStep::installFailed(const QString &filename, const QString &errorMessage)
 {
     appendMessage(tr("Could not install from package %1 on device: %2").arg(filename, errorMessage), true);
+    m_deployResult = false;
 }
 
 void S60DeployStep::checkForCancel()
@@ -379,12 +385,11 @@ void S60DeployStep::launcherFinished()
         m_handleDeviceRemoval = false;
         trk::Launcher::releaseToDeviceManager(m_launcher);
     }
-    m_deployResult = true;
     if(m_launcher)
         m_launcher->deleteLater();
     m_launcher = 0;
     if(m_eventLoop)
-        m_eventLoop->exit(0);
+        m_eventLoop->exit();
 }
 
 void S60DeployStep::deviceRemoved(const SymbianUtils::SymbianDevice &d)
