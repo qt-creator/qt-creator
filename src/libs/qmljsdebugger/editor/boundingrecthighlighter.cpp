@@ -39,6 +39,7 @@ BoundingBoxPolygonItem::BoundingBoxPolygonItem(QGraphicsItem *item) : QGraphicsP
 {
     QPen pen;
     pen.setColor(QColor(108, 141, 221));
+    pen.setWidth(1);
     setPen(pen);
 }
 
