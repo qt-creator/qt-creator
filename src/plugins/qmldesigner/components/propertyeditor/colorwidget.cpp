@@ -714,12 +714,12 @@ void GradientLine::mouseReleaseEvent(QMouseEvent *event)
                 m_stops.insert(index, stopPos);
                 m_colorList.insert(index, QColor(Qt::white));
                 setCurrentIndex(index);
-                updateGradient();
             }
         }
     }
     m_dragActive = false;
     m_yOffset = 0;
+    updateGradient();
     update();
     setFocus(Qt::MouseFocusReason);
 }

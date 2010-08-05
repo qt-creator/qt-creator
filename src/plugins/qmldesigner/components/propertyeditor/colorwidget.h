@@ -207,7 +207,7 @@ protected:
     void mousePressEvent(QMouseEvent *event);
     void mouseDoubleClickEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *);
-    void mouseMoveEvent(QMouseEvent *);    
+    void mouseMoveEvent(QMouseEvent *);
 
 private:
     void setup();
