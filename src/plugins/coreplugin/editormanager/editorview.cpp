@@ -346,6 +346,12 @@ void EditorView::updateEditorHistory(IEditor *editor)
     m_editorHistory.prepend(location);
 }
 
+QRect EditorView::editorArea() const
+{
+    const QRect cRect = m_container->rect();
+    return QRect(m_container->mapToGlobal(cRect.topLeft()), cRect.size());
+}
+
 void EditorView::addCurrentPositionToNavigationHistory(IEditor *editor, const QByteArray &saveState)
 {
     if (editor && editor != currentEditor()) {

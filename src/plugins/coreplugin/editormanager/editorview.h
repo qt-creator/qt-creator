@@ -141,6 +141,7 @@ public:
 
     void copyNavigationHistoryFrom(EditorView* other);
     void updateEditorHistory(IEditor *editor);
+    QRect editorArea() const;
 };
 
 class SplitterOrView  : public QWidget
