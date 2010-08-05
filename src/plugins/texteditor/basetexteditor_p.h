@@ -245,8 +245,6 @@ public:
 
     // block selection mode
     bool m_inBlockSelectionMode;
-    bool m_lastEventWasBlockSelectionEvent;
-    int m_blockSelectionExtraX;
     void clearBlockSelection();
     QString copyBlockSelection();
     void removeBlockSelection(const QString &text = QString());
@@ -254,8 +252,12 @@ public:
 
     QTextCursor m_findScopeStart;
     QTextCursor m_findScopeEnd;
-    int m_findScopeVerticalBlockSelection;
+    int m_findScopeVerticalBlockSelectionFirstColumn;
+    int m_findScopeVerticalBlockSelectionLastColumn;
+
     QTextCursor m_selectBlockAnchor;
+
+    Internal::BaseTextBlockSelection m_blockSelection;
 
     void moveCursorVisible(bool ensureVisible = true);
 

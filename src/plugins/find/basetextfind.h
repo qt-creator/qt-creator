@@ -72,7 +72,9 @@ public:
 
 signals:
     void highlightAll(const QString &txt, Find::FindFlags findFlags);
-    void findScopeChanged(const QTextCursor &start, const QTextCursor &end, int verticalBlockSelection);
+    void findScopeChanged(const QTextCursor &start, const QTextCursor &end,
+                          int verticalBlockSelectionFirstColumn,
+                          int verticalBlockSelectionLastColumn);
 
 private:
     bool find(const QString &txt,
@@ -89,7 +91,8 @@ private:
     QPointer<QPlainTextEdit> m_plaineditor;
     QTextCursor m_findScopeStart;
     QTextCursor m_findScopeEnd;
-    int m_findScopeVerticalBlockSelection;
+    int m_findScopeVerticalBlockSelectionFirstColumn;
+    int m_findScopeVerticalBlockSelectionLastColumn;
     bool inScope(int startPosition, int endPosition) const;
     QTextCursor findOne(const QRegExp &expr, const QTextCursor &from, QTextDocument::FindFlags options) const;
     int m_incrementalStartPos;

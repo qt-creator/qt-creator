@@ -39,14 +39,16 @@ using namespace Find;
 
 BaseTextFind::BaseTextFind(QTextEdit *editor)
     : m_editor(editor)
-    , m_findScopeVerticalBlockSelection(0)
+    , m_findScopeVerticalBlockSelectionFirstColumn(-1)
+    , m_findScopeVerticalBlockSelectionLastColumn(-1)
     , m_incrementalStartPos(-1)
 {
 }
 
 BaseTextFind::BaseTextFind(QPlainTextEdit *editor)
     : m_plaineditor(editor)
-    , m_findScopeVerticalBlockSelection(0)
+    , m_findScopeVerticalBlockSelectionFirstColumn(-1)
+    , m_findScopeVerticalBlockSelectionLastColumn(-1)
     , m_incrementalStartPos(-1)
 {
 }
@@ -268,17 +270,16 @@ QTextCursor BaseTextFind::findOne(const QRegExp &expr, const QTextCursor &from, 
     if (candidate.isNull())
         return candidate;
 
-    if (!m_findScopeVerticalBlockSelection)
+    if (m_findScopeVerticalBlockSelectionFirstColumn < 0)
         return candidate;
     forever {
         if (!inScope(candidate.selectionStart(), candidate.selectionEnd()))
             return candidate;
-        QTextCursor b = candidate;
-        b.setPosition(candidate.selectionStart());
-        QTextCursor e = candidate;
-        e.setPosition(candidate.selectionEnd());
-        if (b.positionInBlock() >= m_findScopeStart.positionInBlock() + 1
-            && e.positionInBlock() <= m_findScopeStart.positionInBlock() + 1 + m_findScopeVerticalBlockSelection)
+        bool inVerticalFindScope = false;
+        QMetaObject::invokeMethod(m_plaineditor, "inFindScope", Qt::DirectConnection,
+                                  Q_RETURN_ARG(bool, inVerticalFindScope),
+                                  Q_ARG(QTextCursor, candidate));
+        if (inVerticalFindScope)
             return candidate;
         candidate = document()->find(expr, candidate, options);
     }
@@ -299,23 +300,19 @@ void BaseTextFind::defineFindScope()
     if (cursor.hasSelection() && cursor.block() != cursor.document()->findBlock(cursor.anchor())) {
         m_findScopeStart = QTextCursor(document()->docHandle(), qMax(0, cursor.selectionStart()-1));
         m_findScopeEnd = QTextCursor(document()->docHandle(), cursor.selectionEnd());
-        m_findScopeVerticalBlockSelection = 0;
+        m_findScopeVerticalBlockSelectionFirstColumn = -1;
+        m_findScopeVerticalBlockSelectionLastColumn = -1;
 
-        int verticalBlockSelection = 0;
-        if (m_plaineditor && m_plaineditor->metaObject()->indexOfProperty("verticalBlockSelection") >= 0)
-            verticalBlockSelection = m_plaineditor->property("verticalBlockSelection").toInt();
-
-        if (verticalBlockSelection) {
-            QTextCursor findScopeVisualStart(document()->docHandle(), cursor.selectionStart());
-            int findScopeFromColumn = qMin(findScopeVisualStart.positionInBlock(),
-                                         m_findScopeEnd.positionInBlock());
-            int findScopeToColumn = findScopeFromColumn + verticalBlockSelection;
-            m_findScopeStart.setPosition(findScopeVisualStart.block().position() + findScopeFromColumn - 1);
-            m_findScopeEnd.setPosition(m_findScopeEnd.block().position()
-                                       + qMin(m_findScopeEnd.block().length()-1, findScopeToColumn));
-            m_findScopeVerticalBlockSelection = verticalBlockSelection;
+        if (m_plaineditor && m_plaineditor->metaObject()->indexOfProperty("verticalBlockSelectionFirstColumn") >= 0) {
+            m_findScopeVerticalBlockSelectionFirstColumn
+                    = m_plaineditor->property("verticalBlockSelectionFirstColumn").toInt();
+            m_findScopeVerticalBlockSelectionLastColumn
+                    = m_plaineditor->property("verticalBlockSelectionLastColumn").toInt();
         }
-        emit findScopeChanged(m_findScopeStart, m_findScopeEnd, m_findScopeVerticalBlockSelection);
+
+        emit findScopeChanged(m_findScopeStart, m_findScopeEnd,
+                              m_findScopeVerticalBlockSelectionFirstColumn,
+                              m_findScopeVerticalBlockSelectionLastColumn);
         cursor.setPosition(m_findScopeStart.position()+1);
         setTextCursor(cursor);
     } else {
@@ -327,6 +324,9 @@ void BaseTextFind::clearFindScope()
 {
     m_findScopeStart = QTextCursor();
     m_findScopeEnd = QTextCursor();
-    m_findScopeVerticalBlockSelection = 0;
-    emit findScopeChanged(m_findScopeStart, m_findScopeEnd, m_findScopeVerticalBlockSelection);
+    m_findScopeVerticalBlockSelectionFirstColumn = -1;
+    m_findScopeVerticalBlockSelectionLastColumn = -1;
+    emit findScopeChanged(m_findScopeStart, m_findScopeEnd,
+                          m_findScopeVerticalBlockSelectionFirstColumn,
+                          m_findScopeVerticalBlockSelectionLastColumn);
 }

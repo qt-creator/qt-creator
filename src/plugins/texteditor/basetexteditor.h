@@ -47,6 +47,7 @@ namespace Utils {
 }
 
 namespace TextEditor {
+struct TabSettings;
 
 namespace Internal {
     class BaseTextEditorPrivate;
@@ -54,6 +55,28 @@ namespace Internal {
     class RefactorOverlay;
     struct RefactorMarker;
     typedef QList<RefactorMarker> RefactorMarkers;
+
+    class TEXTEDITOR_EXPORT BaseTextBlockSelection
+    {
+    public:
+
+        bool isValid() const{ return !firstBlock.isNull() && !lastBlock.isNull(); }
+        void clear() { firstBlock = lastBlock = QTextCursor(); }
+
+        QTextCursor firstBlock; // defines the first block
+        QTextCursor lastBlock; // defines the last block
+        int firstVisualColumn; // defines the first visual column of the selection
+        int lastVisualColumn; // defines the last visual column of the selection
+        enum Anchor {TopLeft = 0, TopRight, BottomLeft, BottomRight} anchor;
+        BaseTextBlockSelection():firstVisualColumn(0), lastVisualColumn(0), anchor(BottomRight){}
+        void moveAnchor(int blockNumber, int visualColumn);
+        inline int anchorColumnNumber() const { return (anchor % 2) ? lastVisualColumn : firstVisualColumn; }
+        inline int anchorBlockNumber() const {
+            return (anchor <= TopRight ? firstBlock.blockNumber() : lastBlock.blockNumber()); }
+        QTextCursor selection(const TabSettings &ts) const;
+        void fromSelection(const TabSettings &ts, const QTextCursor &selection);
+    };
+
 
 }
 
@@ -66,8 +89,6 @@ struct BehaviorSettings;
 struct CompletionSettings;
 struct DisplaySettings;
 struct StorageSettings;
-struct TabSettings;
-
 
 class TEXTEDITOR_EXPORT BaseTextEditorAnimator : public QObject
 {
@@ -113,8 +134,8 @@ private:
 class TEXTEDITOR_EXPORT BaseTextEditor : public QPlainTextEdit
 {
     Q_OBJECT
-    Q_PROPERTY(int verticalBlockSelection READ verticalBlockSelection)
-
+    Q_PROPERTY(int verticalBlockSelectionFirstColumn READ verticalBlockSelectionFirstColumn)
+    Q_PROPERTY(int verticalBlockSelectionLastColumn READ verticalBlockSelectionLastColumn)
 public:
     BaseTextEditor(QWidget *parent);
     ~BaseTextEditor();
@@ -214,7 +235,8 @@ public:
     void insertCodeSnippet(const QTextCursor &cursor, const QString &snippet);
 
 
-    int verticalBlockSelection() const;
+    int verticalBlockSelectionFirstColumn() const;
+    int verticalBlockSelectionLastColumn() const;
 
     QRegion translatedLineRegion(int lineStart, int lineEnd) const;
 
@@ -315,7 +337,9 @@ private slots:
     void documentAboutToBeReloaded();
     void documentReloaded();
     void highlightSearchResults(const QString &txt, Find::FindFlags findFlags);
-    void setFindScope(const QTextCursor &start, const QTextCursor &end, int);
+    void setFindScope(const QTextCursor &start, const QTextCursor &end, int, int);
+    bool inFindScope(const QTextCursor &cursor);
+    bool inFindScope(int selectionStart, int selectionEnd);
     void currentEditorChanged(Core::IEditor *editor);
     void maybeEmitContentsChangedBecauseOfUndo();
 
@@ -531,6 +555,8 @@ private:
 private slots:
     // auto completion
     void _q_requestAutoCompletion();
+
+    void handleBlockSelection(int diff_row, int diff_col);
 
     // parentheses matcher
     void _q_matchParentheses();
