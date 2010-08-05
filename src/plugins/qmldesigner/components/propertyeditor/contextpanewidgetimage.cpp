@@ -464,8 +464,11 @@ void ContextPaneWidgetImage::showEvent(QShowEvent* event)
     QWidget::showEvent(event);
 }
 
-PreviewLabel::PreviewLabel(QWidget *parent) : QLabel(parent), m_dragging_top(false), m_dragging_bottom(false),
-                                                              m_dragging_left(false), m_dragging_right(false)
+PreviewLabel::PreviewLabel(QWidget *parent)
+    : QLabel(parent),
+      m_dragging_left(false), m_dragging_right(false),
+      m_dragging_top(false), m_dragging_bottom(false)
+
 {
     m_zoom = 1;
     m_showBorders = false;
