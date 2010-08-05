@@ -238,12 +238,15 @@ void QmlContextPane::setProperty(const QString &propertyName, const QVariant &va
         }
 
         int column;
-        m_editor->convertPosition(changeSet.operationList().first().pos1, &line, &column); //get line
-        m_editor->convertPosition(changeSet.operationList().first().pos1 + changeSet.operationList().first().length1, &endLine, &column); //get line
 
+        int changeSetPos = changeSet.operationList().last().pos1;
+        int changeSetLength = changeSet.operationList().last().text.length();
         QTextCursor tc = m_editor->editor()->textCursor();
         tc.beginEditBlock();
         changeSet.apply(&tc);
+
+        m_editor->convertPosition(changeSetPos, &line, &column); //get line
+        m_editor->convertPosition(changeSetPos + changeSetLength, &endLine, &column); //get line
 
         if (line > 0) {
             TextEditor::TabSettings ts = m_editor->editor()->tabSettings();
