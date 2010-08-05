@@ -104,11 +104,12 @@ public slots:
 
 signals:
     void titleChanged();
+    void printRequested();
+
 #if !defined(QT_NO_WEBKIT)
     void sourceChanged(const QUrl &);
     void forwardAvailable(bool enabled);
     void backwardAvailable(bool enabled);
-    void printRequested();
 #else
     void loadFinished(bool finished);
 #endif
