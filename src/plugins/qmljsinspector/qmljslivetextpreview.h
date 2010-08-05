@@ -62,7 +62,6 @@ class QmlJSLiveTextPreview : public QObject
 
 public:
     explicit QmlJSLiveTextPreview(const QmlJS::Document::Ptr &doc, const QmlJS::Document::Ptr &initDoc, QObject *parent = 0);
-    static QmlJS::ModelManagerInterface *modelManager();
     //void updateDocuments();
 
     void associateEditor(Core::IEditor *editor);
@@ -70,6 +69,12 @@ public:
     void setActiveObject(const QDeclarativeDebugObjectReference &object);
     void mapObjectToQml(const QDeclarativeDebugObjectReference &object);
     void resetInitialDoc(const QmlJS::Document::Ptr &doc);
+
+    enum UnsyncronizableChangeType {
+        NoUnsyncronizableChanges,
+        AttributeChangeWarning,
+        ElementChangeWarning
+    };
 
 signals:
     void selectedItemsChanged(const QList<QDeclarativeDebugObjectReference> &objects);
@@ -87,9 +92,11 @@ private slots:
     void reloadQmlViewer();
 
 private:
+    static QmlJS::ModelManagerInterface *modelManager();
     QList<int> objectReferencesForOffset(quint32 offset) const;
     QVariant castToLiteral(const QString &expression, QmlJS::AST::UiScriptBinding *scriptBinding);
-    void showSyncWarning(unsigned line, unsigned column);
+    void showSyncWarning(UnsyncronizableChangeType unsyncronizableChangeType, const QString &elementName,
+                         unsigned line, unsigned column);
     void showExperimentalWarning();
 
 private:

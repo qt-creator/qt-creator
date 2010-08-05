@@ -422,50 +422,100 @@ private:
     }
 
 protected:
-    virtual void updateMethodBody(DebugId debugId, UiScriptBinding* scriptBinding,
+    virtual void updateMethodBody(DebugId debugId,
+                                  UiObjectDefinition *parentDefinition, UiScriptBinding* scriptBinding,
                                   const QString& methodName, const QString& methodBody)
     {
         Q_UNUSED(scriptBinding);
+        checkUnsyncronizableElementChanges(parentDefinition);
+        appliedChangesToViewer = true;
         ClientProxy::instance()->setMethodBodyForObject(debugId, methodName, methodBody);
     }
 
-    virtual void updateScriptBinding(DebugId debugId, UiScriptBinding* scriptBinding,
-                                 const QString& propertyName, const QString& scriptCode)
+    virtual void updateScriptBinding(DebugId debugId,
+                                     UiObjectDefinition *parentDefinition, UiScriptBinding* scriptBinding,
+                                     const QString& propertyName, const QString& scriptCode)
     {
-        if (propertyName  == QLatin1String("id") && !hasUnsyncronizableChanges) {
-            hasUnsyncronizableChanges = true;
-            unsyncronizableChangeLine = scriptBinding->firstSourceLocation().startLine;
-            unsyncronizableChangeColumn = scriptBinding->firstSourceLocation().startColumn;
+        if (unsyncronizableChanges == QmlJSLiveTextPreview::NoUnsyncronizableChanges) {
+            if (propertyName  == QLatin1String("id")) {
+                unsyncronizableElementName = propertyName;
+                unsyncronizableChanges = QmlJSLiveTextPreview::AttributeChangeWarning;
+                unsyncronizableChangeLine = parentDefinition->firstSourceLocation().startLine;
+                unsyncronizableChangeColumn = parentDefinition->firstSourceLocation().startColumn;
+            }
+            checkUnsyncronizableElementChanges(parentDefinition);
         }
 
         QVariant expr = scriptCode;
         const bool isLiteral = isLiteralValue(scriptBinding);
         if (isLiteral)
             expr = castToLiteral(scriptCode, scriptBinding);
+        appliedChangesToViewer = true;
         ClientProxy::instance()->setBindingForObject(debugId, propertyName, expr, isLiteral);
     }
 
     virtual void resetBindingForObject(int debugId, const QString &propertyName)
     {
+        appliedChangesToViewer = true;
         ClientProxy::instance()->resetBindingForObject(debugId, propertyName);
     }
 
     virtual void removeObject(int debugId)
     {
+        appliedChangesToViewer = true;
         ClientProxy::instance()->destroyQmlObject(debugId);
     }
 
     virtual void createObject(const QString& qmlText, DebugId ref,
                          const QStringList& importList, const QString& filename)
     {
+        appliedChangesToViewer = true;
         referenceRefreshRequired = true;
         ClientProxy::instance()->createQmlObject(qmlText, ref, importList, filename);
     }
 
+    void checkUnsyncronizableElementChanges(UiObjectDefinition *parentDefinition)
+    {
+        if (unsyncronizableChanges == QmlJSLiveTextPreview::NoUnsyncronizableChanges) {
+
+            if (parentDefinition->qualifiedTypeNameId
+                       && parentDefinition->qualifiedTypeNameId->name)
+            {
+                QString elementName = parentDefinition->qualifiedTypeNameId->name->asString();
+                if (elementName == QLatin1String("PropertyChanges")
+                 // State element can be changed, but not its contents like PropertyChanges.
+                 || elementName == QLatin1String("StateGroup")
+                 || elementName == QLatin1String("StateChangeScript")
+                 || elementName == QLatin1String("ParentChange")
+                 || elementName == QLatin1String("AnchorChanges")
+                 || elementName == QLatin1String("Connections")
+                 || elementName == QLatin1String("Binding")
+                 || elementName == QLatin1String("ListModel")
+                 || elementName == QLatin1String("ListElement")
+                 || elementName == QLatin1String("VisualItemModel")
+                 || elementName == QLatin1String("VisualDataModel")
+                 || elementName == QLatin1String("Package")
+                 // XmlListModel properties *can* be edited but XmlRole doesn't refresh the model when changed
+                 || elementName == QLatin1String("XmlRole"))
+                {
+                    unsyncronizableElementName = elementName;
+                    unsyncronizableChanges = QmlJSLiveTextPreview::ElementChangeWarning;
+                }
+            }
+
+            if (unsyncronizableChanges != QmlJSLiveTextPreview::NoUnsyncronizableChanges) {
+                unsyncronizableChangeLine = parentDefinition->firstSourceLocation().startLine;
+                unsyncronizableChangeColumn = parentDefinition->firstSourceLocation().startColumn;
+            }
+        }
+    }
+
 public:
-    UpdateObserver() : referenceRefreshRequired(false), hasUnsyncronizableChanges(false) {}
+    UpdateObserver() : appliedChangesToViewer(false), referenceRefreshRequired(false), unsyncronizableChanges(QmlJSLiveTextPreview::NoUnsyncronizableChanges) {}
+    bool appliedChangesToViewer;
     bool referenceRefreshRequired;
-    bool hasUnsyncronizableChanges;
+    QString unsyncronizableElementName;
+    QmlJSLiveTextPreview::UnsyncronizableChangeType unsyncronizableChanges;
     unsigned unsyncronizableChangeLine;
     unsigned unsyncronizableChangeColumn;
 
@@ -487,12 +537,6 @@ void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
     if (m_applyChangesToQmlObserver) {
         m_docWithUnappliedChanges.clear();
 
-        if (Inspector::showExperimentalWarning()) {
-            showExperimentalWarning();
-            experimentalWarningShown = true;
-            Inspector::setShowExperimentalWarning(false);
-        }
-
         if (doc && m_previousDoc && doc->fileName() == m_previousDoc->fileName()
             && doc->qmlProgram() && m_previousDoc->qmlProgram())
         {
@@ -502,8 +546,15 @@ void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
             if (delta.referenceRefreshRequired)
                 ClientProxy::instance()->refreshObjectTree();
 
-            if (delta.hasUnsyncronizableChanges && !experimentalWarningShown)
-                showSyncWarning(delta.unsyncronizableChangeLine, delta.unsyncronizableChangeColumn);
+            if (Inspector::showExperimentalWarning() && delta.appliedChangesToViewer) {
+                showExperimentalWarning();
+                experimentalWarningShown = true;
+                Inspector::setShowExperimentalWarning(false);
+            }
+
+            if (delta.unsyncronizableChanges != NoUnsyncronizableChanges && !experimentalWarningShown)
+                showSyncWarning(delta.unsyncronizableChanges, delta.unsyncronizableElementName,
+                                delta.unsyncronizableChangeLine, delta.unsyncronizableChangeColumn);
 
             m_previousDoc = doc;
             if (!delta.newObjects.isEmpty())
@@ -526,14 +577,29 @@ void QmlJSLiveTextPreview::showExperimentalWarning()
                           tr("Disable Live Preview"), this, SLOT(disableLivePreview()));
 }
 
-void QmlJSLiveTextPreview::showSyncWarning(unsigned line, unsigned column)
+void QmlJSLiveTextPreview::showSyncWarning(UnsyncronizableChangeType unsyncronizableChangeType,
+                                           const QString &elementName, unsigned line, unsigned column)
 {
     Core::EditorManager *em = Core::EditorManager::instance();
-    em->showEditorInfoBar(Constants::INFO_OUT_OF_SYNC,
-                          tr("The change at line %1, column %2 cannot be applied without reloading the QML application. "
-                             "You can continue debugging, but behavior can be unexpected.").
-                            arg(QString::number(line), QString::number(column)),
-                           tr("Reload"), this, SLOT(reloadQmlViewer()));
+
+    QString errorMessage;
+    switch (unsyncronizableChangeType) {
+        case AttributeChangeWarning:
+           errorMessage = tr("The %1 attribute at line %2, column %3 cannot be changed without reloading the QML application. ")
+                          .arg(elementName, QString::number(line), QString::number(column));
+            break;
+        case ElementChangeWarning:
+            errorMessage = tr("The %1 element at line %2, column %3 cannot be changed without reloading the QML application. ")
+                           .arg(elementName, QString::number(line), QString::number(column));
+            break;
+        case QmlJSLiveTextPreview::NoUnsyncronizableChanges:
+        default:
+            return;
+    }
+
+    errorMessage.append(tr("You can continue debugging, but behavior can be unexpected."));
+
+    em->showEditorInfoBar(Constants::INFO_OUT_OF_SYNC, errorMessage, tr("Reload"), this, SLOT(reloadQmlViewer()));
 }
 
 void QmlJSLiveTextPreview::reloadQmlViewer()

@@ -57,10 +57,12 @@ private:
 
 protected:
     virtual void updateScriptBinding(DebugId objectReference,
+                             AST::UiObjectDefinition *parentObject,
                              AST::UiScriptBinding *scriptBinding,
                              const QString &propertyName,
                              const QString &scriptCode);
     virtual void updateMethodBody(DebugId objectReference,
+                            AST::UiObjectDefinition *parentObject,
                             AST::UiScriptBinding *scriptBinding,
                             const QString &methodName,
                             const QString &methodBody);

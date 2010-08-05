@@ -382,7 +382,7 @@ void Delta::update(UiObjectDefinition* oldObject, const QmlJS::Document::Ptr& ol
             if (!previousScript || _scriptCode(previousScript, oldDoc) != scriptCode) {
                 foreach (DebugId ref, debugReferences) {
                     if (ref != -1)
-                        updateScriptBinding(ref, script, property, scriptCode);
+                        updateScriptBinding(ref, newObject, script, property, scriptCode);
                 }
             }
         } else if (UiSourceElement *uiSource = cast<UiSourceElement*>(*it)) {
@@ -393,7 +393,7 @@ void Delta::update(UiObjectDefinition* oldObject, const QmlJS::Document::Ptr& ol
             if (!previousSource || _methodCode(previousSource, oldDoc) != methodCode) {
                 foreach (DebugId ref, debugReferences) {
                     if (ref != -1)
-                        updateMethodBody(ref, script, methodName, methodCode);
+                        updateMethodBody(ref, newObject, script, methodName, methodCode);
                 }
             }
         }
@@ -506,10 +506,10 @@ void Delta::removeObject(int)
 {}
 void Delta::resetBindingForObject(int, const QString &)
 {}
-void Delta::updateMethodBody(DebugId, UiScriptBinding *, const QString &, const QString &)
+void Delta::updateMethodBody(DebugId, UiObjectDefinition *, UiScriptBinding *, const QString &, const QString &)
 {}
 
-void Delta::updateScriptBinding(DebugId, UiScriptBinding *, const QString &, const QString &)
+void Delta::updateScriptBinding(DebugId, UiObjectDefinition *, UiScriptBinding *, const QString &, const QString &)
 {}
 
 } //namespace QmlJs
