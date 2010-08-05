@@ -31,6 +31,7 @@
 #define MAEMOTEMPLATESCREATOR_H
 
 #include <QtCore/QFile>
+#include <QtCore/QMap>
 #include <QtCore/QObject>
 #include <QtCore/QSharedPointer>
 #include <QtGui/QIcon>
@@ -74,22 +75,26 @@ signals:
 
 private slots:
     void handleActiveProjectChanged(ProjectExplorer::Project *project);
-    void createTemplatesIfNecessary(ProjectExplorer::Target *target);
+    void handleTarget(ProjectExplorer::Target *target);
     void handleDebianDirContentsChanged();
     void handleDebianFileChanged(const QString &filePath);
+    void handleProjectToBeRemoved(ProjectExplorer::Project *project);
 
 private:
     explicit MaemoTemplatesManager(QObject *parent);
     void raiseError(const QString &reason);
     QString changeLogFilePath(const ProjectExplorer::Project *project) const;
     QString controlFilePath(const ProjectExplorer::Project *project) const;
+    bool createTemplatesIfNecessary(const ProjectExplorer::Target *target);
+    ProjectExplorer::Project *findProject(const QFileSystemWatcher *fsWatcher) const;
 
     QSharedPointer<QFile> openFile(const QString &filePath,
         QIODevice::OpenMode mode, QString *error) const;
 
     static MaemoTemplatesManager *m_instance;
-    ProjectExplorer::Project *m_activeProject;
-    QFileSystemWatcher *m_fsWatcher;
+
+    typedef QMap<ProjectExplorer::Project *, QFileSystemWatcher *> MaemoProjectMap;
+    MaemoProjectMap m_maemoProjects;
 };
 
 } // namespace Internal

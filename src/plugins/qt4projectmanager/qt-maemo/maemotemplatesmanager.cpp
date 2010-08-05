@@ -72,58 +72,70 @@ MaemoTemplatesManager *MaemoTemplatesManager::instance(QObject *parent)
     return m_instance;
 }
 
-MaemoTemplatesManager::MaemoTemplatesManager(QObject *parent) :
-    QObject(parent), m_activeProject(0), m_fsWatcher(0)
+MaemoTemplatesManager::MaemoTemplatesManager(QObject *parent) : QObject(parent)
 {
     SessionManager * const session
         = ProjectExplorerPlugin::instance()->session();
     connect(session, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
         this, SLOT(handleActiveProjectChanged(ProjectExplorer::Project*)));
+    connect(session, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
+        this, SLOT(handleProjectToBeRemoved(ProjectExplorer::Project*)));
     handleActiveProjectChanged(session->startupProject());
 }
 
 void MaemoTemplatesManager::handleActiveProjectChanged(ProjectExplorer::Project *project)
 {
-    if (m_activeProject)
-        disconnect(m_activeProject, 0, this, 0);
-    m_activeProject = project;
-    delete m_fsWatcher;
-    m_fsWatcher = 0;
-    if (m_activeProject) {
-        connect(m_activeProject, SIGNAL(addedTarget(ProjectExplorer::Target*)),
-            this, SLOT(createTemplatesIfNecessary(ProjectExplorer::Target*)));
-        connect(m_activeProject,
-            SIGNAL(activeTargetChanged(ProjectExplorer::Target*)), this,
-            SLOT(createTemplatesIfNecessary(ProjectExplorer::Target*)));
-        const QList<Target *> &targets = m_activeProject->targets();
+    if (project && !m_maemoProjects.contains(project)) {
+        connect(project, SIGNAL(addedTarget(ProjectExplorer::Target*)),
+            this, SLOT(handleTarget(ProjectExplorer::Target*)));
+        connect(project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
+            this, SLOT(handleTarget(ProjectExplorer::Target*)));
+        const QList<Target *> &targets = project->targets();
         foreach (Target * const target, targets)
-            createTemplatesIfNecessary(target);
+            handleTarget(target);
     }
 }
 
-void MaemoTemplatesManager::createTemplatesIfNecessary(ProjectExplorer::Target *target)
+void MaemoTemplatesManager::handleTarget(ProjectExplorer::Target *target)
 {
-    Q_ASSERT_X(m_activeProject, Q_FUNC_INFO,
-        "Impossible: Received signal from unknown project");
-
     if (!target
         || target->id() != QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID))
         return;
-
-    QDir projectDir(m_activeProject->projectDirectory());
-    if (projectDir.exists(PackagingDirName))
+    if (!createTemplatesIfNecessary(target))
         return;
+
+    Project * const project = target->project();
+    QFileSystemWatcher * const fsWatcher = new QFileSystemWatcher(this);
+    fsWatcher->addPath(debianDirPath(project));
+    fsWatcher->addPath(changeLogFilePath(project));
+    fsWatcher->addPath(controlFilePath(project));
+    connect(fsWatcher, SIGNAL(directoryChanged(QString)), this,
+        SLOT(handleDebianDirContentsChanged()));
+    connect(fsWatcher, SIGNAL(fileChanged(QString)), this,
+        SLOT(handleDebianFileChanged(QString)));
+    handleDebianDirContentsChanged();
+    handleDebianFileChanged(changeLogFilePath(project));
+    handleDebianFileChanged(controlFilePath(project));
+    m_maemoProjects.insert(project, fsWatcher);
+}
+
+bool MaemoTemplatesManager::createTemplatesIfNecessary(const ProjectExplorer::Target *target)
+{
+    Project * const project = target->project();
+    QDir projectDir(project->projectDirectory());
+    if (projectDir.exists(PackagingDirName))
+        return true;
     const QString packagingTemplatesDir
         = projectDir.path() + QLatin1Char('/') + PackagingDirName;
     if (!projectDir.mkdir(PackagingDirName)) {
         raiseError(tr("Could not create directory '%1'.")
             .arg(QDir::toNativeSeparators(packagingTemplatesDir)));
-        return;
+        return false;
     }
 
     QProcess dh_makeProc;
     QString error;
-    const Qt4Target * const qt4Target = qobject_cast<Qt4Target *>(target);
+    const Qt4Target * const qt4Target = qobject_cast<const Qt4Target *>(target);
     Q_ASSERT_X(qt4Target, Q_FUNC_INFO, "Target ID does not match actual type.");
     const MaemoToolChain * const tc
         = dynamic_cast<MaemoToolChain *>(qt4Target->activeBuildConfiguration()->toolChain());
@@ -131,17 +143,17 @@ void MaemoTemplatesManager::createTemplatesIfNecessary(ProjectExplorer::Target *
     if (!MaemoPackageCreationStep::preparePackagingProcess(&dh_makeProc, tc,
         packagingTemplatesDir, &error)) {
         raiseError(error);
-        return;
+        return false;
     }
 
     const QString command = QLatin1String("dh_make -s -n -p ")
-        + m_activeProject->displayName() + QLatin1Char('_')
+        + project->displayName() + QLatin1Char('_')
         + MaemoPackageCreationStep::DefaultVersionNumber;
     dh_makeProc.start(MaemoPackageCreationStep::packagingCommand(tc, command));
     if (!dh_makeProc.waitForStarted()) {
         raiseError(tr("Unable to create debian templates: dh_make failed (%1)")
             .arg(dh_makeProc.errorString()));
-        return;
+        return false;
     }
     dh_makeProc.write("\n"); // Needs user input.
     dh_makeProc.waitForFinished(-1);
@@ -149,7 +161,7 @@ void MaemoTemplatesManager::createTemplatesIfNecessary(ProjectExplorer::Target *
         || dh_makeProc.exitCode() != 0) {
         raiseError(tr("Unable to create debian templates: dh_make failed (%1)")
             .arg(dh_makeProc.errorString()));
-        return;
+        return false;
     }
 
     QDir debianDir(packagingTemplatesDir + QLatin1String("/debian"));
@@ -165,7 +177,7 @@ void MaemoTemplatesManager::createTemplatesIfNecessary(ProjectExplorer::Target *
             filesToAddToProject << debianDir.absolutePath()
                 + QLatin1Char('/') + fileName;
     }
-    qobject_cast<Qt4Project *>(m_activeProject)->rootProjectNode()
+    qobject_cast<Qt4Project *>(project)->rootProjectNode()
         ->addFiles(UnknownFileType, filesToAddToProject);
 
     const QString rulesFilePath
@@ -174,7 +186,7 @@ void MaemoTemplatesManager::createTemplatesIfNecessary(ProjectExplorer::Target *
     if (!rulesFile.open(QIODevice::ReadWrite)) {
         raiseError(tr("Packaging Error: Cannot open file '%1'.")
                    .arg(QDir::toNativeSeparators(rulesFilePath)));
-        return;
+        return false;
     }
 
     QByteArray rulesContents = rulesFile.readAll();
@@ -190,20 +202,18 @@ void MaemoTemplatesManager::createTemplatesIfNecessary(ProjectExplorer::Target *
     if (rulesFile.error() != QFile::NoError) {
         raiseError(tr("Packaging Error: Cannot write file '%1'.")
                    .arg(QDir::toNativeSeparators(rulesFilePath)));
-        return;
+        return false;
     }
+    return true;
+}
 
-    m_fsWatcher = new QFileSystemWatcher(this);
-    m_fsWatcher->addPath(debianDirPath(m_activeProject));
-    m_fsWatcher->addPath(changeLogFilePath(m_activeProject));
-    m_fsWatcher->addPath(controlFilePath(m_activeProject));
-    connect(m_fsWatcher, SIGNAL(directoryChanged(QString)), this,
-        SLOT(handleDebianDirContentsChanged()));
-    connect(m_fsWatcher, SIGNAL(fileChanged(QString)), this,
-        SLOT(handleDebianFileChanged(QString)));
-    handleDebianDirContentsChanged();
-    handleDebianFileChanged(changeLogFilePath(m_activeProject));
-    handleDebianFileChanged(controlFilePath(m_activeProject));
+void MaemoTemplatesManager::handleProjectToBeRemoved(ProjectExplorer::Project *project)
+{
+    MaemoProjectMap::Iterator it = m_maemoProjects.find(project);
+    if (it != m_maemoProjects.end()) {
+        delete it.value();
+        m_maemoProjects.erase(it);
+    }
 }
 
 QString MaemoTemplatesManager::version(const Project *project,
@@ -379,15 +389,22 @@ void MaemoTemplatesManager::raiseError(const QString &reason)
 
 void MaemoTemplatesManager::handleDebianFileChanged(const QString &filePath)
 {
-    if (filePath == changeLogFilePath(m_activeProject))
-        emit changeLogChanged(m_activeProject);
-    else if (filePath == controlFilePath(m_activeProject))
-        emit controlChanged(m_activeProject);
+    const Project * const project
+        = findProject(qobject_cast<QFileSystemWatcher *>(sender()));
+    if (project) {
+        if (filePath == changeLogFilePath(project))
+            emit changeLogChanged(project);
+        else if (filePath == controlFilePath(project))
+            emit controlChanged(project);
+    }
 }
 
 void MaemoTemplatesManager::handleDebianDirContentsChanged()
 {
-    emit debianDirContentsChanged(m_activeProject);
+    const Project * const project
+        = findProject(qobject_cast<QFileSystemWatcher *>(sender()));
+    if (project)
+        emit debianDirContentsChanged(project);
 }
 
 QSharedPointer<QFile> MaemoTemplatesManager::openFile(const QString &filePath,
@@ -402,6 +419,16 @@ QSharedPointer<QFile> MaemoTemplatesManager::openFile(const QString &filePath,
             .arg(nativePath, file->errorString());
     }
     return file;
+}
+
+Project *MaemoTemplatesManager::findProject(const QFileSystemWatcher *fsWatcher) const
+{
+    for (MaemoProjectMap::ConstIterator it = m_maemoProjects.constBegin();
+        it != m_maemoProjects.constEnd(); ++it) {
+        if (it.value() == fsWatcher)
+            return it.key();
+    }
+    return 0;
 }
 
 } // namespace Internal
