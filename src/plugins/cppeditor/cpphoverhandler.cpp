@@ -49,6 +49,7 @@
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/LookupItem.h>
 
+#include <QtCore/QSet>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QtAlgorithms>
@@ -82,24 +83,30 @@ namespace {
         }
     }
 
-    void buildClassHierarchyHelper(Symbol *symbol,
+    void buildClassHierarchyHelper(ClassOrNamespace *classSymbol,
                                    const LookupContext &context,
                                    const Overview &overview,
-                                   QList<QStringList> *hierarchy) {
-        if (ClassOrNamespace *classSymbol = context.lookupType(symbol)) {
-            const QList<ClassOrNamespace *> &bases = classSymbol->usings();
-            foreach (ClassOrNamespace *baseClass, bases) {
-                const QList<Symbol *> &symbols = baseClass->symbols();
-                foreach (Symbol *baseSymbol, symbols) {
-                    if (baseSymbol->isClass()) {
-                        const QString &qualifiedName = overview.prettyName(
-                                LookupContext::fullyQualifiedName(baseSymbol));
-                        if (!qualifiedName.isEmpty()) {
-                            hierarchy->back().append(qualifiedName);
-                            buildClassHierarchyHelper(baseSymbol, context, overview, hierarchy);
-                            hierarchy->append(hierarchy->back());
-                            hierarchy->back().removeLast();
-                        }
+                                   QList<QStringList> *hierarchy,
+                                   QSet<ClassOrNamespace *> *visited) {
+        visited->insert(classSymbol);
+        const QList<ClassOrNamespace *> &bases = classSymbol->usings();
+        foreach (ClassOrNamespace *baseClass, bases) {
+            const QList<Symbol *> &symbols = baseClass->symbols();
+            foreach (Symbol *baseSymbol, symbols) {
+                if (baseSymbol->isClass() && (
+                    classSymbol = context.lookupType(baseSymbol)) &&
+                    !visited->contains(classSymbol)) {
+                    const QString &qualifiedName = overview.prettyName(
+                            LookupContext::fullyQualifiedName(baseSymbol));
+                    if (!qualifiedName.isEmpty()) {
+                        hierarchy->back().append(qualifiedName);
+                        buildClassHierarchyHelper(classSymbol,
+                                                  context,
+                                                  overview,
+                                                  hierarchy,
+                                                  visited);
+                        hierarchy->append(hierarchy->back());
+                        hierarchy->back().removeLast();
                     }
                 }
             }
@@ -110,10 +117,12 @@ namespace {
                              const LookupContext &context,
                              const Overview &overview,
                              QList<QStringList> *hierarchy) {
-        if (hierarchy->isEmpty())
+        if (ClassOrNamespace *classSymbol = context.lookupType(symbol)) {
             hierarchy->append(QStringList());
-        buildClassHierarchyHelper(symbol, context, overview, hierarchy);
-        hierarchy->removeLast();
+            QSet<ClassOrNamespace *> visited;
+            buildClassHierarchyHelper(classSymbol, context, overview, hierarchy, &visited);
+            hierarchy->removeLast();
+        }
     }
 
     struct ClassHierarchyComp
