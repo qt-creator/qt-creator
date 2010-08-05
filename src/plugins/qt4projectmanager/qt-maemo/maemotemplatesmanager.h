@@ -30,7 +30,10 @@
 #ifndef MAEMOTEMPLATESCREATOR_H
 #define MAEMOTEMPLATESCREATOR_H
 
+#include <QtCore/QFile>
 #include <QtCore/QObject>
+#include <QtCore/QSharedPointer>
+#include <QtGui/QIcon>
 
 QT_FORWARD_DECLARE_CLASS(QFileSystemWatcher);
 
@@ -57,21 +60,32 @@ public:
     QString debianDirPath(const ProjectExplorer::Project *project) const;
     QStringList debianFiles(const ProjectExplorer::Project *project) const;
 
+    QIcon packageManagerIcon(const ProjectExplorer::Project *project,
+        QString *error) const;
+    bool setPackageManagerIcon(const ProjectExplorer::Project *project,
+        const QString &iconFilePath, QString *error) const;
+
     static const QLatin1String PackagingDirName;
 
 signals:
     void debianDirContentsChanged(const ProjectExplorer::Project *project);
     void changeLogChanged(const ProjectExplorer::Project *project);
+    void controlChanged(const ProjectExplorer::Project *project);
 
 private slots:
     void handleActiveProjectChanged(ProjectExplorer::Project *project);
     void createTemplatesIfNecessary(ProjectExplorer::Target *target);
     void handleDebianDirContentsChanged();
-    void handleChangeLogChanged();
+    void handleDebianFileChanged(const QString &filePath);
 
 private:
     explicit MaemoTemplatesManager(QObject *parent);
     void raiseError(const QString &reason);
+    QString changeLogFilePath(const ProjectExplorer::Project *project) const;
+    QString controlFilePath(const ProjectExplorer::Project *project) const;
+
+    QSharedPointer<QFile> openFile(const QString &filePath,
+        QIODevice::OpenMode mode, QString *error) const;
 
     static MaemoTemplatesManager *m_instance;
     ProjectExplorer::Project *m_activeProject;

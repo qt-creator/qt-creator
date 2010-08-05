@@ -52,6 +52,8 @@
 #include <utils/qtcassert.h>
 
 #include <QtCore/QTimer>
+#include <QtGui/QFileDialog>
+#include <QtGui/QImageReader>
 #include <QtGui/QMessageBox>
 
 namespace Qt4ProjectManager {
@@ -78,6 +80,7 @@ void MaemoPackageCreationWidget::initGui()
         = m_step->buildConfiguration()->target()->project();
     updateDebianFileList(project);
     updateVersionInfo(project);
+    updatePackageManagerIcon(project);
     connect(m_step, SIGNAL(packageFilePathChanged()), this,
         SIGNAL(updateSummary()));
     versionInfoChanged();
@@ -87,6 +90,9 @@ void MaemoPackageCreationWidget::initGui()
     connect(MaemoTemplatesManager::instance(),
         SIGNAL(changeLogChanged(const ProjectExplorer::Project*)), this,
         SLOT(updateVersionInfo(const ProjectExplorer::Project*)));
+    connect(MaemoTemplatesManager::instance(),
+        SIGNAL(controlChanged(const ProjectExplorer::Project*)), this,
+        SLOT(updatePackageManagerIcon(const ProjectExplorer::Project*)));
 }
 
 void MaemoPackageCreationWidget::updateDebianFileList(const ProjectExplorer::Project *project)
@@ -119,6 +125,37 @@ void MaemoPackageCreationWidget::updateVersionInfo(const ProjectExplorer::Projec
     m_ui->major->setValue(list.value(0, QLatin1String("0")).toInt());
     m_ui->minor->setValue(list.value(1, QLatin1String("0")).toInt());
     m_ui->patch->setValue(list.value(2, QLatin1String("0")).toInt());
+}
+
+void MaemoPackageCreationWidget::updatePackageManagerIcon(const ProjectExplorer::Project *project)
+{
+    if (project != m_step->buildConfiguration()->target()->project())
+        return;
+
+    QString error;
+    const QIcon &icon
+        = MaemoTemplatesManager::instance()->packageManagerIcon(project, &error);
+    if (!error.isEmpty())
+        QMessageBox::critical(this, tr("Could not read icon"), error);
+    else
+        m_ui->packageManagerIconButton->setIcon(icon);
+}
+
+void MaemoPackageCreationWidget::setPackageManagerIcon()
+{
+    QString imageFilter = tr("Images") + QLatin1String("( ");
+    const QList<QByteArray> &imageTypes = QImageReader::supportedImageFormats();
+    foreach (const QByteArray &imageType, imageTypes)
+        imageFilter += "*." + QString::fromAscii(imageType) + QLatin1Char(' ');
+    imageFilter += QLatin1Char(')');
+    const QString iconFileName = QFileDialog::getOpenFileName(this,
+        tr("Choose image"), QString(), imageFilter);
+    if (!iconFileName.isEmpty()) {
+        QString error;
+        if (!MaemoTemplatesManager::instance()->setPackageManagerIcon(m_step->
+            buildConfiguration()->target()->project(), iconFileName, &error))
+            QMessageBox::critical(this, tr("Could not set new icon"), error);
+    }
 }
 
 QString MaemoPackageCreationWidget::summaryText() const

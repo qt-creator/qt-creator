@@ -41,17 +41,24 @@
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qt4projectmanager/qt4target.h>
 
+#include <QtCore/QBuffer>
 #include <QtCore/QDir>
-#include <QtCore/QFile>
 #include <QtCore/QFileSystemWatcher>
 #include <QtCore/QList>
+#include <QtGui/QPixmap>
 #include <QtCore/QProcess>
 #include <QtGui/QMessageBox>
+
+#include <cctype>
 
 using namespace ProjectExplorer;
 
 namespace Qt4ProjectManager {
 namespace Internal {
+
+namespace {
+const QByteArray IconFieldName("XB-Maemo-Icon-26:");
+} // anonymous namespace
 
 const QLatin1String MaemoTemplatesManager::PackagingDirName("packaging");
 
@@ -92,16 +99,16 @@ void MaemoTemplatesManager::handleActiveProjectChanged(ProjectExplorer::Project 
         foreach (Target * const target, targets)
             createTemplatesIfNecessary(target);
         m_fsWatcher = new QFileSystemWatcher(this);
-        const QString &debianPath = debianDirPath(m_activeProject);
-        const QString changeLogPath = debianPath + QLatin1String("/changelog");
-        m_fsWatcher->addPath(debianPath);
-        m_fsWatcher->addPath(changeLogPath);
+        m_fsWatcher->addPath(debianDirPath(m_activeProject));
+        m_fsWatcher->addPath(changeLogFilePath(m_activeProject));
+        m_fsWatcher->addPath(controlFilePath(m_activeProject));
         connect(m_fsWatcher, SIGNAL(directoryChanged(QString)), this,
             SLOT(handleDebianDirContentsChanged()));
         connect(m_fsWatcher, SIGNAL(fileChanged(QString)), this,
-            SLOT(handleChangeLogChanged()));
+            SLOT(handleDebianFileChanged(QString)));
         handleDebianDirContentsChanged();
-        handleChangeLogChanged();
+        handleDebianFileChanged(changeLogFilePath(m_activeProject));
+        handleDebianFileChanged(controlFilePath(m_activeProject));
     }
 }
 
@@ -201,30 +208,21 @@ void MaemoTemplatesManager::createTemplatesIfNecessary(ProjectExplorer::Target *
 QString MaemoTemplatesManager::version(const Project *project,
     QString *error) const
 {
-    const QString changeLogFilePath
-        = debianDirPath(project) + QLatin1String("/changelog");
-    const QString nativePath = QDir::toNativeSeparators(changeLogFilePath);
-    QFile changeLog(changeLogFilePath);
-    if (!changeLog.exists()) {
-        *error = tr("File '%1' does not exist").arg(nativePath);
+    QSharedPointer<QFile> changeLog
+        = openFile(changeLogFilePath(project), QIODevice::ReadOnly, error);
+    if (!changeLog)
         return QString();
-    }
-    if (!changeLog.open(QIODevice::ReadOnly)) {
-        *error = tr("Cannot open Debian changelog file '%1': %2")
-            .arg(nativePath, changeLog.errorString());
-        return QString();
-    }
-    const QByteArray &firstLine = changeLog.readLine();
+    const QByteArray &firstLine = changeLog->readLine();
     const int openParenPos = firstLine.indexOf('(');
     if (openParenPos == -1) {
         *error = tr("Debian changelog file '%1' has unexpected format.")
-            .arg(nativePath);
+                .arg(QDir::toNativeSeparators(changeLog->fileName()));
         return QString();
     }
     const int closeParenPos = firstLine.indexOf(')', openParenPos);
     if (closeParenPos == -1) {
         *error = tr("Debian changelog file '%1' has unexpected format.")
-            .arg(nativePath);
+                .arg(QDir::toNativeSeparators(changeLog->fileName()));
         return QString();
     }
     return QString::fromUtf8(firstLine.mid(openParenPos + 1,
@@ -234,29 +232,118 @@ QString MaemoTemplatesManager::version(const Project *project,
 bool MaemoTemplatesManager::setVersion(const Project *project,
     const QString &version, QString *error) const
 {
-    const QString changeLogFilePath
-        = debianDirPath(project) + QLatin1String("/changelog");
-    const QString nativePath = QDir::toNativeSeparators(changeLogFilePath);
-    QFile changeLog(changeLogFilePath);
-    if (!changeLog.exists()) {
-        *error = tr("File '%1' does not exist").arg(nativePath);
+    QSharedPointer<QFile> changeLog
+        = openFile(changeLogFilePath(project), QIODevice::ReadWrite, error);
+    if (!changeLog)
+        return false;
+
+    QString content = QString::fromUtf8(changeLog->readAll());
+    content.replace(QRegExp(QLatin1String("\\([a-zA-Z0-9_\\.]+\\)")),
+        QLatin1Char('(') + version + QLatin1Char(')'));
+    changeLog->resize(0);
+    changeLog->write(content.toUtf8());
+    changeLog->close();
+    if (changeLog->error() != QFile::NoError) {
+        *error = tr("Error writing Debian changelog file '%1': %2")
+            .arg(QDir::toNativeSeparators(changeLog->fileName()),
+                 changeLog->errorString());
         return false;
     }
-    if (!changeLog.open(QIODevice::ReadWrite)) {
-        *error = tr("Cannot open Debian changelog file '%1': %2")
-            .arg(nativePath , changeLog.errorString());
+    return true;
+}
+
+QIcon MaemoTemplatesManager::packageManagerIcon(const Project *project,
+    QString *error) const
+{
+    QSharedPointer<QFile> controlFile
+        = openFile(controlFilePath(project), QIODevice::ReadOnly, error);
+    if (!controlFile)
+        return QIcon();
+
+    bool iconFieldFound = false;
+    QByteArray currentLine;
+    while (!iconFieldFound && !controlFile->atEnd()) {
+        currentLine = controlFile->readLine();
+        iconFieldFound = currentLine.startsWith(IconFieldName);
+    }
+    if (!iconFieldFound)
+        return QIcon();
+
+    int pos = IconFieldName.length();
+    currentLine = currentLine.trimmed();
+    QByteArray base64Icon;
+    do {
+        while (pos < currentLine.length())
+            base64Icon += currentLine.at(pos++);
+        do
+            currentLine = controlFile->readLine();
+        while (currentLine.startsWith('#'));
+        if (currentLine.isEmpty() || !isspace(currentLine.at(0)))
+            break;
+        currentLine = currentLine.trimmed();
+        if (currentLine.isEmpty())
+            break;
+        pos = 0;
+    } while (true);
+    QPixmap pixmap;
+    if (!pixmap.loadFromData(QByteArray::fromBase64(base64Icon))) {
+        *error = tr("Invalid icon data in Debian control file.");
+        return QIcon();
+    }
+    return QIcon(pixmap);
+}
+
+bool MaemoTemplatesManager::setPackageManagerIcon(const Project *project,
+    const QString &iconFilePath, QString *error) const
+{
+    const QSharedPointer<QFile> controlFile
+        = openFile(controlFilePath(project), QIODevice::ReadWrite, error);
+    if (!controlFile)
+        return false;
+    const QPixmap pixmap(iconFilePath);
+    if (pixmap.isNull()) {
+        *error = tr("Could not read image file '%1'.").arg(iconFilePath);
         return false;
     }
 
-    QString content = QString::fromUtf8(changeLog.readAll());
-    content.replace(QRegExp(QLatin1String("\\([a-zA-Z0-9_\\.]+\\)")),
-        QLatin1Char('(') + version + QLatin1Char(')'));
-    changeLog.resize(0);
-    changeLog.write(content.toUtf8());
-    changeLog.close();
-    if (changeLog.error() != QFile::NoError) {
-        *error = tr("Error writing Debian changelog file '%1': %2")
-            .arg(nativePath , changeLog.errorString());
+    QByteArray iconAsBase64;
+    QBuffer buffer(&iconAsBase64);
+    buffer.open(QIODevice::WriteOnly);
+    if (!pixmap.scaled(48, 48).save(&buffer,
+        QFileInfo(iconFilePath).suffix().toAscii())) {
+        *error = tr("Could not export image file '%1'.").arg(iconFilePath);
+        return false;
+    }
+    buffer.close();
+    iconAsBase64 = iconAsBase64.toBase64();
+    QByteArray contents = controlFile->readAll();
+    const int iconFieldPos = contents.startsWith(IconFieldName)
+        ? 0 : contents.indexOf('\n' + IconFieldName);
+    if (iconFieldPos == -1) {
+        if (!contents.endsWith('\n'))
+            contents += '\n';
+        contents.append(IconFieldName).append(' ').append(iconAsBase64)
+            .append('\n');
+    } else {
+        const int oldIconStartPos
+            = (iconFieldPos != 0) + iconFieldPos + IconFieldName.length();
+        int nextEolPos = contents.indexOf('\n', oldIconStartPos);
+        while (nextEolPos != -1 && nextEolPos != contents.length() - 1
+            && contents.at(nextEolPos + 1) != '\n'
+            && (contents.at(nextEolPos + 1) == '#'
+                || std::isspace(contents.at(nextEolPos + 1))))
+            nextEolPos = contents.indexOf('\n', nextEolPos + 1);
+        if (nextEolPos == -1)
+            nextEolPos = contents.length();
+        contents.replace(oldIconStartPos, nextEolPos - oldIconStartPos,
+            ' ' + iconAsBase64);
+    }
+    controlFile->resize(0);
+    controlFile->write(contents);
+    if (controlFile->error() != QFile::NoError) {
+        *error = tr("Error writing file '%1': %2")
+            .arg(QDir::toNativeSeparators(controlFile->fileName()),
+                controlFile->errorString());
         return false;
     }
     return true;
@@ -274,19 +361,46 @@ QString MaemoTemplatesManager::debianDirPath(const Project *project) const
         + PackagingDirName + QLatin1String("/debian");
 }
 
+QString MaemoTemplatesManager::changeLogFilePath(const Project *project) const
+{
+    return debianDirPath(project) + QLatin1String("/changelog");
+}
+
+QString MaemoTemplatesManager::controlFilePath(const Project *project) const
+{
+    return debianDirPath(project) + QLatin1String("/control");
+}
+
 void MaemoTemplatesManager::raiseError(const QString &reason)
 {
     QMessageBox::critical(0, tr("Error creating Maemo templates"), reason);
 }
 
-void MaemoTemplatesManager::handleChangeLogChanged()
+void MaemoTemplatesManager::handleDebianFileChanged(const QString &filePath)
 {
-    emit changeLogChanged(m_activeProject);
+    if (filePath == changeLogFilePath(m_activeProject))
+        emit changeLogChanged(m_activeProject);
+    else if (filePath == controlFilePath(m_activeProject))
+        emit controlChanged(m_activeProject);
 }
 
 void MaemoTemplatesManager::handleDebianDirContentsChanged()
 {
     emit debianDirContentsChanged(m_activeProject);
+}
+
+QSharedPointer<QFile> MaemoTemplatesManager::openFile(const QString &filePath,
+    QIODevice::OpenMode mode, QString *error) const
+{
+    const QString nativePath = QDir::toNativeSeparators(filePath);
+    QSharedPointer<QFile> file(new QFile(filePath));
+    if (!file->exists()) {
+        *error = tr("File '%1' does not exist").arg(nativePath);
+    } else if (!file->open(mode)) {
+        *error = tr("Cannot open file '%1': %2")
+            .arg(nativePath, file->errorString());
+    }
+    return file;
 }
 
 } // namespace Internal

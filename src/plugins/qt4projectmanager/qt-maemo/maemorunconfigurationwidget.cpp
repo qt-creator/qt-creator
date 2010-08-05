@@ -109,8 +109,7 @@ void MaemoRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
     m_localExecutableLabel
         = new QLabel(m_runConfiguration->localExecutableFilePath());
     formLayout->addRow(tr("Executable on host:"), m_localExecutableLabel);
-    m_remoteExecutableLabel
-        = new QLabel(m_runConfiguration->remoteExecutableFilePath());
+    m_remoteExecutableLabel = new QLabel;
     formLayout->addRow(tr("Executable on device:"), m_remoteExecutableLabel);
     m_argsLineEdit = new QLineEdit(m_runConfiguration->arguments().join(" "));
     formLayout->addRow(tr("Arguments:"), m_argsLineEdit);
