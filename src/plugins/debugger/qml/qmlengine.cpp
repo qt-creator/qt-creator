@@ -530,4 +530,3 @@ void QmlEngine::messageReceived(const QByteArray &message)
 } // namespace Internal
 } // namespace Debugger
 
-#include "qmlengine.moc"
