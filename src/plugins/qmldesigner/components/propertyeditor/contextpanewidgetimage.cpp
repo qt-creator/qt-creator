@@ -360,6 +360,8 @@ void ContextPaneWidgetImage::setPixmap(const QString &fileName)
     if (m_borderImage) {
         if (QFile(fileName).exists()) {
             QPixmap source(fileName);
+            if (source.isNull())
+                source = pix;
             previewDialog()->setPixmap(source, previewDialog()->zoom());
             uiBorderImage->sizeLabel->setText(QString::number(source.width()) + 'x' + QString::number(source.height()));
             QPainter p(&pix);
@@ -800,7 +802,10 @@ PreviewDialog::PreviewDialog(QWidget *parent) : DragWidget(parent)
 void PreviewDialog::setPixmap(const QPixmap &p, int zoom)
 {
     m_pixmap = p;
-    m_label->setPixmap(p.scaled(p.width() * zoom, p.height() * zoom));
+    if (!p.isNull())
+        m_label->setPixmap(p.scaled(p.width() * zoom, p.height() * zoom));
+    else
+        m_label->setPixmap(QPixmap());
     m_label->adjustSize();
     m_zoom = zoom;
     m_label->setZoom(m_zoom);
