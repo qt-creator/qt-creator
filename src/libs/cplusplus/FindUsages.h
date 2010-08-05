@@ -106,6 +106,7 @@ protected:
 
     unsigned startOfTemplateDeclaration(TemplateDeclarationAST *ast) const;
     static bool compareFullyQualifiedName(const QList<const Name *> &path, const QList<const Name *> &other);
+    static bool compareName(const Name *name, const Name *other);
 
 private:
     const Identifier *_id;

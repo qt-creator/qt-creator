@@ -170,12 +170,29 @@ bool FindUsages::compareFullyQualifiedName(const QList<const Name *> &path, cons
         return false;
 
     for (int i = 0; i < path.length(); ++i) {
-        if (! path.at(i)->isEqualTo(other.at(i)))
+        if (! compareName(path.at(i), other.at(i)))
             return false;
     }
 
     return true;
 }
+
+bool FindUsages::compareName(const Name *name, const Name *other)
+{
+    if (name == other)
+        return true;
+
+    else if (name && other) {
+        const Identifier *id = name->identifier();
+        const Identifier *otherId = other->identifier();
+
+        if (id == otherId || (id && id->isEqualTo(otherId)))
+            return true;
+    }
+
+    return false;
+}
+
 
 bool FindUsages::checkCandidates(const QList<LookupItem> &candidates) const
 {
