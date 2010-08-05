@@ -82,6 +82,7 @@ protected:
 
     void ensureNameIsValid(NameAST *ast);
 
+    virtual bool visit(NamespaceAST *ast);
     virtual bool visit(MemInitializerAST *ast);
     virtual bool visit(MemberAccessAST *ast);
     virtual bool visit(QualifiedNameAST *ast);
@@ -104,15 +105,15 @@ protected:
     virtual bool visit(TemplateTypeParameterAST *ast);
 
     unsigned startOfTemplateDeclaration(TemplateDeclarationAST *ast) const;
+    static bool compareFullyQualifiedName(const QList<const Name *> &path, const QList<const Name *> &other);
 
 private:
     const Identifier *_id;
-    Symbol *_declSymbol;
+    QList<const Name *> _declSymbolFullyQualifiedName;
     Document::Ptr _doc;
     Snapshot _snapshot;
     LookupContext _context;
     QByteArray _source;
-    Document::Ptr _exprDoc;
     Semantic _sem;
     QList<QualifiedNameAST *> _qualifiedNameStack;
     QList<TemplateDeclarationAST *> _templateDeclarationStack;

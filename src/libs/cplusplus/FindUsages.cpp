@@ -78,21 +78,25 @@ QList<int> FindUsages::references() const
 
 void FindUsages::operator()(Symbol *symbol)
 {
+    if (! symbol)
+        return;
+
+    _id = symbol->identifier();
+
+    if (! _id)
+        return;
+
     _processed.clear();
     _references.clear();
     _usages.clear();
-    _declSymbol = symbol;
+    _declSymbolFullyQualifiedName = LookupContext::fullyQualifiedName(symbol);
     _inSimpleDeclaration = 0;
     _inQProperty = false;
 
-    _id = 0;
-    if (_declSymbol && 0 != (_id = _declSymbol->identifier()))
-        _id = _doc->control()->findOrInsertIdentifier(_id->chars(), _id->size());
+    // get the canonical id
+    _id = _doc->control()->findOrInsertIdentifier(_id->chars(), _id->size());
 
-    if (_id) {
-        _exprDoc = Document::create("<references>");
-        accept(_doc->translationUnit()->ast());
-    }
+    accept(_doc->translationUnit()->ast());
 }
 
 QString FindUsages::matchingLine(const Token &tk) const
@@ -160,13 +164,26 @@ void FindUsages::reportResult(unsigned tokenIndex)
     _references.append(tokenIndex);
 }
 
+bool FindUsages::compareFullyQualifiedName(const QList<const Name *> &path, const QList<const Name *> &other)
+{
+    if (path.length() != other.length())
+        return false;
+
+    for (int i = 0; i < path.length(); ++i) {
+        if (! path.at(i)->isEqualTo(other.at(i)))
+            return false;
+    }
+
+    return true;
+}
+
 bool FindUsages::checkCandidates(const QList<LookupItem> &candidates) const
 {
-    if (ClassOrNamespace *c = _context.lookupType(_declSymbol)) {
-        for (int i = candidates.size() - 1; i != -1; --i) {
-            const LookupItem &r = candidates.at(i);
-            Symbol *s = r.declaration();
-            if (_context.lookupType(s) == c)
+    for (int i = candidates.size() - 1; i != -1; --i) {
+        const LookupItem &r = candidates.at(i);
+
+        if (Symbol *s = r.declaration()) {
+            if (compareFullyQualifiedName(LookupContext::fullyQualifiedName(s), _declSymbolFullyQualifiedName))
                 return true;
         }
     }
@@ -178,6 +195,16 @@ void FindUsages::ensureNameIsValid(NameAST *ast)
 {
     if (ast && ! ast->name)
         ast->name = _sem.check(ast, /*scope = */ 0);
+}
+
+bool FindUsages::visit(NamespaceAST *ast)
+{
+    const Identifier *id = identifier(ast->identifier_token);
+    if (id == _id && ast->symbol) {
+        const QList<LookupItem> candidates = _context.lookup(ast->symbol->name(), scopeAt(ast->identifier_token));
+        reportResult(ast->identifier_token, candidates);
+    }
+    return true;
 }
 
 bool FindUsages::visit(MemInitializerAST *ast)
