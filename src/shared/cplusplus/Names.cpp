@@ -77,10 +77,12 @@ const Name *QualifiedNameId::name() const
 
 bool QualifiedNameId::isEqualTo(const Name *other) const
 {
-    if (const QualifiedNameId *q = other->asQualifiedNameId()) {
-        if (_base == q->_base || (_base && _base->isEqualTo(q->_base))) {
-            if (_name == q->_name || (_name && _name->isEqualTo(q->_name))) {
-                return true;
+    if (other) {
+        if (const QualifiedNameId *q = other->asQualifiedNameId()) {
+            if (_base == q->_base || (_base && _base->isEqualTo(q->_base))) {
+                if (_name == q->_name || (_name && _name->isEqualTo(q->_name))) {
+                    return true;
+                }
             }
         }
     }
@@ -103,12 +105,15 @@ const Identifier *NameId::identifier() const
 
 bool NameId::isEqualTo(const Name *other) const
 {
-    const NameId *nameId = other->asNameId();
-    if (! nameId)
-        return false;
-    const Identifier *l = identifier();
-    const Identifier *r = nameId->identifier();
-    return l->isEqualTo(r);
+    if (other) {
+        const NameId *nameId = other->asNameId();
+        if (! nameId)
+            return false;
+        const Identifier *l = identifier();
+        const Identifier *r = nameId->identifier();
+        return l->isEqualTo(r);
+    }
+    return false;
 }
 
 DestructorNameId::DestructorNameId(const Identifier *identifier)
@@ -126,12 +131,15 @@ const Identifier *DestructorNameId::identifier() const
 
 bool DestructorNameId::isEqualTo(const Name *other) const
 {
-    const DestructorNameId *d = other->asDestructorNameId();
-    if (! d)
-        return false;
-    const Identifier *l = identifier();
-    const Identifier *r = d->identifier();
-    return l->isEqualTo(r);
+    if (other) {
+        const DestructorNameId *d = other->asDestructorNameId();
+        if (! d)
+            return false;
+        const Identifier *l = identifier();
+        const Identifier *r = d->identifier();
+        return l->isEqualTo(r);
+    }
+    return false;
 }
 
 TemplateNameId::~TemplateNameId()
@@ -151,22 +159,22 @@ const FullySpecifiedType &TemplateNameId::templateArgumentAt(unsigned index) con
 
 bool TemplateNameId::isEqualTo(const Name *other) const
 {
-    if (! other)
-        return false;
-    const TemplateNameId *t = other->asTemplateNameId();
-    if (! t)
-        return false;
-    const Identifier *l = identifier();
-    const Identifier *r = t->identifier();
-    if (! l->isEqualTo(r))
-        return false;
-    if (templateArgumentCount() != t->templateArgumentCount())
-        return false;
-    for (unsigned i = 0; i < templateArgumentCount(); ++i) {
-        const FullySpecifiedType &l = _templateArguments[i];
-        const FullySpecifiedType &r = t->_templateArguments[i];
-        if (! l.isEqualTo(r))
+    if (other) {
+        const TemplateNameId *t = other->asTemplateNameId();
+        if (! t)
             return false;
+        const Identifier *l = identifier();
+        const Identifier *r = t->identifier();
+        if (! l->isEqualTo(r))
+            return false;
+        if (templateArgumentCount() != t->templateArgumentCount())
+            return false;
+        for (unsigned i = 0; i < templateArgumentCount(); ++i) {
+            const FullySpecifiedType &l = _templateArguments[i];
+            const FullySpecifiedType &r = t->_templateArguments[i];
+            if (! l.isEqualTo(r))
+                return false;
+        }
     }
     return true;
 }
@@ -189,10 +197,13 @@ const Identifier *OperatorNameId::identifier() const
 
 bool OperatorNameId::isEqualTo(const Name *other) const
 {
-    const OperatorNameId *o = other->asOperatorNameId();
-    if (! o)
-        return false;
-    return _kind == o->kind();
+    if (other) {
+        const OperatorNameId *o = other->asOperatorNameId();
+        if (! o)
+            return false;
+        return _kind == o->kind();
+    }
+    return false;
 }
 
 ConversionNameId::ConversionNameId(const FullySpecifiedType &type)
@@ -213,10 +224,13 @@ const Identifier *ConversionNameId::identifier() const
 
 bool ConversionNameId::isEqualTo(const Name *other) const
 {
-    const ConversionNameId *c = other->asConversionNameId();
-    if (! c)
-        return false;
-    return _type.isEqualTo(c->type());
+    if (other) {
+        const ConversionNameId *c = other->asConversionNameId();
+        if (! c)
+            return false;
+        return _type.isEqualTo(c->type());
+    }
+    return false;
 }
 
 SelectorNameId::~SelectorNameId()
@@ -244,23 +258,24 @@ bool SelectorNameId::hasArguments() const
 
 bool SelectorNameId::isEqualTo(const Name *other) const
 {
-    const SelectorNameId *q = other->asSelectorNameId();
-    if (! q)
-        return false;
-    else if (hasArguments() != q->hasArguments())
-        return false;
-    else {
-        const unsigned count = nameCount();
-        if (count != q->nameCount())
+    if (other) {
+        const SelectorNameId *q = other->asSelectorNameId();
+        if (! q)
             return false;
-        for (unsigned i = 0; i < count; ++i) {
-            const Name *l = nameAt(i);
-            const Name *r = q->nameAt(i);
-            if (! l->isEqualTo(r))
+        else if (hasArguments() != q->hasArguments())
+            return false;
+        else {
+            const unsigned count = nameCount();
+            if (count != q->nameCount())
                 return false;
+            for (unsigned i = 0; i < count; ++i) {
+                const Name *l = nameAt(i);
+                const Name *r = q->nameAt(i);
+                if (! l->isEqualTo(r))
+                    return false;
+            }
         }
     }
     return true;
 }
-
 
