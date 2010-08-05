@@ -69,10 +69,10 @@ Core::BaseFileWizardParameters QmlProjectApplicationWizard::parameters()
         p.drawPixmap(3, 3, 16, 16, QPixmap(QLatin1String(Constants::QML_WIZARD_ICON)));
         parameters.setIcon(icon);
     }
-    parameters.setDisplayName(tr("Qt QML Application"));
+    parameters.setDisplayName(tr("QML Application"));
     parameters.setId(QLatin1String("QA.QML Application"));
-    parameters.setDescription(tr("Creates a Qt QML application project with a single QML file containing the main view.\n\n"
-                                 "QML application projects are executed through the QML runtime and do not need to be built."));
+    parameters.setDescription(tr("Creates a QML application project with a single QML file containing the main view.\n\n"
+                                 "QML application projects are executed by the Qt QML Viewer and do not need to be built."));
     parameters.setCategory(QLatin1String(Constants::QML_WIZARD_CATEGORY));
     parameters.setDisplayCategory(QCoreApplication::translate(Constants::QML_WIZARD_TR_SCOPE,
                                                               Constants::QML_WIZARD_TR_CATEGORY));
