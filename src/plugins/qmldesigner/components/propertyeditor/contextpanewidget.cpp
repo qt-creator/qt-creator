@@ -266,7 +266,7 @@ void ContextPaneWidget::setPath(const QString &path)
 
 }
 
-bool ContextPaneWidget::setType(const QString &typeName)
+bool ContextPaneWidget::setType(const QStringList &types)
 {
     m_imageWidget->hide();
     m_borderImageWidget->hide();
@@ -274,42 +274,42 @@ bool ContextPaneWidget::setType(const QString &typeName)
     m_rectangleWidget->hide();
     m_easingWidget->hide();
 
-    if (typeName.contains("Text")) {
+    if (types.contains("Text")) {
         m_currentWidget = m_textWidget;
         m_textWidget->show();
         m_textWidget->setStyleVisible(true);
         m_textWidget->setVerticalAlignmentVisible(true);
-        if (typeName.contains("TextInput")) {
+        if (types.contains("TextInput")) {
             m_textWidget->setVerticalAlignmentVisible(false);
             m_textWidget->setStyleVisible(false);
-        } else if (typeName.contains("TextEdit")) {
+        } else if (types.contains("TextEdit")) {
             m_textWidget->setStyleVisible(false);
         }
         resize(sizeHint());
         return true;
     }
 
-    if (m_easingWidget->acceptsType(typeName)) {
+    if (m_easingWidget->acceptsType(types)) {
         m_currentWidget = m_easingWidget;
         m_easingWidget->show();
         resize(sizeHint());
         return true;
     }
-    if (typeName.contains("Rectangle")) {
+    if (types.contains("Rectangle")) {
         m_currentWidget = m_rectangleWidget;
         m_rectangleWidget->show();
         resize(sizeHint());
         return true;
     }
 
-    if (typeName.contains("BorderImage")) {
+    if (types.contains("BorderImage")) {
         m_currentWidget = m_borderImageWidget;
         m_borderImageWidget->show();
         resize(sizeHint());
         return true;
     }
 
-    if (typeName.contains("Image")) {
+    if (types.contains("Image")) {
         m_currentWidget = m_imageWidget;
         m_imageWidget->show();
         resize(sizeHint());
@@ -318,10 +318,10 @@ bool ContextPaneWidget::setType(const QString &typeName)
     return false;
 }
 
-bool ContextPaneWidget::acceptsType(const QString &typeName)
+bool ContextPaneWidget::acceptsType(const QStringList &types)
 {
-    return typeName.contains("Text") || m_easingWidget->acceptsType(typeName) ||
-            typeName.contains("Rectangle") || typeName.contains("Image");
+    return types.contains("Text") || m_easingWidget->acceptsType(types) ||
+            types.contains("Rectangle") || types.contains("Image");
 }
 
 void ContextPaneWidget::onTogglePane()

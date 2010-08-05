@@ -55,8 +55,8 @@ public:
     BauhausColorDialog *colorDialog();
     void setProperties(QmlJS::PropertyReader *propertyReader);
     void setPath(const QString &path);
-    bool setType(const QString &typeName);
-    bool acceptsType(const QString &typeName);
+    bool setType(const QStringList &types);
+    bool acceptsType(const QStringList &types);
     QWidget* currentWidget() const { return m_currentWidget; }
 
 public slots:

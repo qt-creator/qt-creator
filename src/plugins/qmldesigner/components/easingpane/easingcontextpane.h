@@ -33,7 +33,7 @@ public:
     void setGraphDisplayMode(GraphDisplayMode newMode);
     void startAnimation();
 
-    bool acceptsType(const QString &);
+    bool acceptsType(const QStringList &);
 
 signals:
     void propertyChanged(const QString &, const QVariant &);

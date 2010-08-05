@@ -90,8 +90,6 @@ void QmlContextPane::apply(TextEditor::BaseTextEditorEditable *editor, Document:
         scopeObject =  scopeObject->prototype(lookupContext->context());
     }
 
-    //qDebug() << prototypes;
-
     setEnabled(doc->isParsedCorrectly());
     m_editor = editor;
     contextWidget()->setParent(editor->widget()->parentWidget());
@@ -134,7 +132,7 @@ void QmlContextPane::apply(TextEditor::BaseTextEditorEditable *editor, Document:
         rect.moveTo(reg.boundingRect().topLeft());
         reg = reg.intersect(rect);
 
-        if (contextWidget()->acceptsType(name)) {
+        if (contextWidget()->acceptsType(prototypes)) {
             m_node = 0;
             PropertyReader propertyReader(doc, initializer);
             QTextCursor tc(editor->editor()->document());
@@ -147,7 +145,7 @@ void QmlContextPane::apply(TextEditor::BaseTextEditorEditable *editor, Document:
                 offset = QPoint(400 - reg.boundingRect().width() + 10 ,0);
             QPoint p3 = editor->editor()->mapToParent(editor->editor()->viewport()->mapToParent(reg.boundingRect().topRight()) + offset);
             p2.setX(p1.x());
-            contextWidget()->setType(name);
+            contextWidget()->setType(prototypes);
             if (!update)
                 contextWidget()->activate(p3 , p1, p2);
             else
@@ -223,7 +221,6 @@ void QmlContextPane::setProperty(const QString &propertyName, const QVariant &va
 
         int line = -1;
         int endLine;
-
 
         Rewriter::BindingType bindingType = Rewriter::ScriptBinding;
 

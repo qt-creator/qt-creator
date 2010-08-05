@@ -114,12 +114,12 @@ EasingContextPane::~EasingContextPane()
 }
 
 
-bool EasingContextPane::acceptsType(const QString &typeName)
+bool EasingContextPane::acceptsType(const QStringList &types)
 {
-    return typeName.contains("NumberAnimation") ||
-            typeName.contains("PropertyAnimation") ||
-            typeName.contains("ColorAnimation") ||
-            typeName.contains("RotationAnimation");
+    return types.contains("NumberAnimation") ||
+            types.contains("PropertyAnimation") ||
+            types.contains("ColorAnimation") ||
+            types.contains("RotationAnimation");
 }
 
 void EasingContextPane::setProperties(QmlJS::PropertyReader *propertyReader)
