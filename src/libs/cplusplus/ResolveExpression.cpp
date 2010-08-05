@@ -316,7 +316,7 @@ void ResolveExpression::thisObject()
 {
     Scope *scope = _scope;
     for (; scope; scope = scope->enclosingScope()) {
-        if (scope->isFunctionScope()) {
+        if (scope->isPrototypeScope()) {
             Function *fun = scope->owner()->asFunction();
             if (Scope *cscope = scope->enclosingClassScope()) {
                 Class *klass = cscope->owner()->asClass();

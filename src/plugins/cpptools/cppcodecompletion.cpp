@@ -1068,7 +1068,7 @@ void CppCodeCompletion::globalCompletion(Scope *currentScope)
                     }
                 }
             }
-        } else if (scope->isFunctionScope() || scope->isClassScope() || scope->isNamespaceScope()) {
+        } else if (scope->isPrototypeScope() || scope->isClassScope() || scope->isNamespaceScope()) {
             currentBinding = context.lookupType(scope->owner());
             break;
         }
@@ -1079,7 +1079,7 @@ void CppCodeCompletion::globalCompletion(Scope *currentScope)
             for (unsigned i = 0; i < scope->symbolCount(); ++i) {
                 addCompletionItem(scope->symbolAt(i));
             }
-        } else if (scope->isFunctionScope()) {
+        } else if (scope->isPrototypeScope()) {
             Function *fun = scope->owner()->asFunction();
             for (unsigned i = 0; i < fun->argumentCount(); ++i) {
                 addCompletionItem(fun->argumentAt(i));

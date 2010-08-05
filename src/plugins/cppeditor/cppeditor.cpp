@@ -1078,10 +1078,10 @@ void CPPEditor::switchDeclarationDefinition()
         Symbol *lastVisibleSymbol = thisDocument->lastVisibleSymbolAt(line, column);
 
         Scope *functionScope = 0;
-        if (scope->isFunctionScope())
+        if (scope->isPrototypeScope())
             functionScope = scope;
         else
-            functionScope = scope->enclosingFunctionScope();
+            functionScope = scope->enclosingPrototypeScope();
 
         if (! functionScope && lastVisibleSymbol) {
             if (Function *def = lastVisibleSymbol->asFunction())

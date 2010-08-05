@@ -120,7 +120,7 @@ QDebug operator<<(QDebug d, const Scope &scope)
         str << " enum";
     if (scope.isBlockScope())
         str << " block";
-    if (scope.isFunctionScope())
+    if (scope.isPrototypeScope())
         str << " function";
     if (scope.isPrototypeScope())
         str << " prototype";
@@ -374,7 +374,7 @@ int getUninitializedVariablesI(const CPlusPlus::Snapshot &snapshot,
             if (CPlusPlus::Block *block = function->memberAt(0)->asBlock())
                 innerMostScope = block->members();
     } else {
-        if (const CPlusPlus::Scope *functionScope = symbolAtLine->enclosingFunctionScope()) {
+        if (const CPlusPlus::Scope *functionScope = symbolAtLine->enclosingPrototypeScope()) {
             function = functionScope->owner()->asFunction();
             innerMostScope = symbolAtLine->isBlock() ?
                              symbolAtLine->asBlock()->members() :

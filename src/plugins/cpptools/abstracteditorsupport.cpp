@@ -68,7 +68,7 @@ QString AbstractEditorSupport::functionAt(const CppModelManagerInterface *modelM
         return QString();
     if (const CPlusPlus::Symbol *symbol = document->lastVisibleSymbolAt(line, column))
         if (const CPlusPlus::Scope *scope = symbol->scope())
-            if (const CPlusPlus::Scope *functionScope = scope->enclosingFunctionScope())
+            if (const CPlusPlus::Scope *functionScope = scope->enclosingPrototypeScope())
                 if (const CPlusPlus::Symbol *function = functionScope->owner()) {
                     const CPlusPlus::Overview o;
                     QString rc = o.prettyName(function->name());

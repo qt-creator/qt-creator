@@ -130,7 +130,7 @@ protected:
         Scope *scope = _doc->scopeAt(line, column);
 
         while (scope) {
-            if (scope->isFunctionScope()) {
+            if (scope->isPrototypeScope()) {
                 Function *fun = scope->owner()->asFunction();
                 if (findMember(fun->members(), ast, line, column))
                     return false;
@@ -176,7 +176,7 @@ protected:
         Scope *scope = _doc->scopeAt(line, column);
 
         while (scope) {
-            if (scope->isFunctionScope()) {
+            if (scope->isPrototypeScope()) {
                 Function *fun = scope->owner()->asFunction();
                 if (findMember(fun->members(), ast, line, column))
                     return false;

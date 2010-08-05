@@ -280,7 +280,7 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
                 }
             }
 
-        } else if (scope->isFunctionScope()) {
+        } else if (scope->isPrototypeScope()) {
             Function *fun = scope->owner()->asFunction();
             bindings()->lookupInScope(name, fun->members(), &candidates, /*templateId = */ 0, /*binding=*/ 0);
 

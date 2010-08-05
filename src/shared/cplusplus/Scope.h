@@ -87,8 +87,8 @@ public:
     /// Returns the enclosing enum scope.
     Scope *enclosingEnumScope() const;
 
-    /// Rerturns the enclosing function scope.
-    Scope *enclosingFunctionScope() const;
+    /// Rerturns the enclosing prototype scope.
+    Scope *enclosingPrototypeScope() const;
 
     /// Rerturns the enclosing Block scope.
     Scope *enclosingBlockScope() const;
@@ -104,9 +104,6 @@ public:
 
     /// Returns true if this scope's owner is a Block Symbol.
     bool isBlockScope() const;
-
-    /// Returns true if this scope's owner is a Function Symbol.
-    bool isFunctionScope() const;
 
     /// Returns true if this scope's owner is a Prototype Symbol.
     bool isPrototypeScope() const;

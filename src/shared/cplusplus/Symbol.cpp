@@ -283,15 +283,15 @@ Scope *Symbol::enclosingEnumScope() const
     return _scope->enclosingEnumScope();
 }
 
-Scope *Symbol::enclosingFunctionScope() const
+Scope *Symbol::enclosingPrototypeScope() const
 {
     if (! _scope)
         return 0;
 
-    else if (_scope->isFunctionScope())
+    else if (_scope->isPrototypeScope())
         return _scope;
 
-    return _scope->enclosingFunctionScope();
+    return _scope->enclosingPrototypeScope();
 }
 
 Scope *Symbol::enclosingBlockScope() const

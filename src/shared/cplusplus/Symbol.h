@@ -295,8 +295,8 @@ public:
     /// Returns the enclosing enum scope.
     Scope *enclosingEnumScope() const;
 
-    /// Returns the enclosing function scope.
-    Scope *enclosingFunctionScope() const;
+    /// Returns the enclosing prototype scope.
+    Scope *enclosingPrototypeScope() const;
 
     /// Returns the enclosing Block scope.
     Scope *enclosingBlockScope() const;

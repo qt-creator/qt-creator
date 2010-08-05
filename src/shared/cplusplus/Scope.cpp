@@ -118,7 +118,7 @@ Scope *Scope::enclosingEnumScope() const
     return scope;
 }
 
-Scope *Scope::enclosingFunctionScope() const
+Scope *Scope::enclosingPrototypeScope() const
 {
     Scope *scope = enclosingScope();
     for (; scope; scope = scope->enclosingScope()) {
@@ -166,11 +166,6 @@ bool Scope::isBlockScope() const
     return false;
 }
 
-bool Scope::isPrototypeScope() const
-{
-    return isFunctionScope();
-}
-
 bool Scope::isObjCClassScope() const
 {
     if (_owner)
@@ -185,7 +180,7 @@ bool Scope::isObjCProtocolScope() const
     return false;
 }
 
-bool Scope::isFunctionScope() const
+bool Scope::isPrototypeScope() const
 {
     if (_owner)
         return _owner->isFunction();
