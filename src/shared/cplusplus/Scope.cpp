@@ -58,9 +58,9 @@ using namespace CPlusPlus;
 Scope::Scope(ScopedSymbol *owner)
     : _owner(owner),
       _symbols(0),
+      _hash(0),
       _allocatedSymbols(0),
       _symbolCount(-1),
-      _hash(0),
       _hashSize(0),
       _startOffset(0),
       _endOffset(0)
@@ -168,10 +168,7 @@ bool Scope::isBlockScope() const
 
 bool Scope::isPrototypeScope() const
 {
-    Function *f = 0;
-    if (_owner && 0 != (f = _owner->asFunction()))
-        return f->arguments() == this;
-    return false;
+    return isFunctionScope();
 }
 
 bool Scope::isObjCClassScope() const
@@ -190,9 +187,8 @@ bool Scope::isObjCProtocolScope() const
 
 bool Scope::isFunctionScope() const
 {
-    Function *f = 0;
-    if (_owner && 0 != (f = _owner->asFunction()))
-        return f->arguments() != this;
+    if (_owner)
+        return _owner->isFunction();
     return false;
 }
 

@@ -342,6 +342,9 @@ public:
     int methodKey() const;
     void setMethodKey(int key);
 
+    Block *block() const;
+    void setBlock(Block *block);
+
     unsigned templateParameterCount() const; // ### remove me
     Symbol *templateParameterAt(unsigned index) const; // ### remove me
 
@@ -356,7 +359,6 @@ public:
 
     unsigned argumentCount() const;
     Symbol *argumentAt(unsigned index) const;
-    Scope *arguments() const;
 
     /** Convenience function that returns whether the function receives any arguments. */
     bool hasArguments() const;
@@ -408,8 +410,9 @@ protected:
     virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
 
 private:
-    TemplateParameters *_templateParameters;
     FullySpecifiedType _returnType;
+    TemplateParameters *_templateParameters;
+    Block *_block;
     struct Flags {
         unsigned _isVirtual: 1;
         unsigned _isVariadic: 1;
@@ -423,7 +426,6 @@ private:
         unsigned _flags;
         Flags f;
     };
-    Scope *_arguments;
 };
 
 class CPLUSPLUS_EXPORT Namespace: public ScopedSymbol, public Type

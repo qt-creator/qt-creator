@@ -175,7 +175,7 @@ bool CheckDeclarator::visit(FunctionDeclaratorAST *ast)
     if (ast->parameters) {
         DeclarationListAST *parameter_declarations = ast->parameters->parameter_declaration_list;
         for (DeclarationListAST *decl = parameter_declarations; decl; decl = decl->next) {
-            semantic()->check(decl->value, fun->arguments());
+            semantic()->check(decl->value, fun->members());
         }
 
         if (ast->parameters->dot_dot_dot_token)

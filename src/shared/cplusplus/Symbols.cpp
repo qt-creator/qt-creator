@@ -191,14 +191,14 @@ void TypenameArgument::visitSymbol0(SymbolVisitor *visitor)
 
 Function::Function(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : ScopedSymbol(translationUnit, sourceLocation, name),
-     _templateParameters(0),
-     _flags(0)
-{ _arguments = new Scope(this); }
+      _templateParameters(0),
+      _block(0),
+      _flags(0)
+{ }
 
 Function::~Function()
 {
     delete _templateParameters;
-    delete _arguments;
 }
 
 bool Function::isNormal() const
@@ -218,6 +218,12 @@ int Function::methodKey() const
 
 void Function::setMethodKey(int key)
 { f._methodKey = key; }
+
+Block *Function::block() const
+{ return _block; }
+
+void Function::setBlock(Block *block)
+{ _block = block; }
 
 unsigned Function::templateParameterCount() const
 {
@@ -255,13 +261,13 @@ bool Function::isEqualTo(const Type *other) const
     const Name *l = identity();
     const Name *r = o->identity();
     if (l == r || (l && l->isEqualTo(r))) {
-        if (_arguments->symbolCount() != o->_arguments->symbolCount())
+        if (argumentCount() != o->argumentCount())
             return false;
         else if (! _returnType.isEqualTo(o->_returnType))
             return false;
-        for (unsigned i = 0; i < _arguments->symbolCount(); ++i) {
-            Symbol *l = _arguments->symbolAt(i);
-            Symbol *r = o->_arguments->symbolAt(i);
+        for (unsigned i = 0; i < argumentCount(); ++i) {
+            Symbol *l = argumentAt(i);
+            Symbol *r = o->argumentAt(i);
             if (! l->type().isEqualTo(r->type()))
                 return false;
         }
@@ -334,17 +340,14 @@ bool Function::hasReturnType() const
 
 unsigned Function::argumentCount() const
 {
-    if (! _arguments)
-        return 0;
+    if (_block)
+        return memberCount() - 1;
 
-    return _arguments->symbolCount();
+    return memberCount();
 }
 
 Symbol *Function::argumentAt(unsigned index) const
-{ return _arguments->symbolAt(index); }
-
-Scope *Function::arguments() const
-{ return _arguments; }
+{ return memberAt(index); }
 
 bool Function::hasArguments() const
 {
@@ -356,8 +359,8 @@ unsigned Function::minimumArgumentCount() const
 {
     unsigned index = 0;
 
-    for (; index < _arguments->symbolCount(); ++index) {
-        if (Argument *arg = _arguments->symbolAt(index)->asArgument()) {
+    for (; index < argumentCount(); ++index) {
+        if (Argument *arg = argumentAt(index)->asArgument()) {
             if (arg->hasInitializer())
                 break;
         }
@@ -405,9 +408,6 @@ void Function::setAmbiguous(bool isAmbiguous)
 void Function::visitSymbol0(SymbolVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (unsigned i = 0; i < _arguments->symbolCount(); ++i) {
-            visitSymbol(_arguments->symbolAt(i), visitor);
-        }
         for (unsigned i = 0; i < memberCount(); ++i) {
             visitSymbol(memberAt(i), visitor);
         }

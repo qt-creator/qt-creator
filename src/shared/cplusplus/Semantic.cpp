@@ -199,7 +199,13 @@ void Semantic::finishFunctionDefinition(FunctionDefinitionAST *ast)
 
     Function *fun = ast->symbol;
     d->checkDeclaration->check(ast->ctor_initializer, fun->scope());
-    check(ast->function_body, fun->members());
+
+    if (ast->function_body) {
+        check(ast->function_body, fun->members());
+
+        if (CompoundStatementAST *c = ast->function_body->asCompoundStatement())
+            fun->setBlock(c->symbol);
+    }
 
     switchMethodKey(previousMethodKey);
     switchVisibility(previousVisibility);

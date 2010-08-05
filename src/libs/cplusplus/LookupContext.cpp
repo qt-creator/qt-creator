@@ -282,7 +282,7 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
 
         } else if (scope->isFunctionScope()) {
             Function *fun = scope->owner()->asFunction();
-            bindings()->lookupInScope(name, fun->arguments(), &candidates, /*templateId = */ 0, /*binding=*/ 0);
+            bindings()->lookupInScope(name, fun->members(), &candidates, /*templateId = */ 0, /*binding=*/ 0);
 
             for (TemplateParameters *it = fun->templateParameters(); it && candidates.isEmpty(); it = it->previous())
                 bindings()->lookupInScope(name, it->scope(), &candidates, /* templateId = */ 0, /*binding=*/ 0);

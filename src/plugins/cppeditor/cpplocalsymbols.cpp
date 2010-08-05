@@ -134,7 +134,7 @@ protected:
                 Function *fun = scope->owner()->asFunction();
                 if (findMember(fun->members(), ast, line, column))
                     return false;
-                else if (findMember(fun->arguments(), ast, line, column))
+                else if (findMember(fun->members(), ast, line, column))
                     return false;
             } else if (scope->isObjCMethodScope()) {
                 ObjCMethod *method = scope->owner()->asObjCMethod();
@@ -180,7 +180,7 @@ protected:
                 Function *fun = scope->owner()->asFunction();
                 if (findMember(fun->members(), ast, line, column))
                     return false;
-                else if (findMember(fun->arguments(), ast, line, column))
+                else if (fun->block() && findMember(fun->block()->members(), ast, line, column))
                     return false;
             } else if (scope->isBlockScope()) {
                 if (findMember(scope, ast, line, column))

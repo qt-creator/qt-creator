@@ -161,14 +161,11 @@ private:
     enum { DefaultInitialSize = 11 };
 
     ScopedSymbol *_owner;
-
     Symbol **_symbols;
+    Symbol **_hash;
     int _allocatedSymbols;
     int _symbolCount;
-
-    Symbol **_hash;
     int _hashSize;
-
     unsigned _startOffset;
     unsigned _endOffset;
 };

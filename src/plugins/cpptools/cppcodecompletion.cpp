@@ -1080,9 +1080,9 @@ void CppCodeCompletion::globalCompletion(Scope *currentScope)
                 addCompletionItem(scope->symbolAt(i));
             }
         } else if (scope->isFunctionScope()) {
-            Scope *arguments = scope->owner()->asFunction()->arguments();
-            for (unsigned i = 0; i < arguments->symbolCount(); ++i) {
-                addCompletionItem(arguments->symbolAt(i));
+            Function *fun = scope->owner()->asFunction();
+            for (unsigned i = 0; i < fun->argumentCount(); ++i) {
+                addCompletionItem(fun->argumentAt(i));
             }
             break;
         } else {

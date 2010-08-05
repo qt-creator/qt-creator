@@ -145,7 +145,7 @@ public:
                 newArg->setName(rewrite->rewriteName(arg->name()));
                 newArg->setType(rewrite->rewriteType(arg->type()));
 
-                funTy->arguments()->enterSymbol(newArg);
+                funTy->addMember(newArg);
             }
 
             temps.append(funTy);
