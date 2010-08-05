@@ -60,6 +60,7 @@
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/syntaxhighlighter.h>
+#include <texteditor/refactoroverlay.h>
 #include <qmldesigner/qmldesignerconstants.h>
 #include <utils/changeset.h>
 #include <utils/uncommentselection.h>
@@ -702,6 +703,11 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     m_updateOutlineIndexTimer->setSingleShot(true);
     connect(m_updateOutlineIndexTimer, SIGNAL(timeout()), this, SLOT(updateOutlineIndexNow()));
 
+    m_curserPositionTimer  = new QTimer(this);
+    m_curserPositionTimer->setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
+    m_curserPositionTimer->setSingleShot(true);
+    connect(m_curserPositionTimer, SIGNAL(timeout()), this, SLOT(updateCursorPositionNow()));
+
     baseTextDocument()->setSyntaxHighlighter(new Highlighter(document()));
 
     m_modelManager = ExtensionSystem::PluginManager::instance()->getObject<ModelManagerInterface>();
@@ -719,6 +725,9 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
 
     connect(m_semanticHighlighter, SIGNAL(changed(QmlJSEditor::Internal::SemanticInfo)),
             this, SLOT(updateSemanticInfo(QmlJSEditor::Internal::SemanticInfo)));
+
+    connect(this, SIGNAL(refactorMarkerClicked(TextEditor::Internal::RefactorMarker)),
+            SLOT(onRefactorMarkerClicked(TextEditor::Internal::RefactorMarker)));
 
     setRequestMarkEnabled(true);
 }
@@ -929,6 +938,46 @@ void QmlJSTextEditor::updateOutlineIndexNow()
     }
 
     updateUses();
+}
+
+static UiQualifiedId *qualifiedTypeNameId(UiObjectMember *m)
+{
+    if (UiObjectDefinition *def = cast<UiObjectDefinition *>(m))
+        return def->qualifiedTypeNameId;
+    else if (UiObjectBinding *binding = cast<UiObjectBinding *>(m))
+        return binding->qualifiedTypeNameId;
+    return 0;
+}
+
+void QmlJSTextEditor::updateCursorPositionNow()
+{
+    if (m_contextPane && document() && !semanticInfo().document.isNull() &&
+        document()->revision() == semanticInfo().document->editorRevision()) {
+        Node *oldNode = m_semanticInfo.declaringMemberNoProperties(m_oldCursorPosition);
+        Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
+        if (oldNode != newNode &&
+            m_contextPane->isAvailable(editableInterface(), m_semanticInfo.document, m_semanticInfo.snapshot, newNode)) {
+            QList<TextEditor::Internal::RefactorMarker> markers;
+            if (UiObjectMember *m = newNode->uiObjectMemberCast()) {
+                const int start = m->firstSourceLocation().begin();
+                for (UiQualifiedId *q = qualifiedTypeNameId(m); q; q = q->next) {
+                    if (! q->next) {
+                        const int end = q->identifierToken.end();
+                        TextEditor::Internal::RefactorMarker marker;
+                        QTextCursor tc(document());
+                        tc.setPosition(end);
+                        marker.cursor = tc;
+                        marker.tooltip = tr("Show Qt Quick Helper");
+                        markers.append(marker);
+                    }
+                }
+            }
+            setRefactorMarkers(markers);
+        }
+        if (oldNode != newNode)
+            m_contextPane->apply(editableInterface(), m_semanticInfo.document, m_semanticInfo.snapshot, newNode, false);
+        m_oldCursorPosition = position();
+    }
 }
 
 void QmlJSTextEditor::updateUses()
@@ -1661,15 +1710,14 @@ void QmlJSTextEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
     setExtraSelections(CodeWarningsSelection, selections);
 }
 
+void QmlJSTextEditor::onRefactorMarkerClicked(const TextEditor::Internal::RefactorMarker &)
+{
+    showContextPane();
+}
+
 void QmlJSTextEditor::onCursorPositionChanged()
 {
-    if (m_contextPane) {
-        Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
-        Node *oldNode = m_semanticInfo.declaringMemberNoProperties(m_oldCursorPosition);
-        if (oldNode != newNode)
-            m_contextPane->apply(editableInterface(), m_semanticInfo.document, m_semanticInfo.snapshot, newNode, false);
-        m_oldCursorPosition = position();
-    }
+    m_curserPositionTimer->start();
 }
 
 QModelIndex QmlJSTextEditor::indexForPosition(unsigned cursorPosition, const QModelIndex &rootIndex) const

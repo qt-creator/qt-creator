@@ -359,7 +359,7 @@ public:
 
     void setRefactorMarkers(const Internal::RefactorMarkers &markers);
 signals:
-    void refactorMarkerClicked(const Internal::RefactorMarker &marker);
+    void refactorMarkerClicked(const TextEditor::Internal::RefactorMarker &marker);
 
 public:
 

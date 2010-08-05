@@ -243,6 +243,7 @@ private slots:
     void jumpToOutlineElement(int index);
     void updateOutlineNow();
     void updateOutlineIndexNow();
+    void updateCursorPositionNow();
     void updateFileName();
 
     void updateUses();
@@ -255,6 +256,7 @@ private slots:
     void forceSemanticRehighlight();
     void updateSemanticInfo(const QmlJSEditor::Internal::SemanticInfo &semanticInfo);
     void onCursorPositionChanged();
+    void onRefactorMarkerClicked(const TextEditor::Internal::RefactorMarker &marker);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *e);
@@ -292,6 +294,7 @@ private:
     QTimer *m_semanticRehighlightTimer;
     QTimer *m_updateOutlineTimer;
     QTimer *m_updateOutlineIndexTimer;
+    QTimer *m_curserPositionTimer;
     QComboBox *m_outlineCombo;
     QmlOutlineModel *m_outlineModel;
     QModelIndex m_outlineModelIndex;
