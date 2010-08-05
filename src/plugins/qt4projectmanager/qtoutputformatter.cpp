@@ -33,6 +33,7 @@
 #include <qt4projectmanager/qt4project.h>
 
 #include <QtCore/QFileInfo>
+#include <QtCore/QUrl>
 #include <QtGui/QPlainTextEdit>
 
 using namespace ProjectExplorer;
@@ -40,7 +41,7 @@ using namespace Qt4ProjectManager;
 
 QtOutputFormatter::QtOutputFormatter(Qt4Project *project)
     : OutputFormatter()
-    , m_qmlError(QLatin1String("(file:///[^:]+:\\d+:\\d+):"))
+    , m_qmlError(QLatin1String("(file:///.+:\\d+:\\d+):"))
     , m_qtError(QLatin1String("Object::.*in (.*:\\d+)"))
     , m_project(project)
 
@@ -149,10 +150,10 @@ void QtOutputFormatter::appendLine(LinkResult lr, const QString &line, bool onSt
 void QtOutputFormatter::handleLink(const QString &href)
 {
     if (!href.isEmpty()) {
-        QRegExp qmlErrorLink(QLatin1String("^file://(/[^:]+):(\\d+):(\\d+)"));
+        const QRegExp qmlErrorLink(QLatin1String("^(file:///.+):(\\d+):(\\d+)"));
 
         if (qmlErrorLink.indexIn(href) != -1) {
-            const QString fileName = qmlErrorLink.cap(1);
+            const QString fileName = QUrl(qmlErrorLink.cap(1)).toLocalFile();
             const int line = qmlErrorLink.cap(2).toInt();
             const int column = qmlErrorLink.cap(3).toInt();
             TextEditor::BaseTextEditor::openEditorAt(fileName, line, column - 1);
