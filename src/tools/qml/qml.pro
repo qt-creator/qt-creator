@@ -4,7 +4,8 @@ contains(QT_CONFIG, declarative) {
 
     include(../../private_headers.pri)
     exists($${QT_PRIVATE_HEADERS}/QtDeclarative/private/qdeclarativemetatype_p.h) {
-        SUBDIRS += qmldump qmlobserver
+        SUBDIRS += qmldump ../../../share/qtcreator/qmljsdebugger qmlobserver
+        CONFIG += ordered
     } else {
         warning()
         warning("QmlDump utility has been disabled")
