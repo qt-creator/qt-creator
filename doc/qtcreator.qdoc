@@ -6558,7 +6558,7 @@
 
     To move forward in the location history, press \key {Alt+Right}
     (\key {Cmd+Opt+Right} on Mac OS). To move backward, press \key {Alt+Left}
-    (\key {Cmd+Opt+Right} on Mac OS). For example, if you use the \gui Locator
+    (\key {Cmd+Opt+Left} on Mac OS). For example, if you use the \gui Locator
     to jump to a symbol in the same file, you can jump back to your original
     location in that file by pressing \key {Alt+Left}.
 

@@ -114,7 +114,8 @@ public:
     bool synchronousInit(const QString &workingDirectory);
     bool synchronousCheckoutFiles(const QString &workingDirectory,
                                   QStringList files = QStringList(),
-                                  QString revision = QString(), QString *errorMessage = 0);
+                                  QString revision = QString(), QString *errorMessage = 0,
+                                  bool revertStaging = true);
     // Checkout branch
     bool synchronousCheckoutBranch(const QString &workingDirectory, const QString &branch, QString *errorMessage = 0);
 
@@ -164,7 +165,7 @@ public:
     void subversionLog(const QString &workingDirectory);
 
     void stashPop(const QString &workingDirectory);
-    void revert(const QStringList &files);
+    void revert(const QStringList &files, bool revertStaging);
     void branchList(const QString &workingDirectory);
     void stashList(const QString &workingDirectory);
     bool synchronousStashList(const QString &workingDirectory,
@@ -259,7 +260,10 @@ private:
     unsigned synchronousGitVersion(bool silent, QString *errorMessage = 0);
 
     enum RevertResult { RevertOk, RevertUnchanged, RevertCanceled, RevertFailed };
-    RevertResult revertI(QStringList files, bool *isDirectory, QString *errorMessage);
+    RevertResult revertI(QStringList files,
+                         bool *isDirectory,
+                         QString *errorMessage,
+                         bool revertStaging);
     void connectRepositoryChanged(const QString & repository, GitCommand *cmd);
     bool synchronousPull(const QString &workingDirectory, bool rebase);
     void syncAbortPullRebase(const QString &workingDir);

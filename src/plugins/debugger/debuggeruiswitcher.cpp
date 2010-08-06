@@ -144,8 +144,13 @@ DebuggerUISwitcher::~DebuggerUISwitcher()
     delete d;
 }
 
-void DebuggerUISwitcher::addMenuAction(Core::Command *command,
-    const QString &langName, const QString &group)
+QStringList DebuggerUISwitcher::supportedLanguages() const
+{
+    return d->m_languages;
+}
+
+void DebuggerUISwitcher::addMenuAction(Core::Command *command, const QString &langName,
+                                       const QString &group)
 {
     d->m_debugMenu->addAction(command, group);
     d->m_menuCommands.insert(d->m_languages.indexOf(langName), command);

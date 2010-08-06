@@ -524,25 +524,41 @@ QList<ProjectExplorer::HeaderPath> S60ToolChainMixin::epocHeaderPaths() const
 
     rc << ProjectExplorer::HeaderPath(epocRootPath,
                      ProjectExplorer::HeaderPath::GlobalHeaderPath)
+       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("include"),
+                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
+       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("mkspecs/common/symbian"),
+                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
+       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include"),
+                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
+       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/osextensions/stdapis"),
+                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
+       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/osextensions/stdapis/sys"),
+                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
        << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/stdapis"),
                      ProjectExplorer::HeaderPath::GlobalHeaderPath)
        << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/stdapis/sys"),
                      ProjectExplorer::HeaderPath::GlobalHeaderPath)
-       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/stdapis/stlportv5"),
+       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/osextensions/stdapis/stlport"),
                      ProjectExplorer::HeaderPath::GlobalHeaderPath)
-       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/mw"),
+       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/stdapis/stlport"),
                      ProjectExplorer::HeaderPath::GlobalHeaderPath)
-       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/platform/mw"),
+       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/oem"),
                      ProjectExplorer::HeaderPath::GlobalHeaderPath)
-       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/platform"),
+       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/middleware"),
                      ProjectExplorer::HeaderPath::GlobalHeaderPath)
-       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/platform/loc"),
+       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/domain/middleware"),
                      ProjectExplorer::HeaderPath::GlobalHeaderPath)
-       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/platform/mw/loc"),
+       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/osextensions"),
                      ProjectExplorer::HeaderPath::GlobalHeaderPath)
-       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/platform/loc/sc"),
+       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/domain/osextensions"),
                      ProjectExplorer::HeaderPath::GlobalHeaderPath)
-       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/platform/mw/loc/sc"),
+       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/domain/osextensions/loc"),
+                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
+       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/domain/middleware/loc"),
+                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
+       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/domain/osextensions/loc/sc"),
+                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
+       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/domain/middleware/loc/sc"),
                      ProjectExplorer::HeaderPath::GlobalHeaderPath);
     return rc;
 }
