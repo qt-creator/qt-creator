@@ -58,7 +58,7 @@ public:
         IgnoreContext,
         ContextSensitive
     };
-    
+
     QDeclarativeDesignViewPrivate(QDeclarativeDesignView *);
     ~QDeclarativeDesignViewPrivate();
 
