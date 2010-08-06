@@ -45,11 +45,12 @@ class PROJECTEXPLORER_EXPORT EditorConfiguration
 public:
     EditorConfiguration();
 
+    // defaultTextCodec can be 0, in that case the editor settings default encoding shall be used
     QTextCodec *defaultTextCodec() const;
     void setDefaultTextCodec(QTextCodec *codec);
 
     QVariantMap toMap() const;
-    bool fromMap(const QVariantMap &map);
+    void fromMap(const QVariantMap &map);
 
 private:
     QTextCodec *m_defaultTextCodec;

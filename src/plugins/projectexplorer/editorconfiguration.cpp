@@ -38,12 +38,8 @@ const char * const CODEC("EditorConfiguration.Codec");
 }
 
 EditorConfiguration::EditorConfiguration()
-    : m_defaultTextCodec(QTextCodec::codecForLocale())
+    : m_defaultTextCodec(0)
 {
-    QSettings* settings = Core::ICore::instance()->settings();
-    if (QTextCodec *candidate = QTextCodec::codecForName(
-            settings->value(QLatin1String("General/DefaultFileEncoding")).toByteArray()))
-        m_defaultTextCodec = candidate;
 }
 
 QTextCodec *EditorConfiguration::defaultTextCodec() const
@@ -53,23 +49,22 @@ QTextCodec *EditorConfiguration::defaultTextCodec() const
 
 void EditorConfiguration::setDefaultTextCodec(QTextCodec *codec)
 {
-    if (!codec)
-        return;
     m_defaultTextCodec = codec;
 }
 
 QVariantMap EditorConfiguration::toMap() const
 {
     QVariantMap map;
-    map.insert(QLatin1String(CODEC), m_defaultTextCodec->name());
+    QByteArray name = "Default";
+    if (m_defaultTextCodec)
+        name = m_defaultTextCodec->name();
+    map.insert(QLatin1String(CODEC), name);
     return map;
 }
 
-bool EditorConfiguration::fromMap(const QVariantMap &map)
+void EditorConfiguration::fromMap(const QVariantMap &map)
 {
-    QTextCodec *codec = QTextCodec::codecForName(map.value(QLatin1String(CODEC)).toString().toLocal8Bit());
-    if (!codec)
-        return false;
+    QByteArray name = map.value(QLatin1String(CODEC)).toString().toLocal8Bit();
+    QTextCodec *codec = QTextCodec::codecForName(name);
     m_defaultTextCodec = codec;
-    return true;
 }

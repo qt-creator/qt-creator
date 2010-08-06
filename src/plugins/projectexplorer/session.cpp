@@ -59,6 +59,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QMainWindow>
 #include <QtGui/QMessageBox>
+#include <QtCore/QTextCodec>
 
 namespace {
     bool debug = false;
@@ -826,8 +827,10 @@ bool SessionManager::projectContainsFile(Project *p, const QString &fileName) co
 void SessionManager::setEditorCodec(Core::IEditor *editor, const QString &fileName)
 {
     if (TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor))
-        if (Project *project = projectForFile(fileName))
-            textEditor->setTextCodec(project->editorConfiguration()->defaultTextCodec());
+        if (Project *project = projectForFile(fileName)) {
+            if (QTextCodec *codec = project->editorConfiguration()->defaultTextCodec())
+                textEditor->setTextCodec(codec);
+        }
 }
 
 QString SessionManager::currentSession() const

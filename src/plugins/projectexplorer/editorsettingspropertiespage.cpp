@@ -90,7 +90,14 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project)
       m_project(project)
 {
     m_ui.setupUi(this);
-    QTextCodec *defaultTextCodec = m_project->editorConfiguration()->defaultTextCodec();
+    QTextCodec *defaultTextCodec = 0;
+    m_codecs += defaultTextCodec;
+    m_ui.encodingComboBox->addItem(tr("Default"));
+
+    defaultTextCodec = m_project->editorConfiguration()->defaultTextCodec();
+
+    qDebug() << "create editor settings widget for project with encoding" << defaultTextCodec;
+
     QList<int> mibs = QTextCodec::availableMibs();
     qSort(mibs);
     QList<int> sortedMibs;
@@ -100,7 +107,7 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project)
     foreach (int mib, mibs)
         if (mib < 0)
             sortedMibs += mib;
-    int i = 0;
+    int i = 1; // 0 is the default
     foreach (int mib, sortedMibs) {
         QTextCodec *codec = QTextCodec::codecForMib(mib);
         m_codecs += codec;

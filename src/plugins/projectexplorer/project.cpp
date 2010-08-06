@@ -244,8 +244,7 @@ bool Project::fromMap(const QVariantMap &map)
 {
     if (map.contains(QLatin1String(EDITOR_SETTINGS_KEY))) {
         QVariantMap values(map.value(QLatin1String(EDITOR_SETTINGS_KEY)).toMap());
-        if (!m_editorConfiguration->fromMap(values))
-            return false;
+        m_editorConfiguration->fromMap(values);
     }
 
     bool ok;
