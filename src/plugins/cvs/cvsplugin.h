@@ -96,6 +96,8 @@ public:
     bool vcsAdd(const QString &workingDir, const QString &fileName);
     bool vcsDelete(const QString &workingDir, const QString &fileName);
     bool managesDirectory(const QString &directory, QString *topLevel = 0) const;
+    // cvs 'edit' is used to implement 'open' (cvsnt).
+    bool edit(const QString &topLevel, const QStringList &files);
 
     static CVSPlugin *cvsPluginInstance();
 
@@ -119,6 +121,13 @@ private slots:
     void diffCommitFiles(const QStringList &);
     void logProject();
     void logRepository();
+    void commitProject();
+    void diffRepository();
+    void statusRepository();
+    void updateRepository();
+    void editCurrentFile();
+    void uneditCurrentFile();
+    void uneditCurrentRepository();
 
 protected:
     virtual void updateActions(VCSBase::VCSBasePlugin::ActionState);
@@ -143,7 +152,12 @@ private:
     void filelog(const QString &workingDir,
                  const QStringList &files = QStringList(),
                  bool enableAnnotationContextMenu = false);
+    bool unedit(const QString &topLevel, const QStringList &files);
+    bool status(const QString &topLevel, const QStringList &files, const QString &title);
+    bool update(const QString &topLevel, const QStringList &files);
     bool checkCVSDirectory(const QDir &directory) const;
+    // Quick check if files are modified
+    bool diffCheckModified(const QString &topLevel, const QStringList &files, bool *modified);
     QString findTopLevelForDirectoryI(const QString &directory) const;
     void startCommit(const QString &workingDir, const QStringList &files = QStringList());
     bool commit(const QString &messageFile, const QStringList &subVersionFileList);
@@ -158,6 +172,9 @@ private:
     Utils::ParameterAction *m_addAction;
     Utils::ParameterAction *m_deleteAction;
     Utils::ParameterAction *m_revertAction;
+    Utils::ParameterAction *m_editCurrentAction;
+    Utils::ParameterAction *m_uneditCurrentAction;
+    QAction *m_uneditRepositoryAction;
     Utils::ParameterAction *m_diffProjectAction;
     Utils::ParameterAction *m_diffCurrentAction;
     Utils::ParameterAction *m_logProjectAction;
@@ -169,6 +186,10 @@ private:
     Utils::ParameterAction *m_annotateCurrentAction;
     Utils::ParameterAction *m_statusProjectAction;
     Utils::ParameterAction *m_updateProjectAction;
+    Utils::ParameterAction *m_commitProjectAction;
+    QAction *m_diffRepositoryAction;
+    QAction *m_updateRepositoryAction;
+    QAction *m_statusRepositoryAction;
 
     QAction *m_submitCurrentLogAction;
     QAction *m_submitDiffAction;

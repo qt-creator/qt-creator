@@ -53,9 +53,9 @@ bool CVSControl::supportsOperation(Operation operation) const
     case AddOperation:
     case DeleteOperation:
     case AnnotateOperation:
+    case OpenOperation:
         break;
     case MoveOperation:
-    case OpenOperation:
     case CreateRepositoryOperation:
     case SnapshotOperations:
         rc = false;
@@ -64,10 +64,10 @@ bool CVSControl::supportsOperation(Operation operation) const
     return rc;
 }
 
-bool CVSControl::vcsOpen(const QString & /* fileName */)
+bool CVSControl::vcsOpen(const QString &fileName)
 {
-    // Open for edit: N/A
-    return true;
+    const QFileInfo fi(fileName);
+    return m_plugin->edit(fi.absolutePath(), QStringList(fi.fileName()));
 }
 
 bool CVSControl::vcsAdd(const QString &fileName)
