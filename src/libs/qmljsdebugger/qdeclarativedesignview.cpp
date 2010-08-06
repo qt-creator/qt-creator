@@ -52,6 +52,9 @@
 
 namespace QmlViewer {
 
+const int SceneChangeUpdateInterval = 5000;
+const int MaxSceneChangedTimerRestartCount = (SceneChangeUpdateInterval / 100);
+
 Q_GLOBAL_STATIC(QDeclarativeDesignDebugServer, qmlDesignDebugServer)
 
 QDeclarativeDesignViewPrivate::QDeclarativeDesignViewPrivate(QDeclarativeDesignView *q) :
@@ -59,9 +62,11 @@ QDeclarativeDesignViewPrivate::QDeclarativeDesignViewPrivate(QDeclarativeDesignV
     designModeBehavior(false),
     executionPaused(false),
     slowdownFactor(1.0f),
-    toolbar(0)
+    toolbar(0),
+    sceneChangedTimerRestartCount(0)
 {
-
+    sceneChangedTimer.setInterval(SceneChangeUpdateInterval);
+    sceneChangedTimer.setSingleShot(true);
 }
 
 QDeclarativeDesignViewPrivate::~QDeclarativeDesignViewPrivate()
@@ -79,6 +84,7 @@ QDeclarativeDesignView::QDeclarativeDesignView(QWidget *parent) :
     data->subcomponentEditorTool = new SubcomponentEditorTool(this);
     data->currentTool = data->selectionTool;
 
+    connect(scene(), SIGNAL(changed(QList<QRectF>)), SLOT(_q_sceneChanged(QList<QRectF>)));
     setMouseTracking(true);
 
     connect(qmlDesignDebugServer(), SIGNAL(designModeBehaviorChanged(bool)), SLOT(setDesignModeBehavior(bool)));
@@ -106,6 +112,8 @@ QDeclarativeDesignView::QDeclarativeDesignView(QWidget *parent) :
     connect(data->subcomponentEditorTool, SIGNAL(contextPushed(QString)), SIGNAL(inspectorContextPushed(QString)));
     connect(data->subcomponentEditorTool, SIGNAL(contextPopped()), SIGNAL(inspectorContextPopped()));
     connect(data->subcomponentEditorTool, SIGNAL(contextPathChanged(QStringList)), qmlDesignDebugServer(), SLOT(contextPathUpdated(QStringList)));
+
+    connect(&(data->sceneChangedTimer), SIGNAL(timeout()), SLOT(_q_checkSceneItemCount()));
 
     data->createToolbar();
 
@@ -523,6 +531,59 @@ void QDeclarativeDesignViewPrivate::_q_changeContextPathIndex(int index)
     subcomponentEditorTool->setContext(index);
 }
 
+void QDeclarativeDesignViewPrivate::_q_sceneChanged(const QList<QRectF> & /*areas*/)
+{
+    if (designModeBehavior)
+        return;
+
+    sceneChangedTimerRestartCount++;
+    if (sceneChangedTimerRestartCount == MaxSceneChangedTimerRestartCount) {
+        sceneChangedTimerRestartCount = 0;
+        _q_checkSceneItemCount();
+    }
+    sceneChangedTimer.start();
+}
+
+void QDeclarativeDesignViewPrivate::_q_checkSceneItemCount()
+{
+    bool hasNewItems = hasNewGraphicsObjects(q->rootObject());
+
+    if (hasNewItems) {
+        qmlDesignDebugServer()->sceneItemCountChanged();
+    }
+}
+
+static bool hasNewGraphicsObjectsRecur(QGraphicsObject *object,
+                                  QSet<QGraphicsObject *> &newItems,
+                                  const QSet<QGraphicsObject *> &previousItems)
+{
+    bool hasNew = false;
+
+    newItems << object;
+
+    foreach(QGraphicsItem *item, object->childItems()) {
+        QGraphicsObject *gfxObject = item->toGraphicsObject();
+        if (gfxObject) {
+            newItems << gfxObject;
+
+            hasNew = hasNewGraphicsObjectsRecur(gfxObject, newItems, previousItems) || hasNew;
+            if (!previousItems.contains(gfxObject))
+                hasNew = true;
+        }
+    }
+
+    return hasNew;
+}
+
+bool QDeclarativeDesignViewPrivate::hasNewGraphicsObjects(QGraphicsObject *object)
+{
+    QSet<QGraphicsObject *> newItems;
+    bool ret = hasNewGraphicsObjectsRecur(object, newItems, sceneGraphicsObjects);
+    sceneGraphicsObjects = newItems;
+
+    return ret;
+}
+
 void QDeclarativeDesignView::changeAnimationSpeed(qreal slowdownFactor)
 {
     data->slowdownFactor = slowdownFactor;
@@ -613,6 +674,8 @@ void QDeclarativeDesignViewPrivate::_q_onStatusChanged(QDeclarativeView::Status 
 {
     if (status == QDeclarativeView::Ready) {
         if (q->rootObject()) {
+            sceneChangedTimerRestartCount = 0;
+            hasNewGraphicsObjects(q->rootObject());
             if (subcomponentEditorTool->contextIndex() != -1)
                 subcomponentEditorTool->clear();
             subcomponentEditorTool->pushContext(q->rootObject());

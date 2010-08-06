@@ -32,6 +32,7 @@
 
 #include <QWeakPointer>
 #include <QPointF>
+#include <QTimer>
 
 #include "qdeclarativedesignview.h"
 
@@ -82,6 +83,9 @@ public:
     qreal slowdownFactor;
 
     QmlToolbar *toolbar;
+    int sceneChangedTimerRestartCount;
+    QTimer sceneChangedTimer;
+    QSet<QGraphicsObject *> sceneGraphicsObjects;
 
     void clearEditorItems();
     void createToolbar();
@@ -93,6 +97,7 @@ public:
     QList<QGraphicsItem*> selectableItems(const QPointF &scenePos) const;
     QList<QGraphicsItem*> selectableItems(const QRectF &sceneRect, Qt::ItemSelectionMode selectionMode) const;
 
+    bool hasNewGraphicsObjects(QGraphicsObject *object);
 
     void setSelectedItemsForTools(QList<QGraphicsItem *> items);
     void setSelectedItems(QList<QGraphicsItem *> items);
@@ -124,6 +129,9 @@ public:
     void _q_changeToColorPickerTool();
     void _q_changeContextPathIndex(int index);
     void _q_clearComponentCache();
+    void _q_sceneChanged(const QList<QRectF> &areas);
+    void _q_changeDebugObjectCount(int objectCount);
+    void _q_checkSceneItemCount();
 
     static QDeclarativeDesignViewPrivate *get(QDeclarativeDesignView *v) { return v->d_func(); }
 };

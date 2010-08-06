@@ -170,6 +170,16 @@ void QDeclarativeDesignDebugServer::contextPathUpdated(const QStringList &contex
     sendMessage(message);
 }
 
+void QDeclarativeDesignDebugServer::sceneItemCountChanged()
+{
+    QByteArray message;
+    QDataStream ds(&message, QIODevice::WriteOnly);
+
+    ds << QByteArray("SCENE_ITEM_COUNT_CHANGED");
+
+    sendMessage(message);
+}
+
 QString QDeclarativeDesignDebugServer::idStringForObject(QObject *obj) const
 {
     int id = idForObject(obj);

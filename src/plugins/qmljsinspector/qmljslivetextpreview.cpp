@@ -40,6 +40,8 @@
 #include <qmljs/qmljsdelta.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/project.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -531,6 +533,12 @@ void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
 
     if (!core->hasContext(dbgcontext))
         return;
+
+    if (ProjectExplorer::Project *debugProject = Inspector::instance()->debugProject()) {
+        QStringList files = debugProject->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
+        if (!files.contains(doc->fileName()))
+            return;
+    }
 
     bool experimentalWarningShown = false;
 

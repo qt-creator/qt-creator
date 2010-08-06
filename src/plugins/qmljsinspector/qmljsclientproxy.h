@@ -61,7 +61,6 @@ public:
     QList<QDeclarativeDebugObjectReference> objectReferences(const QUrl &url = QUrl()) const;
     QDeclarativeDebugObjectReference objectReferenceForId(int debugId) const;
     QDeclarativeDebugObjectReference rootObjectReference() const;
-    void refreshObjectTree();
 
     bool isConnected() const;
     bool isUnconnected() const;
@@ -97,6 +96,7 @@ signals:
     void contextPathUpdated(const QStringList &contextPath);
 
 public slots:
+    void refreshObjectTree();
     void queryEngineContext(int id);
     void reloadQmlViewer();
 

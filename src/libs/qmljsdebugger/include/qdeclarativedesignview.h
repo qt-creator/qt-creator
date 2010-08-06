@@ -96,6 +96,7 @@ protected:
     void wheelEvent(QWheelEvent *event);
 
     void setSelectedItemsForTools(QList<QGraphicsItem *> items);
+
 private:
     Q_DISABLE_COPY(QDeclarativeDesignView)
     Q_PRIVATE_SLOT(d_func(), void _q_reloadView())
@@ -109,6 +110,8 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_changeToColorPickerTool())
     Q_PRIVATE_SLOT(d_func(), void _q_changeContextPathIndex(int index))
     Q_PRIVATE_SLOT(d_func(), void _q_clearComponentCache());
+    Q_PRIVATE_SLOT(d_func(), void _q_sceneChanged(const QList<QRectF> &areas));
+    Q_PRIVATE_SLOT(d_func(), void _q_checkSceneItemCount());
 
     inline QDeclarativeDesignViewPrivate *d_func() { return data.data(); }
     QScopedPointer<QDeclarativeDesignViewPrivate> data;

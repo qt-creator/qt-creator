@@ -82,7 +82,6 @@ public:
     Inspector(QObject *parent = 0);
     virtual ~Inspector();
 
-
     bool connectToViewer(); // using host, port from widgets
     void shutdown();
 
@@ -98,7 +97,10 @@ public:
                                                           bool isLiteralValue);
     static bool showExperimentalWarning();
     static void setShowExperimentalWarning(bool value);
+    static Inspector *instance();
 
+    // returns the project being currently debugged, or 0 if not debugging anything
+    ProjectExplorer::Project *debugProject() const;
     void createDockWidgets();
 
 signals:
@@ -134,6 +136,9 @@ private slots:
 
     void disableLivePreview();
     void crumblePathElementClicked(int);
+
+    void currentDebugProjectRemoved();
+
 private:
     Debugger::DebuggerRunControl *createDebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig,
                                                            const QString &executableFile = QString(),
@@ -174,6 +179,9 @@ private:
     // Qml/JS integration
     QHash<QString, QmlJSLiveTextPreview *> m_textPreviews;
     QmlJS::Snapshot m_loadedSnapshot; //the snapshot loaded by the viewer
+    ProjectExplorer::Project *m_debugProject;
+
+    static Inspector *m_instance;
 };
 
 } // Internal

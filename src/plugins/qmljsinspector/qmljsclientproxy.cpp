@@ -84,6 +84,8 @@ bool ClientProxy::connectToViewer(const QString &host, quint16 port)
                    SIGNAL(selectedColorChanged(QColor)), this, SIGNAL(selectedColorChanged(QColor)));
         disconnect(m_designClient,
                    SIGNAL(contextPathUpdated(QStringList)), this, SIGNAL(contextPathUpdated(QStringList)));
+        disconnect(m_designClient,
+                   SIGNAL(treeRefreshRequested()), this, SLOT(refreshObjectTree()));
 
         emit aboutToDisconnect();
 
@@ -229,8 +231,8 @@ void ClientProxy::connectionStateChanged()
                         SIGNAL(designModeBehaviorChanged(bool)), SIGNAL(designModeBehaviorChanged(bool)));
                 connect(m_designClient, SIGNAL(reloaded()), this, SIGNAL(serverReloaded()));
                 connect(m_designClient, SIGNAL(selectedColorChanged(QColor)), SIGNAL(selectedColorChanged(QColor)));
-                connect(m_designClient,
-                        SIGNAL(contextPathUpdated(QStringList)), SIGNAL(contextPathUpdated(QStringList)));
+                connect(m_designClient, SIGNAL(contextPathUpdated(QStringList)), SIGNAL(contextPathUpdated(QStringList)));
+                connect(m_designClient, SIGNAL(treeRefreshRequested()), SLOT(refreshObjectTree()));
             }
 
             (void) new DebuggerClient(m_conn);

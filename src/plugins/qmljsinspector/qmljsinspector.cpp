@@ -118,6 +118,7 @@ enum {
 };
 
 bool Inspector::m_showExperimentalWarning = true;
+Inspector *Inspector::m_instance = 0;
 
 Inspector::Inspector(QObject *parent)
     : QObject(parent),
@@ -126,10 +127,11 @@ Inspector::Inspector(QObject *parent)
       m_cppDebuggerState(0),
       m_simultaneousCppAndQmlDebugMode(false),
       m_debugMode(StandaloneMode),
-      m_listeningToEditorManager(false)
+      m_listeningToEditorManager(false),
+      m_debugProject(0)
 {
     m_clientProxy = ClientProxy::instance();
-
+    m_instance = this;
 //#warning set up the context widget
     QWidget *contextWidget = 0;
     m_context = new InspectorContext(contextWidget);
@@ -162,6 +164,7 @@ void Inspector::disconnectWidgets()
 
 void Inspector::disconnected()
 {
+    m_debugProject = 0;
     resetViews();
     updateMenuActions();
     applyChangesToQmlObserverHelper(false);
@@ -319,6 +322,11 @@ void Inspector::startQmlProjectDebugger()
 {
     m_simultaneousCppAndQmlDebugMode = false;
     m_connectionTimer->start();
+}
+
+void Inspector::currentDebugProjectRemoved()
+{
+    m_debugProject = 0;
 }
 
 void Inspector::resetViews()
@@ -490,6 +498,8 @@ Debugger::DebuggerRunControl *Inspector::createDebuggerRunControl(ProjectExplore
 
 void Inspector::connected(QDeclarativeEngineDebug *client)
 {
+    m_debugProject = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
+    connect(m_debugProject, SIGNAL(destroyed()), SLOT(currentDebugProjectRemoved()));
     m_client = client;
     resetViews();
 }
@@ -659,6 +669,16 @@ bool Inspector::showExperimentalWarning()
 void Inspector::setShowExperimentalWarning(bool value)
 {
     m_showExperimentalWarning = value;
+}
+
+Inspector *Inspector::instance()
+{
+    return m_instance;
+}
+
+ProjectExplorer::Project *Inspector::debugProject() const
+{
+    return m_debugProject;
 }
 
 void Inspector::setApplyChangesToQmlObserver(bool applyChanges)

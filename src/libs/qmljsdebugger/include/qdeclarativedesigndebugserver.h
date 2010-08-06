@@ -72,6 +72,7 @@ public:
 public Q_SLOTS:
     void selectedColorChanged(const QColor &color);
     void contextPathUpdated(const QStringList &contextPath);
+    void sceneItemCountChanged();
 
 Q_SIGNALS:
     void currentObjectsChanged(const QList<QObject*> &objects);
