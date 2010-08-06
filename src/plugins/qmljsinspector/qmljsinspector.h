@@ -83,7 +83,6 @@ public:
     virtual ~Inspector();
 
     bool connectToViewer(); // using host, port from widgets
-    void shutdown();
 
     // returns false if project is not debuggable.
     bool setDebugConfigurationDataFromProject(ProjectExplorer::Project *projectToDebug);
@@ -115,20 +114,15 @@ public slots:
 
 private slots:
     void gotoObjectReferenceDefinition(const QDeclarativeDebugObjectReference &obj);
-    void simultaneouslyDebugQmlCppApplication();
 
-    void debuggerStateChanged(int newState);
     void pollInspector();
 
     void setSelectedItemsByObjectReference(QList<QDeclarativeDebugObjectReference> objectReferences);
     void changeSelectedItems(const QList<QDeclarativeDebugObjectReference> &objects);
 
-    void updateMenuActions();
     void connected(QDeclarativeEngineDebug *client);
-    void aboutToReloadEngines();
     void updateEngineList();
 
-    void disconnectWidgets();
     void disconnected();
 
     void removePreviewForEditor(Core::IEditor *newEditor);
@@ -140,12 +134,6 @@ private slots:
     void currentDebugProjectRemoved();
 
 private:
-    QString executeDebuggerRunControl(Debugger::DebuggerRunControl *debuggableRunControl,
-                                      ProjectExplorer::Environment *environment);
-
-    QString attachToQmlViewerAsExternalApp(ProjectExplorer::Project *project);
-    QString attachToExternalCppAppWithQml(ProjectExplorer::Project *project);
-
     bool addQuotesForData(const QVariant &value) const;
     void resetViews();
 
@@ -160,10 +148,6 @@ private:
     InspectorContext *m_context;
     QTimer *m_connectionTimer;
     int m_connectionAttempts;
-    int m_cppDebuggerState;
-    bool m_connectionInitialized;
-    bool m_simultaneousCppAndQmlDebugMode;
-    DebugMode m_debugMode;
     ClientProxy *m_clientProxy;
 
     static bool m_showExperimentalWarning;

@@ -104,11 +104,6 @@ using namespace QmlJS::AST;
 using namespace QmlJSInspector::Internal;
 using namespace Debugger::Internal;
 
-
-
-
-
-
 enum {
     MaxConnectionAttempts = 50,
     ConnectionAttemptDefaultInterval = 75,
@@ -124,9 +119,6 @@ Inspector::Inspector(QObject *parent)
     : QObject(parent),
       m_connectionTimer(new QTimer(this)),
       m_connectionAttempts(0),
-      m_cppDebuggerState(0),
-      m_simultaneousCppAndQmlDebugMode(false),
-      m_debugMode(StandaloneMode),
       m_listeningToEditorManager(false),
       m_debugProject(0)
 {
@@ -142,13 +134,8 @@ Inspector::Inspector(QObject *parent)
     connect(m_clientProxy, SIGNAL(connectionStatusMessage(QString)), SIGNAL(statusMessage(QString)));
     connect(m_clientProxy, SIGNAL(connected(QDeclarativeEngineDebug*)), SLOT(connected(QDeclarativeEngineDebug*)));
     connect(m_clientProxy, SIGNAL(disconnected()), SLOT(disconnected()));
-    connect(m_clientProxy, SIGNAL(aboutToReloadEngines()), SLOT(aboutToReloadEngines()));
     connect(m_clientProxy, SIGNAL(enginesChanged()), SLOT(updateEngineList()));
-    connect(m_clientProxy, SIGNAL(aboutToDisconnect()), SLOT(disconnectWidgets()));
     connect(m_clientProxy, SIGNAL(serverReloaded()), this, SLOT(serverReloaded()));
-
-    connect(Debugger::DebuggerPlugin::instance(),
-            SIGNAL(stateChanged(int)), this, SLOT(debuggerStateChanged(int)));
 
     connect(m_connectionTimer, SIGNAL(timeout()), SLOT(pollInspector()));
 }
@@ -158,20 +145,11 @@ Inspector::~Inspector()
 {
 }
 
-void Inspector::disconnectWidgets()
-{
-}
-
 void Inspector::disconnected()
 {
     m_debugProject = 0;
     resetViews();
-    updateMenuActions();
     applyChangesToQmlObserverHelper(false);
-}
-
-void Inspector::aboutToReloadEngines()
-{
 }
 
 void Inspector::updateEngineList()
@@ -193,11 +171,6 @@ void Inspector::changeSelectedItems(const QList<QDeclarativeDebugObjectReference
     m_clientProxy->setSelectedItemsByObjectId(objects);
 }
 
-void Inspector::shutdown()
-{
-//#warning save the inspector settings here
-}
-
 void Inspector::pollInspector()
 {
     ++m_connectionAttempts;
@@ -217,7 +190,6 @@ void Inspector::pollInspector()
                               tr("Failed to connect to debugger"),
                               tr("Could not connect to debugger server.") );
     }
-    updateMenuActions();
 }
 
 QmlJS::ModelManagerInterface *Inspector::modelManager()
@@ -320,7 +292,6 @@ bool Inspector::setDebugConfigurationDataFromProject(ProjectExplorer::Project *p
 
 void Inspector::startQmlProjectDebugger()
 {
-    m_simultaneousCppAndQmlDebugMode = false;
     m_connectionTimer->start();
 }
 
@@ -334,82 +305,12 @@ void Inspector::resetViews()
     m_crumblePath->updateContextPath(QStringList());
 }
 
-void Inspector::simultaneouslyDebugQmlCppApplication()
-{
-    QString errorMessage;
-    ProjectExplorer::ProjectExplorerPlugin *pex = ProjectExplorer::ProjectExplorerPlugin::instance();
-    ProjectExplorer::Project *project = pex->startupProject();
-
-    if (!project)
-         errorMessage = tr("No project was found.");
-    else if (project->id() == QLatin1String("QmlProjectManager.QmlProject"))
-        errorMessage = attachToQmlViewerAsExternalApp(project);
-    else
-        errorMessage = attachToExternalCppAppWithQml(project);
-
-    if (!errorMessage.isEmpty())
-        QMessageBox::warning(Core::ICore::instance()->mainWindow(), tr("Failed to debug C++ and QML"), errorMessage);
-}
-
-QString Inspector::attachToQmlViewerAsExternalApp(ProjectExplorer::Project *project)
-{
-    Q_UNUSED(project);
-
-
-//#warning implement attachToQmlViewerAsExternalApp
-    return QString();
-}
-
-QString Inspector::attachToExternalCppAppWithQml(ProjectExplorer::Project *project)
-{
-    Q_UNUSED(project);
-//#warning implement attachToExternalCppAppWithQml
-
-    return QString();
-}
-
-QString Inspector::executeDebuggerRunControl(Debugger::DebuggerRunControl *debuggableRunControl,
-                                             ProjectExplorer::Environment *environment)
-{
-    Q_UNUSED(debuggableRunControl);
-    Q_UNUSED(environment);
-    ProjectExplorer::ProjectExplorerPlugin *pex = ProjectExplorer::ProjectExplorerPlugin::instance();
-
-    // to make sure we have a valid, debuggable run control, find the correct factory for it
-    if (debuggableRunControl) {
-
-        // modify the env
-        debuggableRunControl->setCustomEnvironment(*environment);
-
-        pex->startRunControl(debuggableRunControl, ProjectExplorer::Constants::DEBUGMODE);
-        m_simultaneousCppAndQmlDebugMode = true;
-
-        return QString();
-    }
-    return tr("A valid run control was not registered in Qt Creator for this project run configuration.");
-}
-
 void Inspector::connected(QDeclarativeEngineDebug *client)
 {
     m_debugProject = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
     connect(m_debugProject, SIGNAL(destroyed()), SLOT(currentDebugProjectRemoved()));
     m_client = client;
     resetViews();
-}
-
-void Inspector::updateMenuActions()
-{
-    bool enabled = true;
-    if (m_simultaneousCppAndQmlDebugMode)
-        enabled = (m_cppDebuggerState == Debugger::DebuggerNotReady && m_clientProxy->isUnconnected());
-    else
-        enabled = m_clientProxy->isUnconnected();
-}
-
-void Inspector::debuggerStateChanged(int newState)
-{
-    m_cppDebuggerState = newState;
-    updateMenuActions();
 }
 
 void Inspector::reloadQmlViewer()
