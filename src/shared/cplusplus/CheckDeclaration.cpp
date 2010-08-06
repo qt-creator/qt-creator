@@ -187,12 +187,8 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
                                                       _scope, &name);
 
         unsigned location = semantic()->location(it->value);
-        if (! location) {
-            if (it->value)
-                location = it->value->firstToken();
-            else
-                location = ast->firstToken();
-        }
+        if (! location)
+            location = ast->firstToken();
 
         Function *fun = 0;
         if (declTy && 0 != (fun = declTy->asFunctionType())) {

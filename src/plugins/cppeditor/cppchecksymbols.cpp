@@ -392,6 +392,14 @@ Scope *CheckSymbols::enclosingScope() const
             if (foreachStmt->symbol)
                 return foreachStmt->symbol->members();
 
+        } else if (SwitchStatementAST *switchStmt = ast->asSwitchStatement()) {
+            if (switchStmt->symbol)
+                return switchStmt->symbol->members();
+
+        } else if (CatchClauseAST *catchClause = ast->asCatchClause()) {
+            if (catchClause->symbol)
+                return catchClause->symbol->members();
+
         }
     }
 

@@ -81,164 +81,43 @@ public:
 
 protected:
     using ASTVisitor::visit;
+    using ASTVisitor::endVisit;
 
-    bool findMember(Scope *scope, NameAST *ast, unsigned line, unsigned column)
+    void enterScope(Scope *scope)
     {
-        if (! (ast && ast->name))
-            return false;
+        _scopeStack.append(scope);
 
-        const Identifier *id = ast->name->identifier();
+        for (unsigned i = 0; i < scope->symbolCount(); ++i) {
+            if (Symbol *member = scope->symbolAt(i)) {
+                if (member->isDeclaration() || member->isArgument()) {
+                    if (member->name() && member->name()->isNameId()) {
+                        const Identifier *id = member->identifier();
+                        unsigned line, column;
+                        getTokenStartPosition(member->sourceLocation(), &line, &column);
+                        localUses[member].append(SemanticInfo::Use(line, column, id->size(), SemanticInfo::Use::Local));
+                    }
+                }
+            }
+        }
+    }
 
-        if (scope) {
-            for (Symbol *member = scope->lookat(id); member; member = member->next()) {
-                if (member->identifier() != id)
-                    continue;
-                else if (member->line() < line || (member->line() == line && member->column() <= column)) {
-                    localUses[member].append(SemanticInfo::Use(line, column, id->size(), SemanticInfo::Use::Local));
-                    return true;
+    virtual bool visit(IdExpressionAST *ast)
+    {
+        if (SimpleNameAST *simpleName = ast->name->asSimpleName()) {
+            const Identifier *id = identifier(simpleName->identifier_token);
+            for (int i = _scopeStack.size() - 1; i != -1; --i) {
+                if (Symbol *member = _scopeStack.at(i)->lookat(id)) {
+                    if (member->sourceLocation() < ast->firstToken() || member->scope()->isPrototypeScope()) {
+                        unsigned line, column;
+                        getTokenStartPosition(simpleName->identifier_token, &line, &column);
+                        localUses[member].append(SemanticInfo::Use(line, column, id->size(), SemanticInfo::Use::Local));
+                        return false;
+                    }
                 }
             }
         }
 
-        return false;
-    }
-
-    void searchUsesInTemplateArguments(NameAST *name)
-    {
-        if (! name)
-            return;
-
-        else if (TemplateIdAST *template_id = name->asTemplateId()) {
-            for (TemplateArgumentListAST *it = template_id->template_argument_list; it; it = it->next) {
-                accept(it->value);
-            }
-        }
-    }
-
-    virtual bool visit(SimpleNameAST *ast)
-    { return findMemberForToken(ast->firstToken(), ast); }
-
-    bool findMemberForToken(unsigned tokenIdx, NameAST *ast)
-    {
-        const Token &tok = tokenAt(tokenIdx);
-        if (tok.generated())
-            return false;
-
-        unsigned line, column;
-        getTokenStartPosition(tokenIdx, &line, &column);
-
-        Scope *scope = _doc->scopeAt(line, column);
-
-        while (scope) {
-            if (scope->isPrototypeScope()) {
-                Function *fun = scope->owner()->asFunction();
-                if (findMember(fun->members(), ast, line, column))
-                    return false;
-                else if (findMember(fun->members(), ast, line, column))
-                    return false;
-            } else if (scope->isObjCMethodScope()) {
-                ObjCMethod *method = scope->owner()->asObjCMethod();
-                if (findMember(method->members(), ast, line, column))
-                    return false;
-                else if (findMember(method->arguments(), ast, line, column))
-                    return false;
-            } else if (scope->isBlockScope()) {
-                if (findMember(scope, ast, line, column))
-                    return false;
-            } else {
-                break;
-            }
-
-            scope = scope->enclosingScope();
-        }
-
-        return false;
-    }
-
-    virtual bool visit(MemInitializerAST *ast)
-    {
-        accept(ast->expression_list);
-        return false;
-    }
-
-    virtual bool visit(TemplateIdAST *ast)
-    {
-        for (TemplateArgumentListAST *arg = ast->template_argument_list; arg; arg = arg->next)
-            accept(arg->value);
-
-        const Token &tok = tokenAt(ast->identifier_token);
-        if (tok.generated())
-            return false;
-
-        unsigned line, column;
-        getTokenStartPosition(ast->firstToken(), &line, &column);
-
-        Scope *scope = _doc->scopeAt(line, column);
-
-        while (scope) {
-            if (scope->isPrototypeScope()) {
-                Function *fun = scope->owner()->asFunction();
-                if (findMember(fun->members(), ast, line, column))
-                    return false;
-                else if (fun->block() && findMember(fun->block()->members(), ast, line, column))
-                    return false;
-            } else if (scope->isBlockScope()) {
-                if (findMember(scope, ast, line, column))
-                    return false;
-            } else {
-                break;
-            }
-
-            scope = scope->enclosingScope();
-        }
-
-        return false;
-    }
-
-    virtual bool visit(QualifiedNameAST *ast)
-    {
-        for (NestedNameSpecifierListAST *it = ast->nested_name_specifier_list; it; it = it->next)
-            searchUsesInTemplateArguments(it->value->class_or_namespace_name);
-
-        searchUsesInTemplateArguments(ast->unqualified_name);
-        return false;
-    }
-
-    virtual bool visit(MemberAccessAST *ast)
-    {
-        // accept only the base expression
-        accept(ast->base_expression);
-        // and ignore the member name.
-        return false;
-    }
-
-    virtual bool visit(ElaboratedTypeSpecifierAST *)
-    {
-        // ### template args
-        return false;
-    }
-
-    virtual bool visit(ClassSpecifierAST *)
-    {
-        // ### template args
-        return false;
-    }
-
-    virtual bool visit(EnumSpecifierAST *)
-    {
-        // ### template args
-        return false;
-    }
-
-    virtual bool visit(UsingDirectiveAST *)
-    {
-        return false;
-    }
-
-    virtual bool visit(UsingAST *ast)
-    {
-        accept(ast->name);
-        return false;
+        return true;
     }
 
     virtual bool visit(QtMemberDeclarationAST *ast)
@@ -251,35 +130,118 @@ protected:
         return true;
     }
 
+    virtual bool visit(FunctionDefinitionAST *ast)
+    {
+        if (ast->symbol)
+            enterScope(ast->symbol->members());
+        return true;
+    }
+
+    virtual void endVisit(FunctionDefinitionAST *ast)
+    {
+        if (ast->symbol)
+            _scopeStack.removeLast();
+    }
+
+    virtual bool visit(CompoundStatementAST *ast)
+    {
+        if (ast->symbol)
+            enterScope(ast->symbol->members());
+        return true;
+    }
+
+    virtual void endVisit(CompoundStatementAST *ast)
+    {
+        if (ast->symbol)
+            _scopeStack.removeLast();
+    }
+
+    virtual bool visit(IfStatementAST *ast)
+    {
+        if (ast->symbol)
+            enterScope(ast->symbol->members());
+        return true;
+    }
+
+    virtual void endVisit(IfStatementAST *ast)
+    {
+        if (ast->symbol)
+            _scopeStack.removeLast();
+    }
+
+    virtual bool visit(WhileStatementAST *ast)
+    {
+        if (ast->symbol)
+            enterScope(ast->symbol->members());
+        return true;
+    }
+
+    virtual void endVisit(WhileStatementAST *ast)
+    {
+        if (ast->symbol)
+            _scopeStack.removeLast();
+    }
+
+    virtual bool visit(ForStatementAST *ast)
+    {
+        if (ast->symbol)
+            enterScope(ast->symbol->members());
+        return true;
+    }
+
+    virtual void endVisit(ForStatementAST *ast)
+    {
+        if (ast->symbol)
+            _scopeStack.removeLast();
+    }
+
+    virtual bool visit(ForeachStatementAST *ast)
+    {
+        if (ast->symbol)
+            enterScope(ast->symbol->members());
+        return true;
+    }
+
+    virtual void endVisit(ForeachStatementAST *ast)
+    {
+        if (ast->symbol)
+            _scopeStack.removeLast();
+    }
+
+    virtual bool visit(SwitchStatementAST *ast)
+    {
+        if (ast->symbol)
+            enterScope(ast->symbol->members());
+        return true;
+    }
+
+    virtual void endVisit(SwitchStatementAST *ast)
+    {
+        if (ast->symbol)
+            _scopeStack.removeLast();
+    }
+
+    virtual bool visit(CatchClauseAST *ast)
+    {
+        if (ast->symbol)
+            enterScope(ast->symbol->members());
+        return true;
+    }
+
+    virtual void endVisit(CatchClauseAST *ast)
+    {
+        if (ast->symbol)
+            _scopeStack.removeLast();
+    }
+
     virtual bool visit(ExpressionOrDeclarationStatementAST *ast)
     {
         accept(ast->declaration);
         return false;
     }
 
-    virtual bool visit(FunctionDeclaratorAST *ast)
-    {
-        accept(ast->parameters);
-
-        for (SpecifierListAST *it = ast->cv_qualifier_list; it; it = it->next)
-            accept(it->value);
-
-        accept(ast->exception_specification);
-
-        return false;
-    }
-
-    virtual bool visit(ObjCMethodPrototypeAST *ast)
-    {
-        accept(ast->argument_list);
-        return false;
-    }
-
-    virtual bool visit(ObjCMessageArgumentDeclarationAST *ast)
-    {
-        accept(ast->param_name);
-        return false;
-    }
+private:
+    QList<Scope *> _scopeStack;
 };
 
 } // end of anonymous namespace

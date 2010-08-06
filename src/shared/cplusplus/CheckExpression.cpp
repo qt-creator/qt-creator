@@ -123,7 +123,7 @@ bool CheckExpression::visit(ConditionAST *ast)
     const Name *name = 0;
     FullySpecifiedType declTy = semantic()->check(ast->declarator, typeSpecTy.qualifiedType(),
                                                   _scope, &name);
-    Declaration *decl = control()->newDeclaration(ast->declarator->firstToken(), name);
+    Declaration *decl = control()->newDeclaration(semantic()->location(ast->declarator), name);
     decl->setType(declTy);
     _scope->enterSymbol(decl);
     return false;
