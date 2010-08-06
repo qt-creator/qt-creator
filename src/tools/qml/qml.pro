@@ -12,7 +12,7 @@ contains(QT_CONFIG, declarative) {
         warning("This means the Qml editor will lack correct completion and type checking.")
         warning("To enable it, pass 'QT_PRIVATE_HEADERS=$QTDIR/include' to qmake, where $QTDIR is the source directory of qt.")
         warning()
-        warning("QmlViewer has been disabled")
+        warning("QmlObserver has been disabled")
         warning("This application depends on private headers from QtDeclarative module.")
         warning("This means the QML debugging facilities will be limited.")
         warning("To enable it, pass 'QT_PRIVATE_HEADERS=$QTDIR/include' to qmake, where $QTDIR is the source directory of qt.")
