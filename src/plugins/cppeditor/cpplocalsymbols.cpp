@@ -89,7 +89,7 @@ protected:
 
         for (unsigned i = 0; i < scope->symbolCount(); ++i) {
             if (Symbol *member = scope->symbolAt(i)) {
-                if (member->isDeclaration() || member->isArgument()) {
+                if (! member->isGenerated() && (member->isDeclaration() || member->isArgument())) {
                     if (member->name() && member->name()->isNameId()) {
                         const Identifier *id = member->identifier();
                         unsigned line, column;
@@ -107,7 +107,7 @@ protected:
             const Identifier *id = identifier(simpleName->identifier_token);
             for (int i = _scopeStack.size() - 1; i != -1; --i) {
                 if (Symbol *member = _scopeStack.at(i)->lookat(id)) {
-                    if (member->sourceLocation() < ast->firstToken() || member->scope()->isPrototypeScope()) {
+                    if (!member->isGenerated() && (member->sourceLocation() < ast->firstToken() || member->scope()->isPrototypeScope())) {
                         unsigned line, column;
                         getTokenStartPosition(simpleName->identifier_token, &line, &column);
                         localUses[member].append(SemanticInfo::Use(line, column, id->size(), SemanticInfo::Use::Local));
