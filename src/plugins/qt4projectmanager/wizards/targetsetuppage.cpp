@@ -353,7 +353,7 @@ TargetSetupPage::recursivelyCheckDirectoryForBuild(const QString &directory, con
 {
     QList<ImportInfo> results;
 
-    if (maxdepth <= 0)
+    if (maxdepth <= 0 || directory.isEmpty())
         return results;
 
     // Check for in-source builds first:
