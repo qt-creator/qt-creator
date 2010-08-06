@@ -32,8 +32,7 @@ DATA_DIRS = \
     gdbmacros \
     qmldesigner \
     qmlicons \
-    qml-type-descriptions \
-    generic-highlighter
+    qml-type-descriptions
 
 !isEmpty(copydata) {
 

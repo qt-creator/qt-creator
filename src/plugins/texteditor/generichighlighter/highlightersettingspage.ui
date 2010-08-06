@@ -13,13 +13,42 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_3">
+  <layout class="QVBoxLayout" name="verticalLayout_4">
+   <item>
+    <widget class="QLabel" name="definitionsInfolabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Highlight definitions are provided by the &lt;/span&gt;&lt;a href=&quot;http://kate-editor.org/&quot;&gt;&lt;span style=&quot; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;Kate Text Editor&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::RichText</enum>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+     <property name="openExternalLinks">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
    <item>
     <widget class="QGroupBox" name="definitionFilesGroupBox">
      <property name="title">
       <string>Syntax Highlight Definition Files</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
+     <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
@@ -36,72 +65,22 @@
           </item>
          </layout>
         </item>
-        <item>
-         <widget class="QToolButton" name="resetButton">
-          <property name="toolTip">
-           <string>Reset to default</string>
-          </property>
-          <property name="text">
-           <string>R</string>
-          </property>
-          <property name="icon">
-           <iconset resource="../../coreplugin/core.qrc">
-            <normaloff>:/core/images/reset.png</normaloff>:/core/images/reset.png</iconset>
-          </property>
-         </widget>
-        </item>
        </layout>
       </item>
       <item>
-       <widget class="QLabel" name="definitionsInfolabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <property name="spacing">
+         <number>0</number>
         </property>
-        <property name="text">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Highlight definitions are provided by the &lt;/span&gt;&lt;a href=&quot;http://kate-editor.org/&quot;&gt;&lt;span style=&quot; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;Kate Text Editor&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;. Qt Creator can download a list of available definitions and then install the selected ones.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="textFormat">
-         <enum>Qt::RichText</enum>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-        <property name="openExternalLinks">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_4">
         <item>
-         <widget class="QPushButton" name="manageDefinitionsButton">
+         <widget class="QCheckBox" name="useFallbackLocation">
           <property name="text">
-           <string>Manage Definitions</string>
+           <string>Use fallback location</string>
           </property>
          </widget>
         </item>
         <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>328</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
+         <widget class="Utils::PathChooser" name="fallbackDefinitionFilesPath" native="true"/>
         </item>
        </layout>
       </item>
@@ -146,7 +125,7 @@ p, li { white-space: pre-wrap; }
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>146</height>
+       <height>117</height>
       </size>
      </property>
     </spacer>
@@ -166,13 +145,9 @@ p, li { white-space: pre-wrap; }
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>resetButton</tabstop>
-  <tabstop>manageDefinitionsButton</tabstop>
   <tabstop>alertWhenNoDefinition</tabstop>
   <tabstop>ignoreEdit</tabstop>
  </tabstops>
- <resources>
-  <include location="../../coreplugin/core.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

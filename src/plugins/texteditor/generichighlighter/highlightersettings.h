@@ -52,8 +52,14 @@ public:
     void setDefinitionFilesPath(const QString &path) { m_definitionFilesPath = path; }
     const QString &definitionFilesPath() const { return m_definitionFilesPath; }
 
+    void setFallbackDefinitionFilesPath(const QString &path){ m_fallbackDefinitionFilesPath = path;}
+    const QString &fallbackDefinitionFilesPath() const { return m_fallbackDefinitionFilesPath; }
+
     void setAlertWhenNoDefinition(const bool alert) { m_alertWhenNoDefinition = alert; }
     bool alertWhenNoDefinition() const { return m_alertWhenNoDefinition; }
+
+    void setUseFallbackLocation(const bool use) { m_useFallbackLocation = use; }
+    bool useFallbackLocation() const { return m_useFallbackLocation; }
 
     void setIgnoredFilesPatterns(const QString &patterns);
     QString ignoredFilesPatterns() const;
@@ -68,7 +74,9 @@ private:
     QStringList listFromExpressions() const;
 
     bool m_alertWhenNoDefinition;
+    bool m_useFallbackLocation;
     QString m_definitionFilesPath;
+    QString m_fallbackDefinitionFilesPath;
     QList<QRegExp> m_ignoredFiles;
 };
 

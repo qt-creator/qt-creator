@@ -146,52 +146,65 @@ void Manager::registerMimeTypes()
 
 void Manager::gatherDefinitionsMimeTypes(QFutureInterface<Core::MimeType> &future)
 {
+    QStringList definitionsPaths;
     const HighlighterSettings &settings = TextEditorSettings::instance()->highlighterSettings();
-    QDir definitionsDir(settings.definitionFilesPath());
+    definitionsPaths.append(settings.definitionFilesPath());
+    if (settings.useFallbackLocation())
+        definitionsPaths.append(settings.fallbackDefinitionFilesPath());
 
-    QStringList filter(QLatin1String("*.xml"));
-    definitionsDir.setNameFilters(filter);
+    foreach (const QString &path, definitionsPaths) {
+        if (path.isEmpty())
+            continue;
 
-    QList<QSharedPointer<HighlightDefinitionMetaData> > allMetaData;
-    const QFileInfoList &filesInfo = definitionsDir.entryInfoList();
-    foreach (const QFileInfo &fileInfo, filesInfo) {
-        const QSharedPointer<HighlightDefinitionMetaData> &metaData = parseMetadata(fileInfo);
-        if (!metaData.isNull())
-            allMetaData.append(metaData);
-    }
+        QDir definitionsDir(path);
+        QStringList filter(QLatin1String("*.xml"));
+        definitionsDir.setNameFilters(filter);
 
-    // Definitions with high priority need to be added after (and then replace) definitions with
-    // low priority.
-    qSort(allMetaData.begin(), allMetaData.end(), PriorityComp());
+        QList<QSharedPointer<HighlightDefinitionMetaData> > allMetaData;
+        const QFileInfoList &filesInfo = definitionsDir.entryInfoList();
+        foreach (const QFileInfo &fileInfo, filesInfo) {
+            const QSharedPointer<HighlightDefinitionMetaData> &metaData = parseMetadata(fileInfo);
+            if (!metaData.isNull())
+                allMetaData.append(metaData);
+        }
 
-    foreach (const QSharedPointer<HighlightDefinitionMetaData> &metaData, allMetaData) {
-        const QString &id = metaData->id();
-        m_idByName.insert(metaData->name(), id);
-        m_definitionsMetaData.insert(id, metaData);
+        // Definitions with high priority need to be added after (and thus replace) definitions
+        // with low priority.
+        qSort(allMetaData.begin(), allMetaData.end(), PriorityComp());
 
-        // A definition can specify multiple MIME types and file extensions/patterns. However, each
-        // thing is done with a single string. Then, there is no direct way to tell which patterns
-        // belong to which MIME types nor whether a MIME type is just an alias for the other.
-        // Currently, I associate all expressions/patterns with all MIME types from a definition.
+        foreach (const QSharedPointer<HighlightDefinitionMetaData> &metaData, allMetaData) {
+            const QString &id = metaData->id();
+            if (m_idByName.contains(id))
+                // This is a fallback item, do not consider it. One with this name already exists.
+                continue;
 
-        static const QStringList textPlain(QLatin1String("text/plain"));
+            m_idByName.insert(metaData->name(), id);
+            m_definitionsMetaData.insert(id, metaData);
 
-        QList<QRegExp> patterns;
-        foreach (const QString &type, metaData->mimeTypes()) {
-            m_idByMimeType.insert(type, id);
-            Core::MimeType mimeType = Core::ICore::instance()->mimeDatabase()->findByType(type);
-            if (mimeType.isNull()) {
-                if (patterns.isEmpty()) {
-                    foreach (const QString &pattern, metaData->patterns())
-                        patterns.append(QRegExp(pattern, Qt::CaseSensitive, QRegExp::Wildcard));
+            // A definition can specify multiple MIME types and file extensions/patterns. However,
+            // each thing is done with a single string. There is no direct way to tell which
+            // patterns belong to which MIME types nor whether a MIME type is just an alias for the
+            // other. Currently, I associate all patterns with all MIME types from a definition.
+
+            static const QStringList textPlain(QLatin1String("text/plain"));
+
+            QList<QRegExp> patterns;
+            foreach (const QString &type, metaData->mimeTypes()) {
+                m_idByMimeType.insert(type, id);
+                Core::MimeType mimeType = Core::ICore::instance()->mimeDatabase()->findByType(type);
+                if (mimeType.isNull()) {
+                    if (patterns.isEmpty()) {
+                        foreach (const QString &pattern, metaData->patterns())
+                            patterns.append(QRegExp(pattern, Qt::CaseSensitive, QRegExp::Wildcard));
+                    }
+
+                    mimeType.setType(type);
+                    mimeType.setSubClassesOf(textPlain);
+                    mimeType.setComment(metaData->name());
+                    mimeType.setGlobPatterns(patterns);
+
+                    future.reportResult(mimeType);
                 }
-
-                mimeType.setType(type);
-                mimeType.setSubClassesOf(textPlain);
-                mimeType.setComment(metaData->name());
-                mimeType.setGlobPatterns(patterns);
-
-                future.reportResult(mimeType);
             }
         }
     }
@@ -296,14 +309,16 @@ void Manager::downloadAvailableDefinitionsListFinished()
 
 void Manager::downloadDefinitions(const QList<QUrl> &urls)
 {
-    const QString &savePath =
-        TextEditorSettings::instance()->highlighterSettings().definitionFilesPath() +
-        QLatin1Char('/');
+    QString savePath = TextEditorSettings::instance()->highlighterSettings().definitionFilesPath();
+    if (savePath.isEmpty()) {
+        QMessageBox::critical(0, tr("Error"), tr("Please configure the destination directory."));
+        return;
+    }
 
+    savePath.append(QLatin1Char('/'));
     QDir saveDir(savePath);
     if (!saveDir.exists()) {
-        QMessageBox::critical(0,
-                              tr("Error"),
+        QMessageBox::critical(0, tr("Error"),
                               tr("Please make sure the destination directory exists."));
         return;
     }

@@ -79,10 +79,6 @@ QString findDefinitionsLocation()
     }
 #endif
 
-    if (definitionsLocation.isEmpty())
-        definitionsLocation = Core::ICore::instance()->resourcePath() +
-                              QLatin1String("/generic-highlighter");
-
     return definitionsLocation;
 }
 
@@ -91,8 +87,10 @@ QString findDefinitionsLocation()
 
 namespace {
 
-static const QLatin1String kDefinitionFilesPath("DefinitionFilesPath");
+static const QLatin1String kDefinitionFilesPath("UserDefinitionFilesPath");
+static const QLatin1String kFallbackDefinitionFilesPath("FallbackDefinitionFilesPath");
 static const QLatin1String kAlertWhenDefinitionIsNotFound("AlertWhenDefinitionsIsNotFound");
+static const QLatin1String kUseFallbackLocation("UseFallbackLocation");
 static const QLatin1String kIgnoredFilesPatterns("IgnoredFilesPatterns");
 static const QLatin1String kGroupPostfix("HighlighterSettings");
 
@@ -108,7 +106,8 @@ QString groupSpecifier(const QString &postFix, const QString &category)
 using namespace TextEditor;
 using namespace Internal;
 
-HighlighterSettings::HighlighterSettings() : m_alertWhenNoDefinition(true)
+HighlighterSettings::HighlighterSettings() :
+    m_alertWhenNoDefinition(true), m_useFallbackLocation(true)
 {}
 
 void HighlighterSettings::toSettings(const QString &category, QSettings *s) const
@@ -116,7 +115,9 @@ void HighlighterSettings::toSettings(const QString &category, QSettings *s) cons
     const QString &group = groupSpecifier(kGroupPostfix, category);
     s->beginGroup(group);
     s->setValue(kDefinitionFilesPath, m_definitionFilesPath);
+    s->setValue(kFallbackDefinitionFilesPath, m_fallbackDefinitionFilesPath);
     s->setValue(kAlertWhenDefinitionIsNotFound, m_alertWhenNoDefinition);
+    s->setValue(kUseFallbackLocation, m_useFallbackLocation);
     s->setValue(kIgnoredFilesPatterns, ignoredFilesPatterns());
     s->endGroup();
 }
@@ -125,11 +126,13 @@ void HighlighterSettings::fromSettings(const QString &category, QSettings *s)
 {
     const QString &group = groupSpecifier(kGroupPostfix, category);
     s->beginGroup(group);
-    if (!s->contains(kDefinitionFilesPath))
-        m_definitionFilesPath = findDefinitionsLocation();
+    m_definitionFilesPath = s->value(kDefinitionFilesPath, QString()).toString();
+    if (!s->contains(kFallbackDefinitionFilesPath))
+        m_fallbackDefinitionFilesPath = findDefinitionsLocation();
     else
-        m_definitionFilesPath = s->value(kDefinitionFilesPath, QString()).toString();
+        m_fallbackDefinitionFilesPath = s->value(kFallbackDefinitionFilesPath,QString()).toString();
     m_alertWhenNoDefinition = s->value(kAlertWhenDefinitionIsNotFound, true).toBool();
+    m_useFallbackLocation = s->value(kUseFallbackLocation, true).toBool();
     if (!s->contains(kIgnoredFilesPatterns))
         assignInitialIgnoredPatterns();
     else
@@ -172,7 +175,9 @@ bool HighlighterSettings::isIgnoredFilePattern(const QString &fileName) const
 bool HighlighterSettings::equals(const HighlighterSettings &highlighterSettings) const
 {
     return m_definitionFilesPath == highlighterSettings.m_definitionFilesPath &&
+           m_fallbackDefinitionFilesPath == highlighterSettings.m_fallbackDefinitionFilesPath &&
            m_alertWhenNoDefinition == highlighterSettings.m_alertWhenNoDefinition &&
+           m_useFallbackLocation == highlighterSettings.m_useFallbackLocation &&
            m_ignoredFiles == highlighterSettings.m_ignoredFiles;
 }
 

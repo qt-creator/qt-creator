@@ -70,6 +70,7 @@ private slots:
     void manageDefinitions(const QList<Internal::HighlightDefinitionMetaData> &metaData);
     void showError();
     void ignoreDownloadReply();
+    void useFallbackLocation(bool checked);
 
 private:
     void settingsFromUI();
