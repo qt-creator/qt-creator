@@ -40,11 +40,15 @@ QT_FORWARD_DECLARE_CLASS(QFileSystemWatcher);
 
 namespace ProjectExplorer {
 class Project;
+class ProjectNode;
 class Target;
 }
 
 namespace Qt4ProjectManager {
+class Qt4Project;
+
 namespace Internal {
+class Qt4ProFileNode;
 
 class MaemoTemplatesManager : public QObject
 {
@@ -66,8 +70,6 @@ public:
     bool setPackageManagerIcon(const ProjectExplorer::Project *project,
         const QString &iconFilePath, QString *error) const;
 
-    static const QLatin1String PackagingDirName;
-
 signals:
     void debianDirContentsChanged(const ProjectExplorer::Project *project);
     void changeLogChanged(const ProjectExplorer::Project *project);
@@ -75,18 +77,22 @@ signals:
 
 private slots:
     void handleActiveProjectChanged(ProjectExplorer::Project *project);
-    void handleTarget(ProjectExplorer::Target *target);
+    bool handleTarget(ProjectExplorer::Target *target);
     void handleDebianDirContentsChanged();
     void handleDebianFileChanged(const QString &filePath);
     void handleProjectToBeRemoved(ProjectExplorer::Project *project);
+    void handleProFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *proFileNode);
 
 private:
     explicit MaemoTemplatesManager(QObject *parent);
     void raiseError(const QString &reason);
     QString changeLogFilePath(const ProjectExplorer::Project *project) const;
     QString controlFilePath(const ProjectExplorer::Project *project) const;
-    bool createTemplatesIfNecessary(const ProjectExplorer::Target *target);
+    bool createDebianTemplatesIfNecessary(const ProjectExplorer::Target *target);
+    bool syncDesktopFiles(const ProjectExplorer::Target *target);
     ProjectExplorer::Project *findProject(const QFileSystemWatcher *fsWatcher) const;
+    bool isParent(const ProjectExplorer::ProjectNode *parent,
+        const ProjectExplorer::ProjectNode *child) const;
 
     QSharedPointer<QFile> openFile(const QString &filePath,
         QIODevice::OpenMode mode, QString *error) const;

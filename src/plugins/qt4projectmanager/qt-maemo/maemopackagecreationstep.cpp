@@ -161,10 +161,8 @@ bool MaemoPackageCreationStep::createPackage()
                    .arg(debianDirPath));
         return false;
     }
-    const QString templatesDirPath
-        = buildConfiguration()->target()->project()->projectDirectory()
-            + QLatin1Char('/') + MaemoTemplatesManager::PackagingDirName
-            + QLatin1String("/debian");
+    const QString templatesDirPath = MaemoTemplatesManager::instance()
+        ->debianDirPath(buildConfiguration()->target()->project());
     QDir templatesDir(templatesDirPath);
     const QStringList &files = templatesDir.entryList(QDir::Files);
     foreach (const QString &fileName, files) {
