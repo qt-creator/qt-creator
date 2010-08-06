@@ -1628,7 +1628,10 @@ void EditorManager::showPopupOrSelectDocument() const
     if (QApplication::keyboardModifiers() == Qt::NoModifier) {
         windowPopup()->selectAndHide();
     } else {
-        const QPoint p(mapToGlobal(QPoint(0, 0)));
+        // EditorManager is invisible when invoked from Design Mode.
+        const QPoint p = isVisible() ?
+                         mapToGlobal(QPoint(0, 0)) :
+                         m_d->m_core->mainWindow()->mapToGlobal(QPoint(0, 0));
         windowPopup()->move((width()-m_d->m_windowPopup->width())/2 + p.x(),
                             (height()-m_d->m_windowPopup->height())/2 + p.y());
         windowPopup()->setVisible(true);
