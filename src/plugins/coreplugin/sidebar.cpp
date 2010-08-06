@@ -401,6 +401,7 @@ void SideBarWidget::setCurrentItem(const QString &id)
     m_currentItem = item;
 
     layout()->addWidget(m_currentItem->widget());
+    m_currentItem->widget()->show();
 
     // Add buttons and remember their actions for later removal
     foreach (QToolButton *b, m_currentItem->createToolBarWidgets())
@@ -436,6 +437,7 @@ void SideBarWidget::removeCurrentItem()
         return;
 
     QWidget *w = m_currentItem->widget();
+    w->hide();
     layout()->removeWidget(w);
     w->setParent(0);
     m_sideBar->makeItemAvailable(m_currentItem);
