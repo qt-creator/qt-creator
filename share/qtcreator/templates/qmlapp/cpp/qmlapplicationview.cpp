@@ -20,8 +20,12 @@ class QmlApplicationViewPrivate
     friend class QmlApplicationView;
 };
 
-QmlApplicationView::QmlApplicationView(const QString &mainQmlFile, QWidget *parent)
-    : QDeclarativeView(parent)
+QmlApplicationView::QmlApplicationView(const QString &mainQmlFile, QWidget *parent) :
+#ifdef Q_QML_JS_INSPECTOR
+    QmlViewer::QDeclarativeDesignView(parent)
+#else
+    QDeclarativeView(parent)
+#endif
     , m_d(new QmlApplicationViewPrivate)
 {
 #ifdef Q_OS_MAC

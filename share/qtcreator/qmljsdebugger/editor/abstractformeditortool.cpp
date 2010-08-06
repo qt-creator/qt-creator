@@ -30,7 +30,6 @@
 #include "abstractformeditortool.h"
 #include "qdeclarativedesignview.h"
 
-#include <private/qdeclarativecontext_p.h>
 #include <QDeclarativeEngine>
 
 #include <QtDebug>

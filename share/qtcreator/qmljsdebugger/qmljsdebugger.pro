@@ -4,5 +4,5 @@ TARGET = QmlJSDebugger
 
 unix:QMAKE_CXXFLAGS_DEBUG += -O3
 
-include(../../qtcreatorlibrary.pri)
+include(../../../src/qtcreatorlibrary.pri)
 include(qmljsdebugger-lib.pri)

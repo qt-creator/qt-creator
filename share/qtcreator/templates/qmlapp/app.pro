@@ -19,15 +19,20 @@ OTHER_FILES = qml/app/app.qml
 # TARGETUID3 #
 symbian:TARGET.UID3 = 0xE1111234
 
-
-
+# QMLJSINSPECTOR #
+#DEFINES += Q_QML_JS_INSPECTOR
+contains(DEFINES, Q_QML_JS_INSPECTOR) {
+# QMLJSINSPECTOR_LIB_PATH #
+INSPECTOR_LIBRARY_PATH = $$PWD/../../../../share/qtcreator/qmljsdebugger
+include($$INSPECTOR_LIBRARY_PATH/qmljsdebugger-lib.pri)
+}
 
 # Edit the code below on your own risk.
 
 QT += declarative
 
-SOURCES = cpp/main.cpp cpp/qmlapplicationview.cpp
-HEADERS = cpp/qmlapplicationview.h
+SOURCES += cpp/main.cpp cpp/qmlapplicationview.cpp
+HEADERS += cpp/qmlapplicationview.h
 INCLUDEPATH += cpp
 
 symbian {

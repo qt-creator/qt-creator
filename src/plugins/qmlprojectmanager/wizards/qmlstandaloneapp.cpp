@@ -290,6 +290,11 @@ QByteArray QmlStandaloneApp::generateProFile(const QString *errorMessage) const
             uncommentNextLine = true;
         } else if (line.contains(QLatin1String("# NETWORKACCESS")) && !m_networkEnabled) {
             uncommentNextLine = true;
+        } else if (line.contains(QLatin1String("# Q_QML_JS_INSPECTOR"))) {
+            // ### disabled for now; figure out the private headers problem first.
+            //uncommentNextLine = true;
+        } else if (line.contains(QLatin1String("# QMLJSINSPECTOR_LIB_PATH"))) {
+            valueOnNextLine = Core::ICore::instance()->resourcePath() + QLatin1String("/qmljsdebugger");
         }
 
         // Remove all marker comments
@@ -299,7 +304,7 @@ QByteArray QmlStandaloneApp::generateProFile(const QString *errorMessage) const
 
         if (!valueOnNextLine.isEmpty()) {
             out << line.left(line.indexOf(QLatin1Char('=')) + 2)
-                    << QDir::fromNativeSeparators(valueOnNextLine) << endl;
+                << QDir::fromNativeSeparators(valueOnNextLine) << endl;
             valueOnNextLine.clear();
             continue;
         }

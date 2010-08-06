@@ -9,8 +9,8 @@ contains(CONFIG, dll) {
 }
 
 ## Once is not enough
-include($$PWD/../../private_headers.pri)
-include($$PWD/../../private_headers.pri)
+include($$PWD/../../../src/private_headers.pri)
+include($$PWD/../../../src/private_headers.pri)
 
 include($$PWD/editor/editor.pri)
 

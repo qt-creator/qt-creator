@@ -33,8 +33,6 @@
 //#include "resizehandleitem.h"
 #include "qdeclarativedesignview_p.h"
 
-#include <private/qdeclarativeitem_p.h>
-#include <private/qdeclarativecontext_p.h>
 #include <QDeclarativeEngine>
 
 #include <QApplication>
