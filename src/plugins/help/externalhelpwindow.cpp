@@ -94,9 +94,23 @@ ExternalHelpWindow::ExternalHelpWindow(QWidget *parent)
     addAction(action);
 
     action = new QAction(this);
-    action->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_0));
-    connect(action, SIGNAL(triggered()), CentralWidget::instance(), SLOT(resetZoom()));
+    action->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_M));
+    connect(action, SIGNAL(triggered()), this, SIGNAL(addBookmark()));
     addAction(action);
+
+    action = new QAction(this);
+    action->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_C));
+    connect(action, SIGNAL(triggered()), CentralWidget::instance(), SLOT(copy()));
+    addAction(action);
+
+    action = new QAction(this);
+    action->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_P));
+    connect(action, SIGNAL(triggered()), CentralWidget::instance(), SLOT(print()));
+    addAction(action);
+
+    QAction *reset = new QAction(this);
+    connect(reset, SIGNAL(triggered()), CentralWidget::instance(), SLOT(resetZoom()));
+    addAction(reset);
 
     QAction *ctrlTab = new QAction(this);
     connect(ctrlTab, SIGNAL(triggered()), &OpenPagesManager::instance(),
@@ -113,13 +127,15 @@ ExternalHelpWindow::ExternalHelpWindow(QWidget *parent)
     connect(action, SIGNAL(triggered()), this, SIGNAL(showHideSidebar()));
 
 #ifdef Q_WS_MAC
+    reset->setShortcut(QKeySequence(Qt::ALT + Qt::Key_0));
     action->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_0));
-    ctrlTab->setShortcut(QKeySequence(tr("Alt+Tab")));
-    ctrlShiftTab->setShortcut(QKeySequence(tr("Alt+Shift+Tab")));
+    ctrlTab->setShortcut(QKeySequence(Qt::ALT + Qt::Key_Tab));
+    ctrlShiftTab->setShortcut(QKeySequence(Qt::ALT + Qt::SHIFT + Qt::Key_Tab));
 #else
+    reset->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_0));
     action->setShortcut(QKeySequence(Qt::ALT + Qt::Key_0));
-    ctrlTab->setShortcut(QKeySequence(tr("Ctrl+Tab")));
-    ctrlShiftTab->setShortcut(QKeySequence(tr("Ctrl+Shift+Tab")));
+    ctrlTab->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Tab));
+    ctrlShiftTab->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Tab));
 #endif
 
     QToolButton *button = new QToolButton;

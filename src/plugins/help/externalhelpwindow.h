@@ -52,6 +52,7 @@ signals:
     void activateSearch();
     void activateBookmarks();
     void activateOpenPages();
+    void addBookmark();
     void showHideSidebar();
 
 protected:

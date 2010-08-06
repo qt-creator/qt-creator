@@ -1029,6 +1029,8 @@ void HelpPlugin::connectExternalHelpWindow()
             SLOT(activateBookmarks()));
         connect(m_externalWindow, SIGNAL(activateOpenPages()), this,
             SLOT(activateOpenPages()));
+        connect(m_externalWindow, SIGNAL(addBookmark()), this,
+            SLOT(addBookmark()));
         connect(m_externalWindow, SIGNAL(showHideSidebar()), this,
             SLOT(showHideSidebar()));
     }
