@@ -43,6 +43,12 @@ class HighlightDefinitionMetaData
 public:
     HighlightDefinitionMetaData();
 
+    void setPriority(const int priority);
+    int priority() const;
+
+    void setId(const QString &id);
+    const QString &id() const;
+
     void setName(const QString &name);
     const QString &name() const;
 
@@ -58,6 +64,7 @@ public:
     void setUrl(const QUrl &url);
     const QUrl &url() const;
 
+    static const QLatin1String kPriority;
     static const QLatin1String kName;
     static const QLatin1String kExtensions;
     static const QLatin1String kMimeType;
@@ -65,6 +72,8 @@ public:
     static const QLatin1String kUrl;
 
 private:
+    int m_priority;
+    QString m_id;
     QString m_name;
     QString m_version;
     QStringList m_patterns;

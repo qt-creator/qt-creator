@@ -107,6 +107,14 @@ private:
     QFutureWatcher<void> m_downloadWatcher;
     QFutureWatcher<Core::MimeType> m_mimeTypeWatcher;
 
+    struct PriorityComp
+    {
+        bool operator()(const QSharedPointer<HighlightDefinitionMetaData> &a,
+                        const QSharedPointer<HighlightDefinitionMetaData> &b) {
+            return a->priority() < b->priority();
+        }
+    };
+
 signals:
     void definitionsMetaDataReady(const QList<Internal::HighlightDefinitionMetaData>&);
     void errorDownloadingDefinitionsMetaData();

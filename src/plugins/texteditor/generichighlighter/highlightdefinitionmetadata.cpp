@@ -32,14 +32,27 @@
 using namespace TextEditor;
 using namespace Internal;
 
+const QLatin1String HighlightDefinitionMetaData::kPriority("priority");
 const QLatin1String HighlightDefinitionMetaData::kName("name");
 const QLatin1String HighlightDefinitionMetaData::kExtensions("extensions");
 const QLatin1String HighlightDefinitionMetaData::kMimeType("mimetype");
 const QLatin1String HighlightDefinitionMetaData::kVersion("version");
 const QLatin1String HighlightDefinitionMetaData::kUrl("url");
 
-HighlightDefinitionMetaData::HighlightDefinitionMetaData()
+HighlightDefinitionMetaData::HighlightDefinitionMetaData() : m_priority(0)
 {}
+
+void HighlightDefinitionMetaData::setPriority(const int priority)
+{ m_priority = priority; }
+
+int HighlightDefinitionMetaData::priority() const
+{ return m_priority; }
+
+void HighlightDefinitionMetaData::setId(const QString &id)
+{ m_id = id; }
+
+const QString &HighlightDefinitionMetaData::id() const
+{ return m_id; }
 
 void HighlightDefinitionMetaData::setName(const QString &name)
 { m_name = name; }

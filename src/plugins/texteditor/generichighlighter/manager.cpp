@@ -65,6 +65,7 @@
 #include <QtXml/QXmlStreamAttributes>
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkReply>
+#include <QtAlgorithms>
 
 using namespace TextEditor;
 using namespace Internal;
@@ -151,13 +152,20 @@ void Manager::gatherDefinitionsMimeTypes(QFutureInterface<Core::MimeType> &futur
     QStringList filter(QLatin1String("*.xml"));
     definitionsDir.setNameFilters(filter);
 
+    QList<QSharedPointer<HighlightDefinitionMetaData> > allMetaData;
     const QFileInfoList &filesInfo = definitionsDir.entryInfoList();
     foreach (const QFileInfo &fileInfo, filesInfo) {
         const QSharedPointer<HighlightDefinitionMetaData> &metaData = parseMetadata(fileInfo);
-        if (metaData.isNull())
-            continue;
+        if (!metaData.isNull())
+            allMetaData.append(metaData);
+    }
 
-        const QString &id = fileInfo.absoluteFilePath();
+    // Definitions with high priority need to be added after (and then replace) definitions with
+    // low priority.
+    qSort(allMetaData.begin(), allMetaData.end(), PriorityComp());
+
+    foreach (const QSharedPointer<HighlightDefinitionMetaData> &metaData, allMetaData) {
+        const QString &id = metaData->id();
         m_idByName.insert(metaData->name(), id);
         m_definitionsMetaData.insert(id, metaData);
 
@@ -211,14 +219,16 @@ QSharedPointer<HighlightDefinitionMetaData> Manager::parseMetadata(const QFileIn
 
     QXmlStreamReader reader(&definitionFile);
     while (!reader.atEnd() && !reader.hasError()) {
-        if (reader.readNext() == QXmlStreamReader::StartElement &&
-            reader.name() == kLanguage) {
+        if (reader.readNext() == QXmlStreamReader::StartElement && reader.name() == kLanguage) {
             const QXmlStreamAttributes &atts = reader.attributes();
 
+            metaData->setId(fileInfo.absoluteFilePath());
             metaData->setName(atts.value(HighlightDefinitionMetaData::kName).toString());
             metaData->setVersion(atts.value(HighlightDefinitionMetaData::kVersion).toString());
-            metaData->setPatterns(atts.value(HighlightDefinitionMetaData::kExtensions).
-                                  toString().split(kSemiColon, QString::SkipEmptyParts));
+            metaData->setPriority(atts.value(HighlightDefinitionMetaData::kPriority).toString()
+                                  .toInt());
+            metaData->setPatterns(atts.value(HighlightDefinitionMetaData::kExtensions)
+                                  .toString().split(kSemiColon, QString::SkipEmptyParts));
 
             QStringList mimeTypes = atts.value(HighlightDefinitionMetaData::kMimeType).
                                     toString().split(kSemiColon, QString::SkipEmptyParts);
