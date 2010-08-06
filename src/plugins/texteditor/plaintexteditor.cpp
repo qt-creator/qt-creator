@@ -186,6 +186,7 @@ void PlainTextEditor::configure(const Core::MimeType &mimeType)
     }
 
     if (!definitionId.isEmpty()) {
+        m_isMissingSyntaxDefinition = false;
         const QSharedPointer<HighlightDefinition> &definition =
             Manager::instance()->definition(definitionId);
         if (!definition.isNull()) {
@@ -198,8 +199,6 @@ void PlainTextEditor::configure(const Core::MimeType &mimeType)
 
             setCodeFoldingSupported(true);
             setCodeFoldingVisible(true);
-
-            m_isMissingSyntaxDefinition = false;
         }
     } else if (file()) {
         const QString &fileName = file()->fileName();
