@@ -2501,7 +2501,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                     QTextLayout *layout = blockFS.layout();
                     QString text = blockFS.text();
                     const TabSettings &ts = tabSettings();
-                    int spacew = fontMetrics().width(QChar(QLatin1Char(' ')));
+                    qreal spacew = QFontMetricsF(font()).width(QLatin1Char(' '));
 
                     int offset = 0;
                     int relativePos  =  ts.positionAtColumn(text,
@@ -2654,7 +2654,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                     && block.position() <= d->m_blockSelection.lastBlock.block().position()) {
                 QString text = block.text();
                 const TabSettings &ts = tabSettings();
-                int spacew = fontMetrics().width(QChar(QLatin1Char(' ')));
+                qreal spacew = QFontMetricsF(font()).width(QLatin1Char(' '));
 
                 int offset = 0;
                 int relativePos  =  ts.positionAtColumn(text, d->m_blockSelection.firstVisualColumn, &offset);
@@ -2719,7 +2719,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                     w = line.cursorToX(relativePos + 1) - x;
                     if (doc->characterAt(context.cursorPosition) == QLatin1Char('\t')) {
                         doSelection = false;
-                        int space = QFontMetrics(layout->font()).width(QLatin1Char(' '));
+                        qreal space = QFontMetricsF(layout->font()).width(QLatin1Char(' '));
                         if (w > space) {
                             x += w-space;
                             w = space;
@@ -3560,7 +3560,7 @@ void BaseTextEditor::mouseMoveEvent(QMouseEvent *e)
                 // get visual column
                 int column = tabSettings().columnAt(cursor.block().text(), cursor.positionInBlock());
                 if (cursor.positionInBlock() == cursor.block().length()-1) {
-                    column += (e->pos().x() - cursorRect().center().x())/fontMetrics().width(QChar(QLatin1Char(' ')));
+                    column += (e->pos().x() - cursorRect().center().x())/QFontMetricsF(font()).width(QLatin1Char(' '));
                 }
                 d->m_blockSelection.moveAnchor(cursor.blockNumber(), column);
                 setTextCursor(d->m_blockSelection.selection(tabSettings()));
