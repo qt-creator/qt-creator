@@ -54,7 +54,9 @@ MaemoProFileWrapper::InstallsList MaemoProFileWrapper::installs() const
             continue;
         }
 
-        const QStringList &files = varValues(filesVar(elem));
+        const QStringList &files
+            = m_proFileReader->absoluteFileValues(filesVar(elem),
+                  m_proDir.path(), QStringList() << m_proDir.path(), m_proFile);
 
         if (elem == TargetVar) {
             if (!list.targetPath.isEmpty()) {
@@ -63,11 +65,8 @@ MaemoProFileWrapper::InstallsList MaemoProFileWrapper::installs() const
             }
             list.targetPath = paths.first();
         } else {
-            if (files.isEmpty()) {
-                qWarning("Error: Variable %s has no RHS.",
-                    qPrintable(filesVar(elem)));
+            if (files.isEmpty())
                 continue;
-            }
             list.normalElems << InstallsElem(elem, paths.first(), files);
         }
     }

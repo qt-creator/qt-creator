@@ -80,10 +80,8 @@ bool MaemoDeployableListModel::buildModel()
             installs.targetPath));
     }
     foreach (const MaemoProFileWrapper::InstallsElem &elem, installs.normalElems) {
-        foreach (const QString &file, elem.files) {
-            m_deployables << MaemoDeployable(m_proFileWrapper->absFilePath(file),
-                elem.path);
-        }
+        foreach (const QString &file, elem.files)
+            m_deployables << MaemoDeployable(file, elem.path);
     }
 
     m_modified = true; // ???
