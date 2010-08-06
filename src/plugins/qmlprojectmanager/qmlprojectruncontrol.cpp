@@ -144,7 +144,7 @@ bool QmlRunControlFactory::canRun(RunConfiguration *runConfiguration,
     if (mode == ProjectExplorer::Constants::RUNMODE) {
         return config != 0;
     } else {
-        return (config != 0) && Debugger::DebuggerUISwitcher::instance()->supportedLanguages().contains(Qml::Constants::LANG_QML);
+        return (config != 0) && Debugger::DebuggerUISwitcher::instance()->supportedLanguages().contains(QmlProjectManager::Constants::LANG_QML);
     }
 }
 
