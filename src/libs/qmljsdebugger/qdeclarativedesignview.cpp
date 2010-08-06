@@ -53,7 +53,7 @@
 namespace QmlViewer {
 
 const int SceneChangeUpdateInterval = 5000;
-const int MaxSceneChangedTimerRestartCount = (SceneChangeUpdateInterval / 100);
+const int MaxSceneChangedTimerRestartCount = 15;
 
 Q_GLOBAL_STATIC(QDeclarativeDesignDebugServer, qmlDesignDebugServer)
 
@@ -538,15 +538,16 @@ void QDeclarativeDesignViewPrivate::_q_sceneChanged(const QList<QRectF> & /*area
 
     sceneChangedTimerRestartCount++;
     if (sceneChangedTimerRestartCount == MaxSceneChangedTimerRestartCount) {
-        sceneChangedTimerRestartCount = 0;
         _q_checkSceneItemCount();
     }
+
     sceneChangedTimer.start();
 }
 
 void QDeclarativeDesignViewPrivate::_q_checkSceneItemCount()
 {
     bool hasNewItems = hasNewGraphicsObjects(q->rootObject());
+    sceneChangedTimerRestartCount = 0;
 
     if (hasNewItems) {
         qmlDesignDebugServer()->sceneItemCountChanged();
