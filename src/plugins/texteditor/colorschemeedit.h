@@ -71,6 +71,7 @@ private slots:
     void changeForeColor();
     void changeBackColor();
     void eraseBackColor();
+    void eraseForeColor();
     void checkCheckBoxes();
 
 private:

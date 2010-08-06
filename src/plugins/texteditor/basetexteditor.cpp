@@ -2433,7 +2433,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
         TextEditorOverlay *overlay = new TextEditorOverlay(this);
         overlay->addOverlaySelection(d->m_findScopeStart.position(),
                                      d->m_findScopeEnd.position(),
-                                     d->m_searchScopeFormat.background().color().darker(120),
+                                     d->m_searchScopeFormat.foreground().color(),
                                      d->m_searchScopeFormat.background().color(),
                                      TextEditorOverlay::ExpandBegin);
         overlay->setAlpha(false);
@@ -2525,7 +2525,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                     }
                     painter.fillRect(rr, d->m_searchScopeFormat.background());
 
-                    QColor lineCol = d->m_searchScopeFormat.background().color().darker(120);
+                    QColor lineCol = d->m_searchScopeFormat.foreground().color();
                     QPen pen = painter.pen();
                     painter.setPen(lineCol);
                     if (blockFS == d->m_findScopeStart.block())
@@ -5078,7 +5078,9 @@ void BaseTextEditor::setFontSettings(const TextEditor::FontSettings &fs)
     p.setColor(QPalette::Highlight, (selectionFormat.background().style() != Qt::NoBrush) ?
                selectionFormat.background().color() :
                QApplication::palette().color(QPalette::Highlight));
-    p.setColor(QPalette::HighlightedText, selectionFormat.foreground().color());
+
+    p.setBrush(QPalette::HighlightedText, selectionFormat.foreground());
+
     p.setBrush(QPalette::Inactive, QPalette::Highlight, p.highlight());
     p.setBrush(QPalette::Inactive, QPalette::HighlightedText, p.highlightedText());
     setPalette(p);

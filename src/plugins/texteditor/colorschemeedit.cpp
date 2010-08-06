@@ -156,6 +156,7 @@ ColorSchemeEdit::ColorSchemeEdit(QWidget *parent) :
     connect(m_ui->foregroundToolButton, SIGNAL(clicked()), SLOT(changeForeColor()));
     connect(m_ui->backgroundToolButton, SIGNAL(clicked()), SLOT(changeBackColor()));
     connect(m_ui->eraseBackgroundToolButton, SIGNAL(clicked()), SLOT(eraseBackColor()));
+    connect(m_ui->eraseForegroundToolButton, SIGNAL(clicked()), SLOT(eraseForeColor()));
     connect(m_ui->boldCheckBox, SIGNAL(toggled(bool)), SLOT(checkCheckBoxes()));
     connect(m_ui->italicCheckBox, SIGNAL(toggled(bool)), SLOT(checkCheckBoxes()));
 }
@@ -192,6 +193,7 @@ void ColorSchemeEdit::setReadOnly(bool readOnly)
     m_ui->backgroundLabel->setEnabled(enabled);
     m_ui->backgroundToolButton->setEnabled(enabled);
     m_ui->eraseBackgroundToolButton->setEnabled(enabled);
+    m_ui->eraseForegroundToolButton->setEnabled(enabled);
     m_ui->boldCheckBox->setEnabled(enabled);
     m_ui->italicCheckBox->setEnabled(enabled);
 }
@@ -227,6 +229,9 @@ void ColorSchemeEdit::updateControls()
     m_ui->eraseBackgroundToolButton->setEnabled(!m_readOnly
                                                 && m_curItem > 0
                                                 && format.background().isValid());
+    m_ui->eraseForegroundToolButton->setEnabled(!m_readOnly
+                                                && m_curItem > 0
+                                                && format.foreground().isValid());
 
     const bool boldBlocked = m_ui->boldCheckBox->blockSignals(true);
     m_ui->boldCheckBox->setChecked(format.bold());
@@ -247,6 +252,7 @@ void ColorSchemeEdit::changeForeColor()
     QPalette p = m_ui->foregroundToolButton->palette();
     p.setColor(QPalette::Active, QPalette::Button, newColor);
     m_ui->foregroundToolButton->setStyleSheet(colorButtonStyleSheet(newColor));
+    m_ui->eraseForegroundToolButton->setEnabled(true);
 
     foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
         const QString category = m_descriptions[index.row()].id();
@@ -287,6 +293,21 @@ void ColorSchemeEdit::eraseBackColor()
     foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
         const QString category = m_descriptions[index.row()].id();
         m_scheme.formatFor(category).setBackground(newColor);
+        m_formatsModel->emitDataChanged(index);
+    }
+}
+
+void ColorSchemeEdit::eraseForeColor()
+{
+    if (m_curItem == -1)
+        return;
+    QColor newColor;
+    m_ui->foregroundToolButton->setStyleSheet(colorButtonStyleSheet(newColor));
+    m_ui->eraseForegroundToolButton->setEnabled(false);
+
+    foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
+        const QString category = m_descriptions[index.row()].id();
+        m_scheme.formatFor(category).setForeground(newColor);
         m_formatsModel->emitDataChanged(index);
     }
 }
