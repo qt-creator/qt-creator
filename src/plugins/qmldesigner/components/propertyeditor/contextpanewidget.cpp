@@ -321,7 +321,7 @@ bool ContextPaneWidget::setType(const QStringList &types)
 bool ContextPaneWidget::acceptsType(const QStringList &types)
 {
     return types.contains("Text") || m_easingWidget->acceptsType(types) ||
-            types.contains("Rectangle") || types.contains("Image");
+            types.contains("Rectangle") || types.contains("Image") || types.contains("BorderImage");
 }
 
 void ContextPaneWidget::onTogglePane()
