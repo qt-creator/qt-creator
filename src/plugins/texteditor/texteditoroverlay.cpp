@@ -59,7 +59,8 @@ void TextEditorOverlay::setVisible(bool b)
     if (m_visible == b)
         return;
     m_visible = b;
-    m_viewport->update();
+    if (!m_selections.isEmpty())
+        m_viewport->update();
 }
 
 void TextEditorOverlay::clear()
