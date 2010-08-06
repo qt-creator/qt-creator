@@ -58,9 +58,11 @@ protected:
     virtual bool equals(ToolChain *other) const;
 
 private:
+    QString gcceVersion() const;
     const S60ToolChainMixin m_mixin;
     const ProjectExplorer::ToolChain::ToolChainType m_type;
     const QString m_gcceBinPath;
+    mutable QString m_gcceVersion;
 };
 
 } // namespace Internal

@@ -33,6 +33,7 @@
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDir>
+#include <QtCore/QProcess>
 #include <QtCore/QtDebug>
 
 enum { debug = 0 };
@@ -138,6 +139,9 @@ void GCCEToolChain::addToEnvironment(ProjectExplorer::Environment &env)
     default:
         break;
     }
+    QString version = gcceVersion();
+    version = version.remove(QLatin1Char('.'));
+    env.set(QString::fromLatin1("SBS_GCCE") + version + QLatin1String("BIN"), QDir::toNativeSeparators(m_gcceBinPath));
 }
 
 QString GCCEToolChain::makeCommand() const
@@ -153,4 +157,35 @@ bool GCCEToolChain::equals(ToolChain *otherIn) const
     return m_mixin == other->m_mixin
            && m_gcceBinPath == other->m_gcceBinPath
            && gcc() == other->gcc();
+}
+
+QString GCCEToolChain::gcceVersion() const
+{
+    if (m_gcceVersion.isEmpty()) {
+        QString command = gcceCommand(m_gcceBinPath);
+        if (command.isEmpty())
+            return QString();
+        QProcess gxx;
+        QStringList arguments;
+        arguments << QLatin1String("--version");
+        ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+        env.set(QLatin1String("LC_ALL"), QLatin1String("C"));   //override current locale settings
+        gxx.setEnvironment(env.toStringList());
+        gxx.setReadChannelMode(QProcess::MergedChannels);
+        gxx.start(command, arguments);
+        gxx.closeWriteChannel();
+        gxx.waitForFinished();
+
+        QString line;
+        if (gxx.canReadLine()) {
+            line = gxx.readLine();
+            qDebug() << "GCCVersion:" << line;
+            QRegExp version("\\s((\\d+)\\.(\\d+)\\.(\\d+))\\s");
+            if (line.indexOf(version) >= -1) {
+                qDebug() << "    MATCHED!";
+                m_gcceVersion = version.cap(1);
+            }
+        }
+    }
+    return m_gcceVersion;
 }
