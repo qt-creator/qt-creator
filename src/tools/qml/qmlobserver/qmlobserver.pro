@@ -6,7 +6,7 @@ include(qml.pri)
 SOURCES += main.cpp 
 include(../../../../qtcreator.pri)
 
-include(../../../libs/qmljsdebugger/qmljsdebugger.pri)
+include(../../../../share/qtcreator/qmljsdebugger/qmljsdebugger.pri)
 include(../../../libs/utils/utils.pri)
 mac {
     qmljsLibraryTarget = $$qtLibraryName(QmlJSDebugger)
