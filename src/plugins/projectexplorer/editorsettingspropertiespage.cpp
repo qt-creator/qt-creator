@@ -96,8 +96,6 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project)
 
     defaultTextCodec = m_project->editorConfiguration()->defaultTextCodec();
 
-    qDebug() << "create editor settings widget for project with encoding" << defaultTextCodec;
-
     QList<int> mibs = QTextCodec::availableMibs();
     qSort(mibs);
     QList<int> sortedMibs;
