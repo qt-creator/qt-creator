@@ -117,7 +117,7 @@
     <itemlibraryentry name="Web View" category="Qt - Widgets" icon=":/fxplugin/images/webview-icon.png">
       <property name="width" type="int" value="300"/>
       <property name="height" type="int" value="300"/>
-      <property name="url" type="QString" value="http://www.trolltech.com"/>
+      <property name="url" type="QString" value="http://qt.nokia.com"/>
     </itemlibraryentry>
   </node>
 </metainfo>
