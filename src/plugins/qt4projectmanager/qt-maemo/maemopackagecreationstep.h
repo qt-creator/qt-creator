@@ -79,6 +79,7 @@ public:
         const QString &workingDir, QString *error);
     static QString packagingCommand(const MaemoToolChain *tc,
         const QString &commandName);
+    static QString packageName(const ProjectExplorer::Project *project);
     static QString packageFileName(const ProjectExplorer::Project *project,
         const QString &version);
 
@@ -116,6 +117,7 @@ private:
     const Qt4BuildConfiguration *qt4BuildConfiguration() const;
     const MaemoToolChain *maemoToolChain() const;
     MaemoDeployStep * deployStep() const;
+    void checkProjectName();
 
     static const QLatin1String CreatePackageId;
 

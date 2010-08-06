@@ -58,6 +58,7 @@
 
 #include <QtCore/QProcess>
 #include <QtCore/QProcessEnvironment>
+#include <QtCore/QRegExp>
 #include <QtCore/QStringBuilder>
 #include <QtGui/QWidget>
 
@@ -134,6 +135,7 @@ bool MaemoPackageCreationStep::createPackage()
         return true;
 
     emit addOutput(tr("Creating package file ..."), BuildStep::MessageOutput);
+    checkProjectName();
     m_buildProc.reset(new QProcess);
     QString error;
     if (!preparePackagingProcess(m_buildProc.data(), maemoToolChain(),
@@ -221,7 +223,8 @@ bool MaemoPackageCreationStep::removeDirectory(const QString &dirPath)
     if (!dir.exists())
         return true;
 
-    const QStringList &files = dir.entryList(QDir::Files);
+    const QStringList &files
+        = dir.entryList(QDir::Files | QDir::Hidden | QDir::System);
     foreach (const QString &fileName, files) {
         if (!dir.remove(fileName))
             return false;
@@ -428,10 +431,34 @@ QString MaemoPackageCreationStep::packagingCommand(const MaemoToolChain *tc,
     return perl + tc->maddeRoot() % QLatin1String("/madbin/") % commandName;
 }
 
+void MaemoPackageCreationStep::checkProjectName()
+{
+    const QRegExp legalName(QLatin1String("[0-9-+a-z\\.]+"));
+    if (!legalName.exactMatch(buildConfiguration()->target()->project()->displayName())) {
+        emit addTask(Task(Task::Warning,
+            tr("Your project name contains characters not allowed in Debian packages.\n"
+               "They must only use lower-case letters, numbers, '-', '+' and '.'.\n"
+               "We will try to work around that, but you may experience problems."),
+               QString(), -1, TASK_CATEGORY_BUILDSYSTEM));
+    }
+}
+
+QString MaemoPackageCreationStep::packageName(const ProjectExplorer::Project *project)
+{
+    QString packageName = project->displayName().toLower();
+    const QRegExp legalLetter(QLatin1String("[a-z0-9+-.]"), Qt::CaseSensitive,
+        QRegExp::WildcardUnix);
+    for (int i = 0; i < packageName.length(); ++i) {
+        if (!legalLetter.exactMatch(packageName.mid(i, 1)))
+            packageName[i] = QLatin1Char('-');
+    }
+    return packageName;
+}
+
 QString MaemoPackageCreationStep::packageFileName(const ProjectExplorer::Project *project,
     const QString &version)
 {
-    return project->displayName() % QLatin1Char('_') % version
+    return packageName(project) % QLatin1Char('_') % version
         % QLatin1String("_armel.deb");
 }
 

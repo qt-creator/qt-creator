@@ -147,7 +147,7 @@ bool MaemoTemplatesManager::createTemplatesIfNecessary(const ProjectExplorer::Ta
     }
 
     const QString command = QLatin1String("dh_make -s -n -p ")
-        + project->displayName() + QLatin1Char('_')
+        + MaemoPackageCreationStep::packageName(project) + QLatin1Char('_')
         + MaemoPackageCreationStep::DefaultVersionNumber;
     dh_makeProc.start(MaemoPackageCreationStep::packagingCommand(tc, command));
     if (!dh_makeProc.waitForStarted()) {
