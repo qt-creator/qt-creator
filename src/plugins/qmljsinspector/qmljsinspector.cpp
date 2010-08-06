@@ -358,53 +358,6 @@ QString Inspector::attachToQmlViewerAsExternalApp(ProjectExplorer::Project *proj
 
 //#warning implement attachToQmlViewerAsExternalApp
     return QString();
-
-
-#if 0
-    m_debugMode = QmlProjectWithCppPlugins;
-
-    QmlProjectManager::QmlProjectRunConfiguration* runConfig =
-                qobject_cast<QmlProjectManager::QmlProjectRunConfiguration*>(project->activeTarget()->activeRunConfiguration());
-
-    if (!runConfig)
-        return tr("No run configurations were found for the project '%1'.").arg(project->displayName());
-
-    Internal::StartExternalQmlDialog dlg(Debugger::DebuggerUISwitcher::instance()->mainWindow());
-
-    QString importPathArgument = "-I";
-    QString execArgs;
-    if (runConfig->viewerArguments().contains(importPathArgument))
-        execArgs = runConfig->viewerArguments().join(" ");
-    else {
-        QFileInfo qmlFileInfo(runConfig->viewerArguments().last());
-        importPathArgument.append(" " + qmlFileInfo.absolutePath() + " ");
-        execArgs = importPathArgument + runConfig->viewerArguments().join(" ");
-    }
-
-
-    dlg.setPort(runConfig->debugServerPort());
-    dlg.setDebuggerUrl(runConfig->debugServerAddress());
-    dlg.setProjectDisplayName(project->displayName());
-    dlg.setDebugMode(Internal::StartExternalQmlDialog::QmlProjectWithCppPlugins);
-    dlg.setQmlViewerArguments(execArgs);
-    dlg.setQmlViewerPath(runConfig->viewerPath());
-
-    if (dlg.exec() != QDialog::Accepted)
-        return QString();
-
-    m_runConfigurationDebugData.serverAddress = dlg.debuggerUrl();
-    m_runConfigurationDebugData.serverPort = dlg.port();
-    m_settings.setExternalPort(dlg.port());
-    m_settings.setExternalUrl(dlg.debuggerUrl());
-
-    ProjectExplorer::Environment customEnv = ProjectExplorer::Environment::systemEnvironment(); // empty env by default
-    customEnv.set(QmlProjectManager::Constants::E_QML_DEBUG_SERVER_PORT, QString::number(m_settings.externalPort()));
-
-    Debugger::DebuggerRunControl *debuggableRunControl =
-     createDebuggerRunControl(runConfig, dlg.qmlViewerPath(), dlg.qmlViewerArguments());
-
-    return executeDebuggerRunControl(debuggableRunControl, &customEnv);
-#endif
 }
 
 QString Inspector::attachToExternalCppAppWithQml(ProjectExplorer::Project *project)
@@ -413,39 +366,6 @@ QString Inspector::attachToExternalCppAppWithQml(ProjectExplorer::Project *proje
 //#warning implement attachToExternalCppAppWithQml
 
     return QString();
-
-#if 0
-    m_debugMode = CppProjectWithQmlEngines;
-
-    ProjectExplorer::LocalApplicationRunConfiguration* runConfig =
-                qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration*>(project->activeTarget()->activeRunConfiguration());
-
-    if (!project->activeTarget() || !project->activeTarget()->activeRunConfiguration())
-        return tr("No run configurations were found for the project '%1'.").arg(project->displayName());
-    else if (!runConfig)
-        return tr("No valid run configuration was found for the project %1. "
-                                  "Only locally runnable configurations are supported.\n"
-                                  "Please check your project settings.").arg(project->displayName());
-
-    Internal::StartExternalQmlDialog dlg(Debugger::DebuggerUISwitcher::instance()->mainWindow());
-
-    dlg.setPort(m_settings.externalPort());
-    dlg.setDebuggerUrl(m_settings.externalUrl());
-    dlg.setProjectDisplayName(project->displayName());
-    dlg.setDebugMode(Internal::StartExternalQmlDialog::CppProjectWithQmlEngine);
-    if (dlg.exec() != QDialog::Accepted)
-        return QString();
-
-    m_runConfigurationDebugData.serverAddress = dlg.debuggerUrl();
-    m_runConfigurationDebugData.serverPort = dlg.port();
-    m_settings.setExternalPort(dlg.port());
-    m_settings.setExternalUrl(dlg.debuggerUrl());
-
-    ProjectExplorer::Environment customEnv = runConfig->environment();
-    customEnv.set(QmlProjectManager::Constants::E_QML_DEBUG_SERVER_PORT, QString::number(m_settings.externalPort()));
-    Debugger::DebuggerRunControl *debuggableRunControl = createDebuggerRunControl(runConfig);
-    return executeDebuggerRunControl(debuggableRunControl, &customEnv);
-#endif
 }
 
 QString Inspector::executeDebuggerRunControl(Debugger::DebuggerRunControl *debuggableRunControl,
@@ -469,33 +389,6 @@ QString Inspector::executeDebuggerRunControl(Debugger::DebuggerRunControl *debug
     return tr("A valid run control was not registered in Qt Creator for this project run configuration.");
 }
 
-Debugger::DebuggerRunControl *Inspector::createDebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig,
-                                                                  const QString &executableFile,
-                                                                  const QString &executableArguments)
-{
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    const QList<Debugger::DebuggerRunControlFactory *> factories = pm->getObjects<Debugger::DebuggerRunControlFactory>();
-    ProjectExplorer::RunControl *runControl = 0;
-
-    if (m_debugMode == QmlProjectWithCppPlugins) {
-        Debugger::DebuggerStartParameters sp;
-        sp.startMode = Debugger::StartExternal;
-        sp.executable = executableFile;
-        sp.processArgs = executableArguments.split(QLatin1Char(' '));
-        runControl = factories.first()->create(sp);
-        return qobject_cast<Debugger::DebuggerRunControl *>(runControl);
-    }
-
-    if (m_debugMode == CppProjectWithQmlEngines) {
-        if (factories.length() && factories.first()->canRun(runConfig, ProjectExplorer::Constants::DEBUGMODE)) {
-            runControl = factories.first()->create(runConfig, ProjectExplorer::Constants::DEBUGMODE);
-            return qobject_cast<Debugger::DebuggerRunControl *>(runControl);
-        }
-    }
-
-    return 0;
-}
-
 void Inspector::connected(QDeclarativeEngineDebug *client)
 {
     m_debugProject = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
@@ -515,55 +408,6 @@ void Inspector::updateMenuActions()
 
 void Inspector::debuggerStateChanged(int newState)
 {
-#if 0
-    // FIXME: AAA: adjsut to new debugger states
-    if (m_simultaneousCppAndQmlDebugMode) {
-        switch(newState) {
-        case Debugger::EngineStarting:
-            {
-                m_connectionInitialized = false;
-                break;
-            }
-        case Debugger::EngineStartFailed:
-        case Debugger::InferiorStartFailed:
-            emit statusMessage(tr("Debugging failed: could not start C++ debugger."));
-            break;
-        case Debugger::InferiorRunningRequested:
-            {
-                if (m_cppDebuggerState == Debugger::InferiorStopped) {
-                    // re-enable UI again
-//#warning enable the UI here
-                }
-                break;
-            }
-        case Debugger::InferiorRunning:
-            {
-                if (!m_connectionInitialized) {
-                    m_connectionInitialized = true;
-                    m_connectionTimer->setInterval(ConnectionAttemptSimultaneousInterval);
-                    m_connectionTimer->start();
-                }
-                break;
-            }
-        case Debugger::InferiorStopped:
-            {
-//#warning disable the UI here
-                break;
-            }
-        case Debugger::EngineShuttingDown:
-            {
-                m_connectionInitialized = false;
-                // here it's safe to enable the debugger windows again -
-                // disabled ones look ugly.
-//#warning enable the UI here
-                m_simultaneousCppAndQmlDebugMode = false;
-                break;
-            }
-        default:
-            break;
-        }
-    }
-#endif
     m_cppDebuggerState = newState;
     updateMenuActions();
 }

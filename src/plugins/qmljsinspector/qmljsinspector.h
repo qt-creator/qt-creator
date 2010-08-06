@@ -140,10 +140,6 @@ private slots:
     void currentDebugProjectRemoved();
 
 private:
-    Debugger::DebuggerRunControl *createDebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig,
-                                                           const QString &executableFile = QString(),
-                                                           const QString &executableArguments = QString());
-
     QString executeDebuggerRunControl(Debugger::DebuggerRunControl *debuggableRunControl,
                                       ProjectExplorer::Environment *environment);
 

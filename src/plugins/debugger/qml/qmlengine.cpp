@@ -143,10 +143,6 @@ void QmlEngine::setupEngine()
     notifyEngineSetupOk();
 }
 
-void QmlEngine::setupConnection()
-{
-    notifyEngineRunAndInferiorStopOk();
-}
 
 void QmlEngine::continueInferior()
 {

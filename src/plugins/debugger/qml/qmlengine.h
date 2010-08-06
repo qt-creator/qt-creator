@@ -67,7 +67,7 @@ public:
 
 private:
     // DebuggerEngine implementation
-    bool isSynchroneous() const { return true; }
+    bool isSynchroneous() const { return false; }
     void executeStep();
     void executeStepOut();
     void executeNext();
@@ -103,75 +103,17 @@ private:
     void reloadSourceFiles() {}
     void reloadFullStack() {}
 
-    bool supportsThreads() const { return true; }
+    bool supportsThreads() const { return false; }
     void updateWatchData(const WatchData &data);
 
     unsigned int debuggerCapabilities() const;
 
-    void setupConnection();
 signals:
     void sendMessage(const QByteArray &msg);
 
 private:
     void expandObject(const QByteArray &iname, quint64 objectId);
     void sendPing();
-
-#if 0
-    void createDockWidgets();
-    bool connectToViewer(); // using host, port from widgets
-
-    // returns false if project is not debuggable.
-    bool setDebugConfigurationDataFromProject(ProjectExplorer::Project *projectToDebug);
-    void startQmlProjectDebugger();
-
-    bool canEditProperty(const QString &propertyType);
-    QDeclarativeDebugExpressionQuery *executeExpression(int objectDebugId,
-        const QString &objectId, const QString &propertyName, const QVariant &value);
-
-public slots:
-    void disconnectFromViewer();
-    void setSimpleDockWidgetArrangement();
-
-private slots:
-    void treeObjectActivated(const QDeclarativeDebugObjectReference &obj);
-    void simultaneouslyDebugQmlCppApplication();
-
-private:
-    void updateMenuActions();
-    QString attachToQmlViewerAsExternalApp(ProjectExplorer::Project *project);
-    QString attachToExternalCppAppWithQml(ProjectExplorer::Project *project);
-
-    bool addQuotesForData(const QVariant &value) const;
-    void resetViews();
-
-    QDeclarativeDebugEnginesQuery *m_engineQuery;
-    QDeclarativeDebugRootContextQuery *m_contextQuery;
-
-    Internal::ObjectTree *m_objectTreeWidget;
-    Internal::ObjectPropertiesView *m_propertiesWidget;
-    Internal::WatchTableModel *m_watchTableModel;
-    Internal::WatchTableView *m_watchTableView;
-    Internal::CanvasFrameRate *m_frameRateWidget;
-    Internal::ExpressionQueryWidget *m_expressionWidget;
-
-    Internal::EngineComboBox *m_engineComboBox;
-
-    QDockWidget *m_objectTreeDock;
-    QDockWidget *m_frameRateDock;
-    QDockWidget *m_expressionQueryDock;
-    QDockWidget *m_propertyWatcherDock;
-    QDockWidget *m_inspectorOutputDock;
-
-    Internal::InspectorSettings m_settings;
-    QmlProjectManager::QmlProjectRunConfigurationDebugData m_runConfigurationDebugData;
-
-    QStringList m_editablePropertyTypes;
-
-    // simultaneous debug mode stuff
-    int m_cppDebuggerState;
-    bool m_connectionInitialized;
-    bool m_simultaneousCppAndQmlDebugMode;
-#endif
 };
 
 } // namespace Internal
