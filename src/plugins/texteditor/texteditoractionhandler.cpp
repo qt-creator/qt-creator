@@ -208,7 +208,7 @@ void TextEditorActionHandler::createActions()
     connect(m_unfoldAction, SIGNAL(triggered()), this, SLOT(unfold()));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_COLLAPSING);
 
-    m_unfoldAllAction = new QAction(tr("(Un)&Collapse All"), this);
+    m_unfoldAllAction = new QAction(tr("(Un)&Fold All"), this);
     command = am->registerAction(m_unfoldAllAction, Constants::UNFOLD_ALL, m_contextId);
     connect(m_unfoldAllAction, SIGNAL(triggered()), this, SLOT(unfoldAll()));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_COLLAPSING);
