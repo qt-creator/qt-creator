@@ -90,6 +90,9 @@ protected:
 
     CheckSymbols(Document::Ptr doc, const LookupContext &context);
 
+    bool hasVirtualDestructor(Class *klass) const;
+    bool hasVirtualDestructor(ClassOrNamespace *binding) const;
+
     bool warning(unsigned line, unsigned column, const QString &text, unsigned length = 0);
     bool warning(AST *ast, const QString &text);
 

@@ -562,13 +562,61 @@ void CheckSymbols::checkNamespace(NameAST *name)
     warning(line, column, QCoreApplication::translate("CheckUndefinedSymbols", "Expected a namespace-name"), length);
 }
 
+bool CheckSymbols::hasVirtualDestructor(Class *klass) const
+{
+    if (! klass)
+        return false;
+    const Identifier *id = klass->identifier();
+    if (! id)
+        return false;
+    for (Symbol *s = klass->members()->lookat(id); s; s = s->next()) {
+        if (! s->name())
+            continue;
+        else if (s->name()->isDestructorNameId()) {
+            if (Function *funTy = s->type()->asFunctionType()) {
+                if (funTy->isVirtual() && id->isEqualTo(s->identifier()))
+                    return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool CheckSymbols::hasVirtualDestructor(ClassOrNamespace *binding) const
+{
+    QSet<ClassOrNamespace *> processed;
+    QList<ClassOrNamespace *> todo;
+    todo.append(binding);
+
+    while (! todo.isEmpty()) {
+        ClassOrNamespace *b = todo.takeFirst();
+        if (b && ! processed.contains(b)) {
+            processed.insert(b);
+            foreach (Symbol *s, b->symbols()) {
+                if (Class *k = s->asClass()) {
+                    if (hasVirtualDestructor(k))
+                        return true;
+                }
+            }
+
+            todo += b->usings();
+        }
+    }
+
+    return false;
+}
+
 void CheckSymbols::checkName(NameAST *ast, Scope *scope)
 {
     if (ast && ast->name) {
         if (! scope)
             scope = enclosingScope();
 
-        if (maybeType(ast->name)) {
+        if (ast->asDestructorName() != 0 && scope->isClassScope()) {
+            Class *klass = scope->owner()->asClass();
+            if (hasVirtualDestructor(_context.lookupType(klass)))
+                addUse(ast, Use::VirtualMethod);
+        } else if (maybeType(ast->name)) {
             const QList<LookupItem> candidates = _context.lookup(ast->name, scope);
             addType(candidates, ast);
         } else if (maybeMember(ast->name)) {
@@ -626,7 +674,12 @@ bool CheckSymbols::visit(QualifiedNameAST *ast)
         }
 
         if (b && ast->unqualified_name) {
-            addType(b->find(ast->unqualified_name->name), ast->unqualified_name);
+            if (ast->unqualified_name->asDestructorName() != 0) {
+                if (hasVirtualDestructor(b))
+                    addUse(ast->unqualified_name, Use::VirtualMethod);
+            } else {
+                addType(b->find(ast->unqualified_name->name), ast->unqualified_name);
+            }
         }
     }
 
