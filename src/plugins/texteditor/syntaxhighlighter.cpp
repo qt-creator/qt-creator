@@ -665,8 +665,13 @@ QTextBlock SyntaxHighlighter::currentBlock() const
     return d->currentBlock;
 }
 
+static bool byStartOfRange(const QTextLayout::FormatRange &range, const QTextLayout::FormatRange &other)
+{
+    return range.start < other.start;
+}
+
 void SyntaxHighlighter::setExtraAdditionalFormats(const QTextBlock& block,
-                                                  const QList<QTextLayout::FormatRange> &formats)
+                                                  const QList<QTextLayout::FormatRange> &fmts)
 {
 
 //    qDebug() << "setAdditionalFormats() on block" << block.blockNumber();
@@ -679,42 +684,48 @@ void SyntaxHighlighter::setExtraAdditionalFormats(const QTextBlock& block,
     if (block.layout() == 0)
         return;
 
-    QList<QTextLayout::FormatRange> all = block.layout()->additionalFormats();
+    QList<QTextLayout::FormatRange> formats = fmts;
+    qSort(formats.begin(), formats.end(), byStartOfRange);
 
-    bool modified = false;
+    QList<QTextLayout::FormatRange> previousSemanticFormats;
+    QList<QTextLayout::FormatRange> formatsToApply;
 
-    int skip = 0;
-
-    QList<QTextLayout::FormatRange>::Iterator it = all.begin();
-    while (it != all.end()) {
-        if (it->format.property(QTextFormat::UserProperty).toBool()) {
-            if (skip < formats.size()
-                    && it->start == formats.at(skip).start
-                    && it->length == formats.at(skip).length
-                    && it->format == formats.at(skip).format) {
-                ++skip;
-                ++it;
-            } else {
-                it = all.erase(it);
-                modified = true;
-            }
-        } else {
-            ++it;
-        }
+    const QList<QTextLayout::FormatRange> all = block.layout()->additionalFormats();
+    foreach (const QTextLayout::FormatRange &r, all) {
+        if (r.format.hasProperty(QTextFormat::UserProperty))
+            previousSemanticFormats.append(r);
+        else
+            formatsToApply.append(r);
     }
 
-    if (!modified && skip == formats.length())
-        return; // skip'em all
+    qSort(previousSemanticFormats.begin(), previousSemanticFormats.end(), byStartOfRange);
 
-    for (int i = skip; i < formats.length(); ++i) {
-        QTextLayout::FormatRange range = formats.at(i);
-        range.format.setProperty(QTextFormat::UserProperty, true);
-        all.append(range);
+    foreach (QTextLayout::FormatRange r, formats) {
+        r.format.setProperty(QTextFormat::UserProperty, true);
+        formatsToApply.append(r);
+    }
+
+    if (formats.size() == previousSemanticFormats.size()) {
+        int index = 0;
+        for (; index != formats.size(); ++index) {
+            QTextLayout::FormatRange range = formats.at(index);
+            range.format.setProperty(QTextFormat::UserProperty, true);
+
+            const QTextLayout::FormatRange &previousRange = previousSemanticFormats.at(index);
+
+            if (range.start != previousRange.start ||
+                    range.length != previousRange.length ||
+                    range.format != previousRange.format)
+                break;
+        }
+
+        if (index == formats.size())
+            return;
     }
 
     bool wasInReformatBlocks = d->inReformatBlocks;
     d->inReformatBlocks = true;
-    block.layout()->setAdditionalFormats(all);
+    block.layout()->setAdditionalFormats(formatsToApply);
     document()->markContentsDirty(block.position(), block.length()-1);
     d->inReformatBlocks = wasInReformatBlocks;
 }
