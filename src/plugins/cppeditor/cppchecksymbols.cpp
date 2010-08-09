@@ -780,10 +780,6 @@ void CheckSymbols::addType(const QList<LookupItem> &candidates, NameAST *ast)
     if (tok.generated())
         return;
 
-    unsigned line, column;
-    getTokenStartPosition(startToken, &line, &column);
-    const unsigned length = tok.length();
-
     foreach (const LookupItem &r, candidates) {
         Symbol *c = r.declaration();
         if (c->isUsingDeclaration()) // skip using declarations...
@@ -793,6 +789,11 @@ void CheckSymbols::addType(const QList<LookupItem> &candidates, NameAST *ast)
         else if (c->isTypedef() || c->isNamespace() ||
                  c->isClass() || c->isEnum() ||
                  c->isForwardClassDeclaration() || c->isTypenameArgument()) {
+
+            unsigned line, column;
+            getTokenStartPosition(startToken, &line, &column);
+            const unsigned length = tok.length();
+
             const Use use(line, column, length, Use::Type);
             addUse(use);
             //qDebug() << "added use" << oo(ast->name) << line << column << length;
@@ -811,10 +812,6 @@ void CheckSymbols::addClassMember(const QList<LookupItem> &candidates, NameAST *
     if (tok.generated())
         return;
 
-    unsigned line, column;
-    getTokenStartPosition(startToken, &line, &column);
-    const unsigned length = tok.length();
-
     foreach (const LookupItem &r, candidates) {
         Symbol *c = r.declaration();
         if (! c)
@@ -825,6 +822,10 @@ void CheckSymbols::addClassMember(const QList<LookupItem> &candidates, NameAST *
             return; // shadowed
         else if (c->isTypedef() || c->type()->isFunctionType())
             return; // shadowed
+
+        unsigned line, column;
+        getTokenStartPosition(startToken, &line, &column);
+        const unsigned length = tok.length();
 
         const Use use(line, column, length, Use::Field);
         addUse(use);
@@ -842,10 +843,6 @@ void CheckSymbols::addVirtualMethod(const QList<LookupItem> &candidates, NameAST
     if (tok.generated())
         return;
 
-    unsigned line, column;
-    getTokenStartPosition(startToken, &line, &column);
-    const unsigned length = tok.length();
-
     foreach (const LookupItem &r, candidates) {
         Symbol *c = r.declaration();
         if (! c)
@@ -858,6 +855,14 @@ void CheckSymbols::addVirtualMethod(const QList<LookupItem> &candidates, NameAST
             continue;
         else if (argumentCount < funTy->minimumArgumentCount())
             continue;
+        else if (argumentCount > funTy->argumentCount()) {
+            if (! funTy->isVariadic())
+                continue;
+        }
+
+        unsigned line, column;
+        getTokenStartPosition(startToken, &line, &column);
+        const unsigned length = tok.length();
 
         const Use use(line, column, length, Use::VirtualMethod);
         addUse(use);
