@@ -1623,6 +1623,9 @@ public:
     EnumeratorListAST *enumerator_list;
     unsigned rbrace_token;
 
+public: // annotations
+    Enum *symbol;
+
 public:
     EnumSpecifierAST()
         : enum_token(0)
@@ -1630,6 +1633,7 @@ public:
         , lbrace_token(0)
         , enumerator_list(0)
         , rbrace_token(0)
+        , symbol(0)
     {}
 
     virtual EnumSpecifierAST *asEnumSpecifier() { return this; }

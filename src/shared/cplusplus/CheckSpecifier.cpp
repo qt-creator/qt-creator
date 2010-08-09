@@ -407,6 +407,7 @@ bool CheckSpecifier::visit(EnumSpecifierAST *ast)
 
     const Name *name = semantic()->check(ast->name, _scope);
     Enum *e = control()->newEnum(sourceLocation, name);
+    ast->symbol = e;
     e->members()->setStartOffset(scopeStart);
     e->members()->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     e->setVisibility(semantic()->currentVisibility());
