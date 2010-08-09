@@ -49,9 +49,9 @@
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/buildconfiguration.h>
 
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerplugin.h>
@@ -412,9 +412,9 @@ QString S60DeviceRunConfiguration::localExecutableFileName() const
 
 bool S60DeviceRunConfiguration::runSmartInstaller() const
 {
-    BuildConfiguration *bc = target()->activeBuildConfiguration();
-    QTC_ASSERT(bc, return false);
-    BuildStepList *bsl = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    DeployConfiguration *dc = target()->activeDeployConfiguration();
+    QTC_ASSERT(dc, return false);
+    BuildStepList *bsl = dc->stepList();
     QTC_ASSERT(bsl, return false);
     QList<BuildStep *> steps = bsl->steps();
     foreach (const BuildStep *step, steps) {
