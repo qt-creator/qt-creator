@@ -140,7 +140,7 @@ QString QmlStandaloneApp::path(Path path, Location location) const
     const QString qmlRootFolder = QLatin1String("qml/")
                                   + (useExistingMainQml() ? m_mainQmlFile.dir().dirName() : m_projectName)
                                   + QLatin1Char('/');
-    const QString templatesRoot(templatesRoot());
+    const QString templatesRoot(this->templatesRoot());
     const QString cppSourceSubDir = QLatin1String("cpp/");
     const QString cppTargetSubDir = cppSourceSubDir;
     const QString qmlExtension = QLatin1String(".qml");
