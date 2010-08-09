@@ -1604,7 +1604,6 @@ void TrkGdbAdapter::handleTargetRemote(const GdbResponse &record)
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     if (record.resultClass == GdbResultDone) {
-        m_engine->notifyInferiorStopOk();
         m_engine->handleInferiorPrepared();
     } else {
         QString msg = tr("Connecting to TRK server adapter failed:\n")
