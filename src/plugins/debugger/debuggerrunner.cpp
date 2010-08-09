@@ -370,9 +370,11 @@ void DebuggerRunControl::createEngine(const DebuggerStartParameters &sp)
         case TcfEngineType:
             m_engine = createTcfEngine(sp);
             break;
+#if defined(QML_ENGINE)
         case QmlEngineType:
             m_engine = createQmlEngine(sp);
             break;
+#endif
         default: {
             // Could not find anything suitable.
             debuggingFinished();
