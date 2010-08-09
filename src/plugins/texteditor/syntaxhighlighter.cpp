@@ -684,7 +684,12 @@ void SyntaxHighlighter::setExtraAdditionalFormats(const QTextBlock& block,
     if (block.layout() == 0)
         return;
 
-    QList<QTextLayout::FormatRange> formats = fmts;
+    QList<QTextLayout::FormatRange> formats;
+    formats.reserve(fmts.size());
+    foreach (QTextLayout::FormatRange r, fmts) {
+        r.format.setProperty(QTextFormat::UserProperty, true);
+        formats.append(r);
+    }
     qSort(formats.begin(), formats.end(), byStartOfRange);
 
     QList<QTextLayout::FormatRange> previousSemanticFormats;
@@ -698,19 +703,12 @@ void SyntaxHighlighter::setExtraAdditionalFormats(const QTextBlock& block,
             formatsToApply.append(r);
     }
 
-    qSort(previousSemanticFormats.begin(), previousSemanticFormats.end(), byStartOfRange);
-
-    foreach (QTextLayout::FormatRange r, formats) {
-        r.format.setProperty(QTextFormat::UserProperty, true);
-        formatsToApply.append(r);
-    }
-
     if (formats.size() == previousSemanticFormats.size()) {
+        qSort(previousSemanticFormats.begin(), previousSemanticFormats.end(), byStartOfRange);
+
         int index = 0;
         for (; index != formats.size(); ++index) {
-            QTextLayout::FormatRange range = formats.at(index);
-            range.format.setProperty(QTextFormat::UserProperty, true);
-
+            const QTextLayout::FormatRange &range = formats.at(index);
             const QTextLayout::FormatRange &previousRange = previousSemanticFormats.at(index);
 
             if (range.start != previousRange.start ||
@@ -722,6 +720,8 @@ void SyntaxHighlighter::setExtraAdditionalFormats(const QTextBlock& block,
         if (index == formats.size())
             return;
     }
+
+    formatsToApply += formats;
 
     bool wasInReformatBlocks = d->inReformatBlocks;
     d->inReformatBlocks = true;
