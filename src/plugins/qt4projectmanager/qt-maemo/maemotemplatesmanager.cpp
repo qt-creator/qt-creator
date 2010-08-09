@@ -29,6 +29,10 @@
 
 #include "maemotemplatesmanager.h"
 
+#include "maemodeployablelistmodel.h"
+#include "maemodeployables.h"
+#include "maemodeploystep.h"
+#include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
 #include "maemotoolchain.h"
 
@@ -58,8 +62,7 @@ namespace Internal {
 
 namespace {
 const QByteArray IconFieldName("XB-Maemo-Icon-26:");
-const QString MaemoDirName("maemo");
-const QString PackagingDirName = MaemoDirName + QLatin1Char('/') + ("packaging");
+const QString PackagingDirName = ("maemopackaging");
 } // anonymous namespace
 
 
@@ -86,34 +89,16 @@ MaemoTemplatesManager::MaemoTemplatesManager(QObject *parent) : QObject(parent)
 
 void MaemoTemplatesManager::handleActiveProjectChanged(ProjectExplorer::Project *project)
 {
-    if (project && !m_maemoProjects.contains(project)) {
-        connect(project, SIGNAL(addedTarget(ProjectExplorer::Target*)),
-            this, SLOT(handleTarget(ProjectExplorer::Target*)));
-        connect(project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
-            this, SLOT(handleTarget(ProjectExplorer::Target*)));
-        const QList<Target *> &targets = project->targets();
-        foreach (Target * const target, targets) {
-            if (handleTarget(target)) {
-                QFileSystemWatcher * const fsWatcher
-                    = new QFileSystemWatcher(this);
-                fsWatcher->addPath(debianDirPath(project));
-                fsWatcher->addPath(changeLogFilePath(project));
-                fsWatcher->addPath(controlFilePath(project));
-                connect(fsWatcher, SIGNAL(directoryChanged(QString)), this,
-                    SLOT(handleDebianDirContentsChanged()));
-                connect(fsWatcher, SIGNAL(fileChanged(QString)), this,
-                    SLOT(handleDebianFileChanged(QString)));
-                handleDebianDirContentsChanged();
-                handleDebianFileChanged(changeLogFilePath(project));
-                handleDebianFileChanged(controlFilePath(project));
-                connect(qobject_cast<Qt4Project *>(project),
-                    SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
-                    this, SLOT(handleProFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
-                    Qt::QueuedConnection);
-                m_maemoProjects.insert(project, fsWatcher);
-            }
-        }
-    }
+    if (!project || m_maemoProjects.contains(project))
+        return;
+
+    connect(project, SIGNAL(addedTarget(ProjectExplorer::Target*)),
+        this, SLOT(handleTarget(ProjectExplorer::Target*)));
+    connect(project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
+        this, SLOT(handleTarget(ProjectExplorer::Target*)));
+    const QList<Target *> &targets = project->targets();
+    foreach (Target * const target, targets)
+        handleTarget(target);
 }
 
 bool MaemoTemplatesManager::handleTarget(ProjectExplorer::Target *target)
@@ -123,8 +108,30 @@ bool MaemoTemplatesManager::handleTarget(ProjectExplorer::Target *target)
         return false;
     if (!createDebianTemplatesIfNecessary(target))
         return false;
-    if (!syncDesktopFiles(target))
-        return false;
+
+    const Qt4Target * const qt4Target = qobject_cast<Qt4Target *>(target);
+    const MaemoDeployStep * const deployStep
+        = MaemoGlobal::buildStep<MaemoDeployStep>(qt4Target->activeDeployConfiguration());
+    connect(deployStep->deployables(), SIGNAL(modelsCreated()), this,
+        SLOT(handleProFileUpdated()), Qt::QueuedConnection);
+
+    Project * const project = target->project();
+    if (m_maemoProjects.contains(project))
+        return true;
+
+    QFileSystemWatcher * const fsWatcher = new QFileSystemWatcher(this);
+    fsWatcher->addPath(debianDirPath(project));
+    fsWatcher->addPath(changeLogFilePath(project));
+    fsWatcher->addPath(controlFilePath(project));
+    connect(fsWatcher, SIGNAL(directoryChanged(QString)), this,
+        SLOT(handleDebianDirContentsChanged()));
+    connect(fsWatcher, SIGNAL(fileChanged(QString)), this,
+        SLOT(handleDebianFileChanged(QString)));
+    handleDebianDirContentsChanged();
+    handleDebianFileChanged(changeLogFilePath(project));
+    handleDebianFileChanged(controlFilePath(project));
+    m_maemoProjects.insert(project, fsWatcher);
+
     return true;
 }
 
@@ -132,7 +139,7 @@ bool MaemoTemplatesManager::createDebianTemplatesIfNecessary(const ProjectExplor
 {
     Project * const project = target->project();
     QDir projectDir(project->projectDirectory());
-    if (projectDir.exists(MaemoDirName))
+    if (projectDir.exists(PackagingDirName))
         return true;
     const QString packagingTemplatesDir
         = projectDir.path() + QLatin1Char('/') + PackagingDirName;
@@ -216,78 +223,79 @@ bool MaemoTemplatesManager::createDebianTemplatesIfNecessary(const ProjectExplor
     return true;
 }
 
-bool MaemoTemplatesManager::syncDesktopFiles(const ProjectExplorer::Target *target)
+bool MaemoTemplatesManager::updateDesktopFiles(const Qt4Target *target)
 {
-    const QByteArray desktopTemplate("[Desktop Entry]\nEncoding=UTF-8\n"
-        "Version=1.0\nType=Application\nTerminal=false\nName=topx\nExec=\n"
-        "Icon=\nX-Window-Icon=\nX-HildonDesk-ShowInToolbar=true\n"
-        "X-Osso-Type=application/x-executable\n");
-
     const Qt4Target * const qt4Target = qobject_cast<const Qt4Target *>(target);
     Q_ASSERT_X(qt4Target, Q_FUNC_INFO,
         "Impossible: Target has Maemo id, but could not be cast to Qt4Target.");
     const QList<Qt4ProFileNode *> &applicationProjects
         = qt4Target->qt4Project()->applicationProFiles();
-    QList<QString> applicationProjectNames;
-    foreach (const Qt4ProFileNode * const subProject, applicationProjects)
-        applicationProjectNames << subProject->displayName();
-    const QString maemoDirPath = target->project()->projectDirectory()
-        + QLatin1Char('/') + MaemoDirName;
-    QDir maemoDir(maemoDirPath);
-    const QStringList &desktopFiles
-        = maemoDir.entryList(QStringList() << QLatin1String("*.desktop"),
-              QDir::Files);
+    bool success = true;
+    foreach (Qt4ProFileNode *proFileNode, applicationProjects)
+        success &= updateDesktopFile(qt4Target, proFileNode);
+    return success;
+}
 
-    QStringList filesToAdd;
-    QStringList filesToRemove;
+bool MaemoTemplatesManager::updateDesktopFile(const Qt4Target *target,
+    Qt4ProFileNode *proFileNode)
+{
+    const QString appName = proFileNode->targetInformation().target;
+    const QString desktopFilePath = QFileInfo(proFileNode->path()).path()
+        + QLatin1Char('/') + appName + QLatin1String(".desktop");
+    QFile desktopFile(desktopFilePath);
+    const bool existsAlready = desktopFile.exists();
+    if (!desktopFile.open(QIODevice::ReadWrite)) {
+        qWarning("Failed to open '%s': %s", qPrintable(desktopFilePath),
+            qPrintable(desktopFile.errorString()));
+        return false;
+    }
 
-    // Step 1: Remove all desktop files that refer to projects that don't exist anymore.
-    foreach (const QString &desktopFile, desktopFiles) {
-        const QString projectName = QFileInfo(desktopFile).completeBaseName();
-        if (!applicationProjectNames.contains(projectName)) {
-            const QString &absFilePath
-                = maemoDirPath + QLatin1Char('/') + desktopFile;
-            if (!QFile::remove(absFilePath)) {
-                qWarning("Failed to remove outdated project file %s.",
-                    qPrintable(absFilePath));
-            }
-            filesToRemove << absFilePath;
+    const QByteArray desktopTemplate("[Desktop Entry]\nEncoding=UTF-8\n"
+        "Version=1.0\nType=Application\nTerminal=false\nName=\nExec=\n"
+        "Icon=\nX-Window-Icon=\nX-HildonDesk-ShowInToolbar=true\n"
+        "X-Osso-Type=application/x-executable\n");
+    QByteArray contents
+        = existsAlready ? desktopFile.readAll() : desktopTemplate;
+
+    QString executable;
+    const MaemoDeployables * const deployables
+        = MaemoGlobal::buildStep<MaemoDeployStep>(target->activeDeployConfiguration())
+            ->deployables();
+    for (int i = 0; i < deployables->modelCount(); ++i) {
+        const MaemoDeployableListModel * const model = deployables->modelAt(i);
+        if (model->proFileNode() == proFileNode) {
+            executable = model->remoteExecutableFilePath();
+            break;
         }
     }
-
-    // Step 2: Create a desktop file for every project that doesn't have one.
-    foreach (const QString &projectName, applicationProjectNames) {
-        const QString &desktopFileName
-            = projectName + QLatin1String(".desktop");
-        if (!desktopFiles.contains(desktopFileName)) {
-            const QString &absFilePath
-                = maemoDirPath + QLatin1Char('/') + desktopFileName;
-            QFile desktopFile(absFilePath);
-            if (!desktopFile.open(QIODevice::WriteOnly)) {
-                qWarning("Failed to create desktop file %s",
-                    qPrintable(absFilePath));
-                continue;
-            }
-            filesToAdd << absFilePath;
-            if (desktopFile.write(desktopTemplate) != desktopTemplate.length()) {
-                qWarning("Failed to write to desktop file %s",
-                    qPrintable(absFilePath));
-                continue;
-            }
-        }
+    if (executable.isEmpty()) {
+        qWarning("Strange: Project file node not managed by MaemoDeployables.");
+    } else {
+        int execNewLinePos, execValuePos;
+        findLine("Exec=", contents, execNewLinePos, execValuePos);
+        contents.replace(execValuePos, execNewLinePos - execValuePos,
+            executable.toUtf8());
     }
 
-    if (!filesToAdd.isEmpty()) {
-        qt4Target->qt4Project()->rootProjectNode()
-            ->addFiles(UnknownFileType, filesToAdd);
-    }
-    if (!filesToRemove.isEmpty()) {
-        qt4Target->qt4Project()->rootProjectNode()
-            ->removeFiles(UnknownFileType, filesToRemove);
+    int nameNewLinePos, nameValuePos;
+    findLine("Name=", contents, nameNewLinePos, nameValuePos);
+    if (nameNewLinePos == nameValuePos)
+        contents.insert(nameValuePos, appName.toUtf8());
+
+    desktopFile.resize(0);
+    desktopFile.write(contents);
+    desktopFile.close();
+    if (desktopFile.error() != QFile::NoError) {
+        qWarning("Could not write '%s': %s", qPrintable(desktopFilePath),
+            qPrintable(desktopFile.errorString()));
     }
 
-    // TODO: Step 3: update the "Name" and "Exec" entries of all desktop files (name = subproject displayname, path = rhs of deployable)
+    if (!existsAlready) {
+        proFileNode->addFiles(UnknownFileType,
+            QStringList() << desktopFilePath);
+    }
     return true;
+
 }
 
 void MaemoTemplatesManager::handleProjectToBeRemoved(ProjectExplorer::Project *project)
@@ -299,21 +307,15 @@ void MaemoTemplatesManager::handleProjectToBeRemoved(ProjectExplorer::Project *p
     }
 }
 
-void MaemoTemplatesManager::handleProFileUpdated(Qt4ProFileNode *proFileNode)
+void MaemoTemplatesManager::handleProFileUpdated()
 {
-    for (MaemoProjectMap::ConstIterator it = m_maemoProjects.begin();
-        it != m_maemoProjects.end(); ++it) {
-        const Qt4Project * const project = qobject_cast<Qt4Project *>(it.key());
-        if (isParent(project->rootProjectNode(), proFileNode)) {
-
-            // We assume here that the project configuratiion is identical for
-            // all Maemo targets. If that is not the case (e.g. the user has
-            // configured different deployment paths for Maemo5 vs. Maemo6,
-            // we can do things slightly wrong.
-            syncDesktopFiles(project->activeTarget());
-            break;
-        }
-    }
+    const MaemoDeployables * const deployables
+        = qobject_cast<MaemoDeployables *>(sender());
+    if (!deployables)
+        return;
+    const Target * const target = deployables->buildStep()->target();
+    if (m_maemoProjects.contains(target->project()))
+        updateDesktopFiles(qobject_cast<const Qt4Target *>(target));
 }
 
 QString MaemoTemplatesManager::version(const Project *project,
@@ -531,17 +533,20 @@ Project *MaemoTemplatesManager::findProject(const QFileSystemWatcher *fsWatcher)
     return 0;
 }
 
-bool MaemoTemplatesManager::isParent(const ProjectNode *parent,
-    const ProjectNode *child) const
+void MaemoTemplatesManager::findLine(const QByteArray &string,
+    QByteArray &document, int &lineEndPos, int &valuePos)
 {
-    if (parent == child)
-        return true;
-    const QList<ProjectNode *> &directChildren = parent->subProjectNodes();
-    foreach (const ProjectNode * directChild, directChildren) {
-        if (isParent(directChild, child))
-            return true;
+    int lineStartPos = document.indexOf(string);
+    if (lineStartPos == -1) {
+        lineStartPos = document.length();
+        document += string + '\n';
     }
-    return false;
+    valuePos = lineStartPos + string.length();
+    lineEndPos = document.indexOf('\n', lineStartPos);
+    if (lineEndPos == -1) {
+        lineEndPos = document.length();
+        document += '\n';
+    }
 }
 
 } // namespace Internal

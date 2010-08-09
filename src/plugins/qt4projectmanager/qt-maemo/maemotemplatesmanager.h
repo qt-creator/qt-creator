@@ -49,6 +49,7 @@ class Qt4Project;
 
 namespace Internal {
 class Qt4ProFileNode;
+class Qt4Target;
 
 class MaemoTemplatesManager : public QObject
 {
@@ -81,7 +82,7 @@ private slots:
     void handleDebianDirContentsChanged();
     void handleDebianFileChanged(const QString &filePath);
     void handleProjectToBeRemoved(ProjectExplorer::Project *project);
-    void handleProFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *proFileNode);
+    void handleProFileUpdated();
 
 private:
     explicit MaemoTemplatesManager(QObject *parent);
@@ -89,10 +90,12 @@ private:
     QString changeLogFilePath(const ProjectExplorer::Project *project) const;
     QString controlFilePath(const ProjectExplorer::Project *project) const;
     bool createDebianTemplatesIfNecessary(const ProjectExplorer::Target *target);
-    bool syncDesktopFiles(const ProjectExplorer::Target *target);
+    bool updateDesktopFiles(const Qt4Target *target);
+    bool updateDesktopFile(const Qt4Target *target,
+        Qt4ProFileNode *proFileNode);
     ProjectExplorer::Project *findProject(const QFileSystemWatcher *fsWatcher) const;
-    bool isParent(const ProjectExplorer::ProjectNode *parent,
-        const ProjectExplorer::ProjectNode *child) const;
+    void findLine(const QByteArray &string, QByteArray &document,
+        int &lineEndPos, int &valuePos);
 
     QSharedPointer<QFile> openFile(const QString &filePath,
         QIODevice::OpenMode mode, QString *error) const;

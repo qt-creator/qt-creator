@@ -74,6 +74,7 @@ public:
     QString remoteExecutableFilePath(const QString &localExecutableFilePath) const;
     int modelCount() const { return m_listModels.count(); }
     MaemoDeployableListModel *modelAt(int i) const { return m_listModels.at(i); }
+    const ProjectExplorer::BuildStep *buildStep() const { return m_buildStep; }
 
 signals:
     void modelsCreated();

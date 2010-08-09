@@ -67,6 +67,7 @@ public:
     QString remoteExecutableFilePath() const;
     QString projectName() const;
     QString projectDir() const;
+    const Qt4ProFileNode *proFileNode() const { return m_proFileNode; }
 
 private:
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
