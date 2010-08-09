@@ -97,6 +97,8 @@ public:
 private:
     QByteArray generateMainCpp(const QString *errorMessage) const;
     QByteArray generateProFile(const QString *errorMessage) const;
+    static QString templatesRoot();
+    static QString qmlInspectorSourcesRoot();
 
     QString m_projectName;
     QFileInfo m_projectPath;

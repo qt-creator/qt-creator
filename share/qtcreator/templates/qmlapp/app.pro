@@ -19,13 +19,13 @@ OTHER_FILES = qml/app/app.qml
 # TARGETUID3 #
 symbian:TARGET.UID3 = 0xE1111234
 
-# QMLJSINSPECTOR #
-#DEFINES += Q_QML_JS_INSPECTOR
-contains(DEFINES, Q_QML_JS_INSPECTOR) {
-# QMLJSINSPECTOR_LIB_PATH #
-INSPECTOR_LIBRARY_PATH = $$PWD/../../../../share/qtcreator/qmljsdebugger
-include($$INSPECTOR_LIBRARY_PATH/qmljsdebugger-lib.pri)
-}
+# Define to enable the Qml Inspector in debug mode
+# QMLINSPECTOR #
+#DEFINES += QMLINSPECTOR
+
+# Path to the Qml Inspector sources, which are shipped with Qt Creator
+# QMLINSPECTOR_PATH #
+QMLINSPECTOR_PATH = $$PWD/../../qmljsdebugger
 
 # Edit the code below on your own risk.
 
@@ -34,6 +34,8 @@ QT += declarative
 SOURCES += cpp/main.cpp cpp/qmlapplicationview.cpp
 HEADERS += cpp/qmlapplicationview.h
 INCLUDEPATH += cpp
+
+contains(DEFINES, QMLINSPECTOR):CONFIG(debug, debug|release):include($$QMLINSPECTOR_PATH/qmljsdebugger-lib.pri)
 
 symbian {
     ICON = cpp/symbianicon.svg
@@ -84,7 +86,6 @@ symbian {
         copydeploymentfolders.commands = $$copyCommand
         first.depends = $(first) copydeploymentfolders
         QMAKE_EXTRA_TARGETS += first copydeploymentfolders
-message($$copyCommand)
     }
 } else { #linux
     !isEqual(PWD,$$OUT_PWD) {

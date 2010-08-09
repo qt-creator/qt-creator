@@ -140,11 +140,7 @@ QString QmlStandaloneApp::path(Path path, Location location) const
     const QString qmlRootFolder = QLatin1String("qml/")
                                   + (useExistingMainQml() ? m_mainQmlFile.dir().dirName() : m_projectName)
                                   + QLatin1Char('/');
-#ifdef CREATORLESSTEST
-    const QString sourceRoot = QLatin1String(":/qmlproject/wizards/templates/");
-#else // CREATORLESSTEST
-    const QString sourceRoot = Core::ICore::instance()->resourcePath() + QLatin1String("/templates/qmlapp/");
-#endif // CREATORLESSTEST
+    const QString templatesRoot(templatesRoot());
     const QString cppSourceSubDir = QLatin1String("cpp/");
     const QString cppTargetSubDir = cppSourceSubDir;
     const QString qmlExtension = QLatin1String(".qml");
@@ -157,13 +153,13 @@ QString QmlStandaloneApp::path(Path path, Location location) const
     switch (location) {
         case Source: {
             switch (path) {
-                case MainQml:           return sourceRoot + QLatin1String("qml/app/app.qml");
-                case AppProfile:        return sourceRoot + QLatin1String("app.pro");
-                case MainCpp:           return sourceRoot + cppSourceSubDir + mainCpp;
-                case AppViewerCpp:      return sourceRoot + cppSourceSubDir + appViewCpp;
-                case AppViewerH:        return sourceRoot + cppSourceSubDir + appViewH;
+                case MainQml:           return templatesRoot + QLatin1String("qml/app/app.qml");
+                case AppProfile:        return templatesRoot + QLatin1String("app.pro");
+                case MainCpp:           return templatesRoot + cppSourceSubDir + mainCpp;
+                case AppViewerCpp:      return templatesRoot + cppSourceSubDir + appViewCpp;
+                case AppViewerH:        return templatesRoot + cppSourceSubDir + appViewH;
                 case SymbianSvgIcon:    return !m_symbianSvgIcon.isEmpty() ? m_symbianSvgIcon
-                                                    : sourceRoot + cppSourceSubDir + symbianIcon;
+                                                    : templatesRoot + cppSourceSubDir + symbianIcon;
                 default:                qFatal(errorMessage);
             }
         }
@@ -260,6 +256,7 @@ QByteArray QmlStandaloneApp::generateProFile(const QString *errorMessage) const
 {
     Q_UNUSED(errorMessage)
 
+    const QChar comment = QLatin1Char('#');
     QFile proFile(path(AppProfile, Source));
     proFile.open(QIODevice::ReadOnly);
     Q_ASSERT(proFile.isOpen());
@@ -290,16 +287,16 @@ QByteArray QmlStandaloneApp::generateProFile(const QString *errorMessage) const
             uncommentNextLine = true;
         } else if (line.contains(QLatin1String("# NETWORKACCESS")) && !m_networkEnabled) {
             uncommentNextLine = true;
-        } else if (line.contains(QLatin1String("# Q_QML_JS_INSPECTOR"))) {
+        } else if (line.contains(QLatin1String("# QMLINSPECTOR_PATH"))) {
+            valueOnNextLine = qmlInspectorSourcesRoot();
+        } else if (line.contains(QLatin1String("# QMLINSPECTOR"))) {
             // ### disabled for now; figure out the private headers problem first.
             //uncommentNextLine = true;
-        } else if (line.contains(QLatin1String("# QMLJSINSPECTOR_LIB_PATH"))) {
-            valueOnNextLine = Core::ICore::instance()->resourcePath() + QLatin1String("/qmljsdebugger");
         }
 
         // Remove all marker comments
-        if (line.trimmed().startsWith(QLatin1Char('#'))
-            && line.trimmed().endsWith(QLatin1Char('#')))
+        if (line.trimmed().startsWith(comment)
+            && line.trimmed().endsWith(comment))
             continue;
 
         if (!valueOnNextLine.isEmpty()) {
@@ -310,7 +307,7 @@ QByteArray QmlStandaloneApp::generateProFile(const QString *errorMessage) const
         }
 
         if (uncommentNextLine) {
-            out << QLatin1String("#") << line << endl;
+            out << comment << line << endl;
             uncommentNextLine = false;
             continue;
         }
@@ -321,6 +318,16 @@ QByteArray QmlStandaloneApp::generateProFile(const QString *errorMessage) const
 }
 
 #ifndef CREATORLESSTEST
+QString QmlStandaloneApp::templatesRoot()
+{
+    return Core::ICore::instance()->resourcePath() + QLatin1String("/templates/qmlapp/");
+}
+
+QString QmlStandaloneApp::qmlInspectorSourcesRoot()
+{
+    return Core::ICore::instance()->resourcePath() + QLatin1String("/qmljsdebugger");
+}
+
 static Core::GeneratedFile generateFileCopy(const QString &source,
                                             const QString &target,
                                             bool openEditor = false)

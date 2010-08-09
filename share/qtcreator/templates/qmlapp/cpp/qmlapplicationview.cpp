@@ -21,7 +21,7 @@ class QmlApplicationViewPrivate
 };
 
 QmlApplicationView::QmlApplicationView(const QString &mainQmlFile, QWidget *parent) :
-#ifdef Q_QML_JS_INSPECTOR
+#ifdef QMLINSPECTOR
     QmlViewer::QDeclarativeDesignView(parent)
 #else
     QDeclarativeView(parent)
