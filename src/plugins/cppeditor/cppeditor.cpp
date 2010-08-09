@@ -2041,7 +2041,7 @@ bool SemanticHighlighter::isOutdated()
 
 void SemanticHighlighter::run()
 {
-    setPriority(QThread::IdlePriority);
+    setPriority(QThread::LowestPriority);
 
     forever {
         m_mutex.lock();

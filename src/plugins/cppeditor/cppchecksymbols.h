@@ -62,7 +62,7 @@ public:
         this->setRunnable(this);
         this->reportStarted();
         Future future = this->future();
-        QThreadPool::globalInstance()->start(this, QThread::IdlePriority);
+        QThreadPool::globalInstance()->start(this, QThread::LowestPriority);
         return future;
     }
 
