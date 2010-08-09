@@ -665,21 +665,6 @@ QTextBlock SyntaxHighlighter::currentBlock() const
     return d->currentBlock;
 }
 
-static bool isSimilarCharFormat(const QTextCharFormat &format, const QTextCharFormat &other)
-{
-    if (format.foreground() != other.foreground())
-        return false;
-    else if (format.background() != other.background())
-        return false;
-    else if (format.underlineStyle() != other.underlineStyle())
-        return false;
-    else if (format.underlineColor() != other.underlineColor())
-        return false;
-    else if (format.font() != other.font())
-        return false;
-    return true;
-}
-
 void SyntaxHighlighter::setExtraAdditionalFormats(const QTextBlock& block,
                                                   const QList<QTextLayout::FormatRange> &formats)
 {
@@ -706,7 +691,7 @@ void SyntaxHighlighter::setExtraAdditionalFormats(const QTextBlock& block,
             if (skip < formats.size()
                     && it->start == formats.at(skip).start
                     && it->length == formats.at(skip).length
-                    && isSimilarCharFormat(it->format, formats.at(skip).format)) {
+                    && it->format == formats.at(skip).format) {
                 ++skip;
                 ++it;
             } else {

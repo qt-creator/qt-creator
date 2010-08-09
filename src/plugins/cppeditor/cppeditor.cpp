@@ -988,9 +988,6 @@ void CPPEditor::highlightTypeUsages(int from, int to)
     Q_ASSERT(!chunks.isEmpty());
     QTextBlock b = doc->findBlockByNumber(m_nextHighlightBlockNumber);
 
-    QTextCharFormat virtualMethodFormat; // ### hardcoded;
-    virtualMethodFormat.setFontItalic(true);
-
     QMapIterator<int, QVector<SemanticInfo::Use> > it(chunks);
     while (b.isValid() && it.hasNext()) {
         it.next();
@@ -1021,7 +1018,7 @@ void CPPEditor::highlightTypeUsages(int from, int to)
                 break;
 
             case SemanticInfo::Use::VirtualMethod:
-                formatRange.format = virtualMethodFormat;
+                formatRange.format = m_virtualMethodFormat;
                 break;
 
             default:
@@ -1745,6 +1742,8 @@ void CPPEditor::setFontSettings(const TextEditor::FontSettings &fs)
     m_localFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_LOCAL));
     m_fieldFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_FIELD));
     m_keywordFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_KEYWORD));
+
+    m_virtualMethodFormat.setFontItalic(true); // ### hardcoded
 
     // only set the background, we do not want to modify foreground properties set by the syntax highlighter or the link
     m_occurrencesFormat.clearForeground();
