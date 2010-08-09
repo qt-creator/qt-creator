@@ -1,5 +1,4 @@
 include(../../../../../qtcreator.pri)
-
 include($$IDE_SOURCE_TREE/src/plugins/qmldesigner/config.pri)
 
 QT += script \
@@ -8,7 +7,7 @@ QT += script \
 CONFIG += qtestlib testcase
 
 # DEFINES+=QTCREATOR_UTILS_STATIC_LIB QML_BUILD_STATIC_LIB
-DEFINES+=QTCREATORDIR=\\\"$$CREATORDIR\\\"
+DEFINES+=QTCREATORDIR=\\\"$$IDE_SOURCE_TREE\\\"
 DEFINES+=QT_CREATOR QTCREATOR_TEST
 
 DEPENDPATH += ..
@@ -17,8 +16,8 @@ INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore/include
 INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore
 
 include($$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore/designercore.pri)
-include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
-include($$IDE_SOURCE_TREE/src/libs/qmljs/qmljs.pri)
+include($$IDE_SOURCE_TREE/src/libs/utils/utils-lib.pri)
+include($$IDE_SOURCE_TREE/src/libs/qmljs/qmljs-lib.pri)
 
 TARGET = tst_qmldesigner_core
 
