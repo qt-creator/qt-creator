@@ -1017,6 +1017,10 @@ void CPPEditor::highlightSymbolUsages(int from, int to)
                 formatRange.format = m_localFormat;
                 break;
 
+            case SemanticInfo::Use::Static:
+                formatRange.format = m_staticFormat;
+                break;
+
             case SemanticInfo::Use::VirtualMethod:
                 formatRange.format = m_virtualMethodFormat;
                 break;
@@ -1741,8 +1745,9 @@ void CPPEditor::setFontSettings(const TextEditor::FontSettings &fs)
     m_typeFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_TYPE));
     m_localFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_LOCAL));
     m_fieldFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_FIELD));
-    m_keywordFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_KEYWORD));
+    m_staticFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_STATIC));
     m_virtualMethodFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_VIRTUAL_METHOD));
+    m_keywordFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_KEYWORD));
 
     // only set the background, we do not want to modify foreground properties set by the syntax highlighter or the link
     m_occurrencesFormat.clearForeground();

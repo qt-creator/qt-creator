@@ -64,7 +64,7 @@ class CollectTypes: protected SymbolVisitor
     QSet<QByteArray> _types;
     QSet<QByteArray> _members;
     QSet<QByteArray> _virtualMethods;
-    QList<NameAST *> _names;
+    QSet<QByteArray> _statics;
     bool _mainDocument;
 
 public:
@@ -88,6 +88,11 @@ public:
     const QSet<QByteArray> &virtualMethods() const
     {
         return _virtualMethods;
+    }
+
+    const QSet<QByteArray> &statics() const
+    {
+        return _statics;
     }
 
 protected:
@@ -151,6 +156,18 @@ protected:
         }
     }
 
+    void addStatic(const Name *name)
+    {
+        if (! name) {
+            return;
+
+        } else if (name->isNameId() || name->isTemplateNameId()) {
+            const Identifier *id = name->identifier();
+            _statics.insert(QByteArray::fromRawData(id->chars(), id->size()));
+
+        }
+    }
+
     // nothing to do
     virtual bool visit(UsingNamespaceDirective *) { return true; }
     virtual bool visit(UsingDeclaration *) { return true; }
@@ -184,6 +201,9 @@ protected:
 
     virtual bool visit(Declaration *symbol)
     {
+        if (symbol->enclosingEnumScope() != 0)
+            addStatic(symbol->name());
+
         if (Function *funTy = symbol->type()->asFunctionType()) {
             if (funTy->isVirtual())
                 addVirtualMethod(symbol->name());
@@ -288,6 +308,7 @@ CheckSymbols::CheckSymbols(Document::Ptr doc, const LookupContext &context)
     _potentialTypes = collectTypes.types();
     _potentialMembers = collectTypes.members();
     _potentialVirtualMethods = collectTypes.virtualMethods();
+    _potentialStatics = collectTypes.statics();
     _flushRequested = false;
     _flushLine = 0;
 
@@ -438,6 +459,12 @@ bool CheckSymbols::visit(NamespaceAST *ast)
 
 bool CheckSymbols::visit(UsingDirectiveAST *)
 {
+    return true;
+}
+
+bool CheckSymbols::visit(EnumeratorAST *ast)
+{
+    addUse(ast->identifier_token, Use::Static);
     return true;
 }
 
@@ -616,9 +643,9 @@ void CheckSymbols::checkName(NameAST *ast, Scope *scope)
             Class *klass = scope->owner()->asClass();
             if (hasVirtualDestructor(_context.lookupType(klass)))
                 addUse(ast, Use::VirtualMethod);
-        } else if (maybeType(ast->name)) {
+        } else if (maybeType(ast->name) || maybeStatic(ast->name)) {
             const QList<LookupItem> candidates = _context.lookup(ast->name, scope);
-            addType(candidates, ast);
+            addTypeOrStatic(candidates, ast);
         } else if (maybeMember(ast->name)) {
             const QList<LookupItem> candidates = _context.lookup(ast->name, scope);
             addClassMember(candidates, ast);
@@ -678,7 +705,7 @@ bool CheckSymbols::visit(QualifiedNameAST *ast)
                 if (hasVirtualDestructor(b))
                     addUse(ast->unqualified_name, Use::VirtualMethod);
             } else {
-                addType(b->find(ast->unqualified_name->name), ast->unqualified_name);
+                addTypeOrStatic(b->find(ast->unqualified_name->name), ast->unqualified_name);
             }
         }
     }
@@ -774,12 +801,20 @@ void CheckSymbols::addUse(NameAST *ast, Use::Kind kind)
     if (DestructorNameAST *dtor = ast->asDestructorName())
         startToken = dtor->identifier_token;
 
-    const Token &tok = tokenAt(startToken);
+    addUse(startToken, kind);
+}
+
+void CheckSymbols::addUse(unsigned tokenIndex, Use::Kind kind)
+{
+    if (! tokenIndex)
+        return;
+
+    const Token &tok = tokenAt(tokenIndex);
     if (tok.generated())
         return;
 
     unsigned line, column;
-    getTokenStartPosition(startToken, &line, &column);
+    getTokenStartPosition(tokenIndex, &line, &column);
     const unsigned length = tok.length();
 
     const Use use(line, column, length, kind);
@@ -823,7 +858,7 @@ void CheckSymbols::addType(ClassOrNamespace *b, NameAST *ast)
     //qDebug() << "added use" << oo(ast->name) << line << column << length;
 }
 
-void CheckSymbols::addType(const QList<LookupItem> &candidates, NameAST *ast)
+void CheckSymbols::addTypeOrStatic(const QList<LookupItem> &candidates, NameAST *ast)
 {
     unsigned startToken = ast->firstToken();
     if (DestructorNameAST *dtor = ast->asDestructorName())
@@ -841,13 +876,18 @@ void CheckSymbols::addType(const QList<LookupItem> &candidates, NameAST *ast)
             continue;
         else if (c->isTypedef() || c->isNamespace() ||
                  c->isClass() || c->isEnum() ||
-                 c->isForwardClassDeclaration() || c->isTypenameArgument()) {
+                 c->isForwardClassDeclaration() || c->isTypenameArgument() || c->enclosingEnumScope() != 0) {
 
             unsigned line, column;
             getTokenStartPosition(startToken, &line, &column);
             const unsigned length = tok.length();
 
-            const Use use(line, column, length, Use::Type);
+            Use::Kind kind = Use::Type;
+
+            if (c->enclosingEnumScope() != 0)
+                kind = Use::Static;
+
+            const Use use(line, column, length, kind);
             addUse(use);
             //qDebug() << "added use" << oo(ast->name) << line << column << length;
             break;
@@ -883,6 +923,33 @@ void CheckSymbols::addClassMember(const QList<LookupItem> &candidates, NameAST *
         const Use use(line, column, length, Use::Field);
         addUse(use);
         break;
+    }
+}
+
+void CheckSymbols::addStatic(const QList<LookupItem> &candidates, NameAST *ast)
+{
+    if (ast->asDestructorName() != 0)
+        return;
+
+    unsigned startToken = ast->firstToken();
+    const Token &tok = tokenAt(startToken);
+    if (tok.generated())
+        return;
+
+    foreach (const LookupItem &r, candidates) {
+        Symbol *c = r.declaration();
+        if (! c)
+            return;
+        if (c->scope()->isEnumScope()) {
+            unsigned line, column;
+            getTokenStartPosition(startToken, &line, &column);
+            const unsigned length = tok.length();
+
+            const Use use(line, column, length, Use::Static);
+            addUse(use);
+            //qDebug() << "added use" << oo(ast->name) << line << column << length;
+            break;
+        }
     }
 }
 
@@ -955,6 +1022,19 @@ bool CheckSymbols::maybeMember(const Name *name) const
         if (const Identifier *ident = name->identifier()) {
             const QByteArray id = QByteArray::fromRawData(ident->chars(), ident->size());
             if (_potentialMembers.contains(id))
+                return true;
+        }
+    }
+
+    return false;
+}
+
+bool CheckSymbols::maybeStatic(const Name *name) const
+{
+    if (name) {
+        if (const Identifier *ident = name->identifier()) {
+            const QByteArray id = QByteArray::fromRawData(ident->chars(), ident->size());
+            if (_potentialStatics.contains(id))
                 return true;
         }
     }

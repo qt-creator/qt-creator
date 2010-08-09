@@ -52,6 +52,7 @@ public:
             Type = 0,
             Local,
             Field,
+            Static,
             VirtualMethod
         };
 

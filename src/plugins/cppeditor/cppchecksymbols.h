@@ -100,17 +100,20 @@ protected:
 
     bool maybeType(const Name *name) const;
     bool maybeMember(const Name *name) const;
+    bool maybeStatic(const Name *name) const;
     bool maybeVirtualMethod(const Name *name) const;
 
     void checkName(NameAST *ast, Scope *scope = 0);
     void checkNamespace(NameAST *name);
 
     void addUse(const Use &use);
+    void addUse(unsigned tokenIndex, Use::Kind kind);
     void addUse(NameAST *name, Use::Kind kind);
 
     void addType(ClassOrNamespace *b, NameAST *ast);
-    void addType(const QList<LookupItem> &candidates, NameAST *ast);
 
+    void addTypeOrStatic(const QList<LookupItem> &candidates, NameAST *ast);
+    void addStatic(const QList<LookupItem> &candidates, NameAST *ast);
     void addClassMember(const QList<LookupItem> &candidates, NameAST *ast);
     void addVirtualMethod(const QList<LookupItem> &candidates, NameAST *ast, unsigned argumentCount);
 
@@ -125,6 +128,8 @@ protected:
     virtual bool visit(UsingDirectiveAST *);
     virtual bool visit(SimpleDeclarationAST *);
     virtual bool visit(NamedTypeSpecifierAST *);
+
+    virtual bool visit(EnumeratorAST *);
 
     virtual bool visit(SimpleNameAST *ast);
     virtual bool visit(DestructorNameAST *ast);
@@ -153,6 +158,7 @@ private:
     QSet<QByteArray> _potentialTypes;
     QSet<QByteArray> _potentialMembers;
     QSet<QByteArray> _potentialVirtualMethods;
+    QSet<QByteArray> _potentialStatics;
     QList<AST *> _astStack;
     QVector<Use> _usages;
     bool _flushRequested;

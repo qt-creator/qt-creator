@@ -290,6 +290,7 @@ private:
     QTextCharFormat m_typeFormat;
     QTextCharFormat m_localFormat;
     QTextCharFormat m_fieldFormat;
+    QTextCharFormat m_staticFormat;
     QTextCharFormat m_keywordFormat;
     QTextCharFormat m_virtualMethodFormat;
 
