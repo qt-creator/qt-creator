@@ -69,6 +69,8 @@ protected:
     Scope *switchScope(Scope *scope);
     TemplateParameters *switchTemplateParameters(TemplateParameters *templateParameters);
 
+    void setDeclSpecifiers(Symbol *symbol, const FullySpecifiedType &declSpecifiers);
+
     void checkFunctionArguments(Function *fun);
 
     using ASTVisitor::visit;

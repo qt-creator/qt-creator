@@ -113,6 +113,42 @@ TemplateParameters *CheckDeclaration::switchTemplateParameters(TemplateParameter
     return previousTemplateParameters;
 }
 
+void CheckDeclaration::setDeclSpecifiers(Symbol *symbol, const FullySpecifiedType &declSpecifiers)
+{
+    if (! symbol)
+        return;
+
+    int storage = Symbol::NoStorage;
+
+    if (declSpecifiers.isFriend())
+        storage = Symbol::Friend;
+    else if (declSpecifiers.isAuto())
+        storage = Symbol::Auto;
+    else if (declSpecifiers.isRegister())
+        storage = Symbol::Register;
+    else if (declSpecifiers.isStatic())
+        storage = Symbol::Static;
+    else if (declSpecifiers.isExtern())
+        storage = Symbol::Extern;
+    else if (declSpecifiers.isMutable())
+        storage = Symbol::Mutable;
+    else if (declSpecifiers.isTypedef())
+        storage = Symbol::Typedef;
+
+    symbol->setStorage(storage);
+
+    if (Function *funTy = symbol->asFunction()) {
+        if (declSpecifiers.isVirtual())
+            funTy->setVirtual(true);
+    }
+
+    if (declSpecifiers.isDeprecated())
+        symbol->setDeprecated(true);
+
+    if (declSpecifiers.isUnavailable())
+        symbol->setUnavailable(true);
+}
+
 void CheckDeclaration::checkFunctionArguments(Function *fun)
 {
     if (! _checkAnonymousArguments)
@@ -133,11 +169,11 @@ void CheckDeclaration::checkFunctionArguments(Function *fun)
 
 bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
 {
-    FullySpecifiedType ty = semantic()->check(ast->decl_specifier_list, _scope);
-    FullySpecifiedType qualTy = ty.qualifiedType();
+    FullySpecifiedType declSpecifiers = semantic()->check(ast->decl_specifier_list, _scope);
+    FullySpecifiedType qualTy = declSpecifiers.qualifiedType();
 
-    if (_templateParameters && ty) {
-        if (Class *klass = ty->asClassType()) {
+    if (_templateParameters && declSpecifiers) {
+        if (Class *klass = declSpecifiers->asClassType()) {
             klass->setTemplateParameters(_templateParameters);
             _templateParameters = 0; // consume the template parameters
         }
@@ -146,7 +182,7 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
     if (ast->decl_specifier_list && ! ast->declarator_list) {
         ElaboratedTypeSpecifierAST *elab_type_spec = ast->decl_specifier_list->value->asElaboratedTypeSpecifier();
 
-        if (! elab_type_spec && ty.isFriend() && ast->decl_specifier_list->next && ! ast->decl_specifier_list->next->next) {
+        if (! elab_type_spec && declSpecifiers.isFriend() && ast->decl_specifier_list->next && ! ast->decl_specifier_list->next->next) {
             // friend template class
             elab_type_spec = ast->decl_specifier_list->next->value->asElaboratedTypeSpecifier();
         }
@@ -163,13 +199,7 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
                 _templateParameters = 0;
             }
 
-            if (ty.isDeprecated())
-                symbol->setDeprecated(true);
-            if (ty.isUnavailable())
-                symbol->setUnavailable(true);
-
-            if (ty.isFriend())
-                symbol->setStorage(Symbol::Friend);
+            setDeclSpecifiers(symbol, declSpecifiers);
 
             _scope->enterSymbol(symbol);
             return false;
@@ -196,11 +226,9 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
             fun->setScope(_scope);
             fun->setName(name);
             fun->setMethodKey(semantic()->currentMethodKey());
-            fun->setVirtual(ty.isVirtual());
-            if (ty.isDeprecated())
-                fun->setDeprecated(true);
-            if (ty.isUnavailable())
-                fun->setUnavailable(true);
+
+            setDeclSpecifiers(fun, declSpecifiers);
+
             if (isQ_SIGNAL)
                 fun->setMethodKey(Function::SignalMethod);
             else if (isQ_SLOT)
@@ -216,10 +244,8 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
         Declaration *symbol = control()->newDeclaration(location, name);
 
         symbol->setType(declTy);
-        if (declTy.isDeprecated())
-            symbol->setDeprecated(true);
-        if (declTy.isUnavailable())
-            symbol->setUnavailable(true);
+
+        setDeclSpecifiers(symbol, declSpecifiers);
 
         if (_templateParameters && it == ast->declarator_list) {
             symbol->setTemplateParameters(_templateParameters);
@@ -227,26 +253,6 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
         }
 
         symbol->setVisibility(semantic()->currentVisibility());
-
-        if (ty.isFriend())
-            symbol->setStorage(Symbol::Friend);
-        else if (ty.isAuto())
-            symbol->setStorage(Symbol::Auto);
-        else if (ty.isRegister())
-            symbol->setStorage(Symbol::Register);
-        else if (ty.isStatic())
-            symbol->setStorage(Symbol::Static);
-        else if (ty.isExtern())
-            symbol->setStorage(Symbol::Extern);
-        else if (ty.isMutable())
-            symbol->setStorage(Symbol::Mutable);
-        else if (ty.isTypedef())
-            symbol->setStorage(Symbol::Typedef);
-
-        if (ty.isDeprecated())
-            symbol->setDeprecated(true);
-        if (ty.isUnavailable())
-            symbol->setUnavailable(true);
 
         if (it->value && it->value->initializer) {
             FullySpecifiedType initTy = semantic()->check(it->value->initializer, _scope);
@@ -328,11 +334,8 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
     }
 
     Function *fun = funTy->asFunctionType();
-    fun->setVirtual(ty.isVirtual());
-    if (ty.isDeprecated())
-        fun->setDeprecated(true);
-    if (ty.isUnavailable())
-        fun->setUnavailable(true);
+    setDeclSpecifiers(fun, ty);
+
     fun->members()->setStartOffset(funStartOffset);
     fun->members()->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     if (ast->declarator) {
