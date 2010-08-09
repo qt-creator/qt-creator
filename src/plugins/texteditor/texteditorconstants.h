@@ -110,6 +110,7 @@ const char * const C_STRING              = "String";
 const char * const C_TYPE                = "Type";
 const char * const C_LOCAL               = "Local";
 const char * const C_FIELD               = "Field";
+const char * const C_VIRTUAL_METHOD      = "VirtualMethod";
 const char * const C_KEYWORD             = "Keyword";
 const char * const C_OPERATOR            = "Operator";
 const char * const C_PREPROCESSOR        = "Preprocessor";
