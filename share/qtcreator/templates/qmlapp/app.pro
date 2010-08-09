@@ -35,7 +35,7 @@ SOURCES += cpp/main.cpp cpp/qmlapplicationview.cpp
 HEADERS += cpp/qmlapplicationview.h
 INCLUDEPATH += cpp
 
-contains(DEFINES, QMLINSPECTOR):CONFIG(debug, debug|release):include($$QMLINSPECTOR_PATH/qmljsdebugger-lib.pri)
+contains(DEFINES, QMLINSPECTOR):!contains(CONFIG, release):include($$QMLINSPECTOR_PATH/qmljsdebugger-lib.pri)
 
 symbian {
     ICON = cpp/symbianicon.svg
