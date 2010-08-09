@@ -65,6 +65,7 @@ namespace Internal {
 
 class ClientProxy;
 class InspectorContext;
+class InspectorSettings;
 class ContextCrumblePath;
 class QmlJSLiveTextPreview;
 
@@ -94,13 +95,18 @@ public:
     QDeclarativeDebugExpressionQuery *setBindingForObject(int objectDebugId, const QString &objectId,
                                                           const QString &propertyName, const QVariant &value,
                                                           bool isLiteralValue);
-    static bool showExperimentalWarning();
-    static void setShowExperimentalWarning(bool value);
+    void saveSettings() const;
+    void restoreSettings();
+
+    bool showExperimentalWarning();
+    void setShowExperimentalWarning(bool value);
+
     static Inspector *instance();
 
     // returns the project being currently debugged, or 0 if not debugging anything
     ProjectExplorer::Project *debugProject() const;
     void createDockWidgets();
+
 
 signals:
     void statusMessage(const QString &text);
@@ -150,11 +156,12 @@ private:
     int m_connectionAttempts;
     ClientProxy *m_clientProxy;
 
-    static bool m_showExperimentalWarning;
     bool m_listeningToEditorManager;
 
     ContextCrumblePath *m_crumblePath;
     QDockWidget *m_crumblePathDock;
+
+    InspectorSettings *m_settings;
 
     // Qml/JS integration
     QHash<QString, QmlJSLiveTextPreview *> m_textPreviews;

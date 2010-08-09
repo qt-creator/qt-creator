@@ -33,6 +33,7 @@
 #include "qmljslivetextpreview.h"
 #include "qmljsprivateapi.h"
 #include "qmljscontextcrumblepath.h"
+#include "qmljsinspectorsettings.h"
 
 #include <qmljseditor/qmljseditorconstants.h>
 
@@ -112,7 +113,6 @@ enum {
     ConnectionAttemptSimultaneousInterval = 500
 };
 
-bool Inspector::m_showExperimentalWarning = true;
 Inspector *Inspector::m_instance = 0;
 
 Inspector::Inspector(QObject *parent)
@@ -120,6 +120,7 @@ Inspector::Inspector(QObject *parent)
       m_connectionTimer(new QTimer(this)),
       m_connectionAttempts(0),
       m_listeningToEditorManager(false),
+      m_settings(new InspectorSettings(this)),
       m_debugProject(0)
 {
     m_clientProxy = ClientProxy::instance();
@@ -143,6 +144,17 @@ Inspector::Inspector(QObject *parent)
 
 Inspector::~Inspector()
 {
+
+}
+
+void Inspector::saveSettings() const
+{
+    m_settings->saveSettings(Core::ICore::instance()->settings());
+}
+
+void Inspector::restoreSettings()
+{
+    m_settings->restoreSettings(Core::ICore::instance()->settings());
 }
 
 void Inspector::disconnected()
@@ -409,12 +421,12 @@ void Inspector::crumblePathElementClicked(int pathIndex)
 
 bool Inspector::showExperimentalWarning()
 {
-    return m_showExperimentalWarning;
+    return m_settings->showLivePreviewWarning();
 }
 
 void Inspector::setShowExperimentalWarning(bool value)
 {
-    m_showExperimentalWarning = value;
+    m_settings->setShowLivePreviewWarning(value);
 }
 
 Inspector *Inspector::instance()

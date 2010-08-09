@@ -554,10 +554,10 @@ void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
             if (delta.referenceRefreshRequired)
                 ClientProxy::instance()->refreshObjectTree();
 
-            if (Inspector::showExperimentalWarning() && delta.appliedChangesToViewer) {
+            if (Inspector::instance()->showExperimentalWarning() && delta.appliedChangesToViewer) {
                 showExperimentalWarning();
                 experimentalWarningShown = true;
-                Inspector::setShowExperimentalWarning(false);
+                Inspector::instance()->setShowExperimentalWarning(false);
             }
 
             if (delta.unsyncronizableChanges != NoUnsyncronizableChanges && !experimentalWarningShown)

@@ -116,6 +116,7 @@ Inspector *InspectorPlugin::inspector() const
 
 ExtensionSystem::IPlugin::ShutdownFlag InspectorPlugin::aboutToShutdown()
 {
+    m_inspector->saveSettings();
     return SynchronousShutdown;
 }
 
@@ -172,7 +173,7 @@ void InspectorPlugin::extensionsInitialized()
 
     connect(m_clientProxy, SIGNAL(animationSpeedChanged(qreal)), m_toolbar, SLOT(changeAnimationSpeed(qreal)));
 
-
+    m_inspector->restoreSettings();
 }
 
 void InspectorPlugin::activateDebuggerForProject(ProjectExplorer::Project *project, const QString &runMode)
