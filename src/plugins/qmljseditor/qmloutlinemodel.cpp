@@ -264,11 +264,15 @@ QMimeData *QmlOutlineModel::mimeData(const QModelIndexList &indexes) const
     QDataStream stream(&encoded, QIODevice::WriteOnly);
     stream << indexes.size();
 
-    // We store pointers to the QmlOutlineItems dropped.
-    // This works because we're only supporting drag&drop inside the model
     for (int i = 0; i < indexes.size(); ++i) {
-        QmlOutlineItem *item = static_cast<QmlOutlineItem*>(itemFromIndex(indexes.at(i)));
-        stream << (quint64)item;
+        QModelIndex index = indexes.at(i);
+
+        QList<int> rowPath;
+        for (QModelIndex i = index; i.isValid(); i = i.parent()) {
+            rowPath.prepend(i.row());
+        }
+
+        stream << rowPath;
     }
     data->setData(format, encoded);
     return data;
@@ -302,14 +306,23 @@ bool QmlOutlineModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
     stream >> indexSize;
     QList<QmlOutlineItem*> itemsToMove;
     for (int i = 0; i < indexSize; ++i) {
-        quint64 itemPtr;
-        stream >> itemPtr;
-        itemsToMove << reinterpret_cast<QmlOutlineItem*>(itemPtr);
+        QList<int> rowPath;
+        stream >> rowPath;
+
+        QModelIndex index;
+        foreach (int row, rowPath) {
+            index = this->index(row, 0, index);
+            if (!index.isValid())
+                continue;
+        }
+
+        itemsToMove << static_cast<QmlOutlineItem*>(itemFromIndex(index));
     }
 
     QmlOutlineItem *targetItem = static_cast<QmlOutlineItem*>(itemFromIndex(parent));
     reparentNodes(targetItem, row, itemsToMove);
-    // Prevent view from calling insertRow(), removeRow() on it's own
+
+    // Prevent view from calling removeRow() on it's own
     return false;
 }
 
