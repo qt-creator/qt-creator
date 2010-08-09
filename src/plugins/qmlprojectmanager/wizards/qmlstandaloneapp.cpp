@@ -290,8 +290,6 @@ QByteArray QmlStandaloneApp::generateProFile(const QString *errorMessage) const
             uncommentNextLine = true;
         } else if (line.contains(QLatin1String("# NETWORKACCESS")) && !m_networkEnabled) {
             uncommentNextLine = true;
-        } else if (line.contains(QLatin1String("# QMLINSPECTOR_PATH"))) {
-            valueOnNextLine = qmlInspectorSourcesRoot();
         } else if (line.contains(QLatin1String("# QMLINSPECTOR"))) {
             // ### disabled for now; figure out the private headers problem first.
             //uncommentNextLine = true;
@@ -324,11 +322,6 @@ QByteArray QmlStandaloneApp::generateProFile(const QString *errorMessage) const
 QString QmlStandaloneApp::templatesRoot()
 {
     return Core::ICore::instance()->resourcePath() + QLatin1String("/templates/qmlapp/");
-}
-
-QString QmlStandaloneApp::qmlInspectorSourcesRoot()
-{
-    return Core::ICore::instance()->resourcePath() + QLatin1String("/qmljsdebugger");
 }
 
 static Core::GeneratedFile generateFileCopy(const QString &source,

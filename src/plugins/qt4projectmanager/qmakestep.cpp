@@ -140,6 +140,9 @@ QStringList QMakeStep::allArguments()
     if (!additonalArguments.isEmpty())
         arguments << additonalArguments;
 
+    arguments << QLatin1String(Constants::QMAKEVAR_QMLINSPECTOR_PATH) + QLatin1Char('=') +
+            Core::ICore::instance()->resourcePath() + QLatin1String("/qmljsdebugger");
+
     return arguments;
 }
 

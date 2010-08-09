@@ -23,8 +23,4 @@ symbian:TARGET.UID3 = 0xE1111234
 # QMLINSPECTOR #
 #DEFINES += QMLINSPECTOR
 
-# Path to the Qml Inspector sources, which are shipped with Qt Creator
-# QMLINSPECTOR_PATH #
-QMLINSPECTOR_PATH = $$PWD/../../qmljsdebugger
-
 include($$PWD/qmlapplication.pri)

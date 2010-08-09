@@ -109,6 +109,9 @@ const char * const QT_SIMULATOR_TARGET_ID("Qt4ProjectManager.Target.QtSimulatorT
 const char * const ICON_QT_PROJECT = ":/qt4projectmanager/images/qt_project.png";
 const char * const ICON_WINDOW = ":/qt4projectmanager/images/window.png";
 
+// Env variables
+const char * const QMAKEVAR_QMLINSPECTOR_PATH = "QMLINSPECTOR_PATH";
+
 } // namespace Constants
 } // namespace Qt4ProjectManager
 

@@ -9,7 +9,12 @@ INCLUDEPATH += cpp
 
 contains(DEFINES, QMLINSPECTOR) {
     CONFIG(debug, debug|release) {
-        include($$QMLINSPECTOR_PATH/qmljsdebugger-lib.pri)
+        isEmpty(QMLINSPECTOR_PATH) {
+            warning(QMLINSPECTOR_PATH was not set. QMLINSPECTOR not activated.)
+            DEFINES -= QMLINSPECTOR
+        } else {
+            include($$QMLINSPECTOR_PATH/qmljsdebugger-lib.pri)
+        }
     } else {
         DEFINES -= QMLINSPECTOR
     }
