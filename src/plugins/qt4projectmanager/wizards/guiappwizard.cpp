@@ -165,7 +165,8 @@ Core::GeneratedFiles GuiAppWizard::generateFiles(const QWizard *w,
     Core::GeneratedFile mainSource(mainSourceFileName);
     if (!parametrizeTemplate(templatePath, QLatin1String("main.cpp"), params, &contents, errorMessage))
         return Core::GeneratedFiles();
-    mainSource.setContents(license + contents);
+    mainSource.setContents(CppTools::AbstractEditorSupport::licenseTemplate(mainSourceFileName)
+                           + contents);
     // Create files: form source with or without form
     const QString formSourceFileName = buildFileName(projectPath, params.sourceFileName, sourceSuffix());
     const QString formHeaderName = buildFileName(projectPath, params.headerFileName, headerSuffix());
@@ -187,13 +188,15 @@ Core::GeneratedFiles GuiAppWizard::generateFiles(const QWizard *w,
         const QString formSourceTemplate = QLatin1String("mywidget.cpp");
         if (!parametrizeTemplate(templatePath, formSourceTemplate, params, &contents, errorMessage))
             return Core::GeneratedFiles();
-        formSource.setContents(license + contents);
+        formSource.setContents(CppTools::AbstractEditorSupport::licenseTemplate(formSourceFileName)
+                               + contents);
         formSource.setAttributes(Core::GeneratedFile::OpenEditorAttribute);
         // Create files: form header
         const QString formHeaderTemplate = QLatin1String("mywidget.h");
         if (!parametrizeTemplate(templatePath, formHeaderTemplate, params, &contents, errorMessage))
             return Core::GeneratedFiles();
-        formHeader.setContents(license + contents);
+        formHeader.setContents(CppTools::AbstractEditorSupport::licenseTemplate(formHeaderName)
+                               + contents);
     }
     // Create files: profile
     const QString profileName = buildFileName(projectPath, projectParams.fileName, profileSuffix());

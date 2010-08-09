@@ -51,7 +51,6 @@ struct PluginOptions;
 struct GenerationParameters {
     QString path;
     QString fileName;
-    QString license;
     QString templatePath;
 };
 

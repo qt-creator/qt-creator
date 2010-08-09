@@ -341,7 +341,10 @@ bool FormClassWizardParametersPrivate::generateCpp(const FormClassWizardGenerati
 
     const QString unqualifiedClassName = namespaceList.takeLast();
 
-    const QString license = CppTools::AbstractEditorSupport::licenseTemplate();
+    const QString headerLicense =
+            CppTools::AbstractEditorSupport::licenseTemplate(headerFile, className);
+    const QString sourceLicense =
+            CppTools::AbstractEditorSupport::licenseTemplate(sourceFile, className);
     // Include guards
     const QString guard = Utils::headerGuard(headerFile);
 
@@ -351,7 +354,7 @@ bool FormClassWizardParametersPrivate::generateCpp(const FormClassWizardGenerati
 
     // 1) Header file
     QTextStream headerStr(header);
-    headerStr << license << "#ifndef " << guard
+    headerStr << headerLicense << "#ifndef " << guard
               << "\n#define " <<  guard << '\n' << '\n';
 
     // Include 'ui_'
@@ -409,7 +412,7 @@ bool FormClassWizardParametersPrivate::generateCpp(const FormClassWizardGenerati
 
     // 2) Source file
     QTextStream sourceStr(source);
-    sourceStr << license;
+    sourceStr << sourceLicense;
     Utils::writeIncludeFileDirective(headerFile, false, sourceStr);
     if (embedding == FormClassWizardGenerationParameters::PointerAggregatedUiClass)
         Utils::writeIncludeFileDirective(uiInclude, false, sourceStr);

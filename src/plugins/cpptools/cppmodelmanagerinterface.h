@@ -170,7 +170,7 @@ public:
                               const QString &fileName,
                               int line, int column);
 
-    static QString licenseTemplate();
+    static QString licenseTemplate(const QString &file = QString(), const QString &className = QString());
 
 private:
     CppModelManagerInterface *m_modelmanager;

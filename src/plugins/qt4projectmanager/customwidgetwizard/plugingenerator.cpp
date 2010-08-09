@@ -32,6 +32,8 @@
 
 #include <coreplugin/basefilewizard.h>
 
+#include <cpptools/cppmodelmanagerinterface.h>
+
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
 #include <QtCore/QSet>
@@ -103,7 +105,8 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
         if (pluginHeaderContents.isEmpty())
             return QList<Core::GeneratedFile>();
         Core::GeneratedFile pluginHeader(baseDir + wo.pluginHeaderFile);
-        pluginHeader.setContents(p.license + pluginHeaderContents);
+        pluginHeader.setContents(CppTools::AbstractEditorSupport::licenseTemplate(wo.pluginHeaderFile, wo.pluginClassName)
+                                 + pluginHeaderContents);
         rc.push_back(pluginHeader);
 
         sm.remove(QLatin1String("SINGLE_INCLUDE_GUARD"));
@@ -134,7 +137,8 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
         if (pluginSourceContents.isEmpty())
             return QList<Core::GeneratedFile>();
         Core::GeneratedFile pluginSource(baseDir + wo.pluginSourceFile);
-        pluginSource.setContents(p.license + pluginSourceContents);
+        pluginSource.setContents(CppTools::AbstractEditorSupport::licenseTemplate(wo.pluginSourceFile, wo.pluginClassName)
+                                 + pluginSourceContents);
         if (i == 0 && widgetCount == 1) // Open first widget unless collection
             pluginSource.setAttributes(Core::GeneratedFile::OpenEditorAttribute);
         rc.push_back(pluginSource);
@@ -179,7 +183,8 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
             if (widgetHeaderContents.isEmpty())
                 return QList<Core::GeneratedFile>();
             Core::GeneratedFile widgetHeader(baseDir + wo.widgetHeaderFile);
-            widgetHeader.setContents(p.license + widgetHeaderContents);
+            widgetHeader.setContents(CppTools::AbstractEditorSupport::licenseTemplate(wo.widgetHeaderFile, wo.widgetClassName)
+                                     + widgetHeaderContents);
             rc.push_back(widgetHeader);
 
             sm.remove(QLatin1String("WIDGET_INCLUDE_GUARD"));
@@ -188,7 +193,8 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
             if (widgetSourceContents.isEmpty())
                 return QList<Core::GeneratedFile>();
             Core::GeneratedFile widgetSource(baseDir + wo.widgetSourceFile);
-            widgetSource.setContents(p.license + widgetSourceContents);
+            widgetSource.setContents(CppTools::AbstractEditorSupport::licenseTemplate(wo.widgetSourceFile, wo.widgetClassName)
+                                     + widgetSourceContents);
             rc.push_back(widgetSource);
         }
     }
@@ -221,7 +227,8 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
         if (collectionHeaderContents.isEmpty())
             return QList<Core::GeneratedFile>();
         Core::GeneratedFile collectionHeader(baseDir + options.collectionHeaderFile);
-        collectionHeader.setContents(p.license + collectionHeaderContents);
+        collectionHeader.setContents(CppTools::AbstractEditorSupport::licenseTemplate(options.collectionHeaderFile, options.collectionClassName)
+                                     + collectionHeaderContents);
         rc.push_back(collectionHeader);
 
         sm.remove(QLatin1String("COLLECTION_INCLUDE_GUARD"));
@@ -241,7 +248,8 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
         if (collectionSourceFileContents.isEmpty())
             return QList<Core::GeneratedFile>();
         Core::GeneratedFile collectionSource(baseDir + options.collectionSourceFile);
-        collectionSource.setContents(p.license + collectionSourceFileContents);
+        collectionSource.setContents(CppTools::AbstractEditorSupport::licenseTemplate(options.collectionSourceFile, options.collectionClassName)
+                                     + collectionSourceFileContents);
         collectionSource.setAttributes(Core::GeneratedFile::OpenEditorAttribute);
         rc.push_back(collectionSource);
 

@@ -92,9 +92,9 @@ QString AbstractEditorSupport::functionAt(const CppModelManagerInterface *modelM
     return QString();
 }
 
-QString AbstractEditorSupport::licenseTemplate()
+QString AbstractEditorSupport::licenseTemplate(const QString &file, const QString &className)
 {
-    return Internal::CppFileSettings::licenseTemplate();
+    return Internal::CppFileSettings::licenseTemplate(file, className);
 }
 }
 

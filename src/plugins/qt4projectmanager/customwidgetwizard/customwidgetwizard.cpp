@@ -33,7 +33,6 @@
 #include "pluginoptions.h"
 #include "filenamingparameters.h"
 
-#include <cpptools/cppmodelmanagerinterface.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <QtGui/QIcon>
@@ -71,7 +70,6 @@ Core::GeneratedFiles CustomWidgetWizard::generateFiles(const QWizard *w,
     GenerationParameters p;
     p.fileName = cw->projectName();
     p.path = cw->path();
-    p.license = CppTools::AbstractEditorSupport::licenseTemplate();
     p.templatePath = QtWizard::templateDir();
     p.templatePath += QLatin1String("/customwidgetwizard");
     return PluginGenerator::generatePlugin(p, *(cw->pluginOptions()), errorMessage);

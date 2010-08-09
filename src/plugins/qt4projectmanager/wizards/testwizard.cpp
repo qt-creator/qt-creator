@@ -96,7 +96,7 @@ static QString generateTestCode(const TestWizardParameters &testParams,
     const QString indent = QString(4, QLatin1Char(' '));
     QTextStream str(&rc);
     // Includes
-    str << CppTools::AbstractEditorSupport::licenseTemplate()
+    str << CppTools::AbstractEditorSupport::licenseTemplate(testParams.fileName, testParams.className)
         << "#include <QtCore/QString>\n#include <QtTest/QtTest>\n";
     if (testParams.requiresQApplication)
         str << "#include <QtCore/QCoreApplication>\n";

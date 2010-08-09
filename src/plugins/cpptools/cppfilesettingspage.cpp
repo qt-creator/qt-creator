@@ -41,6 +41,7 @@
 #include <QtCore/QSettings>
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
+#include <QtCore/QFileInfo>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDate>
 #include <QtCore/QLocale>
@@ -106,10 +107,22 @@ bool CppFileSettings::equals(const CppFileSettings &rhs) const
 }
 
 // Replacements of special license template keywords.
-static QString keyWordReplacement(const QString &keyWord)
+static bool keyWordReplacement(const QString &keyWord,
+                               const QString &file,
+                               const QString &className,
+                               QString *value)
 {
     if (keyWord == QLatin1String("%YEAR%")) {
-        return QString::number(QDate::currentDate().year());
+        *value = QString::number(QDate::currentDate().year());
+        return true;
+    }
+    if (keyWord == QLatin1String("%CLASS%")) {
+        *value = className;
+        return true;
+    }
+    if (keyWord == QLatin1String("%FILENAME%")) {
+        *value = QFileInfo(file).fileName();
+        return true;
     }
     if (keyWord == QLatin1String("%DATE%")) {
         static QString format;
@@ -121,26 +134,29 @@ static QString keyWordReplacement(const QString &keyWord)
             if (format.count(ypsilon) == 2)
                 format.insert(format.indexOf(ypsilon), QString(2, ypsilon));
         }
-        return QDate::currentDate().toString(format);
+        *value = QDate::currentDate().toString(format);
+        return true;
     }
     if (keyWord == QLatin1String("%USER%")) {
 #ifdef Q_OS_WIN
-        return QString::fromLocal8Bit(qgetenv("USERNAME"));
+        *value = QString::fromLocal8Bit(qgetenv("USERNAME"));
 #else
-        return QString::fromLocal8Bit(qgetenv("USER"));
+        *value = QString::fromLocal8Bit(qgetenv("USER"));
 #endif
+        return true;
     }
     // Environment variables (for example '%$EMAIL%').
     if (keyWord.startsWith(QLatin1String("%$"))) {
         const QString varName = keyWord.mid(2, keyWord.size() - 3);
-        return QString::fromLocal8Bit(qgetenv(varName.toLocal8Bit()));
+        *value = QString::fromLocal8Bit(qgetenv(varName.toLocal8Bit()));
+        return true;
     }
-    return QString();
+    return false;
 }
 
 // Parse a license template, scan for %KEYWORD% and replace if known.
 // Replace '%%' by '%'.
-static void parseLicenseTemplatePlaceholders(QString *t)
+static void parseLicenseTemplatePlaceholders(QString *t, const QString &file, const QString &className)
 {
     int pos = 0;
     const QChar placeHolder = QLatin1Char('%');
@@ -156,19 +172,20 @@ static void parseLicenseTemplatePlaceholders(QString *t)
             pos = placeHolderPos + 1;
         } else {
             const QString keyWord = t->mid(placeHolderPos, endPlaceHolderPos + 1 - placeHolderPos);
-            const QString replacement = keyWordReplacement(keyWord);
-            if (replacement.isEmpty()) {
-                pos = endPlaceHolderPos + 1;
-            } else {
+            QString replacement;
+            if (keyWordReplacement(keyWord, file, className, &replacement)) {
                 t->replace(placeHolderPos, keyWord.size(), replacement);
                 pos = placeHolderPos + replacement.size();
+            } else {
+                // Leave invalid keywords as is.
+                pos = endPlaceHolderPos + 1;
             }
         }
     } while (pos < t->size());
 }
 
 // Convenience that returns the formatted license template.
-QString CppFileSettings::licenseTemplate()
+QString CppFileSettings::licenseTemplate(const QString &fileName, const QString &className)
 {
 
     const QSettings *s = Core::ICore::instance()->settings();
@@ -184,7 +201,7 @@ QString CppFileSettings::licenseTemplate()
         return QString();
     }
     QString license = QString::fromUtf8(file.readAll());
-    parseLicenseTemplatePlaceholders(&license);
+    parseLicenseTemplatePlaceholders(&license, fileName, className);
     // Ensure exactly one additional new line separating stuff
     const QChar newLine = QLatin1Char('\n');
     if (!license.endsWith(newLine))

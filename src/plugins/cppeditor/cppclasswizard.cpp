@@ -233,14 +233,19 @@ bool CppClassWizard::generateHeaderAndSource(const CppClassWizardParameters &par
     if (namespaceList.empty()) // Paranoia!
         return false;
 
-    const QString license = CppTools::AbstractEditorSupport::licenseTemplate();
+    const QString headerLicense =
+            CppTools::AbstractEditorSupport::licenseTemplate(params.headerFile,
+                                                             params.className);
+    const QString sourceLicense =
+            CppTools::AbstractEditorSupport::licenseTemplate(params.sourceFile,
+                                                             params.className);
 
     const QString unqualifiedClassName = namespaceList.takeLast();
     const QString guard = Utils::headerGuard(params.headerFile);
 
     // == Header file ==
     QTextStream headerStr(header);
-    headerStr << license << "#ifndef " << guard
+    headerStr << headerLicense << "#ifndef " << guard
               << "\n#define " <<  guard << '\n';
 
     const QRegExp qtClassExpr(QLatin1String("^Q[A-Z3].+"));
@@ -328,7 +333,7 @@ bool CppClassWizard::generateHeaderAndSource(const CppClassWizardParameters &par
 
     // == Source file ==
     QTextStream sourceStr(source);
-    sourceStr << license;
+    sourceStr << sourceLicense;
     Utils::writeIncludeFileDirective(params.headerFile, false, sourceStr);
     if (params.classType == Utils::NewClassWidget::SharedDataClass)
         Utils::writeIncludeFileDirective(QLatin1String("QSharedData"), true, sourceStr);
