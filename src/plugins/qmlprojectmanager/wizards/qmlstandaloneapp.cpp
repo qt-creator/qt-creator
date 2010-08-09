@@ -144,6 +144,7 @@ QString QmlStandaloneApp::path(Path path, Location location) const
     const QString cppSourceSubDir = QLatin1String("cpp/");
     const QString cppTargetSubDir = cppSourceSubDir;
     const QString qmlExtension = QLatin1String(".qml");
+    const QString appPri = QLatin1String("qmlapplication.pri");
     const QString mainCpp = QLatin1String("main.cpp");
     const QString appViewCpp = QLatin1String("qmlapplicationview.cpp");
     const QString appViewH = QLatin1String("qmlapplicationview.h");
@@ -155,6 +156,7 @@ QString QmlStandaloneApp::path(Path path, Location location) const
             switch (path) {
                 case MainQml:           return templatesRoot + QLatin1String("qml/app/app.qml");
                 case AppProfile:        return templatesRoot + QLatin1String("app.pro");
+                case AppPri:            return templatesRoot + appPri;
                 case MainCpp:           return templatesRoot + cppSourceSubDir + mainCpp;
                 case AppViewerCpp:      return templatesRoot + cppSourceSubDir + appViewCpp;
                 case AppViewerH:        return templatesRoot + cppSourceSubDir + appViewH;
@@ -170,8 +172,9 @@ QString QmlStandaloneApp::path(Path path, Location location) const
                 case MainQml:           return useExistingMainQml() ? m_mainQmlFile.canonicalFilePath()
                                                     : pathBase + qmlRootFolder + m_projectName + qmlExtension;
                 case AppProfile:        return pathBase + m_projectName + QLatin1String(".pro");
-                case AppProfilePath:    return pathBase;
+                case AppPri:            return pathBase + appPri;
                 case MainCpp:           return pathBase + cppTargetSubDir + mainCpp;
+                case AppProfilePath:    return pathBase;
                 case AppViewerCpp:      return pathBase + cppTargetSubDir + appViewCpp;
                 case AppViewerH:        return pathBase + cppTargetSubDir + appViewH;
                 case SymbianSvgIcon:    return pathBase + cppTargetSubDir + symbianIcon;
@@ -351,6 +354,7 @@ Core::GeneratedFiles QmlStandaloneApp::generateFiles(QString *errorMessage) cons
     generatedProFile.setContents(generateProFile(errorMessage));
     generatedProFile.setAttributes(Core::GeneratedFile::OpenProjectAttribute);
     files.append(generatedProFile);
+    files.append(generateFileCopy(path(AppPri, Source), path(AppPri, Target)));
 
     if (!useExistingMainQml())
         files.append(generateFileCopy(path(MainQml, Source), path(MainQml, Target), true));

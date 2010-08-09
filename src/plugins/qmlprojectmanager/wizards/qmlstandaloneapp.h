@@ -53,6 +53,7 @@ public:
         MainQml,
         MainCpp,
         AppProfile,
+        AppPri,
         AppProfilePath,
         AppViewerCpp,
         AppViewerH,
