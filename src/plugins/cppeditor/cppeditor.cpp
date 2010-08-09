@@ -411,8 +411,8 @@ CPPEditor::CPPEditor(QWidget *parent)
 
     m_highlightRevision = 0;
     m_nextHighlightBlockNumber = 0;
-    connect(&m_highlightWatcher, SIGNAL(resultsReadyAt(int,int)), SLOT(highlightTypeUsages(int,int)));
-    connect(&m_highlightWatcher, SIGNAL(finished()), SLOT(finishTypeUsages()));
+    connect(&m_highlightWatcher, SIGNAL(resultsReadyAt(int,int)), SLOT(highlightSymbolUsages(int,int)));
+    connect(&m_highlightWatcher, SIGNAL(finished()), SLOT(finishHighlightSymbolUsages()));
 
     m_referencesRevision = 0;
     m_referencesCursorPosition = 0;
@@ -969,7 +969,7 @@ void CPPEditor::updateUsesNow()
     semanticRehighlight();
 }
 
-void CPPEditor::highlightTypeUsages(int from, int to)
+void CPPEditor::highlightSymbolUsages(int from, int to)
 {
     if (editorRevision() != m_highlightRevision)
         return; // outdated
@@ -1035,7 +1035,7 @@ void CPPEditor::highlightTypeUsages(int from, int to)
     }
 }
 
-void CPPEditor::finishTypeUsages()
+void CPPEditor::finishHighlightSymbolUsages()
 {
     if (editorRevision() != m_highlightRevision)
         return; // outdated

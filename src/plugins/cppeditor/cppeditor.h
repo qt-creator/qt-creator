@@ -234,8 +234,8 @@ private Q_SLOTS:
 
     void semanticRehighlight();
     void updateSemanticInfo(const CppEditor::Internal::SemanticInfo &semanticInfo);
-    void highlightTypeUsages(int from, int to);
-    void finishTypeUsages();
+    void highlightSymbolUsages(int from, int to);
+    void finishHighlightSymbolUsages();
 
     void markSymbolsNow();
 
