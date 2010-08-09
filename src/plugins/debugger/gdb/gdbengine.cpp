@@ -1587,18 +1587,23 @@ QString GdbEngine::fullName(const QString &fileName)
     return m_shortToFullName.value(fileName, QString());
 }
 
-#ifdef Q_OS_WIN
 QString GdbEngine::cleanupFullName(const QString &fileName)
 {
+    QString cleanFilePath = fileName;
+#ifdef Q_OS_WIN
     QTC_ASSERT(!fileName.isEmpty(), return QString())
     // Gdb on windows often delivers "fullnames" which
     // a) have no drive letter and b) are not normalized.
     QFileInfo fi(fileName);
-    if (!fi.isReadable())
-        return QString();
-    return QDir::cleanPath(fi.absoluteFilePath());
-}
+    if (fi.isReadable())
+        cleanFilePath = QDir::cleanPath(fi.absoluteFilePath());
 #endif
+    if (startMode() == StartRemoteGdb) {
+        cleanFilePath.replace(0, startParameters().remoteMountPoint.length(),
+            startParameters().localMountDir);
+    }
+    return cleanFilePath;
+}
 
 void GdbEngine::shutdownInferior()
 {

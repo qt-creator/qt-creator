@@ -84,6 +84,8 @@ public:
     QString sysRoot;
     QByteArray remoteDumperLib;
     QByteArray remoteSourcesDir;
+    QString remoteMountPoint;
+    QString localMountDir;
     Core::SshConnectionParameters connParams;
 
     QString debuggerCommand;
