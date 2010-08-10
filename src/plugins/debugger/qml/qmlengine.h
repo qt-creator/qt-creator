@@ -51,7 +51,6 @@ namespace Internal {
 class ScriptAgent;
 class WatchData;
 class QmlResponse;
-class CanvasFrameRate;
 class QmlDebuggerClient;
 
 class DEBUGGER_EXPORT QmlEngine : public DebuggerEngine

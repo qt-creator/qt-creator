@@ -112,13 +112,9 @@ include(cdb/cdb.pri)
 include(gdb/gdb.pri)
 include(script/script.pri)
 include(pdb/pdb.pri)
+include(qml/qml.pri)
 include(tcf/tcf.pri)
 include(shared/shared.pri)
 
-include(../../private_headers.pri)
-exists($${QT_PRIVATE_HEADERS}/QtDeclarative/private/qdeclarativecontext_p.h) {
-  DEFINES += QML_ENGINE=1
-  include(qml/qml.pri)
-}
 
 OTHER_FILES += Debugger.pluginspec

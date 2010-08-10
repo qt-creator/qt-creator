@@ -42,8 +42,6 @@
 #include "watchhandler.h"
 #include "watchutils.h"
 
-#include "canvasframerate.h"
-
 #include <projectexplorer/environment.h>
 
 #include <utils/qtcassert.h>
@@ -63,9 +61,6 @@
 
 #include <QtNetwork/QTcpSocket>
 #include <QtNetwork/QHostAddress>
-
-#include <private/qdeclarativedebug_p.h>
-#include <private/qdeclarativedebugclient_p.h>
 
 #define DEBUG_QML 1
 #if DEBUG_QML
