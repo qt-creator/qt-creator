@@ -51,6 +51,8 @@ public:
     virtual bool removeFiles(const ProjectExplorer::FileType fileType,
                              const QStringList &filePaths,
                              QStringList *notRemoved = 0);
+    virtual bool deleteFiles(const ProjectExplorer::FileType fileType,
+                             const QStringList &filePaths);
     virtual bool renameFile(const ProjectExplorer::FileType fileType,
                              const QString &filePath,
                              const QString &newFilePath);

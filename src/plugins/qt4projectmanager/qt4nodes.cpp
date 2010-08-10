@@ -53,6 +53,7 @@
 #include <projectexplorer/buildmanager.h>
 
 #include <utils/qtcassert.h>
+#include <algorithm>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -90,6 +91,9 @@ static const FileTypeDataStorage fileTypeDataStorage[] = {
     { ProjectExplorer::ResourceType,
       QT_TRANSLATE_NOOP("Qt4ProjectManager::Internal::Qt4PriFileNode", "Resources"),
       ":/qt4projectmanager/images/qt_qrc.png" },
+    { ProjectExplorer::QMLType,
+      QT_TRANSLATE_NOOP("Qt4ProjectManager::Internal::Qt4PriFileNode", "QML"),
+      ":/qt4projectmanager/images/qml.png" }, // TODO icon
     { ProjectExplorer::UnknownFileType,
       QT_TRANSLATE_NOOP("Qt4ProjectManager::Internal::Qt4PriFileNode", "Other files"),
       ":/qt4projectmanager/images/unknown.png" }
@@ -263,6 +267,7 @@ struct InternalNode
     QMap<QString, InternalNode*> subnodes;
     QStringList files;
     ProjectExplorer::FileType type;
+    QString displayName;
     QString fullPath;
     QIcon icon;
 
@@ -321,14 +326,15 @@ struct InternalNode
                 const QString &key = it.next();
                 if (it.hasNext()) { // key is directory
                     path += key;
-                    if (!currentNode->subnodes.contains(key)) {
+                    if (!currentNode->subnodes.contains(path)) {
                         InternalNode *val = new InternalNode;
                         val->type = type;
                         val->fullPath = path;
-                        currentNode->subnodes.insert(key, val);
+                        val->displayName = key;
+                        currentNode->subnodes.insert(path, val);
                         currentNode = val;
                     } else {
-                        currentNode = currentNode->subnodes.value(key);
+                        currentNode = currentNode->subnodes.value(path);
                     }
                     path += separator;
                 } else { // key is filename
@@ -342,15 +348,17 @@ struct InternalNode
     // Removes folder nodes with only a single sub folder in it
     void compress()
     {
-        static const QChar separator = QDir::separator(); // it is used for the *keys* which will become display name
         QMap<QString, InternalNode*> newSubnodes;
         QMapIterator<QString, InternalNode*> i(subnodes);
         while (i.hasNext()) {
             i.next();
             i.value()->compress();
             if (i.value()->files.isEmpty() && i.value()->subnodes.size() == 1) {
+                // replace i.value() by i.value()->subnodes.begin()
                 QString key = i.value()->subnodes.begin().key();
-                newSubnodes.insert(i.key()+separator+key, i.value()->subnodes.value(key));
+                InternalNode *keep = i.value()->subnodes.value(key);
+                keep->displayName = i.value()->displayName + "/" + keep->displayName;
+                newSubnodes.insert(key, keep);
                 i.value()->subnodes.clear();
                 delete i.value();
             } else {
@@ -372,24 +380,24 @@ struct InternalNode
                 existingFolderNodes << node;
         }
 
+        qSort(existingFolderNodes.begin(), existingFolderNodes.end(), ProjectNode::sortNodesByPath);
+
         QList<FolderNode *> foldersToRemove;
         QList<FolderNode *> foldersToAdd;
         typedef QPair<InternalNode *, FolderNode *> NodePair;
         QList<NodePair> nodesToUpdate;
 
-        // newFolders is already sorted
-        qSort(existingFolderNodes.begin(), existingFolderNodes.end(), ProjectNode::sortFolderNodesByName);
-
+        // Both lists should be already sorted...
         QList<FolderNode*>::const_iterator existingNodeIter = existingFolderNodes.constBegin();
         QMap<QString, InternalNode*>::const_iterator newNodeIter = subnodes.constBegin();;
         while (existingNodeIter != existingFolderNodes.constEnd()
                && newNodeIter != subnodes.constEnd()) {
-            if ((*existingNodeIter)->displayName() < newNodeIter.key()) {
+            if ((*existingNodeIter)->path() < newNodeIter.value()->fullPath) {
                 foldersToRemove << *existingNodeIter;
                 ++existingNodeIter;
-            } else if ((*existingNodeIter)->displayName() > newNodeIter.key()) {
+            } else if ((*existingNodeIter)->path() > newNodeIter.value()->fullPath) {
                 FolderNode *newNode = new FolderNode(newNodeIter.value()->fullPath);
-                newNode->setDisplayName(newNodeIter.key());
+                newNode->setDisplayName(newNodeIter.value()->displayName);
                 if (!newNodeIter.value()->icon.isNull())
                     newNode->setIcon(newNodeIter.value()->icon);
                 foldersToAdd << newNode;
@@ -408,7 +416,7 @@ struct InternalNode
         }
         while (newNodeIter != subnodes.constEnd()) {
             FolderNode *newNode = new FolderNode(newNodeIter.value()->fullPath);
-            newNode->setDisplayName(newNodeIter.key());
+            newNode->setDisplayName(newNodeIter.value()->displayName);
             if (!newNodeIter.value()->icon.isNull())
                 newNode->setIcon(newNodeIter.value()->icon);
             foldersToAdd << newNode;
@@ -498,6 +506,25 @@ QStringList Qt4PriFileNode::fullVPaths(const QStringList &baseVPaths, ProFileRea
     return vPaths;
 }
 
+static QSet<QString> recursiveEnumerate(const QString &folder)
+{
+    QSet<QString> result;
+    QFileInfo fi(folder);
+    if (fi.isDir()) {
+        QDir dir(folder);
+        dir.setFilter(dir.filter() | QDir::NoDotAndDotDot);
+
+        foreach (const QFileInfo &file, dir.entryInfoList()) {
+            if (file.isDir())
+                result += recursiveEnumerate(file.absoluteFilePath());
+            else
+                result += file.absoluteFilePath();
+        }
+    } else if (fi.exists()) {
+        result << folder;
+    }
+    return result;
+}
 
 void Qt4PriFileNode::update(ProFile *includeFileExact, ProFileReader *readerExact, ProFile *includeFileCumlative, ProFileReader *readerCumulative)
 {
@@ -514,34 +541,143 @@ void Qt4PriFileNode::update(ProFile *includeFileExact, ProFileReader *readerExac
 
     InternalNode contents;
 
+    // Figure out DEPLOYMENT and INSTALL folders
+    QStringList folders;
+    QStringList dynamicVariables = dynamicVarNames(readerExact, readerCumulative);
+    foreach (const QString &dynamicVar, dynamicVariables) {
+        folders += readerExact->values(dynamicVar);
+        if (readerCumulative)
+            folders += readerCumulative->values(dynamicVar);
+    }
+
+
+    for (int i=0; i < folders.size(); ++i) {
+        QFileInfo fi(folders.at(i));
+        if (fi.isRelative())
+            folders[i] = projectDir + "/" + folders.at(i);
+    }
+
+    folders.removeDuplicates();
+    watchFolders(folders.toSet());
+
+    m_recursiveEnumerateFiles.clear();
+    foreach (const QString &folder, folders) {
+        m_recursiveEnumerateFiles += recursiveEnumerate(folder);
+    }
+
     // update files
     for (int i = 0; i < fileTypes.size(); ++i) {
         FileType type = fileTypes.at(i).type;
-        const QStringList qmakeVariables = varNames(type);
+        QStringList qmakeVariables = varNames(type);
 
-        QStringList newFilePaths;
+        QSet<QString> newFilePaths;
         foreach (const QString &qmakeVariable, qmakeVariables) {
             QStringList vPathsExact = fullVPaths(baseVPathsExact, readerExact, type, qmakeVariable, projectDir);
             QStringList vPathsCumulative = fullVPaths(baseVPathsCumulative, readerCumulative, type, qmakeVariable, projectDir);
 
-
-            newFilePaths += readerExact->absoluteFileValues(qmakeVariable, projectDir, vPathsExact, includeFileExact);
+            newFilePaths += readerExact->absoluteFileValues(qmakeVariable, projectDir, vPathsExact, includeFileExact).toSet();
             if (readerCumulative)
-                newFilePaths += readerCumulative->absoluteFileValues(qmakeVariable, projectDir, vPathsCumulative, includeFileCumlative);
+                newFilePaths += readerCumulative->absoluteFileValues(qmakeVariable, projectDir, vPathsCumulative, includeFileCumlative).toSet();
 
         }
 
+        newFilePaths += filterFiles(type, m_recursiveEnumerateFiles);
+
+        // We only need to save this information if
+        // we are watching folders
+        if (!folders.isEmpty())
+            m_files[type] = newFilePaths;
+        else
+            m_files[type].clear();
+
         if (!newFilePaths.isEmpty()) {
-            newFilePaths.removeDuplicates();
             InternalNode *subfolder = new InternalNode;
             subfolder->type = type;
             subfolder->icon = fileTypes.at(i).icon;
-            subfolder->fullPath = m_projectDir + "/#" + fileTypes.at(i).typeName;
-            contents.subnodes.insert(fileTypes.at(i).typeName, subfolder);
+            subfolder->fullPath = m_projectDir + "/#" + QString::number(i) + fileTypes.at(i).typeName;
+            subfolder->displayName = fileTypes.at(i).typeName;
+            contents.subnodes.insert(subfolder->fullPath, subfolder);
             // create the hierarchy with subdirectories
-            subfolder->create(m_projectDir, newFilePaths, type);
+            subfolder->create(m_projectDir, newFilePaths.toList(), type);
         }
     }
+
+    contents.updateSubFolders(this, this);
+}
+
+void Qt4PriFileNode::watchFolders(const QSet<QString> &folders)
+{
+    QSet<QString> toUnwatch = m_watchedFolders;
+    toUnwatch.subtract(folders);
+
+    QSet<QString> toWatch = folders;
+    toWatch.subtract(m_watchedFolders);
+
+    if (!toUnwatch.isEmpty())
+        m_project->centralizedFolderWatcher()->unwatchFolders(toUnwatch.toList(), this);
+    if (!toWatch.isEmpty())
+        m_project->centralizedFolderWatcher()->watchFolders(toWatch.toList(), this);
+
+    m_watchedFolders = folders;
+}
+
+void Qt4PriFileNode::folderChanged(const QString &)
+{
+    //qDebug()<<"########## Qt4PriFileNode::folderChanged";
+    // So, we need to figure out which files changed.
+
+    // Collect all the files
+    QSet<QString> newFiles;
+    foreach (const QString &folder, m_watchedFolders) {
+        newFiles += recursiveEnumerate(folder);
+    }
+
+    QSet<QString> addedFiles = newFiles;
+    addedFiles.subtract(m_recursiveEnumerateFiles);
+
+    QSet<QString> removedFiles = m_recursiveEnumerateFiles;
+    removedFiles.subtract(newFiles);
+
+    if (addedFiles.isEmpty() && removedFiles.isEmpty())
+        return;
+
+    m_recursiveEnumerateFiles = newFiles;
+
+    // Apply the differences
+    // per file type
+    const QVector<Qt4NodeStaticData::FileTypeData> &fileTypes = qt4NodeStaticData()->fileTypeData;
+    for (int i = 0; i < fileTypes.size(); ++i) {
+        FileType type = fileTypes.at(i).type;
+        QSet<QString> add = filterFiles(type, addedFiles);
+        QSet<QString> remove = filterFiles(type, removedFiles);
+
+        if (!add.isEmpty() || !remove.isEmpty()) {
+            // Scream :)
+//            qDebug()<<"For type"<<fileTypes.at(i).typeName<<"\n"
+//                    <<"added files"<<add<<"\n"
+//                    <<"removed files"<<remove;
+
+            m_files[type].unite(add);
+            m_files[type].subtract(remove);
+        }
+    }
+
+    // Now apply stuff
+    InternalNode contents;
+    for (int i = 0; i < fileTypes.size(); ++i) {
+        FileType type = fileTypes.at(i).type;
+        if (!m_files[type].isEmpty()) {
+            InternalNode *subfolder = new InternalNode;
+            subfolder->type = type;
+            subfolder->icon = fileTypes.at(i).icon;
+            subfolder->fullPath = m_projectDir + "/#" + QString::number(i) + fileTypes.at(i).typeName;
+            subfolder->displayName = fileTypes.at(i).typeName;
+            contents.subnodes.insert(subfolder->fullPath, subfolder);
+            // create the hierarchy with subdirectories
+            subfolder->create(m_projectDir, m_files[type].toList(), type);
+        }
+    }
+
     contents.updateSubFolders(this, this);
 }
 
@@ -558,7 +694,11 @@ QList<ProjectNode::ProjectAction> Qt4PriFileNode::supportedActions(Node *node) c
     switch (proFileNode->projectType()) {
     case ApplicationTemplate:
     case LibraryTemplate:
-        actions << AddFile << RemoveFile;
+        actions << AddFile;
+        if (m_recursiveEnumerateFiles.contains(node->path()))
+            actions << DeleteFile;
+        else
+            actions << RemoveFile;
         break;
     case SubDirsTemplate:
         actions << AddSubProject << RemoveSubProject;
@@ -638,6 +778,13 @@ bool Qt4PriFileNode::removeFiles(const FileType fileType, const QStringList &fil
     if (notRemoved)
         *notRemoved = failedFiles;
     return failedFiles.isEmpty();
+}
+
+bool Qt4PriFileNode::deleteFiles(const FileType fileType, const QStringList &filePaths)
+{
+    QStringList failedFiles;
+    changeFiles(fileType, filePaths, &failedFiles, RemoveFromProFile);
+    return true;
 }
 
 bool Qt4PriFileNode::renameFile(const FileType fileType, const QString &filePath,
@@ -861,7 +1008,7 @@ void Qt4PriFileNode::clear()
     removeFolderNodes(subFolderNodes(), this);
 }
 
-QStringList Qt4PriFileNode::varNames(FileType type)
+QStringList Qt4PriFileNode::varNames(ProjectExplorer::FileType type)
 {
     QStringList vars;
     switch (type) {
@@ -881,12 +1028,62 @@ QStringList Qt4PriFileNode::varNames(FileType type)
     case ProjectExplorer::FormType:
         vars << QLatin1String("FORMS");
         break;
+    case ProjectExplorer::QMLType:
+        break;
     default:
         vars << QLatin1String("OTHER_FILES");
         break;
     }
     return vars;
 }
+
+
+QStringList Qt4PriFileNode::dynamicVarNames(ProFileReader *readerExact, ProFileReader *readerCumulative)
+{
+    QStringList result;
+    // Figure out DEPLOYMENT and INSTALLS
+    QStringList listOfVars = readerExact->values("DEPLOYMENT");
+    foreach (const QString &var, listOfVars) {
+        result << (var + ".sources");
+    }
+    if (readerCumulative) {
+        QStringList listOfVars = readerCumulative->values("DEPLOYMENT");
+        foreach (const QString &var, listOfVars) {
+            result << (var + ".sources");
+        }
+    }
+
+    listOfVars = readerExact->values("INSTALLS");
+    foreach (const QString &var, listOfVars) {
+        result << (var + ".files");
+    }
+    if (readerCumulative) {
+        QStringList listOfVars = readerCumulative->values("INSTALLS");
+        foreach (const QString &var, listOfVars) {
+            result << (var + ".files");
+        }
+    }
+
+    return result;
+}
+
+QSet<QString> Qt4PriFileNode::filterFiles(ProjectExplorer::FileType fileType, const QSet<QString> &files)
+{
+    QSet<QString> result;
+    if (fileType != ProjectExplorer::QMLType && fileType != ProjectExplorer::UnknownFileType)
+        return result;
+    if(fileType == ProjectExplorer::QMLType) {
+        foreach (const QString &file, files)
+            if (file.endsWith(".qml"))
+                result << file;
+    } else {
+        foreach (const QString &file, files)
+            if (!file.endsWith(".qml"))
+                result << file;
+    }
+    return result;
+}
+
 
 const Qt4ProFileNode *Qt4ProFileNode::findProFileFor(const QString &fileName) const
 {

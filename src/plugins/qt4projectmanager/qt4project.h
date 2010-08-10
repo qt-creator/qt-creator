@@ -107,6 +107,32 @@ private:
     QString m_filePath;
 };
 
+/// Watches folders for Qt4PriFile nodes
+/// use one file system watcher to watch all folders
+/// such minimizing system ressouce usage
+namespace Internal {
+class CentralizedFolderWatcher : public QObject
+{
+    Q_OBJECT
+public:
+    CentralizedFolderWatcher();
+    ~CentralizedFolderWatcher();
+    void watchFolders(const QList<QString> &folders, Qt4PriFileNode *node);
+    void unwatchFolders(const QList<QString> &folders, Qt4PriFileNode *node);
+
+private slots:
+    void folderChanged(const QString &folder);
+
+private:
+    QSet<QString> recursiveDirs(const QString &folder);
+    QFileSystemWatcher m_watcher;
+    QMultiMap<QString, Qt4PriFileNode *> m_map;
+
+    QSet<QString> m_recursiveWatchedFolders;
+};
+
+}
+
 class Qt4Project : public ProjectExplorer::Project
 {
     Q_OBJECT
@@ -163,6 +189,8 @@ public:
 
     QString defaultTopLevelBuildDirectory() const;
     static QString defaultTopLevelBuildDirectory(const QString &profilePath);
+
+    Internal::CentralizedFolderWatcher *centralizedFolderWatcher();
 
 signals:
     /// emitted after parse
@@ -231,6 +259,8 @@ private:
 
     QMap<QString, Internal::CodeModelInfo> m_codeModelInfo;
     QFuture<void> m_codeModelFuture;
+
+    Internal::CentralizedFolderWatcher m_centralizedFolderWatcher;
 
     friend class Qt4ProjectFile;
     friend class Internal::Qt4ProjectConfigWidget;

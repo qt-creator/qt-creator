@@ -204,6 +204,13 @@ bool QmlProjectNode::removeFiles(const ProjectExplorer::FileType /*fileType*/,
     return false;
 }
 
+bool QmlProjectNode::deleteFiles(const ProjectExplorer::FileType /*fileType*/,
+                                 const QStringList & /*filePaths*/)
+{
+    return false;
+}
+
+
 bool QmlProjectNode::renameFile(const ProjectExplorer::FileType /*fileType*/,
                                     const QString & /*filePath*/, const QString & /*newFilePath*/)
 {

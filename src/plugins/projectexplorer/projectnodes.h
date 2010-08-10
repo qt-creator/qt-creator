@@ -71,6 +71,7 @@ enum FileType {
     SourceType,
     FormType,
     ResourceType,
+    QMLType,
     ProjectFileType,
     FileTypeSize
 };
@@ -160,6 +161,7 @@ public:
         RemoveSubProject,
         AddFile,
         RemoveFile,
+        DeleteFile,
         Rename
     };
 
@@ -183,9 +185,12 @@ public:
     virtual bool removeFiles(const FileType fileType,
                              const QStringList &filePaths,
                              QStringList *notRemoved = 0) = 0;
+    virtual bool deleteFiles(const FileType fileType,
+                             const QStringList &filePaths) = 0;
     virtual bool renameFile(const FileType fileType,
                              const QString &filePath,
                              const QString &newFilePath) = 0;
+
 
     QList<NodesWatcher*> watchers() const;
     void registerWatcher(NodesWatcher *watcher);
@@ -194,7 +199,6 @@ public:
     void accept(NodesVisitor *visitor);
 
     static bool sortNodesByPath(Node *n1, Node *n2);
-    static bool sortFolderNodesByName(FolderNode *f1, FolderNode *f2);
 
 protected:
     // this is just the in-memory representation, a subclass

@@ -78,6 +78,7 @@ const char * const OPENFILE             = "ProjectExplorer.OpenFile";
 const char * const SHOWINGRAPHICALSHELL = "ProjectExplorer.ShowInGraphicalShell";
 const char * const OPENTERMIANLHERE     = "ProjectExplorer.OpenTerminalHere";
 const char * const REMOVEFILE           = "ProjectExplorer.RemoveFile";
+const char * const DELETEFILE           = "ProjectExplorer.DeleteFile";
 const char * const RENAMEFILE           = "ProjectExplorer.RenameFile";
 
 const char * const SHOW_TASK_IN_EDITOR  = "ProjectExplorer.ShowTaskInEditor";

@@ -1131,6 +1131,147 @@ void Qt4Project::notifyChanged(const QString &name)
     }
 }
 
+CentralizedFolderWatcher *Qt4Project::centralizedFolderWatcher()
+{
+    return &m_centralizedFolderWatcher;
+}
+
+/////////////
+/// Centralized Folder Watcher
+////////////
+
+// All the folder have a trailing slash!
+
+namespace {
+   bool debugCFW = false;
+}
+
+CentralizedFolderWatcher::CentralizedFolderWatcher()
+{
+    connect (&m_watcher, SIGNAL(directoryChanged(QString)),
+             this, SLOT(folderChanged(QString)));
+}
+
+CentralizedFolderWatcher::~CentralizedFolderWatcher()
+{
+
+}
+
+QSet<QString> CentralizedFolderWatcher::recursiveDirs(const QString &folder)
+{
+    QSet<QString> result;
+    QDir dir(folder);
+    QStringList list = dir.entryList(QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
+    foreach (const QString &f, list) {
+        result.insert(folder + f + "/");
+        result += recursiveDirs(folder + f + "/");
+    }
+    return result;
+}
+
+void CentralizedFolderWatcher::watchFolders(const QList<QString> &folders, Qt4PriFileNode *node)
+{
+    if (debugCFW)
+        qDebug()<<"CFW::watchFolders()"<<folders<<"for node"<<node->path();
+    m_watcher.addPaths(folders);
+
+    foreach (const QString &f, folders) {
+        QString folder = f;
+        if (!folder.endsWith('/'))
+            folder.append('/');
+        m_map.insert(folder, node);
+
+        // Support for recursive watching
+        // we add the recursive directories we find
+        QSet<QString> tmp = recursiveDirs(folder);
+        m_watcher.addPaths(tmp.toList());
+        m_recursiveWatchedFolders += tmp;
+
+        if (debugCFW)
+            qDebug()<<"adding recursive dirs for"<< folder<<":"<<tmp;
+    }
+}
+
+void CentralizedFolderWatcher::unwatchFolders(const QList<QString> &folders, Qt4PriFileNode *node)
+{
+    if (debugCFW)
+        qDebug()<<"CFW::unwatchFolders()"<<folders<<"for node"<<node->path();
+    foreach (const QString &f, folders) {
+        QString folder = f;
+        if (!folder.endsWith('/'))
+            folder.append('/');
+        m_map.remove(folder, node);
+        if (!m_map.contains(folder)) {
+            m_watcher.removePath(folder);
+        }
+
+        // Figure out which recursive directories we can remove
+        // TODO this might not scale. I'm pretty sure it doesn't
+        // A scaling implementation would need to save more information
+        // where a given directory watcher actual comes from...
+
+        QStringList toRemove;
+        foreach (const QString &rwf, m_recursiveWatchedFolders) {
+            if (rwf.startsWith(folder)) {
+                // So the rwf is a subdirectory of a folder we aren't watching
+                // but maybe someone else wants us to watch
+                bool needToWatch = false;
+                QMultiMap<QString, Qt4PriFileNode *>::const_iterator it, end;
+                end = m_map.constEnd();
+                for (it = m_map.constEnd(); it != end; ++it) {
+                    if (rwf.startsWith(it.key())) {
+                        needToWatch = true;
+                        break;
+                    }
+                }
+                if (!needToWatch) {
+                    m_watcher.removePath(rwf);
+                    toRemove << rwf;
+                }
+            }
+        }
+
+        if (debugCFW)
+            qDebug()<<"removing recursive dirs for"<<folder<<":"<<toRemove;
+
+        foreach (const QString &tr, toRemove) {
+            m_recursiveWatchedFolders.remove(tr);
+        }
+    }
+}
+
+
+void CentralizedFolderWatcher::folderChanged(const QString &folder)
+{
+    if (debugCFW)
+        qDebug()<<"CFW::folderChanged"<<folder;
+    // Figure out whom to inform
+
+    QDir dir(folder);
+    while (true) {
+        QString path = dir.path();
+        if (!path.endsWith('/'))
+            path.append('/');
+        QList<Qt4PriFileNode *> nodes = m_map.values(path);
+        foreach (Qt4PriFileNode *node, nodes) {
+            node->folderChanged(folder);
+        }
+
+        if (dir.isRoot())
+            break;
+        dir.cdUp();
+    }
+
+    // If a subdirectory was added, watch it too
+    QSet<QString> tmp = recursiveDirs(folder);
+    if (!tmp.isEmpty()) {
+        if (debugCFW)
+            qDebug()<<"found new recursive dirs"<<tmp;
+        m_watcher.addPaths(tmp.toList());
+        m_recursiveWatchedFolders += tmp;
+    }
+}
+
 /*!
   Handle special case were a subproject of the qt directory is opened, and
   qt was configured to be built as a shadow build -> also build in the sub-

@@ -558,11 +558,6 @@ bool ProjectNode::sortNodesByPath(Node *n1, Node *n2) {
     return n1->path() < n2->path();
 }
 
-bool ProjectNode::sortFolderNodesByName(FolderNode *f1, FolderNode *f2)
-{
-    return f1->displayName() < f2->displayName();
-}
-
 /*!
   \class SessionNode
 */

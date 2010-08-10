@@ -208,6 +208,14 @@ bool GenericProjectNode::removeFiles(const ProjectExplorer::FileType fileType,
     return m_project->removeFiles(filePaths);
 }
 
+bool GenericProjectNode::deleteFiles(const ProjectExplorer::FileType fileType,
+                                     const QStringList &filePaths)
+{
+    Q_UNUSED(fileType)
+    Q_UNUSED(filePaths)
+    return false;
+}
+
 bool GenericProjectNode::renameFile(const ProjectExplorer::FileType fileType,
                                     const QString &filePath, const QString &newFilePath)
 {

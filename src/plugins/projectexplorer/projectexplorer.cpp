@@ -166,6 +166,7 @@ struct ProjectExplorerPluginPrivate {
     QAction *m_showInGraphicalShell;
     QAction *m_openTerminalHere;
     QAction *m_removeFileAction;
+    QAction *m_deleteFileAction;
     QAction *m_renameFileAction;
     QAction *m_projectSelectorAction;
     QAction *m_projectSelectorActionMenu;
@@ -723,6 +724,11 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                        globalcontext);
     mfilec->addAction(cmd, Constants::G_FILE_OTHER);
 
+    d->m_deleteFileAction = new QAction(tr("Delete File..."), this);
+    cmd = am->registerAction(d->m_deleteFileAction, ProjectExplorer::Constants::DELETEFILE,
+                             globalcontext);
+    mfilec->addAction(cmd, Constants::G_FILE_OTHER);
+
     // renamefile action
     d->m_renameFileAction = new QAction(tr("Rename"), this);
     cmd = am->registerAction(d->m_renameFileAction, ProjectExplorer::Constants::RENAMEFILE,
@@ -822,6 +828,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(d->m_showInGraphicalShell, SIGNAL(triggered()), this, SLOT(showInGraphicalShell()));
     connect(d->m_openTerminalHere, SIGNAL(triggered()), this, SLOT(openTerminalHere()));
     connect(d->m_removeFileAction, SIGNAL(triggered()), this, SLOT(removeFile()));
+    connect(d->m_deleteFileAction, SIGNAL(triggered()), this, SLOT(deleteFile()));
     connect(d->m_renameFileAction, SIGNAL(triggered()), this, SLOT(renameFile()));
 
     updateActions();
@@ -1934,6 +1941,10 @@ void ProjectExplorerPlugin::updateContextMenuActions(Node *node)
     d->m_addExistingFilesAction->setEnabled(false);
     d->m_addNewFileAction->setEnabled(false);
     d->m_removeFileAction->setEnabled(false);
+    d->m_deleteFileAction->setEnabled(false);
+
+    d->m_removeFileAction->setVisible(true);
+    d->m_deleteFileAction->setVisible(true);
 
     if (node->projectNode()) {
         QList<ProjectNode::ProjectAction> actions =
@@ -1945,8 +1956,18 @@ void ProjectExplorerPlugin::updateContextMenuActions(Node *node)
             d->m_addNewFileAction->setEnabled(addFilesEnabled);
             d->m_renameFileAction->setEnabled(actions.contains(ProjectNode::Rename));
         } else if (qobject_cast<FileNode*>(d->m_currentNode)) {
-            bool removeFileEnabled = actions.contains(ProjectNode::RemoveFile);
-            d->m_removeFileAction->setEnabled(removeFileEnabled);
+            // Enable and show remove / delete in magic ways:
+            // If both are disabled show Remove
+            // If both are enabled show both (can't happen atm)
+            // If only removeFile is enabled only show it
+            // If only deleteFile is enable only show it
+            bool enableRemove = actions.contains(ProjectNode::RemoveFile);
+            d->m_removeFileAction->setEnabled(enableRemove);
+            bool enableDelete = actions.contains(ProjectNode::DeleteFile);
+            d->m_deleteFileAction->setEnabled(enableDelete);
+            d->m_deleteFileAction->setVisible(enableDelete);
+
+            d->m_removeFileAction->setVisible(!enableDelete || enableRemove);
             d->m_renameFileAction->setEnabled(actions.contains(ProjectNode::Rename));
         }
     }
@@ -2076,6 +2097,39 @@ void ProjectExplorerPlugin::removeFile()
                                          tr("Could not delete file %1.").arg(filePath));
             }
         }
+    }
+}
+
+void ProjectExplorerPlugin::deleteFile()
+{
+    QTC_ASSERT(d->m_currentNode && d->m_currentNode->nodeType() == FileNodeType, return)
+
+    FileNode *fileNode = qobject_cast<FileNode*>(d->m_currentNode);
+    Core::ICore *core = Core::ICore::instance();
+
+    QString filePath = d->m_currentNode->path();
+    QMessageBox::StandardButton button =
+            QMessageBox::question(core->mainWindow(),
+                                  tr("Delete File"),
+                                  tr("Delete %1 from file system?").arg(filePath),
+                                  QMessageBox::Yes | QMessageBox::No);
+    if (button != QMessageBox::Yes)
+        return;
+
+    ProjectNode *projectNode = fileNode->projectNode();
+    Q_ASSERT(projectNode);
+
+    projectNode->deleteFiles(fileNode->fileType(), QStringList(filePath));
+
+    if (Core::IVersionControl *vc =
+            core->vcsManager()->findVersionControlForDirectory(QFileInfo(filePath).absolutePath())) {
+        vc->vcsDelete(filePath);
+    }
+    QFile file(filePath);
+    if (file.exists()) {
+        if (!file.remove())
+            QMessageBox::warning(core->mainWindow(), tr("Delete file failed"),
+                                 tr("Could not delete file %1.").arg(filePath));
     }
 }
 

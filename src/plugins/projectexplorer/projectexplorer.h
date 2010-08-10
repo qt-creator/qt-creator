@@ -172,6 +172,7 @@ private slots:
     void openFile();
     void showInGraphicalShell();
     void removeFile();
+    void deleteFile();
     void renameFile();
 
     void updateRecentProjectMenu();

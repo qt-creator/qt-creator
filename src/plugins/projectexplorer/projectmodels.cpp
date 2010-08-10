@@ -43,7 +43,6 @@
 #include <QtGui/QApplication>
 #include <QtGui/QIcon>
 #include <QtGui/QMessageBox>
-#include <QtGui/QSortFilterProxyModel>
 #include <QtGui/QStyle>
 
 using namespace ProjectExplorer;
@@ -103,8 +102,8 @@ bool sortNodes(Node *n1, Node *n2)
             FolderNode *folder1 = static_cast<FolderNode*>(n1);
             FolderNode *folder2 = static_cast<FolderNode*>(n2);
 
-            if (folder1->displayName() != folder2->displayName())
-                return folder1->displayName().compare(folder2->displayName(), Qt::CaseInsensitive) < 0;
+            if (folder1->path() != folder2->path())
+                return folder1->path().compare(folder2->path(), Qt::CaseInsensitive) < 0;
             else
                 return folder1 < folder2;
         } else {

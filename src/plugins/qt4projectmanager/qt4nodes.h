@@ -39,6 +39,7 @@
 #include <QtCore/QDateTime>
 #include <QtCore/QMap>
 #include <QtCore/QFutureWatcher>
+#include <QtCore/QFileSystemWatcher>
 
 // defined in proitems.h
 QT_BEGIN_NAMESPACE
@@ -145,12 +146,18 @@ public:
                   QStringList *notAdded = 0);
     bool removeFiles(const FileType fileType, const QStringList &filePaths,
                      QStringList *notRemoved = 0);
+    bool deleteFiles(const FileType fileType,
+                     const QStringList &filePaths);
     bool renameFile(const FileType fileType,
                     const QString &filePath, const QString &newFilePath);
+
+    void folderChanged(const QString &folder);
 
 protected:
     void clear();
     static QStringList varNames(FileType type);
+    static QStringList dynamicVarNames(ProFileReader *readerExact, ProFileReader *readerCumulative);
+    static QSet<QString> filterFiles(ProjectExplorer::FileType fileType, const QSet<QString> &files);
 
     enum ChangeType {
         AddToProFile,
@@ -176,6 +183,7 @@ private:
     QStringList formResources(const QString &formFile) const;
     QStringList baseVPaths(ProFileReader *reader, const QString &projectDir);
     QStringList fullVPaths(const QStringList &baseVPaths, ProFileReader *reader, FileType type, const QString &qmakeVariable, const QString &projectDir);
+    void watchFolders(const QSet<QString> &folders);
 
     Qt4Project *m_project;
     Qt4ProFileNode *m_qt4ProFileNode;
@@ -184,6 +192,12 @@ private:
 
     QMap<QString, Qt4UiCodeModelSupport *> m_uiCodeModelSupport;
     Qt4PriFile *m_qt4PriFile;
+
+    // Memory is cheap...
+    // TODO (really that cheap?)
+    QMap<ProjectExplorer::FileType, QSet<QString> > m_files;
+    QSet<QString> m_recursiveEnumerateFiles;
+    QSet<QString> m_watchedFolders;
 
     // managed by Qt4ProFileNode
     friend class Qt4ProFileNode;

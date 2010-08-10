@@ -69,12 +69,18 @@ bool CMakeProjectNode::addFiles(const ProjectExplorer::FileType fileType, const 
     return false;
 }
 
-// TODO: Maybe remove fileType, can be detected by project
 bool CMakeProjectNode::removeFiles(const ProjectExplorer::FileType fileType, const QStringList &filePaths,  QStringList *notRemoved)
 {
     Q_UNUSED(fileType)
     Q_UNUSED(filePaths)
     Q_UNUSED(notRemoved)
+    return false;
+}
+
+bool CMakeProjectNode::deleteFiles(const ProjectExplorer::FileType fileType, const QStringList &filePaths)
+{
+    Q_UNUSED(fileType)
+    Q_UNUSED(filePaths)
     return false;
 }
 
