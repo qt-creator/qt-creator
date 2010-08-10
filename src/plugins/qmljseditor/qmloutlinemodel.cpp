@@ -211,6 +211,31 @@ private:
         m_model->leaveObjectDefiniton();
     }
 
+    bool visit(AST::UiObjectBinding *objBinding)
+    {
+        QModelIndex index = m_model->enterObjectBinding(objBinding);
+        m_nodeToIndex.insert(objBinding, index);
+        return true;
+    }
+
+    void endVisit(AST::UiObjectBinding * /*objBinding*/)
+    {
+        m_model->leaveObjectBinding();
+    }
+
+    bool visit(AST::UiArrayBinding *arrayBinding)
+    {
+        QModelIndex index = m_model->enterArrayBinding(arrayBinding);
+        m_nodeToIndex.insert(arrayBinding, index);
+
+        return true;
+    }
+
+    void endVisit(AST::UiArrayBinding * /*arrayBinding*/)
+    {
+        m_model->leaveArrayBinding();
+    }
+
     bool visit(AST::UiScriptBinding *scriptBinding)
     {
         QModelIndex index = m_model->enterScriptBinding(scriptBinding);
@@ -373,9 +398,9 @@ QModelIndex QmlOutlineModel::enterObjectDefinition(AST::UiObjectDefinition *objD
 
     if (typeName.at(0).isUpper()) {
         prototype.setText(typeName);
-        prototype.setAnnotation(getAnnotation(objDef));
+        prototype.setAnnotation(getAnnotation(objDef->initializer));
         if (!m_typeToIcon.contains(typeName)) {
-            m_typeToIcon.insert(typeName, getIcon(objDef));
+            m_typeToIcon.insert(typeName, getIcon(objDef->qualifiedTypeNameId));
         }
         prototype.setIcon(m_typeToIcon.value(typeName));
         prototype.setData(ElementType, ItemTypeRole);
@@ -393,6 +418,65 @@ QModelIndex QmlOutlineModel::enterObjectDefinition(AST::UiObjectDefinition *objD
 }
 
 void QmlOutlineModel::leaveObjectDefiniton()
+{
+    leaveNode();
+}
+
+QModelIndex QmlOutlineModel::enterObjectBinding(AST::UiObjectBinding *objBinding)
+{
+    QmlOutlineItem bindingPrototype(this);
+
+    bindingPrototype.setText(asString(objBinding->qualifiedId));
+    bindingPrototype.setIcon(m_icons->scriptBindingIcon());
+    bindingPrototype.setData(PropertyType, ItemTypeRole);
+    bindingPrototype.setNode(objBinding);
+    bindingPrototype.setSourceLocation(getLocation(objBinding));
+    bindingPrototype.setIdNode(objBinding->qualifiedId);
+
+    enterNode(bindingPrototype);
+
+    QmlOutlineItem objectPrototype(this);
+
+    const QString typeName = asString(objBinding->qualifiedTypeNameId);
+    objectPrototype.setText(typeName);
+    objectPrototype.setAnnotation(getAnnotation(objBinding->initializer));
+    if (!m_typeToIcon.contains(typeName)) {
+        m_typeToIcon.insert(typeName, getIcon(objBinding->qualifiedTypeNameId));
+    }
+    objectPrototype.setIcon(m_typeToIcon.value(typeName));
+    objectPrototype.setData(ElementType, ItemTypeRole);
+    objectPrototype.setIdNode(objBinding->qualifiedTypeNameId);
+    objectPrototype.setNode(objBinding);
+    objectPrototype.setSourceLocation(getLocation(objBinding));
+
+    enterNode(objectPrototype);
+
+    return bindingPrototype.index();
+}
+
+void QmlOutlineModel::leaveObjectBinding()
+{
+    leaveNode();
+    leaveNode();
+}
+
+QModelIndex QmlOutlineModel::enterArrayBinding(AST::UiArrayBinding *arrayBinding)
+{
+    QmlOutlineItem bindingPrototype(this);
+
+    bindingPrototype.setText(asString(arrayBinding->qualifiedId));
+    bindingPrototype.setIcon(m_icons->scriptBindingIcon());
+    bindingPrototype.setData(PropertyType, ItemTypeRole);
+    bindingPrototype.setNode(arrayBinding);
+    bindingPrototype.setSourceLocation(getLocation(arrayBinding));
+    bindingPrototype.setIdNode(arrayBinding->qualifiedId);
+
+    enterNode(bindingPrototype);
+
+    return bindingPrototype.index();
+}
+
+void QmlOutlineModel::leaveArrayBinding()
 {
     leaveNode();
 }
@@ -666,8 +750,8 @@ AST::SourceLocation QmlOutlineModel::getLocation(AST::UiObjectMember *objMember)
     return location;
 }
 
-QIcon QmlOutlineModel::getIcon(AST::UiObjectDefinition *objDef) {
-    const QmlJS::Interpreter::Value *value = m_context->evaluate(objDef->qualifiedTypeNameId);
+QIcon QmlOutlineModel::getIcon(AST::UiQualifiedId *qualifiedId) {
+    const QmlJS::Interpreter::Value *value = m_context->evaluate(qualifiedId);
 
     if (const Interpreter::ObjectValue *objectValue = value->asObjectValue()) {
         do {
@@ -689,8 +773,8 @@ QIcon QmlOutlineModel::getIcon(AST::UiObjectDefinition *objDef) {
     return QIcon();
 }
 
-QString QmlOutlineModel::getAnnotation(AST::UiObjectDefinition *objDef) {
-    const QHash<QString,QString> bindings = getScriptBindings(objDef);
+QString QmlOutlineModel::getAnnotation(AST::UiObjectInitializer *objectInitializer) {
+    const QHash<QString,QString> bindings = getScriptBindings(objectInitializer);
 
     if (bindings.contains("id"))
         return bindings.value("id");
@@ -701,12 +785,13 @@ QString QmlOutlineModel::getAnnotation(AST::UiObjectDefinition *objDef) {
     if (bindings.contains("target"))
         return bindings.value("target");
 
+
     return QString();
 }
 
-QHash<QString,QString> QmlOutlineModel::getScriptBindings(AST::UiObjectDefinition *objDef) {
+QHash<QString,QString> QmlOutlineModel::getScriptBindings(AST::UiObjectInitializer *objectInitializer) {
     QHash <QString,QString> scriptBindings;
-    for (AST::UiObjectMemberList *it = objDef->initializer->members; it; it = it->next) {
+    for (AST::UiObjectMemberList *it = objectInitializer->members; it; it = it->next) {
         if (AST::UiScriptBinding *binding = AST::cast<AST::UiScriptBinding*>(it->member)) {
             const QString bindingName = asString(binding->qualifiedId);
             AST::ExpressionStatement *expr = AST::cast<AST::ExpressionStatement*>(binding->statement);

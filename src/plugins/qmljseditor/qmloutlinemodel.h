@@ -88,6 +88,12 @@ private:
     QModelIndex enterObjectDefinition(QmlJS::AST::UiObjectDefinition *objectDefinition);
     void leaveObjectDefiniton();
 
+    QModelIndex enterObjectBinding(QmlJS::AST::UiObjectBinding *objectBinding);
+    void leaveObjectBinding();
+
+    QModelIndex enterArrayBinding(QmlJS::AST::UiArrayBinding *arrayBinding);
+    void leaveArrayBinding();
+
     QModelIndex enterScriptBinding(QmlJS::AST::UiScriptBinding *scriptBinding);
     void leaveScriptBinding();
 
@@ -107,10 +113,10 @@ private:
 
     static QString asString(QmlJS::AST::UiQualifiedId *id);
     static QmlJS::AST::SourceLocation getLocation(QmlJS::AST::UiObjectMember *objMember);
-    QIcon getIcon(QmlJS::AST::UiObjectDefinition *objDef);
+    QIcon getIcon(QmlJS::AST::UiQualifiedId *objDef);
 
-    static QString getAnnotation(QmlJS::AST::UiObjectDefinition *objDef);
-    static QHash<QString,QString> getScriptBindings(QmlJS::AST::UiObjectDefinition *objDefinition);
+    static QString getAnnotation(QmlJS::AST::UiObjectInitializer *objInitializer);
+    static QHash<QString,QString> getScriptBindings(QmlJS::AST::UiObjectInitializer *objInitializer);
 
 
     SemanticInfo m_semanticInfo;
