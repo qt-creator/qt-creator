@@ -59,6 +59,16 @@ int QmlOutlineItem::type() const
     return UserType;
 }
 
+QString QmlOutlineItem::annotation() const
+{
+    return data(QmlOutlineModel::AnnotationRole).value<QString>();
+}
+
+void QmlOutlineItem::setAnnotation(const QString &id)
+{
+    setData(QVariant::fromValue(id), QmlOutlineModel::AnnotationRole);
+}
+
 QmlJS::AST::SourceLocation QmlOutlineItem::sourceLocation() const
 {
     return data(QmlOutlineModel::SourceLocationRole).value<QmlJS::AST::SourceLocation>();
@@ -362,12 +372,8 @@ QModelIndex QmlOutlineModel::enterObjectDefinition(AST::UiObjectDefinition *objD
     const QString typeName = asString(objDef->qualifiedTypeNameId);
 
     if (typeName.at(0).isUpper()) {
-        const QString id = getId(objDef);
-        if (!id.isEmpty()) {
-            prototype.setText(id);
-        } else {
-            prototype.setText(typeName);
-        }
+        prototype.setText(typeName);
+        prototype.setAnnotation(getId(objDef));
         if (!m_typeToIcon.contains(typeName)) {
             m_typeToIcon.insert(typeName, getIcon(objDef));
         }

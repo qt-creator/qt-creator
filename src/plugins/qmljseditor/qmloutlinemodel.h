@@ -30,8 +30,12 @@ public:
     QVariant data(int role = Qt::UserRole + 1) const;
     int type() const;
 
+    QString annotation() const;
+    void setAnnotation(const QString &id);
+
     QmlJS::AST::SourceLocation sourceLocation() const;
     void setSourceLocation(const QmlJS::AST::SourceLocation &location);
+
 
     QmlJS::AST::Node *node() const;
     void setNode(QmlJS::AST::Node *node);
@@ -58,6 +62,7 @@ public:
     enum CustomRoles {
         SourceLocationRole = Qt::UserRole + 1,
         ItemTypeRole,
+        AnnotationRole
     };
 
     enum ItemTypes {
