@@ -296,7 +296,11 @@ public:
     int peekAtQtContextKeyword() const;
 
     bool switchTemplateArguments(bool templateArguments);
+
     bool blockErrors(bool block);
+    void warning(unsigned index, const char *format, ...);
+    void error(unsigned index, const char *format, ...);
+    void fatal(unsigned index, const char *format, ...);
 
     inline const Token &tok(int i = 1) const
     { return _translationUnit->tokenAt(_tokenIndex + i - 1); }

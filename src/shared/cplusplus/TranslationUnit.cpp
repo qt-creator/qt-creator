@@ -429,7 +429,7 @@ void TranslationUnit::warning(unsigned index, const char *format, ...)
     va_list args, ap;
     va_start(args, format);
     va_copy(ap, args);
-    message(DiagnosticClient::Fatal, index, format, args);
+    message(DiagnosticClient::Warning, index, format, args);
     va_end(ap);
     va_end(args);
 }
