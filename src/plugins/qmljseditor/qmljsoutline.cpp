@@ -1,5 +1,6 @@
 #include "qmljsoutline.h"
 #include "qmloutlinemodel.h"
+#include "qmljsoutlinetreeview.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/ifile.h>
@@ -19,18 +20,6 @@ enum {
 namespace QmlJSEditor {
 namespace Internal {
 
-QmlJSOutlineTreeView::QmlJSOutlineTreeView(QWidget *parent) :
-    Utils::NavigationTreeView(parent)
-{
-    // see also CppOutlineTreeView
-    setFocusPolicy(Qt::NoFocus);
-    setExpandsOnDoubleClick(false);
-
-    setDragEnabled(true);
-    viewport()->setAcceptDrops(true);
-    setDropIndicatorShown(true);
-    setDragDropMode(InternalMove);
-}
 
 QmlJSOutlineFilterModel::QmlJSOutlineFilterModel(QObject *parent) :
     QSortFilterProxyModel(parent)

@@ -3,10 +3,8 @@
 
 #include "qmljseditor.h"
 
-#include <utils/navigationtreeview.h>
 #include <texteditor/ioutlinewidget.h>
 
-#include <QtGui/QTreeView>
 #include <QtGui/QSortFilterProxyModel>
 
 namespace Core {
@@ -20,12 +18,7 @@ class Editor;
 namespace QmlJSEditor {
 namespace Internal {
 
-class QmlJSOutlineTreeView : public Utils::NavigationTreeView
-{
-    Q_OBJECT
-public:
-    QmlJSOutlineTreeView(QWidget *parent = 0);
-};
+class QmlJSOutlineTreeView;
 
 class QmlJSOutlineFilterModel : public QSortFilterProxyModel
 {
