@@ -98,13 +98,16 @@ MaemoSettingsWidget::MaemoSettingsWidget(QWidget *parent)
       m_ui(new Ui_MaemoSettingsWidget),
       m_devConfs(MaemoDeviceConfigurations::instance().devConfigs()),
       m_nameValidator(new NameValidator(m_devConfs)),
-      m_keyDeployer(0)
+      m_keyDeployer(0),
+      m_saveSettingsRequested(false)
 {
     initGui();
 }
 
 MaemoSettingsWidget::~MaemoSettingsWidget()
 {
+    if (m_saveSettingsRequested)
+        MaemoDeviceConfigurations::instance().setDevConfigs(m_devConfs);
 }
 
 QString MaemoSettingsWidget::searchKeywords() const
@@ -225,7 +228,8 @@ void MaemoSettingsWidget::fillInValues()
 
 void MaemoSettingsWidget::saveSettings()
 {
-    MaemoDeviceConfigurations::instance().setDevConfigs(m_devConfs);
+    // We must defer this step because of a stupid bug on MacOS. See QTCREATORBUG-1675.
+    m_saveSettingsRequested = true;
 }
 
 MaemoDeviceConfig &MaemoSettingsWidget::currentConfig()

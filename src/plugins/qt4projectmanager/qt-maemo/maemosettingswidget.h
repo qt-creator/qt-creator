@@ -103,6 +103,7 @@ private:
     MaemoDeviceConfig m_lastConfigSim;
     NameValidator * const m_nameValidator;
     MaemoSshRunner *m_keyDeployer;
+    bool m_saveSettingsRequested;
 };
 
 } // namespace Internal
