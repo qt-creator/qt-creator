@@ -173,11 +173,11 @@ void Manager::gatherDefinitionsMimeTypes(QFutureInterface<Core::MimeType> &futur
         qSort(allMetaData.begin(), allMetaData.end(), PriorityComp());
 
         foreach (const QSharedPointer<HighlightDefinitionMetaData> &metaData, allMetaData) {
-            const QString &id = metaData->id();
-            if (m_idByName.contains(id))
+            if (m_idByName.contains(metaData->name()))
                 // This is a fallback item, do not consider it. One with this name already exists.
                 continue;
 
+            const QString &id = metaData->id();
             m_idByName.insert(metaData->name(), id);
             m_definitionsMetaData.insert(id, metaData);
 
