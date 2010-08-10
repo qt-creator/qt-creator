@@ -126,9 +126,7 @@ void QmlEngine::shutdownInferior()
 void QmlEngine::shutdownEngine()
 {
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
-    //m_objectTreeWidget->saveSettings(m_settings);
-    //m_propertiesWidget->saveSettings(m_settings);
-    //m_settings.saveSettings(Core::ICore::instance()->settings());
+    notifyEngineShutdownOk();
 }
 
 const int serverPort = 3768;
@@ -137,7 +135,6 @@ void QmlEngine::setupEngine()
 {
     notifyEngineSetupOk();
 }
-
 
 void QmlEngine::continueInferior()
 {
@@ -517,6 +514,12 @@ void QmlEngine::messageReceived(const QByteArray &message)
     }
 
 }
+
+void QmlEngine::disconnected()
+{
+    notifyInferiorExited();
+}
+
 
 } // namespace Internal
 } // namespace Debugger

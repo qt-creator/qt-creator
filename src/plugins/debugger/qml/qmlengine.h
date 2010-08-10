@@ -62,7 +62,9 @@ public:
     explicit QmlEngine(const DebuggerStartParameters &startParameters);
     ~QmlEngine();
 
+public slots:
     void messageReceived(const QByteArray &message);
+    void disconnected();
 
 private:
     // DebuggerEngine implementation
