@@ -93,7 +93,7 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
         if (parentState.type == binding_assignment)
             *savedIndentDepth = state(1).savedIndentDepth;
 
-        bool followedByData = (!lastToken && !tokenAt(tokenIndex() + 1).kind == Token::Comment);
+        bool followedByData = (!lastToken && tokenAt(tokenIndex() + 1).kind != Token::Comment);
         if (firstToken || followedByData)
             *savedIndentDepth = tokenPosition;
 
