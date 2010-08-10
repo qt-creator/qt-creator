@@ -983,7 +983,9 @@ void CPPEditor::highlightSymbolUsages(int from, int to)
         return;
 
     QMap<int, QVector<SemanticInfo::Use> > chunks = CheckSymbols::chunks(m_highlighter, from, to);
-    Q_ASSERT(!chunks.isEmpty());
+    if (chunks.isEmpty())
+        return;
+
     QTextBlock b = doc->findBlockByNumber(m_nextHighlightBlockNumber);
 
     QMapIterator<int, QVector<SemanticInfo::Use> > it(chunks);
