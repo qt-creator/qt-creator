@@ -57,7 +57,7 @@ public:
     using QThread::msleep;
 };
 
-class CollectTypes: protected SymbolVisitor
+class CollectSymbols: protected SymbolVisitor
 {
     Document::Ptr _doc;
     Snapshot _snapshot;
@@ -68,7 +68,7 @@ class CollectTypes: protected SymbolVisitor
     bool _mainDocument;
 
 public:
-    CollectTypes(Document::Ptr doc, const Snapshot &snapshot)
+    CollectSymbols(Document::Ptr doc, const Snapshot &snapshot)
         : _doc(doc), _snapshot(snapshot), _mainDocument(false)
     {
         QSet<Namespace *> processed;
@@ -302,7 +302,7 @@ CheckSymbols::Future CheckSymbols::go(Document::Ptr doc, const LookupContext &co
 CheckSymbols::CheckSymbols(Document::Ptr doc, const LookupContext &context)
     : ASTVisitor(doc->translationUnit()), _doc(doc), _context(context)
 {
-    CollectTypes collectTypes(doc, context.snapshot());
+    CollectSymbols collectTypes(doc, context.snapshot());
 
     _fileName = doc->fileName();
     _potentialTypes = collectTypes.types();
