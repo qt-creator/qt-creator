@@ -134,6 +134,8 @@ void MaemoDebugSupport::handleAdapterSetupRequested()
         SLOT(handleSshError(QString)));
     connect(m_runner, SIGNAL(readyForExecution()), this,
         SLOT(startExecution()));
+    connect(m_runner, SIGNAL(reportProgress(QString)), this,
+        SLOT(handleProgressReport(QString)));
     m_runner->start();
 }
 
@@ -256,9 +258,14 @@ void MaemoDebugSupport::handleRemoteErrorOutput(const QByteArray &output)
     m_runControl->showMessage(QString::fromUtf8(output), AppOutput);
 }
 
+void MaemoDebugSupport::handleProgressReport(const QString &progressOutput)
+{
+    m_runControl->showMessage(progressOutput, AppStuff);
+}
+
 void MaemoDebugSupport::stopSsh()
 {
-    disconnect(m_runner, 0, this, 0);
+    //disconnect(m_runner, 0, this, 0);
     if (m_uploader) {
         disconnect(m_uploader.data(), 0, this, 0);
         m_uploader->closeChannel();

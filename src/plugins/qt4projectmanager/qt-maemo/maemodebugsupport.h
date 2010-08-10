@@ -84,6 +84,7 @@ private slots:
     void handleDebuggingFinished();
     void handleRemoteOutput(const QByteArray &output);
     void handleRemoteErrorOutput(const QByteArray &output);
+    void handleProgressReport(const QString &progressOutput);
 
 private:
     void stopSsh();

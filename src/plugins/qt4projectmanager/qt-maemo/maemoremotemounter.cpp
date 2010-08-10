@@ -129,6 +129,7 @@ void MaemoRemoteMounter::handleUnmountProcessFinished(int exitStatus)
     m_mountSpecs.clear();
 
     if (errorMsg.isEmpty()) {
+        emit reportProgress(tr("Finished unmounting."));
         emit unmounted();
     } else {
         if (!m_umountStderr.isEmpty()) {
