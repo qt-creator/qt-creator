@@ -373,7 +373,7 @@ QModelIndex QmlOutlineModel::enterObjectDefinition(AST::UiObjectDefinition *objD
 
     if (typeName.at(0).isUpper()) {
         prototype.setText(typeName);
-        prototype.setAnnotation(getId(objDef));
+        prototype.setAnnotation(getAnnotation(objDef));
         if (!m_typeToIcon.contains(typeName)) {
             m_typeToIcon.insert(typeName, getIcon(objDef));
         }
@@ -689,23 +689,44 @@ QIcon QmlOutlineModel::getIcon(AST::UiObjectDefinition *objDef) {
     return QIcon();
 }
 
-QString QmlOutlineModel::getId(AST::UiObjectDefinition *objDef) {
-    QString id;
+QString QmlOutlineModel::getAnnotation(AST::UiObjectDefinition *objDef) {
+    const QHash<QString,QString> bindings = getScriptBindings(objDef);
+
+    if (bindings.contains("id"))
+        return bindings.value("id");
+
+    if (bindings.contains("name"))
+        return bindings.value("name");
+
+    if (bindings.contains("target"))
+        return bindings.value("target");
+
+    return QString();
+}
+
+QHash<QString,QString> QmlOutlineModel::getScriptBindings(AST::UiObjectDefinition *objDef) {
+    QHash <QString,QString> scriptBindings;
     for (AST::UiObjectMemberList *it = objDef->initializer->members; it; it = it->next) {
         if (AST::UiScriptBinding *binding = AST::cast<AST::UiScriptBinding*>(it->member)) {
-            if (binding->qualifiedId->name->asString() == "id") {
-                AST::ExpressionStatement *expr = AST::cast<AST::ExpressionStatement*>(binding->statement);
-                if (!expr)
-                    continue;
-                AST::IdentifierExpression *idExpr = AST::cast<AST::IdentifierExpression*>(expr->expression);
-                if (!idExpr)
-                    continue;
-                id = idExpr->name->asString();
-                break;
+            const QString bindingName = asString(binding->qualifiedId);
+            AST::ExpressionStatement *expr = AST::cast<AST::ExpressionStatement*>(binding->statement);
+            if (!expr)
+                continue;
+
+            AST::StringLiteral *stringLiteral = AST::cast<AST::StringLiteral*>(expr->expression);
+            if (stringLiteral)  {
+                scriptBindings.insert(bindingName, stringLiteral->value->asString());
+                continue;
+            }
+
+            AST::IdentifierExpression *idExpr = AST::cast<AST::IdentifierExpression*>(expr->expression);
+            if (idExpr) {
+                scriptBindings.insert(bindingName, idExpr->name->asString());
+                continue;
             }
         }
     }
-    return id;
+    return scriptBindings;
 }
 
 } // namespace Internal

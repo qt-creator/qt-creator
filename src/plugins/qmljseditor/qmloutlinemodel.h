@@ -108,7 +108,9 @@ private:
     static QString asString(QmlJS::AST::UiQualifiedId *id);
     static QmlJS::AST::SourceLocation getLocation(QmlJS::AST::UiObjectMember *objMember);
     QIcon getIcon(QmlJS::AST::UiObjectDefinition *objDef);
-    static QString getId(QmlJS::AST::UiObjectDefinition *objDef);
+
+    static QString getAnnotation(QmlJS::AST::UiObjectDefinition *objDef);
+    static QHash<QString,QString> getScriptBindings(QmlJS::AST::UiObjectDefinition *objDefinition);
 
 
     SemanticInfo m_semanticInfo;
