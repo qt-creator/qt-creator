@@ -677,8 +677,11 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
     //if (msg.size() && msg.at(0).isUpper() && msg.at(1).isUpper())
     //    qDebug() << qPrintable(msg) << "IN STATE" << state();
     plugin()->showMessage(msg, channel, timeout);
-    QTC_ASSERT(d->m_runControl, return);
-    d->m_runControl->showMessage(msg, channel);
+    if (d->m_runControl) {
+        d->m_runControl->showMessage(msg, channel);
+    } else {
+        qWarning("Warning: %s (no active run control)", qPrintable(msg));
+    }
 }
 
 void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)

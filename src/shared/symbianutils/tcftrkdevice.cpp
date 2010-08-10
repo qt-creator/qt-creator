@@ -59,9 +59,12 @@ void TcfTrkCommandError::clear()
 
 void TcfTrkCommandError::write(QTextStream &str) const
 {
-    if (timeMS) {
-        const QDateTime time(QDate(1970, 1, 1));
-        str << time.addMSecs(timeMS).toString(Qt::ISODate) << ": Error code: " << code
+    if (isError()) {
+        if (timeMS) {
+            const QDateTime time(QDate(1970, 1, 1));
+            str << time.addMSecs(timeMS).toString(Qt::ISODate) << ": ";
+        }
+        str << "Error code: " << code
                 << " '" << format << '\'';
         if (!alternativeOrganization.isEmpty())
             str << " ('" << alternativeOrganization << "', code: " << alternativeCode << ')';
@@ -76,6 +79,11 @@ QString TcfTrkCommandError::toString() const
     QTextStream str(&rc);
     write(str);
     return rc;
+}
+
+bool TcfTrkCommandError::isError() const
+{
+    return timeMS != 0 || code != 0 || !format.isEmpty() || alternativeCode != 0;
 }
 
 /* {"Time":1277459762255,"Code":1,"AltCode":-6,"AltOrg":"POSIX","Format":"Unknown error: -6"} */
@@ -111,7 +119,7 @@ bool TcfTrkCommandError::parse(const QVector<JsonValue> &values)
     if (!errorFound)
         clear();
     if (debug) {
-        qDebug() << "TcfTrkCommandError::parse: Found error: " << errorFound;
+        qDebug("TcfTrkCommandError::parse: Found error %d (%u): ", errorFound, errorKeyCount);
         if (!values.isEmpty())
             qDebug() << values.front().toString();
     }
@@ -357,14 +365,23 @@ void TcfTrkDevice::slotDeviceReadyRead()
     d->m_readBuffer += d->m_device->readAll();
     // Take complete message off front of readbuffer.
     do {
-        const int messageEndPos = d->m_readBuffer.indexOf(d->m_messageTerminator);
+        const int messageEndPos = d->m_readBuffer.indexOf(d->m_messageTerminator);        
         if (messageEndPos == -1)
             break;
-        const QByteArray message = d->m_readBuffer.left(messageEndPos);
-        if (debug)
-            qDebug("Read:\n%s", qPrintable(formatData(message)));
-        if (const int errorCode = parseMessage(message)) {
-            emitLogMessage(QString::fromLatin1("Parse error %1 for: %2").arg(errorCode).arg(debugMessage(message)));
+        if (messageEndPos == 0) {
+            // TCF TRK 4.0.5 emits empty messages on errors.
+            emitLogMessage(QString::fromLatin1("An empty TCF TRK message has been received."));
+        } else {
+            const QByteArray message = d->m_readBuffer.left(messageEndPos);
+            if (debug)
+                qDebug("Read %d bytes:\n%s", message.size(), qPrintable(formatData(message)));
+            if (const int errorCode = parseMessage(message)) {
+                emitLogMessage(QString::fromLatin1("Parse error %1 : %2").
+                               arg(errorCode).arg(debugMessage(message)));
+                if (debug)
+                    qDebug("Parse error %d for %d bytes:\n%s", errorCode,
+                           message.size(), qPrintable(formatData(message)));
+            }
         }
         d->m_readBuffer.remove(0, messageEndPos + d->m_messageTerminator.size());
     } while (!d->m_readBuffer.isEmpty());
@@ -668,7 +685,13 @@ void TcfTrkDevice::sendProcessStartCommand(const TcfTrkCallback &callBack,
                 << '{' << binaryFileName << ':' << QString::number(uid, 16) << '}' << ','
                 << additionalLibraries
             << ']';
-    sendTcfTrkMessage(MessageWithoutReply, SettingsService, "set", setData);
+    sendTcfTrkMessage(
+#if 1
+                MessageWithReply,    // TCF TRK 4.0.5 onwards
+#else
+                MessageWithoutReply, // TCF TRK 4.0.2
+#endif
+                SettingsService, "set", setData);
 
     QByteArray startData;
     JsonInputStream startStr(startData);

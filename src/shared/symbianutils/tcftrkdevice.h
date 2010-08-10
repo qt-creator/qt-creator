@@ -63,7 +63,8 @@ struct Breakpoint;
 struct SYMBIANUTILS_EXPORT TcfTrkCommandError {
     TcfTrkCommandError();
     void clear();
-    operator bool() const { return timeMS != 0; }
+    bool isError() const;
+    operator bool() const { return isError(); }
     QString toString() const;
     void write(QTextStream &str) const;
     bool parse(const QVector<JsonValue> &values);
