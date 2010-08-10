@@ -26,7 +26,6 @@ SOURCES += texteditorplugin.cpp \
     displaysettings.cpp \
     displaysettingspage.cpp \
     fontsettings.cpp \
-    textblockiterator.cpp \
     linenumberfilter.cpp \
     basetextmark.cpp \
     findinfiles.cpp \
@@ -90,7 +89,6 @@ HEADERS += texteditorplugin.h \
     displaysettings.h \
     displaysettingspage.h \
     fontsettings.h \
-    textblockiterator.h \
     itexteditable.h \
     itexteditor.h \
     linenumberfilter.h \

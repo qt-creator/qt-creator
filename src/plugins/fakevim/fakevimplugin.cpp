@@ -57,7 +57,6 @@
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorsettings.h>
-#include <texteditor/textblockiterator.h>
 
 #include <find/findplugin.h>
 #include <find/textfindconstants.h>

@@ -73,8 +73,6 @@
 #include <texteditor/basetextdocument.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/textblockiterator.h>
-#include <indenter.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QTime>
