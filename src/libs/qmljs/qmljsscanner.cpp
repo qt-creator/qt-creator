@@ -266,6 +266,16 @@ QList<Token> Scanner::operator()(const QString &text, int startState)
             tokens.append(Token(index++, 1, Token::Comma));
             break;
 
+        case '+':
+        case '-':
+            if (la == ch) {
+                tokens.append(Token(index, 2, Token::Delimiter));
+                index += 2;
+            } else {
+                tokens.append(Token(index++, 1, Token::Delimiter));
+            }
+            break;
+
         default:
             if (ch.isSpace()) {
                 do {
