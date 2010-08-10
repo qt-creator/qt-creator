@@ -35,26 +35,20 @@
 #ifndef MAEMOSSHRUNNER_H
 #define MAEMOSSHRUNNER_H
 
+#include "maemodeviceconfigurations.h"
+
 #include <QtCore/QObject>
 #include <QtCore/QSharedPointer>
-
-#include "maemodeviceconfigurations.h"
-#include "maemoremotemountsmodel.h"
-
-#include <coreplugin/ssh/sftpdefs.h>
-
 #include <QtCore/QStringList>
 
-QT_FORWARD_DECLARE_CLASS(QProcess)
-
 namespace Core {
-    class SftpChannel;
     class SshConnection;
     class SshRemoteProcess;
 }
 
 namespace Qt4ProjectManager {
 namespace Internal {
+class MaemoRemoteMounter;
 class MaemoRunConfiguration;
 
 class MaemoSshRunner : public QObject
@@ -85,37 +79,27 @@ signals:
 private slots:
     void handleConnected();
     void handleConnectionFailure();
-    void handleInitialCleanupFinished(int exitStatus);
+    void handleCleanupFinished(int exitStatus);
     void handleRemoteProcessFinished(int exitStatus);
-    void handleUploaderInitialized();
-    void handleUploaderInitializationFailed(const QString &reason);
-    void handleUploadFinished(Core::SftpJobId jobId, const QString &error);
-    void handleUtfsClientsStarted();
-    void handleUtfsClientsFinished(int exitStatus);
-    void handleUtfsServerErrorOutput();
+    void handleMounted();
+    void handleUnmounted();
+    void handleMounterError(const QString &errorMsg);
 
 private:
     void cleanup(bool initialCleanup);
-    void deployUtfsClient();
-    void startUtfsClients();
-    void startUtfsServers();
-    QString utfsClientOnDevice() const;
-    QString utfsServer() const;
 
     MaemoRunConfiguration * const m_runConfig; // TODO this pointer can be invalid
+    MaemoRemoteMounter * const m_mounter;
     const MaemoDeviceConfig m_devConfig;
 
     QSharedPointer<Core::SshConnection> m_connection;
     QSharedPointer<Core::SshRemoteProcess> m_runner;
-    QSharedPointer<Core::SshRemoteProcess> m_initialCleaner;
-    QSharedPointer<Core::SshRemoteProcess> m_mountProcess;
-    QSharedPointer<Core::SftpChannel> m_utfsClientUploader;
+    QSharedPointer<Core::SshRemoteProcess> m_cleaner;
     QStringList m_procsToKill;
-    QList<QProcess *> m_utfsServers;
-    QList<MaemoMountSpecification> m_mountSpecs;
 
-    Core::SftpJobId m_uploadJobId;
     bool m_stop;
+    int m_exitStatus;
+    bool m_shuttingDown;
     const bool m_debugging;
 };
 

@@ -36,15 +36,14 @@
 
 #include "maemodeviceconfigurations.h"
 #include "maemoglobal.h"
+#include "maemoremotemounter.h"
+#include "maemoremotemountsmodel.h"
 #include "maemorunconfiguration.h"
-#include "maemotoolchain.h"
 
-#include <coreplugin/ssh/sftpchannel.h>
 #include <coreplugin/ssh/sshconnection.h>
 #include <coreplugin/ssh/sshremoteprocess.h>
 
 #include <QtCore/QFileInfo>
-#include <QtCore/QProcess>
 
 using namespace Core;
 
@@ -54,8 +53,8 @@ namespace Internal {
 MaemoSshRunner::MaemoSshRunner(QObject *parent,
     MaemoRunConfiguration *runConfig, bool debugging)
     : QObject(parent), m_runConfig(runConfig),
-      m_devConfig(runConfig->deviceConfig()),
-      m_uploadJobId(SftpInvalidJob),
+      m_mounter(new MaemoRemoteMounter(this, runConfig->toolchain())),
+      m_devConfig(runConfig->deviceConfig()), m_shuttingDown(false),
       m_debugging(debugging)
 {
     m_procsToKill
@@ -63,6 +62,12 @@ MaemoSshRunner::MaemoSshRunner(QObject *parent,
         << QLatin1String("utfs-client");
     if (debugging)
         m_procsToKill << QLatin1String("gdbserver");
+    connect(m_mounter, SIGNAL(mounted()), this, SLOT(handleMounted()));
+    connect(m_mounter, SIGNAL(unmounted()), this, SLOT(handleUnmounted()));
+    connect(m_mounter, SIGNAL(error(QString)), this,
+        SLOT(handleMounterError(QString)));
+    connect(m_mounter, SIGNAL(remoteErrorOutput(QByteArray)), this,
+        SIGNAL(remoteErrorOutput(QByteArray)));
 }
 
 MaemoSshRunner::~MaemoSshRunner() {}
@@ -74,23 +79,14 @@ void MaemoSshRunner::setConnection(const QSharedPointer<Core::SshConnection> &co
 
 void MaemoSshRunner::start()
 {
-    m_mountSpecs.clear();
-    const MaemoRemoteMountsModel * const remoteMounts
-        = m_runConfig->remoteMounts();
-    for (int i = 0; i < remoteMounts->mountSpecificationCount(); ++i) {
-        const MaemoMountSpecification &mountSpec
-            = remoteMounts->mountSpecificationAt(i);
-        if (mountSpec.isValid())
-            m_mountSpecs << mountSpec;
-    }
-    if (m_debugging && m_runConfig->useRemoteGdb()) {
-        m_mountSpecs << MaemoMountSpecification(
-            m_runConfig->localDirToMountForRemoteGdb(),
-            MaemoGlobal::remoteProjectSourcesMountPoint(),
-            m_devConfig.debuggingPort);
+    // Should not happen.
+    if (m_shuttingDown) {
+        emit error(tr("Can't restart yet, haven't shut down properly."));
+        return;
     }
 
     m_stop = false;
+    m_exitStatus = -1;
     if (m_connection)
         disconnect(m_connection.data(), 0, this, 0);
     const bool reUse = m_connection
@@ -110,25 +106,15 @@ void MaemoSshRunner::start()
 
 void MaemoSshRunner::stop()
 {
+    if (m_shuttingDown)
+        return;
+
     m_stop = true;
     disconnect(m_connection.data(), 0, this, 0);
-    if (m_initialCleaner)
-        disconnect(m_initialCleaner.data(), 0, this, 0);
-    if (m_utfsClientUploader) {
-        disconnect(m_utfsClientUploader.data(), 0, this, 0);
-        m_utfsClientUploader->closeChannel();
-    }
-    if (m_mountProcess) {
-        disconnect(m_mountProcess.data(), 0, this, 0);
-        m_mountProcess->closeChannel();
-    }
-    if (m_debugging || m_runner) {
-        if (m_runner) {
-            disconnect(m_runner.data(), 0, this, 0);
-            m_runner->closeChannel();
-        }
-        cleanup(false);
-    }
+    m_mounter->stop();
+    if (m_cleaner)
+        disconnect(m_cleaner.data(), 0, this, 0);
+    cleanup(false);
 }
 
 void MaemoSshRunner::handleConnected()
@@ -147,6 +133,7 @@ void MaemoSshRunner::handleConnectionFailure()
 
 void MaemoSshRunner::cleanup(bool initialCleanup)
 {
+    m_shuttingDown = !initialCleanup;
     QString niceKill;
     QString brutalKill;
     foreach (const QString &proc, m_procsToKill) {
@@ -154,192 +141,80 @@ void MaemoSshRunner::cleanup(bool initialCleanup)
         brutalKill += QString::fromLocal8Bit("pkill -x -9 %1;").arg(proc);
     }
     QString remoteCall = niceKill + QLatin1String("sleep 1; ") + brutalKill;
-
-    for (int i = 0; i < m_mountSpecs.count(); ++i) {
-        remoteCall += QString::fromLocal8Bit("%1 umount %2;")
-            .arg(MaemoGlobal::remoteSudo(), m_mountSpecs.at(i).remoteMountPoint);
-    }
     remoteCall.remove(remoteCall.count() - 1, 1); // Get rid of trailing semicolon.
 
-    SshRemoteProcess::Ptr proc
-        = m_connection->createRemoteProcess(remoteCall.toUtf8());
-    if (initialCleanup) {
-        m_initialCleaner = proc;
-        connect(m_initialCleaner.data(), SIGNAL(closed(int)), this,
-            SLOT(handleInitialCleanupFinished(int)));
-    }
-    proc->start();
+    m_cleaner = m_connection->createRemoteProcess(remoteCall.toUtf8());
+    connect(m_cleaner.data(), SIGNAL(closed(int)), this,
+        SLOT(handleCleanupFinished(int)));
+    m_cleaner->start();
 }
 
-void MaemoSshRunner::handleInitialCleanupFinished(int exitStatus)
+void MaemoSshRunner::handleCleanupFinished(int exitStatus)
 {
     Q_ASSERT(exitStatus == SshRemoteProcess::FailedToStart
         || exitStatus == SshRemoteProcess::KilledBySignal
         || exitStatus == SshRemoteProcess::ExitedNormally);
 
+    if (m_shuttingDown) {
+        m_mounter->unmount();
+        return;
+    }
+
     if (m_stop)
         return;
 
-    foreach (QProcess *utfsServer, m_utfsServers) {
-        utfsServer->terminate();
-        utfsServer->waitForFinished(1000);
-        utfsServer->kill();
-    }
-    qDeleteAll(m_utfsServers);
     if (exitStatus != SshRemoteProcess::ExitedNormally) {
         emit error(tr("Initial cleanup failed: %1")
-            .arg(m_initialCleaner->errorString()));
-    } else if (!m_mountSpecs.isEmpty()) {
-        deployUtfsClient();
+            .arg(m_cleaner->errorString()));
     } else {
-        emit readyForExecution();
+        m_mounter->setConnection(m_connection);
+        m_mounter->unmount();
     }
 }
 
-void MaemoSshRunner::deployUtfsClient()
+void MaemoSshRunner::handleUnmounted()
 {
-    m_utfsClientUploader = m_connection->createSftpChannel();
-    connect(m_utfsClientUploader.data(), SIGNAL(initialized()), this,
-        SLOT(handleUploaderInitialized()));
-    connect(m_utfsClientUploader.data(), SIGNAL(initializationFailed(QString)),
-        this, SLOT(handleUploaderInitializationFailed(QString)));
-    m_utfsClientUploader->initialize();
-}
-
-void MaemoSshRunner::handleUploaderInitializationFailed(const QString &reason)
-{
-    if (m_stop)
-        return;
-
-    emit error(tr("Failed to establish SFTP connection: %1").arg(reason));
-}
-
-void MaemoSshRunner::handleUploaderInitialized()
-{
-    if (m_stop)
-        return;
-
-    connect(m_utfsClientUploader.data(),
-        SIGNAL(finished(Core::SftpJobId, QString)), this,
-        SLOT(handleUploadFinished(Core::SftpJobId,QString)));
-    const MaemoToolChain * const toolChain
-        = dynamic_cast<const MaemoToolChain *>(m_runConfig->toolchain());
-    Q_ASSERT_X(toolChain, Q_FUNC_INFO,
-        "Impossible: Maemo run configuration has no Maemo Toolchain.");
-    const QString localFile
-        = toolChain->maddeRoot() + QLatin1String("/madlib/armel/utfs-client");
-    m_uploadJobId
-        = m_utfsClientUploader->uploadFile(localFile, utfsClientOnDevice(),
-              SftpOverwriteExisting);
-    if (m_uploadJobId == SftpInvalidJob)
-        emit error(tr("Could not upload UTFS client (%1).").arg(localFile));
-}
-
-void MaemoSshRunner::handleUploadFinished(Core::SftpJobId jobId,
-    const QString &errorMsg)
-{
-    if (m_stop)
-        return;
-
-    if (jobId != m_uploadJobId) {
-        qWarning("Warning: unknown upload job %d finished.", jobId);
-        return;
-    }
-
-    m_uploadJobId = SftpInvalidJob;
-    if (!errorMsg.isEmpty()) {
-        emit error(tr("Could not upload UTFS client: %1").arg(errorMsg));
-        return;
-    }
-
-    startUtfsClients();
-}
-
-void MaemoSshRunner::startUtfsClients()
-{
-    const QString chmodFuse
-        = MaemoGlobal::remoteSudo() + QLatin1String(" chmod a+r+w /dev/fuse");
-    const QString chmodUtfsClient
-        = QLatin1String("chmod a+x ") + utfsClientOnDevice();
-    const QLatin1String andOp(" && ");
-    QString remoteCall = chmodFuse + andOp + chmodUtfsClient;
-    for (int i = 0; i < m_mountSpecs.count(); ++i) {
-        const MaemoMountSpecification &mountSpec = m_mountSpecs.at(i);
-        const QString port = QString::number(mountSpec.remotePort);
-        const QString mkdir = QString::fromLocal8Bit("%1 mkdir -p %2")
-            .arg(MaemoGlobal::remoteSudo(), mountSpec.remoteMountPoint);
-        const QString chmod = QString::fromLocal8Bit("%1 chmod a+r+w+x %2")
-            .arg(MaemoGlobal::remoteSudo(), mountSpec.remoteMountPoint);
-        const QString utfsClient
-            = QString::fromLocal8Bit("%1 -l %2 -r %2 -b %2 %4")
-                  .arg(utfsClientOnDevice()).arg(port)
-                  .arg(mountSpec.remoteMountPoint);
-        remoteCall += andOp + mkdir + andOp + chmod + andOp + utfsClient;
-    }
-
-    m_mountProcess = m_connection->createRemoteProcess(remoteCall.toUtf8());
-    connect(m_mountProcess.data(), SIGNAL(started()), this,
-        SLOT(handleUtfsClientsStarted()));
-    connect(m_mountProcess.data(), SIGNAL(closed(int)), this,
-        SLOT(handleUtfsClientsFinished(int)));
-    connect(m_mountProcess.data(), SIGNAL(errorOutputAvailable(QByteArray)),
-        this, SIGNAL(remoteErrorOutput(QByteArray)));
-    m_mountProcess->start();
-}
-
-void MaemoSshRunner::handleUtfsClientsStarted()
-{
-    startUtfsServers();
-}
-
-void MaemoSshRunner::handleUtfsClientsFinished(int exitStatus)
-{
-    if (m_stop)
-        return;
-
-    switch (exitStatus) {
-    case SshRemoteProcess::FailedToStart:
-        emit error(tr("Could not execute mount request."));
-        break;
-    case SshRemoteProcess::KilledBySignal:
-        emit error(tr("Failure running UTFS client: %1")
-            .arg(m_mountProcess->errorString()));
-        break;
-    case SshRemoteProcess::ExitedNormally:
-        if (m_mountProcess->exitCode() != 0)
-            emit error(tr("Could not execute mount request."));
-        break;
-    default:
-        Q_ASSERT_X(false, Q_FUNC_INFO,
-            "Impossible SshRemoteProcess exit status.");
-    }
-}
-
-void MaemoSshRunner::startUtfsServers()
-{
-    for (int i = 0; i < m_mountSpecs.count(); ++i) {
-        const MaemoMountSpecification &mountSpec = m_mountSpecs.at(i);
-        QProcess * const utfsServerProc = new QProcess(this);
-        connect(utfsServerProc, SIGNAL(readyReadStandardError()), this,
-            SLOT(handleUtfsServerErrorOutput()));
-        const QString port = QString::number(mountSpec.remotePort);
-        const QString localSecretOpt = QLatin1String("-l");
-        const QString remoteSecretOpt = QLatin1String("-r");
-        const QStringList utfsServerArgs = QStringList() << localSecretOpt
-            << port << remoteSecretOpt << port << QLatin1String("-c")
-            << (m_devConfig.server.host + QLatin1Char(':') + port)
-            << mountSpec.localDir;
-        utfsServerProc->start(utfsServer(), utfsServerArgs);
-        if (!utfsServerProc->waitForStarted()) {
-            delete utfsServerProc;
-            emit error(tr("Could not start UTFS server: %1")
-                .arg(utfsServerProc->errorString()));
-            return;
+    if (m_shuttingDown) {
+        m_shuttingDown = false;
+        if (m_exitStatus == SshRemoteProcess::ExitedNormally) {
+            emit remoteProcessFinished(m_runner->exitCode());
+        } else if (m_exitStatus == -1) {
+            emit remoteProcessFinished(-1);
+        } else {
+            emit error(tr("Error running remote process: %1")
+                .arg(m_runner->errorString()));
         }
-        m_utfsServers << utfsServerProc;
+        m_exitStatus = -1;
+        return;
     }
 
-    emit readyForExecution();
+    if (m_stop)
+        return;
+
+    const MaemoRemoteMountsModel * const remoteMounts
+        = m_runConfig->remoteMounts();
+    for (int i = 0; i < remoteMounts->mountSpecificationCount(); ++i)
+        m_mounter->addMountSpecification(remoteMounts->mountSpecificationAt(i));
+    if (m_debugging && m_runConfig->useRemoteGdb()) {
+        m_mounter->addMountSpecification(MaemoMountSpecification(
+            m_runConfig->localDirToMountForRemoteGdb(),
+            MaemoGlobal::remoteProjectSourcesMountPoint(),
+            m_devConfig.debuggingPort));
+    }
+    m_mounter->mount(m_devConfig);
+}
+
+void MaemoSshRunner::handleMounted()
+{
+    if (!m_stop)
+        emit readyForExecution();
+}
+
+void MaemoSshRunner::handleMounterError(const QString &errorMsg)
+{
+    if (m_shuttingDown)
+        m_shuttingDown = false;
+    emit error(errorMsg);
 }
 
 void MaemoSshRunner::startExecution(const QByteArray &remoteCall)
@@ -367,36 +242,8 @@ void MaemoSshRunner::handleRemoteProcessFinished(int exitStatus)
         || exitStatus == SshRemoteProcess::KilledBySignal
         || exitStatus == SshRemoteProcess::ExitedNormally);
 
-    if (m_stop)
-        return;
-
-    if (exitStatus == SshRemoteProcess::ExitedNormally) {
-        emit remoteProcessFinished(m_runner->exitCode());
-    } else {
-        emit error(tr("Error running remote process: %1")
-            .arg(m_runner->errorString()));
-    }
+    m_exitStatus = exitStatus;
     cleanup(false);
-}
-
-QString MaemoSshRunner::utfsClientOnDevice() const
-{
-    return MaemoGlobal::homeDirOnDevice(QLatin1String("developer"))
-        + QLatin1String("/utfs-client");
-}
-
-QString MaemoSshRunner::utfsServer() const
-{
-    const MaemoToolChain * const toolChain
-        = dynamic_cast<const MaemoToolChain *>(m_runConfig->toolchain());
-    Q_ASSERT_X(toolChain, Q_FUNC_INFO,
-        "Impossible: Maemo run configuration has no Maemo Toolchain.");
-    return toolChain->maddeRoot() + QLatin1String("/madlib/utfs-server");
-}
-
-void MaemoSshRunner::handleUtfsServerErrorOutput()
-{
-    emit remoteErrorOutput(qobject_cast<QProcess *>(sender())->readAllStandardError());
 }
 
 } // namespace Internal

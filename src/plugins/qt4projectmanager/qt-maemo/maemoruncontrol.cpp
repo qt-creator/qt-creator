@@ -74,7 +74,6 @@ void MaemoRunControl::start()
     } else {
         emit appendMessage(this, tr("Preparing remote side ..."), false);
         m_running = true;
-        m_stopped = false;
         emit started();
         disconnect(m_runner, 0, this, 0);
         connect(m_runner, SIGNAL(error(QString)), this,
@@ -95,12 +94,7 @@ void MaemoRunControl::start()
 
 void MaemoRunControl::stop()
 {
-    m_stopped = true;
-    if (m_runner) {
-        disconnect(m_runner, 0, this, 0);
-        m_runner->stop();
-    }
-    setFinished();
+    m_runner->stop();
 }
 
 void MaemoRunControl::handleSshError(const QString &error)
@@ -122,9 +116,6 @@ void MaemoRunControl::startExecution()
 
 void MaemoRunControl::handleRemoteProcessFinished(int exitCode)
 {
-    if (m_stopped)
-        return;
-
     emit appendMessage(this,
         tr("Finished running remote process. Exit code was %1.").arg(exitCode),
         false);
@@ -155,6 +146,7 @@ void MaemoRunControl::handleError(const QString &errString)
 
 void MaemoRunControl::setFinished()
 {
+    disconnect(m_runner, 0, this, 0);
     m_running = false;
     emit finished();
 }

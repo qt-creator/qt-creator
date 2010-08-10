@@ -72,7 +72,6 @@ private:
     MaemoRunConfiguration *m_runConfig; // TODO this pointer can be invalid
     const MaemoDeviceConfig m_devConfig;
     MaemoSshRunner * const m_runner;
-    bool m_stopped;
     bool m_running;
 };
 

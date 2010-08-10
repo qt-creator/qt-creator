@@ -30,7 +30,8 @@ HEADERS += \
     $$PWD/maemoremotemountsmodel.h \
     $$PWD/maemodeviceenvreader.h \
     $$PWD/maemotemplatesmanager.h \
-    $$PWD/maemomountspecification.h
+    $$PWD/maemomountspecification.h \
+    $$PWD/maemoremotemounter.h
 
 SOURCES += \
     $$PWD/maemoconfigtestdialog.cpp \
@@ -62,7 +63,8 @@ SOURCES += \
     $$PWD/maemoremotemountsmodel.cpp \
     $$PWD/maemodeviceenvreader.cpp \
     $$PWD/maemotemplatesmanager.cpp \
-    $$PWD/maemomountspecification.cpp
+    $$PWD/maemomountspecification.cpp \
+    $$PWD/maemoremotemounter.cpp
 
 FORMS += \
     $$PWD/maemoconfigtestdialog.ui \
