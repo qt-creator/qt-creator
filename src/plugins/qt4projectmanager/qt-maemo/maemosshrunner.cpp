@@ -78,13 +78,13 @@ void MaemoSshRunner::start()
     const MaemoRemoteMountsModel * const remoteMounts
         = m_runConfig->remoteMounts();
     for (int i = 0; i < remoteMounts->mountSpecificationCount(); ++i) {
-        const MaemoRemoteMountsModel::MountSpecification &mountSpec
+        const MaemoMountSpecification &mountSpec
             = remoteMounts->mountSpecificationAt(i);
         if (mountSpec.isValid())
             m_mountSpecs << mountSpec;
     }
     if (m_debugging && m_runConfig->useRemoteGdb()) {
-        m_mountSpecs << MaemoRemoteMountsModel::MountSpecification(
+        m_mountSpecs << MaemoMountSpecification(
             m_runConfig->localDirToMountForRemoteGdb(),
             MaemoGlobal::remoteProjectSourcesMountPoint(),
             m_devConfig.debuggingPort);
@@ -264,8 +264,7 @@ void MaemoSshRunner::startUtfsClients()
     const QLatin1String andOp(" && ");
     QString remoteCall = chmodFuse + andOp + chmodUtfsClient;
     for (int i = 0; i < m_mountSpecs.count(); ++i) {
-        const MaemoRemoteMountsModel::MountSpecification &mountSpec
-            = m_mountSpecs.at(i);
+        const MaemoMountSpecification &mountSpec = m_mountSpecs.at(i);
         const QString port = QString::number(mountSpec.remotePort);
         const QString mkdir = QString::fromLocal8Bit("%1 mkdir -p %2")
             .arg(MaemoGlobal::remoteSudo(), mountSpec.remoteMountPoint);
@@ -319,8 +318,7 @@ void MaemoSshRunner::handleUtfsClientsFinished(int exitStatus)
 void MaemoSshRunner::startUtfsServers()
 {
     for (int i = 0; i < m_mountSpecs.count(); ++i) {
-        const MaemoRemoteMountsModel::MountSpecification &mountSpec
-            = m_mountSpecs.at(i);
+        const MaemoMountSpecification &mountSpec = m_mountSpecs.at(i);
         QProcess * const utfsServerProc = new QProcess(this);
         connect(utfsServerProc, SIGNAL(readyReadStandardError()), this,
             SLOT(handleUtfsServerErrorOutput()));

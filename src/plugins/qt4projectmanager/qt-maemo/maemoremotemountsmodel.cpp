@@ -34,19 +34,6 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-namespace {
-const QLatin1String InvalidMountPoint("/");
-} // anonymous namespace
-
-MaemoRemoteMountsModel::MountSpecification::MountSpecification(const QString &l,
-    const QString &r, int p) : localDir(l), remoteMountPoint(r), remotePort(p) {}
-
-bool MaemoRemoteMountsModel::MountSpecification::isValid() const
-{
-    return remoteMountPoint != InvalidMountPoint;
-}
-
-
 MaemoRemoteMountsModel::MaemoRemoteMountsModel(QObject *parent) :
     QAbstractTableModel(parent)
 {
@@ -66,7 +53,8 @@ void MaemoRemoteMountsModel::addMountSpecification(const QString &localDir)
     }
 
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    m_mountSpecs << MountSpecification(localDir, InvalidMountPoint, port);
+    m_mountSpecs << MaemoMountSpecification(localDir,
+        MaemoMountSpecification::InvalidMountPoint, port);
     endInsertRows();
 }
 
@@ -89,7 +77,7 @@ void MaemoRemoteMountsModel::setLocalDir(int pos, const QString &localDir)
 int MaemoRemoteMountsModel::validMountSpecificationCount() const
 {
     int count = 0;
-    foreach (const MountSpecification &m, m_mountSpecs) {
+    foreach (const MaemoMountSpecification &m, m_mountSpecs) {
         if (m.isValid())
             ++count;
     }
@@ -98,7 +86,7 @@ int MaemoRemoteMountsModel::validMountSpecificationCount() const
 
 bool MaemoRemoteMountsModel::hasValidMountSpecifications() const
 {
-    foreach (const MountSpecification &m, m_mountSpecs) {
+    foreach (const MaemoMountSpecification &m, m_mountSpecs) {
         if (m.isValid())
             return true;
     }
@@ -111,7 +99,7 @@ QVariantMap MaemoRemoteMountsModel::toMap() const
     QVariantList localDirsList;
     QVariantList remoteMountPointsList;
     QVariantList mountPortsList;
-    foreach (const MountSpecification &mountSpec, m_mountSpecs) {
+    foreach (const MaemoMountSpecification &mountSpec, m_mountSpecs) {
         localDirsList << mountSpec.localDir;
         remoteMountPointsList << mountSpec.remoteMountPoint;
         mountPortsList << mountSpec.remotePort;
@@ -136,7 +124,7 @@ void MaemoRemoteMountsModel::fromMap(const QVariantMap &map)
         const QString &remoteMountPoint
             = remoteMountPointsList.at(i).toString();
         const int port = mountPortsList.at(i).toInt();
-        m_mountSpecs << MountSpecification(localDir, remoteMountPoint, port);
+        m_mountSpecs << MaemoMountSpecification(localDir, remoteMountPoint, port);
     }
 }
 
@@ -167,7 +155,7 @@ QVariant MaemoRemoteMountsModel::data(const QModelIndex &index, int role) const
     if (!index.isValid() || index.row() >= rowCount())
         return QVariant();
 
-    const MountSpecification &mountSpec = mountSpecificationAt(index.row());
+    const MaemoMountSpecification &mountSpec = mountSpecificationAt(index.row());
     switch (index.column()) {
     case LocalDirRow:
         if (role == Qt::DisplayRole)
@@ -196,7 +184,7 @@ bool MaemoRemoteMountsModel::setData(const QModelIndex &index,
     case RemoteMountPointRow: {
         const QString &newRemoteMountPoint = value.toString();
         for (int i = 0; i < m_mountSpecs.count(); ++i) {
-            const MountSpecification &mountSpec = m_mountSpecs.at(i);
+            const MaemoMountSpecification &mountSpec = m_mountSpecs.at(i);
             if (i != index.row() && mountSpec.isValid()
                 && mountSpec.remoteMountPoint == newRemoteMountPoint)
                 return false;

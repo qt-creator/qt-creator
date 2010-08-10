@@ -30,6 +30,8 @@
 #ifndef MAEMOREMOTEMOUNTSMODEL_H
 #define MAEMOREMOTEMOUNTSMODEL_H
 
+#include "maemomountspecification.h"
+
 #include <QtCore/QAbstractTableModel>
 #include <QtCore/QList>
 #include <QtCore/QString>
@@ -42,19 +44,10 @@ class MaemoRemoteMountsModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:   
-    struct MountSpecification {
-        MountSpecification(const QString &l, const QString &r, int p);
-        bool isValid() const;
-
-        QString localDir;
-        QString remoteMountPoint;
-        int remotePort;
-    };
-
     explicit MaemoRemoteMountsModel(QObject *parent = 0);
     int mountSpecificationCount() const { return m_mountSpecs.count(); }
     int validMountSpecificationCount() const;
-    MountSpecification mountSpecificationAt(int pos) const { return m_mountSpecs.at(pos); }
+    MaemoMountSpecification mountSpecificationAt(int pos) const { return m_mountSpecs.at(pos); }
     bool hasValidMountSpecifications() const;
 
     void addMountSpecification(const QString &localDir);
@@ -79,7 +72,7 @@ private:
     virtual bool setData(const QModelIndex &index, const QVariant &value,
         int role);
 
-    QList<MountSpecification> m_mountSpecs;
+    QList<MaemoMountSpecification> m_mountSpecs;
 };
 
 inline int MaemoRemoteMountsModel::columnCount(const QModelIndex &) const

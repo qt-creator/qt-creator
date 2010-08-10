@@ -112,7 +112,7 @@ private:
     QSharedPointer<Core::SftpChannel> m_utfsClientUploader;
     QStringList m_procsToKill;
     QList<QProcess *> m_utfsServers;
-    QList<MaemoRemoteMountsModel::MountSpecification> m_mountSpecs;
+    QList<MaemoMountSpecification> m_mountSpecs;
 
     Core::SftpJobId m_uploadJobId;
     bool m_stop;
