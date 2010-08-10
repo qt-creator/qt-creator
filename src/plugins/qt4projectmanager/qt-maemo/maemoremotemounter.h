@@ -70,7 +70,6 @@ signals:
     void mounted();
     void unmounted();
     void error(const QString &reason);
-    void remoteErrorOutput(const QByteArray &output);
 
 private slots:
     void handleUploaderInitialized();
@@ -78,8 +77,9 @@ private slots:
     void handleUploadFinished(Core::SftpJobId jobId, const QString &error);
     void handleUtfsClientsStarted();
     void handleUtfsClientsFinished(int exitStatus);
-    void handleUtfsServerErrorOutput();
     void handleUnmountProcessFinished(int exitStatus);
+    void handleUtfsClientStderr(const QByteArray &output);
+    void handleUmountStderr(const QByteArray &output);
 
 private:
     void deployUtfsClient();
@@ -101,6 +101,8 @@ private:
     typedef QSharedPointer<QProcess> ProcPtr;
     QList<ProcPtr> m_utfsServers;
     bool m_stop;
+    QByteArray m_utfsClientStderr;
+    QByteArray m_umountStderr;
 };
 
 } // namespace Internal

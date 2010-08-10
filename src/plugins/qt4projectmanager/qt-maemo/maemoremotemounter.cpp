@@ -27,8 +27,9 @@
 **
 **************************************************************************/
 
-#include "maemoglobal.h"
 #include "maemoremotemounter.h"
+
+#include "maemoglobal.h"
 #include "maemotoolchain.h"
 
 #include <coreplugin/ssh/sftpchannel.h>
@@ -89,11 +90,12 @@ void MaemoRemoteMounter::unmount()
                 m_mountSpecs.at(i).remoteMountPoint);
     }
 
+    m_umountStderr.clear();
     m_unmountProcess = m_connection->createRemoteProcess(remoteCall.toUtf8());
     connect(m_unmountProcess.data(), SIGNAL(closed(int)), this,
         SLOT(handleUnmountProcessFinished(int)));
     connect(m_unmountProcess.data(), SIGNAL(errorOutputAvailable(QByteArray)),
-        this, SIGNAL(remoteErrorOutput(QByteArray)));
+        this, SLOT(handleUmountStderr(QByteArray)));
     m_unmountProcess->start();
 }
 
@@ -125,10 +127,15 @@ void MaemoRemoteMounter::handleUnmountProcessFinished(int exitStatus)
     }
     m_mountSpecs.clear();
 
-    if (errorMsg.isEmpty())
+    if (errorMsg.isEmpty()) {
         emit unmounted();
-    else
+    } else {
+        if (!m_umountStderr.isEmpty()) {
+            errorMsg += tr("\nstderr was: '%1'")
+                .arg(QString::fromUtf8(m_umountStderr));
+        }
         emit error(errorMsg);
+    }
 }
 
 void MaemoRemoteMounter::stop()
@@ -224,13 +231,14 @@ void MaemoRemoteMounter::startUtfsClients()
         remoteCall += andOp + mkdir + andOp + chmod + andOp + utfsClient;
     }
 
+    m_utfsClientStderr.clear();
     m_mountProcess = m_connection->createRemoteProcess(remoteCall.toUtf8());
     connect(m_mountProcess.data(), SIGNAL(started()), this,
         SLOT(handleUtfsClientsStarted()));
     connect(m_mountProcess.data(), SIGNAL(closed(int)), this,
         SLOT(handleUtfsClientsFinished(int)));
     connect(m_mountProcess.data(), SIGNAL(errorOutputAvailable(QByteArray)),
-        this, SIGNAL(remoteErrorOutput(QByteArray)));
+        this, SLOT(handleUtfsClientStderr(QByteArray)));
     m_mountProcess->start();
 }
 
@@ -245,21 +253,29 @@ void MaemoRemoteMounter::handleUtfsClientsFinished(int exitStatus)
     if (m_stop)
         return;
 
+    QString errMsg;
     switch (exitStatus) {
     case SshRemoteProcess::FailedToStart:
-        emit error(tr("Could not execute mount request."));
+        errMsg = tr("Could not execute mount request.");
         break;
     case SshRemoteProcess::KilledBySignal:
-        emit error(tr("Failure running UTFS client: %1")
-            .arg(m_mountProcess->errorString()));
+        errMsg = tr("Failure running UTFS client: %1")
+            .arg(m_mountProcess->errorString());
         break;
     case SshRemoteProcess::ExitedNormally:
         if (m_mountProcess->exitCode() != 0)
-            emit error(tr("Could not execute mount request."));
+            errMsg = tr("Could not execute mount request.");
         break;
     default:
         Q_ASSERT_X(false, Q_FUNC_INFO,
             "Impossible SshRemoteProcess exit status.");
+    }
+
+    if (!errMsg.isEmpty()) {
+        if (!m_utfsClientStderr.isEmpty())
+            errMsg += tr("\nstderr was: '%1'")
+               .arg(QString::fromUtf8(m_utfsClientStderr));
+        emit error(errMsg);
     }
 }
 
@@ -268,8 +284,6 @@ void MaemoRemoteMounter::startUtfsServers()
     for (int i = 0; i < m_mountSpecs.count(); ++i) {
         const MaemoMountSpecification &mountSpec = m_mountSpecs.at(i);
         const ProcPtr utfsServerProc(new QProcess);
-        connect(utfsServerProc.data(), SIGNAL(readyReadStandardError()), this,
-            SLOT(handleUtfsServerErrorOutput()));
         const QString port = QString::number(mountSpec.remotePort);
         const QString localSecretOpt = QLatin1String("-l");
         const QString remoteSecretOpt = QLatin1String("-r");
@@ -279,8 +293,15 @@ void MaemoRemoteMounter::startUtfsServers()
             << mountSpec.localDir;
         utfsServerProc->start(utfsServer(), utfsServerArgs);
         if (!utfsServerProc->waitForStarted()) {
-            emit error(tr("Could not start UTFS server: %1")
-                .arg(utfsServerProc->errorString()));
+            const QByteArray &errorOutput
+                = utfsServerProc->readAllStandardError();
+            QString errorMsg = tr("Could not start UTFS server: %1")
+                .arg(utfsServerProc->errorString());
+            if (!errorOutput.isEmpty()) {
+                errorMsg += tr("\nstderr output was: '%1'")
+                    .arg(QString::fromLocal8Bit(errorOutput));
+            }
+            emit error(errorMsg);
             return;
         }
         m_utfsServers << utfsServerProc;
@@ -289,9 +310,14 @@ void MaemoRemoteMounter::startUtfsServers()
     emit mounted();
 }
 
-void MaemoRemoteMounter::handleUtfsServerErrorOutput()
+void MaemoRemoteMounter::handleUtfsClientStderr(const QByteArray &output)
 {
-    emit remoteErrorOutput(qobject_cast<QProcess *>(sender())->readAllStandardError());
+    m_utfsClientStderr += output;
+}
+
+void MaemoRemoteMounter::handleUmountStderr(const QByteArray &output)
+{
+    m_umountStderr += output;
 }
 
 QString MaemoRemoteMounter::utfsClientOnDevice() const

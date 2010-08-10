@@ -66,8 +66,6 @@ MaemoSshRunner::MaemoSshRunner(QObject *parent,
     connect(m_mounter, SIGNAL(unmounted()), this, SLOT(handleUnmounted()));
     connect(m_mounter, SIGNAL(error(QString)), this,
         SLOT(handleMounterError(QString)));
-    connect(m_mounter, SIGNAL(remoteErrorOutput(QByteArray)), this,
-        SIGNAL(remoteErrorOutput(QByteArray)));
 }
 
 MaemoSshRunner::~MaemoSshRunner() {}
