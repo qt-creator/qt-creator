@@ -126,7 +126,7 @@ private slots:
     void toolChanged(int);
     void print();
     void setPreviewMenuEnabled(bool e);
-
+    void switchSourceForm();
     void updateShortcut(QObject *command);
     void closeFormEditorsForXmlEditors(QList<Core::IEditor*> editors);
 
@@ -186,6 +186,7 @@ private:
     QMenu *m_previewInStyleMenu;
     QAction *m_actionAboutPlugins;
     QAction *m_modeActionSeparator;
+    QAction *m_actionSwitchSource;
     QSignalMapper *m_shortcutMapper;
 
     DesignerContext *m_context;

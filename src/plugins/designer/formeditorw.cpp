@@ -51,9 +51,11 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/minisplitter.h>
+#include <coreplugin/mimedatabase.h>
 #include <coreplugin/outputpane.h>
 #include <texteditor/texteditorsettings.h>
 #include <extensionsystem/pluginmanager.h>
+#include <cpptools/cpptoolsconstants.h>
 #include <utils/qtcassert.h>
 
 #include <QtDesigner/QDesignerFormEditorPluginInterface>
@@ -153,6 +155,7 @@ FormEditorW::FormEditorW() :
     m_actionGroupPreviewInStyle(0),
     m_previewInStyleMenu(0),
     m_actionAboutPlugins(0),
+    m_actionSwitchSource(0),
     m_shortcutMapper(new QSignalMapper(this)),
     m_context(0),
     m_modeWidget(0),
@@ -540,10 +543,21 @@ void FormEditorW::setupActions()
     createSeparator(this, am, m_contexts,  medit, QLatin1String("FormEditor.Edit.Separator2"), Core::Constants::G_EDIT_OTHER);
 
     createSeparator(this, am, m_contexts, mformtools, QLatin1String("FormEditor.Menu.Tools.Separator3"));
+
+    m_actionSwitchSource = new QAction(tr("Switch Source/Form"), this);
+    connect(m_actionSwitchSource, SIGNAL(triggered()), this, SLOT(switchSourceForm()));
+
+    // Switch form/source in editor/design contexts.
+    Core::Context switchContexts = m_contexts;
+    switchContexts.add(Core::Constants::C_EDITORMANAGER);
+    addToolAction(m_actionSwitchSource, am, switchContexts, QLatin1String("FormEditor.FormSwitchSource"), mformtools,
+                  tr("Shift+F4"));
+
+    createSeparator(this, am, m_contexts, mformtools, QLatin1String("FormEditor.Menu.Tools.Separator4"));
     QAction *actionFormSettings = m_fwm->actionShowFormWindowSettingsDialog();
     addToolAction(actionFormSettings, am, m_contexts, QLatin1String("FormEditor.FormSettings"), mformtools);
 
-    createSeparator(this, am, m_contexts, mformtools, QLatin1String("FormEditor.Menu.Tools.Separator4"));
+    createSeparator(this, am, m_contexts, mformtools, QLatin1String("FormEditor.Menu.Tools.Separator5"));
     m_actionAboutPlugins = new QAction(tr("About Qt Designer plugins...."), this);
     addToolAction(m_actionAboutPlugins,  am,  m_contexts,
                    QLatin1String("FormEditor.AboutPlugins"), mformtools);
@@ -835,6 +849,61 @@ void FormEditorW::print()
     } while (false);
     m_core->printer()->setFullPage(oldFullPage);
     m_core->printer()->setOrientation(oldOrientation);
+}
+
+// Find out current existing editor file
+static QString currentFile(const Core::EditorManager *em)
+{
+    if (Core::IEditor *editor = em->currentEditor())
+        if (const Core::IFile *file = editor->file()) {
+            const QString fileName = file->fileName();
+            if (!fileName.isEmpty() && QFileInfo(fileName).isFile())
+                return fileName;
+        }
+    return QString();
+}
+
+// Switch between form ('ui') and source file ('cpp'):
+// Find corresponding 'other' file, simply assuming it is in the same directory.
+static QString otherFile(const Core::EditorManager *em)
+{
+    // Determine mime type of current file.
+    const QString current = currentFile(em);
+    if (current.isEmpty())
+        return QString();
+    const Core::MimeDatabase *mdb = Core::ICore::instance()->mimeDatabase();
+    const Core::MimeType currentMimeType = mdb->findByFile(current);
+    if (!currentMimeType)
+        return QString();
+    // Determine potential suffixes of candidate files
+    // 'ui' -> 'cpp', 'cpp/h' -> 'ui'.
+    QStringList candidateSuffixes;
+    if (currentMimeType.type() == QLatin1String(FORM_MIMETYPE)) {
+        candidateSuffixes += mdb->findByType(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)).suffixes();
+    } else if (currentMimeType.type() == QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)
+               || currentMimeType.type() == QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)) {
+        candidateSuffixes += mdb->findByType(QLatin1String(FORM_MIMETYPE)).suffixes();
+    } else {
+        return QString();
+    }
+    // Try to find existing file with desired suffix
+    const QFileInfo currentFI(current);
+    const QString currentBaseName = currentFI.path() + QLatin1Char('/')
+            + currentFI.baseName() + QLatin1Char('.');
+    foreach (const QString &candidateSuffix, candidateSuffixes) {
+        const QFileInfo fi(currentBaseName + candidateSuffix);
+        if (fi.isFile())
+            return fi.absoluteFilePath();
+    }
+    return QString();
+}
+
+void FormEditorW::switchSourceForm()
+{
+    Core::EditorManager *em = Core::EditorManager::instance();
+    const QString fileToOpen = otherFile(em);
+    if (!fileToOpen.isEmpty())
+        em->openEditor(fileToOpen);
 }
 
 } // namespace Internal
