@@ -15,10 +15,10 @@ SOURCES += $$PWD/s60devices.cpp \
     $$PWD/abldparser.cpp \
     $$PWD/rvctparser.cpp \
     $$PWD/winscwparser.cpp \
-    qt-s60/s60createpackagestep.cpp \
-    qt-s60/s60deploystep.cpp \
-    qt-s60/signsisparser.cpp \
-    qt-s60/passphraseforkeydialog.cpp
+    $$PWD/s60createpackagestep.cpp \
+    $$PWD/s60deploystep.cpp \
+    $$PWD/signsisparser.cpp \
+    $$PWD/passphraseforkeydialog.cpp
 HEADERS += $$PWD/s60devices.h \
     $$PWD/s60devicespreferencepane.h \
     $$PWD/s60manager.h \
@@ -33,9 +33,9 @@ HEADERS += $$PWD/s60devices.h \
     $$PWD/abldparser.h \
     $$PWD/rvctparser.h \
     $$PWD/winscwparser.h \
-    qt-s60/s60createpackagestep.h \
-    qt-s60/s60deploystep.h \
-    qt-s60/signsisparser.h \
-    qt-s60/passphraseforkeydialog.h
+    $$PWD/s60createpackagestep.h \
+    $$PWD/s60deploystep.h \
+    $$PWD/signsisparser.h \
+    $$PWD/passphraseforkeydialog.h
 FORMS += $$PWD/s60devicespreferencepane.ui \
-    qt-s60/s60createpackagestep.ui
+    $$PWD/s60createpackagestep.ui
