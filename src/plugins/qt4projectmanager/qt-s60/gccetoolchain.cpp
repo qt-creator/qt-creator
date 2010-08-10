@@ -167,7 +167,7 @@ QString GCCEToolChain::gcceVersion() const
             return QString();
         QProcess gxx;
         QStringList arguments;
-        arguments << QLatin1String("--version");
+        arguments << QLatin1String("-dumpversion");
         ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
         env.set(QLatin1String("LC_ALL"), QLatin1String("C"));   //override current locale settings
         gxx.setEnvironment(env.toStringList());
@@ -179,12 +179,7 @@ QString GCCEToolChain::gcceVersion() const
         QString line;
         if (gxx.canReadLine()) {
             line = gxx.readLine();
-            qDebug() << "GCCVersion:" << line;
-            QRegExp version("\\s((\\d+)\\.(\\d+)\\.(\\d+))\\s");
-            if (line.indexOf(version) >= -1) {
-                qDebug() << "    MATCHED!";
-                m_gcceVersion = version.cap(1);
-            }
+            m_gcceVersion = line.trimmed();
         }
     }
     return m_gcceVersion;
