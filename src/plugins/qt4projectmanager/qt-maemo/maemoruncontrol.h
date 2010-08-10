@@ -60,6 +60,7 @@ private slots:
     void handleRemoteProcessFinished(int exitCode);
     void handleRemoteOutput(const QByteArray &output);
     void handleRemoteErrorOutput(const QByteArray &output);
+    void handleProgressReport(const QString &progressString);
 
 private:
     virtual void start();

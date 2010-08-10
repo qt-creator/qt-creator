@@ -70,6 +70,7 @@ signals:
     void mounted();
     void unmounted();
     void error(const QString &reason);
+    void reportProgress(const QString &progressOutput);
 
 private slots:
     void handleUploaderInitialized();

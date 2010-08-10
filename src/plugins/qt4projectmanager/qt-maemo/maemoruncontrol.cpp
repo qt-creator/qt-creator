@@ -72,7 +72,6 @@ void MaemoRunControl::start()
     if (!m_devConfig.isValid()) {
         handleError(tr("No device configuration set for run configuration."));
     } else {
-        emit appendMessage(this, tr("Preparing remote side ..."), false);
         m_running = true;
         emit started();
         disconnect(m_runner, 0, this, 0);
@@ -88,6 +87,8 @@ void MaemoRunControl::start()
             SLOT(handleRemoteProcessStarted()));
         connect(m_runner, SIGNAL(remoteProcessFinished(int)), this,
             SLOT(handleRemoteProcessFinished(int)));
+        connect(m_runner, SIGNAL(reportProgress(QString)), this,
+            SLOT(handleProgressReport(QString)));
         m_runner->start();
     }
 }
@@ -130,6 +131,11 @@ void MaemoRunControl::handleRemoteOutput(const QByteArray &output)
 void MaemoRunControl::handleRemoteErrorOutput(const QByteArray &output)
 {
     emit addToOutputWindowInline(this, QString::fromUtf8(output), true);
+}
+
+void MaemoRunControl::handleProgressReport(const QString &progressString)
+{
+    emit appendMessage(this, progressString, false);
 }
 
 bool MaemoRunControl::isRunning() const

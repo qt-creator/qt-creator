@@ -90,6 +90,7 @@ void MaemoRemoteMounter::unmount()
                 m_mountSpecs.at(i).remoteMountPoint);
     }
 
+    emit reportProgress(tr("Unmounting remote mount points..."));
     m_umountStderr.clear();
     m_unmountProcess = m_connection->createRemoteProcess(remoteCall.toUtf8());
     connect(m_unmountProcess.data(), SIGNAL(closed(int)), this,
@@ -157,6 +158,7 @@ void MaemoRemoteMounter::stop()
 
 void MaemoRemoteMounter::deployUtfsClient()
 {
+    emit reportProgress(tr("Setting up SFTP connection..."));
     m_utfsClientUploader = m_connection->createSftpChannel();
     connect(m_utfsClientUploader.data(), SIGNAL(initialized()), this,
         SLOT(handleUploaderInitialized()));
@@ -178,14 +180,14 @@ void MaemoRemoteMounter::handleUploaderInitialized()
     if (m_stop)
         return;
 
+    emit reportProgress(tr("Uploading UTFS client..."));
     connect(m_utfsClientUploader.data(),
         SIGNAL(finished(Core::SftpJobId, QString)), this,
         SLOT(handleUploadFinished(Core::SftpJobId, QString)));
     const QString localFile
         = m_toolChain->maddeRoot() + QLatin1String("/madlib/armel/utfs-client");
-    m_uploadJobId
-        = m_utfsClientUploader->uploadFile(localFile, utfsClientOnDevice(),
-              SftpOverwriteExisting);
+    m_uploadJobId = m_utfsClientUploader->uploadFile(localFile,
+        utfsClientOnDevice(), SftpOverwriteExisting);
     if (m_uploadJobId == SftpInvalidJob)
         emit error(tr("Could not upload UTFS client (%1).").arg(localFile));
 }
@@ -231,6 +233,7 @@ void MaemoRemoteMounter::startUtfsClients()
         remoteCall += andOp + mkdir + andOp + chmod + andOp + utfsClient;
     }
 
+    emit reportProgress(tr("Starting remote UTFS clients..."));
     m_utfsClientStderr.clear();
     m_mountProcess = m_connection->createRemoteProcess(remoteCall.toUtf8());
     connect(m_mountProcess.data(), SIGNAL(started()), this,
@@ -281,6 +284,7 @@ void MaemoRemoteMounter::handleUtfsClientsFinished(int exitStatus)
 
 void MaemoRemoteMounter::startUtfsServers()
 {
+    emit reportProgress(tr("Starting UTFS servers..."));
     for (int i = 0; i < m_mountSpecs.count(); ++i) {
         const MaemoMountSpecification &mountSpec = m_mountSpecs.at(i);
         const ProcPtr utfsServerProc(new QProcess);

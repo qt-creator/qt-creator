@@ -73,6 +73,7 @@ signals:
     void readyForExecution();
     void remoteOutput(const QByteArray &output);
     void remoteErrorOutput(const QByteArray &output);
+    void reportProgress(const QString &progressOutput);
     void remoteProcessStarted();
     void remoteProcessFinished(int exitCode);
 

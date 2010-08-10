@@ -66,6 +66,8 @@ MaemoSshRunner::MaemoSshRunner(QObject *parent,
     connect(m_mounter, SIGNAL(unmounted()), this, SLOT(handleUnmounted()));
     connect(m_mounter, SIGNAL(error(QString)), this,
         SLOT(handleMounterError(QString)));
+    connect(m_mounter, SIGNAL(reportProgress(QString)), this,
+        SIGNAL(reportProgress(QString)));
 }
 
 MaemoSshRunner::~MaemoSshRunner() {}
@@ -96,10 +98,12 @@ void MaemoSshRunner::start()
         SLOT(handleConnected()));
     connect(m_connection.data(), SIGNAL(error(SshError)), this,
         SLOT(handleConnectionFailure()));
-    if (reUse)
+    if (reUse) {
         handleConnected();
-    else
+    } else {
+        emit reportProgress(tr("Connecting to device..."));
         m_connection->connectToHost(m_devConfig.server);
+    }
 }
 
 void MaemoSshRunner::stop()
@@ -131,6 +135,7 @@ void MaemoSshRunner::handleConnectionFailure()
 
 void MaemoSshRunner::cleanup(bool initialCleanup)
 {
+    emit reportProgress(tr("Killing remote process(es)..."));
     m_shuttingDown = !initialCleanup;
     QString niceKill;
     QString brutalKill;
