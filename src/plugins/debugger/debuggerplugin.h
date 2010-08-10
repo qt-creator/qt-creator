@@ -95,9 +95,6 @@ public slots:
     // void runTest(const QString &fileName);
     void showMessage(const QString &msg, int channel, int timeout = -1);
 
-signals:
-    void stateChanged(int);
-
 private:
     friend class Internal::DebuggerEngine;
     friend class Internal::DebuggerListener;

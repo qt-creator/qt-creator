@@ -2303,9 +2303,6 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         || m_state == DebuggerFinished
         || m_state == InferiorUnrunnable;
     setBusyCursor(!notbusy);
-
-    // FIXME: for QML only?
-    emit m_plugin->stateChanged(m_state);
 }
 
 void DebuggerPluginPrivate::resetLocation()
