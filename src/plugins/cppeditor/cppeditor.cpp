@@ -739,12 +739,14 @@ void CPPEditor::markSymbolsNow()
     setExtraSelections(CodeSemanticsSelection, selections);
 }
 
-static QList<int> lazyFindReferences(Scope *scope, QString code, const LookupContext &context)
+static QList<int> lazyFindReferences(Scope *scope, QString code, Document::Ptr doc, Snapshot snapshot)
 {
     TypeOfExpression typeOfExpression;
-    typeOfExpression.init(context.thisDocument(), context.snapshot(), context.bindings());
-    if (Symbol *canonicalSymbol = CanonicalSymbol::canonicalSymbol(scope, code, typeOfExpression))
-        return CppTools::CppModelManagerInterface::instance()->references(canonicalSymbol, context);
+    snapshot.insert(doc);
+    typeOfExpression.init(doc, snapshot);
+    if (Symbol *canonicalSymbol = CanonicalSymbol::canonicalSymbol(scope, code, typeOfExpression)) {
+        return CppTools::CppModelManagerInterface::instance()->references(canonicalSymbol, typeOfExpression.context());
+    }
     return QList<int>();
 }
 
@@ -758,12 +760,10 @@ void CPPEditor::markSymbols(const QTextCursor &tc, const SemanticInfo &info)
     CanonicalSymbol cs(this, info);
     QString expression;
     if (Scope *scope = cs.getScopeAndExpression(this, info, tc, &expression)) {
-        LookupContext context(info.doc, info.snapshot);
-
         m_references.cancel();
         m_referencesRevision = info.revision;
         m_referencesCursorPosition = position();
-        m_references = QtConcurrent::run(&lazyFindReferences, scope, expression, context);
+        m_references = QtConcurrent::run(&lazyFindReferences, scope, expression, info.doc, info.snapshot);
         m_referencesWatcher.setFuture(m_references);
     } else {
         const QList<QTextEdit::ExtraSelection> selections = extraSelections(CodeSemanticsSelection);

@@ -209,6 +209,8 @@ public:
     const NumericLiteral *findOrInsertNumericLiteral(const char *chars, unsigned size);
     const NumericLiteral *findOrInsertNumericLiteral(const char *chars);
 
+    bool hasSymbol(Symbol *symbol) const;
+
 private:
     class Data;
     friend class Data;

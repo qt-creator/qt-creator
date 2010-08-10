@@ -52,6 +52,7 @@
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
+#include <cplusplus/FindUsages.h>
 
 #include <QtCore/QTime>
 #include <QtCore/QTimer>
@@ -108,18 +109,25 @@ public:
                 return usages; // skip this document, it's not using symbolId.
         }
 
-        QByteArray source = snapshot.preprocessedCode(
-                getSource(fileName, workingCopy), fileName);
+        Document::Ptr doc;
+        QByteArray source;
 
-        Document::Ptr doc = snapshot.documentFromSource(source, fileName);
-        doc->tokenize();
+        if (symbolDocument && fileName == symbolDocument->fileName())
+            doc = symbolDocument;
+        else {
+            source = snapshot.preprocessedCode(getSource(fileName, workingCopy), fileName);
+            doc = snapshot.documentFromSource(source, fileName);
+            doc->tokenize();
+        }
 
         Control *control = doc->control();
         if (control->findIdentifier(symbolId->chars(), symbolId->size()) != 0) {
-            doc->check();
+            if (doc != symbolDocument)
+                doc->check();
 
             FindUsages process(doc, snapshot);
             process(symbol);
+
             usages = process.usages();
         }
 

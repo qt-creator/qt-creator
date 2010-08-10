@@ -56,6 +56,7 @@
 #include "TypeMatcher.h"
 #include <map>
 #include <set>
+#include <algorithm>
 
 using namespace CPlusPlus;
 
@@ -770,3 +771,8 @@ const Identifier *Control::objcCopyId() const
 
 const Identifier *Control::objcNonatomicId() const
 { return d->objcNonatomicId; }
+
+bool Control::hasSymbol(Symbol *symbol) const
+{
+    return std::find(d->symbols.begin(), d->symbols.end(), symbol) != d->symbols.end();
+}
