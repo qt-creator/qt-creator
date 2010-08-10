@@ -95,8 +95,8 @@ protected:
 
 private slots:
     void updateQtVersion();
-    void onAddedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
     void onAddedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
+    void onAddedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc);
     void slotUpdateDeviceInformation();
     void onProFileEvaluateNeeded(Qt4ProjectManager::Internal::Qt4BuildConfiguration *bc);
     void emitProFileEvaluateNeeded();

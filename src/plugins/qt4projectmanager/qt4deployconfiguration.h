@@ -35,6 +35,9 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
+class Target;
+class S60DeployConfigurationFactory;
+
 class Qt4DeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory
 {
     Q_OBJECT
@@ -43,6 +46,14 @@ public:
     explicit Qt4DeployConfigurationFactory(QObject *parent = 0);
 
     ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, const QString &id);
+    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
+    ProjectExplorer::DeployConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
+    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::DeployConfiguration *product) const;
+    ProjectExplorer::DeployConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::DeployConfiguration *product);
+
+private:
+    S60DeployConfigurationFactory *m_s60DeployConfigurationFactory;
+
 };
 
 } // namespace Internal

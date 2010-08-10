@@ -29,6 +29,7 @@
 
 #include "s60devicerunconfiguration.h"
 #include "s60devicerunconfigurationwidget.h"
+#include "s60deployconfiguration.h"
 #include "qt4project.h"
 #include "qt4target.h"
 #include "qtversionmanager.h"
@@ -70,11 +71,8 @@ const char * const S60_DEVICE_RC_ID("Qt4ProjectManager.S60DeviceRunConfiguration
 const char * const S60_DEVICE_RC_PREFIX("Qt4ProjectManager.S60DeviceRunConfiguration.");
 
 const char * const PRO_FILE_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.ProFile");
-const char * const SERIAL_PORT_NAME_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.SerialPortName");
 const char * const COMMUNICATION_TYPE_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.CommunicationType");
 const char * const COMMAND_LINE_ARGUMENTS_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.CommandLineArguments");
-const char * const INSTALLATION_DRIVE_LETTER_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.InstallationDriveLetter");
-const char * const SILENT_INSTALL_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.SilentInstall");
 
 const int    PROGRESS_DEPLOYBASE = 0;
 const int    PROGRESS_PACKAGEDEPLOYED = 100;
@@ -115,14 +113,7 @@ QString pathToId(const QString &path)
 
 S60DeviceRunConfiguration::S60DeviceRunConfiguration(Target *parent, const QString &proFilePath) :
     RunConfiguration(parent,  QLatin1String(S60_DEVICE_RC_ID)),
-    m_proFilePath(proFilePath),
-    m_activeBuildConfiguration(0),
-#ifdef Q_OS_WIN
-    m_serialPortName(QLatin1String("COM5")),
-#else
-    m_serialPortName(QLatin1String(SymbianUtils::SymbianDeviceManager::linuxBlueToothDeviceRootC) + QLatin1Char('0')),
-#endif
-    m_installationDrive('C')
+    m_proFilePath(proFilePath)
 {
     ctor();
 }
@@ -130,9 +121,7 @@ S60DeviceRunConfiguration::S60DeviceRunConfiguration(Target *parent, const QStri
 S60DeviceRunConfiguration::S60DeviceRunConfiguration(Target *target, S60DeviceRunConfiguration *source) :
     RunConfiguration(target, source),
     m_proFilePath(source->m_proFilePath),
-    m_activeBuildConfiguration(0),
-    m_serialPortName(source->m_serialPortName),
-    m_installationDrive(source->m_installationDrive)
+    m_commandLineArguments(source->m_commandLineArguments)
 {
     ctor();
 }
@@ -143,29 +132,12 @@ void S60DeviceRunConfiguration::ctor()
         setDisplayName(tr("%1 on Symbian Device").arg(QFileInfo(m_proFilePath).completeBaseName()));
     else
         setDisplayName(tr("QtS60DeviceRunConfiguration"));
-
-    connect(qt4Target()->qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
-            this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
-    connect(qt4Target(), SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-            this, SLOT(updateActiveBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
-    updateActiveBuildConfiguration(qt4Target()->activeBuildConfiguration());
 }
 
 void S60DeviceRunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)
 {
     if (m_proFilePath == pro->path())
         emit targetInformationChanged();
-}
-
-void S60DeviceRunConfiguration::updateActiveBuildConfiguration(ProjectExplorer::BuildConfiguration *buildConfiguration)
-{
-    if (m_activeBuildConfiguration)
-        disconnect(m_activeBuildConfiguration, SIGNAL(s60CreatesSmartInstallerChanged()),
-                   this, SIGNAL(targetInformationChanged()));
-    m_activeBuildConfiguration = buildConfiguration;
-    if (m_activeBuildConfiguration)
-        connect(m_activeBuildConfiguration, SIGNAL(s60CreatesSmartInstallerChanged()),
-                this, SIGNAL(targetInformationChanged()));
 }
 
 S60DeviceRunConfiguration::~S60DeviceRunConfiguration()
@@ -224,10 +196,7 @@ QVariantMap S60DeviceRunConfiguration::toMap() const
     const QDir projectDir = QDir(target()->project()->projectDirectory());
 
     map.insert(QLatin1String(PRO_FILE_KEY), projectDir.relativeFilePath(m_proFilePath));
-    map.insert(QLatin1String(SERIAL_PORT_NAME_KEY), m_serialPortName);
     map.insert(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY), m_commandLineArguments);
-    map.insert(QLatin1String(INSTALLATION_DRIVE_LETTER_KEY), QChar(m_installationDrive));
-    map.insert(QLatin1String(SILENT_INSTALL_KEY), QVariant(m_silentInstall));
 
     return map;
 }
@@ -237,46 +206,11 @@ bool S60DeviceRunConfiguration::fromMap(const QVariantMap &map)
     const QDir projectDir = QDir(target()->project()->projectDirectory());
 
     m_proFilePath = projectDir.filePath(map.value(QLatin1String(PRO_FILE_KEY)).toString());
-    m_serialPortName = map.value(QLatin1String(SERIAL_PORT_NAME_KEY)).toString().trimmed();
     m_commandLineArguments = map.value(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY)).toStringList();
-    m_installationDrive = map.value(QLatin1String(INSTALLATION_DRIVE_LETTER_KEY), QChar('C'))
-                          .toChar().toAscii();
-    m_silentInstall = map.value(QLatin1String(SILENT_INSTALL_KEY), QVariant(true)).toBool();
 
     return RunConfiguration::fromMap(map);
 }
 
-QString S60DeviceRunConfiguration::serialPortName() const
-{
-    return m_serialPortName;
-}
-
-void S60DeviceRunConfiguration::setSerialPortName(const QString &name)
-{
-    const QString &candidate = name.trimmed();
-    if (m_serialPortName == candidate)
-        return;
-    m_serialPortName = candidate;
-    emit serialPortNameChanged();
-}
-
-char S60DeviceRunConfiguration::installationDrive() const
-{
-    return m_installationDrive;
-}
-
-void S60DeviceRunConfiguration::setInstallationDrive(char drive)
-{
-    m_installationDrive = drive;
-}
-
-QString S60DeviceRunConfiguration::targetName() const
-{
-    TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()->targetInformation(m_proFilePath);
-    if (!ti.valid)
-        return QString();
-    return ti.target;
-}
 
 static inline QString fixBaseNameTarget(const QString &in)
 {
@@ -287,166 +221,9 @@ static inline QString fixBaseNameTarget(const QString &in)
     return in;
 }
 
-QStringList S60DeviceRunConfiguration::packageFileNamesWithTargetInfo() const
+QString S60DeviceRunConfiguration::projectFilePath() const
 {
-    QList<Qt4ProFileNode *> leafs = qt4Target()->qt4Project()->leafProFiles();
-
-    QStringList result;
-    foreach (Qt4ProFileNode *qt4ProFileNode, leafs) {
-        TargetInformation ti = qt4ProFileNode->targetInformation();
-        if (!ti.valid)
-            continue;
-        QString baseFileName = ti.buildDir + QLatin1Char('/') + ti.target;
-        baseFileName += QLatin1Char('_')
-                + (isDebug() ? QLatin1String("debug") : QLatin1String("release"))
-                + QLatin1Char('-') + symbianPlatform() + QLatin1String(".sis");
-        result << baseFileName;
-    }
-    return result;
-}
-
-QString S60DeviceRunConfiguration::symbianPlatform() const
-{
-    Qt4BuildConfiguration *qt4bc = qt4Target()->qt4Project()->activeTarget()->activeBuildConfiguration();
-    switch (qt4bc->toolChainType()) {
-    case ToolChain::GCCE:
-    case ToolChain::GCCE_GNUPOC:
-        return QLatin1String("gcce");
-    case ToolChain::RVCT_ARMV5:
-        return QLatin1String("armv5");
-    default: // including ToolChain::RVCT_ARMV6_GNUPOC:
-        return QLatin1String("armv6");
-    }
-}
-
-bool S60DeviceRunConfiguration::isDebug() const
-{
-    const Qt4BuildConfiguration *qt4bc = qt4Target()->qt4Project()->activeTarget()->activeBuildConfiguration();
-    return (qt4bc->qmakeBuildConfiguration() & QtVersion::DebugBuild);
-}
-
-QString S60DeviceRunConfiguration::symbianTarget() const
-{
-    return isDebug() ? QLatin1String("udeb") : QLatin1String("urel");
-}
-
-QStringList S60DeviceRunConfiguration::packageTemplateFileNames() const
-{
-    QList<Qt4ProFileNode *> list = qt4Target()->qt4Project()->leafProFiles();
-    QStringList result;
-    foreach (Qt4ProFileNode *node, list) {
-        TargetInformation ti = node->targetInformation();
-        if (ti.valid)
-            result << ti.buildDir + QLatin1Char('/') + ti.target + QLatin1String("_template.pkg");
-    }
-    return result;
-}
-
-QString S60DeviceRunConfiguration::appPackageTemplateFileName() const
-{
-    TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()->targetInformation(m_proFilePath);
-    if (!ti.valid)
-        return QString();
-    return ti.buildDir + QLatin1Char('/') + ti.target + QLatin1String("_template.pkg");
-}
-
-
-/* Grep a package file for the '.exe' file. Curently for use on Linux only
- * as the '.pkg'-files on Windows do not contain drive letters, which is not
- * handled here. \code
-; Executable and default resource files
-"./foo.exe"    - "!:\sys\bin\foo.exe"
-\endcode  */
-
-static inline QString executableFromPackageUnix(const QString &packageFileName)
-{
-    QFile packageFile(packageFileName);
-    if (!packageFile.open(QIODevice::ReadOnly|QIODevice::Text))
-        return QString();
-    QRegExp pattern(QLatin1String("^\"(.*.exe)\" *- \"!:.*.exe\"$"));
-    QTC_ASSERT(pattern.isValid(), return QString());
-    foreach(const QString &line, QString::fromLocal8Bit(packageFile.readAll()).split(QLatin1Char('\n')))
-        if (pattern.exactMatch(line)) {
-            // Expand relative paths by package file paths
-            QString rc = pattern.cap(1);
-            if (rc.startsWith(QLatin1String("./")))
-                rc.remove(0, 2);
-            const QFileInfo fi(rc);
-            if (fi.isAbsolute())
-                return rc;
-            return QFileInfo(packageFileName).absolutePath() + QLatin1Char('/') + rc;
-        }
-    return QString();
-}
-
-const QtVersion *S60DeviceRunConfiguration::qtVersion() const
-{
-    if (const BuildConfiguration *bc = target()->activeBuildConfiguration())
-        if (const Qt4BuildConfiguration *qt4bc = qobject_cast<const Qt4BuildConfiguration *>(bc))
-            return qt4bc->qtVersion();
-    return 0;
-}
-
-QString S60DeviceRunConfiguration::localExecutableFileName() const
-{
-    QString localExecutable;
-    switch (toolChainType()) {
-    case ToolChain::GCCE_GNUPOC:
-    case ToolChain::RVCT_ARMV5_GNUPOC:
-        localExecutable = executableFromPackageUnix(appPackageTemplateFileName());
-        break;
-    default: {
-            const QtVersion *qtv = qtVersion();
-            QTC_ASSERT(qtv, return QString());
-            const S60Devices::Device device = S60Manager::instance()->deviceForQtVersion(qtv);
-            QTextStream(&localExecutable) << device.epocRoot << "/epoc32/release/"
-                    << symbianPlatform() << '/' << symbianTarget() << '/' << targetName()
-                    << ".exe";
-        }
-        break;
-    }
-    if (debug)
-        qDebug() << "Local executable" << localExecutable;
-    return QDir::toNativeSeparators(localExecutable);
-}
-
-bool S60DeviceRunConfiguration::runSmartInstaller() const
-{
-    DeployConfiguration *dc = target()->activeDeployConfiguration();
-    QTC_ASSERT(dc, return false);
-    BuildStepList *bsl = dc->stepList();
-    QTC_ASSERT(bsl, return false);
-    QList<BuildStep *> steps = bsl->steps();
-    foreach (const BuildStep *step, steps) {
-        if (const S60CreatePackageStep *packageStep = qobject_cast<const S60CreatePackageStep *>(step)) {
-            return packageStep->createsSmartInstaller();
-        }
-    }
-    return false;
-}
-
-QStringList S60DeviceRunConfiguration::signedPackages() const
-{
-    QList<Qt4ProFileNode *> list = qt4Target()->qt4Project()->leafProFiles();
-    QStringList result;
-    foreach (Qt4ProFileNode *node, list) {
-        TargetInformation ti = node->targetInformation();
-        if (ti.valid)
-            result << ti.buildDir + QLatin1Char('/') + ti.target
-                      + (runSmartInstaller() ? QLatin1String("_installer") : QLatin1String(""))
-                      + QLatin1String(".sis");
-    }
-    return result;
-}
-
-QString S60DeviceRunConfiguration::appSignedPackage() const
-{
-    TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()->targetInformation(m_proFilePath);
-    if (!ti.valid)
-        return QString();
-    return ti.buildDir + QLatin1Char('/') + ti.target
-            + (runSmartInstaller() ? QLatin1String("_installer") : QLatin1String(""))
-            + QLatin1String(".sis");
+    return m_proFilePath;
 }
 
 QStringList S60DeviceRunConfiguration::commandLineArguments() const
@@ -457,16 +234,6 @@ QStringList S60DeviceRunConfiguration::commandLineArguments() const
 void S60DeviceRunConfiguration::setCommandLineArguments(const QStringList &args)
 {
     m_commandLineArguments = args;
-}
-
-bool S60DeviceRunConfiguration::silentInstall() const
-{
-    return m_silentInstall;
-}
-
-void S60DeviceRunConfiguration::setSilentInstall(bool v)
-{
-    m_silentInstall = v;
 }
 
 // ======== S60DeviceRunConfigurationFactory
@@ -568,19 +335,20 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfigurat
 
     S60DeviceRunConfiguration *s60runConfig = qobject_cast<S60DeviceRunConfiguration *>(runConfiguration);
     const Qt4BuildConfiguration *activeBuildConf = s60runConfig->qt4Target()->activeBuildConfiguration();
+    S60DeployConfiguration *activeDeployConf = qobject_cast<S60DeployConfiguration *>(s60runConfig->qt4Target()->activeDeployConfiguration());
 
     QTC_ASSERT(s60runConfig, return);
     m_toolChain = s60runConfig->toolChainType();
-    m_serialPortName = s60runConfig->serialPortName();
+    m_serialPortName = activeDeployConf->serialPortName();
     m_serialPortFriendlyName = SymbianUtils::SymbianDeviceManager::instance()->friendlyNameForPort(m_serialPortName);
-    m_targetName = s60runConfig->targetName();
+    m_targetName = activeDeployConf->targetName();
     m_commandLineArguments = s60runConfig->commandLineArguments();
     m_qtDir = activeBuildConf->qtVersion()->versionInfo().value("QT_INSTALL_DATA");
-    m_installationDrive = s60runConfig->installationDrive();
-    if (const QtVersion *qtv = s60runConfig->qtVersion())
+    m_installationDrive = activeDeployConf->installationDrive();
+    if (const QtVersion *qtv = activeDeployConf->qtVersion())
         m_qtBinPath = qtv->versionInfo().value(QLatin1String("QT_INSTALL_BINS"));
     QTC_ASSERT(!m_qtBinPath.isEmpty(), return);
-    m_executableFileName = s60runConfig->localExecutableFileName();
+    m_executableFileName = activeDeployConf->localExecutableFileName();
     if (debug)
         qDebug() << "S60DeviceRunControlBase::CT" << m_targetName << ProjectExplorer::ToolChain::toolChainName(m_toolChain)
                  << m_serialPortName;
@@ -844,12 +612,14 @@ S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *rc
     setReleaseDeviceAfterLauncherFinish(true); // Debugger controls device after install
     QTC_ASSERT(rc, return);
 
-    m_startParams->remoteChannel = rc->serialPortName();
+    S60DeployConfiguration *activeDeployConf = qobject_cast<S60DeployConfiguration *>(rc->qt4Target()->activeDeployConfiguration());
+
+    m_startParams->remoteChannel = activeDeployConf->serialPortName();
     m_startParams->processArgs = rc->commandLineArguments();
     m_startParams->startMode = Debugger::StartInternal;
     m_startParams->toolChainType = rc->toolChainType();
 
-    m_localExecutableFileName = rc->localExecutableFileName();
+    m_localExecutableFileName = activeDeployConf->localExecutableFileName();
     const int lastDotPos = m_localExecutableFileName.lastIndexOf(QLatin1Char('.'));
     if (lastDotPos != -1) {
         m_startParams->symbolFileName = m_localExecutableFileName.mid(0, lastDotPos) + QLatin1String(".sym");

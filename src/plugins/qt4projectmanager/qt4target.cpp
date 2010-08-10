@@ -39,6 +39,7 @@
 #include "qt-maemo/maemodeploystep.h"
 #include "qt-maemo/maemopackagecreationstep.h"
 #include "qt-maemo/maemorunconfiguration.h"
+#include "qt-s60/s60deployconfiguration.h"
 #include "qt-s60/s60devicerunconfiguration.h"
 #include "qt-s60/s60emulatorrunconfiguration.h"
 #include "qt-s60/s60createpackagestep.h"
@@ -246,10 +247,10 @@ Qt4Target::Qt4Target(Qt4Project *parent, const QString &id) :
             this, SLOT(emitProFileEvaluateNeeded()));
     connect(this, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
             this, SIGNAL(environmentChanged()));
-    connect(this, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration*)),
-            this, SLOT(onAddedRunConfiguration(ProjectExplorer::RunConfiguration*)));
     connect(this, SIGNAL(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
             this, SLOT(onAddedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
+    connect(this, SIGNAL(addedDeployConfiguration(ProjectExplorer::DeployConfiguration*)),
+            this, SLOT(onAddedDeployConfiguration(ProjectExplorer::DeployConfiguration*)));
     connect(this, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
             this, SLOT(updateToolTipAndIcon()));
 
@@ -417,16 +418,6 @@ void Qt4Target::updateQtVersion()
     setEnabled(project()->supportedTargetIds().contains(id()));
 }
 
-void Qt4Target::onAddedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
-{
-    Q_ASSERT(rc);
-    S60DeviceRunConfiguration *deviceRc(qobject_cast<S60DeviceRunConfiguration *>(rc));
-    if (!deviceRc)
-        return;
-    connect(deviceRc, SIGNAL(serialPortNameChanged()),
-            this, SLOT(slotUpdateDeviceInformation()));
-}
-
 void Qt4Target::onAddedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc)
 {
     Q_ASSERT(bc);
@@ -438,10 +429,20 @@ void Qt4Target::onAddedBuildConfiguration(ProjectExplorer::BuildConfiguration *b
             this, SLOT(onProFileEvaluateNeeded(Qt4ProjectManager::Internal::Qt4BuildConfiguration *)));
 }
 
+void Qt4Target::onAddedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc)
+{
+    Q_ASSERT(dc);
+    S60DeployConfiguration *deployConf(qobject_cast<S60DeployConfiguration *>(dc));
+    if (!deployConf)
+        return;
+    connect(deployConf, SIGNAL(serialPortNameChanged()),
+            this, SLOT(slotUpdateDeviceInformation()));
+}
+
 void Qt4Target::slotUpdateDeviceInformation()
 {
-    S60DeviceRunConfiguration *deviceRc(qobject_cast<S60DeviceRunConfiguration *>(sender()));
-    if (deviceRc && deviceRc == activeRunConfiguration()) {
+    S60DeployConfiguration *dc(qobject_cast<S60DeployConfiguration *>(sender()));
+    if (dc && dc == activeDeployConfiguration()) {
         updateToolTipAndIcon();
     }
 }
@@ -460,9 +461,9 @@ void Qt4Target::emitProFileEvaluateNeeded()
 void Qt4Target::updateToolTipAndIcon()
 {
     static const int TARGET_OVERLAY_ORIGINAL_SIZE = 32;
-    if (const S60DeviceRunConfiguration *s60DeviceRc = qobject_cast<S60DeviceRunConfiguration *>(activeRunConfiguration()))  {
+    if (const S60DeployConfiguration *s60DeployConf = qobject_cast<S60DeployConfiguration *>(activeDeployConfiguration()))  {
         const SymbianUtils::SymbianDeviceManager *sdm = SymbianUtils::SymbianDeviceManager::instance();
-        const int deviceIndex = sdm->findByPortName(s60DeviceRc->serialPortName());
+        const int deviceIndex = sdm->findByPortName(s60DeployConf->serialPortName());
         QPixmap overlay;
         if (deviceIndex == -1) {
             setToolTip(tr("<b>Device:</b> Not connected"));

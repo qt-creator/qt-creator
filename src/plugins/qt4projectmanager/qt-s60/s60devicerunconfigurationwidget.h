@@ -31,27 +31,13 @@
 #define S60DEVICERUNCONFIGURATIONWIDGET_H
 
 #include <QtGui/QWidget>
-#include <QtCore/QPointer>
 
 QT_BEGIN_NAMESPACE
-class QLabel;
-class QTimer;
 class QLineEdit;
-class QComboBox;
-class QToolButton;
-class QCheckBox;
 QT_END_NAMESPACE
 
 namespace Utils {
     class DetailsWidget;
-}
-
-namespace trk {
-    class Launcher;
-}
-
-namespace SymbianUtils {
-class SymbianDevice;
 }
 
 namespace Qt4ProjectManager {
@@ -59,9 +45,6 @@ namespace Internal {
 
 class S60DeviceRunConfiguration;
 
-/* Configuration widget for S60 devices on serial ports that are
- * provided by the SerialDeviceLister class. Has an info/test
- * button connecting to the device and showing info. */
 class S60DeviceRunConfigurationWidget : public QWidget
 {
     Q_OBJECT
@@ -72,36 +55,12 @@ public:
 private slots:
     void displayNameEdited(const QString &text);
     void argumentsEdited(const QString &text);
-    void updateTargetInformation();
-    void updateInstallationDrives();
-    void updateSerialDevices();
-    void setInstallationDrive(int index);
-    void setSerialPort(int index);
-    void updateDeviceInfo();
-    void clearDeviceInfo();
-    void slotLauncherStateChanged(int);
-    void slotWaitingForTrkClosed();
-    void silentInstallChanged(int);
 
 private:
-    inline SymbianUtils::SymbianDevice device(int i) const;
-    inline SymbianUtils::SymbianDevice currentDevice() const;
-
-    void setDeviceInfoLabel(const QString &message, bool isError = false);
-
     S60DeviceRunConfiguration *m_runConfiguration;
     Utils::DetailsWidget *m_detailsWidget;
-    QComboBox *m_serialPortsCombo;
     QLineEdit *m_nameLineEdit;
     QLineEdit *m_argumentsLineEdit;
-    QLabel *m_sisFileLabel;
-    QToolButton *m_deviceInfoButton;
-    QLabel *m_deviceInfoDescriptionLabel;
-    QLabel *m_deviceInfoLabel;
-    QTimer *m_infoTimeOutTimer;
-    QPointer<trk::Launcher> m_infoLauncher;
-    QComboBox *m_installationDriveCombo;
-    QCheckBox *m_silentInstallCheckBox;
 };
 
 } // namespace Internal

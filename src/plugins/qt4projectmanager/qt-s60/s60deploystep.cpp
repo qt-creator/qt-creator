@@ -30,6 +30,7 @@
 #include "s60deploystep.h"
 
 #include "qt4buildconfiguration.h"
+#include "s60deployconfiguration.h"
 #include "s60devicerunconfiguration.h"
 #include "symbiandevicemanager.h"
 #include "s60runconfigbluetoothstarter.h"
@@ -112,18 +113,15 @@ S60DeployStep::~S60DeployStep()
 bool S60DeployStep::init()
 {
     Qt4BuildConfiguration *bc = static_cast<Qt4BuildConfiguration *>(buildConfiguration());
-    S60DeviceRunConfiguration* runConfiguration = static_cast<S60DeviceRunConfiguration *>(bc->target()->activeRunConfiguration());
-
-    if(!runConfiguration) {
+    S60DeployConfiguration* deployConfiguration = static_cast<S60DeployConfiguration *>(bc->target()->activeDeployConfiguration());
+    if(!deployConfiguration)
         return false;
-    }
-    m_serialPortName = runConfiguration->serialPortName();
+    m_serialPortName = deployConfiguration->serialPortName();
     m_serialPortFriendlyName = SymbianUtils::SymbianDeviceManager::instance()->friendlyNameForPort(m_serialPortName);
-    m_packageFileNamesWithTarget = runConfiguration->packageFileNamesWithTargetInfo();
-    m_signedPackages = runConfiguration->signedPackages();
-
-    m_installationDrive = runConfiguration->installationDrive();
-    m_silentInstall = runConfiguration->silentInstall();
+    m_packageFileNamesWithTarget = deployConfiguration->packageFileNamesWithTargetInfo();
+    m_signedPackages = deployConfiguration->signedPackages();
+    m_installationDrive = deployConfiguration->installationDrive();
+    m_silentInstall = deployConfiguration->silentInstall();
 
     setDisplayName(tr("Deploy", "Qt4 DeployStep display name."));
     QString message;

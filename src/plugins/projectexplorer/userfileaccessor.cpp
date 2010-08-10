@@ -201,6 +201,23 @@ public:
     QVariantMap update(Project *project, const QVariantMap &map);
 };
 
+// Version 5 reflects the introduction of new deploy configuration for Symbian
+class Version7Handler : public UserFileVersionHandler
+{
+public:
+    int userFileVersion() const
+    {
+        return 7;
+    }
+
+    QString displayUserFileVersion() const
+    {
+        return QLatin1String("2.2pre4");
+    }
+
+    QVariantMap update(Project *project, const QVariantMap &map);
+};
+
 //
 // Helper functions:
 //
@@ -274,6 +291,7 @@ UserFileAccessor::UserFileAccessor() :
     addVersionHandler(new Version4Handler);
     addVersionHandler(new Version5Handler);
     addVersionHandler(new Version6Handler);
+    addVersionHandler(new Version7Handler);
 }
 
 UserFileAccessor::~UserFileAccessor()
@@ -1308,6 +1326,67 @@ QVariantMap Version6Handler::update(Project *, const QVariantMap &map)
         newTarget.insert(QLatin1String("ProjectExplorer.Target.DeployConfigurationCount"), 1);
         newTarget.insert(QLatin1String("ProjectExplorer.Target.ActiveDeployConfiguration"), 0);
         newTarget.insert(QLatin1String("ProjectExplorer.Target.DeployConfiguration.0"), newDc);
+        result.insert(globalKey, newTarget);
+    }
+    return result;
+}
+
+// -------------------------------------------------------------------------
+// Version7Handler
+// -------------------------------------------------------------------------
+
+// new implementation of DeployConfiguration
+QVariantMap Version7Handler::update(Project *, const QVariantMap &map)
+{
+    QVariantMap result;
+    QMapIterator<QString, QVariant> it(map);
+    while (it.hasNext()) {
+        it.next();
+        const QString &globalKey = it.key();
+        // check for target info
+        if (!globalKey.startsWith(QLatin1String("ProjectExplorer.Project.Target."))) {
+            result.insert(globalKey, it.value());
+            continue;
+        }
+        const QVariantMap &originalTarget = it.value().toMap();
+        // check for symbian device target
+        if (originalTarget.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"))
+                != QLatin1String("Qt4ProjectManager.Target.S60DeviceTarget") ) {
+            result.insert(globalKey, originalTarget);
+            continue;
+        }
+
+        QVariantMap newTarget;
+        QMapIterator<QString, QVariant> targetIt(originalTarget);
+        while (targetIt.hasNext()) {
+            targetIt.next();
+            const QString &targetKey = targetIt.key();
+            if (targetKey.startsWith(QLatin1String("ProjectExplorer.Target.RunConfiguration."))) {
+                QVariantMap newRunConfiguration;
+                const QVariantMap &originalRc = targetIt.value().toMap();
+
+                QMapIterator<QString, QVariant> rcIt(originalRc);
+                while (rcIt.hasNext()) {
+                    rcIt.next();
+                    const QString &rcKey = rcIt.key();
+                    // remove installation related data from RunConfiguration
+                    if (rcKey.startsWith(QLatin1String("Qt4ProjectManager.S60DeviceRunConfiguration.InstallationDriveLetter"))) {
+                        continue;
+                    }
+                    if (rcKey.startsWith(QLatin1String("Qt4ProjectManager.S60DeviceRunConfiguration.SerialPortName"))) {
+                        continue;
+                    }
+                    if (rcKey.startsWith(QLatin1String("Qt4ProjectManager.S60DeviceRunConfiguration.SilentInstall"))) {
+                        continue;
+                    }
+                    newRunConfiguration.insert(rcKey, rcIt.value());
+                }
+                newTarget.insert(targetKey, newRunConfiguration);
+            } else {
+                newTarget.insert(targetKey, targetIt.value());
+                continue;
+            }
+        }
         result.insert(globalKey, newTarget);
     }
     return result;

@@ -76,61 +76,30 @@ public:
 
     ProjectExplorer::OutputFormatter *createOutputFormatter() const;
 
-    QString serialPortName() const;
-    void setSerialPortName(const QString &name);
-
-    char installationDrive() const;
-    void setInstallationDrive(char drive);
-
-    QStringList packageFileNamesWithTargetInfo() const;
-    QStringList packageTemplateFileNames() const;
-    QString appPackageTemplateFileName() const;
-    QString targetName() const;
-
-    QString localExecutableFileName() const;
-    QStringList signedPackages() const;
-    QString appSignedPackage() const;
-    const QtVersion *qtVersion() const;
-
     QStringList commandLineArguments() const;
     void setCommandLineArguments(const QStringList &args);
 
-    bool silentInstall() const;
-    void setSilentInstall(bool v);
+    QString projectFilePath() const;
 
     ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
 
     QVariantMap toMap() const;
 
+    void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
+
 signals:
     void targetInformationChanged();
-    void serialPortNameChanged();
-
-
-private slots:
-    void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
-    void updateActiveBuildConfiguration(ProjectExplorer::BuildConfiguration *buildConfiguration);
 
 protected:
     S60DeviceRunConfiguration(ProjectExplorer::Target *parent, S60DeviceRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
 
 private:
-    QString symbianPlatform() const;
-    QString symbianTarget() const;
-    bool isDebug() const;
     ProjectExplorer::ToolChain::ToolChainType toolChainType(ProjectExplorer::BuildConfiguration *configuration) const;
     void ctor();
 
-    bool runSmartInstaller() const;
-
     QString m_proFilePath;
-    ProjectExplorer::BuildConfiguration *m_activeBuildConfiguration;
-    QString m_serialPortName;
     QStringList m_commandLineArguments;
-
-    char m_installationDrive;
-    bool m_silentInstall;
 };
 
 class S60DeviceRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
