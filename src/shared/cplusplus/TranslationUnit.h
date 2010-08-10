@@ -52,6 +52,7 @@
 #include "CPlusPlusForwardDeclarations.h"
 #include "ASTfwd.h"
 #include "Token.h"
+#include "DiagnosticClient.h"
 #include <cstdio>
 #include <vector>
 
@@ -107,6 +108,9 @@ public:
     void warning(unsigned index, const char *fmt, ...);
     void error(unsigned index, const char *fmt, ...);
     void fatal(unsigned index, const char *fmt, ...);
+
+    void message(DiagnosticClient::Level level, unsigned index,
+                 const char *format, va_list ap);
 
     bool isTokenized() const;
     void tokenize();

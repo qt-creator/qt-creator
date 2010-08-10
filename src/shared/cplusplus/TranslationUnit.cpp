@@ -389,7 +389,7 @@ bool TranslationUnit::blockErrors(bool block)
     return previous;
 }
 
-void TranslationUnit::warning(unsigned index, const char *format, ...)
+void TranslationUnit::message(DiagnosticClient::Level level, unsigned index, const char *format, va_list args)
 {
     if (f._blockErrors)
         return;
@@ -401,23 +401,37 @@ void TranslationUnit::warning(unsigned index, const char *format, ...)
     getTokenPosition(index, &line, &column, &fileName);
 
     if (DiagnosticClient *client = control()->diagnosticClient()) {
-        va_list args;
-        va_start(args, format);
-        client->report(DiagnosticClient::Warning, fileName, line, column,
-                       format, args);
-        va_end(args);
+        client->report(level, fileName, line, column, format, args);
     } else {
         fprintf(stderr, "%s:%d: ", fileName->chars(), line);
-        fprintf(stderr, "warning: ");
+        const char *l = "error";
+        if (level == DiagnosticClient::Warning)
+            l = "warning";
+        else if (level == DiagnosticClient::Fatal)
+            l = "fatal";
+        fprintf(stderr, "%s: ", l);
 
-        va_list args;
-        va_start(args, format);
         vfprintf(stderr, format, args);
-        va_end(args);
         fputc('\n', stderr);
 
         showErrorLine(index, column, stderr);
     }
+
+    if (level == DiagnosticClient::Fatal)
+        exit(EXIT_FAILURE);
+}
+
+void TranslationUnit::warning(unsigned index, const char *format, ...)
+{
+    if (f._blockErrors)
+        return;
+
+    va_list args, ap;
+    va_start(args, format);
+    va_copy(ap, args);
+    message(DiagnosticClient::Fatal, index, format, args);
+    va_end(ap);
+    va_end(args);
 }
 
 void TranslationUnit::error(unsigned index, const char *format, ...)
@@ -425,30 +439,12 @@ void TranslationUnit::error(unsigned index, const char *format, ...)
     if (f._blockErrors)
         return;
 
-    index = std::min(index, tokenCount() - 1);
-
-    unsigned line = 0, column = 0;
-    const StringLiteral *fileName = 0;
-    getTokenPosition(index, &line, &column, &fileName);
-
-    if (DiagnosticClient *client = control()->diagnosticClient()) {
-        va_list args;
-        va_start(args, format);
-        client->report(DiagnosticClient::Error, fileName, line, column,
-                       format, args);
-        va_end(args);
-    } else {
-        fprintf(stderr, "%s:%d: ", fileName->chars(), line);
-        fprintf(stderr, "error: ");
-
-        va_list args;
-        va_start(args, format);
-        vfprintf(stderr, format, args);
-        va_end(args);
-        fputc('\n', stderr);
-
-        showErrorLine(index, column, stderr);
-    }
+    va_list args, ap;
+    va_start(args, format);
+    va_copy(ap, args);
+    message(DiagnosticClient::Error, index, format, args);
+    va_end(ap);
+    va_end(args);
 }
 
 void TranslationUnit::fatal(unsigned index, const char *format, ...)
@@ -456,32 +452,12 @@ void TranslationUnit::fatal(unsigned index, const char *format, ...)
     if (f._blockErrors)
         return;
 
-    index = std::min(index, tokenCount() - 1);
-
-    unsigned line = 0, column = 0;
-    const StringLiteral *fileName = 0;
-    getTokenPosition(index, &line, &column, &fileName);
-
-    if (DiagnosticClient *client = control()->diagnosticClient()) {
-        va_list args;
-        va_start(args, format);
-        client->report(DiagnosticClient::Fatal, fileName, line, column,
-                       format, args);
-        va_end(args);
-    } else {
-        fprintf(stderr, "%s:%d: ", fileName->chars(), line);
-        fprintf(stderr, "fatal: ");
-
-        va_list args;
-        va_start(args, format);
-        vfprintf(stderr, format, args);
-        va_end(args);
-        fputc('\n', stderr);
-
-        showErrorLine(index, column, stderr);
-    }
-
-    exit(EXIT_FAILURE);
+    va_list args, ap;
+    va_start(args, format);
+    va_copy(ap, args);
+    message(DiagnosticClient::Fatal, index, format, args);
+    va_end(ap);
+    va_end(args);
 }
 
 unsigned TranslationUnit::findPreviousLineOffset(unsigned tokenIndex) const

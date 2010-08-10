@@ -50,8 +50,7 @@
 #define CPLUSPLUS_DIAGNOSTICCLIENT_H
 
 #include "CPlusPlusForwardDeclarations.h"
-#include "stdarg.h"
-
+#include <cstdarg>
 
 namespace CPlusPlus {
 
