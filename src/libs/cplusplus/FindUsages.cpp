@@ -345,7 +345,7 @@ bool FindUsages::visit(DeclaratorAST *ast)
     return false;
 }
 
-void FindUsages::declarator(DeclaratorAST *ast)
+void FindUsages::declarator(DeclaratorAST *ast, ScopedSymbol *symbol)
 {
     if (! ast)
         return;
@@ -356,6 +356,9 @@ void FindUsages::declarator(DeclaratorAST *ast)
     for (PtrOperatorListAST *it = ast->ptr_operator_list; it; it = it->next) {
         this->ptrOperator(it->value);
     }
+
+    Scope *previousScope = switchScope(symbol);
+
     this->coreDeclarator(ast->core_declarator);
     for (PostfixDeclaratorListAST *it = ast->postfix_declarator_list; it; it = it->next) {
         this->postfixDeclarator(it->value);
@@ -365,6 +368,7 @@ void FindUsages::declarator(DeclaratorAST *ast)
     }
     // unsigned equals_token = ast->equals_token;
     this->expression(ast->initializer);
+    (void) switchScope(previousScope);
 }
 
 bool FindUsages::visit(QtPropertyDeclarationItemAST *ast)
@@ -1544,8 +1548,8 @@ bool FindUsages::visit(FunctionDefinitionAST *ast)
     for (SpecifierListAST *it = ast->decl_specifier_list; it; it = it->next) {
         this->specifier(it->value);
     }
-    Scope *previousScope = switchScope(ast->symbol); // ### not exactly.
-    this->declarator(ast->declarator);
+    this->declarator(ast->declarator, ast->symbol);
+    Scope *previousScope = switchScope(ast->symbol);
     this->ctorInitializer(ast->ctor_initializer);
     this->statement(ast->function_body);
     // Function *symbol = ast->symbol;

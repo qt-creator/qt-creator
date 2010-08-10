@@ -97,7 +97,7 @@ protected:
 
     void objCSelectorArgument(ObjCSelectorArgumentAST *ast);
     void attribute(AttributeAST *ast);
-    void declarator(DeclaratorAST *ast);
+    void declarator(DeclaratorAST *ast, ScopedSymbol *symbol = 0);
     void qtPropertyDeclarationItem(QtPropertyDeclarationItemAST *ast);
     void qtInterfaceName(QtInterfaceNameAST *ast);
     void baseSpecifier(BaseSpecifierAST *ast);
