@@ -20,7 +20,7 @@ QSize QmlJSOutlineItemDelegate::sizeHint(const QStyleOptionViewItem &option, con
 
     const QString annotation = index.data(QmlOutlineModel::AnnotationRole).toString();
     if (!annotation.isEmpty())
-        opt.text += "   " + annotation;
+        opt.text += "     " + annotation;
 
     QStyle *style = QApplication::style();
     return style->sizeFromContents(QStyle::CT_ItemViewItem, &opt, QSize(), 0);
@@ -40,22 +40,24 @@ void QmlJSOutlineItemDelegate::paint(QPainter *painter, const QStyleOptionViewIt
 
     QStyle *style = QApplication::style();
 
-    // paint type name
-    QRect typeRect = style->itemTextRect(opt.fontMetrics, opt.rect, Qt::AlignLeft, true, typeString);
+    style->drawControl(QStyle::CE_ItemViewItem, &opt, painter, 0);
 
-    QPalette::ColorRole textColorRole = QPalette::Text;
-    if (option.state & QStyle::State_Selected) {
-        textColorRole = QPalette::HighlightedText;
-    }
-
-    style->drawItemText(painter, typeRect, Qt::AlignLeft, opt.palette, true, typeString, textColorRole);
-
-    // paint annotation (e.g. id)
     if (!annotationString.isEmpty()) {
-        QRect annotationRect = style->itemTextRect(opt.fontMetrics, opt.rect, Qt::AlignLeft, true,
+        QPalette::ColorRole textColorRole = QPalette::Text;
+        if (option.state & QStyle::State_Selected) {
+            textColorRole = QPalette::HighlightedText;
+        }
+
+        // calculate sizes of icon, type.
+        QPixmap iconPixmap = opt.icon.pixmap(opt.rect.size());
+        QRect iconRect = style->itemPixmapRect(opt.rect, Qt::AlignLeft, iconPixmap);
+        QRect typeRect = style->itemTextRect(opt.fontMetrics, opt.rect, Qt::AlignLeft, true, typeString);
+        QRect annotationRect = style->itemTextRect(opt.fontMetrics, opt.rect, Qt::AlignLeft | Qt::AlignBottom, true,
                                                    annotationString);
-        static int space = opt.fontMetrics.width("   ");
-        annotationRect.adjust(typeRect.width() + space, 0, typeRect.width() + space, 0);
+
+        static int space = opt.fontMetrics.width("     ");
+        annotationRect.adjust(iconRect.width() + typeRect.width() + space, 0,
+                              iconRect.width() + typeRect.width() + space, 0);
 
         QPalette disabledPalette(opt.palette);
         disabledPalette.setCurrentColorGroup(QPalette::Disabled);
