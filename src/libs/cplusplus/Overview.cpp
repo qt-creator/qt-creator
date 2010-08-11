@@ -44,7 +44,8 @@ Overview::Overview()
       _showArgumentNames(false),
       _showReturnTypes(false),
       _showFunctionSignatures(true),
-      _showDefaultArguments(true)
+      _showDefaultArguments(true),
+      _showTemplateParameters(false)
 { }
 
 Overview::~Overview()
@@ -118,6 +119,16 @@ bool Overview::showDefaultArguments() const
 void Overview::setShowDefaultArguments(bool showDefaultArguments)
 {
     _showDefaultArguments = showDefaultArguments;
+}
+
+bool Overview::showTemplateParameters() const
+{
+    return _showTemplateParameters;
+}
+
+void Overview::setShowTemplateParameters(bool showTemplateParameters)
+{
+    _showTemplateParameters = showTemplateParameters;
 }
 
 QString Overview::prettyName(const Name *name) const

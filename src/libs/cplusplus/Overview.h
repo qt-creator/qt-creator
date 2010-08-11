@@ -56,6 +56,9 @@ public:
     bool showDefaultArguments() const;
     void setShowDefaultArguments(bool showDefaultArguments);
 
+    bool showTemplateParameters() const;
+    void setShowTemplateParameters(bool showTemplateParameters);
+
     // argument index that you want to mark
     unsigned markedArgument() const;
     void setMarkedArgument(unsigned position);
@@ -88,6 +91,7 @@ private:
     bool _showReturnTypes: 1;
     bool _showFunctionSignatures: 1;
     bool _showDefaultArguments: 1;
+    bool _showTemplateParameters: 1;
 };
 
 } // end of namespace CPlusPlus

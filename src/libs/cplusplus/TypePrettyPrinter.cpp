@@ -142,23 +142,23 @@ void TypePrettyPrinter::visit(Namespace *type)
 
 void TypePrettyPrinter::visit(Template *type)
 {
-    const unsigned argc = type->templateParameterCount();
-    QString decl;
-    decl += QLatin1String("template <");
-    for (unsigned i = 0; i < argc; ++i) {
-        if (i != 0)
-            decl += QLatin1String(", ");
-
-        decl += QLatin1String("T");
-        decl += QString::number(i + 1);
-    }
-    decl += QLatin1Char('<');
     if (Symbol *d = type->declaration()) {
-        decl += QLatin1Char(' ');
-        decl += overview()->prettyType(d->type(), d->name());
+        if (overview()->showTemplateParameters() && ! _name.isEmpty()) {
+            _name += QLatin1Char('<');
+            for (unsigned index = 0; index < type->templateParameterCount(); ++index) {
+                if (index)
+                    _name += QLatin1String(", ");
+                QString arg = overview()->prettyName(type->templateParameterAt(index)->name());
+                if (arg.isEmpty()) {
+                    arg += QLatin1Char('T');
+                    arg += QString::number(index + 1);
+                }
+                _name += arg;
+            }
+            _name += QLatin1Char('>');
+        }
+        acceptType(d->type());
     }
-    _text.prepend(decl);
-    qWarning() << "here:" << decl;
     prependCv(_fullySpecifiedType);
 }
 
