@@ -1783,6 +1783,20 @@ namespace ns {
 
 void testStuff()
 {
+    QList<QList<int> > list1;
+    QList<QList<int> > list2;
+    list1.append(QList<int>() << 1);
+    list2.append(QList<int>() << 2);
+    for (int i = 0; i < list1.size(); ++i) {
+        for (int j = 0; j < list1.at(i).size(); ++j) {
+            for (int k = i; k < list1.size(); ++k) {
+                for (int l = j; l < list1.at(k).size(); ++l) {
+                    qDebug() << list1.at(i).at(j)+list2.at(k).at(l);
+                }
+            }
+        }
+    }
+
     typedef unsigned short wchar;
     wchar *str = new wchar[10];
     str[2] = 0;
