@@ -1963,7 +1963,7 @@ void ProjectExplorerPlugin::updateContextMenuActions(Node *node)
             // If only deleteFile is enable only show it
             bool enableRemove = actions.contains(ProjectNode::RemoveFile);
             d->m_removeFileAction->setEnabled(enableRemove);
-            bool enableDelete = actions.contains(ProjectNode::DeleteFile);
+            bool enableDelete = actions.contains(ProjectNode::EraseFile);
             d->m_deleteFileAction->setEnabled(enableDelete);
             d->m_deleteFileAction->setVisible(enableDelete);
 
