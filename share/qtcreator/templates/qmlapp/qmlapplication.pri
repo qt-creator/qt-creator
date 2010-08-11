@@ -20,18 +20,19 @@ contains(DEFINES, QMLINSPECTOR) {
     }
 }
 
+for(deploymentfolder, DEPLOYMENTFOLDERS) {
+    item = item$${deploymentfolder}
+    itemsources = $${item}.sources
+    $$itemsources = $$eval($${deploymentfolder}.source)
+    itempath = $${item}.path
+    $$itempath= $$eval($${deploymentfolder}.target)
+    DEPLOYMENT += $$item
+}
+
 symbian {
     ICON = cpp/symbianicon.svg
     contains(DEFINES, ORIENTATIONLOCK):LIBS += -lavkon -leikcore -leiksrv -lcone
     contains(DEFINES, NETWORKACCESS):TARGET.CAPABILITY += NetworkServices
-    for(deploymentfolder, DEPLOYMENTFOLDERS) {
-        item = item$${deploymentfolder}
-        itemsources = $${item}.sources
-        $$itemsources = $$eval($${deploymentfolder}.source)
-        itempath = $${item}.path
-        $$itempath= $$eval($${deploymentfolder}.target)
-        DEPLOYMENT += $$item
-    }
 } else:win32 {
     !isEqual(PWD,$$OUT_PWD) {
         copyCommand = @echo Copying application data...
