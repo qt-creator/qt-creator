@@ -356,7 +356,7 @@ bool CheckName::visit(TemplateIdAST *ast)
 {
     const Identifier *id = identifier(ast->identifier_token);
     std::vector<FullySpecifiedType> templateArguments;
-    for (TemplateArgumentListAST *it = ast->template_argument_list; it;
+    for (ExpressionListAST *it = ast->template_argument_list; it;
             it = it->next) {
         ExpressionAST *arg = it->value;
         FullySpecifiedType exprTy = semantic()->check(arg, _scope);

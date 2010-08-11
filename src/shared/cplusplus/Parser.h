@@ -184,7 +184,7 @@ public:
     bool parseStringLiteral(ExpressionAST *&node);
     bool parseSwitchStatement(StatementAST *&node);
     bool parseTemplateArgument(ExpressionAST *&node);
-    bool parseTemplateArgumentList(TemplateArgumentListAST *&node);
+    bool parseTemplateArgumentList(ExpressionListAST *&node);
     bool parseTemplateDeclaration(DeclarationAST *&node);
     bool parseTemplateParameter(DeclarationAST *&node);
     bool parseTemplateParameterList(DeclarationListAST *&node);
@@ -319,9 +319,9 @@ public:
     struct TemplateArgumentListEntry {
         unsigned index;
         unsigned cursor;
-        TemplateArgumentListAST *ast;
+        ExpressionListAST *ast;
 
-        TemplateArgumentListEntry(unsigned index = 0, unsigned cursor = 0, TemplateArgumentListAST *ast = 0)
+        TemplateArgumentListEntry(unsigned index = 0, unsigned cursor = 0, ExpressionListAST *ast = 0)
             : index(index), cursor(cursor), ast(ast) {}
     };
 

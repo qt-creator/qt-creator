@@ -234,8 +234,6 @@ typedef List<ObjCPropertyAttributeAST *> ObjCPropertyAttributeListAST;
 typedef List<ObjCMessageArgumentDeclarationAST *> ObjCMessageArgumentDeclarationListAST;
 typedef List<ObjCSynthesizedPropertyAST *> ObjCSynthesizedPropertyListAST;
 
-typedef ExpressionListAST TemplateArgumentListAST;
-
 } // end of namespace CPlusPlus
 
 

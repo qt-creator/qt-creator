@@ -1830,7 +1830,7 @@ bool FindUsages::visit(QualifiedNameAST *ast)
                 template_id = class_or_namespace_name->asTemplateId();
 
                 if (template_id) {
-                    for (TemplateArgumentListAST *arg_it = template_id->template_argument_list; arg_it; arg_it = arg_it->next) {
+                    for (ExpressionListAST *arg_it = template_id->template_argument_list; arg_it; arg_it = arg_it->next) {
                         this->expression(arg_it->value);
                     }
                 }
@@ -1863,7 +1863,7 @@ bool FindUsages::visit(QualifiedNameAST *ast)
             if (template_id) {
                 identifier_token = template_id->identifier_token;
 
-                for (TemplateArgumentListAST *template_arguments = template_id->template_argument_list;
+                for (ExpressionListAST *template_arguments = template_id->template_argument_list;
                      template_arguments; template_arguments = template_arguments->next) {
                     this->expression(template_arguments->value);
                 }

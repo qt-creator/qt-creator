@@ -818,7 +818,7 @@ Parser::TemplateArgumentListEntry *Parser::templateArgumentListEntry(unsigned to
     return 0;
 }
 
-bool Parser::parseTemplateArgumentList(TemplateArgumentListAST *&node)
+bool Parser::parseTemplateArgumentList(ExpressionListAST *&node)
 {
     DEBUG_THIS_RULE();
 
@@ -830,10 +830,10 @@ bool Parser::parseTemplateArgumentList(TemplateArgumentListAST *&node)
 
     unsigned start = cursor();
 
-    TemplateArgumentListAST **template_argument_ptr = &node;
+    ExpressionListAST **template_argument_ptr = &node;
     ExpressionAST *template_argument = 0;
     if (parseTemplateArgument(template_argument)) {
-        *template_argument_ptr = new (_pool) TemplateArgumentListAST;
+        *template_argument_ptr = new (_pool) ExpressionListAST;
         (*template_argument_ptr)->value = template_argument;
         template_argument_ptr = &(*template_argument_ptr)->next;
 
@@ -844,7 +844,7 @@ bool Parser::parseTemplateArgumentList(TemplateArgumentListAST *&node)
             consumeToken(); // consume T_COMMA
 
             if (parseTemplateArgument(template_argument)) {
-                *template_argument_ptr = new (_pool) TemplateArgumentListAST;
+                *template_argument_ptr = new (_pool) ExpressionListAST;
                 (*template_argument_ptr)->value = template_argument;
                 template_argument_ptr = &(*template_argument_ptr)->next;
 
@@ -855,10 +855,10 @@ bool Parser::parseTemplateArgumentList(TemplateArgumentListAST *&node)
 
         if (_pool != _translationUnit->memoryPool()) {
             MemoryPool *pool = _translationUnit->memoryPool();
-            TemplateArgumentListAST *template_argument_list = node;
-            for (TemplateArgumentListAST *iter = template_argument_list, **ast_iter = &node;
+            ExpressionListAST *template_argument_list = node;
+            for (ExpressionListAST *iter = template_argument_list, **ast_iter = &node;
                  iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
-                *ast_iter = new (pool) TemplateArgumentListAST((iter->value) ? iter->value->clone(pool) : 0);
+                *ast_iter = new (pool) ExpressionListAST((iter->value) ? iter->value->clone(pool) : 0);
         }
 
         _templateArgumentList.insert(std::make_pair(start, TemplateArgumentListEntry(start, cursor(), node)));
@@ -4117,7 +4117,7 @@ bool Parser::parseNameId(NameAST *&name)
 
     else if (LA() == T_LPAREN) {
         // a template-id followed by a T_LPAREN
-        if (TemplateArgumentListAST *template_arguments = template_id->template_argument_list) {
+        if (ExpressionListAST *template_arguments = template_id->template_argument_list) {
             if (! template_arguments->next && template_arguments->value &&
                     template_arguments->value->asBinaryExpression()) {
 

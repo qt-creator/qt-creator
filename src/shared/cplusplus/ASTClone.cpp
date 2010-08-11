@@ -804,9 +804,9 @@ TemplateIdAST *TemplateIdAST::clone(MemoryPool *pool) const
     TemplateIdAST *ast = new (pool) TemplateIdAST;
     ast->identifier_token = identifier_token;
     ast->less_token = less_token;
-    for (TemplateArgumentListAST *iter = template_argument_list, **ast_iter = &ast->template_argument_list;
+    for (ExpressionListAST *iter = template_argument_list, **ast_iter = &ast->template_argument_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
-        *ast_iter = new (pool) TemplateArgumentListAST((iter->value) ? iter->value->clone(pool) : 0);
+        *ast_iter = new (pool) ExpressionListAST((iter->value) ? iter->value->clone(pool) : 0);
     ast->greater_token = greater_token;
     return ast;
 }
