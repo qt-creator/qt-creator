@@ -341,7 +341,8 @@ bool HelpViewer::isBackwardAvailable() const
 bool HelpViewer::findText(const QString &text, Find::FindFlags flags,
     bool incremental, bool fromSearch)
 {
-    Q_UNUSED((incremental && fromSearch))
+    Q_UNUSED(incremental);
+    Q_UNUSED(fromSearch);
     QWebPage::FindFlags options = QWebPage::FindWrapsAroundDocument;
     if (flags & Find::FindBackward)
         options |= QWebPage::FindBackward;
