@@ -693,6 +693,12 @@ QString QtVersion::mkspecPath() const
     return m_mkspecFullPath;
 }
 
+bool QtVersion::isBuildWithSymbianSbsV2() const
+{
+    updateToolChainAndMkspec();
+    return m_isBuildUsingSbsV2;
+}
+
 QString QtVersion::qtVersionString() const
 {
     if (m_qtVersionString.isNull()) {
@@ -1325,6 +1331,8 @@ void QtVersion::updateToolChainAndMkspec() const
 
     m_mkspec = mkspec;
 
+    m_isBuildUsingSbsV2 = false;
+
 //    qDebug()<<"mkspec for "<<qmakeCommand()<<" is "<<m_mkspec<<m_mkspecFullPath;
 
     ProFileOption option;
@@ -1351,6 +1359,7 @@ void QtVersion::updateToolChainAndMkspec() const
     } else if (makefileGenerator == QLatin1String("SYMBIAN_ABLD") ||
                makefileGenerator == QLatin1String("SYMBIAN_SBSV2") ||
                makefileGenerator == QLatin1String("SYMBIAN_UNIX")) {
+        m_isBuildUsingSbsV2 = (makefileGenerator == QLatin1String("SYMBIAN_SBSV2"));
         if (S60Manager *s60mgr = S60Manager::instance()) {
 #    ifdef Q_OS_WIN
             m_targetIds.insert(QLatin1String(Constants::S60_DEVICE_TARGET_ID));

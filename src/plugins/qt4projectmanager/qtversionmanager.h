@@ -84,6 +84,8 @@ public:
     /// specifally not the directory the symlink/ORIGINAL_QMAKESPEC points to
     QString mkspecPath() const;
 
+    bool isBuildWithSymbianSbsV2() const;
+
     void setDisplayName(const QString &name);
     void setQMakeCommand(const QString &path);
 
@@ -189,6 +191,8 @@ private:
     mutable QString m_designerCommand;
     mutable QString m_linguistCommand;
     mutable QSet<QString> m_targetIds;
+
+    mutable bool m_isBuildUsingSbsV2;
 };
 
 struct QMakeAssignment
