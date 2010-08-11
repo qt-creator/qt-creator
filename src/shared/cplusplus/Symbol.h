@@ -284,7 +284,7 @@ public:
     bool isUnavailable() const;
     void setUnavailable(bool isUnavailable);
 
-    Symbol *enclosingSymbol() const;
+    ScopedSymbol *enclosingSymbol() const;
 
     /// Returns the eclosing namespace scope.
     Scope *enclosingNamespaceScope() const;

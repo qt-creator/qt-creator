@@ -242,7 +242,7 @@ void Symbol::setScope(Scope *scope)
     _scope = scope;
 }
 
-Symbol *Symbol::enclosingSymbol() const
+ScopedSymbol *Symbol::enclosingSymbol() const
 {
     if (! _scope)
         return 0;
