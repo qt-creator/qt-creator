@@ -340,6 +340,15 @@ void NavigationWidget::restoreSettings(QSettings *settings)
     }
 }
 
+void NavigationWidget::closeSubWidgets()
+{
+    foreach (NavigationSubWidget *subWidget, m_subWidgets) {
+        subWidget->saveSettings();
+        delete subWidget;
+    }
+    m_subWidgets.clear();
+}
+
 void NavigationWidget::setShown(bool b)
 {
     if (m_shown == b)

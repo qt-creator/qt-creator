@@ -283,9 +283,6 @@ MainWindow::~MainWindow()
     delete m_rightPaneWidget;
     m_rightPaneWidget = 0;
 
-    delete m_navigationWidget;
-    m_navigationWidget = 0;
-
     delete m_modeManager;
     m_modeManager = 0;
     delete m_mimeDatabase;
@@ -366,7 +363,11 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
 
     emit m_coreImpl->coreAboutToClose();
+
     writeSettings();
+
+    m_navigationWidget->closeSubWidgets();
+
     event->accept();
 }
 

@@ -92,6 +92,8 @@ public:
     void saveSettings(QSettings *settings);
     void restoreSettings(QSettings *settings);
 
+    void closeSubWidgets();
+
     bool isShown() const;
     void setShown(bool b);
 
