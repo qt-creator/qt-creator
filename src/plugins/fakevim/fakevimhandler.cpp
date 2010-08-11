@@ -1867,6 +1867,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         }
     } else if (input.is('`')) {
         m_subsubmode = BackTickSubSubMode;
+        if (m_submode != NoSubMode)
+            m_movetype = MoveLineWise;
     } else if (input.is('#') || input.is('*')) {
         // FIXME: That's not proper vim behaviour
         QTextCursor tc = m_tc;
@@ -1888,6 +1890,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         //updateMiniBuffer();
     } else if (input.is('\'')) {
         m_subsubmode = TickSubSubMode;
+        if (m_submode != NoSubMode)
+            m_movetype = MoveLineWise;
     } else if (input.is('|')) {
         moveToStartOfLine();
         moveRight(qMin(count(), rightDist()) - 1);
