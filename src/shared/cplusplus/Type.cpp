@@ -92,6 +92,9 @@ bool Type::isFunctionType() const
 bool Type::isNamespaceType() const
 { return asNamespaceType() != 0; }
 
+bool Type::isTemplateType() const
+{ return asTemplateType() != 0; }
+
 bool Type::isClassType() const
 { return asClassType() != 0; }
 

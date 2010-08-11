@@ -130,7 +130,7 @@ void parse(const char *fileName, const char *source, unsigned size)
         Semantic sem(&unit);
         Namespace *globalNamespace = control.newNamespace(0);
         for (List<DeclarationAST *> *it = ast->declaration_list; it; it = it->next) {
-            sem.check(it->value, globalNamespace->members());
+            sem.check(it->value, globalNamespace);
         }
     }
 }

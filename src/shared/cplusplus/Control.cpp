@@ -333,40 +333,35 @@ public:
 
     Declaration *newDeclaration(unsigned sourceLocation, const Name *name)
     {
-        Declaration *declaration = new Declaration(translationUnit,
-                                                   sourceLocation, name);
+        Declaration *declaration = new Declaration(translationUnit, sourceLocation, name);
         symbols.push_back(declaration);
         return declaration;
     }
 
     Argument *newArgument(unsigned sourceLocation, const Name *name)
     {
-        Argument *argument = new Argument(translationUnit,
-                                          sourceLocation, name);
+        Argument *argument = new Argument(translationUnit, sourceLocation, name);
         symbols.push_back(argument);
         return argument;
     }
 
     TypenameArgument *newTypenameArgument(unsigned sourceLocation, const Name *name)
     {
-        TypenameArgument *argument = new TypenameArgument(translationUnit,
-                                                          sourceLocation, name);
+        TypenameArgument *argument = new TypenameArgument(translationUnit, sourceLocation, name);
         symbols.push_back(argument);
         return argument;
     }
 
     Function *newFunction(unsigned sourceLocation, const Name *name)
     {
-        Function *function = new Function(translationUnit,
-                                          sourceLocation, name);
+        Function *function = new Function(translationUnit, sourceLocation, name);
         symbols.push_back(function);
         return function;
     }
 
     BaseClass *newBaseClass(unsigned sourceLocation, const Name *name)
     {
-        BaseClass *baseClass = new BaseClass(translationUnit,
-                                             sourceLocation, name);
+        BaseClass *baseClass = new BaseClass(translationUnit, sourceLocation, name);
         symbols.push_back(baseClass);
         return baseClass;
     }
@@ -380,40 +375,42 @@ public:
 
     Class *newClass(unsigned sourceLocation, const Name *name)
     {
-        Class *klass = new Class(translationUnit,
-                                 sourceLocation, name);
+        Class *klass = new Class(translationUnit, sourceLocation, name);
         symbols.push_back(klass);
         return klass;
     }
 
     Namespace *newNamespace(unsigned sourceLocation, const Name *name)
     {
-        Namespace *ns = new Namespace(translationUnit,
-                                      sourceLocation, name);
+        Namespace *ns = new Namespace(translationUnit, sourceLocation, name);
+        symbols.push_back(ns);
+        return ns;
+    }
+
+    Template *newTemplate(unsigned sourceLocation, const Name *name)
+    {
+        Template *ns = new Template(translationUnit, sourceLocation, name);
         symbols.push_back(ns);
         return ns;
     }
 
     NamespaceAlias *newNamespaceAlias(unsigned sourceLocation, const Name *name)
     {
-        NamespaceAlias *ns = new NamespaceAlias(translationUnit,
-                                                sourceLocation, name);
+        NamespaceAlias *ns = new NamespaceAlias(translationUnit, sourceLocation, name);
         symbols.push_back(ns);
         return ns;
     }
 
     UsingNamespaceDirective *newUsingNamespaceDirective(unsigned sourceLocation, const Name *name)
     {
-        UsingNamespaceDirective *u = new UsingNamespaceDirective(translationUnit,
-                                                                 sourceLocation, name);
+        UsingNamespaceDirective *u = new UsingNamespaceDirective(translationUnit, sourceLocation, name);
         symbols.push_back(u);
         return u;
     }
 
     ForwardClassDeclaration *newForwardClassDeclaration(unsigned sourceLocation, const Name *name)
     {
-        ForwardClassDeclaration *c = new ForwardClassDeclaration(translationUnit,
-                                                                 sourceLocation, name);
+        ForwardClassDeclaration *c = new ForwardClassDeclaration(translationUnit, sourceLocation, name);
         symbols.push_back(c);
         return c;
     }
@@ -476,16 +473,14 @@ public:
 
     Enum *newEnum(unsigned sourceLocation, const Name *name)
     {
-        Enum *e = new Enum(translationUnit,
-                           sourceLocation, name);
+        Enum *e = new Enum(translationUnit, sourceLocation, name);
         symbols.push_back(e);
         return e;
     }
 
     UsingDeclaration *newUsingDeclaration(unsigned sourceLocation, const Name *name)
     {
-        UsingDeclaration *u = new UsingDeclaration(translationUnit,
-                                                   sourceLocation, name);
+        UsingDeclaration *u = new UsingDeclaration(translationUnit, sourceLocation, name);
         symbols.push_back(u);
         return u;
     }
@@ -688,6 +683,9 @@ Function *Control::newFunction(unsigned sourceLocation, const Name *name)
 
 Namespace *Control::newNamespace(unsigned sourceLocation, const Name *name)
 { return d->newNamespace(sourceLocation, name); }
+
+Template *Control::newTemplate(unsigned sourceLocation, const Name *name)
+{ return d->newTemplate(sourceLocation, name); }
 
 NamespaceAlias *Control::newNamespaceAlias(unsigned sourceLocation, const Name *name)
 { return d->newNamespaceAlias(sourceLocation, name); }

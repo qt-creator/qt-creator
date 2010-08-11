@@ -430,6 +430,63 @@ void Enum::visitSymbol0(SymbolVisitor *visitor)
     }
 }
 
+Template::Template(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
+    : Scope(translationUnit, sourceLocation, name)
+{ }
+
+Template::~Template()
+{ }
+
+unsigned Template::templateParameterCount() const
+{
+    if (declaration() != 0)
+        return memberCount() - 1;
+
+    return 0;
+}
+
+Symbol *Template::templateParameterAt(unsigned index) const
+{ return memberAt(index); }
+
+Symbol *Template::declaration() const
+{
+    if (isEmpty())
+        return 0;
+
+    if (Symbol *s = memberAt(memberCount() - 1)) {
+        if (s->isClass() || s->isForwardClassDeclaration() ||
+            s->isTemplate() || s->isFunction() || s->isDeclaration())
+            return s;
+    }
+
+    return 0;
+}
+
+FullySpecifiedType Template::type() const
+{ return FullySpecifiedType(const_cast<Template *>(this)); }
+
+bool Template::isEqualTo(const Type *other) const
+{ return other == this; }
+
+void Template::visitSymbol0(SymbolVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        for (unsigned i = 0; i < memberCount(); ++i) {
+            visitSymbol(memberAt(i), visitor);
+        }
+    }
+}
+
+void Template::accept0(TypeVisitor *visitor)
+{ visitor->visit(this); }
+
+bool Template::matchType0(const Type *otherType, TypeMatcher *matcher) const
+{
+    if (const Template *otherTy = otherType->asTemplateType())
+        return matcher->match(this, otherTy);
+    return false;
+}
+
 Namespace::Namespace(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : Scope(translationUnit, sourceLocation, name)
 { }

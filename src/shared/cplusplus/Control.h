@@ -129,6 +129,9 @@ public:
     /// Creates a new Namespace symbol.
     Namespace *newNamespace(unsigned sourceLocation, const Name *name = 0);
 
+    /// Creates a new Template symbol.
+    Template *newTemplate(unsigned sourceLocation, const Name *name = 0);
+
     /// Creates a new Namespace symbol.
     NamespaceAlias *newNamespaceAlias(unsigned sourceLocation, const Name *name = 0);
 

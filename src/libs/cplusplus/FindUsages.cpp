@@ -234,9 +234,7 @@ void FindUsages::checkExpression(unsigned startToken, unsigned endToken, Scope *
     if (! scope)
         scope = _currentScope;
 
-    const QList<LookupItem> results = typeofExpression(expression, scope,
-                                                       TypeOfExpression::Preprocess);
-
+    const QList<LookupItem> results = typeofExpression(expression, scope, TypeOfExpression::Preprocess);
     reportResult(endToken, results);
 }
 
@@ -245,7 +243,9 @@ Scope *FindUsages::switchScope(Scope *scope)
     if (! scope)
         return _currentScope;
 
-    return switchScope(scope);
+    Scope *previousScope = _currentScope;
+    _currentScope = scope;
+    return previousScope;
 }
 
 void FindUsages::statement(StatementAST *ast)

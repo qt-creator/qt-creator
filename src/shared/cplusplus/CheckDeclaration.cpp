@@ -447,19 +447,23 @@ bool CheckDeclaration::visit(ParameterDeclarationAST *ast)
 
 bool CheckDeclaration::visit(TemplateDeclarationAST *ast)
 {
-#warning robe process template arguments
-#if 0
-    Scope *scope = new Scope(_scope->owner());
+    Template *templ = control()->newTemplate(ast->firstToken());
+    ast->symbol = templ;
 
     for (DeclarationListAST *param = ast->template_parameter_list; param; param = param->next) {
-       semantic()->check(param->value, scope);
+       semantic()->check(param->value, templ);
     }
 
-    semantic()->check(ast->declaration, _scope,
-                      new TemplateParameters(_templateParameters, scope));
-#else
-    semantic()->check(ast->declaration, _scope);
-#endif
+    semantic()->check(ast->declaration, templ);
+
+    if (Symbol *decl = templ->declaration()) {
+        // propagate the name
+        if (decl->sourceLocation())
+            templ->setSourceLocation(decl->sourceLocation(), translationUnit());
+        templ->setName(decl->name());
+    }
+
+    _scope->addMember(templ);
 
     return false;
 }

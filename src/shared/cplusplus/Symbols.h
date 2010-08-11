@@ -376,6 +376,41 @@ private:
     };
 };
 
+class CPLUSPLUS_EXPORT Template: public Scope, public Type
+{
+public:
+    Template(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    virtual ~Template();
+
+    unsigned templateParameterCount() const;
+    Symbol *templateParameterAt(unsigned index) const;
+    Symbol *declaration() const;
+
+    // Symbol's interface
+    virtual FullySpecifiedType type() const;
+
+    // Type's interface
+    virtual bool isEqualTo(const Type *other) const;
+
+    virtual const Template *asTemplate() const
+    { return this; }
+
+    virtual Template *asTemplate()
+    { return this; }
+
+    virtual const Template *asTemplateType() const
+    { return this; }
+
+    virtual Template *asTemplateType()
+    { return this; }
+
+protected:
+    virtual void visitSymbol0(SymbolVisitor *visitor);
+    virtual void accept0(TypeVisitor *visitor);
+    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
+};
+
+
 class CPLUSPLUS_EXPORT Namespace: public Scope, public Type
 {
 public:

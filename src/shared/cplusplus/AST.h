@@ -3084,6 +3084,9 @@ public:
     unsigned greater_token;
     DeclarationAST *declaration;
 
+public: // annotations
+    Template *symbol;
+
 public:
     TemplateDeclarationAST()
         : export_token(0)
@@ -3092,6 +3095,7 @@ public:
         , template_parameter_list(0)
         , greater_token(0)
         , declaration(0)
+        , symbol(0)
     {}
 
     virtual TemplateDeclarationAST *asTemplateDeclaration() { return this; }

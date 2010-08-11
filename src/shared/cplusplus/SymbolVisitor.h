@@ -78,6 +78,7 @@ public:
     virtual bool visit(Enum *) { return true; }
     virtual bool visit(Function *) { return true; }
     virtual bool visit(Namespace *) { return true; }
+    virtual bool visit(Template *) { return true; }
     virtual bool visit(Class *) { return true; }
     virtual bool visit(Block *) { return true; }
     virtual bool visit(ForwardClassDeclaration *) { return true; }

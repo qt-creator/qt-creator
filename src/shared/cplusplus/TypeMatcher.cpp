@@ -174,6 +174,14 @@ bool TypeMatcher::match(const Namespace *type, const Namespace *otherType)
     return true;
 }
 
+bool TypeMatcher::match(const Template *type, const Template *otherType)
+{
+    if (type != otherType)
+        return false;
+
+    return true;
+}
+
 bool TypeMatcher::match(const ForwardClassDeclaration *type, const ForwardClassDeclaration *otherType)
 {
     if (type != otherType)

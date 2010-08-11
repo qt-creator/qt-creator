@@ -56,6 +56,7 @@ public:
     virtual bool match(const Function *type, const Function *otherType);
     virtual bool match(const Enum *type, const Enum *otherType);
     virtual bool match(const Namespace *type, const Namespace *otherType);
+    virtual bool match(const Template *type, const Template *otherType);
     virtual bool match(const ForwardClassDeclaration *type, const ForwardClassDeclaration *otherType);
     virtual bool match(const Class *type, const Class *otherType);
     virtual bool match(const ObjCClass *type, const ObjCClass *otherType);
