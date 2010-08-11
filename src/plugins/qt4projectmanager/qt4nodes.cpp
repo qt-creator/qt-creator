@@ -557,6 +557,16 @@ void Qt4PriFileNode::update(ProFile *includeFileExact, ProFileReader *readerExac
             folders[i] = projectDir + "/" + folders.at(i);
     }
 
+    // Remove non existing items
+    QStringList::iterator it = folders.begin();
+    while (it != folders.end()) {
+        QFileInfo fi(*it);
+        if (!fi.exists())
+            it = folders.erase(it);
+        else
+            ++it;
+    }
+
     folders.removeDuplicates();
     watchFolders(folders.toSet());
 
