@@ -50,10 +50,6 @@ namespace Core {
     class IContext;
 }
 
-namespace Debugger {
-    class DebuggerRunControl;
-}
-
 namespace QmlJS {
     class ModelManagerInterface;
 }
