@@ -58,6 +58,10 @@
 #include <cstdarg>
 #include <algorithm>
 
+#ifndef _MSC_VER
+#    define va_copy(dst, src) ((dst) = (src))
+#endif
+
 using namespace CPlusPlus;
 
 TranslationUnit::TranslationUnit(Control *control, const StringLiteral *fileId)
