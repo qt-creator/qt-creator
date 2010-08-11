@@ -30,7 +30,6 @@
 #ifndef MAEMOREMOTEMOUNTER_H
 #define MAEMOREMOTEMOUNTER_H
 
-#include "maemodeviceconfigurations.h"
 #include "maemomountspecification.h"
 
 #include <coreplugin/ssh/sftpdefs.h>
@@ -58,8 +57,9 @@ class MaemoRemoteMounter : public QObject
 public:
     MaemoRemoteMounter(QObject *parent, const MaemoToolChain *toolchain);
     ~MaemoRemoteMounter();
-    void addMountSpecification(const MaemoMountSpecification &mountSpec);
-    void mount(const MaemoDeviceConfig &devConfig);
+    void addMountSpecification(const MaemoMountSpecification &mountSpec,
+        bool mountAsRoot);
+    void mount();
     void unmount();
     void stop();
 
@@ -90,10 +90,16 @@ private:
     QString utfsServer() const;
 
     const MaemoToolChain * const m_toolChain;
-    MaemoDeviceConfig m_devConfig;
+
+    struct MountInfo {
+        MountInfo(const MaemoMountSpecification &m, bool root)
+            : mountSpec(m), mountAsRoot(root) {}
+        MaemoMountSpecification mountSpec;
+        bool mountAsRoot;
+    };
 
     QSharedPointer<Core::SshConnection> m_connection;
-    QList<MaemoMountSpecification> m_mountSpecs;
+    QList<MountInfo> m_mountSpecs;
     QSharedPointer<Core::SftpChannel> m_utfsClientUploader;
     QSharedPointer<Core::SshRemoteProcess> m_mountProcess;
     QSharedPointer<Core::SshRemoteProcess> m_unmountProcess;

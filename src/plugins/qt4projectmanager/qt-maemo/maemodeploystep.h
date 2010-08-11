@@ -42,18 +42,28 @@
 #include <QtCore/QPair>
 #include <QtCore/QSharedPointer>
 
+// #define DEPLOY_VIA_MOUNT
+
 QT_BEGIN_NAMESPACE
 class QEventLoop;
+#ifdef DEPLOY_VIA_MOUNT
+class QTimer;
+#endif
 QT_END_NAMESPACE
 
 namespace Core {
+#ifndef DEPLOY_VIA_MOUNT
 class SftpChannel;
+#endif
 class SshConnection;
 class SshRemoteProcess;
 }
 
 namespace Qt4ProjectManager {
 namespace Internal {
+#ifdef DEPLOY_VIA_MOUNT
+class MaemoRemoteMounter;
+#endif
 class MaemoDeployables;
 class MaemoDeviceConfigListModel;
 class MaemoPackageCreationStep;
@@ -81,10 +91,19 @@ private slots:
     void stop();
     void handleConnected();
     void handleConnectionFailure();
+#ifdef DEPLOY_VIA_MOUNT
+    void handleMounted();
+    void handleUnmounted();
+    void handleMountError(const QString &errorMsg);
+    void handleProgressReport(const QString &progressMsg);
+    void handleCopyProcessFinished(int exitStatus);
+    void handleCleanupTimeout();
+#else
     void handleSftpChannelInitialized();
     void handleSftpChannelInitializationFailed(const QString &error);
     void handleSftpJobFinished(Core::SftpJobId job, const QString &error);
     void handleLinkProcessFinished(int exitStatus);
+#endif
     void handleInstallationFinished(int exitStatus);
     void handleInstallerOutput(const QByteArray &output);
     void handleInstallerErrorOutput(const QByteArray &output);
@@ -105,20 +124,39 @@ private:
     void addDeployTimesToMap(QVariantMap &map) const;
     void getDeployTimesFromMap(const QVariantMap &map);
     const MaemoPackageCreationStep *packagingStep() const;
+#ifdef DEPLOY_VIA_MOUNT
+    QString deployMountPoint() const;
+    void deployNextFile();
+#else
     bool deploy(const MaemoDeployable &deployable);
+#endif
+
+#ifndef DEPLOY_VIA_MOUNT
     QString uploadDir() const;
+#endif
 
     static const QLatin1String Id;
 
     MaemoDeployables * const m_deployables;
     QSharedPointer<Core::SshConnection> m_connection;
+#ifdef DEPLOY_VIA_MOUNT
+    typedef QPair<MaemoDeployable, QSharedPointer<Core::SshRemoteProcess> > DeployAction;
+    QScopedPointer<DeployAction> m_currentDeployAction;
+    QList<MaemoDeployable> m_filesToCopy;
+    MaemoRemoteMounter *m_mounter;
+    QTimer *m_cleanupTimer;
+    bool m_canStart;
+#else
     QSharedPointer<Core::SftpChannel> m_uploader;
-    QSharedPointer<Core::SshRemoteProcess> m_installer;
     typedef QPair<MaemoDeployable, QString> DeployInfo;
     QMap<Core::SftpJobId, DeployInfo> m_uploadsInProgress;
     QMap<QSharedPointer<Core::SshRemoteProcess>, MaemoDeployable> m_linksInProgress;
-    bool m_needsInstall;
+#endif
+    QSharedPointer<Core::SshRemoteProcess> m_installer;
+
     bool m_stopped;
+    bool m_needsInstall;
+    bool m_connecting;
     typedef QPair<MaemoDeployable, QString> DeployablePerHost;
     QHash<DeployablePerHost, QDateTime> m_lastDeployed;
     MaemoDeviceConfigListModel *m_deviceConfigModel;

@@ -197,14 +197,15 @@ void MaemoSshRunner::handleUnmounted()
     const MaemoRemoteMountsModel * const remoteMounts
         = m_runConfig->remoteMounts();
     for (int i = 0; i < remoteMounts->mountSpecificationCount(); ++i)
-        m_mounter->addMountSpecification(remoteMounts->mountSpecificationAt(i));
+        m_mounter->addMountSpecification(remoteMounts->mountSpecificationAt(i),
+            false);
     if (m_debugging && m_runConfig->useRemoteGdb()) {
         m_mounter->addMountSpecification(MaemoMountSpecification(
             m_runConfig->localDirToMountForRemoteGdb(),
             MaemoGlobal::remoteProjectSourcesMountPoint(),
-            m_devConfig.debuggingPort));
+            m_devConfig.debuggingPort), false);
     }
-    m_mounter->mount(m_devConfig);
+    m_mounter->mount();
 }
 
 void MaemoSshRunner::handleMounted()
