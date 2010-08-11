@@ -93,7 +93,7 @@ static const FileTypeDataStorage fileTypeDataStorage[] = {
       ":/qt4projectmanager/images/qt_qrc.png" },
     { ProjectExplorer::QMLType,
       QT_TRANSLATE_NOOP("Qt4ProjectManager::Internal::Qt4PriFileNode", "QML"),
-      ":/qt4projectmanager/images/qml.png" }, // TODO icon
+      ":/qt4projectmanager/images/qml.ico" }, // TODO icon
     { ProjectExplorer::UnknownFileType,
       QT_TRANSLATE_NOOP("Qt4ProjectManager::Internal::Qt4PriFileNode", "Other files"),
       ":/qt4projectmanager/images/unknown.png" }
