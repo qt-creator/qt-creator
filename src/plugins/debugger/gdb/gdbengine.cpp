@@ -4190,6 +4190,14 @@ void GdbEngine::setupInferior()
     m_gdbAdapter->setupInferior();
 }
 
+void GdbEngine::notifyInferiorSetupFailed()
+{
+    // FIXME: that's not enough to stop gdb from getting confused
+    // by a timeout of the adapter.
+    //resetCommandQueue();
+    DebuggerEngine::notifyInferiorSetupFailed();
+}
+
 void GdbEngine::handleInferiorPrepared()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
@@ -4289,6 +4297,19 @@ void GdbEngine::handleCreateFullBacktrace(const GdbResponse &response)
     }
 }
 
+void GdbEngine::resetCommandQueue()
+{
+    m_commandTimer->stop();
+    if (!m_cookieForToken.isEmpty()) {
+        QString msg;
+        QTextStream ts(&msg);
+        ts << "RESETING COMMAND QUEUE. LEFT OVER TOKENS: ";
+        foreach (const GdbCommand &cookie, m_cookieForToken)
+            ts << "CMD:" << cookie.command << cookie.callbackName;
+        m_cookieForToken.clear();
+        showMessage(msg);
+    }
+}
 
 //
 // Factory

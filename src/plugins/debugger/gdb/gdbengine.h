@@ -113,6 +113,7 @@ private: ////////// General Interface //////////
     virtual void detachDebugger();
     virtual void shutdownEngine();
     virtual void shutdownInferior();
+    virtual void notifyInferiorSetupFailed();
 
     virtual void executeDebuggerCommand(const QString &command);
     virtual QString qtNamespace() const { return m_dumperHelper.qtNamespace(); }
@@ -287,6 +288,7 @@ private: ////////// Gdb Output, State & Capability Handling //////////
     void handleStop1(const GdbResponse &response);
     void handleStop1(const GdbMi &data);
     StackFrame parseStackFrame(const GdbMi &mi, int level);
+    void resetCommandQueue();
 
     bool isSynchroneous() const { return hasPython(); }
     virtual bool hasPython() const;

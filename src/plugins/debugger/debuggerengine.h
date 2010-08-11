@@ -269,38 +269,41 @@ public:
     virtual void quitDebugger(); // called by DebuggerRunControl
 
 protected:
-    void notifyEngineSetupOk();
-    void notifyEngineSetupFailed();
-    void notifyEngineRunFailed();
+    // The base notify*() function implementation should be sufficient
+    // in most cases, but engines are free to override them to do some
+    // engine specific cleanup like stopping timers etc.
+    virtual void notifyEngineSetupOk();
+    virtual void notifyEngineSetupFailed();
+    virtual void notifyEngineRunFailed();
 
-    void notifyInferiorSetupOk();
-    void notifyInferiorSetupFailed();
+    virtual void notifyInferiorSetupOk();
+    virtual void notifyInferiorSetupFailed();
 
-    void notifyEngineRunAndInferiorRunOk();
-    void notifyEngineRunAndInferiorStopOk();
-    void notifyInferiorUnrunnable(); // Called by CoreAdapter.
+    virtual void notifyEngineRunAndInferiorRunOk();
+    virtual void notifyEngineRunAndInferiorStopOk();
+    virtual void notifyInferiorUnrunnable(); // Called by CoreAdapter.
 
     // Use notifyInferiorRunRequested() plus notifyInferiorRunOk() instead.
-    //void notifyInferiorSpontaneousRun();
+    //virtual void notifyInferiorSpontaneousRun();
 
-    void notifyInferiorRunRequested();
-    void notifyInferiorRunOk();
-    void notifyInferiorRunFailed();
+    virtual void notifyInferiorRunRequested();
+    virtual void notifyInferiorRunOk();
+    virtual void notifyInferiorRunFailed();
 
-    void notifyInferiorStopOk();
-    void notifyInferiorSpontaneousStop();
-    void notifyInferiorStopFailed();
-    void notifyInferiorExited();
+    virtual void notifyInferiorStopOk();
+    virtual void notifyInferiorSpontaneousStop();
+    virtual void notifyInferiorStopFailed();
+    virtual void notifyInferiorExited();
 
-    void notifyInferiorShutdownOk();
-    void notifyInferiorShutdownFailed();
+    virtual void notifyInferiorShutdownOk();
+    virtual void notifyInferiorShutdownFailed();
 
-    void notifyEngineSpontaneousShutdown();
-    void notifyEngineShutdownOk();
-    void notifyEngineShutdownFailed();
+    virtual void notifyEngineSpontaneousShutdown();
+    virtual void notifyEngineShutdownOk();
+    virtual void notifyEngineShutdownFailed();
 
-    void notifyInferiorIll();
-    void notifyEngineIll();
+    virtual void notifyInferiorIll();
+    virtual void notifyEngineIll();
 
     virtual void setupEngine() = 0;
     virtual void setupInferior() = 0;
