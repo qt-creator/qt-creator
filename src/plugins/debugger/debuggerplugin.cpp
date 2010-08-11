@@ -1264,7 +1264,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     connect(m_registerDock->toggleViewAction(), SIGNAL(toggled(bool)),
         SLOT(registerDockToggled(bool)), Qt::QueuedConnection);
 
-    m_outputDock = m_uiSwitcher->createDockWidget(LANG_CPP, m_outputWindow,
+    m_outputDock = m_uiSwitcher->createDockWidget(QString(), m_outputWindow,
         Qt::TopDockWidgetArea, false);
 
     m_snapshotDock = m_uiSwitcher->createDockWidget(LANG_CPP, m_snapshotWindow);

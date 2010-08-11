@@ -333,9 +333,9 @@ void QmlEngine::updateWatchData(const WatchData &data)
         sendMessage(reply);
     }
 
-    if (!data.name.isEmpty() && data.isChildrenNeeded() && watchHandler()->isExpandedIName(data.iname)) {
+    if (!data.name.isEmpty() && data.isChildrenNeeded()
+            && watchHandler()->isExpandedIName(data.iname))
         expandObject(data.iname, data.objectId);
-    }
 
     {
         QByteArray reply;
@@ -447,8 +447,9 @@ void QmlEngine::messageReceived(const QByteArray &message)
         else
             watchHandler()->endCycle();
 
-        //ensure we got the right ui right now
-        Debugger::DebuggerUISwitcher *uiSwitcher = Debugger::DebuggerUISwitcher::instance();
+        // Ensure we got the right ui right now.
+        Debugger::DebuggerUISwitcher *uiSwitcher
+            = Debugger::DebuggerUISwitcher::instance();
         uiSwitcher->setActiveLanguage("C++");
 
         bool becauseOfexception;
@@ -457,7 +458,9 @@ void QmlEngine::messageReceived(const QByteArray &message)
             QString error;
             stream >> error;
 
-            QString msg = tr("<p>An Uncaught Exception occured in <i>%1</i>:</p><p>%2</p>").arg(stackFrames.value(0).file, Qt::escape(error));
+            QString msg =
+                tr("<p>An Uncaught Exception occured in <i>%1</i>:</p><p>%2</p>")
+                    .arg(stackFrames.value(0).file, Qt::escape(error));
             showMessageBox(QMessageBox::Information, tr("Uncaught Exception"), msg);
         }
 

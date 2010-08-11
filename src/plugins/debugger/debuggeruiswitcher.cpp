@@ -216,13 +216,17 @@ void DebuggerUISwitcher::createViewsMenuItems()
     d->m_debugMenu->addMenu(d->m_languageMenu, Core::Constants::G_DEFAULT_THREE);
 
     // Add menu items
-    Core::Command *cmd = am->registerAction(d->m_mainWindow->menuSeparator1(), QLatin1String("Debugger.Views.Separator1"), globalcontext);
+    Core::Command *cmd = am->registerAction(d->m_mainWindow->menuSeparator1(),
+        QLatin1String("Debugger.Views.Separator1"), globalcontext);
     d->m_viewsMenu->addAction(cmd);
-    cmd = am->registerAction(d->m_mainWindow->toggleLockedAction(), QLatin1String("Debugger.Views.ToggleLocked"), globalcontext);
+    cmd = am->registerAction(d->m_mainWindow->toggleLockedAction(),
+        QLatin1String("Debugger.Views.ToggleLocked"), globalcontext);
     d->m_viewsMenu->addAction(cmd);
-    cmd = am->registerAction(d->m_mainWindow->menuSeparator2(), QLatin1String("Debugger.Views.Separator2"), globalcontext);
+    cmd = am->registerAction(d->m_mainWindow->menuSeparator2(),
+        QLatin1String("Debugger.Views.Separator2"), globalcontext);
     d->m_viewsMenu->addAction(cmd);
-    cmd = am->registerAction(d->m_mainWindow->resetLayoutAction(), QLatin1String("Debugger.Views.ResetSimple"), globalcontext);
+    cmd = am->registerAction(d->m_mainWindow->resetLayoutAction(),
+        QLatin1String("Debugger.Views.ResetSimple"), globalcontext);
     d->m_viewsMenu->addAction(cmd);
 }
 
@@ -282,9 +286,9 @@ void DebuggerUISwitcher::changeDebuggerUI(const QString &langName)
             //    << window->m_visible;
 
             if (window->m_languageId != langId) {
-                // visibleTo must be used because during init, debugger is not visible,
-                // although visibility is explicitly set through both default layout and
-                // QSettings.
+                // visibleTo must be used because during init, debugger is
+                // not visible, although visibility is explicitly set through
+                // both default layout and QSettings.
                 window->m_visible = window->m_dockWidget->isVisibleTo(d->m_mainWindow);
                 window->m_dockWidget->hide();
             } else {
@@ -295,11 +299,8 @@ void DebuggerUISwitcher::changeDebuggerUI(const QString &langName)
         }
 
         foreach (ViewsMenuItems menuitem, d->m_viewsMenuItems) {
-            if (menuitem.first == langId) {
-                menuitem.second->setVisible(true);
-            } else {
-                menuitem.second->setVisible(false);
-            }
+            bool enable = menuitem.first == langId || menuitem.first == -1;
+            menuitem.second->setEnabled(enable);
         }
 
         d->m_languageMenu->menu()->setTitle(tr("Language") + " (" + langName + ")");
@@ -405,12 +406,12 @@ QDockWidget *DebuggerUISwitcher::createDockWidget(const QString &langName,
     if (d->m_languages.indexOf(langName) != d->m_activeLanguage)
         dockWidget->hide();
 
-    Core::Context langContext = d->m_contextsForLanguage.value(d->m_languages.indexOf(langName));
+    Core::Context globalContext(Core::Constants::C_GLOBAL);
 
     Core::ActionManager *am = Core::ICore::instance()->actionManager();
     QAction *action = dockWidget->toggleViewAction();
     Core::Command *cmd = am->registerAction(action,
-                         "Debugger." + dockWidget->objectName(), langContext);
+                         "Debugger." + dockWidget->objectName(), globalContext);
     cmd->setAttribute(Core::Command::CA_Hide);
     d->m_viewsMenu->addAction(cmd);
 
