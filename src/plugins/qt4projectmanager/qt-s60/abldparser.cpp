@@ -29,7 +29,6 @@
 
 #include "abldparser.h"
 
-#include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskwindow.h>
 
@@ -42,10 +41,9 @@ AbldParser::AbldParser() :
     m_waitingForStdErrContinuation(false),
     m_waitingForStdOutContinuation(false)
 {
+    setObjectName(QLatin1String("AbldParser"));
     m_perlIssue.setPattern("^(WARNING|ERROR):\\s([^\\(\\)]+[^\\d])\\((\\d+)\\) : (.+)$");
     m_perlIssue.setMinimal(true);
-
-    appendOutputParser(new GnuMakeParser);
 }
 
 void AbldParser::stdOutput(const QString &line)
