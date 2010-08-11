@@ -348,7 +348,7 @@ bool Symbol::isNamespace() const
 { return asNamespace() != 0; }
 
 bool Symbol::isTemplate() const
-{ return asNamespace() != 0; }
+{ return asTemplate() != 0; }
 
 bool Symbol::isClass() const
 { return asClass() != 0; }

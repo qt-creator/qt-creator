@@ -229,6 +229,11 @@ protected:
         return true;
     }
 
+    virtual bool visit(Template *)
+    {
+        return true;
+    }
+
     virtual bool visit(Class *symbol)
     {
         addType(symbol->name());
@@ -857,7 +862,7 @@ void CheckSymbols::addTypeOrStatic(const QList<LookupItem> &candidates, NameAST 
         else if (c->isUsingNamespaceDirective()) // ... and using namespace directives.
             continue;
         else if (c->isTypedef() || c->isNamespace() ||
-                 c->isClass() || c->isEnum() ||
+                 c->isClass() || c->isEnum() || c->isTemplate() ||
                  c->isForwardClassDeclaration() || c->isTypenameArgument() || c->enclosingEnum() != 0) {
 
             unsigned line, column;
