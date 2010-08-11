@@ -50,8 +50,6 @@ using namespace CPlusPlus;
 
 namespace {
 
-const bool debug = ! qgetenv("CPLUSPLUS_DEBUG").isEmpty();
-
 template <typename _Tp>
 static QList<_Tp> removeDuplicates(const QList<_Tp> &results)
 {
@@ -549,8 +547,11 @@ bool ResolveExpression::visit(ArrayAccessAST *ast)
 
 QList<LookupItem> ResolveExpression::getMembers(ClassOrNamespace *binding, const Name *memberName) const
 {
+    Q_UNUSED(binding);
+    Q_UNUSED(memberName);
+
+    // ### port me
     QList<LookupItem> members;
-#warning robe: enable template instantiation
 #if 0
     const QList<LookupItem> originalMembers = binding->find(memberName);
 

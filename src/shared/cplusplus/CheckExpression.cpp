@@ -312,8 +312,10 @@ bool CheckExpression::visit(UnaryExpressionAST *ast)
 
 bool CheckExpression::visit(QtMethodAST *ast)
 {
+    (void) ast;
+    // ### port this code
+#if 0
     const Name *name = 0;
-#warning robe set a valid scope
     Scope *dummy = 0;
     FullySpecifiedType methTy = semantic()->check(ast->declarator, FullySpecifiedType(),
                                                   dummy, &name);
@@ -328,6 +330,7 @@ bool CheckExpression::visit(QtMethodAST *ast)
                                            "argument should be anonymous");
         }
     }
+#endif
     return false;
 }
 

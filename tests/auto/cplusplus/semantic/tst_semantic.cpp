@@ -38,7 +38,7 @@ public:
                            bool enableObjc,
                            bool qtMocRun)
     {
-        const StringLiteral *fileId = control->findOrInsertStringLiteral("<stdin>");
+        const StringLiteral *fileId = control->stringLiteral("<stdin>");
         TranslationUnit *unit = new TranslationUnit(control.data(), fileId);
         unit->setSource(source.constData(), source.length());
         unit->setObjCEnabled(enableObjc);

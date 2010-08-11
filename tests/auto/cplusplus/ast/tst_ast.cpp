@@ -22,7 +22,7 @@ public:
                            bool blockErrors = false,
                            bool qtMocRun = false)
     {
-        const StringLiteral *fileId = control.findOrInsertStringLiteral("<stdin>");
+        const StringLiteral *fileId = control.stringLiteral("<stdin>");
         TranslationUnit *unit = new TranslationUnit(&control, fileId);
         unit->setObjCEnabled(true);
         unit->setQtMocRunEnabled(qtMocRun);

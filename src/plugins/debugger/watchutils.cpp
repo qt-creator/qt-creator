@@ -124,8 +124,7 @@ QDebug operator<<(QDebug d, const Scope &scope)
         str << " function";
     if (scope.isFunction())
         str << " prototype";
-#warning robe fix me
-#if 0
+#if 0 // ### port me
     if (const Symbol *owner = &scope) {
         str << " owner: ";
         debugCppSymbolRecursion(str, o, *owner, false, 0);

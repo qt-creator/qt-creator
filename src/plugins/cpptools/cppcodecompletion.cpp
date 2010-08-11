@@ -1852,7 +1852,7 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item, QChar t
                 if (! function->hasReturnType() && (function->identity() && !function->identity()->isDestructorNameId())) {
                     // Don't insert any magic, since the user might have just wanted to select the class
 
-#warning robe: "don't insert matching ( when the selected symbol is a template"
+                    /// ### port me
 #if 0
                 } else if (function->templateParameterCount() != 0 && typedChar != QLatin1Char('(')) {
                     // If there are no arguments, then we need the template specification
