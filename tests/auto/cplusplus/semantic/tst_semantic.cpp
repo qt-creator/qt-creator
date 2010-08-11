@@ -52,11 +52,11 @@ public:
 
     public:
         Document(TranslationUnit *unit)
-            : unit(unit), globals(new Scope()), errorCount(0)
+            : unit(unit), globals(unit->control()->newNamespace(0, 0)), errorCount(0)
         { }
 
         ~Document()
-        { delete globals; }
+        { }
 
         void check()
         {
@@ -139,9 +139,9 @@ void tst_Semantic::function_declaration_1()
 {
     QSharedPointer<Document> doc = document("void foo();");
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->symbolCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1U);
 
-    Declaration *decl = doc->globals->symbolAt(0)->asDeclaration();
+    Declaration *decl = doc->globals->memberAt(0)->asDeclaration();
     QVERIFY(decl);
 
     FullySpecifiedType declTy = decl->type();
@@ -162,9 +162,9 @@ void tst_Semantic::function_declaration_2()
 {
     QSharedPointer<Document> doc = document("void foo(const QString &s);");
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->symbolCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1U);
 
-    Declaration *decl = doc->globals->symbolAt(0)->asDeclaration();
+    Declaration *decl = doc->globals->memberAt(0)->asDeclaration();
     QVERIFY(decl);
 
     FullySpecifiedType declTy = decl->type();
@@ -212,9 +212,9 @@ void tst_Semantic::function_definition_1()
 {
     QSharedPointer<Document> doc = document("void foo() {}");
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->symbolCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1U);
 
-    Function *funTy = doc->globals->symbolAt(0)->asFunction();
+    Function *funTy = doc->globals->memberAt(0)->asFunction();
     QVERIFY(funTy);
     QVERIFY(funTy->returnType()->isVoidType());
     QCOMPARE(funTy->argumentCount(), 0U);
@@ -239,9 +239,9 @@ void tst_Semantic::nested_class_1()
 "};\n"
     );
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->symbolCount(), 2U);
+    QCOMPARE(doc->globals->memberCount(), 2U);
 
-    Class *classObject = doc->globals->symbolAt(0)->asClass();
+    Class *classObject = doc->globals->memberAt(0)->asClass();
     QVERIFY(classObject);
     QVERIFY(classObject->name());
     const NameId *classObjectNameId = classObject->name()->asNameId();
@@ -249,9 +249,9 @@ void tst_Semantic::nested_class_1()
     const Identifier *objectId = classObjectNameId->identifier();
     QCOMPARE(QByteArray(objectId->chars(), objectId->size()), QByteArray("Object"));
     QCOMPARE(classObject->baseClassCount(), 0U);
-    QCOMPARE(classObject->members()->symbolCount(), 2U);
+    QCOMPARE(classObject->memberCount(), 2U);
 
-    Class *classObjectData = doc->globals->symbolAt(1)->asClass();
+    Class *classObjectData = doc->globals->memberAt(1)->asClass();
     QVERIFY(classObjectData);
     QVERIFY(classObjectData->name());
     const QualifiedNameId *q = classObjectData->name()->asQualifiedNameId();
@@ -261,7 +261,7 @@ void tst_Semantic::nested_class_1()
     QCOMPARE(q->base(), classObject->name());
     QVERIFY(q->name());
     QVERIFY(q->name()->asNameId());
-    QCOMPARE(doc->globals->lookat(q->base()->asNameId()->identifier()), classObject);
+    QCOMPARE(doc->globals->find(q->base()->asNameId()->identifier()), classObject);
 
     Declaration *decl = classObjectData->memberAt(0)->asDeclaration();
     QVERIFY(decl);
@@ -286,18 +286,18 @@ void tst_Semantic::typedef_1()
     );
 
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->symbolCount(), 3U);
+    QCOMPARE(doc->globals->memberCount(), 3U);
 
-    Class *anonStruct = doc->globals->symbolAt(0)->asClass();
+    Class *anonStruct = doc->globals->memberAt(0)->asClass();
     QVERIFY(anonStruct);
     QCOMPARE(anonStruct->memberCount(), 2U);
 
-    Declaration *typedefPointDecl = doc->globals->symbolAt(1)->asDeclaration();
+    Declaration *typedefPointDecl = doc->globals->memberAt(1)->asDeclaration();
     QVERIFY(typedefPointDecl);
     QVERIFY(typedefPointDecl->isTypedef());
     QCOMPARE(typedefPointDecl->type()->asClassType(), anonStruct);
 
-    Function *mainFun = doc->globals->symbolAt(2)->asFunction();
+    Function *mainFun = doc->globals->memberAt(2)->asFunction();
     QVERIFY(mainFun);
 }
 
@@ -315,19 +315,19 @@ void tst_Semantic::typedef_2()
     );
 
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->symbolCount(), 3U);
+    QCOMPARE(doc->globals->memberCount(), 3U);
 
-    Class *_pointStruct= doc->globals->symbolAt(0)->asClass();
+    Class *_pointStruct= doc->globals->memberAt(0)->asClass();
     QVERIFY(_pointStruct);
     QCOMPARE(_pointStruct->memberCount(), 2U);
 
-    Declaration *typedefPointDecl = doc->globals->symbolAt(1)->asDeclaration();
+    Declaration *typedefPointDecl = doc->globals->memberAt(1)->asDeclaration();
     QVERIFY(typedefPointDecl);
     QVERIFY(typedefPointDecl->isTypedef());
     QVERIFY(typedefPointDecl->type()->isNamedType());
     QCOMPARE(typedefPointDecl->type()->asNamedType()->name(), _pointStruct->name());
 
-    Function *mainFun = doc->globals->symbolAt(2)->asFunction();
+    Function *mainFun = doc->globals->memberAt(2)->asFunction();
     QVERIFY(mainFun);
 }
 
@@ -340,13 +340,13 @@ void tst_Semantic::typedef_3()
     );
 
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->symbolCount(), 2U);
+    QCOMPARE(doc->globals->memberCount(), 2U);
 
-    Class *_pointStruct= doc->globals->symbolAt(0)->asClass();
+    Class *_pointStruct= doc->globals->memberAt(0)->asClass();
     QVERIFY(_pointStruct);
     QCOMPARE(_pointStruct->memberCount(), 2U);
 
-    Declaration *typedefPointDecl = doc->globals->symbolAt(1)->asDeclaration();
+    Declaration *typedefPointDecl = doc->globals->memberAt(1)->asDeclaration();
     QVERIFY(typedefPointDecl);
     QVERIFY(typedefPointDecl->isTypedef());
     QVERIFY(typedefPointDecl->type()->isPointerType());
@@ -361,9 +361,9 @@ void tst_Semantic::const_1()
     );
 
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->symbolCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1U);
 
-    Declaration *decl = doc->globals->symbolAt(0)->asDeclaration();
+    Declaration *decl = doc->globals->memberAt(0)->asDeclaration();
     QVERIFY(decl);
     QVERIFY(decl->type()->isFunctionType());
     Function *funTy = decl->type()->asFunctionType();
@@ -384,9 +384,9 @@ void tst_Semantic::const_2()
     );
 
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->symbolCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1U);
 
-    Declaration *decl = doc->globals->symbolAt(0)->asDeclaration();
+    Declaration *decl = doc->globals->memberAt(0)->asDeclaration();
     QVERIFY(decl);
     QVERIFY(decl->type()->isFunctionType());
     Function *funTy = decl->type()->asFunctionType();
@@ -404,9 +404,9 @@ void tst_Semantic::pointer_to_function_1()
 {
     QSharedPointer<Document> doc = document("void (*QtSomething)();");
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->symbolCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1U);
 
-    Declaration *decl = doc->globals->symbolAt(0)->asDeclaration();
+    Declaration *decl = doc->globals->memberAt(0)->asDeclaration();
     QVERIFY(decl);
 
     PointerType *ptrTy = decl->type()->asPointerType();
@@ -426,13 +426,16 @@ void tst_Semantic::template_instance_1()
 {
     QSharedPointer<Document> doc = document("template <typename _Tp> class QList { void append(const _Tp &value); };");
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->symbolCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1U);
 
-    Declaration *decl = doc->globals->symbolAt(0)->asClass()->memberAt(0)->asDeclaration();
+    Template *templ = doc->globals->memberAt(0)->asTemplate();
+    QVERIFY(templ);
+
+    Declaration *decl = templ->memberAt(1)->asClass()->memberAt(0)->asDeclaration();
     QVERIFY(decl);
 
     FullySpecifiedType templArgs[] = { control->integerType(IntegerType::Int) };
-    const Name *templId = control->templateNameId(control->findOrInsertIdentifier("QList"), templArgs, 1);
+    const Name *templId = control->templateNameId(control->identifier("QList"), templArgs, 1);
 
     FullySpecifiedType genTy = DeprecatedGenTemplateInstance::instantiate(templId, decl, control);
 
@@ -535,14 +538,14 @@ void tst_Semantic::objcClass_1()
                                             true);
 
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->symbolCount(), 2U);
+    QCOMPARE(doc->globals->memberCount(), 2U);
 
-    ObjCClass *iface = doc->globals->symbolAt(0)->asObjCClass();
+    ObjCClass *iface = doc->globals->memberAt(0)->asObjCClass();
     QVERIFY(iface);
     QVERIFY(iface->isInterface());
     QCOMPARE(iface->memberCount(), 2U);
 
-    ObjCClass *impl = doc->globals->symbolAt(1)->asObjCClass();
+    ObjCClass *impl = doc->globals->memberAt(1)->asObjCClass();
     QVERIFY(impl);
     QVERIFY(!impl->isInterface());
     QCOMPARE(impl->memberCount(), 3U);
@@ -569,9 +572,9 @@ void tst_Semantic::objcSelector_1()
                                             true);
 
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->symbolCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1U);
 
-    ObjCClass *iface = doc->globals->symbolAt(0)->asObjCClass();
+    ObjCClass *iface = doc->globals->memberAt(0)->asObjCClass();
     QVERIFY(iface);
     QVERIFY(iface->isInterface());
     QCOMPARE(iface->memberCount(), 1U);
@@ -615,9 +618,9 @@ void tst_Semantic::objcSelector_2()
                                             true);
 
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->symbolCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1U);
 
-    ObjCClass *iface = doc->globals->symbolAt(0)->asObjCClass();
+    ObjCClass *iface = doc->globals->memberAt(0)->asObjCClass();
     QVERIFY(iface);
     QCOMPARE(iface->memberCount(), 1U);
 
@@ -646,7 +649,7 @@ void tst_Semantic::q_enum_1()
                                             false, true);
 
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->symbolCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1U);
     QVERIFY(doc->unit);
     TranslationUnitAST *xUnit = doc->unit->ast()->asTranslationUnit();
     QVERIFY(xUnit);
