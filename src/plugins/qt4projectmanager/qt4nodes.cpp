@@ -696,7 +696,7 @@ QList<ProjectNode::ProjectAction> Qt4PriFileNode::supportedActions(Node *node) c
     case LibraryTemplate:
         actions << AddFile;
         if (m_recursiveEnumerateFiles.contains(node->path()))
-            actions << DeleteFile;
+            actions << EraseFile;
         else
             actions << RemoveFile;
         break;

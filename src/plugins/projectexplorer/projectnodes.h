@@ -161,7 +161,8 @@ public:
         RemoveSubProject,
         AddFile,
         RemoveFile,
-        DeleteFile,
+        // DeleteFile is a define on windows...
+        EraseFile,
         Rename
     };
 
