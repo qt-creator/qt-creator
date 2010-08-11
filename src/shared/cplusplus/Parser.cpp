@@ -58,6 +58,8 @@
 
 #ifdef _MSC_VER
 #    define va_copy(dst, src) ((dst) = (src))
+#elif defined(__INTEL_COMPILER) && !defined(va_copy)
+#    define va_copy __va_copy
 #endif
 
 #define CPLUSPLUS_NO_DEBUG_RULE
