@@ -50,7 +50,7 @@ using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
 namespace {
-const int MAX_LINECOUNT = 10000;
+const int MAX_LINECOUNT = 50000;
 }
 
 CompileOutputWindow::CompileOutputWindow(BuildManager * /*bm*/)
