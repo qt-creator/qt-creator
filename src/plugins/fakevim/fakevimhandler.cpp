@@ -733,6 +733,7 @@ public:
     void selectQuotedStringTextObject(bool inner, int type);
 
     Q_SLOT void importSelection();
+    void exportSelection();
     void insertInInsertMode(const QString &text);
 
 public:
@@ -1050,20 +1051,20 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     //    key = shift(key);
     //}
 
-    QTC_ASSERT(m_mode == InsertMode || m_mode == ReplaceMode
-            || !m_tc.atBlockEnd() || m_tc.block().length() <= 1,
-        qDebug() << "Cursor at EOL before key handler");
+    //QTC_ASSERT(m_mode == InsertMode || m_mode == ReplaceMode
+    //        || !m_tc.atBlockEnd() || m_tc.block().length() <= 1,
+    //    qDebug() << "Cursor at EOL before key handler");
 
     EventResult result = handleKey(Input(key, mods, ev->text()));
 
-    // the command might have destroyed the editor
+    // The command might have destroyed the editor.
     if (m_textedit || m_plaintextedit) {
         // We fake vi-style end-of-line behaviour
         m_fakeEnd = atEndOfLine() && m_mode == CommandMode && !isVisualBlockMode();
 
-        QTC_ASSERT(m_mode == InsertMode || m_mode == ReplaceMode
-                || !m_tc.atBlockEnd() || m_tc.block().length() <= 1,
-            qDebug() << "Cursor at EOL after key handler");
+        //QTC_ASSERT(m_mode == InsertMode || m_mode == ReplaceMode
+        //        || !m_tc.atBlockEnd() || m_tc.block().length() <= 1,
+        //    qDebug() << "Cursor at EOL after key handler");
 
         if (m_fakeEnd)
             moveLeft();
@@ -1074,6 +1075,8 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
 
     if (hasConfig(ConfigShowMarks))
         updateSelection();
+
+    exportSelection();
 
     return result;
 }
@@ -1098,6 +1101,41 @@ void FakeVimHandler::Private::setupWidget()
     importSelection();
     updateMiniBuffer();
     updateCursor();
+}
+
+void FakeVimHandler::Private::exportSelection()
+{
+    if (!hasConfig(ConfigExportSelection))
+        return;
+
+    // FIXME: That's hacky and does not work for block selections
+    // and the clipboard is not filled if the selections are updated
+    // using the keyboard.
+    QTextCursor tc = EDITOR(textCursor());
+    int pos = position();
+    int anc = anchor();
+    if (m_visualMode == VisualBlockMode) {
+        //tc.setPosition(anc, MoveAnchor);
+        //tc.setPosition(pos, KeepAnchor);
+        //EDITOR(setTextCursor(tc));
+    } else if (m_visualMode == VisualLineMode) {
+        int posLine = lineForPosition(pos);
+        int ancLine = lineForPosition(anc);
+        if (anc < pos) {
+            pos = lastPositionInLine(posLine);
+            anc = firstPositionInLine(ancLine);
+        } else {
+            pos = firstPositionInLine(posLine);
+            anc = lastPositionInLine(ancLine);
+        }
+        tc.setPosition(anc, MoveAnchor);
+        tc.setPosition(pos, KeepAnchor);
+        EDITOR(setTextCursor(tc));
+    } else if (m_visualMode == VisualCharMode) {
+        tc.setPosition(anc, MoveAnchor);
+        tc.setPosition(pos, KeepAnchor);
+        EDITOR(setTextCursor(tc));
+    }
 }
 
 void FakeVimHandler::Private::importSelection()
@@ -1130,6 +1168,7 @@ void FakeVimHandler::Private::importSelection()
     tc.clearSelection();
     EDITOR(setTextCursor(tc));
     updateSelection();
+    exportSelection();
 }
 
 void FakeVimHandler::Private::updateEditor()
