@@ -125,7 +125,7 @@ bool CheckExpression::visit(ConditionAST *ast)
                                                   _scope, &name);
     Declaration *decl = control()->newDeclaration(semantic()->location(ast->declarator), name);
     decl->setType(declTy);
-    _scope->enterSymbol(decl);
+    _scope->addMember(decl);
     return false;
 }
 
@@ -313,9 +313,10 @@ bool CheckExpression::visit(UnaryExpressionAST *ast)
 bool CheckExpression::visit(QtMethodAST *ast)
 {
     const Name *name = 0;
-    Scope dummy;
+#warning robe set a valid scope
+    Scope *dummy = 0;
     FullySpecifiedType methTy = semantic()->check(ast->declarator, FullySpecifiedType(),
-                                                  &dummy, &name);
+                                                  dummy, &name);
     Function *fty = methTy->asFunctionType();
     if (! fty)
         translationUnit()->warning(ast->firstToken(), "expected a function declarator");
@@ -384,7 +385,7 @@ bool CheckExpression::visit(ObjCEncodeExpressionAST * /*ast*/)
 
 bool CheckExpression::visit(ObjCSelectorExpressionAST *ast)
 {
-    if (_scope->isPrototypeScope())
+    if (_scope->isFunction())
         return false;
 
     (void) semantic()->check(ast->selector, _scope);
@@ -393,7 +394,7 @@ bool CheckExpression::visit(ObjCSelectorExpressionAST *ast)
 
 bool CheckExpression::visit(LambdaExpressionAST *ast)
 {
-    if (_scope->isPrototypeScope())
+    if (_scope->isFunction())
         return false;
 
     (void) semantic()->check(ast->statement, _scope);

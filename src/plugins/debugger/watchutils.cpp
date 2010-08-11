@@ -85,7 +85,7 @@ static void debugCppSymbolRecursion(QTextStream &str, const Overview &o,
     if (s.isBlock())
         str << " block";
     if (doRecurse && s.isScopedSymbol()) {
-        const ScopedSymbol *scoped = s.asScopedSymbol();
+        const Scope *scoped = s.asScope();
         const int size =  scoped->memberCount();
         str << " scoped symbol of " << size << '\n';
         for (int m = 0; m < size; m++)
@@ -110,28 +110,31 @@ QDebug operator<<(QDebug d, const Scope &scope)
     QString output;
     Overview o;
     QTextStream str(&output);
-    const int size =  scope.symbolCount();
+    const int size =  scope.memberCount();
     str << "Scope of " << size;
-    if (scope.isNamespaceScope())
+    if (scope.isNamespace())
         str << " namespace";
-    if (scope.isClassScope())
+    if (scope.isClass())
         str << " class";
-    if (scope.isEnumScope())
+    if (scope.isEnum())
         str << " enum";
-    if (scope.isBlockScope())
+    if (scope.isBlock())
         str << " block";
-    if (scope.isPrototypeScope())
+    if (scope.isFunction())
         str << " function";
-    if (scope.isPrototypeScope())
+    if (scope.isFunction())
         str << " prototype";
-    if (const Symbol *owner = scope.owner()) {
+#warning robe fix me
+#if 0
+    if (const Symbol *owner = &scope) {
         str << " owner: ";
         debugCppSymbolRecursion(str, o, *owner, false, 0);
     } else {
         str << " 0-owner\n";
     }
+#endif
     for (int s = 0; s < size; s++)
-        debugCppSymbolRecursion(str, o, *scope.symbolAt(s), true, 2);
+        debugCppSymbolRecursion(str, o, *scope.memberAt(s), true, 2);
     d.nospace() << output;
     return d;
 }
@@ -319,9 +322,9 @@ static void blockRecursion(const CPlusPlus::Overview &overview,
                            SeenHash *seenHash,
                            int level = 0)
 {
-    const int size = scope->symbolCount();
+    const int size = scope->memberCount();
     for (int s = 0; s < size; s++){
-        const CPlusPlus::Symbol *symbol = scope->symbolAt(s);
+        const CPlusPlus::Symbol *symbol = scope->memberAt(s);
         if (symbol->isDeclaration()) {
             // Find out about shadowed symbols by bookkeeping
             // the already seen occurrences in a hash.
@@ -339,7 +342,7 @@ static void blockRecursion(const CPlusPlus::Overview &overview,
         }
     }
     // Next block scope.
-    if (const CPlusPlus::Scope *enclosingScope = scope->enclosingBlockScope())
+    if (const CPlusPlus::Scope *enclosingScope = scope->enclosingBlock())
         blockRecursion(overview, enclosingScope, line, uninitializedVariables, seenHash, level + 1);
 }
 
@@ -372,13 +375,13 @@ int getUninitializedVariablesI(const CPlusPlus::Snapshot &snapshot,
         function = symbolAtLine->asFunction();
         if (function->memberCount() == 1) // Skip over function block
             if (CPlusPlus::Block *block = function->memberAt(0)->asBlock())
-                innerMostScope = block->members();
+                innerMostScope = block;
     } else {
-        if (const CPlusPlus::Scope *functionScope = symbolAtLine->enclosingPrototypeScope()) {
-            function = functionScope->owner()->asFunction();
+        if (const CPlusPlus::Scope *functionScope = symbolAtLine->enclosingFunction()) {
+            function = functionScope->asFunction();
             innerMostScope = symbolAtLine->isBlock() ?
-                             symbolAtLine->asBlock()->members() :
-                             symbolAtLine->enclosingBlockScope();
+                             symbolAtLine->asBlock() :
+                             symbolAtLine->enclosingBlock();
         }
     }
     if (!function || !innerMostScope)

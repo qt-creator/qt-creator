@@ -316,8 +316,8 @@ bool CheckSpecifier::visit(ClassSpecifierAST *ast)
 
     const Name *className = semantic()->check(ast->name, _scope);
     Class *klass = control()->newClass(sourceLocation, className);
-    klass->members()->setStartOffset(classScopeStart);
-    klass->members()->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    klass->setStartOffset(classScopeStart);
+    klass->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     ast->symbol = klass;
     unsigned classKey = tokenKind(ast->classkey_token);
     if (classKey == T_CLASS)
@@ -327,7 +327,7 @@ bool CheckSpecifier::visit(ClassSpecifierAST *ast)
     else if (classKey == T_UNION)
         klass->setClassKey(Class::UnionKey);
     klass->setVisibility(semantic()->currentVisibility());
-    _scope->enterSymbol(klass);
+    _scope->addMember(klass);
 
     ClassSpecifierAST *previousClassSpecifier = semantic()->switchDeclaringClass(ast);
 
@@ -362,7 +362,7 @@ bool CheckSpecifier::visit(ClassSpecifierAST *ast)
     DeclarationAST *previousDeclaration = 0;
     for (DeclarationListAST *it = ast->member_specifier_list; it; it = it->next) {
         DeclarationAST *declaration = it->value;
-        semantic()->check(declaration, klass->members());
+        semantic()->check(declaration, klass);
 
         if (previousDeclaration && declaration &&
                 declaration->asEmptyDeclaration() != 0 &&
@@ -408,10 +408,10 @@ bool CheckSpecifier::visit(EnumSpecifierAST *ast)
     const Name *name = semantic()->check(ast->name, _scope);
     Enum *e = control()->newEnum(sourceLocation, name);
     ast->symbol = e;
-    e->members()->setStartOffset(scopeStart);
-    e->members()->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    e->setStartOffset(scopeStart);
+    e->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     e->setVisibility(semantic()->currentVisibility());
-    _scope->enterSymbol(e);
+    _scope->addMember(e);
     _fullySpecifiedType.setType(e);
     for (EnumeratorListAST *it = ast->enumerator_list; it; it = it->next) {
         EnumeratorAST *enumerator = it->value;

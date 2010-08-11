@@ -111,11 +111,11 @@ bool CheckStatement::visit(CaseStatementAST *ast)
 bool CheckStatement::visit(CompoundStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->lbrace_token);
-    block->members()->setStartOffset(tokenAt(ast->firstToken()).end());
-    block->members()->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    block->setStartOffset(tokenAt(ast->firstToken()).end());
+    block->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     ast->symbol = block;
-    _scope->enterSymbol(block);
-    Scope *previousScope = switchScope(block->members());
+    _scope->addMember(block);
+    Scope *previousScope = switchScope(block);
     StatementAST *previousStatement = 0;
     for (StatementListAST *it = ast->statement_list; it; it = it->next) {
         StatementAST *statement = it->value;
@@ -181,11 +181,11 @@ bool CheckStatement::forEachFastEnum(unsigned firstToken,
         scopeStart = tokenAt(lparen).end();
 
     Block *block = control()->newBlock(firstToken);
-    block->members()->setStartOffset(scopeStart);
-    block->members()->setEndOffset(tokenAt(lastToken - 1).end());
+    block->setStartOffset(scopeStart);
+    block->setEndOffset(tokenAt(lastToken - 1).end());
     symbol = block;
-    _scope->enterSymbol(block);
-    Scope *previousScope = switchScope(block->members());
+    _scope->addMember(block);
+    Scope *previousScope = switchScope(block);
     if (type_specifier_list && declarator) {
         FullySpecifiedType ty = semantic()->check(type_specifier_list, _scope);
         const Name *name = 0;
@@ -195,7 +195,7 @@ bool CheckStatement::forEachFastEnum(unsigned firstToken,
             location = core_declarator->firstToken();
         Declaration *decl = control()->newDeclaration(location, name);
         decl->setType(ty);
-        _scope->enterSymbol(decl);
+        _scope->addMember(decl);
     } else {
         (void) semantic()->check(initializer, _scope);
     }
@@ -240,11 +240,11 @@ bool CheckStatement::visit(ForStatementAST *ast)
         scopeStart = tokenAt(ast->lparen_token).end();
 
     Block *block = control()->newBlock(ast->for_token);
-    block->members()->setStartOffset(scopeStart);
-    block->members()->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    block->setStartOffset(scopeStart);
+    block->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     ast->symbol = block;
-    _scope->enterSymbol(block);
-    Scope *previousScope = switchScope(block->members());
+    _scope->addMember(block);
+    Scope *previousScope = switchScope(block);
     semantic()->check(ast->initializer, _scope);
     FullySpecifiedType condTy = semantic()->check(ast->condition, _scope);
     FullySpecifiedType exprTy = semantic()->check(ast->expression, _scope);
@@ -261,11 +261,11 @@ bool CheckStatement::visit(IfStatementAST *ast)
         scopeStart = tokenAt(ast->lparen_token).end();
 
     Block *block = control()->newBlock(ast->if_token);
-    block->members()->setStartOffset(scopeStart);
-    block->members()->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    block->setStartOffset(scopeStart);
+    block->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     ast->symbol = block;
-    _scope->enterSymbol(block);
-    Scope *previousScope = switchScope(block->members());
+    _scope->addMember(block);
+    Scope *previousScope = switchScope(block);
     FullySpecifiedType exprTy = semantic()->check(ast->condition, _scope);
     semantic()->check(ast->statement, _scope);
     semantic()->check(ast->else_statement, _scope);
@@ -312,11 +312,11 @@ bool CheckStatement::visit(SwitchStatementAST *ast)
         scopeStart = tokenAt(ast->lparen_token).offset;
 
     Block *block = control()->newBlock(ast->switch_token);
-    block->members()->setStartOffset(scopeStart);
-    block->members()->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    block->setStartOffset(scopeStart);
+    block->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     ast->symbol = block;
-    _scope->enterSymbol(block);
-    Scope *previousScope = switchScope(block->members());
+    _scope->addMember(block);
+    Scope *previousScope = switchScope(block);
     FullySpecifiedType condTy = semantic()->check(ast->condition, _scope);
     semantic()->check(ast->statement, _scope);
     (void) switchScope(previousScope);
@@ -341,11 +341,11 @@ bool CheckStatement::visit(CatchClauseAST *ast)
         scopeStart = tokenAt(ast->lparen_token).end();
 
     Block *block = control()->newBlock(ast->catch_token);
-    block->members()->setStartOffset(scopeStart);
-    block->members()->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    block->setStartOffset(scopeStart);
+    block->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     ast->symbol = block;
-    _scope->enterSymbol(block);
-    Scope *previousScope = switchScope(block->members());
+    _scope->addMember(block);
+    Scope *previousScope = switchScope(block);
     semantic()->check(ast->exception_declaration, _scope);
     semantic()->check(ast->statement, _scope);
     (void) switchScope(previousScope);
@@ -360,11 +360,11 @@ bool CheckStatement::visit(WhileStatementAST *ast)
         scopeStart = tokenAt(ast->lparen_token).end();
 
     Block *block = control()->newBlock(ast->while_token);
-    block->members()->setStartOffset(scopeStart);
-    block->members()->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    block->setStartOffset(scopeStart);
+    block->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     ast->symbol = block;
-    _scope->enterSymbol(block);
-    Scope *previousScope = switchScope(block->members());
+    _scope->addMember(block);
+    Scope *previousScope = switchScope(block);
     FullySpecifiedType condTy = semantic()->check(ast->condition, _scope);
     semantic()->check(ast->statement, _scope);
     (void) switchScope(previousScope);
@@ -400,7 +400,7 @@ bool CheckStatement::visit(QtMemberDeclarationAST *ast)
     Declaration *symbol = control()->newDeclaration(/*generated*/ 0, name);
     symbol->setType(control()->pointerType(declTy));
 
-    _scope->enterSymbol(symbol);
+    _scope->addMember(symbol);
     _exprType = FullySpecifiedType();
     return false;
 }

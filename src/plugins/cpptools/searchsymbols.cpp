@@ -88,9 +88,8 @@ bool SearchSymbols::visit(Enum *symbol)
     appendItem(separateScope ? name : scopedName,
                separateScope ? previousScope : QString(),
                ModelItemInfo::Enum, symbol);
-    Scope *members = symbol->members();
-    for (unsigned i = 0; i < members->symbolCount(); ++i) {
-        accept(members->symbolAt(i));
+    for (unsigned i = 0; i < symbol->memberCount(); ++i) {
+        accept(symbol->memberAt(i));
     }
     (void) switchScope(previousScope);
     return false;
@@ -126,9 +125,8 @@ bool SearchSymbols::visit(Namespace *symbol)
 {
     QString name = findOrInsert(scopedSymbolName(symbol));
     QString previousScope = switchScope(name);
-    Scope *members = symbol->members();
-    for (unsigned i = 0; i < members->symbolCount(); ++i) {
-        accept(members->symbolAt(i));
+    for (unsigned i = 0; i < symbol->memberCount(); ++i) {
+        accept(symbol->memberAt(i));
     }
     (void) switchScope(previousScope);
     return false;
@@ -159,9 +157,8 @@ bool SearchSymbols::visit(Class *symbol)
                    separateScope ? previousScope : QString(),
                    ModelItemInfo::Class, symbol);
     }
-    Scope *members = symbol->members();
-    for (unsigned i = 0; i < members->symbolCount(); ++i) {
-        accept(members->symbolAt(i));
+    for (unsigned i = 0; i < symbol->memberCount(); ++i) {
+        accept(symbol->memberAt(i));
     }
     (void) switchScope(previousScope);
     return false;

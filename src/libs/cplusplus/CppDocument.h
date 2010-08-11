@@ -84,7 +84,6 @@ public:
 
     unsigned globalSymbolCount() const;
     Symbol *globalSymbolAt(unsigned index) const;
-    Scope *globalSymbols() const; // ### deprecate?
 
     Namespace *globalNamespace() const;
     void setGlobalNamespace(Namespace *globalNamespace); // ### internal

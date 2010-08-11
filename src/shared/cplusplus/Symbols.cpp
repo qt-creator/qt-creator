@@ -190,7 +190,7 @@ void TypenameArgument::visitSymbol0(SymbolVisitor *visitor)
 { visitor->visit(this); }
 
 Function::Function(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
-    : ScopedSymbol(translationUnit, sourceLocation, name),
+    : Scope(translationUnit, sourceLocation, name),
       _templateParameters(0),
       _block(0),
       _flags(0)
@@ -230,11 +230,11 @@ unsigned Function::templateParameterCount() const
     if (! _templateParameters)
         return 0;
 
-    return _templateParameters->scope()->symbolCount();
+    return _templateParameters->scope()->memberCount();
 }
 
 Symbol *Function::templateParameterAt(unsigned index) const
-{ return _templateParameters->scope()->symbolAt(index); }
+{ return _templateParameters->scope()->memberAt(index); }
 
 TemplateParameters *Function::templateParameters() const
 { return _templateParameters; }
@@ -414,114 +414,8 @@ void Function::visitSymbol0(SymbolVisitor *visitor)
     }
 }
 
-ScopedSymbol::ScopedSymbol(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
-    : Symbol(translationUnit, sourceLocation, name)
-{ _members = new Scope(this); }
-
-ScopedSymbol::~ScopedSymbol()
-{ delete _members; }
-
-unsigned ScopedSymbol::memberCount() const
-{
-    if (! _members)
-        return 0;
-    return _members->symbolCount();
-}
-
-Symbol *ScopedSymbol::memberAt(unsigned index) const
-{
-    if (! _members)
-        return 0;
-    return _members->symbolAt(index);
-}
-
-Scope *ScopedSymbol::members() const
-{ return _members; }
-
-void ScopedSymbol::addMember(Symbol *member)
-{ _members->enterSymbol(member); }
-
-/// Returns true if this scope's owner is a Namespace Symbol.
-bool ScopedSymbol::isNamespaceScope() const
-{ return _members->isNamespaceScope(); }
-
-/// Returns true if this scope's owner is a Class Symbol.
-bool ScopedSymbol::isClassScope() const
-{ return _members->isClassScope(); }
-
-/// Returns true if this scope's owner is an Enum Symbol.
-bool ScopedSymbol::isEnumScope() const
-{ return _members->isEnumScope(); }
-
-/// Returns true if this scope's owner is a Block Symbol.
-bool ScopedSymbol::isBlockScope() const
-{ return _members->isBlockScope(); }
-
-/// Returns true if this scope's owner is a Prototype Symbol.
-bool ScopedSymbol::isPrototypeScope() const
-{ return _members->isPrototypeScope(); }
-
-/// Returns true if this scope's owner is an ObjCClass Symbol.
-bool ScopedSymbol::isObjCClassScope() const
-{ return _members->isObjCClassScope(); }
-
-/// Returns true if this scope's owner is an ObjCProtocol Symbol.
-bool ScopedSymbol::isObjCProtocolScope() const
-{ return _members->isObjCProtocolScope(); }
-
-/// Returns true if this scope's owner is an ObjCMethod symbol.
-bool ScopedSymbol::isObjCMethodScope() const
-{ return _members->isObjCMethodScope(); }
-
-/// Adds a Symbol to this Scope.
-void ScopedSymbol::enterSymbol(Symbol *symbol)
-{ _members->enterSymbol(symbol); }
-
-/// Returns true if this Scope is empty; otherwise returns false.
-bool ScopedSymbol::isEmpty() const
-{ return _members->isEmpty(); }
-
-/// Returns the number of symbols is in the scope.
-unsigned ScopedSymbol::symbolCount() const
-{ return _members->symbolCount(); }
-
-/// Returns the Symbol at the given position.
-Symbol *ScopedSymbol::symbolAt(unsigned index) const
-{ return _members->symbolAt(index); }
-
-/// Returns the first Symbol in the scope.
-ScopedSymbol::iterator ScopedSymbol::firstSymbol() const
-{ return _members->firstSymbol(); }
-
-/// Returns the last Symbol in the scope.
-Scope::iterator ScopedSymbol::lastSymbol() const
-{ return _members->lastSymbol(); }
-
-Symbol *ScopedSymbol::lookat(const Name *name) const
-{ return _members->lookat(name); }
-
-Symbol *ScopedSymbol::lookat(const Identifier *id) const
-{ return _members->lookat(id); }
-
-Symbol *ScopedSymbol::lookat(int operatorId) const
-{ return _members->lookat(operatorId); }
-
-/// Set the start offset of the scope
-unsigned ScopedSymbol::startOffset() const
-{ return _members->startOffset(); }
-
-void ScopedSymbol::setStartOffset(unsigned offset)
-{ _members->setStartOffset(offset); }
-
-/// Set the end offset of the scope
-unsigned ScopedSymbol::endOffset() const
-{ return _members->endOffset(); }
-
-void ScopedSymbol::setEndOffset(unsigned offset)
-{ _members->setEndOffset(offset); }
-
 Block::Block(TranslationUnit *translationUnit, unsigned sourceLocation)
-    : ScopedSymbol(translationUnit, sourceLocation, /*name = */ 0)
+    : Scope(translationUnit, sourceLocation, /*name = */ 0)
 { }
 
 Block::~Block()
@@ -540,7 +434,7 @@ void Block::visitSymbol0(SymbolVisitor *visitor)
 }
 
 Enum::Enum(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
-    : ScopedSymbol(translationUnit, sourceLocation, name)
+    : Scope(translationUnit, sourceLocation, name)
 { }
 
 Enum::~Enum()
@@ -584,7 +478,7 @@ void Enum::visitSymbol0(SymbolVisitor *visitor)
 }
 
 Namespace::Namespace(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
-    : ScopedSymbol(translationUnit, sourceLocation, name)
+    : Scope(translationUnit, sourceLocation, name)
 { }
 
 Namespace::~Namespace()
@@ -694,7 +588,7 @@ bool ForwardClassDeclaration::matchType0(const Type *otherType, TypeMatcher *mat
 }
 
 Class::Class(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
-    : ScopedSymbol(translationUnit, sourceLocation, name),
+    : Scope(translationUnit, sourceLocation, name),
       _key(ClassKey),
       _templateParameters(0)
 { }
@@ -722,11 +616,11 @@ unsigned Class::templateParameterCount() const
     if (! _templateParameters)
         return 0;
 
-    return _templateParameters->scope()->symbolCount();
+    return _templateParameters->scope()->memberCount();
 }
 
 Symbol *Class::templateParameterAt(unsigned index) const
-{ return _templateParameters->scope()->symbolAt(index); }
+{ return _templateParameters->scope()->memberAt(index); }
 
 TemplateParameters *Class::templateParameters() const
 { return _templateParameters; }
@@ -809,7 +703,7 @@ void ObjCBaseProtocol::visitSymbol0(SymbolVisitor *visitor)
 { visitor->visit(this); }
 
 ObjCClass::ObjCClass(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name):
-        ScopedSymbol(translationUnit, sourceLocation, name),
+        Scope(translationUnit, sourceLocation, name),
         _isInterface(false),
         _categoryName(0),
         _baseClass(0)
@@ -892,7 +786,7 @@ bool ObjCClass::matchType0(const Type *otherType, TypeMatcher *matcher) const
 }
 
 ObjCProtocol::ObjCProtocol(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name):
-        ScopedSymbol(translationUnit, sourceLocation, name)
+        Scope(translationUnit, sourceLocation, name)
 {
 }
 
@@ -1025,14 +919,12 @@ bool ObjCForwardProtocolDeclaration::matchType0(const Type *otherType, TypeMatch
 }
 
 ObjCMethod::ObjCMethod(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
-    : ScopedSymbol(translationUnit, sourceLocation, name),
+    : Scope(translationUnit, sourceLocation, name),
      _flags(0)
-{ _arguments = new Scope(this); }
+{ }
 
 ObjCMethod::~ObjCMethod()
-{
-    delete _arguments;
-}
+{ }
 
 bool ObjCMethod::isEqualTo(const Type *other) const
 {
@@ -1043,13 +935,13 @@ bool ObjCMethod::isEqualTo(const Type *other) const
     const Name *l = identity();
     const Name *r = o->identity();
     if (l == r || (l && l->isEqualTo(r))) {
-        if (_arguments->symbolCount() != o->_arguments->symbolCount())
+        if (argumentCount() != o->argumentCount())
             return false;
         else if (! _returnType.isEqualTo(o->_returnType))
             return false;
-        for (unsigned i = 0; i < _arguments->symbolCount(); ++i) {
-            Symbol *l = _arguments->symbolAt(i);
-            Symbol *r = o->_arguments->symbolAt(i);
+        for (unsigned i = 0; i < argumentCount(); ++i) {
+            Symbol *l = argumentAt(i);
+            Symbol *r = o->argumentAt(i);
             if (! l->type().isEqualTo(r->type()))
                 return false;
         }
@@ -1086,17 +978,14 @@ bool ObjCMethod::hasReturnType() const
 
 unsigned ObjCMethod::argumentCount() const
 {
-    if (! _arguments)
-        return 0;
-
-    return _arguments->symbolCount();
+#warning robe implement me
+    return memberCount();
 }
 
 Symbol *ObjCMethod::argumentAt(unsigned index) const
-{ return _arguments->symbolAt(index); }
-
-Scope *ObjCMethod::arguments() const
-{ return _arguments; }
+{
+    return memberAt(index);
+}
 
 bool ObjCMethod::hasArguments() const
 {
@@ -1113,9 +1002,6 @@ void ObjCMethod::setVariadic(bool isVariadic)
 void ObjCMethod::visitSymbol0(SymbolVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (unsigned i = 0; i < _arguments->symbolCount(); ++i) {
-            visitSymbol(_arguments->symbolAt(i), visitor);
-        }
         for (unsigned i = 0; i < memberCount(); ++i) {
             visitSymbol(memberAt(i), visitor);
         }

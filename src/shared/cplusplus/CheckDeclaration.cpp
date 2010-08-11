@@ -154,7 +154,7 @@ void CheckDeclaration::checkFunctionArguments(Function *fun)
     if (! _checkAnonymousArguments)
         return;
 
-    if (_scope->isClassScope() && fun->isPublic()) {
+    if (_scope->isClass() && fun->isPublic()) {
         for (unsigned argc = 0; argc < fun->argumentCount(); ++argc) {
             Argument *arg = fun->argumentAt(argc)->asArgument();
             assert(arg != 0);
@@ -201,7 +201,7 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
 
             setDeclSpecifiers(symbol, declSpecifiers);
 
-            _scope->enterSymbol(symbol);
+            _scope->addMember(symbol);
             return false;
         }
     }
@@ -262,7 +262,7 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
         (*decl_it)->value = symbol;
         decl_it = &(*decl_it)->next;
 
-        _scope->enterSymbol(symbol);
+        _scope->addMember(symbol);
     }
     return false;
 }
@@ -310,7 +310,7 @@ bool CheckDeclaration::visit(ExceptionDeclarationAST *ast)
 
     Declaration *symbol = control()->newDeclaration(location, name);
     symbol->setType(declTy);
-    _scope->enterSymbol(symbol);
+    _scope->addMember(symbol);
 
     return false;
 }
@@ -322,7 +322,7 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
     const Name *name = 0;
     FullySpecifiedType funTy = semantic()->check(ast->declarator, qualTy,
                                                  _scope, &name);
-    if (! (funTy && funTy->isFunctionType())) {
+    if (! funTy->isFunctionType()) {
         translationUnit()->error(ast->firstToken(),
                                  "expected a function prototype");
         return false;
@@ -336,8 +336,8 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
     Function *fun = funTy->asFunctionType();
     setDeclSpecifiers(fun, ty);
 
-    fun->members()->setStartOffset(funStartOffset);
-    fun->members()->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    fun->setStartOffset(funStartOffset);
+    fun->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     if (ast->declarator) {
         unsigned loc = semantic()->location(ast->declarator);
         if (! loc)
@@ -363,7 +363,7 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
     checkFunctionArguments(fun);
 
     ast->symbol = fun;
-    _scope->enterSymbol(fun);
+    _scope->addMember(fun);
 
     if (! semantic()->skipFunctionBodies())
         semantic()->checkFunctionDefinition(ast);
@@ -408,11 +408,11 @@ bool CheckDeclaration::visit(NamespaceAST *ast)
         scopeStart = tokenAt(ast->linkage_body->firstToken()).offset;
 
     Namespace *ns = control()->newNamespace(sourceLocation, namespaceName);
-    ns->members()->setStartOffset(scopeStart);
-    ns->members()->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    ns->setStartOffset(scopeStart);
+    ns->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     ast->symbol = ns;
-    _scope->enterSymbol(ns);
-    semantic()->check(ast->linkage_body, ns->members()); // ### we'll do the merge later.
+    _scope->addMember(ns);
+    semantic()->check(ast->linkage_body, ns); // ### we'll do the merge later.
 
     return false;
 }
@@ -434,7 +434,7 @@ bool CheckDeclaration::visit(NamespaceAliasDefinitionAST *ast)
     NamespaceAlias *namespaceAlias = control()->newNamespaceAlias(sourceLocation, name);
     namespaceAlias->setNamespaceName(namespaceName);
     //ast->symbol = namespaceAlias;
-    _scope->enterSymbol(namespaceAlias);
+    _scope->addMember(namespaceAlias);
 
     return false;
 }
@@ -470,12 +470,14 @@ bool CheckDeclaration::visit(ParameterDeclarationAST *ast)
         arg->setInitializer(initializer);
     }
     arg->setType(argTy);
-    _scope->enterSymbol(arg);
+    _scope->addMember(arg);
     return false;
 }
 
 bool CheckDeclaration::visit(TemplateDeclarationAST *ast)
 {
+#warning robe process template arguments
+#if 0
     Scope *scope = new Scope(_scope->owner());
 
     for (DeclarationListAST *param = ast->template_parameter_list; param; param = param->next) {
@@ -484,6 +486,9 @@ bool CheckDeclaration::visit(TemplateDeclarationAST *ast)
 
     semantic()->check(ast->declaration, _scope,
                       new TemplateParameters(_templateParameters, scope));
+#else
+    semantic()->check(ast->declaration, _scope);
+#endif
 
     return false;
 }
@@ -499,7 +504,7 @@ bool CheckDeclaration::visit(TypenameTypeParameterAST *ast)
     FullySpecifiedType ty = semantic()->check(ast->type_id, _scope);
     arg->setType(ty);
     ast->symbol = arg;
-    _scope->enterSymbol(arg);
+    _scope->addMember(arg);
     return false;
 }
 
@@ -514,7 +519,7 @@ bool CheckDeclaration::visit(TemplateTypeParameterAST *ast)
     FullySpecifiedType ty = semantic()->check(ast->type_id, _scope);
     arg->setType(ty);
     ast->symbol = arg;
-    _scope->enterSymbol(arg);
+    _scope->addMember(arg);
     return false;
 }
 
@@ -528,7 +533,7 @@ bool CheckDeclaration::visit(UsingAST *ast)
 
     UsingDeclaration *u = control()->newUsingDeclaration(sourceLocation, name);
     ast->symbol = u;
-    _scope->enterSymbol(u);
+    _scope->addMember(u);
     return false;
 }
 
@@ -542,9 +547,9 @@ bool CheckDeclaration::visit(UsingDirectiveAST *ast)
 
     UsingNamespaceDirective *u = control()->newUsingNamespaceDirective(sourceLocation, name);
     ast->symbol = u;
-    _scope->enterSymbol(u);
+    _scope->addMember(u);
 
-    if (! (_scope->isBlockScope() || _scope->isNamespaceScope()))
+    if (! (_scope->isBlock() || _scope->isNamespace()))
         translationUnit()->error(ast->firstToken(),
                                  "using-directive not within namespace or block scope");
 
@@ -566,7 +571,7 @@ bool CheckDeclaration::visit(ObjCProtocolForwardDeclarationAST *ast)
         const Name *protocolName = semantic()->check(it->value, _scope);
         ObjCForwardProtocolDeclaration *fwdProtocol = control()->newObjCForwardProtocolDeclaration(sourceLocation, protocolName);
 
-        _scope->enterSymbol(fwdProtocol);
+        _scope->addMember(fwdProtocol);
 
         *symbolIter = new (translationUnit()->memoryPool()) List<ObjCForwardProtocolDeclaration *>();
         (*symbolIter)->value = fwdProtocol;
@@ -598,8 +603,8 @@ bool CheckDeclaration::visit(ObjCProtocolDeclarationAST *ast)
 
     const Name *protocolName = semantic()->check(ast->name, _scope);
     ObjCProtocol *protocol = control()->newObjCProtocol(sourceLocation, protocolName);
-    protocol->members()->setStartOffset(calculateScopeStart(ast));
-    protocol->members()->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    protocol->setStartOffset(calculateScopeStart(ast));
+    protocol->setEndOffset(tokenAt(ast->lastToken() - 1).end());
 
     if (ast->protocol_refs && ast->protocol_refs->identifier_list) {
         for (NameListAST *iter = ast->protocol_refs->identifier_list; iter; iter = iter->next) {
@@ -612,12 +617,12 @@ bool CheckDeclaration::visit(ObjCProtocolDeclarationAST *ast)
 
     int previousObjCVisibility = semantic()->switchObjCVisibility(Function::Public);
     for (DeclarationListAST *it = ast->member_declaration_list; it; it = it->next) {
-        semantic()->check(it->value, protocol->members());
+        semantic()->check(it->value, protocol);
     }
     (void) semantic()->switchObjCVisibility(previousObjCVisibility);
 
     ast->symbol = protocol;
-    _scope->enterSymbol(protocol);
+    _scope->addMember(protocol);
 
     return false;
 }
@@ -637,7 +642,7 @@ bool CheckDeclaration::visit(ObjCClassForwardDeclarationAST *ast)
         const Name *className = semantic()->check(it->value, _scope);
         ObjCForwardClassDeclaration *fwdClass = control()->newObjCForwardClassDeclaration(sourceLocation, className);
 
-        _scope->enterSymbol(fwdClass);
+        _scope->addMember(fwdClass);
 
         *symbolIter = new (translationUnit()->memoryPool()) List<ObjCForwardClassDeclaration *>();
         (*symbolIter)->value = fwdClass;
@@ -691,8 +696,8 @@ bool CheckDeclaration::visit(ObjCClassDeclarationAST *ast)
 
     const Name *className = semantic()->check(ast->class_name, _scope);
     ObjCClass *klass = control()->newObjCClass(sourceLocation, className);
-    klass->members()->setStartOffset(calculateScopeStart(ast));
-    klass->members()->setEndOffset(tokenAt(ast->lastToken() - 1).offset);
+    klass->setStartOffset(calculateScopeStart(ast));
+    klass->setEndOffset(tokenAt(ast->lastToken() - 1).offset);
     ast->symbol = klass;
 
     klass->setInterface(ast->interface_token != 0);
@@ -717,20 +722,20 @@ bool CheckDeclaration::visit(ObjCClassDeclarationAST *ast)
         }
     }
 
-    _scope->enterSymbol(klass);
+    _scope->addMember(klass);
 
     int previousObjCVisibility = semantic()->switchObjCVisibility(Function::Protected);
 
     if (ast->inst_vars_decl) {
         for (DeclarationListAST *it = ast->inst_vars_decl->instance_variable_list; it; it = it->next) {
-            semantic()->check(it->value, klass->members());
+            semantic()->check(it->value, klass);
         }
     }
 
     (void) semantic()->switchObjCVisibility(Function::Public);
 
     for (DeclarationListAST *it = ast->member_declaration_list; it; it = it->next) {
-        semantic()->check(it->value, klass->members());
+        semantic()->check(it->value, klass);
     }
 
     (void) semantic()->switchObjCVisibility(previousObjCVisibility);
@@ -755,8 +760,8 @@ bool CheckDeclaration::visit(ObjCMethodDeclarationAST *ast)
     Symbol *symbol;
     if (ast->function_body) {
         symbol = methodTy;
-        methodTy->members()->setStartOffset(tokenAt(ast->function_body->firstToken()).offset);
-        methodTy->members()->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+        methodTy->setStartOffset(tokenAt(ast->function_body->firstToken()).offset);
+        methodTy->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     } else {
         Declaration *decl = control()->newDeclaration(selector->firstToken(), methodTy->name());
         decl->setType(methodTy);
@@ -770,10 +775,10 @@ bool CheckDeclaration::visit(ObjCMethodDeclarationAST *ast)
     if (ty.isUnavailable())
         symbol->setUnavailable(true);
 
-    _scope->enterSymbol(symbol);
+    _scope->addMember(symbol);
 
     if (ast->function_body && !semantic()->skipFunctionBodies()) {
-        semantic()->check(ast->function_body, methodTy->members());
+        semantic()->check(ast->function_body, methodTy);
     }
 
     return false;
@@ -868,7 +873,7 @@ bool CheckDeclaration::visit(ObjCPropertyDeclarationAST *ast)
         propDecl->setAttributes(propAttrs);
         propDecl->setGetterName(getterName);
         propDecl->setSetterName(setterName);
-        _scope->enterSymbol(propDecl);
+        _scope->addMember(propDecl);
 
         *lastSymbols = new (translationUnit()->memoryPool()) List<ObjCPropertyDeclaration *>();
         (*lastSymbols)->value = propDecl;

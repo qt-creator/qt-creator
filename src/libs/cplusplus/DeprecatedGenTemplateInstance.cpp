@@ -401,7 +401,7 @@ FullySpecifiedType DeprecatedGenTemplateInstance::instantiate(const Name *classN
 {
     if (className) {
         if (const TemplateNameId *templId = className->asTemplateNameId()) {
-            if (Class *klass = candidate->enclosingSymbol()->asClass()) {
+            if (Class *klass = candidate->scope()->asClass()) {
                 DeprecatedGenTemplateInstance::Substitution subst;
 
                 for (unsigned i = 0; i < templId->templateArgumentCount(); ++i) {

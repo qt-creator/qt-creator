@@ -242,67 +242,49 @@ void Symbol::setScope(Scope *scope)
     _scope = scope;
 }
 
-ScopedSymbol *Symbol::enclosingSymbol() const
+Namespace *Symbol::enclosingNamespace() const
 {
-    if (! _scope)
-        return 0;
-
-    return _scope->owner();
+    for (Scope *s = _scope; s; s = s->scope()) {
+        if (Namespace *ns = s->asNamespace())
+            return ns;
+    }
+    return 0;
 }
 
-Scope *Symbol::enclosingNamespaceScope() const
+Class *Symbol::enclosingClass() const
 {
-    if (! _scope)
-        return 0;
-
-    else if (_scope->isNamespaceScope())
-        return _scope;
-
-    return _scope->enclosingNamespaceScope();
+    for (Scope *s = _scope; s; s = s->scope()) {
+        if (Class *klass = s->asClass())
+            return klass;
+    }
+    return 0;
 }
 
-Scope *Symbol::enclosingClassScope() const
+Enum *Symbol::enclosingEnum() const
 {
-    if (! _scope)
-        return 0;
-
-    else if (_scope->isClassScope())
-        return _scope;
-
-    return _scope->enclosingClassScope();
+    for (Scope *s = _scope; s; s = s->scope()) {
+        if (Enum *e = s->asEnum())
+            return e;
+    }
+    return 0;
 }
 
-Scope *Symbol::enclosingEnumScope() const
+Function *Symbol::enclosingFunction() const
 {
-    if (! _scope)
-        return 0;
-
-    else if (_scope->isEnumScope())
-        return _scope;
-
-    return _scope->enclosingEnumScope();
+    for (Scope *s = _scope; s; s = s->scope()) {
+        if (Function *fun = s->asFunction())
+            return fun;
+    }
+    return 0;
 }
 
-Scope *Symbol::enclosingPrototypeScope() const
+Block *Symbol::enclosingBlock() const
 {
-    if (! _scope)
-        return 0;
-
-    else if (_scope->isPrototypeScope())
-        return _scope;
-
-    return _scope->enclosingPrototypeScope();
-}
-
-Scope *Symbol::enclosingBlockScope() const
-{
-    if (! _scope)
-        return 0;
-
-    else if (_scope->isBlockScope())
-        return _scope;
-
-    return _scope->enclosingBlockScope();
+    for (Scope *s = _scope; s; s = s->scope()) {
+        if (Block *block = s->asBlock())
+            return block;
+    }
+    return 0;
 }
 
 unsigned Symbol::index() const
@@ -354,7 +336,7 @@ bool Symbol::isPrivate() const
 { return _visibility == Private; }
 
 bool Symbol::isScopedSymbol() const
-{ return asScopedSymbol() != 0; }
+{ return asScope() != 0; }
 
 bool Symbol::isEnum() const
 { return asEnum()  != 0; }

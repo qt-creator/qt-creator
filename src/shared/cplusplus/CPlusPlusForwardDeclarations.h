@@ -79,7 +79,7 @@ class Literal;
 class StringLiteral;
 class NumericLiteral;
 
-class Scope;
+class SymbolTable;
 class TemplateParameters;
 
 // names
@@ -111,7 +111,7 @@ class NamedType;
 // symbols
 class SymbolVisitor;
 class Symbol;
-class ScopedSymbol;
+class Scope;
 class UsingNamespaceDirective;
 class UsingDeclaration;
 class Declaration;

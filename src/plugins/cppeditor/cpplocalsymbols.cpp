@@ -68,12 +68,12 @@ public:
 
         if (FunctionDefinitionAST *def = ast->asFunctionDefinition()) {
             if (def->symbol) {
-                _functionScope = def->symbol->members();
+                _functionScope = def->symbol;
                 accept(ast);
             }
         } else if (ObjCMethodDeclarationAST *decl = ast->asObjCMethodDeclaration()) {
             if (decl->method_prototype->symbol) {
-                _functionScope = decl->method_prototype->symbol->members();
+                _functionScope = decl->method_prototype->symbol;
                 accept(ast);
             }
         }
@@ -87,8 +87,8 @@ protected:
     {
         _scopeStack.append(scope);
 
-        for (unsigned i = 0; i < scope->symbolCount(); ++i) {
-            if (Symbol *member = scope->symbolAt(i)) {
+        for (unsigned i = 0; i < scope->memberCount(); ++i) {
+            if (Symbol *member = scope->memberAt(i)) {
                 if (! member->isGenerated() && (member->isDeclaration() || member->isArgument())) {
                     if (member->name() && member->name()->isNameId()) {
                         const Identifier *id = member->identifier();
@@ -106,8 +106,8 @@ protected:
         if (SimpleNameAST *simpleName = ast->name->asSimpleName()) {
             const Identifier *id = identifier(simpleName->identifier_token);
             for (int i = _scopeStack.size() - 1; i != -1; --i) {
-                if (Symbol *member = _scopeStack.at(i)->lookat(id)) {
-                    if (!member->isGenerated() && (member->sourceLocation() < ast->firstToken() || member->scope()->isPrototypeScope())) {
+                if (Symbol *member = _scopeStack.at(i)->find(id)) {
+                    if (!member->isGenerated() && (member->sourceLocation() < ast->firstToken() || member->scope()->isFunction())) {
                         unsigned line, column;
                         getTokenStartPosition(simpleName->identifier_token, &line, &column);
                         localUses[member].append(SemanticInfo::Use(line, column, id->size(), SemanticInfo::Use::Local));
@@ -133,7 +133,7 @@ protected:
     virtual bool visit(FunctionDefinitionAST *ast)
     {
         if (ast->symbol)
-            enterScope(ast->symbol->members());
+            enterScope(ast->symbol);
         return true;
     }
 
@@ -146,7 +146,7 @@ protected:
     virtual bool visit(CompoundStatementAST *ast)
     {
         if (ast->symbol)
-            enterScope(ast->symbol->members());
+            enterScope(ast->symbol);
         return true;
     }
 
@@ -159,7 +159,7 @@ protected:
     virtual bool visit(IfStatementAST *ast)
     {
         if (ast->symbol)
-            enterScope(ast->symbol->members());
+            enterScope(ast->symbol);
         return true;
     }
 
@@ -172,7 +172,7 @@ protected:
     virtual bool visit(WhileStatementAST *ast)
     {
         if (ast->symbol)
-            enterScope(ast->symbol->members());
+            enterScope(ast->symbol);
         return true;
     }
 
@@ -185,7 +185,7 @@ protected:
     virtual bool visit(ForStatementAST *ast)
     {
         if (ast->symbol)
-            enterScope(ast->symbol->members());
+            enterScope(ast->symbol);
         return true;
     }
 
@@ -198,7 +198,7 @@ protected:
     virtual bool visit(ForeachStatementAST *ast)
     {
         if (ast->symbol)
-            enterScope(ast->symbol->members());
+            enterScope(ast->symbol);
         return true;
     }
 
@@ -211,7 +211,7 @@ protected:
     virtual bool visit(SwitchStatementAST *ast)
     {
         if (ast->symbol)
-            enterScope(ast->symbol->members());
+            enterScope(ast->symbol);
         return true;
     }
 
@@ -224,7 +224,7 @@ protected:
     virtual bool visit(CatchClauseAST *ast)
     {
         if (ast->symbol)
-            enterScope(ast->symbol->members());
+            enterScope(ast->symbol);
         return true;
     }
 

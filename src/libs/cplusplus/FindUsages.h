@@ -71,7 +71,6 @@ protected:
     using ASTVisitor::translationUnit;
 
     Scope *switchScope(Scope *scope);
-    Scope *switchScope(ScopedSymbol *symbol);
 
     QString matchingLine(const Token &tk) const;
 
@@ -97,7 +96,7 @@ protected:
 
     void objCSelectorArgument(ObjCSelectorArgumentAST *ast);
     void attribute(AttributeAST *ast);
-    void declarator(DeclaratorAST *ast, ScopedSymbol *symbol = 0);
+    void declarator(DeclaratorAST *ast, Scope *symbol = 0);
     void qtPropertyDeclarationItem(QtPropertyDeclarationItemAST *ast);
     void qtInterfaceName(QtInterfaceNameAST *ast);
     void baseSpecifier(BaseSpecifierAST *ast);

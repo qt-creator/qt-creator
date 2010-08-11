@@ -68,7 +68,7 @@ static void path_helper(Symbol *symbol, QList<const Name *> *names)
     if (! symbol)
         return;
 
-    path_helper(symbol->enclosingSymbol(), names);
+    path_helper(symbol->scope(), names);
 
     if (symbol->name()) {
         if (symbol->isClass() || symbol->isNamespace()) {
@@ -142,7 +142,7 @@ LookupContext &LookupContext::operator = (const LookupContext &other)
 
 QList<const Name *> LookupContext::fullyQualifiedName(Symbol *symbol)
 {
-    QList<const Name *> qualifiedName = path(symbol->enclosingSymbol());
+    QList<const Name *> qualifiedName = path(symbol->scope());
     addNames(symbol->name(), &qualifiedName, /*add all names*/ true);
     return qualifiedName;
 }
@@ -238,7 +238,7 @@ ClassOrNamespace *LookupContext::globalNamespace() const
 
 ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope) const
 {
-    if (ClassOrNamespace *b = bindings()->lookupType(scope->owner()))
+    if (ClassOrNamespace *b = bindings()->lookupType(scope))
         return b->lookupType(name);
 
     return 0;
@@ -256,18 +256,18 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
     if (! name)
         return candidates;
 
-    for (; scope; scope = scope->enclosingScope()) {
-        if ((name->isNameId() || name->isTemplateNameId()) && scope->isBlockScope()) {
+    for (; scope; scope = scope->scope()) {
+        if ((name->isNameId() || name->isTemplateNameId()) && scope->isBlock()) {
             bindings()->lookupInScope(name, scope, &candidates, /*templateId = */ 0, /*binding=*/ 0);
 
             if (! candidates.isEmpty())
                 break; // it's a local.
 
-            for (unsigned index = 0; index < scope->symbolCount(); ++index) {
-                Symbol *member = scope->symbolAt(index);
+            for (unsigned index = 0; index < scope->memberCount(); ++index) {
+                Symbol *member = scope->memberAt(index);
 
                 if (UsingNamespaceDirective *u = member->asUsingNamespaceDirective()) {
-                    if (Namespace *enclosingNamespace = u->enclosingNamespaceScope()->owner()->asNamespace()) {
+                    if (Namespace *enclosingNamespace = u->enclosingNamespace()->asNamespace()) {
                         if (ClassOrNamespace *b = bindings()->lookupType(enclosingNamespace)) {
                             if (ClassOrNamespace *uu = b->lookupType(u->name())) {
                                 candidates = uu->find(name);
@@ -280,9 +280,8 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
                 }
             }
 
-        } else if (scope->isPrototypeScope()) {
-            Function *fun = scope->owner()->asFunction();
-            bindings()->lookupInScope(name, fun->members(), &candidates, /*templateId = */ 0, /*binding=*/ 0);
+        } else if (Function *fun = scope->asFunction()) {
+            bindings()->lookupInScope(name, fun, &candidates, /*templateId = */ 0, /*binding=*/ 0);
 
             for (TemplateParameters *it = fun->templateParameters(); it && candidates.isEmpty(); it = it->previous())
                 bindings()->lookupInScope(name, it->scope(), &candidates, /* templateId = */ 0, /*binding=*/ 0);
@@ -301,16 +300,13 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
 
             // contunue, and look at the enclosing scope.
 
-        } else if (scope->isObjCMethodScope()) {
-            ObjCMethod *method = scope->owner()->asObjCMethod();
-            bindings()->lookupInScope(name, method->arguments(), &candidates, /*templateId = */ 0, /*binding=*/ 0);
+        } else if (ObjCMethod *method = scope->asObjCMethod()) {
+            bindings()->lookupInScope(name, method, &candidates, /*templateId = */ 0, /*binding=*/ 0);
 
             if (! candidates.isEmpty())
                 break; // it's a formal argument.
 
-        } else if (scope->isClassScope()) {
-            Class *klass = scope->owner()->asClass();
-
+        } else if (Class *klass = scope->asClass()) {
             for (TemplateParameters *it = klass->templateParameters(); it && candidates.isEmpty(); it = it->previous())
                 bindings()->lookupInScope(name, it->scope(), &candidates, /* templateId = */ 0, /*binding=*/ 0);
 
@@ -324,15 +320,15 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
                     return candidates;
             }
 
-        } else if (scope->isNamespaceScope()) {
-            if (ClassOrNamespace *binding = bindings()->lookupType(scope->owner()))
+        } else if (Namespace *ns = scope->asNamespace()) {
+            if (ClassOrNamespace *binding = bindings()->lookupType(ns))
                 candidates = binding->find(name);
 
                 if (! candidates.isEmpty())
                     return candidates;
 
-        } else if (scope->isObjCClassScope() || scope->isObjCProtocolScope()) {
-            if (ClassOrNamespace *binding = bindings()->lookupType(scope->owner()))
+        } else if (scope->isObjCClass() || scope->isObjCProtocol()) {
+            if (ClassOrNamespace *binding = bindings()->lookupType(scope))
                 candidates = binding->find(name);
 
                 if (! candidates.isEmpty())
@@ -456,8 +452,8 @@ void ClassOrNamespace::lookup_helper(const Name *name, ClassOrNamespace *binding
             if (s->isFriend())
                 continue;
 
-            if (ScopedSymbol *scoped = s->asScopedSymbol()) {
-                if (Class *klass = scoped->asClass()) {
+            if (Scope *scope = s->asScope()) {
+                if (Class *klass = scope->asClass()) {
                     if (const Identifier *id = klass->identifier()) {
                         if (nameId && nameId->isEqualTo(id)) {
                             LookupItem item;
@@ -467,12 +463,12 @@ void ClassOrNamespace::lookup_helper(const Name *name, ClassOrNamespace *binding
                         }
                     }
                 }
-                _factory->lookupInScope(name, scoped->members(), result, templateId, binding);
+                _factory->lookupInScope(name, scope, result, templateId, binding);
             }
         }
 
         foreach (Enum *e, binding->enums())
-            _factory->lookupInScope(name, e->members(), result, templateId, binding);
+            _factory->lookupInScope(name, e, result, templateId, binding);
 
         foreach (ClassOrNamespace *u, binding->usings())
             lookup_helper(name, u, result, processed, binding->_templateId);
@@ -490,7 +486,7 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
         return;
 
     } else if (const OperatorNameId *op = name->asOperatorNameId()) {
-        for (Symbol *s = scope->lookat(op->kind()); s; s = s->next()) {
+        for (Symbol *s = scope->find(op->kind()); s; s = s->next()) {
             if (! s->name())
                 continue;
             else if (s->isFriend())
@@ -505,7 +501,7 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
         }
 
     } else if (const Identifier *id = name->identifier()) {
-        for (Symbol *s = scope->lookat(id); s; s = s->next()) {
+        for (Symbol *s = scope->find(id); s; s = s->next()) {
             if (s->isFriend())
                 continue; // skip friends
             else if (! id->isEqualTo(s->identifier()))

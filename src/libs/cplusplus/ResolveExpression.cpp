@@ -88,7 +88,8 @@ QList<LookupItem> ResolveExpression::operator()(ExpressionAST *ast, Scope *scope
 
 QList<LookupItem> ResolveExpression::resolve(ExpressionAST *ast, Scope *scope)
 {
-    Q_ASSERT(scope != 0);
+    if (! scope)
+        return QList<LookupItem>();
 
     Scope *previousVisibleSymbol = _scope;
     _scope = scope;
@@ -174,7 +175,7 @@ bool ResolveExpression::visit(BinaryExpressionAST *ast)
 
 bool ResolveExpression::visit(CastExpressionAST *ast)
 {
-    Scope *dummyScope = _context.expressionDocument()->globalSymbols();
+    Scope *dummyScope = _context.expressionDocument()->globalNamespace();
     FullySpecifiedType ty = sem.check(ast->type_id, dummyScope);
     addResult(ty, _scope);
     return false;
@@ -199,7 +200,7 @@ bool ResolveExpression::visit(ConditionalExpressionAST *ast)
 
 bool ResolveExpression::visit(CppCastExpressionAST *ast)
 {
-    Scope *dummyScope = _context.expressionDocument()->globalSymbols();
+    Scope *dummyScope = _context.expressionDocument()->globalNamespace();
     FullySpecifiedType ty = sem.check(ast->type_id, dummyScope);
     addResult(ty, _scope);
     return false;
@@ -221,7 +222,7 @@ bool ResolveExpression::visit(ArrayInitializerAST *)
 bool ResolveExpression::visit(NewExpressionAST *ast)
 {
     if (ast->new_type_id) {
-        Scope *dummyScope = _context.expressionDocument()->globalSymbols();
+        Scope *dummyScope = _context.expressionDocument()->globalNamespace();
         FullySpecifiedType ty = sem.check(ast->new_type_id->type_specifier_list, dummyScope);
         ty = sem.check(ast->new_type_id->ptr_operator_list, ty, dummyScope);
         FullySpecifiedType ptrTy(control()->pointerType(ty));
@@ -315,11 +316,9 @@ bool ResolveExpression::visit(ThisExpressionAST *)
 void ResolveExpression::thisObject()
 {
     Scope *scope = _scope;
-    for (; scope; scope = scope->enclosingScope()) {
-        if (scope->isPrototypeScope()) {
-            Function *fun = scope->owner()->asFunction();
-            if (Scope *cscope = scope->enclosingClassScope()) {
-                Class *klass = cscope->owner()->asClass();
+    for (; scope; scope = scope->scope()) {
+        if (Function *fun = scope->asFunction()) {
+            if (Class *klass = scope->enclosingClass()) {
                 FullySpecifiedType classTy(control()->namedType(klass->name()));
                 FullySpecifiedType ptrTy(control()->pointerType(classTy));
                 addResult(ptrTy, fun->scope());
@@ -562,7 +561,7 @@ QList<LookupItem> ResolveExpression::getMembers(ClassOrNamespace *binding, const
 
         Symbol *decl = m.declaration();
 
-        if (Class *klass = decl->enclosingSymbol()->asClass()) {
+        if (Class *klass = decl->scope()->asClass()) {
             if (klass->templateParameters() != 0) {
                 SubstitutionMap map;
 

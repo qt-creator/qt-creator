@@ -55,18 +55,77 @@
 
 using namespace CPlusPlus;
 
-Scope::Scope(ScopedSymbol *owner)
+class CPlusPlus::SymbolTable
+{
+    SymbolTable(const SymbolTable &other);
+    void operator =(const SymbolTable &other);
+
+public:
+    typedef Symbol **iterator;
+
+public:
+    /// Constructs an empty Scope.
+    SymbolTable(Scope *owner = 0);
+
+    /// Destroy this scope.
+    ~SymbolTable();
+
+    /// Returns this scope's owner Symbol.
+    Scope *owner() const;
+
+    /// Sets this scope's owner Symbol.
+    void setOwner(Scope *owner); // ### remove me
+
+    /// Adds a Symbol to this Scope.
+    void enterSymbol(Symbol *symbol);
+
+    /// Returns true if this Scope is empty; otherwise returns false.
+    bool isEmpty() const;
+
+    /// Returns the number of symbols is in the scope.
+    unsigned symbolCount() const;
+
+    /// Returns the Symbol at the given position.
+    Symbol *symbolAt(unsigned index) const;
+
+    /// Returns the first Symbol in the scope.
+    iterator firstSymbol() const;
+
+    /// Returns the last Symbol in the scope.
+    iterator lastSymbol() const;
+
+    Symbol *lookat(const Name *name) const;
+    Symbol *lookat(const Identifier *id) const;
+    Symbol *lookat(int operatorId) const;
+
+private:
+    /// Returns the hash value for the given Symbol.
+    unsigned hashValue(Symbol *symbol) const;
+
+    /// Updates the hash table.
+    void rehash();
+
+private:
+    enum { DefaultInitialSize = 11 };
+
+    Scope *_owner;
+    Symbol **_symbols;
+    Symbol **_hash;
+    int _allocatedSymbols;
+    int _symbolCount;
+    int _hashSize;
+};
+
+SymbolTable::SymbolTable(Scope *owner)
     : _owner(owner),
       _symbols(0),
       _hash(0),
       _allocatedSymbols(0),
       _symbolCount(-1),
-      _hashSize(0),
-      _startOffset(0),
-      _endOffset(0)
+      _hashSize(0)
 { }
 
-Scope::~Scope()
+SymbolTable::~SymbolTable()
 {
     if (_symbols)
         free(_symbols);
@@ -74,128 +133,7 @@ Scope::~Scope()
         free(_hash);
 }
 
-ScopedSymbol *Scope::owner() const
-{ return _owner; }
-
-void Scope::setOwner(ScopedSymbol *owner)
-{ _owner = owner; }
-
-Scope *Scope::enclosingScope() const
-{
-    if (! _owner)
-        return 0;
-
-    return _owner->scope();
-}
-
-Scope *Scope::enclosingNamespaceScope() const
-{
-    Scope *scope = enclosingScope();
-    for (; scope; scope = scope->enclosingScope()) {
-        if (scope->owner()->isNamespace())
-            break;
-    }
-    return scope;
-}
-
-Scope *Scope::enclosingClassScope() const
-{
-    Scope *scope = enclosingScope();
-    for (; scope; scope = scope->enclosingScope()) {
-        if (scope->owner()->isClass())
-            break;
-    }
-    return scope;
-}
-
-Scope *Scope::enclosingEnumScope() const
-{
-    Scope *scope = enclosingScope();
-    for (; scope; scope = scope->enclosingScope()) {
-        if (scope->owner()->isEnum())
-            break;
-    }
-    return scope;
-}
-
-Scope *Scope::enclosingPrototypeScope() const
-{
-    Scope *scope = enclosingScope();
-    for (; scope; scope = scope->enclosingScope()) {
-        if (scope->owner()->isFunction())
-            break;
-    }
-    return scope;
-}
-
-Scope *Scope::enclosingBlockScope() const
-{
-    Scope *scope = enclosingScope();
-    for (; scope; scope = scope->enclosingScope()) {
-        if (scope->owner()->isBlock())
-            break;
-    }
-    return scope;
-}
-
-bool Scope::isNamespaceScope() const
-{
-    if (_owner)
-        return _owner->isNamespace();
-    return false;
-}
-
-bool Scope::isClassScope() const
-{
-    if (_owner)
-        return _owner->isClass();
-    return false;
-}
-
-bool Scope::isEnumScope() const
-{
-    if (_owner)
-        return _owner->isEnum();
-    return false;
-}
-
-bool Scope::isBlockScope() const
-{
-    if (_owner)
-        return _owner->isBlock();
-    return false;
-}
-
-bool Scope::isObjCClassScope() const
-{
-    if (_owner)
-        return _owner->isObjCClass();
-    return false;
-}
-
-bool Scope::isObjCProtocolScope() const
-{
-    if (_owner)
-        return _owner->isObjCProtocol();
-    return false;
-}
-
-bool Scope::isPrototypeScope() const
-{
-    if (_owner)
-        return _owner->isFunction();
-    return false;
-}
-
-bool Scope::isObjCMethodScope() const
-{
-    ObjCMethod *m = 0;
-    if (_owner && 0 != (m = _owner->asObjCMethod()))
-        return m->arguments() != this;
-    return false;
-}
-
-void Scope::enterSymbol(Symbol *symbol)
+void SymbolTable::enterSymbol(Symbol *symbol)
 {
     if (++_symbolCount == _allocatedSymbols) {
         _allocatedSymbols <<= 1;
@@ -207,7 +145,7 @@ void Scope::enterSymbol(Symbol *symbol)
 
     assert(! symbol->_scope || symbol->scope() == this);
     symbol->_index = _symbolCount;
-    symbol->_scope = this;
+    symbol->_scope = _owner;
     _symbols[_symbolCount] = symbol;
 
     if (_symbolCount >= _hashSize * 0.6)
@@ -219,7 +157,7 @@ void Scope::enterSymbol(Symbol *symbol)
     }
 }
 
-Symbol *Scope::lookat(const Name *name) const
+Symbol *SymbolTable::lookat(const Name *name) const
 {
     if (! name)
         return 0;
@@ -234,7 +172,7 @@ Symbol *Scope::lookat(const Name *name) const
         return 0;
 }
 
-Symbol *Scope::lookat(const Identifier *id) const
+Symbol *SymbolTable::lookat(const Identifier *id) const
 {
     if (! _hash || ! id)
         return 0;
@@ -264,7 +202,7 @@ Symbol *Scope::lookat(const Identifier *id) const
     return symbol;
 }
 
-Symbol *Scope::lookat(int operatorId) const
+Symbol *SymbolTable::lookat(int operatorId) const
 {
     if (! _hash)
         return 0;
@@ -281,7 +219,7 @@ Symbol *Scope::lookat(int operatorId) const
     return symbol;
 }
 
-void Scope::rehash()
+void SymbolTable::rehash()
 {
     _hashSize <<= 1;
 
@@ -299,7 +237,7 @@ void Scope::rehash()
     }
 }
 
-unsigned Scope::hashValue(Symbol *symbol) const
+unsigned SymbolTable::hashValue(Symbol *symbol) const
 {
     if (! symbol)
         return 0;
@@ -307,35 +245,83 @@ unsigned Scope::hashValue(Symbol *symbol) const
     return symbol->hashCode() % _hashSize;
 }
 
-bool Scope::isEmpty() const
+bool SymbolTable::isEmpty() const
 { return _symbolCount == -1; }
 
-unsigned Scope::symbolCount() const
+unsigned SymbolTable::symbolCount() const
 { return _symbolCount + 1; }
 
-Symbol *Scope::symbolAt(unsigned index) const
+Symbol *SymbolTable::symbolAt(unsigned index) const
 {
     if (! _symbols)
         return 0;
     return _symbols[index];
 }
 
-Scope::iterator Scope::firstSymbol() const
+SymbolTable::iterator SymbolTable::firstSymbol() const
 { return _symbols; }
 
-Scope::iterator Scope::lastSymbol() const
+SymbolTable::iterator SymbolTable::lastSymbol() const
 { return _symbols + _symbolCount + 1; }
 
+Scope::Scope(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
+    : Symbol(translationUnit, sourceLocation, name),
+      _members(0),
+      _startOffset(0),
+      _endOffset(0)
+{ }
+
+Scope::~Scope()
+{ delete _members; }
+
+/// Adds a Symbol to this Scope.
+void Scope::addMember(Symbol *symbol)
+{
+    if (! _members)
+        _members = new SymbolTable(this);
+
+    _members->enterSymbol(symbol);
+}
+
+/// Returns true if this Scope is empty; otherwise returns false.
+bool Scope::isEmpty() const
+{ return _members ? _members->isEmpty() : true; }
+
+/// Returns the number of symbols is in the scope.
+unsigned Scope::memberCount() const
+{ return _members ? _members->symbolCount() : 0; }
+
+/// Returns the Symbol at the given position.
+Symbol *Scope::memberAt(unsigned index) const
+{ return _members ? _members->symbolAt(index) : 0; }
+
+/// Returns the first Symbol in the scope.
+Scope::iterator Scope::firstMember() const
+{ return _members ? _members->firstSymbol() : 0; }
+
+/// Returns the last Symbol in the scope.
+Scope::iterator Scope::lastMember() const
+{ return _members ? _members->lastSymbol() : 0; }
+
+Symbol *Scope::find(const Name *name) const
+{ return _members ? _members->lookat(name) : 0; }
+
+Symbol *Scope::find(const Identifier *id) const
+{ return _members ? _members->lookat(id) : 0; }
+
+Symbol *Scope::find(int operatorId) const
+{ return _members ? _members->lookat(operatorId) : 0; }
+
+/// Set the start offset of the scope
 unsigned Scope::startOffset() const
 { return _startOffset; }
 
 void Scope::setStartOffset(unsigned offset)
 { _startOffset = offset; }
 
+/// Set the end offset of the scope
 unsigned Scope::endOffset() const
 { return _endOffset; }
 
 void Scope::setEndOffset(unsigned offset)
 { _endOffset = offset; }
-
-

@@ -181,8 +181,8 @@ protected:
 
         for (TemplateParameters *p = symbol->templateParameters(); p; p = p->previous()) {
             Scope *scope = p->scope();
-            for (unsigned i = 0; i < scope->symbolCount(); ++i)
-                accept(scope->symbolAt(i));
+            for (unsigned i = 0; i < scope->memberCount(); ++i)
+                accept(scope->memberAt(i));
         }
 
         return true;
@@ -201,7 +201,7 @@ protected:
 
     virtual bool visit(Declaration *symbol)
     {
-        if (symbol->enclosingEnumScope() != 0)
+        if (symbol->enclosingEnum() != 0)
             addStatic(symbol->name());
 
         if (Function *funTy = symbol->type()->asFunctionType()) {
@@ -211,7 +211,7 @@ protected:
 
         if (symbol->isTypedef())
             addType(symbol->name());
-        else if (! symbol->type()->isFunctionType() && symbol->enclosingSymbol()->isClass())
+        else if (! symbol->type()->isFunctionType() && symbol->scope()->isClass())
             addMember(symbol->name());
 
         return true;
@@ -239,8 +239,8 @@ protected:
     {
         for (TemplateParameters *p = symbol->templateParameters(); p; p = p->previous()) {
             Scope *scope = p->scope();
-            for (unsigned i = 0; i < scope->symbolCount(); ++i)
-                accept(scope->symbolAt(i));
+            for (unsigned i = 0; i < scope->memberCount(); ++i)
+                accept(scope->memberAt(i));
         }
 
         addType(symbol->name());
@@ -251,8 +251,8 @@ protected:
     {
         for (TemplateParameters *p = symbol->templateParameters(); p; p = p->previous()) {
             Scope *scope = p->scope();
-            for (unsigned i = 0; i < scope->symbolCount(); ++i)
-                accept(scope->symbolAt(i));
+            for (unsigned i = 0; i < scope->memberCount(); ++i)
+                accept(scope->memberAt(i));
         }
 
         addType(symbol->name());
@@ -383,48 +383,48 @@ Scope *CheckSymbols::enclosingScope() const
 
         if (NamespaceAST *ns = ast->asNamespace()) {
             if (ns->symbol)
-                return ns->symbol->members();
+                return ns->symbol;
 
         } else if (ClassSpecifierAST *classSpec = ast->asClassSpecifier()) {
             if (classSpec->symbol)
-                return classSpec->symbol->members();
+                return classSpec->symbol;
 
         } else if (FunctionDefinitionAST *funDef = ast->asFunctionDefinition()) {
             if (funDef->symbol)
-                return funDef->symbol->members();
+                return funDef->symbol;
 
         } else if (CompoundStatementAST *blockStmt = ast->asCompoundStatement()) {
             if (blockStmt->symbol)
-                return blockStmt->symbol->members();
+                return blockStmt->symbol;
 
         } else if (IfStatementAST *ifStmt = ast->asIfStatement()) {
             if (ifStmt->symbol)
-                return ifStmt->symbol->members();
+                return ifStmt->symbol;
 
         } else if (WhileStatementAST *whileStmt = ast->asWhileStatement()) {
             if (whileStmt->symbol)
-                return whileStmt->symbol->members();
+                return whileStmt->symbol;
 
         } else if (ForStatementAST *forStmt = ast->asForStatement()) {
             if (forStmt->symbol)
-                return forStmt->symbol->members();
+                return forStmt->symbol;
 
         } else if (ForeachStatementAST *foreachStmt = ast->asForeachStatement()) {
             if (foreachStmt->symbol)
-                return foreachStmt->symbol->members();
+                return foreachStmt->symbol;
 
         } else if (SwitchStatementAST *switchStmt = ast->asSwitchStatement()) {
             if (switchStmt->symbol)
-                return switchStmt->symbol->members();
+                return switchStmt->symbol;
 
         } else if (CatchClauseAST *catchClause = ast->asCatchClause()) {
             if (catchClause->symbol)
-                return catchClause->symbol->members();
+                return catchClause->symbol;
 
         }
     }
 
-    return _doc->globalSymbols();
+    return _doc->globalNamespace();
 }
 
 bool CheckSymbols::preVisit(AST *ast)
@@ -596,7 +596,7 @@ bool CheckSymbols::hasVirtualDestructor(Class *klass) const
     const Identifier *id = klass->identifier();
     if (! id)
         return false;
-    for (Symbol *s = klass->members()->lookat(id); s; s = s->next()) {
+    for (Symbol *s = klass->find(id); s; s = s->next()) {
         if (! s->name())
             continue;
         else if (s->name()->isDestructorNameId()) {
@@ -639,8 +639,8 @@ void CheckSymbols::checkName(NameAST *ast, Scope *scope)
         if (! scope)
             scope = enclosingScope();
 
-        if (ast->asDestructorName() != 0 && scope->isClassScope()) {
-            Class *klass = scope->owner()->asClass();
+        if (ast->asDestructorName() != 0 && scope->isClass()) {
+            Class *klass = scope->asClass();
             if (hasVirtualDestructor(_context.lookupType(klass)))
                 addUse(ast, Use::VirtualMethod);
         } else if (maybeType(ast->name) || maybeStatic(ast->name)) {
@@ -735,7 +735,7 @@ bool CheckSymbols::visit(MemInitializerAST *ast)
             if (ClassOrNamespace *binding = _context.lookupType(enclosingFunction->symbol)) {
                 foreach (Symbol *s, binding->symbols()) {
                     if (Class *klass = s->asClass()){
-                        checkName(ast->name, klass->members());
+                        checkName(ast->name, klass);
                         break;
                     }
                 }
@@ -876,7 +876,7 @@ void CheckSymbols::addTypeOrStatic(const QList<LookupItem> &candidates, NameAST 
             continue;
         else if (c->isTypedef() || c->isNamespace() ||
                  c->isClass() || c->isEnum() ||
-                 c->isForwardClassDeclaration() || c->isTypenameArgument() || c->enclosingEnumScope() != 0) {
+                 c->isForwardClassDeclaration() || c->isTypenameArgument() || c->enclosingEnum() != 0) {
 
             unsigned line, column;
             getTokenStartPosition(startToken, &line, &column);
@@ -884,7 +884,7 @@ void CheckSymbols::addTypeOrStatic(const QList<LookupItem> &candidates, NameAST 
 
             Use::Kind kind = Use::Type;
 
-            if (c->enclosingEnumScope() != 0)
+            if (c->enclosingEnum() != 0)
                 kind = Use::Static;
 
             const Use use(line, column, length, kind);
@@ -911,7 +911,7 @@ void CheckSymbols::addClassMember(const QList<LookupItem> &candidates, NameAST *
             continue;
         else if (! c->isDeclaration())
             return;
-        else if (! (c->enclosingSymbol() && c->enclosingSymbol()->isClass()))
+        else if (! (c->scope() && c->scope()->isClass()))
             return; // shadowed
         else if (c->isTypedef() || c->type()->isFunctionType())
             return; // shadowed
@@ -940,7 +940,7 @@ void CheckSymbols::addStatic(const QList<LookupItem> &candidates, NameAST *ast)
         Symbol *c = r.declaration();
         if (! c)
             return;
-        if (c->scope()->isEnumScope()) {
+        if (c->scope()->isEnum()) {
             unsigned line, column;
             getTokenStartPosition(startToken, &line, &column);
             const unsigned length = tok.length();

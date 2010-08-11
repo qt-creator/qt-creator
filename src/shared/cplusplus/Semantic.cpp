@@ -201,7 +201,7 @@ void Semantic::finishFunctionDefinition(FunctionDefinitionAST *ast)
     d->checkDeclaration->check(ast->ctor_initializer, fun->scope());
 
     if (ast->function_body) {
-        check(ast->function_body, fun->members());
+        check(ast->function_body, fun);
 
         if (CompoundStatementAST *c = ast->function_body->asCompoundStatement())
             fun->setBlock(c->symbol);

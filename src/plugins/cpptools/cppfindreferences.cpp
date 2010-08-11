@@ -191,7 +191,7 @@ static void find_helper(QFutureInterface<Usage> &future,
     QStringList files(sourceFile);
 
     if (symbol->isClass() || symbol->isForwardClassDeclaration() || (symbol->scope() && ! symbol->isStatic() &&
-                                                                     symbol->scope()->isNamespaceScope())) {
+                                                                     symbol->scope()->isNamespace())) {
         foreach (const Document::Ptr &doc, context.snapshot()) {
             if (doc->fileName() == sourceFile)
                 continue;

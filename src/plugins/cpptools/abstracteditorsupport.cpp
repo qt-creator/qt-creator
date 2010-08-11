@@ -68,15 +68,14 @@ QString AbstractEditorSupport::functionAt(const CppModelManagerInterface *modelM
         return QString();
     if (const CPlusPlus::Symbol *symbol = document->lastVisibleSymbolAt(line, column))
         if (const CPlusPlus::Scope *scope = symbol->scope())
-            if (const CPlusPlus::Scope *functionScope = scope->enclosingPrototypeScope())
-                if (const CPlusPlus::Symbol *function = functionScope->owner()) {
+            if (const CPlusPlus::Scope *functionScope = scope->enclosingFunction())
+                if (const CPlusPlus::Symbol *function = functionScope) {
                     const CPlusPlus::Overview o;
                     QString rc = o.prettyName(function->name());
                     // Prepend namespace "Foo::Foo::foo()" up to empty root namespace
                     for (const CPlusPlus::Symbol *owner = function; ; ) {
-                        if (const CPlusPlus::Scope *nameSpace = owner->enclosingNamespaceScope()) {
-                            owner = nameSpace->owner();
-                            const QString name = o.prettyName(owner->name());
+                        if (const CPlusPlus::Scope *nameSpace = owner->enclosingNamespace()) {
+                            const QString name = o.prettyName(nameSpace->name());
                             if (name.isEmpty()) {
                                 break;
                             } else {

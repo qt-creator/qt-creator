@@ -53,6 +53,7 @@
 #include "Symbol.h"
 #include "Type.h"
 #include "FullySpecifiedType.h"
+#include "Scope.h"
 #include <vector>
 
 namespace CPlusPlus {
@@ -217,84 +218,7 @@ private:
     FullySpecifiedType _type;
 };
 
-class CPLUSPLUS_EXPORT ScopedSymbol: public Symbol
-{
-public:
-    ScopedSymbol(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
-    virtual ~ScopedSymbol();
-
-    unsigned memberCount() const;
-    Symbol *memberAt(unsigned index) const;
-    Scope *members() const;
-    void addMember(Symbol *member);
-
-    /// Returns true if this scope's owner is a Namespace Symbol.
-    bool isNamespaceScope() const;
-
-    /// Returns true if this scope's owner is a Class Symbol.
-    bool isClassScope() const;
-
-    /// Returns true if this scope's owner is an Enum Symbol.
-    bool isEnumScope() const;
-
-    /// Returns true if this scope's owner is a Block Symbol.
-    bool isBlockScope() const;
-
-    /// Returns true if this scope's owner is a Prototype Symbol.
-    bool isPrototypeScope() const;
-
-    /// Returns true if this scope's owner is an ObjCClass Symbol.
-    bool isObjCClassScope() const;
-
-    /// Returns true if this scope's owner is an ObjCProtocol Symbol.
-    bool isObjCProtocolScope() const;
-
-    /// Returns true if this scope's owner is an ObjCMethod symbol.
-    bool isObjCMethodScope() const;
-
-    /// Adds a Symbol to this Scope.
-    void enterSymbol(Symbol *symbol);
-
-    /// Returns true if this Scope is empty; otherwise returns false.
-    bool isEmpty() const;
-
-    /// Returns the number of symbols is in the scope.
-    unsigned symbolCount() const;
-
-    /// Returns the Symbol at the given position.
-    Symbol *symbolAt(unsigned index) const;
-
-    typedef Symbol **iterator;
-
-    /// Returns the first Symbol in the scope.
-    iterator firstSymbol() const;
-
-    /// Returns the last Symbol in the scope.
-    iterator lastSymbol() const;
-
-    Symbol *lookat(const Name *name) const;
-    Symbol *lookat(const Identifier *id) const;
-    Symbol *lookat(int operatorId) const;
-
-    /// Set the start offset of the scope
-    unsigned startOffset() const;
-    void setStartOffset(unsigned offset);
-
-    /// Set the end offset of the scope
-    unsigned endOffset() const;
-    void setEndOffset(unsigned offset);
-
-    virtual const ScopedSymbol *asScopedSymbol() const
-    { return this; }
-
-    virtual ScopedSymbol *asScopedSymbol()
-    { return this; }
-
-private:
-    Scope *_members;
-};
-
-class CPLUSPLUS_EXPORT Block: public ScopedSymbol
+class CPLUSPLUS_EXPORT Block: public Scope
 {
 public:
     Block(TranslationUnit *translationUnit, unsigned sourceLocation);
@@ -347,7 +271,7 @@ private:
     TemplateParameters *_templateParameters;
 };
 
-class CPLUSPLUS_EXPORT Enum: public ScopedSymbol, public Type
+class CPLUSPLUS_EXPORT Enum: public Scope, public Type
 {
 public:
     Enum(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
@@ -377,7 +301,7 @@ protected:
     virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
 };
 
-class CPLUSPLUS_EXPORT Function: public ScopedSymbol, public Type
+class CPLUSPLUS_EXPORT Function: public Scope, public Type
 {
 public:
     enum MethodKey {
@@ -484,7 +408,7 @@ private:
     };
 };
 
-class CPLUSPLUS_EXPORT Namespace: public ScopedSymbol, public Type
+class CPLUSPLUS_EXPORT Namespace: public Scope, public Type
 {
 public:
     Namespace(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
@@ -541,7 +465,7 @@ private:
     FullySpecifiedType _type;
 };
 
-class CPLUSPLUS_EXPORT Class: public ScopedSymbol, public Type
+class CPLUSPLUS_EXPORT Class: public Scope, public Type
 {
 public:
     Class(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
@@ -668,7 +592,7 @@ protected:
     virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
 };
 
-class CPLUSPLUS_EXPORT ObjCProtocol: public ScopedSymbol, public Type
+class CPLUSPLUS_EXPORT ObjCProtocol: public Scope, public Type
 {
 public:
     ObjCProtocol(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
@@ -735,7 +659,7 @@ protected:
 private:
 };
 
-class CPLUSPLUS_EXPORT ObjCClass: public ScopedSymbol, public Type
+class CPLUSPLUS_EXPORT ObjCClass: public Scope, public Type
 {
 public:
     ObjCClass(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
@@ -785,7 +709,7 @@ private:
     std::vector<ObjCBaseProtocol *> _protocols;
 };
 
-class CPLUSPLUS_EXPORT ObjCMethod: public ScopedSymbol, public Type
+class CPLUSPLUS_EXPORT ObjCMethod: public Scope, public Type
 {
 public:
     ObjCMethod(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
@@ -799,7 +723,6 @@ public:
 
     unsigned argumentCount() const;
     Symbol *argumentAt(unsigned index) const;
-    Scope *arguments() const;
 
     /** Convenience function that returns whether the function receives any arguments. */
     bool hasArguments() const;
@@ -839,7 +762,6 @@ private:
         unsigned _flags;
         Flags f;
     };
-    Scope *_arguments;
 };
 
 class CPLUSPLUS_EXPORT ObjCPropertyDeclaration: public Symbol

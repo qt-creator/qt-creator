@@ -412,7 +412,7 @@ bool CheckName::visit(ObjCMessageArgumentDeclarationAST *ast)
         ast->argument = arg;
         arg->setType(type);
         arg->setInitializer(0);
-        _scope->enterSymbol(arg);
+        _scope->addMember(arg);
     }
 
     return false;

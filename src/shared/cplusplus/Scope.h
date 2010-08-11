@@ -50,94 +50,39 @@
 #define CPLUSPLUS_SCOPE_H
 
 #include "CPlusPlusForwardDeclarations.h"
-
+#include "Symbol.h"
 
 namespace CPlusPlus {
 
-class CPLUSPLUS_EXPORT Scope
+class CPLUSPLUS_EXPORT Scope: public Symbol
 {
-    Scope(const Scope &other);
-    void operator =(const Scope &other);
-
 public:
-    typedef Symbol **iterator;
-
-public:
-    /// Constructs an empty Scope.
-    Scope(ScopedSymbol *owner = 0);
-
-    /// Destroy this scope.
-    ~Scope();
-
-    /// Returns this scope's owner Symbol.
-    ScopedSymbol *owner() const;
-
-    /// Sets this scope's owner Symbol.
-    void setOwner(ScopedSymbol *owner); // ### remove me
-
-    /// Returns the enclosing scope.
-    Scope *enclosingScope() const;
-
-    /// Returns the eclosing namespace scope.
-    Scope *enclosingNamespaceScope() const;
-
-    /// Returns the enclosing class scope.
-    Scope *enclosingClassScope() const;
-
-    /// Returns the enclosing enum scope.
-    Scope *enclosingEnumScope() const;
-
-    /// Rerturns the enclosing prototype scope.
-    Scope *enclosingPrototypeScope() const;
-
-    /// Rerturns the enclosing Block scope.
-    Scope *enclosingBlockScope() const;
-
-    /// Returns true if this scope's owner is a Namespace Symbol.
-    bool isNamespaceScope() const;
-
-    /// Returns true if this scope's owner is a Class Symbol.
-    bool isClassScope() const;
-
-    /// Returns true if this scope's owner is an Enum Symbol.
-    bool isEnumScope() const;
-
-    /// Returns true if this scope's owner is a Block Symbol.
-    bool isBlockScope() const;
-
-    /// Returns true if this scope's owner is a Prototype Symbol.
-    bool isPrototypeScope() const;
-
-    /// Returns true if this scope's owner is an ObjCClass Symbol.
-    bool isObjCClassScope() const;
-
-    /// Returns true if this scope's owner is an ObjCProtocol Symbol.
-    bool isObjCProtocolScope() const;
-
-    /// Returns true if this scope's owner is an ObjCMethod symbol.
-    bool isObjCMethodScope() const;
+    Scope(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    virtual ~Scope();
 
     /// Adds a Symbol to this Scope.
-    void enterSymbol(Symbol *symbol);
+    void addMember(Symbol *symbol);
 
     /// Returns true if this Scope is empty; otherwise returns false.
     bool isEmpty() const;
 
     /// Returns the number of symbols is in the scope.
-    unsigned symbolCount() const;
+    unsigned memberCount() const;
 
     /// Returns the Symbol at the given position.
-    Symbol *symbolAt(unsigned index) const;
+    Symbol *memberAt(unsigned index) const;
+
+    typedef Symbol **iterator;
 
     /// Returns the first Symbol in the scope.
-    iterator firstSymbol() const;
+    iterator firstMember() const;
 
     /// Returns the last Symbol in the scope.
-    iterator lastSymbol() const;
+    iterator lastMember() const;
 
-    Symbol *lookat(const Name *name) const;
-    Symbol *lookat(const Identifier *id) const;
-    Symbol *lookat(int operatorId) const;
+    Symbol *find(const Name *name) const;
+    Symbol *find(const Identifier *id) const;
+    Symbol *find(int operatorId) const;
 
     /// Set the start offset of the scope
     unsigned startOffset() const;
@@ -147,22 +92,14 @@ public:
     unsigned endOffset() const;
     void setEndOffset(unsigned offset);
 
+    virtual const Scope *asScope() const
+    { return this; }
+
+    virtual Scope *asScope()
+    { return this; }
+
 private:
-    /// Returns the hash value for the given Symbol.
-    unsigned hashValue(Symbol *symbol) const;
-
-    /// Updates the hash table.
-    void rehash();
-
-private:
-    enum { DefaultInitialSize = 11 };
-
-    ScopedSymbol *_owner;
-    Symbol **_symbols;
-    Symbol **_hash;
-    int _allocatedSymbols;
-    int _symbolCount;
-    int _hashSize;
+    SymbolTable *_members;
     unsigned _startOffset;
     unsigned _endOffset;
 };

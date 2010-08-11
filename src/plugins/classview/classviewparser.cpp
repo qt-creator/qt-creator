@@ -289,7 +289,7 @@ void Parser::addSymbol(const ParserTreeItem::Ptr &item, const CPlusPlus::Symbol 
         return;
 
     // skip static local functions
-//    if ((!symbol->scope() || symbol->scope()->owner()->isClass())
+//    if ((!symbol->scope() || symbol->scope()->isClass())
 //        && symbol->isStatic() && symbol->isFunction())
 //        return;
 
@@ -320,22 +320,19 @@ void Parser::addSymbol(const ParserTreeItem::Ptr &item, const CPlusPlus::Symbol 
 
     // prevent showing a content of the functions
     if (!symbol->isFunction()) {
-        const CPlusPlus::ScopedSymbol *scopedSymbol = symbol->asScopedSymbol();
-        if (scopedSymbol) {
-            CPlusPlus::Scope *scope = scopedSymbol->members();
-            if (scope) {
-                CPlusPlus::Scope::iterator cur = scope->firstSymbol();
-                while (cur != scope->lastSymbol()) {
-                    const CPlusPlus::Symbol *curSymbol = *cur;
-                    ++cur;
-                    if (!curSymbol)
-                        continue;
+        const CPlusPlus::Scope *scope = symbol->asScope();
+        if (scope) {
+            CPlusPlus::Scope::iterator cur = scope->firstMember();
+            while (cur != scope->lastMember()) {
+                const CPlusPlus::Symbol *curSymbol = *cur;
+                ++cur;
+                if (!curSymbol)
+                    continue;
 
-                    //                if (!symbol->isClass() && curSymbol->isStatic() && curSymbol->isFunction())
-                    //                        return;
+                //                if (!symbol->isClass() && curSymbol->isStatic() && curSymbol->isFunction())
+                //                        return;
 
-                    addSymbol(itemAdd, curSymbol);
-                }
+                addSymbol(itemAdd, curSymbol);
             }
         }
     }

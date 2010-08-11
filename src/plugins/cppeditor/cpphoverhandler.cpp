@@ -249,9 +249,9 @@ void CppHoverHandler::handleLookupItemMatch(const LookupItem &lookupItem,
         setToolTip(overview.prettyType(matchingType, QString()));
     } else {
         QString name;
-        if (matchingDeclaration->enclosingSymbol()->isClass() ||
-            matchingDeclaration->enclosingSymbol()->isNamespace() ||
-            matchingDeclaration->enclosingSymbol()->isEnum()) {
+        if (matchingDeclaration->scope()->isClass() ||
+            matchingDeclaration->scope()->isNamespace() ||
+            matchingDeclaration->scope()->isEnum()) {
             name.append(overview.prettyName(
                 LookupContext::fullyQualifiedName(matchingDeclaration)));
 
@@ -280,7 +280,7 @@ void CppHoverHandler::handleLookupItemMatch(const LookupItem &lookupItem,
             matchingDeclaration->isForwardClassDeclaration()) {
             helpCategory = HelpCandidate::ClassOrNamespace;
         } else if (matchingDeclaration->isEnum() ||
-                   matchingDeclaration->enclosingSymbol()->isEnum()) {
+                   matchingDeclaration->scope()->isEnum()) {
             helpCategory = HelpCandidate::Enum;
         } else if (matchingDeclaration->isTypedef()) {
             helpCategory = HelpCandidate::Typedef;
@@ -327,8 +327,8 @@ void CppHoverHandler::handleLookupItemMatch(const LookupItem &lookupItem,
                 overview.setShowFunctionSignatures(false);
                 const QString &functionName = overview.prettyName(matchingDeclaration->name());
                 addHelpCandidate(HelpCandidate(functionName, docMark, helpCategory));
-            } else if (matchingDeclaration->enclosingSymbol()->isEnum()) {
-                Symbol *enumSymbol = matchingDeclaration->enclosingSymbol()->asEnum();
+            } else if (matchingDeclaration->scope()->isEnum()) {
+                Symbol *enumSymbol = matchingDeclaration->scope()->asEnum();
                 docMark = overview.prettyName(enumSymbol->name());
             }
 

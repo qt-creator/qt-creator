@@ -126,9 +126,6 @@ public:
     /// Sets this Symbol's visibility.
     void setVisibility(int visibility);
 
-    /// Returns this Symbol's scope.
-    Scope *scope() const;
-
     /// Returns the next chained Symbol.
     Symbol *next() const;
 
@@ -219,7 +216,7 @@ public:
     /// Returns true if this Symbol is an Objective-C @property declaration.
     bool isObjCPropertyDeclaration() const;
 
-    virtual const ScopedSymbol *asScopedSymbol() const { return 0; }
+    virtual const Scope *asScope() const { return 0; }
     virtual const Enum *asEnum() const { return 0; }
     virtual const Function *asFunction() const { return 0; }
     virtual const Namespace *asNamespace() const { return 0; }
@@ -242,7 +239,7 @@ public:
     virtual const ObjCMethod *asObjCMethod() const { return 0; }
     virtual const ObjCPropertyDeclaration *asObjCPropertyDeclaration() const { return 0; }
 
-    virtual ScopedSymbol *asScopedSymbol() { return 0; }
+    virtual Scope *asScope() { return 0; }
     virtual Enum *asEnum() { return 0; }
     virtual Function *asFunction() { return 0; }
     virtual Namespace *asNamespace() { return 0; }
@@ -284,22 +281,23 @@ public:
     bool isUnavailable() const;
     void setUnavailable(bool isUnavailable);
 
-    ScopedSymbol *enclosingSymbol() const;
+    /// Returns this Symbol's eclosing scope.
+    Scope *scope() const;
 
     /// Returns the eclosing namespace scope.
-    Scope *enclosingNamespaceScope() const;
+    Namespace *enclosingNamespace() const;
 
     /// Returns the enclosing class scope.
-    Scope *enclosingClassScope() const;
+    Class *enclosingClass() const;
 
     /// Returns the enclosing enum scope.
-    Scope *enclosingEnumScope() const;
+    Enum *enclosingEnum() const;
 
     /// Returns the enclosing prototype scope.
-    Scope *enclosingPrototypeScope() const;
+    Function *enclosingFunction() const;
 
     /// Returns the enclosing Block scope.
-    Scope *enclosingBlockScope() const;
+    Block *enclosingBlock() const;
 
     void setScope(Scope *scope); // ### make me private
     void setSourceLocation(unsigned sourceLocation, TranslationUnit *translationUnit); // ### make me private
@@ -331,7 +329,7 @@ private:
 
     class HashCode;
 
-    friend class Scope;
+    friend class SymbolTable;
 };
 
 } // end of namespace CPlusPlus

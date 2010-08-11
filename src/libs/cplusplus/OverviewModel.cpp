@@ -79,13 +79,9 @@ QModelIndex OverviewModel::index(int row, int column, const QModelIndex &parent)
         Symbol *parentSymbol = static_cast<Symbol *>(parent.internalPointer());
         Q_ASSERT(parentSymbol);
 
-        ScopedSymbol *scopedSymbol = parentSymbol->asScopedSymbol();
-        Q_ASSERT(scopedSymbol);
-
-        Scope *scope = scopedSymbol->members();
-        Q_ASSERT(scope);
-
-        return createIndex(row, 0, scope->symbolAt(row));
+        Scope *scope = parentSymbol->asScope();
+        Q_ASSERT(scope != 0);
+        return createIndex(row, 0, scope->memberAt(row));
     }
 }
 
@@ -96,14 +92,12 @@ QModelIndex OverviewModel::parent(const QModelIndex &child) const
         return QModelIndex();
 
     if (Scope *scope = symbol->scope()) {
-        Symbol *parentSymbol = scope->owner();
-        if (parentSymbol && parentSymbol->scope()) {
+        if (scope->scope()) {
             QModelIndex index;
-            if (parentSymbol->scope() && parentSymbol->scope()->owner()
-                    && parentSymbol->scope()->owner()->scope()) // the parent doesn't have a parent
-                index = createIndex(parentSymbol->index(), 0, parentSymbol);
+            if (scope->scope() && scope->scope()->scope()) // the parent doesn't have a parent
+                index = createIndex(scope->index(), 0, scope);
             else //+1 to account for no symbol item
-                index = createIndex(parentSymbol->index() + 1, 0, parentSymbol);
+                index = createIndex(scope->index() + 1, 0, scope);
             return index;
         }
     }
@@ -122,12 +116,9 @@ int OverviewModel::rowCount(const QModelIndex &parent) const
             Symbol *parentSymbol = static_cast<Symbol *>(parent.internalPointer());
             Q_ASSERT(parentSymbol);
 
-            if (ScopedSymbol *scopedSymbol = parentSymbol->asScopedSymbol()) {
-                if (!scopedSymbol->isFunction() && !scopedSymbol->isObjCMethod()) {
-                    Scope *parentScope = scopedSymbol->members();
-                    Q_ASSERT(parentScope);
-
-                    return parentScope->symbolCount();
+            if (Scope *parentScope = parentSymbol->asScope()) {
+                if (!parentScope->isFunction() && !parentScope->isObjCMethod()) {
+                    return parentScope->memberCount();
                 }
             }
             return 0;

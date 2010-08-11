@@ -709,12 +709,12 @@ void CppCodeCompletion::completeObjCMsgSend(ClassOrNamespace *binding,
     QList<Scope*> memberScopes;
     foreach (Symbol *s, binding->symbols()) {
         if (ObjCClass *c = s->asObjCClass())
-            memberScopes.append(c->members());
+            memberScopes.append(c);
     }
 
     foreach (Scope *scope, memberScopes) {
-        for (unsigned i = 0; i < scope->symbolCount(); ++i) {
-            Symbol *symbol = scope->symbolAt(i);
+        for (unsigned i = 0; i < scope->memberCount(); ++i) {
+            Symbol *symbol = scope->memberAt(i);
 
             if (ObjCMethod *method = symbol->type()->asObjCMethodType()) {
                 if (method->isStatic() == staticClassAccess) {
@@ -1055,11 +1055,11 @@ void CppCodeCompletion::globalCompletion(Scope *currentScope)
     QList<ClassOrNamespace *> usingBindings;
     ClassOrNamespace *currentBinding = 0;
 
-    for (Scope *scope = currentScope; scope; scope = scope->enclosingScope()) {
-        if (scope->isBlockScope()) {
-            if (ClassOrNamespace *binding = context.lookupType(scope->owner())) {
-                for (unsigned i = 0; i < scope->symbolCount(); ++i) {
-                    Symbol *member = scope->symbolAt(i);
+    for (Scope *scope = currentScope; scope; scope = scope->scope()) {
+        if (scope->isBlock()) {
+            if (ClassOrNamespace *binding = context.lookupType(scope)) {
+                for (unsigned i = 0; i < scope->memberCount(); ++i) {
+                    Symbol *member = scope->memberAt(i);
                     if (! member->name())
                         continue;
                     else if (UsingNamespaceDirective *u = member->asUsingNamespaceDirective()) {
@@ -1068,19 +1068,19 @@ void CppCodeCompletion::globalCompletion(Scope *currentScope)
                     }
                 }
             }
-        } else if (scope->isPrototypeScope() || scope->isClassScope() || scope->isNamespaceScope()) {
-            currentBinding = context.lookupType(scope->owner());
+        } else if (scope->isFunction() || scope->isClass() || scope->isNamespace()) {
+            currentBinding = context.lookupType(scope);
             break;
         }
     }
 
-    for (Scope *scope = currentScope; scope; scope = scope->enclosingScope()) {
-        if (scope->isBlockScope()) {
-            for (unsigned i = 0; i < scope->symbolCount(); ++i) {
-                addCompletionItem(scope->symbolAt(i));
+    for (Scope *scope = currentScope; scope; scope = scope->scope()) {
+        if (scope->isBlock()) {
+            for (unsigned i = 0; i < scope->memberCount(); ++i) {
+                addCompletionItem(scope->memberAt(i));
             }
-        } else if (scope->isPrototypeScope()) {
-            Function *fun = scope->owner()->asFunction();
+        } else if (scope->isFunction()) {
+            Function *fun = scope->asFunction();
             for (unsigned i = 0; i < fun->argumentCount(); ++i) {
                 addCompletionItem(fun->argumentAt(i));
             }
@@ -1216,7 +1216,7 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &r
 
         Scope *sc = context.thisDocument()->scopeAt(line, column);
 
-        if (sc && (sc->isClassScope() || sc->isNamespaceScope())) {
+        if (sc && (sc->isClass() || sc->isNamespace())) {
             // It may still be a function call. If the whole line parses as a function
             // declaration, we should be certain that it isn't.
             bool autocompleteSignature = false;
@@ -1528,11 +1528,11 @@ void CppCodeCompletion::completeNamespace(ClassOrNamespace *b)
 
         foreach (Symbol *bb, binding->symbols()) {
             if (Namespace *ns = bb->asNamespace())
-                scopesToVisit.append(ns->members());
+                scopesToVisit.append(ns);
         }
 
         foreach (Enum *e, binding->enums()) {
-            scopesToVisit.append(e->members());
+            scopesToVisit.append(e);
         }
 
         while (! scopesToVisit.isEmpty()) {
@@ -1542,7 +1542,7 @@ void CppCodeCompletion::completeNamespace(ClassOrNamespace *b)
 
             scopesVisited.insert(scope);
 
-            for (Scope::iterator it = scope->firstSymbol(); it != scope->lastSymbol(); ++it) {
+            for (Scope::iterator it = scope->firstMember(); it != scope->lastMember(); ++it) {
                 Symbol *member = *it;
                 addCompletionItem(member);
             }
@@ -1569,11 +1569,11 @@ void CppCodeCompletion::completeClass(ClassOrNamespace *b, bool staticLookup)
 
         foreach (Symbol *bb, binding->symbols()) {
             if (Class *k = bb->asClass())
-                scopesToVisit.append(k->members());
+                scopesToVisit.append(k);
         }
 
         foreach (Enum *e, binding->enums())
-            scopesToVisit.append(e->members());
+            scopesToVisit.append(e);
 
         while (! scopesToVisit.isEmpty()) {
             Scope *scope = scopesToVisit.takeFirst();
@@ -1582,9 +1582,9 @@ void CppCodeCompletion::completeClass(ClassOrNamespace *b, bool staticLookup)
 
             scopesVisited.insert(scope);
 
-            addCompletionItem(scope->owner()); // add a completion item for the injected class name.
+            addCompletionItem(scope); // add a completion item for the injected class name.
 
-            for (Scope::iterator it = scope->firstSymbol(); it != scope->lastSymbol(); ++it) {
+            for (Scope::iterator it = scope->firstMember(); it != scope->lastMember(); ++it) {
                 Symbol *member = *it;
                 if (member->isFriend())
                     continue;
@@ -1641,18 +1641,18 @@ bool CppCodeCompletion::completeQtMethod(const QList<LookupItem> &results,
 
                 foreach (Symbol *s, binding->symbols())
                     if (Class *clazz = s->asClass())
-                        scopes.append(clazz->members());
+                        scopes.append(clazz);
 
                 todo.append(binding->usings());
             }
         }
 
         foreach (Scope *scope, scopes) {
-            if (! scope->isClassScope())
+            if (! scope->isClass())
                 continue;
 
-            for (unsigned i = 0; i < scope->symbolCount(); ++i) {
-                Symbol *member = scope->symbolAt(i);
+            for (unsigned i = 0; i < scope->memberCount(); ++i) {
+                Symbol *member = scope->memberAt(i);
                 Function *fun = member->type()->asFunctionType();
                 if (! fun)
                     continue;

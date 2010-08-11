@@ -172,7 +172,7 @@ bool CheckDeclarator::visit(FunctionDeclaratorAST *ast)
     if (ast->parameters) {
         DeclarationListAST *parameter_declarations = ast->parameters->parameter_declaration_list;
         for (DeclarationListAST *decl = parameter_declarations; decl; decl = decl->next) {
-            semantic()->check(decl->value, fun->members());
+            semantic()->check(decl->value, fun);
         }
 
         if (ast->parameters->dot_dot_dot_token)
@@ -276,7 +276,7 @@ bool CheckDeclarator::visit(ObjCMethodPrototypeAST *ast)
     for (ObjCMessageArgumentDeclarationListAST *it = ast->argument_list; it; it = it->next) {
         ObjCMessageArgumentDeclarationAST *argDecl = it->value;
 
-        semantic()->check(argDecl, method->arguments());
+        semantic()->check(argDecl, method);
     }
 
     if (ast->dot_dot_dot_token)

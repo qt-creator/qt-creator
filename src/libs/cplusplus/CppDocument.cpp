@@ -76,13 +76,13 @@ public:
     }
 
 protected:
-    bool process(ScopedSymbol *symbol)
+    bool process(Scope *symbol)
     {
         if (! _scope) {
-            Scope *scope = symbol->members();
+            Scope *scope = symbol;
 
-            for (unsigned i = 0; i < scope->symbolCount(); ++i) {
-                accept(scope->symbolAt(i));
+            for (unsigned i = 0; i < scope->memberCount(); ++i) {
+                accept(scope->memberAt(i));
 
                 if (_scope)
                     return false;
@@ -388,14 +388,6 @@ Symbol *Document::globalSymbolAt(unsigned index) const
     return _globalNamespace->memberAt(index);
 }
 
-Scope *Document::globalSymbols() const
-{
-    if (! _globalNamespace)
-        return 0;
-
-    return _globalNamespace->members();
-}
-
 Namespace *Document::globalNamespace() const
 {
     return _globalNamespace;
@@ -411,20 +403,20 @@ Scope *Document::scopeAt(unsigned line, unsigned column)
     FindScopeAt findScopeAt(_translationUnit, line, column);
     if (Scope *scope = findScopeAt(_globalNamespace))
         return scope;
-    return globalSymbols();
+    return globalNamespace();
 }
 
 Symbol *Document::lastVisibleSymbolAt(unsigned line, unsigned column) const
 {
-    return lastVisibleSymbolAt(line, column, globalSymbols());
+    return lastVisibleSymbolAt(line, column, globalNamespace());
 }
 
 Symbol *Document::lastVisibleSymbolAt(unsigned line, unsigned column, Scope *scope) const
 {
     Symbol *previousSymbol = 0;
 
-    for (unsigned i = 0; i < scope->symbolCount(); ++i) {
-        Symbol *symbol = scope->symbolAt(i);
+    for (unsigned i = 0; i < scope->memberCount(); ++i) {
+        Symbol *symbol = scope->memberAt(i);
         if (symbol->line() > line)
             break;
 
@@ -432,8 +424,8 @@ Symbol *Document::lastVisibleSymbolAt(unsigned line, unsigned column, Scope *sco
     }
 
     if (previousSymbol) {
-        if (ScopedSymbol *scoped = previousSymbol->asScopedSymbol()) {
-            if (Symbol *member = lastVisibleSymbolAt(line, column, scoped->members()))
+        if (Scope *scope = previousSymbol->asScope()) {
+            if (Symbol *member = lastVisibleSymbolAt(line, column, scope))
                 return member;
         }
     }
@@ -558,7 +550,7 @@ void Document::check(CheckMode mode)
         semantic.setSkipFunctionBodies(true);
 
     _globalNamespace = _control->newNamespace(0);
-    Scope *globals = _globalNamespace->members();
+    Scope *globals = _globalNamespace;
     if (! _translationUnit->ast())
         return; // nothing to do.
 

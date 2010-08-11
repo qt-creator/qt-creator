@@ -246,8 +246,8 @@ public:
         _declarationName = declarationName;
         _functions = functions;
 
-        for (unsigned i = 0; i < globals->symbolCount(); ++i) {
-            accept(globals->symbolAt(i));
+        for (unsigned i = 0; i < globals->memberCount(); ++i) {
+            accept(globals->memberAt(i));
         }
     }
 
@@ -350,7 +350,7 @@ struct CanonicalSymbol
                 break;
             else if (! r.declaration()->scope())
                 break;
-            else if (! r.declaration()->scope()->isClassScope())
+            else if (! r.declaration()->scope()->isClass())
                 break;
 
             if (Function *funTy = r.declaration()->type()->asFunctionType())
@@ -1079,20 +1079,20 @@ void CPPEditor::switchDeclarationDefinition()
         Symbol *lastVisibleSymbol = thisDocument->lastVisibleSymbolAt(line, column);
 
         Scope *functionScope = 0;
-        if (scope->isPrototypeScope())
+        if (scope->isFunction())
             functionScope = scope;
         else
-            functionScope = scope->enclosingPrototypeScope();
+            functionScope = scope->enclosingFunction();
 
         if (! functionScope && lastVisibleSymbol) {
             if (Function *def = lastVisibleSymbol->asFunction())
-                functionScope = def->members();
+                functionScope = def;
         }
 
         if (functionScope) {
             LookupContext context(thisDocument, snapshot);
 
-            Function *functionDefinition = functionScope->owner()->asFunction();
+            Function *functionDefinition = functionScope->asFunction();
             const QList<LookupItem> declarations = context.lookup(functionDefinition->name(), functionDefinition->scope());
             foreach (const LookupItem &r, declarations) {
                 Symbol *decl = r.declaration();

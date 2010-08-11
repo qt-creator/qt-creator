@@ -209,7 +209,7 @@ bool FindUsages::checkCandidates(const QList<LookupItem> &candidates) const
         const LookupItem &r = candidates.at(i);
 
         if (Symbol *s = r.declaration()) {
-            if (_declSymbol->scope() && (_declSymbol->scope()->isPrototypeScope() || _declSymbol->scope()->isBlockScope())) {
+            if (_declSymbol->scope() && (_declSymbol->scope()->isFunction() || _declSymbol->scope()->isBlock())) {
                 if (s->scope() != _declSymbol->scope())
                     return false;
 
@@ -240,19 +240,12 @@ void FindUsages::checkExpression(unsigned startToken, unsigned endToken, Scope *
     reportResult(endToken, results);
 }
 
-Scope *FindUsages::switchScope(ScopedSymbol *symbol)
-{
-    if (! symbol)
-        return _currentScope; // ### assert?
-
-    return switchScope(symbol->members());
-}
-
 Scope *FindUsages::switchScope(Scope *scope)
 {
-    Scope *previousScope = _currentScope;
-    _currentScope = scope;
-    return previousScope;
+    if (! scope)
+        return _currentScope;
+
+    return switchScope(scope);
 }
 
 void FindUsages::statement(StatementAST *ast)
@@ -345,7 +338,7 @@ bool FindUsages::visit(DeclaratorAST *ast)
     return false;
 }
 
-void FindUsages::declarator(DeclaratorAST *ast, ScopedSymbol *symbol)
+void FindUsages::declarator(DeclaratorAST *ast, Scope *symbol)
 {
     if (! ast)
         return;
@@ -493,13 +486,13 @@ void FindUsages::memInitializer(MemInitializerAST *ast)
     if (! ast)
         return;
 
-    if (_currentScope->isPrototypeScope()) {
-        Scope *classScope = _currentScope->enclosingClassScope();
+    if (_currentScope->isFunction()) {
+        Class *classScope = _currentScope->enclosingClass();
         if (! classScope) {
-            if (ClassOrNamespace *binding = _context.lookupType(_currentScope->owner())) {
+            if (ClassOrNamespace *binding = _context.lookupType(_currentScope)) {
                 foreach (Symbol *s, binding->symbols()) {
                     if (Class *k = s->asClass()) {
-                        classScope = k->members();
+                        classScope = k;
                         break;
                     }
                 }
@@ -658,7 +651,7 @@ void FindUsages::translationUnit(TranslationUnitAST *ast)
     if (! ast)
         return;
 
-    Scope *previousScope = switchScope(_doc->globalSymbols());
+    Scope *previousScope = switchScope(_doc->globalNamespace());
     for (DeclarationListAST *it = ast->declaration_list; it; it = it->next) {
         this->declaration(it->value);
     }
