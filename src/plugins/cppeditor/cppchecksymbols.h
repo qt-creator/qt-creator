@@ -117,6 +117,8 @@ protected:
     void addClassMember(const QList<LookupItem> &candidates, NameAST *ast);
     void addVirtualMethod(const QList<LookupItem> &candidates, NameAST *ast, unsigned argumentCount);
 
+    bool isTemplateClass(Symbol *s) const;
+
     Scope *enclosingScope() const;
     FunctionDefinitionAST *enclosingFunctionDefinition() const;
     TemplateDeclarationAST *enclosingTemplateDeclaration() const;

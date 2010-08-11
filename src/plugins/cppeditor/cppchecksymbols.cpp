@@ -845,6 +845,19 @@ void CheckSymbols::addType(ClassOrNamespace *b, NameAST *ast)
     //qDebug() << "added use" << oo(ast->name) << line << column << length;
 }
 
+bool CheckSymbols::isTemplateClass(Symbol *symbol) const
+{
+    if (symbol) {
+        if (Template *templ = symbol->asTemplate()) {
+            if (Symbol *declaration = templ->declaration()) {
+                if (declaration->isClass())
+                    return true;
+            }
+        }
+    }
+    return false;
+}
+
 void CheckSymbols::addTypeOrStatic(const QList<LookupItem> &candidates, NameAST *ast)
 {
     unsigned startToken = ast->firstToken();
@@ -862,7 +875,7 @@ void CheckSymbols::addTypeOrStatic(const QList<LookupItem> &candidates, NameAST 
         else if (c->isUsingNamespaceDirective()) // ... and using namespace directives.
             continue;
         else if (c->isTypedef() || c->isNamespace() ||
-                 c->isClass() || c->isEnum() || c->isTemplate() ||
+                 c->isClass() || c->isEnum() || isTemplateClass(c) ||
                  c->isForwardClassDeclaration() || c->isTypenameArgument() || c->enclosingEnum() != 0) {
 
             unsigned line, column;
