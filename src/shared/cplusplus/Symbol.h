@@ -292,6 +292,9 @@ public:
     /// Returns the eclosing namespace scope.
     Namespace *enclosingNamespace() const;
 
+    /// Returns the eclosing template scope.
+    Template *enclosingTemplate() const;
+
     /// Returns the enclosing class scope.
     Class *enclosingClass() const;
 

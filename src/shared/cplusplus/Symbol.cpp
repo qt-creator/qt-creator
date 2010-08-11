@@ -251,6 +251,15 @@ Namespace *Symbol::enclosingNamespace() const
     return 0;
 }
 
+Template *Symbol::enclosingTemplate() const
+{
+    for (Scope *s = _scope; s; s = s->scope()) {
+        if (Template *templ = s->asTemplate())
+            return templ;
+    }
+    return 0;
+}
+
 Class *Symbol::enclosingClass() const
 {
     for (Scope *s = _scope; s; s = s->scope()) {

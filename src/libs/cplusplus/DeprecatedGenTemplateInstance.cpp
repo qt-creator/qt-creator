@@ -399,18 +399,16 @@ FullySpecifiedType DeprecatedGenTemplateInstance::gen(Symbol *symbol)
 FullySpecifiedType DeprecatedGenTemplateInstance::instantiate(const Name *className, Symbol *candidate,
                                                               QSharedPointer<Control> control)
 {
-#warning robe: enable template instantiation
-#if 0
     if (className) {
         if (const TemplateNameId *templId = className->asTemplateNameId()) {
-            if (Class *klass = candidate->scope()->asClass()) {
+            if (Template *templ = candidate->enclosingTemplate()) {
                 DeprecatedGenTemplateInstance::Substitution subst;
 
                 for (unsigned i = 0; i < templId->templateArgumentCount(); ++i) {
                     FullySpecifiedType templArgTy = templId->templateArgumentAt(i);
 
-                    if (i < klass->templateParameterCount()) {
-                        const Name *templArgName = klass->templateParameterAt(i)->name();
+                    if (i < templ->templateParameterCount()) {
+                        const Name *templArgName = templ->templateParameterAt(i)->name();
 
                         if (templArgName && templArgName->identifier()) {
                             const Identifier *templArgId = templArgName->identifier();
@@ -424,6 +422,5 @@ FullySpecifiedType DeprecatedGenTemplateInstance::instantiate(const Name *classN
             }
         }
     }
-#endif
     return candidate->type();
 }
