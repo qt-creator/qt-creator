@@ -112,9 +112,11 @@ private:
     void handleWriteRegister(const tcftrk::TcfTrkCommandResult &result);
     void reportRegisters();
     void handleReadRegisters(const tcftrk::TcfTrkCommandResult &result);
+    void handleRegisterChildren(const tcftrk::TcfTrkCommandResult &result);
     void handleAndReportReadRegisters(const tcftrk::TcfTrkCommandResult &result);
     void handleAndReportReadRegister(const tcftrk::TcfTrkCommandResult &result);
     void handleAndReportReadRegistersAfterStop(const tcftrk::TcfTrkCommandResult &result);
+    QByteArray stopMessage() const;
     void handleAndReportSetBreakpoint(const tcftrk::TcfTrkCommandResult &result);
     void handleClearBreakpoint(const tcftrk::TcfTrkCommandResult &result);
     void readMemory(uint addr, uint len, bool buffered);

@@ -90,24 +90,25 @@ bool TcfTrkCommandError::isError() const
 bool TcfTrkCommandError::parse(const QVector<JsonValue> &values)
 {
     // Parse an arbitrary hash (that could as well be a command response)
-    // and check for error elements.
+    // and check for error elements. It looks like sometimes errors are appended
+    // to other values.
     unsigned errorKeyCount = 0;
     clear();
     do {
-        if (values.isEmpty() || values.front().type() != JsonValue::Object)
+        if (values.isEmpty() || values.back().type() != JsonValue::Object)
             break;
-        foreach (const JsonValue &c, values.front().children()) {
+        foreach (const JsonValue &c, values.back().children()) {
             if (c.name() == "Time") {
                 timeMS = c.data().toULongLong();
                 errorKeyCount++;
             } else if (c.name() == "Code") {
-                code = c.data().toInt();
+                code = c.data().toLongLong();
                 errorKeyCount++;
             } else if (c.name() == "Format") {
                 format = c.data();
                 errorKeyCount++;
             } else if (c.name() == "AltCode") {
-                alternativeCode = c.data().toInt();
+                alternativeCode = c.data().toULongLong();
                 errorKeyCount++;
             } else if (c.name() == "AltOrg") {
                 alternativeOrganization = c.data();
@@ -121,7 +122,7 @@ bool TcfTrkCommandError::parse(const QVector<JsonValue> &values)
     if (debug) {
         qDebug("TcfTrkCommandError::parse: Found error %d (%u): ", errorFound, errorKeyCount);
         if (!values.isEmpty())
-            qDebug() << values.front().toString();
+            qDebug() << values.back().toString();
     }
     return errorFound;
 }
@@ -166,6 +167,7 @@ QString TcfTrkCommandResult::errorString() const
         return rc;
     case FailReply:
         str << "NAK";
+        return rc;
     case CommandErrorReply:
         commandError.write(str);
         break;
@@ -211,6 +213,11 @@ QString TcfTrkCommandResult::toString() const
     return rc;
 }
 
+// Entry for send queue.
+enum SpecialHandlingFlags { None =0,
+                            FakeRegisterGetMIntermediate = 0x1,
+                            FakeRegisterGetMFinal = 0x2 };
+
 struct TcfTrkSendQueueEntry
 {
     typedef TcfTrkDevice::MessageType MessageType;
@@ -218,10 +225,12 @@ struct TcfTrkSendQueueEntry
     explicit TcfTrkSendQueueEntry(MessageType mt,
                                   int tok,
                                   Services s,
-                           const QByteArray &d,
-                           const TcfTrkCallback &cb= TcfTrkCallback(),
-                           const QVariant &ck = QVariant()) :
-    messageType(mt), service(s), data(d), token(tok), cookie(ck), callback(cb)  {}
+                                  const QByteArray &d,
+                                  const TcfTrkCallback &cb= TcfTrkCallback(),
+                                  const QVariant &ck = QVariant(),
+                                  unsigned sh = 0) :
+        messageType(mt), service(s), data(d), token(tok), cookie(ck), callback(cb),
+        specialHandling(sh) {}
 
     MessageType messageType;
     Services service;
@@ -229,6 +238,7 @@ struct TcfTrkSendQueueEntry
     int token;
     QVariant cookie;
     TcfTrkCallback callback;
+    unsigned specialHandling;
 };
 
 struct TcfTrkDevicePrivate {
@@ -246,6 +256,7 @@ struct TcfTrkDevicePrivate {
     QQueue<TcfTrkSendQueueEntry> m_sendQueue;
     TokenWrittenMessageMap m_writtenMessages;
     QVector<QByteArray> m_registerNames;
+    QVector<QByteArray> m_fakeGetMRegisterValues;
 };
 
 TcfTrkDevicePrivate::TcfTrkDevicePrivate() :
@@ -454,7 +465,8 @@ int TcfTrkDevice::parseTcfCommandReply(char type, const QVector<QByteArray> &tok
         return 236;
     }
     // No callback: remove entry from map, happy
-    if (!it.value().callback) {
+    const unsigned specialHandling = it.value().specialHandling;
+    if (!it.value().callback && specialHandling == 0u) {
         d->m_writtenMessages.erase(it);
         return 0;
     }
@@ -474,13 +486,53 @@ int TcfTrkDevice::parseTcfCommandReply(char type, const QVector<QByteArray> &tok
             }
         }
     }
-
     // Construct result and invoke callback, remove entry from map.
-    TcfTrkCallback callback = it.value().callback;
     TcfTrkCommandResult result(type, it.value().service, it.value().data,
                                values, it.value().cookie);
+
+    // Check special handling
+    if (specialHandling) {
+        if (!result) {
+            qWarning("Error in special handling: %s", qPrintable(result.errorString()));
+            return -2;
+        }
+        // Fake 'Registers:getm': Store single register values in cache
+        if ((specialHandling & FakeRegisterGetMIntermediate)
+                || (specialHandling & FakeRegisterGetMFinal)) {
+            if (result.values.size() == 1) {
+                const int index = int(specialHandling) >> 16;
+                if (index >= 0 && index < d->m_fakeGetMRegisterValues.size()) {
+                    const QByteArray base64 = result.values.front().data();
+                    d->m_fakeGetMRegisterValues[index] = base64;
+                    if (d->m_verbose) {
+                        const QString msg = QString::fromLatin1("Caching register value #%1 '%2' 0x%3 (%4)").
+                                arg(index).arg(QString::fromAscii(d->m_registerNames.at(index))).
+                                arg(QString::fromAscii(QByteArray::fromBase64(base64).toHex())).
+                                arg(QString::fromAscii(base64));
+                        emitLogMessage(msg);
+                    }
+                }
+            }
+        }
+        // Fake 'Registers:getm' final value: Reformat entries as array and send off
+        if (specialHandling & FakeRegisterGetMFinal) {
+            QByteArray str;
+            str.append('[');
+            foreach(const QByteArray &rval, d->m_fakeGetMRegisterValues)
+                if (!rval.isEmpty()) {
+                    if (str.size() > 1)
+                        str.append(',');
+                    str.append('"');
+                    str.append(rval);
+                    str.append('"');
+                }
+            str.append(']');
+            result.values[0] = JsonValue(str);
+        }
+    }
+    if (it.value().callback)
+        it.value().callback(result);
     d->m_writtenMessages.erase(it);
-    callback(result);
     return 0;
 }
 
@@ -559,9 +611,20 @@ bool TcfTrkDevice::checkOpen()
 }
 
 void TcfTrkDevice::sendTcfTrkMessage(MessageType mt, Services service, const char *command,
-                                     const char *commandParameters, int commandParametersLength,
+                                     const char *commandParameters, // may contain '\0'
+                                     int commandParametersLength,
                                      const TcfTrkCallback &callBack,
                                      const QVariant &cookie)
+{
+    sendTcfTrkMessage(mt, service, command, commandParameters, commandParametersLength,
+                      callBack, cookie, 0u);
+}
+
+void TcfTrkDevice::sendTcfTrkMessage(MessageType mt, Services service,
+                       const char *command,
+                       const char *commandParameters, int commandParametersLength,
+                       const TcfTrkCallback &callBack, const QVariant &cookie,
+                       unsigned specialHandling)
 
 {
     if (!checkOpen())
@@ -580,7 +643,7 @@ void TcfTrkDevice::sendTcfTrkMessage(MessageType mt, Services service, const cha
     data.append('\0');
     if (commandParametersLength)
         data.append(commandParameters, commandParametersLength);
-    const TcfTrkSendQueueEntry entry(mt, token, service, data, callBack, cookie);
+    const TcfTrkSendQueueEntry entry(mt, token, service, data, callBack, cookie, specialHandling);
     d->m_sendQueue.enqueue(entry);
     checkSendQueue();
 }
@@ -867,7 +930,7 @@ QByteArray TcfTrkDevice::parseMemoryGet(const TcfTrkCommandResult &r)
     // R.4."TlVMTA==".{"Time":1276786871255,"Code":1,"AltCode":-38,"AltOrg":"POSIX","Format":"BadDescriptor"}
     // Not sure what to make of it.
     if (r.values.size() >= 2 && r.values.at(1).type() == JsonValue::Object)
-        qWarning("Error retrieving memory: %s", r.values.at(1).toString(false).constData());
+        qWarning("TcfTrkDevice::parseMemoryGet(): Error retrieving memory: %s", r.values.at(1).toString(false).constData());
     // decode
     const QByteArray memory = QByteArray::fromBase64(memoryV.data());
     if (memory.isEmpty())
@@ -877,16 +940,97 @@ QByteArray TcfTrkDevice::parseMemoryGet(const TcfTrkCommandResult &r)
     return memory;
 }
 
+// Parse register children (array of names)
+QVector<QByteArray> TcfTrkDevice::parseRegisterGetChildren(const TcfTrkCommandResult &r)
+{
+    QVector<QByteArray> rc;
+    if (!r || r.values.size() < 1 || r.values.front().type() != JsonValue::Array)
+        return rc;
+    const JsonValue &front = r.values.front();
+    rc.reserve(front.childCount());
+    foreach(const JsonValue &v, front.children())
+        rc.push_back(v.data());
+    return rc;
+}
+
+void TcfTrkDevice::sendRegistersGetChildrenCommand(const TcfTrkCallback &callBack,
+                                     const QByteArray &contextId,
+                                     const QVariant &cookie)
+{
+    QByteArray data;
+    JsonInputStream str(data);
+    str << contextId;
+    sendTcfTrkMessage(MessageWithReply, RegistersService, "getChildren", data, callBack, cookie);
+}
+
+// Format id of register get request (needs contextId containing process and thread)
+static inline QByteArray registerId(const QByteArray &contextId, QByteArray id)
+{
+    QByteArray completeId = contextId;
+    if (!completeId.isEmpty())
+        completeId.append('.');
+    completeId.append(id);
+    return completeId;
+}
+
+// Format parameters of register get request
+static inline QByteArray registerGetData(const QByteArray &contextId, QByteArray id)
+{
+    QByteArray data;
+    JsonInputStream str(data);
+    str << registerId(contextId, id);
+    return data;
+}
+
+void TcfTrkDevice::sendRegistersGetCommand(const TcfTrkCallback &callBack,
+                                            const QByteArray &contextId,
+                                            QByteArray id,
+                                            const QVariant &cookie)
+{
+    sendTcfTrkMessage(MessageWithReply, RegistersService, "get",
+                      registerGetData(contextId, id), callBack, cookie);
+}
+
 void TcfTrkDevice::sendRegistersGetMCommand(const TcfTrkCallback &callBack,
                                             const QByteArray &contextId,
                                             const QVector<QByteArray> &ids,
                                             const QVariant &cookie)
 {
     // TODO: use "Registers" (which uses base64-encoded values)
+#if 0 // Once 'getm' is supported:
+    // Manually format the complete register ids as an array
     QByteArray data;
     JsonInputStream str(data);
-    str << contextId << '\0' << ids;
-    sendTcfTrkMessage(MessageWithReply, SimpleRegistersService, "get", data, callBack, cookie);
+    str << '[';
+    const int count = ids.size();
+    for (int r = 0; r < count; r++) {
+        if (r)
+            str << ',';
+        str << registerId(contextId, ids.at(r));
+    }
+    str << ']';
+    sendTcfTrkMessage(MessageWithReply, RegistersService, "getm", data, callBack, cookie);
+#else
+    // TCF TRK 4.0.5: Fake 'getm' by sending all requests, pass on callback to the last
+    // @Todo: Hopefully, we get 'getm'?
+    const int last = ids.size() - 1;
+    d->m_fakeGetMRegisterValues = QVector<QByteArray>(ids.size(), QByteArray());
+    for (int r = 0; r <= last; r++) {
+        const QByteArray data = registerGetData(contextId, ids.at(r));
+        // Determine special flags along with index
+        unsigned specialFlags = r == last ? FakeRegisterGetMFinal : FakeRegisterGetMIntermediate;
+        const int index = d->m_registerNames.indexOf(ids.at(r));
+        if (index == -1) { // Should not happen
+            qWarning("Invalid register name %s", ids.at(r).constData());
+            return;
+        }
+        specialFlags |= unsigned(index) << 16;
+        sendTcfTrkMessage(MessageWithReply, RegistersService, "get",
+                          data.constData(), data.size(),
+                          r == last ? callBack : TcfTrkCallback(),
+                          cookie, specialFlags);
+    }
+#endif
 }
 
 void TcfTrkDevice::sendRegistersGetMRangeCommand(const TcfTrkCallback &callBack,
@@ -909,23 +1053,25 @@ void TcfTrkDevice::sendRegistersGetMRangeCommand(const TcfTrkCallback &callBack,
 // Set register
 void TcfTrkDevice::sendRegistersSetCommand(const TcfTrkCallback &callBack,
                                            const QByteArray &contextId,
-                                           const QByteArray &id,
-                                           unsigned value,
+                                           QByteArray id,
+                                           const QByteArray &value,
                                            const QVariant &cookie)
 {
-    // TODO: use "Registers" (which uses base64-encoded values)
     QByteArray data;
     JsonInputStream str(data);
-    str << contextId << '\0' << QVector<QByteArray>(1, id)
-            << '\0' << QVector<QByteArray>(1, QByteArray::number(value, 16));
-    sendTcfTrkMessage(MessageWithReply, SimpleRegistersService, "set", data, callBack, cookie);
+    if (!contextId.isEmpty()) {
+        id.prepend('.');
+        id.prepend(contextId);
+    }
+    str << id << '\0' << value.toBase64();
+    sendTcfTrkMessage(MessageWithReply, RegistersService, "set", data, callBack, cookie);
 }
 
 // Set register
 void TcfTrkDevice::sendRegistersSetCommand(const TcfTrkCallback &callBack,
                                            const QByteArray &contextId,
                                            unsigned registerNumber,
-                                           unsigned value,
+                                           const QByteArray &value,
                                            const QVariant &cookie)
 {
     if (registerNumber >= (unsigned)d->m_registerNames.size()) {

@@ -110,6 +110,7 @@ struct Thread {
     void resetRegisters();
     // Gdb helpers for reporting values
     QByteArray gdbReportRegisters() const;
+    QByteArray registerContentsLogMessage() const;
     QByteArray gdbRegisterLogMessage(bool verbose) const;
     QByteArray gdbReportSingleRegister(unsigned i) const;
     QByteArray gdbSingleRegisterLogMessage(unsigned i) const;

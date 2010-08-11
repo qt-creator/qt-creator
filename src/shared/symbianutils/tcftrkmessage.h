@@ -52,7 +52,6 @@ enum Services {
     SettingsService,  // non-standard, trk specific
     BreakpointsService,
     RegistersService,
-    SimpleRegistersService, // non-standard, trk specific
     LoggingService,    // non-standard, trk specific
     UnknownService
 }; // Note: Check string array 'serviceNamesC' of same size when modifying this.

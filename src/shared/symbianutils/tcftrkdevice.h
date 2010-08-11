@@ -70,11 +70,11 @@ struct SYMBIANUTILS_EXPORT TcfTrkCommandError {
     bool parse(const QVector<JsonValue> &values);
 
     quint64 timeMS; // Since 1.1.1970
-    int code;
+    qint64 code;
     QByteArray format; // message
     // 'Alternative' meaning, like altOrg="POSIX"/altCode=<some errno>
     QByteArray alternativeOrganization;
-    int alternativeCode;
+    qint64 alternativeCode;
 };
 
 /* Answer to a Tcf command passed to the callback. */
@@ -112,6 +112,12 @@ http://dev.eclipse.org/svnroot/dsdp/org.eclipse.tm.tcf/trunk/docs/TCF%20Specific
 http://dev.eclipse.org/svnroot/dsdp/org.eclipse.tm.tcf/trunk/docs/TCF%20Services.html
  * Commands can be sent along with callbacks that are passed a
  * TcfTrkCommandResult and an opaque QVariant cookie. In addition, events are emitted.
+ *
+ * Note: As of 11.8.2010, TCF Trk 4.0.5 does not currently support 'Registers::getm'
+ * (get multiple registers). So, TcfTrkDevice emulates it by sending a sequence of
+ * single commands. As soon as 'Registers::getm' is natively supported, all code
+ * related to 'FakeRegisterGetm' should be removed. The workaround requires that
+ * the register name is known.
 */
 
 class SYMBIANUTILS_EXPORT TcfTrkDevice : public QObject
@@ -130,7 +136,9 @@ public:
 
     unsigned verbose() const;
 
-    // Mapping of register names for indices
+    // Mapping of register names to indices for multi-requests.
+    // Register names can be retrieved via 'Registers:getChildren' (requires
+    // context id to be stripped).
     QVector<QByteArray> registerNames() const;
     void setRegisterNames(const QVector<QByteArray>& n);
 
@@ -138,6 +146,7 @@ public:
     IODevicePtr takeDevice();
     void setDevice(const IODevicePtr &dp);
 
+    // Send with parameters from string (which may contain '\0').
     void sendTcfTrkMessage(MessageType mt, Services service,
                            const char *command,
                            const char *commandParameters, int commandParametersLength,
@@ -225,7 +234,18 @@ public:
                               quint64 start, const QByteArray& data,
                               const QVariant &cookie = QVariant());
 
-    // Reply is an array of hexvalues
+    // Get register names (children of context).
+    // It is possible to recurse from  thread id down to single registers.
+    void sendRegistersGetChildrenCommand(const TcfTrkCallback &callBack,
+                                         const QByteArray &contextId,
+                                         const QVariant &cookie = QVariant());
+
+    // Register get
+    void sendRegistersGetCommand(const TcfTrkCallback &callBack,
+                                 const QByteArray &contextId,
+                                 QByteArray id,
+                                 const QVariant &cookie);
+
     void sendRegistersGetMCommand(const TcfTrkCallback &callBack,
                                   const QByteArray &contextId,
                                   const QVector<QByteArray> &ids,
@@ -240,20 +260,21 @@ public:
     // Set register
     void sendRegistersSetCommand(const TcfTrkCallback &callBack,
                                  const QByteArray &contextId,
-                                 const QByteArray &ids,
-                                 unsigned value,
+                                 QByteArray ids,
+                                 const QByteArray &value, // binary value
                                  const QVariant &cookie = QVariant());
     // Set register
     void sendRegistersSetCommand(const TcfTrkCallback &callBack,
                                  const QByteArray &contextId,
                                  unsigned registerNumber,
-                                 unsigned value,
+                                 const QByteArray &value, // binary value
                                  const QVariant &cookie = QVariant());
 
     void sendLoggingAddListenerCommand(const TcfTrkCallback &callBack,
                                        const QVariant &cookie = QVariant());
 
     static QByteArray parseMemoryGet(const TcfTrkCommandResult &r);
+    static QVector<QByteArray> parseRegisterGetChildren(const TcfTrkCommandResult &r);
 
 signals:
     void genericTcfEvent(int service, const QByteArray &name, const QVector<tcftrk::JsonValue> &value);
@@ -278,6 +299,12 @@ private:
     int parseMessage(const QByteArray &);
     int parseTcfCommandReply(char type, const QVector<QByteArray> &tokens);
     int parseTcfEvent(const QVector<QByteArray> &tokens);
+    // Send with parameters from string (which may contain '\0').
+    void sendTcfTrkMessage(MessageType mt, Services service,
+                           const char *command,
+                           const char *commandParameters, int commandParametersLength,
+                           const TcfTrkCallback &callBack, const QVariant &cookie,
+                           unsigned specialHandling);
 
     TcfTrkDevicePrivate *d;
 };

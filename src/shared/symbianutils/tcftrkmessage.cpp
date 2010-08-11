@@ -36,7 +36,7 @@
 // Names matching the enum
 static const char *serviceNamesC[] =
 { "Locator", "RunControl", "Processes", "Memory", "Settings", "Breakpoints",
-  "Registers", "SimpleRegisters", "Logging",
+  "Registers", "Logging",
   "UnknownService"};
 
 namespace tcftrk {

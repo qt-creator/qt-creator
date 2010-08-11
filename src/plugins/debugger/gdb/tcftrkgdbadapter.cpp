@@ -62,14 +62,6 @@
 
 enum { debug = 0 };
 
-// Register names used by the 'SimpleRegister' service
-static const char *tcfTrkSimpleRegisterNamesC[] =
-{"R0",  "R1", "R2",  "R3",
- "R4",  "R5", "R6",  "R7",
- "R8",  "R9", "R10", "R11",
- "R12", "SP", "LR",  "PC",
- "CPSR"};
-
 namespace Debugger {
 namespace Internal {
 
@@ -138,14 +130,6 @@ TcfTrkGdbAdapter::TcfTrkGdbAdapter(GdbEngine *engine) :
         this, SLOT(trkLogMessage(QString)));
     connect(m_trkDevice, SIGNAL(tcfEvent(tcftrk::TcfTrkEvent)),
         this, SLOT(tcftrkEvent(tcftrk::TcfTrkEvent)));
-
-    // Set register mappings
-    const int registerCount = sizeof(tcfTrkSimpleRegisterNamesC)/sizeof(const char*);
-    QVector<QByteArray> registerNames;
-    registerNames.reserve(registerCount);
-    for (int i = 0; i < registerCount; i++)
-        registerNames.push_back(QByteArray(tcfTrkSimpleRegisterNamesC[i]));
-    m_trkDevice->setRegisterNames(registerNames);
 }
 
 TcfTrkGdbAdapter::~TcfTrkGdbAdapter()
@@ -282,8 +266,7 @@ void TcfTrkGdbAdapter::tcftrkEvent(const TcfTrkEvent &e)
             static_cast<const TcfTrkRunControlModuleLoadContextSuspendedEvent &>(e));
         break;
     case TcfTrkEvent::RunControlContextAdded: // Thread/process added
-        foreach(const RunControlContext &rc,
-            static_cast<const TcfTrkRunControlContextAddedEvent &>(e).contexts())
+        foreach(const RunControlContext &rc, static_cast<const TcfTrkRunControlContextAddedEvent &>(e).contexts())
             if (rc.type() == RunControlContext::Thread)
                 addThread(rc.threadId());
         break;
@@ -693,9 +676,11 @@ void TcfTrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         // FIXME: Assume all goes well.
         m_snapshot.setRegisterValue(m_session.tid, regnumValue.first, regnumValue.second);
         logMessage(_("Setting register #%1 to 0x%2").arg(regnumValue.first).arg(regnumValue.second, 0, 16));
+        QByteArray registerValue;
+        trk::appendInt(&registerValue, trk::BigEndian); // Registers are big endian
         m_trkDevice->sendRegistersSetCommand(
             TcfTrkCallback(this, &TcfTrkGdbAdapter::handleWriteRegister),
-            currentThreadContextId(), regnumValue.first, regnumValue.second,
+            currentThreadContextId(), regnumValue.first, registerValue,
             QVariant(regnumValue.first));
         // Note that App TRK refuses to write registers 13 and 14
     }
@@ -1016,6 +1001,11 @@ void TcfTrkGdbAdapter::addThread(unsigned id)
             if (m_session.mainTid == 0)
                 m_session.mainTid = id;
         }
+        // We cannot retrieve register values unless the registers of that
+        // thread have been retrieved (TCF TRK oddity).
+        const QByteArray contextId = tcftrk::RunControlContext::tcfId(m_session.pid, id);
+        m_trkDevice->sendRegistersGetChildrenCommand(TcfTrkCallback(this, &TcfTrkGdbAdapter::handleRegisterChildren),
+                                                     contextId, QVariant(contextId));
     }
 }
 
@@ -1149,9 +1139,48 @@ void TcfTrkGdbAdapter::reportRegisters()
     sendGdbServerMessage(thread.gdbReportRegisters(), thread.gdbRegisterLogMessage(m_verbose));
 }
 
+void TcfTrkGdbAdapter::handleRegisterChildren(const tcftrk::TcfTrkCommandResult &result)
+{
+    const QByteArray contextId = result.cookie.toByteArray();
+    if (!result) {
+        logMessage("Error retrieving register children of " + contextId + ": " + result.errorString(), LogError);
+        return;
+    }
+    // Parse out registers.
+    // If this is a single 'pid.tid.rGPR' parent entry, recurse to get the actual registers,
+    // ('pid.tid.rGPR.R0'..). At least 'pid.tid.rGPR' must have been retrieved to be
+    // able to access the register contents.
+    QVector<QByteArray> registerNames = tcftrk::TcfTrkDevice::parseRegisterGetChildren(result);
+    if (registerNames.size() == 1) {
+        m_trkDevice->sendRegistersGetChildrenCommand(TcfTrkCallback(this, &TcfTrkGdbAdapter::handleRegisterChildren),
+                                                     registerNames.front(), result.cookie);
+        return;
+    }
+    // First thread: Set base names in device.
+    if (!m_trkDevice->registerNames().isEmpty())
+        return;
+    // Make sure we get all registers
+    const int registerCount = registerNames.size();
+    if (registerCount != Symbian::RegisterCount) {
+        logMessage(QString::fromLatin1("Invalid number of registers received, expected %1, got %2").
+                   arg(Symbian::RegisterCount).arg(registerCount), LogError);
+        return;
+    }
+    // Set up register names (strip thread context "pid.tid"+'.')
+    QString msg = QString::fromLatin1("Retrieved %1 register names: ").arg(registerCount);
+    const int contextLength = contextId.size() + 1;
+    for (int i = 0; i < registerCount; i++) {
+        registerNames[i].remove(0, contextLength);
+        if (i)
+            msg += QLatin1Char(',');
+        msg += QString::fromAscii(registerNames[i]);
+    }
+    logMessage(msg);
+    m_trkDevice->setRegisterNames(registerNames);
+}
+
 void TcfTrkGdbAdapter::handleReadRegisters(const TcfTrkCommandResult &result)
 {
-    logMessage("       REGISTER RESULT: " + result.toString());
     if (!result) {
         logMessage("ERROR: " + result.errorString(), LogError);
         return;
@@ -1163,8 +1192,10 @@ void TcfTrkGdbAdapter::handleReadRegisters(const TcfTrkCommandResult &result)
     unsigned i = result.cookie.toUInt();
     uint *registers = m_snapshot.registers(m_session.tid);
     QTC_ASSERT(registers, return;)
-    foreach (const JsonValue &jr, result.values.front().children())
-        registers[i++] = jr.data().toUInt(0, 16);
+    foreach (const JsonValue &jr, result.values.front().children()) {
+        QByteArray bigEndianRaw = QByteArray::fromBase64(jr.data());
+        registers[i++] = trk::extractInt(bigEndianRaw);
+    }
     m_snapshot.setRegistersValid(m_session.tid, true);
     if (debug)
         qDebug() << "handleReadRegisters: " << m_snapshot.toString();
@@ -1187,13 +1218,33 @@ void TcfTrkGdbAdapter::handleAndReportReadRegister(const TcfTrkCommandResult &re
         thread.gdbSingleRegisterLogMessage(registerNumber));
 }
 
+QByteArray TcfTrkGdbAdapter::stopMessage() const
+{
+    QByteArray logMsg = "Stopped with registers in thread 0x";
+    logMsg += QByteArray::number(m_session.tid, 16);
+    if (m_session.tid == m_session.mainTid)
+        logMsg += " [main]";
+    const int idx = m_snapshot.indexOfThread(m_session.tid);
+    if (idx == -1)
+        return logMsg;
+    const Symbian::Thread &thread = m_snapshot.threadInfo.at(idx);
+    logMsg += ", at 0x";
+    logMsg += QByteArray::number(thread.registers[Symbian::RegisterPC], 16);
+    logMsg += ", (loaded at 0x";
+    logMsg += QByteArray::number(m_session.codeseg, 16);
+    logMsg += ", offset 0x";
+    logMsg += QByteArray::number(thread.registers[Symbian::RegisterPC] - m_session.codeseg, 16);
+    logMsg += "), Register contents: ";
+    logMsg += thread.registerContentsLogMessage();
+    return logMsg;
+}
+
 void TcfTrkGdbAdapter::handleAndReportReadRegistersAfterStop(const TcfTrkCommandResult &result)
 {
     handleReadRegisters(result);
     handleReadRegisters(result);
     const bool reportThread = m_session.tid != m_session.mainTid;
-    sendGdbServerMessage(m_snapshot.gdbStopMessage(m_session.tid, reportThread),
-                         "Stopped with registers in thread " + QByteArray::number(m_session.tid, 16));
+    sendGdbServerMessage(m_snapshot.gdbStopMessage(m_session.tid, reportThread), stopMessage());
 }
 
 void TcfTrkGdbAdapter::handleAndReportSetBreakpoint(const TcfTrkCommandResult &result)
@@ -1249,13 +1300,20 @@ void TcfTrkGdbAdapter::handleReadMemoryBuffered(const TcfTrkCommandResult &resul
     const QByteArray memory = TcfTrkDevice::parseMemoryGet(result);
     const MemoryRange range = result.cookie.value<MemoryRange>();
 
-    if (unsigned(memory.size()) != range.size()) {
-        logMessage(_("TEMPORARY: ") + msgMemoryReadError(range.from, range.size()));
-        logMessage(_("RETRYING UNBUFFERED"));
+    const bool error = !result;
+    const bool insufficient = unsigned(memory.size()) != range.size();
+    if (error || insufficient) {
+        QString msg = error ?
+                    QString::fromLatin1("Error reading memory: %1").arg(result.errorString()) :
+                    QString::fromLatin1("Error reading memory (got %1 of %2): %3").
+                    arg(memory.size()).arg(range.size()).arg(msgMemoryReadError(range.from, range.size()));
+        msg += QString::fromLatin1("\n(Retrying unbuffered...)");
+        logMessage(msg, LogError);
         // FIXME: This does not handle large requests properly.
         sendMemoryGetCommand(range, false);
         return;
     }
+
     m_snapshot.insertMemory(range, memory);
     tryAnswerGdbMemoryRequest(true);
 }
@@ -1267,11 +1325,15 @@ void TcfTrkGdbAdapter::handleReadMemoryUnbuffered(const TcfTrkCommandResult &res
     const QByteArray memory = TcfTrkDevice::parseMemoryGet(result);
     const MemoryRange range = result.cookie.value<MemoryRange>();
 
-    if (unsigned(memory.size()) != range.size()) {
-        logMessage(_("TEMPORARY: ") + msgMemoryReadError(range.from, range.size()));
-        logMessage(_("RETRYING UNBUFFERED"));
-        const QByteArray ba = "E20";
-        sendGdbServerMessage(ba, msgMemoryReadError(32, range.from).toLatin1());
+    const bool error = !result;
+    const bool insufficient = unsigned(memory.size()) != range.size();
+    if (error || insufficient) {
+        QString msg = error ?
+                    QString::fromLatin1("Error reading memory: %1").arg(result.errorString()) :
+                    QString::fromLatin1("Error reading memory (got %1 of %2): %3").
+                    arg(memory.size()).arg(range.size()).arg(msgMemoryReadError(range.from, range.size()));
+        logMessage(msg, LogError);
+        sendGdbServerMessage(QByteArray("E20"), msgMemoryReadError(32, range.from).toLatin1());
         return;
     }
     m_snapshot.insertMemory(range, memory);

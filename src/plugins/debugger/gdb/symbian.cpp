@@ -147,17 +147,23 @@ QByteArray Thread::gdbReportRegisters() const
     return ba;
 }
 
+QByteArray Thread::registerContentsLogMessage() const
+{
+    QByteArray logMsg;
+    for (int i = 0; i < RegisterCount; ++i) {
+        logMsg += dumpRegister(i, registers[i]);
+        logMsg += ' ';
+    }
+    return logMsg;
+}
+
 QByteArray Thread::gdbRegisterLogMessage(bool verbose) const
 {
-    QByteArray logMsg = "REGISTER CONTENTS: (Thread 0x";
+    QByteArray logMsg = "Register contents: (Thread 0x";
     logMsg += QByteArray::number(id, 16);
     logMsg += " ) ";
-    if (verbose) {
-        for (int i = 0; i < RegisterCount; ++i) {
-            logMsg += dumpRegister(i, registers[i]);
-            logMsg += ' ';
-        }
-    }
+    if (verbose)
+        logMsg += registerContentsLogMessage();
     return logMsg;
 }
 
