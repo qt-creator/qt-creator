@@ -441,6 +441,85 @@ Scope *ScopedSymbol::members() const
 void ScopedSymbol::addMember(Symbol *member)
 { _members->enterSymbol(member); }
 
+/// Returns true if this scope's owner is a Namespace Symbol.
+bool ScopedSymbol::isNamespaceScope() const
+{ return _members->isNamespaceScope(); }
+
+/// Returns true if this scope's owner is a Class Symbol.
+bool ScopedSymbol::isClassScope() const
+{ return _members->isClassScope(); }
+
+/// Returns true if this scope's owner is an Enum Symbol.
+bool ScopedSymbol::isEnumScope() const
+{ return _members->isEnumScope(); }
+
+/// Returns true if this scope's owner is a Block Symbol.
+bool ScopedSymbol::isBlockScope() const
+{ return _members->isBlockScope(); }
+
+/// Returns true if this scope's owner is a Prototype Symbol.
+bool ScopedSymbol::isPrototypeScope() const
+{ return _members->isPrototypeScope(); }
+
+/// Returns true if this scope's owner is an ObjCClass Symbol.
+bool ScopedSymbol::isObjCClassScope() const
+{ return _members->isObjCClassScope(); }
+
+/// Returns true if this scope's owner is an ObjCProtocol Symbol.
+bool ScopedSymbol::isObjCProtocolScope() const
+{ return _members->isObjCProtocolScope(); }
+
+/// Returns true if this scope's owner is an ObjCMethod symbol.
+bool ScopedSymbol::isObjCMethodScope() const
+{ return _members->isObjCMethodScope(); }
+
+/// Adds a Symbol to this Scope.
+void ScopedSymbol::enterSymbol(Symbol *symbol)
+{ _members->enterSymbol(symbol); }
+
+/// Returns true if this Scope is empty; otherwise returns false.
+bool ScopedSymbol::isEmpty() const
+{ return _members->isEmpty(); }
+
+/// Returns the number of symbols is in the scope.
+unsigned ScopedSymbol::symbolCount() const
+{ return _members->symbolCount(); }
+
+/// Returns the Symbol at the given position.
+Symbol *ScopedSymbol::symbolAt(unsigned index) const
+{ return _members->symbolAt(index); }
+
+/// Returns the first Symbol in the scope.
+ScopedSymbol::iterator ScopedSymbol::firstSymbol() const
+{ return _members->firstSymbol(); }
+
+/// Returns the last Symbol in the scope.
+Scope::iterator ScopedSymbol::lastSymbol() const
+{ return _members->lastSymbol(); }
+
+Symbol *ScopedSymbol::lookat(const Name *name) const
+{ return _members->lookat(name); }
+
+Symbol *ScopedSymbol::lookat(const Identifier *id) const
+{ return _members->lookat(id); }
+
+Symbol *ScopedSymbol::lookat(int operatorId) const
+{ return _members->lookat(operatorId); }
+
+/// Set the start offset of the scope
+unsigned ScopedSymbol::startOffset() const
+{ return _members->startOffset(); }
+
+void ScopedSymbol::setStartOffset(unsigned offset)
+{ _members->setStartOffset(offset); }
+
+/// Set the end offset of the scope
+unsigned ScopedSymbol::endOffset() const
+{ return _members->endOffset(); }
+
+void ScopedSymbol::setEndOffset(unsigned offset)
+{ _members->setEndOffset(offset); }
+
 Block::Block(TranslationUnit *translationUnit, unsigned sourceLocation)
     : ScopedSymbol(translationUnit, sourceLocation, /*name = */ 0)
 { }

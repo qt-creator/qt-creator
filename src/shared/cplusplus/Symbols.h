@@ -228,6 +228,62 @@ public:
     Scope *members() const;
     void addMember(Symbol *member);
 
+    /// Returns true if this scope's owner is a Namespace Symbol.
+    bool isNamespaceScope() const;
+
+    /// Returns true if this scope's owner is a Class Symbol.
+    bool isClassScope() const;
+
+    /// Returns true if this scope's owner is an Enum Symbol.
+    bool isEnumScope() const;
+
+    /// Returns true if this scope's owner is a Block Symbol.
+    bool isBlockScope() const;
+
+    /// Returns true if this scope's owner is a Prototype Symbol.
+    bool isPrototypeScope() const;
+
+    /// Returns true if this scope's owner is an ObjCClass Symbol.
+    bool isObjCClassScope() const;
+
+    /// Returns true if this scope's owner is an ObjCProtocol Symbol.
+    bool isObjCProtocolScope() const;
+
+    /// Returns true if this scope's owner is an ObjCMethod symbol.
+    bool isObjCMethodScope() const;
+
+    /// Adds a Symbol to this Scope.
+    void enterSymbol(Symbol *symbol);
+
+    /// Returns true if this Scope is empty; otherwise returns false.
+    bool isEmpty() const;
+
+    /// Returns the number of symbols is in the scope.
+    unsigned symbolCount() const;
+
+    /// Returns the Symbol at the given position.
+    Symbol *symbolAt(unsigned index) const;
+
+    typedef Symbol **iterator;
+
+    /// Returns the first Symbol in the scope.
+    iterator firstSymbol() const;
+
+    /// Returns the last Symbol in the scope.
+    iterator lastSymbol() const;
+
+    Symbol *lookat(const Name *name) const;
+    Symbol *lookat(const Identifier *id) const;
+    Symbol *lookat(int operatorId) const;
+
+    /// Set the start offset of the scope
+    unsigned startOffset() const;
+    void setStartOffset(unsigned offset);
+
+    /// Set the end offset of the scope
+    unsigned endOffset() const;
+    void setEndOffset(unsigned offset);
+
     virtual const ScopedSymbol *asScopedSymbol() const
     { return this; }
 
