@@ -4,6 +4,7 @@
 SOURCES += $$PWD/s60devices.cpp \
     $$PWD/s60devicespreferencepane.cpp \
     $$PWD/s60manager.cpp \
+    $$PWD/sbsv2parser.cpp \
     $$PWD/winscwtoolchain.cpp \
     $$PWD/gccetoolchain.cpp \
     $$PWD/s60emulatorrunconfiguration.cpp \
@@ -22,6 +23,7 @@ SOURCES += $$PWD/s60devices.cpp \
 HEADERS += $$PWD/s60devices.h \
     $$PWD/s60devicespreferencepane.h \
     $$PWD/s60manager.h \
+    $$PWD/sbsv2parser.h \
     $$PWD/winscwtoolchain.h \
     $$PWD/gccetoolchain.h \
     $$PWD/s60emulatorrunconfiguration.h \

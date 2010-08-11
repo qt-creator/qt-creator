@@ -35,6 +35,8 @@
 #include "qt4buildconfiguration.h"
 #include "qt4projectmanagerconstants.h"
 #include "qtparser.h"
+#include "qt-s60/abldparser.h"
+#include "qt-s60/sbsv2parser.h"
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/gnumakeparser.h>
@@ -171,8 +173,19 @@ bool MakeStep::init()
     setEnabled(true);
     setArguments(args);
 
-    setOutputParser(new QtParser);
-    appendOutputParser(new ProjectExplorer::GnuMakeParser(workingDirectory));
+    if (bc->qtVersion()->supportsTargetId(Qt4ProjectManager::Constants::S60_DEVICE_TARGET_ID) ||
+        bc->qtVersion()->supportsTargetId(Qt4ProjectManager::Constants::S60_EMULATOR_TARGET_ID)) {
+        if (bc->qtVersion()->isBuildWithSymbianSbsV2()) {
+            setOutputParser(new SbsV2Parser);
+        } else {
+            setOutputParser(new AbldParser);
+            appendOutputParser(new ProjectExplorer::GnuMakeParser(workingDirectory));
+        }
+    } else {
+        setOutputParser(new ProjectExplorer::GnuMakeParser(workingDirectory));
+    }
+    appendOutputParser(new QtParser);
+
     if (toolchain)
         appendOutputParser(toolchain->outputParser());
 

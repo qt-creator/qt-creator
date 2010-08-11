@@ -76,12 +76,14 @@ private slots:
     void buildStateChanged(ProjectExplorer::Project *pro);
 
 #ifdef WITH_TESTS
-    void testBasicProjectLoading();
+    void testBasicProjectLoading(); // Test fails!
 
     void testAbldOutputParsers_data();
     void testAbldOutputParsers();
     void testQtOutputParser_data();
     void testQtOutputParser();
+    void testSbsV2OutputParsers_data();
+    void testSbsV2OutputParsers();
 #endif
 
 private:

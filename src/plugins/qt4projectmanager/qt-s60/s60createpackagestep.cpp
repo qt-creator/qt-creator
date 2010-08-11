@@ -34,6 +34,7 @@
 #include "qt4nodes.h"
 #include "qt4project.h"
 #include "abldparser.h"
+#include "sbsv2parser.h"
 #include "signsisparser.h"
 #include "passphraseforkeydialog.h"
 
@@ -190,8 +191,11 @@ bool S60CreatePackageStep::init()
     }
 
     delete m_outputParserChain;
-    m_outputParserChain = new ProjectExplorer::GnuMakeParser;
-    m_outputParserChain->appendOutputParser(new Qt4ProjectManager::AbldParser);
+    if (qt4BuildConfiguration()->qtVersion()->isBuildWithSymbianSbsV2())
+        m_outputParserChain = new Qt4ProjectManager::SbsV2Parser;
+    else
+        m_outputParserChain = new Qt4ProjectManager::AbldParser;
+    m_outputParserChain->appendOutputParser(new ProjectExplorer::GnuMakeParser);
     m_outputParserChain->appendOutputParser(new Qt4ProjectManager::SignsisParser);
 
     connect(m_outputParserChain, SIGNAL(addOutput(QString, ProjectExplorer::BuildStep::OutputFormat)),

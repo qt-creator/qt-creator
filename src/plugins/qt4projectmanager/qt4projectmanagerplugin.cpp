@@ -286,7 +286,6 @@ void Qt4ProjectManagerPlugin::buildStateChanged(ProjectExplorer::Project *pro)
 #ifdef WITH_TESTS
 void Qt4ProjectManagerPlugin::testBasicProjectLoading()
 {
-
     QString testDirectory = ExtensionSystem::PluginManager::instance()->testDataDirectory() + "/qt4projectmanager/";
     QString test1 = testDirectory + "test1/test1.pro";
     m_projectExplorer->openProject(test1);
