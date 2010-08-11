@@ -389,6 +389,7 @@ bool Inspector::addQuotesForData(const QVariant &value) const
 void Inspector::createDockWidgets()
 {
     m_crumblePath = new ContextCrumblePath;
+    m_crumblePath->setObjectName("QmlContextPath");
     m_crumblePath->setWindowTitle("Context Path");
     connect(m_crumblePath, SIGNAL(elementClicked(int)), SLOT(crumblePathElementClicked(int)));
     Debugger::DebuggerUISwitcher *uiSwitcher = Debugger::DebuggerUISwitcher::instance();
