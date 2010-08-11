@@ -30,7 +30,6 @@ for(deploymentfolder, DEPLOYMENTFOLDERS) {
 }
 
 symbian {
-    ICON = cpp/symbianicon.svg
     contains(DEFINES, ORIENTATIONLOCK):LIBS += -lavkon -leikcore -leiksrv -lcone
     contains(DEFINES, NETWORKACCESS):TARGET.CAPABILITY += NetworkServices
 } else:win32 {
