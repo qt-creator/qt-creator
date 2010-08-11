@@ -4704,7 +4704,9 @@ void FakeVimHandler::Private::selectBlockTextObject(bool inner, char left, char 
     QTextCursor tc1 = doc->find(sleft, m_tc, QTextDocument::FindBackward);
     if (tc1.isNull())
         return;
-    const int p1 = tc1.position() + inner - sleft.size();
+    int p1 = tc1.position() + inner - sleft.size();
+    if (inner && m_tc.document()->characterAt(p1) == ParagraphSeparator)
+        ++p1;
     const int p2 = tc2.position() - inner - sright.size();
     setMark('>', p1);
     m_anchor = p2;
