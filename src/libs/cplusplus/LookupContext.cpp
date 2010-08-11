@@ -283,8 +283,11 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
         } else if (Function *fun = scope->asFunction()) {
             bindings()->lookupInScope(name, fun, &candidates, /*templateId = */ 0, /*binding=*/ 0);
 
+#warning robe: lookup in template parameters
+#if 0
             for (TemplateParameters *it = fun->templateParameters(); it && candidates.isEmpty(); it = it->previous())
                 bindings()->lookupInScope(name, it->scope(), &candidates, /* templateId = */ 0, /*binding=*/ 0);
+#endif
 
             if (! candidates.isEmpty())
                 break; // it's an argument or a template parameter.
@@ -307,8 +310,11 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
                 break; // it's a formal argument.
 
         } else if (Class *klass = scope->asClass()) {
+#warning robe: lookup in template parameters
+#if 0
             for (TemplateParameters *it = klass->templateParameters(); it && candidates.isEmpty(); it = it->previous())
                 bindings()->lookupInScope(name, it->scope(), &candidates, /* templateId = */ 0, /*binding=*/ 0);
+#endif
 
             if (! candidates.isEmpty())
                 break; // it's an argument or a template parameter.

@@ -58,21 +58,6 @@
 
 namespace CPlusPlus {
 
-class CPLUSPLUS_EXPORT TemplateParameters
-{
-public:
-    TemplateParameters(Scope *scope);
-    TemplateParameters(TemplateParameters *previous, Scope *scope);
-    ~TemplateParameters();
-
-    TemplateParameters *previous() const;
-    Scope *scope() const;
-
-private:
-    TemplateParameters *_previous;
-    Scope *_scope;
-};
-
 class CPLUSPLUS_EXPORT UsingNamespaceDirective: public Symbol
 {
 public:
@@ -142,9 +127,6 @@ public:
     Declaration(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
     virtual ~Declaration();
 
-    TemplateParameters *templateParameters() const;
-    void setTemplateParameters(TemplateParameters *templateParameters);
-
     void setType(const FullySpecifiedType &type);
 
     // Symbol's interface
@@ -161,7 +143,6 @@ protected:
 
 private:
     FullySpecifiedType _type;
-    TemplateParameters *_templateParameters;
 };
 
 class CPLUSPLUS_EXPORT Argument: public Symbol
@@ -243,9 +224,6 @@ public:
     ForwardClassDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
     virtual ~ForwardClassDeclaration();
 
-    TemplateParameters *templateParameters() const;
-    void setTemplateParameters(TemplateParameters *templateParameters);
-
     virtual FullySpecifiedType type() const;
 
     virtual bool isEqualTo(const Type *other) const;
@@ -266,9 +244,6 @@ protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
     virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
-
-private:
-    TemplateParameters *_templateParameters;
 };
 
 class CPLUSPLUS_EXPORT Enum: public Scope, public Type
@@ -324,12 +299,6 @@ public:
 
     Block *block() const;
     void setBlock(Block *block);
-
-    unsigned templateParameterCount() const; // ### remove me
-    Symbol *templateParameterAt(unsigned index) const; // ### remove me
-
-    TemplateParameters *templateParameters() const;
-    void setTemplateParameters(TemplateParameters *templateParameters);
 
     FullySpecifiedType returnType() const;
     void setReturnType(const FullySpecifiedType &returnType);
@@ -391,7 +360,6 @@ protected:
 
 private:
     FullySpecifiedType _returnType;
-    TemplateParameters *_templateParameters;
     Block *_block;
     struct Flags {
         unsigned _isVirtual: 1;
@@ -483,12 +451,6 @@ public:
     Key classKey() const;
     void setClassKey(Key key);
 
-    unsigned templateParameterCount() const; // ### remove me
-    Symbol *templateParameterAt(unsigned index) const; // ### remove me
-
-    TemplateParameters *templateParameters() const;
-    void setTemplateParameters(TemplateParameters *templateParameters);
-
     unsigned baseClassCount() const;
     BaseClass *baseClassAt(unsigned index) const;
     void addBaseClass(BaseClass *baseClass);
@@ -518,7 +480,6 @@ protected:
 
 private:
     Key _key;
-    TemplateParameters *_templateParameters;
     std::vector<BaseClass *> _baseClasses;
 };
 

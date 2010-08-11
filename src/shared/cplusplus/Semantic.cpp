@@ -155,15 +155,14 @@ FullySpecifiedType Semantic::check(SpecifierListAST *specifier, Scope *scope,
                                    const FullySpecifiedType &type)
 { return d->checkSpecifier->check(specifier, scope, type); }
 
-void Semantic::check(DeclarationAST *declaration, Scope *scope, TemplateParameters *templateParameters)
-{ d->checkDeclaration->check(declaration, scope, templateParameters); }
+void Semantic::check(DeclarationAST *declaration, Scope *scope)
+{ d->checkDeclaration->check(declaration, scope); }
 
 FullySpecifiedType Semantic::check(DeclaratorAST *declarator, const FullySpecifiedType &type,
                                    Scope *scope, const Name **name)
 { return d->checkDeclarator->check(declarator, type, scope, name); }
 
-FullySpecifiedType Semantic::check(PtrOperatorListAST *ptrOperators, const FullySpecifiedType &type,
-                                   Scope *scope)
+FullySpecifiedType Semantic::check(PtrOperatorListAST *ptrOperators, const FullySpecifiedType &type, Scope *scope)
 { return d->checkDeclarator->check(ptrOperators, type, scope); }
 
 FullySpecifiedType Semantic::check(ObjCMethodPrototypeAST *methodPrototype, Scope *scope)

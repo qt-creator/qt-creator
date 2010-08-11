@@ -80,7 +80,6 @@ class StringLiteral;
 class NumericLiteral;
 
 class SymbolTable;
-class TemplateParameters;
 
 // names
 class NameVisitor;

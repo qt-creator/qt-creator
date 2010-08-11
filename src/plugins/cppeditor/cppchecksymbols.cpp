@@ -179,12 +179,6 @@ protected:
         if (symbol->isVirtual())
             addVirtualMethod(symbol->name());
 
-        for (TemplateParameters *p = symbol->templateParameters(); p; p = p->previous()) {
-            Scope *scope = p->scope();
-            for (unsigned i = 0; i < scope->memberCount(); ++i)
-                accept(scope->memberAt(i));
-        }
-
         return true;
     }
 
@@ -237,24 +231,12 @@ protected:
 
     virtual bool visit(Class *symbol)
     {
-        for (TemplateParameters *p = symbol->templateParameters(); p; p = p->previous()) {
-            Scope *scope = p->scope();
-            for (unsigned i = 0; i < scope->memberCount(); ++i)
-                accept(scope->memberAt(i));
-        }
-
         addType(symbol->name());
         return true;
     }
 
     virtual bool visit(ForwardClassDeclaration *symbol)
     {
-        for (TemplateParameters *p = symbol->templateParameters(); p; p = p->previous()) {
-            Scope *scope = p->scope();
-            for (unsigned i = 0; i < scope->memberCount(); ++i)
-                accept(scope->memberAt(i));
-        }
-
         addType(symbol->name());
         return true;
     }

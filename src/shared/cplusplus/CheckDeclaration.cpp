@@ -66,22 +66,18 @@ CheckDeclaration::CheckDeclaration(Semantic *semantic)
     : SemanticCheck(semantic),
       _declaration(0),
       _scope(0),
-      _templateParameters(0),
       _checkAnonymousArguments(false)
 { }
 
 CheckDeclaration::~CheckDeclaration()
 { }
 
-void CheckDeclaration::check(DeclarationAST *declaration,
-                             Scope *scope, TemplateParameters *templateParameters)
+void CheckDeclaration::check(DeclarationAST *declaration, Scope *scope)
 {
     Scope *previousScope = switchScope(scope);
-    TemplateParameters *previousTemplateParameters = switchTemplateParameters(templateParameters);
     DeclarationAST *previousDeclaration = switchDeclaration(declaration);
     accept(declaration);
     (void) switchDeclaration(previousDeclaration);
-    (void) switchTemplateParameters(previousTemplateParameters);
     (void) switchScope(previousScope);
 }
 
@@ -104,13 +100,6 @@ Scope *CheckDeclaration::switchScope(Scope *scope)
     Scope *previousScope = _scope;
     _scope = scope;
     return previousScope;
-}
-
-TemplateParameters *CheckDeclaration::switchTemplateParameters(TemplateParameters *templateParameters)
-{
-    TemplateParameters *previousTemplateParameters = _templateParameters;
-    _templateParameters = templateParameters;
-    return previousTemplateParameters;
 }
 
 void CheckDeclaration::setDeclSpecifiers(Symbol *symbol, const FullySpecifiedType &declSpecifiers)
@@ -172,13 +161,6 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
     FullySpecifiedType declSpecifiers = semantic()->check(ast->decl_specifier_list, _scope);
     FullySpecifiedType qualTy = declSpecifiers.qualifiedType();
 
-    if (_templateParameters && declSpecifiers) {
-        if (Class *klass = declSpecifiers->asClassType()) {
-            klass->setTemplateParameters(_templateParameters);
-            _templateParameters = 0; // consume the template parameters
-        }
-    }
-
     if (ast->decl_specifier_list && ! ast->declarator_list) {
         ElaboratedTypeSpecifierAST *elab_type_spec = ast->decl_specifier_list->value->asElaboratedTypeSpecifier();
 
@@ -193,11 +175,6 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
             const Name *name = semantic()->check(elab_type_spec->name, _scope);
             ForwardClassDeclaration *symbol =
                     control()->newForwardClassDeclaration(sourceLocation, name);
-
-            if (_templateParameters) {
-                symbol->setTemplateParameters(_templateParameters);
-                _templateParameters = 0;
-            }
 
             setDeclSpecifiers(symbol, declSpecifiers);
 
@@ -246,11 +223,6 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
         symbol->setType(declTy);
 
         setDeclSpecifiers(symbol, declSpecifiers);
-
-        if (_templateParameters && it == ast->declarator_list) {
-            symbol->setTemplateParameters(_templateParameters);
-            _templateParameters = 0; // consume the template parameters
-        }
 
         symbol->setVisibility(semantic()->currentVisibility());
 
@@ -345,7 +317,6 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
         fun->setSourceLocation(loc, translationUnit());
     }
     fun->setName(name);
-    fun->setTemplateParameters(_templateParameters);
     fun->setVisibility(semantic()->currentVisibility());
     fun->setMethodKey(semantic()->currentMethodKey());
 

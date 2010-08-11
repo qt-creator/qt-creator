@@ -61,13 +61,12 @@ public:
     CheckDeclaration(Semantic *semantic);
     virtual ~CheckDeclaration();
 
-    void check(DeclarationAST *declaration, Scope *scope, TemplateParameters *templateParameters);
+    void check(DeclarationAST *declaration, Scope *scope);
     void check(CtorInitializerAST *ast, Scope *scope);
 
 protected:
     DeclarationAST *switchDeclaration(DeclarationAST *declaration);
     Scope *switchScope(Scope *scope);
-    TemplateParameters *switchTemplateParameters(TemplateParameters *templateParameters);
 
     void setDeclSpecifiers(Symbol *symbol, const FullySpecifiedType &declSpecifiers);
 
@@ -117,7 +116,6 @@ private:
 private:
     DeclarationAST *_declaration;
     Scope *_scope;
-    TemplateParameters *_templateParameters;
     bool _checkAnonymousArguments: 1;
 };
 

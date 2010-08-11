@@ -550,7 +550,8 @@ bool ResolveExpression::visit(ArrayAccessAST *ast)
 QList<LookupItem> ResolveExpression::getMembers(ClassOrNamespace *binding, const Name *memberName) const
 {
     QList<LookupItem> members;
-
+#warning robe: enable template instantiation
+#if 0
     const QList<LookupItem> originalMembers = binding->find(memberName);
 
     foreach (const LookupItem &m, originalMembers) {
@@ -593,7 +594,7 @@ QList<LookupItem> ResolveExpression::getMembers(ClassOrNamespace *binding, const
             }
         }
     }
-
+#endif
 
     return members;
 }

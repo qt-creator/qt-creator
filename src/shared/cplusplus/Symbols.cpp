@@ -55,26 +55,6 @@
 
 using namespace CPlusPlus;
 
-TemplateParameters::TemplateParameters(Scope *scope)
-    : _previous(0), _scope(scope)
-{ }
-
-TemplateParameters::TemplateParameters(TemplateParameters *previous, Scope *scope)
-    : _previous(previous), _scope(scope)
-{ }
-
-TemplateParameters::~TemplateParameters()
-{
-    delete _previous;
-    delete _scope;
-}
-
-TemplateParameters *TemplateParameters::previous() const
-{ return _previous; }
-
-Scope *TemplateParameters::scope() const
-{ return _scope; }
-
 UsingNamespaceDirective::UsingNamespaceDirective(TranslationUnit *translationUnit,
                                                  unsigned sourceLocation, const Name *name)
     : Symbol(translationUnit, sourceLocation, name)
@@ -125,18 +105,11 @@ void UsingDeclaration::visitSymbol0(SymbolVisitor *visitor)
 { visitor->visit(this); }
 
 Declaration::Declaration(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
-    : Symbol(translationUnit, sourceLocation, name),
-      _templateParameters(0)
+    : Symbol(translationUnit, sourceLocation, name)
 { }
 
 Declaration::~Declaration()
-{ delete _templateParameters; }
-
-TemplateParameters *Declaration::templateParameters() const
-{ return _templateParameters; }
-
-void Declaration::setTemplateParameters(TemplateParameters *templateParameters)
-{ _templateParameters = templateParameters; }
+{ }
 
 void Declaration::setType(const FullySpecifiedType &type)
 { _type = type; }
@@ -191,15 +164,12 @@ void TypenameArgument::visitSymbol0(SymbolVisitor *visitor)
 
 Function::Function(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : Scope(translationUnit, sourceLocation, name),
-      _templateParameters(0),
       _block(0),
       _flags(0)
 { }
 
 Function::~Function()
-{
-    delete _templateParameters;
-}
+{ }
 
 bool Function::isNormal() const
 { return f._methodKey == NormalMethod; }
@@ -224,23 +194,6 @@ Block *Function::block() const
 
 void Function::setBlock(Block *block)
 { _block = block; }
-
-unsigned Function::templateParameterCount() const
-{
-    if (! _templateParameters)
-        return 0;
-
-    return _templateParameters->scope()->memberCount();
-}
-
-Symbol *Function::templateParameterAt(unsigned index) const
-{ return _templateParameters->scope()->memberAt(index); }
-
-TemplateParameters *Function::templateParameters() const
-{ return _templateParameters; }
-
-void Function::setTemplateParameters(TemplateParameters *templateParameters)
-{ _templateParameters = templateParameters; }
 
 bool Function::isEqualTo(const Type *other) const
 {
@@ -544,18 +497,11 @@ void BaseClass::visitSymbol0(SymbolVisitor *visitor)
 
 ForwardClassDeclaration::ForwardClassDeclaration(TranslationUnit *translationUnit,
                                                  unsigned sourceLocation, const Name *name)
-    : Symbol(translationUnit, sourceLocation, name),
-      _templateParameters(0)
+    : Symbol(translationUnit, sourceLocation, name)
 { }
 
 ForwardClassDeclaration::~ForwardClassDeclaration()
-{ delete _templateParameters; }
-
-TemplateParameters *ForwardClassDeclaration::templateParameters() const
-{ return _templateParameters; }
-
-void ForwardClassDeclaration::setTemplateParameters(TemplateParameters *templateParameters)
-{ _templateParameters = templateParameters; }
+{ }
 
 FullySpecifiedType ForwardClassDeclaration::type() const
 { return FullySpecifiedType(const_cast<ForwardClassDeclaration *>(this)); }
@@ -589,12 +535,11 @@ bool ForwardClassDeclaration::matchType0(const Type *otherType, TypeMatcher *mat
 
 Class::Class(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : Scope(translationUnit, sourceLocation, name),
-      _key(ClassKey),
-      _templateParameters(0)
+      _key(ClassKey)
 { }
 
 Class::~Class()
-{ delete _templateParameters; }
+{ }
 
 bool Class::isClass() const
 { return _key == ClassKey; }
@@ -610,23 +555,6 @@ Class::Key Class::classKey() const
 
 void Class::setClassKey(Key key)
 { _key = key; }
-
-unsigned Class::templateParameterCount() const
-{
-    if (! _templateParameters)
-        return 0;
-
-    return _templateParameters->scope()->memberCount();
-}
-
-Symbol *Class::templateParameterAt(unsigned index) const
-{ return _templateParameters->scope()->memberAt(index); }
-
-TemplateParameters *Class::templateParameters() const
-{ return _templateParameters; }
-
-void Class::setTemplateParameters(TemplateParameters *templateParameters)
-{ _templateParameters = templateParameters; }
 
 void Class::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
