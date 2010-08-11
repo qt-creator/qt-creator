@@ -1610,11 +1610,16 @@ bool FindUsages::visit(TemplateDeclarationAST *ast)
     // unsigned export_token = ast->export_token;
     // unsigned template_token = ast->template_token;
     // unsigned less_token = ast->less_token;
+
+    Scope *previousScope = switchScope(ast->symbol);
+
     for (DeclarationListAST *it = ast->template_parameter_list; it; it = it->next) {
         this->declaration(it->value);
     }
     // unsigned greater_token = ast->greater_token;
     this->declaration(ast->declaration);
+
+    (void) switchScope(previousScope);
     return false;
 }
 
