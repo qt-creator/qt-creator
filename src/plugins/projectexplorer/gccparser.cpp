@@ -36,16 +36,17 @@ using namespace ProjectExplorer;
 
 namespace {
     // opt. drive letter + filename: (2 brackets)
-    const char * const FILE_PATTERN = "^(([A-Za-z]:)?[^:]+\\.[^:]+):";
+    const char * const FILE_PATTERN = "(([A-Za-z]:)?[^:]+\\.[^:]+):";
     const char * const COMMAND_PATTERN = "^(.*[\\\\/])?([a-z0-9]+-[a-z0-9]+-[a-z0-9]+-)?(gcc|g\\+\\+)(-[0-9\\.]+)?(\\.exe)?: ";
 }
 
 GccParser::GccParser()
 {
-    m_regExp.setPattern(QString::fromLatin1(FILE_PATTERN) + QLatin1String("(\\d+):(\\d+:)?\\s((fatal |#)?(warning|error|note):?\\s)(.+)$"));
+    setObjectName(QLatin1String("GCCParser"));
+    m_regExp.setPattern(QString(QChar('^')) + QString::fromLatin1(FILE_PATTERN) + QLatin1String("(\\d+):(\\d+:)?\\s((fatal |#)?(warning|error|note):?\\s)(.+)$"));
     m_regExp.setMinimal(true);
 
-    m_regExpIncluded.setPattern("^.*from\\s([^:]+):(\\d+)(,|:)$");
+    m_regExpIncluded.setPattern(QString::fromLatin1("^.*from\\s") + QString::fromLatin1(FILE_PATTERN) + QLatin1String("(\\d+)[,:]?$"));
     m_regExpIncluded.setMinimal(true);
 
     // optional path with trailing slash
@@ -118,7 +119,7 @@ void GccParser::stdError(const QString &line)
         emit addTask(Task(Task::Unknown,
                           lne /* description */,
                           m_regExpIncluded.cap(1) /* filename */,
-                          m_regExpIncluded.cap(2).toInt() /* linenumber */,
+                          m_regExpIncluded.cap(3).toInt() /* linenumber */,
                           Constants::TASK_CATEGORY_COMPILE));
         return;
     }
@@ -544,6 +545,32 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                 << Task(Task::Warning,
                         QLatin1String("unused parameter index"),
                         QLatin1String("../stl/main.cpp"), 31,
+                        Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+
+    QTest::newRow("GCCE from lines")
+            << QString::fromLatin1("In file included from C:/Symbian_SDK/epoc32/include/e32cmn.h:6792,\n"
+                                   "                 from C:/Symbian_SDK/epoc32/include/e32std.h:25,\n"
+                                   "C:/Symbian_SDK/epoc32/include/e32cmn.inl: In member function 'SSecureId::operator const TSecureId&() const':\n"
+                                   "C:/Symbian_SDK/epoc32/include/e32cmn.inl:7094: warning: returning reference to temporary")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << ( QList<ProjectExplorer::Task>()
+                << Task(Task::Unknown,
+                        QLatin1String("In file included from C:/Symbian_SDK/epoc32/include/e32cmn.h:6792,"),
+                        QLatin1String("C:/Symbian_SDK/epoc32/include/e32cmn.h"), 6792,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Unknown,
+                        QLatin1String("from C:/Symbian_SDK/epoc32/include/e32std.h:25,"),
+                        QLatin1String("C:/Symbian_SDK/epoc32/include/e32std.h"), 25,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Unknown,
+                        QLatin1String("In member function 'SSecureId::operator const TSecureId&() const':"),
+                        QLatin1String("C:/Symbian_SDK/epoc32/include/e32cmn.inl"), -1,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Warning,
+                        QLatin1String("returning reference to temporary"),
+                        QLatin1String("C:/Symbian_SDK/epoc32/include/e32cmn.inl"), 7094,
                         Constants::TASK_CATEGORY_COMPILE))
             << QString();
 
