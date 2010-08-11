@@ -790,6 +790,9 @@ ClassOrNamespace *CreateBindings::enterGlobalClassOrNamespace(Symbol *symbol)
 
 bool CreateBindings::visit(Template *templ)
 {
+    if (Symbol *d = templ->declaration())
+        accept(d);
+
     return false;
 }
 
