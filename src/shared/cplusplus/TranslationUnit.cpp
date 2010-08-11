@@ -58,7 +58,7 @@
 #include <cstdarg>
 #include <algorithm>
 
-#ifndef _MSC_VER
+#ifdef _MSC_VER
 #    define va_copy(dst, src) ((dst) = (src))
 #endif
 
