@@ -452,7 +452,9 @@ bool Qt4BuildConfiguration::compareToImportFrom(const QString &workingDirectory)
 
 
                 QString parsedSpec = extractSpecFromArgumentList(result.second, workingDirectory, version);
-                QStringList actualArgs = removeSpecFromArgumentList(qs->userArguments());
+                QStringList actualArgs = qs->moreArguments();
+                actualArgs << qs->userArguments();
+                actualArgs = removeSpecFromArgumentList(actualArgs);
                 QStringList parsedArgs = removeSpecFromArgumentList(result.second);
 
                 if (debug) {

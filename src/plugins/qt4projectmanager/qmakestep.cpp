@@ -106,6 +106,31 @@ QStringList QMakeStep::allArguments()
     if (!additonalArguments.contains("-spec"))
         arguments << "-spec" << bc->qtVersion()->mkspec();
 
+    // Find out what flags we pass on to qmake
+    QStringList addedUserConfigArguments;
+    QStringList removedUserConfigArguments;
+    bc->getConfigCommandLineArguments(&addedUserConfigArguments, &removedUserConfigArguments);
+    if (!removedUserConfigArguments.isEmpty()) {
+        foreach (const QString &removedConfig, removedUserConfigArguments)
+            arguments.append("CONFIG-=" + removedConfig);
+    }
+    if (!addedUserConfigArguments.isEmpty()) {
+        foreach (const QString &addedConfig, addedUserConfigArguments)
+            arguments.append("CONFIG+=" + addedConfig);
+    }
+
+    arguments << moreArguments();
+
+    if (!additonalArguments.isEmpty())
+        arguments << additonalArguments;
+
+    return arguments;
+}
+
+QStringList QMakeStep::moreArguments()
+{
+    Qt4BuildConfiguration *bc = qt4BuildConfiguration();
+    QStringList arguments;
 #if defined(Q_OS_WIN) || defined(Q_OS_MAC)
     ToolChain::ToolChainType type = bc->toolChainType();
     if (type == ToolChain::GCC_MAEMO)
@@ -125,24 +150,8 @@ QStringList QMakeStep::allArguments()
                   << QLatin1String("RCC_DIR=rcc");
     }
 
-    // Find out what flags we pass on to qmake
-    QStringList addedUserConfigArguments;
-    QStringList removedUserConfigArguments;
-    bc->getConfigCommandLineArguments(&addedUserConfigArguments, &removedUserConfigArguments);
-    if (!removedUserConfigArguments.isEmpty()) {
-        foreach (const QString &removedConfig, removedUserConfigArguments)
-            arguments.append("CONFIG-=" + removedConfig);
-    }
-    if (!addedUserConfigArguments.isEmpty()) {
-        foreach (const QString &addedConfig, addedUserConfigArguments)
-            arguments.append("CONFIG+=" + addedConfig);
-    }
-    if (!additonalArguments.isEmpty())
-        arguments << additonalArguments;
-
     arguments << QLatin1String(Constants::QMAKEVAR_QMLINSPECTOR_PATH) + QLatin1Char('=') +
             Core::ICore::instance()->resourcePath() + QLatin1String("/qmljsdebugger");
-
     return arguments;
 }
 

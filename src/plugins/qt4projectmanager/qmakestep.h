@@ -86,6 +86,7 @@ public:
     bool forced();
 
     QStringList allArguments();
+    QStringList moreArguments();
     QStringList userArguments();
     void setUserArguments(const QStringList &arguments);
 
