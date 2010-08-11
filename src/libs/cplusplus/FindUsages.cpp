@@ -91,7 +91,7 @@ void FindUsages::operator()(Symbol *symbol)
     _declSymbolFullyQualifiedName = LookupContext::fullyQualifiedName(symbol);
 
     // get the canonical id
-    _id = _doc->control()->findOrInsertIdentifier(_id->chars(), _id->size());
+    _id = _doc->control()->identifier(_id->chars(), _id->size());
 
     if (AST *ast = _doc->translationUnit()->ast())
         translationUnit(ast->asTranslationUnit());

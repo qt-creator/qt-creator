@@ -68,6 +68,7 @@ protected:
     virtual void visit(NamedType *type);
     virtual void visit(Function *type);
     virtual void visit(Namespace *type);
+    virtual void visit(Template *type);
     virtual void visit(Class *type);
     virtual void visit(Enum *type);
 

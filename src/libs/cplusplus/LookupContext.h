@@ -162,6 +162,7 @@ protected:
     /// Creates bindings for the symbols reachable from the \a root symbol.
     void process(Symbol *root);
 
+    virtual bool visit(Template *templ);
     virtual bool visit(Namespace *ns);
     virtual bool visit(Class *klass);
     virtual bool visit(ForwardClassDeclaration *klass);

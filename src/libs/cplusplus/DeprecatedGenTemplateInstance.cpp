@@ -262,7 +262,7 @@ private:
                 return name;
 
             else if (const Name *nameId = name->asNameId()) {
-                const Identifier *id = control()->findOrInsertIdentifier(nameId->identifier()->chars(),
+                const Identifier *id = control()->identifier(nameId->identifier()->chars(),
                                                                          nameId->identifier()->size());
                 return control()->nameId(id);
 
@@ -272,7 +272,7 @@ private:
                     FullySpecifiedType argTy = templId->templateArgumentAt(templateArgIndex);
                     arguments[templateArgIndex] = q->apply(argTy);
                 }
-                const Identifier *id = control()->findOrInsertIdentifier(templId->identifier()->chars(),
+                const Identifier *id = control()->identifier(templId->identifier()->chars(),
                                                                          templId->identifier()->size());
                 return control()->templateNameId(id, arguments.data(), arguments.size());
 

@@ -976,7 +976,7 @@ public:
         }
 
         QSharedPointer<Control> control = state.context().control();
-        const Name *trName = control->nameId(control->findOrInsertIdentifier("tr"));
+        const Name *trName = control->nameId(control->identifier("tr"));
 
         // Check whether we are in a method:
         for (int i = path.size() - 1; i >= 0; --i)

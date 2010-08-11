@@ -377,9 +377,9 @@ bool CheckStatement::visit(QtMemberDeclarationAST *ast)
     const Name *name = 0;
 
     if (tokenKind(ast->q_token) == T_Q_D)
-        name = control()->nameId(control()->findOrInsertIdentifier("d"));
+        name = control()->nameId(control()->identifier("d"));
     else
-        name = control()->nameId(control()->findOrInsertIdentifier("q"));
+        name = control()->nameId(control()->identifier("q"));
 
     FullySpecifiedType declTy = semantic()->check(ast->type_id, _scope);
 
@@ -390,7 +390,7 @@ bool CheckStatement::visit(QtMemberDeclarationAST *ast)
                 privateClass += nameId->identifier()->chars();
                 privateClass += "Private";
 
-                const Name *privName = control()->nameId(control()->findOrInsertIdentifier(privateClass.c_str(),
+                const Name *privName = control()->nameId(control()->identifier(privateClass.c_str(),
                                                                                            privateClass.size()));
                 declTy.setType(control()->namedType(privName));
             }

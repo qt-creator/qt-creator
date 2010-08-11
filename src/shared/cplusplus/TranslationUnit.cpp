@@ -188,8 +188,8 @@ void TranslationUnit::tokenize()
     pushLineOffset(0);
     pushPreprocessorLine(0, 1, fileId());
 
-    const Identifier *lineId   = control()->findOrInsertIdentifier("line");
-    const Identifier *genId    = control()->findOrInsertIdentifier("gen");
+    const Identifier *lineId   = control()->identifier("line");
+    const Identifier *genId    = control()->identifier("gen");
 
     bool generated = false;
     Token tk;
@@ -218,7 +218,7 @@ void TranslationUnit::tokenize()
                     unsigned line = (unsigned) strtoul(tk.spell(), 0, 0);
                     lex(&tk);
                     if (! tk.f.newline && tk.is(T_STRING_LITERAL)) {
-                        const StringLiteral *fileName = control()->findOrInsertStringLiteral(tk.string->chars(),
+                        const StringLiteral *fileName = control()->stringLiteral(tk.string->chars(),
                                                                                              tk.string->size());
                         pushPreprocessorLine(offset, line, fileName);
                         lex(&tk);

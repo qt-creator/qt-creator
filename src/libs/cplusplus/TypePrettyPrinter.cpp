@@ -140,6 +140,28 @@ void TypePrettyPrinter::visit(Namespace *type)
     prependCv(_fullySpecifiedType);
 }
 
+void TypePrettyPrinter::visit(Template *type)
+{
+    const unsigned argc = type->templateParameterCount();
+    QString decl;
+    decl += QLatin1String("template <");
+    for (unsigned i = 0; i < argc; ++i) {
+        if (i != 0)
+            decl += QLatin1String(", ");
+
+        decl += QLatin1String("T");
+        decl += QString::number(i + 1);
+    }
+    decl += QLatin1Char('<');
+    if (Symbol *d = type->declaration()) {
+        decl += QLatin1Char(' ');
+        decl += overview()->prettyType(d->type(), d->name());
+    }
+    _text.prepend(decl);
+    qWarning() << "here:" << decl;
+    prependCv(_fullySpecifiedType);
+}
+
 void TypePrettyPrinter::visit(Class *classTy)
 {
     _text.prepend(overview()->prettyName(classTy->name()));

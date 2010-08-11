@@ -377,7 +377,7 @@ bool CheckName::visit(ObjCSelectorAST *ast)
     bool hasArgs = false;
     for (ObjCSelectorArgumentListAST *it = ast->selector_argument_list; it; it = it->next) {
         if (it->value->name_token) {
-            const Identifier *id = control()->findOrInsertIdentifier(spell(it->value->name_token));
+            const Identifier *id = control()->identifier(spell(it->value->name_token));
             const NameId *nameId = control()->nameId(id);
             names.push_back(nameId);
 

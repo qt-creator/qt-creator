@@ -437,7 +437,7 @@ bool CheckDeclaration::visit(ParameterDeclarationAST *ast)
                 buffer += ' ';
             buffer += tk.spell();
         }
-        const StringLiteral *initializer = control()->findOrInsertStringLiteral(buffer.c_str(), buffer.size());
+        const StringLiteral *initializer = control()->stringLiteral(buffer.c_str(), buffer.size());
         arg->setInitializer(initializer);
     }
     arg->setType(argTy);

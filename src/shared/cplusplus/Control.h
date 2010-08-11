@@ -190,8 +190,8 @@ public:
     const Identifier *objcNonatomicId() const;
 
     const Identifier *findIdentifier(const char *chars, unsigned size) const;
-    const Identifier *findOrInsertIdentifier(const char *chars, unsigned size);
-    const Identifier *findOrInsertIdentifier(const char *chars);
+    const Identifier *identifier(const char *chars, unsigned size);
+    const Identifier *identifier(const char *chars);
 
     typedef const Identifier *const *IdentifierIterator;
     typedef const StringLiteral *const *StringLiteralIterator;
@@ -206,11 +206,11 @@ public:
     NumericLiteralIterator firstNumericLiteral() const;
     NumericLiteralIterator lastNumericLiteral() const;
 
-    const StringLiteral *findOrInsertStringLiteral(const char *chars, unsigned size);
-    const StringLiteral *findOrInsertStringLiteral(const char *chars);
+    const StringLiteral *stringLiteral(const char *chars, unsigned size);
+    const StringLiteral *stringLiteral(const char *chars);
 
-    const NumericLiteral *findOrInsertNumericLiteral(const char *chars, unsigned size);
-    const NumericLiteral *findOrInsertNumericLiteral(const char *chars);
+    const NumericLiteral *numericLiteral(const char *chars, unsigned size);
+    const NumericLiteral *numericLiteral(const char *chars);
 
     bool hasSymbol(Symbol *symbol) const;
 

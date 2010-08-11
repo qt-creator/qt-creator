@@ -281,7 +281,7 @@ void Lexer::scan_helper(Token *tok)
             yyinp();
 
         if (control())
-            tok->string = control()->findOrInsertStringLiteral(yytext, yylen);
+            tok->string = control()->stringLiteral(yytext, yylen);
     } break;
 
     case '{':
@@ -361,7 +361,7 @@ void Lexer::scan_helper(Token *tok)
             int yylen = _currentChar - yytext;
             tok->f.kind = T_NUMERIC_LITERAL;
             if (control())
-                tok->number = control()->findOrInsertNumericLiteral(yytext, yylen);
+                tok->number = control()->numericLiteral(yytext, yylen);
         } else {
             tok->f.kind = T_DOT;
         }
@@ -564,7 +564,7 @@ void Lexer::scan_helper(Token *tok)
             if (_yychar == '>')
                 yyinp();
             if (control())
-                tok->string = control()->findOrInsertStringLiteral(yytext, yylen);
+                tok->string = control()->stringLiteral(yytext, yylen);
             tok->f.kind = T_ANGLE_STRING_LITERAL;
         } else if (_yychar == '<') {
             yyinp();
@@ -642,7 +642,7 @@ void Lexer::scan_helper(Token *tok)
                     yyinp();
 
                 if (control())
-                    tok->string = control()->findOrInsertStringLiteral(yytext, yylen);
+                    tok->string = control()->stringLiteral(yytext, yylen);
 
                 break;
             }
@@ -679,7 +679,7 @@ void Lexer::scan_helper(Token *tok)
                 yyinp();
 
             if (control())
-                tok->string = control()->findOrInsertStringLiteral(yytext, yylen);
+                tok->string = control()->stringLiteral(yytext, yylen);
         } else if (std::isalpha(ch) || ch == '_' || ch == '$') {
             const char *yytext = _currentChar - 1;
             while (std::isalnum(_yychar) || _yychar == '_' || _yychar == '$')
@@ -694,7 +694,7 @@ void Lexer::scan_helper(Token *tok)
                 tok->f.kind = classifyOperator(yytext, yylen);
 
                 if (control())
-                    tok->identifier = control()->findOrInsertIdentifier(yytext, yylen);
+                    tok->identifier = control()->identifier(yytext, yylen);
             }
             break;
         } else if (std::isdigit(ch)) {
@@ -715,7 +715,7 @@ void Lexer::scan_helper(Token *tok)
             int yylen = _currentChar - yytext;
             tok->f.kind = T_NUMERIC_LITERAL;
             if (control())
-                tok->number = control()->findOrInsertNumericLiteral(yytext, yylen);
+                tok->number = control()->numericLiteral(yytext, yylen);
             break;
         } else {
             tok->f.kind = T_ERROR;

@@ -788,6 +788,11 @@ ClassOrNamespace *CreateBindings::enterGlobalClassOrNamespace(Symbol *symbol)
     return switchCurrentClassOrNamespace(entity);
 }
 
+bool CreateBindings::visit(Template *templ)
+{
+    return false;
+}
+
 bool CreateBindings::visit(Namespace *ns)
 {
     ClassOrNamespace *previous = enterClassOrNamespaceBinding(ns);

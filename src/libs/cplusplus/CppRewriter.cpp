@@ -220,7 +220,7 @@ public:
             if (! other)
                 return 0;
 
-            return control()->findOrInsertIdentifier(other->chars(), other->size());
+            return control()->identifier(other->chars(), other->size());
         }
 
     public:

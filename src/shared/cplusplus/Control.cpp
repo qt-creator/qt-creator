@@ -536,17 +536,17 @@ Control::Control()
 {
     d = new Data(this);
 
-    d->deprecatedId = findOrInsertIdentifier("deprecated");
-    d->unavailableId = findOrInsertIdentifier("unavailable");
+    d->deprecatedId = identifier("deprecated");
+    d->unavailableId = identifier("unavailable");
 
-    d->objcGetterId = findOrInsertIdentifier("getter");
-    d->objcSetterId = findOrInsertIdentifier("setter");
-    d->objcReadwriteId = findOrInsertIdentifier("readwrite");
-    d->objcReadonlyId = findOrInsertIdentifier("readonly");
-    d->objcAssignId = findOrInsertIdentifier("assign");
-    d->objcRetainId = findOrInsertIdentifier("retain");
-    d->objcCopyId = findOrInsertIdentifier("copy");
-    d->objcNonatomicId = findOrInsertIdentifier("nonatomic");
+    d->objcGetterId = identifier("getter");
+    d->objcSetterId = identifier("setter");
+    d->objcReadwriteId = identifier("readwrite");
+    d->objcReadonlyId = identifier("readonly");
+    d->objcAssignId = identifier("assign");
+    d->objcRetainId = identifier("retain");
+    d->objcCopyId = identifier("copy");
+    d->objcNonatomicId = identifier("nonatomic");
 }
 
 Control::~Control()
@@ -571,13 +571,13 @@ void Control::setDiagnosticClient(DiagnosticClient *diagnosticClient)
 const Identifier *Control::findIdentifier(const char *chars, unsigned size) const
 { return d->identifiers.findLiteral(chars, size); }
 
-const Identifier *Control::findOrInsertIdentifier(const char *chars, unsigned size)
+const Identifier *Control::identifier(const char *chars, unsigned size)
 { return d->identifiers.findOrInsertLiteral(chars, size); }
 
-const Identifier *Control::findOrInsertIdentifier(const char *chars)
+const Identifier *Control::identifier(const char *chars)
 {
     unsigned length = std::strlen(chars);
-    return findOrInsertIdentifier(chars, length);
+    return identifier(chars, length);
 }
 
 Control::IdentifierIterator Control::firstIdentifier() const
@@ -598,22 +598,22 @@ Control::NumericLiteralIterator Control::firstNumericLiteral() const
 Control::NumericLiteralIterator Control::lastNumericLiteral() const
 { return d->numericLiterals.end(); }
 
-const StringLiteral *Control::findOrInsertStringLiteral(const char *chars, unsigned size)
+const StringLiteral *Control::stringLiteral(const char *chars, unsigned size)
 { return d->stringLiterals.findOrInsertLiteral(chars, size); }
 
-const StringLiteral *Control::findOrInsertStringLiteral(const char *chars)
+const StringLiteral *Control::stringLiteral(const char *chars)
 {
     unsigned length = std::strlen(chars);
-    return findOrInsertStringLiteral(chars, length);
+    return stringLiteral(chars, length);
 }
 
-const NumericLiteral *Control::findOrInsertNumericLiteral(const char *chars, unsigned size)
+const NumericLiteral *Control::numericLiteral(const char *chars, unsigned size)
 { return d->numericLiterals.findOrInsertLiteral(chars, size); }
 
-const NumericLiteral *Control::findOrInsertNumericLiteral(const char *chars)
+const NumericLiteral *Control::numericLiteral(const char *chars)
 {
     unsigned length = std::strlen(chars);
-    return findOrInsertNumericLiteral(chars, length);
+    return numericLiteral(chars, length);
 }
 
 const NameId *Control::nameId(const Identifier *id)
