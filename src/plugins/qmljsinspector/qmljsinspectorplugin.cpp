@@ -85,8 +85,8 @@ InspectorPlugin::InspectorPlugin()
     Q_ASSERT(! g_instance);
     g_instance = this;
 
-    _clientProxy = new ClientProxy(this);
-    _inspector = new Inspector(this);
+    m_clientProxy = new ClientProxy(this);
+    m_inspector = new Inspector(this);
     m_toolbar = new QmlInspectorToolbar(this);
 }
 
@@ -101,7 +101,7 @@ QmlJS::ModelManagerInterface *InspectorPlugin::modelManager() const
 
 ClientProxy *InspectorPlugin::clientProxy() const
 {
-    return _clientProxy;
+    return m_clientProxy;
 }
 
 InspectorPlugin *InspectorPlugin::instance()
@@ -111,7 +111,7 @@ InspectorPlugin *InspectorPlugin::instance()
 
 Inspector *InspectorPlugin::inspector() const
 {
-    return _inspector;
+    return m_inspector;
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag InspectorPlugin::aboutToShutdown()
@@ -132,7 +132,7 @@ bool InspectorPlugin::initialize(const QStringList &arguments, QString *errorStr
 
     uiSwitcher->addLanguage(LANG_QML, Core::Context(C_INSPECTOR));
 
-    _inspector->createDockWidgets();
+    m_inspector->createDockWidgets();
 
     return true;
 }
@@ -150,27 +150,27 @@ void InspectorPlugin::extensionsInitialized()
     }
     m_toolbar->createActions(Core::Context(C_INSPECTOR));
 
-    connect(_clientProxy, SIGNAL(connected(QDeclarativeEngineDebug*)), m_toolbar, SLOT(enable()));
-    connect(_clientProxy, SIGNAL(disconnected()), m_toolbar, SLOT(disable()));
+    connect(m_clientProxy, SIGNAL(connected(QDeclarativeEngineDebug*)), m_toolbar, SLOT(enable()));
+    connect(m_clientProxy, SIGNAL(disconnected()), m_toolbar, SLOT(disable()));
 
-    connect(m_toolbar, SIGNAL(designModeSelected(bool)), _clientProxy, SLOT(setDesignModeBehavior(bool)));
-    connect(m_toolbar, SIGNAL(reloadSelected()), _clientProxy, SLOT(reloadQmlViewer()));
-    connect(m_toolbar, SIGNAL(animationSpeedChanged(qreal)), _clientProxy, SLOT(setAnimationSpeed(qreal)));
-    connect(m_toolbar, SIGNAL(colorPickerSelected()), _clientProxy, SLOT(changeToColorPickerTool()));
-    connect(m_toolbar, SIGNAL(zoomToolSelected()), _clientProxy, SLOT(changeToZoomTool()));
-    connect(m_toolbar, SIGNAL(selectToolSelected()), _clientProxy, SLOT(changeToSelectTool()));
-    connect(m_toolbar, SIGNAL(marqueeSelectToolSelected()), _clientProxy, SLOT(changeToSelectMarqueeTool()));
-    connect(m_toolbar, SIGNAL(applyChangesFromQmlFileTriggered(bool)), _inspector, SLOT(setApplyChangesToQmlObserver(bool)));
+    connect(m_toolbar, SIGNAL(designModeSelected(bool)), m_clientProxy, SLOT(setDesignModeBehavior(bool)));
+    connect(m_toolbar, SIGNAL(reloadSelected()), m_clientProxy, SLOT(reloadQmlViewer()));
+    connect(m_toolbar, SIGNAL(animationSpeedChanged(qreal)), m_clientProxy, SLOT(setAnimationSpeed(qreal)));
+    connect(m_toolbar, SIGNAL(colorPickerSelected()), m_clientProxy, SLOT(changeToColorPickerTool()));
+    connect(m_toolbar, SIGNAL(zoomToolSelected()), m_clientProxy, SLOT(changeToZoomTool()));
+    connect(m_toolbar, SIGNAL(selectToolSelected()), m_clientProxy, SLOT(changeToSelectTool()));
+    connect(m_toolbar, SIGNAL(marqueeSelectToolSelected()), m_clientProxy, SLOT(changeToSelectMarqueeTool()));
+    connect(m_toolbar, SIGNAL(applyChangesFromQmlFileTriggered(bool)), m_inspector, SLOT(setApplyChangesToQmlObserver(bool)));
 
-    connect(_inspector, SIGNAL(livePreviewActivated(bool)), m_toolbar, SLOT(setLivePreviewChecked(bool)));
-    connect(_clientProxy, SIGNAL(colorPickerActivated()), m_toolbar, SLOT(activateColorPicker()));
-    connect(_clientProxy, SIGNAL(selectToolActivated()), m_toolbar, SLOT(activateSelectTool()));
-    connect(_clientProxy, SIGNAL(selectMarqueeToolActivated()), m_toolbar, SLOT(activateMarqueeSelectTool()));
-    connect(_clientProxy, SIGNAL(zoomToolActivated()), m_toolbar, SLOT(activateZoomTool()));
-    connect(_clientProxy, SIGNAL(designModeBehaviorChanged(bool)), m_toolbar, SLOT(setDesignModeBehavior(bool)));
-    connect(_clientProxy, SIGNAL(selectedColorChanged(QColor)), m_toolbar, SLOT(setSelectedColor(QColor)));
+    connect(m_inspector, SIGNAL(livePreviewActivated(bool)), m_toolbar, SLOT(setLivePreviewChecked(bool)));
+    connect(m_clientProxy, SIGNAL(colorPickerActivated()), m_toolbar, SLOT(activateColorPicker()));
+    connect(m_clientProxy, SIGNAL(selectToolActivated()), m_toolbar, SLOT(activateSelectTool()));
+    connect(m_clientProxy, SIGNAL(selectMarqueeToolActivated()), m_toolbar, SLOT(activateMarqueeSelectTool()));
+    connect(m_clientProxy, SIGNAL(zoomToolActivated()), m_toolbar, SLOT(activateZoomTool()));
+    connect(m_clientProxy, SIGNAL(designModeBehaviorChanged(bool)), m_toolbar, SLOT(setDesignModeBehavior(bool)));
+    connect(m_clientProxy, SIGNAL(selectedColorChanged(QColor)), m_toolbar, SLOT(setSelectedColor(QColor)));
 
-    connect(_clientProxy, SIGNAL(animationSpeedChanged(qreal)), m_toolbar, SLOT(changeAnimationSpeed(qreal)));
+    connect(m_clientProxy, SIGNAL(animationSpeedChanged(qreal)), m_toolbar, SLOT(changeAnimationSpeed(qreal)));
 
 
 }
@@ -188,8 +188,8 @@ void InspectorPlugin::activateDebuggerForProject(ProjectExplorer::Project *proje
         // FIXME we probably want to activate the debugger for other projects than QmlProjects,
         // if they contain Qml files. Some kind of options should exist for this behavior.
         if (QmlProjectManager::QmlProject *qmlproj = qobject_cast<QmlProjectManager::QmlProject*>(project)) {
-            if (_inspector->setDebugConfigurationDataFromProject(qmlproj))
-                _inspector->startQmlProjectDebugger();
+            if (m_inspector->setDebugConfigurationDataFromProject(qmlproj))
+                m_inspector->startQmlProjectDebugger();
         }
     }
 }
@@ -211,7 +211,7 @@ void InspectorPlugin::prepareDebugger(Core::IMode *mode)
 void InspectorPlugin::setDockWidgetArrangement(const QString &activeLanguage)
 {
     if (activeLanguage == QmlJSInspector::Constants::LANG_QML || activeLanguage.isEmpty())
-        _inspector->setSimpleDockWidgetArrangement();
+        m_inspector->setSimpleDockWidgetArrangement();
 }
 
 

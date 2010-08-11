@@ -83,8 +83,8 @@ private:
     void createActions();
 
 private:
-    ClientProxy *_clientProxy;
-    Inspector *_inspector;
+    ClientProxy *m_clientProxy;
+    Inspector *m_inspector;
     QmlInspectorToolbar *m_toolbar;
 };
 
