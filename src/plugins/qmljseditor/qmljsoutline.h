@@ -28,6 +28,7 @@ public:
     // QSortFilterProxyModel
     bool filterAcceptsRow(int sourceRow,
                           const QModelIndex &sourceParent) const;
+    QVariant data(const QModelIndex &index, int role) const;
 
     bool filterBindings() const;
     void setFilterBindings(bool filterBindings);

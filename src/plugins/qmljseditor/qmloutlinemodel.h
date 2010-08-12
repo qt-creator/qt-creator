@@ -26,7 +26,7 @@ class QmlOutlineItem : public QStandardItem
 public:
     QmlOutlineItem(QmlOutlineModel *model);
 
-    //QStandardItem
+    // QStandardItem
     QVariant data(int role = Qt::UserRole + 1) const;
     int type() const;
 

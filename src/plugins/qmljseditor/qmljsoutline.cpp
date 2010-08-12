@@ -40,6 +40,18 @@ bool QmlJSOutlineFilterModel::filterAcceptsRow(int sourceRow,
     return QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent);
 }
 
+QVariant QmlJSOutlineFilterModel::data(const QModelIndex &index, int role) const
+{
+    if (role == QmlOutlineModel::AnnotationRole) {
+        // Don't show element id etc behind element if the property is also visible
+        if (!filterBindings()
+                && index.data(QmlOutlineModel::ItemTypeRole) == QmlOutlineModel::ElementType) {
+            return QVariant();
+        }
+    }
+    return QSortFilterProxyModel::data(index, role);
+}
+
 bool QmlJSOutlineFilterModel::filterBindings() const
 {
     return m_filterBindings;
