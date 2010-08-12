@@ -156,7 +156,7 @@ private:
         int port = 0;
         do {
             const char next = nextChar();
-            if (!std::isdigit(next))
+            if (!isdigit(next))
                 break;
             port = 10*port + next - '0';
             ++m_pos;
