@@ -132,7 +132,8 @@ bool RefactoringChanges::removeFile(const QString &fileName)
     if (!QFile::exists(fileName))
         return false;
 
-    // ### delete!
+    // ### implement!
+    qWarning() << "RefactoringChanges::removeFile is not implemented";
     return true;
 }
 
@@ -224,7 +225,6 @@ RefactoringFile::~RefactoringFile()
             const QByteArray &newContents = doc->toPlainText().toUtf8();
             QFile file(m_fileName);
             file.open(QFile::WriteOnly);
-            //file->resize(newContents.size()); // ### necessary?
             file.write(newContents);
         }
 
