@@ -491,9 +491,9 @@ def qdump__QLocale(d, item):
             d.putCallItem("measurementSystem", item, "measurementSystem()")
             d.putCallItem("numberOptions", item, "numberOptions()")
             d.putCallItem("timeFormat_(short)", item,
-                "timeFormat(" + d.ns + "QLocale::ShortFormat)")
+                "timeFormat('" + d.ns + "QLocale::ShortFormat')")
             d.putCallItem("timeFormat_(long)", item,
-                "timeFormat(" + d.ns + "QLocale::LongFormat)")
+                "timeFormat('" + d.ns + "QLocale::LongFormat')")
             d.putCallItem("decimalPoint", item, "decimalPoint()")
             d.putCallItem("exponential", item, "exponential()")
             d.putCallItem("percent", item, "percent()")
