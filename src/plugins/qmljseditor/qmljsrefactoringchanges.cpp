@@ -28,8 +28,12 @@
 **************************************************************************/
 
 #include "qmljsrefactoringchanges.h"
+#include "qmljseditorcodeformatter.h"
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <texteditor/texteditorsettings.h>
+#include <texteditor/tabsettings.h>
+
 
 using namespace QmlJS;
 using namespace QmlJSEditor;
@@ -47,4 +51,23 @@ QStringList QmlJSRefactoringChanges::apply()
     const QStringList changedFiles = TextEditor::RefactoringChanges::apply();
     m_modelManager->updateSourceFiles(changedFiles, true);
     return changedFiles;
+}
+
+void QmlJSRefactoringChanges::indentSelection(const QTextCursor &selection) const
+{
+    // ### shares code with QmlJSTextEditor::indent
+    QTextDocument *doc = selection.document();
+
+    QTextBlock block = doc->findBlock(selection.selectionStart());
+    const QTextBlock end = doc->findBlock(selection.selectionEnd()).next();
+
+    const TextEditor::TabSettings &tabSettings(TextEditor::TextEditorSettings::instance()->tabSettings());
+    QtStyleCodeFormatter codeFormatter;
+    codeFormatter.updateStateUntil(block);
+
+    do {
+        tabSettings.indentLine(block, codeFormatter.indentFor(block));
+        codeFormatter.updateLineStateChange(block);
+        block = block.next();
+    } while (block.isValid() && block != end);
 }

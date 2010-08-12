@@ -40,7 +40,49 @@
 
 namespace TextEditor {
 
-/*!
+class RefactoringChanges;
+
+class TEXTEDITOR_EXPORT RefactoringFile
+{
+public:
+    typedef Utils::ChangeSet::Range Range;
+
+public:
+    RefactoringFile();
+    RefactoringFile(const QString &fileName, RefactoringChanges *refactoringChanges);
+
+    RefactoringFile(const RefactoringFile &other);
+    ~RefactoringFile();
+
+    bool isValid() const;
+
+    const QTextDocument *document() const;
+    const QTextCursor cursor() const;
+
+    // converts 1-based line and column into 0-based offset
+    int position(unsigned line, unsigned column) const;
+
+    QChar charAt(int pos) const;
+    QString textAt(int start, int end) const;
+    QString textAt(const Range &range) const;
+
+    bool change(const Utils::ChangeSet &changeSet, bool openEditor = true);
+    bool indent(const Range &range, bool openEditor = true);
+
+private:
+    // not assignable
+    const RefactoringFile &operator=(const RefactoringFile &other);
+
+    QTextDocument *mutableDocument() const;
+
+private:
+    QString m_fileName;
+    RefactoringChanges *m_refactoringChanges;
+    mutable QTextDocument *m_document;
+    BaseTextEditor *m_editor;
+};
+
+ /*!
     This class batches changes to multiple file, which are applied as a single big
     change.
  */
@@ -53,13 +95,6 @@ public:
     RefactoringChanges();
     virtual ~RefactoringChanges();
 
-    void createFile(const QString &fileName, const QString &contents);
-    void changeFile(const QString &fileName, const Utils::ChangeSet &changeSet);
-// TODO:
-//    void deleteFile(const QString &fileName);
-
-    void reindent(const QString &fileName, const Range &range);
-
     /*!
         Applies all changes to open editors or to text files.
 
@@ -67,27 +102,37 @@ public:
      */
     virtual QStringList apply();
 
-    // 1-based
-    int positionInFile(const QString &fileName, unsigned line, unsigned column) const;
+    bool createFile(const QString &fileName, const QString &contents, bool reindent = true, bool openEditor = true);
+    bool removeFile(const QString &fileName);
 
-    static BaseTextEditor *editorForFile(const QString &fileName,
-                                         bool openIfClosed = false);
-    static BaseTextEditor *editorForNewFile(const QString &fileName);
+    RefactoringFile file(const QString &fileName);
+
+    void openEditor(const QString &fileName, int pos = -1);
 
     /**
-     * \param fileName the file to open
-     * \param line the line to focus on, 1-based
-     * \param column the column to focus on, 1-based
+     * \param fileName the file to activate the editor for
+     * \param pos, 0-based offset to put the cursor on, -1 means don't move
      */
-    void openEditor(const QString &fileName, unsigned line, unsigned column);
+    void setActiveEditor(const QString &fileName, int pos = -1);
+
+    QT_DEPRECATED void changeFile(const QString &fileName, const Utils::ChangeSet &changes, bool openEditor = true);
+    QT_DEPRECATED void reindent(const QString &fileName, const Range &range, bool openEditor = true);
 
 private:
-    QMap<QString, QString> m_contentsByCreatedFile;
-    QMap<QString, Utils::ChangeSet> m_changesByFile;
-    QMap<QString, QList<Range> > m_indentRangesByFile;
+    static BaseTextEditor *editorForFile(const QString &fileName,
+                                         bool openIfClosed = false);
+
+    static QList<QTextCursor> rangesToSelections(QTextDocument *document, const QList<Range> &ranges);
+    virtual void indentSelection(const QTextCursor &selection) const = 0;
+
+private:
+    QSet<QString> m_filesToCreate;
+    QHash<QString, int> m_cursorByFile;
+    QHash<QString, Utils::ChangeSet> m_changesByFile;
+    QMultiHash<QString, Range> m_indentRangesByFile;
     QString m_fileNameToShow;
-    unsigned m_lineToShow;
-    unsigned m_columnToShow;
+
+    friend class RefactoringFile;
 };
 
 } // namespace TextEditor

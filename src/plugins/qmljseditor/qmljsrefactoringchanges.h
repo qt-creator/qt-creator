@@ -49,6 +49,9 @@ public:
     virtual QStringList apply();
 
 private:
+    virtual void indentSelection(const QTextCursor &selection) const;
+
+private:
     QmlJS::ModelManagerInterface *m_modelManager;
     QmlJS::Snapshot m_snapshot;
 };

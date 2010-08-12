@@ -91,17 +91,16 @@ public:
         const InsertionLocation loc = locator.methodDeclarationInClass(m_targetSymbol, m_xsSpec);
         Q_ASSERT(loc.isValid());
 
-        int targetPosition1 = changes->positionInFile(m_targetFileName, loc.line(), loc.column());
-        int targetPosition2 = qMax(0, changes->positionInFile(m_targetFileName, loc.line(), 1) - 1);
+        TextEditor::RefactoringFile targetFile = changes->file(m_targetFileName);
+        int targetPosition1 = targetFile.position(loc.line(), loc.column());
+        int targetPosition2 = qMax(0, targetFile.position(loc.line(), 1) - 1);
 
         Utils::ChangeSet target;
         target.insert(targetPosition1, loc.prefix() + m_decl);
-        changes->changeFile(m_targetFileName, target);
+        targetFile.change(target);
+        targetFile.indent(Utils::ChangeSet::Range(targetPosition2, targetPosition1));
 
-        changes->reindent(m_targetFileName,
-                          Utils::ChangeSet::Range(targetPosition2, targetPosition1));
-
-        changes->openEditor(m_targetFileName, loc.line(), loc.column());
+        changes->setActiveEditor(m_targetFileName, targetPosition1);
     }
 
 private:

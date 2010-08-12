@@ -29,6 +29,12 @@
 
 #include "cpprefactoringchanges.h"
 
+#include <cpptools/cppcodeformatter.h>
+#include <texteditor/texteditorsettings.h>
+#include <texteditor/tabsettings.h>
+
+#include <QtGui/QTextBlock>
+
 using namespace CppEditor;
 using namespace CPlusPlus;
 
@@ -94,4 +100,23 @@ Document::Ptr CppRefactoringChanges::document(const QString &fileName) const
     doc->check();
 
     return doc;
+}
+
+void CppRefactoringChanges::indentSelection(const QTextCursor &selection) const
+{
+    // ### shares code with CPPEditor::indent()
+    QTextDocument *doc = selection.document();
+
+    QTextBlock block = doc->findBlock(selection.selectionStart());
+    const QTextBlock end = doc->findBlock(selection.selectionEnd()).next();
+
+    const TextEditor::TabSettings &tabSettings(TextEditor::TextEditorSettings::instance()->tabSettings());
+    CppTools::QtStyleCodeFormatter codeFormatter;
+    codeFormatter.updateStateUntil(block);
+
+    do {
+        tabSettings.indentLine(block, codeFormatter.indentFor(block));
+        codeFormatter.updateLineStateChange(block);
+        block = block.next();
+    } while (block.isValid() && block != end);
 }

@@ -107,10 +107,10 @@ private:
             changes.insert(startPosition(_objectInitializer->rbraceToken),
                            QLatin1String("\n"));
 
-            refactoringChanges()->changeFile(fileName(), changes);
-            refactoringChanges()->reindent(fileName(),
-                                           range(startPosition(_objectInitializer->lbraceToken),
-                                                 startPosition(_objectInitializer->rbraceToken)));
+            RefactoringFile file = refactoringChanges()->file(fileName());
+            file.change(changes);
+            file.indent(range(startPosition(_objectInitializer->lbraceToken),
+                              startPosition(_objectInitializer->rbraceToken)));
 
         }
     };

@@ -54,6 +54,9 @@ public:
     const CPlusPlus::LookupContext &context() const;
 
 private:
+    virtual void indentSelection(const QTextCursor &selection) const;
+
+private:
     CPlusPlus::Document::Ptr m_thisDocument;
     CPlusPlus::Snapshot m_snapshot;
     CPlusPlus::LookupContext m_context;
