@@ -180,6 +180,13 @@ void Bind::attribute(AttributeAST *ast)
         return;
 
     // unsigned identifier_token = ast->identifier_token;
+    if (const Identifier *id = identifier(ast->identifier_token)) {
+        if (id == control()->deprecatedId())
+            _type.setDeprecated(true);
+        else if (id == control()->unavailableId())
+            _type.setUnavailable(true);
+    }
+
     // unsigned lparen_token = ast->lparen_token;
     // unsigned tag_token = ast->tag_token;
     for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
@@ -264,15 +271,25 @@ bool Bind::visit(BaseSpecifierAST *ast)
     return false;
 }
 
-void Bind::baseSpecifier(BaseSpecifierAST *ast)
+void Bind::baseSpecifier(BaseSpecifierAST *ast, unsigned colon_token, Class *klass)
 {
     if (! ast)
         return;
 
-    // unsigned virtual_token = ast->virtual_token;
-    // unsigned access_specifier_token = ast->access_specifier_token;
-    /*const Name *name =*/ this->name(ast->name);
-    // BaseClass *symbol = ast->symbol;
+    unsigned sourceLocation = ast->firstToken();
+    if (! sourceLocation)
+        sourceLocation = std::max(colon_token, klass->sourceLocation());
+
+    const Name *baseClassName = this->name(ast->name);
+    BaseClass *baseClass = control()->newBaseClass(sourceLocation, baseClassName);
+    if (ast->virtual_token)
+        baseClass->setVirtual(true);
+    if (ast->access_specifier_token) {
+        const int visibility = visibilityForAccessSpecifier(tokenKind(ast->access_specifier_token));
+        baseClass->setVisibility(visibility); // ### well, not exactly.
+    }
+    klass->addMember(baseClass);
+    ast->symbol = baseClass;
 }
 
 bool Bind::visit(CtorInitializerAST *ast)
@@ -1931,8 +1948,177 @@ bool Bind::visit(TemplateIdAST *ast)
 // SpecifierAST
 bool Bind::visit(SimpleSpecifierAST *ast)
 {
-    (void) ast;
-    // unsigned specifier_token = ast->specifier_token;
+    switch (tokenKind(ast->specifier_token)) {
+        case T_CONST:
+            if (_type.isConst())
+                translationUnit()->error(ast->specifier_token, "duplicate `%s'", spell(ast->specifier_token));
+            _type.setConst(true);
+            break;
+
+        case T_VOLATILE:
+            if (_type.isVolatile())
+                translationUnit()->error(ast->specifier_token, "duplicate `%s'", spell(ast->specifier_token));
+            _type.setVolatile(true);
+            break;
+
+        case T_FRIEND:
+            if (_type.isFriend())
+                translationUnit()->error(ast->specifier_token, "duplicate `%s'", spell(ast->specifier_token));
+            _type.setFriend(true);
+            break;
+
+        case T_AUTO:
+            if (_type.isAuto())
+                translationUnit()->error(ast->specifier_token, "duplicate `%s'", spell(ast->specifier_token));
+            _type.setAuto(true);
+            break;
+
+        case T_REGISTER:
+            if (_type.isRegister())
+                translationUnit()->error(ast->specifier_token, "duplicate `%s'", spell(ast->specifier_token));
+            _type.setRegister(true);
+            break;
+
+        case T_STATIC:
+            if (_type.isStatic())
+                translationUnit()->error(ast->specifier_token, "duplicate `%s'", spell(ast->specifier_token));
+            _type.setStatic(true);
+            break;
+
+        case T_EXTERN:
+            if (_type.isExtern())
+                translationUnit()->error(ast->specifier_token, "duplicate `%s'", spell(ast->specifier_token));
+            _type.setExtern(true);
+            break;
+
+        case T_MUTABLE:
+            if (_type.isMutable())
+                translationUnit()->error(ast->specifier_token, "duplicate `%s'", spell(ast->specifier_token));
+            _type.setMutable(true);
+            break;
+
+        case T_TYPEDEF:
+            if (_type.isTypedef())
+                translationUnit()->error(ast->specifier_token, "duplicate `%s'", spell(ast->specifier_token));
+            _type.setTypedef(true);
+            break;
+
+        case T_INLINE:
+            if (_type.isInline())
+                translationUnit()->error(ast->specifier_token, "duplicate `%s'", spell(ast->specifier_token));
+            _type.setInline(true);
+            break;
+
+        case T_VIRTUAL:
+            if (_type.isVirtual())
+                translationUnit()->error(ast->specifier_token, "duplicate `%s'", spell(ast->specifier_token));
+            _type.setVirtual(true);
+            break;
+
+        case T_EXPLICIT:
+            if (_type.isExplicit())
+                translationUnit()->error(ast->specifier_token, "duplicate `%s'", spell(ast->specifier_token));
+            _type.setExplicit(true);
+            break;
+
+        case T_SIGNED:
+            if (_type.isSigned())
+                translationUnit()->error(ast->specifier_token, "duplicate `%s'", spell(ast->specifier_token));
+            _type.setSigned(true);
+            break;
+
+        case T_UNSIGNED:
+            if (_type.isUnsigned())
+                translationUnit()->error(ast->specifier_token, "duplicate `%s'", spell(ast->specifier_token));
+            _type.setUnsigned(true);
+            break;
+
+        case T_CHAR:
+            if (_type)
+                translationUnit()->error(ast->specifier_token, "duplicate data type in declaration");
+            _type.setType(control()->integerType(IntegerType::Char));
+            break;
+
+        case T_WCHAR_T:
+            if (_type)
+                translationUnit()->error(ast->specifier_token, "duplicate data type in declaration");
+            _type.setType(control()->integerType(IntegerType::WideChar));
+            break;
+
+        case T_BOOL:
+            if (_type)
+                translationUnit()->error(ast->specifier_token, "duplicate data type in declaration");
+            _type.setType(control()->integerType(IntegerType::Bool));
+            break;
+
+        case T_SHORT:
+            if (_type) {
+                IntegerType *intType = control()->integerType(IntegerType::Int);
+                if (_type.type() != intType)
+                    translationUnit()->error(ast->specifier_token, "duplicate data type in declaration");
+            }
+            _type.setType(control()->integerType(IntegerType::Short));
+            break;
+
+        case T_INT:
+            if (_type) {
+                Type *tp = _type.type();
+                IntegerType *shortType = control()->integerType(IntegerType::Short);
+                IntegerType *longType = control()->integerType(IntegerType::Long);
+                IntegerType *longLongType = control()->integerType(IntegerType::LongLong);
+                if (tp == shortType || tp == longType || tp == longLongType)
+                    break;
+                translationUnit()->error(ast->specifier_token, "duplicate data type in declaration");
+            }
+            _type.setType(control()->integerType(IntegerType::Int));
+            break;
+
+        case T_LONG:
+            if (_type) {
+                Type *tp = _type.type();
+                IntegerType *intType = control()->integerType(IntegerType::Int);
+                IntegerType *longType = control()->integerType(IntegerType::Long);
+                FloatType *doubleType = control()->floatType(FloatType::Double);
+                if (tp == longType) {
+                    _type.setType(control()->integerType(IntegerType::LongLong));
+                    break;
+                } else if (tp == doubleType) {
+                    _type.setType(control()->floatType(FloatType::LongDouble));
+                    break;
+                } else if (tp != intType) {
+                    translationUnit()->error(ast->specifier_token, "duplicate data type in declaration");
+                }
+            }
+            _type.setType(control()->integerType(IntegerType::Long));
+            break;
+
+        case T_FLOAT:
+            if (_type)
+                translationUnit()->error(ast->specifier_token, "duplicate data type in declaration");
+            _type.setType(control()->floatType(FloatType::Float));
+            break;
+
+        case T_DOUBLE:
+            if (_type) {
+                IntegerType *longType = control()->integerType(IntegerType::Long);
+                if (_type.type() == longType) {
+                    _type.setType(control()->floatType(FloatType::LongDouble));
+                    break;
+                }
+                translationUnit()->error(ast->specifier_token, "duplicate data type in declaration");
+            }
+            _type.setType(control()->floatType(FloatType::Double));
+            break;
+
+        case T_VOID:
+            if (_type)
+                translationUnit()->error(ast->specifier_token, "duplicate data type in declaration");
+            _type.setType(control()->voidType());
+            break;
+
+        default:
+            break;
+    } // switch
     return false;
 }
 
@@ -1951,32 +2137,45 @@ bool Bind::visit(AttributeSpecifierAST *ast)
 
 bool Bind::visit(TypeofSpecifierAST *ast)
 {
-    // unsigned typeof_token = ast->typeof_token;
-    // unsigned lparen_token = ast->lparen_token;
     ExpressionTy expression = this->expression(ast->expression);
-    // unsigned rparen_token = ast->rparen_token;
+    _type = expression;
     return false;
 }
 
 bool Bind::visit(ClassSpecifierAST *ast)
 {
     // unsigned classkey_token = ast->classkey_token;
-    FullySpecifiedType type;
+    unsigned sourceLocation = ast->classkey_token;
+
     for (SpecifierListAST *it = ast->attribute_list; it; it = it->next) {
-        type = this->specifier(it->value, type);
+        _type = this->specifier(it->value, _type);
     }
-    /*const Name *name =*/ this->name(ast->name);
-    // unsigned colon_token = ast->colon_token;
+
+    const Name *className = this->name(ast->name);
+
+    if (ast->name) {
+        sourceLocation = ast->name->firstToken();
+
+        if (QualifiedNameAST *q = ast->name->asQualifiedName()) {
+            if (q->unqualified_name)
+                sourceLocation = q->unqualified_name->firstToken();
+        }
+    }
+
+    Class *klass = control()->newClass(sourceLocation, className);
+    _type.setType(klass);
+
+    Scope *previousScope = switchScope(klass);
+
     for (BaseSpecifierListAST *it = ast->base_clause_list; it; it = it->next) {
-        this->baseSpecifier(it->value);
+        this->baseSpecifier(it->value, ast->colon_token, klass);
     }
     // unsigned dot_dot_dot_token = ast->dot_dot_dot_token;
-    // unsigned lbrace_token = ast->lbrace_token;
     for (DeclarationListAST *it = ast->member_specifier_list; it; it = it->next) {
         this->declaration(it->value);
     }
-    // unsigned rbrace_token = ast->rbrace_token;
-    // Class *symbol = ast->symbol;
+    (void) switchScope(previousScope);
+    ast->symbol = klass;
     return false;
 }
 
@@ -2148,3 +2347,18 @@ bool Bind::visit(ArrayDeclaratorAST *ast)
     return false;
 }
 
+int Bind::visibilityForAccessSpecifier(int tokenKind)
+{
+    switch (tokenKind) {
+    case T_PUBLIC:
+        return Symbol::Public;
+    case T_PROTECTED:
+        return Symbol::Protected;
+    case T_PRIVATE:
+        return Symbol::Private;
+    case T_Q_SIGNALS:
+        return Symbol::Protected;
+    default:
+        return Symbol::Public;
+    }
+}

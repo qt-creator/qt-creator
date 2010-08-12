@@ -78,12 +78,14 @@ public:
 protected:
     using ASTVisitor::translationUnit;
 
+    static int visibilityForAccessSpecifier(int tokenKind);
+
     const Name *objCSelectorArgument(ObjCSelectorArgumentAST *ast, bool *hasArg);
     void attribute(AttributeAST *ast);
     FullySpecifiedType declarator(DeclaratorAST *ast, const FullySpecifiedType &init, DeclaratorIdAST **declaratorId);
     void qtPropertyDeclarationItem(QtPropertyDeclarationItemAST *ast);
     void qtInterfaceName(QtInterfaceNameAST *ast);
-    void baseSpecifier(BaseSpecifierAST *ast);
+    void baseSpecifier(BaseSpecifierAST *ast, unsigned colon_token, Class *klass);
     void ctorInitializer(CtorInitializerAST *ast);
     void enumerator(EnumeratorAST *ast);
     FullySpecifiedType exceptionSpecification(ExceptionSpecificationAST *ast, const FullySpecifiedType &init);
