@@ -67,25 +67,25 @@ bool ClientProxy::connectToViewer(const QString &host, quint16 port)
     if (m_designClient) {
 
         disconnect(m_designClient, SIGNAL(currentObjectsChanged(QList<int>)),
-                            this, SLOT(onCurrentObjectsChanged(QList<int>)));
-        disconnect(m_designClient,
-                   SIGNAL(colorPickerActivated()), this, SIGNAL(colorPickerActivated()));
-        disconnect(m_designClient,
-                   SIGNAL(zoomToolActivated()), this, SIGNAL(zoomToolActivated()));
-        disconnect(m_designClient,
-                   SIGNAL(selectToolActivated()), this, SIGNAL(selectToolActivated()));
-        disconnect(m_designClient,
-                   SIGNAL(selectMarqueeToolActivated()), this, SIGNAL(selectMarqueeToolActivated()));
-        disconnect(m_designClient,
-                   SIGNAL(animationSpeedChanged(qreal)), this, SIGNAL(animationSpeedChanged(qreal)));
-        disconnect(m_designClient,
-                   SIGNAL(designModeBehaviorChanged(bool)), this, SIGNAL(designModeBehaviorChanged(bool)));
-        disconnect(m_designClient,
-                   SIGNAL(selectedColorChanged(QColor)), this, SIGNAL(selectedColorChanged(QColor)));
-        disconnect(m_designClient,
-                   SIGNAL(contextPathUpdated(QStringList)), this, SIGNAL(contextPathUpdated(QStringList)));
-        disconnect(m_designClient,
-                   SIGNAL(treeRefreshRequested()), this, SLOT(refreshObjectTree()));
+            this, SLOT(onCurrentObjectsChanged(QList<int>)));
+        disconnect(m_designClient, SIGNAL(colorPickerActivated()),
+            this, SIGNAL(colorPickerActivated()));
+        disconnect(m_designClient, SIGNAL(zoomToolActivated()),
+            this, SIGNAL(zoomToolActivated()));
+        disconnect(m_designClient, SIGNAL(selectToolActivated()),
+            this, SIGNAL(selectToolActivated()));
+        disconnect(m_designClient, SIGNAL(selectMarqueeToolActivated()),
+            this, SIGNAL(selectMarqueeToolActivated()));
+        disconnect(m_designClient, SIGNAL(animationSpeedChanged(qreal)),
+            this, SIGNAL(animationSpeedChanged(qreal)));
+        disconnect(m_designClient, SIGNAL(designModeBehaviorChanged(bool)),
+            this, SIGNAL(designModeBehaviorChanged(bool)));
+        disconnect(m_designClient, SIGNAL(selectedColorChanged(QColor)),
+            this, SIGNAL(selectedColorChanged(QColor)));
+        disconnect(m_designClient, SIGNAL(contextPathUpdated(QStringList)),
+            this, SIGNAL(contextPathUpdated(QStringList)));
+        disconnect(m_designClient, SIGNAL(treeRefreshRequested()),
+            this, SLOT(refreshObjectTree()));
 
         emit aboutToDisconnect();
 
@@ -138,15 +138,17 @@ void ClientProxy::onCurrentObjectsChanged(const QList<int> &debugIds)
 {
     QList<QDeclarativeDebugObjectReference> selectedItems;
 
-    foreach(int debugId, debugIds) {
+    foreach (int debugId, debugIds) {
         QDeclarativeDebugObjectReference ref = objectReferenceForId(debugId);
         if (ref.debugId() != -1) {
             selectedItems << ref;
         } else {
             // ### FIXME right now, there's no way in the protocol to
-            // a) get some item and know its parent (although that's possible by adding it to a separate plugin)
+            // a) get some item and know its parent (although that's possible
+            //    by adding it to a separate plugin)
             // b) add children to part of an existing tree.
-            // So the only choice that remains is to update the complete tree when we have an unknown debug id.
+            // So the only choice that remains is to update the complete
+            // tree when we have an unknown debug id.
             if (!m_objectTreeQuery)
                 m_objectTreeQuery = m_client->queryObjectRecursive(m_rootObject, this);
             break;
@@ -214,25 +216,28 @@ void ClientProxy::connectionStateChanged()
                 m_designClient = new QmlJSDesignDebugClient(m_conn, this);
                 emit connected(m_client);
 
-                connect(m_designClient,
-                        SIGNAL(currentObjectsChanged(QList<int>)),
-                        SLOT(onCurrentObjectsChanged(QList<int>)));
-                connect(m_designClient,
-                        SIGNAL(colorPickerActivated()), SIGNAL(colorPickerActivated()));
-                connect(m_designClient,
-                        SIGNAL(zoomToolActivated()), SIGNAL(zoomToolActivated()));
-                connect(m_designClient,
-                        SIGNAL(selectToolActivated()), SIGNAL(selectToolActivated()));
-                connect(m_designClient,
-                        SIGNAL(selectMarqueeToolActivated()), SIGNAL(selectMarqueeToolActivated()));
-                connect(m_designClient,
-                        SIGNAL(animationSpeedChanged(qreal)), SIGNAL(animationSpeedChanged(qreal)));
-                connect(m_designClient,
-                        SIGNAL(designModeBehaviorChanged(bool)), SIGNAL(designModeBehaviorChanged(bool)));
-                connect(m_designClient, SIGNAL(reloaded()), this, SIGNAL(serverReloaded()));
-                connect(m_designClient, SIGNAL(selectedColorChanged(QColor)), SIGNAL(selectedColorChanged(QColor)));
-                connect(m_designClient, SIGNAL(contextPathUpdated(QStringList)), SIGNAL(contextPathUpdated(QStringList)));
-                connect(m_designClient, SIGNAL(treeRefreshRequested()), SLOT(refreshObjectTree()));
+                connect(m_designClient, SIGNAL(currentObjectsChanged(QList<int>)),
+                    SLOT(onCurrentObjectsChanged(QList<int>)));
+                connect(m_designClient, SIGNAL(colorPickerActivated()),
+                    SIGNAL(colorPickerActivated()));
+                connect(m_designClient, SIGNAL(zoomToolActivated()),
+                    SIGNAL(zoomToolActivated()));
+                connect(m_designClient, SIGNAL(selectToolActivated()),
+                    SIGNAL(selectToolActivated()));
+                connect(m_designClient, SIGNAL(selectMarqueeToolActivated()),
+                    SIGNAL(selectMarqueeToolActivated()));
+                connect(m_designClient, SIGNAL(animationSpeedChanged(qreal)),
+                    SIGNAL(animationSpeedChanged(qreal)));
+                connect(m_designClient, SIGNAL(designModeBehaviorChanged(bool)),
+                    SIGNAL(designModeBehaviorChanged(bool)));
+                connect(m_designClient, SIGNAL(reloaded()), this,
+                    SIGNAL(serverReloaded()));
+                connect(m_designClient, SIGNAL(selectedColorChanged(QColor)),
+                    SIGNAL(selectedColorChanged(QColor)));
+                connect(m_designClient, SIGNAL(contextPathUpdated(QStringList)),
+                    SIGNAL(contextPathUpdated(QStringList)));
+                connect(m_designClient, SIGNAL(treeRefreshRequested()),
+                    SLOT(refreshObjectTree()));
             }
 
             (void) new DebuggerClient(m_conn);
@@ -252,12 +257,12 @@ void ClientProxy::connectionStateChanged()
 
 bool ClientProxy::isConnected() const
 {
-    return (m_conn && m_client && m_conn->state() == QAbstractSocket::ConnectedState);
+    return m_conn && m_client && m_conn->state() == QAbstractSocket::ConnectedState;
 }
 
 bool ClientProxy::isUnconnected() const
 {
-    return (!m_conn || m_conn->state() == QAbstractSocket::UnconnectedState);
+    return !m_conn || m_conn->state() == QAbstractSocket::UnconnectedState;
 }
 
 void ClientProxy::setSelectedItemsByObjectId(const QList<QDeclarativeDebugObjectReference> &objectRefs)
