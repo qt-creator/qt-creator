@@ -55,6 +55,7 @@
 #include "CoreTypes.h"
 #include "Literals.h"
 #include "Scope.h"
+#include <vector>
 #include <memory>
 #include <cassert>
 
@@ -64,9 +65,9 @@ namespace { bool debug_todo = false; }
 
 Bind::Bind(TranslationUnit *unit)
     : ASTVisitor(unit),
-      _currentScope(0),
-      _currentExpression(0),
-      _currentName(0)
+      _scope(0),
+      _expression(0),
+      _name(0)
 {
     if (unit->ast())
         translationUnit(unit->ast()->asTranslationUnit());
@@ -74,13 +75,13 @@ Bind::Bind(TranslationUnit *unit)
 
 Scope *Bind::currentScope() const
 {
-    return _currentScope;
+    return _scope;
 }
 
 Scope *Bind::switchScope(Scope *scope)
 {
-    Scope *previousScope = _currentScope;
-    _currentScope = scope;
+    Scope *previousScope = _scope;
+    _scope = scope;
     return previousScope;
 }
 
@@ -92,9 +93,9 @@ void Bind::statement(StatementAST *ast)
 Bind::ExpressionTy Bind::expression(ExpressionAST *ast)
 {
     ExpressionTy value = ExpressionTy();
-    std::swap(_currentExpression, value);
+    std::swap(_expression, value);
     accept(ast);
-    std::swap(_currentExpression, value);
+    std::swap(_expression, value);
     return value;
 }
 
@@ -106,45 +107,45 @@ void Bind::declaration(DeclarationAST *ast)
 const Name *Bind::name(NameAST *ast)
 {
     const Name *value = 0;
-    std::swap(_currentName, value);
+    std::swap(_name, value);
     accept(ast);
-    std::swap(_currentName, value);
+    std::swap(_name, value);
     return value;
 }
 
 FullySpecifiedType Bind::specifier(SpecifierAST *ast, const FullySpecifiedType &init)
 {
     FullySpecifiedType value = init;
-    std::swap(_currentType, value);
+    std::swap(_type, value);
     accept(ast);
-    std::swap(_currentType, value);
+    std::swap(_type, value);
     return value;
 }
 
 FullySpecifiedType Bind::ptrOperator(PtrOperatorAST *ast, const FullySpecifiedType &init)
 {
     FullySpecifiedType value = init;
-    std::swap(_currentType, value);
+    std::swap(_type, value);
     accept(ast);
-    std::swap(_currentType, value);
+    std::swap(_type, value);
     return value;
 }
 
 FullySpecifiedType Bind::coreDeclarator(CoreDeclaratorAST *ast, const FullySpecifiedType &init)
 {
     FullySpecifiedType value = init;
-    std::swap(_currentType, value);
+    std::swap(_type, value);
     accept(ast);
-    std::swap(_currentType, value);
+    std::swap(_type, value);
     return value;
 }
 
 FullySpecifiedType Bind::postfixDeclarator(PostfixDeclaratorAST *ast, const FullySpecifiedType &init)
 {
     FullySpecifiedType value = init;
-    std::swap(_currentType, value);
+    std::swap(_type, value);
     accept(ast);
-    std::swap(_currentType, value);
+    std::swap(_type, value);
     return value;
 }
 
@@ -156,15 +157,15 @@ bool Bind::visit(ObjCSelectorArgumentAST *ast)
     return false;
 }
 
-void Bind::objCSelectorArgument(ObjCSelectorArgumentAST *ast)
+const Name *Bind::objCSelectorArgument(ObjCSelectorArgumentAST *ast, bool *hasArg)
 {
-    if (! ast)
-        return;
+    if (! (ast && ast->name_token))
+        return 0;
 
-    if (debug_todo)
-        translationUnit()->warning(ast->firstToken(), "TODO: %s", __func__);
-    // unsigned name_token = ast->name_token;
-    // unsigned colon_token = ast->colon_token;
+    if (ast->colon_token)
+        *hasArg = true;
+
+    return control()->nameId(identifier(ast->name_token));
 }
 
 bool Bind::visit(AttributeAST *ast)
@@ -378,15 +379,13 @@ bool Bind::visit(NestedNameSpecifierAST *ast)
     return false;
 }
 
-void Bind::nestedNameSpecifier(NestedNameSpecifierAST *ast)
+const Name *Bind::nestedNameSpecifier(NestedNameSpecifierAST *ast)
 {
     if (! ast)
-        return;
+        return 0;
 
-    if (debug_todo)
-        translationUnit()->warning(ast->firstToken(), "TODO: %s", __func__);
-    /*const Name *class_or_namespace_name =*/ this->name(ast->class_or_namespace_name);
-    // unsigned scope_token = ast->scope_token;
+    const Name *class_or_namespace_name = this->name(ast->class_or_namespace_name);
+    return class_or_namespace_name;
 }
 
 bool Bind::visit(NewPlacementAST *ast)
@@ -487,16 +486,189 @@ bool Bind::visit(OperatorAST *ast)
     return false;
 }
 
-void Bind::cppOperator(OperatorAST *ast)
+int Bind::cppOperator(OperatorAST *ast)
 {
-    if (! ast)
-        return;
+    OperatorNameId::Kind kind = OperatorNameId::InvalidOp;
 
-    if (debug_todo)
-        translationUnit()->warning(ast->firstToken(), "TODO: %s", __func__);
+    if (! ast)
+        return kind;
+
     // unsigned op_token = ast->op_token;
     // unsigned open_token = ast->open_token;
     // unsigned close_token = ast->close_token;
+
+    switch (tokenKind(ast->op_token)) {
+    case T_NEW:
+        if (ast->open_token)
+            kind = OperatorNameId::NewArrayOp;
+        else
+            kind = OperatorNameId::NewOp;
+        break;
+
+    case T_DELETE:
+        if (ast->open_token)
+            kind = OperatorNameId::DeleteArrayOp;
+        else
+            kind = OperatorNameId::DeleteOp;
+        break;
+
+    case T_PLUS:
+        kind = OperatorNameId::PlusOp;
+        break;
+
+    case T_MINUS:
+        kind = OperatorNameId::MinusOp;
+        break;
+
+    case T_STAR:
+        kind = OperatorNameId::StarOp;
+        break;
+
+    case T_SLASH:
+        kind = OperatorNameId::SlashOp;
+        break;
+
+    case T_PERCENT:
+        kind = OperatorNameId::PercentOp;
+        break;
+
+    case T_CARET:
+        kind = OperatorNameId::CaretOp;
+        break;
+
+    case T_AMPER:
+        kind = OperatorNameId::AmpOp;
+        break;
+
+    case T_PIPE:
+        kind = OperatorNameId::PipeOp;
+        break;
+
+    case T_TILDE:
+        kind = OperatorNameId::TildeOp;
+        break;
+
+    case T_EXCLAIM:
+        kind = OperatorNameId::ExclaimOp;
+        break;
+
+    case T_EQUAL:
+        kind = OperatorNameId::EqualOp;
+        break;
+
+    case T_LESS:
+        kind = OperatorNameId::LessOp;
+        break;
+
+    case T_GREATER:
+        kind = OperatorNameId::GreaterOp;
+        break;
+
+    case T_PLUS_EQUAL:
+        kind = OperatorNameId::PlusEqualOp;
+        break;
+
+    case T_MINUS_EQUAL:
+        kind = OperatorNameId::MinusEqualOp;
+        break;
+
+    case T_STAR_EQUAL:
+        kind = OperatorNameId::StarEqualOp;
+        break;
+
+    case T_SLASH_EQUAL:
+        kind = OperatorNameId::SlashEqualOp;
+        break;
+
+    case T_PERCENT_EQUAL:
+        kind = OperatorNameId::PercentEqualOp;
+        break;
+
+    case T_CARET_EQUAL:
+        kind = OperatorNameId::CaretEqualOp;
+        break;
+
+    case T_AMPER_EQUAL:
+        kind = OperatorNameId::AmpEqualOp;
+        break;
+
+    case T_PIPE_EQUAL:
+        kind = OperatorNameId::PipeEqualOp;
+        break;
+
+    case T_LESS_LESS:
+        kind = OperatorNameId::LessLessOp;
+        break;
+
+    case T_GREATER_GREATER:
+        kind = OperatorNameId::GreaterGreaterOp;
+        break;
+
+    case T_LESS_LESS_EQUAL:
+        kind = OperatorNameId::LessLessEqualOp;
+        break;
+
+    case T_GREATER_GREATER_EQUAL:
+        kind = OperatorNameId::GreaterGreaterEqualOp;
+        break;
+
+    case T_EQUAL_EQUAL:
+        kind = OperatorNameId::EqualEqualOp;
+        break;
+
+    case T_EXCLAIM_EQUAL:
+        kind = OperatorNameId::ExclaimEqualOp;
+        break;
+
+    case T_LESS_EQUAL:
+        kind = OperatorNameId::LessEqualOp;
+        break;
+
+    case T_GREATER_EQUAL:
+        kind = OperatorNameId::GreaterEqualOp;
+        break;
+
+    case T_AMPER_AMPER:
+        kind = OperatorNameId::AmpAmpOp;
+        break;
+
+    case T_PIPE_PIPE:
+        kind = OperatorNameId::PipePipeOp;
+        break;
+
+    case T_PLUS_PLUS:
+        kind = OperatorNameId::PlusPlusOp;
+        break;
+
+    case T_MINUS_MINUS:
+        kind = OperatorNameId::MinusMinusOp;
+        break;
+
+    case T_COMMA:
+        kind = OperatorNameId::CommaOp;
+        break;
+
+    case T_ARROW_STAR:
+        kind = OperatorNameId::ArrowStarOp;
+        break;
+
+    case T_ARROW:
+        kind = OperatorNameId::ArrowOp;
+        break;
+
+    case T_LPAREN:
+        kind = OperatorNameId::FunctionCallOp;
+        break;
+
+    case T_LBRACKET:
+        kind = OperatorNameId::ArrayAccessOp;
+        break;
+
+    default:
+        kind = OperatorNameId::InvalidOp;
+    } // switch
+
+    return kind;
 }
 
 bool Bind::visit(ParameterDeclarationClauseAST *ast)
@@ -1845,42 +2017,53 @@ bool Bind::visit(ObjCDynamicPropertiesDeclarationAST *ast)
 
 
 // NameAST
-bool Bind::visit(ObjCSelectorAST *ast)
+bool Bind::visit(ObjCSelectorAST *ast) // ### review
 {
-    if (debug_todo)
-        translationUnit()->warning(ast->firstToken(), "TODO: %s", __func__);
+    std::vector<const Name *> arguments;
+    bool hasArgs = false;
+
     for (ObjCSelectorArgumentListAST *it = ast->selector_argument_list; it; it = it->next) {
-        this->objCSelectorArgument(it->value);
+        if (const Name *selector_argument = this->objCSelectorArgument(it->value, &hasArgs))
+            arguments.push_back(selector_argument);
     }
+
+    if (! arguments.empty()) {
+        _name = control()->selectorNameId(&arguments[0], arguments.size(), hasArgs);
+        ast->name = _name;
+    }
+
     return false;
 }
 
 bool Bind::visit(QualifiedNameAST *ast)
 {
-    if (debug_todo)
-        translationUnit()->warning(ast->firstToken(), "TODO: %s", __func__);
-    // unsigned global_scope_token = ast->global_scope_token;
     for (NestedNameSpecifierListAST *it = ast->nested_name_specifier_list; it; it = it->next) {
-        this->nestedNameSpecifier(it->value);
+        const Name *class_or_namespace_name = this->nestedNameSpecifier(it->value);
+        if (_name || ast->global_scope_token)
+            _name = control()->qualifiedNameId(_name, class_or_namespace_name);
+        else
+            _name = class_or_namespace_name;
     }
-    /*const Name *unqualified_name =*/ this->name(ast->unqualified_name);
+
+    const Name *unqualified_name = this->name(ast->unqualified_name);
+    if (_name || ast->global_scope_token)
+        _name = control()->qualifiedNameId(_name, unqualified_name);
+    else
+        _name = unqualified_name;
+
+    ast->name = _name;
     return false;
 }
 
 bool Bind::visit(OperatorFunctionIdAST *ast)
 {
-    if (debug_todo)
-        translationUnit()->warning(ast->firstToken(), "TODO: %s", __func__);
-    // unsigned operator_token = ast->operator_token;
-    this->cppOperator(ast->op);
+    const int op = this->cppOperator(ast->op);
+    ast->name = _name = control()->operatorNameId(op);
     return false;
 }
 
 bool Bind::visit(ConversionFunctionIdAST *ast)
 {
-    if (debug_todo)
-        translationUnit()->warning(ast->firstToken(), "TODO: %s", __func__);
-    // unsigned operator_token = ast->operator_token;
     FullySpecifiedType type;
     for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
@@ -1888,37 +2071,40 @@ bool Bind::visit(ConversionFunctionIdAST *ast)
     for (PtrOperatorListAST *it = ast->ptr_operator_list; it; it = it->next) {
         type = this->ptrOperator(it->value, type);
     }
+    ast->name = _name = control()->conversionNameId(type);
     return false;
 }
 
 bool Bind::visit(SimpleNameAST *ast)
 {
-    if (debug_todo)
-        translationUnit()->warning(ast->firstToken(), "TODO: %s", __func__);
-    // unsigned identifier_token = ast->identifier_token;
+    const Identifier *id = identifier(ast->identifier_token);
+    ast->name = _name = control()->nameId(id);
     return false;
 }
 
 bool Bind::visit(DestructorNameAST *ast)
 {
-    if (debug_todo)
-        translationUnit()->warning(ast->firstToken(), "TODO: %s", __func__);
-    // unsigned tilde_token = ast->tilde_token;
-    // unsigned identifier_token = ast->identifier_token;
+    const Identifier *id = identifier(ast->identifier_token);
+    ast->name = _name = control()->destructorNameId(id);
     return false;
 }
 
 bool Bind::visit(TemplateIdAST *ast)
 {
-    if (debug_todo)
-        translationUnit()->warning(ast->firstToken(), "TODO: %s", __func__);
-    // unsigned template_token = ast->template_token;
-    // unsigned identifier_token = ast->identifier_token;
-    // unsigned less_token = ast->less_token;
+    // collect the template parameters
+    std::vector<FullySpecifiedType> templateArguments;
     for (ExpressionListAST *it = ast->template_argument_list; it; it = it->next) {
         ExpressionTy value = this->expression(it->value);
+        templateArguments.push_back(value);
     }
-    // unsigned greater_token = ast->greater_token;
+
+    const Identifier *id = identifier(ast->identifier_token);
+    if (templateArguments.empty())
+        _name = control()->templateNameId(id);
+    else
+        _name = control()->templateNameId(id, &templateArguments[0], templateArguments.size());
+
+    ast->name = _name;
     return false;
 }
 
@@ -2026,7 +2212,7 @@ bool Bind::visit(PointerToMemberAST *ast)
         translationUnit()->warning(ast->firstToken(), "TODO: %s", __func__);
     // unsigned global_scope_token = ast->global_scope_token;
     for (NestedNameSpecifierListAST *it = ast->nested_name_specifier_list; it; it = it->next) {
-        this->nestedNameSpecifier(it->value);
+        /*const Name *nested_name_specifier = */ this->nestedNameSpecifier(it->value);
     }
     FullySpecifiedType type;
     // unsigned star_token = ast->star_token;

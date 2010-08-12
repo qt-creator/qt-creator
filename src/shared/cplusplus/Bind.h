@@ -78,7 +78,7 @@ public:
 protected:
     using ASTVisitor::translationUnit;
 
-    void objCSelectorArgument(ObjCSelectorArgumentAST *ast);
+    const Name *objCSelectorArgument(ObjCSelectorArgumentAST *ast, bool *hasArg);
     void attribute(AttributeAST *ast);
     FullySpecifiedType declarator(DeclaratorAST *ast, const FullySpecifiedType &init);
     void qtPropertyDeclarationItem(QtPropertyDeclarationItemAST *ast);
@@ -88,12 +88,12 @@ protected:
     void enumerator(EnumeratorAST *ast);
     FullySpecifiedType exceptionSpecification(ExceptionSpecificationAST *ast, const FullySpecifiedType &init);
     void memInitializer(MemInitializerAST *ast);
-    void nestedNameSpecifier(NestedNameSpecifierAST *ast);
+    const Name *nestedNameSpecifier(NestedNameSpecifierAST *ast);
     void newPlacement(NewPlacementAST *ast);
     FullySpecifiedType newArrayDeclarator(NewArrayDeclaratorAST *ast, const FullySpecifiedType &init);
     void newInitializer(NewInitializerAST *ast);
     FullySpecifiedType newTypeId(NewTypeIdAST *ast);
-    void cppOperator(OperatorAST *ast);
+    int cppOperator(OperatorAST *ast);
     void parameterDeclarationClause(ParameterDeclarationClauseAST *ast);
     void translationUnit(TranslationUnitAST *ast);
     void objCProtocolRefs(ObjCProtocolRefsAST *ast);
@@ -269,10 +269,10 @@ protected:
     virtual bool visit(ArrayDeclaratorAST *ast);
 
 private:
-    Scope *_currentScope;
-    ExpressionTy _currentExpression;
-    const Name *_currentName;
-    FullySpecifiedType _currentType;
+    Scope *_scope;
+    ExpressionTy _expression;
+    const Name *_name;
+    FullySpecifiedType _type;
 };
 
 } // end of namespace CPlusPlus
