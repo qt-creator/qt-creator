@@ -15,7 +15,6 @@ include(components/pluginmanager/pluginmanager.pri)
 include(components/themeloader/qts60stylethemeio.pri)
 include(components/stateseditor/stateseditor.pri)
 include(components/resources/resources.pri)
-include(components/easingpane/easingpane.pri)
 
 HEADERS += qmldesignerconstants.h \
     qmldesignerplugin.h \
@@ -24,8 +23,7 @@ HEADERS += qmldesignerconstants.h \
     designersettings.h \
     settingspage.h \
     designmodecontext.h \
-    styledoutputpaneplaceholder.h \
-    qmlcontextpane.h
+    styledoutputpaneplaceholder.h
 
 SOURCES += qmldesignerplugin.cpp \
     designmodewidget.cpp \
@@ -33,8 +31,7 @@ SOURCES += qmldesignerplugin.cpp \
     designersettings.cpp \
     settingspage.cpp \
     designmodecontext.cpp \
-    styledoutputpaneplaceholder.cpp \
-    qmlcontextpane.cpp
+    styledoutputpaneplaceholder.cpp
 
 FORMS += settingspage.ui
 

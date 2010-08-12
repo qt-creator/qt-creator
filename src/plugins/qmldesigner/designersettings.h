@@ -49,9 +49,7 @@ public:
     bool equals(const DesignerSettings &other) const;
     bool openDesignMode;
     int itemSpacing;
-    int snapMargin;
-    bool enableContextPane;
-    bool pinContextPane;
+    int snapMargin;    
 };
 
 inline bool operator==(const DesignerSettings &s1, const DesignerSettings &s2)

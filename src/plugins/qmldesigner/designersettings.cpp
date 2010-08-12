@@ -51,10 +51,6 @@ void DesignerSettings::fromSettings(QSettings *settings)
             QLatin1String(QmlDesigner::Constants::QML_ITEMSPACING_KEY), QVariant(0)).toInt();
     snapMargin = settings->value(
             QLatin1String(QmlDesigner::Constants::QML_SNAPMARGIN_KEY), QVariant(0)).toInt();
-    enableContextPane = settings->value(
-            QLatin1String(QmlDesigner::Constants::QML_CONTEXTPANE_KEY), QVariant(1)).toBool();    
-    pinContextPane = settings->value(
-                QLatin1String(QmlDesigner::Constants::QML_CONTEXTPANEPIN_KEY), QVariant(0)).toBool();
     settings->endGroup();
     settings->endGroup();
 }
@@ -66,8 +62,6 @@ void DesignerSettings::toSettings(QSettings *settings) const
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_OPENDESIGNMODE_SETTINGS_KEY), openDesignMode);
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_ITEMSPACING_KEY), itemSpacing);
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_SNAPMARGIN_KEY), snapMargin);
-    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_CONTEXTPANE_KEY), enableContextPane);
-    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_CONTEXTPANEPIN_KEY), pinContextPane);
 
     settings->endGroup();
     settings->endGroup();
@@ -77,7 +71,5 @@ bool DesignerSettings::equals(const DesignerSettings &other) const
 {
     return openDesignMode == other.openDesignMode
             && snapMargin == other.snapMargin
-            && itemSpacing == other.itemSpacing
-            && enableContextPane == other.enableContextPane
-            && pinContextPane == other.pinContextPane;
+            && itemSpacing == other.itemSpacing;
 }

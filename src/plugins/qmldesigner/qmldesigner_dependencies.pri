@@ -1,5 +1,6 @@
 include(../../libs/utils/utils.pri)
 include(../../libs/qmljs/qmljs.pri)
+include(../../libs/qmleditorwidgets/qmleditorwidgets.pri)
 include(../coreplugin/coreplugin.pri)
 include(../texteditor/texteditor.pri)
 include(../qmljseditor/qmljseditor.pri)

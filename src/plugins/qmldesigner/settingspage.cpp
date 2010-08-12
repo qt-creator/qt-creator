@@ -49,8 +49,6 @@ DesignerSettings SettingsPageWidget::settings() const
     DesignerSettings ds;
     ds.itemSpacing = m_ui.spinItemSpacing->value();
     ds.snapMargin = m_ui.spinSnapMargin->value();
-    ds.enableContextPane = m_ui.textEditHelperCheckBox->isChecked();
-    ds.pinContextPane = m_ui.textEditHelperCheckBoxPin->isChecked();
     return ds;
 }
 
@@ -58,8 +56,6 @@ void SettingsPageWidget::setSettings(const DesignerSettings &s)
 {
     m_ui.spinItemSpacing->setValue(s.itemSpacing);
     m_ui.spinSnapMargin->setValue(s.snapMargin);
-    m_ui.textEditHelperCheckBox->setChecked(s.enableContextPane);
-    m_ui.textEditHelperCheckBoxPin->setChecked(s.pinContextPane);
 }
 
 QString SettingsPageWidget::searchKeywords() const

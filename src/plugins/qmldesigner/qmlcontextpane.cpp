@@ -1,6 +1,7 @@
 #include "qmlcontextpane.h"
 #include <contextpanewidget.h>
 #include <qmldesignerplugin.h>
+#include <quicktoolbarsettingspage.h>
 
 #include <utils/changeset.h>
 #include <qmljs/parser/qmljsast_p.h>
@@ -14,6 +15,7 @@
 #include <qmljs/qmljsscopebuilder.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/tabsettings.h>
+#include <coreplugin/icore.h>
 #include <colorwidget.h>
 #include <QDebug>
 
@@ -68,7 +70,7 @@ QmlContextPane::~QmlContextPane()
 
 void QmlContextPane::apply(TextEditor::BaseTextEditorEditable *editor, Document::Ptr doc, const QmlJS::Snapshot &snapshot, AST::Node *node, bool update, bool force)
 {
-    if (!Internal::BauhausPlugin::pluginInstance()->settings().enableContextPane && !force && !update) {
+    if (!QuickToolBarSettings::get().enableContextPane && !force && !update) {
         contextWidget()->hide();
         return;
     }
@@ -147,9 +149,10 @@ void QmlContextPane::apply(TextEditor::BaseTextEditorEditable *editor, Document:
             p2.setX(p1.x());
             contextWidget()->setType(prototypes);
             if (!update)
-                contextWidget()->activate(p3 , p1, p2);
+                contextWidget()->activate(p3 , p1, p2, QuickToolBarSettings::get().pinContextPane);
             else
-                contextWidget()->rePosition(p3 , p1, p2);
+                contextWidget()->rePosition(p3 , p1, p2, QuickToolBarSettings::get().pinContextPane);
+            contextWidget()->setOptions(QuickToolBarSettings::get().enableContextPane, QuickToolBarSettings::get().pinContextPane);
             contextWidget()->setPath(doc->path());
             contextWidget()->setProperties(&propertyReader); 
             m_doc = doc;
@@ -340,6 +343,21 @@ void QmlContextPane::onPropertyRemovedAndChange(const QString &remove, const QSt
 
 }
 
+void QmlContextPane::onPinnedChanged(bool b)
+{
+    QuickToolBarSettings settings = QuickToolBarSettings::get();
+    settings.pinContextPane = b;
+    settings.set();
+}
+
+void QmlContextPane::onEnabledChanged(bool b)
+{
+    QuickToolBarSettings settings = QuickToolBarSettings::get();
+    settings.pinContextPane = b;
+    settings.enableContextPane = b;
+    settings.set();
+}
+
 ContextPaneWidget* QmlContextPane::contextWidget()
 {
     if (m_widget.isNull()) { //lazily recreate widget
@@ -347,6 +365,8 @@ ContextPaneWidget* QmlContextPane::contextWidget()
         connect(m_widget.data(), SIGNAL(propertyChanged(QString,QVariant)), this, SLOT(onPropertyChanged(QString,QVariant)));
         connect(m_widget.data(), SIGNAL(removeProperty(QString)), this, SLOT(onPropertyRemoved(QString)));
         connect(m_widget.data(), SIGNAL(removeAndChangeProperty(QString,QString,QVariant, bool)), this, SLOT(onPropertyRemovedAndChange(QString,QString,QVariant, bool)));
+        connect(m_widget.data(), SIGNAL(enabledChanged(bool)), this, SLOT(onEnabledChanged(bool)));
+        connect(m_widget.data(), SIGNAL(pinnedChanged(bool)), this, SLOT(onPinnedChanged(bool)));
     }
     return m_widget.data();
 }
