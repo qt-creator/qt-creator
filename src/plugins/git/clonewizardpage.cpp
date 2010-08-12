@@ -34,6 +34,8 @@
 #include <vcsbase/checkoutjobs.h>
 #include <utils/qtcassert.h>
 
+#include <QtGui/QCheckBox>
+
 namespace Git {
 
 struct CloneWizardPagePrivate {
@@ -42,12 +44,14 @@ struct CloneWizardPagePrivate {
     const QString mainLinePostfix;
     const QString gitPostFix;
     const QString protocolDelimiter;
+    QCheckBox *deleteMasterCheckBox;
 };
 
 CloneWizardPagePrivate::CloneWizardPagePrivate() :
     mainLinePostfix(QLatin1String("/mainline.git")),
     gitPostFix(QLatin1String(".git")),
-    protocolDelimiter(QLatin1String("://"))
+    protocolDelimiter(QLatin1String("://")),
+    deleteMasterCheckBox(0)
 {
 }
 
@@ -58,11 +62,24 @@ CloneWizardPage::CloneWizardPage(QWidget *parent) :
     setTitle(tr("Location"));
     setSubTitle(tr("Specify repository URL, checkout directory and path."));
     setRepositoryLabel(tr("Clone URL:"));
+    d->deleteMasterCheckBox = new QCheckBox(tr("Delete master branch"));
+    addControl(d->deleteMasterCheckBox);
+    setDeleteMasterBranch(true);
 }
 
 CloneWizardPage::~CloneWizardPage()
 {
     delete d;
+}
+
+bool CloneWizardPage::deleteMasterBranch() const
+{
+    return d->deleteMasterCheckBox->isChecked();
+}
+
+void CloneWizardPage::setDeleteMasterBranch(bool v)
+{
+    d->deleteMasterCheckBox->setChecked(v);
 }
 
 QString CloneWizardPage::directoryFromRepository(const QString &urlIn) const
@@ -105,17 +122,55 @@ QString CloneWizardPage::directoryFromRepository(const QString &urlIn) const
 QSharedPointer<VCSBase::AbstractCheckoutJob> CloneWizardPage::createCheckoutJob(QString *checkoutPath) const
 {
      const Internal::GitClient *client = Internal::GitPlugin::instance()->gitClient();
-     QStringList args = client->binary();
      const QString workingDirectory = path();
      const QString checkoutDir = directory();
      *checkoutPath = workingDirectory + QLatin1Char('/') + checkoutDir;
+
+     QStringList baseArgs = client->binary();
+     const QString binary = baseArgs.front();
+     baseArgs.pop_front();
+
+     QStringList args;
      args << QLatin1String("clone") << repository() << checkoutDir;
-     const QString binary = args.front();
-     args.pop_front();
-     VCSBase::AbstractCheckoutJob *job =
-             new VCSBase::ProcessCheckoutJob(binary, args, workingDirectory,
-                                             client->processEnvironment());
+
+     VCSBase::ProcessCheckoutJob *job = new VCSBase::ProcessCheckoutJob;
+     const QProcessEnvironment env = client->processEnvironment();
+     // 1) Basic checkout step
+     job->addStep(binary, baseArgs + args, workingDirectory, env);
+     const QString checkoutBranch = branch();
+
+     // 2) Checkout branch, change to checkoutDir
+     const QString masterBranch = QLatin1String("master");
+     if (!checkoutBranch.isEmpty() && checkoutBranch != masterBranch) {
+         // Create branch
+         args.clear();
+         args << QLatin1String("branch") << QLatin1String("--track")
+                 << checkoutBranch << (QLatin1String("origin/")  + checkoutBranch);
+         job->addStep(binary, baseArgs + args, checkoutDir, env);
+         // Checkout branch
+         args.clear();
+         args << QLatin1String("checkout") << checkoutBranch;
+         job->addStep(binary, baseArgs + args, checkoutDir, env);
+         // Delete master if desired
+         if (deleteMasterBranch()) {
+             args.clear();
+             args << QLatin1String("branch") << QLatin1String("-D") << masterBranch;
+             job->addStep(binary, baseArgs + args, checkoutDir, env);
+         }
+     }
+
      return QSharedPointer<VCSBase::AbstractCheckoutJob>(job);
+}
+
+QStringList CloneWizardPage::branches(const QString &repository, int *current)
+{
+    // Run git on remote repository if URL is complete
+    *current = 0;
+    if (!repository.endsWith(d->gitPostFix))
+        return QStringList();
+     const QStringList branches = Internal::GitPlugin::instance()->gitClient()->synchronousRepositoryBranches(repository);
+     *current = branches.indexOf(QLatin1String("master"));
+     return branches;
 }
 
 } // namespace Git

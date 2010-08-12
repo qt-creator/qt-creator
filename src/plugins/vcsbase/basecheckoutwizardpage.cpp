@@ -30,6 +30,8 @@
 #include "basecheckoutwizardpage.h"
 #include "ui_basecheckoutwizardpage.h"
 
+#include <QtGui/QIcon>
+
 namespace VCSBase {
 
 struct BaseCheckoutWizardPagePrivate {
@@ -54,11 +56,37 @@ BaseCheckoutWizardPage::BaseCheckoutWizardPage(QWidget *parent) :
 
     d->ui.pathChooser->setExpectedKind(Utils::PathChooser::Directory);
     connect(d->ui.pathChooser, SIGNAL(validChanged()), this, SLOT(slotChanged()));
+
+    d->ui.branchComboBox->setEnabled(false);
+    d->ui.branchRefreshToolButton->setIcon(QIcon(QLatin1String(":/locator/images/reload.png")));
+    connect(d->ui.branchRefreshToolButton, SIGNAL(clicked()), this, SLOT(slotRefreshBranches()));
 }
 
 BaseCheckoutWizardPage::~BaseCheckoutWizardPage()
 {
     delete d;
+}
+
+void BaseCheckoutWizardPage::addControl(QWidget *w)
+{
+    d->ui.formLayout->addRow(w);
+}
+
+void BaseCheckoutWizardPage::addControl(QString &description, QWidget *w)
+{
+    d->ui.formLayout->addRow(description, w);
+}
+
+bool BaseCheckoutWizardPage::isBranchSelectorVisible() const
+{
+    return d->ui.branchComboBox->isVisible();
+}
+
+void BaseCheckoutWizardPage::setBranchSelectorVisible(bool v)
+{
+    d->ui.branchComboBox->setVisible(v);
+    d->ui.branchRefreshToolButton->setVisible(v);
+    d->ui.branchLabel->setVisible(v);
 }
 
 void BaseCheckoutWizardPage::setRepositoryLabel(const QString &l)
@@ -112,6 +140,35 @@ void BaseCheckoutWizardPage::setRepository(const QString &r)
     d->ui.repositoryLineEdit->setText(r);
 }
 
+QString BaseCheckoutWizardPage::branch() const
+{
+    return d->ui.branchComboBox->currentText();
+}
+
+void BaseCheckoutWizardPage::setBranch(const QString &b)
+{
+    const int index = d->ui.branchComboBox->findText(b);
+    if (index != -1)
+        d->ui.branchComboBox->setCurrentIndex(index);
+}
+
+void BaseCheckoutWizardPage::slotRefreshBranches()
+{
+    if (!isBranchSelectorVisible())
+        return;
+    // Refresh branch list on demand. This is hard to make
+    // automagically since there can be network slowness/timeouts, etc.
+    int current;
+    const QStringList branchList = branches(repository(), &current);
+    d->ui.branchComboBox->clear();
+    d->ui.branchComboBox->setEnabled(branchList.size() > 1);
+    if (!branchList.isEmpty()) {
+        d->ui.branchComboBox->addItems(branchList);
+        if (current >= 0 && current < branchList.size())
+            d->ui.branchComboBox->setCurrentIndex(current);
+    }
+}
+
 void BaseCheckoutWizardPage::slotRepositoryChanged(const QString &repo)
 {
     // Derive directory name from repository unless user manually edited it.
@@ -123,6 +180,11 @@ void BaseCheckoutWizardPage::slotRepositoryChanged(const QString &repo)
 QString BaseCheckoutWizardPage::directoryFromRepository(const QString &r) const
 {
     return r;
+}
+
+QStringList BaseCheckoutWizardPage::branches(const QString &, int *)
+{
+    return QStringList();
 }
 
 void BaseCheckoutWizardPage::slotDirectoryEdited()

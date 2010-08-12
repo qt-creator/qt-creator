@@ -38,6 +38,7 @@ CheckoutWizardPage::CheckoutWizardPage(QWidget *parent) :
     setTitle(tr("Location"));
     setSubTitle(tr("Specify repository URL, checkout directory and path."));
     setRepositoryLabel(tr("Repository:"));
+    setBranchSelectorVisible(false);
 }
 
 QString CheckoutWizardPage::directoryFromRepository(const QString &repoIn) const

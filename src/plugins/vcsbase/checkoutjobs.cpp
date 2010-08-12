@@ -30,10 +30,13 @@
 #include "checkoutjobs.h"
 
 #include <vcsbaseplugin.h>
+#include <vcsbaseoutputwindow.h>
 
 #include <QtCore/QDebug>
+#include <QtCore/QQueue>
 #include <QtCore/QDir>
 #include <utils/synchronousprocess.h>
+#include <utils/qtcassert.h>
 
 enum { debug = 0 };
 namespace VCSBase {
@@ -43,15 +46,27 @@ AbstractCheckoutJob::AbstractCheckoutJob(QObject *parent) :
 {
 }
 
+struct ProcessCheckoutJobStep
+{
+    ProcessCheckoutJobStep() {}
+    explicit ProcessCheckoutJobStep(const QString &bin,
+                                    const QStringList &args,
+                                    const QString &workingDir,
+                                    QProcessEnvironment env) :
+             binary(bin), arguments(args), workingDirectory(workingDir), environment(env) {}
+
+    QString binary;
+    QStringList arguments;
+    QString workingDirectory;
+    QProcessEnvironment environment;
+};
+
 struct ProcessCheckoutJobPrivate {
-    ProcessCheckoutJobPrivate(const QString &binary,
-                              const QStringList &args,
-                              const QString &workingDirectory,
-                              QProcessEnvironment env);
+    ProcessCheckoutJobPrivate();
 
     QSharedPointer<QProcess> process;
-    const QString binary;
-    const QStringList args;
+    QQueue<ProcessCheckoutJobStep> stepQueue;
+    QString binary;
 };
 
 // Use a terminal-less process to suppress SSH prompts.
@@ -63,30 +78,15 @@ static inline QSharedPointer<QProcess> createProcess()
     return Utils::SynchronousProcess::createProcess(flags);
 }
 
-ProcessCheckoutJobPrivate::ProcessCheckoutJobPrivate(const QString &b,
-                              const QStringList &a,
-                              const QString &workingDirectory,
-                              QProcessEnvironment processEnv) :
-    process(createProcess()),
-    binary(b),
-    args(a)
+ProcessCheckoutJobPrivate::ProcessCheckoutJobPrivate() :
+    process(createProcess())
 {    
-    if (!workingDirectory.isEmpty())
-        process->setWorkingDirectory(workingDirectory);
-    VCSBasePlugin::setProcessEnvironment(&processEnv, false);
-    process->setProcessEnvironment(processEnv);
 }
 
-ProcessCheckoutJob::ProcessCheckoutJob(const QString &binary,
-                                       const QStringList &args,
-                                       const QString &workingDirectory,
-                                       const QProcessEnvironment &env,
-                                       QObject *parent) :
+ProcessCheckoutJob::ProcessCheckoutJob(QObject *parent) :
     AbstractCheckoutJob(parent),
-    d(new ProcessCheckoutJobPrivate(binary, args, workingDirectory, env))
+    d(new ProcessCheckoutJobPrivate)
 {
-    if (debug)
-        qDebug() << "ProcessCheckoutJob" << binary << args << workingDirectory;
     connect(d->process.data(), SIGNAL(error(QProcess::ProcessError)), this, SLOT(slotError(QProcess::ProcessError)));
     connect(d->process.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(slotFinished(int,QProcess::ExitStatus)));
     connect(d->process.data(), SIGNAL(readyReadStandardOutput()), this, SLOT(slotOutput()));
@@ -97,6 +97,16 @@ ProcessCheckoutJob::ProcessCheckoutJob(const QString &binary,
 ProcessCheckoutJob::~ProcessCheckoutJob()
 {
     delete d;
+}
+
+void ProcessCheckoutJob::addStep(const QString &binary,
+                                const QStringList &args,
+                                const QString &workingDirectory,
+                                const QProcessEnvironment &env)
+{
+    if (debug)
+        qDebug() << "ProcessCheckoutJob::addStep" << binary << args << workingDirectory;
+    d->stepQueue.enqueue(ProcessCheckoutJobStep(binary, args, workingDirectory, env));
 }
 
 void ProcessCheckoutJob::slotOutput()
@@ -130,7 +140,7 @@ void ProcessCheckoutJob::slotFinished (int exitCode, QProcess::ExitStatus exitSt
     case QProcess::NormalExit:
         emit output(tr("The process terminated with exit code %1.").arg(exitCode));
         if (exitCode == 0) {
-            emit succeeded();
+            slotNext();
         } else {
             emit failed(tr("The process returned exit code %1.").arg(exitCode));
         }
@@ -143,7 +153,28 @@ void ProcessCheckoutJob::slotFinished (int exitCode, QProcess::ExitStatus exitSt
 
 void ProcessCheckoutJob::start()
 {
-    d->process->start(d->binary, d->args);
+    QTC_ASSERT(!d->stepQueue.empty(), return)
+    slotNext();
+}
+
+void ProcessCheckoutJob::slotNext()
+{
+    if (d->stepQueue.isEmpty()) {
+        emit succeeded();
+        return;
+    }
+    // Launch next
+    const ProcessCheckoutJobStep step = d->stepQueue.dequeue();
+    d->process->setWorkingDirectory(step.workingDirectory);
+
+    // Set up SSH correctly.
+    QProcessEnvironment processEnv = step.environment;
+    VCSBasePlugin::setProcessEnvironment(&processEnv, false);
+    d->process->setProcessEnvironment(processEnv);
+
+    d->binary = step.binary;
+    emit output(VCSBaseOutputWindow::msgExecutionLogEntry(step.workingDirectory, d->binary, step.arguments));
+    d->process->start(d->binary, step.arguments);
 }
 
 void ProcessCheckoutJob::cancel()

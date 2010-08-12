@@ -39,6 +39,7 @@ CheckoutWizardPage::CheckoutWizardPage(QWidget *parent) :
     setSubTitle(tr("Specify repository and path."));
     setRepositoryLabel(tr("Repository:"));
     setDirectoryVisible(false);
+    setBranchSelectorVisible(false);
 }
 
 } // namespace Internal

@@ -1265,6 +1265,28 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory,
     return StatusChanged;
 }
 
+// Quietly retrieve branch list of remote repository URL
+QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryURL)
+{
+    QStringList arguments(QLatin1String("ls-remote"));
+    arguments << QLatin1String("--heads") << repositoryURL;
+    const unsigned flags =
+            VCSBase::VCSBasePlugin::SshPasswordPrompt|
+            VCSBase::VCSBasePlugin::SuppressStdErrInLogWindow|
+            VCSBase::VCSBasePlugin::SuppressFailMessageInLogWindow;
+    const Utils::SynchronousProcessResponse resp = synchronousGit(QString(), arguments, flags);
+    QStringList branches;
+    if (resp.result == Utils::SynchronousProcessResponse::Finished) {
+        // split "82bfad2f51d34e98b18982211c82220b8db049b<tab>refs/heads/master"
+        foreach(const QString &line, resp.stdOut.split(QLatin1Char('\n'))) {
+            const int slashPos = line.lastIndexOf(QLatin1Char('/'));
+            if (slashPos != -1)
+                branches.push_back(line.mid(slashPos + 1));
+        }
+    }
+    return branches;
+}
+
 void GitClient::launchGitK(const QString &workingDirectory)
 {
     VCSBase::VCSBaseOutputWindow *outwin = VCSBase::VCSBaseOutputWindow::instance();

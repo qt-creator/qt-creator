@@ -37,6 +37,7 @@ CloneWizardPage::CloneWizardPage(QWidget *parent)
     setTitle(tr("Location"));
     setSubTitle(tr("Specify repository URL, checkout directory and path."));
     setRepositoryLabel(tr("Clone URL:"));
+    setBranchSelectorVisible(false);
 }
 
 QString CloneWizardPage::directoryFromRepository(const QString &repository) const

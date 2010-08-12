@@ -49,6 +49,7 @@ struct BaseCheckoutWizardPagePrivate;
 
 class VCSBASE_EXPORT BaseCheckoutWizardPage : public QWizardPage {
     Q_OBJECT
+    Q_PROPERTY(bool isBranchSelectorVisible READ isBranchSelectorVisible WRITE setBranchSelectorVisible)
 public:
     BaseCheckoutWizardPage(QWidget *parent = 0);
     ~BaseCheckoutWizardPage();
@@ -65,22 +66,36 @@ public:
     bool isRepositoryReadOnly() const;
     void setRepositoryReadOnly(bool v);
 
+    QString branch() const;
+    void setBranch(const QString &);
+
     virtual bool isComplete() const;
+
+    bool isBranchSelectorVisible() const ;
 
 protected:
     void changeEvent(QEvent *e);
 
     void setRepositoryLabel(const QString &l);
     void setDirectoryVisible(bool v);
+    void setBranchSelectorVisible(bool v);
 
     /* Determine a checkout directory name from
      * repository URL, that is, "protocol:/project" -> "project". */
     virtual QString directoryFromRepository(const QString &r) const;
 
+    /* Return list of branches of that repository, defaults to empty. */
+    virtual QStringList branches(const QString &repository, int *current);
+
+    /* Add additional controls */
+    void addControl(QWidget *w);
+    void addControl(QString &description, QWidget *w);
+
 private slots:
     void slotRepositoryChanged(const QString &url);
     void slotDirectoryEdited();
     void slotChanged();
+    void slotRefreshBranches();
 
 private:
     BaseCheckoutWizardPagePrivate *d;

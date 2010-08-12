@@ -72,12 +72,13 @@ class VCSBASE_EXPORT ProcessCheckoutJob : public AbstractCheckoutJob
 {
     Q_OBJECT
 public:
-    explicit ProcessCheckoutJob(const QString &binary,
-                                const QStringList &args,
-                                const QString &workingDirectory = QString(),
-                                const QProcessEnvironment &env = QProcessEnvironment::systemEnvironment(),
-                                QObject *parent = 0);
+    explicit ProcessCheckoutJob(QObject *parent = 0);
     virtual ~ProcessCheckoutJob();
+
+    void addStep(const QString &binary,
+                 const QStringList &args,
+                 const QString &workingDirectory = QString(),
+                 const QProcessEnvironment &env = QProcessEnvironment::systemEnvironment());
 
     virtual void start();
     virtual void cancel();
@@ -86,6 +87,7 @@ private slots:
     void slotError(QProcess::ProcessError error);
     void slotFinished (int exitCode, QProcess::ExitStatus exitStatus);
     void slotOutput();
+    void slotNext();
 
 private:
     ProcessCheckoutJobPrivate *d;

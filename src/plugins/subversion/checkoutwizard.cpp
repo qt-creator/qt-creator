@@ -86,8 +86,8 @@ QSharedPointer<VCSBase::AbstractCheckoutJob> CheckoutWizard::createJob(const QLi
     const QStringList completeArgs = settings.hasAuthentication() ?
                                      SubversionPlugin::addAuthenticationOptions(args, settings.user, settings.password) :
                                      args;
-    VCSBase::AbstractCheckoutJob *job = new VCSBase::ProcessCheckoutJob(binary, completeArgs,
-                                                                        workingDirectory);
+    VCSBase::ProcessCheckoutJob *job = new VCSBase::ProcessCheckoutJob;
+    job->addStep(binary, completeArgs, workingDirectory);
     return QSharedPointer<VCSBase::AbstractCheckoutJob>(job);
 }
 

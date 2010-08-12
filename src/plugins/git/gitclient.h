@@ -205,6 +205,7 @@ public:
                            bool *onBranch = 0);
 
     void launchGitK(const QString &workingDirectory);
+    QStringList synchronousRepositoryBranches(const QString &repositoryURL);
 
     GitSettings  settings() const;
     void setSettings(const GitSettings &s);

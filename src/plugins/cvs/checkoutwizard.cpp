@@ -84,8 +84,9 @@ QSharedPointer<VCSBase::AbstractCheckoutJob> CheckoutWizard::createJob(const QLi
     args << QLatin1String("checkout") << repository;
     const QString workingDirectory = cwp->path();
     *checkoutPath = workingDirectory + QLatin1Char('/') + repository;
-    VCSBase::AbstractCheckoutJob *job = new VCSBase::ProcessCheckoutJob(binary, settings.addOptions(args),
-                                                                        workingDirectory);
+
+    VCSBase::ProcessCheckoutJob *job = new VCSBase::ProcessCheckoutJob;
+    job->addStep(binary, settings.addOptions(args), workingDirectory);
     return QSharedPointer<VCSBase::AbstractCheckoutJob>(job);
 }
 
