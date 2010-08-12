@@ -130,6 +130,7 @@ protected:
     virtual bool visit(UsingDirectiveAST *);
     virtual bool visit(SimpleDeclarationAST *);
     virtual bool visit(NamedTypeSpecifierAST *);
+    virtual bool visit(ElaboratedTypeSpecifierAST *ast);
 
     virtual bool visit(EnumeratorAST *);
 

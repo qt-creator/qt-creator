@@ -480,6 +480,23 @@ bool CheckSymbols::visit(NamedTypeSpecifierAST *)
     return true;
 }
 
+bool CheckSymbols::visit(ElaboratedTypeSpecifierAST *ast)
+{
+    accept(ast->attribute_list);
+
+    if (ast->name) {
+        if (const Name *name = ast->name->name) {
+            if (name->isNameId() || name->isTemplateNameId()) {
+                addUse(ast->name, Use::Type);
+                return false;
+            }
+        }
+    }
+
+    accept(ast->name);
+    return false;
+}
+
 bool CheckSymbols::visit(MemberAccessAST *ast)
 {
     accept(ast->base_expression);
