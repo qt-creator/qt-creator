@@ -126,7 +126,7 @@ bool navigateToSlot(const QString &uiFileName,
     // Find the generated header.
     const QString generatedHeaderFile = generatedHeaderOf(uiFileName);
     if (generatedHeaderFile.isEmpty()) {
-        *errorMessage = QCoreApplication::translate("Designer", "The generated header of the form '%1' could be found.\nRebuilding the project might help.").arg(uiFileName);
+        *errorMessage = QCoreApplication::translate("Designer", "The generated header of the form '%1' could not be found.\nRebuilding the project might help.").arg(uiFileName);
         return false;
     }
     const CPlusPlus::Snapshot snapshot = CppTools::CppModelManagerInterface::instance()->snapshot();

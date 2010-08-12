@@ -6410,7 +6410,7 @@ Vous pouvez décider entre attendre plus longtemps ou mettre fin au débogage.</
     </message>
     <message>
         <location filename="../../../src/plugins/designer/codemodelhelpers.cpp" line="+129"/>
-        <source>The generated header of the form &apos;%1&apos; could be found.
+        <source>The generated header of the form &apos;%1&apos; could not be found.
 Rebuilding the project might help.</source>
         <translation type="unfinished">Impossible de trouver un en-tête généré pour l&apos;interface graphique %1.
 Regénérer le projet peut résoudre ce problème.</translation>

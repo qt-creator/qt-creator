@@ -9113,7 +9113,7 @@ Zaleca się użycie gdb wersji 7.1 lub późniejszej.</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/designer/codemodelhelpers.cpp" line="+129"/>
-        <source>The generated header of the form &apos;%1&apos; could be found.
+        <source>The generated header of the form &apos;%1&apos; could not be found.
 Rebuilding the project might help.</source>
         <translation>Nie można odnaleźć wygenerowanego pliku nagłówkowego dla formularza &quot;%1&quot;.
 Spróbuj ponownie przebudować projekt.</translation>

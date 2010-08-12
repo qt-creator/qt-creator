@@ -4345,7 +4345,7 @@ Die Ausgabe-Hilfsbibliothek dient lediglich zur formatierten Ausgabe von Objekte
         <translation>Formulareditor</translation>
     </message>
     <message>
-        <source>The generated header of the form &apos;%1&apos; could be found.
+        <source>The generated header of the form &apos;%1&apos; could not be found.
 Rebuilding the project might help.</source>
         <translation>Die automatisch erstellte Header-Datei &apos;%1&apos; des Formulars konnte nicht gefunden werden.
 Versuchen Sie, das Projekt neu zu erstellen.</translation>
