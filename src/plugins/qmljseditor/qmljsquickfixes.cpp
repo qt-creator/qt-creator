@@ -88,7 +88,7 @@ private:
                                                    "Split initializer"));
         }
 
-        virtual void perform()
+        virtual void performChanges(TextEditor::RefactoringFile *currentFile, QmlJSRefactoringChanges *)
         {
             Q_ASSERT(_objectInitializer != 0);
 
@@ -107,12 +107,9 @@ private:
             changes.insert(startPosition(_objectInitializer->rbraceToken),
                            QLatin1String("\n"));
 
-            RefactoringFile file = refactoringChanges()->file(fileName());
-            file.change(changes);
-            file.indent(range(startPosition(_objectInitializer->lbraceToken),
-                              startPosition(_objectInitializer->rbraceToken)));
-
-            refactoringChanges()->apply();
+            currentFile->change(changes);
+            currentFile->indent(range(startPosition(_objectInitializer->lbraceToken),
+                                      startPosition(_objectInitializer->rbraceToken)));
         }
     };
 };

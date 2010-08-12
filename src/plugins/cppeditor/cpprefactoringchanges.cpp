@@ -63,13 +63,6 @@ const LookupContext &CppRefactoringChanges::context() const
     return m_context;
 }
 
-QStringList CppRefactoringChanges::apply()
-{
-    const QStringList changedFiles = TextEditor::RefactoringChanges::apply();
-    m_modelManager->updateSourceFiles(changedFiles);
-    return changedFiles;
-}
-
 Document::Ptr CppRefactoringChanges::document(const QString &fileName) const
 {
     QString source;
@@ -119,4 +112,9 @@ void CppRefactoringChanges::indentSelection(const QTextCursor &selection) const
         codeFormatter.updateLineStateChange(block);
         block = block.next();
     } while (block.isValid() && block != end);
+}
+
+void CppRefactoringChanges::fileChanged(const QString &fileName)
+{
+    m_modelManager->updateSourceFiles(QStringList(fileName));
 }

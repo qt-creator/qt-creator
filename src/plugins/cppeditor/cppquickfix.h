@@ -107,10 +107,12 @@ public:
     CppQuickFixOperation(const CppQuickFixState &state, int priority = -1);
     virtual ~CppQuickFixOperation();
 
-protected:
-    QString fileName() const;
+    virtual void perform();
 
-    CppRefactoringChanges *refactoringChanges() const;
+protected:
+    virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *refactoring) = 0;
+
+    QString fileName() const;
 
     const CppQuickFixState &state() const;
 
@@ -131,7 +133,6 @@ protected: // Utility functions forwarding to CppQuickFixState
 
 private:
     CppQuickFixState _state;
-    QScopedPointer<CppRefactoringChanges> _refactoringChanges;
 };
 
 class CPPEDITOR_EXPORT CppQuickFixFactory: public TextEditor::QuickFixFactory

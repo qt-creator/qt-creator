@@ -82,16 +82,14 @@ public:
                                             "CppEditor::DeclFromDef").arg(type));
     }
 
-    void perform()
+    void performChanges(TextEditor::RefactoringFile *, CppRefactoringChanges *refactoring)
     {
-        CppRefactoringChanges *changes = refactoringChanges();
-
-        Document::Ptr targetDoc = changes->document(m_targetFileName);
+        Document::Ptr targetDoc = refactoring->document(m_targetFileName);
         InsertionPointLocator locator(targetDoc);
         const InsertionLocation loc = locator.methodDeclarationInClass(m_targetSymbol, m_xsSpec);
         Q_ASSERT(loc.isValid());
 
-        TextEditor::RefactoringFile targetFile = changes->file(m_targetFileName);
+        TextEditor::RefactoringFile targetFile = refactoring->file(m_targetFileName);
         int targetPosition1 = targetFile.position(loc.line(), loc.column());
         int targetPosition2 = qMax(0, targetFile.position(loc.line(), 1) - 1);
 
@@ -100,8 +98,7 @@ public:
         targetFile.change(target);
         targetFile.indent(Utils::ChangeSet::Range(targetPosition2, targetPosition1));
 
-        changes->setActiveEditor(m_targetFileName, targetPosition1);
-        changes->apply();
+        refactoring->activateEditor(m_targetFileName, targetPosition1);
     }
 
 private:

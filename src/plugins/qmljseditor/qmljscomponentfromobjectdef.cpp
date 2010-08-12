@@ -92,7 +92,7 @@ public:
                                                    "Move Component into '%1.qml'").arg(m_componentName));
     }
 
-    virtual void perform()
+    virtual void performChanges(TextEditor::RefactoringFile *currentFile, QmlJSRefactoringChanges *refactoring)
     {
         const QString newFileName = QFileInfo(fileName()).path()
                 + QDir::separator() + m_componentName + QLatin1String(".qml");
@@ -110,14 +110,15 @@ public:
         const QString txt = imports + state().textOf(start, end)
                 + QLatin1String("}\n");
 
+        // stop if we can't create the new file
+        if (!refactoring->createFile(newFileName, txt))
+            return;
+
         Utils::ChangeSet changes;
         changes.replace(start, end, m_componentName + QLatin1String(" {\n"));
-        refactoringChanges()->changeFile(fileName(), changes);
-        refactoringChanges()->reindent(fileName(), range(start, end + 1));
+        currentFile->change(changes);
+        currentFile->indent(range(start, end + 1));
 
-        refactoringChanges()->createFile(newFileName, txt);
-        refactoringChanges()->reindent(newFileName, range(0, txt.length() - 1));
-        refactoringChanges()->apply();
     }
 };
 

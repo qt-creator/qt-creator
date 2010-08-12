@@ -184,11 +184,18 @@ const Token &CppQuickFixState::tokenAt(unsigned index) const
 CppQuickFixOperation::CppQuickFixOperation(const CppQuickFixState &state, int priority)
     : QuickFixOperation(priority)
     , _state(state)
-    , _refactoringChanges(new CppRefactoringChanges(state.document(), state.snapshot()))
 {}
 
 CppQuickFixOperation::~CppQuickFixOperation()
 {}
+
+void CppQuickFixOperation::perform()
+{
+    CppRefactoringChanges refactoring(_state.document(), _state.snapshot());
+    TextEditor::RefactoringFile current = refactoring.file(fileName());
+
+    performChanges(&current, &refactoring);
+}
 
 const CppQuickFixState &CppQuickFixOperation::state() const
 {
@@ -197,9 +204,6 @@ const CppQuickFixState &CppQuickFixOperation::state() const
 
 QString CppQuickFixOperation::fileName() const
 { return state().document()->fileName(); }
-
-CppRefactoringChanges *CppQuickFixOperation::refactoringChanges() const
-{ return _refactoringChanges.data(); }
 
 CppQuickFixFactory::CppQuickFixFactory()
 {

@@ -46,8 +46,6 @@ public:
     CppRefactoringChanges(const CPlusPlus::Document::Ptr &thisDocument,
                           const CPlusPlus::Snapshot &snapshot);
 
-    virtual QStringList apply();
-
     CPlusPlus::Document::Ptr thisDocument() const;
     const CPlusPlus::Snapshot &snapshot() const;
     CPlusPlus::Document::Ptr document(const QString &fileName) const;
@@ -55,6 +53,7 @@ public:
 
 private:
     virtual void indentSelection(const QTextCursor &selection) const;
+    virtual void fileChanged(const QString &fileName);
 
 private:
     CPlusPlus::Document::Ptr m_thisDocument;

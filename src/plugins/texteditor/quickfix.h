@@ -33,7 +33,6 @@
 #include "texteditor_global.h"
 #include "icompletioncollector.h"
 
-#include <texteditor/refactoringchanges.h>
 #include <utils/changeset.h>
 
 #include <QtCore/QSharedPointer>
@@ -88,7 +87,7 @@ public:
     QString textOf(int start, int end) const;
 
     /// Utility method to create a range.
-    static TextEditor::RefactoringChanges::Range range(int start, int end);
+    static Utils::ChangeSet::Range range(int start, int end);
 
 private:
     TextEditor::BaseTextEditor *_editor;
@@ -136,13 +135,9 @@ public:
     /*!
         Perform this quick-fix's operation.
 
-        Subclasses should implement this method to do the actual changes by using the
-        RefactoringChanges.
+        Subclasses should implement this method to do the actual changes.
      */
     virtual void perform() = 0;
-
-protected:
-    virtual TextEditor::RefactoringChanges *refactoringChanges() const = 0;
 
 private:
     TextEditor::BaseTextEditor *_editor;

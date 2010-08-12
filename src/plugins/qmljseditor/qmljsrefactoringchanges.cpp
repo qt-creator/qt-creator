@@ -34,7 +34,6 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/tabsettings.h>
 
-
 using namespace QmlJS;
 using namespace QmlJSEditor;
 
@@ -44,13 +43,6 @@ QmlJSRefactoringChanges::QmlJSRefactoringChanges(ModelManagerInterface *modelMan
     , m_snapshot(snapshot)
 {
     Q_ASSERT(modelManager);
-}
-
-QStringList QmlJSRefactoringChanges::apply()
-{
-    const QStringList changedFiles = TextEditor::RefactoringChanges::apply();
-    m_modelManager->updateSourceFiles(changedFiles, true);
-    return changedFiles;
 }
 
 void QmlJSRefactoringChanges::indentSelection(const QTextCursor &selection) const
@@ -70,4 +62,9 @@ void QmlJSRefactoringChanges::indentSelection(const QTextCursor &selection) cons
         codeFormatter.updateLineStateChange(block);
         block = block.next();
     } while (block.isValid() && block != end);
+}
+
+void QmlJSRefactoringChanges::fileChanged(const QString &fileName)
+{
+    m_modelManager->updateSourceFiles(QStringList(fileName), true);
 }

@@ -75,13 +75,20 @@ unsigned QmlJSQuickFixState::startPosition(const QmlJS::AST::SourceLocation &loc
 QmlJSQuickFixOperation::QmlJSQuickFixOperation(const QmlJSQuickFixState &state, int priority)
     : QuickFixOperation(priority)
     , _state(state)
-    , _refactoringChanges(new QmlJSRefactoringChanges(ExtensionSystem::PluginManager::instance()->getObject<QmlJS::ModelManagerInterface>(),
-                                                      state.snapshot()))
 {
 }
 
 QmlJSQuickFixOperation::~QmlJSQuickFixOperation()
 {
+}
+
+void QmlJSQuickFixOperation::perform()
+{
+    QmlJSRefactoringChanges refactoring(ExtensionSystem::PluginManager::instance()->getObject<QmlJS::ModelManagerInterface>(),
+                                    _state.snapshot());
+    TextEditor::RefactoringFile current = refactoring.file(fileName());
+
+    performChanges(&current, &refactoring);
 }
 
 const QmlJSQuickFixState &QmlJSQuickFixOperation::state() const
@@ -92,11 +99,6 @@ const QmlJSQuickFixState &QmlJSQuickFixOperation::state() const
 QString QmlJSQuickFixOperation::fileName() const
 {
     return state().document()->fileName();
-}
-
-QmlJSRefactoringChanges *QmlJSQuickFixOperation::refactoringChanges() const
-{
-    return _refactoringChanges.data();
 }
 
 QmlJSQuickFixFactory::QmlJSQuickFixFactory()

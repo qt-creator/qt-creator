@@ -105,15 +105,16 @@ public:
     QmlJSQuickFixOperation(const QmlJSQuickFixState &state, int priority = -1);
     virtual ~QmlJSQuickFixOperation();
 
+    virtual void perform();
+
 protected:
+    virtual void performChanges(TextEditor::RefactoringFile *currentFile, QmlJSRefactoringChanges *refactoring) = 0;
+
     /// \returns A const-reference to the state of the operation.
     const QmlJSQuickFixState &state() const;
 
     /// \returns The name of the file for for which this operation is invoked.
     QString fileName() const;
-
-    /// \returns The refactoring changes associated with this quick-fix operation.
-    QmlJSRefactoringChanges *refactoringChanges() const;
 
 protected: // Utility functions forwarding to QmlJSQuickFixState
     /// \see QmlJSQuickFixState#startPosition
@@ -126,7 +127,6 @@ protected: // Utility functions forwarding to QmlJSQuickFixState
 
 private:
     QmlJSQuickFixState _state;
-    QScopedPointer<QmlJSRefactoringChanges> _refactoringChanges;
 };
 
 class QmlJSQuickFixFactory: public TextEditor::QuickFixFactory

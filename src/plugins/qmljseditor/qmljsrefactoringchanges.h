@@ -46,10 +46,9 @@ public:
     QmlJSRefactoringChanges(QmlJS::ModelManagerInterface *modelManager,
                             const QmlJS::Snapshot &snapshot);
 
-    virtual QStringList apply();
-
 private:
     virtual void indentSelection(const QTextCursor &selection) const;
+    virtual void fileChanged(const QString &fileName);
 
 private:
     QmlJS::ModelManagerInterface *m_modelManager;

@@ -45,99 +45,6 @@ RefactoringChanges::RefactoringChanges()
 RefactoringChanges::~RefactoringChanges()
 {}
 
-QStringList RefactoringChanges::apply()
-{
-    QSet<QString> changed;
-
-    { // open editors
-        QHashIterator<QString, int> it(m_cursorByFile);
-        while (it.hasNext()) {
-            it.next();
-            const QString &fileName = it.key();
-            int pos = it.value();
-
-            BaseTextEditor *editor = editorForFile(fileName, true);
-            if (pos != -1) {
-                QTextCursor cursor = editor->textCursor();
-                cursor.setPosition(pos);
-                editor->setTextCursor(cursor);
-            }
-
-            if (m_fileNameToShow == fileName) {
-                Core::EditorManager *editorManager = Core::EditorManager::instance();
-                editorManager->activateEditor(editor->editableInterface());
-            }
-        }
-    }
-
-    { // change and indent files
-        QHashIterator<QString, Utils::ChangeSet> it(m_changesByFile);
-        while (it.hasNext()) {
-            it.next();
-            const QString &fileName = it.key();
-            Utils::ChangeSet changes = it.value();
-
-            QTextDocument *document;
-            QScopedPointer<QFile> file;
-            QTextCursor cursor;
-            {
-                if (BaseTextEditor *editor = editorForFile(fileName, false)) {
-                    document = editor->document();
-                    cursor = editor->textCursor();
-                } else {
-                    file.reset(new QFile(fileName));
-                    if (!file->open(QIODevice::ReadWrite)) {
-                        qWarning() << "RefactoringChanges could not open" << fileName << "for read/write, skipping";
-                        continue;
-                    }
-                    document = new QTextDocument(file->readAll());
-                    cursor = QTextCursor(document);
-                }
-            }
-
-            {
-                cursor.beginEditBlock();
-
-                // build indent selections now, applying the changeset will change locations
-                const QList<QTextCursor> &indentSelections = rangesToSelections(
-                        document, m_indentRangesByFile.values(fileName));
-
-                // apply changes and reindent
-                changes.apply(&cursor);
-
-                // newly created files must be indented specially - there's no way to select everything in an empty file
-                if (m_filesToCreate.contains(fileName) && m_indentRangesByFile.contains(fileName)) {
-                    QTextCursor completeSelection(cursor);
-                    completeSelection.select(QTextCursor::Document);
-                    indentSelection(completeSelection);
-                } else {
-                    foreach (const QTextCursor &selection, indentSelections)
-                        indentSelection(selection);
-                }
-
-                cursor.endEditBlock();
-            }
-
-            // if this document came from a file, write the result to it
-            if (file) {
-                const QByteArray &newContents = document->toPlainText().toUtf8();
-                file->resize(newContents.size());
-                file->seek(0);
-                file->write(newContents);
-                delete document;
-            }
-
-            changed.insert(fileName);
-        }
-    }
-
-    { // Delete files
-        // ###
-    }
-
-    return changed.toList();
-}
-
 BaseTextEditor *RefactoringChanges::editorForFile(const QString &fileName,
                                                   bool openIfClosed)
 {
@@ -185,19 +92,37 @@ bool RefactoringChanges::createFile(const QString &fileName, const QString &cont
 {
     if (QFile::exists(fileName))
         return false;
-    if (m_changesByFile.contains(fileName))
-        return false;
 
-    m_filesToCreate.insert(fileName);
+    BaseTextEditor *editor = editorForFile(fileName, openEditor);
 
-    Utils::ChangeSet changes;
-    changes.insert(0, contents);
-    m_changesByFile.insert(fileName, changes);
+    QTextDocument *document;
+    if (editor)
+        document = editor->document();
+    else
+        document = new QTextDocument;
 
-    if (reindent)
-        m_indentRangesByFile.insert(fileName, Range(0, 0));
-    if (openEditor)
-        m_cursorByFile.insert(fileName, -1);
+    {
+        QTextCursor cursor(document);
+        cursor.beginEditBlock();
+
+        cursor.insertText(contents);
+
+        if (reindent) {
+            cursor.select(QTextCursor::Document);
+            indentSelection(cursor);
+        }
+
+        cursor.endEditBlock();
+    }
+
+    if (!editor) {
+        QFile file(fileName);
+        file.open(QFile::WriteOnly);
+        file.write(document->toPlainText().toUtf8());
+        delete document;
+    }
+
+    fileChanged(fileName);
 
     return true;
 }
@@ -219,34 +144,25 @@ RefactoringFile RefactoringChanges::file(const QString &fileName)
         return RefactoringFile();
 }
 
-void RefactoringChanges::openEditor(const QString &fileName, int pos)
+BaseTextEditor *RefactoringChanges::openEditor(const QString &fileName, int pos)
 {
-    m_cursorByFile.insert(fileName, pos);
+    BaseTextEditor *editor = editorForFile(fileName, true);
+    if (pos != -1) {
+        QTextCursor cursor = editor->textCursor();
+        cursor.setPosition(pos);
+        editor->setTextCursor(cursor);
+    }
+    return editor;
 }
 
-void RefactoringChanges::setActiveEditor(const QString &fileName, int pos)
+BaseTextEditor *RefactoringChanges::activateEditor(const QString &fileName, int pos)
 {
-    m_cursorByFile.insert(fileName, pos);
-    m_fileNameToShow = fileName;
-}
+    BaseTextEditor *editor = openEditor(fileName, pos);
 
-void RefactoringChanges::changeFile(const QString &fileName, const Utils::ChangeSet &changes, bool openEditor)
-{
-    m_changesByFile.insert(fileName, changes);
+    Core::EditorManager *editorManager = Core::EditorManager::instance();
+    editorManager->activateEditor(editor->editableInterface());
 
-    if (openEditor)
-        m_cursorByFile.insert(fileName, -1);
-}
-
-void RefactoringChanges::reindent(const QString &fileName, const Range &range, bool openEditor)
-{
-    m_indentRangesByFile.insert(fileName, range);
-
-    // simplify apply by never having files indented that are not also changed
-    if (!m_changesByFile.contains(fileName))
-        m_changesByFile.insert(fileName, Utils::ChangeSet());
-    if (openEditor)
-        m_cursorByFile.insert(fileName, -1);
+    return editor;
 }
 
 
@@ -254,6 +170,7 @@ RefactoringFile::RefactoringFile()
     : m_refactoringChanges(0)
     , m_document(0)
     , m_editor(0)
+    , m_openEditor(false)
 { }
 
 RefactoringFile::RefactoringFile(const QString &fileName, RefactoringChanges *refactoringChanges)
@@ -261,6 +178,7 @@ RefactoringFile::RefactoringFile(const QString &fileName, RefactoringChanges *re
     , m_refactoringChanges(refactoringChanges)
     , m_document(0)
     , m_editor(0)
+    , m_openEditor(false)
 {
     m_editor = RefactoringChanges::editorForFile(fileName, false);
 }
@@ -271,12 +189,48 @@ RefactoringFile::RefactoringFile(const RefactoringFile &other)
     , m_document(0)
     , m_editor(other.m_editor)
 {
-    if (other.m_document)
-        m_document = new QTextDocument(other.m_document);
+    Q_ASSERT_X(!other.m_document && other.m_changes.isEmpty() && other.m_indentRanges.isEmpty(),
+               "RefactoringFile", "A refactoring file with changes is not copyable");
 }
 
 RefactoringFile::~RefactoringFile()
 {
+    if (m_openEditor)
+        m_editor = m_refactoringChanges->openEditor(m_fileName, -1);
+
+    // apply changes, if any
+    if (!m_indentRanges.isEmpty() || !m_changes.isEmpty()) {
+        QTextDocument *doc = mutableDocument();
+        {
+            QTextCursor c = cursor();
+            c.beginEditBlock();
+
+            // build indent selections now, applying the changeset will change locations
+            const QList<QTextCursor> &indentSelections =
+                    RefactoringChanges::rangesToSelections(
+                            doc, m_indentRanges);
+
+            // apply changes and reindent
+            m_changes.apply(&c);
+            foreach (const QTextCursor &selection, indentSelections) {
+                m_refactoringChanges->indentSelection(selection);
+            }
+
+            c.endEditBlock();
+        }
+
+        // if this document doesn't have an editor, write the result to a file
+        if (!m_editor) {
+            const QByteArray &newContents = doc->toPlainText().toUtf8();
+            QFile file(m_fileName);
+            file.open(QFile::WriteOnly);
+            //file->resize(newContents.size()); // ### necessary?
+            file.write(newContents);
+        }
+
+        m_refactoringChanges->fileChanged(m_fileName);
+    }
+
     delete m_document;
 }
 
@@ -287,15 +241,14 @@ bool RefactoringFile::isValid() const
 
 const QTextDocument *RefactoringFile::document() const
 {
-    if (m_editor)
-        return m_editor->document();
-
     return mutableDocument();
 }
 
 QTextDocument *RefactoringFile::mutableDocument() const
 {
-    if (!m_document && !m_fileName.isEmpty()) {
+    if (m_editor)
+        return m_editor->document();
+    else if (!m_document && !m_fileName.isEmpty()) {
         QString fileContents;
         {
             QFile file(m_fileName);
@@ -350,13 +303,11 @@ bool RefactoringFile::change(const Utils::ChangeSet &changeSet, bool openEditor)
 {
     if (m_fileName.isEmpty())
         return false;
-    if (!m_refactoringChanges->m_changesByFile.value(m_fileName).isEmpty())
+    if (!m_changes.isEmpty())
         return false;
 
-    m_refactoringChanges->m_changesByFile.insert(m_fileName, changeSet);
-
-    if (openEditor)
-        m_refactoringChanges->m_cursorByFile.insert(m_fileName, -1);
+    m_changes = changeSet;
+    m_openEditor = openEditor;
 
     return true;
 }
@@ -366,14 +317,10 @@ bool RefactoringFile::indent(const Range &range, bool openEditor)
     if (m_fileName.isEmpty())
         return false;
 
-    m_refactoringChanges->m_indentRangesByFile.insert(m_fileName, range);
-
-    // simplify apply by never having files indented that are not also changed
-    if (!m_refactoringChanges->m_changesByFile.contains(m_fileName))
-        m_refactoringChanges->m_changesByFile.insert(m_fileName, Utils::ChangeSet());
+    m_indentRanges.append(range);
 
     if (openEditor)
-        m_refactoringChanges->m_cursorByFile.insert(m_fileName, -1);
+        m_openEditor = true;
 
     return true;
 }

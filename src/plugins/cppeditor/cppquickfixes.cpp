@@ -148,7 +148,7 @@ private:
             return QApplication::translate("CppTools::QuickFix", "Rewrite Using %1").arg(replacement);
         }
 
-        virtual void perform()
+        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
         {
             ChangeSet changes;
             if (negation) {
@@ -161,8 +161,7 @@ private:
                 changes.insert(state().endOf(binary), ")");
             }
             changes.replace(range(binary->binary_op_token), replacement);
-            refactoringChanges()->changeFile(fileName(), changes);
-            refactoringChanges()->apply();
+            currentFile->change(changes);
         }
     };
 };
@@ -244,7 +243,7 @@ private:
                 return QApplication::translate("CppTools::QuickFix", "Rewrite Using %1").arg(replacement);
         }
 
-        virtual void perform()
+        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
         {
             ChangeSet changes;
 
@@ -252,8 +251,7 @@ private:
             if (! replacement.isEmpty())
                 changes.replace(range(binary->binary_op_token), replacement);
 
-            refactoringChanges()->changeFile(fileName(), changes);
-            refactoringChanges()->apply();
+            currentFile->change(changes);
         }
 
     private:
@@ -323,7 +321,7 @@ private:
             pattern = mk->BinaryExpression(left, right);
         }
 
-        virtual void perform()
+        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
         {
             ChangeSet changes;
             changes.replace(range(pattern->binary_op_token), QLatin1String("||"));
@@ -334,9 +332,8 @@ private:
             changes.insert(start, QLatin1String("!("));
             changes.insert(end, QLatin1String(")"));
 
-            refactoringChanges()->changeFile(fileName(), changes);
-            refactoringChanges()->reindent(fileName(), range(pattern));
-            refactoringChanges()->apply();
+            currentFile->change(changes);
+            currentFile->indent(range(pattern));
         }
     };
 
@@ -425,7 +422,7 @@ private:
                                                    "Split Declaration"));
         }
 
-        virtual void perform()
+        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
         {
             ChangeSet changes;
 
@@ -451,9 +448,8 @@ private:
                 prevDeclarator = declarator;
             }
 
-            refactoringChanges()->changeFile(fileName(), changes);
-            refactoringChanges()->reindent(fileName(), range(declaration));
-            refactoringChanges()->apply();
+            currentFile->change(changes);
+            currentFile->indent(range(declaration));
         }
 
     private:
@@ -509,7 +505,7 @@ private:
                                                    "Add Curly Braces"));
         }
 
-        virtual void perform()
+        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
         {
             ChangeSet changes;
 
@@ -519,9 +515,8 @@ private:
             const int end = endOf(_statement->lastToken() - 1);
             changes.insert(end, "\n}");
 
-            refactoringChanges()->changeFile(fileName(), changes);
-            refactoringChanges()->reindent(fileName(), range(start, end));
-            refactoringChanges()->apply();
+            currentFile->change(changes);
+            currentFile->indent(range(start, end));
         }
 
     private:
@@ -581,7 +576,7 @@ private:
             pattern = mk.IfStatement(condition);
         }
 
-        virtual void perform()
+        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
         {
             ChangeSet changes;
 
@@ -591,9 +586,8 @@ private:
             changes.move(range(condition), insertPos);
             changes.insert(insertPos, QLatin1String(";\n"));
 
-            refactoringChanges()->changeFile(fileName(), changes);
-            refactoringChanges()->reindent(fileName(), range(pattern));
-            refactoringChanges()->apply();
+            currentFile->change(changes);
+            currentFile->indent(range(pattern));
         }
 
         ASTMatcher matcher;
@@ -664,7 +658,7 @@ private:
             pattern = mk.WhileStatement(condition);
         }
 
-        virtual void perform()
+        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
         {
             ChangeSet changes;
 
@@ -677,9 +671,8 @@ private:
             changes.copy(range(core), insertPos);
             changes.insert(insertPos, QLatin1String(";\n"));
 
-            refactoringChanges()->changeFile(fileName(), changes);
-            refactoringChanges()->reindent(fileName(), range(pattern));
-            refactoringChanges()->apply();
+            currentFile->change(changes);
+            currentFile->indent(range(pattern));
         }
 
         ASTMatcher matcher;
@@ -774,18 +767,17 @@ private:
                                                    "Split if Statement"));
         }
 
-        virtual void perform()
+        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
         {
             const Token binaryToken = state().tokenAt(condition->binary_op_token);
 
             if (binaryToken.is(T_AMPER_AMPER))
-                splitAndCondition();
+                splitAndCondition(currentFile);
             else
-                splitOrCondition();
-            refactoringChanges()->apply();
+                splitOrCondition(currentFile);
         }
 
-        void splitAndCondition()
+        void splitAndCondition(TextEditor::RefactoringFile *currentFile)
         {
             ChangeSet changes;
 
@@ -798,11 +790,11 @@ private:
             changes.remove(lExprEnd, startOf(condition->right_expression));
             changes.insert(endOf(pattern), QLatin1String("\n}"));
 
-            refactoringChanges()->changeFile(fileName(), changes);
-            refactoringChanges()->reindent(fileName(), range(pattern));
+            currentFile->change(changes);
+            currentFile->indent(range(pattern));
         }
 
-        void splitOrCondition()
+        void splitOrCondition(TextEditor::RefactoringFile *currentFile)
         {
             ChangeSet changes;
 
@@ -826,8 +818,8 @@ private:
             const int lExprEnd = endOf(condition->left_expression);
             changes.remove(lExprEnd, startOf(condition->right_expression));
 
-            refactoringChanges()->changeFile(fileName(), changes);
-            refactoringChanges()->reindent(fileName(), range(pattern));
+            currentFile->change(changes);
+            currentFile->indent(range(pattern));
         }
 
     private:
@@ -913,7 +905,7 @@ private:
                                                        "Enclose in QLatin1String(...)"));
         }
 
-        virtual void perform()
+        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
         {
             ChangeSet changes;
 
@@ -928,8 +920,7 @@ private:
 
             changes.insert(endOf(literal), ")");
 
-            refactoringChanges()->changeFile(fileName(), changes);
-            refactoringChanges()->apply();
+            currentFile->change(changes);
         }
 
     private:
@@ -1035,7 +1026,7 @@ private:
             setDescription(QApplication::translate("CppTools::QuickFix", "Mark as translateable"));
         }
 
-        virtual void perform()
+        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
         {
             ChangeSet changes;
 
@@ -1052,8 +1043,7 @@ private:
             changes.insert(startPos, replacement);
             changes.insert(endOf(m_literal), QLatin1String(")"));
 
-            refactoringChanges()->changeFile(fileName(), changes);
-            refactoringChanges()->apply();
+            currentFile->change(changes);
         }
 
     private:
@@ -1117,7 +1107,7 @@ private:
                                                    "Convert to Objective-C String Literal"));
         }
 
-        virtual void perform()
+        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
         {
             ChangeSet changes;
 
@@ -1128,8 +1118,7 @@ private:
                 changes.insert(startOf(stringLiteral), "@");
             }
 
-            refactoringChanges()->changeFile(fileName(), changes);
-            refactoringChanges()->apply();
+            currentFile->change(changes);
         }
 
     private:
@@ -1266,12 +1255,11 @@ private:
             , replacement(replacement)
         {}
 
-        virtual void perform()
+        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
         {
             ChangeSet changes;
             changes.replace(start, end, replacement);
-            refactoringChanges()->changeFile(fileName(), changes);
-            refactoringChanges()->apply();
+            currentFile->change(changes);
         }
 
     protected:
@@ -1421,16 +1409,15 @@ private:
         }
 
 
-        virtual void perform()
+        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
         {
             ChangeSet changes;
             int start = endOf(compoundStatement->lbrace_token);
             changes.insert(start, QLatin1String("\ncase ")
                            + values.join(QLatin1String(":\nbreak;\ncase "))
                            + QLatin1String(":\nbreak;"));
-            refactoringChanges()->changeFile(fileName(), changes);
-            refactoringChanges()->reindent(fileName(), range(compoundStatement));
-            refactoringChanges()->apply();
+            currentFile->change(changes);
+            currentFile->indent(range(compoundStatement));
         }
 
         CompoundStatementAST *compoundStatement;
@@ -1498,7 +1485,7 @@ private:
                                                    "#include header file"));
         }
 
-        virtual void perform()
+        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
         {
             Q_ASSERT(fwdClass != 0);
 
@@ -1555,9 +1542,8 @@ private:
 
                 Utils::ChangeSet changes;
                 changes.insert(pos, QString("#include <%1>\n").arg(QFileInfo(best).fileName()));
-                refactoringChanges()->changeFile(fileName(), changes);
+                currentFile->change(changes);
             }
-            refactoringChanges()->apply();
         }
 
     private:
@@ -1613,7 +1599,7 @@ private:
             setDescription(QApplication::translate("CppTools::QuickFix", "Add local declaration"));
         }
 
-        virtual void perform()
+        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
         {
             TypeOfExpression typeOfExpression;
             typeOfExpression.init(state().document(), state().snapshot(), state().context().bindings());
@@ -1642,10 +1628,9 @@ private:
 
                     Utils::ChangeSet changes;
                     changes.insert(startOf(binaryAST), ty);
-                    refactoringChanges()->changeFile(fileName(), changes);
+                    currentFile->change(changes);
                 }
             }
-            refactoringChanges()->apply();
         }
 
     private:
@@ -1702,7 +1687,7 @@ private:
                                                    "Convert to Camel Case ..."));
         }
 
-        virtual void perform()
+        virtual void performChanges(TextEditor::RefactoringFile *, CppRefactoringChanges *)
         {
             for (int i = 1; i < m_name.length(); ++i) {
                 QCharRef c = m_name[i];
@@ -1715,7 +1700,6 @@ private:
                 }
             }
             static_cast<CppEditor::Internal::CPPEditor*>(state().editor())->renameUsagesNow(m_name);
-            refactoringChanges()->apply();
         }
 
         static bool isConvertibleUnderscore(const QString &name, int pos)

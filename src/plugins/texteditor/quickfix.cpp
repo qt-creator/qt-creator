@@ -89,9 +89,9 @@ QString QuickFixState::textOf(int start, int end) const
     return tc.selectedText();
 }
 
-TextEditor::RefactoringChanges::Range QuickFixState::range(int start, int end)
+Utils::ChangeSet::Range QuickFixState::range(int start, int end)
 {
-    return TextEditor::RefactoringChanges::Range(start, end);
+    return Utils::ChangeSet::Range(start, end);
 }
 
 QuickFixOperation::QuickFixOperation(int priority)
@@ -122,6 +122,8 @@ void QuickFixOperation::setDescription(const QString &description)
 {
     _description = description;
 }
+
+
 
 QuickFixFactory::QuickFixFactory(QObject *parent)
     : QObject(parent)

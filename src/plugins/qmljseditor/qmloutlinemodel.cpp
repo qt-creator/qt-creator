@@ -634,11 +634,11 @@ void QmlOutlineModel::reparentNodes(QmlOutlineItem *targetItem, int row, QList<Q
     }
 
     QmlJSRefactoringChanges refactoring(QmlJS::ModelManagerInterface::instance(), m_semanticInfo.snapshot);
-    refactoring.changeFile(m_semanticInfo.document->fileName(), changeSet);
+    TextEditor::RefactoringFile file = refactoring.file(m_semanticInfo.document->fileName());
+    file.change(changeSet);
     foreach (const Utils::ChangeSet::Range &range, changedRanges) {
-        refactoring.reindent(m_semanticInfo.document->fileName(), range);
+        file.indent(range);
     }
-    refactoring.apply();
 }
 
 void QmlOutlineModel::moveObjectMember(AST::UiObjectMember *toMove,

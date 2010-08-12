@@ -50,7 +50,6 @@ public:
 public:
     RefactoringFile();
     RefactoringFile(const QString &fileName, RefactoringChanges *refactoringChanges);
-
     RefactoringFile(const RefactoringFile &other);
     ~RefactoringFile();
 
@@ -71,7 +70,7 @@ public:
 
 private:
     // not assignable
-    const RefactoringFile &operator=(const RefactoringFile &other);
+    //const RefactoringFile &operator=(const RefactoringFile &other);
 
     QTextDocument *mutableDocument() const;
 
@@ -80,6 +79,9 @@ private:
     RefactoringChanges *m_refactoringChanges;
     mutable QTextDocument *m_document;
     BaseTextEditor *m_editor;
+    Utils::ChangeSet m_changes;
+    QList<Range> m_indentRanges;
+    bool m_openEditor;
 };
 
  /*!
@@ -95,28 +97,19 @@ public:
     RefactoringChanges();
     virtual ~RefactoringChanges();
 
-    /*!
-        Applies all changes to open editors or to text files.
-
-        \return The list of changed files, including newly-created ones.
-     */
-    virtual QStringList apply();
-
     bool createFile(const QString &fileName, const QString &contents, bool reindent = true, bool openEditor = true);
     bool removeFile(const QString &fileName);
 
     RefactoringFile file(const QString &fileName);
 
-    void openEditor(const QString &fileName, int pos = -1);
+    BaseTextEditor *openEditor(const QString &fileName, int pos = -1);
 
     /**
      * \param fileName the file to activate the editor for
      * \param pos, 0-based offset to put the cursor on, -1 means don't move
      */
-    void setActiveEditor(const QString &fileName, int pos = -1);
+    BaseTextEditor *activateEditor(const QString &fileName, int pos = -1);
 
-    QT_DEPRECATED void changeFile(const QString &fileName, const Utils::ChangeSet &changes, bool openEditor = true);
-    QT_DEPRECATED void reindent(const QString &fileName, const Range &range, bool openEditor = true);
 
 private:
     static BaseTextEditor *editorForFile(const QString &fileName,
@@ -124,13 +117,7 @@ private:
 
     static QList<QTextCursor> rangesToSelections(QTextDocument *document, const QList<Range> &ranges);
     virtual void indentSelection(const QTextCursor &selection) const = 0;
-
-private:
-    QSet<QString> m_filesToCreate;
-    QHash<QString, int> m_cursorByFile;
-    QHash<QString, Utils::ChangeSet> m_changesByFile;
-    QMultiHash<QString, Range> m_indentRangesByFile;
-    QString m_fileNameToShow;
+    virtual void fileChanged(const QString &fileName) = 0;
 
     friend class RefactoringFile;
 };
