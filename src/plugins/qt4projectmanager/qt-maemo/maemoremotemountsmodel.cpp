@@ -106,7 +106,7 @@ QVariantMap MaemoRemoteMountsModel::toMap() const
     }
     map.insert(ExportedLocalDirsKey, localDirsList);
     map.insert(RemoteMountPointsKey, remoteMountPointsList);
-    map.insert(MountPortsKey, mountPortsList);
+    map.insert(UserDefinedMountPortsKey, mountPortsList);
     return map;
 }
 
@@ -116,7 +116,7 @@ void MaemoRemoteMountsModel::fromMap(const QVariantMap &map)
         = map.value(ExportedLocalDirsKey).toList();
     const QVariantList &remoteMountPointsList
         = map.value(RemoteMountPointsKey).toList();
-    const QVariantList &mountPortsList = map.value(MountPortsKey).toList();
+    const QVariantList &mountPortsList = map.value(UserDefinedMountPortsKey).toList();
     const int count = qMin(qMin(localDirsList.count(),
         remoteMountPointsList.count()), mountPortsList.count());
     for (int i = 0; i < count; ++i) {

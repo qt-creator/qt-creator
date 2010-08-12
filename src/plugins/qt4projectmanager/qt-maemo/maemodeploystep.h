@@ -81,6 +81,10 @@ public:
         const MaemoDeployable &deployable) const;
     void setDeployed(const QString &host, const MaemoDeployable &deployable);
     MaemoDeployables *deployables() const { return m_deployables; }
+#ifdef DEPLOY_VIA_MOUNT
+    int mountPort() const { return m_mountPort; }
+    void setMountPort(int port) { m_mountPort = port; }
+#endif
 
 signals:
     void done();
@@ -146,6 +150,7 @@ private:
     MaemoRemoteMounter *m_mounter;
     QTimer *m_cleanupTimer;
     bool m_canStart;
+    int m_mountPort;
 #else
     QSharedPointer<Core::SftpChannel> m_uploader;
     typedef QPair<MaemoDeployable, QString> DeployInfo;

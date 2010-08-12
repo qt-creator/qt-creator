@@ -60,6 +60,7 @@ using namespace ProjectExplorer;
 
 namespace Qt4ProjectManager {
 namespace Internal {
+namespace { const int DefaultMountPort = 1050; }
 
 const QLatin1String MaemoDeployStep::Id("Qt4ProjectManager.MaemoDeployStep");
 
@@ -130,6 +131,9 @@ BuildStepConfigWidget *MaemoDeployStep::createConfigWidget()
 QVariantMap MaemoDeployStep::toMap() const
 {
     QVariantMap map(BuildStep::toMap());
+#ifdef DEPLOY_VIA_MOUNT
+    map.insert(DeployMountPortKey, m_mountPort);
+#endif
     addDeployTimesToMap(map);
     map.unite(m_deviceConfigModel->toMap());
     return map;
@@ -158,6 +162,9 @@ bool MaemoDeployStep::fromMap(const QVariantMap &map)
 {
     if (!BuildStep::fromMap(map))
         return false;
+#ifdef DEPLOY_VIA_MOUNT
+    m_mountPort = map.value(DeployMountPortKey, DefaultMountPort).toInt();
+#endif
     getDeployTimesFromMap(map);
     m_deviceConfigModel->fromMap(map);
     return true;
@@ -558,17 +565,16 @@ void MaemoDeployStep::handleUnmounted()
         return;
     }
 
-    // TODO: port must come from user setting. (Call it "base port" on windows!)
     if (m_needsInstall || !m_filesToCopy.isEmpty()) {
         if (m_needsInstall) {
             const QString localDir = QFileInfo(packagingStep()->packageFilePath())
                 .absolutePath();
             const MaemoMountSpecification mountSpec(localDir,
-                deployMountPoint(), 11000);
+                deployMountPoint(), m_mountPort);
             m_mounter->addMountSpecification(mountSpec, true);
         } else {
 #ifdef Q_OS_WIN
-            int port = 11000;
+            int port = m_mountPort;
             bool drivesToMount[26];
             for (int i = 0; i < sizeof drivesToMount / drivesToMount[0]; ++i)
                 drivesToMount[i] = false;
@@ -594,7 +600,7 @@ void MaemoDeployStep::handleUnmounted()
             }
 #else
             m_mounter->addMountSpecification(MaemoMountSpecification(QLatin1String("/"),
-                deployMountPoint(), 11000), true);
+                deployMountPoint(), m_mountPort), true);
 #endif
         }
         m_mounter->mount();
