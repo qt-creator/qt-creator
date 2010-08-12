@@ -64,11 +64,24 @@ namespace { bool debug_todo = false; }
 
 Bind::Bind(TranslationUnit *unit)
     : ASTVisitor(unit),
+      _currentScope(0),
       _currentExpression(0),
       _currentName(0)
 {
     if (unit->ast())
         translationUnit(unit->ast()->asTranslationUnit());
+}
+
+Scope *Bind::currentScope() const
+{
+    return _currentScope;
+}
+
+Scope *Bind::switchScope(Scope *scope)
+{
+    Scope *previousScope = _currentScope;
+    _currentScope = scope;
+    return previousScope;
 }
 
 void Bind::statement(StatementAST *ast)

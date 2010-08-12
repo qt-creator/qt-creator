@@ -72,6 +72,9 @@ public:
     FullySpecifiedType coreDeclarator(CoreDeclaratorAST *ast, const FullySpecifiedType &init);
     FullySpecifiedType postfixDeclarator(PostfixDeclaratorAST *ast, const FullySpecifiedType &init);
 
+    Scope *currentScope() const;
+    Scope *switchScope(Scope *scope);
+
 protected:
     using ASTVisitor::translationUnit;
 
@@ -266,6 +269,7 @@ protected:
     virtual bool visit(ArrayDeclaratorAST *ast);
 
 private:
+    Scope *_currentScope;
     ExpressionTy _currentExpression;
     const Name *_currentName;
     FullySpecifiedType _currentType;
