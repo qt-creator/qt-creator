@@ -209,10 +209,14 @@ bool FindUsages::checkCandidates(const QList<LookupItem> &candidates) const
         const LookupItem &r = candidates.at(i);
 
         if (Symbol *s = r.declaration()) {
+            if (_declSymbol->isTypenameArgument()) {
+                if (s != _declSymbol)
+                    return false;
+            }
+
             if (_declSymbol->scope() && (_declSymbol->scope()->isFunction() || _declSymbol->scope()->isBlock())) {
                 if (s->scope() != _declSymbol->scope())
                     return false;
-
             }
 
             if (compareFullyQualifiedName(LookupContext::fullyQualifiedName(s), _declSymbolFullyQualifiedName))
