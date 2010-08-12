@@ -57,6 +57,8 @@ public:
     MaemoDeviceConfig(const QSettings &settings, quint64 &nextId);
     void save(QSettings &settings) const;
     bool isValid() const;
+    QList<int> freePorts() const;
+    static QString portsRegExpr();
 
     static const quint64 InvalidId = 0;
 
@@ -64,6 +66,7 @@ public:
     QString name;
     DeviceType type;
     int debuggingPort;
+    QString portsSpec;
     quint64 internalId;
 
 private:

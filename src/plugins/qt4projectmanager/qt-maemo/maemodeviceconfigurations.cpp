@@ -91,6 +91,88 @@ private:
     const quint64 m_id;
 };
 
+class PortsSpecParser
+{
+    struct ParseException {
+        ParseException(const char *error) : error(error) {}
+        const char * const error;
+    };
+
+public:
+    PortsSpecParser(const QString &portsSpec)
+        : m_pos(0), m_portsSpec(portsSpec) { }
+
+    /*
+     * Grammar: Spec -> [ ElemList ]
+     *          ElemList -> Elem [ ',' ElemList ]
+     *          Elem -> Port [ '-' Port ]
+     */
+    QList<int> parse()
+    {
+        try {
+            if (!atEnd())
+                parseElemList();
+        } catch (ParseException &e) {
+            qWarning("Malformed ports specification: %s", e.error);
+        }
+        return m_ports;
+    }
+
+private:
+    void parseElemList()
+    {
+        if (atEnd())
+            throw ParseException("Element list empty.");
+        parseElem();
+        if (atEnd())
+            return;
+        if (nextChar() != ',') {
+            throw ParseException("Element followed by something else "
+                "than a comma.");
+        }
+        ++m_pos;
+        parseElemList();
+    }
+
+    void parseElem()
+    {
+        const int startPort = parsePort();
+        if (atEnd() || nextChar() != '-') {
+            m_ports << startPort;
+            return;
+        }
+        ++m_pos;
+        const int endPort = parsePort();
+        if (endPort < startPort)
+            throw ParseException("Invalid range (end < start).");
+        for (int port = startPort; port <= endPort; ++port)
+            m_ports << port;
+    }
+
+    int parsePort()
+    {
+        if (atEnd())
+            throw ParseException("Empty port string.");
+        int port = 0;
+        char next = nextChar();
+        while (!atEnd() && std::isdigit(next)) {
+            port = 10*port + next - '0';
+            ++m_pos;
+            next = nextChar();
+        }
+        if (port == 0 || port >= 2 << 16)
+            throw ParseException("Invalid port value.");
+        return port;
+    }
+
+    bool atEnd() const { return m_pos == m_portsSpec.length(); }
+    char nextChar() const { return m_portsSpec.at(m_pos).toAscii(); }
+
+    QList<int> m_ports;
+    int m_pos;
+    const QString &m_portsSpec;
+};
+
 MaemoDeviceConfig::MaemoDeviceConfig(const QString &name, MaemoDeviceConfig::DeviceType devType)
     : name(name),
       type(devType),
@@ -131,6 +213,13 @@ MaemoDeviceConfig::MaemoDeviceConfig()
 {
 }
 
+QString MaemoDeviceConfig::portsRegExpr()
+{
+    const QLatin1String portExpr("(\\d)+");
+    const QString listElemExpr = QString::fromLatin1("%1(-%1)?").arg(portExpr);
+    return QString::fromLatin1("((%1)(,%1)*)?").arg(listElemExpr);
+}
+
 int MaemoDeviceConfig::defaultSshPort(DeviceType type) const
 {
     return type == Physical ? DefaultSshPortHW : DefaultSshPortSim;
@@ -149,6 +238,11 @@ QString MaemoDeviceConfig::defaultHost(DeviceType type) const
 bool MaemoDeviceConfig::isValid() const
 {
     return internalId != InvalidId;
+}
+
+QList<int> MaemoDeviceConfig::freePorts() const
+{
+    return PortsSpecParser(portsSpec).parse();
 }
 
 void MaemoDeviceConfig::save(QSettings &settings) const
