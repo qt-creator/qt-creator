@@ -88,7 +88,7 @@ private:
                                                    "Split initializer"));
         }
 
-        virtual void createChanges()
+        virtual void perform()
         {
             Q_ASSERT(_objectInitializer != 0);
 
@@ -112,6 +112,7 @@ private:
             file.indent(range(startPosition(_objectInitializer->lbraceToken),
                               startPosition(_objectInitializer->rbraceToken)));
 
+            refactoringChanges()->apply();
         }
     };
 };

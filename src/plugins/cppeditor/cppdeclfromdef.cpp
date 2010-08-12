@@ -82,7 +82,7 @@ public:
                                             "CppEditor::DeclFromDef").arg(type));
     }
 
-    void createChanges()
+    void perform()
     {
         CppRefactoringChanges *changes = refactoringChanges();
 
@@ -101,6 +101,7 @@ public:
         targetFile.indent(Utils::ChangeSet::Range(targetPosition2, targetPosition1));
 
         changes->setActiveEditor(m_targetFileName, targetPosition1);
+        changes->apply();
     }
 
 private:

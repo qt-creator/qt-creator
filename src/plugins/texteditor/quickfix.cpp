@@ -123,12 +123,6 @@ void QuickFixOperation::setDescription(const QString &description)
     _description = description;
 }
 
-void QuickFixOperation::perform()
-{
-    createChanges();
-    refactoringChanges()->apply();
-}
-
 QuickFixFactory::QuickFixFactory(QObject *parent)
     : QObject(parent)
 {

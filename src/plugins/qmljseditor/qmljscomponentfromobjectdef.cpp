@@ -92,7 +92,7 @@ public:
                                                    "Move Component into '%1.qml'").arg(m_componentName));
     }
 
-    virtual void createChanges()
+    virtual void perform()
     {
         const QString newFileName = QFileInfo(fileName()).path()
                 + QDir::separator() + m_componentName + QLatin1String(".qml");
@@ -117,6 +117,7 @@ public:
 
         refactoringChanges()->createFile(newFileName, txt);
         refactoringChanges()->reindent(newFileName, range(0, txt.length() - 1));
+        refactoringChanges()->apply();
     }
 };
 

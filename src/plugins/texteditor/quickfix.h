@@ -136,15 +136,10 @@ public:
     /*!
         Perform this quick-fix's operation.
 
-        This implementation will call perform and then RefactoringChanges::apply() .
-     */
-    virtual void perform();
-
-    /*!
         Subclasses should implement this method to do the actual changes by using the
         RefactoringChanges.
      */
-    virtual void createChanges() = 0;
+    virtual void perform() = 0;
 
 protected:
     virtual TextEditor::RefactoringChanges *refactoringChanges() const = 0;
