@@ -76,7 +76,6 @@ private slots:
     void handleUploaderInitialized();
     void handleUploaderInitializationFailed(const QString &reason);
     void handleUploadFinished(Core::SftpJobId jobId, const QString &error);
-    void handleUtfsClientsStarted();
     void handleUtfsClientsFinished(int exitStatus);
     void handleUnmountProcessFinished(int exitStatus);
     void handleUtfsClientStderr(const QByteArray &output);

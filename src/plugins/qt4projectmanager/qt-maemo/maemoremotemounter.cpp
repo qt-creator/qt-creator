@@ -229,7 +229,7 @@ void MaemoRemoteMounter::startUtfsClients()
         const QString chmod = QString::fromLocal8Bit("%1 chmod a+r+w+x %2")
             .arg(MaemoGlobal::remoteSudo(), mountSpec.remoteMountPoint);
         QString utfsClient
-            = QString::fromLocal8Bit("%1 -l %2 -r %2 -b %2 %4")
+            = QString::fromLocal8Bit("%1 --detach -l %2 -r %2 -b %2 %4")
                   .arg(utfsClientOnDevice()).arg(mountSpec.remotePort)
                   .arg(mountSpec.remoteMountPoint);
         if (m_mountSpecs.at(i).mountAsRoot)
@@ -240,8 +240,6 @@ void MaemoRemoteMounter::startUtfsClients()
     emit reportProgress(tr("Starting remote UTFS clients..."));
     m_utfsClientStderr.clear();
     m_mountProcess = m_connection->createRemoteProcess(remoteCall.toUtf8());
-    connect(m_mountProcess.data(), SIGNAL(started()), this,
-        SLOT(handleUtfsClientsStarted()));
     connect(m_mountProcess.data(), SIGNAL(closed(int)), this,
         SLOT(handleUtfsClientsFinished(int)));
     connect(m_mountProcess.data(), SIGNAL(errorOutputAvailable(QByteArray)),
@@ -249,36 +247,17 @@ void MaemoRemoteMounter::startUtfsClients()
     m_mountProcess->start();
 }
 
-void MaemoRemoteMounter::handleUtfsClientsStarted()
-{
-    if (!m_stop)
-        startUtfsServers();
-}
-
 void MaemoRemoteMounter::handleUtfsClientsFinished(int exitStatus)
 {
     if (m_stop)
         return;
 
-    QString errMsg;
-    switch (exitStatus) {
-    case SshRemoteProcess::FailedToStart:
-        errMsg = tr("Could not execute mount request.");
-        break;
-    case SshRemoteProcess::KilledBySignal:
-        errMsg = tr("Failure running UTFS client: %1")
+    if (exitStatus == SshRemoteProcess::ExitedNormally
+            && m_mountProcess->exitCode() == 0) {
+        startUtfsServers();
+    } else {
+        QString errMsg = tr("Failure running UTFS client: %1")
             .arg(m_mountProcess->errorString());
-        break;
-    case SshRemoteProcess::ExitedNormally:
-        if (m_mountProcess->exitCode() != 0)
-            errMsg = tr("Could not execute mount request.");
-        break;
-    default:
-        Q_ASSERT_X(false, Q_FUNC_INFO,
-            "Impossible SshRemoteProcess exit status.");
-    }
-
-    if (!errMsg.isEmpty()) {
         if (!m_utfsClientStderr.isEmpty())
             errMsg += tr("\nstderr was: '%1'")
                .arg(QString::fromUtf8(m_utfsClientStderr));
