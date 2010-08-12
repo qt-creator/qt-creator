@@ -139,14 +139,14 @@ private:
     {
         const int startPort = parsePort();
         if (atEnd() || nextChar() != '-') {
-            m_portList.addRange(MaemoPortList::Range(startPort, startPort));
+            m_portList.addPort(startPort);            
             return;
         }
         ++m_pos;
         const int endPort = parsePort();
         if (endPort < startPort)
             throw ParseException("Invalid range (end < start).");
-        m_portList.addRange(MaemoPortList::Range(startPort, endPort));
+        m_portList.addRange(startPort, endPort);
     }
 
     int parsePort()

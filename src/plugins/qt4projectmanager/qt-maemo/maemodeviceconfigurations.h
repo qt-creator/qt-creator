@@ -51,9 +51,12 @@ namespace Internal {
 
 class MaemoPortList
 {
-public:
     typedef QPair<int, int> Range;
-    void addRange(const Range &range) { m_ranges << range; }
+public:
+    void addPort(int port) { addRange(port, port); }
+    void addRange(int startPort, int endPort) {
+        m_ranges << Range(startPort, endPort);
+    }
     bool hasMore() const { return !m_ranges.isEmpty(); }
     int count() const {
         int n = 0;
