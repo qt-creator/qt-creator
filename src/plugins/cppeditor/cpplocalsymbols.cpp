@@ -253,9 +253,9 @@ private:
 
 LocalSymbols::LocalSymbols(CPlusPlus::Document::Ptr doc, CPlusPlus::DeclarationAST *ast)
 {
-    FindLocalSymbols FindLocalSymbols(doc);
-    FindLocalSymbols(ast);
-    hasD = FindLocalSymbols.hasD;
-    hasQ = FindLocalSymbols.hasQ;
-    uses = FindLocalSymbols.localUses;
+    FindLocalSymbols findLocalSymbols(doc);
+    findLocalSymbols(ast);
+    hasD = findLocalSymbols.hasD;
+    hasQ = findLocalSymbols.hasQ;
+    uses = findLocalSymbols.localUses;
 }
