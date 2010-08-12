@@ -2014,32 +2014,46 @@ bool Bind::visit(EnumSpecifierAST *ast)
 // PtrOperatorAST
 bool Bind::visit(PointerToMemberAST *ast)
 {
-    // unsigned global_scope_token = ast->global_scope_token;
+    const Name *memberName = 0;
+
     for (NestedNameSpecifierListAST *it = ast->nested_name_specifier_list; it; it = it->next) {
-        /*const Name *nested_name_specifier = */ this->nestedNameSpecifier(it->value);
+        const Name *class_or_namespace_name = this->nestedNameSpecifier(it->value);
+        if (memberName || ast->global_scope_token)
+            memberName = control()->qualifiedNameId(memberName, class_or_namespace_name);
+        else
+            memberName = class_or_namespace_name;
     }
-    FullySpecifiedType type;
-    // unsigned star_token = ast->star_token;
+
+    FullySpecifiedType type(control()->pointerToMemberType(memberName, _type));
     for (SpecifierListAST *it = ast->cv_qualifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
+    _type = type;
     return false;
 }
 
 bool Bind::visit(PointerAST *ast)
 {
-    // unsigned star_token = ast->star_token;
-    FullySpecifiedType type;
+    if (_type->isReferenceType())
+        translationUnit()->error(ast->firstToken(), "cannot declare pointer to a reference");
+
+    FullySpecifiedType type(control()->pointerType(_type));
     for (SpecifierListAST *it = ast->cv_qualifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
+    _type = type;
     return false;
 }
 
 bool Bind::visit(ReferenceAST *ast)
 {
-    (void) ast;
-    // unsigned reference_token = ast->reference_token;
+    const bool rvalueRef = (tokenKind(ast->reference_token) == T_AMPER_AMPER);
+
+    if (_type->isReferenceType())
+        translationUnit()->error(ast->firstToken(), "cannot declare reference to a reference");
+
+    FullySpecifiedType type(control()->referenceType(_type, rvalueRef));
+    _type = type;
     return false;
 }
 
