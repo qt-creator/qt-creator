@@ -4214,7 +4214,7 @@ Do you want to stop the debugged process and load the selected snapshot?</source
         <translation>フォーム エディタ</translation>
     </message>
     <message>
-        <source>The generated header of the form &apos;%1&apos; could be found.
+        <source>The generated header of the form &apos;%1&apos; could not be found.
 Rebuilding the project might help.</source>
         <translation>フォーム &apos;%1&apos; 向けに生成されたヘッダーが見つかりました。
 プロジェクトのリビルドをお奨めします。</translation>

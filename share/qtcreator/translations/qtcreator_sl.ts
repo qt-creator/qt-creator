@@ -3696,7 +3696,7 @@ Ali želite ustaviti razhroščevani proces in naložiti izbrani posnetek?</tran
         <translation>Urejevalnik obrazcev</translation>
     </message>
     <message>
-        <source>The generated header of the form &apos;%1&apos; could be found.
+        <source>The generated header of the form &apos;%1&apos; could not be found.
 Rebuilding the project might help.</source>
         <translation>Ni bilo moč najti samodejno ustvarjene glave za obrazec »%1«.
 Morda lahko pomaga ponovna gradnja projekta.</translation>
