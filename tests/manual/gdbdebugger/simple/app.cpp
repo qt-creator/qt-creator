@@ -585,8 +585,9 @@ void testQLinkedList()
 void testQLocale()
 {
     QLocale loc = QLocale::system();
-    QString s = loc.name();
+    //QString s = loc.name();
     //QVariant v = loc;
+    QLocale::MeasurementSystem m = loc.measurementSystem();
     int i = 1;
 }
 
@@ -756,10 +757,17 @@ public:
       : QObject(parent)
     {
         m_ui = new Ui;
-        m_ui->w = 0;
+        m_ui->w = new QWidget;
+        int i = 0;
     }
 
+    Q_PROPERTY(QString myProp READ myProp WRITE setMyProp)
+    QString myProp() const { return m_myProp; }
+    Q_SLOT void setMyProp(const QString &mt) { m_myProp = mt; }
+
+public:
     Ui *m_ui;
+    QString m_myProp;
 };
 
 } // namespace Bar
@@ -769,9 +777,13 @@ void testQObject(int &argc, char *argv[])
 {
     QApplication app(argc, argv);
 #if 1
-    QPixmap pm;
     Names::Bar::TestObject test;
+    test.setMyProp("HELLO");
+    QString s = test.myProp();
+    int i = 1;
+#endif
 
+#if 0
     QAction act("xxx", &app);
     QString t = act.text();
     t += "y";
@@ -781,7 +793,7 @@ void testQObject(int &argc, char *argv[])
     t += "y";
 #endif
 
-#if 1
+#if 0
     QWidget ob;
     ob.setObjectName("An Object");
     ob.setProperty("USER DEFINED 1", 44);
@@ -802,7 +814,7 @@ void testQObject(int &argc, char *argv[])
     ob1.setObjectName("A Subobject");
 #endif
 
-#if 1
+#if 0
     QString str = QString::fromUtf8("XXXXXXXXXXXXXXyyXXX ö");
     QLabel l(str);
     l.setObjectName("Some Label");
