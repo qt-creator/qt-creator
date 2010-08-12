@@ -77,10 +77,13 @@ public:
 
     Range addObject(AST::UiObjectInitializer *ast, const QString &content);
     Range addObject(AST::UiObjectInitializer *ast, const QString &content, AST::UiObjectMemberList *insertAfter);
+    Range addObject(AST::UiArrayBinding *ast, const QString &content);
+    Range addObject(AST::UiArrayBinding *ast, const QString &content, AST::UiArrayMemberList *insertAfter);
 
     void removeObjectMember(AST::UiObjectMember *member, AST::UiObjectMember *parent);
 
     static AST::UiObjectMemberList *searchMemberToInsertAfter(AST::UiObjectMemberList *members, const QStringList &propertyOrder);
+    static AST::UiArrayMemberList *searchMemberToInsertAfter(AST::UiArrayMemberList *members, const QStringList &propertyOrder);
     static AST::UiObjectMemberList *searchMemberToInsertAfter(AST::UiObjectMemberList *members, const QString &propertyName, const QStringList &propertyOrder);
     static QString flatten(AST::UiQualifiedId *first);
 

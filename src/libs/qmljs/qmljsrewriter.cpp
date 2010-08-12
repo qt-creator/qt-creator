@@ -175,6 +175,39 @@ UiObjectMemberList *Rewriter::searchMemberToInsertAfter(UiObjectMemberList *memb
         return lastNonObjectDef;
 }
 
+UiArrayMemberList *Rewriter::searchMemberToInsertAfter(UiArrayMemberList *members,
+                                                        const QStringList &propertyOrder)
+{
+    const int objectDefinitionInsertionPoint = propertyOrder.indexOf(QString::null);
+
+    UiArrayMemberList *lastObjectDef = 0;
+    UiArrayMemberList *lastNonObjectDef = 0;
+
+    for (UiArrayMemberList *iter = members; iter; iter = iter->next) {
+        UiObjectMember *member = iter->member;
+        int idx = -1;
+
+        if (cast<UiObjectDefinition*>(member))
+            lastObjectDef = iter;
+        else if (UiArrayBinding *arrayBinding = cast<UiArrayBinding*>(member))
+            idx = propertyOrder.indexOf(flatten(arrayBinding->qualifiedId));
+        else if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(member))
+            idx = propertyOrder.indexOf(flatten(objectBinding->qualifiedId));
+        else if (UiScriptBinding *scriptBinding = cast<UiScriptBinding*>(member))
+            idx = propertyOrder.indexOf(flatten(scriptBinding->qualifiedId));
+        else if (cast<UiPublicMember*>(member))
+            idx = propertyOrder.indexOf(QLatin1String("property"));
+
+        if (idx < objectDefinitionInsertionPoint)
+            lastNonObjectDef = iter;
+    }
+
+    if (lastObjectDef)
+        return lastObjectDef;
+    else
+        return lastNonObjectDef;
+}
+
 UiObjectMemberList *Rewriter::searchMemberToInsertAfter(UiObjectMemberList *members,
                                                         const QString &propertyName,
                                                         const QStringList &propertyOrder)
@@ -611,6 +644,29 @@ Rewriter::Range Rewriter::addObject(UiObjectInitializer *ast, const QString &con
         textToInsert += QLatin1String("\n");
     } else {
         insertionPoint = ast->lbraceToken.end();
+    }
+
+    textToInsert += content;
+    m_changeSet->insert(insertionPoint, QLatin1String("\n") + textToInsert);
+
+    return Range(insertionPoint, insertionPoint);
+}
+
+Rewriter::Range Rewriter::addObject(UiArrayBinding *ast, const QString &content)
+{
+    UiArrayMemberList *insertAfter = searchMemberToInsertAfter(ast->members, m_propertyOrder);
+    return addObject(ast, content, insertAfter);
+}
+
+Rewriter::Range Rewriter::addObject(UiArrayBinding *ast, const QString &content, UiArrayMemberList *insertAfter)
+{
+    int insertionPoint;
+    QString textToInsert;
+    if (insertAfter && insertAfter->member) {
+        insertionPoint = insertAfter->member->lastSourceLocation().end();
+        textToInsert += QLatin1String("\n");
+    } else {
+        insertionPoint = ast->lbracketToken.end();
     }
 
     textToInsert += content;

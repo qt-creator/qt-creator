@@ -669,12 +669,9 @@ void QmlOutlineModel::moveObjectMember(AST::UiObjectMember *toMove,
 
     const QString documentText = m_semanticInfo.document->source();
 
+    Rewriter rewriter(documentText, changeSet, QStringList());
+
     if (AST::UiObjectDefinition *objDefinition = AST::cast<AST::UiObjectDefinition*>(newParent)) {
-        // target is an element
-
-        Rewriter rewriter(documentText, changeSet, QStringList());
-        rewriter.removeObjectMember(toMove, oldParent);
-
         AST::UiObjectMemberList *listInsertAfter = 0;
         if (insertionOrderSpecified) {
             if (insertAfter) {
@@ -713,9 +710,36 @@ void QmlOutlineModel::moveObjectMember(AST::UiObjectMember *toMove,
                 *addedRange = rewriter.addObject(objDefinition->initializer, strToMove);
             }
         }
-    } else {
+    } else if (AST::UiArrayBinding *arrayBinding = AST::cast<AST::UiArrayBinding*>(newParent)) {
+        AST::UiArrayMemberList *listInsertAfter = 0;
+        if (insertionOrderSpecified) {
+            if (insertAfter) {
+                listInsertAfter = arrayBinding->members;
+                while (listInsertAfter && (listInsertAfter->member != insertAfter))
+                    listInsertAfter = listInsertAfter->next;
+            }
+        }
+        QString strToMove;
+        {
+            const int offset = toMove->firstSourceLocation().begin();
+            const int length = toMove->lastSourceLocation().end() - offset;
+            strToMove = documentText.mid(offset, length);
+        }
+
+        if (insertionOrderSpecified) {
+            *addedRange = rewriter.addObject(arrayBinding, strToMove, listInsertAfter);
+        } else {
+            *addedRange = rewriter.addObject(arrayBinding, strToMove);
+        }
+    } else if (AST::UiObjectBinding *objectBinding = AST::cast<AST::UiObjectBinding*>(newParent)) {
+        qDebug() << "TODO: Reparent to UiObjectBinding";
+        return;
         // target is a property
+    } else {
+        return;
     }
+
+    rewriter.removeObjectMember(toMove, oldParent);
 }
 
 QStandardItem *QmlOutlineModel::parentItem()
