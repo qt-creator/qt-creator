@@ -301,22 +301,30 @@ void MaemoDeployStep::start()
 #endif
     m_stopped = false;
 
-    // TODO: Re-use if possible (disconnect + reconnect).
-    if (m_connection)
-        disconnect(m_connection.data(), 0, this, 0);
-    m_connection = SshConnection::create();
-
     const MaemoDeviceConfig &devConfig = deviceConfig();
     if (!devConfig.isValid()) {
         raiseError(tr("Deployment failed: No valid device set."));
         return;
     }
+
+    if (m_connection)
+        disconnect(m_connection.data(), 0, this, 0);
+    const bool canReUse = m_connection
+        && m_connection->state() == SshConnection::Connected
+        && m_connection->connectionParameters() == devConfig.server;
+    if (!canReUse)
+        m_connection = SshConnection::create();
     connect(m_connection.data(), SIGNAL(connected()), this,
         SLOT(handleConnected()));
     connect(m_connection.data(), SIGNAL(error(SshError)), this,
         SLOT(handleConnectionFailure()));
-    m_connection->connectToHost(devConfig.server);
-    m_connecting = true;
+    if (canReUse) {
+        handleConnected();
+    } else {
+        writeOutput(tr("Connecting to device..."));
+        m_connecting = true;
+        m_connection->connectToHost(devConfig.server);
+    }
 }
 
 void MaemoDeployStep::handleConnected()
