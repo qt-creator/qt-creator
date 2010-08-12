@@ -29,6 +29,7 @@ HEADERS += \
     $$PWD/Names.h \
     $$PWD/Parser.h \
     $$PWD/Scope.h \
+    $$PWD/Bind.h \
     $$PWD/Semantic.h \
     $$PWD/SemanticCheck.h \
     $$PWD/Symbol.h \
@@ -72,6 +73,7 @@ SOURCES += \
     $$PWD/Names.cpp \
     $$PWD/Parser.cpp \
     $$PWD/Scope.cpp \
+    $$PWD/Bind.cpp \
     $$PWD/Semantic.cpp \
     $$PWD/SemanticCheck.cpp \
     $$PWD/Symbol.cpp \
