@@ -26,11 +26,16 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
+
 #include "qmljsclientproxy.h"
 #include "qmljsdebuggerclient.h"
 #include "qmljsprivateapi.h"
 #include "qmljsdesigndebugclient.h"
 
+#include <debugger/debuggerplugin.h>
+#include <debugger/debuggerrunner.h>
+#include <debugger/qml/qmlengine.h>
+#include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
 #include <QUrl>
@@ -240,8 +245,7 @@ void ClientProxy::connectionStateChanged()
                     SLOT(refreshObjectTree()));
             }
 
-            (void) new DebuggerClient(m_conn);
-
+            createDebuggerClient();
             reloadEngines();
 
             break;
@@ -253,6 +257,38 @@ void ClientProxy::connectionStateChanged()
         case QAbstractSocket::ListeningState:
             break;
     }
+}
+
+void ClientProxy::createDebuggerClient()
+{
+    DebuggerClient *debuggerClient = new DebuggerClient(m_conn);
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    const QList<Debugger::DebuggerRunControlFactory *> factories =
+        pm->getObjects<Debugger::DebuggerRunControlFactory>();
+    ProjectExplorer::RunControl *runControl = 0;
+
+    Debugger::DebuggerStartParameters sp;
+    sp.startMode = Debugger::StartExternal;
+    sp.executable = "qmlviewer"; //FIXME
+    runControl = factories.first()->create(sp);
+    Debugger::DebuggerRunControl* debuggerRunControl =
+        qobject_cast<Debugger::DebuggerRunControl *>(runControl);
+
+    QTC_ASSERT(debuggerRunControl, return);
+    Debugger::Internal::QmlEngine *engine =
+        qobject_cast<Debugger::Internal::QmlEngine *>(debuggerRunControl->engine());
+    QTC_ASSERT(engine, return);
+
+    engine->Debugger::Internal::DebuggerEngine::startDebugger(debuggerRunControl);
+
+    connect(engine, SIGNAL(sendMessage(QByteArray)),
+        debuggerClient, SLOT(slotSendMessage(QByteArray)));
+    connect(debuggerClient, SIGNAL(messageWasReceived(QByteArray)),
+        engine, SLOT(messageReceived(QByteArray)));
+    connect(m_conn, SIGNAL(disconnected()),
+        engine, SLOT(disconnected()));
+
+    //engine->startSuccessful();  // FIXME: AAA: port to new debugger states
 }
 
 bool ClientProxy::isConnected() const

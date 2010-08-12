@@ -123,6 +123,7 @@ private slots:
 private:
     bool isDesignClientConnected() const;
     void reloadEngines();
+    void createDebuggerClient();
     QList<QDeclarativeDebugObjectReference> objectReferences(const QUrl &url, const QDeclarativeDebugObjectReference &objectRef) const;
     QDeclarativeDebugObjectReference objectReferenceForId(int debugId, const QDeclarativeDebugObjectReference &ref) const;
 

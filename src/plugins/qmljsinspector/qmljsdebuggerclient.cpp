@@ -35,27 +35,7 @@ using namespace QmlJSInspector::Internal;
 
 DebuggerClient::DebuggerClient(QDeclarativeDebugConnection* client)
     : QDeclarativeDebugClient(QLatin1String("JSDebugger"), client)
-    , connection(client)
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    const QList<Debugger::DebuggerRunControlFactory *> factories = pm->getObjects<Debugger::DebuggerRunControlFactory>();
-    ProjectExplorer::RunControl *runControl = 0;
-
-    Debugger::DebuggerStartParameters sp;
-    sp.startMode = Debugger::StartExternal;
-    sp.executable = "qmlviewer"; //FIXME
-    runControl = factories.first()->create(sp);
-    Debugger::DebuggerRunControl* debuggerRunControl = qobject_cast<Debugger::DebuggerRunControl *>(runControl);
-
-    QTC_ASSERT(debuggerRunControl, return );
-    engine = qobject_cast<Debugger::Internal::QmlEngine *>(debuggerRunControl->engine());
-    QTC_ASSERT(engine, return );
-
-    engine->Debugger::Internal::DebuggerEngine::startDebugger(debuggerRunControl);
-    //engine->startSuccessful();  // FIXME: AAA: port to new debugger states
-
-    connect(engine, SIGNAL(sendMessage(QByteArray)), this, SLOT(slotSendMessage(QByteArray)));
-    connect(connection, SIGNAL(disconnected()), engine, SLOT(disconnected()));
     setEnabled(true);
 }
 
@@ -65,7 +45,7 @@ DebuggerClient::~DebuggerClient()
 
 void DebuggerClient::messageReceived(const QByteArray &data)
 {
-    engine->messageReceived(data);
+    emit messageWasReceived(data);
 }
 
 void DebuggerClient::slotSendMessage(const QByteArray &message)
