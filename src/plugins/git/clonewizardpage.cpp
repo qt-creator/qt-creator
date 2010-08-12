@@ -146,16 +146,16 @@ QSharedPointer<VCSBase::AbstractCheckoutJob> CloneWizardPage::createCheckoutJob(
          args.clear();
          args << QLatin1String("branch") << QLatin1String("--track")
                  << checkoutBranch << (QLatin1String("origin/")  + checkoutBranch);
-         job->addStep(binary, baseArgs + args, checkoutDir, env);
+         job->addStep(binary, baseArgs + args, *checkoutPath, env);
          // Checkout branch
          args.clear();
          args << QLatin1String("checkout") << checkoutBranch;
-         job->addStep(binary, baseArgs + args, checkoutDir, env);
+         job->addStep(binary, baseArgs + args, *checkoutPath, env);
          // Delete master if desired
          if (deleteMasterBranch()) {
              args.clear();
              args << QLatin1String("branch") << QLatin1String("-D") << masterBranch;
-             job->addStep(binary, baseArgs + args, checkoutDir, env);
+             job->addStep(binary, baseArgs + args, *checkoutPath, env);
          }
      }
 
