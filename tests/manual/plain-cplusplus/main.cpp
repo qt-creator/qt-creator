@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 int runWithSystemPreprocessor(int argc, char *argv[])
 {
     std::string cmdline;
-    cmdline += "gcc -E -xc++ -U__BLOCKS__";
+    cmdline += "gcc -E -xc++ -U__BLOCKS__ -D__restrict= -D__extension__=";
 
     for (int i = 1; i < argc; ++i) {
         cmdline += ' ';
