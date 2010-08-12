@@ -33,6 +33,7 @@
 #include <Lexer.h>
 
 #include <texteditor/basetextdocumentlayout.h>
+#include <texteditor/tabsettings.h>
 
 #include <QtCore/QDebug>
 #include <QtGui/QTextDocument>
@@ -912,6 +913,32 @@ QtStyleCodeFormatter::QtStyleCodeFormatter()
     , m_indentDeclarationBraces(false)
     , m_indentDeclarationMembers(true)
 {
+}
+
+QtStyleCodeFormatter::QtStyleCodeFormatter(const TextEditor::TabSettings &tabSettings)
+    : m_indentSize(tabSettings.m_indentSize)
+    , m_indentSubstatementBraces(false)
+    , m_indentSubstatementStatements(true)
+    , m_indentDeclarationBraces(false)
+    , m_indentDeclarationMembers(true)
+{
+    setTabSize(tabSettings.m_tabSize);
+    if (tabSettings.m_indentBraces && tabSettings.m_doubleIndentBlocks) { // gnu style
+        setIndentSubstatementBraces(true);
+        setIndentSubstatementStatements(true);
+        setIndentDeclarationBraces(false);
+        setIndentDeclarationMembers(true);
+    } else if (tabSettings.m_indentBraces) { // whitesmiths style
+        setIndentSubstatementBraces(true);
+        setIndentSubstatementStatements(false);
+        setIndentDeclarationBraces(true);
+        setIndentDeclarationMembers(false);
+    } else { // default Qt style
+        setIndentSubstatementBraces(false);
+        setIndentSubstatementStatements(true);
+        setIndentDeclarationBraces(false);
+        setIndentDeclarationMembers(true);
+    }
 }
 
 void QtStyleCodeFormatter::setIndentSize(int size)

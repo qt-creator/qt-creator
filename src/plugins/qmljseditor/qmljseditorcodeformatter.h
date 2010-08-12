@@ -35,12 +35,17 @@
 #include <texteditor/basetextdocumentlayout.h>
 #include <qmljs/qmljscodeformatter.h>
 
+namespace TextEditor {
+    class TabSettings;
+}
+
 namespace QmlJSEditor {
 
 class QMLJSEDITOR_EXPORT QtStyleCodeFormatter : public QmlJS::CodeFormatter
 {
 public:
     QtStyleCodeFormatter();
+    explicit QtStyleCodeFormatter(const TextEditor::TabSettings &tabSettings);
 
     void setIndentSize(int size);
 

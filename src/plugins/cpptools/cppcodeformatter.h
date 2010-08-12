@@ -46,6 +46,10 @@ class QTextDocument;
 class QTextBlock;
 QT_END_NAMESPACE
 
+namespace TextEditor {
+    class TabSettings;
+}
+
 namespace CppTools {    
 namespace Internal {
 class CppCodeFormatterData;
@@ -241,6 +245,7 @@ class CPPTOOLS_EXPORT QtStyleCodeFormatter : public CodeFormatter
 {
 public:
     QtStyleCodeFormatter();
+    explicit QtStyleCodeFormatter(const TextEditor::TabSettings &tabSettings);
 
     void setIndentSize(int size);
 

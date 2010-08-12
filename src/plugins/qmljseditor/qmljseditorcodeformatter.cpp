@@ -29,6 +29,8 @@
 
 #include "qmljseditorcodeformatter.h"
 
+#include <texteditor/tabsettings.h>
+
 #include <QtCore/QDebug>
 
 using namespace QmlJS;
@@ -38,6 +40,12 @@ using namespace TextEditor;
 QtStyleCodeFormatter::QtStyleCodeFormatter()
     : m_indentSize(4)
 {
+}
+
+QtStyleCodeFormatter::QtStyleCodeFormatter(const TextEditor::TabSettings &tabSettings)
+    : m_indentSize(tabSettings.m_indentSize)
+{
+    setTabSize(tabSettings.m_tabSize);
 }
 
 void QtStyleCodeFormatter::setIndentSize(int size)

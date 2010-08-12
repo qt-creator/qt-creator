@@ -104,7 +104,7 @@ void CppRefactoringChanges::indentSelection(const QTextCursor &selection) const
     const QTextBlock end = doc->findBlock(selection.selectionEnd()).next();
 
     const TextEditor::TabSettings &tabSettings(TextEditor::TextEditorSettings::instance()->tabSettings());
-    CppTools::QtStyleCodeFormatter codeFormatter;
+    CppTools::QtStyleCodeFormatter codeFormatter(tabSettings);
     codeFormatter.updateStateUntil(block);
 
     do {

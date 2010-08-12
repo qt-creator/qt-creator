@@ -1276,21 +1276,13 @@ bool QmlJSTextEditor::isClosingBrace(const QList<Token> &tokens) const
     return false;
 }
 
-static QmlJSEditor::QtStyleCodeFormatter setupCodeFormatter(const TextEditor::TabSettings &ts)
-{
-    QmlJSEditor::QtStyleCodeFormatter codeFormatter;
-    codeFormatter.setIndentSize(ts.m_indentSize);
-    codeFormatter.setTabSize(ts.m_tabSize);
-    return codeFormatter;
-}
-
 void QmlJSTextEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar)
 {
     Q_UNUSED(doc)
     Q_UNUSED(typedChar)
 
     const TextEditor::TabSettings &ts = tabSettings();
-    QmlJSEditor::QtStyleCodeFormatter codeFormatter = setupCodeFormatter(ts);
+    QmlJSEditor::QtStyleCodeFormatter codeFormatter(ts);
 
     codeFormatter.updateStateUntil(block);
     const int depth = codeFormatter.indentFor(block);

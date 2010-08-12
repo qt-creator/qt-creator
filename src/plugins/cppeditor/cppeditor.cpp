@@ -1474,37 +1474,13 @@ bool CPPEditor::isInComment(const QTextCursor &cursor) const
     return false;
 }
 
-static CppTools::QtStyleCodeFormatter setupCodeFormatter(const TextEditor::TabSettings &ts)
-{
-    CppTools::QtStyleCodeFormatter codeFormatter;
-    codeFormatter.setIndentSize(ts.m_indentSize);
-    codeFormatter.setTabSize(ts.m_tabSize);
-    if (ts.m_indentBraces && ts.m_doubleIndentBlocks) { // gnu style
-        codeFormatter.setIndentSubstatementBraces(true);
-        codeFormatter.setIndentSubstatementStatements(true);
-        codeFormatter.setIndentDeclarationBraces(false);
-        codeFormatter.setIndentDeclarationMembers(true);
-    } else if (ts.m_indentBraces) { // whitesmiths style
-        codeFormatter.setIndentSubstatementBraces(true);
-        codeFormatter.setIndentSubstatementStatements(false);
-        codeFormatter.setIndentDeclarationBraces(true);
-        codeFormatter.setIndentDeclarationMembers(false);
-    } else { // default Qt style
-        codeFormatter.setIndentSubstatementBraces(false);
-        codeFormatter.setIndentSubstatementStatements(true);
-        codeFormatter.setIndentDeclarationBraces(false);
-        codeFormatter.setIndentDeclarationMembers(true);
-    }
-    return codeFormatter;
-}
-
 void CPPEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar)
 {
     Q_UNUSED(doc)
     Q_UNUSED(typedChar)
 
     const TabSettings &ts = tabSettings();
-    CppTools::QtStyleCodeFormatter codeFormatter = setupCodeFormatter(ts);
+    CppTools::QtStyleCodeFormatter codeFormatter(ts);
 
     codeFormatter.updateStateUntil(block);
     const int depth = codeFormatter.indentFor(block);
@@ -1522,7 +1498,7 @@ void CPPEditor::indent(QTextDocument *doc, const QTextCursor &cursor, QChar type
         const QTextBlock end = doc->findBlock(cursor.selectionEnd()).next();
 
         const TabSettings &ts = tabSettings();
-        CppTools::QtStyleCodeFormatter codeFormatter = setupCodeFormatter(ts);
+        CppTools::QtStyleCodeFormatter codeFormatter(ts);
         codeFormatter.updateStateUntil(block);
 
         QTextCursor tc = textCursor();

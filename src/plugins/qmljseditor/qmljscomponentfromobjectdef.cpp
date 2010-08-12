@@ -118,7 +118,6 @@ public:
         changes.replace(start, end, m_componentName + QLatin1String(" {\n"));
         currentFile->change(changes);
         currentFile->indent(range(start, end + 1));
-
     }
 };
 
