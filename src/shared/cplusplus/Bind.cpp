@@ -704,9 +704,12 @@ void Bind::translationUnit(TranslationUnitAST *ast)
     if (! ast)
         return;
 
+    Namespace *globalNamespace = control()->newNamespace(0, 0);
+    Scope *previousScope = switchScope(globalNamespace);
     for (DeclarationListAST *it = ast->declaration_list; it; it = it->next) {
         this->declaration(it->value);
     }
+    (void) switchScope(previousScope);
 }
 
 bool Bind::visit(ObjCProtocolRefsAST *ast)
