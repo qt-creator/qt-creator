@@ -582,6 +582,14 @@ void testQLinkedList()
     v.push_back("dd");
  }
 
+void testQLocale()
+{
+    QLocale loc = QLocale::system();
+    QString s = loc.name();
+    //QVariant v = loc;
+    int i = 1;
+}
+
 void testQList()
 {
     QList<int> big;
@@ -1886,6 +1894,7 @@ int main(int argc, char *argv[])
     //testQSettings();
     //testWCout0();
     //testWCout();
+    testQLocale();
     testColor();
     testQRegion();
     testStuff();
