@@ -301,7 +301,8 @@ void MaemoRemoteMounter::startUtfsServers()
             << (m_connection->connectionParameters().host + QLatin1Char(':') + port)
             << mountSpec.localDir;
         utfsServerProc->start(utfsServer(), utfsServerArgs);
-        if (!utfsServerProc->waitForStarted()) {
+        if (!utfsServerProc->waitForStarted()
+            || !utfsServerProc->waitForFinished(5000)) {
             const QByteArray &errorOutput
                 = utfsServerProc->readAllStandardError();
             QString errorMsg = tr("Could not start UTFS server: %1")
@@ -313,7 +314,6 @@ void MaemoRemoteMounter::startUtfsServers()
             emit error(errorMsg);
             return;
         }
-        utfsServerProc->waitForFinished();
         m_utfsServers << utfsServerProc;
     }
 
