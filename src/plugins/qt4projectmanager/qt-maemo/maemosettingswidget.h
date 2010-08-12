@@ -113,6 +113,7 @@ private:
     NameValidator * const m_nameValidator;
     QSharedPointer<Core::SshConnection> m_connection;
     QSharedPointer<Core::SshRemoteProcess> m_keyDeployer;
+    bool m_saveSettingsRequested;
 };
 
 } // namespace Internal
