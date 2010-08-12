@@ -487,6 +487,7 @@ QModelIndex QmlOutlineModel::enterScriptBinding(AST::UiScriptBinding *scriptBind
 
     prototype.setText(asString(scriptBinding->qualifiedId));
     prototype.setIcon(m_icons->scriptBindingIcon());
+    prototype.setAnnotation(getAnnotation(scriptBinding->statement));
     prototype.setData(NonElementBindingType, ItemTypeRole);
     prototype.setSourceLocation(getLocation(scriptBinding));
     prototype.setNode(scriptBinding);
@@ -507,6 +508,7 @@ QModelIndex QmlOutlineModel::enterPublicMember(AST::UiPublicMember *publicMember
     if (publicMember->name)
         prototype.setText(publicMember->name->asString());
     prototype.setIcon(m_icons->publicMemberIcon());
+    prototype.setAnnotation(getAnnotation(publicMember->expression));
     prototype.setData(NonElementBindingType, ItemTypeRole);
     prototype.setSourceLocation(getLocation(publicMember));
     prototype.setNode(publicMember);
@@ -789,26 +791,28 @@ QString QmlOutlineModel::getAnnotation(AST::UiObjectInitializer *objectInitializ
     return QString();
 }
 
+QString QmlOutlineModel::getAnnotation(QmlJS::AST::Statement *statement)
+{
+    if (AST::ExpressionStatement *expr = AST::cast<AST::ExpressionStatement*>(statement))
+        return getAnnotation(expr->expression);
+    return QString();
+}
+
+QString QmlOutlineModel::getAnnotation(QmlJS::AST::ExpressionNode *expression)
+{
+    if (!expression)
+        return QString();
+    QString source = m_semanticInfo.document->source();
+    return source.mid(expression->firstSourceLocation().begin(),
+                      expression->lastSourceLocation().end() - expression->firstSourceLocation().begin());
+}
+
 QHash<QString,QString> QmlOutlineModel::getScriptBindings(AST::UiObjectInitializer *objectInitializer) {
     QHash <QString,QString> scriptBindings;
     for (AST::UiObjectMemberList *it = objectInitializer->members; it; it = it->next) {
         if (AST::UiScriptBinding *binding = AST::cast<AST::UiScriptBinding*>(it->member)) {
             const QString bindingName = asString(binding->qualifiedId);
-            AST::ExpressionStatement *expr = AST::cast<AST::ExpressionStatement*>(binding->statement);
-            if (!expr)
-                continue;
-
-            AST::StringLiteral *stringLiteral = AST::cast<AST::StringLiteral*>(expr->expression);
-            if (stringLiteral)  {
-                scriptBindings.insert(bindingName, stringLiteral->value->asString());
-                continue;
-            }
-
-            AST::IdentifierExpression *idExpr = AST::cast<AST::IdentifierExpression*>(expr->expression);
-            if (idExpr) {
-                scriptBindings.insert(bindingName, idExpr->name->asString());
-                continue;
-            }
+            scriptBindings.insert(bindingName, getAnnotation(binding->statement));
         }
     }
     return scriptBindings;

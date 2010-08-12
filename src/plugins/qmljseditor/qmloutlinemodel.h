@@ -116,8 +116,10 @@ private:
     static QmlJS::AST::SourceLocation getLocation(QmlJS::AST::UiObjectMember *objMember);
     QIcon getIcon(QmlJS::AST::UiQualifiedId *objDef);
 
-    static QString getAnnotation(QmlJS::AST::UiObjectInitializer *objInitializer);
-    static QHash<QString,QString> getScriptBindings(QmlJS::AST::UiObjectInitializer *objInitializer);
+    QString getAnnotation(QmlJS::AST::UiObjectInitializer *objInitializer);
+    QString getAnnotation(QmlJS::AST::Statement *statement);
+    QString getAnnotation(QmlJS::AST::ExpressionNode *expression);
+    QHash<QString,QString> getScriptBindings(QmlJS::AST::UiObjectInitializer *objInitializer);
 
 
     SemanticInfo m_semanticInfo;
