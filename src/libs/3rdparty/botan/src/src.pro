@@ -565,10 +565,10 @@ unix {
            timer/gettimeofday/tm_unix.cpp
 }
 
-linux*-g++* {
+linux* {
     SOURCES += timer/posix_rt/tm_posix.cpp
 }
 
-linux*-g++* {
+linux* {
     LIBS += -lrt
 }
