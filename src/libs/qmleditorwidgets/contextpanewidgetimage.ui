@@ -33,7 +33,7 @@
     <number>0</number>
    </property>
    <item row="0" column="1" colspan="3">
-    <widget class="FileWidget" name="fileWidget">
+    <widget class="QmlEditorWidgets::FileWidget" name="fileWidget">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -283,7 +283,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>FileWidget</class>
+   <class>QmlEditorWidgets::FileWidget</class>
    <extends>QComboBox</extends>
    <header location="global">filewidget.h</header>
   </customwidget>

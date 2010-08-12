@@ -49,7 +49,7 @@
     </widget>
    </item>
    <item row="0" column="1" colspan="5">
-    <widget class="QmlDesigner::GradientLine" name="gradientLine" native="true">
+    <widget class="QmlEditorWidgets::GradientLine" name="gradientLine" native="true">
      <property name="minimumSize">
       <size>
        <width>160</width>
@@ -81,7 +81,7 @@
     </widget>
    </item>
    <item row="1" column="2">
-    <widget class="QmlDesigner::ColorButton" name="colorColorButton">
+    <widget class="QmlEditorWidgets::ColorButton" name="colorColorButton">
      <property name="minimumSize">
       <size>
        <width>22</width>
@@ -213,7 +213,7 @@
     </widget>
    </item>
    <item row="2" column="2">
-    <widget class="QmlDesigner::ColorButton" name="borderColorButton">
+    <widget class="QmlEditorWidgets::ColorButton" name="borderColorButton">
      <property name="minimumSize">
       <size>
        <width>22</width>
@@ -296,14 +296,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QmlDesigner::ColorButton</class>
+   <class>QmlEditorWidgets::ColorButton</class>
    <extends>QToolButton</extends>
-   <header location="global">colorwidget.h</header>
+   <header location="global">colorbutton.h</header>
   </customwidget>
   <customwidget>
-   <class>QmlDesigner::GradientLine</class>
+   <class>QmlEditorWidgets::GradientLine</class>
    <extends>QWidget</extends>
-   <header location="global">colorwidget.h</header>
+   <header location="global">gradientline.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

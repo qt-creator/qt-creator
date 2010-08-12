@@ -1,6 +1,36 @@
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+** Commercial Usage
+**
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
+**
+** GNU Lesser General Public License Usage
+**
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at http://qt.nokia.com/contact.
+**
+**************************************************************************/
+
 #ifndef CONTEXTPANEWIDGET_H
 #define CONTEXTPANEWIDGET_H
 
+#include <qmleditorwidgets_global.h>
 #include <QFrame>
 #include <QVariant>
 #include <QGraphicsEffect>
@@ -11,15 +41,15 @@ namespace QmlJS {
     class PropertyReader;
 }
 
-namespace QmlDesigner {
+namespace QmlEditorWidgets {
 
-class BauhausColorDialog;
+class CustomColorDialog;
 class ContextPaneTextWidget;
 class EasingContextPane;
 class ContextPaneWidgetRectangle;
 class ContextPaneWidgetImage;
 
-class DragWidget : public QFrame
+class QMLEDITORWIDGETS_EXPORT DragWidget : public QFrame
 {
     Q_OBJECT
 
@@ -42,17 +72,18 @@ private:
     QWeakPointer<QWidget> m_secondaryTarget;
 };
 
-class ContextPaneWidget : public DragWidget
+class QMLEDITORWIDGETS_EXPORT ContextPaneWidget : public DragWidget
 {
     Q_OBJECT
 
 public:
     explicit ContextPaneWidget(QWidget *parent = 0);
     ~ContextPaneWidget();
-    void activate(const QPoint &pos, const QPoint &alternative, const QPoint &alternative2);
-    void rePosition(const QPoint &pos, const QPoint &alternative , const QPoint &alternative3);
+    void activate(const QPoint &pos, const QPoint &alternative, const QPoint &alternative2, bool pinned);
+    void rePosition(const QPoint &pos, const QPoint &alternative , const QPoint &alternative3, bool pinned);
     void deactivate();
-    BauhausColorDialog *colorDialog();
+    void setOptions(bool enabled, bool pinned);
+    CustomColorDialog *colorDialog();
     void setProperties(QmlJS::PropertyReader *propertyReader);
     void setPath(const QString &path);
     bool setType(const QStringList &types);
@@ -67,6 +98,8 @@ signals:
     void propertyChanged(const QString &, const QVariant &);
     void removeProperty(const QString &);
     void removeAndChangeProperty(const QString &, const QString &, const QVariant &, bool);
+    void pinnedChanged(bool);
+    void enabledChanged(bool);
 
 private slots:
     void onDisable(bool);
@@ -93,7 +126,7 @@ private:
     ContextPaneWidgetImage *m_imageWidget;
     ContextPaneWidgetImage *m_borderImageWidget;
     ContextPaneWidgetRectangle *m_rectangleWidget;
-    QWeakPointer<BauhausColorDialog> m_bauhausColorDialog;
+    QWeakPointer<CustomColorDialog> m_bauhausColorDialog;
     QWeakPointer<QAction> m_resetAction;
     QWeakPointer<QAction> m_disableAction;
     QString m_colorName;

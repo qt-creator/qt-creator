@@ -297,7 +297,7 @@
     </widget>
    </item>
    <item row="0" column="6">
-    <widget class="QmlDesigner::FontSizeSpinBox" name="fontSizeSpinBox">
+    <widget class="QmlEditorWidgets::FontSizeSpinBox" name="fontSizeSpinBox">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -337,7 +337,7 @@
     </widget>
    </item>
    <item row="2" column="2">
-    <widget class="QmlDesigner::ColorButton" name="textColorButton">
+    <widget class="QmlEditorWidgets::ColorButton" name="textColorButton">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
        <horstretch>22</horstretch>
@@ -381,7 +381,7 @@
     </spacer>
    </item>
    <item row="0" column="4">
-    <widget class="QmlDesigner::ColorButton" name="colorButton">
+    <widget class="QmlEditorWidgets::ColorButton" name="colorButton">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
        <horstretch>22</horstretch>
@@ -412,12 +412,12 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QmlDesigner::ColorButton</class>
+   <class>QmlEditorWidgets::ColorButton</class>
    <extends>QToolButton</extends>
-   <header location="global">colorwidget.h</header>
+   <header location="global">colorbutton.h</header>
   </customwidget>
   <customwidget>
-   <class>QmlDesigner::FontSizeSpinBox</class>
+   <class>QmlEditorWidgets::FontSizeSpinBox</class>
    <extends>QSpinBox</extends>
    <header location="global">fontsizespinbox.h</header>
   </customwidget>

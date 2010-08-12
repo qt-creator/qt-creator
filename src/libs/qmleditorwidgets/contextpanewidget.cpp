@@ -1,5 +1,33 @@
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+** Commercial Usage
+**
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
+**
+** GNU Lesser General Public License Usage
+**
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at http://qt.nokia.com/contact.
+**
+**************************************************************************/
+
 #include "contextpanewidget.h"
-#include <coreplugin/icore.h>
 #include <QFontComboBox>
 #include <QComboBox>
 #include <QSpinBox>
@@ -11,14 +39,15 @@
 #include <QGridLayout>
 #include <QToolButton>
 #include <QAction>
-#include <qmldesignerplugin.h>
 #include "colorwidget.h"
 #include "contextpanetextwidget.h"
 #include "easingcontextpane.h"
 #include "contextpanewidgetimage.h"
 #include "contextpanewidgetrectangle.h"
+#include "customcolordialog.h"
+#include "colorbutton.h"
 
-namespace QmlDesigner {
+namespace QmlEditorWidgets {
 
 /* XPM */
 static const char * const line_xpm[] = {
@@ -137,11 +166,6 @@ ContextPaneWidget::ContextPaneWidget(QWidget *parent) : DragWidget(parent), m_cu
     m_toolButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
     m_toolButton->setFixedSize(16, 16);
 
-    if (Internal::BauhausPlugin::pluginInstance()->settings().pinContextPane)
-        setPinButton();
-    else
-        setLineButton();
-
     m_toolButton->setToolTip(tr("Hides this toolbar. This toolbar can be permantly disabled in the options or in the context menu."));
     connect(m_toolButton, SIGNAL(clicked()), this, SLOT(onTogglePane()));
     layout->addWidget(m_toolButton, 0, 0, 1, 1);
@@ -182,7 +206,7 @@ ContextPaneWidget::~ContextPaneWidget()
         m_bauhausColorDialog.clear();
 }
 
-void ContextPaneWidget::activate(const QPoint &pos, const QPoint &alternative, const QPoint &alternative2)
+void ContextPaneWidget::activate(const QPoint &pos, const QPoint &alternative, const QPoint &alternative2, bool pinned)
 {
     //uncheck all color buttons
     foreach (ColorButton *colorButton, findChildren<ColorButton*>()) {
@@ -192,13 +216,11 @@ void ContextPaneWidget::activate(const QPoint &pos, const QPoint &alternative, c
     update();
     resize(sizeHint());
     show();
-    rePosition(pos, alternative, alternative2);
+    rePosition(pos, alternative, alternative2, pinned);
     raise();
-    m_resetAction->setChecked(Internal::BauhausPlugin::pluginInstance()->settings().pinContextPane);
-    m_disableAction->setChecked(Internal::BauhausPlugin::pluginInstance()->settings().enableContextPane);
 }
 
-void ContextPaneWidget::rePosition(const QPoint &position, const QPoint &alternative, const QPoint &alternative2)
+void ContextPaneWidget::rePosition(const QPoint &position, const QPoint &alternative, const QPoint &alternative2, bool pinned)
 {
     if ((position.x()  + width()) < parentWidget()->width())
         move(position);
@@ -212,7 +234,7 @@ void ContextPaneWidget::rePosition(const QPoint &position, const QPoint &alterna
 
     m_originalPos = pos();
 
-    if (m_pos.x() > 0 && (Internal::BauhausPlugin::pluginInstance()->settings().pinContextPane)) {
+    if (m_pos.x() > 0 && pinned) {
         move(m_pos);
         show();
         setPinButton();
@@ -228,10 +250,17 @@ void ContextPaneWidget::deactivate()
         m_bauhausColorDialog->hide();
 }
 
-BauhausColorDialog *ContextPaneWidget::colorDialog()
+void ContextPaneWidget::setOptions(bool enabled, bool pinned)
+{
+
+    m_disableAction->setChecked(enabled);
+    m_resetAction->setChecked(pinned);
+}
+
+CustomColorDialog *ContextPaneWidget::colorDialog()
 {
     if (m_bauhausColorDialog.isNull()) {
-        m_bauhausColorDialog = new BauhausColorDialog(parentWidget());
+        m_bauhausColorDialog = new CustomColorDialog(parentWidget());
         m_bauhausColorDialog->hide();
         setSecondaryTarget(m_bauhausColorDialog.data());
     }
@@ -351,9 +380,7 @@ void ContextPaneWidget::onShowColorDialog(bool checked, const QPoint &p)
 
 void ContextPaneWidget::onDisable(bool b)
 {       
-    DesignerSettings designerSettings = Internal::BauhausPlugin::pluginInstance()->settings();
-    designerSettings.enableContextPane = b;
-    Internal::BauhausPlugin::pluginInstance()->setSettings(designerSettings);
+    enabledChanged(b);
     if (!b) {
         hide();
         colorDialog()->hide();
@@ -438,9 +465,7 @@ void ContextPaneWidget::setPinButton()
     m_toolButton->setFixedSize(20, 20);
     m_toolButton->setToolTip(tr("Unpins the toolbar. The toolbar will be moved to its default position."));
 
-    DesignerSettings designerSettings = Internal::BauhausPlugin::pluginInstance()->settings();
-    designerSettings.pinContextPane = true;
-    Internal::BauhausPlugin::pluginInstance()->setSettings(designerSettings);
+    pinnedChanged(true);
     if (m_resetAction) {
         m_resetAction->blockSignals(true);
         m_resetAction->setChecked(true);
@@ -457,9 +482,7 @@ void ContextPaneWidget::setLineButton()
     m_toolButton->setFixedSize(20, 20);
     m_toolButton->setToolTip(tr("Hides this toolbar. This toolbar can be permantly disabled in the options or in the context menu."));
 
-    DesignerSettings designerSettings = Internal::BauhausPlugin::pluginInstance()->settings();
-    designerSettings.pinContextPane = false;
-    Internal::BauhausPlugin::pluginInstance()->setSettings(designerSettings);
+    pinnedChanged(false);
     if (m_resetAction) {
         m_resetAction->blockSignals(true);
         m_resetAction->setChecked(false);

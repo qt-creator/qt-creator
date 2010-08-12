@@ -1,3 +1,32 @@
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+** Commercial Usage
+**
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
+**
+** GNU Lesser General Public License Usage
+**
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at http://qt.nokia.com/contact.
+**
+**************************************************************************/
+
 #include "easingcontextpane.h"
 #include "ui_easingcontextpane.h"
 #include <qmljs/qmljspropertyreader.h>
@@ -7,7 +36,7 @@
 #include <QPropertyAnimation>
 #include <QSequentialAnimationGroup>
 
-namespace QmlDesigner {
+namespace QmlEditorWidgets {
 
 class PixmapItem : public QObject, public QGraphicsPixmapItem
 {
@@ -269,13 +298,13 @@ void EasingContextPane::setBounce()
 
 } //QmlDesigner
 
-void QmlDesigner::EasingContextPane::on_durationSpinBox_valueChanged(int newValue)
+void QmlEditorWidgets::EasingContextPane::on_durationSpinBox_valueChanged(int newValue)
 {
     m_simulation->updateCurve(m_easingGraph->easingCurve(),ui->durationSpinBox->value());
     emit propertyChanged(QLatin1String("duration"), newValue);
 }
 
-void QmlDesigner::EasingContextPane::on_easingShapeComboBox_currentIndexChanged(QString newShape)
+void QmlEditorWidgets::EasingContextPane::on_easingShapeComboBox_currentIndexChanged(QString newShape)
 {
     if (newShape=="Linear")
         setLinear();
@@ -299,7 +328,7 @@ void QmlDesigner::EasingContextPane::on_easingShapeComboBox_currentIndexChanged(
     }
 }
 
-void QmlDesigner::EasingContextPane::on_easingExtremesComboBox_currentIndexChanged(QString newExtremes)
+void QmlEditorWidgets::EasingContextPane::on_easingExtremesComboBox_currentIndexChanged(QString newExtremes)
 {
     if (m_easingGraph->easingExtremes() != newExtremes) {
         m_easingGraph->setEasingExtremes(newExtremes);
@@ -311,7 +340,7 @@ void QmlDesigner::EasingContextPane::on_easingExtremesComboBox_currentIndexChang
     }
 }
 
-void QmlDesigner::EasingContextPane::on_amplitudeSpinBox_valueChanged(double newAmplitude)
+void QmlEditorWidgets::EasingContextPane::on_amplitudeSpinBox_valueChanged(double newAmplitude)
 {
     if ((newAmplitude != m_easingGraph->amplitude()) &&
         (m_easingGraph->easingShape()=="Bounce" || m_easingGraph->easingShape()=="Elastic")) {
@@ -321,7 +350,7 @@ void QmlDesigner::EasingContextPane::on_amplitudeSpinBox_valueChanged(double new
     }
 }
 
-void QmlDesigner::EasingContextPane::on_periodSpinBox_valueChanged(double newPeriod)
+void QmlEditorWidgets::EasingContextPane::on_periodSpinBox_valueChanged(double newPeriod)
 {
     if ((newPeriod != m_easingGraph->period()) && (m_easingGraph->easingShape()=="Elastic")) {
         m_easingGraph->setPeriod(newPeriod);
@@ -331,7 +360,7 @@ void QmlDesigner::EasingContextPane::on_periodSpinBox_valueChanged(double newPer
 
 }
 
-void QmlDesigner::EasingContextPane::on_overshootSpinBox_valueChanged(double newOvershoot)
+void QmlEditorWidgets::EasingContextPane::on_overshootSpinBox_valueChanged(double newOvershoot)
 {
     if ((newOvershoot != m_easingGraph->overshoot()) && (m_easingGraph->easingShape()=="Back")) {
         m_easingGraph->setOvershoot(newOvershoot);
@@ -340,7 +369,7 @@ void QmlDesigner::EasingContextPane::on_overshootSpinBox_valueChanged(double new
     }
 }
 
-void QmlDesigner::EasingContextPane::on_playButton_clicked()
+void QmlEditorWidgets::EasingContextPane::on_playButton_clicked()
 {
     setGraphDisplayMode(SimulationMode);
     startAnimation();
