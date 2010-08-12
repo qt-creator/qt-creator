@@ -41,6 +41,8 @@
 #include "qmljsquickfix.h"
 #include "qmljs/qmljsicons.h"
 #include "qmltaskmanager.h"
+#include "quicktoolbar.h"
+#include "quicktoolbarsettingspage.h"
 
 #include <qmldesigner/qmldesignerconstants.h>
 
@@ -196,6 +198,9 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
             m_qmlTaskManager, SLOT(documentChangedOnDisk(QmlJS::Document::Ptr)));
     connect(m_modelManager, SIGNAL(aboutToRemoveFiles(QStringList)),
             m_qmlTaskManager, SLOT(documentsRemoved(QStringList)));
+
+    addAutoReleasedObject(new QuickToolBar);
+    addAutoReleasedObject(new Internal::QuickToolBarSettingsPage);
 
     return true;
 }

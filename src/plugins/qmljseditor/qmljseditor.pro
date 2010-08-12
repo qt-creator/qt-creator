@@ -28,7 +28,10 @@ HEADERS += \
     qmloutlinemodel.h \
     qmltaskmanager.h \
     qmljseditorcodeformatter.h \
-    qmljsoutlinetreeview.h
+    qmljsoutlinetreeview.h \
+    quicktoolbarsettingspage.h \
+    quicktoolbar.h
+
 
 SOURCES += \
     qmljscodecompletion.cpp \
@@ -50,7 +53,13 @@ SOURCES += \
     qmltaskmanager.cpp \
     qmljsquickfixes.cpp \
     qmljseditorcodeformatter.cpp \
-    qmljsoutlinetreeview.cpp
+    qmljsoutlinetreeview.cpp \
+    quicktoolbarsettingspage.cpp \
+    quicktoolbar.cpp
+
 
 RESOURCES += qmljseditor.qrc
 OTHER_FILES += QmlJSEditor.pluginspec QmlJSEditor.mimetypes.xml
+
+FORMS += \
+    quicktoolbarsettingspage.ui
