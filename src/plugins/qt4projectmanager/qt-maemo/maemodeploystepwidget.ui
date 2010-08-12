@@ -46,8 +46,7 @@
      <item row="1" column="0">
       <widget class="QLabel" name="mountPortLabel">
        <property name="toolTip">
-        <string>The port on the device to use for mounting the host disk during deployment. 
-Note: On Windows, several consecutive ports may be used, starting with the one set here.</string>
+        <string/>
        </property>
        <property name="text">
         <string>Mount port:</string>

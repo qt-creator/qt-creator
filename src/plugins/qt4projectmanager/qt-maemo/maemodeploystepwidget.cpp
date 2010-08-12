@@ -20,7 +20,6 @@ MaemoDeployStepWidget::MaemoDeployStepWidget(MaemoDeployStep *step) :
     m_step(step)
 {
     ui->setupUi(this);
-    ui->mountPortSpinBox->setToolTip(ui->mountPortLabel->toolTip());
 
     connect(m_step->deployables(), SIGNAL(modelsCreated()), this,
         SLOT(handleModelsCreated()));
