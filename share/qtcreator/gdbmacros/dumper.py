@@ -622,11 +622,12 @@ def isNull(p):
     # for invalid char *, as their "contents" is being examined
     #s = str(p)
     #return s == "0x0" or s.startswith("0x0 ")
-    try:
-        # Can fail with: "RuntimeError: Cannot access memory at address 0x5"
-        return p.cast(lookupType("void").pointer()) == 0
-    except:
-        return False
+    #try:
+    #    # Can fail with: "RuntimeError: Cannot access memory at address 0x5"
+    #    return p.cast(lookupType("void").pointer()) == 0
+    #except:
+    #    return False
+    return long(p) == 0
 
 movableTypes = set([
     "QBrush", "QBitArray", "QByteArray",
