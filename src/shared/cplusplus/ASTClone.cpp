@@ -802,6 +802,7 @@ DestructorNameAST *DestructorNameAST::clone(MemoryPool *pool) const
 TemplateIdAST *TemplateIdAST::clone(MemoryPool *pool) const
 {
     TemplateIdAST *ast = new (pool) TemplateIdAST;
+    ast->template_token = template_token;
     ast->identifier_token = identifier_token;
     ast->less_token = less_token;
     for (ExpressionListAST *iter = template_argument_list, **ast_iter = &ast->template_argument_list;

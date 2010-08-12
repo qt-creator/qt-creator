@@ -1347,6 +1347,8 @@ bool ASTMatcher::match(TemplateIdAST *node, TemplateIdAST *pattern)
     (void) node;
     (void) pattern;
 
+    pattern->template_token = node->template_token;
+
     pattern->identifier_token = node->identifier_token;
 
     pattern->less_token = node->less_token;

@@ -2214,6 +2214,7 @@ protected:
 class CPLUSPLUS_EXPORT TemplateIdAST: public NameAST
 {
 public:
+    unsigned template_token;
     unsigned identifier_token;
     unsigned less_token;
     ExpressionListAST *template_argument_list;
@@ -2221,7 +2222,8 @@ public:
 
 public:
     TemplateIdAST()
-        : identifier_token(0)
+        : template_token(0)
+        , identifier_token(0)
         , less_token(0)
         , template_argument_list(0)
         , greater_token(0)

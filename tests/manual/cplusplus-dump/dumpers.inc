@@ -771,11 +771,13 @@ virtual bool visit(DestructorNameAST *ast)
 
 virtual bool visit(TemplateIdAST *ast)
 {
+    if (ast->template_token)
+        terminal(ast->template_token, ast);
     if (ast->identifier_token)
         terminal(ast->identifier_token, ast);
     if (ast->less_token)
         terminal(ast->less_token, ast);
-    for (TemplateArgumentListAST *iter = ast->template_argument_list; iter; iter = iter->next)
+    for (ExpressionListAST *iter = ast->template_argument_list; iter; iter = iter->next)
         nonterminal(iter->value);
     if (ast->greater_token)
         terminal(ast->greater_token, ast);

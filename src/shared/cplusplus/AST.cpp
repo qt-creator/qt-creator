@@ -3687,6 +3687,8 @@ unsigned TemplateDeclarationAST::lastToken() const
 /** \generated */
 unsigned TemplateIdAST::firstToken() const
 {
+    if (template_token)
+        return template_token;
     if (identifier_token)
         return identifier_token;
     if (less_token)
@@ -3711,6 +3713,8 @@ unsigned TemplateIdAST::lastToken() const
         return less_token + 1;
     if (identifier_token)
         return identifier_token + 1;
+    if (template_token)
+        return template_token + 1;
     return 0;
 }
 

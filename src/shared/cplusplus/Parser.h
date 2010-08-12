@@ -147,7 +147,7 @@ public:
     bool parseMemInitializerList(MemInitializerListAST *&node);
     bool parseMemberSpecification(DeclarationAST *&node);
     bool parseMultiplicativeExpression(ExpressionAST *&node);
-    bool parseTemplateId(NameAST *&node);
+    bool parseTemplateId(NameAST *&node, unsigned template_token = 0);
     bool parseClassOrNamespaceName(NameAST *&node);
     bool parseNameId(NameAST *&node);
     bool parseName(NameAST *&node, bool acceptTemplateId = true);

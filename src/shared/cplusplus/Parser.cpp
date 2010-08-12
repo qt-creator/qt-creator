@@ -419,14 +419,14 @@ bool Parser::parseClassOrNamespaceName(NameAST *&node)
         }
     } else if (LA() == T_TEMPLATE) {
         unsigned template_token = consumeToken();
-        if (parseTemplateId(node))
+        if (parseTemplateId(node, template_token))
             return true;
         rewind(template_token);
     }
     return false;
 }
 
-bool Parser::parseTemplateId(NameAST *&node)
+bool Parser::parseTemplateId(NameAST *&node, unsigned template_token)
 {
     DEBUG_THIS_RULE();
 
@@ -434,6 +434,7 @@ bool Parser::parseTemplateId(NameAST *&node)
 
     if (LA() == T_IDENTIFIER && LA(2) == T_LESS) {
         TemplateIdAST *ast = new (_pool) TemplateIdAST;
+        ast->template_token = template_token;
         ast->identifier_token = consumeToken();
         ast->less_token = consumeToken();
         if (LA() == T_GREATER || parseTemplateArgumentList(
@@ -2642,7 +2643,7 @@ bool Parser::parseUnqualifiedName(NameAST *&node, bool acceptTemplateId)
          return true;
     } else if (LA() == T_TEMPLATE) {
         unsigned template_token = consumeToken();
-        if (parseTemplateId(node))
+        if (parseTemplateId(node, template_token))
             return true;
         rewind(template_token);
     }

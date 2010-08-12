@@ -483,17 +483,8 @@ bool CheckSymbols::visit(NamedTypeSpecifierAST *)
 bool CheckSymbols::visit(ElaboratedTypeSpecifierAST *ast)
 {
     accept(ast->attribute_list);
-
-    if (ast->name) {
-        if (const Name *name = ast->name->name) {
-            if (name->isNameId() || name->isTemplateNameId()) {
-                addUse(ast->name, Use::Type);
-                return false;
-            }
-        }
-    }
-
     accept(ast->name);
+    addUse(ast->name, Use::Type);
     return false;
 }
 
@@ -678,7 +669,7 @@ bool CheckSymbols::visit(DestructorNameAST *ast)
 bool CheckSymbols::visit(QualifiedNameAST *ast)
 {
     if (ast->name) {
-        ClassOrNamespace *b = 0;
+        ClassOrNamespace *binding = 0;
         if (NestedNameSpecifierListAST *it = ast->nested_name_specifier_list) {
             NestedNameSpecifierAST *nested_name_specifier = it->value;
             if (NameAST *class_or_namespace_name = nested_name_specifier->class_or_namespace_name) { // ### remove shadowing
@@ -687,29 +678,39 @@ bool CheckSymbols::visit(QualifiedNameAST *ast)
                     accept(template_id->template_argument_list);
 
                 const Name *name = class_or_namespace_name->name;
-                b = _context.lookupType(name, enclosingScope());
-                addType(b, class_or_namespace_name);
+                binding = _context.lookupType(name, enclosingScope());
+                addType(binding, class_or_namespace_name);
 
-                for (it = it->next; b && it; it = it->next) {
+                for (it = it->next; it; it = it->next) {
                     NestedNameSpecifierAST *nested_name_specifier = it->value;
 
                     if (NameAST *class_or_namespace_name = nested_name_specifier->class_or_namespace_name) {
-                        if (TemplateIdAST *template_id = class_or_namespace_name->asTemplateId())
-                            accept(template_id->template_argument_list);
+                        if (TemplateIdAST *template_id = class_or_namespace_name->asTemplateId()) {
+                            if (template_id->template_token) {
+                                addUse(template_id, Use::Type);
+                                binding = 0; // there's no way we can find a binding.
+                            }
 
-                        b = b->findType(class_or_namespace_name->name);
-                        addType(b, class_or_namespace_name);
+                            accept(template_id->template_argument_list);
+                            if (! binding)
+                                continue;
+                        }
+
+                        if (binding) {
+                            binding = binding->findType(class_or_namespace_name->name);
+                            addType(binding, class_or_namespace_name);
+                        }
                     }
                 }
             }
         }
 
-        if (b && ast->unqualified_name) {
+        if (binding && ast->unqualified_name) {
             if (ast->unqualified_name->asDestructorName() != 0) {
-                if (hasVirtualDestructor(b))
+                if (hasVirtualDestructor(binding))
                     addUse(ast->unqualified_name, Use::VirtualMethod);
             } else {
-                addTypeOrStatic(b->find(ast->unqualified_name->name), ast->unqualified_name);
+                addTypeOrStatic(binding->find(ast->unqualified_name->name), ast->unqualified_name);
             }
         }
     }
@@ -804,6 +805,9 @@ void CheckSymbols::addUse(NameAST *ast, Use::Kind kind)
 
     if (DestructorNameAST *dtor = ast->asDestructorName())
         startToken = dtor->identifier_token;
+
+    else if (TemplateIdAST *templ = ast->asTemplateId())
+        startToken = templ->identifier_token;
 
     addUse(startToken, kind);
 }
