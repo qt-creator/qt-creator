@@ -257,6 +257,7 @@ class SubItem:
 
 class Children:
     def __init__(self, d, numChild = 1, childType = None, childNumChild = None):
+        # Note: childNumChild == 0 does not work.
         self.d = d
         self.numChild = numChild
         self.childType = childType

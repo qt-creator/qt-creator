@@ -485,7 +485,7 @@ def qdump__QLocale(d, item):
     d.putStringValue(call(item.value, "name()"))
     d.putNumChild(8)
     if d.isExpanded(item):
-        with Children(d, 1, lookupType(d.ns + "QChar"), 0):
+        with Children(d, 1, lookupType(d.ns + "QChar")):
             d.putCallItem("country", item, "country()")
             d.putCallItem("language", item, "language()")
             d.putCallItem("measurementSystem", item, "measurementSystem()")
