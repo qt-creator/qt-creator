@@ -148,23 +148,50 @@ void SbsV2Parser::readWarning()
 void SbsV2Parser::readRecipe()
 {
     Q_ASSERT(m_log.isStartElement() && m_log.name() == QLatin1String("recipe"));
+
     const QString name = m_log.attributes().value(QLatin1String("name")).toString();
+    m_currentSource = QDir(m_log.attributes().value("source").toString()).absolutePath();
+    m_currentTarget = QDir(m_log.attributes().value("target").toString()).absolutePath();
 
-    if (name == QLatin1String("compile") ||
-        name == QLatin1String("qmake_extra_pre_targetdep")) {
-        m_currentSource = QDir(m_log.attributes().value("source").toString()).absolutePath();
-        m_currentTarget = QDir(m_log.attributes().value("target").toString()).absolutePath();
-        qDebug() << "SOURCE:" << m_currentSource.absolutePath();
-        qDebug() << "TARGET:" << m_currentTarget.absolutePath();
-
-        QStringList output = m_log.readElementText().split(QChar('\n'));
-        foreach (const QString &line, output) {
-            if (line.isEmpty() || line.startsWith(QChar('+')))
-                continue;
-            IOutputParser::stdError(line);
+    int returnCode = 0;
+    QString outputText;
+    QXmlStreamReader::TokenType tokenType = QXmlStreamReader::Invalid;
+    while ((tokenType = m_log.readNext()) != QXmlStreamReader::Invalid) {
+        if (tokenType == QXmlStreamReader::Characters) {
+            outputText.append(m_log.text());
+        } else if (tokenType == QXmlStreamReader::StartElement) {
+            if (m_log.name() == QLatin1String("status")) {
+                if (m_log.attributes().value(QLatin1String("exit")) == QLatin1String("failed"))
+                    returnCode = m_log.attributes().value(QLatin1String("code")).toString().toInt();
+            }
+        } else if (tokenType == QXmlStreamReader::EndElement) {
+            if (m_log.name() == QLatin1String("recipe"))
+                break;
         }
-    } else {
-        m_log.skipCurrentElement();
+    }
+
+    QStringList output = outputText.split(QChar('\n'));
+    outputText.clear();
+    foreach (const QString &line, output) {
+        if (line.isEmpty())
+            continue;
+        if (line.startsWith(QChar('+'))) {
+            outputText.append(tr("Running command: %1\n").arg(line.mid(2)));
+            continue;
+        }
+        outputText.append(line);
+        outputText.append(QChar('\n'));
+        if (name == QLatin1String("compile") || name == QLatin1String("qmake_extra_pre_targetdep"))
+            IOutputParser::stdError(line);
+    }
+
+    if (returnCode != 0) {
+        //: %1 is the SBSv2 build recipe name, %2 the return code of the failed command
+        QString description = tr("Recipe %1 failed with exit code %2.").arg(name).arg(returnCode);
+        m_hub->addTask(Task(Task::Error, description, QString(), -1,
+                            ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        m_hub->addTask(Task(Task::Unknown, outputText, QString(), -1,
+                            ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
     }
 }
 
