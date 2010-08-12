@@ -156,8 +156,8 @@ public:
     /// Returns true if this Symbol's visibility is private.
     bool isPrivate() const;
 
-    /// Returns true if this Symbol is a ScopedSymbol.
-    bool isScopedSymbol() const;
+    /// Returns true if this Symbol is a Scope.
+    bool isScope() const;
 
     /// Returns true if this Symbol is an Enum.
     bool isEnum() const;

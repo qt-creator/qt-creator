@@ -344,7 +344,7 @@ bool Symbol::isProtected() const
 bool Symbol::isPrivate() const
 { return _visibility == Private; }
 
-bool Symbol::isScopedSymbol() const
+bool Symbol::isScope() const
 { return asScope() != 0; }
 
 bool Symbol::isEnum() const

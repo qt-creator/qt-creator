@@ -84,7 +84,7 @@ static void debugCppSymbolRecursion(QTextStream &str, const Overview &o,
         str << " declaration";
     if (s.isBlock())
         str << " block";
-    if (doRecurse && s.isScopedSymbol()) {
+    if (doRecurse && s.isScope()) {
         const Scope *scoped = s.asScope();
         const int size =  scoped->memberCount();
         str << " scoped symbol of " << size << '\n';
