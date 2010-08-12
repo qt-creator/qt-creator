@@ -41,6 +41,7 @@ QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 class BuildStep;
+class GnuMakeParser;
 class IBuildStepFactory;
 class Project;
 }
@@ -109,6 +110,7 @@ private:
     bool m_clean;
     QStringList m_userArgs;
     QString m_makeCmd;
+    ProjectExplorer::GnuMakeParser * m_gnuMakeParser;
 };
 
 class MakeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget

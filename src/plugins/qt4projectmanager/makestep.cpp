@@ -173,13 +173,16 @@ bool MakeStep::init()
     setEnabled(true);
     setArguments(args);
 
+    m_gnuMakeParser = 0;
+
     if (bc->qtVersion()->supportsTargetId(Qt4ProjectManager::Constants::S60_DEVICE_TARGET_ID) ||
         bc->qtVersion()->supportsTargetId(Qt4ProjectManager::Constants::S60_EMULATOR_TARGET_ID)) {
         if (bc->qtVersion()->isBuildWithSymbianSbsV2()) {
             setOutputParser(new SbsV2Parser);
         } else {
             setOutputParser(new AbldParser);
-            appendOutputParser(new ProjectExplorer::GnuMakeParser(workingDirectory));
+            m_gnuMakeParser = new ProjectExplorer::GnuMakeParser(workingDirectory);
+            appendOutputParser(m_gnuMakeParser);
         }
     } else {
         setOutputParser(new ProjectExplorer::GnuMakeParser(workingDirectory));
@@ -205,9 +208,8 @@ void MakeStep::run(QFutureInterface<bool> & fi)
 bool MakeStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
 {
     // Symbian does retun 0, even on failed makes! So we check for fatal make errors here.
-    ProjectExplorer::GnuMakeParser *parser = qobject_cast<ProjectExplorer::GnuMakeParser *>(outputParser());
-    if (parser && parser->fatalErrors() != 0)
-        return false;
+    if (m_gnuMakeParser)
+        return m_gnuMakeParser->fatalErrors() == 0;
 
     return AbstractProcessStep::processSucceeded(exitCode, status);
 }
