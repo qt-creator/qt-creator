@@ -607,8 +607,8 @@ void BreakHandler::toggleBreakpoint(const QString &fileName, int lineNumber)
         data->setMarkerFileName(fileName);
         data->setMarkerLineNumber(lineNumber);
         appendBreakpoint(data);
-        m_engine->attemptBreakpointSynchronization();
     }
+    m_engine->attemptBreakpointSynchronization();
 }
 
 void BreakHandler::toggleBreakpointEnabled(const QString &fileName, int lineNumber)
