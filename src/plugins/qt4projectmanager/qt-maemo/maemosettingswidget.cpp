@@ -145,6 +145,13 @@ void MaemoSettingsWidget::initGui()
     m_ui->setupUi(this);
     m_ui->nameLineEdit->setValidator(m_nameValidator);
     m_ui->keyFileLineEdit->setExpectedKind(Utils::PathChooser::File);
+    QRegExpValidator * const portsValidator
+        = new QRegExpValidator(QRegExp(MaemoDeviceConfig::portsRegExpr()), this);
+    m_ui->portsLineEdit->setValidator(portsValidator);
+#if 1
+    m_ui->freePortsLabel->hide();
+    m_ui->portsLineEdit->hide();
+#endif
 
     foreach (const MaemoDeviceConfig &devConf, m_devConfs)
         m_ui->configurationComboBox->addItem(devConf.name);
@@ -217,6 +224,7 @@ void MaemoSettingsWidget::fillInValues()
     m_ui->hostLineEdit->setText(currentConfig().server.host);
     m_ui->sshPortSpinBox->setValue(currentConfig().server.port);
     m_ui->gdbServerPortSpinBox->setValue(currentConfig().debuggingPort);
+    m_ui->portsLineEdit->setText(currentConfig().portsSpec);
     m_ui->timeoutSpinBox->setValue(currentConfig().server.timeout);
     m_ui->userLineEdit->setText(currentConfig().server.uname);
     m_ui->pwdLineEdit->setText(currentConfig().server.pwd);
@@ -300,6 +308,11 @@ void MaemoSettingsWidget::sshPortEditingFinished()
 void MaemoSettingsWidget::gdbServerPortEditingFinished()
 {
     currentConfig().debuggingPort = m_ui->gdbServerPortSpinBox->value();
+}
+
+void MaemoSettingsWidget::handleFreePortsChanged()
+{
+    currentConfig().portsSpec = m_ui->portsLineEdit->text();
 }
 
 void MaemoSettingsWidget::timeoutEditingFinished()

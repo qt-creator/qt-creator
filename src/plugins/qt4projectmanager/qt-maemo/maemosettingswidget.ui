@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>596</width>
-    <height>354</height>
+    <width>602</width>
+    <height>421</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -209,13 +209,44 @@
             </layout>
            </item>
            <item row="5" column="0">
+            <widget class="QLabel" name="freePortsLabel">
+             <property name="text">
+              <string>Free ports:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_7">
+             <item>
+              <widget class="QLineEdit" name="portsLineEdit">
+               <property name="toolTip">
+                <string>You can enter lists and ranges like this: 1024,1026-1028,1030</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item row="6" column="0">
             <widget class="QLabel" name="connectionTimeoutLabel">
              <property name="text">
               <string>Connection timeout:</string>
              </property>
             </widget>
            </item>
-           <item row="5" column="1">
+           <item row="6" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_5">
              <item>
               <widget class="QSpinBox" name="timeoutSpinBox">
@@ -248,24 +279,24 @@
              </item>
             </layout>
            </item>
-           <item row="6" column="0">
+           <item row="7" column="0">
             <widget class="QLabel" name="userNameLabel">
              <property name="text">
               <string>Username:</string>
              </property>
             </widget>
            </item>
-           <item row="6" column="1">
+           <item row="7" column="1">
             <widget class="QLineEdit" name="userLineEdit"/>
            </item>
-           <item row="7" column="0">
+           <item row="8" column="0">
             <widget class="QLabel" name="passwordLabel">
              <property name="text">
               <string>Password:</string>
              </property>
             </widget>
            </item>
-           <item row="7" column="1">
+           <item row="8" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_6">
              <item>
               <widget class="QLineEdit" name="pwdLineEdit">
@@ -283,14 +314,14 @@
              </item>
             </layout>
            </item>
-           <item row="8" column="0">
+           <item row="9" column="0">
             <widget class="QLabel" name="keyLabel">
              <property name="text">
               <string>Private key file:</string>
              </property>
             </widget>
            </item>
-           <item row="8" column="1">
+           <item row="9" column="1">
             <widget class="Utils::PathChooser" name="keyFileLineEdit" native="true"/>
            </item>
           </layout>
@@ -420,8 +451,8 @@
    <slot>userNameEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>419</x>
-     <y>268</y>
+     <x>425</x>
+     <y>302</y>
     </hint>
     <hint type="destinationlabel">
      <x>422</x>
@@ -436,8 +467,8 @@
    <slot>passwordEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>291</x>
-     <y>299</y>
+     <x>297</x>
+     <y>334</y>
     </hint>
     <hint type="destinationlabel">
      <x>423</x>
@@ -516,8 +547,8 @@
    <slot>keyFileEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>419</x>
-     <y>321</y>
+     <x>425</x>
+     <y>356</y>
     </hint>
     <hint type="destinationlabel">
      <x>257</x>
@@ -532,8 +563,8 @@
    <slot>keyFileEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>419</x>
-     <y>321</y>
+     <x>425</x>
+     <y>356</y>
     </hint>
     <hint type="destinationlabel">
      <x>257</x>
@@ -628,8 +659,8 @@
    <slot>timeoutEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>199</x>
-     <y>227</y>
+     <x>237</x>
+     <y>270</y>
     </hint>
     <hint type="destinationlabel">
      <x>6</x>
@@ -644,8 +675,8 @@
    <slot>timeoutEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>178</x>
-     <y>224</y>
+     <x>237</x>
+     <y>270</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -724,12 +755,28 @@
    <slot>showPassword(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>290</y>
+     <x>424</x>
+     <y>332</y>
     </hint>
     <hint type="destinationlabel">
      <x>3</x>
      <y>262</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>portsLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>MaemoSettingsWidget</receiver>
+   <slot>handleFreePortsChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>184</x>
+     <y>225</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>393</y>
     </hint>
    </hints>
   </connection>
@@ -753,5 +800,6 @@
   <slot>currentConfigChanged(int)</slot>
   <slot>showGenerateSshKeyDialog()</slot>
   <slot>showPassword(bool)</slot>
+  <slot>handleFreePortsChanged()</slot>
  </slots>
 </ui>

@@ -84,6 +84,7 @@ private slots:
     void passwordEditingFinished();
     void keyFileEditingFinished();
     void showPassword(bool showClearText);
+    void handleFreePortsChanged();
 
     // For configuration testing.
     void testConfig();

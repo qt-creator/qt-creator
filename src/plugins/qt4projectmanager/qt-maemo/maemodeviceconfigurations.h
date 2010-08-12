@@ -39,6 +39,7 @@
 
 #include <QtCore/QList>
 #include <QtCore/QObject>
+#include <QtCore/QPair>
 #include <QtCore/QString>
 
 QT_BEGIN_NAMESPACE
@@ -47,6 +48,31 @@ QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
 namespace Internal {
+
+class MaemoPortList
+{
+public:
+    typedef QPair<int, int> Range;
+    void addRange(const Range &range) { m_ranges << range; }
+    bool hasMore() const { return !m_ranges.isEmpty(); }
+    int count() const {
+        int n = 0;
+        foreach (const Range &r, m_ranges)
+            n += r.second - r.first + 1;
+        return n;
+    }
+    int getNext() {
+        Q_ASSERT(!m_ranges.isEmpty());
+        Range &firstRange = m_ranges.first();
+        const int next = firstRange.first++;
+        if (firstRange.first > firstRange.second)
+            m_ranges.removeFirst();
+        return next;
+    }
+
+private:
+    QList<Range> m_ranges;
+};
 
 class MaemoDeviceConfig
 {
@@ -57,7 +83,7 @@ public:
     MaemoDeviceConfig(const QSettings &settings, quint64 &nextId);
     void save(QSettings &settings) const;
     bool isValid() const;
-    QList<int> freePorts() const;
+    MaemoPortList freePorts() const;
     static QString portsRegExpr();
 
     static const quint64 InvalidId = 0;
@@ -72,6 +98,7 @@ public:
 private:
     int defaultSshPort(DeviceType type) const;
     int defaultDebuggingPort(DeviceType type) const;
+    QString defaultPortsSpec(DeviceType type) const;
     QString defaultHost(DeviceType type) const;
 
 };

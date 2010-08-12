@@ -57,6 +57,7 @@ namespace {
     const QLatin1String HostKey("Host");
     const QLatin1String SshPortKey("SshPort");
     const QLatin1String DebuggingPortKey("GdbServerPort");
+    const QLatin1String PortsSpecKey("FreePortsSpec");
     const QLatin1String UserNameKey("Uname");
     const QLatin1String AuthKey("Authentication");
     const QLatin1String KeyFileKey("KeyFile");
@@ -107,7 +108,7 @@ public:
      *          ElemList -> Elem [ ',' ElemList ]
      *          Elem -> Port [ '-' Port ]
      */
-    QList<int> parse()
+    MaemoPortList parse()
     {
         try {
             if (!atEnd())
@@ -115,7 +116,7 @@ public:
         } catch (ParseException &e) {
             qWarning("Malformed ports specification: %s", e.error);
         }
-        return m_ports;
+        return m_portList;
     }
 
 private:
@@ -138,15 +139,14 @@ private:
     {
         const int startPort = parsePort();
         if (atEnd() || nextChar() != '-') {
-            m_ports << startPort;
+            m_portList.addRange(MaemoPortList::Range(startPort, startPort));
             return;
         }
         ++m_pos;
         const int endPort = parsePort();
         if (endPort < startPort)
             throw ParseException("Invalid range (end < start).");
-        for (int port = startPort; port <= endPort; ++port)
-            m_ports << port;
+        m_portList.addRange(MaemoPortList::Range(startPort, endPort));
     }
 
     int parsePort()
@@ -154,12 +154,13 @@ private:
         if (atEnd())
             throw ParseException("Empty port string.");
         int port = 0;
-        char next = nextChar();
-        while (!atEnd() && std::isdigit(next)) {
+        do {
+            const char next = nextChar();
+            if (!std::isdigit(next))
+                break;
             port = 10*port + next - '0';
             ++m_pos;
-            next = nextChar();
-        }
+        } while (!atEnd());
         if (port == 0 || port >= 2 << 16)
             throw ParseException("Invalid port value.");
         return port;
@@ -168,7 +169,7 @@ private:
     bool atEnd() const { return m_pos == m_portsSpec.length(); }
     char nextChar() const { return m_portsSpec.at(m_pos).toAscii(); }
 
-    QList<int> m_ports;
+    MaemoPortList m_portList;
     int m_pos;
     const QString &m_portsSpec;
 };
@@ -177,6 +178,7 @@ MaemoDeviceConfig::MaemoDeviceConfig(const QString &name, MaemoDeviceConfig::Dev
     : name(name),
       type(devType),
       debuggingPort(defaultDebuggingPort(type)),
+      portsSpec(defaultPortsSpec(type)),
       internalId(MaemoDeviceConfigurations::instance().m_nextId++)
 {
     server.host = defaultHost(type);
@@ -192,6 +194,7 @@ MaemoDeviceConfig::MaemoDeviceConfig(const QSettings &settings,
     : name(settings.value(NameKey).toString()),
       type(static_cast<DeviceType>(settings.value(TypeKey, DefaultDeviceType).toInt())),
       debuggingPort(settings.value(DebuggingPortKey, defaultDebuggingPort(type)).toInt()),
+      portsSpec(settings.value(PortsSpecKey, defaultPortsSpec(type)).toString()),
       internalId(settings.value(InternalIdKey, nextId).toULongLong())
 {
     if (internalId == nextId)
@@ -230,6 +233,11 @@ int MaemoDeviceConfig::defaultDebuggingPort(DeviceType type) const
     return type == Physical ? DefaultGdbServerPortHW : DefaultGdbServerPortSim;
 }
 
+QString MaemoDeviceConfig::defaultPortsSpec(DeviceType type) const
+{
+    return QLatin1String(type == Physical ? "10000-10100" : "13219,14168");
+}
+
 QString MaemoDeviceConfig::defaultHost(DeviceType type) const
 {
     return type == Physical ? DefaultHostNameHW : DefaultHostNameSim;
@@ -240,7 +248,7 @@ bool MaemoDeviceConfig::isValid() const
     return internalId != InvalidId;
 }
 
-QList<int> MaemoDeviceConfig::freePorts() const
+MaemoPortList MaemoDeviceConfig::freePorts() const
 {
     return PortsSpecParser(portsSpec).parse();
 }
@@ -252,6 +260,7 @@ void MaemoDeviceConfig::save(QSettings &settings) const
     settings.setValue(HostKey, server.host);
     settings.setValue(SshPortKey, server.port);
     settings.setValue(DebuggingPortKey, debuggingPort);
+    settings.setValue(PortsSpecKey, portsSpec);
     settings.setValue(UserNameKey, server.uname);
     settings.setValue(AuthKey, server.authType);
     settings.setValue(PasswordKey, server.pwd);
