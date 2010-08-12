@@ -2262,7 +2262,7 @@ bool Parser::parseInitDeclarator(DeclaratorAST *&node,
 
     if (acceptStructDeclarator && LA() == T_COLON) {
         // anonymous bit-field declaration.
-        // ### TODO create the AST
+
     } else if (! parseDeclarator(node, /*stopAtCppInitializer = */ ! acceptStructDeclarator)) {
         return false;
     }
@@ -2289,7 +2289,9 @@ bool Parser::parseInitDeclarator(DeclaratorAST *&node,
         if (parseConstantExpression(expression) && (LA() == T_COMMA ||
                                                     LA() == T_SEMICOLON)) {
             // recognized a bitfielddeclarator.
-            // ### TODO create the AST
+            if (! node)
+                node = new (_pool) DeclaratorAST;
+            node->initializer = expression;
             return true;
         }
         rewind(colon_token);
