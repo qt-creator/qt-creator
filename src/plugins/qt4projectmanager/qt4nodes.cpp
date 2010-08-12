@@ -545,9 +545,9 @@ void Qt4PriFileNode::update(ProFile *includeFileExact, ProFileReader *readerExac
     QStringList folders;
     QStringList dynamicVariables = dynamicVarNames(readerExact, readerCumulative);
     foreach (const QString &dynamicVar, dynamicVariables) {
-        folders += readerExact->values(dynamicVar);
+        folders += readerExact->values(dynamicVar, includeFileExact);
         if (readerCumulative)
-            folders += readerCumulative->values(dynamicVar);
+            folders += readerCumulative->values(dynamicVar, includeFileCumlative);
     }
 
 
