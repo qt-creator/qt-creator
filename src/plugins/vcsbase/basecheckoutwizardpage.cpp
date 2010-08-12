@@ -45,12 +45,15 @@ BaseCheckoutWizardPage::BaseCheckoutWizardPage(QWidget *parent) :
     d(new BaseCheckoutWizardPagePrivate)
 {
     d->ui.setupUi(this);
-    d->ui.pathChooser->setExpectedKind(Utils::PathChooser::Directory);
-    connect(d->ui.pathChooser, SIGNAL(validChanged()), this, SLOT(slotChanged()));
+
+    connect(d->ui.repositoryLineEdit, SIGNAL(textChanged(QString)), this, SLOT(slotRepositoryChanged(QString)));
+
     connect(d->ui.checkoutDirectoryLineEdit, SIGNAL(validChanged()),
             this, SLOT(slotChanged()));
-    connect(d->ui.repositoryLineEdit, SIGNAL(textChanged(QString)), this, SLOT(slotRepositoryChanged(QString)));
     connect(d->ui.checkoutDirectoryLineEdit, SIGNAL(textEdited(QString)), this, SLOT(slotDirectoryEdited()));
+
+    d->ui.pathChooser->setExpectedKind(Utils::PathChooser::Directory);
+    connect(d->ui.pathChooser, SIGNAL(validChanged()), this, SLOT(slotChanged()));
 }
 
 BaseCheckoutWizardPage::~BaseCheckoutWizardPage()
@@ -111,9 +114,10 @@ void BaseCheckoutWizardPage::setRepository(const QString &r)
 
 void BaseCheckoutWizardPage::slotRepositoryChanged(const QString &repo)
 {
-    if (d->m_directoryEdited)
-        return;
-    d->ui.checkoutDirectoryLineEdit->setText(directoryFromRepository(repo));
+    // Derive directory name from repository unless user manually edited it.
+    if (!d->m_directoryEdited)
+        d->ui.checkoutDirectoryLineEdit->setText(directoryFromRepository(repo));
+    slotChanged();
 }
 
 QString BaseCheckoutWizardPage::directoryFromRepository(const QString &r) const
@@ -124,6 +128,7 @@ QString BaseCheckoutWizardPage::directoryFromRepository(const QString &r) const
 void BaseCheckoutWizardPage::slotDirectoryEdited()
 {
     d->m_directoryEdited = true;
+    slotChanged();
 }
 
 void BaseCheckoutWizardPage::changeEvent(QEvent *e)
