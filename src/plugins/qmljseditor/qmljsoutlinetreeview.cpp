@@ -78,6 +78,8 @@ QmlJSOutlineTreeView::QmlJSOutlineTreeView(QWidget *parent) :
     setDropIndicatorShown(true);
     setDragDropMode(InternalMove);
 
+    setRootIsDecorated(false);
+
     QmlJSOutlineItemDelegate *itemDelegate = new QmlJSOutlineItemDelegate(this);
     setItemDelegateForColumn(0, itemDelegate);
 }
