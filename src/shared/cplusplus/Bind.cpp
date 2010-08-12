@@ -67,7 +67,8 @@ Bind::Bind(TranslationUnit *unit)
     : ASTVisitor(unit),
       _scope(0),
       _expression(0),
-      _name(0)
+      _name(0),
+      _declaratorId(0)
 {
     if (unit->ast())
         translationUnit(unit->ast()->asTranslationUnit());
@@ -198,7 +199,7 @@ bool Bind::visit(DeclaratorAST *ast)
     return false;
 }
 
-FullySpecifiedType Bind::declarator(DeclaratorAST *ast, const FullySpecifiedType &init)
+FullySpecifiedType Bind::declarator(DeclaratorAST *ast, const FullySpecifiedType &init, DeclaratorIdAST **declaratorId)
 {
     FullySpecifiedType type = init;
 
@@ -208,6 +209,7 @@ FullySpecifiedType Bind::declarator(DeclaratorAST *ast, const FullySpecifiedType
     if (debug_todo)
         translationUnit()->warning(ast->firstToken(), "TODO: %s", __func__);
 
+    std::swap(_declaratorId, declaratorId);
     for (SpecifierListAST *it = ast->attribute_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
@@ -223,6 +225,7 @@ FullySpecifiedType Bind::declarator(DeclaratorAST *ast, const FullySpecifiedType
     }
     // unsigned equals_token = ast->equals_token;
     ExpressionTy initializer = this->expression(ast->initializer);
+    std::swap(_declaratorId, declaratorId);
     return init;
 }
 
@@ -982,7 +985,8 @@ FullySpecifiedType Bind::trailingReturnType(TrailingReturnTypeAST *ast, const Fu
     for (SpecifierListAST *it = ast->type_specifiers; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
-    type = this->declarator(ast->declarator, type);
+    DeclaratorIdAST *declaratorId = 0;
+    type = this->declarator(ast->declarator, type, &declaratorId);
     return type;
 }
 
@@ -1073,7 +1077,8 @@ bool Bind::visit(ForeachStatementAST *ast)
     for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
-    type = this->declarator(ast->declarator, type);
+    DeclaratorIdAST *declaratorId = 0;
+    type = this->declarator(ast->declarator, type, &declaratorId);
     ExpressionTy initializer = this->expression(ast->initializer);
     // unsigned comma_token = ast->comma_token;
     ExpressionTy expression = this->expression(ast->expression);
@@ -1223,7 +1228,8 @@ bool Bind::visit(ObjCFastEnumerationAST *ast)
     for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
-    type = this->declarator(ast->declarator, type);
+    DeclaratorIdAST *declaratorId = 0;
+    type = this->declarator(ast->declarator, type, &declaratorId);
     ExpressionTy initializer = this->expression(ast->initializer);
     // unsigned in_token = ast->in_token;
     ExpressionTy fast_enumeratable_expression = this->expression(ast->fast_enumeratable_expression);
@@ -1283,7 +1289,8 @@ bool Bind::visit(QtMethodAST *ast)
     // unsigned method_token = ast->method_token;
     // unsigned lparen_token = ast->lparen_token;
     FullySpecifiedType type;
-    type = this->declarator(ast->declarator, type);
+    DeclaratorIdAST *declaratorId = 0;
+    type = this->declarator(ast->declarator, type, &declaratorId);
     // unsigned rparen_token = ast->rparen_token;
     return false;
 }
@@ -1317,7 +1324,8 @@ bool Bind::visit(ConditionAST *ast)
     for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
-    type = this->declarator(ast->declarator, type);
+    DeclaratorIdAST *declaratorId = 0;
+    type = this->declarator(ast->declarator, type, &declaratorId);
     return false;
 }
 
@@ -1499,7 +1507,8 @@ bool Bind::visit(TypeIdAST *ast)
     for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
-    type = this->declarator(ast->declarator, type);
+    DeclaratorIdAST *declaratorId = 0;
+    type = this->declarator(ast->declarator, type, &declaratorId);
     return false;
 }
 
@@ -1592,7 +1601,8 @@ bool Bind::visit(SimpleDeclarationAST *ast)
         type = this->specifier(it->value, type);
     }
     for (DeclaratorListAST *it = ast->declarator_list; it; it = it->next) {
-        FullySpecifiedType declTy = this->declarator(it->value, type);
+        DeclaratorIdAST *declaratorId = 0;
+        FullySpecifiedType declTy = this->declarator(it->value, type, &declaratorId);
     }
     // unsigned semicolon_token = ast->semicolon_token;
     // List<Declaration *> *symbols = ast->symbols;
@@ -1639,7 +1649,8 @@ bool Bind::visit(QtPrivateSlotAST *ast)
     for (SpecifierListAST *it = ast->type_specifiers; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
-    type = this->declarator(ast->declarator, type);
+    DeclaratorIdAST *declaratorId = 0;
+    type = this->declarator(ast->declarator, type, &declaratorId);
     // unsigned rparen_token = ast->rparen_token;
     return false;
 }
@@ -1718,7 +1729,8 @@ bool Bind::visit(ExceptionDeclarationAST *ast)
     for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
-    type = this->declarator(ast->declarator, type);
+    DeclaratorIdAST *declaratorId = 0;
+    type = this->declarator(ast->declarator, type, &declaratorId);
     // unsigned dot_dot_dot_token = ast->dot_dot_dot_token;
     return false;
 }
@@ -1732,7 +1744,8 @@ bool Bind::visit(FunctionDefinitionAST *ast)
     for (SpecifierListAST *it = ast->decl_specifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
-    type = this->declarator(ast->declarator, type);
+    DeclaratorIdAST *declaratorId = 0;
+    type = this->declarator(ast->declarator, type, &declaratorId);
     this->ctorInitializer(ast->ctor_initializer);
     this->statement(ast->function_body);
     // Function *symbol = ast->symbol;
@@ -1796,7 +1809,8 @@ bool Bind::visit(ParameterDeclarationAST *ast)
     for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
-    type = this->declarator(ast->declarator, type);
+    DeclaratorIdAST *declaratorId = 0;
+    type = this->declarator(ast->declarator, type, &declaratorId);
     // unsigned equal_token = ast->equal_token;
     ExpressionTy expression = this->expression(ast->expression);
     // Argument *symbol = ast->symbol;
@@ -2292,21 +2306,14 @@ bool Bind::visit(MemberAccessAST *ast)
 // CoreDeclaratorAST
 bool Bind::visit(DeclaratorIdAST *ast)
 {
-    if (debug_todo)
-        translationUnit()->warning(ast->firstToken(), "TODO: %s", __func__);
-    // unsigned dot_dot_dot_token = ast->dot_dot_dot_token;
     /*const Name *name =*/ this->name(ast->name);
+    *_declaratorId = ast;
     return false;
 }
 
 bool Bind::visit(NestedDeclaratorAST *ast)
 {
-    if (debug_todo)
-        translationUnit()->warning(ast->firstToken(), "TODO: %s", __func__);
-    // unsigned lparen_token = ast->lparen_token;
-    FullySpecifiedType type;
-    type = this->declarator(ast->declarator, type);
-    // unsigned rparen_token = ast->rparen_token;
+    _type = this->declarator(ast->declarator, _type, _declaratorId);
     return false;
 }
 
