@@ -613,7 +613,7 @@ movableTypes = set([
     "QFileInfo", "QFixed", "QFixedPoint", "QFixedSize",
     "QHashDummyValue",
     "QIcon", "QImage",
-    "QLine", "QLineF", "QLatin1Char", "QLocal",
+    "QLine", "QLineF", "QLatin1Char", "QLocale",
     "QMatrix", "QModelIndex",
     "QPoint", "QPointF", "QPen", "QPersistentModelIndex",
     "QResourceRoot", "QRect", "QRectF", "QRegExp",
