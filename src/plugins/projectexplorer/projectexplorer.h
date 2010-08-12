@@ -205,6 +205,9 @@ private slots:
     void testGnuMakeParserParsing();
     void testGnuMakeParserTaskMangling_data();
     void testGnuMakeParserTaskMangling();
+
+    void testMsvcOutputParsers_data();
+    void testMsvcOutputParsers();
 #endif
 
 private:
