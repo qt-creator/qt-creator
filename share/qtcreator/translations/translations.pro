@@ -1,6 +1,6 @@
 include(../../../qtcreator.pri)
 
-LANGUAGES = de ja pl ru
+LANGUAGES = de ja pl ru zh_CN
 #LANGUAGES = cs es fr hu it sl
 
 # var, prepend, append
