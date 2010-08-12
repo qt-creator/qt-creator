@@ -1184,7 +1184,8 @@ void CentralizedFolderWatcher::watchFolders(const QList<QString> &folders, Qt4Pr
         // Support for recursive watching
         // we add the recursive directories we find
         QSet<QString> tmp = recursiveDirs(folder);
-        m_watcher.addPaths(tmp.toList());
+        if (!tmp.isEmpty())
+            m_watcher.addPaths(tmp.toList());
         m_recursiveWatchedFolders += tmp;
 
         if (debugCFW)
