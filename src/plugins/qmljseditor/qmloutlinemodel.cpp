@@ -409,7 +409,7 @@ QModelIndex QmlOutlineModel::enterObjectDefinition(AST::UiObjectDefinition *objD
         // it's a grouped propery like 'anchors'
         prototype.setText(typeName);
         prototype.setIcon(m_icons->scriptBindingIcon());
-        prototype.setData(PropertyType, ItemTypeRole);
+        prototype.setData(NonElementBindingType, ItemTypeRole);
     }
     prototype.setSourceLocation(getLocation(objDef));
     prototype.setNode(objDef);
@@ -428,7 +428,7 @@ QModelIndex QmlOutlineModel::enterObjectBinding(AST::UiObjectBinding *objBinding
 
     bindingPrototype.setText(asString(objBinding->qualifiedId));
     bindingPrototype.setIcon(m_icons->scriptBindingIcon());
-    bindingPrototype.setData(PropertyType, ItemTypeRole);
+    bindingPrototype.setData(ElementBindingType, ItemTypeRole);
     bindingPrototype.setNode(objBinding);
     bindingPrototype.setSourceLocation(getLocation(objBinding));
     bindingPrototype.setIdNode(objBinding->qualifiedId);
@@ -466,7 +466,7 @@ QModelIndex QmlOutlineModel::enterArrayBinding(AST::UiArrayBinding *arrayBinding
 
     bindingPrototype.setText(asString(arrayBinding->qualifiedId));
     bindingPrototype.setIcon(m_icons->scriptBindingIcon());
-    bindingPrototype.setData(PropertyType, ItemTypeRole);
+    bindingPrototype.setData(ElementBindingType, ItemTypeRole);
     bindingPrototype.setNode(arrayBinding);
     bindingPrototype.setSourceLocation(getLocation(arrayBinding));
     bindingPrototype.setIdNode(arrayBinding->qualifiedId);
@@ -487,7 +487,7 @@ QModelIndex QmlOutlineModel::enterScriptBinding(AST::UiScriptBinding *scriptBind
 
     prototype.setText(asString(scriptBinding->qualifiedId));
     prototype.setIcon(m_icons->scriptBindingIcon());
-    prototype.setData(PropertyType, ItemTypeRole);
+    prototype.setData(NonElementBindingType, ItemTypeRole);
     prototype.setSourceLocation(getLocation(scriptBinding));
     prototype.setNode(scriptBinding);
     prototype.setIdNode(scriptBinding->qualifiedId);
@@ -507,7 +507,7 @@ QModelIndex QmlOutlineModel::enterPublicMember(AST::UiPublicMember *publicMember
     if (publicMember->name)
         prototype.setText(publicMember->name->asString());
     prototype.setIcon(m_icons->publicMemberIcon());
-    prototype.setData(PropertyType, ItemTypeRole);
+    prototype.setData(NonElementBindingType, ItemTypeRole);
     prototype.setSourceLocation(getLocation(publicMember));
     prototype.setNode(publicMember);
 

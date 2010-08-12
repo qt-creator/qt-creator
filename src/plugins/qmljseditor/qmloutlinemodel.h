@@ -67,7 +67,8 @@ public:
 
     enum ItemTypes {
         ElementType,
-        PropertyType
+        ElementBindingType, // might contain elements as childs
+        NonElementBindingType // can be filtered out
     };
 
     QmlOutlineModel(QObject *parent = 0);

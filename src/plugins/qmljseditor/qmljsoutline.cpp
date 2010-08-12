@@ -33,7 +33,7 @@ bool QmlJSOutlineFilterModel::filterAcceptsRow(int sourceRow,
     if (m_filterBindings) {
         QModelIndex sourceIndex = sourceModel()->index(sourceRow, 0, sourceParent);
         QVariant itemType = sourceIndex.data(QmlOutlineModel::ItemTypeRole);
-        if (itemType == QmlOutlineModel::PropertyType) {
+        if (itemType == QmlOutlineModel::NonElementBindingType) {
             return false;
         }
     }
@@ -69,7 +69,7 @@ QmlJSOutlineWidget::QmlJSOutlineWidget(QWidget *parent) :
     layout->addWidget(m_treeView);
 
     m_showBindingsAction = new QAction(this);
-    m_showBindingsAction->setText(tr("Show bindings"));
+    m_showBindingsAction->setText(tr("Show all bindings"));
     m_showBindingsAction->setCheckable(true);
     m_showBindingsAction->setChecked(true);
     connect(m_showBindingsAction, SIGNAL(toggled(bool)), this, SLOT(setShowBindings(bool)));
