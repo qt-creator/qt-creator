@@ -63,33 +63,13 @@ const LookupContext &CppRefactoringChanges::context() const
     return m_context;
 }
 
-Document::Ptr CppRefactoringChanges::document(const QString &fileName) const
+Document::Ptr CppRefactoringChanges::document(const TextEditor::RefactoringFile &file) const
 {
-    QString source;
-    unsigned editorRevision = 0;
-    QDateTime lastModified;
-
-    if (m_workingCopy.contains(fileName)) {
-        const QPair<QString, unsigned> workingCopy = m_workingCopy.get(fileName);
-        source = workingCopy.first;
-        editorRevision = workingCopy.second;
-    } else {
-        QFile file(fileName);
-        if (! file.open(QFile::ReadOnly))
-            return Document::Ptr();
-
-        lastModified = QFileInfo(file).lastModified();
-        source = QTextStream(&file).readAll(); // ### FIXME read bytes, and remove the convert below
-        file.close();
-    }
+    QString source = file.document()->toPlainText();
+    QString fileName = file.fileName();
 
     const QByteArray contents = m_snapshot.preprocessedCode(source, fileName);
     Document::Ptr doc = m_snapshot.documentFromSource(contents, fileName);
-
-    if (lastModified.isValid())
-        doc->setLastModified(lastModified);
-    else
-        doc->setEditorRevision(editorRevision);
     doc->check();
 
     return doc;

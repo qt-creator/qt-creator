@@ -57,6 +57,7 @@ public:
 
     const QTextDocument *document() const;
     const QTextCursor cursor() const;
+    QString fileName() const;
 
     // converts 1-based line and column into 0-based offset
     int position(unsigned line, unsigned column) const;

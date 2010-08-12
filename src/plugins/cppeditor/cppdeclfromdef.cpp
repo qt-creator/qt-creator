@@ -84,12 +84,12 @@ public:
 
     void performChanges(TextEditor::RefactoringFile *, CppRefactoringChanges *refactoring)
     {
-        Document::Ptr targetDoc = refactoring->document(m_targetFileName);
+        TextEditor::RefactoringFile targetFile = refactoring->file(m_targetFileName);
+        Document::Ptr targetDoc = refactoring->document(targetFile);
         InsertionPointLocator locator(targetDoc);
         const InsertionLocation loc = locator.methodDeclarationInClass(m_targetSymbol, m_xsSpec);
         Q_ASSERT(loc.isValid());
 
-        TextEditor::RefactoringFile targetFile = refactoring->file(m_targetFileName);
         int targetPosition1 = targetFile.position(loc.line(), loc.column());
         int targetPosition2 = qMax(0, targetFile.position(loc.line(), 1) - 1);
 

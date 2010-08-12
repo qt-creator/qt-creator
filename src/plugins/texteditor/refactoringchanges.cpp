@@ -270,6 +270,11 @@ const QTextCursor RefactoringFile::cursor() const
     return QTextCursor();
 }
 
+QString RefactoringFile::fileName() const
+{
+    return m_fileName;
+}
+
 int RefactoringFile::position(unsigned line, unsigned column) const
 {
     Q_ASSERT(line != 0);

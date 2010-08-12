@@ -48,8 +48,9 @@ public:
 
     CPlusPlus::Document::Ptr thisDocument() const;
     const CPlusPlus::Snapshot &snapshot() const;
-    CPlusPlus::Document::Ptr document(const QString &fileName) const;
     const CPlusPlus::LookupContext &context() const;
+
+    CPlusPlus::Document::Ptr document(const TextEditor::RefactoringFile &file) const;
 
 private:
     virtual void indentSelection(const QTextCursor &selection) const;
