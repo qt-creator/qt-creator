@@ -681,17 +681,26 @@ bool Bind::visit(ParameterDeclarationClauseAST *ast)
     return false;
 }
 
-void Bind::parameterDeclarationClause(ParameterDeclarationClauseAST *ast)
+void Bind::parameterDeclarationClause(ParameterDeclarationClauseAST *ast, unsigned lparen_token, Function *fun)
 {
     if (! ast)
         return;
 
-    if (debug_todo)
-        translationUnit()->warning(ast->firstToken(), "TODO: %s", __func__);
+    if (! fun) {
+        translationUnit()->warning(lparen_token, "undefined function");
+        return;
+    }
+
+    Scope *previousScope = switchScope(fun);
+
     for (DeclarationListAST *it = ast->parameter_declaration_list; it; it = it->next) {
         this->declaration(it->value);
     }
-    // unsigned dot_dot_dot_token = ast->dot_dot_dot_token;
+
+    if (ast->dot_dot_dot_token)
+        fun->setVariadic(true);
+
+    (void) switchScope(previousScope);
 }
 
 bool Bind::visit(TranslationUnitAST *ast)
@@ -950,9 +959,12 @@ void Bind::lambdaDeclarator(LambdaDeclaratorAST *ast)
 
     if (debug_todo)
         translationUnit()->warning(ast->firstToken(), "TODO: %s", __func__);
+
+    Function *fun = 0; // ### implement me
+
     // unsigned lparen_token = ast->lparen_token;
     FullySpecifiedType type;
-    this->parameterDeclarationClause(ast->parameter_declaration_clause);
+    this->parameterDeclarationClause(ast->parameter_declaration_clause, ast->lparen_token, fun);
     // unsigned rparen_token = ast->rparen_token;
     for (SpecifierListAST *it = ast->attributes; it; it = it->next) {
         type = this->specifier(it->value, type);
@@ -2321,29 +2333,37 @@ bool Bind::visit(NestedDeclaratorAST *ast)
 // PostfixDeclaratorAST
 bool Bind::visit(FunctionDeclaratorAST *ast)
 {
-    if (debug_todo)
-        translationUnit()->warning(ast->firstToken(), "TODO: %s", __func__);
+    Function *fun = control()->newFunction(0, 0);
+    fun->setReturnType(_type);
+
     // unsigned lparen_token = ast->lparen_token;
-    this->parameterDeclarationClause(ast->parameters);
+    this->parameterDeclarationClause(ast->parameters, ast->lparen_token, fun);
     // unsigned rparen_token = ast->rparen_token;
-    FullySpecifiedType type;
+    FullySpecifiedType type(fun);
     for (SpecifierListAST *it = ast->cv_qualifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
+
+    // propagate the cv-qualifiers
+    fun->setConst(type.isConst());
+    fun->setVolatile(type.isVolatile());
+
     this->exceptionSpecification(ast->exception_specification, type);
     this->trailingReturnType(ast->trailing_return_type, type);
-    ExpressionTy as_cpp_initializer = this->expression(ast->as_cpp_initializer);
-    // Function *symbol = ast->symbol;
+    if (ast->as_cpp_initializer != 0) {
+        fun->setAmbiguous(true);
+        ExpressionTy as_cpp_initializer = this->expression(ast->as_cpp_initializer);
+    }
+    ast->symbol = fun;
+    _type = type;
     return false;
 }
 
 bool Bind::visit(ArrayDeclaratorAST *ast)
 {
-    if (debug_todo)
-        translationUnit()->warning(ast->firstToken(), "TODO: %s", __func__);
-    // unsigned lbracket_token = ast->lbracket_token;
     ExpressionTy expression = this->expression(ast->expression);
-    // unsigned rbracket_token = ast->rbracket_token;
+    FullySpecifiedType type(control()->arrayType(_type));
+    _type = type;
     return false;
 }
 

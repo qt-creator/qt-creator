@@ -94,7 +94,7 @@ protected:
     void newInitializer(NewInitializerAST *ast);
     FullySpecifiedType newTypeId(NewTypeIdAST *ast);
     int cppOperator(OperatorAST *ast);
-    void parameterDeclarationClause(ParameterDeclarationClauseAST *ast);
+    void parameterDeclarationClause(ParameterDeclarationClauseAST *ast, unsigned lparen_token, Function *fun);
     void translationUnit(TranslationUnitAST *ast);
     void objCProtocolRefs(ObjCProtocolRefsAST *ast);
     void objCMessageArgument(ObjCMessageArgumentAST *ast);
