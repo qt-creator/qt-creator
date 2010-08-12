@@ -301,8 +301,8 @@ protected:
         Class *klass = ast->symbol;
         const QByteArray className = id_cast(ast->name);
 
-        const Identifier *visit_id = control()->findOrInsertIdentifier("accept0");
-        Symbol *accept0Method = klass->members()->lookat(visit_id);
+        const Identifier *visit_id = control()->identifier("accept0");
+        Symbol *accept0Method = klass->find(visit_id);
         for (; accept0Method; accept0Method = accept0Method->next()) {
             if (accept0Method->identifier() != visit_id)
                 continue;
@@ -412,8 +412,8 @@ protected:
         Class *klass = ast->symbol;
         const QByteArray className = id_cast(ast->name);
 
-        const Identifier *match0_id = control()->findOrInsertIdentifier("match0");
-        Symbol *accept0Method = klass->members()->lookat(match0_id);
+        const Identifier *match0_id = control()->identifier("match0");
+        Symbol *accept0Method = klass->find(match0_id);
         for (; accept0Method; accept0Method = accept0Method->next()) {
             if (accept0Method->identifier() != match0_id)
                 continue;
@@ -562,8 +562,8 @@ protected:
         Class *klass = ast->symbol;
         const QByteArray className = id_cast(ast->name);
 
-        const Identifier *match0_id = control()->findOrInsertIdentifier("match0");
-        Symbol *match0Method = klass->members()->lookat(match0_id);
+        const Identifier *match0_id = control()->identifier("match0");
+        Symbol *match0Method = klass->find(match0_id);
         for (; match0Method; match0Method = match0Method->next()) {
             if (match0Method->identifier() != match0_id)
                 continue;
@@ -707,8 +707,8 @@ protected:
         if (! className.endsWith("AST"))
             return false;
 
-        const Identifier *clone_id = control()->findOrInsertIdentifier("clone");
-        Symbol *cloneMethod = klass->members()->lookat(clone_id);
+        const Identifier *clone_id = control()->identifier("clone");
+        Symbol *cloneMethod = klass->find(clone_id);
         for (; cloneMethod; cloneMethod = cloneMethod->next()) {
             if (cloneMethod->identifier() != clone_id)
                 continue;
@@ -840,8 +840,8 @@ protected:
         if (! className.endsWith("AST"))
             return false;
 
-        const Identifier *clone_id = control()->findOrInsertIdentifier("clone");
-        Symbol *cloneMethod = klass->members()->lookat(clone_id);
+        const Identifier *clone_id = control()->identifier("clone");
+        Symbol *cloneMethod = klass->find(clone_id);
         for (; cloneMethod; cloneMethod = cloneMethod->next()) {
             if (cloneMethod->identifier() != clone_id)
                 continue;
@@ -1446,8 +1446,8 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
     foreach (ClassSpecifierAST *classNode, astNodes.deriveds) {
         Class *klass = classNode->symbol;
 
-        const Identifier *match0_id = control->findOrInsertIdentifier("match0");
-        Symbol *match0Method = klass->members()->lookat(match0_id);
+        const Identifier *match0_id = control->identifier("match0");
+        Symbol *match0Method = klass->find(match0_id);
         for (; match0Method; match0Method = match0Method->next()) {
             if (match0Method->identifier() != match0_id)
                 continue;
