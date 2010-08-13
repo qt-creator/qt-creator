@@ -61,6 +61,9 @@ public:
 
     void operator()(TranslationUnitAST *ast, Namespace *globalNamespace);
 
+    bool skipFunctionBodies() const;
+    void setSkipFunctionBodies(bool skipFunctionBodies);
+
 protected:
     using ASTVisitor::translationUnit;
 
@@ -89,10 +92,10 @@ protected:
     void qtPropertyDeclarationItem(QtPropertyDeclarationItemAST *ast);
     void qtInterfaceName(QtInterfaceNameAST *ast);
     void baseSpecifier(BaseSpecifierAST *ast, unsigned colon_token, Class *klass);
-    void ctorInitializer(CtorInitializerAST *ast);
+    void ctorInitializer(CtorInitializerAST *ast, Function *fun);
     void enumerator(EnumeratorAST *ast);
     FullySpecifiedType exceptionSpecification(ExceptionSpecificationAST *ast, const FullySpecifiedType &init);
-    void memInitializer(MemInitializerAST *ast);
+    void memInitializer(MemInitializerAST *ast, Function *fun);
     const Name *nestedNameSpecifier(NestedNameSpecifierAST *ast);
     void newPlacement(NewPlacementAST *ast);
     FullySpecifiedType newArrayDeclarator(NewArrayDeclaratorAST *ast, const FullySpecifiedType &init);
@@ -281,6 +284,7 @@ private:
     DeclaratorIdAST **_declaratorId;
     int _visibility;
     int _methodKey;
+    bool _skipFunctionBodies;
 };
 
 } // end of namespace CPlusPlus

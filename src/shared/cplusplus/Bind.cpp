@@ -69,12 +69,26 @@ Bind::Bind(TranslationUnit *unit)
       _name(0),
       _declaratorId(0),
       _visibility(Symbol::Public),
-      _methodKey(Function::NormalMethod)
+      _methodKey(Function::NormalMethod),
+      _skipFunctionBodies(false)
 {
+}
+
+bool Bind::skipFunctionBodies() const
+{
+    return _skipFunctionBodies;
+}
+
+void Bind::setSkipFunctionBodies(bool skipFunctionBodies)
+{
+    _skipFunctionBodies = skipFunctionBodies;
 }
 
 Scope *Bind::switchScope(Scope *scope)
 {
+    if (! scope)
+        return _scope;
+
     std::swap(_scope, scope);
     return scope;
 }
@@ -312,14 +326,14 @@ bool Bind::visit(CtorInitializerAST *ast)
     return false;
 }
 
-void Bind::ctorInitializer(CtorInitializerAST *ast)
+void Bind::ctorInitializer(CtorInitializerAST *ast, Function *fun)
 {
     if (! ast)
         return;
 
     // unsigned colon_token = ast->colon_token;
     for (MemInitializerListAST *it = ast->member_initializer_list; it; it = it->next) {
-        this->memInitializer(it->value);
+        this->memInitializer(it->value, fun);
     }
     // unsigned dot_dot_dot_token = ast->dot_dot_dot_token;
 }
@@ -372,17 +386,18 @@ bool Bind::visit(MemInitializerAST *ast)
     return false;
 }
 
-void Bind::memInitializer(MemInitializerAST *ast)
+void Bind::memInitializer(MemInitializerAST *ast, Function *fun)
 {
     if (! ast)
         return;
 
     /*const Name *name =*/ this->name(ast->name);
-    // unsigned lparen_token = ast->lparen_token;
+
+    Scope *previousScope = switchScope(fun);
     for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
         /*ExpressionTy value =*/ this->expression(it->value);
     }
-    // unsigned rparen_token = ast->rparen_token;
+    (void) switchScope(previousScope);
 }
 
 bool Bind::visit(NestedNameSpecifierAST *ast)
@@ -1628,8 +1643,26 @@ bool Bind::visit(FunctionDefinitionAST *ast)
     }
     DeclaratorIdAST *declaratorId = 0;
     type = this->declarator(ast->declarator, type, &declaratorId);
-    this->ctorInitializer(ast->ctor_initializer);
-    this->statement(ast->function_body);
+    Function *fun = type->asFunctionType();
+    ast->symbol = fun;
+
+    if (fun) {
+        if (_scope->isClass()) {
+            fun->setVisibility(_visibility);
+            fun->setMethodKey(_methodKey);
+        }
+        _scope->addMember(fun);
+    } else
+        translationUnit()->warning(ast->firstToken(), "expected a function declarator");
+
+    this->ctorInitializer(ast->ctor_initializer, fun);
+
+    if (! _skipFunctionBodies) {
+        Scope *previousScope = switchScope(fun);
+        this->statement(ast->function_body);
+        (void) switchScope(previousScope);
+    }
+
     // Function *symbol = ast->symbol;
     return false;
 }
