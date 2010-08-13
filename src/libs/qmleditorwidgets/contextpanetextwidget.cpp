@@ -86,6 +86,11 @@ ContextPaneTextWidget::ContextPaneTextWidget(QWidget *parent) :
     connect(ui->styleComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(onStyleComboBoxChanged(QString)));
 }
 
+static inline bool checkIfBoolean(QVariant v)
+{
+    return (v.toString() == "true" || v.toString() == "false");
+}
+
 void ContextPaneTextWidget::setProperties(QmlJS::PropertyReader *propertyReader)
 {
     if (propertyReader->hasProperty(QLatin1String("font.pointSize"))) {
@@ -113,26 +118,46 @@ void ContextPaneTextWidget::setProperties(QmlJS::PropertyReader *propertyReader)
         ui->fontSizeSpinBox->setIsPixelSize(true);
     }
 
+    ui->boldButton->setEnabled(true);
     if (propertyReader->hasProperty(QLatin1String("font.bold"))) {
-        ui->boldButton->setChecked(propertyReader->readProperty(QLatin1String("font.bold")).toBool());
+        QVariant v = propertyReader->readProperty(QLatin1String("font.bold"));
+        if (checkIfBoolean(v))
+            ui->boldButton->setChecked(v.toBool());
+        else
+            ui->boldButton->setEnabled(false);
     } else {
         ui->boldButton->setChecked(false);
     }
 
+    ui->italicButton->setEnabled(true);
     if (propertyReader->hasProperty(QLatin1String("font.italic"))) {
-        ui->italicButton->setChecked(propertyReader->readProperty(QLatin1String("font.italic")).toBool());
+        QVariant v = propertyReader->readProperty(QLatin1String("font.italic"));
+        if (checkIfBoolean(v))
+            ui->italicButton->setChecked(v.toBool());
+        else
+            ui->italicButton->setEnabled(false);
     } else {
         ui->italicButton->setChecked(false);
     }
 
+    ui->underlineButton->setEnabled(true);
     if (propertyReader->hasProperty(QLatin1String("font.underline"))) {
-        ui->underlineButton->setChecked(propertyReader->readProperty(QLatin1String("font.underline")).toBool());
+        QVariant v = propertyReader->readProperty(QLatin1String("font.underline"));
+        if (checkIfBoolean(v))
+            ui->underlineButton->setChecked(v.toBool());
+        else
+            ui->underlineButton->setEnabled(false);
     } else {
         ui->underlineButton->setChecked(false);
     }
 
+    ui->strikeoutButton->setEnabled(true);
     if (propertyReader->hasProperty(QLatin1String("font.strikeout"))) {
-        ui->strikeoutButton->setChecked(propertyReader->readProperty(QLatin1String("font.strikeout")).toBool());
+        QVariant v = propertyReader->readProperty(QLatin1String("font.strikeout"));
+        if (checkIfBoolean(v))
+            ui->strikeoutButton->setChecked(v.toBool());
+        else
+            ui->strikeoutButton->setEnabled(false);
     } else {
         ui->strikeoutButton->setChecked(false);
     }
