@@ -1805,8 +1805,10 @@ bool Bind::visit(FunctionDefinitionAST *ast)
             fun->setMethodKey(_methodKey);
         }
 
-        if (declaratorId && declaratorId->name)
+        if (declaratorId && declaratorId->name) {
+            fun->setSourceLocation(declaratorId->name->firstToken(), translationUnit());
             fun->setName(declaratorId->name->name);
+        }
 
         _scope->addMember(fun);
     } else
