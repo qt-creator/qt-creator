@@ -1036,12 +1036,14 @@ bool Bind::visit(CaseStatementAST *ast)
 
 bool Bind::visit(CompoundStatementAST *ast)
 {
-    // unsigned lbrace_token = ast->lbrace_token;
+    Block *block = control()->newBlock(ast->firstToken());
+    ast->symbol = block;
+    _scope->addMember(block);
+    Scope *previousScope = switchScope(block);
     for (StatementListAST *it = ast->statement_list; it; it = it->next) {
         this->statement(it->value);
     }
-    // unsigned rbrace_token = ast->rbrace_token;
-    // Block *symbol = ast->symbol;
+    (void) switchScope(previousScope);
     return false;
 }
 
@@ -1708,10 +1710,13 @@ bool Bind::visit(FunctionDefinitionAST *ast)
 
     this->ctorInitializer(ast->ctor_initializer, fun);
 
-    if (! _skipFunctionBodies) {
+    if (! _skipFunctionBodies && ast->function_body) {
         Scope *previousScope = switchScope(fun);
         this->statement(ast->function_body);
         (void) switchScope(previousScope);
+
+        if (CompoundStatementAST *c = ast->function_body->asCompoundStatement())
+            fun->setBlock(c->symbol);
     }
 
     // Function *symbol = ast->symbol;
