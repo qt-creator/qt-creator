@@ -42,6 +42,7 @@
 #include <QtGui/QDesktopServices>
 
 #include <algorithm>
+#include <cctype>
 
 typedef Core::SshConnectionParameters::AuthType AuthType;
 
