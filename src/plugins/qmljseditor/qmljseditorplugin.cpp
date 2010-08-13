@@ -133,7 +133,9 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     Core::Command *cmd = addToolAction(m_actionPreview,  am, toolsMenuContext,
                    QLatin1String("QtQuick.Preview"), menuQtQuick, tr("Ctrl+Alt+R"));
     connect(cmd->action(), SIGNAL(triggered()), SLOT(openPreview()));
+
     m_previewRunner = new QmlJSPreviewRunner(this);
+    m_actionPreview->setEnabled(m_previewRunner->isReady());
 
     QAction *followSymbolUnderCursorAction = new QAction(tr("Follow Symbol Under Cursor"), this);
     cmd = am->registerAction(followSymbolUnderCursorAction, Constants::FOLLOW_SYMBOL_UNDER_CURSOR, context);

@@ -24,6 +24,10 @@ QmlJSPreviewRunner::QmlJSPreviewRunner(QObject *parent) :
     m_applicationLauncher.setEnvironment(environment.toStringList());
 }
 
+bool QmlJSPreviewRunner::isReady() const
+{
+    return !m_qmlViewerDefaultPath.isEmpty();
+}
 
 void QmlJSPreviewRunner::run(const QString &filename)
 {
