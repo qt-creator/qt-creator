@@ -84,6 +84,42 @@ void Bind::setSkipFunctionBodies(bool skipFunctionBodies)
     _skipFunctionBodies = skipFunctionBodies;
 }
 
+void Bind::setDeclSpecifiers(Symbol *symbol, const FullySpecifiedType &declSpecifiers)
+{
+    if (! symbol)
+        return;
+
+    int storage = Symbol::NoStorage;
+
+    if (declSpecifiers.isFriend())
+        storage = Symbol::Friend;
+    else if (declSpecifiers.isAuto())
+        storage = Symbol::Auto;
+    else if (declSpecifiers.isRegister())
+        storage = Symbol::Register;
+    else if (declSpecifiers.isStatic())
+        storage = Symbol::Static;
+    else if (declSpecifiers.isExtern())
+        storage = Symbol::Extern;
+    else if (declSpecifiers.isMutable())
+        storage = Symbol::Mutable;
+    else if (declSpecifiers.isTypedef())
+        storage = Symbol::Typedef;
+
+    symbol->setStorage(storage);
+
+    if (Function *funTy = symbol->asFunction()) {
+        if (declSpecifiers.isVirtual())
+            funTy->setVirtual(true);
+    }
+
+    if (declSpecifiers.isDeprecated())
+        symbol->setDeprecated(true);
+
+    if (declSpecifiers.isUnavailable())
+        symbol->setUnavailable(true);
+}
+
 Scope *Bind::switchScope(Scope *scope)
 {
     if (! scope)
@@ -1546,6 +1582,7 @@ bool Bind::visit(SimpleDeclarationAST *ast)
 
         Declaration *decl = control()->newDeclaration(sourceLocation, declName);
         decl->setType(declTy);
+        setDeclSpecifiers(decl, type);
 
         if (Function *fun = decl->type()->asFunctionType()) {
             if (declaratorId && declaratorId->name)
@@ -1559,6 +1596,7 @@ bool Bind::visit(SimpleDeclarationAST *ast)
                 funTy->setMethodKey(_methodKey);
             }
         }
+
         _scope->addMember(decl);
 
         *symbolTail = new (translationUnit()->memoryPool()) List<Declaration *>(decl);
@@ -1692,10 +1730,13 @@ bool Bind::visit(FunctionDefinitionAST *ast)
     }
     DeclaratorIdAST *declaratorId = 0;
     type = this->declarator(ast->declarator, type, &declaratorId);
+
     Function *fun = type->asFunctionType();
     ast->symbol = fun;
 
     if (fun) {
+        setDeclSpecifiers(fun, type);
+
         if (_scope->isClass()) {
             fun->setVisibility(_visibility);
             fun->setMethodKey(_methodKey);
