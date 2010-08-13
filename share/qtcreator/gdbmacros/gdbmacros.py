@@ -606,7 +606,6 @@ def qdump__QObject(d, item):
     #warn("OBJECTNAME: %s " % objectName)
     #warn("D_PTR: %s " % d_ptr)
     mo = d_ptr["metaObject"]
-    type = d.stripNamespaceFromType(item.value.type)
     if isNull(mo):
         mo = staticMetaObject
     #warn("MO: %s " % mo)
@@ -627,8 +626,9 @@ def qdump__QObject(d, item):
       with Children(d):
         d.putFields(item)
         # Parent and children.
-        d.putItem(Item(d_ptr["parent"], item.iname, "parent", "parent"))
-        d.putItem(Item(d_ptr["children"], item.iname, "children", "children"))
+        if stripClassTag(str(item.value.type)) == d.ns + "QObject":
+            d.putItem(Item(d_ptr["parent"], item.iname, "parent", "parent"))
+            d.putItem(Item(d_ptr["children"], item.iname, "children", "children"))
 
         # Properties.
         with SubItem(d):
