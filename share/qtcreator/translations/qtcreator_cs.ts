@@ -4406,7 +4406,7 @@ Chcete zastavit laděný proces a nahrát vybraný snímek?</translation>
         <translation>Editor formulářů</translation>
     </message>
     <message>
-        <source>The generated header of the form &apos;%1&apos; could be found.
+        <source>The generated header of the form &apos;%1&apos; could not be found.
 Rebuilding the project might help.</source>
         <translation>Automaticky vytvořený soubor hlavičky formuláře &apos;%1 se nepodařilo najít.
 Zkuste projekt vytvořit znovu.</translation>

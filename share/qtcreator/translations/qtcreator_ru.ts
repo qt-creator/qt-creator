@@ -5190,7 +5190,7 @@ Do you want to stop the debugged process and load the selected snapshot?</source
         <translation>Редактор форм</translation>
     </message>
     <message>
-        <source>The generated header of the form &apos;%1&apos; could be found.
+        <source>The generated header of the form &apos;%1&apos; could not be found.
 Rebuilding the project might help.</source>
         <translation>Не удалось найти сгенерированный заголовочный файл для формы &quot;%1&quot;.
 Пересборка проекта может помочь.</translation>

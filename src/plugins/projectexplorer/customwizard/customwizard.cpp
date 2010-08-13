@@ -330,13 +330,18 @@ QList<CustomWizard*> CustomWizard::createWizards()
         if (dir.exists(configFile)) {
             CustomWizardParametersPtr parameters(new Internal::CustomWizardParameters);
             Core::BaseFileWizardParameters baseFileParameters;
-            if (parameters->parse(dir.absoluteFilePath(configFile), &baseFileParameters, &errorMessage)) {
+            switch (parameters->parse(dir.absoluteFilePath(configFile), &baseFileParameters, &errorMessage)) {
+            case Internal::CustomWizardParameters::ParseOk:
                 parameters->directory = dir.absolutePath();
                 if (CustomWizardPrivate::verbose)
                     verboseLog += parameters->toString();
                 if (CustomWizard *w = createWizard(parameters, baseFileParameters))
                     rc.push_back(w);
-            } else {
+            case Internal::CustomWizardParameters::ParseDisabled:
+                if (CustomWizardPrivate::verbose)
+                    qWarning("Ignoring disabled wizard %s...", qPrintable(dir.absolutePath()));
+                break;
+            case Internal::CustomWizardParameters::ParseFailed:
                 qWarning("Failed to initialize custom project wizard in %s: %s",
                          qPrintable(dir.absolutePath()), qPrintable(errorMessage));
             }

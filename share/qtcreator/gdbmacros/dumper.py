@@ -1360,6 +1360,13 @@ class Dumper:
         except:
             hasMetaObject = False
 
+        # Is this derived from QObject?
+        try:
+            item.value['staticMetaObject']
+            hasMetaObject = True
+        except:
+            hasMetaObject = False
+
         #warn(" STRIPPED: %s" % nsStrippedType)
         #warn(" DUMPERS: %s" % (nsStrippedType in qqDumpers))
 
