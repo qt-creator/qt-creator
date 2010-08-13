@@ -345,14 +345,23 @@ bool Bind::visit(EnumeratorAST *ast)
     return false;
 }
 
-void Bind::enumerator(EnumeratorAST *ast)
+void Bind::enumerator(EnumeratorAST *ast, Enum *symbol)
 {
+    (void) symbol;
+
     if (! ast)
         return;
 
     // unsigned identifier_token = ast->identifier_token;
     // unsigned equal_token = ast->equal_token;
     ExpressionTy expression = this->expression(ast->expression);
+
+    if (ast->identifier_token) {
+        const Name *name = control()->nameId(identifier(ast->identifier_token));
+        Declaration *e = control()->newDeclaration(ast->identifier_token, name);
+        e->setType(control()->integerType(IntegerType::Int)); // ### introduce IntegerType::Enumerator
+        symbol->addMember(e);
+    }
 }
 
 bool Bind::visit(ExceptionSpecificationAST *ast)
@@ -2325,14 +2334,19 @@ bool Bind::visit(ElaboratedTypeSpecifierAST *ast)
 
 bool Bind::visit(EnumSpecifierAST *ast)
 {
-    // unsigned enum_token = ast->enum_token;
-    /*const Name *name =*/ this->name(ast->name);
-    // unsigned lbrace_token = ast->lbrace_token;
+    unsigned sourceLocation = ast->firstToken();
+    if (ast->name)
+        sourceLocation = ast->name->firstToken();
+
+    const Name *enumName = this->name(ast->name);
+    Enum *e = control()->newEnum(sourceLocation, enumName);
+    ast->symbol = e;
+
+    Scope *previousScope = switchScope(e);
     for (EnumeratorListAST *it = ast->enumerator_list; it; it = it->next) {
-        this->enumerator(it->value);
+        this->enumerator(it->value, e);
     }
-    // unsigned rbrace_token = ast->rbrace_token;
-    // Enum *symbol = ast->symbol;
+    (void) switchScope(previousScope);
     return false;
 }
 

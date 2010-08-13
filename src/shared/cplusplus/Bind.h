@@ -93,7 +93,7 @@ protected:
     void qtInterfaceName(QtInterfaceNameAST *ast);
     void baseSpecifier(BaseSpecifierAST *ast, unsigned colon_token, Class *klass);
     void ctorInitializer(CtorInitializerAST *ast, Function *fun);
-    void enumerator(EnumeratorAST *ast);
+    void enumerator(EnumeratorAST *ast, Enum *symbol);
     FullySpecifiedType exceptionSpecification(ExceptionSpecificationAST *ast, const FullySpecifiedType &init);
     void memInitializer(MemInitializerAST *ast, Function *fun);
     const Name *nestedNameSpecifier(NestedNameSpecifierAST *ast);
