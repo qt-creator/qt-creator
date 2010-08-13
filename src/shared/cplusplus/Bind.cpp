@@ -2380,10 +2380,22 @@ bool Bind::visit(ClassSpecifierAST *ast)
     klass->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     _scope->addMember(klass);
 
+    if (_scope->isClass())
+        klass->setVisibility(_visibility);
+
+    // set the class key
+    unsigned classKey = tokenKind(ast->classkey_token);
+    if (classKey == T_CLASS)
+        klass->setClassKey(Class::ClassKey);
+    else if (classKey == T_STRUCT)
+        klass->setClassKey(Class::StructKey);
+    else if (classKey == T_UNION)
+        klass->setClassKey(Class::UnionKey);
+
     _type.setType(klass);
 
     Scope *previousScope = switchScope(klass);
-    const int previousVisibility = switchVisibility(Symbol::Public);
+    const int previousVisibility = switchVisibility(visibilityForClassKey(classKey));
     const int previousMethodKey = switchMethodKey(Function::NormalMethod);
 
     for (BaseSpecifierListAST *it = ast->base_clause_list; it; it = it->next) {
@@ -2430,6 +2442,9 @@ bool Bind::visit(EnumSpecifierAST *ast)
     e->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     ast->symbol = e;
     _scope->addMember(e);
+
+    if (_scope->isClass())
+        e->setVisibility(_visibility);
 
     Scope *previousScope = switchScope(e);
     for (EnumeratorListAST *it = ast->enumerator_list; it; it = it->next) {
@@ -2590,6 +2605,19 @@ int Bind::visibilityForAccessSpecifier(int tokenKind)
         return Symbol::Private;
     case T_Q_SIGNALS:
         return Symbol::Protected;
+    default:
+        return Symbol::Public;
+    }
+}
+
+int Bind::visibilityForClassKey(int tokenKind)
+{
+    switch (tokenKind) {
+    case T_CLASS:
+        return Symbol::Private;
+    case T_STRUCT:
+    case T_UNION:
+        return Symbol::Public;
     default:
         return Symbol::Public;
     }
