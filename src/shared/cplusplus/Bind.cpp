@@ -803,16 +803,19 @@ bool Bind::visit(ObjCProtocolRefsAST *ast)
     return false;
 }
 
-void Bind::objCProtocolRefs(ObjCProtocolRefsAST *ast)
+void Bind::objCProtocolRefs(ObjCProtocolRefsAST *ast, Symbol *objcClassOrProtocol)
 {
     if (! ast)
         return;
 
-    // unsigned less_token = ast->less_token;
     for (NameListAST *it = ast->identifier_list; it; it = it->next) {
-        /*const Name *value =*/ this->name(it->value);
+        const Name *protocolName = this->name(it->value);
+        ObjCBaseProtocol *baseProtocol = control()->newObjCBaseProtocol(it->value->firstToken(), protocolName);
+        if (ObjCClass *klass = objcClassOrProtocol->asObjCClass())
+            klass->addProtocol(baseProtocol);
+        else if (ObjCProtocol *proto = objcClassOrProtocol->asObjCProtocol())
+            proto->addProtocol(baseProtocol);
     }
-    // unsigned greater_token = ast->greater_token;
 }
 
 bool Bind::visit(ObjCMessageArgumentAST *ast)
@@ -855,8 +858,10 @@ bool Bind::visit(ObjCInstanceVariablesDeclarationAST *ast)
     return false;
 }
 
-void Bind::objCInstanceVariablesDeclaration(ObjCInstanceVariablesDeclarationAST *ast)
+void Bind::objCInstanceVariablesDeclaration(ObjCInstanceVariablesDeclarationAST *ast, ObjCClass *klass)
 {
+    (void) klass;
+
     if (! ast)
         return;
 
@@ -2043,43 +2048,114 @@ bool Bind::visit(ObjCClassForwardDeclarationAST *ast)
     return false;
 }
 
+unsigned Bind::calculateScopeStart(ObjCClassDeclarationAST *ast) const
+{
+    if (ast->inst_vars_decl)
+        if (unsigned pos = ast->inst_vars_decl->lbrace_token)
+            return tokenAt(pos).end();
+
+    if (ast->protocol_refs)
+        if (unsigned pos = ast->protocol_refs->lastToken())
+            return tokenAt(pos - 1).end();
+
+    if (ast->superclass)
+        if (unsigned pos = ast->superclass->lastToken())
+            return tokenAt(pos - 1).end();
+
+    if (ast->colon_token)
+        return tokenAt(ast->colon_token).end();
+
+    if (ast->rparen_token)
+        return tokenAt(ast->rparen_token).end();
+
+    if (ast->category_name)
+        if (unsigned pos = ast->category_name->lastToken())
+            return tokenAt(pos - 1).end();
+
+    if (ast->lparen_token)
+        return tokenAt(ast->lparen_token).end();
+
+    if (ast->class_name)
+        if (unsigned pos = ast->class_name->lastToken())
+            return tokenAt(pos - 1).end();
+
+    return tokenAt(ast->firstToken()).offset;
+}
+
 bool Bind::visit(ObjCClassDeclarationAST *ast)
 {
-    FullySpecifiedType type;
+    FullySpecifiedType declSpecifiers;
     for (SpecifierListAST *it = ast->attribute_list; it; it = it->next) {
-        type = this->specifier(it->value, type);
+        declSpecifiers = this->specifier(it->value, declSpecifiers);
     }
-    // unsigned interface_token = ast->interface_token;
-    // unsigned implementation_token = ast->implementation_token;
-    /*const Name *class_name =*/ this->name(ast->class_name);
-    // unsigned lparen_token = ast->lparen_token;
-    /*const Name *category_name =*/ this->name(ast->category_name);
-    // unsigned rparen_token = ast->rparen_token;
-    // unsigned colon_token = ast->colon_token;
-    /*const Name *superclass =*/ this->name(ast->superclass);
-    this->objCProtocolRefs(ast->protocol_refs);
-    this->objCInstanceVariablesDeclaration(ast->inst_vars_decl);
+    const Name *class_name = this->name(ast->class_name);
+    const Name *category_name = this->name(ast->category_name);
+
+    const unsigned sourceLocation = ast->class_name ? ast->class_name->firstToken() : ast->firstToken();
+
+    ObjCClass *klass = control()->newObjCClass(sourceLocation, class_name);
+    ast->symbol = klass;
+    _scope->addMember(klass);
+
+    klass->setStartOffset(calculateScopeStart(ast));
+    klass->setEndOffset(tokenAt(ast->lastToken() - 1).begin());
+
+    if (ast->interface_token)
+        klass->setInterface(true);
+
+    klass->setCategoryName(category_name);
+
+    Scope *previousScope = switchScope(klass);
+
+    if (const Name *superclass = this->name(ast->superclass)) {
+        ObjCBaseClass *superKlass = control()->newObjCBaseClass(ast->superclass->firstToken(), superclass);
+        klass->setBaseClass(superKlass);
+    }
+
+    this->objCProtocolRefs(ast->protocol_refs, klass);
+    this->objCInstanceVariablesDeclaration(ast->inst_vars_decl, klass);
     for (DeclarationListAST *it = ast->member_declaration_list; it; it = it->next) {
         this->declaration(it->value);
     }
-    // unsigned end_token = ast->end_token;
-    // ObjCClass *symbol = ast->symbol;
+    (void) switchScope(previousScope);
     return false;
 }
 
 bool Bind::visit(ObjCProtocolForwardDeclarationAST *ast)
 {
-    FullySpecifiedType type;
+    FullySpecifiedType declSpecifiers;
     for (SpecifierListAST *it = ast->attribute_list; it; it = it->next) {
-        type = this->specifier(it->value, type);
+        declSpecifiers = this->specifier(it->value, declSpecifiers);
     }
-    // unsigned protocol_token = ast->protocol_token;
+
+    List<ObjCForwardProtocolDeclaration *> **symbolTail = &ast->symbols;
+
+    // unsigned class_token = ast->class_token;
     for (NameListAST *it = ast->identifier_list; it; it = it->next) {
-        /*const Name *value =*/ this->name(it->value);
+        const Name *name = this->name(it->value);
+
+        const unsigned sourceLocation = it->value ? it->value->firstToken() : ast->firstToken();
+        ObjCForwardProtocolDeclaration *fwd = control()->newObjCForwardProtocolDeclaration(sourceLocation, name);
+        setDeclSpecifiers(fwd, declSpecifiers);
+        _scope->addMember(fwd);
+
+        *symbolTail = new (translationUnit()->memoryPool()) List<ObjCForwardProtocolDeclaration *>(fwd);
+        symbolTail = &(*symbolTail)->next;
     }
-    // unsigned semicolon_token = ast->semicolon_token;
-    // List<ObjCForwardProtocolDeclaration *> *symbols = ast->symbols;
+
     return false;
+}
+
+unsigned Bind::calculateScopeStart(ObjCProtocolDeclarationAST *ast) const
+{
+    if (ast->protocol_refs)
+        if (unsigned pos = ast->protocol_refs->lastToken())
+            return tokenAt(pos - 1).end();
+    if (ast->name)
+        if (unsigned pos = ast->name->lastToken())
+            return tokenAt(pos - 1).end();
+
+    return tokenAt(ast->firstToken()).offset;
 }
 
 bool Bind::visit(ObjCProtocolDeclarationAST *ast)
@@ -2089,13 +2165,21 @@ bool Bind::visit(ObjCProtocolDeclarationAST *ast)
         type = this->specifier(it->value, type);
     }
     // unsigned protocol_token = ast->protocol_token;
-    /*const Name *name =*/ this->name(ast->name);
-    this->objCProtocolRefs(ast->protocol_refs);
+    const Name *name = this->name(ast->name);
+
+    const unsigned sourceLocation = ast->name ? ast->name->firstToken() : ast->firstToken();
+    ObjCProtocol *protocol = control()->newObjCProtocol(sourceLocation, name);
+    protocol->setStartOffset(calculateScopeStart(ast));
+    protocol->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    ast->symbol = protocol;
+    _scope->addMember(protocol);
+
+    Scope *previousScope = switchScope(protocol);
+    this->objCProtocolRefs(ast->protocol_refs, protocol);
     for (DeclarationListAST *it = ast->member_declaration_list; it; it = it->next) {
         this->declaration(it->value);
     }
-    // unsigned end_token = ast->end_token;
-    // ObjCProtocol *symbol = ast->symbol;
+    (void) switchScope(previousScope);
     return false;
 }
 

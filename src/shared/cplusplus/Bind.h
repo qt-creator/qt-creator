@@ -91,6 +91,9 @@ protected:
     int switchVisibility(int visibility);
     int switchMethodKey(int methodKey);
 
+    unsigned calculateScopeStart(ObjCClassDeclarationAST *ast) const;
+    unsigned calculateScopeStart(ObjCProtocolDeclarationAST *ast) const;
+
     const Name *objCSelectorArgument(ObjCSelectorArgumentAST *ast, bool *hasArg);
     void attribute(AttributeAST *ast);
     FullySpecifiedType declarator(DeclaratorAST *ast, const FullySpecifiedType &init, DeclaratorIdAST **declaratorId);
@@ -109,10 +112,10 @@ protected:
     int cppOperator(OperatorAST *ast);
     void parameterDeclarationClause(ParameterDeclarationClauseAST *ast, unsigned lparen_token, Function *fun);
     void translationUnit(TranslationUnitAST *ast);
-    void objCProtocolRefs(ObjCProtocolRefsAST *ast);
+    void objCProtocolRefs(ObjCProtocolRefsAST *ast, Symbol *objcClassOrProtocol);
     void objCMessageArgument(ObjCMessageArgumentAST *ast);
     void objCTypeName(ObjCTypeNameAST *ast);
-    void objCInstanceVariablesDeclaration(ObjCInstanceVariablesDeclarationAST *ast);
+    void objCInstanceVariablesDeclaration(ObjCInstanceVariablesDeclarationAST *ast, ObjCClass *klass);
     void objCPropertyAttribute(ObjCPropertyAttributeAST *ast);
     void objCMessageArgumentDeclaration(ObjCMessageArgumentDeclarationAST *ast);
     void objCMethodPrototype(ObjCMethodPrototypeAST *ast);
