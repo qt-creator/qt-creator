@@ -2407,6 +2407,7 @@ bool Bind::visit(EnumSpecifierAST *ast)
     const Name *enumName = this->name(ast->name);
     Enum *e = control()->newEnum(sourceLocation, enumName);
     ast->symbol = e;
+    _scope->addMember(e);
 
     Scope *previousScope = switchScope(e);
     for (EnumeratorListAST *it = ast->enumerator_list; it; it = it->next) {
