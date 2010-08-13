@@ -1684,7 +1684,21 @@ bool Bind::visit(ParameterDeclarationAST *ast)
     type = this->declarator(ast->declarator, type, &declaratorId);
     // unsigned equal_token = ast->equal_token;
     ExpressionTy expression = this->expression(ast->expression);
-    // Argument *symbol = ast->symbol;
+
+    unsigned sourceLocation = ast->firstToken();
+    if (declaratorId)
+        sourceLocation = declaratorId->firstToken();
+
+    const Name *argName = 0;
+    if (declaratorId && declaratorId->name)
+        argName = declaratorId->name->name;
+
+    Argument *arg = control()->newArgument(sourceLocation, argName);
+    arg->setType(type);
+
+    _scope->addMember(arg);
+
+    ast->symbol = arg;
     return false;
 }
 
