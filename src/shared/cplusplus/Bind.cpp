@@ -1504,12 +1504,34 @@ bool Bind::visit(SimpleDeclarationAST *ast)
     for (SpecifierListAST *it = ast->decl_specifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
+
+    List<Declaration *> **symbolTail = &ast->symbols;
+
     for (DeclaratorListAST *it = ast->declarator_list; it; it = it->next) {
         DeclaratorIdAST *declaratorId = 0;
-        FullySpecifiedType declTy = this->declarator(it->value, type, &declaratorId);
+        FullySpecifiedType declTy = this->declarator(it->value, type.qualifiedType(), &declaratorId);
+
+        const Name *declName = 0;
+        unsigned sourceLocation = ast->firstToken();
+        if (declaratorId && declaratorId->name) {
+            sourceLocation = declaratorId->firstToken();
+            declName = declaratorId->name->name;
+        }
+
+        Declaration *decl = control()->newDeclaration(sourceLocation, declName);
+        decl->setType(declTy);
+        if (_scope->isClass()) {
+            decl->setVisibility(_visibility);
+
+            if (Function *funTy = decl->type()->asFunctionType()) {
+                funTy->setMethodKey(_methodKey);
+            }
+        }
+        _scope->addMember(decl);
+
+        *symbolTail = new (translationUnit()->memoryPool()) List<Declaration *>(decl);
+        symbolTail = &(*symbolTail)->next;
     }
-    // unsigned semicolon_token = ast->semicolon_token;
-    // List<Declaration *> *symbols = ast->symbols;
     return false;
 }
 
