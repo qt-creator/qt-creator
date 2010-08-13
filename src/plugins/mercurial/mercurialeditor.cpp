@@ -55,6 +55,7 @@ MercurialEditor::MercurialEditor(const VCSBase::VCSBaseEditorParameters *type, Q
         diffIdentifier(QLatin1String(Constants::DIFFIDENTIFIER))
 {
     setAnnotateRevisionTextFormat(tr("Annotate %1"));
+    setAnnotatePreviousRevisionTextFormat(tr("Annotate parent revision %1"));
 }
 
 QSet<QString> MercurialEditor::annotationChanges() const

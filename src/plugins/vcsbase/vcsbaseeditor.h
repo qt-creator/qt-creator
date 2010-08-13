@@ -119,6 +119,11 @@ public:
     QString annotateRevisionTextFormat() const;
     void setAnnotateRevisionTextFormat(const QString &);
 
+    // Format for "Annotate Previous" revision menu entries. Should contain '%1" placeholder.
+    // Defaults to "annotateRevisionTextFormat" if unset.
+    QString annotatePreviousRevisionTextFormat() const;
+    void setAnnotatePreviousRevisionTextFormat(const QString &);
+
     // Format for "Copy" revision menu entries. Should contain '%1" placeholder
     QString copyRevisionTextFormat() const;
     void setCopyRevisionTextFormat(const QString &);
@@ -230,7 +235,7 @@ private:
 
     void jumpToChangeFromDiff(QTextCursor cursor);
     QAction *createDescribeAction(const QString &change);
-    QAction *createAnnotateAction(const QString &change);
+    QAction *createAnnotateAction(const QString &change, bool previous = false);
     QAction *createCopyRevisionAction(const QString &change);
 
     VCSBaseEditorPrivate *d;

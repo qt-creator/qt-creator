@@ -164,9 +164,9 @@ QSharedPointer<VCSBase::AbstractCheckoutJob> CloneWizardPage::createCheckoutJob(
 
 QStringList CloneWizardPage::branches(const QString &repository, int *current)
 {
-    // Run git on remote repository if URL is complete
+    // Run git on remote repository if an URL was specified.
     *current = 0;
-    if (!repository.endsWith(d->gitPostFix))
+    if (repository.isEmpty())
         return QStringList();
      const QStringList branches = Internal::GitPlugin::instance()->gitClient()->synchronousRepositoryBranches(repository);
      *current = branches.indexOf(QLatin1String("master"));

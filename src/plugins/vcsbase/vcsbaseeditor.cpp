@@ -158,6 +158,7 @@ struct VCSBaseEditorPrivate
     QList<int> m_diffSections; // line number where this section starts
     int m_cursorLine;
     QString m_annotateRevisionTextFormat;
+    QString m_annotatePreviousRevisionTextFormat;
     QString m_copyRevisionTextFormat;
     bool m_fileLogAnnotateEnabled;
 };
@@ -244,6 +245,16 @@ QString VCSBaseEditor::annotateRevisionTextFormat() const
 void VCSBaseEditor::setAnnotateRevisionTextFormat(const QString &f)
 {
     d->m_annotateRevisionTextFormat = f;
+}
+
+QString VCSBaseEditor::annotatePreviousRevisionTextFormat() const
+{
+    return d->m_annotatePreviousRevisionTextFormat;
+}
+
+void VCSBaseEditor::setAnnotatePreviousRevisionTextFormat(const QString &f)
+{
+    d->m_annotatePreviousRevisionTextFormat = f;
 }
 
 QString VCSBaseEditor::copyRevisionTextFormat() const
@@ -405,9 +416,12 @@ QAction *VCSBaseEditor::createDescribeAction(const QString &change)
     return a;
 }
 
-QAction *VCSBaseEditor::createAnnotateAction(const QString &change)
+QAction *VCSBaseEditor::createAnnotateAction(const QString &change, bool previous)
 {
-    QAction *a = new QAction(d->m_annotateRevisionTextFormat.arg(change), 0);
+    // Use 'previous' format if desired and available, else default to standard.
+    const QString &format =  previous && !d->m_annotatePreviousRevisionTextFormat.isEmpty() ?
+                d->m_annotatePreviousRevisionTextFormat : d->m_annotateRevisionTextFormat;
+    QAction *a = new QAction(format.arg(change), 0);
     a->setData(change);
     connect(a, SIGNAL(triggered()), this, SLOT(slotAnnotateRevision()));
     return a;
@@ -434,7 +448,7 @@ void VCSBaseEditor::contextMenuEvent(QContextMenuEvent *e)
                 menu->addAction(createCopyRevisionAction(d->m_currentChange));
                 menu->addAction(createDescribeAction(d->m_currentChange));
                 if (d->m_fileLogAnnotateEnabled)
-                    menu->addAction(createAnnotateAction(d->m_currentChange));
+                    menu->addAction(createAnnotateAction(d->m_currentChange, false));
                 break;
             case AnnotateOutput: { // Describe current / annotate previous
                     menu->addSeparator();
@@ -444,7 +458,7 @@ void VCSBaseEditor::contextMenuEvent(QContextMenuEvent *e)
                     if (!previousVersions.isEmpty()) {
                         menu->addSeparator();
                         foreach(const QString &pv, previousVersions)
-                            menu->addAction(createAnnotateAction(pv));
+                            menu->addAction(createAnnotateAction(pv, true));
                     } // has previous versions
                 }
                 break;
