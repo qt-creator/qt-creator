@@ -1357,6 +1357,13 @@ class Dumper:
         nsStrippedType = self.stripNamespaceFromType(typedefStrippedType)\
             .replace("::", "__")
 
+        # Is this derived from QObject?
+        try:
+            item.value['staticMetaObject']
+            hasMetaObject = True
+        except:
+            hasMetaObject = False
+
         #warn(" STRIPPED: %s" % nsStrippedType)
         #warn(" DUMPERS: %s" % (nsStrippedType in qqDumpers))
 
@@ -1369,11 +1376,14 @@ class Dumper:
 
         elif self.useFancy \
                 and ((format is None) or (format >= 1)) \
-                and (nsStrippedType in qqDumpers):
+                and ((nsStrippedType in qqDumpers) or hasMetaObject):
             #warn("IS DUMPABLE: %s " % type)
             #self.putAddress(value.address)
             self.putType(item.value.type)
-            qqDumpers[nsStrippedType](self, item)
+            if hasMetaObject:
+                qdump__QObject(self, item)
+            else:
+                qqDumpers[nsStrippedType](self, item)
             #warn(" RESULT: %s " % self.output)
 
         elif typedefStrippedType.code == gdb.TYPE_CODE_ENUM:

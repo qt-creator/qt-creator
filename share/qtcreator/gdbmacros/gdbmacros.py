@@ -588,9 +588,6 @@ def extractCString(table, offset):
     return result
 
 
-def qdump__QWidget(d, item):
-    qdump__QObject(d, item)
-
 def qdump__QObject(d, item):
     #warn("OBJECT: %s " % item.value)
     staticMetaObject = item.value["staticMetaObject"]
@@ -628,6 +625,7 @@ def qdump__QObject(d, item):
     d.putNumChild(4)
     if d.isExpanded(item):
       with Children(d):
+        d.putFields(item)
         # Parent and children.
         d.putItem(Item(d_ptr["parent"], item.iname, "parent", "parent"))
         d.putItem(Item(d_ptr["children"], item.iname, "children", "children"))
@@ -651,9 +649,8 @@ def qdump__QObject(d, item):
                 namesArray = names["d"]["array"]
                 dynamicPropertyCount = namesEnd - namesBegin
 
-            #staticPropertyCount = metaData[6]
-            # FIXME: Replace with plain memory accesses.
-            staticPropertyCount = call(mo, "propertyCount()")
+            #staticPropertyCount = call(mo, "propertyCount()")
+            staticPropertyCount = metaData[6]
             #warn("PROPERTY COUNT: %s" % staticPropertyCount)
             propertyCount = staticPropertyCount + dynamicPropertyCount
 

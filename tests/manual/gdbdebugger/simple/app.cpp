@@ -761,13 +761,18 @@ public:
         int i = 0;
     }
 
-    Q_PROPERTY(QString myProp READ myProp WRITE setMyProp)
-    QString myProp() const { return m_myProp; }
-    Q_SLOT void setMyProp(const QString &mt) { m_myProp = mt; }
+    Q_PROPERTY(QString myProp1 READ myProp1 WRITE setMyProp1)
+    QString myProp1() const { return m_myProp1; }
+    Q_SLOT void setMyProp1(const QString &mt) { m_myProp1 = mt; }
+
+    Q_PROPERTY(QString myProp2 READ myProp2 WRITE setMyProp2)
+    QString myProp2() const { return m_myProp2; }
+    Q_SLOT void setMyProp2(const QString &mt) { m_myProp2 = mt; }
 
 public:
     Ui *m_ui;
-    QString m_myProp;
+    QString m_myProp1;
+    QString m_myProp2;
 };
 
 } // namespace Bar
@@ -778,8 +783,10 @@ void testQObject(int &argc, char *argv[])
     QApplication app(argc, argv);
 #if 1
     Names::Bar::TestObject test;
-    test.setMyProp("HELLO");
-    QString s = test.myProp();
+    test.setMyProp1("HELLO");
+    test.setMyProp2("WORLD");
+    QString s = test.myProp1();
+    s += test.myProp2();
     int i = 1;
 #endif
 
