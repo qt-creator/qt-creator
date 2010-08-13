@@ -2020,16 +2020,26 @@ bool Bind::visit(UsingDirectiveAST *ast)
 
 bool Bind::visit(ObjCClassForwardDeclarationAST *ast)
 {
-    FullySpecifiedType type;
+    FullySpecifiedType declSpecifiers;
     for (SpecifierListAST *it = ast->attribute_list; it; it = it->next) {
-        type = this->specifier(it->value, type);
+        declSpecifiers = this->specifier(it->value, declSpecifiers);
     }
+
+    List<ObjCForwardClassDeclaration *> **symbolTail = &ast->symbols;
+
     // unsigned class_token = ast->class_token;
     for (NameListAST *it = ast->identifier_list; it; it = it->next) {
-        /*const Name *value =*/ this->name(it->value);
+        const Name *name = this->name(it->value);
+
+        const unsigned sourceLocation = it->value ? it->value->firstToken() : ast->firstToken();
+        ObjCForwardClassDeclaration *fwd = control()->newObjCForwardClassDeclaration(sourceLocation, name);
+        setDeclSpecifiers(fwd, declSpecifiers);
+        _scope->addMember(fwd);
+
+        *symbolTail = new (translationUnit()->memoryPool()) List<ObjCForwardClassDeclaration *>(fwd);
+        symbolTail = &(*symbolTail)->next;
     }
-    // unsigned semicolon_token = ast->semicolon_token;
-    // List<ObjCForwardClassDeclaration *> *symbols = ast->symbols;
+
     return false;
 }
 
