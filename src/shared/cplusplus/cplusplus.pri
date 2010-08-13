@@ -10,12 +10,6 @@ HEADERS += \
     $$PWD/ASTfwd.h \
     $$PWD/TypeMatcher.h \
     $$PWD/CPlusPlusForwardDeclarations.h \
-    $$PWD/CheckDeclaration.h \
-    $$PWD/CheckDeclarator.h \
-    $$PWD/CheckExpression.h \
-    $$PWD/CheckName.h \
-    $$PWD/CheckSpecifier.h \
-    $$PWD/CheckStatement.h \
     $$PWD/Control.h \
     $$PWD/CoreTypes.h \
     $$PWD/DiagnosticClient.h \
@@ -30,8 +24,6 @@ HEADERS += \
     $$PWD/Parser.h \
     $$PWD/Scope.h \
     $$PWD/Bind.h \
-    $$PWD/Semantic.h \
-    $$PWD/SemanticCheck.h \
     $$PWD/Symbol.h \
     $$PWD/Symbols.h \
     $$PWD/SymbolVisitor.h \
@@ -51,12 +43,6 @@ SOURCES += \
     $$PWD/ASTPatternBuilder.cpp \
     $$PWD/ASTMatcher.cpp \
     $$PWD/TypeMatcher.cpp \
-    $$PWD/CheckDeclaration.cpp \
-    $$PWD/CheckDeclarator.cpp \
-    $$PWD/CheckExpression.cpp \
-    $$PWD/CheckName.cpp \
-    $$PWD/CheckSpecifier.cpp \
-    $$PWD/CheckStatement.cpp \
     $$PWD/Control.cpp \
     $$PWD/CoreTypes.cpp \
     $$PWD/DiagnosticClient.cpp \
@@ -74,8 +60,6 @@ SOURCES += \
     $$PWD/Parser.cpp \
     $$PWD/Scope.cpp \
     $$PWD/Bind.cpp \
-    $$PWD/Semantic.cpp \
-    $$PWD/SemanticCheck.cpp \
     $$PWD/Symbol.cpp \
     $$PWD/Symbols.cpp \
     $$PWD/SymbolVisitor.cpp \

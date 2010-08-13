@@ -75,7 +75,7 @@ ResolveExpression::ResolveExpression(const LookupContext &context)
     : ASTVisitor(context.expressionDocument()->translationUnit()),
       _scope(0),
       _context(context),
-      sem(context.expressionDocument()->translationUnit())
+      bind(context.expressionDocument()->translationUnit())
 { }
 
 ResolveExpression::~ResolveExpression()
@@ -174,7 +174,7 @@ bool ResolveExpression::visit(BinaryExpressionAST *ast)
 bool ResolveExpression::visit(CastExpressionAST *ast)
 {
     Scope *dummyScope = _context.expressionDocument()->globalNamespace();
-    FullySpecifiedType ty = sem.check(ast->type_id, dummyScope);
+    FullySpecifiedType ty = bind(ast->type_id, dummyScope);
     addResult(ty, _scope);
     return false;
 }
@@ -199,7 +199,7 @@ bool ResolveExpression::visit(ConditionalExpressionAST *ast)
 bool ResolveExpression::visit(CppCastExpressionAST *ast)
 {
     Scope *dummyScope = _context.expressionDocument()->globalNamespace();
-    FullySpecifiedType ty = sem.check(ast->type_id, dummyScope);
+    FullySpecifiedType ty = bind(ast->type_id, dummyScope);
     addResult(ty, _scope);
     return false;
 }
@@ -221,8 +221,7 @@ bool ResolveExpression::visit(NewExpressionAST *ast)
 {
     if (ast->new_type_id) {
         Scope *dummyScope = _context.expressionDocument()->globalNamespace();
-        FullySpecifiedType ty = sem.check(ast->new_type_id->type_specifier_list, dummyScope);
-        ty = sem.check(ast->new_type_id->ptr_operator_list, ty, dummyScope);
+        FullySpecifiedType ty = bind(ast->new_type_id, dummyScope);
         FullySpecifiedType ptrTy(control()->pointerType(ty));
         addResult(ptrTy, _scope);
     }

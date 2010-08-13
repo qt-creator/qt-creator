@@ -162,11 +162,20 @@ void Bind::operator()(DeclarationAST *ast, Scope *scope)
     (void) switchScope(previousScope);
 }
 
-void Bind::operator()(ExpressionAST *ast, Scope *scope)
+FullySpecifiedType Bind::operator()(ExpressionAST *ast, Scope *scope)
 {
     Scope *previousScope = switchScope(scope);
-    expression(ast);
+    FullySpecifiedType ty = expression(ast);
     (void) switchScope(previousScope);
+    return ty;
+}
+
+FullySpecifiedType Bind::operator()(NewTypeIdAST *ast, Scope *scope)
+{
+    Scope *previousScope = switchScope(scope);
+    FullySpecifiedType ty = newTypeId(ast);
+    (void) switchScope(previousScope);
+    return ty;
 }
 
 void Bind::statement(StatementAST *ast)
@@ -1875,7 +1884,7 @@ bool Bind::visit(FunctionDefinitionAST *ast)
 
     this->ctorInitializer(ast->ctor_initializer, fun);
 
-    if (! _skipFunctionBodies && ast->function_body) {
+    if (fun && ! _skipFunctionBodies && ast->function_body) {
         Scope *previousScope = switchScope(fun);
         this->statement(ast->function_body);
         (void) switchScope(previousScope);

@@ -36,7 +36,6 @@
 #include <Control.h>
 #include <TranslationUnit.h>
 #include <DiagnosticClient.h>
-#include <Semantic.h>
 #include <Literals.h>
 #include <Symbols.h>
 #include <Names.h>

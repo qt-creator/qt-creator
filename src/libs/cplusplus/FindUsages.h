@@ -32,7 +32,6 @@
 
 #include "LookupContext.h"
 #include "CppDocument.h"
-#include "Semantic.h"
 #include "TypeOfExpression.h"
 #include <ASTVisitor.h>
 #include <QtCore/QSet>

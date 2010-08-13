@@ -60,7 +60,6 @@
 #include <utils/qtcassert.h>
 
 #include <TranslationUnit.h>
-#include <Semantic.h>
 #include <AST.h>
 #include <Scope.h>
 #include <Literals.h>

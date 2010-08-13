@@ -31,7 +31,6 @@
 #include "Overview.h"
 
 #include <Scope.h>
-#include <Semantic.h>
 #include <Literals.h>
 #include <Symbols.h>
 

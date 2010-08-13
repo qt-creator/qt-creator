@@ -43,7 +43,6 @@
 #include <Names.h>
 #include <CoreTypes.h>
 #include <Literals.h>
-#include <Semantic.h>
 #include <ASTVisitor.h>
 #include <SymbolVisitor.h>
 #include <TranslationUnit.h>

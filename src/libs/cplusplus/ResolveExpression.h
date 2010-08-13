@@ -33,8 +33,8 @@
 #include "LookupContext.h"
 
 #include <ASTVisitor.h>
-#include <Semantic.h>
 #include <FullySpecifiedType.h>
+#include <Bind.h>
 
 namespace CPlusPlus {
 
@@ -115,9 +115,8 @@ protected:
 private:
     Scope *_scope;
     LookupContext _context;
-    Semantic sem;
+    Bind bind;
     QList<LookupItem> _results;
-    Symbol *_declSymbol;
 };
 
 } // end of namespace CPlusPlus
