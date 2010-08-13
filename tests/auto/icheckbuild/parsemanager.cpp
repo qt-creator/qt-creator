@@ -33,10 +33,10 @@
 #include "Literals.h"
 #include "Overview.h"
 #include "Scope.h"
-#include "Semantic.h"
 #include "TranslationUnit.h"
 #include "AST.h"
 #include "Symbols.h"
+#include "Bind.h"
 #include <QDebug>
 #include "Name.h"
 #include "cpptools/cppmodelmanager.h"
@@ -317,7 +317,7 @@ QList<CLASSTREE*> ParseManager::CreateClassLists(bool isInterfaceHeader)
 }
 
 /********************************************
-Gets all the baseclass from a class and 
+Gets all the baseclass from a class and
 add those base classes into the baseclasslist
 ********************************************/
 void ParseManager::getBaseClasses(const CLASSLISTITEM* pclass
@@ -339,8 +339,8 @@ void ParseManager::getBaseClasses(const CLASSLISTITEM* pclass
         bool found = false;
         foreach(CLASSLISTITEM* pclspec, allclasslist)
         {
-            if(pclspec->classspec->symbol->name() 
-                && pBaseSpec->symbol->name() 
+            if(pclspec->classspec->symbol->name()
+                && pBaseSpec->symbol->name()
                 && pclspec->classspec->symbol->name()->isEqualTo(pBaseSpec->symbol->name()))
             {
                 child.push_back(pclspec);
@@ -368,7 +368,7 @@ void ParseManager::getBaseClasses(const CLASSLISTITEM* pclass
 /**************************************************
 This function finds and creates all Elements wich
 are significant for MetaDatas.
-Those element will be added in the aparameter 
+Those element will be added in the aparameter
 lists.
 **************************************************/
 void ParseManager::getElements(QList<FUNCTIONITEM*> &functionlist
@@ -401,7 +401,7 @@ void ParseManager::getElements(QList<FUNCTIONITEM*> &functionlist
 
             SimpleDeclarationAST *pdecl = pmemberlist->value->asSimpleDeclaration();
             if(pdecl){
-                for(List<Declaration*>* decllist = pdecl->symbols; decllist; decllist = decllist->next)
+                for(List<Symbol*>* decllist = pdecl->symbols; decllist; decllist = decllist->next)
                 {
                     Function* pfct = decllist->value->type()->asFunctionType();
                     if(pfct){
@@ -491,13 +491,13 @@ void ParseManager::getElements(QList<FUNCTIONITEM*> &functionlist
 }
 
 /*********************************************
-Function that starts the comare between the 
+Function that starts the comare between the
 parser result and their metadata content.
 *********************************************/
 bool ParseManager::checkAllMetadatas(ParseManager* pInterfaceParserManager, QString resultfile)
 {
     bool ret = true;
-    
+
     //Create output file
     if(resultfile != "" && ::m_resultFile == 0){
         ::m_resultFile = new QFile(resultfile);
@@ -758,7 +758,7 @@ QList<FUNCTIONITEM*> ParseManager::checkMetadataFunctions(const QList<QList<FUNC
 }
 
 /*********************************************
-Helper function to check if a function will 
+Helper function to check if a function will
 occure in the MetaData.
 *********************************************/
 bool ParseManager::isMetaObjFunction(FUNCTIONITEM* fct)
@@ -771,7 +771,7 @@ bool ParseManager::isMetaObjFunction(FUNCTIONITEM* fct)
 }
 
 /****************************************************
-Check if all function from iclassfctlist are defined 
+Check if all function from iclassfctlist are defined
 in the classfctlist as well.
 It will return all the function they are missing.
 ****************************************************/
@@ -812,7 +812,7 @@ QList<FUNCTIONITEM*> ParseManager::containsAllMetadataFunction(const QList<FUNCT
 }
 
 /************************************
-Function that gives back an error 
+Function that gives back an error
 string for a MetaData function
 mismatch.
 ************************************/
@@ -1050,7 +1050,7 @@ QList<PROPERTYITEM*> ParseManager::containsAllPropertyFunction(const QList<PROPE
 }
 
 /************************************
-Function that gives back an error 
+Function that gives back an error
 string for a Q_PROPERTY mismatch.
 ************************************/
 QStringList ParseManager::getErrorMessage(PROPERTYITEM* ppt)
@@ -1222,7 +1222,7 @@ void ParseManager::assignEnumValues(QENUMITEM* qenum, const QList<QList<ENUMITEM
 }
 
 /***********************************
-Function that checkt if the Q_ENUMS 
+Function that checkt if the Q_ENUMS
 are completed defined and if the
 Enum values are the same.
 ***********************************/
@@ -1262,7 +1262,7 @@ QList<QENUMITEM*> ParseManager::containsAllEnums(const QList<QENUMITEM*> &classq
 }
 
 /************************************
-Function that gives back an error 
+Function that gives back an error
 string for a Q_ENUMS mismatch.
 ************************************/
 QStringList ParseManager::getErrorMessage(QENUMITEM* qenum)
@@ -1355,8 +1355,8 @@ void ParseManager::assignFlagValues(QFLAGITEM* qflags, const QList<QList<QDECLAR
     QString enumname;
 
     //try to find if there is a deflare flag macro with the same name as in qflagname
-    Scope *classMembers = qflags->highestlevelclass->classspec->symbol->members();
-    Symbol *s = classMembers->lookat(qflags->name);
+    Scope *classMembers = qflags->highestlevelclass->classspec->symbol;
+    Symbol *s = classMembers->find(qflags->name);
     if (s->isTypedef()) {
         FullySpecifiedType ty = s->type();
         if (Enum *e = ty->asEnumType()) {
@@ -1426,7 +1426,7 @@ QList<QFLAGITEM*> ParseManager::containsAllFlags(const QList<QFLAGITEM*> &classq
 }
 
 /************************************
-Function that gives back an error 
+Function that gives back an error
 string for a Q_FLAGS mismatch.
 ************************************/
 QStringList ParseManager::getErrorMessage(QFLAGITEM* pfg)
@@ -1503,8 +1503,8 @@ PROPERTYITEM *PROPERTYITEM::create(QtPropertyDeclarationAST *ast, const CLASSLIS
     item->trlUnit = clazz->trlUnit;
 
     if (ast->type_id) {
-        Semantic mySem(item->trlUnit);
-        item->type = mySem.check(ast->type_id, clazz->classspec->symbol->asClass()->members());
+        Bind bind(item->trlUnit);
+        item->type = bind(ast->type_id, clazz->classspec->symbol);
     }
 
     for (QtPropertyDeclarationItemListAST *it = ast->property_declaration_items;

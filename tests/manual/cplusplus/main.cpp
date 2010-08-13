@@ -33,7 +33,6 @@
 #include <ASTMatcher.h>
 #include <Control.h>
 #include <Scope.h>
-#include <Semantic.h>
 #include <TranslationUnit.h>
 #include <Literals.h>
 #include <Symbols.h>
