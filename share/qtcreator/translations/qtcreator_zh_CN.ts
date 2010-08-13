@@ -5148,12 +5148,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>The generated header of the form &apos;%1&apos; could not be found.
 Rebuilding the project might help.</source>
-        <translation type="obsolete">找不到界面 &quot;%1&quot;生成的头文件。
-重新构建工程可能有帮助。</translation>
-    </message>
-    <message>
-        <source>The generated header of the form &apos;%1&apos; could not be found.
-Rebuilding the project might help.</source>
         <translation>找不到界面 &quot;%1&quot;生成的头文件。
 重新构建工程可能有帮助。</translation>
     </message>
