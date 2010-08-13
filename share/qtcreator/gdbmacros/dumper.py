@@ -132,9 +132,6 @@ def lookupType(typestring):
         pass
     return type
 
-def cleanType(type):
-    return lookupType(str(type))
-
 def cleanAddress(addr):
     if addr is None:
         return "<no address>"
