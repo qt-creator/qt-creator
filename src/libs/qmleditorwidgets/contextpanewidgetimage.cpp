@@ -44,12 +44,6 @@ namespace QmlEditorWidgets {
 
 bool LabelFilter::eventFilter(QObject *obj, QEvent *event)
 {
-    if (event->type() == QEvent::MouseButtonPress) {
-        return true;
-    }
-    if (event->type() == QEvent::MouseButtonRelease) {
-        return true;
-    }
     if (event->type() == QEvent::MouseButtonDblClick) {
         emit doubleClicked();
         event->accept();
