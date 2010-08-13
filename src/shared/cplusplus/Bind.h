@@ -72,6 +72,7 @@ protected:
     static int visibilityForAccessSpecifier(int tokenKind);
     static int visibilityForClassKey(int tokenKind);
     static int visibilityForObjCAccessSpecifier(int tokenKind);
+    static bool isObjCClassMethod(int tokenKind);
 
     void setDeclSpecifiers(Symbol *symbol, const FullySpecifiedType &declSpecifiers);
 
@@ -116,11 +117,11 @@ protected:
     void translationUnit(TranslationUnitAST *ast);
     void objCProtocolRefs(ObjCProtocolRefsAST *ast, Symbol *objcClassOrProtocol);
     void objCMessageArgument(ObjCMessageArgumentAST *ast);
-    void objCTypeName(ObjCTypeNameAST *ast);
+    FullySpecifiedType objCTypeName(ObjCTypeNameAST *ast);
     void objCInstanceVariablesDeclaration(ObjCInstanceVariablesDeclarationAST *ast, ObjCClass *klass);
     void objCPropertyAttribute(ObjCPropertyAttributeAST *ast);
-    void objCMessageArgumentDeclaration(ObjCMessageArgumentDeclarationAST *ast);
-    void objCMethodPrototype(ObjCMethodPrototypeAST *ast);
+    void objCMessageArgumentDeclaration(ObjCMessageArgumentDeclarationAST *ast, ObjCMethod *method);
+    ObjCMethod *objCMethodPrototype(ObjCMethodPrototypeAST *ast);
     void objCSynthesizedProperty(ObjCSynthesizedPropertyAST *ast);
     void lambdaIntroducer(LambdaIntroducerAST *ast);
     void lambdaCapture(LambdaCaptureAST *ast);

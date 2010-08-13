@@ -847,15 +847,14 @@ bool Bind::visit(ObjCTypeNameAST *ast)
     return false;
 }
 
-void Bind::objCTypeName(ObjCTypeNameAST *ast)
+FullySpecifiedType Bind::objCTypeName(ObjCTypeNameAST *ast)
 {
     if (! ast)
-        return;
+        return FullySpecifiedType();
 
-    // unsigned lparen_token = ast->lparen_token;
     // unsigned type_qualifier_token = ast->type_qualifier_token;
     ExpressionTy type_id = this->expression(ast->type_id);
-    // unsigned rparen_token = ast->rparen_token;
+    return type_id;
 }
 
 bool Bind::visit(ObjCInstanceVariablesDeclarationAST *ast)
@@ -903,18 +902,23 @@ bool Bind::visit(ObjCMessageArgumentDeclarationAST *ast)
     return false;
 }
 
-void Bind::objCMessageArgumentDeclaration(ObjCMessageArgumentDeclarationAST *ast)
+void Bind::objCMessageArgumentDeclaration(ObjCMessageArgumentDeclarationAST *ast, ObjCMethod *method)
 {
     if (! ast)
         return;
 
-    this->objCTypeName(ast->type_name);
-    FullySpecifiedType type;
+    FullySpecifiedType type = this->objCTypeName(ast->type_name);
+
     for (SpecifierListAST *it = ast->attribute_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
-    /*const Name *param_name =*/ this->name(ast->param_name);
-    // Argument *argument = ast->argument;
+
+    const Name *param_name = this->name(ast->param_name);
+    const unsigned sourceLocation = ast->param_name ? ast->param_name->firstToken() : ast->firstToken();
+    Argument *arg = control()->newArgument(sourceLocation, param_name);
+    arg->setType(type);
+    ast->argument = arg;
+    method->addMember(arg);
 }
 
 bool Bind::visit(ObjCMethodPrototypeAST *ast)
@@ -924,23 +928,41 @@ bool Bind::visit(ObjCMethodPrototypeAST *ast)
     return false;
 }
 
-void Bind::objCMethodPrototype(ObjCMethodPrototypeAST *ast)
+ObjCMethod *Bind::objCMethodPrototype(ObjCMethodPrototypeAST *ast)
 {
     if (! ast)
-        return;
+        return 0;
 
     // unsigned method_type_token = ast->method_type_token;
-    this->objCTypeName(ast->type_name);
-    /*const Name *selector =*/ this->name(ast->selector);
+    FullySpecifiedType returnType = this->objCTypeName(ast->type_name);
+    const Name *selector = this->name(ast->selector);
+
+    const unsigned sourceLocation = ast->selector ? ast->selector->firstToken() : ast->firstToken();
+    ObjCMethod *method = control()->newObjCMethod(sourceLocation, selector);
+    // ### set the offsets
+    method->setReturnType(returnType);
+    if (isObjCClassMethod(tokenKind(ast->method_type_token)))
+        method->setStorage(Symbol::Static);
+    method->setVisibility(_objcVisibility);
+    _scope->addMember(method);
+    ast->symbol = method;
+
+    Scope *previousScope = switchScope(method);
     for (ObjCMessageArgumentDeclarationListAST *it = ast->argument_list; it; it = it->next) {
-        this->objCMessageArgumentDeclaration(it->value);
+        this->objCMessageArgumentDeclaration(it->value, method);
     }
-    // unsigned dot_dot_dot_token = ast->dot_dot_dot_token;
-    FullySpecifiedType type;
+    (void) switchScope(previousScope);
+
+    if (ast->dot_dot_dot_token)
+        method->setVariadic(true);
+
+    FullySpecifiedType specifiers;
     for (SpecifierListAST *it = ast->attribute_list; it; it = it->next) {
-        type = this->specifier(it->value, type);
+        specifiers = this->specifier(it->value, specifiers);
     }
-    // ObjCMethod *symbol = ast->symbol;
+    setDeclSpecifiers(method, specifiers);
+
+    return method;
 }
 
 bool Bind::visit(ObjCSynthesizedPropertyAST *ast)
@@ -1579,7 +1601,7 @@ bool Bind::visit(ObjCProtocolExpressionAST *ast)
 bool Bind::visit(ObjCEncodeExpressionAST *ast)
 {
     // unsigned encode_token = ast->encode_token;
-    this->objCTypeName(ast->type_name);
+    FullySpecifiedType type = this->objCTypeName(ast->type_name);
     return false;
 }
 
@@ -2227,9 +2249,14 @@ bool Bind::visit(ObjCPropertyDeclarationAST *ast)
 
 bool Bind::visit(ObjCMethodDeclarationAST *ast)
 {
-    this->objCMethodPrototype(ast->method_prototype);
-    this->statement(ast->function_body);
-    // unsigned semicolon_token = ast->semicolon_token;
+    ObjCMethod *method = this->objCMethodPrototype(ast->method_prototype);
+
+    if (! _skipFunctionBodies && ast->function_body) {
+        Scope *previousScope = switchScope(method);
+        this->statement(ast->function_body);
+        (void) switchScope(previousScope);
+    }
+
     return false;
 }
 
@@ -2829,5 +2856,16 @@ int Bind::visibilityForObjCAccessSpecifier(int tokenKind)
         return Symbol::Package;
     default:
         return Symbol::Protected;
+    }
+}
+
+bool Bind::isObjCClassMethod(int tokenKind)
+{
+    switch (tokenKind) {
+    case T_PLUS:
+        return true;
+    case T_MINUS:
+    default:
+        return false;
     }
 }
