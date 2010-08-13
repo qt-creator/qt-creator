@@ -1660,8 +1660,21 @@ bool Bind::visit(NamespaceAST *ast)
     for (SpecifierListAST *it = ast->attribute_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
+
+    unsigned sourceLocation = ast->firstToken();
+    const Name *namespaceName = 0;
+    if (ast->identifier_token) {
+        sourceLocation = ast->identifier_token;
+        namespaceName = control()->nameId(identifier(ast->identifier_token));
+    }
+
+    Namespace *ns = control()->newNamespace(sourceLocation, namespaceName);
+    ast->symbol = ns;
+    _scope->addMember(ns);
+
+    Scope *previousScope = switchScope(ns);
     this->declaration(ast->linkage_body);
-    // Namespace *symbol = ast->symbol;
+    (void) switchScope(previousScope);
     return false;
 }
 
