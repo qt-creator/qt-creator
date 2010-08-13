@@ -74,7 +74,6 @@ public slots:
     void setDockWidgetArrangement(const QString &activeLanguage);
 
 private slots:
-    void prepareDebugger(Core::IMode *mode);
     void objectAdded(QObject *object);
     void aboutToRemoveObject(QObject *obj);
 
