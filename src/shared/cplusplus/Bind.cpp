@@ -1437,6 +1437,7 @@ bool Bind::visit(TypeIdAST *ast)
     }
     DeclaratorIdAST *declaratorId = 0;
     type = this->declarator(ast->declarator, type, &declaratorId);
+    _expression = type;
     return false;
 }
 
