@@ -6,7 +6,7 @@
 #include <Scope.h>
 #include <TranslationUnit.h>
 #include <Literals.h>
-#include <Semantic.h>
+#include <Bind.h>
 #include <Symbols.h>
 
 #include <QtTest>

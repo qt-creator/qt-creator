@@ -8,7 +8,7 @@
 #include <Parser.h>
 #include <AST.h>
 #include <ASTVisitor.h>
-#include <Semantic.h>
+#include <Bind.h>
 #include <Scope.h>
 #include <Symbols.h>
 #include <CoreTypes.h>
@@ -62,16 +62,14 @@ public:
         {
             QVERIFY(unit);
             QVERIFY(unit->ast());
-            Semantic sem(unit);
+            Bind bind(unit);
             TranslationUnitAST *ast = unit->ast()->asTranslationUnit();
             QVERIFY(ast);
-            for (DeclarationListAST *decl = ast->declaration_list; decl; decl = decl->next) {
-                sem.check(decl->value, globals);
-            }
+            bind(ast, globals);
         }
 
         TranslationUnit *unit;
-        Scope *globals;
+        Namespace *globals;
         unsigned errorCount;
     };
 
