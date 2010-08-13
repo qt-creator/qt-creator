@@ -2079,7 +2079,7 @@ unsigned Bind::calculateScopeStart(ObjCClassDeclarationAST *ast) const
         if (unsigned pos = ast->class_name->lastToken())
             return tokenAt(pos - 1).end();
 
-    return tokenAt(ast->firstToken()).offset;
+    return tokenAt(ast->firstToken()).begin();
 }
 
 bool Bind::visit(ObjCClassDeclarationAST *ast)
@@ -2155,7 +2155,7 @@ unsigned Bind::calculateScopeStart(ObjCProtocolDeclarationAST *ast) const
         if (unsigned pos = ast->name->lastToken())
             return tokenAt(pos - 1).end();
 
-    return tokenAt(ast->firstToken()).offset;
+    return tokenAt(ast->firstToken()).begin();
 }
 
 bool Bind::visit(ObjCProtocolDeclarationAST *ast)
