@@ -367,6 +367,7 @@ ContextPaneWidget* QuickToolBar::contextWidget()
         connect(m_widget.data(), SIGNAL(removeAndChangeProperty(QString,QString,QVariant, bool)), this, SLOT(onPropertyRemovedAndChange(QString,QString,QVariant, bool)));
         connect(m_widget.data(), SIGNAL(enabledChanged(bool)), this, SLOT(onEnabledChanged(bool)));
         connect(m_widget.data(), SIGNAL(pinnedChanged(bool)), this, SLOT(onPinnedChanged(bool)));
+        connect(m_widget.data(), SIGNAL(closed()), this, SIGNAL(closed()));
     }
     return m_widget.data();
 }

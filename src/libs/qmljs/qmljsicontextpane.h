@@ -56,6 +56,8 @@ public:
     virtual void setEnabled(bool) = 0;
     virtual bool isAvailable(TextEditor::BaseTextEditorEditable *editor, Document::Ptr doc, const QmlJS::Snapshot &snapshot, AST::Node *node) = 0;
     virtual QWidget* widget() = 0;
+signals:
+    void closed();
 };
 
 } // namespace QmlJS

@@ -100,6 +100,7 @@ signals:
     void removeAndChangeProperty(const QString &, const QString &, const QVariant &, bool);
     void pinnedChanged(bool);
     void enabledChanged(bool);
+    void closed();
 
 private slots:
     void onDisable(bool);

@@ -363,6 +363,7 @@ void ContextPaneWidget::onTogglePane()
         setLineButton();
     } else {
         deactivate();
+        emit closed();
     }
 }
 
