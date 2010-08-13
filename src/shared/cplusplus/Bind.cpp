@@ -1544,6 +1544,12 @@ bool Bind::visit(SimpleDeclarationAST *ast)
 
         Declaration *decl = control()->newDeclaration(sourceLocation, declName);
         decl->setType(declTy);
+
+        if (Function *fun = decl->type()->asFunctionType()) {
+            if (declaratorId && declaratorId->name)
+                fun->setName(declaratorId->name->name); // update the function name
+        }
+
         if (_scope->isClass()) {
             decl->setVisibility(_visibility);
 
@@ -1697,6 +1703,10 @@ bool Bind::visit(FunctionDefinitionAST *ast)
             fun->setVisibility(_visibility);
             fun->setMethodKey(_methodKey);
         }
+
+        if (declaratorId && declaratorId->name)
+            fun->setName(declaratorId->name->name);
+
         _scope->addMember(fun);
     } else
         translationUnit()->warning(ast->firstToken(), "expected a function declarator");
