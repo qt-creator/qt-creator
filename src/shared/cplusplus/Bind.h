@@ -59,6 +59,13 @@ class CPLUSPLUS_EXPORT Bind: protected ASTVisitor
 public:
     Bind(TranslationUnit *unit);
 
+    void operator()(TranslationUnitAST *ast, Namespace *globalNamespace);
+
+protected:
+    using ASTVisitor::translationUnit;
+
+    static int visibilityForAccessSpecifier(int tokenKind);
+
     typedef FullySpecifiedType ExpressionTy;
     ExpressionTy expression(ExpressionAST *ast);
 
@@ -74,11 +81,6 @@ public:
 
     Scope *currentScope() const;
     Scope *switchScope(Scope *scope);
-
-protected:
-    using ASTVisitor::translationUnit;
-
-    static int visibilityForAccessSpecifier(int tokenKind);
 
     const Name *objCSelectorArgument(ObjCSelectorArgumentAST *ast, bool *hasArg);
     void attribute(AttributeAST *ast);

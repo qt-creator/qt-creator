@@ -68,8 +68,6 @@ Bind::Bind(TranslationUnit *unit)
       _name(0),
       _declaratorId(0)
 {
-    if (unit->ast())
-        translationUnit(unit->ast()->asTranslationUnit());
 }
 
 Scope *Bind::currentScope() const
@@ -82,6 +80,13 @@ Scope *Bind::switchScope(Scope *scope)
     Scope *previousScope = _scope;
     _scope = scope;
     return previousScope;
+}
+
+void Bind::operator()(TranslationUnitAST *ast, Namespace *globalNamespace)
+{
+    Scope *previousScope = switchScope(globalNamespace);
+    translationUnit(ast);
+    (void) switchScope(previousScope);
 }
 
 void Bind::statement(StatementAST *ast)
@@ -703,12 +708,9 @@ void Bind::translationUnit(TranslationUnitAST *ast)
     if (! ast)
         return;
 
-    Namespace *globalNamespace = control()->newNamespace(0, 0);
-    Scope *previousScope = switchScope(globalNamespace);
     for (DeclarationListAST *it = ast->declaration_list; it; it = it->next) {
         this->declaration(it->value);
     }
-    (void) switchScope(previousScope);
 }
 
 bool Bind::visit(ObjCProtocolRefsAST *ast)
