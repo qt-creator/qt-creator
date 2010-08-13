@@ -38,11 +38,11 @@ namespace TextEditor {
 
 class BaseTextEditor;
 class FontSettings;
-struct TabSettings;
-struct StorageSettings;
-struct BehaviorSettings;
-struct DisplaySettings;
-struct CompletionSettings;
+class TabSettings;
+class StorageSettings;
+class BehaviorSettings;
+class DisplaySettings;
+class CompletionSettings;
 class HighlighterSettings;
 
 namespace Internal {

@@ -36,12 +36,13 @@
 
 namespace TextEditor {
 
-struct TabSettings;
-struct StorageSettings;
-struct BehaviorSettings;
+class TabSettings;
+class StorageSettings;
+class BehaviorSettings;
 
-struct BehaviorSettingsPageParameters
+class BehaviorSettingsPageParameters
 {
+public:
     QString id;
     QString displayName;
     QString settingsPrefix;

@@ -36,10 +36,11 @@
 
 namespace TextEditor {
 
-struct DisplaySettings;
+class DisplaySettings;
 
-struct DisplaySettingsPageParameters
+class DisplaySettingsPageParameters
 {
+public:
     QString id;
     QString displayName;
     QString settingsPrefix;

@@ -44,7 +44,7 @@
 
 namespace TextEditor {
 
-struct TabSettings;
+class TabSettings;
 
 namespace Internal {
 

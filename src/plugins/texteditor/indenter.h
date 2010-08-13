@@ -41,7 +41,7 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 
-struct TabSettings;
+class TabSettings;
 
 class TEXTEDITOR_EXPORT Indenter
 {

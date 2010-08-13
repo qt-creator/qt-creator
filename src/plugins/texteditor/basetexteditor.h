@@ -47,7 +47,7 @@ namespace Utils {
 }
 
 namespace TextEditor {
-struct TabSettings;
+class TabSettings;
 
 namespace Internal {
     class BaseTextEditorPrivate;
@@ -85,10 +85,10 @@ class ITextMarkable;
 class BaseTextDocument;
 class BaseTextEditorEditable;
 class FontSettings;
-struct BehaviorSettings;
-struct CompletionSettings;
-struct DisplaySettings;
-struct StorageSettings;
+class BehaviorSettings;
+class CompletionSettings;
+class DisplaySettings;
+class StorageSettings;
 
 class TEXTEDITOR_EXPORT BaseTextEditorAnimator : public QObject
 {

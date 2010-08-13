@@ -42,8 +42,9 @@ namespace TextEditor {
  * Settings that describe how the text editor behaves. This does not include
  * the TabSettings and StorageSettings.
  */
-struct TEXTEDITOR_EXPORT BehaviorSettings
+class TEXTEDITOR_EXPORT BehaviorSettings
 {
+public:
     BehaviorSettings();
 
     void toSettings(const QString &category, QSettings *s) const;

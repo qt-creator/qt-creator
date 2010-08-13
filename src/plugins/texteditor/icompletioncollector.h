@@ -44,10 +44,11 @@ class ICompletionCollectorPrivate;
 
 class ICompletionCollector;
 class ITextEditable;
-struct CompletionSettings;
+class CompletionSettings;
 
-struct CompletionItem
+class CompletionItem
 {
+public:
     CompletionItem(ICompletionCollector *collector = 0)
         : relevance(0),
           duplicateCount(0),

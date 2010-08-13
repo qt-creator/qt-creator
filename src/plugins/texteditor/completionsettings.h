@@ -53,8 +53,9 @@ enum CompletionTrigger {
 /**
  * Settings that describe how the code completion behaves.
  */
-struct TEXTEDITOR_EXPORT CompletionSettings
+class TEXTEDITOR_EXPORT CompletionSettings
 {
+public:
     CompletionSettings();
 
     void toSettings(const QString &category, QSettings *s) const;

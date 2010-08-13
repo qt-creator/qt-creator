@@ -42,8 +42,9 @@ namespace TextEditor {
 
 // Tab settings: Data type the GeneralSettingsPage acts on
 // with some convenience functions for formatting.
-struct TEXTEDITOR_EXPORT TabSettings
+class TEXTEDITOR_EXPORT TabSettings
 {
+public:
     // This enum must match the indexes of tabKeyBehavior widget
     enum TabKeyBehavior {
         TabNeverIndents = 0,

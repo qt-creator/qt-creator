@@ -38,8 +38,9 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 
-struct TEXTEDITOR_EXPORT DisplaySettings
+class TEXTEDITOR_EXPORT DisplaySettings
 {
+public:
     DisplaySettings();
 
     void toSettings(const QString &category, QSettings *s) const;

@@ -36,7 +36,7 @@
 
 namespace TextEditor {
 
-struct CompletionItem;
+class CompletionItem;
 class ICompletionCollector;
 class ITextEditable;
 
