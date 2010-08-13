@@ -102,6 +102,8 @@ void MaemoDeployStepWidget::handleMountPortEdited(int newPort)
 {
 #ifdef DEPLOY_VIA_MOUNT
     m_step->setMountPort(newPort);
+#else
+    Q_UNUSED(newPort);
 #endif
 }
 
