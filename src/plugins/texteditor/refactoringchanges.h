@@ -51,7 +51,7 @@ public:
     RefactoringFile();
     RefactoringFile(const QString &fileName, RefactoringChanges *refactoringChanges);
     RefactoringFile(const RefactoringFile &other);
-    ~RefactoringFile();
+    virtual ~RefactoringFile();
 
     bool isValid() const;
 
@@ -63,19 +63,19 @@ public:
     int position(unsigned line, unsigned column) const;
 
     QChar charAt(int pos) const;
-    QString textAt(int start, int end) const;
-    QString textAt(const Range &range) const;
+    QString textOf(int start, int end) const;
+    QString textOf(const Range &range) const;
 
     bool change(const Utils::ChangeSet &changeSet, bool openEditor = true);
     bool indent(const Range &range, bool openEditor = true);
 
-private:
+protected:
     // not assignable
     //const RefactoringFile &operator=(const RefactoringFile &other);
 
     QTextDocument *mutableDocument() const;
 
-private:
+protected:
     QString m_fileName;
     RefactoringChanges *m_refactoringChanges;
     mutable QTextDocument *m_document;

@@ -110,7 +110,7 @@ public:
     virtual void perform();
 
 protected:
-    virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *refactoring) = 0;
+    virtual void performChanges(CppRefactoringFile *currentFile, CppRefactoringChanges *refactoring) = 0;
 
     QString fileName() const;
 

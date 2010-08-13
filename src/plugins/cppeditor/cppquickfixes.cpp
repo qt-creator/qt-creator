@@ -148,7 +148,7 @@ private:
             return QApplication::translate("CppTools::QuickFix", "Rewrite Using %1").arg(replacement);
         }
 
-        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
+        virtual void performChanges(CppRefactoringFile *currentFile, CppRefactoringChanges *)
         {
             ChangeSet changes;
             if (negation) {
@@ -243,7 +243,7 @@ private:
                 return QApplication::translate("CppTools::QuickFix", "Rewrite Using %1").arg(replacement);
         }
 
-        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
+        virtual void performChanges(CppRefactoringFile *currentFile, CppRefactoringChanges *)
         {
             ChangeSet changes;
 
@@ -321,7 +321,7 @@ private:
             pattern = mk->BinaryExpression(left, right);
         }
 
-        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
+        virtual void performChanges(CppRefactoringFile *currentFile, CppRefactoringChanges *)
         {
             ChangeSet changes;
             changes.replace(range(pattern->binary_op_token), QLatin1String("||"));
@@ -422,7 +422,7 @@ private:
                                                    "Split Declaration"));
         }
 
-        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
+        virtual void performChanges(CppRefactoringFile *currentFile, CppRefactoringChanges *)
         {
             ChangeSet changes;
 
@@ -505,7 +505,7 @@ private:
                                                    "Add Curly Braces"));
         }
 
-        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
+        virtual void performChanges(CppRefactoringFile *currentFile, CppRefactoringChanges *)
         {
             ChangeSet changes;
 
@@ -576,7 +576,7 @@ private:
             pattern = mk.IfStatement(condition);
         }
 
-        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
+        virtual void performChanges(CppRefactoringFile *currentFile, CppRefactoringChanges *)
         {
             ChangeSet changes;
 
@@ -658,7 +658,7 @@ private:
             pattern = mk.WhileStatement(condition);
         }
 
-        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
+        virtual void performChanges(CppRefactoringFile *currentFile, CppRefactoringChanges *)
         {
             ChangeSet changes;
 
@@ -767,7 +767,7 @@ private:
                                                    "Split if Statement"));
         }
 
-        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
+        virtual void performChanges(CppRefactoringFile *currentFile, CppRefactoringChanges *)
         {
             const Token binaryToken = state().tokenAt(condition->binary_op_token);
 
@@ -777,7 +777,7 @@ private:
                 splitOrCondition(currentFile);
         }
 
-        void splitAndCondition(TextEditor::RefactoringFile *currentFile)
+        void splitAndCondition(CppRefactoringFile *currentFile)
         {
             ChangeSet changes;
 
@@ -794,7 +794,7 @@ private:
             currentFile->indent(range(pattern));
         }
 
-        void splitOrCondition(TextEditor::RefactoringFile *currentFile)
+        void splitOrCondition(CppRefactoringFile *currentFile)
         {
             ChangeSet changes;
 
@@ -905,7 +905,7 @@ private:
                                                        "Enclose in QLatin1String(...)"));
         }
 
-        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
+        virtual void performChanges(CppRefactoringFile *currentFile, CppRefactoringChanges *)
         {
             ChangeSet changes;
 
@@ -1026,7 +1026,7 @@ private:
             setDescription(QApplication::translate("CppTools::QuickFix", "Mark as translateable"));
         }
 
-        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
+        virtual void performChanges(CppRefactoringFile *currentFile, CppRefactoringChanges *)
         {
             ChangeSet changes;
 
@@ -1107,7 +1107,7 @@ private:
                                                    "Convert to Objective-C String Literal"));
         }
 
-        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
+        virtual void performChanges(CppRefactoringFile *currentFile, CppRefactoringChanges *)
         {
             ChangeSet changes;
 
@@ -1255,7 +1255,7 @@ private:
             , replacement(replacement)
         {}
 
-        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
+        virtual void performChanges(CppRefactoringFile *currentFile, CppRefactoringChanges *)
         {
             ChangeSet changes;
             changes.replace(start, end, replacement);
@@ -1409,7 +1409,7 @@ private:
         }
 
 
-        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
+        virtual void performChanges(CppRefactoringFile *currentFile, CppRefactoringChanges *)
         {
             ChangeSet changes;
             int start = endOf(compoundStatement->lbrace_token);
@@ -1485,7 +1485,7 @@ private:
                                                    "#include header file"));
         }
 
-        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
+        virtual void performChanges(CppRefactoringFile *currentFile, CppRefactoringChanges *)
         {
             Q_ASSERT(fwdClass != 0);
 
@@ -1599,7 +1599,7 @@ private:
             setDescription(QApplication::translate("CppTools::QuickFix", "Add local declaration"));
         }
 
-        virtual void performChanges(TextEditor::RefactoringFile *currentFile, CppRefactoringChanges *)
+        virtual void performChanges(CppRefactoringFile *currentFile, CppRefactoringChanges *)
         {
             TypeOfExpression typeOfExpression;
             typeOfExpression.init(state().document(), state().snapshot(), state().context().bindings());
@@ -1687,7 +1687,7 @@ private:
                                                    "Convert to Camel Case ..."));
         }
 
-        virtual void performChanges(TextEditor::RefactoringFile *, CppRefactoringChanges *)
+        virtual void performChanges(CppRefactoringFile *, CppRefactoringChanges *)
         {
             for (int i = 1; i < m_name.length(); ++i) {
                 QCharRef c = m_name[i];

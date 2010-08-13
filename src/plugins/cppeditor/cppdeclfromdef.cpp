@@ -82,10 +82,10 @@ public:
                                             "CppEditor::DeclFromDef").arg(type));
     }
 
-    void performChanges(TextEditor::RefactoringFile *, CppRefactoringChanges *refactoring)
+    void performChanges(CppRefactoringFile *, CppRefactoringChanges *refactoring)
     {
-        TextEditor::RefactoringFile targetFile = refactoring->file(m_targetFileName);
-        Document::Ptr targetDoc = refactoring->document(targetFile);
+        CppRefactoringFile targetFile = refactoring->file(m_targetFileName);
+        Document::Ptr targetDoc = targetFile.cppDocument();
         InsertionPointLocator locator(targetDoc);
         const InsertionLocation loc = locator.methodDeclarationInClass(m_targetSymbol, m_xsSpec);
         Q_ASSERT(loc.isValid());

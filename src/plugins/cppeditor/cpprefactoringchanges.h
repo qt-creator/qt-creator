@@ -30,6 +30,7 @@
 #ifndef CPPREFACTORINGCHANGES_H
 #define CPPREFACTORINGCHANGES_H
 
+#include <ASTfwd.h>
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/LookupContext.h>
 
@@ -39,6 +40,43 @@
 #include <texteditor/refactoringchanges.h>
 
 namespace CppEditor {
+
+class CppRefactoringChanges;
+
+class CPPEDITOR_EXPORT CppRefactoringFile: public TextEditor::RefactoringFile
+{
+public:
+    CppRefactoringFile();
+    CppRefactoringFile(const QString &fileName, CppRefactoringChanges *refactoringChanges);
+
+    CPlusPlus::Document::Ptr cppDocument() const;
+
+    CPlusPlus::Scope *scopeAt(unsigned index) const;
+
+    bool isCursorOn(unsigned tokenIndex) const;
+    bool isCursorOn(const CPlusPlus::AST *ast) const;
+
+    Range range(int start, int end) const;
+    Range range(unsigned tokenIndex) const;
+    Range range(CPlusPlus::AST *ast) const;
+
+    const CPlusPlus::Token &tokenAt(unsigned index) const;
+
+    int startOf(unsigned index) const;
+    int startOf(const CPlusPlus::AST *ast) const;
+    int endOf(unsigned index) const;
+    int endOf(const CPlusPlus::AST *ast) const;
+
+    void startAndEndOf(unsigned index, int *start, int *end) const;
+
+    using TextEditor::RefactoringFile::textOf;
+    QString textOf(const CPlusPlus::AST *ast) const;
+
+private:
+    CppRefactoringChanges *refactoringChanges() const;
+
+    mutable CPlusPlus::Document::Ptr m_cppDocument;
+};
 
 class CPPEDITOR_EXPORT CppRefactoringChanges: public TextEditor::RefactoringChanges
 {
@@ -50,7 +88,7 @@ public:
     const CPlusPlus::Snapshot &snapshot() const;
     const CPlusPlus::LookupContext &context() const;
 
-    CPlusPlus::Document::Ptr document(const TextEditor::RefactoringFile &file) const;
+    CppRefactoringFile file(const QString &fileName);
 
 private:
     virtual void indentSelection(const QTextCursor &selection) const;

@@ -196,11 +196,11 @@ RefactoringFile::RefactoringFile(const RefactoringFile &other)
 
 RefactoringFile::~RefactoringFile()
 {
-    if (m_openEditor)
+    if (m_refactoringChanges && m_openEditor)
         m_editor = m_refactoringChanges->openEditor(m_fileName, -1);
 
     // apply changes, if any
-    if (!m_indentRanges.isEmpty() || !m_changes.isEmpty()) {
+    if (m_refactoringChanges && !(m_indentRanges.isEmpty() && m_changes.isEmpty())) {
         QTextDocument *doc = mutableDocument();
         {
             QTextCursor c = cursor();
@@ -291,7 +291,7 @@ QChar RefactoringFile::charAt(int pos) const
     return QChar();
 }
 
-QString RefactoringFile::textAt(int start, int end) const
+QString RefactoringFile::textOf(int start, int end) const
 {
     QTextCursor c = cursor();
     c.setPosition(start);
@@ -299,9 +299,9 @@ QString RefactoringFile::textAt(int start, int end) const
     return c.selectedText();
 }
 
-QString RefactoringFile::textAt(const Range &range) const
+QString RefactoringFile::textOf(const Range &range) const
 {
-    return textAt(range.start, range.end);
+    return textOf(range.start, range.end);
 }
 
 bool RefactoringFile::change(const Utils::ChangeSet &changeSet, bool openEditor)
