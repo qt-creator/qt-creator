@@ -1073,7 +1073,8 @@ bool Bind::visit(CaseStatementAST *ast)
 bool Bind::visit(CompoundStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->firstToken());
-    block->setStartOffset(tokenAt(ast->firstToken()).begin());
+    unsigned startScopeToken = ast->lbrace_token ? ast->lbrace_token : ast->firstToken();
+    block->setStartOffset(tokenAt(startScopeToken).end());
     block->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     ast->symbol = block;
     _scope->addMember(block);
@@ -1093,13 +1094,8 @@ bool Bind::visit(DeclarationStatementAST *ast)
 
 bool Bind::visit(DoStatementAST *ast)
 {
-    // unsigned do_token = ast->do_token;
     this->statement(ast->statement);
-    // unsigned while_token = ast->while_token;
-    // unsigned lparen_token = ast->lparen_token;
     ExpressionTy expression = this->expression(ast->expression);
-    // unsigned rparen_token = ast->rparen_token;
-    // unsigned semicolon_token = ast->semicolon_token;
     return false;
 }
 
@@ -1119,47 +1115,70 @@ bool Bind::visit(ExpressionStatementAST *ast)
 
 bool Bind::visit(ForeachStatementAST *ast)
 {
-    // unsigned foreach_token = ast->foreach_token;
-    // unsigned lparen_token = ast->lparen_token;
+    Block *block = control()->newBlock(ast->firstToken());
+    const unsigned startScopeToken = ast->lparen_token ? ast->lastToken() : ast->firstToken();
+    block->setStartOffset(tokenAt(startScopeToken).end());
+    block->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    _scope->addMember(block);
+    ast->symbol = block;
+
+    Scope *previousScope = switchScope(block);
+
     FullySpecifiedType type;
     for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
     DeclaratorIdAST *declaratorId = 0;
     type = this->declarator(ast->declarator, type, &declaratorId);
+
+    if (declaratorId && declaratorId->name) {
+        unsigned sourceLocation = declaratorId->name->firstToken();
+        Declaration *decl = control()->newDeclaration(sourceLocation, declaratorId->name->name);
+        decl->setType(type);
+        block->addMember(decl);
+    }
+
     ExpressionTy initializer = this->expression(ast->initializer);
-    // unsigned comma_token = ast->comma_token;
     ExpressionTy expression = this->expression(ast->expression);
-    // unsigned rparen_token = ast->rparen_token;
     this->statement(ast->statement);
-    // Block *symbol = ast->symbol;
+    (void) switchScope(previousScope);
     return false;
 }
 
 bool Bind::visit(ForStatementAST *ast)
 {
-    // unsigned for_token = ast->for_token;
-    // unsigned lparen_token = ast->lparen_token;
+    Block *block = control()->newBlock(ast->firstToken());
+    const unsigned startScopeToken = ast->lparen_token ? ast->lastToken() : ast->firstToken();
+    block->setStartOffset(tokenAt(startScopeToken).end());
+    block->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    _scope->addMember(block);
+    ast->symbol = block;
+
+    Scope *previousScope = switchScope(block);
     this->statement(ast->initializer);
     ExpressionTy condition = this->expression(ast->condition);
     // unsigned semicolon_token = ast->semicolon_token;
     ExpressionTy expression = this->expression(ast->expression);
     // unsigned rparen_token = ast->rparen_token;
     this->statement(ast->statement);
-    // Block *symbol = ast->symbol;
+    (void) switchScope(previousScope);
     return false;
 }
 
 bool Bind::visit(IfStatementAST *ast)
 {
-    // unsigned if_token = ast->if_token;
-    // unsigned lparen_token = ast->lparen_token;
+    Block *block = control()->newBlock(ast->firstToken());
+    const unsigned startScopeToken = ast->lparen_token ? ast->lastToken() : ast->firstToken();
+    block->setStartOffset(tokenAt(startScopeToken).end());
+    block->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    _scope->addMember(block);
+    ast->symbol = block;
+
+    Scope *previousScope = switchScope(block);
     ExpressionTy condition = this->expression(ast->condition);
-    // unsigned rparen_token = ast->rparen_token;
     this->statement(ast->statement);
-    // unsigned else_token = ast->else_token;
     this->statement(ast->else_statement);
-    // Block *symbol = ast->symbol;
+    (void) switchScope(previousScope);
     return false;
 }
 
@@ -1198,9 +1217,7 @@ bool Bind::visit(GotoStatementAST *ast)
 
 bool Bind::visit(ReturnStatementAST *ast)
 {
-    // unsigned return_token = ast->return_token;
     ExpressionTy expression = this->expression(ast->expression);
-    // unsigned semicolon_token = ast->semicolon_token;
     return false;
 }
 
@@ -1227,42 +1244,65 @@ bool Bind::visit(TryBlockStatementAST *ast)
 
 bool Bind::visit(CatchClauseAST *ast)
 {
-    // unsigned catch_token = ast->catch_token;
-    // unsigned lparen_token = ast->lparen_token;
+    Block *block = control()->newBlock(ast->firstToken());
+    const unsigned startScopeToken = ast->lparen_token ? ast->lastToken() : ast->firstToken();
+    block->setStartOffset(tokenAt(startScopeToken).end());
+    block->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    _scope->addMember(block);
+    ast->symbol = block;
+
+    Scope *previousScope = switchScope(block);
     this->declaration(ast->exception_declaration);
     // unsigned rparen_token = ast->rparen_token;
     this->statement(ast->statement);
-    // Block *symbol = ast->symbol;
+    (void) switchScope(previousScope);
     return false;
 }
 
 bool Bind::visit(WhileStatementAST *ast)
 {
-    // unsigned while_token = ast->while_token;
-    // unsigned lparen_token = ast->lparen_token;
+    Block *block = control()->newBlock(ast->firstToken());
+    const unsigned startScopeToken = ast->lparen_token ? ast->lastToken() : ast->firstToken();
+    block->setStartOffset(tokenAt(startScopeToken).end());
+    block->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    _scope->addMember(block);
+    ast->symbol = block;
+
+    Scope *previousScope = switchScope(block);
     ExpressionTy condition = this->expression(ast->condition);
-    // unsigned rparen_token = ast->rparen_token;
     this->statement(ast->statement);
-    // Block *symbol = ast->symbol;
+    (void) switchScope(previousScope);
     return false;
 }
 
 bool Bind::visit(ObjCFastEnumerationAST *ast)
 {
-    // unsigned for_token = ast->for_token;
-    // unsigned lparen_token = ast->lparen_token;
+    Block *block = control()->newBlock(ast->firstToken());
+    const unsigned startScopeToken = ast->lparen_token ? ast->lastToken() : ast->firstToken();
+    block->setStartOffset(tokenAt(startScopeToken).end());
+    block->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    _scope->addMember(block);
+    ast->symbol = block;
+
+    Scope *previousScope = switchScope(block);
     FullySpecifiedType type;
     for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
     DeclaratorIdAST *declaratorId = 0;
     type = this->declarator(ast->declarator, type, &declaratorId);
+
+    if (declaratorId && declaratorId->name) {
+        unsigned sourceLocation = declaratorId->name->firstToken();
+        Declaration *decl = control()->newDeclaration(sourceLocation, declaratorId->name->name);
+        decl->setType(type);
+        block->addMember(decl);
+    }
+
     ExpressionTy initializer = this->expression(ast->initializer);
-    // unsigned in_token = ast->in_token;
     ExpressionTy fast_enumeratable_expression = this->expression(ast->fast_enumeratable_expression);
-    // unsigned rparen_token = ast->rparen_token;
     this->statement(ast->statement);
-    // Block *symbol = ast->symbol;
+    (void) switchScope(previousScope);
     return false;
 }
 
@@ -1779,11 +1819,14 @@ bool Bind::visit(FunctionDefinitionAST *ast)
         this->statement(ast->function_body);
         (void) switchScope(previousScope);
 
-        if (CompoundStatementAST *c = ast->function_body->asCompoundStatement())
-            fun->setBlock(c->symbol);
+        if (CompoundStatementAST *c = ast->function_body->asCompoundStatement()) {
+            if (c->symbol) {
+                fun->setBlock(c->symbol);
+                fun->setEndOffset(c->symbol->endOffset());
+            }
+        }
     }
 
-    // Function *symbol = ast->symbol;
     return false;
 }
 
