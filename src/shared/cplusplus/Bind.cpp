@@ -1088,18 +1088,38 @@ FullySpecifiedType Bind::trailingReturnType(TrailingReturnTypeAST *ast, const Fu
 // StatementAST
 bool Bind::visit(QtMemberDeclarationAST *ast)
 {
-    // unsigned q_token = ast->q_token;
-    // unsigned lparen_token = ast->lparen_token;
-    ExpressionTy type_id = this->expression(ast->type_id);
-    // unsigned rparen_token = ast->rparen_token;
+    const Name *name = 0;
+
+    if (tokenKind(ast->q_token) == T_Q_D)
+        name = control()->nameId(control()->identifier("d"));
+    else
+        name = control()->nameId(control()->identifier("q"));
+
+    FullySpecifiedType declTy = this->expression(ast->type_id);
+
+    if (tokenKind(ast->q_token) == T_Q_D) {
+        if (NamedType *namedTy = declTy->asNamedType()) {
+            if (const NameId *nameId = namedTy->name()->asNameId()) {
+                std::string privateClass;
+                privateClass += nameId->identifier()->chars();
+                privateClass += "Private";
+
+                const Name *privName = control()->nameId(control()->identifier(privateClass.c_str(), privateClass.size()));
+                declTy.setType(control()->namedType(privName));
+            }
+        }
+    }
+
+    Declaration *symbol = control()->newDeclaration(/*generated*/ 0, name);
+    symbol->setType(control()->pointerType(declTy));
+
+    _scope->addMember(symbol);
     return false;
 }
 
 bool Bind::visit(CaseStatementAST *ast)
 {
-    // unsigned case_token = ast->case_token;
     ExpressionTy expression = this->expression(ast->expression);
-    // unsigned colon_token = ast->colon_token;
     this->statement(ast->statement);
     return false;
 }
@@ -1257,12 +1277,17 @@ bool Bind::visit(ReturnStatementAST *ast)
 
 bool Bind::visit(SwitchStatementAST *ast)
 {
-    // unsigned switch_token = ast->switch_token;
-    // unsigned lparen_token = ast->lparen_token;
+    Block *block = control()->newBlock(ast->firstToken());
+    const unsigned startScopeToken = ast->lparen_token ? ast->lastToken() : ast->firstToken();
+    block->setStartOffset(tokenAt(startScopeToken).end());
+    block->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    _scope->addMember(block);
+    ast->symbol = block;
+
+    Scope *previousScope = switchScope(block);
     ExpressionTy condition = this->expression(ast->condition);
-    // unsigned rparen_token = ast->rparen_token;
     this->statement(ast->statement);
-    // Block *symbol = ast->symbol;
+    (void) switchScope(previousScope);
     return false;
 }
 
