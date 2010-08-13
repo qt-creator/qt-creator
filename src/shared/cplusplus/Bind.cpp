@@ -209,7 +209,6 @@ FullySpecifiedType Bind::declarator(DeclaratorAST *ast, const FullySpecifiedType
     if (! ast)
         return type;
 
-
     std::swap(_declaratorId, declaratorId);
     for (SpecifierListAST *it = ast->attribute_list; it; it = it->next) {
         type = this->specifier(it->value, type);
@@ -227,7 +226,7 @@ FullySpecifiedType Bind::declarator(DeclaratorAST *ast, const FullySpecifiedType
     // unsigned equals_token = ast->equals_token;
     ExpressionTy initializer = this->expression(ast->initializer);
     std::swap(_declaratorId, declaratorId);
-    return init;
+    return type;
 }
 
 bool Bind::visit(QtPropertyDeclarationItemAST *ast)
