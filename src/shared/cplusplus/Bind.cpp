@@ -1574,11 +1574,6 @@ bool Bind::visit(EmptyDeclarationAST *ast)
 
 bool Bind::visit(AccessDeclarationAST *ast)
 {
-    (void) ast;
-    // unsigned access_specifier_token = ast->access_specifier_token;
-    // unsigned slots_token = ast->slots_token;
-    // unsigned colon_token = ast->colon_token;
-
     const int accessSpecifier = tokenKind(ast->access_specifier_token);
     _visibility = visibilityForAccessSpecifier(accessSpecifier);
 
