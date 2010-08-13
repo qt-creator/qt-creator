@@ -184,22 +184,21 @@ void ColorBox::paintEvent(QPaintEvent *event)
 
         int fixedHue = clamp(m_lastHue, 0, 359);
 
-        m_cache = QPixmap(120, 120);
+        QImage cache = QImage(120, 120, QImage::Format_RGB32);
 
         int height = 120;
         int width = 120;
 
-        QPainter chacheP(&m_cache);
-
-        for (int y = 0; y < height; y++)
-            for (int x = 0; x < width; x++)
-            {
-            QColor c;
-            c.setHsv(fixedHue, (x*255) / width, 255 - (y*255) / height);
-            chacheP.setPen(c);
-            chacheP.drawPoint(x ,y);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                QColor c;
+                c.setHsv(fixedHue, (x*255) / width, 255 - (y*255) / height);
+                cache.setPixel(x, y, c.rgb());
+            }
         }
+        m_cache = QPixmap::fromImage(cache);
     }
+    
     p.drawPixmap(5, 5, m_cache);
 
     int x = clamp(m_color.hsvSaturationF() * 120, 0, 119) + 5;
