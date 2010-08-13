@@ -1178,7 +1178,7 @@ bool Bind::visit(ExpressionStatementAST *ast)
 bool Bind::visit(ForeachStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->firstToken());
-    const unsigned startScopeToken = ast->lparen_token ? ast->lastToken() : ast->firstToken();
+    const unsigned startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
     block->setStartOffset(tokenAt(startScopeToken).end());
     block->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     _scope->addMember(block);
@@ -1210,7 +1210,7 @@ bool Bind::visit(ForeachStatementAST *ast)
 bool Bind::visit(ForStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->firstToken());
-    const unsigned startScopeToken = ast->lparen_token ? ast->lastToken() : ast->firstToken();
+    const unsigned startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
     block->setStartOffset(tokenAt(startScopeToken).end());
     block->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     _scope->addMember(block);
@@ -1230,7 +1230,7 @@ bool Bind::visit(ForStatementAST *ast)
 bool Bind::visit(IfStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->firstToken());
-    const unsigned startScopeToken = ast->lparen_token ? ast->lastToken() : ast->firstToken();
+    const unsigned startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
     block->setStartOffset(tokenAt(startScopeToken).end());
     block->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     _scope->addMember(block);
@@ -1286,7 +1286,7 @@ bool Bind::visit(ReturnStatementAST *ast)
 bool Bind::visit(SwitchStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->firstToken());
-    const unsigned startScopeToken = ast->lparen_token ? ast->lastToken() : ast->firstToken();
+    const unsigned startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
     block->setStartOffset(tokenAt(startScopeToken).end());
     block->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     _scope->addMember(block);
@@ -1312,7 +1312,7 @@ bool Bind::visit(TryBlockStatementAST *ast)
 bool Bind::visit(CatchClauseAST *ast)
 {
     Block *block = control()->newBlock(ast->firstToken());
-    const unsigned startScopeToken = ast->lparen_token ? ast->lastToken() : ast->firstToken();
+    const unsigned startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
     block->setStartOffset(tokenAt(startScopeToken).end());
     block->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     _scope->addMember(block);
@@ -1329,7 +1329,7 @@ bool Bind::visit(CatchClauseAST *ast)
 bool Bind::visit(WhileStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->firstToken());
-    const unsigned startScopeToken = ast->lparen_token ? ast->lastToken() : ast->firstToken();
+    const unsigned startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
     block->setStartOffset(tokenAt(startScopeToken).end());
     block->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     _scope->addMember(block);
@@ -1345,7 +1345,7 @@ bool Bind::visit(WhileStatementAST *ast)
 bool Bind::visit(ObjCFastEnumerationAST *ast)
 {
     Block *block = control()->newBlock(ast->firstToken());
-    const unsigned startScopeToken = ast->lparen_token ? ast->lastToken() : ast->firstToken();
+    const unsigned startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
     block->setStartOffset(tokenAt(startScopeToken).end());
     block->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     _scope->addMember(block);
@@ -1444,6 +1444,14 @@ bool Bind::visit(ConditionAST *ast)
     }
     DeclaratorIdAST *declaratorId = 0;
     type = this->declarator(ast->declarator, type, &declaratorId);
+
+    if (declaratorId && declaratorId->name) {
+        unsigned sourceLocation = declaratorId->name->firstToken();
+        Declaration *decl = control()->newDeclaration(sourceLocation, declaratorId->name->name);
+        decl->setType(type);
+        _scope->addMember(decl);
+    }
+
     return false;
 }
 
