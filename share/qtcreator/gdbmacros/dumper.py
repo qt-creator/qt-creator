@@ -1328,11 +1328,7 @@ class Dumper:
             typedefStrippedType).replace("::", "__")
 
         # Is this derived from QObject?
-        try:
-            item.value['staticMetaObject']
-            hasMetaObject = True
-        except:
-            hasMetaObject = False
+        hasMetaObject = False
 
         #warn(" STRIPPED: %s" % nsStrippedType)
         #warn(" DUMPERS: %s" % self.dumpers)
@@ -1343,10 +1339,6 @@ class Dumper:
             self.putType(item.value.type)
             self.putValue(value)
             self.putNumChild(0)
-
-        elif hasMetaObject and self.useFancy:
-            self.putType(item.value.type)
-            qdump__QObject(self, item)
 
         elif nsStrippedType in self.dumpers:
             #warn("IS DUMPABLE: %s " % type)
