@@ -79,8 +79,9 @@ protected:
     FullySpecifiedType coreDeclarator(CoreDeclaratorAST *ast, const FullySpecifiedType &init);
     FullySpecifiedType postfixDeclarator(PostfixDeclaratorAST *ast, const FullySpecifiedType &init);
 
-    Scope *currentScope() const;
     Scope *switchScope(Scope *scope);
+    int switchVisibility(int visibility);
+    int switchMethodKey(int methodKey);
 
     const Name *objCSelectorArgument(ObjCSelectorArgumentAST *ast, bool *hasArg);
     void attribute(AttributeAST *ast);
@@ -278,6 +279,8 @@ private:
     const Name *_name;
     FullySpecifiedType _type;
     DeclaratorIdAST **_declaratorId;
+    int _visibility;
+    int _methodKey;
 };
 
 } // end of namespace CPlusPlus

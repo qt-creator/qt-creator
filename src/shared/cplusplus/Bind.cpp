@@ -66,20 +66,28 @@ Bind::Bind(TranslationUnit *unit)
       _scope(0),
       _expression(0),
       _name(0),
-      _declaratorId(0)
+      _declaratorId(0),
+      _visibility(Symbol::Public),
+      _methodKey(Function::NormalMethod)
 {
-}
-
-Scope *Bind::currentScope() const
-{
-    return _scope;
 }
 
 Scope *Bind::switchScope(Scope *scope)
 {
-    Scope *previousScope = _scope;
-    _scope = scope;
-    return previousScope;
+    std::swap(_scope, scope);
+    return scope;
+}
+
+int Bind::switchVisibility(int visibility)
+{
+    std::swap(_visibility, visibility);
+    return visibility;
+}
+
+int Bind::switchMethodKey(int methodKey)
+{
+    std::swap(_methodKey, methodKey);
+    return methodKey;
 }
 
 void Bind::operator()(TranslationUnitAST *ast, Namespace *globalNamespace)
@@ -1502,6 +1510,17 @@ bool Bind::visit(AccessDeclarationAST *ast)
     // unsigned access_specifier_token = ast->access_specifier_token;
     // unsigned slots_token = ast->slots_token;
     // unsigned colon_token = ast->colon_token;
+
+    const int accessSpecifier = tokenKind(ast->access_specifier_token);
+    _visibility = visibilityForAccessSpecifier(accessSpecifier);
+
+    if (ast->slots_token)
+        _methodKey = Function::SlotMethod;
+    else if (accessSpecifier == T_Q_SIGNALS)
+        _methodKey = Function::SignalMethod;
+    else
+        _methodKey = Function::NormalMethod;
+
     return false;
 }
 
@@ -2170,6 +2189,8 @@ bool Bind::visit(ClassSpecifierAST *ast)
     _type.setType(klass);
 
     Scope *previousScope = switchScope(klass);
+    const int previousVisibility = switchVisibility(Symbol::Public);
+    const int previousMethodKey = switchMethodKey(Function::NormalMethod);
 
     for (BaseSpecifierListAST *it = ast->base_clause_list; it; it = it->next) {
         this->baseSpecifier(it->value, ast->colon_token, klass);
@@ -2178,7 +2199,11 @@ bool Bind::visit(ClassSpecifierAST *ast)
     for (DeclarationListAST *it = ast->member_specifier_list; it; it = it->next) {
         this->declaration(it->value);
     }
+
+    (void) switchMethodKey(previousMethodKey);
+    (void) switchVisibility(previousVisibility);
     (void) switchScope(previousScope);
+
     ast->symbol = klass;
     return false;
 }
