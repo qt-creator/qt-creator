@@ -74,6 +74,11 @@ QIcon Icons::macroIcon() const
 
 Icons::IconType Icons::iconTypeForSymbol(const Symbol *symbol)
 {
+    if (const Template *templ = symbol->asTemplate()) {
+        if (Symbol *decl = templ->declaration())
+            return iconTypeForSymbol(decl);
+    }
+
     FullySpecifiedType symbolType = symbol->type();
     if (symbol->isFunction() || (symbol->isDeclaration() && symbolType &&
                                  symbolType->isFunctionType()))
