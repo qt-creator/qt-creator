@@ -78,6 +78,9 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     addDebuggingWidgets(mainLayout);
     addMountWidgets(mainLayout);
     addEnvironmentWidgets(mainLayout);
+    connect(m_runConfiguration->deviceConfigModel(), SIGNAL(currentChanged()),
+        this, SLOT(handleCurrentDeviceConfigChanged()));
+    handleCurrentDeviceConfigChanged();
 }
 
 void MaemoRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
@@ -124,13 +127,10 @@ void MaemoRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
         SLOT(argumentsEdited(QString)));
     connect(m_devConfBox, SIGNAL(activated(int)), this,
             SLOT(setCurrentDeviceConfig(int)));
-    connect(m_runConfiguration->deviceConfigModel(), SIGNAL(currentChanged()),
-        this, SLOT(handleCurrentDeviceConfigChanged()));
     connect(m_runConfiguration, SIGNAL(targetInformationChanged()), this,
         SLOT(updateTargetInformation()));
     connect(m_runConfiguration->deployStep()->deployables(),
         SIGNAL(modelsCreated()), this, SLOT(handleDeploySpecsChanged()));
-    handleCurrentDeviceConfigChanged();
 }
 
 void MaemoRunConfigurationWidget::addDebuggingWidgets(QVBoxLayout *mainLayout)
@@ -162,6 +162,8 @@ void MaemoRunConfigurationWidget::addMountWidgets(QVBoxLayout *mainLayout)
     m_mountDetailsContainer->setWidget(mountViewWidget);
     mainLayout->addWidget(m_mountDetailsContainer);
     QVBoxLayout *mountViewLayout = new QVBoxLayout(mountViewWidget);
+    m_mountWarningLabel = new QLabel;
+    mountViewLayout->addWidget(m_mountWarningLabel);
     QHBoxLayout *tableLayout = new QHBoxLayout;
     mountViewLayout->addLayout(tableLayout);
     m_mountView = new QTableView;
@@ -278,6 +280,7 @@ void MaemoRunConfigurationWidget::handleCurrentDeviceConfigChanged()
 {
     m_devConfBox->setCurrentIndex(m_runConfiguration->deviceConfigModel()
         ->currentIndex());
+    updateMountWarning();
 }
 
 void MaemoRunConfigurationWidget::setCurrentDeviceConfig(int index)
@@ -407,6 +410,38 @@ void MaemoRunConfigurationWidget::handleRemoteMountsChanged()
     }
     m_mountDetailsContainer->setSummaryText(QLatin1String("<b>") + text
         + QLatin1String("</b>"));
+    updateMountWarning();
+}
+
+void MaemoRunConfigurationWidget::updateMountWarning()
+{
+    QString mountWarning;
+    const MaemoPortList &portList = m_runConfiguration->freePorts();
+    if (portList.hasMore()) {
+        const int availablePortCount = portList.count();
+        const int mountDirCount
+            = m_runConfiguration->remoteMounts()->validMountSpecificationCount();
+        if (mountDirCount > availablePortCount) {
+            mountWarning = tr("WARNING: You want to mount %1 directories, but "
+                "your device has only %2 free ports.<br>You will not be able "
+                "to run this configuration.")
+            .arg(mountDirCount).arg(availablePortCount);
+        } else if (mountDirCount > 0 && mountDirCount == availablePortCount) {
+            mountWarning = tr("WARNING: The directories you want to mount will "
+                "use all %1 free ports on the device.<br>You will not be able "
+                "to debug your application with this configuration.")
+                .arg(availablePortCount);
+        }
+    }
+    if (mountWarning.isEmpty()) {
+        m_mountWarningLabel->hide();
+    } else {
+        m_mountWarningLabel->setText(QLatin1String("<font color=\"red\">")
+            + mountWarning + QLatin1String("</font>"));
+        m_mountWarningLabel->show();
+        m_mountDetailsContainer->setState(Utils::DetailsWidget::Expanded);
+    }
+    m_runConfiguration->updateFactoryState();
 }
 
 } // namespace Internal

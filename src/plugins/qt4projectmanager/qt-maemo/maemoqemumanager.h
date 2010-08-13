@@ -31,6 +31,7 @@
 #define QEMURUNTIMEMANAGER_H
 
 #include "maemoconstants.h"
+#include "maemodeviceconfigurations.h"
 
 #include <QtCore/QMap>
 #include <QtCore/QObject>
@@ -64,7 +65,7 @@ struct Runtime
     QString m_args;
     QString m_libPath;
     QString m_sshPort;
-    QString m_gdbServerPort;
+    MaemoPortList m_freePorts;
 };
 
 class MaemoQemuManager : public QObject

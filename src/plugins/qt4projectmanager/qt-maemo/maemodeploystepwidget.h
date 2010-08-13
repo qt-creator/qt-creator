@@ -26,7 +26,6 @@ private:
     Q_SLOT void handleModelsCreated();
     Q_SLOT void handleDeviceConfigModelChanged();
     Q_SLOT void setCurrentDeviceConfig(int index);
-    Q_SLOT void handleMountPortEdited(int newPort);
 
     virtual void init();
     virtual QString summaryText() const;

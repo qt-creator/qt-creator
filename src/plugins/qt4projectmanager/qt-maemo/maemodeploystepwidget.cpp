@@ -33,20 +33,13 @@ MaemoDeployStepWidget::~MaemoDeployStepWidget()
 
 void MaemoDeployStepWidget::init()
 {
-#ifdef DEPLOY_VIA_MOUNT
-    ui->mountPortSpinBox->setValue(m_step->mountPort());
-    connect(ui->mountPortSpinBox, SIGNAL(valueChanged(int)), this,
-        SLOT(handleMountPortEdited(int)));
-#else
-    ui->mountPortLabel->hide();
-    ui->mountPortSpinBox->hide();
-#endif
     handleDeviceConfigModelChanged();
     connect(m_step->buildConfiguration()->target(),
         SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
         this, SLOT(handleDeviceConfigModelChanged()));
     connect(ui->deviceConfigComboBox, SIGNAL(activated(int)), this,
         SLOT(setCurrentDeviceConfig(int)));
+    handleDeviceConfigModelChanged();
 }
 
 void MaemoDeployStepWidget::handleDeviceConfigModelChanged()
@@ -96,15 +89,6 @@ void MaemoDeployStepWidget::handleModelsCreated()
 void MaemoDeployStepWidget::setCurrentDeviceConfig(int index)
 {
     m_step->deviceConfigModel()->setCurrentIndex(index);
-}
-
-void MaemoDeployStepWidget::handleMountPortEdited(int newPort)
-{
-#ifdef DEPLOY_VIA_MOUNT
-    m_step->setMountPort(newPort);
-#else
-    Q_UNUSED(newPort);
-#endif
 }
 
 } // namespace Internal

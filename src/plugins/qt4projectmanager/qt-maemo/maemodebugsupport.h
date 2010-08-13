@@ -69,8 +69,6 @@ public:
         Debugger::DebuggerRunControl *runControl);
     ~MaemoDebugSupport();
 
-    static QString gdbServerPort(const MaemoRunConfiguration *rc,
-        const MaemoDeviceConfig &devConf);
     static QString uploadDir(const MaemoDeviceConfig &devConf);
 
 private slots:
@@ -87,6 +85,8 @@ private slots:
     void handleProgressReport(const QString &progressOutput);
 
 private:
+    static int gdbServerPort(const MaemoRunConfiguration *rc);
+
     void stopSsh();
     void handleAdapterSetupFailed(const QString &error);
     void handleAdapterSetupDone();

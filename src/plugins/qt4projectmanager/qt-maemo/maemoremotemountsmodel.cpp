@@ -41,20 +41,9 @@ MaemoRemoteMountsModel::MaemoRemoteMountsModel(QObject *parent) :
 
 void MaemoRemoteMountsModel::addMountSpecification(const QString &localDir)
 {
-    int port = 10100;
-    int i = 0;
-    while (i < rowCount()) {
-        if (mountSpecificationAt(i).remotePort == port) {
-            ++port;
-            i = 0;
-        } else {
-            ++i;
-        }
-    }
-
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     m_mountSpecs << MaemoMountSpecification(localDir,
-        MaemoMountSpecification::InvalidMountPoint, port);
+        MaemoMountSpecification::InvalidMountPoint);
     endInsertRows();
 }
 
@@ -98,15 +87,12 @@ QVariantMap MaemoRemoteMountsModel::toMap() const
     QVariantMap map;
     QVariantList localDirsList;
     QVariantList remoteMountPointsList;
-    QVariantList mountPortsList;
     foreach (const MaemoMountSpecification &mountSpec, m_mountSpecs) {
         localDirsList << mountSpec.localDir;
         remoteMountPointsList << mountSpec.remoteMountPoint;
-        mountPortsList << mountSpec.remotePort;
     }
     map.insert(ExportedLocalDirsKey, localDirsList);
     map.insert(RemoteMountPointsKey, remoteMountPointsList);
-    map.insert(UserDefinedMountPortsKey, mountPortsList);
     return map;
 }
 
@@ -116,22 +102,20 @@ void MaemoRemoteMountsModel::fromMap(const QVariantMap &map)
         = map.value(ExportedLocalDirsKey).toList();
     const QVariantList &remoteMountPointsList
         = map.value(RemoteMountPointsKey).toList();
-    const QVariantList &mountPortsList = map.value(UserDefinedMountPortsKey).toList();
-    const int count = qMin(qMin(localDirsList.count(),
-        remoteMountPointsList.count()), mountPortsList.count());
+    const int count
+        = qMin(localDirsList.count(), remoteMountPointsList.count());
     for (int i = 0; i < count; ++i) {
         const QString &localDir = localDirsList.at(i).toString();
         const QString &remoteMountPoint
             = remoteMountPointsList.at(i).toString();
-        const int port = mountPortsList.at(i).toInt();
-        m_mountSpecs << MaemoMountSpecification(localDir, remoteMountPoint, port);
+        m_mountSpecs << MaemoMountSpecification(localDir, remoteMountPoint);
     }
 }
 
 Qt::ItemFlags MaemoRemoteMountsModel::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags ourFlags = QAbstractTableModel::flags(index);
-    if (index.column() == RemoteMountPointRow || index.column() == PortRow)
+    if (index.column() == RemoteMountPointRow)
         ourFlags |= Qt::ItemIsEditable;
     return ourFlags;
 }
@@ -145,7 +129,6 @@ QVariant MaemoRemoteMountsModel::headerData(int section,
     switch (section) {
     case LocalDirRow: return tr("Local directory");
     case RemoteMountPointRow: return tr("Remote mount point");
-    case PortRow: return tr("Remote port");
     default: return QVariant();
     }
 }
@@ -164,10 +147,6 @@ QVariant MaemoRemoteMountsModel::data(const QModelIndex &index, int role) const
     case RemoteMountPointRow:
         if (role == Qt::DisplayRole || role == Qt::EditRole)
             return mountSpec.remoteMountPoint;
-        break;
-    case PortRow:
-        if (role == Qt::DisplayRole || role == Qt::EditRole)
-            return mountSpec.remotePort;
         break;
     }
     return QVariant();
@@ -190,16 +169,6 @@ bool MaemoRemoteMountsModel::setData(const QModelIndex &index,
                 return false;
         }
         m_mountSpecs[index.row()].remoteMountPoint = newRemoteMountPoint;
-        set = true;
-        break;
-    }
-    case PortRow: {
-        const int newPort = value.toInt();
-        for (int i = 0; i < m_mountSpecs.count(); ++i) {
-            if (i != index.row() && m_mountSpecs.at(i).remotePort == newPort)
-                return false;
-        }
-        m_mountSpecs[index.row()].remotePort = newPort;
         set = true;
         break;
     }

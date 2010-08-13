@@ -78,7 +78,6 @@ private slots:
     void authenticationTypeChanged();
     void hostNameEditingFinished();
     void sshPortEditingFinished();
-    void gdbServerPortEditingFinished();
     void timeoutEditingFinished();
     void userNameEditingFinished();
     void passwordEditingFinished();
@@ -106,6 +105,7 @@ private:
     void clearDetails();
     QString parseTestOutput();
     void fillInValues();
+    void updatePortsWarningLabel();
 
     Ui_MaemoSettingsWidget *m_ui;
     QList<MaemoDeviceConfig> m_devConfs;

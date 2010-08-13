@@ -590,7 +590,15 @@ bool MaemoQemuManager::fillRuntimeInformation(Runtime *runtime) const
             runtime->m_libPath =
                 libPathSpec.mid(libPathSpec.indexOf(QLatin1Char('=')) + 1);
             runtime->m_sshPort = map.value(QLatin1String("sshport"));
-            runtime->m_gdbServerPort = map.value(QLatin1String("redirport2"));
+            runtime->m_freePorts = MaemoPortList();
+            int i = 2;
+            while (true) {
+                const QString port = map.value(QLatin1String("redirport")
+                    + QString::number(i++));
+                if (port.isEmpty())
+                    break;
+                runtime->m_freePorts.addPort(port.toInt());
+            }
             return true;
         }
     }

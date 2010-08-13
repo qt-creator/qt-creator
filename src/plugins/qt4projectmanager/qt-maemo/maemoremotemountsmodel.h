@@ -59,7 +59,6 @@ public:
 
     static const int LocalDirRow = 0;
     static const int RemoteMountPointRow = 1;
-    static const int PortRow = 2;
 
 private:
     virtual int columnCount(const QModelIndex& = QModelIndex()) const;
@@ -77,7 +76,7 @@ private:
 
 inline int MaemoRemoteMountsModel::columnCount(const QModelIndex &) const
 {
-    return 3;
+    return 2;
 }
 
 inline int MaemoRemoteMountsModel::rowCount(const QModelIndex &parent) const

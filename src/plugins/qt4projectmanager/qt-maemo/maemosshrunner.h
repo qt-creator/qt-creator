@@ -36,6 +36,7 @@
 #define MAEMOSSHRUNNER_H
 
 #include "maemodeviceconfigurations.h"
+#include "maemomountspecification.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QSharedPointer>
@@ -88,6 +89,7 @@ private slots:
 
 private:
     void cleanup(bool initialCleanup);
+    bool addMountSpecification(const MaemoMountSpecification &mountSpec);
 
     MaemoRunConfiguration * const m_runConfig; // TODO this pointer can be invalid
     MaemoRemoteMounter * const m_mounter;

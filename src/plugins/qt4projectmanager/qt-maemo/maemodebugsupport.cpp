@@ -83,7 +83,7 @@ RunControl *MaemoDebugSupport::createDebugRunControl(MaemoRunConfiguration *runC
         params.executable = runConfig->localExecutableFilePath();
         params.debuggerCommand = runConfig->gdbCmd();
         params.remoteChannel = devConf.server.host + QLatin1Char(':')
-            + gdbServerPort(runConfig, devConf);
+            + QString::number(gdbServerPort(runConfig));
         params.remoteArchitecture = QLatin1String("arm");
     }
     params.processArgs = runConfig->arguments();
@@ -231,7 +231,7 @@ void MaemoDebugSupport::startDebugging()
         const QString &remoteExe = m_runConfig->remoteExecutableFilePath();
         m_runner->startExecution(QString::fromLocal8Bit("%1 gdbserver :%2 %3 %4")
             .arg(MaemoGlobal::remoteCommandPrefix(remoteExe))
-            .arg(gdbServerPort(m_runConfig, m_deviceConfig))
+            .arg(gdbServerPort(m_runConfig))
             .arg(remoteExe).arg(m_runConfig->arguments()
             .join(QLatin1String(" "))).toUtf8());
     }
@@ -293,15 +293,9 @@ void MaemoDebugSupport::handleAdapterSetupDone()
         qobject_cast<RemoteGdbServerAdapter*>(m_gdbAdapter)->handleSetupDone();
 }
 
-QString MaemoDebugSupport::gdbServerPort(const MaemoRunConfiguration *rc,
-    const MaemoDeviceConfig &devConf)
+int MaemoDebugSupport::gdbServerPort(const MaemoRunConfiguration *rc)
 {
-    // During configuration we don't know which port to use, so we display
-    // something in the config dialog, but we will make sure we use
-    // the right port from the information file.
-    return devConf.type == MaemoDeviceConfig::Physical
-        ? QString::number(devConf.debuggingPort)
-        : rc->runtimeGdbServerPort();
+    return rc->freePorts().getNext();
 }
 
 QString MaemoDebugSupport::uploadDir(const MaemoDeviceConfig &devConf)

@@ -38,6 +38,7 @@
 #include "maemodeviceconfigurations.h"
 
 #include <QtCore/QAbstractListModel>
+#include <QtCore/QList>
 #include <QtCore/QVariantMap>
 
 namespace Qt4ProjectManager {
@@ -66,7 +67,9 @@ private:
     Q_SLOT void handleDeviceConfigListChange();
     void resetCurrentIndex();
     void setInvalid();
+    void setupList();
 
+    QList<MaemoDeviceConfig> m_devConfigs;
     quint64 m_currentId;
     int m_currentIndex;
 };

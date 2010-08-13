@@ -56,7 +56,6 @@ namespace {
     const QLatin1String TypeKey("Type");
     const QLatin1String HostKey("Host");
     const QLatin1String SshPortKey("SshPort");
-    const QLatin1String DebuggingPortKey("GdbServerPort");
     const QLatin1String PortsSpecKey("FreePortsSpec");
     const QLatin1String UserNameKey("Uname");
     const QLatin1String AuthKey("Authentication");
@@ -177,7 +176,6 @@ private:
 MaemoDeviceConfig::MaemoDeviceConfig(const QString &name, MaemoDeviceConfig::DeviceType devType)
     : name(name),
       type(devType),
-      debuggingPort(defaultDebuggingPort(type)),
       portsSpec(defaultPortsSpec(type)),
       internalId(MaemoDeviceConfigurations::instance().m_nextId++)
 {
@@ -193,7 +191,6 @@ MaemoDeviceConfig::MaemoDeviceConfig(const QSettings &settings,
                                      quint64 &nextId)
     : name(settings.value(NameKey).toString()),
       type(static_cast<DeviceType>(settings.value(TypeKey, DefaultDeviceType).toInt())),
-      debuggingPort(settings.value(DebuggingPortKey, defaultDebuggingPort(type)).toInt()),
       portsSpec(settings.value(PortsSpecKey, defaultPortsSpec(type)).toString()),
       internalId(settings.value(InternalIdKey, nextId).toULongLong())
 {
@@ -228,11 +225,6 @@ int MaemoDeviceConfig::defaultSshPort(DeviceType type) const
     return type == Physical ? DefaultSshPortHW : DefaultSshPortSim;
 }
 
-int MaemoDeviceConfig::defaultDebuggingPort(DeviceType type) const
-{
-    return type == Physical ? DefaultGdbServerPortHW : DefaultGdbServerPortSim;
-}
-
 QString MaemoDeviceConfig::defaultPortsSpec(DeviceType type) const
 {
     return QLatin1String(type == Physical ? "10000-10100" : "13219,14168");
@@ -259,7 +251,6 @@ void MaemoDeviceConfig::save(QSettings &settings) const
     settings.setValue(TypeKey, type);
     settings.setValue(HostKey, server.host);
     settings.setValue(SshPortKey, server.port);
-    settings.setValue(DebuggingPortKey, debuggingPort);
     settings.setValue(PortsSpecKey, portsSpec);
     settings.setValue(UserNameKey, server.uname);
     settings.setValue(AuthKey, server.authType);

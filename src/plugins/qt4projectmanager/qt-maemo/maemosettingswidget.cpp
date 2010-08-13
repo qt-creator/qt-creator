@@ -117,7 +117,6 @@ QString MaemoSettingsWidget::searchKeywords() const
 {
     QString rc;
     QTextStream(&rc) << m_ui->configurationLabel->text()
-        << ' ' << m_ui->debuggingPortLabel->text()
         << ' ' << m_ui->sshPortLabel->text()
         << ' ' << m_ui->keyButton->text()
         << ' ' << m_ui->passwordButton->text()
@@ -131,7 +130,8 @@ QString MaemoSettingsWidget::searchKeywords() const
         << ' ' << m_ui->keyLabel->text()
         << ' ' << m_ui->nameLineEdit->text()
         << ' ' << m_ui->passwordLabel->text()
-        << ' ' << m_ui->portsLabel->text()
+        << ' ' << m_ui->freePortsLabel->text()
+        << ' ' << m_ui->portsWarningLabel->text()
         << ' ' << m_ui->pwdLineEdit->text()
         << ' ' << m_ui->timeoutSpinBox->value()
         << ' ' << m_ui->userLineEdit->text()
@@ -148,11 +148,6 @@ void MaemoSettingsWidget::initGui()
     QRegExpValidator * const portsValidator
         = new QRegExpValidator(QRegExp(MaemoDeviceConfig::portsRegExpr()), this);
     m_ui->portsLineEdit->setValidator(portsValidator);
-#if 1
-    m_ui->freePortsLabel->hide();
-    m_ui->portsLineEdit->hide();
-#endif
-
     foreach (const MaemoDeviceConfig &devConf, m_devConfs)
         m_ui->configurationComboBox->addItem(devConf.name);
     connect(m_ui->configurationComboBox, SIGNAL(currentIndexChanged(int)),
@@ -223,19 +218,17 @@ void MaemoSettingsWidget::fillInValues()
     m_ui->nameLineEdit->setText(currentConfig().name);
     m_ui->hostLineEdit->setText(currentConfig().server.host);
     m_ui->sshPortSpinBox->setValue(currentConfig().server.port);
-    m_ui->gdbServerPortSpinBox->setValue(currentConfig().debuggingPort);
     m_ui->portsLineEdit->setText(currentConfig().portsSpec);
     m_ui->timeoutSpinBox->setValue(currentConfig().server.timeout);
     m_ui->userLineEdit->setText(currentConfig().server.uname);
     m_ui->pwdLineEdit->setText(currentConfig().server.pwd);
     m_ui->keyFileLineEdit->setPath(currentConfig().server.privateKeyFile);
     m_ui->showPasswordCheckBox->setChecked(false);
-
+    updatePortsWarningLabel();
     const bool isSimulator
         = currentConfig().type == MaemoDeviceConfig::Simulator;
     m_ui->hostLineEdit->setReadOnly(isSimulator);
     m_ui->sshPortSpinBox->setReadOnly(isSimulator);
-    m_ui->gdbServerPortSpinBox->setReadOnly(isSimulator);
 }
 
 void MaemoSettingsWidget::saveSettings()
@@ -305,14 +298,10 @@ void MaemoSettingsWidget::sshPortEditingFinished()
     currentConfig().server.port = m_ui->sshPortSpinBox->value();
 }
 
-void MaemoSettingsWidget::gdbServerPortEditingFinished()
-{
-    currentConfig().debuggingPort = m_ui->gdbServerPortSpinBox->value();
-}
-
 void MaemoSettingsWidget::handleFreePortsChanged()
 {
     currentConfig().portsSpec = m_ui->portsLineEdit->text();
+    updatePortsWarningLabel();
 }
 
 void MaemoSettingsWidget::timeoutEditingFinished()
@@ -479,10 +468,21 @@ void MaemoSettingsWidget::clearDetails()
 {
     m_ui->hostLineEdit->clear();
     m_ui->sshPortSpinBox->clear();
-    m_ui->gdbServerPortSpinBox->clear();
     m_ui->timeoutSpinBox->clear();
     m_ui->userLineEdit->clear();
     m_ui->pwdLineEdit->clear();
+    m_ui->portsLineEdit->clear();
+    m_ui->portsWarningLabel->clear();
+}
+
+void MaemoSettingsWidget::updatePortsWarningLabel()
+{
+    if (currentConfig().freePorts().hasMore()) {
+        m_ui->portsWarningLabel->clear();
+    } else {
+        m_ui->portsWarningLabel->setText(QLatin1String("<font color=\"red\">")
+            + tr("You'll need at least one port!") + QLatin1String("</font>"));
+    }
 }
 
 } // namespace Internal

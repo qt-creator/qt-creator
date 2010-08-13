@@ -64,6 +64,9 @@
            </sizepolicy>
           </property>
           <layout class="QFormLayout" name="formLayout_2">
+           <property name="fieldGrowthPolicy">
+            <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+           </property>
            <item row="0" column="0">
             <widget class="QLabel" name="deviceNameLabel">
              <property name="text">
@@ -149,27 +152,14 @@
             </widget>
            </item>
            <item row="4" column="0">
-            <widget class="QLabel" name="portsLabel">
+            <widget class="QLabel" name="sshPortLabel">
              <property name="text">
-              <string>Ports:</string>
+              <string>SSH port:</string>
              </property>
             </widget>
            </item>
            <item row="4" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_4">
-             <item>
-              <widget class="QLabel" name="sshPortLabel">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text">
-                <string>SSH:</string>
-               </property>
-              </widget>
-             </item>
              <item>
               <widget class="QSpinBox" name="sshPortSpinBox">
                <property name="minimum">
@@ -184,27 +174,17 @@
               </widget>
              </item>
              <item>
-              <widget class="QLabel" name="debuggingPortLabel">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
+              <spacer name="horizontalSpacer_3">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
                </property>
-               <property name="text">
-                <string>Debugging:</string>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
                </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QSpinBox" name="gdbServerPortSpinBox">
-               <property name="maximum">
-                <number>65535</number>
-               </property>
-               <property name="value">
-                <number>10000</number>
-               </property>
-              </widget>
+              </spacer>
              </item>
             </layout>
            </item>
@@ -221,6 +201,13 @@
               <widget class="QLineEdit" name="portsLineEdit">
                <property name="toolTip">
                 <string>You can enter lists and ranges like this: 1024,1026-1028,1030</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="portsWarningLabel">
+               <property name="text">
+                <string>TextLabel</string>
                </property>
               </widget>
              </item>
@@ -685,38 +672,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>gdbServerPortSpinBox</sender>
-   <signal>editingFinished()</signal>
-   <receiver>MaemoSettingsWidget</receiver>
-   <slot>gdbServerPortEditingFinished()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>375</x>
-     <y>190</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>593</x>
-     <y>184</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>gdbServerPortSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MaemoSettingsWidget</receiver>
-   <slot>gdbServerPortEditingFinished()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>395</x>
-     <y>197</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>590</x>
-     <y>251</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>sshPortSpinBox</sender>
    <signal>editingFinished()</signal>
    <receiver>MaemoSettingsWidget</receiver>
@@ -739,8 +694,8 @@
    <slot>sshPortEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>243</x>
-     <y>197</y>
+     <x>230</x>
+     <y>204</y>
     </hint>
     <hint type="destinationlabel">
      <x>3</x>

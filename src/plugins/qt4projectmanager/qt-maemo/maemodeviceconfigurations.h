@@ -94,13 +94,11 @@ public:
     Core::SshConnectionParameters server;
     QString name;
     DeviceType type;
-    int debuggingPort;
     QString portsSpec;
     quint64 internalId;
 
 private:
     int defaultSshPort(DeviceType type) const;
-    int defaultDebuggingPort(DeviceType type) const;
     QString defaultPortsSpec(DeviceType type) const;
     QString defaultHost(DeviceType type) const;
 

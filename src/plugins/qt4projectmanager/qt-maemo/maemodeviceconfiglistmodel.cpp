@@ -42,9 +42,10 @@ namespace Internal {
 MaemoDeviceConfigListModel::MaemoDeviceConfigListModel(QObject *parent)
     : QAbstractListModel(parent), m_currentIndex(-1)
 {
+    setupList();
     const MaemoDeviceConfigurations &devConfs
         = MaemoDeviceConfigurations::instance();
-    if (devConfs.devConfigs().isEmpty())
+    if (m_devConfigs.isEmpty())
         setInvalid();
     else
         setCurrentIndex(0);
@@ -52,27 +53,35 @@ MaemoDeviceConfigListModel::MaemoDeviceConfigListModel(QObject *parent)
         SLOT(handleDeviceConfigListChange()));
 }
 
+void MaemoDeviceConfigListModel::setupList()
+{
+    m_devConfigs.clear();
+    const MaemoDeviceConfigurations &devConfs
+        = MaemoDeviceConfigurations::instance();
+    foreach (const MaemoDeviceConfig &devConfig, devConfs.devConfigs()) {
+        if (devConfig.freePorts().hasMore())
+            m_devConfigs << devConfig;
+    }
+}
+
 void MaemoDeviceConfigListModel::setCurrentIndex(int index)
 {
     if (index != m_currentIndex) {
         m_currentIndex = index;
-        m_currentId = MaemoDeviceConfigurations::instance().devConfigs()
-            .at(m_currentIndex).internalId;
+        m_currentId = m_devConfigs.at(m_currentIndex).internalId;
         emit currentChanged();
     }
 }
 
 void MaemoDeviceConfigListModel::resetCurrentIndex()
 {
-    const QList<MaemoDeviceConfig> &devConfigs
-        = MaemoDeviceConfigurations::instance().devConfigs();
-    if (devConfigs.isEmpty()) {
+    if (m_devConfigs.isEmpty()) {
         setInvalid();
         return;
     }
 
-    for (int i = 0; i < devConfigs.count(); ++i) {
-        if (devConfigs.at(i).internalId == m_currentId) {
+    for (int i = 0; i < m_devConfigs.count(); ++i) {
+        if (m_devConfigs.at(i).internalId == m_currentId) {
             setCurrentIndex(i);
             return;
         }
@@ -110,6 +119,7 @@ void MaemoDeviceConfigListModel::fromMap(const QVariantMap &map)
 
 void MaemoDeviceConfigListModel::handleDeviceConfigListChange()
 {
+    setupList();
     resetCurrentIndex();
     reset();
     emit currentChanged();
@@ -117,8 +127,7 @@ void MaemoDeviceConfigListModel::handleDeviceConfigListChange()
 
 int MaemoDeviceConfigListModel::rowCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0
-        : MaemoDeviceConfigurations::instance().devConfigs().count();
+    return parent.isValid() ? 0 : m_devConfigs.count();
 }
 
 QVariant MaemoDeviceConfigListModel::data(const QModelIndex &index, int role) const
@@ -126,7 +135,7 @@ QVariant MaemoDeviceConfigListModel::data(const QModelIndex &index, int role) co
     if (!index.isValid() || index.row() >= rowCount()
         || role != Qt::DisplayRole)
         return QVariant();
-    return MaemoDeviceConfigurations::instance().devConfigs().at(index.row()).name;
+    return m_devConfigs.at(index.row()).name;
 }
 
 } // namespace Internal

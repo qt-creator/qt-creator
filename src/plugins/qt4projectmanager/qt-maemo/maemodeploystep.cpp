@@ -99,7 +99,7 @@ void MaemoDeployStep::ctor()
         = qobject_cast<Qt4BuildConfiguration *>(buildConfiguration());
     const MaemoToolChain * const toolchain
         = dynamic_cast<MaemoToolChain *>(buildConfig->toolChain());
-    m_mounter = new MaemoRemoteMounter(this,toolchain);
+    m_mounter = new MaemoRemoteMounter(this, toolchain);
     connect(m_mounter, SIGNAL(mounted()), this, SLOT(handleMounted()));
     connect(m_mounter, SIGNAL(unmounted()), this, SLOT(handleUnmounted()));
     connect(m_mounter, SIGNAL(error(QString)), this,
@@ -131,9 +131,6 @@ BuildStepConfigWidget *MaemoDeployStep::createConfigWidget()
 QVariantMap MaemoDeployStep::toMap() const
 {
     QVariantMap map(BuildStep::toMap());
-#ifdef DEPLOY_VIA_MOUNT
-    map.insert(DeployMountPortKey, m_mountPort);
-#endif
     addDeployTimesToMap(map);
     map.unite(m_deviceConfigModel->toMap());
     return map;
@@ -162,9 +159,6 @@ bool MaemoDeployStep::fromMap(const QVariantMap &map)
 {
     if (!BuildStep::fromMap(map))
         return false;
-#ifdef DEPLOY_VIA_MOUNT
-    m_mountPort = map.value(DeployMountPortKey, DefaultMountPort).toInt();
-#endif
     getDeployTimesFromMap(map);
     m_deviceConfigModel->fromMap(map);
     return true;
@@ -574,15 +568,16 @@ void MaemoDeployStep::handleUnmounted()
     }
 
     if (m_needsInstall || !m_filesToCopy.isEmpty()) {
+        m_mounter->setPortList(deviceConfig().freePorts());
         if (m_needsInstall) {
             const QString localDir = QFileInfo(packagingStep()->packageFilePath())
                 .absolutePath();
             const MaemoMountSpecification mountSpec(localDir,
-                deployMountPoint(), m_mountPort);
-            m_mounter->addMountSpecification(mountSpec, true);
+                deployMountPoint());
+            if (!addMountSpecification(mountSpec))
+                return;
         } else {
 #ifdef Q_OS_WIN
-            int port = m_mountPort;
             bool drivesToMount[26];
             for (int i = 0; i < sizeof drivesToMount / drivesToMount[0]; ++i)
                 drivesToMount[i] = false;
@@ -602,13 +597,15 @@ void MaemoDeployStep::handleUnmounted()
                 const QString mountPoint = deployMountPoint()
                     + QLatin1Char('/') + QLatin1Char(driveLetter);
                 const MaemoMountSpecification mountSpec(localDir.left(3),
-                    mountPoint, port++);
-                m_mounter->addMountSpecification(mountSpec, true);
+                    mountPoint);
+                if (!addMountSpecification(mountSpec))
+                    return;
                 drivesToMount[index] = true;
             }
 #else
-            m_mounter->addMountSpecification(MaemoMountSpecification(QLatin1String("/"),
-                deployMountPoint(), m_mountPort), true);
+            if (!addMountSpecification(MaemoMountSpecification(QLatin1String("/"),
+                deployMountPoint())))
+                return;
 #endif
         }
         m_mounter->mount();
@@ -658,6 +655,15 @@ void MaemoDeployStep::deployNextFile()
     writeOutput(tr("Copying file '%1' to path '%2' on the device...")
         .arg(d.localFilePath, d.remoteDir));
     copyProcess->start();
+}
+
+bool MaemoDeployStep::addMountSpecification(const MaemoMountSpecification &mountSpec)
+{
+    if (!m_mounter->addMountSpecification(mountSpec, true)) {
+        raiseError(tr("Device has not enough free ports for deployment."));
+        return false;
+    }
+    return true;
 }
 
 void MaemoDeployStep::handleCopyProcessFinished(int exitStatus)

@@ -278,15 +278,17 @@ QString MaemoRunConfiguration::remoteExecutableFilePath() const
         ->remoteExecutableFilePath(localExecutableFilePath());
 }
 
-QString MaemoRunConfiguration::runtimeGdbServerPort() const
+MaemoPortList MaemoRunConfiguration::freePorts() const
 {
-    if (Qt4BuildConfiguration *qt4bc = activeQt4BuildConfiguration()) {
+    const MaemoDeviceConfig &devConfig = deviceConfig();
+    const Qt4BuildConfiguration * const qt4bc = activeQt4BuildConfiguration();
+    if (devConfig.type == MaemoDeviceConfig::Simulator && qt4bc) {
         Runtime rt;
         const int id = qt4bc->qtVersion()->uniqueId();
         if (MaemoQemuManager::instance().runtimeForQtVersion(id, &rt))
-            return rt.m_gdbServerPort;
+            return rt.m_freePorts;
     }
-    return QLatin1String("13219");
+    return devConfig.freePorts();
 }
 
 void MaemoRunConfiguration::setArguments(const QStringList &args)

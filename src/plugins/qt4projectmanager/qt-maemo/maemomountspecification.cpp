@@ -35,8 +35,8 @@ namespace Internal {
 const QLatin1String MaemoMountSpecification::InvalidMountPoint("/");
 
 MaemoMountSpecification::MaemoMountSpecification(const QString &localDir,
-    const QString &remoteDir, int remotePort)
-    : localDir(localDir), remoteMountPoint(remoteDir), remotePort(remotePort)
+    const QString &remoteDir)
+    : localDir(localDir), remoteMountPoint(remoteDir)
 {
 }
 

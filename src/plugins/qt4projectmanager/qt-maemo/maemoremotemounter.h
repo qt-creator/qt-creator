@@ -30,6 +30,7 @@
 #ifndef MAEMOREMOTEMOUNTER_H
 #define MAEMOREMOTEMOUNTER_H
 
+#include "maemodeviceconfigurations.h"
 #include "maemomountspecification.h"
 
 #include <coreplugin/ssh/sftpdefs.h>
@@ -57,7 +58,8 @@ class MaemoRemoteMounter : public QObject
 public:
     MaemoRemoteMounter(QObject *parent, const MaemoToolChain *toolchain);
     ~MaemoRemoteMounter();
-    void addMountSpecification(const MaemoMountSpecification &mountSpec,
+    void setPortList(const MaemoPortList &portList) { m_portList = portList; }
+    bool addMountSpecification(const MaemoMountSpecification &mountSpec,
         bool mountAsRoot);
     void mount();
     void unmount();
@@ -91,9 +93,10 @@ private:
     const MaemoToolChain * const m_toolChain;
 
     struct MountInfo {
-        MountInfo(const MaemoMountSpecification &m, bool root)
-            : mountSpec(m), mountAsRoot(root) {}
+        MountInfo(const MaemoMountSpecification &m, int port, bool root)
+            : mountSpec(m), remotePort(port), mountAsRoot(root) {}
         MaemoMountSpecification mountSpec;
+        int remotePort;
         bool mountAsRoot;
     };
 
@@ -109,6 +112,7 @@ private:
     bool m_stop;
     QByteArray m_utfsClientStderr;
     QByteArray m_umountStderr;
+    MaemoPortList m_portList;
 };
 
 } // namespace Internal

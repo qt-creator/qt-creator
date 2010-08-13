@@ -95,12 +95,14 @@ private:
     void addDebuggingWidgets(QVBoxLayout *mainLayout);
     void addMountWidgets(QVBoxLayout *mainLayout);
     void addEnvironmentWidgets(QVBoxLayout *mainLayout);
+    void updateMountWarning();
 
     QLineEdit *m_configNameLineEdit;
     QLineEdit *m_argsLineEdit;
     QLabel *m_localExecutableLabel;
     QLabel *m_remoteExecutableLabel;
     QComboBox *m_devConfBox;
+    QLabel *m_mountWarningLabel;
     QTableView *m_mountView;
     QToolButton *m_removeMountButton;
     Utils::DetailsWidget *m_mountDetailsContainer;

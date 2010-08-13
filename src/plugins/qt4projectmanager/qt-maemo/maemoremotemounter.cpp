@@ -57,11 +57,16 @@ void MaemoRemoteMounter::setConnection(const Core::SshConnection::Ptr &connectio
     m_connection = connection;
 }
 
-void MaemoRemoteMounter::addMountSpecification(const MaemoMountSpecification &mountSpec,
+bool MaemoRemoteMounter::addMountSpecification(const MaemoMountSpecification &mountSpec,
     bool mountAsRoot)
 {
-    if (mountSpec.isValid())
-        m_mountSpecs << MountInfo(mountSpec, mountAsRoot);
+    if (mountSpec.isValid()) {
+        if (!m_portList.hasMore())
+            return false;
+        else
+            m_mountSpecs << MountInfo(mountSpec, m_portList.getNext(), mountAsRoot);
+    }
+    return true;
 }
 
 void MaemoRemoteMounter::mount()
@@ -223,16 +228,17 @@ void MaemoRemoteMounter::startUtfsClients()
     const QLatin1String andOp(" && ");
     QString remoteCall = chmodFuse + andOp + chmodUtfsClient;
     for (int i = 0; i < m_mountSpecs.count(); ++i) {
-        const MaemoMountSpecification &mountSpec = m_mountSpecs.at(i).mountSpec;
+        const MountInfo &mountInfo = m_mountSpecs.at(i);
+        const MaemoMountSpecification &mountSpec = mountInfo.mountSpec;
         const QString mkdir = QString::fromLocal8Bit("%1 mkdir -p %2")
             .arg(MaemoGlobal::remoteSudo(), mountSpec.remoteMountPoint);
         const QString chmod = QString::fromLocal8Bit("%1 chmod a+r+w+x %2")
             .arg(MaemoGlobal::remoteSudo(), mountSpec.remoteMountPoint);
         QString utfsClient
             = QString::fromLocal8Bit("%1 --detach -l %2 -r %2 -b %2 %4")
-                  .arg(utfsClientOnDevice()).arg(mountSpec.remotePort)
+                  .arg(utfsClientOnDevice()).arg(mountInfo.remotePort)
                   .arg(mountSpec.remoteMountPoint);
-        if (m_mountSpecs.at(i).mountAsRoot)
+        if (mountInfo.mountAsRoot)
             utfsClient.prepend(MaemoGlobal::remoteSudo() + QLatin1Char(' '));
         remoteCall += andOp + mkdir + andOp + chmod + andOp + utfsClient;
     }
@@ -269,9 +275,10 @@ void MaemoRemoteMounter::startUtfsServers()
 {
     emit reportProgress(tr("Starting UTFS servers..."));
     for (int i = 0; i < m_mountSpecs.count(); ++i) {
-        const MaemoMountSpecification &mountSpec = m_mountSpecs.at(i).mountSpec;
+        const MountInfo &mountInfo = m_mountSpecs.at(i);
+        const MaemoMountSpecification &mountSpec = mountInfo.mountSpec;
         const ProcPtr utfsServerProc(new QProcess);
-        const QString port = QString::number(mountSpec.remotePort);
+        const QString port = QString::number(mountInfo.remotePort);
         const QString localSecretOpt = QLatin1String("-l");
         const QString remoteSecretOpt = QLatin1String("-r");
         const QStringList utfsServerArgs = QStringList()

@@ -36,16 +36,13 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 struct MaemoMountSpecification {
-    MaemoMountSpecification(const QString &localDir, const QString &remoteDir,
-        int remotePort);
-
+    MaemoMountSpecification(const QString &localDir, const QString &remoteDir);
     bool isValid() const { return remoteMountPoint != InvalidMountPoint; }
 
     static const QLatin1String InvalidMountPoint;
 
     QString localDir;
     QString remoteMountPoint;
-    int remotePort;
 };
 
 } // namespace Internal

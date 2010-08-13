@@ -93,9 +93,10 @@ public:
     void setArguments(const QStringList &args);
     MaemoDeviceConfig deviceConfig() const;
     MaemoDeviceConfigListModel *deviceConfigModel() const;
-    QString runtimeGdbServerPort() const;
+    MaemoPortList freePorts() const;
     bool useRemoteGdb() const { return m_useRemoteGdb; }
     void setUseRemoteGdb(bool useRemoteGdb) { m_useRemoteGdb = useRemoteGdb; }
+    void updateFactoryState() { emit isEnabledChanged(true); }
 
     const QString gdbCmd() const;
     const QString dumperLib() const;

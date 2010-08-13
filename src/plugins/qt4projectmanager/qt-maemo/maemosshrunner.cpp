@@ -194,16 +194,21 @@ void MaemoSshRunner::handleUnmounted()
     if (m_stop)
         return;
 
+    MaemoPortList portList = m_devConfig.freePorts();
+    if (m_debugging && !m_runConfig->useRemoteGdb())
+        portList.getNext(); // One has already been used for gdbserver.
+    m_mounter->setPortList(portList);
     const MaemoRemoteMountsModel * const remoteMounts
         = m_runConfig->remoteMounts();
-    for (int i = 0; i < remoteMounts->mountSpecificationCount(); ++i)
-        m_mounter->addMountSpecification(remoteMounts->mountSpecificationAt(i),
-            false);
+    for (int i = 0; i < remoteMounts->mountSpecificationCount(); ++i) {
+        if (!addMountSpecification(remoteMounts->mountSpecificationAt(i)))
+            return;
+    }
     if (m_debugging && m_runConfig->useRemoteGdb()) {
-        m_mounter->addMountSpecification(MaemoMountSpecification(
+        if (!addMountSpecification(MaemoMountSpecification(
             m_runConfig->localDirToMountForRemoteGdb(),
-            MaemoGlobal::remoteProjectSourcesMountPoint(),
-            m_devConfig.debuggingPort), false);
+            MaemoGlobal::remoteProjectSourcesMountPoint())))
+            return;
     }
     m_mounter->mount();
 }
@@ -248,6 +253,16 @@ void MaemoSshRunner::handleRemoteProcessFinished(int exitStatus)
 
     m_exitStatus = exitStatus;
     cleanup(false);
+}
+
+bool MaemoSshRunner::addMountSpecification(const MaemoMountSpecification &mountSpec)
+{
+    if (!m_mounter->addMountSpecification(mountSpec, false)) {
+        emit error(tr("The device does not have enough free ports "
+            "for this run configuration."));
+        return false;
+    }
+    return true;
 }
 
 } // namespace Internal

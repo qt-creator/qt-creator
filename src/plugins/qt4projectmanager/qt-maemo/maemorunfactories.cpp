@@ -36,6 +36,7 @@
 
 #include "maemoconstants.h"
 #include "maemodebugsupport.h"
+#include "maemoremotemountsmodel.h"
 #include "maemorunconfiguration.h"
 #include "maemoruncontrol.h"
 
@@ -158,9 +159,20 @@ MaemoRunControlFactory::~MaemoRunControlFactory()
 bool MaemoRunControlFactory::canRun(RunConfiguration *runConfiguration,
     const QString &mode) const
 {
-    return qobject_cast<MaemoRunConfiguration *>(runConfiguration)
-        && (mode == ProjectExplorer::Constants::RUNMODE
-        || mode == ProjectExplorer::Constants::DEBUGMODE);
+    const MaemoRunConfiguration * const maemoRunConfig
+        = qobject_cast<MaemoRunConfiguration *>(runConfiguration);
+    if (!maemoRunConfig || !maemoRunConfig->deviceConfig().isValid())
+        return false;
+    const int freePortCount = maemoRunConfig->freePorts().count();
+    if (freePortCount == 0)
+        return false;
+    const int mountDirCount
+        = maemoRunConfig->remoteMounts()->validMountSpecificationCount();
+    if (mode == ProjectExplorer::Constants::DEBUGMODE)
+        return freePortCount > mountDirCount;
+    if (mode == ProjectExplorer::Constants::RUNMODE)
+        return freePortCount >= mountDirCount;
+    return false;
 }
 
 RunControl* MaemoRunControlFactory::create(RunConfiguration *runConfig,
