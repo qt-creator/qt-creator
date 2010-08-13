@@ -27,21 +27,17 @@
 **
 **************************************************************************/
 
-#ifndef TABSETTINGS_H
-#define TABSETTINGS_H
+#ifndef SYNTAXHIGHLIGHTER_H
+#define SYNTAXHIGHLIGHTER_H
 
-#include <QString>
+// Replaces the "real" syntaxhighlighter.h file. The scope of this test is restricted to the
+// highlight definition's context engine. Using QSyntaxHighlighter as a base instead of the
+// real TextEditor::SyntaxHighlighter should not affect it.
 
-// Replaces the "real" tabsettings.h file.
+#include <QtGui/QSyntaxHighlighter>
 
 namespace TextEditor {
-
-class TabSettings
-{
-public:
-    int indentationColumn(const QString &) const { return 0; }
-};
-
+    typedef QSyntaxHighlighter SyntaxHighlighter;
 }
 
-#endif // TABSETTINGS_H
+#endif //SYNTAXHIGHLIGHTER_H
