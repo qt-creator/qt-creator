@@ -64,7 +64,6 @@ class QmlJSQuickFixState: public TextEditor::QuickFixState
 public:
     /// Creates a new state for the given editor.
     QmlJSQuickFixState(TextEditor::BaseTextEditor *editor);
-    typedef Utils::ChangeSet::Range Range;
 
     Internal::SemanticInfo semanticInfo() const;
 
@@ -74,11 +73,7 @@ public:
     /// \returns the document of the editor
     QmlJS::Document::Ptr document() const;
 
-    /*!
-        \returns the offset in the document for the start position of the given
-                 source location.
-     */
-    unsigned startPosition(const QmlJS::AST::SourceLocation &loc) const;
+    const QmlJSRefactoringFile currentFile() const;
 
 private:
     Internal::SemanticInfo _semanticInfo;
@@ -108,22 +103,15 @@ public:
     virtual void perform();
 
 protected:
-    virtual void performChanges(TextEditor::RefactoringFile *currentFile, QmlJSRefactoringChanges *refactoring) = 0;
+    typedef Utils::ChangeSet::Range Range;
+
+    virtual void performChanges(QmlJSRefactoringFile *currentFile, QmlJSRefactoringChanges *refactoring) = 0;
 
     /// \returns A const-reference to the state of the operation.
     const QmlJSQuickFixState &state() const;
 
     /// \returns The name of the file for for which this operation is invoked.
     QString fileName() const;
-
-protected: // Utility functions forwarding to QmlJSQuickFixState
-    /// \see QmlJSQuickFixState#startPosition
-    unsigned startPosition(const QmlJS::AST::SourceLocation &loc) const
-    { return state().startPosition(loc); }
-
-    /// \see QmlJSQuickFixState#range
-    static QmlJSQuickFixState::Range range(int start, int end)
-    { return QmlJSQuickFixState::range(start, end); }
 
 private:
     QmlJSQuickFixState _state;

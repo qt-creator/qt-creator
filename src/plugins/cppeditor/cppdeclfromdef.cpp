@@ -113,13 +113,14 @@ private:
 QList<CppQuickFixOperation::Ptr> DeclFromDef::match(const CppQuickFixState &state)
 {
     const QList<AST *> &path = state.path();
+    const CppRefactoringFile &file = state.currentFile();
 
     FunctionDefinitionAST *funDef = 0;
     int idx = 0;
     for (; idx < path.size(); ++idx) {
         AST *node = path.at(idx);
         if (FunctionDefinitionAST *candidate = node->asFunctionDefinition()) {
-            if (!funDef && state.isCursorOn(candidate) && !state.isCursorOn(candidate->function_body))
+            if (!funDef && file.isCursorOn(candidate) && !file.isCursorOn(candidate->function_body))
                 funDef = candidate;
         } else if (node->asClassSpecifier()) {
             return noResult();

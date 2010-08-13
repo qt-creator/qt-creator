@@ -48,6 +48,7 @@ class CPPEDITOR_EXPORT CppRefactoringFile: public TextEditor::RefactoringFile
 public:
     CppRefactoringFile();
     CppRefactoringFile(const QString &fileName, CppRefactoringChanges *refactoringChanges);
+    CppRefactoringFile(TextEditor::BaseTextEditor *editor, CPlusPlus::Document::Ptr document);
 
     CPlusPlus::Document::Ptr cppDocument() const;
 

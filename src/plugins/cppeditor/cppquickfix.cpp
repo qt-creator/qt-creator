@@ -86,100 +86,11 @@ const LookupContext &CppQuickFixState::context() const
     return _context;
 }
 
-Scope *CppQuickFixState::scopeAt(unsigned index) const
+const CppRefactoringFile CppQuickFixState::currentFile() const
 {
-    unsigned line, column;
-    document()->translationUnit()->getTokenStartPosition(index, &line, &column);
-    return document()->scopeAt(line, column);
+    return CppRefactoringFile(editor(), document());
 }
 
-bool CppQuickFixState::isCursorOn(unsigned tokenIndex) const
-{
-    QTextCursor tc = textCursor();
-    int cursorBegin = tc.selectionStart();
-
-    int start = startOf(tokenIndex);
-    int end = endOf(tokenIndex);
-
-    if (cursorBegin >= start && cursorBegin <= end)
-        return true;
-
-    return false;
-}
-
-bool CppQuickFixState::isCursorOn(const AST *ast) const
-{
-    QTextCursor tc = textCursor();
-    int cursorBegin = tc.selectionStart();
-
-    int start = startOf(ast);
-    int end = endOf(ast);
-
-    if (cursorBegin >= start && cursorBegin <= end)
-        return true;
-
-    return false;
-}
-
-ChangeSet::Range CppQuickFixState::range(unsigned tokenIndex) const
-{
-    const Token &token = tokenAt(tokenIndex);
-    unsigned line, column;
-    document()->translationUnit()->getPosition(token.begin(), &line, &column);
-    const int start = editor()->document()->findBlockByNumber(line - 1).position() + column - 1;
-    return ChangeSet::Range(start, start + token.length());
-}
-
-ChangeSet::Range CppQuickFixState::range(AST *ast) const
-{
-    return ChangeSet::Range(startOf(ast), endOf(ast));
-}
-
-int CppQuickFixState::startOf(unsigned index) const
-{
-    unsigned line, column;
-    document()->translationUnit()->getPosition(tokenAt(index).begin(), &line, &column);
-    return editor()->document()->findBlockByNumber(line - 1).position() + column - 1;
-}
-
-int CppQuickFixState::startOf(const AST *ast) const
-{
-    return startOf(ast->firstToken());
-}
-
-int CppQuickFixState::endOf(unsigned index) const
-{
-    unsigned line, column;
-    document()->translationUnit()->getPosition(tokenAt(index).end(), &line, &column);
-    return editor()->document()->findBlockByNumber(line - 1).position() + column - 1;
-}
-
-int CppQuickFixState::endOf(const AST *ast) const
-{
-    if (unsigned end = ast->lastToken())
-        return endOf(end - 1);
-    else
-        return 0;
-}
-
-void CppQuickFixState::startAndEndOf(unsigned index, int *start, int *end) const
-{
-    unsigned line, column;
-    Token token(tokenAt(index));
-    document()->translationUnit()->getPosition(token.begin(), &line, &column);
-    *start = editor()->document()->findBlockByNumber(line - 1).position() + column - 1;
-    *end = *start + token.length();
-}
-
-QString CppQuickFixState::textOf(const AST *ast) const
-{
-    return textOf(startOf(ast), endOf(ast));
-}
-
-const Token &CppQuickFixState::tokenAt(unsigned index) const
-{
-    return document()->translationUnit()->tokenAt(index);
-}
 
 CppQuickFixOperation::CppQuickFixOperation(const CppQuickFixState &state, int priority)
     : QuickFixOperation(priority)

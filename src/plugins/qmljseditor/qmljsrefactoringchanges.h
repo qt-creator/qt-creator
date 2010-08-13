@@ -40,11 +40,39 @@ class ModelManagerInterface;
 
 namespace QmlJSEditor {
 
+class QmlJSRefactoringChanges;
+
+class QmlJSRefactoringFile: public TextEditor::RefactoringFile
+{
+public:
+    QmlJSRefactoringFile();
+    QmlJSRefactoringFile(const QString &fileName, QmlJSRefactoringChanges *refactoringChanges);
+    QmlJSRefactoringFile(TextEditor::BaseTextEditor *editor, QmlJS::Document::Ptr document);
+
+    QmlJS::Document::Ptr qmljsDocument() const;
+
+    /*!
+        \returns the offset in the document for the start position of the given
+                 source location.
+     */
+    unsigned startOf(const QmlJS::AST::SourceLocation &loc) const;
+
+private:
+    QmlJSRefactoringChanges *refactoringChanges() const;
+
+    mutable QmlJS::Document::Ptr m_qmljsDocument;
+};
+
+
 class QmlJSRefactoringChanges: public TextEditor::RefactoringChanges
 {
 public:
     QmlJSRefactoringChanges(QmlJS::ModelManagerInterface *modelManager,
                             const QmlJS::Snapshot &snapshot);
+
+    const QmlJS::Snapshot &snapshot() const;
+
+    QmlJSRefactoringFile file(const QString &fileName);
 
 private:
     virtual void indentSelection(const QTextCursor &selection) const;

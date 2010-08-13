@@ -76,6 +76,7 @@ public:
     virtual QList<CppQuickFixOperation::Ptr> match(const CppQuickFixState &state)
     {
         QList<CppQuickFixOperation::Ptr> result;
+        const CppRefactoringFile &file = state.currentFile();
 
         const QList<AST *> &path = state.path();
         int index = path.size() - 1;
@@ -86,7 +87,7 @@ public:
             return result;
 
         Kind invertToken;
-        switch (state.tokenAt(binary->binary_op_token).kind()) {
+        switch (file.tokenAt(binary->binary_op_token).kind()) {
         case T_LESS_EQUAL:
             invertToken = T_GREATER;
             break;
@@ -138,7 +139,7 @@ private:
             // check for ! before parentheses
             if (nested && priority - 2 >= 0) {
                 negation = state.path()[priority - 2]->asUnaryExpression();
-                if (negation && ! state.tokenAt(negation->unary_op_token).is(T_EXCLAIM))
+                if (negation && ! state.currentFile().tokenAt(negation->unary_op_token).is(T_EXCLAIM))
                     negation = 0;
             }
         }
@@ -153,14 +154,14 @@ private:
             ChangeSet changes;
             if (negation) {
                 // can't remove parentheses since that might break precedence
-                changes.remove(range(negation->unary_op_token));
+                changes.remove(currentFile->range(negation->unary_op_token));
             } else if (nested) {
-                changes.insert(state().startOf(nested), "!");
+                changes.insert(currentFile->startOf(nested), "!");
             } else {
-                changes.insert(state().startOf(binary), "!(");
-                changes.insert(state().endOf(binary), ")");
+                changes.insert(currentFile->startOf(binary), "!(");
+                changes.insert(currentFile->endOf(binary), ")");
             }
-            changes.replace(range(binary->binary_op_token), replacement);
+            changes.replace(currentFile->range(binary->binary_op_token), replacement);
             currentFile->change(changes);
         }
     };
@@ -180,6 +181,7 @@ public:
     {
         QList<QuickFixOperation::Ptr> result;
         const QList<AST *> &path = state.path();
+        const CppRefactoringFile &file = state.currentFile();
 
         int index = path.size() - 1;
         BinaryExpressionAST *binary = path.at(index)->asBinaryExpression();
@@ -189,7 +191,7 @@ public:
             return result;
 
         Kind flipToken;
-        switch (state.tokenAt(binary->binary_op_token).kind()) {
+        switch (file.tokenAt(binary->binary_op_token).kind()) {
         case T_LESS_EQUAL:
             flipToken = T_GREATER_EQUAL;
             break;
@@ -247,9 +249,9 @@ private:
         {
             ChangeSet changes;
 
-            changes.flip(range(binary->left_expression), range(binary->right_expression));
+            changes.flip(currentFile->range(binary->left_expression), currentFile->range(binary->right_expression));
             if (! replacement.isEmpty())
-                changes.replace(range(binary->binary_op_token), replacement);
+                changes.replace(currentFile->range(binary->binary_op_token), replacement);
 
             currentFile->change(changes);
         }
@@ -275,6 +277,7 @@ public:
         QList<QuickFixOperation::Ptr> result;
         BinaryExpressionAST *expression = 0;
         const QList<AST *> &path = state.path();
+        const CppRefactoringFile &file = state.currentFile();
 
         int index = path.size() - 1;
         for (; index != -1; --index) {
@@ -292,9 +295,9 @@ public:
         QSharedPointer<Operation> op(new Operation(state));
 
         if (expression->match(op->pattern, &matcher) &&
-                state.tokenAt(op->pattern->binary_op_token).is(T_AMPER_AMPER) &&
-                state.tokenAt(op->left->unary_op_token).is(T_EXCLAIM) &&
-                state.tokenAt(op->right->unary_op_token).is(T_EXCLAIM)) {
+                file.tokenAt(op->pattern->binary_op_token).is(T_AMPER_AMPER) &&
+                file.tokenAt(op->left->unary_op_token).is(T_EXCLAIM) &&
+                file.tokenAt(op->right->unary_op_token).is(T_EXCLAIM)) {
             op->setDescription(QApplication::translate("CppTools::QuickFix", "Rewrite Condition Using ||"));
             op->setPriority(index);
             result.append(op);
@@ -324,16 +327,16 @@ private:
         virtual void performChanges(CppRefactoringFile *currentFile, CppRefactoringChanges *)
         {
             ChangeSet changes;
-            changes.replace(range(pattern->binary_op_token), QLatin1String("||"));
-            changes.remove(range(left->unary_op_token));
-            changes.remove(range(right->unary_op_token));
-            const int start = state().startOf(pattern);
-            const int end = state().endOf(pattern);
+            changes.replace(currentFile->range(pattern->binary_op_token), QLatin1String("||"));
+            changes.remove(currentFile->range(left->unary_op_token));
+            changes.remove(currentFile->range(right->unary_op_token));
+            const int start = currentFile->startOf(pattern);
+            const int end = currentFile->endOf(pattern);
             changes.insert(start, QLatin1String("!("));
             changes.insert(end, QLatin1String(")"));
 
             currentFile->change(changes);
-            currentFile->indent(range(pattern));
+            currentFile->indent(currentFile->range(pattern));
         }
     };
 
@@ -376,6 +379,7 @@ public:
         QList<CppQuickFixOperation::Ptr> result;
         CoreDeclaratorAST *core_declarator = 0;
         const QList<AST *> &path = state.path();
+        const CppRefactoringFile &file = state.currentFile();
 
         for (int index = path.size() - 1; index != -1; --index) {
             AST *node = path.at(index);
@@ -387,10 +391,10 @@ public:
                 if (checkDeclaration(simpleDecl)) {
                     SimpleDeclarationAST *declaration = simpleDecl;
 
-                    const int cursorPosition = state.selectionStart();
+                    const int cursorPosition = file.cursor().selectionStart();
 
-                    const int startOfDeclSpecifier = state.startOf(declaration->decl_specifier_list->firstToken());
-                    const int endOfDeclSpecifier = state.endOf(declaration->decl_specifier_list->lastToken() - 1);
+                    const int startOfDeclSpecifier = file.startOf(declaration->decl_specifier_list->firstToken());
+                    const int endOfDeclSpecifier = file.endOf(declaration->decl_specifier_list->lastToken() - 1);
 
                     if (cursorPosition >= startOfDeclSpecifier && cursorPosition <= endOfDeclSpecifier) {
                         // the AST node under cursor is a specifier.
@@ -427,9 +431,9 @@ private:
             ChangeSet changes;
 
             SpecifierListAST *specifiers = declaration->decl_specifier_list;
-            int declSpecifiersStart = state().startOf(specifiers->firstToken());
-            int declSpecifiersEnd = state().endOf(specifiers->lastToken() - 1);
-            int insertPos = state().endOf(declaration->semicolon_token);
+            int declSpecifiersStart = currentFile->startOf(specifiers->firstToken());
+            int declSpecifiersEnd = currentFile->endOf(specifiers->lastToken() - 1);
+            int insertPos = currentFile->endOf(declaration->semicolon_token);
 
             DeclaratorAST *prevDeclarator = declaration->declarator_list->value;
 
@@ -439,17 +443,17 @@ private:
                 changes.insert(insertPos, QLatin1String("\n"));
                 changes.copy(declSpecifiersStart, declSpecifiersEnd, insertPos);
                 changes.insert(insertPos, QLatin1String(" "));
-                changes.move(range(declarator), insertPos);
+                changes.move(currentFile->range(declarator), insertPos);
                 changes.insert(insertPos, QLatin1String(";"));
 
-                const int prevDeclEnd = state().endOf(prevDeclarator);
-                changes.remove(prevDeclEnd, state().startOf(declarator));
+                const int prevDeclEnd = currentFile->endOf(prevDeclarator);
+                changes.remove(prevDeclEnd, currentFile->startOf(declarator));
 
                 prevDeclarator = declarator;
             }
 
             currentFile->change(changes);
-            currentFile->indent(range(declaration));
+            currentFile->indent(currentFile->range(declaration));
         }
 
     private:
@@ -509,14 +513,14 @@ private:
         {
             ChangeSet changes;
 
-            const int start = endOf(_statement->firstToken() - 1);
+            const int start = currentFile->endOf(_statement->firstToken() - 1);
             changes.insert(start, QLatin1String(" {"));
 
-            const int end = endOf(_statement->lastToken() - 1);
+            const int end = currentFile->endOf(_statement->lastToken() - 1);
             changes.insert(end, "\n}");
 
             currentFile->change(changes);
-            currentFile->indent(range(start, end));
+            currentFile->indent(Range(start, end));
         }
 
     private:
@@ -580,14 +584,14 @@ private:
         {
             ChangeSet changes;
 
-            changes.copy(range(core), startOf(condition));
+            changes.copy(currentFile->range(core), currentFile->startOf(condition));
 
-            int insertPos = startOf(pattern);
-            changes.move(range(condition), insertPos);
+            int insertPos = currentFile->startOf(pattern);
+            changes.move(currentFile->range(condition), insertPos);
             changes.insert(insertPos, QLatin1String(";\n"));
 
             currentFile->change(changes);
-            currentFile->indent(range(pattern));
+            currentFile->indent(currentFile->range(pattern));
         }
 
         ASTMatcher matcher;
@@ -662,17 +666,17 @@ private:
         {
             ChangeSet changes;
 
-            changes.insert(startOf(condition), QLatin1String("("));
-            changes.insert(endOf(condition), QLatin1String(") != 0"));
+            changes.insert(currentFile->startOf(condition), QLatin1String("("));
+            changes.insert(currentFile->endOf(condition), QLatin1String(") != 0"));
 
-            int insertPos = startOf(pattern);
-            const int conditionStart = startOf(condition);
-            changes.move(conditionStart, startOf(core), insertPos);
-            changes.copy(range(core), insertPos);
+            int insertPos = currentFile->startOf(pattern);
+            const int conditionStart = currentFile->startOf(condition);
+            changes.move(conditionStart, currentFile->startOf(core), insertPos);
+            changes.copy(currentFile->range(core), insertPos);
             changes.insert(insertPos, QLatin1String(";\n"));
 
             currentFile->change(changes);
-            currentFile->indent(range(pattern));
+            currentFile->indent(currentFile->range(pattern));
         }
 
         ASTMatcher matcher;
@@ -732,7 +736,7 @@ public:
             if (! condition)
                 return noResult();
 
-            Token binaryToken = state.tokenAt(condition->binary_op_token);
+            Token binaryToken = state.currentFile().tokenAt(condition->binary_op_token);
 
             // only accept a chain of ||s or &&s - no mixing
             if (! splitKind) {
@@ -769,7 +773,7 @@ private:
 
         virtual void performChanges(CppRefactoringFile *currentFile, CppRefactoringChanges *)
         {
-            const Token binaryToken = state().tokenAt(condition->binary_op_token);
+            const Token binaryToken = currentFile->tokenAt(condition->binary_op_token);
 
             if (binaryToken.is(T_AMPER_AMPER))
                 splitAndCondition(currentFile);
@@ -781,17 +785,17 @@ private:
         {
             ChangeSet changes;
 
-            int startPos = startOf(pattern);
+            int startPos = currentFile->startOf(pattern);
             changes.insert(startPos, QLatin1String("if ("));
-            changes.move(range(condition->left_expression), startPos);
+            changes.move(currentFile->range(condition->left_expression), startPos);
             changes.insert(startPos, QLatin1String(") {\n"));
 
-            const int lExprEnd = endOf(condition->left_expression);
-            changes.remove(lExprEnd, startOf(condition->right_expression));
-            changes.insert(endOf(pattern), QLatin1String("\n}"));
+            const int lExprEnd = currentFile->endOf(condition->left_expression);
+            changes.remove(lExprEnd, currentFile->startOf(condition->right_expression));
+            changes.insert(currentFile->endOf(pattern), QLatin1String("\n}"));
 
             currentFile->change(changes);
-            currentFile->indent(range(pattern));
+            currentFile->indent(currentFile->range(pattern));
         }
 
         void splitOrCondition(CppRefactoringFile *currentFile)
@@ -801,25 +805,25 @@ private:
             StatementAST *ifTrueStatement = pattern->statement;
             CompoundStatementAST *compoundStatement = ifTrueStatement->asCompoundStatement();
 
-            int insertPos = endOf(ifTrueStatement);
+            int insertPos = currentFile->endOf(ifTrueStatement);
             if (compoundStatement)
                 changes.insert(insertPos, QLatin1String(" "));
             else
                 changes.insert(insertPos, QLatin1String("\n"));
             changes.insert(insertPos, QLatin1String("else if ("));
 
-            const int rExprStart = startOf(condition->right_expression);
-            changes.move(rExprStart, startOf(pattern->rparen_token), insertPos);
+            const int rExprStart = currentFile->startOf(condition->right_expression);
+            changes.move(rExprStart, currentFile->startOf(pattern->rparen_token), insertPos);
             changes.insert(insertPos, QLatin1String(")"));
 
-            const int rParenEnd = endOf(pattern->rparen_token);
-            changes.copy(rParenEnd, endOf(pattern->statement), insertPos);
+            const int rParenEnd = currentFile->endOf(pattern->rparen_token);
+            changes.copy(rParenEnd, currentFile->endOf(pattern->statement), insertPos);
 
-            const int lExprEnd = endOf(condition->left_expression);
-            changes.remove(lExprEnd, startOf(condition->right_expression));
+            const int lExprEnd = currentFile->endOf(condition->left_expression);
+            changes.remove(lExprEnd, currentFile->startOf(condition->right_expression));
 
             currentFile->change(changes);
-            currentFile->indent(range(pattern));
+            currentFile->indent(currentFile->range(pattern));
         }
 
     private:
@@ -844,6 +848,7 @@ public:
         ExpressionAST *literal = 0;
         Type type = TypeNone;
         const QList<AST *> &path = state.path();
+        const CppRefactoringFile &file = state.currentFile();
 
         if (path.isEmpty())
             return noResult(); // nothing to do
@@ -852,7 +857,7 @@ public:
 
         if (! literal) {
             literal = path.last()->asNumericLiteral();
-            if (!literal || !state.tokenAt(literal->asNumericLiteral()->literal_token).is(T_CHAR_LITERAL))
+            if (!literal || !file.tokenAt(literal->asNumericLiteral()->literal_token).is(T_CHAR_LITERAL))
                 return noResult();
             else
                 type = TypeChar;
@@ -865,7 +870,7 @@ public:
                 if (call->base_expression) {
                     if (IdExpressionAST *idExpr = call->base_expression->asIdExpression()) {
                         if (SimpleNameAST *functionName = idExpr->name->asSimpleName()) {
-                            const QByteArray id(state.tokenAt(functionName->identifier_token).identifier->chars());
+                            const QByteArray id(file.tokenAt(functionName->identifier_token).identifier->chars());
 
                             if (id == "QT_TRANSLATE_NOOP" || id == "tr" || id == "trUtf8"
                                     || (type == TypeString && (id == "QLatin1String" || id == "QLatin1Literal"))
@@ -878,7 +883,7 @@ public:
         }
 
         if (type == TypeString) {
-            if (state.charAt(state.startOf(literal)) == QLatin1Char('@'))
+            if (file.charAt(file.startOf(literal)) == QLatin1Char('@'))
                 type = TypeObjCString;
         }
         return singleResult(new Operation(state,
@@ -909,7 +914,7 @@ private:
         {
             ChangeSet changes;
 
-            const int startPos = startOf(literal);
+            const int startPos = currentFile->startOf(literal);
             QLatin1String replacement = (type == TypeChar ? QLatin1String("QLatin1Char(")
                                                           : QLatin1String("QLatin1String("));
 
@@ -918,7 +923,7 @@ private:
             else
                 changes.insert(startPos, replacement);
 
-            changes.insert(endOf(literal), ")");
+            changes.insert(currentFile->endOf(literal), ")");
 
             currentFile->change(changes);
         }
@@ -962,7 +967,7 @@ public:
                 if (call->base_expression) {
                     if (IdExpressionAST *idExpr = call->base_expression->asIdExpression()) {
                         if (SimpleNameAST *functionName = idExpr->name->asSimpleName()) {
-                            const QByteArray id(state.tokenAt(functionName->identifier_token).identifier->chars());
+                            const QByteArray id(state.currentFile().tokenAt(functionName->identifier_token).identifier->chars());
 
                             if (id == "tr" || id == "trUtf8"
                                     || id == "translate"
@@ -1030,7 +1035,7 @@ private:
         {
             ChangeSet changes;
 
-            const int startPos = startOf(m_literal);
+            const int startPos = currentFile->startOf(m_literal);
             QString replacement(QLatin1String("tr("));
             if (m_option == useQCoreApplicationTranslate) {
                 replacement = QLatin1String("QCoreApplication::translate(\"")
@@ -1041,7 +1046,7 @@ private:
             }
 
             changes.insert(startPos, replacement);
-            changes.insert(endOf(m_literal), QLatin1String(")"));
+            changes.insert(currentFile->endOf(m_literal), QLatin1String(")"));
 
             currentFile->change(changes);
         }
@@ -1058,6 +1063,8 @@ class CStringToNSString: public CppQuickFixFactory
 public:
     virtual QList<CppQuickFixOperation::Ptr> match(const CppQuickFixState &state)
     {
+        const CppRefactoringFile &file = state.currentFile();
+
         if (state.editor()->mimeType() != CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)
             return noResult();
 
@@ -1073,7 +1080,7 @@ public:
         if (! stringLiteral)
             return noResult();
 
-        else if (state.charAt(state.startOf(stringLiteral)) == QLatin1Char('@'))
+        else if (file.charAt(file.startOf(stringLiteral)) == QLatin1Char('@'))
             return noResult(); // it's already an objc string literal.
 
         else if (path.size() > 1) {
@@ -1081,7 +1088,7 @@ public:
                 if (call->base_expression) {
                     if (IdExpressionAST *idExpr = call->base_expression->asIdExpression()) {
                         if (SimpleNameAST *functionName = idExpr->name->asSimpleName()) {
-                            const QByteArray id(state.tokenAt(functionName->identifier_token).identifier->chars());
+                            const QByteArray id(state.currentFile().tokenAt(functionName->identifier_token).identifier->chars());
 
                             if (id == "QLatin1String" || id == "QLatin1Literal")
                                 qlatin1Call = call;
@@ -1112,10 +1119,10 @@ private:
             ChangeSet changes;
 
             if (qlatin1Call) {
-                changes.replace(startOf(qlatin1Call), startOf(stringLiteral), QLatin1String("@"));
-                changes.remove(endOf(stringLiteral), endOf(qlatin1Call));
+                changes.replace(currentFile->startOf(qlatin1Call), currentFile->startOf(stringLiteral), QLatin1String("@"));
+                changes.remove(currentFile->endOf(stringLiteral), currentFile->endOf(qlatin1Call));
             } else {
-                changes.insert(startOf(stringLiteral), "@");
+                changes.insert(currentFile->startOf(stringLiteral), "@");
             }
 
             currentFile->change(changes);
@@ -1151,6 +1158,7 @@ public:
         QList<QuickFixOperation::Ptr> result;
 
         const QList<AST *> &path = state.path();
+        const CppRefactoringFile &file = state.currentFile();
 
         if (path.isEmpty())
             return result; // nothing to do
@@ -1160,7 +1168,7 @@ public:
         if (! literal)
             return result;
 
-        Token token = state.tokenAt(literal->asNumericLiteral()->literal_token);
+        Token token = file.tokenAt(literal->asNumericLiteral()->literal_token);
         if (!token.is(T_NUMERIC_LITERAL))
             return result;
         const NumericLiteral *numeric = token.number;
@@ -1182,7 +1190,7 @@ public:
             return result;
 
         const int priority = path.size() - 1; // very high priority
-        const int start = state.startOf(literal);
+        const int start = file.startOf(literal);
         const char * const str = numeric->chars();
 
         if (!numeric->isHex()) {
@@ -1412,12 +1420,12 @@ private:
         virtual void performChanges(CppRefactoringFile *currentFile, CppRefactoringChanges *)
         {
             ChangeSet changes;
-            int start = endOf(compoundStatement->lbrace_token);
+            int start = currentFile->endOf(compoundStatement->lbrace_token);
             changes.insert(start, QLatin1String("\ncase ")
                            + values.join(QLatin1String(":\nbreak;\ncase "))
                            + QLatin1String(":\nbreak;"));
             currentFile->change(changes);
-            currentFile->indent(range(compoundStatement));
+            currentFile->indent(currentFile->range(compoundStatement));
         }
 
         CompoundStatementAST *compoundStatement;
@@ -1528,9 +1536,9 @@ private:
                 if (best.isEmpty())
                     best = headerFile;
 
-                int pos = startOf(1);
+                int pos = currentFile->startOf(1);
 
-                unsigned currentLine = state().textCursor().blockNumber() + 1;
+                unsigned currentLine = currentFile->cursor().blockNumber() + 1;
                 unsigned bestLine = 0;
                 foreach (const Document::Include &incl, state().document()->includes()) {
                     if (incl.line() < currentLine)
@@ -1538,7 +1546,7 @@ private:
                 }
 
                 if (bestLine)
-                    pos = state().editor()->document()->findBlockByNumber(bestLine).position();
+                    pos = currentFile->document()->findBlockByNumber(bestLine).position();
 
                 Utils::ChangeSet changes;
                 changes.insert(pos, QString("#include <%1>\n").arg(QFileInfo(best).fileName()));
@@ -1557,14 +1565,15 @@ public:
     virtual QList<CppQuickFixOperation::Ptr> match(const CppQuickFixState &state)
     {
         const QList<AST *> &path = state.path();
+        const CppRefactoringFile &file = state.currentFile();
 
         for (int index = path.size() - 1; index != -1; --index) {
             if (BinaryExpressionAST *binary = path.at(index)->asBinaryExpression()) {
-                if (binary->left_expression && binary->right_expression && state.tokenAt(binary->binary_op_token).is(T_EQUAL)) {
+                if (binary->left_expression && binary->right_expression && file.tokenAt(binary->binary_op_token).is(T_EQUAL)) {
                     IdExpressionAST *idExpr = binary->left_expression->asIdExpression();
                     if (state.isCursorOn(binary->left_expression) && idExpr && idExpr->name->asSimpleName() != 0) {
                         SimpleNameAST *nameAST = idExpr->name->asSimpleName();
-                        const QList<LookupItem> results = state.context().lookup(nameAST->name, state.scopeAt(nameAST->firstToken()));
+                        const QList<LookupItem> results = state.context().lookup(nameAST->name, file.scopeAt(nameAST->firstToken()));
                         Declaration *decl = 0;
                         foreach (const LookupItem &r, results) {
                             if (! r.declaration())
@@ -1603,8 +1612,8 @@ private:
         {
             TypeOfExpression typeOfExpression;
             typeOfExpression.init(state().document(), state().snapshot(), state().context().bindings());
-            const QList<LookupItem> result = typeOfExpression(state().textOf(binaryAST->right_expression),
-                                                              state().scopeAt(binaryAST->firstToken()),
+            const QList<LookupItem> result = typeOfExpression(currentFile->textOf(binaryAST->right_expression),
+                                                              currentFile->scopeAt(binaryAST->firstToken()),
                                                               TypeOfExpression::Preprocess);
 
             if (! result.isEmpty()) {
@@ -1627,7 +1636,7 @@ private:
                         ty += QLatin1Char(' ');
 
                     Utils::ChangeSet changes;
-                    changes.insert(startOf(binaryAST), ty);
+                    changes.insert(currentFile->startOf(binaryAST), ty);
                     currentFile->change(changes);
                 }
             }

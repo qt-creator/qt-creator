@@ -41,7 +41,6 @@ using namespace TextEditor;
 
 QuickFixState::QuickFixState(TextEditor::BaseTextEditor *editor)
     : _editor(editor)
-    , _textCursor(editor->textCursor())
 {
 }
 
@@ -54,45 +53,6 @@ TextEditor::BaseTextEditor *QuickFixState::editor() const
     return _editor;
 }
 
-QTextCursor QuickFixState::textCursor() const
-{
-    return _textCursor;
-}
-
-int QuickFixState::selectionStart() const
-{
-    return _textCursor.selectionStart();
-}
-
-int QuickFixState::selectionEnd() const
-{
-    return _textCursor.selectionEnd();
-}
-
-int QuickFixState::position(int line, int column) const
-{
-    QTextDocument *doc = editor()->document();
-    return doc->findBlockByNumber(line - 1).position() + column - 1;
-}
-
-QChar QuickFixState::charAt(int offset) const
-{
-    QTextDocument *doc = _textCursor.document();
-    return doc->characterAt(offset);
-}
-
-QString QuickFixState::textOf(int start, int end) const
-{
-    QTextCursor tc = _textCursor;
-    tc.setPosition(start);
-    tc.setPosition(end, QTextCursor::KeepAnchor);
-    return tc.selectedText();
-}
-
-Utils::ChangeSet::Range QuickFixState::range(int start, int end)
-{
-    return Utils::ChangeSet::Range(start, end);
-}
 
 QuickFixOperation::QuickFixOperation(int priority)
 {

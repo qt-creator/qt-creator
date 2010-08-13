@@ -92,22 +92,22 @@ public:
                                                    "Move Component into '%1.qml'").arg(m_componentName));
     }
 
-    virtual void performChanges(TextEditor::RefactoringFile *currentFile, QmlJSRefactoringChanges *refactoring)
+    virtual void performChanges(QmlJSRefactoringFile *currentFile, QmlJSRefactoringChanges *refactoring)
     {
         const QString newFileName = QFileInfo(fileName()).path()
                 + QDir::separator() + m_componentName + QLatin1String(".qml");
 
         QString imports;
-        UiProgram *prog = state().semanticInfo().document->qmlProgram();
+        UiProgram *prog = currentFile->qmljsDocument()->qmlProgram();
         if (prog && prog->imports) {
-            const int start = startPosition(prog->imports->firstSourceLocation());
-            const int end = startPosition(prog->members->member->firstSourceLocation());
-            imports = state().textOf(start, end);
+            const int start = currentFile->startOf(prog->imports->firstSourceLocation());
+            const int end = currentFile->startOf(prog->members->member->firstSourceLocation());
+            imports = currentFile->textOf(start, end);
         }
 
-        const int start = startPosition(m_objDef->firstSourceLocation());
-        const int end = startPosition(m_objDef->lastSourceLocation());
-        const QString txt = imports + state().textOf(start, end)
+        const int start = currentFile->startOf(m_objDef->firstSourceLocation());
+        const int end = currentFile->startOf(m_objDef->lastSourceLocation());
+        const QString txt = imports + currentFile->textOf(start, end)
                 + QLatin1String("}\n");
 
         // stop if we can't create the new file
@@ -117,7 +117,7 @@ public:
         Utils::ChangeSet changes;
         changes.replace(start, end, m_componentName + QLatin1String(" {\n"));
         currentFile->change(changes);
-        currentFile->indent(range(start, end + 1));
+        currentFile->indent(Range(start, end + 1));
     }
 };
 
@@ -126,7 +126,7 @@ public:
 QList<QmlJSQuickFixOperation::Ptr> ComponentFromObjectDef::match(const QmlJSQuickFixState &state)
 {
     QList<QmlJSQuickFixOperation::Ptr> result;
-    const int pos = state.textCursor().position();
+    const int pos = state.currentFile().cursor().position();
 
     QList<Node *> path = state.semanticInfo().astPath(pos);
     for (int i = path.size() - 1; i >= 0; --i) {

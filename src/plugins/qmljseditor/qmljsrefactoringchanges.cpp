@@ -45,6 +45,16 @@ QmlJSRefactoringChanges::QmlJSRefactoringChanges(ModelManagerInterface *modelMan
     Q_ASSERT(modelManager);
 }
 
+const Snapshot &QmlJSRefactoringChanges::snapshot() const
+{
+    return m_snapshot;
+}
+
+QmlJSRefactoringFile QmlJSRefactoringChanges::file(const QString &fileName)
+{
+    return QmlJSRefactoringFile(fileName, this);
+}
+
 void QmlJSRefactoringChanges::indentSelection(const QTextCursor &selection) const
 {
     // ### shares code with QmlJSTextEditor::indent
@@ -67,4 +77,44 @@ void QmlJSRefactoringChanges::indentSelection(const QTextCursor &selection) cons
 void QmlJSRefactoringChanges::fileChanged(const QString &fileName)
 {
     m_modelManager->updateSourceFiles(QStringList(fileName), true);
+}
+
+
+QmlJSRefactoringFile::QmlJSRefactoringFile()
+{ }
+
+QmlJSRefactoringFile::QmlJSRefactoringFile(const QString &fileName, QmlJSRefactoringChanges *refactoringChanges)
+    : RefactoringFile(fileName, refactoringChanges)
+{ }
+
+QmlJSRefactoringFile::QmlJSRefactoringFile(TextEditor::BaseTextEditor *editor, QmlJS::Document::Ptr document)
+    : RefactoringFile()
+    , m_qmljsDocument(document)
+{
+    m_fileName = document->fileName();
+    m_editor = editor;
+}
+
+Document::Ptr QmlJSRefactoringFile::qmljsDocument() const
+{
+    if (!m_qmljsDocument) {
+        const QString source = document()->toPlainText();
+        const QString name = fileName();
+        const Snapshot &snapshot = refactoringChanges()->snapshot();
+
+        m_qmljsDocument = snapshot.documentFromSource(source, name);
+        m_qmljsDocument->parse();
+    }
+
+    return m_qmljsDocument;
+}
+
+unsigned QmlJSRefactoringFile::startOf(const QmlJS::AST::SourceLocation &loc) const
+{
+    return position(loc.startLine, loc.startColumn);
+}
+
+QmlJSRefactoringChanges *QmlJSRefactoringFile::refactoringChanges() const
+{
+    return static_cast<QmlJSRefactoringChanges *>(m_refactoringChanges);
 }

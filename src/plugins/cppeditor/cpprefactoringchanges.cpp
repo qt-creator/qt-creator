@@ -103,6 +103,14 @@ CppRefactoringFile::CppRefactoringFile(const QString &fileName, CppRefactoringCh
     : RefactoringFile(fileName, refactoringChanges)
 { }
 
+CppRefactoringFile::CppRefactoringFile(TextEditor::BaseTextEditor *editor, CPlusPlus::Document::Ptr document)
+    : RefactoringFile()
+    , m_cppDocument(document)
+{
+    m_fileName = document->fileName();
+    m_editor = editor;
+}
+
 Document::Ptr CppRefactoringFile::cppDocument() const
 {
     if (!m_cppDocument) {

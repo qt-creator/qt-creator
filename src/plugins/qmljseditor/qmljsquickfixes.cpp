@@ -56,7 +56,7 @@ public:
 
         UiObjectInitializer *objectInitializer = 0;
 
-        const int pos = state.textCursor().position();
+        const int pos = state.currentFile().cursor().position();
 
         if (QmlJS::AST::Node *member = state.semanticInfo().declaringMember(pos)) {
             if (QmlJS::AST::UiObjectBinding *b = QmlJS::AST::cast<QmlJS::AST::UiObjectBinding *>(member)) {
@@ -88,7 +88,7 @@ private:
                                                    "Split initializer"));
         }
 
-        virtual void performChanges(TextEditor::RefactoringFile *currentFile, QmlJSRefactoringChanges *)
+        virtual void performChanges(QmlJSRefactoringFile *currentFile, QmlJSRefactoringChanges *)
         {
             Q_ASSERT(_objectInitializer != 0);
 
@@ -99,17 +99,17 @@ private:
                     const QmlJS::AST::SourceLocation loc = member->firstSourceLocation();
 
                     // insert a newline at the beginning of this binding
-                    changes.insert(startPosition(loc), QLatin1String("\n"));
+                    changes.insert(currentFile->startOf(loc), QLatin1String("\n"));
                 }
             }
 
             // insert a newline before the closing brace
-            changes.insert(startPosition(_objectInitializer->rbraceToken),
+            changes.insert(currentFile->startOf(_objectInitializer->rbraceToken),
                            QLatin1String("\n"));
 
             currentFile->change(changes);
-            currentFile->indent(range(startPosition(_objectInitializer->lbraceToken),
-                                      startPosition(_objectInitializer->rbraceToken)));
+            currentFile->indent(Range(currentFile->startOf(_objectInitializer->lbraceToken),
+                                      currentFile->startOf(_objectInitializer->rbraceToken)));
         }
     };
 };

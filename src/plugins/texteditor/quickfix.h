@@ -56,42 +56,8 @@ public:
 
     TextEditor::BaseTextEditor *editor() const;
 
-    /*!
-        \returns A QTextCursor positioned as the editor's visible cursor, including
-                 possible selections.
-     */
-    QTextCursor textCursor() const;
-
-    /// \returns The character offset in the document where the selection starts.
-    int selectionStart() const;
-
-    /// \returns The character offset in the document where the selection ends.
-    int selectionEnd() const;
-
-    /*!
-       Calculates the offset in the document for the given line and column.
-
-       \param line The line number, 1-based.
-       \param column The column number, 1-based.
-       \return The offset in the \c QTextDocument of the editor.
-     */
-    int position(int line, int column) const;
-
-    /// \returns The character at the given offset in the editor's text document.
-    QChar charAt(int offset) const;
-
-    /*!
-        \returns The text between the given start- and end-offset in the editor's
-                 text document.
-     */
-    QString textOf(int start, int end) const;
-
-    /// Utility method to create a range.
-    static Utils::ChangeSet::Range range(int start, int end);
-
 private:
     TextEditor::BaseTextEditor *_editor;
-    QTextCursor _textCursor;
 };
 
 /*!

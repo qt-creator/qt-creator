@@ -67,9 +67,9 @@ Document::Ptr QmlJSQuickFixState::document() const
     return _semanticInfo.document;
 }
 
-unsigned QmlJSQuickFixState::startPosition(const QmlJS::AST::SourceLocation &loc) const
+const QmlJSRefactoringFile QmlJSQuickFixState::currentFile() const
 {
-    return position(loc.startLine, loc.startColumn);
+    return QmlJSRefactoringFile(editor(), document());
 }
 
 QmlJSQuickFixOperation::QmlJSQuickFixOperation(const QmlJSQuickFixState &state, int priority)
@@ -86,7 +86,7 @@ void QmlJSQuickFixOperation::perform()
 {
     QmlJSRefactoringChanges refactoring(ExtensionSystem::PluginManager::instance()->getObject<QmlJS::ModelManagerInterface>(),
                                     _state.snapshot());
-    TextEditor::RefactoringFile current = refactoring.file(fileName());
+    QmlJSRefactoringFile current = refactoring.file(fileName());
 
     performChanges(&current, &refactoring);
 }

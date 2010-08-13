@@ -62,7 +62,6 @@ class CPPEDITOR_EXPORT CppQuickFixState: public TextEditor::QuickFixState
 
 public:
     CppQuickFixState(TextEditor::BaseTextEditor *editor);
-    typedef Utils::ChangeSet::Range Range;
 
     const QList<CPlusPlus::AST *> &path() const;
     CPlusPlus::Snapshot snapshot() const;
@@ -70,27 +69,12 @@ public:
     CppEditor::Internal::SemanticInfo semanticInfo() const;
     const CPlusPlus::LookupContext &context() const;
 
-    using TextEditor::QuickFixState::range;
-    using TextEditor::QuickFixState::textOf;
-    using TextEditor::QuickFixState::charAt;
+    const CppRefactoringFile currentFile() const;
 
-    CPlusPlus::Scope *scopeAt(unsigned index) const;
-
-    bool isCursorOn(unsigned tokenIndex) const;
-    bool isCursorOn(const CPlusPlus::AST *ast) const;
-
-    Range range(unsigned tokenIndex) const;
-    Range range(CPlusPlus::AST *ast) const;
-
-    const CPlusPlus::Token &tokenAt(unsigned index) const;
-
-    int startOf(unsigned index) const;
-    int startOf(const CPlusPlus::AST *ast) const;
-    int endOf(unsigned index) const;
-    int endOf(const CPlusPlus::AST *ast) const;
-    void startAndEndOf(unsigned index, int *start, int *end) const;
-
-    QString textOf(const CPlusPlus::AST *ast) const;
+    bool isCursorOn(unsigned tokenIndex) const
+    { return currentFile().isCursorOn(tokenIndex); }
+    bool isCursorOn(const CPlusPlus::AST *ast) const
+    { return currentFile().isCursorOn(ast); }
 
 private:
     QList<CPlusPlus::AST *> _path;
@@ -118,18 +102,6 @@ protected:
 
 protected: // Utility functions forwarding to CppQuickFixState
     typedef Utils::ChangeSet::Range Range;
-
-    bool isCursorOn(unsigned tokenIndex) const { return state().isCursorOn(tokenIndex); }
-    bool isCursorOn(const CPlusPlus::AST *ast) const { return state().isCursorOn(ast); }
-
-    Range range(int start, int end) const { return CppQuickFixState::range(start, end); }
-    Range range(unsigned tokenIndex) const { return state().range(tokenIndex); }
-    Range range(CPlusPlus::AST *ast) const { return state().range(ast); }
-
-    int startOf(unsigned index) const { return state().startOf(index); }
-    int startOf(const CPlusPlus::AST *ast) const { return state().startOf(ast); }
-    int endOf(unsigned index) const { return state().endOf(index); }
-    int endOf(const CPlusPlus::AST *ast) const { return state().endOf(ast); }
 
 private:
     CppQuickFixState _state;
