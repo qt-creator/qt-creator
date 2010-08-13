@@ -216,10 +216,10 @@ FullySpecifiedType Bind::declarator(DeclaratorAST *ast, const FullySpecifiedType
     for (PtrOperatorListAST *it = ast->ptr_operator_list; it; it = it->next) {
         type = this->ptrOperator(it->value, type);
     }
-    type = this->coreDeclarator(ast->core_declarator, type);
     for (PostfixDeclaratorListAST *it = ast->postfix_declarator_list; it; it = it->next) {
         type = this->postfixDeclarator(it->value, type);
     }
+    type = this->coreDeclarator(ast->core_declarator, type);
     for (SpecifierListAST *it = ast->post_attribute_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
