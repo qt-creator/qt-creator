@@ -35,6 +35,9 @@
 #include <QtCore/QDir>
 #include <QtCore/QTextStream>
 
+#include <QtGui/QToolTip>
+#include <QtGui/QFontMetrics>
+
 namespace Debugger {
 namespace Internal {
 
@@ -78,12 +81,14 @@ QString StackFrame::toString() const
 
 QString StackFrame::toToolTip() const
 {
+    const QString filePath = QDir::toNativeSeparators(file);
     QString res;
     QTextStream str(&res);
     str << "<html><body><table>"
         << "<tr><td>" << StackHandler::tr("Address:") << "</td><td>" <<  address << "</td></tr>"
         << "<tr><td>" << StackHandler::tr("Function:") << "</td><td>" << function << "</td></tr>"
-        << "<tr><td>" << StackHandler::tr("File:") << "</td><td>" << QDir::toNativeSeparators(file) << "</td></tr>"
+        << "<tr><td>" << StackHandler::tr("File:") << "</td><td width="
+        << QFontMetrics(QToolTip::font()).width(filePath) << ">" << filePath << "</td></tr>"
         << "<tr><td>" << StackHandler::tr("Line:") << "</td><td>" << line << "</td></tr>"
         << "<tr><td>" << StackHandler::tr("From:") << "</td><td>" << from << "</td></tr>"
         << "<tr><td>" << StackHandler::tr("To:") << "</td><td>" << to << "</td></tr>"
