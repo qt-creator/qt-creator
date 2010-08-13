@@ -565,7 +565,7 @@ def isSimpleType(typeobj):
         or code == gdb.TYPE_CODE_CHAR \
         or code == gdb.TYPE_CODE_INT \
         or code == gdb.TYPE_CODE_FLT \
-        or code == gdb.TYPE_CODE_INT
+        or code == gdb.TYPE_CODE_ENUM
 
 def isStringType(d, typeobj):
     type = str(typeobj)
@@ -1381,14 +1381,6 @@ class Dumper:
             else:
                 qqDumpers[nsStrippedType](self, item)
             #warn(" RESULT: %s " % self.output)
-
-        elif typedefStrippedType.code == gdb.TYPE_CODE_ENUM:
-            #warn("GENERIC ENUM: %s" % value)
-            #self.putAddress(value.address)
-            self.putType(item.value.type)
-            self.putValue(value)
-            self.putNumChild(0)
-
 
         elif typedefStrippedType.code == gdb.TYPE_CODE_PTR:
             #warn("POINTER: %s" % format)
