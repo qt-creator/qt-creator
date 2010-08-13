@@ -463,6 +463,7 @@ protected:
     static void countBrackets(QTextCursor cursor, int from, int end, QChar open, QChar close,
                               int *errors, int *stillopen);
 
+public:
     struct Link
     {
         Link(const QString &fileName = QString(),
@@ -489,6 +490,7 @@ protected:
         int column;        // Target column
     };
 
+protected:
     /*!
        Reimplement this function to enable code navigation.
 

@@ -71,6 +71,7 @@ public:
 
 signals:
     void outlineSortingChanged(bool sort);
+    void typeHierarchyRequested();
 
 public slots:
     void setSortedOutline(bool sorted);
@@ -85,6 +86,7 @@ private slots:
     void quickFix(TextEditor::ITextEditable *editable);
     void quickFixNow();
     void currentEditorChanged(Core::IEditor *editor);
+    void openTypeHierarchy();
 
 private:
     Core::IEditor *createEditor(QWidget *parent);
@@ -98,6 +100,7 @@ private:
     QAction *m_renameSymbolUnderCursorAction;
     QAction *m_findUsagesAction;
     QAction *m_updateCodeModelAction;
+    QAction *m_openTypeHierarchyAction;
 
     CppQuickFixCollector *m_quickFixCollector;
 

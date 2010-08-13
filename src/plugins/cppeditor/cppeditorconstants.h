@@ -48,6 +48,9 @@ const char * const FIND_REFERENCES = "CppEditor.FindReferences";
 const char * const JUMP_TO_DEFINITION = "CppEditor.JumpToDefinition";
 const char * const UPDATE_CODEMODEL = "CppEditor.UpdateCodeModel";
 
+const char * const TYPE_HIERARCHY_ID = "CppEditor.TypeHierarchy";
+const char * const OPEN_TYPE_HIERARCHY = "CppEditor.OpenTypeHierarchy";
+
 const char * const HEADER_FILE_TYPE = "CppHeaderFiles";
 const char * const SOURCE_FILE_TYPE = "CppSourceFiles";
 

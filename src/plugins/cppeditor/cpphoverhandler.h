@@ -30,24 +30,12 @@
 #ifndef CPPHOVERHANDLER_H
 #define CPPHOVERHANDLER_H
 
-#include <cplusplus/CppDocument.h>
 #include <texteditor/basehoverhandler.h>
 
 #include <QtCore/QObject>
-#include <QtCore/QList>
-#include <QtCore/QStringList>
-
-namespace CPlusPlus {
-class LookupItem;
-class LookupContext;
-}
 
 namespace Core {
 class IEditor;
-}
-
-namespace CppTools {
-class CppModelManagerInterface;
 }
 
 namespace TextEditor {
@@ -62,26 +50,13 @@ class CppHoverHandler : public TextEditor::BaseHoverHandler
     Q_OBJECT
 public:
     CppHoverHandler(QObject *parent = 0);
+    virtual ~CppHoverHandler();
 
 private:
     virtual bool acceptEditor(Core::IEditor *editor);
     virtual void identifyMatch(TextEditor::ITextEditor *editor, int pos);
-    virtual void resetExtras();
     virtual void evaluateHelpCandidates();
     virtual void decorateToolTip(TextEditor::ITextEditor *editor);
-
-    bool matchDiagnosticMessage(const CPlusPlus::Document::Ptr &document, unsigned line);
-    bool matchIncludeFile(const CPlusPlus::Document::Ptr &document, unsigned line);
-    bool matchMacroInUse(const CPlusPlus::Document::Ptr &document, unsigned pos);
-    void handleLookupItemMatch(const CPlusPlus::LookupItem &lookupItem,
-                               const CPlusPlus::LookupContext &lookupContext,
-                               const bool assignTooltip);
-
-    void generateDiagramTooltip(const bool extendTooltips);
-    void generateNormalTooltip(const bool extendTooltips);
-
-    CppTools::CppModelManagerInterface *m_modelManager;
-    QList<QStringList> m_classHierarchy;
 };
 
 } // namespace Internal

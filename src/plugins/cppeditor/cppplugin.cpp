@@ -36,6 +36,7 @@
 #include "cpphoverhandler.h"
 #include "cppquickfix.h"
 #include "cppoutline.h"
+#include "cpptypehierarchy.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -46,6 +47,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/navigationwidget.h>
 #include <texteditor/completionsupport.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/storagesettings.h>
@@ -60,6 +62,7 @@
 #include <QtCore/QSettings>
 #include <QtCore/QTimer>
 #include <QtCore/QCoreApplication>
+#include <QtCore/QStringList>
 
 #include <QtGui/QMenu>
 
@@ -139,8 +142,8 @@ CppPlugin::CppPlugin() :
     m_sortedOutline(false),
     m_renameSymbolUnderCursorAction(0),
     m_findUsagesAction(0),
-    m_updateCodeModelAction(0)
-
+    m_updateCodeModelAction(0),
+    m_openTypeHierarchyAction(0)
 {
     m_instance = this;
 
@@ -205,7 +208,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     addAutoReleasedObject(new CppEditorFactory(this));
     addAutoReleasedObject(new CppHoverHandler);
     addAutoReleasedObject(new CppOutlineWidgetFactory);
-
+    addAutoReleasedObject(new CppTypeHierarchyFactory);
 
     m_quickFixCollector = new CppQuickFixCollector;
     addAutoReleasedObject(m_quickFixCollector);
@@ -271,6 +274,13 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
         Constants::RENAME_SYMBOL_UNDER_CURSOR, context);
     cmd->setDefaultKeySequence(QKeySequence("CTRL+SHIFT+R"));
     connect(m_renameSymbolUnderCursorAction, SIGNAL(triggered()), this, SLOT(renameSymbolUnderCursor()));
+    contextMenu->addAction(cmd);
+    cppToolsMenu->addAction(cmd);
+
+    m_openTypeHierarchyAction = new QAction(tr("Open Type Hierarchy"), this);
+    cmd = am->registerAction(m_openTypeHierarchyAction, Constants::OPEN_TYPE_HIERARCHY, context);
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+T")));
+    connect(m_openTypeHierarchyAction, SIGNAL(triggered()), this, SLOT(openTypeHierarchy()));
     contextMenu->addAction(cmd);
     cppToolsMenu->addAction(cmd);
 
@@ -391,6 +401,7 @@ void CppPlugin::onTaskStarted(const QString &type)
         m_renameSymbolUnderCursorAction->setEnabled(false);
         m_findUsagesAction->setEnabled(false);
         m_updateCodeModelAction->setEnabled(false);
+        m_openTypeHierarchyAction->setEnabled(false);
     }
 }
 
@@ -400,6 +411,7 @@ void CppPlugin::onAllTasksFinished(const QString &type)
         m_renameSymbolUnderCursorAction->setEnabled(true);
         m_findUsagesAction->setEnabled(true);
         m_updateCodeModelAction->setEnabled(true);
+        m_openTypeHierarchyAction->setEnabled(true);
     }
 }
 
@@ -410,6 +422,17 @@ void CppPlugin::currentEditorChanged(Core::IEditor *editor)
 
     else if (CPPEditor *textEditor = qobject_cast<CPPEditor *>(editor->widget())) {
         textEditor->rehighlight(/*force = */ true);
+    }
+}
+
+void CppPlugin::openTypeHierarchy()
+{
+    Core::EditorManager *em = Core::EditorManager::instance();
+    CPPEditor *editor = qobject_cast<CPPEditor*>(em->currentEditor()->widget());
+    if (editor) {
+        Core::NavigationWidget *navigation = Core::NavigationWidget::instance();
+        navigation->activateSubWidget(QLatin1String(Constants::TYPE_HIERARCHY_ID));
+        emit typeHierarchyRequested();
     }
 }
 

@@ -1755,6 +1755,9 @@ void CPPEditor::unCommentSelection()
 
 CPPEditor::Link CPPEditor::linkToSymbol(CPlusPlus::Symbol *symbol)
 {
+    if (!symbol)
+        return Link();
+
     const QString fileName = QString::fromUtf8(symbol->fileName(),
                                                symbol->fileNameLength());
     unsigned line = symbol->line();

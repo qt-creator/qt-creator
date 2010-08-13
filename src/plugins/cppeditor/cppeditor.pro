@@ -20,8 +20,9 @@ HEADERS += cppplugin.h \
     cppsemanticinfo.h \
     cppoutline.h \
     cppdeclfromdef.h \
-    cpplocalsymbols.h
-
+    cpplocalsymbols.h \
+    cpptypehierarchy.h \
+    cppelementevaluator.h
 SOURCES += cppplugin.cpp \
     cppeditor.cpp \
     cpphighlighter.cpp \
@@ -35,8 +36,9 @@ SOURCES += cppplugin.cpp \
     cppsemanticinfo.cpp \
     cppoutline.cpp \
     cppdeclfromdef.cpp \
-    cpplocalsymbols.cpp
-
+    cpplocalsymbols.cpp \
+    cpptypehierarchy.cpp \
+    cppelementevaluator.cpp
 RESOURCES += cppeditor.qrc
-
-OTHER_FILES += CppEditor.pluginspec CppEditor.mimetypes.xml
+OTHER_FILES += CppEditor.pluginspec \
+    CppEditor.mimetypes.xml

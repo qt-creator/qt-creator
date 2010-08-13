@@ -95,6 +95,10 @@ void BaseHoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint
 
 void BaseHoverHandler::updateContextHelpId(TextEditor::ITextEditor *editor, int pos)
 {
+    BaseTextEditor *baseEditor = baseTextEditor(editor);
+    if (!baseEditor)
+        return;
+
     // If the tooltip is visible and there is a help match, this match is used to update
     // the help id. Otherwise, let the identification process happen.
     if (!ToolTip::instance()->isVisible() || m_matchingHelpCandidate == -1)

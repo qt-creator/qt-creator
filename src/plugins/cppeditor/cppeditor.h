@@ -180,6 +180,10 @@ public:
     void setObjCEnabled(bool onoff);
     bool isObjCEnabled() const;
 
+    bool openLink(const Link &link) { return openCppEditorAt(link); }
+
+    static Link linkToSymbol(CPlusPlus::Symbol *symbol);
+
 Q_SIGNALS:
     void outlineModelIndexChanged(const QModelIndex &index);
 
@@ -267,12 +271,9 @@ private:
     void abortRename();
 
     Link findLinkAt(const QTextCursor &, bool resolveTarget = true);
-    bool openLink(const Link &link) { return openCppEditorAt(link); }
     bool openCppEditorAt(const Link &);
 
     QModelIndex indexForPosition(int line, int column, const QModelIndex &rootIndex = QModelIndex()) const;
-
-    static Link linkToSymbol(CPlusPlus::Symbol *symbol);
 
     CppTools::CppModelManagerInterface *m_modelManager;
 

@@ -57,19 +57,6 @@ class TEXTEDITOR_EXPORT BaseHoverHandler : public QObject
 public:
     BaseHoverHandler(QObject *parent = 0);
 
-private slots:
-    void editorOpened(Core::IEditor *editor);
-
-public slots:
-    void showToolTip(TextEditor::ITextEditor *editor, const QPoint &point, int pos);
-    void updateContextHelpId(TextEditor::ITextEditor *editor, int pos);
-
-protected:
-    void setToolTip(const QString &tooltip);
-    const QString &toolTip() const;
-    void appendToolTip(const QString &extension);
-    void addF1ToToolTip();
-
     struct HelpCandidate
     {
         enum Category {
@@ -93,6 +80,19 @@ protected:
         QString m_docMark;
         Category m_category;
     };
+
+private slots:
+    void editorOpened(Core::IEditor *editor);
+
+public slots:
+    void showToolTip(TextEditor::ITextEditor *editor, const QPoint &point, int pos);
+    void updateContextHelpId(TextEditor::ITextEditor *editor, int pos);
+
+protected:
+    void setToolTip(const QString &tooltip);
+    const QString &toolTip() const;
+    void appendToolTip(const QString &extension);
+    void addF1ToToolTip();
 
     void addHelpCandidate(const HelpCandidate &helpCandidate);
     void setHelpCandidate(const HelpCandidate &helpCandidate, int index);
