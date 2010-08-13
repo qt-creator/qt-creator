@@ -70,6 +70,9 @@ protected:
     using ASTVisitor::translationUnit;
 
     static int visibilityForAccessSpecifier(int tokenKind);
+    static int visibilityForClassKey(int tokenKind);
+
+    void setDeclSpecifiers(Symbol *symbol, const FullySpecifiedType &declSpecifiers);
 
     typedef FullySpecifiedType ExpressionTy;
     ExpressionTy expression(ExpressionAST *ast);

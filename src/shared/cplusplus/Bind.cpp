@@ -1892,10 +1892,16 @@ bool Bind::visit(TypenameTypeParameterAST *ast)
 {
     // unsigned classkey_token = ast->classkey_token;
     // unsigned dot_dot_dot_token = ast->dot_dot_dot_token;
-    /*const Name *name =*/ this->name(ast->name);
-    // unsigned equal_token = ast->equal_token;
+    const Name *name = this->name(ast->name);
     ExpressionTy type_id = this->expression(ast->type_id);
-    // TypenameArgument *symbol = ast->symbol;
+    unsigned sourceLocation = ast->firstToken();
+    if (ast->name)
+        sourceLocation = ast->name->firstToken();
+
+    TypenameArgument *arg = control()->newTypenameArgument(sourceLocation, name);
+    arg->setType(type_id);
+    ast->symbol = arg;
+    _scope->addMember(arg);
     return false;
 }
 
