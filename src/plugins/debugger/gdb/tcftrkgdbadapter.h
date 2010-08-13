@@ -179,7 +179,7 @@ private:
     QString m_symbolFile;
     int m_verbose;
     bool m_bufferedMemoryRead;
-    bool m_firstModuleResumableEvent;
+    bool m_firstResumableExeLoadedEvent;
     QByteArray m_tcfProcessId;
     LocalGdbProcess m_gdbProc;
 };

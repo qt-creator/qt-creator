@@ -62,6 +62,19 @@
 
 enum { debug = 0 };
 
+/* Libraries we want to be notified about (pending introduction of a 'notify all'
+ * setting in TCF TRK, Bug #11842 */
+static const char *librariesC[] = {
+"pipelib.ldd", "rpipe.dll", "libc.dll",
+"libdl.dll", "libm.dll", "libpthread.dll",
+"libssl.dll", "libz.dll", "libzcore.dll", "libstdcpp.dll",
+"sqlite3.dll", "phonon_mmf.dll", "QtCore.dll", "QtXml.dll", "QtGui.dll",
+"QtNetwork.dll", "QtTest.dll", "QtSql.dll", "QtSvg.dll", "phonon.dll",
+"QtScript.dll", "QtXmlPatterns.dll", "QtMultimedia.dll", "qjpeg.dll",
+"qgif.dll", "qmng.dll", "qtiff.dll", "qico.dll", "qsvg.dll",
+"qcncodecs.dll", "qjpcodecs.dll","qtwcodecs.dll", "qkrcodecs.dll", "qsvgicon.dll",
+"qts60plugin_5_0.dll", "QtWebKit.dll"};
+
 namespace Debugger {
 namespace Internal {
 
@@ -104,7 +117,7 @@ TcfTrkGdbAdapter::TcfTrkGdbAdapter(GdbEngine *engine) :
     m_gdbAckMode(true),
     m_uid(0),
     m_verbose(0),
-    m_firstModuleResumableEvent(false)
+    m_firstResumableExeLoadedEvent(false)
 {
     m_bufferedMemoryRead = true;
     // Disable buffering if gdb's dcache is used.
@@ -183,32 +196,36 @@ void TcfTrkGdbAdapter::handleTcfTrkRunControlModuleLoadContextSuspendedEvent(con
     const ModuleLoadEventInfo &minfo = se.info();
     // Register in session, keep modules and libraries in sync.
     const QString moduleName = QString::fromUtf8(minfo.name);
-    if (true || minfo.loaded) { // TODO: Preliminary TCF Trk Versions always have Loaded=false?
-        m_session.modules.push_back(moduleName);
-        trk::Library library;
-        library.name = minfo.name;
-        library.codeseg = minfo.codeAddress;
-        library.dataseg = minfo.dataAddress;
-        library.pid = RunControlContext::processIdFromTcdfId(se.id());
-        m_session.libraries.push_back(library);
-    } else {
-        const int index = m_session.modules.indexOf(moduleName);
-        if (index != -1) {
-            m_session.modules.removeAt(index);
-            m_session.libraries.removeAt(index);
+    const bool isExe = moduleName.endsWith(QLatin1String(".exe"), Qt::CaseInsensitive);
+    // Add to shared library list
+    if (!isExe) {
+        if (minfo.loaded) {
+            m_session.modules.push_back(moduleName);
+            trk::Library library;
+            library.name = minfo.name;
+            library.codeseg = minfo.codeAddress;
+            library.dataseg = minfo.dataAddress;
+            library.pid = RunControlContext::processIdFromTcdfId(se.id());
+            m_session.libraries.push_back(library);
         } else {
-            // Might happen with preliminary version of TCF TRK.
-            qWarning("Received unload for module '%s' for which no load was received.",
-                     qPrintable(moduleName));
-        }
+            const int index = m_session.modules.indexOf(moduleName);
+            if (index != -1) {
+                m_session.modules.removeAt(index);
+                m_session.libraries.removeAt(index);
+            } else {
+                // Might happen with preliminary version of TCF TRK.
+                qWarning("Received unload for module '%s' for which no load was received.",
+                         qPrintable(moduleName));
+            }
 
+        }
     }
     // Handle resume.
     if (se.info().requireResume) {
         // If it is the first, resumable load event (.exe), make
         // gdb connect to remote target and resume in setupInferior2(),
-        if (m_firstModuleResumableEvent) {
-            m_firstModuleResumableEvent = false;
+        if (isExe && m_firstResumableExeLoadedEvent) {
+            m_firstResumableExeLoadedEvent = false;
             m_session.codeseg = minfo.codeAddress;
             m_session.dataseg = minfo.dataAddress;
             logMessage(startMsg(m_session));
@@ -924,7 +941,7 @@ void TcfTrkGdbAdapter::startAdapter()
 
     m_snapshot.fullReset();
     m_session.reset();
-    m_firstModuleResumableEvent = true;
+    m_firstResumableExeLoadedEvent = true;
     m_tcfProcessId.clear();
 
     // Retrieve parameters
@@ -985,10 +1002,17 @@ void TcfTrkGdbAdapter::startAdapter()
 void TcfTrkGdbAdapter::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
+
+    // Compile additional libraries
+    QStringList libraries;
+    const unsigned libraryCount = sizeof(librariesC)/sizeof(char *);
+    for (unsigned i = 0; i < libraryCount; i++)
+        libraries.push_back(QString::fromAscii(librariesC[i]));
+
     m_trkDevice->sendProcessStartCommand(
         TcfTrkCallback(this, &TcfTrkGdbAdapter::handleCreateProcess),
         m_remoteExecutable, m_uid, m_remoteArguments,
-        QString(), true);
+        QString(), true, libraries);
 }
 
 void TcfTrkGdbAdapter::addThread(unsigned id)
