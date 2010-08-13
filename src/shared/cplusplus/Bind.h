@@ -60,6 +60,8 @@ public:
     Bind(TranslationUnit *unit);
 
     void operator()(TranslationUnitAST *ast, Namespace *globalNamespace);
+    void operator()(DeclarationAST *ast, Scope *scope);
+    void operator()(ExpressionAST *ast, Scope *scope);
 
     bool skipFunctionBodies() const;
     void setSkipFunctionBodies(bool skipFunctionBodies);

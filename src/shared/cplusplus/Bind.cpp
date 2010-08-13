@@ -112,6 +112,20 @@ void Bind::operator()(TranslationUnitAST *ast, Namespace *globalNamespace)
     (void) switchScope(previousScope);
 }
 
+void Bind::operator()(DeclarationAST *ast, Scope *scope)
+{
+    Scope *previousScope = switchScope(scope);
+    declaration(ast);
+    (void) switchScope(previousScope);
+}
+
+void Bind::operator()(ExpressionAST *ast, Scope *scope)
+{
+    Scope *previousScope = switchScope(scope);
+    expression(ast);
+    (void) switchScope(previousScope);
+}
+
 void Bind::statement(StatementAST *ast)
 {
     accept(ast);
