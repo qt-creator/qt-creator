@@ -26,34 +26,33 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
+#include "qmldebuggerclient.h"
 
-#ifndef QMLJSDEBUGGERCLIENT_H
-#define QMLJSDEBUGGERCLIENT_H
+#include <extensionsystem/pluginmanager.h>
+#include <utils/qtcassert.h>
 
-#include "qmljsprivateapi.h"
-
-namespace QmlJSInspector {
+namespace Debugger {
 namespace Internal {
 
-class DebuggerClient : public QDeclarativeDebugClient
+QmlDebuggerClient::QmlDebuggerClient(QmlJsDebugClient::QDeclarativeDebugConnection* client)
+    : QDeclarativeDebugClient(QLatin1String("JSDebugger"), client)
 {
-    Q_OBJECT
+    setEnabled(true);
+}
 
-public:
-    DebuggerClient(QDeclarativeDebugConnection *client);
-    virtual ~DebuggerClient();
+QmlDebuggerClient::~QmlDebuggerClient()
+{
+}
 
-signals:
-    void messageWasReceived(const QByteArray &data);
+void QmlDebuggerClient::messageReceived(const QByteArray &data)
+{
+    emit messageWasReceived(data);
+}
 
-private Q_SLOTS:
-    void slotSendMessage(const QByteArray &message);
-
-protected:
-    virtual void messageReceived(const QByteArray &data);
-};
+void QmlDebuggerClient::slotSendMessage(const QByteArray &message)
+{
+    QDeclarativeDebugClient::sendMessage(message);
+}
 
 } // Internal
-} // QmlJSInspector
-
-#endif // QMLJSDEBUGGERCLIENT_H
+} // Debugger

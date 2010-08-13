@@ -167,19 +167,27 @@ void QmlJSLiveTextPreview::unassociateEditor(Core::IEditor *oldEditor)
     }
 }
 
-QmlJSLiveTextPreview::QmlJSLiveTextPreview(const QmlJS::Document::Ptr &doc, const QmlJS::Document::Ptr &initDoc, QObject* parent) :
-    QObject(parent), m_previousDoc(doc), m_initialDoc(initDoc), m_applyChangesToQmlObserver(true)
+QmlJSLiveTextPreview::QmlJSLiveTextPreview(const QmlJS::Document::Ptr &doc,
+                                           const QmlJS::Document::Ptr &initDoc,
+                                           ClientProxy *clientProxy,
+                                           QObject* parent)
+    : QObject(parent)
+    , m_previousDoc(doc)
+    , m_initialDoc(initDoc)
+    , m_applyChangesToQmlObserver(true)
+    , m_clientProxy(clientProxy)
 {
     Q_ASSERT(doc->fileName() == initDoc->fileName());
-    ClientProxy *clientProxy = ClientProxy::instance();
     m_filename = doc->fileName();
 
     connect(modelManager(), SIGNAL(documentChangedOnDisk(QmlJS::Document::Ptr)),
             SLOT(documentChanged(QmlJS::Document::Ptr)));
 
-    connect(clientProxy,
-            SIGNAL(objectTreeUpdated(QDeclarativeDebugObjectReference)),
-            SLOT(updateDebugIds(QDeclarativeDebugObjectReference)));
+    if (m_clientProxy.data()) {
+        connect(m_clientProxy.data(),
+                SIGNAL(objectTreeUpdated(QDeclarativeDebugObjectReference)),
+                SLOT(updateDebugIds(QDeclarativeDebugObjectReference)));
+    }
 }
 
 void QmlJSLiveTextPreview::resetInitialDoc(const QmlJS::Document::Ptr &doc)
@@ -209,14 +217,12 @@ QList<int> QmlJSLiveTextPreview::objectReferencesForOffset(quint32 offset) const
 
 void QmlJSLiveTextPreview::changeSelectedElements(QList<int> offsets, const QString &wordAtCursor)
 {
-    if (m_editors.isEmpty() || !m_previousDoc)
+    if (m_editors.isEmpty() || !m_previousDoc || !m_clientProxy)
         return;
-
-    ClientProxy *clientProxy = ClientProxy::instance();
 
     QDeclarativeDebugObjectReference objectRefUnderCursor;
     if (!wordAtCursor.isEmpty() && wordAtCursor[0].isUpper()) {
-        QList<QDeclarativeDebugObjectReference> refs = clientProxy->objectReferences();
+        QList<QDeclarativeDebugObjectReference> refs = m_clientProxy.data()->objectReferences();
         foreach (const QDeclarativeDebugObjectReference &ref, refs) {
             if (ref.idString() == wordAtCursor) {
                 objectRefUnderCursor = ref;
@@ -431,7 +437,7 @@ protected:
         Q_UNUSED(scriptBinding);
         checkUnsyncronizableElementChanges(parentDefinition);
         appliedChangesToViewer = true;
-        ClientProxy::instance()->setMethodBodyForObject(debugId, methodName, methodBody);
+        m_clientProxy->setMethodBodyForObject(debugId, methodName, methodBody);
     }
 
     virtual void updateScriptBinding(DebugId debugId,
@@ -453,19 +459,19 @@ protected:
         if (isLiteral)
             expr = castToLiteral(scriptCode, scriptBinding);
         appliedChangesToViewer = true;
-        ClientProxy::instance()->setBindingForObject(debugId, propertyName, expr, isLiteral);
+        m_clientProxy->setBindingForObject(debugId, propertyName, expr, isLiteral);
     }
 
     virtual void resetBindingForObject(int debugId, const QString &propertyName)
     {
         appliedChangesToViewer = true;
-        ClientProxy::instance()->resetBindingForObject(debugId, propertyName);
+        m_clientProxy->resetBindingForObject(debugId, propertyName);
     }
 
     virtual void removeObject(int debugId)
     {
         appliedChangesToViewer = true;
-        ClientProxy::instance()->destroyQmlObject(debugId);
+        m_clientProxy->destroyQmlObject(debugId);
     }
 
     virtual void createObject(const QString& qmlText, DebugId ref,
@@ -473,7 +479,7 @@ protected:
     {
         appliedChangesToViewer = true;
         referenceRefreshRequired = true;
-        ClientProxy::instance()->createQmlObject(qmlText, ref, importList, filename);
+        m_clientProxy->createQmlObject(qmlText, ref, importList, filename);
     }
 
     void checkUnsyncronizableElementChanges(UiObjectDefinition *parentDefinition)
@@ -513,19 +519,27 @@ protected:
     }
 
 public:
-    UpdateObserver() : appliedChangesToViewer(false), referenceRefreshRequired(false), unsyncronizableChanges(QmlJSLiveTextPreview::NoUnsyncronizableChanges) {}
+    UpdateObserver(ClientProxy *clientProxy)
+        : appliedChangesToViewer(false)
+        , referenceRefreshRequired(false)
+        , unsyncronizableChanges(QmlJSLiveTextPreview::NoUnsyncronizableChanges)
+        , m_clientProxy(clientProxy)
+    {
+
+    }
     bool appliedChangesToViewer;
     bool referenceRefreshRequired;
     QString unsyncronizableElementName;
     QmlJSLiveTextPreview::UnsyncronizableChangeType unsyncronizableChanges;
     unsigned unsyncronizableChangeLine;
     unsigned unsyncronizableChangeColumn;
+    ClientProxy *m_clientProxy;
 
 };
 
 void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
 {
-    if (doc->fileName() != m_previousDoc->fileName())
+    if (doc->fileName() != m_previousDoc->fileName() || !m_clientProxy)
         return;
 
     Core::ICore *core = Core::ICore::instance();
@@ -534,7 +548,7 @@ void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
     if (!core->hasContext(dbgcontext))
         return;
 
-    if (ProjectExplorer::Project *debugProject = Inspector::instance()->debugProject()) {
+    if (ProjectExplorer::Project *debugProject = InspectorUi::instance()->debugProject()) {
         QStringList files = debugProject->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
         if (!files.contains(doc->fileName()))
             return;
@@ -548,16 +562,16 @@ void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
         if (doc && m_previousDoc && doc->fileName() == m_previousDoc->fileName()
             && doc->qmlProgram() && m_previousDoc->qmlProgram())
         {
-            UpdateObserver delta;
+            UpdateObserver delta(m_clientProxy.data());
             m_debugIds = delta(m_previousDoc, doc, m_debugIds);
 
             if (delta.referenceRefreshRequired)
-                ClientProxy::instance()->refreshObjectTree();
+                m_clientProxy.data()->refreshObjectTree();
 
-            if (Inspector::instance()->showExperimentalWarning() && delta.appliedChangesToViewer) {
+            if (InspectorUi::instance()->showExperimentalWarning() && delta.appliedChangesToViewer) {
                 showExperimentalWarning();
                 experimentalWarningShown = true;
-                Inspector::instance()->setShowExperimentalWarning(false);
+                InspectorUi::instance()->setShowExperimentalWarning(false);
             }
 
             if (delta.unsyncronizableChanges != NoUnsyncronizableChanges && !experimentalWarningShown)
@@ -568,7 +582,7 @@ void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
             if (!delta.newObjects.isEmpty())
                 m_createdObjects[doc] += delta.newObjects;
 
-            ClientProxy::instance()->clearComponentCache();
+            m_clientProxy.data()->clearComponentCache();
         }
     } else {
         m_docWithUnappliedChanges = doc;
@@ -632,6 +646,24 @@ void QmlJSLiveTextPreview::setApplyChangesToQmlObserver(bool applyChanges)
     }
 
     m_applyChangesToQmlObserver = applyChanges;
+}
+
+void QmlJSLiveTextPreview::setClientProxy(ClientProxy *clientProxy)
+{
+    if (m_clientProxy.data()) {
+        disconnect(m_clientProxy.data(),
+                   SIGNAL(objectTreeUpdated(QDeclarativeDebugObjectReference)),
+                   this,
+                   SLOT(updateDebugIds(QDeclarativeDebugObjectReference)));
+    }
+
+    m_clientProxy = clientProxy;
+
+    if (m_clientProxy.data()) {
+        connect(m_clientProxy.data(),
+                   SIGNAL(objectTreeUpdated(QDeclarativeDebugObjectReference)),
+                   SLOT(updateDebugIds(QDeclarativeDebugObjectReference)));
+    }
 }
 
 } // namespace Internal

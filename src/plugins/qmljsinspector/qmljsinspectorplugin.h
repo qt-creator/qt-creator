@@ -49,9 +49,8 @@ namespace ProjectExplorer {
 namespace QmlJSInspector {
 namespace Internal {
 
-class QmlInspectorToolbar;
 class ClientProxy;
-class Inspector;
+class InspectorUi;
 
 class InspectorPlugin : public ExtensionSystem::IPlugin
 {
@@ -64,8 +63,7 @@ public:
     static InspectorPlugin *instance();
 
     QmlJS::ModelManagerInterface *modelManager() const;
-    ClientProxy *clientProxy() const;
-    Inspector *inspector() const;
+    InspectorUi *inspector() const;
 
     // ExtensionSystem::IPlugin interface
     virtual bool initialize(const QStringList &arguments, QString *errorString);
@@ -73,19 +71,19 @@ public:
     virtual ExtensionSystem::IPlugin::ShutdownFlag aboutToShutdown();
 
 public slots:
-    void activateDebuggerForProject(ProjectExplorer::Project *project, const QString &runMode);
     void setDockWidgetArrangement(const QString &activeLanguage);
 
 private slots:
     void prepareDebugger(Core::IMode *mode);
+    void objectAdded(QObject *object);
+    void aboutToRemoveObject(QObject *obj);
 
 private:
     void createActions();
 
 private:
     ClientProxy *m_clientProxy;
-    Inspector *m_inspector;
-    QmlInspectorToolbar *m_toolbar;
+    InspectorUi *m_inspectorUi;
 };
 
 } // end of namespace Internal

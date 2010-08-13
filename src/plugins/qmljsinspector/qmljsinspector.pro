@@ -8,10 +8,8 @@ DEFINES += QMLJSINSPECTOR_LIBRARY
 
 HEADERS += \
 qmljsprivateapi.h \
-qmljsdebuggerclient.h \
 qmljsinspector_global.h \
 qmljsinspectorconstants.h \
-qmljsinspectorcontext.h \
 qmljsinspectorplugin.h \
 qmljsclientproxy.h \
 qmljsinspector.h \
@@ -23,8 +21,6 @@ qmljscontextcrumblepath.h \
 qmljsinspectorsettings.h
 
 SOURCES += \
-qmljsdebuggerclient.cpp \
-qmljsinspectorcontext.cpp \
 qmljsinspectorplugin.cpp \
 qmljsclientproxy.cpp \
 qmljsinspector.cpp \

@@ -28,8 +28,8 @@
 **************************************************************************/
 #include "qmljsinspectorconstants.h"
 #include "qmljsinspector.h"
+#include "qmlinspectortoolbar.h"
 #include "qmljsclientproxy.h"
-#include "qmljsinspectorcontext.h"
 #include "qmljslivetextpreview.h"
 #include "qmljsprivateapi.h"
 #include "qmljscontextcrumblepath.h"
@@ -113,58 +113,98 @@ enum {
     ConnectionAttemptSimultaneousInterval = 500
 };
 
-Inspector *Inspector::m_instance = 0;
+InspectorUi *InspectorUi::m_instance = 0;
 
-Inspector::Inspector(QObject *parent)
-    : QObject(parent),
-      m_connectionTimer(new QTimer(this)),
-      m_connectionAttempts(0),
-      m_listeningToEditorManager(false),
-      m_settings(new InspectorSettings(this)),
-      m_debugProject(0)
+QmlJS::ModelManagerInterface *modelManager()
 {
-    m_clientProxy = ClientProxy::instance();
+    return ExtensionSystem::PluginManager::instance()->getObject<QmlJS::ModelManagerInterface>();
+}
+
+InspectorUi::InspectorUi(QObject *parent)
+    : QObject(parent)
+    , m_listeningToEditorManager(false)
+    , m_settings(new InspectorSettings(this))
+    , m_clientProxy(0)
+    , m_debugProject(0)
+{
     m_instance = this;
-//#warning set up the context widget
-    QWidget *contextWidget = 0;
-    m_context = new InspectorContext(contextWidget);
-
-    connect(m_clientProxy, SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
-            SLOT(setSelectedItemsByObjectReference(QList<QDeclarativeDebugObjectReference>)));
-
-    connect(m_clientProxy, SIGNAL(connectionStatusMessage(QString)), SIGNAL(statusMessage(QString)));
-    connect(m_clientProxy, SIGNAL(connected(QDeclarativeEngineDebug*)), SLOT(connected(QDeclarativeEngineDebug*)));
-    connect(m_clientProxy, SIGNAL(disconnected()), SLOT(disconnected()));
-    connect(m_clientProxy, SIGNAL(enginesChanged()), SLOT(updateEngineList()));
-    connect(m_clientProxy, SIGNAL(serverReloaded()), this, SLOT(serverReloaded()));
-
-    connect(m_connectionTimer, SIGNAL(timeout()), SLOT(pollInspector()));
+    m_toolbar = new QmlInspectorToolbar(this);
 }
 
-
-Inspector::~Inspector()
+InspectorUi::~InspectorUi()
 {
-
 }
 
-void Inspector::saveSettings() const
+void InspectorUi::setupUi()
+{
+    setupDockWidgets();
+    m_toolbar->createActions(Core::Context(Constants::C_INSPECTOR));
+    restoreSettings();
+}
+
+void InspectorUi::saveSettings() const
 {
     m_settings->saveSettings(Core::ICore::instance()->settings());
 }
 
-void Inspector::restoreSettings()
+void InspectorUi::restoreSettings()
 {
     m_settings->restoreSettings(Core::ICore::instance()->settings());
 }
 
-void Inspector::disconnected()
+void InspectorUi::connected(ClientProxy *clientProxy)
 {
-    m_debugProject = 0;
+    m_clientProxy = clientProxy;
+
+    connect(m_clientProxy, SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
+            SLOT(setSelectedItemsByObjectReference(QList<QDeclarativeDebugObjectReference>)));
+
+    connect(m_clientProxy, SIGNAL(enginesChanged()), SLOT(updateEngineList()));
+    connect(m_clientProxy, SIGNAL(serverReloaded()), this, SLOT(serverReloaded()));
+    connect(m_clientProxy, SIGNAL(contextPathUpdated(QStringList)),
+            m_crumblePath, SLOT(updateContextPath(QStringList)));
+
+    m_debugProject = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
+    connect(m_debugProject, SIGNAL(destroyed()), SLOT(currentDebugProjectRemoved()));
+
+    setupToolbar(true);
     resetViews();
-    applyChangesToQmlObserverHelper(false);
+
+    initializeDocuments();
+
+    QHashIterator<QString, QmlJSLiveTextPreview *> iter(m_textPreviews);
+    while(iter.hasNext()) {
+        iter.next();
+        iter.value()->setClientProxy(m_clientProxy);
+    }
 }
 
-void Inspector::updateEngineList()
+void InspectorUi::disconnected()
+{
+    disconnect(m_clientProxy, SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
+               this, SLOT(setSelectedItemsByObjectReference(QList<QDeclarativeDebugObjectReference>)));
+
+    disconnect(m_clientProxy, SIGNAL(enginesChanged()), this, SLOT(updateEngineList()));
+    disconnect(m_clientProxy, SIGNAL(serverReloaded()), this, SLOT(serverReloaded()));
+    disconnect(m_clientProxy, SIGNAL(contextPathUpdated(QStringList)),
+               m_crumblePath, SLOT(updateContextPath(QStringList)));
+
+    m_debugProject = 0;
+    resetViews();
+
+    setupToolbar(false);
+    applyChangesToQmlObserverHelper(false);
+
+    QHashIterator<QString, QmlJSLiveTextPreview *> iter(m_textPreviews);
+    while(iter.hasNext()) {
+        iter.next();
+        iter.value()->setClientProxy(0);
+    }
+
+    m_clientProxy = 0;
+}
+
+void InspectorUi::updateEngineList()
 {
     const QList<QDeclarativeDebugEngineReference> engines = m_clientProxy->engines();
 
@@ -178,40 +218,14 @@ void Inspector::updateEngineList()
     }
 }
 
-void Inspector::changeSelectedItems(const QList<QDeclarativeDebugObjectReference> &objects)
+void InspectorUi::changeSelectedItems(const QList<QDeclarativeDebugObjectReference> &objects)
 {
     m_clientProxy->setSelectedItemsByObjectId(objects);
 }
 
-void Inspector::pollInspector()
+void InspectorUi::initializeDocuments()
 {
-    ++m_connectionAttempts;
-
-    const QString host = m_runConfigurationDebugData.serverAddress;
-    const quint16 port = quint16(m_runConfigurationDebugData.serverPort);
-
-    if (m_clientProxy->connectToViewer(host, port)) {
-        initializeDocuments();
-        m_connectionTimer->stop();
-        m_connectionAttempts = 0;
-    } else if (m_connectionAttempts == MaxConnectionAttempts) {
-        m_connectionTimer->stop();
-        m_connectionAttempts = 0;
-
-        QMessageBox::critical(0,
-                              tr("Failed to connect to debugger"),
-                              tr("Could not connect to debugger server.") );
-    }
-}
-
-QmlJS::ModelManagerInterface *Inspector::modelManager()
-{
-    return ExtensionSystem::PluginManager::instance()->getObject<QmlJS::ModelManagerInterface>();
-}
-
-void Inspector::initializeDocuments()
-{
-    if (!modelManager())
+    if (!modelManager() || !m_clientProxy)
         return;
 
     Core::EditorManager *em = Core::EditorManager::instance();
@@ -231,7 +245,7 @@ void Inspector::initializeDocuments()
     applyChangesToQmlObserverHelper(true);
 }
 
-void Inspector::serverReloaded()
+void InspectorUi::serverReloaded()
 {
     QmlJS::Snapshot snapshot = modelManager()->snapshot();
     m_loadedSnapshot = snapshot;
@@ -240,22 +254,24 @@ void Inspector::serverReloaded()
         Document::Ptr doc = snapshot.document(it.key());
         it.value()->resetInitialDoc(doc);
     }
-    ClientProxy::instance()->queryEngineContext(0);
-    //ClientProxy::instance()->refreshObjectTree();
+    m_clientProxy->queryEngineContext(0);
 }
 
 
-void Inspector::removePreviewForEditor(Core::IEditor *oldEditor)
+void InspectorUi::removePreviewForEditor(Core::IEditor *oldEditor)
 {
     if (QmlJSLiveTextPreview *preview = m_textPreviews.value(oldEditor->file()->fileName())) {
         preview->unassociateEditor(oldEditor);
     }
 }
 
-void Inspector::createPreviewForEditor(Core::IEditor *newEditor)
+void InspectorUi::createPreviewForEditor(Core::IEditor *newEditor)
 {
-    if (newEditor && newEditor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID
-        && m_clientProxy->isConnected())
+    if (m_clientProxy
+        && m_clientProxy->isConnected()
+        && newEditor
+        && newEditor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID
+        )
     {
         QString filename = newEditor->file()->fileName();
         QmlJS::Document::Ptr doc = modelManager()->snapshot().document(filename);
@@ -268,7 +284,7 @@ void Inspector::createPreviewForEditor(Core::IEditor *newEditor)
         if (m_textPreviews.contains(filename)) {
             m_textPreviews.value(filename)->associateEditor(newEditor);
         } else {
-            QmlJSLiveTextPreview *preview = new QmlJSLiveTextPreview(doc, initdoc, this);
+            QmlJSLiveTextPreview *preview = new QmlJSLiveTextPreview(doc, initdoc, m_clientProxy, this);
             connect(preview,
                     SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
                     SLOT(changeSelectedItems(QList<QDeclarativeDebugObjectReference>)));
@@ -282,55 +298,23 @@ void Inspector::createPreviewForEditor(Core::IEditor *newEditor)
     }
 }
 
-bool Inspector::setDebugConfigurationDataFromProject(ProjectExplorer::Project *projectToDebug)
-{
-    if (!projectToDebug) {
-        emit statusMessage(tr("Invalid project, debugging canceled."));
-        return false;
-    }
-
-    QmlProjectManager::QmlProjectRunConfiguration* config =
-            qobject_cast<QmlProjectManager::QmlProjectRunConfiguration*>(projectToDebug->activeTarget()->activeRunConfiguration());
-    if (!config) {
-        emit statusMessage(tr("Cannot find project run configuration, debugging canceled."));
-        return false;
-    }
-    m_runConfigurationDebugData.serverAddress = config->debugServerAddress();
-    m_runConfigurationDebugData.serverPort = config->debugServerPort();
-    m_connectionTimer->setInterval(ConnectionAttemptDefaultInterval);
-
-    return true;
-}
-
-void Inspector::startQmlProjectDebugger()
-{
-    m_connectionTimer->start();
-}
-
-void Inspector::currentDebugProjectRemoved()
+void InspectorUi::currentDebugProjectRemoved()
 {
     m_debugProject = 0;
 }
 
-void Inspector::resetViews()
+void InspectorUi::resetViews()
 {
     m_crumblePath->updateContextPath(QStringList());
 }
 
-void Inspector::connected(QDeclarativeEngineDebug *client)
+void InspectorUi::reloadQmlViewer()
 {
-    m_debugProject = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
-    connect(m_debugProject, SIGNAL(destroyed()), SLOT(currentDebugProjectRemoved()));
-    m_client = client;
-    resetViews();
+    if (m_clientProxy)
+        m_clientProxy->reloadQmlViewer();
 }
 
-void Inspector::reloadQmlViewer()
-{
-    m_clientProxy->reloadQmlViewer();
-}
-
-void Inspector::setSimpleDockWidgetArrangement()
+void InspectorUi::setSimpleDockWidgetArrangement()
 {
     Utils::FancyMainWindow *mainWindow = Debugger::DebuggerUISwitcher::instance()->mainWindow();
 
@@ -342,13 +326,13 @@ void Inspector::setSimpleDockWidgetArrangement()
     mainWindow->setTrackingEnabled(true);
 }
 
-void Inspector::setSelectedItemsByObjectReference(QList<QDeclarativeDebugObjectReference> objectReferences)
+void InspectorUi::setSelectedItemsByObjectReference(QList<QDeclarativeDebugObjectReference> objectReferences)
 {
     if (objectReferences.length())
         gotoObjectReferenceDefinition(objectReferences.first());
 }
 
-void Inspector::gotoObjectReferenceDefinition(const QDeclarativeDebugObjectReference &obj)
+void InspectorUi::gotoObjectReferenceDefinition(const QDeclarativeDebugObjectReference &obj)
 {
     Q_UNUSED(obj);
 
@@ -369,22 +353,7 @@ void Inspector::gotoObjectReferenceDefinition(const QDeclarativeDebugObjectRefer
     }
 }
 
-QDeclarativeDebugExpressionQuery *Inspector::executeExpression(int objectDebugId, const QString &objectId,
-                                                               const QString &propertyName, const QVariant &value)
-{
-    if (objectId.length()) {
-        QString quoteWrappedValue = value.toString();
-        if (addQuotesForData(value))
-            quoteWrappedValue = QString("'%1'").arg(quoteWrappedValue); // ### FIXME this code is wrong!
-
-        QString constructedExpression = objectId + "." + propertyName + "=" + quoteWrappedValue;
-        return m_client.data()->queryExpressionResult(objectDebugId, constructedExpression, this);
-    }
-
-    return 0;
-}
-
-bool Inspector::addQuotesForData(const QVariant &value) const
+bool InspectorUi::addQuotesForData(const QVariant &value) const
 {
     switch (value.type()) {
     case QVariant::String:
@@ -398,7 +367,7 @@ bool Inspector::addQuotesForData(const QVariant &value) const
     return false;
 }
 
-void Inspector::createDockWidgets()
+void InspectorUi::setupDockWidgets()
 {
     m_crumblePath = new ContextCrumblePath;
     m_crumblePath->setObjectName("QmlContextPath");
@@ -409,43 +378,42 @@ void Inspector::createDockWidgets()
                                                                 m_crumblePath, Qt::BottomDockWidgetArea);
     m_crumblePathDock->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
     m_crumblePathDock->setTitleBarWidget(new QWidget(m_crumblePathDock));
-    connect(m_clientProxy, SIGNAL(contextPathUpdated(QStringList)), m_crumblePath, SLOT(updateContextPath(QStringList)));
 }
 
-void Inspector::crumblePathElementClicked(int pathIndex)
+void InspectorUi::crumblePathElementClicked(int pathIndex)
 {
-    if (m_clientProxy->isConnected() && !m_crumblePath->isEmpty()) {
+    if (m_clientProxy && m_clientProxy->isConnected() && !m_crumblePath->isEmpty()) {
         m_clientProxy->setContextPathIndex(pathIndex);
     }
 }
 
-bool Inspector::showExperimentalWarning()
+bool InspectorUi::showExperimentalWarning()
 {
     return m_settings->showLivePreviewWarning();
 }
 
-void Inspector::setShowExperimentalWarning(bool value)
+void InspectorUi::setShowExperimentalWarning(bool value)
 {
     m_settings->setShowLivePreviewWarning(value);
 }
 
-Inspector *Inspector::instance()
+InspectorUi *InspectorUi::instance()
 {
     return m_instance;
 }
 
-ProjectExplorer::Project *Inspector::debugProject() const
+ProjectExplorer::Project *InspectorUi::debugProject() const
 {
     return m_debugProject;
 }
 
-void Inspector::setApplyChangesToQmlObserver(bool applyChanges)
+void InspectorUi::setApplyChangesToQmlObserver(bool applyChanges)
 {
     emit livePreviewActivated(applyChanges);
     applyChangesToQmlObserverHelper(applyChanges);
 }
 
-void Inspector::applyChangesToQmlObserverHelper(bool applyChanges)
+void InspectorUi::applyChangesToQmlObserverHelper(bool applyChanges)
 {
     QHashIterator<QString, QmlJSLiveTextPreview *> iter(m_textPreviews);
     while(iter.hasNext()) {
@@ -454,7 +422,58 @@ void Inspector::applyChangesToQmlObserverHelper(bool applyChanges)
     }
 }
 
-void Inspector::disableLivePreview()
+void InspectorUi::disableLivePreview()
 {
     setApplyChangesToQmlObserver(false);
+}
+
+void InspectorUi::setupToolbar(bool doConnect)
+{
+    if (doConnect) {
+        connect(m_clientProxy, SIGNAL(connected()), m_toolbar, SLOT(enable()));
+        connect(m_clientProxy, SIGNAL(disconnected()), m_toolbar, SLOT(disable()));
+
+        connect(m_toolbar, SIGNAL(designModeSelected(bool)), m_clientProxy, SLOT(setDesignModeBehavior(bool)));
+        connect(m_toolbar, SIGNAL(reloadSelected()), m_clientProxy, SLOT(reloadQmlViewer()));
+        connect(m_toolbar, SIGNAL(animationSpeedChanged(qreal)), m_clientProxy, SLOT(setAnimationSpeed(qreal)));
+        connect(m_toolbar, SIGNAL(colorPickerSelected()), m_clientProxy, SLOT(changeToColorPickerTool()));
+        connect(m_toolbar, SIGNAL(zoomToolSelected()), m_clientProxy, SLOT(changeToZoomTool()));
+        connect(m_toolbar, SIGNAL(selectToolSelected()), m_clientProxy, SLOT(changeToSelectTool()));
+        connect(m_toolbar, SIGNAL(marqueeSelectToolSelected()), m_clientProxy, SLOT(changeToSelectMarqueeTool()));
+        connect(m_toolbar, SIGNAL(applyChangesFromQmlFileTriggered(bool)), this, SLOT(setApplyChangesToQmlObserver(bool)));
+
+        connect(this, SIGNAL(livePreviewActivated(bool)), m_toolbar, SLOT(setLivePreviewChecked(bool)));
+        connect(m_clientProxy, SIGNAL(colorPickerActivated()), m_toolbar, SLOT(activateColorPicker()));
+        connect(m_clientProxy, SIGNAL(selectToolActivated()), m_toolbar, SLOT(activateSelectTool()));
+        connect(m_clientProxy, SIGNAL(selectMarqueeToolActivated()), m_toolbar, SLOT(activateMarqueeSelectTool()));
+        connect(m_clientProxy, SIGNAL(zoomToolActivated()), m_toolbar, SLOT(activateZoomTool()));
+        connect(m_clientProxy, SIGNAL(designModeBehaviorChanged(bool)), m_toolbar, SLOT(setDesignModeBehavior(bool)));
+        connect(m_clientProxy, SIGNAL(selectedColorChanged(QColor)), m_toolbar, SLOT(setSelectedColor(QColor)));
+
+        connect(m_clientProxy, SIGNAL(animationSpeedChanged(qreal)), m_toolbar, SLOT(changeAnimationSpeed(qreal)));
+        m_toolbar->enable();
+    } else {
+        disconnect(m_clientProxy, SIGNAL(connected()), m_toolbar, SLOT(enable()));
+        disconnect(m_clientProxy, SIGNAL(disconnected()), m_toolbar, SLOT(disable()));
+
+        disconnect(m_toolbar, SIGNAL(designModeSelected(bool)), m_clientProxy, SLOT(setDesignModeBehavior(bool)));
+        disconnect(m_toolbar, SIGNAL(reloadSelected()), m_clientProxy, SLOT(reloadQmlViewer()));
+        disconnect(m_toolbar, SIGNAL(animationSpeedChanged(qreal)), m_clientProxy, SLOT(setAnimationSpeed(qreal)));
+        disconnect(m_toolbar, SIGNAL(colorPickerSelected()), m_clientProxy, SLOT(changeToColorPickerTool()));
+        disconnect(m_toolbar, SIGNAL(zoomToolSelected()), m_clientProxy, SLOT(changeToZoomTool()));
+        disconnect(m_toolbar, SIGNAL(selectToolSelected()), m_clientProxy, SLOT(changeToSelectTool()));
+        disconnect(m_toolbar, SIGNAL(marqueeSelectToolSelected()), m_clientProxy, SLOT(changeToSelectMarqueeTool()));
+        disconnect(m_toolbar, SIGNAL(applyChangesFromQmlFileTriggered(bool)), this, SLOT(setApplyChangesToQmlObserver(bool)));
+
+        disconnect(this, SIGNAL(livePreviewActivated(bool)), m_toolbar, SLOT(setLivePreviewChecked(bool)));
+        disconnect(m_clientProxy, SIGNAL(colorPickerActivated()), m_toolbar, SLOT(activateColorPicker()));
+        disconnect(m_clientProxy, SIGNAL(selectToolActivated()), m_toolbar, SLOT(activateSelectTool()));
+        disconnect(m_clientProxy, SIGNAL(selectMarqueeToolActivated()), m_toolbar, SLOT(activateMarqueeSelectTool()));
+        disconnect(m_clientProxy, SIGNAL(zoomToolActivated()), m_toolbar, SLOT(activateZoomTool()));
+        disconnect(m_clientProxy, SIGNAL(designModeBehaviorChanged(bool)), m_toolbar, SLOT(setDesignModeBehavior(bool)));
+        disconnect(m_clientProxy, SIGNAL(selectedColorChanged(QColor)), m_toolbar, SLOT(setSelectedColor(QColor)));
+
+        disconnect(m_clientProxy, SIGNAL(animationSpeedChanged(qreal)), m_toolbar, SLOT(changeAnimationSpeed(qreal)));
+        m_toolbar->disable();
+    }
 }

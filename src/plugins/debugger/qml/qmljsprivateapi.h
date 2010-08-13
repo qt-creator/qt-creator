@@ -26,57 +26,12 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
+#ifndef QMLJSPRIVATEAPI_H
+#define QMLJSPRIVATEAPI_H
 
-#include "qmljsinspectorcontext.h"
-#include "qmljsinspectorconstants.h"
+#include <qmljsdebugclient/qdeclarativedebug_p.h>
+#include <qmljsdebugclient/qdeclarativedebugclient_p.h>
 
-#include <coreplugin/icore.h>
-#include <QtGui/QWidget>
-#include <QtCore/QDebug>
+using namespace QmlJsDebugClient;
 
-using namespace QmlJSInspector::Internal;
-using namespace QmlJSInspector::Constants;
-
-InspectorContext::InspectorContext(QWidget *widget)
-  : IContext(widget),
-    m_widget(widget),
-    m_context(C_INSPECTOR)
-{
-}
-
-InspectorContext::~InspectorContext()
-{
-}
-
-Core::Context InspectorContext::context() const
-{
-    return m_context;
-}
-
-QWidget *InspectorContext::widget()
-{
-    return m_widget;
-}
-
-void InspectorContext::setContextHelpId(const QString &helpId)
-{
-    m_contextHelpId = helpId;
-}
-
-QString InspectorContext::contextHelpId() const
-{
-    return m_contextHelpId;
-}
-
-QString InspectorContext::contextHelpIdForProperty(const QString &itemName, const QString &propName)
-{
-    // TODO this functionality is not supported yet as we don't have help id's for
-    // properties.
-    return QString("QML.").append(itemName).append(".").append(propName);
-}
-
-QString InspectorContext::contextHelpIdForItem(const QString &itemName)
-{
-    return QString("QML.").append(itemName);
-}
-
+#endif // QMLJSPRIVATEAPI_H

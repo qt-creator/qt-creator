@@ -76,6 +76,10 @@ public:
     bool breakAtMain;
     QString crashParameter; // for AttachCrashedExternal
 
+    // for qml debugging
+    QString qmlServerAddress;
+    quint16 qmlServerPort;
+
     // for remote debugging
     QString remoteChannel;
     QString remoteArchitecture;

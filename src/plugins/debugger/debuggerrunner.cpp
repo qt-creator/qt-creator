@@ -331,7 +331,7 @@ void DebuggerRunControl::createEngine(const DebuggerStartParameters &sp)
     QString errorMessage;
     QString settingsIdHint;
 
-    if (sp.executable.endsWith(_("qmlviewer")))
+    if (sp.executable.endsWith(_("qmlviewer")) || sp.executable.endsWith(_("qmlobserver")))
         engineType = QmlEngineType;
     else if (sp.executable.endsWith(_(".js")))
         engineType = ScriptEngineType;

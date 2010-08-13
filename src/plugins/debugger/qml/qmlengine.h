@@ -44,12 +44,14 @@
 #include <QtNetwork/QAbstractSocket>
 #include <QtNetwork/QTcpSocket>
 
+#include <projectexplorer/applicationlauncher.h>
 
 namespace Debugger {
 namespace Internal {
 
 class ScriptAgent;
 class WatchData;
+class QmlAdapter;
 class QmlResponse;
 class QmlDebuggerClient;
 
@@ -57,7 +59,6 @@ class DEBUGGER_EXPORT QmlEngine : public DebuggerEngine
 {
     Q_OBJECT
 
-    int m_ping;
 public:
     explicit QmlEngine(const DebuggerStartParameters &startParameters);
     ~QmlEngine();
@@ -112,9 +113,21 @@ private:
 signals:
     void sendMessage(const QByteArray &msg);
 
+private slots:
+    void connectionEstablished();
+    void connectionStartupFailed();
+    void connectionError();
+
 private:
+
     void expandObject(const QByteArray &iname, quint64 objectId);
     void sendPing();
+
+private:
+    int m_ping;
+    QmlAdapter *m_adapter;
+    ProjectExplorer::ApplicationLauncher m_applicationLauncher;
+    bool m_addedAdapterToObjectPool;
 };
 
 } // namespace Internal

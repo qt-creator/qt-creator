@@ -35,6 +35,12 @@
 
 QT_FORWARD_DECLARE_CLASS(QUrl)
 
+namespace Debugger {
+namespace Internal {
+class QmlAdapter;
+}
+}
+
 namespace QmlJSInspector {
 namespace Internal {
 
@@ -46,7 +52,7 @@ class ClientProxy : public QObject
     Q_OBJECT
 
 public:
-    static ClientProxy *instance();
+    explicit ClientProxy(Debugger::Internal::QmlAdapter *adapter, QObject *parent = 0);
 
     bool setBindingForObject(int objectDebugId,
                              const QString &propertyName,
@@ -63,14 +69,12 @@ public:
     QDeclarativeDebugObjectReference rootObjectReference() const;
 
     bool isConnected() const;
-    bool isUnconnected() const;
 
     void setSelectedItemsByObjectId(const QList<QDeclarativeDebugObjectReference> &objectRefs);
 
-    bool connectToViewer(const QString &host, quint16 port);
-    void disconnectFromViewer();
-
     QList<QDeclarativeDebugEngineReference> engines() const;
+
+    Debugger::Internal::QmlAdapter *qmlAdapter() const;
 
 signals:
     void objectTreeUpdated(const QDeclarativeDebugObjectReference &rootObject);
@@ -81,7 +85,7 @@ signals:
 
     void selectedItemsChanged(const QList<QDeclarativeDebugObjectReference> &selectedItems);
 
-    void connected(QDeclarativeEngineDebug *client);
+    void connected();
     void aboutToDisconnect();
     void disconnected();
 
@@ -112,9 +116,10 @@ public slots:
     void setContextPathIndex(int contextIndex);
 
 private slots:
+    void disconnectFromServer();
+    void connectToServer();
+
     void contextChanged();
-    void connectionStateChanged();
-    void connectionError();
 
     void onCurrentObjectsChanged(const QList<int> &debugIds);
     void updateEngineList();
@@ -123,17 +128,14 @@ private slots:
 private:
     bool isDesignClientConnected() const;
     void reloadEngines();
-    void createDebuggerClient();
+
     QList<QDeclarativeDebugObjectReference> objectReferences(const QUrl &url, const QDeclarativeDebugObjectReference &objectRef) const;
     QDeclarativeDebugObjectReference objectReferenceForId(int debugId, const QDeclarativeDebugObjectReference &ref) const;
 
 private:
-    explicit ClientProxy(QObject *parent = 0);
     Q_DISABLE_COPY(ClientProxy);
 
-    static ClientProxy *m_instance;
-
-    QDeclarativeDebugConnection *m_conn;
+    Debugger::Internal::QmlAdapter *m_adapter;
     QDeclarativeEngineDebug *m_client;
     QmlJSDesignDebugClient *m_designClient;
 
@@ -143,8 +145,6 @@ private:
 
     QDeclarativeDebugObjectReference m_rootObject;
     QList<QDeclarativeDebugEngineReference> m_engines;
-
-    friend class QmlJSInspector::Internal::InspectorPlugin;
 };
 
 } // namespace Internal

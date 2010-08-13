@@ -56,12 +56,17 @@ namespace Internal {
 namespace QmlJSInspector {
 namespace Internal {
 
+class ClientProxy;
+
 class QmlJSLiveTextPreview : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit QmlJSLiveTextPreview(const QmlJS::Document::Ptr &doc, const QmlJS::Document::Ptr &initDoc, QObject *parent = 0);
+    explicit QmlJSLiveTextPreview(const QmlJS::Document::Ptr &doc,
+                                  const QmlJS::Document::Ptr &initDoc,
+                                  ClientProxy *clientProxy,
+                                  QObject *parent = 0);
     //void updateDocuments();
 
     void associateEditor(Core::IEditor *editor);
@@ -69,6 +74,8 @@ public:
     void setActiveObject(const QDeclarativeDebugObjectReference &object);
     void mapObjectToQml(const QDeclarativeDebugObjectReference &object);
     void resetInitialDoc(const QmlJS::Document::Ptr &doc);
+
+    void setClientProxy(ClientProxy *clientProxy);
 
     enum UnsyncronizableChangeType {
         NoUnsyncronizableChanges,
@@ -111,6 +118,7 @@ private:
 
     bool m_applyChangesToQmlObserver;
     QmlJS::Document::Ptr m_docWithUnappliedChanges;
+    QWeakPointer<ClientProxy> m_clientProxy;
 
 };
 

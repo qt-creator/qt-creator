@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "qmlengine.h"
+#include "qmladapter.h"
 
 #include "debuggerconstants.h"
 #include "debuggerplugin.h"
@@ -42,6 +43,7 @@
 #include "watchhandler.h"
 #include "watchutils.h"
 
+#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/environment.h>
 
 #include <utils/qtcassert.h>
@@ -70,7 +72,10 @@
 #endif
 # define XSDEBUG(s) qDebug() << s
 
-
+enum {
+    MaxConnectionAttempts = 50,
+    ConnectionAttemptDefaultInterval = 75
+};
 
 namespace Debugger {
 namespace Internal {
@@ -96,8 +101,12 @@ QDataStream& operator>>(QDataStream& s, WatchData &data)
 ///////////////////////////////////////////////////////////////////////
 
 QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters)
-    : DebuggerEngine(startParameters), m_ping(0)
+    : DebuggerEngine(startParameters)
+    , m_ping(0)
+    , m_adapter(new QmlAdapter(this))
+    , m_addedAdapterToObjectPool(false)
 {
+
 }
 
 QmlEngine::~QmlEngine()
@@ -107,32 +116,91 @@ QmlEngine::~QmlEngine()
 void QmlEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-    attemptBreakpointSynchronization();
+
+    connect(&m_applicationLauncher, SIGNAL(processExited(int)), SLOT(disconnected()));
+    m_applicationLauncher.setEnvironment(startParameters().environment);
+    m_applicationLauncher.setWorkingDirectory(startParameters().workingDirectory);
+
     notifyInferiorSetupOk();
+}
+
+void QmlEngine::connectionEstablished()
+{
+    attemptBreakpointSynchronization();
+
+    ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
+    pluginManager->addObject(m_adapter);
+    m_addedAdapterToObjectPool = true;
+
+    plugin()->showMessage(tr("QML Debugger connected."), StatusBar);
+
+    notifyEngineRunAndInferiorRunOk();
+}
+
+void QmlEngine::connectionStartupFailed()
+{
+    QMessageBox::critical(0,
+                          tr("Failed to connect to debugger"),
+                          tr("Could not connect to debugger server.") );
+    notifyEngineRunFailed();
+}
+
+void QmlEngine::connectionError()
+{
+    // do nothing for now - only exit the debugger when inferior exits.
 }
 
 void QmlEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
-    notifyEngineRunAndInferiorRunOk();
+
+    // ### TODO for non-qmlproject apps, start in a different way
+    m_applicationLauncher.start(ProjectExplorer::ApplicationLauncher::Gui,
+                                startParameters().executable,
+                                startParameters().processArgs);
+
+    m_adapter->beginConnection();
+    plugin()->showMessage(tr("QML Debugger connecting..."), StatusBar);
 }
 
 void QmlEngine::shutdownInferior()
 {
     QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
+    if (!m_applicationLauncher.isRunning()) {
+        showMessage(tr("Trying to stop while process is no longer running."), LogError);
+    } else {
+        disconnect(&m_applicationLauncher, SIGNAL(processExited(int)), this, SLOT(disconnected()));
+        m_applicationLauncher.stop();
+    }
     notifyInferiorShutdownOk();
 }
 
 void QmlEngine::shutdownEngine()
 {
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
+
+    if (m_addedAdapterToObjectPool) {
+        ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
+        pluginManager->removeObject(m_adapter);
+    }
+
+    if (m_applicationLauncher.isRunning()) {
+        // should only happen if engine is ill
+        disconnect(&m_applicationLauncher, SIGNAL(processExited(int)), this, SLOT(disconnected()));
+        m_applicationLauncher.stop();
+    }
+
     notifyEngineShutdownOk();
 }
 
-const int serverPort = 3768;
-
 void QmlEngine::setupEngine()
 {
+    m_adapter->setMaxConnectionAttempts(MaxConnectionAttempts);
+    m_adapter->setConnectionAttemptInterval(ConnectionAttemptDefaultInterval);
+    connect(m_adapter, SIGNAL(connectionError()), SLOT(connectionError()));
+    connect(m_adapter, SIGNAL(connected()), SLOT(connectionEstablished()));
+    connect(m_adapter, SIGNAL(connectionStartupFailed()), SLOT(connectionStartupFailed()));
+
     notifyEngineSetupOk();
 }
 
@@ -368,8 +436,6 @@ void QmlEngine::sendPing()
     sendMessage(reply);
 }
 
-
-
 DebuggerEngine *createQmlEngine(const DebuggerStartParameters &sp)
 {
     return new QmlEngine(sp);
@@ -520,6 +586,7 @@ void QmlEngine::messageReceived(const QByteArray &message)
 
 void QmlEngine::disconnected()
 {
+    plugin()->showMessage(tr("QML Debugger disconnected."), StatusBar);
     notifyInferiorExited();
 }
 

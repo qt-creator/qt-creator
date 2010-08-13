@@ -59,13 +59,13 @@ QT_FORWARD_DECLARE_CLASS(QDockWidget)
 namespace QmlJSInspector {
 namespace Internal {
 
+class QmlInspectorToolbar;
 class ClientProxy;
-class InspectorContext;
 class InspectorSettings;
 class ContextCrumblePath;
 class QmlJSLiveTextPreview;
 
-class Inspector : public QObject
+class InspectorUi : public QObject
 {
     Q_OBJECT
 
@@ -76,33 +76,23 @@ public:
         QmlProjectWithCppPlugins
     };
 public:
-    Inspector(QObject *parent = 0);
-    virtual ~Inspector();
+    InspectorUi(QObject *parent = 0);
+    virtual ~InspectorUi();
 
-    bool connectToViewer(); // using host, port from widgets
-
-    // returns false if project is not debuggable.
-    bool setDebugConfigurationDataFromProject(ProjectExplorer::Project *projectToDebug);
-    void startQmlProjectDebugger();
-
-    QDeclarativeDebugExpressionQuery *executeExpression(int objectDebugId, const QString &objectId,
-                                                        const QString &propertyName, const QVariant &value);
-
-    QDeclarativeDebugExpressionQuery *setBindingForObject(int objectDebugId, const QString &objectId,
-                                                          const QString &propertyName, const QVariant &value,
-                                                          bool isLiteralValue);
     void saveSettings() const;
     void restoreSettings();
 
     bool showExperimentalWarning();
     void setShowExperimentalWarning(bool value);
 
-    static Inspector *instance();
+    static InspectorUi *instance();
 
     // returns the project being currently debugged, or 0 if not debugging anything
     ProjectExplorer::Project *debugProject() const;
-    void createDockWidgets();
 
+    void setupUi();
+    void connected(ClientProxy *clientProxy);
+    void disconnected();
 
 signals:
     void statusMessage(const QString &text);
@@ -117,15 +107,11 @@ public slots:
 private slots:
     void gotoObjectReferenceDefinition(const QDeclarativeDebugObjectReference &obj);
 
-    void pollInspector();
-
     void setSelectedItemsByObjectReference(QList<QDeclarativeDebugObjectReference> objectReferences);
     void changeSelectedItems(const QList<QDeclarativeDebugObjectReference> &objects);
 
-    void connected(QDeclarativeEngineDebug *client);
     void updateEngineList();
 
-    void disconnected();
 
     void removePreviewForEditor(Core::IEditor *newEditor);
     void createPreviewForEditor(Core::IEditor *newEditor);
@@ -139,32 +125,29 @@ private:
     bool addQuotesForData(const QVariant &value) const;
     void resetViews();
 
-
-    QmlJS::ModelManagerInterface *modelManager();
     void initializeDocuments();
     void applyChangesToQmlObserverHelper(bool applyChanges);
+    void setupToolbar(bool doConnect);
+    void setupDockWidgets();
 
 private:
     QWeakPointer<QDeclarativeEngineDebug> m_client;
-    QmlProjectManager::QmlProjectRunConfigurationDebugData m_runConfigurationDebugData;
-    InspectorContext *m_context;
-    QTimer *m_connectionTimer;
-    int m_connectionAttempts;
-    ClientProxy *m_clientProxy;
 
     bool m_listeningToEditorManager;
 
+    QmlInspectorToolbar *m_toolbar;
     ContextCrumblePath *m_crumblePath;
     QDockWidget *m_crumblePathDock;
 
     InspectorSettings *m_settings;
+    ClientProxy *m_clientProxy;
 
     // Qml/JS integration
     QHash<QString, QmlJSLiveTextPreview *> m_textPreviews;
     QmlJS::Snapshot m_loadedSnapshot; //the snapshot loaded by the viewer
     ProjectExplorer::Project *m_debugProject;
 
-    static Inspector *m_instance;
+    static InspectorUi *m_instance;
 };
 
 } // Internal

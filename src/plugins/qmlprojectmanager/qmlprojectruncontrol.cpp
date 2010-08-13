@@ -37,8 +37,11 @@
 #include <projectexplorer/applicationlauncher.h>
 #include <utils/qtcassert.h>
 
+#include <debugger/debuggerrunner.h>
+#include <debugger/debuggerplugin.h>
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggeruiswitcher.h>
+#include <debugger/debuggerengine.h>
 #include <qmljsinspector/qmljsinspectorconstants.h>
 
 #include <QDir>
@@ -143,16 +146,27 @@ bool QmlRunControlFactory::canRun(RunConfiguration *runConfiguration,
     QmlProjectRunConfiguration *config = qobject_cast<QmlProjectRunConfiguration*>(runConfiguration);
     if (mode == ProjectExplorer::Constants::RUNMODE) {
         return config != 0;
-    } else {
-        return (config != 0) && Debugger::DebuggerUISwitcher::instance()->supportedLanguages().contains(QmlProjectManager::Constants::LANG_QML);
+    } else if (mode == ProjectExplorer::Constants::DEBUGMODE) {
+        bool qmlDebugSupportInstalled = Debugger::DebuggerUISwitcher::instance()->supportedLanguages().contains(QmlProjectManager::Constants::LANG_QML);
+        return (config != 0) && qmlDebugSupportInstalled;
     }
+
+    return false;
 }
 
 RunControl *QmlRunControlFactory::create(RunConfiguration *runConfiguration,
                                          const QString &mode)
 {
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
-    return new QmlRunControl(qobject_cast<QmlProjectRunConfiguration *>(runConfiguration), mode);
+
+    QmlProjectRunConfiguration *config = qobject_cast<QmlProjectRunConfiguration *>(runConfiguration);
+    RunControl *runControl = 0;
+    if (mode == ProjectExplorer::Constants::RUNMODE) {
+       runControl = new QmlRunControl(config, mode);
+    } else {
+        runControl = createDebugRunControl(config);
+    }
+    return runControl;
 }
 
 QString QmlRunControlFactory::displayName() const
@@ -164,6 +178,25 @@ QWidget *QmlRunControlFactory::createConfigurationWidget(RunConfiguration *runCo
 {
     Q_UNUSED(runConfiguration)
     return new QLabel("TODO add Configuration widget");
+}
+
+ProjectExplorer::RunControl *QmlRunControlFactory::createDebugRunControl(QmlProjectRunConfiguration *runConfig)
+{
+    ProjectExplorer::Environment environment = ProjectExplorer::Environment::systemEnvironment();
+    environment.set(QmlProjectManager::Constants::E_QML_DEBUG_SERVER_PORT, QString::number(runConfig->debugServerPort()));
+
+    Debugger::DebuggerStartParameters params;
+    params.startMode = Debugger::StartInternal;
+    params.executable = runConfig->viewerPath();
+    params.qmlServerAddress = runConfig->debugServerAddress();
+    params.qmlServerPort = runConfig->debugServerPort();
+    params.processArgs = runConfig->viewerArguments();
+    params.workingDirectory = runConfig->workingDirectory();
+    params.environment = environment.toStringList();
+    params.displayName = runConfig->displayName();
+
+    Debugger::DebuggerRunControl *debuggerRunControl = Debugger::DebuggerPlugin::createDebugger(params, runConfig);
+    return debuggerRunControl;
 }
 
 } // namespace Internal

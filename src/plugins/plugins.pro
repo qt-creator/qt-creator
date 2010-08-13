@@ -35,12 +35,13 @@ SUBDIRS   = plugin_coreplugin \
             plugin_qmljseditor \
             plugin_mercurial \
             plugin_classview \
-            plugin_qmljsinspector \
             debugger/dumper.pro
 
 contains(QT_CONFIG, declarative) {
 
-    SUBDIRS += plugin_qmlprojectmanager
+    SUBDIRS += \
+            plugin_qmlprojectmanager \
+            plugin_qmljsinspector
 
     include(../private_headers.pri)
     exists($${QT_PRIVATE_HEADERS}/QtDeclarative/private/qdeclarativecontext_p.h) {

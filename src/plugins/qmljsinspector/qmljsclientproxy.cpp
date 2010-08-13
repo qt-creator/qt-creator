@@ -28,13 +28,13 @@
 **************************************************************************/
 
 #include "qmljsclientproxy.h"
-#include "qmljsdebuggerclient.h"
 #include "qmljsprivateapi.h"
 #include "qmljsdesigndebugclient.h"
 
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunner.h>
 #include <debugger/qml/qmlengine.h>
+#include <debugger/qml/qmladapter.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
@@ -44,33 +44,54 @@
 
 using namespace QmlJSInspector::Internal;
 
-ClientProxy *ClientProxy::m_instance = 0;
-
-ClientProxy::ClientProxy(QObject *parent) :
-    QObject(parent),
-    m_conn(0),
-    m_client(0),
-    m_designClient(0),
-    m_engineQuery(0),
-    m_contextQuery(0),
-    m_objectTreeQuery(0)
+ClientProxy::ClientProxy(Debugger::Internal::QmlAdapter *adapter, QObject *parent)
+    : QObject(parent)
+    , m_adapter(adapter)
+    , m_client(m_adapter->client())
+    , m_designClient(0)
+    , m_engineQuery(0)
+    , m_contextQuery(0)
+    , m_objectTreeQuery(0)
 {
-    Q_ASSERT(! m_instance);
-    m_instance = this;
+
+    connect(m_adapter, SIGNAL(aboutToDisconnect()), SLOT(disconnectFromServer()));
+    connectToServer();
 }
 
-ClientProxy *ClientProxy::instance()
+void ClientProxy::connectToServer()
 {
-    return m_instance;
+    m_designClient = new QmlJSDesignDebugClient(m_adapter->connection(), this);
+    emit connected();
+
+    connect(m_designClient, SIGNAL(currentObjectsChanged(QList<int>)),
+        SLOT(onCurrentObjectsChanged(QList<int>)));
+    connect(m_designClient, SIGNAL(colorPickerActivated()),
+        SIGNAL(colorPickerActivated()));
+    connect(m_designClient, SIGNAL(zoomToolActivated()),
+        SIGNAL(zoomToolActivated()));
+    connect(m_designClient, SIGNAL(selectToolActivated()),
+        SIGNAL(selectToolActivated()));
+    connect(m_designClient, SIGNAL(selectMarqueeToolActivated()),
+        SIGNAL(selectMarqueeToolActivated()));
+    connect(m_designClient, SIGNAL(animationSpeedChanged(qreal)),
+        SIGNAL(animationSpeedChanged(qreal)));
+    connect(m_designClient, SIGNAL(designModeBehaviorChanged(bool)),
+        SIGNAL(designModeBehaviorChanged(bool)));
+    connect(m_designClient, SIGNAL(reloaded()), this,
+        SIGNAL(serverReloaded()));
+    connect(m_designClient, SIGNAL(selectedColorChanged(QColor)),
+        SIGNAL(selectedColorChanged(QColor)));
+    connect(m_designClient, SIGNAL(contextPathUpdated(QStringList)),
+        SIGNAL(contextPathUpdated(QStringList)));
+    connect(m_designClient, SIGNAL(treeRefreshRequested()),
+        SLOT(refreshObjectTree()));
+
+    reloadEngines();
 }
 
-bool ClientProxy::connectToViewer(const QString &host, quint16 port)
+void ClientProxy::disconnectFromServer()
 {
-    if (m_conn && m_conn->state() != QAbstractSocket::UnconnectedState)
-        return false;
-
     if (m_designClient) {
-
         disconnect(m_designClient, SIGNAL(currentObjectsChanged(QList<int>)),
             this, SLOT(onCurrentObjectsChanged(QList<int>)));
         disconnect(m_designClient, SIGNAL(colorPickerActivated()),
@@ -92,36 +113,22 @@ bool ClientProxy::connectToViewer(const QString &host, quint16 port)
         disconnect(m_designClient, SIGNAL(treeRefreshRequested()),
             this, SLOT(refreshObjectTree()));
 
-        emit aboutToDisconnect();
-
-        delete m_client;
-        m_client = 0;
-
         delete m_designClient;
         m_designClient = 0;
     }
 
-    if (m_conn) {
-        m_conn->disconnectFromHost();
-        delete m_conn;
-        m_conn = 0;
+    if (m_engineQuery)
+        delete m_engineQuery;
+    m_engineQuery = 0;
+
+    if (m_contextQuery)
+        delete m_contextQuery;
+    m_contextQuery = 0;
+
+    if (m_objectTreeQuery) {
+        delete m_objectTreeQuery;
+        m_objectTreeQuery = 0;
     }
-
-    m_conn = new QDeclarativeDebugConnection(this);
-    connect(m_conn, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
-            SLOT(connectionStateChanged()));
-    connect(m_conn, SIGNAL(error(QAbstractSocket::SocketError)),
-            SLOT(connectionError()));
-
-    emit connectionStatusMessage(tr("[Inspector] set to connect to debug server %1:%2").arg(host).arg(port));
-    m_conn->connectToHost(host, port);
-
-
-    // blocks until connected; if no connection is available, will fail immediately
-    if (!m_conn->waitForConnected())
-        return false;
-
-    return true;
 }
 
 void ClientProxy::refreshObjectTree()
@@ -173,134 +180,6 @@ void ClientProxy::onCurrentObjectsChanged(const QList<int> &debugIds)
     }
 }
 
-void ClientProxy::disconnectFromViewer()
-{
-    m_conn->disconnectFromHost();
-    emit disconnected();
-}
-
-void ClientProxy::connectionError()
-{
-    emit connectionStatusMessage(tr("[Inspector] error: (%1) %2", "%1=error code, %2=error message")
-                                .arg(m_conn->error()).arg(m_conn->errorString()));
-}
-
-void ClientProxy::connectionStateChanged()
-{
-    switch (m_conn->state()) {
-        case QAbstractSocket::UnconnectedState:
-        {
-            emit connectionStatusMessage(tr("[Inspector] disconnected.\n\n"));
-
-            delete m_engineQuery;
-            m_engineQuery = 0;
-            delete m_contextQuery;
-            m_contextQuery = 0;
-
-            if (m_objectTreeQuery) {
-                delete m_objectTreeQuery;
-                m_objectTreeQuery = 0;
-            }
-
-            emit disconnected();
-
-            break;
-        }
-        case QAbstractSocket::HostLookupState:
-            emit connectionStatusMessage(tr("[Inspector] resolving host..."));
-            break;
-        case QAbstractSocket::ConnectingState:
-            emit connectionStatusMessage(tr("[Inspector] connecting to debug server..."));
-            break;
-        case QAbstractSocket::ConnectedState:
-        {
-            emit connectionStatusMessage(tr("[Inspector] connected.\n"));
-
-            if (!m_client) {
-                m_client = new QDeclarativeEngineDebug(m_conn, this);
-                m_designClient = new QmlJSDesignDebugClient(m_conn, this);
-                emit connected(m_client);
-
-                connect(m_designClient, SIGNAL(currentObjectsChanged(QList<int>)),
-                    SLOT(onCurrentObjectsChanged(QList<int>)));
-                connect(m_designClient, SIGNAL(colorPickerActivated()),
-                    SIGNAL(colorPickerActivated()));
-                connect(m_designClient, SIGNAL(zoomToolActivated()),
-                    SIGNAL(zoomToolActivated()));
-                connect(m_designClient, SIGNAL(selectToolActivated()),
-                    SIGNAL(selectToolActivated()));
-                connect(m_designClient, SIGNAL(selectMarqueeToolActivated()),
-                    SIGNAL(selectMarqueeToolActivated()));
-                connect(m_designClient, SIGNAL(animationSpeedChanged(qreal)),
-                    SIGNAL(animationSpeedChanged(qreal)));
-                connect(m_designClient, SIGNAL(designModeBehaviorChanged(bool)),
-                    SIGNAL(designModeBehaviorChanged(bool)));
-                connect(m_designClient, SIGNAL(reloaded()), this,
-                    SIGNAL(serverReloaded()));
-                connect(m_designClient, SIGNAL(selectedColorChanged(QColor)),
-                    SIGNAL(selectedColorChanged(QColor)));
-                connect(m_designClient, SIGNAL(contextPathUpdated(QStringList)),
-                    SIGNAL(contextPathUpdated(QStringList)));
-                connect(m_designClient, SIGNAL(treeRefreshRequested()),
-                    SLOT(refreshObjectTree()));
-            }
-
-            createDebuggerClient();
-            reloadEngines();
-
-            break;
-        }
-        case QAbstractSocket::ClosingState:
-            emit connectionStatusMessage(tr("[Inspector] closing..."));
-            break;
-        case QAbstractSocket::BoundState:
-        case QAbstractSocket::ListeningState:
-            break;
-    }
-}
-
-void ClientProxy::createDebuggerClient()
-{
-    DebuggerClient *debuggerClient = new DebuggerClient(m_conn);
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    const QList<Debugger::DebuggerRunControlFactory *> factories =
-        pm->getObjects<Debugger::DebuggerRunControlFactory>();
-    ProjectExplorer::RunControl *runControl = 0;
-
-    Debugger::DebuggerStartParameters sp;
-    sp.startMode = Debugger::StartExternal;
-    sp.executable = "qmlviewer"; //FIXME
-    runControl = factories.first()->create(sp);
-    Debugger::DebuggerRunControl* debuggerRunControl =
-        qobject_cast<Debugger::DebuggerRunControl *>(runControl);
-
-    QTC_ASSERT(debuggerRunControl, return);
-    Debugger::Internal::QmlEngine *engine =
-        qobject_cast<Debugger::Internal::QmlEngine *>(debuggerRunControl->engine());
-    QTC_ASSERT(engine, return);
-
-    engine->Debugger::Internal::DebuggerEngine::startDebugger(debuggerRunControl);
-
-    connect(engine, SIGNAL(sendMessage(QByteArray)),
-        debuggerClient, SLOT(slotSendMessage(QByteArray)));
-    connect(debuggerClient, SIGNAL(messageWasReceived(QByteArray)),
-        engine, SLOT(messageReceived(QByteArray)));
-    connect(m_conn, SIGNAL(disconnected()),
-        engine, SLOT(disconnected()));
-
-    //engine->startSuccessful();  // FIXME: AAA: port to new debugger states
-}
-
-bool ClientProxy::isConnected() const
-{
-    return m_conn && m_client && m_conn->state() == QAbstractSocket::ConnectedState;
-}
-
-bool ClientProxy::isUnconnected() const
-{
-    return !m_conn || m_conn->state() == QAbstractSocket::UnconnectedState;
-}
-
 void ClientProxy::setSelectedItemsByObjectId(const QList<QDeclarativeDebugObjectReference> &objectRefs)
 {
     if (isConnected() && m_designClient)
@@ -316,7 +195,6 @@ QDeclarativeDebugObjectReference QmlJSInspector::Internal::ClientProxy::rootObje
 {
     return m_rootObject;
 }
-
 
 QDeclarativeDebugObjectReference ClientProxy::objectReferenceForId(int debugId,
                                                                    const QDeclarativeDebugObjectReference &objectRef) const
@@ -527,7 +405,7 @@ void ClientProxy::setContextPathIndex(int contextIndex)
 
 bool ClientProxy::isDesignClientConnected() const
 {
-    return (m_designClient && m_conn->isConnected());
+    return (m_designClient && m_adapter->isConnected());
 }
 
 void ClientProxy::reloadEngines()
@@ -559,4 +437,14 @@ void ClientProxy::updateEngineList()
     m_engineQuery = 0;
 
     emit enginesChanged();
+}
+
+Debugger::Internal::QmlAdapter *ClientProxy::qmlAdapter() const
+{
+    return m_adapter;
+}
+
+bool ClientProxy::isConnected() const
+{
+    return m_adapter->isConnected();
 }
