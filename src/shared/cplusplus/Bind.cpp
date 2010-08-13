@@ -56,6 +56,7 @@
 #include "Literals.h"
 #include "Scope.h"
 #include <vector>
+#include <string>
 #include <memory>
 #include <cassert>
 
@@ -1695,6 +1696,20 @@ bool Bind::visit(ParameterDeclarationAST *ast)
 
     Argument *arg = control()->newArgument(sourceLocation, argName);
     arg->setType(type);
+
+    if (ast->expression) {
+        unsigned startOfExpression = ast->expression->firstToken();
+        unsigned endOfExpression = ast->expression->lastToken();
+        std::string buffer;
+        for (unsigned index = startOfExpression; index != endOfExpression; ++index) {
+            const Token &tk = tokenAt(index);
+            if (tk.whitespace() || tk.newline())
+                buffer += ' ';
+            buffer += tk.spell();
+        }
+        const StringLiteral *initializer = control()->stringLiteral(buffer.c_str(), buffer.size());
+        arg->setInitializer(initializer);
+    }
 
     _scope->addMember(arg);
 
