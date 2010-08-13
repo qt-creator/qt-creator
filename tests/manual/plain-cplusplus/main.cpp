@@ -28,16 +28,7 @@
 **************************************************************************/
 
 #include "Preprocessor.h"
-#include <AST.h>
-#include <ASTVisitor.h>
-#include <Control.h>
-#include <Scope.h>
-#include <TranslationUnit.h>
-#include <Literals.h>
-#include <Symbols.h>
-#include <Names.h>
-#include <CoreTypes.h>
-#include <Bind.h>
+#include <CPlusPlus.h>
 
 #include <string>
 #include <cstdlib>
