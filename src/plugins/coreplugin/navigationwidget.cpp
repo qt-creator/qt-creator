@@ -233,18 +233,22 @@ NavigationSubWidget *NavigationWidget::insertSubItem(int position,int index)
 
 void NavigationWidget::activateSubWidget()
 {
-    setShown(true);
     QShortcut *original = qobject_cast<QShortcut *>(sender());
     QString id = m_shortcutMap[original];
+    activateSubWidget(id);
+}
 
+void NavigationWidget::activateSubWidget(const QString &factoryId)
+{
+    setShown(true);
     foreach (NavigationSubWidget *subWidget, m_subWidgets) {
-        if (subWidget->factory()->id() == id) {
+        if (subWidget->factory()->id() == factoryId) {
             subWidget->setFocusWidget();
             return;
         }
     }
 
-    int index = factoryIndex(id);
+    int index = factoryIndex(factoryId);
     if (index >= 0) {
         m_subWidgets.first()->setFactoryIndex(index);
         m_subWidgets.first()->setFocusWidget();

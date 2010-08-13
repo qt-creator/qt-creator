@@ -49,14 +49,11 @@ namespace Core {
 class INavigationWidgetFactory;
 class IMode;
 class Command;
-
-namespace Internal {
 class NavigationWidget;
-}
 
 class CORE_EXPORT NavigationWidgetPlaceHolder : public QWidget
 {
-    friend class Core::Internal::NavigationWidget;
+    friend class Core::NavigationWidget;
     Q_OBJECT
 public:
     NavigationWidgetPlaceHolder(Core::IMode *mode, QWidget *parent = 0);
@@ -71,10 +68,10 @@ private:
 };
 
 namespace Internal {
-
 class NavigationSubWidget;
+}
 
-class NavigationWidget : public MiniSplitter
+class CORE_EXPORT NavigationWidget : public MiniSplitter
 {
     Q_OBJECT
 public:
@@ -92,6 +89,7 @@ public:
     void saveSettings(QSettings *settings);
     void restoreSettings(QSettings *settings);
 
+    void activateSubWidget(const QString &factoryId);
     void closeSubWidgets();
 
     bool isShown() const;
@@ -120,10 +118,10 @@ private slots:
 
 private:
     void updateToggleText();
-    NavigationSubWidget *insertSubItem(int position, int index);
+    Internal::NavigationSubWidget *insertSubItem(int position, int index);
     int factoryIndex(const QString &id);
 
-    QList<NavigationSubWidget *> m_subWidgets;
+    QList<Internal::NavigationSubWidget *> m_subWidgets;
     QHash<QShortcut *, QString> m_shortcutMap;
     QHash<QString, Core::Command*> m_commandMap;
     QStandardItemModel *m_factoryModel;
@@ -134,6 +132,8 @@ private:
     static NavigationWidget* m_instance;
     QAction *m_toggleSideBarAction;
 };
+
+namespace Internal {
 
 class NavigationSubWidget : public QWidget
 {
