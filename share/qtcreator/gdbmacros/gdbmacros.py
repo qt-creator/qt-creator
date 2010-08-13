@@ -599,8 +599,15 @@ def qdump__QObject(d, item):
     #    superData = superData.dereference()["d"]["superdata"]
     #    warn("SUPERDATA: %s" % superData)
 
-    privateType = lookupType(d.ns + "QObjectPrivate").pointer()
-    d_ptr = item.value["d_ptr"]["d"].cast(privateType).dereference()
+    privateType = lookupType(d.ns + "QObjectPrivate")
+    if privateType is None:
+        d.putNumChild(4)
+        #d.putValue(cleanAddress(item.value.address))
+        if d.isExpanded(item):
+            with Children(d):
+                d.putFields(item)
+        return
+    d_ptr = item.value["d_ptr"]["d"].cast(privateType.pointer()).dereference()
     #warn("D_PTR: %s " % d_ptr)
     objectName = d_ptr["objectName"]
     #warn("OBJECTNAME: %s " % objectName)

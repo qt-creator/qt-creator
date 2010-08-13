@@ -1354,18 +1354,13 @@ class Dumper:
             .replace("::", "__")
 
         # Is this derived from QObject?
+        hasMetaObject = False
         try:
-            item.value['staticMetaObject']
-            hasMetaObject = True
+            if value.type.code != gdb.TYPE_CODE_PTR:
+                mo = item.value['staticMetaObject']
+                hasMetaObject = True
         except:
-            hasMetaObject = False
-
-        # Is this derived from QObject?
-        try:
-            item.value['staticMetaObject']
-            hasMetaObject = True
-        except:
-            hasMetaObject = False
+            pass
 
         #warn(" STRIPPED: %s" % nsStrippedType)
         #warn(" DUMPERS: %s" % (nsStrippedType in qqDumpers))
