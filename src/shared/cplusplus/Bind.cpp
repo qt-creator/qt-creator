@@ -1990,21 +1990,22 @@ bool Bind::visit(TemplateTypeParameterAST *ast)
 
 bool Bind::visit(UsingAST *ast)
 {
-    // unsigned using_token = ast->using_token;
-    // unsigned typename_token = ast->typename_token;
-    /*const Name *name =*/ this->name(ast->name);
-    // unsigned semicolon_token = ast->semicolon_token;
-    // UsingDeclaration *symbol = ast->symbol;
+    unsigned sourceLocation = ast->name ? ast->name->firstToken() : ast->firstToken();
+    const Name *name = this->name(ast->name);
+
+    UsingDeclaration *symbol = control()->newUsingDeclaration(sourceLocation, name);
+    ast->symbol = symbol;
+    _scope->addMember(symbol);
     return false;
 }
 
 bool Bind::visit(UsingDirectiveAST *ast)
 {
-    // unsigned using_token = ast->using_token;
-    // unsigned namespace_token = ast->namespace_token;
-    /*const Name *name =*/ this->name(ast->name);
-    // unsigned semicolon_token = ast->semicolon_token;
-    // UsingNamespaceDirective *symbol = ast->symbol;
+    unsigned sourceLocation = ast->name ? ast->name->firstToken() : ast->firstToken();
+    const Name *name = this->name(ast->name);
+    UsingNamespaceDirective *symbol = control()->newUsingNamespaceDirective(sourceLocation, name);
+    ast->symbol = symbol;
+    _scope->addMember(symbol);
     return false;
 }
 
