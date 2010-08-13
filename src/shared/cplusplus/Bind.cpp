@@ -1956,13 +1956,11 @@ bool Bind::visit(TemplateDeclarationAST *ast)
 
 bool Bind::visit(TypenameTypeParameterAST *ast)
 {
+    unsigned sourceLocation = ast->name ? ast->name->firstToken() : ast->firstToken();
     // unsigned classkey_token = ast->classkey_token;
     // unsigned dot_dot_dot_token = ast->dot_dot_dot_token;
     const Name *name = this->name(ast->name);
     ExpressionTy type_id = this->expression(ast->type_id);
-    unsigned sourceLocation = ast->firstToken();
-    if (ast->name)
-        sourceLocation = ast->name->firstToken();
 
     TypenameArgument *arg = control()->newTypenameArgument(sourceLocation, name);
     arg->setType(type_id);
@@ -1973,18 +1971,29 @@ bool Bind::visit(TypenameTypeParameterAST *ast)
 
 bool Bind::visit(TemplateTypeParameterAST *ast)
 {
+    unsigned sourceLocation = ast->name ? ast->name->firstToken() : ast->firstToken();
+
     // unsigned template_token = ast->template_token;
     // unsigned less_token = ast->less_token;
+    // ### process the template prototype
+#if 0
     for (DeclarationListAST *it = ast->template_parameter_list; it; it = it->next) {
         this->declaration(it->value);
     }
+#endif
     // unsigned greater_token = ast->greater_token;
     // unsigned class_token = ast->class_token;
     // unsigned dot_dot_dot_token = ast->dot_dot_dot_token;
-    /*const Name *name =*/ this->name(ast->name);
-    // unsigned equal_token = ast->equal_token;
+
+    const Name *name = this->name(ast->name);
     ExpressionTy type_id = this->expression(ast->type_id);
-    // TypenameArgument *symbol = ast->symbol;
+
+    // ### introduce TemplateTypeArgument
+    TypenameArgument *arg = control()->newTypenameArgument(sourceLocation, name);
+    arg->setType(type_id);
+    ast->symbol = arg;
+    _scope->addMember(arg);
+
     return false;
 }
 
