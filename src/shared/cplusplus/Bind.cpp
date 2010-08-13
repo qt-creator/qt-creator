@@ -69,6 +69,7 @@ Bind::Bind(TranslationUnit *unit)
       _name(0),
       _declaratorId(0),
       _visibility(Symbol::Public),
+      _objcVisibility(Symbol::Public),
       _methodKey(Function::NormalMethod),
       _skipFunctionBodies(false)
 {
@@ -132,6 +133,12 @@ Scope *Bind::switchScope(Scope *scope)
 int Bind::switchVisibility(int visibility)
 {
     std::swap(_visibility, visibility);
+    return visibility;
+}
+
+int Bind::switchObjCVisibility(int visibility)
+{
+    std::swap(_objcVisibility, visibility);
     return visibility;
 }
 
@@ -2113,10 +2120,17 @@ bool Bind::visit(ObjCClassDeclarationAST *ast)
     }
 
     this->objCProtocolRefs(ast->protocol_refs, klass);
+
+    const int previousObjCVisibility = switchObjCVisibility(Function::Protected);
+
     this->objCInstanceVariablesDeclaration(ast->inst_vars_decl, klass);
+
+    (void) switchObjCVisibility(Function::Public);
     for (DeclarationListAST *it = ast->member_declaration_list; it; it = it->next) {
         this->declaration(it->value);
     }
+
+    (void) switchObjCVisibility(previousObjCVisibility);
     (void) switchScope(previousScope);
     return false;
 }
@@ -2175,18 +2189,21 @@ bool Bind::visit(ObjCProtocolDeclarationAST *ast)
     _scope->addMember(protocol);
 
     Scope *previousScope = switchScope(protocol);
+    const int previousObjCVisibility = switchObjCVisibility(Function::Public);
+
     this->objCProtocolRefs(ast->protocol_refs, protocol);
     for (DeclarationListAST *it = ast->member_declaration_list; it; it = it->next) {
         this->declaration(it->value);
     }
+
+    (void) switchObjCVisibility(previousObjCVisibility);
     (void) switchScope(previousScope);
     return false;
 }
 
 bool Bind::visit(ObjCVisibilityDeclarationAST *ast)
 {
-    (void) ast;
-    // unsigned visibility_token = ast->visibility_token;
+    _objcVisibility = visibilityForObjCAccessSpecifier(tokenKind(ast->visibility_token));
     return false;
 }
 
@@ -2796,5 +2813,21 @@ int Bind::visibilityForClassKey(int tokenKind)
         return Symbol::Public;
     default:
         return Symbol::Public;
+    }
+}
+
+int Bind::visibilityForObjCAccessSpecifier(int tokenKind)
+{
+    switch (tokenKind) {
+    case T_AT_PUBLIC:
+        return Symbol::Public;
+    case T_AT_PROTECTED:
+        return Symbol::Protected;
+    case T_AT_PRIVATE:
+        return Symbol::Private;
+    case T_AT_PACKAGE:
+        return Symbol::Package;
+    default:
+        return Symbol::Protected;
     }
 }

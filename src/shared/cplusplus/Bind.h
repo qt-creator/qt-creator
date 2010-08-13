@@ -71,6 +71,7 @@ protected:
 
     static int visibilityForAccessSpecifier(int tokenKind);
     static int visibilityForClassKey(int tokenKind);
+    static int visibilityForObjCAccessSpecifier(int tokenKind);
 
     void setDeclSpecifiers(Symbol *symbol, const FullySpecifiedType &declSpecifiers);
 
@@ -90,6 +91,7 @@ protected:
     Scope *switchScope(Scope *scope);
     int switchVisibility(int visibility);
     int switchMethodKey(int methodKey);
+    int switchObjCVisibility(int visibility);
 
     unsigned calculateScopeStart(ObjCClassDeclarationAST *ast) const;
     unsigned calculateScopeStart(ObjCProtocolDeclarationAST *ast) const;
@@ -291,6 +293,7 @@ private:
     FullySpecifiedType _type;
     DeclaratorIdAST **_declaratorId;
     int _visibility;
+    int _objcVisibility;
     int _methodKey;
     bool _skipFunctionBodies;
 };
