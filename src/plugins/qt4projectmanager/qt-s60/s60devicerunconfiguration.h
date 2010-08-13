@@ -183,6 +183,7 @@ protected slots:
     void printApplicationOutput(const QString &output, bool onStdErr);
     void printApplicationOutput(const QString &output);
     void deviceRemoved(const SymbianUtils::SymbianDevice &);
+    void reportDeployFinished();
 
 private slots:
     void processStopped(uint pc, uint pid, uint tid, const QString& reason);
@@ -190,10 +191,13 @@ private slots:
     void launcherFinished();
     void slotLauncherStateChanged(int);
     void slotWaitingForTrkClosed();
-    void reportDeployFinished();
+
+protected:
+    QFutureInterface<void> *m_deployProgress;
 
 private:
     void startLaunching();
+    bool setupLauncher(QString &errorMessage);
 
     ProjectExplorer::ToolChain::ToolChainType m_toolChain;
     QString m_serialPortName;
@@ -205,7 +209,6 @@ private:
     QString m_qtBinPath;
     bool m_releaseDeviceAfterLauncherFinish;
     bool m_handleDeviceRemoval;
-    QFutureInterface<void> *m_deployProgress;
     trk::Launcher *m_launcher;
     char m_installationDrive;
 };
@@ -223,8 +226,8 @@ protected:
 
 private slots:
     void printStartingNotice();
-    void printRunNotice(uint pid);
-    void printRunFailNotice(const QString &errorMessage);
+    void applicationRunNotice(uint pid);
+    void applicationRunFailedNotice(const QString &errorMessage);
 
 private:
 };

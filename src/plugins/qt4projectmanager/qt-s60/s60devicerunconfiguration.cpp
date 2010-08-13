@@ -660,43 +660,48 @@ bool S60DeviceRunControlBase::isRunning() const
 void S60DeviceRunControlBase::startLaunching()
 {
     QString errorMessage;
-    bool success = false;
-    do {
-        connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(const SymbianUtils::SymbianDevice)),
-                this, SLOT(deviceRemoved(SymbianUtils::SymbianDevice)));
-        m_launcher = trk::Launcher::acquireFromDeviceManager(m_serialPortName, 0, &errorMessage);
-        if (!m_launcher)
-            break;
-
-        connect(m_launcher, SIGNAL(finished()), this, SLOT(launcherFinished()));
-        connect(m_launcher, SIGNAL(canNotConnect(QString)), this, SLOT(printConnectFailed(QString)));
-        connect(m_launcher, SIGNAL(stateChanged(int)), this, SLOT(slotLauncherStateChanged(int)));
-        connect(m_launcher, SIGNAL(processStopped(uint,uint,uint,QString)),
-                this, SLOT(processStopped(uint,uint,uint,QString)));
-
-        if (!m_commandLineArguments.isEmpty())
-            m_launcher->setCommandLineArgs(m_commandLineArguments);
-        const QString runFileName = QString::fromLatin1("%1:\\sys\\bin\\%2.exe").arg(m_installationDrive).arg(m_targetName);
-        initLauncher(runFileName, m_launcher);
-        const trk::PromptStartCommunicationResult src =
-                S60RunConfigBluetoothStarter::startCommunication(m_launcher->trkDevice(),
-                                                                 0, &errorMessage);
-        if (src != trk::PromptStartCommunicationConnected)
-            break;
-        if (!m_launcher->startServer(&errorMessage)) {
-            errorMessage = tr("Could not connect to phone on port '%1': %2\n"
-                              "Check if the phone is connected and App TRK is running.").arg(m_serialPortName, errorMessage);
-            break;
-        }
-        success = true;
-    } while (false);
-
-    if (!success) {
+    if (setupLauncher(errorMessage)) {
+        if (m_deployProgress)
+                    m_deployProgress->setProgressValue(PROGRESS_MAX/2);
+    } else {
         if (!errorMessage.isEmpty())
             appendMessage(this, errorMessage, true);
         stop();
         emit finished();
     }
+}
+
+bool S60DeviceRunControlBase::setupLauncher(QString &errorMessage)
+{
+    connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(const SymbianUtils::SymbianDevice)),
+            this, SLOT(deviceRemoved(SymbianUtils::SymbianDevice)));
+    m_launcher = trk::Launcher::acquireFromDeviceManager(m_serialPortName, 0, &errorMessage);
+    if (!m_launcher)
+        return false;
+
+    connect(m_launcher, SIGNAL(finished()), this, SLOT(launcherFinished()));
+    connect(m_launcher, SIGNAL(canNotConnect(QString)), this, SLOT(printConnectFailed(QString)));
+    connect(m_launcher, SIGNAL(stateChanged(int)), this, SLOT(slotLauncherStateChanged(int)));
+    connect(m_launcher, SIGNAL(processStopped(uint,uint,uint,QString)),
+            this, SLOT(processStopped(uint,uint,uint,QString)));
+
+    if (!m_commandLineArguments.isEmpty())
+        m_launcher->setCommandLineArgs(m_commandLineArguments);
+
+    const QString runFileName = QString::fromLatin1("%1:\\sys\\bin\\%2.exe").arg(m_installationDrive).arg(m_targetName);
+    initLauncher(runFileName, m_launcher);
+    const trk::PromptStartCommunicationResult src =
+            S60RunConfigBluetoothStarter::startCommunication(m_launcher->trkDevice(),
+                                                             0, &errorMessage);
+    if (src != trk::PromptStartCommunicationConnected)
+        return false;
+
+    if (!m_launcher->startServer(&errorMessage)) {
+        errorMessage = tr("Could not connect to phone on port '%1': %2\n"
+                          "Check if the phone is connected and App TRK is running.").arg(m_serialPortName, errorMessage);
+        return false;
+    }
+    return true;
 }
 
 void S60DeviceRunControlBase::printConnectFailed(const QString &errorMessage)
@@ -799,8 +804,8 @@ S60DeviceRunControl::S60DeviceRunControl(ProjectExplorer::RunConfiguration *runC
 void S60DeviceRunControl::initLauncher(const QString &executable, trk::Launcher *launcher)
 {
      connect(launcher, SIGNAL(startingApplication()), this, SLOT(printStartingNotice()));
-     connect(launcher, SIGNAL(applicationRunning(uint)), this, SLOT(printRunNotice(uint)));
-     connect(launcher, SIGNAL(canNotRun(QString)), this, SLOT(printRunFailNotice(QString)));
+     connect(launcher, SIGNAL(applicationRunning(uint)), this, SLOT(applicationRunNotice(uint)));
+     connect(launcher, SIGNAL(canNotRun(QString)), this, SLOT(applicationRunFailedNotice(QString)));
      connect(launcher, SIGNAL(applicationOutputReceived(QString)), this, SLOT(printApplicationOutput(QString)));
      launcher->addStartupActions(trk::Launcher::ActionRun);
      launcher->setFileName(executable);
@@ -817,12 +822,15 @@ void S60DeviceRunControl::printStartingNotice()
     emit appendMessage(this, tr("Starting application..."), false);
 }
 
-void S60DeviceRunControl::printRunNotice(uint pid)
+void S60DeviceRunControl::applicationRunNotice(uint pid)
 {
     emit appendMessage(this, tr("Application running with pid %1.").arg(pid), false);
+    if (m_deployProgress)
+        m_deployProgress->setProgressValue(PROGRESS_MAX);
 }
 
-void S60DeviceRunControl::printRunFailNotice(const QString &errorMessage) {
+void S60DeviceRunControl::applicationRunFailedNotice(const QString &errorMessage)
+{
     emit appendMessage(this, tr("Could not start application: %1").arg(errorMessage), true);
 }
 
