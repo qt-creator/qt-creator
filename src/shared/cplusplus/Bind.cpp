@@ -2309,18 +2309,17 @@ bool Bind::visit(ClassSpecifierAST *ast)
 
 bool Bind::visit(NamedTypeSpecifierAST *ast)
 {
-    /*const Name *name =*/ this->name(ast->name);
+    _type.setType(control()->namedType(this->name(ast->name)));
     return false;
 }
 
 bool Bind::visit(ElaboratedTypeSpecifierAST *ast)
 {
     // unsigned classkey_token = ast->classkey_token;
-    FullySpecifiedType type;
     for (SpecifierListAST *it = ast->attribute_list; it; it = it->next) {
-        type = this->specifier(it->value, type);
+        _type = this->specifier(it->value, _type);
     }
-    /*const Name *name =*/ this->name(ast->name);
+    _type.setType(control()->namedType(this->name(ast->name)));
     return false;
 }
 
