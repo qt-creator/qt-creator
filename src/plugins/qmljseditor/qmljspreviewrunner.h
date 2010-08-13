@@ -13,6 +13,8 @@ class QmlJSPreviewRunner : public QObject
     Q_OBJECT
 public:
     explicit QmlJSPreviewRunner(QObject *parent = 0);
+
+    bool isReady() const;
     void run(const QString &filename);
 
 signals:
