@@ -1073,6 +1073,8 @@ bool Bind::visit(CaseStatementAST *ast)
 bool Bind::visit(CompoundStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->firstToken());
+    block->setStartOffset(tokenAt(ast->firstToken()).begin());
+    block->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     ast->symbol = block;
     _scope->addMember(block);
     Scope *previousScope = switchScope(block);
@@ -1799,6 +1801,8 @@ bool Bind::visit(NamespaceAST *ast)
     }
 
     Namespace *ns = control()->newNamespace(sourceLocation, namespaceName);
+    ns->setStartOffset(tokenAt(sourceLocation).end()); // the scope starts after the namespace or the identifier token.
+    ns->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     ast->symbol = ns;
     _scope->addMember(ns);
 
@@ -1863,6 +1867,8 @@ bool Bind::visit(ParameterDeclarationAST *ast)
 bool Bind::visit(TemplateDeclarationAST *ast)
 {
     Template *templ = control()->newTemplate(ast->firstToken(), 0);
+    templ->setStartOffset(tokenAt(ast->firstToken()).begin());
+    templ->setStartOffset(tokenAt(ast->lastToken() - 1).end());
     ast->symbol = templ;
     Scope *previousScope = switchScope(templ);
 
@@ -2348,7 +2354,8 @@ bool Bind::visit(TypeofSpecifierAST *ast)
 bool Bind::visit(ClassSpecifierAST *ast)
 {
     // unsigned classkey_token = ast->classkey_token;
-    unsigned sourceLocation = ast->classkey_token;
+    unsigned sourceLocation = ast->firstToken();
+    unsigned startScopeOffset = tokenAt(sourceLocation).end(); // at the end of the class key
 
     for (SpecifierListAST *it = ast->attribute_list; it; it = it->next) {
         _type = this->specifier(it->value, _type);
@@ -2358,14 +2365,19 @@ bool Bind::visit(ClassSpecifierAST *ast)
 
     if (ast->name) {
         sourceLocation = ast->name->firstToken();
+        startScopeOffset = tokenAt(sourceLocation).end(); // at the end of the class name
 
         if (QualifiedNameAST *q = ast->name->asQualifiedName()) {
-            if (q->unqualified_name)
+            if (q->unqualified_name) {
                 sourceLocation = q->unqualified_name->firstToken();
+                startScopeOffset = tokenAt(q->unqualified_name->lastToken() - 1).end(); // at the end of the unqualified name
+            }
         }
     }
 
     Class *klass = control()->newClass(sourceLocation, className);
+    klass->setStartOffset(startScopeOffset);
+    klass->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     _scope->addMember(klass);
 
     _type.setType(klass);
@@ -2414,6 +2426,8 @@ bool Bind::visit(EnumSpecifierAST *ast)
 
     const Name *enumName = this->name(ast->name);
     Enum *e = control()->newEnum(sourceLocation, enumName);
+    e->setStartOffset(tokenAt(sourceLocation).end()); // at the end of the enum or identifier token.
+    e->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     ast->symbol = e;
     _scope->addMember(e);
 
@@ -2530,6 +2544,8 @@ bool Bind::visit(NestedDeclaratorAST *ast)
 bool Bind::visit(FunctionDeclaratorAST *ast)
 {
     Function *fun = control()->newFunction(0, 0);
+    fun->setStartOffset(tokenAt(ast->firstToken()).begin());
+    fun->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     fun->setReturnType(_type);
 
     // unsigned lparen_token = ast->lparen_token;
