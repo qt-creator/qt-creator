@@ -609,7 +609,7 @@ public:
     unsigned semicolon_token;
 
 public:
-    List<Declaration *> *symbols;
+    List<Symbol *> *symbols;
 
 public:
     SimpleDeclarationAST()

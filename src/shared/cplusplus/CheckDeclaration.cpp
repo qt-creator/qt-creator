@@ -187,7 +187,7 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
     const bool isQ_SIGNAL = ast->qt_invokable_token && tokenKind(ast->qt_invokable_token) == T_Q_SIGNAL;
     const bool isQ_INVOKABLE = ast->qt_invokable_token && tokenKind(ast->qt_invokable_token) == T_Q_INVOKABLE;
 
-    List<Declaration *> **decl_it = &ast->symbols;
+    List<Symbol *> **decl_it = &ast->symbols;
     for (DeclaratorListAST *it = ast->declarator_list; it; it = it->next) {
         const Name *name = 0;
         FullySpecifiedType declTy = semantic()->check(it->value, qualTy,
@@ -230,7 +230,7 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
             FullySpecifiedType initTy = semantic()->check(it->value->initializer, _scope);
         }
 
-        *decl_it = new (translationUnit()->memoryPool()) List<Declaration *>();
+        *decl_it = new (translationUnit()->memoryPool()) List<Symbol *>();
         (*decl_it)->value = symbol;
         decl_it = &(*decl_it)->next;
 
@@ -841,7 +841,7 @@ bool CheckDeclaration::visit(ObjCPropertyDeclarationAST *ast)
     }
 
     List<ObjCPropertyDeclaration *> **lastSymbols = &ast->symbols;
-    for (List<Declaration*> *iter = simpleDecl->symbols; iter; iter = iter->next) {
+    for (List<Symbol *> *iter = simpleDecl->symbols; iter; iter = iter->next) {
         ObjCPropertyDeclaration *propDecl = control()->newObjCPropertyDeclaration(ast->firstToken(),
                                                                                   iter->value->name());
         propDecl->setType(iter->value->type());

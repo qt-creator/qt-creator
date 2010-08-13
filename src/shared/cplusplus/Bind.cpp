@@ -1569,7 +1569,28 @@ bool Bind::visit(SimpleDeclarationAST *ast)
         type = this->specifier(it->value, type);
     }
 
-    List<Declaration *> **symbolTail = &ast->symbols;
+    List<Symbol *> **symbolTail = &ast->symbols;
+
+    if (! ast->declarator_list) {
+        ElaboratedTypeSpecifierAST *elabTypeSpec = 0;
+        for (SpecifierListAST *it = ast->decl_specifier_list; ! elabTypeSpec && it; it = it->next)
+            elabTypeSpec = it->value->asElaboratedTypeSpecifier();
+
+        if (elabTypeSpec && tokenKind(elabTypeSpec->classkey_token) != T_TYPENAME) {
+            unsigned sourceLocation = elabTypeSpec->firstToken();
+            const Name *name = 0;
+            if (elabTypeSpec->name) {
+                sourceLocation = elabTypeSpec->name->firstToken();
+                name = elabTypeSpec->name->name;
+            }
+
+            ForwardClassDeclaration *decl = control()->newForwardClassDeclaration(sourceLocation, name);
+            _scope->addMember(decl);
+
+            *symbolTail = new (translationUnit()->memoryPool()) List<Symbol *>(decl);
+            symbolTail = &(*symbolTail)->next;
+        }
+    }
 
     for (DeclaratorListAST *it = ast->declarator_list; it; it = it->next) {
         DeclaratorIdAST *declaratorId = 0;
@@ -1601,7 +1622,7 @@ bool Bind::visit(SimpleDeclarationAST *ast)
 
         _scope->addMember(decl);
 
-        *symbolTail = new (translationUnit()->memoryPool()) List<Declaration *>(decl);
+        *symbolTail = new (translationUnit()->memoryPool()) List<Symbol *>(decl);
         symbolTail = &(*symbolTail)->next;
     }
     return false;
