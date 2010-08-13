@@ -92,7 +92,7 @@ DragWidget::DragWidget(QWidget *parent) : QFrame(parent)
     setFrameStyle(QFrame::NoFrame);
     setFrameShape(QFrame::StyledPanel);
     setFrameShadow(QFrame::Sunken);
-    m_oldPos = QPoint(-1, -1);
+    m_startPos = QPoint(-1, -1);
     m_pos = QPoint(-1, -1);
 
     m_dropShadowEffect = new QGraphicsDropShadowEffect;
@@ -104,7 +104,7 @@ DragWidget::DragWidget(QWidget *parent) : QFrame(parent)
 void DragWidget::mousePressEvent(QMouseEvent * event)
 {
     if (event->button() ==  Qt::LeftButton) {
-        m_oldPos = event->globalPos();
+        m_startPos = event->globalPos() - parentWidget()->mapToGlobal((pos()));
         m_opacityEffect = new QGraphicsOpacityEffect;
         setGraphicsEffect(m_opacityEffect);
         event->accept();
@@ -115,7 +115,7 @@ void DragWidget::mousePressEvent(QMouseEvent * event)
 void DragWidget::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() ==  Qt::LeftButton) {
-        m_oldPos = QPoint(-1, -1);
+        m_startPos = QPoint(-1, -1);
         m_dropShadowEffect = new QGraphicsDropShadowEffect;
         m_dropShadowEffect->setBlurRadius(6);
         m_dropShadowEffect->setOffset(2, 2);
@@ -124,26 +124,35 @@ void DragWidget::mouseReleaseEvent(QMouseEvent *event)
     QFrame::mouseReleaseEvent(event);
 }
 
+static inline int limit(int a, int min, int max)
+{
+    if (a < min)
+        return min;
+    if (a > max)
+        return max;
+    return a;
+}
+
 void DragWidget::mouseMoveEvent(QMouseEvent * event)
 {
     if (event->buttons() &&  Qt::LeftButton) {
-        if (pos().x() < 10  && event->pos().x() < -20)
-            return;
-        if (m_oldPos != QPoint(-1, -1)) {
-            QPoint diff = event->globalPos() - m_oldPos;
-            QPoint newPos = pos() + diff;
-            if (newPos.x() > 0 && newPos.y() > 0 && (newPos.x() + width()) < parentWidget()->width() && (newPos.y() + height()) < parentWidget()->height()) {
-                if (m_secondaryTarget)
-                    m_secondaryTarget->move(m_secondaryTarget->pos() + diff);
-                move(newPos);
-                m_pos = newPos;
+        if (m_startPos != QPoint(-1, -1)) {
+            QPoint newPos = parentWidget()->mapFromGlobal(event->globalPos() - m_startPos);
+
+            newPos.setX(limit(newPos.x(), 20, parentWidget()->width() - 20 - width()));
+            newPos.setY(limit(newPos.y(), 2, parentWidget()->height() - 20 - height()));
+
+            QPoint diff = pos() - newPos;
+            if (m_secondaryTarget)
+                m_secondaryTarget->move(m_secondaryTarget->pos() - diff);
+            move(newPos);
+            if (m_pos != newPos)
                 protectedMoved();
-            }
+            m_pos = newPos;
         } else {
             m_opacityEffect = new QGraphicsOpacityEffect;
             setGraphicsEffect(m_opacityEffect);
         }
-        m_oldPos = event->globalPos();
         event->accept();
     }
 }

@@ -68,7 +68,7 @@ protected:
 private:
     QGraphicsDropShadowEffect *m_dropShadowEffect;
     QGraphicsOpacityEffect *m_opacityEffect;
-    QPoint m_oldPos;
+    QPoint m_startPos;
     QWeakPointer<QWidget> m_secondaryTarget;
 };
 
