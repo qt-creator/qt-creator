@@ -167,6 +167,7 @@ void QmlJSOutlineWidget::updateSelectionInText(const QItemSelection &selection)
         m_blockCursorSync = true;
         textCursor.setPosition(location.offset);
         m_editor.data()->setTextCursor(textCursor);
+        m_editor.data()->centerCursor();
         m_blockCursorSync = false;
     }
 }
