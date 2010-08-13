@@ -559,21 +559,13 @@ def value(expr):
     except:
         return str(value)
 
-
 def isSimpleType(typeobj):
-    if typeobj.code == gdb.TYPE_CODE_PTR:
-        return False
-    type = str(typeobj)
-    return type == "bool" \
-        or type == "char" \
-        or type == "double" \
-        or type == "float" \
-        or type == "int" \
-        or type == "long" or type.startswith("long ") \
-        or type == "short" or type.startswith("short ") \
-        or type == "signed" or type.startswith("signed ") \
-        or type == "unsigned" or type.startswith("unsigned ")
-
+    code = typeobj.code
+    return code == gdb.TYPE_CODE_BOOL \
+        or code == gdb.TYPE_CODE_CHAR \
+        or code == gdb.TYPE_CODE_INT \
+        or code == gdb.TYPE_CODE_FLT \
+        or code == gdb.TYPE_CODE_INT
 
 def isStringType(d, typeobj):
     type = str(typeobj)
@@ -919,19 +911,24 @@ class FrameCommand(gdb.Command):
         super(FrameCommand, self).__init__("bb", gdb.COMMAND_OBSCURE)
 
     def invoke(self, args, from_tty):
-        if args.startswith("options:profile,"):
-            import cProfile
-            cProfile.run('bb("%s")' % args, "/tmp/bbprof")
-            # Examine with:
-            # import bstats
-            # pstats.Stats('bbprof').sort_stats('time').print_stats()
+        if args.startswith("options:profile"):
+            if False:
+                import cProfile
+                cProfile.run('bb("%s")' % args, "/tmp/bbprof")
+                # Examine with:
+                # import bstats
+                # pstats.Stats('bbprof').sort_stats('time').print_stats()
+            if True:
+                import timeit
+                print timeit.repeat('bb("%s")' % args,
+                    'from __main__ import bb', number=100)
         else:
-            bb(args)
+            print bb(args)
 
 FrameCommand()
 
 def bb(args):
-    Dumper(args)
+    return 'data=[' + Dumper(args).output + ']'
 
 
 #######################################################################
@@ -1132,7 +1129,6 @@ class Dumper:
         #listOfBreakpoints(d)
 
         #print('data=[' + locals + sep + watchers + '],bkpts=[' + breakpoints + ']\n')
-        print('data=[' + self.output + ']')
 
 
     def handleWatch(self, exp, iname):
@@ -1436,7 +1432,7 @@ class Dumper:
                     self.putValue(encodeChar4Array(value, 100), Hex8EncodedBigEndian)
                     self.putNumChild(0)
 
-            if (not isHandled) and (str(typedefStrippedType) 
+            if (not isHandled) and (str(typedefStrippedType)
                     .replace("(anonymous namespace)", "").find("(") != -1):
                     # A function pointer.
                     self.putValue(str(item.value))
