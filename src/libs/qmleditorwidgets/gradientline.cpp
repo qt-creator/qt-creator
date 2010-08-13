@@ -289,7 +289,7 @@ void GradientLine::mouseMoveEvent(QMouseEvent *event)
             if ((newStop >=0) && (newStop <= 1))
                 m_stops[currentColorIndex()] = newStop;
             m_yOffset += event->pos().y() - m_dragStart.y();
-            if (m_yOffset > 0 || m_useGradient) { //deleting only in base state
+            if (m_yOffset > 0) { //deleting only in base state
                 m_yOffset = 0;
             } else if ((m_yOffset < - 12) && (currentColorIndex()) != 0 && (currentColorIndex() < m_stops.size() - 1)) {
                 m_yOffset = 0;
