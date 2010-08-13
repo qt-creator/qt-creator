@@ -41,29 +41,17 @@ using namespace CppEditor;
 using namespace CPlusPlus;
 using namespace Utils;
 
-CppRefactoringChanges::CppRefactoringChanges(const Document::Ptr &thisDocument, const Snapshot &snapshot)
-    : m_thisDocument(thisDocument)
-    , m_snapshot(snapshot)
-    , m_context(m_thisDocument, m_snapshot)
+CppRefactoringChanges::CppRefactoringChanges(const Snapshot &snapshot)
+    : m_snapshot(snapshot)
     , m_modelManager(CppTools::CppModelManagerInterface::instance())
 {
     Q_ASSERT(m_modelManager);
     m_workingCopy = m_modelManager->workingCopy();
 }
 
-Document::Ptr CppRefactoringChanges::thisDocument() const
-{
-    return m_thisDocument;
-}
-
 const Snapshot &CppRefactoringChanges::snapshot() const
 {
     return m_snapshot;
-}
-
-const LookupContext &CppRefactoringChanges::context() const
-{
-    return m_context;
 }
 
 CppRefactoringFile CppRefactoringChanges::file(const QString &fileName)

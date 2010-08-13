@@ -102,7 +102,7 @@ CppQuickFixOperation::~CppQuickFixOperation()
 
 void CppQuickFixOperation::perform()
 {
-    CppRefactoringChanges refactoring(_state.document(), _state.snapshot());
+    CppRefactoringChanges refactoring(_state.snapshot());
     CppRefactoringFile current = refactoring.file(fileName());
 
     performChanges(&current, &refactoring);

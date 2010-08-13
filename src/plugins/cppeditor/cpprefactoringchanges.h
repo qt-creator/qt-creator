@@ -82,13 +82,9 @@ private:
 class CPPEDITOR_EXPORT CppRefactoringChanges: public TextEditor::RefactoringChanges
 {
 public:
-    CppRefactoringChanges(const CPlusPlus::Document::Ptr &thisDocument,
-                          const CPlusPlus::Snapshot &snapshot);
+    CppRefactoringChanges(const CPlusPlus::Snapshot &snapshot);
 
-    CPlusPlus::Document::Ptr thisDocument() const;
     const CPlusPlus::Snapshot &snapshot() const;
-    const CPlusPlus::LookupContext &context() const;
-
     CppRefactoringFile file(const QString &fileName);
 
 private:
