@@ -41,7 +41,9 @@
                \o \l{Building and Running an Example Application}
                \o \l{Creating a Qt C++ Application}
                \o \l{Creating a Mobile Application with Nokia Qt SDK}
+               \if defined(qtuick)
                \o \l{Creating a Qt Quick Application}
+               \endif
            \endlist
        \o \l{Managing Projects}
             \list
@@ -424,8 +426,7 @@
     \list
         \o \gui{\l{Using the Editor}{Edit}} mode for editing project and source files.
         \o \gui{\l{Developing Application UI}{Design}} mode for designing and developing
-           application user interfaces. This mode is available for UI files (.ui or
-           .qml).
+           application user interfaces. This mode is available for UI files.
         \o \gui{\l{Debugging}{Debug}} mode for inspecting the state of your program while
            debugging.
         \o \gui{\l{Managing Projects}{Projects}} mode for configuring project building and
@@ -723,6 +724,7 @@
     For more information on \QD, see
     \l{http://doc.qt.nokia.com/4.7-snapshot/designer-manual.html}{Qt Designer Manual}.
 
+    \if defined(qtquick)
     \section1 Using Qt Quick Designer
 
     You can edit .qml files in the visual \QMLD editor or in the
@@ -763,6 +765,7 @@
     the base state.
 
     \endlist
+    \endif
 
 */
 
@@ -1429,7 +1432,7 @@
     The instances of the symbol are highlighted in code and you can edit the
     symbol. All instances of the local symbol are changed as you type.
 
-    To rename an ID in a Qt Quick project:
+    To rename an ID in a QML file:
 
     \list 1
 
@@ -1546,8 +1549,14 @@
 
     \title Creating a Project
 
+    \if defined(qtquick)
     You use wizards to create and import several types of projects and files, such
     as Qt GUI or console applications and Qt Quick applications.
+    \else
+    You use wizards to create and import several types of projects and files, such
+    as Qt GUI or console applications.
+    \endif
+
     You can also use
     wizards to add individual files to your projects. For example, you can create
     the following types of files:
@@ -2501,8 +2510,10 @@
     Qt Creator automatically creates run configurations for your project.
     To view and modify the settings, select \gui {Projects > Run}.
 
+    \if defined(qtquick)
     The settings to specify depend on the type of the project: qmake project
     or Qt Quick project.
+    \endif
 
     Click \gui Add to add run settings for a project and \gui Remove to remove
     the current settings.
@@ -2562,6 +2573,7 @@
 
     \image qmldesigner-run-custom-exe.png "Run settings for custom executables"
 
+    \if defined(qtquick)
     \section1 Specifying Run Settings for Qt Quick Projects
 
     Select run settings in the \gui {Run configuration} field. The settings
@@ -2592,6 +2604,7 @@
 
     \image qmldesigner-run-settings.png "Run settings for Qt Quick projects"
 
+    \endif
 */
 
 
@@ -2655,7 +2668,9 @@
         \o \l{Building and Running an Example Application}
         \o \l{Creating a Qt C++ Application}
         \o \l{Creating a Mobile Application with Nokia Qt SDK}
+        \if defined(qtquick)
         \o \l{Creating a Qt Quick Application}
+        \endif
     \endlist
 
 */
@@ -2977,6 +2992,8 @@
 
 
 /*!
+    \if defined(qtquick)
+
     \contentspage index.html
     \previouspage creator-mobile-example.html
     \page creator-qml-application.html
@@ -3097,6 +3114,7 @@
 
     \image qmldesigner-helloworld-edited.png "Hello World in blue and white"
 
+    \endif
 */
 
 
@@ -5140,8 +5158,8 @@
 */
 
 
-
 /*!
+    \if defined(qtquick)
 
     \contentspage index.html
     \previouspage adding-plugins.html
@@ -5178,10 +5196,12 @@
     \gui {Help > About Plugins... > Qt Quick > QmlDesigner}. You must restart Qt Creator
     to enable or disable the visual editor.
 
+    \endif
 */
 
 
 /*!
+    \if defined(qtquick)
 
     \contentspage index.html
     \previouspage creator-visual-editor.html
@@ -5218,10 +5238,12 @@
     To import a QML project to Qt Creator, select
     \gui {File > New File or Project > Qt Quick Project > Import Existing Qt QML Directory}.
 
+    \endif
 */
 
 
 /*!
+    \if defined(qtquick)
 
     \contentspage index.html
     \previouspage quick-projects.html
@@ -5259,10 +5281,12 @@
 
     \endlist
 
+    \endif
 */
 
 
 /*!
+    \if defined(qtquick)
 
     \contentspage index.html
     \previouspage quick-components.html
@@ -5293,10 +5317,12 @@
     their properties and behavior and the available actions. For example, you can use
     states to create two screens.
 
+    \endif
 */
 
 
 /*!
+    \if defined(qtquick)
 
     \contentspage index.html
     \previouspage quick-screens.html
@@ -5317,11 +5343,13 @@
     You can use the code editor to specify transitions. For more information, see
     \l{http://doc.qt.nokia.com/4.7-snapshot/qml-transition.html}{QML Transition Element}.
 
+    \endif
 */
 
 
 
 /*!
+    \if defined(qtquick)
 
     \contentspage index.html
     \previouspage quick-animations.html
@@ -5346,10 +5374,12 @@
 
     \endlist
 
+    \endif
 */
 
 
 /*!
+    \if defined(qtquick)
 
     \contentspage index.html
     \previouspage quick-user-interaction.html
@@ -5366,6 +5396,7 @@
     For an example of how to use JavaScript to develop a game, see the
     \l {http://doc.qt.nokia.com/4.7-snapshot/qml-advtutorial.html} {QML Advanced Tutorial}.
 
+    \endif
  */
 
 

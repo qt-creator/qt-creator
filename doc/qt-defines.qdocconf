@@ -10,8 +10,7 @@ defines                 = Q_QDOC \
                           Q_BYTE_ORDER \
 			  QT_DEPRECATED \
                           Q_NO_USING_KEYWORD \
-                          __cplusplus \
-                          qtquick
+                          __cplusplus
 
 versionsym              = QT_VERSION_STR
 

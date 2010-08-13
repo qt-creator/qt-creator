@@ -35,20 +35,25 @@ SUBDIRS   = plugin_coreplugin \
             plugin_mercurial \
             debugger/dumper.pro
 
-contains(QT_CONFIG, declarative) {
+SUPPORT_QT_QML = $$(QTCREATOR_WITH_QML)
 
+contains(QT_CONFIG, declarative) {
     SUBDIRS += plugin_qmlprojectmanager
 
-    include(private_headers.pri)
-    exists($${QT_PRIVATE_HEADERS}/QtDeclarative/private/qdeclarativecontext_p.h) {
-        SUBDIRS += plugin_qmldesigner \
-                   plugin_qmlinspector
-    } else {
-        warning()
-        warning("QmlDesigner and QmlInspector plugins have been disabled")
-        warning("The plugins depend on on private headers from QtDeclarative module.")
-        warning("To enable them, pass 'QT_PRIVATE_HEADERS=$QTDIR/include' to qmake, where $QTDIR is the source directory of qt.")
-        warning()
+    !isEmpty(SUPPORT_QT_QML) {
+        message("Adding support for QmlDesigner, QmlInspector and Qml wizards.")
+
+        include(private_headers.pri)
+        exists($${QT_PRIVATE_HEADERS}/QtDeclarative/private/qdeclarativecontext_p.h) {
+            SUBDIRS += plugin_qmldesigner \
+                       plugin_qmlinspector
+        } else {
+            warning()
+            warning("QmlDesigner and QmlInspector plugins have been disabled")
+            warning("The plugins depend on on private headers from QtDeclarative module.")
+            warning("To enable them, pass 'QT_PRIVATE_HEADERS=$QTDIR/include' to qmake, where $QTDIR is the source directory of qt.")
+            warning()
+        }
     }
 }
 
