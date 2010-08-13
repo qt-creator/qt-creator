@@ -50,6 +50,7 @@ public:
 private:
     Task::TaskType toType(int number);
     QRegExp m_compileRegExp;
+    QRegExp m_additionalInfoRegExp;
     QRegExp m_linkRegExp;
 };
 

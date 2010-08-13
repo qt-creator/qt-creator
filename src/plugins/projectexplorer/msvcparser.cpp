@@ -30,13 +30,19 @@
 #include "msvcparser.h"
 #include "projectexplorerconstants.h"
 
+namespace {
+const char * const FILE_POS_PATTERN = "([^\\(]+)\\((\\d+)\\)\\s:";
+}
+
 using namespace ProjectExplorer;
 
 MsvcParser::MsvcParser()
 {
-    m_compileRegExp.setPattern("^([^\\(]+)\\((\\d+)\\)+\\s:([^:\\d]+)\\s([A-Z]+(\\d+):.*)$");
+    m_compileRegExp.setPattern(QString::fromLatin1("^") + QLatin1String(FILE_POS_PATTERN) + QLatin1String("([^:\\d]+)\\s([A-Z]+(\\d+):.*)$"));
     m_compileRegExp.setMinimal(true);
-    m_linkRegExp.setPattern("^([^\\(]+)\\s:[^:\\d]+(\\d+):(.*)$");
+    m_additionalInfoRegExp.setPattern(QString::fromLatin1("^        ") + QLatin1String(FILE_POS_PATTERN) + QLatin1String("\\s(.*)$"));
+    m_additionalInfoRegExp.setMinimal(true);
+    m_linkRegExp.setPattern(QString::fromLatin1("^") + QLatin1String(FILE_POS_PATTERN) + QLatin1String("[^:\\d]+(\\d+):(.*)$"));
     m_linkRegExp.setMinimal(true);
 }
 
@@ -56,6 +62,14 @@ void MsvcParser::stdOutput(const QString &line)
         else
             task.type = toType(m_compileRegExp.cap(5).toInt());
         addTask(task);
+        return;
+    }
+    if (m_additionalInfoRegExp.indexIn(line) > -1 && m_additionalInfoRegExp.numCaptures() == 3) {
+        addTask(Task(Task::Unknown,
+                     m_additionalInfoRegExp.cap(3),
+                     m_additionalInfoRegExp.cap(1),
+                     m_additionalInfoRegExp.cap(2).toInt(),
+                     Constants::TASK_CATEGORY_COMPILE));
         return;
     }
     if (m_linkRegExp.indexIn(lne) > -1 && m_linkRegExp.numCaptures() == 3) {
@@ -133,6 +147,22 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
                                                        QLatin1String("C4100: 'something' : unreferenced formal parameter"),
                                                        QLatin1String("x:\\src\\plugins\\projectexplorer\\msvcparser.cpp"), 69,
                                                        QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
+            << QString();
+
+    QTest::newRow("additional information")
+            << QString::fromLatin1("x:\\src\\plugins\\texteditor\\icompletioncollector.h(50) : warning C4099: 'TextEditor::CompletionItem' : type name first seen using 'struct' now seen using 'class'\n"
+                                   "        x:\\src\\plugins\\texteditor\\completionsupport.h(39) : see declaration of 'TextEditor::CompletionItem'")
+            << OutputParserTester::STDOUT
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Warning,
+                        QLatin1String("C4099: 'TextEditor::CompletionItem' : type name first seen using 'struct' now seen using 'class'"),
+                        QLatin1String("x:\\src\\plugins\\texteditor\\icompletioncollector.h"), 50,
+                        QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
+                << Task(Task::Unknown,
+                        QLatin1String("see declaration of 'TextEditor::CompletionItem'"),
+                        QLatin1String("x:\\src\\plugins\\texteditor\\completionsupport.h"), 39,
+                        QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
             << QString();
 
 }
