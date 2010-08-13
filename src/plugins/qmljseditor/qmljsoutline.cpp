@@ -67,6 +67,7 @@ QmlJSOutlineWidget::QmlJSOutlineWidget(QWidget *parent) :
     TextEditor::IOutlineWidget(parent),
     m_treeView(new QmlJSOutlineTreeView(this)),
     m_filterModel(new QmlJSOutlineFilterModel(this)),
+    m_editor(0),
     m_enableCursorSync(true),
     m_blockCursorSync(false)
 {
@@ -93,15 +94,15 @@ void QmlJSOutlineWidget::setEditor(QmlJSTextEditor *editor)
 {
     m_editor = editor;
 
-    m_filterModel->setSourceModel(m_editor.data()->outlineModel());
+    m_filterModel->setSourceModel(m_editor->outlineModel());
     modelUpdated();
 
     connect(m_treeView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(updateSelectionInText(QItemSelection)));
 
-    connect(m_editor.data(), SIGNAL(outlineModelIndexChanged(QModelIndex)),
+    connect(m_editor, SIGNAL(outlineModelIndexChanged(QModelIndex)),
             this, SLOT(updateSelectionInTree(QModelIndex)));
-    connect(m_editor.data()->outlineModel(), SIGNAL(updated()),
+    connect(m_editor->outlineModel(), SIGNAL(updated()),
             this, SLOT(modelUpdated()));
 }
 
@@ -116,7 +117,7 @@ void QmlJSOutlineWidget::setCursorSynchronization(bool syncWithCursor)
 {
     m_enableCursorSync = syncWithCursor;
     if (m_enableCursorSync)
-        updateSelectionInTree(m_editor.data()->outlineModelIndex());
+        updateSelectionInTree(m_editor->outlineModelIndex());
 }
 
 void QmlJSOutlineWidget::restoreSettings(int position)
@@ -163,11 +164,11 @@ void QmlJSOutlineWidget::updateSelectionInText(const QItemSelection &selection)
         editorManager->cutForwardNavigationHistory();
         editorManager->addCurrentPositionToNavigationHistory();
 
-        QTextCursor textCursor = m_editor.data()->textCursor();
+        QTextCursor textCursor = m_editor->textCursor();
         m_blockCursorSync = true;
         textCursor.setPosition(location.offset);
-        m_editor.data()->setTextCursor(textCursor);
-        m_editor.data()->centerCursor();
+        m_editor->setTextCursor(textCursor);
+        m_editor->centerCursor();
         m_blockCursorSync = false;
     }
 }

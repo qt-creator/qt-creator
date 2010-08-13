@@ -62,7 +62,7 @@ private:
 private:
     QmlJSOutlineTreeView *m_treeView;
     QmlJSOutlineFilterModel *m_filterModel;
-    QWeakPointer<QmlJSTextEditor> m_editor;
+    QmlJSTextEditor *m_editor;
 
     QAction *m_showBindingsAction;
 
