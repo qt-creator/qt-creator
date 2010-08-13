@@ -1862,15 +1862,23 @@ bool Bind::visit(ParameterDeclarationAST *ast)
 
 bool Bind::visit(TemplateDeclarationAST *ast)
 {
-    // unsigned export_token = ast->export_token;
-    // unsigned template_token = ast->template_token;
-    // unsigned less_token = ast->less_token;
+    Template *templ = control()->newTemplate(ast->firstToken(), 0);
+    ast->symbol = templ;
+    Scope *previousScope = switchScope(templ);
+
     for (DeclarationListAST *it = ast->template_parameter_list; it; it = it->next) {
         this->declaration(it->value);
     }
     // unsigned greater_token = ast->greater_token;
     this->declaration(ast->declaration);
-    // Template *symbol = ast->symbol;
+    (void) switchScope(previousScope);
+
+    if (Symbol *decl = templ->declaration()) {
+        templ->setSourceLocation(decl->sourceLocation(), translationUnit());
+        templ->setName(decl->name());
+    }
+
+    _scope->addMember(templ);
     return false;
 }
 
