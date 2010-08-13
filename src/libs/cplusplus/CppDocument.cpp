@@ -31,6 +31,7 @@
 #include "FastPreprocessor.h"
 #include "LookupContext.h"
 #include "Overview.h"
+#include "Bind.h"
 
 #include <Control.h>
 #include <TranslationUnit.h>
@@ -545,21 +546,18 @@ void Document::check(CheckMode mode)
     if (! isParsed())
         parse();
 
-    Semantic semantic(_translationUnit);
+    _globalNamespace = _control->newNamespace(0);
+    Bind semantic(_translationUnit);
     if (mode == FastCheck)
         semantic.setSkipFunctionBodies(true);
 
-    _globalNamespace = _control->newNamespace(0);
-    Scope *globals = _globalNamespace;
     if (! _translationUnit->ast())
         return; // nothing to do.
 
     if (TranslationUnitAST *ast = _translationUnit->ast()->asTranslationUnit()) {
-        for (DeclarationListAST *decl = ast->declaration_list; decl; decl = decl->next) {
-            semantic.check(decl->value, globals);
-        }
+        semantic(ast, _globalNamespace);
     } else if (ExpressionAST *ast = _translationUnit->ast()->asExpression()) {
-        semantic.check(ast, globals);
+        semantic(ast, _globalNamespace);
     }
 }
 
