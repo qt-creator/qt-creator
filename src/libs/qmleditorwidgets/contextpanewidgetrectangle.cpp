@@ -31,6 +31,7 @@
 #include "ui_contextpanewidgetrectangle.h"
 #include "contextpanewidget.h"
 #include <qmljs/qmljspropertyreader.h>
+#include <qmljs/qmljscheck.h>
 #include <customcolordialog.h>
 #include <QDebug>
 
@@ -79,7 +80,7 @@ void ContextPaneWidgetRectangle::setProperties(QmlJS::PropertyReader *propertyRe
 
     if (propertyReader->hasProperty(QLatin1String("color"))) {
         QString str = propertyReader->readProperty("color").toString();
-        if (QColor(str).alpha() == 0)
+        if (QmlJS::toQColor(str).alpha() == 0)
             m_none = true;
         ui->colorColorButton->setColor(str);
 

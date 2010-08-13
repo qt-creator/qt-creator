@@ -30,6 +30,7 @@
 #include "qmljspropertyreader.h"
 #include "qmljsdocument.h"
 #include <qmljs/parser/qmljsast_p.h>
+#include <qmljs/qmljscheck.h>
 
 namespace QmlJS {
 
@@ -265,7 +266,7 @@ QLinearGradient PropertyReader::parseGradient(const QString &propertyName,  bool
                     if (UiObjectDefinition *objectDefinition = cast<UiObjectDefinition *>(member)) {
                         PropertyReader localParser(m_doc, objectDefinition->initializer);
                         if (localParser.hasProperty("color") && localParser.hasProperty("position")) {
-                            QColor color = localParser.readProperty("color").value<QColor>();
+                            QColor color = QmlJS::toQColor(localParser.readProperty("color").toString());
                             qreal position = localParser.readProperty("position").toReal();
                             if (localParser.isBindingOrEnum("color") || localParser.isBindingOrEnum("position"))
                                 *isBound = true;
