@@ -56,7 +56,7 @@ MaemoProFileWrapper::InstallsList MaemoProFileWrapper::installs() const
 
         const QStringList &files
             = m_proFileReader->absoluteFileValues(filesVar(elem),
-                  m_proDir.path(), QStringList() << m_proDir.path(), m_proFile);
+                  m_proDir.path(), QStringList() << m_proDir.path(), 0);
 
         if (elem == TargetVar) {
             if (!list.targetPath.isEmpty()) {
@@ -135,7 +135,7 @@ bool MaemoProFileWrapper::replaceInstallPath(const QString &oldPath,
 
 QStringList MaemoProFileWrapper::varValues(const QString &var) const
 {
-    return m_proFileReader->values(var, m_proFile);
+    return m_proFileReader->values(var);
 }
 
 bool MaemoProFileWrapper::addVarValue(const QString &var, const QString &value)
