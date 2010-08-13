@@ -43,9 +43,7 @@ MsvcParser::MsvcParser()
 void MsvcParser::stdOutput(const QString &line)
 {
     QString lne = line.trimmed();
-    qDebug() << "LINE:" << lne;
     if (m_compileRegExp.indexIn(lne) > -1 && m_compileRegExp.numCaptures() == 5) {
-        qDebug() << "     MATCHED compileRegExp!";
         Task task(Task::Unknown,
                   m_compileRegExp.cap(4) /* description */,
                   m_compileRegExp.cap(1) /* filename */,
@@ -61,7 +59,6 @@ void MsvcParser::stdOutput(const QString &line)
         return;
     }
     if (m_linkRegExp.indexIn(lne) > -1 && m_linkRegExp.numCaptures() == 3) {
-        qDebug() << "     MATCHED linkRegExp!";
         QString fileName = m_linkRegExp.cap(1);
         if (fileName.contains(QLatin1String("LINK"), Qt::CaseSensitive))
             fileName.clear();
