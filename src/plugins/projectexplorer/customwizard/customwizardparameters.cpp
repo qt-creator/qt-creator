@@ -48,6 +48,7 @@ static const char customWizardElementC[] = "wizard";
 static const char iconElementC[] = "icon";
 static const char descriptionElementC[] = "description";
 static const char displayNameElementC[] = "displayname";
+static const char wizardEnabledAttributeC[] = "enabled";
 static const char idAttributeC[] = "id";
 static const char kindAttributeC[] = "kind";
 static const char klassAttributeC[] = "class";
@@ -329,9 +330,13 @@ static inline QString msgError(const QXmlStreamReader &reader,
             arg(fileName).arg(reader.lineNumber()).arg(reader.columnNumber()).arg(what);
 }
 
-static inline bool booleanAttributeValue(const QXmlStreamReader &r, const char *name)
+static inline bool booleanAttributeValue(const QXmlStreamReader &r, const char *nameC,
+                                         bool defaultValue)
 {
-    return r.attributes().value(QLatin1String(name)) == QLatin1String("true");
+    const QStringRef attributeValue = r.attributes().value(QLatin1String(nameC));
+    if (attributeValue.isEmpty())
+        return defaultValue;
+    return attributeValue == QLatin1String("true");
 }
 
 static inline int integerAttributeValue(const QXmlStreamReader &r, const char *name, int defaultValue)
@@ -368,7 +373,8 @@ static inline QString localeLanguage()
 }
 
 // Main parsing routine
-bool CustomWizardParameters::parse(QIODevice &device,
+CustomWizardParameters::ParseResult
+     CustomWizardParameters::parse(QIODevice &device,
                                    const QString &configFileFullPath,
                                    Core::BaseFileWizardParameters *bp,
                                    QString *errorMessage)
@@ -386,7 +392,7 @@ bool CustomWizardParameters::parse(QIODevice &device,
         switch (token) {
         case QXmlStreamReader::Invalid:
             *errorMessage = msgError(reader, configFileFullPath, reader.errorString());
-            return false;
+            return ParseFailed;
         case QXmlStreamReader::StartElement:
             do {
                 // Read out subelements applicable to current state
@@ -401,8 +407,10 @@ bool CustomWizardParameters::parse(QIODevice &device,
                 case ParseError:
                     *errorMessage = msgError(reader, configFileFullPath,
                                              QString::fromLatin1("Unexpected start element %1").arg(reader.name().toString()));
-                    return false;
+                    return ParseFailed;
                 case ParseWithinWizard:
+                    if (!booleanAttributeValue(reader, wizardEnabledAttributeC, true))
+                        return ParseDisabled;
                     bp->setId(attributeValue(reader, idAttributeC));
                     bp->setCategory(attributeValue(reader, categoryAttributeC));
                     bp->setKind(kindAttribute(reader));
@@ -411,14 +419,14 @@ bool CustomWizardParameters::parse(QIODevice &device,
                     break;
                 case ParseWithinField: // field attribute
                     field.name = attributeValue(reader, fieldNameAttributeC);
-                    field.mandatory = booleanAttributeValue(reader, fieldMandatoryAttributeC);
+                    field.mandatory = booleanAttributeValue(reader, fieldMandatoryAttributeC, false);
                     break;
                 case ParseWithinFile: { // file attribute
                         CustomWizardFile file;
                         file.source = attributeValue(reader, fileNameSourceAttributeC);
                         file.target = attributeValue(reader, fileNameTargetAttributeC);
-                        file.openEditor = booleanAttributeValue(reader, fileNameOpenEditorAttributeC);
-                        file.openProject = booleanAttributeValue(reader, fileNameOpenProjectAttributeC);
+                        file.openEditor = booleanAttributeValue(reader, fileNameOpenEditorAttributeC, false);
+                        file.openProject = booleanAttributeValue(reader, fileNameOpenProjectAttributeC, false);
                         if (file.target.isEmpty())
                             file.target = file.source;
                         if (file.source.isEmpty()) {
@@ -438,7 +446,7 @@ bool CustomWizardParameters::parse(QIODevice &device,
             if (state == ParseError) {
                 *errorMessage = msgError(reader, configFileFullPath,
                                          QString::fromLatin1("Unexpected end element %1").arg(reader.name().toString()));
-                return false;
+                return ParseFailed;
             }
             if (state == ParseWithinFields) { // Leaving a field element
                 fields.push_back(field);
@@ -449,17 +457,18 @@ bool CustomWizardParameters::parse(QIODevice &device,
             break;
         }
     } while (token != QXmlStreamReader::EndDocument);
-    return true;
+    return ParseOk;
 }
 
-bool CustomWizardParameters::parse(const QString &configFileFullPath,
+CustomWizardParameters::ParseResult
+     CustomWizardParameters::parse(const QString &configFileFullPath,
                                    Core::BaseFileWizardParameters *bp,
                                    QString *errorMessage)
 {
     QFile configFile(configFileFullPath);
     if (!configFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
         *errorMessage = QString::fromLatin1("Cannot open %1: %2").arg(configFileFullPath, configFile.errorString());
-        return false;
+        return ParseFailed;
     }
     return parse(configFile, configFileFullPath, bp, errorMessage);
 }
