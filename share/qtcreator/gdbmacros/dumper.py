@@ -1376,7 +1376,9 @@ class Dumper:
             #self.putAddress(value.address)
             self.putType(item.value.type)
             if hasMetaObject:
-                qdump__QObject(self, item)
+                # value has references stripped off item.value.
+                item1 = Item(value, item.iname)
+                qdump__QObject(self, item1)
             else:
                 qqDumpers[nsStrippedType](self, item)
             #warn(" RESULT: %s " % self.output)
