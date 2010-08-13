@@ -2186,6 +2186,8 @@ bool Bind::visit(ClassSpecifierAST *ast)
     }
 
     Class *klass = control()->newClass(sourceLocation, className);
+    _scope->addMember(klass);
+
     _type.setType(klass);
 
     Scope *previousScope = switchScope(klass);
