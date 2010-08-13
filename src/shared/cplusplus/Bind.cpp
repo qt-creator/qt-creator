@@ -953,7 +953,6 @@ ObjCMethod *Bind::objCMethodPrototype(ObjCMethodPrototypeAST *ast)
     if (isObjCClassMethod(tokenKind(ast->method_type_token)))
         method->setStorage(Symbol::Static);
     method->setVisibility(_objcVisibility);
-    _scope->addMember(method);
     ast->symbol = method;
 
     Scope *previousScope = switchScope(method);
@@ -969,7 +968,7 @@ ObjCMethod *Bind::objCMethodPrototype(ObjCMethodPrototypeAST *ast)
     for (SpecifierListAST *it = ast->attribute_list; it; it = it->next) {
         specifiers = this->specifier(it->value, specifiers);
     }
-    setDeclSpecifiers(method, specifiers);
+    //setDeclSpecifiers(method, specifiers);
 
     return method;
 }
@@ -2285,10 +2284,17 @@ bool Bind::visit(ObjCMethodDeclarationAST *ast)
 {
     ObjCMethod *method = this->objCMethodPrototype(ast->method_prototype);
 
-    if (! _skipFunctionBodies && ast->function_body) {
+    if (! ast->function_body) {
+        const Name *name = method->name();
+        unsigned sourceLocation = ast->firstToken();
+        Declaration *decl = control()->newDeclaration(sourceLocation, name);
+        decl->setType(method);
+        _scope->addMember(decl);
+    } else if (! _skipFunctionBodies && ast->function_body) {
         Scope *previousScope = switchScope(method);
         this->statement(ast->function_body);
         (void) switchScope(previousScope);
+        _scope->addMember(method);
     }
 
     return false;

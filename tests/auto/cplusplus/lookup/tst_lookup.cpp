@@ -334,19 +334,25 @@ void tst_Lookup::iface_impl_scoping()
     QCOMPARE(method1Impl->identifier()->chars(), "method1");
 
     // get the body of method1
-    QCOMPARE(method1Impl->memberCount(), 1U);
-    Block *method1Body = method1Impl->memberAt(0)->asBlock();
+    QCOMPARE(method1Impl->memberCount(), 2U);
+    Argument *method1Arg = method1Impl->memberAt(0)->asArgument();
+    QVERIFY(method1Arg);
+    QCOMPARE(method1Arg->identifier()->chars(), "arg");
+    QVERIFY(method1Arg->type()->isIntegerType());
+
+    Block *method1Body = method1Impl->memberAt(1)->asBlock();
     QVERIFY(method1Body);
 
     const LookupContext context(doc, snapshot);
 
     { // verify if we can resolve "arg" in the body
-        QCOMPARE(method1Impl->argumentCount(), 1U);
+        QCOMPARE(method1Impl->argumentCount(), 2U);
         Argument *arg = method1Impl->argumentAt(0)->asArgument();
         QVERIFY(arg);
         QVERIFY(arg->name());
         QVERIFY(arg->name()->identifier());
         QCOMPARE(arg->name()->identifier()->chars(), "arg");
+        QVERIFY(arg->type()->isIntegerType());
 
         const QList<LookupItem> candidates = context.lookup(arg->name(), method1Body->scope());
         QCOMPARE(candidates.size(), 1);

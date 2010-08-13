@@ -565,7 +565,7 @@ void tst_Semantic::objcSelector_1()
 {
     QSharedPointer<Document> doc = document("\n"
                                             "@interface A {}\n"
-                                            "-(void)a:(int)a b:(int)b c:(int)c;\n"
+                                            "-(void) a:(int)a    b:(int)b c:(int)c;\n"
                                             "@end\n",
                                             true);
 
