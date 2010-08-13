@@ -160,7 +160,11 @@ void MaemoPackageCreationWidget::setPackageManagerIcon()
 
 QString MaemoPackageCreationWidget::summaryText() const
 {
-    return tr("<b>Create Package:</b> ") + QDir::toNativeSeparators(m_step->packageFilePath());
+    const QString constantString = tr("<b>Create Package:</b> ");
+    const QString dynamicString = m_step->isPackagingEnabled()
+        ? QDir::toNativeSeparators(m_step->packageFilePath())
+        : tr("(Packaging disabled)");
+    return constantString + dynamicString;
 }
 
 QString MaemoPackageCreationWidget::displayName() const
@@ -176,6 +180,7 @@ void MaemoPackageCreationWidget::handleSkipButtonToggled(bool checked)
     m_ui->debianFilesComboBox->setEnabled(!checked);
     m_ui->editDebianFileButton->setEnabled(!checked);
     m_step->setPackagingEnabled(!checked);
+    emit updateSummary();
 }
 
 void MaemoPackageCreationWidget::versionInfoChanged()
