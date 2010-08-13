@@ -711,8 +711,12 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
 
     m_modelManager = ExtensionSystem::PluginManager::instance()->getObject<ModelManagerInterface>();
     m_contextPane = ExtensionSystem::PluginManager::instance()->getObject<QmlJS::IContextPane>();
-    if (m_contextPane)
+
+
+    if (m_contextPane) {
         connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(onCursorPositionChanged()));
+        connect(m_contextPane, SIGNAL(closed()), this, SLOT(showTextMarker()));
+    }
     m_oldCursorPosition = -1;
 
     if (m_modelManager) {
@@ -975,9 +979,18 @@ void QmlJSTextEditor::updateCursorPositionNow()
                 }
             }
             setRefactorMarkers(markers);
+        } else {
+            QList<TextEditor::Internal::RefactorMarker> markers;
+            setRefactorMarkers(markers);
         }
         m_oldCursorPosition = position();
     }
+}
+
+void QmlJSTextEditor::showTextMarker()
+{
+    m_oldCursorPosition = -1;
+    updateCursorPositionNow();
 }
 
 void QmlJSTextEditor::updateUses()
@@ -1695,6 +1708,7 @@ void QmlJSTextEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
         Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
         if (newNode) {
             m_contextPane->apply(editableInterface(), doc, m_semanticInfo.snapshot, newNode, true);
+            showTextMarker();
         }
     }
 

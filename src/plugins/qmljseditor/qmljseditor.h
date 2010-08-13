@@ -244,6 +244,7 @@ private slots:
     void updateOutlineNow();
     void updateOutlineIndexNow();
     void updateCursorPositionNow();
+    void showTextMarker();
     void updateFileName();
 
     void updateUses();
