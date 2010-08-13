@@ -958,14 +958,13 @@ void QmlJSTextEditor::updateCursorPositionNow()
         document()->revision() == semanticInfo().document->editorRevision()) {
         Node *oldNode = m_semanticInfo.declaringMemberNoProperties(m_oldCursorPosition);
         Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
-        if (oldNode != newNode)
+        if (oldNode != newNode && m_oldCursorPosition != -1)
             m_contextPane->apply(editableInterface(), m_semanticInfo.document, m_semanticInfo.snapshot, newNode, false);
         if (oldNode != newNode &&
             m_contextPane->isAvailable(editableInterface(), m_semanticInfo.document, m_semanticInfo.snapshot, newNode) &&
             !m_contextPane->widget()->isVisible()) {
             QList<TextEditor::Internal::RefactorMarker> markers;
             if (UiObjectMember *m = newNode->uiObjectMemberCast()) {
-                //const int start = m->firstSourceLocation().begin(); ### we consider moving the icon to the front
                 for (UiQualifiedId *q = qualifiedTypeNameId(m); q; q = q->next) {
                     if (! q->next) {
                         const int end = q->identifierToken.end();
