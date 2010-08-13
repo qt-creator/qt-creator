@@ -110,8 +110,9 @@ void Bind::setDeclSpecifiers(Symbol *symbol, const FullySpecifiedType &declSpeci
     symbol->setStorage(storage);
 
     if (Function *funTy = symbol->asFunction()) {
-        if (declSpecifiers.isVirtual())
+        if (declSpecifiers.isVirtual()) {
             funTy->setVirtual(true);
+        }
     }
 
     if (declSpecifiers.isDeprecated())
@@ -1723,6 +1724,7 @@ bool Bind::visit(SimpleDeclarationAST *ast)
         setDeclSpecifiers(decl, type);
 
         if (Function *fun = decl->type()->asFunctionType()) {
+            setDeclSpecifiers(fun, type);
             if (declaratorId && declaratorId->name)
                 fun->setName(declaratorId->name->name); // update the function name
         }
@@ -1862,18 +1864,18 @@ bool Bind::visit(ExceptionDeclarationAST *ast)
 bool Bind::visit(FunctionDefinitionAST *ast)
 {
     // unsigned qt_invokable_token = ast->qt_invokable_token;
-    FullySpecifiedType type;
+    FullySpecifiedType declSpecifiers;
     for (SpecifierListAST *it = ast->decl_specifier_list; it; it = it->next) {
-        type = this->specifier(it->value, type);
+        declSpecifiers = this->specifier(it->value, declSpecifiers);
     }
     DeclaratorIdAST *declaratorId = 0;
-    type = this->declarator(ast->declarator, type, &declaratorId);
+    FullySpecifiedType type = this->declarator(ast->declarator, declSpecifiers.qualifiedType(), &declaratorId);
 
     Function *fun = type->asFunctionType();
     ast->symbol = fun;
 
     if (fun) {
-        setDeclSpecifiers(fun, type);
+        setDeclSpecifiers(fun, declSpecifiers);
 
         if (_scope->isClass()) {
             fun->setVisibility(_visibility);
