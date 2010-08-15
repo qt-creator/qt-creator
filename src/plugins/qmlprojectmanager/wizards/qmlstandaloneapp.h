@@ -51,21 +51,28 @@ public:
 
     enum Path {
         MainQml,
+        MainQmlDeployed,
+        MainQmlOrigin,
         MainCpp,
+        MainCppOrigin,
+        MainCppProFileRelative,
         AppProfile,
-        AppPri,
+        AppProfileOrigin,
         AppProfilePath,
+        AppPri,
+        AppPriOrigin,
+        AppPriProFileRelative,
         AppViewerCpp,
+        AppViewerCppOrigin,
+        AppViewerCppProFileRelative,
         AppViewerH,
+        AppViewerHOrigin,
+        AppViewerHProFileRelative,
         SymbianSvgIcon,
-        QmlDir
-    };
-
-    enum Location {
-        Source,
-        Target,
-        AppProfileRelative,
-        MainCppRelative
+        SymbianSvgIconOrigin,
+        SymbianSvgIconProFileRelative,
+        QmlDir,
+        QmlDirProFileRelative
     };
 
     QmlStandaloneApp();
@@ -92,7 +99,7 @@ public:
 #else
     bool generateFiles(QString *errorMessage) const;
 #endif // CREATORLESSTEST
-    QString path(Path path, Location location) const;
+    QString path(Path path) const;
     bool useExistingMainQml() const;
 
 private:
