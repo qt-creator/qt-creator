@@ -30,8 +30,9 @@
 #ifndef QMLSTANDALONEAPP_H
 #define QMLSTANDALONEAPP_H
 
-#include <QtCore/QString>
+#include <QtCore/QStringList>
 #include <QtCore/QFileInfo>
+#include <QtCore/QHash>
 
 #ifndef CREATORLESSTEST
 #include <coreplugin/basefilewizard.h>
@@ -40,7 +41,42 @@
 namespace QmlProjectManager {
 namespace Internal {
 
-class QmlStandaloneApp
+class QmlStandaloneApp;
+
+struct QmlModule
+{
+    enum Location {
+        // Example: Module "com.foo.bar" in "c:/modules/".
+        // "qmldir" file is in "c:/modules/com/foo/bar/".
+        // Application .pro file is "c:/app/app.pro".
+        Root,                   // "c:/modules/" (absolute)
+        ContentDir,             // "../modules/com/foo/bar" (relative form .pro file)
+        ContentBase,            // "com/foo/"
+        DeployedContentBase     // "<qmlmodules>/com/foo" (on deploy target)
+    };
+
+    QmlModule(const QString &name, const QFileInfo &rootDir, const QFileInfo &qmldir,
+              bool isExternal, QmlStandaloneApp *qmlStandaloneApp);
+    QString path(Location location) const;
+    const QString name;             // "com.foo.bar"
+    const QFileInfo rootDir;        // Location of "com/"
+    const QFileInfo qmldir;         // 'qmldir' file.
+    const bool isExternal;          // Either external or inside a source paths
+    const QmlStandaloneApp *qmlStandaloneApp;
+    QHash<QString, struct QmlCppPlugin*> cppPlugins;   // Just as info. No ownership.
+};
+
+struct QmlCppPlugin
+{
+    QmlCppPlugin(const QString &name, const QFileInfo &path,
+                 const QmlModule *module, const QFileInfo &proFile);
+    const QString name;             // Original name
+    const QFileInfo path;           // Plugin path where qmldir points to
+    const QmlModule *module;
+    const QFileInfo proFile;        // .pro file for the plugin
+};
+
+class QmlStandaloneApp: public QObject
 {
 public:
     enum Orientation {
@@ -72,10 +108,12 @@ public:
         SymbianSvgIconOrigin,
         SymbianSvgIconProFileRelative,
         QmlDir,
-        QmlDirProFileRelative
+        QmlDirProFileRelative,
+        ModulesDir
     };
 
     QmlStandaloneApp();
+    ~QmlStandaloneApp();
 
     void setMainQmlFile(const QString &qmlFile);
     QString mainQmlFile() const;
@@ -93,6 +131,9 @@ public:
     void setNetworkEnabled(bool enabled);
     bool networkEnabled() const;
 
+    bool setExternalModules(const QStringList &moduleNames,
+                            const QStringList &importPaths);
+
     static QString symbianUidForPath(const QString &path);
 #ifndef CREATORLESSTEST
     Core::GeneratedFiles generateFiles(QString *errorMessage) const;
@@ -101,11 +142,18 @@ public:
 #endif // CREATORLESSTEST
     QString path(Path path) const;
     bool useExistingMainQml() const;
+    QString error() const;
+    const QList<QmlModule*> modules() const;
 
 private:
     QByteArray generateMainCpp(const QString *errorMessage) const;
     QByteArray generateProFile(const QString *errorMessage) const;
     static QString templatesRoot();
+    bool addExternalModule(const QString &name, const QFileInfo &dir,
+                           const QFileInfo &contentDir);
+    bool addCppPlugins(QmlModule *module);
+    bool addCppPlugin(const QString &qmldirLine, QmlModule *module);
+    void clearModulesAndPlugins();
 
     QString m_projectName;
     QFileInfo m_projectPath;
@@ -115,6 +163,10 @@ private:
     Orientation m_orientation;
     bool m_networkEnabled;
     QFileInfo m_mainQmlFile;
+    QStringList m_importPaths;
+    QList <QmlModule*> m_modules;
+    QList <QmlCppPlugin*> m_cppPlugins;
+    QString m_error;
 };
 
 } // end of namespace Internal

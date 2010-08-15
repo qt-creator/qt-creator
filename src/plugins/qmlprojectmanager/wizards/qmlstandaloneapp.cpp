@@ -41,11 +41,62 @@
 namespace QmlProjectManager {
 namespace Internal {
 
+const QLatin1String qmldir("qmldir");
+const QLatin1String qmldir_plugin("plugin");
+
+QmlModule::QmlModule(const QString &name, const QFileInfo &rootDir, const QFileInfo &qmldir,
+                     bool isExternal, QmlStandaloneApp *qmlStandaloneApp)
+    : name(name)
+    , rootDir(rootDir)
+    , qmldir(qmldir)
+    , isExternal(isExternal)
+    , qmlStandaloneApp(qmlStandaloneApp)
+{}
+
+QString QmlModule::path(Location location) const
+{
+    switch (location) {
+        case Root: {
+            return rootDir.canonicalFilePath();
+        }
+        case ContentDir: {
+                const QDir proFile(qmlStandaloneApp->path(QmlStandaloneApp::AppProfilePath));
+            return proFile.relativeFilePath(qmldir.canonicalPath());
+        }
+        case ContentBase: {
+            const QString localRoot = rootDir.canonicalFilePath() + QLatin1Char('/');
+            QDir contentDir = qmldir.dir();
+            contentDir.cdUp();
+            const QString localContentDir = contentDir.canonicalPath();
+            return localContentDir.right(localContentDir.length() - localRoot.length());
+        }
+        case DeployedContentBase: {
+            const QString modulesDir = qmlStandaloneApp->path(QmlStandaloneApp::ModulesDir);
+            return modulesDir + QLatin1Char('/') + path(ContentBase);
+        }
+        default: qFatal("QmlModule::path() needs more work");
+    }
+    return QString();
+}
+
+QmlCppPlugin::QmlCppPlugin(const QString &name, const QFileInfo &path,
+                           const QmlModule *module, const QFileInfo &proFile)
+    : name(name)
+    , path(path)
+    , module(module)
+    , proFile(proFile)
+{}
+
 QmlStandaloneApp::QmlStandaloneApp()
     : m_loadDummyData(false)
     , m_orientation(Auto)
     , m_networkEnabled(false)
 {
+}
+
+QmlStandaloneApp::~QmlStandaloneApp()
+{
+    clearModulesAndPlugins();
 }
 
 QString QmlStandaloneApp::symbianUidForPath(const QString &path)
@@ -135,6 +186,43 @@ bool QmlStandaloneApp::networkEnabled() const
     return m_networkEnabled;
 }
 
+bool QmlStandaloneApp::setExternalModules(const QStringList &moduleNames,
+                                          const QStringList &importPaths)
+{
+    clearModulesAndPlugins();
+    m_importPaths.clear();
+    foreach (const QFileInfo &importPath, importPaths) {
+        if (!importPath.exists()) {
+            m_error = tr("The Qml import path '%1' cannot be found.")
+                      .arg(QDir::toNativeSeparators(importPath.filePath()));
+            return false;
+        } else {
+            m_importPaths.append(importPath.canonicalFilePath());
+        }
+    }
+    foreach (const QString &moduleName, moduleNames) {
+        QString modulePath = moduleName;
+        modulePath.replace(QLatin1Char('.'), QLatin1Char('/'));
+        const int modulesCount = m_modules.count();
+        foreach (const QFileInfo &importPath, m_importPaths) {
+            const QFileInfo qmlDirFile(
+                    importPath.absoluteFilePath() + QLatin1Char('/')
+                    + modulePath + QLatin1Char('/') + qmldir);
+            if (qmlDirFile.exists()) {
+                if (!addExternalModule(moduleName, importPath, qmlDirFile))
+                    return false;
+                break;
+            }
+        }
+        if (modulesCount == m_modules.count()) { // no module was added
+            m_error = tr("The Qml module '%1' cannot be found.").arg(moduleName);
+            return false;
+        }
+    }
+    m_error.clear();
+    return true;
+}
+
 QString QmlStandaloneApp::path(Path path) const
 {
     const QString qmlSubDir = QLatin1String("qml/")
@@ -150,7 +238,6 @@ QString QmlStandaloneApp::path(Path path) const
     const QString appViewHFileName = QLatin1String("qmlapplicationview.h");
     const QString symbianIconFileName = QLatin1String("symbianicon.svg");
     const char* const errorMessage = "QmlStandaloneApp::path() needs more work";
-
     const QString pathBase = m_projectPath.absoluteFilePath() + QLatin1Char('/')
                              + m_projectName + QLatin1Char('/');
     const QDir appProFilePath(pathBase);
@@ -182,11 +269,11 @@ QString QmlStandaloneApp::path(Path path) const
         case QmlDir:                        return pathBase + qmlSubDir;
         case QmlDirProFileRelative:         return useExistingMainQml() ? appProFilePath.relativeFilePath(m_mainQmlFile.canonicalPath())
                                                 : QString(qmlSubDir).remove(qmlSubDir.length() - 1, 1);
+        case ModulesDir:                    return QLatin1String("modules");
         default:                            qFatal(errorMessage);
     }
     return QString();
 }
-
 
 static QString insertParameter(const QString &line, const QString &parameter)
 {
@@ -211,10 +298,9 @@ QByteArray QmlStandaloneApp::generateMainCpp(const QString *errorMessage) const
         line = in.readLine();
         if (line.contains(QLatin1String("// MAINQML"))) {
             line = insertParameter(line, QLatin1Char('"') + path(MainQmlDeployed) + QLatin1Char('"'));
-        } else if (line.contains(QLatin1String("// IMPORTPATHSLIST"))) {
-            continue;
-        } else if (line.contains(QLatin1String("// SETIMPORTPATHLIST"))) {
-            continue;
+        } else if (line.contains(QLatin1String("// ADDIMPORTPATH"))) {
+            if (!m_modules.isEmpty())
+                line = insertParameter(line, QLatin1Char('"') + path(ModulesDir) + QLatin1Char('"'));
         } else if (line.contains(QLatin1String("// ORIENTATION"))) {
             if (m_orientation == Auto)
                 continue;
@@ -260,9 +346,22 @@ QByteArray QmlStandaloneApp::generateProFile(const QString *errorMessage) const
             do {
                 line = in.readLine();
             } while (!(line.isNull() || line.contains(QLatin1String("# DEPLOYMENTFOLDERS_END"))));
+            QStringList folders;
             out << "folder_01.source = " << path(QmlDirProFileRelative) << endl;
             out << "folder_01.target = qml" << endl;
-            out << "DEPLOYMENTFOLDERS = folder_01" << endl;
+            folders.append(QLatin1String("folder_01"));
+            int foldersCount = 1;
+            foreach (const QmlModule *module, m_modules) {
+                if (module->isExternal) {
+                    foldersCount ++;
+                    const QString folder =
+                            QString::fromLatin1("folder_%1").arg(foldersCount, 2, 10, QLatin1Char('0'));
+                    folders.append(folder);
+                    out << folder << ".source = " << module->path(QmlModule::ContentDir) << endl;
+                    out << folder << ".target = " << module->path(QmlModule::DeployedContentBase) << endl;
+                }
+            }
+            out << "DEPLOYMENTFOLDERS = " << folders.join(QLatin1String(" ")) << endl;
         } else if (line.contains(QLatin1String("# ORIENTATIONLOCK")) && m_orientation == QmlStandaloneApp::Auto) {
             uncommentNextLine = true;
         } else if (line.contains(QLatin1String("# NETWORKACCESS")) && !m_networkEnabled) {
@@ -293,6 +392,79 @@ QByteArray QmlStandaloneApp::generateProFile(const QString *errorMessage) const
     } while (!line.isNull());
 
     return proFileContent;
+}
+
+void QmlStandaloneApp::clearModulesAndPlugins()
+{
+    qDeleteAll(m_modules);
+    m_modules.clear();
+    qDeleteAll(m_cppPlugins);
+    m_cppPlugins.clear();
+}
+
+bool QmlStandaloneApp::addCppPlugin(const QString &qmldirLine, QmlModule *module)
+{
+    const QStringList qmldirLineElements =
+            qmldirLine.split(QLatin1Char(' '), QString::SkipEmptyParts);
+    if (qmldirLineElements.count() < 2) {
+        m_error = tr("Invalid '%1' entry in '%2' of module '%3'.")
+                  .arg(qmldir_plugin).arg(qmldir).arg(module->name);
+        return false;
+    }
+    const QString name = qmldirLineElements.at(1);
+    const QFileInfo path(module->qmldir.dir(), qmldirLineElements.value(2, QString()));
+
+    // TODO: Add more magic to find a good .pro file..
+    const QString proFileName = name + QLatin1String(".pro");
+    const QFileInfo proFile_guess1(module->qmldir.dir(), proFileName);
+    const QFileInfo proFile_guess2(QString(module->qmldir.dir().absolutePath() + QLatin1String("/../")),
+                                   proFileName);
+    const QFileInfo proFile_guess3(module->qmldir.dir(),
+                                   QFileInfo(module->qmldir.path()).fileName() + QLatin1String(".pro"));
+    const QFileInfo proFile_guess4(proFile_guess3.absolutePath() + QLatin1String("/../")
+                                   + proFile_guess3.fileName());
+
+    QFileInfo foundProFile;
+    if (proFile_guess1.exists()) {
+        foundProFile = proFile_guess1.canonicalFilePath();
+    } else if (proFile_guess2.exists()) {
+        foundProFile = proFile_guess2.canonicalFilePath();
+    } else if (proFile_guess3.exists()) {
+        foundProFile = proFile_guess3.canonicalFilePath();
+    } else if (proFile_guess4.exists()) {
+        foundProFile = proFile_guess4.canonicalFilePath();
+    } else {
+        m_error = tr("No .pro file for plugin '%1' cannot be found.").arg(name);
+        return false;
+    }
+    QmlCppPlugin *plugin =
+            new QmlCppPlugin(name, path, module, foundProFile);
+    m_cppPlugins.append(plugin);
+    module->cppPlugins.insert(name, plugin);
+    return true;
+}
+
+bool QmlStandaloneApp::addCppPlugins(QmlModule *module)
+{
+    QFile qmlDirFile(module->qmldir.absoluteFilePath());
+    if (qmlDirFile.open(QIODevice::ReadOnly)) {
+        QTextStream ts(&qmlDirFile);
+        QString line;
+        do {
+            line = ts.readLine().trimmed();
+            if (line.startsWith(qmldir_plugin) && !addCppPlugin(line, module))
+                return false;
+        } while (!line.isNull());
+    }
+    return true;
+}
+
+bool QmlStandaloneApp::addExternalModule(const QString &name, const QFileInfo &dir,
+                                         const QFileInfo &contentDir)
+{
+    QmlModule *module = new QmlModule(name, dir, contentDir, true, this);
+    m_modules.append(module);
+    return addCppPlugins(module);
 }
 
 #ifndef CREATORLESSTEST
@@ -344,6 +516,16 @@ Core::GeneratedFiles QmlStandaloneApp::generateFiles(QString *errorMessage) cons
 bool QmlStandaloneApp::useExistingMainQml() const
 {
     return !m_mainQmlFile.filePath().isEmpty();
+}
+
+QString QmlStandaloneApp::error() const
+{
+    return m_error;
+}
+
+const QList<QmlModule*> QmlStandaloneApp::modules() const
+{
+    return m_modules;
 }
 
 } // namespace Internal

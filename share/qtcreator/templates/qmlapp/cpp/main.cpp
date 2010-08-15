@@ -6,8 +6,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     QmlApplicationView qmlApp(QLatin1String("qml/app/app.qml")); // MAINQML
-    QStringList importPaths; // IMPORTPATHSLIST
-    qmlApp.setImportPathList(importPaths); // SETIMPORTPATHLIST
+    qmlApp.addImportPath(QLatin1String("modules")); // ADDIMPORTPATH
     qmlApp.setOrientation(QmlApplicationView::Auto); // ORIENTATION
     qmlApp.setLoadDummyData(false); // LOADDUMMYDATA
 

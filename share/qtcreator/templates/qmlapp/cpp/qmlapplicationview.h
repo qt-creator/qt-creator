@@ -19,7 +19,7 @@ public:
     QmlApplicationView(const QString &mainQmlFile, QWidget *parent = 0);
     virtual ~QmlApplicationView();
 
-    void setImportPathList(const QStringList &importPaths);
+    void addImportPath(const QString &importPath);
     void setOrientation(Orientation orientation);
     void setLoadDummyData(bool loadDummyData);
 

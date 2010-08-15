@@ -44,9 +44,9 @@ QmlApplicationView::~QmlApplicationView()
     delete m_d;
 }
 
-void QmlApplicationView::setImportPathList(const QStringList &importPaths)
+void QmlApplicationView::addImportPath(const QString &importPath)
 {
-    engine()->setImportPathList(importPaths);
+    engine()->addImportPath(importPath);
 }
 
 void QmlApplicationView::setOrientation(Orientation orientation)
