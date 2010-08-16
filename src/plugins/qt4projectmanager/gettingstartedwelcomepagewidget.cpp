@@ -68,7 +68,7 @@ GettingStartedWelcomePageWidget::GettingStartedWelcomePageWidget(QWidget *parent
     ui->setupUi(this);
 
 #ifndef QTCREATOR_WITH_QML
-    ui->demosExamplesFrameQml->hide();
+    ui->demosExamplesFrame_2->hide();
 #endif
 
     ui->didYouKnowTextBrowser->viewport()->setAutoFillBackground(false);
