@@ -124,6 +124,7 @@ private:
     void handleChannelEof();
     void handleChannelClose();
     void handleDisconnect();
+    bool canUseSocket() const;
 
     void sendData(const QByteArray &data);
 

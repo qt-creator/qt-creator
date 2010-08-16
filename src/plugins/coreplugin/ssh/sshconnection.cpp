@@ -241,6 +241,8 @@ void SshConnectionPrivate::handleIncomingData()
         return; // For stuff queued in the event loop after we've called closeConnection();
 
     try {
+        if (!canUseSocket())
+            return;
         m_incomingData += m_socket->readAll();
 #ifdef CREATOR_SSH_DEBUG
         qDebug("state = %d, remote data size = %d", m_state,
@@ -478,7 +480,8 @@ void SshConnectionPrivate::handleDisconnect()
 
 void SshConnectionPrivate::sendData(const QByteArray &data)
 {
-    m_socket->write(data);
+    if (canUseSocket())
+        m_socket->write(data);
 }
 
 void SshConnectionPrivate::handleSocketDisconnected()
@@ -543,8 +546,15 @@ void SshConnectionPrivate::closeConnection(SshErrorCode sshError,
         emit error(userError);
     if (m_state == ConnectionEstablished)
         emit disconnected();
-    m_socket->disconnectFromHost();
+    if (canUseSocket())
+        m_socket->disconnectFromHost();
     m_state = SocketUnconnected;
+}
+
+bool SshConnectionPrivate::canUseSocket() const
+{
+    return m_socket->isValid()
+        && m_socket->state() == QAbstractSocket::ConnectedState;
 }
 
 QSharedPointer<SshRemoteProcess> SshConnectionPrivate::createRemoteProcess(const QByteArray &command)
