@@ -64,6 +64,7 @@ const char * const RUNQMAKECONTEXTMENU = "Qt4Builder.RunQMakeContextMenu";
 const char * const BUILDSUBDIR         = "Qt4Builder.BuildSubDir";
 const char * const REBUILDSUBDIR       = "Qt4Builder.RebuildSubDir";
 const char * const CLEANSUBDIR         = "Qt4Builder.CleanSubDir";
+const char * const ADDLIBRARY          = "Qt4.AddLibrary";
 
 //configurations
 const char * const CONFIG_DEBUG     = "debug";

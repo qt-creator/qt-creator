@@ -62,8 +62,8 @@ public:
     enum Kind {
         Directory,
         File,
-        Command
-        // ,Any
+        Command,
+        Any
     };
 
     // Default is <Directory>

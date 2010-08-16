@@ -81,13 +81,13 @@ public:
     TextEditor::TextEditorActionHandler *actionHandler() const { return m_ah; }
 
     void unCommentSelection();
-
 protected:
     TextEditor::BaseTextEditorEditable *createEditableInterface();
     void contextMenuEvent(QContextMenuEvent *);
 
 public slots:
     virtual void setFontSettings(const TextEditor::FontSettings &);
+    void addLibrary();
 
 private:
     ProFileEditorFactory *m_factory;

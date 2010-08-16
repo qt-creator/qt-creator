@@ -33,6 +33,7 @@
 #include "qt4projectmanager.h"
 #include "qt4projectmanagerconstants.h"
 #include "profileeditorfactory.h"
+#include "addlibrarywizard.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -145,6 +146,26 @@ void ProFileEditor::setFontSettings(const TextEditor::FontSettings &fs)
     const QVector<QTextCharFormat> formats = fs.toTextCharFormats(categories);
     highlighter->setFormats(formats.constBegin(), formats.constEnd());
     highlighter->rehighlight();
+}
+
+void ProFileEditor::addLibrary()
+{
+    AddLibraryWizard wizard(file()->fileName(), this);
+    if (wizard.exec() != QDialog::Accepted)
+        return;
+
+    TextEditor::BaseTextEditorEditable *editable = editableInterface();
+    const int endOfDoc = editable->position(TextEditor::ITextEditor::EndOfDoc);
+    editable->setCurPos(endOfDoc);
+    QString snippet = wizard.snippet();
+
+    // add extra \n in case the last line is not empty
+    int line, column;
+    editable->convertPosition(endOfDoc, &line, &column);
+    if (!editable->textAt(endOfDoc - column, column).simplified().isEmpty())
+        snippet = QLatin1Char('\n') + snippet;
+
+    editable->insert(snippet);
 }
 
 //

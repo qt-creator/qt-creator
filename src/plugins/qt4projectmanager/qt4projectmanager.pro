@@ -47,7 +47,10 @@ HEADERS += qt4deployconfiguration.h \
     qt4buildconfiguration.h \
     qt4target.h \
     qmakeparser.h \
-    qtoutputformatter.h
+    qtoutputformatter.h \
+    addlibrarywizard.h \
+    librarydetailscontroller.h \
+    findqt4profiles.h
 SOURCES += qt4deployconfiguration.cpp \
     qtparser.cpp \
     qt4projectmanagerplugin.cpp \
@@ -91,7 +94,10 @@ SOURCES += qt4deployconfiguration.cpp \
     qt4buildconfiguration.cpp \
     qt4target.cpp \
     qmakeparser.cpp \
-    qtoutputformatter.cpp
+    qtoutputformatter.cpp \
+    addlibrarywizard.cpp \
+    librarydetailscontroller.cpp \
+    findqt4profiles.cpp
 FORMS += makestep.ui \
     qmakestep.ui \
     qt4projectconfigwidget.ui \
@@ -99,7 +105,8 @@ FORMS += makestep.ui \
     showbuildlog.ui \
     gettingstartedwelcomepagewidget.ui \
     wizards/testwizardpage.ui \
-    wizards/targetsetuppage.ui
+    wizards/targetsetuppage.ui \
+    librarydetailswidget.ui
 RESOURCES += qt4projectmanager.qrc \
     wizards/wizards.qrc
 DEFINES += PROPARSER_THREAD_SAFE PROEVALUATOR_THREAD_SAFE

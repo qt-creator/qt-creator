@@ -74,6 +74,7 @@ private slots:
                            ProjectExplorer::Node *node);
     void currentProjectChanged();
     void buildStateChanged(ProjectExplorer::Project *pro);
+    void addLibrary();
 
 #ifdef WITH_TESTS
     void testBasicProjectLoading(); // Test fails!

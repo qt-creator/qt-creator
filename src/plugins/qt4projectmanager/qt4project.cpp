@@ -39,6 +39,7 @@
 #include "qt4projectmanagerconstants.h"
 #include "projectloadwizard.h"
 #include "qt4buildconfiguration.h"
+#include "findqt4profiles.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -48,8 +49,6 @@
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
-#include <projectexplorer/nodesvisitor.h>
-#include <projectexplorer/project.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
@@ -352,27 +351,6 @@ Qt4TargetFactory *Qt4Project::targetFactory() const
 Qt4Target *Qt4Project::activeTarget() const
 {
     return static_cast<Qt4Target *>(Project::activeTarget());
-}
-
-namespace {
-    class FindQt4ProFiles: protected ProjectExplorer::NodesVisitor {
-        QList<Qt4ProFileNode *> m_proFiles;
-
-    public:
-        QList<Qt4ProFileNode *> operator()(ProjectNode *root)
-        {
-            m_proFiles.clear();
-            root->accept(this);
-            return m_proFiles;
-        }
-
-    protected:
-        virtual void visitProjectNode(ProjectNode *projectNode)
-        {
-            if (Qt4ProFileNode *pro = qobject_cast<Qt4ProFileNode *>(projectNode))
-                m_proFiles.append(pro);
-        }
-    };
 }
 
 void Qt4Project::onAddedTarget(ProjectExplorer::Target *t)

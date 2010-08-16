@@ -43,6 +43,7 @@
 #include "qt4projectmanagerconstants.h"
 #include "qt4project.h"
 #include "qt4runconfiguration.h"
+#include "profileeditor.h"
 #include "profilereader.h"
 #include "qtversionmanager.h"
 #include "qtoptionspage.h"
@@ -65,6 +66,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
 
@@ -230,6 +232,16 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     cmd = am->command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(cmd);
 
+    Core::Context proFileEditorContext = Core::Context(Qt4ProjectManager::Constants::PROJECT_ID);
+
+    QAction *addLibrary = new QAction(tr("Add Library..."), this);
+    cmd = am->registerAction(addLibrary,
+        Constants::ADDLIBRARY, proFileEditorContext);
+    //cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F2));
+    connect(addLibrary, SIGNAL(triggered()),
+            this, SLOT(addLibrary()));
+    contextMenu->addAction(cmd);
+
     return true;
 }
 
@@ -281,6 +293,14 @@ void Qt4ProjectManagerPlugin::buildStateChanged(ProjectExplorer::Project *pro)
         m_runQMakeAction->setEnabled(!m_projectExplorer->buildManager()->isBuilding(currentProject));
     if (pro == m_qt4ProjectManager->contextProject())
         m_runQMakeActionContextMenu->setEnabled(!m_projectExplorer->buildManager()->isBuilding(pro));
+}
+
+void Qt4ProjectManagerPlugin::addLibrary()
+{
+    Core::EditorManager *em = Core::EditorManager::instance();
+    ProFileEditor *editor = qobject_cast<ProFileEditor*>(em->currentEditor()->widget());
+    if (editor)
+        editor->addLibrary();
 }
 
 #ifdef WITH_TESTS

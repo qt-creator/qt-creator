@@ -173,13 +173,27 @@ void PathChooser::slotBrowse()
         newPath = QFileDialog::getExistingDirectory(this,
                 makeDialogTitle(tr("Choose Directory")), predefined);
         break;
-
     case PathChooser::File: // fall through
     case PathChooser::Command:
         newPath = QFileDialog::getOpenFileName(this,
                 makeDialogTitle(tr("Choose File")), predefined,
                 m_d->m_dialogFilter);
         break;
+    case PathChooser::Any: {
+        QFileDialog dialog(this);
+        dialog.setFileMode(QFileDialog::AnyFile);
+        dialog.setWindowTitle(makeDialogTitle(tr("Choose File")));
+        QFileInfo fi(predefined);
+        if (fi.exists())
+            dialog.setDirectory(fi.absolutePath());
+        dialog.setNameFilter(m_d->m_dialogFilter); // fix QFileDialog so that it filters properly: lib*.a
+        if (dialog.exec() == QDialog::Accepted) { // probably loop here until the *.framework dir match
+            QStringList paths = dialog.selectedFiles();
+            if (!paths.isEmpty())
+                newPath = paths.at(0);
+        }
+        break;
+        }
 
     default:
         ;
@@ -253,6 +267,9 @@ bool PathChooser::validatePath(const QString &path, QString *errorMessage)
     case PathChooser::Command:
         // TODO do proper command validation
         // i.e. search $PATH for a matching file
+        break;
+
+    case PathChooser::Any:
         break;
 
     default:
