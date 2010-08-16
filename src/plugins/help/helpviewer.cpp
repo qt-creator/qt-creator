@@ -94,13 +94,7 @@ struct ExtensionMap {
 
 bool HelpViewer::isLocalUrl(const QUrl &url)
 {
-    const QString &scheme = url.scheme();
-    return scheme.isEmpty()
-        || scheme == QLatin1String("file")
-        || scheme == QLatin1String("qrc")
-        || scheme == QLatin1String("data")
-        || scheme == QLatin1String("qthelp")
-        || scheme == QLatin1String("about");
+    return url.scheme() == QLatin1String("qthelp");
 }
 
 bool HelpViewer::canOpenPage(const QString &url)
