@@ -270,26 +270,15 @@
 
     \section1 Debuggers
 
-    Qt Creator does not include a debugger. It provides a debugger plugin that acts
-    as an interface between the Qt Creator core and external native debuggers:
-
-    \list
-
-        \o GNU Symbolic Debugger (gdb)
-
-        \o Microsoft Console Debugger (CDB)
-
-        \o internal Java Script debugger
-
-    \endlist
+    Qt Creator provides means to help you with debugging your application.
+    It interfaces the GNU Symbolic Debugger (gdb) and the Microsoft Console
+    Debugger (CDB) to debug native C++ applications and an internal debugger
+    for Java Script. This includes the ability to connect mobile devices to
+    your development PC and debug applications running on the devices.
 
     Qt Creator displays the raw information provided by the native debuggers
     in a clear and concise manner with the goal to simplify the debugging process
     as much as possible without losing the power of the native debuggers.
-    You can use the native debuggers to debug the C++ language.
-
-    You can connect mobile devices to your development PC and debug processes
-    running on the devices.
 
 */
 
