@@ -626,8 +626,8 @@ QDeclarativeViewer::QDeclarativeViewer(QWidget *parent, Qt::WindowFlags flags)
         QObject::connect(canvas, SIGNAL(inspectorContextPushed(QString)), m_crumblePathWidget, SLOT(pushElement(QString)));
         QObject::connect(canvas, SIGNAL(inspectorContextPopped()), m_crumblePathWidget, SLOT(popElement()));
         QObject::connect(m_crumblePathWidget, SIGNAL(elementClicked(int)), canvas, SLOT(setInspectorContext(int)));
-        QObject::connect(canvas->engine(), SIGNAL(quit()), QCoreApplication::instance (), SLOT(quit()));
     }
+    QObject::connect(canvas->engine(), SIGNAL(quit()), QCoreApplication::instance (), SLOT(quit()));
 
     QObject::connect(warningsWidget(), SIGNAL(opened()), this, SLOT(warningsWidgetOpened()));
     QObject::connect(warningsWidget(), SIGNAL(closed()), this, SLOT(warningsWidgetClosed()));
