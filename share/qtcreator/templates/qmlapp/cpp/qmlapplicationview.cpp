@@ -24,7 +24,7 @@ class QmlApplicationViewPrivate
 QString QmlApplicationViewPrivate::adjustPath(const QString &path)
 {
 #ifdef Q_OS_MAC
-    if (!QDir::isAbsolute(path))
+    if (!QDir::isAbsolutePath(path))
         return QCoreApplication::applicationDirPath()
                 + QLatin1String("/../Resources/") + path;
 #endif
