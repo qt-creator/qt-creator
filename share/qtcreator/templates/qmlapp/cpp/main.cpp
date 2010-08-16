@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
     QmlApplicationView qmlApp;
     qmlApp.addImportPath(QLatin1String("modules")); // ADDIMPORTPATH
     qmlApp.setOrientation(QmlApplicationView::Auto); // ORIENTATION
-    qmlApp.setMainQml(QLatin1String("qml/app/app.qml")); // MAINQML
+    qmlApp.setMainQmlFile(QLatin1String("qml/app/app.qml")); // MAINQML
     qmlApp.setLoadDummyData(false); // LOADDUMMYDATA
 
 #ifdef Q_OS_SYMBIAN

@@ -48,15 +48,15 @@ QmlApplicationView::~QmlApplicationView()
     delete m_d;
 }
 
-void QmlApplicationView::setMainQml(const QString &mainQml)
+void QmlApplicationView::setMainQmlFile(const QString &file)
 {
-    m_d->mainQmlFile = QmlApplicationViewPrivate::adjustPath(mainQml);
+    m_d->mainQmlFile = QmlApplicationViewPrivate::adjustPath(file);
     setSource(QUrl::fromLocalFile(m_d->mainQmlFile));
 }
 
-void QmlApplicationView::addImportPath(const QString &importPath)
+void QmlApplicationView::addImportPath(const QString &path)
 {
-    engine()->addImportPath(QmlApplicationViewPrivate::adjustPath(importPath));
+    engine()->addImportPath(QmlApplicationViewPrivate::adjustPath(path));
 }
 
 void QmlApplicationView::setOrientation(Orientation orientation)

@@ -19,8 +19,8 @@ public:
     QmlApplicationView(QWidget *parent = 0);
     virtual ~QmlApplicationView();
 
-    void setMainQml(const QString &mainQml);
-    void addImportPath(const QString &importPath);
+    void setMainQmlFile(const QString &file);
+    void addImportPath(const QString &path);
     void setOrientation(Orientation orientation);
     void setLoadDummyData(bool loadDummyData);
 
