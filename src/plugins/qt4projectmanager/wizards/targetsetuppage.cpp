@@ -34,6 +34,7 @@
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4target.h"
+#include "qtversionmanager.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/task.h>
@@ -231,8 +232,10 @@ bool TargetSetupPage::setupProject(Qt4ProjectManager::Qt4Project *project)
                 info.isTemporary = false;
             }
 
-            if ((info.buildConfig | QtVersion::DebugBuild) != info.buildConfig)
-                targetInfos.append(BuildConfigurationInfo(info.version, QtVersion::QmakeBuildConfigs(info.buildConfig | QtVersion::DebugBuild),
+            // If we have buildAll, then we want to havbe two BCs set up, one to build debug,
+            // the other to build release.
+            if (info.buildConfig & QtVersion::BuildAll)
+                targetInfos.append(BuildConfigurationInfo(info.version, info.buildConfig & ~(info.buildConfig & QtVersion::DebugBuild),
                                                           info.additionalArguments, info.directory));
             targetInfos.append(BuildConfigurationInfo(info.version, info.buildConfig,
                                                       info.additionalArguments, info.directory));
@@ -506,10 +509,22 @@ void TargetSetupPage::updateVersionItem(QTreeWidgetItem *versionItem, int index)
     ImportInfo &info = m_infos[index];
     QPair<QIcon, QString> issues = reportIssues(info.version);
 
+    //: We are going to build debug and release
+    QString buildType = tr("debug and release");
+    if ((info.buildConfig & QtVersion::BuildAll) == 0) {
+        if (info.buildConfig & QtVersion::DebugBuild)
+            //: Debug build
+            buildType = tr("debug");
+        else
+            //: release build
+            buildType = tr("release");
+    }
     QString toolTip = QLatin1String("<nobr>");
     toolTip = toolTip.append(info.version->displayName());
-    toolTip.append(tr("<br>using %1", "%1: qmake used (incl. full path)").
-            arg(QDir::toNativeSeparators(info.version->qmakeCommand())));
+    //: %1: qmake used (incl. full path), %2: "debug", "release" or "debug and release"
+    toolTip.append(tr("<br>using %1 (%2)").
+            arg(QDir::toNativeSeparators(info.version->qmakeCommand())).
+                   arg(buildType));
     if (!issues.second.isEmpty())
         toolTip.append(QString::fromLatin1("<br><br>%1").arg(issues.second));
 

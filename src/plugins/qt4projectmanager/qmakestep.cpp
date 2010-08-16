@@ -345,8 +345,12 @@ void QMakeStepConfigWidget::qmakeBuildConfigChanged()
 {
     Qt4BuildConfiguration *bc = m_step->qt4BuildConfiguration();
     bool debug = bc->qmakeBuildConfiguration() & QtVersion::DebugBuild;
+    int index = debug ? 0 : 1;
+    if (bc->qmakeBuildConfiguration() & QtVersion::BuildAll)
+        index = 2;
     m_ignoreChange = true;
-    m_ui.buildConfigurationComboBox->setCurrentIndex(debug? 0 : 1);
+    m_ui.buildConfigurationComboBox->setCurrentIndex(index);
+
     m_ignoreChange = false;
     updateSummaryLabel();
     updateEffectiveQMakeCall();
@@ -379,11 +383,18 @@ void QMakeStepConfigWidget::buildConfigurationSelected()
         return;
     Qt4BuildConfiguration *bc = m_step->qt4BuildConfiguration();
     QtVersion::QmakeBuildConfigs buildConfiguration = bc->qmakeBuildConfiguration();
-    if (m_ui.buildConfigurationComboBox->currentIndex() == 0) { // debug
-        buildConfiguration = buildConfiguration | QtVersion::DebugBuild;
-    } else {
-        buildConfiguration = buildConfiguration & ~QtVersion::DebugBuild;
+    switch (m_ui.buildConfigurationComboBox->currentIndex()) {
+    case 0:
+        buildConfiguration = QtVersion::DebugBuild;
+        break;
+    case 1:
+        buildConfiguration = 0;
+        break;
+    case 2:
+        buildConfiguration = QtVersion::BuildAll;
+        break;
     }
+
     m_ignoreChange = true;
     bc->setQMakeBuildConfiguration(buildConfiguration);
     m_ignoreChange = false;

@@ -390,9 +390,13 @@ void Qt4BuildConfiguration::getConfigCommandLineArguments(QStringList *addedUser
     if (addedUserConfigs) {
         if (!(defaultBuildConfiguration & QtVersion::BuildAll) && (userBuildConfiguration & QtVersion::BuildAll))
             (*addedUserConfigs) << "debug_and_release";
-        if ((defaultBuildConfiguration & QtVersion::DebugBuild) && !(userBuildConfiguration & QtVersion::DebugBuild))
+        if ((defaultBuildConfiguration & QtVersion::DebugBuild)
+             && !(userBuildConfiguration & QtVersion::DebugBuild)
+             && !(userBuildConfiguration & QtVersion::BuildAll))
             (*addedUserConfigs) << "release";
-        if (!(defaultBuildConfiguration & QtVersion::DebugBuild) && (userBuildConfiguration & QtVersion::DebugBuild))
+        if (!(defaultBuildConfiguration & QtVersion::DebugBuild)
+            && (userBuildConfiguration & QtVersion::DebugBuild)
+            && !(userBuildConfiguration & QtVersion::BuildAll))
             (*addedUserConfigs) << "debug";
     }
 }
