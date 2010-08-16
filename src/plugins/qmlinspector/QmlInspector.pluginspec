@@ -1,4 +1,4 @@
-<plugin name="QmlInspector" version="2.0.81" compatVersion="2.0.81" experimental="true">
+<plugin name="QmlInspector" version="2.0.1" compatVersion="2.0.1" experimental="true">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2010 Nokia Corporation</copyright>
     <license>
@@ -20,11 +20,11 @@ will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
     <description>Debugger for QML files</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="QmlProjectManager" version="2.0.81"/>
-        <dependency name="ProjectExplorer" version="2.0.81"/>
-        <dependency name="CppTools" version="2.0.81"/>
-        <dependency name="CppEditor" version="2.0.81"/>
-        <dependency name="Debugger" version="2.0.81"/>
-        <dependency name="QmlJSEditor" version="2.0.81"/>
+        <dependency name="QmlProjectManager" version="2.0.1"/>
+        <dependency name="ProjectExplorer" version="2.0.1"/>
+        <dependency name="CppTools" version="2.0.1"/>
+        <dependency name="CppEditor" version="2.0.1"/>
+        <dependency name="Debugger" version="2.0.1"/>
+        <dependency name="QmlJSEditor" version="2.0.1"/>
     </dependencyList>
 </plugin>

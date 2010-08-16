@@ -219,8 +219,8 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
 	<key>CFBundleIdentifier</key>
 	<string>com.nokia.qtcreator</string>
 	<key>CFBundleVersion</key>
-	<string>2.0.81</string>
+	<string>2.0.1</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.0.81</string>
+	<string>2.0.1</string>
 </dict>
 </plist>

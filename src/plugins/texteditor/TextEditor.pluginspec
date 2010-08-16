@@ -1,4 +1,4 @@
-<plugin name="TextEditor" version="2.0.81" compatVersion="2.0.81">
+<plugin name="TextEditor" version="2.0.1" compatVersion="2.0.1">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2010 Nokia Corporation</copyright>
     <license>
@@ -14,8 +14,8 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <description>Text editor framework and the implementation of the basic text editor.</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="Core" version="2.0.81"/>
-        <dependency name="Find" version="2.0.81"/>
-        <dependency name="Locator" version="2.0.81"/>
+        <dependency name="Core" version="2.0.1"/>
+        <dependency name="Find" version="2.0.1"/>
+        <dependency name="Locator" version="2.0.1"/>
     </dependencyList>
 </plugin>
