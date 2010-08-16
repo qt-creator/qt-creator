@@ -74,7 +74,7 @@
 
 enum {
     MaxConnectionAttempts = 50,
-    ConnectionAttemptDefaultInterval = 75
+    ConnectionAttemptDefaultInterval = 200
 };
 
 namespace Debugger {

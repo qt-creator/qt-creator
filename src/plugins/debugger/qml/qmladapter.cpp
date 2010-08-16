@@ -50,6 +50,7 @@ QmlAdapter::QmlAdapter(DebuggerEngine *engine, QObject *parent)
     , m_conn(0)
 
 {
+    m_connectionTimer->setInterval(200);
     connect(m_connectionTimer, SIGNAL(timeout()), SLOT(pollInferior()));
 }
 
@@ -197,7 +198,7 @@ void QmlAdapter::setMaxConnectionAttempts(int maxAttempts)
 }
 void QmlAdapter::setConnectionAttemptInterval(int interval)
 {
-    m_connectionAttemptInterval = interval;
+    m_connectionTimer->setInterval(interval);
 }
 
 } // namespace Internal

@@ -86,7 +86,6 @@ private:
     QTimer *m_connectionTimer;
     int m_connectionAttempts;
     int m_maxConnectionAttempts;
-    int m_connectionAttemptInterval;
 
     QDeclarativeDebugConnection *m_conn;
 
