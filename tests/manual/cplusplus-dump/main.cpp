@@ -240,22 +240,6 @@ protected:
         out << _id[symbol].constData() << " [label=\"" << name(symbol).constData() << "\"];" << std::endl;
     }
 
-    void generateTemplateParams(TemplateParameters *params) {
-        if (!params || params->scope()->symbolCount() == 0)
-            return;
-
-        out << "<";
-        for (unsigned i = 0; i < params->scope()->symbolCount(); ++i) {
-            if (i > 0)
-                out << ",";
-            Symbol *s = params->scope()->symbolAt(i);
-            out << qPrintable(o(s->name()));
-            if (s->type())
-                out << ":" << qPrintable(o(s->type()));
-        }
-        out << ">";
-    }
-
     virtual bool visit(Class *symbol) {
         const char *id = _id.value(symbol).constData();
         out << id << " [label=\"";
@@ -268,7 +252,6 @@ protected:
         } else {
             out << "UNKNOWN";
         }
-        generateTemplateParams(symbol->templateParameters());
 
         out << "\\nid: ";
         if (symbol->identifier()) {
