@@ -164,7 +164,6 @@ void TypenameArgument::visitSymbol0(SymbolVisitor *visitor)
 
 Function::Function(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : Scope(translationUnit, sourceLocation, name),
-      _block(0),
       _flags(0)
 { }
 
@@ -188,12 +187,6 @@ int Function::methodKey() const
 
 void Function::setMethodKey(int key)
 { f._methodKey = key; }
-
-Block *Function::block() const
-{ return _block; }
-
-void Function::setBlock(Block *block)
-{ _block = block; }
 
 bool Function::isEqualTo(const Type *other) const
 {
@@ -293,10 +286,10 @@ bool Function::hasReturnType() const
 
 unsigned Function::argumentCount() const
 {
-    if (_block)
-        return memberCount() - 1;
-
-    return memberCount();
+    const unsigned c = memberCount();
+    if (c > 0 && memberAt(c - 1)->isBlock())
+        return c - 1;
+    return c;
 }
 
 Symbol *Function::argumentAt(unsigned index) const

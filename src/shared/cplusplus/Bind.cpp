@@ -1905,7 +1905,6 @@ bool Bind::visit(FunctionDefinitionAST *ast)
 
         if (CompoundStatementAST *c = ast->function_body->asCompoundStatement()) {
             if (c->symbol) {
-                fun->setBlock(c->symbol);
                 fun->setEndOffset(c->symbol->endOffset());
             }
         }

@@ -297,9 +297,6 @@ public:
     int methodKey() const;
     void setMethodKey(int key);
 
-    Block *block() const;
-    void setBlock(Block *block);
-
     FullySpecifiedType returnType() const;
     void setReturnType(const FullySpecifiedType &returnType);
 
@@ -360,7 +357,6 @@ protected:
 
 private:
     FullySpecifiedType _returnType;
-    Block *_block;
     struct Flags {
         unsigned _isVirtual: 1;
         unsigned _isVariadic: 1;
