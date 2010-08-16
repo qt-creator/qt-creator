@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="sl">
-    <extra-po-header-po_revision_date>2010-08-09 04:32+0200</extra-po-header-po_revision_date>
+    <extra-po-header-po_revision_date>2010-08-14 19:48+0200</extra-po-header-po_revision_date>
     <extra-po-headers>MIME-Version,Content-Type,Content-Transfer-Encoding,Plural-Forms,X-Language,X-Qt-Contexts,Last-Translator,PO-Revision-Date,Project-Id-Version,Language-Team,X-Generator</extra-po-headers>
     <extra-po-header-x_generator>Lokalize 1.1</extra-po-header-x_generator>
     <extra-po-header-language_team>Slovenian &lt;lugos-slo@lugos.si&gt;</extra-po-header-language_team>
@@ -1531,7 +1531,7 @@ Ali jih želite nadomestiti?</translation>
     </message>
     <message>
         <source>&lt;h3&gt;Qt Creator %1 %8&lt;/h3&gt;Based on Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Built on %4 at %5&lt;br /&gt;&lt;br/&gt;%9&lt;br/&gt;Copyright 2008-%6 %7. All rights reserved.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</source>
-        <translation>&lt;h3&gt;Qt Creator %1 %8&lt;/h3&gt;Temelji na Qt %2 (%3-biten)&lt;br/&gt;&lt;br/&gt;Zgrajen dne %4 ob %5&lt;br /&gt;&lt;br/&gt;%9&lt;br/&gt;Avtorske pravice 2008-%6 %7. Vse pravice pridržane.&lt;br/&gt;&lt;br/&gt;Program je na voljo KOT TAK, BREZ KAKRŠNEGAKOLI JAMSTVA, niti jamstva USTREZNOSTI ZA PRODAJO niti PRIMERNOSTI ZA UPORABO.&lt;br/&gt;</translation>
+        <translation>&lt;h3&gt;Qt Creator %1 %8&lt;/h3&gt;Temelji na Qt %2 (%3-biten)&lt;br/&gt;&lt;br/&gt;Zgrajen dne %4 ob %5&lt;br /&gt;&lt;br/&gt;%9&lt;br/&gt;Avtorske pravice 2008-%6 %7. Vse pravice pridržane.&lt;br/&gt;&lt;br/&gt;Prevedel: &lt;a href=&quot;mailto:jlp@holodeck1.com&quot;&gt;Jure Repinc&lt;/a&gt;, &lt;a href=&quot;http://www.lugos.si/&quot;&gt;LUGOS&lt;/a&gt;&lt;br/&gt;&lt;br/&gt;Program je na voljo KOT TAK, BREZ KAKRŠNEGAKOLI JAMSTVA, niti jamstva USTREZNOSTI ZA PRODAJO niti PRIMERNOSTI ZA UPORABO.&lt;br/&gt;</translation>
     </message>
 </context>
 <context>
@@ -5599,7 +5599,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Ctrl++</source>
-        <translation type="unfinished">Ctrl</translation>
+        <translation>Ctrl++</translation>
     </message>
     <message>
         <source>Decrease Font Size</source>
@@ -5607,7 +5607,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Ctrl+-</source>
-        <translation type="unfinished">Ctrl</translation>
+        <translation>Ctrl+-</translation>
     </message>
     <message>
         <source>Reset Font Size</source>
@@ -5615,39 +5615,39 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Ctrl+0</source>
-        <translation type="unfinished">Ctrl</translation>
+        <translation>Ctrl+0</translation>
     </message>
     <message>
         <source>Alt+Tab</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Tab</translation>
     </message>
     <message>
         <source>Alt+Shift+Tab</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Shift+Tab</translation>
     </message>
     <message>
         <source>Ctrl+Tab</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Tab</translation>
     </message>
     <message>
         <source>Ctrl+Shift+Tab</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+Tab</translation>
     </message>
     <message>
         <source>Activate Bookmarks in Help mode</source>
-        <translation type="unfinished"></translation>
+        <translation>V načinu pomoči vklopi zaznamke</translation>
     </message>
     <message>
         <source>Open Pages</source>
-        <translation type="unfinished"></translation>
+        <translation>Odprte strani</translation>
     </message>
     <message>
         <source>Activate Open Pages in Help mode</source>
-        <translation type="unfinished"></translation>
+        <translation>V načinu pomoči vklopi odprte strani</translation>
     </message>
     <message>
         <source>Go to Help Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Preklopi v način pomoči</translation>
     </message>
     <message>
         <source>Previous</source>
@@ -5655,7 +5655,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Close current Page</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapri trenutno stran</translation>
     </message>
     <message>
         <source>Next</source>
@@ -5698,38 +5698,38 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     <name>Help::Internal::SearchWidget</name>
     <message>
         <source>Indexing</source>
-        <translation type="unfinished">Indeksiranje</translation>
+        <translation>Indeksiranje</translation>
     </message>
     <message>
         <source>Indexing Documentation...</source>
-        <translation type="unfinished"></translation>
+        <translation>Indeksiranje dokumentacije ...</translation>
     </message>
     <message>
         <source>Open Link</source>
-        <translation type="unfinished">Odpri povezavo</translation>
+        <translation>Odpri povezavo</translation>
     </message>
     <message>
         <source>Open Link as New Page</source>
-        <translation type="unfinished"></translation>
+        <translation>Odpri povezavo kot novo stran</translation>
     </message>
     <message>
         <source>Copy Link</source>
-        <translation type="unfinished">Skopiraj povezavo</translation>
+        <translation>Skopiraj povezavo</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Kopiraj</translation>
+        <translation>Skopiraj</translation>
     </message>
     <message>
         <source>Reload</source>
-        <translation type="unfinished">Znova naloži</translation>
+        <translation>Znova naloži</translation>
     </message>
 </context>
 <context>
     <name>HelpViewer</name>
     <message>
         <source>&lt;title&gt;about:blank&lt;/title&gt;</source>
-        <translation type="unfinished">about:blank</translation>
+        <translation>&lt;title&gt;about:blank&lt;/title&gt;</translation>
     </message>
     <message>
         <source>&lt;title&gt;Error 404...&lt;/title&gt;&lt;div align=&quot;center&quot;&gt;&lt;br&gt;&lt;br&gt;&lt;h1&gt;The page could not be found&lt;/h1&gt;&lt;br&gt;&lt;h3&gt;&apos;%1&apos;&lt;/h3&gt;&lt;/div&gt;</source>
@@ -5748,7 +5748,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Open Link as New Page</source>
-        <translation type="unfinished"></translation>
+        <translation>Odpri povezavo kot novo stran</translation>
     </message>
 </context>
 <context>
@@ -5774,141 +5774,143 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     <message>
         <source>Bauhaus</source>
         <comment>MainWindowClass</comment>
-        <translation type="unfinished"></translation>
+        <translation>Bauhaus</translation>
     </message>
     <message>
         <source>&amp;File</source>
-        <translation type="unfinished">&amp;Datoteka</translation>
+        <translation>&amp;Datoteka</translation>
     </message>
     <message>
         <source>&amp;New...</source>
-        <translation type="unfinished">&amp;Novo ...</translation>
+        <translation>&amp;Novo ...</translation>
     </message>
     <message>
         <source>Ctrl+N</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+N</translation>
     </message>
     <message>
         <source>&amp;Open...</source>
-        <translation type="unfinished">&amp;Odpri ...</translation>
+        <translation>&amp;Odpri ...</translation>
     </message>
     <message>
         <source>Recent Files</source>
-        <translation type="unfinished">Nedavne datoteke</translation>
+        <translation>Nedavne datoteke</translation>
     </message>
     <message>
         <source>&amp;Save</source>
-        <translation type="unfinished">&amp;Shrani</translation>
+        <translation>&amp;Shrani</translation>
     </message>
     <message>
         <source>Ctrl+S</source>
-        <translation type="unfinished">Ctrl+S</translation>
+        <translation>Ctrl+S</translation>
     </message>
     <message>
         <source>Save &amp;As...</source>
-        <translation type="unfinished">Shrani &amp;kot ...</translation>
+        <translation>Shrani &amp;kot ...</translation>
     </message>
     <message>
         <source>&amp;Preview</source>
-        <translation type="unfinished">O&amp;gled</translation>
+        <translation>O&amp;gled</translation>
     </message>
     <message>
         <source>Ctrl+R</source>
-        <translation type="unfinished">CTRL+R</translation>
+        <translation>Ctrl+R</translation>
     </message>
     <message>
         <source>&amp;Preview with Debug</source>
-        <translation type="unfinished"></translation>
+        <translation>O&amp;gled z razhroščevanjem</translation>
     </message>
     <message>
         <source>Ctrl+D</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+D</translation>
     </message>
     <message>
         <source>&amp;Quit</source>
-        <translation type="unfinished">Konča&amp;j</translation>
+        <translation>Konča&amp;j</translation>
     </message>
     <message>
         <source>Ctrl+Q</source>
-        <translation type="unfinished">Ctrl+Q</translation>
+        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <source>&amp;Edit</source>
-        <translation type="unfinished">&amp;Urejanje</translation>
+        <translation>&amp;Urejanje</translation>
     </message>
     <message>
         <source>Ctrl+Z</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Z</translation>
     </message>
     <message>
         <source>Ctrl+Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Y</translation>
     </message>
     <message>
         <source>Ctrl+Shift+Z</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+Z</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation type="unfinished">S&amp;kopiraj</translation>
+        <translation>S&amp;kopiraj</translation>
     </message>
     <message>
         <source>&amp;Cut</source>
-        <translation type="unfinished">Izreži</translation>
+        <translation>&amp;Izreži</translation>
     </message>
     <message>
         <source>&amp;Paste</source>
-        <translation type="unfinished">Pri&amp;lepi</translation>
+        <translation>Pri&amp;lepi</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation type="unfinished">&amp;Zbriši</translation>
+        <translation>&amp;Zbriši</translation>
     </message>
     <message>
         <source>Del</source>
-        <translation type="unfinished">Del</translation>
+        <translation>Del</translation>
     </message>
     <message>
         <source>Backspace</source>
-        <translation type="unfinished">Vračalka</translation>
+        <translation>Vračalka</translation>
     </message>
     <message>
         <source>&amp;View</source>
-        <translation type="unfinished">&amp;Videz</translation>
+        <translation>&amp;Videz</translation>
     </message>
     <message>
         <source>&amp;Help</source>
-        <translation type="unfinished">&amp;Pomoč</translation>
+        <translation>&amp;Pomoč</translation>
     </message>
     <message>
         <source>&amp;About...</source>
-        <translation type="unfinished">&amp;O</translation>
+        <translation>&amp;O ...</translation>
     </message>
     <message>
         <source>Properties</source>
-        <translation type="unfinished">Lastnosti</translation>
+        <translation>Lastnosti</translation>
     </message>
     <message>
         <source>Could not open file &lt;%1&gt;</source>
-        <translation type="unfinished">Ni moč odpreti datoteke %1</translation>
+        <translation>Ni bilo moč odpreti datoteke &lt;%1&gt;</translation>
     </message>
     <message>
         <source>Qml Errors:</source>
-        <translation type="unfinished"></translation>
+        <translation>Napake QML:</translation>
     </message>
     <message>
         <source>
 %1 %2:%3 - %4</source>
-        <translation type="unfinished">S</translation>
+        <translation>
+%1 %2:%3 – %4</translation>
     </message>
     <message>
         <source>
 %1:%2 - %3</source>
-        <translation type="unfinished">S</translation>
+        <translation>
+%1:%2 – %3</translation>
     </message>
     <message>
         <source>Ctrl+O</source>
-        <translation type="unfinished">Ctrl+O</translation>
+        <translation>Ctrl+O</translation>
     </message>
 </context>
 <context>
@@ -6452,7 +6454,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Failed Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Neuspeli vstavki</translation>
     </message>
 </context>
 <context>
@@ -6523,50 +6525,50 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     <message>
         <source>Starting: &quot;%1&quot; %2
 </source>
-        <translation type="unfinished">&lt;font color=&quot;#0000ff&quot;&gt;Zaganjanje: %1 %2&lt;/font&gt;
+        <translation>Zaganjanje: »%1« %2
 </translation>
     </message>
     <message>
         <source>The process &quot;%1&quot; exited normally.</source>
-        <translation type="unfinished"></translation>
+        <translation>Proces »%1« je končal normalno.</translation>
     </message>
     <message>
         <source>The process &quot;%1&quot; exited with code %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Proces »%1« je končal z izhodno kodo %2.</translation>
     </message>
     <message>
         <source>The process &quot;%1&quot; crashed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Proces »%1« se je sesul.</translation>
     </message>
     <message>
         <source>Could not start process &quot;%1&quot;</source>
-        <translation type="unfinished">Nis možno zagnati procesa %1.</translation>
+        <translation>Procesa »%1« ni bilo moč zagnati</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::BuildManager</name>
     <message numerus="yes">
         <source>Finished %1 of %n build steps</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Zaključen %1 od %n korakov gradnje</numerusform>
+            <numerusform>Zaključena %1 od %n korakov gradnje</numerusform>
+            <numerusform>Zaključeni %1 od %n korakov gradnje</numerusform>
+            <numerusform>Zaključenih %1 od %n korakov gradnje</numerusform>
         </translation>
     </message>
     <message>
         <source>Compile</source>
         <comment>Category for compiler isses listened under &apos;Build Issues&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Prevajanje</translation>
     </message>
     <message>
         <source>Build System</source>
         <comment>Category for build system isses listened under &apos;Build Issues&apos;</comment>
-        <translation type="unfinished">Sistem za gradnjo:</translation>
+        <translation>Sistem za gradnjo</translation>
     </message>
     <message>
         <source>Canceled build.</source>
-        <translation type="unfinished">&lt;font color=&quot;#ff0000&quot;&gt;Preklicana gradnja.&lt;/font&gt;</translation>
+        <translation>Gradnja preklicana.</translation>
     </message>
     <message>
         <source>Build</source>
@@ -6574,15 +6576,15 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Error while building project %1 (target: %2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Napaka med gradnjo projekta %1 (cilj: %2)</translation>
     </message>
     <message>
         <source>When executing build step &apos;%1&apos;</source>
-        <translation type="unfinished">&lt;font color=&quot;#ff0000&quot;&gt;Med izvajanjem koraka »%1«&lt;/font&gt;</translation>
+        <translation>Med izvajanjem koraka »%1«</translation>
     </message>
     <message>
         <source>Running build steps for project %1...</source>
-        <translation type="unfinished">&lt;b&gt;Poganjanje korakov gradnje za projekt %2 ...&lt;/b&gt;</translation>
+        <translation>Zaganjanje korakov gradnje za projekt %1 ...</translation>
     </message>
 </context>
 <context>
@@ -6597,15 +6599,15 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Clean Environment</source>
-        <translation type="unfinished">Čisto okolje</translation>
+        <translation>Čisto okolje</translation>
     </message>
     <message>
         <source>System Environment</source>
-        <translation type="unfinished">Sistemsko okolje</translation>
+        <translation>Sistemsko okolje</translation>
     </message>
     <message>
         <source>Build Environment</source>
-        <translation type="unfinished">Okolje za gradnjo</translation>
+        <translation>Okolje za gradnjo</translation>
     </message>
     <message>
         <source>Run %1</source>
@@ -6636,12 +6638,12 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     <message>
         <source>&lt;VARIABLE&gt;</source>
         <comment>Name when inserting a new variable</comment>
-        <translation type="unfinished">&lt;spremenljivka&gt;</translation>
+        <translation>&lt;spremenljivka&gt;</translation>
     </message>
     <message>
         <source>&lt;VALUE&gt;</source>
         <comment>Value when inserting a new variable</comment>
-        <translation type="unfinished">&lt;vrednost&gt;</translation>
+        <translation>&lt;vrednost&gt;</translation>
     </message>
     <message>
         <source>&lt;VARIABLE&gt;</source>
@@ -6676,11 +6678,11 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Using &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Uporablja se &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Using &lt;b&gt;%1&lt;/b&gt; and</source>
-        <translation type="unfinished"></translation>
+        <translation>Uporabljata se &lt;b&gt;%1&lt;/b&gt; in</translation>
     </message>
 </context>
 <context>
@@ -6713,11 +6715,11 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>No build settings available</source>
-        <translation type="unfinished"></translation>
+        <translation>Na voljo ni nobenih nastavitev za gradnjo</translation>
     </message>
     <message>
         <source>Edit build configuration:</source>
-        <translation type="unfinished">Urejanje nastavitev za gradnjo:</translation>
+        <translation>Urejanje nastavitev za gradnjo:</translation>
     </message>
     <message>
         <source>Add</source>
@@ -6756,31 +6758,31 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Move Up</source>
-        <translation type="unfinished">Premakni gor</translation>
+        <translation>Premakni gor</translation>
     </message>
     <message>
         <source>Move Down</source>
-        <translation type="unfinished">Premakni dol</translation>
+        <translation>Premakni dol</translation>
     </message>
     <message>
         <source>Remove Item</source>
-        <translation type="unfinished">Odstrani postavko</translation>
+        <translation>Odstrani postavko</translation>
     </message>
     <message>
         <source>Removing Step failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Odstranitev koraka gradnje ni uspela</translation>
     </message>
     <message>
         <source>Can&apos;t remove build step while building</source>
-        <translation type="unfinished"></translation>
+        <translation>Odstranitev koraka gradnje med gradnjo ni mogoča</translation>
     </message>
     <message>
         <source>Add Clean Step</source>
-        <translation type="unfinished">Dodaj korak čiščenja</translation>
+        <translation>Dodaj korak čiščenja</translation>
     </message>
     <message>
         <source>Add Build Step</source>
-        <translation type="unfinished">Dodaj korak gradnje</translation>
+        <translation>Dodaj korak gradnje</translation>
     </message>
 </context>
 <context>
@@ -6886,7 +6888,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     <name>ProjectExplorer::Internal::EditorSettingsPropertiesPage</name>
     <message>
         <source>Default file encoding:</source>
-        <translation type="unfinished">Privzeti nabor znakov:</translation>
+        <translation>Privzeti nabor znakov:</translation>
     </message>
 </context>
 <context>
@@ -6908,35 +6910,35 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>&amp;New</source>
-        <translation type="unfinished">&amp;Nov</translation>
+        <translation>&amp;Nova</translation>
     </message>
     <message>
         <source>&amp;Rename</source>
-        <translation type="unfinished">Pre&amp;imenuj</translation>
+        <translation>Pre&amp;imenuj</translation>
     </message>
     <message>
         <source>C&amp;lone</source>
-        <translation type="unfinished">Podvoji</translation>
+        <translation>&amp;Podvoji</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation type="unfinished">&amp;Zbriši</translation>
+        <translation>&amp;Zbriši</translation>
     </message>
     <message>
         <source>&amp;Switch to</source>
-        <translation type="unfinished">Preklopi na %1</translation>
+        <translation>P&amp;reklopi na</translation>
     </message>
     <message>
         <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation type="unfinished">&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;Kaj je seja?&lt;/a&gt;</translation>
+        <translation>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;Kaj je seja?&lt;/a&gt;</translation>
     </message>
     <message>
         <source>New session name</source>
-        <translation type="unfinished">Ime nove seje</translation>
+        <translation>Ime nove seje</translation>
     </message>
     <message>
         <source>Rename session</source>
-        <translation type="unfinished">Preimenuj sejo</translation>
+        <translation>Preimenuj sejo</translation>
     </message>
 </context>
 <context>
@@ -6951,19 +6953,19 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Application Output Window</source>
-        <translation type="unfinished">Okno z izhodom programa</translation>
+        <translation>Okno z izhodom programa</translation>
     </message>
     <message>
         <source>The application is still running.</source>
-        <translation type="unfinished"></translation>
+        <translation>Program še vedno teče.</translation>
     </message>
     <message>
         <source>Force it to quit?</source>
-        <translation type="unfinished"></translation>
+        <translation>Ali ga želite prisilno končati?</translation>
     </message>
     <message>
         <source>Force Quit</source>
-        <translation type="unfinished"></translation>
+        <translation>Prisilno končaj</translation>
     </message>
     <message>
         <source>Application Output</source>
@@ -6979,7 +6981,8 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     <message>
         <source>Additional output omitted
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Nekaj izhoda je bilo izpuščenega
+</translation>
     </message>
 </context>
 <context>
@@ -7013,22 +7016,22 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Enable custom process step</source>
-        <translation type="unfinished">Omogoči korak postopka po meri</translation>
+        <translation>Omogoči korak postopka po meri</translation>
     </message>
     <message>
         <source>Working directory:</source>
-        <translation type="unfinished">Delovna mapa:</translation>
+        <translation>Delovna mapa:</translation>
     </message>
     <message>
         <source>Command arguments:</source>
-        <translation type="unfinished">Argumenti za ukaz:</translation>
+        <translation>Argumenti za ukaz:</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::ProjectExplorerSettingsPage</name>
     <message>
         <source>General</source>
-        <translation type="unfinished">Splošno</translation>
+        <translation>Splošno</translation>
     </message>
 </context>
 <context>
@@ -7036,7 +7039,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     <message>
         <source>Project File Factory</source>
         <comment>ProjectExplorer::ProjectFileFactory display name.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Tovarna datotek za projekt</translation>
     </message>
     <message>
         <source>Could not open the following project: &apos;%1&apos;</source>
@@ -7051,7 +7054,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
 ----------
 No project selected
 </extracomment>
-        <translation type="unfinished"></translation>
+        <translation>&lt;brez&gt;</translation>
     </message>
     <message>
         <source>Failed to add one or more files to project
@@ -7061,7 +7064,7 @@ No project selected
     </message>
     <message>
         <source>A version control system repository could not be created in &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>V »%1« ni bilo moč ustvariti skladišča za sistem za nadzor različic.</translation>
     </message>
     <message>
         <source>Failed to add &apos;%1&apos; to the version control system.</source>
@@ -7098,7 +7101,7 @@ No project selected
     <name>ProjectExplorer::Internal::ProjectWizardPage</name>
     <message>
         <source>Summary</source>
-        <translation type="unfinished">Povzetek</translation>
+        <translation>Povzetek</translation>
     </message>
     <message>
         <source>Files to be added:</source>
@@ -7106,7 +7109,7 @@ No project selected
     </message>
     <message>
         <source>Files to be added in</source>
-        <translation type="unfinished"></translation>
+        <translation>Datoteke za dodati v</translation>
     </message>
 </context>
 <context>
@@ -7151,7 +7154,7 @@ No project selected
     </message>
     <message>
         <source>Run configuration:</source>
-        <translation type="unfinished">&amp;Nastavitve za zagon:</translation>
+        <translation>Nastavitve za zagon:</translation>
     </message>
 </context>
 <context>
@@ -7204,11 +7207,11 @@ No project selected
     </message>
     <message>
         <source>Add to &amp;project:</source>
-        <translation type="unfinished">&amp;Dodaj k projektu</translation>
+        <translation>Dodaj v &amp;projekt:</translation>
     </message>
     <message>
         <source>Add to &amp;version control:</source>
-        <translation type="unfinished">Dodaj &amp;v sistem za nadzor različic</translation>
+        <translation>Dodaj &amp;v sistem za nadzor različic:</translation>
     </message>
 </context>
 <context>
@@ -7243,7 +7246,7 @@ No project selected
     </message>
     <message>
         <source>Ctrl+Shift+N</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+N</translation>
     </message>
     <message>
         <source>Load Project...</source>
@@ -7251,7 +7254,7 @@ No project selected
     </message>
     <message>
         <source>Ctrl+Shift+O</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+O</translation>
     </message>
     <message>
         <source>Open File</source>
@@ -7275,7 +7278,7 @@ No project selected
     </message>
     <message>
         <source>Ctrl+Shift+B</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+B</translation>
     </message>
     <message>
         <source>Rebuild All</source>
@@ -7291,7 +7294,7 @@ No project selected
     </message>
     <message>
         <source>Ctrl+B</source>
-        <translation type="unfinished">Ctrl+B</translation>
+        <translation>Ctrl+B</translation>
     </message>
     <message>
         <source>Rebuild Project</source>
@@ -7327,15 +7330,15 @@ No project selected
     </message>
     <message>
         <source>Ctrl+R</source>
-        <translation type="unfinished">CTRL+R</translation>
+        <translation>Ctrl+R</translation>
     </message>
     <message>
         <source>Projects (%1)</source>
-        <translation type="unfinished">Projekti</translation>
+        <translation>Projekti (%1)</translation>
     </message>
     <message>
         <source>All Files (*)</source>
-        <translation type="unfinished">Vse datoteke (*)</translation>
+        <translation>Vse datoteke (*)</translation>
     </message>
     <message>
         <source>Cancel Build</source>
@@ -7347,7 +7350,7 @@ No project selected
     </message>
     <message>
         <source>F5</source>
-        <translation type="unfinished">F5</translation>
+        <translation>F5</translation>
     </message>
     <message>
         <source>Add New...</source>
@@ -7380,27 +7383,27 @@ No project selected
     </message>
     <message>
         <source>Recent P&amp;rojects</source>
-        <translation type="unfinished">Nedavni projekti</translation>
+        <translation>Nedavni p&amp;rojekti</translation>
     </message>
     <message>
         <source>Open Build/Run Target Selector...</source>
-        <translation type="unfinished"></translation>
+        <translation>Odpri izbirnik gradnje/zagona cilja ...</translation>
     </message>
     <message>
         <source>Ctrl+T</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+T</translation>
     </message>
     <message>
         <source>Always save files before build</source>
-        <translation type="unfinished"></translation>
+        <translation>Pred gradnjo vedno shrani datoteke</translation>
     </message>
     <message>
         <source>Cannot run without a project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brez projekta ni moč zagnati.</translation>
     </message>
     <message>
         <source>Cannot debug without a project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brez projekta ni moč razhroščevati.</translation>
     </message>
     <message>
         <source>New File</source>
@@ -7507,15 +7510,15 @@ v sistem za nadzor različic (%2)?</translation>
     </message>
     <message>
         <source>qmake build configuration:</source>
-        <translation type="unfinished">Nastavitev gradnje QMake:</translation>
+        <translation>Nastavitev gradnje s QMake:</translation>
     </message>
     <message>
         <source>Debug</source>
-        <translation type="unfinished">Razhrošči</translation>
+        <translation>Razhroščevanje</translation>
     </message>
     <message>
         <source>Release</source>
-        <translation type="unfinished">Izdaja</translation>
+        <translation>Izdaja</translation>
     </message>
 </context>
 <context>
@@ -7629,13 +7632,15 @@ v sistem za nadzor različic (%2)?</translation>
     <name>Qt4ProjectManager::Internal::ConsoleAppWizard</name>
     <message>
         <source>Qt Console Application</source>
-        <translation type="unfinished">Konzolni program Qt 4</translation>
+        <translation>Konzolni program Qt</translation>
     </message>
     <message>
         <source>Creates a project containing a single main.cpp file with a stub implementation.
 
 Preselects a desktop Qt for building the application if available.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustvari projekt, ki vsebuje eno datoteko *.cpp z začetno implementacijo.
+
+Če je na voljo, za gradnjo programa Izbere Qt za namizje.</translation>
     </message>
 </context>
 <context>
@@ -7649,11 +7654,11 @@ Preselects a desktop Qt for building the application if available.</source>
     <name>Qt4ProjectManager::Internal::EmptyProjectWizard</name>
     <message>
         <source>Empty Qt Project</source>
-        <translation type="unfinished">Prazen projekt Qt 4</translation>
+        <translation>Prazen projekt Qt</translation>
     </message>
     <message>
         <source>Creates a qmake-based project without any files. This allows you to create an application without any default classes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustvari projekt temelječ na QMake, ki ne vsebuje nobene datoteke. To vam omogoča ustvariti program brez privzetega razreda.</translation>
     </message>
 </context>
 <context>
@@ -7678,13 +7683,15 @@ Preselects a desktop Qt for building the application if available.</source>
     <name>Qt4ProjectManager::Internal::GuiAppWizard</name>
     <message>
         <source>Qt Gui Application</source>
-        <translation type="unfinished">Grafični program Qt 4</translation>
+        <translation>Grafični program Qt</translation>
     </message>
     <message>
         <source>Creates a Qt application for the desktop. Includes a Qt Designer-based main window.
 
 Preselects a desktop Qt for building the application if available.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustvari program Qt za namizje. Vsebuje glavno okno, ki temelji na Qt Designerju.
+
+Če je na voljo, za gradnjo programa izbere Qt za namizje.</translation>
     </message>
     <message>
         <source>The template file &apos;%1&apos; could not be opened for reading: %2</source>
@@ -7699,7 +7706,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Details</source>
-        <translation type="unfinished">Podrobnosti</translation>
+        <translation>Podrobnosti</translation>
     </message>
 </context>
 <context>
@@ -7710,7 +7717,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Creates a C++ library based on qmake. This can be used to create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustvari knjižnico C++ temelječo na QMake. To lahko uporabite, da ustvarite:&lt;ul&gt;&lt;li&gt;deljeno knjižnico C++ za uporabo s &lt;tt&gt;QPluginLoader&lt;/tt&gt;, ko program že teče (vstavki)&lt;/li&gt;&lt;li&gt;deljeno ali statično knjižnico C++ za uporabo v drugem projektu v času povezovanja&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
 </context>
 <context>
@@ -7737,7 +7744,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Details</source>
-        <translation type="unfinished">Podrobnosti</translation>
+        <translation>Podrobnosti</translation>
     </message>
 </context>
 <context>
@@ -7755,7 +7762,7 @@ Preselects a desktop Qt for building the application if available.</source>
     <name>Qt4ProjectManager::Internal::ProjectLoadWizard</name>
     <message>
         <source>Project setup</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavitev projekta</translation>
     </message>
 </context>
 <context>
@@ -7798,11 +7805,11 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Could not write project file %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni bilo moč zapisati projektne datoteke %1.</translation>
     </message>
     <message>
         <source>Error while reading PRO file %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Napaka med branjem projektne datoteke %1: %2</translation>
     </message>
 </context>
 <context>
@@ -7828,11 +7835,11 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>using &lt;font color=&quot;#ff0000&quot;&gt;invalid&lt;/font&gt; Qt Version: &lt;b&gt;%1&lt;/b&gt;&lt;br&gt;%2</source>
-        <translation type="unfinished"></translation>
+        <translation>uporablja &lt;font color=&quot;#ff0000&quot;&gt;neveljavno&lt;/font&gt; različico Qt: &lt;b&gt;%1&lt;/b&gt;&lt;br&gt;%2</translation>
     </message>
     <message>
         <source>No Qt Version found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Najdene ni bilo nobene različice Qt.</translation>
     </message>
     <message>
         <source>using Qt version: &lt;b&gt;%1&lt;/b&gt;&lt;br&gt;with tool chain &lt;b&gt;%2&lt;/b&gt;&lt;br&gt;building in &lt;b&gt;%3&lt;/b&gt;</source>
@@ -7844,12 +7851,12 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Building in subdirectories of the source directory is not supported by qmake.</source>
-        <translation type="unfinished"></translation>
+        <translation>QMake ne podpira gradnje v podmapah mape z izvorno kodo.</translation>
     </message>
     <message>
         <source>An incompatible build exists in %1, which will be overwritten.</source>
         <comment>%1 build directory</comment>
-        <translation type="unfinished"></translation>
+        <translation>V %1 obstaja nezdružljiva gradnja, ki bo nadomeščena.</translation>
     </message>
     <message>
         <source>Manage</source>
@@ -7857,31 +7864,31 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Configuration name:</source>
-        <translation type="unfinished">Ime nastavitev</translation>
+        <translation>Ime nastavitev:</translation>
     </message>
     <message>
         <source>Qt version:</source>
-        <translation type="unfinished">Različica Qt:</translation>
+        <translation>Različica Qt:</translation>
     </message>
     <message>
         <source>This Qt version is invalid.</source>
-        <translation type="unfinished">Različica Qt ni veljavna.</translation>
+        <translation>Različica Qt ni veljavna.</translation>
     </message>
     <message>
         <source>Tool chain:</source>
-        <translation type="unfinished">Zaporedje orodij:</translation>
+        <translation>Zaporedje orodij:</translation>
     </message>
     <message>
         <source>Shadow build:</source>
-        <translation type="unfinished">Izven mape s kodo:</translation>
+        <translation>Izven mape s kodo:</translation>
     </message>
     <message>
         <source>Build directory:</source>
-        <translation type="unfinished">Mapa za gradnjo:</translation>
+        <translation>Mapa za gradnjo:</translation>
     </message>
     <message>
         <source>problemLabel</source>
-        <translation type="unfinished"></translation>
+        <translation>oznakaTežave</translation>
     </message>
 </context>
 <context>
@@ -7892,30 +7899,30 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Build</source>
-        <translation type="unfinished">Zgradi</translation>
+        <translation>Zgradi</translation>
     </message>
     <message>
         <source>Run qmake in %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaženi qmake v %1</translation>
     </message>
     <message>
         <source>Build in %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Zgradi v %1</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::Qt4RunConfiguration</name>
     <message>
         <source>Clean Environment</source>
-        <translation type="unfinished">Čisto okolje</translation>
+        <translation>Čisto okolje</translation>
     </message>
     <message>
         <source>System Environment</source>
-        <translation type="unfinished">Sistemsko okolje</translation>
+        <translation>Sistemsko okolje</translation>
     </message>
     <message>
         <source>Build Environment</source>
-        <translation type="unfinished">Okolje za gradnjo</translation>
+        <translation>Okolje za gradnjo</translation>
     </message>
     <message>
         <source>Qt4 RunConfiguration</source>
@@ -7930,15 +7937,15 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Select Working Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Izberite delovno mapo</translation>
     </message>
     <message>
         <source>Working directory:</source>
-        <translation type="unfinished">Delovna mapa:</translation>
+        <translation>Delovna mapa:</translation>
     </message>
     <message>
         <source>Run in terminal</source>
-        <translation type="unfinished">Izvedi v terminalu</translation>
+        <translation>Zaženi v konzoli</translation>
     </message>
     <message>
         <source>Run Environment</source>
@@ -7989,7 +7996,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Select qmake Executable</source>
-        <translation type="unfinished">Izberite program QMake</translation>
+        <translation>Izberite program QMake</translation>
     </message>
     <message>
         <source>Select the MinGW Directory</source>
@@ -8005,7 +8012,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Select the CSL ARM Toolchain (GCCE) Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Izberite mapo s CSL ARM Toolchain (GCCE)</translation>
     </message>
     <message>
         <source>Auto-detected</source>
@@ -8027,36 +8034,36 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>This Qt Version has a unknown toolchain.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta različica Qt ima neznano verigo orodij.</translation>
     </message>
     <message>
         <source>Desktop</source>
         <comment>Qt Version is meant for the desktop</comment>
-        <translation type="unfinished">Namizje</translation>
+        <translation>Namizje</translation>
     </message>
     <message>
         <source>Symbian</source>
         <comment>Qt Version is meant for Symbian</comment>
-        <translation type="unfinished"></translation>
+        <translation>Symbian</translation>
     </message>
     <message>
         <source>Maemo</source>
         <comment>Qt Version is meant for Maemo</comment>
-        <translation type="unfinished"></translation>
+        <translation>Maemo</translation>
     </message>
     <message>
         <source>Qt Simulator</source>
         <comment>Qt Version is meant for Qt Simulator</comment>
-        <translation type="unfinished"></translation>
+        <translation>Qt Simulator</translation>
     </message>
     <message>
         <source>unkown</source>
         <comment>No idea what this Qt Version is meant for!</comment>
-        <translation type="unfinished"></translation>
+        <translation>neznano</translation>
     </message>
     <message>
         <source>Found Qt version %1, using mkspec %2 (%3)</source>
-        <translation type="unfinished">Najden je Qt različice %1, uporabljen mkspec %2</translation>
+        <translation>Najden je Qt različice %1, uporabljen mkspec %2 (%3)</translation>
     </message>
 </context>
 <context>
@@ -8103,35 +8110,35 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>qmake Location</source>
-        <translation type="unfinished">Lokacija QMake</translation>
+        <translation>Lokacija QMake</translation>
     </message>
     <message>
         <source>Version name:</source>
-        <translation type="unfinished">Ime različice:</translation>
+        <translation>Ime različice:</translation>
     </message>
     <message>
         <source>qmake location:</source>
-        <translation type="unfinished">Lokacija QMake</translation>
+        <translation>Lokacija QMake:</translation>
     </message>
     <message>
         <source>MinGW directory:</source>
-        <translation type="unfinished">Mapa z MinGW:</translation>
+        <translation>Mapa z MinGW:</translation>
     </message>
     <message>
         <source>Toolchain:</source>
-        <translation type="unfinished">Zaporedje orodij:</translation>
+        <translation>Zaporedje orodij:</translation>
     </message>
     <message>
         <source>CSL/GCCE directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapa z CSL/GCCE:</translation>
     </message>
     <message>
         <source>Carbide directory:</source>
-        <translation type="unfinished">Mapa s Carbide:</translation>
+        <translation>Mapa s Carbide:</translation>
     </message>
     <message>
         <source>Debugging helper:</source>
-        <translation type="unfinished">Razhroščevalni pomočnik:</translation>
+        <translation>Razhroščevalni pomočnik:</translation>
     </message>
 </context>
 <context>
@@ -8139,11 +8146,11 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Make</source>
         <comment>Qt4 MakeStep display name.</comment>
-        <translation type="unfinished">Znamka</translation>
+        <translation>Make</translation>
     </message>
     <message>
         <source>Could not find make command: %1 in the build environment</source>
-        <translation type="unfinished">&lt;font color=&quot;#ff0000&quot;&gt;Ni bilo moč najti ukaza make: %1 v okolju za gradnjo&lt;/font&gt;</translation>
+        <translation>Ni bilo moč najti ukaza make: %1 v okolju za gradnjo</translation>
     </message>
 </context>
 <context>
@@ -8154,18 +8161,18 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 not found in the environment.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Make:&lt;/b&gt; %1 v okolju ni bil najden.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 %2 in %3</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Make:&lt;/b&gt; %1 %2 v %3</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
-        <translation type="unfinished">Znamka</translation>
+        <translation>Make</translation>
     </message>
 </context>
 <context>
@@ -8173,33 +8180,33 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>qmake</source>
         <comment>QMakeStep display name.</comment>
-        <translation type="unfinished">QMake</translation>
+        <translation>QMake</translation>
     </message>
     <message>
         <source>Configuration is faulty, please check the Build Issues view for details.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavitve niso prave. Za podrobnosti si oglejte podokno »Težave pri gradnji«.</translation>
     </message>
     <message>
         <source>Configuration unchanged, skipping qmake step.</source>
-        <translation type="unfinished">&lt;font color=&quot;#0000ff&quot;&gt;Nastavitev se ni spremenila, izpuščam korak QMake.&lt;/font&gt;</translation>
+        <translation>Nastavitve se niso spremenile, izpuščam korak QMake.</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::QMakeStepConfigWidget</name>
     <message>
         <source>&lt;b&gt;qmake:&lt;/b&gt; No Qt version set. Cannot run qmake.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;QMake:&lt;/b&gt; Nastavljene ni nobene različice Qt. Ni moč zagnati qmake.</translation>
     </message>
     <message>
         <source>&lt;b&gt;qmake:&lt;/b&gt; %1 %2</source>
-        <translation type="unfinished">qmake:</translation>
+        <translation>&lt;b&gt;QMake:&lt;/b&gt; %1 %2</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::QMakeStepFactory</name>
     <message>
         <source>qmake</source>
-        <translation type="unfinished">QMake</translation>
+        <translation>QMake</translation>
     </message>
 </context>
 <context>
@@ -8343,7 +8350,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Creates a Qt Resource file (.qrc) that you can add to a Qt C++ project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustvari datoteko z viri za Qt (*.qrc), katero lahko dodate v projekt Qt C++.</translation>
     </message>
     <message>
         <source>&amp;Undo</source>
@@ -8400,11 +8407,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Invalid file location</source>
-        <translation type="unfinished"></translation>
+        <translation>Neveljavna lokacija datoteke</translation>
     </message>
     <message>
         <source>The file %1 is not in a subdirectory of the resource file. You now have the option to copy this file to a valid location.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datoteka %1 ni podmapa datoteke z viri. Imate možnost skopirati datoteko na veljavno lokacijo.</translation>
     </message>
     <message>
         <source>Choose copy location</source>
@@ -8550,15 +8557,15 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Debugger:</source>
-        <translation type="unfinished">Razhroščevalnik</translation>
+        <translation>Razhroščevalnik:</translation>
     </message>
     <message>
         <source>Local executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Krajevni program:</translation>
     </message>
     <message>
         <source>Sysroot:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vrhnja mapa sistema:</translation>
     </message>
 </context>
 <context>
@@ -8577,27 +8584,27 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Configuration</source>
-        <translation type="unfinished">Nastavitve</translation>
+        <translation>Nastavitve</translation>
     </message>
     <message>
         <source>Subversion command:</source>
-        <translation type="unfinished">Ukaz Subversion:</translation>
+        <translation>Ukaz Subversion:</translation>
     </message>
     <message>
         <source>Username:</source>
-        <translation type="unfinished">Uporabniško ime:</translation>
+        <translation>Uporabniško ime:</translation>
     </message>
     <message>
         <source>Miscellaneous</source>
-        <translation type="unfinished">Razno</translation>
+        <translation>Razno</translation>
     </message>
     <message>
         <source>Timeout:</source>
-        <translation type="unfinished">Zakasnitev:</translation>
+        <translation>Razpoložljivi čas:</translation>
     </message>
     <message>
         <source>s</source>
-        <translation type="unfinished">s</translation>
+        <translation>s</translation>
     </message>
     <message>
         <source>Prompt on submit</source>
@@ -8609,7 +8616,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Log count:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dolžina dnevnika:</translation>
     </message>
 </context>
 <context>
@@ -8631,11 +8638,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Add &quot;%1&quot;</source>
-        <translation type="unfinished">Dodaj</translation>
+        <translation>Dodaj »%1«</translation>
     </message>
     <message>
         <source>Alt+S,Alt+A</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+S,Alt+A</translation>
     </message>
     <message>
         <source>Diff Project</source>
@@ -8651,7 +8658,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Alt+S,Alt+D</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+S,Alt+D</translation>
     </message>
     <message>
         <source>Commit All Files</source>
@@ -8667,7 +8674,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Alt+S,Alt+C</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+S,Alt+C</translation>
     </message>
     <message>
         <source>Filelog Current File</source>
@@ -8876,7 +8883,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Use regular e&amp;xpressions</source>
-        <translation type="unfinished">Uporabi regularne izraze</translation>
+        <translation>Uporabi r&amp;egularne izraze</translation>
     </message>
 </context>
 <context>
@@ -8992,43 +8999,43 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Automatically determine based on the nearest indented line (previous line preferred over next line)</source>
-        <translation type="unfinished"></translation>
+        <translation>Ugotovi samodejno glede na najbližjo zamaknjeno vrstico (predhodna vrstica ima prednost pred naslednjo)</translation>
     </message>
     <message>
         <source>Based on the surrounding lines</source>
-        <translation type="unfinished"></translation>
+        <translation>Temelječe na okoliških vrsticah</translation>
     </message>
     <message>
         <source>Block indentation style:</source>
-        <translation type="unfinished"></translation>
+        <translation>Slog zamikanja bloka:</translation>
     </message>
     <message>
         <source>Exclude Braces</source>
-        <translation type="unfinished"></translation>
+        <translation>Izvzemi oklepaje</translation>
     </message>
     <message>
         <source>Include Braces</source>
-        <translation type="unfinished"></translation>
+        <translation>Vključi oklepaje</translation>
     </message>
     <message>
         <source>GNU Style</source>
-        <translation type="unfinished"></translation>
+        <translation>GNU-jevski slog</translation>
     </message>
     <message>
         <source>In Leading White Space</source>
-        <translation type="unfinished">V praznini na začetku</translation>
+        <translation>V praznini na začetku</translation>
     </message>
     <message>
         <source>Mouse</source>
-        <translation type="unfinished">Miška</translation>
+        <translation>Miška</translation>
     </message>
     <message>
         <source>Enable &amp;mouse navigation</source>
-        <translation type="unfinished">Omogoči navigacijo z &amp;miško</translation>
+        <translation>Omogoči krmarjenje z &amp;miško</translation>
     </message>
     <message>
         <source>Enable scroll &amp;wheel zooming</source>
-        <translation type="unfinished"></translation>
+        <translation>Omogoči povečevanje/zmanjševanje s koleščkom</translation>
     </message>
 </context>
 <context>
@@ -9075,19 +9082,19 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Mark &amp;text changes</source>
-        <translation type="unfinished">Označi spremembe besedila</translation>
+        <translation>Označi &amp;spremembe besedila</translation>
     </message>
     <message>
         <source>&amp;Animate matching parentheses</source>
-        <translation type="unfinished">Animiraj ujemanje oklepajev</translation>
+        <translation>Animiraj &amp;ujemanje oklepajev</translation>
     </message>
     <message>
         <source>Auto-fold first &amp;comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Samodejno zvij prvi &amp;komentar</translation>
     </message>
     <message>
         <source>Center &amp;cursor on scroll</source>
-        <translation type="unfinished"></translation>
+        <translation>Ob premiku &amp;usredišči kazalec</translation>
     </message>
 </context>
 <context>
@@ -9098,11 +9105,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Font &amp;&amp; Colors</source>
-        <translation type="unfinished">Pisave in barve</translation>
+        <translation>Pisave in barve</translation>
     </message>
     <message>
         <source>Color scheme name:</source>
-        <translation type="unfinished">Ime barvne sheme:</translation>
+        <translation>Ime barvne sheme:</translation>
     </message>
     <message>
         <source>%1 (copy)</source>
@@ -9162,7 +9169,7 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     <name>TextEditor::Internal::FindInFiles</name>
     <message>
         <source>Files on File System</source>
-        <translation type="unfinished"></translation>
+        <translation>Datoteke v datotečnem sistemu</translation>
     </message>
     <message>
         <source>&amp;Directory:</source>
@@ -9213,11 +9220,11 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
     <message>
         <source>%</source>
-        <translation type="unfinished"></translation>
+        <translation> %</translation>
     </message>
     <message>
         <source>Zoom:</source>
-        <translation type="unfinished">Povečava:</translation>
+        <translation>Povečava:</translation>
     </message>
 </context>
 <context>
@@ -9235,7 +9242,7 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     <name>TextEditor::Internal::TextEditorPlugin</name>
     <message>
         <source>Creates a text file. The default file extension is &lt;tt&gt;.txt&lt;/tt&gt;. You can specify a different extension as part of the filename.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustvari besedilno datoteko. Privzeta končnica datoteke je &lt;tt&gt;.txt&lt;/tt&gt;. Kot del imena datoteke lahko določite drugo končnico.</translation>
     </message>
     <message>
         <source>Text File</source>
@@ -9251,11 +9258,11 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
     <message>
         <source>Ctrl+Space</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Space</translation>
     </message>
     <message>
         <source>Meta+Space</source>
-        <translation type="unfinished"></translation>
+        <translation>Meta+Space</translation>
     </message>
     <message>
         <source>Triggers a quick fix in this scope</source>
@@ -9263,7 +9270,7 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
     <message>
         <source>Alt+Return</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Return</translation>
     </message>
 </context>
 <context>
@@ -9286,7 +9293,7 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
     <message>
         <source>Ctrl+I</source>
-        <translation type="unfinished">CTRL+I</translation>
+        <translation>Ctrl+I</translation>
     </message>
     <message>
         <source>&amp;Visualize Whitespace</source>
@@ -9306,7 +9313,7 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
     <message>
         <source>Ctrl+/</source>
-        <translation type="unfinished">Ctrl</translation>
+        <translation>Ctrl+/</translation>
     </message>
     <message>
         <source>Delete &amp;Line</source>
@@ -9314,31 +9321,31 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
     <message>
         <source>Shift+Del</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+Del</translation>
     </message>
     <message>
         <source>Meta</source>
-        <translation type="unfinished">Meta</translation>
+        <translation>Meta</translation>
     </message>
     <message>
         <source>Ctrl</source>
-        <translation type="unfinished">Ctrl</translation>
+        <translation>Ctrl</translation>
     </message>
     <message>
         <source>&amp;Rewrap Paragraph</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Znova prelomi vrstice odstavka</translation>
     </message>
     <message>
         <source>%1+E, R</source>
-        <translation type="unfinished"></translation>
+        <translation>%1+E, R</translation>
     </message>
     <message>
         <source>%1+E, %2+V</source>
-        <translation type="unfinished"></translation>
+        <translation>%1+E, %2+V</translation>
     </message>
     <message>
         <source>%1+E, %2+W</source>
-        <translation type="unfinished"></translation>
+        <translation>%1+E, %2+W</translation>
     </message>
     <message>
         <source>Cut &amp;Line</source>
@@ -9350,7 +9357,7 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
     <message>
         <source>Ctrl+&lt;</source>
-        <translation type="unfinished">Ctrl</translation>
+        <translation>Ctrl+&lt;</translation>
     </message>
     <message>
         <source>Expand</source>
@@ -9358,7 +9365,7 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
     <message>
         <source>Ctrl+&gt;</source>
-        <translation type="unfinished">Ctrl</translation>
+        <translation>Ctrl+&gt;</translation>
     </message>
     <message>
         <source>(Un)&amp;Collapse All</source>
@@ -9370,7 +9377,7 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
     <message>
         <source>Ctrl++</source>
-        <translation type="unfinished">Ctrl</translation>
+        <translation>Ctrl++</translation>
     </message>
     <message>
         <source>Decrease Font Size</source>
@@ -9378,47 +9385,47 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
     <message>
         <source>Ctrl+-</source>
-        <translation type="unfinished">Ctrl</translation>
+        <translation>Ctrl+-</translation>
     </message>
     <message>
         <source>Reset Font Size</source>
-        <translation type="unfinished">Ponastavi velikost pisave</translation>
+        <translation>Ponastavi velikost pisave</translation>
     </message>
     <message>
         <source>Ctrl+0</source>
-        <translation type="unfinished">Ctrl</translation>
+        <translation>Ctrl+0</translation>
     </message>
     <message>
         <source>Go to Block Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Pojdi na začetek bloka</translation>
     </message>
     <message>
         <source>Go to Block End</source>
-        <translation type="unfinished"></translation>
+        <translation>Pojdi na konec bloka</translation>
     </message>
     <message>
         <source>Go to Block Start With Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Izberi do začetka bloka</translation>
     </message>
     <message>
         <source>Go to Block End With Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Izberi do konca bloka</translation>
     </message>
     <message>
         <source>Ctrl+[</source>
-        <translation type="unfinished">Ctrl</translation>
+        <translation>Ctrl+[</translation>
     </message>
     <message>
         <source>Ctrl+]</source>
-        <translation type="unfinished">Ctrl</translation>
+        <translation>Ctrl+]</translation>
     </message>
     <message>
         <source>Ctrl+{</source>
-        <translation type="unfinished">Ctrl</translation>
+        <translation>Ctrl+{</translation>
     </message>
     <message>
         <source>Ctrl+}</source>
-        <translation type="unfinished">Ctrl</translation>
+        <translation>Ctrl+}</translation>
     </message>
     <message>
         <source>Select Block Up</source>
@@ -9426,7 +9433,7 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
     <message>
         <source>Ctrl+U</source>
-        <translation type="unfinished">CTRL+U</translation>
+        <translation>Ctrl+U</translation>
     </message>
     <message>
         <source>Select Block Down</source>
@@ -9438,7 +9445,7 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
     <message>
         <source>Ctrl+Shift+Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+Up</translation>
     </message>
     <message>
         <source>Move Line Down</source>
@@ -9446,7 +9453,7 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
     <message>
         <source>Ctrl+Shift+Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+Down</translation>
     </message>
     <message>
         <source>Copy Line Up</source>
@@ -9454,7 +9461,7 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
     <message>
         <source>Ctrl+Alt+Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Alt+Up</translation>
     </message>
     <message>
         <source>Copy Line Down</source>
@@ -9462,79 +9469,79 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
     <message>
         <source>Ctrl+Alt+Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Alt+Down</translation>
     </message>
     <message>
         <source>Join Lines</source>
-        <translation type="unfinished">Združi vrstice</translation>
+        <translation>Združi vrstice</translation>
     </message>
     <message>
         <source>Ctrl+J</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+J</translation>
     </message>
     <message>
         <source>Goto Line Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Pojdi na začetek vrstice</translation>
     </message>
     <message>
         <source>Goto Line End</source>
-        <translation type="unfinished"></translation>
+        <translation>Pojdi na konec vrstice</translation>
     </message>
     <message>
         <source>Goto Next Line</source>
-        <translation type="unfinished"></translation>
+        <translation>Pojdi v naslednjo vrstico</translation>
     </message>
     <message>
         <source>Goto Previous Line</source>
-        <translation type="unfinished"></translation>
+        <translation>Pojdi v predhodno vrstico</translation>
     </message>
     <message>
         <source>Goto Previous Character</source>
-        <translation type="unfinished"></translation>
+        <translation>Pojdi na predhodni znak</translation>
     </message>
     <message>
         <source>Goto Next Character</source>
-        <translation type="unfinished"></translation>
+        <translation>Pojdi na naslednji znak</translation>
     </message>
     <message>
         <source>Goto Previous Word</source>
-        <translation type="unfinished"></translation>
+        <translation>Pojdi v predhodno besedo</translation>
     </message>
     <message>
         <source>Goto Next Word</source>
-        <translation type="unfinished"></translation>
+        <translation>Pojdi v naslednjo besedo</translation>
     </message>
     <message>
         <source>Goto Line Start With Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Izberi do začetka vrstice</translation>
     </message>
     <message>
         <source>Goto Line End With Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Izberi do konca vrstice</translation>
     </message>
     <message>
         <source>Goto Next Line With Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Izberi do naslednje vrstice</translation>
     </message>
     <message>
         <source>Goto Previous Line With Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Izberi do predhodne vrstice</translation>
     </message>
     <message>
         <source>Goto Previous Character With Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Izberi do predhodnega znaka</translation>
     </message>
     <message>
         <source>Goto Next Character With Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Izberi do naslednjega znaka</translation>
     </message>
     <message>
         <source>Goto Previous Word With Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Izberi do predhodne besede</translation>
     </message>
     <message>
         <source>Goto Next Word With Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Izberi do naslednje besede</translation>
     </message>
     <message>
         <source>&lt;line number&gt;</source>
@@ -9649,11 +9656,11 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
     <message>
         <source>Diff File</source>
-        <translation type="unfinished"></translation>
+        <translation>Datoteka v razliki</translation>
     </message>
     <message>
         <source>Diff Location</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokacija v razliki</translation>
     </message>
     <message>
         <source>Behavior</source>
@@ -9699,7 +9706,7 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
     <message>
         <source>Project from Version Control</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt iz sistema za nadzor različic</translation>
     </message>
 </context>
 <context>
@@ -9744,7 +9751,7 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
     <message>
         <source>Copy &quot;%1&quot;</source>
-        <translation type="unfinished">Kopiraj</translation>
+        <translation>Skopiraj »%1«</translation>
     </message>
     <message>
         <source>Describe change %1</source>
@@ -9771,11 +9778,11 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
     <message>
         <source>Executing %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Izvajanje %1</translation>
     </message>
     <message>
         <source>Executing [%1] %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Izvajanje [%1] %2</translation>
     </message>
     <message>
         <source>Unable to open &apos;%1&apos;: %2</source>
@@ -9787,11 +9794,11 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
     <message>
         <source>The check script &apos;%1&apos; timed out.</source>
-        <translation type="unfinished"></translation>
+        <translation>Skriptu za preverjanje »%1« je potekel čas.</translation>
     </message>
     <message>
         <source>The check script &apos;%1&apos; crashed</source>
-        <translation type="unfinished"></translation>
+        <translation>Skript za preverjanje »%1« se je sesul</translation>
     </message>
     <message>
         <source>The check script returned exit code %1.</source>
@@ -9851,15 +9858,15 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt;&quot;&gt;&amp;lt;Comment&amp;gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt;&quot;&gt;&amp;lt;komentar&amp;gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt;&quot;&gt;&amp;lt;Komentar&amp;gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Parts to Send to Server</source>
-        <translation type="unfinished">Deli, ki bodo poslani na strežnik</translation>
+        <translation>uDeli, ki bodo poslani na strežnik</translation>
     </message>
 </context>
 <context>
@@ -9912,7 +9919,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Choose the Location</source>
-        <translation type="unfinished">Izberite lokacijo</translation>
+        <translation>Izberite lokacijo</translation>
     </message>
 </context>
 <context>
@@ -9939,47 +9946,47 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&amp;Class name:</source>
-        <translation type="unfinished">Ime razreda:</translation>
+        <translation>Ime &amp;razreda:</translation>
     </message>
     <message>
         <source>&amp;Base class:</source>
-        <translation type="unfinished">Osnovni razred:</translation>
+        <translation>&amp;Osnovni razred:</translation>
     </message>
     <message>
         <source>&amp;Type information:</source>
-        <translation type="unfinished"></translation>
+        <translation>Podatki o &amp;vrsti:</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">Brez</translation>
+        <translation>Brez</translation>
     </message>
     <message>
         <source>Inherits QWidget</source>
-        <translation type="unfinished"></translation>
+        <translation>Podeduje od QWidget</translation>
     </message>
     <message>
         <source>Based on QSharedData</source>
-        <translation type="unfinished"></translation>
+        <translation>Temelji na QSharedData</translation>
     </message>
     <message>
         <source>&amp;Header file:</source>
-        <translation type="unfinished">Datoteka z glavo:</translation>
+        <translation>Datoteka z &amp;glavo:</translation>
     </message>
     <message>
         <source>&amp;Source file:</source>
-        <translation type="unfinished">Izvorna datoteka</translation>
+        <translation>Datoteka z &amp;izvorno kodo:</translation>
     </message>
     <message>
         <source>&amp;Generate form:</source>
-        <translation type="unfinished">Ustvari obrazec:</translation>
+        <translation>&amp;Ustvari obrazec:</translation>
     </message>
     <message>
         <source>&amp;Form file:</source>
-        <translation type="unfinished">Datoteka z obrazcem:</translation>
+        <translation>Datoteka z &amp;obrazcem:</translation>
     </message>
     <message>
         <source>&amp;Path:</source>
-        <translation type="unfinished">&amp;Pot:</translation>
+        <translation>&amp;Pot:</translation>
     </message>
 </context>
 <context>
@@ -10010,7 +10017,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Use as default project location</source>
-        <translation type="unfinished"></translation>
+        <translation>Uporabi kot privzeto lokacijo projekta</translation>
     </message>
 </context>
 <context>
@@ -10036,40 +10043,42 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Server prefix:</source>
-        <translation type="unfinished">Predpona strežnika:</translation>
+        <translation>Predpona strežnika:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows to send posts to custom subdomains (eg. creator.pastebin.com). Fill in the desired prefix.&lt;/p&gt;
 &lt;p&gt;Note that the plugin will use this for posting as well as fetching.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+&lt;p&gt;&lt;a href=&quot;http://pastebin.com/&quot;&gt;pastebin.com&lt;/a&gt; omogoča pošiljanje na poddomene po meri (npr. creator.pastebin.com). Vnesite želeno predpono.&lt;/p&gt;
+&lt;p&gt;Vedite, da bo vstavek to uporabil tako za pošiljanje kot tudi za pridobivanje.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
     <name>CVS::Internal::SettingsPage</name>
     <message>
         <source>CVS</source>
-        <translation type="unfinished">CVS</translation>
+        <translation>CVS</translation>
     </message>
     <message>
         <source>Configuration</source>
-        <translation type="unfinished">Nastavitve</translation>
+        <translation>Nastavitve</translation>
     </message>
     <message>
         <source>CVS command:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukaz CVS:</translation>
     </message>
     <message>
         <source>CVS root:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vrhnja mapa CVS:</translation>
     </message>
     <message>
         <source>Miscellaneous</source>
-        <translation type="unfinished">Razno</translation>
+        <translation>Razno</translation>
     </message>
     <message>
         <source>Diff options:</source>
-        <translation type="unfinished">Možnosti diff</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Prompt on submit</source>
@@ -10085,11 +10094,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Timeout:</source>
-        <translation type="unfinished">Zakasnitev:</translation>
+        <translation>Razpoložljivi čas:</translation>
     </message>
     <message>
         <source>s</source>
-        <translation type="unfinished">s</translation>
+        <translation>s</translation>
     </message>
 </context>
 <context>
@@ -10124,7 +10133,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Multiple inheritance</source>
-        <translation type="unfinished">Dedovanje od večih</translation>
+        <translation>Dedovanje od večih</translation>
     </message>
 </context>
 <context>
@@ -10193,7 +10202,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Repository</source>
-        <translation type="unfinished">Skladišče</translation>
+        <translation>Skladišče</translation>
     </message>
     <message>
         <source>Choose a repository of the project &apos;%1&apos;.</source>
@@ -10213,7 +10222,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Shared Project Repositories</source>
-        <translation type="unfinished"></translation>
+        <translation>Deljena skladišča projektov</translation>
     </message>
     <message>
         <source>Personal Repositories</source>
@@ -10280,31 +10289,31 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Show Side-by-Side if Possible</source>
-        <translation type="unfinished">Prikaži ob strani, če je možno</translation>
+        <translation>Prikaži ob strani, če je možno</translation>
     </message>
     <message>
         <source>Always Show Side-by-Side</source>
-        <translation type="unfinished">Vedno prikaži ob strani</translation>
+        <translation>Vedno prikaži ob strani</translation>
     </message>
     <message>
         <source>Always Start Full Help</source>
-        <translation type="unfinished">Vedno zaženi polno pomoč</translation>
+        <translation>Vedno zaženi polno pomoč</translation>
     </message>
     <message>
         <source>Show My Home Page</source>
-        <translation type="unfinished">Prikaži mojo domačo stran</translation>
+        <translation>Prikaži mojo domačo stran</translation>
     </message>
     <message>
         <source>Show a Blank Page</source>
-        <translation type="unfinished">Prikaži prazno stran</translation>
+        <translation>Prikaži prazno stran</translation>
     </message>
     <message>
         <source>Show My Tabs from Last Session</source>
-        <translation type="unfinished">Prikaži moje zavihke iz zadnje seje</translation>
+        <translation>Prikaži moje zavihke iz zadnje seje</translation>
     </message>
     <message>
         <source>Home page:</source>
-        <translation type="unfinished">Domača stran:</translation>
+        <translation>Domača stran:</translation>
     </message>
 </context>
 <context>
@@ -10349,7 +10358,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>File types:</source>
-        <translation type="unfinished">Vrste datotek:</translation>
+        <translation>Vrste datotek:</translation>
     </message>
 </context>
 <context>
@@ -10399,7 +10408,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Refresh interval:</source>
-        <translation type="unfinished">interval osveževanja:</translation>
+        <translation>Interval osveževanja:</translation>
     </message>
 </context>
 <context>
@@ -10414,11 +10423,11 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Projects Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Projektna mapa</translation>
     </message>
     <message>
         <source>Current directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Trenutna mapa</translation>
     </message>
     <message>
         <source>directoryButtonGroup</source>
@@ -10426,27 +10435,27 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Directory</source>
-        <translation type="unfinished">Mapa</translation>
+        <translation>Mapa</translation>
     </message>
     <message>
         <source>Save all files before build</source>
-        <translation type="unfinished">Pred gradnjo shrani vse datoteke</translation>
+        <translation>Pred gradnjo shrani vse datoteke</translation>
     </message>
     <message>
         <source>Always build project before running</source>
-        <translation type="unfinished">Pred zagonom vedno zgradi projekt</translation>
+        <translation>Pred zagonom vedno zgradi projekt</translation>
     </message>
     <message>
         <source>Show compiler output on building</source>
-        <translation type="unfinished">Pri gradnji prikaži izhod prevajalnika</translation>
+        <translation>Pri gradnji prikaži izhod prevajalnika</translation>
     </message>
     <message>
         <source>Clear old application output on a new run</source>
-        <translation type="unfinished"></translation>
+        <translation>Ob novem zagonu počisti stari izhod programa</translation>
     </message>
     <message>
         <source>&lt;i&gt;jom&lt;/i&gt; is a drop-in replacement for &lt;i&gt;nmake&lt;/i&gt; which distributes the compilation process to multiple CPU cores. The latest binary is available at &lt;a href=&quot;ftp://ftp.qt.nokia.com/jom/&quot;&gt;ftp://ftp.qt.nokia.com/jom/&lt;/a&gt;. Disable it if you experience problems with your builds.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;i&gt;jom&lt;/i&gt; je nadomestek za &lt;i&gt;nmake&lt;/i&gt;, ki prevajanje porazdeli med več jedri CPE-ja. Najnovejša različica je na voljo na strani &lt;a href=&quot;ftp://ftp.qt.nokia.com/jom/&quot;&gt;ftp.qt.nokia.com/jom&lt;/a&gt;. Onemogočite ga, če se med gradnjami pojavljajo težave.</translation>
     </message>
 </context>
 <context>
@@ -10469,23 +10478,23 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>New Project</source>
-        <translation type="unfinished">Nov projekt</translation>
+        <translation>Nov projekt</translation>
     </message>
     <message>
         <source>Recent Sessions</source>
-        <translation type="unfinished"></translation>
+        <translation>Nedavne seje</translation>
     </message>
     <message>
         <source>Recent Projects</source>
-        <translation type="unfinished">Nedavni projekti</translation>
+        <translation>Nedavni projekti</translation>
     </message>
     <message>
         <source>Open Project...</source>
-        <translation type="unfinished">Odpri projekt</translation>
+        <translation>Odpri projekt ...</translation>
     </message>
     <message>
         <source>Create Project...</source>
-        <translation type="unfinished">Ustvari projekt</translation>
+        <translation>Ustvari projekt ...</translation>
     </message>
 </context>
 <context>
@@ -10661,7 +10670,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
 </context>
 <context>
@@ -10680,23 +10689,23 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>The Qt Creator User Interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Uporabniški vmesnik Qt Creatorja</translation>
     </message>
     <message>
         <source>Building and Running an Example</source>
-        <translation type="unfinished"></translation>
+        <translation>Gradnja in zagon primera</translation>
     </message>
     <message>
         <source>Creating a Qt C++ Application</source>
-        <translation type="unfinished"></translation>
+        <translation>Izdelava programa C++ s Qt</translation>
     </message>
     <message>
         <source>Creating a Mobile Application</source>
-        <translation type="unfinished"></translation>
+        <translation>Izdelava programa za mobilno napravo</translation>
     </message>
     <message>
         <source>Creating a Qt Quick Application</source>
-        <translation type="unfinished"></translation>
+        <translation>Izdelava programa Qt Quick</translation>
     </message>
     <message>
         <source>Choose an example...</source>
@@ -10732,34 +10741,34 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>New Project</source>
-        <translation type="unfinished">Nov projekt</translation>
+        <translation>Nov projekt</translation>
     </message>
     <message>
         <source>Cmd</source>
         <comment>Shortcut key</comment>
-        <translation type="unfinished"></translation>
+        <translation>Cmd</translation>
     </message>
     <message>
         <source>Alt</source>
         <comment>Shortcut key</comment>
-        <translation type="unfinished">Alt</translation>
+        <translation>Alt</translation>
     </message>
     <message>
         <source>Ctrl</source>
         <comment>Shortcut key</comment>
-        <translation type="unfinished">Ctrl</translation>
+        <translation>Ctrl</translation>
     </message>
     <message>
         <source>If you add external libraries to your project, Qt Creator will automatically offer syntax highlighting and code completion.</source>
-        <translation type="unfinished"></translation>
+        <translation>Če v svoj projekt dodate zunanje knjižnice, bo Qt Creator zanje samodejno ponudil poudarjanje skladnje in dokončevanje kode.</translation>
     </message>
     <message>
         <source>Within a session, you can add &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-dependencies.html&quot;&gt;dependencies&lt;/a&gt; between projects.</source>
-        <translation type="unfinished">Znotraj seje lahko dodate &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html#dependencies&quot;&gt;odvisnosti&lt;/a&gt; med projekti.</translation>
+        <translation>Znotraj seje lahko dodate &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-dependencies.html&quot;&gt;odvisnosti&lt;/a&gt; med projekti.</translation>
     </message>
     <message>
         <source>In the editor, &lt;tt&gt;F2&lt;/tt&gt; follows symbol definition, &lt;tt&gt;Shift+F2&lt;/tt&gt; toggles declaration and definition while &lt;tt&gt;F4&lt;/tt&gt; toggles header file and source file.</source>
-        <translation type="unfinished"></translation>
+        <translation>V urejevalniku &lt;tt&gt;F2&lt;/tt&gt; sledi definiciji simbola, &lt;tt&gt;Shift+F2&lt;/tt&gt; preklopi med deklaracijo in definicijo, medtem ko &lt;tt&gt;F4&lt;/tt&gt; preklopi med datoteko z glavo in datoteko z izvorno kodo.</translation>
     </message>
     <message>
         <source>You can show and hide the side bar using &lt;tt&gt;%1+0&lt;tt&gt;.</source>
@@ -10807,23 +10816,23 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Explore Qt C++ Examples</source>
-        <translation type="unfinished"></translation>
+        <translation>Raziščite primere C++ s Qt</translation>
     </message>
     <message>
         <source>Examples not installed...</source>
-        <translation type="unfinished">Primeri niso nameščeni</translation>
+        <translation>Primeri niso nameščeni ...</translation>
     </message>
     <message>
         <source>Explore Qt Quick Examples</source>
-        <translation type="unfinished"></translation>
+        <translation>Raziščite primere Qt Quick</translation>
     </message>
     <message>
         <source>Open Project...</source>
-        <translation type="unfinished">Odpri projekt</translation>
+        <translation>Odpri projekt ...</translation>
     </message>
     <message>
         <source>Create Project...</source>
-        <translation type="unfinished">Ustvari projekt</translation>
+        <translation>Ustvari projekt ...</translation>
     </message>
 </context>
 <context>
@@ -10842,19 +10851,19 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished">Dodaj</translation>
+        <translation>Dodaj</translation>
     </message>
     <message>
         <source>Change Qt version</source>
-        <translation type="unfinished"></translation>
+        <translation>Spremeni različico Qt</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished">Odstrani</translation>
+        <translation>Odstrani</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Napaka</translation>
+        <translation>Napaka</translation>
     </message>
 </context>
 <context>
@@ -10892,11 +10901,11 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Checkout Directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapa za prevzem:</translation>
     </message>
     <message>
         <source>Path:</source>
-        <translation type="unfinished">Pot:</translation>
+        <translation>Pot:</translation>
     </message>
 </context>
 <context>
@@ -10911,27 +10920,27 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>&lt;b&gt;Forum Nokia&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Mobile Application Support&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Forum Nokia&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Programi za mobilne naprave&lt;/font&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Qt LGPL Support&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Buy commercial Qt support&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Podpora za Qt&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Kupite komercialno podporo za Qt&lt;/font&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Qt Centre&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Community based Qt support&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Qt Centre&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Podpora za Qt s strani skupnosti&lt;/font&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Qt Home&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Qt by Nokia on the web&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Dom Qt&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Spletna stran za Qt&lt;/font&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Qt Git Hosting&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Participate in Qt development&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Izvorna koda Qt&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Sodelujte pri razvoju Qt&lt;/font&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Qt Apps&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Find free Qt-based apps&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Programi Qt&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Najdite programe narejene s Qt&lt;/font&gt;</translation>
     </message>
     <message>
         <source>http://labs.trolltech.com/blogs/feed</source>
@@ -10939,11 +10948,11 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Qt Support Sites</source>
-        <translation type="unfinished"></translation>
+        <translation>Strani s podporo za Qt</translation>
     </message>
     <message>
         <source>Qt Links</source>
-        <translation type="unfinished"></translation>
+        <translation>Povezave za Qt</translation>
     </message>
 </context>
 <context>
@@ -10962,7 +10971,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Help us make Qt Creator even better</source>
-        <translation>Pomagajte nam še izboljšati Qt Creatorja</translation>
+        <translation>Pomagajte nam izboljšati Qt Creatorja</translation>
     </message>
     <message>
         <source>Feedback</source>
@@ -11020,7 +11029,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Cannot start the terminal emulator &apos;%1&apos;.</source>
-        <translation>Ni moč zagnati emulatorja konzole »%1«.</translation>
+        <translation>Ni moč zagnati posnemovalnika terminala »%1«.</translation>
     </message>
     <message>
         <source>Cannot create socket &apos;%1&apos;: %2</source>
@@ -11043,7 +11052,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     <name>Utils::DetailsButton</name>
     <message>
         <source>Details</source>
-        <translation type="unfinished">Podrobnosti</translation>
+        <translation>Podrobnosti</translation>
     </message>
 </context>
 <context>
@@ -11088,11 +11097,11 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Choose Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Izberite mapo</translation>
     </message>
     <message>
         <source>Choose File</source>
-        <translation type="unfinished">Izberite datoteko</translation>
+        <translation>Izberite datoteko</translation>
     </message>
     <message>
         <source>The path must not be empty.</source>
@@ -11127,7 +11136,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Delete Line</source>
-        <translation type="unfinished">Izbriši vrstico</translation>
+        <translation>Izbriši vrstico</translation>
     </message>
     <message>
         <source>Clear</source>
@@ -11142,7 +11151,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     <name>Utils::ProjectNameValidatingLineEdit</name>
     <message>
         <source>Invalid character &apos;.&apos;.</source>
-        <translation type="unfinished">Neveljaven znak</translation>
+        <translation>Neveljaven znak ».«.</translation>
     </message>
 </context>
 <context>
@@ -11153,11 +11162,11 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>The unsaved file &lt;i&gt;%1&lt;/i&gt; has been changed outside Qt Creator. Do you want to reload it and discard your changes?</source>
-        <translation type="unfinished">Neshranjena datoteka %1 je bila spremenjena izven Qt Creatorja. Ali jo želite naložiti znova in zavreči vse svoje spremembe?</translation>
+        <translation>Neshranjena datoteka &lt;i&gt;%1&lt;/i&gt; je bila spremenjena izven Qt Creatorja. Ali jo želite naložiti znova in zavreči vse svoje spremembe?</translation>
     </message>
     <message>
         <source>The file &lt;i&gt;%1&lt;/i&gt; has changed outside Qt Creator. Do you want to reload it?</source>
-        <translation type="unfinished">Datoteka %1 je bila spremenjena izven Qt Creatorja. Ali jo želite naložiti znova?</translation>
+        <translation>Datoteka &lt;i&gt;%1&lt;/i&gt; je bila spremenjena izven Qt Creatorja. Ali jo želite naložiti znova?</translation>
     </message>
 </context>
 <context>
@@ -11168,7 +11177,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Select Working Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Izberite delovno mapo</translation>
     </message>
     <message>
         <source>Reset to default</source>
@@ -11219,27 +11228,27 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>.files Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalniku datotek *.files</translation>
     </message>
     <message>
         <source>QMLJS Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalniku QMLJS</translation>
     </message>
     <message>
         <source>.qmlproject Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Urejevalniku datotek *.qmlproject</translation>
     </message>
     <message>
         <source>Qt Designer</source>
-        <translation type="unfinished">Qt Designer</translation>
+        <translation>Qt Designerju</translation>
     </message>
     <message>
         <source>Qt Linguist</source>
-        <translation type="unfinished">Qt Linguist</translation>
+        <translation>Qt Linguistu</translation>
     </message>
     <message>
         <source>Resource Editor</source>
-        <translation type="unfinished">Urejevalnik virov</translation>
+        <translation>Urejevalnik virov</translation>
     </message>
 </context>
 <context>
@@ -11257,11 +11266,11 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     <name>CodePaster::CodePasterProtocol</name>
     <message>
         <source>No Server defined in the CodePaster preferences.</source>
-        <translation type="unfinished">V nastavitvah za CodePaster ni določenega nobenega strežnika.</translation>
+        <translation>V nastavitvah za CodePaster ni določenega nobenega strežnika.</translation>
     </message>
     <message>
         <source>No Server defined in the CodePaster options.</source>
-        <translation type="unfinished">V možnostih za CodePaster ni določenega nobenega strežnika.</translation>
+        <translation>V možnostih za CodePaster ni določenega nobenega strežnika.</translation>
     </message>
     <message>
         <source>No such paste</source>
@@ -11313,7 +11322,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Choose Location for New License Template File</source>
-        <translation type="unfinished"></translation>
+        <translation>Izberite lokacijo za novo datoteko s predlogo licence</translation>
     </message>
     <message>
         <source>Template write error</source>
@@ -11328,7 +11337,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     <name>CppTools::Internal::CppFindReferences</name>
     <message>
         <source>Searching</source>
-        <translation type="unfinished">Iskanje</translation>
+        <translation>Iskanje</translation>
     </message>
 </context>
 <context>
@@ -11353,7 +11362,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     <name>CVS::Internal::CheckoutWizardPage</name>
     <message>
         <source>Location</source>
-        <translation type="unfinished">Lokacija</translation>
+        <translation>Lokacija</translation>
     </message>
     <message>
         <source>Specify repository and path.</source>
@@ -11646,11 +11655,11 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>No memory viewer available</source>
-        <translation type="unfinished"></translation>
+        <translation>Na razpolago ni nobenega pregledovalnika pomnilnika</translation>
     </message>
     <message>
         <source>The memory contents cannot be shown as no viewer plugin for binary data has been loaded.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vsebine pomnilnika ni moč prikazati, saj ni bil naložen noben vstavek za dvojiške podatke.</translation>
     </message>
 </context>
 <context>
@@ -11705,27 +11714,27 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Abort Debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>Prekliči razhroščevanje</translation>
     </message>
     <message>
         <source>Aborts debugging and resets the debugger to the initial state.</source>
-        <translation type="unfinished"></translation>
+        <translation>Prekliče razhroščevanje in ponastavi razhroščevalnik na začetno stanje.</translation>
     </message>
     <message>
         <source>Immediately Return From Inner Function</source>
-        <translation type="unfinished"></translation>
+        <translation>Takoj se vrni iz notranje funkcije</translation>
     </message>
     <message>
         <source>Snapshot</source>
-        <translation type="unfinished">posnetek</translation>
+        <translation>Posnetek</translation>
     </message>
     <message>
         <source>Stopped</source>
-        <translation type="unfinished">Ustavljeno</translation>
+        <translation>Ustavljeno</translation>
     </message>
     <message>
         <source>Exited</source>
-        <translation type="unfinished">Končano.</translation>
+        <translation>Končano</translation>
     </message>
     <message>
         <source>Changing breakpoint state requires either a fully running or fully stopped application.</source>
@@ -11809,19 +11818,20 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     <message>
         <source>Application process could not be stopped:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Procesa programa ni bilo moč ustaviti:
+%1</translation>
     </message>
     <message>
         <source>Application started</source>
-        <translation type="unfinished"></translation>
+        <translation>Program se je zagnal</translation>
     </message>
     <message>
         <source>Application running</source>
-        <translation type="unfinished"></translation>
+        <translation>Program teče</translation>
     </message>
     <message>
         <source>Attached to stopped application</source>
-        <translation type="unfinished"></translation>
+        <translation>Priklopljen na ustavljen program</translation>
     </message>
     <message>
         <source>Connecting to remote server failed:
@@ -11834,20 +11844,21 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     <name>Debugger::Internal::TrkGdbAdapter</name>
     <message>
         <source>Port specification missing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Manjka določitev vrat.</translation>
     </message>
     <message>
         <source>Unable to acquire a device on &apos;%1&apos;. It appears to be in use.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč pridobiti naprave na »%1« Kot kaže je v uporabi.</translation>
     </message>
     <message>
         <source>Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.</source>
-        <translation type="unfinished"></translation>
+        <translation>Proces se je zagnal, PID: 0x%1, ID niti: 0x%2, odsek s kodo: 0x%3, odsek s podatki: 0x%4</translation>
     </message>
     <message>
         <source>Connecting to TRK server adapter failed:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Povezovanje z strežnikom TRK ni uspelo:
+</translation>
     </message>
 </context>
 <context>
@@ -11866,23 +11877,23 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Invalid nested-name</source>
-        <translation type="unfinished"></translation>
+        <translation>Neveljavno vgnezdeno ime</translation>
     </message>
     <message>
         <source>Invalid template args</source>
-        <translation type="unfinished"></translation>
+        <translation>Neveljavni argumenti predloge</translation>
     </message>
     <message>
         <source>Invalid template-param</source>
-        <translation type="unfinished"></translation>
+        <translation>Neveljaven parameter predloge</translation>
     </message>
     <message>
         <source>Invalid qualifiers: unexpected &apos;volatile&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Neveljaven kvalifikator: nepričakovan »volatile«</translation>
     </message>
     <message>
         <source>Invalid qualifiers: &apos;const&apos; appears twice</source>
-        <translation type="unfinished"></translation>
+        <translation>Neveljaven kvalifikator: »const« se pojavi dvakrat</translation>
     </message>
     <message>
         <source>Invalid non-negative number</source>
@@ -11890,7 +11901,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Invalid template-arg</source>
-        <translation type="unfinished"></translation>
+        <translation>Neveljaven argument predloge</translation>
     </message>
     <message>
         <source>Invalid expression</source>
@@ -11898,11 +11909,11 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Invalid primary expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Neveljaven primarni izraz</translation>
     </message>
     <message>
         <source>Invalid expr-primary</source>
-        <translation type="unfinished"></translation>
+        <translation>Neveljaven primarni izraz</translation>
     </message>
     <message>
         <source>Invalid type</source>
@@ -11910,63 +11921,63 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Invalid built-in type</source>
-        <translation type="unfinished"></translation>
+        <translation>Neveljavna vgrajena vrsta</translation>
     </message>
     <message>
         <source>Invalid builtin-type</source>
-        <translation type="unfinished"></translation>
+        <translation>Neveljavna vgrajena vrsta</translation>
     </message>
     <message>
         <source>Invalid function type</source>
-        <translation type="unfinished"></translation>
+        <translation>Neveljavna vrsta funkcije</translation>
     </message>
     <message>
         <source>Invalid unqualified-name</source>
-        <translation type="unfinished"></translation>
+        <translation>Neveljavno nekvalificirano ime</translation>
     </message>
     <message>
         <source>Invalid operator-name &apos;%s&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Neveljavno ime operatorja »%s«</translation>
     </message>
     <message>
         <source>Invalid array-type</source>
-        <translation type="unfinished"></translation>
+        <translation>Neveljavna vrsta polja</translation>
     </message>
     <message>
         <source>Invalid pointer-to-member-type</source>
-        <translation type="unfinished"></translation>
+        <translation>Neveljavna vrsta kazalca na člana</translation>
     </message>
     <message>
         <source>Invalid substitution</source>
-        <translation type="unfinished"></translation>
+        <translation>Neveljavna zamenjava</translation>
     </message>
     <message>
         <source>Invalid substitution: element %1 was requested, but there are only %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Neveljavna zamenjava: zahtevan je bil element %1, obstajajo pa samo %2</translation>
     </message>
     <message>
         <source>Invalid substitution: There are no elements</source>
-        <translation type="unfinished"></translation>
+        <translation>Neveljavna zamenjava: ne obstaja noben element</translation>
     </message>
     <message>
         <source>Invalid special-name</source>
-        <translation type="unfinished"></translation>
+        <translation>Neveljavno posebno ime</translation>
     </message>
     <message>
         <source>Invalid local-name</source>
-        <translation type="unfinished"></translation>
+        <translation>Neveljavno krajevno ime</translation>
     </message>
     <message>
         <source>Invalid discriminator</source>
-        <translation type="unfinished"></translation>
+        <translation>Neveljaven razločevalnik</translation>
     </message>
     <message>
         <source>Invalid ctor-dtor-name</source>
-        <translation type="unfinished"></translation>
+        <translation>Neveljavno ime konstruktorja/destruktorja</translation>
     </message>
     <message>
         <source>Invalid call-offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Neveljaven odmik klica</translation>
     </message>
     <message>
         <source>Invalid v-offset</source>
@@ -11992,7 +12003,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     <name>Git::Internal::CloneWizard</name>
     <message>
         <source>Clones a Git repository and tries to load the contained project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sklonira skladišče Git in poskusi naložiti vsebovani projekt.</translation>
     </message>
     <message>
         <source>Git Repository Clone</source>
@@ -12003,11 +12014,11 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     <name>Git::CloneWizardPage</name>
     <message>
         <source>Location</source>
-        <translation type="unfinished">Lokacija</translation>
+        <translation>Lokacija</translation>
     </message>
     <message>
         <source>Specify repository URL, checkout directory and path.</source>
-        <translation type="unfinished"></translation>
+        <translation>Določite URL skladišča, mapo za prevzem in pot.</translation>
     </message>
     <message>
         <source>Clone URL:</source>
@@ -12033,7 +12044,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     <name>Gitorious::Internal::GitoriousCloneWizard</name>
     <message>
         <source>Clones a Gitorious repository and tries to load the contained project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sklonira skladišče z Gitoriousa in poskusi naložiti vsebovani projekt.</translation>
     </message>
     <message>
         <source>Gitorious Repository Clone</source>
@@ -12044,7 +12055,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     <name>Gitorious::Internal::GitoriousHostWizardPage</name>
     <message>
         <source>Host</source>
-        <translation type="unfinished">Gostitelj</translation>
+        <translation>Gostitelj</translation>
     </message>
     <message>
         <source>Select a host.</source>
@@ -12055,7 +12066,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     <name>Gitorious::Internal::GitoriousProjectWizardPage</name>
     <message>
         <source>Project</source>
-        <translation type="unfinished">Projekt</translation>
+        <translation>Projekt</translation>
     </message>
     <message>
         <source>Choose a project from &apos;%1&apos;</source>
@@ -12066,7 +12077,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     <name>Help::Internal::GeneralSettingsPage</name>
     <message>
         <source>General Settings</source>
-        <translation type="unfinished">Splošne nastavitve</translation>
+        <translation>Splošne nastavitve</translation>
     </message>
     <message>
         <source>Open Image</source>
@@ -12108,7 +12119,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Select Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Izberite mapo</translation>
     </message>
     <message>
         <source>%1 filter update: 0 files</source>
@@ -12184,7 +12195,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     </message>
     <message>
         <source>Options</source>
-        <translation type="unfinished">Možnosti</translation>
+        <translation>Možnosti</translation>
     </message>
     <message>
         <source>&lt;type here&gt;</source>
@@ -12202,7 +12213,7 @@ Za uporabo v polje Lokatorja vtipkajte to bližnjico in presledek ter nato iskan
     <name>Locator::Internal::SettingsPage</name>
     <message>
         <source>%1 (prefix: %2)</source>
-        <translation type="unfinished">Predpona:</translation>
+        <translation>%1 (predpona: %2)</translation>
     </message>
 </context>
 <context>
@@ -12298,47 +12309,47 @@ Razlog: %2</translation>
     <name>ToolChain</name>
     <message>
         <source>GCC</source>
-        <translation type="unfinished"></translation>
+        <translation>GNU Compiler Collection (GCC)</translation>
     </message>
     <message>
         <source>Intel C++ Compiler (Linux)</source>
-        <translation type="unfinished"></translation>
+        <translation>Intel C++ Compiler (Linux)</translation>
     </message>
     <message>
         <source>Microsoft Visual C++</source>
-        <translation type="unfinished"></translation>
+        <translation>Microsoft Visual C++</translation>
     </message>
     <message>
         <source>Windows CE</source>
-        <translation type="unfinished"></translation>
+        <translation>Windows CE</translation>
     </message>
     <message>
         <source>WINSCW</source>
-        <translation type="unfinished"></translation>
+        <translation>WINSCW</translation>
     </message>
     <message>
         <source>GCCE</source>
-        <translation type="unfinished"></translation>
+        <translation>GCCE</translation>
     </message>
     <message>
         <source>GCCE/GnuPoc</source>
-        <translation type="unfinished"></translation>
+        <translation>GCCE/GnuPoc</translation>
     </message>
     <message>
         <source>RVCT (ARMV6)/GnuPoc</source>
-        <translation type="unfinished"></translation>
+        <translation>RVCT (ARMV6)/GnuPoc</translation>
     </message>
     <message>
         <source>RVCT (ARMV5)</source>
-        <translation type="unfinished"></translation>
+        <translation>RVCT (ARMV5)</translation>
     </message>
     <message>
         <source>RVCT (ARMV6)</source>
-        <translation type="unfinished"></translation>
+        <translation>RVCT (ARMV6)</translation>
     </message>
     <message>
         <source>GCC for Maemo</source>
-        <translation type="unfinished"></translation>
+        <translation>GCC za Maemo</translation>
     </message>
     <message>
         <source>Other</source>
@@ -12381,11 +12392,11 @@ Razlog: %2</translation>
     </message>
     <message>
         <source>Identifier cannot start with numeric literal</source>
-        <translation type="unfinished"></translation>
+        <translation>Identifikator se ne more začeti s številskim literalom</translation>
     </message>
     <message>
         <source>Unterminated regular expression literal</source>
-        <translation type="unfinished"></translation>
+        <translation>Nedokončan literal regularnega izraza</translation>
     </message>
     <message>
         <source>Invalid regular expression flag &apos;%0&apos;</source>
@@ -12423,11 +12434,11 @@ Razlog: %2</translation>
     <name>Qt4ProjectManager::Internal::CustomWidgetWizard</name>
     <message>
         <source>Qt Custom Designer Widget</source>
-        <translation type="unfinished"></translation>
+        <translation>Gradnik za Qt Designer po meri</translation>
     </message>
     <message>
         <source>Creates a Qt Custom Designer Widget or a Custom Widget Collection.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustvari gradnik za Qt Designer po meri ali pa zbirko gradnikov po meri</translation>
     </message>
 </context>
 <context>
@@ -12438,11 +12449,11 @@ Razlog: %2</translation>
     </message>
     <message>
         <source>Custom Widgets</source>
-        <translation type="unfinished">Gradniki po meri</translation>
+        <translation>Gradniki po meri</translation>
     </message>
     <message>
         <source>Plugin Details</source>
-        <translation type="unfinished"></translation>
+        <translation>Podrobnosti vstavka</translation>
     </message>
 </context>
 <context>
@@ -12525,11 +12536,11 @@ Razmeščanje programa na »%2« ...</translation>
     </message>
     <message>
         <source>Unable to remove existing file &apos;%1&apos;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Obstoječe datoteke »%1« ni moč odstraniti.: %2</translation>
     </message>
     <message>
         <source>Unable to rename file &apos;%1&apos; to &apos;%2&apos;: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Datoteke »%1« ni moč preimenovati v »%2«: %3</translation>
     </message>
     <message>
         <source>Deploying</source>
@@ -12537,28 +12548,29 @@ Razmeščanje programa na »%2« ...</translation>
     </message>
     <message>
         <source>There is no device plugged in.</source>
-        <translation type="unfinished"></translation>
+        <translation>Priključene ni nobene naprave.</translation>
     </message>
     <message>
         <source>Renaming new package &apos;%1&apos; to &apos;%2&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Preimenovanje novega paketa »%1« v »%2«</translation>
     </message>
     <message>
         <source>Removing old package &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Odstranjevanje starega paketa »%1«</translation>
     </message>
     <message>
         <source>Package file not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Datoteka paketa ni bila najdena</translation>
     </message>
     <message>
         <source>Failed to find package &apos;%1&apos;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni bilo moč najti paketa »%1«: %2</translation>
     </message>
     <message>
         <source>Could not connect to phone on port &apos;%1&apos;: %2
 Check if the phone is connected and App TRK is running.</source>
-        <translation type="unfinished"></translation>
+        <translation>S telefonom na vratih »%1« se ni bilo moč povezati: %2
+Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
     <message>
         <source>Could not create file %1 on device: %2</source>
@@ -12578,23 +12590,23 @@ Check if the phone is connected and App TRK is running.</source>
     </message>
     <message>
         <source>Copying installation file...</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiranje namestitvene datoteke ...</translation>
     </message>
     <message>
         <source>Waiting for App TRK</source>
-        <translation type="unfinished"></translation>
+        <translation>Čakanje na App TRK</translation>
     </message>
     <message>
         <source>Please start App TRK on %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaženite App TRK na %1.</translation>
     </message>
     <message>
         <source>Canceled.</source>
-        <translation type="unfinished">Preklicano.</translation>
+        <translation>Preklicano.</translation>
     </message>
     <message>
         <source>The device &apos;%1&apos; has been disconnected</source>
-        <translation type="unfinished"></translation>
+        <translation>Naprava »%1« je bila izključena</translation>
     </message>
     <message>
         <source>Installing application...</source>
@@ -12651,15 +12663,15 @@ Check if the phone is connected and App TRK is running.</source>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">Argumenti:</translation>
+        <translation>Argumenti:</translation>
     </message>
     <message>
         <source>Installation file:</source>
-        <translation type="unfinished"></translation>
+        <translation>Namestitvena datoteka:</translation>
     </message>
     <message>
         <source>Device on serial port:</source>
-        <translation type="unfinished">Naprava na zaporednih vratih:</translation>
+        <translation>Naprava na zaporednih vratih:</translation>
     </message>
     <message>
         <source>Queries the device for information</source>
@@ -12682,7 +12694,7 @@ Check if the phone is connected and App TRK is running.</source>
     </message>
     <message>
         <source>EPOC:</source>
-        <translation type="unfinished"></translation>
+        <translation>EPOC:</translation>
     </message>
     <message>
         <source>Tools:</source>
@@ -12823,11 +12835,11 @@ Check if the phone is connected and App TRK is running.</source>
     <name>Subversion::Internal::CheckoutWizard</name>
     <message>
         <source>Checks out a Subversion repository and tries to load the contained project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Prevzame skladišče Subversion in poskusi naložiti vsebovani projekt.</translation>
     </message>
     <message>
         <source>Subversion Checkout</source>
-        <translation type="unfinished"></translation>
+        <translation>Prevzem iz Subversion</translation>
     </message>
 </context>
 <context>
@@ -12838,7 +12850,7 @@ Check if the phone is connected and App TRK is running.</source>
     </message>
     <message>
         <source>Specify repository URL, checkout directory and path.</source>
-        <translation type="unfinished"></translation>
+        <translation>Določite URL skladišča, mapo za prevzem in pot.</translation>
     </message>
     <message>
         <source>Repository:</source>
@@ -12897,7 +12909,7 @@ Check if the phone is connected and App TRK is running.</source>
     <name>VCSBase::ProcessCheckoutJob</name>
     <message>
         <source>Unable to start %1: %2</source>
-        <translation type="unfinished">Ni moč zagnati »%1«</translation>
+        <translation>Ni moč zagnati »%1«: %2</translation>
     </message>
     <message>
         <source>The process terminated with exit code %1.</source>
@@ -12920,11 +12932,11 @@ Check if the phone is connected and App TRK is running.</source>
     <name>VCSBase::Internal::CheckoutProgressWizardPage</name>
     <message>
         <source>Checkout</source>
-        <translation type="unfinished">Prevzem</translation>
+        <translation>Prevzem</translation>
     </message>
     <message>
         <source>Checkout started...</source>
-        <translation type="unfinished"></translation>
+        <translation>Prevzemanje se je pričelo ...</translation>
     </message>
     <message>
         <source>Failed.</source>
@@ -12939,7 +12951,7 @@ Check if the phone is connected and App TRK is running.</source>
     <name>VCSBase::VCSBaseOutputWindow</name>
     <message>
         <source>Open &quot;%1&quot;</source>
-        <translation type="unfinished">Odpri</translation>
+        <translation>Odpri »%1«</translation>
     </message>
     <message>
         <source>Clear</source>
@@ -12954,7 +12966,7 @@ Check if the phone is connected and App TRK is running.</source>
     <name>Welcome::Internal::CommunityWelcomePage</name>
     <message>
         <source>News &amp;&amp; Support</source>
-        <translation type="unfinished"></translation>
+        <translation>Novice in podpora</translation>
     </message>
 </context>
 <context>
@@ -12996,11 +13008,11 @@ Check if the phone is connected and App TRK is running.</source>
     </message>
     <message>
         <source>Waiting for App TRK</source>
-        <translation type="unfinished"></translation>
+        <translation>Čakanje na App TRK</translation>
     </message>
     <message>
         <source>Waiting for App TRK to start on %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>Čakanje na zagon App TRK na %1 ...</translation>
     </message>
     <message>
         <source>Waiting for Bluetooth Connection</source>
@@ -13035,96 +13047,96 @@ Check if the phone is connected and App TRK is running.</source>
     <name>CMakeProjectManager::Internal::CMakeRunConfiguration</name>
     <message>
         <source>Clean Environment</source>
-        <translation type="unfinished">Čisto okolje</translation>
+        <translation>Čisto okolje</translation>
     </message>
     <message>
         <source>System Environment</source>
-        <translation type="unfinished">Sistemsko okolje</translation>
+        <translation>Sistemsko okolje</translation>
     </message>
     <message>
         <source>Build Environment</source>
-        <translation type="unfinished">Okolje za gradnjo</translation>
+        <translation>Okolje za gradnjo</translation>
     </message>
     <message>
         <source> (disabled)</source>
-        <translation type="unfinished">Onemogočeno</translation>
+        <translation> (onemogočeno)</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::SourceFilesModel</name>
     <message>
         <source>Internal name</source>
-        <translation type="unfinished">Notranje ime</translation>
+        <translation>Notranje ime</translation>
     </message>
     <message>
         <source>Full name</source>
-        <translation type="unfinished">Polno ime</translation>
+        <translation>Polno ime</translation>
     </message>
 </context>
 <context>
     <name>CommandMappings</name>
     <message>
         <source>Command Mappings</source>
-        <translation type="unfinished"></translation>
+        <translation>Preslikava ukazov</translation>
     </message>
     <message>
         <source>Command</source>
-        <translation type="unfinished">Ukaz</translation>
+        <translation>Ukaz</translation>
     </message>
     <message>
         <source>Label</source>
-        <translation type="unfinished">Oznaka</translation>
+        <translation>Oznaka</translation>
     </message>
     <message>
         <source>Target</source>
-        <translation type="unfinished">Cilj</translation>
+        <translation>Cilj</translation>
     </message>
     <message>
         <source>Defaults</source>
-        <translation type="unfinished">Privzetosti</translation>
+        <translation>Privzeto</translation>
     </message>
     <message>
         <source>Import...</source>
-        <translation type="unfinished">Uvozi ...</translation>
+        <translation>Uvozi ...</translation>
     </message>
     <message>
         <source>Export...</source>
-        <translation type="unfinished">Izvozi</translation>
+        <translation>Izvozi ...</translation>
     </message>
     <message>
         <source>Target Identifier</source>
-        <translation type="unfinished"></translation>
+        <translation>Identifikator cilja</translation>
     </message>
     <message>
         <source>Target:</source>
-        <translation type="unfinished">Cilj:</translation>
+        <translation>Cilj:</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished">Ponastavi</translation>
+        <translation>Ponastavi</translation>
     </message>
 </context>
 <context>
     <name>CodePaster::FileShareProtocolSettingsWidget</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished">Obrazec</translation>
+        <translation>Obrazec</translation>
     </message>
     <message>
         <source>&amp;Path:</source>
-        <translation type="unfinished">&amp;Pot:</translation>
+        <translation>&amp;Pot:</translation>
     </message>
     <message>
         <source>&amp;Display:</source>
-        <translation type="unfinished">Prikaz</translation>
+        <translation>P&amp;rikaz:</translation>
     </message>
     <message>
         <source>entries</source>
-        <translation type="unfinished">Vnosi:</translation>
+        <translation>vnosov</translation>
     </message>
     <message>
         <source>The fileshare-based paster protocol allows for sharing code snippets using simple files on a shared network drive. Files are never deleted.</source>
-        <translation type="unfinished"></translation>
+        <translation>Protokol za prilepljanje, ki temelji na Fileshare, omogoča souporabo delčkov kode z uporabo preprostih datotek na deljenem omrežnem pogonu. Datoteke niso nikoli izbrisane.</translation>
     </message>
 </context>
 <context>
@@ -13374,11 +13386,11 @@ You can choose between stashing the changes or discarding them.</source>
     <name>ProjectExplorer::Internal::AddTargetDialog</name>
     <message>
         <source>Add target</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj cilj</translation>
     </message>
     <message>
         <source>Target:</source>
-        <translation type="unfinished">Cilj:</translation>
+        <translation>Cilj:</translation>
     </message>
 </context>
 <context>
@@ -13399,23 +13411,23 @@ You can choose between stashing the changes or discarding them.</source>
     <name>BehaviorDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Pogovorno okno</translation>
+        <translation>Pogovorno okno</translation>
     </message>
     <message>
         <source>Type:</source>
-        <translation type="unfinished">Vrsta:</translation>
+        <translation>Vrsta:</translation>
     </message>
     <message>
         <source>Id:</source>
-        <translation type="unfinished">ID</translation>
+        <translation>ID:</translation>
     </message>
     <message>
         <source>Property Name:</source>
-        <translation type="unfinished">Ime lastnosti</translation>
+        <translation>Ime lastnosti:</translation>
     </message>
     <message>
         <source>Animation</source>
-        <translation type="unfinished">Animacija</translation>
+        <translation>Animacija</translation>
     </message>
     <message>
         <source>SpringFollow</source>
@@ -13423,15 +13435,15 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>Settings</source>
-        <translation type="unfinished">Nastavitve</translation>
+        <translation>Nastavitve</translation>
     </message>
     <message>
         <source>Duration:</source>
-        <translation type="unfinished">Trajanje:</translation>
+        <translation>Trajanje:</translation>
     </message>
     <message>
         <source>Curve:</source>
-        <translation type="unfinished">Krivulja</translation>
+        <translation>Krivulja:</translation>
     </message>
     <message>
         <source>easeNone</source>
@@ -13439,15 +13451,15 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>Source:</source>
-        <translation type="unfinished">Vir:</translation>
+        <translation>Vir:</translation>
     </message>
     <message>
         <source>Velocity:</source>
-        <translation type="unfinished">Hitrost:</translation>
+        <translation>Hitrost:</translation>
     </message>
     <message>
         <source>Spring:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vzmet:</translation>
     </message>
     <message>
         <source>Damping:</source>
@@ -13458,642 +13470,642 @@ You can choose between stashing the changes or discarding them.</source>
     <name>ContextPaneTextWidget</name>
     <message>
         <source>Text</source>
-        <translation type="unfinished">Besedilo</translation>
+        <translation>Besedilo</translation>
     </message>
     <message>
         <source>Style</source>
-        <translation type="unfinished">Slog</translation>
+        <translation>Slog</translation>
     </message>
     <message>
         <source>Normal</source>
-        <translation type="unfinished">Običajno</translation>
+        <translation>Običajno</translation>
     </message>
     <message>
         <source>Outline</source>
-        <translation type="unfinished">Obris</translation>
+        <translation>Obris</translation>
     </message>
     <message>
         <source>Raised</source>
-        <translation type="unfinished"></translation>
+        <translation>Dvignjeno</translation>
     </message>
     <message>
         <source>Sunken</source>
-        <translation type="unfinished"></translation>
+        <translation>Vgreznjeno</translation>
     </message>
     <message>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
 </context>
 <context>
     <name>GradientDialog</name>
     <message>
         <source>Edit Gradient</source>
-        <translation type="unfinished">Uredi preliv</translation>
+        <translation>Urejanje preliva</translation>
     </message>
 </context>
 <context>
     <name>GradientEditor</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished">Obrazec</translation>
+        <translation>Obrazec</translation>
     </message>
     <message>
         <source>Gradient Editor</source>
-        <translation type="unfinished">Urejevalnik preliva</translation>
+        <translation>Urejevalnik preliva</translation>
     </message>
     <message>
         <source>This area shows a preview of the gradient being edited. It also allows you to edit parameters specific to the gradient&apos;s type such as start and final point, radius, etc. by drag &amp; drop.</source>
-        <translation type="unfinished">To območje prikazuje ogled urejevanega preliva. Omogoča vam tudi urejanje parametrov, ki so specifični za vrsto preliva, na primer začetna in končna točka, polmer in podobno. Za to uporabite vlečenje in spuščanje.</translation>
+        <translation>To območje prikazuje ogled urejevanega preliva. Omogoča vam tudi urejanje parametrov, ki so specifični za vrsto preliva, na primer začetna in končna točka, polmer in podobno. Za to uporabite vlečenje in spuščanje.</translation>
     </message>
     <message>
         <source>1</source>
-        <translation type="unfinished">1</translation>
+        <translation>1</translation>
     </message>
     <message>
         <source>2</source>
-        <translation type="unfinished">2</translation>
+        <translation>2</translation>
     </message>
     <message>
         <source>3</source>
-        <translation type="unfinished">3</translation>
+        <translation>3</translation>
     </message>
     <message>
         <source>4</source>
-        <translation type="unfinished">4</translation>
+        <translation>4</translation>
     </message>
     <message>
         <source>5</source>
-        <translation type="unfinished">5</translation>
+        <translation>5</translation>
     </message>
     <message>
         <source>Gradient Stops Editor</source>
-        <translation type="unfinished">Urejevalnik postankov preliva</translation>
+        <translation>Urejevalnik postankov preliva</translation>
     </message>
     <message>
         <source>This area allows you to edit gradient stops. Double click on the existing stop handle to duplicate it. Double click outside of the existing stop handles to create a new stop. Drag &amp; drop the handle to reposition it. Use right mouse button to popup context menu with extra actions.</source>
-        <translation type="unfinished">To območje vam omogoča urejanje postankov preliva. Da podvojite obstoječo ročko postanka dvokliknite nanjo. Za ustvaritev novega postanka dvokliknite izven obstoječih ročic postankov. Da spremenite položaj postanka povlecite in spustite njegovo ročko. Če kliknete z desnim gumbom miške, se bo pojavil priročni meni z dodatnimi dejanji.</translation>
+        <translation>To območje vam omogoča urejanje postankov preliva. Da podvojite obstoječo ročko postanka dvokliknite nanjo. Za ustvaritev novega postanka dvokliknite izven obstoječih ročic postankov. Da spremenite položaj postanka povlecite in spustite njegovo ročko. Če kliknete z desnim gumbom miške, se bo pojavil priročni meni z dodatnimi dejanji.</translation>
     </message>
     <message>
         <source>Zoom</source>
-        <translation type="unfinished">Povečava</translation>
+        <translation>Povečava</translation>
     </message>
     <message>
         <source>Reset Zoom</source>
-        <translation type="unfinished">Ponastavi povečavo</translation>
+        <translation>Ponastavi povečavo</translation>
     </message>
     <message>
         <source>Position</source>
-        <translation type="unfinished">Položaj</translation>
+        <translation>Položaj</translation>
     </message>
     <message>
         <source>Hue</source>
-        <translation type="unfinished">Odtenek</translation>
+        <translation>Odtenek</translation>
     </message>
     <message>
         <source>H</source>
-        <translation type="unfinished">H</translation>
+        <translation>O</translation>
     </message>
     <message>
         <source>Saturation</source>
-        <translation type="unfinished">Zasičenost</translation>
+        <translation>Zasičenost</translation>
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished">J</translation>
+        <translation>Z</translation>
     </message>
     <message>
         <source>Sat</source>
-        <translation type="unfinished">sob</translation>
+        <translation>Zas.</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">Vrednost</translation>
+        <translation>Vrednost</translation>
     </message>
     <message>
         <source>V</source>
-        <translation type="unfinished">V</translation>
+        <translation>V</translation>
     </message>
     <message>
         <source>Val</source>
-        <translation type="unfinished">Vre.</translation>
+        <translation>Vre.</translation>
     </message>
     <message>
         <source>Alpha</source>
-        <translation type="unfinished">Alfa</translation>
+        <translation>Alfa</translation>
     </message>
     <message>
         <source>A</source>
-        <translation type="unfinished">A4</translation>
+        <translation>A</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Vrsta</translation>
+        <translation>Vrsta</translation>
     </message>
     <message>
         <source>Spread</source>
-        <translation type="unfinished">Razširitev</translation>
+        <translation>Razširitev</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Barva</translation>
+        <translation>Barva</translation>
     </message>
     <message>
         <source>Current stop&apos;s color</source>
-        <translation type="unfinished">Barva trenutnega postanka</translation>
+        <translation>Barva trenutnega postanka</translation>
     </message>
     <message>
         <source>Show HSV specification</source>
-        <translation type="unfinished">Prikaži specifikacijo HSV</translation>
+        <translation>Prikaži specifikacijo HSV</translation>
     </message>
     <message>
         <source>HSV</source>
-        <translation type="unfinished">HSV</translation>
+        <translation>HSV</translation>
     </message>
     <message>
         <source>Show RGB specification</source>
-        <translation type="unfinished">Prikaži specifikacijo RGB</translation>
+        <translation>Prikaži specifikacijo RGB</translation>
     </message>
     <message>
         <source>RGB</source>
-        <translation type="unfinished">RGB</translation>
+        <translation>RGB</translation>
     </message>
     <message>
         <source>Current stop&apos;s position</source>
-        <translation type="unfinished">Položaj trenutnega postanka</translation>
+        <translation>Položaj trenutnega postanka</translation>
     </message>
     <message>
         <source>%</source>
-        <translation type="unfinished"></translation>
+        <translation>%</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation type="unfinished">Približaj</translation>
+        <translation>Približaj</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished">Oddalji</translation>
+        <translation>Oddalji</translation>
     </message>
     <message>
         <source>Toggle details extension</source>
-        <translation type="unfinished">Preklopi prikaz podrobnosti</translation>
+        <translation>Preklopi prikaz podrobnosti</translation>
     </message>
     <message>
         <source>&gt;</source>
-        <translation type="unfinished">&gt;</translation>
+        <translation>&gt;</translation>
     </message>
     <message>
         <source>Linear Type</source>
-        <translation type="unfinished">Linearna vrsta</translation>
+        <translation>Linearna vrsta</translation>
     </message>
     <message>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <source>Radial Type</source>
-        <translation type="unfinished">Radialna vrsta</translation>
+        <translation>Radialna vrsta</translation>
     </message>
     <message>
         <source>Conical Type</source>
-        <translation type="unfinished">Stožčasta vrsta</translation>
+        <translation>Stožčasta vrsta</translation>
     </message>
     <message>
         <source>Pad Spread</source>
-        <translation type="unfinished">Razširitev z zapolnitvijo</translation>
+        <translation>Razširitev z zapolnitvijo</translation>
     </message>
     <message>
         <source>Repeat Spread</source>
-        <translation type="unfinished">Razširitev s ponovitvijo</translation>
+        <translation>Razširitev s ponovitvijo</translation>
     </message>
     <message>
         <source>Reflect Spread</source>
-        <translation type="unfinished">Razširitev z odbojem</translation>
+        <translation>Razširitev z odbojem</translation>
     </message>
     <message>
         <source>Start X</source>
-        <translation type="unfinished">Začetni X</translation>
+        <translation>Začetni X</translation>
     </message>
     <message>
         <source>Start Y</source>
-        <translation type="unfinished">Začetni Y</translation>
+        <translation>Začetni Y</translation>
     </message>
     <message>
         <source>Final X</source>
-        <translation type="unfinished">Končni X</translation>
+        <translation>Končni X</translation>
     </message>
     <message>
         <source>Final Y</source>
-        <translation type="unfinished">Končni Y</translation>
+        <translation>Končni Y</translation>
     </message>
     <message>
         <source>Central X</source>
-        <translation type="unfinished">Središčni X</translation>
+        <translation>Središčni X</translation>
     </message>
     <message>
         <source>Central Y</source>
-        <translation type="unfinished">Središčni Y</translation>
+        <translation>Središčni Y</translation>
     </message>
     <message>
         <source>Focal X</source>
-        <translation type="unfinished">Žariščni X</translation>
+        <translation>Žariščni X</translation>
     </message>
     <message>
         <source>Focal Y</source>
-        <translation type="unfinished">Žariščni Y</translation>
+        <translation>Žariščni Y</translation>
     </message>
     <message>
         <source>Radius</source>
-        <translation type="unfinished">Polmer</translation>
+        <translation>Polmer</translation>
     </message>
     <message>
         <source>Angle</source>
-        <translation type="unfinished">Kot</translation>
+        <translation>Kot</translation>
     </message>
     <message>
         <source>Linear</source>
-        <translation type="unfinished">Linearno</translation>
+        <translation>Linearen</translation>
     </message>
     <message>
         <source>Radial</source>
-        <translation type="unfinished">Radialen</translation>
+        <translation>Radialen</translation>
     </message>
     <message>
         <source>Conical</source>
-        <translation type="unfinished">Stožčast</translation>
+        <translation>Stožčast</translation>
     </message>
     <message>
         <source>Pad</source>
-        <translation type="unfinished">Zapolni</translation>
+        <translation>Zapolni</translation>
     </message>
     <message>
         <source>Repeat</source>
-        <translation type="unfinished">Ponovi</translation>
+        <translation>Ponovi</translation>
     </message>
     <message>
         <source>Reflect</source>
-        <translation type="unfinished">Odbij</translation>
+        <translation>Odbij</translation>
     </message>
 </context>
 <context>
     <name>QtGradientDialog</name>
     <message>
         <source>Edit Gradient</source>
-        <translation type="unfinished">Uredi preliv</translation>
+        <translation>Urejanje preliva</translation>
     </message>
 </context>
 <context>
     <name>QtGradientEditor</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished">Obrazec</translation>
+        <translation>Obrazec</translation>
     </message>
     <message>
         <source>Gradient Editor</source>
-        <translation type="unfinished">Urejevalnik preliva</translation>
+        <translation>Urejevalnik preliva</translation>
     </message>
     <message>
         <source>This area shows a preview of the gradient being edited. It also allows you to edit parameters specific to the gradient&apos;s type such as start and final point, radius, etc. by drag &amp; drop.</source>
-        <translation type="unfinished">To območje prikazuje ogled urejevanega preliva. Omogoča vam tudi urejanje parametrov, ki so specifični za vrsto preliva, na primer začetna in končna točka, polmer in podobno. Za to uporabite vlečenje in spuščanje.</translation>
+        <translation>To območje prikazuje ogled urejevanega preliva. Omogoča vam tudi urejanje parametrov, ki so specifični za vrsto preliva, na primer začetna in končna točka, polmer in podobno. Za to uporabite vlečenje in spuščanje.</translation>
     </message>
     <message>
         <source>1</source>
-        <translation type="unfinished">1</translation>
+        <translation>1</translation>
     </message>
     <message>
         <source>2</source>
-        <translation type="unfinished">2</translation>
+        <translation>2</translation>
     </message>
     <message>
         <source>3</source>
-        <translation type="unfinished">3</translation>
+        <translation>3</translation>
     </message>
     <message>
         <source>4</source>
-        <translation type="unfinished">4</translation>
+        <translation>4</translation>
     </message>
     <message>
         <source>5</source>
-        <translation type="unfinished">5</translation>
+        <translation>5</translation>
     </message>
     <message>
         <source>Gradient Stops Editor</source>
-        <translation type="unfinished">Urejevalnik postankov preliva</translation>
+        <translation>Urejevalnik postankov preliva</translation>
     </message>
     <message>
         <source>This area allows you to edit gradient stops. Double click on the existing stop handle to duplicate it. Double click outside of the existing stop handles to create a new stop. Drag &amp; drop the handle to reposition it. Use right mouse button to popup context menu with extra actions.</source>
-        <translation type="unfinished">To območje vam omogoča urejanje postankov preliva. Da podvojite obstoječo ročko postanka dvokliknite nanjo. Za ustvaritev novega postanka dvokliknite izven obstoječih ročic postankov. Da spremenite položaj postanka povlecite in spustite njegovo ročko. Če kliknete z desnim gumbom miške, se bo pojavil priročni meni z dodatnimi dejanji.</translation>
+        <translation>To območje vam omogoča urejanje postankov preliva. Da podvojite obstoječo ročko postanka dvokliknite nanjo. Za ustvaritev novega postanka dvokliknite izven obstoječih ročic postankov. Da spremenite položaj postanka povlecite in spustite njegovo ročko. Če kliknete z desnim gumbom miške, se bo pojavil priročni meni z dodatnimi dejanji.</translation>
     </message>
     <message>
         <source>Zoom</source>
-        <translation type="unfinished">Povečava</translation>
+        <translation>Povečava</translation>
     </message>
     <message>
         <source>Reset Zoom</source>
-        <translation type="unfinished">Ponastavi povečavo</translation>
+        <translation>Ponastavi povečavo</translation>
     </message>
     <message>
         <source>Position</source>
-        <translation type="unfinished">Položaj</translation>
+        <translation>Položaj</translation>
     </message>
     <message>
         <source>Hue</source>
-        <translation type="unfinished">Odtenek</translation>
+        <translation>Odtenek</translation>
     </message>
     <message>
         <source>H</source>
-        <translation type="unfinished">H</translation>
+        <translation>O</translation>
     </message>
     <message>
         <source>Saturation</source>
-        <translation type="unfinished">Zasičenost</translation>
+        <translation>Zasičenost</translation>
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished">J</translation>
+        <translation>Z</translation>
     </message>
     <message>
         <source>Sat</source>
-        <translation type="unfinished">sob</translation>
+        <translation>Zas.</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">Vrednost</translation>
+        <translation>Vrednost</translation>
     </message>
     <message>
         <source>V</source>
-        <translation type="unfinished">V</translation>
+        <translation>V</translation>
     </message>
     <message>
         <source>Val</source>
-        <translation type="unfinished">Vre.</translation>
+        <translation>Vre.</translation>
     </message>
     <message>
         <source>Alpha</source>
-        <translation type="unfinished">Alfa</translation>
+        <translation>Alfa</translation>
     </message>
     <message>
         <source>A</source>
-        <translation type="unfinished">A4</translation>
+        <translation>A</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Vrsta</translation>
+        <translation>Vrsta</translation>
     </message>
     <message>
         <source>Spread</source>
-        <translation type="unfinished">Razširitev</translation>
+        <translation>Razširitev</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Barva</translation>
+        <translation>Barva</translation>
     </message>
     <message>
         <source>Current stop&apos;s color</source>
-        <translation type="unfinished">Barva trenutnega postanka</translation>
+        <translation>Barva trenutnega postanka</translation>
     </message>
     <message>
         <source>Show HSV specification</source>
-        <translation type="unfinished">Prikaži specifikacijo HSV</translation>
+        <translation>Prikaži specifikacijo HSV</translation>
     </message>
     <message>
         <source>HSV</source>
-        <translation type="unfinished">HSV</translation>
+        <translation>HSV</translation>
     </message>
     <message>
         <source>Show RGB specification</source>
-        <translation type="unfinished">Prikaži specifikacijo RGB</translation>
+        <translation>Prikaži specifikacijo RGB</translation>
     </message>
     <message>
         <source>RGB</source>
-        <translation type="unfinished">RGB</translation>
+        <translation>RGB</translation>
     </message>
     <message>
         <source>Current stop&apos;s position</source>
-        <translation type="unfinished">Položaj trenutnega postanka</translation>
+        <translation>Položaj trenutnega postanka</translation>
     </message>
     <message>
         <source>%</source>
-        <translation type="unfinished"></translation>
+        <translation>%</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation type="unfinished">Približaj</translation>
+        <translation>Približaj</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished">Oddalji</translation>
+        <translation>Oddalji</translation>
     </message>
     <message>
         <source>Toggle details extension</source>
-        <translation type="unfinished">Preklopi prikaz podrobnosti</translation>
+        <translation>Preklopi prikaz podrobnosti</translation>
     </message>
     <message>
         <source>&gt;</source>
-        <translation type="unfinished">&gt;</translation>
+        <translation>&gt;</translation>
     </message>
     <message>
         <source>Linear Type</source>
-        <translation type="unfinished">Linearna vrsta</translation>
+        <translation>Linearna vrsta</translation>
     </message>
     <message>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <source>Radial Type</source>
-        <translation type="unfinished">Radialna vrsta</translation>
+        <translation>Radialna vrsta</translation>
     </message>
     <message>
         <source>Conical Type</source>
-        <translation type="unfinished">Stožčasta vrsta</translation>
+        <translation>Stožčasta vrsta</translation>
     </message>
     <message>
         <source>Pad Spread</source>
-        <translation type="unfinished">Razširitev z zapolnitvijo</translation>
+        <translation>Razširitev z zapolnitvijo</translation>
     </message>
     <message>
         <source>Repeat Spread</source>
-        <translation type="unfinished">Razširitev s ponovitvijo</translation>
+        <translation>Razširitev s ponovitvijo</translation>
     </message>
     <message>
         <source>Reflect Spread</source>
-        <translation type="unfinished">Razširitev z odbojem</translation>
+        <translation>Razširitev z odbojem</translation>
     </message>
     <message>
         <source>Start X</source>
-        <translation type="unfinished">Začetni X</translation>
+        <translation>Začetni X</translation>
     </message>
     <message>
         <source>Start Y</source>
-        <translation type="unfinished">Začetni Y</translation>
+        <translation>Začetni Y</translation>
     </message>
     <message>
         <source>Final X</source>
-        <translation type="unfinished">Končni X</translation>
+        <translation>Končni X</translation>
     </message>
     <message>
         <source>Final Y</source>
-        <translation type="unfinished">Končni Y</translation>
+        <translation>Končni Y</translation>
     </message>
     <message>
         <source>Central X</source>
-        <translation type="unfinished">Središčni X</translation>
+        <translation>Središčni X</translation>
     </message>
     <message>
         <source>Central Y</source>
-        <translation type="unfinished">Središčni Y</translation>
+        <translation>Središčni Y</translation>
     </message>
     <message>
         <source>Focal X</source>
-        <translation type="unfinished">Žariščni X</translation>
+        <translation>Žariščni X</translation>
     </message>
     <message>
         <source>Focal Y</source>
-        <translation type="unfinished">Žariščni Y</translation>
+        <translation>Žariščni Y</translation>
     </message>
     <message>
         <source>Radius</source>
-        <translation type="unfinished">Polmer</translation>
+        <translation>Polmer</translation>
     </message>
     <message>
         <source>Angle</source>
-        <translation type="unfinished">Kot</translation>
+        <translation>Kot</translation>
     </message>
     <message>
         <source>Linear</source>
-        <translation type="unfinished">Linearno</translation>
+        <translation>Linearen</translation>
     </message>
     <message>
         <source>Radial</source>
-        <translation type="unfinished">Radialen</translation>
+        <translation>Radialen</translation>
     </message>
     <message>
         <source>Conical</source>
-        <translation type="unfinished">Stožčast</translation>
+        <translation>Stožčast</translation>
     </message>
     <message>
         <source>Pad</source>
-        <translation type="unfinished">Zapolni</translation>
+        <translation>Zapolni</translation>
     </message>
     <message>
         <source>Repeat</source>
-        <translation type="unfinished">Ponovi</translation>
+        <translation>Ponovi</translation>
     </message>
     <message>
         <source>Reflect</source>
-        <translation type="unfinished">Odbij</translation>
+        <translation>Odbij</translation>
     </message>
 </context>
 <context>
     <name>QtGradientView</name>
     <message>
         <source>Gradient View</source>
-        <translation type="unfinished">Prikaz preliva</translation>
+        <translation>Prikaz preliva</translation>
     </message>
     <message>
         <source>New...</source>
-        <translation type="unfinished">Novo ...</translation>
+        <translation>Novo ...</translation>
     </message>
     <message>
         <source>Edit...</source>
-        <translation type="unfinished">Uredi ...</translation>
+        <translation>Urejanje ...</translation>
     </message>
     <message>
         <source>Rename</source>
-        <translation type="unfinished">Preimenuj</translation>
+        <translation>Preimenuj</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished">Odstrani</translation>
+        <translation>Odstrani</translation>
     </message>
     <message>
         <source>Grad</source>
-        <translation type="unfinished">Grad</translation>
+        <translation>Preliv</translation>
     </message>
     <message>
         <source>Remove Gradient</source>
-        <translation type="unfinished">Odstrani preliv</translation>
+        <translation>Odstrani preliv</translation>
     </message>
     <message>
         <source>Are you sure you want to remove the selected gradient?</source>
-        <translation type="unfinished">Ali res želite odstraniti izbrani preliv?</translation>
+        <translation>Ali res želite odstraniti izbrani preliv?</translation>
     </message>
 </context>
 <context>
     <name>QtGradientViewDialog</name>
     <message>
         <source>Select Gradient</source>
-        <translation type="unfinished">Izberite preliv</translation>
+        <translation>Izberite preliv</translation>
     </message>
 </context>
 <context>
     <name>QmlDesigner::Internal::SettingsPage</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished">Obrazec</translation>
+        <translation>Obrazec</translation>
     </message>
     <message>
         <source>Snapping</source>
-        <translation type="unfinished">Pripenjanje</translation>
+        <translation>Pripenjanje</translation>
     </message>
     <message>
         <source>Item spacing</source>
-        <translation type="unfinished"></translation>
+        <translation>Razmik</translation>
     </message>
     <message>
         <source>Snap margin</source>
-        <translation type="unfinished"></translation>
+        <translation>Odmik za pripenjanje</translation>
     </message>
     <message>
         <source>Qt Quick Designer</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Quick Designer</translation>
     </message>
 </context>
 <context>
     <name>StartExternalQmlDialog</name>
     <message>
         <source>Start Simultaneous QML and C++ Debugging </source>
-        <translation type="unfinished"></translation>
+        <translation>Začni istočasno razhroščevanje C++ in QML </translation>
     </message>
     <message>
         <source>Debugging address:</source>
-        <translation type="unfinished"></translation>
+        <translation>Naslov za razhroščevanje:</translation>
     </message>
     <message>
         <source>Debugging port:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vrata za razhroščevanje:</translation>
     </message>
     <message>
         <source>127.0.0.1</source>
-        <translation type="unfinished">127.0.0.1</translation>
+        <translation>127.0.0.1</translation>
     </message>
     <message>
         <source>Project:</source>
-        <translation type="unfinished">Projekt:</translation>
+        <translation>Projekt:</translation>
     </message>
     <message>
         <source>&lt;No project&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;brez projekta&gt;</translation>
     </message>
     <message>
         <source>Viewer path:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pot do pregledovalnika:</translation>
     </message>
     <message>
         <source>Viewer arguments:</source>
-        <translation type="unfinished"></translation>
+        <translation>Argumenti pregledovalnika:</translation>
     </message>
     <message>
         <source>To switch languages while debugging, go to Debug-&gt;Language menu.</source>
-        <translation type="unfinished"></translation>
+        <translation>Za preklop jezika med razhroščevanje pojdite v meni Razhroščevanje → Jezik.</translation>
     </message>
 </context>
 <context>
     <name>MaemoConfigTestDialog</name>
     <message>
         <source>Device Configuration Test</source>
-        <translation type="unfinished"></translation>
+        <translation>Preizkus nastavitev naprave</translation>
     </message>
 </context>
 <context>
@@ -14104,23 +14116,23 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>Skip packaging step</source>
-        <translation type="unfinished"></translation>
+        <translation>Preskoči korak ustvarjanja paketa</translation>
     </message>
     <message>
         <source>Version number:</source>
-        <translation type="unfinished">Številka različice:</translation>
+        <translation>Številka različice:</translation>
     </message>
     <message>
         <source>Major:</source>
-        <translation type="unfinished">Velika</translation>
+        <translation>Velika:</translation>
     </message>
     <message>
         <source>Minor:</source>
-        <translation type="unfinished">Mala</translation>
+        <translation>Mala:</translation>
     </message>
     <message>
         <source>Patch:</source>
-        <translation type="unfinished">Popravek 1</translation>
+        <translation>Popravek:</translation>
     </message>
     <message>
         <source>Files to deploy:</source>
@@ -14128,106 +14140,106 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>Add File to Package</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj datoteko v paket</translation>
     </message>
     <message>
         <source>Remove File from Package</source>
-        <translation type="unfinished"></translation>
+        <translation>Odstrani datoteko iz paketa</translation>
     </message>
 </context>
 <context>
     <name>MaemoSettingsWidget</name>
     <message>
         <source>Maemo Device Configurations</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavitve naprave Maemo</translation>
     </message>
     <message>
         <source>Configuration:</source>
-        <translation type="unfinished">Nastavitve</translation>
+        <translation>Nastavitve:</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Ime</translation>
+        <translation>Ime</translation>
     </message>
     <message>
         <source>Device type:</source>
-        <translation type="unfinished">Vrsta naprave:</translation>
+        <translation>Vrsta naprave:</translation>
     </message>
     <message>
         <source>Remote device</source>
-        <translation type="unfinished">Oddaljena naprava</translation>
+        <translation>Oddaljena naprava</translation>
     </message>
     <message>
         <source>Maemo emulator</source>
-        <translation type="unfinished"></translation>
+        <translation>Posnemovalnik Maemo</translation>
     </message>
     <message>
         <source>Authentication type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vrsta overjanja:</translation>
     </message>
     <message>
         <source>Password</source>
-        <translation type="unfinished">Geslo</translation>
+        <translation>Geslo</translation>
     </message>
     <message>
         <source>Key</source>
-        <translation type="unfinished">Ključ</translation>
+        <translation>Ključ</translation>
     </message>
     <message>
         <source>Host name:</source>
-        <translation type="unfinished">Ime gostitelja:</translation>
+        <translation>Ime gostitelja:</translation>
     </message>
     <message>
         <source>IP or host name of the device</source>
-        <translation type="unfinished"></translation>
+        <translation>IP ali ime gostitelja naprave</translation>
     </message>
     <message>
         <source>Ports:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vrata:</translation>
     </message>
     <message>
         <source>SSH:</source>
-        <translation type="unfinished">ssh</translation>
+        <translation>SSH:</translation>
     </message>
     <message>
         <source>Gdb server:</source>
-        <translation type="unfinished"></translation>
+        <translation>Strežnik GDB:</translation>
     </message>
     <message>
         <source>Connection timeout:</source>
-        <translation type="unfinished"></translation>
+        <translation>Razpoložljivi čas za povezavo:</translation>
     </message>
     <message>
         <source>s</source>
-        <translation type="unfinished">s</translation>
+        <translation>s</translation>
     </message>
     <message>
         <source>Username:</source>
-        <translation type="unfinished">Uporabniško ime:</translation>
+        <translation>Uporabniško ime:</translation>
     </message>
     <message>
         <source>Password:</source>
-        <translation type="unfinished">Geslo:</translation>
+        <translation>Geslo:</translation>
     </message>
     <message>
         <source>Private key file:</source>
-        <translation type="unfinished">Datoteka z zasebnim ključem:</translation>
+        <translation>Datoteka z zasebnim ključem:</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished">Dodaj</translation>
+        <translation>Dodaj</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished">Odstrani</translation>
+        <translation>Odstrani</translation>
     </message>
     <message>
         <source>Test</source>
-        <translation type="unfinished">Preizkus</translation>
+        <translation>Preizkus</translation>
     </message>
     <message>
         <source>Generate SSH Key ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustvari ključ SSH ...</translation>
     </message>
     <message>
         <source>Deploy Public Key ...</source>
@@ -14238,238 +14250,238 @@ You can choose between stashing the changes or discarding them.</source>
     <name>MaemoSshConfigDialog</name>
     <message>
         <source>SSH Key Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavitev ključa SSH</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation type="unfinished">Možnosti</translation>
+        <translation>Možnosti</translation>
     </message>
     <message>
         <source>Key size:</source>
-        <translation type="unfinished">&amp;Velikost ključa:</translation>
+        <translation>Velikost ključa:</translation>
     </message>
     <message>
         <source>Key algorithm:</source>
-        <translation type="unfinished"></translation>
+        <translation>Algoritem za ključ:</translation>
     </message>
     <message>
         <source>RSA</source>
-        <translation type="unfinished">RSA</translation>
+        <translation>RSA</translation>
     </message>
     <message>
         <source>DSA</source>
-        <translation type="unfinished">DSA</translation>
+        <translation>DSA</translation>
     </message>
     <message>
         <source>Key</source>
-        <translation type="unfinished">Ključ</translation>
+        <translation>Ključ</translation>
     </message>
     <message>
         <source>Generate SSH Key</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustvari ključ SSH</translation>
     </message>
     <message>
         <source>Save Public Key...</source>
-        <translation type="unfinished"></translation>
+        <translation>Shrani javni ključ ...</translation>
     </message>
     <message>
         <source>Save Private Key...</source>
-        <translation type="unfinished"></translation>
+        <translation>Shrani zasebni ključ ...</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">Zapri</translation>
+        <translation>Zapri</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::S60CreatePackageStepWidget</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished">Obrazec</translation>
+        <translation>Obrazec</translation>
     </message>
     <message>
         <source>Self-signed certificate</source>
-        <translation type="unfinished">Samo-podpisano potrdilo</translation>
+        <translation>Samo-podpisano potrdilo</translation>
     </message>
     <message>
         <source>Custom certificate:</source>
-        <translation type="unfinished">Potrdilo po meri:</translation>
+        <translation>Potrdilo po meri:</translation>
     </message>
     <message>
         <source>Choose certificate file (.cer)</source>
-        <translation type="unfinished">Izberite datoteko s potrdilom (*.cer)</translation>
+        <translation>Izberite datoteko s potrdilom (*.cer)</translation>
     </message>
     <message>
         <source>Key file:</source>
-        <translation type="unfinished">Datoteka s ključem:</translation>
+        <translation>Datoteka s ključem:</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::TargetSetupPage</name>
     <message>
         <source>Setup targets for your project</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavite cilje za svoj projekt</translation>
     </message>
     <message>
         <source>Qt Creator can set up the following targets:</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Creator lahko nastavi naslednje cilje:</translation>
     </message>
     <message>
         <source>Qt Version</source>
-        <translation type="unfinished">Različica Qt:</translation>
+        <translation>Različica Qt</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation type="unfinished">Stanje</translation>
+        <translation>Stanje</translation>
     </message>
     <message>
         <source>Build Directory</source>
-        <translation type="unfinished">&amp;Mapa za gradnjo:</translation>
+        <translation>Mapa za gradnjo</translation>
     </message>
     <message>
         <source>Import Existing Shadow Build...</source>
-        <translation type="unfinished"></translation>
+        <translation>Uvozi obstoječo gradnjo ...</translation>
     </message>
     <message>
         <source>Import</source>
         <comment>Is this an import of an existing build or a new one?</comment>
-        <translation type="unfinished">Uvozi</translation>
+        <translation>Uvozi</translation>
     </message>
     <message>
         <source>New</source>
         <comment>Is this an import of an existing build or a new one?</comment>
-        <translation type="unfinished">Novo</translation>
+        <translation>Nova</translation>
     </message>
     <message>
         <source>Qt Creator can set up the following targets for project &lt;b&gt;%1&lt;/b&gt;:</source>
         <comment>%1: Project name</comment>
-        <translation type="unfinished"></translation>
+        <translation>Qt Creator lahko nastavi naslednje cilje za projekt &lt;b&gt;%1&lt;/b&gt;:</translation>
     </message>
     <message>
         <source>Choose a directory to scan for additional shadow builds</source>
-        <translation type="unfinished"></translation>
+        <translation>Izberite mapo, v kateri se bo preveril obstoj dodatne gradnje</translation>
     </message>
     <message>
         <source>No builds found</source>
-        <translation type="unfinished"></translation>
+        <translation>Najdene ni bilo nobene gradnje</translation>
     </message>
     <message>
         <source>No builds for project file &quot;%1&quot; were found in the folder &quot;%2&quot;.</source>
         <comment>%1: pro-file, %2: directory that was checked.</comment>
-        <translation type="unfinished"></translation>
+        <translation>V mapi »%2« ni bilo najdene nobene gradnje za projektno datoteko »%1«.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Error:&lt;/b&gt; </source>
         <comment>Severity is Task::Error</comment>
-        <translation type="unfinished">Napaka</translation>
+        <translation>&lt;b&gt;Napaka:&lt;/b&gt; </translation>
     </message>
     <message>
         <source>&lt;b&gt;Warning:&lt;/b&gt; </source>
         <comment>Severity is Task::Warning</comment>
-        <translation type="unfinished">Opozorilo</translation>
+        <translation>&lt;b&gt;Opozorilo:&lt;/b&gt; </translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::TestWizardPage</name>
     <message>
         <source>WizardPage</source>
-        <translation type="unfinished">StranČarovnika</translation>
+        <translation>StranČarovnika</translation>
     </message>
     <message>
         <source>Specify basic information about the test class for which you want to generate skeleton source code file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Podajte osnovne podatke o razredu, za katerega želite ustvariti datoteko z ogrodjem izvorne kode.</translation>
     </message>
     <message>
         <source>Class name:</source>
-        <translation type="unfinished">Ime razreda:</translation>
+        <translation>Ime razreda:</translation>
     </message>
     <message>
         <source>Type:</source>
-        <translation type="unfinished">Vrsta:</translation>
+        <translation>Vrsta:</translation>
     </message>
     <message>
         <source>Test</source>
-        <translation type="unfinished">Preizkus</translation>
+        <translation>Preizkus</translation>
     </message>
     <message>
         <source>Benchmark</source>
-        <translation type="unfinished"></translation>
+        <translation>Meritev hitrosti</translation>
     </message>
     <message>
         <source>File:</source>
-        <translation type="unfinished">&amp;Datoteka</translation>
+        <translation>Datoteka:</translation>
     </message>
     <message>
         <source>Generate initialization and cleanup code</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustvari kodo za inicalizacijo in čiščenje</translation>
     </message>
     <message>
         <source>Test slot:</source>
-        <translation type="unfinished"></translation>
+        <translation>Preizkusno mesto:</translation>
     </message>
     <message>
         <source>Requires QApplication</source>
-        <translation type="unfinished"></translation>
+        <translation>Potrebuje QApplication</translation>
     </message>
     <message>
         <source>Use a test data set</source>
-        <translation type="unfinished"></translation>
+        <translation>Uporabi nabor podatkov za preizkus</translation>
     </message>
     <message>
         <source>Test Class Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Podatki o razredu za preizkus</translation>
     </message>
 </context>
 <context>
     <name>VCSBase::CleanDialog</name>
     <message>
         <source>Clean Repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Počisti skladišče</translation>
     </message>
     <message>
         <source>The directory %1 could not be deleted.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mape %1 ni bilo moč izbrisati.</translation>
     </message>
     <message>
         <source>The file %1 could not be deleted.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datoteke %1 ni bilo moč izbrisati.</translation>
     </message>
     <message>
         <source>There were errors when cleaning the repository %1:</source>
-        <translation type="unfinished"></translation>
+        <translation>Med čiščenjem skladišča %1 je prišlo do napak:</translation>
     </message>
     <message>
         <source>Delete...</source>
-        <translation type="unfinished">&amp;Zbriši</translation>
+        <translation>Izbriši ...</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Ime</translation>
+        <translation>Ime</translation>
     </message>
     <message>
         <source>Repository: %1</source>
-        <translation type="unfinished">Skladišče:</translation>
+        <translation>Skladišče: %1</translation>
     </message>
     <message>
         <source>%1 bytes, last modified %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 B, nazadnje spremenjena %2</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">Zbriši</translation>
+        <translation>Zbriši</translation>
     </message>
     <message numerus="yes">
         <source>Do you want to delete %n files?</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Ali želite izbrisati %n datoteko?</numerusform>
+            <numerusform>Ali želite izbrisati %n datoteki?</numerusform>
+            <numerusform>Ali želite izbrisati %n datoteke?</numerusform>
+            <numerusform>Ali želite izbrisati %n datotek?</numerusform>
         </translation>
     </message>
     <message>
         <source>Cleaning %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Čiščenje %1</translation>
     </message>
 </context>
 <context>
@@ -14480,7 +14492,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source> characters</source>
-        <translation type="unfinished"> znak</translation>
+        <translation> znaku</translation>
     </message>
     <message>
         <source>An executable which is called with the submit message in a temporary file as first argument. It should return with an exit != 0 and a message on standard error to indicate failure.</source>
@@ -14498,7 +14510,7 @@ ime &lt;e-pošta&gt; drugo_ime &lt;druga_e-pošta&gt;</translation>
     </message>
     <message>
         <source>User/alias configuration file:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavitvena datoteka z uporabniki/aliasi:</translation>
     </message>
     <message>
         <source>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</source>
@@ -15362,7 +15374,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>%1 does not appear to be a paster file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kot kaže %1 ni datoteka za prilepljanje.</translation>
     </message>
     <message>
         <source>Error in %1 at %2: %3</source>
@@ -15717,7 +15729,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>String literal %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Literal niza %1</translation>
     </message>
     <message>
         <source>Cowardly refusing to evaluate expression &apos;%1&apos; with potential side effects</source>
@@ -15873,28 +15885,28 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     <name>GenericProjectManager::Internal::GenericMakeStep</name>
     <message>
         <source>Make</source>
-        <translation type="unfinished">Znamka</translation>
+        <translation>Make</translation>
     </message>
 </context>
 <context>
     <name>GenericProjectManager::Internal::Manager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project already open</source>
-        <translation type="unfinished">Odpiranje projekta »%1« ni uspelo: projekt je že odprt</translation>
+        <translation>Odpiranje projekta »%1« ni uspelo: projekt je že odprt</translation>
     </message>
 </context>
 <context>
     <name>Git::Internal::RemoteBranchModel</name>
     <message>
         <source>(no branch)</source>
-        <translation type="unfinished"></translation>
+        <translation>(brez vej)</translation>
     </message>
 </context>
 <context>
     <name>Git::Internal::GitCommand</name>
     <message>
         <source>Error: Git timed out after %1s.</source>
-        <translation type="unfinished"></translation>
+        <translation>Napaka: po %1 s je Gitu potekel čas.</translation>
     </message>
 </context>
 <context>
@@ -15969,26 +15981,26 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     <name>Mercurial::Internal::CloneWizard</name>
     <message>
         <source>Clones a Mercurial repository and tries to load the contained project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sklonira skladišče Mercurial in poskusi naložiti vsebovani projekt.</translation>
     </message>
     <message>
         <source>Mercurial Clone</source>
-        <translation type="unfinished"></translation>
+        <translation>Klon skladišča Mercurial</translation>
     </message>
 </context>
 <context>
     <name>Mercurial::Internal::CloneWizardPage</name>
     <message>
         <source>Location</source>
-        <translation type="unfinished">Lokacija</translation>
+        <translation>Lokacija</translation>
     </message>
     <message>
         <source>Specify repository URL, checkout directory and path.</source>
-        <translation type="unfinished"></translation>
+        <translation>Določite URL skladišča, mapo za prevzem in pot.</translation>
     </message>
     <message>
         <source>Clone URL:</source>
-        <translation type="unfinished">URL za kloniranje:</translation>
+        <translation>URL za kloniranje:</translation>
     </message>
 </context>
 <context>
@@ -16006,7 +16018,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>Cannot parse output: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč razčleniti izhoda: %1</translation>
     </message>
     <message>
         <source>Hg Annotate %1</source>
@@ -16030,14 +16042,14 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>Working...</source>
-        <translation type="unfinished">delam</translation>
+        <translation>Delam ...</translation>
     </message>
 </context>
 <context>
     <name>Mercurial::Internal::MercurialControl</name>
     <message>
         <source>Mercurial</source>
-        <translation type="unfinished"></translation>
+        <translation>Mercurial</translation>
     </message>
 </context>
 <context>
@@ -16052,12 +16064,12 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     <message>
         <source>Executing: %1 %2
 </source>
-        <translation type="unfinished">%1 Izvajanje: %2 %3
+        <translation>Izvajanje: %1 %2
 </translation>
     </message>
     <message>
         <source>Unable to start mercurial process &apos;%1&apos;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Procesa mercurial »%1« ni moč zagnati: %2</translation>
     </message>
     <message>
         <source>Timed out after %1s waiting for mercurial process to finish.</source>
@@ -16068,7 +16080,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     <name>Mercurial::Internal::MercurialPlugin</name>
     <message>
         <source>Mercurial</source>
-        <translation type="unfinished"></translation>
+        <translation>Mercurial</translation>
     </message>
     <message>
         <source>Annotate Current File</source>
@@ -16116,71 +16128,71 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished">Dodaj</translation>
+        <translation>Dodaj</translation>
     </message>
     <message>
         <source>Add &quot;%1&quot;</source>
-        <translation type="unfinished">Dodaj</translation>
+        <translation>Dodaj »%1«</translation>
     </message>
     <message>
         <source>Delete...</source>
-        <translation type="unfinished">&amp;Zbriši</translation>
+        <translation>Zbriši ...</translation>
     </message>
     <message>
         <source>Delete &quot;%1&quot;...</source>
-        <translation type="unfinished">&amp;Zbriši</translation>
+        <translation>Zbriši »%1« ...</translation>
     </message>
     <message>
         <source>Revert Current File...</source>
-        <translation type="unfinished"></translation>
+        <translation>Povrni trenutno datoteko ...</translation>
     </message>
     <message>
         <source>Revert &quot;%1&quot;...</source>
-        <translation type="unfinished">Povrni</translation>
+        <translation>Povrni »%1« ...</translation>
     </message>
     <message>
         <source>Diff</source>
-        <translation type="unfinished">Diff</translation>
+        <translation>Razlika</translation>
     </message>
     <message>
         <source>Log</source>
-        <translation type="unfinished">Dnevnik</translation>
+        <translation>Dnevnik</translation>
     </message>
     <message>
         <source>Revert...</source>
-        <translation type="unfinished">Povrni ...</translation>
+        <translation>Povrni ...</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation type="unfinished">Stanje</translation>
+        <translation>Stanje</translation>
     </message>
     <message>
         <source>Pull...</source>
-        <translation type="unfinished">Potegni</translation>
+        <translation>Potegni ...</translation>
     </message>
     <message>
         <source>Push...</source>
-        <translation type="unfinished">Potisni</translation>
+        <translation>Potisni ...</translation>
     </message>
     <message>
         <source>Update...</source>
-        <translation type="unfinished">Posodobi</translation>
+        <translation>Posodobi ...</translation>
     </message>
     <message>
         <source>Import...</source>
-        <translation type="unfinished">Uvozi ...</translation>
+        <translation>Uvozi ...</translation>
     </message>
     <message>
         <source>Incoming...</source>
-        <translation type="unfinished">Prihajajoč</translation>
+        <translation>Prihajajoče ...</translation>
     </message>
     <message>
         <source>Outgoing...</source>
-        <translation type="unfinished">Odhajajoč</translation>
+        <translation>Odhajajoče ...</translation>
     </message>
     <message>
         <source>Commit...</source>
-        <translation type="unfinished">Uveljavi</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Alt+H,Alt+C</source>
@@ -16188,7 +16200,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>Create Repository...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustvari skladišče ...</translation>
     </message>
     <message>
         <source>Pull Source</source>
@@ -16200,7 +16212,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>Update</source>
-        <translation type="unfinished">Posodobi</translation>
+        <translation>Posodobi</translation>
     </message>
     <message>
         <source>Incoming Source</source>
@@ -16208,7 +16220,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>Commit</source>
-        <translation type="unfinished">Uveljavi</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Diff Selected Files</source>
@@ -16216,11 +16228,11 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>&amp;Undo</source>
-        <translation type="unfinished">&amp;Razveljavi</translation>
+        <translation>&amp;Razveljavi</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
-        <translation type="unfinished">&amp;Uveljavi</translation>
+        <translation>&amp;Uveljavi</translation>
     </message>
     <message>
         <source>There are no changes to commit.</source>
@@ -16252,37 +16264,37 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>Message check failed. Do you want to proceed?</source>
-        <translation type="unfinished"></translation>
+        <translation>Sporočila ni bilo moč preveriti. Ali želite nadaljevati?</translation>
     </message>
 </context>
 <context>
     <name>Mercurial::Internal::OptionsPageWidget</name>
     <message>
         <source>Mercurial Command</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukaz Mercurial</translation>
     </message>
 </context>
 <context>
     <name>Perforce::Internal::PerforceChecker</name>
     <message>
         <source>No executable specified</source>
-        <translation type="unfinished">Določen ni noben program.</translation>
+        <translation>Določen ni noben program.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; timed out after %2ms.</source>
-        <translation type="unfinished"></translation>
+        <translation>Čas za »%1« je potekel po %2 ms.</translation>
     </message>
     <message>
         <source>Unable to launch &quot;%1&quot;: %2</source>
-        <translation type="unfinished">Ni moč zagnati %1.</translation>
+        <translation>Ni moč zagnati »%1«: %2</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>
-        <translation type="unfinished">sesutje</translation>
+        <translation>»%1« se je sesul.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; terminated with exit code %2: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>»%1« je končal z izhodno kodo %2: %3</translation>
     </message>
     <message>
         <source>The client does not seem to contain any mapped files.</source>
@@ -16296,7 +16308,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>The repository &quot;%1&quot; does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Skladišče »%1« ne obstaja.</translation>
     </message>
 </context>
 <context>
@@ -16515,7 +16527,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
     <message>
         <source>Open Terminal here...</source>
-        <translation>Tu odpri terminal ...</translation>
+        <translation>Tu odpri konzolo ...</translation>
     </message>
     <message>
         <source>Launching a file browser failed</source>
@@ -17364,7 +17376,7 @@ ID-ji se morajo začeti z malo črko.</translation>
     </message>
     <message numerus="yes">
         <source>&lt;%n items&gt;</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>&lt;%n postavka&gt;</numerusform>
             <numerusform>&lt;%n postavki&gt;</numerusform>
             <numerusform>&lt;%n postavke&gt;</numerusform>
@@ -17460,7 +17472,7 @@ ID-ji se morajo začeti z malo črko.</translation>
     </message>
     <message>
         <source>Cannot find project run configuration, debugging canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni moč najti nastavitev za zagon projekta, razhroščevanje preklicano.</translation>
     </message>
     <message>
         <source>[Inspector] set to connect to debug server %1:%2</source>
@@ -17527,16 +17539,17 @@ ID-ji se morajo začeti z malo črko.</translation>
     </message>
     <message>
         <source>No run configurations were found for the project &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Za projekt »%1« niso bile najdene nobene nastavitve za zagon.</translation>
     </message>
     <message>
         <source>No valid run configuration was found for the project %1. Only locally runnable configurations are supported.
 Please check your project settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Za projekt »%1« niso bile najdene nobene veljavne nastavitve za zagon. Podprte so le nastavitve za krajevni zagon.
+Preverite nastavitve projekta.</translation>
     </message>
     <message>
         <source>A valid run control was not registered in Qt Creator for this project run configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Za zagonske nastavitve tega projekta v Qt Creatorju ni bil registriran veljaven nadzor zagona.</translation>
     </message>
     <message>
         <source>Debugging failed: could not start C++ debugger.</source>
@@ -18001,14 +18014,14 @@ Ali ste zagnali Qemu?</translation>
     <name>Qt4ProjectManager::Internal::MaemoRunConfiguration</name>
     <message>
         <source>New Maemo Run Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Nove nastavitve za zagon za Maemo</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::MaemoRunConfigurationWidget</name>
     <message>
         <source>Run configuration name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ime nastavitev za zagon:</translation>
     </message>
     <message>
         <source>&lt;a href=&quot;%1&quot;&gt;Manage device configurations&lt;/a&gt;</source>
@@ -18035,11 +18048,11 @@ Ali ste zagnali Qemu?</translation>
     <name>Qt4ProjectManager::Internal::AbstractMaemoRunControl</name>
     <message>
         <source>No device configuration set for run configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>V nastavitvah za zagon ni bilo nastavljenih nobenih nastavitev naprave.</translation>
     </message>
     <message>
         <source>Cleaning up remote leftovers first ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Čiščenje oddaljenih ostankov ...</translation>
     </message>
     <message>
         <source>Initial cleanup canceled by user.</source>
@@ -18098,7 +18111,7 @@ Ali ste zagnali Qemu?</translation>
     <name>Qt4ProjectManager::Internal::MaemoRunConfigurationFactory</name>
     <message>
         <source>New Maemo Run Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Nove nastavitve za zagon za Maemo</translation>
     </message>
 </context>
 <context>
@@ -18120,7 +18133,7 @@ Ali ste zagnali Qemu?</translation>
     <message>
         <source>New Device Configuration %1</source>
         <comment>Standard Configuration name with number</comment>
-        <translation type="unfinished"></translation>
+        <translation>Nove nastavitve naprave %1</translation>
     </message>
     <message>
         <source>Choose Public Key File</source>
@@ -18465,23 +18478,23 @@ V naprej izbere Qt za simulator in razpoložljive ciljne mobilne naprave.</trans
     <name>VCSBase::VCSBasePlugin</name>
     <message>
         <source>Version Control</source>
-        <translation type="unfinished">Nadzor različic</translation>
+        <translation>Nadzor različic</translation>
     </message>
     <message>
         <source>The file &apos;%1&apos; could not be deleted.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datoteke »%1« ni bilo moč izbrisati.</translation>
     </message>
     <message>
         <source>Choose Repository Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Izberite mapo skladišča</translation>
     </message>
     <message>
         <source>The directory &apos;%1&apos; is already managed by a version control system (%2). Would you like to specify another directory?</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapo »%1« že upravlja sistem za nadzor različic (%2). Ali želite določiti drugo mapo?</translation>
     </message>
     <message>
         <source>Repository already under version control</source>
-        <translation type="unfinished"></translation>
+        <translation>Skladišče že nadzaroveno glede različic</translation>
     </message>
     <message>
         <source>Repository created</source>
@@ -18489,7 +18502,7 @@ V naprej izbere Qt za simulator in razpoložljive ciljne mobilne naprave.</trans
     </message>
     <message>
         <source>A version control repository has been created in %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>V %1 je bilo ustvarjeno skladišče z nadzorom različic.</translation>
     </message>
     <message>
         <source>Repository creation failed</source>
@@ -18497,7 +18510,7 @@ V naprej izbere Qt za simulator in razpoložljive ciljne mobilne naprave.</trans
     </message>
     <message>
         <source>A version control repository could not be created in %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>V %1 ni bilo moč ustvariti skladišča z nadzorom različic.</translation>
     </message>
 </context>
 <context>
@@ -18525,7 +18538,7 @@ V naprej izbere Qt za simulator in razpoložljive ciljne mobilne naprave.</trans
     </message>
     <message>
         <source>App TRK: v%1.%2 TRK protocol: v%3.%4</source>
-        <translation type="unfinished"></translation>
+        <translation>App TRK: %1.%2 protokol TRK: %3.%4</translation>
     </message>
     <message>
         <source>%1, %2%3%4, %5</source>
@@ -18658,19 +18671,19 @@ V naprej izbere Qt za simulator in razpoložljive ciljne mobilne naprave.</trans
     </message>
     <message>
         <source>Generic Qt Creator Project file</source>
-        <translation type="unfinished"></translation>
+        <translation>Datoteka splošnega projekta Qt Creator</translation>
     </message>
     <message>
         <source>Generic Project Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Datoteke splošnega projekta</translation>
     </message>
     <message>
         <source>Generic Project Include Paths</source>
-        <translation type="unfinished"></translation>
+        <translation>Poti do vključitev za splošni projekt</translation>
     </message>
     <message>
         <source>Generic Project Configuration File</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavitvena datoteka splošnega projekta</translation>
     </message>
     <message>
         <source>Perforce submit template</source>
@@ -18694,7 +18707,7 @@ V naprej izbere Qt za simulator in razpoložljive ciljne mobilne naprave.</trans
     </message>
     <message>
         <source>Qt Project include file</source>
-        <translation type="unfinished"></translation>
+        <translation>Vključitvena datoteka projekta Qt</translation>
     </message>
     <message>
         <source>Qt Project feature file</source>
