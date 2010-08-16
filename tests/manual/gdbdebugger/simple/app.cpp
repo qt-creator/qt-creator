@@ -1119,6 +1119,9 @@ void testStdVector()
     std::vector<bool> vec;
     vec.push_back(true);
     vec.push_back(false);
+    vec.push_back(false);
+    vec.push_back(true);
+    vec.push_back(false);
 }
 
 void testQStandardItemModel()
