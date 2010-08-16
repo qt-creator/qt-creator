@@ -1724,6 +1724,8 @@ bool Bind::visit(SimpleDeclarationAST *ast)
         setDeclSpecifiers(decl, type);
 
         if (Function *fun = decl->type()->asFunctionType()) {
+            fun->setScope(_scope);
+
             setDeclSpecifiers(fun, type);
             if (declaratorId && declaratorId->name)
                 fun->setName(declaratorId->name->name); // update the function name
