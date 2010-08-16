@@ -35,6 +35,7 @@
 QT_FORWARD_DECLARE_CLASS(QComboBox)
 QT_FORWARD_DECLARE_CLASS(QListView)
 QT_FORWARD_DECLARE_CLASS(QModelIndex)
+QT_FORWARD_DECLARE_CLASS(QPoint)
 QT_FORWARD_DECLARE_CLASS(QTreeView)
 QT_FORWARD_DECLARE_CLASS(QUrl)
 QT_FORWARD_DECLARE_CLASS(QWidget)
@@ -84,6 +85,9 @@ signals:
 private:
     void removePage(int index);
     void showTwicherOrSelectPage() const;
+
+private slots:
+    void openPagesContextMenu(const QPoint &point);
 
 private:
     QComboBox *m_comboBox;

@@ -51,13 +51,22 @@ int OpenPagesModel::columnCount(const QModelIndex &/*parent*/) const
 
 QVariant OpenPagesModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || role != Qt::DisplayRole
-        || index.row() >= rowCount() || index.column() >= columnCount() - 1)
+    if (!index.isValid() || index.row() >= rowCount()
+        || index.column() >= columnCount() - 1)
         return QVariant();
 
-    QString title = m_pages.at(index.row())->title();
-    title.replace(QLatin1Char('&'), QLatin1String("&&"));
-    return title.isEmpty() ? tr("(Untitled)") : title;
+    switch (role) {
+        case Qt::ToolTipRole:
+            return m_pages.at(index.row())->source().toString();
+        case Qt::DisplayRole: {
+            QString title = m_pages.at(index.row())->title();
+            title.replace(QLatin1Char('&'), QLatin1String("&&"));
+            return title.isEmpty() ? tr("(Untitled)") : title;
+        }
+        default:
+            break;
+    }
+    return QVariant();
 }
 
 void OpenPagesModel::addPage(const QUrl &url, qreal zoom)

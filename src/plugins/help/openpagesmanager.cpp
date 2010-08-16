@@ -38,7 +38,9 @@
 #include "openpageswidget.h"
 
 #include <QtGui/QApplication>
+#include <QtGui/QClipboard>
 #include <QtGui/QComboBox>
+#include <QtGui/QMenu>
 #include <QtGui/QTreeView>
 
 #include <QtHelp/QHelpEngine>
@@ -74,7 +76,10 @@ OpenPagesManager::OpenPagesManager(QObject *parent)
     m_comboBox = new QComboBox;
     m_comboBox->setModel(m_model);
     m_comboBox->setMinimumContentsLength(40);
+    m_comboBox->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(m_comboBox, SIGNAL(activated(int)), this, SLOT(setCurrentPage(int)));
+    connect(m_comboBox, SIGNAL(customContextMenuRequested(QPoint)), this,
+        SLOT(openPagesContextMenu(QPoint)));
 
     m_openPagesSwitcher = new OpenPagesSwitcher(m_model);
     connect(m_openPagesSwitcher, SIGNAL(closePage(QModelIndex)), this,
@@ -293,4 +298,19 @@ void OpenPagesManager::showTwicherOrSelectPage() const
     } else {
         m_openPagesSwitcher->selectAndHide();
     }
+}
+
+// -- private slots
+
+void OpenPagesManager::openPagesContextMenu(const QPoint &point)
+{
+    const QModelIndex &index = m_model->index(m_comboBox->currentIndex(), 0);
+    const QString &fileName = m_model->data(index, Qt::ToolTipRole).toString();
+    if (fileName.isEmpty())
+        return;
+
+    QMenu menu;
+    menu.addAction(tr("Copy Full Path to Clipboard"));
+    if (menu.exec(m_comboBox->mapToGlobal(point)))
+        QApplication::clipboard()->setText(fileName);
 }
