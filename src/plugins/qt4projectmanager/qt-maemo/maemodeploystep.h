@@ -75,6 +75,7 @@ class MaemoDeployStep : public ProjectExplorer::BuildStep
     friend class MaemoDeployStepFactory;
 public:
     MaemoDeployStep(ProjectExplorer::BuildStepList *bc);
+
     virtual ~MaemoDeployStep();
     MaemoDeviceConfig deviceConfig() const;
     MaemoDeviceConfigListModel *deviceConfigModel() const;

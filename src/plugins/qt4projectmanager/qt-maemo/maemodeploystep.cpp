@@ -85,6 +85,8 @@ MaemoDeployStep::~MaemoDeployStep()
 
 void MaemoDeployStep::ctor()
 {
+    setDisplayName(tr("Deploying to Maemo device"));
+
     m_connecting = false;
     m_needsInstall = false;
     m_stopped = false;

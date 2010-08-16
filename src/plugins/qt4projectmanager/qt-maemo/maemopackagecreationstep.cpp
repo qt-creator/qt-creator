@@ -97,6 +97,7 @@ MaemoPackageCreationStep::~MaemoPackageCreationStep()
 
 void MaemoPackageCreationStep::ctor()
 {
+    setDisplayName(tr("Packaging for Maemo"));
     connect(buildConfiguration(), SIGNAL(buildDirectoryChanged()), this,
         SIGNAL(packageFilePathChanged()));
 }
