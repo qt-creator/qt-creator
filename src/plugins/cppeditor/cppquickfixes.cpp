@@ -629,7 +629,7 @@ public:
                     if (! op->core)
                         return noResult();
 
-                    else if (! declarator->equals_token)
+                    else if (! declarator->equal_token)
                         return noResult();
 
                     else if (! declarator->initializer)

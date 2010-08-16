@@ -175,7 +175,7 @@ bool ASTMatcher::match(DeclaratorAST *node, DeclaratorAST *pattern)
     else if (! AST::match(node->post_attribute_list, pattern->post_attribute_list, this))
         return false;
 
-    pattern->equals_token = node->equals_token;
+    pattern->equal_token = node->equal_token;
 
     if (! pattern->initializer)
         pattern->initializer = node->initializer;

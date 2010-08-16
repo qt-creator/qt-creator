@@ -119,7 +119,7 @@ DeclaratorAST *DeclaratorAST::clone(MemoryPool *pool) const
     for (SpecifierListAST *iter = post_attribute_list, **ast_iter = &ast->post_attribute_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
         *ast_iter = new (pool) SpecifierListAST((iter->value) ? iter->value->clone(pool) : 0);
-    ast->equals_token = equals_token;
+    ast->equal_token = equal_token;
     if (initializer)
         ast->initializer = initializer->clone(pool);
     return ast;

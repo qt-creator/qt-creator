@@ -574,7 +574,7 @@ public:
     CoreDeclaratorAST *core_declarator;
     PostfixDeclaratorListAST *postfix_declarator_list;
     SpecifierListAST *post_attribute_list;
-    unsigned equals_token;
+    unsigned equal_token;
     ExpressionAST *initializer;
 
 public:
@@ -584,7 +584,7 @@ public:
         , core_declarator(0)
         , postfix_declarator_list(0)
         , post_attribute_list(0)
-        , equals_token(0)
+        , equal_token(0)
         , initializer(0)
     {}
 

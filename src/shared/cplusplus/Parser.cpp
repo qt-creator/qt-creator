@@ -1303,7 +1303,7 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, bool stopAtCppInitializer)
                 ExpressionAST *initializer = 0;
 
                 bool blocked = blockErrors(true);
-                if (parseInitializer(initializer, &node->equals_token)) {
+                if (parseInitializer(initializer, &node->equal_token)) {
                     NestedExpressionAST *expr = 0;
                     if (initializer)
                         expr = initializer->asNestedExpression();
@@ -2296,7 +2296,7 @@ bool Parser::parseInitDeclarator(DeclaratorAST *&node,
         }
         rewind(colon_token);
     } else if (LA() == T_EQUAL || (! acceptStructDeclarator && LA() == T_LPAREN)) {
-        parseInitializer(node->initializer, &node->equals_token);
+        parseInitializer(node->initializer, &node->equal_token);
     }
     return true;
 }
@@ -2853,7 +2853,7 @@ bool Parser::isPointerDeclaration(DeclarationStatementAST *ast) const
             if (spec->value->asNamedTypeSpecifier() && ! spec->next) {
                 if (DeclaratorListAST *declarators = declaration->declarator_list) {
                     if (DeclaratorAST *declarator = declarators->value) {
-                        if (declarator->ptr_operator_list && declarator->equals_token && declarator->initializer) {
+                        if (declarator->ptr_operator_list && declarator->equal_token && declarator->initializer) {
                             return true;
                         }
                     }
@@ -2952,7 +2952,7 @@ bool Parser::parseCondition(ExpressionAST *&node)
     if (parseTypeSpecifier(type_specifier)) {
         DeclaratorAST *declarator = 0;
         if (parseInitDeclarator(declarator, /*acceptStructDeclarator=*/false)) {
-            if (declarator->initializer && declarator->equals_token) {
+            if (declarator->initializer && declarator->equal_token) {
                 ConditionAST *ast = new (_pool) ConditionAST;
                 ast->type_specifier_list = type_specifier;
                 ast->declarator = declarator;

@@ -1737,7 +1737,7 @@ bool Bind::visit(SimpleDeclarationAST *ast)
             if (Function *funTy = decl->type()->asFunctionType()) {
                 funTy->setMethodKey(_methodKey);
 
-                if (funTy->isVirtual() && it->value->equals_token)
+                if (funTy->isVirtual() && it->value->equal_token)
                     funTy->setPureVirtual(true);
             }
         }

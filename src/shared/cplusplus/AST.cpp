@@ -896,8 +896,8 @@ unsigned DeclaratorAST::firstToken() const
     if (post_attribute_list)
         if (unsigned candidate = post_attribute_list->firstToken())
             return candidate;
-    if (equals_token)
-        return equals_token;
+    if (equal_token)
+        return equal_token;
     if (initializer)
         if (unsigned candidate = initializer->firstToken())
             return candidate;
@@ -910,8 +910,8 @@ unsigned DeclaratorAST::lastToken() const
     if (initializer)
         if (unsigned candidate = initializer->lastToken())
             return candidate;
-    if (equals_token)
-        return equals_token + 1;
+    if (equal_token)
+        return equal_token + 1;
     if (post_attribute_list)
         if (unsigned candidate = post_attribute_list->lastToken())
             return candidate;
