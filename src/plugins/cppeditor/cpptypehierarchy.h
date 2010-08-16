@@ -92,7 +92,7 @@ public:
     CppTypeHierarchyWidget(Core::IEditor *editor);
     virtual ~CppTypeHierarchyWidget();
 
-    bool handleReplacement(Core::IEditor *editor);
+    bool handleEditorChange(Core::IEditor *editor);
 
 public slots:
     void perform();

@@ -168,7 +168,7 @@ CppTypeHierarchyWidget::~CppTypeHierarchyWidget()
     delete m_delegate;
 }
 
-bool CppTypeHierarchyWidget::handleReplacement(Core::IEditor *editor)
+bool CppTypeHierarchyWidget::handleEditorChange(Core::IEditor *editor)
 {
     if (CPPEditorEditable *cppEditable = qobject_cast<CPPEditorEditable *>(editor)) {
         if (m_cppEditor) {
@@ -241,7 +241,7 @@ CppTypeHierarchyStackedWidget::~CppTypeHierarchyStackedWidget()
 
 void CppTypeHierarchyStackedWidget::editorChanged(Core::IEditor *editor)
 {
-    if (!m_typeHiearchyWidgetInstance->handleReplacement(editor)) {
+    if (!m_typeHiearchyWidgetInstance->handleEditorChange(editor)) {
         CppTypeHierarchyWidget *replacement = new CppTypeHierarchyWidget(editor);
         removeWidget(m_typeHiearchyWidgetInstance);
         m_typeHiearchyWidgetInstance->deleteLater();
