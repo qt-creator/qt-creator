@@ -1067,6 +1067,7 @@ void GdbEngine::handleQuerySources(const GdbResponse &response)
 void GdbEngine::handleExecuteJumpToLine(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultRunning) {
+        notifyInferiorRunOk();
         // All is fine. Waiting for the temporary breakpoint to be hit.
     } else if (response.resultClass == GdbResultDone) {
         // This happens on old gdb. Trigger the effect of a '*stopped'.
@@ -1079,6 +1080,7 @@ void GdbEngine::handleExecuteJumpToLine(const GdbResponse &response)
 void GdbEngine::handleExecuteRunToLine(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultRunning) {
+        notifyInferiorRunOk();
         // All is fine. Waiting for the temporary breakpoint to be hit.
     } else if (response.resultClass == GdbResultDone) {
         // This happens on old gdb. Trigger the effect of a '*stopped'.
