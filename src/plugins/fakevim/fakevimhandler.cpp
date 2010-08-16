@@ -3569,9 +3569,14 @@ bool FakeVimHandler::Private::handleExPluginCommand(const ExCommand &cmd)
 
 static void vimPatternToQtPattern(QString *needle, QTextDocument::FindFlags *flags)
 {
-    // FIXME: Rough mapping of a common case
+    // FIXME: Rough mapping of a common case.
     if (needle->startsWith(_("\\<")) && needle->endsWith(_("\\>")))
         (*flags) |= QTextDocument::FindWholeWords;
+    // Half-hearted attempt at removing pitfalls.
+    if (needle->startsWith(_(".*")))
+        *needle = needle->mid(2);
+    if (needle->endsWith(_(".*")))
+        *needle = needle->left(needle->size() - 2);
     needle->remove(_("\\<")); // start of word
     needle->remove(_("\\>")); // end of word
     //qDebug() << "NEEDLE " << needle0 << needle;
@@ -3631,10 +3636,11 @@ void FakeVimHandler::Private::search(const SearchData &sd)
         sd.forward ? ++startPos : --startPos;
 
     m_searchCursor = QTextCursor();
-    QTextCursor tc = m_tc.document()->find(needle, startPos, flags);
+    QRegExp needleExp(needle);
+    QTextCursor tc = m_tc.document()->find(needleExp, startPos, flags);
     if (tc.isNull()) {
         int startPos = sd.forward ? 0 : lastPositionInDocument();
-        tc = m_tc.document()->find(needle, startPos, flags);
+        tc = m_tc.document()->find(needleExp, startPos, flags);
         if (tc.isNull()) {
             if (!incSearch) {
                 highlightMatches(QString());
@@ -3652,6 +3658,7 @@ void FakeVimHandler::Private::search(const SearchData &sd)
     }
 
     // Set Cursor.
+    const int size = tc.position() - tc.anchor();
     tc.setPosition(qMin(tc.position(), tc.anchor()), MoveAnchor);
     tc.clearSelection();
     m_tc = tc;
@@ -3664,7 +3671,7 @@ void FakeVimHandler::Private::search(const SearchData &sd)
     if (incSearch && sd.highlightCursor) {
         m_searchCursor = m_tc;
         m_searchCursor.setPosition(m_tc.position(), MoveAnchor);
-        m_searchCursor.setPosition(m_tc.position() + needle.size(), KeepAnchor);
+        m_searchCursor.setPosition(m_tc.position() + size, KeepAnchor);
     }
     setTargetColumn();
 
@@ -3689,8 +3696,9 @@ void FakeVimHandler::Private::highlightMatches(const QString &needle0)
         QTextDocument::FindFlags flags = QTextDocument::FindCaseSensitively;
         QString needle = needle0;
         vimPatternToQtPattern(&needle, &flags);
+        QRegExp needleExp(needle);
         while (1) {
-            tc = tc.document()->find(needle, tc.position(), flags);
+            tc = tc.document()->find(needleExp, tc.position(), flags);
             if (tc.isNull())
                 break;
             QTextEdit::ExtraSelection sel;
