@@ -69,7 +69,7 @@ bool MaemoDeployableListModel::buildModel()
             return false;
         }
         QString installsString
-            = QLatin1String("maemo5|maemo6 {\n    target.path = ")
+            = QLatin1String("\nmaemo5|maemo6 {\n    target.path = ")
                 + remoteDir + QLatin1String("\n    INSTALLS += target\n}\n");
         if (!projectFile.write(installsString.toLocal8Bit())) {
             qWarning("Error updating .pro file.");
