@@ -1961,11 +1961,16 @@ bool Bind::visit(NamespaceAST *ast)
 
 bool Bind::visit(NamespaceAliasDefinitionAST *ast)
 {
-    // unsigned namespace_token = ast->namespace_token;
-    // unsigned namespace_name_token = ast->namespace_name_token;
-    // unsigned equal_token = ast->equal_token;
-    /*const Name *name =*/ this->name(ast->name);
-    // unsigned semicolon_token = ast->semicolon_token;
+    unsigned sourceLocation = ast->firstToken();
+    const Name *name = 0;
+    if (ast->namespace_name_token) {
+        sourceLocation = ast->namespace_name_token;
+        name = control()->nameId(identifier(ast->namespace_name_token));
+    }
+
+    NamespaceAlias *namespaceAlias = control()->newNamespaceAlias(sourceLocation, name);
+    namespaceAlias->setNamespaceName(this->name(ast->name));
+    _scope->addMember(namespaceAlias);
     return false;
 }
 
