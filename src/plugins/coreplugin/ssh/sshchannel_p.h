@@ -31,6 +31,7 @@
 #define SSHCHANNEL_P_H
 
 #include <QtCore/QByteArray>
+#include <QtCore/QObject>
 #include <QtCore/QString>
 
 namespace Core {
@@ -39,8 +40,9 @@ namespace Internal {
 class SshIncomingPacket;
 class SshSendFacility;
 
-class AbstractSshChannel
+class AbstractSshChannel : public QObject
 {
+    Q_OBJECT
 public:
     enum ChannelState {
         Inactive, SessionRequested, SessionEstablished, CloseRequested, Closed
@@ -75,6 +77,9 @@ public:
     void closeChannel();
 
     virtual ~AbstractSshChannel();
+
+signals:
+    void timeout();
 
 protected:
     AbstractSshChannel(quint32 channelId, SshSendFacility &sendFacility);

@@ -141,7 +141,7 @@ private:
     SshStateInternal m_state;
     SshIncomingPacket m_incomingPacket;
     SshSendFacility m_sendFacility;
-    QScopedPointer<SshChannelManager> m_channelManager;
+    SshChannelManager * const m_channelManager;
     SshConnectionParameters m_connParams;
     QByteArray m_incomingData;
     SshError m_error;

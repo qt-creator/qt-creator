@@ -149,11 +149,12 @@ namespace Internal {
 SshConnectionPrivate::SshConnectionPrivate(SshConnection *conn)
     : m_socket(new QTcpSocket(this)), m_state(SocketUnconnected),
       m_sendFacility(m_socket),
-      m_channelManager(new SshChannelManager(m_sendFacility)),
+      m_channelManager(new SshChannelManager(m_sendFacility, this)),
       m_error(SshNoError), m_ignoreNextPacket(false), m_conn(conn)
 {
     setupPacketHandlers();
-    connect(&m_timeoutTimer, SIGNAL(timeout()), this, SLOT(handleTimeout()));
+    m_timeoutTimer.setSingleShot(true);
+    connect(m_channelManager, SIGNAL(timeout()), this, SLOT(handleTimeout()));
 }
 
 SshConnectionPrivate::~SshConnectionPrivate()
@@ -501,9 +502,8 @@ void SshConnectionPrivate::handleSocketError()
 
 void SshConnectionPrivate::handleTimeout()
 {
-    if (m_state != ConnectionEstablished)
-        closeConnection(SSH_DISCONNECT_BY_APPLICATION, SshTimeoutError, "",
-            tr("Connection timed out."));
+    closeConnection(SSH_DISCONNECT_BY_APPLICATION, SshTimeoutError, "",
+        tr("Timeout waiting for reply from server."));
 }
 
 void SshConnectionPrivate::connectToHost(const SshConnectionParameters &serverInfo)
@@ -520,6 +520,7 @@ void SshConnectionPrivate::connectToHost(const SshConnectionParameters &serverIn
         SLOT(handleSocketError()));
     connect(m_socket, SIGNAL(disconnected()), this,
         SLOT(handleSocketDisconnected()));
+    connect(&m_timeoutTimer, SIGNAL(timeout()), this, SLOT(handleTimeout()));
     this->m_connParams = serverInfo;
     m_state = SocketConnecting;
     m_timeoutTimer.start(m_connParams.timeout * 1000);
@@ -538,6 +539,7 @@ void SshConnectionPrivate::closeConnection(SshErrorCode sshError,
     m_errorString = userErrorString;
     m_timeoutTimer.stop();
     disconnect(m_socket, 0, this, 0);
+    disconnect(&m_timeoutTimer, 0, this, 0);
     try {
         m_channelManager->closeAllChannels();
         m_sendFacility.sendDisconnectPacket(sshError, serverErrorString);

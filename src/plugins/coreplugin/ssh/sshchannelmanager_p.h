@@ -31,6 +31,7 @@
 #define SSHCHANNELLAYER_P_H
 
 #include <QtCore/QHash>
+#include <QtCore/QObject>
 #include <QtCore/QSharedPointer>
 
 namespace Core {
@@ -44,11 +45,11 @@ class AbstractSshChannel;
 class SshIncomingPacket;
 class SshSendFacility;
 
-class SshChannelManager
+class SshChannelManager : public QObject
 {
+    Q_OBJECT
 public:
-    SshChannelManager(SshSendFacility &sendFacility);
-    ~SshChannelManager();
+    SshChannelManager(SshSendFacility &sendFacility, QObject *parent);
 
     QSharedPointer<SshRemoteProcess> createRemoteProcess(const QByteArray &command);
     QSharedPointer<SftpChannel> createSftpChannel();
@@ -65,6 +66,9 @@ public:
     void handleChannelExtendedData(const SshIncomingPacket &packet);
     void handleChannelEof(const SshIncomingPacket &packet);
     void handleChannelClose(const SshIncomingPacket &packet);
+
+signals:
+    void timeout();
 
 private:
     typedef QHash<quint32, AbstractSshChannel *>::Iterator ChannelIterator;

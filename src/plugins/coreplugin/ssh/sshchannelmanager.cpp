@@ -41,12 +41,11 @@
 namespace Core {
 namespace Internal {
 
-SshChannelManager::SshChannelManager(SshSendFacility &sendFacility)
-    : m_sendFacility(sendFacility), m_nextLocalChannelId(0)
+SshChannelManager::SshChannelManager(SshSendFacility &sendFacility,
+    QObject *parent)
+    : QObject(parent), m_sendFacility(sendFacility), m_nextLocalChannelId(0)
 {
 }
-
-SshChannelManager::~SshChannelManager() {}
 
 void SshChannelManager::handleChannelRequest(const SshIncomingPacket &packet)
 {
@@ -164,6 +163,7 @@ Core::SftpChannel::Ptr SshChannelManager::createSftpChannel()
 void SshChannelManager::insertChannel(AbstractSshChannel *priv,
     const QSharedPointer<QObject> &pub)
 {
+    connect(priv, SIGNAL(timeout()), this, SIGNAL(timeout()));
     m_channels.insert(priv->localChannelId(), priv);
     m_sessions.insert(priv, pub);
 }
