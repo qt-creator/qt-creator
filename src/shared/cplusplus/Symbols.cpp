@@ -956,8 +956,10 @@ bool ObjCMethod::hasReturnType() const
 
 unsigned ObjCMethod::argumentCount() const
 {
-    // ### port me
-    return memberCount();
+    const unsigned c = memberCount();
+    if (c > 0 && memberAt(c - 1)->isBlock())
+        return c - 1;
+    return c;
 }
 
 Symbol *ObjCMethod::argumentAt(unsigned index) const
