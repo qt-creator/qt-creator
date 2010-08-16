@@ -587,24 +587,28 @@ QDeclarativeViewer::QDeclarativeViewer(QWidget *parent, Qt::WindowFlags flags)
     }
 
     canvas = new QmlViewer::QDeclarativeDesignView(this);
-    addToolBar(Qt::TopToolBarArea, canvas->toolbar());
-    canvas->toolbar()->setFloatable(false);
-    canvas->toolbar()->setMovable(false);
+    if (!(flags & Qt::FramelessWindowHint)) {
+        addToolBar(Qt::TopToolBarArea, canvas->toolbar());
+        canvas->toolbar()->setFloatable(false);
+        canvas->toolbar()->setMovable(false);
+        m_crumblePathWidget = new Utils::CrumblePath(this);
+#ifndef Q_WS_MAC
+        QFile file(":/toolbarstyle.css");
+        file.open(QFile::ReadOnly);
+        QString toolbarStylesheet = QLatin1String(file.readAll());
+        canvas->toolbar()->setStyleSheet(toolbarStylesheet);
+        m_crumblePathWidget->setStyleSheet("QWidget { border-bottom: 1px solid black; }");
+#endif
+    }
 
-    m_crumblePathWidget = new Utils::CrumblePath(this);
+
     m_centralWidget = new QWidget(this);
     QVBoxLayout *layout = new QVBoxLayout(m_centralWidget);
     layout->setMargin(0);
     layout->setSpacing(0);
-    layout->addWidget(m_crumblePathWidget);
+    if (m_crumblePathWidget)
+        layout->addWidget(m_crumblePathWidget);
 
-#ifndef Q_WS_MAC
-    QFile file(":/toolbarstyle.css");
-    file.open(QFile::ReadOnly);
-    QString toolbarStylesheet = QLatin1String(file.readAll());
-    canvas->toolbar()->setStyleSheet(toolbarStylesheet);
-    m_crumblePathWidget->setStyleSheet("QWidget { border-bottom: 1px solid black; }");
-#endif
 
     layout->addWidget(canvas);
     m_centralWidget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
@@ -617,11 +621,13 @@ QDeclarativeViewer::QDeclarativeViewer(QWidget *parent, Qt::WindowFlags flags)
     QObject::connect(canvas, SIGNAL(reloadRequested()), this, SLOT(reload()));
     QObject::connect(canvas, SIGNAL(sceneResized(QSize)), this, SLOT(sceneResized(QSize)));
     QObject::connect(canvas, SIGNAL(statusChanged(QDeclarativeView::Status)), this, SLOT(statusChanged()));
-    QObject::connect(canvas, SIGNAL(inspectorContextCleared()), m_crumblePathWidget, SLOT(clear()));
-    QObject::connect(canvas, SIGNAL(inspectorContextPushed(QString)), m_crumblePathWidget, SLOT(pushElement(QString)));
-    QObject::connect(canvas, SIGNAL(inspectorContextPopped()), m_crumblePathWidget, SLOT(popElement()));
-    QObject::connect(m_crumblePathWidget, SIGNAL(elementClicked(int)), canvas, SLOT(setInspectorContext(int)));
-    QObject::connect(canvas->engine(), SIGNAL(quit()), QCoreApplication::instance (), SLOT(quit()));
+    if (m_crumblePathWidget) {
+        QObject::connect(canvas, SIGNAL(inspectorContextCleared()), m_crumblePathWidget, SLOT(clear()));
+        QObject::connect(canvas, SIGNAL(inspectorContextPushed(QString)), m_crumblePathWidget, SLOT(pushElement(QString)));
+        QObject::connect(canvas, SIGNAL(inspectorContextPopped()), m_crumblePathWidget, SLOT(popElement()));
+        QObject::connect(m_crumblePathWidget, SIGNAL(elementClicked(int)), canvas, SLOT(setInspectorContext(int)));
+        QObject::connect(canvas->engine(), SIGNAL(quit()), QCoreApplication::instance (), SLOT(quit()));
+    }
 
     QObject::connect(warningsWidget(), SIGNAL(opened()), this, SLOT(warningsWidgetOpened()));
     QObject::connect(warningsWidget(), SIGNAL(closed()), this, SLOT(warningsWidgetClosed()));
