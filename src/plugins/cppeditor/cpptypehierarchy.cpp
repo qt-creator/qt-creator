@@ -168,6 +168,19 @@ CppTypeHierarchyWidget::~CppTypeHierarchyWidget()
     delete m_delegate;
 }
 
+bool CppTypeHierarchyWidget::handleReplacement(Core::IEditor *editor)
+{
+    if (CPPEditorEditable *cppEditable = qobject_cast<CPPEditorEditable *>(editor)) {
+        if (m_cppEditor) {
+            m_cppEditor = static_cast<CPPEditor *>(cppEditable->widget());
+            return true;
+        }
+    } else if (!m_cppEditor) {
+        return true;
+    }
+    return false;
+}
+
 void CppTypeHierarchyWidget::perform()
 {
     if (!m_cppEditor)
@@ -228,11 +241,13 @@ CppTypeHierarchyStackedWidget::~CppTypeHierarchyStackedWidget()
 
 void CppTypeHierarchyStackedWidget::editorChanged(Core::IEditor *editor)
 {
-    CppTypeHierarchyWidget *replacement = new CppTypeHierarchyWidget(editor);
-    removeWidget(m_typeHiearchyWidgetInstance);
-    m_typeHiearchyWidgetInstance->deleteLater();
-    m_typeHiearchyWidgetInstance = replacement;
-    addWidget(m_typeHiearchyWidgetInstance);
+    if (!m_typeHiearchyWidgetInstance->handleReplacement(editor)) {
+        CppTypeHierarchyWidget *replacement = new CppTypeHierarchyWidget(editor);
+        removeWidget(m_typeHiearchyWidgetInstance);
+        m_typeHiearchyWidgetInstance->deleteLater();
+        m_typeHiearchyWidgetInstance = replacement;
+        addWidget(m_typeHiearchyWidgetInstance);
+    }
 }
 
 // CppTypeHierarchyFactory
