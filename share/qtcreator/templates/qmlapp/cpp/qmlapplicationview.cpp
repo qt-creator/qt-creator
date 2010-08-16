@@ -18,9 +18,20 @@ class QmlApplicationViewPrivate
 {
     QString mainQmlFile;
     friend class QmlApplicationView;
+    static QString adjustPath(const QString &path);
 };
 
-QmlApplicationView::QmlApplicationView(const QString &mainQmlFile, QWidget *parent) :
+QString QmlApplicationViewPrivate::adjustPath(const QString &path)
+{
+#ifdef Q_OS_MAC
+    if (!QDir::isAbsolute(path))
+        return QCoreApplication::applicationDirPath()
+                + QLatin1String("/../Resources/") + path;
+#endif
+    return path;
+}
+
+QmlApplicationView::QmlApplicationView(QWidget *parent) :
 #ifdef QMLINSPECTOR
     QmlViewer::QDeclarativeDesignView(parent)
 #else
@@ -28,13 +39,6 @@ QmlApplicationView::QmlApplicationView(const QString &mainQmlFile, QWidget *pare
 #endif
     , m_d(new QmlApplicationViewPrivate)
 {
-#ifdef Q_OS_MAC
-    m_d->mainQmlFile = QCoreApplication::applicationDirPath()
-            + QLatin1String("/../Resources/") + mainQmlFile;
-#else
-    m_d->mainQmlFile = mainQmlFile;
-#endif
-    setSource(QUrl(m_d->mainQmlFile));
     connect(engine(), SIGNAL(quit()), SLOT(close()));
     setResizeMode(QDeclarativeView::SizeRootObjectToView);
 }
@@ -44,9 +48,15 @@ QmlApplicationView::~QmlApplicationView()
     delete m_d;
 }
 
+void QmlApplicationView::setMainQml(const QString &mainQml)
+{
+    m_d->mainQmlFile = QmlApplicationViewPrivate::adjustPath(mainQml);
+    setSource(QUrl::fromLocalFile(m_d->mainQmlFile));
+}
+
 void QmlApplicationView::addImportPath(const QString &importPath)
 {
-    engine()->addImportPath(importPath);
+    engine()->addImportPath(QmlApplicationViewPrivate::adjustPath(importPath));
 }
 
 void QmlApplicationView::setOrientation(Orientation orientation)
