@@ -53,14 +53,14 @@ QmlModule::QmlModule(const QString &name, const QFileInfo &rootDir, const QFileI
     , qmlStandaloneApp(qmlStandaloneApp)
 {}
 
-QString QmlModule::path(Location location) const
+QString QmlModule::path(Path path) const
 {
-    switch (location) {
+    switch (path) {
         case Root: {
             return rootDir.canonicalFilePath();
         }
         case ContentDir: {
-                const QDir proFile(qmlStandaloneApp->path(QmlStandaloneApp::AppProfilePath));
+            const QDir proFile(qmlStandaloneApp->path(QmlStandaloneApp::AppProfilePath));
             return proFile.relativeFilePath(qmldir.canonicalPath());
         }
         case ContentBase: {
@@ -72,7 +72,7 @@ QString QmlModule::path(Location location) const
         }
         case DeployedContentBase: {
             const QString modulesDir = qmlStandaloneApp->path(QmlStandaloneApp::ModulesDir);
-            return modulesDir + QLatin1Char('/') + path(ContentBase);
+            return modulesDir + QLatin1Char('/') + this->path(ContentBase);
         }
         default: qFatal("QmlModule::path() needs more work");
     }

@@ -45,7 +45,7 @@ class QmlStandaloneApp;
 
 struct QmlModule
 {
-    enum Location {
+    enum Path {
         // Example: Module "com.foo.bar" in "c:/modules/".
         // "qmldir" file is in "c:/modules/com/foo/bar/".
         // Application .pro file is "c:/app/app.pro".
@@ -57,7 +57,7 @@ struct QmlModule
 
     QmlModule(const QString &name, const QFileInfo &rootDir, const QFileInfo &qmldir,
               bool isExternal, QmlStandaloneApp *qmlStandaloneApp);
-    QString path(Location location) const;
+    QString path(Path path) const;
     const QString name;             // "com.foo.bar"
     const QFileInfo rootDir;        // Location of "com/"
     const QFileInfo qmldir;         // 'qmldir' file.
