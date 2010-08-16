@@ -1241,8 +1241,13 @@ void CentralizedFolderWatcher::folderChanged(const QString &folder)
         dir.cdUp();
     }
 
+    QString folderWithSlash = folder;
+    if (!folder.endsWith('/'))
+        folderWithSlash.append('/');
+
+
     // If a subdirectory was added, watch it too
-    QSet<QString> tmp = recursiveDirs(folder);
+    QSet<QString> tmp = recursiveDirs(folderWithSlash);
     if (!tmp.isEmpty()) {
         if (debugCFW)
             qDebug()<<"found new recursive dirs"<<tmp;
