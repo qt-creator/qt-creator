@@ -659,7 +659,8 @@ QDeclarativeViewer::~QDeclarativeViewer()
 
 void QDeclarativeViewer::setDesignModeBehavior(bool value)
 {
-    designModeBehaviorAction->setChecked(value);
+    if (designModeBehaviorAction)
+        designModeBehaviorAction->setChecked(value);
     canvas->setDesignModeBehavior(value);
 }
 
