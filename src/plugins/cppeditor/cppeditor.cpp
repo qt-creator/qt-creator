@@ -1226,7 +1226,11 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
 
     if (! recognizedQtMethod) {
         const QTextBlock block = tc.block();
-        const Token tk = SimpleLexer::tokenAt(block.text(), cursor.positionInBlock(), BackwardsScanner::previousBlockState(block), true);
+        int pos = cursor.positionInBlock();
+        QChar ch = document()->characterAt(cursor.position());
+        if (pos > 0 && ! (ch.isLetterOrNumber() || ch == QLatin1Char('_')))
+            --pos; // positionInBlock points to a delimiter character.
+        const Token tk = SimpleLexer::tokenAt(block.text(), pos, BackwardsScanner::previousBlockState(block), true);
 
         beginOfToken = block.position() + tk.begin();
         endOfToken = block.position() + tk.end();
