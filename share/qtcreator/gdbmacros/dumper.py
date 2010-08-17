@@ -1351,20 +1351,6 @@ class Dumper:
                 type = value.type
 
         typedefStrippedType = stripTypedefs(type)
-        nsStrippedType = self.stripNamespaceFromType(typedefStrippedType)\
-            .replace("::", "__")
-
-        # Is this derived from QObject?
-        hasMetaObject = False
-        try:
-            if value.type.code != gdb.TYPE_CODE_PTR:
-                mo = item.value['staticMetaObject']
-                hasMetaObject = True
-        except:
-            pass
-
-        #warn(" STRIPPED: %s" % nsStrippedType)
-        #warn(" DUMPERS: %s" % (nsStrippedType in qqDumpers))
 
         if isSimpleType(typedefStrippedType):
             #warn("IS SIMPLE: %s " % type)
@@ -1372,8 +1358,22 @@ class Dumper:
             self.putType(item.value.type)
             self.putValue(value)
             self.putNumChild(0)
+            return
 
-        elif self.useFancy \
+        # Is this derived from QObject?
+        hasMetaObject = False
+        for field in typedefStrippedType.strip_typedefs().fields():
+            if field.name == "staticMetaObject":
+                hasMetaObject = True
+                break
+
+        nsStrippedType = self.stripNamespaceFromType(typedefStrippedType)\
+            .replace("::", "__")
+
+        #warn(" STRIPPED: %s" % nsStrippedType)
+        #warn(" DUMPERS: %s" % (nsStrippedType in qqDumpers))
+
+        if self.useFancy \
                 and ((format is None) or (format >= 1)) \
                 and ((nsStrippedType in qqDumpers) or hasMetaObject):
             #warn("IS DUMPABLE: %s " % type)
