@@ -57,6 +57,10 @@
          <property name="text">
           <string>+</string>
          </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>:/core/images/plus.png</normaloff>:/core/images/plus.png</iconset>
+         </property>
         </widget>
        </item>
        <item>
@@ -69,6 +73,10 @@
          </property>
          <property name="text">
           <string>-</string>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>:/core/images/minus.png</normaloff>:/core/images/minus.png</iconset>
          </property>
         </widget>
        </item>
