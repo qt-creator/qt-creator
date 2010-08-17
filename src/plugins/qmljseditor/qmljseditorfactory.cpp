@@ -136,6 +136,7 @@ QStringList QmlJSEditorFactory::mimeTypes() const
 
 void QmlJSEditorFactory::updateEditorInfoBar(Core::IEditor *editor)
 {
+#ifdef QTCREATOR_WITH_QML
     if (qobject_cast<QmlJSEditorEditable *>(editor)) {
         Core::EditorManager::instance()->showEditorInfoBar(QMLDESIGNER_INFO_BAR,
             tr("Do you want to enable the experimental Qt Quick Designer?"),
@@ -145,6 +146,7 @@ void QmlJSEditorFactory::updateEditorInfoBar(Core::IEditor *editor)
     } else {
         Core::EditorManager::instance()->hideEditorInfoBar(QMLDESIGNER_INFO_BAR);
     }
+#endif
 }
 
 void QmlJSEditorFactory::activateQmlDesigner()

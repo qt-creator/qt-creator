@@ -42,12 +42,16 @@ contains(QT_CONFIG, declarative) {
 
     !isEmpty(SUPPORT_QT_QML) {
         message("Adding support for QmlDesigner, QmlInspector and Qml wizards.")
+    }
 
-        include(private_headers.pri)
-        exists($${QT_PRIVATE_HEADERS}/QtDeclarative/private/qdeclarativecontext_p.h) {
-            SUBDIRS += plugin_qmldesigner \
-                       plugin_qmlinspector
-        } else {
+    include(private_headers.pri)
+    exists($${QT_PRIVATE_HEADERS}/QtDeclarative/private/qdeclarativecontext_p.h) {
+        !isEmpty(SUPPORT_QT_QML) {
+            SUBDIRS += plugin_qmlinspector
+        }
+        SUBDIRS += plugin_qmldesigner
+    } else {
+        !isEmpty(SUPPORT_QT_QML) {
             warning()
             warning("QmlDesigner and QmlInspector plugins have been disabled")
             warning("The plugins depend on on private headers from QtDeclarative module.")
