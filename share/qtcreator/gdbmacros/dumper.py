@@ -117,11 +117,14 @@ def lookupType(typestring):
             #warn("LOOKING UP '%s'" % ts)
             type = gdb.lookup_type(ts)
         except RuntimeError, error:
-            # Can throw "RuntimeError: No type named class Foo."
-            # See http://sourceware.org/bugzilla/show_bug.cgi?id=11912
             #warn("LOOKING UP '%s': %s" % (ts, error))
+            # See http://sourceware.org/bugzilla/show_bug.cgi?id=11912
             exp = "(class '%s'*)0" % ts
-            type = parseAndEvaluate(exp).type.target()
+            try:
+                type = parseAndEvaluate(exp).type.target()
+            except:
+                # Can throw "RuntimeError: No type named class Foo."
+                pass
         except:
             #warn("LOOKING UP '%s' FAILED" % ts)
             pass
