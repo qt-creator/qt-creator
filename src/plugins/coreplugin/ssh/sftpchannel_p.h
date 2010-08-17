@@ -61,7 +61,7 @@ signals:
     void initializationFailed(const QString &reason);
     void closed();
     void finished(Core::SftpJobId job, const QString &error = QString());
-    void dataAvailable(SftpJobId job, const QString &data);
+    void dataAvailable(Core::SftpJobId job, const QString &data);
 
 private:
     typedef QMap<SftpJobId, AbstractSftpOperation::Ptr> JobMap;

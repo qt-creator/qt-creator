@@ -110,7 +110,7 @@ signals:
      * one file at a time.
      // TODO: Also emit for each file copied by uploadDir().
      */
-    void dataAvailable(SftpJobId job, const QString &data);
+    void dataAvailable(Core::SftpJobId job, const QString &data);
 
 private:
     SftpChannel(quint32 channelId, Internal::SshSendFacility &sendFacility);
