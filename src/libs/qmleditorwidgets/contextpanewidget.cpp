@@ -51,21 +51,24 @@ namespace QmlEditorWidgets {
 
 /* XPM */
 static const char * const line_xpm[] = {
-        "12 12 2 1",
+        "14 14 3 1",
         " 	c None",
         ".	c #0c0c0c",
-        "............",
-        ".          .",
-        ".          .",
-        ".          .",
-        ".          .",
-        ".          .",
-        ".          .",
-        ".          .",
-        ".          .",
-        ". ........ .",
-        ".          .",
-        "............"};
+        "x	c #1c1c1c",
+        "............. ",
+        ".           . ",
+        ". x       x . ",
+        ".  x     x  . ",
+        ".   x   x   . ",
+        ".    x x    . ",
+        ".     x     . ",
+        ".    x x    . ",
+        ".   x   x   . ",
+        ".  x     x  . ",
+        ". x       x . ",
+        ".           . ",
+        "............. ",
+        "              "};
 
 /* XPM */
 static const char * pin_xpm[] = {
@@ -171,7 +174,7 @@ ContextPaneWidget::ContextPaneWidget(QWidget *parent) : DragWidget(parent), m_cu
     m_toolButton = new QToolButton(this);
     m_toolButton->setAutoRaise(false);
 
-    m_toolButton->setIcon(QPixmap::fromImage(QImage(line_xpm)));
+    m_toolButton->setIcon(style()->standardIcon(QStyle::SP_DockWidgetCloseButton));
     m_toolButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
     m_toolButton->setFixedSize(16, 16);
 
@@ -487,7 +490,7 @@ void ContextPaneWidget::setLineButton()
 {
     m_pinned = false;
     m_toolButton->setAutoRaise(true);
-    m_toolButton->setIcon(QPixmap::fromImage(QImage(line_xpm)));
+    m_toolButton->setIcon(style()->standardIcon(QStyle::SP_DockWidgetCloseButton));
     m_toolButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
     m_toolButton->setFixedSize(20, 20);
     m_toolButton->setToolTip(tr("Hides this toolbar. This toolbar can be permantly disabled in the options or in the context menu."));
