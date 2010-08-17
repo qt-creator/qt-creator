@@ -91,8 +91,8 @@ public:
     QList<Macro> definedMacros() const
     { return _definedMacros; }
 
-    Symbol *lastVisibleSymbolAt(unsigned line, unsigned column) const;
-    Scope *scopeAt(unsigned line, unsigned column);
+    Symbol *lastVisibleSymbolAt(unsigned line, unsigned column = 0) const;
+    Scope *scopeAt(unsigned line, unsigned column = 0);
 
     QByteArray source() const;
     void setSource(const QByteArray &source);

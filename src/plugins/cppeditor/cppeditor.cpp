@@ -1074,19 +1074,13 @@ void CPPEditor::switchDeclarationDefinition()
         int line = 0, positionInBlock = 0;
         convertPosition(position(), &line, &positionInBlock);
 
-        Scope *scope = thisDocument->scopeAt(line, positionInBlock + 1);
         Symbol *lastVisibleSymbol = thisDocument->lastVisibleSymbolAt(line, positionInBlock + 1);
+        if (! lastVisibleSymbol)
+            return;
 
-        Scope *functionScope = 0;
-        if (scope->isFunction())
-            functionScope = scope;
-        else
-            functionScope = scope->enclosingFunction();
-
-        if (! functionScope && lastVisibleSymbol) {
-            if (Function *def = lastVisibleSymbol->asFunction())
-                functionScope = def;
-        }
+        Function *functionScope = lastVisibleSymbol->asFunction();
+        if (! functionScope)
+            functionScope = lastVisibleSymbol->enclosingFunction();
 
         if (functionScope) {
             LookupContext context(thisDocument, snapshot);
