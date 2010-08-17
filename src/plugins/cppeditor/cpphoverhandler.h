@@ -66,7 +66,7 @@ private slots:
     void editorOpened(Core::IEditor *editor);
 
 private:
-    void updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int pos);
+    void updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int pos, const int screen = -1);
 
     CppTools::CppModelManagerInterface *m_modelManager;
     QString m_helpId;
