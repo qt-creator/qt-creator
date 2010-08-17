@@ -344,17 +344,23 @@ struct CanonicalSymbol
 
         for (int i = results.size() - 1; i != -1; --i) {
             const LookupItem &r = results.at(i);
+            Symbol *decl = r.declaration();
 
-            if (! r.declaration())
-                break;
-            else if (! r.declaration()->scope())
-                break;
-            else if (! r.declaration()->scope()->isClass())
+            if (! (decl && decl->scope()))
                 break;
 
-            if (Function *funTy = r.declaration()->type()->asFunctionType())
-                if (funTy->isVirtual())
-                    return r.declaration();
+            if (Class *classScope = r.declaration()->scope()->asClass()) {
+                const Identifier *declId = decl->identifier();
+                const Identifier *classId = classScope->identifier();
+
+                if (classId && classId->isEqualTo(declId))
+                    continue; // skip it, it's a ctor or a dtor.
+
+                else if (Function *funTy = r.declaration()->type()->asFunctionType()) {
+                    if (funTy->isVirtual())
+                        return r.declaration();
+                }
+            }
         }
 
         for (int i = 0; i < results.size(); ++i) {
