@@ -1701,6 +1701,7 @@ bool Bind::visit(SimpleDeclarationAST *ast)
             }
 
             ForwardClassDeclaration *decl = control()->newForwardClassDeclaration(sourceLocation, name);
+            setDeclSpecifiers(decl, type);
             _scope->addMember(decl);
 
             *symbolTail = new (translationUnit()->memoryPool()) List<Symbol *>(decl);
