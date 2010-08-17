@@ -30,13 +30,11 @@
 #include "sftpchannel.h"
 #include "sftpchannel_p.h"
 
-#include "sshdelayedsignal_p.h"
 #include "sshexception_p.h"
 #include "sshsendfacility_p.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
-#include <QtCore/QWeakPointer>
 
 namespace Core {
 
@@ -63,6 +61,15 @@ SftpChannel::SftpChannel(quint32 channelId,
     Internal::SshSendFacility &sendFacility)
     : d(new Internal::SftpChannelPrivate(channelId, sendFacility, this))
 {
+    connect(d, SIGNAL(initialized()), this, SIGNAL(initialized()),
+        Qt::QueuedConnection);
+    connect(d, SIGNAL(initializationFailed(QString)), this,
+        SIGNAL(initializationFailed(QString)), Qt::QueuedConnection);
+    connect(d, SIGNAL(dataAvailable(Core::SftpJobId,QString)), this,
+            SIGNAL(dataAvailable(Core::SftpJobId,QString)), Qt::QueuedConnection);
+    connect(d, SIGNAL(finished(Core::SftpJobId,QString)), this,
+        SIGNAL(finished(Core::SftpJobId,QString)), Qt::QueuedConnection);
+    connect(d, SIGNAL(closed()), this, SIGNAL(closed()), Qt::QueuedConnection);
 }
 
 SftpChannel::State SftpChannel::state() const
@@ -219,7 +226,7 @@ void SftpChannelPrivate::handleChannelFailure()
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Unexpected SSH_MSG_CHANNEL_FAILURE packet.");
     }
-    createDelayedInitFailedSignal(SSH_TR("Server could not start sftp subsystem."));
+    emit initializationFailed(tr("Server could not start sftp subsystem."));
     closeChannel();
 }
 
@@ -268,7 +275,7 @@ void SftpChannelPrivate::handleCurrentPacket()
     default:
         throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Unexpected packet.",
-            SSH_TR("Unexpected packet of type %d.").arg(m_incomingPacket.type()));
+            tr("Unexpected packet of type %d.").arg(m_incomingPacket.type()));
     }
 }
 
@@ -285,12 +292,12 @@ void SftpChannelPrivate::handleServerVersion()
 #endif
     const quint32 serverVersion = m_incomingPacket.extractServerVersion();
     if (serverVersion != ProtocolVersion) {
-        createDelayedInitFailedSignal(SSH_TR("Protocol version mismatch: Expected %1, got %2")
+        emit initializationFailed(tr("Protocol version mismatch: Expected %1, got %2")
             .arg(serverVersion).arg(ProtocolVersion));
         closeChannel();
     } else {
         m_sftpState = Initialized;
-        createDelayedInitializedSignal();
+        emit initialized();
     }
 }
 
@@ -401,8 +408,8 @@ void SftpChannelPrivate::handleStatusGeneric(const JobMap::Iterator &it,
     const SftpStatusResponse &response)
 {
     AbstractSftpOperation::Ptr op = it.value();
-    const QString error = errorMessage(response, SSH_TR("Unknown error."));
-    createDelayedJobFinishedSignal(op->jobId, error);
+    const QString error = errorMessage(response, tr("Unknown error."));
+    emit finished(op->jobId, error);
     m_jobs.erase(it);
 }
 
@@ -424,15 +431,15 @@ void SftpChannelPrivate::handleMkdirStatus(const JobMap::Iterator &it,
     Q_ASSERT(dirIt != op->parentJob->mkdirsInProgress.end());
     const QString &remoteDir = dirIt.value().remoteDir;
     if (response.status == SSH_FX_OK) {
-        createDelayedDataAvailableSignal(op->parentJob->jobId,
-            SSH_TR("Created remote directory '%1'.").arg(remoteDir));
+        emit dataAvailable(op->parentJob->jobId,
+            tr("Created remote directory '%1'.").arg(remoteDir));
     } else if (response.status == SSH_FX_FAILURE) {
-        createDelayedDataAvailableSignal(op->parentJob->jobId,
-            SSH_TR("Remote directory '%1' already exists.").arg(remoteDir));
+        emit dataAvailable(op->parentJob->jobId,
+            tr("Remote directory '%1' already exists.").arg(remoteDir));
     } else {
         op->parentJob->setError();
-        createDelayedJobFinishedSignal(op->parentJob->jobId,
-            SSH_TR("Error creating directory '%1': %2")
+        emit finished(op->parentJob->jobId,
+            tr("Error creating directory '%1': %2")
             .arg(remoteDir, response.errorString));
         m_jobs.erase(it);
         return;
@@ -455,8 +462,8 @@ void SftpChannelPrivate::handleMkdirStatus(const JobMap::Iterator &it,
         QSharedPointer<QFile> localFile(new QFile(fileInfo.absoluteFilePath()));
         if (!localFile->open(QIODevice::ReadOnly)) {
             op->parentJob->setError();
-            createDelayedJobFinishedSignal(op->parentJob->jobId,
-                SSH_TR("Could not open local file '%1': %2")
+            emit finished(op->parentJob->jobId,
+                tr("Could not open local file '%1': %2")
                 .arg(fileInfo.absoluteFilePath(), localFile->error()));
             m_jobs.erase(it);
             return;
@@ -472,7 +479,7 @@ void SftpChannelPrivate::handleMkdirStatus(const JobMap::Iterator &it,
     op->parentJob->mkdirsInProgress.erase(dirIt);
     if (op->parentJob->mkdirsInProgress.isEmpty()
         && op->parentJob->uploadsInProgress.isEmpty())
-        createDelayedJobFinishedSignal(op->parentJob->jobId);
+        emit finished(op->parentJob->jobId);
     m_jobs.erase(it);
 }
 
@@ -482,14 +489,14 @@ void SftpChannelPrivate::handleLsStatus(const JobMap::Iterator &it,
     SftpListDir::Ptr op = it.value().staticCast<SftpListDir>();
     switch (op->state) {
     case SftpListDir::OpenRequested:
-    createDelayedJobFinishedSignal(op->jobId, errorMessage(response.errorString,
-            SSH_TR("Remote directory could not be opened for reading.")));
+        emit finished(op->jobId, errorMessage(response.errorString,
+            tr("Remote directory could not be opened for reading.")));
         m_jobs.erase(it);
         break;
     case SftpListDir::Open:
         if (response.status != SSH_FX_EOF)
             reportRequestError(op, errorMessage(response.errorString,
-                SSH_TR("Failed to list remote directory contents.")));
+                tr("Failed to list remote directory contents.")));
         op->state = SftpListDir::CloseRequested;
         sendData(m_outgoingPacket.generateCloseHandle(op->remoteHandle,
             op->jobId).rawData());
@@ -497,8 +504,8 @@ void SftpChannelPrivate::handleLsStatus(const JobMap::Iterator &it,
     case SftpListDir::CloseRequested:
         if (!op->hasError) {
             const QString error = errorMessage(response,
-                SSH_TR("Failed to close remote directory."));
-            createDelayedJobFinishedSignal(op->jobId, error);
+                tr("Failed to close remote directory."));
+            emit finished(op->jobId, error);
         }
         m_jobs.erase(it);
         break;
@@ -514,21 +521,21 @@ void SftpChannelPrivate::handleGetStatus(const JobMap::Iterator &it,
     SftpDownload::Ptr op = it.value().staticCast<SftpDownload>();
     switch (op->state) {
     case SftpDownload::OpenRequested:
-        createDelayedJobFinishedSignal(op->jobId,
+        emit finished(op->jobId,
             errorMessage(response.errorString,
-                SSH_TR("Failed to open remote file for reading.")));
+                tr("Failed to open remote file for reading.")));
         m_jobs.erase(it);
         break;
     case SftpDownload::Open:
         if (op->statRequested) {
             reportRequestError(op, errorMessage(response.errorString,
-                SSH_TR("Failed to stat remote file.")));
+                tr("Failed to stat remote file.")));
             sendTransferCloseHandle(op, response.requestId);
         } else {
             if ((response.status != SSH_FX_EOF || response.requestId != op->eofId)
                 && !op->hasError)
                 reportRequestError(op, errorMessage(response.errorString,
-                    SSH_TR("Failed to read remote file.")));
+                    tr("Failed to read remote file.")));
             finishTransferRequest(it);
         }
         break;
@@ -536,10 +543,10 @@ void SftpChannelPrivate::handleGetStatus(const JobMap::Iterator &it,
         Q_ASSERT(op->inFlightCount == 1);
         if (!op->hasError) {
             if (response.status == SSH_FX_OK)
-                createDelayedJobFinishedSignal(op->jobId);
+                emit finished(op->jobId);
             else
                 reportRequestError(op, errorMessage(response.errorString,
-                    SSH_TR("Failed to close remote file.")));
+                    tr("Failed to close remote file.")));
         }
         removeTransferRequest(it);
         break;
@@ -566,9 +573,9 @@ void SftpChannelPrivate::handlePutStatus(const JobMap::Iterator &it,
         }
 
         if (emitError) {
-            createDelayedJobFinishedSignal(job->jobId,
+            emit finished(job->jobId,
                 errorMessage(response.errorString,
-                    SSH_TR("Failed to open remote file for writing.")));
+                    tr("Failed to open remote file for writing.")));
         }
         m_jobs.erase(it);
         break;
@@ -586,7 +593,7 @@ void SftpChannelPrivate::handlePutStatus(const JobMap::Iterator &it,
             if (job->parentJob)
                 job->parentJob->setError();
             reportRequestError(job, errorMessage(response.errorString,
-                SSH_TR("Failed to write remote file.")));
+                tr("Failed to write remote file.")));
             finishTransferRequest(it);
         }
         break;
@@ -602,18 +609,18 @@ void SftpChannelPrivate::handlePutStatus(const JobMap::Iterator &it,
                 job->parentJob->uploadsInProgress.removeOne(job);
                 if (job->parentJob->mkdirsInProgress.isEmpty()
                     && job->parentJob->uploadsInProgress.isEmpty())
-                    createDelayedJobFinishedSignal(job->parentJob->jobId);
+                    emit finished(job->parentJob->jobId);
             } else {
-                createDelayedJobFinishedSignal(job->jobId);
+                emit finished(job->jobId);
             }
         } else {
             const QString error = errorMessage(response.errorString,
-                SSH_TR("Failed to close remote file."));
+                tr("Failed to close remote file."));
             if (job->parentJob) {
                 job->parentJob->setError();
-                createDelayedJobFinishedSignal(job->parentJob->jobId, error);
+                emit finished(job->parentJob->jobId, error);
             } else {
-                createDelayedJobFinishedSignal(job->jobId, error);
+                emit finished(job->jobId, error);
             }
         }
         m_jobs.erase(it);
@@ -638,7 +645,7 @@ void SftpChannelPrivate::handleName()
 
         for (int i = 0; i < response.files.count(); ++i) {
             const SftpFile &file = response.files.at(i);
-            createDelayedDataAvailableSignal(op->jobId, file.fileName);
+            emit dataAvailable(op->jobId, file.fileName);
         }
         sendData(m_outgoingPacket.generateReadDir(op->remoteHandle,
             op->jobId).rawData());
@@ -721,7 +728,7 @@ void SftpChannelPrivate::handleAttrs()
         } else {
             if (op->parentJob)
                 op->parentJob->setError();
-            reportRequestError(op, SSH_TR("Cannot append to remote file: "
+            reportRequestError(op, tr("Cannot append to remote file: "
                 "Server does not support file size attribute."));
             sendTransferCloseHandle(op, op->jobId);
         }
@@ -740,7 +747,7 @@ SftpChannelPrivate::JobMap::Iterator SftpChannelPrivate::lookupJob(SftpJobId id)
 
 void SftpChannelPrivate::closeHook()
 {
-    createClosedSignal();
+    emit closed();
 }
 
 void SftpChannelPrivate::handleOpenSuccessInternal()
@@ -758,7 +765,7 @@ void SftpChannelPrivate::handleOpenFailureInternal()
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Unexpected SSH_MSG_CHANNEL_OPEN_FAILURE packet.");
     }
-    createDelayedInitFailedSignal(SSH_TR("Server could not start session."));
+    emit initializationFailed(tr("Server could not start session."));
 }
 
 void SftpChannelPrivate::sendReadRequest(const SftpDownload::Ptr &job,
@@ -776,7 +783,7 @@ void SftpChannelPrivate::sendReadRequest(const SftpDownload::Ptr &job,
 void SftpChannelPrivate::reportRequestError(const AbstractSftpOperationWithHandle::Ptr &job,
     const QString &error)
 {
-    createDelayedJobFinishedSignal(job->jobId, error);
+    emit finished(job->jobId, error);
     job->hasError = true;
 }
 
@@ -810,7 +817,7 @@ void SftpChannelPrivate::sendWriteRequest(const JobMap::Iterator &it)
     if (job->localFile->error() != QFile::NoError) {
         if (job->parentJob)
             job->parentJob->setError();
-        reportRequestError(job, SSH_TR("Error reading local file: %1")
+        reportRequestError(job, tr("Error reading local file: %1")
             .arg(job->localFile->errorString()));
         finishTransferRequest(it);
     } else if (data.isEmpty()) {
@@ -840,59 +847,6 @@ void SftpChannelPrivate::spawnReadRequests(const SftpDownload::Ptr &job)
         m_jobs.insert(requestId, job);
         sendReadRequest(job, requestId);
     }
-}
-
-void SftpChannelPrivate::createDelayedInitFailedSignal(const QString &reason)
-{
-    new SftpInitializationFailedSignal(this, QWeakPointer<SftpChannel>(m_sftp),
-        reason);
-}
-
-void SftpChannelPrivate::emitInitializationFailedSignal(const QString &reason)
-{
-    emit m_sftp->initializationFailed(reason);
-}
-
-void SftpChannelPrivate::createDelayedInitializedSignal()
-{
-    new SftpInitializedSignal(this, QWeakPointer<SftpChannel>(m_sftp));
-}
-
-void SftpChannelPrivate::emitInitialized()
-{
-    emit m_sftp->initialized();
-}
-
-void SftpChannelPrivate::createDelayedJobFinishedSignal(SftpJobId jobId,
-    const QString &error)
-{
-    new SftpJobFinishedSignal(this, QWeakPointer<SftpChannel>(m_sftp), jobId, error);
-}
-
-void SftpChannelPrivate::emitJobFinished(SftpJobId jobId, const QString &error)
-{
-    emit m_sftp->finished(jobId, error);
-}
-
-void SftpChannelPrivate::createDelayedDataAvailableSignal(SftpJobId jobId,
-    const QString &data)
-{
-    new SftpDataAvailableSignal(this, QWeakPointer<SftpChannel>(m_sftp), jobId, data);
-}
-
-void SftpChannelPrivate::emitDataAvailable(SftpJobId jobId, const QString &data)
-{
-    emit m_sftp->dataAvailable(jobId, data);
-}
-
-void SftpChannelPrivate::createClosedSignal()
-{
-    new SftpClosedSignal(this, QWeakPointer<SftpChannel>(m_sftp));
-}
-
-void SftpChannelPrivate::emitClosed()
-{
-    emit m_sftp->closed();
 }
 
 } // namespace Internal

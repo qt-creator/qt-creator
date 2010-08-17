@@ -45,6 +45,7 @@ namespace Internal {
 
 class SftpChannelPrivate : public AbstractSshChannel
 {
+    Q_OBJECT
     friend class Core::SftpChannel;
 public:
 
@@ -55,11 +56,12 @@ public:
 
     virtual void closeHook();
 
-    void emitInitializationFailedSignal(const QString &reason);
-    void emitInitialized();
-    void emitJobFinished(SftpJobId jobId, const QString &error);
-    void emitDataAvailable(SftpJobId jobId, const QString &data);
-    void emitClosed();
+signals:
+    void initialized();
+    void initializationFailed(const QString &reason);
+    void closed();
+    void finished(Core::SftpJobId job, const QString &error = QString());
+    void dataAvailable(SftpJobId job, const QString &data);
 
 private:
     typedef QMap<SftpJobId, AbstractSftpOperation::Ptr> JobMap;
@@ -108,13 +110,6 @@ private:
         const QString &error);
     void sendTransferCloseHandle(const AbstractSftpTransfer::Ptr &job,
         quint32 requestId);
-
-    void createDelayedInitFailedSignal(const QString &reason);
-    void createDelayedInitializedSignal();
-    void createDelayedJobFinishedSignal(SftpJobId jobId,
-        const QString &error = QString());
-    void createDelayedDataAvailableSignal(SftpJobId jobId, const QString &data);
-    void createClosedSignal();
 
     JobMap::Iterator lookupJob(SftpJobId id);
     JobMap m_jobs;

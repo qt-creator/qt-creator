@@ -43,6 +43,7 @@ class SshSendFacility;
 
 class SshRemoteProcessPrivate : public AbstractSshChannel
 {
+    Q_OBJECT
     friend class Core::SshRemoteProcess;
 public:
     enum ProcessState {
@@ -54,10 +55,11 @@ public:
 
     virtual void closeHook();
 
-    void emitStartedSignal();
-    void emitOutputAvailableSignal(const QByteArray &output);
-    void emitErrorOutputAvailableSignal(const QByteArray &output);
-    void emitClosedSignal(int exitStatus);
+signals:
+    void started();
+    void outputAvailable(const QByteArray &output);
+    void errorOutputAvailable(const QByteArray &output);
+    void closed(int exitStatus);
 
 private:
     SshRemoteProcessPrivate(const QByteArray &command, quint32 channelId,
@@ -71,11 +73,6 @@ private:
     virtual void handleChannelRequest(const SshIncomingPacket &packet);
 
     void setProcState(ProcessState newState);
-
-    void createStartedSignal();
-    void createOutputAvailableSignal(const QByteArray &output);
-    void createErrorOutputAvailableSignal(const QByteArray &output);
-    void createClosedSignal(int exitStatus);
 
     ProcessState m_procState;
     bool m_wasRunning;

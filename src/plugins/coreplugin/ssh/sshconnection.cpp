@@ -59,6 +59,7 @@ namespace {
             if (!staticInitializationsDone) {
                 Botan::LibraryInitializer::initialize("thread_safe=true");
                 qRegisterMetaType<SshError>("SshError");
+                qRegisterMetaType<Core::SftpJobId>("Core::SftpJobId");
                 staticInitializationsDone = true;
             }
             staticInitMutex.unlock();

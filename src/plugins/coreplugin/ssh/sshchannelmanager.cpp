@@ -134,7 +134,7 @@ SshChannelManager::ChannelIterator SshChannelManager::lookupChannelAsIterator(qu
     if (it == m_channels.end() && !allowNotFound) {
         throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Invalid channel id.",
-            SSH_TR("Invalid channel id %1").arg(channelId));
+            tr("Invalid channel id %1").arg(channelId));
     }
     return it;
 }

@@ -105,8 +105,7 @@ SOURCES += mainwindow.cpp \
     ssh/sftpoperation.cpp \
     ssh/sftpincomingpacket.cpp \
     ssh/sftpdefs.cpp \
-    ssh/sftpchannel.cpp \
-    ssh/sshdelayedsignal.cpp
+    ssh/sftpchannel.cpp
 
 HEADERS += mainwindow.h \
     editmode.h \
@@ -214,8 +213,7 @@ HEADERS += mainwindow.h \
     ssh/sftpincomingpacket_p.h \
     ssh/sftpdefs.h \
     ssh/sftpchannel.h \
-    ssh/sftpchannel_p.h \
-    ssh/sshdelayedsignal_p.h
+    ssh/sftpchannel_p.h
 
 FORMS += dialogs/newdialog.ui \
     actionmanager/commandmappings.ui \

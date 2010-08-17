@@ -30,7 +30,6 @@
 #include "sshremoteprocess.h"
 #include "sshremoteprocess_p.h"
 
-#include "sshdelayedsignal_p.h"
 #include "sshincomingpacket_p.h"
 #include "sshsendfacility_p.h"
 
@@ -58,6 +57,14 @@ SshRemoteProcess::SshRemoteProcess(const QByteArray &command, quint32 channelId,
     Internal::SshSendFacility &sendFacility)
     : d(new Internal::SshRemoteProcessPrivate(command, channelId, sendFacility, this))
 {
+    connect(d, SIGNAL(started()), this, SIGNAL(started()),
+        Qt::QueuedConnection);
+    connect(d, SIGNAL(outputAvailable(QByteArray)), this,
+        SIGNAL(outputAvailable(QByteArray)), Qt::QueuedConnection);
+    connect(d, SIGNAL(errorOutputAvailable(QByteArray)), this,
+        SIGNAL(errorOutputAvailable(QByteArray)), Qt::QueuedConnection);
+    connect(d, SIGNAL(closed(int)), this, SIGNAL(closed(int)),
+        Qt::QueuedConnection);
 }
 
 SshRemoteProcess::~SshRemoteProcess()
@@ -134,10 +141,10 @@ void SshRemoteProcessPrivate::setProcState(ProcessState newState)
 #endif
     m_procState = newState;
     if (newState == StartFailed) {
-        createClosedSignal(SshRemoteProcess::FailedToStart);
+        emit closed(SshRemoteProcess::FailedToStart);
     } else if (newState == Running) {
         m_wasRunning = true;
-        createStartedSignal();
+        emit started();
     }
 }
 
@@ -145,9 +152,9 @@ void SshRemoteProcessPrivate::closeHook()
 {
     if (m_wasRunning) {
         if (!m_signal.isEmpty())
-            createClosedSignal(SshRemoteProcess::KilledBySignal);
+            emit closed(SshRemoteProcess::KilledBySignal);
         else
-            createClosedSignal(SshRemoteProcess::ExitedNormally);
+            emit closed(SshRemoteProcess::ExitedNormally);
     }
 }
 
@@ -191,7 +198,7 @@ void SshRemoteProcessPrivate::handleChannelFailure()
 
 void SshRemoteProcessPrivate::handleChannelDataInternal(const QByteArray &data)
 {
-    createOutputAvailableSignal(data);
+    emit outputAvailable(data);
 }
 
 void SshRemoteProcessPrivate::handleChannelExtendedDataInternal(quint32 type,
@@ -200,7 +207,7 @@ void SshRemoteProcessPrivate::handleChannelExtendedDataInternal(quint32 type,
     if (type != SSH_EXTENDED_DATA_STDERR)
         qWarning("Unknown extended data type %u", type);
     else
-        createErrorOutputAvailableSignal(data);
+        emit errorOutputAvailable(data);
 }
 
 void SshRemoteProcessPrivate::handleChannelRequest(const SshIncomingPacket &packet)
@@ -225,49 +232,6 @@ void SshRemoteProcessPrivate::handleChannelRequest(const SshIncomingPacket &pack
     } else {
         qWarning("Ignoring unknown request type '%s'", requestType.data());
     }
-}
-
-void SshRemoteProcessPrivate::createStartedSignal()
-{
-    new SshRemoteProcessStartedSignal(this, QWeakPointer<SshRemoteProcess>(m_proc));
-}
-
-void SshRemoteProcessPrivate::emitStartedSignal()
-{
-    emit m_proc->started();
-}
-
-void SshRemoteProcessPrivate::createOutputAvailableSignal(const QByteArray &output)
-{
-    new SshRemoteProcessOutputAvailableSignal(this,
-        QWeakPointer<SshRemoteProcess>(m_proc), output);
-}
-
-void SshRemoteProcessPrivate::emitOutputAvailableSignal(const QByteArray &output)
-{
-    emit m_proc->outputAvailable(output);
-}
-
-void SshRemoteProcessPrivate::createErrorOutputAvailableSignal(const QByteArray &output)
-{
-    new SshRemoteProcessErrorOutputAvailableSignal(this,
-        QWeakPointer<SshRemoteProcess>(m_proc), output);
-}
-
-void SshRemoteProcessPrivate::emitErrorOutputAvailableSignal(const QByteArray &output)
-{
-    emit m_proc->errorOutputAvailable(output);
-}
-
-void SshRemoteProcessPrivate::createClosedSignal(int exitStatus)
-{
-    new SshRemoteProcessClosedSignal(this,
-        QWeakPointer<SshRemoteProcess>(m_proc), exitStatus);
-}
-
-void SshRemoteProcessPrivate::emitClosedSignal(int exitStatus)
-{
-    emit m_proc->closed(exitStatus);
 }
 
 } // namespace Internal
