@@ -119,7 +119,9 @@ def lookupType(typestring):
         except RuntimeError, error:
             # Can throw "RuntimeError: No type named class Foo."
             # See http://sourceware.org/bugzilla/show_bug.cgi?id=11912
-            warn("LOOKING UP '%s': %s " % (ts, error))
+            #warn("LOOKING UP '%s': %s" % (ts, error))
+            exp = "(class '%s'*)0" % ts
+            type = parseAndEvaluate(exp).type.target()
         except:
             #warn("LOOKING UP '%s' FAILED" % ts)
             pass
