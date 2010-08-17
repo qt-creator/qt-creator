@@ -843,7 +843,6 @@ class Item:
 
 # This is a mapping from 'type name' to 'display alternatives'.
 
-qqDumpers = {}
 qqFormats = {}
 
 
@@ -858,7 +857,6 @@ class SetupCommand(gdb.Command):
         for key, value in module.__dict__.items():
             if key.startswith("qdump__"):
                 name = key[7:]
-                qqDumpers[name] = value
                 qqFormats[name] = qqFormats.get(name, "");
             elif key.startswith("qform__"):
                 name = key[7:]
@@ -1330,27 +1328,41 @@ class Dumper:
                 value = item.value
                 type = value.type
 
-        typedefStrippedType = stripTypedefs(type);
-        nsStrippedType = self.stripNamespaceFromType(
-            typedefStrippedType).replace("::", "__")
-
-        # Is this derived from QObject?
-        hasMetaObject = False
-
-        #warn(" STRIPPED: %s" % nsStrippedType)
-        #warn(" DUMPERS: %s" % self.dumpers)
-        #warn(" DUMPERS: %s" % (nsStrippedType in self.dumpers))
+        typedefStrippedType = stripTypedefs(type)
 
         if isSimpleType(typedefStrippedType):
             #warn("IS SIMPLE: %s " % type)
             self.putType(item.value.type)
             self.putValue(value)
             self.putNumChild(0)
+            return
 
-        elif nsStrippedType in self.dumpers:
+        # Is this derived from QObject?
+        hasMetaObject = False
+        for field in typedefStrippedType.strip_typedefs().fields():
+            if field.name == "staticMetaObject":
+                hasMetaObject = True
+                break
+
+        nsStrippedType = self.stripNamespaceFromType(typedefStrippedType)\
+            .replace("::", "__")
+
+        #warn(" STRIPPED: %s" % nsStrippedType)
+        #warn(" DUMPERS: %s" % (nsStrippedType in self.dumpers))
+
+        format = self.itemFormat(item)
+
+        if self.useFancy \
+                and ((format is None) or (format >= 1)) \
+                and ((nsStrippedType in self.dumpers) or hasMetaObject):
             #warn("IS DUMPABLE: %s " % type)
             self.putType(item.value.type)
-            self.dumpers[nsStrippedType](self, item)
+            if hasMetaObject:
+                # value has references stripped off item.value.
+                item1 = Item(value, item.iname)
+                qdump__QObject(self, item1)
+            else:
+                self.dumpers[nsStrippedType](self, item)
             #warn(" RESULT: %s " % self.output)
 
         elif typedefStrippedType.code == gdb.TYPE_CODE_ENUM:
@@ -1362,8 +1374,6 @@ class Dumper:
 
         elif typedefStrippedType.code == gdb.TYPE_CODE_PTR:
             isHandled = False
-
-            format = self.itemFormat(item)
 
             if not format is None:
                 self.putAddress(value.address)
