@@ -37,10 +37,11 @@
 
 #include <QtCore/QList>
 #include <QtCore/QObject>
+#include <QtCore/QProcess>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QString>
 
-QT_FORWARD_DECLARE_CLASS(QProcess);
+QT_FORWARD_DECLARE_CLASS(QTimer);
 
 namespace Core {
 class SftpChannel;
@@ -61,6 +62,7 @@ public:
     void setPortList(const MaemoPortList &portList) { m_portList = portList; }
     bool addMountSpecification(const MaemoMountSpecification &mountSpec,
         bool mountAsRoot);
+    void resetMountSpecifications() { m_mountSpecs.clear(); }
     void mount();
     void unmount();
     void stop();
@@ -81,16 +83,24 @@ private slots:
     void handleUtfsClientsFinished(int exitStatus);
     void handleUnmountProcessFinished(int exitStatus);
     void handleUtfsClientStderr(const QByteArray &output);
+    void handleUtfsServerStderr();
+    void handleUtfsServerError(QProcess::ProcessError error);
+    void handleUtfsServerFinished(int exitCode,
+        QProcess::ExitStatus exitStatus);
     void handleUmountStderr(const QByteArray &output);
+    void handleUtfsServerTimeout();
 
 private:
     void deployUtfsClient();
     void startUtfsClients();
     void startUtfsServers();
+    void killUtfsServer(QProcess *proc);
+    void killAllUtfsServers();
     QString utfsClientOnDevice() const;
     QString utfsServer() const;
 
     const MaemoToolChain * const m_toolChain;
+    QTimer * const m_utfsServerTimer;
 
     struct MountInfo {
         MountInfo(const MaemoMountSpecification &m, int port, bool root)
@@ -108,7 +118,14 @@ private:
     Core::SftpJobId m_uploadJobId;
 
     typedef QSharedPointer<QProcess> ProcPtr;
-    QList<ProcPtr> m_utfsServers;
+    struct UtfsServerInfo {
+        UtfsServerInfo(const ProcPtr &p) : proc(p) {}
+        ProcPtr proc;
+        QByteArray output;
+    };
+    QList<UtfsServerInfo> m_startedUtfsServers;
+    QList<UtfsServerInfo> m_readyUtfsServers;
+
     bool m_stop;
     QByteArray m_utfsClientStderr;
     QByteArray m_umountStderr;

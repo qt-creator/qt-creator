@@ -557,6 +557,7 @@ void MaemoDeployStep::handleMounted()
 
 void MaemoDeployStep::handleUnmounted()
 {
+    m_mounter->resetMountSpecifications();
     if (m_stopped) {
         m_canStart = true;
         return;
@@ -574,7 +575,7 @@ void MaemoDeployStep::handleUnmounted()
         } else {
 #ifdef Q_OS_WIN
             bool drivesToMount[26];
-            for (int i = 0; i < sizeof drivesToMount / drivesToMount[0]; ++i)
+            for (int i = 0; i < sizeof drivesToMount / sizeof drivesToMount[0]; ++i)
                 drivesToMount[i] = false;
             for (int i = 0; i < m_filesToCopy.count(); ++i) {
                 const QString localDir = QFileInfo(m_filesToCopy.at(i).localFilePath)

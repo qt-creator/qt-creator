@@ -187,6 +187,7 @@ void MaemoSshRunner::handleUnmounted()
     case InitialUnmount: {
         if (m_stop)
             return;
+        m_mounter->resetMountSpecifications();
         MaemoPortList portList = m_devConfig.freePorts();
         if (m_debugging && !m_runConfig->useRemoteGdb())
             portList.getNext(); // One has already been used for gdbserver.
@@ -214,6 +215,7 @@ void MaemoSshRunner::handleUnmounted()
         break;
     case ShutdownUnmount:
         Q_ASSERT(m_shuttingDown);
+        m_mounter->resetMountSpecifications();
         m_shuttingDown = false;
         if (m_exitStatus == SshRemoteProcess::ExitedNormally) {
             emit remoteProcessFinished(m_runner->exitCode());
