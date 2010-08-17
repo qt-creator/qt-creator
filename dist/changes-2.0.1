@@ -10,6 +10,7 @@ git log --cherry-pick --pretty=oneline v2.0.0...v2.0.1
 General
    * Fix the suggested path in the new dialog in case of sub projects
    * Search dialog now opens the completion box for the search term on cursor down
+   * Fix Mercurial plugin (QTCREATORBUG-1503)
 
 Editing
    * FakeVim: Fix issues with non-letter keys on non-US keyboards
@@ -30,12 +31,6 @@ Debugging
    * Fix that the newest version of compiled debugging helper was not used
      if there was an older version still was around in a different search path
 
-QML/JS Support
-   * New QmlDesigner
-     * Allows visual manipulation of .qml files
-     * Supports changing top-level states
-     * Integrates tighly with text editor, e.g. shared history, navigation facilities ...
-
 Platform Specific
 
 Mac
@@ -44,6 +39,7 @@ Linux (GNOME and KDE)
 
 Windows
    * Fixed that some menu items got disabled during keyboard navigation
+   * Detect Microsoft Visual Studio 2010
 
 Additional credits go to:
 
