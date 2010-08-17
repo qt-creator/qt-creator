@@ -1071,11 +1071,11 @@ void CPPEditor::switchDeclarationDefinition()
     const Snapshot snapshot = m_modelManager->snapshot();
 
     if (Document::Ptr thisDocument = snapshot.document(file()->fileName())) {
-        int line = 0, column = 0;
-        convertPosition(position(), &line, &column);
+        int line = 0, positionInBlock = 0;
+        convertPosition(position(), &line, &positionInBlock);
 
-        Scope *scope = thisDocument->scopeAt(line, column);
-        Symbol *lastVisibleSymbol = thisDocument->lastVisibleSymbolAt(line, column);
+        Scope *scope = thisDocument->scopeAt(line, positionInBlock + 1);
+        Symbol *lastVisibleSymbol = thisDocument->lastVisibleSymbolAt(line, positionInBlock + 1);
 
         Scope *functionScope = 0;
         if (scope->isFunction())
@@ -1159,11 +1159,14 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
         return link;
 
     const Snapshot snapshot = m_modelManager->snapshot();
-    int line = 0, column = 0;
-    convertPosition(cursor.position(), &line, &column);
+    int lineNumber = 0, positionInBlock = 0;
+    convertPosition(cursor.position(), &lineNumber, &positionInBlock);
     Document::Ptr doc = snapshot.document(file()->fileName());
     if (!doc)
         return link;
+
+    const unsigned line = lineNumber;
+    const unsigned column = positionInBlock + 1;
 
     QTextCursor tc = cursor;
 
@@ -1188,7 +1191,7 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
     for (int i = 0; i < tokens.size(); ++i) {
         const Token &tk = tokens.at(i);
 
-        if (((unsigned) column) >= tk.begin() && ((unsigned) column) <= tk.end()) {
+        if (((unsigned) positionInBlock) >= tk.begin() && ((unsigned) positionInBlock) <= tk.end()) {
             if (i >= 2 && tokens.at(i).is(T_IDENTIFIER) && tokens.at(i - 1).is(T_LPAREN)
                 && (tokens.at(i - 2).is(T_SIGNAL) || tokens.at(i - 2).is(T_SLOT))) {
 
@@ -1273,7 +1276,7 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
             if (Symbol *d = r.declaration()) {
                 if (d->isDeclaration() || d->isFunction()) {
                     if (file()->fileName() == QString::fromUtf8(d->fileName(), d->fileNameLength())) {
-                        if (unsigned(line) == d->line() && unsigned(column) >= d->column()) { // ### TODO: check the end
+                        if (unsigned(lineNumber) == d->line() && unsigned(positionInBlock) >= d->column()) { // ### TODO: check the end
                             result = r; // take the symbol under cursor.
                             break;
                         }
@@ -1286,9 +1289,11 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
             Symbol *def = 0;
 
             if (resolveTarget) {
+                Symbol *lastVisibleSymbol = doc->lastVisibleSymbolAt(line, column);
+
                 def = findDefinition(symbol, snapshot);
 
-                if (def == doc->lastVisibleSymbolAt(line, column))
+                if (def == lastVisibleSymbol)
                     def = 0; // jump to declaration then.
             }
 
