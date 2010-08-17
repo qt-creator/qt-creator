@@ -355,19 +355,3 @@ void BuildStepsPage::init(BuildConfiguration *bc)
 {
     m_widget->init(bc->stepList(m_id));
 }
-
-DeployConfigurationStepsWidget::DeployConfigurationStepsWidget(QWidget *parent) :
-    DeployConfigurationWidget(parent),
-    m_widget(new BuildStepListWidget(this))
-{
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->setMargin(0);
-    layout->setSpacing(0);
-    layout->addWidget(m_widget);
-}
-
-void DeployConfigurationStepsWidget::init(DeployConfiguration *dc)
-{
-    m_widget->init(dc->stepList());
-    setDisplayName(m_widget->displayName());
-}

@@ -120,17 +120,6 @@ private:
     BuildStepListWidget *m_widget;
 };
 
-class DeployConfigurationStepsWidget : public DeployConfigurationWidget
-{
-public:
-    explicit DeployConfigurationStepsWidget(QWidget *parent = 0);
-
-    void init(DeployConfiguration *dc);
-
-private:
-    BuildStepListWidget *m_widget;
-};
-
 } // Internal
 } // ProjectExplorer
 
