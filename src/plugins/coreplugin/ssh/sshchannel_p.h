@@ -34,6 +34,8 @@
 #include <QtCore/QObject>
 #include <QtCore/QString>
 
+QT_FORWARD_DECLARE_CLASS(QTimer);
+
 namespace Core {
 namespace Internal {
 
@@ -78,6 +80,8 @@ public:
 
     virtual ~AbstractSshChannel();
 
+    static const int ReplyTimeout = 10000; // milli seconds
+
 signals:
     void timeout();
 
@@ -88,6 +92,7 @@ protected:
     void checkChannelActive();
 
     SshSendFacility &m_sendFacility;
+    QTimer * const m_timeoutTimer;
 
 private:
     virtual void handleOpenSuccessInternal()=0;

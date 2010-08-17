@@ -34,6 +34,8 @@
 
 #include <botan/exceptn.h>
 
+#include <QtCore/QTimer>
+
 namespace Core {
 namespace Internal {
 
@@ -46,10 +48,13 @@ namespace {
 
 AbstractSshChannel::AbstractSshChannel(quint32 channelId,
     SshSendFacility &sendFacility)
-    : m_sendFacility(sendFacility), m_localChannel(channelId),
-      m_remoteChannel(NoChannel), m_localWindowSize(InitialWindowSize),
-      m_remoteWindowSize(0), m_state(Inactive)
+    : m_sendFacility(sendFacility), m_timeoutTimer(new QTimer(this)),
+      m_localChannel(channelId), m_remoteChannel(NoChannel),
+      m_localWindowSize(InitialWindowSize), m_remoteWindowSize(0),
+      m_state(Inactive)
 {
+    m_timeoutTimer->setSingleShot(true);
+    connect(m_timeoutTimer, SIGNAL(timeout()), this, SIGNAL(timeout()));
 }
 
 AbstractSshChannel::~AbstractSshChannel()
@@ -74,6 +79,7 @@ void AbstractSshChannel::requestSessionStart()
         m_sendFacility.sendSessionPacket(m_localChannel, InitialWindowSize,
             MaxPacketSize);
         setChannelState(SessionRequested);
+        m_timeoutTimer->start(ReplyTimeout);
     }  catch (Botan::Exception &e) {
         m_errorString = QString::fromAscii(e.what());
         closeChannel();
@@ -124,6 +130,7 @@ void AbstractSshChannel::handleOpenSuccess(quint32 remoteChannelId,
        throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
            "Invalid SSH_MSG_CHANNEL_OPEN_CONFIRMATION packet.");
    }
+    m_timeoutTimer->stop();
 
    if (remoteMaxPacketSize < MinMaxPacketSize) {
        throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
@@ -148,6 +155,7 @@ void AbstractSshChannel::handleOpenFailure(const QString &reason)
        throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
            "Invalid SSH_MSG_CHANNEL_OPEN_FAILURE packet.");
    }
+    m_timeoutTimer->stop();
 
 #ifdef CREATOR_SSH_DEBUG
    qDebug("Channel open request failed for channel %u", m_localChannel);
@@ -217,13 +225,16 @@ int AbstractSshChannel::handleChannelOrExtendedChannelData(const QByteArray &dat
 
 void AbstractSshChannel::closeChannel()
 {
-    if (m_state != CloseRequested && m_state != Closed) {
+    if (m_state == CloseRequested) {
+        m_timeoutTimer->stop();
+    } else if (m_state != Closed) {
         if (m_state == Inactive) {
             setChannelState(Closed);
         } else {
             setChannelState(CloseRequested);
             m_sendFacility.sendChannelEofPacket(m_remoteChannel);
             m_sendFacility.sendChannelClosePacket(m_remoteChannel);
+            m_timeoutTimer->start(ReplyTimeout);
         }
     }
 }
