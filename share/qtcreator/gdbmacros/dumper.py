@@ -116,10 +116,15 @@ def lookupType(typestring):
         try:
             #warn("LOOKING UP '%s'" % ts)
             type = gdb.lookup_type(ts)
-        except:
-            # Can throw "RuntimeError: No type named class Foo."
-            #warn("LOOKING UP '%s' FAILED" % ts)
-            pass
+        except RuntimeError, error:
+            #warn("LOOKING UP '%s': %s" % (ts, error))
+            # See http://sourceware.org/bugzilla/show_bug.cgi?id=11912
+            exp = "(class '%s'*)0" % ts
+            try:
+                type = parseAndEvaluate(exp).type.target()
+            except:
+                # Can throw "RuntimeError: No type named class Foo."
+                pass
         #warn("  RESULT: '%s'" % type)
         #if not type is None:
         #    warn("  FIELDS: '%s'" % type.fields())
@@ -805,7 +810,9 @@ def extractFields(type):
     #warn("TYPE 0: %s" % type)
     type = stripTypedefs(type)
     #warn("TYPE 1: %s" % type)
-    type = lookupType(str(type))
+    type0 = lookupType(str(type))
+    if not type0 is None:
+        type = type0
     #warn("TYPE 2: %s" % type)
     fields = type.fields()
     #warn("FIELDS: %s" % fields)
