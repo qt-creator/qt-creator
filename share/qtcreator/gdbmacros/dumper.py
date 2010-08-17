@@ -647,7 +647,8 @@ def call(value, func):
     type = stripClassTag(str(value.type))
     if type.find(":") >= 0:
         type = "'" + type + "'"
-    exp = "((%s*)%s)->%s" % (type, value.address, func)
+    # 'class' is needed, see http://sourceware.org/bugzilla/show_bug.cgi?id=11912
+    exp = "((class %s*)%s)->%s" % (type, value.address, func)
     #warn("CALL: %s" % exp)
     result = None
     try:
