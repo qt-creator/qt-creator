@@ -466,8 +466,8 @@ void HelpPlugin::setupUi()
     m_splitter->insertWidget(0, m_sideBar);
     m_splitter->setStretchFactor(0, 0);
     m_splitter->setStretchFactor(1, 1);
-    m_splitter->setSizes(QList<int>() << 300 << 300);
     m_sideBar->readSettings(m_core->settings(), QLatin1String("HelpSideBar"));
+    m_splitter->setSizes(QList<int>() << m_sideBar->size().width() << 300);
 }
 
 void HelpPlugin::resetFilter()
