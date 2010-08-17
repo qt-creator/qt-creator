@@ -70,6 +70,10 @@ public:
 protected:
     using ASTVisitor::translationUnit;
 
+    unsigned location(DeclaratorAST *ast, unsigned defaultLocation) const;
+    unsigned location(CoreDeclaratorAST *ast, unsigned defaultLocation) const;
+    unsigned location(NameAST *name, unsigned defaultLocation) const;
+
     static int visibilityForAccessSpecifier(int tokenKind);
     static int visibilityForClassKey(int tokenKind);
     static int visibilityForObjCAccessSpecifier(int tokenKind);

@@ -85,6 +85,50 @@ void Bind::setSkipFunctionBodies(bool skipFunctionBodies)
     _skipFunctionBodies = skipFunctionBodies;
 }
 
+unsigned Bind::location(DeclaratorAST *ast, unsigned defaultLocation) const
+{
+    if (! ast)
+        return defaultLocation;
+
+    else if (ast->core_declarator)
+        return location(ast->core_declarator, defaultLocation);
+
+    return ast->firstToken();
+}
+
+unsigned Bind::location(CoreDeclaratorAST *ast, unsigned defaultLocation) const
+{
+    if (! ast)
+        return defaultLocation;
+
+    else if (NestedDeclaratorAST *nested = ast->asNestedDeclarator())
+        return location(nested->declarator, defaultLocation);
+
+    else if (DeclaratorIdAST *id = ast->asDeclaratorId())
+        return location(id->name, defaultLocation);
+
+    return ast->firstToken();
+}
+
+unsigned Bind::location(NameAST *name, unsigned defaultLocation) const
+{
+    if (! name)
+        return defaultLocation;
+
+    else if (DestructorNameAST *dtor = name->asDestructorName())
+        return dtor->identifier_token;
+
+    else if (TemplateIdAST *templId = name->asTemplateId())
+        return templId->identifier_token;
+
+    else if (QualifiedNameAST *q = name->asQualifiedName()) {
+        if (q->unqualified_name)
+            return location(q->unqualified_name, defaultLocation);
+    }
+
+    return name->firstToken();
+}
+
 void Bind::setDeclSpecifiers(Symbol *symbol, const FullySpecifiedType &declSpecifiers)
 {
     if (! symbol)
@@ -370,7 +414,7 @@ void Bind::baseSpecifier(BaseSpecifierAST *ast, unsigned colon_token, Class *kla
     if (! ast)
         return;
 
-    unsigned sourceLocation = ast->firstToken();
+    unsigned sourceLocation = location(ast->name, ast->firstToken());
     if (! sourceLocation)
         sourceLocation = std::max(colon_token, klass->sourceLocation());
 
@@ -924,8 +968,7 @@ void Bind::objCMessageArgumentDeclaration(ObjCMessageArgumentDeclarationAST *ast
     }
 
     const Name *param_name = this->name(ast->param_name);
-    const unsigned sourceLocation = ast->param_name ? ast->param_name->firstToken() : ast->firstToken();
-    Argument *arg = control()->newArgument(sourceLocation, param_name);
+    Argument *arg = control()->newArgument(location(ast->param_name, ast->firstToken()), param_name);
     arg->setType(type);
     ast->argument = arg;
     method->addMember(arg);
@@ -947,7 +990,7 @@ ObjCMethod *Bind::objCMethodPrototype(ObjCMethodPrototypeAST *ast)
     FullySpecifiedType returnType = this->objCTypeName(ast->type_name);
     const Name *selector = this->name(ast->selector);
 
-    const unsigned sourceLocation = ast->selector ? ast->selector->firstToken() : ast->firstToken();
+    const unsigned sourceLocation = location(ast->selector, ast->firstToken());
     ObjCMethod *method = control()->newObjCMethod(sourceLocation, selector);
     // ### set the offsets
     method->setReturnType(returnType);
@@ -1195,7 +1238,7 @@ bool Bind::visit(ForeachStatementAST *ast)
     type = this->declarator(ast->declarator, type, &declaratorId);
 
     if (declaratorId && declaratorId->name) {
-        unsigned sourceLocation = declaratorId->name->firstToken();
+        unsigned sourceLocation = location(declaratorId->name, ast->firstToken());
         Declaration *decl = control()->newDeclaration(sourceLocation, declaratorId->name->name);
         decl->setType(type);
         block->addMember(decl);
@@ -1361,7 +1404,7 @@ bool Bind::visit(ObjCFastEnumerationAST *ast)
     type = this->declarator(ast->declarator, type, &declaratorId);
 
     if (declaratorId && declaratorId->name) {
-        unsigned sourceLocation = declaratorId->name->firstToken();
+        unsigned sourceLocation = location(declaratorId->name, ast->firstToken());
         Declaration *decl = control()->newDeclaration(sourceLocation, declaratorId->name->name);
         decl->setType(type);
         block->addMember(decl);
@@ -1447,7 +1490,7 @@ bool Bind::visit(ConditionAST *ast)
     type = this->declarator(ast->declarator, type, &declaratorId);
 
     if (declaratorId && declaratorId->name) {
-        unsigned sourceLocation = declaratorId->name->firstToken();
+        unsigned sourceLocation = location(declaratorId->name, ast->firstToken());
         Declaration *decl = control()->newDeclaration(sourceLocation, declaratorId->name->name);
         decl->setType(type);
         _scope->addMember(decl);
@@ -1696,7 +1739,7 @@ bool Bind::visit(SimpleDeclarationAST *ast)
             unsigned sourceLocation = elabTypeSpec->firstToken();
             const Name *name = 0;
             if (elabTypeSpec->name) {
-                sourceLocation = elabTypeSpec->name->firstToken();
+                sourceLocation = location(elabTypeSpec->name, sourceLocation);
                 name = elabTypeSpec->name->name;
             }
 
@@ -1714,9 +1757,8 @@ bool Bind::visit(SimpleDeclarationAST *ast)
         FullySpecifiedType declTy = this->declarator(it->value, type.qualifiedType(), &declaratorId);
 
         const Name *declName = 0;
-        unsigned sourceLocation = ast->firstToken();
+        unsigned sourceLocation = location(it->value, ast->firstToken());
         if (declaratorId && declaratorId->name) {
-            sourceLocation = declaratorId->firstToken();
             declName = declaratorId->name->name;
         }
 
@@ -1889,7 +1931,7 @@ bool Bind::visit(FunctionDefinitionAST *ast)
         }
 
         if (declaratorId && declaratorId->name) {
-            fun->setSourceLocation(declaratorId->name->firstToken(), translationUnit());
+            fun->setSourceLocation(location(declaratorId, ast->firstToken()), translationUnit());
             fun->setName(declaratorId->name->name);
         }
 
@@ -1994,7 +2036,7 @@ bool Bind::visit(ParameterDeclarationAST *ast)
     if (declaratorId && declaratorId->name)
         argName = declaratorId->name->name;
 
-    Argument *arg = control()->newArgument(sourceLocation, argName);
+    Argument *arg = control()->newArgument(location(declaratorId, ast->firstToken()), argName);
     arg->setType(type);
 
     if (ast->expression) {
@@ -2043,7 +2085,7 @@ bool Bind::visit(TemplateDeclarationAST *ast)
 
 bool Bind::visit(TypenameTypeParameterAST *ast)
 {
-    unsigned sourceLocation = ast->name ? ast->name->firstToken() : ast->firstToken();
+    unsigned sourceLocation = location(ast->name, ast->firstToken());
     // unsigned classkey_token = ast->classkey_token;
     // unsigned dot_dot_dot_token = ast->dot_dot_dot_token;
     const Name *name = this->name(ast->name);
@@ -2058,7 +2100,7 @@ bool Bind::visit(TypenameTypeParameterAST *ast)
 
 bool Bind::visit(TemplateTypeParameterAST *ast)
 {
-    unsigned sourceLocation = ast->name ? ast->name->firstToken() : ast->firstToken();
+    unsigned sourceLocation = location(ast->name, ast->firstToken());
 
     // unsigned template_token = ast->template_token;
     // unsigned less_token = ast->less_token;
@@ -2086,7 +2128,7 @@ bool Bind::visit(TemplateTypeParameterAST *ast)
 
 bool Bind::visit(UsingAST *ast)
 {
-    unsigned sourceLocation = ast->name ? ast->name->firstToken() : ast->firstToken();
+    unsigned sourceLocation = location(ast->name, ast->firstToken());
     const Name *name = this->name(ast->name);
 
     UsingDeclaration *symbol = control()->newUsingDeclaration(sourceLocation, name);
@@ -2097,7 +2139,7 @@ bool Bind::visit(UsingAST *ast)
 
 bool Bind::visit(UsingDirectiveAST *ast)
 {
-    unsigned sourceLocation = ast->name ? ast->name->firstToken() : ast->firstToken();
+    unsigned sourceLocation = location(ast->name, ast->firstToken());
     const Name *name = this->name(ast->name);
     UsingNamespaceDirective *symbol = control()->newUsingNamespaceDirective(sourceLocation, name);
     ast->symbol = symbol;
@@ -2118,7 +2160,7 @@ bool Bind::visit(ObjCClassForwardDeclarationAST *ast)
     for (NameListAST *it = ast->identifier_list; it; it = it->next) {
         const Name *name = this->name(it->value);
 
-        const unsigned sourceLocation = it->value ? it->value->firstToken() : ast->firstToken();
+        const unsigned sourceLocation = location(it->value, ast->firstToken());
         ObjCForwardClassDeclaration *fwd = control()->newObjCForwardClassDeclaration(sourceLocation, name);
         setDeclSpecifiers(fwd, declSpecifiers);
         _scope->addMember(fwd);
@@ -2173,8 +2215,7 @@ bool Bind::visit(ObjCClassDeclarationAST *ast)
     const Name *class_name = this->name(ast->class_name);
     const Name *category_name = this->name(ast->category_name);
 
-    const unsigned sourceLocation = ast->class_name ? ast->class_name->firstToken() : ast->firstToken();
-
+    const unsigned sourceLocation = location(ast->class_name, ast->firstToken());
     ObjCClass *klass = control()->newObjCClass(sourceLocation, class_name);
     ast->symbol = klass;
     _scope->addMember(klass);
@@ -2223,7 +2264,7 @@ bool Bind::visit(ObjCProtocolForwardDeclarationAST *ast)
     for (NameListAST *it = ast->identifier_list; it; it = it->next) {
         const Name *name = this->name(it->value);
 
-        const unsigned sourceLocation = it->value ? it->value->firstToken() : ast->firstToken();
+        const unsigned sourceLocation = location(it->value, ast->firstToken());
         ObjCForwardProtocolDeclaration *fwd = control()->newObjCForwardProtocolDeclaration(sourceLocation, name);
         setDeclSpecifiers(fwd, declSpecifiers);
         _scope->addMember(fwd);
@@ -2256,7 +2297,7 @@ bool Bind::visit(ObjCProtocolDeclarationAST *ast)
     // unsigned protocol_token = ast->protocol_token;
     const Name *name = this->name(ast->name);
 
-    const unsigned sourceLocation = ast->name ? ast->name->firstToken() : ast->firstToken();
+    const unsigned sourceLocation = location(ast->name, ast->firstToken());
     ObjCProtocol *protocol = control()->newObjCProtocol(sourceLocation, name);
     protocol->setStartOffset(calculateScopeStart(ast));
     protocol->setEndOffset(tokenAt(ast->lastToken() - 1).end());
@@ -2644,7 +2685,7 @@ bool Bind::visit(ClassSpecifierAST *ast)
     const Name *className = this->name(ast->name);
 
     if (ast->name) {
-        sourceLocation = ast->name->firstToken();
+        sourceLocation = location(ast->name, sourceLocation);
         startScopeOffset = tokenAt(sourceLocation).end(); // at the end of the class name
 
         if (QualifiedNameAST *q = ast->name->asQualifiedName()) {
@@ -2712,10 +2753,7 @@ bool Bind::visit(ElaboratedTypeSpecifierAST *ast)
 
 bool Bind::visit(EnumSpecifierAST *ast)
 {
-    unsigned sourceLocation = ast->firstToken();
-    if (ast->name)
-        sourceLocation = ast->name->firstToken();
-
+    unsigned sourceLocation = location(ast->name, ast->firstToken());
     const Name *enumName = this->name(ast->name);
     Enum *e = control()->newEnum(sourceLocation, enumName);
     e->setStartOffset(tokenAt(sourceLocation).end()); // at the end of the enum or identifier token.
