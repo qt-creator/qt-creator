@@ -1464,7 +1464,7 @@ void QmlJSTextEditor::wheelEvent(QWheelEvent *event)
     BaseTextEditor::wheelEvent(event);
 
     if (visible)
-        m_contextPane->apply(editableInterface(),  m_semanticInfo.document, m_semanticInfo.snapshot, m_semanticInfo.declaringMemberNoProperties(position()), true);
+        m_contextPane->apply(editableInterface(),  m_semanticInfo.document, m_semanticInfo.snapshot, m_semanticInfo.declaringMemberNoProperties(position()), false, true);
 }
 
 void QmlJSTextEditor::resizeEvent(QResizeEvent *event)
