@@ -6697,6 +6697,22 @@
 
     For more information, see \l{Creating Locator Filters}.
 
+    \section1 Adding a License Header Template for C++ Code
+
+    A file containing a license header for C++ can be specified under
+    \gui{Tools > Options... > C++ > License Template}. It may contain special
+    placeholders enclosed in \c{%%} that are replaced when generating a
+    new file:
+
+    \list 1
+        \o \c %YEAR%: Year
+        \o \c %DATE%: Date
+        \o \c %USER%: User name
+        \o \c %FILENAME%: File name
+        \o \c %CLASS%: Class name (if applicable)
+        \o \c %$VARIABLE%: Contents of environment variable \c{VARIABLE}.
+    \endlist
+
 */
 
 
