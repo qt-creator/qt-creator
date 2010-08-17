@@ -126,7 +126,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     Core::ActionContainer *menuQtQuick = am->createMenu(Constants::M_QTQUICK);
     menuQtQuick->menu()->setTitle(tr("Qt Quick"));
     mtools->addMenu(menuQtQuick);
-    m_actionPreview = new QAction("&Preview", this);
+    m_actionPreview = new QAction(tr("&Preview"), this);
 
     QList<int> toolsMenuContext = QList<int>()
                                   << core->uniqueIDManager()->uniqueIdentifier(QmlDesigner::Constants::C_QT_QUICK_TOOLS_MENU);
