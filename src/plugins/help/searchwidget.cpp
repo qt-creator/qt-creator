@@ -33,6 +33,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <utils/styledbar.h>
 
 #include <QtCore/QMap>
 #include <QtCore/QString>
@@ -98,14 +99,30 @@ void SearchWidget::showEvent(QShowEvent *event)
 {
     if (!event->spontaneous() && !searchEngine) {
         QVBoxLayout *vLayout = new QVBoxLayout(this);
-        vLayout->setMargin(4);
+        vLayout->setMargin(0);
+        vLayout->setSpacing(0);
 
         searchEngine = (&LocalHelpManager::helpEngine())->searchEngine();
-        resultWidget = searchEngine->resultWidget();
-        QHelpSearchQueryWidget *queryWidget = searchEngine->queryWidget();
 
-        vLayout->addWidget(queryWidget);
-        vLayout->addWidget(resultWidget);
+        Utils::StyledBar *toolbar = new Utils::StyledBar(this);
+        toolbar->setSingleRow(false);
+        QHelpSearchQueryWidget *queryWidget = searchEngine->queryWidget();
+        QLayout *tbLayout = new QVBoxLayout();
+        tbLayout->setSpacing(6);
+        tbLayout->setMargin(4);
+        tbLayout->addWidget(queryWidget);
+        toolbar->setLayout(tbLayout);
+
+        Utils::StyledBar *toolbar2 = new Utils::StyledBar(this);
+        toolbar2->setSingleRow(false);
+        tbLayout = new QVBoxLayout();
+        tbLayout->setSpacing(0);
+        tbLayout->setMargin(0);
+        tbLayout->addWidget(resultWidget = searchEngine->resultWidget());
+        toolbar2->setLayout(tbLayout);
+
+        vLayout->addWidget(toolbar);
+        vLayout->addWidget(toolbar2);
 
         setFocusProxy(queryWidget);
 
