@@ -374,7 +374,7 @@ TargetSetupPage::recursivelyCheckDirectoryForBuild(const QString &directory, con
     QtVersionManager * vm = QtVersionManager::instance();
     TargetSetupPage::ImportInfo info;
     info.directory = dir.absolutePath();
-    info.isShadowBuild = (dir.absolutePath() != QFileInfo(proFile).absolutePath());
+    info.isShadowBuild = (info.directory != QFileInfo(proFile).absolutePath());
 
     // This also means we have a build in there
     // First get the qt version
@@ -546,14 +546,16 @@ void TargetSetupPage::updateVersionItem(QTreeWidgetItem *versionItem, int index)
 
     // Column 2 (directory):
     Q_ASSERT(versionItem->parent());
-    QString target = versionItem->parent()->data(NAME_COLUMN, Qt::UserRole).toString();
+    const QString target = versionItem->parent()->data(NAME_COLUMN, Qt::UserRole).toString();
     QString dir;
     if (info.directory.isEmpty()) {
-        if (info.version->supportsShadowBuilds() && info.isShadowBuild)
+        Q_ASSERT(!info.isTemporary && !info.isExistingBuild);
+        if (info.isShadowBuild)
             dir = QDir::toNativeSeparators(Qt4Target::defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(m_proFilePath), target));
         else
             dir = QDir::toNativeSeparators(Qt4Project::projectDirectory(m_proFilePath));
     } else {
+        Q_ASSERT(info.isExistingBuild);
         dir = QDir::toNativeSeparators(info.directory);
     }
     versionItem->setText(DIRECTORY_COLUMN, dir);

@@ -66,7 +66,8 @@ public:
             version(0),
             isTemporary(false),
             buildConfig(QtVersion::QmakeBuildConfig(0)),
-            isExistingBuild(false)
+            isExistingBuild(false),
+            isShadowBuild(false)
         {
             if (version && version->isValid())
                 buildConfig = version->defaultBuildConfig();
@@ -78,7 +79,8 @@ public:
             buildConfig(other.buildConfig),
             additionalArguments(other.additionalArguments),
             directory(other.directory),
-            isExistingBuild(other.isExistingBuild)
+            isExistingBuild(other.isExistingBuild),
+            isShadowBuild(other.isShadowBuild)
         { }
 
         QtVersion *version;
