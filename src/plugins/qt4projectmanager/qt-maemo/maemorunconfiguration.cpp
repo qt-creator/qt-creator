@@ -87,15 +87,13 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
 
 void MaemoRunConfiguration::init()
 {
-    m_devConfigModel = new MaemoDeviceConfigListModel(this);
     m_remoteMounts = new MaemoRemoteMountsModel(this);
     setDisplayName(QFileInfo(m_proFilePath).completeBaseName());
 
-    updateDeviceConfigurations();
-    connect(m_devConfigModel, SIGNAL(currentChanged()), this,
-        SLOT(updateDeviceConfigurations()));
-    connect(m_devConfigModel, SIGNAL(modelReset()), this,
-        SLOT(updateDeviceConfigurations()));
+    connect(target(),
+        SIGNAL(activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration*)),
+        this, SLOT(handleDeployConfigChanged()));
+    handleDeployConfigChanged();
 
     connect(qt4Target()->qt4Project(),
         SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
@@ -150,7 +148,6 @@ QVariantMap MaemoRunConfiguration::toMap() const
     map.insert(BaseEnvironmentBaseKey, m_baseEnvironmentBase);
     map.insert(UserEnvironmentChangesKey,
         ProjectExplorer::EnvironmentItem::toStringList(m_userEnvironmentChanges));
-    map.unite(m_devConfigModel->toMap());
     map.unite(m_remoteMounts->toMap());
     return map;
 }
@@ -169,7 +166,6 @@ bool MaemoRunConfiguration::fromMap(const QVariantMap &map)
         .toStringList());
     m_baseEnvironmentBase = static_cast<BaseEnvironmentBase> (map.value(BaseEnvironmentBaseKey,
         SystemEnvironmentBase).toInt());
-    m_devConfigModel->fromMap(map);
     m_remoteMounts->fromMap(map);
 
     return true;
@@ -177,12 +173,7 @@ bool MaemoRunConfiguration::fromMap(const QVariantMap &map)
 
 MaemoDeviceConfig MaemoRunConfiguration::deviceConfig() const
 {
-    return m_devConfigModel->current();
-}
-
-MaemoDeviceConfigListModel *MaemoRunConfiguration::deviceConfigModel() const
-{
-    return m_devConfigModel;
+    return deployStep()->deviceConfigModel()->current();
 }
 
 const MaemoToolChain *MaemoRunConfiguration::toolchain() const
@@ -299,6 +290,30 @@ void MaemoRunConfiguration::setArguments(const QStringList &args)
 void MaemoRunConfiguration::updateDeviceConfigurations()
 {
     emit deviceConfigurationChanged(target());
+}
+
+void MaemoRunConfiguration::handleDeployConfigChanged()
+{
+    const QList<DeployConfiguration *> &deployConfigs
+        = target()->deployConfigurations();
+    DeployConfiguration * const activeDeployConf
+        = target()->activeDeployConfiguration();
+    for (int i = 0; i < deployConfigs.count(); ++i) {
+        MaemoDeployStep * const step
+            = MaemoGlobal::buildStep<MaemoDeployStep>(deployConfigs.at(i));
+        MaemoDeviceConfigListModel * const devConfigModel
+            = step->deviceConfigModel();
+        if (deployConfigs.at(i) == activeDeployConf) {
+            connect(devConfigModel, SIGNAL(currentChanged()), this,
+                SLOT(updateDeviceConfigurations()));
+            connect(devConfigModel, SIGNAL(modelReset()), this,
+                SLOT(updateDeviceConfigurations()));
+        } else {
+            disconnect(devConfigModel, 0, this,
+                SLOT(updateDeviceConfigurations()));
+        }
+    }
+    updateDeviceConfigurations();
 }
 
 QString MaemoRunConfiguration::baseEnvironmentText() const

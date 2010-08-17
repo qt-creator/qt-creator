@@ -278,14 +278,6 @@ MaemoDeviceConfig MaemoDeployStep::deviceConfig() const
     return deviceConfigModel()->current();
 }
 
-MaemoDeviceConfigListModel *MaemoDeployStep::deviceConfigModel() const
-{
-    const MaemoRunConfiguration * const rc =
-        qobject_cast<const MaemoRunConfiguration *>(buildConfiguration()
-            ->target()->activeRunConfiguration());
-    return rc ? rc->deviceConfigModel() : m_deviceConfigModel;
-}
-
 void MaemoDeployStep::start()
 {
 #ifdef DEPLOY_VIA_MOUNT

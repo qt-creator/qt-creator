@@ -74,7 +74,6 @@ private slots:
     void showSettingsDialog(const QString &link);
     void updateTargetInformation();
     void handleCurrentDeviceConfigChanged();
-    void setCurrentDeviceConfig(int index);
     void addMount();
     void removeMount();
     void changeLocalMountDir(const QModelIndex &index);
@@ -101,7 +100,7 @@ private:
     QLineEdit *m_argsLineEdit;
     QLabel *m_localExecutableLabel;
     QLabel *m_remoteExecutableLabel;
-    QComboBox *m_devConfBox;
+    QLabel *m_devConfLabel;
     QLabel *m_mountWarningLabel;
     QTableView *m_mountView;
     QToolButton *m_removeMountButton;

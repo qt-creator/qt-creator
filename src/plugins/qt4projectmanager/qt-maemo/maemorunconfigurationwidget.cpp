@@ -78,7 +78,8 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     addDebuggingWidgets(mainLayout);
     addMountWidgets(mainLayout);
     addEnvironmentWidgets(mainLayout);
-    connect(m_runConfiguration->deviceConfigModel(), SIGNAL(currentChanged()),
+    connect(m_runConfiguration,
+        SIGNAL(deviceConfigurationChanged(ProjectExplorer::Target*)),
         this, SLOT(handleCurrentDeviceConfigChanged()));
     handleCurrentDeviceConfigChanged();
 }
@@ -93,11 +94,9 @@ void MaemoRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
 
     QWidget *devConfWidget = new QWidget;
     QHBoxLayout *devConfLayout = new QHBoxLayout(devConfWidget);
-    m_devConfBox = new QComboBox;
-    m_devConfBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    m_devConfBox->setModel(m_runConfiguration->deviceConfigModel());
+    m_devConfLabel = new QLabel;
     devConfLayout->setMargin(0);
-    devConfLayout->addWidget(m_devConfBox);
+    devConfLayout->addWidget(m_devConfLabel);
     QLabel *addDevConfLabel= new QLabel(tr("<a href=\"%1\">Manage device configurations</a>")
         .arg(QLatin1String("deviceconfig")));
     addDevConfLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
@@ -125,8 +124,6 @@ void MaemoRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
         SLOT(configNameEdited(QString)));
     connect(m_argsLineEdit, SIGNAL(textEdited(QString)), this,
         SLOT(argumentsEdited(QString)));
-    connect(m_devConfBox, SIGNAL(activated(int)), this,
-            SLOT(setCurrentDeviceConfig(int)));
     connect(m_runConfiguration, SIGNAL(targetInformationChanged()), this,
         SLOT(updateTargetInformation()));
     connect(m_runConfiguration->deployStep()->deployables(),
@@ -278,14 +275,8 @@ void MaemoRunConfigurationWidget::showSettingsDialog(const QString &link)
 
 void MaemoRunConfigurationWidget::handleCurrentDeviceConfigChanged()
 {
-    m_devConfBox->setCurrentIndex(m_runConfiguration->deviceConfigModel()
-        ->currentIndex());
+    m_devConfLabel->setText(m_runConfiguration->deviceConfig().name);
     updateMountWarning();
-}
-
-void MaemoRunConfigurationWidget::setCurrentDeviceConfig(int index)
-{
-    m_runConfiguration->deviceConfigModel()->setCurrentIndex(index);
 }
 
 void MaemoRunConfigurationWidget::enableOrDisableRemoveMountSpecButton()

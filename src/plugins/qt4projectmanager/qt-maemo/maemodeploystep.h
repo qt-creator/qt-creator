@@ -78,7 +78,7 @@ public:
 
     virtual ~MaemoDeployStep();
     MaemoDeviceConfig deviceConfig() const;
-    MaemoDeviceConfigListModel *deviceConfigModel() const;
+    MaemoDeviceConfigListModel *deviceConfigModel() const { return m_deviceConfigModel; }
     bool currentlyNeedsDeployment(const QString &host,
         const MaemoDeployable &deployable) const;
     void setDeployed(const QString &host, const MaemoDeployable &deployable);

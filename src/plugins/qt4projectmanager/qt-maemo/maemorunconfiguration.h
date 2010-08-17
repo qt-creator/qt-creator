@@ -92,7 +92,6 @@ public:
     const QStringList arguments() const;
     void setArguments(const QStringList &args);
     MaemoDeviceConfig deviceConfig() const;
-    MaemoDeviceConfigListModel *deviceConfigModel() const;
     MaemoPortList freePorts() const;
     bool useRemoteGdb() const { return m_useRemoteGdb; }
     void setUseRemoteGdb(bool useRemoteGdb) { m_useRemoteGdb = useRemoteGdb; }
@@ -132,6 +131,7 @@ protected:
 private slots:
     void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
     void updateDeviceConfigurations();
+    void handleDeployConfigChanged();
 
 private:
     void init();
@@ -139,7 +139,6 @@ private:
 private:
     QString m_proFilePath;
     mutable QString m_gdbPath;
-    MaemoDeviceConfigListModel *m_devConfigModel;
     MaemoRemoteMountsModel *m_remoteMounts;
     QStringList m_arguments;
     bool m_useRemoteGdb;
