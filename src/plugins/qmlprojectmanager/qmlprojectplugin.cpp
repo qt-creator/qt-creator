@@ -67,7 +67,7 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
     ICore *core = ICore::instance();
     Core::MimeDatabase *mimeDB = core->mimeDatabase();
 
-    const QLatin1String mimetypesXml(":qmlproject/QmlProject.mimetypes.xml");
+    const QLatin1String mimetypesXml(":/qmlproject/QmlProject.mimetypes.xml");
 
     if (! mimeDB->addMimeTypes(mimetypesXml, errorMessage))
         return false;
