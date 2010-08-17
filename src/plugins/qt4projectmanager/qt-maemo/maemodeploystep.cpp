@@ -195,6 +195,7 @@ const MaemoPackageCreationStep *MaemoDeployStep::packagingStep() const
 
 void MaemoDeployStep::raiseError(const QString &errorString)
 {
+    disconnect(m_connection.data(), 0, this, 0);
     emit addTask(Task(Task::Error, errorString, QString(), -1,
         Constants::TASK_CATEGORY_BUILDSYSTEM));
     emit error();

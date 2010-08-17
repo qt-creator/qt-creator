@@ -145,9 +145,9 @@ bool MaemoRunControl::isRunning() const
 
 void MaemoRunControl::handleError(const QString &errString)
 {
-    QMessageBox::critical(0, tr("Remote Execution Failure"), errString);
-    emit appendMessage(this, errString, true);
     stop();
+    emit appendMessage(this, errString, true);
+    QMessageBox::critical(0, tr("Remote Execution Failure"), errString);
 }
 
 void MaemoRunControl::setFinished()

@@ -406,6 +406,7 @@ void SshConnectionPrivate::handleUserAuthSuccessPacket()
 
 void SshConnectionPrivate::handleUserAuthFailurePacket()
 {
+    m_timeoutTimer.stop();
     const QString errorMsg = m_connParams.authType == SshConnectionParameters::AuthByPwd
         ? tr("Server rejected password.") : tr("Server rejected key.");
     throw SshClientException(SshAuthenticationError, errorMsg);

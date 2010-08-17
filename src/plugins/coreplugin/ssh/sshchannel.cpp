@@ -234,7 +234,6 @@ void AbstractSshChannel::closeChannel()
             setChannelState(CloseRequested);
             m_sendFacility.sendChannelEofPacket(m_remoteChannel);
             m_sendFacility.sendChannelClosePacket(m_remoteChannel);
-            m_timeoutTimer->start(ReplyTimeout);
         }
     }
 }

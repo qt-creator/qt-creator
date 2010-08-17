@@ -83,6 +83,7 @@ public:
         const MaemoDeployable &deployable) const;
     void setDeployed(const QString &host, const MaemoDeployable &deployable);
     MaemoDeployables *deployables() const { return m_deployables; }
+    QSharedPointer<Core::SshConnection> sshConnection() const { return m_connection; }
 
 signals:
     void done();

@@ -90,6 +90,7 @@ private slots:
 private:
     void cleanup(bool initialCleanup);
     bool addMountSpecification(const MaemoMountSpecification &mountSpec);
+    bool isConnectionUsable() const;
 
     MaemoRunConfiguration * const m_runConfig; // TODO this pointer can be invalid
     MaemoRemoteMounter * const m_mounter;
@@ -104,6 +105,9 @@ private:
     int m_exitStatus;
     bool m_shuttingDown;
     const bool m_debugging;
+
+    enum UnmountState { InitialUnmount, PreMountUnmount, ShutdownUnmount };
+    UnmountState m_unmountState;
 };
 
 } // namespace Internal

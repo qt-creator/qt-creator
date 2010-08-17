@@ -34,6 +34,7 @@
 
 #include "maemosshrunner.h"
 
+#include "maemodeploystep.h"
 #include "maemodeviceconfigurations.h"
 #include "maemoglobal.h"
 #include "maemoremotemounter.h"
@@ -89,9 +90,10 @@ void MaemoSshRunner::start()
     m_exitStatus = -1;
     if (m_connection)
         disconnect(m_connection.data(), 0, this, 0);
-    const bool reUse = m_connection
-        && m_connection->state() == SshConnection::Connected
-        && m_connection->connectionParameters() == m_devConfig.server;
+    bool reUse = isConnectionUsable();
+    if (!reUse)
+        m_connection = m_runConfig->deployStep()->sshConnection();
+    reUse = isConnectionUsable();
     if (!reUse)
         m_connection = SshConnection::create();
     connect(m_connection.data(), SIGNAL(connected()), this,
@@ -112,7 +114,6 @@ void MaemoSshRunner::stop()
         return;
 
     m_stop = true;
-    disconnect(m_connection.data(), 0, this, 0);
     m_mounter->stop();
     if (m_cleaner)
         disconnect(m_cleaner.data(), 0, this, 0);
@@ -135,6 +136,9 @@ void MaemoSshRunner::handleConnectionFailure()
 
 void MaemoSshRunner::cleanup(bool initialCleanup)
 {
+    if (!isConnectionUsable())
+        return;
+
     emit reportProgress(tr("Killing remote process(es)..."));
     m_shuttingDown = !initialCleanup;
     QString niceKill;
@@ -159,6 +163,7 @@ void MaemoSshRunner::handleCleanupFinished(int exitStatus)
         || exitStatus == SshRemoteProcess::ExitedNormally);
 
     if (m_shuttingDown) {
+        m_unmountState = ShutdownUnmount;
         m_mounter->unmount();
         return;
     }
@@ -171,13 +176,44 @@ void MaemoSshRunner::handleCleanupFinished(int exitStatus)
             .arg(m_cleaner->errorString()));
     } else {
         m_mounter->setConnection(m_connection);
+        m_unmountState = InitialUnmount;
         m_mounter->unmount();
     }
 }
 
 void MaemoSshRunner::handleUnmounted()
 {
-    if (m_shuttingDown) {
+    switch (m_unmountState) {
+    case InitialUnmount: {
+        if (m_stop)
+            return;
+        MaemoPortList portList = m_devConfig.freePorts();
+        if (m_debugging && !m_runConfig->useRemoteGdb())
+            portList.getNext(); // One has already been used for gdbserver.
+        m_mounter->setPortList(portList);
+        const MaemoRemoteMountsModel * const remoteMounts
+            = m_runConfig->remoteMounts();
+        for (int i = 0; i < remoteMounts->mountSpecificationCount(); ++i) {
+            if (!addMountSpecification(remoteMounts->mountSpecificationAt(i)))
+                return;
+        }
+        if (m_debugging && m_runConfig->useRemoteGdb()) {
+            if (!addMountSpecification(MaemoMountSpecification(
+                m_runConfig->localDirToMountForRemoteGdb(),
+                MaemoGlobal::remoteProjectSourcesMountPoint())))
+                return;
+        }
+        m_unmountState = PreMountUnmount;
+        m_mounter->unmount();
+        break;
+    }
+    case PreMountUnmount:
+        if (m_stop)
+            return;
+        m_mounter->mount();
+        break;
+    case ShutdownUnmount:
+        Q_ASSERT(m_shuttingDown);
         m_shuttingDown = false;
         if (m_exitStatus == SshRemoteProcess::ExitedNormally) {
             emit remoteProcessFinished(m_runner->exitCode());
@@ -188,29 +224,8 @@ void MaemoSshRunner::handleUnmounted()
                 .arg(m_runner->errorString()));
         }
         m_exitStatus = -1;
-        return;
+        break;
     }
-
-    if (m_stop)
-        return;
-
-    MaemoPortList portList = m_devConfig.freePorts();
-    if (m_debugging && !m_runConfig->useRemoteGdb())
-        portList.getNext(); // One has already been used for gdbserver.
-    m_mounter->setPortList(portList);
-    const MaemoRemoteMountsModel * const remoteMounts
-        = m_runConfig->remoteMounts();
-    for (int i = 0; i < remoteMounts->mountSpecificationCount(); ++i) {
-        if (!addMountSpecification(remoteMounts->mountSpecificationAt(i)))
-            return;
-    }
-    if (m_debugging && m_runConfig->useRemoteGdb()) {
-        if (!addMountSpecification(MaemoMountSpecification(
-            m_runConfig->localDirToMountForRemoteGdb(),
-            MaemoGlobal::remoteProjectSourcesMountPoint())))
-            return;
-    }
-    m_mounter->mount();
 }
 
 void MaemoSshRunner::handleMounted()
@@ -263,6 +278,12 @@ bool MaemoSshRunner::addMountSpecification(const MaemoMountSpecification &mountS
         return false;
     }
     return true;
+}
+
+bool MaemoSshRunner::isConnectionUsable() const
+{
+    return m_connection && m_connection->state() == SshConnection::Connected
+        && m_connection->connectionParameters() == m_devConfig.server;
 }
 
 } // namespace Internal
