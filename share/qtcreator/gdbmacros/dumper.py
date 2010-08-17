@@ -118,6 +118,7 @@ def lookupType(typestring):
             type = gdb.lookup_type(ts)
         except RuntimeError, error:
             # Can throw "RuntimeError: No type named class Foo."
+            # See http://sourceware.org/bugzilla/show_bug.cgi?id=11912
             warn("LOOKING UP '%s': %s " % (ts, error))
         except:
             #warn("LOOKING UP '%s' FAILED" % ts)
@@ -658,7 +659,8 @@ def call(value, func):
     type = stripClassTag(str(value.type))
     if type.find(":") >= 0:
         type = "'" + type + "'"
-    exp = "((%s*)%s)->%s" % (type, value.address, func)
+    # 'class' is needed, see http://sourceware.org/bugzilla/show_bug.cgi?id=11912
+    exp = "((class %s*)%s)->%s" % (type, value.address, func)
     #warn("CALL: %s" % exp)
     result = None
     try:
@@ -1104,7 +1106,7 @@ class Dumper:
                 except AttributeError:
                     # Thrown by cleanAddress with message "'NoneType' object
                     # has no attribute 'cast'" for optimized-out values.
-                    with SubItem(d):
+                    with SubItem(self):
                         self.put('iname="%s",' % item.iname)
                         self.put('name="%s",' % item.name)
                         self.put('addr="<optimized out>",')
