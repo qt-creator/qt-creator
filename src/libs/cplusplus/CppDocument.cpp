@@ -57,6 +57,45 @@ using namespace CPlusPlus;
 
 namespace {
 
+class LastVisibleSymbolAt: protected SymbolVisitor
+{
+    Symbol *root;
+    unsigned line;
+    unsigned column;
+    Symbol *symbol;
+
+public:
+    LastVisibleSymbolAt(Symbol *root)
+        : root(root), line(0), column(0), symbol(0) {}
+
+    Symbol *operator()(unsigned line, unsigned column)
+    {
+        this->line = line;
+        this->column = column;
+        this->symbol = 0;
+        accept(root);
+        if (! symbol)
+            symbol = root;
+        return symbol;
+    }
+
+protected:
+    bool preVisit(Symbol *s)
+    {
+        if (s->asBlock()) {
+            if (s->line() < line || (s->line() == line && s->column() <= column)) {
+                return true;
+            }
+            // skip blocks
+        } if (s->line() < line || (s->line() == line && s->column() <= column)) {
+            symbol = s;
+            return true;
+        }
+
+        return false;
+    }
+};
+
 class FindScopeAt: protected SymbolVisitor
 {
     TranslationUnit *_unit;
@@ -408,29 +447,8 @@ Scope *Document::scopeAt(unsigned line, unsigned column)
 
 Symbol *Document::lastVisibleSymbolAt(unsigned line, unsigned column) const
 {
-    return lastVisibleSymbolAt(line, column, globalNamespace());
-}
-
-Symbol *Document::lastVisibleSymbolAt(unsigned line, unsigned column, Scope *scope) const
-{
-    Symbol *previousSymbol = 0;
-
-    for (unsigned i = 0; i < scope->memberCount(); ++i) {
-        Symbol *symbol = scope->memberAt(i);
-        if (symbol->line() > line)
-            break;
-
-        previousSymbol = symbol;
-    }
-
-    if (previousSymbol) {
-        if (Scope *scope = previousSymbol->asScope()) {
-            if (Symbol *member = lastVisibleSymbolAt(line, column, scope))
-                return member;
-        }
-    }
-
-    return previousSymbol;
+    LastVisibleSymbolAt lastVisibleSymbolAt(globalNamespace());
+    return lastVisibleSymbolAt(line, column);
 }
 
 const Macro *Document::findMacroDefinitionAt(unsigned line) const

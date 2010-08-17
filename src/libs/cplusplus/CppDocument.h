@@ -315,9 +315,6 @@ public:
     const UndefinedMacroUse *findUndefinedMacroUseAt(unsigned offset) const;
 
 private:
-    Symbol *lastVisibleSymbolAt(unsigned line, unsigned column, Scope *scope) const;
-
-private:
     QString _fileName;
     Control *_control;
     TranslationUnit *_translationUnit;
