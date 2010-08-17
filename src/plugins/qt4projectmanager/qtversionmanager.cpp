@@ -631,7 +631,7 @@ bool QtVersion::supportsShadowBuilds() const
     // Symbian does not support shadow building
     if (targets.contains(Constants::S60_DEVICE_TARGET_ID) ||
         targets.contains(Constants::S60_EMULATOR_TARGET_ID)) {
-	// We can not support shadow building with the ABLD system
+        // We can not support shadow building with the ABLD system
         return false;
     }
     return true;
