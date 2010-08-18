@@ -146,7 +146,7 @@ void ClientProxy::refreshObjectTree()
     }
 }
 
-void ClientProxy::onCurrentObjectsChanged(const QList<int> &debugIds)
+void ClientProxy::onCurrentObjectsChanged(const QList< int >& debugIds, bool requestIfNeeded)
 {
     QList<QDeclarativeDebugObjectReference> selectedItems;
 
@@ -161,7 +161,7 @@ void ClientProxy::onCurrentObjectsChanged(const QList<int> &debugIds)
             // b) add children to part of an existing tree.
             // So the only choice that remains is to update the complete
             // tree when we have an unknown debug id.
-            if (!m_objectTreeQuery)
+            if (!m_objectTreeQuery && requestIfNeeded)
                 m_objectTreeQuery = m_client->queryObjectRecursive(m_rootObject, this);
             break;
         }
@@ -335,7 +335,7 @@ void ClientProxy::objectTreeFetched(QDeclarativeDebugQuery::State state)
 
     if (isDesignClientConnected()) {
         if (!m_designClient->selectedItemIds().isEmpty())
-            onCurrentObjectsChanged(m_designClient->selectedItemIds());
+            onCurrentObjectsChanged(m_designClient->selectedItemIds(), false);
 
         m_designClient->setObjectIdList(QList<QDeclarativeDebugObjectReference>() << m_rootObject);
     }

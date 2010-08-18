@@ -121,7 +121,7 @@ private slots:
 
     void contextChanged();
 
-    void onCurrentObjectsChanged(const QList<int> &debugIds);
+    void onCurrentObjectsChanged(const QList<int> &debugIds, bool requestIfNeeded = true);
     void updateEngineList();
     void objectTreeFetched(QDeclarativeDebugQuery::State state = QDeclarativeDebugQuery::Completed);
 
