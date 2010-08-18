@@ -631,6 +631,7 @@ def qdump__QObject(d, item):
     d.putNumChild(4)
     if d.isExpanded(item):
       with Children(d):
+        d.putFields(item)
         # Parent and children.
         if stripClassTag(str(item.value.type)) == d.ns + "QObject":
             d.putItem(Item(d_ptr["parent"], item.iname, "parent", "parent"))

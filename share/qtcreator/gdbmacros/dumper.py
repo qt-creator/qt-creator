@@ -864,6 +864,7 @@ class Item:
 # This is a mapping from 'type name' to 'display alternatives'.
 
 qqFormats = {}
+qqDumpers = {}
 qqNs = ""
 
 
