@@ -4158,6 +4158,10 @@ void GdbEngine::startInferiorPhase2()
 {
     debugMessage(_("BREAKPOINTS SET, CONTINUING INFERIOR STARTUP"));
     m_gdbAdapter->startInferiorPhase2();
+    if (m_progress) {
+        m_progress->setProgressValue(100);
+        m_progress->reportFinished();
+    }
 }
 
 void GdbEngine::handleInferiorStartFailed(const QString &msg)
