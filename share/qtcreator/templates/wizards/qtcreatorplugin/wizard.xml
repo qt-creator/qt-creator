@@ -50,55 +50,46 @@ leave room for the Qt 4 target page.
     </files>
     <!-- Create a 2nd wizard page with parameters -->
     <fieldpagetitle>Plugin Information</fieldpagetitle>
-    <fieldpagetitle xml:lang="de">Plugininformationen</fieldpagetitle>
     <fields>
         <field mandatory="true" name="PluginName">
             <fieldcontrol class="QLineEdit" validator="^[a-zA-Z0-9_]+$"
                           defaulttext="MyPlugin" />
             <fielddescription>Plugin name:</fielddescription>
-            <fielddescription xml:lang="de">Name des Plugins:</fielddescription>
         </field>
         <field mandatory="true" name="VendorName">
             <fieldcontrol class="QLineEdit" validator="^[a-zA-Z0-9_]+$"
                           defaulttext="MyCompany" />
             <fielddescription>Vendor name:</fielddescription>
-            <fielddescription xml:lang="de">Name des Anbieters:</fielddescription>
         </field>
         <field name="Copyright">
             <fieldcontrol class="QLineEdit"
                           defaulttext="(C) MyCompany" />
             <fielddescription>Copyright:</fielddescription>
-            <fielddescription xml:lang="de">Copyright:</fielddescription>
         </field>
         <field name="License">
             <fieldcontrol class="QTextEdit"
                           defaulttext="Put your license text here" />
             <fielddescription>License:</fielddescription>
-            <fielddescription xml:lang="de">Lizenz:</fielddescription>
         </field>
         <field name="Description">
             <fieldcontrol class="QTextEdit"
                           defaulttext="Put a short description of your plugin here"/>
             <fielddescription>Description:</fielddescription>
-            <fielddescription xml:lang="de">Beschreibung:</fielddescription>
         </field>
         <field name="URL">
             <fieldcontrol class="QLineEdit"
                           defaulttext="http://www.mycompany.com" />
             <fielddescription>Url:</fielddescription>
-            <fielddescription xml:lang="de">Url:</fielddescription>
         </field>
         <field mandatory="true" name="QtCreatorSources">
             <fieldcontrol class="Utils::PathChooser"
                           defaulttext="" />
             <fielddescription>Qt Creator sources:</fielddescription>
-            <fielddescription xml:lang="de">Qt Creator Quellen:</fielddescription>
         </field>
         <field mandatory="true" name="QtCreatorBuild">
             <fieldcontrol class="Utils::PathChooser"
                           defaulttext="" />
             <fielddescription>Qt Creator build:</fielddescription>
-            <fielddescription xml:lang="de">Qt Creator build:</fielddescription>
         </field>
     </fields>
 </wizard>
