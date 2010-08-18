@@ -161,6 +161,9 @@ void QmlEngine::runEngine()
 
     m_adapter->beginConnection();
     plugin()->showMessage(tr("QML Debugger connecting..."), StatusBar);
+
+    // FIXME: refactor the UI
+    Debugger::DebuggerUISwitcher::instance()->setActiveLanguage("QML");
 }
 
 void QmlEngine::shutdownInferior()
