@@ -186,7 +186,7 @@ def catchCliOutput(command):
         # "No symbol table is loaded.  Use the \"file\" command."
         msg = str(error)
     except:
-        msg = "Unknown error";
+        msg = "Unknown error"
     gdb.execute("set logging off")
     gdb.execute("set logging redirect off")
     if len(msg):
@@ -319,7 +319,7 @@ class Children:
         if self.d.passExceptions and not exType is None:
             showException("CHILDREN", exType, exValue, exTraceBack)
         if self.d.currentMaxNumChilds < self.d.currentNumChilds:
-            self.d.putEllipsis();
+            self.d.putEllipsis()
         self.d.currentChildType = self.savedChildType
         self.d.currentChildNumChild = self.savedChildNumChild
         self.d.currentNumChilds = self.savedNumChilds
@@ -446,8 +446,8 @@ def listOfLocals(varList):
     hasBlock = 'block' in __builtin__.dir(frame)
 
     items = []
-    #warn("HAS BLOCK: %s" % hasBlock);
-    #warn("IS GOOD GDB: %s" % isGoodGdb());
+    #warn("HAS BLOCK: %s" % hasBlock)
+    #warn("IS GOOD GDB: %s" % isGoodGdb())
     if hasBlock and isGoodGdb():
         #warn("IS GOOD: %s " % varList)
         try:
@@ -631,7 +631,7 @@ movableTypes = set([
     "QFileInfo", "QFixed", "QFixedPoint", "QFixedSize",
     "QHashDummyValue",
     "QIcon", "QImage",
-    "QLine", "QLineF", "QLatin1Char", "QLocal",
+    "QLine", "QLineF", "QLatin1Char", "QLocale",
     "QMatrix", "QModelIndex",
     "QPoint", "QPointF", "QPen", "QPersistentModelIndex",
     "QResourceRoot", "QRect", "QRectF", "QRegExp",
@@ -885,7 +885,7 @@ def bbsetup():
         if key.startswith("qdump__"):
             name = key[7:]
             qqDumpers[name] = value
-            qqFormats[name] = qqFormats.get(name, "");
+            qqFormats[name] = qqFormats.get(name, "")
         elif key.startswith("qform__"):
             name = key[7:]
             formats = ""
@@ -1033,7 +1033,7 @@ class Dumper:
         #
         # Locals
         #
-        locals = listOfLocals(varList);
+        locals = listOfLocals(varList)
         if "nolocals" in options:
             locals = []
 
@@ -1064,7 +1064,7 @@ class Dumper:
                     self.put('iname="%s",' % item.iname)
                     self.put('name="%s",' % item.name)
                     self.put('addr="<not accessible>",')
-                    self.put('numchild="0"');
+                    self.put('numchild="0"')
                     self.putValue("<not accessible>")
                     self.putType(item.value.type)
                 continue
@@ -1137,7 +1137,7 @@ class Dumper:
 
     def handleWatch(self, exp, iname):
         exp = str(exp)
-        escapedExp = exp.replace('"', '\\"');
+        escapedExp = exp.replace('"', '\\"')
         #warn("HANDLING WATCH %s, INAME: '%s'" % (exp, iname))
         if exp.startswith("[") and exp.endswith("]"):
             #warn("EVAL: EXP: %s" % exp)
@@ -1326,7 +1326,7 @@ class Dumper:
             return
 
         # FIXME: Gui shows references stripped?
-        #warn(" ");
+        #warn(" ")
         #warn("REAL INAME: %s " % item.iname)
         #warn("REAL NAME: %s " % name)
         #warn("REAL TYPE: %s " % item.value.type)
