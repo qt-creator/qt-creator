@@ -352,9 +352,13 @@ void QemuRuntimeManager::startRuntime()
     env.insert(key, env.value(key) % colon % root % QLatin1String("bin"));
     env.insert(key, env.value(key) % colon % root % QLatin1String("madlib"));
 #elif defined(Q_OS_UNIX)
+#  if defined(Q_OS_MAC)
+    const QLatin1String key("DYLD_LIBRARY_PATH");
+#  else
     const QLatin1String key("LD_LIBRARY_PATH");
+#  endif // MAC
     env.insert(key, env.value(key) % QLatin1Char(':') % rt.m_libPath);
-#endif
+#endif // WIN/UNIX
     m_qemuProcess->setProcessEnvironment(env);
     m_qemuProcess->setWorkingDirectory(rt.m_root);
 
