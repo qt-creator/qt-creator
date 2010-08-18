@@ -2697,7 +2697,7 @@
 
     \list 1
 
-        \o Select \gui{File > New File or Project > Qt Application Project > Mobile Qt
+        \o Select \gui{File > New File or Project > Qt C++ Project > Mobile Qt
         Application > Choose}.
 
         \image qtcreator-new-mobile-project.png "New File or Project dialog"
@@ -3158,11 +3158,14 @@
         \o In the \gui {Create in} field, enter the path for the project files. For example,
         \c {C:\Qt\examples}, and then click \gui{Next}.
 
-        The \gui{Select Required Qt Versions} dialog opens.
+        The target setting dialog opens.
 
-        \image qtcreator-new-project-qt-versions.png "Select Required Qt Versions dialog"
+        \image qtcreator-new-project-qt-versions.png "Target setting dialog"
 
-        \o Click \gui{Next} to use the Qt version set in the path in your project.
+        \o Select the Qt versions to use as build targets for your project, and click
+        \gui{Next}.
+
+        \note If you have only one Qt version installed, this dialog is skipped.
 
         The \gui{Class Information} dialog opens.
 
@@ -3252,7 +3255,7 @@
     \o Drag and drop a \gui{Text Edit} widget (\l{http://doc.qt.nokia.com/4.7-snapshot/qtextedit.html}{QTextEdit})
     to the form.
 
-    \o Select the screen area and click \gui{Lay out Vertically} (or press \gui{Ctr+V})
+    \o Select the screen area and click \gui{Lay out Vertically} (or press \gui{Ctrl+L})
     to apply a vertical layout (\l{http://doc.qt.nokia.com/4.7-snapshot/qvboxlayout.html}{QVBoxLayout}).
 
     \image qtcreator-textfinder-ui.png "Text Finder UI"
@@ -3293,11 +3296,11 @@
 
     \list 1
 
-    \o In the \gui{Projects} view, double-click the \c{textfinder.h} file
+    \o In the \gui{Projects} pane in the \gui {Edit view}, double-click the \c{textfinder.h} file
     to open it for editing.
 
     \o Add a private function
-    to the \c{private} section, after the \c{Ui::TextFinder} function, as
+    to the \c{private} section, after the \c{Ui::TextFinder} pointer, as
     illustrated by the following code snippet:
 
     \snippet examples/textfinder/textfinder.h 0
@@ -3311,7 +3314,7 @@
 
     \list 1
 
-    \o In the \gui{Projects} view, double-click the textfinder.cpp file
+    \o In the \gui{Projects} pane in the \gui Edit view, double-click the textfinder.cpp file
     to open it for editing.
 
     \o Add code to load a text file using
@@ -3389,7 +3392,7 @@
     \section1 Compiling and Running Your Program
 
     Now that you have all the necessary files, click the \inlineimage qtcreator-run.png
-    button to compile your program.
+    button to compile and run your program.
 
 */
 
