@@ -3139,10 +3139,6 @@
 
     \title Creating a Qt C++ Application
 
-    \note This tutorial assumes that you have experience in writing basic Qt
-    applications, using \QD to design user interfaces and using the Qt
-    Resource System.
-
     This tutorial describes how to use Qt Creator
     to create a small Qt application, Text Finder. It is a simplified version of the
     QtUiTools \l{http://doc.qt.nokia.com/4.7-snapshot/uitools-textfinder.html}{Text Finder}
@@ -3150,20 +3146,15 @@
 
     \image qtcreator-textfinder-screenshot.png
 
-    \section1 Setting Up Your Environment
-
-    Qt Creator automatically detects whether the location of Qt is in your \c PATH variable.
-    If you have installed several Qt versions, follow the
-    instructions in \l{Selecting the Qt version} to set the Qt path.
-
     \section1 Creating the Text Finder Project
 
-    \note Create the project with the \gui{Help} mode active so that you can follow
+    \note Create the project with two instances of Qt Creator open and the \gui{Help} mode
+    active in one of them so that you can follow
     these instructions while you work.
 
     \list 1
 
-        \o Select \gui{File > New File or Project > Qt Application Project > Qt Gui
+        \o Select \gui{File > New File or Project > Qt C++ Project > Qt Gui
         Application > Choose}.
 
            \image qtcreator-new-project.png "New File or Project dialog"
