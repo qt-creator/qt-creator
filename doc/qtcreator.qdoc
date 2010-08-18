@@ -41,7 +41,7 @@
                \o \l{Building and Running an Example Application}
                \o \l{Creating a Qt C++ Application}
                \o \l{Creating a Mobile Application with Nokia Qt SDK}
-               \if defined(qtuick)
+               \if defined(qtquick)
                \o \l{Creating a Qt Quick Application}
                \endif
            \endlist
@@ -207,7 +207,7 @@
     \section2 QML
 
     You can use QML to build highly dynamic, custom user interfaces from a rich set
-    of QML elements. Qt Quick helps programmers and designers collaborate to build the
+    of QML elements. QML helps programmers and designers collaborate to build the
     fluid user interfaces that are becoming common in portable consumer devices, such as
     mobile phones, media players, set-top boxes and netbooks.
 
@@ -1447,7 +1447,11 @@
 
 /*!
     \contentspage index.html
+    \if defined(qtquick)
     \previouspage creator-qml-application.html
+    \else
+    \previouspage creator-mobile-example.html
+    \endif
     \page creator-project-managing.html
     \nextpage creator-project-creating.html
 
@@ -2028,7 +2032,11 @@
 
 /*!
     \contentspage index.html
+    \if defined(qtquick)
     \previouspage quick-application-logic.html
+    \else
+    \previouspage adding-plugins.html
+    \endif
     \page creator-building-running.html
     \nextpage creator-building-targets.html
 
@@ -2680,7 +2688,12 @@
     \contentspage index.html
     \previouspage creator-writing-program.html
     \page creator-mobile-example.html
+    \if defined(qtquick)
     \nextpage creator-qml-application.html
+    \else
+    \nextpage creator-project-managing.html
+    \endif
+
 
     \title Creating a Mobile Application with Nokia Qt SDK
 
@@ -6112,7 +6125,11 @@
     \contentspage index.html
     \previouspage creator-usability.html
     \page adding-plugins.html
+    \if defined(qtquick)
     \nextpage creator-visual-editor.html
+    \else
+    \nextpage creator-building-running.html
+    \endif
 
     \title Adding Qt Designer Plugins
 
