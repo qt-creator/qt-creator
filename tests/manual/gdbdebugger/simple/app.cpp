@@ -74,7 +74,7 @@
 #include <string>
 #include <vector>
 
-#if defined(__GNUC__) && !defined(__llvm__)
+#if defined(__GNUC__) && !defined(__llvm__) && !defined(Q_OS_MAC)
 #    define USE_GCC_EXT 1
 #    include <hash_set>
 #endif
@@ -482,6 +482,7 @@ QHash<int, float> testQHash()
 
 void testQImage()
 {
+    // only works with Python dumper
     QImage im(QSize(200, 200), QImage::Format_RGB32);
     im.fill(QColor(200, 100, 130).rgba());
     QPainter pain;
@@ -881,6 +882,7 @@ void testQPixmap()
 
 void testQRegion()
 {
+    // only works with Python dumper
     QRegion region;
     region += QRect(100, 100, 200, 200);
     region += QRect(300, 300, 400, 500);
@@ -1163,6 +1165,7 @@ std::set<int> testStdSet()
 
 std::stack<int> testStdStack()
 {
+    // only works with Python dumper
     std::stack<int *> plist1;
     plist1.push(new int(1));
     plist1.push(0);
