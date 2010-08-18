@@ -261,7 +261,7 @@
 //                         |        |                                        
 //                         |        |                                        
 //                    {notify-   {notify-                                    
-//                    Inferior-  Inferior-                                   
+//                     Engine-    Engine-
 //                  ShutdownOk}  ShutdownFailed}                             
 //                         +       +                                         
 //            EngineShutdownOk  EngineShutdownFailed                         
@@ -2214,10 +2214,11 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     const bool isContinuable = (engine->state() == InferiorStopOk);
     const bool isInterruptible = (engine->state() == InferiorRunOk);
     ICore *core = ICore::instance();
+
     if (isContinuable) {
-        core->updateAdditionalContexts(Core::Context(), m_continuableContext);
+        core->updateAdditionalContexts(m_interruptibleContext, m_continuableContext);
     } else if (isInterruptible) {
-        core->updateAdditionalContexts(Core::Context(), m_interruptibleContext);
+        core->updateAdditionalContexts(m_continuableContext, m_interruptibleContext);
     } else {
         core->updateAdditionalContexts(m_continuableContext, Core::Context());
         core->updateAdditionalContexts(m_interruptibleContext, Core::Context());
