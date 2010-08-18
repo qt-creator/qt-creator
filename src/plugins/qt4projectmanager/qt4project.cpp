@@ -1226,20 +1226,29 @@ void CentralizedFolderWatcher::folderChanged(const QString &folder)
         qDebug()<<"CFW::folderChanged"<<folder;
     // Figure out whom to inform
 
-    QDir dir(folder);
+    qDebug()<<"start";
+
+    QString dir = folder;
     while (true) {
-        QString path = dir.path();
-        if (!path.endsWith('/'))
-            path.append('/');
-        QList<Qt4PriFileNode *> nodes = m_map.values(path);
+        if (!dir.endsWith('/'))
+            dir.append('/');
+        QList<Qt4PriFileNode *> nodes = m_map.values(dir);
         foreach (Qt4PriFileNode *node, nodes) {
             node->folderChanged(folder);
         }
 
-        if (dir.isRoot())
+        // Chop off last part, and break if there's nothing to chop off
+        //
+        if (dir.length() < 2)
             break;
-        dir.cdUp();
+
+        // We start before the last slash
+        int index = dir.lastIndexOf('/', dir.length() - 2);
+        if (index == -1)
+            break;
+        dir = dir.left(index + 1);
     }
+
 
     QString folderWithSlash = folder;
     if (!folder.endsWith('/'))
