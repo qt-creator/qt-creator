@@ -206,14 +206,14 @@ void InspectorUi::disconnected()
 
 void InspectorUi::updateEngineList()
 {
-    const QList<QDeclarativeDebugEngineReference> engines = m_clientProxy->engines();
+    m_engines = m_clientProxy->engines();
 
 //#warning update the QML engines combo
 
-    if (engines.isEmpty())
+    if (m_engines.isEmpty())
         qWarning("qmldebugger: no engines found!");
     else {
-        const QDeclarativeDebugEngineReference engine = engines.first();
+        const QDeclarativeDebugEngineReference engine = m_engines.first();
         m_clientProxy->queryEngineContext(engine.debugId());
     }
 }
@@ -254,7 +254,7 @@ void InspectorUi::serverReloaded()
         Document::Ptr doc = snapshot.document(it.key());
         it.value()->resetInitialDoc(doc);
     }
-    m_clientProxy->queryEngineContext(0);
+    m_clientProxy->queryEngineContext(m_engines.value(0).debugId());
 }
 
 
