@@ -164,8 +164,8 @@ void Target::addDeployConfiguration(DeployConfiguration *dc)
     // Check that we don't have a configuration with the same displayName
     QString configurationDisplayName = dc->displayName();
     QStringList displayNames;
-    foreach (const DeployConfiguration *bc, m_deployConfigurations)
-        displayNames << bc->displayName();
+    foreach (const DeployConfiguration *current, m_deployConfigurations)
+        displayNames << current->displayName();
     configurationDisplayName = Project::makeUnique(configurationDisplayName, displayNames);
     dc->setDisplayName(configurationDisplayName);
 
@@ -228,6 +228,14 @@ void Target::addRunConfiguration(RunConfiguration* runConfiguration)
 {
     QTC_ASSERT(runConfiguration && !m_runConfigurations.contains(runConfiguration), return);
     Q_ASSERT(runConfiguration->target() == this);
+
+    // Check that we don't have a configuration with the same displayName
+    QString configurationDisplayName = runConfiguration->displayName();
+    QStringList displayNames;
+    foreach (const RunConfiguration *rc, m_runConfigurations)
+        displayNames << rc->displayName();
+    configurationDisplayName = Project::makeUnique(configurationDisplayName, displayNames);
+    runConfiguration->setDisplayName(configurationDisplayName);
 
     m_runConfigurations.push_back(runConfiguration);
     emit addedRunConfiguration(runConfiguration);
