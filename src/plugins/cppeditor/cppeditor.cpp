@@ -1859,12 +1859,14 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
         m_highlighter.cancel();
 
         if (semanticInfo.doc) {
-            LookupContext context(semanticInfo.doc, semanticInfo.snapshot);
-            CheckSymbols::Future f = CheckSymbols::go(semanticInfo.doc, context);
-            m_highlighter = f;
-            m_highlightRevision = semanticInfo.revision;
-            m_nextHighlightBlockNumber = 0;
-            m_highlightWatcher.setFuture(m_highlighter);
+            if (Core::EditorManager::instance()->currentEditor() == editableInterface()) {
+                LookupContext context(semanticInfo.doc, semanticInfo.snapshot);
+                CheckSymbols::Future f = CheckSymbols::go(semanticInfo.doc, context);
+                m_highlighter = f;
+                m_highlightRevision = semanticInfo.revision;
+                m_nextHighlightBlockNumber = 0;
+                m_highlightWatcher.setFuture(m_highlighter);
+            }
         }
 
 #if 0 // ### TODO: enable objc semantic highlighting
