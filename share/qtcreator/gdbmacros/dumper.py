@@ -305,7 +305,7 @@ class Children:
         if self.d.passExceptions and not exType is None:
             showException("CHILDREN", exType, exValue, exTraceBack)
         if self.d.currentMaxNumChilds < self.d.currentNumChilds:
-            self.d.putEllipsis();
+            self.d.putEllipsis()
         self.d.currentChildType = self.savedChildType
         self.d.currentChildNumChild = self.savedChildNumChild
         self.d.currentNumChilds = self.savedNumChilds
@@ -429,8 +429,8 @@ def listOfLocals(varList):
     hasBlock = 'block' in __builtin__.dir(frame)
 
     items = []
-    #warn("HAS BLOCK: %s" % hasBlock);
-    #warn("IS GOOD GDB: %s" % isGoodGdb());
+    #warn("HAS BLOCK: %s" % hasBlock)
+    #warn("IS GOOD GDB: %s" % isGoodGdb())
     if hasBlock and isGoodGdb():
         #warn("IS GOOD: %s " % varList)
         try:
@@ -857,7 +857,7 @@ class SetupCommand(gdb.Command):
         for key, value in module.__dict__.items():
             if key.startswith("qdump__"):
                 name = key[7:]
-                qqFormats[name] = qqFormats.get(name, "");
+                qqFormats[name] = qqFormats.get(name, "")
             elif key.startswith("qform__"):
                 name = key[7:]
                 formats = ""
@@ -982,7 +982,7 @@ class FrameCommand(gdb.Command):
                     d.put('addr="<not accessible>",')
                     d.put('value="<not accessible>",')
                     d.put('type="%s",' % item.value.type)
-                    d.put('numchild="0"');
+                    d.put('numchild="0"')
                 continue
 
             type = item.value.type
@@ -1054,7 +1054,7 @@ class FrameCommand(gdb.Command):
 
     def handleWatch(self, d, exp, iname):
         exp = str(exp)
-        escapedExp = exp.replace('"', '\\"');
+        escapedExp = exp.replace('"', '\\"')
         #warn("HANDLING WATCH %s, INAME: '%s'" % (exp, iname))
         if exp.startswith("[") and exp.endswith("]"):
             #warn("EVAL: EXP: %s" % exp)
@@ -1303,7 +1303,7 @@ class Dumper:
             return
 
         # FIXME: Gui shows references stripped?
-        #warn(" ");
+        #warn(" ")
         #warn("REAL INAME: %s " % item.iname)
         #warn("REAL NAME: %s " % name)
         #warn("REAL TYPE: %s " % item.value.type)
