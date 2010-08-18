@@ -58,6 +58,7 @@ static inline const Interpreter::ObjectValue * getPropertyChangesTarget(Node *no
             }
         }
     }
+    return 0;
 }
 
 QuickToolBar::QuickToolBar(QObject *parent) : ::QmlJS::IContextPane(parent), m_blockWriting(false)
