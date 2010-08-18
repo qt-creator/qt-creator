@@ -233,6 +233,8 @@ int BaseQt4ProjectWizardDialog::addModulesPage(int id)
 int BaseQt4ProjectWizardDialog::addTargetSetupPage(QSet<QString> targets, bool mobile, int id)
 {
     m_targetSetupPage = new TargetSetupPage;
+    resize(900, 450);
+
     connect(this, SIGNAL(projectLocationChanged(QString)),
             m_targetSetupPage, SLOT(setProFilePath(QString)));
 

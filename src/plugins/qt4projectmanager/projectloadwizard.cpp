@@ -101,6 +101,7 @@ void ProjectLoadWizard::setupTargetPage()
     m_targetSetupPage->setImportInfos(importVersions);
     m_targetSetupPage->setImportDirectoryBrowsingEnabled(true);
     m_targetSetupPage->setImportDirectoryBrowsingLocation(m_project->projectDirectory());
+    resize(900, 450);
 
     addPage(m_targetSetupPage);
 }
