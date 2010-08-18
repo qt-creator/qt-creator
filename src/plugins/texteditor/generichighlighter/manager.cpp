@@ -236,6 +236,8 @@ void Manager::registerMimeTypesFinished()
     if (m_queuedMimeTypeRegistrations > 0) {
         --m_queuedMimeTypeRegistrations;
         registerMimeTypes();
+    } else {
+        emit mimeTypesRegistered();
     }
 }
 

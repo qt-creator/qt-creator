@@ -88,6 +88,9 @@ private slots:
     void downloadAvailableDefinitionsListFinished();
     void downloadDefinitionsFinished();
 
+signals:
+    void mimeTypesRegistered();
+
 private:
     Manager();
     Q_DISABLE_COPY(Manager)

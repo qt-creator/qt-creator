@@ -74,7 +74,8 @@ PlainTextEditor::PlainTextEditor(QWidget *parent)
 
     m_commentDefinition.clearCommentStyles();
 
-    connect(file(), SIGNAL(changed()), this, SLOT(fileChanged()));
+    connect(file(), SIGNAL(changed()), this, SLOT(configure()));
+    connect(Manager::instance(), SIGNAL(mimeTypesRegistered()), this, SLOT(configure()));
 }
 
 PlainTextEditor::~PlainTextEditor()
@@ -161,7 +162,7 @@ void PlainTextEditor::setTabSettings(const TextEditor::TabSettings &ts)
     }
 }
 
-void PlainTextEditor::fileChanged()
+void PlainTextEditor::configure()
 {
     configure(Core::ICore::instance()->mimeDatabase()->findByFile(file()->fileName()));
 }

@@ -79,7 +79,7 @@ public slots:
     virtual void setTabSettings(const TextEditor::TabSettings &);
 
 private slots:
-    void fileChanged();
+    void configure();
 
 protected:
     virtual BaseTextEditorEditable *createEditableInterface() { return new PlainTextEditorEditable(this); }    
