@@ -53,6 +53,7 @@
 #include <QtGui/QFormLayout>
 #include <QtGui/QInputDialog>
 #include <QtGui/QLabel>
+#include <QtGui/QLineEdit>
 #include <QtGui/QCheckBox>
 #include <QtGui/QToolButton>
 #include <QtGui/QComboBox>
@@ -69,7 +70,6 @@ const char * const QT4_RC_PREFIX("Qt4ProjectManager.Qt4RunConfiguration.");
 
 const char * const COMMAND_LINE_ARGUMENTS_KEY("Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments");
 const char * const PRO_FILE_KEY("Qt4ProjectManager.Qt4RunConfiguration.ProFile");
-const char * const USER_SET_NAME_KEY("Qt4ProjectManager.Qt4RunConfiguration.UserSetName");
 const char * const USE_TERMINAL_KEY("Qt4ProjectManager.Qt4RunConfiguration.UseTerminal");
 const char * const USE_DYLD_IMAGE_SUFFIX_KEY("Qt4ProjectManager.Qt4RunConfiguration.UseDyldImageSuffix");
 const char * const USER_ENVIRONMENT_CHANGES_KEY("Qt4ProjectManager.Qt4RunConfiguration.UserEnvironmentChanges");
@@ -99,7 +99,6 @@ Qt4RunConfiguration::Qt4RunConfiguration(Qt4Target *parent, const QString &proFi
     LocalApplicationRunConfiguration(parent, QLatin1String(QT4_RC_ID)),
     m_proFilePath(proFilePath),
     m_runMode(Gui),
-    m_userSetName(false),
     m_isUsingDyldImageSuffix(false),
     m_userSetWokingDirectory(false),
     m_baseEnvironmentBase(Qt4RunConfiguration::BuildEnvironmentBase)
@@ -112,7 +111,6 @@ Qt4RunConfiguration::Qt4RunConfiguration(Qt4Target *parent, Qt4RunConfiguration 
     m_commandLineArguments(source->m_commandLineArguments),
     m_proFilePath(source->m_proFilePath),
     m_runMode(source->m_runMode),
-    m_userSetName(source->m_userSetName),
     m_isUsingDyldImageSuffix(source->m_isUsingDyldImageSuffix),
     m_userSetWokingDirectory(source->m_userSetWokingDirectory),
     m_userWorkingDirectory(source->m_userWorkingDirectory),
@@ -165,7 +163,10 @@ void Qt4RunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileN
 
 void Qt4RunConfiguration::ctor()
 {
-    setDefaultDisplayName();
+    QString name = defaultDisplayName();
+    if (name != displayName())
+        setDisplayName(name);
+
     connect(qt4Target(), SIGNAL(environmentChanged()),
             this, SIGNAL(baseEnvironmentChanged()));
 
@@ -196,13 +197,9 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     toplayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     toplayout->setMargin(0);
 
-    QLabel *nameLabel = new QLabel(tr("Name:"), this);
-    m_nameLineEdit = new QLineEdit(m_qt4RunConfiguration->displayName(), this);
-    nameLabel->setBuddy(m_nameLineEdit);
-    toplayout->addRow(nameLabel, m_nameLineEdit);
-
-    m_executableLabel = new QLabel(m_qt4RunConfiguration->executable(), this);
-    toplayout->addRow(tr("Executable:"), m_executableLabel);
+    m_executableLineEdit = new QLineEdit(m_qt4RunConfiguration->executable(), this);
+    m_executableLineEdit->setEnabled(false);
+    toplayout->addRow(tr("Executable:"), m_executableLineEdit);
 
     QLabel *argumentsLabel = new QLabel(tr("Arguments:"), this);
     m_argumentsLineEdit = new QLineEdit(ProjectExplorer::Environment::joinArgumentList(qt4RunConfiguration->commandLineArguments()), this);
@@ -275,8 +272,6 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
 
     connect(m_argumentsLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(argumentsEdited(QString)));
-    connect(m_nameLineEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(displayNameEdited(QString)));
     connect(m_useTerminalCheck, SIGNAL(toggled(bool)),
             this, SLOT(termToggled(bool)));
 
@@ -288,8 +283,6 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
 
     connect(qt4RunConfiguration, SIGNAL(commandLineArgumentsChanged(QString)),
             this, SLOT(commandLineArgumentsChanged(QString)));
-    connect(qt4RunConfiguration, SIGNAL(displayNameChanged()),
-            this, SLOT(displayNameChanged()));
     connect(qt4RunConfiguration, SIGNAL(runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode)),
             this, SLOT(runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode)));
     connect(qt4RunConfiguration, SIGNAL(usingDyldImageSuffixChanged(bool)),
@@ -365,13 +358,6 @@ void Qt4RunConfigurationWidget::argumentsEdited(const QString &args)
     m_ignoreChange = false;
 }
 
-void Qt4RunConfigurationWidget::displayNameEdited(const QString &name)
-{
-    m_ignoreChange = true;
-    m_qt4RunConfiguration->setUserName(name);
-    m_ignoreChange = false;
-}
-
 void Qt4RunConfigurationWidget::termToggled(bool on)
 {
     m_ignoreChange = true;
@@ -400,12 +386,6 @@ void Qt4RunConfigurationWidget::commandLineArgumentsChanged(const QString &args)
     m_argumentsLineEdit->setText(args);
 }
 
-void Qt4RunConfigurationWidget::displayNameChanged()
-{
-    if (!m_ignoreChange)
-        m_nameLineEdit->setText(m_qt4RunConfiguration->displayName());
-}
-
 void Qt4RunConfigurationWidget::runModeChanged(LocalApplicationRunConfiguration::RunMode runMode)
 {
     if (!m_ignoreChange)
@@ -421,7 +401,7 @@ void Qt4RunConfigurationWidget::usingDyldImageSuffixChanged(bool state)
 void Qt4RunConfigurationWidget::effectiveTargetInformationChanged()
 {
     if (m_isShown) {
-        m_executableLabel->setText(QDir::toNativeSeparators(m_qt4RunConfiguration->executable()));
+        m_executableLineEdit->setText(QDir::toNativeSeparators(m_qt4RunConfiguration->executable()));
         m_ignoreChange = true;
         m_workingDirectoryEdit->setPath(QDir::toNativeSeparators(m_qt4RunConfiguration->workingDirectory()));
         m_ignoreChange = false;
@@ -453,7 +433,6 @@ QVariantMap Qt4RunConfiguration::toMap() const
     QVariantMap map(LocalApplicationRunConfiguration::toMap());
     map.insert(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY), m_commandLineArguments);
     map.insert(QLatin1String(PRO_FILE_KEY), projectDir.relativeFilePath(m_proFilePath));
-    map.insert(QLatin1String(USER_SET_NAME_KEY), m_userSetName);
     map.insert(QLatin1String(USE_TERMINAL_KEY), m_runMode == Console);
     map.insert(QLatin1String(USE_DYLD_IMAGE_SUFFIX_KEY), m_isUsingDyldImageSuffix);
     map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY), ProjectExplorer::EnvironmentItem::toStringList(m_userEnvironmentChanges));
@@ -468,20 +447,16 @@ bool Qt4RunConfiguration::fromMap(const QVariantMap &map)
     const QDir projectDir = QDir(target()->project()->projectDirectory());
     m_commandLineArguments = map.value(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY)).toStringList();
     m_proFilePath = projectDir.filePath(map.value(QLatin1String(PRO_FILE_KEY)).toString());
-    m_userSetName = map.value(QLatin1String(USER_SET_NAME_KEY), false).toBool();
     m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY), false).toBool() ? Console : Gui;
     m_isUsingDyldImageSuffix = map.value(QLatin1String(USE_DYLD_IMAGE_SUFFIX_KEY), false).toBool();
 
     m_userSetWokingDirectory = map.value(QLatin1String(USER_SET_WORKING_DIRECTORY_KEY), false).toBool();
     m_userWorkingDirectory = map.value(QLatin1String(USER_WORKING_DIRECTORY_KEY)).toString();
 
-    if (!m_proFilePath.isEmpty()) {
-        if (!m_userSetName)
-            setDefaultDisplayName();
-    }
     m_userEnvironmentChanges = ProjectExplorer::EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
     m_baseEnvironmentBase = static_cast<BaseEnvironmentBase>(map.value(QLatin1String(BASE_ENVIRONMENT_BASE_KEY), static_cast<int>(Qt4RunConfiguration::BuildEnvironmentBase)).toInt());
 
+    // This will restore the display name for us:
     return RunConfiguration::fromMap(map);
 }
 
@@ -611,17 +586,6 @@ void Qt4RunConfiguration::setRunMode(RunMode runMode)
     emit runModeChanged(runMode);
 }
 
-void Qt4RunConfiguration::setUserName(const QString &name)
-{
-    if (name.isEmpty()) {
-        m_userSetName = false;
-        setDefaultDisplayName();
-    } else {
-        m_userSetName = true;
-        setDisplayName(name);
-    }
-}
-
 QString Qt4RunConfiguration::proFilePath() const
 {
     return m_proFilePath;
@@ -643,14 +607,14 @@ QStringList Qt4RunConfiguration::dumperLibraryLocations() const
     return QStringList();
 }
 
-void Qt4RunConfiguration::setDefaultDisplayName()
+QString Qt4RunConfiguration::defaultDisplayName()
 {
-    if (m_userSetName)
-        return;
+    QString defaultName;
     if (!m_proFilePath.isEmpty())
-        setDisplayName(QFileInfo(m_proFilePath).completeBaseName());
+        defaultName = QFileInfo(m_proFilePath).completeBaseName();
     else
-        setDisplayName(tr("Qt4 RunConfiguration"));
+        defaultName = tr("Qt4 RunConfiguration");
+    return defaultName;
 }
 
 void Qt4RunConfiguration::setBaseEnvironmentBase(BaseEnvironmentBase env)

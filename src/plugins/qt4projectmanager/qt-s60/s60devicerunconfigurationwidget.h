@@ -53,13 +53,11 @@ public:
                                       QWidget *parent = 0);
 
 private slots:
-    void displayNameEdited(const QString &text);
     void argumentsEdited(const QString &text);
 
 private:
     S60DeviceRunConfiguration *m_runConfiguration;
     Utils::DetailsWidget *m_detailsWidget;
-    QLineEdit *m_nameLineEdit;
     QLineEdit *m_argumentsLineEdit;
 };
 

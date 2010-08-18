@@ -181,7 +181,6 @@ private slots:
 
     void executableEdited();
     void argumentsEdited(const QString &arguments);
-    void userNameEdited(const QString &name);
     void workingDirectoryEdited();
     void termToggled(bool);
 

@@ -179,7 +179,6 @@ S60EmulatorRunConfigurationWidget::S60EmulatorRunConfigurationWidget(S60Emulator
     : QWidget(parent),
     m_runConfiguration(runConfiguration),
     m_detailsWidget(new Utils::DetailsWidget),
-    m_nameLineEdit(new QLineEdit(m_runConfiguration->displayName())),
     m_executableLabel(new QLabel(m_runConfiguration->executable()))
 {
     m_detailsWidget->setState(Utils::DetailsWidget::NoSummary);
@@ -194,22 +193,10 @@ S60EmulatorRunConfigurationWidget::S60EmulatorRunConfigurationWidget(S60Emulator
     detailsFormLayout->setMargin(0);
     detailsContainer->setLayout(detailsFormLayout);
 
-    QLabel *nameLabel = new QLabel(tr("Name:"));
-
-    nameLabel->setBuddy(m_nameLineEdit);
-    detailsFormLayout->addRow(nameLabel, m_nameLineEdit);
-
     detailsFormLayout->addRow(tr("Executable:"), m_executableLabel);
 
-    connect(m_nameLineEdit, SIGNAL(textEdited(QString)),
-        this, SLOT(displayNameEdited(QString)));
     connect(m_runConfiguration, SIGNAL(targetInformationChanged()),
             this, SLOT(updateTargetInformation()));
-}
-
-void S60EmulatorRunConfigurationWidget::displayNameEdited(const QString &text)
-{
-    m_runConfiguration->setDisplayName(text);
 }
 
 void S60EmulatorRunConfigurationWidget::updateTargetInformation()

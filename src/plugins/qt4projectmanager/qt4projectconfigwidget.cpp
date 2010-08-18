@@ -79,9 +79,6 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4Project *project)
     m_ui->shadowBuildDirEdit->setExpectedKind(Utils::PathChooser::Directory);
     m_ui->invalidQtWarningLabel->setVisible(false);
 
-    connect(m_ui->nameLineEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(configNameEdited(QString)));
-
     connect(m_ui->shadowBuildCheckBox, SIGNAL(clicked(bool)),
             this, SLOT(shadowBuildClicked(bool)));
 
@@ -192,8 +189,6 @@ void Qt4ProjectConfigWidget::init(ProjectExplorer::BuildConfiguration *bc)
     connect(m_buildConfiguration, SIGNAL(toolChainTypeChanged()),
             this, SLOT(toolChainTypeChanged()));
 
-    m_ui->nameLineEdit->setText(m_buildConfiguration->displayName());
-
     qtVersionsChanged();
     QtVersionManager *vm = QtVersionManager::instance();
     connect(vm, SIGNAL(qtVersionsChanged(QList<int>)),
@@ -223,11 +218,6 @@ void Qt4ProjectConfigWidget::qtVersionChanged()
     updateImportLabel();
     updateToolChainCombo();
     updateDetails();
-}
-
-void Qt4ProjectConfigWidget::configNameEdited(const QString &newName)
-{
-    m_buildConfiguration->setDisplayName(newName);
 }
 
 void Qt4ProjectConfigWidget::qtVersionsChanged()

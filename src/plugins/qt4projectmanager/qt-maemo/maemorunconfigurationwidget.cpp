@@ -97,8 +97,6 @@ void MaemoRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
     QFormLayout *formLayout = new QFormLayout;
     mainLayout->addLayout(formLayout);
     formLayout->setFormAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    m_configNameLineEdit = new QLineEdit(m_runConfiguration->displayName());
-    formLayout->addRow(tr("Run configuration name:"), m_configNameLineEdit);
 
     QWidget *devConfWidget = new QWidget;
     QHBoxLayout *devConfLayout = new QHBoxLayout(devConfWidget);
@@ -128,8 +126,6 @@ void MaemoRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
         SLOT(showSettingsDialog(QString)));
     connect(debuggerConfLabel, SIGNAL(linkActivated(QString)), this,
         SLOT(showSettingsDialog(QString)));
-    connect(m_configNameLineEdit, SIGNAL(textEdited(QString)), this,
-        SLOT(configNameEdited(QString)));
     connect(m_argsLineEdit, SIGNAL(textEdited(QString)), this,
         SLOT(argumentsEdited(QString)));
     connect(m_runConfiguration, SIGNAL(targetInformationChanged()), this,
@@ -248,11 +244,6 @@ void MaemoRunConfigurationWidget::addEnvironmentWidgets(QVBoxLayout *mainLayout)
         this, SLOT(userEnvironmentChangesChanged(QList<ProjectExplorer::EnvironmentItem>)));
     connect(m_fetchEnv, SIGNAL(pressed()), this, SLOT(fetchEnvironment()));
     connect(m_deviceEnvReader, SIGNAL(finished()), this, SLOT(fetchEnvironmentFinished()));
-}
-
-void MaemoRunConfigurationWidget::configNameEdited(const QString &text)
-{
-    m_runConfiguration->setDisplayName(text);
 }
 
 void MaemoRunConfigurationWidget::argumentsEdited(const QString &text)

@@ -98,13 +98,11 @@ public:
                                       QWidget *parent = 0);
 
 private slots:
-    void displayNameEdited(const QString &text);
     void updateTargetInformation();
 
 private:
     S60EmulatorRunConfiguration *m_runConfiguration;
     Utils::DetailsWidget *m_detailsWidget;
-    QLineEdit *m_nameLineEdit;
     QLabel *m_executableLabel;
 };
 

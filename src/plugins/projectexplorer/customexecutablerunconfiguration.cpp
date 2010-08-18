@@ -59,8 +59,6 @@ const char * const EXECUTABLE_KEY("ProjectExplorer.CustomExecutableRunConfigurat
 const char * const ARGUMENTS_KEY("ProjectExplorer.CustomExecutableRunConfiguration.Arguments");
 const char * const WORKING_DIRECTORY_KEY("ProjectExplorer.CustomExecutableRunConfiguration.WorkingDirectory");
 const char * const USE_TERMINAL_KEY("ProjectExplorer.CustomExecutableRunConfiguration.UseTerminal");
-const char * const USER_SET_NAME_KEY("ProjectExplorer.CustomExecutableRunConfiguration.UserSetName");
-const char * const USER_NAME_KEY("ProjectExplorer.CustomExecutableRunConfiguration.UserName");
 const char * const USER_ENVIRONMENT_CHANGES_KEY("ProjectExplorer.CustomExecutableRunConfiguration.UserEnvironmentChanges");
 const char * const BASE_ENVIRONMENT_BASE_KEY("ProjectExplorer.CustomExecutableRunConfiguration.BaseEnvironmentBase");
 
@@ -88,9 +86,6 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     QFormLayout *layout = new QFormLayout;
     layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     layout->setMargin(0);
-
-    m_userName = new QLineEdit(this);
-    layout->addRow(tr("Name:"), m_userName);
 
     m_executableChooser = new Utils::PathChooser(this);
     m_executableChooser->setExpectedKind(Utils::PathChooser::Command);
@@ -150,8 +145,6 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
 
     changed();
 
-    connect(m_userName, SIGNAL(textEdited(QString)),
-            this, SLOT(userNameEdited(QString)));
     connect(m_executableChooser, SIGNAL(changed(QString)),
             this, SLOT(executableEdited()));
     connect(m_commandLineArgumentsLineEdit, SIGNAL(textEdited(const QString&)),
@@ -224,13 +217,6 @@ void CustomExecutableConfigurationWidget::workingDirectoryEdited()
     m_ignoreChange = false;
 }
 
-void CustomExecutableConfigurationWidget::userNameEdited(const QString &name)
-{
-    m_ignoreChange = true;
-    m_runConfiguration->setUserName(name);
-    m_ignoreChange = false;
-}
-
 void CustomExecutableConfigurationWidget::termToggled(bool on)
 {
     m_ignoreChange = true;
@@ -255,15 +241,11 @@ void CustomExecutableConfigurationWidget::changed()
     m_commandLineArgumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(m_runConfiguration->commandLineArguments()));
     m_workingDirectory->setPath(m_runConfiguration->baseWorkingDirectory());
     m_useTerminalCheck->setChecked(m_runConfiguration->runMode() == LocalApplicationRunConfiguration::Console);
-    m_userName->setText(m_runConfiguration->userName());
 }
 
 void CustomExecutableRunConfiguration::ctor()
 {
-    if (m_userSetName)
-        setDisplayName(m_userName);
-    else
-        setDisplayName(tr("Custom Executable"));
+    setDisplayName(tr("Run %1").arg(m_executable));
     connect(target(), SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
             this, SLOT(activeBuildConfigurationChanged()));
 
@@ -278,7 +260,6 @@ void CustomExecutableRunConfiguration::ctor()
 CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *parent) :
     LocalApplicationRunConfiguration(parent, QLatin1String(CUSTOM_EXECUTABLE_ID)),
     m_runMode(Gui),
-    m_userSetName(false),
     m_baseEnvironmentBase(CustomExecutableRunConfiguration::BuildEnvironmentBase)
 {
     m_workingDirectory = QLatin1String(DEFAULT_WORKING_DIR);
@@ -291,8 +272,6 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *paren
     m_workingDirectory(source->m_workingDirectory),
     m_cmdArguments(source->m_cmdArguments),
     m_runMode(source->m_runMode),
-    m_userSetName(source->m_userSetName),
-    m_userName(source->m_userName),
     m_userEnvironmentChanges(source->m_userEnvironmentChanges),
     m_baseEnvironmentBase(source->m_baseEnvironmentBase)
 {
@@ -319,11 +298,6 @@ void CustomExecutableRunConfiguration::activeBuildConfigurationChanged()
 QString CustomExecutableRunConfiguration::baseExecutable() const
 {
     return m_executable;
-}
-
-QString CustomExecutableRunConfiguration::userName() const
-{
-    return m_userName;
 }
 
 QString CustomExecutableRunConfiguration::executable() const
@@ -468,8 +442,6 @@ QVariantMap CustomExecutableRunConfiguration::toMap() const
     map.insert(QLatin1String(ARGUMENTS_KEY), m_cmdArguments);
     map.insert(QLatin1String(WORKING_DIRECTORY_KEY), m_workingDirectory);
     map.insert(QLatin1String(USE_TERMINAL_KEY), m_runMode == Console);
-    map.insert(QLatin1String(USER_SET_NAME_KEY), m_userSetName);
-    map.insert(QLatin1String(USER_NAME_KEY), m_userName);
     map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY), ProjectExplorer::EnvironmentItem::toStringList(m_userEnvironmentChanges));
     map.insert(QLatin1String(BASE_ENVIRONMENT_BASE_KEY), static_cast<int>(m_baseEnvironmentBase));
     return map;
@@ -481,8 +453,6 @@ bool CustomExecutableRunConfiguration::fromMap(const QVariantMap &map)
     m_cmdArguments = map.value(QLatin1String(ARGUMENTS_KEY)).toStringList();
     m_workingDirectory = map.value(QLatin1String(WORKING_DIRECTORY_KEY)).toString();
     m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY)).toBool() ? Console : Gui;
-    m_userSetName = map.value(QLatin1String(USER_SET_NAME_KEY)).toBool();
-    m_userName = map.value(QLatin1String(USER_NAME_KEY)).toString();
     m_userEnvironmentChanges = ProjectExplorer::EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
     m_baseEnvironmentBase = static_cast<BaseEnvironmentBase>(map.value(QLatin1String(BASE_ENVIRONMENT_BASE_KEY), static_cast<int>(CustomExecutableRunConfiguration::BuildEnvironmentBase)).toInt());
 
@@ -491,8 +461,9 @@ bool CustomExecutableRunConfiguration::fromMap(const QVariantMap &map)
 
 void CustomExecutableRunConfiguration::setExecutable(const QString &executable)
 {
+    bool hasUserName = (displayName() != tr("Run %1").arg(m_executable));
     m_executable = executable;
-    if (!m_userSetName)
+    if (!hasUserName)
         setDisplayName(tr("Run %1").arg(m_executable));
     emit changed();
 }
@@ -518,20 +489,6 @@ void CustomExecutableRunConfiguration::setRunMode(RunMode runMode)
 QWidget *CustomExecutableRunConfiguration::createConfigurationWidget()
 {
     return new CustomExecutableConfigurationWidget(this);
-}
-
-void CustomExecutableRunConfiguration::setUserName(const QString &name)
-{
-    if (name.isEmpty()) {
-        m_userName = name;
-        m_userSetName = false;
-        setDisplayName(tr("Run %1").arg(m_executable));
-    } else {
-        m_userName = name;
-        m_userSetName = true;
-        setDisplayName(name);
-    }
-    emit changed();
 }
 
 QString CustomExecutableRunConfiguration::dumperLibrary() const
@@ -577,7 +534,6 @@ RunConfiguration *CustomExecutableRunConfigurationFactory::create(Target *parent
         return 0;
 
     RunConfiguration *rc(new CustomExecutableRunConfiguration(parent));
-    rc->setDisplayName(tr("Custom Executable"));
     return rc;
 }
 

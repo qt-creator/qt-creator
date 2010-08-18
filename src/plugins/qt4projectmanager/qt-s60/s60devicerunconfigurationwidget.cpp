@@ -52,7 +52,6 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
     : QWidget(parent),
     m_runConfiguration(runConfiguration),
     m_detailsWidget(new Utils::DetailsWidget),
-    m_nameLineEdit(new QLineEdit(m_runConfiguration->displayName())),
     m_argumentsLineEdit(new QLineEdit(m_runConfiguration->commandLineArguments().join(QString(QLatin1Char(' ')))))
 {
     m_detailsWidget->setState(Utils::DetailsWidget::NoSummary);
@@ -70,21 +69,10 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
     QFormLayout *formLayout = new QFormLayout();
     formLayout->setMargin(0);
     detailsBoxLayout->addLayout(formLayout);
-    // Name control
-    QLabel *nameLabel = new QLabel(tr("Name:"));
-    nameLabel->setBuddy(m_nameLineEdit);
-    formLayout->addRow(nameLabel, m_nameLineEdit);
     formLayout->addRow(tr("Arguments:"), m_argumentsLineEdit);
 
-    connect(m_nameLineEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(displayNameEdited(QString)));
     connect(m_argumentsLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(argumentsEdited(QString)));
-}
-
-void S60DeviceRunConfigurationWidget::displayNameEdited(const QString &text)
-{
-    m_runConfiguration->setDisplayName(text);
 }
 
 void S60DeviceRunConfigurationWidget::argumentsEdited(const QString &text)

@@ -70,7 +70,6 @@ public:
         QWidget *parent = 0);
 
 private slots:
-    void configNameEdited(const QString &text);
     void argumentsEdited(const QString &args);
     void showSettingsDialog(const QString &link);
     void updateTargetInformation();
@@ -99,7 +98,6 @@ private:
     void addEnvironmentWidgets(QVBoxLayout *mainLayout);
     void updateMountWarning();
 
-    QLineEdit *m_configNameLineEdit;
     QLineEdit *m_argsLineEdit;
     QLabel *m_localExecutableLabel;
     QLabel *m_remoteExecutableLabel;

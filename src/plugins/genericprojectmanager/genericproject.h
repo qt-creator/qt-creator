@@ -184,13 +184,11 @@ public:
     virtual void init(ProjectExplorer::BuildConfiguration *bc);
 
 private Q_SLOTS:
-    void configNameEdited(const QString &name);
     void buildDirectoryChanged();
     void toolChainSelected(int index);
 
 private:
     GenericProject *m_project;
-    QLineEdit *m_nameLineEdit;
     Utils::PathChooser *m_pathChooser;
     GenericBuildConfiguration *m_buildConfiguration;
 };

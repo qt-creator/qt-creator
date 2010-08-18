@@ -63,7 +63,6 @@ public:
 
 private slots:
     // User changes in our widgets
-    void configNameEdited(const QString &newName);
     void shadowBuildClicked(bool checked);
     void onBeforeBeforeShadowBuildDirBrowsed();
     void shadowBuildEdited();

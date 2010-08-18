@@ -36,7 +36,6 @@
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;
-class QLabel;
 class QLineEdit;
 class QRadioButton;
 class QComboBox;
@@ -110,7 +109,6 @@ private slots:
     void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
     void setArguments(const QString &argumentsString);
     void setWorkingDirectory(const QString &workingDirectory);
-    void setUserName(const QString&);
     void setRunMode(RunMode runMode);
 
 protected:
@@ -121,7 +119,7 @@ private:
     enum BaseEnvironmentBase { CleanEnvironmentBase = 0,
                                SystemEnvironmentBase = 1,
                                BuildEnvironmentBase  = 2 };
-    void setDefaultDisplayName();
+    QString defaultDisplayName();
     void setBaseEnvironmentBase(BaseEnvironmentBase env);
     BaseEnvironmentBase baseEnvironmentBase() const;
 
@@ -161,12 +159,10 @@ private slots:
     void workDirectoryEdited();
     void workingDirectoryReseted();
     void argumentsEdited(const QString &arguments);
-    void displayNameEdited(const QString &name);
     void userChangesEdited();
 
     void workingDirectoryChanged(const QString &workingDirectory);
     void commandLineArgumentsChanged(const QString &args);
-    void displayNameChanged();
     void runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode runMode);
     void userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &userChanges);
     void baseEnvironmentChanged();
@@ -180,9 +176,8 @@ private slots:
 private:
     Qt4RunConfiguration *m_qt4RunConfiguration;
     bool m_ignoreChange;
-    QLabel *m_executableLabel;
+    QLineEdit *m_executableLineEdit;
     Utils::PathChooser *m_workingDirectoryEdit;
-    QLineEdit *m_nameLineEdit;
     QLineEdit *m_argumentsLineEdit;
     QCheckBox *m_useTerminalCheck;
     QCheckBox *m_usingDyldImageSuffix;
