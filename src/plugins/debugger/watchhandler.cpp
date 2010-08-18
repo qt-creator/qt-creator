@@ -644,8 +644,18 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             break;
         }
 
-        case LocalsExpressionRole:
-            return data.exp;
+        case LocalsExpressionRole: {
+            if (!data.exp.isEmpty())
+                return data.exp;
+            quint64 addr = data.coreAddress();
+            if (addr && !data.type.isEmpty())
+                return QString("*(%1*)%2").arg(data.type).arg(addr);
+            WatchItem *parent = item->parent;
+            if (parent && !parent->exp.isEmpty())
+                return QString("(%1).%2")
+                    .arg(QString::fromLatin1(parent->exp)).arg(data.name);
+            return QVariant();
+        }
 
         case LocalsINameRole:
             return data.iname;
