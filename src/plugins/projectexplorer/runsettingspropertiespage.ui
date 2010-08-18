@@ -6,15 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>474</width>
+    <width>485</width>
     <height>191</height>
    </rect>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <property name="margin">
-    <number>0</number>
-   </property>
-   <property name="spacing">
+   <property name="horizontalSpacing">
     <number>6</number>
    </property>
    <item row="0" column="0">
@@ -41,7 +38,14 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0" colspan="5">
+   <item row="0" column="4">
+    <widget class="QPushButton" name="renameDeployButton">
+     <property name="text">
+      <string>Rename</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="6">
     <widget class="QWidget" name="deployWidget" native="true"/>
    </item>
    <item row="2" column="0">
@@ -91,6 +95,13 @@
     </widget>
    </item>
    <item row="2" column="4">
+    <widget class="QPushButton" name="renameRunButton">
+     <property name="text">
+      <string>Rename</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="5">
     <spacer name="runHorizontalSpacer">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -103,7 +114,7 @@
      </property>
     </spacer>
    </item>
-   <item row="3" column="0" colspan="5">
+   <item row="3" column="0" colspan="6">
     <widget class="QWidget" name="runWidget" native="true"/>
    </item>
   </layout>

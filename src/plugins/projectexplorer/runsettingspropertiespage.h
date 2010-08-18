@@ -95,11 +95,13 @@ private slots:
     void addRunConfiguration();
     void removeRunConfiguration();
     void activeRunConfigurationChanged();
+    void renameRunConfiguration();
     void currentDeployConfigurationChanged(int index);
     void aboutToShowDeployMenu();
     void addDeployConfiguration();
     void removeDeployConfiguration();
     void activeDeployConfigurationChanged();
+    void renameDeployConfiguration();
 
 private:
     void updateDeployConfiguration(DeployConfiguration *);

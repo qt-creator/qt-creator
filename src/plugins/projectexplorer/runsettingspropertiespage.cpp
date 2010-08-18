@@ -44,6 +44,7 @@
 #include <utils/qtcassert.h>
 
 #include <QtCore/QPair>
+#include <QtGui/QInputDialog>
 #include <QtGui/QMenu>
 
 namespace ProjectExplorer {
@@ -138,9 +139,9 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
 
     m_ui = new Ui::RunSettingsPropertiesPage;
     m_ui->setupUi(this);
-    m_ui->deployWidget->setContentsMargins(0, 0, 0, 25);
 
     // deploy part
+    m_ui->deployWidget->setContentsMargins(0, 10, 0, 25);
     m_deployLayout = new QVBoxLayout(m_ui->deployWidget);
     m_deployLayout->setMargin(0);
     m_deployLayout->setSpacing(5);
@@ -151,9 +152,12 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
 
     updateDeployConfiguration(m_target->activeDeployConfiguration());
 
+    // Some projects may not support deployment, so we need this:
     m_ui->addDeployToolButton->setEnabled(m_target->activeDeployConfiguration());
     m_ui->deployConfigurationCombo->setEnabled(m_target->activeDeployConfiguration());
+
     m_ui->removeDeployToolButton->setEnabled(m_target->deployConfigurations().count() > 1);
+    m_ui->renameDeployButton->setEnabled(m_target->activeDeployConfiguration());
 
     connect(m_addDeployMenu, SIGNAL(aboutToShow()),
             this, SLOT(aboutToShowDeployMenu()));
@@ -161,11 +165,14 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
             this, SLOT(currentDeployConfigurationChanged(int)));
     connect(m_ui->removeDeployToolButton, SIGNAL(clicked(bool)),
             this, SLOT(removeDeployConfiguration()));
+    connect(m_ui->renameDeployButton, SIGNAL(clicked()),
+            this, SLOT(renameDeployConfiguration()));
 
     connect(m_target, SIGNAL(activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration*)),
             this, SLOT(activeDeployConfigurationChanged()));
 
     // run part
+    m_ui->runWidget->setContentsMargins(0, 10, 0, 25);
     m_runLayout = new QVBoxLayout(m_ui->runWidget);
     m_runLayout->setMargin(0);
     m_runLayout->setSpacing(5);
@@ -177,6 +184,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
             m_runConfigurationsModel->indexFor(m_target->activeRunConfiguration()).row());
 
     m_ui->removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);
+    m_ui->renameRunButton->setEnabled(m_target->activeRunConfiguration());
 
     m_runConfigurationWidget = m_target->activeRunConfiguration()->createConfigurationWidget();
     m_runLayout->addWidget(m_runConfigurationWidget);
@@ -187,6 +195,8 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
             this, SLOT(currentRunConfigurationChanged(int)));
     connect(m_ui->removeRunToolButton, SIGNAL(clicked(bool)),
             this, SLOT(removeRunConfiguration()));
+    connect(m_ui->renameRunButton, SIGNAL(clicked()),
+            this, SLOT(renameRunConfiguration()));
 
     connect(m_target, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
             this, SLOT(activeRunConfigurationChanged()));
@@ -246,6 +256,7 @@ void RunSettingsWidget::removeRunConfiguration()
     RunConfiguration *rc = m_target->activeRunConfiguration();
     m_target->removeRunConfiguration(rc);
     m_ui->removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);
+    m_ui->renameRunButton->setEnabled(m_target->activeRunConfiguration());
 }
 
 void RunSettingsWidget::activeRunConfigurationChanged()
@@ -260,6 +271,27 @@ void RunSettingsWidget::activeRunConfigurationChanged()
     delete m_runConfigurationWidget;
     m_runConfigurationWidget = m_target->activeRunConfiguration()->createConfigurationWidget();
     m_runLayout->addWidget(m_runConfigurationWidget);
+}
+
+void RunSettingsWidget::renameRunConfiguration()
+{
+    bool ok;
+    QString name = QInputDialog::getText(this, tr("Rename..."),
+                                         tr("New name for run configuration <b>%1</b>:").
+                                            arg(m_target->activeRunConfiguration()->displayName()),
+                                         QLineEdit::Normal,
+                                         m_target->activeRunConfiguration()->displayName(), &ok);
+    if (!ok || !this || name.isEmpty())
+        return;
+
+    QStringList rcNames;
+    foreach (RunConfiguration *rc, m_target->runConfigurations()) {
+        if (rc == m_target->activeRunConfiguration())
+            continue;
+        rcNames.append(rc->displayName());
+    }
+    name = Project::makeUnique(name, rcNames);
+    m_target->activeRunConfiguration()->setDisplayName(name);
 }
 
 void RunSettingsWidget::currentRunConfigurationChanged(int index)
@@ -329,6 +361,27 @@ void RunSettingsWidget::removeDeployConfiguration()
 void RunSettingsWidget::activeDeployConfigurationChanged()
 {
     updateDeployConfiguration(m_target->activeDeployConfiguration());
+}
+
+void RunSettingsWidget::renameDeployConfiguration()
+{
+    bool ok;
+    QString name = QInputDialog::getText(this, tr("Rename..."),
+                                         tr("New name for deploy configuration <b>%1</b>:").
+                                            arg(m_target->activeDeployConfiguration()->displayName()),
+                                         QLineEdit::Normal,
+                                         m_target->activeDeployConfiguration()->displayName(), &ok);
+    if (!ok || !this || name.isEmpty())
+        return;
+
+    QStringList dcNames;
+    foreach (DeployConfiguration *dc, m_target->deployConfigurations()) {
+        if (dc == m_target->activeDeployConfiguration())
+            continue;
+        dcNames.append(dc->displayName());
+    }
+    name = Project::makeUnique(name, dcNames);
+    m_target->activeDeployConfiguration()->setDisplayName(name);
 }
 
 void RunSettingsWidget::updateDeployConfiguration(DeployConfiguration *dc)

@@ -163,6 +163,11 @@ void BuildSettingsWidget::setupUi()
         m_removeButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         hbox->addWidget(m_removeButton);
 
+        m_renameButton = new QPushButton(this);
+        m_renameButton->setText(tr("Rename"));
+        m_renameButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        hbox->addWidget(m_renameButton);
+
         hbox->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Fixed));
         vbox->addLayout(hbox);
     }
@@ -179,6 +184,9 @@ void BuildSettingsWidget::setupUi()
 
     connect(m_removeButton, SIGNAL(clicked()),
             this, SLOT(deleteConfiguration()));
+
+    connect(m_renameButton, SIGNAL(clicked()),
+            this, SLOT(renameConfiguration()));
 
     connect(m_target, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
             this, SLOT(updateActiveConfiguration()));
@@ -309,6 +317,28 @@ void BuildSettingsWidget::cloneConfiguration()
 void BuildSettingsWidget::deleteConfiguration()
 {
     deleteConfiguration(m_buildConfiguration);
+}
+
+void BuildSettingsWidget::renameConfiguration()
+{
+    bool ok;
+    QString name = QInputDialog::getText(this, tr("Rename..."),
+                                         tr("New name for build configuration <b>%1</b>:").
+                                            arg(m_buildConfiguration->displayName()),
+                                         QLineEdit::Normal,
+                                         m_buildConfiguration->displayName(), &ok);
+    if (!ok || !this || name.isEmpty())
+        return;
+
+    QStringList bcNames;
+    foreach (BuildConfiguration *bc, m_target->buildConfigurations()) {
+        if (bc == m_buildConfiguration)
+            continue;
+        bcNames.append(bc->displayName());
+    }
+    name = Project::makeUnique(name, bcNames);
+    m_buildConfiguration->setDisplayName(name);
+
 }
 
 void BuildSettingsWidget::cloneConfiguration(BuildConfiguration *sourceConfiguration)

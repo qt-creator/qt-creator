@@ -99,6 +99,7 @@ private slots:
     void createConfiguration();
     void cloneConfiguration();
     void deleteConfiguration();
+    void renameConfiguration();
     void updateAddButtonMenu();
 
     void updateActiveConfiguration();
@@ -112,6 +113,7 @@ private:
 
     QPushButton *m_addButton;
     QPushButton *m_removeButton;
+    QPushButton *m_renameButton;
     QPushButton *m_makeActiveButton;
     QComboBox *m_buildConfigurationComboBox;
     QMenu *m_addButtonMenu;
