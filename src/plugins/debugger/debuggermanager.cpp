@@ -1731,7 +1731,8 @@ static bool isAllowedTransition(int from, int to)
 
     case InferiorStarting:
         return to == InferiorRunningRequested || to == InferiorStopped
-            || to == InferiorStartFailed || to == InferiorUnrunnable;
+            || to == InferiorStartFailed || to == InferiorUnrunnable
+            || to == InferiorRunning;
     case InferiorStartFailed:
         return to == EngineShuttingDown;
 
