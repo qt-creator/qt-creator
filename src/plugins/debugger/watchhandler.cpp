@@ -602,8 +602,21 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             break;
         }
 
-        case ExpressionRole:
-            return data.exp;
+        case ExpressionRole: {
+            if (!data.exp.isEmpty())
+                return data.exp;
+            if (!data.addr.isEmpty() && !data.type.isEmpty()) {
+                bool ok;
+                const quint64 addr = data.addr.toULongLong(&ok, 16);
+                if (ok && addr)
+                    return QString("*(%1*)%2").arg(data.type).arg(addr);
+            }
+            WatchItem *parent = item->parent;
+            if (parent && !parent->exp.isEmpty())
+                return QString("(%1).%2")
+                    .arg(QString::fromLatin1(parent->exp)).arg(data.name);
+            return QVariant();
+        }
 
         case INameRole:
             return data.iname;
