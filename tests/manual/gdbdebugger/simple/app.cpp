@@ -1827,6 +1827,7 @@ void testStuff()
         }
     }
 
+    // special char* support only with Python.
     typedef unsigned short wchar;
     wchar *str = new wchar[10];
     str[2] = 0;
@@ -1972,6 +1973,7 @@ int main(int argc, char *argv[])
     testQList();
     testQLinkedList();
     const char *s = "aöa";
+    // wchar_t * support only with Python.
     const wchar_t *w = L"aöa";
     testNamespace();
     //return 0;
