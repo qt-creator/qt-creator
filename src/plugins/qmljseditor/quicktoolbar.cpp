@@ -12,6 +12,7 @@
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljsscopebuilder.h>
+#include <qmljs/qmljsevaluate.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/tabsettings.h>
 #include <coreplugin/icore.h>
@@ -29,6 +30,34 @@ static inline QString textAt(const Document* doc,
                                       const SourceLocation &to)
 {
     return doc->source().mid(from.offset, to.end() - from.begin());
+}
+
+static inline const Interpreter::ObjectValue * getPropertyChangesTarget(Node *node, LookupContext::Ptr lookupContext)
+{
+    UiObjectInitializer *initializer = 0;
+    if (UiObjectDefinition *definition = cast<UiObjectDefinition *>(node))
+        initializer = definition->initializer;
+    if (UiObjectBinding *binding = cast<UiObjectBinding *>(node))
+        initializer = binding->initializer;
+    if (initializer) {
+        for (UiObjectMemberList *members = initializer->members; members; members = members->next) {
+            if (UiScriptBinding *scriptBinding = cast<UiScriptBinding *>(members->member)) {
+                if (scriptBinding->qualifiedId
+                    && scriptBinding->qualifiedId->name->asString() == QLatin1String("target")
+                    && ! scriptBinding->qualifiedId->next) {
+                    if (ExpressionStatement *expressionStatement = cast<ExpressionStatement *>(scriptBinding->statement)) {
+                        Evaluate evaluator(lookupContext->context());
+                        const Interpreter::Value *targetValue = evaluator(expressionStatement->expression);
+                        if (const Interpreter::ObjectValue *targetObject = Interpreter::value_cast<const Interpreter::ObjectValue *>(targetValue)) {
+                            return targetObject;
+                        } else {
+                            return 0;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 QuickToolBar::QuickToolBar(QObject *parent) : ::QmlJS::IContextPane(parent), m_blockWriting(false)
@@ -90,6 +119,15 @@ void QuickToolBar::apply(TextEditor::BaseTextEditorEditable *editor, Document::P
     while (scopeObject) {
         prototypes.append(scopeObject->className());
         scopeObject =  scopeObject->prototype(lookupContext->context());
+    }
+
+    if (prototypes.contains("PropertyChanges")) {
+        const Interpreter::ObjectValue *targetObject = getPropertyChangesTarget(node, lookupContext);
+        prototypes.clear();
+        while (targetObject) {
+            prototypes.append(targetObject->className());
+            targetObject =  targetObject->prototype(lookupContext->context());
+        }
     }
 
     setEnabled(doc->isParsedCorrectly());
@@ -188,6 +226,15 @@ bool QuickToolBar::isAvailable(TextEditor::BaseTextEditorEditable *, Document::P
         while (scopeObject) {
             prototypes.append(scopeObject->className());
             scopeObject =  scopeObject->prototype(lookupContext->context());
+        }
+
+        if (prototypes.contains("PropertyChanges")) {
+            const Interpreter::ObjectValue *targetObject = getPropertyChangesTarget(node, lookupContext);
+            prototypes.clear();
+            while (targetObject) {
+                prototypes.append(targetObject->className());
+                targetObject =  targetObject->prototype(lookupContext->context());
+            }
         }
 
         if (prototypes.contains("Rectangle") ||
