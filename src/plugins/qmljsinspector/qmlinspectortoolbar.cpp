@@ -1,3 +1,32 @@
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+** Commercial Usage
+**
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
+**
+** GNU Lesser General Public License Usage
+**
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at http://qt.nokia.com/contact.
+**
+**************************************************************************/
+
 #include "qmlinspectortoolbar.h"
 #include "qmljsinspectorconstants.h"
 #include "qmljstoolbarcolorbox.h"
@@ -157,9 +186,9 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     Debugger::DebuggerUISwitcher *uiSwitcher = pluginManager->getObject<Debugger::DebuggerUISwitcher>();
 
     m_fromQmlAction = new QAction(QIcon(QLatin1String(":/qml/images/from-qml-small.png")), tr("Apply Changes to Document"), this);
-    m_designmodeAction = new QAction(QIcon(QLatin1String(":/qml/images/designmode.png")), QLatin1String("Design Mode"), this); // TODO: tr?
+    m_designmodeAction = new QAction(QIcon(QLatin1String(":/qml/images/designmode.png")), tr("Design Mode"), this);
 
-    m_reloadAction = new QAction(QIcon(QLatin1String(":/qml/images/reload.png")), QLatin1String("Reload"), this); // TODO: tr?
+    m_reloadAction = new QAction(QIcon(QLatin1String(":/qml/images/reload.png")), tr("Reload"), this);
     m_playAction = new QAction(QIcon(QLatin1String(":/qml/images/play-small.png")), tr("Play animations"), this);
     m_pauseAction = new QAction(QIcon(QLatin1String(":/qml/images/pause-small.png")), tr("Pause animations"), this);
     m_selectAction = new QAction(QIcon(QLatin1String(":/qml/images/select-small.png")), tr("Select"), this);
@@ -310,7 +339,7 @@ void QmlInspectorToolbar::activateDesignModeOnClick()
 {
     bool checked = m_designmodeAction->isChecked();
 
-    m_reloadAction->setEnabled(checked);
+    m_reloadAction->setEnabled(true);
     m_playAction->setEnabled(checked);
     m_pauseAction->setEnabled(checked);
     m_selectAction->setEnabled(checked);
