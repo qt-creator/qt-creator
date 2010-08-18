@@ -56,6 +56,8 @@ namespace Internal {
 class HighlightDefinition;
 class DefinitionDownloader;
 
+// This is the generic highlighter manager. It is not thread-safe.
+
 class Manager : public QObject
 {
     Q_OBJECT
@@ -82,6 +84,7 @@ public slots:
 
 private slots:
     void registerMimeType(int index) const;
+    void registerMimeTypesFinished();
     void downloadAvailableDefinitionsListFinished();
     void downloadDefinitionsFinished();
 
@@ -94,6 +97,10 @@ private:
     QList<HighlightDefinitionMetaData> parseAvailableDefinitionsList(QIODevice *device) const;
     void clear();
 
+    bool m_downloadingDefinitions;
+    bool m_registeringMimeTypes;
+    int m_queuedMimeTypeRegistrations;
+
     QHash<QString, QString> m_idByName;
     QHash<QString, QString> m_idByMimeType;
     QHash<QString, QSharedPointer<HighlightDefinition> > m_definitions;
@@ -101,7 +108,6 @@ private:
     QSet<QString> m_isBuilding;
 
     QList<DefinitionDownloader *> m_downloaders;
-    bool m_downloadingDefinitions;
     QNetworkAccessManager m_networkManager;
 
     QFutureWatcher<void> m_downloadWatcher;

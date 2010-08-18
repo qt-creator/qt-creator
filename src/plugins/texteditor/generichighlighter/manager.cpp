@@ -70,9 +70,13 @@
 using namespace TextEditor;
 using namespace Internal;
 
-Manager::Manager() : m_downloadingDefinitions(false)
+Manager::Manager() :
+    m_downloadingDefinitions(false),
+    m_registeringMimeTypes(false),
+    m_queuedMimeTypeRegistrations(0)
 {
     connect(&m_mimeTypeWatcher, SIGNAL(resultReadyAt(int)), this, SLOT(registerMimeType(int)));
+    connect(&m_mimeTypeWatcher, SIGNAL(finished()), this, SLOT(registerMimeTypesFinished()));
     connect(&m_downloadWatcher, SIGNAL(finished()), this, SLOT(downloadDefinitionsFinished()));
 }
 
@@ -138,10 +142,19 @@ bool Manager::isBuildingDefinition(const QString &id) const
 
 void Manager::registerMimeTypes()
 {
-    clear();
-    QFuture<Core::MimeType> future =
+    if (!m_registeringMimeTypes) {
+        m_registeringMimeTypes = true;
+        clear();
+        QFuture<Core::MimeType> future =
             QtConcurrent::run(&Manager::gatherDefinitionsMimeTypes, this);
-    m_mimeTypeWatcher.setFuture(future);
+        m_mimeTypeWatcher.setFuture(future);
+        Core::ICore::instance()->progressManager()->addTask(future,
+                                                            tr("Registering definitions"),
+                                                            Constants::TASK_REGISTER_DEFINITIONS);
+    } else {
+        // QFutures returned from QConcurrent::run cannot be cancelled. So the queue.
+        ++m_queuedMimeTypeRegistrations;
+    }
 }
 
 void Manager::gatherDefinitionsMimeTypes(QFutureInterface<Core::MimeType> &future)
@@ -215,6 +228,15 @@ void Manager::registerMimeType(int index) const
     const Core::MimeType &mimeType = m_mimeTypeWatcher.resultAt(index);
     TextEditorPlugin::instance()->editorFactory()->addMimeType(mimeType.type());
     Core::ICore::instance()->mimeDatabase()->addMimeType(mimeType);
+}
+
+void Manager::registerMimeTypesFinished()
+{
+    m_registeringMimeTypes = false;
+    if (m_queuedMimeTypeRegistrations > 0) {
+        --m_queuedMimeTypeRegistrations;
+        registerMimeTypes();
+    }
 }
 
 QSharedPointer<HighlightDefinitionMetaData> Manager::parseMetadata(const QFileInfo &fileInfo)
@@ -332,7 +354,7 @@ void Manager::downloadDefinitions(const QList<QUrl> &urls)
     m_downloadWatcher.setFuture(future);
     Core::ICore::instance()->progressManager()->addTask(future,
                                                         tr("Downloading definitions"),
-                                                        Constants::TASK_DOWNLOAD);
+                                                        Constants::TASK_DOWNLOAD_DEFINITIONS);
 }
 
 void Manager::downloadDefinitionsFinished()
