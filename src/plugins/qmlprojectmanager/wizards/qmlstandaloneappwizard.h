@@ -59,6 +59,7 @@ protected:
 
 protected slots:
     void useProjectPath(const QString &projectName, const QString &projectPath);
+    void handleModulesChange(const QStringList &uris, const QStringList &paths);
 
 private:
     class QmlStandaloneAppWizardPrivate *m_d;

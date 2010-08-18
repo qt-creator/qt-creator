@@ -87,6 +87,11 @@ QmlStandaloneAppWizardDialog::QmlStandaloneAppWizardDialog(QmlStandaloneAppWizar
     m_qmlOptionsPage = new QmlStandaloneAppWizardOptionsPage;
     const int qmlOptionsPagePageId = addPage(m_qmlOptionsPage);
     wizardProgress()->item(qmlOptionsPagePageId)->setTitle(tr("Qml App options"));
+    if (m_type == QmlStandaloneAppWizard::NewQmlFile) {
+        // In case of NewQmlFile, we show that page at the end. Is that useful? Or irritating?
+        const int qmlSourcesPagePageId = addPage(m_qmlSourcesPage);
+        wizardProgress()->item(qmlSourcesPagePageId)->setTitle(tr("Qml Sources"));
+    }
 }
 
 class QmlStandaloneAppWizardPrivate
@@ -147,6 +152,8 @@ QWizard *QmlStandaloneAppWizard::createWizardDialog(QWidget *parent,
     m_d->wizardDialog->m_qmlOptionsPage->setNetworkEnabled(m_d->standaloneApp->networkEnabled());
     m_d->wizardDialog->m_qmlOptionsPage->setLoadDummyData(m_d->standaloneApp->loadDummyData());
     connect(m_d->wizardDialog, SIGNAL(introPageLeft(QString, QString)), SLOT(useProjectPath(QString, QString)));
+    connect(m_d->wizardDialog->m_qmlSourcesPage,
+            SIGNAL(externalModulesChanged(QStringList, QStringList)), SLOT(handleModulesChange(QStringList, QStringList)));
 
     foreach (QWizardPage *p, extensionPages)
         BaseFileWizard::applyExtensionPageShortTitle(m_d->wizardDialog, m_d->wizardDialog->addPage(p));
@@ -169,6 +176,8 @@ Core::GeneratedFiles QmlStandaloneAppWizard::generateFiles(const QWizard *w,
     m_d->standaloneApp->setNetworkEnabled(wizard->m_qmlOptionsPage->networkEnabled());
     if (m_d->type == QmlStandaloneAppWizard::ImportQmlFile)
         m_d->standaloneApp->setMainQmlFile(wizard->m_qmlSourcesPage->mainQmlFile());
+    m_d->standaloneApp->setExternalModules(
+            wizard->m_qmlSourcesPage->moduleUris(), wizard->m_qmlSourcesPage->moduleImportPaths());
 
     return m_d->standaloneApp->generateFiles(errorMessage);
 }
@@ -187,6 +196,13 @@ bool QmlStandaloneAppWizard::postGenerateFiles(const QWizard *wizard, const Core
 void QmlStandaloneAppWizard::useProjectPath(const QString &projectName, const QString &projectPath)
 {
     m_d->wizardDialog->m_qmlOptionsPage->setSymbianUid(QmlStandaloneApp::symbianUidForPath(projectPath + projectName));
+}
+
+void QmlStandaloneAppWizard::handleModulesChange(const QStringList &uris, const QStringList &paths)
+{
+    QmlStandaloneApp testApp;
+    testApp.setExternalModules(uris, paths);
+    m_d->wizardDialog->m_qmlSourcesPage->setModulesError(testApp.error());
 }
 
 } // namespace Internal

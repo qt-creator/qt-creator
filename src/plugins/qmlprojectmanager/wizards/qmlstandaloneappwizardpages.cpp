@@ -30,8 +30,10 @@
 #include "qmlstandaloneappwizardpages.h"
 #include "ui_qmlstandaloneappwizardsourcespage.h"
 #include "ui_qmlstandaloneappwizardoptionspage.h"
+#include <coreplugin/coreconstants.h>
 
 #include <QtGui/QDesktopServices>
+#include <QtGui/QFileDialog>
 #include <QtGui/QFileDialog>
 
 namespace QmlProjectManager {
@@ -40,6 +42,7 @@ namespace Internal {
 class QmlStandaloneAppWizardSourcesPagePrivate
 {
     Ui::QmlStandaloneAppWizardSourcesPage ui;
+    bool mainQmlFileChooserVisible;
     friend class QmlStandaloneAppWizardSourcesPage;
 };
 
@@ -51,8 +54,15 @@ QmlStandaloneAppWizardSourcesPage::QmlStandaloneAppWizardSourcesPage(QWidget *pa
     m_d->ui.mainQmlFileLineEdit->setExpectedKind(Utils::PathChooser::File);
     m_d->ui.mainQmlFileLineEdit->setPromptDialogFilter(QLatin1String("*.qml"));
     m_d->ui.mainQmlFileLineEdit->setPromptDialogTitle(tr("Select the main QML file of the application."));
-    m_d->ui.qmlModulesGroupBox->setEnabled(false); // TODO: implement modules selection
+    m_d->ui.addModuleUriButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_PLUS)));
+    m_d->ui.removeModuleUriButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_MINUS)));
+    m_d->ui.addImportPathButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_PLUS)));
+    m_d->ui.removeImportPathButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_MINUS)));
+    setMainQmlFileChooserVisible(true);
+    setModulesError(QString());
     connect(m_d->ui.mainQmlFileLineEdit, SIGNAL(changed(QString)), SIGNAL(completeChanged()));
+    connect(m_d->ui.urisListWidget, SIGNAL(itemChanged(QListWidgetItem*)), SLOT(handleModulesChanged()));
+    connect(m_d->ui.importPathsListWidget, SIGNAL(itemChanged(QListWidgetItem*)), SLOT(handleModulesChanged()));
 }
 
 QmlStandaloneAppWizardSourcesPage::~QmlStandaloneAppWizardSourcesPage()
@@ -67,12 +77,84 @@ QString QmlStandaloneAppWizardSourcesPage::mainQmlFile() const
 
 bool QmlStandaloneAppWizardSourcesPage::isComplete() const
 {
-    return m_d->ui.mainQmlFileLineEdit->isValid();
+    return (!m_d->mainQmlFileChooserVisible || m_d->ui.mainQmlFileLineEdit->isValid())
+            && m_d->ui.errorLabel->text().isEmpty();
 }
 
 void QmlStandaloneAppWizardSourcesPage::setMainQmlFileChooserVisible(bool visible)
 {
-    m_d->ui.mainQmlFileLineEdit->setVisible(visible);
+    m_d->mainQmlFileChooserVisible = visible;
+    m_d->ui.mainQmlFileGroupBox->setVisible(m_d->mainQmlFileChooserVisible);
+}
+
+void QmlStandaloneAppWizardSourcesPage::setModulesError(const QString &error)
+{
+    m_d->ui.errorLabel->setText(error);
+    m_d->ui.errorLabel->setVisible(!error.isEmpty());
+}
+
+void QmlStandaloneAppWizardSourcesPage::on_addModuleUriButton_clicked()
+{
+    QListWidgetItem *item = new QListWidgetItem(m_d->ui.urisListWidget);
+    item->setFlags(item->flags() | Qt::ItemIsEditable);
+    m_d->ui.urisListWidget->editItem(item);
+}
+
+void QmlStandaloneAppWizardSourcesPage::on_removeModuleUriButton_clicked()
+{
+    const int currentRow = m_d->ui.urisListWidget->currentRow();
+    if (currentRow >= 0) {
+        m_d->ui.urisListWidget->takeItem(currentRow);
+        handleModulesChanged();
+    }
+}
+
+void QmlStandaloneAppWizardSourcesPage::on_addImportPathButton_clicked()
+{
+    const QString path = QFileDialog::getExistingDirectory(this,
+        tr("Select an import path for QML modules."), mainQmlFile());
+    if (!path.isEmpty()) {
+        QListWidgetItem *item = new QListWidgetItem(QDir::toNativeSeparators(path), m_d->ui.importPathsListWidget);
+        item->setFlags(item->flags() | Qt::ItemIsEditable);
+    }
+}
+
+void QmlStandaloneAppWizardSourcesPage::on_removeImportPathButton_clicked()
+{
+    const int currentRow = m_d->ui.importPathsListWidget->currentRow();
+    if (currentRow >= 0) {
+        m_d->ui.importPathsListWidget->takeItem(currentRow);
+        handleModulesChanged();
+    }
+}
+
+static inline QStringList ertriesFromListWidget(const QListWidget &listWidget)
+{
+    QStringList result;
+    for (int i = 0; i < listWidget.count(); ++i) {
+        const QString text = listWidget.item(i)->text().trimmed();
+        if (!text.isEmpty())
+            result.append(text);
+    }
+    return result;
+}
+
+void QmlStandaloneAppWizardSourcesPage::handleModulesChanged()
+{
+    const QStringList uris = ertriesFromListWidget(*m_d->ui.urisListWidget);
+    const QStringList paths = ertriesFromListWidget(*m_d->ui.importPathsListWidget);
+    emit externalModulesChanged(uris, paths);
+    emit completeChanged();
+}
+
+QStringList QmlStandaloneAppWizardSourcesPage::moduleUris() const
+{
+    return ertriesFromListWidget(*m_d->ui.urisListWidget);
+}
+
+QStringList QmlStandaloneAppWizardSourcesPage::moduleImportPaths() const
+{
+    return ertriesFromListWidget(*m_d->ui.importPathsListWidget);
 }
 
 class QmlStandaloneAppWizardOptionsPagePrivate

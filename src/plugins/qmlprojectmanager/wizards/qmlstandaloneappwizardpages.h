@@ -48,6 +48,19 @@ public:
     QString mainQmlFile() const;
     virtual bool isComplete() const;
     void setMainQmlFileChooserVisible(bool visible);
+    void setModulesError(const QString &error);
+    QStringList moduleUris() const;
+    QStringList moduleImportPaths() const;
+
+private slots:
+    void on_addModuleUriButton_clicked();
+    void on_removeModuleUriButton_clicked();
+    void on_addImportPathButton_clicked();
+    void on_removeImportPathButton_clicked();
+    void handleModulesChanged();
+
+signals:
+    void externalModulesChanged(const QStringList &uris, const QStringList &importPaths) const;
 
 private:
     class QmlStandaloneAppWizardSourcesPagePrivate *m_d;
