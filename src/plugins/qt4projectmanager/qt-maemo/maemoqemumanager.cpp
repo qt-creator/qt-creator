@@ -115,6 +115,13 @@ MaemoQemuManager::MaemoQemuManager(QObject *parent)
         SLOT(qemuOutput()));
     connect(this, SIGNAL(qemuProcessStatus(QemuStatus, QString)),
         this, SLOT(qemuStatusChanged(QemuStatus, QString)));
+
+    m_runtimeRootWatcher = new QFileSystemWatcher(this);
+    connect(m_runtimeRootWatcher, SIGNAL(directoryChanged(QString)), this,
+        SLOT(runtimeRootChanged(QString)));
+    m_runtimeFolderWatcher = new QFileSystemWatcher(this);
+    connect(m_runtimeFolderWatcher, SIGNAL(directoryChanged(QString)), this,
+        SLOT(runtimeFolderChanged(QString)));
 }
 
 MaemoQemuManager::~MaemoQemuManager()
@@ -132,10 +139,8 @@ MaemoQemuManager &MaemoQemuManager::instance(QObject *parent)
 
 bool MaemoQemuManager::runtimeForQtVersion(int uniqueId, Runtime *rt) const
 {
-    bool found = m_runtimes.contains(uniqueId);
-    if (found)
-        *rt = m_runtimes.value(uniqueId);
-    return found;
+    *rt = m_runtimes.value(uniqueId, Runtime());
+    return rt->isValid();
 }
 
 void MaemoQemuManager::qtVersionsChanged(const QList<int> &uniqueIds)
@@ -146,16 +151,22 @@ void MaemoQemuManager::qtVersionsChanged(const QList<int> &uniqueIds)
     QtVersionManager *manager = QtVersionManager::instance();
     foreach (int uniqueId, uniqueIds) {
         if (manager->isValidId(uniqueId)) {
-            const QString &qmake = manager->version(uniqueId)->qmakeCommand();
-            const QString &runtimeRoot = runtimeForQtVersion(qmake);
-            if (runtimeRoot.isEmpty() || !QFile::exists(runtimeRoot)) {
-                // no runtime available, or runtime needs to be installed
-                m_runtimes.remove(uniqueId);
-            } else {
-                // valid maemo qt version, also has a runtime installed
-                Runtime runtime(runtimeRoot);
-                fillRuntimeInformation(&runtime);
-                m_runtimes.insert(uniqueId, runtime);
+            QtVersion *version = manager->version(uniqueId);
+            if (version->supportsTargetId(Constants::MAEMO_DEVICE_TARGET_ID)) {
+                const QString &qmake = version->qmakeCommand();
+                const QString &runtimeRoot = runtimeForQtVersion(qmake);
+                if (!runtimeRoot.isEmpty()) {
+                    Runtime runtime(runtimeRoot);
+                    if (QFile::exists(runtimeRoot))
+                        fillRuntimeInformation(&runtime);
+                    runtime.m_watchPath =
+                        runtimeRoot.left(runtimeRoot.lastIndexOf(QLatin1Char('/')));
+                    m_runtimes.insert(uniqueId, runtime);
+                    if (!m_runtimeRootWatcher->directories().contains(runtime.m_watchPath))
+                        m_runtimeRootWatcher->addPath(runtime.m_watchPath);
+                } else {
+                    m_runtimes.remove(uniqueId);
+                }
             }
         } else {
             // this qt version has been removed from the settings
@@ -462,6 +473,49 @@ void MaemoQemuManager::qemuOutput()
     qDebug("%s", m_qemuProcess->readAllStandardError().data());
 }
 
+void MaemoQemuManager::runtimeRootChanged(const QString &directory)
+{
+    QList<int> uniqueIds;
+    QMap<int, Runtime>::const_iterator it;
+    for (it = m_runtimes.constBegin(); it != m_runtimes.constEnd(); ++it) {
+        if (QDir(it.value().m_watchPath) == QDir(directory))
+            uniqueIds.append(it.key());
+    }
+
+    foreach (int uniqueId, uniqueIds) {
+        Runtime runtime = m_runtimes.value(uniqueId, Runtime());
+        if (runtime.isValid()) {
+            if (QFile::exists(runtime.m_root)) {
+                // nothing changed, so we can remove it
+                uniqueIds.removeAll(uniqueId);
+            }
+        } else {
+            if (QFile::exists(runtime.m_root)) {
+                if (!QFile::exists(runtime.m_root + QLatin1String("/information"))) {
+                    // install might be still in progress
+                    uniqueIds.removeAll(uniqueId);
+                    m_runtimeFolderWatcher->addPath(runtime.m_root);
+                }
+            }
+        }
+    }
+    notify(uniqueIds);
+}
+
+void MaemoQemuManager::runtimeFolderChanged(const QString &directory)
+{
+    if (QFile::exists(directory + QLatin1String("/information"))) {
+        QList<int> uniqueIds;
+        QMap<int, Runtime>::const_iterator it;
+        for (it = m_runtimes.constBegin(); it != m_runtimes.constEnd(); ++it) {
+            if (QDir(it.value().m_root) == QDir(directory))
+                uniqueIds.append(it.key());
+        }
+        notify(uniqueIds);
+        m_runtimeFolderWatcher->removePath(directory);
+    }
+}
+
 // -- private
 
 void MaemoQemuManager::setupRuntimes()
@@ -513,7 +567,7 @@ void MaemoQemuManager::toggleStarterButton(Target *target)
     if (m_runningQtId == uniqueId)
         isRunning = false;
 
-    m_qemuAction->setEnabled(m_runtimes.contains(uniqueId)
+    m_qemuAction->setEnabled(m_runtimes.value(uniqueId, Runtime()).isValid()
         && targetUsesMatchingRuntimeConfig(target) && !isRunning);
 }
 
@@ -542,7 +596,7 @@ bool MaemoQemuManager::targetUsesMatchingRuntimeConfig(Target *target,
     if (!bc)
         return false;
     QtVersion *version = bc->qtVersion();
-    if (!version || !m_runtimes.contains(version->uniqueId()))
+    if (!version || !m_runtimes.value(version->uniqueId(), Runtime()).isValid())
         return false;
 
     if (qtVersion)
@@ -569,10 +623,9 @@ bool MaemoQemuManager::fillRuntimeInformation(Runtime *runtime) const
     const QStringList files = QDir(runtime->m_root).entryList(QDir::Files
         | QDir::NoSymLinks | QDir::NoDotAndDotDot);
 
+    // we need at least the information file
     const QLatin1String infoFile("information");
-    // we need at least the information file and a second one, most likely
-    // the image file qemu is going to load
-    if (files.contains(infoFile) && files.count() > 1) {
+    if (files.contains(infoFile)) {
         QFile file(runtime->m_root + QLatin1Char('/') + infoFile);
         if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
             QMap<QString, QString> map;
@@ -627,8 +680,8 @@ QString MaemoQemuManager::runtimeForQtVersion(const QString &qmakeCommand) const
                 if (line.startsWith(QLatin1String("runtime"))) {
                     const QStringList &list = line.split(QLatin1Char(' '));
                     if (list.count() > 1) {
-                        return madRoot
-                            + QLatin1String("/runtimes/") + list.at(1).trimmed();
+                        return QDir::fromNativeSeparators(madRoot
+                            + QLatin1String("/runtimes/") + list.at(1).trimmed());
                     }
                     break;
                 }
@@ -637,6 +690,12 @@ QString MaemoQemuManager::runtimeForQtVersion(const QString &qmakeCommand) const
         }
     }
     return QString();
+}
+
+void MaemoQemuManager::notify(const QList<int> uniqueIds)
+{
+    qtVersionsChanged(uniqueIds);
+    environmentChanged();   // to toggle the start button
 }
 
 void MaemoQemuManager::toggleDeviceConnections(MaemoRunConfiguration *mrc,

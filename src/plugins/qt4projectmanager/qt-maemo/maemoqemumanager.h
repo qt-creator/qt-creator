@@ -40,6 +40,7 @@
 #include <QtGui/QIcon>
 
 QT_FORWARD_DECLARE_CLASS(QAction);
+QT_FORWARD_DECLARE_CLASS(QFileSystemWatcher)
 QT_FORWARD_DECLARE_CLASS(QStringList);
 
 namespace ProjectExplorer {
@@ -59,12 +60,16 @@ struct Runtime
     Runtime() {}
     Runtime(const QString &root)
         : m_root(root) {}
+    bool isValid() const {
+        return !m_bin.isEmpty();
+    }
 
     QString m_bin;
     QString m_root;
     QString m_args;
     QString m_libPath;
     QString m_sshPort;
+    QString m_watchPath;
     MaemoPortList m_freePorts;
 };
 
@@ -110,6 +115,9 @@ private slots:
     void qemuStatusChanged(QemuStatus status, const QString &error);
     void qemuOutput();
 
+    void runtimeRootChanged(const QString &directory);
+    void runtimeFolderChanged(const QString &directory);
+
 private:
     MaemoQemuManager(QObject *parent);
     ~MaemoQemuManager();
@@ -128,6 +136,7 @@ private:
     bool fillRuntimeInformation(Runtime *runtime) const;
     QString runtimeForQtVersion(const QString &qmakeCommand) const;
 
+    void notify(const QList<int> uniqueIds);
     void toggleDeviceConnections(MaemoRunConfiguration *mrc, bool connect);
 
 private:
@@ -140,6 +149,8 @@ private:
     QIcon m_qemuStarterIcon;
     QMap<int, Runtime> m_runtimes;
     static MaemoQemuManager *m_instance;
+    QFileSystemWatcher *m_runtimeRootWatcher;
+    QFileSystemWatcher *m_runtimeFolderWatcher;
 };
 
     }   // namespace Qt4ProjectManager
