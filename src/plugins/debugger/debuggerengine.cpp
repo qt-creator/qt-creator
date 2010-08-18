@@ -1466,13 +1466,18 @@ void DebuggerEngine::quitDebugger()
 {
     showMessage("QUIT DEBUGGER REQUESTED");
     d->m_targetState = DebuggerFinished;
-    if (state() == InferiorStopOk) {
+    switch (state()) {
+    case InferiorStopOk:
+    case InferiorStopFailed:
         d->queueShutdownInferior();
-    } else if (state() == InferiorRunOk) {
+        break;
+    case InferiorRunOk:
         d->doInterruptInferior();
-    } else {
+        break;
+    default:
         // FIXME: We should disable the actions connected to that
         notifyInferiorIll();
+        break;
     }
 }
 

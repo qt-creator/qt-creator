@@ -286,9 +286,21 @@ void SnapshotHandler::setCurrentIndex(int index)
     reset();
 }
 
-DebuggerRunControl *SnapshotHandler::at(int i)
+DebuggerRunControl *SnapshotHandler::at(int i) const
 {
     return m_snapshots.at(i).data();
+}
+
+QList<DebuggerRunControl*> SnapshotHandler::runControls() const
+{
+    // Return unique list of run controls
+    QList<DebuggerRunControl*> rc;
+    rc.reserve(m_snapshots.size());
+    foreach(const QPointer<DebuggerRunControl> &runControlPtr, m_snapshots)
+        if (DebuggerRunControl *runControl = runControlPtr)
+            if (!rc.contains(runControl))
+                rc.push_back(runControl);
+    return rc;
 }
 
 } // namespace Internal

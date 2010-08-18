@@ -953,6 +953,8 @@ public slots:
 
     void executeDebuggerCommand();
 
+    QList<DebuggerRunControl *> runControls() const { return m_snapshotHandler->runControls(); }
+
 public:
     DebuggerState m_state;
     uint m_capabilities;
@@ -1651,13 +1653,15 @@ void DebuggerPluginPrivate::onCurrentProjectChanged(ProjectExplorer::Project *pr
         QTC_ASSERT(activeRc, /**/);
     }
     for (int i = 0, n = m_snapshotHandler->size(); i != n; ++i) {
-        DebuggerRunControl *runControl = m_snapshotHandler->at(i);
-        RunConfiguration *rc = runControl->runConfiguration();
-        if (rc == activeRc) {
-            m_snapshotHandler->setCurrentIndex(i);
-            DebuggerEngine *engine = runControl->engine();
-            updateState(engine);
-            return;
+        // Run controls might be deleted during exit.
+        if (DebuggerRunControl *runControl = m_snapshotHandler->at(i)) {
+            RunConfiguration *rc = runControl->runConfiguration();
+            if (rc == activeRc) {
+                m_snapshotHandler->setCurrentIndex(i);
+                DebuggerEngine *engine = runControl->engine();
+                updateState(engine);
+                return;
+            }
         }
     }
     // No corresponding debugger found. So we are ready to start one.

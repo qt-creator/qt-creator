@@ -67,7 +67,8 @@ public:
     void removeSnapshot(DebuggerRunControl *rc);
     void setCurrentIndex(int index);
     int size() const { return m_snapshots.size(); }
-    DebuggerRunControl *at(int i);
+    DebuggerRunControl *at(int i) const;
+    QList<DebuggerRunControl*> runControls() const;
 
 private:
     // QAbstractTableModel
