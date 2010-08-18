@@ -5095,6 +5095,14 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <translation>Alt+G,Alt+B</translation>
     </message>
     <message>
+        <source>Undo Changes</source>
+        <translation>Razveljavi spremembe</translation>
+    </message>
+    <message>
+        <source>Undo Changes for &quot;%1&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Alt+G,Alt+U</source>
         <translation>Alt+G,Alt+U</translation>
     </message>

@@ -5882,6 +5882,14 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>Alt+G,Alt+B</translation>
     </message>
     <message>
+        <source>Undo Changes</source>
+        <translation>Änderungen rückgängig machen</translation>
+    </message>
+    <message>
+        <source>Undo Changes for &quot;%1&quot;</source>
+        <translation>Änderungen in &quot;%1&quot; rückgängig machen</translation>
+    </message>
+    <message>
         <source>Alt+G,Alt+U</source>
         <translation>Alt+G,Alt+U</translation>
     </message>
