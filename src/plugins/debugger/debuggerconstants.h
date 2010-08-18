@@ -38,19 +38,19 @@ namespace Constants {
 // modes and their priorities
 const char * const MODE_DEBUG           = "Debugger.Mode.Debug";
 const int          P_MODE_DEBUG         = 85;
-const char * const LANG_CPP             = "C++";
+
 // common actions
-const char * const STOP            = "Debugger.Interrupt";
+const char * const STOP                 = "Debugger.Interrupt";
 const char * const RESET                = "Debugger.Reset";
 const char * const STEP                 = "Debugger.StepLine";
 const char * const STEPOUT              = "Debugger.StepOut";
 const char * const NEXT                 = "Debugger.NextLine";
 const char * const REVERSE              = "Debugger.ReverseDirection";
 
-const char * const M_DEBUG_LANGUAGES    = "Debugger.Menu.View.Languages";
-const char * const M_DEBUG_VIEWS        = "Debugger.Menu.View.Debug";
+const char * const M_DEBUG_DEBUGGING_LANGUAGES = "Debugger.Menu.View.DebugLanguages";
+const char * const M_DEBUG_VIEWS               = "Debugger.Menu.View.Debug";
 
-const char * const C_DEBUGMODE       = "Debugger.DebugMode";
+const char * const C_DEBUGMODE          = "Debugger.DebugMode";
 const char * const C_CPPDEBUGGER        = "Gdb Debugger";
 
 const char * const DEBUGGER_COMMON_SETTINGS_ID = "A.Common";
@@ -62,6 +62,22 @@ const char * const DEBUGGER_SETTINGS_TR_CATEGORY =
 const char * const DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON =
     ":/core/images/category_debug.png";
 
+const int QML_DEFAULT_DEBUG_SERVER_PORT = 3768;
+const char * const E_QML_DEBUG_SERVER_PORT = "QML_DEBUG_SERVER_PORT";
+
+// dock widget names
+const char * const DW_BREAK = "Debugger.Docks.Break";
+const char * const DW_MODULES = "Debugger.Docks.Modules";
+const char * const DW_REGISTER = "Debugger.Docks.Register";
+const char * const DW_OUTPUT = "Debugger.Docks.Output";
+const char * const DW_SNAPSHOTS = "Debugger.Docks.Snapshots";
+const char * const DW_STACK = "Debugger.Docks.Stack";
+const char * const DW_SOURCE_FILES = "Debugger.Docks.SourceFiles";
+const char * const DW_THREADS = "Debugger.Docks.Threads";
+const char * const DW_WATCHERS = "Debugger.Docks.LocalsAndWatchers";
+
+const char * const DW_QML_INSPECTOR = "Debugger.Docks.QmlInspector";
+
 namespace Internal {
     enum { debug = 0 };
 #ifdef Q_OS_MAC
@@ -71,6 +87,7 @@ namespace Internal {
 #endif
 
 } // namespace Internal
+
 } // namespace Constants
 
 
@@ -267,13 +284,23 @@ enum DebuggerEngineType
     PdbEngineType     = 0x08,
     TcfEngineType     = 0x10,
     QmlEngineType     = 0x20,
+    QmlCppEngineType     = 0x40,
     AllEngineTypes = GdbEngineType
         | ScriptEngineType
         | CdbEngineType
         | PdbEngineType
         | TcfEngineType
         | QmlEngineType
+        | QmlCppEngineType
 };
+
+enum DebuggerLanguage
+{
+    Lang_None       = 0x0,
+    Lang_Cpp        = 0x1,
+    Lang_Qml        = 0x2
+};
+Q_DECLARE_FLAGS(DebuggerLanguages, DebuggerLanguage)
 
 } // namespace Debugger
 

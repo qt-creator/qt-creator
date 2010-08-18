@@ -31,6 +31,7 @@
 #define DEBUGGERMAINWINDOW_H
 
 #include <utils/fancymainwindow.h>
+#include "debuggerconstants.h"
 
 QT_FORWARD_DECLARE_CLASS(QMenu);
 
@@ -42,10 +43,9 @@ namespace Internal {
 class DebugToolWindow
 {
 public:
-    DebugToolWindow() : m_dockWidget(0), m_languageId(-1), m_visible(false) {}
+    DebugToolWindow() : m_dockWidget(0), m_visible(false) {}
 
     QDockWidget *m_dockWidget;
-    int m_languageId;
     bool m_visible;
 };
 

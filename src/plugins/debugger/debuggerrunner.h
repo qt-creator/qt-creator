@@ -117,6 +117,10 @@ public:
                                  QString *settingsCategory = 0,
                                  QString *settingsPage = 0);
 
+    static bool isQmlProject(RunConfiguration *config);
+    static bool isCurrentProjectQmlCppBased();
+    static bool isCurrentProjectCppBased();
+
 private slots:
     void handleFinished();
 
@@ -130,6 +134,8 @@ private:
     Internal::DebuggerEngine *m_engine;
     const QWeakPointer<RunConfiguration> m_myRunConfiguration;
     bool m_running;
+    bool m_started;
+    bool m_isQmlProject;
     DebuggerEngineType m_enabledEngines;
     QString m_errorMessage;
     QString m_settingsIdHint;

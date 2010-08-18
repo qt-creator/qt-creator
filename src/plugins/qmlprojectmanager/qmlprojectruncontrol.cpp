@@ -85,10 +85,6 @@ void QmlRunControl::start()
     m_applicationLauncher.start(ProjectExplorer::ApplicationLauncher::Gui, m_executable,
                                 m_commandLineArguments);
 
-    // FIXME this line should be refactored out in order to remove the dependency between
-    // debugger and qmlprojectmanager, because debugger also relies on cpptools.
-    Debugger::DebuggerUISwitcher::instance()->setActiveLanguage(QmlJSInspector::Constants::LANG_QML);
-
     emit started();
     emit appendMessage(this, tr("Starting %1 %2").arg(QDir::toNativeSeparators(m_executable),
                                                       m_commandLineArguments.join(QLatin1String(" "))), false);
@@ -148,7 +144,8 @@ bool QmlRunControlFactory::canRun(RunConfiguration *runConfiguration,
     if (mode == ProjectExplorer::Constants::RUNMODE) {
         return config != 0;
     } else if (mode == ProjectExplorer::Constants::DEBUGMODE) {
-        bool qmlDebugSupportInstalled = Debugger::DebuggerUISwitcher::instance()->supportedLanguages().contains(QmlProjectManager::Constants::LANG_QML);
+        bool qmlDebugSupportInstalled = Debugger::DebuggerUISwitcher::instance()->supportedLanguages()
+                                        & Debugger::Lang_Qml;
         return (config != 0) && qmlDebugSupportInstalled;
     }
 

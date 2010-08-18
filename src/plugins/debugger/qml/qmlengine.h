@@ -63,6 +63,11 @@ public:
     explicit QmlEngine(const DebuggerStartParameters &startParameters);
     ~QmlEngine();
 
+    void setAttachToRunningExternalApp(bool value);
+    void shutdownInferiorAsSlave();
+    void shutdownEngineAsSlave();
+    void pauseConnection();
+
 public slots:
     void messageReceived(const QByteArray &message);
     void disconnected();
@@ -119,15 +124,18 @@ private slots:
     void connectionError();
 
 private:
-
     void expandObject(const QByteArray &iname, quint64 objectId);
     void sendPing();
 
 private:
+    friend class QmlCppEngine;
+
     int m_ping;
     QmlAdapter *m_adapter;
     ProjectExplorer::ApplicationLauncher m_applicationLauncher;
     bool m_addedAdapterToObjectPool;
+    bool m_attachToRunningExternalApp;
+    bool m_hasShutdown;
 };
 
 } // namespace Internal

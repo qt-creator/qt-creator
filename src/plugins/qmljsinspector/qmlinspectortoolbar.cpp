@@ -33,10 +33,12 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
-#include <debugger/debuggeruiswitcher.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
+
+#include <utils/styledbar.h>
+#include <utils/filterlineedit.h>
 
 #include <QHBoxLayout>
 #include <QAction>
@@ -77,7 +79,8 @@ QmlInspectorToolbar::QmlInspectorToolbar(QObject *parent) :
     m_isRunning(false),
     m_animationSpeed(1.0f),
     m_previousAnimationSpeed(0.0f),
-    m_activeTool(NoTool)
+    m_activeTool(NoTool),
+    m_barWidget(0)
 {
 
 }
@@ -182,8 +185,6 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
 {
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = core->actionManager();
-    ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
-    Debugger::DebuggerUISwitcher *uiSwitcher = pluginManager->getObject<Debugger::DebuggerUISwitcher>();
 
     m_fromQmlAction = new QAction(QIcon(QLatin1String(":/qml/images/from-qml-small.png")), tr("Apply Changes to Document"), this);
     m_designmodeAction = new QAction(QIcon(QLatin1String(":/qml/images/designmode.png")), tr("Design Mode"), this);
@@ -221,14 +222,15 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     am->registerAction(m_toQmlAction, QmlJSInspector::Constants::TO_QML_ACTION, context);
     am->registerAction(m_fromQmlAction, QmlJSInspector::Constants::FROM_QML_ACTION, context);
 
-    QWidget *configBar = new QWidget;
-    configBar->setProperty("topBorder", true);
+    m_barWidget = new Utils::StyledBar;
+    m_barWidget->setSingleRow(true);
+    m_barWidget->setProperty("topBorder", true);
 
-    QHBoxLayout *configBarLayout = new QHBoxLayout(configBar);
+    QHBoxLayout *configBarLayout = new QHBoxLayout(m_barWidget);
     configBarLayout->setMargin(0);
     configBarLayout->setSpacing(5);
 
-    QMenu *playSpeedMenu = new QMenu(configBar);
+    QMenu *playSpeedMenu = new QMenu(m_barWidget);
     QActionGroup *playSpeedMenuActions = new QActionGroup(this);
     playSpeedMenuActions->setExclusive(true);
     playSpeedMenu->addAction(tr("Animation Speed"));
@@ -258,8 +260,8 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     m_menuPauseAction->setCheckable(true);
     playSpeedMenuActions->addAction(m_menuPauseAction);
 
-    configBarLayout->addWidget(createToolButton(am->command(ProjectExplorer::Constants::DEBUG)->action()));
-    configBarLayout->addWidget(createToolButton(am->command(ProjectExplorer::Constants::STOP)->action()));
+//    configBarLayout->addWidget(createToolButton(am->command(ProjectExplorer::Constants::DEBUG)->action()));
+//    configBarLayout->addWidget(createToolButton(am->command(ProjectExplorer::Constants::STOP)->action()));
     configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::FROM_QML_ACTION)->action()));
     configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::DESIGNMODE_ACTION)->action()));
     configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::RELOAD_ACTION)->action()));
@@ -275,7 +277,7 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::ZOOM_ACTION)->action()));
     configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::COLOR_PICKER_ACTION)->action()));
 
-    m_colorBox = new ToolBarColorBox(configBar);
+    m_colorBox = new ToolBarColorBox(m_barWidget);
     m_colorBox->setMinimumSize(20, 20);
     m_colorBox->setMaximumSize(20, 20);
     m_colorBox->setInnerBorderColor(QColor(192,192,192));
@@ -283,9 +285,11 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     configBarLayout->addWidget(m_colorBox);
     //configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::TO_QML_ACTION)->action()));
 
-    configBarLayout->addStretch();
+    m_filterLineEdit = new Utils::FilterLineEdit(m_barWidget);
 
-    uiSwitcher->setToolbar(QmlJSInspector::Constants::LANG_QML, configBar);
+    configBarLayout->addStretch();
+    configBarLayout->addWidget(m_filterLineEdit);
+
     setEnabled(false);
 
     connect(m_designmodeAction, SIGNAL(triggered()), SLOT(activateDesignModeOnClick()));
@@ -303,6 +307,11 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
 
     //connect(m_toQmlAction, SIGNAL(triggered()), SLOT(activateToQml()));
     connect(m_fromQmlAction, SIGNAL(triggered()), SLOT(activateFromQml()));
+}
+
+QWidget *QmlInspectorToolbar::widget() const
+{
+    return m_barWidget;
 }
 
 void QmlInspectorToolbar::changeToDefaultAnimSpeed()

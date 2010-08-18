@@ -26,64 +26,59 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-#ifndef QMLJSINSPECTORPLUGIN_H
-#define QMLJSINSPECTORPLUGIN_H
+#ifndef OBJECTTREE_H
+#define OBJECTTREE_H
 
-#include <extensionsystem/iplugin.h>
-#include <qmljs/qmljsmodelmanagerinterface.h>
-#include <debugger/debuggerconstants.h>
+#include <qmljsprivateapi.h>
+#include <QtGui/QTreeWidget>
 
-#include <QtCore/QObject>
-#include <QtCore/QPointer>
-#include <QtCore/QTimer>
+QT_BEGIN_NAMESPACE
 
-QT_FORWARD_DECLARE_CLASS(QStringList)
+class QTreeWidgetItem;
 
-namespace Core {
-    class IMode;
-}
-
-namespace ProjectExplorer {
-    class Project;
-}
+QT_END_NAMESPACE
 
 namespace QmlJSInspector {
 namespace Internal {
 
-class ClientProxy;
-class InspectorUi;
-
-class InspectorPlugin : public ExtensionSystem::IPlugin
+class QmlJSObjectTree : public QTreeWidget
 {
     Q_OBJECT
-
 public:
-    InspectorPlugin();
-    virtual ~InspectorPlugin();
+    QmlJSObjectTree(QWidget *parent = 0);
 
-    static InspectorPlugin *instance();
+signals:
+    void currentObjectChanged(const QDeclarativeDebugObjectReference &);
+    void activated(const QDeclarativeDebugObjectReference &);
+    void expressionWatchRequested(const QDeclarativeDebugObjectReference &, const QString &);
+    void contextHelpIdChanged(const QString &contextHelpId);
 
-    QmlJS::ModelManagerInterface *modelManager() const;
-    InspectorUi *inspector() const;
+public slots:
+    void reload(int objectDebugId);     // set the root object
+    void setCurrentObject(int debugId); // select an object in the tree
 
-    // ExtensionSystem::IPlugin interface
-    virtual bool initialize(const QStringList &arguments, QString *errorString);
-    virtual void extensionsInitialized();
-    virtual ExtensionSystem::IPlugin::ShutdownFlag aboutToShutdown();
+protected:
+    virtual void contextMenuEvent(QContextMenuEvent *);
 
 private slots:
-    void objectAdded(QObject *object);
-    void aboutToRemoveObject(QObject *obj);
+    void addWatch();
+    void currentItemChanged(QTreeWidgetItem *);
+    void activated(QTreeWidgetItem *);
+    void selectionChanged();
+    void goToFile();
 
 private:
-    void createActions();
+    QTreeWidgetItem *findItemByObjectId(int debugId) const;
+    QTreeWidgetItem *findItem(QTreeWidgetItem *item, int debugId) const;
+    void buildTree(const QDeclarativeDebugObjectReference &, QTreeWidgetItem *parent);
 
-private:
-    ClientProxy *m_clientProxy;
-    InspectorUi *m_inspectorUi;
+    QTreeWidgetItem *m_clickedItem;
+    QAction *m_addWatchAction;
+    QAction *m_goToFileAction;
+    int m_currentObjectDebugId;
 };
 
-} // end of namespace Internal
-} // end of QmlJSInspector
+} // Internal
+} // QmlJSInspector
 
-#endif // QMLINSPECTORPLUGIN_H
+#endif

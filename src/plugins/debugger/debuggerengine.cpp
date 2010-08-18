@@ -106,12 +106,14 @@ using namespace TextEditor;
 ///////////////////////////////////////////////////////////////////////
 
 DebuggerStartParameters::DebuggerStartParameters()
-  : attachPID(-1),
-    useTerminal(false),
-    breakAtMain(false),
-    toolChainType(ToolChain::UNKNOWN),
-    startMode(NoStartMode),
-    executableUid(0)
+  : attachPID(-1)
+  , useTerminal(false)
+  , breakAtMain(false)
+  , qmlServerAddress("127.0.0.1")
+  , qmlServerPort(0)
+  , toolChainType(ToolChain::UNKNOWN)
+  , executableUid(0)
+  , startMode(NoStartMode)
 {}
 
 void DebuggerStartParameters::clear()
@@ -233,7 +235,8 @@ public:
         m_stackHandler(engine),
         m_threadsHandler(engine),
         m_watchHandler(engine),
-        m_disassemblerViewAgent(engine)
+        m_disassemblerViewAgent(engine),
+        m_runInWrapperEngine(false)
     {}
 
     ~DebuggerEnginePrivate() {}
@@ -312,6 +315,8 @@ public:
     WatchHandler m_watchHandler;
     DisassemblerViewAgent m_disassemblerViewAgent;
     QFutureInterface<void> m_progress;
+
+    bool m_runInWrapperEngine;
 };
 
 void DebuggerEnginePrivate::breakpointSetRemoveMarginActionTriggered()
@@ -1329,7 +1334,11 @@ void DebuggerEngine::notifyEngineShutdownOk()
     showMessage(_("NOTE: ENGINE SHUTDOWN OK"));
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
     setState(EngineShutdownOk);
-    d->queueFinishDebugger();
+    if (!d->m_runInWrapperEngine) {
+        d->queueFinishDebugger();
+    } else {
+        setState(DebuggerFinished);
+    }
 }
 
 void DebuggerEngine::notifyEngineShutdownFailed()
@@ -1337,7 +1346,11 @@ void DebuggerEngine::notifyEngineShutdownFailed()
     showMessage(_("NOTE: ENGINE SHUTDOWN FAILED"));
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
     setState(EngineShutdownFailed);
-    d->queueFinishDebugger();
+    if (!d->m_runInWrapperEngine) {
+        d->queueFinishDebugger();
+    } else {
+        setState(DebuggerFinished);
+    }
 }
 
 void DebuggerEnginePrivate::doFinishDebugger()
@@ -1395,7 +1408,7 @@ void DebuggerEngine::notifyInferiorExited()
 void DebuggerEngine::setState(DebuggerState state, bool forced)
 {
     //qDebug() << "STATUS CHANGE: FROM " << stateName(d->m_state)
-    //        << " TO " << stateName(state);
+    //         << " TO " << stateName(state);
 
     DebuggerState oldState = d->m_state;
     d->m_state = state;
@@ -1412,6 +1425,13 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
 
     showMessage(msg, LogDebug);
     plugin()->updateState(this);
+
+    emit stateChanged(d->m_state);
+}
+
+void DebuggerEngine::setRunInWrapperEngine(bool value)
+{
+    d->m_runInWrapperEngine = value;
 }
 
 bool DebuggerEngine::debuggerActionsEnabled() const
@@ -1526,6 +1546,11 @@ QMessageBox *DebuggerEngine::showMessageBox(int icon, const QString &title,
     const QString &text, int buttons)
 {
     return plugin()->showMessageBox(icon, title, text, buttons);
+}
+
+DebuggerRunControl *DebuggerEngine::runControl() const
+{
+    return d->m_runControl;
 }
 
 } // namespace Internal

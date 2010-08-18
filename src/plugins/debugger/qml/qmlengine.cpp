@@ -105,12 +105,24 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters)
     , m_ping(0)
     , m_adapter(new QmlAdapter(this))
     , m_addedAdapterToObjectPool(false)
+    , m_attachToRunningExternalApp(false)
+    , m_hasShutdown(false)
 {
     setObjectName(QLatin1String("QmlEngine"));
 }
 
 QmlEngine::~QmlEngine()
 {
+}
+
+void QmlEngine::setAttachToRunningExternalApp(bool value)
+{
+    m_attachToRunningExternalApp = value;
+}
+
+void QmlEngine::pauseConnection()
+{
+    m_adapter->pauseConnection();
 }
 
 void QmlEngine::setupInferior()
@@ -154,26 +166,71 @@ void QmlEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
 
-    // ### TODO for non-qmlproject apps, start in a different way
-    m_applicationLauncher.start(ProjectExplorer::ApplicationLauncher::Gui,
-                                startParameters().executable,
-                                startParameters().processArgs);
+    if (!m_attachToRunningExternalApp) {
+        m_applicationLauncher.start(ProjectExplorer::ApplicationLauncher::Gui,
+                                    startParameters().executable,
+                                    startParameters().processArgs);
+    }
 
     m_adapter->beginConnection();
     plugin()->showMessage(tr("QML Debugger connecting..."), StatusBar);
+}
 
-    // FIXME: refactor the UI
-    Debugger::DebuggerUISwitcher::instance()->setActiveLanguage("QML");
+void QmlEngine::shutdownInferiorAsSlave()
+{
+    resetLocation();
+
+    // This can be issued in almost any state. We assume, though,
+    // that at this point of time the inferior is not running anymore,
+    // even if stop notification were not issued or got lost.
+    if (state() == InferiorRunOk) {
+        setState(InferiorStopRequested);
+        setState(InferiorStopOk);
+    }
+    setState(InferiorShutdownRequested);
+    setState(InferiorShutdownOk);
+}
+
+void QmlEngine::shutdownEngineAsSlave()
+{
+    if (m_hasShutdown)
+        return;
+
+    disconnect(m_adapter, SIGNAL(connectionStartupFailed()), this, SLOT(connectionStartupFailed()));
+    m_adapter->closeConnection();
+
+    if (m_addedAdapterToObjectPool) {
+        ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
+        pluginManager->removeObject(m_adapter);
+    }
+
+    if (m_attachToRunningExternalApp) {
+        setState(EngineShutdownRequested, true);
+        setState(EngineShutdownOk, true);
+        setState(DebuggerFinished, true);
+    } else {
+        if (m_applicationLauncher.isRunning()) {
+            // should only happen if engine is ill
+            disconnect(&m_applicationLauncher, SIGNAL(processExited(int)), this, SLOT(disconnected()));
+            m_applicationLauncher.stop();
+        }
+    }
+    m_hasShutdown = true;
 }
 
 void QmlEngine::shutdownInferior()
 {
+    // don't do normal shutdown if running as slave engine
+    if (m_attachToRunningExternalApp)
+        return;
+
     QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
     if (!m_applicationLauncher.isRunning()) {
         showMessage(tr("Trying to stop while process is no longer running."), LogError);
     } else {
         disconnect(&m_applicationLauncher, SIGNAL(processExited(int)), this, SLOT(disconnected()));
-        m_applicationLauncher.stop();
+        if (!m_attachToRunningExternalApp)
+            m_applicationLauncher.stop();
     }
     notifyInferiorShutdownOk();
 }
@@ -182,16 +239,7 @@ void QmlEngine::shutdownEngine()
 {
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
 
-    if (m_addedAdapterToObjectPool) {
-        ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
-        pluginManager->removeObject(m_adapter);
-    }
-
-    if (m_applicationLauncher.isRunning()) {
-        // should only happen if engine is ill
-        disconnect(&m_applicationLauncher, SIGNAL(processExited(int)), this, SLOT(disconnected()));
-        m_applicationLauncher.stop();
-    }
+    shutdownEngineAsSlave();
 
     notifyEngineShutdownOk();
 }
@@ -468,7 +516,9 @@ void QmlEngine::messageReceived(const QByteArray &message)
 
     showMessage(_("RECEIVED RESPONSE: ") + quoteUnprintableLatin1(message));
     if (command == "STOPPED") {
-        notifyInferiorSpontaneousStop();
+        if (state() == InferiorRunOk) {
+            notifyInferiorSpontaneousStop();
+        }
 
         QList<QPair<QString, QPair<QString, qint32> > > backtrace;
         QList<WatchData> watches;
@@ -516,14 +566,9 @@ void QmlEngine::messageReceived(const QByteArray &message)
         else
             watchHandler()->endCycle();
 
-        // Ensure we got the right ui right now.
-        Debugger::DebuggerUISwitcher *uiSwitcher
-            = Debugger::DebuggerUISwitcher::instance();
-        uiSwitcher->setActiveLanguage("C++");
-
-        bool becauseOfexception;
-        stream >> becauseOfexception;
-        if (becauseOfexception) {
+        bool becauseOfException;
+        stream >> becauseOfException;
+        if (becauseOfException) {
             QString error;
             stream >> error;
 

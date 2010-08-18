@@ -71,9 +71,7 @@ QMenu* DebuggerMainWindow::createPopupMenu()
 
         for (int i = 0; i < dockwidgets.size(); ++i) {
             QDockWidget *dockWidget = dockwidgets.at(i)->m_dockWidget;
-            if (dockWidget->parentWidget() == this &&
-                dockwidgets.at(i)->m_languageId == m_uiSwitcher->activeLanguageId()) {
-
+            if (dockWidget->parentWidget() == this) {
                 menu->addAction(dockWidget->toggleViewAction());
             }
         }

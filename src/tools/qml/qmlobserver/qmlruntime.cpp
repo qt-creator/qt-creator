@@ -64,7 +64,6 @@
 #include "qdeclarative.h"
 #include <QAbstractAnimation>
 #include <private/qabstractanimation_p.h>
-#include <private/qdeclarativeengine_p.h>
 
 #include <QSettings>
 #include <QXmlStreamReader>
@@ -672,13 +671,8 @@ void QDeclarativeViewer::setDesignModeBehavior(bool value)
 
 void QDeclarativeViewer::setDebugMode(bool on)
 {
-    Q_UNUSED(on);
-    //if (on)
-    {
-        new JSDebuggerAgent(QDeclarativeEnginePrivate::getScriptEngine(canvas->engine()));
-    }
+    canvas->setDebugMode(on);
 }
-
 
 void QDeclarativeViewer::enableExperimentalGestures()
 {

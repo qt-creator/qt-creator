@@ -49,6 +49,8 @@ class DEBUGGER_EXPORT QmlAdapter : public QObject
 public:
     explicit QmlAdapter(DebuggerEngine *engine, QObject *parent = 0);
     void beginConnection();
+    void pauseConnection();
+    void closeConnection();
 
     bool isConnected() const;
     bool isUnconnected() const;

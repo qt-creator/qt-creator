@@ -107,7 +107,7 @@ bool InspectorPlugin::initialize(const QStringList &arguments, QString *errorStr
     ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
     Debugger::DebuggerUISwitcher *uiSwitcher = pluginManager->getObject<Debugger::DebuggerUISwitcher>();
 
-    uiSwitcher->addLanguage(LANG_QML, Core::Context(C_INSPECTOR));
+    uiSwitcher->addLanguage(Debugger::Lang_Qml, tr("QML"), Core::Context(C_INSPECTOR));
 
     return true;
 }
@@ -116,19 +116,10 @@ void InspectorPlugin::extensionsInitialized()
 {
     ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
 
-    Debugger::DebuggerUISwitcher *uiSwitcher = pluginManager->getObject<Debugger::DebuggerUISwitcher>();
-    connect(uiSwitcher, SIGNAL(dockArranged(QString)), SLOT(setDockWidgetArrangement(QString)));
-
     connect(pluginManager, SIGNAL(objectAdded(QObject*)), SLOT(objectAdded(QObject*)));
     connect(pluginManager, SIGNAL(aboutToRemoveObject(QObject*)), SLOT(aboutToRemoveObject(QObject*)));
 
     m_inspectorUi->setupUi();
-}
-
-void InspectorPlugin::setDockWidgetArrangement(const QString &activeLanguage)
-{
-    if (activeLanguage == QmlJSInspector::Constants::LANG_QML || activeLanguage.isEmpty())
-        m_inspectorUi->setSimpleDockWidgetArrangement();
 }
 
 // The adapter object is only added to the pool with a succesful connection,

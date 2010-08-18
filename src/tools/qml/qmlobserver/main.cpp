@@ -409,6 +409,9 @@ int main(int argc, char ** argv)
         viewer->enableExperimentalGestures();
 
     viewer->setDesignModeBehavior(designModeBehavior);
+
+    // FIXME debug mode is always on for qml observer
+    debuggerModeBehavior = true;
     viewer->setDebugMode(debuggerModeBehavior);
 
     foreach (QString lib, imports)

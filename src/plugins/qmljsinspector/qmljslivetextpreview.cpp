@@ -77,6 +77,8 @@ class MapObjectWithDebugReference : public Visitor
         QSet<QmlJS::AST::UiObjectMember *> lookupObjects;
         Document::Ptr doc;
     private:
+        bool filenamesMatch(const QString &objectFileName, const QString &buildFilename) const;
+    private:
         int activated;
         void processRecursive(const QDeclarativeDebugObjectReference &object, UiObjectMember *ast);
 };
@@ -117,6 +119,26 @@ void MapObjectWithDebugReference::endVisit(UiObjectBinding* ast)
         activated--;
 }
 
+bool MapObjectWithDebugReference::filenamesMatch(const QString &objectFileName, const QString &buildFilename) const
+{
+    bool isShadowBuild = InspectorUi::instance()->isShadowBuildProject();
+    ProjectExplorer::Project *debugProject = InspectorUi::instance()->debugProject();
+
+    if (!isShadowBuild) {
+        return (objectFileName == buildFilename);
+    } else {
+        QString projectDir = debugProject->projectDirectory();
+        QString shadowBuildDir = InspectorUi::instance()->debugProjectBuildDirectory();
+
+        QFileInfo objectFileInfo(objectFileName);
+        QFileInfo buildFileInfo(buildFilename);
+        QString objectRelativePath = objectFileInfo.absoluteFilePath().mid(shadowBuildDir.length());
+        QString buildRelativePath = buildFileInfo.absoluteFilePath().mid(projectDir.length());
+
+        return (objectRelativePath == buildRelativePath);
+    }
+}
+
 void MapObjectWithDebugReference::processRecursive(const QDeclarativeDebugObjectReference& object, UiObjectMember* ast)
 {
     // If this is too slow, it can be speed up by indexing
@@ -125,7 +147,7 @@ void MapObjectWithDebugReference::processRecursive(const QDeclarativeDebugObject
     SourceLocation loc = ast->firstSourceLocation();
     if (object.source().columnNumber() == int(loc.startColumn)) {
         QString objectFileName = object.source().url().toLocalFile();
-        if (!doc && object.source().lineNumber() == int(loc.startLine) && objectFileName == filename) {
+        if (!doc && object.source().lineNumber() == int(loc.startLine) && filenamesMatch(objectFileName, filename)) {
             result[ast] += object.debugId();
         } else if (doc && objectFileName.startsWith(filename + QLatin1Char('_') + QString::number(doc->editorRevision()) + QLatin1Char(':'))) {
             bool ok;
@@ -548,7 +570,7 @@ public:
 
 void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
 {
-    if (doc->fileName() != m_previousDoc->fileName() || !m_clientProxy)
+    if (doc->fileName() != m_previousDoc->fileName() || m_clientProxy.isNull())
         return;
 
     Core::ICore *core = Core::ICore::instance();

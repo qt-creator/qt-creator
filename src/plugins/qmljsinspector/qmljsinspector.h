@@ -33,6 +33,7 @@
 #include "qmljsprivateapi.h"
 
 #include <coreplugin/basemode.h>
+#include <debugger/debuggerconstants.h>
 #include <qmlprojectmanager/qmlprojectrunconfiguration.h>
 
 #include <qmljs/qmljsdocument.h>
@@ -60,6 +61,7 @@ namespace QmlJSInspector {
 namespace Internal {
 
 class QmlInspectorToolbar;
+class QmlJSObjectTree;
 class ClientProxy;
 class InspectorSettings;
 class ContextCrumblePath;
@@ -89,6 +91,8 @@ public:
 
     // returns the project being currently debugged, or 0 if not debugging anything
     ProjectExplorer::Project *debugProject() const;
+    QString debugProjectBuildDirectory() const;
+    bool isShadowBuildProject() const;
 
     void setupUi();
     void connected(ClientProxy *clientProxy);
@@ -99,7 +103,7 @@ signals:
     void livePreviewActivated(bool isActivated);
 
 public slots:
-    void setSimpleDockWidgetArrangement();
+    void setSimpleDockWidgetArrangement(const Debugger::DebuggerLanguages &activeLanguages);
     void reloadQmlViewer();
     void serverReloaded();
     void setApplyChangesToQmlObserver(bool applyChanges);
@@ -114,12 +118,13 @@ private slots:
 
 
     void removePreviewForEditor(Core::IEditor *newEditor);
-    void createPreviewForEditor(Core::IEditor *newEditor);
+    QmlJSLiveTextPreview *createPreviewForEditor(Core::IEditor *newEditor);
 
     void disableLivePreview();
     void crumblePathElementClicked(int);
 
     void currentDebugProjectRemoved();
+    void updatePendingPreviewDocuments(QmlJS::Document::Ptr doc);
 
 private:
     bool addQuotesForData(const QVariant &value) const;
@@ -129,15 +134,15 @@ private:
     void applyChangesToQmlObserverHelper(bool applyChanges);
     void setupToolbar(bool doConnect);
     void setupDockWidgets();
+    QString filenameForShadowBuildFile(const QString &filename) const;
 
 private:
-    QWeakPointer<QDeclarativeEngineDebug> m_client;
-
     bool m_listeningToEditorManager;
 
     QmlInspectorToolbar *m_toolbar;
     ContextCrumblePath *m_crumblePath;
-    QDockWidget *m_crumblePathDock;
+    QmlJSObjectTree *m_objectTreeWidget;
+    QDockWidget *m_inspectorDockWidget;
 
     InspectorSettings *m_settings;
     ClientProxy *m_clientProxy;
@@ -145,7 +150,12 @@ private:
     // Qml/JS integration
     QHash<QString, QmlJSLiveTextPreview *> m_textPreviews;
     QmlJS::Snapshot m_loadedSnapshot; //the snapshot loaded by the viewer
+
+    // project is needed for matching filenames, esp. with shadow builds.
     ProjectExplorer::Project *m_debugProject;
+    QString m_debugProjectBuildDir;
+
+    QStringList m_pendingPreviewDocumentNames;
 
     static InspectorUi *m_instance;
 };

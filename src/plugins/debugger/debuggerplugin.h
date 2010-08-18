@@ -31,6 +31,7 @@
 #define DEBUGGERPLUGIN_H
 
 #include "debugger_global.h"
+#include "debuggerconstants.h"
 
 #include <extensionsystem/iplugin.h>
 
@@ -73,6 +74,7 @@ public:
         ProjectExplorer::RunConfiguration *rc = 0);
     static void startDebugger(ProjectExplorer::RunControl *runControl);
     static void displayDebugger(ProjectExplorer::RunControl *runControl);
+    static void displayDebugger(Internal::DebuggerEngine *engine, bool updateEngine = true);
 
     QVariant sessionValue(const QString &name);
     void setSessionValue(const QString &name, const QVariant &value);
@@ -110,6 +112,7 @@ private:
     void createNewDock(QWidget *widget);
     void runControlStarted(DebuggerRunControl *runControl);
     void runControlFinished(DebuggerRunControl *runControl);
+    DebuggerLanguages activeLanguages() const;
 
     // This contains per-session data like breakpoints and watched
     // expression. It serves as a template for new engine instantiations.

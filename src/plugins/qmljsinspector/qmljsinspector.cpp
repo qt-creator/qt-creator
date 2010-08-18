@@ -34,6 +34,7 @@
 #include "qmljsprivateapi.h"
 #include "qmljscontextcrumblepath.h"
 #include "qmljsinspectorsettings.h"
+#include "qmljsobjecttree.h"
 
 #include <qmljseditor/qmljseditorconstants.h>
 
@@ -73,6 +74,7 @@
 #include <texteditor/basetexteditor.h>
 
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/project.h>
@@ -91,6 +93,7 @@
 
 #include <QtGui/QLabel>
 #include <QtGui/QDockWidget>
+#include <QtGui/QVBoxLayout>
 #include <QtGui/QAction>
 #include <QtGui/QLineEdit>
 #include <QtGui/QLabel>
@@ -123,6 +126,10 @@ QmlJS::ModelManagerInterface *modelManager()
 InspectorUi::InspectorUi(QObject *parent)
     : QObject(parent)
     , m_listeningToEditorManager(false)
+    , m_toolbar(0)
+    , m_crumblePath(0)
+    , m_objectTreeWidget(0)
+    , m_inspectorDockWidget(0)
     , m_settings(new InspectorSettings(this))
     , m_clientProxy(0)
     , m_debugProject(0)
@@ -138,7 +145,6 @@ InspectorUi::~InspectorUi()
 void InspectorUi::setupUi()
 {
     setupDockWidgets();
-    m_toolbar->createActions(Core::Context(Constants::C_INSPECTOR));
     restoreSettings();
 }
 
@@ -165,6 +171,13 @@ void InspectorUi::connected(ClientProxy *clientProxy)
             m_crumblePath, SLOT(updateContextPath(QStringList)));
 
     m_debugProject = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
+    if (m_debugProject->activeTarget()
+     && m_debugProject->activeTarget()->activeBuildConfiguration())
+    {
+        ProjectExplorer::BuildConfiguration *bc = m_debugProject->activeTarget()->activeBuildConfiguration();
+        m_debugProjectBuildDir = bc->buildDirectory();
+    }
+
     connect(m_debugProject, SIGNAL(destroyed()), SLOT(currentDebugProjectRemoved()));
 
     setupToolbar(true);
@@ -176,6 +189,7 @@ void InspectorUi::connected(ClientProxy *clientProxy)
     while(iter.hasNext()) {
         iter.next();
         iter.value()->setClientProxy(m_clientProxy);
+        iter.value()->updateDebugIds();
     }
 }
 
@@ -200,8 +214,9 @@ void InspectorUi::disconnected()
         iter.next();
         iter.value()->setClientProxy(0);
     }
-
     m_clientProxy = 0;
+    m_objectTreeWidget->clear();
+    m_pendingPreviewDocumentNames.clear();
 }
 
 void InspectorUi::updateEngineList()
@@ -235,6 +250,9 @@ void InspectorUi::initializeDocuments()
         m_listeningToEditorManager = true;
         connect(em, SIGNAL(editorAboutToClose(Core::IEditor*)), SLOT(removePreviewForEditor(Core::IEditor*)));
         connect(em, SIGNAL(editorOpened(Core::IEditor*)), SLOT(createPreviewForEditor(Core::IEditor*)));
+        connect(modelManager(),
+                SIGNAL(documentChangedOnDisk(QmlJS::Document::Ptr)),
+                SLOT(updatePendingPreviewDocuments(QmlJS::Document::Ptr)));
     }
 
     // initial update
@@ -265,8 +283,10 @@ void InspectorUi::removePreviewForEditor(Core::IEditor *oldEditor)
     }
 }
 
-void InspectorUi::createPreviewForEditor(Core::IEditor *newEditor)
+QmlJSLiveTextPreview *InspectorUi::createPreviewForEditor(Core::IEditor *newEditor)
 {
+    QmlJSLiveTextPreview *preview = 0;
+
     if (m_clientProxy
         && m_clientProxy->isConnected()
         && newEditor
@@ -275,16 +295,26 @@ void InspectorUi::createPreviewForEditor(Core::IEditor *newEditor)
     {
         QString filename = newEditor->file()->fileName();
         QmlJS::Document::Ptr doc = modelManager()->snapshot().document(filename);
-        if (!doc || !doc->qmlProgram())
-            return;
+        if (!doc) {
+            if (filename.endsWith(".qml")) {
+                // add to list of docs that we have to update when
+                // snapshot figures out that there's a new document
+                m_pendingPreviewDocumentNames.append(filename);
+            }
+            return 0;
+        }
+        if (!doc->qmlProgram())
+            return 0;
+
         QmlJS::Document::Ptr initdoc = m_loadedSnapshot.document(filename);
         if (!initdoc)
             initdoc = doc;
 
         if (m_textPreviews.contains(filename)) {
-            m_textPreviews.value(filename)->associateEditor(newEditor);
+            preview = m_textPreviews.value(filename);
+            preview->associateEditor(newEditor);
         } else {
-            QmlJSLiveTextPreview *preview = new QmlJSLiveTextPreview(doc, initdoc, m_clientProxy, this);
+            preview = new QmlJSLiveTextPreview(doc, initdoc, m_clientProxy, this);
             connect(preview,
                     SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
                     SLOT(changeSelectedItems(QList<QDeclarativeDebugObjectReference>)));
@@ -296,6 +326,8 @@ void InspectorUi::createPreviewForEditor(Core::IEditor *newEditor)
             preview->updateDebugIds();
         }
     }
+
+    return preview;
 }
 
 void InspectorUi::currentDebugProjectRemoved()
@@ -314,16 +346,49 @@ void InspectorUi::reloadQmlViewer()
         m_clientProxy->reloadQmlViewer();
 }
 
-void InspectorUi::setSimpleDockWidgetArrangement()
+void InspectorUi::setSimpleDockWidgetArrangement(const Debugger::DebuggerLanguages &activeLanguages)
 {
-    Utils::FancyMainWindow *mainWindow = Debugger::DebuggerUISwitcher::instance()->mainWindow();
+    Debugger::DebuggerUISwitcher *uiSwitcher = Debugger::DebuggerUISwitcher::instance();
+    Utils::FancyMainWindow *mw = uiSwitcher->mainWindow();
 
-    mainWindow->setTrackingEnabled(false);
-    mainWindow->removeDockWidget(m_crumblePathDock);
-    mainWindow->addDockWidget(Qt::BottomDockWidgetArea, m_crumblePathDock);
-    mainWindow->splitDockWidget(mainWindow->toolBarDockWidget(), m_crumblePathDock, Qt::Vertical);
-    m_crumblePathDock->setVisible(true);
-    mainWindow->setTrackingEnabled(true);
+    mw->setTrackingEnabled(false);
+
+    if (activeLanguages.testFlag(Debugger::Lang_Cpp) && activeLanguages.testFlag(Debugger::Lang_Qml)) {
+        // cpp + qml
+        QList<QDockWidget *> dockWidgets = mw->dockWidgets();
+        foreach (QDockWidget *dockWidget, dockWidgets) {
+            dockWidget->setFloating(false);
+            mw->removeDockWidget(dockWidget);
+        }
+        foreach (QDockWidget *dockWidget, dockWidgets) {
+            if (dockWidget == uiSwitcher->outputWindow()) {
+                mw->addDockWidget(Qt::TopDockWidgetArea, dockWidget);
+            } else {
+                mw->addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
+            }
+
+            if (dockWidget == m_inspectorDockWidget) {
+                dockWidget->show();
+            } else {
+                dockWidget->hide();
+            }
+        }
+
+        uiSwitcher->stackWindow()->show();
+        uiSwitcher->watchWindow()->show();
+        uiSwitcher->breakWindow()->show();
+        uiSwitcher->threadsWindow()->show();
+        uiSwitcher->snapshotsWindow()->show();
+        m_inspectorDockWidget->show();
+
+        mw->splitDockWidget(mw->toolBarDockWidget(), uiSwitcher->stackWindow(), Qt::Vertical);
+        mw->splitDockWidget(uiSwitcher->stackWindow(), uiSwitcher->watchWindow(), Qt::Horizontal);
+        mw->tabifyDockWidget(uiSwitcher->watchWindow(), uiSwitcher->breakWindow());
+        mw->tabifyDockWidget(uiSwitcher->watchWindow(), m_inspectorDockWidget);
+
+    }
+
+    mw->setTrackingEnabled(true);
 }
 
 void InspectorUi::setSelectedItemsByObjectReference(QList<QDeclarativeDebugObjectReference> objectReferences)
@@ -337,10 +402,17 @@ void InspectorUi::gotoObjectReferenceDefinition(const QDeclarativeDebugObjectRef
     Q_UNUSED(obj);
 
     QDeclarativeDebugFileReference source = obj.source();
-    const QString fileName = source.url().toLocalFile();
+    QString fileName = source.url().toLocalFile();
 
     if (source.lineNumber() < 0 || !QFile::exists(fileName))
         return;
+
+
+    // do some extra checking for filenames with shadow builds - we don't want to
+    // open the shadow build file, but the real one by default.
+    if (isShadowBuildProject()) {
+        fileName = filenameForShadowBuildFile(fileName);
+    }
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     Core::IEditor *editor = editorManager->openEditor(fileName, QString(), Core::EditorManager::NoModeSwitch);
@@ -351,6 +423,28 @@ void InspectorUi::gotoObjectReferenceDefinition(const QDeclarativeDebugObjectRef
         textEditor->gotoLine(source.lineNumber());
         textEditor->widget()->setFocus();
     }
+}
+
+QString InspectorUi::filenameForShadowBuildFile(const QString &filename) const
+{
+    if (!debugProject() || !isShadowBuildProject())
+        return filename;
+
+    QDir projectDir(debugProject()->projectDirectory());
+    QDir buildDir(debugProjectBuildDirectory());
+    QFileInfo fileInfo(filename);
+
+    if (projectDir.exists() && buildDir.exists() && fileInfo.exists()) {
+        if (fileInfo.absoluteFilePath().startsWith(buildDir.canonicalPath())) {
+            QString fileRelativePath = fileInfo.canonicalFilePath().mid(debugProjectBuildDirectory().length());
+            QFileInfo projectFile(projectDir.canonicalPath() + QLatin1Char('/') + fileRelativePath);
+
+            if (projectFile.exists())
+                return projectFile.canonicalFilePath();
+        }
+
+    }
+    return filename;
 }
 
 bool InspectorUi::addQuotesForData(const QVariant &value) const
@@ -369,15 +463,35 @@ bool InspectorUi::addQuotesForData(const QVariant &value) const
 
 void InspectorUi::setupDockWidgets()
 {
+    Debugger::DebuggerUISwitcher *uiSwitcher = Debugger::DebuggerUISwitcher::instance();
+
+    m_toolbar->createActions(Core::Context(Constants::C_INSPECTOR));
+    m_toolbar->setObjectName("QmlInspectorToolbar");
+
     m_crumblePath = new ContextCrumblePath;
     m_crumblePath->setObjectName("QmlContextPath");
-    m_crumblePath->setWindowTitle("Context Path");
+    m_crumblePath->setWindowTitle(tr("Context Path"));
     connect(m_crumblePath, SIGNAL(elementClicked(int)), SLOT(crumblePathElementClicked(int)));
-    Debugger::DebuggerUISwitcher *uiSwitcher = Debugger::DebuggerUISwitcher::instance();
-    m_crumblePathDock = uiSwitcher->createDockWidget(QmlJSInspector::Constants::LANG_QML,
-                                                                m_crumblePath, Qt::BottomDockWidgetArea);
-    m_crumblePathDock->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
-    m_crumblePathDock->setTitleBarWidget(new QWidget(m_crumblePathDock));
+
+    m_objectTreeWidget = new QmlJSObjectTree;
+
+    QWidget *inspectorWidget = new QWidget;
+    inspectorWidget->setWindowTitle(tr("Inspector"));
+
+    QVBoxLayout *wlay = new QVBoxLayout(inspectorWidget);
+    wlay->setMargin(0);
+    wlay->setSpacing(0);
+    inspectorWidget->setLayout(wlay);
+    wlay->addWidget(m_toolbar->widget());
+    wlay->addWidget(m_objectTreeWidget);
+    wlay->addWidget(m_crumblePath);
+
+
+    m_inspectorDockWidget = uiSwitcher->createDockWidget(Debugger::Lang_Qml,
+                                                         inspectorWidget, Qt::BottomDockWidgetArea);
+    m_inspectorDockWidget->setObjectName(Debugger::Constants::DW_QML_INSPECTOR);
+    m_inspectorDockWidget->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
+    m_inspectorDockWidget->setTitleBarWidget(new QWidget(m_inspectorDockWidget));
 }
 
 void InspectorUi::crumblePathElementClicked(int pathIndex)
@@ -407,6 +521,19 @@ ProjectExplorer::Project *InspectorUi::debugProject() const
     return m_debugProject;
 }
 
+bool InspectorUi::isShadowBuildProject() const
+{
+    if (!debugProject())
+        return false;
+
+    return (debugProject()->projectDirectory() != debugProjectBuildDirectory());
+}
+
+QString InspectorUi::debugProjectBuildDirectory() const
+{
+    return m_debugProjectBuildDir;
+}
+
 void InspectorUi::setApplyChangesToQmlObserver(bool applyChanges)
 {
     emit livePreviewActivated(applyChanges);
@@ -419,6 +546,29 @@ void InspectorUi::applyChangesToQmlObserverHelper(bool applyChanges)
     while(iter.hasNext()) {
         iter.next();
         iter.value()->setApplyChangesToQmlObserver(applyChanges);
+    }
+}
+
+void InspectorUi::updatePendingPreviewDocuments(QmlJS::Document::Ptr doc)
+{
+    int idx = -1;
+    idx = m_pendingPreviewDocumentNames.indexOf(doc->fileName());
+
+    if (idx == -1)
+        return;
+
+    QList<Core::IEditor *> editors = Core::EditorManager::instance()->editorsForFileName(doc->fileName());
+
+    if (editors.isEmpty())
+        return;
+
+    m_pendingPreviewDocumentNames.removeAt(idx);
+
+    QmlJSLiveTextPreview *preview = createPreviewForEditor(editors.first());
+    editors.removeFirst();
+
+    foreach(Core::IEditor *editor, editors) {
+        preview->associateEditor(editor);
     }
 }
 

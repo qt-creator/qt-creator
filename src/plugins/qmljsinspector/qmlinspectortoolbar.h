@@ -39,6 +39,11 @@ namespace Core {
     class Context;
 }
 
+namespace Utils {
+    class StyledBar;
+    class FilterLineEdit;
+}
+
 namespace QmlJSInspector {
 
 class ToolBarColorBox;
@@ -61,6 +66,7 @@ public:
 
     explicit QmlInspectorToolbar(QObject *parent = 0);
     void createActions(const Core::Context &context);
+    QWidget *widget() const;
 
 public slots:
     void setEnabled(bool value);
@@ -135,6 +141,9 @@ private:
     qreal m_previousAnimationSpeed;
 
     DesignTool m_activeTool;
+
+    Utils::StyledBar *m_barWidget;
+    Utils::FilterLineEdit *m_filterLineEdit;
 
 };
 

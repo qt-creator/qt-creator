@@ -79,6 +79,7 @@ public:
     // for qml debugging
     QString qmlServerAddress;
     quint16 qmlServerPort;
+    DebuggerEngineType cppEngineType; // for cpp+qml debugging
 
     // for remote debugging
     QString remoteChannel;
@@ -218,17 +219,17 @@ public:
     WatchHandler *watchHandler() const;
     SourceFilesHandler *sourceFilesHandler() const;
 
-    QAbstractItemModel *commandModel() const;
-    QAbstractItemModel *modulesModel() const;
-    QAbstractItemModel *breakModel() const;
-    QAbstractItemModel *registerModel() const;
-    QAbstractItemModel *stackModel() const;
-    QAbstractItemModel *threadsModel() const;
-    QAbstractItemModel *localsModel() const;
-    QAbstractItemModel *watchersModel() const;
-    QAbstractItemModel *returnModel() const;
+    virtual QAbstractItemModel *commandModel() const;
+    virtual QAbstractItemModel *modulesModel() const;
+    virtual QAbstractItemModel *breakModel() const;
+    virtual QAbstractItemModel *registerModel() const;
+    virtual QAbstractItemModel *stackModel() const;
+    virtual QAbstractItemModel *threadsModel() const;
+    virtual QAbstractItemModel *localsModel() const;
+    virtual QAbstractItemModel *watchersModel() const;
+    virtual QAbstractItemModel *returnModel() const;
     //QAbstractItemModel *snapshotModel() const;
-    QAbstractItemModel *sourceFilesModel() const;
+    virtual QAbstractItemModel *sourceFilesModel() const;
 
     void progressPing();
     void handleFinished();
@@ -275,6 +276,9 @@ public:
     void gotoLocation(const StackFrame &frame, bool setMarker);
     virtual void quitDebugger(); // called by DebuggerRunControl
 
+signals:
+    void stateChanged(const DebuggerState &state);
+
 protected:
     // The base notify*() function implementation should be sufficient
     // in most cases, but engines are free to override them to do some
@@ -318,14 +322,20 @@ protected:
     virtual void shutdownInferior() = 0;
     virtual void shutdownEngine() = 0;
 
-private:
     void setState(DebuggerState state, bool forced = false);
+    void setRunInWrapperEngine(bool value);
+
+private:
+    DebuggerRunControl *runControl() const;
 
 private:
     void executeRunToLine();
     void executeRunToFunction();
     void executeJumpToLine();
     void addToWatchWindow();
+
+    // wrapper engine needs access to state of its subengines
+    friend class QmlCppEngine;
 
     friend class DebuggerEnginePrivate;
     DebuggerEnginePrivate *d;

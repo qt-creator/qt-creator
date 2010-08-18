@@ -36,6 +36,8 @@
 
 #include "qdeclarativedesignview.h"
 
+QT_FORWARD_DECLARE_CLASS(JSDebuggerAgent)
+
 namespace QmlViewer {
 
 class QDeclarativeDesignView;
@@ -81,6 +83,8 @@ public:
 
     bool executionPaused;
     qreal slowdownFactor;
+
+    JSDebuggerAgent *jsDebuggerAgent;
 
     QmlToolbar *toolbar;
     QTimer sceneChangedTimer;

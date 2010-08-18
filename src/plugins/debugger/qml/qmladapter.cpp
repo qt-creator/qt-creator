@@ -56,7 +56,24 @@ QmlAdapter::QmlAdapter(DebuggerEngine *engine, QObject *parent)
 
 void QmlAdapter::beginConnection()
 {
+    m_connectionAttempts = 0;
     m_connectionTimer->start();
+}
+
+void QmlAdapter::pauseConnection()
+{
+    m_connectionTimer->stop();
+}
+
+void QmlAdapter::closeConnection()
+{
+    if (m_connectionTimer->isActive()) {
+        m_connectionTimer->stop();
+    } else {
+        if (m_conn) {
+            m_conn->disconnectFromHost();
+        }
+    }
 }
 
 void QmlAdapter::pollInferior()

@@ -37,6 +37,7 @@
 #include "boundingrecthighlighter.h"
 #include "subcomponenteditortool.h"
 #include "qmltoolbar.h"
+#include "jsdebuggeragent.h"
 
 #include <QDeclarativeItem>
 #include <QDeclarativeEngine>
@@ -48,6 +49,7 @@
 #include <QApplication>
 
 #include <QAbstractAnimation>
+#include <private/qdeclarativeengine_p.h>
 #include <private/qabstractanimation_p.h>
 
 namespace QmlViewer {
@@ -61,6 +63,7 @@ QDeclarativeDesignViewPrivate::QDeclarativeDesignViewPrivate(QDeclarativeDesignV
     designModeBehavior(false),
     executionPaused(false),
     slowdownFactor(1.0f),
+    jsDebuggerAgent(0),
     toolbar(0)
 {
     sceneChangedTimer.setInterval(SceneChangeUpdateInterval);
@@ -116,6 +119,9 @@ QDeclarativeDesignView::QDeclarativeDesignView(QWidget *parent) :
     data->createToolbar();
 
     data->_q_changeToSingleSelectTool();
+
+    // always start debug mode - that's what this design view is for.
+    setDebugMode(true);
 }
 
 QDeclarativeDesignView::~QDeclarativeDesignView()
@@ -761,6 +767,12 @@ void QDeclarativeDesignViewPrivate::createToolbar()
     QObject::connect(q, SIGNAL(colorPickerActivated()), toolbar, SLOT(activateColorPicker()));
     QObject::connect(q, SIGNAL(zoomToolActivated()), toolbar, SLOT(activateZoom()));
     QObject::connect(q, SIGNAL(marqueeSelectToolActivated()), toolbar, SLOT(activateMarqueeSelectTool()));
+}
+
+void QDeclarativeDesignView::setDebugMode(bool isDebugMode)
+{
+    if (isDebugMode && !data->jsDebuggerAgent)
+        data->jsDebuggerAgent = new JSDebuggerAgent(QDeclarativeEnginePrivate::getScriptEngine(engine()));
 }
 
 } //namespace QmlViewer

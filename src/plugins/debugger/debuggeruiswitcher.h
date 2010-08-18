@@ -31,11 +31,13 @@
 #define DEBUGGERUISWITCHER_H
 
 #include "debugger_global.h"
+#include "debuggerconstants.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QMultiHash>
 
-QT_FORWARD_DECLARE_CLASS(QDockWidget);
+QT_FORWARD_DECLARE_CLASS(QEvent)
+QT_FORWARD_DECLARE_CLASS(QDockWidget)
 
 namespace Core {
     class ActionContainer;
@@ -50,6 +52,11 @@ class FancyMainWindow;
     class SavedAction;
 }
 
+namespace ProjectExplorer {
+    class Project;
+    class Target;
+    class RunConfiguration;
+}
 
 namespace Debugger {
 struct DebuggerUISwitcherPrivate;
@@ -69,61 +76,104 @@ public:
     static DebuggerUISwitcher *instance();
 
     // debuggable languages are registered with this function.
-    void addLanguage(const QString &langName, const Core::Context &context);
+    void addLanguage(const DebuggerLanguage &language, const QString &languageName,
+                     const Core::Context &context);
 
     // debugger toolbars are registered  with this function
-    void setToolbar(const QString &langName, QWidget *widget);
+    void setToolbar(const DebuggerLanguage &language, QWidget *widget);
 
     // menu actions are registered with this function
-    void addMenuAction(Core::Command *command, const QString &langName,
+    void addMenuAction(Core::Command *command, const DebuggerLanguage &language,
                        const QString &group = QString());
 
-    QStringList supportedLanguages() const;
+    // all supported languagess
+    DebuggerLanguages supportedLanguages() const;
 
-    // Changes the active language UI to the one specified by langName.
-    // Does nothing if automatic switching is toggled off from settings.
-    void setActiveLanguage(const QString &langName);
-    int activeLanguageId() const;
+    // active languages to be debugged.
+    DebuggerLanguages activeDebugLanguages() const;
 
     // called when all dependent plugins have loaded
     void initialize();
 
     void aboutToShutdown();
 
+    // most common debugger windows
+    QDockWidget *breakWindow() const;
+    QDockWidget *stackWindow() const;
+    QDockWidget *watchWindow() const;
+    QDockWidget *snapshotsWindow() const;
+    QDockWidget *threadsWindow() const;
+    QDockWidget *outputWindow() const;
+    QDockWidget *qmlInspectorWindow() const;
+
+    QDockWidget *dockWidget(const QString &objectName) const;
+
     // dockwidgets are registered to the main window
-    QDockWidget *createDockWidget(const QString &langName, QWidget *widget,
+    QDockWidget *createDockWidget(const DebuggerLanguage &language, QWidget *widget,
                                   Qt::DockWidgetArea area = Qt::TopDockWidgetArea,
                                   bool visibleByDefault = true);
 
     Utils::FancyMainWindow *mainWindow() const;
 
 signals:
-    void languageChanged(const QString &langName);
-    // emit when dock needs to be reset
-    void dockArranged(const QString &activeLanguage);
+    // emit when user changes active languages from the menu.
+    // Both UI and debugger startup are affected.
+    void activeLanguagesChanged(Debugger::DebuggerLanguages activeLanguages);
+
+    void dockResetRequested(const Debugger::DebuggerLanguages &activeLanguages);
 
 private slots:
     void modeChanged(Core::IMode *mode);
-    void changeDebuggerUI(const QString &langName);
+    void updateUi();
     void resetDebuggerLayout();
-    void langChangeTriggered();
+
+    void updateUiForProject(ProjectExplorer::Project *project);
+    void updateUiForTarget(ProjectExplorer::Target *target);
+    void updateUiForRunConfiguration(ProjectExplorer::RunConfiguration *rc);
+    void updateUiOnFileListChange();
+
+    void updateActiveLanguages();
+    void updateDockWidgetSettings();
+
+    void onModeChanged(Core::IMode *mode);
 
 private:
     // Used by MainWindow
     friend class Internal::DebuggerMainWindow;
     QList<Internal::DebugToolWindow *> i_mw_debugToolWindows() const;
 
+    void activateQmlCppLayout();
+    void activateCppLayout();
+
     void hideInactiveWidgets();
     void createViewsMenuItems();
     void readSettings();
     void writeSettings() const;
+    bool isQmlCppActive() const;
+    bool isQmlActive() const;
 
     QWidget *createContents(Core::BaseMode *mode);
     QWidget *createMainWindow(Core::BaseMode *mode);
 
     DebuggerUISwitcherPrivate *d;
-    Utils::SavedAction *m_changeLanguageAction;
 };
+
+namespace Internal {
+class DockWidgetEventFilter : public QObject
+{
+    Q_OBJECT
+
+public:
+    DockWidgetEventFilter(QObject *parent = 0);
+
+signals:
+    void widgetResized();
+
+protected:
+    bool eventFilter(QObject *obj, QEvent *event);
+};
+
+} // namespace Internal
 
 } // namespace Debugger
 

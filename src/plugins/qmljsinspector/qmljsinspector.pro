@@ -18,7 +18,8 @@ qmljslivetextpreview.h \
 qmljstoolbarcolorbox.h \
 qmljsdesigndebugclient.h \
 qmljscontextcrumblepath.h \
-qmljsinspectorsettings.h
+qmljsinspectorsettings.h \
+qmljsobjecttree.h
 
 SOURCES += \
 qmljsinspectorplugin.cpp \
@@ -29,7 +30,8 @@ qmljslivetextpreview.cpp \
 qmljstoolbarcolorbox.cpp \
 qmljsdesigndebugclient.cpp \
 qmljscontextcrumblepath.cpp \
-qmljsinspectorsettings.cpp
+qmljsinspectorsettings.cpp \
+qmljsobjecttree.cpp
 
 include(../../libs/qmljsdebugclient/qmljsdebugclient-lib.pri)
 

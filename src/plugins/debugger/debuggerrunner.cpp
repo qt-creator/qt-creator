@@ -43,6 +43,7 @@
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/environment.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -74,6 +75,7 @@ DebuggerEngine *createScriptEngine(const DebuggerStartParameters &);
 DebuggerEngine *createPdbEngine(const DebuggerStartParameters &);
 DebuggerEngine *createTcfEngine(const DebuggerStartParameters &);
 DebuggerEngine *createQmlEngine(const DebuggerStartParameters &);
+DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &);
 
 bool checkGdbConfiguration(int toolChain, QString *errorMsg, QString *settingsPage);
 
@@ -148,6 +150,17 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
     sp.useTerminal = rc->runMode() == LocalApplicationRunConfiguration::Console;
     sp.dumperLibrary = rc->dumperLibrary();
     sp.dumperLibraryLocations = rc->dumperLibraryLocations();
+
+    if (DebuggerRunControl::isQmlProject(runConfiguration)) {
+        sp.qmlServerAddress = QLatin1String("127.0.0.1");
+        sp.qmlServerPort = rc->environment().value("QML_DEBUG_SERVER_PORT").toUInt();
+        if (sp.qmlServerPort == 0)
+            sp.qmlServerPort = Constants::QML_DEFAULT_DEBUG_SERVER_PORT;
+
+        sp.environment << QString(Constants::E_QML_DEBUG_SERVER_PORT)
+                        + QLatin1Char('=') + QString::number(sp.qmlServerPort);
+    }
+
     // FIXME: If it's not yet build this will be empty and not filled
     // when rebuild as the runConfiguration is not stored and therefore
     // cannot be used to retrieve the dumper location.
@@ -208,14 +221,15 @@ QWidget *DebuggerRunControlFactory::createConfigurationWidget
 ////////////////////////////////////////////////////////////////////////
 
 DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
-        DebuggerEngineType enabledEngines, const DebuggerStartParameters &sp) :
-    RunControl(runConfiguration, ProjectExplorer::Constants::DEBUGMODE),
-    m_engine(0),
-    m_myRunConfiguration(runConfiguration),
-    m_running(false),
-    m_enabledEngines(enabledEngines)
+        DebuggerEngineType enabledEngines, const DebuggerStartParameters &sp)
+    : RunControl(runConfiguration, ProjectExplorer::Constants::DEBUGMODE)
+    , m_myRunConfiguration(runConfiguration)
+    , m_running(false)
+    , m_started(false)
+
 {
     connect(this, SIGNAL(finished()), this, SLOT(handleFinished()));
+    m_isQmlProject = isQmlProject(runConfiguration);
     createEngine(sp);
 }
 
@@ -332,10 +346,13 @@ DebuggerEngineType DebuggerRunControl::engineForMode(DebuggerStartMode startMode
 #endif
 }
 
-void DebuggerRunControl::createEngine(const DebuggerStartParameters &sp)
+void DebuggerRunControl::createEngine(const DebuggerStartParameters &startParams)
 {
+    DebuggerStartParameters sp = startParams;
+
     // Figure out engine according to toolchain, executable, attach or default.
     DebuggerEngineType engineType = NoEngineType;
+    DebuggerLanguages activeLangs = DebuggerPlugin::instance()->activeLanguages();
     bool isQmlExecutable = sp.executable.endsWith(_("qmlviewer")) || sp.executable.endsWith(_("qmlobserver"));
 #ifdef Q_OS_MAC
     isQmlExecutable = sp.executable.endsWith(_("QMLViewer.app")) || sp.executable.endsWith(_("QMLObserver.app"));
@@ -361,6 +378,15 @@ void DebuggerRunControl::createEngine(const DebuggerStartParameters &sp)
     if (!engineType)
         engineType = engineForMode(sp.startMode);
 
+    if (engineType != QmlEngineType && m_isQmlProject && (activeLangs & Lang_Qml)) {
+        if (activeLangs & Lang_Cpp) {
+            sp.cppEngineType = engineType;
+            engineType = QmlCppEngineType;
+        } else {
+            engineType = QmlEngineType;
+        }
+    }
+
     // qDebug() << "USING ENGINE : " << engineType;
 
     switch (engineType) {
@@ -381,6 +407,9 @@ void DebuggerRunControl::createEngine(const DebuggerStartParameters &sp)
             break;
         case QmlEngineType:
             m_engine = createQmlEngine(sp);
+            break;
+        case QmlCppEngineType:
+            m_engine = createQmlCppEngine(sp);
             break;
         default: {
             // Could not find anything suitable.
@@ -552,6 +581,46 @@ Internal::DebuggerEngine *DebuggerRunControl::engine()
     QTC_ASSERT(m_engine, /**/);
     return m_engine;
 }
+
+bool DebuggerRunControl::isQmlProject(RunConfiguration *config)
+{
+    if (!config || !config->target() || !config->target()->project())
+        return false;
+
+    QStringList projectFiles = config->target()->project()->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
+    foreach(const QString &filename, projectFiles) {
+        if (filename.endsWith(".qml"))
+            return true;
+    }
+
+    return false;
+}
+
+bool DebuggerRunControl::isCurrentProjectQmlCppBased()
+{
+    Project *startupProject = ProjectExplorerPlugin::instance()->startupProject();
+    if (!startupProject)
+        return false;
+
+    if (!startupProject->activeTarget())
+        return false;
+
+    RunConfiguration *rc = startupProject->activeTarget()->activeRunConfiguration();
+
+    return isQmlProject(rc);
+}
+
+bool DebuggerRunControl::isCurrentProjectCppBased()
+{
+    Project *startupProject = ProjectExplorerPlugin::instance()->startupProject();
+    if (!startupProject)
+        return false;
+    const QString id = startupProject->id();
+    return id == _("GenericProjectManager.GenericProject")
+        || id == _("CMakeProjectManager.CMakeProject")
+        || id == _("Qt4ProjectManager.Qt4Project");
+}
+
 
 
 } // namespace Debugger
