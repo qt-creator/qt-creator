@@ -351,6 +351,8 @@ void CodepasterPlugin::finishFetch(const QString &titleDescription,
     // Keep the file and store in list of files to be removed.
     tempFile->setAutoRemove(false);
     const QString fileName = tempFile->fileName();
+    // Discard to temporary file to make sure it is closed and no changes are triggered.
+    tempFile = TemporaryFilePtr();
     m_fetchedSnippets.push_back(fileName);
     // Open editor with title.
     Core::IEditor* editor = EditorManager::instance()->openEditor(fileName);
