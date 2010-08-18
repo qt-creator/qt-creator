@@ -85,6 +85,7 @@ static QString label(UiQualifiedId *id)
     return str;
 }
 
+//return a label string for a AST node that is suitable to compare them.
 static QString label(UiObjectMember *member, Document::Ptr doc)
 {
     QString str;
@@ -112,45 +113,51 @@ static QString label(UiObjectMember *member, Document::Ptr doc)
     return str;
 }
 
+/* Find nodes in the tree that have the given label */
 struct FindObjectMemberWithLabel : public Visitor
 {
     virtual void endVisit(UiObjectDefinition *ast) ;
     virtual void endVisit(UiObjectBinding *ast) ;
 
     QList<UiObjectMember *> found;
-    QString cmp;
+    QString label;
     Document::Ptr doc;
 };
 
 void FindObjectMemberWithLabel::endVisit(UiObjectDefinition* ast)
 {
-    if (label(ast, doc) == cmp)
+    if (::label(ast, doc) == label)
         found.append(ast);
 }
 void FindObjectMemberWithLabel::endVisit(UiObjectBinding* ast)
 {
-    if (label(ast, doc) == cmp)
+    if (::label(ast, doc) == label)
         found.append(ast);
 }
 
+/*
+ bidirrection mapping between the old and the new tree nodes
+*/
 struct Map {
-    typedef UiObjectMember*T;
-    QHash<T, T> way1;
-    QHash<T, T> way2;
-    void insert(T t1, T t2) {
-        way1.insert(t1,t2);
-        way2.insert(t2,t1);
+    typedef UiObjectMember *T1;
+    typedef UiObjectMember *T2;
+    QHash<T1, T2> way1;
+    QHash<T2, T1> way2;
+    void insert(T1 t1, T2 t2) {
+        way1.insert(t1, t2);
+        way2.insert(t2, t1);
     }
     int count() { return way1.count(); }
     void operator+=(const Map &other) {
         way1.unite(other.way1);
         way2.unite(other.way2);
     }
-    bool contains(T t1, T t2) {
+    bool contains(T1 t1, T2 t2) {
         return way1.value(t1) == t2;
     }
 };
 
+//return the list of children node of an ast node
 static QList<UiObjectMember *> children(UiObjectMember *ast)
 {
     QList<UiObjectMember *> ret;
@@ -176,7 +183,8 @@ static QList<UiObjectMember *> children(UiObjectMember *ast)
     return ret;
 }
 
-Map MatchFragment(UiObjectMember *x, UiObjectMember *y, const Map &M, Document::Ptr doc1, Document::Ptr doc2) {
+/* build a mapping between nodes of two subtree of an ast.  x and y are the root of the two subtrees   */
+static Map buildMapping_helper(UiObjectMember *x, UiObjectMember *y, const Map &M, Document::Ptr doc1, Document::Ptr doc2) {
     Map M2;
     if (M.way1.contains(x))
         return M2;
@@ -194,7 +202,7 @@ Map MatchFragment(UiObjectMember *x, UiObjectMember *y, const Map &M, Document::
         for (int j = 0; j < list2.count(); j++) {
             if (l != label(list2[j], doc2))
                 continue;
-            Map M4 = MatchFragment(list1[i], list2[j], M, doc1, doc2);
+            Map M4 = buildMapping_helper(list1[i], list2[j], M, doc1, doc2);
             if (M4.count() > M3.count()) {
                 M3 = M4;
                 foundJ = j;
@@ -208,7 +216,9 @@ Map MatchFragment(UiObjectMember *x, UiObjectMember *y, const Map &M, Document::
     return M2;
 }
 
-Map Mapping(Document::Ptr doc1, Document::Ptr doc2)
+/* given two AST, build a mapping between the corresponding nodes of the two tree
+*/
+static Map buildMapping(Document::Ptr doc1, Document::Ptr doc2)
 {
     Map M;
     QList<UiObjectMember *> todo;
@@ -222,14 +232,14 @@ Map Mapping(Document::Ptr doc1, Document::Ptr doc2)
 
         //If this is too slow, we could use some sort of indexing
         FindObjectMemberWithLabel v3;
-        v3.cmp = label(x, doc1);
+        v3.label = label(x, doc1);
         v3.doc = doc2;
         doc2->qmlProgram()->accept(&v3);
         Map M2;
         foreach (UiObjectMember *y, v3.found) {
             if (M.way2.contains(y))
                 continue;
-            Map M3 = MatchFragment(x, y, M, doc1, doc2);
+            Map M3 = buildMapping_helper(x, y, M, doc1, doc2);
             if (M3.count() > M2.count())
                 M2 = M3;
         }
@@ -430,7 +440,7 @@ Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::P
 
     Delta::DebugIdMap newDebuggIds;
 
-    Map M = Mapping(doc1, doc2);
+    Map M = buildMapping(doc1, doc2);
 
     BuildParentHash parents2;
     doc2->qmlProgram()->accept(&parents2);
