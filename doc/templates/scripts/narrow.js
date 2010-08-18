@@ -59,8 +59,19 @@ var narrowInit = function() {
 }
 
 $(document).ready(function(){
-  if ($('body').hasClass('narrow')) {
+/*   if ($('body').hasClass('narrow')) {
     narrowInit();
+  }
+ */
+ if($(window).width()<600) {
+    $('body').addClass('narrow');
+
+    if ($("#narrowsearch").length == 0) {
+      narrowInit();
+    }
+  }
+  else {
+    $('body').removeClass('narrow');
   }
 });
 

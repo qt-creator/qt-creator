@@ -831,9 +831,9 @@ def extractFields(type):
     type = stripTypedefs(type)
     #warn("TYPE 1: %s" % type)
     # This fails for arrays. See comment in lookupType.
-    type2 = lookupType(str(type))
-    if not type2 is None:
-        type = type2
+    type0 = lookupType(str(type))
+    if not type0 is None:
+        type = type0
     #warn("TYPE 2: %s" % type)
     fields = type.fields()
     #warn("FIELDS: %s" % fields)
@@ -863,7 +863,6 @@ class Item:
 
 # This is a mapping from 'type name' to 'display alternatives'.
 
-qqDumpers = {}
 qqFormats = {}
 qqNs = ""
 
