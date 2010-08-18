@@ -262,7 +262,6 @@ class SubItem:
 
 class Children:
     def __init__(self, d, numChild = 1, childType = None, childNumChild = None):
-        # Note: childNumChild == 0 does not work.
         self.d = d
         self.numChild = numChild
         self.childType = childType
@@ -306,7 +305,7 @@ class Children:
         if self.d.passExceptions and not exType is None:
             showException("CHILDREN", exType, exValue, exTraceBack)
         if self.d.currentMaxNumChilds < self.d.currentNumChilds:
-            self.d.putEllipsis();
+            self.d.putEllipsis()
         self.d.currentChildType = self.savedChildType
         self.d.currentChildNumChild = self.savedChildNumChild
         self.d.currentNumChilds = self.savedNumChilds
@@ -430,8 +429,8 @@ def listOfLocals(varList):
     hasBlock = 'block' in __builtin__.dir(frame)
 
     items = []
-    #warn("HAS BLOCK: %s" % hasBlock);
-    #warn("IS GOOD GDB: %s" % isGoodGdb());
+    #warn("HAS BLOCK: %s" % hasBlock)
+    #warn("IS GOOD GDB: %s" % isGoodGdb())
     if hasBlock and isGoodGdb():
         #warn("IS GOOD: %s " % varList)
         try:
@@ -844,7 +843,6 @@ class Item:
 
 # This is a mapping from 'type name' to 'display alternatives'.
 
-qqDumpers = {}
 qqFormats = {}
 
 
@@ -859,8 +857,7 @@ class SetupCommand(gdb.Command):
         for key, value in module.__dict__.items():
             if key.startswith("qdump__"):
                 name = key[7:]
-                qqDumpers[name] = value
-                qqFormats[name] = qqFormats.get(name, "");
+                qqFormats[name] = qqFormats.get(name, "")
             elif key.startswith("qform__"):
                 name = key[7:]
                 formats = ""
@@ -985,7 +982,7 @@ class FrameCommand(gdb.Command):
                     d.put('addr="<not accessible>",')
                     d.put('value="<not accessible>",')
                     d.put('type="%s",' % item.value.type)
-                    d.put('numchild="0"');
+                    d.put('numchild="0"')
                 continue
 
             type = item.value.type
@@ -1057,7 +1054,7 @@ class FrameCommand(gdb.Command):
 
     def handleWatch(self, d, exp, iname):
         exp = str(exp)
-        escapedExp = exp.replace('"', '\\"');
+        escapedExp = exp.replace('"', '\\"')
         #warn("HANDLING WATCH %s, INAME: '%s'" % (exp, iname))
         if exp.startswith("[") and exp.endswith("]"):
             #warn("EVAL: EXP: %s" % exp)
@@ -1306,7 +1303,7 @@ class Dumper:
             return
 
         # FIXME: Gui shows references stripped?
-        #warn(" ");
+        #warn(" ")
         #warn("REAL INAME: %s " % item.iname)
         #warn("REAL NAME: %s " % name)
         #warn("REAL TYPE: %s " % item.value.type)
@@ -1331,27 +1328,41 @@ class Dumper:
                 value = item.value
                 type = value.type
 
-        typedefStrippedType = stripTypedefs(type);
-        nsStrippedType = self.stripNamespaceFromType(
-            typedefStrippedType).replace("::", "__")
-
-        # Is this derived from QObject?
-        hasMetaObject = False
-
-        #warn(" STRIPPED: %s" % nsStrippedType)
-        #warn(" DUMPERS: %s" % self.dumpers)
-        #warn(" DUMPERS: %s" % (nsStrippedType in self.dumpers))
+        typedefStrippedType = stripTypedefs(type)
 
         if isSimpleType(typedefStrippedType):
             #warn("IS SIMPLE: %s " % type)
             self.putType(item.value.type)
             self.putValue(value)
             self.putNumChild(0)
+            return
 
-        elif nsStrippedType in self.dumpers:
+        # Is this derived from QObject?
+        hasMetaObject = False
+        for field in typedefStrippedType.strip_typedefs().fields():
+            if field.name == "staticMetaObject":
+                hasMetaObject = True
+                break
+
+        nsStrippedType = self.stripNamespaceFromType(typedefStrippedType)\
+            .replace("::", "__")
+
+        #warn(" STRIPPED: %s" % nsStrippedType)
+        #warn(" DUMPERS: %s" % (nsStrippedType in self.dumpers))
+
+        format = self.itemFormat(item)
+
+        if self.useFancy \
+                and ((format is None) or (format >= 1)) \
+                and ((nsStrippedType in self.dumpers) or hasMetaObject):
             #warn("IS DUMPABLE: %s " % type)
             self.putType(item.value.type)
-            self.dumpers[nsStrippedType](self, item)
+            if hasMetaObject:
+                # value has references stripped off item.value.
+                item1 = Item(value, item.iname)
+                qdump__QObject(self, item1)
+            else:
+                self.dumpers[nsStrippedType](self, item)
             #warn(" RESULT: %s " % self.output)
 
         elif typedefStrippedType.code == gdb.TYPE_CODE_ENUM:
@@ -1363,8 +1374,6 @@ class Dumper:
 
         elif typedefStrippedType.code == gdb.TYPE_CODE_PTR:
             isHandled = False
-
-            format = self.itemFormat(item)
 
             if not format is None:
                 self.putAddress(value.address)

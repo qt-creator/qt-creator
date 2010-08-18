@@ -485,7 +485,7 @@ def qdump__QLocale(d, item):
     d.putStringValue(call(item.value, "name()"))
     d.putNumChild(8)
     if d.isExpanded(item):
-        with Children(d, 1, lookupType(d.ns + "QChar")):
+        with Children(d, 1, lookupType(d.ns + "QChar"), 0):
             d.putCallItem("country", item, "country()")
             d.putCallItem("language", item, "language()")
             d.putCallItem("measurementSystem", item, "measurementSystem()")
@@ -614,6 +614,8 @@ def qdump__QObject(d, item):
     d.putNumChild(4)
     if d.isExpanded(item):
       with Children(d):
+        d.putFields(item)
+
         # Parent and children.
         d.putItem(Item(d_ptr["parent"], item.iname, "parent", "parent"))
         d.putItem(Item(d_ptr["children"], item.iname, "children", "children"))
