@@ -83,7 +83,6 @@ public:
     qreal slowdownFactor;
 
     QmlToolbar *toolbar;
-    int sceneChangedTimerRestartCount;
     QTimer sceneChangedTimer;
     QSet<QGraphicsObject *> sceneGraphicsObjects;
 

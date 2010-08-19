@@ -53,7 +53,6 @@
 namespace QmlViewer {
 
 const int SceneChangeUpdateInterval = 5000;
-const int MaxSceneChangedTimerRestartCount = 15;
 
 Q_GLOBAL_STATIC(QDeclarativeDesignDebugServer, qmlDesignDebugServer)
 
@@ -62,8 +61,7 @@ QDeclarativeDesignViewPrivate::QDeclarativeDesignViewPrivate(QDeclarativeDesignV
     designModeBehavior(false),
     executionPaused(false),
     slowdownFactor(1.0f),
-    toolbar(0),
-    sceneChangedTimerRestartCount(0)
+    toolbar(0)
 {
     sceneChangedTimer.setInterval(SceneChangeUpdateInterval);
     sceneChangedTimer.setSingleShot(true);
@@ -536,18 +534,13 @@ void QDeclarativeDesignViewPrivate::_q_sceneChanged(const QList<QRectF> & /*area
     if (designModeBehavior)
         return;
 
-    sceneChangedTimerRestartCount++;
-    if (sceneChangedTimerRestartCount == MaxSceneChangedTimerRestartCount) {
-        _q_checkSceneItemCount();
-    }
-
-    sceneChangedTimer.start();
+    if (!sceneChangedTimer.isActive())
+        sceneChangedTimer.start();
 }
 
 void QDeclarativeDesignViewPrivate::_q_checkSceneItemCount()
 {
     bool hasNewItems = hasNewGraphicsObjects(q->rootObject());
-    sceneChangedTimerRestartCount = 0;
 
     if (hasNewItems) {
         qmlDesignDebugServer()->sceneItemCountChanged();
@@ -675,7 +668,6 @@ void QDeclarativeDesignViewPrivate::_q_onStatusChanged(QDeclarativeView::Status 
 {
     if (status == QDeclarativeView::Ready) {
         if (q->rootObject()) {
-            sceneChangedTimerRestartCount = 0;
             hasNewGraphicsObjects(q->rootObject());
             if (subcomponentEditorTool->contextIndex() != -1)
                 subcomponentEditorTool->clear();
