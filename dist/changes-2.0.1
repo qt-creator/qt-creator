@@ -5,23 +5,67 @@ within the logs of Qt Creator's sources. Simply check it out from the public git
 repository e.g.,
 
 git clone git://gitorious.org/qt-creator/qt-creator.git
-git log --cherry-pick --pretty=oneline v2.0.0...v2.0.1
+git log --cherry-pick --pretty=oneline origin/2.0.0...origin/2.0.1
 
-General
+General:
    * Fix the suggested path in the new dialog in case of sub projects
    * Search dialog now opens the completion box for the search term on cursor down
+   * The .bin postfix was removed from the qtcreator executable
 
-Editing
+Editing:
+   * Fixed disabled "Open with" context menu in project tree
+   * CodePaster: Do not show popup about modified files on Windows
    * FakeVim: Fix issues with non-letter keys on non-US keyboards
    * FakeVim: Fix performance of find/replace
-   * Fixed disabled "Open with" context menu in project tree.
+   * Fakevim: Fix mark interpretion for d'a etc
+   * Fakevim: clear opcount and mvcount on escape
+   * Fakevim: fix Delete key in command mode
+   * Fakevim: fix backspace in the presence of physical tabs
+   * Fakevim: fix insert of Tabs and up/down movement in the presence of real tabs
+   * Fakevim: fix mark positions after <Delete>
+   * Fakevim: make Ctrl-V <Tab> and Ctrl-V <Return> work in Insert and Ex mode
+   * BinEditor: Add "jump to address" functionality
+   * BinEditor: Add a bit of value interpretation
+   * BinEditor: Fix cursor position label
+   * BinEditor: Fix file name not being displayed
+   * BinEditor: Implement "Jump to start/end of file" for lazy data
+   * QmlDesigner: Fix crash when typing keywords as Ids
+   * QmlDesigner: Fix import handling in rewriter
+   * QmlDesigner: Prevent freezing while doing drag&drop on some Windows systems
+   * QML snippet: property has a name and a value, not two names
+   * QmlJS: Avoid infinite recursion when encountering property loops
+   * QmlJS: Make variables in imported JS documents show up in completion
+   * QmlJS: Remove spurious spaces from default import path in qmlproject
+   * Qt Designer integration: Fix Help button in stylesheet editor
+   * QuickDesigner: Make metainfo system robust for different version numbers
+   * QuickDesigner: Reduce numbers of redraws / state switching in States Editor
 
-C++ Support
+C++ Support:
+   * Added C-style comment folding
+   * Fix crash while renaming symbol when a symbol is being renamed
 
-Project support
+VCS Support:
+   * Diff editors: Set readonly attributes correctly
+   * Mercurial: Working directory not set for asynchronous commands
+   * Subversion: Remove LANG=C setting
+   * git: Adapt to 1.7.0, handling of renamed files. Reviewed-by: con
+
+Project support:
    * Fix auto-scrolling in application and compile output
+   * Cmake: Don't delete run configurations on switching buildconfigurations
+   * Ask to save all editors before running qmake
+   * Allow the user to set the version number used for the build deb package
+   * Don't crash if the session node is the current node in context menu
+   * Fix DESTDIR=. case
+   * Don't reset build directory for clone cmake buildconfigurations
+   * Don't show the full file name in the reload prompt by default
+   * Fix crash for newly added project nodes
+   * Improve task parsing
+   * Fixes: New Project action didn't respect the default project location
 
-Debugging
+Debugging:
+   * Fix 2.0 regression: QObject property display
+   * Speed up cdb debugging helper initialization
    * Fix display of certain structures within containers
    * Fix display of typedefs of typedefs of simple types such as qulonglong
    * Fix behaviour of 'step' and 'next' when a lower frame was selected
@@ -29,21 +73,68 @@ Debugging
    * Improve gdb version string parsing
    * Fix that the newest version of compiled debugging helper was not used
      if there was an older version still was around in a different search path
+   * Windows[gdb]: Fix Attach to running (gui) process
+   * Fix 2.0 regression: allow assignment to structure members
+   * Always switch to frame 0 before trying to leave frame
+   * Cache results of gdb.lookup_type to increase performance
+   * Finish "Launching" bar even if we don't hit a "^running"
+   * Fix 2.0 regression: 'jump to line' and 'run to line' with older versions of gdb
+   * Fix decoding of %04x encoded 16 bit big endian data
+   * Fix 2.0 regression: display of typedefs-of-typedefs, such as qulonglong
+   * Fix 2.0 regression: list of members in case gdb reports '_class_ SomeClass'
+   * Handle gdb 7.1.50's thread-group-started 'pid' field
+   * Fix python dumper for std::vector<bool>
+   * Improve robustness in the presence of outdated debug information
+   * Make ctrl-click to navigate between input and output pane (much) faster
+   * Switch off reverse debugging tool button if not useful
+   * Fix reporting of loaded libraries on Symbian devices
+   * Fix late crash when closing Creator while building debugging helper (QTCREATORBUG-1576)
 
-QML/JS Support
+QML/JS Support:
    * New QmlDesigner
      * Allows visual manipulation of .qml files
      * Supports changing top-level states
-     * Integrates tighly with text editor, e.g. shared history, navigation facilities ...
+     * Integrates tighly with text editor, e.g. shared history, navigation facilities ..
 
-Platform Specific
+Documentation: 
+   * Add description of the Use debug versions of Frameworks option
+   * Add descriptions for new Maemo packaging options
+   * Add info about layouts to the example
+   * Add information about unlocking views in Debug mode
+   * Add qtquick to defines to display Qt Quick information
+   * Add tips and tricks
+   * Edit the introduction
 
-Mac
+Translations:
+   * Update Japanese translation
+   * Update Russian translation
+   * Update Slovenian translation
+   * Update German translation
+   * Add Simplified Chinese translation
+   * Add French translation, done by the developpez.com team
 
-Linux (GNOME and KDE)
+Mac specific:
+   * Save maemo device configuration on MacOS
 
-Windows
+Linux specific:
+
+Windows specific:
    * Fixed that some menu items got disabled during keyboard navigation
+   * Fix wildcard expansion, etc. under windows
 
-Additional credits go to:
+Maemo specific:
+   * Fix Qemu start on Mac
+   * Fix building projects if MADDE is on a different drive then the project
+   * Fix access rights for remote .ssh directory
+   * Fix end-of-process detection
+   * Fix incorrect assumption about build directory
+   * Make device configuration id type consistent
+   * Make packaging step optional
 
+Symbian:
+   * Symbian support is no longer experimental
+   * Symbian/trk: Don't try to dereference references
+   * Symbian/trk: Fix handling of partial frames
+   * Small improvements to the abld parser
+   * Use outputparsers when creating S60 packages
+   * Improve detection of simulator Qts
