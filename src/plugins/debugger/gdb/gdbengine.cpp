@@ -3940,9 +3940,9 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
 
     m_gdb = QString::fromLocal8Bit(qgetenv("QTC_DEBUGGER_PATH"));
     if (m_gdb.isEmpty())
-        m_gdb = gdbBinaryForToolChain(startParameters().toolChainType);
-    if (m_gdb.isEmpty())
         m_gdb = gdb;
+    if (m_gdb.isEmpty())
+        m_gdb = gdbBinaryForToolChain(startParameters().toolChainType);
     if (m_gdb.isEmpty()) {
         handleAdapterStartFailed(
             msgNoBinaryForToolChain(startParameters().toolChainType),
