@@ -31,6 +31,7 @@
 #include "sftpchannel_p.h"
 
 #include "sshexception_p.h"
+#include "sshincomingpacket_p.h"
 #include "sshsendfacility_p.h"
 
 #include <QtCore/QDir>
@@ -246,6 +247,22 @@ void SftpChannelPrivate::handleChannelExtendedDataInternal(quint32 type,
 {
     qWarning("Unexpected extended data '%s' of type %d on SFTP channel.",
         data.data(), type);
+}
+
+void SftpChannelPrivate::handleExitStatus(const SshChannelExitStatus &exitStatus)
+{
+    const char * const message = "Remote SFTP service exited with exit code %d";
+#ifdef CREATOR_SSH_DEBUG
+    qDebug(message, exitStatus.exitStatus);
+#else
+    if (exitStatus.exitStatus != 0)
+        qWarning(message, exitStatus.exitStatus);
+#endif
+}
+
+void SftpChannelPrivate::handleExitSignal(const SshChannelExitSignal &signal)
+{
+    qWarning("Remote SFTP service killed; signal was %s", signal.signal.data());
 }
 
 void SftpChannelPrivate::handleCurrentPacket()

@@ -70,7 +70,8 @@ private:
     virtual void handleChannelDataInternal(const QByteArray &data);
     virtual void handleChannelExtendedDataInternal(quint32 type,
         const QByteArray &data);
-    virtual void handleChannelRequest(const SshIncomingPacket &packet);
+    virtual void handleExitStatus(const SshChannelExitStatus &exitStatus);
+    virtual void handleExitSignal(const SshChannelExitSignal &signal);
 
     void setProcState(ProcessState newState);
 

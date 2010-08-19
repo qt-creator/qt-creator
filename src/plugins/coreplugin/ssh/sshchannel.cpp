@@ -202,8 +202,14 @@ void AbstractSshChannel::handleChannelExtendedData(quint32 type, const QByteArra
 
 void AbstractSshChannel::handleChannelRequest(const SshIncomingPacket &packet)
 {
-    qWarning("Ignoring unknown request type '%s'",
-        packet.extractChannelRequestType().data());
+    checkChannelActive();
+    const QByteArray &requestType = packet.extractChannelRequestType();
+    if (requestType == SshIncomingPacket::ExitStatusType)
+        handleExitStatus(packet.extractChannelExitStatus());
+    else if (requestType == SshIncomingPacket::ExitSignalType)
+        handleExitSignal(packet.extractChannelExitSignal());
+    else
+        qWarning("Ignoring unknown request type '%s'", requestType.data());
 }
 
 int AbstractSshChannel::handleChannelOrExtendedChannelData(const QByteArray &data)

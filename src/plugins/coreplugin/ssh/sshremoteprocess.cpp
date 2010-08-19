@@ -210,28 +210,23 @@ void SshRemoteProcessPrivate::handleChannelExtendedDataInternal(quint32 type,
         emit errorOutputAvailable(data);
 }
 
-void SshRemoteProcessPrivate::handleChannelRequest(const SshIncomingPacket &packet)
+void SshRemoteProcessPrivate::handleExitStatus(const SshChannelExitStatus &exitStatus)
 {
-    checkChannelActive();
-    const QByteArray &requestType = packet.extractChannelRequestType();
-    if (requestType == SshIncomingPacket::ExitStatusType) {
-        const SshChannelExitStatus status = packet.extractChannelExitStatus();
 #ifdef CREATOR_SSH_DEBUG
-        qDebug("Process exiting with exit code %d", status.exitStatus);
+    qDebug("Process exiting with exit code %d", exitStatus.exitStatus);
 #endif
-        m_exitCode = status.exitStatus;
-        m_procState = Exited;
-    } else if (requestType == SshIncomingPacket::ExitSignalType) {
-        const SshChannelExitSignal &signal = packet.extractChannelExitSignal();
+    m_exitCode = exitStatus.exitStatus;
+    m_procState = Exited;
+}
+
+void SshRemoteProcessPrivate::handleExitSignal(const SshChannelExitSignal &signal)
+{
 #ifdef CREATOR_SSH_DEBUG
-        qDebug("Exit due to signal %s", signal.signal.data());
+    qDebug("Exit due to signal %s", signal.signal.data());
 #endif
-        setError(signal.error);
-        m_signal = signal.signal;
-        m_procState = Exited;
-    } else {
-        qWarning("Ignoring unknown request type '%s'", requestType.data());
-    }
+    setError(signal.error);
+    m_signal = signal.signal;
+    m_procState = Exited;
 }
 
 } // namespace Internal

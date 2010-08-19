@@ -75,6 +75,8 @@ private:
     virtual void handleChannelDataInternal(const QByteArray &data);
     virtual void handleChannelExtendedDataInternal(quint32 type,
         const QByteArray &data);
+    virtual void handleExitStatus(const SshChannelExitStatus &exitStatus);
+    virtual void handleExitSignal(const SshChannelExitSignal &signal);
 
     void handleCurrentPacket();
     void handleServerVersion();

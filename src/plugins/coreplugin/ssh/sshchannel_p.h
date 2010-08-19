@@ -39,6 +39,8 @@ QT_FORWARD_DECLARE_CLASS(QTimer);
 namespace Core {
 namespace Internal {
 
+class SshChannelExitSignal;
+class SshChannelExitStatus;
 class SshIncomingPacket;
 class SshSendFacility;
 
@@ -61,7 +63,6 @@ public:
 
     virtual void handleChannelSuccess()=0;
     virtual void handleChannelFailure()=0;
-    virtual void handleChannelRequest(const SshIncomingPacket &packet);
 
     virtual void closeHook()=0;
 
@@ -73,6 +74,7 @@ public:
     void handleChannelClose();
     void handleChannelData(const QByteArray &data);
     void handleChannelExtendedData(quint32 type, const QByteArray &data);
+    void handleChannelRequest(const SshIncomingPacket &packet);
 
     void requestSessionStart();
     void sendData(const QByteArray &data);
@@ -100,6 +102,8 @@ private:
     virtual void handleChannelDataInternal(const QByteArray &data)=0;
     virtual void handleChannelExtendedDataInternal(quint32 type,
         const QByteArray &data)=0;
+    virtual void handleExitStatus(const SshChannelExitStatus &exitStatus)=0;
+    virtual void handleExitSignal(const SshChannelExitSignal &signal)=0;
 
     void setState(ChannelState newState);
     void flushSendBuffer();
