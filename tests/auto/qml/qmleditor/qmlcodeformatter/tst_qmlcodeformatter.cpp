@@ -8,7 +8,7 @@
 
 using namespace QmlJSEditor;
 
-class tst_CodeFormatter: public QObject
+class tst_QMLCodeFormatter: public QObject
 {
     Q_OBJECT
 
@@ -105,7 +105,7 @@ void checkIndent(QList<Line> data, int style = 0)
     }
 }
 
-void tst_CodeFormatter::objectDefinitions1()
+void tst_QMLCodeFormatter::objectDefinitions1()
 {
     QList<Line> data;
     data << Line("import Qt 4.7")
@@ -127,7 +127,7 @@ void tst_CodeFormatter::objectDefinitions1()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::objectDefinitions2()
+void tst_QMLCodeFormatter::objectDefinitions2()
 {
     QList<Line> data;
     data << Line("import Qt 4.7")
@@ -141,7 +141,7 @@ void tst_CodeFormatter::objectDefinitions2()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::expressionEndSimple()
+void tst_QMLCodeFormatter::expressionEndSimple()
 {
     QList<Line> data;
     data << Line("Rectangle {")
@@ -156,7 +156,7 @@ void tst_CodeFormatter::expressionEndSimple()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::expressionEnd()
+void tst_QMLCodeFormatter::expressionEnd()
 {
     QList<Line> data;
     data << Line("Rectangle {")
@@ -172,7 +172,7 @@ void tst_CodeFormatter::expressionEnd()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::expressionEndParen()
+void tst_QMLCodeFormatter::expressionEndParen()
 {
     QList<Line> data;
     data << Line("Rectangle {")
@@ -190,7 +190,7 @@ void tst_CodeFormatter::expressionEndParen()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::expressionEndBracket()
+void tst_QMLCodeFormatter::expressionEndBracket()
 {
     QList<Line> data;
     data << Line("Rectangle {")
@@ -208,7 +208,7 @@ void tst_CodeFormatter::expressionEndBracket()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::objectBinding()
+void tst_QMLCodeFormatter::objectBinding()
 {
     QList<Line> data;
     data << Line("Rectangle {")
@@ -227,7 +227,7 @@ void tst_CodeFormatter::objectBinding()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::arrayBinding()
+void tst_QMLCodeFormatter::arrayBinding()
 {
     QList<Line> data;
     data << Line("Rectangle {")
@@ -258,7 +258,7 @@ void tst_CodeFormatter::arrayBinding()
 
 
 
-void tst_CodeFormatter::moreIfThenElse()
+void tst_QMLCodeFormatter::moreIfThenElse()
 {
     QList<Line> data;
     data << Line("Image {")
@@ -276,7 +276,7 @@ void tst_CodeFormatter::moreIfThenElse()
 }
 
 
-void tst_CodeFormatter::functionDeclaration()
+void tst_QMLCodeFormatter::functionDeclaration()
 {
     QList<Line> data;
     data << Line("Rectangle {")
@@ -310,7 +310,7 @@ void tst_CodeFormatter::functionDeclaration()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::functionExpression()
+void tst_QMLCodeFormatter::functionExpression()
 {
     QList<Line> data;
     data << Line("Rectangle {")
@@ -329,7 +329,7 @@ void tst_CodeFormatter::functionExpression()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::propertyDeclarations()
+void tst_QMLCodeFormatter::propertyDeclarations()
 {
     QList<Line> data;
     data << Line("Rectangle {")
@@ -352,7 +352,7 @@ void tst_CodeFormatter::propertyDeclarations()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::signalDeclarations()
+void tst_QMLCodeFormatter::signalDeclarations()
 {
     QList<Line> data;
     data << Line("Rectangle {")
@@ -371,7 +371,7 @@ void tst_CodeFormatter::signalDeclarations()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::ifBinding1()
+void tst_QMLCodeFormatter::ifBinding1()
 {
     QList<Line> data;
     data << Line("A.Rectangle {")
@@ -401,7 +401,7 @@ void tst_CodeFormatter::ifBinding1()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::ifBinding2()
+void tst_QMLCodeFormatter::ifBinding2()
 {
     QList<Line> data;
     data << Line("A.Rectangle {")
@@ -427,7 +427,7 @@ void tst_CodeFormatter::ifBinding2()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::ifStatementWithoutBraces1()
+void tst_QMLCodeFormatter::ifStatementWithoutBraces1()
 {
     QList<Line> data;
     data << Line("Rectangle {")
@@ -450,7 +450,7 @@ void tst_CodeFormatter::ifStatementWithoutBraces1()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::ifStatementWithoutBraces2()
+void tst_QMLCodeFormatter::ifStatementWithoutBraces2()
 {
     QList<Line> data;
     data << Line("Rectangle {")
@@ -480,7 +480,7 @@ void tst_CodeFormatter::ifStatementWithoutBraces2()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::ifStatementWithBraces1()
+void tst_QMLCodeFormatter::ifStatementWithBraces1()
 {
     QList<Line> data;
     data << Line("Rectangle {")
@@ -505,7 +505,7 @@ void tst_CodeFormatter::ifStatementWithBraces1()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::ifStatementWithBraces2()
+void tst_QMLCodeFormatter::ifStatementWithBraces2()
 {
     QList<Line> data;
     data << Line("Rectangle {")
@@ -540,7 +540,7 @@ void tst_CodeFormatter::ifStatementWithBraces2()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::ifStatementMixed()
+void tst_QMLCodeFormatter::ifStatementMixed()
 {
     QList<Line> data;
     data << Line("Rectangle {")
@@ -559,7 +559,7 @@ void tst_CodeFormatter::ifStatementMixed()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::ifStatementAndComments()
+void tst_QMLCodeFormatter::ifStatementAndComments()
 {
     QList<Line> data;
     data << Line("Rectangle {")
@@ -583,7 +583,7 @@ void tst_CodeFormatter::ifStatementAndComments()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::ifStatementLongCondition()
+void tst_QMLCodeFormatter::ifStatementLongCondition()
 {
     QList<Line> data;
     data << Line("Rectangle {")
@@ -600,7 +600,7 @@ void tst_CodeFormatter::ifStatementLongCondition()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::strayElse()
+void tst_QMLCodeFormatter::strayElse()
 {
     QList<Line> data;
     data << Line("Rectangle {")
@@ -613,7 +613,7 @@ void tst_CodeFormatter::strayElse()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::oneLineIf()
+void tst_QMLCodeFormatter::oneLineIf()
 {
     QList<Line> data;
     data << Line("Rectangle {")
@@ -624,7 +624,7 @@ void tst_CodeFormatter::oneLineIf()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::forStatement()
+void tst_QMLCodeFormatter::forStatement()
 {
     QList<Line> data;
     data << Line("for (var i = 0; i < 20; ++i) {")
@@ -647,7 +647,7 @@ void tst_CodeFormatter::forStatement()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::whileStatement()
+void tst_QMLCodeFormatter::whileStatement()
 {
     QList<Line> data;
     data << Line("while (i < 20) {")
@@ -670,7 +670,7 @@ void tst_CodeFormatter::whileStatement()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::tryStatement()
+void tst_QMLCodeFormatter::tryStatement()
 {
     QList<Line> data;
     data << Line("try {")
@@ -688,7 +688,7 @@ void tst_CodeFormatter::tryStatement()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::doWhile()
+void tst_QMLCodeFormatter::doWhile()
 {
     QList<Line> data;
     data << Line("function foo() {")
@@ -705,7 +705,7 @@ void tst_CodeFormatter::doWhile()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::cStyleComments()
+void tst_QMLCodeFormatter::cStyleComments()
 {
     QList<Line> data;
     data << Line("/*")
@@ -735,7 +735,7 @@ void tst_CodeFormatter::cStyleComments()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::cppStyleComments()
+void tst_QMLCodeFormatter::cppStyleComments()
 {
     QList<Line> data;
     data << Line("// abc")
@@ -751,7 +751,7 @@ void tst_CodeFormatter::cppStyleComments()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::ternary()
+void tst_QMLCodeFormatter::ternary()
 {
     QList<Line> data;
     data << Line("function foo() {")
@@ -774,7 +774,7 @@ void tst_CodeFormatter::ternary()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::switch1()
+void tst_QMLCodeFormatter::switch1()
 {
     QList<Line> data;
     data << Line("function foo() {")
@@ -803,7 +803,7 @@ void tst_CodeFormatter::switch1()
     checkIndent(data);
 }
 
-//void tst_CodeFormatter::gnuStyle()
+//void tst_QMLCodeFormatter::gnuStyle()
 //{
 //    QList<Line> data;
 //    data << Line("struct S")
@@ -830,7 +830,7 @@ void tst_CodeFormatter::switch1()
 //    checkIndent(data, 1);
 //}
 
-//void tst_CodeFormatter::whitesmithsStyle()
+//void tst_QMLCodeFormatter::whitesmithsStyle()
 //{
 //    QList<Line> data;
 //    data << Line("struct S")
@@ -850,7 +850,7 @@ void tst_CodeFormatter::switch1()
 //    checkIndent(data, 2);
 //}
 
-void tst_CodeFormatter::qmlKeywords()
+void tst_QMLCodeFormatter::qmlKeywords()
 {
     QList<Line> data;
     data << Line("Rectangle {")
@@ -868,7 +868,7 @@ void tst_CodeFormatter::qmlKeywords()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::expressionContinuation()
+void tst_QMLCodeFormatter::expressionContinuation()
 {
     QList<Line> data;
     data << Line("var x = 1 ? 2")
@@ -883,6 +883,6 @@ void tst_CodeFormatter::expressionContinuation()
 }
 
 QTEST_APPLESS_MAIN(tst_CodeFormatter)
-#include "tst_codeformatter.moc"
+#include "tst_qmlcodeformatter.moc"
 
 

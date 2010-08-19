@@ -1,3 +1,2 @@
 TEMPLATE = subdirs
-
-SUBDIRS += lookup codeformatter
+SUBDIRS += qmllookup qmlcodeformatter

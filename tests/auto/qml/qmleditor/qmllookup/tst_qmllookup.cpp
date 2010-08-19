@@ -15,13 +15,13 @@ using namespace QmlJSEditor::Internal;
 using namespace QmlJS;
 using namespace QmlJS::AST;
 
-class tst_Lookup: public QObject
+class tst_QMLLookup: public QObject
 {
     Q_OBJECT
 
 public:
-    tst_Lookup(): _typeSystem(0) {}
-    ~tst_Lookup() { if (_typeSystem) resetTypeSystem(); }
+    tst_QMLLookup(): _typeSystem(0) {}
+    ~tst_QMLLookup() { if (_typeSystem) resetTypeSystem(); }
 
     void resetTypeSystem() { if (_typeSystem) { delete _typeSystem; _typeSystem = 0; }}
 
@@ -72,7 +72,7 @@ private:
     TypeSystem *_typeSystem;
 };
 
-void tst_Lookup::basicSymbolTest()
+void tst_QMLLookup::basicSymbolTest()
 {
     const QLatin1String input(
             "import Qt 4.6\n"
@@ -121,7 +121,7 @@ void tst_Lookup::basicSymbolTest()
     QCOMPARE(xSymbol->name(), QLatin1String("x"));
 }
 
-void tst_Lookup::basicLookupTest()
+void tst_QMLLookup::basicLookupTest()
 {
     const QLatin1String input(
             "import Qt 4.6\n"
@@ -170,7 +170,7 @@ void tst_Lookup::basicLookupTest()
     QVERIFY(fontPropFound);
 }
 
-void tst_Lookup::localIdLookup()
+void tst_QMLLookup::localIdLookup()
 {
     QFile input(":/data/localIdLookup.qml");
     QVERIFY(input.open(QIODevice::ReadOnly));
@@ -208,7 +208,7 @@ void tst_Lookup::localIdLookup()
     }
 }
 
-void tst_Lookup::localScriptMethodLookup()
+void tst_QMLLookup::localScriptMethodLookup()
 {
     QFile input(":/data/localScriptMethodLookup.qml");
     QVERIFY(input.open(QIODevice::ReadOnly));
@@ -246,7 +246,7 @@ void tst_Lookup::localScriptMethodLookup()
     }
 }
 
-void tst_Lookup::localScopeLookup()
+void tst_QMLLookup::localScopeLookup()
 {
     QFile input(":/data/localScopeLookup.qml");
     QVERIFY(input.open(QIODevice::ReadOnly));
@@ -284,7 +284,7 @@ void tst_Lookup::localScopeLookup()
     }
 }
 
-void tst_Lookup::localRootLookup()
+void tst_QMLLookup::localRootLookup()
 {
     QFile input(":/data/localRootLookup.qml");
     QVERIFY(input.open(QIODevice::ReadOnly));
@@ -321,4 +321,4 @@ void tst_Lookup::localRootLookup()
 }
 
 QTEST_APPLESS_MAIN(tst_Lookup)
-#include "tst_lookup.moc"
+#include "tst_qmllookup.moc"
