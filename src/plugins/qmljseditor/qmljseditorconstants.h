@@ -36,7 +36,6 @@ namespace QmlJSEditor {
 namespace Constants {
 
 // menus
-const char * const M_QTQUICK = "QtQuickDesigner.Menu";
 const char * const M_CONTEXT = "QML JS Editor.ContextMenu";
 
 const char * const RUN_SEP = "QmlJSEditor.Run.Separator";
