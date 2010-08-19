@@ -164,7 +164,8 @@ void PlainTextEditor::setTabSettings(const TextEditor::TabSettings &ts)
 
 void PlainTextEditor::configure()
 {
-    configure(Core::ICore::instance()->mimeDatabase()->findByFile(file()->fileName()));
+    if (file())
+        configure(Core::ICore::instance()->mimeDatabase()->findByFile(file()->fileName()));
 }
 
 void PlainTextEditor::configure(const Core::MimeType &mimeType)
