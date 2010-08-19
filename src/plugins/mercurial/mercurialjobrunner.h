@@ -38,6 +38,7 @@
 #include <QtCore/QSharedPointer>
 #include <QtCore/QVariant>
 #include <QtCore/QString>
+#include <QtCore/QPointer>
 
 QT_BEGIN_NAMESPACE
 class QProcess;
@@ -64,10 +65,10 @@ public:
                     VCSBase::VCSBaseEditor *editor,
                     const QVariant &cookie = QVariant());
 
-    bool shouldEmit() { return emitRaw; }
-    VCSBase::VCSBaseEditor* displayEditor() { return editor; }
-    QStringList args() { return arguments; }
-    QString repositoryRoot() { return m_repositoryRoot; }
+    bool shouldEmit() const { return emitRaw; }
+    VCSBase::VCSBaseEditor* displayEditor() const;
+    QStringList args() const { return arguments; }
+    QString repositoryRoot() const { return m_repositoryRoot; }
 
 signals:
     void succeeded(const QVariant &cookie); // Use a queued connection
@@ -81,7 +82,7 @@ private:
     const QStringList arguments;
     const bool emitRaw;
     const QVariant m_cookie;
-    VCSBase::VCSBaseEditor *editor;
+    QPointer<VCSBase::VCSBaseEditor> editor; // User might close it.
 };
 
 /* A job queue running in a separate thread, executing commands
