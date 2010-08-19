@@ -361,6 +361,9 @@ void Qt4ProjectConfigWidget::updateImportLabel()
             case ProjectExplorer::Task::Warning:
                 type = tr("Warning: ");
                 break;
+            case ProjectExplorer::Task::Unknown:
+            default:
+                break;
             }
             if (!text.endsWith(QLatin1String("br>")))
                 text.append(QLatin1String("<br>"));
