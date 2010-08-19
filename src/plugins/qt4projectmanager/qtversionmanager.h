@@ -147,7 +147,7 @@ public:
     /// its symbian setup.
     /// @return a list of tasks, ordered on severity (errors first, then
     ///         warnings and finally info items.
-    QList<ProjectExplorer::Task> reportIssues(const QString &proFile);
+    QList<ProjectExplorer::Task> reportIssues(const QString &proFile, const QString &buildDir);
 
 private:
     QList<QSharedPointer<ProjectExplorer::ToolChain> > toolChains() const;
