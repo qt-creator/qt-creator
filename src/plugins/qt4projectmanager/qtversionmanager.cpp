@@ -725,6 +725,7 @@ void QtVersion::setQMakeCommand(const QString& qmakeCommand)
 #endif
     m_designerCommand.clear();
     m_linguistCommand.clear();
+    m_qmlviewerCommand.clear();
     m_uicCommand.clear();
     m_toolChainUpToDate = false;
     // TODO do i need to optimize this?
@@ -1176,6 +1177,22 @@ QString QtVersion::linguistCommand() const
     if (m_linguistCommand.isNull())
         m_linguistCommand = findQtBinary(possibleGuiBinaries(QLatin1String("linguist")));
     return m_linguistCommand;
+}
+
+QString QtVersion::qmlviewerCommand() const
+{
+    if (!isValid())
+        return QString();
+    if (m_qmlviewerCommand.isNull()) {
+#ifdef Q_OS_MAC
+        const QString qmlViewerName = QLatin1String("QMLViewer");
+#else
+        const QString qmlViewerName = QLatin1String("qmlviewer");
+#endif
+
+        m_qmlviewerCommand = findQtBinary(possibleGuiBinaries(qmlViewerName));
+    }
+    return m_qmlviewerCommand;
 }
 
 bool QtVersion::supportsTargetId(const QString &id) const

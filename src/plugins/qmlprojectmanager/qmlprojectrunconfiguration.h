@@ -88,18 +88,19 @@ public slots:
     void changeCurrentFile(Core::IEditor*);
 
 private slots:
-
     QString mainScript() const;
     void setMainScript(const QString &scriptFile);
     void updateFileComboBox();
+
+    void updateEnabled();
 
     void onViewerChanged();
     void onViewerArgsChanged();
     void onDebugServerAddressChanged();
     void onDebugServerPortChanged();
 
-
 protected:
+    QString viewerDefaultPath() const;
     QmlProjectRunConfiguration(Internal::QmlProjectTarget *parent, QmlProjectRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
     void setEnabled(bool value);
@@ -114,7 +115,6 @@ private:
 
     QString m_scriptFile;
     QString m_qmlViewerCustomPath;
-    QString m_qmlViewerDefaultPath;
     QString m_qmlViewerArgs;
     QmlProjectRunConfigurationDebugData m_debugData;
 
