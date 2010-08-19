@@ -1141,6 +1141,8 @@ SalCommand()
 #######################################################################
 
 
+qqQObjectCache = {}
+
 class Dumper:
     def __init__(self):
         self.output = ""
@@ -1153,6 +1155,25 @@ class Dumper:
         self.currentValueEncoding = None
         self.currentType = None
         self.currentTypePriority = -100
+
+    def checkForQObjectBase(self, type):
+        if type.code != gdb.TYPE_CODE_STRUCT:
+            return False
+        name = str(type)
+        if name in qqQObjectCache:
+            return qqQObjectCache[name]
+        if name == self.ns + "QObject":
+            qqQObjectCache[name] = True
+            return True
+        fields = type.strip_typedefs().fields()
+        if len(fields) == 0:
+            qqQObjectCache[name] = False
+            return False
+        base = fields[0].type.strip_typedefs()
+        result = self.checkForQObjectBase(base)
+        qqQObjectCache[name] = result
+        return result
+
 
     def put(self, value):
         self.output += value
@@ -1338,11 +1359,7 @@ class Dumper:
             return
 
         # Is this derived from QObject?
-        hasMetaObject = False
-        for field in typedefStrippedType.strip_typedefs().fields():
-            if field.name == "staticMetaObject":
-                hasMetaObject = True
-                break
+        isQObjectDerived = self.checkForQObjectBase(typedefStrippedType)
 
         nsStrippedType = self.stripNamespaceFromType(typedefStrippedType)\
             .replace("::", "__")
@@ -1354,10 +1371,10 @@ class Dumper:
 
         if self.useFancy \
                 and ((format is None) or (format >= 1)) \
-                and ((nsStrippedType in self.dumpers) or hasMetaObject):
+                and ((nsStrippedType in self.dumpers) or isQObjectDerived):
             #warn("IS DUMPABLE: %s " % type)
             self.putType(item.value.type)
-            if hasMetaObject:
+            if isQObjectDerived:
                 # value has references stripped off item.value.
                 item1 = Item(value, item.iname)
                 qdump__QObject(self, item1)
