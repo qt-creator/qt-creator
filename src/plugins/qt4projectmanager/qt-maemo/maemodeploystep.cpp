@@ -330,6 +330,8 @@ void MaemoDeployStep::handleConnected()
     Q_ASSERT(!m_currentDeployAction);
     Q_ASSERT(!m_needsInstall);
     Q_ASSERT(m_filesToCopy.isEmpty());
+    // TODO: Move this step up. We don't have to be connected to find out
+    // whether we need to deploy.
     const MaemoPackageCreationStep * const pStep = packagingStep();
     const QString hostName = m_connection->connectionParameters().host;
     if (pStep->isPackagingEnabled()) {

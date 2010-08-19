@@ -80,14 +80,14 @@ private slots:
     void handleUploaderInitialized();
     void handleUploaderInitializationFailed(const QString &reason);
     void handleUploadFinished(Core::SftpJobId jobId, const QString &error);
+    void handleUtfsClientsStarted();
     void handleUtfsClientsFinished(int exitStatus);
-    void handleUnmountProcessFinished(int exitStatus);
     void handleUtfsClientStderr(const QByteArray &output);
-    void handleUtfsServerStderr();
-    void handleUtfsServerError(QProcess::ProcessError error);
+    void handleUnmountProcessFinished(int exitStatus);
+    void handleUmountStderr(const QByteArray &output);
+    void handleUtfsServerError(QProcess::ProcessError procError);
     void handleUtfsServerFinished(int exitCode,
         QProcess::ExitStatus exitStatus);
-    void handleUmountStderr(const QByteArray &output);
     void handleUtfsServerTimeout();
 
 private:
@@ -118,13 +118,7 @@ private:
     Core::SftpJobId m_uploadJobId;
 
     typedef QSharedPointer<QProcess> ProcPtr;
-    struct UtfsServerInfo {
-        UtfsServerInfo(const ProcPtr &p) : proc(p) {}
-        ProcPtr proc;
-        QByteArray output;
-    };
-    QList<UtfsServerInfo> m_startedUtfsServers;
-    QList<UtfsServerInfo> m_readyUtfsServers;
+    QList<ProcPtr> m_utfsServers;
 
     bool m_stop;
     QByteArray m_utfsClientStderr;
