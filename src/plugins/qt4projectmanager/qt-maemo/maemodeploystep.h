@@ -43,7 +43,7 @@
 #include <QtCore/QPair>
 #include <QtCore/QSharedPointer>
 
-// #define DEPLOY_VIA_MOUNT
+#define DEPLOY_VIA_MOUNT
 
 QT_BEGIN_NAMESPACE
 class QEventLoop;
