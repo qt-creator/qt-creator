@@ -19,7 +19,7 @@ class ProFileReader;
 class MaemoProFileWrapper
 {
 public:
-    MaemoProFileWrapper(const QString &proFileName,
+    MaemoProFileWrapper(const QString &proFileName, const QString &buildDir,
         const QSharedPointer<ProFileOption> &proFileOption);
     ~MaemoProFileWrapper();
 
@@ -68,6 +68,7 @@ private:
 
     const QString m_proFileName;
     const QDir m_proDir;
+    const QString m_buildDir;
     const QSharedPointer<ProFileOption> m_proFileOption;
     mutable QStringList m_proFileContents;
     mutable QScopedPointer<ProFileReader> m_proFileReader;

@@ -45,7 +45,8 @@ MaemoDeployableListModel::MaemoDeployableListModel(const Qt4ProFileNode *proFile
     : QAbstractTableModel(parent),
       m_proFileNode(proFileNode),
       m_modified(false),
-      m_proFileWrapper(new MaemoProFileWrapper(m_proFileNode->path(), proFileOption))
+      m_proFileWrapper(new MaemoProFileWrapper(m_proFileNode->path(),
+          m_proFileNode->buildDir(), proFileOption))
 {
     buildModel();
 }
@@ -59,8 +60,8 @@ bool MaemoDeployableListModel::buildModel()
     const MaemoProFileWrapper::InstallsList &installs = m_proFileWrapper->installs();
     if (installs.targetPath.isEmpty()) {
         const QString remoteDir = m_proFileNode->projectType() == LibraryTemplate
-            ? QLatin1String("/usr/local/lib")
-            : QLatin1String("/usr/local/bin");
+            ? QLatin1String("/usr/lib")
+            : QLatin1String("/usr/bin");
         m_deployables.prepend(MaemoDeployable(localExecutableFilePath(),
             remoteDir));
         QFile projectFile(m_proFileNode->path());

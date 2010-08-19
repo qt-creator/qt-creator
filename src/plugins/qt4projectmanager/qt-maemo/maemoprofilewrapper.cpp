@@ -27,9 +27,9 @@ namespace {
 
 
 MaemoProFileWrapper::MaemoProFileWrapper(const QString &proFileName,
-    const QSharedPointer<ProFileOption> &proFileOption)
+    const QString &buildDir, const QSharedPointer<ProFileOption> &proFileOption)
     : m_proFileName(proFileName), m_proDir(QFileInfo(m_proFileName).dir()),
-      m_proFileOption(proFileOption)
+      m_buildDir(buildDir), m_proFileOption(proFileOption)
 {
     parseProFile(ParseFromFile);
 }
@@ -223,6 +223,7 @@ QString MaemoProFileWrapper::absFilePath(const QString &relFilePath) const
 void MaemoProFileWrapper::parseProFile(ParseType type) const
 {
     m_proFileReader.reset(new ProFileReader(m_proFileOption.data()));
+    m_proFileReader->setOutputDir(m_buildDir);
     m_proFileReader->setCumulative(false);
     // TODO: Set output dir to build dir?
     if (type == ParseFromLines) {
