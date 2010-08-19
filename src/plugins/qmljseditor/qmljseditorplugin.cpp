@@ -36,7 +36,6 @@
 #include "qmljshoverhandler.h"
 #include "qmljsmodelmanager.h"
 #include "qmlfilewizard.h"
-#include "qmljspreviewrunner.h"
 
 #include <qmldesigner/qmldesignerconstants.h>
 
@@ -99,8 +98,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     addAutoReleasedObject(m_modelManager);
 
     QList<int> context;
-    context << core->uniqueIDManager()->uniqueIdentifier(QmlJSEditor::Constants::C_QMLJSEDITOR_ID)
-            << core->uniqueIDManager()->uniqueIdentifier(QmlDesigner::Constants::C_QT_QUICK_TOOLS_MENU);
+    context << core->uniqueIDManager()->uniqueIdentifier(QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
 
     m_editor = new QmlJSEditorFactory(this);
     addObject(m_editor);
@@ -122,21 +120,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     Core::ActionManager *am =  core->actionManager();
     Core::ActionContainer *contextMenu = am->createMenu(QmlJSEditor::Constants::M_CONTEXT);
 
-    Core::ActionContainer *mtools = am->actionContainer(Core::Constants::M_TOOLS);
-    Core::ActionContainer *menuQtQuick = am->createMenu(Constants::M_QTQUICK);
-    menuQtQuick->menu()->setTitle(tr("Qt Quick"));
-    mtools->addMenu(menuQtQuick);
-    m_actionPreview = new QAction("&Preview", this);
-
-    QList<int> toolsMenuContext = QList<int>()
-                                  << core->uniqueIDManager()->uniqueIdentifier(QmlDesigner::Constants::C_QT_QUICK_TOOLS_MENU);
-    Core::Command *cmd = addToolAction(m_actionPreview,  am, toolsMenuContext,
-                   QLatin1String("QtQuick.Preview"), menuQtQuick, tr("Ctrl+Alt+R"));
-    connect(cmd->action(), SIGNAL(triggered()), SLOT(openPreview()));
-
-    m_previewRunner = new QmlJSPreviewRunner(this);
-    m_actionPreview->setEnabled(m_previewRunner->isReady());
-
+    Core::Command *cmd;
     QAction *followSymbolUnderCursorAction = new QAction(tr("Follow Symbol Under Cursor"), this);
     cmd = am->registerAction(followSymbolUnderCursorAction, Constants::FOLLOW_SYMBOL_UNDER_CURSOR, context);
     cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F2));
@@ -170,15 +154,6 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
 
 void QmlJSEditorPlugin::extensionsInitialized()
 {
-}
-
-void QmlJSEditorPlugin::openPreview()
-{
-    Core::EditorManager *em = Core::EditorManager::instance();
-
-    if (em->currentEditor() && em->currentEditor()->id() == Constants::C_QMLJSEDITOR_ID)
-        m_previewRunner->run(em->currentEditor()->file()->fileName());
-
 }
 
 void QmlJSEditorPlugin::initializeEditor(QmlJSEditor::Internal::QmlJSTextEditor *editor)
