@@ -1028,7 +1028,7 @@ private:
             , m_option(option)
             , m_context(context)
         {
-            setDescription(QApplication::translate("CppTools::QuickFix", "Mark as translateable"));
+            setDescription(QApplication::translate("CppTools::QuickFix", "Mark as translatable"));
         }
 
         virtual void performChanges(CppRefactoringFile *currentFile, CppRefactoringChanges *)

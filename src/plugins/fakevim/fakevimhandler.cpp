@@ -3346,7 +3346,7 @@ bool FakeVimHandler::Private::handleExWriteCommand(const ExCommand &cmd)
         file3.open(QIODevice::ReadOnly);
         QByteArray ba = file3.readAll();
         showBlackMessage(FakeVimHandler::tr("\"%1\" %2 %3L, %4C written")
-            .arg(fileName).arg(exists ? " " : " [New] ")
+            .arg(fileName).arg(exists ? " " : tr(" [New] "))
             .arg(ba.count('\n')).arg(ba.size()));
         //if (quitAll)
         //    passUnknownExCommand(forced ? "qa!" : "qa");
