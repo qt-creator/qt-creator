@@ -830,7 +830,7 @@ void SubversionPlugin::svnStatus(const QString &workingDir, const QStringList &r
     VCSBase::VCSBaseOutputWindow *outwin = VCSBase::VCSBaseOutputWindow::instance();
     outwin->setRepository(workingDir);
     runSvn(workingDir, args, m_settings.timeOutMS(),
-           ShowStdOutInLogWindow);
+           ShowStdOutInLogWindow|ShowSuccessMessage);
     outwin->clearRepository();
 }
 
