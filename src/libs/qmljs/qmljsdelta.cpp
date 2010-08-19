@@ -120,18 +120,18 @@ struct FindObjectMemberWithLabel : public Visitor
     virtual void endVisit(UiObjectBinding *ast) ;
 
     QList<UiObjectMember *> found;
-    QString label;
+    QString ref_label;
     Document::Ptr doc;
 };
 
 void FindObjectMemberWithLabel::endVisit(UiObjectDefinition* ast)
 {
-    if (::label(ast, doc) == label)
+    if (label(ast, doc) == ref_label)
         found.append(ast);
 }
 void FindObjectMemberWithLabel::endVisit(UiObjectBinding* ast)
 {
-    if (::label(ast, doc) == label)
+    if (label(ast, doc) == ref_label)
         found.append(ast);
 }
 
@@ -232,7 +232,7 @@ static Map buildMapping(Document::Ptr doc1, Document::Ptr doc2)
 
         //If this is too slow, we could use some sort of indexing
         FindObjectMemberWithLabel v3;
-        v3.label = label(x, doc1);
+        v3.ref_label = label(x, doc1);
         v3.doc = doc2;
         doc2->qmlProgram()->accept(&v3);
         Map M2;
