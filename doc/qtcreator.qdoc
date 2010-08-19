@@ -4558,6 +4558,9 @@
     program is interrupted. To do so, click the \gui Value column, modify
     the value with the inplace editor, and press \key Enter (or \key Return).
 
+    You can enable tooltips in the main editor displaying this information.
+    For more information, see \l{Showing Tooltips in Debug Mode}.
+
     \note The set of watched items is saved in your session.
 
 */
@@ -6388,6 +6391,15 @@
         \o Uncheck the \gui{Use Debugging Helper} checkbox.
     \endlist
 
+    \section1 Showing Tooltips in Debug Mode
+
+    To inspect the value of variables from the editor, you can turn
+    on tooltips. Tooltips are hidden by default for performance reasons.
+
+    \list 1
+        \o Select \gui Tools > \gui Options... > \gui Debugger > \gui General.
+        \o Select the \gui {Use tooltips in main editor while debugging} check box.
+    \endlist
 
     \section1 Locating Files
 
