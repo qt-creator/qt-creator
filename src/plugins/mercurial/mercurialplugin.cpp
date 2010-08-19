@@ -538,6 +538,7 @@ void MercurialPlugin::createSubmitEditorActions()
 
     editorCommit = new QAction(VCSBase::VCSBaseSubmitEditor::submitIcon(), tr("Commit"), this);
     command = actionManager->registerAction(editorCommit, QLatin1String(Constants::COMMIT), context);
+    command->setAttribute(Core::Command::CA_UpdateText);
     connect(editorCommit, SIGNAL(triggered()), this, SLOT(commitFromEditor()));
 
     editorDiff = new QAction(VCSBase::VCSBaseSubmitEditor::diffIcon(), tr("Diff Selected Files"), this);

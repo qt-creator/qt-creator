@@ -34,6 +34,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QPointer>
 #include <QtCore/QTimer>
+#include <QtCore/QScopedPointer>
 
 #include <QtGui/QPushButton>
 #include <QtGui/QMenu>
@@ -43,6 +44,8 @@
 
 enum { debug = 0 };
 enum { defaultLineWidth = 72 };
+
+enum { checkableColumn = 0 };
 
 namespace Utils {
 
@@ -68,9 +71,26 @@ QActionPushButton::QActionPushButton(QAction *a) :
 
 void QActionPushButton::actionChanged()
 {
-    if (const QAction *a = qobject_cast<QAction*>(sender()))
+    if (const QAction *a = qobject_cast<QAction*>(sender())) {
         setEnabled(a->isEnabled());
+        setText(a->text());
+    }
 }
+
+// A helper parented on a QAction,
+// making QAction::setText() a slot (which it currently is not).
+class QActionSetTextSlotHelper : public QObject
+{
+    Q_OBJECT
+public:
+    explicit QActionSetTextSlotHelper(QAction *a) : QObject(a) {}
+
+public slots:
+    void setText(const QString &t) {
+        if (QAction *action = qobject_cast<QAction *>(parent()))
+            action->setText(t);
+    }
+};
 
 // Helpers to retrieve model data
 static inline bool listModelChecked(const QAbstractItemModel *model, int row, int column = 0)
@@ -79,20 +99,20 @@ static inline bool listModelChecked(const QAbstractItemModel *model, int row, in
     return model->data(checkableIndex, Qt::CheckStateRole).toInt() == Qt::Checked;
 }
 
+static void setListModelChecked(QAbstractItemModel *model, bool checked, int column = 0)
+{
+    const QVariant data = QVariant(int(checked ? Qt::Checked : Qt::Unchecked));
+    const int count = model->rowCount();
+    for (int i = 0; i < count; i++) {
+        const QModelIndex checkableIndex = model->index(i, column, QModelIndex());
+        model->setData(checkableIndex, data, Qt::CheckStateRole);
+    }
+}
+
 static inline QString listModelText(const QAbstractItemModel *model, int row, int column)
 {
     const QModelIndex index = model->index(row, column, QModelIndex());
     return model->data(index, Qt::DisplayRole).toString();
-}
-
-// Find a check item in a model
-static bool listModelContainsCheckedItem(const QAbstractItemModel *model)
-{
-    const int count = model->rowCount();
-    for (int i = 0; i < count; i++)
-        if (listModelChecked(model, i, 0))
-            return true;
-    return false;
 }
 
 // Convenience to extract a list of selected indexes
@@ -151,6 +171,9 @@ SubmitEditorWidget::SubmitEditorWidget(QWidget *parent) :
             this, SLOT(editorCustomContextMenuRequested(QPoint)));
 
     // File List
+    m_d->m_ui.fileView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_d->m_ui.fileView, SIGNAL(customContextMenuRequested(QPoint)),
+            this, SLOT(fileListCustomContextMenuRequested(QPoint)));
     m_d->m_ui.fileView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_d->m_ui.fileView->setRootIsDecorated(false);
     connect(m_d->m_ui.fileView, SIGNAL(doubleClicked(QModelIndex)),
@@ -188,6 +211,11 @@ void SubmitEditorWidget::registerActions(QAction *editorUndoAction, QAction *edi
         }
         submitAction->setEnabled(m_d->m_filesChecked);
         connect(this, SIGNAL(fileCheckStateChanged(bool)), submitAction, SLOT(setEnabled(bool)));
+        // Wire setText via QActionSetTextSlotHelper.
+        QActionSetTextSlotHelper *actionSlotHelper = submitAction->findChild<QActionSetTextSlotHelper *>();
+        if (!actionSlotHelper)
+            actionSlotHelper = new QActionSetTextSlotHelper(submitAction);
+        connect(this, SIGNAL(submitActionTextChanged(QString)), actionSlotHelper, SLOT(setText(QString)));
         m_d->m_ui.buttonLayout->addWidget(new QActionPushButton(submitAction));
     }
     if (diffAction) {
@@ -212,8 +240,11 @@ void SubmitEditorWidget::unregisterActions(QAction *editorUndoAction,  QAction *
         disconnect(editorRedoAction, SIGNAL(triggered()), m_d->m_ui.description, SLOT(redo()));
     }
 
-    if (submitAction)
+    if (submitAction) {
         disconnect(this, SIGNAL(fileCheckStateChanged(bool)), submitAction, SLOT(setEnabled(bool)));
+        // Just deactivate the QActionSetTextSlotHelper on the action
+        disconnect(this, SIGNAL(submitActionTextChanged(QString)), 0, 0);
+    }
 
     if (diffAction) {
          disconnect(this, SIGNAL(fileSelectionChanged(bool)), diffAction, SLOT(setEnabled(bool)));
@@ -374,7 +405,7 @@ QStringList SubmitEditorWidget::checkedFiles() const
         return rc;
     const int count = model->rowCount();
     for (int i = 0; i < count; i++)
-        if (listModelChecked(model, i, 0))
+        if (listModelChecked(model, i, checkableColumn))
             rc.push_back(listModelText(model, i, fileNameColumn()));
     return rc;
 }
@@ -414,11 +445,19 @@ void SubmitEditorWidget::updateActions()
 // Enable submit depending on having checked files
 void SubmitEditorWidget::updateSubmitAction()
 {
-    const bool newFilesCheckedState = hasCheckedFiles();
+    const unsigned checkedCount = checkedFilesCount();
+    const bool newFilesCheckedState = checkedCount;
+    // Emit signal to update action
     if (m_d->m_filesChecked != newFilesCheckedState) {
         m_d->m_filesChecked = newFilesCheckedState;
         emit fileCheckStateChanged(m_d->m_filesChecked);
     }
+    // Update button text.
+    const int fileCount = m_d->m_ui.fileView->model()->rowCount();
+    const QString msg = checkedCount ?
+                        tr("Commit %1/%2 Files").arg(checkedCount).arg(fileCount) :
+                        tr("Commit");
+    emit submitActionTextChanged(msg);
 }
 
 // Enable diff depending on selected files
@@ -439,11 +478,16 @@ bool SubmitEditorWidget::hasSelection() const
     return false;
 }
 
-bool SubmitEditorWidget::hasCheckedFiles() const
+unsigned SubmitEditorWidget::checkedFilesCount() const
 {
-    if (const QAbstractItemModel *model = m_d->m_ui.fileView->model())
-        return listModelContainsCheckedItem(model);
-    return false;
+    unsigned checkedCount = 0;
+    if (const QAbstractItemModel *model = m_d->m_ui.fileView->model()) {
+        const int count = model->rowCount();
+        for (int i = 0; i < count; i++)
+            if (listModelChecked(model, i, checkableColumn))
+                checkedCount++;
+    }
+    return checkedCount;
 }
 
 void SubmitEditorWidget::changeEvent(QEvent *e)
@@ -496,7 +540,7 @@ void SubmitEditorWidget::insertDescriptionEditContextMenuAction(int pos, QAction
 
 void SubmitEditorWidget::editorCustomContextMenuRequested(const QPoint &pos)
 {
-    QMenu *menu = m_d->m_ui.description->createStandardContextMenu();
+    QScopedPointer<QMenu> menu(m_d->m_ui.description->createStandardContextMenu());
     // Extend
     foreach (const SubmitEditorWidgetPrivate::AdditionalContextMenuAction &a, m_d->descriptionEditContextMenuActions) {
         if (a.second) {
@@ -508,7 +552,33 @@ void SubmitEditorWidget::editorCustomContextMenuRequested(const QPoint &pos)
         }
     }
     menu->exec(m_d->m_ui.description->mapToGlobal(pos));
-    delete menu;
+}
+
+void SubmitEditorWidget::checkAll()
+{
+    setListModelChecked(m_d->m_ui.fileView->model(), true, checkableColumn);
+}
+
+void SubmitEditorWidget::uncheckAll()
+{
+    setListModelChecked(m_d->m_ui.fileView->model(), false, checkableColumn);
+}
+
+void SubmitEditorWidget::fileListCustomContextMenuRequested(const QPoint & pos)
+{
+    // Execute menu offering to check/uncheck all
+    QMenu menu;
+    QAction *checkAllAction = menu.addAction(tr("Check All"));
+    QAction *uncheckAllAction = menu.addAction(tr("Uncheck All"));
+    QAction *action = menu.exec(m_d->m_ui.fileView->mapToGlobal(pos));
+    if (action == checkAllAction) {
+        checkAll();
+        return;
+    }
+    if (action == uncheckAllAction) {
+        uncheckAll();
+        return;
+    }
 }
 
 } // namespace Utils

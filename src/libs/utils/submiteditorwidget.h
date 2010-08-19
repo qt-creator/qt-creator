@@ -80,6 +80,9 @@ public:
     explicit SubmitEditorWidget(QWidget *parent = 0);
     virtual ~SubmitEditorWidget();
 
+    // Register/Unregister actions that are managed by ActionManager with this widget.
+    // The submit action should have Core::Command::CA_UpdateText set as its text will
+    // be updated.
     void registerActions(QAction *editorUndoAction,  QAction *editorRedoAction,
                          QAction *submitAction = 0, QAction *diffAction = 0);
     void unregisterActions(QAction *editorUndoAction,  QAction *editorRedoAction,
@@ -121,6 +124,11 @@ signals:
     void diffSelected(const QStringList &);
     void fileSelectionChanged(bool someFileSelected);
     void fileCheckStateChanged(bool someFileChecked);
+    void submitActionTextChanged(const QString &);
+
+public slots:
+    void checkAll();
+    void uncheckAll();
 
 protected:
     virtual void changeEvent(QEvent *e);
@@ -134,10 +142,11 @@ private slots:
     void updateSubmitAction();
     void updateDiffAction();
     void editorCustomContextMenuRequested(const QPoint &);
+    void fileListCustomContextMenuRequested(const QPoint & pos);
 
 private:
     bool hasSelection() const;
-    bool hasCheckedFiles() const;
+    unsigned checkedFilesCount() const;
 
     SubmitEditorWidgetPrivate *m_d;
 };

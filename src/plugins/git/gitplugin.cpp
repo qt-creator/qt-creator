@@ -500,6 +500,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     Core::Context submitContext(Constants::C_GITSUBMITEDITOR);
     m_submitCurrentAction = new QAction(VCSBase::VCSBaseSubmitEditor::submitIcon(), tr("Commit"), this);
     Core::Command *command = actionManager->registerAction(m_submitCurrentAction, Constants::SUBMIT_CURRENT, submitContext);
+    command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_submitCurrentAction, SIGNAL(triggered()), this, SLOT(submitCurrentLog()));
 
     m_diffSelectedFilesAction = new QAction(VCSBase::VCSBaseSubmitEditor::diffIcon(), tr("Diff Selected Files"), this);
