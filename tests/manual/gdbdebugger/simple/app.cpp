@@ -1362,7 +1362,9 @@ Foo testStruct()
     f.doit();
     f.doit();
     f.doit();
-    return f;
+    Foo f1 = f;
+    f1.doit();
+    return f1;
 }
 
 class Thread : public QThread
