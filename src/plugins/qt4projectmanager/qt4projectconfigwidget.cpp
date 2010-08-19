@@ -341,18 +341,32 @@ void Qt4ProjectConfigWidget::updateImportLabel()
         }
     }
 
-    QString sourceDirectory =
-            m_buildConfiguration->target()->project()->projectDirectory();
-    if (!sourceDirectory.endsWith('/'))
-        sourceDirectory.append('/');
-    bool invalidBuildDirectory = m_buildConfiguration->shadowBuild()
-                                 && m_buildConfiguration->buildDirectory().startsWith(sourceDirectory);
+    QString buildDirectory = m_buildConfiguration->target()->project()->projectDirectory();;
+    if (m_buildConfiguration->shadowBuild())
+        buildDirectory = m_buildConfiguration->buildDirectory();
+    QList<ProjectExplorer::Task> issues = m_buildConfiguration->qtVersion()->reportIssues(m_buildConfiguration->target()->project()->file()->fileName(),
+                                                                                          buildDirectory);
 
-    if (invalidBuildDirectory) {
+    if (!issues.isEmpty()) {
         m_ui->problemLabel->setVisible(true);
         m_ui->warningLabel->setVisible(true);
         m_ui->importLabel->setVisible(visible);
-        m_ui->problemLabel->setText(tr("Building in subdirectories of the source directory is not supported by qmake."));
+        QString text = "<nobr>";
+        foreach (const ProjectExplorer::Task &task, issues) {
+            QString type;
+            switch (task.type) {
+            case ProjectExplorer::Task::Error:
+                type = tr("Error: ");
+                break;
+            case ProjectExplorer::Task::Warning:
+                type = tr("Warning: ");
+                break;
+            }
+            if (!text.endsWith(QLatin1String("br>")))
+                text.append(QLatin1String("<br>"));
+            text.append(type + task.description);
+        }
+        m_ui->problemLabel->setText(text);
     } else if (targetMatches) {
         m_ui->problemLabel->setVisible(false);
         m_ui->warningLabel->setVisible(false);
