@@ -673,8 +673,12 @@ QtVersion::reportIssues(const QString &proFile, const QString &buildDir)
         results.append(ProjectExplorer::Task(ProjectExplorer::Task::Warning, msg, QString(), -1,
                                              QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
     } else if (tmpBuildDir.count(QChar('/')) != sourcePath.count(QChar('/'))) {
+        // FIXME: We currently are in string freeze, so I have to reuse some existing text!
+        // const QString msg = QCoreApplication::translate("Qt4ProjectManager::QtVersion",
+        //                                                 "The build directory needs to be at the same level as the source directory.");
         const QString msg = QCoreApplication::translate("Qt4ProjectManager::QtVersion",
-                                                        "The build directory needs to be at the same level as the source directory.");
+                                                        "Qmake does not support build directories below the source directory.");
+
         results.append(ProjectExplorer::Task(ProjectExplorer::Task::Warning, msg, QString(), -1,
                                              QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
     }
