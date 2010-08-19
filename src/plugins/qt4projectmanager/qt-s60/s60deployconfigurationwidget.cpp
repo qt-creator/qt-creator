@@ -260,7 +260,7 @@ void S60DeployConfigurationWidget::slotLauncherStateChanged(int s)
     switch (s) {
     case trk::Launcher::WaitingForTrk: {
         // Entered trk wait state..open message box
-        QMessageBox *mb = S60DeviceRunControlBase::createTrkWaitingMessageBox(m_infoLauncher->trkServerName(), this);
+        QMessageBox *mb = S60DeviceRunControl::createTrkWaitingMessageBox(m_infoLauncher->trkServerName(), this);
         connect(m_infoLauncher, SIGNAL(stateChanged(int)), mb, SLOT(close()));
         connect(mb, SIGNAL(finished(int)), this, SLOT(slotWaitingForTrkClosed()));
         mb->open();

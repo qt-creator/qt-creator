@@ -310,7 +310,7 @@ void S60DeployStep::setReleaseDeviceAfterLauncherFinish(bool v)
 void S60DeployStep::slotLauncherStateChanged(int s)
 {
     if (s == trk::Launcher::WaitingForTrk) {
-        QMessageBox *mb = S60DeviceRunControlBase::createTrkWaitingMessageBox(m_launcher->trkServerName(),
+        QMessageBox *mb = S60DeviceRunControl::createTrkWaitingMessageBox(m_launcher->trkServerName(),
                                                                               Core::ICore::instance()->mainWindow());
         connect(m_launcher, SIGNAL(stateChanged(int)), mb, SLOT(close()));
         connect(mb, SIGNAL(finished(int)), this, SLOT(slotWaitingForTrkClosed()));

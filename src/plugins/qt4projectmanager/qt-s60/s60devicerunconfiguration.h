@@ -122,18 +122,14 @@ public:
     QString displayNameForId(const QString &id) const;
 };
 
-/* S60DeviceRunControlBase: Builds the package and starts launcher
- * to deploy. Subclasses can configure the launcher to run or start a debugger.
- * Building the  package comprises for:
- * GnuPoc: run 'make sis' with environment variables for signing set
- * Other:  run the makesis.exe tool, run signsis */
+// S60DeviceRunControl configures launcher to run the application
 
-class S60DeviceRunControlBase : public ProjectExplorer::RunControl
+class S60DeviceRunControl : public ProjectExplorer::RunControl
 {
     Q_OBJECT
 public:
-    explicit S60DeviceRunControlBase(ProjectExplorer::RunConfiguration *runConfiguration, QString mode);
-    ~S60DeviceRunControlBase();
+    explicit S60DeviceRunControl(ProjectExplorer::RunConfiguration *runConfiguration, QString mode);
+    ~S60DeviceRunControl();
     virtual void start();
     virtual void stop();
     virtual bool isRunning() const;
@@ -141,16 +137,18 @@ public:
     static QMessageBox *createTrkWaitingMessageBox(const QString &port, QWidget *parent = 0);
 
 protected:
-    virtual void initLauncher(const QString &executable, trk::Launcher *) = 0;
-    virtual void handleLauncherFinished() = 0;
+    virtual void initLauncher(const QString &executable, trk::Launcher *);
+    virtual void handleLauncherFinished();
     virtual bool checkConfiguration(QString *errorMessage,
                                     QString *settingsCategory,
                                     QString *settingsPage) const;
-    void setReleaseDeviceAfterLauncherFinish(bool);
 
 protected slots:
     void printApplicationOutput(const QString &output, bool onStdErr);
     void printApplicationOutput(const QString &output);
+    void printStartingNotice();
+    void applicationRunNotice(uint pid);
+    void applicationRunFailedNotice(const QString &errorMessage);
     void deviceRemoved(const SymbianUtils::SymbianDevice &);
     void reportDeployFinished();
 
@@ -162,7 +160,7 @@ private slots:
     void slotWaitingForTrkClosed();
 
 protected:
-    QFutureInterface<void> *m_deployProgress;
+    QFutureInterface<void> *m_launchProgress;
 
 private:
     void startLaunching();
@@ -176,53 +174,36 @@ private:
     QString m_executableFileName;
     QString m_qtDir;
     QString m_qtBinPath;
-    bool m_releaseDeviceAfterLauncherFinish;
     bool m_handleDeviceRemoval;
     trk::Launcher *m_launcher;
     char m_installationDrive;
 };
 
-// Configure launcher to run the application
-class S60DeviceRunControl : public S60DeviceRunControlBase
-{
-    Q_OBJECT
-public:
-    explicit S60DeviceRunControl(ProjectExplorer::RunConfiguration *runConfiguration, QString mode);
+// S60DeviceDebugRunControl starts debugging
 
-protected:
-    virtual void initLauncher(const QString &executable, trk::Launcher *);
-    virtual void handleLauncherFinished();
-
-private slots:
-    void printStartingNotice();
-    void applicationRunNotice(uint pid);
-    void applicationRunFailedNotice(const QString &errorMessage);
-
-private:
-};
-
-class S60DeviceDebugRunControl : public S60DeviceRunControlBase
+class S60DeviceDebugRunControl : public ProjectExplorer::RunControl
 {
     Q_DISABLE_COPY(S60DeviceDebugRunControl)
     Q_OBJECT
 public:
     explicit S60DeviceDebugRunControl(S60DeviceRunConfiguration *runConfiguration, QString mode);
     virtual ~S60DeviceDebugRunControl();
-
+    virtual void start();
     virtual void stop();
+    virtual bool isRunning() const;
 
 protected:
-    virtual void initLauncher(const QString &executable, trk::Launcher *);
-    virtual void handleLauncherFinished();
     virtual bool checkConfiguration(QString *errorMessage,
                                     QString *settingsCategory,
                                     QString *settingsPage) const;
 
 private slots:
     void debuggingFinished();
-private:
+
+protected:
     QSharedPointer<Debugger::DebuggerStartParameters> m_startParams;
     Debugger::DebuggerRunControl *m_debuggerRunControl;
+    QFutureInterface<void> *m_debugProgress;
     QString m_localExecutableFileName;
 };
 

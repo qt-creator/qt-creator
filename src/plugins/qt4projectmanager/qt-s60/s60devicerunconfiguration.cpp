@@ -74,9 +74,6 @@ const char * const PRO_FILE_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.Pro
 const char * const COMMUNICATION_TYPE_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.CommunicationType");
 const char * const COMMAND_LINE_ARGUMENTS_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.CommandLineArguments");
 
-const int    PROGRESS_DEPLOYBASE = 0;
-const int    PROGRESS_PACKAGEDEPLOYED = 100;
-const int    PROGRESS_PACKAGEINSTALLED = 200;
 const int    PROGRESS_MAX = 200;
 
 enum { debug = 0 };
@@ -211,7 +208,6 @@ bool S60DeviceRunConfiguration::fromMap(const QVariantMap &map)
     return RunConfiguration::fromMap(map);
 }
 
-
 static inline QString fixBaseNameTarget(const QString &in)
 {
     if (in == QLatin1String("udeb"))
@@ -323,10 +319,9 @@ RunConfiguration *S60DeviceRunConfigurationFactory::clone(Target *parent, RunCon
 
 // ======== S60DeviceRunControlBase
 
-S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfiguration, QString mode) :
+S60DeviceRunControl::S60DeviceRunControl(RunConfiguration *runConfiguration, QString mode) :
     RunControl(runConfiguration, mode),
     m_toolChain(ProjectExplorer::ToolChain::INVALID),
-    m_releaseDeviceAfterLauncherFinish(false),
     m_handleDeviceRemoval(true),
     m_launcher(0)
 {
@@ -350,11 +345,11 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfigurat
     QTC_ASSERT(!m_qtBinPath.isEmpty(), return);
     m_executableFileName = activeDeployConf->localExecutableFileName();
     if (debug)
-        qDebug() << "S60DeviceRunControlBase::CT" << m_targetName << ProjectExplorer::ToolChain::toolChainName(m_toolChain)
+        qDebug() << "S60DeviceRunControl::CT" << m_targetName << ProjectExplorer::ToolChain::toolChainName(m_toolChain)
                  << m_serialPortName;
 }
 
-S60DeviceRunControlBase::~S60DeviceRunControlBase()
+S60DeviceRunControl::~S60DeviceRunControl()
 {
     if (m_launcher) {
         m_launcher->deleteLater();
@@ -362,23 +357,18 @@ S60DeviceRunControlBase::~S60DeviceRunControlBase()
     }
 }
 
-void S60DeviceRunControlBase::setReleaseDeviceAfterLauncherFinish(bool v)
+void S60DeviceRunControl::start()
 {
-    m_releaseDeviceAfterLauncherFinish = v;
-}
-
-void S60DeviceRunControlBase::start()
-{
-    m_deployProgress = new QFutureInterface<void>;
-    Core::ICore::instance()->progressManager()->addTask(m_deployProgress->future(),
+    m_launchProgress = new QFutureInterface<void>;
+    Core::ICore::instance()->progressManager()->addTask(m_launchProgress->future(),
                                                         tr("Launching"),
                                                         QLatin1String("Symbian.Launch"));
-    m_deployProgress->setProgressRange(0, PROGRESS_MAX);
-    m_deployProgress->setProgressValue(0);
-    m_deployProgress->reportStarted();
+    m_launchProgress->setProgressRange(0, PROGRESS_MAX);
+    m_launchProgress->setProgressValue(0);
+    m_launchProgress->reportStarted();
     emit started();
     if (m_serialPortName.isEmpty()) {
-        m_deployProgress->reportCanceled();
+        m_launchProgress->reportCanceled();
         appendMessage(this, tr("There is no device plugged in."), true);
         emit finished();
         return;
@@ -390,7 +380,7 @@ void S60DeviceRunControlBase::start()
     QString settingsCategory;
     QString settingsPage;
     if (!checkConfiguration(&errorMessage, &settingsCategory, &settingsPage)) {
-        m_deployProgress->reportCanceled();
+        m_launchProgress->reportCanceled();
         appendMessage(this, errorMessage, true);
         emit finished();
         Core::ICore::instance()->showWarningWithOptions(tr("Debugger for Symbian Platform"),
@@ -402,35 +392,25 @@ void S60DeviceRunControlBase::start()
     startLaunching();
 }
 
-static inline void stopProcess(QProcess *p)
-{
-    const int timeOutMS = 200;
-    if (p->state() != QProcess::Running)
-        return;
-    p->terminate();
-    if (p->waitForFinished(timeOutMS))
-        return;
-    p->kill();
-}
-
-void S60DeviceRunControlBase::stop()
+void S60DeviceRunControl::stop()
 {
     if (m_launcher)
         m_launcher->terminate();
 }
 
-bool S60DeviceRunControlBase::isRunning() const
+bool S60DeviceRunControl::isRunning() const
 {
-    //TODO !!!
-    return false;
+    return m_launcher && (m_launcher->state() == trk::Launcher::Connecting
+                          || m_launcher->state() == trk::Launcher::Connected
+                          || m_launcher->state() == trk::Launcher::WaitingForTrk);
 }
 
-void S60DeviceRunControlBase::startLaunching()
+void S60DeviceRunControl::startLaunching()
 {
     QString errorMessage;
     if (setupLauncher(errorMessage)) {
-        if (m_deployProgress)
-                    m_deployProgress->setProgressValue(PROGRESS_MAX/2);
+        if (m_launchProgress)
+                    m_launchProgress->setProgressValue(PROGRESS_MAX/2);
     } else {
         if (!errorMessage.isEmpty())
             appendMessage(this, errorMessage, true);
@@ -439,7 +419,7 @@ void S60DeviceRunControlBase::startLaunching()
     }
 }
 
-bool S60DeviceRunControlBase::setupLauncher(QString &errorMessage)
+bool S60DeviceRunControl::setupLauncher(QString &errorMessage)
 {
     connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(const SymbianUtils::SymbianDevice)),
             this, SLOT(deviceRemoved(SymbianUtils::SymbianDevice)));
@@ -472,38 +452,36 @@ bool S60DeviceRunControlBase::setupLauncher(QString &errorMessage)
     return true;
 }
 
-void S60DeviceRunControlBase::printConnectFailed(const QString &errorMessage)
+void S60DeviceRunControl::printConnectFailed(const QString &errorMessage)
 {
     emit appendMessage(this, tr("Could not connect to App TRK on device: %1. Restarting App TRK might help.").arg(errorMessage), true);
 }
 
-void S60DeviceRunControlBase::launcherFinished()
+void S60DeviceRunControl::launcherFinished()
 {
-    if (m_releaseDeviceAfterLauncherFinish) {
-        m_handleDeviceRemoval = false;
-        trk::Launcher::releaseToDeviceManager(m_launcher);
-    }
+    m_handleDeviceRemoval = false;
+    trk::Launcher::releaseToDeviceManager(m_launcher);
     m_launcher->deleteLater();
     m_launcher = 0;
     handleLauncherFinished();
 }
 
-void S60DeviceRunControlBase::reportDeployFinished()
+void S60DeviceRunControl::reportDeployFinished()
 {
-    if (m_deployProgress) {
-        m_deployProgress->reportFinished();
-        delete m_deployProgress;
-        m_deployProgress = 0;
+    if (m_launchProgress) {
+        m_launchProgress->reportFinished();
+        delete m_launchProgress;
+        m_launchProgress = 0;
     }
 }
 
-void S60DeviceRunControlBase::processStopped(uint pc, uint pid, uint tid, const QString& reason)
+void S60DeviceRunControl::processStopped(uint pc, uint pid, uint tid, const QString& reason)
 {
     emit addToOutputWindow(this, trk::Launcher::msgStopped(pid, tid, pc, reason), false);
     m_launcher->terminate();
 }
 
-QMessageBox *S60DeviceRunControlBase::createTrkWaitingMessageBox(const QString &port, QWidget *parent)
+QMessageBox *S60DeviceRunControl::createTrkWaitingMessageBox(const QString &port, QWidget *parent)
 {
     const QString title  = QCoreApplication::translate("Qt4ProjectManager::Internal::S60DeviceRunControlBase",
                                                        "Waiting for App TRK");
@@ -517,10 +495,10 @@ QMessageBox *S60DeviceRunControlBase::createTrkWaitingMessageBox(const QString &
     return rc;
 }
 
-void S60DeviceRunControlBase::slotLauncherStateChanged(int s)
+void S60DeviceRunControl::slotLauncherStateChanged(int s)
 {
     if (s == trk::Launcher::WaitingForTrk) {
-        QMessageBox *mb = S60DeviceRunControlBase::createTrkWaitingMessageBox(m_launcher->trkServerName(),
+        QMessageBox *mb = S60DeviceRunControl::createTrkWaitingMessageBox(m_launcher->trkServerName(),
                                                      Core::ICore::instance()->mainWindow());
         connect(m_launcher, SIGNAL(stateChanged(int)), mb, SLOT(close()));
         connect(mb, SIGNAL(finished(int)), this, SLOT(slotWaitingForTrkClosed()));
@@ -528,7 +506,7 @@ void S60DeviceRunControlBase::slotLauncherStateChanged(int s)
     }
 }
 
-void S60DeviceRunControlBase::slotWaitingForTrkClosed()
+void S60DeviceRunControl::slotWaitingForTrkClosed()
 {
     if (m_launcher && m_launcher->state() == trk::Launcher::WaitingForTrk) {
         stop();
@@ -537,17 +515,17 @@ void S60DeviceRunControlBase::slotWaitingForTrkClosed()
     }
 }
 
-void S60DeviceRunControlBase::printApplicationOutput(const QString &output)
+void S60DeviceRunControl::printApplicationOutput(const QString &output)
 {
     printApplicationOutput(output, false);
 }
 
-void S60DeviceRunControlBase::printApplicationOutput(const QString &output, bool onStdErr)
+void S60DeviceRunControl::printApplicationOutput(const QString &output, bool onStdErr)
 {
     emit addToOutputWindowInline(this, output, onStdErr);
 }
 
-void S60DeviceRunControlBase::deviceRemoved(const SymbianUtils::SymbianDevice &d)
+void S60DeviceRunControl::deviceRemoved(const SymbianUtils::SymbianDevice &d)
 {
     if (m_handleDeviceRemoval && d.portName() == m_serialPortName) {
         appendMessage(this, tr("The device '%1' has been disconnected").arg(d.friendlyName()), true);
@@ -555,18 +533,11 @@ void S60DeviceRunControlBase::deviceRemoved(const SymbianUtils::SymbianDevice &d
     }
 }
 
-bool S60DeviceRunControlBase::checkConfiguration(QString * /* errorMessage */,
+bool S60DeviceRunControl::checkConfiguration(QString * /* errorMessage */,
                                                  QString * /* settingsCategory */,
                                                  QString * /* settingsPage */) const
 {
     return true;
-}
-
-// =============== S60DeviceRunControl
-
-S60DeviceRunControl::S60DeviceRunControl(ProjectExplorer::RunConfiguration *runConfiguration, QString mode) :
-    S60DeviceRunControlBase(runConfiguration, mode)
-{
 }
 
 void S60DeviceRunControl::initLauncher(const QString &executable, trk::Launcher *launcher)
@@ -593,8 +564,8 @@ void S60DeviceRunControl::printStartingNotice()
 void S60DeviceRunControl::applicationRunNotice(uint pid)
 {
     emit appendMessage(this, tr("Application running with pid %1.").arg(pid), false);
-    if (m_deployProgress)
-        m_deployProgress->setProgressValue(PROGRESS_MAX);
+    if (m_launchProgress)
+        m_launchProgress->setProgressValue(PROGRESS_MAX);
 }
 
 void S60DeviceRunControl::applicationRunFailedNotice(const QString &errorMessage)
@@ -605,19 +576,31 @@ void S60DeviceRunControl::applicationRunFailedNotice(const QString &errorMessage
 // ======== S60DeviceDebugRunControl
 
 S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *rc, QString mode) :
-    S60DeviceRunControlBase(rc, mode),
+    RunControl(rc, mode),
     m_startParams(new Debugger::DebuggerStartParameters),
-    m_debuggerRunControl(0)
+    m_debuggerRunControl(0),
+    m_debugProgress(0)
 {
-    setReleaseDeviceAfterLauncherFinish(true); // Debugger controls device after install
     QTC_ASSERT(rc, return);
 
     S60DeployConfiguration *activeDeployConf = qobject_cast<S60DeployConfiguration *>(rc->qt4Target()->activeDeployConfiguration());
+
+    const QString debugFileName = QString::fromLatin1("%1:\\sys\\bin\\%2.exe")
+            .arg(activeDeployConf->installationDrive()).arg(activeDeployConf->targetName());
 
     m_startParams->remoteChannel = activeDeployConf->serialPortName();
     m_startParams->processArgs = rc->commandLineArguments();
     m_startParams->startMode = Debugger::StartInternal;
     m_startParams->toolChainType = rc->toolChainType();
+    m_startParams->executable = debugFileName;
+
+    // Prefer the '*.sym' file over the '.exe', which should exist at the same
+    // location in debug builds
+
+    if (!QFileInfo(m_startParams->symbolFileName).isFile()) {
+        m_startParams->symbolFileName.clear();
+        emit appendMessage(this, tr("Warning: Cannot locate the symbol file belonging to %1.").arg(m_localExecutableFileName), true);
+    }
 
     m_localExecutableFileName = activeDeployConf->localExecutableFileName();
     const int lastDotPos = m_localExecutableFileName.lastIndexOf(QLatin1Char('.'));
@@ -626,42 +609,35 @@ S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *rc
     }
 }
 
-S60DeviceDebugRunControl::~S60DeviceDebugRunControl()
+void S60DeviceDebugRunControl::start()
 {
-    // FIXME: Needed? m_debuggerRunControl->deleteLater(); 
-}
+    m_debugProgress = new QFutureInterface<void>;
+    Core::ICore::instance()->progressManager()->addTask(m_debugProgress->future(),
+                                                        tr("Debugging"),
+                                                        QLatin1String("Symbian.Debug"));
+    m_debugProgress->setProgressRange(0, PROGRESS_MAX);
+    m_debugProgress->setProgressValue(0);
+    m_debugProgress->reportStarted();
+    emit started();
 
-void S60DeviceDebugRunControl::stop()
-{
-    S60DeviceRunControlBase::stop();
-    QTC_ASSERT(m_debuggerRunControl, return)
-    if (m_debuggerRunControl->state() == Debugger::DebuggerNotReady)
-        m_debuggerRunControl->stop();
-}
-
-void S60DeviceDebugRunControl::initLauncher(const QString &executable, trk::Launcher *launcher)
-{
-    // No setting an executable on the launcher causes it to deploy only
-    m_startParams->executable = executable;
-    // Prefer the '*.sym' file over the '.exe', which should exist at the same
-    // location in debug builds
-
-    if (!QFileInfo(m_startParams->symbolFileName).isFile()) {
-        m_startParams->symbolFileName.clear();
-        emit appendMessage(this, tr("Warning: Cannot locate the symbol file belonging to %1.").arg(m_localExecutableFileName), true);
+    QString errorMessage;
+    QString settingsCategory;
+    QString settingsPage;
+    if (!checkConfiguration(&errorMessage, &settingsCategory, &settingsPage)) {
+        m_debugProgress->reportCanceled();
+        appendMessage(this, errorMessage, true);
+        emit finished();
+        Core::ICore::instance()->showWarningWithOptions(tr("Debugger for Symbian Platform"),
+                                                        errorMessage, QString(),
+                                                        settingsCategory, settingsPage);
+        return;
     }
-    // Avoid close/open sequence in quick succession, which may cause crashs
-    launcher->setCloseDevice(false);
-    // The S60DeviceDebugRunControl does not deploy anything anymore
-    emit finished();
-}
 
-void S60DeviceDebugRunControl::handleLauncherFinished()
-{
     using namespace Debugger;
     emit appendMessage(this, tr("Launching debugger..."), false);
     QTC_ASSERT(m_debuggerRunControl == 0, /* Should happen only once. */);
     m_debuggerRunControl = DebuggerPlugin::createDebugger(*m_startParams.data());
+
     connect(m_debuggerRunControl,
             SIGNAL(finished()),
             SLOT(debuggingFinished()),
@@ -674,10 +650,40 @@ void S60DeviceDebugRunControl::handleLauncherFinished()
     DebuggerPlugin::startDebugger(m_debuggerRunControl);
 }
 
+
+S60DeviceDebugRunControl::~S60DeviceDebugRunControl()
+{
+    delete m_debugProgress;
+    // FIXME: Needed? m_debuggerRunControl->deleteLater();
+}
+
+void S60DeviceDebugRunControl::stop()
+{
+    QTC_ASSERT(m_debuggerRunControl, return)
+    if (m_debuggerRunControl->state() == Debugger::DebuggerNotReady)
+        m_debuggerRunControl->stop();
+    if (m_debugProgress)
+        m_debugProgress->reportCanceled();
+    delete m_debugProgress;
+    m_debugProgress = 0;
+}
+
+bool S60DeviceDebugRunControl::isRunning() const
+{
+    return m_debuggerRunControl
+            && m_debuggerRunControl->isRunning();
+}
+
 void S60DeviceDebugRunControl::debuggingFinished()
 {
     emit appendMessage(this, tr("Debugging finished."), false);
     emit finished();
+    if (m_debugProgress) {
+        m_debugProgress->setProgressValue(PROGRESS_MAX);
+        m_debugProgress->reportFinished();
+    }
+    delete m_debugProgress;
+    m_debugProgress = 0;
 }
 
 bool S60DeviceDebugRunControl::checkConfiguration(QString *errorMessage,
