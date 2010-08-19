@@ -31,7 +31,7 @@
 #define HIGHLIGHTER_H
 
 #include "basetextdocumentlayout.h"
-#include <texteditor/syntaxhighlighter.h>
+#include "syntaxhighlighter.h"
 
 #include <QtCore/QString>
 #include <QtCore/QVector>

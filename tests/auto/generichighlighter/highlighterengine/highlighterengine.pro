@@ -22,7 +22,7 @@ HEADERS += \
     basetextdocumentlayout.h \
     formats.h \
     tabsettings.h \
-    texteditor/syntaxhighlighter.h \
+    syntaxhighlighter.h \
     $$GENERICHIGHLIGHTERDIR/highlighter.h \
     $$GENERICHIGHLIGHTERDIR/context.h \
     $$GENERICHIGHLIGHTERDIR/dynamicrule.h \
