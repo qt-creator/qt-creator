@@ -52,8 +52,9 @@ DeployConfiguration::DeployConfiguration(Target *target, const QString &id) :
     Q_ASSERT(target);
     m_stepList = new BuildStepList(this, QLatin1String(Constants::BUILDSTEPS_DEPLOY));
     //: Display name of the deploy build step list. Used as part of the labels in the project window.
-    m_stepList->setDisplayName(tr("Deploy"));
-    setDisplayName(tr("No deployment"));
+    m_stepList->setDefaultDisplayName(tr("Deploy"));
+    //: Default DeployConfiguration display name
+    setDefaultDisplayName(tr("No deployment"));
 }
 
 DeployConfiguration::DeployConfiguration(Target *target, DeployConfiguration *source) :
@@ -80,7 +81,6 @@ QVariantMap DeployConfiguration::toMap() const
     QVariantMap map(ProjectConfiguration::toMap());
     map.insert(QLatin1String(BUILD_STEP_LIST_COUNT), 1);
     map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) + QLatin1String("0"), m_stepList->toMap());
-
     return map;
 }
 
@@ -95,7 +95,8 @@ bool DeployConfiguration::fromMap(const QVariantMap &map)
         return false;
 
     int maxI = map.value(QLatin1String(BUILD_STEP_LIST_COUNT), 0).toInt();
-    Q_ASSERT(maxI == 1);
+    if (maxI != 1)
+        return false;
     QVariantMap data = map.value(QLatin1String(BUILD_STEP_LIST_PREFIX) + QLatin1String("0")).toMap();
     if (!data.isEmpty()) {
         m_stepList = new BuildStepList(this, data);
@@ -105,11 +106,13 @@ bool DeployConfiguration::fromMap(const QVariantMap &map)
             m_stepList = 0;
             return false;
         }
+        m_stepList->setDefaultDisplayName(tr("Deploy"));
     } else {
         qWarning() << "No data for deploy step list found!";
+        return false;
     }
 
-    // TODO: We assume that we have hold the deploy list
+    // TODO: We assume that we hold the deploy list
     Q_ASSERT(m_stepList && m_stepList->id() == QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY));
 
     return true;

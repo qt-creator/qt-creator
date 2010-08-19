@@ -57,9 +57,8 @@ GenericTarget::GenericTarget(GenericProject *parent) :
     m_buildConfigurationFactory(new GenericBuildConfigurationFactory(this)),
     m_deployConfigurationFactory(new ProjectExplorer::DeployConfigurationFactory(this))
 {
-    setDisplayName(QApplication::translate("GenericProjectManager::GenericTarget",
-                                           GENERIC_DESKTOP_TARGET_DISPLAY_NAME,
-                                           "Generic desktop target display name"));
+    setDefaultDisplayName(QApplication::translate("GenericProjectManager::GenericTarget",
+                                                  GENERIC_DESKTOP_TARGET_DISPLAY_NAME));
     setIcon(qApp->style()->standardIcon(QStyle::SP_ComputerIcon));
 }
 
@@ -92,9 +91,6 @@ bool GenericTarget::fromMap(const QVariantMap &map)
     if (!Target::fromMap(map))
         return false;
 
-    setDisplayName(QApplication::translate("GenericProjectManager::GenericTarget",
-                                           GENERIC_DESKTOP_TARGET_DISPLAY_NAME,
-                                           "Generic desktop target display name"));
     return true;
 }
 

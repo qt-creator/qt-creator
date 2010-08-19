@@ -97,7 +97,7 @@ MaemoPackageCreationStep::~MaemoPackageCreationStep()
 
 void MaemoPackageCreationStep::ctor()
 {
-    setDisplayName(tr("Packaging for Maemo"));
+    setDefaultDisplayName(tr("Packaging for Maemo"));
 
     m_lastBuildConfig = qt4BuildConfiguration();
     connect(target(),

@@ -126,6 +126,7 @@ signals:
 protected:
     MaemoRunConfiguration(Qt4Target *parent, MaemoRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
+    QString defaultDisplayName();
 
 private slots:
     void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);

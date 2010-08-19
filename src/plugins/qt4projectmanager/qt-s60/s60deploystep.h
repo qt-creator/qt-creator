@@ -118,6 +118,7 @@ signals:
 private:
     S60DeployStep(ProjectExplorer::BuildStepList *parent,
                   S60DeployStep *bs);
+    void ctor();
 
     void start();
     void stop();

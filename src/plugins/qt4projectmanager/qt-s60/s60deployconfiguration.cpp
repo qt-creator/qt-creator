@@ -109,14 +109,13 @@ S60DeployConfiguration::S60DeployConfiguration(Target *target, S60DeployConfigur
 
 void S60DeployConfiguration::ctor()
 {
-    S60DeviceRunConfiguration* runConf = s60DeviceRunConf();
-    if (runConf && !runConf->projectFilePath().isEmpty())
-        setDisplayName(tr("%1 on Symbian Device").arg(QFileInfo(runConf->projectFilePath()).completeBaseName()));
-
+    setDefaultDisplayName(defaultDisplayName());
     connect(qt4Target()->qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
             this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
     connect(qt4Target(), SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
             this, SLOT(updateActiveBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
+    connect(qt4Target(), SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
+            this, SLOT(updateActiveRunConfiguration(ProjectExplorer::RunConfiguration*)));
     updateActiveBuildConfiguration(qt4Target()->activeBuildConfiguration());
 }
 
@@ -132,8 +131,7 @@ ProjectExplorer::DeployConfigurationWidget *S60DeployConfiguration::configuratio
 void S60DeployConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)
 {
     S60DeviceRunConfiguration *deviceRunConf = s60DeviceRunConf();
-    Q_ASSERT(deviceRunConf);
-    if (deviceRunConf->projectFilePath() == pro->path())
+    if (deviceRunConf && deviceRunConf->projectFilePath() == pro->path())
         emit targetInformationChanged();
 }
 
@@ -349,14 +347,15 @@ void S60DeployConfiguration::updateActiveBuildConfiguration(ProjectExplorer::Bui
                 this, SIGNAL(targetInformationChanged()));
 }
 
+void S60DeployConfiguration::updateActiveRunConfiguration(ProjectExplorer::RunConfiguration *runConfiguration)
+{
+    Q_UNUSED(runConfiguration);
+    setDefaultDisplayName(defaultDisplayName());
+}
+
 S60DeviceRunConfiguration* S60DeployConfiguration::s60DeviceRunConf() const
 {
-    const char * const S60_DEVICE_RC_ID("Qt4ProjectManager.S60DeviceRunConfiguration");
-
-    foreach( RunConfiguration *runConf, qt4Target()->runConfigurations() )
-        if (runConf->id() == QLatin1String(S60_DEVICE_RC_ID))
-            return qobject_cast<S60DeviceRunConfiguration *>(runConf);
-    return 0;
+    return qobject_cast<S60DeviceRunConfiguration *>(qt4Target()->activeRunConfiguration());
 }
 
 QVariantMap S60DeployConfiguration::toMap() const
@@ -369,13 +368,24 @@ QVariantMap S60DeployConfiguration::toMap() const
     return map;
 }
 
+QString S60DeployConfiguration::defaultDisplayName() const
+{
+    S60DeviceRunConfiguration* runConf = s60DeviceRunConf();
+    if (runConf && !runConf->projectFilePath().isEmpty())
+        return tr("Deploy %1 to Symbian device").arg(QFileInfo(runConf->projectFilePath()).completeBaseName());
+    return tr("Deploy to Symbian device");
+}
+
 bool S60DeployConfiguration::fromMap(const QVariantMap &map)
 {
+    if (!DeployConfiguration::fromMap(map))
+        return false;
     m_serialPortName = map.value(QLatin1String(SERIAL_PORT_NAME_KEY)).toString().trimmed();
     m_installationDrive = map.value(QLatin1String(INSTALLATION_DRIVE_LETTER_KEY), QChar('C'))
                           .toChar().toAscii();
     m_silentInstall = map.value(QLatin1String(SILENT_INSTALL_KEY), QVariant(true)).toBool();
-    return DeployConfiguration::fromMap(map);
+    setDefaultDisplayName(defaultDisplayName());
+    return true;
 }
 
 Qt4Target *S60DeployConfiguration::qt4Target() const

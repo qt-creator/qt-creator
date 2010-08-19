@@ -60,11 +60,11 @@ ProjectExplorer::DeployConfiguration *Qt4DeployConfigurationFactory::create(Proj
         return 0;
 
     if (parent->id() == Constants::S60_DEVICE_TARGET_ID) {
-        dc->setDisplayName(tr("Deploy to Symbian device"));
+        dc->setDefaultDisplayName(tr("Deploy to Symbian device"));
         dc->stepList()->insertStep(0, new S60CreatePackageStep(dc->stepList()));
         dc->stepList()->insertStep(1, new S60DeployStep(dc->stepList()));
     } else if (parent->id() == Constants::MAEMO_DEVICE_TARGET_ID) {
-        dc->setDisplayName(tr("Deploy to Maemo device"));
+        dc->setDefaultDisplayName(tr("Deploy to Maemo device"));
         dc->stepList()->insertStep(0, new MaemoPackageCreationStep(dc->stepList()));
         dc->stepList()->insertStep(1, new MaemoDeployStep(dc->stepList()));
     }

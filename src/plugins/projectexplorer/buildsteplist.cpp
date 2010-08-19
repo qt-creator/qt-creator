@@ -83,7 +83,7 @@ BuildStepList::BuildStepList(QObject *parent, BuildStepList *source) :
 }
 
 BuildStepList::BuildStepList(QObject *parent, const QVariantMap &data) :
-    ProjectConfiguration(parent, QLatin1String("UNKNOWN"))
+    ProjectConfiguration(parent, QLatin1String("UNKNOWN ID"))
 {
     Q_ASSERT(parent);
     m_isNull = !fromMap(data);
@@ -144,9 +144,6 @@ void BuildStepList::cloneSteps(BuildStepList *source)
 
 bool BuildStepList::fromMap(const QVariantMap &map)
 {
-    if (!ProjectConfiguration::fromMap(map))
-        return false;
-
     int maxSteps = map.value(QString::fromLatin1(STEPS_COUNT_KEY), 0).toInt();
     for (int i = 0; i < maxSteps; ++i) {
         QVariantMap bsData(map.value(QString::fromLatin1(STEPS_PREFIX) + QString::number(i)).toMap());
@@ -166,7 +163,6 @@ bool BuildStepList::fromMap(const QVariantMap &map)
         }
         insertStep(m_steps.count(), bs);
     }
-
     return ProjectConfiguration::fromMap(map);
 }
 
@@ -216,6 +212,5 @@ Target *BuildStepList::target() const
     DeployConfiguration *dc = qobject_cast<DeployConfiguration *>(parent());
     if (dc)
         return dc->target();
-    Q_ASSERT(false);
     return 0;
 }

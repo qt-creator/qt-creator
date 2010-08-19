@@ -85,7 +85,8 @@ MakeStep::MakeStep(BuildStepList *bsl, MakeStep *bs) :
 void MakeStep::ctor()
 {
     m_percentProgress = QRegExp("^\\[\\s*(\\d*)%\\]");
-    setDisplayName(tr("Make", "CMakeProjectManager::MakeStep display name."));
+    //: Default display name for the cmake make step.
+    setDefaultDisplayName(tr("Make"));
 }
 
 MakeStep::~MakeStep()

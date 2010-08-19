@@ -95,10 +95,11 @@ S60EmulatorRunConfiguration::S60EmulatorRunConfiguration(Target *parent, S60Emul
 void S60EmulatorRunConfiguration::ctor()
 {
     if (!m_proFilePath.isEmpty())
-        setDisplayName(tr("%1 in Symbian Emulator").arg(QFileInfo(m_proFilePath).completeBaseName()));
+        //: S60 emulator run configuration default display name, %1 is base pro-File name
+        setDefaultDisplayName(tr("%1 in Symbian Emulator").arg(QFileInfo(m_proFilePath).completeBaseName()));
     else
-        setDisplayName(tr("Qt Symbian Emulator RunConfiguration"));
-
+        //: S60 emulator run configuration default display name (no pro-file name)
+        setDefaultDisplayName(tr("Run on Symbian Emulator"));
     connect(qt4Target()->qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
             this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
 }
@@ -149,6 +150,11 @@ bool S60EmulatorRunConfiguration::fromMap(const QVariantMap &map)
 {
     const QDir projectDir = QDir(target()->project()->projectDirectory());
     m_proFilePath = projectDir.filePath(map.value(QLatin1String(PRO_FILE_KEY)).toString());
+
+    if (m_proFilePath.isEmpty())
+        return false;
+    //: S60 emulator run configuration default display name, %1 is base pro-File name
+    setDefaultDisplayName(tr("%1 in Symbian Emulator").arg(QFileInfo(m_proFilePath).completeBaseName()));
 
     return RunConfiguration::fromMap(map);
 }

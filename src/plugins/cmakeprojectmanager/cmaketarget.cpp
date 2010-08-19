@@ -64,7 +64,7 @@ CMakeTarget::CMakeTarget(CMakeProject *parent) :
     m_buildConfigurationFactory(new CMakeBuildConfigurationFactory(this)),
     m_deployConfigurationFactory(new ProjectExplorer::DeployConfigurationFactory(this))
 {
-    setDisplayName(displayNameForId(id()));
+    setDefaultDisplayName(displayNameForId(id()));
     setIcon(qApp->style()->standardIcon(QStyle::SP_ComputerIcon));
     connect(parent, SIGNAL(buildTargetsChanged()), SLOT(updateRunConfigurations()));
 }
@@ -100,11 +100,7 @@ QString CMakeTarget::defaultBuildDirectory() const
 
 bool CMakeTarget::fromMap(const QVariantMap &map)
 {
-    if (!Target::fromMap(map))
-        return false;
-
-    setDisplayName(displayNameForId(id()));
-    return true;
+    return Target::fromMap(map);
 }
 
 void CMakeTarget::updateRunConfigurations()
@@ -194,7 +190,7 @@ CMakeTarget *CMakeTargetFactory::create(ProjectExplorer::Project *parent, const 
 
     // Add default build configuration:
     CMakeBuildConfiguration *bc(new CMakeBuildConfiguration(t));
-    bc->setDisplayName("all");
+    bc->setDefaultDisplayName("all");
 
     ProjectExplorer::BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     ProjectExplorer::BuildStepList *cleanSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);

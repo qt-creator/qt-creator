@@ -80,7 +80,8 @@ QMakeStep::QMakeStep(BuildStepList *bsl, QMakeStep *bs) :
 
 void QMakeStep::ctor()
 {
-    setDisplayName(tr("qmake", "QMakeStep display name."));
+    //: QMakeStep default display name
+    setDefaultDisplayName(tr("qmake"));
 }
 
 QMakeStep::~QMakeStep()

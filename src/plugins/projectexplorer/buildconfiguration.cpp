@@ -55,11 +55,11 @@ BuildConfiguration::BuildConfiguration(Target *target, const QString &id) :
     Q_ASSERT(target);
     BuildStepList *bsl = new BuildStepList(this, QLatin1String(Constants::BUILDSTEPS_BUILD));
     //: Display name of the build build step list. Used as part of the labels in the project window.
-    bsl->setDisplayName(tr("Build"));
+    bsl->setDefaultDisplayName(tr("Build"));
     m_stepLists.append(bsl);
     bsl = new BuildStepList(this, QLatin1String(Constants::BUILDSTEPS_CLEAN));
     //: Display name of the clean build step list. Used as part of the labels in the project window.
-    bsl->setDisplayName(tr("Clean"));
+    bsl->setDefaultDisplayName(tr("Clean"));
     m_stepLists.append(bsl);
 }
 
@@ -108,9 +108,6 @@ QVariantMap BuildConfiguration::toMap() const
 
 bool BuildConfiguration::fromMap(const QVariantMap &map)
 {
-    if (!ProjectConfiguration::fromMap(map))
-        return false;
-
     m_clearSystemEnvironment = map.value(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY)).toBool();
     m_userEnvironmentChanges = EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
 
@@ -133,11 +130,11 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
         m_stepLists.append(list);
     }
 
-    // TODO: We currently assume there to be at least a clean, build and deploy list!
+    // TODO: We currently assume there to be at least a clean and build list!
     Q_ASSERT(knownStepLists().contains(QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_BUILD)));
     Q_ASSERT(knownStepLists().contains(QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)));
 
-    return true;
+    return ProjectConfiguration::fromMap(map);
 }
 
 Target *BuildConfiguration::target() const

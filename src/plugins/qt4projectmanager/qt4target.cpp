@@ -254,7 +254,7 @@ Qt4Target::Qt4Target(Qt4Project *parent, const QString &id) :
     connect(this, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
             this, SLOT(updateToolTipAndIcon()));
 
-    setDisplayName(displayNameForId(id));
+    setDefaultDisplayName(displayNameForId(id));
     setIcon(iconForId(id));
 }
 
@@ -282,7 +282,7 @@ Qt4BuildConfiguration *Qt4Target::addQt4BuildConfiguration(QString displayName, 
 
     // Add the buildconfiguration
     Qt4BuildConfiguration *bc = new Qt4BuildConfiguration(this);
-    bc->setDisplayName(displayName);
+    bc->setDefaultDisplayName(displayName);
 
     BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     BuildStepList *cleanSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
@@ -404,13 +404,9 @@ QString Qt4Target::defaultShadowBuildDirectory(const QString &projectLocation, c
 
 bool Qt4Target::fromMap(const QVariantMap &map)
 {
-    if (!Target::fromMap(map))
-        return false;
-
-    setDisplayName(displayNameForId(id()));
+    bool success = Target::fromMap(map);
     setIcon(iconForId(id()));
-
-    return true;
+    return success;
 }
 
 void Qt4Target::updateQtVersion()

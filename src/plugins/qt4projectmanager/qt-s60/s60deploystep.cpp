@@ -93,6 +93,7 @@ S60DeployStep::S60DeployStep(ProjectExplorer::BuildStepList *bc,
         m_handleDeviceRemoval(bs->m_handleDeviceRemoval),
         m_launcher(0), m_eventLoop(0)
 {
+    ctor();
 }
 
 S60DeployStep::S60DeployStep(ProjectExplorer::BuildStepList *bc):
@@ -100,6 +101,13 @@ S60DeployStep::S60DeployStep(ProjectExplorer::BuildStepList *bc):
         m_releaseDeviceAfterLauncherFinish(true),
         m_handleDeviceRemoval(true), m_launcher(0), m_eventLoop(0)
 {
+    ctor();
+}
+
+void S60DeployStep::ctor()
+{
+    //: Qt4 Deploystep display name
+    setDefaultDisplayName(tr("Deploy"));
 }
 
 S60DeployStep::~S60DeployStep()
@@ -123,7 +131,6 @@ bool S60DeployStep::init()
     m_installationDrive = deployConfiguration->installationDrive();
     m_silentInstall = deployConfiguration->silentInstall();
 
-    setDisplayName(tr("Deploy", "Qt4 DeployStep display name."));
     QString message;
     if (m_launcher) {
         trk::Launcher::releaseToDeviceManager(m_launcher);

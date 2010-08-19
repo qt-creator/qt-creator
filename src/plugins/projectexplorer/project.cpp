@@ -133,7 +133,7 @@ void Project::addTarget(Target *t)
     foreach (const Target *target, m_targets)
         displayNames << target->displayName();
     targetDisplayName = makeUnique(targetDisplayName, displayNames);
-    t->setDisplayName(targetDisplayName);
+    t->setDefaultDisplayName(targetDisplayName);
 
     // add it
     m_targets.push_back(t);

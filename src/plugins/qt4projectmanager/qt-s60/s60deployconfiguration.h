@@ -87,11 +87,13 @@ signals:
 
 private slots:
     void updateActiveBuildConfiguration(ProjectExplorer::BuildConfiguration *buildConfiguration);
+    void updateActiveRunConfiguration(ProjectExplorer::RunConfiguration *runConfiguration);
     void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
 
 protected:
     S60DeployConfiguration(ProjectExplorer::Target *parent, S60DeployConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
+    QString defaultDisplayName() const;
 
 private:
     void ctor();

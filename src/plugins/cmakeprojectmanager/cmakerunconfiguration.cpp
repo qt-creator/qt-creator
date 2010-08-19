@@ -108,7 +108,7 @@ CMakeRunConfiguration::~CMakeRunConfiguration()
 
 void CMakeRunConfiguration::ctor()
 {
-    setDisplayName(m_title);
+    setDefaultDisplayName(defaultDisplayName());
 }
 
 CMakeTarget *CMakeRunConfiguration::cmakeTarget() const
@@ -203,6 +203,13 @@ bool CMakeRunConfiguration::fromMap(const QVariantMap &map)
     m_baseEnvironmentBase = static_cast<BaseEnvironmentBase>(map.value(QLatin1String(BASE_ENVIRONMENT_BASE_KEY), static_cast<int>(CMakeRunConfiguration::BuildEnvironmentBase)).toInt());
 
     return RunConfiguration::fromMap(map);
+}
+
+QString CMakeRunConfiguration::defaultDisplayName() const
+{
+    if (m_title.isEmpty())
+        return tr("Run CMake target");
+    return m_title + (m_enabled ? "" : tr(" (disabled)"));
 }
 
 QWidget *CMakeRunConfiguration::createConfigurationWidget()
@@ -302,7 +309,7 @@ void CMakeRunConfiguration::setEnabled(bool b)
         return;
     m_enabled = b;
     emit isEnabledChanged(isEnabled());
-    setDisplayName(m_title + (m_enabled ? "" : tr(" (disabled)")));
+    setDefaultDisplayName(defaultDisplayName());
 }
 
 bool CMakeRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *bc) const

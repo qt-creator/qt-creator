@@ -115,7 +115,8 @@ S60CreatePackageStep::S60CreatePackageStep(ProjectExplorer::BuildStepList *bsl, 
 
 void S60CreatePackageStep::ctor_package()
 {
-    setDisplayName(tr("Create SIS Package", "Create SIS package build step name"));
+    //: default create SIS package build step display name
+    setDefaultDisplayName(tr("Create SIS Package"));
     connect(this, SIGNAL(badPassphrase()),
             this, SLOT(definePassphrase()), Qt::QueuedConnection);
 

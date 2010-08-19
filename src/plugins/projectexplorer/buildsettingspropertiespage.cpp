@@ -327,16 +327,18 @@ void BuildSettingsWidget::renameConfiguration()
                                             arg(m_buildConfiguration->displayName()),
                                          QLineEdit::Normal,
                                          m_buildConfiguration->displayName(), &ok);
-    if (!ok || !this || name.isEmpty())
+    if (!ok || !this)
         return;
 
-    QStringList bcNames;
-    foreach (BuildConfiguration *bc, m_target->buildConfigurations()) {
-        if (bc == m_buildConfiguration)
-            continue;
-        bcNames.append(bc->displayName());
+    if (!name.isEmpty()) {
+        QStringList bcNames;
+        foreach (BuildConfiguration *bc, m_target->buildConfigurations()) {
+            if (bc == m_buildConfiguration)
+                continue;
+            bcNames.append(bc->displayName());
+        }
+        name = Project::makeUnique(name, bcNames);
     }
-    name = Project::makeUnique(name, bcNames);
     m_buildConfiguration->setDisplayName(name);
 
 }
@@ -347,14 +349,10 @@ void BuildSettingsWidget::cloneConfiguration(BuildConfiguration *sourceConfigura
         !m_target->buildConfigurationFactory())
         return;
 
+    //: Title of a the cloned BuildConfiguration window, text of the window
     QString newDisplayName(QInputDialog::getText(this, tr("Clone configuration"), tr("New Configuration Name:")));
     if (newDisplayName.isEmpty())
         return;
-
-    QStringList buildConfigurationDisplayNames;
-    foreach(BuildConfiguration *bc, m_target->buildConfigurations())
-        buildConfigurationDisplayNames << bc->displayName();
-    newDisplayName = Project::makeUnique(newDisplayName, buildConfigurationDisplayNames);
 
     BuildConfiguration * bc(m_target->buildConfigurationFactory()->clone(m_target, sourceConfiguration));
     if (!bc)

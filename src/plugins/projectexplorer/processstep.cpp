@@ -64,7 +64,6 @@ ProcessStep::ProcessStep(BuildStepList *bsl, const QString &id) :
 
 ProcessStep::ProcessStep(BuildStepList *bsl, ProcessStep *bs) :
     AbstractProcessStep(bsl, bs),
-    m_name(bs->m_name),
     m_command(bs->m_command),
     m_arguments(bs->m_arguments),
     m_workingDirectory(bs->m_workingDirectory),
@@ -76,7 +75,8 @@ ProcessStep::ProcessStep(BuildStepList *bsl, ProcessStep *bs) :
 
 void ProcessStep::ctor()
 {
-    setDisplayName(tr("Custom Process Step", "item in combobox"));
+    //: Default ProcessStep display name
+    setDefaultDisplayName(tr("Custom Process Step"));
 }
 
 ProcessStep::~ProcessStep()
@@ -255,8 +255,6 @@ ProcessStepConfigWidget::ProcessStepConfigWidget(ProcessStep *step)
     connect(m_ui.workingDirectory, SIGNAL(changed(QString)),
             this, SLOT(workingDirectoryLineEditTextEdited()));
 
-    connect(m_ui.nameLineEdit, SIGNAL(textEdited(const QString&)),
-            this, SLOT(nameLineEditTextEdited()));
     connect(m_ui.commandArgumentsLineEdit, SIGNAL(textEdited(const QString&)),
             this, SLOT(commandArgumentsLineEditTextEdited()));
     connect(m_ui.enabledCheckBox, SIGNAL(clicked(bool)),
@@ -293,19 +291,12 @@ void ProcessStepConfigWidget::init()
     m_ui.commandArgumentsLineEdit->setText(m_step->arguments().join(QString(QLatin1Char(' '))));
     m_ui.enabledCheckBox->setChecked(m_step->enabled());
 
-    m_ui.nameLineEdit->setText(m_step->displayName());
     updateDetails();
 }
 
 QString ProcessStepConfigWidget::summaryText() const
 {
     return m_summaryText;
-}
-
-void ProcessStepConfigWidget::nameLineEditTextEdited()
-{
-    m_step->setDisplayName(m_ui.nameLineEdit->text());
-    emit updateDetails();
 }
 
 void ProcessStepConfigWidget::commandLineEditTextEdited()

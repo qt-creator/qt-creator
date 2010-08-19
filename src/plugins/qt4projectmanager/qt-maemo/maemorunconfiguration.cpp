@@ -87,8 +87,8 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
 
 void MaemoRunConfiguration::init()
 {
+    setDefaultDisplayName(defaultDisplayName());
     m_remoteMounts = new MaemoRemoteMountsModel(this);
-    setDisplayName(QFileInfo(m_proFilePath).completeBaseName());
 
     connect(target(),
         SIGNAL(activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration*)),
@@ -168,7 +168,17 @@ bool MaemoRunConfiguration::fromMap(const QVariantMap &map)
         SystemEnvironmentBase).toInt());
     m_remoteMounts->fromMap(map);
 
+    setDefaultDisplayName(defaultDisplayName());
+
     return true;
+}
+
+QString MaemoRunConfiguration::defaultDisplayName()
+{
+    if (!m_proFilePath.isEmpty())
+        return (QFileInfo(m_proFilePath).completeBaseName());
+    //: Maemo run configuration default display name
+    return tr("Run on maemo device");
 }
 
 MaemoDeviceConfig MaemoRunConfiguration::deviceConfig() const

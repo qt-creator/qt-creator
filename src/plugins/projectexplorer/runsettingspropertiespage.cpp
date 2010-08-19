@@ -281,16 +281,18 @@ void RunSettingsWidget::renameRunConfiguration()
                                             arg(m_target->activeRunConfiguration()->displayName()),
                                          QLineEdit::Normal,
                                          m_target->activeRunConfiguration()->displayName(), &ok);
-    if (!ok || !this || name.isEmpty())
+    if (!ok || !this)
         return;
 
-    QStringList rcNames;
-    foreach (RunConfiguration *rc, m_target->runConfigurations()) {
-        if (rc == m_target->activeRunConfiguration())
-            continue;
-        rcNames.append(rc->displayName());
+    if (!name.isEmpty()) {
+        QStringList rcNames;
+        foreach (RunConfiguration *rc, m_target->runConfigurations()) {
+            if (rc == m_target->activeRunConfiguration())
+                continue;
+            rcNames.append(rc->displayName());
+        }
+        name = Project::makeUnique(name, rcNames);
     }
-    name = Project::makeUnique(name, rcNames);
     m_target->activeRunConfiguration()->setDisplayName(name);
 }
 
@@ -371,16 +373,18 @@ void RunSettingsWidget::renameDeployConfiguration()
                                             arg(m_target->activeDeployConfiguration()->displayName()),
                                          QLineEdit::Normal,
                                          m_target->activeDeployConfiguration()->displayName(), &ok);
-    if (!ok || !this || name.isEmpty())
+    if (!ok || !this)
         return;
 
-    QStringList dcNames;
-    foreach (DeployConfiguration *dc, m_target->deployConfigurations()) {
-        if (dc == m_target->activeDeployConfiguration())
-            continue;
-        dcNames.append(dc->displayName());
+    if (!name.isEmpty()) {
+        QStringList dcNames;
+        foreach (DeployConfiguration *dc, m_target->deployConfigurations()) {
+            if (dc == m_target->activeDeployConfiguration())
+                continue;
+            dcNames.append(dc->displayName());
+        }
+        name = Project::makeUnique(name, dcNames);
     }
-    name = Project::makeUnique(name, dcNames);
     m_target->activeDeployConfiguration()->setDisplayName(name);
 }
 

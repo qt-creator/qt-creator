@@ -125,9 +125,11 @@ S60DeviceRunConfiguration::S60DeviceRunConfiguration(Target *target, S60DeviceRu
 void S60DeviceRunConfiguration::ctor()
 {
     if (!m_proFilePath.isEmpty())
-        setDisplayName(tr("%1 on Symbian Device").arg(QFileInfo(m_proFilePath).completeBaseName()));
+        //: S60 device runconfiguration default display name, %1 is base pro-File name
+        setDefaultDisplayName(tr("%1 on Symbian Device").arg(QFileInfo(m_proFilePath).completeBaseName()));
     else
-        setDisplayName(tr("QtS60DeviceRunConfiguration"));
+        //: S60 device runconfiguration default display name (no profile set)
+        setDefaultDisplayName(tr("Run on Symbian device"));
 }
 
 void S60DeviceRunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)
@@ -203,6 +205,12 @@ bool S60DeviceRunConfiguration::fromMap(const QVariantMap &map)
 
     m_proFilePath = projectDir.filePath(map.value(QLatin1String(PRO_FILE_KEY)).toString());
     m_commandLineArguments = map.value(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY)).toStringList();
+
+    if (m_proFilePath.isEmpty())
+        return false;
+    if (!QFileInfo(m_proFilePath).exists())
+        return false;
+    setDefaultDisplayName(tr("%1 on Symbian Device").arg(QFileInfo(m_proFilePath).completeBaseName()));
 
     return RunConfiguration::fromMap(map);
 }

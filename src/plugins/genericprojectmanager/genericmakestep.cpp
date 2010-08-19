@@ -84,8 +84,8 @@ GenericMakeStep::GenericMakeStep(ProjectExplorer::BuildStepList *parent, Generic
 
 void GenericMakeStep::ctor()
 {
-    setDisplayName(QCoreApplication::translate("GenericProjectManager::Internal::GenericMakeStep",
-                   GENERIC_MS_DISPLAY_NAME));
+    setDefaultDisplayName(QCoreApplication::translate("GenericProjectManager::Internal::GenericMakeStep",
+                                                      GENERIC_MS_DISPLAY_NAME));
 }
 
 GenericMakeStep::~GenericMakeStep()

@@ -95,6 +95,7 @@ signals:
 
 protected:
     S60DeviceRunConfiguration(ProjectExplorer::Target *parent, S60DeviceRunConfiguration *source);
+    QString defaultDisplayName() const;
     virtual bool fromMap(const QVariantMap &map);
 
 private:

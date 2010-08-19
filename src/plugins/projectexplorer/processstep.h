@@ -93,7 +93,6 @@ protected:
 private:
     void ctor();
 
-    QString m_name;
     QString m_command;
     QStringList m_arguments;
     QString m_workingDirectory;
@@ -110,7 +109,6 @@ public:
     virtual void init();
     virtual QString summaryText() const;
 private slots:
-    void nameLineEditTextEdited();
     void commandLineEditTextEdited();
     void workingDirectoryLineEditTextEdited();
     void commandArgumentsLineEditTextEdited();

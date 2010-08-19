@@ -51,6 +51,7 @@ public:
     QString id() const;
     QString displayName() const;
     void setDisplayName(const QString &name);
+    void setDefaultDisplayName(const QString &name);
 
     // Note: Make sure subclasses call the superclasses toMap() method!
     virtual QVariantMap toMap() const;
@@ -70,6 +71,7 @@ private:
 
     QString m_id;
     QString m_displayName;
+    QString m_defaultDisplayName;
 };
 
 // helper functions:

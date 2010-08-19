@@ -87,11 +87,6 @@ public:
      */
     QString baseExecutable() const;
 
-    /**
-     * Returns the name the user has set, if he has set one
-     */
-    QString userName() const;
-
     LocalApplicationRunConfiguration::RunMode runMode() const;
     QString workingDirectory() const;
     QString baseWorkingDirectory() const;
@@ -118,6 +113,7 @@ private slots:
 protected:
     CustomExecutableRunConfiguration(Target *parent, CustomExecutableRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
+    QString defaultDisplayName() const;
 
 private:
     void ctor();

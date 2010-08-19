@@ -163,9 +163,7 @@ void Qt4RunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileN
 
 void Qt4RunConfiguration::ctor()
 {
-    QString name = defaultDisplayName();
-    if (name != displayName())
-        setDisplayName(name);
+    setDefaultDisplayName(defaultDisplayName());
 
     connect(qt4Target(), SIGNAL(environmentChanged()),
             this, SIGNAL(baseEnvironmentChanged()));
@@ -456,7 +454,6 @@ bool Qt4RunConfiguration::fromMap(const QVariantMap &map)
     m_userEnvironmentChanges = ProjectExplorer::EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
     m_baseEnvironmentBase = static_cast<BaseEnvironmentBase>(map.value(QLatin1String(BASE_ENVIRONMENT_BASE_KEY), static_cast<int>(Qt4RunConfiguration::BuildEnvironmentBase)).toInt());
 
-    // This will restore the display name for us:
     return RunConfiguration::fromMap(map);
 }
 

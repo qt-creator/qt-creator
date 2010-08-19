@@ -245,7 +245,8 @@ void CustomExecutableConfigurationWidget::changed()
 
 void CustomExecutableRunConfiguration::ctor()
 {
-    setDisplayName(tr("Run %1").arg(m_executable));
+    setDefaultDisplayName(defaultDisplayName());
+
     connect(target(), SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
             this, SLOT(activeBuildConfigurationChanged()));
 
@@ -435,6 +436,14 @@ void CustomExecutableRunConfiguration::setUserEnvironmentChanges(const QList<Pro
     }
 }
 
+QString CustomExecutableRunConfiguration::defaultDisplayName() const
+{
+    if (m_executable.isEmpty())
+        return tr("Custom Executable");
+    else
+        return tr("Run %1").arg(QDir::toNativeSeparators(m_executable));
+}
+
 QVariantMap CustomExecutableRunConfiguration::toMap() const
 {
     QVariantMap map(LocalApplicationRunConfiguration::toMap());
@@ -456,15 +465,16 @@ bool CustomExecutableRunConfiguration::fromMap(const QVariantMap &map)
     m_userEnvironmentChanges = ProjectExplorer::EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
     m_baseEnvironmentBase = static_cast<BaseEnvironmentBase>(map.value(QLatin1String(BASE_ENVIRONMENT_BASE_KEY), static_cast<int>(CustomExecutableRunConfiguration::BuildEnvironmentBase)).toInt());
 
+    setDefaultDisplayName(defaultDisplayName());
     return RunConfiguration::fromMap(map);
 }
 
 void CustomExecutableRunConfiguration::setExecutable(const QString &executable)
 {
-    bool hasUserName = (displayName() != tr("Run %1").arg(m_executable));
+    if (executable == m_executable)
+        return;
     m_executable = executable;
-    if (!hasUserName)
-        setDisplayName(tr("Run %1").arg(m_executable));
+    setDefaultDisplayName(defaultDisplayName());
     emit changed();
 }
 

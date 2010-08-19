@@ -84,7 +84,7 @@ MakeStep::MakeStep(ProjectExplorer::BuildStepList *bsl, const QString &id) :
 
 void MakeStep::ctor()
 {
-    setDisplayName(tr("Make", "Qt4 MakeStep display name."));
+    setDefaultDisplayName(tr("Make", "Qt4 MakeStep display name."));
 }
 
 MakeStep::~MakeStep()

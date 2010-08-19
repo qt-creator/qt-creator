@@ -97,6 +97,7 @@ private slots:
 protected:
     CMakeRunConfiguration(CMakeTarget *parent, CMakeRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
+    QString defaultDisplayName() const;
 
 private:
     void ctor();

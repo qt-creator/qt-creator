@@ -52,7 +52,6 @@ const char * const BUILD_DIRECTORY_KEY("GenericProjectManager.GenericBuildConfig
 GenericBuildConfiguration::GenericBuildConfiguration(GenericTarget *parent)
     : BuildConfiguration(parent, QLatin1String(GENERIC_BC_ID))
 {
-
 }
 
 GenericBuildConfiguration::GenericBuildConfiguration(GenericTarget *parent, const QString &id)
