@@ -93,9 +93,10 @@ void MaemoRunControl::start()
     }
 }
 
-void MaemoRunControl::stop()
+ProjectExplorer::RunControl::StopResult MaemoRunControl::stop()
 {
     m_runner->stop();
+    return StoppedSynchronously;
 }
 
 void MaemoRunControl::handleSshError(const QString &error)

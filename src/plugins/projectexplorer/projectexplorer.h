@@ -110,6 +110,7 @@ public:
     // internal public for FlatModel
     void renameFile(Node *node, const QString &to);
     static QStringList projectFilePatterns();
+    bool coreAboutToClose();
 
 signals:
     void aboutToShowContextMenu(ProjectExplorer::Project *project,

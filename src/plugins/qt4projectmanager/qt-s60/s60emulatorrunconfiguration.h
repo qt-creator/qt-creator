@@ -134,7 +134,7 @@ public:
     explicit S60EmulatorRunControl(S60EmulatorRunConfiguration *runConfiguration, QString mode);
     ~S60EmulatorRunControl() {}
     void start();
-    void stop();
+    virtual StopResult stop();
     bool isRunning() const;
 
 private slots:

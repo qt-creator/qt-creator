@@ -159,14 +159,20 @@ class PROJECTEXPLORER_EXPORT RunControl : public QObject
 {
     Q_OBJECT
 public:
+    enum StopResult {
+        StoppedSynchronously, // Stopped.
+        AsynchronousStop,     // Stop sequence has been started
+    };
+
     explicit RunControl(RunConfiguration *runConfiguration, QString mode);
     virtual ~RunControl();
     virtual void start() = 0;
-    virtual void stop() = 0; // Warning: assumed to be synchroneous!
+    virtual bool aboutToStop() const;
+    virtual StopResult stop() = 0;
     virtual bool isRunning() const = 0;
     virtual QString displayName() const;
 
-    bool sameRunConfiguration(RunControl *other);
+    bool sameRunConfiguration(const RunControl *other) const;
 
     OutputFormatter *outputFormatter();
     QString runMode() const;

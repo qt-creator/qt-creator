@@ -97,12 +97,8 @@ public slots:
 
 private:
     friend class Internal::DebuggerEngine;
-    friend class Internal::DebuggerListener;
-
     friend class DebuggerPluginPrivate;
     friend class DebuggerRunControl;
-
-    bool coreAboutToClose();
 
     void resetLocation();
     void gotoLocation(const QString &fileName, int lineNumber, bool setMarker);
@@ -122,7 +118,6 @@ private:
     QMessageBox *showMessageBox(int icon, const QString &title,
         const QString &text, int buttons = 0);
 
-    Q_SLOT void emitShutdownFinished();
     bool initialize(const QStringList &arguments, QString *errorMessage);
     ShutdownFlag aboutToShutdown();
     void extensionsInitialized();

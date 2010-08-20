@@ -392,10 +392,11 @@ void S60DeviceRunControl::start()
     startLaunching();
 }
 
-void S60DeviceRunControl::stop()
+RunControl::StopResult S60DeviceRunControl::stop()
 {
     if (m_launcher)
         m_launcher->terminate();
+    return AsynchronousStop;
 }
 
 bool S60DeviceRunControl::isRunning() const
@@ -660,15 +661,20 @@ S60DeviceDebugRunControl::~S60DeviceDebugRunControl()
     // FIXME: Needed? m_debuggerRunControl->deleteLater();
 }
 
-void S60DeviceDebugRunControl::stop()
+bool S60DeviceDebugRunControl::aboutToStop() const
 {
-    QTC_ASSERT(m_debuggerRunControl, return)
-    if (m_debuggerRunControl->state() == Debugger::DebuggerNotReady)
-        m_debuggerRunControl->stop();
+    return m_debuggerRunControl ? m_debuggerRunControl->aboutToStop() : true;
+ }
+
+RunControl::StopResult S60DeviceDebugRunControl::stop()
+{
+    QTC_ASSERT(m_debuggerRunControl, return StoppedSynchronously)
+
     if (m_debugProgress)
         m_debugProgress->reportCanceled();
     delete m_debugProgress;
     m_debugProgress = 0;
+    return m_debuggerRunControl->stop();
 }
 
 bool S60DeviceDebugRunControl::isRunning() const

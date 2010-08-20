@@ -34,6 +34,7 @@
 #include "debuggerengine.h"
 #include "debuggerplugin.h"
 #include "debuggerstringutils.h"
+#include "debuggeruiswitcher.h"
 
 #ifdef Q_OS_WIN
 #  include "peutils.h"
@@ -48,6 +49,7 @@
 #include <projectexplorer/applicationrunconfiguration.h> // For LocalApplication*
 
 #include <utils/qtcassert.h>
+#include <utils/fancymainwindow.h>
 #include <coreplugin/icore.h>
 
 #include <QtCore/QDebug>
@@ -59,6 +61,7 @@
 #include <QtGui/QAbstractItemView>
 #include <QtGui/QTextDocument>
 #include <QtGui/QTreeWidget>
+#include <QtGui/QMessageBox>
 
 using namespace ProjectExplorer;
 using namespace Debugger::Internal;
@@ -509,11 +512,27 @@ void DebuggerRunControl::showMessage(const QString &msg, int channel)
     }
 }
 
-void DebuggerRunControl::stop()
+bool DebuggerRunControl::aboutToStop() const
 {
-    m_running = false;
-    QTC_ASSERT(m_engine, return);
+    QTC_ASSERT(isRunning(), return true;)
+
+    const QString question = tr("A debugging session are still in progress. "
+            "Terminating the session in the current"
+            " state can leave the target in an inconsistent state."
+            " Would you still like to terminate it?");
+
+    const QMessageBox::StandardButton answer =
+            QMessageBox::question(DebuggerUISwitcher::instance()->mainWindow(),
+                                  tr("Close Debugging Session"), question,
+                                  QMessageBox::Yes|QMessageBox::No);
+    return answer == QMessageBox::Yes;
+}
+
+RunControl::StopResult DebuggerRunControl::stop()
+{
+    QTC_ASSERT(m_engine, return StoppedSynchronously);
     m_engine->quitDebugger();
+    return AsynchronousStop;
 }
 
 void DebuggerRunControl::debuggingFinished()

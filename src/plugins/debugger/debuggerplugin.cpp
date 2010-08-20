@@ -454,21 +454,6 @@ public:
     }
 };
 
-
-///////////////////////////////////////////////////////////////////////
-//
-// DebuggerListener: Close the debugging session if running.
-//
-///////////////////////////////////////////////////////////////////////
-
-class DebuggerListener : public Core::ICoreListener
-{
-public:
-    DebuggerListener() {}
-    virtual bool coreAboutToClose();
-};
-
-
 ///////////////////////////////////////////////////////////////////////
 //
 // LocationMark
@@ -1554,7 +1539,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
         m_plugin->addAutoReleasedObject(op);
     m_plugin->addAutoReleasedObject(new DebuggingHelperOptionPage);
 
-    m_plugin->addAutoReleasedObject(new DebuggerListener);
     m_locationMark = 0;
 
     //setSimpleDockWidgetArrangement(LANG_CPP);
@@ -2597,22 +2581,12 @@ void DebuggerPlugin::clearCppCodeModelSnapshot()
 
 ExtensionSystem::IPlugin::ShutdownFlag DebuggerPlugin::aboutToShutdown()
 {
+    disconnect(sessionManager(), SIGNAL(startupProjectChanged(ProjectExplorer::Project*)), d, 0);
     writeSettings();
     if (d->m_uiSwitcher)
         d->m_uiSwitcher->aboutToShutdown();
-    //if (d->m_engine)
-    //    d->m_engine->shutdown();
-
-    // FIXME: Notify all engines instead.
-    QTimer::singleShot(0, this, SLOT(emitShutdownFinished()));
-    return AsynchronousShutdown;
+    return SynchronousShutdown;
 }
-
-void DebuggerPlugin::emitShutdownFinished()
-{
-    emit asynchronousShutdownFinished();
-}
-
 
 void DebuggerPlugin::showMessage(const QString &msg, int channel, int timeout)
 {
@@ -2760,63 +2734,35 @@ bool DebuggerPlugin::isRegisterViewVisible() const
     return d->m_registerDock->toggleViewAction()->isChecked();
 }
 
-bool DebuggerPlugin::coreAboutToClose()
+static inline bool canShutDown(DebuggerState s)
 {
-    // FIXME: Iterate over all running debuggers.
-    // Ask to terminate the session.
-    bool cleanTermination = false;
-    switch (d->state()) {
-    case DebuggerNotReady:
-    case DebuggerFinished:
-    case InferiorUnrunnable:
+    switch (s) {
+     case DebuggerNotReady:
+     case DebuggerFinished:
+     case InferiorUnrunnable:
         return true;
-    case EngineSetupRequested:
-    case EngineSetupOk:
-    case EngineSetupFailed:
-    case InferiorSetupRequested:
-    case InferiorSetupFailed:
-    case EngineRunRequested:
-    case InferiorRunRequested:
-    case InferiorRunOk:
-    case InferiorStopRequested:
-    case InferiorStopOk:
-    case InferiorShutdownRequested:
-    case EngineShutdownRequested:
-    case InferiorShutdownOk:
-    case InferiorShutdownFailed:
-    case InferiorStopFailed:
-    case EngineRunFailed:
-    case InferiorRunFailed:
-    case EngineShutdownOk:
-    case EngineShutdownFailed:
-        return false;
-    }
-
-    const QString question = cleanTermination ?
-        QCoreApplication::translate("Debugger::Internal::DebuggerListener",
-           "A debugging session is still in progress.\n"
-           "Would you like to terminate it?") :
-        QCoreApplication::translate("Debugger::Internal::DebuggerListener",
-           "A debugging session is still in progress. "
-           "Terminating the session in the current"
-           " state (%1) can leave the target in an inconsistent state."
-           " Would you still like to terminate it?")
-        .arg(_(DebuggerEngine::stateName(d->state())));
-
-    const QString title
-            = QCoreApplication::translate("Debugger::Internal::DebuggerListener",
-                                          "Close Debugging Session");
-    QMessageBox::StandardButton answer =
-        QMessageBox::question(DebuggerUISwitcher::instance()->mainWindow(),
-            title, question,
-            QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
-
-    if (answer != QMessageBox::Yes)
-        return false;
-
-    d->exitDebugger();
-    QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-    return true;
+     case EngineSetupRequested:
+     case EngineSetupOk:
+     case EngineSetupFailed:
+     case EngineRunRequested:
+     case InferiorSetupFailed:
+     case InferiorShutdownOk:
+     case InferiorShutdownFailed:
+     case EngineShutdownRequested:
+     case EngineRunFailed:
+     case EngineShutdownOk:
+     case EngineShutdownFailed:
+     case InferiorSetupRequested:
+     case InferiorRunRequested:
+     case InferiorRunOk:
+     case InferiorStopRequested:
+     case InferiorStopOk:
+     case InferiorStopFailed:
+     case InferiorShutdownRequested:
+     case InferiorRunFailed:
+        break;
+     }
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -2835,12 +2781,6 @@ void DebuggerPlugin::runTest(const QString &fileName)
     startDebugger(m_debuggerRunControlFactory->create(sp));
 }
 */
-
-bool DebuggerListener::coreAboutToClose()
-{
-    DebuggerPlugin *plugin = DebuggerPlugin::instance();
-    return plugin && plugin->coreAboutToClose();
-}
 
 } // namespace Debugger
 

@@ -48,7 +48,7 @@ public:
 
     // RunControl
     virtual void start();
-    virtual void stop();
+    virtual StopResult stop();
     virtual bool isRunning() const;
 
 private slots:

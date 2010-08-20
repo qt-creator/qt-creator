@@ -35,8 +35,13 @@
 #include "buildconfiguration.h"
 
 #include <extensionsystem/pluginmanager.h>
+#include <coreplugin/icore.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QTimer>
+#include <QtGui/QMainWindow>
+#include <QtGui/QMessageBox>
+#include <QtGui/QAbstractButton>
 
 #ifdef Q_OS_MAC
 #include <Carbon/Carbon.h>
@@ -250,7 +255,23 @@ QString RunControl::displayName() const
     return m_displayName;
 }
 
-bool RunControl::sameRunConfiguration(RunControl *other)
+bool RunControl::aboutToStop() const
+{
+    QTC_ASSERT(isRunning(), return true;)
+
+    QMessageBox messageBox(QMessageBox::Warning,
+                           tr("Application Still Running"),
+                           tr("%1 is still running.").arg(displayName()),
+                           QMessageBox::Cancel | QMessageBox::Yes,
+                           Core::ICore::instance()->mainWindow());
+    messageBox.setInformativeText(tr("Force it to quit?"));
+    messageBox.setDefaultButton(QMessageBox::Yes);
+    messageBox.button(QMessageBox::Yes)->setText(tr("Force Quit"));
+    messageBox.button(QMessageBox::Cancel)->setText(tr("Keep Running"));
+    return messageBox.exec() == QMessageBox::Yes;
+}
+
+bool RunControl::sameRunConfiguration(const RunControl *other) const
 {
     return other->m_runConfiguration.data() == m_runConfiguration.data();
 }

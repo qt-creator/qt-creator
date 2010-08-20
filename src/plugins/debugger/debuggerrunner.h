@@ -93,7 +93,8 @@ public:
 
     // ProjectExplorer::RunControl
     virtual void start();
-    virtual void stop();
+    virtual bool aboutToStop() const;
+    virtual StopResult stop();
     virtual bool isRunning() const;
     QString displayName() const;
 

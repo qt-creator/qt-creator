@@ -297,7 +297,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(d->m_buildManager, SIGNAL(buildQueueFinished(bool)),
             this, SLOT(buildQueueFinished(bool)));
 
-    addAutoReleasedObject(new CoreListenerCheckingForRunningBuild(d->m_buildManager));
+    addAutoReleasedObject(new CoreListener);
 
     d->m_outputPane = new OutputPane;
     addAutoReleasedObject(d->m_outputPane);
@@ -956,8 +956,14 @@ ExtensionSystem::IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
     d->m_proWindow->aboutToShutdown(); // disconnect from session
     d->m_session->clear();
     d->m_projectsMode = 0;
-//    d->m_proWindow->saveConfigChanges();
-    return SynchronousShutdown;
+    // Attempt to synchronously shutdown all run controls.
+    // If that fails, fall back to asynchronous shutdown (Debugger run controls
+    // might shutdown asynchronously).
+    if (d->m_outputPane->closeTabs(false /* No prompt any more */))
+        return SynchronousShutdown;
+    connect(d->m_outputPane, SIGNAL(allRunControlsFinished()),
+            this, SIGNAL(asynchronousShutdownFinished()));
+    return AsynchronousShutdown;
 }
 
 void ProjectExplorerPlugin::newProject()
@@ -1645,6 +1651,25 @@ bool ProjectExplorerPlugin::hasBuildSettings(Project *pro)
         if (project->activeTarget()->activeBuildConfiguration())
             return true;
     return false;
+}
+
+bool ProjectExplorerPlugin::coreAboutToClose()
+{
+    if (d->m_buildManager->isBuilding()) {
+        QMessageBox box;
+        QPushButton *closeAnyway = box.addButton(tr("Cancel Build && Close"), QMessageBox::AcceptRole);
+        QPushButton *cancelClose = box.addButton(tr("Do not Close"), QMessageBox::RejectRole);
+        box.setDefaultButton(cancelClose);
+        box.setWindowTitle(tr("Close Qt Creator?"));
+        box.setText(tr("A project is currently being built."));
+        box.setInformativeText(tr("Do you want to cancel the build process and close Qt Creator anyway?"));
+        box.exec();
+        if (box.clickedButton() != closeAnyway)
+            return false;
+    }
+    if (!d->m_outputPane->aboutToClose())
+        return false;
+    return true;
 }
 
 bool ProjectExplorerPlugin::hasDeploySettings(Project *pro)

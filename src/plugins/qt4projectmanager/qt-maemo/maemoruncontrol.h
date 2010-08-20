@@ -53,6 +53,10 @@ public:
     explicit MaemoRunControl(ProjectExplorer::RunConfiguration *runConfig);
     virtual ~MaemoRunControl();
 
+    virtual void start();
+    virtual StopResult stop();
+    virtual bool isRunning() const;
+
 private slots:
     void startExecution();
     void handleSshError(const QString &error);
@@ -63,10 +67,6 @@ private slots:
     void handleProgressReport(const QString &progressString);
 
 private:
-    virtual void start();
-    virtual void stop();
-    virtual bool isRunning() const;
-
     void setFinished();
     void handleError(const QString &errString);
 

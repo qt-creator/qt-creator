@@ -34,20 +34,15 @@
 
 namespace ProjectExplorer {
 
-class BuildManager;
-
 namespace Internal {
 
-class CoreListenerCheckingForRunningBuild : public Core::ICoreListener
+class CoreListener : public Core::ICoreListener
 {
     Q_OBJECT
 public:
-    explicit CoreListenerCheckingForRunningBuild(BuildManager *manager);
+    CoreListener();
 
     bool coreAboutToClose();
-
-private:
-    BuildManager *m_manager;
 };
 
 } // namespace Internal

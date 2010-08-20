@@ -123,9 +123,10 @@ void LocalApplicationRunControl::start()
     emit appendMessage(this, tr("Starting %1...").arg(QDir::toNativeSeparators(m_executable)), false);
 }
 
-void LocalApplicationRunControl::stop()
+LocalApplicationRunControl::StopResult LocalApplicationRunControl::stop()
 {
     m_applicationLauncher.stop();
+    return StoppedSynchronously;
 }
 
 bool LocalApplicationRunControl::isRunning() const

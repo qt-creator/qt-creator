@@ -94,9 +94,10 @@ void QmlRunControl::start()
                                                       m_commandLineArguments.join(QLatin1String(" "))), false);
 }
 
-void QmlRunControl::stop()
+RunControl::StopResult QmlRunControl::stop()
 {
     m_applicationLauncher.stop();
+    return StoppedSynchronously;
 }
 
 bool QmlRunControl::isRunning() const

@@ -84,7 +84,7 @@ public:
     LocalApplicationRunControl(LocalApplicationRunConfiguration *runConfiguration, QString mode);
     virtual ~LocalApplicationRunControl();
     virtual void start();
-    virtual void stop();
+    virtual StopResult stop();
     virtual bool isRunning() const;
 private slots:
     void processExited(int exitCode);

@@ -32,9 +32,8 @@
 
 #include <coreplugin/ioutputpane.h>
 
-#include <QtCore/QHash>
-#include <QtGui/QIcon>
 #include <QtGui/QPlainTextEdit>
+#include <QtGui/QIcon>
 
 QT_BEGIN_NAMESPACE
 class QTabWidget;
@@ -59,13 +58,15 @@ namespace Internal {
 
 class OutputWindow;
 
+struct OutputPanePrivate;
+
 class OutputPane : public Core::IOutputPane
 {
     Q_OBJECT
 
 public:
     OutputPane();
-    ~OutputPane();
+    virtual ~OutputPane();
 
     QWidget *outputWidget(QWidget *);
     QList<QWidget*> toolBarWidgets() const;
@@ -85,11 +86,16 @@ public:
 
     void showTabFor(RunControl *rc);
 
+    bool aboutToClose() const;
+    bool closeTabs(bool prompt);
+
+signals:
+     void allRunControlsFinished();
+
 public slots:
     // ApplicationOutputspecifics
     void createNewOutputWindow(RunControl *rc);
     void projectRemoved();
-    void coreAboutToClose();
 
     void appendApplicationOutput(ProjectExplorer::RunControl *rc, const QString &out,
                                  bool onStdErr);
@@ -108,11 +114,27 @@ private slots:
     void aboutToUnloadSession();
 
 private:
-    RunControl *runControlForTab(int index) const;
+    struct RunControlTab {
+        explicit RunControlTab(RunControl *runControl = 0,
+                               OutputWindow *window = 0);
+        RunControl* runControl;
+        OutputWindow *window;
+        // Is the run control stopping asynchronously, close the tab once it finishes
+        bool asyncClosing;
+    };
+
+    bool isRunning() const;
+    bool closeTab(int index, bool prompt);
+
+    int indexOf(const RunControl *) const;
+    int indexOf(const QWidget *outputWindow) const;
+    int currentIndex() const;
+    RunControl *currentRunControl() const;
+    int tabWidgetIndexOf(int runControlIndex) const;
 
     QWidget *m_mainWidget;
     QTabWidget *m_tabWidget;
-    QHash<RunControl *, OutputWindow *> m_outputWindows;
+    QList<RunControlTab> m_runControlTabs;
     QAction *m_stopAction;
     QToolButton *m_reRunButton;
     QToolButton *m_stopButton;
@@ -148,9 +170,10 @@ public:
         QPlainTextEdit::clear();
     }
 
+    void scrollToBottom();
+
 protected:
     bool isScrollbarAtBottom() const;
-    void scrollToBottom();
 
     virtual void mousePressEvent(QMouseEvent *e);
     virtual void mouseReleaseEvent(QMouseEvent *e);

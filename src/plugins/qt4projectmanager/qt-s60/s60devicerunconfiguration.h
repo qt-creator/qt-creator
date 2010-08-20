@@ -131,7 +131,7 @@ public:
     explicit S60DeviceRunControl(ProjectExplorer::RunConfiguration *runConfiguration, QString mode);
     ~S60DeviceRunControl();
     virtual void start();
-    virtual void stop();
+    virtual StopResult stop();
     virtual bool isRunning() const;
 
     static QMessageBox *createTrkWaitingMessageBox(const QString &port, QWidget *parent = 0);
@@ -189,7 +189,8 @@ public:
     explicit S60DeviceDebugRunControl(S60DeviceRunConfiguration *runConfiguration, QString mode);
     virtual ~S60DeviceDebugRunControl();
     virtual void start();
-    virtual void stop();
+    virtual bool aboutToStop() const;
+    virtual StopResult stop();
     virtual bool isRunning() const;
 
 protected:

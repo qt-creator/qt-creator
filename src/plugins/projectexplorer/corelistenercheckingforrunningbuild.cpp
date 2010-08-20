@@ -28,33 +28,18 @@
 **************************************************************************/
 
 #include "corelistenercheckingforrunningbuild.h"
-#include "buildmanager.h"
-
-#include <QtGui/QMessageBox>
-#include <QtGui/QPushButton>
+#include "projectexplorer.h"
 
 namespace ProjectExplorer {
 namespace Internal {
 
-CoreListenerCheckingForRunningBuild::CoreListenerCheckingForRunningBuild(BuildManager *manager)
-    : Core::ICoreListener(0), m_manager(manager)
+CoreListener::CoreListener()
 {
 }
 
-bool CoreListenerCheckingForRunningBuild::coreAboutToClose()
+bool CoreListener::coreAboutToClose()
 {
-    if (m_manager->isBuilding()) {
-        QMessageBox box;
-        QPushButton *closeAnyway = box.addButton(tr("Cancel Build && Close"), QMessageBox::AcceptRole);
-        QPushButton *cancelClose = box.addButton(tr("Do not Close"), QMessageBox::RejectRole);
-        box.setDefaultButton(cancelClose);
-        box.setWindowTitle(tr("Close Qt Creator?"));
-        box.setText(tr("A project is currently being built."));
-        box.setInformativeText(tr("Do you want to cancel the build process and close Qt Creator anyway?"));
-        box.exec();
-        return (box.clickedButton() == closeAnyway);
-    }
-    return true;
+    return ProjectExplorerPlugin::instance()->coreAboutToClose();
 }
 
 }

@@ -47,6 +47,7 @@
 #include <texteditor/basetexteditor.h>
 #include <projectexplorer/project.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
+#include <utils/qtcassert.h>
 
 #include <QtGui/QIcon>
 #include <QtGui/QScrollBar>
@@ -62,13 +63,26 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QShowEvent>
 
-using namespace ProjectExplorer::Internal;
-using namespace ProjectExplorer;
+#include <QtCore/QDebug>
 
 static const int MaxBlockCount = 100000;
 
-OutputPane::OutputPane()
-    : m_mainWidget(new QWidget)
+enum { debug = 0 };
+
+namespace ProjectExplorer {
+namespace Internal {
+
+OutputPane::RunControlTab::RunControlTab(RunControl *rc, OutputWindow *w) :
+    runControl(rc), window(w), asyncClosing(false)
+{
+}
+
+OutputPane::OutputPane() :
+    m_mainWidget(new QWidget),
+    m_tabWidget(new QTabWidget),
+    m_stopAction(new QAction(QIcon(QLatin1String(Constants::ICON_STOP)), tr("Stop"), this)),
+    m_reRunButton(new QToolButton),
+    m_stopButton(new QToolButton)
 {
     m_runIcon.addFile(Constants::ICON_RUN);
     m_runIcon.addFile(Constants::ICON_RUN_SMALL);
@@ -77,7 +91,6 @@ OutputPane::OutputPane()
     m_debugIcon.addFile(Constants::ICON_DEBUG_SMALL);
 
     // Rerun
-    m_reRunButton = new QToolButton;
     m_reRunButton->setIcon(m_runIcon);
     m_reRunButton->setToolTip(tr("Re-run this run-configuration"));
     m_reRunButton->setAutoRaise(true);
@@ -89,13 +102,11 @@ OutputPane::OutputPane()
     Core::ActionManager *am = Core::ICore::instance()->actionManager();
     Core::Context globalcontext(Core::Constants::C_GLOBAL);
 
-    m_stopAction = new QAction(QIcon(Constants::ICON_STOP), tr("Stop"), this);
     m_stopAction->setToolTip(tr("Stop"));
     m_stopAction->setEnabled(false);
 
     Core::Command *cmd = am->registerAction(m_stopAction, Constants::STOP, globalcontext);
 
-    m_stopButton = new QToolButton;
     m_stopButton->setDefaultAction(cmd->action());
     m_stopButton->setAutoRaise(true);
 
@@ -106,7 +117,6 @@ OutputPane::OutputPane()
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);
-    m_tabWidget = new QTabWidget;
     m_tabWidget->setDocumentMode(true);
     m_tabWidget->setTabsClosable(true);
     m_tabWidget->setMovable(true);
@@ -117,36 +127,69 @@ OutputPane::OutputPane()
 
     m_mainWidget->setLayout(layout);
 
-    connect(Core::ICore::instance(), SIGNAL(coreAboutToClose()),
-            this, SLOT(coreAboutToClose()));
-
     connect(ProjectExplorer::ProjectExplorerPlugin::instance()->session(), SIGNAL(aboutToUnloadSession()),
             this, SLOT(aboutToUnloadSession()));
 }
 
-void OutputPane::coreAboutToClose()
+OutputPane::~OutputPane()
 {
-    while (m_tabWidget->count()) {
-        RunControl *rc = runControlForTab(0);
-        if (rc->isRunning())
-            rc->stop();
-        closeTab(0);
-    }
+    if (debug)
+        qDebug() << "OutputPane::~OutputPane: Entries left" << m_runControlTabs.size();
+
+    foreach(const RunControlTab &rt, m_runControlTabs)
+        delete rt.runControl;
+    delete m_mainWidget;
+}
+
+int OutputPane::currentIndex() const
+{
+    if (const QWidget *w = m_tabWidget->currentWidget())
+        return indexOf(w);
+    return -1;
+}
+
+RunControl *OutputPane::currentRunControl() const
+{
+    const int index = currentIndex();
+    if (index != -1)
+        return m_runControlTabs.at(index).runControl;
+    return 0;
+}
+
+int OutputPane::indexOf(const RunControl *rc) const
+{
+    for (int i = m_runControlTabs.size() - 1; i >= 0; i--)
+        if (m_runControlTabs.at(i).runControl == rc)
+            return i;
+    return -1;
+}
+
+int OutputPane::indexOf(const QWidget *outputWindow) const
+{
+    for (int i = m_runControlTabs.size() - 1; i >= 0; i--)
+        if (m_runControlTabs.at(i).window == outputWindow)
+            return i;
+    return -1;
+}
+
+int OutputPane::tabWidgetIndexOf(int runControlIndex) const
+{
+    if (runControlIndex >= 0 && runControlIndex < m_runControlTabs.size())
+        return m_tabWidget->indexOf(m_runControlTabs.at(runControlIndex).window);
+    return -1;
+}
+
+bool OutputPane::aboutToClose() const
+{
+    foreach(const RunControlTab &rt, m_runControlTabs)
+        if (rt.runControl->isRunning() && !rt.runControl->aboutToStop())
+            return false;
+    return true;
 }
 
 void OutputPane::aboutToUnloadSession()
 {
-    int i = 0;
-    while (i < m_tabWidget->count()) {
-        bool closed = closeTab(i);
-        if (!closed) // skip to next one
-            ++i;
-    }
-}
-
-OutputPane::~OutputPane()
-{
-    delete m_mainWidget;
+    closeTabs(true);
 }
 
 QWidget *OutputPane::outputWidget(QWidget *)
@@ -204,106 +247,136 @@ void OutputPane::createNewOutputWindow(RunControl *rc)
             this, SLOT(runControlFinished()));
 
     // First look if we can reuse a tab
-    bool found = false;
-    for (int i = 0; i < m_tabWidget->count(); ++i) {
-        RunControl *old = runControlForTab(i);
-        if (old->sameRunConfiguration(rc) && !old->isRunning()) {
+    const int size = m_runControlTabs.size();
+    for (int i = 0; i < size; i++) {
+        RunControlTab &tab =m_runControlTabs[i];
+        if (tab.runControl->sameRunConfiguration(rc) && !tab.runControl->isRunning()) {
             // Reuse this tab
-            delete old;
-            m_outputWindows.remove(old);
-            OutputWindow *ow = static_cast<OutputWindow *>(m_tabWidget->widget(i));
-            ow->grayOutOldContent();
-            ow->verticalScrollBar()->setValue(ow->verticalScrollBar()->maximum());
-            ow->setFormatter(rc->outputFormatter());
-            m_outputWindows.insert(rc, ow);
-            found = true;
-            break;
+            delete tab.runControl;
+            tab.runControl = rc;
+            tab.window->grayOutOldContent();
+            tab.window->scrollToBottom();
+            tab.window->setFormatter(rc->outputFormatter());
+            if (debug)
+                qDebug() << "OutputPane::createNewOutputWindow: Reusing tab" << i << " for " << rc;
+            return;
         }
     }
-    if (!found) {
-        OutputWindow *ow = new OutputWindow(m_tabWidget);
-        ow->setWindowTitle(tr("Application Output Window"));
-        ow->setWindowIcon(QIcon(QLatin1String(Qt4ProjectManager::Constants::ICON_WINDOW)));
-        ow->setFormatter(rc->outputFormatter());
-        Aggregation::Aggregate *agg = new Aggregation::Aggregate;
-        agg->add(ow);
-        agg->add(new Find::BaseTextFind(ow));
-        m_outputWindows.insert(rc, ow);
-        m_tabWidget->addTab(ow, rc->displayName());
-    }
+    // Create new
+    OutputWindow *ow = new OutputWindow(m_tabWidget);
+    ow->setWindowTitle(tr("Application Output Window"));
+    ow->setWindowIcon(QIcon(QLatin1String(Qt4ProjectManager::Constants::ICON_WINDOW)));
+    ow->setFormatter(rc->outputFormatter());
+    Aggregation::Aggregate *agg = new Aggregation::Aggregate;
+    agg->add(ow);
+    agg->add(new Find::BaseTextFind(ow));
+    m_runControlTabs.push_back(RunControlTab(rc, ow));
+    m_tabWidget->addTab(ow, rc->displayName());
+    if (debug)
+        qDebug() << "OutputPane::createNewOutputWindow: Adding tab for " << rc;
 }
 
 void OutputPane::appendApplicationOutput(RunControl *rc, const QString &out,
                                          bool onStdErr)
 {
-    OutputWindow *ow = m_outputWindows.value(rc);
-    ow->appendApplicationOutput(out, onStdErr);
+    const int index = indexOf(rc);
+    if (index != -1)
+        m_runControlTabs.at(index).window->appendApplicationOutput(out, onStdErr);
 }
 
 void OutputPane::appendApplicationOutputInline(RunControl *rc,
                                                const QString &out,
                                                bool onStdErr)
 {
-    OutputWindow *ow = m_outputWindows.value(rc);
-    ow->appendApplicationOutputInline(out, onStdErr);
+    const int index = indexOf(rc);
+    if (index != -1)
+        m_runControlTabs.at(index).window->appendApplicationOutputInline(out, onStdErr);
 }
 
 void OutputPane::appendMessage(RunControl *rc, const QString &out, bool isError)
 {
-    OutputWindow *ow = m_outputWindows.value(rc);
-    ow->appendMessage(out, isError);
+    const int index = indexOf(rc);
+    if (index != -1)
+        m_runControlTabs.at(index).window->appendMessage(out, isError);
 }
 
 void OutputPane::showTabFor(RunControl *rc)
 {
-    OutputWindow *ow = m_outputWindows.value(rc);
-    m_tabWidget->setCurrentWidget(ow);
+    m_tabWidget->setCurrentIndex(tabWidgetIndexOf(indexOf(rc)));
 }
 
 void OutputPane::reRunRunControl()
 {
-    int index = m_tabWidget->currentIndex();
-    RunControl *rc = runControlForTab(index);
-    OutputWindow *ow = static_cast<OutputWindow *>(m_tabWidget->widget(index));
-    if (ProjectExplorerPlugin::instance()->projectExplorerSettings().cleanOldAppOutput)
-        ow->clear();
-    else
-        ow->grayOutOldContent();
-    ow->verticalScrollBar()->setValue(ow->verticalScrollBar()->maximum());
-    rc->start();
+    const int index = currentIndex();
+    QTC_ASSERT(index != -1 && !m_runControlTabs.at(index).runControl->isRunning(), return;)
+
+    RunControlTab &tab = m_runControlTabs[index];
+    if (ProjectExplorerPlugin::instance()->projectExplorerSettings().cleanOldAppOutput) {
+        tab.window->clear();
+    } else {
+        tab.window->grayOutOldContent();
+    }
+    tab.window->scrollToBottom();
+    tab.runControl->start();
 }
 
 void OutputPane::stopRunControl()
 {
-    RunControl *rc = runControlForTab(m_tabWidget->currentIndex());
-    rc->stop();
+    const int index = currentIndex();
+    QTC_ASSERT(index != -1 && m_runControlTabs.at(index).runControl->isRunning(), return;)
+
+    RunControl *rc = m_runControlTabs.at(index).runControl;
+    if (rc->isRunning() && rc->aboutToStop())
+        rc->stop();
+
+    if (debug)
+        qDebug() << "OutputPane::stopRunControl " << rc;
+}
+
+bool OutputPane::closeTabs(bool prompt)
+{
+    bool allClosed = true;
+    for (int t = m_tabWidget->count() - 1; t >= 0; t--)
+        if (!closeTab(t, prompt))
+            allClosed = false;
+    if (debug)
+        qDebug() << "OutputPane::closeTabs() returns " << allClosed;
+    return allClosed;
 }
 
 bool OutputPane::closeTab(int index)
 {
-    OutputWindow *ow = static_cast<OutputWindow *>(m_tabWidget->widget(index));
-    RunControl *rc = m_outputWindows.key(ow);
+    return closeTab(index, true);
+}
 
-    if (rc->isRunning()) {
-        QMessageBox messageBox(QMessageBox::Warning,
-                               tr("Unable to close"),
-                               tr("%1 is still running.").arg(rc->displayName()),
-                               QMessageBox::Cancel | QMessageBox::Yes,
-                               ow->window());
-        messageBox.setInformativeText(tr("Force it to quit?"));
-        messageBox.setDefaultButton(QMessageBox::Yes);
-        messageBox.button(QMessageBox::Yes)->setText(tr("Force Quit"));
-        messageBox.button(QMessageBox::Cancel)->setText(tr("Keep Running"));
+bool OutputPane::closeTab(int tabIndex, bool prompt)
+{
+    const int index = indexOf(m_tabWidget->widget(tabIndex));
+    QTC_ASSERT(index != -1, return true;)
 
-        if (messageBox.exec() != QMessageBox::Yes)
+    RunControlTab &tab = m_runControlTabs[index];
+
+    if (debug)
+            qDebug() << "OutputPane::closeTab tab " << tabIndex << tab.runControl
+                        << tab.window << tab.asyncClosing;
+    // Prompt user to stop
+    if (tab.runControl->isRunning()) {
+        if (prompt && !tab.runControl->aboutToStop())
             return false;
-
-        rc->stop();
+        if (tab.runControl->stop() == RunControl::AsynchronousStop) {
+            tab.asyncClosing = true;
+            return false;
+        }
     }
 
-    m_tabWidget->removeTab(index);
-    delete ow;
-    delete rc;
+    m_tabWidget->removeTab(tabIndex);
+    if (tab.asyncClosing) { // We were invoked from its finished() signal.
+        tab.runControl->deleteLater();
+    } else {
+        delete tab.runControl;
+    }
+    delete tab.window;
+    m_runControlTabs.removeAt(index);
     return true;
 }
 
@@ -318,7 +391,10 @@ void OutputPane::tabChanged(int i)
         m_stopAction->setEnabled(false);
         m_reRunButton->setEnabled(false);
     } else {
-        RunControl *rc = runControlForTab(i);
+        const int index = indexOf(m_tabWidget->widget(i));
+        QTC_ASSERT(index != -1, return; )
+
+        RunControl *rc = m_runControlTabs.at(index).runControl;
         m_stopAction->setEnabled(rc->isRunning());
         m_reRunButton->setEnabled(!rc->isRunning());
         m_reRunButton->setIcon(rc->runMode() == Constants::DEBUGMODE ? m_debugIcon : m_runIcon);
@@ -327,27 +403,47 @@ void OutputPane::tabChanged(int i)
 
 void OutputPane::runControlStarted()
 {
-    RunControl *rc = runControlForTab(m_tabWidget->currentIndex());
-    if (rc == qobject_cast<RunControl *>(sender())) {
+    RunControl *current = currentRunControl();
+    if (current && current == sender()) {
         m_reRunButton->setEnabled(false);
         m_stopAction->setEnabled(true);
-        m_reRunButton->setIcon(rc->runMode() == Constants::DEBUGMODE ? m_debugIcon : m_runIcon);
+        m_reRunButton->setIcon(current->runMode() == Constants::DEBUGMODE ? m_debugIcon : m_runIcon);
     }
 }
 
 void OutputPane::runControlFinished()
 {
-    RunControl *rc = runControlForTab(m_tabWidget->currentIndex());
-    if (rc == qobject_cast<RunControl *>(sender())) {
-        m_reRunButton->setEnabled(rc);
+    RunControl *senderRunControl = qobject_cast<RunControl *>(sender());
+    const int senderIndex = indexOf(senderRunControl);
+
+    QTC_ASSERT(senderIndex != -1, return; )
+
+    // Enable buttons for current
+    RunControl *current = currentRunControl();
+
+    if (debug)
+        qDebug() << "OutputPane::runControlFinished"  << senderRunControl << senderIndex
+                    << " current " << current << m_runControlTabs.size();
+
+    if (current && current == sender()) {
+        m_reRunButton->setEnabled(true);
         m_stopAction->setEnabled(false);
-        m_reRunButton->setIcon(rc->runMode() == Constants::DEBUGMODE ? m_debugIcon : m_runIcon);
+        m_reRunButton->setIcon(current->runMode() == Constants::DEBUGMODE ? m_debugIcon : m_runIcon);
     }
+    // Check for asynchronous close. Close the tab.
+    if (m_runControlTabs.at(senderIndex).asyncClosing)
+        closeTab(tabWidgetIndexOf(senderIndex), false);
+
+    if (!isRunning())
+        emit allRunControlsFinished();
 }
 
-RunControl* OutputPane::runControlForTab(int index) const
+bool OutputPane::isRunning() const
 {
-    return m_outputWindows.key(qobject_cast<OutputWindow *>(m_tabWidget->widget(index)));
+    foreach(const RunControlTab &rt, m_runControlTabs)
+        if (rt.runControl->isRunning())
+            return true;
+    return false;
 }
 
 bool OutputPane::canNext()
@@ -440,7 +536,6 @@ void OutputWindow::mousePressEvent(QMouseEvent * e)
     m_mousePressed = true;
     QPlainTextEdit::mousePressEvent(e);
 }
-
 
 void OutputWindow::mouseReleaseEvent(QMouseEvent *e)
 {
@@ -631,3 +726,6 @@ void OutputWindow::enableUndoRedo()
     setMaximumBlockCount(0);
     setUndoRedoEnabled(true);
 }
+
+} // namespace Internal
+} // namespace ProjectExplorer

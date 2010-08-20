@@ -326,9 +326,10 @@ void S60EmulatorRunControl::start()
     emit appendMessage(this, tr("Starting %1...").arg(QDir::toNativeSeparators(m_executable)), false);
 }
 
-void S60EmulatorRunControl::stop()
+RunControl::StopResult S60EmulatorRunControl::stop()
 {
     m_applicationLauncher.stop();
+    return StoppedSynchronously;
 }
 
 bool S60EmulatorRunControl::isRunning() const
