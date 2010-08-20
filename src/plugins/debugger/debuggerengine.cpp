@@ -110,7 +110,8 @@ DebuggerStartParameters::DebuggerStartParameters()
     useTerminal(false),
     breakAtMain(false),
     toolChainType(ToolChain::UNKNOWN),
-    startMode(NoStartMode)
+    startMode(NoStartMode),
+    executableUid(0)
 {}
 
 void DebuggerStartParameters::clear()

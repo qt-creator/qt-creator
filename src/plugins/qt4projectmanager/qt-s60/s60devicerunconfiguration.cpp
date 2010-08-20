@@ -593,6 +593,9 @@ S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *rc
     m_startParams->startMode = Debugger::StartInternal;
     m_startParams->toolChainType = rc->toolChainType();
     m_startParams->executable = debugFileName;
+    m_startParams->executableUid = activeDeployConf->executableUid();
+
+    QTC_ASSERT(m_startParams->executableUid, return);
 
     // Prefer the '*.sym' file over the '.exe', which should exist at the same
     // location in debug builds

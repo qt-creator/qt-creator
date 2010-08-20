@@ -252,6 +252,27 @@ QString S60DeployConfiguration::localExecutableFileName() const
     return QDir::toNativeSeparators(localExecutable);
 }
 
+quint32 S60DeployConfiguration::executableUid() const
+{
+    quint32 uid = 0;
+    QString executablePath(localExecutableFileName());
+    if (!executablePath.isEmpty()) {
+        QFile file(executablePath);
+        if (file.open(QIODevice::ReadOnly)) {
+            // executable's UID is 4 bytes starting at 8.
+            const QByteArray data = file.read(12);
+            if (data.size() == 12) {
+                const unsigned char *d = reinterpret_cast<const unsigned char*>(data.data() + 8);
+                uid = *d++;
+                uid += *d++ << 8;
+                uid += *d++ << 16;
+                uid += *d++ << 24;
+            }
+        }
+    }
+    return uid;
+}
+
 bool S60DeployConfiguration::runSmartInstaller() const
 {
     DeployConfiguration *dc = target()->activeDeployConfiguration();

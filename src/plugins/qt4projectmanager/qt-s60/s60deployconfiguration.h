@@ -77,6 +77,7 @@ public:
     QStringList packageTemplateFileNames() const;
     QString appPackageTemplateFileName() const;
     QString localExecutableFileName() const;
+    quint32 executableUid() const;
 
     QVariantMap toMap() const;
 

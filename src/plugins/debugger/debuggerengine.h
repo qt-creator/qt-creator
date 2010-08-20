@@ -99,6 +99,9 @@ public:
     QString dumperLibrary;
     QStringList dumperLibraryLocations;
     DebuggerStartMode startMode;
+
+    // for SymbianOS debugging
+    quint32 executableUid;
 };
 
 DEBUGGER_EXPORT QDebug operator<<(QDebug str, const DebuggerStartParameters &);
