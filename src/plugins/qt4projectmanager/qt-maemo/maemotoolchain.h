@@ -48,7 +48,9 @@ public:
 
     QString maddeRoot() const;
     QString targetRoot() const;
+    QString targetName() const;
     QString sysrootRoot() const;
+    QString madAdminCommand() const;
 
 protected:
     bool equals(ToolChain *other) const;

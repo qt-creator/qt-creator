@@ -91,9 +91,19 @@ QString MaemoToolChain::maddeRoot() const
     return m_maddeRoot;
 }
 
+QString MaemoToolChain::madAdminCommand() const
+{
+    return maddeRoot() + QLatin1String("/bin/mad-admin");
+}
+
 QString MaemoToolChain::targetRoot() const
 {
     return m_targetRoot;
+}
+
+QString MaemoToolChain::targetName() const
+{
+    return QDir(targetRoot()).dirName();
 }
 
 QString MaemoToolChain::sysrootRoot() const
