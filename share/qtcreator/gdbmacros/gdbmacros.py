@@ -483,7 +483,9 @@ def qdump__QLinkedList(d, item):
 
 def qdump__QLocale(d, item):
     d.putStringValue(call(item.value, "name()"))
-    d.putNumChild(8)
+    d.putNumChild(0)
+    return
+    # FIXME: Poke back for variants.
     if d.isExpanded(item):
         with Children(d, 1, lookupType(d.ns + "QChar"), 0):
             d.putCallItem("country", item, "country()")
@@ -632,6 +634,9 @@ def qdump__QObject(d, item):
             d.putNumChild(propertyCount)
             if d.isExpandedIName(item.iname + ".properties"):
                 with Children(d):
+                    # FIXME: Make this global. Don't leak.
+                    gdb.execute("set $d = (QVariant*)malloc(sizeof(QVariant))")
+                    gdb.execute("set $d.d.is_shared = 0")
                     for property in xrange(propertyCount):
                         with SubItem(d):
                             offset = propertyData + 3 * property
@@ -646,6 +651,15 @@ def qdump__QObject(d, item):
                             #exp = '"((\'%sQObject\'*)%s)"' % (d.ns, item.value.address,)
                             #warn("EXPRESSION:  %s" % exp)
                             value = call(item.value, 'property("%s")' % propertyName)
+                            value1 = value["d"]
+                            #warn("   CODE: %s" % value1["type"])
+                            # Type 1 and 2 are bool and int. Try to save a few cycles in this case:
+                            if int(value1["type"]) > 2:
+                                # Poke back value
+                                gdb.execute("set $d.d.data.ull = %s" % value1["data"]["ull"])
+                                gdb.execute("set $d.d.type = %s" % value1["type"])
+                                gdb.execute("set $d.d.is_null = %s" % value1["is_null"])
+                                value = parseAndEvaluate("$d").dereference()
                             val, inner, innert = qdumpHelper__QVariant(d, value)
                             if len(inner):
                                 # Build-in types.
