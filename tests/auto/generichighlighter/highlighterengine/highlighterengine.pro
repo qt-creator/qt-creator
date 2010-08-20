@@ -4,9 +4,10 @@ CONFIG += qtestlib testcase
 PLUGINSDIR = ../../../../src/plugins
 GENERICHIGHLIGHTERDIR = $$PLUGINSDIR/texteditor/generichighlighter
 
-SOURCES += tst_highlighterengine.cpp \
-    highlightermock.cpp \
-    formats.cpp \
+SOURCES += \
+    $$PWD/tst_highlighterengine.cpp \
+    $$PWD/highlightermock.cpp \
+    $$PWD/formats.cpp \
     $$GENERICHIGHLIGHTERDIR/highlighter.cpp \
     $$GENERICHIGHLIGHTERDIR/context.cpp \
     $$GENERICHIGHLIGHTERDIR/dynamicrule.cpp \
@@ -18,11 +19,11 @@ SOURCES += tst_highlighterengine.cpp \
     $$GENERICHIGHLIGHTERDIR/itemdata.cpp
 
 HEADERS += \
-    highlightermock.h \
-    basetextdocumentlayout.h \
-    formats.h \
-    tabsettings.h \
-    syntaxhighlighter.h \
+    $$PWD/highlightermock.h \
+    $$PWD/basetextdocumentlayout.h \
+    $$PWD/formats.h \
+    $$PWD/tabsettings.h \
+    $$PWD/syntaxhighlighter.h \
     $$GENERICHIGHLIGHTERDIR/highlighter.h \
     $$GENERICHIGHLIGHTERDIR/context.h \
     $$GENERICHIGHLIGHTERDIR/dynamicrule.h \
@@ -33,6 +34,6 @@ HEADERS += \
     $$GENERICHIGHLIGHTERDIR/keywordlist.h \
     $$GENERICHIGHLIGHTERDIR/itemdata.h
 
-INCLUDEPATH += $$GENERICHIGHLIGHTERDIR
+INCLUDEPATH += $$GENERICHIGHLIGHTERDIR $$PWD
 
 TARGET=tst_$$TARGET
