@@ -58,7 +58,7 @@ struct QmlModule
     QmlModule(const QString &name, const QFileInfo &rootDir, const QFileInfo &qmldir,
               bool isExternal, QmlStandaloneApp *qmlStandaloneApp);
     QString path(Path path) const;
-    const QString name;             // "com.foo.bar"
+    const QString uri;              // "com.foo.bar"
     const QFileInfo rootDir;        // Location of "com/"
     const QFileInfo qmldir;         // 'qmldir' file.
     const bool isExternal;          // Either external or inside a source paths
@@ -130,9 +130,7 @@ public:
     bool loadDummyData() const;
     void setNetworkEnabled(bool enabled);
     bool networkEnabled() const;
-
-    bool setExternalModules(const QStringList &moduleNames,
-                            const QStringList &importPaths);
+    bool setExternalModules(const QStringList &uris, const QStringList &importPaths);
 
     static QString symbianUidForPath(const QString &path);
 #ifndef CREATORLESSTEST
@@ -149,7 +147,7 @@ private:
     QByteArray generateMainCpp(const QString *errorMessage) const;
     QByteArray generateProFile(const QString *errorMessage) const;
     static QString templatesRoot();
-    bool addExternalModule(const QString &name, const QFileInfo &dir,
+    bool addExternalModule(const QString &uri, const QFileInfo &dir,
                            const QFileInfo &contentDir);
     bool addCppPlugins(QmlModule *module);
     bool addCppPlugin(const QString &qmldirLine, QmlModule *module);

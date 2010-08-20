@@ -44,9 +44,9 @@ namespace Internal {
 const QLatin1String qmldir("qmldir");
 const QLatin1String qmldir_plugin("plugin");
 
-QmlModule::QmlModule(const QString &name, const QFileInfo &rootDir, const QFileInfo &qmldir,
+QmlModule::QmlModule(const QString &uri, const QFileInfo &rootDir, const QFileInfo &qmldir,
                      bool isExternal, QmlStandaloneApp *qmlStandaloneApp)
-    : name(name)
+    : uri(uri)
     , rootDir(rootDir)
     , qmldir(qmldir)
     , isExternal(isExternal)
@@ -186,7 +186,7 @@ bool QmlStandaloneApp::networkEnabled() const
     return m_networkEnabled;
 }
 
-bool QmlStandaloneApp::setExternalModules(const QStringList &moduleNames,
+bool QmlStandaloneApp::setExternalModules(const QStringList &uris,
                                           const QStringList &importPaths)
 {
     clearModulesAndPlugins();
@@ -200,22 +200,22 @@ bool QmlStandaloneApp::setExternalModules(const QStringList &moduleNames,
             m_importPaths.append(importPath.canonicalFilePath());
         }
     }
-    foreach (const QString &moduleName, moduleNames) {
-        QString modulePath = moduleName;
-        modulePath.replace(QLatin1Char('.'), QLatin1Char('/'));
+    foreach (const QString &uri, uris) {
+        QString uriPath = uri;
+        uriPath.replace(QLatin1Char('.'), QLatin1Char('/'));
         const int modulesCount = m_modules.count();
         foreach (const QFileInfo &importPath, m_importPaths) {
             const QFileInfo qmlDirFile(
                     importPath.absoluteFilePath() + QLatin1Char('/')
-                    + modulePath + QLatin1Char('/') + qmldir);
+                    + uriPath + QLatin1Char('/') + qmldir);
             if (qmlDirFile.exists()) {
-                if (!addExternalModule(moduleName, importPath, qmlDirFile))
+                if (!addExternalModule(uri, importPath, qmlDirFile))
                     return false;
                 break;
             }
         }
         if (modulesCount == m_modules.count()) { // no module was added
-            m_error = tr("The Qml module '%1' cannot be found.").arg(moduleName);
+            m_error = tr("The Qml module '%1' cannot be found.").arg(uri);
             return false;
         }
     }
@@ -410,7 +410,7 @@ bool QmlStandaloneApp::addCppPlugin(const QString &qmldirLine, QmlModule *module
             qmldirLine.split(QLatin1Char(' '), QString::SkipEmptyParts);
     if (qmldirLineElements.count() < 2) {
         m_error = tr("Invalid '%1' entry in '%2' of module '%3'.")
-                  .arg(qmldir_plugin).arg(qmldir).arg(module->name);
+                  .arg(qmldir_plugin).arg(qmldir).arg(module->uri);
         return false;
     }
     const QString name = qmldirLineElements.at(1);
