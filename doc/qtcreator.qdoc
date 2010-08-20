@@ -4154,7 +4154,7 @@
 
     The non-Python versions use the compiled version of the debugging helpers,
     that you must enable separately. For more information, see
-    \l{Debugging Helper Library with C++}.
+    \l{Debugging Helpers Based on C++}.
 
     The Python version uses a script version of the debugging helpers
     that does not need any special setup.
@@ -4685,7 +4685,7 @@
     with Qt Creator, but they enhance the user's ability to quickly
     examine complex data significantly.
 
-    \section1 Debugging Helpers based on C++
+    \section1 Debugging Helpers Based on C++
 
     This is the first and original approach to display complex data
     types. While it has been superseded on most platforms by the more
@@ -4704,7 +4704,7 @@
     library is built for each Qt version.
 
 
-    \section1 Debugging Helpers based on Python
+    \section1 Debugging Helpers Based on Python
 
     On platforms featuring a Python-enabled version of the gdb debugger,
     the data extraction is done by a Python script. This is more robust
