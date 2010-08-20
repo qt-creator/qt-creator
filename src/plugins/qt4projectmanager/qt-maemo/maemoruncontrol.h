@@ -164,6 +164,7 @@ private:
     QSharedPointer<Debugger::DebuggerStartParameters> m_startParams;
 
     bool m_debuggingStarted;
+    QString m_remoteOutput;
 };
 
 } // namespace Internal

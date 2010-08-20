@@ -147,7 +147,7 @@ void AbstractMaemoRunControl::startDeployment(bool forDebugging)
             if (dumperInfo.exists()) {
                 const MaemoDeployable d(m_runConfig->dumperLib(),
                     remoteDir() + '/' + dumperInfo.fileName());
-                m_needsInstall = addDeployableIfNeeded(d);
+                m_needsInstall |= addDeployableIfNeeded(d);
             }
         }
         deploy();
@@ -452,6 +452,7 @@ MaemoDebugRunControl::~MaemoDebugRunControl()
 void MaemoDebugRunControl::startInternal()
 {
     m_debuggingStarted = false;
+    m_remoteOutput.clear();
     startDeployment(true);
 }
 
@@ -465,8 +466,11 @@ QString MaemoDebugRunControl::remoteCall() const
 void MaemoDebugRunControl::handleRemoteOutput(const QString &output)
 {
     if (!m_debuggingStarted) {
-        m_debuggingStarted = true;
-        startDebugging();
+        m_remoteOutput += output;
+        if (m_remoteOutput.contains(QLatin1String("Listening on port"))) {
+            m_debuggingStarted = true;
+            startDebugging();
+        }
     }
     emit addToOutputWindowInline(this, output, false);
 }
