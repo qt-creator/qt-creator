@@ -128,7 +128,8 @@ bool Protocol::ensureConfiguration(Protocol *p, QWidget *parent)
             ok = true;
             break;
         }
-        if (!showConfigurationError(p, errorMessage, parent))
+        // Cancel returns empty error message.
+        if (errorMessage.isEmpty() || !showConfigurationError(p, errorMessage, parent))
             break;
     }
     return ok;
@@ -209,19 +210,20 @@ bool NetworkProtocol::httpStatus(QString url, QString *errorMessage)
         url.prepend(httpPrefix);
         url.append(QLatin1Char('/'));
     }
-    QNetworkReply *reply = httpGet(url);
+    QScopedPointer<QNetworkReply> reply(httpGet(url));
     QMessageBox box(QMessageBox::Information,
                     tr("Checking connection"),
                     tr("Connecting to %1...").arg(url),
                     QMessageBox::Cancel,
                     Core::ICore::instance()->mainWindow());
-    connect(reply, SIGNAL(finished()), &box, SLOT(close()));
+    connect(reply.data(), SIGNAL(finished()), &box, SLOT(close()));
     QApplication::setOverrideCursor(Qt::WaitCursor);
     box.exec();
     QApplication::restoreOverrideCursor();
     // User canceled, discard and be happy.
     if (!reply->isFinished()) {
-        connect(reply, SIGNAL(finished()), reply, SLOT(deleteLater()));
+        QNetworkReply *replyPtr = reply.take();
+        connect(replyPtr, SIGNAL(finished()), replyPtr, SLOT(deleteLater()));
         return false;
     }
     // Passed
