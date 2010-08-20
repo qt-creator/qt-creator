@@ -286,7 +286,7 @@
     Qt Creator displays the raw information provided by the native debuggers
     in a clear and concise manner with the goal to simplify the debugging process
     as much as possible without losing the power of the native debuggers.
-    You can use the native debuggers to debug the C++ language.
+    You can use the native debuggers to debug C++ applications.
 
     You can connect mobile devices to your development PC and debug processes
     running on the devices.
