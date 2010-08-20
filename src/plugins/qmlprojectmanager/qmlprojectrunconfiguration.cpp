@@ -182,21 +182,9 @@ QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
     qmlViewerArgs->setText(m_qmlViewerArgs);
     connect(qmlViewerArgs, SIGNAL(textChanged(QString)), this, SLOT(onViewerArgsChanged()));
 
-    QLineEdit *debugServer = new QLineEdit;
-    debugServer->setText(m_debugData.serverAddress);
-    connect(debugServer, SIGNAL(textChanged(QString)), this, SLOT(onDebugServerAddressChanged()));
-
-    QSpinBox *debugPort = new QSpinBox;
-    debugPort->setMinimum(1024); // valid registered/dynamic/free ports according to http://www.iana.org/assignments/port-numbers
-    debugPort->setMaximum(65535);
-    debugPort->setValue(m_debugData.serverPort);
-    connect(debugPort, SIGNAL(valueChanged(int)), this, SLOT(onDebugServerPortChanged()));
-
     form->addRow(tr("QML Viewer"), qmlViewer);
     form->addRow(tr("QML Viewer arguments:"), qmlViewerArgs);
     form->addRow(tr("Main QML File:"), m_fileListCombo.data());
-    form->addRow(tr("Debugging Address:"), debugServer);
-    form->addRow(tr("Debugging Port:"), debugPort);
 
     return config;
 }
