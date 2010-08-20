@@ -4315,7 +4315,7 @@
               around as described in the link provided below:
               \l http://bugreports.qt.nokia.com/browse/QTBUG-4962.
 
-    \endtable    
+    \endtable
 
     \section1 Setting the Symbol Server in Windows
 
@@ -4677,22 +4677,46 @@
 
     \title Using Debugging Helpers
 
-    \section1 Debugging Helper Library with C++
+    Qt Creator is able to show complex data types in a customized,
+    user-extensible manner. For this purpose, it takes advantage of
+    two technologies, collectively referred to as \e{Debugging Helpers}.
 
-    While debugging, Qt Creator dynamically loads a helper library into your
-    program. This helper library enables Qt Creator to pretty print Qt and STL
-    types. The Qt SDK package already contains a prebuilt debugging helper
+    Using the debugging helpers is not \e essential for debugging
+    with Qt Creator, but they enhance the user's ability to quickly
+    examine complex data significantly.
+
+    \section1 Debugging Helpers based on C++
+
+    This is the first and original approach to display complex data
+    types. While it has been superseded on most platforms by the more
+    robust and more flexible second approch using Python scripting,
+    it is the only feasible one on Windows/MSVC, Mac OS, and
+    old Linux distributions. Moreover, this approach will automatically
+    be chosen as fallback in case the Python based approach fails.
+
+    During debugging with the C++ based debugging helpers,
+    Qt Creator dynamically loads a helper library in form of a DLL or a
+    shared object into the debugged process.
+    The Qt SDK package already contains a prebuilt debugging helper
     library. To create your own debugging helper library, select \gui{Tools} >
     \gui{Options...} > \gui{Qt4} > \gui{Qt Versions}. As the internal data
     structures of Qt can change between versions, the debugging helper
     library is built for each Qt version.
 
 
-    \section1 Debugging Helper Library with Python
+    \section1 Debugging Helpers based on Python
 
-    With the gdb Python version, you can
-    use debugging helpers also for user defined types. To do so,
-    define one Python function per user defined type in \c{.gdbinit}.
+    On platforms featuring a Python-enabled version of the gdb debugger,
+    the data extraction is done by a Python script. This is more robust
+    as the script execution is separated from the debugged process. It
+    is also easier to extend as the script is less dependend on the
+    actual Qt version and does not need compilation.
+
+    To extend the shipped Python based debugging helpers for custom types,
+    define one Python function per user defined type in the
+    gdb startup file. By default, the following startup file is used:
+    \c{~/.gdbinit}. To use another file, select \gui {Tools > Options... > Gdb}
+    and specify a filename in the \gui {Gdb startup script} field.
 
     The function name has to be qdump__NS__Foo, where NS::Foo is the class
     or class template to be examined. Nested namespaces are possible.
