@@ -71,7 +71,7 @@ class MapObjectWithDebugReference : public Visitor
         virtual bool visit(UiObjectDefinition *ast) ;
         virtual bool visit(UiObjectBinding *ast) ;
 
-        QDeclarativeDebugObjectReference root;
+        QList<QDeclarativeDebugObjectReference> root;
         QString filename;
         QHash<UiObjectMember *, DebugIdList> result;
         QSet<QmlJS::AST::UiObjectMember *> lookupObjects;
@@ -97,16 +97,21 @@ bool MapObjectWithDebugReference::visit(UiObjectBinding* ast)
 
 void MapObjectWithDebugReference::endVisit(UiObjectDefinition* ast)
 {
-    if (lookupObjects.isEmpty() || activated)
-        processRecursive(root, ast);
+    if (lookupObjects.isEmpty() || activated) {
+        foreach(const QDeclarativeDebugObjectReference& it, root)
+            processRecursive(it, ast);
+    }
 
     if (lookupObjects.contains(ast))
         activated--;
 }
+
 void MapObjectWithDebugReference::endVisit(UiObjectBinding* ast)
 {
-    if (lookupObjects.isEmpty() || activated)
-        processRecursive(root, ast);
+    if (lookupObjects.isEmpty() || activated) {
+        foreach(const QDeclarativeDebugObjectReference& it, root)
+            processRecursive(it, ast);
+    }
 
     if (lookupObjects.contains(ast))
         activated--;
@@ -184,9 +189,7 @@ QmlJSLiveTextPreview::QmlJSLiveTextPreview(const QmlJS::Document::Ptr &doc,
             SLOT(documentChanged(QmlJS::Document::Ptr)));
 
     if (m_clientProxy.data()) {
-        connect(m_clientProxy.data(),
-                SIGNAL(objectTreeUpdated(QDeclarativeDebugObjectReference)),
-                SLOT(updateDebugIds(QDeclarativeDebugObjectReference)));
+        connect(m_clientProxy.data(), SIGNAL(objectTreeUpdated()), SLOT(updateDebugIds()));
     }
 }
 
@@ -279,15 +282,19 @@ static QList<int> findRootObjectRecursive(const QDeclarativeDebugObjectReference
     return result;
 }
 
-void QmlJSLiveTextPreview::updateDebugIds(const QDeclarativeDebugObjectReference &rootReference)
+void QmlJSLiveTextPreview::updateDebugIds()
 {
     if (!m_initialDoc->qmlProgram())
+        return;
+
+    ClientProxy* clientProxy = m_clientProxy.data();
+    if (!clientProxy)
         return;
 
     { // Map all the object that comes from the document as it has been loaded by the server.
         const QmlJS::Document::Ptr &doc = m_initialDoc;
         MapObjectWithDebugReference visitor;
-        visitor.root = rootReference;
+        visitor.root = clientProxy->rootObjectReference();
         visitor.filename = doc->fileName();
         doc->qmlProgram()->accept(&visitor);
 
@@ -305,7 +312,9 @@ void QmlJSLiveTextPreview::updateDebugIds(const QDeclarativeDebugObjectReference
     // Map the root nodes of the document.
     if(doc->qmlProgram()->members &&  doc->qmlProgram()->members->member) {
         UiObjectMember* root = doc->qmlProgram()->members->member;
-        QList<int> r = findRootObjectRecursive(rootReference, doc);
+        QList<int> r;
+        foreach(const QDeclarativeDebugObjectReference& it, clientProxy->rootObjectReference())
+            r += findRootObjectRecursive(it, doc);
         if (!r.isEmpty())
             m_debugIds[root] += r;
     }
@@ -316,7 +325,7 @@ void QmlJSLiveTextPreview::updateDebugIds(const QDeclarativeDebugObjectReference
 
         const QmlJS::Document::Ptr &doc = it.key();
         MapObjectWithDebugReference visitor;
-        visitor.root = rootReference;
+        visitor.root = clientProxy->rootObjectReference();
         visitor.filename = doc->fileName();
         visitor.lookupObjects = it.value();
         visitor.doc = doc;
@@ -651,18 +660,15 @@ void QmlJSLiveTextPreview::setApplyChangesToQmlObserver(bool applyChanges)
 void QmlJSLiveTextPreview::setClientProxy(ClientProxy *clientProxy)
 {
     if (m_clientProxy.data()) {
-        disconnect(m_clientProxy.data(),
-                   SIGNAL(objectTreeUpdated(QDeclarativeDebugObjectReference)),
-                   this,
-                   SLOT(updateDebugIds(QDeclarativeDebugObjectReference)));
+        disconnect(m_clientProxy.data(), SIGNAL(objectTreeUpdated()),
+                   this, SLOT(updateDebugIds()));
     }
 
     m_clientProxy = clientProxy;
 
     if (m_clientProxy.data()) {
-        connect(m_clientProxy.data(),
-                   SIGNAL(objectTreeUpdated(QDeclarativeDebugObjectReference)),
-                   SLOT(updateDebugIds(QDeclarativeDebugObjectReference)));
+        connect(m_clientProxy.data(), SIGNAL(objectTreeUpdated()),
+                   SLOT(updateDebugIds()));
     }
 }
 

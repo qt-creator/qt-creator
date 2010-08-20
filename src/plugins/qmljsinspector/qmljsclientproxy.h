@@ -66,7 +66,7 @@ public:
     // returns the object references for the given url.
     QList<QDeclarativeDebugObjectReference> objectReferences(const QUrl &url = QUrl()) const;
     QDeclarativeDebugObjectReference objectReferenceForId(int debugId) const;
-    QDeclarativeDebugObjectReference rootObjectReference() const;
+    QList<QDeclarativeDebugObjectReference> rootObjectReference() const;
 
     bool isConnected() const;
 
@@ -77,7 +77,7 @@ public:
     Debugger::Internal::QmlAdapter *qmlAdapter() const;
 
 signals:
-    void objectTreeUpdated(const QDeclarativeDebugObjectReference &rootObject);
+    void objectTreeUpdated();
     void connectionStatusMessage(const QString &text);
 
     void aboutToReloadEngines();
@@ -141,9 +141,9 @@ private:
 
     QDeclarativeDebugEnginesQuery *m_engineQuery;
     QDeclarativeDebugRootContextQuery *m_contextQuery;
-    QDeclarativeDebugObjectQuery *m_objectTreeQuery;
+    QList<QDeclarativeDebugObjectQuery *> m_objectTreeQuery;
 
-    QDeclarativeDebugObjectReference m_rootObject;
+    QList<QDeclarativeDebugObjectReference> m_rootObjects;
     QList<QDeclarativeDebugEngineReference> m_engines;
 };
 

@@ -51,7 +51,6 @@ ClientProxy::ClientProxy(Debugger::Internal::QmlAdapter *adapter, QObject *paren
     , m_designClient(0)
     , m_engineQuery(0)
     , m_contextQuery(0)
-    , m_objectTreeQuery(0)
 {
 
     connect(m_adapter, SIGNAL(aboutToDisconnect()), SLOT(disconnectFromServer()));
@@ -125,24 +124,16 @@ void ClientProxy::disconnectFromServer()
         delete m_contextQuery;
     m_contextQuery = 0;
 
-    if (m_objectTreeQuery) {
-        delete m_objectTreeQuery;
-        m_objectTreeQuery = 0;
-    }
+    qDeleteAll(m_objectTreeQuery);
+    m_objectTreeQuery.clear();
 }
 
 void ClientProxy::refreshObjectTree()
 {
-    if (!m_objectTreeQuery) {
-        m_objectTreeQuery = m_client->queryObjectRecursive(m_rootObject, this);
-
-        if (!m_objectTreeQuery->isWaiting()) {
-            objectTreeFetched(m_objectTreeQuery->state());
-        } else {
-            connect(m_objectTreeQuery,
-                    SIGNAL(stateChanged(QDeclarativeDebugQuery::State)),
-                    SLOT(objectTreeFetched(QDeclarativeDebugQuery::State)));
-        }
+    if (!m_contextQuery) {
+        qDeleteAll(m_objectTreeQuery);
+        m_objectTreeQuery.clear();
+        queryEngineContext(m_engines.value(0).debugId());
     }
 }
 
@@ -154,30 +145,18 @@ void ClientProxy::onCurrentObjectsChanged(const QList< int >& debugIds, bool req
         QDeclarativeDebugObjectReference ref = objectReferenceForId(debugId);
         if (ref.debugId() != -1) {
             selectedItems << ref;
-        } else {
+        } else if (requestIfNeeded) {
             // ### FIXME right now, there's no way in the protocol to
             // a) get some item and know its parent (although that's possible
             //    by adding it to a separate plugin)
             // b) add children to part of an existing tree.
             // So the only choice that remains is to update the complete
             // tree when we have an unknown debug id.
-            if (!m_objectTreeQuery && requestIfNeeded)
-                m_objectTreeQuery = m_client->queryObjectRecursive(m_rootObject, this);
-            break;
+            // break;
         }
     }
 
-    if (m_objectTreeQuery) {
-        if (!m_objectTreeQuery->isWaiting()) {
-            objectTreeFetched(m_objectTreeQuery->state());
-        } else {
-            connect(m_objectTreeQuery,
-                    SIGNAL(stateChanged(QDeclarativeDebugQuery::State)),
-                    SLOT(objectTreeFetched(QDeclarativeDebugQuery::State)));
-        }
-    } else {
-        emit selectedItemsChanged(selectedItems);
-    }
+    emit selectedItemsChanged(selectedItems);
 }
 
 void ClientProxy::setSelectedItemsByObjectId(const QList<QDeclarativeDebugObjectReference> &objectRefs)
@@ -188,12 +167,17 @@ void ClientProxy::setSelectedItemsByObjectId(const QList<QDeclarativeDebugObject
 
 QDeclarativeDebugObjectReference ClientProxy::objectReferenceForId(int debugId) const
 {
-    return objectReferenceForId(debugId, m_rootObject);
+    foreach (const QDeclarativeDebugObjectReference& it, m_rootObjects) {
+        QDeclarativeDebugObjectReference result = objectReferenceForId(debugId, it);
+        if (result.debugId() == debugId)
+            return result;
+    }
+    return QDeclarativeDebugObjectReference();
 }
 
-QDeclarativeDebugObjectReference QmlJSInspector::Internal::ClientProxy::rootObjectReference() const
+QList<QDeclarativeDebugObjectReference> QmlJSInspector::Internal::ClientProxy::rootObjectReference() const
 {
-    return m_rootObject;
+    return m_rootObjects;
 }
 
 QDeclarativeDebugObjectReference ClientProxy::objectReferenceForId(int debugId,
@@ -213,7 +197,11 @@ QDeclarativeDebugObjectReference ClientProxy::objectReferenceForId(int debugId,
 
 QList<QDeclarativeDebugObjectReference> ClientProxy::objectReferences(const QUrl &url) const
 {
-    return objectReferences(url, m_rootObject);
+    QList<QDeclarativeDebugObjectReference> result;
+    foreach(const QDeclarativeDebugObjectReference &it, m_rootObjects) {
+        result.append(objectReferences(url, it));
+    }
+    return result;
 }
 
 QList<QDeclarativeDebugObjectReference> ClientProxy::objectReferences(const QUrl &url,
@@ -291,24 +279,28 @@ void ClientProxy::queryEngineContext(int id)
 void ClientProxy::contextChanged()
 {
     if (m_contextQuery) {
-
-        if (m_contextQuery->rootContext().objects().isEmpty()) {
-            m_rootObject = QDeclarativeDebugObjectReference();
-            emit objectTreeUpdated(m_rootObject);
-        } else {
-            m_rootObject = m_contextQuery->rootContext().objects().last();
-        }
-
+        m_rootObjects = m_contextQuery->rootContext().objects();
         delete m_contextQuery;
         m_contextQuery = 0;
 
-        m_objectTreeQuery = m_client->queryObjectRecursive(m_rootObject, this);
-        if (!m_objectTreeQuery->isWaiting()) {
-            objectTreeFetched();
-        } else {
-            connect(m_objectTreeQuery,
-                    SIGNAL(stateChanged(QDeclarativeDebugQuery::State)),
-                    SLOT(objectTreeFetched(QDeclarativeDebugQuery::State)));
+        if (m_rootObjects.isEmpty()) {
+            emit objectTreeUpdated();
+            return;
+        }
+
+        qDeleteAll(m_objectTreeQuery);
+        m_objectTreeQuery.clear();
+
+        foreach(const QDeclarativeDebugObjectReference & obj, m_rootObjects) {
+            QDeclarativeDebugObjectQuery* query = m_client->queryObjectRecursive(obj, this);
+            if (!query->isWaiting()) {
+                query->deleteLater(); //ignore errors;
+            } else {
+                m_objectTreeQuery << query;
+                connect(query,
+                        SIGNAL(stateChanged(QDeclarativeDebugQuery::State)),
+                        SLOT(objectTreeFetched(QDeclarativeDebugQuery::State)));
+            }
         }
     }
 
@@ -316,30 +308,29 @@ void ClientProxy::contextChanged()
 
 void ClientProxy::objectTreeFetched(QDeclarativeDebugQuery::State state)
 {
-    if (state == QDeclarativeDebugQuery::Error) {
-        delete m_objectTreeQuery;
-        m_objectTreeQuery = 0;
-    }
-
-    if (state != QDeclarativeDebugQuery::Completed) {
-        m_rootObject = QDeclarativeDebugObjectReference();
+    QDeclarativeDebugObjectQuery *query = qobject_cast<QDeclarativeDebugObjectQuery *>(sender());
+    if (!query || state == QDeclarativeDebugQuery::Error) {
+        delete query;
         return;
     }
 
-    m_rootObject = m_objectTreeQuery->object();
+    m_rootObjects.append(query->object());
 
-    delete m_objectTreeQuery;
-    m_objectTreeQuery = 0;
+    int removed = m_objectTreeQuery.removeAll(query);
+    Q_ASSERT(removed == 1);
+    Q_UNUSED(removed);
+    delete query;
 
-    emit objectTreeUpdated(m_rootObject);
+    if (m_objectTreeQuery.isEmpty()) {
+        emit objectTreeUpdated();
 
-    if (isDesignClientConnected()) {
-        if (!m_designClient->selectedItemIds().isEmpty())
-            onCurrentObjectsChanged(m_designClient->selectedItemIds(), false);
+        if (isDesignClientConnected()) {
+            if (!m_designClient->selectedItemIds().isEmpty())
+                onCurrentObjectsChanged(m_designClient->selectedItemIds(), false);
 
-        m_designClient->setObjectIdList(QList<QDeclarativeDebugObjectReference>() << m_rootObject);
+            m_designClient->setObjectIdList(m_rootObjects);
+        }
     }
-
 }
 
 void ClientProxy::reloadQmlViewer()

@@ -90,7 +90,7 @@ signals:
 
 public slots:
     void setApplyChangesToQmlObserver(bool applyChanges);
-    void updateDebugIds(const QDeclarativeDebugObjectReference &rootReference);
+    void updateDebugIds();
 
 private slots:
     void changeSelectedElements(QList<int> offsets, const QString &wordAtCursor);

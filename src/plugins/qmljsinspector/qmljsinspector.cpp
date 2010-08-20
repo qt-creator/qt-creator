@@ -206,14 +206,14 @@ void InspectorUi::disconnected()
 
 void InspectorUi::updateEngineList()
 {
-    m_engines = m_clientProxy->engines();
+    QList<QDeclarativeDebugEngineReference> engines = m_clientProxy->engines();
 
 //#warning update the QML engines combo
 
-    if (m_engines.isEmpty())
+    if (engines.isEmpty())
         qWarning("qmldebugger: no engines found!");
     else {
-        const QDeclarativeDebugEngineReference engine = m_engines.first();
+        const QDeclarativeDebugEngineReference engine = engines.first();
         m_clientProxy->queryEngineContext(engine.debugId());
     }
 }
@@ -254,7 +254,7 @@ void InspectorUi::serverReloaded()
         Document::Ptr doc = snapshot.document(it.key());
         it.value()->resetInitialDoc(doc);
     }
-    m_clientProxy->queryEngineContext(m_engines.value(0).debugId());
+    m_clientProxy->refreshObjectTree();
 }
 
 
@@ -293,7 +293,7 @@ void InspectorUi::createPreviewForEditor(Core::IEditor *newEditor)
 
             m_textPreviews.insert(newEditor->file()->fileName(), preview);
             preview->associateEditor(newEditor);
-            preview->updateDebugIds(m_clientProxy->rootObjectReference());
+            preview->updateDebugIds();
         }
     }
 }

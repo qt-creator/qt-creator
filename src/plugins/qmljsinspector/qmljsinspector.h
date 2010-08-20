@@ -148,7 +148,6 @@ private:
     ProjectExplorer::Project *m_debugProject;
 
     static InspectorUi *m_instance;
-    QList<QDeclarativeDebugEngineReference> m_engines;
 };
 
 } // Internal
