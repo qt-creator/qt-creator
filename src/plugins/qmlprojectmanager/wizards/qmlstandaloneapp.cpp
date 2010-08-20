@@ -299,7 +299,9 @@ QByteArray QmlStandaloneApp::generateMainCpp(const QString *errorMessage) const
         if (line.contains(QLatin1String("// MAINQML"))) {
             line = insertParameter(line, QLatin1Char('"') + path(MainQmlDeployed) + QLatin1Char('"'));
         } else if (line.contains(QLatin1String("// ADDIMPORTPATH"))) {
-            if (!m_modules.isEmpty())
+            if (m_modules.isEmpty())
+                continue;
+            else
                 line = insertParameter(line, QLatin1Char('"') + path(ModulesDir) + QLatin1Char('"'));
         } else if (line.contains(QLatin1String("// ORIENTATION"))) {
             if (m_orientation == Auto)
