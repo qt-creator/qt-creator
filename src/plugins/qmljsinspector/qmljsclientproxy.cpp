@@ -279,32 +279,36 @@ void ClientProxy::queryEngineContext(int id)
 void ClientProxy::contextChanged()
 {
     if (m_contextQuery) {
-        m_rootObjects = m_contextQuery->rootContext().objects();
+        m_rootObjects.clear();
+        QDeclarativeDebugContextReference rootContext = m_contextQuery->rootContext();
         delete m_contextQuery;
         m_contextQuery = 0;
-
-        if (m_rootObjects.isEmpty()) {
-            emit objectTreeUpdated();
-            return;
-        }
 
         qDeleteAll(m_objectTreeQuery);
         m_objectTreeQuery.clear();
 
-        foreach(const QDeclarativeDebugObjectReference & obj, m_rootObjects) {
-            QDeclarativeDebugObjectQuery* query = m_client->queryObjectRecursive(obj, this);
-            if (!query->isWaiting()) {
-                query->deleteLater(); //ignore errors;
-            } else {
-                m_objectTreeQuery << query;
-                connect(query,
-                        SIGNAL(stateChanged(QDeclarativeDebugQuery::State)),
-                        SLOT(objectTreeFetched(QDeclarativeDebugQuery::State)));
-            }
+        fetchContextObjectRecusrsive(rootContext);
+    }
+}
+
+void ClientProxy::fetchContextObjectRecusrsive(const QDeclarativeDebugContextReference& context)
+{
+    foreach (const QDeclarativeDebugObjectReference & obj, context.objects()) {
+        QDeclarativeDebugObjectQuery* query = m_client->queryObjectRecursive(obj, this);
+        if (!query->isWaiting()) {
+            query->deleteLater(); //ignore errors;
+        } else {
+            m_objectTreeQuery << query;
+            connect(query,
+                    SIGNAL(stateChanged(QDeclarativeDebugQuery::State)),
+                    SLOT(objectTreeFetched(QDeclarativeDebugQuery::State)));
         }
     }
-
+    foreach (const QDeclarativeDebugContextReference& child, context.contexts()) {
+        fetchContextObjectRecusrsive(child);
+    }
 }
+
 
 void ClientProxy::objectTreeFetched(QDeclarativeDebugQuery::State state)
 {

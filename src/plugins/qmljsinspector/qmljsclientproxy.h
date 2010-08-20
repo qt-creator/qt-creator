@@ -124,6 +124,7 @@ private slots:
     void onCurrentObjectsChanged(const QList<int> &debugIds, bool requestIfNeeded = true);
     void updateEngineList();
     void objectTreeFetched(QDeclarativeDebugQuery::State state = QDeclarativeDebugQuery::Completed);
+    void fetchContextObjectRecusrsive(const QmlJsDebugClient::QDeclarativeDebugContextReference& context);
 
 private:
     bool isDesignClientConnected() const;
