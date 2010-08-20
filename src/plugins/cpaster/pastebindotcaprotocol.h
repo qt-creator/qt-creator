@@ -56,11 +56,15 @@ public slots:
     void listFinished();
     void pasteFinished();
 
+protected:
+    virtual bool checkConfiguration(QString *errorMessage);
+
 private:
     QNetworkReply *m_fetchReply;
     QNetworkReply *m_listReply;
     QNetworkReply *m_pasteReply;
     QString m_fetchId;
+    bool m_hostChecked;
 };
 
 } // namespace CodePaster

@@ -43,7 +43,8 @@ PasteBinDotCaProtocol::PasteBinDotCaProtocol(const NetworkAccessManagerProxyPtr 
     NetworkProtocol(nw),
     m_fetchReply(0),
     m_listReply(0),
-    m_pasteReply(0)
+    m_pasteReply(0),
+    m_hostChecked(false)
 {
 }
 
@@ -129,6 +130,16 @@ void PasteBinDotCaProtocol::list()
     QTC_ASSERT(!m_listReply, return);
     m_listReply = httpGet(QLatin1String(urlC));
     connect(m_listReply, SIGNAL(finished()), this, SLOT(listFinished()));
+}
+
+bool PasteBinDotCaProtocol::checkConfiguration(QString *errorMessage)
+{
+    if (m_hostChecked) // Check the host once.
+        return true;
+    const bool ok = httpStatus(QLatin1String(urlC), errorMessage);
+    if (ok)
+        m_hostChecked = true;
+    return ok;
 }
 
 /* Quick & dirty: Parse the <div>-elements with the "Recent Posts" listing

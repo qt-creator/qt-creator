@@ -71,9 +71,10 @@ unsigned CodePasterProtocol::capabilities() const
     return ListCapability|PostCommentCapability|PostDescriptionCapability;
 }
 
-bool CodePasterProtocol::checkConfiguration(QString *errorMessage) const
+bool CodePasterProtocol::checkConfiguration(QString *errorMessage)
 {
-    if (m_page->hostName().isEmpty()) {
+    const QString hostName = m_page->hostName();
+    if (hostName.isEmpty()) {
         if (errorMessage) {
             *errorMessage =
 #ifdef Q_OS_MAC
@@ -84,7 +85,13 @@ bool CodePasterProtocol::checkConfiguration(QString *errorMessage) const
         }
         return false;
     }
-    return true;
+    // Check the host once. Note that it can be modified in the settings page.
+    if (m_hostChecked == hostName)
+        return true;
+    const bool ok = httpStatus(m_page->hostName(), errorMessage);
+    if (ok)
+        m_hostChecked = hostName;
+    return ok;
 }
 
 void CodePasterProtocol::fetch(const QString &id)

@@ -67,7 +67,7 @@ public:
     virtual bool hasSettings() const;
     virtual Core::IOptionsPage *settingsPage() const;
 
-    virtual bool checkConfiguration(QString *errorMessage = 0) const;
+    virtual bool checkConfiguration(QString *errorMessage = 0);
     virtual void fetch(const QString &id) = 0;
     virtual void list();
     virtual void paste(const QString &text,
@@ -86,7 +86,7 @@ public:
                                        QWidget *parent = 0,
                                        bool showConfig = true);
     // Ensure configuration is correct
-    static bool ensureConfiguration(const Protocol *p,
+    static bool ensureConfiguration(Protocol *p,
                                     QWidget *parent = 0);
 
 signals:
@@ -142,6 +142,9 @@ protected:
 
     inline QNetworkAccessManager *networkAccessManager()
     { return m_networkAccessManager->networkAccessManager(); }
+
+    // Check connectivity of host, displaying a message box.
+    bool httpStatus(QString url, QString *errorMessage);
 
 private:
     const NetworkAccessManagerProxyPtr m_networkAccessManager;

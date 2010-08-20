@@ -53,7 +53,7 @@ public:
     bool hasSettings() const;
     Core::IOptionsPage *settingsPage() const;
 
-    virtual bool checkConfiguration(QString *errorMessage = 0) const;
+    virtual bool checkConfiguration(QString *errorMessage = 0);
     void fetch(const QString &id);
     void list();
     void paste(const QString &text,
@@ -72,6 +72,7 @@ private:
     QNetworkReply *m_fetchReply;
     QNetworkReply *m_listReply;
     QString m_fetchId;
+    QString m_hostChecked;
 };
 
 } // namespace CodePaster

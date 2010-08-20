@@ -46,9 +46,12 @@ static const char widthKeyC[] = "PasteViewWidth";
 namespace CodePaster {
 // -------------------------------------------------------------------------------------------------
 PasteView::PasteView(const QList<Protocol *> protocols,
-                     QWidget *parent)
-    : QDialog(parent), m_protocols(protocols),
-    m_commentPlaceHolder(tr("<Comment>"))
+                     const QString &mt,
+                     QWidget *parent) :
+    QDialog(parent),
+    m_protocols(protocols),
+    m_commentPlaceHolder(tr("<Comment>")),
+    m_mimeType(mt)
 {
     m_ui.setupUi(this);
 
@@ -140,7 +143,7 @@ int PasteView::show(const QString &user, const QString &description, const QStri
     m_ui.uiDescription->selectAll();
 
     // (Re)store dialog size
-    QSettings *settings = Core::ICore::instance()->settings();
+    const QSettings *settings = Core::ICore::instance()->settings();
     const QString rootKey = QLatin1String(groupC) + QLatin1Char('/');
     const int h = settings->value(rootKey + QLatin1String(heightKeyC), height()).toInt();
     const int defaultWidth = m_ui.uiPatchView->columnIndicator() + 50;
@@ -149,14 +152,29 @@ int PasteView::show(const QString &user, const QString &description, const QStri
     resize(w, h);
 
     const int ret = QDialog::exec();
-
-    if (ret == QDialog::Accepted) {
-        settings->beginGroup(QLatin1String(groupC));
-        settings->setValue(QLatin1String(heightKeyC), height());
-        settings->setValue(QLatin1String(widthKeyC), width());
-        settings->endGroup();
-    }
     return ret;
+}
+
+void PasteView::accept()
+{
+    const int index = m_ui.protocolBox->currentIndex();
+    if (index == -1)
+        return;
+
+    Protocol *protocol = m_protocols.at(index);
+
+    if (!Protocol::ensureConfiguration(protocol, this))
+        return;
+
+    const Protocol::ContentType ct = Protocol::contentType(m_mimeType);
+    protocol->paste(content(), ct, user(), comment(), description());
+    // Store settings and close
+    QSettings *settings = Core::ICore::instance()->settings();
+    settings->beginGroup(QLatin1String(groupC));
+    settings->setValue(QLatin1String(heightKeyC), height());
+    settings->setValue(QLatin1String(widthKeyC), width());
+    settings->endGroup();
+    QDialog::accept();
 }
 
 void PasteView::setProtocol(const QString &protocol)

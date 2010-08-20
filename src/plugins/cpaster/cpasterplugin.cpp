@@ -208,25 +208,10 @@ void CodepasterPlugin::post(QString data, const QString &mimeType)
     QString comment;
     QString protocolName;
 
-    PasteView view(m_protocols, 0);
+    PasteView view(m_protocols, mimeType, 0);
     view.setProtocol(m_settings->protocol);
 
-    if (!view.show(username, description, comment, lst))
-        return; // User canceled post
-
-    username = view.user();
-    description = view.description();
-    comment = view.comment();
-    data = view.content();
-    protocolName = view.protocol();
-    foreach(Protocol *protocol, m_protocols) {
-        if (protocol->name() == protocolName) {
-            const Protocol::ContentType ct = Protocol::contentType(mimeType);
-            if (Protocol::ensureConfiguration(protocol))
-                protocol->paste(data, ct, username, comment, description);
-            break;
-        }
-    }
+    view.show(username, description, comment, lst);
 }
 
 void CodepasterPlugin::fetch()

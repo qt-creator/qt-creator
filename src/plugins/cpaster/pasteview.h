@@ -42,6 +42,7 @@ class PasteView : public QDialog
     Q_OBJECT
 public:
     explicit PasteView(const QList<Protocol *> protocols,
+                       const QString &mimeType,
                        QWidget *parent);
     ~PasteView();
 
@@ -56,6 +57,8 @@ public:
     QByteArray content() const;
     QString protocol() const;
 
+    virtual void accept();
+
 private slots:
     void contentChanged();
     void protocolChanged(int);
@@ -63,6 +66,7 @@ private slots:
 private:
     const QList<Protocol *> m_protocols;
     const QString m_commentPlaceHolder;
+    const QString m_mimeType;
 
     Ui::ViewDialog m_ui;
     FileDataList m_parts;

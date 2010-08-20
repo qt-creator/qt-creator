@@ -35,9 +35,13 @@
 
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkRequest>
+#include <QtNetwork/QNetworkReply>
 
 #include <QtCore/QUrl>
+#include <QtCore/QDebug>
+
 #include <QtGui/QMessageBox>
+#include <QtGui/QApplication>
 #include <QtGui/QMainWindow>
 #include <QtGui/QPushButton>
 
@@ -57,7 +61,7 @@ bool Protocol::hasSettings() const
     return false;
 }
 
-bool Protocol::checkConfiguration(QString *) const
+bool Protocol::checkConfiguration(QString *)
 {
     return true;
 }
@@ -115,7 +119,7 @@ QString Protocol::textFromHtml(QString data)
     return data;
 }
 
-bool Protocol::ensureConfiguration(const Protocol *p, QWidget *parent)
+bool Protocol::ensureConfiguration(Protocol *p, QWidget *parent)
 {
     QString errorMessage;
     bool ok = false;
@@ -194,6 +198,38 @@ NetworkProtocol::NetworkProtocol(const NetworkAccessManagerProxyPtr &nw) :
 
 NetworkProtocol::~NetworkProtocol()
 {
+}
+
+bool NetworkProtocol::httpStatus(QString url, QString *errorMessage)
+{
+    // Connect to host and display a message box, using its event loop.
+    errorMessage->clear();
+    const QString httpPrefix = QLatin1String("http://");
+    if (!url.startsWith(httpPrefix)) {
+        url.prepend(httpPrefix);
+        url.append(QLatin1Char('/'));
+    }
+    QNetworkReply *reply = httpGet(url);
+    QMessageBox box(QMessageBox::Information,
+                    tr("Checking connection"),
+                    tr("Connecting to %1...").arg(url),
+                    QMessageBox::Cancel,
+                    Core::ICore::instance()->mainWindow());
+    connect(reply, SIGNAL(finished()), &box, SLOT(close()));
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    box.exec();
+    QApplication::restoreOverrideCursor();
+    // User canceled, discard and be happy.
+    if (!reply->isFinished()) {
+        connect(reply, SIGNAL(finished()), reply, SLOT(deleteLater()));
+        return false;
+    }
+    // Passed
+    if (reply->error() == QNetworkReply::NoError)
+        return true;
+    // Error.
+    *errorMessage = reply->errorString();
+    return false;
 }
 
 } //namespace CodePaster

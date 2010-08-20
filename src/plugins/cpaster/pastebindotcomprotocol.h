@@ -61,6 +61,9 @@ public slots:
     void pasteFinished();
     void listFinished();
 
+protected:
+    virtual bool checkConfiguration(QString *errorMessage = 0);
+
 private:
     QString hostName(bool withSubDomain) const;
 
@@ -71,6 +74,7 @@ private:
 
     QString m_fetchId;
     int m_postId;
+    bool m_hostChecked;
 };
 } // namespace CodePaster
 #endif // PASTEBINDOTCOMPROTOCOL_H

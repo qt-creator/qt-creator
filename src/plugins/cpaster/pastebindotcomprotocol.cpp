@@ -55,7 +55,8 @@ PasteBinDotComProtocol::PasteBinDotComProtocol(const NetworkAccessManagerProxyPt
     m_pasteReply(0),
     m_listReply(0),
     m_fetchId(-1),
-    m_postId(-1)
+    m_postId(-1),
+    m_hostChecked(false)
 {
 }
 
@@ -67,6 +68,16 @@ QString PasteBinDotComProtocol::protocolName()
 unsigned PasteBinDotComProtocol::capabilities() const
 {
     return ListCapability;
+}
+
+bool PasteBinDotComProtocol::checkConfiguration(QString *errorMessage)
+{
+    if (m_hostChecked)  // Check the host once.
+        return true;
+    const bool ok = httpStatus(hostName(false), errorMessage);
+    if (ok)
+        m_hostChecked = true;
+    return ok;
 }
 
 QString PasteBinDotComProtocol::hostName(bool withSubDomain) const
