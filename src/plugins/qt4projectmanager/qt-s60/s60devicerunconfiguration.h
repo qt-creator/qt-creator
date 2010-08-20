@@ -32,11 +32,14 @@
 
 #include "launcher.h"
 
+#include <debugger/debuggerrunner.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/toolchain.h>
 
 #include <QtCore/QProcess>
 #include <QtCore/QFutureInterface>
+#include <QtCore/QSharedPointer>
+#include <QtCore/QScopedPointer>
 
 QT_BEGIN_NAMESPACE
 class QMessageBox;
@@ -181,31 +184,24 @@ private:
 
 // S60DeviceDebugRunControl starts debugging
 
-class S60DeviceDebugRunControl : public ProjectExplorer::RunControl
+class S60DeviceDebugRunControl : public Debugger::DebuggerRunControl
 {
     Q_DISABLE_COPY(S60DeviceDebugRunControl)
     Q_OBJECT
 public:
-    explicit S60DeviceDebugRunControl(S60DeviceRunConfiguration *runConfiguration, QString mode);
+    explicit S60DeviceDebugRunControl(S60DeviceRunConfiguration *runConfiguration,
+                                      const QString &mode);
     virtual ~S60DeviceDebugRunControl();
     virtual void start();
-    virtual bool aboutToStop() const;
     virtual StopResult stop();
-    virtual bool isRunning() const;
-
-protected:
-    virtual bool checkConfiguration(QString *errorMessage,
-                                    QString *settingsCategory,
-                                    QString *settingsPage) const;
 
 private slots:
-    void debuggingFinished();
+    void slotFinished();
 
-protected:
-    QSharedPointer<Debugger::DebuggerStartParameters> m_startParams;
-    Debugger::DebuggerRunControl *m_debuggerRunControl;
-    QFutureInterface<void> *m_debugProgress;
-    QString m_localExecutableFileName;
+private:
+    static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceRunConfiguration *rc);
+
+    QScopedPointer<QFutureInterface<void> > m_debugProgress;
 };
 
 } // namespace Internal

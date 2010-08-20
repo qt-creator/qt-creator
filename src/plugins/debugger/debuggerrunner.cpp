@@ -229,6 +229,12 @@ DebuggerRunControl::~DebuggerRunControl()
     delete engine;
 }
 
+const DebuggerStartParameters &DebuggerRunControl::startParameters() const
+{
+    QTC_ASSERT(m_engine, return *(new DebuggerStartParameters()));
+    return m_engine->startParameters();
+}
+
 static DebuggerEngineType engineForToolChain(int toolChainType)
 {
     switch (toolChainType) {

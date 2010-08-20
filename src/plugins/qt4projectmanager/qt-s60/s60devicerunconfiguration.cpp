@@ -56,7 +56,6 @@
 
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerplugin.h>
-#include <debugger/debuggerrunner.h>
 
 #include <QtGui/QMessageBox>
 #include <QtGui/QMainWindow>
@@ -576,58 +575,66 @@ void S60DeviceRunControl::applicationRunFailedNotice(const QString &errorMessage
 
 // ======== S60DeviceDebugRunControl
 
-S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *rc, QString mode) :
-    RunControl(rc, mode),
-    m_startParams(new Debugger::DebuggerStartParameters),
-    m_debuggerRunControl(0),
-    m_debugProgress(0)
+static inline QString localExecutable(const S60DeviceRunConfiguration *rc)
 {
-    QTC_ASSERT(rc, return);
+    if (const S60DeployConfiguration *activeDeployConf = qobject_cast<S60DeployConfiguration *>(rc->qt4Target()->activeDeployConfiguration()))
+        return activeDeployConf->localExecutableFileName();
+    return QString();
+}
 
-    S60DeployConfiguration *activeDeployConf = qobject_cast<S60DeployConfiguration *>(rc->qt4Target()->activeDeployConfiguration());
+// Create start parameters from run configuration
+Debugger::DebuggerStartParameters S60DeviceDebugRunControl::s60DebuggerStartParams(const S60DeviceRunConfiguration *rc)
+{
+    Debugger::DebuggerStartParameters sp;
+    QTC_ASSERT(rc, return sp);
+
+    const S60DeployConfiguration *activeDeployConf = qobject_cast<S60DeployConfiguration *>(rc->qt4Target()->activeDeployConfiguration());
 
     const QString debugFileName = QString::fromLatin1("%1:\\sys\\bin\\%2.exe")
             .arg(activeDeployConf->installationDrive()).arg(activeDeployConf->targetName());
 
-    m_startParams->remoteChannel = activeDeployConf->serialPortName();
-    m_startParams->processArgs = rc->commandLineArguments();
-    m_startParams->startMode = Debugger::StartInternal;
-    m_startParams->toolChainType = rc->toolChainType();
-    m_startParams->executable = debugFileName;
-    m_startParams->executableUid = activeDeployConf->executableUid();
+    sp.remoteChannel = activeDeployConf->serialPortName();
+    sp.processArgs = rc->commandLineArguments();
+    sp.startMode = Debugger::StartInternal;
+    sp.toolChainType = rc->toolChainType();
+    sp.executable = debugFileName;
+    sp.executableUid = activeDeployConf->executableUid();
 
-    QTC_ASSERT(m_startParams->executableUid, return);
+    QTC_ASSERT(sp.executableUid, return sp);
 
     // Prefer the '*.sym' file over the '.exe', which should exist at the same
     // location in debug builds
-
-    if (!QFileInfo(m_startParams->symbolFileName).isFile()) {
-        m_startParams->symbolFileName.clear();
-        emit appendMessage(this, tr("Warning: Cannot locate the symbol file belonging to %1.").arg(m_localExecutableFileName), true);
-    }
-
-    m_localExecutableFileName = activeDeployConf->localExecutableFileName();
-    const int lastDotPos = m_localExecutableFileName.lastIndexOf(QLatin1Char('.'));
+    const QString localExecutableFileName = localExecutable(rc);
+    const int lastDotPos = localExecutableFileName.lastIndexOf(QLatin1Char('.'));
     if (lastDotPos != -1) {
-        m_startParams->symbolFileName = m_localExecutableFileName.mid(0, lastDotPos) + QLatin1String(".sym");
+        const QString symbolFileName = localExecutableFileName.mid(0, lastDotPos) + QLatin1String(".sym");
+        if (QFileInfo(symbolFileName).isFile())
+            sp.symbolFileName = symbolFileName;
     }
+
+    return sp;
+}
+
+S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *rc,
+                                                   const QString &) :
+    Debugger::DebuggerRunControl(rc, Debugger::GdbEngineType,
+                                 S60DeviceDebugRunControl::s60DebuggerStartParams(rc))
+{
+    if (startParameters().symbolFileName.isEmpty()) {
+        const QString msg = tr("Warning: Cannot locate the symbol file belonging to %1.").
+                               arg(localExecutable(rc));
+        emit appendMessage(this, msg, true);
+    }
+    connect(this, SIGNAL(finished()), this, SLOT(slotFinished()));
 }
 
 void S60DeviceDebugRunControl::start()
 {
-    m_debugProgress = new QFutureInterface<void>;
-    Core::ICore::instance()->progressManager()->addTask(m_debugProgress->future(),
-                                                        tr("Debugging"),
-                                                        QLatin1String("Symbian.Debug"));
-    m_debugProgress->setProgressRange(0, PROGRESS_MAX);
-    m_debugProgress->setProgressValue(0);
-    m_debugProgress->reportStarted();
-    emit started();
-
     QString errorMessage;
     QString settingsCategory;
     QString settingsPage;
-    if (!checkConfiguration(&errorMessage, &settingsCategory, &settingsPage)) {
+    if (!Debugger::DebuggerRunControl::checkDebugConfiguration(startParameters().toolChainType,
+                                                               &errorMessage, &settingsCategory, &settingsPage)) {
         m_debugProgress->reportCanceled();
         appendMessage(this, errorMessage, true);
         emit finished();
@@ -636,72 +643,36 @@ void S60DeviceDebugRunControl::start()
                                                         settingsCategory, settingsPage);
         return;
     }
+    m_debugProgress.reset(new QFutureInterface<void>);
+    Core::ICore::instance()->progressManager()->addTask(m_debugProgress->future(),
+                                                        tr("Debugging"),
+                                                        QLatin1String("Symbian.Debug"));
+    m_debugProgress->setProgressRange(0, PROGRESS_MAX);
+    m_debugProgress->setProgressValue(0);
+    m_debugProgress->reportStarted();
 
-    using namespace Debugger;
     emit appendMessage(this, tr("Launching debugger..."), false);
-    QTC_ASSERT(m_debuggerRunControl == 0, /* Should happen only once. */);
-    m_debuggerRunControl = DebuggerPlugin::createDebugger(*m_startParams.data());
-
-    connect(m_debuggerRunControl,
-            SIGNAL(finished()),
-            SLOT(debuggingFinished()),
-            Qt::QueuedConnection);
-    connect(m_debuggerRunControl,
-            SIGNAL(addToOutputWindowInline(ProjectExplorer::RunControl*,QString,bool)),
-            SIGNAL(addToOutputWindowInline(ProjectExplorer::RunControl*,QString,bool)),
-            Qt::QueuedConnection);
-
-    DebuggerPlugin::startDebugger(m_debuggerRunControl);
+    Debugger::DebuggerRunControl::start();
 }
-
 
 S60DeviceDebugRunControl::~S60DeviceDebugRunControl()
 {
-    delete m_debugProgress;
-    // FIXME: Needed? m_debuggerRunControl->deleteLater();
 }
-
-bool S60DeviceDebugRunControl::aboutToStop() const
-{
-    return m_debuggerRunControl ? m_debuggerRunControl->aboutToStop() : true;
- }
 
 RunControl::StopResult S60DeviceDebugRunControl::stop()
 {
-    QTC_ASSERT(m_debuggerRunControl, return StoppedSynchronously)
-
-    if (m_debugProgress)
+    if (!m_debugProgress.isNull()) {
         m_debugProgress->reportCanceled();
-    delete m_debugProgress;
-    m_debugProgress = 0;
-    return m_debuggerRunControl->stop();
+        m_debugProgress.reset();
+    }
+    return Debugger::DebuggerRunControl::stop();
 }
 
-bool S60DeviceDebugRunControl::isRunning() const
+void S60DeviceDebugRunControl::slotFinished()
 {
-    return m_debuggerRunControl
-            && m_debuggerRunControl->isRunning();
-}
-
-void S60DeviceDebugRunControl::debuggingFinished()
-{
-    emit appendMessage(this, tr("Debugging finished."), false);
-    emit finished();
-    if (m_debugProgress) {
+    if (!m_debugProgress.isNull()) {
         m_debugProgress->setProgressValue(PROGRESS_MAX);
         m_debugProgress->reportFinished();
+        m_debugProgress.reset();
     }
-    delete m_debugProgress;
-    m_debugProgress = 0;
-}
-
-bool S60DeviceDebugRunControl::checkConfiguration(QString *errorMessage,
-                                                  QString *settingsCategory,
-                                                  QString *settingsPage) const
-{
-    return Debugger::DebuggerRunControl::checkDebugConfiguration(
-                                                m_startParams->toolChainType,
-                                                errorMessage,
-                                                settingsCategory,
-                                                settingsPage);
 }

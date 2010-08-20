@@ -87,7 +87,7 @@ class DEBUGGER_EXPORT DebuggerRunControl
 
 public:
     typedef ProjectExplorer::RunConfiguration RunConfiguration;
-    DebuggerRunControl(RunConfiguration *runConfiguration,
+    explicit DebuggerRunControl(RunConfiguration *runConfiguration,
         DebuggerEngineType enabledEngines, const DebuggerStartParameters &sp);
     ~DebuggerRunControl();
 
@@ -121,6 +121,9 @@ public:
 private slots:
     void handleStarted();
     void handleFinished();
+
+protected:
+    const DebuggerStartParameters &startParameters() const;
 
 private:
     DebuggerEngineType engineForExecutable(const QString &executable);
