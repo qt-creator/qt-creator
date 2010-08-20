@@ -893,7 +893,7 @@ void Launcher::installRemotePackageSilently()
     emit installingStarted();
     d->m_currentInstallationStep = InstallationModeSilent;
     QByteArray ba;
-    ba.append((char)QChar::toUpper((ushort)d->m_installationDrive));
+    ba.append(static_cast<char>(QChar::toUpper((ushort)d->m_installationDrive)));
     appendString(&ba, d->m_installFileNames.at(d->m_currentInstallFileName).toLocal8Bit(), TargetByteOrder, false);
     d->m_device->sendTrkMessage(TrkInstallFile, TrkCallback(this, &Launcher::handleInstallPackageFinished), ba);
 }

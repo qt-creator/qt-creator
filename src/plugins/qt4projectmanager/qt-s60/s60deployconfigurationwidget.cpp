@@ -163,10 +163,9 @@ void S60DeployConfigurationWidget::updateInstallationDrives()
 {
     m_installationDriveCombo->clear();
     for (int i = STARTING_DRIVE_LETTER; i <= LAST_DRIVE_LETTER; ++i) {
-        m_installationDriveCombo->addItem(QString("%1:").arg((char)i), qVariantFromValue(i));
+        m_installationDriveCombo->addItem(QString("%1:").arg(static_cast<char>(i)), qVariantFromValue(i));
     }
-    ushort installationDrive = m_deployConfiguration->installationDrive();
-    int index = QChar::toUpper(installationDrive) - STARTING_DRIVE_LETTER;
+    int index = QChar::toUpper(static_cast<ushort>(m_deployConfiguration->installationDrive())) - STARTING_DRIVE_LETTER;
 
     Q_ASSERT(index >= 0 && index <= LAST_DRIVE_LETTER-STARTING_DRIVE_LETTER);
 
@@ -228,7 +227,7 @@ void S60DeployConfigurationWidget::updateTargetInformation()
 
 void S60DeployConfigurationWidget::setInstallationDrive(int index)
 {
-    m_deployConfiguration->setInstallationDrive((char)(STARTING_DRIVE_LETTER + index));
+    m_deployConfiguration->setInstallationDrive(static_cast<char>(STARTING_DRIVE_LETTER + index));
 }
 
 void S60DeployConfigurationWidget::setSerialPort(int index)
