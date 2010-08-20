@@ -46,6 +46,13 @@
      <item row="1" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_2"/>
      </item>
+     <item row="1" column="0">
+      <widget class="QCheckBox" name="deployToSysrootCheckBox">
+       <property name="text">
+        <string>Also deploy to sysroot</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>

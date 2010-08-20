@@ -49,7 +49,6 @@ MaemoRemoteMounter::MaemoRemoteMounter(QObject *parent,
       m_utfsServerTimer(new QTimer(this)), m_uploadJobId(SftpInvalidJob),
       m_stop(false)
 {
-    m_utfsServerTimer->setSingleShot(true);
     connect(m_utfsServerTimer, SIGNAL(timeout()), this,
         SLOT(handleUtfsServerTimeout()));
 }
@@ -236,7 +235,7 @@ void MaemoRemoteMounter::startUtfsClients()
         const QString chmod = QString::fromLocal8Bit("%1 chmod a+r+w+x %2")
             .arg(MaemoGlobal::remoteSudo(), mountSpec.remoteMountPoint);
         QString utfsClient
-            = QString::fromLocal8Bit("%1 -l %2 -r %2 -b %2 %4")
+            = QString::fromLocal8Bit("%1 -l %2 -r %2 -b %2 %4 -o nonempty")
                   .arg(utfsClientOnDevice()).arg(mountInfo.remotePort)
                   .arg(mountSpec.remoteMountPoint);
         if (mountInfo.mountAsRoot)

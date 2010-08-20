@@ -65,6 +65,7 @@ static const QLatin1String LastDeployedHostsKey(PREFIX ".LastDeployedHosts");
 static const QLatin1String LastDeployedFilesKey(PREFIX ".LastDeployedFiles");
 static const QLatin1String LastDeployedRemotePathsKey(PREFIX ".LastDeployedRemotePaths");
 static const QLatin1String LastDeployedTimesKey(PREFIX ".LastDeployedTimes");
+static const QLatin1String DeployToSysrootKey(PREFIX ".DeployToSysroot");
 static const QLatin1String ProFileKey(PREFIX ".ProFile");
 static const QLatin1String ExportedLocalDirsKey(PREFIX ".ExportedLocalDirs");
 static const QLatin1String RemoteMountPointsKey(PREFIX ".RemoteMountPoints");
