@@ -3,7 +3,7 @@
 
 QT += declarative
 
-SOURCES += cpp/main.cpp cpp/qmlapplicationview.cpp
+SOURCES += cpp/qmlapplicationview.cpp
 HEADERS += cpp/qmlapplicationview.h
 INCLUDEPATH += cpp
 

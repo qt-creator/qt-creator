@@ -22,4 +22,6 @@ symbian:ICON = cpp/symbianicon.svg
 # QMLINSPECTOR #
 #DEFINES += QMLINSPECTOR
 
+SOURCES += cpp/main.cpp
+
 include($$PWD/qmlapplication.pri)
