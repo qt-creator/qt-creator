@@ -31,6 +31,7 @@
 
 #include "qmlprojectconstants.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/customwizard/customwizard.h>
 
 #include <QtGui/QIcon>
@@ -73,7 +74,11 @@ Core::BaseFileWizardParameters QmlProjectApplicationWizard::parameters()
     parameters.setId(QLatin1String("QA.QML Application"));
     parameters.setDescription(tr("Creates a QML application project with a single QML file containing the main view.\n\n"
                                  "QML application projects are executed by the Qt QML Viewer and do not need to be built."));
+#ifdef QTCREATOR_WITH_QML
     parameters.setCategory(QLatin1String(Constants::QML_WIZARD_CATEGORY));
+#else
+    parameters.setCategory(QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_CATEGORY));
+#endif
     parameters.setDisplayCategory(QCoreApplication::translate(Constants::QML_WIZARD_TR_SCOPE,
                                                               Constants::QML_WIZARD_TR_CATEGORY));
     return parameters;

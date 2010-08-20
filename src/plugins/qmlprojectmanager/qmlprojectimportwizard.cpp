@@ -33,6 +33,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/customwizard/customwizard.h>
 
 #include <utils/filenamevalidatinglineedit.h>
@@ -116,7 +117,11 @@ Core::BaseFileWizardParameters QmlProjectImportWizard::parameters()
     parameters.setDisplayName(tr("Import Existing QML Directory"));
     parameters.setId(QLatin1String("QI.QML Import"));
     parameters.setDescription(tr("Creates a QML project from an existing directory of QML files."));
+#ifdef QTCREATOR_WITH_QML
     parameters.setCategory(QLatin1String(Constants::QML_WIZARD_CATEGORY));
+#else
+    parameters.setCategory(QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_CATEGORY));
+#endif
     parameters.setDisplayCategory(QCoreApplication::translate(Constants::QML_WIZARD_TR_SCOPE,
                                                               Constants::QML_WIZARD_TR_CATEGORY));
     return parameters;

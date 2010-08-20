@@ -41,7 +41,7 @@ contains(QT_CONFIG, declarative) {
     SUBDIRS += plugin_qmlprojectmanager
 
     !isEmpty(SUPPORT_QT_QML) {
-        message("Adding support for QmlDesigner, QmlInspector and Qml wizards.")
+        message("Adding support for QmlInspector.")
     }
 
     include(private_headers.pri)
