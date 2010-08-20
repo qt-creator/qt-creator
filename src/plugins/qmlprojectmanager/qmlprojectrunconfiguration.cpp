@@ -178,8 +178,6 @@ QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
 
     connect(qmlViewer, SIGNAL(changed(QString)), this, SLOT(onViewerChanged()));
 
-    QToolButton *qtVersionSelector = new QToolButton;
-
     QLineEdit *qmlViewerArgs = new QLineEdit;
     qmlViewerArgs->setText(m_qmlViewerArgs);
     connect(qmlViewerArgs, SIGNAL(textChanged(QString)), this, SLOT(onViewerArgsChanged()));
