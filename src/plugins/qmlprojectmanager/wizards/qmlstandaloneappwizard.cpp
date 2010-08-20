@@ -79,9 +79,10 @@ QmlStandaloneAppWizardDialog::QmlStandaloneAppWizardDialog(QmlStandaloneAppWizar
 
     m_qmlSourcesPage = new QmlStandaloneAppWizardSourcesPage;
     m_qmlSourcesPage->setMainQmlFileChooserVisible(m_type == QmlStandaloneAppWizard::ImportQmlFile);
+    const QString qmlSourcesTitle = tr("Qml Sources");
     if (m_type == QmlStandaloneAppWizard::ImportQmlFile) {
         const int qmlSourcesPagePageId = addPage(m_qmlSourcesPage);
-        wizardProgress()->item(qmlSourcesPagePageId)->setTitle(tr("Qml Sources"));
+        wizardProgress()->item(qmlSourcesPagePageId)->setTitle(qmlSourcesTitle);
     }
 
     m_qmlOptionsPage = new QmlStandaloneAppWizardOptionsPage;
@@ -90,7 +91,7 @@ QmlStandaloneAppWizardDialog::QmlStandaloneAppWizardDialog(QmlStandaloneAppWizar
     if (m_type == QmlStandaloneAppWizard::NewQmlFile) {
         // In case of NewQmlFile, we show that page at the end. Is that useful? Or irritating?
         const int qmlSourcesPagePageId = addPage(m_qmlSourcesPage);
-        wizardProgress()->item(qmlSourcesPagePageId)->setTitle(tr("Qml Sources"));
+        wizardProgress()->item(qmlSourcesPagePageId)->setTitle(qmlSourcesTitle);
     }
 }
 
