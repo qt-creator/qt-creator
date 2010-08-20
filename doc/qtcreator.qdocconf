@@ -14,7 +14,7 @@ indexes                 = qt.index
 
 include(qt-defines.qdocconf)
 
-sources.fileextensions  = "qtcreator.qdoc addressbook-sdk.qdoc"
+sources.fileextensions  = "qtcreator.qdoc maemodev.qdoc symbiandev.qdoc addressbook-sdk.qdoc"
 
 
 qhp.projects            = QtCreator

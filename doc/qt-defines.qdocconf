@@ -11,7 +11,8 @@ defines                 = Q_QDOC \
 			  QT_DEPRECATED \
                           Q_NO_USING_KEYWORD \
                           __cplusplus \
-                          qtquick
+                          qtquick \
+                          qcmanual
 
 versionsym              = QT_VERSION_STR
 
