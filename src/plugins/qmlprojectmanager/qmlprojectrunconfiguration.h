@@ -34,6 +34,7 @@
 #include <projectexplorer/runconfiguration.h>
 #include <QWeakPointer>
 #include <QComboBox>
+#include <QLabel>
 
 QT_FORWARD_DECLARE_CLASS(QStringListModel);
 
@@ -121,6 +122,7 @@ private:
     QStringListModel *m_fileListModel;
     // weakpointer is used to make sure we don't try to manipulate
     // widget which was deleted already, as can be the case here.
+    QWeakPointer<QLabel> m_qmlViewerExecutable;
     QWeakPointer<QComboBox> m_fileListCombo;
 
     Internal::QmlProjectTarget *m_projectTarget;

@@ -98,6 +98,8 @@ void QmlProjectRunConfiguration::ctor()
 
     Qt4ProjectManager::QtVersionManager *qtVersions = Qt4ProjectManager::QtVersionManager::instance();
     connect(qtVersions, SIGNAL(qtVersionsChanged(QList<int>)), this, SLOT(updateEnabled()));
+    connect(qtVersions, SIGNAL(qtVersionsChanged(QList<int>)), this, SLOT(onViewerChanged()));
+
 
     setDisplayName(tr("QML Viewer", "QMLRunConfiguration display name."));
 }
@@ -174,9 +176,12 @@ QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
 
     Utils::PathChooser *qmlViewer = new Utils::PathChooser;
     qmlViewer->setExpectedKind(Utils::PathChooser::Command);
-    qmlViewer->setPath(viewerPath());
+    qmlViewer->setPath(m_qmlViewerCustomPath);
 
     connect(qmlViewer, SIGNAL(changed(QString)), this, SLOT(onViewerChanged()));
+
+    m_qmlViewerExecutable = new QLabel;
+    m_qmlViewerExecutable.data()->setText(viewerPath() + " " + m_qmlViewerArgs);
 
     QLineEdit *qmlViewerArgs = new QLineEdit;
     qmlViewerArgs->setText(m_qmlViewerArgs);
@@ -184,6 +189,8 @@ QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
 
     form->addRow(tr("QML Viewer"), qmlViewer);
     form->addRow(tr("QML Viewer arguments:"), qmlViewerArgs);
+    form->addRow(QString(), m_qmlViewerExecutable.data());
+
     form->addRow(tr("Main QML File:"), m_fileListCombo.data());
 
     return config;
@@ -258,12 +265,19 @@ void QmlProjectRunConfiguration::onViewerChanged()
     if (Utils::PathChooser *chooser = qobject_cast<Utils::PathChooser *>(sender())) {
         m_qmlViewerCustomPath = chooser->path();
     }
+    if (!m_qmlViewerExecutable.isNull()) {
+        m_qmlViewerExecutable.data()->setText(viewerPath() + " " + m_qmlViewerArgs);
+    }
 }
 
 void QmlProjectRunConfiguration::onViewerArgsChanged()
 {
     if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(sender()))
         m_qmlViewerArgs = lineEdit->text();
+
+    if (!m_qmlViewerExecutable.isNull()) {
+        m_qmlViewerExecutable.data()->setText(viewerPath() + " " + m_qmlViewerArgs);
+    }
 }
 
 void QmlProjectRunConfiguration::onDebugServerPortChanged()
