@@ -75,8 +75,10 @@ public:
     QSharedPointer<HighlightDefinitionMetaData> definitionMetaData(const QString &id) const;
 
     void downloadAvailableDefinitionsMetaData();
-    void downloadDefinitions(const QList<QUrl> &urls);
+    void downloadDefinitions(const QList<QUrl> &urls, const QString &savePath);
     bool isDownloadingDefinitions() const;
+
+    static QSharedPointer<HighlightDefinitionMetaData> parseMetadata(const QFileInfo &fileInfo);
 
 public slots:
     void registerMimeTypes();
@@ -96,7 +98,6 @@ private:
     Q_DISABLE_COPY(Manager)
 
     void gatherDefinitionsMimeTypes(QFutureInterface<Core::MimeType> &future);
-    QSharedPointer<HighlightDefinitionMetaData> parseMetadata(const QFileInfo &fileInfo);
     QList<HighlightDefinitionMetaData> parseAvailableDefinitionsList(QIODevice *device) const;
     void clear();
 

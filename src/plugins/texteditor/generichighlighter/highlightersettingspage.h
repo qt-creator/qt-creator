@@ -61,22 +61,22 @@ public:
 
     const HighlighterSettings &highlighterSettings() const;
 
-signals:
-    void definitionsLocationChanged();
-
 private slots:
     void resetDefinitionsLocation();
     void requestAvailableDefinitionsMetaData();
     void manageDefinitions(const QList<Internal::HighlightDefinitionMetaData> &metaData);
     void showError();
     void ignoreDownloadReply();
-    void useFallbackLocation(bool checked);
+    void setFallbackLocationState(bool checked);
+    void setManageDefinitionsState(bool valid);
 
 private:
     void settingsFromUI();
     void settingsToUI();
 
     bool settingsChanged() const;
+
+    bool m_requestMimeTypeRegistration;
 
     struct HighlighterSettingsPagePrivate;
     HighlighterSettingsPagePrivate *m_d;

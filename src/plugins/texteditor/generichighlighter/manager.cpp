@@ -259,6 +259,7 @@ QSharedPointer<HighlightDefinitionMetaData> Manager::parseMetadata(const QFileIn
         if (reader.readNext() == QXmlStreamReader::StartElement && reader.name() == kLanguage) {
             const QXmlStreamAttributes &atts = reader.attributes();
 
+            metaData->setFileName(fileInfo.fileName());
             metaData->setId(fileInfo.absoluteFilePath());
             metaData->setName(atts.value(HighlightDefinitionMetaData::kName).toString());
             metaData->setVersion(atts.value(HighlightDefinitionMetaData::kVersion).toString());
@@ -289,6 +290,7 @@ QSharedPointer<HighlightDefinitionMetaData> Manager::parseMetadata(const QFileIn
 
 QList<HighlightDefinitionMetaData> Manager::parseAvailableDefinitionsList(QIODevice *device) const
 {
+    static const QLatin1Char kSlash('/');
     static const QLatin1String kDefinition("Definition");
 
     QList<HighlightDefinitionMetaData> metaDataList;
@@ -300,8 +302,12 @@ QList<HighlightDefinitionMetaData> Manager::parseAvailableDefinitionsList(QIODev
 
             HighlightDefinitionMetaData metaData;
             metaData.setName(atts.value(HighlightDefinitionMetaData::kName).toString());
-            metaData.setUrl(QUrl(atts.value(HighlightDefinitionMetaData::kUrl).toString()));
             metaData.setVersion(atts.value(HighlightDefinitionMetaData::kVersion).toString());
+            QString url(atts.value(HighlightDefinitionMetaData::kUrl).toString());
+            metaData.setUrl(QUrl(url));
+            const int slash = url.lastIndexOf(kSlash);
+            if (slash != -1)
+                metaData.setFileName(url.right(url.length() - slash - 1));
 
             metaDataList.append(metaData);
         }
@@ -331,22 +337,8 @@ void Manager::downloadAvailableDefinitionsListFinished()
     }
 }
 
-void Manager::downloadDefinitions(const QList<QUrl> &urls)
+void Manager::downloadDefinitions(const QList<QUrl> &urls, const QString &savePath)
 {
-    QString savePath = TextEditorSettings::instance()->highlighterSettings().definitionFilesPath();
-    if (savePath.isEmpty()) {
-        QMessageBox::critical(0, tr("Error"), tr("Please configure the destination directory."));
-        return;
-    }
-
-    savePath.append(QLatin1Char('/'));
-    QDir saveDir(savePath);
-    if (!saveDir.exists()) {
-        QMessageBox::critical(0, tr("Error"),
-                              tr("Please make sure the destination directory exists."));
-        return;
-    }
-
     m_downloaders.clear();
     foreach (const QUrl &url, urls)
         m_downloaders.append(new DefinitionDownloader(url, savePath));
@@ -384,7 +376,6 @@ void Manager::downloadDefinitionsFinished()
         QMessageBox::critical(0, tr("Download Error"), text);
     }
 
-    registerMimeTypes();
     m_downloadingDefinitions = false;
 }
 

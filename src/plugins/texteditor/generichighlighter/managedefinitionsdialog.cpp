@@ -38,6 +38,8 @@
 #include <QtCore/QFuture>
 #include <QtCore/QFutureWatcher>
 #include <QtCore/QtConcurrentMap>
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
 #include <QtGui/QMessageBox>
 
 #include <QDebug>
@@ -46,8 +48,12 @@ using namespace TextEditor;
 using namespace Internal;
 
 ManageDefinitionsDialog::ManageDefinitionsDialog(
-    const QList<HighlightDefinitionMetaData> &metaDataList, QWidget *parent) :
-    QDialog(parent), m_definitionsMetaData(metaDataList)
+        const QList<HighlightDefinitionMetaData> &metaDataList,
+        const QString &path,
+        QWidget *parent) :
+    QDialog(parent),
+    m_definitionsMetaData(metaDataList),
+    m_path(path)
 {
     ui.setupUi(this);    
     ui.definitionsTable->setHorizontalHeaderLabels(
@@ -68,19 +74,23 @@ void ManageDefinitionsDialog::populateDefinitionsWidget()
     for (int i = 0; i < size; ++i) {
         const HighlightDefinitionMetaData &downloadData = m_definitionsMetaData.at(i);
 
-        QString installedVersion;
-        const QString &id = Manager::instance()->definitionIdByName(downloadData.name());
-        const QSharedPointer<HighlightDefinitionMetaData> &metaData =
-            Manager::instance()->definitionMetaData(id);
-        if (!metaData.isNull())
-            installedVersion = metaData->version();
+        // Look for this definition in the current path specified by the user, not the one
+        // stored in the settings. So the manager should not be queried for this information.
+        QString dirVersion;
+        QFileInfo fi(m_path + downloadData.fileName());
+        QFile definitionFile(fi.absoluteFilePath());
+        if (definitionFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            const QSharedPointer<HighlightDefinitionMetaData> &data = Manager::parseMetadata(fi);
+            if (!data.isNull())
+                dirVersion = data->version();
+        }
 
         for (int j = 0; j < 3; ++j) {
             QTableWidgetItem *item = new QTableWidgetItem;
             if (j == 0)
                 item->setText(downloadData.name());
             else if (j == 1) {
-                item->setText(installedVersion);
+                item->setText(dirVersion);
                 item->setTextAlignment(Qt::AlignCenter);
             } else if (j == 2) {
                 item->setText(downloadData.version());
@@ -104,8 +114,8 @@ void ManageDefinitionsDialog::downloadDefinitions()
     QList<QUrl> urls;
     foreach (const QModelIndex &index, ui.definitionsTable->selectionModel()->selectedRows())
         urls.append(m_definitionsMetaData.at(index.row()).url());
-    Manager::instance()->downloadDefinitions(urls);
-    close();
+    Manager::instance()->downloadDefinitions(urls, m_path);
+    accept();
 }
 
 void ManageDefinitionsDialog::changeEvent(QEvent *e)

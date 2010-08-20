@@ -66,6 +66,12 @@ void HighlightDefinitionMetaData::setVersion(const QString &version)
 const QString &HighlightDefinitionMetaData::version() const
 { return m_version; }
 
+void HighlightDefinitionMetaData::setFileName(const QString &fileName)
+{ m_fileName = fileName; }
+
+const QString &HighlightDefinitionMetaData::fileName() const
+{ return m_fileName; }
+
 void HighlightDefinitionMetaData::setPatterns(const QStringList &patterns)
 { m_patterns = patterns; }
 

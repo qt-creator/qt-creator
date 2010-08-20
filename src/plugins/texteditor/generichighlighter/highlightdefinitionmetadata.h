@@ -55,6 +55,9 @@ public:
     void setVersion(const QString &version);
     const QString &version() const;
 
+    void setFileName(const QString &fileName);
+    const QString &fileName() const;
+
     void setPatterns(const QStringList &patterns);
     const QStringList &patterns() const;
 
@@ -76,6 +79,7 @@ private:
     QString m_id;
     QString m_name;
     QString m_version;
+    QString m_fileName;
     QStringList m_patterns;
     QStringList m_mimeTypes;
     QUrl m_url;

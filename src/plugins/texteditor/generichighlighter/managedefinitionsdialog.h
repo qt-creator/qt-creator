@@ -43,6 +43,7 @@ class ManageDefinitionsDialog : public QDialog
     Q_OBJECT
 public:
     explicit ManageDefinitionsDialog(const QList<HighlightDefinitionMetaData> &metaDataList,
+                                     const QString &path,
                                      QWidget *parent = 0);
 
 protected:
@@ -55,6 +56,7 @@ private:
     void populateDefinitionsWidget();
 
     QList<HighlightDefinitionMetaData> m_definitionsMetaData;
+    QString m_path;
     Ui::ManageDefinitionsDialog ui;
 };
 
