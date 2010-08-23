@@ -1049,7 +1049,21 @@ class FrameCommand(gdb.Command):
         #listOfBreakpoints(d)
 
         #print('data=[' + locals + sep + watchers + '],bkpts=[' + breakpoints + ']\n')
-        print('data=[' + d.output + ']')
+        output = 'data=[' + d.output + ']'
+        try:
+            print(output)
+        except:
+            out = ""
+            for c in output:
+                cc = ord(c)
+                if cc > 127:
+                    out += "\\\\%d" % cc
+                elif cc < 0:
+                    out += "\\\\%d" % (cc + 256)
+                else:
+                    out += c
+            print(out)
+
 
 
     def handleWatch(self, d, exp, iname):
