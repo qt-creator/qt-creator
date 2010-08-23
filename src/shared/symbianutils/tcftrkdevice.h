@@ -53,7 +53,7 @@ struct Breakpoint;
 
 /* Command error handling in TCF:
  * 1) 'Severe' errors (JSON format, parameter format): Trk emits a
- *     nonstandard message (\3\2 error paramaters) and closes the connection.
+ *     nonstandard message (\3\2 error parameters) and closes the connection.
  * 2) Protocol errors: 'N' without error message is returned.
  * 3) Errors in command execution: 'R' with a TCF error hash is returned
  *    (see TcfTrkCommandError). */

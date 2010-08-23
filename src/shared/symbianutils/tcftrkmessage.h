@@ -111,7 +111,7 @@ struct SYMBIANUTILS_EXPORT RunControlContext {
     QByteArray parentId; // Parent process id of a thread.
 };
 
-// Module load information occuring with 'RunControl contextSuspended' events
+// Module load information occurring with 'RunControl contextSuspended' events
 struct SYMBIANUTILS_EXPORT ModuleLoadEventInfo {
     ModuleLoadEventInfo();
     void clear();
