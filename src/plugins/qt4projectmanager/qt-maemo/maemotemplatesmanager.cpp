@@ -292,7 +292,7 @@ bool MaemoTemplatesManager::updateDesktopFile(const Qt4Target *target,
         "Version=1.0\nType=Application\nTerminal=false\nName=\nExec=\n"
         "Icon=\nX-Window-Icon=\nX-HildonDesk-ShowInToolbar=true\n"
         "X-Osso-Type=application/x-executable\n");
-    QByteArray contents
+    QByteArray desktopFileContents
         = existsAlready ? desktopFile.readAll() : desktopTemplate;
 
     QString executable;
@@ -310,18 +310,18 @@ bool MaemoTemplatesManager::updateDesktopFile(const Qt4Target *target,
         qWarning("Strange: Project file node not managed by MaemoDeployables.");
     } else {
         int execNewLinePos, execValuePos;
-        findLine("Exec=", contents, execNewLinePos, execValuePos);
-        contents.replace(execValuePos, execNewLinePos - execValuePos,
+        findLine("Exec=", desktopFileContents, execNewLinePos, execValuePos);
+        desktopFileContents.replace(execValuePos, execNewLinePos - execValuePos,
             executable.toUtf8());
     }
 
     int nameNewLinePos, nameValuePos;
-    findLine("Name=", contents, nameNewLinePos, nameValuePos);
+    findLine("Name=", desktopFileContents, nameNewLinePos, nameValuePos);
     if (nameNewLinePos == nameValuePos)
-        contents.insert(nameValuePos, appName.toUtf8());
+        desktopFileContents.insert(nameValuePos, appName.toUtf8());
 
     desktopFile.resize(0);
-    desktopFile.write(contents);
+    desktopFile.write(desktopFileContents);
     desktopFile.close();
     if (desktopFile.error() != QFile::NoError) {
         qWarning("Could not write '%s': %s", qPrintable(desktopFilePath),
@@ -331,9 +331,27 @@ bool MaemoTemplatesManager::updateDesktopFile(const Qt4Target *target,
     if (!existsAlready) {
         proFileNode->addFiles(UnknownFileType,
             QStringList() << desktopFilePath);
+        QFile proFile(proFileNode->path());
+        if (!proFile.open(QIODevice::ReadWrite)) {
+            qWarning("Failed to open '%s': %s", qPrintable(proFileNode->path()),
+                qPrintable(proFile.errorString()));
+            return false;
+        }
+        QByteArray proFileContents = proFile.readAll();
+        proFileContents += "\nmaemo5|maemp6{\n"
+            "    desktopfile.files = $${TARGET}.desktop\n"
+            "    desktopfile.path = /usr/share/applications/hildon\n"
+            "    INSTALLS += desktopfile\n}\n";
+        proFile.resize(0);
+        proFile.write(proFileContents);
+        proFile.close();
+        if (proFile.error() != QFile::NoError) {
+            qWarning("Could not write '%s': %s", qPrintable(proFileNode->path()),
+                qPrintable(proFile.errorString()));
+            return false;
+        }
     }
     return true;
-
 }
 
 void MaemoTemplatesManager::handleProjectToBeRemoved(ProjectExplorer::Project *project)
