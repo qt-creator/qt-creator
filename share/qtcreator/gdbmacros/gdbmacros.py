@@ -704,8 +704,6 @@ def qdump__QObject(d, item):
                     # Static properties.
                     propertyData = metaData[7]
                     for i in xrange(staticPropertyCount):
-
-                    for property in xrange(propertyCount):
                         with SubItem(d):
                             offset = propertyData + 3 * i
                             propertyName = extractCString(metaStringData, metaData[offset])

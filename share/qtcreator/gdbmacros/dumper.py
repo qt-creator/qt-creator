@@ -866,6 +866,7 @@ class Item:
 qqFormats = {}
 qqDumpers = {}
 qqNs = ""
+qqQObjectCache = {}
 
 
 class SetupCommand(gdb.Command):
@@ -1133,6 +1134,24 @@ class Dumper:
         #listOfBreakpoints(d)
 
         #print('data=[' + locals + sep + watchers + '],bkpts=[' + breakpoints + ']\n')
+
+    def checkForQObjectBase(self, type):
+        if type.code != gdb.TYPE_CODE_STRUCT:
+            return False
+        name = str(type)
+        if name in qqQObjectCache:
+            return qqQObjectCache[name]
+        if name == self.ns + "QObject":
+            qqQObjectCache[name] = True
+            return True
+        fields = type.strip_typedefs().fields()
+        if len(fields) == 0:
+            qqQObjectCache[name] = False
+            return False
+        base = fields[0].type.strip_typedefs()
+        result = self.checkForQObjectBase(base)
+        qqQObjectCache[name] = result
+        return result
 
 
     def handleWatch(self, exp, iname):
