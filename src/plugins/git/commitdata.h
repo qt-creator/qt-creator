@@ -80,6 +80,7 @@ struct CommitData
     QStringList stagedFileNames(const QString &stateFilter = QString()) const;
     QStringList unstagedFileNames(const QString &stateFilter = QString()) const;
 
+    QString amendSHA1;
     GitSubmitEditorPanelInfo panelInfo;
     GitSubmitEditorPanelData panelData;
 

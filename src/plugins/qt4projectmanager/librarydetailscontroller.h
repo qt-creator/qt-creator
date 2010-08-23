@@ -139,7 +139,7 @@ protected:
 private slots:
     void slotCurrentLibraryChanged();
 private:
-    Qt4ProFileNode *m_proFileNode;
+    QString m_rootProjectPath;
     QVector<Qt4ProFileNode *> m_proFileNodes;
 };
 

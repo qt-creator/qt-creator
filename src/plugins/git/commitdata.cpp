@@ -82,6 +82,7 @@ void CommitData::clear()
 {
     panelInfo.clear();
     panelData.clear();
+    amendSHA1.clear();
 
     stagedFiles.clear();
     unstagedFiles.clear();

@@ -76,6 +76,8 @@ class QTCREATOR_UTILS_EXPORT SubmitEditorWidget : public QWidget
     Q_PROPERTY(QAbstractItemView::SelectionMode fileListSelectionMode READ fileListSelectionMode WRITE setFileListSelectionMode DESIGNABLE true)
     Q_PROPERTY(bool lineWrap READ lineWrap WRITE setLineWrap DESIGNABLE true)
     Q_PROPERTY(int lineWrapWidth READ lineWrapWidth WRITE setLineWrapWidth DESIGNABLE true)
+    Q_PROPERTY(bool emptyFileListEnabled READ isEmptyFileListEnabled WRITE setEmptyFileListEnabled DESIGNABLE true)
+
 public:
     explicit SubmitEditorWidget(QWidget *parent = 0);
     virtual ~SubmitEditorWidget();
@@ -90,6 +92,10 @@ public:
 
     QString descriptionText() const;
     void setDescriptionText(const QString &text);
+
+    // 'Commit' action enabled despite empty file list
+    bool isEmptyFileListEnabled() const;
+    void setEmptyFileListEnabled(bool e);
 
     int fileNameColumn() const;
     void setFileNameColumn(int c);

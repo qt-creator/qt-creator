@@ -142,6 +142,7 @@ struct SubmitEditorWidgetPrivate
     bool m_filesChecked;
     int m_fileNameColumn;
     int m_activatedRow;
+    bool m_emptyFileListEnabled;
 
     QList<AdditionalContextMenuAction> descriptionEditContextMenuActions;
     QVBoxLayout *m_fieldLayout;
@@ -154,6 +155,7 @@ SubmitEditorWidgetPrivate::SubmitEditorWidgetPrivate() :
     m_filesChecked(false),
     m_fileNameColumn(1),
     m_activatedRow(-1),
+    m_emptyFileListEnabled(false),
     m_fieldLayout(0),
     m_lineWidth(defaultLineWidth)
 {
@@ -446,7 +448,7 @@ void SubmitEditorWidget::updateActions()
 void SubmitEditorWidget::updateSubmitAction()
 {
     const unsigned checkedCount = checkedFilesCount();
-    const bool newFilesCheckedState = checkedCount;
+    const bool newFilesCheckedState = m_d->m_emptyFileListEnabled || checkedCount > 0;
     // Emit signal to update action
     if (m_d->m_filesChecked != newFilesCheckedState) {
         m_d->m_filesChecked = newFilesCheckedState;
@@ -578,6 +580,19 @@ void SubmitEditorWidget::fileListCustomContextMenuRequested(const QPoint & pos)
     if (action == uncheckAllAction) {
         uncheckAll();
         return;
+    }
+}
+
+bool SubmitEditorWidget::isEmptyFileListEnabled() const
+{
+    return m_d->m_emptyFileListEnabled;
+}
+
+void SubmitEditorWidget::setEmptyFileListEnabled(bool e)
+{
+    if (e != m_d->m_emptyFileListEnabled) {
+        m_d->m_emptyFileListEnabled = e;
+        updateSubmitAction();
     }
 }
 

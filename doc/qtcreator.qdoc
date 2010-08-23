@@ -4685,7 +4685,7 @@
     with Qt Creator, but they enhance the user's ability to quickly
     examine complex data significantly.
 
-    \section1 Debugging Helpers Based on C++
+    \section1 Debugging Helpers based on C++
 
     This is the first and original approach to display complex data
     types. While it has been superseded on most platforms by the more
@@ -4704,7 +4704,7 @@
     library is built for each Qt version.
 
 
-    \section1 Debugging Helpers Based on Python
+    \section1 Debugging Helpers based on Python
 
     On platforms featuring a Python-enabled version of the gdb debugger,
     the data extraction is done by a Python script. This is more robust

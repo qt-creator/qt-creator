@@ -90,6 +90,7 @@ class VCSBASE_EXPORT VCSBaseSubmitEditor : public Core::IEditor
     Q_PROPERTY(bool lineWrap READ lineWrap WRITE setLineWrap DESIGNABLE true)
     Q_PROPERTY(int lineWrapWidth READ lineWrapWidth WRITE setLineWrapWidth DESIGNABLE true)
     Q_PROPERTY(QString checkScriptWorkingDirectory READ checkScriptWorkingDirectory WRITE setCheckScriptWorkingDirectory DESIGNABLE true)
+    Q_PROPERTY(bool emptyFileListEnabled READ isEmptyFileListEnabled WRITE setEmptyFileListEnabled DESIGNABLE true)
 
 protected:
     explicit VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *parameters,
@@ -121,6 +122,10 @@ public:
 
     QAbstractItemView::SelectionMode fileListSelectionMode() const;
     void setFileListSelectionMode(QAbstractItemView::SelectionMode sm);
+
+    // 'Commit' action enabled despite empty file list
+    bool isEmptyFileListEnabled() const;
+    void setEmptyFileListEnabled(bool e);
 
     bool lineWrap() const;
     void setLineWrap(bool);

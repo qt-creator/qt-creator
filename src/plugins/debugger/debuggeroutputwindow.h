@@ -46,19 +46,14 @@ class DebuggerOutputWindow : public QWidget
     Q_OBJECT
 
 public:
-    DebuggerOutputWindow(QWidget *parent = 0);
+    explicit DebuggerOutputWindow(QWidget *parent = 0);
 
-    QWidget *outputWidget(QWidget *) { return this; }
-    QList<QWidget*> toolBarWidgets() const { return QList<QWidget *>(); }
-
-    QString name() const { return windowTitle(); }
-    void visibilityChanged(bool /*visible*/) {}
-
-    void bringPaneToForeground() { emit showPage(); }
     void setCursor(const QCursor &cursor);
 
     QString combinedContents() const;
     QString inputContents() const;
+
+    static QString logTimeStamp();
 
 public slots:
     void clearContents();

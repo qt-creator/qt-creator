@@ -122,6 +122,7 @@ private slots:
 
     void showCommit();
     void startCommit();
+    void startAmendCommit();
     void stash();
     void stashSnapshot();
     void branchList();
@@ -170,10 +171,11 @@ private:
                                            bool addToLocator, GitClientMemberFunc);
 
     bool isCommitEditorOpen() const;
-    Core::IEditor *openSubmitEditor(const QString &fileName, const CommitData &cd);
+    Core::IEditor *openSubmitEditor(const QString &fileName, const CommitData &cd, bool amend);
     void cleanCommitMessageFile();
     void cleanRepository(const QString &directory);
     void applyPatch(const QString &workingDirectory, QString file = QString());
+    void startCommit(bool amend);
 
     static GitPlugin *m_instance;
     Core::ICore *m_core;
@@ -201,6 +203,7 @@ private:
     QStringList                 m_submitOrigCommitFiles;
     QStringList                 m_submitOrigDeleteFiles;
     QString                     m_commitMessageFileName;
+    QString                     m_commitAmendSHA1;
     bool                        m_submitActionTriggered;
 
 };

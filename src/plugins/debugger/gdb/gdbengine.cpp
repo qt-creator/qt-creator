@@ -66,6 +66,7 @@
 #include "sourcefileswindow.h"
 
 #include "debuggerdialogs.h"
+#include "debuggeroutputwindow.h"
 
 #include <utils/qtcassert.h>
 #include <utils/fancymainwindow.h>
@@ -312,25 +313,19 @@ void GdbEngine::readDebugeeOutput(const QByteArray &data)
 
 void GdbEngine::handleResponse(const QByteArray &buff)
 {
-    static QTime lastTime;
-
-    if (theDebuggerBoolSetting(LogTimeStamps))
-        showMessage(currentTime(), LogTime);
     showMessage(QString::fromLocal8Bit(buff, buff.length()), LogOutput);
 
 #if 0
+    static QTime lastTime;
     qDebug() // << "#### start response handling #### "
-        << currentTime()
         << lastTime.msecsTo(QTime::currentTime()) << "ms,"
         << "buf:" << buff.left(1500) << "..."
         //<< "buf:" << buff
         << "size:" << buff.size();
+    lastTime = QTime::currentTime();
 #else
     //qDebug() << "buf:" << buff;
 #endif
-
-    lastTime = QTime::currentTime();
-
     if (buff.isEmpty() || buff == "(gdb) ")
         return;
 
@@ -2013,7 +2008,7 @@ void GdbEngine::setTokenBarrier()
     PENDING_DEBUG("\n--- token barrier ---\n");
     showMessage(_("--- token barrier ---"), LogMiscInput);
     if (theDebuggerBoolSetting(LogTimeStamps))
-        showMessage(currentTime(), LogMiscInput);
+        showMessage(DebuggerOutputWindow::logTimeStamp(), LogMiscInput);
     m_oldestAcceptableToken = currentToken();
 }
 
@@ -3369,7 +3364,7 @@ void GdbEngine::rebuildWatchModel()
         m_processedNames.clear();
     PENDING_DEBUG("REBUILDING MODEL" << count);
     if (theDebuggerBoolSetting(LogTimeStamps))
-        showMessage(currentTime(), LogMiscInput);
+        showMessage(DebuggerOutputWindow::logTimeStamp(), LogMiscInput);
     showMessage(_("<Rebuild Watchmodel %1>").arg(count), LogMiscInput);
     showStatusMessage(tr("Finished retrieving data"), 400);
     watchHandler()->endCycle();

@@ -185,13 +185,13 @@ public:
     StashResult ensureStash(const QString &workingDirectory, QString *errorMessage);
     StashResult ensureStash(const QString &workingDirectory);
 
-    bool getCommitData(const QString &workingDirectory,
-                       QString *commitTemplate,
-                       CommitData *d,
+    bool getCommitData(const QString &workingDirectory, bool amend,
+                       QString *commitTemplate, CommitData *commitData,
                        QString *errorMessage);
 
     bool addAndCommit(const QString &workingDirectory,
                       const GitSubmitEditorPanelData &data,
+                      const QString &amendSHA1,
                       const QString &messageFile,
                       const QStringList &checkedFiles,
                       const QStringList &origCommitFiles,
