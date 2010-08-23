@@ -5,6 +5,8 @@
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/buildconfiguration.h>
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
@@ -765,8 +767,7 @@ void ExternalLibraryDetailsController::updateWindowsOptionsEnablement()
 
 InternalLibraryDetailsController::InternalLibraryDetailsController(
         Ui::LibraryDetailsWidget *libraryDetails, QObject *parent)
-    : LibraryDetailsController(libraryDetails, parent),
-      m_proFileNode(0)
+    : LibraryDetailsController(libraryDetails, parent)
 {
     setLinkageRadiosVisible(false);
     setLibraryPathChooserVisible(false);
@@ -837,9 +838,9 @@ void InternalLibraryDetailsController::updateWindowsOptionsEnablement()
 
 void InternalLibraryDetailsController::proFileChanged()
 {
+    m_rootProjectPath.clear();
     m_proFileNodes.clear();
     libraryDetailsWidget()->libraryComboBox->clear();
-    m_proFileNode = 0;
 
     const ProjectExplorer::Project *project =
             ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projectForFile(proFile());
@@ -850,14 +851,13 @@ void InternalLibraryDetailsController::proFileChanged()
 
     ProjectExplorer::ProjectNode *rootProject = project->rootProjectNode();
     QFileInfo fi(rootProject->path());
-    QDir rootDir(fi.absolutePath());
+    m_rootProjectPath = fi.absolutePath();
+    QDir rootDir(m_rootProjectPath);
     FindQt4ProFiles findQt4ProFiles;
     QList<Qt4ProFileNode *> proFiles = findQt4ProFiles(rootProject);
     foreach (Qt4ProFileNode *proFileNode, proFiles) {
         const QString proFilePath = proFileNode->path();
-        if (proFilePath == proFile()) {
-            m_proFileNode = proFileNode;
-        } else if (proFileNode->projectType() == LibraryTemplate) {
+        if (proFileNode->projectType() == LibraryTemplate) {
             const QStringList configVar = proFileNode->variableValue(ConfigVar);
             if (!configVar.contains(QLatin1String("plugin"))) {
                 const QString relProFilePath = rootDir.relativeFilePath(proFilePath);
@@ -910,17 +910,39 @@ bool InternalLibraryDetailsController::isComplete() const
 QString InternalLibraryDetailsController::snippet() const
 {
     const int currentIndex = libraryDetailsWidget()->libraryComboBox->currentIndex();
+
     if (currentIndex < 0)
         return QString();
 
-    if (!m_proFileNode)
+    if (m_rootProjectPath.isEmpty())
         return QString();
 
-    Qt4ProFileNode *proFileNode = m_proFileNodes.at(currentIndex);
 
+    // dir of the root project
+    QDir rootDir(m_rootProjectPath);
+
+    // relative path for the project for which we insert the snippet,
+    // it's relative to the root project
+    const QString proRelavitePath = rootDir.relativeFilePath(proFile());
+
+    // project for which we insert the snippet
+    const ProjectExplorer::Project *project =
+            ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projectForFile(proFile());
+
+    // the build directory of the active build configuration
+    QDir rootBuildDir(project->activeTarget()->activeBuildConfiguration()->buildDirectory());
+
+    // the project for which we insert the snippet inside build tree
+    QFileInfo pfi(rootBuildDir.filePath(proRelavitePath));
+    // the project dir for which we insert the snippet inside build tree
+    QDir projectBuildDir(pfi.absolutePath());
+
+    // current project node from combobox
     QFileInfo fi(proFile());
-    QDir projectBuildDir(m_proFileNode->buildDir());
     QDir projectSrcDir(fi.absolutePath());
+
+    // project node which we want to link against
+    Qt4ProFileNode *proFileNode = m_proFileNodes.at(currentIndex);
     TargetInformation targetInfo = proFileNode->targetInformation();
 
     const QString targetRelativePath = appendSeparator(projectBuildDir.relativeFilePath(targetInfo.buildDir));
@@ -932,12 +954,16 @@ QString InternalLibraryDetailsController::snippet() const
     QString snippetMessage;
     QTextStream str(&snippetMessage);
     str << "\n";
+
+    // replace below to "PRI_OUT_PWD" when task QTBUG-13057 is done
+    // (end enable adding libraries into .pri files as well).
+    const QString outPwd = QLatin1String("OUT_PWD");
     str << generateLibsSnippet(platforms(), macLibraryType(), targetInfo.target,
-                               targetRelativePath, QLatin1String("OUT_PWD"),
+                               targetRelativePath, outPwd,
                                useSubfolders, addSuffix, true);
     str << generateIncludePathSnippet(includeRelativePath);
     str << generatePreTargetDepsSnippet(platforms(), linkageType(), targetInfo.target,
-                               targetRelativePath, QLatin1String("OUT_PWD"),
+                               targetRelativePath, outPwd,
                                useSubfolders, addSuffix);
     return snippetMessage;
 }
