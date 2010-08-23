@@ -96,7 +96,8 @@ private:
     ProjectExplorer::Project *findProject(const QFileSystemWatcher *fsWatcher) const;
     void findLine(const QByteArray &string, QByteArray &document,
         int &lineEndPos, int &valuePos);
-
+    bool adaptRulesFile(const ProjectExplorer::Project *project);
+    bool adaptControlFile(const ProjectExplorer::Project *project);
     QSharedPointer<QFile> openFile(const QString &filePath,
         QIODevice::OpenMode mode, QString *error) const;
 

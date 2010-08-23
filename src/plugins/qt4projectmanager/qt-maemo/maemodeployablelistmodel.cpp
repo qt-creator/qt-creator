@@ -60,8 +60,8 @@ bool MaemoDeployableListModel::buildModel()
     const MaemoProFileWrapper::InstallsList &installs = m_proFileWrapper->installs();
     if (installs.targetPath.isEmpty()) {
         const QString remoteDir = m_proFileNode->projectType() == LibraryTemplate
-            ? QLatin1String("/usr/lib")
-            : QLatin1String("/usr/bin");
+            ? QLatin1String("/opt/lib")
+            : QLatin1String("/opt/bin");
         m_deployables.prepend(MaemoDeployable(localExecutableFilePath(),
             remoteDir));
         QFile projectFile(m_proFileNode->path());

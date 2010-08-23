@@ -180,7 +180,7 @@ bool MaemoTemplatesManager::createDebianTemplatesIfNecessary(const ProjectExplor
         return false;
     }
 
-    QDir debianDir(packagingTemplatesDir + QLatin1String("/debian"));
+    QDir debianDir(debianDirPath(project));
     const QStringList &files = debianDir.entryList(QDir::Files);
     QStringList filesToAddToProject;
     foreach (const QString &fileName, files) {
@@ -196,15 +196,18 @@ bool MaemoTemplatesManager::createDebianTemplatesIfNecessary(const ProjectExplor
     qobject_cast<Qt4Project *>(project)->rootProjectNode()
         ->addFiles(UnknownFileType, filesToAddToProject);
 
-    const QString rulesFilePath
-        = packagingTemplatesDir + QLatin1String("/debian/rules");
+    return adaptRulesFile(project) && adaptControlFile(project);
+}
+
+bool MaemoTemplatesManager::adaptRulesFile(const Project *project)
+{
+    const QString rulesFilePath = debianDirPath(project) + "/rules";
     QFile rulesFile(rulesFilePath);
     if (!rulesFile.open(QIODevice::ReadWrite)) {
         raiseError(tr("Packaging Error: Cannot open file '%1'.")
                    .arg(QDir::toNativeSeparators(rulesFilePath)));
         return false;
     }
-
     QByteArray rulesContents = rulesFile.readAll();
     rulesContents.replace("DESTDIR", "INSTALL_ROOT");
     rulesContents.replace("dh_shlibdeps", "# dh_shlibdeps");
@@ -216,9 +219,43 @@ bool MaemoTemplatesManager::createDebianTemplatesIfNecessary(const ProjectExplor
 
     rulesFile.resize(0);
     rulesFile.write(rulesContents);
+    rulesFile.close();
     if (rulesFile.error() != QFile::NoError) {
         raiseError(tr("Packaging Error: Cannot write file '%1'.")
                    .arg(QDir::toNativeSeparators(rulesFilePath)));
+        return false;
+    }
+    return true;
+}
+
+bool MaemoTemplatesManager::adaptControlFile(const Project *project)
+{
+    QFile controlFile(controlFilePath(project));
+    if (!controlFile.open(QIODevice::ReadWrite)) {
+        raiseError(tr("Packaging Error: Cannot open file '%1'.")
+                   .arg(QDir::toNativeSeparators(controlFilePath(project))));
+        return false;
+    }
+    QByteArray sectionLine = "Section: user/hidden";
+    QByteArray controlContents = controlFile.readAll();
+    const int sectionOffset = controlContents.indexOf("Section:");
+    if (sectionOffset == -1) {
+        controlContents.append(sectionLine).append('\n');
+    } else {
+        int sectionNewlineOffset = controlContents.indexOf('\n', sectionOffset);
+        if (sectionNewlineOffset == -1) {
+            sectionNewlineOffset = controlContents.length();
+            sectionLine += '\n';
+        }
+        controlContents.replace(sectionOffset,
+            sectionNewlineOffset - sectionOffset, sectionLine);
+    }
+    controlFile.resize(0);
+    controlFile.write(controlContents);
+    controlFile.close();
+    if (controlFile.error() != QFile::NoError) {
+        raiseError(tr("Packaging Error: Cannot write file '%1'.")
+                   .arg(QDir::toNativeSeparators(controlFilePath(project))));
         return false;
     }
     return true;
