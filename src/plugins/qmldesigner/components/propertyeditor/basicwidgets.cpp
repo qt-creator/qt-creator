@@ -123,7 +123,7 @@ class QWidgetDeclarativeUI : public QObject
     Q_PROPERTY(int height READ height WRITE setHeight NOTIFY heightChanged)
     Q_PROPERTY(qreal opacity READ opacity WRITE setOpacity NOTIFY opacityChanged)
 
-    Q_PROPERTY(QUrl styleSheetFile READ styleSheetFile WRITE setStyleSheetFile NOTIFY styleSheetFileChanged)
+    Q_PROPERTY(QUrl styleSheetFile READ styleSheetFile WRITE setStyleSheetFile)
 
     Q_PROPERTY(QColor windowColor READ windowColor WRITE setWindowColor)
     Q_PROPERTY(QColor backgroundColor READ backgroundColor WRITE setBackgroundColor)
@@ -782,7 +782,7 @@ private:
 class QComboBoxDeclarativeUI : public QObject
 {
      Q_OBJECT
-     Q_PROPERTY(QStringList items READ items WRITE setItems NOTIFY itemChanged)
+     Q_PROPERTY(QStringList items READ items WRITE setItems)
      Q_PROPERTY(QString currentText READ currentText WRITE setCurrentText NOTIFY currentTextChanged)
 
 public:
@@ -879,7 +879,7 @@ class WidgetLoader : public QWidget
     Q_PROPERTY(QString sourceString READ sourceString WRITE setSourceString NOTIFY sourceChanged)
     Q_PROPERTY(QUrl source READ source WRITE setSource NOTIFY sourceChanged)
     Q_PROPERTY(QUrl baseUrl READ baseUrl WRITE setBaseUrl)
-    Q_PROPERTY(QString qmlData READ qmlData WRITE setQmlData NOTIFY sourceQmlDataChanged)
+    Q_PROPERTY(QString qmlData READ qmlData WRITE setQmlData NOTIFY qmlDataChanged)
     Q_PROPERTY(QWidget *widget READ widget NOTIFY widgetChanged)
     Q_PROPERTY(QDeclarativeComponent *component READ component NOTIFY sourceChanged)
 
