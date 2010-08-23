@@ -63,6 +63,8 @@ public:
     FormClassWizardGenerationParameters generationParameters() const;
     void setGenerationParameters(const FormClassWizardGenerationParameters &gp);
 
+    static bool lowercaseHeaderFiles();
+
 public slots:
     void setClassName(const QString &suggestedClassName);
     void setPath(const QString &);

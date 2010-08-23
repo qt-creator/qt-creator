@@ -71,13 +71,13 @@ FormClassWizardPage::~FormClassWizardPage()
 }
 
 // Retrieve settings of CppTools plugin.
-static  bool inline lowerCaseFiles(const Core::ICore *core)
+bool FormClassWizardPage::lowercaseHeaderFiles()
 {
     QString lowerCaseSettingsKey = QLatin1String(CppTools::Constants::CPPTOOLS_SETTINGSGROUP);
     lowerCaseSettingsKey += QLatin1Char('/');
     lowerCaseSettingsKey += QLatin1String(CppTools::Constants::LOWERCASE_CPPFILES_KEY);
     const bool lowerCaseDefault = CppTools::Constants::lowerCaseFilesDefault;
-    return core->settings()->value(lowerCaseSettingsKey, QVariant(lowerCaseDefault)).toBool();
+    return Core::ICore::instance()->settings()->value(lowerCaseSettingsKey, QVariant(lowerCaseDefault)).toBool();
 }
 
 // Set up new class widget from settings
@@ -87,7 +87,7 @@ void FormClassWizardPage::initFileGenerationSettings()
     const Core::MimeDatabase *mdb = core->mimeDatabase();
     m_ui->newClassWidget->setHeaderExtension(mdb->preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)));
     m_ui->newClassWidget->setSourceExtension(mdb->preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)));
-    m_ui->newClassWidget->setLowerCaseFiles(lowerCaseFiles(core));
+    m_ui->newClassWidget->setLowerCaseFiles(lowercaseHeaderFiles());
 }
 
 // Pop up settings dialog for generation settings

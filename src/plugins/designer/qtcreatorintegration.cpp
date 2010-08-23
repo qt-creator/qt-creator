@@ -29,6 +29,7 @@
 
 #include "formeditorplugin.h"
 #include "formwindoweditor.h"
+#include "formclasswizardpage.h"
 #include "qtcreatorintegration.h"
 #include "formeditorw.h"
 #include "editordata.h"
@@ -36,6 +37,7 @@
 #include <widgethost.h>
 
 #include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cpptoolsconstants.h>
 #include <cplusplus/InsertionPointLocator.h>
 #include <cplusplus/Symbols.h>
 #include <cplusplus/Overview.h>
@@ -47,6 +49,7 @@
 #include <cplusplus/Control.h>
 #include <cplusplus/TranslationUnit.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/mimedatabase.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/basetexteditor.h>
@@ -98,6 +101,9 @@ QtCreatorIntegration::QtCreatorIntegration(QDesignerFormEditorInterface *core, F
             this, SLOT(slotNavigateToSlot(QString, QString, QStringList)));
     connect(this, SIGNAL(helpRequested(QString,QString)),
             this, SLOT(slotDesignerHelpRequested(QString,QString)));
+    slotSyncSettingsToDesigner();
+    connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()),
+            this, SLOT(slotSyncSettingsToDesigner()));
 }
 
 void QtCreatorIntegration::slotDesignerHelpRequested(const QString &manual, const QString &document)
@@ -551,4 +557,14 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     TextEditor::BaseTextEditor::openEditorAt(sourceDoc->fileName(), line + 2, indentation);
 
     return true;
+}
+
+void QtCreatorIntegration::slotSyncSettingsToDesigner()
+{
+#if QT_VERSION >= 0x040800
+    // Set promotion-relevant parameters on integration.
+    const Core::MimeDatabase *mdb = Core::ICore::instance()->mimeDatabase();
+    setHeaderSuffix(mdb->preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)));
+    setHeaderLowercase(FormClassWizardPage::lowercaseHeaderFiles());
+#endif
 }
