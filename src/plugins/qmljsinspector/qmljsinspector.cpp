@@ -600,7 +600,7 @@ void InspectorUi::setupToolbar(bool doConnect)
         connect(m_clientProxy, SIGNAL(designModeBehaviorChanged(bool)), m_toolbar, SLOT(setDesignModeBehavior(bool)));
         connect(m_clientProxy, SIGNAL(selectedColorChanged(QColor)), m_toolbar, SLOT(setSelectedColor(QColor)));
 
-        connect(m_clientProxy, SIGNAL(animationSpeedChanged(qreal)), m_toolbar, SLOT(changeAnimationSpeed(qreal)));
+        connect(m_clientProxy, SIGNAL(animationSpeedChanged(qreal)), m_toolbar, SLOT(setAnimationSpeed(qreal)));
         m_toolbar->enable();
     } else {
         disconnect(m_clientProxy, SIGNAL(connected()), m_toolbar, SLOT(enable()));
@@ -623,7 +623,7 @@ void InspectorUi::setupToolbar(bool doConnect)
         disconnect(m_clientProxy, SIGNAL(designModeBehaviorChanged(bool)), m_toolbar, SLOT(setDesignModeBehavior(bool)));
         disconnect(m_clientProxy, SIGNAL(selectedColorChanged(QColor)), m_toolbar, SLOT(setSelectedColor(QColor)));
 
-        disconnect(m_clientProxy, SIGNAL(animationSpeedChanged(qreal)), m_toolbar, SLOT(changeAnimationSpeed(qreal)));
+        disconnect(m_clientProxy, SIGNAL(animationSpeedChanged(qreal)), m_toolbar, SLOT(setAnimationSpeed(qreal)));
         m_toolbar->disable();
     }
 }

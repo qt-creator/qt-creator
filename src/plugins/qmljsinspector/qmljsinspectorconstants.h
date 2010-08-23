@@ -46,7 +46,6 @@ const char * const INFO_OUT_OF_SYNC = "QmlInspector.OutOfSyncWarning";
 const char * const DESIGNMODE_ACTION = "QmlInspector.DesignMode";
 const char * const RELOAD_ACTION = "QmlInspector.Reload";
 const char * const PLAY_ACTION = "QmlInspector.Play";
-const char * const PAUSE_ACTION = "QmlInspector.Pause";
 const char * const SELECT_ACTION = "QmlInspector.Select";
 const char * const SELECT_MARQUEE_ACTION = "QmlInspector.SelectMarquee";
 const char * const ZOOM_ACTION = "QmlInspector.Zoom";

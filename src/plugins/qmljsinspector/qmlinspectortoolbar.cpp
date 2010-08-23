@@ -61,7 +61,6 @@ QmlInspectorToolbar::QmlInspectorToolbar(QObject *parent) :
     m_designmodeAction(0),
     m_reloadAction(0),
     m_playAction(0),
-    m_pauseAction(0),
     m_selectAction(0),
     m_selectMarqueeAction(0),
     m_zoomAction(0),
@@ -74,6 +73,8 @@ QmlInspectorToolbar::QmlInspectorToolbar(QObject *parent) :
     m_eighthAnimSpeedAction(0),
     m_tenthAnimSpeedAction(0),
     m_menuPauseAction(0),
+    m_playIcon(QIcon(QLatin1String(":/qml/images/play-small.png"))),
+    m_pauseIcon(QIcon(QLatin1String(":/qml/images/pause-small.png"))),
     m_colorBox(0),
     m_emitSignals(true),
     m_isRunning(false),
@@ -93,7 +94,6 @@ void QmlInspectorToolbar::setEnabled(bool value)
 
     m_reloadAction->setEnabled(value);
     m_playAction->setEnabled(value);
-    m_pauseAction->setEnabled(value);
     m_selectAction->setEnabled(value);
     m_selectMarqueeAction->setEnabled(value);
     m_zoomAction->setEnabled(value);
@@ -108,14 +108,14 @@ void QmlInspectorToolbar::enable()
     setEnabled(true);
     m_emitSignals = false;
     m_designmodeAction->setChecked(false);
-    changeAnimationSpeed(1.0f);
+    setAnimationSpeed(1.0f);
     activateDesignModeOnClick();
     m_emitSignals = true;
 }
 
 void QmlInspectorToolbar::disable()
 {
-    changeAnimationSpeed(1.0f);
+    setAnimationSpeed(1.0f);
     activateSelectTool();
     setEnabled(false);
 }
@@ -148,12 +148,10 @@ void QmlInspectorToolbar::activateZoomTool()
     m_emitSignals = true;
 }
 
-void QmlInspectorToolbar::changeAnimationSpeed(qreal slowdownFactor)
+void QmlInspectorToolbar::setAnimationSpeed(qreal slowdownFactor)
 {
     m_emitSignals = false;
-    if (slowdownFactor == 0) {
-        activatePauseOnClick();
-    } else {
+    if (slowdownFactor != 0) {
         m_animationSpeed = slowdownFactor;
 
         if (slowdownFactor == 1.0f) {
@@ -167,9 +165,11 @@ void QmlInspectorToolbar::changeAnimationSpeed(qreal slowdownFactor)
         } else if (slowdownFactor == 10.0f) {
             m_tenthAnimSpeedAction->setChecked(true);
         }
-
-        activatePlayOnClick();
+        updatePlayAction();
+    } else {
+        updatePauseAction();
     }
+
     m_emitSignals = true;
 }
 
@@ -190,8 +190,7 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     m_designmodeAction = new QAction(QIcon(QLatin1String(":/qml/images/designmode.png")), tr("Design Mode"), this);
 
     m_reloadAction = new QAction(QIcon(QLatin1String(":/qml/images/reload.png")), tr("Reload"), this);
-    m_playAction = new QAction(QIcon(QLatin1String(":/qml/images/play-small.png")), tr("Play animations"), this);
-    m_pauseAction = new QAction(QIcon(QLatin1String(":/qml/images/pause-small.png")), tr("Pause animations"), this);
+    m_playAction = new QAction(m_playIcon, tr("Play animations"), this);
     m_selectAction = new QAction(QIcon(QLatin1String(":/qml/images/select-small.png")), tr("Select"), this);
     m_selectMarqueeAction = new QAction(QIcon(QLatin1String(":/qml/images/select-marquee-small.png")), tr("Select (Marquee)"), this);
     m_zoomAction = new QAction(QIcon(QLatin1String(":/qml/images/zoom-small.png")), tr("Zoom"), this);
@@ -200,9 +199,6 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
 
     m_designmodeAction->setCheckable(true);
     m_designmodeAction->setChecked(false);
-    m_playAction->setCheckable(true);
-    m_playAction->setChecked(true);
-    m_pauseAction->setCheckable(true);
     m_selectAction->setCheckable(true);
     m_selectMarqueeAction->setCheckable(true);
     m_zoomAction->setCheckable(true);
@@ -214,7 +210,6 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     am->registerAction(m_designmodeAction, QmlJSInspector::Constants::DESIGNMODE_ACTION, context);
     am->registerAction(m_reloadAction, QmlJSInspector::Constants::RELOAD_ACTION, context);
     am->registerAction(m_playAction, QmlJSInspector::Constants::PLAY_ACTION, context);
-    am->registerAction(m_pauseAction, QmlJSInspector::Constants::PAUSE_ACTION, context);
     am->registerAction(m_selectAction, QmlJSInspector::Constants::SELECT_ACTION, context);
     am->registerAction(m_selectMarqueeAction, QmlJSInspector::Constants::SELECT_MARQUEE_ACTION, context);
     am->registerAction(m_zoomAction, QmlJSInspector::Constants::ZOOM_ACTION, context);
@@ -256,8 +251,9 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     m_tenthAnimSpeedAction->setCheckable(true);
     playSpeedMenuActions->addAction(m_tenthAnimSpeedAction);
 
-    m_menuPauseAction = playSpeedMenu->addAction(tr("Pause"), this, SLOT(activatePauseOnClick()));
+    m_menuPauseAction = playSpeedMenu->addAction(tr("Pause"), this, SLOT(updatePauseAction()));
     m_menuPauseAction->setCheckable(true);
+    m_menuPauseAction->setIcon(m_pauseIcon);
     playSpeedMenuActions->addAction(m_menuPauseAction);
 
 //    configBarLayout->addWidget(createToolButton(am->command(ProjectExplorer::Constants::DEBUG)->action()));
@@ -266,10 +262,10 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::DESIGNMODE_ACTION)->action()));
     configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::RELOAD_ACTION)->action()));
 
-    QToolButton *playButton = createToolButton(am->command(QmlJSInspector::Constants::PLAY_ACTION)->action());
-    playButton->setMenu(playSpeedMenu);
-    configBarLayout->addWidget(playButton);
-    configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::PAUSE_ACTION)->action()));
+    m_playButton = createToolButton(am->command(QmlJSInspector::Constants::PLAY_ACTION)->action());
+    m_playButton->setMenu(playSpeedMenu);
+    configBarLayout->addWidget(m_playButton);
+    //configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::PAUSE_ACTION)->action()));
 
     configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::SELECT_ACTION)->action()));
     configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::SELECT_MARQUEE_ACTION)->action()));
@@ -285,10 +281,10 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     configBarLayout->addWidget(m_colorBox);
     //configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::TO_QML_ACTION)->action()));
 
-    m_filterLineEdit = new Utils::FilterLineEdit(m_barWidget);
+    //m_filterLineEdit = new Utils::FilterLineEdit(m_barWidget);
 
     configBarLayout->addStretch();
-    configBarLayout->addWidget(m_filterLineEdit);
+    //configBarLayout->addWidget(m_filterLineEdit);
 
     setEnabled(false);
 
@@ -298,7 +294,6 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     connect(m_colorPickerAction, SIGNAL(triggered()), SLOT(activateColorPickerOnClick()));
 
     connect(m_playAction, SIGNAL(triggered()), SLOT(activatePlayOnClick()));
-    connect(m_pauseAction, SIGNAL(triggered()), SLOT(activatePauseOnClick()));
 
     connect(m_zoomAction, SIGNAL(triggered()), SLOT(activateZoomOnClick()));
     connect(m_colorPickerAction, SIGNAL(triggered()), SLOT(activateColorPickerOnClick()));
@@ -317,31 +312,31 @@ QWidget *QmlInspectorToolbar::widget() const
 void QmlInspectorToolbar::changeToDefaultAnimSpeed()
 {
     m_animationSpeed = 1.0f;
-    activatePlayOnClick();
+    updatePlayAction();
 }
 
 void QmlInspectorToolbar::changeToHalfAnimSpeed()
 {
     m_animationSpeed = 2.0f;
-    activatePlayOnClick();
+    updatePlayAction();
 }
 
 void QmlInspectorToolbar::changeToFourthAnimSpeed()
 {
     m_animationSpeed = 4.0f;
-    activatePlayOnClick();
+    updatePlayAction();
 }
 
 void QmlInspectorToolbar::changeToEighthAnimSpeed()
 {
     m_animationSpeed = 8.0f;
-    activatePlayOnClick();
+    updatePlayAction();
 }
 
 void QmlInspectorToolbar::changeToTenthAnimSpeed()
 {
     m_animationSpeed = 10.0f;
-    activatePlayOnClick();
+    updatePlayAction();
 }
 
 void QmlInspectorToolbar::activateDesignModeOnClick()
@@ -350,7 +345,6 @@ void QmlInspectorToolbar::activateDesignModeOnClick()
 
     m_reloadAction->setEnabled(true);
     m_playAction->setEnabled(checked);
-    m_pauseAction->setEnabled(checked);
     m_selectAction->setEnabled(checked);
     m_selectMarqueeAction->setEnabled(checked);
     m_zoomAction->setEnabled(checked);
@@ -362,25 +356,34 @@ void QmlInspectorToolbar::activateDesignModeOnClick()
 
 void QmlInspectorToolbar::activatePlayOnClick()
 {
-    m_pauseAction->setChecked(false);
-    if (!m_isRunning || m_animationSpeed != m_previousAnimationSpeed) {
-        m_playAction->setChecked(true);
-        m_isRunning = true;
-        m_previousAnimationSpeed = m_animationSpeed;
-        if (m_emitSignals)
-            emit animationSpeedChanged(m_animationSpeed);
+    if (m_isRunning) {
+        updatePauseAction();
+    } else {
+        updatePlayAction();
     }
 }
 
-void QmlInspectorToolbar::activatePauseOnClick()
+void QmlInspectorToolbar::updatePlayAction()
 {
-    m_playAction->setChecked(false);
-    if (m_isRunning) {
-        m_isRunning = false;
-        m_pauseAction->setChecked(true);
-        if (m_emitSignals)
-            emit animationSpeedChanged(0.0f);
-    }
+    m_isRunning = true;
+    m_playAction->setIcon(m_playIcon);
+    if (m_animationSpeed != m_previousAnimationSpeed)
+        m_previousAnimationSpeed = m_animationSpeed;
+
+    if (m_emitSignals)
+        emit animationSpeedChanged(m_animationSpeed);
+
+    m_playButton->setDefaultAction(m_playAction);
+}
+
+void QmlInspectorToolbar::updatePauseAction()
+{
+    m_isRunning = false;
+    m_playAction->setIcon(m_pauseIcon);
+    if (m_emitSignals)
+        emit animationSpeedChanged(0.0f);
+
+    m_playButton->setDefaultAction(m_playAction);
 }
 
 void QmlInspectorToolbar::activateColorPickerOnClick()

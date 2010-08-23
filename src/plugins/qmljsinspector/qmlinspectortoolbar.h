@@ -31,10 +31,11 @@
 #define QMLINSPECTORTOOLBAR_H
 
 #include <QObject>
+#include <QIcon>
 
-QT_FORWARD_DECLARE_CLASS(QAction);
-QT_FORWARD_DECLARE_CLASS(QColor);
-
+QT_FORWARD_DECLARE_CLASS(QAction)
+QT_FORWARD_DECLARE_CLASS(QColor)
+QT_FORWARD_DECLARE_CLASS(QToolButton)
 namespace Core {
     class Context;
 }
@@ -77,7 +78,7 @@ public slots:
     void activateSelectTool();
     void activateMarqueeSelectTool();
     void activateZoomTool();
-    void changeAnimationSpeed(qreal slowdownFactor);
+    void setAnimationSpeed(qreal slowdownFactor);
     void setDesignModeBehavior(bool inDesignMode);
     void setSelectedColor(const QColor &color);
 
@@ -99,7 +100,6 @@ signals:
 private slots:
     void activateDesignModeOnClick();
     void activatePlayOnClick();
-    void activatePauseOnClick();
     void activateColorPickerOnClick();
     void activateSelectToolOnClick();
     void activateMarqueeSelectToolOnClick();
@@ -114,11 +114,13 @@ private slots:
     void activateFromQml();
     void activateToQml();
 
+    void updatePlayAction();
+    void updatePauseAction();
+
 private:
     QAction *m_designmodeAction;
     QAction *m_reloadAction;
     QAction *m_playAction;
-    QAction *m_pauseAction;
     QAction *m_selectAction;
     QAction *m_selectMarqueeAction;
     QAction *m_zoomAction;
@@ -132,6 +134,10 @@ private:
     QAction *m_eighthAnimSpeedAction;
     QAction *m_tenthAnimSpeedAction;
     QAction *m_menuPauseAction;
+
+    QToolButton *m_playButton;
+    QIcon m_playIcon;
+    QIcon m_pauseIcon;
 
     ToolBarColorBox *m_colorBox;
 
