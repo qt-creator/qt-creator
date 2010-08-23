@@ -157,6 +157,10 @@ void GettingStartedWelcomePageWidget::updateCppExamples(const QString &examplePa
                 QString fileName = examplePath + relativeProPath;
                 if (!QFile::exists(fileName))
                     fileName = sourcePath + QLatin1String("/examples") + relativeProPath;
+                if (!QFile::exists(fileName)) {
+                    continue; // might be .qmlproject
+                }
+
                 QString dirName1 = dirName;
                 dirName1.replace(slash, QLatin1Char('-'));
                 QString helpPath = QLatin1String("qthelp://com.trolltech.qt/qdoc/") +
@@ -176,6 +180,15 @@ void GettingStartedWelcomePageWidget::updateCppExamples(const QString &examplePa
             break;
             default:
             break;
+        }
+    }
+
+    // Remove empty categories
+    foreach (QAction *action, menu->actions()) {
+        if (QMenu *subMenu = action->menu()) {
+            if (subMenu->isEmpty()) {
+                menu->removeAction(action);
+            }
         }
     }
 }
