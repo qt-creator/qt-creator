@@ -60,6 +60,7 @@ namespace Internal {
 
 class MaemoDeviceEnvReader;
 class MaemoRunConfiguration;
+class Qt4BuildConfiguration;
 
 class MaemoRunConfigurationWidget : public QWidget
 {
@@ -88,6 +89,8 @@ private slots:
     void userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &userChanges);
     void handleRemoteMountsChanged();
     void handleDeploySpecsChanged();
+    void handleBuildConfigChanged();
+    void handleToolchainChanged();
 
 private:
     void addGenericWidgets(QVBoxLayout *mainLayout);
@@ -113,6 +116,7 @@ private:
     QComboBox *m_baseEnvironmentComboBox;
     MaemoDeviceEnvReader *m_deviceEnvReader;
     ProjectExplorer::EnvironmentWidget *m_environmentWidget;
+    Qt4BuildConfiguration *m_lastActiveBuildConfig;
 };
 
 } // namespace Internal

@@ -55,7 +55,6 @@ class Qt4Target;
 class MaemoDeviceConfigListModel;
 class MaemoDeployStep;
 class MaemoManager;
-class MaemoPackageCreationStep;
 class MaemoRemoteMountsModel;
 class MaemoRunConfigurationFactory;
 class MaemoToolChain;

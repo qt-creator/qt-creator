@@ -42,10 +42,13 @@
 #include "maemoremotemountsmodel.h"
 #include "maemorunconfiguration.h"
 #include "maemosettingspage.h"
+#include "maemotoolchain.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/environmenteditmodel.h>
+#include <qt4projectmanager/qt4buildconfiguration.h>
+#include <qt4projectmanager/qt4target.h>
 #include <utils/detailswidget.h>
 
 #include <QtGui/QComboBox>
@@ -71,6 +74,7 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     m_ignoreChange(false),
     m_deviceEnvReader(new MaemoDeviceEnvReader(this, runConfiguration))
 {
+    m_lastActiveBuildConfig = m_runConfiguration->activeQt4BuildConfiguration();
     QVBoxLayout *mainLayout = new QVBoxLayout;
     setLayout(mainLayout);
     addGenericWidgets(mainLayout);
@@ -82,6 +86,10 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
         SIGNAL(deviceConfigurationChanged(ProjectExplorer::Target*)),
         this, SLOT(handleCurrentDeviceConfigChanged()));
     handleCurrentDeviceConfigChanged();
+    connect(m_runConfiguration->qt4Target(),
+        SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
+        this, SLOT(handleBuildConfigChanged()));
+    handleBuildConfigChanged();
 }
 
 void MaemoRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
@@ -260,6 +268,26 @@ void MaemoRunConfigurationWidget::updateTargetInformation()
 void MaemoRunConfigurationWidget::handleDeploySpecsChanged()
 {
     m_remoteExecutableLabel->setText(m_runConfiguration->remoteExecutableFilePath());
+}
+
+void MaemoRunConfigurationWidget::handleBuildConfigChanged()
+{
+    if (m_lastActiveBuildConfig)
+        disconnect(m_lastActiveBuildConfig, 0, this, 0);
+    m_lastActiveBuildConfig = m_runConfiguration->activeQt4BuildConfiguration();
+    if (m_lastActiveBuildConfig) {
+        connect(m_lastActiveBuildConfig, SIGNAL(qtVersionChanged()), this,
+            SLOT(handleToolchainChanged()));
+    }
+    handleToolchainChanged();
+}
+
+void MaemoRunConfigurationWidget::handleToolchainChanged()
+{
+    const bool remoteMountsAvailable
+        = m_runConfiguration->toolchain()->allowsRemoteMounts();
+    m_debugDetailsContainer->setVisible(remoteMountsAvailable);
+    m_mountDetailsContainer->setVisible(remoteMountsAvailable);
 }
 
 void MaemoRunConfigurationWidget::showSettingsDialog(const QString &link)

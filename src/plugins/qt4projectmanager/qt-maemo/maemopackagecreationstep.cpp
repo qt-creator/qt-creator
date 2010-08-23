@@ -98,8 +98,12 @@ MaemoPackageCreationStep::~MaemoPackageCreationStep()
 void MaemoPackageCreationStep::ctor()
 {
     setDisplayName(tr("Packaging for Maemo"));
-    connect(buildConfiguration(), SIGNAL(buildDirectoryChanged()), this,
-        SIGNAL(packageFilePathChanged()));
+
+    m_lastBuildConfig = qt4BuildConfiguration();
+    connect(target(),
+        SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
+        this, SLOT(handleBuildConfigChanged()));
+    handleBuildConfigChanged();
 }
 
 bool MaemoPackageCreationStep::init()
@@ -272,6 +276,19 @@ void MaemoPackageCreationStep::handleBuildOutput()
     if (!errorOut.isEmpty()) {
         emit addOutput(QString::fromLocal8Bit(errorOut), BuildStep::ErrorOutput);
     }
+}
+
+void MaemoPackageCreationStep::handleBuildConfigChanged()
+{
+    if (m_lastBuildConfig)
+        disconnect(m_lastBuildConfig, 0, this, 0);
+    m_lastBuildConfig = qt4BuildConfiguration();
+    connect(m_lastBuildConfig, SIGNAL(qtVersionChanged()), this,
+        SIGNAL(qtVersionChanged()));
+    connect(m_lastBuildConfig, SIGNAL(buildDirectoryChanged()), this,
+        SIGNAL(packageFilePathChanged()));
+    emit qtVersionChanged();
+    emit packageFilePathChanged();
 }
 
 const Qt4BuildConfiguration *MaemoPackageCreationStep::qt4BuildConfiguration() const

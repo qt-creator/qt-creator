@@ -74,6 +74,8 @@ public:
     QString versionString(QString *error) const;
     bool setVersionString(const QString &version, QString *error);
 
+    const MaemoToolChain *maemoToolChain() const;
+
     static bool preparePackagingProcess(QProcess *proc, const MaemoToolChain *tc,
         const QString &workingDir, QString *error);
     static QString packagingCommand(const MaemoToolChain *tc,
@@ -86,9 +88,11 @@ public:
 
 signals:
     void packageFilePathChanged();
+    void qtVersionChanged();
 
 private slots:
     void handleBuildOutput();
+    void handleBuildConfigChanged();
 
 private:
     MaemoPackageCreationStep(ProjectExplorer::BuildStepList *buildConfig,
@@ -114,7 +118,6 @@ private:
     QString buildDirectory() const;
     QString projectName() const;
     const Qt4BuildConfiguration *qt4BuildConfiguration() const;
-    const MaemoToolChain *maemoToolChain() const;
     MaemoDeployStep * deployStep() const;
     void checkProjectName();
 
@@ -122,6 +125,7 @@ private:
 
     bool m_packagingEnabled;
     QScopedPointer<QProcess> m_buildProc;
+    const Qt4BuildConfiguration *m_lastBuildConfig;
 };
 
 } // namespace Internal

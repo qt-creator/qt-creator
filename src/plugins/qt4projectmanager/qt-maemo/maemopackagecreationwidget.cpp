@@ -44,6 +44,7 @@
 
 #include "maemopackagecreationstep.h"
 #include "maemotemplatesmanager.h"
+#include "maemotoolchain.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/project.h>
@@ -83,6 +84,9 @@ void MaemoPackageCreationWidget::initGui()
     updatePackageManagerIcon(project);
     connect(m_step, SIGNAL(packageFilePathChanged()), this,
         SIGNAL(updateSummary()));
+    connect(m_step, SIGNAL(qtVersionChanged()), this,
+        SLOT(handleToolchainChanged()));
+    handleToolchainChanged();
     versionInfoChanged();
     connect(MaemoTemplatesManager::instance(),
         SIGNAL(debianDirContentsChanged(const ProjectExplorer::Project*)),
@@ -156,6 +160,14 @@ void MaemoPackageCreationWidget::setPackageManagerIcon()
             buildConfiguration()->target()->project(), iconFileName, &error))
             QMessageBox::critical(this, tr("Could not set new icon"), error);
     }
+}
+
+void MaemoPackageCreationWidget::handleToolchainChanged()
+{
+    m_ui->skipCheckBox
+        ->setVisible(m_step->maemoToolChain()->allowsPackagingDisabling());
+    m_ui->skipCheckBox->setChecked(!m_step->isPackagingEnabled());
+    emit updateSummary();
 }
 
 QString MaemoPackageCreationWidget::summaryText() const

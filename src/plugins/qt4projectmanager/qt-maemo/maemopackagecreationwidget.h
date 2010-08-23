@@ -50,7 +50,6 @@ QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
 namespace Internal {
-
 class MaemoPackageCreationStep;
 
 class MaemoPackageCreationWidget : public ProjectExplorer::BuildStepConfigWidget
@@ -72,6 +71,7 @@ private slots:
     void updateVersionInfo(const ProjectExplorer::Project *project);
     void updatePackageManagerIcon(const ProjectExplorer::Project *project);
     void setPackageManagerIcon();
+    void handleToolchainChanged();
 
 private:
     MaemoPackageCreationStep * const m_step;
