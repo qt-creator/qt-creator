@@ -145,8 +145,8 @@ void LocatorPlugin::extensionsInitialized()
 
 void LocatorPlugin::startSettingsLoad()
 {
-    m_loadWatcher.setFuture(QtConcurrent::run(this, &LocatorPlugin::loadSettings));
     connect(&m_loadWatcher, SIGNAL(finished()), this, SLOT(settingsLoaded()));
+    m_loadWatcher.setFuture(QtConcurrent::run(this, &LocatorPlugin::loadSettings));
 }
 
 void LocatorPlugin::loadSettings()
