@@ -17,7 +17,7 @@ class FileFilterBaseItem : public QmlProjectContentItem {
 
     Q_PROPERTY(QString directory READ directory WRITE setDirectory NOTIFY directoryChanged)
     Q_PROPERTY(bool recursive READ recursive WRITE setRecursive NOTIFY recursiveChanged)
-    Q_PROPERTY(QStringList paths READ pathsProperty WRITE setPathsProperty NOTIFY pathsPropertyChanged)
+    Q_PROPERTY(QStringList paths READ pathsProperty WRITE setPathsProperty)
 
     Q_PROPERTY(QStringList files READ files NOTIFY filesChanged DESIGNABLE false)
 
