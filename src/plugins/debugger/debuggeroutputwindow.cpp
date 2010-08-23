@@ -34,6 +34,7 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
+#include <QtCore/QTime>
 
 #include <QtGui/QAction>
 #include <QtGui/QHBoxLayout>
@@ -411,6 +412,9 @@ void DebuggerOutputWindow::showOutput(int channel, const QString &output)
     QTextCursor cursor = oldCursor;
     cursor.movePosition(QTextCursor::End);
     bool atEnd = oldCursor.position() == cursor.position();
+
+    if (theDebuggerBoolSetting(LogTimeStamps))
+        m_combinedText->appendPlainText(charForChannel(LogTime) + logTimeStamp());
     foreach (QString line, output.split('\n')) {
         // FIXME: QTextEdit asserts on really long lines...
         const int n = 30000;
@@ -431,6 +435,8 @@ void DebuggerOutputWindow::showOutput(int channel, const QString &output)
 void DebuggerOutputWindow::showInput(int channel, const QString &input)
 {
     Q_UNUSED(channel)
+    if (theDebuggerBoolSetting(LogTimeStamps))
+        m_inputText->appendPlainText(logTimeStamp());
     m_inputText->appendPlainText(input);
     QTextCursor cursor = m_inputText->textCursor();
     cursor.movePosition(QTextCursor::End);
@@ -459,6 +465,29 @@ QString DebuggerOutputWindow::combinedContents() const
 QString DebuggerOutputWindow::inputContents() const
 {
     return m_inputText->toPlainText();
+}
+
+QString DebuggerOutputWindow::logTimeStamp()
+{
+    // Cache the last log time entry by ms. If time progresses,
+    // report the difference to the last time stamp in ms.
+    static const QString logTimeFormat(QLatin1String("hh:mm:ss.zzz"));
+    static QTime lastTime = QTime::currentTime();
+    static QString lastTimeStamp = lastTime.toString(logTimeFormat);
+
+    const QTime currentTime = QTime::currentTime();
+    if (currentTime != lastTime) {
+        const int elapsedMS = lastTime.msecsTo(currentTime);
+        lastTime = currentTime;
+        lastTimeStamp = lastTime.toString(logTimeFormat);
+        // Append time elapsed
+        QString rc = lastTimeStamp;
+        rc += QLatin1String(" [");
+        rc += QString::number(elapsedMS);
+        rc += QLatin1String("ms]");
+        return rc;
+    }
+    return lastTimeStamp;
 }
 
 #include "debuggeroutputwindow.moc"
