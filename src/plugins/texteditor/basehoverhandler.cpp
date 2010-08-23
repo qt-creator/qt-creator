@@ -32,6 +32,7 @@
 #include "basetexteditor.h"
 #include "displaysettings.h"
 #include "tooltip.h"
+#include "tipcontents.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -167,7 +168,7 @@ void BaseHoverHandler::operateTooltip(ITextEditor *editor, const QPoint &point)
         if (m_matchingHelpCandidate != -1)
             addF1ToToolTip();
 
-        TextEditor::ToolTip::instance()->showText(point, m_toolTip, editor->widget());
+        ToolTip::instance()->show(point, TextContent(m_toolTip), editor->widget());
     }
 }
 

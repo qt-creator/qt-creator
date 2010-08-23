@@ -41,6 +41,7 @@
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/tooltip/tooltip.h>
+#include <texteditor/tooltip/tipcontents.h>
 
 using namespace Core;
 using namespace QmlJS;
@@ -235,12 +236,16 @@ void HoverHandler::operateTooltip(TextEditor::ITextEditor *editor, const QPoint 
         TextEditor::ToolTip::instance()->hide();
     else {
         if (m_colorTip.isValid()) {
-            TextEditor::ToolTip::instance()->showColor(point, m_colorTip, editor->widget());
+            TextEditor::ToolTip::instance()->show(point,
+                                                  TextEditor::ColorContent(m_colorTip),
+                                                  editor->widget());
         } else {
             if (matchingHelpCandidate() != -1)
                 addF1ToToolTip();
 
-            TextEditor::ToolTip::instance()->showText(point, toolTip(), editor->widget());
+            TextEditor::ToolTip::instance()->show(point,
+                                                  TextEditor::TextContent(toolTip()),
+                                                  editor->widget());
         }
     }
 }

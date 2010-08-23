@@ -27,76 +27,32 @@
 **
 **************************************************************************/
 
-#ifndef TIPS_H
-#define TIPS_H
+#ifndef TIPFACTORY_H
+#define TIPFACTORY_H
 
-#include <QtCore/QSharedPointer>
-#include <QtGui/QLabel>
-#include <QtGui/QPixmap>
-
-namespace TextEditor {
-class TipContent;
-}
+#include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
-
-// Please do not change the name of this class. Detailed comments in tooltip.h.
-class QTipLabel : public QLabel
-{
-    Q_OBJECT
-protected:
-    QTipLabel(QWidget *parent);
-
-public:
-    virtual ~QTipLabel();
-
-    void setContent(const TextEditor::TipContent &content);
-    const TextEditor::TipContent &content() const;
-
-    virtual void configure() = 0;
-    virtual bool handleContentReplacement(const TextEditor::TipContent &content) const = 0;
-
-private:
-    TextEditor::TipContent *m_tipContent;
-};
-
+class QTipLabel;
 QT_END_NAMESPACE
 
 namespace TextEditor {
+
+class TipContent;
+
 namespace Internal {
 
-class ColorTip : public QTipLabel
+class TipFactory
 {
-    Q_OBJECT
 public:
-    ColorTip(QWidget *parent);
-    virtual ~ColorTip();
+    TipFactory();
+    virtual ~TipFactory();
+    Q_DISABLE_COPY(TipFactory)
 
-    virtual void configure();
-    virtual bool handleContentReplacement(const TipContent &content) const;
-
-private:
-    virtual void paintEvent(QPaintEvent *event);
-
-    QPixmap m_tilePixMap;
-};
-
-class TextTip : public QTipLabel
-{
-    Q_OBJECT
-public:
-    TextTip(QWidget *parent);
-    virtual ~TextTip();
-
-    virtual void configure();
-    virtual bool handleContentReplacement(const TipContent &content) const;
-
-private:
-    virtual void paintEvent(QPaintEvent *event);
-    virtual void resizeEvent(QResizeEvent *event);
+    virtual QTipLabel *createTip(const TipContent &content, QWidget *w);
 };
 
 } // namespace Internal
 } // namespace TextEditor
 
-#endif // TIPS_H
+#endif // TIPFACTORY_H

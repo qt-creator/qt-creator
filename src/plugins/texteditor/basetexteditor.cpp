@@ -40,6 +40,8 @@
 #include "texteditorconstants.h"
 #include "texteditorplugin.h"
 #include "syntaxhighlighter.h"
+#include "tooltip.h"
+#include "tipcontents.h"
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -79,7 +81,6 @@
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextLayout>
 #include <QtGui/QToolBar>
-#include <QtGui/QToolTip>
 #include <QtGui/QInputDialog>
 #include <QtGui/QMenu>
 
@@ -1087,7 +1088,7 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
     Locker inKeyPressEvent(&d->m_inKeyPressEvent);
 
     viewport()->setCursor(Qt::BlankCursor);
-    QToolTip::hideText();
+    ToolTip::instance()->hide();
 
     d->m_moveLineUndoHack = false;
     d->clearVisibleFoldedBlock();
@@ -2041,7 +2042,10 @@ bool BaseTextEditor::viewportEvent(QEvent *event)
 
         RefactorMarker refactorMarker = d->m_refactorOverlay->markerAt(pos);
         if (refactorMarker.isValid() && !refactorMarker.tooltip.isEmpty()) {
-            QToolTip::showText(he->globalPos(), refactorMarker.tooltip, viewport(), refactorMarker.rect);
+            ToolTip::instance()->show(he->globalPos(),
+                                      TextContent(refactorMarker.tooltip),
+                                      viewport(),
+                                      refactorMarker.rect);
             return true;
         }
 

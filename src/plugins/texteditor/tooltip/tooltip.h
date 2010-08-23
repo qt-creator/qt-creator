@@ -35,24 +35,30 @@
 #include <QtCore/QSharedPointer>
 #include <QtCore/QObject>
 #include <QtCore/QTimer>
+#include <QtCore/QRect>
+
+/*
+ * In its current form QToolTip is not extensible. So this is an attempt to provide a more
+ * flexible and customizable tooltip mechanism for Creator. Part of the code here is duplicated
+ * from QToolTip. This includes a private Qt header and the non-exported class QTipLabel, which
+ * here serves as a base tip class. Please notice that Qt relies on this particular class name in
+ * order to correctly apply the native styles for tooltips. Therefore the QTipLabel name should
+ * not be changed.
+ */
 
 QT_BEGIN_NAMESPACE
 class QPoint;
-class QString;
-class QColor;
 class QWidget;
+class QTipLabel;
 QT_END_NAMESPACE
 
 namespace TextEditor {
 
 namespace Internal {
-class Tip;
-class TipContent;
+class TipFactory;
 }
 
-/*
- * This class contains some code duplicated from QTooltip. It would be good to make that reusable.
- */
+class TipContent;
 
 class TEXTEDITOR_EXPORT ToolTip : public QObject
 {
@@ -65,33 +71,31 @@ public:
 
     static ToolTip *instance();
 
-    void showText(const QPoint &pos, const QString &text, QWidget *w = 0);
-    void showColor(const QPoint &pos, const QColor &color, QWidget *w = 0);
+    void show(const QPoint &pos, const TipContent &content, QWidget *w = 0);
+    void show(const QPoint &pos, const TipContent &content, QWidget *w, const QRect &rect);
     void hide();
     bool isVisible() const;
 
     virtual bool eventFilter(QObject *o, QEvent *event);
 
-private:
-    bool acceptShow(const QSharedPointer<Internal::TipContent> &content,
-                    const QPoint &pos,
-                    QWidget *w);
-    void setUp(const QSharedPointer<Internal::TipContent> &content,
-               const QPoint &pos,
-               QWidget *w);
-    bool requiresSetUp(const QSharedPointer<Internal::TipContent> &content, QWidget *w) const;
-    void placeTip(const QPoint &pos, QWidget *w);
-    int tipScreen(const QPoint &pos, QWidget *w) const;
-    void showTip();
-    void hideTipWithDelay();
-    void hideQtTooltip();
-
 private slots:
     void hideTipImmediately();
 
 private:
-    Internal::Tip *m_tip;
+    bool acceptShow(const TipContent &content, const QPoint &pos, QWidget *w, const QRect &rect);
+    bool validateContent(const TipContent &content);
+    void setUp(const QPoint &pos, const TipContent &content, QWidget *w, const QRect &rect);
+    bool tipChanged(const QPoint &pos, const TipContent &content, QWidget *w) const;
+    void setTipRect(QWidget *w, const QRect &rect);
+    void placeTip(const QPoint &pos, QWidget *w);
+    int tipScreen(const QPoint &pos, QWidget *w) const;
+    void showTip();
+    void hideTipWithDelay();
+
+    Internal::TipFactory *m_tipFactory;
+    QTipLabel *m_tip;
     QWidget *m_widget;
+    QRect m_rect;
     QTimer m_showTimer;
     QTimer m_hideDelayTimer;
 };

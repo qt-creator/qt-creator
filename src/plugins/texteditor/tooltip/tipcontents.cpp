@@ -29,8 +29,9 @@
 
 #include "tipcontents.h"
 
+#include <QtCore/QtGlobal>
+
 using namespace TextEditor;
-using namespace Internal;
 
 TipContent::TipContent()
 {}
@@ -38,39 +39,82 @@ TipContent::TipContent()
 TipContent::~TipContent()
 {}
 
-QColorContent::QColorContent(const QColor &color) : m_color(color)
+ColorContent::ColorContent(const QColor &color) : m_color(color)
 {}
 
-QColorContent::~QColorContent()
+ColorContent::~ColorContent()
 {}
 
-bool TipContent::equals(const QColorContent *colorContent) const
+TipContent *ColorContent::clone() const
 {
-    Q_UNUSED(colorContent)
-    return false;
+    return new ColorContent(*this);
 }
 
-bool QColorContent::isValid() const
+int ColorContent::typeId() const
+{
+    return COLOR_CONTENT_ID;
+}
+
+bool ColorContent::isValid() const
 {
     return m_color.isValid();
 }
 
-int QColorContent::showTime() const
+int ColorContent::showTime() const
 {
     return 4000;
 }
 
-bool QColorContent::equals(const TipContent *tipContent) const
+bool ColorContent::equals(const TipContent &tipContent) const
 {
-    return tipContent->equals(this);
+    if (typeId() == tipContent.typeId()) {
+        if (m_color == static_cast<const ColorContent &>(tipContent).m_color)
+            return true;
+    }
+    return false;
 }
 
-bool QColorContent::equals(const QColorContent *colorContent) const
-{
-    return m_color == colorContent->color();
-}
-
-const QColor &QColorContent::color() const
+const QColor &ColorContent::color() const
 {
     return m_color;
+}
+
+TextContent::TextContent(const QString &text) : m_text(text)
+{}
+
+TextContent::~TextContent()
+{}
+
+TipContent *TextContent::clone() const
+{
+    return new TextContent(*this);
+}
+
+int TextContent::typeId() const
+{
+    return TEXT_CONTENT_ID;
+}
+
+bool TextContent::isValid() const
+{
+    return !m_text.isEmpty();
+}
+
+int TextContent::showTime() const
+{
+    return 10000 + 40 * qMax(0, m_text.length() - 100);
+}
+
+bool TextContent::equals(const TipContent &tipContent) const
+{
+    if (typeId() == tipContent.typeId()) {
+        if (m_text == static_cast<const TextContent &>(tipContent).m_text)
+            return true;
+    }
+    return false;
+}
+
+const QString &TextContent::text() const
+{
+    return m_text;
 }
