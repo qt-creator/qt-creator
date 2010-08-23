@@ -113,6 +113,17 @@ QString MaemoToolChain::sysrootRoot() const
     return m_sysrootRoot;
 }
 
+MaemoToolChain::MaemoVersion MaemoToolChain::version() const
+{
+    const QString &name = targetName();
+    if (name.startsWith(QLatin1String("fremantle")))
+        return Maemo5;
+    if (name.startsWith(QLatin1String("harmattan")))
+        return Maemo6;
+    qWarning("Unknown Maemo version!");
+    return static_cast<MaemoVersion>(-1);
+}
+
 void MaemoToolChain::setMaddeRoot() const
 {
     QDir dir(targetRoot());

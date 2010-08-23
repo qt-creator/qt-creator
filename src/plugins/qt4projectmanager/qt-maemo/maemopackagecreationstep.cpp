@@ -342,6 +342,11 @@ QString MaemoPackageCreationStep::packageFilePath() const
         % packageFileName(buildConfiguration()->target()->project(), version);
 }
 
+bool MaemoPackageCreationStep::isPackagingEnabled() const
+{
+    return m_packagingEnabled || !maemoToolChain()->allowsPackagingDisabling();
+}
+
 QString MaemoPackageCreationStep::versionString(QString *error) const
 {
     return MaemoTemplatesManager::instance()

@@ -282,6 +282,11 @@ MaemoPortList MaemoRunConfiguration::freePorts() const
     return devConfig.freePorts();
 }
 
+bool MaemoRunConfiguration::useRemoteGdb() const
+{
+    return m_useRemoteGdb && toolchain()->allowsRemoteMounts();
+}
+
 void MaemoRunConfiguration::setArguments(const QStringList &args)
 {
     m_arguments = args;

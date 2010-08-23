@@ -68,7 +68,7 @@ public:
     ~MaemoPackageCreationStep();
 
     QString packageFilePath() const;
-    bool isPackagingEnabled() const { return m_packagingEnabled; }
+    bool isPackagingEnabled() const;
     void setPackagingEnabled(bool enabled) { m_packagingEnabled = enabled; }
 
     QString versionString(QString *error) const;

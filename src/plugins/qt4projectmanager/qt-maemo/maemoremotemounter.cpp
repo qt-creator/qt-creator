@@ -80,6 +80,8 @@ void MaemoRemoteMounter::mount()
     m_stop = false;
     Q_ASSERT(m_utfsServers.isEmpty());
 
+    if (!m_toolChain->allowsRemoteMounts())
+        m_mountSpecs.clear();
     if (m_mountSpecs.isEmpty())
         emit mounted();
     else

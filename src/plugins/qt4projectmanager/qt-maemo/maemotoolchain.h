@@ -52,6 +52,11 @@ public:
     QString sysrootRoot() const;
     QString madAdminCommand() const;
 
+    enum MaemoVersion { Maemo5, Maemo6 };
+    MaemoVersion version() const;
+    bool allowsRemoteMounts() const { return version() == Maemo5; }
+    bool allowsPackagingDisabling() const { return version() == Maemo5; }
+
 protected:
     bool equals(ToolChain *other) const;
 

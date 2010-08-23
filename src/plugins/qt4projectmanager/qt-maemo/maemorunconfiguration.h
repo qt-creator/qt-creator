@@ -93,7 +93,7 @@ public:
     void setArguments(const QStringList &args);
     MaemoDeviceConfig deviceConfig() const;
     MaemoPortList freePorts() const;
-    bool useRemoteGdb() const { return m_useRemoteGdb; }
+    bool useRemoteGdb() const;
     void setUseRemoteGdb(bool useRemoteGdb) { m_useRemoteGdb = useRemoteGdb; }
     void updateFactoryState() { emit isEnabledChanged(true); }
 
