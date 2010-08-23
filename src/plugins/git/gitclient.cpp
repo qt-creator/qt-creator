@@ -1336,14 +1336,15 @@ void GitClient::launchGitK(const QString &workingDirectory)
 }
 
 bool GitClient::getCommitData(const QString &workingDirectory,
+                              bool amend,
                               QString *commitTemplate,
-                              CommitData *d,
+                              CommitData *commitData,
                               QString *errorMessage)
 {
     if (Git::Constants::debug)
         qDebug() << Q_FUNC_INFO << workingDirectory;
 
-    d->clear();
+    commitData->clear();
 
     // Find repo
     const QString repoDirectory = GitClient::findRepositoryForDirectory(workingDirectory);
@@ -1352,7 +1353,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
         return false;
     }
 
-    d->panelInfo.repository = repoDirectory;
+    commitData->panelInfo.repository = repoDirectory;
 
     QDir gitDir(repoDirectory);
     if (!gitDir.cd(QLatin1String(kGitDirectoryC))) {
@@ -1365,13 +1366,14 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     if (QFileInfo(descriptionFile).isFile()) {
         QFile file(descriptionFile);
         if (file.open(QIODevice::ReadOnly|QIODevice::Text))
-            d->panelInfo.description = commandOutputFromLocal8Bit(file.readAll()).trimmed();
+            commitData->panelInfo.description = commandOutputFromLocal8Bit(file.readAll()).trimmed();
     }
 
     // Run status. Note that it has exitcode 1 if there are no added files.
     bool onBranch;
     QString output;
-    switch (gitStatus(repoDirectory, true, &output, errorMessage, &onBranch)) {
+    const StatusResult status = gitStatus(repoDirectory, true, &output, errorMessage, &onBranch);
+    switch (status) {
     case  StatusChanged:
         if (!onBranch) {
             *errorMessage = tr("You did not checkout a branch.");
@@ -1379,6 +1381,8 @@ bool GitClient::getCommitData(const QString &workingDirectory,
         }
         break;
     case StatusUnchanged:
+        if (amend)
+            break;
         *errorMessage = msgNoChangedFiles();
         return false;
     case StatusFailed:
@@ -1403,42 +1407,71 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     //    #
     //    #       list of files...
 
-    if (!d->parseFilesFromStatus(output)) {
-        *errorMessage = msgParseFilesFailed();
-        return false;
-    }
-    // Filter out untracked files that are not part of the project
-    VCSBase::VCSBaseSubmitEditor::filterUntrackedFilesOfProject(repoDirectory, &d->untrackedFiles);
-    if (d->filesEmpty()) {
-        *errorMessage = msgNoChangedFiles();
-        return false;
+    if (status != StatusUnchanged) {
+        if (!commitData->parseFilesFromStatus(output)) {
+            *errorMessage = msgParseFilesFailed();
+            return false;
+        }
+        // Filter out untracked files that are not part of the project
+        VCSBase::VCSBaseSubmitEditor::filterUntrackedFilesOfProject(repoDirectory, &commitData->untrackedFiles);
+        if (commitData->filesEmpty()) {
+            *errorMessage = msgNoChangedFiles();
+            return false;
+        }
     }
 
-    d->panelData.author = readConfigValue(workingDirectory, QLatin1String("user.name"));
-    d->panelData.email = readConfigValue(workingDirectory, QLatin1String("user.email"));
+    commitData->panelData.author = readConfigValue(workingDirectory, QLatin1String("user.name"));
+    commitData->panelData.email = readConfigValue(workingDirectory, QLatin1String("user.email"));
 
-    // Get the commit template
-    QString templateFilename = readConfigValue(workingDirectory, QLatin1String("commit.template"));
-    if (!templateFilename.isEmpty()) {
-        // Make relative to repository
-        const QFileInfo templateFileInfo(templateFilename);
-        if (templateFileInfo.isRelative())
-            templateFilename = repoDirectory + QLatin1Char('/') + templateFilename;
-        QFile templateFile(templateFilename);
-        if (templateFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
-            *commitTemplate = QString::fromLocal8Bit(templateFile.readAll());
-        } else {
-            qWarning("Unable to read commit template %s: %s",
-                     qPrintable(templateFilename),
-                     qPrintable(templateFile.errorString()));
+    // Get the commit template or the last commit message
+    if (amend) {
+        // Amend: get last commit data as "SHA1@message". TODO: Figure out codec.
+        QStringList args(QLatin1String("log"));
+        args << QLatin1String("--max-count=1") << QLatin1String("--pretty=format:%h@%B");
+        const Utils::SynchronousProcessResponse sp = synchronousGit(repoDirectory, args);
+        if (sp.result != Utils::SynchronousProcessResponse::Finished) {
+            *errorMessage = tr("Unable to retrieve the last commit data from %1.").arg(repoDirectory);
+            return false;
+        }
+        const int separatorPos = sp.stdOut.indexOf(QLatin1Char('@'));
+        QTC_ASSERT(separatorPos != -1, return false)
+        commitData->amendSHA1= sp.stdOut.left(separatorPos);
+        *commitTemplate = sp.stdOut.mid(separatorPos + 1);
+    } else {
+        // Commit: Get the commit template
+        QString templateFilename = readConfigValue(workingDirectory, QLatin1String("commit.template"));
+        if (!templateFilename.isEmpty()) {
+            // Make relative to repository
+            const QFileInfo templateFileInfo(templateFilename);
+            if (templateFileInfo.isRelative())
+                templateFilename = repoDirectory + QLatin1Char('/') + templateFilename;
+            QFile templateFile(templateFilename);
+            if (templateFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
+                *commitTemplate = QString::fromLocal8Bit(templateFile.readAll());
+            } else {
+                qWarning("Unable to read commit template %s: %s",
+                         qPrintable(templateFilename),
+                         qPrintable(templateFile.errorString()));
+            }
         }
     }
     return true;
 }
 
+// Log message for commits/amended commits to go to output window
+static inline QString msgCommitted(const QString &amendSHA1, int fileCount)
+{
+    if (amendSHA1.isEmpty())
+        return GitClient::tr("Committed %n file(s).\n", 0, fileCount);
+    if (fileCount)
+        return GitClient::tr("Amended %1 (%n file(s)).\n", 0, fileCount).arg(amendSHA1);
+    return GitClient::tr("Amended %1.").arg(amendSHA1);
+}
+
 // addAndCommit:
 bool GitClient::addAndCommit(const QString &repositoryDirectory,
                              const GitSubmitEditorPanelData &data,
+                             const QString &amendSHA1,
                              const QString &messageFile,
                              const QStringList &checkedFiles,
                              const QStringList &origCommitFiles,
@@ -1447,6 +1480,7 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
     if (Git::Constants::debug)
         qDebug() << "GitClient::addAndCommit:" << repositoryDirectory << checkedFiles << origCommitFiles;
     const QString renamedSeparator = QLatin1String(" -> ");
+    const bool amend = !amendSHA1.isEmpty();
 
     // Do we need to reset any files that had been added before
     // (did the user uncheck any previously added files)
@@ -1483,7 +1517,8 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
     QStringList args;
     args << QLatin1String("commit")
          << QLatin1String("-F") << QDir::toNativeSeparators(messageFile);
-
+    if (amend)
+        args << QLatin1String("--amend");
     const QString &authorString =  data.authorString();
     if (!authorString.isEmpty())
          args << QLatin1String("--author") << authorString;
@@ -1492,7 +1527,7 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
     QByteArray errorText;
     const bool rc = fullySynchronousGit(repositoryDirectory, args, &outputText, &errorText);
     if (rc) {
-        outputWindow()->append(tr("Committed %n file(s).\n", 0, checkedFiles.size()));
+        outputWindow()->append(msgCommitted(amendSHA1, checkedFiles.size()));
     } else {
         outputWindow()->appendError(tr("Unable to commit %n file(s): %1\n", 0, checkedFiles.size()).arg(commandOutputFromLocal8Bit(errorText)));
     }

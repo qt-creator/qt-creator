@@ -52,7 +52,6 @@ GitSubmitEditor::GitSubmitEditor(const VCSBase::VCSBaseSubmitEditorParameters *p
     VCSBaseSubmitEditor(parameters, new GitSubmitEditorWidget(parent)),
     m_model(0)
 {
-    setDisplayName(tr("Git Commit"));
     connect(this, SIGNAL(diffSelectedFiles(QStringList)), this, SLOT(slotDiffSelected(QStringList)));
 }
 

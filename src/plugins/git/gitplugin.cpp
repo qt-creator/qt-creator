@@ -451,6 +451,10 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                                            globalcontext, true, SLOT(startCommit()));
     actionCommand.second->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+C")));
 
+    createRepositoryAction(actionManager, gitContainer,
+                           tr("Amend Last Commit..."), QLatin1String("Git.AmendCommit"),
+                           globalcontext, true, SLOT(startAmendCommit()));
+
     actionCommand = createRepositoryAction(actionManager, gitContainer,
                                            tr("Push"), QLatin1String("Git.Push"),
                                            globalcontext, true, SLOT(push()));
@@ -610,8 +614,19 @@ void GitPlugin::unstageFile()
     m_gitClient->synchronousReset(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
 }
 
+void GitPlugin::startAmendCommit()
+{
+    startCommit(true);
+}
+
 void GitPlugin::startCommit()
 {
+    startCommit(false);
+}
+
+void GitPlugin::startCommit(bool amend)
+{
+
     if (VCSBase::VCSBaseSubmitEditor::raiseSubmitEditor())
         return;
     if (isCommitEditorOpen()) {
@@ -624,7 +639,7 @@ void GitPlugin::startCommit()
 
     QString errorMessage, commitTemplate;
     CommitData data;
-    if (!m_gitClient->getCommitData(state.topLevel(), &commitTemplate, &data, &errorMessage)) {
+    if (!m_gitClient->getCommitData(state.topLevel(), amend, &commitTemplate, &data, &errorMessage)) {
         VCSBase::VCSBaseOutputWindow::instance()->append(errorMessage);
         return;
     }
@@ -632,6 +647,7 @@ void GitPlugin::startCommit()
     // Store repository for diff and the original list of
     // files to be able to unstage files the user unchecks
     m_submitRepository = data.panelInfo.repository;
+    m_commitAmendSHA1 = data.amendSHA1;
     m_submitOrigCommitFiles = data.stagedFileNames();
     m_submitOrigDeleteFiles = data.stagedFileNames("deleted");
 
@@ -651,10 +667,10 @@ void GitPlugin::startCommit()
     // Keep the file alive, else it removes self and forgets
     // its name
     changeTmpFile.close();
-    openSubmitEditor(m_commitMessageFileName, data);
+    openSubmitEditor(m_commitMessageFileName, data, amend);
 }
 
-Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const CommitData &cd)
+Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const CommitData &cd, bool amend)
 {
     Core::IEditor *editor = m_core->editorManager()->openEditor(fileName, QLatin1String(Constants::GITSUBMITEDITOR_ID));
     if (Git::Constants::debug)
@@ -667,6 +683,10 @@ Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const Commit
     submitEditor->registerActions(m_undoAction, m_redoAction, m_submitCurrentAction, m_diffSelectedFilesAction);
     submitEditor->setCommitData(cd);
     submitEditor->setCheckScriptWorkingDirectory(m_submitRepository);
+    const QString title = amend ? tr("Amend %1").arg(cd.amendSHA1) : tr("Git Commit");
+    submitEditor->setDisplayName(title);
+    if (amend) // Allow for just correcting the message
+        submitEditor->setEmptyFileListEnabled(true);
     connect(submitEditor, SIGNAL(diff(QStringList,QStringList)), this, SLOT(submitEditorDiff(QStringList,QStringList)));
     return editor;
 }
@@ -721,7 +741,7 @@ bool GitPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEdi
     if (Git::Constants::debug)
         qDebug() << Q_FUNC_INFO << fileList;
     bool closeEditor = true;
-    if (!fileList.empty()) {
+    if (!fileList.empty() || !m_commitAmendSHA1.isEmpty()) {
         // get message & commit
         m_core->fileManager()->blockFileChange(fileIFace);
         fileIFace->save();
@@ -729,6 +749,7 @@ bool GitPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEdi
 
         closeEditor = m_gitClient->addAndCommit(m_submitRepository,
                                                 editor->panelData(),
+                                                m_commitAmendSHA1,
                                                 m_commitMessageFileName,
                                                 fileList,
                                                 m_submitOrigCommitFiles,

@@ -230,6 +230,7 @@ void VCSBaseSubmitEditor::unregisterActions(QAction *editorUndoAction,  QAction 
     m_d->m_widget->unregisterActions(editorUndoAction, editorRedoAction, submitAction, diffAction);
     m_d->m_diffAction = m_d->m_submitAction = 0;
 }
+
 int VCSBaseSubmitEditor::fileNameColumn() const
 {
     return m_d->m_widget->fileNameColumn();
@@ -248,6 +249,16 @@ QAbstractItemView::SelectionMode VCSBaseSubmitEditor::fileListSelectionMode() co
 void VCSBaseSubmitEditor::setFileListSelectionMode(QAbstractItemView::SelectionMode sm)
 {
     m_d->m_widget->setFileListSelectionMode(sm);
+}
+
+bool VCSBaseSubmitEditor::isEmptyFileListEnabled() const
+{
+    return m_d->m_widget->isEmptyFileListEnabled();
+}
+
+void VCSBaseSubmitEditor::setEmptyFileListEnabled(bool e)
+{
+    m_d->m_widget->setEmptyFileListEnabled(e);
 }
 
 bool VCSBaseSubmitEditor::lineWrap() const
