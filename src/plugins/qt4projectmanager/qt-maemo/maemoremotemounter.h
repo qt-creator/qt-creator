@@ -57,8 +57,9 @@ class MaemoRemoteMounter : public QObject
 {
     Q_OBJECT
 public:
-    MaemoRemoteMounter(QObject *parent, const MaemoToolChain *toolchain);
+    MaemoRemoteMounter(QObject *parent);
     ~MaemoRemoteMounter();
+    void setToolchain(const MaemoToolChain *toolchain) { m_toolChain = toolchain; }
     void setPortList(const MaemoPortList &portList) { m_portList = portList; }
     bool addMountSpecification(const MaemoMountSpecification &mountSpec,
         bool mountAsRoot);
@@ -99,7 +100,7 @@ private:
     QString utfsClientOnDevice() const;
     QString utfsServer() const;
 
-    const MaemoToolChain * const m_toolChain;
+    const MaemoToolChain *m_toolChain;
     QTimer * const m_utfsServerTimer;
 
     struct MountInfo {

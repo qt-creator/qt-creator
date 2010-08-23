@@ -104,11 +104,7 @@ void MaemoDeployStep::ctor()
     m_cleanupTimer->setSingleShot(true);
     connect(m_cleanupTimer, SIGNAL(timeout()), this,
         SLOT(handleCleanupTimeout()));
-    const Qt4BuildConfiguration * const buildConfig
-        = qobject_cast<Qt4BuildConfiguration *>(buildConfiguration());
-    const MaemoToolChain * const toolchain
-        = dynamic_cast<MaemoToolChain *>(buildConfig->toolChain());
-    m_mounter = new MaemoRemoteMounter(this, toolchain);
+    m_mounter = new MaemoRemoteMounter(this);
     connect(m_mounter, SIGNAL(mounted()), this, SLOT(handleMounted()));
     connect(m_mounter, SIGNAL(unmounted()), this, SLOT(handleUnmounted()));
     connect(m_mounter, SIGNAL(error(QString)), this,
@@ -585,6 +581,7 @@ void MaemoDeployStep::handleUnmounted()
 
     Q_ASSERT(m_needsInstall || !m_filesToCopy.isEmpty());
     m_mounter->resetMountSpecifications();
+    m_mounter->setToolchain(toolChain());
     m_mounter->setPortList(deviceConfig().freePorts());
     if (m_needsInstall) {
         const QString localDir

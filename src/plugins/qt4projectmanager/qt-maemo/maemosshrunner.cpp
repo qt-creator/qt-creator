@@ -54,7 +54,7 @@ namespace Internal {
 MaemoSshRunner::MaemoSshRunner(QObject *parent,
     MaemoRunConfiguration *runConfig, bool debugging)
     : QObject(parent), m_runConfig(runConfig),
-      m_mounter(new MaemoRemoteMounter(this, runConfig->toolchain())),
+      m_mounter(new MaemoRemoteMounter(this)),
       m_devConfig(runConfig->deviceConfig()), m_shuttingDown(false),
       m_debugging(debugging)
 {
@@ -191,6 +191,7 @@ void MaemoSshRunner::handleUnmounted()
         MaemoPortList portList = m_devConfig.freePorts();
         if (m_debugging && !m_runConfig->useRemoteGdb())
             portList.getNext(); // One has already been used for gdbserver.
+        m_mounter->setToolchain(m_runConfig->toolchain());
         m_mounter->setPortList(portList);
         const MaemoRemoteMountsModel * const remoteMounts
             = m_runConfig->remoteMounts();

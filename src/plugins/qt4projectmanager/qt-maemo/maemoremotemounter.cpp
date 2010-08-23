@@ -43,11 +43,9 @@ using namespace Core;
 namespace Qt4ProjectManager {
 namespace Internal {
 
-MaemoRemoteMounter::MaemoRemoteMounter(QObject *parent,
-    const MaemoToolChain *toolchain)
-    : QObject(parent), m_toolChain(toolchain),
-      m_utfsServerTimer(new QTimer(this)), m_uploadJobId(SftpInvalidJob),
-      m_stop(false)
+MaemoRemoteMounter::MaemoRemoteMounter(QObject *parent)
+    : QObject(parent), m_utfsServerTimer(new QTimer(this)),
+      m_uploadJobId(SftpInvalidJob), m_stop(false)
 {
     connect(m_utfsServerTimer, SIGNAL(timeout()), this,
         SLOT(handleUtfsServerTimeout()));
