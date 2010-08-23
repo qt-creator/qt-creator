@@ -911,6 +911,7 @@ class FrameCommand(gdb.Command):
                     if pos != -1:
                         type = base64.b16decode(f[0:pos], True)
                         typeformats[type] = int(f[pos+1:])
+                        typeformats["const " + type] = int(f[pos+1:])
             elif arg.startswith("formats:"):
                 for f in arg[pos:].split(","):
                     pos = f.find("=")
