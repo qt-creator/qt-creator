@@ -163,8 +163,10 @@ void GettingStartedWelcomePageWidget::updateCppExamples(const QString &examplePa
                 QString fileName = examplePath + relativeProPath;
                 if (!QFile::exists(fileName))
                     fileName = sourcePath + QLatin1String("/examples") + relativeProPath;
+                QString dirName1 = dirName;
+                dirName1.replace(slash, QLatin1Char('-'));
                 QString helpPath = QLatin1String("qthelp://com.trolltech.qt/qdoc/") +
-                                   dirName.replace(slash, QLatin1Char('-')) +
+                                   dirName1 +
                                    QLatin1Char('-') + fn + QLatin1String(".html");
 
                 QAction *exampleAction = subMenu->addAction(name);
