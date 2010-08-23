@@ -112,6 +112,16 @@ public:
         ModulesDir
     };
 
+    enum GeneratedFile {
+        MainQmlFile,
+        MainCppFile,
+        AppProfileFile,
+        AppPriFile,
+        AppViewerCppFile,
+        AppViewerHFile,
+        SymbianSvgIconFile
+    };
+
     QmlStandaloneApp();
     ~QmlStandaloneApp();
 
@@ -142,6 +152,8 @@ public:
     bool useExistingMainQml() const;
     QString error() const;
     const QList<QmlModule*> modules() const;
+    QByteArray generateFile(GeneratedFile file, const QString *errorMessage) const;
+    static int stubVersion();
 
 private:
     QByteArray generateMainCpp(const QString *errorMessage) const;
