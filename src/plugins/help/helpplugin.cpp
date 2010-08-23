@@ -719,16 +719,20 @@ void HelpPlugin::activateContext()
                 viewer->stop();
 #endif
                 viewer->setSource(source);
-            }
-            viewer->setFocus();
-            connect(viewer, SIGNAL(loadFinished(bool)), this,
-                SLOT(highlightSearchTerms()));
+                connect(viewer, SIGNAL(loadFinished(bool)), this,
+                    SLOT(highlightSearchTerms()));
 
-            if (source.toString().remove(source.fragment())
-                == oldSource.toString().remove(oldSource.fragment())) {
-                    highlightSearchTerms();
+                if (source.toString().remove(source.fragment())
+                    == oldSource.toString().remove(oldSource.fragment())) {
+                        highlightSearchTerms();
+                }
+            } else {
+#if !defined(QT_NO_WEBKIT)
+                viewer->page()->mainFrame()->scrollToAnchor(source.fragment());
+#endif
             }
         }
+        viewer->setFocus();
     }
 }
 
@@ -866,7 +870,7 @@ void HelpPlugin::highlightSearchTerms()
             if (attrValue == name || name.startsWith(attrValue + QLatin1Char('-'))) {
                 QWebElement parent = element.parent();
                 m_styleProperty = parent.styleProperty(property,
-                    QWebElement::InlineStyle);
+                    QWebElement::ComputedStyle);
                 parent.setStyleProperty(property, QLatin1String("yellow"));
             }
         }
