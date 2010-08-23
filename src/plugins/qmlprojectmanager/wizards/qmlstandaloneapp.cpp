@@ -294,8 +294,7 @@ QByteArray QmlStandaloneApp::generateMainCpp(const QString *errorMessage) const
     QTextStream out(&mainCppContent, QIODevice::WriteOnly);
 
     QString line;
-    do {
-        line = in.readLine();
+    while (!(line = in.readLine()).isNull()) {
         if (line.contains(QLatin1String("// MAINQML"))) {
             line = insertParameter(line, QLatin1Char('"') + path(MainQmlDeployed) + QLatin1Char('"'));
         } else if (line.contains(QLatin1String("// ADDIMPORTPATH"))) {
@@ -317,7 +316,7 @@ QByteArray QmlStandaloneApp::generateMainCpp(const QString *errorMessage) const
         if (commentIndex != -1)
             line.truncate(commentIndex);
         out << line << endl;
-    } while (!line.isNull());
+    };
 
     return mainCppContent;
 }
@@ -335,19 +334,19 @@ QByteArray QmlStandaloneApp::generateProFile(const QString *errorMessage) const
     QByteArray proFileContent;
     QTextStream out(&proFileContent, QIODevice::WriteOnly);
 
-    QString line;
     QString valueOnNextLine;
     bool uncommentNextLine = false;
-    do {
-        line = in.readLine();
-
+    QString line;
+    while (!(line = in.readLine()).isNull()) {
         if (line.contains(QLatin1String("# TARGETUID3"))) {
             valueOnNextLine = symbianTargetUid();
         } else if (line.contains(QLatin1String("# DEPLOYMENTFOLDERS"))) {
             // Eat lines
-            do {
-                line = in.readLine();
-            } while (!(line.isNull() || line.contains(QLatin1String("# DEPLOYMENTFOLDERS_END"))));
+            while (!(line = in.readLine()).isNull() &&
+                   !line.contains(QLatin1String("# DEPLOYMENTFOLDERS_END")))
+            { }
+            if (line.isNull())
+                break;
             QStringList folders;
             out << "folder_01.source = " << path(QmlDirProFileRelative) << endl;
             out << "folder_01.target = qml" << endl;
@@ -391,7 +390,7 @@ QByteArray QmlStandaloneApp::generateProFile(const QString *errorMessage) const
             continue;
         }
         out << line << endl;
-    } while (!line.isNull());
+    };
 
     return proFileContent;
 }
@@ -450,13 +449,13 @@ bool QmlStandaloneApp::addCppPlugins(QmlModule *module)
 {
     QFile qmlDirFile(module->qmldir.absoluteFilePath());
     if (qmlDirFile.open(QIODevice::ReadOnly)) {
-        QTextStream ts(&qmlDirFile);
+        QTextStream in(&qmlDirFile);
         QString line;
-        do {
-            line = ts.readLine().trimmed();
+        while (!(line = in.readLine()).isNull()) {
+            line = line.trimmed();
             if (line.startsWith(qmldir_plugin) && !addCppPlugin(line, module))
                 return false;
-        } while (!line.isNull());
+        };
     }
     return true;
 }
