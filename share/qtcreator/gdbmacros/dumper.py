@@ -1364,11 +1364,7 @@ class Dumper:
             return
 
         # Is this derived from QObject?
-        hasMetaObject = False
-        for field in typedefStrippedType.strip_typedefs().fields():
-            if field.name == "staticMetaObject":
-                hasMetaObject = True
-                break
+        isQObjectDerived = self.checkForQObjectBase(typedefStrippedType)
 
         nsStrippedType = self.stripNamespaceFromType(typedefStrippedType)\
             .replace("::", "__")
@@ -1378,11 +1374,11 @@ class Dumper:
 
         if self.useFancy \
                 and ((format is None) or (format >= 1)) \
-                and ((nsStrippedType in qqDumpers) or hasMetaObject):
+                and ((nsStrippedType in qqDumpers) or isQObjectDerived):
             #warn("IS DUMPABLE: %s " % type)
             #self.putAddress(value.address)
             self.putType(item.value.type)
-            if hasMetaObject:
+            if isQObjectDerived:
                 # value has references stripped off item.value.
                 item1 = Item(value, item.iname)
                 qdump__QObject(self, item1)

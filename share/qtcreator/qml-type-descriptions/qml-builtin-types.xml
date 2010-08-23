@@ -134,6 +134,13 @@
         <signal name="toggled">
             <param type="bool"/>
         </signal>
+        <signal name="activated">
+            <param type="int"/>
+        </signal>
+        <signal name="activated"/>
+        <method name="setOn">
+            <param name="b" type="bool"/>
+        </method>
         <method name="trigger"/>
         <method name="hover"/>
         <method name="setChecked">
@@ -209,6 +216,8 @@
     <type name="QDeclarativeCurve" extends="QDeclarativePathElement">
         <property name="x" type="qreal"/>
         <property name="y" type="qreal"/>
+        <signal name="xChanged"/>
+        <signal name="yChanged"/>
     </type>
     <type name="QDeclarativeFlickableVisibleArea" extends="Qt.QtObject">
         <property name="xPosition" type="qreal"/>
@@ -489,6 +498,44 @@
             <enumerator name="WindowCancelButtonHint" value="1048576"/>
             <enumerator name="WindowSoftkeysVisibleHint" value="1073741824"/>
             <enumerator name="WindowSoftkeysRespondHint" value="-2147483648"/>
+            <enumerator name="WMouseNoMask" value="524288"/>
+            <enumerator name="WDestructiveClose" value="1048576"/>
+            <enumerator name="WStaticContents" value="2097152"/>
+            <enumerator name="WGroupLeader" value="4194304"/>
+            <enumerator name="WShowModal" value="8388608"/>
+            <enumerator name="WNoMousePropagation" value="16777216"/>
+            <enumerator name="WType_TopLevel" value="1"/>
+            <enumerator name="WType_Dialog" value="3"/>
+            <enumerator name="WType_Popup" value="9"/>
+            <enumerator name="WType_Desktop" value="17"/>
+            <enumerator name="WType_Mask" value="255"/>
+            <enumerator name="WStyle_Customize" value="0"/>
+            <enumerator name="WStyle_NormalBorder" value="0"/>
+            <enumerator name="WStyle_DialogBorder" value="256"/>
+            <enumerator name="WStyle_NoBorder" value="2048"/>
+            <enumerator name="WStyle_Title" value="4096"/>
+            <enumerator name="WStyle_SysMenu" value="8192"/>
+            <enumerator name="WStyle_Minimize" value="16384"/>
+            <enumerator name="WStyle_Maximize" value="32768"/>
+            <enumerator name="WStyle_MinMax" value="49152"/>
+            <enumerator name="WStyle_Tool" value="11"/>
+            <enumerator name="WStyle_StaysOnTop" value="262144"/>
+            <enumerator name="WStyle_ContextHelp" value="65536"/>
+            <enumerator name="WPaintDesktop" value="0"/>
+            <enumerator name="WPaintClever" value="0"/>
+            <enumerator name="WX11BypassWM" value="1024"/>
+            <enumerator name="WWinOwnDC" value="512"/>
+            <enumerator name="WMacSheet" value="5"/>
+            <enumerator name="WMacDrawer" value="7"/>
+            <enumerator name="WStyle_Splash" value="15"/>
+            <enumerator name="WNoAutoErase" value="0"/>
+            <enumerator name="WRepaintNoErase" value="0"/>
+            <enumerator name="WNorthWestGravity" value="2097152"/>
+            <enumerator name="WType_Modal" value="8388611"/>
+            <enumerator name="WStyle_Dialog" value="3"/>
+            <enumerator name="WStyle_NoBorderEx" value="2048"/>
+            <enumerator name="WResizeNoErase" value="0"/>
+            <enumerator name="WMacNoSheet" value="0"/>
         </enum>
         <enum name="WindowFlags">
             <enumerator name="Widget" value="0"/>
@@ -524,6 +571,44 @@
             <enumerator name="WindowCancelButtonHint" value="1048576"/>
             <enumerator name="WindowSoftkeysVisibleHint" value="1073741824"/>
             <enumerator name="WindowSoftkeysRespondHint" value="-2147483648"/>
+            <enumerator name="WMouseNoMask" value="524288"/>
+            <enumerator name="WDestructiveClose" value="1048576"/>
+            <enumerator name="WStaticContents" value="2097152"/>
+            <enumerator name="WGroupLeader" value="4194304"/>
+            <enumerator name="WShowModal" value="8388608"/>
+            <enumerator name="WNoMousePropagation" value="16777216"/>
+            <enumerator name="WType_TopLevel" value="1"/>
+            <enumerator name="WType_Dialog" value="3"/>
+            <enumerator name="WType_Popup" value="9"/>
+            <enumerator name="WType_Desktop" value="17"/>
+            <enumerator name="WType_Mask" value="255"/>
+            <enumerator name="WStyle_Customize" value="0"/>
+            <enumerator name="WStyle_NormalBorder" value="0"/>
+            <enumerator name="WStyle_DialogBorder" value="256"/>
+            <enumerator name="WStyle_NoBorder" value="2048"/>
+            <enumerator name="WStyle_Title" value="4096"/>
+            <enumerator name="WStyle_SysMenu" value="8192"/>
+            <enumerator name="WStyle_Minimize" value="16384"/>
+            <enumerator name="WStyle_Maximize" value="32768"/>
+            <enumerator name="WStyle_MinMax" value="49152"/>
+            <enumerator name="WStyle_Tool" value="11"/>
+            <enumerator name="WStyle_StaysOnTop" value="262144"/>
+            <enumerator name="WStyle_ContextHelp" value="65536"/>
+            <enumerator name="WPaintDesktop" value="0"/>
+            <enumerator name="WPaintClever" value="0"/>
+            <enumerator name="WX11BypassWM" value="1024"/>
+            <enumerator name="WWinOwnDC" value="512"/>
+            <enumerator name="WMacSheet" value="5"/>
+            <enumerator name="WMacDrawer" value="7"/>
+            <enumerator name="WStyle_Splash" value="15"/>
+            <enumerator name="WNoAutoErase" value="0"/>
+            <enumerator name="WRepaintNoErase" value="0"/>
+            <enumerator name="WNorthWestGravity" value="2097152"/>
+            <enumerator name="WType_Modal" value="8388611"/>
+            <enumerator name="WStyle_Dialog" value="3"/>
+            <enumerator name="WStyle_NoBorderEx" value="2048"/>
+            <enumerator name="WResizeNoErase" value="0"/>
+            <enumerator name="WMacNoSheet" value="0"/>
         </enum>
         <enum name="WindowState">
             <enumerator name="WindowNoState" value="0"/>
@@ -1268,6 +1353,28 @@
             <enumerator name="ScrollBarAlwaysOff" value="1"/>
             <enumerator name="ScrollBarAlwaysOn" value="2"/>
         </enum>
+        <enum name="BackgroundMode">
+            <enumerator name="FixedColor" value="0"/>
+            <enumerator name="FixedPixmap" value="1"/>
+            <enumerator name="NoBackground" value="2"/>
+            <enumerator name="PaletteForeground" value="3"/>
+            <enumerator name="PaletteButton" value="4"/>
+            <enumerator name="PaletteLight" value="5"/>
+            <enumerator name="PaletteMidlight" value="6"/>
+            <enumerator name="PaletteDark" value="7"/>
+            <enumerator name="PaletteMid" value="8"/>
+            <enumerator name="PaletteText" value="9"/>
+            <enumerator name="PaletteBrightText" value="10"/>
+            <enumerator name="PaletteBase" value="11"/>
+            <enumerator name="PaletteBackground" value="12"/>
+            <enumerator name="PaletteShadow" value="13"/>
+            <enumerator name="PaletteHighlight" value="14"/>
+            <enumerator name="PaletteHighlightedText" value="15"/>
+            <enumerator name="PaletteButtonText" value="16"/>
+            <enumerator name="PaletteLink" value="17"/>
+            <enumerator name="PaletteLinkVisited" value="18"/>
+            <enumerator name="X11ParentRelative" value="19"/>
+        </enum>
         <enum name="CaseSensitivity">
             <enumerator name="CaseInsensitive" value="0"/>
             <enumerator name="CaseSensitive" value="1"/>
@@ -1448,13 +1555,6 @@
             <enumerator name="MaximumSize" value="2"/>
             <enumerator name="MinimumDescent" value="3"/>
             <enumerator name="NSizeHints" value="4"/>
-        </enum>
-        <enum name="GestureState">
-            <enumerator name="NoGesture" value="0"/>
-            <enumerator name="GestureStarted" value="1"/>
-            <enumerator name="GestureUpdated" value="2"/>
-            <enumerator name="GestureFinished" value="3"/>
-            <enumerator name="GestureCanceled" value="4"/>
         </enum>
     </type>
     <type name="Qt.AnchorAnimation" version="4.7" extends="Qt.Animation">
@@ -1978,7 +2078,12 @@
         <property name="tab" type="Qt.Item"/>
         <property name="backtab" type="Qt.Item"/>
         <property name="priority" type="Priority"/>
-        <signal name="changed"/>
+        <signal name="leftChanged"/>
+        <signal name="rightChanged"/>
+        <signal name="upChanged"/>
+        <signal name="downChanged"/>
+        <signal name="tabChanged"/>
+        <signal name="backtabChanged"/>
         <signal name="priorityChanged"/>
     </type>
     <type name="Qt.Keys" version="4.7" extends="Qt.QtObject">
@@ -2330,12 +2435,17 @@
         <property name="name" type="string"/>
         <property name="value" type="qreal"/>
         <signal name="nameChanged"/>
+        <signal name="valueChanged"/>
     </type>
     <type name="Qt.PathCubic" version="4.7" extends="QDeclarativeCurve">
         <property name="control1X" type="qreal"/>
         <property name="control1Y" type="qreal"/>
         <property name="control2X" type="qreal"/>
         <property name="control2Y" type="qreal"/>
+        <signal name="control1XChanged"/>
+        <signal name="control1YChanged"/>
+        <signal name="control2XChanged"/>
+        <signal name="control2YChanged"/>
     </type>
     <type name="Qt.PathLine" version="4.7" extends="QDeclarativeCurve"/>
     <type name="Qt.PathPercent" version="4.7" extends="QDeclarativePathElement">
@@ -2344,6 +2454,8 @@
     <type name="Qt.PathQuad" version="4.7" extends="QDeclarativeCurve">
         <property name="controlX" type="qreal"/>
         <property name="controlY" type="qreal"/>
+        <signal name="controlXChanged"/>
+        <signal name="controlYChanged"/>
     </type>
     <type name="Qt.PathView" version="4.7" defaultProperty="data" extends="Qt.Item">
         <enum name="HighlightRangeMode">
@@ -2364,6 +2476,8 @@
         <property name="dragMargin" type="qreal"/>
         <property name="flickDeceleration" type="qreal"/>
         <property name="interactive" type="bool"/>
+        <property name="moving" type="bool"/>
+        <property name="flicking" type="bool"/>
         <property name="count" type="int"/>
         <property name="delegate" type="Qt.Component"/>
         <property name="pathItemCount" type="int"/>
@@ -2381,9 +2495,15 @@
         <signal name="pathItemCountChanged"/>
         <signal name="flickDecelerationChanged"/>
         <signal name="interactiveChanged"/>
+        <signal name="movingChanged"/>
+        <signal name="flickingChanged"/>
         <signal name="highlightChanged"/>
         <signal name="highlightItemChanged"/>
         <signal name="highlightMoveDurationChanged"/>
+        <signal name="movementStarted"/>
+        <signal name="movementEnded"/>
+        <signal name="flickStarted"/>
+        <signal name="flickEnded"/>
         <method name="incrementCurrentIndex"/>
         <method name="decrementCurrentIndex"/>
     </type>
@@ -2406,10 +2526,8 @@
         <signal name="propertiesChanged">
             <param type="string"/>
         </signal>
-        <signal name="targetChanged">
-            <param type="Qt.QtObject"/>
-            <param type="string"/>
-        </signal>
+        <signal name="targetChanged"/>
+        <signal name="propertyChanged"/>
     </type>
     <type name="Qt.PropertyAnimation" version="4.7" extends="Qt.Animation">
         <property name="duration" type="int"/>
@@ -2436,10 +2554,8 @@
         <signal name="propertiesChanged">
             <param type="string"/>
         </signal>
-        <signal name="targetChanged">
-            <param type="Qt.QtObject"/>
-            <param type="string"/>
-        </signal>
+        <signal name="targetChanged"/>
+        <signal name="propertyChanged"/>
     </type>
     <type name="Qt.PropertyChanges" version="4.7" extends="QDeclarativeStateOperation">
         <property name="target" type="Qt.QtObject"/>
@@ -2509,6 +2625,9 @@
         <property name="yScale" type="qreal"/>
         <property name="zScale" type="qreal"/>
         <signal name="originChanged"/>
+        <signal name="xScaleChanged"/>
+        <signal name="yScaleChanged"/>
+        <signal name="zScaleChanged"/>
         <signal name="scaleChanged"/>
     </type>
     <type name="Qt.ScriptAction" version="4.7" extends="Qt.Animation">
@@ -2529,21 +2648,13 @@
         <signal name="reversingModeChanged"/>
         <signal name="maximumEasingTimeChanged"/>
     </type>
-    <type name="Qt.SpringAnimation" version="4.7" extends="Qt.Animation">
-        <property name="to" type="qreal"/>
-        <property name="from" type="qreal"/>
+    <type name="Qt.SpringAnimation" version="4.7" extends="Qt.NumberAnimation">
         <property name="velocity" type="qreal"/>
         <property name="spring" type="qreal"/>
         <property name="damping" type="qreal"/>
         <property name="epsilon" type="qreal"/>
         <property name="modulus" type="qreal"/>
         <property name="mass" type="qreal"/>
-        <signal name="toChanged">
-            <param type="qreal"/>
-        </signal>
-        <signal name="fromChanged">
-            <param type="qreal"/>
-        </signal>
         <signal name="modulusChanged"/>
         <signal name="massChanged"/>
         <signal name="syncChanged"/>
@@ -2925,7 +3036,8 @@
     <type name="Qt.Translate" version="4.7" extends="QGraphicsTransform">
         <property name="x" type="qreal"/>
         <property name="y" type="qreal"/>
-        <signal name="positionChanged"/>
+        <signal name="xChanged"/>
+        <signal name="yChanged"/>
     </type>
     <type name="Qt.Vector3dAnimation" version="4.7" extends="Qt.PropertyAnimation">
         <property name="from" type="QVector3D"/>
@@ -2939,7 +3051,8 @@
         <property name="property" type="string"/>
         <property name="criteria" type="SectionCriteria"/>
         <property name="delegate" type="Qt.Component"/>
-        <signal name="changed"/>
+        <signal name="propertyChanged"/>
+        <signal name="criteriaChanged"/>
         <signal name="delegateChanged"/>
     </type>
     <type name="Qt.VisualDataModel" version="4.7" defaultProperty="delegate" extends="QDeclarativeVisualModel">
@@ -3037,62 +3150,8 @@
             <param name="index" type="int"/>
         </method>
     </type>
-    <type name="Qt.labs.gestures.Gesture" version="1.0" extends="Qt.QtObject">
-        <property name="state" type="Qt.GestureState"/>
-        <property name="gestureType" type="Qt.GestureType"/>
-        <property name="gestureCancelPolicy" type="QGesture.GestureCancelPolicy"/>
-        <property name="hotSpot" type="QPointF"/>
-        <property name="hasHotSpot" type="bool"/>
-    </type>
     <type name="Qt.labs.gestures.GestureArea" version="1.0" defaultProperty="data" extends="Qt.Item">
-        <property name="gesture" type="Qt.labs.gestures.Gesture"/>
-    </type>
-    <type name="Qt.labs.gestures.PanGesture" version="1.0" extends="Qt.labs.gestures.Gesture">
-        <property name="lastOffset" type="QPointF"/>
-        <property name="offset" type="QPointF"/>
-        <property name="delta" type="QPointF"/>
-        <property name="acceleration" type="qreal"/>
-    </type>
-    <type name="Qt.labs.gestures.PinchGesture" version="1.0" extends="Qt.labs.gestures.Gesture">
-        <enum name="ChangeFlag">
-            <enumerator name="ScaleFactorChanged" value="1"/>
-            <enumerator name="RotationAngleChanged" value="2"/>
-            <enumerator name="CenterPointChanged" value="4"/>
-        </enum>
-        <enum name="ChangeFlags">
-            <enumerator name="ScaleFactorChanged" value="1"/>
-            <enumerator name="RotationAngleChanged" value="2"/>
-            <enumerator name="CenterPointChanged" value="4"/>
-        </enum>
-        <property name="totalChangeFlags" type="ChangeFlags"/>
-        <property name="changeFlags" type="ChangeFlags"/>
-        <property name="totalScaleFactor" type="qreal"/>
-        <property name="lastScaleFactor" type="qreal"/>
-        <property name="scaleFactor" type="qreal"/>
-        <property name="totalRotationAngle" type="qreal"/>
-        <property name="lastRotationAngle" type="qreal"/>
-        <property name="rotationAngle" type="qreal"/>
-        <property name="startCenterPoint" type="QPointF"/>
-        <property name="lastCenterPoint" type="QPointF"/>
-        <property name="centerPoint" type="QPointF"/>
-    </type>
-    <type name="Qt.labs.gestures.SwipeGesture" version="1.0" extends="Qt.labs.gestures.Gesture">
-        <enum name="SwipeDirection">
-            <enumerator name="NoDirection" value="0"/>
-            <enumerator name="Left" value="1"/>
-            <enumerator name="Right" value="2"/>
-            <enumerator name="Up" value="3"/>
-            <enumerator name="Down" value="4"/>
-        </enum>
-        <property name="horizontalDirection" type="SwipeDirection"/>
-        <property name="verticalDirection" type="SwipeDirection"/>
-        <property name="swipeAngle" type="qreal"/>
-    </type>
-    <type name="Qt.labs.gestures.TapAndHoldGesture" version="1.0" extends="Qt.labs.gestures.Gesture">
-        <property name="position" type="QPointF"/>
-    </type>
-    <type name="Qt.labs.gestures.TapGesture" version="1.0" extends="Qt.labs.gestures.Gesture">
-        <property name="position" type="QPointF"/>
+        <property name="gesture" type="QGesture"/>
     </type>
     <type name="Qt.labs.particles.ParticleMotion" version="1.0" extends="Qt.QtObject"/>
     <type name="Qt.labs.particles.ParticleMotionGravity" version="1.0" extends="Qt.labs.particles.ParticleMotion">

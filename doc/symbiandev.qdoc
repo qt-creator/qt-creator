@@ -1,0 +1,154 @@
+/*!
+    \contentspage index.html
+    \if defined(qcmanual)
+    \previouspage creator-developing-maemo.html
+    \else
+    \previouspage nokiaqtsdk-gs.html
+    \endif
+    \page creator-developing-symbian.html
+    \if defined(qcmanual)
+    \nextpage creator-project-managing-sessions.html
+    \else
+    \nextpage creator-developing-maemo.html
+    \endif
+
+    \title Setting Up Development Environment for Symbian
+
+    For more information about developing applications for the Symbian
+    platform, select \gui {Help > Index} and look for \gui {Platform Notes},
+    or see
+    \l{http://doc.qt.nokia.com/4.6/platform-notes-symbian.html}{Platform Notes - Symbian}.
+
+    \section1 Hardware and Software Requirements
+
+    Windows is the only development platform for the Symbian target
+    supported at the moment.
+
+    For deploying and running applications on the device, you need the
+    following:
+    \list
+        \o The Nokia USB drivers that come with \e{PC Suite} or \e{Ovi Suite}
+        \o The
+            \if defined(qcmanual)
+            \l{http://tools.ext.nokia.com/trk/}{App TRK}
+            \else
+            \e {App TRK}
+            \endif
+            application for your device
+        \o The \e{qt_installer.sis} package installed on the device, that is
+         delivered with the Qt SDK
+         \o \e {Qt Mobility APIs} installed on the device, if you use them in
+         applications
+    \endlist
+
+    \if defined(qcmanual)
+    To run your applications in the Symbian emulator, you also need
+    to install Carbide.c++ v2.0.0 or higher.
+    \endif
+
+    \section1 Installing Required Applications on Devices
+
+    The Nokia Qt SDK installation program creates shortcuts for installing
+    the required applications on Symbian devices (you can also use any of
+    the standard methods for installing applications on devices):
+
+    \list 1
+
+        \o Connect the device to the development PC with an USB cable in
+        PC Suite Mode. If you have not previously used the device with Ovi Suite
+        or PC Suite, all the necessary drivers are installed automatically.
+        This takes approximately one minute.
+
+        \o Choose \gui {Start > Nokia Qt SDK > Symbian > Install Qt to Symbian
+        device} and follow the instructions on the screen to install Qt 4.6.2
+        libraries on the device.
+
+        \o Choose \gui {Start > Nokia Qt SDK > Symbian > Install QtMobility to Symbian
+        device} and follow the instructions on the screen to install Qt
+        mobility libraries on the device.
+
+        \o Choose \gui {Start > Nokia Qt SDK > Symbian > Install TRK to Symbian
+        device} and follow the instructions on the screen to install the TRK
+        debugging application on the device.
+
+        \note To check the Symbian platform version of your device, see
+        \l{http://www.forum.nokia.com/devices}{Device Details}.
+
+    \endlist
+
+    \note If errors occur during the installation, copy the .sis files from
+    \c {<NokiaQtSDK_install_path>\Symbian\sis} to the device using USB storage
+    mode. Then install them from the file manager on the device.
+
+    \if defined(qcmanual)
+    \section1 Adding Symbian Platform SDKs
+
+    Nokia Qt SDK contains all the tools you need for developing Qt applications for
+    Symbian devices. To use Symbian APIs directly in your applications, you can
+    install additional Symbian Platform SDKs:
+
+    \list
+        \o \l{http://www.forum.nokia.com/main/resources/tools_and_sdks/S60SDK/}
+           {S60 Platform SDK 3rd Edition FP1 or higher}.
+        \o Either the GCCE ARM Toolchain that is included in the Symbian
+           SDKs, or RVCT 2.2 [build 686] or later (which is not available free
+           of charge)(Your environment needs to find the compiler in the PATH).
+        \o Qt for Symbian 4.6.2 or later, installed into the Symbian SDKs you want
+           to use.
+
+    \endlist
+
+    \section2 Setting Up Qt Creator
+
+    When you run Qt Creator after installing the Symbian SDK and Qt for
+    Symbian, the installed SDKs and their corresponding Qt versions are
+    automatically detected. For each detected Symbian SDK with Qt, a special entry
+    is made in the Qt version management settings in \gui{Tools} >
+    \gui{Options...} > \gui{Qt4} > \gui{Qt Versions}.
+
+    \note If you manually add a Qt version for Symbian, you must
+    also manually specify the Symbian SDK to use for this version.
+
+    \image qtcreator-qt4-qtversions-win-symbian.png
+
+    If you want to run your applications in the Symbian emulator, you need to
+    point Qt Creator to the Metrowerks Compiler that you want to use, by
+    setting the \gui{Carbide directory} of the Qt version to the corresponding
+    Carbide.c++ installation directory.
+
+    You can check which Symbian SDKs and corresponding Qt versions are found in the
+    \gui{Tools} > \gui{Options...} > \gui{Qt4} > \gui{S60 SDKs} preference
+    page.
+
+    \image qtcreator-qt4-s60sdks.png
+
+    \else
+
+    \section1 Building and Running Applications
+
+    You can test your application on a device by building and running
+    it from Qt Creator for the \gui {Symbian Device} target.
+
+    \list 1
+
+        \o Connect the device to the development PC through a USB cable.
+        The target selector displays a green check mark when a
+        device is connected.
+
+        \image qtcreator-qt4-symbian-device-connected.png
+
+        The tool tip of the target selector shows more details about the actual
+        device that will be used when you run your application.
+
+        \o Start the \gui{App TRK} application on your device and deny the
+        Bluetooth connection.
+
+        \o Select \gui Options to select USB as connection type.
+
+        \o Click the \gui Run button in Qt Creator.
+
+    \endlist
+
+    \endif
+
+*/

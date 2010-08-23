@@ -18,5 +18,6 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
         <dependency name="TextEditor" version="2.1.80"/>
         <dependency name="QmlJSEditor" version="2.1.80"/>
         <dependency name="Debugger" version="2.1.80" />
+        <dependency name="Qt4ProjectManager" version="2.1.80" />
     </dependencyList>
 </plugin>

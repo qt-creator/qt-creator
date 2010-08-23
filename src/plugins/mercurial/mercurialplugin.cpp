@@ -581,7 +581,12 @@ void MercurialPlugin::showCommitWidget(const QList<QPair<QString, QString> > &st
 
     deleteCommitLog();
 
-    changeLog = new QTemporaryFile(this);
+    // Open commit log
+    QString changeLogPattern = QDir::tempPath();
+    if (!changeLogPattern.endsWith(QLatin1Char('/')))
+        changeLogPattern += QLatin1Char('/');
+    changeLogPattern += QLatin1String("qtcreator-hg-XXXXXX.msg");
+    changeLog = new QTemporaryFile(changeLogPattern,  this);
     if (!changeLog->open()) {
         outputWindow->appendError(tr("Unable to generate a temporary file for the commit editor."));
         return;
@@ -674,7 +679,6 @@ void MercurialPlugin::deleteCommitLog()
     if (changeLog) {
         delete changeLog;
         changeLog = 0;
-        m_submitRepository.clear();
     }
 }
 

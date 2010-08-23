@@ -72,6 +72,11 @@ HgTask::HgTask(const QString &repositoryRoot,
 {
 }
 
+VCSBase::VCSBaseEditor* HgTask::displayEditor() const
+{
+    return editor;
+}
+
 void HgTask::emitSucceeded()
 {
     emit succeeded(m_cookie);
@@ -237,7 +242,7 @@ void MercurialJobRunner::task(const QSharedPointer<HgTask> &job)
           */
         if (stdOutput.isEmpty())
             stdOutput = stdErr;
-        emit output(stdOutput);
+        emit output(stdOutput); // This will clear the diff "Working..." text.
         taskData->emitSucceeded();
     } else {
         emit error(QString::fromLocal8Bit(stdErr));

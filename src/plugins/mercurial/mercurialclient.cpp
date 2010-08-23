@@ -61,6 +61,8 @@ inline Core::IEditor* locateEditor(const Core::ICore *core, const char *property
     return 0;
 }
 
+static const char nonInteractiveOptionC[] = "--noninteractive";
+
 namespace Mercurial {
 namespace Internal  {
 
@@ -575,7 +577,8 @@ void MercurialClient::commit(const QString &repositoryRoot, const QStringList &f
     // refuse to do "autoadd" on a commit with working directory only, as this will
     // add all the untracked stuff.
     QTC_ASSERT(!(autoAddRemove && files.isEmpty()), return)
-    QStringList args(QLatin1String("commit"));
+    QStringList args = QStringList(QLatin1String(nonInteractiveOptionC));
+    args.append(QLatin1String("commit"));
     if (!committerInfo.isEmpty())
         args << QLatin1String("-u") << committerInfo;
     args << QLatin1String("-l") << commitMessageFile;

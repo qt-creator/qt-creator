@@ -647,9 +647,12 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
         case LocalsExpressionRole: {
             if (!data.exp.isEmpty())
                 return data.exp;
-            quint64 addr = data.coreAddress();
-            if (addr && !data.type.isEmpty())
-                return QString("*(%1*)%2").arg(data.type).arg(addr);
+            if (!data.addr.isEmpty() && !data.type.isEmpty()) {
+                bool ok;
+                const quint64 addr = data.addr.toULongLong(&ok, 16);
+                if (ok && addr)
+                    return QString("*(%1*)%2").arg(data.type).arg(addr);
+            }
             WatchItem *parent = item->parent;
             if (parent && !parent->exp.isEmpty())
                 return QString("(%1).%2")

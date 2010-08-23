@@ -192,10 +192,12 @@ public:
     virtual QString mimeType() const { return m_mimeType; }
 
     bool save(const QString &fileName = QString()) {
-        if (m_editor->save(m_fileName, fileName)) {
-            m_fileName = fileName;
+        const QString fileNameToUse
+            = fileName.isEmpty() ? m_fileName : fileName;
+        if (m_editor->save(m_fileName, fileNameToUse)) {
+            m_fileName = fileNameToUse;
             m_editor->editorInterface()->
-                setDisplayName(QFileInfo(fileName).fileName());
+                setDisplayName(QFileInfo(fileNameToUse).fileName());
             emit changed();
             return true;
         } else {

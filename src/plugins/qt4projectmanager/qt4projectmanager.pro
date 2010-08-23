@@ -1,5 +1,6 @@
 TEMPLATE = lib
 TARGET = Qt4ProjectManager
+DEFINES +=  QT4PROJECTMANAGER_LIBRARY
 QT += network
 include(../../qtcreatorplugin.pri)
 include(qt4projectmanager_dependencies.pri)
@@ -47,13 +48,14 @@ HEADERS += qt4deployconfiguration.h \
     qt4buildconfiguration.h \
     qt4target.h \
     qmakeparser.h \
-    qtoutputformatter.h \
+   qtoutputformatter.h \
     addlibrarywizard.h \
     librarydetailscontroller.h \
-    findqt4profiles.h
-SOURCES += qt4deployconfiguration.cpp \
+    findqt4profiles.h \
+    qt4projectmanager_global.h
+SOURCES += qt4projectmanagerplugin.cpp \
+    qt4deployconfiguration.cpp \
     qtparser.cpp \
-    qt4projectmanagerplugin.cpp \
     qt4projectmanager.cpp \
     qt4project.cpp \
     qt4nodes.cpp \

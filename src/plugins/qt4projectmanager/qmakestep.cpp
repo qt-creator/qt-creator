@@ -193,7 +193,7 @@ bool QMakeStep::init()
 
     Qt4Project *pro = qt4BuildConfiguration()->qt4Target()->qt4Project();
     QString proFile = pro->file()->fileName();
-    m_tasks = qt4BuildConfiguration()->qtVersion()->reportIssues(proFile);
+    m_tasks = qt4BuildConfiguration()->qtVersion()->reportIssues(proFile, workingDirectory);
     m_scriptTemplate = pro->rootProjectNode()->projectType() == ScriptTemplate;
 
     return AbstractProcessStep::init();

@@ -14,7 +14,7 @@ indexes                 = qt.index
 
 include(qt-defines.qdocconf)
 
-sources.fileextensions  = "qtcreator.qdoc addressbook-sdk.qdoc"
+sources.fileextensions  = "qtcreator.qdoc maemodev.qdoc symbiandev.qdoc addressbook-sdk.qdoc"
 
 
 qhp.projects            = QtCreator
@@ -31,10 +31,17 @@ qhp.QtCreator.extraFiles       = \
                           style/style_ie6.css \
                           style/style_ie7.css \
                           style/style_ie8.css \
+                          style/OfflineStyle.css \
+                          style/narrow.css \
+                          style/OfflineStyle.css \
+                          style/superfish.css \
+                          style/superfish_skin.css \
                           images/qt-logo.png \
                           images/qtcreator-screenshots.png \
                           scripts/functions.js \
                           scripts/jquery.js \
+                          scripts/narrow.js \
+                          scripts/superfish.js \
                           images/api_examples.png \
                           images/api_lookup.png \
                           images/arrow_down.png \

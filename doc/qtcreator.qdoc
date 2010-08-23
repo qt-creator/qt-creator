@@ -87,9 +87,6 @@
                 \o \l{Specifying Editor Settings}
                 \o \l{Specifying Dependencies}
             \endlist
-       \o \l{Developing Qt Quick Applications}
-       \o \l{Optimizing Applications for Mobile Devices}
-       \o \l{Using the Maemo Emulator}
 
        \o \l{Debugging}
             \list
@@ -183,7 +180,7 @@
         \o Provide you with context-sensitive help on classes, functions, and symbols
 
         \o Rename symbols in an intelligent way, so that other symbols with the same name
-           that belong to other scopes are not renamed
+         that belong to other scopes are not renamed
 
         \o Show you the locations in code where a function is declared or called
 
@@ -309,7 +306,7 @@
     Qt Creator displays the raw information provided by the native debuggers
     in a clear and concise manner with the goal to simplify the debugging process
     as much as possible without losing the power of the native debuggers.
-    You can use the native debuggers to debug the C++ language.
+    You can use the native debuggers to debug C++ applications.
 
     You can connect mobile devices to your development PC and debug processes
     running on the devices.
@@ -918,8 +915,8 @@
 
     Qt Creator understands the code as code, not just as plain text. This
     allows it to help you to write well formatted code and to anticipate
-    what you are going to write and complete the code. The code completion
-    differs somewhat depending on whether you write Qt code or QML code.
+    what you are going to write and complete the code.
+    The code completion differs somewhat depending on whether you write Qt code or QML code.
 
     \section2 Completing Qt Code
 
@@ -1032,10 +1029,10 @@
     \section1 Using Update Code Model
 
     To refresh the internal information in Qt Creator pertaining to your code,
-    select \gui{Tools} > \gui{C++} > \gui{Update code model}.
+    select \gui{Tools} > \gui{C++} > \gui{Update Code Model}.
 
     \note In Qt Creator indexing updates the code automatically. Use
-    \gui{Update code model} only as an emergency command.
+    \gui{Update Code Model} only as an emergency command.
 
 */
 
@@ -1092,7 +1089,7 @@
 
     In the \gui{FakeVim} mode, you can run the main editor in a manner similar
     to the Vim editor. To run the editor in the \gui{FakeVim} mode, select
-    \gui{Edit} > \gui{Advanced} > \gui{Use vim-style editing} or press
+    \gui{Edit} > \gui{Advanced} > \gui{Use Vim-style Editing} or press
     \key{Alt+V,Alt+V}.
 
     In the \gui{FakeVim} mode, most keystrokes in the main editor will be
@@ -1473,6 +1470,7 @@
         \o In the \gui {Rename id} field, enter the new ID.
 
    \endlist
+
 */
 
 /*!
@@ -1974,17 +1972,7 @@
            \gui{Qt Versions}.
         \o Qt Creator automatically sets the correct environment variables for
            compilation. Select the internal version number of the installed
-           Microsoft Visual C++ tool chains using the \gui MSVC drop-down
-           box:
-           \list
-               \o \bold 7.1 for Visual Studio 2003
-               \o \bold 8.0 for Visual Studio 2005
-               \o \bold 9.0 for Visual Studio 2008
-           \endlist
-
-           \note If you are using the
-           \bold{Windows SDK for Windows Server 2008}, Qt Creator identifies
-           it as version 9.0.
+           Microsoft Visual C++ tool chain in the \gui Toolchain list.
 
            \image qtcreator-qt4-qtversions-win-msvc.png
     \endlist
@@ -2082,7 +2070,8 @@
     .
 
     You can select the targets and click the \gui Run button to build and
-    run the applications on the targets.
+    run the applications on the targets. You can click the \gui {Build All}
+    button to build all open projects, one after another.
 
      \section1 Setting Up a Project
 
@@ -2289,7 +2278,7 @@
     {Complete Guide to Symbian Signed}.
 
     When you have your own certificate and private key, you can specify them in
-    the \gui{Create sis Package} step in your build configuration.
+    the \gui{Create SIS Package} step in your build configuration.
 
     \image qtcreator-qt4-symbian-signing.png
 
@@ -2512,9 +2501,8 @@
            \gui{Add clean step} and select the type of step you want to add.
 
            By default, custom steps are disabled. Activate custom steps by
-           checking the \gui{Enable Custom Process Step} check-box.
-        \o To remove a clean step, click \gui{Remove clean step} and select the
-           step you want to remove.
+           checking the \gui{Enable custom process step} check-box.
+        \o To remove a clean step, click \gui{Remove Item}.
         \o To change the order of steps, click
            \inlineimage qtcreator-movestep.png
            .
@@ -2690,8 +2678,8 @@
 
     \title Getting Started
 
-    This section contains examples that illustrate how to use Qt Creator and the
-    integrated design tools, \QD and \QMLD, to create, build, and run simple
+    This section contains examples that illustrate how to use Qt Creator
+    to create, build, and run simple
     applications:
 
     \list
@@ -2729,7 +2717,7 @@
 
     \list 1
 
-        \o Select \gui{File > New File or Project > Qt Application Project > Mobile Qt
+        \o Select \gui{File > New File or Project > Qt C++ Project > Mobile Qt
         Application > Choose}.
 
         \image qtcreator-new-mobile-project.png "New File or Project dialog"
@@ -3151,10 +3139,6 @@
 
     \title Creating a Qt C++ Application
 
-    \note This tutorial assumes that you have experience in writing basic Qt
-    applications, using \QD to design user interfaces and using the Qt
-    Resource System.
-
     This tutorial describes how to use Qt Creator
     to create a small Qt application, Text Finder. It is a simplified version of the
     QtUiTools \l{http://doc.qt.nokia.com/4.7-snapshot/uitools-textfinder.html}{Text Finder}
@@ -3162,20 +3146,15 @@
 
     \image qtcreator-textfinder-screenshot.png
 
-    \section1 Setting Up Your Environment
-
-    Qt Creator automatically detects whether the location of Qt is in your \c PATH variable.
-    If you have installed several Qt versions, follow the
-    instructions in \l{Selecting the Qt version} to set the Qt path.
-
     \section1 Creating the Text Finder Project
 
-    \note Create the project with the \gui{Help} mode active so that you can follow
+    \note Create the project with two instances of Qt Creator open and the \gui{Help} mode
+    active in one of them so that you can follow
     these instructions while you work.
 
     \list 1
 
-        \o Select \gui{File > New File or Project > Qt Application Project > Qt Gui
+        \o Select \gui{File > New File or Project > Qt C++ Project > Qt Gui
         Application > Choose}.
 
            \image qtcreator-new-project.png "New File or Project dialog"
@@ -3190,11 +3169,14 @@
         \o In the \gui {Create in} field, enter the path for the project files. For example,
         \c {C:\Qt\examples}, and then click \gui{Next}.
 
-        The \gui{Select Required Qt Versions} dialog opens.
+        The target setting dialog opens.
 
-        \image qtcreator-new-project-qt-versions.png "Select Required Qt Versions dialog"
+        \image qtcreator-new-project-qt-versions.png "Target setting dialog"
 
-        \o Click \gui{Next} to use the Qt version set in the path in your project.
+        \o Select the Qt versions to use as build targets for your project, and click
+        \gui{Next}.
+
+        \note If you have only one Qt version installed, this dialog is skipped.
 
         The \gui{Class Information} dialog opens.
 
@@ -3284,7 +3266,7 @@
     \o Drag and drop a \gui{Text Edit} widget (\l{http://doc.qt.nokia.com/4.7-snapshot/qtextedit.html}{QTextEdit})
     to the form.
 
-    \o Select the screen area and click \gui{Lay out Vertically} (or press \gui{Ctr+V})
+    \o Select the screen area and click \gui{Lay out Vertically} (or press \gui{Ctrl+L})
     to apply a vertical layout (\l{http://doc.qt.nokia.com/4.7-snapshot/qvboxlayout.html}{QVBoxLayout}).
 
     \image qtcreator-textfinder-ui.png "Text Finder UI"
@@ -3325,11 +3307,11 @@
 
     \list 1
 
-    \o In the \gui{Projects} view, double-click the \c{textfinder.h} file
+    \o In the \gui{Projects} pane in the \gui {Edit view}, double-click the \c{textfinder.h} file
     to open it for editing.
 
     \o Add a private function
-    to the \c{private} section, after the \c{Ui::TextFinder} function, as
+    to the \c{private} section, after the \c{Ui::TextFinder} pointer, as
     illustrated by the following code snippet:
 
     \snippet examples/textfinder/textfinder.h 0
@@ -3343,7 +3325,7 @@
 
     \list 1
 
-    \o In the \gui{Projects} view, double-click the textfinder.cpp file
+    \o In the \gui{Projects} pane in the \gui Edit view, double-click the textfinder.cpp file
     to open it for editing.
 
     \o Add code to load a text file using
@@ -3421,7 +3403,7 @@
     \section1 Compiling and Running Your Program
 
     Now that you have all the necessary files, click the \inlineimage qtcreator-run.png
-    button to compile your program.
+    button to compile and run your program.
 
 */
 
@@ -3655,7 +3637,7 @@
                 a rebase operation while pulling.
 
         \row
-            \i  \gui{Clean repository.../Clean project...}
+            \i  \gui{Clean Repository.../Clean Project...}
             \i  Collect all files that are not under version control
                 with the exception of patches and project files
                 and show them as a checkable list in a dialog
@@ -3675,7 +3657,7 @@
         \row
             \i  \gui{Stashes...}
             \i  Displays a dialog showing the stashes created by
-                \gui{Stash snapshots...} with options to restore,
+                \gui{Stash Snapshot...} with options to restore,
                 display or delete them.
         \row
             \i  \gui {Stage File for Commit}
@@ -3893,12 +3875,12 @@
     To create a locator filter:
     \list 1
         \o In the locator, click \inlineimage qtcreator-locator-magnify.png
-           and select \gui Configure....
+           and select \gui Configure.... to open the \gui Locator options.
 
            \image qtcreator-locator-customize.png
 
-        \o In the \gui{Options...} window click \gui Add.
-        \o In the \gui{Filters} dialog:
+        \o Click \gui Add.
+        \o In the \gui{Filter Configuration} dialog:
         \list
             \o Name your filter.
             \o Select at least one directory. The locator searches directories
@@ -3919,8 +3901,8 @@
 
     The locator searches the files matching your file pattern in the
     directories you have selected and caches that information. The cache for
-    all default filters is updated as you write your code. The filters you have
-    created Qt Creator by default updates once an hour.
+    all default filters is updated as you write your code. By default,
+    Qt Creator updates the filters created by you once an hour.
 
     To update the cached information manually, click
     \inlineimage qtcreator-locator-magnify.png
@@ -3929,7 +3911,7 @@
     To set a new cache update time:
     \list 1
         \o Select \gui Tools > \gui Options... > \gui Locator.
-        \o In \gui{Refresh interval} define new time in minutes.
+        \o In \gui{Refresh interval}, define new time in minutes.
     \endlist
 
 */
@@ -3943,7 +3925,9 @@
 
     \title Managing Sessions
 
-    In Qt Creator, a session is a collection of:
+    When you exit Qt Creator, a snapshot of your current workspace is stored
+    as a session.
+    A session is a collection of:
 
     \list
         \o Open projects with their dependencies
@@ -3952,19 +3936,25 @@
         \o Bookmarks
     \endlist
 
-    When you launch Qt Creator, a list of existing sessions is displayed on the
-    \gui{Welcome screen}.
-
-    \image qtcreator-welcome-session.png
-
-    To switch between sessions, select the session from sessions listed in
-    \gui File > \gui Session. If you do not create or select a session,
-    Qt Creator always uses the default session.
+    If you work on a project and need to switch to another project for a
+    while, you can save your workspace as a session. This makes it easier
+    to return to working on the first project later.
 
     To create a new session or remove existing sessions, select \gui File >
     \gui Sessions > \gui{Session Manager}.
 
     \image qtcreator-session-manager.png
+
+    To switch between sessions, choose
+    \gui File > \gui Session. If you do not create or select a session,
+    Qt Creator always uses the default session, which was created the
+    last time you exited Qt Creator.
+
+    When you launch Qt Creator, a list of existing sessions is displayed on the
+    \gui{Welcome screen}.
+
+    \image qtcreator-welcome-session.png
+
 */
 
 
@@ -3982,222 +3972,6 @@
     and an internal Java Script debugger. You can use the native debuggers to
     debug the C++ language.
 
-    \image qtcreator-debugger-views.png "Native debugger views"
-
-    Qt Creator includes a QML inspector plugin that you can use to debug QML.
-
-    \image qmldesigner-inspector.png "QML inspector views"
-
-    When you start debugging, the appropriate tool is automatically selected depending
-    on the type of the project. If you only develop one kind of projects, you can turn
-    off this automation in \gui {Tools > Options... > Debugger > General}. Deselect the
-    \gui {Change debugger language automatically} check box.
-
-    The choice of language also determines the contents of the \gui Debug menu.
-    The \gui {Start Debugging > Start Debugging} command starts debugging by using the
-    tool appropriate for the project type. The availability of the other commands depends
-    on whether \gui C++ or \gui QML is selected in \gui {Debug > Language}.
-
-    You can create Qt Quick projects that contain C++ plugins or Qt projects that contain
-    QML content. While debugging such projects, you can switch between the native
-    debuggers and the QML inspector during debugging.
-
-    To switch between debugged languages, select \gui {Debug > Language > C++} or
-    \gui QML. You can also press \key {Ctrl+L, 1} to switch to the native debugger and
-    \key {Ctrl+L, 2} to switch to the QML inspector.
-
-*/
-
-/*!
-    \contentspage index.html
-    \previouspage creator-debugging-helpers.html
-    \page creator-debugging-qml.html
-    \nextpage creator-qml-inspector.html
-
-    \title Debugging Qt Quick Applications
-
-    In the \gui Debug mode you can use the QML inspector plugin to:
-
-    \list
-
-        \o View the status of the application when it is executed.
-
-        \o View debug output.
-
-        \o Write JavaScript expressions and evaluate them.
-
-        \o Modify the values of properties.
-
-        \o Watch the values of expressions.
-
-
-    \note You can press \key {Ctr+Alt+R} or select \gui {Tools > Qt Quick > Preview}
-    to view QML files that do not belong to projects in \QQV. However,
-    you can only debug QML files that belong to open projects, because the QML
-    inspector plugin needs information about the project.
-
-    \endlist
-
-    \section1 Modes of Operation
-
-    When a Qt Quick project is active and you select \gui {Debug > Start Debugging >
-    Start Debugging} the application is started in \QQV and inspected by
-    the QML inspector.
-
-    If the Qt Quick project includes C++ plugins, select
-    \gui {Debug > Start Debugging > Start Debugging C++ and QML Simultaneously}.
-    \QQV is started, the native debugger is attached to it, and
-    the application is inspected by the QML inspector.
-
-    \note This command is available only if \gui QML is selected in
-    \gui {Debug > Language (QML)}.
-
-    To debug a Qt project that contains QML content, select
-    \gui {Debug > Start Debugging > Start Debugging C++ and QML Simultaneously}.
-    The application is started under the control of the native debugger, attached
-    to \QQV, and inspected by the QML inspector.
-
-    You must use the native debugger to set breakpoints to C++ code and to examine
-    the state of the interrupted Qt application. When a C++ program is interrupted,
-    for example when a breakpoint is hit, you cannot use the QML inspector.
-
-*/
-
-
-/*!
-    \contentspage index.html
-    \previouspage creator-debugging-qml.html
-    \page creator-qml-inspector.html
-    \nextpage creator-maemo-emulator.html
-
-    \title Using the QML Inspector
-
-    In \gui Debug mode, you can use several views to interact with the
-    application you are debugging. Frequently used views are shown by
-    default and rarely used ones are hidden. To change the default settings,
-    select \gui Debug > \gui Views, and then select views to display
-    or hide. You can also lock views. The position of views is saved for future
-    sessions.
-
-    \image qmldesigner-inspector.png "QML inspector views"
-
-    \section1 Starting the QML Inspector
-
-    To start an active application under the control of the QML inspector, select
-    \gui {Debug > Start Debugging > Start Debugging}, or press \key{F5}.
-
-    The application is run in \QQV. It behaves and performs as usual.
-    You can view the status of the application when it is executed and the debug
-    output in the \gui {Application Output} view.
-
-    \image qmldesigner-application-output.png "Application Output view"
-
-    \section1 Starting Simultaneous QML and C++ Debugging
-
-    To debug a Qt Quick project that includes C++ plugins, select
-    \gui {Debug > Start Debugging > Start Debugging C++ and QML Simultaneously}.
-
-    \note This command is available only if \gui QML is selected in
-    \gui {Debug > Language (QML)}.
-
-    \image qmldesigner-debugging-simultaneous.png "Start Simultaneous QML and C++ Debugging view"
-
-    Usually, the settings for \QQV are specified automatically and you do
-    not need to change them:
-
-    \list
-
-        \o \gui {Debugging address} is the IP address to access \QQV.
-
-        \o \gui {Debugging port} is the port to access \QQV. You can use any
-        free port in the registered port range.
-
-        \o \gui {Viewer path} is the path to \QQV executable.
-
-        \o \gui {Viewer arguments} sets arguments for running \QQV.
-        The \c{-I <directory>} argument searches for C++ or QML plugins from
-        the project folder. For a list of available arguments, enter \c {qml --help}
-        on the command line.
-
-    \endlist
-
-    \QQV is started, the native debugger is attached to it, and
-    the application is inspected by the QML inspector.
-
-    \section1 Viewing and Modifying Values of Properties
-
-    The \gui {Properties and Watchers} view lists the JavaScript expressions
-    in the project and their properties and values. The properties are grouped
-    by type, but you can also view them in one long list.
-    Right-click the list of properties to open a context-menu and then click
-    \gui {Group by Item Type} to change the way in which the properties are
-    sorted.
-
-    If an item does not have an ID, you cannot change the values of its
-    properties. The item type is enclosed in angle brackets and the value
-    is grayed.
-
-    Double-click an item to move to the place in code where it is declared.
-
-    You can change the values of properties and see the results in \QQV.
-
-    If the QML inspector cannot retrieve the value for an item or a property for
-    inspection, the item or property is grayed in the view. Right-click the item list
-    to open a context menu, and then click \gui {Show Uninspectable Items} to hide
-    or show the items that cannot be inspected.
-
-    \section1 Watching Expressions
-
-    In the \gui {Properties and Watchers} view, you can specify that an expression is
-    watched. Right-click a property and then click \gui {Watch Expression}.
-    The \gui Name and \gui Value of the expression are displayed at the bottom
-    of the view.
-
-    \image qmldesigner-inspector-watchers.png "Watched expressions"
-
-    You can add JavaScript expressions to object instances to evaluate them.
-    Right-click the list of items and select \gui {Add Watch Expression}. Enter
-    the expression to evaluate and click \gui OK.
-
-    \image qmldesigner-inspector-add-watch.png "Add Watch Expression dialog"
-
-    To stop watching a expression, right-click it and select \gui {Stop Watching}.
-
-    The QML inspector cannot show the values for some items, such as composite objects
-    or complicated item that you cannot change. These items cannot be watched.
-    To show them, right-click the properties list, and then select
-    \gui {Show Unwatchable Properties}.
-
-    \section1 Executing JavaScript
-
-    In the \gui {Script Console} view, you can write JavaScript expressions, see
-    how they are executed, and evaluate them during runtime.
-
-    You can also test the C++ code without rebuilding the whole application.
-
-    \section1 Viewing Connections to \QQV
-
-    The \gui Output view displays the status of the connection between the QML
-    inspector and \QQV.
-
-    You specify the connection in the \gui {Run Settings} in the \gui Projects mode.
-    For more information, see \l{Specifying Run Settings for Qt Quick Projects}.
-
-    If the connection does not work, check the values of the \gui {Debugging address}
-    and \gui {Debugging port} fields. Check that the default port number is not reserved
-    by another application or another instance of \QQV that was not shut
-    down properly. You can specify any free port number in the registered port range
-    (1024-49151).
-
-*/
-
-
-/*!
-    \contentspage index.html
-    \previouspage creator-debugging.html
-    \page creator-debugging-cpp.html
-    \nextpage creator-debugging-example.html
-    
     You can use the Qt Creator \gui Debug mode to inspect the state of your
     Qt projects while debugging.
 
@@ -4289,7 +4063,7 @@
     \section2 Terminal Mode
 
     To launch the debugger in the terminal mode, select \gui {Projects > Run Settings}
-    and select the \gui {Run in Terminal} check box. Then click the
+    and select the \gui {Run in terminal} check box. Then click the
     \gui {Start Debugging} button for the active project.
 
     \section2 Attach Mode
@@ -4380,7 +4154,7 @@
 
     The non-Python versions use the compiled version of the debugging helpers,
     that you must enable separately. For more information, see
-    \l{Debugging Helper Library with C++}.
+    \l{Debugging Helpers Based on C++}.
 
     The Python version uses a script version of the debugging helpers
     that does not need any special setup.
@@ -4785,7 +4559,7 @@
     To enable Qt's basic objects data display feature:
     \list
        \o  Select \gui Tools > \gui {Options...} > \gui Debugger >
-           \gui{Debugging Helper} and check the \gui{Use debugging helper}
+           \gui{Debugging Helper} and check the \gui{Use Debugging Helper}
            checkbox.
        \o  The \gui{Locals and Watchers} view is reorganized to provide a
            high-level view of the objects.
@@ -4803,6 +4577,9 @@
     variables of simple data types, for example, \c int or \c float when the
     program is interrupted. To do so, click the \gui Value column, modify
     the value with the inplace editor, and press \key Enter (or \key Return).
+
+    You can enable tooltips in the main editor displaying this information.
+    For more information, see \l{Showing Tooltips in Debug Mode}.
 
     \note The set of watched items is saved in your session.
 
@@ -4900,22 +4677,46 @@
 
     \title Using Debugging Helpers
 
-    \section1 Debugging Helper Library with C++
+    Qt Creator is able to show complex data types in a customized,
+    user-extensible manner. For this purpose, it takes advantage of
+    two technologies, collectively referred to as \e{Debugging Helpers}.
 
-    While debugging, Qt Creator dynamically loads a helper library into your
-    program. This helper library enables Qt Creator to pretty print Qt and STL
-    types. The Qt SDK package already contains a prebuilt debugging helper
+    Using the debugging helpers is not \e essential for debugging
+    with Qt Creator, but they enhance the user's ability to quickly
+    examine complex data significantly.
+
+    \section1 Debugging Helpers Based on C++
+
+    This is the first and original approach to display complex data
+    types. While it has been superseded on most platforms by the more
+    robust and more flexible second approch using Python scripting,
+    it is the only feasible one on Windows/MSVC, Mac OS, and
+    old Linux distributions. Moreover, this approach will automatically
+    be chosen as fallback in case the Python based approach fails.
+
+    During debugging with the C++ based debugging helpers,
+    Qt Creator dynamically loads a helper library in form of a DLL or a
+    shared object into the debugged process.
+    The Qt SDK package already contains a prebuilt debugging helper
     library. To create your own debugging helper library, select \gui{Tools} >
     \gui{Options...} > \gui{Qt4} > \gui{Qt Versions}. As the internal data
     structures of Qt can change between versions, the debugging helper
     library is built for each Qt version.
 
 
-    \section1 Debugging Helper Library with Python
+    \section1 Debugging Helpers Based on Python
 
-    With the gdb Python version, you can
-    use debugging helpers also for user defined types. To do so,
-    define one Python function per user defined type in \c{.gdbinit}.
+    On platforms featuring a Python-enabled version of the gdb debugger,
+    the data extraction is done by a Python script. This is more robust
+    as the script execution is separated from the debugged process. It
+    is also easier to extend as the script is less dependend on the
+    actual Qt version and does not need compilation.
+
+    To extend the shipped Python based debugging helpers for custom types,
+    define one Python function per user defined type in the
+    gdb startup file. By default, the following startup file is used:
+    \c{~/.gdbinit}. To use another file, select \gui {Tools > Options... > Gdb}
+    and specify a filename in the \gui {Gdb startup script} field.
 
     The function name has to be qdump__NS__Foo, where NS::Foo is the class
     or class template to be examined. Nested namespaces are possible.
@@ -5149,18 +4950,17 @@
 
     \section2 Children and SubItem Class
 
-    Child items might report errors if data is uninitialized or corrupted
-    or if the helper code is broken. To gracefully recover from these
-    errors, use \c Children and \c SubItem \e{Context Managers} to create
-    nested items.
+    The attempt to create child items might lead to errors if data is
+    uninitialized or corrupted. To gracefully recover in such situations,
+    use \c Children and \c SubItem \e{Context Managers} to create the nested items.
 
     The \c Children constructor \gui{__init__(self, dumper, numChild = 1,
-    childType = None, childNumChild = None)} uses one non-optional argument
-    \c dumper to refer to the current \c Dumper object and three optional
-    arguments, specifying the number \c numChild of children, with type
-    \c childType_ and \c childNumChild_ grandchildren each. If \c numChild_
-    is a list of two integers, the first one specifies the actual number
-    of children and the second the maximum number of children to print.
+    childType = None, childNumChild = None)} uses one mandatory argument and three
+    optional arguments.  The mandatory argument refers to the current \c Dumper
+    object.  The optional arguments can be used to specify the number \c numChild
+    of children, with type \c childType_ and \c childNumChild_ grandchildren each.
+    If \c numChild_ is a list of two integers, the first one specifies the actual
+    number of children and the second the maximum number of children to print.
 
     Similarly, using the \c SubItem class helps to protect individual items.
 
@@ -5199,7 +4999,7 @@
     \section1 Setting the Path for CMake
 
     You can set the path for the \c CMake executable in \gui{Tools} >
-    \gui{Options...} > \gui{CMake} > \gui{CMake}.
+    \gui{Options... > Projects > CMake}.
 
     \image qtcreator-cmakeexecutable.png
 
@@ -5622,461 +5422,6 @@
 
 
 /*!
-
-    \contentspage index.html
-    \previouspage creator-project-generic.html
-    \page creator-developing-maemo.html
-    \nextpage creator-developing-symbian.html
-
-    \title Setting Up Development Environment for Maemo
-
-    Maemo is a software platform developed by Nokia for smartphones and
-    Internet Tablets. The Maemo SDK provides an open development environment
-    for different applications on top of the Maemo platform. The necessary
-    tools from the Maemo SDK are also included in the Nokia Qt SDK.
-    The whole tool chain that you need to create, build, debug, run, and deploy
-    Maemo applictions is installed and configured when you install the Nokia
-    Qt SDK.
-
-    Maemo 5 is based on the Linux 2.6 operating system. For more
-    information about the Maemo platform, see
-    \l{http://maemo.org/intro/platform/}{Software Platform} on the Maemo web site.
-
-
-    \section1 Hardware and Software Requirements
-
-    To build and run Qt applications for Maemo, you need the following:
-    \list
-       \o  Nokia N900 device with software update release 1.2 (V10.2010.19-1)
-       or later installed.
-       \o  MADDE cross-platform Maemo development
-           tool (installed as part of the Nokia Qt SDK).
-
-           For more information about MADDE pertaining to its
-           installation, configuration, and deployment on the device, see
-          \l{http://wiki.maemo.org/MADDE}{Introduction to MADDE}.
-
-       \o Nokia USB drivers.
-
-       Only needed if you develop on Windows and if you use a USB connection
-       to run applications on the device. The drivers are
-       installed as part of the Nokia Qt SDK. You can also download them from
-       \l{https://garage.maemo.org/frs/?group_id=801&release_id=2655}{PC Connectivity}
-       on the Maemo web site. Download and install the latest
-       PC_Connectivity_<version>.exe (at the time of writing,
-       PC_Connectivity_0.9.4.exe).
-
-    \endlist
-
-     The Qt Creator/MADDE integration is supported on the following platforms:
-    \list
-       \o  Linux (32 bit and 64 bit)
-       \o  Windows (32 bit and 64 bit)
-       \omit \o  Mac OS 10.5 Leopard, or higher \endomit
-    \endlist
-
-    \note The only supported build system for Maemo in Qt
-    Creator is qmake.
-
-    \section1 Setting Up the Nokia N900
-
-    You can connect your device to your development PC using either a USB or
-    WLAN connection.
-
-    For the device, you need to use a tool called Mad Developer to create the
-    device-side end point for USB and WLAN connections. It provides no
-    diagnostics functions but is essential for creating connections between the
-    device and your development PC.
-
-    To use a WLAN connection, you must activate WLAN on the device and connect
-    it to the same WLAN as the development PC. The network address is displayed
-    in the Mad Developer.
-
-    To use an USB connection, you need to set up the Nokia N900 as a network device
-    on the development PC.
-
-    \note If you plan to connect your development PC to the Nokia N900 only over WLAN, you can
-    ignore the USB-specific parts in the following sections.
-
-    \section2 Installing and Configuring Mad Developer
-
-    Install Mad Developer on a device and configure
-    a connection between the development PC and the device.
-
-    To install and configure Mad Developer:
-
-     \list 1
-         \o On the Nokia N900, select \gui{Download} > \gui{Development} > \gui{mad-developer}
-         to install the Mad Developer software package.
-         \o Click \gui {Mad Developer} to start the Mad Developer application.
-
-         \o To use a WLAN connection, activate WLAN on the device and connect
-         to the same network as the development PC. You can see the network
-         address in the \gui wlan0 field.
-
-         \o To use an USB connection:
-
-         \list a
-
-         \o If you are using Microsoft Windows as development host, you must
-         change the driver loaded for instantiating the connection.
-         In the Mad Developer, select \gui{Manage USB} and select \gui{Load g_ether}.
-
-         \o To set up the USB settings, click \gui Edit on the \gui usb0 row and
-         confirm by clicking \gui Configure.
-
-          \note By default, you do not need to make changes. The \gui usb0 row
-          displays the IP address 192.168.2.15.
-
-          \endlist
-
-       \o Select \gui{Developer Password} to generate a password for a freshly
-          created user called \bold developer. The password stays valid for as long
-          as the password generation dialog is open. You enter the password when
-          you configure the connection in Qt Creator.
-
-          \image qtcreator-mad-developer-screenshot.png
-    \endlist
-
-    \section1 Installing Qt Mobility APIs
-
-    To develop applications that use the Qt Mobility APIs, you must install the
-    APIs on the devices. The APIs are not available in the Nokia N900 package
-    manager, and therefore, you must install them from the command line as the
-    root user. To become the root user you must first install \c rootsh from the
-    application manager.
-
-    \list 1
-
-        \o On the device, install \c rootsh from the \gui {Application Manager}.
-
-        \o In \gui Programs, select \c {X Terminal} to open a terminal window.
-
-        \o To switch to the root user, enter the following command:
-        \c{sudo gainroot}
-
-        \o To install Qt Mobility libraries, enter the following command:
-        \c{apt-get install libqtm-*}
-
-        \o To confirm the installation, enter: \c Y
-
-        \o Close the terminal.
-
-    \endlist
-
-    \section1 Setting Up Network Connectivity on Development PC
-
-    Use the network configuration tools on your platform to specify the
-    connection to the device on the development PC. You need to do this
-    only if you use an USB connection.
-
-    \section2 Linux
-
-    The device uses the IP address 192.168.2.15 with the subnet 255.255.255.0
-    for its USB connection by default, so you can create the network interface
-    with a different address inside the same subnet too.
-
-    \note If you have changed the IP address of the device when configuring
-    Mad Developer, you need to reflect those changes in your development PC USB
-    network settings.
-
-    Run the following command in a shell as root user:
-                  \c{ifconfig usb0 192.168.2.14 up}
-
-    \section2 Windows
-
-    When you connect the device to your Windows PC, Windows tries to install a
-    driver for the Linux USB Ethernet connection. In the
-    \gui{Found New Hardware Wizard}, select \gui{No, not this time} in the
-    first dialog and \gui{Install the software automatically} in the second
-    dialog.
-
-    To specify a network connection:
-
-    \list 1
-
-    \o Open the Network Connections window.
-
-    \o Select the Linux USB Ethernet
-    connection that is displayed as a new Local Area Connection.
-
-    \o Edit the \gui {Internet Protocol Version 4 (TCP/IPv4)} properties
-    to specify the IP address for the connection.
-    In the \gui {Use the following IP address} field, enter the following values:
-    \list
-       \o  \gui {IP Address}: \bold {192.168.2.14}
-       \o  \gui SubnetMask: \bold {255.255.255.0}
-       \o  \gui {Default gateway}: leave this field empty
-    \endlist
-
-    \endlist
-
-    Depending on
-    your version of Microsoft Windows you may have to unplug and re-plug the
-    Nokia N900 to reload the driver with its configuration accordingly.
-
-    \section1 Setting Up MADDE
-
-    If you install Nokia Qt SDK, the MADDE package is installed and
-    configured automatically on your development PC and you can omit this task.
-
-    \list 1
-
-    \o Download the MADDE installer file for your platform from the
-    \l{http://wiki.maemo.org/MADDE}{MADDE} site.
-
-    \o Execute the installer and follow the instructions.
-
-    \o To see which targets are available, run \c{mad-admin list targets}.
-
-    \o To install the target that starts with the string \bold fremantle, use the command:
-    \c{mad-admin create fremantle-qt-xxx}
-
-    \o In Qt Creator, register the MADDE tool chain:
-
-       \image qtcreator-screenshot-toolchain.png
-
-        \list a
-
-            \o Select \gui Tools > \gui Options... > \gui Qt4 > \gui{Qt Versions}.
-
-            \o Click \inlineimage qtcreator-windows-add.png,
-            to add a new Qt version.
-
-            The \gui{qmake Location} is the qmake
-            executable in \c{<MADDE dir>/targets/<fremantle target>/bin}.
-
-        \endlist
-
-    \endlist
-
-    When you have installed the target, you have a toolchain and a sysroot
-    environment for cross-compiling.
-
-    \section1 Configuring Connections in Qt Creator
-
-    To be able to run and debug applications on the Maemo emulator and
-    devices, you must set up a connection to the emulator and the device in the
-    Qt Creator build and run settings. If you install Nokia Qt SDK, the
-    necessary software is installed and configured automatically and you
-    only need to configure a connection to the device.
-
-    By default, you create the connection as the \e developer user. This
-    protects real user data on the device from getting corrupted during
-    testing. If you write applications that use Mobility APIs, you might want
-    to test them with real user data. To create a connection as a user, specify
-    the \gui Username and \gui Password in Qt Creator. For more information, see
-    \l{Testing with User Data}.
-
-    You can protect the connections between Qt Creator and the Maemo emulator
-    or a device by using either a password or an SSH key. You must always
-    use a password for the initial connection, but can then deploy an SSH
-    key and use it for subsequent connections. If you use a password, you
-    must generate it in Mad Developer and enter it in Qt Creator every time
-    you connect to the Maemo emulator or to a device.
-
-    If you do not have an SSH key, you can create it in Qt Creator.
-    Encrypted keys are not supported. For more
-    information, see \l{Generating SSH Keys}.
-
-    To configure connections between Qt Creator and the Maemo emulator or
-    device:
-
-    \list 1
-
-        \o If you install the Maemo emulator (QEMU) separately, you must
-           specify parameters to access it:
-
-            \list a
-
-            \o Start Mad Developer in the emulator.
-
-            \o Click \gui {Developer Password} to generate a password for
-            the connection.
-
-            \o In Qt Creator, select \gui {Tools > Options... > Projects >
-            Maemo Device Configurations > Add} to add a new configuration.
-
-            \image qtcreator-maemo-emulator-connection.png
-
-            \o In the \gui {Configuration name} field, enter a name for
-            the connection.
-
-            \o In the \gui {Device type} field, select \gui {Local simulator}.
-
-            \o In the \gui {Authentication type} field, select \gui Password
-            for the initial connection.
-
-            \o In the \gui Password field, enter the password from the Mad
-            Developer for the initial connection.
-
-            You can use the default values for the other fields.
-
-            \o Click \gui Test to test the connection.
-
-            \o To avoid having to specify the password every time you connect
-            to the Maemo emulator, click \gui {Deploy Key...} and select
-            the file that contains your public key.
-
-            \o When you have deployed the key to the device, change the
-            configuration to use the SSH key for protection.
-
-            \image qtcreator-maemo-emulator-connection-key.png
-
-            The default location of the private key file is displayed in the
-            \gui {Private key file} field.
-
-            \endlist
-
-            If you installed the Nokia Qt SDK, a connection has been configured
-            and you only need to specify the password and deploy the SSH key.
-
-        \o  To deploy applications and run them remotely, specify parameters
-            for accessing devices:
-
-            \list a
-
-            \o Connect your device to the development PC via an USB cable or
-            a WLAN. For an USB connection, you are prompted to select the mode
-            to use. Choose \gui{PC suite mode}.
-
-            \note If you experience connection problems due to a USB port issue,
-            switch to a different port or use WLAN to connect to the device.
-
-            \o Select \gui Tools > \gui Options... > \gui Projects >
-            \gui{Maemo Device Configurations > Add}, and add a new configuration for a
-            \gui {Remote device}.
-
-            \image qtcreator-screenshot-devconf.png
-
-            \o In the \gui {Host name} field, enter the IP address from the
-            \gui usb0 or \gui wlan0 field in Mad Developer.
-
-            \o Specify the other settings in the same way as for a Maemo emulator
-            connection.
-
-            \o Click \gui Test to test the connection.
-
-            \o Click \gui OK to close the dialog.
-
-            \endlist
-
-         \o To specify build and run settings:
-
-            \list a
-
-                \o Open a project for an application you want to develop for your
-                Nokia N900.
-
-                \o Click \gui Projects to open the projects mode.
-
-                \o In the \gui{Build Settings} section, choose the MADDE Qt version.
-
-                 \image qtcreator-screenshot-build-settings.png
-
-                 \o In the \gui{Run Settings} section, click \gui Add to add a new
-                 run configuration.
-
-                 \o Set a name and select the device configuration.
-
-                 \image qtcreator-screenshot-run-settings.png
-
-                 \note You can either add separate run settings for both the Maemo
-                  emulator connection and the device connection or select the
-                  \gui {Device configuration} before you run the application.
-
-             \endlist
-
-         \endlist
-
-    \section2 Testing with User Data
-
-    To run your application as the default user, you must first assign a password
-    for the user account and then create the connection to the device as the
-    user:
-
-    \list 1
-
-        \o On the device, in \gui Programs, select \c {X Terminal} to open a
-        terminal window.
-
-        \o To switch to the root user, enter the following command:
-        \c{sudo gainroot}
-
-        \o To specify the password, enter the following command:
-        \c {passwd user}
-
-        \o In Qt Creator, Select \gui Tools > \gui Options... > \gui Projects >
-        \gui{Maemo Device Configurations}.
-
-        \o Specify the username \c user and the password in the device configuration.
-
-    \endlist
-
-         \section2 Generating SSH Keys
-
-         If you do not have an SSH public and private key pair, you can generate it
-         in Qt Creator. You can specify key length and the key algorithm, RSA or DSA.
-         If you only use the keys to protect connections to the Maemo emulator or
-         device, you can use the default values.
-
-         \list 1
-
-             \o Select \gui {Tools > Options... > Projects > Maemo Device Configurations
-             > Generate SSH Key...}.
-
-             \o Click \gui {Generate SSH Key}.
-
-             \image qtcreator-ssh-key-configuration.png "SSH Key Configuration dialog"
-
-             \o Click \gui {Save Public Key...} to select the location to save the
-             public key.
-
-             \o Click \gui {Save Private Key...} to specify the location to save the
-             private key.
-
-             \o Click \gui Close to close the dialog.
-
-         \endlist
-
-    \section1 Troubleshooting
-
-    The addresses used in this example might be reserved by some other application
-    in your network. If you cannot establish a connection, try the following optional
-    configurations:
-
-    \table
-
-        \header
-            \o usb0 in Mad Developer on Device
-            \o USB Network on Development PC
-            \o Host Name in Qt Creator Build Settings
-
-        \row
-            \o 172.30.7.15 255.255.255.0
-            \o 172.30.7.14 255.255.255.0
-            \o 172.30.7.15
-
-        \row
-            \o 10.133.133.15
-            \o 10.133.133.14
-            \o 10.133.133.15
-
-        \row
-            \o 192.168.133.15
-            \o 192.168.133.14
-            \o 192.168.133.15
-
-            \note You cannot use the value localhost for connections to a device.
-
-        \endtable
-
-    \note VPN connections might block the device connection.
-
-*/
-
-
-/*!
     \contentspage index.html
     \previouspage creator-debugging-helpers.html
     \page creator-maemo-emulator.html
@@ -6212,112 +5557,6 @@
 
 */
 
-
-/*!
-    \contentspage index.html
-    \previouspage creator-developing-maemo.html
-    \page creator-developing-symbian.html
-    \nextpage creator-project-managing-sessions.html
-
-    \title Setting Up Development Environment for Symbian
-
-    \section1 Hardware and Software Requirements
-
-    Windows is the only development platform for the Symbian target
-    supported at the moment.
-
-    For deploying and running applications on the device, you need the
-    following:
-    \list
-        \o The Nokia USB drivers that come with \e{PC Suite} or \e{Ovi Suite}
-        \o The \l{http://tools.ext.nokia.com/trk/}{App TRK} application for
-           your device
-        \o The \e{qt_installer.sis} package installed on the device, that is
-         delivered with the Qt SDK
-         \o \e {Qt Mobility APIs} installed on the device, if you use them in
-         applications
-    \endlist
-
-    To run your applications in the Symbian emulator, you also need
-    to install Carbide.c++ v2.0.0 or higher.
-
-    \section1 Installing Required Applications on Devices
-
-    The Nokia Qt SDK installation program creates shortcuts for installing
-    the required applications on Symbian devices (you can also use any of
-    the standard methods for installing applications on devices):
-
-    \list 1
-
-        \o Connect the device to the development PC with an USB cable in
-        PC Suite Mode. If you have not previously used the device with Ovi Suite
-        or PC Suite, all the necessary drivers are installed automatically.
-        This takes approximately one minute.
-
-        \o Choose \gui {Start > Nokia Qt SDK > Symbian > Install Qt to Symbian
-        device} and follow the instructions on the screen to install Qt 4.6.2
-        libraries on the device.
-
-        \o Choose \gui {Start > Nokia Qt SDK > Symbian > Install QtMobility to Symbian
-        device} and follow the instructions on the screen to install Qt
-        mobility libraries on the device.
-
-        \o Choose \gui {Start > Nokia Qt SDK > Symbian > Install TRK to Symbian
-        device} and follow the instructions on the screen to install the TRK
-        debugging application for S60 5th Edition devices on the device.
-
-        \o Start TRK on the device.
-
-    \endlist
-
-    \note If errors occur during the installation, copy the .sis files from
-    \c {<NokiaQtSDK_install_path>\Symbian\sis} to the device using USB storage
-    mode. Then install them from the file manager on the device.
-
-    \section1 Adding Symbian Platform SDKs
-
-    Nokia Qt SDK contains all the tools you need for developing Qt applications for
-    Symbian devices. To use Symbian APIs directly in your applications, you can
-    install additional Symbian Platform SDKs:
-
-    \list
-        \o \l{http://www.forum.nokia.com/main/resources/tools_and_sdks/S60SDK/}
-           {S60 Platform SDK 3rd Edition FP1 or higher}.
-        \o Either the GCCE ARM Toolchain that is included in the Symbian
-           SDKs, or RVCT 2.2 [build 686] or later (which is not available free
-           of charge)(Your environment needs to find the compiler in the PATH).
-        \o Qt for Symbian 4.6.2 or later, installed into the Symbian SDKs you want
-           to use.
-
-    \endlist
-
-    \section2 Setting Up Qt Creator
-
-    When you run Qt Creator after installing the Symbian SDK and Qt for
-    Symbian, the installed SDKs and their corresponding Qt versions are
-    automatically detected. For each detected Symbian SDK with Qt, a special entry
-    is made in the Qt version management settings in \gui{Tools} >
-    \gui{Options...} > \gui{Qt4} > \gui{Qt Versions}.
-
-    \note If you manually add a Qt version for Symbian, you must
-    also manually specify the Symbian SDK to use for this version.
-
-    \image qtcreator-qt4-qtversions-win-symbian.png
-
-    If you want to run your applications in the Symbian emulator, you need to
-    point Qt Creator to the Metrowerks Compiler that you want to use, by
-    setting the \gui{Carbide directory} of the Qt version to the corresponding
-    Carbide.c++ installation directory.
-
-    You can check which Symbian SDKs and corresponding Qt versions are found in the
-    \gui{Tools} > \gui{Options...} > \gui{Qt4} > \gui{S60 SDKs} preference
-    page.
-
-    \image qtcreator-qt4-s60sdks.png
-
-
-
-*/
 
 /*!
     \contentspage index.html
@@ -6681,9 +5920,18 @@
     \list 1
         \o Select \gui Tools > \gui Options... > \gui Debugger >
            \gui{Debugging Helper}.
-        \o Uncheck the \gui{Use debugging helper} checkbox.
+        \o Uncheck the \gui{Use Debugging Helper} checkbox.
     \endlist
 
+    \section1 Showing Tooltips in Debug Mode
+
+    To inspect the value of variables from the editor, you can turn
+    on tooltips. Tooltips are hidden by default for performance reasons.
+
+    \list 1
+        \o Select \gui Tools > \gui Options... > \gui Debugger > \gui General.
+        \o Select the \gui {Use tooltips in main editor while debugging} check box.
+    \endlist
 
     \section1 Locating Files
 
@@ -7426,6 +6674,33 @@
         OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
         IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\br\br
         The source code of Botan C++ crypto library can be found
+        here:
+        \list
+        \o QtCreator/src/libs/3rdparty
+        \o \l{http://qt.gitorious.org/qt-creator/qt-creator/trees/master/src/libs/3rdparty}
+        \endlist
+        \br\br
+
+    \o  \bold{NetSieben SSH Library is a Secure Shell client library for C++.
+         Version 1.3.2}\br
+        \list
+        \o \bold{Commercial License:} For organizations who do not want to
+            release the source code for their applications as open source/
+            free software; in other words they do not want to comply with the
+            GNU General Public License (GPL) or Q Public License.
+        \o \bold{Non Commercial / Open Source License:} NetSieben believes in
+            contributing back to the open source community, thus it has released
+            the SSH Library under Q Public License as it is defined by Trolltech
+            AS of Norway. The Open Source License allows the user to use software
+            under an open source / free software license, and distribute it
+            freely. The software can be used at no charge with the condition
+            that if the user uses the SSH Library in an application they wish to
+            redistribute, then the complete source code for your application must
+            be available and freely redistributable under reasonable conditions.
+            For more information on the used QPL License see:
+            QtCreator/src/libs/3rdparty/net7ssh/LICENSE.QPL
+        \endlist\br\br
+        The source code of NetSieben Secure Shell C++ Library can be found
         here:
         \list
         \o QtCreator/src/libs/3rdparty

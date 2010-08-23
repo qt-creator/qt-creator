@@ -5595,11 +5595,11 @@ name in different directories.</source>
     </message>
     <message>
         <source>Undo Changes</source>
-        <translation type="obsolete">変更内容を元に戻す</translation>
+        <translation>変更内容を元に戻す</translation>
     </message>
     <message>
         <source>Undo Changes for &quot;%1&quot;</source>
-        <translation type="obsolete">&quot;%1&quot; の変更を元に戻す</translation>
+        <translation>&quot;%1&quot; の変更を元に戻す</translation>
     </message>
     <message>
         <source>Alt+G,Alt+U</source>

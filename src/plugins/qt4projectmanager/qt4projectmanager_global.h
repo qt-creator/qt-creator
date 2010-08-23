@@ -27,31 +27,15 @@
 **
 **************************************************************************/
 
-#ifndef QMLJSEDITOR_CONSTANTS_H
-#define QMLJSEDITOR_CONSTANTS_H
+#ifndef QT4PROJECTMANAGER_GLOBAL_H
+#define QT4PROJECTMANAGER_GLOBAL_H
 
-#include <QtCore/QtGlobal>
+#include <QtCore/qglobal.h>
 
-namespace QmlJSEditor {
-namespace Constants {
+#if defined(QT4PROJECTMANAGER_LIBRARY)
+#  define QT4PROJECTMANAGER_EXPORT Q_DECL_EXPORT
+#else
+#  define QT4PROJECTMANAGER_EXPORT Q_DECL_IMPORT
+#endif
 
-// menus
-const char * const M_CONTEXT = "QML JS Editor.ContextMenu";
-
-const char * const RUN_SEP = "QmlJSEditor.Run.Separator";
-const char * const C_QMLJSEDITOR_ID = "QMLProjectManager.QMLJSEditor";
-const char * const C_QMLJSEDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("OpenWith::Editors", "QMLJS Editor");
-const char * const TASK_INDEX = "QmlJSEditor.TaskIndex";
-
-const char * const FOLLOW_SYMBOL_UNDER_CURSOR = "QmlJSEditor.FollowSymbolUnderCursor";
-const char * const SHOW_QT_QUICK_HELPER = "QmlJSEditor.ShowQtQuickHelper";
-
-const char * const QML_MIMETYPE = "application/x-qml";
-const char * const JS_MIMETYPE = "application/javascript";
-
-const char *const TASK_CATEGORY_QML = "Task.Category.Qml";
-
-} // namespace Constants
-} // namespace QmlJSEditor
-
-#endif // QMLJSEDITOR_CONSTANTS_H
+#endif // QT4PROJECTMANAGER_GLOBAL_H

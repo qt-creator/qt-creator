@@ -86,7 +86,7 @@ void AttachGdbAdapter::runEngine()
 void AttachGdbAdapter::handleAttach(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == GdbResultDone || response.resultClass == GdbResultRunning) {
         showMessage(_("INFERIOR ATTACHED"));
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
         m_engine->handleInferiorPrepared();

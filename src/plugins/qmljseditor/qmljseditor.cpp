@@ -617,7 +617,6 @@ QmlJSEditorEditable::QmlJSEditorEditable(QmlJSTextEditor *editor)
 {
     m_context.add(QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
     m_context.add(TextEditor::Constants::C_TEXTEDITOR);
-    m_context.add(QmlDesigner::Constants::C_QT_QUICK_TOOLS_MENU);
 }
 
 // Use preferred mode from Bauhaus settings

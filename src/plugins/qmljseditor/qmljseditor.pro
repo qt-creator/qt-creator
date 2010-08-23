@@ -32,7 +32,6 @@ HEADERS += \
     quicktoolbarsettingspage.h \
     quicktoolbar.h
 
-
 SOURCES += \
     qmljscodecompletion.cpp \
     qmljseditor.cpp \
@@ -56,7 +55,6 @@ SOURCES += \
     qmljsoutlinetreeview.cpp \
     quicktoolbarsettingspage.cpp \
     quicktoolbar.cpp
-
 
 RESOURCES += qmljseditor.qrc
 OTHER_FILES += QmlJSEditor.pluginspec QmlJSEditor.mimetypes.xml

@@ -127,7 +127,7 @@ private slots:
 
 private:
     void resetInfos();
-    QPair<QIcon, QString> reportIssues(QtVersion *version);
+    QPair<QIcon, QString> reportIssues(QtVersion *version, const QString &buildDir);
     void updateVersionItem(QTreeWidgetItem *, int);
 
     QList<ImportInfo> m_infos;

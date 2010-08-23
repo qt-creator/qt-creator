@@ -146,6 +146,16 @@ void TargetSetupPage::setImportInfos(const QList<ImportInfo> &infos)
         foreach (const ImportInfo &i, m_infos) {
             ++pos;
 
+            QString buildDir;
+            if (i.directory.isEmpty()) {
+                if (i.version->supportsShadowBuilds())
+                    buildDir = Qt4Target::defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(m_proFilePath), t);
+                else
+                    buildDir = Qt4Project::projectDirectory(m_proFilePath);
+            } else {
+                buildDir = i.directory;
+            }
+
             if (!i.version->supportsTargetId(t))
                 continue;
             QTreeWidgetItem *versionItem = new QTreeWidgetItem(targetItem);
@@ -470,7 +480,8 @@ void TargetSetupPage::resetInfos()
     m_infos.clear();
 }
 
-QPair<QIcon, QString> TargetSetupPage::reportIssues(Qt4ProjectManager::QtVersion *version)
+QPair<QIcon, QString> TargetSetupPage::reportIssues(Qt4ProjectManager::QtVersion *version,
+                                                    const QString &buildDir)
 {
     if (m_proFilePath.isEmpty())
         return qMakePair(QIcon(), QString());
@@ -479,8 +490,7 @@ QPair<QIcon, QString> TargetSetupPage::reportIssues(Qt4ProjectManager::QtVersion
                                               ->getObject<ProjectExplorer::TaskHub>();
     QTC_ASSERT(taskHub, return qMakePair(QIcon(), QString()));
 
-    QList<ProjectExplorer::Task> issues = version->reportIssues(m_proFilePath);
-
+    QList<ProjectExplorer::Task> issues = version->reportIssues(m_proFilePath, buildDir);
 
     QString text;
     QIcon icon;
@@ -507,7 +517,18 @@ QPair<QIcon, QString> TargetSetupPage::reportIssues(Qt4ProjectManager::QtVersion
 void TargetSetupPage::updateVersionItem(QTreeWidgetItem *versionItem, int index)
 {
     ImportInfo &info = m_infos[index];
-    QPair<QIcon, QString> issues = reportIssues(info.version);
+    const QString target = versionItem->parent()->data(NAME_COLUMN, Qt::UserRole).toString();
+    QString dir;
+    if (info.directory.isEmpty()) {
+        Q_ASSERT(!info.isTemporary && !info.isExistingBuild);
+        if (info.isShadowBuild)
+            dir = Qt4Target::defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(m_proFilePath), target);
+        else
+            dir = Qt4Project::projectDirectory(m_proFilePath);
+    } else {
+        dir = info.directory;
+    }
+    QPair<QIcon, QString> issues = reportIssues(info.version, dir);
 
     //: We are going to build debug and release
     QString buildType = tr("debug and release");
@@ -519,8 +540,8 @@ void TargetSetupPage::updateVersionItem(QTreeWidgetItem *versionItem, int index)
             //: release build
             buildType = tr("release");
     }
-    QString toolTip = QLatin1String("<nobr>");
-    toolTip = toolTip.append(info.version->displayName());
+
+    QString toolTip = info.version->displayName();
     //: %1: qmake used (incl. full path), %2: "debug", "release" or "debug and release"
     toolTip.append(tr("<br>using %1 (%2)").
             arg(QDir::toNativeSeparators(info.version->qmakeCommand())).
@@ -546,18 +567,6 @@ void TargetSetupPage::updateVersionItem(QTreeWidgetItem *versionItem, int index)
 
     // Column 2 (directory):
     Q_ASSERT(versionItem->parent());
-    const QString target = versionItem->parent()->data(NAME_COLUMN, Qt::UserRole).toString();
-    QString dir;
-    if (info.directory.isEmpty()) {
-        Q_ASSERT(!info.isTemporary && !info.isExistingBuild);
-        if (info.isShadowBuild)
-            dir = QDir::toNativeSeparators(Qt4Target::defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(m_proFilePath), target));
-        else
-            dir = QDir::toNativeSeparators(Qt4Project::projectDirectory(m_proFilePath));
-    } else {
-        Q_ASSERT(info.isExistingBuild);
-        dir = QDir::toNativeSeparators(info.directory);
-    }
-    versionItem->setText(DIRECTORY_COLUMN, dir);
-    versionItem->setToolTip(DIRECTORY_COLUMN, dir);
+    versionItem->setText(DIRECTORY_COLUMN, QDir::toNativeSeparators(dir));
+    versionItem->setToolTip(DIRECTORY_COLUMN, QDir::toNativeSeparators(dir));
 }

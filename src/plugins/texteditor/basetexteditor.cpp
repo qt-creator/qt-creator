@@ -782,22 +782,22 @@ void BaseTextEditor::gotoLineEndWithSelection()
 
 void BaseTextEditor::gotoNextLine()
 {
-    moveCursor(QTextCursor::NextRow);
+    moveCursor(QTextCursor::Down);
 }
 
 void BaseTextEditor::gotoNextLineWithSelection()
 {
-    moveCursor(QTextCursor::NextRow, QTextCursor::KeepAnchor);
+    moveCursor(QTextCursor::Down, QTextCursor::KeepAnchor);
 }
 
 void BaseTextEditor::gotoPreviousLine()
 {
-    moveCursor(QTextCursor::PreviousRow);
+    moveCursor(QTextCursor::Up);
 }
 
 void BaseTextEditor::gotoPreviousLineWithSelection()
 {
-    moveCursor(QTextCursor::PreviousRow, QTextCursor::KeepAnchor);
+    moveCursor(QTextCursor::Up, QTextCursor::KeepAnchor);
 }
 
 void BaseTextEditor::gotoPreviousCharacter()

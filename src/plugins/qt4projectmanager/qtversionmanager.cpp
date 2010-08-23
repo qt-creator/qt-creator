@@ -638,9 +638,13 @@ bool QtVersion::supportsShadowBuilds() const
 }
 
 QList<ProjectExplorer::Task>
-QtVersion::reportIssues(const QString &proFile)
+QtVersion::reportIssues(const QString &proFile, const QString &buildDir)
 {
     QList<ProjectExplorer::Task> results;
+
+    QString tmpBuildDir = buildDir;
+    if (!buildDir.endsWith(QChar('/')))
+        tmpBuildDir.append(QChar('/'));
 
     if (!isValid()) {
         //: %1: Reason for being invalid
@@ -656,6 +660,23 @@ QtVersion::reportIssues(const QString &proFile)
         const QString msg = QCoreApplication::translate("Qt4ProjectManager::QtVersion",
                                                         "The qmake command \"%1\" was not found or is not executable.").arg(qmakeCommand());
         results.append(ProjectExplorer::Task(ProjectExplorer::Task::Error, msg, QString(), -1,
+                                             QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+    }
+
+    QString sourcePath = QFileInfo(proFile).absolutePath();
+    if (!sourcePath.endsWith(QChar('/')))
+        sourcePath.append(QChar('/'));
+
+    if ((tmpBuildDir.startsWith(sourcePath)) && (tmpBuildDir != sourcePath)) {
+        const QString msg = QCoreApplication::translate("Qt4ProjectManager::QtVersion",
+                                                        "Qmake does not support build directories below the source directory.");
+        results.append(ProjectExplorer::Task(ProjectExplorer::Task::Warning, msg, QString(), -1,
+                                             QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+    } else if (tmpBuildDir.count(QChar('/')) != sourcePath.count(QChar('/'))) {
+        const QString msg = QCoreApplication::translate("Qt4ProjectManager::QtVersion",
+                                                        "The build directory needs to be at the same level as the source directory.");
+
+        results.append(ProjectExplorer::Task(ProjectExplorer::Task::Warning, msg, QString(), -1,
                                              QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
     }
 
@@ -731,6 +752,7 @@ void QtVersion::setQMakeCommand(const QString& qmakeCommand)
 #endif
     m_designerCommand.clear();
     m_linguistCommand.clear();
+    m_qmlviewerCommand.clear();
     m_uicCommand.clear();
     m_toolChainUpToDate = false;
     // TODO do i need to optimize this?
@@ -1182,6 +1204,22 @@ QString QtVersion::linguistCommand() const
     if (m_linguistCommand.isNull())
         m_linguistCommand = findQtBinary(possibleGuiBinaries(QLatin1String("linguist")));
     return m_linguistCommand;
+}
+
+QString QtVersion::qmlviewerCommand() const
+{
+    if (!isValid())
+        return QString();
+    if (m_qmlviewerCommand.isNull()) {
+#ifdef Q_OS_MAC
+        const QString qmlViewerName = QLatin1String("QMLViewer");
+#else
+        const QString qmlViewerName = QLatin1String("qmlviewer");
+#endif
+
+        m_qmlviewerCommand = findQtBinary(possibleGuiBinaries(qmlViewerName));
+    }
+    return m_qmlviewerCommand;
 }
 
 bool QtVersion::supportsTargetId(const QString &id) const

@@ -30,6 +30,8 @@
 #ifndef QTVERSIONMANAGER_H
 #define QTVERSIONMANAGER_H
 
+#include "qt4projectmanager_global.h"
+#include <projectexplorer/taskwindow.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/task.h>
 
@@ -44,7 +46,7 @@ class QtOptionsPageWidget;
 class QtOptionsPage;
 }
 
-class QtVersion
+class QT4PROJECTMANAGER_EXPORT QtVersion
 {
     friend class QtVersionManager;
 public:
@@ -69,6 +71,7 @@ public:
     QString uicCommand() const;
     QString designerCommand() const;
     QString linguistCommand() const;
+    QString qmlviewerCommand() const;
 
     bool supportsTargetId(const QString &id) const;
     QSet<QString> supportedTargetIds() const;
@@ -148,7 +151,7 @@ public:
     /// its symbian setup.
     /// @return a list of tasks, ordered on severity (errors first, then
     ///         warnings and finally info items.
-    QList<ProjectExplorer::Task> reportIssues(const QString &proFile);
+    QList<ProjectExplorer::Task> reportIssues(const QString &proFile, const QString &buildDir);
 
 private:
     QList<QSharedPointer<ProjectExplorer::ToolChain> > toolChains() const;
@@ -190,6 +193,7 @@ private:
     mutable QString m_uicCommand;
     mutable QString m_designerCommand;
     mutable QString m_linguistCommand;
+    mutable QString m_qmlviewerCommand;
     mutable QSet<QString> m_targetIds;
 
     mutable bool m_isBuildUsingSbsV2;
@@ -202,7 +206,7 @@ struct QMakeAssignment
     QString value;
 };
 
-class QtVersionManager : public QObject
+class QT4PROJECTMANAGER_EXPORT QtVersionManager : public QObject
 {
     Q_OBJECT
     // for getUniqueId();
