@@ -168,7 +168,7 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
     QmlItemNode newNode;
     RewriterTransaction transaction = beginRewriterTransaction();
     {
-        if (itemLibraryEntry.typeName().contains('.')) {
+        if (itemLibraryEntry.typeName().contains('/')) {
             const QString newImportUrl = itemLibraryEntry.typeName().split('/').first();
             const QString newImportVersion = QString("%1.%2").arg(QString::number(itemLibraryEntry.majorVersion()), QString::number(itemLibraryEntry.minorVersion()));
             Import newImport = Import::createLibraryImport(newImportUrl, newImportVersion);
