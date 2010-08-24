@@ -58,7 +58,7 @@ static QToolButton *createToolButton(QAction *action)
 
 QmlInspectorToolbar::QmlInspectorToolbar(QObject *parent) :
     QObject(parent),
-    m_designmodeAction(0),
+    m_observerModeAction(0),
     m_reloadAction(0),
     m_playAction(0),
     m_selectAction(0),
@@ -88,7 +88,7 @@ QmlInspectorToolbar::QmlInspectorToolbar(QObject *parent) :
 
 void QmlInspectorToolbar::setEnabled(bool value)
 {
-    m_designmodeAction->setEnabled(value);
+    m_observerModeAction->setEnabled(value);
     //m_toQmlAction->setEnabled(value);
     m_fromQmlAction->setEnabled(value);
 
@@ -107,7 +107,7 @@ void QmlInspectorToolbar::enable()
 {
     setEnabled(true);
     m_emitSignals = false;
-    m_designmodeAction->setChecked(false);
+    m_observerModeAction->setChecked(false);
     setAnimationSpeed(1.0f);
     activateDesignModeOnClick();
     m_emitSignals = true;
@@ -176,7 +176,7 @@ void QmlInspectorToolbar::setAnimationSpeed(qreal slowdownFactor)
 void QmlInspectorToolbar::setDesignModeBehavior(bool inDesignMode)
 {
     m_emitSignals = false;
-    m_designmodeAction->setChecked(inDesignMode);
+    m_observerModeAction->setChecked(inDesignMode);
     activateDesignModeOnClick();
     m_emitSignals = true;
 }
@@ -187,7 +187,7 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     Core::ActionManager *am = core->actionManager();
 
     m_fromQmlAction = new QAction(QIcon(QLatin1String(":/qml/images/from-qml-small.png")), tr("Apply Changes to Document"), this);
-    m_designmodeAction = new QAction(QIcon(QLatin1String(":/qml/images/designmode.png")), tr("Design Mode"), this);
+    m_observerModeAction = new QAction(QIcon(QLatin1String(":/qml/images/observermode.png")), tr("Observer Mode"), this);
 
     m_reloadAction = new QAction(QIcon(QLatin1String(":/qml/images/reload.png")), tr("Reload"), this);
     m_playAction = new QAction(m_playIcon, tr("Play animations"), this);
@@ -197,8 +197,8 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     m_colorPickerAction = new QAction(QIcon(QLatin1String(":/qml/images/color-picker-small.png")), tr("Color Picker"), this);
     m_toQmlAction = new QAction(QIcon(QLatin1String(":/qml/images/to-qml-small.png")), tr("Live Preview Changes in QML Viewer"), this);
 
-    m_designmodeAction->setCheckable(true);
-    m_designmodeAction->setChecked(false);
+    m_observerModeAction->setCheckable(true);
+    m_observerModeAction->setChecked(false);
     m_selectAction->setCheckable(true);
     m_selectMarqueeAction->setCheckable(true);
     m_zoomAction->setCheckable(true);
@@ -207,7 +207,7 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     m_fromQmlAction->setCheckable(true);
     m_fromQmlAction->setChecked(true);
 
-    am->registerAction(m_designmodeAction, QmlJSInspector::Constants::DESIGNMODE_ACTION, context);
+    am->registerAction(m_observerModeAction, QmlJSInspector::Constants::DESIGNMODE_ACTION, context);
     am->registerAction(m_reloadAction, QmlJSInspector::Constants::RELOAD_ACTION, context);
     am->registerAction(m_playAction, QmlJSInspector::Constants::PLAY_ACTION, context);
     am->registerAction(m_selectAction, QmlJSInspector::Constants::SELECT_ACTION, context);
@@ -288,7 +288,7 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
 
     setEnabled(false);
 
-    connect(m_designmodeAction, SIGNAL(triggered()), SLOT(activateDesignModeOnClick()));
+    connect(m_observerModeAction, SIGNAL(triggered()), SLOT(activateDesignModeOnClick()));
     connect(m_reloadAction, SIGNAL(triggered()), SIGNAL(reloadSelected()));
 
     connect(m_colorPickerAction, SIGNAL(triggered()), SLOT(activateColorPickerOnClick()));
@@ -341,7 +341,7 @@ void QmlInspectorToolbar::changeToTenthAnimSpeed()
 
 void QmlInspectorToolbar::activateDesignModeOnClick()
 {
-    bool checked = m_designmodeAction->isChecked();
+    bool checked = m_observerModeAction->isChecked();
 
     m_reloadAction->setEnabled(true);
     m_playAction->setEnabled(checked);

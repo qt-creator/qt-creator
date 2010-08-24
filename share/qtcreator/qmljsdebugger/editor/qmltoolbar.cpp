@@ -15,7 +15,7 @@ QmlToolbar::QmlToolbar(QWidget *parent) :
     m_isRunning(false),
     ui(new Ui)
 {
-    ui->designmode = new QAction(QIcon(QLatin1String(":/qml/images/designmode-24.png")), tr("Design Mode"), this);
+    ui->designmode = new QAction(QIcon(QLatin1String(":/qml/images/observermode-24.png")), tr("Observer Mode"), this);
     ui->play = new QAction(QIcon(QLatin1String(":/qml/images/play-24.png")), tr("Play"), this);
     ui->pause = new QAction(QIcon(QLatin1String(":/qml/images/pause-24.png")), tr("Pause"), this);
     ui->select = new QAction(QIcon(QLatin1String(":/qml/images/select-24.png")), tr("Select"), this);

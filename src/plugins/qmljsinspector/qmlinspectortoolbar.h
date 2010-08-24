@@ -118,7 +118,7 @@ private slots:
     void updatePauseAction();
 
 private:
-    QAction *m_designmodeAction;
+    QAction *m_observerModeAction;
     QAction *m_reloadAction;
     QAction *m_playAction;
     QAction *m_selectAction;
