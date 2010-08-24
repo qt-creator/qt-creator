@@ -690,8 +690,7 @@ void QDeclarativeDesignViewPrivate::createToolbar()
     QObject::connect(q, SIGNAL(designModeBehaviorChanged(bool)), toolbar, SLOT(setDesignModeBehavior(bool)));
 
     QObject::connect(toolbar, SIGNAL(designModeBehaviorChanged(bool)), q, SLOT(setDesignModeBehavior(bool)));
-    QObject::connect(toolbar, SIGNAL(executionStarted()), q, SLOT(continueExecution()));
-    QObject::connect(toolbar, SIGNAL(executionPaused()), q, SLOT(pauseExecution()));
+    QObject::connect(toolbar, SIGNAL(animationSpeedChanged(qreal)), q, SLOT(changeAnimationSpeed(qreal)));
     QObject::connect(toolbar, SIGNAL(colorPickerSelected()), q, SLOT(_q_changeToColorPickerTool()));
     QObject::connect(toolbar, SIGNAL(zoomToolSelected()), q, SLOT(_q_changeToZoomTool()));
     QObject::connect(toolbar, SIGNAL(selectToolSelected()), q, SLOT(_q_changeToSingleSelectTool()));
@@ -699,8 +698,8 @@ void QDeclarativeDesignViewPrivate::createToolbar()
 
     QObject::connect(toolbar, SIGNAL(applyChangesFromQmlFileSelected()), q, SLOT(_q_applyChangesFromClient()));
 
-    QObject::connect(q, SIGNAL(executionStarted(qreal)), toolbar, SLOT(startExecution()));
-    QObject::connect(q, SIGNAL(executionPaused()), toolbar, SLOT(pauseExecution()));
+    QObject::connect(q, SIGNAL(executionStarted(qreal)), toolbar, SLOT(setAnimationSpeed(qreal)));
+    QObject::connect(q, SIGNAL(executionPaused()), toolbar, SLOT(setAnimationSpeed()));
 
     QObject::connect(q, SIGNAL(selectToolActivated()), toolbar, SLOT(activateSelectTool()));
 

@@ -1,6 +1,7 @@
 #include <QLabel>
 #include <QIcon>
 #include <QAction>
+#include <QMenu>
 
 #include "qmltoolbar.h"
 #include "toolbarcolorbox.h"
@@ -9,15 +10,19 @@
 
 namespace QmlViewer {
 
-QmlToolbar::QmlToolbar(QWidget *parent) :
-    QToolBar(parent),
-    m_emitSignals(true),
-    m_isRunning(false),
-    ui(new Ui)
+QmlToolbar::QmlToolbar(QWidget *parent)
+    : QToolBar(parent)
+    , m_emitSignals(true)
+    , m_isRunning(false)
+    , m_animationSpeed(1.0f)
+    , m_previousAnimationSpeed(0.0f)
+    , ui(new Ui)
 {
+    ui->playIcon = QIcon(QLatin1String(":/qml/images/play-24.png"));
+    ui->pauseIcon = QIcon(QLatin1String(":/qml/images/pause-24.png"));
+
     ui->designmode = new QAction(QIcon(QLatin1String(":/qml/images/observermode-24.png")), tr("Observer Mode"), this);
-    ui->play = new QAction(QIcon(QLatin1String(":/qml/images/play-24.png")), tr("Play"), this);
-    ui->pause = new QAction(QIcon(QLatin1String(":/qml/images/pause-24.png")), tr("Pause"), this);
+    ui->play = new QAction(ui->pauseIcon, tr("Play/Pause Animations"), this);
     ui->select = new QAction(QIcon(QLatin1String(":/qml/images/select-24.png")), tr("Select"), this);
     ui->selectMarquee = new QAction(QIcon(QLatin1String(":/qml/images/select-marquee-24.png")), tr("Select (Marquee)"), this);
     ui->zoom = new QAction(QIcon(QLatin1String(":/qml/images/zoom-24.png")), tr("Zoom"), this);
@@ -27,9 +32,7 @@ QmlToolbar::QmlToolbar(QWidget *parent) :
     ui->designmode->setCheckable(true);
     ui->designmode->setChecked(false);
 
-    ui->play->setCheckable(true);
-    ui->play->setChecked(true);
-    ui->pause->setCheckable(true);
+    ui->play->setCheckable(false);
     ui->select->setCheckable(true);
     ui->selectMarquee->setCheckable(true);
     ui->zoom->setCheckable(true);
@@ -39,7 +42,6 @@ QmlToolbar::QmlToolbar(QWidget *parent) :
 
     addAction(ui->designmode);
     addAction(ui->play);
-    addAction(ui->pause);
     addSeparator();
 
     addAction(ui->select);
@@ -57,12 +59,43 @@ QmlToolbar::QmlToolbar(QWidget *parent) :
 
     setWindowFlags(Qt::Tool);
 
+    QMenu *playSpeedMenu = new QMenu(this);
+    QActionGroup *playSpeedMenuActions = new QActionGroup(this);
+    playSpeedMenuActions->setExclusive(true);
+    playSpeedMenu->addAction(tr("Animation Speed"));
+    playSpeedMenu->addSeparator();
+    ui->defaultAnimSpeedAction = playSpeedMenu->addAction(tr("1x"), this, SLOT(changeToDefaultAnimSpeed()));
+    ui->defaultAnimSpeedAction->setCheckable(true);
+    ui->defaultAnimSpeedAction->setChecked(true);
+    playSpeedMenuActions->addAction(ui->defaultAnimSpeedAction);
+
+    ui->halfAnimSpeedAction = playSpeedMenu->addAction(tr("0.5x"), this, SLOT(changeToHalfAnimSpeed()));
+    ui->halfAnimSpeedAction->setCheckable(true);
+    playSpeedMenuActions->addAction(ui->halfAnimSpeedAction);
+
+    ui->fourthAnimSpeedAction = playSpeedMenu->addAction(tr("0.25x"), this, SLOT(changeToFourthAnimSpeed()));
+    ui->fourthAnimSpeedAction->setCheckable(true);
+    playSpeedMenuActions->addAction(ui->fourthAnimSpeedAction);
+
+    ui->eighthAnimSpeedAction = playSpeedMenu->addAction(tr("0.125x"), this, SLOT(changeToEighthAnimSpeed()));
+    ui->eighthAnimSpeedAction->setCheckable(true);
+    playSpeedMenuActions->addAction(ui->eighthAnimSpeedAction);
+
+    ui->tenthAnimSpeedAction = playSpeedMenu->addAction(tr("0.1x"), this, SLOT(changeToTenthAnimSpeed()));
+    ui->tenthAnimSpeedAction->setCheckable(true);
+    playSpeedMenuActions->addAction(ui->tenthAnimSpeedAction);
+
+    ui->menuPauseAction = playSpeedMenu->addAction(tr("Pause"), this, SLOT(updatePauseAction()));
+    ui->menuPauseAction->setCheckable(true);
+    ui->menuPauseAction->setIcon(ui->pauseIcon);
+    playSpeedMenuActions->addAction(ui->menuPauseAction);
+    ui->play->setMenu(playSpeedMenu);
+
     connect(ui->designmode, SIGNAL(toggled(bool)), SLOT(setDesignModeBehaviorOnClick(bool)));
 
     connect(ui->colorPicker, SIGNAL(triggered()), SLOT(activateColorPickerOnClick()));
 
     connect(ui->play, SIGNAL(triggered()), SLOT(activatePlayOnClick()));
-    connect(ui->pause, SIGNAL(triggered()), SLOT(activatePauseOnClick()));
 
     connect(ui->zoom, SIGNAL(triggered()), SLOT(activateZoomOnClick()));
     connect(ui->colorPicker, SIGNAL(triggered()), SLOT(activateColorPickerOnClick()));
@@ -76,20 +109,6 @@ QmlToolbar::QmlToolbar(QWidget *parent) :
 QmlToolbar::~QmlToolbar()
 {
     delete ui;
-}
-
-void QmlToolbar::startExecution()
-{
-    m_emitSignals = false;
-    activatePlayOnClick();
-    m_emitSignals = true;
-}
-
-void QmlToolbar::pauseExecution()
-{
-    m_emitSignals = false;
-    activatePauseOnClick();
-    m_emitSignals = true;
 }
 
 void QmlToolbar::activateColorPicker()
@@ -120,6 +139,63 @@ void QmlToolbar::activateZoom()
     m_emitSignals = true;
 }
 
+void QmlToolbar::setAnimationSpeed(qreal slowdownFactor)
+{
+    m_emitSignals = false;
+    if (slowdownFactor != 0) {
+        m_animationSpeed = slowdownFactor;
+
+        if (slowdownFactor == 1.0f) {
+            ui->defaultAnimSpeedAction->setChecked(true);
+        } else if (slowdownFactor == 2.0f) {
+            ui->halfAnimSpeedAction->setChecked(true);
+        } else if (slowdownFactor == 4.0f) {
+            ui->fourthAnimSpeedAction->setChecked(true);
+        } else if (slowdownFactor == 8.0f) {
+            ui->eighthAnimSpeedAction->setChecked(true);
+        } else if (slowdownFactor == 10.0f) {
+            ui->tenthAnimSpeedAction->setChecked(true);
+        }
+        updatePlayAction();
+    } else {
+        ui->menuPauseAction->setChecked(true);
+        updatePauseAction();
+    }
+
+    m_emitSignals = true;
+}
+
+void QmlToolbar::changeToDefaultAnimSpeed()
+{
+    m_animationSpeed = 1.0f;
+    updatePlayAction();
+}
+
+void QmlToolbar::changeToHalfAnimSpeed()
+{
+    m_animationSpeed = 2.0f;
+    updatePlayAction();
+}
+
+void QmlToolbar::changeToFourthAnimSpeed()
+{
+    m_animationSpeed = 4.0f;
+    updatePlayAction();
+}
+
+void QmlToolbar::changeToEighthAnimSpeed()
+{
+    m_animationSpeed = 8.0f;
+    updatePlayAction();
+}
+
+void QmlToolbar::changeToTenthAnimSpeed()
+{
+    m_animationSpeed = 10.0f;
+    updatePlayAction();
+}
+
+
 void QmlToolbar::setDesignModeBehavior(bool inDesignMode)
 {
     m_emitSignals = false;
@@ -131,7 +207,6 @@ void QmlToolbar::setDesignModeBehavior(bool inDesignMode)
 void QmlToolbar::setDesignModeBehaviorOnClick(bool checked)
 {
     ui->play->setEnabled(checked);
-    ui->pause->setEnabled(checked);
     ui->select->setEnabled(checked);
     ui->selectMarquee->setEnabled(checked);
     ui->zoom->setEnabled(checked);
@@ -150,24 +225,30 @@ void QmlToolbar::setColorBoxColor(const QColor &color)
 
 void QmlToolbar::activatePlayOnClick()
 {
-    ui->pause->setChecked(false);
-    ui->play->setChecked(true);
-    if (!m_isRunning) {
-        m_isRunning = true;
-        if (m_emitSignals)
-            emit executionStarted();
+    if (m_isRunning) {
+        updatePauseAction();
+    } else {
+        updatePlayAction();
     }
 }
 
-void QmlToolbar::activatePauseOnClick()
+void QmlToolbar::updatePlayAction()
 {
-    ui->play->setChecked(false);
-    ui->pause->setChecked(true);
-    if (m_isRunning) {
-        m_isRunning = false;
-        if (m_emitSignals)
-            emit executionPaused();
-    }
+    m_isRunning = true;
+    ui->play->setIcon(ui->pauseIcon);
+    if (m_animationSpeed != m_previousAnimationSpeed)
+        m_previousAnimationSpeed = m_animationSpeed;
+
+    if (m_emitSignals)
+        emit animationSpeedChanged(m_animationSpeed);
+}
+
+void QmlToolbar::updatePauseAction()
+{
+    m_isRunning = false;
+    ui->play->setIcon(ui->playIcon);
+    if (m_emitSignals)
+        emit animationSpeedChanged(0.0f);
 }
 
 void QmlToolbar::activateColorPickerOnClick()

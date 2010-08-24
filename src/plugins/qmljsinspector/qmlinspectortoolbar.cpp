@@ -167,6 +167,7 @@ void QmlInspectorToolbar::setAnimationSpeed(qreal slowdownFactor)
         }
         updatePlayAction();
     } else {
+        m_menuPauseAction->setChecked(true);
         updatePauseAction();
     }
 
@@ -190,7 +191,7 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     m_observerModeAction = new QAction(QIcon(QLatin1String(":/qml/images/observermode.png")), tr("Observer Mode"), this);
 
     m_reloadAction = new QAction(QIcon(QLatin1String(":/qml/images/reload.png")), tr("Reload"), this);
-    m_playAction = new QAction(m_playIcon, tr("Play animations"), this);
+    m_playAction = new QAction(m_pauseIcon, tr("Play/Pause Animations"), this);
     m_selectAction = new QAction(QIcon(QLatin1String(":/qml/images/select-small.png")), tr("Select"), this);
     m_selectMarqueeAction = new QAction(QIcon(QLatin1String(":/qml/images/select-marquee-small.png")), tr("Select (Marquee)"), this);
     m_zoomAction = new QAction(QIcon(QLatin1String(":/qml/images/zoom-small.png")), tr("Zoom"), this);
@@ -366,7 +367,7 @@ void QmlInspectorToolbar::activatePlayOnClick()
 void QmlInspectorToolbar::updatePlayAction()
 {
     m_isRunning = true;
-    m_playAction->setIcon(m_playIcon);
+    m_playAction->setIcon(m_pauseIcon);
     if (m_animationSpeed != m_previousAnimationSpeed)
         m_previousAnimationSpeed = m_animationSpeed;
 
@@ -379,7 +380,7 @@ void QmlInspectorToolbar::updatePlayAction()
 void QmlInspectorToolbar::updatePauseAction()
 {
     m_isRunning = false;
-    m_playAction->setIcon(m_pauseIcon);
+    m_playAction->setIcon(m_playIcon);
     if (m_emitSignals)
         emit animationSpeedChanged(0.0f);
 

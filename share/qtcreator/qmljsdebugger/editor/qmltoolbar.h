@@ -2,6 +2,7 @@
 #define QMLTOOLBAR_H
 
 #include <QToolBar>
+#include <QIcon>
 #include "qmlviewerconstants.h"
 
 namespace QmlViewer {
@@ -19,16 +20,14 @@ public:
 public slots:
     void setDesignModeBehavior(bool inDesignMode);
     void setColorBoxColor(const QColor &color);
-    void startExecution();
-    void pauseExecution();
     void activateColorPicker();
     void activateSelectTool();
     void activateMarqueeSelectTool();
     void activateZoom();
+    void setAnimationSpeed(qreal slowdownFactor = 0.0f);
 
 signals:
-    void executionStarted();
-    void executionPaused();
+    void animationSpeedChanged(qreal slowdownFactor = 1.0f);
 
     void designModeBehaviorChanged(bool inDesignMode);
     void colorPickerSelected();
@@ -42,7 +41,6 @@ signals:
 private slots:
     void setDesignModeBehaviorOnClick(bool inDesignMode);
     void activatePlayOnClick();
-    void activatePauseOnClick();
     void activateColorPickerOnClick();
     void activateSelectToolOnClick();
     void activateMarqueeSelectToolOnClick();
@@ -51,24 +49,45 @@ private slots:
     void activateFromQml();
     void activateToQml();
 
+    void changeToDefaultAnimSpeed();
+    void changeToHalfAnimSpeed();
+    void changeToFourthAnimSpeed();
+    void changeToEighthAnimSpeed();
+    void changeToTenthAnimSpeed();
+
+    void updatePlayAction();
+    void updatePauseAction();
+
 private:
     class Ui {
     public:
         QAction *designmode;
         QAction *play;
-        QAction *pause;
         QAction *select;
         QAction *selectMarquee;
         QAction *zoom;
         QAction *colorPicker;
         QAction *toQml;
         QAction *fromQml;
+        QIcon playIcon;
+        QIcon pauseIcon;
         ToolBarColorBox *colorBox;
+
+        QAction *defaultAnimSpeedAction;
+        QAction *halfAnimSpeedAction;
+        QAction *fourthAnimSpeedAction;
+        QAction *eighthAnimSpeedAction;
+        QAction *tenthAnimSpeedAction;
+        QAction *menuPauseAction;
     };
 
     bool m_emitSignals;
     bool m_isRunning;
+    qreal m_animationSpeed;
+    qreal m_previousAnimationSpeed;
+
     Constants::DesignTool m_activeTool;
+
     Ui *ui;
 };
 
