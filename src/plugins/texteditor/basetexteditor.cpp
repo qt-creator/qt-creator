@@ -1452,7 +1452,7 @@ void BaseTextEditor::insertCodeSnippet(const QTextCursor &cursor_arg, const QStr
             if (textToInsert.isEmpty()) {
                 positions.insert(cursorPosition, 0);
             } else {
-                positions.insert(cursorPosition-1, textToInsert.length()+1);
+                positions.insert(cursorPosition, textToInsert.length());
             }
 
             ++pos;
@@ -1485,7 +1485,7 @@ void BaseTextEditor::insertCodeSnippet(const QTextCursor &cursor_arg, const QStr
 
         cursor = textCursor();
         if (selection.cursor.hasSelection()) {
-            cursor.setPosition(selection.cursor.selectionStart()+1);
+            cursor.setPosition(selection.cursor.selectionStart());
             cursor.setPosition(selection.cursor.selectionEnd(), QTextCursor::KeepAnchor);
         } else {
             cursor.setPosition(selection.cursor.position());
@@ -2020,7 +2020,7 @@ void BaseTextEditorPrivate::snippetTabOrBacktab(bool forward)
     if (final.m_cursor_begin.position() == final.m_cursor_end.position()) { // empty tab stop
         cursor.setPosition(final.m_cursor_end.position());
     } else {
-        cursor.setPosition(final.m_cursor_begin.position()+1);
+        cursor.setPosition(final.m_cursor_begin.position());
         cursor.setPosition(final.m_cursor_end.position(), QTextCursor::KeepAnchor);
     }
     q->setTextCursor(cursor);

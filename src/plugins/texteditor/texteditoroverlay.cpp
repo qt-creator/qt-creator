@@ -442,11 +442,14 @@ void TextEditorOverlay::fill(QPainter *painter, const QColor &color, const QRect
     }
 }
 
+/*! \returns true if any selection contains \a cursor, where a cursor on the
+             start or end of a selection is counted as contained.
+*/
 bool TextEditorOverlay::hasCursorInSelection(const QTextCursor &cursor) const
 {
     for (int i = 0; i < m_selections.size(); ++i) {
         const OverlaySelection &selection = m_selections.at(i);
-        if (cursor.position() > selection.m_cursor_begin.position()
+        if (cursor.position() >= selection.m_cursor_begin.position()
             && cursor.position() <= selection.m_cursor_end.position())
             return true;
     }
