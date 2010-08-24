@@ -146,7 +146,7 @@ void QmlJSOutlineWidget::updateSelectionInTree(const QModelIndex &index)
 
     m_blockCursorSync = true;
     m_treeView->selectionModel()->select(m_filterModel->mapFromSource(index), QItemSelectionModel::ClearAndSelect);
-    m_treeView->scrollTo(index);
+    m_treeView->scrollTo(m_filterModel->mapFromSource(index), QTreeView::PositionAtCenter);
     m_blockCursorSync = false;
 }
 
