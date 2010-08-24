@@ -208,7 +208,7 @@ void CustomExecutableConfigurationWidget::userEnvironmentChangesChanged()
 void CustomExecutableConfigurationWidget::executableEdited()
 {
     m_ignoreChange = true;
-    m_runConfiguration->setExecutable(m_executableChooser->path());
+    m_runConfiguration->setExecutable(QDir::fromNativeSeparators(m_executableChooser->path()));
     m_ignoreChange = false;
 }
 void CustomExecutableConfigurationWidget::argumentsEdited(const QString &arguments)
