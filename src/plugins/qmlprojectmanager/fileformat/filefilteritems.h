@@ -17,7 +17,7 @@ class FileFilterBaseItem : public QmlProjectContentItem {
 
     Q_PROPERTY(QString directory READ directory WRITE setDirectory NOTIFY directoryChanged)
     Q_PROPERTY(bool recursive READ recursive WRITE setRecursive NOTIFY recursiveChanged)
-    Q_PROPERTY(QStringList paths READ pathsProperty WRITE setPathsProperty NOTIFY pathsPropertyChanged)
+    Q_PROPERTY(QStringList paths READ pathsProperty WRITE setPathsProperty)
 
     Q_PROPERTY(QStringList files READ files NOTIFY filesChanged DESIGNABLE false)
 
@@ -46,7 +46,6 @@ signals:
     void recursiveChanged();
     void pathsChanged();
     void filesChanged(const QSet<QString> &added, const QSet<QString> &removed);
-    void filterChanged();
 
 private slots:
     void updateFileList();
@@ -89,7 +88,12 @@ public:
 
 class JsFileFilterItem : public FileFilterBaseItem {
     Q_OBJECT
-    Q_PROPERTY(QString filter READ filter WRITE setFilter NOTIFY filterChanged())
+    Q_PROPERTY(QString filter READ filter WRITE setFilter NOTIFY filterChanged)
+
+    void setFilter(const QString &filter);
+
+signals:
+    void filterChanged();
 
 public:
     JsFileFilterItem(QObject *parent = 0);
@@ -97,7 +101,12 @@ public:
 
 class ImageFileFilterItem : public FileFilterBaseItem {
     Q_OBJECT
-    Q_PROPERTY(QString filter READ filter WRITE setFilter NOTIFY filterChanged())
+    Q_PROPERTY(QString filter READ filter WRITE setFilter NOTIFY filterChanged)
+
+    void setFilter(const QString &filter);
+
+signals:
+    void filterChanged();
 
 public:
     ImageFileFilterItem(QObject *parent = 0);
@@ -105,7 +114,12 @@ public:
 
 class CssFileFilterItem : public FileFilterBaseItem {
     Q_OBJECT
-    Q_PROPERTY(QString filter READ filter WRITE setFilter NOTIFY filterChanged())
+    Q_PROPERTY(QString filter READ filter WRITE setFilter NOTIFY filterChanged)
+
+    void setFilter(const QString &filter);
+
+signals:
+    void filterChanged();
 
 public:
     CssFileFilterItem(QObject *parent = 0);

@@ -155,7 +155,7 @@ bool MaemoRunConfiguration::fromMap(const QVariantMap &map)
         return false;
 
     setDeviceConfig(MaemoDeviceConfigurations::instance().
-        find(map.value(DeviceIdKey, 0).toInt()));
+        find(map.value(DeviceIdKey, 0).toULongLong()));
     m_arguments = map.value(ArgumentsKey).toStringList();
     getDeployTimesFromMap(map);
     const QDir dir = QDir(target()->project()->projectDirectory());

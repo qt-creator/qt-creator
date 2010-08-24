@@ -483,7 +483,9 @@ def qdump__QLinkedList(d, item):
 
 def qdump__QLocale(d, item):
     d.putStringValue(call(item.value, "name()"))
-    d.putNumChild(8)
+    d.putNumChild(0)
+    return
+    # FIXME: Poke back for variants.
     if d.isExpanded(item):
         with Children(d, 1, lookupType(d.ns + "QChar"), 0):
             d.putCallItem("country", item, "country()")
@@ -491,9 +493,9 @@ def qdump__QLocale(d, item):
             d.putCallItem("measurementSystem", item, "measurementSystem()")
             d.putCallItem("numberOptions", item, "numberOptions()")
             d.putCallItem("timeFormat_(short)", item,
-                "timeFormat(" + d.ns + "QLocale::ShortFormat)")
+                "timeFormat('" + d.ns + "QLocale::ShortFormat')")
             d.putCallItem("timeFormat_(long)", item,
-                "timeFormat(" + d.ns + "QLocale::LongFormat)")
+                "timeFormat('" + d.ns + "QLocale::LongFormat')")
             d.putCallItem("decimalPoint", item, "decimalPoint()")
             d.putCallItem("exponential", item, "exponential()")
             d.putCallItem("percent", item, "percent()")
@@ -578,9 +580,6 @@ def extractCString(table, offset):
     return result
 
 
-def qdump__QWidget(d, item):
-    qdump__QObject(d, item)
-
 def qdump__QObject(d, item):
     #warn("OBJECT: %s " % item.value)
     staticMetaObject = item.value["staticMetaObject"]
@@ -617,15 +616,16 @@ def qdump__QObject(d, item):
     d.putNumChild(4)
     if d.isExpanded(item):
       with Children(d):
+        d.putFields(item)
+
         # Parent and children.
         d.putItem(Item(d_ptr["parent"], item.iname, "parent", "parent"))
         d.putItem(Item(d_ptr["children"], item.iname, "children", "children"))
 
         # Properties.
         with SubItem(d):
-            #propertyCount = metaData[6]
-            # FIXME: Replace with plain memory accesses.
-            propertyCount = call(mo, "propertyCount()")
+            propertyCount = metaData[6]
+            #propertyCount = call(mo, "propertyCount()")
             #warn("PROPERTY COUNT: %s" % propertyCount)
             propertyData = metaData[7]
             d.putName("properties")
@@ -634,6 +634,9 @@ def qdump__QObject(d, item):
             d.putNumChild(propertyCount)
             if d.isExpandedIName(item.iname + ".properties"):
                 with Children(d):
+                    # FIXME: Make this global. Don't leak.
+                    gdb.execute("set $d = (QVariant*)malloc(sizeof(QVariant))")
+                    gdb.execute("set $d.d.is_shared = 0")
                     for property in xrange(propertyCount):
                         with SubItem(d):
                             offset = propertyData + 3 * property
@@ -648,6 +651,15 @@ def qdump__QObject(d, item):
                             #exp = '"((\'%sQObject\'*)%s)"' % (d.ns, item.value.address,)
                             #warn("EXPRESSION:  %s" % exp)
                             value = call(item.value, 'property("%s")' % propertyName)
+                            value1 = value["d"]
+                            #warn("   CODE: %s" % value1["type"])
+                            # Type 1 and 2 are bool and int. Try to save a few cycles in this case:
+                            if int(value1["type"]) > 2:
+                                # Poke back value
+                                gdb.execute("set $d.d.data.ull = %s" % value1["data"]["ull"])
+                                gdb.execute("set $d.d.type = %s" % value1["type"])
+                                gdb.execute("set $d.d.is_null = %s" % value1["is_null"])
+                                value = parseAndEvaluate("$d").dereference()
                             val, inner, innert = qdumpHelper__QVariant(d, value)
                             if len(inner):
                                 # Build-in types.
@@ -1811,6 +1823,8 @@ def qdump__std__set(d, item):
 def qdump__std__string(d, item):
     data = item.value["_M_dataplus"]["_M_p"]
     baseType = item.value.type.unqualified().strip_typedefs()
+    if baseType.code == gdb.TYPE_CODE_REF:
+        baseType = baseType.target().unqualified().strip_typedefs()
     charType = baseType.template_argument(0)
     repType = lookupType("%s::_Rep" % baseType).pointer()
     rep = (data.cast(repType) - 1).dereference()
@@ -1857,10 +1871,21 @@ def qdump__std__string(d, item):
 
 def qdump__std__vector(d, item):
     impl = item.value["_M_impl"]
-    start = impl["_M_start"]
-    finish = impl["_M_finish"]
+    type = item.value.type.template_argument(0)
     alloc = impl["_M_end_of_storage"]
-    size = finish - start
+    isBool = str(type) == 'bool'
+    if isBool:
+        start = impl["_M_start"]["_M_p"]
+        finish = impl["_M_finish"]["_M_p"]
+        # FIXME: 32 is sizeof(unsigned long) * CHAR_BIT
+        storagesize = 32
+        size = (finish - start) * storagesize
+        size += impl["_M_finish"]["_M_offset"]
+        size -= impl["_M_start"]["_M_offset"]
+    else:
+        start = impl["_M_start"]
+        finish = impl["_M_finish"]
+        size = finish - start
 
     check(0 <= size and size <= 1000 * 1000 * 1000)
     check(finish <= alloc)
@@ -1871,11 +1896,18 @@ def qdump__std__vector(d, item):
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded(item):
-        with Children(d, [size, 10000], item.value.type.template_argument(0)):
-            p = start
-            for i in d.childRange():
-                d.putItem(Item(p.dereference(), item.iname, i))
-                p += 1
+        if isBool:
+            with Children(d, [size, 10000], type):
+                for i in d.childRange():
+                    q = start + i / storagesize
+                    data = (q.dereference() >> (i % storagesize)) & 1
+                    d.putBoolItem(str(i), select(data, "true", "false"))
+        else:
+            with Children(d, [size, 10000], type):
+                p = start
+                for i in d.childRange():
+                    d.putItem(Item(p.dereference(), item.iname, i))
+                    p += 1
 
 
 def qdump__string(d, item):

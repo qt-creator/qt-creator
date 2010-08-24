@@ -1,5 +1,6 @@
 TEMPLATE = lib
 TARGET = Qt4ProjectManager
+DEFINES +=  QT4PROJECTMANAGER_LIBRARY
 QT += network
 include(../../qtcreatorplugin.pri)
 include(qt4projectmanager_dependencies.pri)
@@ -44,7 +45,8 @@ HEADERS += qt4projectmanagerplugin.h \
     gettingstartedwelcomepage.h \
     qt4buildconfiguration.h \
     qt4target.h \
-    qmakeparser.h
+    qmakeparser.h \
+    qt4projectmanager_global.h
 SOURCES += qt4projectmanagerplugin.cpp \
     qt4projectmanager.cpp \
     qt4project.cpp \

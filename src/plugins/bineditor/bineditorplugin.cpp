@@ -193,10 +193,12 @@ public:
     virtual QString mimeType() const { return m_mimeType; }
 
     bool save(const QString &fileName = QString()) {
-        if (m_editor->save(m_fileName, fileName)) {
-            m_fileName = fileName;
+        const QString fileNameToUse
+            = fileName.isEmpty() ? m_fileName : fileName;
+        if (m_editor->save(m_fileName, fileNameToUse)) {
+            m_fileName = fileNameToUse;
             m_editor->editorInterface()->
-                setDisplayName(QFileInfo(fileName).fileName());
+                setDisplayName(QFileInfo(fileNameToUse).fileName());
             emit changed();
             return true;
         } else {
@@ -210,13 +212,12 @@ public:
             && file.open(QIODevice::ReadOnly)) {
             m_fileName = fileName;
             qint64 maxRange = 64 * 1024 * 1024;
-            if (file.size() <= maxRange) {
+            if (file.size() <= maxRange)
                 m_editor->setData(file.readAll());
-            } else {
+            else
                 m_editor->setLazyData(offset, maxRange);
-                m_editor->editorInterface()->
-                        setDisplayName(QFileInfo(fileName).fileName());
-            }
+            m_editor->editorInterface()->
+                setDisplayName(QFileInfo(fileName).fileName());
             file.close();
             return true;
         }

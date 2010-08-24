@@ -41,6 +41,8 @@
 #include <coreplugin/ifile.h>
 #include <utils/synchronousprocess.h>
 #include <utils/pathchooser.h>
+#include <qt4projectmanager/qtversionmanager.h>
+#include <qt4projectmanager/qt4projectmanagerconstants.h>
 
 #include <QFormLayout>
 #include <QComboBox>
@@ -94,20 +96,12 @@ void QmlProjectRunConfiguration::ctor()
     connect(em, SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(changeCurrentFile(Core::IEditor*)));
 
+    Qt4ProjectManager::QtVersionManager *qtVersions = Qt4ProjectManager::QtVersionManager::instance();
+    connect(qtVersions, SIGNAL(qtVersionsChanged(QList<int>)), this, SLOT(updateEnabled()));
+    connect(qtVersions, SIGNAL(qtVersionsChanged(QList<int>)), this, SLOT(onViewerChanged()));
+
+
     setDisplayName(tr("QML Viewer", "QMLRunConfiguration display name."));
-
-    // prepend creator/bin dir to search path (only useful for special creator-qml package)
-    const QString searchPath = QCoreApplication::applicationDirPath()
-                               + Utils::SynchronousProcess::pathSeparator()
-                               + QString(qgetenv("PATH"));
-
-#ifdef Q_OS_MAC
-    const QString qmlViewerName = QLatin1String("QMLViewer");
-#else
-    const QString qmlViewerName = QLatin1String("qmlviewer");
-#endif
-
-    m_qmlViewerDefaultPath = Utils::SynchronousProcess::locateBinary(searchPath, qmlViewerName);
 }
 
 QmlProjectRunConfiguration::~QmlProjectRunConfiguration()
@@ -128,7 +122,8 @@ QString QmlProjectRunConfiguration::viewerPath() const
 {
     if (!m_qmlViewerCustomPath.isEmpty())
         return m_qmlViewerCustomPath;
-    return m_qmlViewerDefaultPath;
+
+    return viewerDefaultPath();
 }
 
 QStringList QmlProjectRunConfiguration::viewerArguments() const
@@ -181,28 +176,22 @@ QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
 
     Utils::PathChooser *qmlViewer = new Utils::PathChooser;
     qmlViewer->setExpectedKind(Utils::PathChooser::Command);
-    qmlViewer->setPath(viewerPath());
+    qmlViewer->setPath(m_qmlViewerCustomPath);
+
     connect(qmlViewer, SIGNAL(changed(QString)), this, SLOT(onViewerChanged()));
+
+    m_qmlViewerExecutable = new QLabel;
+    m_qmlViewerExecutable.data()->setText(viewerPath() + " " + m_qmlViewerArgs);
 
     QLineEdit *qmlViewerArgs = new QLineEdit;
     qmlViewerArgs->setText(m_qmlViewerArgs);
     connect(qmlViewerArgs, SIGNAL(textChanged(QString)), this, SLOT(onViewerArgsChanged()));
 
-    QLineEdit *debugServer = new QLineEdit;
-    debugServer->setText(m_debugData.serverAddress);
-    connect(debugServer, SIGNAL(textChanged(QString)), this, SLOT(onDebugServerAddressChanged()));
-
-    QSpinBox *debugPort = new QSpinBox;
-    debugPort->setMinimum(1024); // valid registered/dynamic/free ports according to http://www.iana.org/assignments/port-numbers
-    debugPort->setMaximum(65535);
-    debugPort->setValue(m_debugData.serverPort);
-    connect(debugPort, SIGNAL(valueChanged(int)), this, SLOT(onDebugServerPortChanged()));
-
     form->addRow(tr("QML Viewer"), qmlViewer);
     form->addRow(tr("QML Viewer arguments:"), qmlViewerArgs);
+    form->addRow(QString(), m_qmlViewerExecutable.data());
+
     form->addRow(tr("Main QML File:"), m_fileListCombo.data());
-    form->addRow(tr("Debugging Address:"), debugServer);
-    form->addRow(tr("Debugging Port:"), debugPort);
 
     return config;
 }
@@ -267,7 +256,7 @@ void QmlProjectRunConfiguration::setMainScript(const QString &scriptFile)
     } else {
         m_usingCurrentFile = false;
         m_mainScriptFilename = qmlTarget()->qmlProject()->projectDir().absoluteFilePath(scriptFile);
-        setEnabled(true);
+        updateEnabled();
     }
 }
 
@@ -276,12 +265,19 @@ void QmlProjectRunConfiguration::onViewerChanged()
     if (Utils::PathChooser *chooser = qobject_cast<Utils::PathChooser *>(sender())) {
         m_qmlViewerCustomPath = chooser->path();
     }
+    if (!m_qmlViewerExecutable.isNull()) {
+        m_qmlViewerExecutable.data()->setText(viewerPath() + " " + m_qmlViewerArgs);
+    }
 }
 
 void QmlProjectRunConfiguration::onViewerArgsChanged()
 {
     if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(sender()))
         m_qmlViewerArgs = lineEdit->text();
+
+    if (!m_qmlViewerExecutable.isNull()) {
+        m_qmlViewerExecutable.data()->setText(viewerPath() + " " + m_qmlViewerArgs);
+    }
 }
 
 void QmlProjectRunConfiguration::onDebugServerPortChanged()
@@ -315,40 +311,79 @@ bool QmlProjectRunConfiguration::fromMap(const QVariantMap &map)
     return RunConfiguration::fromMap(map);
 }
 
-void QmlProjectRunConfiguration::changeCurrentFile(Core::IEditor *editor)
+void QmlProjectRunConfiguration::changeCurrentFile(Core::IEditor * /*editor*/)
 {
+    updateEnabled();
+}
+
+void QmlProjectRunConfiguration::updateEnabled()
+{
+    bool qmlFileFound = false;
     if (m_usingCurrentFile) {
-        bool enable = false;
+        Core::IEditor *editor = Core::EditorManager::instance()->currentEditor();
         if (editor) {
             m_currentFileFilename = editor->file()->fileName();
             if (Core::ICore::instance()->mimeDatabase()->findByFile(mainScript()).type() == QLatin1String("application/x-qml"))
-                enable = true;
+                qmlFileFound = true;
         }
         if (!editor
             || Core::ICore::instance()->mimeDatabase()->findByFile(mainScript()).type() == QLatin1String("application/x-qmlproject")) {
             // find a qml file with lowercase filename. This is slow but only done in initialization/other border cases.
-            foreach(const QString& filename, m_projectTarget->qmlProject()->files()) {
+            foreach(const QString &filename, m_projectTarget->qmlProject()->files()) {
                 const QFileInfo fi(filename);
 
                 if (!filename.isEmpty() && fi.baseName()[0].isLower()
                     && Core::ICore::instance()->mimeDatabase()->findByFile(fi).type() == QLatin1String("application/x-qml"))
                 {
                     m_currentFileFilename = filename;
-                    enable = true;
+                    qmlFileFound = true;
                     break;
                 }
 
             }
         }
+    } else { // use default one
+        qmlFileFound = !m_mainScriptFilename.isEmpty();
+    }
 
-        setEnabled(enable);
+    bool newValue = QFileInfo(viewerPath()).exists() && qmlFileFound;
+
+    if (m_isEnabled != newValue) {
+        m_isEnabled = newValue;
+        emit isEnabledChanged(m_isEnabled);
     }
 }
 
-void QmlProjectRunConfiguration::setEnabled(bool value)
+QString QmlProjectRunConfiguration::viewerDefaultPath() const
 {
-    m_isEnabled = value;
-    emit isEnabledChanged(m_isEnabled);
+    QString path;
+
+    // prepend creator/bin dir to search path (only useful for special creator-qml package)
+    const QString searchPath = QCoreApplication::applicationDirPath()
+            + Utils::SynchronousProcess::pathSeparator()
+            + QString::fromLocal8Bit(qgetenv("PATH"));
+
+
+#ifdef Q_OS_MAC
+    const QString qmlViewerName = QLatin1String("QMLViewer");
+#else
+    const QString qmlViewerName = QLatin1String("qmlviewer");
+#endif
+
+    path = Utils::SynchronousProcess::locateBinary(searchPath, qmlViewerName);
+    if (!path.isEmpty())
+        return path;
+
+    // Try to locate default path in Qt Versions
+    Qt4ProjectManager::QtVersionManager *qtVersions = Qt4ProjectManager::QtVersionManager::instance();
+    foreach (Qt4ProjectManager::QtVersion *version, qtVersions->validVersions()) {
+        if (!version->qmlviewerCommand().isEmpty()
+                && version->supportsTargetId(Qt4ProjectManager::Constants::DESKTOP_TARGET_ID)) {
+            return version->qmlviewerCommand();
+        }
+    }
+
+    return path;
 }
 
 } // namespace QmlProjectManager

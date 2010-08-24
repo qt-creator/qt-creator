@@ -1489,7 +1489,7 @@ TargetInformation Qt4ProFileNode::targetInformation(ProFileReader *reader) const
     result.workingDir = QDir::cleanPath(result.workingDir);
 
     QString wd = result.workingDir;
-    if (!reader->contains("DESTDIR")
+    if ( (!reader->contains("DESTDIR") || reader->value("DESTDIR") == ".")
         && reader->values("CONFIG").contains("debug_and_release")
         && reader->values("CONFIG").contains("debug_and_release_target")) {
         // If we don't have a destdir and debug and release is set

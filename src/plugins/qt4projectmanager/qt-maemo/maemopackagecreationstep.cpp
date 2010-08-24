@@ -195,10 +195,6 @@ bool MaemoPackageCreationStep::createPackage()
         QByteArray rulesContents = rulesFile.readAll();
         rulesContents.replace("DESTDIR", "INSTALL_ROOT");
 
-        // Would be the right solution, but does not work (on Windows),
-        // because dpkg-genchanges doesn't know about it (and can't be told).
-        // rulesContents.replace("dh_builddeb", "dh_builddeb --destdir=.");
-
         rulesFile.resize(0);
         rulesFile.write(rulesContents);
         if (rulesFile.error() != QFile::NoError) {
@@ -220,30 +216,43 @@ bool MaemoPackageCreationStep::createPackage()
         }
     }
 
-    if (!runCommand(QLatin1String("dpkg-buildpackage -nc -uc -us")))
+    if (!runCommand(QLatin1String("dh_installdirs")))
         return false;
 
-    // Workaround for non-working dh_builddeb --destdir=.
-    if (!QDir(buildDir).isRoot()) {
-        const QString packageFileName = QFileInfo(packageFilePath()).fileName();
-        const QString changesFileName = QFileInfo(packageFileName)
-            .completeBaseName() + QLatin1String(".changes");
-        const QString packageSourceDir = buildDir + QLatin1String("/../");
-        const QString packageSourceFilePath
-            = packageSourceDir + packageFileName;
-        const QString changesSourceFilePath
-            = packageSourceDir + changesFileName;
-        const QString changesTargetFilePath
-            = buildDir + QLatin1Char('/') + changesFileName;
-        QFile::remove(packageFilePath());
-        QFile::remove(changesTargetFilePath);
-        if (!QFile::rename(packageSourceFilePath, packageFilePath())
-            || !QFile::rename(changesSourceFilePath, changesTargetFilePath)) {
-            raiseError(tr("Packaging failed."),
-                tr("Could not move package files from %1 to %2.")
-                .arg(packageSourceDir, buildDir));
+    const QDir debianRoot = QDir(buildDir % QLatin1String("/debian/")
+        % executableFileName().toLower());
+    for (int i = 0; i < m_packageContents->rowCount(); ++i) {
+        const MaemoDeployable &d = m_packageContents->deployableAt(i);
+        const QString targetFile = debianRoot.path() + '/' + d.remoteFilePath;
+        const QString absTargetDir = QFileInfo(targetFile).dir().path();
+        const QString relTargetDir = debianRoot.relativeFilePath(absTargetDir);
+        if (!debianRoot.exists(relTargetDir)
+            && !debianRoot.mkpath(relTargetDir)) {
+            raiseError(tr("Packaging Error: Could not create directory '%1'.")
+                       .arg(QDir::toNativeSeparators(absTargetDir)));
             return false;
         }
+        if (QFile::exists(targetFile) && !QFile::remove(targetFile)) {
+            raiseError(tr("Packaging Error: Could not replace file '%1'.")
+                       .arg(QDir::toNativeSeparators(targetFile)));
+            return false;
+        }
+
+        if (!QFile::copy(d.localFilePath, targetFile)) {
+            raiseError(tr("Packaging Error: Could not copy '%1' to '%2'.")
+                       .arg(QDir::toNativeSeparators(d.localFilePath))
+                       .arg(QDir::toNativeSeparators(targetFile)));
+            return false;
+        }
+    }
+
+    const QStringList commands = QStringList() << QLatin1String("dh_link")
+        << QLatin1String("dh_fixperms") << QLatin1String("dh_installdeb")
+        << QLatin1String("dh_gencontrol") << QLatin1String("dh_md5sums")
+        << QLatin1String("dh_builddeb --destdir=.");
+    foreach (const QString &command, commands) {
+        if (!runCommand(command))
+            return false;
     }
 
     emit addOutput(tr("Package created."), textCharFormat);

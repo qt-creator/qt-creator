@@ -106,7 +106,7 @@ void CustomDragAndDropIcon::mouseMoveEvent(QMouseEvent *event)
     else {
        move(-1000, -1000); //if no top level widget is found we are out of the main window
     }
-    QWidget* target = QApplication::widgetAt(globalPos - QPoint(2,2)); //-(2, 2) because:
+    QWidget* target = QApplication::widgetAt(globalPos - QPoint(3,3)); //-(3, 3) because:
                                                                        // otherwise we just get this widget
     if (target != m_oldTarget) {
       if (CustomDragAndDrop::isAccepted())

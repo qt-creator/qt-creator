@@ -82,7 +82,7 @@ class PropertyEditorValue : public QObject
     Q_PROPERTY(bool isInModel READ isInModel NOTIFY valueChangedQml FINAL)
     Q_PROPERTY(bool isInSubState READ isInSubState NOTIFY valueChangedQml FINAL)
     Q_PROPERTY(bool isBound READ isBound NOTIFY isBoundChanged FINAL)
-    Q_PROPERTY(bool isValid READ isValid NOTIFY isValid FINAL)
+    Q_PROPERTY(bool isValid READ isValid NOTIFY isValidChanged FINAL)
     Q_PROPERTY(QString name READ name FINAL)
     Q_PROPERTY(PropertyEditorNodeWrapper* complexNode READ complexNode NOTIFY complexNodeChanged FINAL)
 

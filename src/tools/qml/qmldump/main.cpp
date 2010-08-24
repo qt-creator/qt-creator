@@ -9,7 +9,10 @@
 #include <QDebug>
 #include <iostream>
 #include <QtDeclarative>
+#include <QtCore/private/qobject_p.h>
+#include <QtCore/private/qmetaobject_p.h>
 #include <QtDeclarative/private/qdeclarativemetatype_p.h>
+#include <QtDeclarative/private/qdeclarativeopenmetaobject_p.h>
 #include <QtDeclarative/QDeclarativeView>
 
 static QHash<QByteArray, const QDeclarativeType *> qmlTypeByCppName;
@@ -46,7 +49,11 @@ void processMetaObject(const QMetaObject *meta, QSet<const QMetaObject *> *metas
     if (! meta || metas->contains(meta))
         return;
 
-    metas->insert(meta);
+    // dynamic meta objects break things badly
+    const QMetaObjectPrivate *mop = reinterpret_cast<const QMetaObjectPrivate *>(meta->d.data);
+    if (!(mop->flags & DynamicMetaObject))
+        metas->insert(meta);
+
     processMetaObject(meta->superClass(), metas);
 }
 
@@ -275,15 +282,33 @@ int main(int argc, char *argv[])
 
     metas.insert(FriendlyQObject::qtMeta());
 
-    // ### TODO: We don't treat extended types correctly. Currently only hits the
-    // QDeclarativeGraphicsWidget extension to QGraphicsWidget
+    QMultiHash<QByteArray, QByteArray> extensions;
     foreach (const QDeclarativeType *ty, QDeclarativeMetaType::qmlTypes()) {
-        if (ty->isExtendedType())
-            continue;
-
-        cppToQml.insert(ty->metaObject()->className(), ty->qmlTypeName());
         qmlTypeByCppName.insert(ty->metaObject()->className(), ty);
+        if (ty->isExtendedType()) {
+            extensions.insert(ty->typeName(), ty->metaObject()->className());
+        } else {
+            cppToQml.insert(ty->metaObject()->className(), ty->qmlTypeName());
+        }
         processDeclarativeType(ty, &metas);
+    }
+
+    // Adjust qml names of extended objects.
+    // The chain ends up being:
+    // __extended__.originalname - the base object
+    // __extension_0_.originalname - first extension
+    // ..
+    // __extension_n-2_.originalname - second to last extension
+    // originalname - last extension
+    foreach (const QByteArray &extendedCpp, extensions.keys()) {
+        const QByteArray extendedQml = cppToQml.value(extendedCpp);
+        cppToQml.insert(extendedCpp, "__extended__." + extendedQml);
+        QList<QByteArray> extensionCppNames = extensions.values(extendedCpp);
+        for (int i = 0; i < extensionCppNames.size() - 1; ++i) {
+            QByteArray adjustedName = QString("__extension__%1.%2").arg(QString::number(i), QString(extendedQml)).toAscii();
+            cppToQml.insert(extensionCppNames.value(i), adjustedName);
+        }
+        cppToQml.insert(extensionCppNames.last(), extendedQml);
     }
 
     foreach (const QDeclarativeType *ty, QDeclarativeMetaType::qmlTypes()) {

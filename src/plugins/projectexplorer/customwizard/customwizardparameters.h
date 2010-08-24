@@ -67,12 +67,14 @@ struct CustomWizardFile {
 struct CustomWizardParameters
 {
 public:
+    enum ParseResult { ParseOk, ParseDisabled, ParseFailed };
+
     CustomWizardParameters();
     void clear();
-    bool parse(QIODevice &device, const QString &configFileFullPath,
-               Core::BaseFileWizardParameters *bp, QString *errorMessage);
-    bool parse(const QString &configFileFullPath,
-               Core::BaseFileWizardParameters *bp, QString *errorMessage);
+    ParseResult parse(QIODevice &device, const QString &configFileFullPath,
+                      Core::BaseFileWizardParameters *bp, QString *errorMessage);
+    ParseResult parse(const QString &configFileFullPath,
+                      Core::BaseFileWizardParameters *bp, QString *errorMessage);
     QString toString() const;
 
     QString directory;

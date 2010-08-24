@@ -51,7 +51,6 @@ void FileFilterBaseItem::setFilter(const QString &filter)
         m_regExpList << QRegExp(pattern, Qt::CaseInsensitive, QRegExp::Wildcard);
     }
 
-    emit filterChanged();
     updateFileList();
 }
 
@@ -222,11 +221,16 @@ QmlFileFilterItem::QmlFileFilterItem(QObject *parent)
     setFilter(QLatin1String("*.qml"));
 }
 
-
 JsFileFilterItem::JsFileFilterItem(QObject *parent)
     : FileFilterBaseItem(parent)
 {
     setFilter(QLatin1String("*.js"));
+}
+
+void JsFileFilterItem::setFilter(const QString &filter)
+{
+    FileFilterBaseItem::setFilter(filter);
+    emit filterChanged();
 }
 
 ImageFileFilterItem::ImageFileFilterItem(QObject *parent)
@@ -241,10 +245,22 @@ ImageFileFilterItem::ImageFileFilterItem(QObject *parent)
     setFilter(filter);
 }
 
+void ImageFileFilterItem::setFilter(const QString &filter)
+{
+    FileFilterBaseItem::setFilter(filter);
+    emit filterChanged();
+}
+
 CssFileFilterItem::CssFileFilterItem(QObject *parent)
     : FileFilterBaseItem(parent)
 {
     setFilter(QLatin1String("*.css"));
+}
+
+void CssFileFilterItem::setFilter(const QString &filter)
+{
+    FileFilterBaseItem::setFilter(filter);
+    emit filterChanged();
 }
 
 } // namespace QmlProjectManager

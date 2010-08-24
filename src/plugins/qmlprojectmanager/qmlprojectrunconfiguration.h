@@ -34,6 +34,7 @@
 #include <projectexplorer/runconfiguration.h>
 #include <QWeakPointer>
 #include <QComboBox>
+#include <QLabel>
 
 QT_FORWARD_DECLARE_CLASS(QStringListModel);
 
@@ -88,18 +89,19 @@ public slots:
     void changeCurrentFile(Core::IEditor*);
 
 private slots:
-
     QString mainScript() const;
     void setMainScript(const QString &scriptFile);
     void updateFileComboBox();
+
+    void updateEnabled();
 
     void onViewerChanged();
     void onViewerArgsChanged();
     void onDebugServerAddressChanged();
     void onDebugServerPortChanged();
 
-
 protected:
+    QString viewerDefaultPath() const;
     QmlProjectRunConfiguration(Internal::QmlProjectTarget *parent, QmlProjectRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
     void setEnabled(bool value);
@@ -114,13 +116,13 @@ private:
 
     QString m_scriptFile;
     QString m_qmlViewerCustomPath;
-    QString m_qmlViewerDefaultPath;
     QString m_qmlViewerArgs;
     QmlProjectRunConfigurationDebugData m_debugData;
 
     QStringListModel *m_fileListModel;
     // weakpointer is used to make sure we don't try to manipulate
     // widget which was deleted already, as can be the case here.
+    QWeakPointer<QLabel> m_qmlViewerExecutable;
     QWeakPointer<QComboBox> m_fileListCombo;
 
     Internal::QmlProjectTarget *m_projectTarget;

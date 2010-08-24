@@ -61,6 +61,8 @@
 #include <QtGui/QToolTip>
 #include <QtGui/QTextCursor>
 #include <QtGui/QTextBlock>
+#include <QtGui/QApplication>
+#include <QtGui/QDesktopWidget>
 
 using namespace CppEditor::Internal;
 using namespace CPlusPlus;
@@ -105,7 +107,7 @@ void CppHoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint 
     if (core->hasContext(dbgcontext))
         return;
 
-    updateHelpIdAndTooltip(editor, pos);
+    updateHelpIdAndTooltip(editor, pos, QApplication::desktop()->screenNumber(point));
 
     if (m_toolTip.isEmpty())
         QToolTip::hideText();
@@ -238,7 +240,9 @@ static FullySpecifiedType resolve(const FullySpecifiedType &ty,
     return ty;
 }
 
-void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int pos)
+void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor,
+                                             int pos,
+                                             const int screen)
 {
     m_helpId.clear();
     m_toolTip.clear();
@@ -395,16 +399,36 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     if (!formatTooltip.isEmpty())
         m_toolTip = formatTooltip;
 
+    const int tipWidth = QFontMetrics(QToolTip::font()).width(m_toolTip);
+    bool preventWrapping = true;
+
+    if (screen != -1) {
+#ifdef Q_WS_MAC
+        int screenWidth = QApplication::desktop()->availableGeometry(screen).width();
+#else
+        int screenWidth = QApplication::desktop()->screenGeometry(screen).width();
+#endif
+        if (tipWidth > screenWidth * .8)
+            preventWrapping = false;
+    }
+
     if (!m_helpId.isEmpty() && !helpLinks.isEmpty()) {
         if (showF1) {
-            // we need the original width without escape sequences
-            const int width = QFontMetrics(QToolTip::font()).width(m_toolTip);
-            m_toolTip = QString(QLatin1String("<table><tr><td valign=middle width=%2>%1</td>"
-                                              "<td><img src=\":/cppeditor/images/f1.png\"></td></tr></table>"))
-                        .arg(Qt::escape(m_toolTip)).arg(width);
+            if (preventWrapping) {
+                m_toolTip = QString(QLatin1String("<table><tr><td valign=middle width=%2>%1</td>"
+                                                  "<td><img src=\":/cppeditor/images/f1.png\"></td></tr></table>"))
+                            .arg(Qt::escape(m_toolTip)).arg(tipWidth);
+            } else {
+                m_toolTip = QString(QLatin1String("<table><tr><td valign=middle>%1</td>"
+                                                  "<td><img src=\":/cppeditor/images/f1.png\"></td></tr></table>"))
+                            .arg(Qt::escape(m_toolTip));
+            }
         }
         editor->setContextHelpId(m_helpId);
-    } else if (!m_toolTip.isEmpty() && Qt::mightBeRichText(m_toolTip)) {
-        m_toolTip = QString(QLatin1String("<nobr>%1</nobr>")).arg(Qt::escape(m_toolTip));
+    } else if (!m_toolTip.isEmpty()) {
+        if (preventWrapping)
+            m_toolTip = QString(QLatin1String("<table><tr><td width=%2>%1</td></tr></table>")).arg(Qt::escape(m_toolTip)).arg(tipWidth);
+        else if (!Qt::mightBeRichText(m_toolTip))
+            m_toolTip = QString(QLatin1String("<p>%1</p>")).arg(Qt::escape(m_toolTip));
     }
 }

@@ -53,7 +53,6 @@ namespace Internal {
 
 class QmlJSEditorFactory;
 class QmlJSTextEditor;
-class QmlJSPreviewRunner;
 
 class QmlJSEditorPlugin : public ExtensionSystem::IPlugin
 {
@@ -75,17 +74,11 @@ public:
 public Q_SLOTS:
     void followSymbolUnderCursor();
 
-private Q_SLOTS:
-    void openPreview();
-
 private:
     Core::Command *addToolAction(QAction *a, Core::ActionManager *am, const QList<int> &context, const QString &name,
                                  Core::ActionContainer *c1, const QString &keySequence);
 
     static QmlJSEditorPlugin *m_instance;
-
-    QAction *m_actionPreview;
-    QmlJSPreviewRunner *m_previewRunner;
 
     ModelManagerInterface *m_modelManager;
     QmlFileWizard *m_wizard;

@@ -53,8 +53,8 @@ Thumbs.db
 *.Release
 
 # translation related:
-share/qtcreator/translations/extract-mimetypes.xq
-share/qtcreator/translations/extract-customwizards.xq
+share/qtcreator/translations/*_tr.h
+share/qtcreator/translations/qtcreator_untranslated.ts
 
 # Directories to ignore
 # ---------------------

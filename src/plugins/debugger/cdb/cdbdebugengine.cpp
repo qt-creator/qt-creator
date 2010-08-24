@@ -391,6 +391,7 @@ void CdbDebugEngine::startDebugger(const QSharedPointer<DebuggerStartParameters>
             dumperEnabled = false;
         }
     }
+    m_d->m_dumper->setFastSymbolResolution(m_d->m_options->fastLoadDebuggingHelpers);
     m_d->m_dumper->reset(dumperLibName, dumperEnabled);
 
     setState(InferiorStarting, Q_FUNC_INFO, __LINE__);

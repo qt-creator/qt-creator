@@ -65,7 +65,7 @@ FormEditorScene::FormEditorScene(FormEditorWidget *view, FormEditorView *editorV
 
     m_manipulatorLayerItem->setZValue(1.0);
     m_formLayerItem->setZValue(0.0);
-    m_formLayerItem->setFlag(QGraphicsItem::ItemClipsChildrenToShape, true);
+    m_formLayerItem->setFlag(QGraphicsItem::ItemClipsChildrenToShape, false);
     view->setScene(this);
     setItemIndexMethod(QGraphicsScene::NoIndex);
 

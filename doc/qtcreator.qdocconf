@@ -14,17 +14,17 @@ indexes                 = qt.index
 
 include(qt-defines.qdocconf)
 
-sources.fileextensions  = "qtcreator.qdoc addressbook-sdk.qdoc"
+sources.fileextensions  = "qtcreator.qdoc maemodev.qdoc symbiandev.qdoc addressbook-sdk.qdoc"
 
 
 qhp.projects            = QtCreator
 qhp.QtCreator.file             = qtcreator.qhp
-qhp.QtCreator.namespace        = com.nokia.qtcreator.2080
+qhp.QtCreator.namespace        = com.nokia.qtcreator.210
 qhp.QtCreator.virtualFolder    = doc
 qhp.QtCreator.indexTitle       = Qt Creator
-qhp.QtCreator.filterAttributes = qtcreator 2.0.80
-qhp.QtCreator.customFilters.QtCreator.name = Qt Creator 2.0.80
-qhp.QtCreator.customFilters.QtCreator.filterAttributes = qtcreator 2.0.80
+qhp.QtCreator.filterAttributes = qtcreator 2.1.0
+qhp.QtCreator.customFilters.QtCreator.name = Qt Creator 2.1.0
+qhp.QtCreator.customFilters.QtCreator.filterAttributes = qtcreator 2.1.0
 qhp.QtCreator.indexRoot        =
 qhp.QtCreator.extraFiles       = \
                           style/style.css \
@@ -32,10 +32,16 @@ qhp.QtCreator.extraFiles       = \
                           style/style_ie7.css \
                           style/style_ie8.css \
                           style/OfflineStyle.css \
+                          style/narrow.css \
+                          style/OfflineStyle.css \
+                          style/superfish.css \
+                          style/superfish_skin.css \
                           images/qt-logo.png \
                           images/qtcreator-screenshots.png \
                           scripts/functions.js \
                           scripts/jquery.js \
+                          scripts/narrow.js \
+                          scripts/superfish.js \
                           images/api_examples.png \
                           images/api_lookup.png \
                           images/arrow_down.png \

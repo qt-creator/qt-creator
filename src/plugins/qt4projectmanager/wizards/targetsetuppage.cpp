@@ -130,10 +130,20 @@ void TargetSetupPage::setImportInfos(const QList<ImportInfo> &infos)
         foreach (const ImportInfo &i, m_infos) {
             ++pos;
 
+            QString buildDir;
+            if (i.directory.isEmpty()) {
+                if (i.version->supportsShadowBuilds())
+                    buildDir = Qt4Target::defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(m_proFilePath), t);
+                else
+                    buildDir = Qt4Project::projectDirectory(m_proFilePath);
+            } else {
+                buildDir = i.directory;
+            }
+
             if (!i.version->supportsTargetId(t))
                 continue;
             QTreeWidgetItem *versionItem = new QTreeWidgetItem(targetItem);
-            QPair<QIcon, QString> issues = reportIssues(i.version);
+            QPair<QIcon, QString> issues = reportIssues(i.version, buildDir);
 
             QString toolTip = i.version->displayName();
             if (!issues.second.isEmpty())
@@ -168,17 +178,9 @@ void TargetSetupPage::setImportInfos(const QList<ImportInfo> &infos)
             versionItem->setToolTip(1, status);
 
             // Column 2 (directory):
-            QString dir;
-            if (i.directory.isEmpty()) {
-                if (i.version->supportsShadowBuilds())
-                    dir = QDir::toNativeSeparators(Qt4Target::defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(m_proFilePath), t));
-                else
-                    dir = QDir::toNativeSeparators(Qt4Project::projectDirectory(m_proFilePath));
-            } else {
-                dir = QDir::toNativeSeparators(i.directory);
-            }
-            versionItem->setText(2, dir);
-            versionItem->setToolTip(2, dir);
+            buildDir = QDir::toNativeSeparators(buildDir);
+            versionItem->setText(2, buildDir);
+            versionItem->setToolTip(2, buildDir);
         }
     }
 
@@ -353,7 +355,7 @@ TargetSetupPage::recursivelyCheckDirectoryForBuild(const QString &directory, con
 {
     QList<ImportInfo> results;
 
-    if (maxdepth <= 0)
+    if (maxdepth <= 0 || directory.isEmpty())
         return results;
 
     // Check for in-source builds first:
@@ -441,7 +443,8 @@ void TargetSetupPage::resetInfos()
     m_infos.clear();
 }
 
-QPair<QIcon, QString> TargetSetupPage::reportIssues(Qt4ProjectManager::QtVersion *version)
+QPair<QIcon, QString> TargetSetupPage::reportIssues(Qt4ProjectManager::QtVersion *version,
+                                                    const QString &buildDir)
 {
     if (m_proFilePath.isEmpty())
         return qMakePair(QIcon(), QString());
@@ -450,7 +453,7 @@ QPair<QIcon, QString> TargetSetupPage::reportIssues(Qt4ProjectManager::QtVersion
                                               ->getObject<ProjectExplorer::TaskWindow>();
     QTC_ASSERT(taskWindow, return qMakePair(QIcon(), QString()));
 
-    QList<ProjectExplorer::Task> issues = version->reportIssues(m_proFilePath);
+    QList<ProjectExplorer::Task> issues = version->reportIssues(m_proFilePath, buildDir);
 
 
     QString text;

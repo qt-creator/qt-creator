@@ -40,13 +40,15 @@ static const char *pathKeyC = "Path";
 static const char *symbolPathsKeyC = "SymbolPaths";
 static const char *sourcePathsKeyC = "SourcePaths";
 static const char *verboseSymbolLoadingKeyC = "VerboseSymbolLoading";
+static const char *fastLoadDebuggingHelpersKeyC = "FastLoadDebuggingHelpers";
 
 namespace Debugger {
 namespace Internal {
 
 CdbOptions::CdbOptions() :
     enabled(false),
-    verboseSymbolLoading(false)
+    verboseSymbolLoading(false),
+    fastLoadDebuggingHelpers(true)
 {
 }
 
@@ -54,6 +56,7 @@ void CdbOptions::clear()
 {
     enabled = false;
     verboseSymbolLoading = false;
+    fastLoadDebuggingHelpers = true;
     path.clear();
 }
 
@@ -74,6 +77,7 @@ void CdbOptions::fromSettings(const QSettings *s)
     symbolPaths = s->value(keyRoot + QLatin1String(symbolPathsKeyC), QStringList()).toStringList();
     sourcePaths = s->value(keyRoot + QLatin1String(sourcePathsKeyC), QStringList()).toStringList();
     verboseSymbolLoading = s->value(keyRoot + QLatin1String(verboseSymbolLoadingKeyC), false).toBool();
+    fastLoadDebuggingHelpers = s->value(keyRoot + QLatin1String(fastLoadDebuggingHelpersKeyC), true).toBool();
 }
 
 void CdbOptions::toSettings(QSettings *s) const
@@ -84,6 +88,7 @@ void CdbOptions::toSettings(QSettings *s) const
     s->setValue(QLatin1String(symbolPathsKeyC), symbolPaths);
     s->setValue(QLatin1String(sourcePathsKeyC), sourcePaths);
     s->setValue(QLatin1String(verboseSymbolLoadingKeyC), verboseSymbolLoading);
+    s->setValue(QLatin1String(fastLoadDebuggingHelpersKeyC), fastLoadDebuggingHelpers);
     s->endGroup();
 }
 
@@ -96,6 +101,8 @@ unsigned CdbOptions::compare(const CdbOptions &rhs) const
         rc |= DebuggerPathsChanged;
     if (verboseSymbolLoading != rhs.verboseSymbolLoading)
         rc |= SymbolOptionsChanged;
+    if (fastLoadDebuggingHelpers != rhs.fastLoadDebuggingHelpers)
+        rc |= FastLoadDebuggingHelpersChanged;
     return rc;
 }
 

@@ -121,7 +121,7 @@ private slots:
 
 private:
     void resetInfos();
-    QPair<QIcon, QString> reportIssues(QtVersion *version);
+    QPair<QIcon, QString> reportIssues(QtVersion *version, const QString &buildDir);
 
     QList<ImportInfo> m_infos;
     bool m_preferMobile;
