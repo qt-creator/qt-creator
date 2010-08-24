@@ -114,8 +114,8 @@ virtual bool visit(DeclaratorAST *ast)
         nonterminal(iter->value);
     for (SpecifierListAST *iter = ast->post_attribute_list; iter; iter = iter->next)
         nonterminal(iter->value);
-    if (ast->equals_token)
-        terminal(ast->equals_token, ast);
+    if (ast->equal_token)
+        terminal(ast->equal_token, ast);
     nonterminal(ast->initializer);
     return false;
 }
