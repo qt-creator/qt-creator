@@ -458,11 +458,15 @@ void ModelManager::loadQmlPluginTypes(const QString &pluginPath)
     static QString qmldumpPath;
     if (qmldumpPath.isNull()) {
         QDir qmldumpExecutable(QCoreApplication::applicationDirPath());
-#ifndef Q_OS_WIN
-        qmldumpPath = qmldumpExecutable.absoluteFilePath(QLatin1String("qmldump"));
-#else
+#ifdef Q_OS_WIN
         qmldumpPath = qmldumpExecutable.absoluteFilePath(QLatin1String("qmldump.exe"));
-#endif
+#else // !Q_OS_WIN
+#  ifdef Q_OS_MAC
+        qmldumpPath = qmldumpExecutable.absoluteFilePath(QLatin1String("qmldump.app/Contents/MacOS/qmldump"));
+#  else // !Q_OS_MAC
+        qmldumpPath = qmldumpExecutable.absoluteFilePath(QLatin1String("qmldump"));
+#  endif // Q_OS_MAC
+#endif // Q_OS_WIN
         QFileInfo qmldumpFileInfo(qmldumpPath);
         if (!qmldumpFileInfo.exists()) {
             qWarning() << "ModelManager::loadQmlPluginTypes: qmldump executable does not exist at" << qmldumpPath;

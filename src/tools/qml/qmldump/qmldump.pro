@@ -6,8 +6,6 @@
 
 TARGET = qmldump
 QT += declarative
-CONFIG   += console
-CONFIG   -= app_bundle
 
 TEMPLATE = app
 
@@ -17,3 +15,6 @@ include(../../../../qtcreator.pri)
 include(../../../private_headers.pri)
 DESTDIR = $$IDE_BIN_PATH
 include(../../../rpath.pri)
+
+OTHER_FILES += Info.plist
+macx:QMAKE_INFO_PLIST = Info.plist
