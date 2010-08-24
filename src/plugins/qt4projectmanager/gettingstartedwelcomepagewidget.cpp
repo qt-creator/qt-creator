@@ -408,7 +408,7 @@ QStringList GettingStartedWelcomePageWidget::tipsOfTheDay()
                        "<ul><li>1 - Build Issues</li><li>2 - Search Results</li><li>3 - Application Output</li>"
                        "<li>4 - Compile Output</li></ul>").arg(altShortcut));
         tips.append(tr("You can quickly search methods, classes, help and more using the "
-                       "<a href=\"qthelp://com.nokia.qtcreator/doc/creator-navigation.html\">Locator bar</a> (<tt>%1+K</tt>).").arg(ctrlShortcut));
+                       "<a href=\"qthelp://com.nokia.qtcreator/doc/creator-editor-locator.html\">Locator bar</a> (<tt>%1+K</tt>).").arg(ctrlShortcut));
         tips.append(tr("You can add custom build steps in the "
                        "<a href=\"qthelp://com.nokia.qtcreator/doc/creator-build-settings.html\">build settings</a>."));
         tips.append(tr("Within a session, you can add "
