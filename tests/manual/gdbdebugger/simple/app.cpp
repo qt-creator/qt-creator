@@ -1508,14 +1508,14 @@ void testQVector()
     vec.append(false);
 }
 
-QVector<QList<int> > testQVectorOfQList()
+void testQVectorOfQList()
 {
     QVector<QList<int> > v;
     QVector<QList<int> > *pv = &v;
     v.append(QList<int>() << 1);
     v.append(QList<int>() << 2 << 3);
     Q_UNUSED(pv);
-    return v;
+    //return v;
 }
 
 
