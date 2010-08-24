@@ -52,6 +52,9 @@ public:
     int currentProjectIndex() const;
     void setCurrentProjectIndex(int);
 
+    void setNoneLabel(const QString &label);
+    void setAdditionalInfo(const QString &text);
+
     void setVersionControls(const QStringList &);
 
     int versionControlIndex() const;

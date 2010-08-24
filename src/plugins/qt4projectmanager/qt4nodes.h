@@ -154,6 +154,8 @@ public:
 
     void folderChanged(const QString &folder);
 
+    bool deploysFolder(const QString &folder) const;
+
 protected:
     void clear();
     static QStringList varNames(FileType type);

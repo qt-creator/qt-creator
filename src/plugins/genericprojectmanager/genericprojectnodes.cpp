@@ -174,7 +174,8 @@ QList<ProjectExplorer::ProjectNode::ProjectAction> GenericProjectNode::supported
 {
     Q_UNUSED(node);
     return QList<ProjectAction>()
-        << AddFile
+        << AddNewFile
+        << AddExistingFile
         << RemoveFile;
 }
 

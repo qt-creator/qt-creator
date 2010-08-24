@@ -65,24 +65,29 @@ namespace Internal {
 class AllProjectNodesVisitor : public NodesVisitor
 {
 public:
-    static ProjectNodeList allProjects();
+    AllProjectNodesVisitor(ProjectNode::ProjectAction action)
+        : m_action(action)
+        {}
+
+    static ProjectNodeList allProjects(ProjectNode::ProjectAction action);
 
     virtual void visitProjectNode(ProjectNode *node);
 
 private:
     ProjectNodeList m_projectNodes;
+    ProjectNode::ProjectAction m_action;
 };
 
-ProjectNodeList AllProjectNodesVisitor::allProjects()
+ProjectNodeList AllProjectNodesVisitor::allProjects(ProjectNode::ProjectAction action)
 {
-    AllProjectNodesVisitor visitor;
+    AllProjectNodesVisitor visitor(action);
     ProjectExplorerPlugin::instance()->session()->sessionNode()->accept(&visitor);
     return visitor.m_projectNodes;
 }
 
 void AllProjectNodesVisitor::visitProjectNode(ProjectNode *node)
 {
-    if (node->supportedActions(node).contains(ProjectNode::AddFile))
+    if (node->supportedActions(node).contains(m_action))
         m_projectNodes.push_back(node);
 }
 
@@ -179,6 +184,16 @@ ProjectFileWizardExtension::~ProjectFileWizardExtension()
     delete m_context;
 }
 
+static QList<ProjectEntry> findDeployProject(const QList<ProjectEntry> &projects,
+                                 QString &commonPath)
+{
+    QList<ProjectEntry> filtered;
+    foreach (const ProjectEntry &project, projects)
+        if (project.node->deploysFolder(commonPath))
+            filtered << project;
+    return filtered;
+}
+
 // Find the project the new files should be added to given their common
 // path. Either a direct match on the directory or the directory with
 // the longest matching path (list containing"/project/subproject1" matching
@@ -219,7 +234,28 @@ void ProjectFileWizardExtension::firstExtensionPageShown(const QList<Core::Gener
     m_context->commonDirectory = Utils::commonPath(fileNames);
     m_context->page->setFilesDisplay(m_context->commonDirectory, fileNames);
     // Find best project (Entry at 0 is 'None').
-    const int bestProjectIndex = findMatchingProject(m_context->projects, m_context->commonDirectory);
+
+    int bestProjectIndex = -1;
+
+    QList<ProjectEntry> deployingProjects = findDeployProject(m_context->projects, m_context->commonDirectory);
+    if (!deployingProjects.isEmpty()) {
+        // Oh we do have someone that deploys it
+        // then the best match is NONE
+        // We display a label explaining that and rename <None> to
+        // <Implictly Add>
+        m_context->page->setNoneLabel(tr("<Implictly Add>"));
+
+        QString text = tr("The files are implicitly added to the projects:\n");
+        foreach (ProjectEntry project, deployingProjects)
+            text += project.fileName + "\n";
+
+        m_context->page->setAdditionalInfo(text);
+        bestProjectIndex = -1;
+    } else {
+        bestProjectIndex = findMatchingProject(m_context->projects, m_context->commonDirectory);
+        m_context->page->setNoneLabel(tr("<None>"));
+    }
+
     if (bestProjectIndex == -1) {
         m_context->page->setCurrentProjectIndex(0);
     } else {
@@ -290,7 +326,8 @@ void ProjectFileWizardExtension::initProjectChoices(bool enabled)
         // Sort by base name and purge duplicated entries (resulting from dependencies)
         // via Map.
         ProjectEntryMap entryMap;
-        foreach(ProjectNode *n, AllProjectNodesVisitor::allProjects())
+
+        foreach(ProjectNode *n, AllProjectNodesVisitor::allProjects(ProjectNode::AddNewFile))
             entryMap.insert(ProjectEntry(n), true);
         // Collect names
         const ProjectEntryMap::const_iterator cend = entryMap.constEnd();

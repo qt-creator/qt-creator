@@ -162,12 +162,12 @@ struct ProjectExplorerPluginPrivate {
     QAction *m_debugAction;
     QAction *m_addNewFileAction;
     QAction *m_addExistingFilesAction;
-    QAction *m_openFileAction;
-    QAction *m_showInGraphicalShell;
-    QAction *m_openTerminalHere;
     QAction *m_removeFileAction;
     QAction *m_deleteFileAction;
     QAction *m_renameFileAction;
+    QAction *m_openFileAction;
+    QAction *m_showInGraphicalShell;
+    QAction *m_openTerminalHere;
     QAction *m_projectSelectorAction;
     QAction *m_projectSelectorActionMenu;
 
@@ -724,6 +724,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                        globalcontext);
     mfilec->addAction(cmd, Constants::G_FILE_OTHER);
 
+    // delete file action
     d->m_deleteFileAction = new QAction(tr("Delete File..."), this);
     cmd = am->registerAction(d->m_deleteFileAction, ProjectExplorer::Constants::DELETEFILE,
                              globalcontext);
@@ -1968,6 +1969,7 @@ void ProjectExplorerPlugin::updateContextMenuActions(Node *node)
     d->m_removeFileAction->setEnabled(false);
     d->m_deleteFileAction->setEnabled(false);
 
+    d->m_addExistingFilesAction->setVisible(true);
     d->m_removeFileAction->setVisible(true);
     d->m_deleteFileAction->setVisible(true);
 
@@ -1976,9 +1978,8 @@ void ProjectExplorerPlugin::updateContextMenuActions(Node *node)
                 d->m_currentNode->projectNode()->supportedActions(node);
 
         if (qobject_cast<FolderNode*>(d->m_currentNode)) {
-            bool addFilesEnabled = actions.contains(ProjectNode::AddFile);
-            d->m_addExistingFilesAction->setEnabled(addFilesEnabled);
-            d->m_addNewFileAction->setEnabled(addFilesEnabled);
+            d->m_addNewFileAction->setEnabled(actions.contains(ProjectNode::AddNewFile));
+            d->m_addExistingFilesAction->setEnabled(actions.contains(ProjectNode::AddExistingFile));
             d->m_renameFileAction->setEnabled(actions.contains(ProjectNode::Rename));
         } else if (qobject_cast<FileNode*>(d->m_currentNode)) {
             // Enable and show remove / delete in magic ways:

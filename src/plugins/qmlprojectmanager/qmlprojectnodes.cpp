@@ -176,7 +176,7 @@ QList<ProjectExplorer::ProjectNode::ProjectAction> QmlProjectNode::supportedActi
 {
     Q_UNUSED(node);
     QList<ProjectAction> actions;
-    actions.append(AddFile);
+    actions.append(AddNewFile);
     return actions;
 }
 

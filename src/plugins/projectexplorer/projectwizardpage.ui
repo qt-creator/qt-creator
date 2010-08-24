@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>619</width>
-    <height>414</height>
+    <width>226</width>
+    <height>184</height>
    </rect>
   </property>
   <property name="title">
@@ -37,9 +37,12 @@
        <property name="enabled">
         <bool>false</bool>
        </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QComboBox::AdjustToContents</enum>
+       </property>
       </widget>
      </item>
-     <item row="1" column="0">
+     <item row="2" column="0">
       <widget class="QLabel" name="addToVersionControlLabel">
        <property name="text">
         <string>Add to &amp;version control:</string>
@@ -49,8 +52,18 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
+     <item row="2" column="1">
       <widget class="QComboBox" name="addToVersionControlComboBox"/>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLabel" name="additionalInfo">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -89,8 +102,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>611</width>
-        <height>328</height>
+        <width>218</width>
+        <height>83</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">

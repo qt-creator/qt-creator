@@ -261,6 +261,12 @@ QList<ProjectNode*> ProjectNode::subProjectNodes() const
   \function bool ProjectNode::renameFile(const FileType, const QString &, const QString &)
   */
 
+bool ProjectNode::deploysFolder(const QString &folder) const
+{
+    Q_UNUSED(folder);
+    return false;
+}
+
 QList<NodesWatcher*> ProjectNode::watchers() const
 {
     return m_watchers;

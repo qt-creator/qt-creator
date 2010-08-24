@@ -74,6 +74,17 @@ void ProjectWizardPage::setCurrentProjectIndex(int idx)
     m_ui->projectComboBox->setCurrentIndex(idx);
 }
 
+void ProjectWizardPage::setNoneLabel(const QString &label)
+{
+    m_ui->projectComboBox->setItemText(0, label);
+}
+
+void ProjectWizardPage::setAdditionalInfo(const QString &text)
+{
+    m_ui->additionalInfo->setText(text);
+    m_ui->additionalInfo->setVisible(!text.isEmpty());
+}
+
 void ProjectWizardPage::setVersionControls(const QStringList &vcs)
 {
     m_ui->addToVersionControlComboBox->clear();

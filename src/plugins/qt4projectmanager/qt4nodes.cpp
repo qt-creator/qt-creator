@@ -702,6 +702,20 @@ void Qt4PriFileNode::folderChanged(const QString &)
     contents.updateSubFolders(this, this);
 }
 
+bool Qt4PriFileNode::deploysFolder(const QString &folder) const
+{
+    QString f = folder;
+    if (!f.endsWith('/'))
+        f.append('/');
+    foreach (const QString &wf, m_watchedFolders) {
+        if (f.startsWith(wf)
+            && (wf.endsWith('/')
+                || (wf.length() < f.length() && f.at(wf.length()) == '/')))
+            return true;
+    }
+    return false;
+}
+
 QList<ProjectNode::ProjectAction> Qt4PriFileNode::supportedActions(Node *node) const
 {
     QList<ProjectAction> actions;
@@ -715,11 +729,17 @@ QList<ProjectNode::ProjectAction> Qt4PriFileNode::supportedActions(Node *node) c
     switch (proFileNode->projectType()) {
     case ApplicationTemplate:
     case LibraryTemplate:
-        actions << AddFile;
-        if (m_recursiveEnumerateFiles.contains(node->path()))
+        actions << AddNewFile;
+        if (m_recursiveEnumerateFiles.contains(node->path())) {
             actions << EraseFile;
-        else
+        } else {
             actions << RemoveFile;
+        }
+
+        // Only enable 'add existing file' if we don't deploy the folder
+        if (!deploysFolder(node->path()))
+            actions << AddExistingFile;
+
         break;
     case SubDirsTemplate:
         actions << AddSubProject << RemoveSubProject;
