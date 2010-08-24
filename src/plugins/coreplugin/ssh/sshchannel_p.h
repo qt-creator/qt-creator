@@ -39,8 +39,8 @@ QT_FORWARD_DECLARE_CLASS(QTimer);
 namespace Core {
 namespace Internal {
 
-class SshChannelExitSignal;
-class SshChannelExitStatus;
+struct SshChannelExitSignal;
+struct SshChannelExitStatus;
 class SshIncomingPacket;
 class SshSendFacility;
 
