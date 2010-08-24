@@ -136,8 +136,6 @@ private slots:
     void updateActiveLanguages();
     void updateDockWidgetSettings();
 
-    void onModeChanged(Core::IMode *mode);
-
 private:
     // Used by MainWindow
     friend class Internal::DebuggerMainWindow;

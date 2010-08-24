@@ -54,14 +54,12 @@ signals:
     void contextHelpIdChanged(const QString &contextHelpId);
 
 public slots:
-    void reload(int objectDebugId);     // set the root object
     void setCurrentObject(int debugId); // select an object in the tree
 
 protected:
     virtual void contextMenuEvent(QContextMenuEvent *);
 
 private slots:
-    void addWatch();
     void currentItemChanged(QTreeWidgetItem *);
     void activated(QTreeWidgetItem *);
     void selectionChanged();
