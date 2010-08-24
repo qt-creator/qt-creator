@@ -194,13 +194,10 @@ win32 {
     SOURCES += applicationlauncher_win.cpp \
         winguiprocess.cpp
     HEADERS += winguiprocess.h
-}
-else:macx { 
+} else {
     SOURCES += applicationlauncher_x11.cpp
-    LIBS += -framework \
-        Carbon
+    macx:LIBS += -framework Carbon
 }
-else:unix:SOURCES += applicationlauncher_x11.cpp
 RESOURCES += projectexplorer.qrc
 DEFINES += PROJECTEXPLORER_LIBRARY
 OTHER_FILES += ProjectExplorer.pluginspec
