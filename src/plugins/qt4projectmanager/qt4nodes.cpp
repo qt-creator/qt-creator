@@ -53,6 +53,7 @@
 #include <projectexplorer/buildmanager.h>
 
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <algorithm>
 
 #include <QtCore/QDebug>
@@ -728,7 +729,7 @@ QList<ProjectNode::ProjectAction> Qt4PriFileNode::supportedActions(Node *node) c
 
     switch (proFileNode->projectType()) {
     case ApplicationTemplate:
-    case LibraryTemplate:
+    case LibraryTemplate: {
         actions << AddNewFile;
         if (m_recursiveEnumerateFiles.contains(node->path())) {
             actions << EraseFile;
@@ -736,11 +737,26 @@ QList<ProjectNode::ProjectAction> Qt4PriFileNode::supportedActions(Node *node) c
             actions << RemoveFile;
         }
 
-        // Only enable 'add existing file' if we don't deploy the folder
-        if (!deploysFolder(node->path()))
+        bool addExistingFiles = true;
+        if (node->path().contains('#')) {
+            // A virtual folder, we do what the projectexplorer does
+            FolderNode *folder = qobject_cast<FolderNode *>(node);
+            if (folder) {
+                QStringList list;
+                foreach (FolderNode *f, folder->subFolderNodes())
+                    list << f->path() + '/';
+                if (deploysFolder(Utils::commonPath(list)))
+                    addExistingFiles = false;
+            }
+        }
+
+        addExistingFiles = addExistingFiles && deploysFolder(node->path());
+
+        if (addExistingFiles)
             actions << AddExistingFile;
 
         break;
+    }
     case SubDirsTemplate:
         actions << AddSubProject << RemoveSubProject;
         break;

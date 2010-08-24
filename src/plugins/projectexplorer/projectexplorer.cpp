@@ -2002,8 +2002,23 @@ void ProjectExplorerPlugin::updateContextMenuActions(Node *node)
 void ProjectExplorerPlugin::addNewFile()
 {
     QTC_ASSERT(d->m_currentNode, return)
-    QFileInfo fi(d->m_currentNode->path());
-    const QString location = (fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath());
+    QString path = d->m_currentNode->path();
+    QString location;
+    FolderNode *folder = qobject_cast<FolderNode *>(d->m_currentNode);
+    if (path.contains("#") && folder) {
+        // Virtual Folder case
+        // We figure out a commonPath from the subfolders
+        QStringList list;
+        foreach (FolderNode *f, folder->subFolderNodes())
+            list << f->path() + "/";
+        if (list.isEmpty())
+            location = path.left(path.indexOf('#'));
+        else
+            location = Utils::commonPath(list);
+    } else {
+        QFileInfo fi(path);
+        location = (fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath());
+    }
     Core::ICore::instance()->showNewItemDialog(tr("New File", "Title of dialog"),
                               Core::IWizard::wizardsOfKind(Core::IWizard::FileWizard)
                               + Core::IWizard::wizardsOfKind(Core::IWizard::ClassWizard),
