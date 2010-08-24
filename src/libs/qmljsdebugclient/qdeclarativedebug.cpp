@@ -66,6 +66,7 @@ public:
     void message(const QByteArray &);
 
     QDeclarativeEngineDebugClient *client;
+    QDeclarativeEngineDebug *q_ptr;
     int nextId;
     int getId();
 
@@ -371,12 +372,15 @@ void QDeclarativeEngineDebugPrivate::message(const QByteArray &data)
         if (!watch)
             return;
         emit watch->valueChanged(name, value);
+    } else if (type == "OBJECT_CREATED") {
+        emit q_ptr->newObjects();
     }
 }
 
 QDeclarativeEngineDebug::QDeclarativeEngineDebug(QDeclarativeDebugConnection *client, QObject *parent)
 : QObject(parent), d_ptr(new QDeclarativeEngineDebugPrivate(client))
 {
+    d_ptr->q_ptr = this;
 }
 QDeclarativeEngineDebug::~QDeclarativeEngineDebug() {}
 

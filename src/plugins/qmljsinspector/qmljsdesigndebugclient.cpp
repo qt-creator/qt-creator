@@ -109,7 +109,7 @@ void QmlJSDesignDebugClient::messageReceived(const QByteArray &message)
         ds >> contextPath;
         emit contextPathUpdated(contextPath);
     } else if (type == "SCENE_ITEM_COUNT_CHANGED") {
-        emit treeRefreshRequested();
+        //emit treeRefreshRequested();
     }
 }
 

@@ -52,8 +52,11 @@ ClientProxy::ClientProxy(Debugger::Internal::QmlAdapter *adapter, QObject *paren
     , m_engineQuery(0)
     , m_contextQuery(0)
 {
-
+    m_requestObjectsTimer.setSingleShot(true);
+    m_requestObjectsTimer.setInterval(3000);
     connect(m_adapter, SIGNAL(aboutToDisconnect()), SLOT(disconnectFromServer()));
+    connect(m_client, SIGNAL(newObjects()), this, SLOT(newObjects()));
+    connect(&m_requestObjectsTimer, SIGNAL(timeout()), this, SLOT(refreshObjectTree()));
     connectToServer();
 }
 
@@ -82,8 +85,8 @@ void ClientProxy::connectToServer()
         SIGNAL(selectedColorChanged(QColor)));
     connect(m_designClient, SIGNAL(contextPathUpdated(QStringList)),
         SIGNAL(contextPathUpdated(QStringList)));
-    connect(m_designClient, SIGNAL(treeRefreshRequested()),
-        SLOT(refreshObjectTree()));
+  /*  connect(m_designClient, SIGNAL(treeRefreshRequested()),
+        SLOT(refreshObjectTree()));*/
 
     reloadEngines();
 }
@@ -131,6 +134,7 @@ void ClientProxy::disconnectFromServer()
 void ClientProxy::refreshObjectTree()
 {
     if (!m_contextQuery) {
+        m_requestObjectsTimer.stop();
         qDeleteAll(m_objectTreeQuery);
         m_objectTreeQuery.clear();
         queryEngineContext(m_engines.value(0).debugId());
@@ -286,6 +290,7 @@ void ClientProxy::contextChanged()
 
         qDeleteAll(m_objectTreeQuery);
         m_objectTreeQuery.clear();
+        m_requestObjectsTimer.stop();
 
         fetchContextObjectRecusrsive(rootContext);
     }
@@ -443,3 +448,10 @@ bool ClientProxy::isConnected() const
 {
     return m_adapter->isConnected();
 }
+
+void ClientProxy::newObjects()
+{
+    if (!m_requestObjectsTimer.isActive())
+        m_requestObjectsTimer.start();
+}
+

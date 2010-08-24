@@ -125,6 +125,7 @@ private slots:
     void updateEngineList();
     void objectTreeFetched(QDeclarativeDebugQuery::State state = QDeclarativeDebugQuery::Completed);
     void fetchContextObjectRecusrsive(const QmlJsDebugClient::QDeclarativeDebugContextReference& context);
+    void newObjects();
 
 private:
     bool isDesignClientConnected() const;
@@ -146,6 +147,7 @@ private:
 
     QList<QDeclarativeDebugObjectReference> m_rootObjects;
     QList<QDeclarativeDebugEngineReference> m_engines;
+    QTimer m_requestObjectsTimer;
 };
 
 } // namespace Internal
