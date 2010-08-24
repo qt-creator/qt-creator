@@ -106,7 +106,7 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters)
     , m_adapter(new QmlAdapter(this))
     , m_addedAdapterToObjectPool(false)
 {
-
+    setObjectName(QLatin1String("QmlEngine"));
 }
 
 QmlEngine::~QmlEngine()

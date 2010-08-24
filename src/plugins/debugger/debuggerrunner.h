@@ -104,7 +104,6 @@ public:
     void setEnabledEngines(DebuggerEngineType enabledEngines);
 
     void startFailed();
-    void startSuccessful();
     void debuggingFinished();
     RunConfiguration *runConfiguration() const { return m_myRunConfiguration.data(); }
 
@@ -119,7 +118,6 @@ public:
                                  QString *settingsPage = 0);
 
 private slots:
-    void handleStarted();
     void handleFinished();
 
 protected:

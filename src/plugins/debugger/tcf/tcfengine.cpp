@@ -107,6 +107,7 @@ QString TcfEngine::TcfCommand::toString() const
 TcfEngine::TcfEngine(const DebuggerStartParameters &startParameters)
     : DebuggerEngine(startParameters)
 {
+    setObjectName(QLatin1String("TcfEngine"));
     m_congestion = 0;
     m_inAir = 0;
 

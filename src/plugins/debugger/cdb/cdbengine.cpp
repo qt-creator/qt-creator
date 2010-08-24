@@ -217,6 +217,7 @@ CdbEngine::CdbEngine(const DebuggerStartParameters &startParameters) :
     DebuggerEngine(startParameters),
     m_d(new CdbEnginePrivate(this))
 {
+    setObjectName(QLatin1String("CdbEngine"));
     m_d->m_consoleStubProc.setMode(Utils::ConsoleProcess::Suspend);
     connect(&m_d->m_consoleStubProc, SIGNAL(processMessage(QString,bool)),
             this, SLOT(slotConsoleStubMessage(QString, bool)));

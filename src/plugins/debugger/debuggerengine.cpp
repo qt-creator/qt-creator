@@ -657,7 +657,10 @@ QAbstractItemModel *DebuggerEngine::sourceFilesModel() const
 
 QAbstractItemModel *DebuggerEngine::commandModel() const
 {
-    return d->m_commandHandler.model();
+    QAbstractItemModel *model = d->m_commandHandler.model();
+    if (model->objectName().isEmpty()) // Make debugging easier.
+        model->setObjectName(objectName() + QLatin1String("CommandModel"));
+    return model;
 }
 
 void DebuggerEngine::fetchMemory(MemoryViewAgent *, QObject *,
@@ -1097,7 +1100,6 @@ void DebuggerEngine::notifyEngineSetupOk()
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     setState(EngineSetupOk);
     QTC_ASSERT(d->m_runControl, return);
-    d->m_runControl->startSuccessful();
     showMessage(_("QUEUE: SETUP INFERIOR"));
     QTimer::singleShot(0, d, SLOT(doSetupInferior()));
 }

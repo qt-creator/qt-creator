@@ -204,6 +204,7 @@ void ScriptAgent::scriptUnload(qint64 scriptId)
 ScriptEngine::ScriptEngine(const DebuggerStartParameters &startParameters)
     : DebuggerEngine(startParameters)
 {
+    setObjectName(QLatin1String("ScriptEngine"));
 }
 
 ScriptEngine::~ScriptEngine()

@@ -1982,24 +1982,24 @@ void DebuggerPluginPrivate::displayDebugger(ProjectExplorer::RunControl *rc)
 
 void DebuggerPluginPrivate::startDebugger(ProjectExplorer::RunControl *rc)
 {
-    //qDebug() << "START DEBUGGER 1";
     QTC_ASSERT(rc, return);
-    DebuggerRunControl *runControl = qobject_cast<DebuggerRunControl *>(rc);
-    QTC_ASSERT(runControl, return);
-    activateDebugMode();
-    connectEngine(runControl->engine());
-    ProjectExplorerPlugin::instance()->startRunControl(runControl, PE::DEBUGMODE);
-    //qDebug() << "START DEBUGGER 2";
+    ProjectExplorerPlugin::instance()->startRunControl(rc, PE::DEBUGMODE);
 }
 
 void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine, bool notify)
 {
+    const QAbstractItemModel *oldCommandModel = m_commandWindow->model();
+    if (oldCommandModel == engine->commandModel()) {
+        // qDebug("RECONNECTING ENGINE %s", qPrintable(engine->objectName()));
+        return;
+    }
+
     if (notify)
         notifyCurrentEngine(RequestActivationRole, false);
-    //if (engine == m_sessionEngine)
-    //    qDebug() << "CONNECTING DUMMY ENGINE" << engine;
-    //else
-    //    qDebug() << "CONNECTING ENGINE " << engine;
+
+    // qDebug("CONNECTING ENGINE %s (OLD ENGINE: %s)", qPrintable(engine->objectName()),
+    //       (oldCommandModel ? qPrintable(oldCommandModel->objectName()) : ""));
+
     m_breakWindow->setModel(engine->breakModel());
     m_commandWindow->setModel(engine->commandModel());
     m_localsWindow->setModel(engine->localsModel());

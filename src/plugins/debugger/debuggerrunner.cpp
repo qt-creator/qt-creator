@@ -189,7 +189,6 @@ DebuggerRunControl *DebuggerRunControlFactory::create(
         delete runControl;
         return 0;
     }
-    connect(runControl, SIGNAL(started()), runControl, SLOT(handleStarted()));
     connect(runControl, SIGNAL(finished()), runControl, SLOT(handleFinished()));
     return runControl;
 }
@@ -460,7 +459,6 @@ void DebuggerRunControl::start()
     QString errorMessage;
     QString settingsCategory;
     QString settingsPage;
-    QString settingsIdHint;
 
     if (!checkDebugConfiguration(sp.toolChainType,
             &errorMessage, &settingsCategory, &settingsPage)) {
@@ -471,17 +469,16 @@ void DebuggerRunControl::start()
         return;
     }
 
-    plugin()->activateDebugMode();
-    plugin()->showMessage(tr("Starting debugger for tool chain '%1'...")
-        .arg(toolChainName(sp.toolChainType)), StatusBar);
+    plugin()->activateDebugMode();    
+
+    const QString message = tr("Starting debugger '%1' for tool chain '%2'...").
+                  arg(m_engine->objectName(), toolChainName(sp.toolChainType));
+    plugin()->showMessage(message, StatusBar);
     plugin()->showMessage(DebuggerSettings::instance()->dump(), LogDebug);
 
     engine()->startDebugger(this);
-}
-
-void DebuggerRunControl::startSuccessful()
-{
     m_running = true;
+    plugin()->runControlStarted(this);
     emit started();
 }
 
@@ -490,11 +487,6 @@ void DebuggerRunControl::startFailed()
     m_running = false;
     emit finished();
     engine()->handleStartFailed();
-}
-
-void DebuggerRunControl::handleStarted()
-{
-    plugin()->runControlStarted(this);
 }
 
 void DebuggerRunControl::handleFinished()

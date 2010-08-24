@@ -45,13 +45,14 @@ class SessionEngine : public DebuggerEngine
 public:
     SessionEngine();
 
-    void setupEngine() {}
-    void setupInferior() {}
-    void runEngine() {}
-    void shutdownEngine() {}
-    void shutdownInferior() {}
+    virtual void setupEngine() {}
+    virtual void setupInferior() {}
+    virtual void runEngine() {}
+    virtual void shutdownEngine() {}
+    virtual void shutdownInferior() {}
+    virtual void executeDebuggerCommand(const QString &command);
 
-    bool isSessionEngine() const { return true; }
+    virtual bool isSessionEngine() const { return true; }
 
     void loadSessionData();
     void saveSessionData();

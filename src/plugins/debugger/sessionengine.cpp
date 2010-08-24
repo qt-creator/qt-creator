@@ -31,6 +31,10 @@
 #include "breakhandler.h"
 #include "watchhandler.h"
 
+#include <utils/qtcassert.h>
+
+#include <QtCore/QDebug>
+
 namespace Debugger {
 namespace Internal {
 
@@ -40,6 +44,12 @@ namespace Internal {
 SessionEngine::SessionEngine()
     : DebuggerEngine(DebuggerStartParameters())
 {
+    setObjectName(QLatin1String("SessionEngine"));
+}
+
+void SessionEngine::executeDebuggerCommand(const QString &command)
+{
+    QTC_ASSERT(false, qDebug() << command)
 }
 
 void SessionEngine::loadSessionData()
