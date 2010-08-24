@@ -76,6 +76,36 @@ struct QmlCppPlugin
     const QFileInfo proFile;        // .pro file for the plugin
 };
 
+struct GeneratedFileInfo
+{
+    enum File {
+        MainQmlFile,
+        MainCppFile,
+        AppProfileFile,
+        AppPriFile,
+        AppViewerCppFile,
+        AppViewerHFile,
+        SymbianSvgIconFile
+    };
+
+    enum UpdateReason {
+        Undefined,
+        IsUpToDate,
+        HasOutdatedVersion,
+        HasFutureVersion,
+        ContentChanged
+    };
+
+    GeneratedFileInfo();
+
+    File file;
+    QFileInfo fileInfo;
+    int version;
+    quint16 dataChecksum;
+    quint16 statedChecksum;
+    UpdateReason updateReason;
+};
+
 class QmlStandaloneApp: public QObject
 {
 public:
@@ -112,16 +142,6 @@ public:
         ModulesDir
     };
 
-    enum GeneratedFile {
-        MainQmlFile,
-        MainCppFile,
-        AppProfileFile,
-        AppPriFile,
-        AppViewerCppFile,
-        AppViewerHFile,
-        SymbianSvgIconFile
-    };
-
     QmlStandaloneApp();
     ~QmlStandaloneApp();
 
@@ -152,8 +172,9 @@ public:
     bool useExistingMainQml() const;
     QString error() const;
     const QList<QmlModule*> modules() const;
-    QByteArray generateFile(GeneratedFile file, const QString *errorMessage) const;
+    QByteArray generateFile(GeneratedFileInfo::File file, const QString *errorMessage) const;
     static int stubVersion();
+    static QList<GeneratedFileInfo> fileUpdates(const QString &mainProFile);
 
 private:
     QByteArray generateMainCpp(const QString *errorMessage) const;

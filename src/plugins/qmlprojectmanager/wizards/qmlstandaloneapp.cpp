@@ -43,6 +43,12 @@ namespace Internal {
 
 const QLatin1String qmldir("qmldir");
 const QLatin1String qmldir_plugin("plugin");
+const QLatin1String cppOriginsSubDir("cpp/");
+const QLatin1String appPriFileName("qmlapplication.pri");
+const QLatin1String appViewCppFileName("qmlapplicationview.cpp");
+const QLatin1String appViewHFileName("qmlapplicationview.h");
+const QLatin1String fileChecksum("checksum");
+const QLatin1String fileStubVersion("version");
 
 QmlModule::QmlModule(const QString &uri, const QFileInfo &rootDir, const QFileInfo &qmldir,
                      bool isExternal, QmlStandaloneApp *qmlStandaloneApp)
@@ -86,6 +92,15 @@ QmlCppPlugin::QmlCppPlugin(const QString &name, const QFileInfo &path,
     , module(module)
     , proFile(proFile)
 {}
+
+GeneratedFileInfo::GeneratedFileInfo()
+    : file(MainQmlFile)
+    , version(-1)
+    , dataChecksum(0)
+    , statedChecksum(0)
+    , updateReason(Undefined)
+{
+}
 
 QmlStandaloneApp::QmlStandaloneApp()
     : m_loadDummyData(false)
@@ -229,13 +244,9 @@ QString QmlStandaloneApp::path(Path path) const
                               + (useExistingMainQml() ? m_mainQmlFile.dir().dirName() : m_projectName)
                               + QLatin1Char('/');
     const QString originsRoot = templatesRoot();
-    const QString cppOriginsSubDir = QLatin1String("cpp/");
     const QString cppTargetSubDir = cppOriginsSubDir;
     const QString qmlExtension = QLatin1String(".qml");
-    const QString appPriFileName = QLatin1String("qmlapplication.pri");
     const QString mainCppFileName = QLatin1String("main.cpp");
-    const QString appViewCppFileName = QLatin1String("qmlapplicationview.cpp");
-    const QString appViewHFileName = QLatin1String("qmlapplicationview.h");
     const QString symbianIconFileName = QLatin1String("symbianicon.svg");
     const char* const errorMessage = "QmlStandaloneApp::path() needs more work";
     const QString pathBase = m_projectPath.absoluteFilePath() + QLatin1Char('/')
@@ -486,19 +497,19 @@ Core::GeneratedFiles QmlStandaloneApp::generateFiles(QString *errorMessage) cons
 {
     Core::GeneratedFiles files;
 
-    files.append(file(generateFile(AppProfileFile, errorMessage), path(AppProfile)));
+    files.append(file(generateFile(GeneratedFileInfo::AppProfileFile, errorMessage), path(AppProfile)));
     files.last().setAttributes(Core::GeneratedFile::OpenProjectAttribute);
-    files.append(file(generateFile(AppPriFile, errorMessage), path(AppPri)));
+    files.append(file(generateFile(GeneratedFileInfo::AppPriFile, errorMessage), path(AppPri)));
 
     if (!useExistingMainQml()) {
-        files.append(file(generateFile(MainQmlFile, errorMessage), path(MainQml)));
+        files.append(file(generateFile(GeneratedFileInfo::MainQmlFile, errorMessage), path(MainQml)));
         files.last().setAttributes(Core::GeneratedFile::OpenEditorAttribute);
     }
 
-    files.append(file(generateFile(MainCppFile, errorMessage), path(MainCpp)));
-    files.append(file(generateFile(AppViewerCppFile, errorMessage), path(AppViewerCpp)));
-    files.append(file(generateFile(AppViewerHFile, errorMessage), path(AppViewerH)));
-    files.append(file(generateFile(SymbianSvgIconFile, errorMessage), path(SymbianSvgIcon)));
+    files.append(file(generateFile(GeneratedFileInfo::MainCppFile, errorMessage), path(MainCpp)));
+    files.append(file(generateFile(GeneratedFileInfo::AppViewerCppFile, errorMessage), path(AppViewerCpp)));
+    files.append(file(generateFile(GeneratedFileInfo::AppViewerHFile, errorMessage), path(AppViewerH)));
+    files.append(file(generateFile(GeneratedFileInfo::SymbianSvgIconFile, errorMessage), path(SymbianSvgIcon)));
 
     return files;
 }
@@ -527,7 +538,8 @@ static QByteArray readBlob(const QString &source)
     return sourceFile.readAll();
 }
 
-QByteArray QmlStandaloneApp::generateFile(GeneratedFile file, const QString *errorMessage) const
+QByteArray QmlStandaloneApp::generateFile(GeneratedFileInfo::File file,
+                                          const QString *errorMessage) const
 {
     QByteArray data;
     const QString cFileComment = QLatin1String("//");
@@ -535,29 +547,29 @@ QByteArray QmlStandaloneApp::generateFile(GeneratedFile file, const QString *err
     QString comment = cFileComment;
     bool versionAndChecksum = false;
     switch (file) {
-        case MainQmlFile:
+        case GeneratedFileInfo::MainQmlFile:
             data = readBlob(path(MainQmlOrigin));
             break;
-        case MainCppFile:
+        case GeneratedFileInfo::MainCppFile:
             data = generateMainCpp(errorMessage);
             break;
-        case SymbianSvgIconFile:
+        case GeneratedFileInfo::SymbianSvgIconFile:
             data = readBlob(path(SymbianSvgIconOrigin));
             break;
-        case AppProfileFile:
+        case GeneratedFileInfo::AppProfileFile:
             data = generateProFile(errorMessage);
             comment = proFileComment;
             break;
-        case AppPriFile:
+        case GeneratedFileInfo::AppPriFile:
             data = readBlob(path(AppPriOrigin));
             comment = proFileComment;
             versionAndChecksum = true;
             break;
-        case AppViewerCppFile:
+        case GeneratedFileInfo::AppViewerCppFile:
             data = readBlob(path(AppViewerCppOrigin));
             versionAndChecksum = true;
             break;
-        case AppViewerHFile:
+        case GeneratedFileInfo::AppViewerHFile:
         default:
             data = readBlob(path(AppViewerHOrigin));
             versionAndChecksum = true;
@@ -571,15 +583,73 @@ QByteArray QmlStandaloneApp::generateFile(GeneratedFile file, const QString *err
     const quint16 checkSum = qChecksum(versioned.constData(), versioned.length());
     const QString checkSumString = QString::number(checkSum, 16);
     const QString versionString = QString::number(stubVersion());
+    const QChar sep = QLatin1Char(' ');
     const QString versionLine =
-            comment + QLatin1String(" checksum: ") + checkSumString
-            + QLatin1String(" version: ") + versionString + QLatin1Char('\x0A');
+            comment + sep + fileChecksum + sep + QLatin1String("0x") + checkSumString
+            + sep + fileStubVersion + sep + versionString + QLatin1Char('\x0A');
     return versionLine.toAscii() + data;
 }
 
 int QmlStandaloneApp::stubVersion()
 {
     return 1;
+}
+
+static QList<GeneratedFileInfo> updateableFiles(const QString &mainProFile)
+{
+    QList<GeneratedFileInfo> result;
+    static const struct {
+        GeneratedFileInfo::File file;
+        QString fileName;
+    } files[] = {
+        {GeneratedFileInfo::AppPriFile, appPriFileName},
+        {GeneratedFileInfo::AppViewerHFile, cppOriginsSubDir + appViewCppFileName},
+        {GeneratedFileInfo::AppViewerCppFile, cppOriginsSubDir + appViewHFileName}
+    };
+    const QFileInfo mainProFileInfo(mainProFile);
+    for (int i = 0; i < sizeof files / sizeof files[0]; ++i) {
+        const QString fileName = mainProFileInfo.dir().absolutePath()
+                + QLatin1Char('/') + files[i].fileName;
+        if (!QFile::exists(fileName))
+            continue;
+        GeneratedFileInfo file;
+        file.file = files[i].file;
+        file.fileInfo = QFileInfo(fileName);
+        result.append(file);
+    }
+    return result;
+}
+
+QList<GeneratedFileInfo> QmlStandaloneApp::fileUpdates(const QString &mainProFile)
+{
+    QList<GeneratedFileInfo> result;
+    foreach (const GeneratedFileInfo &file, updateableFiles(mainProFile)) {
+        GeneratedFileInfo newFile = file;
+        QFile readFile(newFile.fileInfo.absoluteFilePath());
+        if (!readFile.open(QIODevice::ReadOnly))
+           continue;
+        const QString firstLine = readFile.readLine();
+        const QStringList elements = firstLine.split(QLatin1Char(' '));
+        if (elements.count() != 5 || elements.at(1) != fileChecksum
+                || elements.at(3) != fileStubVersion)
+            continue;
+        newFile.version = elements.at(4).toInt();
+        newFile.statedChecksum = elements.at(2).toUShort(0, 16);
+        QByteArray data = readFile.readAll();
+        data.replace('\x0D', "");
+        data.replace('\x0A', "");
+        newFile.dataChecksum = qChecksum(data.constData(), data.length());
+        if (newFile.version < stubVersion())
+            newFile.updateReason = GeneratedFileInfo::HasOutdatedVersion;
+        else if (newFile.version > stubVersion())
+            newFile.updateReason = GeneratedFileInfo::HasFutureVersion;
+        else if (newFile.dataChecksum != newFile.statedChecksum)
+            newFile.updateReason = GeneratedFileInfo::ContentChanged;
+        else
+            newFile.updateReason = GeneratedFileInfo::IsUpToDate;
+        result.append(newFile);
+    }
+    return result;
 }
 
 } // namespace Internal
