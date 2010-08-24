@@ -824,11 +824,11 @@ QString QtVersionManager::findQMakeBinaryFromMakefile(const QString &directory)
 QtVersion *QtVersionManager::qtVersionForQMakeBinary(const QString &qmakePath)
 {
    foreach(QtVersion *v, versions()) {
-        if (v->qmakeCommand() == qmakePath) {
-            return v;
-            break;
-        }
-    }
+       if (v->qmakeCommand() == qmakePath) {
+           return v;
+           break;
+       }
+   }
    return 0;
 }
 
