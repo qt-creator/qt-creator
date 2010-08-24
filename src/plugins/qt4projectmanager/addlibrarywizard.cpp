@@ -196,17 +196,20 @@ void DetailsPage::initializePage()
     case AddLibraryWizard::SystemLibrary:
         title = tr("System Library");
         subTitle = tr("Specify the library which you want to link against");
-        m_libraryDetailsController = new SystemLibraryDetailsController(m_libraryDetailsWidget, this);
+        m_libraryDetailsController = new SystemLibraryDetailsController(
+                m_libraryDetailsWidget, m_libraryWizard->proFile(), this);
         break;
     case AddLibraryWizard::ExternalLibrary:
         title = tr("External Library");
         subTitle = tr("Specify the library which you want to link against and the includes path");
-        m_libraryDetailsController = new ExternalLibraryDetailsController(m_libraryDetailsWidget, this);
+        m_libraryDetailsController = new ExternalLibraryDetailsController(
+                m_libraryDetailsWidget, m_libraryWizard->proFile(), this);
         break;
     case AddLibraryWizard::InternalLibrary:
         title = tr("Internal Library");
         subTitle = tr("Choose the project file of the library which you want to link against");
-        m_libraryDetailsController = new InternalLibraryDetailsController(m_libraryDetailsWidget, this);
+        m_libraryDetailsController = new InternalLibraryDetailsController(
+                m_libraryDetailsWidget, m_libraryWizard->proFile(), this);
         break;
     default:
         break;
@@ -214,7 +217,6 @@ void DetailsPage::initializePage()
     setTitle(title);
     setSubTitle(subTitle);
     if (m_libraryDetailsController) {
-        m_libraryDetailsController->setProFile(m_libraryWizard->proFile());
         connect(m_libraryDetailsController, SIGNAL(completeChanged()),
                 this, SIGNAL(completeChanged()));
     }

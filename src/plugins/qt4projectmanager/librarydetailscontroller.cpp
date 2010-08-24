@@ -2,6 +2,7 @@
 #include "ui_librarydetailswidget.h"
 #include "findqt4profiles.h"
 #include "qt4nodes.h"
+#include "qt4buildconfiguration.h"
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
@@ -16,7 +17,8 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 LibraryDetailsController::LibraryDetailsController(
-        Ui::LibraryDetailsWidget *libraryDetails, QObject *parent) :
+        Ui::LibraryDetailsWidget *libraryDetails,
+        const QString &proFile, QObject *parent) :
     QObject(parent),
     m_platforms(AddLibraryWizard::LinuxPlatform
                 | AddLibraryWizard::MacPlatform
@@ -24,6 +26,7 @@ LibraryDetailsController::LibraryDetailsController(
                 | AddLibraryWizard::SymbianPlatform),
     m_linkageType(AddLibraryWizard::NoLinkage),
     m_macLibraryType(AddLibraryWizard::NoLibraryType),
+    m_proFile(proFile),
     m_ignoreGuiSignals(false),
     m_includePathChanged(false),
     m_linkageRadiosVisible(true),
@@ -33,12 +36,28 @@ LibraryDetailsController::LibraryDetailsController(
     m_libraryDetailsWidget(libraryDetails)
 {
 #ifdef Q_OS_MAC
-    setMacLibraryRadiosVisible(false);
+    m_creatorPlatform = CreatorMac;
+#endif
+#ifdef Q_OS_LINUX
+    m_creatorPlatform = CreatorLinux;
+#endif
+#ifdef Q_OS_WIN
+    m_creatorPlatform = CreatorWindows;
+
+    // project for which we are going to insert the snippet
+    const ProjectExplorer::Project *project =
+            ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projectForFile(proFile);
+    Qt4BuildConfiguration *qt4BuildConfiguration =
+            qobject_cast<Qt4BuildConfiguration *>(project->activeTarget()->activeBuildConfiguration());
+    if (qt4BuildConfiguration && qt4BuildConfiguration->toolChainType() == ProjectExplorer::ToolChain::GCC_MAEMO)
+        m_creatorPlatform = CreatorLinux;
 #endif
 
-#ifndef Q_OS_WIN
-    setLinkageRadiosVisible(false);
-#endif
+    if (creatorPlatform() == CreatorMac)
+        setMacLibraryRadiosVisible(false);
+
+    if (creatorPlatform() != CreatorWindows)
+        setLinkageRadiosVisible(false);
 
     connect(m_libraryDetailsWidget->includePathChooser, SIGNAL(changed(QString)),
             this, SLOT(slotIncludePathChanged()));
@@ -60,13 +79,9 @@ LibraryDetailsController::LibraryDetailsController(
             this, SLOT(slotPlatformChanged()));
 }
 
-void LibraryDetailsController::setProFile(const QString &proFile)
+LibraryDetailsController::CreatorPlatform LibraryDetailsController::creatorPlatform() const
 {
-    m_proFile = proFile;
-    proFileChanged();
-    updateGui();
-
-    emit completeChanged();
+    return m_creatorPlatform;
 }
 
 Ui::LibraryDetailsWidget *LibraryDetailsController::libraryDetailsWidget() const
@@ -491,35 +506,35 @@ static QString generatePreTargetDepsSnippet(AddLibraryWizard::Platforms platform
 }
 
 NonInternalLibraryDetailsController::NonInternalLibraryDetailsController(
-        Ui::LibraryDetailsWidget *libraryDetails, QObject *parent) :
-    LibraryDetailsController(libraryDetails, parent)
+        Ui::LibraryDetailsWidget *libraryDetails,
+        const QString &proFile, QObject *parent) :
+    LibraryDetailsController(libraryDetails, proFile, parent)
 {
     setLibraryComboBoxVisible(false);
     setLibraryPathChooserVisible(true);
 
-#ifdef Q_OS_WIN
-    libraryDetailsWidget()->libraryPathChooser->setPromptDialogFilter(
-            QLatin1String("Library file (*.lib)"));
-    setLinkageRadiosVisible(true);
-    setRemoveSuffixVisible(true);
-#else
-    setLinkageRadiosVisible(false);
-    setRemoveSuffixVisible(false);
-#endif
+    if (creatorPlatform() == CreatorWindows) {
+        libraryDetailsWidget()->libraryPathChooser->setPromptDialogFilter(
+                QLatin1String("Library file (*.lib)"));
+        setLinkageRadiosVisible(true);
+        setRemoveSuffixVisible(true);
+    } else {
+        setLinkageRadiosVisible(false);
+        setRemoveSuffixVisible(false);
+    }
 
-#ifdef Q_OS_LINUX
-    libraryDetailsWidget()->libraryPathChooser->setPromptDialogFilter(
-            QLatin1String("Library file (lib*.so lib*.a)"));
-#endif
+    if (creatorPlatform() == CreatorLinux)
+        libraryDetailsWidget()->libraryPathChooser->setPromptDialogFilter(
+                QLatin1String("Library file (lib*.so lib*.a)"));
 
-#ifdef Q_OS_MAC
-    libraryDetailsWidget()->libraryPathChooser->setPromptDialogFilter(
-            QLatin1String("Library file (*.dylib *.a *.framework)"));
+    if (creatorPlatform() == CreatorMac) {
+        libraryDetailsWidget()->libraryPathChooser->setPromptDialogFilter(
+                QLatin1String("Library file (*.dylib *.a *.framework)"));
            // QLatin1String("Library file (lib*.dylib lib*.a *.framework)"));
-    libraryDetailsWidget()->libraryPathChooser->setExpectedKind(Utils::PathChooser::Any);
-#else
-    libraryDetailsWidget()->libraryPathChooser->setExpectedKind(Utils::PathChooser::File);
-#endif
+        libraryDetailsWidget()->libraryPathChooser->setExpectedKind(Utils::PathChooser::Any);
+    } else {
+        libraryDetailsWidget()->libraryPathChooser->setExpectedKind(Utils::PathChooser::File);
+    }
 
     connect(libraryDetailsWidget()->libraryPathChooser, SIGNAL(validChanged()),
             this, SIGNAL(completeChanged()));
@@ -536,30 +551,30 @@ NonInternalLibraryDetailsController::NonInternalLibraryDetailsController(
 AddLibraryWizard::LinkageType NonInternalLibraryDetailsController::suggestedLinkageType() const
 {
     AddLibraryWizard::LinkageType type = AddLibraryWizard::NoLinkage;
-#ifndef Q_OS_WIN
-    if (libraryDetailsWidget()->libraryPathChooser->isValid()) {
-        QFileInfo fi(libraryDetailsWidget()->libraryPathChooser->path());
-        if (fi.suffix() == QLatin1String("a"))
-            type = AddLibraryWizard::StaticLinkage;
-        else
-            type = AddLibraryWizard::DynamicLinkage;
+    if (creatorPlatform() != CreatorWindows) {
+        if (libraryDetailsWidget()->libraryPathChooser->isValid()) {
+            QFileInfo fi(libraryDetailsWidget()->libraryPathChooser->path());
+            if (fi.suffix() == QLatin1String("a"))
+                type = AddLibraryWizard::StaticLinkage;
+            else
+                type = AddLibraryWizard::DynamicLinkage;
+        }
     }
-#endif
     return type;
 }
 
 AddLibraryWizard::MacLibraryType NonInternalLibraryDetailsController::suggestedMacLibraryType() const
 {
     AddLibraryWizard::MacLibraryType type = AddLibraryWizard::NoLibraryType;
-#ifdef Q_OS_MAC
-    if (libraryDetailsWidget()->libraryPathChooser->isValid()) {
-        QFileInfo fi(libraryDetailsWidget()->libraryPathChooser->path());
-        if (fi.suffix() == QLatin1String("framework"))
-            type = AddLibraryWizard::FrameworkType;
-        else
-            type = AddLibraryWizard::LibraryType;
+    if (creatorPlatform() == CreatorMac) {
+        if (libraryDetailsWidget()->libraryPathChooser->isValid()) {
+            QFileInfo fi(libraryDetailsWidget()->libraryPathChooser->path());
+            if (fi.suffix() == QLatin1String("framework"))
+                type = AddLibraryWizard::FrameworkType;
+            else
+                type = AddLibraryWizard::LibraryType;
+        }
     }
-#endif
     return type;
 }
 
@@ -585,10 +600,10 @@ QString NonInternalLibraryDetailsController::suggestedIncludePath() const
 void NonInternalLibraryDetailsController::updateWindowsOptionsEnablement()
 {
     bool ena = platforms() & AddLibraryWizard::WindowsPlatform;
-#ifdef Q_OS_WIN
-    libraryDetailsWidget()->addSuffixCheckBox->setEnabled(ena);
-    ena = true;
-#endif
+    if (creatorPlatform() == CreatorWindows) {
+        libraryDetailsWidget()->addSuffixCheckBox->setEnabled(ena);
+        ena = true;
+    }
     libraryDetailsWidget()->winGroupBox->setEnabled(ena);
 }
 
@@ -617,29 +632,29 @@ void NonInternalLibraryDetailsController::slotRemoveSuffixChanged(bool ena)
 
 void NonInternalLibraryDetailsController::slotLibraryPathChanged()
 {
-#ifdef Q_OS_WIN
-    bool subfoldersEnabled = true;
-    bool removeSuffixEnabled = true;
-    if (libraryDetailsWidget()->libraryPathChooser->isValid()) {
-        QFileInfo fi(libraryDetailsWidget()->libraryPathChooser->path());
-        QFileInfo dfi(fi.absolutePath());
-        const QString parentFolderName = dfi.fileName().toLower();
-        if (parentFolderName != QLatin1String("debug") &&
+    if (creatorPlatform() == CreatorWindows) {
+        bool subfoldersEnabled = true;
+        bool removeSuffixEnabled = true;
+        if (libraryDetailsWidget()->libraryPathChooser->isValid()) {
+            QFileInfo fi(libraryDetailsWidget()->libraryPathChooser->path());
+            QFileInfo dfi(fi.absolutePath());
+            const QString parentFolderName = dfi.fileName().toLower();
+            if (parentFolderName != QLatin1String("debug") &&
                 parentFolderName != QLatin1String("release"))
-            subfoldersEnabled = false;
-        const QString baseName = fi.baseName();
+                subfoldersEnabled = false;
+            const QString baseName = fi.baseName();
 
-        if (baseName.isEmpty() || baseName.at(baseName.size() - 1).toLower() != QLatin1Char('d'))
-            removeSuffixEnabled = false;
+            if (baseName.isEmpty() || baseName.at(baseName.size() - 1).toLower() != QLatin1Char('d'))
+                removeSuffixEnabled = false;
 
-        if (subfoldersEnabled)
-            libraryDetailsWidget()->useSubfoldersCheckBox->setChecked(true);
-        else if (removeSuffixEnabled)
-            libraryDetailsWidget()->removeSuffixCheckBox->setChecked(true);
-        else
-            libraryDetailsWidget()->addSuffixCheckBox->setChecked(true);
+            if (subfoldersEnabled)
+                libraryDetailsWidget()->useSubfoldersCheckBox->setChecked(true);
+            else if (removeSuffixEnabled)
+                libraryDetailsWidget()->removeSuffixCheckBox->setChecked(true);
+            else
+                libraryDetailsWidget()->addSuffixCheckBox->setChecked(true);
+        }
     }
-#endif
 
     updateGui();
 
@@ -659,29 +674,28 @@ QString NonInternalLibraryDetailsController::snippet() const
     QString libName;
     const bool removeSuffix = isWindowsGroupVisible()
             && libraryDetailsWidget()->removeSuffixCheckBox->isChecked();
-#if defined (Q_OS_WIN)
-    libName = fi.baseName();
-    if (removeSuffix && !libName.isEmpty()) // remove last letter which needs to be "d"
-        libName = libName.left(libName.size() - 1);
-#elif defined (Q_OS_MAC)
-    if (macLibraryType() == AddLibraryWizard::FrameworkType)
+    if (creatorPlatform() == CreatorWindows) {
         libName = fi.baseName();
-    else
+        if (removeSuffix && !libName.isEmpty()) // remove last letter which needs to be "d"
+            libName = libName.left(libName.size() - 1);
+    } else if (creatorPlatform() == CreatorMac) {
+        if (macLibraryType() == AddLibraryWizard::FrameworkType)
+            libName = fi.baseName();
+        else
+            libName = fi.baseName().mid(3); // cut the "lib" prefix
+    } else {
         libName = fi.baseName().mid(3); // cut the "lib" prefix
-#else
-    libName = fi.baseName().mid(3); // cut the "lib" prefix
-#endif
+    }
+
     QString targetRelativePath;
     QString includeRelativePath;
     bool useSubfolders = false;
     bool addSuffix = false;
     if (isWindowsGroupVisible()) {
-        const bool useSubfoldersCondition =
-#ifdef Q_OS_WIN
-            true; // we are on Win but we in case don't generate the code for Win we still need to remove "debug" or "release" subfolder
-#else
-            platforms() & AddLibraryWizard::WindowsPlatform;
-#endif
+        // when we are on Win but we don't generate the code for Win
+        // we still need to remove "debug" or "release" subfolder
+        const bool useSubfoldersCondition = (creatorPlatform() == CreatorWindows)
+                                            ? true : platforms() & AddLibraryWizard::WindowsPlatform;
         if (useSubfoldersCondition)
             useSubfolders = libraryDetailsWidget()->useSubfoldersCheckBox->isChecked();
         if (platforms() & AddLibraryWizard::WindowsPlatform)
@@ -691,12 +705,10 @@ QString NonInternalLibraryDetailsController::snippet() const
         QFileInfo pfi(proFile());
         QDir pdir = pfi.absoluteDir();
         QString absoluteLibraryPath = fi.absolutePath();
-#if defined (Q_OS_WIN)
-        if (useSubfolders) { // drop last subfolder which needs to be "debug" or "release"
+        if (creatorPlatform() == CreatorWindows && useSubfolders) { // drop last subfolder which needs to be "debug" or "release"
             QFileInfo libfi(absoluteLibraryPath);
             absoluteLibraryPath = libfi.absolutePath();
         }
-#endif // Q_OS_WIN
         targetRelativePath = appendSeparator(pdir.relativeFilePath(absoluteLibraryPath));
 
         const QString includePath = libraryDetailsWidget()->includePathChooser->path();
@@ -722,27 +734,36 @@ QString NonInternalLibraryDetailsController::snippet() const
 /////////////
 
 SystemLibraryDetailsController::SystemLibraryDetailsController(
-    Ui::LibraryDetailsWidget *libraryDetails, QObject *parent)
-    : NonInternalLibraryDetailsController(libraryDetails, parent)
+    Ui::LibraryDetailsWidget *libraryDetails,
+    const QString &proFile, QObject *parent)
+    : NonInternalLibraryDetailsController(libraryDetails, proFile, parent)
 {
     setIncludePathVisible(false);
     setWindowsGroupVisible(false);
+
+    updateGui();
 }
 
 /////////////
 
 ExternalLibraryDetailsController::ExternalLibraryDetailsController(
-    Ui::LibraryDetailsWidget *libraryDetails, QObject *parent)
-    : NonInternalLibraryDetailsController(libraryDetails, parent)
+    Ui::LibraryDetailsWidget *libraryDetails,
+    const QString &proFile, QObject *parent)
+    : NonInternalLibraryDetailsController(libraryDetails, proFile, parent)
 {
     setIncludePathVisible(true);
     setWindowsGroupVisible(true);
+
+    updateGui();
 }
 
 void ExternalLibraryDetailsController::updateWindowsOptionsEnablement()
 {
     NonInternalLibraryDetailsController::updateWindowsOptionsEnablement();
-#ifdef Q_OS_WIN
+
+    if (creatorPlatform() != CreatorWindows)
+        return;
+
     bool subfoldersEnabled = true;
     bool removeSuffixEnabled = true;
     if (libraryDetailsWidget()->libraryPathChooser->isValid()) {
@@ -760,14 +781,14 @@ void ExternalLibraryDetailsController::updateWindowsOptionsEnablement()
     }
     libraryDetailsWidget()->useSubfoldersCheckBox->setEnabled(subfoldersEnabled);
     libraryDetailsWidget()->removeSuffixCheckBox->setEnabled(removeSuffixEnabled);
-#endif
 }
 
 /////////////
 
 InternalLibraryDetailsController::InternalLibraryDetailsController(
-        Ui::LibraryDetailsWidget *libraryDetails, QObject *parent)
-    : LibraryDetailsController(libraryDetails, parent)
+        Ui::LibraryDetailsWidget *libraryDetails,
+        const QString &proFile, QObject *parent)
+    : LibraryDetailsController(libraryDetails, proFile, parent)
 {
     setLinkageRadiosVisible(false);
     setLibraryPathChooserVisible(false);
@@ -776,12 +797,14 @@ InternalLibraryDetailsController::InternalLibraryDetailsController(
     setWindowsGroupVisible(true);
     setRemoveSuffixVisible(false);
 
-#ifdef Q_OS_WIN
-    libraryDetailsWidget()->useSubfoldersCheckBox->setEnabled(true);
-#endif
+    if (creatorPlatform() == CreatorWindows)
+        libraryDetailsWidget()->useSubfoldersCheckBox->setEnabled(true);
 
     connect(libraryDetailsWidget()->libraryComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(slotCurrentLibraryChanged()));
+
+    updateProFile();
+    updateGui();
 }
 
 AddLibraryWizard::LinkageType InternalLibraryDetailsController::suggestedLinkageType() const
@@ -829,14 +852,13 @@ QString InternalLibraryDetailsController::suggestedIncludePath() const
 
 void InternalLibraryDetailsController::updateWindowsOptionsEnablement()
 {
-#ifdef Q_OS_WIN
-    libraryDetailsWidget()->addSuffixCheckBox->setEnabled(true);
-#endif
+    if (creatorPlatform() == CreatorWindows)
+        libraryDetailsWidget()->addSuffixCheckBox->setEnabled(true);
     libraryDetailsWidget()->winGroupBox->setEnabled(platforms()
                                 & AddLibraryWizard::WindowsPlatform);
 }
 
-void InternalLibraryDetailsController::proFileChanged()
+void InternalLibraryDetailsController::updateProFile()
 {
     m_rootProjectPath.clear();
     m_proFileNodes.clear();
@@ -884,14 +906,14 @@ void InternalLibraryDetailsController::slotCurrentLibraryChanged()
                         currentIndex, Qt::ToolTipRole).toString());
         Qt4ProFileNode *proFileNode = m_proFileNodes.at(currentIndex);
         const QStringList configVar = proFileNode->variableValue(ConfigVar);
-#ifdef Q_OS_WIN
-        bool useSubfolders = false;
-        if (configVar.contains(QLatin1String("debug_and_release"))
+        if (creatorPlatform() == CreatorWindows) {
+            bool useSubfolders = false;
+            if (configVar.contains(QLatin1String("debug_and_release"))
                 && configVar.contains(QLatin1String("debug_and_release_target")))
-            useSubfolders = true;
-        libraryDetailsWidget()->useSubfoldersCheckBox->setChecked(useSubfolders);
-        libraryDetailsWidget()->addSuffixCheckBox->setChecked(!useSubfolders);
-#endif // Q_OS_WIN
+                useSubfolders = true;
+            libraryDetailsWidget()->useSubfoldersCheckBox->setChecked(useSubfolders);
+            libraryDetailsWidget()->addSuffixCheckBox->setChecked(!useSubfolders);
+        }
     }
 
     if (guiSignalsIgnored())

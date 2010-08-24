@@ -18,13 +18,21 @@ class LibraryDetailsController : public QObject
     Q_OBJECT
 public:
     explicit LibraryDetailsController(Ui::LibraryDetailsWidget *libraryDetails,
+                                      const QString &proFile,
                                       QObject *parent = 0);
     virtual bool isComplete() const = 0;
-    void setProFile(const QString &proFile);
     virtual QString snippet() const = 0;
 signals:
     void completeChanged();
 protected:
+
+    enum CreatorPlatform {
+        CreatorLinux,
+        CreatorMac,
+        CreatorWindows
+    };
+
+    CreatorPlatform creatorPlatform() const;
 
     Ui::LibraryDetailsWidget *libraryDetailsWidget() const;
 
@@ -34,8 +42,6 @@ protected:
     QString proFile() const;
     bool isIncludePathChanged() const;
     bool guiSignalsIgnored() const;
-
-    virtual void proFileChanged() {}
 
     void updateGui();
     virtual AddLibraryWizard::LinkageType suggestedLinkageType() const = 0;
@@ -74,6 +80,8 @@ private:
 
     QString m_proFile;
 
+    CreatorPlatform m_creatorPlatform;
+
     bool m_ignoreGuiSignals;
     bool m_includePathChanged;
 
@@ -90,6 +98,7 @@ class NonInternalLibraryDetailsController : public LibraryDetailsController
     Q_OBJECT
 public:
     explicit NonInternalLibraryDetailsController(Ui::LibraryDetailsWidget *libraryDetails,
+                                                 const QString &proFile,
                                                  QObject *parent = 0);
     virtual bool isComplete() const;
     virtual QString snippet() const;
@@ -109,7 +118,8 @@ class SystemLibraryDetailsController : public NonInternalLibraryDetailsControlle
     Q_OBJECT
 public:
     explicit SystemLibraryDetailsController(Ui::LibraryDetailsWidget *libraryDetails,
-                                                 QObject *parent = 0);
+                                            const QString &proFile,
+                                            QObject *parent = 0);
 };
 
 class ExternalLibraryDetailsController : public NonInternalLibraryDetailsController
@@ -117,7 +127,8 @@ class ExternalLibraryDetailsController : public NonInternalLibraryDetailsControl
     Q_OBJECT
 public:
     explicit ExternalLibraryDetailsController(Ui::LibraryDetailsWidget *libraryDetails,
-                                                 QObject *parent = 0);
+                                              const QString &proFile,
+                                              QObject *parent = 0);
 protected:
     virtual void updateWindowsOptionsEnablement();
 };
@@ -127,7 +138,8 @@ class InternalLibraryDetailsController : public LibraryDetailsController
     Q_OBJECT
 public:
     explicit InternalLibraryDetailsController(Ui::LibraryDetailsWidget *libraryDetails,
-                                                 QObject *parent = 0);
+                                              const QString &proFile,
+                                              QObject *parent = 0);
     virtual bool isComplete() const;
     virtual QString snippet() const;
 protected:
@@ -135,9 +147,9 @@ protected:
     virtual AddLibraryWizard::MacLibraryType suggestedMacLibraryType() const;
     virtual QString suggestedIncludePath() const;
     virtual void updateWindowsOptionsEnablement();
-    virtual void proFileChanged();
 private slots:
     void slotCurrentLibraryChanged();
+    void updateProFile();
 private:
     QString m_rootProjectPath;
     QVector<Qt4ProFileNode *> m_proFileNodes;
