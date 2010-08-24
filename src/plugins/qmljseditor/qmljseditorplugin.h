@@ -92,7 +92,6 @@ public Q_SLOTS:
     void showContextPane();
 
 private Q_SLOTS:
-    void openPreview();
     void quickFix(TextEditor::ITextEditable *editable);
     void quickFixNow();
 
