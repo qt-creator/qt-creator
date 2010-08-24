@@ -43,12 +43,16 @@ LibraryDetailsController::LibraryDetailsController(
 #endif
 #ifdef Q_OS_WIN
     m_creatorPlatform = CreatorWindows;
+#endif
 
+#ifndef Q_OS_LINUX
     // project for which we are going to insert the snippet
     const ProjectExplorer::Project *project =
             ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projectForFile(proFile);
+    // take active build configuration for it
     Qt4BuildConfiguration *qt4BuildConfiguration =
             qobject_cast<Qt4BuildConfiguration *>(project->activeTarget()->activeBuildConfiguration());
+    // if its toolchain is maemo behave the same as we would be on linux
     if (qt4BuildConfiguration && qt4BuildConfiguration->toolChainType() == ProjectExplorer::ToolChain::GCC_MAEMO)
         m_creatorPlatform = CreatorLinux;
 #endif
