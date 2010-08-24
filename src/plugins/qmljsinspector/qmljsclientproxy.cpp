@@ -85,9 +85,6 @@ void ClientProxy::connectToServer()
         SIGNAL(selectedColorChanged(QColor)));
     connect(m_designClient, SIGNAL(contextPathUpdated(QStringList)),
         SIGNAL(contextPathUpdated(QStringList)));
-  /*  connect(m_designClient, SIGNAL(treeRefreshRequested()),
-        SLOT(refreshObjectTree()));*/
-
     reloadEngines();
 }
 
@@ -454,4 +451,3 @@ void ClientProxy::newObjects()
     if (!m_requestObjectsTimer.isActive())
         m_requestObjectsTimer.start();
 }
-

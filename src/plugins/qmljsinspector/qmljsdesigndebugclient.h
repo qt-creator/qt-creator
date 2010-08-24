@@ -89,7 +89,6 @@ signals:
     void designModeBehaviorChanged(bool inDesignMode);
     void reloaded(); // the server has reloaded the document
     void contextPathUpdated(const QStringList &path);
-    void treeRefreshRequested(); // scene has some new items
 
 protected:
     virtual void messageReceived(const QByteArray &);
