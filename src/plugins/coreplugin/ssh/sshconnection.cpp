@@ -65,6 +65,31 @@ namespace {
             staticInitMutex.unlock();
         }
     }
+} // anonymous namespace
+
+
+SshConnectionParameters::SshConnectionParameters() :
+    timeout(0),  authType(AuthByKey), port(0)
+{
+}
+
+static inline bool equals(const SshConnectionParameters &p1, const SshConnectionParameters &p2)
+{
+    return p1.host == p2.host && p1.uname == p2.uname
+            && p1.authType == p2.authType
+            && (p1.authType == SshConnectionParameters::AuthByPwd ?
+                    p1.pwd == p2.pwd : p1.privateKeyFile == p2.privateKeyFile)
+            && p1.timeout == p2.timeout && p1.port == p2.port;
+}
+
+CORE_EXPORT bool operator==(const SshConnectionParameters &p1, const SshConnectionParameters &p2)
+{
+    return equals(p1, p2);
+}
+
+CORE_EXPORT bool operator!=(const SshConnectionParameters &p1, const SshConnectionParameters &p2)
+{
+    return !equals(p1, p2);
 }
 
 // TODO: Mechanism for checking the host key. First connection to host: save, later: compare
