@@ -242,12 +242,10 @@ bool TargetSetupPage::setupProject(Qt4ProjectManager::Qt4Project *project)
                 info.isTemporary = false;
             }
 
-            // If we have buildAll, then we want to havbe two BCs set up, one to build debug,
-            // the other to build release.
-            if (info.buildConfig & QtVersion::BuildAll)
-                targetInfos.append(BuildConfigurationInfo(info.version, info.buildConfig & ~(info.buildConfig & QtVersion::DebugBuild),
-                                                          info.additionalArguments, info.directory));
+            // we want to havbe two BCs set up, one to build debug, the other to build release.
             targetInfos.append(BuildConfigurationInfo(info.version, info.buildConfig,
+                                                      info.additionalArguments, info.directory));
+            targetInfos.append(BuildConfigurationInfo(info.version, info.buildConfig & info.buildConfig ^ QtVersion::DebugBuild,
                                                       info.additionalArguments, info.directory));
         }
 
@@ -325,6 +323,7 @@ QList<TargetSetupPage::ImportInfo> TargetSetupPage::importInfosForKnownQtVersion
         info.isTemporary = false;
         info.isShadowBuild = v->supportsShadowBuilds();
         info.version = v;
+        info.buildConfig = v->defaultBuildConfig();
         results.append(info);
     }
     return results;
