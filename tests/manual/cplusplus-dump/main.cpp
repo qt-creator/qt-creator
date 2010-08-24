@@ -277,6 +277,19 @@ protected:
         out << qPrintable(o(symbol->type()));
         if (symbol->isDeprecated())
             out << "\\n(deprecated)";
+        if (Function *funTy = symbol->type()->asFunctionType()) {
+            if (funTy->isPureVirtual())
+                out << "\\n(pure virtual)";
+            else if (funTy->isVirtual())
+                out << "\\n(virtual)";
+
+            if (funTy->isSignal())
+                out << "\\n(signal)";
+            if (funTy->isSlot())
+                out << "\\n(slot)";
+            if (funTy->isInvokable())
+                out << "\\n(invokable)";
+        }
         out << "\"];" << std::endl;
 
         return true;
