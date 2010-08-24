@@ -612,47 +612,74 @@ SourceFilesHandler *DebuggerEngine::sourceFilesHandler() const
 
 QAbstractItemModel *DebuggerEngine::modulesModel() const
 {
-    return d->m_modulesHandler.model();
+    QAbstractItemModel *model = d->m_modulesHandler.model();
+    if (model->objectName().isEmpty()) // Make debugging easier.
+        model->setObjectName(objectName() + QLatin1String("ModulesModel"));
+    return model;
 }
 
 QAbstractItemModel *DebuggerEngine::breakModel() const
 {
-    return d->m_breakHandler.model();
+    QAbstractItemModel *model = d->m_breakHandler.model();
+    if (model->objectName().isEmpty()) // Make debugging easier.
+        model->setObjectName(objectName() + QLatin1String("BreakModel"));
+    return model;
 }
 
 QAbstractItemModel *DebuggerEngine::registerModel() const
 {
-    return d->m_registerHandler.model();
+    QAbstractItemModel *model = d->m_registerHandler.model();
+    if (model->objectName().isEmpty()) // Make debugging easier.
+        model->setObjectName(objectName() + QLatin1String("RegisterModel"));
+    return model;
 }
 
 QAbstractItemModel *DebuggerEngine::stackModel() const
 {
-    return d->m_stackHandler.model();
+    QAbstractItemModel *model = d->m_stackHandler.model();
+    if (model->objectName().isEmpty()) // Make debugging easier.
+        model->setObjectName(objectName() + QLatin1String("StackModel"));
+    return model;
 }
 
 QAbstractItemModel *DebuggerEngine::threadsModel() const
 {
-    return d->m_threadsHandler.model();
+    QAbstractItemModel *model = d->m_threadsHandler.model();
+    if (model->objectName().isEmpty()) // Make debugging easier.
+        model->setObjectName(objectName() + QLatin1String("ThreadsModel"));
+    return model;
 }
 
 QAbstractItemModel *DebuggerEngine::localsModel() const
 {
-    return d->m_watchHandler.model(LocalsWatch);
+    QAbstractItemModel *model = d->m_watchHandler.model(LocalsWatch);
+    if (model->objectName().isEmpty()) // Make debugging easier.
+        model->setObjectName(objectName() + QLatin1String("LocalsModel"));
+    return model;
 }
 
 QAbstractItemModel *DebuggerEngine::watchersModel() const
 {
-    return d->m_watchHandler.model(WatchersWatch);
+    QAbstractItemModel *model = d->m_watchHandler.model(WatchersWatch);
+    if (model->objectName().isEmpty()) // Make debugging easier.
+        model->setObjectName(objectName() + QLatin1String("WatchersModel"));
+    return model;
 }
 
 QAbstractItemModel *DebuggerEngine::returnModel() const
 {
-    return d->m_watchHandler.model(ReturnWatch);
+    QAbstractItemModel *model = d->m_watchHandler.model(ReturnWatch);
+    if (model->objectName().isEmpty()) // Make debugging easier.
+        model->setObjectName(objectName() + QLatin1String("ReturnModel"));
+    return model;
 }
 
 QAbstractItemModel *DebuggerEngine::sourceFilesModel() const
 {
-    return d->m_sourceFilesHandler.model();
+    QAbstractItemModel *model = d->m_sourceFilesHandler.model();
+    if (model->objectName().isEmpty()) // Make debugging easier.
+        model->setObjectName(objectName() + QLatin1String("SourceFilesModel"));
+    return model;
 }
 
 QAbstractItemModel *DebuggerEngine::commandModel() const

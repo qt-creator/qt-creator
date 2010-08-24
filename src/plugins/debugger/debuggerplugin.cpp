@@ -2171,15 +2171,14 @@ void DebuggerPluginPrivate::setInitialState()
 
 void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 {
-    //m_threadBox->setModel(engine->threadsModel());
-    //m_threadBox->setModel(engine->threadsModel());
+    QTC_ASSERT(engine != 0 && m_watchersWindow->model() != 0 && m_returnWindow->model() != 0, return);
     m_threadBox->setCurrentIndex(engine->threadsHandler()->currentThread());
+
     m_watchersWindow->setVisible(
         m_watchersWindow->model()->rowCount(QModelIndex()) > 0);
     m_returnWindow->setVisible(
         m_returnWindow->model()->rowCount(QModelIndex()) > 0);
 
-    QTC_ASSERT(engine, return);
     if (m_state == engine->state())
         return;
 

@@ -189,7 +189,6 @@ DebuggerRunControl *DebuggerRunControlFactory::create(
         delete runControl;
         return 0;
     }
-    connect(runControl, SIGNAL(finished()), runControl, SLOT(handleFinished()));
     return runControl;
 }
 
@@ -209,13 +208,14 @@ QWidget *DebuggerRunControlFactory::createConfigurationWidget
 ////////////////////////////////////////////////////////////////////////
 
 DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
-        DebuggerEngineType enabledEngines, const DebuggerStartParameters &sp)
-    : RunControl(runConfiguration, ProjectExplorer::Constants::DEBUGMODE),
-      m_myRunConfiguration(runConfiguration)
+        DebuggerEngineType enabledEngines, const DebuggerStartParameters &sp) :
+    RunControl(runConfiguration, ProjectExplorer::Constants::DEBUGMODE),
+    m_engine(0),
+    m_myRunConfiguration(runConfiguration),
+    m_running(false),
+    m_enabledEngines(enabledEngines)
 {
-    m_running = false;
-    m_enabledEngines = enabledEngines;
-    m_engine = 0;
+    connect(this, SIGNAL(finished()), this, SLOT(handleFinished()));
     createEngine(sp);
 }
 
@@ -336,9 +336,6 @@ void DebuggerRunControl::createEngine(const DebuggerStartParameters &sp)
 {
     // Figure out engine according to toolchain, executable, attach or default.
     DebuggerEngineType engineType = NoEngineType;
-    QString errorMessage;
-    QString settingsIdHint;
-
     bool isQmlExecutable = sp.executable.endsWith(_("qmlviewer")) || sp.executable.endsWith(_("qmlobserver"));
 #ifdef Q_OS_MAC
     isQmlExecutable = sp.executable.endsWith(_("QMLViewer.app")) || sp.executable.endsWith(_("QMLObserver.app"));
@@ -476,9 +473,9 @@ void DebuggerRunControl::start()
     plugin()->showMessage(message, StatusBar);
     plugin()->showMessage(DebuggerSettings::instance()->dump(), LogDebug);
 
+    plugin()->runControlStarted(this);
     engine()->startDebugger(this);
     m_running = true;
-    plugin()->runControlStarted(this);
     emit started();
 }
 
