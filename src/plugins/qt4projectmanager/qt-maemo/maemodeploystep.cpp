@@ -227,9 +227,9 @@ void MaemoDeployStep::stop()
 
     if (remoteProcessRunning) {
         const QByteArray programToKill
-            = m_currentDeviceDeployAction ? "cp" : "dpkg";
-        const QByteArray cmdLine = "pkill -x " + programToKill
-            + "; sleep 1; pkill -x -9 " + programToKill;
+            = m_currentDeviceDeployAction ? "/bin/cp" : "/usr/bin/dpkg";
+        const QByteArray cmdLine = "pkill " + programToKill
+            + "; sleep 1; pkill -9 " + programToKill;
         SshRemoteProcess::Ptr killProc
             = m_connection->createRemoteProcess(cmdLine);
         killProc->start();
