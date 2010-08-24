@@ -725,7 +725,7 @@ void QDeclarativeViewer::createMenu()
     showWarningsWindow->setChecked(loggerWindow->isVisible());
     connect(showWarningsWindow, SIGNAL(triggered(bool)), this, SLOT(showWarnings(bool)));
 
-    designModeBehaviorAction = new QAction(tr("&Design Mode"), this);
+    designModeBehaviorAction = new QAction(tr("&Observer Mode"), this);
     designModeBehaviorAction->setShortcut(QKeySequence("Ctrl+D"));
     designModeBehaviorAction->setCheckable(true);
     designModeBehaviorAction->setChecked(canvas->designModeBehavior());

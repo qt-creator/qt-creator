@@ -64,9 +64,9 @@ void QmlCppEngine::editorChanged(Core::IEditor *editor)
         return;
 
     if (editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
-        setActiveEngine(Lang_Qml);
+        setActiveEngine(QmlLanguage);
     } else {
-        setActiveEngine(Lang_Cpp);
+        setActiveEngine(CppLanguage);
     }
 }
 
@@ -76,12 +76,12 @@ void QmlCppEngine::setActiveEngine(DebuggerLanguage language)
     bool updateEngine = false;
     QString engineName;
 
-    if (language == Lang_Cpp) {
+    if (language == CppLanguage) {
         engineName = QLatin1String("C++");
         m_activeEngine = m_cppEngine;
         // don't update cpp engine - at least gdb will stop temporarily,
         // which is not nice when you're just switching files.
-    } else if (language == Lang_Qml) {
+    } else if (language == QmlLanguage) {
         engineName = QLatin1String("QML");
         m_activeEngine = m_qmlEngine;
         updateEngine = true;
@@ -502,7 +502,7 @@ void QmlCppEngine::masterEngineStateChanged(const DebuggerState &newState)
         } else if (state() == InferiorRunOk) {
             // if we break on CPP side while running & engine is QML, switch.
             if (m_activeEngine == m_qmlEngine) {
-                setActiveEngine(Lang_Cpp);
+                setActiveEngine(CppLanguage);
             }
             setState(newState);
         } else if (state() == InferiorRunRequested) {
@@ -594,7 +594,7 @@ void QmlCppEngine::handleSlaveEngineStateChange(const DebuggerState &newState)
     case InferiorStopOk:
         if (state() == InferiorRunOk) {
             // breakpoint was hit while running the app; change the active engine.
-            setActiveEngine(Lang_Qml);
+            setActiveEngine(QmlLanguage);
             setState(InferiorStopOk);
         }
         break;

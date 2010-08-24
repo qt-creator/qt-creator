@@ -80,6 +80,7 @@ public:
     QString qmlServerAddress;
     quint16 qmlServerPort;
     DebuggerEngineType cppEngineType; // for cpp+qml debugging
+    bool m_isQmlProject;
 
     // for remote debugging
     QString remoteChannel;

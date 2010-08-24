@@ -99,7 +99,7 @@ struct DebuggerUISwitcherPrivate
     explicit DebuggerUISwitcherPrivate(DebuggerUISwitcher *q);
 
     QList<ViewsMenuItems> m_viewsMenuItems;
-    QList<Internal::DebugToolWindow *> m_dockWidgets;
+    QList<QDockWidget *> m_dockWidgets;
 
     QHash<QString, QVariant> m_dockWidgetActiveStateCpp;
     QHash<QString, QVariant> m_dockWidgetActiveStateQmlCpp;
@@ -141,15 +141,15 @@ struct DebuggerUISwitcherPrivate
 
 DebuggerUISwitcherPrivate::DebuggerUISwitcherPrivate(DebuggerUISwitcher *q)
     : m_resizeEventFilter(new Internal::DockWidgetEventFilter(q))
-    , m_supportedLanguages(Lang_None)
+    , m_supportedLanguages(AnyLanguage)
     , m_languageCount(0)
     , m_toolbarStack(new QStackedWidget)
     , m_languageActionGroup(new QActionGroup(q))
     , m_inDebugMode(false)
     , m_changingUI(false)
     , m_debuggerLanguageMenu(0)
-    , m_previousDebugLanguages(Lang_None)
-    , m_activeDebugLanguages(Lang_None)
+    , m_previousDebugLanguages(AnyLanguage)
+    , m_activeDebugLanguages(AnyLanguage)
     , m_activateCppAction(0)
     , m_activateQmlAction(0)
     , m_qmlEnabled(false)
@@ -189,8 +189,6 @@ DebuggerUISwitcher::DebuggerUISwitcher(Core::BaseMode *mode, QObject* parent) :
 
 DebuggerUISwitcher::~DebuggerUISwitcher()
 {
-    qDeleteAll(d->m_dockWidgets);
-    d->m_dockWidgets.clear();
     DebuggerUISwitcherPrivate::m_instance = 0;
     delete d;
 }
@@ -257,17 +255,17 @@ void DebuggerUISwitcher::updateUiForRunConfiguration(ProjectExplorer::RunConfigu
 
 void DebuggerUISwitcher::updateActiveLanguages()
 {
-    d->m_activeDebugLanguages = Lang_None;
+    d->m_activeDebugLanguages = AnyLanguage;
 
     if (d->m_activateCppAction->isChecked())
-        d->m_activeDebugLanguages = Lang_Cpp;
+        d->m_activeDebugLanguages = CppLanguage;
 
     if (d->m_qmlEnabled && d->m_activateQmlAction->isChecked())
-        d->m_activeDebugLanguages = d->m_activeDebugLanguages | Lang_Qml;
+        d->m_activeDebugLanguages |= QmlLanguage;
 
-    if (d->m_activeDebugLanguages == Lang_None) {
+    if (d->m_activeDebugLanguages == AnyLanguage) {
         d->m_activateCppAction->setChecked(true);
-        d->m_activeDebugLanguages = Lang_Cpp;
+        d->m_activeDebugLanguages = CppLanguage;
     }
 
     emit activeLanguagesChanged(d->m_activeDebugLanguages);
@@ -304,14 +302,14 @@ void DebuggerUISwitcher::modeChanged(Core::IMode *mode)
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     if (editorManager->currentEditor()) {
         DebuggerLanguages activeLangs;
-        if (DebuggerRunControl::isCurrentProjectCppBased())
-            activeLangs |= Lang_Cpp;
+        if (isCurrentProjectCppBased())
+            activeLangs |= CppLanguage;
 
-        if (DebuggerRunControl::isCurrentProjectQmlCppBased())
-            activeLangs |= Lang_Qml;
+        if (isCurrentProjectQmlCppBased())
+            activeLangs |= QmlLanguage;
 
-        d->m_activateCppAction->setChecked(activeLangs & Lang_Cpp);
-        d->m_activateQmlAction->setChecked(activeLangs & Lang_Qml);
+        d->m_activateCppAction->setChecked(activeLangs & CppLanguage);
+        d->m_activateQmlAction->setChecked(activeLangs & QmlLanguage);
         updateActiveLanguages();
     }
 }
@@ -321,9 +319,9 @@ void DebuggerUISwitcher::hideInactiveWidgets()
     // Hide dock widgets manually in case they are floating.
     if (!d->m_inDebugMode) {
         // hide all the debugger windows if mode is different
-        foreach(Internal::DebugToolWindow *window, d->m_dockWidgets) {
-            if (window->m_dockWidget->isFloating())
-                window->m_dockWidget->hide();
+        foreach(QDockWidget *dockWidget, d->m_dockWidgets) {
+            if (dockWidget->isFloating())
+                dockWidget->hide();
         }
     }
 }
@@ -360,7 +358,7 @@ DebuggerUISwitcher *DebuggerUISwitcher::instance()
 void DebuggerUISwitcher::addLanguage(const DebuggerLanguage &languageId,
                                      const QString &languageName, const Core::Context &context)
 {
-    bool activate = (d->m_supportedLanguages == Lang_None);
+    bool activate = (d->m_supportedLanguages == AnyLanguage);
     d->m_supportedLanguages = d->m_supportedLanguages | languageId;
     d->m_languageCount++;
 
@@ -383,7 +381,7 @@ void DebuggerUISwitcher::addLanguage(const DebuggerLanguage &languageId,
     activeDebugLanguageCmd->setDefaultKeySequence(QKeySequence(
                             QString("%1,%2").arg(shortcutPrefix).arg(shortcutIndex)));
 
-    if (languageId == Lang_Qml) {
+    if (languageId == QmlLanguage) {
         d->m_qmlEnabled = true;
         d->m_activateQmlAction = debuggableLang;
     } else if (!d->m_activateCppAction) {
@@ -418,18 +416,18 @@ void DebuggerUISwitcher::updateUi()
 void DebuggerUISwitcher::activateQmlCppLayout()
 {
     Core::ICore *core = Core::ICore::instance();
-    Core::Context qmlCppContext = d->m_contextsForLanguage.value(Lang_Qml);
-    qmlCppContext.add(d->m_contextsForLanguage.value(Lang_Cpp));
+    Core::Context qmlCppContext = d->m_contextsForLanguage.value(QmlLanguage);
+    qmlCppContext.add(d->m_contextsForLanguage.value(CppLanguage));
 
     // always use cpp toolbar
-    d->m_toolbarStack->setCurrentWidget(d->m_toolBars.value(Lang_Cpp));
+    d->m_toolbarStack->setCurrentWidget(d->m_toolBars.value(CppLanguage));
 
-    if (d->m_previousDebugLanguages & Lang_Qml) {
+    if (d->m_previousDebugLanguages & QmlLanguage) {
         d->m_dockWidgetActiveStateQmlCpp = d->m_mainWindow->saveSettings();
         core->updateAdditionalContexts(qmlCppContext, Core::Context());
-    } else if (d->m_previousDebugLanguages & Lang_Cpp) {
+    } else if (d->m_previousDebugLanguages & CppLanguage) {
         d->m_dockWidgetActiveStateCpp = d->m_mainWindow->saveSettings();
-        core->updateAdditionalContexts(d->m_contextsForLanguage.value(Lang_Cpp), Core::Context());
+        core->updateAdditionalContexts(d->m_contextsForLanguage.value(CppLanguage), Core::Context());
     }
 
     d->m_mainWindow->restoreSettings(d->m_dockWidgetActiveStateQmlCpp);
@@ -439,21 +437,21 @@ void DebuggerUISwitcher::activateQmlCppLayout()
 void DebuggerUISwitcher::activateCppLayout()
 {
     Core::ICore *core = Core::ICore::instance();
-    Core::Context qmlCppContext = d->m_contextsForLanguage.value(Lang_Qml);
-    qmlCppContext.add(d->m_contextsForLanguage.value(Lang_Cpp));
-    d->m_toolbarStack->setCurrentWidget(d->m_toolBars.value(Lang_Cpp));
+    Core::Context qmlCppContext = d->m_contextsForLanguage.value(QmlLanguage);
+    qmlCppContext.add(d->m_contextsForLanguage.value(CppLanguage));
+    d->m_toolbarStack->setCurrentWidget(d->m_toolBars.value(CppLanguage));
 
-    if (d->m_previousDebugLanguages & Lang_Qml) {
+    if (d->m_previousDebugLanguages & QmlLanguage) {
         d->m_dockWidgetActiveStateQmlCpp = d->m_mainWindow->saveSettings();
         core->updateAdditionalContexts(qmlCppContext, Core::Context());
-    } else if (d->m_previousDebugLanguages & Lang_Cpp) {
+    } else if (d->m_previousDebugLanguages & CppLanguage) {
         d->m_dockWidgetActiveStateCpp = d->m_mainWindow->saveSettings();
-        core->updateAdditionalContexts(d->m_contextsForLanguage.value(Lang_Cpp), Core::Context());
+        core->updateAdditionalContexts(d->m_contextsForLanguage.value(CppLanguage), Core::Context());
     }
 
     d->m_mainWindow->restoreSettings(d->m_dockWidgetActiveStateCpp);
 
-    const Core::Context &cppContext = d->m_contextsForLanguage.value(Lang_Cpp);
+    const Core::Context &cppContext = d->m_contextsForLanguage.value(CppLanguage);
     core->updateAdditionalContexts(Core::Context(), cppContext);
 }
 
@@ -527,44 +525,44 @@ QWidget *DebuggerUISwitcher::createMainWindow(Core::BaseMode *mode)
 
 QDockWidget *DebuggerUISwitcher::breakWindow() const
 {
-    return dockWidget(Constants::DW_BREAK);
+    return dockWidget(Constants::DOCKWIDGET_BREAK);
 }
 
 QDockWidget *DebuggerUISwitcher::stackWindow() const
 {
-    return dockWidget(Constants::DW_STACK);
+    return dockWidget(Constants::DOCKWIDGET_STACK);
 }
 
 QDockWidget *DebuggerUISwitcher::watchWindow() const
 {
-    return dockWidget(Constants::DW_WATCHERS);
+    return dockWidget(Constants::DOCKWIDGET_WATCHERS);
 }
 
 QDockWidget *DebuggerUISwitcher::outputWindow() const
 {
-    return dockWidget(Constants::DW_OUTPUT);
+    return dockWidget(Constants::DOCKWIDGET_OUTPUT);
 }
 
 QDockWidget *DebuggerUISwitcher::snapshotsWindow() const
 {
-    return dockWidget(Constants::DW_SNAPSHOTS);
+    return dockWidget(Constants::DOCKWIDGET_SNAPSHOTS);
 }
 
 QDockWidget *DebuggerUISwitcher::threadsWindow() const
 {
-    return dockWidget(Constants::DW_THREADS);
+    return dockWidget(Constants::DOCKWIDGET_THREADS);
 }
 
 QDockWidget *DebuggerUISwitcher::qmlInspectorWindow() const
 {
-    return dockWidget(Constants::DW_QML_INSPECTOR);
+    return dockWidget(Constants::DOCKWIDGET_QML_INSPECTOR);
 }
 
 QDockWidget *DebuggerUISwitcher::dockWidget(const QString &objectName) const
 {
-    foreach(const Debugger::Internal::DebugToolWindow *toolWindow, d->m_dockWidgets) {
-        if (toolWindow->m_dockWidget->objectName() == objectName)
-            return toolWindow->m_dockWidget;
+    foreach(QDockWidget *dockWidget, d->m_dockWidgets) {
+        if (dockWidget->objectName() == objectName)
+            return dockWidget;
     }
     return 0;
 }
@@ -573,17 +571,13 @@ QDockWidget *DebuggerUISwitcher::dockWidget(const QString &objectName) const
     Keep track of dock widgets so they can be shown/hidden for different languages
 */
 QDockWidget *DebuggerUISwitcher::createDockWidget(const DebuggerLanguage &language,
-    QWidget *widget, Qt::DockWidgetArea area, bool visibleByDefault)
+    QWidget *widget, Qt::DockWidgetArea area)
 {
     //qDebug() << "CREATE DOCK" << widget->objectName() << langName
     //    << d->m_activeLanguage << "VISIBLE BY DEFAULT: " << visibleByDefault;
     QDockWidget *dockWidget = d->m_mainWindow->addDockForWidget(widget);
     d->m_mainWindow->addDockWidget(area, dockWidget);
-    DebugToolWindow *window = new DebugToolWindow;
-    window->m_dockWidget = dockWidget;
-
-    window->m_visible = visibleByDefault;
-    d->m_dockWidgets.append(window);
+    d->m_dockWidgets.append(dockWidget);
 
     if (!(d->m_activeDebugLanguages & language)) {
         dockWidget->hide();
@@ -679,7 +673,7 @@ void DebuggerUISwitcher::initialize()
 {
     createViewsMenuItems();
 
-    emit dockResetRequested(Lang_None);
+    emit dockResetRequested(AnyLanguage);
     readSettings();
 
     updateUi();
@@ -716,17 +710,42 @@ void DebuggerUISwitcher::updateDockWidgetSettings()
 
 bool DebuggerUISwitcher::isQmlCppActive() const
 {
-    return (d->m_activeDebugLanguages & Lang_Cpp) && (d->m_activeDebugLanguages & Lang_Qml);
+    return (d->m_activeDebugLanguages & CppLanguage) && (d->m_activeDebugLanguages & QmlLanguage);
 }
 
 bool DebuggerUISwitcher::isQmlActive() const
 {
-    return (d->m_activeDebugLanguages & Lang_Qml);
+    return (d->m_activeDebugLanguages & QmlLanguage);
 }
 
-QList<Internal::DebugToolWindow* > DebuggerUISwitcher::i_mw_debugToolWindows() const
+QList<QDockWidget* > DebuggerUISwitcher::i_mw_dockWidgets() const
 {
     return d->m_dockWidgets;
+}
+
+bool DebuggerUISwitcher::isCurrentProjectQmlCppBased()
+{
+    ProjectExplorer::Project *startupProject = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
+    if (!startupProject)
+        return false;
+
+    if (!startupProject->activeTarget())
+        return false;
+
+    ProjectExplorer::RunConfiguration *rc = startupProject->activeTarget()->activeRunConfiguration();
+
+    return DebuggerRunControl::isQmlProject(rc);
+}
+
+bool DebuggerUISwitcher::isCurrentProjectCppBased()
+{
+    ProjectExplorer::Project *startupProject = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
+    if (!startupProject)
+        return false;
+    const QString id = startupProject->id();
+    return id == QLatin1String("GenericProjectManager.GenericProject")
+        || id == QLatin1String("CMakeProjectManager.CMakeProject")
+        || id == QLatin1String("Qt4ProjectManager.Qt4Project");
 }
 
 } // namespace Debugger

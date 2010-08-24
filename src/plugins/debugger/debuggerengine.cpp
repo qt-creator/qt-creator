@@ -106,14 +106,14 @@ using namespace TextEditor;
 ///////////////////////////////////////////////////////////////////////
 
 DebuggerStartParameters::DebuggerStartParameters()
-  : attachPID(-1)
-  , useTerminal(false)
-  , breakAtMain(false)
-  , qmlServerAddress("127.0.0.1")
-  , qmlServerPort(0)
-  , toolChainType(ToolChain::UNKNOWN)
-  , startMode(NoStartMode)
-  , executableUid(0)
+  : attachPID(-1),
+    useTerminal(false),
+    breakAtMain(false),
+    qmlServerAddress("127.0.0.1"),
+    qmlServerPort(0),
+    toolChainType(ToolChain::UNKNOWN),
+    startMode(NoStartMode),
+    executableUid(0)
 {}
 
 void DebuggerStartParameters::clear()

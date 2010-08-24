@@ -40,15 +40,6 @@ class DebuggerUISwitcher;
 
 namespace Internal {
 
-class DebugToolWindow
-{
-public:
-    DebugToolWindow() : m_dockWidget(0), m_visible(false) {}
-
-    QDockWidget *m_dockWidget;
-    bool m_visible;
-};
-
 class DebuggerMainWindow : public Utils::FancyMainWindow
 {
     Q_OBJECT

@@ -17,7 +17,7 @@
         <file>images/from-qml-small.png</file>
         <file>images/zoom-small.png</file>
         <file>images/select-marquee-small.png</file>
-        <file>images/designmode.png</file>
         <file>images/color-picker-small-hicontrast.png</file>
+        <file>images/observermode.png</file>
     </qresource>
 </RCC>

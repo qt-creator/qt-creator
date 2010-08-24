@@ -64,16 +64,14 @@ QMenu* DebuggerMainWindow::createPopupMenu()
 {
     QMenu *menu = 0;
 
-    const QList<Internal::DebugToolWindow* > dockwidgets = m_uiSwitcher->i_mw_debugToolWindows();
+    const QList<QDockWidget* > dockwidgets = m_uiSwitcher->i_mw_dockWidgets();
 
     if (!dockwidgets.isEmpty()) {
         menu = new QMenu(this);
 
-        for (int i = 0; i < dockwidgets.size(); ++i) {
-            QDockWidget *dockWidget = dockwidgets.at(i)->m_dockWidget;
-            if (dockWidget->parentWidget() == this) {
+        foreach (QDockWidget *dockWidget, dockwidgets) {
+            if (dockWidget->parentWidget() == this)
                 menu->addAction(dockWidget->toggleViewAction());
-            }
         }
         menu->addSeparator();
     }

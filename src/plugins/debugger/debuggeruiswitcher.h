@@ -62,7 +62,6 @@ namespace Debugger {
 struct DebuggerUISwitcherPrivate;
 
 namespace Internal {
-    class DebugToolWindow;
     class DebuggerMainWindow;
 };
 
@@ -110,10 +109,12 @@ public:
 
     // dockwidgets are registered to the main window
     QDockWidget *createDockWidget(const DebuggerLanguage &language, QWidget *widget,
-                                  Qt::DockWidgetArea area = Qt::TopDockWidgetArea,
-                                  bool visibleByDefault = true);
+                                  Qt::DockWidgetArea area = Qt::TopDockWidgetArea);
 
     Utils::FancyMainWindow *mainWindow() const;
+
+    static bool isCurrentProjectQmlCppBased();
+    static bool isCurrentProjectCppBased();
 
 signals:
     // emit when user changes active languages from the menu.
@@ -140,7 +141,7 @@ private slots:
 private:
     // Used by MainWindow
     friend class Internal::DebuggerMainWindow;
-    QList<Internal::DebugToolWindow *> i_mw_debugToolWindows() const;
+    QList<QDockWidget *> i_mw_dockWidgets() const;
 
     void activateQmlCppLayout();
     void activateCppLayout();

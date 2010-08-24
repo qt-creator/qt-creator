@@ -107,7 +107,7 @@ bool InspectorPlugin::initialize(const QStringList &arguments, QString *errorStr
     ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
     Debugger::DebuggerUISwitcher *uiSwitcher = pluginManager->getObject<Debugger::DebuggerUISwitcher>();
 
-    uiSwitcher->addLanguage(Debugger::Lang_Qml, tr("QML"), Core::Context(C_INSPECTOR));
+    uiSwitcher->addLanguage(Debugger::QmlLanguage, tr("QML"), Core::Context(C_INSPECTOR));
 
     return true;
 }

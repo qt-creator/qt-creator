@@ -229,8 +229,9 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
 
 {
     connect(this, SIGNAL(finished()), this, SLOT(handleFinished()));
-    m_isQmlProject = isQmlProject(runConfiguration);
-    createEngine(sp);
+    DebuggerStartParameters startParams = sp;
+    startParams.m_isQmlProject = isQmlProject(runConfiguration);
+    createEngine(startParams);
 }
 
 DebuggerRunControl::~DebuggerRunControl()
@@ -378,8 +379,8 @@ void DebuggerRunControl::createEngine(const DebuggerStartParameters &startParams
     if (!engineType)
         engineType = engineForMode(sp.startMode);
 
-    if (engineType != QmlEngineType && m_isQmlProject && (activeLangs & Lang_Qml)) {
-        if (activeLangs & Lang_Cpp) {
+    if (engineType != QmlEngineType && sp.m_isQmlProject && (activeLangs & QmlLanguage)) {
+        if (activeLangs & CppLanguage) {
             sp.cppEngineType = engineType;
             engineType = QmlCppEngineType;
         } else {
@@ -595,32 +596,5 @@ bool DebuggerRunControl::isQmlProject(RunConfiguration *config)
 
     return false;
 }
-
-bool DebuggerRunControl::isCurrentProjectQmlCppBased()
-{
-    Project *startupProject = ProjectExplorerPlugin::instance()->startupProject();
-    if (!startupProject)
-        return false;
-
-    if (!startupProject->activeTarget())
-        return false;
-
-    RunConfiguration *rc = startupProject->activeTarget()->activeRunConfiguration();
-
-    return isQmlProject(rc);
-}
-
-bool DebuggerRunControl::isCurrentProjectCppBased()
-{
-    Project *startupProject = ProjectExplorerPlugin::instance()->startupProject();
-    if (!startupProject)
-        return false;
-    const QString id = startupProject->id();
-    return id == _("GenericProjectManager.GenericProject")
-        || id == _("CMakeProjectManager.CMakeProject")
-        || id == _("Qt4ProjectManager.Qt4Project");
-}
-
-
 
 } // namespace Debugger

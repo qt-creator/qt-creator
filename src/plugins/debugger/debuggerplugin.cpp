@@ -1218,40 +1218,40 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     // Cpp/Qml ui setup
     m_uiSwitcher = new DebuggerUISwitcher(m_debugMode, this);
     ExtensionSystem::PluginManager::instance()->addObject(m_uiSwitcher);
-    m_uiSwitcher->addLanguage(Lang_Cpp, tr("C++"), cppDebuggercontext);
+    m_uiSwitcher->addLanguage(CppLanguage, tr("C++"), cppDebuggercontext);
 
     // Dock widgets
-    m_breakDock = m_uiSwitcher->createDockWidget(Lang_Cpp, m_breakWindow);
-    m_breakDock->setObjectName(QString(DW_BREAK));
-    m_modulesDock = m_uiSwitcher->createDockWidget(Lang_Cpp, m_modulesWindow,
-                                                    Qt::TopDockWidgetArea, false);
-    m_modulesDock->setObjectName(QString(DW_MODULES));
+    m_breakDock = m_uiSwitcher->createDockWidget(CppLanguage, m_breakWindow);
+    m_breakDock->setObjectName(QString(DOCKWIDGET_BREAK));
+    m_modulesDock = m_uiSwitcher->createDockWidget(CppLanguage, m_modulesWindow,
+                                                    Qt::TopDockWidgetArea);
+    m_modulesDock->setObjectName(QString(DOCKWIDGET_MODULES));
     connect(m_modulesDock->toggleViewAction(), SIGNAL(toggled(bool)),
         SLOT(modulesDockToggled(bool)), Qt::QueuedConnection);
 
-    m_registerDock = m_uiSwitcher->createDockWidget(Lang_Cpp, m_registerWindow,
-        Qt::TopDockWidgetArea, false);
-    m_registerDock->setObjectName(QString(DW_REGISTER));
+    m_registerDock = m_uiSwitcher->createDockWidget(CppLanguage, m_registerWindow,
+        Qt::TopDockWidgetArea);
+    m_registerDock->setObjectName(QString(DOCKWIDGET_REGISTER));
     connect(m_registerDock->toggleViewAction(), SIGNAL(toggled(bool)),
         SLOT(registerDockToggled(bool)), Qt::QueuedConnection);
 
-    m_outputDock = m_uiSwitcher->createDockWidget(Lang_None, m_outputWindow,
-        Qt::TopDockWidgetArea, false);
-    m_outputDock->setObjectName(QString(DW_OUTPUT));
-    m_snapshotDock = m_uiSwitcher->createDockWidget(Lang_Cpp, m_snapshotWindow);
-    m_snapshotDock->setObjectName(QString(DW_SNAPSHOTS));
+    m_outputDock = m_uiSwitcher->createDockWidget(AnyLanguage, m_outputWindow,
+        Qt::TopDockWidgetArea);
+    m_outputDock->setObjectName(QString(DOCKWIDGET_OUTPUT));
+    m_snapshotDock = m_uiSwitcher->createDockWidget(CppLanguage, m_snapshotWindow);
+    m_snapshotDock->setObjectName(QString(DOCKWIDGET_SNAPSHOTS));
 
-    m_stackDock = m_uiSwitcher->createDockWidget(Lang_Cpp, m_stackWindow);
-    m_stackDock->setObjectName(QString(DW_STACK));
+    m_stackDock = m_uiSwitcher->createDockWidget(CppLanguage, m_stackWindow);
+    m_stackDock->setObjectName(QString(DOCKWIDGET_STACK));
 
-    m_sourceFilesDock = m_uiSwitcher->createDockWidget(Lang_Cpp,
-        m_sourceFilesWindow, Qt::TopDockWidgetArea, false);
-    m_sourceFilesDock->setObjectName(QString(DW_SOURCE_FILES));
+    m_sourceFilesDock = m_uiSwitcher->createDockWidget(CppLanguage,
+        m_sourceFilesWindow, Qt::TopDockWidgetArea);
+    m_sourceFilesDock->setObjectName(QString(DOCKWIDGET_SOURCE_FILES));
     connect(m_sourceFilesDock->toggleViewAction(), SIGNAL(toggled(bool)),
         SLOT(sourceFilesDockToggled(bool)), Qt::QueuedConnection);
 
-    m_threadsDock = m_uiSwitcher->createDockWidget(Lang_Cpp, m_threadsWindow);
-    m_threadsDock->setObjectName(QString(DW_THREADS));
+    m_threadsDock = m_uiSwitcher->createDockWidget(CppLanguage, m_threadsWindow);
+    m_threadsDock->setObjectName(QString(DOCKWIDGET_THREADS));
 
     QSplitter *localsAndWatchers = new Core::MiniSplitter(Qt::Vertical);
     localsAndWatchers->setObjectName(QLatin1String("CppDebugLocalsAndWatchers"));
@@ -1263,8 +1263,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     localsAndWatchers->setStretchFactor(1, 1);
     localsAndWatchers->setStretchFactor(2, 1);
 
-    m_watchDock = m_uiSwitcher->createDockWidget(Lang_Cpp, localsAndWatchers);
-    m_watchDock->setObjectName(QString(DW_WATCHERS));
+    m_watchDock = m_uiSwitcher->createDockWidget(CppLanguage, localsAndWatchers);
+    m_watchDock->setObjectName(QString(DOCKWIDGET_WATCHERS));
 
     m_dockWidgets << m_breakDock << m_modulesDock << m_registerDock
                   << m_outputDock << m_snapshotDock << m_stackDock
@@ -1359,7 +1359,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     cmd = am->registerAction(m_detachAction,
         Constants::DETACH, globalcontext);
     cmd->setAttribute(Command::CA_Hide);
-    m_uiSwitcher->addMenuAction(cmd, Lang_None, CC::G_DEFAULT_ONE);
+    m_uiSwitcher->addMenuAction(cmd, AnyLanguage, CC::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_actions.stopAction,
         Constants::STOP, globalcontext);
@@ -1367,7 +1367,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     cmd->setAttribute(Command::CA_UpdateIcon);
     //cmd->setDefaultKeySequence(QKeySequence(Constants::STOP_KEY));
     cmd->setDefaultText(tr("Stop Debugger"));
-    m_uiSwitcher->addMenuAction(cmd, Lang_None, CC::G_DEFAULT_ONE);
+    m_uiSwitcher->addMenuAction(cmd, AnyLanguage, CC::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_actions.interruptAction,
         PE::DEBUG, m_interruptibleContext);
@@ -1381,77 +1381,77 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     cmd->setAttribute(Core::Command::CA_UpdateText);
     //cmd->setDefaultKeySequence(QKeySequence(Constants::RESET_KEY));
     cmd->setDefaultText(tr("Reset Debugger"));
-    m_uiSwitcher->addMenuAction(cmd, Lang_None, CC::G_DEFAULT_ONE);
+    m_uiSwitcher->addMenuAction(cmd, AnyLanguage, CC::G_DEFAULT_ONE);
 
     QAction *sep = new QAction(this);
     sep->setSeparator(true);
     cmd = am->registerAction(sep, _("Debugger.Sep.Step"), globalcontext);
-    m_uiSwitcher->addMenuAction(cmd, Lang_Cpp);
+    m_uiSwitcher->addMenuAction(cmd, CppLanguage);
 
     cmd = am->registerAction(m_actions.nextAction,
         Constants::NEXT, cppDebuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::NEXT_KEY));
     cmd->setAttribute(Command::CA_Hide);
-    m_uiSwitcher->addMenuAction(cmd, Lang_Cpp);
+    m_uiSwitcher->addMenuAction(cmd, CppLanguage);
 
     cmd = am->registerAction(m_actions.stepAction,
         Constants::STEP, cppDebuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::STEP_KEY));
     cmd->setAttribute(Command::CA_Hide);
-    m_uiSwitcher->addMenuAction(cmd, Lang_Cpp);
+    m_uiSwitcher->addMenuAction(cmd, CppLanguage);
 
 
     cmd = am->registerAction(m_actions.stepOutAction,
         Constants::STEPOUT, cppDebuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::STEPOUT_KEY));
     cmd->setAttribute(Command::CA_Hide);
-    m_uiSwitcher->addMenuAction(cmd, Lang_Cpp);
+    m_uiSwitcher->addMenuAction(cmd, CppLanguage);
 
 
     cmd = am->registerAction(m_actions.runToLineAction1,
         Constants::RUN_TO_LINE1, cppDebuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::RUN_TO_LINE_KEY));
     cmd->setAttribute(Command::CA_Hide);
-    m_uiSwitcher->addMenuAction(cmd, Lang_Cpp);
+    m_uiSwitcher->addMenuAction(cmd, CppLanguage);
 
 
     cmd = am->registerAction(m_actions.runToFunctionAction,
         Constants::RUN_TO_FUNCTION, cppDebuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::RUN_TO_FUNCTION_KEY));
     cmd->setAttribute(Command::CA_Hide);
-    m_uiSwitcher->addMenuAction(cmd, Lang_Cpp);
+    m_uiSwitcher->addMenuAction(cmd, CppLanguage);
 
 
     cmd = am->registerAction(m_actions.jumpToLineAction1,
         Constants::JUMP_TO_LINE1, cppDebuggercontext);
     cmd->setAttribute(Command::CA_Hide);
-    m_uiSwitcher->addMenuAction(cmd, Lang_Cpp);
+    m_uiSwitcher->addMenuAction(cmd, CppLanguage);
 
 
     cmd = am->registerAction(m_actions.returnFromFunctionAction,
         Constants::RETURN_FROM_FUNCTION, cppDebuggercontext);
     cmd->setAttribute(Command::CA_Hide);
-    m_uiSwitcher->addMenuAction(cmd, Lang_Cpp);
+    m_uiSwitcher->addMenuAction(cmd, CppLanguage);
 
 
     cmd = am->registerAction(m_actions.reverseDirectionAction,
         Constants::REVERSE, cppDebuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::REVERSE_KEY));
     cmd->setAttribute(Command::CA_Hide);
-    m_uiSwitcher->addMenuAction(cmd, Lang_Cpp);
+    m_uiSwitcher->addMenuAction(cmd, CppLanguage);
 
 
     sep = new QAction(this);
     sep->setSeparator(true);
     cmd = am->registerAction(sep, _("Debugger.Sep.Break"), globalcontext);
-    m_uiSwitcher->addMenuAction(cmd, Lang_Cpp);
+    m_uiSwitcher->addMenuAction(cmd, CppLanguage);
 
 
     cmd = am->registerAction(m_actions.snapshotAction,
         Constants::SNAPSHOT, cppDebuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::SNAPSHOT_KEY));
     cmd->setAttribute(Command::CA_Hide);
-    m_uiSwitcher->addMenuAction(cmd, Lang_Cpp);
+    m_uiSwitcher->addMenuAction(cmd, CppLanguage);
 
     cmd = am->registerAction(m_actions.frameDownAction,
         Constants::FRAME_DOWN, cppDebuggercontext);
@@ -1462,13 +1462,13 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     cmd = am->registerAction(theDebuggerAction(OperateByInstruction),
         Constants::OPERATE_BY_INSTRUCTION, cppDebuggercontext);
     cmd->setAttribute(Command::CA_Hide);
-    m_uiSwitcher->addMenuAction(cmd, Lang_Cpp);
+    m_uiSwitcher->addMenuAction(cmd, CppLanguage);
 
 
     cmd = am->registerAction(m_actions.breakAction,
         Constants::TOGGLE_BREAK, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::TOGGLE_BREAK_KEY));
-    m_uiSwitcher->addMenuAction(cmd, Lang_Cpp);
+    m_uiSwitcher->addMenuAction(cmd, CppLanguage);
     connect(m_actions.breakAction, SIGNAL(triggered()),
         this, SLOT(toggleBreakpoint()));
 
@@ -1477,14 +1477,14 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     sep = new QAction(this);
     sep->setSeparator(true);
     cmd = am->registerAction(sep, _("Debugger.Sep.Watch"), globalcontext);
-    m_uiSwitcher->addMenuAction(cmd, Lang_Cpp);
+    m_uiSwitcher->addMenuAction(cmd, CppLanguage);
 
 
     cmd = am->registerAction(m_actions.watchAction1,
         Constants::ADD_TO_WATCH1, cppeditorcontext);
     cmd->action()->setEnabled(true);
     //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+W")));
-    m_uiSwitcher->addMenuAction(cmd, Lang_Cpp);
+    m_uiSwitcher->addMenuAction(cmd, CppLanguage);
 
 
     // Editor context menu
@@ -1596,7 +1596,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     hbox->addSpacerItem(new QSpacerItem(4, 0));
     hbox->addWidget(m_statusLabel, 10);
 
-    m_uiSwitcher->setToolbar(Lang_Cpp, toolbarContainer);
+    m_uiSwitcher->setToolbar(CppLanguage, toolbarContainer);
     connect(m_uiSwitcher, SIGNAL(dockResetRequested(Debugger::DebuggerLanguages)),
         this, SLOT(setSimpleDockWidgetArrangement(Debugger::DebuggerLanguages)));
 
@@ -1654,7 +1654,7 @@ void DebuggerPluginPrivate::onAction()
 
 void DebuggerPluginPrivate::languagesChanged(const Debugger::DebuggerLanguages &languages)
 {
-    const bool debuggerIsCPP = (languages & Lang_Cpp);
+    const bool debuggerIsCPP = (languages & CppLanguage);
     //qDebug() << "DEBUGGER IS CPP: " << debuggerIsCPP;
 
     m_startExternalAction->setVisible(debuggerIsCPP);
@@ -2090,8 +2090,8 @@ void DebuggerPluginPrivate::setSimpleDockWidgetArrangement(const Debugger::Debug
         dockWidget->hide();
     }
 
-    if ((activeLanguages.testFlag(Lang_Cpp) && !activeLanguages.testFlag(Lang_Qml))
-      || activeLanguages == Lang_None
+    if ((activeLanguages.testFlag(CppLanguage) && !activeLanguages.testFlag(QmlLanguage))
+      || activeLanguages == AnyLanguage
       || !uiSwitcher->qmlInspectorWindow())
     {
         m_stackDock->show();
@@ -2369,8 +2369,6 @@ void DebuggerPluginPrivate::activatePreviousMode()
 
 void DebuggerPluginPrivate::activateDebugMode()
 {
-    // ### FIXME m_capabilities is not updated yet when this method is called
-    // from startDebugger()
     const bool canReverse = (m_capabilities & ReverseSteppingCapability)
                 && theDebuggerBoolSetting(EnableReverseDebugging);
     m_actions.reverseDirectionAction->setChecked(false);
@@ -2706,7 +2704,7 @@ void DebuggerPlugin::activateDebugMode()
 void DebuggerPlugin::createNewDock(QWidget *widget)
 {
     QDockWidget *dockWidget =
-        DebuggerUISwitcher::instance()->createDockWidget(Lang_Cpp, widget);
+        DebuggerUISwitcher::instance()->createDockWidget(CppLanguage, widget);
     dockWidget->setWindowTitle(widget->windowTitle());
     dockWidget->setObjectName(widget->windowTitle());
     dockWidget->setFeatures(QDockWidget::DockWidgetClosable);

@@ -66,17 +66,17 @@ const int QML_DEFAULT_DEBUG_SERVER_PORT = 3768;
 const char * const E_QML_DEBUG_SERVER_PORT = "QML_DEBUG_SERVER_PORT";
 
 // dock widget names
-const char * const DW_BREAK = "Debugger.Docks.Break";
-const char * const DW_MODULES = "Debugger.Docks.Modules";
-const char * const DW_REGISTER = "Debugger.Docks.Register";
-const char * const DW_OUTPUT = "Debugger.Docks.Output";
-const char * const DW_SNAPSHOTS = "Debugger.Docks.Snapshots";
-const char * const DW_STACK = "Debugger.Docks.Stack";
-const char * const DW_SOURCE_FILES = "Debugger.Docks.SourceFiles";
-const char * const DW_THREADS = "Debugger.Docks.Threads";
-const char * const DW_WATCHERS = "Debugger.Docks.LocalsAndWatchers";
+const char * const DOCKWIDGET_BREAK = "Debugger.Docks.Break";
+const char * const DOCKWIDGET_MODULES = "Debugger.Docks.Modules";
+const char * const DOCKWIDGET_REGISTER = "Debugger.Docks.Register";
+const char * const DOCKWIDGET_OUTPUT = "Debugger.Docks.Output";
+const char * const DOCKWIDGET_SNAPSHOTS = "Debugger.Docks.Snapshots";
+const char * const DOCKWIDGET_STACK = "Debugger.Docks.Stack";
+const char * const DOCKWIDGET_SOURCE_FILES = "Debugger.Docks.SourceFiles";
+const char * const DOCKWIDGET_THREADS = "Debugger.Docks.Threads";
+const char * const DOCKWIDGET_WATCHERS = "Debugger.Docks.LocalsAndWatchers";
 
-const char * const DW_QML_INSPECTOR = "Debugger.Docks.QmlInspector";
+const char * const DOCKWIDGET_QML_INSPECTOR = "Debugger.Docks.QmlInspector";
 
 namespace Internal {
     enum { debug = 0 };
@@ -296,9 +296,9 @@ enum DebuggerEngineType
 
 enum DebuggerLanguage
 {
-    Lang_None       = 0x0,
-    Lang_Cpp        = 0x1,
-    Lang_Qml        = 0x2
+    AnyLanguage       = 0x0,
+    CppLanguage      = 0x1,
+    QmlLanguage      = 0x2
 };
 Q_DECLARE_FLAGS(DebuggerLanguages, DebuggerLanguage)
 

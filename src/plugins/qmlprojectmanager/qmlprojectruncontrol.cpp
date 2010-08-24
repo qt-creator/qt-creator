@@ -145,7 +145,7 @@ bool QmlRunControlFactory::canRun(RunConfiguration *runConfiguration,
         return config != 0;
     } else if (mode == ProjectExplorer::Constants::DEBUGMODE) {
         bool qmlDebugSupportInstalled = Debugger::DebuggerUISwitcher::instance()->supportedLanguages()
-                                        & Debugger::Lang_Qml;
+                                        & Debugger::QmlLanguage;
         return (config != 0) && qmlDebugSupportInstalled;
     }
 

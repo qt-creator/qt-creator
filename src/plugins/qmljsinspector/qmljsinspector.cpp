@@ -353,7 +353,7 @@ void InspectorUi::setSimpleDockWidgetArrangement(const Debugger::DebuggerLanguag
 
     mw->setTrackingEnabled(false);
 
-    if (activeLanguages.testFlag(Debugger::Lang_Cpp) && activeLanguages.testFlag(Debugger::Lang_Qml)) {
+    if (activeLanguages.testFlag(Debugger::CppLanguage) && activeLanguages.testFlag(Debugger::QmlLanguage)) {
         // cpp + qml
         QList<QDockWidget *> dockWidgets = mw->dockWidgets();
         foreach (QDockWidget *dockWidget, dockWidgets) {
@@ -487,9 +487,9 @@ void InspectorUi::setupDockWidgets()
     wlay->addWidget(m_crumblePath);
 
 
-    m_inspectorDockWidget = uiSwitcher->createDockWidget(Debugger::Lang_Qml,
+    m_inspectorDockWidget = uiSwitcher->createDockWidget(Debugger::QmlLanguage,
                                                          inspectorWidget, Qt::BottomDockWidgetArea);
-    m_inspectorDockWidget->setObjectName(Debugger::Constants::DW_QML_INSPECTOR);
+    m_inspectorDockWidget->setObjectName(Debugger::Constants::DOCKWIDGET_QML_INSPECTOR);
     m_inspectorDockWidget->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
     m_inspectorDockWidget->setTitleBarWidget(new QWidget(m_inspectorDockWidget));
 }
