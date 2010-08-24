@@ -523,7 +523,8 @@ ProjectExplorer::Project *InspectorUi::debugProject() const
 
 bool InspectorUi::isShadowBuildProject() const
 {
-    if (!debugProject())
+    // for .qmlproject based stuff, build dir is empty
+    if (!debugProject() || debugProjectBuildDirectory().isEmpty())
         return false;
 
     return (debugProject()->projectDirectory() != debugProjectBuildDirectory());

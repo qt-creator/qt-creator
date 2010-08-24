@@ -661,7 +661,8 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     m_outlineCombo(0),
     m_outlineModel(new QmlOutlineModel(this)),
     m_modelManager(0),
-    m_contextPane(0)
+    m_contextPane(0),
+    m_updateSelectedElements(false)
 {
     qRegisterMetaType<QmlJSEditor::Internal::SemanticInfo>("QmlJSEditor::Internal::SemanticInfo");
 
@@ -996,6 +997,16 @@ void QmlJSTextEditor::updateUses()
     m_updateUsesTimer->start();
 }
 
+bool QmlJSTextEditor::updateSelectedElements() const
+{
+    return m_updateSelectedElements;
+}
+
+void QmlJSTextEditor::setUpdateSelectedElements(bool value)
+{
+    m_updateSelectedElements = value;
+}
+
 void QmlJSTextEditor::updateUsesNow()
 {
     if (document()->revision() != m_semanticInfo.revision()) {
@@ -1040,7 +1051,6 @@ public:
     {
         m_document = doc;
         m_snapshot = snapshot;
-        m_lookupContext = LookupContext::create(m_document, m_snapshot, QList<Node*>());
         m_cursorPositionStart = startPosition;
         m_cursorPositionEnd = endPosition;
         m_selectedMembers.clear();
@@ -1068,7 +1078,7 @@ protected:
         return false;
     }
 
-    UiObjectInitializer *initializer(UiObjectMember *member) const
+    inline UiObjectInitializer *initializer(UiObjectMember *member) const
     {
         if (UiObjectDefinition *def = cast<UiObjectDefinition *>(member))
             return def->initializer;
@@ -1077,11 +1087,15 @@ protected:
         return 0;
     }
 
-    bool hasVisualPresentation(Node *ast)
+    inline bool hasVisualPresentation(Node *ast)
     {
         Bind *bind = m_document->bind();
         const Interpreter::ObjectValue *objValue = bind->findQmlObject(ast);
         QStringList prototypes;
+
+        if (m_lookupContext.isNull()) {
+            m_lookupContext = LookupContext::create(m_document, m_snapshot, QList<Node*>());
+        }
 
         while (objValue) {
             prototypes.append(objValue->className());
@@ -1091,7 +1105,7 @@ protected:
         return prototypes.contains(QString("QGraphicsObject"));
     }
 
-    bool isIdBinding(UiObjectMember *member) const
+    inline bool isIdBinding(UiObjectMember *member) const
     {
         if (UiScriptBinding *script = cast<UiScriptBinding *>(member)) {
             if (! script->qualifiedId)
@@ -1110,22 +1124,22 @@ protected:
         return false;
     }
 
-    bool containsCursor(unsigned begin, unsigned end)
+    inline bool containsCursor(unsigned begin, unsigned end)
     {
         return m_cursorPositionStart >= begin && m_cursorPositionEnd <= end;
     }
 
-    bool intersectsCursor(unsigned begin, unsigned end)
+    inline bool intersectsCursor(unsigned begin, unsigned end)
     {
         return (m_cursorPositionEnd >= begin && m_cursorPositionStart <= end);
     }
 
-    bool isRangeSelected() const
+    inline bool isRangeSelected() const
     {
         return (m_cursorPositionStart != m_cursorPositionEnd);
     }
 
-    virtual void postVisit(Node *ast)
+    void postVisit(Node *ast)
     {
         if (!isRangeSelected() && !m_selectedMembers.isEmpty())
             return; // nothing to do, we already have the results.
@@ -1149,6 +1163,9 @@ protected:
 
 void QmlJSTextEditor::setSelectedElements()
 {
+    if (!m_updateSelectedElements)
+        return;
+
     QTextCursor tc = textCursor();
     QString wordAtCursor;
     QList<int> offsets;
@@ -1169,10 +1186,8 @@ void QmlJSTextEditor::setSelectedElements()
 
     if (m_semanticInfo.document) {
         SelectedElement selectedMembers;
-
         QList<UiObjectMember *> members = selectedMembers(m_semanticInfo.document, m_semanticInfo.snapshot,
                                                           startPos, endPos);
-
         if (!members.isEmpty()) {
             foreach(UiObjectMember *m, members) {
                 offsets << m->firstSourceLocation().begin();

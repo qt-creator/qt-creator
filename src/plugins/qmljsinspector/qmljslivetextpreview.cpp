@@ -186,6 +186,7 @@ void QmlJSLiveTextPreview::unassociateEditor(Core::IEditor *oldEditor)
         QmlJSEditor::Internal::QmlJSTextEditor* qmljsEditor = qobject_cast<QmlJSEditor::Internal::QmlJSTextEditor*>(oldEditor->widget());
         if (qmljsEditor && m_editors.contains(qmljsEditor)) {
             m_editors.removeOne(qmljsEditor);
+            qmljsEditor->setUpdateSelectedElements(false);
             disconnect(qmljsEditor,
                        SIGNAL(selectedElementsChanged(QList<int>,QString)),
                        this,
@@ -246,7 +247,7 @@ void QmlJSLiveTextPreview::changeSelectedElements(QList<int> offsets, const QStr
         return;
 
     QDeclarativeDebugObjectReference objectRefUnderCursor;
-    if (!wordAtCursor.isEmpty() && wordAtCursor[0].isUpper()) {
+    if (!wordAtCursor.isEmpty() && wordAtCursor[0].isLower()) {
         QList<QDeclarativeDebugObjectReference> refs = m_clientProxy.data()->objectReferences();
         foreach (const QDeclarativeDebugObjectReference &ref, refs) {
             if (ref.idString() == wordAtCursor) {
@@ -691,6 +692,16 @@ void QmlJSLiveTextPreview::setClientProxy(ClientProxy *clientProxy)
     if (m_clientProxy.data()) {
         connect(m_clientProxy.data(), SIGNAL(objectTreeUpdated()),
                    SLOT(updateDebugIds()));
+
+        foreach(QWeakPointer<QmlJSEditor::Internal::QmlJSTextEditor> qmlEditor, m_editors) {
+            if (qmlEditor)
+                qmlEditor.data()->setUpdateSelectedElements(true);
+        }
+    } else {
+        foreach(QWeakPointer<QmlJSEditor::Internal::QmlJSTextEditor> qmlEditor, m_editors) {
+            if (qmlEditor)
+                qmlEditor.data()->setUpdateSelectedElements(false);
+        }
     }
 }
 

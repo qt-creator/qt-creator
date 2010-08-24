@@ -225,6 +225,9 @@ public:
     QmlOutlineModel *outlineModel() const;
     QModelIndex outlineModelIndex();
 
+    bool updateSelectedElements() const;
+    void setUpdateSelectedElements(bool value);
+
 public slots:
     void followSymbolUnderCursor();
     void showContextPane();
@@ -309,6 +312,7 @@ private:
 
     QmlJS::IContextPane *m_contextPane;
     int m_oldCursorPosition;
+    bool m_updateSelectedElements;
 };
 
 } // namespace Internal
