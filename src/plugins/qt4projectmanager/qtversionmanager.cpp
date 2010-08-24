@@ -807,16 +807,20 @@ QString QtVersionManager::findQMakeBinaryFromMakefile(const QString &directory)
                 QFileInfo qmake(r1.cap(1).trimmed());
                 QString qmakePath = qmake.filePath();
 #ifdef Q_OS_WIN
-                qmakePath = qmakePath.toLower();
                 if (!qmakePath.endsWith(QLatin1String(".exe")))
                     qmakePath.append(QLatin1String(".exe"));
 #endif
                 // Is qmake still installed?
-                if (QFile::exists(qmakePath))
+                QFileInfo fi(qmakePath);
+                if (fi.exists()) {
+                    qmakePath = fi.absoluteFilePath();
+#ifdef Q_OS_WIN
+                    qmakePath = qmakePath.toLower();
+#endif
                     return qmakePath;
+                }
             }
         }
-        makefile.close();
     }
     return QString();
 }
