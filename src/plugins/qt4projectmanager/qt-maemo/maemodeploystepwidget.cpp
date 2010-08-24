@@ -39,13 +39,9 @@ void MaemoDeployStepWidget::init()
         this, SLOT(handleDeviceConfigModelChanged()));
     connect(ui->deviceConfigComboBox, SIGNAL(activated(int)), this,
         SLOT(setCurrentDeviceConfig(int)));
-#ifdef DEPLOY_VIA_MOUNT
-    ui->deployToSysrootCheckBox->setChecked(m_step->deployToSysroot());
+    ui->deployToSysrootCheckBox->setChecked(m_step->isDeployToSysrootEnabled());
     connect(ui->deployToSysrootCheckBox, SIGNAL(toggled(bool)), this,
         SLOT(setDeployToSysroot(bool)));
-#else
-    ui->deployToSysrootCheckBox->hide();
-#endif
     handleDeviceConfigModelChanged();
 }
 
@@ -100,11 +96,7 @@ void MaemoDeployStepWidget::setCurrentDeviceConfig(int index)
 
 void MaemoDeployStepWidget::setDeployToSysroot(bool doDeploy)
 {
-#ifdef DEPLOY_VIA_MOUNT
-    m_step->setDeployToSysroot(doDeploy);
-#else
-    Q_UNUSED(doDeploy)
-#endif
+    m_step->setDeployToSysrootEnabled(doDeploy);
 }
 
 } // namespace Internal

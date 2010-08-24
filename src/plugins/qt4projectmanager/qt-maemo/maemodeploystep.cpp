@@ -49,7 +49,7 @@
 
 #include <qt4projectmanager/qt4buildconfiguration.h>
 
-#include <QtCore/QCryptographicHash>
+#include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
 #include <QtCore/QEventLoop>
 #include <QtCore/QFileInfo>
@@ -91,7 +91,6 @@ void MaemoDeployStep::ctor()
     m_needsInstall = false;
     m_stopped = false;
     m_deviceConfigModel = new MaemoDeviceConfigListModel(this);
-#ifdef DEPLOY_VIA_MOUNT
     m_canStart = true;
     m_sysrootInstaller = new QProcess(this);
     connect(m_sysrootInstaller, SIGNAL(finished(int,QProcess::ExitStatus)),
@@ -101,7 +100,6 @@ void MaemoDeployStep::ctor()
     connect(m_sysrootInstaller, SIGNAL(readyReadStandardError()), this,
         SLOT(handleSysrootInstallerErrorOutput()));
     m_cleanupTimer = new QTimer(this);
-    m_cleanupTimer->setSingleShot(true);
     connect(m_cleanupTimer, SIGNAL(timeout()), this,
         SLOT(handleCleanupTimeout()));
     m_mounter = new MaemoRemoteMounter(this);
@@ -111,7 +109,6 @@ void MaemoDeployStep::ctor()
         SLOT(handleMountError(QString)));
     connect(m_mounter, SIGNAL(reportProgress(QString)), this,
         SLOT(handleProgressReport(QString)));
-#endif
 }
 
 bool MaemoDeployStep::init()
@@ -137,9 +134,7 @@ QVariantMap MaemoDeployStep::toMap() const
 {
     QVariantMap map(BuildStep::toMap());
     addDeployTimesToMap(map);
-#ifdef DEPLOY_VIA_MOUNT
     map.insert(DeployToSysrootKey, m_deployToSysroot);
-#endif
     map.unite(m_deviceConfigModel->toMap());
     return map;
 }
@@ -169,9 +164,7 @@ bool MaemoDeployStep::fromMap(const QVariantMap &map)
         return false;
     getDeployTimesFromMap(map);
     m_deviceConfigModel->fromMap(map);
-#ifdef DEPLOY_VIA_MOUNT
     m_deployToSysroot = map.value(DeployToSysrootKey, true).toBool();
-#endif
     return true;
 }
 
@@ -217,58 +210,46 @@ void MaemoDeployStep::writeOutput(const QString &text, OutputFormat format)
 
 void MaemoDeployStep::stop()
 {
-#ifdef DEPLOY_VIA_MOUNT
     if (m_stopped)
         return;
 
-    if (m_connecting || m_needsInstall || !m_filesToCopy.isEmpty()
-        || (m_deviceInstaller && m_deviceInstaller->isRunning())
-        || m_currentDeployAction) {
-        if (m_connection && m_connection->state() == SshConnection::Connected
-            && ((m_deviceInstaller && m_deviceInstaller->isRunning())
-                || m_currentDeployAction)) {
-            const QByteArray programToKill
-                = m_currentDeployAction ? "cp" : "dpkg";
-            const QByteArray cmdLine = "pkill -x " + programToKill
-                + "; sleep 1; pkill -x -9 " + programToKill;
-            SshRemoteProcess::Ptr killProc
-                = m_connection->createRemoteProcess(cmdLine);
-            killProc->start();
-        }
-        m_stopped = true;
-        m_unmountState = CurrentMountsUnmount;
-        m_canStart = false;
-        m_needsInstall = false;
-        m_filesToCopy.clear();
-        m_connecting = false;
-        m_sysrootInstaller->terminate();
-        m_sysrootInstaller->waitForFinished(500);
-        m_sysrootInstaller->kill();
-        m_cleanupTimer->start(5000);
-        m_mounter->stop();
+    const bool remoteProcessRunning
+        = (m_deviceInstaller && m_deviceInstaller->isRunning())
+              || m_currentDeviceDeployAction;
+    const bool isActive = remoteProcessRunning || m_connecting
+        || m_needsInstall || !m_filesToCopy.isEmpty();
+    if (!isActive) {
+        if (m_connection)
+            disconnect(m_connection.data(), 0, this, 0);
+        return;
     }
-#else
+
+    if (remoteProcessRunning) {
+        const QByteArray programToKill
+            = m_currentDeviceDeployAction ? "cp" : "dpkg";
+        const QByteArray cmdLine = "pkill -x " + programToKill
+            + "; sleep 1; pkill -x -9 " + programToKill;
+        SshRemoteProcess::Ptr killProc
+            = m_connection->createRemoteProcess(cmdLine);
+        killProc->start();
+    }
     m_stopped = true;
-    if (m_deviceInstaller && m_deviceInstaller->isRunning()) {
-        disconnect(m_deviceInstaller.data(), 0, this, 0);
-    }
-    else if (!m_uploadsInProgress.isEmpty() || !m_linksInProgress.isEmpty()) {
-        m_uploadsInProgress.clear();
-        m_linksInProgress.clear();
-        disconnect(m_uploader.data(), 0, this, 0);
-        m_uploader->closeChannel();
-    }
-    if (m_connection)
-        disconnect(m_connection.data(), 0, this, 0);
-#endif
+    m_unmountState = CurrentMountsUnmount;
+    m_canStart = false;
+    m_needsInstall = false;
+    m_filesToCopy.clear();
+    m_connecting = false;
+    m_sysrootInstaller->terminate();
+    m_sysrootInstaller->waitForFinished(500);
+    m_sysrootInstaller->kill();
+    m_cleanupTimer->start(5000);
+    m_mounter->stop();
 }
 
-#ifndef DEPLOY_VIA_MOUNT
 QString MaemoDeployStep::uploadDir() const
 {
     return MaemoGlobal::homeDirOnDevice(m_connection->connectionParameters().uname);
 }
-#endif
 
 bool MaemoDeployStep::currentlyNeedsDeployment(const QString &host,
     const MaemoDeployable &deployable) const
@@ -293,59 +274,23 @@ MaemoDeviceConfig MaemoDeployStep::deviceConfig() const
 
 void MaemoDeployStep::start()
 {
-#ifdef DEPLOY_VIA_MOUNT
     if (!m_canStart) {
         raiseError(tr("Can't start deployment, haven't cleaned up from last time yet."));
         return;
     }
     m_cleanupTimer->stop();
-#endif
     m_stopped = false;
 
-    const MaemoDeviceConfig &devConfig = deviceConfig();
-    if (!devConfig.isValid()) {
+    if (!deviceConfig().isValid()) {
         raiseError(tr("Deployment failed: No valid device set."));
         return;
     }
 
-    if (m_connection)
-        disconnect(m_connection.data(), 0, this, 0);
-    const bool canReUse = m_connection
-        && m_connection->state() == SshConnection::Connected
-        && m_connection->connectionParameters() == devConfig.server;
-    if (!canReUse)
-        m_connection = SshConnection::create();
-    connect(m_connection.data(), SIGNAL(connected()), this,
-        SLOT(handleConnected()));
-    connect(m_connection.data(), SIGNAL(error(SshError)), this,
-        SLOT(handleConnectionFailure()));
-    if (canReUse) {
-        handleConnected();
-    } else {
-        writeOutput(tr("Connecting to device..."));
-        m_connecting = true;
-        m_connection->connectToHost(devConfig.server);
-    }
-}
-
-void MaemoDeployStep::handleConnected()
-{
-    m_connecting = false;
-    if (m_stopped) {
-#ifdef DEPLOY_VIA_MOUNT
-        m_canStart = true;
-#endif
-        return;
-    }
-
-#ifdef DEPLOY_VIA_MOUNT
-    Q_ASSERT(!m_currentDeployAction);
+    Q_ASSERT(!m_currentDeviceDeployAction);
     Q_ASSERT(!m_needsInstall);
     Q_ASSERT(m_filesToCopy.isEmpty());
-    // TODO: Move this step up. We don't have to be connected to find out
-    // whether we need to deploy.
     const MaemoPackageCreationStep * const pStep = packagingStep();
-    const QString hostName = m_connection->connectionParameters().host;
+    const QString hostName = deviceConfig().server.host;
     if (pStep->isPackagingEnabled()) {
         const MaemoDeployable d(pStep->packageFilePath(), QString());
         if (currentlyNeedsDeployment(hostName, d))
@@ -360,189 +305,80 @@ void MaemoDeployStep::handleConnected()
     }
 
     if (m_needsInstall || !m_filesToCopy.isEmpty()) {
-        m_unmountState = OldDirsUnmount;
-        m_mounter->setConnection(m_connection);
-        m_mounter->unmount(); // Clean up potential remains.
+        if (m_deployToSysroot)
+            installToSysroot();
+        else
+            connectToDevice();
     } else {
         writeOutput(tr("All files up to date, no installation necessary."));
         emit done();
     }
-#else
-    // TODO: If nothing to deploy, skip this step.
-    m_uploader = m_connection->createSftpChannel();
-    connect(m_uploader.data(), SIGNAL(initialized()), this,
-        SLOT(handleSftpChannelInitialized()));
-    connect(m_uploader.data(), SIGNAL(initializationFailed(QString)), this,
-        SLOT(handleSftpChannelInitializationFailed(QString)));
-    connect(m_uploader.data(), SIGNAL(finished(Core::SftpJobId, QString)),
-        this, SLOT(handleSftpJobFinished(Core::SftpJobId, QString)));
-    m_uploader->initialize();
-#endif
 }
 
 void MaemoDeployStep::handleConnectionFailure()
 {
     m_connecting = false;
     if (m_stopped) {
-#ifdef DEPLOY_VIA_MOUNT
         m_canStart = true;
-#endif
         return;
     }
-
     raiseError(tr("Could not connect to host: %1")
         .arg(m_connection->errorString()));
 }
 
-#ifndef DEPLOY_VIA_MOUNT
 void MaemoDeployStep::handleSftpChannelInitialized()
 {
-    if (m_stopped)
+    if (m_stopped) {
+        m_canStart = true;
         return;
-
-    m_uploadsInProgress.clear();
-    m_linksInProgress.clear();
-    m_needsInstall = false;
-    const MaemoPackageCreationStep * const pStep = packagingStep();
-    const QString hostName = m_connection->connectionParameters().host;
-    if (pStep->isPackagingEnabled()) {
-        const MaemoDeployable d(pStep->packageFilePath(), uploadDir());
-        if (currentlyNeedsDeployment(hostName, d)) {
-            if (!deploy(MaemoDeployable(d)))
-                return;
-            m_needsInstall = true;
-        } else {
-            m_needsInstall = false;
-        }
-    } else {
-        const int deployableCount = m_deployables->deployableCount();
-        for (int i = 0; i < deployableCount; ++i) {
-            const MaemoDeployable &d = m_deployables->deployableAt(i);
-            if (currentlyNeedsDeployment(hostName, d)
-                && !deploy(MaemoDeployable(d)))
-                return;
-        }
-        m_needsInstall = false;
     }
-    if (m_uploadsInProgress.isEmpty())
-        emit done();
-}
 
-bool MaemoDeployStep::deploy(const MaemoDeployable &deployable)
-{
-    const QString fileName = QFileInfo(deployable.localFilePath).fileName();
-    const QString remoteFilePath = deployable.remoteDir + '/' + fileName;
-    const QString uploadFilePath = uploadDir() + '/' + fileName + '.'
-        + QCryptographicHash::hash(remoteFilePath.toUtf8(),
-              QCryptographicHash::Md5).toHex();
-    const SftpJobId job = m_uploader->uploadFile(deployable.localFilePath,
-        uploadFilePath, SftpOverwriteExisting);
+    const QString filePath = packagingStep()->packageFilePath();
+    const QString filePathNative = QDir::toNativeSeparators(filePath);
+    const QString fileName = QFileInfo(filePath).fileName();
+    const QString remoteFilePath = uploadDir() + QLatin1Char('/') + fileName;
+    const SftpJobId job = m_uploader->uploadFile(filePath,
+        remoteFilePath, SftpOverwriteExisting);
     if (job == SftpInvalidJob) {
         raiseError(tr("Upload failed: Could not open file '%1'")
-            .arg(deployable.localFilePath));
-        return false;
+            .arg(filePathNative));
+    } else {
+        writeOutput(tr("Started uploading file '%1'.").arg(filePathNative));
     }
-    writeOutput(tr("Started uploading file '%1'.").arg(deployable.localFilePath));
-    m_uploadsInProgress.insert(job, DeployInfo(deployable, uploadFilePath));
-    return true;
 }
 
 void MaemoDeployStep::handleSftpChannelInitializationFailed(const QString &error)
 {
-    if (m_stopped)
+    if (m_stopped) {
+        m_canStart = true;
         return;
+    }
     raiseError(tr("Could not set up SFTP connection: %1").arg(error));
 }
 
-void MaemoDeployStep::handleSftpJobFinished(Core::SftpJobId job,
+void MaemoDeployStep::handleSftpJobFinished(Core::SftpJobId,
     const QString &error)
 {
-    if (m_stopped)
-        return;
-
-    QMap<SftpJobId, DeployInfo>::Iterator it = m_uploadsInProgress.find(job);
-    if (it == m_uploadsInProgress.end()) {
-        qWarning("%s: Job %u not found in map.", Q_FUNC_INFO, job);
+    if (m_stopped) {
+        m_canStart = true;
         return;
     }
 
-    const DeployInfo &deployInfo = it.value();
+    const QString filePathNative
+        = QDir::toNativeSeparators(packagingStep()->packageFilePath());
     if (!error.isEmpty()) {
         raiseError(tr("Failed to upload file %1: %2")
-            .arg(deployInfo.first.localFilePath, error));
+            .arg(filePathNative, error));
         return;
     }
 
     writeOutput(tr("Successfully uploaded file '%1'.")
-        .arg(deployInfo.first.localFilePath));
-    const QString remoteFilePath = deployInfo.first.remoteDir + '/'
-        + QFileInfo(deployInfo.first.localFilePath).fileName();
-    QByteArray linkCommand = MaemoGlobal::remoteSudo().toUtf8() + " ln -sf "
-        + deployInfo.second.toUtf8() + ' ' + remoteFilePath.toUtf8();
-    SshRemoteProcess::Ptr linkProcess
-        = m_connection->createRemoteProcess(linkCommand);
-    connect(linkProcess.data(), SIGNAL(closed(int)), this,
-        SLOT(handleLinkProcessFinished(int)));
-    m_linksInProgress.insert(linkProcess, deployInfo.first);
-    linkProcess->start();
-    m_uploadsInProgress.erase(it);
+        .arg(filePathNative));
+    const QString remoteFilePath
+        = uploadDir() + QLatin1Char('/') + QFileInfo(filePathNative).fileName();
+    runDpkg(remoteFilePath);
 }
 
-void MaemoDeployStep::handleLinkProcessFinished(int exitStatus)
-{
-    if (m_stopped)
-        return;
-
-    SshRemoteProcess * const proc = static_cast<SshRemoteProcess *>(sender());
-
-    // TODO: List instead of map? We can't use it for lookup anyway.
-    QMap<SshRemoteProcess::Ptr, MaemoDeployable>::Iterator it;
-    for (it = m_linksInProgress.begin(); it != m_linksInProgress.end(); ++it) {
-        if (it.key().data() == proc)
-            break;
-    }
-    if (it == m_linksInProgress.end()) {
-        qWarning("%s: Remote process %p not found in process list.",
-            Q_FUNC_INFO, proc);
-        return;
-    }
-
-    const MaemoDeployable &deployable = it.value();
-    if (exitStatus != SshRemoteProcess::ExitedNormally
-        || proc->exitCode() != 0) {
-        raiseError(tr("Deployment failed for file '%1': "
-            "Could not create link '%2' on remote system.")
-            .arg(deployable.localFilePath, deployable.remoteDir + '/'
-                + QFileInfo(deployable.localFilePath).fileName()));
-        return;
-    }
-
-    setDeployed(m_connection->connectionParameters().host, it.value());
-    m_linksInProgress.erase(it);
-    if (m_linksInProgress.isEmpty() && m_uploadsInProgress.isEmpty()) {
-        if (m_needsInstall) {
-            writeOutput(tr("Installing package ..."));
-            const QString packageFileName
-                = QFileInfo(packagingStep()->packageFilePath()).fileName();
-            const QByteArray cmd = MaemoGlobal::remoteSudo().toUtf8()
-                + " dpkg -i " + packageFileName.toUtf8();
-            m_deviceInstaller = m_connection->createRemoteProcess(cmd);
-            connect(m_deviceInstaller.data(), SIGNAL(closed(int)), this,
-                SLOT(handleInstallationFinished(int)));
-            connect(m_deviceInstaller.data(), SIGNAL(outputAvailable(QByteArray)),
-                this, SLOT(handleDeviceInstallerOutput(QByteArray)));
-            connect(m_deviceInstaller.data(),
-                SIGNAL(errorOutputAvailable(QByteArray)), this,
-                SLOT(handleDeviceInstallerErrorOutput(QByteArray)));
-            m_deviceInstaller->start();
-        } else {
-            emit done();
-        }
-    }
-}
-#endif
-
-#ifdef DEPLOY_VIA_MOUNT
 void MaemoDeployStep::handleMounted()
 {
     if (m_stopped) {
@@ -551,12 +387,11 @@ void MaemoDeployStep::handleMounted()
     }
 
     if (m_needsInstall) {
-        if (m_deployToSysroot)
-            installToSysroot();
-        else
-            installToDevice();
+        const QString remoteFilePath = deployMountPoint() + QLatin1Char('/')
+            + QFileInfo(packagingStep()->packageFilePath()).fileName();
+        runDpkg(remoteFilePath);
     } else {
-        deployNextFile();
+        copyNextFileToDevice();
     }
 }
 
@@ -568,17 +403,33 @@ void MaemoDeployStep::handleUnmounted()
         return;
     }
 
-    if (m_unmountState == CurrentDirsUnmount) {
+    switch (m_unmountState) {
+    case OldDirsUnmount:
+        if (toolChain()->allowsRemoteMounts())
+            setupMount();
+        else
+            prepareSftpConnection();
+        break;
+    case CurrentDirsUnmount:
         m_mounter->mount();
-        return;
-    }
-
-    if (m_unmountState == CurrentMountsUnmount) {
+        break;
+    case CurrentMountsUnmount:
         writeOutput(tr("Deployment finished."));
         emit done();
-        return;
+        break;
     }
+}
 
+void MaemoDeployStep::handleMountError(const QString &errorMsg)
+{
+    if (m_stopped)
+        m_canStart = true;
+    else
+        raiseError(errorMsg);
+}
+
+void MaemoDeployStep::setupMount()
+{
     Q_ASSERT(m_needsInstall || !m_filesToCopy.isEmpty());
     m_mounter->resetMountSpecifications();
     m_mounter->setToolchain(toolChain());
@@ -625,46 +476,117 @@ void MaemoDeployStep::handleUnmounted()
     m_mounter->unmount();
 }
 
-void MaemoDeployStep::handleMountError(const QString &errorMsg)
+void MaemoDeployStep::prepareSftpConnection()
 {
-    if (m_stopped)
-        m_canStart = true;
-    else
-        raiseError(errorMsg);
+    m_uploader = m_connection->createSftpChannel();
+    connect(m_uploader.data(), SIGNAL(initialized()), this,
+        SLOT(handleSftpChannelInitialized()));
+    connect(m_uploader.data(), SIGNAL(initializationFailed(QString)), this,
+        SLOT(handleSftpChannelInitializationFailed(QString)));
+    connect(m_uploader.data(), SIGNAL(finished(Core::SftpJobId, QString)),
+        this, SLOT(handleSftpJobFinished(Core::SftpJobId, QString)));
+    m_uploader->initialize();
 }
 
 void MaemoDeployStep::installToSysroot()
 {
-    writeOutput(tr("Installing package to sysroot ..."));
-    const MaemoToolChain * const tc = toolChain();
-    const QStringList args = QStringList() << QLatin1String("-t")
-        << tc->targetName() << QLatin1String("xdpkg") << QLatin1String("-i")
-        << packagingStep()->packageFilePath();
-    m_sysrootInstaller->start(tc->madAdminCommand(), args);
-    if (!m_sysrootInstaller->waitForStarted()) {
-        writeOutput(tr("Installation to sysroot failed, continuing anyway."),
-            ErrorMessageOutput);
-        installToDevice();
+    if (m_needsInstall) {
+        writeOutput(tr("Installing package to sysroot ..."));
+        const MaemoToolChain * const tc = toolChain();
+        const QStringList args = QStringList() << QLatin1String("-t")
+            << tc->targetName() << QLatin1String("xdpkg") << QLatin1String("-i")
+            << packagingStep()->packageFilePath();
+        m_sysrootInstaller->start(tc->madAdminCommand(), args);
+        if (!m_sysrootInstaller->waitForStarted()) {
+            writeOutput(tr("Installation to sysroot failed, continuing anyway."),
+                ErrorMessageOutput);
+            connectToDevice();
+        }
+    } else {
+        writeOutput(tr("Copying files to sysroot ..."));
+        Q_ASSERT(!m_filesToCopy.isEmpty());
+        QDir sysRootDir(toolChain()->sysrootRoot());
+        foreach (const MaemoDeployable &d, m_filesToCopy) {
+            const QLatin1Char sep('/');
+            const QString targetFilePath = toolChain()->sysrootRoot() + sep
+                + d.remoteDir + sep + QFileInfo(d.localFilePath).fileName();
+            if (!sysRootDir.mkpath(d.remoteDir.mid(1))
+                || !QFile::remove(targetFilePath)
+                || !QFile::copy(d.localFilePath, targetFilePath)) {
+                writeOutput(tr("Sysroot installation failed: "
+                    "Could not copy '%1' to '%2'. Continuing anyway.")
+                    .arg(QDir::toNativeSeparators(d.localFilePath),
+                         QDir::toNativeSeparators(targetFilePath)),
+                    ErrorMessageOutput);
+            }
+            QCoreApplication::processEvents();
+            if (m_stopped) {
+                m_canStart = true;
+                return;
+            }
+        }
+        connectToDevice();
     }
 }
 
 void MaemoDeployStep::handleSysrootInstallerFinished()
 {
+    if (m_stopped) {
+        m_canStart = true;
+        return;
+    }
+
     if (m_sysrootInstaller->error() != QProcess::UnknownError
         || m_sysrootInstaller->exitCode() != 0) {
         writeOutput(tr("Installation to sysroot failed, continuing anyway."),
             ErrorMessageOutput);
     }
-    installToDevice();
+    connectToDevice();
 }
 
-void MaemoDeployStep::installToDevice()
+void MaemoDeployStep::connectToDevice()
+{
+    m_connecting = false;
+    const bool canReUse = m_connection
+        && m_connection->state() == SshConnection::Connected
+        && m_connection->connectionParameters() == deviceConfig().server;
+    if (!canReUse)
+        m_connection = SshConnection::create();
+    connect(m_connection.data(), SIGNAL(connected()), this,
+        SLOT(handleConnected()));
+    connect(m_connection.data(), SIGNAL(error(SshError)), this,
+        SLOT(handleConnectionFailure()));
+    if (canReUse) {
+        unmountOldDirs();
+    } else {
+        writeOutput(tr("Connecting to device..."));
+        m_connecting = true;
+        m_connection->connectToHost(deviceConfig().server);
+    }
+}
+
+void MaemoDeployStep::handleConnected()
+{
+    if (m_stopped) {
+        m_canStart = true;
+        return;
+    }
+
+    unmountOldDirs();
+}
+
+void MaemoDeployStep::unmountOldDirs()
+{
+    m_unmountState = OldDirsUnmount;
+    m_mounter->setConnection(m_connection);
+    m_mounter->unmount();
+}
+
+void MaemoDeployStep::runDpkg(const QString &packageFilePath)
 {
     writeOutput(tr("Installing package to device..."));
-    const QString packageFileName
-        = QFileInfo(packagingStep()->packageFilePath()).fileName();
     const QByteArray cmd = MaemoGlobal::remoteSudo().toUtf8() + " dpkg -i "
-        + deployMountPoint().toUtf8() + '/' + packageFileName.toUtf8();
+        + packageFilePath.toUtf8();
     m_deviceInstaller = m_connection->createRemoteProcess(cmd);
     connect(m_deviceInstaller.data(), SIGNAL(closed(int)), this,
         SLOT(handleInstallationFinished(int)));
@@ -681,10 +603,10 @@ void MaemoDeployStep::handleProgressReport(const QString &progressMsg)
     writeOutput(progressMsg);
 }
 
-void MaemoDeployStep::deployNextFile()
+void MaemoDeployStep::copyNextFileToDevice()
 {
     Q_ASSERT(!m_filesToCopy.isEmpty());
-    Q_ASSERT(!m_currentDeployAction);
+    Q_ASSERT(!m_currentDeviceDeployAction);
     const MaemoDeployable d = m_filesToCopy.takeFirst();
     QString sourceFilePath = deployMountPoint();
 #ifdef Q_OS_WIN
@@ -695,8 +617,6 @@ void MaemoDeployStep::deployNextFile()
     sourceFilePath += d.localFilePath;
 #endif
 
-    // TODO: Copy file to sysroot
-
     QString command = QString::fromLatin1("%1 cp -r %2 %3")
         .arg(MaemoGlobal::remoteSudo(), sourceFilePath,
             d.remoteDir + QLatin1Char('/'));
@@ -706,7 +626,7 @@ void MaemoDeployStep::deployNextFile()
         this, SLOT(handleDeviceInstallerErrorOutput(QByteArray)));
     connect(copyProcess.data(), SIGNAL(closed(int)), this,
         SLOT(handleCopyProcessFinished(int)));
-    m_currentDeployAction.reset(new DeployAction(d, copyProcess));
+    m_currentDeviceDeployAction.reset(new DeviceDeployAction(d, copyProcess));
     writeOutput(tr("Copying file '%1' to path '%2' on the device...")
         .arg(d.localFilePath, d.remoteDir));
     copyProcess->start();
@@ -728,39 +648,40 @@ void MaemoDeployStep::handleCopyProcessFinished(int exitStatus)
         return;
     }
 
-    Q_ASSERT(m_currentDeployAction);
-    const QString localFilePath = m_currentDeployAction->first.localFilePath;
+    Q_ASSERT(m_currentDeviceDeployAction);
+    const QString localFilePath = m_currentDeviceDeployAction->first.localFilePath;
     if (exitStatus != SshRemoteProcess::ExitedNormally
-        || m_currentDeployAction->second->exitCode() != 0) {
+        || m_currentDeviceDeployAction->second->exitCode() != 0) {
         raiseError(tr("Copying file '%1' failed.").arg(localFilePath));
         m_mounter->unmount();
-        m_currentDeployAction.reset(0);
+        m_currentDeviceDeployAction.reset(0);
     } else {
         writeOutput(tr("Successfully copied file '%1'.").arg(localFilePath));
         setDeployed(m_connection->connectionParameters().host,
-            m_currentDeployAction->first);
-        m_currentDeployAction.reset(0);
+            m_currentDeviceDeployAction->first);
+        m_currentDeviceDeployAction.reset(0);
         if (m_filesToCopy.isEmpty()) {
             writeOutput(tr("All files copied."));
             m_unmountState = CurrentMountsUnmount;
             m_mounter->unmount();
         } else {
-            deployNextFile();
+            copyNextFileToDevice();
         }
     }
 }
 
 void MaemoDeployStep::handleCleanupTimeout()
 {
+    m_cleanupTimer->stop();
     if (!m_canStart) {
-        qWarning("%s: Deployment cleanup failed apparently, "
-            "explicitly enabling re-start.", Q_FUNC_INFO);
         m_canStart = true;
         disconnect(m_connection.data(), 0, this, 0);
         if (m_deviceInstaller)
             disconnect(m_deviceInstaller.data(), 0, this, 0);
-        if (m_currentDeployAction)
-            disconnect(m_currentDeployAction->second.data(), 0, this, 0);
+        if (m_currentDeviceDeployAction) {
+            disconnect(m_currentDeviceDeployAction->second.data(), 0, this, 0);
+            m_currentDeviceDeployAction.reset(0);
+        }
     }
 }
 
@@ -792,11 +713,9 @@ void MaemoDeployStep::handleSysrootInstallerErrorOutput()
             BuildStep::ErrorOutput);
     }
 }
-#endif
 
 void MaemoDeployStep::handleInstallationFinished(int exitStatus)
 {
-#ifdef DEPLOY_VIA_MOUNT
     if (m_stopped) {
         m_mounter->unmount();
         return;
@@ -813,18 +732,6 @@ void MaemoDeployStep::handleInstallationFinished(int exitStatus)
     }
     m_unmountState = CurrentMountsUnmount;
     m_mounter->unmount();
-#else
-    if (m_stopped)
-        return;
-
-    if (exitStatus != SshRemoteProcess::ExitedNormally
-        || m_deviceInstaller->exitCode() != 0) {
-        raiseError(tr("Installing package failed."));
-    } else {
-        writeOutput(tr("Package installation finished."));
-        emit done();
-    }
-#endif
 }
 
 void MaemoDeployStep::handleDeviceInstallerOutput(const QByteArray &output)
