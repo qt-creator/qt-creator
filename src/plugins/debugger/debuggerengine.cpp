@@ -112,8 +112,8 @@ DebuggerStartParameters::DebuggerStartParameters()
   , qmlServerAddress("127.0.0.1")
   , qmlServerPort(0)
   , toolChainType(ToolChain::UNKNOWN)
-  , executableUid(0)
   , startMode(NoStartMode)
+  , executableUid(0)
 {}
 
 void DebuggerStartParameters::clear()

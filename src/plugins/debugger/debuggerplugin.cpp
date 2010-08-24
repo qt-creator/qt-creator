@@ -516,9 +516,6 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
     m_ui.setupUi(w);
     m_group.clear();
 
-    m_group.insert(theDebuggerAction(SwitchLanguageAutomatically),
-        m_ui.checkBoxChangeLanguageAutomatically);
-
     m_group.insert(theDebuggerAction(ListSourceFiles),
         m_ui.checkBoxListSourceFiles);
     m_group.insert(theDebuggerAction(UseAlternatingRowColors),
@@ -549,7 +546,6 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
 
     if (m_searchKeywords.isEmpty()) {
         QTextStream(&m_searchKeywords) << ' '
-                << m_ui.checkBoxChangeLanguageAutomatically->text()
                 << m_ui.checkBoxListSourceFiles->text()
                 << ' ' << m_ui.checkBoxUseAlternatingRowColors->text()
                 << ' ' << m_ui.checkBoxUseToolTipsInMainEditor->text()
@@ -1222,7 +1218,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     // Cpp/Qml ui setup
     m_uiSwitcher = new DebuggerUISwitcher(m_debugMode, this);
     ExtensionSystem::PluginManager::instance()->addObject(m_uiSwitcher);
-    theDebuggerAction(SwitchLanguageAutomatically)->setChecked(true);
     m_uiSwitcher->addLanguage(Lang_Cpp, tr("C++"), cppDebuggercontext);
 
     // Dock widgets
