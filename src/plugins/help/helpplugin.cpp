@@ -310,7 +310,6 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     toolBarLayout->setSpacing(0);
     toolBarLayout->addWidget(m_externalHelpBar = createIconToolBar(true));
     toolBarLayout->addWidget(m_internalHelpBar = createIconToolBar(false));
-    m_externalHelpBar->setVisible(false);
     toolBarLayout->addWidget(createWidgetToolBar());
 
     QWidget *mainWidget = new QWidget;
@@ -344,10 +343,12 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     if (contextHelpOption() == Help::Constants::ExternalHelpAlways) {
         m_mode = new HelpMode(new QWidget);
         m_mode->setEnabled(false);
+        m_externalHelpBar->setVisible(true);
         m_externalWindow->setCentralWidget(m_splitter);
         QTimer::singleShot(0, this, SLOT(showExternalWindow()));
     } else {
         m_mode = new HelpMode(m_splitter);
+        m_internalHelpBar->setVisible(true);
     }
     addAutoReleasedObject(m_mode);
     m_mode->setContext(modecontext);
@@ -633,8 +634,8 @@ void HelpPlugin::showExternalWindow()
 {
     bool firstTime = m_firstModeChange;
     doSetupIfNeeded();
-    m_externalHelpBar->setVisible(true);
-    m_internalHelpBar->setVisible(false);
+    //m_externalHelpBar->setVisible(true);
+    //m_internalHelpBar->setVisible(false);
     m_externalWindow->show();
     connectExternalHelpWindow();
     m_externalWindow->activateWindow();
@@ -956,6 +957,7 @@ QToolBar *HelpPlugin::createIconToolBar(bool external)
     toolBar->addAction(bookmark);
     toolBar->setMovable(false);
     toolBar->addSeparator();
+    toolBar->setVisible(false);
 
     return toolBar;
 }
