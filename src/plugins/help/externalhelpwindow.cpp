@@ -83,14 +83,16 @@ ExternalHelpWindow::ExternalHelpWindow(QWidget *parent)
     connect(action, SIGNAL(triggered()), this, SIGNAL(activateOpenPages()));
     addAction(action);
 
+    CentralWidget *centralWidget = CentralWidget::instance();
+
     action = new QAction(this);
     action->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Plus));
-    connect(action, SIGNAL(triggered()), CentralWidget::instance(), SLOT(zoomIn()));
+    connect(action, SIGNAL(triggered()), centralWidget, SLOT(zoomIn()));
     addAction(action);
 
     action = new QAction(this);
     action->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Minus));
-    connect(action, SIGNAL(triggered()), CentralWidget::instance(), SLOT(zoomOut()));
+    connect(action, SIGNAL(triggered()), centralWidget, SLOT(zoomOut()));
     addAction(action);
 
     action = new QAction(this);
@@ -100,16 +102,30 @@ ExternalHelpWindow::ExternalHelpWindow(QWidget *parent)
 
     action = new QAction(this);
     action->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_C));
-    connect(action, SIGNAL(triggered()), CentralWidget::instance(), SLOT(copy()));
+    connect(action, SIGNAL(triggered()), centralWidget, SLOT(copy()));
     addAction(action);
 
     action = new QAction(this);
     action->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_P));
-    connect(action, SIGNAL(triggered()), CentralWidget::instance(), SLOT(print()));
+    connect(action, SIGNAL(triggered()), centralWidget, SLOT(print()));
     addAction(action);
 
+    action = new QAction(this);
+    action->setShortcut(QKeySequence::Back);
+    action->setEnabled(centralWidget->isBackwardAvailable());
+    connect(action, SIGNAL(triggered()), centralWidget, SLOT(backward()));
+    connect(centralWidget, SIGNAL(backwardAvailable(bool)), action,
+        SLOT(setEnabled(bool)));
+
+    action = new QAction(this);
+    action->setShortcut(QKeySequence::Forward);
+    action->setEnabled(centralWidget->isForwardAvailable());
+    connect(action, SIGNAL(triggered()), centralWidget, SLOT(forward()));
+    connect(centralWidget, SIGNAL(forwardAvailable(bool)), action,
+        SLOT(setEnabled(bool)));
+
     QAction *reset = new QAction(this);
-    connect(reset, SIGNAL(triggered()), CentralWidget::instance(), SLOT(resetZoom()));
+    connect(reset, SIGNAL(triggered()), centralWidget, SLOT(resetZoom()));
     addAction(reset);
 
     QAction *ctrlTab = new QAction(this);

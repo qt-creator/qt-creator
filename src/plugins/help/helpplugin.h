@@ -114,7 +114,8 @@ private:
     void setupUi();
     void resetFilter();
     void activateHelpMode();
-    QToolBar *createToolBar();
+    QToolBar *createWidgetToolBar();
+    QToolBar *createIconToolBar(bool external);
     HelpViewer* viewerForContextMode();
     void createRightPaneContextViewer();
 
@@ -159,6 +160,8 @@ private:
 
     QMenu *m_backMenu;
     QMenu *m_nextMenu;
+    QToolBar *m_internalHelpBar;
+    QToolBar *m_externalHelpBar;
 };
 
 } // namespace Internal

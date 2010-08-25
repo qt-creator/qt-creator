@@ -303,12 +303,22 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     Aggregation::Aggregate *agg = new Aggregation::Aggregate;
     agg->add(m_centralWidget);
     agg->add(new HelpFindSupport(m_centralWidget));
+
+    QWidget *toolBarWidget = new QWidget;
+    QHBoxLayout *toolBarLayout = new QHBoxLayout(toolBarWidget);
+    toolBarLayout->setMargin(0);
+    toolBarLayout->setSpacing(0);
+    toolBarLayout->addWidget(m_externalHelpBar = createIconToolBar(true));
+    toolBarLayout->addWidget(m_internalHelpBar = createIconToolBar(false));
+    m_externalHelpBar->setVisible(false);
+    toolBarLayout->addWidget(createWidgetToolBar());
+
     QWidget *mainWidget = new QWidget;
     m_splitter->addWidget(mainWidget);
     QVBoxLayout *mainWidgetLayout = new QVBoxLayout(mainWidget);
     mainWidgetLayout->setMargin(0);
     mainWidgetLayout->setSpacing(0);
-    mainWidgetLayout->addWidget(createToolBar());
+    mainWidgetLayout->addWidget(toolBarWidget);
     mainWidgetLayout->addWidget(m_centralWidget);
 
     if (QLayout *layout = m_centralWidget->layout()) {
@@ -623,6 +633,8 @@ void HelpPlugin::showExternalWindow()
 {
     bool firstTime = m_firstModeChange;
     setup();
+    m_externalHelpBar->setVisible(true);
+    m_internalHelpBar->setVisible(false);
     m_externalWindow->show();
     connectExternalHelpWindow();
     m_externalWindow->activateWindow();
@@ -705,6 +717,8 @@ void HelpPlugin::contextHelpOptionChanged()
 
                 slotHideRightPane();
                 m_mode->setEnabled(false);
+                m_externalHelpBar->setVisible(true);
+                m_internalHelpBar->setVisible(false);
                 m_externalWindow->show();
                 connectExternalHelpWindow();
 
@@ -729,6 +743,8 @@ void HelpPlugin::contextHelpOptionChanged()
             m_mode->setEnabled(true);
             m_externalWindow->close();
             m_sideBar->setVisible(true);
+            m_internalHelpBar->setVisible(true);
+            m_externalHelpBar->setVisible(false);
         }
     }
 }
@@ -865,40 +881,24 @@ void HelpPlugin::activateBookmarks()
     m_sideBar->activateItem(m_bookmarkItem);
 }
 
-QToolBar *HelpPlugin::createToolBar()
+QToolBar *HelpPlugin::createWidgetToolBar()
 {
     QToolBar *toolBar = new QToolBar;
-    Core::ActionManager *am = m_core->actionManager();
-    toolBar->addAction(am->command(QLatin1String("Help.Home"))->action());
+    toolBar->addWidget(OpenPagesManager::instance().openPagesComboBox());
 
-    QAction *back = am->command(QLatin1String("Help.Previous"))->action();
-    QAction *next = am->command(QLatin1String("Help.Next"))->action();
-    setupNavigationMenus(back, next, toolBar);
-    toolBar->addAction(back);
-    toolBar->addAction(next);
-
-    toolBar->addSeparator();
-    toolBar->addAction(am->command(QLatin1String("Help.AddBookmark"))->action());
-    toolBar->setMovable(false);
-
-    toolBar->addSeparator();
-
-    QWidget *w = new QWidget;
-    toolBar->addWidget(w);
-
-    QHBoxLayout *layout = new QHBoxLayout(w);
-    layout->setMargin(0);
-    layout->addSpacing(10);
-    layout->addWidget(OpenPagesManager::instance().openPagesComboBox());
-
-    layout->addWidget(new QLabel(tr("Filtered by:")));
+    toolBar->addWidget(new QLabel(tr("Filtered by:")));
     m_filterComboBox = new QComboBox;
     m_filterComboBox->setMinimumContentsLength(20);
-    layout->addWidget(m_filterComboBox);
+    toolBar->addWidget(m_filterComboBox);
     connect(m_filterComboBox, SIGNAL(activated(QString)), this,
         SLOT(filterDocumentation(QString)));
     connect(m_filterComboBox, SIGNAL(currentIndexChanged(int)), this,
         SLOT(updateSideBarSource()));
+
+    QWidget *dummy = new QWidget;
+    QHBoxLayout *layout = new QHBoxLayout(dummy);
+    layout->addStretch();
+    toolBar->addWidget(dummy);
 
     m_closeButton = new QToolButton();
     m_closeButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_CLOSE)));
@@ -907,8 +907,55 @@ QToolBar *HelpPlugin::createToolBar()
         SLOT(closeCurrentPage()));
     connect(&OpenPagesManager::instance(), SIGNAL(pagesChanged()), this,
         SLOT(updateCloseButton()));
-    layout->addStretch();
-    layout->addWidget(m_closeButton);
+    toolBar->addWidget(m_closeButton);
+
+    return toolBar;
+}
+
+QToolBar *HelpPlugin::createIconToolBar(bool external)
+{
+    QToolBar *toolBar = new QToolBar;
+
+    QAction *home, *back, *next, *bookmark;
+    if (external) {
+        home = new QAction(QIcon(QLatin1String(IMAGEPATH "home.png")),
+            tr("Home"), toolBar);
+        connect(home, SIGNAL(triggered()), m_centralWidget, SLOT(home()));
+
+        back = new QAction(QIcon(QLatin1String(IMAGEPATH "previous.png")),
+            tr("Previous Page"), toolBar);
+        back->setEnabled(m_centralWidget->isBackwardAvailable());
+        connect(back, SIGNAL(triggered()), m_centralWidget, SLOT(backward()));
+        connect(m_centralWidget, SIGNAL(backwardAvailable(bool)), back,
+            SLOT(setEnabled(bool)));
+
+        next = new QAction(QIcon(QLatin1String(IMAGEPATH "next.png")),
+            tr("Next Page"), toolBar);
+        next->setEnabled(m_centralWidget->isForwardAvailable());
+        connect(next, SIGNAL(triggered()), m_centralWidget, SLOT(forward()));
+        connect(m_centralWidget, SIGNAL(forwardAvailable(bool)), next,
+            SLOT(setEnabled(bool)));
+
+        bookmark = new QAction(QIcon(QLatin1String(IMAGEPATH "bookmark.png")),
+            tr("Add Bookmark"), toolBar);
+        connect(bookmark, SIGNAL(triggered()), this, SLOT(addBookmark()));
+    } else {
+        Core::ActionManager *am = m_core->actionManager();
+        home = am->command(QLatin1String("Help.Home"))->action();
+        back = am->command(QLatin1String("Help.Previous"))->action();
+        next = am->command(QLatin1String("Help.Next"))->action();
+        bookmark = am->command(QLatin1String("Help.AddBookmark"))->action();
+    }
+
+    setupNavigationMenus(back, next, toolBar);
+
+    toolBar->addAction(home);
+    toolBar->addAction(back);
+    toolBar->addAction(next);
+    toolBar->addSeparator();
+    toolBar->addAction(bookmark);
+    toolBar->setMovable(false);
+    toolBar->addSeparator();
 
     return toolBar;
 }
