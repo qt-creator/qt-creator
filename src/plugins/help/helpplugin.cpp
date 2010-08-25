@@ -76,6 +76,7 @@
 #include <QtGui/QAction>
 #include <QtGui/QComboBox>
 #include <QtGui/QDesktopServices>
+#include <QtGui/QMenu>
 #include <QtGui/QShortcut>
 #include <QtGui/QStackedLayout>
 #include <QtGui/QSplitter>
@@ -87,6 +88,7 @@
 #include <QtWebKit/QWebElement>
 #include <QtWebKit/QWebElementCollection>
 #include <QtWebKit/QWebFrame>
+#include <QtWebKit/QWebHistory>
 #endif
 
 using namespace Core::Constants;
@@ -119,7 +121,9 @@ HelpPlugin::HelpPlugin()
     m_firstModeChange(true),
     m_oldMode(0),
     m_connectWindow(true),
-    m_externalWindow(0)
+    m_externalWindow(0),
+    m_backMenu(0),
+    m_nextMenu(0)
 {
 }
 
@@ -511,10 +515,10 @@ void HelpPlugin::createRightPaneContextViewer()
     QAction *switchToHelp = new QAction(tr("Go to Help Mode"), this);
     connect(switchToHelp, SIGNAL(triggered()), this, SLOT(switchToHelpMode()));
 
+    QAction *back = new QAction(QIcon(QLatin1String(IMAGEPATH "previous.png")),
+        tr("Previous"), this);
     QAction *next = new QAction(QIcon(QLatin1String(IMAGEPATH "next.png")),
         tr("Next"), this);
-    QAction *previous = new QAction(QIcon(QLatin1String(IMAGEPATH "previous.png")),
-        tr("Previous"), this);
 
     // Dummy layout to align the close button to the right
     QHBoxLayout *hboxLayout = new QHBoxLayout();
@@ -523,8 +527,10 @@ void HelpPlugin::createRightPaneContextViewer()
 
     // left side actions
     QToolBar *rightPaneToolBar = new QToolBar();
+    setupNavigationMenus(back, next, rightPaneToolBar);
+
     rightPaneToolBar->addAction(switchToHelp);
-    rightPaneToolBar->addAction(previous);
+    rightPaneToolBar->addAction(back);
     rightPaneToolBar->addAction(next);
 
     hboxLayout->addWidget(rightPaneToolBar);
@@ -567,8 +573,16 @@ void HelpPlugin::createRightPaneContextViewer()
     copy->setIcon(cmd->action()->icon());
 
     connect(copy, SIGNAL(triggered()), m_helpViewerForSideBar, SLOT(copy()));
+    
+    next->setEnabled(m_helpViewerForSideBar->isForwardAvailable());
     connect(next, SIGNAL(triggered()), m_helpViewerForSideBar, SLOT(forward()));
-    connect(previous, SIGNAL(triggered()), m_helpViewerForSideBar, SLOT(backward()));
+    connect(m_helpViewerForSideBar, SIGNAL(forwardAvailable(bool)), next,
+        SLOT(setEnabled(bool)));
+    
+    back->setEnabled(m_helpViewerForSideBar->isBackwardAvailable());
+    connect(back, SIGNAL(triggered()), m_helpViewerForSideBar, SLOT(backward()));
+    connect(m_helpViewerForSideBar, SIGNAL(backwardAvailable(bool)), back,
+        SLOT(setEnabled(bool)));
 
     // force setup, as we might have never switched to full help mode
     // thus the help engine might still run without collection file setup
@@ -856,8 +870,13 @@ QToolBar *HelpPlugin::createToolBar()
     QToolBar *toolWidget = new QToolBar;
     Core::ActionManager *am = m_core->actionManager();
     toolWidget->addAction(am->command(QLatin1String("Help.Home"))->action());
-    toolWidget->addAction(am->command(QLatin1String("Help.Previous"))->action());
-    toolWidget->addAction(am->command(QLatin1String("Help.Next"))->action());
+
+    QAction *back = am->command(QLatin1String("Help.Previous"))->action();
+    QAction *next = am->command(QLatin1String("Help.Next"))->action();
+    setupNavigationMenus(back, next, toolWidget);
+    toolWidget->addAction(back);
+    toolWidget->addAction(next);
+
     toolWidget->addSeparator();
     toolWidget->addAction(am->command(QLatin1String("Help.AddBookmark"))->action());
     toolWidget->setMovable(false);
@@ -993,6 +1012,50 @@ void HelpPlugin::handleHelpRequest(const QUrl &url)
     }
 }
 
+void HelpPlugin::slotAboutToShowBackMenu()
+{
+    m_backMenu->clear();
+    if (QWebHistory *history = viewerForContextMode()->history()) {
+        const int count = history->count();
+        QList<QWebHistoryItem> items = history->backItems(count);
+        for (int i = items.count() - 1; i >= 0; --i) {
+            QAction *action = new QAction(this);
+            action->setText(items.at(i).title());
+            action->setData(-1 * (count - i - 1));
+            m_backMenu->addAction(action);
+        }
+    }
+}
+
+void HelpPlugin::slotAboutToShowNextMenu()
+{
+    m_nextMenu->clear();
+    if (QWebHistory *history = viewerForContextMode()->history()) {
+        const int count = history->count();
+        QList<QWebHistoryItem> items = history->forwardItems(count);
+        for (int i = 0; i < items.count(); ++i) {
+            QAction *action = new QAction(this);
+            action->setData(count - i);
+            action->setText(items.at(i).title());
+            m_nextMenu->addAction(action);
+        }
+    }
+}
+
+void HelpPlugin::slotOpenActionUrl(QAction *action)
+{
+    if (HelpViewer* viewer = viewerForContextMode()) {
+        const int offset = action->data().toInt();
+        QWebHistory *history = viewer->history();
+        if (offset > 0) {
+            history->goToItem(history->forwardItems(history->count()
+                - offset + 1).back());  // forward
+        } else if (offset < 0) {
+            history->goToItem(history->backItems(-1 * offset).first()); // back
+        }
+    }
+}
+
 void HelpPlugin::setup()
 {
     m_helpManager->setupGuiHelpEngine();
@@ -1038,6 +1101,34 @@ void HelpPlugin::connectExternalHelpWindow()
         connect(m_externalWindow, SIGNAL(showHideSidebar()), this,
             SLOT(showHideSidebar()));
     }
+}
+
+void HelpPlugin::setupNavigationMenus(QAction *back, QAction *next, QWidget *parent)
+{
+#if !defined(QT_NO_WEBKIT)
+    if (!m_backMenu) {
+        m_backMenu = new QMenu(parent);
+        connect(m_backMenu, SIGNAL(aboutToShow()), this,
+            SLOT(slotAboutToShowBackMenu()));
+        connect(m_backMenu, SIGNAL(triggered(QAction*)), this,
+            SLOT(slotOpenActionUrl(QAction*)));
+    }
+
+    if (!m_nextMenu) {
+        m_nextMenu = new QMenu(parent);
+        connect(m_nextMenu, SIGNAL(aboutToShow()), this,
+            SLOT(slotAboutToShowNextMenu()));
+        connect(m_nextMenu, SIGNAL(triggered(QAction*)), this,
+            SLOT(slotOpenActionUrl(QAction*)));
+    }
+
+    back->setMenu(m_backMenu);
+    next->setMenu(m_nextMenu);
+#else
+    Q_UNUSED(back)
+    Q_UNUSED(next)
+    Q_UNUSED(parent)
+#endif
 }
 
 Q_EXPORT_PLUGIN(HelpPlugin)

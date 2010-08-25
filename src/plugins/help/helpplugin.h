@@ -36,6 +36,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QAction)
 QT_FORWARD_DECLARE_CLASS(QComboBox)
+QT_FORWARD_DECLARE_CLASS(QMenu)
 QT_FORWARD_DECLARE_CLASS(QToolBar)
 QT_FORWARD_DECLARE_CLASS(QToolButton)
 QT_FORWARD_DECLARE_CLASS(QUrl)
@@ -105,6 +106,10 @@ private slots:
     void highlightSearchTerms();
     void handleHelpRequest(const QUrl &url);
 
+    void slotAboutToShowBackMenu();
+    void slotAboutToShowNextMenu();
+    void slotOpenActionUrl(QAction *action);
+
 private:
     void setupUi();
     void resetFilter();
@@ -116,6 +121,7 @@ private:
     void setup();
     int contextHelpOption() const;
     void connectExternalHelpWindow();
+    void setupNavigationMenus(QAction *back, QAction *next, QWidget *parent);
 
 private:
     HelpMode *m_mode;
@@ -150,6 +156,9 @@ private:
     Core::IMode* m_oldMode;
     bool m_connectWindow;
     ExternalHelpWindow *m_externalWindow;
+
+    QMenu *m_backMenu;
+    QMenu *m_nextMenu;
 };
 
 } // namespace Internal
