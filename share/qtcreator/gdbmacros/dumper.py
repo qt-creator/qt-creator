@@ -928,7 +928,20 @@ class FrameCommand(gdb.Command):
                 print timeit.repeat('bb("%s")' % args,
                     'from __main__ import bb', number=100)
         else:
-            print bb(args)
+            output =  bb(args)
+            try:
+                print(output)
+            except:
+                out = ""
+                for c in output:
+                    cc = ord(c)
+                    if cc > 127:
+                        out += "\\\\%d" % cc
+                    elif cc < 0:
+                        out += "\\\\%d" % (cc + 256)
+                    else:
+                        out += c
+                print(out)
 
 FrameCommand()
 
