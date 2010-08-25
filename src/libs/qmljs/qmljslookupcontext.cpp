@@ -82,7 +82,7 @@ Interpreter::Engine *LookupContext::engine() const
     return &d->interp;
 }
 
-Interpreter::Context *LookupContext::context() const
+const Interpreter::Context *LookupContext::context() const
 {
     return &d->context;
 }

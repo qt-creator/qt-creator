@@ -75,7 +75,7 @@ private:
                              QmlJS::AST::Node *node);
 
     QString prettyPrint(const QmlJS::Interpreter::Value *value,
-                        QmlJS::Interpreter::Context *context);
+                        const QmlJS::Interpreter::Context *context);
 
     QmlJS::ModelManagerInterface *m_modelManager;
     QColor m_colorTip;

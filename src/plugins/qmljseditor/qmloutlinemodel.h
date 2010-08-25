@@ -46,7 +46,7 @@ public:
     QmlOutlineItem &copyValues(const QmlOutlineItem &other); // so that we can assign all values at onc
 
 private:
-    QString prettyPrint(const QmlJS::Interpreter::Value *value, QmlJS::Interpreter::Context *context) const;
+    QString prettyPrint(const QmlJS::Interpreter::Value *value, const QmlJS::Interpreter::Context *context) const;
 
     QmlOutlineModel *m_outlineModel;
     QmlJS::AST::Node *m_node;

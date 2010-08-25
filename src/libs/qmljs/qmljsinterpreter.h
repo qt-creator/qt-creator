@@ -281,10 +281,10 @@ public:
     const ObjectValue *typeEnvironment(const Document *doc) const;
     void setTypeEnvironment(const Document *doc, const ObjectValue *typeEnvironment);
 
-    const Value *lookup(const QString &name);
-    const ObjectValue *lookupType(const Document *doc, AST::UiQualifiedId *qmlTypeName);
-    const ObjectValue *lookupType(const Document *doc, const QStringList &qmlTypeName);
-    const Value *lookupReference(const Reference *reference);
+    const Value *lookup(const QString &name) const;
+    const ObjectValue *lookupType(const Document *doc, AST::UiQualifiedId *qmlTypeName) const;
+    const ObjectValue *lookupType(const Document *doc, const QStringList &qmlTypeName) const;
+    const Value *lookupReference(const Reference *reference) const;
 
     const Value *property(const ObjectValue *object, const QString &name) const;
     void setProperty(const ObjectValue *object, const QString &name, const Value *value);
@@ -304,7 +304,9 @@ private:
     ScopeChain _scopeChain;
     int _qmlScopeObjectIndex;
     bool _qmlScopeObjectSet;
-    QList<const Reference *> _referenceStack;
+
+    // for avoiding reference cycles during lookup
+    mutable QList<const Reference *> _referenceStack;
 };
 
 class QMLJS_EXPORT Reference: public Value
@@ -320,7 +322,7 @@ public:
     virtual void accept(ValueVisitor *) const;
 
 private:
-    virtual const Value *value(Context *context) const;
+    virtual const Value *value(const Context *context) const;
 
     Engine *_engine;
     friend class Context;
@@ -353,16 +355,16 @@ public:
     QString className() const;
     void setClassName(const QString &className);
 
-    const ObjectValue *prototype(Context *context) const;
+    const ObjectValue *prototype(const Context *context) const;
     void setPrototype(const Value *prototype);
 
     virtual void processMembers(MemberProcessor *processor) const;
 
-    virtual const Value *property(const QString &name, Context *context) const;
+    virtual const Value *property(const QString &name, const Context *context) const;
     virtual void setProperty(const QString &name, const Value *value);
     virtual void removeProperty(const QString &name);
 
-    virtual const Value *lookupMember(const QString &name, Context *context, bool examinePrototypes = true) const;
+    virtual const Value *lookupMember(const QString &name, const Context *context, bool examinePrototypes = true) const;
 
     // Value interface
     virtual const ObjectValue *asObjectValue() const;
@@ -487,7 +489,7 @@ public:
     void setReturnValue(const Value *returnValue);
 
     // ObjectValue interface
-    virtual const Value *property(const QString &name, Context *context) const;
+    virtual const Value *property(const QString &name, const Context *context) const;
 
     // FunctionValue interface
     virtual const Value *returnValue() const;
@@ -748,7 +750,7 @@ public:
     AST::UiQualifiedId *qmlTypeName() const;
 
 private:    
-    virtual const Value *value(Context *context) const;
+    virtual const Value *value(const Context *context) const;
 
     AST::UiQualifiedId *_qmlTypeName;
     const Document *_doc;
@@ -763,7 +765,7 @@ public:
     virtual ~ASTVariableReference();
 
 private:
-    virtual const Value *value(Context *context) const;
+    virtual const Value *value(const Context *context) const;
 };
 
 class QMLJS_EXPORT ASTFunctionValue: public FunctionValue
@@ -803,7 +805,7 @@ public:
     virtual bool getSourceLocation(QString *fileName, int *line, int *column) const;
 
 private:
-    virtual const Value *value(Context *context) const;
+    virtual const Value *value(const Context *context) const;
 };
 
 class QMLJS_EXPORT ASTSignalReference: public Reference
@@ -822,7 +824,7 @@ public:
     virtual bool getSourceLocation(QString *fileName, int *line, int *column) const;
 
 private:
-    virtual const Value *value(Context *context) const;
+    virtual const Value *value(const Context *context) const;
 };
 
 class QMLJS_EXPORT ASTObjectValue: public ObjectValue

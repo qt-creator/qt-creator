@@ -56,7 +56,7 @@ public:
     void push(const QList<AST::Node *> &nodes);
     void pop();
 
-    static const Interpreter::ObjectValue *isPropertyChangesObject(Interpreter::Context *context, const Interpreter::ObjectValue *object);
+    static const Interpreter::ObjectValue *isPropertyChangesObject(const Interpreter::Context *context, const Interpreter::ObjectValue *object);
 
 private:
     void setQmlScopeObject(AST::Node *node);

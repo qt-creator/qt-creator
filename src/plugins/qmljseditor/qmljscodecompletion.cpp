@@ -168,11 +168,11 @@ class EnumerateProperties: private Interpreter::MemberProcessor
     QHash<QString, const Interpreter::Value *> _properties;
     bool _globalCompletion;
     bool _enumerateGeneratedSlots;
-    Interpreter::Context *_context;
+    const Interpreter::Context *_context;
     const Interpreter::ObjectValue *_currentObject;
 
 public:
-    EnumerateProperties(Interpreter::Context *context)
+    EnumerateProperties(const Interpreter::Context *context)
         : _globalCompletion(false),
           _enumerateGeneratedSlots(false),
           _context(context),
@@ -692,7 +692,7 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
     const QList<AST::Node *> path = semanticInfo.astPath(editor->position());
     LookupContext::Ptr lookupContext = LookupContext::create(document, snapshot, path);
-    Interpreter::Context *context = lookupContext->context();
+    const Interpreter::Context *context = lookupContext->context();
 
     // Search for the operator that triggered the completion.
     QChar completionOperator;

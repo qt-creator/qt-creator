@@ -36,7 +36,7 @@
 using namespace QmlJS;
 using namespace QmlJS::Interpreter;
 
-Evaluate::Evaluate(Context *context)
+Evaluate::Evaluate(const Context *context)
     : _engine(context->engine()),
       _context(context),
       _scope(_engine->globalObject()),

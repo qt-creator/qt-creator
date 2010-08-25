@@ -46,7 +46,7 @@ namespace Interpreter {
 class QMLJS_EXPORT Evaluate: protected AST::Visitor
 {
 public:
-    Evaluate(Interpreter::Context *context);
+    Evaluate(const Interpreter::Context *context);
     virtual ~Evaluate();
 
     const Interpreter::Value *operator()(AST::Node *ast);
@@ -156,7 +156,7 @@ protected:
 private:
     QmlJS::Document::Ptr _doc;
     Interpreter::Engine *_engine;
-    Interpreter::Context *_context;
+    const Interpreter::Context *_context;
     const Interpreter::ObjectValue *_scope;
     const Interpreter::Value *_result;
 };

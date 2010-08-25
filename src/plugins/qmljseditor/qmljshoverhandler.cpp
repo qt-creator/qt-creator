@@ -251,7 +251,7 @@ void HoverHandler::operateTooltip(TextEditor::ITextEditor *editor, const QPoint 
 }
 
 QString HoverHandler::prettyPrint(const QmlJS::Interpreter::Value *value,
-                                  QmlJS::Interpreter::Context *context)
+                                  const QmlJS::Interpreter::Context *context)
 {
     if (! value)
         return QString();

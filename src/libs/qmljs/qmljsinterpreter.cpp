@@ -1455,7 +1455,7 @@ void Context::setTypeEnvironment(const QmlJS::Document *doc, const ObjectValue *
     _typeEnvironments[doc->fileName()] = typeEnvironment;
 }
 
-const Value *Context::lookup(const QString &name)
+const Value *Context::lookup(const QString &name) const
 {
     QList<const ObjectValue *> scopes = _scopeChain.all();
     for (int index = scopes.size() - 1; index != -1; --index) {
@@ -1469,7 +1469,7 @@ const Value *Context::lookup(const QString &name)
     return _engine->undefinedValue();
 }
 
-const ObjectValue *Context::lookupType(const QmlJS::Document *doc, UiQualifiedId *qmlTypeName)
+const ObjectValue *Context::lookupType(const QmlJS::Document *doc, UiQualifiedId *qmlTypeName) const
 {
     const ObjectValue *objectValue = typeEnvironment(doc);
     if (!objectValue)
@@ -1489,7 +1489,7 @@ const ObjectValue *Context::lookupType(const QmlJS::Document *doc, UiQualifiedId
     return objectValue;
 }
 
-const ObjectValue *Context::lookupType(const QmlJS::Document *doc, const QStringList &qmlTypeName)
+const ObjectValue *Context::lookupType(const QmlJS::Document *doc, const QStringList &qmlTypeName) const
 {
     const ObjectValue *objectValue = typeEnvironment(doc);
 
@@ -1507,7 +1507,7 @@ const ObjectValue *Context::lookupType(const QmlJS::Document *doc, const QString
     return objectValue;
 }
 
-const Value *Context::lookupReference(const Reference *reference)
+const Value *Context::lookupReference(const Reference *reference) const
 {
     if (_referenceStack.contains(reference))
         return 0;
@@ -1579,7 +1579,7 @@ void Reference::accept(ValueVisitor *visitor) const
     visitor->visit(this);
 }
 
-const Value *Reference::value(Context *) const
+const Value *Reference::value(const Context *) const
 {
     return _engine->undefinedValue();
 }
@@ -1663,7 +1663,7 @@ void ObjectValue::setClassName(const QString &className)
     _className = className;
 }
 
-const ObjectValue *ObjectValue::prototype(Context *context) const
+const ObjectValue *ObjectValue::prototype(const Context *context) const
 {
     const ObjectValue *prototypeObject = value_cast<const ObjectValue *>(_prototype);
     if (! prototypeObject) {
@@ -1700,7 +1700,7 @@ void ObjectValue::accept(ValueVisitor *visitor) const
     visitor->visit(this);
 }
 
-const Value *ObjectValue::property(const QString &name, Context *context) const
+const Value *ObjectValue::property(const QString &name, const Context *context) const
 {
     return lookupMember(name, context);
 }
@@ -1736,7 +1736,7 @@ void ObjectValue::processMembers(MemberProcessor *processor) const
     }
 }
 
-const Value *ObjectValue::lookupMember(const QString &name, Context *context, bool examinePrototypes) const
+const Value *ObjectValue::lookupMember(const QString &name, const Context *context, bool examinePrototypes) const
 {
     if (const Value *m = _members.value(name))
         return m;
@@ -1931,7 +1931,7 @@ const Value *Function::argument(int index) const
     return _arguments.at(index);
 }
 
-const Value *Function::property(const QString &name, Context *context) const
+const Value *Function::property(const QString &name, const Context *context) const
 {
     if (name == "length")
         return engine()->numberValue();
@@ -2955,7 +2955,7 @@ ASTVariableReference::~ASTVariableReference()
 {
 }
 
-const Value *ASTVariableReference::value(Context *context) const
+const Value *ASTVariableReference::value(const Context *context) const
 {
     Evaluate check(context);
     return check(_ast->expression);
@@ -3034,7 +3034,7 @@ UiQualifiedId *QmlPrototypeReference::qmlTypeName() const
     return _qmlTypeName;
 }
 
-const Value *QmlPrototypeReference::value(Context *context) const
+const Value *QmlPrototypeReference::value(const Context *context) const
 {
     return context->lookupType(_doc, _qmlTypeName);
 }
@@ -3061,7 +3061,7 @@ bool ASTPropertyReference::getSourceLocation(QString *fileName, int *line, int *
     return true;
 }
 
-const Value *ASTPropertyReference::value(Context *context) const
+const Value *ASTPropertyReference::value(const Context *context) const
 {
     if (_ast->expression
             && (!_ast->memberType || _ast->memberType->asString() == QLatin1String("variant"))) {
@@ -3096,7 +3096,7 @@ bool ASTSignalReference::getSourceLocation(QString *fileName, int *line, int *co
     return true;
 }
 
-const Value *ASTSignalReference::value(Context *) const
+const Value *ASTSignalReference::value(const Context *) const
 {
     return engine()->undefinedValue();
 }

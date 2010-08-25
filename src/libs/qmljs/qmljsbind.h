@@ -66,7 +66,7 @@ public:
 
     Interpreter::ObjectValue *findQmlObject(AST::Node *node) const;
     bool usesQmlPrototype(Interpreter::ObjectValue *prototype,
-                          Interpreter::Context *context) const;
+                          const Interpreter::Context *context) const;
 
     Interpreter::ObjectValue *findFunctionScope(AST::FunctionDeclaration *node) const;
     bool isGroupedPropertyBinding(AST::Node *node) const;

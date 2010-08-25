@@ -60,7 +60,7 @@ public:
 
     const Interpreter::Value *evaluate(AST::Node *node) const;
     Interpreter::Engine *engine() const;
-    Interpreter::Context *context() const;
+    const Interpreter::Context *context() const;
 
 private:
     QScopedPointer<LookupContextData> d;

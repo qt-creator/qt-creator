@@ -194,7 +194,7 @@ const Value *ScopeBuilder::scopeObjectLookup(AST::UiQualifiedId *id)
 }
 
 
-const ObjectValue *ScopeBuilder::isPropertyChangesObject(Context *context,
+const ObjectValue *ScopeBuilder::isPropertyChangesObject(const Context *context,
                                                    const ObjectValue *object)
 {
     const ObjectValue *prototype = object;

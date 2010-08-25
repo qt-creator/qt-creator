@@ -108,7 +108,7 @@ QmlOutlineItem &QmlOutlineItem::copyValues(const QmlOutlineItem &other)
     return *this;
 }
 
-QString QmlOutlineItem::prettyPrint(const QmlJS::Interpreter::Value *value, QmlJS::Interpreter::Context *context) const
+QString QmlOutlineItem::prettyPrint(const QmlJS::Interpreter::Value *value, const QmlJS::Interpreter::Context *context) const
 {
     if (! value)
         return QString();
