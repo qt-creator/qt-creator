@@ -2066,6 +2066,23 @@ def qdump____gnu_cxx__hash_set(d, item):
                             itemCount += 1
                 p = p + 1
 
+
+#######################################################################
+#
+# Boost dumper
+#
+#######################################################################
+
+def qdump__boost__optional(d, item):
+    if item.value["m_initialized"] == False:
+        d.putValue("<uninitialized>")
+        d.putNumChild(0)
+    else:
+        d.putType(item.value.type, d.currentTypePriority + 1)
+        type = item.value.type.template_argument(0)
+        d.putItemHelper(Item(item.value["m_storage"].cast(type), item.iname))
+
+
 #######################################################################
 #
 # Symbian
