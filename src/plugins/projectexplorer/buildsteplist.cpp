@@ -144,6 +144,10 @@ void BuildStepList::cloneSteps(BuildStepList *source)
 
 bool BuildStepList::fromMap(const QVariantMap &map)
 {
+    // We need the ID set before trying to restore the steps!
+    if (!ProjectConfiguration::fromMap(map))
+        return false;
+
     int maxSteps = map.value(QString::fromLatin1(STEPS_COUNT_KEY), 0).toInt();
     for (int i = 0; i < maxSteps; ++i) {
         QVariantMap bsData(map.value(QString::fromLatin1(STEPS_PREFIX) + QString::number(i)).toMap());
@@ -163,7 +167,7 @@ bool BuildStepList::fromMap(const QVariantMap &map)
         }
         insertStep(m_steps.count(), bs);
     }
-    return ProjectConfiguration::fromMap(map);
+    return true;
 }
 
 QList<BuildStep *> BuildStepList::steps() const
