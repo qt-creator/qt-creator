@@ -309,6 +309,11 @@ QList<CustomWizard*> CustomWizard::createWizards()
     const QString templateDirName = Core::ICore::instance()->resourcePath() +
                                     QLatin1Char('/') + QLatin1String(templatePathC);
 
+
+    const QString userTemplateDirName = Core::ICore::instance()->userResourcePath() +
+                                        QLatin1Char('/') + QLatin1String(templatePathC);
+
+
     const QDir templateDir(templateDirName);
     if (CustomWizardPrivate::verbose)
         verboseLog = QString::fromLatin1("### CustomWizard: Checking '%1'\n").arg(templateDirName);
@@ -318,8 +323,19 @@ QList<CustomWizard*> CustomWizard::createWizards()
         return rc;
     }
 
-    const QList<QFileInfo> dirs = templateDir.entryInfoList(QDir::Dirs|QDir::Readable|QDir::NoDotAndDotDot,
+    const QDir userTemplateDir(userTemplateDirName);
+    if (CustomWizardPrivate::verbose)
+        verboseLog = QString::fromLatin1("### CustomWizard: Checking '%1'\n").arg(userTemplateDirName);
+
+    QList<QFileInfo> dirs = templateDir.entryInfoList(QDir::Dirs|QDir::Readable|QDir::NoDotAndDotDot,
                                                             QDir::Name|QDir::IgnoreCase);
+    if (userTemplateDir.exists()) {
+        if (CustomWizardPrivate::verbose)
+            verboseLog = QString::fromLatin1("### CustomWizard: userTemplateDir '%1' found, adding\n").arg(userTemplateDirName);
+        dirs += userTemplateDir.entryInfoList(QDir::Dirs|QDir::Readable|QDir::NoDotAndDotDot,
+                                              QDir::Name|QDir::IgnoreCase);
+    }
+
     const QString configFile = QLatin1String(configFileC);
     // Check and parse config file in each directory.
 
