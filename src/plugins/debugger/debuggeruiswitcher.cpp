@@ -667,6 +667,16 @@ void DebuggerUISwitcher::readSettings()
         d->m_dockWidgetActiveStateQmlCpp.insert(key, settings->value(key));
     }
     settings->endGroup();
+
+    // reset initial settings when there are none yet
+    if (d->m_dockWidgetActiveStateCpp.isEmpty() || d->m_dockWidgetActiveStateQmlCpp.isEmpty()) {
+        DebuggerLanguages langs = d->m_activeDebugLanguages;
+        d->m_activeDebugLanguages = QmlLanguage;
+        resetDebuggerLayout();
+        d->m_activeDebugLanguages = CppLanguage;
+        resetDebuggerLayout();
+        d->m_activeDebugLanguages = langs;
+    }
 }
 
 void DebuggerUISwitcher::initialize()
