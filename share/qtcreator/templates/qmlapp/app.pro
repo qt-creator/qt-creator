@@ -16,12 +16,12 @@ DEFINES += NETWORKACCESS
 # TARGETUID3 #
 symbian:TARGET.UID3 = 0xE1111234
 
-symbian:ICON = cpp/symbianicon.svg
+symbian:ICON = symbianicon.svg
 
 # Define to enable the Qml Inspector in debug mode
 # QMLINSPECTOR #
 #DEFINES += QMLINSPECTOR
 
-SOURCES += cpp/main.cpp
+SOURCES += main.cpp
 
-include($$PWD/qmlapplication.pri)
+include(qmlapplicationviewer/qmlapplicationviewer.pri)

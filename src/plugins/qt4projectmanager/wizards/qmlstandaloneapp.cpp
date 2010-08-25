@@ -41,14 +41,15 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-const QLatin1String qmldir("qmldir");
-const QLatin1String qmldir_plugin("plugin");
-const QLatin1String cppOriginsSubDir("cpp/");
-const QLatin1String appPriFileName("qmlapplication.pri");
-const QLatin1String appViewCppFileName("qmlapplicationview.cpp");
-const QLatin1String appViewHFileName("qmlapplicationview.h");
-const QLatin1String fileChecksum("checksum");
-const QLatin1String fileStubVersion("version");
+const QString qmldir(QLatin1String("qmldir"));
+const QString qmldir_plugin(QLatin1String("plugin"));
+const QString appViewerBaseName(QLatin1String("qmlapplicationviewer"));
+const QString appViewerPriFileName(appViewerBaseName + QLatin1String(".pri"));
+const QString appViewerCppFileName(appViewerBaseName + QLatin1String(".cpp"));
+const QString appViewerHFileName(appViewerBaseName + QLatin1String(".h"));
+const QString appViewerOriginsSubDir(appViewerBaseName + QLatin1Char('/'));
+const QString fileChecksum(QLatin1String("checksum"));
+const QString fileStubVersion(QLatin1String("version"));
 
 QmlModule::QmlModule(const QString &uri, const QFileInfo &rootDir, const QFileInfo &qmldir,
                      bool isExternal, QmlStandaloneApp *qmlStandaloneApp)
@@ -66,7 +67,7 @@ QString QmlModule::path(Path path) const
             return rootDir.canonicalFilePath();
         }
         case ContentDir: {
-            const QDir proFile(qmlStandaloneApp->path(QmlStandaloneApp::AppProfilePath));
+            const QDir proFile(qmlStandaloneApp->path(QmlStandaloneApp::AppProPath));
             return proFile.relativeFilePath(qmldir.canonicalPath());
         }
         case ContentBase: {
@@ -178,7 +179,7 @@ void QmlStandaloneApp::setSymbianTargetUid(const QString &uid)
 QString QmlStandaloneApp::symbianTargetUid() const
 {
     return !m_symbianTargetUid.isEmpty() ? m_symbianTargetUid
-        : symbianUidForPath(path(AppProfile));
+        : symbianUidForPath(path(AppPro));
 }
 
 void QmlStandaloneApp::setLoadDummyData(bool loadIt)
@@ -244,11 +245,10 @@ QString QmlStandaloneApp::path(Path path) const
                               + (useExistingMainQml() ? m_mainQmlFile.dir().dirName() : m_projectName)
                               + QLatin1Char('/');
     const QString originsRoot = templatesRoot();
-    const QString cppTargetSubDir = cppOriginsSubDir;
+    const QString appViewerTargetSubDir = appViewerOriginsSubDir;
     const QString qmlExtension = QLatin1String(".qml");
     const QString mainCppFileName = QLatin1String("main.cpp");
     const QString symbianIconFileName = QLatin1String("symbianicon.svg");
-    const char* const errorMessage = "QmlStandaloneApp::path() needs more work";
     const QString pathBase = m_projectPath.absoluteFilePath() + QLatin1Char('/')
                              + m_projectName + QLatin1Char('/');
     const QDir appProFilePath(pathBase);
@@ -259,29 +259,25 @@ QString QmlStandaloneApp::path(Path path) const
         case MainQmlDeployed:               return useExistingMainQml() ? qmlSubDir + m_mainQmlFile.fileName()
                                                 : QString(qmlSubDir + m_projectName + qmlExtension);
         case MainQmlOrigin:                 return originsRoot + QLatin1String("qml/app/app.qml");
-        case MainCpp:                       return pathBase + cppTargetSubDir + mainCppFileName;
-        case MainCppOrigin:                 return originsRoot + cppOriginsSubDir + mainCppFileName;
-        case MainCppProFileRelative:        return cppTargetSubDir + mainCppFileName;
-        case AppProfile:                    return pathBase + m_projectName + QLatin1String(".pro");
-        case AppProfileOrigin:              return originsRoot + QLatin1String("app.pro");
-        case AppProfilePath:                return pathBase;
-        case AppPri:                        return pathBase + appPriFileName;
-        case AppPriOrigin:                  return originsRoot + appPriFileName;
-        case AppViewerCpp:                  return pathBase + cppTargetSubDir + appViewCppFileName;
-        case AppViewerCppOrigin:            return originsRoot + cppOriginsSubDir + appViewCppFileName;
-        case AppViewerCppProFileRelative:   return cppTargetSubDir + appViewCppFileName;
-        case AppViewerH:                    return pathBase + cppTargetSubDir + appViewHFileName;
-        case AppViewerHOrigin:              return originsRoot + cppOriginsSubDir + appViewHFileName;
-        case AppViewerHProFileRelative:     return cppTargetSubDir + appViewHFileName;
-        case SymbianSvgIcon:                return pathBase + cppTargetSubDir + symbianIconFileName;
+        case MainCpp:                       return pathBase + mainCppFileName;
+        case MainCppOrigin:                 return originsRoot + mainCppFileName;
+        case AppPro:                        return pathBase + m_projectName + QLatin1String(".pro");
+        case AppProOrigin:                  return originsRoot + QLatin1String("app.pro");
+        case AppProPath:                    return pathBase;
+        case AppViewerPri:                  return pathBase + appViewerTargetSubDir + appViewerPriFileName;
+        case AppViewerPriOrigin:            return originsRoot + appViewerOriginsSubDir + appViewerPriFileName;
+        case AppViewerCpp:                  return pathBase + appViewerTargetSubDir + appViewerCppFileName;
+        case AppViewerCppOrigin:            return originsRoot + appViewerOriginsSubDir + appViewerCppFileName;
+        case AppViewerH:                    return pathBase + appViewerTargetSubDir + appViewerHFileName;
+        case AppViewerHOrigin:              return originsRoot + appViewerOriginsSubDir + appViewerHFileName;
+        case SymbianSvgIcon:                return pathBase + symbianIconFileName;
         case SymbianSvgIconOrigin:          return !m_symbianSvgIcon.isEmpty() ? m_symbianSvgIcon
-                                                : originsRoot + cppOriginsSubDir + symbianIconFileName;
-        case SymbianSvgIconProFileRelative: return cppTargetSubDir + symbianIconFileName;
+                                                : originsRoot + symbianIconFileName;
         case QmlDir:                        return pathBase + qmlSubDir;
         case QmlDirProFileRelative:         return useExistingMainQml() ? appProFilePath.relativeFilePath(m_mainQmlFile.canonicalPath())
                                                 : QString(qmlSubDir).remove(qmlSubDir.length() - 1, 1);
         case ModulesDir:                    return QLatin1String("modules");
-        default:                            qFatal(errorMessage);
+        default:                            qFatal("QmlStandaloneApp::path() needs more work");
     }
     return QString();
 }
@@ -337,7 +333,7 @@ QByteArray QmlStandaloneApp::generateProFile(const QString *errorMessage) const
     Q_UNUSED(errorMessage)
 
     const QChar comment = QLatin1Char('#');
-    QFile proFile(path(AppProfileOrigin));
+    QFile proFile(path(AppProOrigin));
     proFile.open(QIODevice::ReadOnly);
     Q_ASSERT(proFile.isOpen());
     QTextStream in(&proFile);
@@ -497,19 +493,19 @@ Core::GeneratedFiles QmlStandaloneApp::generateFiles(QString *errorMessage) cons
 {
     Core::GeneratedFiles files;
 
-    files.append(file(generateFile(GeneratedFileInfo::AppProfileFile, errorMessage), path(AppProfile)));
-    files.last().setAttributes(Core::GeneratedFile::OpenProjectAttribute);
-    files.append(file(generateFile(GeneratedFileInfo::AppPriFile, errorMessage), path(AppPri)));
-
     if (!useExistingMainQml()) {
         files.append(file(generateFile(GeneratedFileInfo::MainQmlFile, errorMessage), path(MainQml)));
         files.last().setAttributes(Core::GeneratedFile::OpenEditorAttribute);
     }
 
+    files.append(file(generateFile(GeneratedFileInfo::AppProFile, errorMessage), path(AppPro)));
+    files.last().setAttributes(Core::GeneratedFile::OpenProjectAttribute);
     files.append(file(generateFile(GeneratedFileInfo::MainCppFile, errorMessage), path(MainCpp)));
+    files.append(file(generateFile(GeneratedFileInfo::SymbianSvgIconFile, errorMessage), path(SymbianSvgIcon)));
+
+    files.append(file(generateFile(GeneratedFileInfo::AppViewerPriFile, errorMessage), path(AppViewerPri)));
     files.append(file(generateFile(GeneratedFileInfo::AppViewerCppFile, errorMessage), path(AppViewerCpp)));
     files.append(file(generateFile(GeneratedFileInfo::AppViewerHFile, errorMessage), path(AppViewerH)));
-    files.append(file(generateFile(GeneratedFileInfo::SymbianSvgIconFile, errorMessage), path(SymbianSvgIcon)));
 
     return files;
 }
@@ -556,12 +552,12 @@ QByteArray QmlStandaloneApp::generateFile(GeneratedFileInfo::File file,
         case GeneratedFileInfo::SymbianSvgIconFile:
             data = readBlob(path(SymbianSvgIconOrigin));
             break;
-        case GeneratedFileInfo::AppProfileFile:
+        case GeneratedFileInfo::AppProFile:
             data = generateProFile(errorMessage);
             comment = proFileComment;
             break;
-        case GeneratedFileInfo::AppPriFile:
-            data = readBlob(path(AppPriOrigin));
+        case GeneratedFileInfo::AppViewerPriFile:
+            data = readBlob(path(AppViewerPriOrigin));
             comment = proFileComment;
             versionAndChecksum = true;
             break;
@@ -602,14 +598,14 @@ static QList<GeneratedFileInfo> updateableFiles(const QString &mainProFile)
         GeneratedFileInfo::File file;
         QString fileName;
     } files[] = {
-        {GeneratedFileInfo::AppPriFile, appPriFileName},
-        {GeneratedFileInfo::AppViewerHFile, cppOriginsSubDir + appViewCppFileName},
-        {GeneratedFileInfo::AppViewerCppFile, cppOriginsSubDir + appViewHFileName}
+        {GeneratedFileInfo::AppViewerPriFile, appViewerPriFileName},
+        {GeneratedFileInfo::AppViewerHFile, appViewerCppFileName},
+        {GeneratedFileInfo::AppViewerCppFile, appViewerHFileName}
     };
     const QFileInfo mainProFileInfo(mainProFile);
     for (int i = 0; i < sizeof files / sizeof files[0]; ++i) {
         const QString fileName = mainProFileInfo.dir().absolutePath()
-                + QLatin1Char('/') + files[i].fileName;
+                + QLatin1Char('/') + appViewerOriginsSubDir + files[i].fileName;
         if (!QFile::exists(fileName))
             continue;
         GeneratedFileInfo file;

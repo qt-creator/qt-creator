@@ -3,9 +3,9 @@
 
 QT += declarative
 
-SOURCES += cpp/qmlapplicationview.cpp
-HEADERS += cpp/qmlapplicationview.h
-INCLUDEPATH += cpp
+SOURCES += $$PWD/qmlapplicationviewer.cpp
+HEADERS += $$PWD/qmlapplicationviewer.h
+INCLUDEPATH += $$PWD
 
 contains(DEFINES, QMLINSPECTOR) {
     CONFIG(debug, debug|release) {
@@ -29,6 +29,8 @@ for(deploymentfolder, DEPLOYMENTFOLDERS) {
     DEPLOYMENT += $$item
 }
 
+MAINPROFILEPWD = $$PWD/..
+
 symbian {
     TARGET.EPOCHEAPSIZE = 0x20000 0x2000000
     contains(DEFINES, ORIENTATIONLOCK):LIBS += -lavkon -leikcore -leiksrv -lcone
@@ -39,7 +41,7 @@ symbian {
         for(deploymentfolder, DEPLOYMENTFOLDERS) {
             source = $$eval($${deploymentfolder}.source)
             pathSegments = $$split(source, /)
-            sourceAndTarget = $$PWD/$$source $$OUT_PWD/$$eval($${deploymentfolder}.target)/$$last(pathSegments)
+            sourceAndTarget = $$MAINPROFILEPWD/$$source $$OUT_PWD/$$eval($${deploymentfolder}.target)/$$last(pathSegments)
             copyCommand += && $(COPY_DIR) $$replace(sourceAndTarget, /, \\)
         }
         copydeploymentfolders.commands = $$copyCommand
@@ -65,7 +67,7 @@ symbian {
         for(deploymentfolder, DEPLOYMENTFOLDERS) {
             target = $$OUT_PWD/$${TARGET}.app/Contents/Resources/$$eval($${deploymentfolder}.target)
             copyCommand += && $(MKDIR) $$target
-            copyCommand += && $(COPY_DIR) $$PWD/$$eval($${deploymentfolder}.source) $$target
+            copyCommand += && $(COPY_DIR) $$MAINPROFILEPWD/$$eval($${deploymentfolder}.source) $$target
         }
         copydeploymentfolders.commands = $$copyCommand
         first.depends = $(first) copydeploymentfolders
@@ -77,7 +79,7 @@ symbian {
         for(deploymentfolder, DEPLOYMENTFOLDERS) {
             target = $$OUT_PWD/$$eval($${deploymentfolder}.target)
             copyCommand += && $(MKDIR) $$target
-            copyCommand += && $(COPY_DIR) $$PWD/$$eval($${deploymentfolder}.source) $$target
+            copyCommand += && $(COPY_DIR) $$MAINPROFILEPWD/$$eval($${deploymentfolder}.source) $$target
         }
         copydeploymentfolders.commands = $$copyCommand
         first.depends = $(first) copydeploymentfolders

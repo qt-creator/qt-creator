@@ -1,12 +1,12 @@
-#ifndef QMLAPPLICATIONVIEW_H
-#define QMLAPPLICATIONVIEW_H
+#ifndef QMLAPPLICATIONVIEWER_H
+#define QMLAPPLICATIONVIEWER_H
 
 #ifdef QMLINSPECTOR
 #include <qdeclarativedesignview.h>
 class QmlApplicationView : public QmlViewer::QDeclarativeDesignView
 #else // QMLINSPECTOR
 #include <QtDeclarative/QDeclarativeView>
-class QmlApplicationView : public QDeclarativeView
+class QmlApplicationViewer : public QDeclarativeView
 #endif // QMLINSPECTOR
 {
 public:
@@ -16,8 +16,8 @@ public:
         Auto
     };
 
-    QmlApplicationView(QWidget *parent = 0);
-    virtual ~QmlApplicationView();
+    QmlApplicationViewer(QWidget *parent = 0);
+    virtual ~QmlApplicationViewer();
 
     void setMainQmlFile(const QString &file);
     void addImportPath(const QString &path);
@@ -25,7 +25,7 @@ public:
     void setLoadDummyData(bool loadDummyData);
 
 private:
-    class QmlApplicationViewPrivate *m_d;
+    class QmlApplicationViewerPrivate *m_d;
 };
 
-#endif // QMLAPPLICATIONVIEW_H
+#endif // QMLAPPLICATIONVIEWER_H

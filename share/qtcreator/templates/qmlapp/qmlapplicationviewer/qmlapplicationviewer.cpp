@@ -1,4 +1,4 @@
-#include "qmlapplicationview.h"
+#include "qmlapplicationviewer.h"
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
@@ -14,14 +14,14 @@
 #include <aknappui.h>
 #endif // Q_OS_SYMBIAN && ORIENTATIONLOCK
 
-class QmlApplicationViewPrivate
+class QmlApplicationViewerPrivate
 {
     QString mainQmlFile;
-    friend class QmlApplicationView;
+    friend class QmlApplicationViewer;
     static QString adjustPath(const QString &path);
 };
 
-QString QmlApplicationViewPrivate::adjustPath(const QString &path)
+QString QmlApplicationViewerPrivate::adjustPath(const QString &path)
 {
 #ifdef Q_OS_MAC
     if (!QDir::isAbsolutePath(path))
@@ -31,35 +31,35 @@ QString QmlApplicationViewPrivate::adjustPath(const QString &path)
     return path;
 }
 
-QmlApplicationView::QmlApplicationView(QWidget *parent) :
+QmlApplicationViewer::QmlApplicationViewer(QWidget *parent) :
 #ifdef QMLINSPECTOR
     QmlViewer::QDeclarativeDesignView(parent)
 #else
     QDeclarativeView(parent)
 #endif
-    , m_d(new QmlApplicationViewPrivate)
+    , m_d(new QmlApplicationViewerPrivate)
 {
     connect(engine(), SIGNAL(quit()), SLOT(close()));
     setResizeMode(QDeclarativeView::SizeRootObjectToView);
 }
 
-QmlApplicationView::~QmlApplicationView()
+QmlApplicationViewer::~QmlApplicationViewer()
 {
     delete m_d;
 }
 
-void QmlApplicationView::setMainQmlFile(const QString &file)
+void QmlApplicationViewer::setMainQmlFile(const QString &file)
 {
-    m_d->mainQmlFile = QmlApplicationViewPrivate::adjustPath(file);
+    m_d->mainQmlFile = QmlApplicationViewerPrivate::adjustPath(file);
     setSource(QUrl::fromLocalFile(m_d->mainQmlFile));
 }
 
-void QmlApplicationView::addImportPath(const QString &path)
+void QmlApplicationViewer::addImportPath(const QString &path)
 {
-    engine()->addImportPath(QmlApplicationViewPrivate::adjustPath(path));
+    engine()->addImportPath(QmlApplicationViewerPrivate::adjustPath(path));
 }
 
-void QmlApplicationView::setOrientation(Orientation orientation)
+void QmlApplicationViewer::setOrientation(Orientation orientation)
 {
     if (orientation != Auto) {
 #if defined(Q_OS_SYMBIAN)
@@ -79,7 +79,7 @@ void QmlApplicationView::setOrientation(Orientation orientation)
     }
 }
 
-void QmlApplicationView::setLoadDummyData(bool loadDummyData)
+void QmlApplicationViewer::setLoadDummyData(bool loadDummyData)
 {
     if (loadDummyData) {
         const QFileInfo mainQmlFileInfo(m_d->mainQmlFile);
