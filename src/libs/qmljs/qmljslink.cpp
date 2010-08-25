@@ -160,11 +160,6 @@ void Link::populateImportedTypes(Interpreter::ObjectValue *typeEnv, Document::Pt
     if (! (doc->qmlProgram() && doc->qmlProgram()->imports))
         return;
 
-    // Add the implicitly available Script type
-    const ObjectValue *scriptValue = engine()->cppQmlTypes().typeForImport("Script");
-    if (scriptValue)
-        typeEnv->setProperty("Script", scriptValue);
-
     // implicit imports:
     // qml files in the same directory are available without explicit imports
     foreach (Document::Ptr otherDoc, _snapshot.documentsInDirectory(doc->path())) {
