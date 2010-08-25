@@ -44,7 +44,6 @@
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
 #include <QtGui/QApplication>
 #include <QtGui/QClipboard>
 #include <QtGui/QKeyEvent>
@@ -134,6 +133,8 @@ public:
     int taskCount();
     int errorTaskCount();
 
+    bool hasFile(const QModelIndex &index) const;
+
 private:
     QHash<QString,QString> m_categories; // category id -> display name
     QList<Task> m_tasks;   // all tasks (in order of insertion)
@@ -169,6 +170,9 @@ public:
 
     Task task(const QModelIndex &index) const
     { return static_cast<TaskModel *>(sourceModel())->task(mapToSource(index)); }
+
+    bool hasFile(const QModelIndex &index) const
+    { return static_cast<TaskModel *>(sourceModel())->hasFile(mapToSource(index)); }
 
 protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
@@ -230,6 +234,14 @@ int TaskModel::taskCount()
 int TaskModel::errorTaskCount()
 {
     return m_errorTaskCount;
+}
+
+bool TaskModel::hasFile(const QModelIndex &index) const
+{
+    int row = index.row();
+    if (!index.isValid() || row < 0 || row >= m_tasks.count())
+        return false;
+    return !m_tasks.at(row).file.isEmpty();
 }
 
 QIcon TaskModel::taskTypeIcon(Task::TaskType t) const
@@ -807,14 +819,20 @@ bool TaskWindow::canPrevious()
 
 void TaskWindow::goToNext()
 {
-    if (!d->m_filter->rowCount())
+    if (!canNext())
         return;
-    QModelIndex currentIndex = d->m_listview->currentIndex();
-    if (currentIndex.isValid()) {
-        int row = currentIndex.row() + 1;
-        if (row == d->m_filter->rowCount())
-            row = 0;
-        currentIndex = d->m_filter->index(row, 0);
+    QModelIndex startIndex = d->m_listview->currentIndex();
+    QModelIndex currentIndex = startIndex;
+
+    if (startIndex.isValid()) {
+        do {
+            int row = currentIndex.row() + 1;
+            if (row == d->m_filter->rowCount())
+                row = 0;
+            currentIndex = d->m_filter->index(row, 0);
+            if (d->m_filter->hasFile(currentIndex))
+                break;
+        } while (startIndex != currentIndex);
     } else {
         currentIndex = d->m_filter->index(0, 0);
     }
@@ -824,16 +842,22 @@ void TaskWindow::goToNext()
 
 void TaskWindow::goToPrev()
 {
-    if (!d->m_filter->rowCount())
+    if (!canPrevious())
         return;
-    QModelIndex currentIndex = d->m_listview->currentIndex();
-    if (currentIndex.isValid()) {
-        int row = currentIndex.row() -1;
-        if (row < 0)
-            row = d->m_filter->rowCount() - 1;
-        currentIndex = d->m_filter->index(row, 0);
+    QModelIndex startIndex = d->m_listview->currentIndex();
+    QModelIndex currentIndex = startIndex;
+
+    if (startIndex.isValid()) {
+        do {
+            int row = currentIndex.row() - 1;
+            if (row < 0)
+                row = d->m_filter->rowCount() - 1;
+            currentIndex = d->m_filter->index(row, 0);
+            if (d->m_filter->hasFile(currentIndex))
+                break;
+        } while (startIndex != currentIndex);
     } else {
-        currentIndex = d->m_filter->index(d->m_filter->rowCount()-1, 0);
+        currentIndex = d->m_filter->index(0, 0);
     }
     d->m_listview->setCurrentIndex(currentIndex);
     triggerDefaultHandler(currentIndex);
