@@ -21,10 +21,7 @@ HEADERS += qmlproject.h \
     qmlprojectapplicationwizard.h \
     qmlprojectmanager_global.h \
     qmlprojectmanagerconstants.h \
-    qmlprojecttarget.h \
-    wizards/qmlstandaloneappwizard.h \
-    wizards/qmlstandaloneappwizardpages.h \
-    wizards/qmlstandaloneapp.h
+    qmlprojecttarget.h
 
 SOURCES += qmlproject.cpp \
     qmlprojectplugin.cpp \
@@ -36,20 +33,9 @@ SOURCES += qmlproject.cpp \
     qmlprojectrunconfiguration.cpp \
     qmlprojectrunconfigurationfactory.cpp \
     qmlprojectapplicationwizard.cpp \
-    qmlprojecttarget.cpp \
-    wizards/qmlstandaloneappwizard.cpp \
-    wizards/qmlstandaloneappwizardpages.cpp \
-    wizards/qmlstandaloneapp.cpp
+    qmlprojecttarget.cpp
 
 RESOURCES += qmlproject.qrc
-
-INCLUDEPATH += \
-    . \
-    wizards
-
-FORMS += \
-    wizards/qmlstandaloneappwizardoptionspage.ui \
-    wizards/qmlstandaloneappwizardsourcespage.ui
 
 OTHER_FILES += QmlProjectManager.pluginspec \
                QmlProject.mimetypes.xml

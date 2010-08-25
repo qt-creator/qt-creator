@@ -38,6 +38,7 @@
 #include "wizards/librarywizard.h"
 #include "wizards/testwizard.h"
 #include "wizards/emptyprojectwizard.h"
+#include "wizards/qmlstandaloneappwizard.h"
 #include "customwidgetwizard/customwidgetwizard.h"
 #include "profileeditorfactory.h"
 #include "qt4projectmanagerconstants.h"
@@ -138,6 +139,9 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     MobileGuiAppWizard *mobileGuiWizard = new MobileGuiAppWizard();
     addAutoReleasedObject(mobileGuiWizard);
+
+    addAutoReleasedObject(new QmlStandaloneAppWizard(QmlStandaloneAppWizard::NewQmlFile));
+    addAutoReleasedObject(new QmlStandaloneAppWizard(QmlStandaloneAppWizard::ImportQmlFile));
 
     LibraryWizard *libWizard = new LibraryWizard;
     addAutoReleasedObject(libWizard);

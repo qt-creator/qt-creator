@@ -33,7 +33,7 @@
 #include <QtGui/QWizardPage>
 #include "qmlstandaloneapp.h"
 
-namespace QmlProjectManager {
+namespace Qt4ProjectManager {
 namespace Internal {
 
 class QmlStandaloneAppWizardSourcesPage : public QWizardPage
@@ -94,6 +94,6 @@ private:
 };
 
 } // end of namespace Internal
-} // end of namespace QmlProjectManager
+} // end of namespace Qt4ProjectManager
 
 #endif // QMLSTANDALONEAPPWIZARDPAGES_H

@@ -32,6 +32,9 @@ HEADERS += qt4deployconfiguration.h \
     wizards/filespage.h \
     wizards/qtwizard.h \
     wizards/targetsetuppage.h \
+    wizards/qmlstandaloneappwizard.h \
+    wizards/qmlstandaloneappwizardpages.h \
+    wizards/qmlstandaloneapp.h \
     qt4projectmanagerconstants.h \
     makestep.h \
     qmakestep.h \
@@ -81,6 +84,9 @@ SOURCES += qt4projectmanagerplugin.cpp \
     wizards/filespage.cpp \
     wizards/qtwizard.cpp \
     wizards/targetsetuppage.cpp \
+    wizards/qmlstandaloneappwizard.cpp \
+    wizards/qmlstandaloneappwizardpages.cpp \
+    wizards/qmlstandaloneapp.cpp \
     makestep.cpp \
     qmakestep.cpp \
     qt4runconfiguration.cpp \
@@ -108,6 +114,8 @@ FORMS += makestep.ui \
     gettingstartedwelcomepagewidget.ui \
     wizards/testwizardpage.ui \
     wizards/targetsetuppage.ui \
+    wizards/qmlstandaloneappwizardoptionspage.ui \
+    wizards/qmlstandaloneappwizardsourcespage.ui \
     librarydetailswidget.ui
 RESOURCES += qt4projectmanager.qrc \
     wizards/wizards.qrc

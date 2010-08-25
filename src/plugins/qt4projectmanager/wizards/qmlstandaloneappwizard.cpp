@@ -31,7 +31,7 @@
 #include "qmlstandaloneappwizardpages.h"
 #include "qmlstandaloneapp.h"
 
-#include "qmlprojectconstants.h"
+#include "qt4projectmanagerconstants.h"
 
 #include <projectexplorer/baseprojectwizarddialog.h>
 #include <projectexplorer/customwizard/customwizard.h>
@@ -48,7 +48,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QFile>
 
-namespace QmlProjectManager {
+namespace Qt4ProjectManager {
 namespace Internal {
 
 class QmlStandaloneAppWizardDialog : public ProjectExplorer::BaseProjectWizardDialog
@@ -120,7 +120,7 @@ QmlStandaloneAppWizard::~QmlStandaloneAppWizard()
 Core::BaseFileWizardParameters QmlStandaloneAppWizard::parameters(WizardType type)
 {
     Core::BaseFileWizardParameters parameters(ProjectWizard);
-    parameters.setIcon(QIcon(QLatin1String(Constants::QML_WIZARD_ICON)));
+    parameters.setIcon(QIcon(QLatin1String(Constants::ICON_QML_STANDALONE)));
     parameters.setDisplayName(type == QmlStandaloneAppWizard::NewQmlFile
                               ? tr("Qt QML New Standalone Application")
                               : tr("Qt QML Imported Standalone Application"));
@@ -134,9 +134,9 @@ Core::BaseFileWizardParameters QmlStandaloneAppWizard::parameters(WizardType typ
                               : tr("Creates a standalone, mobile-deployable Qt QML application "
                                    "project. An existing QML project will be imported and a lightweight "
                                    "Qt/C++ application with a QDeclarativeView will be created for it."));
-    parameters.setCategory(QLatin1String(Constants::QML_WIZARD_CATEGORY));
-    parameters.setDisplayCategory(QCoreApplication::translate(Constants::QML_WIZARD_TR_SCOPE,
-                                                              Constants::QML_WIZARD_TR_CATEGORY));
+    parameters.setCategory(QLatin1String(Constants::QT_APP_WIZARD_CATEGORY));
+    parameters.setDisplayCategory(QCoreApplication::translate(Constants::QT_APP_WIZARD_TR_SCOPE,
+                                                              Constants::QT_APP_WIZARD_TR_CATEGORY));
     return parameters;
 }
 
@@ -207,6 +207,6 @@ void QmlStandaloneAppWizard::handleModulesChange(const QStringList &uris, const 
 }
 
 } // namespace Internal
-} // namespace QmlProjectManager
+} // namespace Qt4ProjectManager
 
 #include "qmlstandaloneappwizard.moc"

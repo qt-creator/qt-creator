@@ -38,7 +38,7 @@
 #include <coreplugin/basefilewizard.h>
 #endif // CREATORLESSTEST
 
-namespace QmlProjectManager {
+namespace Qt4ProjectManager {
 namespace Internal {
 
 class QmlStandaloneApp;
@@ -201,6 +201,6 @@ private:
 };
 
 } // end of namespace Internal
-} // end of namespace QmlProjectManager
+} // end of namespace Qt4ProjectManager
 
 #endif // QMLSTANDALONEAPP_H

@@ -36,7 +36,7 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QFileDialog>
 
-namespace QmlProjectManager {
+namespace Qt4ProjectManager {
 namespace Internal {
 
 class QmlStandaloneAppWizardSourcesPagePrivate
@@ -262,4 +262,4 @@ void QmlStandaloneAppWizardOptionsPage::openSymbianSvgIcon()
 }
 
 } // namespace Internal
-} // namespace QmlProjectManager
+} // namespace Qt4ProjectManager

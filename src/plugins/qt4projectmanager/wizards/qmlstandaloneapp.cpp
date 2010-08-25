@@ -38,7 +38,7 @@
 #include <coreplugin/icore.h>
 #endif // CREATORLESSTEST
 
-namespace QmlProjectManager {
+namespace Qt4ProjectManager {
 namespace Internal {
 
 const QLatin1String qmldir("qmldir");
@@ -653,4 +653,4 @@ QList<GeneratedFileInfo> QmlStandaloneApp::fileUpdates(const QString &mainProFil
 }
 
 } // namespace Internal
-} // namespace QmlProjectManager
+} // namespace Qt4ProjectManager

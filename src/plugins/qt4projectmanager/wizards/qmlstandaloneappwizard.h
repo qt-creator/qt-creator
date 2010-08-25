@@ -32,7 +32,7 @@
 
 #include <coreplugin/basefilewizard.h>
 
-namespace QmlProjectManager {
+namespace Qt4ProjectManager {
 namespace Internal {
 
 class QmlStandaloneAppWizard : public Core::BaseFileWizard
@@ -66,6 +66,6 @@ private:
 };
 
 } // end of namespace Internal
-} // end of namespace QmlProjectManager
+} // end of namespace Qt4ProjectManager
 
 #endif // QMLSTANDALONEAPPWIZARD_H
