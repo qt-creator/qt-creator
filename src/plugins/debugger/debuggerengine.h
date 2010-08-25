@@ -326,7 +326,7 @@ protected:
     void setState(DebuggerState state, bool forced = false);
     void setRunInWrapperEngine(bool value);
 
-private:
+protected:
     DebuggerRunControl *runControl() const;
 
 private:

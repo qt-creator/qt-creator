@@ -47,6 +47,7 @@ class DebuggerStartParameters;
 
 namespace Internal {
 class DebuggerEngine;
+class QmlEngine;
 }
 
 //DEBUGGER_EXPORT QDebug operator<<(QDebug str, const DebuggerStartParameters &);
@@ -136,6 +137,7 @@ private:
     DebuggerEngineType m_enabledEngines;
     QString m_errorMessage;
     QString m_settingsIdHint;
+    friend class Internal::QmlEngine;
 };
 
 } // namespace Debugger

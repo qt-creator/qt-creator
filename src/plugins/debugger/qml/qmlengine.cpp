@@ -35,6 +35,7 @@
 #include "debuggerdialogs.h"
 #include "debuggerstringutils.h"
 #include "debuggeruiswitcher.h"
+#include "debuggerrunner.h"
 
 #include "breakhandler.h"
 #include "moduleshandler.h"
@@ -129,7 +130,15 @@ void QmlEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
 
-    connect(&m_applicationLauncher, SIGNAL(processExited(int)), SLOT(disconnected()));
+    connect(&m_applicationLauncher, SIGNAL(processExited(int)),
+            this, SLOT(disconnected()));
+    connect(&m_applicationLauncher, SIGNAL(appendMessage(QString,bool)),
+            this, SLOT(slotMessage(QString, bool)));
+    connect(&m_applicationLauncher, SIGNAL(appendOutput(QString, bool)),
+            this, SLOT(slotAddToOutputWindow(QString, bool)));
+    connect(&m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
+            runControl(), SLOT(bringApplicationToForeground(qint64)));
+
     m_applicationLauncher.setEnvironment(startParameters().environment);
     m_applicationLauncher.setWorkingDirectory(startParameters().workingDirectory);
 
@@ -638,6 +647,15 @@ void QmlEngine::disconnected()
     notifyInferiorExited();
 }
 
+void QmlEngine::slotAddToOutputWindow(QString line, bool onStdErr)
+{
+    emit runControl()->addToOutputWindowInline(runControl(), line, onStdErr);
+}
+
+void QmlEngine::slotMessage(QString err , bool isError)
+{
+    emit runControl()->appendMessage(runControl(), err, isError);
+}
 
 } // namespace Internal
 } // namespace Debugger

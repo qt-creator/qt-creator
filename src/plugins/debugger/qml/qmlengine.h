@@ -123,6 +123,8 @@ private slots:
     void connectionStartupFailed();
     void connectionError();
 
+    void slotMessage(QString, bool);
+    void slotAddToOutputWindow(QString, bool);
 private:
     void expandObject(const QByteArray &iname, quint64 objectId);
     void sendPing();
