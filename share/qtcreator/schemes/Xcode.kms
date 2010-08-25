@@ -280,7 +280,7 @@
   <key value="" />
  </shortcut>
  <shortcut id="FormEditor.Preview" >
-  <key value="Ctrl+Alt+R" />
+  <key value="Alt+Shift+R" />
  </shortcut>
  <shortcut id="FormEditor.Menu.Preview.Windows" >
   <key value="" />

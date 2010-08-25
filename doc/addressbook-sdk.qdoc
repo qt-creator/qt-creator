@@ -167,7 +167,7 @@
     red border, top level layouts have no graphical representation. Layouts are
     necessary for top level widgets, in this case QWidget, to ensure that when
     the window is resized, the widgets on the form will resize accordingly. You
-    can try this out by pressing \key{Ctrl+Alt+R} now. To correct it, click
+    can try this out by pressing \key{Alt+Shift+R} now. To correct it, click
     anywhere on the form and select \gui{Lay out Horizontally} or
     \gui{Lay out Vertically}. The output will be the same. Now your widgets
     will resize correctly.
@@ -907,7 +907,7 @@
     Fortunately, Qt Creator's \QD plugin provides a simple way to set tooltips
     with the \c toolTip property. So, set your buttons' tooltips to
     \gui{Load contacts from file} and \gui{Save contacts to file} respectively.
-    To test your tooltip, use \key{Ctrl+Alt+R} and hover your mouse cursor on
+    To test your tooltip, use \key{Alt+Shift+R} and hover your mouse cursor on
     the push buttons.
 
 

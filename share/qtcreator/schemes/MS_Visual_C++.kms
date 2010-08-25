@@ -115,7 +115,7 @@
   <key value="" />
  </shortcut>
  <shortcut id="FormEditor.Preview" >
-  <key value="Ctrl+Alt+R" />
+  <key value="Alt+Shift+R" />
  </shortcut>
  <shortcut id="QtCreator.Save" >
   <key value="Ctrl+S" />

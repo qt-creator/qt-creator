@@ -746,7 +746,7 @@
            settings are used.
 
            To preview the settings, select \gui Tools > \gui{Form Editor} >
-           \gui Preview, or press \key Ctrl+Alt+R.
+           \gui Preview, or press \key Alt+Shift+R.
         \o To specify embedded device profiles, such as style, font, and screen
            resolution, select \gui{Embedded Design}.
     \endlist
@@ -6236,7 +6236,7 @@
             \o Ctrl+L
         \row
             \o Preview
-            \o Ctrl+Alt+R
+            \o Alt+Shift+R
         \row
             \o Edit signals and slots
             \o F4

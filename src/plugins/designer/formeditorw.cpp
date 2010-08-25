@@ -530,7 +530,7 @@ void FormEditorW::setupActions()
     m_actionPreview = m_fwm->actionDefaultPreview();
     QTC_ASSERT(m_actionPreview, return);
     addToolAction(m_actionPreview,  am,  m_contexts,
-                   QLatin1String("FormEditor.Preview"), mformtools, tr("Ctrl+Alt+R"));
+                   QLatin1String("FormEditor.Preview"), mformtools, tr("Alt+Shift+R"));
 
     // Preview in style...
     m_actionGroupPreviewInStyle = m_fwm->actionGroupPreviewInStyle();
