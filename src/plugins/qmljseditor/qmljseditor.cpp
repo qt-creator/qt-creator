@@ -882,7 +882,10 @@ void QmlJSTextEditor::modificationChanged(bool changed)
 void QmlJSTextEditor::jumpToOutlineElement(int /*index*/)
 {
     QModelIndex index = m_outlineCombo->view()->currentIndex();
-    AST::SourceLocation location = index.data(QmlOutlineModel::SourceLocationRole).value<AST::SourceLocation>();
+    AST::SourceLocation location = m_outlineModel->sourceLocation(index);
+
+    if (!location.isValid())
+        return;
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     editorManager->cutForwardNavigationHistory();
@@ -1753,7 +1756,7 @@ QModelIndex QmlJSTextEditor::indexForPosition(unsigned cursorPosition, const QMo
     const int rowCount = m_outlineModel->rowCount(rootIndex);
     for (int i = 0; i < rowCount; ++i) {
         QModelIndex childIndex = m_outlineModel->index(i, 0, rootIndex);
-        AST::SourceLocation location = childIndex.data(QmlOutlineModel::SourceLocationRole).value<AST::SourceLocation>();
+        AST::SourceLocation location = m_outlineModel->sourceLocation(childIndex);
 
         if ((cursorPosition >= location.offset)
               && (cursorPosition <= location.offset + location.length)) {

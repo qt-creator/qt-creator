@@ -30,29 +30,11 @@ public:
     QVariant data(int role = Qt::UserRole + 1) const;
     int type() const;
 
-    QString annotation() const;
-    void setAnnotation(const QString &id);
-
-    QmlJS::AST::SourceLocation sourceLocation() const;
-    void setSourceLocation(const QmlJS::AST::SourceLocation &location);
-
-
-    QmlJS::AST::Node *node() const;
-    void setNode(QmlJS::AST::Node *node);
-
-    QmlJS::AST::UiQualifiedId *idNode() const;
-    void setIdNode(QmlJS::AST::UiQualifiedId *idNode);
-
-    QmlOutlineItem &copyValues(const QmlOutlineItem &other); // so that we can assign all values at onc
-
 private:
     QString prettyPrint(const QmlJS::Interpreter::Value *value, const QmlJS::Interpreter::Context *context) const;
 
     QmlOutlineModel *m_outlineModel;
-    QmlJS::AST::Node *m_node;
-    QmlJS::AST::UiQualifiedId *m_idNode;
 };
-
 
 class QmlOutlineModel : public QStandardItemModel
 {
@@ -60,8 +42,8 @@ class QmlOutlineModel : public QStandardItemModel
 public:
 
     enum CustomRoles {
-        SourceLocationRole = Qt::UserRole + 1,
-        ItemTypeRole,
+        ItemTypeRole = Qt::UserRole + 1,
+        ElementTypeRole,
         AnnotationRole
     };
 
@@ -80,7 +62,11 @@ public:
 
     QmlJS::Document::Ptr document() const;
     void update(const SemanticInfo &semanticInfo);
-    QmlJS::AST::Node *nodeForIndex(const QModelIndex &index);
+
+    QmlJS::AST::Node *nodeForIndex(const QModelIndex &index) const;
+    QmlJS::AST::SourceLocation sourceLocation(const QModelIndex &index) const;
+    QmlJS::AST::UiQualifiedId *idNode(const QModelIndex &index) const;
+    QIcon icon(const QModelIndex &index) const;
 
 signals:
     void updated();
@@ -102,7 +88,7 @@ private:
     void leavePublicMember();
 
 private:
-    QModelIndex enterNode(const QmlOutlineItem &prototype);
+    QmlOutlineItem *enterNode(QMap<int, QVariant> data);
     void leaveNode();
 
     void reparentNodes(QmlOutlineItem *targetItem, int targetRow, QList<QmlOutlineItem*> itemsToMove);
@@ -129,6 +115,10 @@ private:
 
     QmlJS::LookupContext::Ptr m_context;
     QHash<QString, QIcon> m_typeToIcon;
+    QHash<QmlOutlineItem*,QIcon> m_itemToIcon;
+    QHash<QmlOutlineItem*,QmlJS::AST::Node*> m_itemToNode;
+    QHash<QmlOutlineItem*,QmlJS::AST::UiQualifiedId*> m_itemToIdNode;
+
 
     friend class QmlOutlineModelSync;
     friend class QmlOutlineItem;
@@ -136,7 +126,5 @@ private:
 
 } // namespace Internal
 } // namespace QmlJSEditor
-
-Q_DECLARE_METATYPE(QmlJS::AST::SourceLocation);
 
 #endif // QMLOUTLINEMODEL_H

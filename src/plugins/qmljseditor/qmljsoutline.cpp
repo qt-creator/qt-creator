@@ -158,7 +158,12 @@ void QmlJSOutlineWidget::updateSelectionInText(const QItemSelection &selection)
 
     if (!selection.indexes().isEmpty()) {
         QModelIndex index = selection.indexes().first();
-        AST::SourceLocation location = index.data(QmlOutlineModel::SourceLocationRole).value<AST::SourceLocation>();
+        QModelIndex sourceIndex = m_filterModel->mapToSource(index);
+
+        AST::SourceLocation location = m_editor->outlineModel()->sourceLocation(sourceIndex);
+
+        if (!location.isValid())
+            return;
 
         Core::EditorManager *editorManager = Core::EditorManager::instance();
         editorManager->cutForwardNavigationHistory();
