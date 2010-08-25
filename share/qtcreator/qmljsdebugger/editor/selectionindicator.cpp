@@ -78,8 +78,11 @@ void SelectionIndicator::clear()
 QPolygonF SelectionIndicator::addBoundingRectToPolygon(QGraphicsItem *item, QPolygonF &polygon)
 {
     // ### remove this if statement when QTBUG-12172 gets fixed
-    if (item->boundingRect() != QRectF(0,0,0,0))
-        polygon = polygon.united(item->mapToScene(item->boundingRect()));
+    if (item->boundingRect() != QRectF(0,0,0,0)) {
+        QPolygonF bounding = item->mapToScene(item->boundingRect());
+        if (bounding.isClosed()) //avoid crashes if there is an infinite scale.
+            polygon = polygon.united(bounding);
+    }
 
     foreach(QGraphicsItem *child, item->childItems()) {
         if (!QDeclarativeDesignViewPrivate::get(m_view)->isEditorItem(child))
