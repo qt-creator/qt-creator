@@ -678,6 +678,7 @@ bool CodeFormatter::tryDeclaration()
             QString tokenText = currentTokenText().toString();
             if (tokenText.startsWith(QLatin1String("Q_"))
                     || tokenText.startsWith(QLatin1String("QT_"))
+                    || tokenText.startsWith(QLatin1String("QML_"))
                     || tokenText.startsWith(QLatin1String("QDOC_"))) {
                 enter(qt_like_macro);
                 return true;
