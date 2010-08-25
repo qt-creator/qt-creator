@@ -1063,12 +1063,12 @@ void HelpPlugin::slotAboutToShowBackMenu()
 {
     m_backMenu->clear();
     if (QWebHistory *history = viewerForContextMode()->history()) {
-        const int count = history->count();
-        QList<QWebHistoryItem> items = history->backItems(count);
+        const int currentItemIndex = history->currentItemIndex();
+        QList<QWebHistoryItem> items = history->backItems(history->count());
         for (int i = items.count() - 1; i >= 0; --i) {
             QAction *action = new QAction(this);
             action->setText(items.at(i).title());
-            action->setData(-1 * (count - i - 1));
+            action->setData(-1 * (currentItemIndex - i));
             m_backMenu->addAction(action);
         }
     }
