@@ -33,6 +33,7 @@
 #include "qmljsdocument.h"
 #include "qmljsbind.h"
 #include "qmljsscopebuilder.h"
+#include "qmljsmodelmanagerinterface.h"
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
@@ -302,14 +303,22 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
         if (!dir.cd(packagePath))
             continue;
 
-        const LibraryInfo libraryInfo = _snapshot.libraryInfo(dir.path());
+        const QString &libraryPath = dir.path();
+        const LibraryInfo libraryInfo = _snapshot.libraryInfo(libraryPath);
         if (!libraryInfo.isValid())
             continue;
 
         importFound = true;
 
-        if (!libraryInfo.plugins().isEmpty())
-            engine()->cppQmlTypes().load(engine(), libraryInfo.metaObjects());
+        if (!libraryInfo.plugins().isEmpty()) {
+            if (libraryInfo.metaObjects().isEmpty()) {
+                ModelManagerInterface *modelManager = ModelManagerInterface::instance();
+                if (modelManager)
+                    modelManager->loadPluginTypes(libraryPath, importPath, Bind::toString(import->importUri, QLatin1Char('.')));
+            } else {
+                engine()->cppQmlTypes().load(engine(), libraryInfo.metaObjects());
+            }
+        }
 
         QSet<QString> importedTypes;
         foreach (const QmlDirParser::Component &component, libraryInfo.components()) {

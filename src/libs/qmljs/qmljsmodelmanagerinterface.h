@@ -94,6 +94,8 @@ public:
 
     virtual QStringList importPaths() const = 0;
 
+    virtual void loadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri) = 0;
+
 signals:
     void documentUpdated(QmlJS::Document::Ptr doc);
     void documentChangedOnDisk(QmlJS::Document::Ptr doc);

@@ -228,9 +228,6 @@ void ModelManager::onLibraryInfoUpdated(const QString &path, const LibraryInfo &
 {
     QMutexLocker locker(&m_mutex);
 
-    if (!_snapshot.libraryInfo(path).isValid())
-        loadQmlPluginTypes(path);
-
     _snapshot.insertLibraryInfo(path, info);
 }
 
@@ -453,8 +450,20 @@ static QStringList environmentImportPaths()
     return paths;
 }
 
-void ModelManager::loadQmlPluginTypes(const QString &pluginPath)
+void ModelManager::loadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri)
 {
+    // make sure loading is always triggered in ModelManager's thread
+    metaObject()->invokeMethod(this, "onLoadPluginTypes",
+                               Q_ARG(QString, libraryPath),
+                               Q_ARG(QString, importPath),
+                               Q_ARG(QString, importUri));
+}
+
+void ModelManager::onLoadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri)
+{
+    if (m_runningQmldumps.values().contains(libraryPath))
+        return;
+
     static QString qmldumpPath;
     if (qmldumpPath.isNull()) {
         QDir qmldumpExecutable(QCoreApplication::applicationDirPath());
@@ -482,8 +491,11 @@ void ModelManager::loadQmlPluginTypes(const QString &pluginPath)
 
     QProcess *process = new QProcess(this);
     connect(process, SIGNAL(finished(int)), SLOT(qmlPluginTypeDumpDone(int)));
-    process->start(qmldumpPath, QStringList(pluginPath));
-    m_runningQmldumps.insert(process, pluginPath);
+    QStringList args;
+    args << importPath;
+    args << importUri;
+    process->start(qmldumpPath, args);
+    m_runningQmldumps.insert(process, libraryPath);
 }
 
 void ModelManager::updateImportPaths()

@@ -69,6 +69,8 @@ public:
 
     virtual QStringList importPaths() const;
 
+    virtual void loadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri);
+
 Q_SIGNALS:
     void projectPathChanged(const QString &projectPath);
     void libraryInfoUpdated(const QString &path, const QmlJS::LibraryInfo &info);
@@ -77,6 +79,7 @@ private Q_SLOTS:
     // this should be executed in the GUI thread.
     void onDocumentUpdated(QmlJS::Document::Ptr doc);
     void onLibraryInfoUpdated(const QString &path, const QmlJS::LibraryInfo &info);
+    void onLoadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri);
     void qmlPluginTypeDumpDone(int exitCode);
 
 protected:
@@ -98,7 +101,6 @@ protected:
                       bool emitDocChangedOnDisk);
 
     void loadQmlTypeDescriptions();
-    void loadQmlPluginTypes(const QString &pluginPath);
 
     void updateImportPaths();
 

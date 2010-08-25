@@ -243,19 +243,16 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    if (argc != 1 && argc != 2) {
-        qWarning() << "Usage: qmldump [path/to/plugin/directory]";
+    if (argc != 1 && argc != 3) {
+        qWarning() << "Usage: qmldump [plugin/import/path plugin.uri]";
         return 1;
     }
 
     QString pluginImportName;
     QString pluginImportPath;
-    if (argc == 2) {
-        QFileInfo pluginPath(argv[1]);
-        if (pluginPath.exists() && pluginPath.isDir()) {
-            pluginImportPath = pluginPath.absolutePath();
-            pluginImportName = pluginPath.fileName();
-        }
+    if (argc == 3) {
+        pluginImportPath = QString(argv[1]);
+        pluginImportName = QString(argv[2]);
     }
 
     QDeclarativeView view;
@@ -265,12 +262,14 @@ int main(int argc, char *argv[])
 
     QByteArray importCode;
     importCode += "import Qt 4.7;\n";
-    importCode += "import Qt.labs.particles 4.7;\n";
-    importCode += "import Qt.labs.gestures 4.7;\n";
-    importCode += "import Qt.labs.folderlistmodel 4.7;\n";
-    importCode += "import QtWebKit 1.0;\n";
-    if (!pluginImportName.isEmpty())
+    if (pluginImportName.isEmpty()) {
+        importCode += "import Qt.labs.particles 4.7;\n";
+        importCode += "import Qt.labs.gestures 4.7;\n";
+        importCode += "import Qt.labs.folderlistmodel 4.7;\n";
+        importCode += "import QtWebKit 1.0;\n";
+    } else {
         importCode += QString("import %0 1.0;\n").arg(pluginImportName).toAscii();
+    }
 
     {
         QByteArray code = importCode;
