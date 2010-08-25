@@ -107,10 +107,10 @@ BranchDialog::BranchDialog(QWidget *parent) :
 
     connect(m_ui->localBranchListView->selectionModel(),
             SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(slotEnableButtons()));
+            this, SLOT(slotEnableButtons(QItemSelection)));
     connect(m_ui->remoteBranchListView->selectionModel(),
             SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(slotEnableButtons()));
+            this, SLOT(slotEnableButtons(QItemSelection)));
 
     slotEnableButtons();
 }
@@ -150,8 +150,15 @@ int BranchDialog::selectedRemoteBranchIndex() const
     return selectedRow(m_ui->remoteBranchListView);
 }
 
-void BranchDialog::slotEnableButtons()
+void BranchDialog::slotEnableButtons(const QItemSelection &selected)
 {
+    if (!selected.indexes().isEmpty()) {
+        if (selected.indexes().at(0).model() == m_localModel)
+            m_ui->remoteBranchListView->clearSelection();
+        else
+            m_ui->localBranchListView->clearSelection();
+    }
+
     // We can switch to or delete branches that are not current.
     const bool hasRepository = !m_repository.isEmpty();
     const int selectedLocalRow = selectedLocalBranchIndex();

@@ -31,6 +31,7 @@
 #define BRANCHDIALOG_H
 
 #include <QtGui/QDialog>
+#include <QtGui/QItemSelection>
 
 QT_BEGIN_NAMESPACE
 class QPushButton;
@@ -64,7 +65,7 @@ public slots:
     void refresh(const QString &repository, bool force);
 
 private slots:
-    void slotEnableButtons();
+    void slotEnableButtons(const QItemSelection &selected = QItemSelection());
     void slotCheckoutSelectedBranch();
     void slotDeleteSelectedBranch();
     void slotDiffSelected();
