@@ -383,7 +383,10 @@ void QmlOutlineModel::update(const SemanticInfo &semanticInfo)
     m_typeToIcon.clear();
 
     QmlOutlineModelSync syncModel(this);
+
+    beginResetModel();
     syncModel(m_semanticInfo.document);
+    endResetModel();
 
     m_context.clear();
 
