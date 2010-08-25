@@ -94,11 +94,7 @@ HelpManager* HelpManager::instance()
 
 QString HelpManager::collectionFilePath()
 {
-    const QFileInfo fi(Core::ICore::instance()->settings()->fileName());
-    const QDir directory(fi.absolutePath() + QLatin1String("/qtcreator"));
-    if (!directory.exists())
-        directory.mkpath(directory.absolutePath());
-    return QDir::cleanPath(directory.absolutePath() + QLatin1String("/helpcollection.qhc"));
+    return QDir::cleanPath(Core::ICore::instance()->userResourcePath() + QLatin1String("/helpcollection.qhc"));
 }
 
 void HelpManager::registerDocumentation(const QStringList &files)

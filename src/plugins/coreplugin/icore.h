@@ -105,6 +105,7 @@ public:
     virtual QPrinter *printer() const = 0;
 
     virtual QString resourcePath() const = 0;
+    virtual QString userResourcePath() const = 0;
 
     virtual QMainWindow *mainWindow() const = 0;
     virtual QStatusBar *statusBar() const = 0;

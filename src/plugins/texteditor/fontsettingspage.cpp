@@ -143,8 +143,8 @@ using namespace TextEditor::Internal;
 
 static QString customStylesPath()
 {
-    QString path = QFileInfo(Core::ICore::instance()->settings()->fileName()).path();
-    path.append(QLatin1String("/qtcreator/styles/"));
+    QString path = Core::ICore::instance()->userResourcePath();
+    path.append(QLatin1String("/styles/"));
     return path;
 }
 

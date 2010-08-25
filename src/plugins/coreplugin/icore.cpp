@@ -233,6 +233,16 @@
     the place, since e.g. on Mac the resources are part of the application bundle.
 */
 
+
+/*!
+    \fn QString ICore::userResourcePath() const
+    \brief Returns the absolute path in the users directory that is used for
+    resources like project templates.
+
+    Use this method for finding the place for resources that the user may
+    write to, e.g. to allow for custom palettes or templates.
+*/
+
 /*!
     \fn QMainWindow *ICore::mainWindow() const
     \brief Returns the main application window.

@@ -74,6 +74,7 @@ public:
     QPrinter *printer() const;
 
     QString resourcePath() const;
+    QString userResourcePath() const;
 
     IContext *currentContextObject() const;
 

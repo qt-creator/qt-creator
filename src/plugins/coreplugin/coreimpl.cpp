@@ -175,6 +175,22 @@ QString CoreImpl::resourcePath() const
     return QDir::cleanPath(QCoreApplication::applicationDirPath() + QLatin1String(SHARE_PATH));
 }
 
+QString CoreImpl::userResourcePath() const
+{
+    // Create qtcreator dir if it doesn't yet exist
+    const QString configDir = QFileInfo(settings(QSettings::UserScope)->fileName()).path();
+    const QString urp = configDir + "/qtcreator";
+
+    QFileInfo fi(urp + QLatin1Char('/'));
+    if (!fi.exists()) {
+        QDir dir;
+        if (!dir.mkpath(urp))
+            qWarning() << "could not create" << url;
+    }
+
+    return urp;
+}
+
 IContext *CoreImpl::currentContextObject() const
 {
     return m_mainwindow->currentContextObject();

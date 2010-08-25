@@ -985,7 +985,7 @@ QStringList SessionManager::sessions() const
 
 QString SessionManager::sessionNameToFileName(const QString &session)
 {
-    return QFileInfo(m_core->settings()->fileName()).path() + "/qtcreator/" + session + ".qws";
+    return m_core->userResourcePath() + '/' + session + ".qws";
 }
 
 void SessionManager::createAndLoadNewDefaultSession()
