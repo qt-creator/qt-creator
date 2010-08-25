@@ -632,7 +632,7 @@ void HelpPlugin::showHideSidebar()
 void HelpPlugin::showExternalWindow()
 {
     bool firstTime = m_firstModeChange;
-    setup();
+    doSetupIfNeeded();
     m_externalHelpBar->setVisible(true);
     m_internalHelpBar->setVisible(false);
     m_externalWindow->show();
@@ -647,7 +647,7 @@ void HelpPlugin::modeChanged(Core::IMode *mode, Core::IMode *old)
     if (mode == m_mode) {
         m_oldMode = old;
         qApp->setOverrideCursor(Qt::WaitCursor);
-        setup();
+        doSetupIfNeeded();
         qApp->restoreOverrideCursor();
     }
 }
@@ -702,7 +702,7 @@ QStackedLayout * layoutForWidget(QWidget *parent, QWidget *widget)
 
 void HelpPlugin::contextHelpOptionChanged()
 {
-    setup();
+    doSetupIfNeeded();
     QWidget *modeWidget = m_mode->widget();
     if (modeWidget == m_splitter
         && contextHelpOption() == Help::Constants::ExternalHelpAlways) {
@@ -1103,7 +1103,7 @@ void HelpPlugin::slotOpenActionUrl(QAction *action)
     }
 }
 
-void HelpPlugin::setup()
+void HelpPlugin::doSetupIfNeeded()
 {
     m_helpManager->setupGuiHelpEngine();
     if (m_firstModeChange) {

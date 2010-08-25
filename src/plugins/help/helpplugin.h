@@ -119,7 +119,7 @@ private:
     HelpViewer* viewerForContextMode();
     void createRightPaneContextViewer();
 
-    void setup();
+    void doSetupIfNeeded();
     int contextHelpOption() const;
     void connectExternalHelpWindow();
     void setupNavigationMenus(QAction *back, QAction *next, QWidget *parent);
