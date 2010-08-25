@@ -33,6 +33,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QSettings>
+#include <QtCore/QDebug>
 
 #include <QtGui/QStatusBar>
 
@@ -185,7 +186,7 @@ QString CoreImpl::userResourcePath() const
     if (!fi.exists()) {
         QDir dir;
         if (!dir.mkpath(urp))
-            qWarning() << "could not create" << url;
+            qWarning() << "could not create" << urp;
     }
 
     return urp;
