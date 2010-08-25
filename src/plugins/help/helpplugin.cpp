@@ -867,24 +867,24 @@ void HelpPlugin::activateBookmarks()
 
 QToolBar *HelpPlugin::createToolBar()
 {
-    QToolBar *toolWidget = new QToolBar;
+    QToolBar *toolBar = new QToolBar;
     Core::ActionManager *am = m_core->actionManager();
-    toolWidget->addAction(am->command(QLatin1String("Help.Home"))->action());
+    toolBar->addAction(am->command(QLatin1String("Help.Home"))->action());
 
     QAction *back = am->command(QLatin1String("Help.Previous"))->action();
     QAction *next = am->command(QLatin1String("Help.Next"))->action();
-    setupNavigationMenus(back, next, toolWidget);
-    toolWidget->addAction(back);
-    toolWidget->addAction(next);
+    setupNavigationMenus(back, next, toolBar);
+    toolBar->addAction(back);
+    toolBar->addAction(next);
 
-    toolWidget->addSeparator();
-    toolWidget->addAction(am->command(QLatin1String("Help.AddBookmark"))->action());
-    toolWidget->setMovable(false);
+    toolBar->addSeparator();
+    toolBar->addAction(am->command(QLatin1String("Help.AddBookmark"))->action());
+    toolBar->setMovable(false);
 
-    toolWidget->addSeparator();
+    toolBar->addSeparator();
 
     QWidget *w = new QWidget;
-    toolWidget->addWidget(w);
+    toolBar->addWidget(w);
 
     QHBoxLayout *layout = new QHBoxLayout(w);
     layout->setMargin(0);
@@ -910,7 +910,7 @@ QToolBar *HelpPlugin::createToolBar()
     layout->addStretch();
     layout->addWidget(m_closeButton);
 
-    return toolWidget;
+    return toolBar;
 }
 
 void HelpPlugin::updateFilterComboBox()
