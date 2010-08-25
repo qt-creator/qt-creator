@@ -1,5 +1,6 @@
 
 #include <boost/optional.hpp>
+#include <string>
 
 using namespace boost;
 
@@ -19,7 +20,10 @@ void testOptional()
     optional<int> i;
     optional<double> d;
     optional<Large> l;
+    optional<std::string &> sr;
+    std::string as = "hallo";
     i = 1;
+    sr = as;
     l = Large();
     i = 2;
     i = 3;

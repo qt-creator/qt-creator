@@ -2080,7 +2080,12 @@ def qdump__boost__optional(d, item):
     else:
         d.putType(item.value.type, d.currentTypePriority + 1)
         type = item.value.type.template_argument(0)
-        d.putItemHelper(Item(item.value["m_storage"].cast(type), item.iname))
+        storage = item.value["m_storage"]
+        if type.code == gdb.TYPE_CODE_REF:
+            value = storage.cast(type.target().pointer()).dereference()
+        else:
+            value = storage.cast(type)
+        d.putItemHelper(Item(value, item.iname))
 
 
 #######################################################################
