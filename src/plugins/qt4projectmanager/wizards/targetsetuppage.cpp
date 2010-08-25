@@ -245,7 +245,7 @@ bool TargetSetupPage::setupProject(Qt4ProjectManager::Qt4Project *project)
             // we want to havbe two BCs set up, one to build debug, the other to build release.
             targetInfos.append(BuildConfigurationInfo(info.version, info.buildConfig,
                                                       info.additionalArguments, info.directory));
-            targetInfos.append(BuildConfigurationInfo(info.version, info.buildConfig & info.buildConfig ^ QtVersion::DebugBuild,
+            targetInfos.append(BuildConfigurationInfo(info.version, info.buildConfig ^ QtVersion::DebugBuild,
                                                       info.additionalArguments, info.directory));
         }
 
