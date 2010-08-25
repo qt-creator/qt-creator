@@ -95,6 +95,7 @@ void QmlStandaloneAppWizardSourcesPage::setModulesError(const QString &error)
 
 void QmlStandaloneAppWizardSourcesPage::on_addModuleUriButton_clicked()
 {
+    setFocus(); // Interrupt any current editing
     QListWidgetItem *item = new QListWidgetItem(m_d->ui.urisListWidget);
     item->setFlags(item->flags() | Qt::ItemIsEditable);
     m_d->ui.urisListWidget->editItem(item);
