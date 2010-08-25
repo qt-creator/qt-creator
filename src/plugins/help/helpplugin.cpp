@@ -634,8 +634,6 @@ void HelpPlugin::showExternalWindow()
 {
     bool firstTime = m_firstModeChange;
     doSetupIfNeeded();
-    //m_externalHelpBar->setVisible(true);
-    //m_internalHelpBar->setVisible(false);
     m_externalWindow->show();
     connectExternalHelpWindow();
     m_externalWindow->activateWindow();
