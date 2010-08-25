@@ -95,19 +95,26 @@ void QmlStandaloneAppWizardSourcesPage::setModulesError(const QString &error)
 
 void QmlStandaloneAppWizardSourcesPage::on_addModuleUriButton_clicked()
 {
-    setFocus(); // Interrupt any current editing
     QListWidgetItem *item = new QListWidgetItem(m_d->ui.urisListWidget);
     item->setFlags(item->flags() | Qt::ItemIsEditable);
+    m_d->ui.urisListWidget->setCurrentItem(item);
     m_d->ui.urisListWidget->editItem(item);
+}
+
+static bool removeListWidgetItem(QListWidget *list)
+{
+    const int currentRow = list->currentRow();
+    if (currentRow >= 0) {
+        list->takeItem(currentRow);
+        return true;
+    }
+    return false;
 }
 
 void QmlStandaloneAppWizardSourcesPage::on_removeModuleUriButton_clicked()
 {
-    const int currentRow = m_d->ui.urisListWidget->currentRow();
-    if (currentRow >= 0) {
-        m_d->ui.urisListWidget->takeItem(currentRow);
+    if (removeListWidgetItem(m_d->ui.urisListWidget))
         handleModulesChanged();
-    }
 }
 
 void QmlStandaloneAppWizardSourcesPage::on_addImportPathButton_clicked()
@@ -117,16 +124,14 @@ void QmlStandaloneAppWizardSourcesPage::on_addImportPathButton_clicked()
     if (!path.isEmpty()) {
         QListWidgetItem *item = new QListWidgetItem(QDir::toNativeSeparators(path), m_d->ui.importPathsListWidget);
         item->setFlags(item->flags() | Qt::ItemIsEditable);
+        m_d->ui.importPathsListWidget->setCurrentItem(item);
     }
 }
 
 void QmlStandaloneAppWizardSourcesPage::on_removeImportPathButton_clicked()
 {
-    const int currentRow = m_d->ui.importPathsListWidget->currentRow();
-    if (currentRow >= 0) {
-        m_d->ui.importPathsListWidget->takeItem(currentRow);
+    if (removeListWidgetItem(m_d->ui.importPathsListWidget))
         handleModulesChanged();
-    }
 }
 
 static inline QStringList ertriesFromListWidget(const QListWidget &listWidget)
