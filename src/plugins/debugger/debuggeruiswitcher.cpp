@@ -229,13 +229,22 @@ void DebuggerUISwitcher::updateUiForTarget(ProjectExplorer::Target *target)
     }
 }
 
+static bool isQmlProjectType(ProjectExplorer::RunConfiguration *rc)
+{
+    if (rc && rc->target() && rc->target()->project()) {
+        return (rc->target()->project()->id() == QLatin1String("QmlProjectManager.QmlProject"));
+    }
+    return false;
+}
+
 // updates default debug language settings per run config.
 void DebuggerUISwitcher::updateUiForRunConfiguration(ProjectExplorer::RunConfiguration *rc)
 {
+    bool isDotQmlProjectType = isQmlProjectType(rc);
     if (rc) {
         d->m_languageActionGroup->setDisabled(false);
         if (DebuggerRunControl::isQmlProject(rc) && d->m_qmlEnabled) {
-            d->m_activateCppAction->setChecked(true);
+            d->m_activateCppAction->setChecked(!isDotQmlProjectType);
             d->m_activateQmlAction->setChecked(true);
         } else {
             if (d->m_activateQmlAction) {
