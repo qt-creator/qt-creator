@@ -226,6 +226,7 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
     , m_myRunConfiguration(runConfiguration)
     , m_running(false)
     , m_started(false)
+    , m_enabledEngines(enabledEngines)
 
 {
     connect(this, SIGNAL(finished()), this, SLOT(handleFinished()));
