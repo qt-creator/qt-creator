@@ -76,7 +76,6 @@ public slots:
 
     void activateColorPicker();
     void activateSelectTool();
-    void activateMarqueeSelectTool();
     void activateZoomTool();
     void setAnimationSpeed(qreal slowdownFactor);
     void setDesignModeBehavior(bool inDesignMode);
@@ -91,7 +90,6 @@ signals:
     void reloadSelected();
     void colorPickerSelected();
     void selectToolSelected();
-    void marqueeSelectToolSelected();
     void zoomToolSelected();
 
     void applyChangesToQmlFileSelected();
@@ -102,7 +100,6 @@ private slots:
     void activatePlayOnClick();
     void activateColorPickerOnClick();
     void activateSelectToolOnClick();
-    void activateMarqueeSelectToolOnClick();
     void activateZoomOnClick();
 
     void changeToDefaultAnimSpeed();
@@ -122,7 +119,6 @@ private:
     QAction *m_reloadAction;
     QAction *m_playAction;
     QAction *m_selectAction;
-    QAction *m_selectMarqueeAction;
     QAction *m_zoomAction;
     QAction *m_colorPickerAction;
     QAction *m_toQmlAction;

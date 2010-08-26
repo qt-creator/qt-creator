@@ -222,9 +222,10 @@ void QDeclarativeDesignView::keyReleaseEvent(QKeyEvent *event)
     case Qt::Key_V:
         data->_q_changeToSingleSelectTool();
         break;
-    case Qt::Key_M:
-        data->_q_changeToMarqueeSelectTool();
-        break;
+// disabled because multiselection does not do anything useful without design mode
+//    case Qt::Key_M:
+//        data->_q_changeToMarqueeSelectTool();
+//        break;
     case Qt::Key_I:
         data->_q_changeToColorPickerTool();
         break;

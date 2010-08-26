@@ -62,7 +62,6 @@ QmlInspectorToolbar::QmlInspectorToolbar(QObject *parent) :
     m_reloadAction(0),
     m_playAction(0),
     m_selectAction(0),
-    m_selectMarqueeAction(0),
     m_zoomAction(0),
     m_colorPickerAction(0),
     m_toQmlAction(0),
@@ -95,7 +94,6 @@ void QmlInspectorToolbar::setEnabled(bool value)
     m_reloadAction->setEnabled(value);
     m_playAction->setEnabled(value);
     m_selectAction->setEnabled(value);
-    m_selectMarqueeAction->setEnabled(value);
     m_zoomAction->setEnabled(value);
     m_colorPickerAction->setEnabled(value);
     //m_toQmlAction->setEnabled(value);
@@ -131,13 +129,6 @@ void QmlInspectorToolbar::activateSelectTool()
 {
     m_emitSignals = false;
     activateSelectToolOnClick();
-    m_emitSignals = true;
-}
-
-void QmlInspectorToolbar::activateMarqueeSelectTool()
-{
-    m_emitSignals = false;
-    activateMarqueeSelectToolOnClick();
     m_emitSignals = true;
 }
 
@@ -193,7 +184,6 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     m_reloadAction = new QAction(QIcon(QLatin1String(":/qml/images/reload.png")), tr("Reload"), this);
     m_playAction = new QAction(m_pauseIcon, tr("Play/Pause Animations"), this);
     m_selectAction = new QAction(QIcon(QLatin1String(":/qml/images/select-small.png")), tr("Select"), this);
-    m_selectMarqueeAction = new QAction(QIcon(QLatin1String(":/qml/images/select-marquee-small.png")), tr("Select (Marquee)"), this);
     m_zoomAction = new QAction(QIcon(QLatin1String(":/qml/images/zoom-small.png")), tr("Zoom"), this);
     m_colorPickerAction = new QAction(QIcon(QLatin1String(":/qml/images/color-picker-small.png")), tr("Color Picker"), this);
     m_toQmlAction = new QAction(QIcon(QLatin1String(":/qml/images/to-qml-small.png")), tr("Live Preview Changes in QML Viewer"), this);
@@ -201,7 +191,6 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     m_observerModeAction->setCheckable(true);
     m_observerModeAction->setChecked(false);
     m_selectAction->setCheckable(true);
-    m_selectMarqueeAction->setCheckable(true);
     m_zoomAction->setCheckable(true);
     m_colorPickerAction->setCheckable(true);
 
@@ -212,7 +201,6 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     am->registerAction(m_reloadAction, QmlJSInspector::Constants::RELOAD_ACTION, context);
     am->registerAction(m_playAction, QmlJSInspector::Constants::PLAY_ACTION, context);
     am->registerAction(m_selectAction, QmlJSInspector::Constants::SELECT_ACTION, context);
-    am->registerAction(m_selectMarqueeAction, QmlJSInspector::Constants::SELECT_MARQUEE_ACTION, context);
     am->registerAction(m_zoomAction, QmlJSInspector::Constants::ZOOM_ACTION, context);
     am->registerAction(m_colorPickerAction, QmlJSInspector::Constants::COLOR_PICKER_ACTION, context);
     am->registerAction(m_toQmlAction, QmlJSInspector::Constants::TO_QML_ACTION, context);
@@ -269,7 +257,6 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     //configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::PAUSE_ACTION)->action()));
 
     configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::SELECT_ACTION)->action()));
-    configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::SELECT_MARQUEE_ACTION)->action()));
 
     configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::ZOOM_ACTION)->action()));
     configBarLayout->addWidget(createToolButton(am->command(QmlJSInspector::Constants::COLOR_PICKER_ACTION)->action()));
@@ -299,7 +286,6 @@ void QmlInspectorToolbar::createActions(const Core::Context &context)
     connect(m_zoomAction, SIGNAL(triggered()), SLOT(activateZoomOnClick()));
     connect(m_colorPickerAction, SIGNAL(triggered()), SLOT(activateColorPickerOnClick()));
     connect(m_selectAction, SIGNAL(triggered()), SLOT(activateSelectToolOnClick()));
-    connect(m_selectMarqueeAction, SIGNAL(triggered()), SLOT(activateMarqueeSelectToolOnClick()));
 
     //connect(m_toQmlAction, SIGNAL(triggered()), SLOT(activateToQml()));
     connect(m_fromQmlAction, SIGNAL(triggered()), SLOT(activateFromQml()));
@@ -347,7 +333,6 @@ void QmlInspectorToolbar::activateDesignModeOnClick()
     m_reloadAction->setEnabled(true);
     m_playAction->setEnabled(checked);
     m_selectAction->setEnabled(checked);
-    m_selectMarqueeAction->setEnabled(checked);
     m_zoomAction->setEnabled(checked);
     m_colorPickerAction->setEnabled(checked);
 
@@ -391,7 +376,6 @@ void QmlInspectorToolbar::activateColorPickerOnClick()
 {
     m_zoomAction->setChecked(false);
     m_selectAction->setChecked(false);
-    m_selectMarqueeAction->setChecked(false);
 
     m_colorPickerAction->setChecked(true);
     if (m_activeTool != ColorPickerMode) {
@@ -404,7 +388,6 @@ void QmlInspectorToolbar::activateColorPickerOnClick()
 void QmlInspectorToolbar::activateSelectToolOnClick()
 {
     m_zoomAction->setChecked(false);
-    m_selectMarqueeAction->setChecked(false);
     m_colorPickerAction->setChecked(false);
 
     m_selectAction->setChecked(true);
@@ -415,24 +398,9 @@ void QmlInspectorToolbar::activateSelectToolOnClick()
     }
 }
 
-void QmlInspectorToolbar::activateMarqueeSelectToolOnClick()
-{
-    m_zoomAction->setChecked(false);
-    m_selectAction->setChecked(false);
-    m_colorPickerAction->setChecked(false);
-
-    m_selectMarqueeAction->setChecked(true);
-    if (m_activeTool != MarqueeSelectionToolMode) {
-        m_activeTool = MarqueeSelectionToolMode;
-        if (m_emitSignals)
-            emit marqueeSelectToolSelected();
-    }
-}
-
 void QmlInspectorToolbar::activateZoomOnClick()
 {
     m_selectAction->setChecked(false);
-    m_selectMarqueeAction->setChecked(false);
     m_colorPickerAction->setChecked(false);
 
     m_zoomAction->setChecked(true);

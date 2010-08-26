@@ -45,7 +45,8 @@ QmlToolbar::QmlToolbar(QWidget *parent)
     addSeparator();
 
     addAction(ui->select);
-    addAction(ui->selectMarquee);
+    // disabled because multi selection does not do anything useful without design mode
+    //addAction(ui->selectMarquee);
     addSeparator();
     addAction(ui->zoom);
     addAction(ui->colorPicker);

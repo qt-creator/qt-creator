@@ -590,13 +590,11 @@ void InspectorUi::setupToolbar(bool doConnect)
         connect(m_toolbar, SIGNAL(colorPickerSelected()), m_clientProxy, SLOT(changeToColorPickerTool()));
         connect(m_toolbar, SIGNAL(zoomToolSelected()), m_clientProxy, SLOT(changeToZoomTool()));
         connect(m_toolbar, SIGNAL(selectToolSelected()), m_clientProxy, SLOT(changeToSelectTool()));
-        connect(m_toolbar, SIGNAL(marqueeSelectToolSelected()), m_clientProxy, SLOT(changeToSelectMarqueeTool()));
         connect(m_toolbar, SIGNAL(applyChangesFromQmlFileTriggered(bool)), this, SLOT(setApplyChangesToQmlObserver(bool)));
 
         connect(this, SIGNAL(livePreviewActivated(bool)), m_toolbar, SLOT(setLivePreviewChecked(bool)));
         connect(m_clientProxy, SIGNAL(colorPickerActivated()), m_toolbar, SLOT(activateColorPicker()));
         connect(m_clientProxy, SIGNAL(selectToolActivated()), m_toolbar, SLOT(activateSelectTool()));
-        connect(m_clientProxy, SIGNAL(selectMarqueeToolActivated()), m_toolbar, SLOT(activateMarqueeSelectTool()));
         connect(m_clientProxy, SIGNAL(zoomToolActivated()), m_toolbar, SLOT(activateZoomTool()));
         connect(m_clientProxy, SIGNAL(designModeBehaviorChanged(bool)), m_toolbar, SLOT(setDesignModeBehavior(bool)));
         connect(m_clientProxy, SIGNAL(selectedColorChanged(QColor)), m_toolbar, SLOT(setSelectedColor(QColor)));
@@ -613,13 +611,11 @@ void InspectorUi::setupToolbar(bool doConnect)
         disconnect(m_toolbar, SIGNAL(colorPickerSelected()), m_clientProxy, SLOT(changeToColorPickerTool()));
         disconnect(m_toolbar, SIGNAL(zoomToolSelected()), m_clientProxy, SLOT(changeToZoomTool()));
         disconnect(m_toolbar, SIGNAL(selectToolSelected()), m_clientProxy, SLOT(changeToSelectTool()));
-        disconnect(m_toolbar, SIGNAL(marqueeSelectToolSelected()), m_clientProxy, SLOT(changeToSelectMarqueeTool()));
         disconnect(m_toolbar, SIGNAL(applyChangesFromQmlFileTriggered(bool)), this, SLOT(setApplyChangesToQmlObserver(bool)));
 
         disconnect(this, SIGNAL(livePreviewActivated(bool)), m_toolbar, SLOT(setLivePreviewChecked(bool)));
         disconnect(m_clientProxy, SIGNAL(colorPickerActivated()), m_toolbar, SLOT(activateColorPicker()));
         disconnect(m_clientProxy, SIGNAL(selectToolActivated()), m_toolbar, SLOT(activateSelectTool()));
-        disconnect(m_clientProxy, SIGNAL(selectMarqueeToolActivated()), m_toolbar, SLOT(activateMarqueeSelectTool()));
         disconnect(m_clientProxy, SIGNAL(zoomToolActivated()), m_toolbar, SLOT(activateZoomTool()));
         disconnect(m_clientProxy, SIGNAL(designModeBehaviorChanged(bool)), m_toolbar, SLOT(setDesignModeBehavior(bool)));
         disconnect(m_clientProxy, SIGNAL(selectedColorChanged(QColor)), m_toolbar, SLOT(setSelectedColor(QColor)));
