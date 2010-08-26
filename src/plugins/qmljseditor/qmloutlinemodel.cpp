@@ -42,10 +42,7 @@ QVariant QmlOutlineItem::data(int role) const
             return QVariant();
 
         QList<AST::Node *> astPath = m_outlineModel->m_semanticInfo.astPath(location.begin());
-
-        Document::Ptr document = m_outlineModel->m_semanticInfo.document;
-        Snapshot snapshot = m_outlineModel->m_semanticInfo.snapshot;
-        LookupContext::Ptr lookupContext = LookupContext::create(document, snapshot, astPath);
+        LookupContext::Ptr lookupContext = m_outlineModel->m_semanticInfo.lookupContext(astPath);
         const Interpreter::Value *value = lookupContext->evaluate(uiQualifiedId);
 
         return prettyPrint(value, lookupContext->context());
@@ -331,10 +328,9 @@ void QmlOutlineModel::update(const SemanticInfo &semanticInfo)
 
     // Set up lookup context once to do the element type lookup
     //
-    // We're simplifying here by using the root context everywhere
-    // (empty node list). However, creating the LookupContext is quite expensive (about 3ms),
-    // and there is AFAIK no way to introduce new type names in a sub-context.
-    m_context = LookupContext::create(semanticInfo.document, semanticInfo.snapshot, QList<AST::Node*>());
+    // We're simplifying here by using the root context everywhere; should be
+    // ok since there is AFAIK no way to introduce new type names in a sub-context.
+    m_context = semanticInfo.lookupContext();
     m_typeToIcon.clear();
     m_itemToNode.clear();
     m_itemToIdNode.clear();

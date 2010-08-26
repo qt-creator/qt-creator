@@ -33,7 +33,7 @@
 #include <QObject>
 #include "qmljs_global.h"
 #include <qmljs/parser/qmljsastfwd_p.h>
-#include <qmljs/qmljsdocument.h>
+#include <qmljs/qmljslookupcontext.h>
 
 
 namespace TextEditor {
@@ -52,9 +52,9 @@ class QMLJS_EXPORT IContextPane : public QObject
 public:
     IContextPane(QObject *parent = 0) : QObject(parent) {}
     virtual ~IContextPane() {}
-    virtual void apply(TextEditor::BaseTextEditorEditable *editor, Document::Ptr doc, const QmlJS::Snapshot &snapshot, AST::Node *node, bool update, bool force = false) = 0;
+    virtual void apply(TextEditor::BaseTextEditorEditable *editor, LookupContext::Ptr lookupContext, AST::Node *node, bool update, bool force = false) = 0;
     virtual void setEnabled(bool) = 0;
-    virtual bool isAvailable(TextEditor::BaseTextEditorEditable *editor, Document::Ptr doc, const QmlJS::Snapshot &snapshot, AST::Node *node) = 0;
+    virtual bool isAvailable(TextEditor::BaseTextEditorEditable *editor, LookupContext::Ptr lookupContext, AST::Node *node) = 0;
     virtual QWidget* widget() = 0;
 signals:
     void closed();

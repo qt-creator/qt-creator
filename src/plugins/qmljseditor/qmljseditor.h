@@ -34,6 +34,7 @@
 
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsscanner.h>
+#include <qmljs/qmljsinterpreter.h>
 #include <texteditor/basetexteditor.h>
 
 #include <QtCore/QWaitCondition>
@@ -53,6 +54,7 @@ class ICore;
 namespace QmlJS {
     class ModelManagerInterface;
     class IContextPane;
+    class LookupContext;
 }
 
 /*!
@@ -129,6 +131,9 @@ public:
     // Returns the list of nodes that enclose the given position.
     QList<QmlJS::AST::Node *> astPath(int cursorPosition) const;
 
+    // Returns a context for the given path
+    QSharedPointer<QmlJS::LookupContext> lookupContext(const QList<QmlJS::AST::Node *> &path = QList<QmlJS::AST::Node *>()) const;
+
 public: // attributes
     QmlJS::Document::Ptr document;
     QmlJS::Snapshot snapshot;
@@ -138,6 +143,10 @@ public: // attributes
 
     // these are in addition to the parser messages in the document
     QList<QmlJS::DiagnosticMessage> semanticMessages;
+
+private:
+    // created lazily
+    mutable QSharedPointer<const QmlJS::Interpreter::Context> m_context;
 };
 
 class SemanticHighlighter: public QThread

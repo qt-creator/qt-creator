@@ -40,24 +40,41 @@ class QmlJS::LookupContextData
 {
 public:
     LookupContextData(Document::Ptr doc, const Snapshot &snapshot, const QList<AST::Node *> &path)
-        : context(&interp),
+        : doc(doc),
+          snapshot(snapshot)
+    {
+        // since we keep the document and snapshot around, we don't need to keep the Link instance
+        Link link(&context, doc, snapshot, ModelManagerInterface::instance()->importPaths());
+
+        ScopeBuilder scopeBuilder(doc, &context);
+        scopeBuilder.push(path);
+    }
+
+    LookupContextData(Document::Ptr doc, const Snapshot &snapshot,
+                      const Interpreter::Context &linkedContextWithoutScope,
+                      const QList<AST::Node *> &path)
+        : context(linkedContextWithoutScope),
           doc(doc),
-          snapshot(snapshot),
-          link(&context, doc, snapshot, ModelManagerInterface::instance()->importPaths())
+          snapshot(snapshot)
     {
         ScopeBuilder scopeBuilder(doc, &context);
         scopeBuilder.push(path);
     }
 
-    Interpreter::Engine interp;
     Interpreter::Context context;
     Document::Ptr doc;
     Snapshot snapshot;
-    Link link;
 };
 
 LookupContext::LookupContext(Document::Ptr doc, const Snapshot &snapshot, const QList<AST::Node *> &path)
     : d(new LookupContextData(doc, snapshot, path))
+{
+}
+
+LookupContext::LookupContext(const Document::Ptr doc, const Snapshot &snapshot,
+                             const Interpreter::Context &linkedContextWithoutScope,
+                             const QList<AST::Node *> &path)
+    : d(new LookupContextData(doc, snapshot, linkedContextWithoutScope, path))
 {
 }
 
@@ -71,17 +88,37 @@ LookupContext::Ptr LookupContext::create(Document::Ptr doc, const Snapshot &snap
     return ptr;
 }
 
+LookupContext::Ptr LookupContext::create(const Document::Ptr doc, const Snapshot &snapshot,
+                                         const Interpreter::Context &linkedContextWithoutScope,
+                                         const QList<AST::Node *> &path)
+{
+    Ptr ptr(new LookupContext(doc, snapshot, linkedContextWithoutScope, path));
+    return ptr;
+}
+
 const Interpreter::Value *LookupContext::evaluate(AST::Node *node) const
 {
     Evaluate check(&d->context);
     return check(node);
 }
 
-Interpreter::Engine *LookupContext::engine() const
+Document::Ptr LookupContext::document() const
 {
-    return &d->interp;
+    return d->doc;
 }
 
+Snapshot LookupContext::snapshot() const
+{
+    return d->snapshot;
+}
+
+// the engine is only guaranteed to live as long as the LookupContext
+Interpreter::Engine *LookupContext::engine() const
+{
+    return d->context.engine();
+}
+
+// the context is only guaranteed to live as long as the LookupContext
 const Interpreter::Context *LookupContext::context() const
 {
     return &d->context;

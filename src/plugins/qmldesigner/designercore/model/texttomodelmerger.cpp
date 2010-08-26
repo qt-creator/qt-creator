@@ -187,15 +187,14 @@ public:
                    const QStringList importPaths)
         : m_snapshot(snapshot)
         , m_doc(doc)
-        , m_engine(new Interpreter::Engine)
-        , m_context(new Interpreter::Context(m_engine))
+        , m_context(new Interpreter::Context)
         , m_link(m_context, doc, snapshot, importPaths)
         , m_scopeBuilder(doc, m_context)
     {
     }
 
     ~ReadingContext()
-    { delete m_context; delete m_engine; }
+    { delete m_context; }
 
     Document::Ptr doc() const
     { return m_doc; }
@@ -328,11 +327,11 @@ public:
         if (!value)
             return false;
         const Interpreter::ObjectValue *objectValue = value->asObjectValue();
-        if (objectValue && objectValue->prototype(m_context) == m_engine->arrayPrototype())
+        if (objectValue && objectValue->prototype(m_context) == m_context->engine()->arrayPrototype())
             return true;
 
         for (const Interpreter::ObjectValue *iter = containingObject; iter; iter = iter->prototype(m_context)) {
-            if (iter->property(name, m_context) == m_engine->arrayPrototype())
+            if (iter->property(name, m_context) == m_context->engine()->arrayPrototype())
                 return true;
             if (const Interpreter::QmlObjectValue *qmlIter = dynamic_cast<const Interpreter::QmlObjectValue *>(iter)) {
                 if (qmlIter->isListProperty(name))
@@ -451,7 +450,6 @@ public:
 private:
     Snapshot m_snapshot;
     Document::Ptr m_doc;
-    Interpreter::Engine *m_engine;
     Interpreter::Context *m_context;
     Link m_link;
     ScopeBuilder m_scopeBuilder;

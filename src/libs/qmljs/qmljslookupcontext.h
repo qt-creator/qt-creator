@@ -31,6 +31,7 @@
 #define QMLJSLOOKUPCONTEXT_H
 
 #include "qmljsdocument.h"
+#include "qmljsinterpreter.h"
 #include "parser/qmljsastfwd_p.h"
 
 #include <QtCore/QSharedPointer>
@@ -42,23 +43,34 @@ class LookupContextData;
 
 namespace Interpreter {
 class Value;
-class Engine;
 class Context;
 }
 
 class QMLJS_EXPORT LookupContext
 {
+    Q_DISABLE_COPY(LookupContext)
+
     LookupContext(const Document::Ptr doc, const Snapshot &snapshot, const QList<AST::Node *> &path);
+    LookupContext(const Document::Ptr doc, const Snapshot &snapshot,
+                  const Interpreter::Context &linkedContextWithoutScope,
+                  const QList<AST::Node *> &path);
 
 public:
     ~LookupContext();
 
     typedef QSharedPointer<LookupContext> Ptr;
 
+    // consider using SemanticInfo::lookupContext instead, it's faster
     static Ptr create(const Document::Ptr doc, const Snapshot &snapshot,
+                      const QList<AST::Node *> &path);
+    static Ptr create(const Document::Ptr doc, const Snapshot &snapshot,
+                      const Interpreter::Context &linkedContextWithoutScope,
                       const QList<AST::Node *> &path);
 
     const Interpreter::Value *evaluate(AST::Node *node) const;
+
+    Document::Ptr document() const;
+    Snapshot snapshot() const;
     Interpreter::Engine *engine() const;
     const Interpreter::Context *context() const;
 

@@ -40,6 +40,7 @@
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsicontextpane.h>
 #include <qmljs/qmljslookupcontext.h>
+#include <qmljs/qmljslink.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsengine_p.h>
@@ -553,6 +554,18 @@ QList<AST::Node *> SemanticInfo::astPath(int cursorPosition) const
     return path;
 }
 
+LookupContext::Ptr SemanticInfo::lookupContext(const QList<QmlJS::AST::Node *> &path) const
+{
+    // create and link context if necessary
+    if (!m_context) {
+        Interpreter::Context *ctx = new Interpreter::Context;
+        Link link(ctx, document, snapshot, ModelManagerInterface::instance()->importPaths());
+        m_context = QSharedPointer<const QmlJS::Interpreter::Context>(ctx);
+    }
+
+    return LookupContext::create(document, snapshot, *m_context, path);
+}
+
 static bool importContainsCursor(UiImport *importAst, unsigned cursorPosition)
 {
     return cursorPosition >= importAst->firstSourceLocation().begin()
@@ -962,9 +975,9 @@ void QmlJSTextEditor::updateCursorPositionNow()
         Node *oldNode = m_semanticInfo.declaringMemberNoProperties(m_oldCursorPosition);
         Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
         if (oldNode != newNode && m_oldCursorPosition != -1)
-            m_contextPane->apply(editableInterface(), m_semanticInfo.document, m_semanticInfo.snapshot, newNode, false);
+            m_contextPane->apply(editableInterface(), m_semanticInfo.lookupContext(), newNode, false);
         if (oldNode != newNode &&
-            m_contextPane->isAvailable(editableInterface(), m_semanticInfo.document, m_semanticInfo.snapshot, newNode) &&
+            m_contextPane->isAvailable(editableInterface(), m_semanticInfo.lookupContext(), newNode) &&
             !m_contextPane->widget()->isVisible()) {
             QList<TextEditor::Internal::RefactorMarker> markers;
             if (UiObjectMember *m = newNode->uiObjectMemberCast()) {
@@ -1042,22 +1055,19 @@ class SelectedElement: protected Visitor
     unsigned m_cursorPositionStart;
     unsigned m_cursorPositionEnd;
     QList<UiObjectMember *> m_selectedMembers;
-    Document::Ptr m_document;
-    Snapshot m_snapshot;
     LookupContext::Ptr m_lookupContext;
 
 public:
     SelectedElement()
         : m_cursorPositionStart(0), m_cursorPositionEnd(0) {}
 
-    QList<UiObjectMember *> operator()(Document::Ptr doc, Snapshot snapshot, unsigned startPosition, unsigned endPosition)
+    QList<UiObjectMember *> operator()(LookupContext::Ptr lookupContext, unsigned startPosition, unsigned endPosition)
     {
-        m_document = doc;
-        m_snapshot = snapshot;
+        m_lookupContext = lookupContext;
         m_cursorPositionStart = startPosition;
         m_cursorPositionEnd = endPosition;
         m_selectedMembers.clear();
-        Node::accept(doc->qmlProgram(), this);
+        Node::accept(lookupContext->document()->qmlProgram(), this);
         return m_selectedMembers;
     }
 
@@ -1092,13 +1102,9 @@ protected:
 
     inline bool hasVisualPresentation(Node *ast)
     {
-        Bind *bind = m_document->bind();
+        Bind *bind = m_lookupContext->document()->bind();
         const Interpreter::ObjectValue *objValue = bind->findQmlObject(ast);
         QStringList prototypes;
-
-        if (m_lookupContext.isNull()) {
-            m_lookupContext = LookupContext::create(m_document, m_snapshot, QList<Node*>());
-        }
 
         while (objValue) {
             prototypes.append(objValue->className());
@@ -1189,7 +1195,7 @@ void QmlJSTextEditor::setSelectedElements()
 
     if (m_semanticInfo.document) {
         SelectedElement selectedMembers;
-        QList<UiObjectMember *> members = selectedMembers(m_semanticInfo.document, m_semanticInfo.snapshot,
+        QList<UiObjectMember *> members = selectedMembers(m_semanticInfo.lookupContext(),
                                                           startPos, endPos);
         if (!members.isEmpty()) {
             foreach(UiObjectMember *m, members) {
@@ -1376,7 +1382,7 @@ TextEditor::BaseTextEditor::Link QmlJSTextEditor::findLinkAt(const QTextCursor &
         return Link();
     }
 
-    LookupContext::Ptr lookupContext = LookupContext::create(semanticInfo.document, semanticInfo.snapshot, semanticInfo.astPath(cursorPosition));
+    LookupContext::Ptr lookupContext = semanticInfo.lookupContext(semanticInfo.astPath(cursorPosition));
     const Interpreter::Value *value = lookupContext->evaluate(node);
 
     QString fileName;
@@ -1422,7 +1428,7 @@ void QmlJSTextEditor::showContextPane()
 {
     if (m_contextPane) {
         Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
-        m_contextPane->apply(editableInterface(), m_semanticInfo.document, m_semanticInfo.snapshot, newNode, false, true);
+        m_contextPane->apply(editableInterface(), m_semanticInfo.lookupContext(), newNode, false, true);
         m_oldCursorPosition = position();
         QList<TextEditor::Internal::RefactorMarker> markers;
         setRefactorMarkers(markers);
@@ -1481,7 +1487,7 @@ void QmlJSTextEditor::wheelEvent(QWheelEvent *event)
     BaseTextEditor::wheelEvent(event);
 
     if (visible)
-        m_contextPane->apply(editableInterface(),  m_semanticInfo.document, m_semanticInfo.snapshot, m_semanticInfo.declaringMemberNoProperties(position()), false, true);
+        m_contextPane->apply(editableInterface(),  m_semanticInfo.lookupContext(), m_semanticInfo.declaringMemberNoProperties(position()), false, true);
 }
 
 void QmlJSTextEditor::resizeEvent(QResizeEvent *event)
@@ -1723,7 +1729,7 @@ void QmlJSTextEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
     if (m_contextPane) {
         Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
         if (newNode) {
-            m_contextPane->apply(editableInterface(), doc, m_semanticInfo.snapshot, newNode, true);
+            m_contextPane->apply(editableInterface(), m_semanticInfo.lookupContext(), newNode, true);
             showTextMarker();
         }
     }
@@ -1776,7 +1782,7 @@ bool QmlJSTextEditor::hideContextPane()
 {
     bool b = (m_contextPane) && m_contextPane->widget()->isVisible();
     if (b)
-        m_contextPane->apply(editableInterface(),  m_semanticInfo.document, m_semanticInfo.snapshot, 0, false);
+        m_contextPane->apply(editableInterface(),  m_semanticInfo.lookupContext(), 0, false);
     return b;
 }
 

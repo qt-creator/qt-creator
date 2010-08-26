@@ -271,7 +271,7 @@ private:
 class QMLJS_EXPORT Context
 {
 public:
-    Context(Engine *engine);
+    Context();
     ~Context();
 
     Engine *engine() const;
@@ -289,18 +289,14 @@ public:
     const Value *property(const ObjectValue *object, const QString &name) const;
     void setProperty(const ObjectValue *object, const QString &name, const Value *value);
 
-    QString defaultPropertyName(const ObjectValue *object);
-
-    bool documentImportsPlugins(const Document *doc) const;
-    void setDocumentImportsPlugins(const Document *doc);
+    QString defaultPropertyName(const ObjectValue *object) const;
 
 private:
     typedef QHash<QString, const Value *> Properties;
 
-    Engine *_engine;
+    QSharedPointer<Engine> _engine;
     QHash<const ObjectValue *, Properties> _properties;
     QHash<QString, const ObjectValue *> _typeEnvironments;
-    QSet<QString> _documentsImportingPlugins;
     ScopeChain _scopeChain;
     int _qmlScopeObjectIndex;
     bool _qmlScopeObjectSet;
@@ -628,8 +624,7 @@ protected:
 
 class QMLJS_EXPORT Engine
 {
-    Engine(const Engine &other);
-    void operator = (const Engine &other);
+    Q_DISABLE_COPY(Engine)
 
 public:
     Engine();

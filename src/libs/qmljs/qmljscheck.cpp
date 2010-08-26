@@ -157,10 +157,9 @@ public:
 Check::Check(Document::Ptr doc, const Snapshot &snapshot, const QStringList &importPaths)
     : _doc(doc)
     , _snapshot(snapshot)
-    , _context(&_engine)
     , _link(&_context, doc, snapshot, importPaths)
     , _scopeBuilder(doc, &_context)
-    , _ignoreTypeErrors(_context.documentImportsPlugins(_doc.data()))
+    , _ignoreTypeErrors(false)
 {
 }
 

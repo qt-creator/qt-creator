@@ -71,7 +71,6 @@ private:
     Document::Ptr _doc;
     Snapshot _snapshot;
 
-    Interpreter::Engine _engine;
     Interpreter::Context _context;
     Link _link;
     ScopeBuilder _scopeBuilder;

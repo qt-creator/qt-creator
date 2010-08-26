@@ -1419,8 +1419,8 @@ QList<const ObjectValue *> ScopeChain::all() const
 }
 
 
-Context::Context(Engine *engine)
-    : _engine(engine),
+Context::Context()
+    : _engine(new Engine),
       _qmlScopeObjectIndex(-1),
       _qmlScopeObjectSet(false)
 {
@@ -1430,9 +1430,10 @@ Context::~Context()
 {
 }
 
+// the engine is only guaranteed to live as long as the context
 Engine *Context::engine() const
 {
-    return _engine;
+    return _engine.data();
 }
 
 const ScopeChain &Context::scopeChain() const
@@ -1530,7 +1531,7 @@ void Context::setProperty(const ObjectValue *object, const QString &name, const 
     _properties[object].insert(name, value);
 }
 
-QString Context::defaultPropertyName(const ObjectValue *object)
+QString Context::defaultPropertyName(const ObjectValue *object) const
 {
     for (const ObjectValue *o = object; o; o = o->prototype(this)) {
         if (const ASTObjectValue *astObjValue = dynamic_cast<const ASTObjectValue *>(o)) {
@@ -1542,16 +1543,6 @@ QString Context::defaultPropertyName(const ObjectValue *object)
         }
     }
     return QString();
-}
-
-bool Context::documentImportsPlugins(const QmlJS::Document *doc) const
-{
-    return _documentsImportingPlugins.contains(doc->fileName());
-}
-
-void Context::setDocumentImportsPlugins(const QmlJS::Document *doc)
-{
-    _documentsImportingPlugins.insert(doc->fileName());
 }
 
 Reference::Reference(Engine *engine)

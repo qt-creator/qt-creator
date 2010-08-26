@@ -111,9 +111,8 @@ void HoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
         if (astPath.isEmpty())
             return;
 
-        const Snapshot &snapshot = semanticInfo.snapshot;
         const Document::Ptr qmlDocument = semanticInfo.document;
-        LookupContext::Ptr lookupContext = LookupContext::create(qmlDocument, snapshot, astPath);
+        LookupContext::Ptr lookupContext = semanticInfo.lookupContext(astPath);
 
         if (!matchColorItem(lookupContext, qmlDocument, astPath, pos))
             handleOrdinaryMatch(lookupContext, semanticInfo.nodeUnderCursor(pos));

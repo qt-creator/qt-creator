@@ -691,7 +691,7 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     const QIcon keywordIcon = iconForColor(Qt::darkYellow);
 
     const QList<AST::Node *> path = semanticInfo.astPath(editor->position());
-    LookupContext::Ptr lookupContext = LookupContext::create(document, snapshot, path);
+    LookupContext::Ptr lookupContext = semanticInfo.lookupContext(path);
     const Interpreter::Context *context = lookupContext->context();
 
     // Search for the operator that triggered the completion.
