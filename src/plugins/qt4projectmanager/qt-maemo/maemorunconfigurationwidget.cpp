@@ -408,13 +408,13 @@ void MaemoRunConfigurationWidget::handleRemoteMountsChanged()
     QString text;
     switch (mountCount) {
     case 0:
-        text = tr("No local directories to be mounted from the device.");
+        text = tr("No local directories to be mounted on the device.");
         break;
     case 1:
-        text = tr("One local directory to be mounted from the device.");
+        text = tr("One local directory to be mounted on the device.");
         break;
     default:
-        text = tr("%1 local directories to be mounted from the device.")
+        text = tr("%1 local directories to be mounted on the device.")
             .arg(mountCount);
         break;
     }
