@@ -1061,6 +1061,7 @@ void HelpPlugin::handleHelpRequest(const QUrl &url)
 
 void HelpPlugin::slotAboutToShowBackMenu()
 {
+#if !defined(QT_NO_WEBKIT)
     m_backMenu->clear();
     if (QWebHistory *history = viewerForContextMode()->history()) {
         const int currentItemIndex = history->currentItemIndex();
@@ -1072,10 +1073,12 @@ void HelpPlugin::slotAboutToShowBackMenu()
             m_backMenu->addAction(action);
         }
     }
+#endif
 }
 
 void HelpPlugin::slotAboutToShowNextMenu()
 {
+#if !defined(QT_NO_WEBKIT)
     m_nextMenu->clear();
     if (QWebHistory *history = viewerForContextMode()->history()) {
         const int count = history->count();
@@ -1087,10 +1090,12 @@ void HelpPlugin::slotAboutToShowNextMenu()
             m_nextMenu->addAction(action);
         }
     }
+#endif
 }
 
 void HelpPlugin::slotOpenActionUrl(QAction *action)
 {
+#if !defined(QT_NO_WEBKIT)
     if (HelpViewer* viewer = viewerForContextMode()) {
         const int offset = action->data().toInt();
         QWebHistory *history = viewer->history();
@@ -1101,6 +1106,9 @@ void HelpPlugin::slotOpenActionUrl(QAction *action)
             history->goToItem(history->backItems(-1 * offset).first()); // back
         }
     }
+#else
+    Q_UNUSED(action)
+#endif
 }
 
 void HelpPlugin::doSetupIfNeeded()
