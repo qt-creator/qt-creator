@@ -519,9 +519,9 @@ void MaemoDeployStep::installToSysroot()
             const QLatin1Char sep('/');
             const QString targetFilePath = toolChain()->sysrootRoot() + sep
                 + d.remoteDir + sep + QFileInfo(d.localFilePath).fileName();
-            if (!sysRootDir.mkpath(d.remoteDir.mid(1))
-                || !QFile::remove(targetFilePath)
-                || !QFile::copy(d.localFilePath, targetFilePath)) {
+            sysRootDir.mkpath(d.remoteDir.mid(1));
+            QFile::remove(targetFilePath);
+            if (!QFile::copy(d.localFilePath, targetFilePath)) {
                 writeOutput(tr("Sysroot installation failed: "
                     "Could not copy '%1' to '%2'. Continuing anyway.")
                     .arg(QDir::toNativeSeparators(d.localFilePath),
