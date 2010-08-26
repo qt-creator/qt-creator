@@ -38,4 +38,11 @@
 #   include "build_unix.h"
 #endif
 
+#ifdef QT_ARCH_I386
+#define BOTAN_TARGET_ARCH_IS_IA32
+#define BOTAN_TARGET_CPU_IS_I686
+#elif defined(QT_ARCH_X86_64)
+#define BOTAN_TARGET_ARCH_IS_AMD64
+#endif
+
 #endif
