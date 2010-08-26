@@ -56,7 +56,7 @@ bool TaskListPlugin::initialize(const QStringList &arguments, QString *errorMess
         return false;
 
     TaskListManager * manager = new TaskListManager(this);
-    addObject(new TaskFileFactory(manager));
+    addAutoReleasedObject(new TaskFileFactory(manager));
     return true;
 }
 
