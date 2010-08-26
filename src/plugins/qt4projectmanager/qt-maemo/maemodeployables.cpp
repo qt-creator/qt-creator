@@ -55,7 +55,7 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 MaemoDeployables::MaemoDeployables(const ProjectExplorer::BuildStep *buildStep)
-    : m_proFileOption(new ProFileOption), m_buildStep(buildStep)
+    : m_buildStep(buildStep)
 {
     QTimer::singleShot(0, this, SLOT(init()));
 }
@@ -64,8 +64,6 @@ MaemoDeployables::~MaemoDeployables() {}
 
 void MaemoDeployables::init()
 {
-    m_proFileOption->properties
-        = qt4BuildConfiguration()->qtVersion()->versionInfo();
     createModels();
     connect(qt4BuildConfiguration()->qt4Target()->qt4Project(),
         SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
@@ -74,7 +72,11 @@ void MaemoDeployables::init()
 
 void MaemoDeployables::createModels()
 {
+    qDeleteAll(m_listModels);
     m_listModels.clear();
+    m_proFileOption = QSharedPointer<ProFileOption>(new ProFileOption);
+    m_proFileOption->properties
+        = qt4BuildConfiguration()->qtVersion()->versionInfo();
     createModels(qt4BuildConfiguration()->qt4Target()->qt4Project()
         ->rootProjectNode());
     emit modelsCreated();
@@ -155,7 +157,7 @@ QString MaemoDeployables::remoteExecutableFilePath(const QString &localExecutabl
 const Qt4BuildConfiguration *MaemoDeployables::qt4BuildConfiguration() const
 {
     const Qt4BuildConfiguration * const bc
-        = qobject_cast<Qt4BuildConfiguration *>(m_buildStep->buildConfiguration());
+        = qobject_cast<Qt4BuildConfiguration *>(m_buildStep->target()->activeBuildConfiguration());
     Q_ASSERT(bc);
     return bc;
 }

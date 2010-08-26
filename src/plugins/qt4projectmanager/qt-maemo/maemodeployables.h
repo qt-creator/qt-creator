@@ -86,7 +86,7 @@ private:
     const Qt4BuildConfiguration *qt4BuildConfiguration() const;
 
     QList<MaemoDeployableListModel *> m_listModels;
-    const QSharedPointer<ProFileOption> m_proFileOption;
+    QSharedPointer<ProFileOption> m_proFileOption;
     const ProjectExplorer::BuildStep * const m_buildStep;
 };
 
