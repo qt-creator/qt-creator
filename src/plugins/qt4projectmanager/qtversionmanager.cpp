@@ -1094,7 +1094,7 @@ void QtVersion::updateVersionInfo() const
             args << "-query" << variables[i];
         QProcess process;
         process.start(qmake.absoluteFilePath(), args, QIODevice::ReadOnly);
-        if (process.waitForFinished(2000)) {
+        if (process.waitForFinished(10000)) {
             QByteArray output = process.readAllStandardOutput();
             QTextStream stream(&output);
             while (!stream.atEnd()) {
