@@ -1448,11 +1448,15 @@ ScopeChain &Context::scopeChain()
 
 const ObjectValue *Context::typeEnvironment(const QmlJS::Document *doc) const
 {
+    if (!doc)
+        return 0;
     return _typeEnvironments.value(doc->fileName(), 0);
 }
 
 void Context::setTypeEnvironment(const QmlJS::Document *doc, const ObjectValue *typeEnvironment)
 {
+    if (!doc)
+        return;
     _typeEnvironments[doc->fileName()] = typeEnvironment;
 }
 
