@@ -178,7 +178,7 @@ QString DeclFromDef::generateDeclaration(const CppQuickFixState &,
     oo.setShowArgumentNames(true);
 
     QString decl;
-    decl += oo(method->type(), method->identity());
+    decl += oo(method->type(), method->unqualifiedName());
     decl += QLatin1String(";\n");
 
     return decl;

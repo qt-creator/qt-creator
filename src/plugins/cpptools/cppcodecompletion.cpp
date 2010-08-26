@@ -151,7 +151,7 @@ public:
 
         TextEditor::CompletionItem previousItem = switchCompletionItem(0);
         Symbol *previousSymbol = switchSymbol(symbol);
-        accept(symbol->identity());
+        accept(symbol->unqualifiedName());
         if (_item.isValid())
             _item.data = QVariant::fromValue(symbol);
         (void) switchSymbol(previousSymbol);
@@ -1849,7 +1849,7 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item, QChar t
             if (Function *function = symbol->type()->asFunctionType()) {
                 // If the member is a function, automatically place the opening parenthesis,
                 // except when it might take template parameters.
-                if (! function->hasReturnType() && (function->identity() && !function->identity()->isDestructorNameId())) {
+                if (! function->hasReturnType() && (function->unqualifiedName() && !function->unqualifiedName()->isDestructorNameId())) {
                     // Don't insert any magic, since the user might have just wanted to select the class
 
                     /// ### port me

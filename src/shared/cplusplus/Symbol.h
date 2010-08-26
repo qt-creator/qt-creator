@@ -276,7 +276,7 @@ public:
     /// Returns this Symbol's index.
     unsigned index() const;
 
-    const Name *identity() const;
+    const Name *unqualifiedName() const;
 
     bool isGenerated() const;
 

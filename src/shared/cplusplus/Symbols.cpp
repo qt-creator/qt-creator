@@ -204,8 +204,8 @@ bool Function::isEqualTo(const Type *other) const
         return false;
 #endif
 
-    const Name *l = identity();
-    const Name *r = o->identity();
+    const Name *l = unqualifiedName();
+    const Name *r = o->unqualifiedName();
     if (l == r || (l && l->isEqualTo(r))) {
         if (argumentCount() != o->argumentCount())
             return false;
@@ -394,8 +394,8 @@ bool Enum::isEqualTo(const Type *other) const
     const Enum *o = other->asEnumType();
     if (! o)
         return false;
-    const Name *l = identity();
-    const Name *r = o->identity();
+    const Name *l = unqualifiedName();
+    const Name *r = o->unqualifiedName();
     if (l == r)
         return true;
     else if (! l)
@@ -492,8 +492,8 @@ bool Namespace::isEqualTo(const Type *other) const
     const Namespace *o = other->asNamespaceType();
     if (! o)
         return false;
-    const Name *l = identity();
-    const Name *r = o->identity();
+    const Name *l = unqualifiedName();
+    const Name *r = o->unqualifiedName();
     if (l == r || (l && l->isEqualTo(r)))
         return true;
     return false;
@@ -634,8 +634,8 @@ bool Class::isEqualTo(const Type *other) const
     const Class *o = other->asClassType();
     if (! o)
         return false;
-    const Name *l = identity();
-    const Name *r = o->identity();
+    const Name *l = unqualifiedName();
+    const Name *r = o->unqualifiedName();
     if (l == r || (l && l->isEqualTo(r)))
         return true;
     else
@@ -730,8 +730,8 @@ bool ObjCClass::isEqualTo(const Type *other) const
     if (!o)
         return false;
 
-    const Name *l = identity();
-    const Name *r = o->identity();
+    const Name *l = unqualifiedName();
+    const Name *r = o->unqualifiedName();
     if (l == r || (l && l->isEqualTo(r)))
         return true;
     else
@@ -789,8 +789,8 @@ bool ObjCProtocol::isEqualTo(const Type *other) const
     if (!o)
         return false;
 
-    const Name *l = identity();
-    const Name *r = o->identity();
+    const Name *l = unqualifiedName();
+    const Name *r = o->unqualifiedName();
     if (l == r || (l && l->isEqualTo(r)))
         return true;
     else
@@ -910,8 +910,8 @@ bool ObjCMethod::isEqualTo(const Type *other) const
     if (! o)
         return false;
 
-    const Name *l = identity();
-    const Name *r = o->identity();
+    const Name *l = unqualifiedName();
+    const Name *r = o->unqualifiedName();
     if (l == r || (l && l->isEqualTo(r))) {
         if (argumentCount() != o->argumentCount())
             return false;

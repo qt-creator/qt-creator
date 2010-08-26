@@ -766,7 +766,7 @@ Symbol *Snapshot::findMatchingDefinition(Symbol *declaration) const
             Function *best = 0;
 
             foreach (Function *fun, viableFunctions) {
-                if (fun->identity()->isEqualTo(declaration->identity()))
+                if (fun->unqualifiedName()->isEqualTo(declaration->unqualifiedName()))
                     continue;
 
                 else if (fun->argumentCount() == declarationTy->argumentCount()) {

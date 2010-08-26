@@ -180,7 +180,7 @@ Symbol *SymbolTable::lookat(const Identifier *id) const
     const unsigned h = id->hashCode() % _hashSize;
     Symbol *symbol = _hash[h];
     for (; symbol; symbol = symbol->_next) {
-        const Name *identity = symbol->identity();
+        const Name *identity = symbol->unqualifiedName();
         if (! identity) {
             continue;
         } else if (const NameId *nameId = identity->asNameId()) {
@@ -210,7 +210,7 @@ Symbol *SymbolTable::lookat(int operatorId) const
     const unsigned h = operatorId % _hashSize;
     Symbol *symbol = _hash[h];
     for (; symbol; symbol = symbol->_next) {
-        const Name *identity = symbol->identity();
+        const Name *identity = symbol->unqualifiedName();
         if (const OperatorNameId *op = identity->asOperatorNameId()) {
             if (op->kind() == operatorId)
                 break;

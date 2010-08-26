@@ -199,7 +199,7 @@ const char *Symbol::fileName() const
 unsigned Symbol::fileNameLength() const
 { return fileId()->size(); }
 
-const Name *Symbol::identity() const
+const Name *Symbol::unqualifiedName() const
 {
     if (! _name)
         return 0;
@@ -221,7 +221,7 @@ void Symbol::setName(const Name *name)
         _hashCode = 0;
     else {
         HashCode hh;
-        _hashCode = hh(identity());
+        _hashCode = hh(unqualifiedName());
     }
 }
 

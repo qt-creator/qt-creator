@@ -114,7 +114,7 @@ bool SearchSymbols::visit(Function *symbol)
     QString name = symbolName(symbol);
     QString scopedName = scopedSymbolName(name);
     QString type = overview.prettyType(symbol->type(),
-                                       separateScope ? symbol->identity() : 0);
+                                       separateScope ? symbol->unqualifiedName() : 0);
     appendItem(separateScope ? type : scopedName,
                separateScope ? fullScope : type,
                ModelItemInfo::Method, symbol);
@@ -140,7 +140,7 @@ bool SearchSymbols::visit(Declaration *symbol)
     QString name = symbolName(symbol);
     QString scopedName = scopedSymbolName(name);
     QString type = overview.prettyType(symbol->type(),
-                                       separateScope ? symbol->identity() : 0);
+                                       separateScope ? symbol->unqualifiedName() : 0);
     appendItem(separateScope ? type : scopedName,
                separateScope ? _scope : type,
                ModelItemInfo::Declaration, symbol);
