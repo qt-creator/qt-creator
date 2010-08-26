@@ -115,7 +115,7 @@ void ResolveExpression::addResults(const QList<Symbol *> &symbols)
     foreach (Symbol *symbol, symbols) {
         LookupItem item;
         item.setType(symbol->type());
-        item.setScope(symbol->scope());
+        item.setScope(symbol->enclosingScope());
         item.setDeclaration(symbol);
         _results.append(item);
     }
@@ -313,18 +313,18 @@ bool ResolveExpression::visit(ThisExpressionAST *)
 void ResolveExpression::thisObject()
 {
     Scope *scope = _scope;
-    for (; scope; scope = scope->scope()) {
+    for (; scope; scope = scope->enclosingScope()) {
         if (Function *fun = scope->asFunction()) {
             if (Class *klass = scope->enclosingClass()) {
                 FullySpecifiedType classTy(control()->namedType(klass->name()));
                 FullySpecifiedType ptrTy(control()->pointerType(classTy));
-                addResult(ptrTy, fun->scope());
+                addResult(ptrTy, fun->enclosingScope());
                 break;
             } else if (const QualifiedNameId *q = fun->name()->asQualifiedNameId()) {
                 if (q->base()) {
                     FullySpecifiedType classTy(control()->namedType(q->base()));
                     FullySpecifiedType ptrTy(control()->pointerType(classTy));
-                    addResult(ptrTy, fun->scope());
+                    addResult(ptrTy, fun->enclosingScope());
                 }
                 break;
             }
@@ -666,10 +666,10 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
                         FullySpecifiedType retTy = instantiatedFunction->returnType().simplified();
 
                         if (PointerType *ptrTy = retTy->asPointerType()) {
-                            if (ClassOrNamespace *retBinding = findClass(ptrTy->elementType(), overload->scope()))
+                            if (ClassOrNamespace *retBinding = findClass(ptrTy->elementType(), overload->enclosingScope()))
                                 return retBinding;
 
-                            else if (scope != overload->scope()) {
+                            else if (scope != overload->enclosingScope()) {
                                 if (ClassOrNamespace *retBinding = findClass(ptrTy->elementType(), scope))
                                     return retBinding;
                             }

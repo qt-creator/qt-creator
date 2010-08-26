@@ -287,7 +287,7 @@ public:
     void setUnavailable(bool isUnavailable);
 
     /// Returns this Symbol's eclosing scope.
-    Scope *scope() const;
+    Scope *enclosingScope() const;
 
     /// Returns the eclosing namespace scope.
     Namespace *enclosingNamespace() const;
@@ -307,7 +307,7 @@ public:
     /// Returns the enclosing Block scope.
     Block *enclosingBlock() const;
 
-    void setScope(Scope *scope); // ### make me private
+    void setScope(Scope *enclosingScope); // ### make me private
     void setSourceLocation(unsigned sourceLocation, TranslationUnit *translationUnit); // ### make me private
 
     void visitSymbol(SymbolVisitor *visitor);

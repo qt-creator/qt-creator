@@ -414,10 +414,10 @@ void tst_Semantic::pointer_to_function_1()
     QVERIFY(funTy);
 
     QEXPECT_FAIL("", "Requires initialize enclosing scope of pointer-to-function symbols", Continue);
-    QVERIFY(funTy->scope());
+    QVERIFY(funTy->enclosingScope());
 
     QEXPECT_FAIL("", "Requires initialize enclosing scope of pointer-to-function symbols", Continue);
-    QCOMPARE(funTy->scope(), decl->scope());
+    QCOMPARE(funTy->enclosingScope(), decl->enclosingScope());
 }
 
 void tst_Semantic::template_instance_1()

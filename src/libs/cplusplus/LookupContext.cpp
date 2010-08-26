@@ -68,7 +68,7 @@ static void path_helper(Symbol *symbol, QList<const Name *> *names)
     if (! symbol)
         return;
 
-    path_helper(symbol->scope(), names);
+    path_helper(symbol->enclosingScope(), names);
 
     if (symbol->name()) {
         if (symbol->isClass() || symbol->isNamespace()) {
@@ -142,7 +142,7 @@ LookupContext &LookupContext::operator = (const LookupContext &other)
 
 QList<const Name *> LookupContext::fullyQualifiedName(Symbol *symbol)
 {
-    QList<const Name *> qualifiedName = path(symbol->scope());
+    QList<const Name *> qualifiedName = path(symbol->enclosingScope());
     addNames(symbol->name(), &qualifiedName, /*add all names*/ true);
     return qualifiedName;
 }
@@ -256,7 +256,7 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
     if (! name)
         return candidates;
 
-    for (; scope; scope = scope->scope()) {
+    for (; scope; scope = scope->enclosingScope()) {
         if ((name->isNameId() || name->isTemplateNameId()) && scope->isBlock()) {
             bindings()->lookupInScope(name, scope, &candidates, /*templateId = */ 0, /*binding=*/ 0);
 

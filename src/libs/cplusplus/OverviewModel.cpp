@@ -90,10 +90,10 @@ QModelIndex OverviewModel::parent(const QModelIndex &child) const
     if (!symbol) // account for no symbol item
         return QModelIndex();
 
-    if (Scope *scope = symbol->scope()) {
-        if (scope->scope()) {
+    if (Scope *scope = symbol->enclosingScope()) {
+        if (scope->enclosingScope()) {
             QModelIndex index;
-            if (scope->scope() && scope->scope()->scope()) // the parent doesn't have a parent
+            if (scope->enclosingScope() && scope->enclosingScope()->enclosingScope()) // the parent doesn't have a parent
                 index = createIndex(scope->index(), 0, scope);
             else //+1 to account for no symbol item
                 index = createIndex(scope->index() + 1, 0, scope);

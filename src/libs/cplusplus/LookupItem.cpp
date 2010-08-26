@@ -67,7 +67,7 @@ void LookupItem::setDeclaration(Symbol *declaration)
 Scope *LookupItem::scope() const
 {
     if (! _scope && _declaration)
-        return _declaration->scope();
+        return _declaration->enclosingScope();
 
     return _scope;
 }

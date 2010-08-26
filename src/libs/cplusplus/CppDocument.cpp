@@ -748,7 +748,7 @@ Symbol *Snapshot::findMatchingDefinition(Symbol *declaration) const
                 continue; // nothing to do
 
             foreach (Function *fun, result) {
-                const QList<LookupItem> declarations = context.lookup(fun->name(), fun->scope());
+                const QList<LookupItem> declarations = context.lookup(fun->name(), fun->enclosingScope());
                 if (declarations.isEmpty())
                     continue;
 

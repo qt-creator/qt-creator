@@ -224,8 +224,8 @@ bool FindUsages::checkCandidates(const QList<LookupItem> &candidates) const
                     return false;
             }
 
-            if (isLocalScope(_declSymbol->scope()) || isLocalScope(s->scope())) {
-                if (s->scope() != _declSymbol->scope())
+            if (isLocalScope(_declSymbol->enclosingScope()) || isLocalScope(s->enclosingScope())) {
+                if (s->enclosingScope() != _declSymbol->enclosingScope())
                     return false;
             }
 

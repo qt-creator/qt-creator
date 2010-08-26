@@ -346,10 +346,10 @@ struct CanonicalSymbol
             const LookupItem &r = results.at(i);
             Symbol *decl = r.declaration();
 
-            if (! (decl && decl->scope()))
+            if (! (decl && decl->enclosingScope()))
                 break;
 
-            if (Class *classScope = r.declaration()->scope()->asClass()) {
+            if (Class *classScope = r.declaration()->enclosingScope()->asClass()) {
                 const Identifier *declId = decl->identifier();
                 const Identifier *classId = classScope->identifier();
 
@@ -1092,7 +1092,7 @@ void CPPEditor::switchDeclarationDefinition()
             LookupContext context(thisDocument, snapshot);
 
             Function *functionDefinition = functionScope->asFunction();
-            const QList<LookupItem> declarations = context.lookup(functionDefinition->name(), functionDefinition->scope());
+            const QList<LookupItem> declarations = context.lookup(functionDefinition->name(), functionDefinition->enclosingScope());
             foreach (const LookupItem &r, declarations) {
                 Symbol *decl = r.declaration();
                 // TODO: check decl.

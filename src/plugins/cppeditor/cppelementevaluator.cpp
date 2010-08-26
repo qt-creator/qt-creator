@@ -183,7 +183,7 @@ void CppElementEvaluator::handleLookupItemMatch(const Snapshot &snapshot,
             if (m_lookupBaseClasses)
                 cppClass->lookupBases(declaration, context);
             m_element = QSharedPointer<CppElement>(cppClass);
-        } else if (declaration->isEnum() || declaration->scope()->isEnum()) {
+        } else if (declaration->isEnum() || declaration->enclosingScope()->isEnum()) {
             m_element = QSharedPointer<CppElement>(new CppEnum(declaration));
         } else if (declaration->isTypedef()) {
             m_element = QSharedPointer<CppElement>(new CppTypedef(declaration));
@@ -310,9 +310,9 @@ CppDeclarableElement::CppDeclarableElement(Symbol *declaration) : CppElement()
 
     m_icon = Icons().iconForSymbol(declaration);
     m_name = overview.prettyName(declaration->name());
-    if (declaration->scope()->isClass() ||
-        declaration->scope()->isNamespace() ||
-        declaration->scope()->isEnum()) {
+    if (declaration->enclosingScope()->isClass() ||
+        declaration->enclosingScope()->isNamespace() ||
+        declaration->enclosingScope()->isEnum()) {
         m_qualifiedName = overview.prettyName(LookupContext::fullyQualifiedName(declaration));
     } else {
         m_qualifiedName = m_name;
@@ -440,8 +440,8 @@ CppEnum::CppEnum(Symbol *declaration) : CppDeclarableElement(declaration)
 {
     setHelpCategory(CppHoverHandler::HelpCandidate::Enum);
 
-    if (declaration->scope()->isEnum()) {
-        Symbol *enumSymbol = declaration->scope()->asEnum();
+    if (declaration->enclosingScope()->isEnum()) {
+        Symbol *enumSymbol = declaration->enclosingScope()->asEnum();
         Overview overview;
         setHelpMark(overview.prettyName(enumSymbol->name()));
         setTooltip(overview.prettyName(LookupContext::fullyQualifiedName(enumSymbol)));

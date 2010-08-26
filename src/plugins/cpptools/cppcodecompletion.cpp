@@ -1055,7 +1055,7 @@ void CppCodeCompletion::globalCompletion(Scope *currentScope)
     QList<ClassOrNamespace *> usingBindings;
     ClassOrNamespace *currentBinding = 0;
 
-    for (Scope *scope = currentScope; scope; scope = scope->scope()) {
+    for (Scope *scope = currentScope; scope; scope = scope->enclosingScope()) {
         if (scope->isBlock()) {
             if (ClassOrNamespace *binding = context.lookupType(scope)) {
                 for (unsigned i = 0; i < scope->memberCount(); ++i) {
@@ -1074,7 +1074,7 @@ void CppCodeCompletion::globalCompletion(Scope *currentScope)
         }
     }
 
-    for (Scope *scope = currentScope; scope; scope = scope->scope()) {
+    for (Scope *scope = currentScope; scope; scope = scope->enclosingScope()) {
         if (scope->isBlock()) {
             for (unsigned i = 0; i < scope->memberCount(); ++i) {
                 addCompletionItem(scope->memberAt(i));
@@ -1153,7 +1153,7 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &r
 
                 if (! fun->name())
                     continue;
-                else if (! functions.isEmpty() && functions.first()->scope() != fun->scope())
+                else if (! functions.isEmpty() && functions.first()->enclosingScope() != fun->enclosingScope())
                     continue; // skip fun, it's an hidden declaration.
 
                 bool newOverload = true;

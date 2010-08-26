@@ -100,7 +100,7 @@ void tst_Lookup::base_class_defined_1()
 
     const LookupContext ctx(doc, snapshot);
 
-    ClassOrNamespace *klass = ctx.lookupType(derivedClass->baseClassAt(0)->name(), derivedClass->scope());
+    ClassOrNamespace *klass = ctx.lookupType(derivedClass->baseClassAt(0)->name(), derivedClass->enclosingScope());
     QVERIFY(klass != 0);
 
     QCOMPARE(klass->symbols().size(), 1);
@@ -169,7 +169,7 @@ void tst_Lookup::simple_class_1()
     const LookupContext context(doc, snapshot);
 
     // check class resolving:
-    ClassOrNamespace *klass = context.lookupType(impl->name(), impl->scope());
+    ClassOrNamespace *klass = context.lookupType(impl->name(), impl->enclosingScope());
     QVERIFY(klass != 0);
     QCOMPARE(klass->symbols().size(), 2);
     QVERIFY(klass->symbols().contains(iface));
@@ -233,7 +233,7 @@ void tst_Lookup::class_with_baseclass()
 
     const LookupContext context(doc, snapshot);
 
-    ClassOrNamespace *objClass = context.lookupType(baseZoo->name(), zooImpl->scope());
+    ClassOrNamespace *objClass = context.lookupType(baseZoo->name(), zooImpl->enclosingScope());
     QVERIFY(objClass != 0);
     QVERIFY(objClass->symbols().contains(baseZoo));
 
@@ -286,13 +286,13 @@ void tst_Lookup::class_with_protocol_with_protocol()
     const LookupContext context(doc, snapshot);
 
     {
-        const QList<LookupItem> candidates = context.lookup(P1->name(), zooImpl->scope());
+        const QList<LookupItem> candidates = context.lookup(P1->name(), zooImpl->enclosingScope());
         QCOMPARE(candidates.size(), 1);
         QVERIFY(candidates.at(0).declaration() == P1);
     }
 
     {
-        const QList<LookupItem> candidates = context.lookup(P2->protocolAt(0)->name(), zooImpl->scope());
+        const QList<LookupItem> candidates = context.lookup(P2->protocolAt(0)->name(), zooImpl->enclosingScope());
         QCOMPARE(candidates.size(), 1);
         QVERIFY(candidates.first().declaration() == P1);
     }
@@ -354,7 +354,7 @@ void tst_Lookup::iface_impl_scoping()
         QCOMPARE(arg->name()->identifier()->chars(), "arg");
         QVERIFY(arg->type()->isIntegerType());
 
-        const QList<LookupItem> candidates = context.lookup(arg->name(), method1Body->scope());
+        const QList<LookupItem> candidates = context.lookup(arg->name(), method1Body->enclosingScope());
         QCOMPARE(candidates.size(), 1);
         QVERIFY(candidates.at(0).declaration()->type()->asIntegerType());
     }
@@ -364,7 +364,7 @@ void tst_Lookup::iface_impl_scoping()
     QCOMPARE(method2->identifier()->chars(), "method2");
 
     { // verify if we can resolve "method2" in the body
-        const QList<LookupItem> candidates = context.lookup(method2->name(), method1Body->scope());
+        const QList<LookupItem> candidates = context.lookup(method2->name(), method1Body->enclosingScope());
         QCOMPARE(candidates.size(), 1);
         QCOMPARE(candidates.at(0).declaration(), method2);
     }

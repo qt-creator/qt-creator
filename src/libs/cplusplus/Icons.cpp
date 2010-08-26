@@ -104,7 +104,7 @@ Icons::IconType Icons::iconTypeForSymbol(const Symbol *symbol)
         } else if (symbol->isPrivate()) {
             return FuncPrivateIconType;
         }
-    } else if (symbol->scope() && symbol->scope()->isEnum()) {
+    } else if (symbol->enclosingScope() && symbol->enclosingScope()->isEnum()) {
         return EnumeratorIconType;
     } else if (symbol->isDeclaration() || symbol->isArgument()) {
         if (symbol->isPublic()) {

@@ -111,7 +111,7 @@ protected:
                 if (Symbol *member = _scopeStack.at(i)->find(id)) {
                     if (member->isTypedef())
                         continue;
-                    else if (!member->isGenerated() && (member->sourceLocation() < ast->firstToken() || member->scope()->isFunction())) {
+                    else if (!member->isGenerated() && (member->sourceLocation() < ast->firstToken() || member->enclosingScope()->isFunction())) {
                         unsigned line, column;
                         getTokenStartPosition(simpleName->identifier_token, &line, &column);
                         localUses[member].append(SemanticInfo::Use(line, column, id->size(), SemanticInfo::Use::Local));

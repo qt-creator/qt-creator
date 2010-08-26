@@ -233,7 +233,7 @@ const Identifier *Symbol::identifier() const
     return 0;
 }
 
-Scope *Symbol::scope() const
+Scope *Symbol::enclosingScope() const
 { return _scope; }
 
 void Symbol::setScope(Scope *scope)
@@ -244,7 +244,7 @@ void Symbol::setScope(Scope *scope)
 
 Namespace *Symbol::enclosingNamespace() const
 {
-    for (Scope *s = _scope; s; s = s->scope()) {
+    for (Scope *s = _scope; s; s = s->enclosingScope()) {
         if (Namespace *ns = s->asNamespace())
             return ns;
     }
@@ -253,7 +253,7 @@ Namespace *Symbol::enclosingNamespace() const
 
 Template *Symbol::enclosingTemplate() const
 {
-    for (Scope *s = _scope; s; s = s->scope()) {
+    for (Scope *s = _scope; s; s = s->enclosingScope()) {
         if (Template *templ = s->asTemplate())
             return templ;
     }
@@ -262,7 +262,7 @@ Template *Symbol::enclosingTemplate() const
 
 Class *Symbol::enclosingClass() const
 {
-    for (Scope *s = _scope; s; s = s->scope()) {
+    for (Scope *s = _scope; s; s = s->enclosingScope()) {
         if (Class *klass = s->asClass())
             return klass;
     }
@@ -271,7 +271,7 @@ Class *Symbol::enclosingClass() const
 
 Enum *Symbol::enclosingEnum() const
 {
-    for (Scope *s = _scope; s; s = s->scope()) {
+    for (Scope *s = _scope; s; s = s->enclosingScope()) {
         if (Enum *e = s->asEnum())
             return e;
     }
@@ -280,7 +280,7 @@ Enum *Symbol::enclosingEnum() const
 
 Function *Symbol::enclosingFunction() const
 {
-    for (Scope *s = _scope; s; s = s->scope()) {
+    for (Scope *s = _scope; s; s = s->enclosingScope()) {
         if (Function *fun = s->asFunction())
             return fun;
     }
@@ -289,7 +289,7 @@ Function *Symbol::enclosingFunction() const
 
 Block *Symbol::enclosingBlock() const
 {
-    for (Scope *s = _scope; s; s = s->scope()) {
+    for (Scope *s = _scope; s; s = s->enclosingScope()) {
         if (Block *block = s->asBlock())
             return block;
     }

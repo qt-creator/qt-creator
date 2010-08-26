@@ -50,14 +50,14 @@ struct V: public ASTVisitor
   virtual bool visit(FunctionDeclaratorAST *ast)
   {
     if (ast->as_cpp_initializer) {
-      if (! (ast->symbol && ast->symbol->scope()))
-	; //translationUnit()->warning(ast->firstToken(), "resolved as function declaration");
-      else if (ast->symbol->scope()->isNamespace() || ast->symbol->scope()->isTemplate())
-	; //translationUnit()->warning(ast->firstToken(), "resolved as function declaration");
-      else if (ast->symbol->scope()->isBlock())
-	; //translationUnit()->warning(ast->firstToken(), "resolved as C++ initializer");
+      if (! (ast->symbol && ast->symbol->enclosingScope()))
+        ; //translationUnit()->warning(ast->firstToken(), "resolved as function declaration");
+      else if (ast->symbol->enclosingScope()->isNamespace() || ast->symbol->enclosingScope()->isTemplate())
+        ; //translationUnit()->warning(ast->firstToken(), "resolved as function declaration");
+      else if (ast->symbol->enclosingScope()->isBlock())
+        ; //translationUnit()->warning(ast->firstToken(), "resolved as C++ initializer");
       else
-	translationUnit()->warning(ast->firstToken(), "ambiguous function declarator or C++ intializer");
+        translationUnit()->warning(ast->firstToken(), "ambiguous function declarator or C++ intializer");
     }
     return true;
   }

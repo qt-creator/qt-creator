@@ -143,7 +143,7 @@ void SymbolTable::enterSymbol(Symbol *symbol)
         _symbols = reinterpret_cast<Symbol **>(realloc(_symbols, sizeof(Symbol *) * _allocatedSymbols));
     }
 
-    assert(! symbol->_scope || symbol->scope() == _owner);
+    assert(! symbol->_scope || symbol->enclosingScope() == _owner);
     symbol->_index = _symbolCount;
     symbol->_scope = _owner;
     _symbols[_symbolCount] = symbol;

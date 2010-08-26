@@ -205,7 +205,7 @@ protected:
 
         if (symbol->isTypedef())
             addType(symbol->name());
-        else if (! symbol->type()->isFunctionType() && symbol->scope()->isClass())
+        else if (! symbol->type()->isFunctionType() && symbol->enclosingScope()->isClass())
             addMember(symbol->name());
 
         return true;
@@ -465,7 +465,7 @@ bool CheckSymbols::visit(SimpleDeclarationAST *ast)
                     if (funTy->isVirtual()) {
                         addUse(declId, Use::VirtualMethod);
                     } else if (maybeVirtualMethod(decl->name())) {
-                        addVirtualMethod(_context.lookup(decl->name(), decl->scope()), declId, funTy->argumentCount());
+                        addVirtualMethod(_context.lookup(decl->name(), decl->enclosingScope()), declId, funTy->argumentCount());
                     }
                 }
             }
@@ -768,7 +768,7 @@ bool CheckSymbols::visit(FunctionDefinitionAST *ast)
             if (fun->isVirtual()) {
                 addUse(declId, Use::VirtualMethod);
             } else if (maybeVirtualMethod(fun->name())) {
-                addVirtualMethod(_context.lookup(fun->name(), fun->scope()), declId, fun->argumentCount());
+                addVirtualMethod(_context.lookup(fun->name(), fun->enclosingScope()), declId, fun->argumentCount());
             }
         }
     }
@@ -932,7 +932,7 @@ void CheckSymbols::addClassMember(const QList<LookupItem> &candidates, NameAST *
             continue;
         else if (! c->isDeclaration())
             return;
-        else if (! (c->scope() && c->scope()->isClass()))
+        else if (! (c->enclosingScope() && c->enclosingScope()->isClass()))
             return; // shadowed
         else if (c->isTypedef() || c->type()->isFunctionType())
             return; // shadowed
@@ -961,7 +961,7 @@ void CheckSymbols::addStatic(const QList<LookupItem> &candidates, NameAST *ast)
         Symbol *c = r.declaration();
         if (! c)
             return;
-        if (c->scope()->isEnum()) {
+        if (c->enclosingScope()->isEnum()) {
             unsigned line, column;
             getTokenStartPosition(startToken, &line, &column);
             const unsigned length = tok.length();
