@@ -92,11 +92,11 @@ private slots:
         QProcess::ExitStatus exitStatus);
     void handleUtfsServerTimeout();
     void handleUtfsServerStderr();
+    void startUtfsServers();
 
 private:
     void deployUtfsClient();
     void startUtfsClients();
-    void startUtfsServers();
     void killUtfsServer(QProcess *proc);
     void killAllUtfsServers();
     QString utfsClientOnDevice() const;

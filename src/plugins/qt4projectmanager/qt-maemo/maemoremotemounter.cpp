@@ -258,7 +258,7 @@ void MaemoRemoteMounter::startUtfsClients()
 void MaemoRemoteMounter::handleUtfsClientsStarted()
 {
     if (!m_stop)
-        startUtfsServers();
+        QTimer::singleShot(250, this, SLOT(startUtfsServers()));
 }
 
 void MaemoRemoteMounter::handleUtfsClientsFinished(int exitStatus)
@@ -282,6 +282,9 @@ void MaemoRemoteMounter::handleUtfsClientsFinished(int exitStatus)
 
 void MaemoRemoteMounter::startUtfsServers()
 {
+    if (m_stop)
+        return;
+
     emit reportProgress(tr("Starting UTFS servers..."));
     m_utfsServerTimer->start(30000);
     for (int i = 0; i < m_mountSpecs.count(); ++i) {
