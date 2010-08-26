@@ -83,6 +83,7 @@ protected:
 
     static bool compareFullyQualifiedName(const QList<const Name *> &path, const QList<const Name *> &other);
     static bool compareName(const Name *name, const Name *other);
+    static bool isLocalScope(Scope *scope);
 
     void statement(StatementAST *ast);
     void expression(ExpressionAST *ast);

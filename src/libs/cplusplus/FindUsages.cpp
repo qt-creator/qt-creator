@@ -203,6 +203,16 @@ bool FindUsages::compareName(const Name *name, const Name *other)
     return false;
 }
 
+bool FindUsages::isLocalScope(Scope *scope)
+{
+    if (scope) {
+        if (scope->isBlock() || scope->isTemplate() || scope->isFunction())
+            return true;
+    }
+
+    return false;
+}
+
 bool FindUsages::checkCandidates(const QList<LookupItem> &candidates) const
 {
     for (int i = candidates.size() - 1; i != -1; --i) {
@@ -214,7 +224,7 @@ bool FindUsages::checkCandidates(const QList<LookupItem> &candidates) const
                     return false;
             }
 
-            if (_declSymbol->scope() && (_declSymbol->scope()->isFunction() || _declSymbol->scope()->isBlock())) {
+            if (isLocalScope(_declSymbol->scope()) || isLocalScope(s->scope())) {
                 if (s->scope() != _declSymbol->scope())
                     return false;
             }
