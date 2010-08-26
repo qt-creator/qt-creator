@@ -69,7 +69,6 @@
 namespace CPlusPlus {
 
 class TranslationUnit;
-class Semantic;
 class Control;
 class MemoryPool;
 class DiagnosticClient;
