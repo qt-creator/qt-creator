@@ -30,6 +30,7 @@
 #include "settingspage.h"
 #include "gitsettings.h"
 #include "gitplugin.h"
+#include "gitclient.h"
 
 #include <vcsbase/vcsbaseconstants.h>
 
@@ -37,6 +38,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 #include <QtCore/QTextStream>
+#include <QtCore/QProcessEnvironment>
 #include <QtGui/QMessageBox>
 
 namespace Git {
@@ -47,6 +49,19 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
 {
     m_ui.setupUi(this);
     connect(m_ui.adoptButton, SIGNAL(clicked()), this, SLOT(setSystemPath()));
+#ifdef Q_OS_WIN
+    const QByteArray currentHome = qgetenv("HOME");
+    const QString toolTip
+            = tr("Set the environment variable HOME to '%1'\n(%2).\n"
+                 "This causes msysgit to look for the SSH-keys in that location\n"
+                 "instead of its installation directory when run outside git bash.").
+            arg(GitClient::fakeWinHome(QProcessEnvironment::systemEnvironment()),
+                currentHome.isEmpty() ? tr("not currently set") :
+                                        tr("currently set to '%1'").arg(QString::fromLocal8Bit(currentHome)));
+    m_ui.winHomeCheckBox->setToolTip(toolTip);
+#else
+    m_ui.winHomeCheckBox->setVisible(false);
+#endif
 }
 
 GitSettings SettingsPageWidget::settings() const
@@ -61,6 +76,7 @@ GitSettings SettingsPageWidget::settings() const
     rc.omitAnnotationDate = m_ui.omitAnnotationDataCheckBox->isChecked();
     rc.spaceIgnorantBlame = m_ui.spaceIgnorantBlameCheckBox->isChecked();
     rc.diffPatience = m_ui.diffPatienceCheckBox->isChecked();
+    rc.winSetHomeEnvironment = m_ui.winHomeCheckBox->isChecked();
     rc.gitkOptions = m_ui.gitkOptionsLineEdit->text().trimmed();
     return rc;
 }
@@ -76,6 +92,7 @@ void SettingsPageWidget::setSettings(const GitSettings &s)
     m_ui.omitAnnotationDataCheckBox->setChecked(s.omitAnnotationDate);
     m_ui.spaceIgnorantBlameCheckBox->setChecked(s.spaceIgnorantBlame);
     m_ui.diffPatienceCheckBox->setChecked(s.diffPatience);
+    m_ui.winHomeCheckBox->setChecked(s.winSetHomeEnvironment);
     m_ui.gitkOptionsLineEdit->setText(s.gitkOptions);
 }
 

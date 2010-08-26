@@ -60,6 +60,7 @@ struct GitSettings
     bool omitAnnotationDate;
     bool spaceIgnorantBlame;
     bool diffPatience;
+    bool winSetHomeEnvironment;
     QString gitkOptions;
 };
 

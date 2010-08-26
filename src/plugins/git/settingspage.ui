@@ -37,6 +37,13 @@
        </layout>
       </item>
       <item>
+       <widget class="QCheckBox" name="winHomeCheckBox">
+        <property name="text">
+         <string>Set &quot;HOME&quot; environment variable</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <layout class="QHBoxLayout" name="noteHorizontalLayout">
         <item>
          <widget class="QLabel" name="noteLabel">

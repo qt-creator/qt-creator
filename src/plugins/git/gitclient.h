@@ -212,6 +212,7 @@ public:
 
     QStringList binary() const; // Executable + basic arguments
     QProcessEnvironment processEnvironment() const;
+    static QString fakeWinHome(const QProcessEnvironment &e);
 
     static QString msgNoChangedFiles();
 
@@ -278,7 +279,6 @@ private:
     unsigned      m_cachedGitVersion;
     bool          m_hasCachedGitVersion;
 };
-
 
 } // namespace Internal
 } // namespace Git

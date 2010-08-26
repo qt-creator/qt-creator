@@ -1090,11 +1090,32 @@ QStringList GitClient::binary() const
 #endif
 }
 
+// Determine a value for the HOME variable on Windows
+// working around MSys git not finding it when run outside git bash
+// (then looking for the SSH keys under "\program files\git").
+
+QString GitClient::fakeWinHome(const QProcessEnvironment &e)
+{
+    const QString homeDrive = e.value("HOMEDRIVE");
+    const QString homePath = e.value("HOMEPATH");
+    QTC_ASSERT(!homeDrive.isEmpty() && !homePath.isEmpty(), return QString())
+    return homeDrive + homePath;
+}
+
 QProcessEnvironment GitClient::processEnvironment() const
 {
+
     QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
     if (m_settings.adoptPath)
         environment.insert(QLatin1String("PATH"), m_settings.path);
+#ifdef Q_OS_WIN
+    if (m_settings.winSetHomeEnvironment) {
+        const QString home = fakeWinHome(environment);
+        if (Constants::debug)
+            qDebug("Setting home '%s'", qPrintable(home));
+        environment.insert(QLatin1String("HOME"), home);
+    }
+#endif // Q_OS_WIN
     // Set up SSH and C locale (required by git using perl).
     VCSBase::VCSBasePlugin::setProcessEnvironment(&environment, false);
     return environment;
@@ -1116,6 +1137,7 @@ Utils::SynchronousProcessResponse
     args.append(gitArguments);
     return VCSBase::VCSBasePlugin::runVCS(workingDirectory, executable, args,
                                           m_settings.timeoutSeconds * 1000,
+                                          processEnvironment(),
                                           flags, stdOutCodec);
 }
 

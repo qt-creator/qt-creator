@@ -46,6 +46,7 @@ static const char promptToSubmitKeyC[] = "PromptForSubmit";
 static const char omitAnnotationDateKeyC[] = "OmitAnnotationDate";
 static const char spaceIgnorantBlameKeyC[] = "SpaceIgnorantBlame";
 static const char diffPatienceKeyC[] = "DiffPatience";
+static const char winSetHomeEnvironmentKeyC[] = "WinSetHomeEnvironment";
 static const char gitkOptionsKeyC[] = "GitKOptions";
 
 enum {
@@ -69,7 +70,8 @@ GitSettings::GitSettings() :
     promptToSubmit(true),
     omitAnnotationDate(false),
     spaceIgnorantBlame(true),
-    diffPatience(true)
+    diffPatience(true),
+    winSetHomeEnvironment(false)
 {
 }
 
@@ -84,7 +86,8 @@ void GitSettings::fromSettings(QSettings *settings)
     promptToSubmit = settings->value(QLatin1String(promptToSubmitKeyC), true).toBool();
     omitAnnotationDate = settings->value(QLatin1String(omitAnnotationDateKeyC), false).toBool();
     spaceIgnorantBlame = settings->value(QLatin1String(spaceIgnorantBlameKeyC), true).toBool();
-    diffPatience =  settings->value(QLatin1String(diffPatienceKeyC), true).toBool();
+    diffPatience = settings->value(QLatin1String(diffPatienceKeyC), true).toBool();
+    winSetHomeEnvironment = settings->value(QLatin1String(winSetHomeEnvironmentKeyC), false).toBool();
     gitkOptions = settings->value(QLatin1String(gitkOptionsKeyC)).toString();
     settings->endGroup();
 }
@@ -101,6 +104,7 @@ void GitSettings::toSettings(QSettings *settings) const
     settings->setValue(QLatin1String(omitAnnotationDateKeyC), omitAnnotationDate);
     settings->setValue(QLatin1String(spaceIgnorantBlameKeyC), spaceIgnorantBlame);
     settings->setValue(QLatin1String(diffPatienceKeyC), diffPatience);
+    settings->setValue(QLatin1String(winSetHomeEnvironmentKeyC), winSetHomeEnvironment);
     settings->setValue(QLatin1String(gitkOptionsKeyC), gitkOptions);
     settings->endGroup();
 }
@@ -111,7 +115,7 @@ bool GitSettings::equals(const GitSettings &s) const
            && timeoutSeconds == s.timeoutSeconds && promptToSubmit == s.promptToSubmit
            && pullRebase == s.pullRebase
            && omitAnnotationDate == s.omitAnnotationDate && spaceIgnorantBlame == s.spaceIgnorantBlame
-           && diffPatience == s.diffPatience
+           && diffPatience == s.diffPatience && winSetHomeEnvironment == s.winSetHomeEnvironment
            && gitkOptions == s.gitkOptions;
 }
 
