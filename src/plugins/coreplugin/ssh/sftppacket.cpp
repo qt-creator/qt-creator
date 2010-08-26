@@ -34,7 +34,7 @@
 namespace Core {
 namespace Internal {
 
-const quint32 AbstractSftpPacket::MaxDataSize = 32768;
+const quint32 AbstractSftpPacket::MaxDataSize = 32000;
 const quint32 AbstractSftpPacket::MaxPacketSize = 34000;
 const int AbstractSftpPacket::TypeOffset = 4;
 const int AbstractSftpPacket::RequestIdOffset = TypeOffset + 1;
