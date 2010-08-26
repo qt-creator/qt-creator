@@ -78,8 +78,8 @@ public:
 public:
     bool parseAccessSpecifier(SpecifierAST *&node);
     bool parseExpressionList(ExpressionListAST *&node);
-    bool parseAbstractCoreDeclarator(DeclaratorAST *&node);
-    bool parseAbstractDeclarator(DeclaratorAST *&node);
+    bool parseAbstractCoreDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list);
+    bool parseAbstractDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list);
     bool parseEmptyDeclaration(DeclarationAST *&node);
     bool parseAccessDeclaration(DeclarationAST *&node);
     bool parseQtPropertyDeclaration(DeclarationAST *&node);
@@ -110,12 +110,12 @@ public:
     bool parseConstantExpression(ExpressionAST *&node);
     bool parseCtorInitializer(CtorInitializerAST *&node);
     bool parseCvQualifiers(SpecifierListAST *&node);
-    bool parseDeclaratorOrAbstractDeclarator(DeclaratorAST *&node);
+    bool parseDeclaratorOrAbstractDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list);
     bool parseDeclaration(DeclarationAST *&node);
-    bool parseSimpleDeclaration(DeclarationAST *&node, bool acceptStructDeclarator = false);
+    bool parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *declaringClass = 0);
     bool parseDeclarationStatement(StatementAST *&node);
-    bool parseCoreDeclarator(DeclaratorAST *&node);
-    bool parseDeclarator(DeclaratorAST *&node, bool stopAtCppInitializer = false);
+    bool parseCoreDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list, bool declaringClass);
+    bool parseDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list, bool declaringClass = false);
     bool parseDeleteExpression(ExpressionAST *&node);
     bool parseDoStatement(StatementAST *&node);
     bool parseElaboratedTypeSpecifier(SpecifierListAST *&node);
@@ -134,7 +134,7 @@ public:
     bool parseFunctionBody(StatementAST *&node);
     bool parseIfStatement(StatementAST *&node);
     bool parseInclusiveOrExpression(ExpressionAST *&node);
-    bool parseInitDeclarator(DeclaratorAST *&node, bool acceptStructDeclarator);
+    bool parseInitDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list, bool declaringClass);
     bool parseInitializerList(ExpressionListAST *&node);
     bool parseInitializer(ExpressionAST *&node, unsigned *equals_token);
     bool parseInitializerClause(ExpressionAST *&node);
@@ -145,7 +145,7 @@ public:
     bool parseLogicalOrExpression(ExpressionAST *&node);
     bool parseMemInitializer(MemInitializerListAST *&node);
     bool parseMemInitializerList(MemInitializerListAST *&node);
-    bool parseMemberSpecification(DeclarationAST *&node);
+    bool parseMemberSpecification(DeclarationAST *&node, ClassSpecifierAST *declaringClass);
     bool parseMultiplicativeExpression(ExpressionAST *&node);
     bool parseTemplateId(NameAST *&node, unsigned template_token = 0);
     bool parseClassOrNamespaceName(NameAST *&node);
@@ -287,11 +287,13 @@ public:
     bool lookAtBuiltinTypeSpecifier() const;
     bool lookAtClassKey() const;
 
+    const Identifier *className(ClassSpecifierAST *ast) const;
+    const Identifier *identifier(NameAST *name) const;
+
     void match(int kind, unsigned *token);
 
-    bool maybeAmbiguousStatement(DeclarationStatementAST *ast) const;
+    bool maybeAmbiguousStatement(DeclarationStatementAST *ast, StatementAST *&node);
     bool maybeForwardOrClassDeclaration(SpecifierListAST *decl_specifier_seq) const;
-    bool isPointerDeclaration(DeclarationStatementAST *ast) const;
 
     int peekAtQtContextKeyword() const;
 

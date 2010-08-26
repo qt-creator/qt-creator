@@ -295,7 +295,7 @@ bool TranslationUnit::parse(ParseMode mode)
 
     case ParseDeclarator: {
         DeclaratorAST *node = 0;
-        parsed = parser.parseDeclarator(node);
+        parsed = parser.parseDeclarator(node, /*decl_specifier_list =*/ 0);
         _ast = node;
     } break;
 

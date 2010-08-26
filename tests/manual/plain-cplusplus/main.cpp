@@ -42,6 +42,33 @@ void parse(const char *fileName, const char *source, unsigned size);
 int runWithSystemPreprocessor(int argc, char *argv[]);
 int runWithNewPreprocessor(int argc, char *argv[]);
 
+struct V: public ASTVisitor
+{
+  V(TranslationUnit *unit)
+    : ASTVisitor(unit) {}
+
+  virtual bool visit(FunctionDeclaratorAST *ast)
+  {
+    if (ast->as_cpp_initializer) {
+      if (! (ast->symbol && ast->symbol->scope()))
+	; //translationUnit()->warning(ast->firstToken(), "resolved as function declaration");
+      else if (ast->symbol->scope()->isNamespace() || ast->symbol->scope()->isTemplate())
+	; //translationUnit()->warning(ast->firstToken(), "resolved as function declaration");
+      else if (ast->symbol->scope()->isBlock())
+	; //translationUnit()->warning(ast->firstToken(), "resolved as C++ initializer");
+      else
+	translationUnit()->warning(ast->firstToken(), "ambiguous function declarator or C++ intializer");
+    }
+    return true;
+  }
+
+  virtual bool visit(ExpressionOrDeclarationStatementAST *ast)
+  {
+    translationUnit()->warning(ast->firstToken(), "ambiguous expression or declaration statement");
+    return true;
+  }
+};
+
 int main(int argc, char *argv[])
 {
     if (getenv("CPLUSPLUS_WITH_NEW_PREPROCESSOR"))
@@ -53,7 +80,7 @@ int main(int argc, char *argv[])
 int runWithSystemPreprocessor(int argc, char *argv[])
 {
     std::string cmdline;
-    cmdline += "gcc -E -xc++ -U__BLOCKS__ -D__restrict= -D__extension__=";
+    cmdline += "gcc -E -xc++ -U__BLOCKS__ -D__restrict= -D__restrict__= -D__extension__= -D__imag__= -D__real__= -D__complex__= -D_Complex= -D__signed=signed";
 
     for (int i = 1; i < argc; ++i) {
         cmdline += ' ';
@@ -117,7 +144,12 @@ void parse(const char *fileName, const char *source, unsigned size)
     unit.setSource(source, size);
     unit.parse();
 
+#if 1
     Namespace *globalNamespace = control.newNamespace(0);
     Bind bind(&unit);
     bind(unit.ast()->asTranslationUnit(), globalNamespace);
+
+    V v(&unit);
+    v.accept(unit.ast());
+#endif
 }
