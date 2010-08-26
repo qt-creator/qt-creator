@@ -321,9 +321,9 @@ void DebuggerUISwitcher::modeChanged(Core::IMode *mode)
             d->m_activateCppAction->setChecked(activeLangs & CppLanguage);
         if (d->m_activateQmlAction)
             d->m_activateQmlAction->setChecked(activeLangs & QmlLanguage);
-
-        updateActiveLanguages();
     }
+
+    updateActiveLanguages();
 }
 
 void DebuggerUISwitcher::hideInactiveWidgets()
