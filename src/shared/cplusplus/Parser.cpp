@@ -1304,6 +1304,24 @@ bool Parser::parseCoreDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_sp
     return false;
 }
 
+static bool maybeCppInitializer(DeclaratorAST *declarator)
+{
+    if (declarator->ptr_operator_list)
+        return false;
+    CoreDeclaratorAST *core_declarator = declarator->core_declarator;
+    if (! core_declarator)
+        return false;
+    DeclaratorIdAST *declarator_id = core_declarator->asDeclaratorId();
+    if (! declarator_id)
+        return false;
+    else if (! declarator_id->name)
+        return false;
+    else if (! declarator_id->name->asSimpleName())
+        return false;
+
+    return true;
+}
+
 bool Parser::parseDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list, ClassSpecifierAST *declaringClass)
 {
     DEBUG_THIS_RULE();
@@ -1316,7 +1334,7 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specif
         unsigned startOfPostDeclarator = cursor();
 
         if (LA() == T_LPAREN) {
-            if (! declaringClass) {
+            if (! declaringClass && LA(2) != T_RPAREN && maybeCppInitializer(node)) {
                 unsigned lparen_token = cursor();
                 ExpressionAST *initializer = 0;
 
