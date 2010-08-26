@@ -21,9 +21,11 @@ void testOptional()
     optional<double> d;
     optional<Large> l;
     optional<std::string &> sr;
+    optional<std::string> s;
     std::string as = "hallo";
     i = 1;
     sr = as;
+    s = as;
     l = Large();
     i = 2;
     i = 3;

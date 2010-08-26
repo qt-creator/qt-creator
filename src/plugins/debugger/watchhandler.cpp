@@ -448,7 +448,9 @@ static inline QString formattedValue(const WatchData &data, int format)
             return reformatInteger(data.value.toULongLong(), format);
         return reformatInteger(data.value.toLongLong(), format);
     }
-    return data.value;
+    QString result = data.value;
+    result.replace(QLatin1Char('\n'), QLatin1String("\\n"));
+    return result;
 }
 
 bool WatchModel::canFetchMore(const QModelIndex &index) const

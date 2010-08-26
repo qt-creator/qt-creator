@@ -1939,7 +1939,7 @@ int main(int argc, char *argv[])
     testQHash1();
     testSignalSlot(argc, argv);
 
-    QString hallo = "hallo";
+    QString hallo = "hallo\nwelt";
     QStringList list;
     list << "aaa" << "bbb" << "cc";
 
