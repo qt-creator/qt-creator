@@ -73,6 +73,7 @@ BranchDialog::BranchDialog(QWidget *parent) :
     m_ui(new Ui::BranchDialog),
     m_checkoutButton(0),
     m_diffButton(0),
+    m_logButton(0),
     m_refreshButton(0),
     m_deleteButton(0),
     m_localModel(new LocalBranchModel(gitClient(), this)),
@@ -89,6 +90,9 @@ BranchDialog::BranchDialog(QWidget *parent) :
 
     m_diffButton = m_ui->buttonBox->addButton(tr("Diff"), QDialogButtonBox::ActionRole);
     connect(m_diffButton, SIGNAL(clicked()), this, SLOT(slotDiffSelected()));
+
+    m_logButton = m_ui->buttonBox->addButton(tr("Log"), QDialogButtonBox::ActionRole);
+    connect(m_logButton, SIGNAL(clicked()), this, SLOT(slotLog()));
 
     m_refreshButton = m_ui->buttonBox->addButton(tr("Refresh"), QDialogButtonBox::ActionRole);
     connect(m_refreshButton, SIGNAL(clicked()), this, SLOT(slotRefresh()));
@@ -168,6 +172,7 @@ void BranchDialog::slotEnableButtons(const QItemSelection &selected)
 
     m_checkoutButton->setEnabled(otherLocalSelected);
     m_diffButton->setEnabled(branchSelected);
+    m_logButton->setEnabled(branchSelected);
     m_deleteButton->setEnabled(otherLocalSelected);
     m_refreshButton->setEnabled(hasRepository);
     // Also disable <New Branch> entry of list view
@@ -256,6 +261,18 @@ void BranchDialog::slotDiffSelected()
     idx = selectedRemoteBranchIndex();
     if (idx != -1)
         gitClient()->diffBranch(m_repository, QStringList(), m_remoteModel->branchName(idx));
+}
+
+void BranchDialog::slotLog()
+{
+    int idx = selectedLocalBranchIndex();
+    if (idx != -1) {
+        gitClient()->graphLog(m_repository, m_localModel->branchName(idx));
+        return;
+    }
+    idx = selectedRemoteBranchIndex();
+    if (idx != -1)
+        gitClient()->graphLog(m_repository, m_remoteModel->branchName(idx));
 }
 
 /* Ask to stash away changes and then close dialog and do an asynchronous

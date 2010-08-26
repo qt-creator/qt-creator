@@ -87,7 +87,8 @@ public:
                     const QString &branchName);
 
     void status(const QString &workingDirectory);
-    void graphLog(const QString &workingDirectory);
+    void graphLog(const QString &workingDirectory) { graphLog(workingDirectory, QString()); }
+    void graphLog(const QString &workingDirectory, const QString &branch);
     void log(const QString &workingDirectory, const QStringList &fileNames,
              bool enableAnnotationContextMenu = false);
     void blame(const QString &workingDirectory, const QString &fileName,

@@ -69,6 +69,7 @@ private slots:
     void slotCheckoutSelectedBranch();
     void slotDeleteSelectedBranch();
     void slotDiffSelected();
+    void slotLog();
     void slotRefresh();
     void slotLocalBranchActivated();
     void slotRemoteBranchActivated(const QModelIndex &);
@@ -87,6 +88,7 @@ private:
     Ui::BranchDialog *m_ui;
     QPushButton *m_checkoutButton;
     QPushButton *m_diffButton;
+    QPushButton *m_logButton;
     QPushButton *m_refreshButton;
     QPushButton *m_deleteButton;
 
