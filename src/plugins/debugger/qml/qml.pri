@@ -5,9 +5,11 @@ HEADERS += \
     $$PWD/qmladapter.h \
     $$PWD/qmldebuggerclient.h \
     $$PWD/qmljsprivateapi.h \
-    $$PWD/qmlcppengine.h
+    $$PWD/qmlcppengine.h \
+    $$PWD/scriptconsole.h
 SOURCES += \
     $$PWD/qmlengine.cpp \
     $$PWD/qmladapter.cpp \
     $$PWD/qmldebuggerclient.cpp \
-    $$PWD/qmlcppengine.cpp
+    $$PWD/qmlcppengine.cpp \
+    $$PWD/scriptconsole.cpp

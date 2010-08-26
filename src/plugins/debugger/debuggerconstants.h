@@ -77,6 +77,7 @@ const char * const DOCKWIDGET_THREADS = "Debugger.Docks.Threads";
 const char * const DOCKWIDGET_WATCHERS = "Debugger.Docks.LocalsAndWatchers";
 
 const char * const DOCKWIDGET_QML_INSPECTOR = "Debugger.Docks.QmlInspector";
+const char * const DOCKWIDGET_QML_SCRIPTCONSOLE = "Debugger.Docks.ScriptConsole";
 
 namespace Internal {
     enum { debug = 0 };
@@ -170,7 +171,8 @@ enum LogChannel
     AppOutput,
     AppError,
     AppStuff,
-    StatusBar                // LogStatus and also put to the status bar
+    StatusBar,                // LogStatus and also put to the status bar
+    ScriptConsoleOutput
 };
 
 enum ModelRoles

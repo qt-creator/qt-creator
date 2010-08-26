@@ -112,6 +112,7 @@ private:
 
     bool supportsThreads() const { return false; }
     void updateWatchData(const WatchData &data);
+    void executeDebuggerCommand(const QString& command);
 
     unsigned int debuggerCapabilities() const;
 

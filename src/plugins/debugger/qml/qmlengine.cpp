@@ -593,8 +593,13 @@ void QmlEngine::messageReceived(const QByteArray &message)
         QByteArray iname;
         stream >> iname >> data;
         data.iname = iname;
-        watchHandler()->insertData(data);
-
+        if (iname.startsWith("watch.")) {
+            watchHandler()->insertData(data);
+        } else if(iname == "console") {
+            plugin()->showMessage(data.value, ScriptConsoleOutput);
+        } else {
+            qWarning() << "QmlEngine: Unexcpected result: " << iname << data.value;
+        }
     } else if (command == "EXPANDED") {
         QList<WatchData> result;
         QByteArray iname;
@@ -656,6 +661,17 @@ void QmlEngine::slotMessage(QString err , bool isError)
 {
     emit runControl()->appendMessage(runControl(), err, isError);
 }
+
+
+void QmlEngine::executeDebuggerCommand(const QString& command)
+{
+    QByteArray reply;
+    QDataStream rs(&reply, QIODevice::WriteOnly);
+    rs << QByteArray("EXEC");
+    rs << QByteArray("console") << command;
+    sendMessage(reply);
+}
+
 
 } // namespace Internal
 } // namespace Debugger

@@ -113,6 +113,8 @@
 #include <utils/savedaction.h>
 #include <utils/styledbar.h>
 
+#include <qml/scriptconsole.h>
+
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -925,6 +927,8 @@ public slots:
 
     QList<DebuggerRunControl *> runControls() const { return m_snapshotHandler->runControls(); }
 
+    void scriptExpressionEntered(const QString&);
+
 public:
     DebuggerState m_state;
     uint m_capabilities;
@@ -964,6 +968,8 @@ public:
     QDockWidget *m_stackDock;
     QDockWidget *m_threadsDock;
     QDockWidget *m_watchDock;
+    QDockWidget* m_scriptConsoleDock;
+
     QList<QDockWidget *> m_dockWidgets;
 
     DebuggerActions m_actions;
@@ -980,6 +986,7 @@ public:
     QAbstractItemView *m_stackWindow;
     QAbstractItemView *m_threadsWindow;
     DebuggerOutputWindow *m_outputWindow;
+    ScriptConsole *m_scriptConsoleWindow;
 
     SessionEngine *m_sessionEngine;
 
@@ -1024,6 +1031,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
     m_stackWindow = 0;
     m_threadsWindow = 0;
     m_outputWindow = 0;
+    m_scriptConsoleWindow = 0;
 
     m_sessionEngine = 0;
     m_debugMode = 0;
@@ -1089,6 +1097,9 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_watchersWindow = new WatchWindow(WatchWindow::WatchersType);
     m_watchersWindow->setObjectName(QLatin1String("CppDebugWatchers"));
     m_commandWindow = new QTreeView;
+    m_scriptConsoleWindow = new ScriptConsole;
+    m_scriptConsoleWindow->setWindowTitle(tr("QML Script Console"));
+    connect(m_scriptConsoleWindow, SIGNAL(expressionEntered(QString)), this, SLOT(scriptExpressionEntered(QString)));
 
     // Session related data
     m_sessionEngine = new SessionEngine;
@@ -1266,9 +1277,13 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_watchDock = m_uiSwitcher->createDockWidget(CppLanguage, localsAndWatchers);
     m_watchDock->setObjectName(QString(DOCKWIDGET_WATCHERS));
 
+    m_scriptConsoleDock = m_uiSwitcher->createDockWidget(QmlLanguage, m_scriptConsoleWindow);
+    m_scriptConsoleDock->setObjectName(QString(DOCKWIDGET_QML_SCRIPTCONSOLE));
+
     m_dockWidgets << m_breakDock << m_modulesDock << m_registerDock
                   << m_outputDock << m_snapshotDock << m_stackDock
-                  << m_sourceFilesDock << m_threadsDock << m_watchDock;
+                  << m_sourceFilesDock << m_threadsDock << m_watchDock
+                  << m_scriptConsoleDock;
 
     // Do not fail the whole plugin if something goes wrong here.
     uint cmdLineEnabledEngines = AllEngineTypes;
@@ -1321,6 +1336,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_detachAction->setText(tr("Detach Debugger"));
     m_detachAction->setProperty(Role, RequestExecDetachRole);
     connect(m_detachAction, SIGNAL(triggered()), SLOT(onAction()));
+
 
     Core::Command *cmd = 0;
 
@@ -2067,6 +2083,7 @@ void DebuggerPluginPrivate::setBusyCursor(bool busy)
     m_threadsWindow->setCursor(cursor);
     m_watchersWindow->setCursor(cursor);
     m_snapshotWindow->setCursor(cursor);
+    m_scriptConsoleWindow->setCursor(cursor);
 }
 
 void DebuggerPluginPrivate::setSimpleDockWidgetArrangement(const Debugger::DebuggerLanguages &activeLanguages)
@@ -2106,6 +2123,7 @@ void DebuggerPluginPrivate::setSimpleDockWidgetArrangement(const Debugger::Debug
         m_threadsDock->show();
         m_snapshotDock->show();
         uiSwitcher->qmlInspectorWindow()->show();
+        m_scriptConsoleDock->show();
     }
 
     mw->splitDockWidget(mw->toolBarDockWidget(), m_stackDock, Qt::Vertical);
@@ -2119,6 +2137,7 @@ void DebuggerPluginPrivate::setSimpleDockWidgetArrangement(const Debugger::Debug
     mw->tabifyDockWidget(m_watchDock, m_snapshotDock);
     if (uiSwitcher->qmlInspectorWindow())
         mw->tabifyDockWidget(m_watchDock, uiSwitcher->qmlInspectorWindow());
+    mw->tabifyDockWidget(m_watchDock, m_scriptConsoleDock);
 
     mw->setTrackingEnabled(true);
 }
@@ -2437,6 +2456,12 @@ void DebuggerPluginPrivate::showStatusMessage(const QString &msg0, int timeout)
     }
 }
 
+void DebuggerPluginPrivate::scriptExpressionEntered(const QString& expression)
+{
+    notifyCurrentEngine(RequestExecuteCommandRole, expression);
+}
+
+
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -2599,6 +2624,9 @@ void DebuggerPlugin::showMessage(const QString &msg, int channel, int timeout)
         case LogInput:
             ow->showInput(LogInput, msg);
             ow->showOutput(LogInput, msg);
+            break;
+        case ScriptConsoleOutput:
+            d->m_scriptConsoleWindow->appendResult(msg);
             break;
         default:
             ow->showOutput(channel, msg);
