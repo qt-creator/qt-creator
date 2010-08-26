@@ -40,8 +40,7 @@ enum { debug = 0 };
 namespace Git {
     namespace Internal {
 
-// Parse a branch line: " *name sha description".  Return  true if it is
-// the current one
+// Parse a branch line: " *name sha description".
 bool RemoteBranchModel::Branch::parse(const QString &lineIn, bool *isCurrent)
 {
     if (debug)
@@ -53,12 +52,10 @@ bool RemoteBranchModel::Branch::parse(const QString &lineIn, bool *isCurrent)
 
     const QString branchInfo = lineIn.mid(2);
     QStringList tokens;
-    if (*isCurrent && branchInfo.startsWith(QLatin1String("(no branch)"))) {
-        tokens += tr("(no branch)");
-        tokens += branchInfo.mid(11).split(QLatin1Char(' '), QString::SkipEmptyParts);
-    } else {
+    if (*isCurrent && branchInfo.startsWith(QLatin1String("(no branch)")))
+        return false;
+    else
         tokens = branchInfo.split(QLatin1Char(' '), QString::SkipEmptyParts);
-    }
     if (tokens.size() < 2)
         return false;
     name = tokens.at(0);
