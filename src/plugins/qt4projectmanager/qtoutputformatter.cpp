@@ -43,10 +43,9 @@ QtOutputFormatter::QtOutputFormatter(Qt4Project *project)
     : OutputFormatter()
     , m_qmlError(QLatin1String("(file:///.+:\\d+:\\d+):"))
     , m_qtError(QLatin1String("Object::.*in (.*:\\d+)"))
+    , m_qtAssert(QLatin1String("^ASSERT: .* in file (.+, line \\d+)$"))
     , m_project(project)
-
 {
-
 }
 
 LinkResult QtOutputFormatter::matchLine(const QString &line) const
@@ -61,6 +60,10 @@ LinkResult QtOutputFormatter::matchLine(const QString &line) const
     } else if (m_qtError.indexIn(line) != -1) {
         lr.href = m_qtError.cap(1);
         lr.start = m_qtError.pos(1);
+        lr.end = lr.start + lr.href.length();
+    } else if (m_qtAssert.indexIn(line) != -1) {
+        lr.href = m_qtAssert.cap(1);
+        lr.start = m_qtAssert.pos(1);
         lr.end = lr.start + lr.href.length();
     }
     return lr;
@@ -160,10 +163,22 @@ void QtOutputFormatter::handleLink(const QString &href)
             return;
         }
 
+        QString fileName;
+        int line = -1;
+
         QRegExp qtErrorLink(QLatin1String("^(.*):(\\d+)$"));
-        if (qtErrorLink.indexIn(href) != 1) {
-            QString fileName = qtErrorLink.cap(1);
-            const int line = qtErrorLink.cap(2).toInt();
+        if (qtErrorLink.indexIn(href) != -1) {
+            fileName = qtErrorLink.cap(1);
+            line = qtErrorLink.cap(2).toInt();
+        }
+
+        QRegExp qtAssertLink(QLatin1String("^(.+), line (\\d+)$"));
+        if (qtAssertLink.indexIn(href) != -1) {
+            fileName = qtAssertLink.cap(1);
+            line = qtAssertLink.cap(2).toInt();
+        }
+
+        if (!fileName.isEmpty()) {
             QFileInfo fi(fileName);
             if (fi.isRelative()) {
                 // Yeah fileName is relative, no suprise
