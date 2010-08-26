@@ -669,7 +669,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             return m_handler->m_expandedINames.contains(data.iname);
 
         case LocalsTypeFormatListRole: {
-            if (isIntType(data.type))
+            if (isIntType(data.type) && data.type != QLatin1String("bool"))
                 return QStringList() << tr("decimal") << tr("hexadecimal")
                     << tr("binary") << tr("octal");
             if (data.type.endsWith(QLatin1Char('*')))
