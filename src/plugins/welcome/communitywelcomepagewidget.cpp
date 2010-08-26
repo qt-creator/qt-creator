@@ -44,14 +44,14 @@ struct Site {
 
 static const Site supportSites[] = {
     { QT_TRANSLATE_NOOP("Welcome::Internal::CommunityWelcomePageWidget",
-                        "<b>Forum Nokia</b><br /><font color='gray'>Mobile Application Support</font>"),
+                        "<b>Forum Nokia</b><br /><font color='gray'>Mobile application support</font>"),
       "http://www.forum.nokia.com/I_Want_To/Develop_Mobile_Applications/Technical_Support/"},
     { QT_TRANSLATE_NOOP("Welcome::Internal::CommunityWelcomePageWidget",
                         "<b>Qt LGPL Support</b><br /><font color='gray'>Buy commercial Qt support</font>"),
       "http://shop.qt.nokia.com/en/support.html"},
     { QT_TRANSLATE_NOOP("Welcome::Internal::CommunityWelcomePageWidget",
-                        "<b>Qt Centre</b><br /><font color='gray'>Community based Qt support</font>"),
-      "http://www.qtcentre.org" }
+                        "<b>Qt DevNet</b><br /><font color='gray'>Qt Developer Resources</font>"),
+      "http://developer.qt.nokia.com" }
 };
 
 static const Site sites[] = {
