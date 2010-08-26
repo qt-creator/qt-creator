@@ -365,8 +365,10 @@ void ProjectWindow::startupProjectChanged(ProjectExplorer::Project *p)
 
 void ProjectWindow::showProperties(int index, int subIndex)
 {
-    if (index < 0 || index >= m_tabIndexToProject.count())
+    if (index < 0 || index >= m_tabIndexToProject.count()) {
+        removeCurrentWidget();
         return;
+    }
 
     Project *project = m_tabIndexToProject.at(index);
 
