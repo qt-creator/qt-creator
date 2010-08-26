@@ -641,17 +641,17 @@ void tst_AST::cpp_initializer_or_function_declaration()
     FunctionDeclaratorAST *fun_declarator = declarator->postfix_declarator_list->value->asFunctionDeclarator();
     QVERIFY(fun_declarator != 0);
     QCOMPARE(fun_declarator->lparen_token, 3U);
-    QVERIFY(fun_declarator->parameters != 0);
+    QVERIFY(fun_declarator->parameter_declaration_clause != 0);
     QCOMPARE(fun_declarator->rparen_token, 5U);
 
     // check the formal arguments
-    ParameterDeclarationClauseAST *param_clause = fun_declarator->parameters;
+    ParameterDeclarationClauseAST *param_clause = fun_declarator->parameter_declaration_clause;
     QVERIFY(param_clause->parameter_declaration_list != 0);
     QVERIFY(param_clause->parameter_declaration_list->next == 0);
     QCOMPARE(param_clause->dot_dot_dot_token, 0U);
 
     // check the parameter
-    DeclarationListAST *declarations = param_clause->parameter_declaration_list;
+    ParameterDeclarationListAST *declarations = param_clause->parameter_declaration_list;
     QVERIFY(declarations);
     QVERIFY(declarations->value);
     QVERIFY(! declarations->next);

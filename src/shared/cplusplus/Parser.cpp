@@ -1338,7 +1338,7 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specif
 
                                 FunctionDeclaratorAST *ast = new (_pool) FunctionDeclaratorAST;
                                 ast->lparen_token = lparen_token;
-                                ast->parameters = parameter_declaration_clause;
+                                ast->parameter_declaration_clause = parameter_declaration_clause;
                                 ast->as_cpp_initializer = initializer;
                                 ast->rparen_token = rparen_token;
                                 *postfix_ptr = new (_pool) PostfixDeclaratorListAST(ast);
@@ -1362,7 +1362,7 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specif
 
             FunctionDeclaratorAST *ast = new (_pool) FunctionDeclaratorAST;
             ast->lparen_token = consumeToken();
-            parseParameterDeclarationClause(ast->parameters);
+            parseParameterDeclarationClause(ast->parameter_declaration_clause);
             if (LA() != T_RPAREN) {
                 rewind(startOfPostDeclarator);
                 break;
@@ -1457,7 +1457,7 @@ bool Parser::parseAbstractDeclarator(DeclaratorAST *&node, SpecifierListAST *dec
         if (LA() == T_LPAREN) {
             FunctionDeclaratorAST *ast = new (_pool) FunctionDeclaratorAST;
             ast->lparen_token = consumeToken();
-            if (LA() == T_RPAREN || parseParameterDeclarationClause(ast->parameters)) {
+            if (LA() == T_RPAREN || parseParameterDeclarationClause(ast->parameter_declaration_clause)) {
                 if (LA() == T_RPAREN)
                     ast->rparen_token = consumeToken();
             }
@@ -1557,7 +1557,9 @@ bool Parser::parseTemplateParameter(DeclarationAST *&node)
     if (parseTypeParameter(node))
         return true;
     bool previousTemplateArguments = switchTemplateArguments(true);
-    bool parsed = parseParameterDeclaration(node);
+    ParameterDeclarationAST *ast = 0;
+    bool parsed = parseParameterDeclaration(ast);
+    node = ast;
     (void) switchTemplateArguments(previousTemplateArguments);
     return parsed;
 }
@@ -1669,7 +1671,7 @@ bool Parser::parseParameterDeclarationClause(ParameterDeclarationClauseAST *&nod
     if (LA() == T_RPAREN)
         return true; // nothing to do
 
-    DeclarationListAST *parameter_declarations = 0;
+    ParameterDeclarationListAST *parameter_declarations = 0;
 
     unsigned dot_dot_dot_token = 0;
     if (LA() == T_DOT_DOT_DOT)
@@ -1695,16 +1697,16 @@ bool Parser::parseParameterDeclarationClause(ParameterDeclarationClauseAST *&nod
     return true;
 }
 
-bool Parser::parseParameterDeclarationList(DeclarationListAST *&node)
+bool Parser::parseParameterDeclarationList(ParameterDeclarationListAST *&node)
 {
     DEBUG_THIS_RULE();
     if (LA() == T_DOT_DOT_DOT || (LA() == T_COMMA && LA(2) == T_DOT_DOT_DOT))
         return false; // nothing to do.
 
-    DeclarationListAST **parameter_declaration_ptr = &node;
-    DeclarationAST *declaration = 0;
+    ParameterDeclarationListAST **parameter_declaration_ptr = &node;
+    ParameterDeclarationAST *declaration = 0;
     if (parseParameterDeclaration(declaration)) {
-        *parameter_declaration_ptr = new (_pool) DeclarationListAST;
+        *parameter_declaration_ptr = new (_pool) ParameterDeclarationListAST;
         (*parameter_declaration_ptr)->value = declaration;
         parameter_declaration_ptr = &(*parameter_declaration_ptr)->next;
         while (LA() == T_COMMA) {
@@ -1715,7 +1717,7 @@ bool Parser::parseParameterDeclarationList(DeclarationListAST *&node)
 
             declaration = 0;
             if (parseParameterDeclaration(declaration)) {
-                *parameter_declaration_ptr = new (_pool) DeclarationListAST;
+                *parameter_declaration_ptr = new (_pool) ParameterDeclarationListAST;
                 (*parameter_declaration_ptr)->value = declaration;
                 parameter_declaration_ptr = &(*parameter_declaration_ptr)->next;
             }
@@ -1725,7 +1727,7 @@ bool Parser::parseParameterDeclarationList(DeclarationListAST *&node)
     return false;
 }
 
-bool Parser::parseParameterDeclaration(DeclarationAST *&node)
+bool Parser::parseParameterDeclaration(ParameterDeclarationAST *&node)
 {
     DEBUG_THIS_RULE();
     SpecifierListAST *decl_specifier_seq = 0;
@@ -1950,7 +1952,7 @@ bool Parser::parseQtPropertyDeclaration(DeclarationAST *&node)
         }
 
         ast->property_name = property_name;
-        QtPropertyDeclarationItemListAST **iter = &ast->property_declaration_items;
+        QtPropertyDeclarationItemListAST **iter = &ast->property_declaration_item_list;
         while (true) {
             if (LA() == T_RPAREN) {
                 ast->rparen_token = consumeToken();
@@ -2175,8 +2177,8 @@ bool Parser::parseMemberSpecification(DeclarationAST *&node, ClassSpecifierAST *
             match(T_RPAREN, &ast->dptr_rparen_token);
         }
         match(T_COMMA, &ast->comma_token);
-        (void) parseTypeSpecifier(ast->type_specifiers);
-        parseDeclarator(ast->declarator, ast->type_specifiers);
+        (void) parseTypeSpecifier(ast->type_specifier_list);
+        parseDeclarator(ast->declarator, ast->type_specifier_list);
         match(T_RPAREN, &ast->rparen_token);
         node = ast;
     }   return true;
@@ -5525,7 +5527,7 @@ bool Parser::parseObjCMethodPrototype(ObjCMethodPrototypeAST *&node)
             }
 
             // TODO: Is this still valid, and if so, should it be stored in the AST? (EV)
-            DeclarationAST *parameter_declaration = 0;
+            ParameterDeclarationAST *parameter_declaration = 0;
             parseParameterDeclaration(parameter_declaration);
         }
     } else if (lookAtObjCSelector()) {
@@ -5860,8 +5862,8 @@ bool Parser::parseTrailingReturnType(TrailingReturnTypeAST *&node)
     while (parseAttributeSpecifier(*attr))
         attr = &(*attr)->next;
 
-    parseTrailingTypeSpecifierSeq(ast->type_specifiers);
-    parseAbstractDeclarator(ast->declarator, ast->type_specifiers);
+    parseTrailingTypeSpecifierSeq(ast->type_specifier_list);
+    parseAbstractDeclarator(ast->declarator, ast->type_specifier_list);
     node = ast;
     return true;
 }

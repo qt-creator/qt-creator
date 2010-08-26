@@ -172,7 +172,7 @@ virtual bool visit(QtPrivateSlotAST *ast)
         terminal(ast->dptr_rparen_token, ast);
     if (ast->comma_token)
         terminal(ast->comma_token, ast);
-    for (SpecifierListAST *iter = ast->type_specifiers; iter; iter = iter->next)
+    for (SpecifierListAST *iter = ast->type_specifier_list; iter; iter = iter->next)
         nonterminal(iter->value);
     nonterminal(ast->declarator);
     if (ast->rparen_token)
@@ -196,7 +196,7 @@ virtual bool visit(QtPropertyDeclarationAST *ast)
         terminal(ast->lparen_token, ast);
     nonterminal(ast->type_id);
     nonterminal(ast->property_name);
-    for (QtPropertyDeclarationItemListAST *iter = ast->property_declaration_items; iter; iter = iter->next)
+    for (QtPropertyDeclarationItemListAST *iter = ast->property_declaration_item_list; iter; iter = iter->next)
         nonterminal(iter->value);
     if (ast->rparen_token)
         terminal(ast->rparen_token, ast);
@@ -466,7 +466,7 @@ virtual bool visit(FunctionDeclaratorAST *ast)
 {
     if (ast->lparen_token)
         terminal(ast->lparen_token, ast);
-    nonterminal(ast->parameters);
+    nonterminal(ast->parameter_declaration_clause);
     if (ast->rparen_token)
         terminal(ast->rparen_token, ast);
     for (SpecifierListAST *iter = ast->cv_qualifier_list; iter; iter = iter->next)
@@ -893,7 +893,7 @@ virtual bool visit(ParameterDeclarationAST *ast)
 
 virtual bool visit(ParameterDeclarationClauseAST *ast)
 {
-    for (DeclarationListAST *iter = ast->parameter_declaration_list; iter; iter = iter->next)
+    for (ParameterDeclarationListAST *iter = ast->parameter_declaration_list; iter; iter = iter->next)
         nonterminal(iter->value);
     if (ast->dot_dot_dot_token)
         terminal(ast->dot_dot_dot_token, ast);
@@ -1594,7 +1594,7 @@ virtual bool visit(TrailingReturnTypeAST *ast)
         terminal(ast->arrow_token, ast);
     for (SpecifierListAST *iter = ast->attributes; iter; iter = iter->next)
         nonterminal(iter->value);
-    for (SpecifierListAST *iter = ast->type_specifiers; iter; iter = iter->next)
+    for (SpecifierListAST *iter = ast->type_specifier_list; iter; iter = iter->next)
         nonterminal(iter->value);
     nonterminal(ast->declarator);
     return false;

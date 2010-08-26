@@ -226,6 +226,7 @@ typedef List<QtPropertyDeclarationItemAST *> QtPropertyDeclarationItemListAST;
 typedef List<NameAST *> NameListAST;
 typedef List<QtInterfaceNameAST *> QtInterfaceNameListAST;
 
+typedef List<ParameterDeclarationAST *> ParameterDeclarationListAST;
 typedef List<CaptureAST *> CaptureListAST;
 
 typedef List<ObjCMessageArgumentAST *> ObjCMessageArgumentListAST;

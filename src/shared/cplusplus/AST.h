@@ -711,7 +711,7 @@ public:
     unsigned dptr_lparen_token;
     unsigned dptr_rparen_token;
     unsigned comma_token;
-    SpecifierListAST *type_specifiers;
+    SpecifierListAST *type_specifier_list;
     DeclaratorAST *declarator;
     unsigned rparen_token;
 
@@ -723,7 +723,7 @@ public:
         , dptr_lparen_token(0)
         , dptr_rparen_token(0)
         , comma_token(0)
-        , type_specifiers(0)
+        , type_specifier_list(0)
         , declarator(0)
         , rparen_token(0)
     {}
@@ -771,7 +771,7 @@ public:
     unsigned lparen_token;
     ExpressionAST *type_id;
     NameAST *property_name;
-    QtPropertyDeclarationItemListAST *property_declaration_items;
+    QtPropertyDeclarationItemListAST *property_declaration_item_list;
     unsigned rparen_token;
 
 public:
@@ -780,7 +780,7 @@ public:
         , lparen_token(0)
         , type_id(0)
         , property_name(0)
-        , property_declaration_items(0)
+        , property_declaration_item_list(0)
         , rparen_token(0)
     {}
 
@@ -1442,7 +1442,7 @@ class CPLUSPLUS_EXPORT FunctionDeclaratorAST: public PostfixDeclaratorAST
 {
 public:
     unsigned lparen_token;
-    ParameterDeclarationClauseAST *parameters;
+    ParameterDeclarationClauseAST *parameter_declaration_clause;
     unsigned rparen_token;
     SpecifierListAST *cv_qualifier_list;
     ExceptionSpecificationAST *exception_specification;
@@ -1455,7 +1455,7 @@ public: // annotations
 public:
     FunctionDeclaratorAST()
         : lparen_token(0)
-        , parameters(0)
+        , parameter_declaration_clause(0)
         , rparen_token(0)
         , cv_qualifier_list(0)
         , exception_specification(0)
@@ -1733,8 +1733,8 @@ protected:
 class CPLUSPLUS_EXPORT ExpressionOrDeclarationStatementAST: public StatementAST
 {
 public:
-    StatementAST *expression;
-    StatementAST *declaration;
+    ExpressionStatementAST *expression;
+    DeclarationStatementAST *declaration;
 
 public:
     ExpressionOrDeclarationStatementAST()
@@ -2507,7 +2507,7 @@ protected:
 class CPLUSPLUS_EXPORT ParameterDeclarationClauseAST: public AST
 {
 public:
-    DeclarationListAST *parameter_declaration_list;
+    ParameterDeclarationListAST *parameter_declaration_list;
     unsigned dot_dot_dot_token;
 
 public:
@@ -4261,14 +4261,14 @@ class TrailingReturnTypeAST: public AST
 public:
     unsigned arrow_token;
     SpecifierListAST *attributes;
-    SpecifierListAST *type_specifiers;
+    SpecifierListAST *type_specifier_list;
     DeclaratorAST *declarator;
 
 public:
     TrailingReturnTypeAST()
         : arrow_token(0)
         , attributes(0)
-        , type_specifiers(0)
+        , type_specifier_list(0)
         , declarator(0)
     {}
 

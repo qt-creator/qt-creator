@@ -830,7 +830,7 @@ void Bind::parameterDeclarationClause(ParameterDeclarationClauseAST *ast, unsign
 
     Scope *previousScope = switchScope(fun);
 
-    for (DeclarationListAST *it = ast->parameter_declaration_list; it; it = it->next) {
+    for (ParameterDeclarationListAST *it = ast->parameter_declaration_list; it; it = it->next) {
         this->declaration(it->value);
     }
 
@@ -1128,7 +1128,7 @@ FullySpecifiedType Bind::trailingReturnType(TrailingReturnTypeAST *ast, const Fu
     for (SpecifierListAST *it = ast->attributes; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
-    for (SpecifierListAST *it = ast->type_specifiers; it; it = it->next) {
+    for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
     DeclaratorIdAST *declaratorId = 0;
@@ -1831,7 +1831,7 @@ bool Bind::visit(QtPrivateSlotAST *ast)
     // unsigned dptr_rparen_token = ast->dptr_rparen_token;
     // unsigned comma_token = ast->comma_token;
     FullySpecifiedType type;
-    for (SpecifierListAST *it = ast->type_specifiers; it; it = it->next) {
+    for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
     DeclaratorIdAST *declaratorId = 0;
@@ -1846,7 +1846,7 @@ bool Bind::visit(QtPropertyDeclarationAST *ast)
     // unsigned lparen_token = ast->lparen_token;
     ExpressionTy type_id = this->expression(ast->type_id);
     /*const Name *property_name =*/ this->name(ast->property_name);
-    for (QtPropertyDeclarationItemListAST *it = ast->property_declaration_items; it; it = it->next) {
+    for (QtPropertyDeclarationItemListAST *it = ast->property_declaration_item_list; it; it = it->next) {
         this->qtPropertyDeclarationItem(it->value);
     }
     // unsigned rparen_token = ast->rparen_token;
@@ -2882,7 +2882,7 @@ bool Bind::visit(FunctionDeclaratorAST *ast)
     fun->setReturnType(_type);
 
     // unsigned lparen_token = ast->lparen_token;
-    this->parameterDeclarationClause(ast->parameters, ast->lparen_token, fun);
+    this->parameterDeclarationClause(ast->parameter_declaration_clause, ast->lparen_token, fun);
     // unsigned rparen_token = ast->rparen_token;
     FullySpecifiedType type(fun);
     for (SpecifierListAST *it = ast->cv_qualifier_list; it; it = it->next) {

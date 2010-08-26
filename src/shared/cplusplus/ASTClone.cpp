@@ -171,7 +171,7 @@ QtPrivateSlotAST *QtPrivateSlotAST::clone(MemoryPool *pool) const
     ast->dptr_lparen_token = dptr_lparen_token;
     ast->dptr_rparen_token = dptr_rparen_token;
     ast->comma_token = comma_token;
-    for (SpecifierListAST *iter = type_specifiers, **ast_iter = &ast->type_specifiers;
+    for (SpecifierListAST *iter = type_specifier_list, **ast_iter = &ast->type_specifier_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
         *ast_iter = new (pool) SpecifierListAST((iter->value) ? iter->value->clone(pool) : 0);
     if (declarator)
@@ -198,7 +198,7 @@ QtPropertyDeclarationAST *QtPropertyDeclarationAST::clone(MemoryPool *pool) cons
         ast->type_id = type_id->clone(pool);
     if (property_name)
         ast->property_name = property_name->clone(pool);
-    for (QtPropertyDeclarationItemListAST *iter = property_declaration_items, **ast_iter = &ast->property_declaration_items;
+    for (QtPropertyDeclarationItemListAST *iter = property_declaration_item_list, **ast_iter = &ast->property_declaration_item_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
         *ast_iter = new (pool) QtPropertyDeclarationItemListAST((iter->value) ? iter->value->clone(pool) : 0);
     ast->rparen_token = rparen_token;
@@ -475,8 +475,8 @@ FunctionDeclaratorAST *FunctionDeclaratorAST::clone(MemoryPool *pool) const
 {
     FunctionDeclaratorAST *ast = new (pool) FunctionDeclaratorAST;
     ast->lparen_token = lparen_token;
-    if (parameters)
-        ast->parameters = parameters->clone(pool);
+    if (parameter_declaration_clause)
+        ast->parameter_declaration_clause = parameter_declaration_clause->clone(pool);
     ast->rparen_token = rparen_token;
     for (SpecifierListAST *iter = cv_qualifier_list, **ast_iter = &ast->cv_qualifier_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
@@ -927,9 +927,9 @@ ParameterDeclarationAST *ParameterDeclarationAST::clone(MemoryPool *pool) const
 ParameterDeclarationClauseAST *ParameterDeclarationClauseAST::clone(MemoryPool *pool) const
 {
     ParameterDeclarationClauseAST *ast = new (pool) ParameterDeclarationClauseAST;
-    for (DeclarationListAST *iter = parameter_declaration_list, **ast_iter = &ast->parameter_declaration_list;
+    for (ParameterDeclarationListAST *iter = parameter_declaration_list, **ast_iter = &ast->parameter_declaration_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
-        *ast_iter = new (pool) DeclarationListAST((iter->value) ? iter->value->clone(pool) : 0);
+        *ast_iter = new (pool) ParameterDeclarationListAST((iter->value) ? iter->value->clone(pool) : 0);
     ast->dot_dot_dot_token = dot_dot_dot_token;
     return ast;
 }
@@ -1659,7 +1659,7 @@ TrailingReturnTypeAST *TrailingReturnTypeAST::clone(MemoryPool *pool) const
     for (SpecifierListAST *iter = attributes, **ast_iter = &ast->attributes;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
         *ast_iter = new (pool) SpecifierListAST((iter->value) ? iter->value->clone(pool) : 0);
-    for (SpecifierListAST *iter = type_specifiers, **ast_iter = &ast->type_specifiers;
+    for (SpecifierListAST *iter = type_specifier_list, **ast_iter = &ast->type_specifier_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
         *ast_iter = new (pool) SpecifierListAST((iter->value) ? iter->value->clone(pool) : 0);
     if (declarator)

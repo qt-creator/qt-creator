@@ -1379,8 +1379,8 @@ unsigned FunctionDeclaratorAST::firstToken() const
 {
     if (lparen_token)
         return lparen_token;
-    if (parameters)
-        if (unsigned candidate = parameters->firstToken())
+    if (parameter_declaration_clause)
+        if (unsigned candidate = parameter_declaration_clause->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
@@ -1416,8 +1416,8 @@ unsigned FunctionDeclaratorAST::lastToken() const
             return candidate;
     if (rparen_token)
         return rparen_token + 1;
-    if (parameters)
-        if (unsigned candidate = parameters->lastToken())
+    if (parameter_declaration_clause)
+        if (unsigned candidate = parameter_declaration_clause->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -3317,8 +3317,8 @@ unsigned QtPrivateSlotAST::firstToken() const
         return dptr_rparen_token;
     if (comma_token)
         return comma_token;
-    if (type_specifiers)
-        if (unsigned candidate = type_specifiers->firstToken())
+    if (type_specifier_list)
+        if (unsigned candidate = type_specifier_list->firstToken())
             return candidate;
     if (declarator)
         if (unsigned candidate = declarator->firstToken())
@@ -3336,8 +3336,8 @@ unsigned QtPrivateSlotAST::lastToken() const
     if (declarator)
         if (unsigned candidate = declarator->lastToken())
             return candidate;
-    if (type_specifiers)
-        if (unsigned candidate = type_specifiers->lastToken())
+    if (type_specifier_list)
+        if (unsigned candidate = type_specifier_list->lastToken())
             return candidate;
     if (comma_token)
         return comma_token + 1;
@@ -3367,8 +3367,8 @@ unsigned QtPropertyDeclarationAST::firstToken() const
     if (property_name)
         if (unsigned candidate = property_name->firstToken())
             return candidate;
-    if (property_declaration_items)
-        if (unsigned candidate = property_declaration_items->firstToken())
+    if (property_declaration_item_list)
+        if (unsigned candidate = property_declaration_item_list->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
@@ -3380,8 +3380,8 @@ unsigned QtPropertyDeclarationAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
-    if (property_declaration_items)
-        if (unsigned candidate = property_declaration_items->lastToken())
+    if (property_declaration_item_list)
+        if (unsigned candidate = property_declaration_item_list->lastToken())
             return candidate;
     if (property_name)
         if (unsigned candidate = property_name->lastToken())
@@ -3818,8 +3818,8 @@ unsigned TrailingReturnTypeAST::firstToken() const
     if (attributes)
         if (unsigned candidate = attributes->firstToken())
             return candidate;
-    if (type_specifiers)
-        if (unsigned candidate = type_specifiers->firstToken())
+    if (type_specifier_list)
+        if (unsigned candidate = type_specifier_list->firstToken())
             return candidate;
     if (declarator)
         if (unsigned candidate = declarator->firstToken())
@@ -3833,8 +3833,8 @@ unsigned TrailingReturnTypeAST::lastToken() const
     if (declarator)
         if (unsigned candidate = declarator->lastToken())
             return candidate;
-    if (type_specifiers)
-        if (unsigned candidate = type_specifiers->lastToken())
+    if (type_specifier_list)
+        if (unsigned candidate = type_specifier_list->lastToken())
             return candidate;
     if (attributes)
         if (unsigned candidate = attributes->lastToken())

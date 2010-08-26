@@ -647,7 +647,7 @@ void FindUsages::parameterDeclarationClause(ParameterDeclarationClauseAST *ast)
     if (! ast)
         return;
 
-    for (DeclarationListAST *it = ast->parameter_declaration_list; it; it = it->next) {
+    for (ParameterDeclarationListAST *it = ast->parameter_declaration_list; it; it = it->next) {
         this->declaration(it->value);
     }
     // unsigned dot_dot_dot_token = ast->dot_dot_dot_token;
@@ -912,7 +912,7 @@ void FindUsages::trailingReturnType(TrailingReturnTypeAST *ast)
     for (SpecifierListAST *it = ast->attributes; it; it = it->next) {
         this->specifier(it->value);
     }
-    for (SpecifierListAST *it = ast->type_specifiers; it; it = it->next) {
+    for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {
         this->specifier(it->value);
     }
     this->declarator(ast->declarator);
@@ -1474,7 +1474,7 @@ bool FindUsages::visit(QtPrivateSlotAST *ast)
     // unsigned dptr_lparen_token = ast->dptr_lparen_token;
     // unsigned dptr_rparen_token = ast->dptr_rparen_token;
     // unsigned comma_token = ast->comma_token;
-    for (SpecifierListAST *it = ast->type_specifiers; it; it = it->next) {
+    for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {
         this->specifier(it->value);
     }
     this->declarator(ast->declarator);
@@ -1488,7 +1488,7 @@ bool FindUsages::visit(QtPropertyDeclarationAST *ast)
     // unsigned lparen_token = ast->lparen_token;
     this->expression(ast->type_id);
     /*const Name *property_name =*/ this->name(ast->property_name);
-    for (QtPropertyDeclarationItemListAST *it = ast->property_declaration_items; it; it = it->next) {
+    for (QtPropertyDeclarationItemListAST *it = ast->property_declaration_item_list; it; it = it->next) {
         this->qtPropertyDeclarationItem(it->value);
     }
     // unsigned rparen_token = ast->rparen_token;
@@ -2126,7 +2126,7 @@ bool FindUsages::visit(NestedDeclaratorAST *ast)
 bool FindUsages::visit(FunctionDeclaratorAST *ast)
 {
     // unsigned lparen_token = ast->lparen_token;
-    this->parameterDeclarationClause(ast->parameters);
+    this->parameterDeclarationClause(ast->parameter_declaration_clause);
     // unsigned rparen_token = ast->rparen_token;
     for (SpecifierListAST *it = ast->cv_qualifier_list; it; it = it->next) {
         this->specifier(it->value);

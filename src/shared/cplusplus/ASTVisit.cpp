@@ -133,7 +133,7 @@ void QtObjectTagAST::accept0(ASTVisitor *visitor)
 void QtPrivateSlotAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        accept(type_specifiers, visitor);
+        accept(type_specifier_list, visitor);
         accept(declarator, visitor);
     }
     visitor->endVisit(this);
@@ -152,7 +152,7 @@ void QtPropertyDeclarationAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(type_id, visitor);
         accept(property_name, visitor);
-        accept(property_declaration_items, visitor);
+        accept(property_declaration_item_list, visitor);
     }
     visitor->endVisit(this);
 }
@@ -355,7 +355,7 @@ void NestedDeclaratorAST::accept0(ASTVisitor *visitor)
 void FunctionDeclaratorAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        accept(parameters, visitor);
+        accept(parameter_declaration_clause, visitor);
         accept(cv_qualifier_list, visitor);
         accept(exception_specification, visitor);
         accept(trailing_return_type, visitor);
@@ -1211,7 +1211,7 @@ void TrailingReturnTypeAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(attributes, visitor);
-        accept(type_specifiers, visitor);
+        accept(type_specifier_list, visitor);
         accept(declarator, visitor);
     }
     visitor->endVisit(this);

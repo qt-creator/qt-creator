@@ -258,9 +258,9 @@ bool ASTMatcher::match(QtPrivateSlotAST *node, QtPrivateSlotAST *pattern)
 
     pattern->comma_token = node->comma_token;
 
-    if (! pattern->type_specifiers)
-        pattern->type_specifiers = node->type_specifiers;
-    else if (! AST::match(node->type_specifiers, pattern->type_specifiers, this))
+    if (! pattern->type_specifier_list)
+        pattern->type_specifier_list = node->type_specifier_list;
+    else if (! AST::match(node->type_specifier_list, pattern->type_specifier_list, this))
         return false;
 
     if (! pattern->declarator)
@@ -307,9 +307,9 @@ bool ASTMatcher::match(QtPropertyDeclarationAST *node, QtPropertyDeclarationAST 
     else if (! AST::match(node->property_name, pattern->property_name, this))
         return false;
 
-    if (! pattern->property_declaration_items)
-        pattern->property_declaration_items = node->property_declaration_items;
-    else if (! AST::match(node->property_declaration_items, pattern->property_declaration_items, this))
+    if (! pattern->property_declaration_item_list)
+        pattern->property_declaration_item_list = node->property_declaration_item_list;
+    else if (! AST::match(node->property_declaration_item_list, pattern->property_declaration_item_list, this))
         return false;
 
     pattern->rparen_token = node->rparen_token;
@@ -778,9 +778,9 @@ bool ASTMatcher::match(FunctionDeclaratorAST *node, FunctionDeclaratorAST *patte
 
     pattern->lparen_token = node->lparen_token;
 
-    if (! pattern->parameters)
-        pattern->parameters = node->parameters;
-    else if (! AST::match(node->parameters, pattern->parameters, this))
+    if (! pattern->parameter_declaration_clause)
+        pattern->parameter_declaration_clause = node->parameter_declaration_clause;
+    else if (! AST::match(node->parameter_declaration_clause, pattern->parameter_declaration_clause, this))
         return false;
 
     pattern->rparen_token = node->rparen_token;
@@ -2804,9 +2804,9 @@ bool ASTMatcher::match(TrailingReturnTypeAST *node, TrailingReturnTypeAST *patte
     else if (! AST::match(node->attributes, pattern->attributes, this))
         return false;
 
-    if (! pattern->type_specifiers)
-        pattern->type_specifiers = node->type_specifiers;
-    else if (! AST::match(node->type_specifiers, pattern->type_specifiers, this))
+    if (! pattern->type_specifier_list)
+        pattern->type_specifier_list = node->type_specifier_list;
+    else if (! AST::match(node->type_specifier_list, pattern->type_specifier_list, this))
         return false;
 
     if (! pattern->declarator)

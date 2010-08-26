@@ -163,9 +163,9 @@ public:
     bool parseOperator(OperatorAST *&node);
     bool parseConversionFunctionId(NameAST *&node);
     bool parseOperatorFunctionId(NameAST *&node);
-    bool parseParameterDeclaration(DeclarationAST *&node);
+    bool parseParameterDeclaration(ParameterDeclarationAST *&node);
     bool parseParameterDeclarationClause(ParameterDeclarationClauseAST *&node);
-    bool parseParameterDeclarationList(DeclarationListAST *&node);
+    bool parseParameterDeclarationList(ParameterDeclarationListAST *&node);
     bool parsePmExpression(ExpressionAST *&node);
     bool parseTypeidExpression(ExpressionAST *&node);
     bool parseTypenameCallExpression(ExpressionAST *&node);

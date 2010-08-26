@@ -215,7 +215,7 @@ public:
     FunctionDeclaratorAST *FunctionDeclarator(ParameterDeclarationClauseAST *parameters = 0, ExceptionSpecificationAST *exception_specification = 0, ExpressionAST *as_cpp_initializer = 0)
     {
         FunctionDeclaratorAST *__ast = new (&pool) FunctionDeclaratorAST;
-        __ast->parameters = parameters;
+        __ast->parameter_declaration_clause = parameters;
         __ast->exception_specification = exception_specification;
         __ast->as_cpp_initializer = as_cpp_initializer;
         return __ast;
@@ -284,7 +284,7 @@ public:
         return __ast;
     }
 
-    ExpressionOrDeclarationStatementAST *ExpressionOrDeclarationStatement(StatementAST *expression = 0, StatementAST *declaration = 0)
+    ExpressionOrDeclarationStatementAST *ExpressionOrDeclarationStatement(ExpressionStatementAST *expression = 0, DeclarationStatementAST *declaration = 0)
     {
         ExpressionOrDeclarationStatementAST *__ast = new (&pool) ExpressionOrDeclarationStatementAST;
         __ast->expression = expression;
