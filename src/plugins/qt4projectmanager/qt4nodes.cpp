@@ -771,10 +771,39 @@ QList<ProjectNode::ProjectAction> Qt4PriFileNode::supportedActions(Node *node) c
     return actions;
 }
 
+bool Qt4PriFileNode::canAddSubProject(const QString &proFilePath) const
+{
+    QFileInfo fi(proFilePath);
+    if (fi.suffix() == QLatin1String("pro")
+        || fi.suffix() == QLatin1String("pri"))
+        return true;
+    return false;
+}
+
 bool Qt4PriFileNode::addSubProjects(const QStringList &proFilePaths)
 {
-    Q_UNUSED(proFilePaths)
-    return false; //changeIncludes(m_includeFile, proFilePaths, AddToProFile);
+    ProjectExplorer::FindAllFilesVisitor visitor;
+    accept(&visitor);
+    const QStringList &allFiles = visitor.filePaths();
+
+    QStringList uniqueProFilePaths;
+    foreach (const QString &proFile, proFilePaths) {
+        if (!allFiles.contains(proFile)) {
+            // if proFilePath is like: _path_/projectName/projectName.pro
+            // we simplify it to: _path_/projectName
+            QString proFilePath = proFile;
+            QFileInfo fi(proFile);
+            QFileInfo parentFi(fi.absolutePath());
+            if (parentFi.fileName() == fi.baseName())
+                proFilePath = parentFi.absoluteFilePath();
+            uniqueProFilePaths.append(proFilePath);
+        }
+    }
+
+    QStringList failedFiles;
+    changeFiles(ProjectExplorer::ProjectFileType, uniqueProFilePaths, &failedFiles, AddToProFile);
+
+    return failedFiles.isEmpty();
 }
 
 bool Qt4PriFileNode::removeSubProjects(const QStringList &proFilePaths)
@@ -1084,6 +1113,9 @@ QStringList Qt4PriFileNode::varNames(ProjectExplorer::FileType type)
         break;
     case ProjectExplorer::FormType:
         vars << QLatin1String("FORMS");
+        break;
+    case ProjectExplorer::ProjectFileType:
+        vars << QLatin1String("SUBDIRS");
         break;
     case ProjectExplorer::QMLType:
         break;

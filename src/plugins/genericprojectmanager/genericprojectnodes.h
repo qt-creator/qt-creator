@@ -57,6 +57,8 @@ public:
 
     virtual QList<ProjectExplorer::ProjectNode::ProjectAction> supportedActions(Node *node) const;
 
+    virtual bool canAddSubProject(const QString &proFilePath) const;
+
     virtual bool addSubProjects(const QStringList &proFilePaths);
     virtual bool removeSubProjects(const QStringList &proFilePaths);
 

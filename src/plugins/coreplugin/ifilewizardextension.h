@@ -57,11 +57,18 @@ public:
     virtual QList<QWizardPage *> extensionPages(const IWizard *wizard) = 0;
 
     /* Process the files using the extension parameters */
-    virtual bool process(const QList<GeneratedFile> &files, QString *errorMessage) = 0;
+    virtual bool process(const QList<GeneratedFile> &files,
+                         const QString &generatedProjectFilePath,
+                         bool *removeOpenProjectAttribute,
+                         QString *errorMessage) = 0;
 
 public slots:
     /* Notification about the first extension page being shown. */
-    virtual void firstExtensionPageShown(const QList<GeneratedFile> &) {}
+    virtual void firstExtensionPageShown(const QList<GeneratedFile> &files,
+                                         const QString &generatedProjectFilePath) {
+        Q_UNUSED(files)
+        Q_UNUSED(generatedProjectFilePath)
+        }
 };
 
 } // namespace Core

@@ -38,7 +38,6 @@
 #include <utils/stringutils.h>
 
 #include <coreplugin/basefilewizard.h>
-#include <coreplugin/dialogs/iwizard.h>
 #include <coreplugin/filemanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
@@ -156,11 +155,13 @@ struct ProjectWizardContext
     ProjectWizardPage *page;
     bool repositoryExists; // Is VCS 'add' sufficient, or should a repository be created?
     QString commonDirectory;
+    const Core::IWizard *wizard;
 };
 
 ProjectWizardContext::ProjectWizardContext() :
     page(0),
-    repositoryExists(false)
+    repositoryExists(false),
+    wizard(0)
 {
 }
 
@@ -171,6 +172,7 @@ void ProjectWizardContext::clear()
     commonDirectory.clear();
     page = 0;
     repositoryExists = false;
+    wizard = 0;
 }
 
 // ---- ProjectFileWizardExtension
@@ -222,8 +224,12 @@ static int findMatchingProject(const QList<ProjectEntry> &projects,
     return bestMatch;
 }
 
-void ProjectFileWizardExtension::firstExtensionPageShown(const QList<Core::GeneratedFile> &files)
+void ProjectFileWizardExtension::firstExtensionPageShown(
+        const QList<Core::GeneratedFile> &files,
+        const QString &generatedProjectFilePath)
 {
+    initProjectChoices(generatedProjectFilePath);
+
     if (debugExtension)
         qDebug() << Q_FUNC_INFO << files.size();
     // Parametrize wizard page: find best project to add to, set up files display and
@@ -307,13 +313,11 @@ QList<QWizardPage *> ProjectFileWizardExtension::extensionPages(const Core::IWiz
     }
     // Init context with page and projects
     m_context->page = new ProjectWizardPage;
-    // Project list remains the same over duration of wizard execution
-    // Note that projects cannot be added to projects.
-    initProjectChoices(wizard->kind() != Core::IWizard::ProjectWizard);
+    m_context->wizard = wizard;
     return QList<QWizardPage *>() << m_context->page;
 }
 
-void ProjectFileWizardExtension::initProjectChoices(bool enabled)
+void ProjectFileWizardExtension::initProjectChoices(const QString &generatedProjectFilePath)
 {
     // Set up project list which remains the same over duration of wizard execution
     // As tooltip, set the directory for disambiguation (should someone have
@@ -321,55 +325,83 @@ void ProjectFileWizardExtension::initProjectChoices(bool enabled)
     //: No project selected
     QStringList projectChoices(tr("<None>"));
     QStringList projectToolTips((QString()));
-    if (enabled) {
-        typedef QMap<ProjectEntry, bool> ProjectEntryMap;
-        // Sort by base name and purge duplicated entries (resulting from dependencies)
-        // via Map.
-        ProjectEntryMap entryMap;
 
-        foreach(ProjectNode *n, AllProjectNodesVisitor::allProjects(ProjectNode::AddNewFile))
+    typedef QMap<ProjectEntry, bool> ProjectEntryMap;
+    // Sort by base name and purge duplicated entries (resulting from dependencies)
+    // via Map.
+    ProjectEntryMap entryMap;
+
+    ProjectNode::ProjectAction projectAction =
+            m_context->wizard->kind() == Core::IWizard::ProjectWizard
+            ? ProjectNode::AddSubProject : ProjectNode::AddNewFile;
+    foreach(ProjectNode *n, AllProjectNodesVisitor::allProjects(projectAction)) {
+        if (projectAction == ProjectNode::AddNewFile
+                || (projectAction == ProjectNode::AddSubProject
+                && n->canAddSubProject(generatedProjectFilePath)))
             entryMap.insert(ProjectEntry(n), true);
-        // Collect names
-        const ProjectEntryMap::const_iterator cend = entryMap.constEnd();
-        for (ProjectEntryMap::const_iterator it = entryMap.constBegin(); it != cend; ++it) {
-            m_context->projects.push_back(it.key());
-            projectChoices.push_back(it.key().fileName);
-            projectToolTips.push_back(it.key().nativeDirectory);
-        }
     }
+
+    m_context->projects.clear();
+
+    // Collect names
+    const ProjectEntryMap::const_iterator cend = entryMap.constEnd();
+    for (ProjectEntryMap::const_iterator it = entryMap.constBegin(); it != cend; ++it) {
+        m_context->projects.push_back(it.key());
+        projectChoices.push_back(it.key().fileName);
+        projectToolTips.push_back(it.key().nativeDirectory);
+    }
+
     m_context->page->setProjects(projectChoices);
     m_context->page->setProjectToolTips(projectToolTips);
 }
 
-bool ProjectFileWizardExtension::process(const QList<Core::GeneratedFile> &files, QString *errorMessage)
+bool ProjectFileWizardExtension::process(
+        const QList<Core::GeneratedFile> &files,
+        const QString &generatedProjectFilePath,
+        bool *removeOpenProjectAttribute, QString *errorMessage)
 {
-    return processProject(files, errorMessage) &&
+    return processProject(files, generatedProjectFilePath,
+                          removeOpenProjectAttribute, errorMessage) &&
            processVersionControl(files, errorMessage);
 }
 
 // Add files to project && version control
-bool ProjectFileWizardExtension::processProject(const QList<Core::GeneratedFile> &files, QString *errorMessage)
+bool ProjectFileWizardExtension::processProject(
+        const QList<Core::GeneratedFile> &files,
+        const QString &generatedProjectFilePath,
+        bool *removeOpenProjectAttribute, QString *errorMessage)
 {
     typedef QMultiMap<FileType, QString> TypeFileMap;
+
+    *removeOpenProjectAttribute = false;
 
     // Add files to  project (Entry at 0 is 'None').
     const int projectIndex = m_context->page->currentProjectIndex() - 1;
     if (projectIndex < 0 || projectIndex >= m_context->projects.size())
         return true;
     ProjectNode *project = m_context->projects.at(projectIndex).node;
-    // Split into lists by file type and bulk-add them.
-    TypeFileMap typeFileMap;
-    const Core::MimeDatabase *mdb = Core::ICore::instance()->mimeDatabase();
-    foreach (const Core::GeneratedFile &generatedFile, files) {
-        const QString path = generatedFile.path();
-        typeFileMap.insert(typeForFileName(mdb, path), path);
-    }
-    foreach (FileType type, typeFileMap.uniqueKeys()) {
-        const QStringList typeFiles = typeFileMap.values(type);
-        if (!project->addFiles(type, typeFiles)) {
-            *errorMessage = tr("Failed to add one or more files to project\n'%1' (%2).").
-                            arg(project->path(), typeFiles.join(QString(QLatin1Char(','))));
+    if (m_context->wizard->kind() == Core::IWizard::ProjectWizard) {
+        if (!project->addSubProjects(QStringList(generatedProjectFilePath))) {
+            *errorMessage = tr("Failed to add subproject '%1'\nto project '%2'.")
+                            .arg(generatedProjectFilePath).arg(project->path());
             return false;
+        }
+        *removeOpenProjectAttribute = true;
+    } else {
+        // Split into lists by file type and bulk-add them.
+        TypeFileMap typeFileMap;
+        const Core::MimeDatabase *mdb = Core::ICore::instance()->mimeDatabase();
+        foreach (const Core::GeneratedFile &generatedFile, files) {
+            const QString path = generatedFile.path();
+            typeFileMap.insert(typeForFileName(mdb, path), path);
+        }
+        foreach (FileType type, typeFileMap.uniqueKeys()) {
+            const QStringList typeFiles = typeFileMap.values(type);
+            if (!project->addFiles(type, typeFiles)) {
+                *errorMessage = tr("Failed to add one or more files to project\n'%1' (%2).").
+                                arg(project->path(), typeFiles.join(QString(QLatin1Char(','))));
+                return false;
+            }
         }
     }
     return true;

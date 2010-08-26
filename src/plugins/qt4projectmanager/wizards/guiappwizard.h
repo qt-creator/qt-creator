@@ -61,6 +61,8 @@ protected:
     virtual Core::GeneratedFiles generateFiles(const QWizard *w,
                                                QString *errorMessage) const;
 
+    QString generatedProjectFilePath(const QWizard *w) const;
+
 private:
     static bool parametrizeTemplate(const QString &templatePath, const QString &templateName,
                                     const GuiAppParameters &params,

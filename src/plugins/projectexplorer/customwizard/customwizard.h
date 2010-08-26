@@ -162,6 +162,7 @@ signals:
     void projectLocationChanged(const QString &path);
 
 protected:
+    QString generatedProjectFilePath(const QWizard *wizard) const;
     virtual bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);
 
     void initProjectWizardDialog(BaseProjectWizardDialog *w, const QString &defaultPath,

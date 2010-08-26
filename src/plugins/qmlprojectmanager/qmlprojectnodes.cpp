@@ -180,6 +180,12 @@ QList<ProjectExplorer::ProjectNode::ProjectAction> QmlProjectNode::supportedActi
     return actions;
 }
 
+bool QmlProjectNode::canAddSubProject(const QString &proFilePath) const
+{
+    Q_UNUSED(proFilePath)
+    return false;
+}
+
 bool QmlProjectNode::addSubProjects(const QStringList &proFilePaths)
 {
     Q_UNUSED(proFilePaths)

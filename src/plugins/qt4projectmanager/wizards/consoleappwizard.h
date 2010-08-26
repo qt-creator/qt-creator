@@ -51,6 +51,8 @@ protected:
 
     virtual Core::GeneratedFiles generateFiles(const QWizard *w,
                                                QString *errorMessage) const;
+
+    QString generatedProjectFilePath(const QWizard *w) const;
 };
 
 } // namespace Internal

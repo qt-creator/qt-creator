@@ -451,6 +451,25 @@ bool CustomProjectWizard::postGenerateOpen(const Core::GeneratedFiles &l, QStrin
     return BaseFileWizard::postGenerateOpenEditors(l, errorMessage);
 }
 
+QString CustomProjectWizard::generatedProjectFilePath(const QWizard *wizard) const
+{
+    const BaseProjectWizardDialog *dialog = qobject_cast<const BaseProjectWizardDialog *>(wizard);
+    QTC_ASSERT(dialog, return QString())
+    const QString targetPath = dialog->path() + QLatin1Char('/') + dialog->projectName();
+    const QChar slash =  QLatin1Char('/');
+    // take the first from parameters()->files list which have cwFile.openProject set
+    foreach(const Internal::CustomWizardFile &file, parameters()->files) {
+        if (file.openProject) {
+            FieldReplacementMap fieldReplacementMap = replacementMap(dialog);
+            fieldReplacementMap.insert(QLatin1String("ProjectName"), dialog->projectName());
+            QString target = file.target;
+            Internal::CustomWizardContext::replaceFields(fieldReplacementMap, &target);
+            return QDir::toNativeSeparators(targetPath + slash + target);
+        }
+    }
+    return QString();
+}
+
 bool CustomProjectWizard::postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l, QString *errorMessage)
 {
     if (CustomWizardPrivate::verbose)

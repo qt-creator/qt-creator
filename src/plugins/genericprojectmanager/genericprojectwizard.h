@@ -81,6 +81,8 @@ protected:
     virtual Core::GeneratedFiles generateFiles(const QWizard *w,
                                                QString *errorMessage) const;
 
+    virtual QString generatedProjectFilePath(const QWizard *w) const;
+
     virtual bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);
 
     bool isValidDir(const QFileInfo &fileInfo) const;

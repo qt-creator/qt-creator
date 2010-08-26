@@ -49,6 +49,12 @@ QList<ProjectExplorer::ProjectNode::ProjectAction> CMakeProjectNode::supportedAc
     return QList<ProjectAction>();
 }
 
+bool CMakeProjectNode::canAddSubProject(const QString &proFilePath) const
+{
+    Q_UNUSED(proFilePath)
+    return false;
+}
+
 bool CMakeProjectNode::addSubProjects(const QStringList &proFilePaths)
 {
     Q_UNUSED(proFilePaths)

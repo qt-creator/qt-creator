@@ -179,6 +179,12 @@ QList<ProjectExplorer::ProjectNode::ProjectAction> GenericProjectNode::supported
         << RemoveFile;
 }
 
+bool GenericProjectNode::canAddSubProject(const QString &proFilePath) const
+{
+    Q_UNUSED(proFilePath)
+    return false;
+}
+
 bool GenericProjectNode::addSubProjects(const QStringList &proFilePaths)
 {
     Q_UNUSED(proFilePaths)

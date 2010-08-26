@@ -200,6 +200,9 @@ protected:
     virtual GeneratedFiles generateFiles(const QWizard *w,
                                          QString *errorMessage) const = 0;
 
+    // Overwrite for ProjectWizard kind and return the path to the generated project file
+    virtual QString generatedProjectFilePath(const QWizard *wizard) const;
+
     /* Overwrite to perform steps to be done after files are actually created.
      * The default implementation opens editors with the newly generated files. */
     virtual bool postGenerateFiles(const QWizard *w, const GeneratedFiles &l, QString *errorMessage);

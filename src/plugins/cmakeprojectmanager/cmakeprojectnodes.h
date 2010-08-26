@@ -43,6 +43,9 @@ public:
     CMakeProjectNode(const QString &fileName);
     virtual bool hasBuildTargets() const;
     virtual QList<ProjectExplorer::ProjectNode::ProjectAction> supportedActions(Node *node) const;
+
+    virtual bool canAddSubProject(const QString &proFilePath) const;
+
     virtual bool addSubProjects(const QStringList &proFilePaths);
     virtual bool removeSubProjects(const QStringList &proFilePaths);
     virtual bool addFiles(const ProjectExplorer::FileType fileType,

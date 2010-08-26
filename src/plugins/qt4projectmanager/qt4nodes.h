@@ -140,6 +140,8 @@ public:
 
     bool hasBuildTargets() const { return false; }
 
+    bool canAddSubProject(const QString &proFilePath) const;
+
     bool addSubProjects(const QStringList &proFilePaths);
     bool removeSubProjects(const QStringList &proFilePaths);
 

@@ -50,15 +50,20 @@ public:
     virtual ~ProjectFileWizardExtension();
 
     virtual QList<QWizardPage *> extensionPages(const Core::IWizard *wizard);
-    virtual bool process(const QList<Core::GeneratedFile> &files, QString *errorMessage);
+    virtual bool process(const QList<Core::GeneratedFile> &files,
+                         const QString &generatedProjectFilePath,
+                         bool *removeOpenProjectAttribute, QString *errorMessage);
 
 public slots:
-    virtual void firstExtensionPageShown(const QList<Core::GeneratedFile> &);
+    virtual void firstExtensionPageShown(const QList<Core::GeneratedFile> &files,
+                                         const QString &generatedProjectFilePath);
 
 private:
-    void initProjectChoices(bool enabled);
+    void initProjectChoices(const QString &generatedProjectFilePath);
     void initializeVersionControlChoices();
-    bool processProject(const QList<Core::GeneratedFile> &files, QString *errorMessage);
+    bool processProject(const QList<Core::GeneratedFile> &files,
+                        const QString &generatedProjectFilePath,
+                        bool *removeOpenProjectAttribute, QString *errorMessage);
     bool processVersionControl(const QList<Core::GeneratedFile> &files, QString *errorMessage);
 
     ProjectWizardContext *m_context;
