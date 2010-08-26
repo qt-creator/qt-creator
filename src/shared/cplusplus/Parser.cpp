@@ -2900,7 +2900,6 @@ bool Parser::maybeAmbiguousStatement(DeclarationStatementAST *ast, StatementAST 
   return maybeAmbiguous;
 }
 
-#if 1
 bool Parser::parseExpressionOrDeclarationStatement(StatementAST *&node)
 {
   DEBUG_THIS_RULE();
@@ -2976,38 +2975,6 @@ bool Parser::parseExpressionOrDeclarationStatement(StatementAST *&node)
   rewind(start);
   return parseExpressionStatement(node);
 }
-#else
-bool Parser::parseExpressionOrDeclarationStatement(StatementAST *&node)
-{
-  DEBUG_THIS_RULE();
-  if (LA() == T_SEMICOLON)
-    return parseExpressionStatement(node);
-
-  const unsigned start = cursor();
-  const bool startsWithName = LA() == T_COLON_COLON || LA() == T_IDENTIFIER;
-
-
-  if (! parseDeclarationStatement(node)) {
-    rewind(start);
-    return parseExpressionStatement(node);
-  }
-
-  if (startsWithName) {
-    if (DeclarationStatementAST *as_declaration = node->asDeclarationStatement()) {
-      StatementAST *as_expression = 0;
-      if (maybeAmbiguousStatement(as_declaration, as_expression)) {
-        // it's an ambiguous expression-or-declaration statement.
-        ExpressionOrDeclarationStatementAST *ast = new (_pool) ExpressionOrDeclarationStatementAST;
-        ast->declaration = as_declaration;
-        ast->expression = as_expression;
-        node = ast;
-      }
-    }
-  }
-
-  return true;
-}
-#endif
 
 bool Parser::parseCondition(ExpressionAST *&node)
 {
