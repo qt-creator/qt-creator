@@ -313,6 +313,20 @@ void QmlJSDesignDebugClient::destroyQmlObject(int debugId)
     sendMessage(message);
 }
 
+void QmlJSDesignDebugClient::reparentQmlObject(int debugId, int newParent)
+{
+    if (!m_connection || !m_connection->isConnected())
+        return;
+    QByteArray message;
+    QDataStream ds(&message, QIODevice::WriteOnly);
+
+    ds << QByteArray("MOVE_OBJECT")
+       << debugId
+       << newParent;
+
+    sendMessage(message);
+}
+
 
 void QmlJSDesignDebugClient::applyChangesToQmlFile()
 {

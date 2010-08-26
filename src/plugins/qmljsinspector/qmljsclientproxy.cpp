@@ -393,6 +393,12 @@ void ClientProxy::destroyQmlObject(int debugId)
         m_designClient->destroyQmlObject(debugId);
 }
 
+void ClientProxy::reparentQmlObject(int debugId, int newParent)
+{
+    if (isDesignClientConnected())
+        m_designClient->reparentQmlObject(debugId, newParent);
+}
+
 void ClientProxy::setContextPathIndex(int contextIndex)
 {
     if (isDesignClientConnected())

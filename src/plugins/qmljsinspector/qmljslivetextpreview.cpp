@@ -514,6 +514,12 @@ protected:
         m_clientProxy->createQmlObject(qmlText, ref, importList, filename);
     }
 
+    virtual void reparentObject(int debugId, int newParent)
+    {
+        appliedChangesToViewer = true;
+        m_clientProxy->reparentQmlObject(debugId, newParent);
+    }
+
     void checkUnsyncronizableElementChanges(UiObjectDefinition *parentDefinition)
     {
         if (unsyncronizableChanges == QmlJSLiveTextPreview::NoUnsyncronizableChanges) {

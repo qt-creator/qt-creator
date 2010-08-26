@@ -432,6 +432,14 @@ void Delta::remove(const QList<DebugId>& debugReferences)
     }
 }
 
+void Delta::reparent(const QList <DebugId> &member, const QList<DebugId> &newParent)
+{
+    if (member.length() != newParent.length()) return;
+
+    for (int i=0; i<member.length(); i++)
+        reparentObject(member.at(i), newParent.at(i));
+}
+
 
 Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::Ptr &doc2, const DebugIdMap &debugIds)
 {
@@ -478,7 +486,8 @@ Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::P
 
         if (!M.contains(parents1.parent.value(x),parents2.parent.value(y))) {
             qDebug () << "Delta::operator():  move " << label(y, doc2) << " from " << label(parents1.parent.value(x), doc1)
-            << " to " << label(parents2.parent.value(y), doc2)  << " ### TODO";
+            << " to " << label(parents2.parent.value(y), doc2);
+            reparent(newDebuggIds.value(y), newDebuggIds.value(parents2.parent.value(y)));
             continue;
         }
     }
@@ -513,6 +522,8 @@ Document::Ptr Delta::previousDocument() const
 void Delta::createObject(const QString &, DebugId, const QStringList &, const QString&)
 {}
 void Delta::removeObject(int)
+{}
+void Delta::reparentObject(int, int)
 {}
 void Delta::resetBindingForObject(int, const QString &)
 {}

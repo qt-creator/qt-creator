@@ -98,6 +98,9 @@ QDeclarativeDesignView::QDeclarativeDesignView(QWidget *parent) :
     connect(qmlDesignDebugServer(),
             SIGNAL(objectCreationRequested(QString,QObject*,QStringList,QString)),
             SLOT(_q_createQmlObject(QString,QObject*,QStringList,QString)));
+    connect(qmlDesignDebugServer(),
+            SIGNAL(objectReparentRequested(QObject *, QObject *)),
+            SLOT(_q_reparentQmlObject(QObject *, QObject *)));
     connect(qmlDesignDebugServer(), SIGNAL(contextPathIndexChanged(int)), SLOT(_q_changeContextPathIndex(int)));
     connect(qmlDesignDebugServer(), SIGNAL(clearComponentCacheRequested()), SLOT(_q_clearComponentCache()));
     connect(this, SIGNAL(statusChanged(QDeclarativeView::Status)), SLOT(_q_onStatusChanged(QDeclarativeView::Status)));
@@ -274,6 +277,19 @@ void QDeclarativeDesignViewPrivate::_q_createQmlObject(const QString &qml, QObje
         if (parentItem && newItem) {
             newItem->setParentItem(parentItem);
         }
+    }
+}
+
+void QDeclarativeDesignViewPrivate::_q_reparentQmlObject(QObject *object, QObject *newParent)
+{
+    if (!newParent)
+        return;
+
+    object->setParent(newParent);
+    QDeclarativeItem *newParentItem = qobject_cast<QDeclarativeItem*>(newParent);
+    QDeclarativeItem *item    = qobject_cast<QDeclarativeItem*>(object);
+    if (newParentItem && item) {
+        item->setParentItem(newParentItem);
     }
 }
 

@@ -40,7 +40,6 @@
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsdocument.h>
-#include <qmljs/qmljsdelta.h>
 
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggerconstants.h>

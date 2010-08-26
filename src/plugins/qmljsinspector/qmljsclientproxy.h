@@ -113,6 +113,7 @@ public slots:
     void createQmlObject(const QString &qmlText, int parentDebugId,
                          const QStringList &imports, const QString &filename = QString());
     void destroyQmlObject(int debugId);
+    void reparentQmlObject(int debugId, int newParent);
     void setContextPathIndex(int contextIndex);
 
 private slots:

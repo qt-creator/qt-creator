@@ -54,6 +54,7 @@ private:
                 AST::UiObjectDefinition* newObject, const QmlJS::Document::Ptr& newDoc,
                 const QList<DebugId>& debugReferences);
     void remove(const QList<DebugId> &debugReferences);
+    void reparent(const QList <DebugId> &member, const QList<DebugId> &newParent);
 
 protected:
     virtual void updateScriptBinding(DebugId objectReference,
@@ -68,6 +69,7 @@ protected:
                             const QString &methodBody);
     virtual void resetBindingForObject(int debugId, const QString &propertyName);
     virtual void removeObject(int debugId);
+    virtual void reparentObject(int debugId, int newParent);
     virtual void createObject(const QString &qmlText, DebugId ref,
                               const QStringList &importList, const QString &filename);
 

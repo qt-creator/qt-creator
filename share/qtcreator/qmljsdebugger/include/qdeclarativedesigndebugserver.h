@@ -84,6 +84,7 @@ Q_SIGNALS:
 
     void objectCreationRequested(const QString &qml, QObject *parent,
                                  const QStringList &imports, const QString &filename = QString());
+    void objectReparentRequested(QObject *object, QObject *newParent);
 
     // 1 = normal speed,
     // 0 = paused,

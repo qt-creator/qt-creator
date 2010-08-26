@@ -105,6 +105,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_onCurrentObjectsChanged(QList<QObject*>))
     Q_PRIVATE_SLOT(d_func(), void _q_applyChangesFromClient())
     Q_PRIVATE_SLOT(d_func(), void _q_createQmlObject(const QString &, QObject *, const QStringList &, const QString &))
+    Q_PRIVATE_SLOT(d_func(), void _q_reparentQmlObject(QObject *, QObject *))
     Q_PRIVATE_SLOT(d_func(), void _q_changeToSingleSelectTool())
     Q_PRIVATE_SLOT(d_func(), void _q_changeToMarqueeSelectTool())
     Q_PRIVATE_SLOT(d_func(), void _q_changeToZoomTool())

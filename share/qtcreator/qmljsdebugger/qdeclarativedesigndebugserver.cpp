@@ -108,6 +108,10 @@ void QDeclarativeDesignDebugServer::messageReceived(const QByteArray &message)
         ds >> debugId;
         if (QObject* obj = objectForId(debugId))
             obj->deleteLater();
+    } else if (type == "MOVE_OBJECT") {
+       int debugId, newParent;
+       ds >> debugId >> newParent;
+       emit objectReparentRequested(objectForId(debugId), objectForId(newParent));
     } else if (type == "OBJECT_ID_LIST") {
         int itemCount;
         ds >> itemCount;
