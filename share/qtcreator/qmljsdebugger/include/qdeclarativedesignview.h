@@ -115,6 +115,7 @@ private:
     inline QDeclarativeDesignViewPrivate *d_func() { return data.data(); }
     QScopedPointer<QDeclarativeDesignViewPrivate> data;
     friend class QDeclarativeDesignViewPrivate;
+    friend class AbstractFormEditorTool;
 
 };
 

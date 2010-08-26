@@ -323,6 +323,7 @@ void QDeclarativeDesignView::mouseDoubleClickEvent(QMouseEvent *event)
     }
 
 }
+
 void QDeclarativeDesignView::wheelEvent(QWheelEvent *event)
 {
     if (!data->designModeBehavior) {
@@ -330,6 +331,16 @@ void QDeclarativeDesignView::wheelEvent(QWheelEvent *event)
         return;
     }
     data->currentTool->wheelEvent(event);
+}
+
+void QDeclarativeDesignViewPrivate::enterContext(QGraphicsItem *itemToEnter)
+{
+    QGraphicsItem *itemUnderCurrentContext = itemToEnter;
+    if (itemUnderCurrentContext)
+        itemUnderCurrentContext = subcomponentEditorTool->firstChildOfContext(itemToEnter);
+
+    if (itemUnderCurrentContext)
+        subcomponentEditorTool->setCurrentItem(itemToEnter);
 }
 
 void QDeclarativeDesignView::setDesignModeBehavior(bool value)

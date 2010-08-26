@@ -209,11 +209,13 @@ void SelectionTool::contextMenuElementSelected()
     if (itemListIndex >= 0 && itemListIndex < m_contextMenuItemList.length()) {
 
         QPointF updatePt(0, 0);
+        QGraphicsItem *item = m_contextMenuItemList.at(itemListIndex);
         m_singleSelectionManipulator.begin(updatePt);
         m_singleSelectionManipulator.select(SingleSelectionManipulator::InvertSelection,
-                                            QList<QGraphicsItem*>() << m_contextMenuItemList.at(itemListIndex),
+                                            QList<QGraphicsItem*>() << item,
                                             false);
         m_singleSelectionManipulator.end(updatePt);
+        enterContext(item);
     }
 }
 

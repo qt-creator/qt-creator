@@ -114,6 +114,7 @@ public:
 
     QGraphicsItem *currentRootItem() const;
 
+    void enterContext(QGraphicsItem *itemToEnter);
 
     void _q_reloadView();
     void _q_onStatusChanged(QDeclarativeView::Status status);

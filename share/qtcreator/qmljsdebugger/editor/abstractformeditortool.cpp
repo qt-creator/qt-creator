@@ -29,6 +29,7 @@
 
 #include "abstractformeditortool.h"
 #include "qdeclarativedesignview.h"
+#include "qdeclarativedesignview_p.h"
 
 #include <QDeclarativeEngine>
 
@@ -67,6 +68,11 @@ void AbstractFormEditorTool::updateSelectedItems()
 QList<QGraphicsItem*> AbstractFormEditorTool::items() const
 {
     return view()->selectedItems();
+}
+
+void AbstractFormEditorTool::enterContext(QGraphicsItem *itemToEnter)
+{
+    view()->data->enterContext(itemToEnter);
 }
 
 bool AbstractFormEditorTool::topItemIsMovable(const QList<QGraphicsItem*> & itemList)
