@@ -114,8 +114,8 @@ public:
     bool parseDeclaration(DeclarationAST *&node);
     bool parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *declaringClass = 0);
     bool parseDeclarationStatement(StatementAST *&node);
-    bool parseCoreDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list, bool declaringClass);
-    bool parseDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list, bool declaringClass = false);
+    bool parseCoreDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list, ClassSpecifierAST *declaringClass);
+    bool parseDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list, ClassSpecifierAST *declaringClass = 0);
     bool parseDeleteExpression(ExpressionAST *&node);
     bool parseDoStatement(StatementAST *&node);
     bool parseElaboratedTypeSpecifier(SpecifierListAST *&node);
@@ -134,7 +134,7 @@ public:
     bool parseFunctionBody(StatementAST *&node);
     bool parseIfStatement(StatementAST *&node);
     bool parseInclusiveOrExpression(ExpressionAST *&node);
-    bool parseInitDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list, bool declaringClass);
+    bool parseInitDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list, ClassSpecifierAST *declaringClass);
     bool parseInitializerList(ExpressionListAST *&node);
     bool parseInitializer(ExpressionAST *&node, unsigned *equals_token);
     bool parseInitializerClause(ExpressionAST *&node);

@@ -79,7 +79,7 @@ public:
         : name(name)
     {
         for (int i = 0; i <= depth; ++i)
-	  fputc('-', stderr);
+          fputc('-', stderr);
 
         ++depth;
         fprintf(stderr, " %s, ahead: '%s' (%d) - block-errors: %d\n", name, spell, idx, blocked);
@@ -501,7 +501,7 @@ bool Parser::parseNestedNameSpecifierOpt(NestedNameSpecifierListAST *&name, bool
 bool Parser::parseName(NameAST *&node, bool acceptTemplateId)
 {
     DEBUG_THIS_RULE();
-    unsigned global_scope_token = 0;    
+    unsigned global_scope_token = 0;
 
     switch (LA()) {
     case T_COLON_COLON:
@@ -923,12 +923,12 @@ bool Parser::parseAsmDefinition(DeclarationAST *&node)
         }
     } else if (LA() == T_COLON_COLON) {
         consumeToken();
-	parseAsmOperandList();
+        parseAsmOperandList();
 
-	if (LA() == T_COLON) {
-	  consumeToken();
-	  parseAsmClobberList();
-	}
+        if (LA() == T_COLON) {
+          consumeToken();
+          parseAsmClobberList();
+        }
     }
     match(T_RPAREN, &ast->rparen_token);
     match(T_SEMICOLON, &ast->semicolon_token);
@@ -1247,7 +1247,7 @@ bool Parser::parseDeclaratorOrAbstractDeclarator(DeclaratorAST *&node, Specifier
     return parseAbstractDeclarator(node, decl_specifier_list);
 }
 
-bool Parser::parseCoreDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list, bool declaringClass)
+bool Parser::parseCoreDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list, ClassSpecifierAST *)
 {
     DEBUG_THIS_RULE();
     unsigned start = cursor();
@@ -1304,7 +1304,7 @@ bool Parser::parseCoreDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_sp
     return false;
 }
 
-bool Parser::parseDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list, bool declaringClass)
+bool Parser::parseDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list, ClassSpecifierAST *declaringClass)
 {
     DEBUG_THIS_RULE();
     if (! parseCoreDeclarator(node, decl_specifier_list, declaringClass))
@@ -2299,10 +2299,9 @@ bool Parser::parseEnumerator(EnumeratorListAST *&node)
 }
 
 bool Parser::parseInitDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list,
-				 bool declaringClass) // ### rewrite me
+                                 ClassSpecifierAST *declaringClass) // ### rewrite me
 {
     DEBUG_THIS_RULE();
-    unsigned start = cursor();
 
     if (declaringClass && LA() == T_COLON) {
         // anonymous bit-field declaration.
@@ -2317,17 +2316,6 @@ bool Parser::parseInitDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_sp
         if (skip(T_LPAREN, T_RPAREN))
             consumeToken();
     }
-
-#if 0
-    if (declaringClass && node &&
-	  ! node->postfix_declarator_list &&
-	  node->core_declarator &&
-	  node->core_declarator->asNestedDeclarator()) {
-	_translationUnit->warning(cursor(), "got here");
-        rewind(start);
-        return false;
-    }
-#endif
 
     if (declaringClass && LA() == T_COLON
             && (! node || ! node->postfix_declarator_list)) {
@@ -2682,7 +2670,7 @@ bool Parser::parseUnqualifiedName(NameAST *&node, bool acceptTemplateId)
          if (acceptTemplateId && LA(2) == T_LESS && parseTemplateId(node)) {
              if (! _templateArguments || (LA() == T_COMMA  || LA() == T_GREATER ||
                                           LA() == T_LPAREN || LA() == T_RPAREN  ||
-					  LA() == T_STAR || LA() == T_AMPER || // ptr-operators
+                                          LA() == T_STAR || LA() == T_AMPER || // ptr-operators
                                           LA() == T_COLON_COLON))
                  return true;
          }
@@ -2908,7 +2896,7 @@ bool Parser::maybeAmbiguousStatement(DeclarationStatementAST *ast, StatementAST 
   }
 
   rewind(end);
-  (void) blockErrors(blocked);  
+  (void) blockErrors(blocked);
   return maybeAmbiguous;
 }
 
@@ -2938,42 +2926,42 @@ bool Parser::parseExpressionOrDeclarationStatement(StatementAST *&node)
       node = as_expression; // well, at least for now.
 
       if (BinaryExpressionAST *binary = expression->asBinaryExpression()) {
-	const int binop = _translationUnit->tokenKind(binary->binary_op_token);
-	if (binop == T_EQUAL) {
-	  if (binary->left_expression->asBinaryExpression() != 0) {
-	    (void) blockErrors(blocked);
-	    node = as_expression;
-	    return true;
-	  }
-	}
+        const int binop = _translationUnit->tokenKind(binary->binary_op_token);
+        if (binop == T_EQUAL) {
+          if (binary->left_expression->asBinaryExpression() != 0) {
+            (void) blockErrors(blocked);
+            node = as_expression;
+            return true;
+          }
+        }
       } else if (CallAST *call = expression->asCall()) {
-	if (call->base_expression->asIdExpression() != 0) {
-	  (void) blockErrors(blocked);
-	  node = as_expression;
-	  return true;
-	}
+        if (call->base_expression->asIdExpression() != 0) {
+          (void) blockErrors(blocked);
+          node = as_expression;
+          return true;
+        }
       }
 
       rewind(start);
 
       DeclarationAST *declaration = 0;
       if (parseSimpleDeclaration(declaration)) {
-	SimpleDeclarationAST *simple = declaration->asSimpleDeclaration();
-	if (simple->semicolon_token == semicolon_token && simple->decl_specifier_list && simple->declarator_list) {
-	  DeclarationStatementAST *as_declaration = new (_pool) DeclarationStatementAST;
-	  as_declaration->declaration = declaration;
+        SimpleDeclarationAST *simple = declaration->asSimpleDeclaration();
+        if (simple->semicolon_token == semicolon_token && simple->decl_specifier_list && simple->declarator_list) {
+          DeclarationStatementAST *as_declaration = new (_pool) DeclarationStatementAST;
+          as_declaration->declaration = declaration;
 
-	  if (simple->decl_specifier_list != 0 && simple->declarator_list != 0) {
-	    node = as_declaration;
-	    (void) blockErrors(blocked);
-	    return true;	    
-	  }
+          if (simple->decl_specifier_list != 0 && simple->declarator_list != 0) {
+            node = as_declaration;
+            (void) blockErrors(blocked);
+            return true;
+          }
 
-	  ExpressionOrDeclarationStatementAST *ast = new (_pool) ExpressionOrDeclarationStatementAST;
-	  ast->declaration = as_declaration;
-	  ast->expression = as_expression;
-	  node = ast;	  
-	}
+          ExpressionOrDeclarationStatementAST *ast = new (_pool) ExpressionOrDeclarationStatementAST;
+          ast->declaration = as_declaration;
+          ast->expression = as_expression;
+          node = ast;
+        }
       }
       rewind(semicolon_token + 1);
       (void) blockErrors(blocked);
@@ -3008,11 +2996,11 @@ bool Parser::parseExpressionOrDeclarationStatement(StatementAST *&node)
     if (DeclarationStatementAST *as_declaration = node->asDeclarationStatement()) {
       StatementAST *as_expression = 0;
       if (maybeAmbiguousStatement(as_declaration, as_expression)) {
-	// it's an ambiguous expression-or-declaration statement.
-	ExpressionOrDeclarationStatementAST *ast = new (_pool) ExpressionOrDeclarationStatementAST;		
-	ast->declaration = as_declaration;
-	ast->expression = as_expression;
-	node = ast;
+        // it's an ambiguous expression-or-declaration statement.
+        ExpressionOrDeclarationStatementAST *ast = new (_pool) ExpressionOrDeclarationStatementAST;
+        ast->declaration = as_declaration;
+        ast->expression = as_expression;
+        node = ast;
       }
     }
   }
@@ -3093,7 +3081,7 @@ bool Parser::parseForeachStatement(StatementAST *&node)
         bool blocked = blockErrors(true);
 
         if (parseTypeSpecifier(ast->type_specifier_list))
- 	    parseDeclarator(ast->declarator, ast->type_specifier_list);
+            parseDeclarator(ast->declarator, ast->type_specifier_list);
 
         if (! ast->type_specifier_list || ! ast->declarator) {
             ast->type_specifier_list = 0;
@@ -3136,7 +3124,7 @@ bool Parser::parseForStatement(StatementAST *&node)
         ast->lparen_token = lparen_token;
 
         if (parseTypeSpecifier(ast->type_specifier_list))
-	    parseDeclarator(ast->declarator, ast->type_specifier_list);
+            parseDeclarator(ast->declarator, ast->type_specifier_list);
 
         if ((ast->type_specifier_list || ast->declarator) && !peekAtObjCContextKeyword(Token_in)) {
             // woops, probably parsed too much: "in" got parsed as a declarator. Let's redo it:
@@ -3553,11 +3541,11 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *de
             startOfNamedTypeSpecifier = cursor();
             if (parseName(named_type_specifier)) {
 
-	      if (LA() == T_LPAREN && identifier(named_type_specifier) == className(declaringClass)) {
-		// looks like a constructor declaration
-		rewind(startOfNamedTypeSpecifier);
-		break;
-	      }
+              if (LA() == T_LPAREN && identifier(named_type_specifier) == className(declaringClass)) {
+                // looks like a constructor declaration
+                rewind(startOfNamedTypeSpecifier);
+                break;
+              }
 
 
                 NamedTypeSpecifierAST *spec = new (_pool) NamedTypeSpecifierAST;
