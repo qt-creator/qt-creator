@@ -27,41 +27,40 @@
 **
 **************************************************************************/
 
-#include "showineditortaskhandler.h"
+#ifndef TASKLISTMANAGER_H
+#define TASKLISTMANAGER_H
 
-#include "projectexplorerconstants.h"
-#include "task.h"
+#include <QtCore/QByteArray>
+#include <QtCore/QObject>
+#include <QtCore/QStringList>
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <texteditor/basetexteditor.h>
+namespace ProjectExplorer {
+class TaskHub;
+} // namespace ProjectExplorer
 
-#include <QtGui/QAction>
-#include <QtCore/QFileInfo>
+namespace TaskList {
+namespace Internal {
 
-using namespace ProjectExplorer::Internal;
-
-ShowInEditorTaskHandler::ShowInEditorTaskHandler() :
-    ITaskHandler(QLatin1String(Constants::SHOW_TASK_IN_EDITOR))
-{ }
-
-bool ShowInEditorTaskHandler::canHandle(const ProjectExplorer::Task &task)
+class TaskListManager : public QObject
 {
-    if (task.file.isEmpty())
-        return false;
-    QFileInfo fi(task.file);
-    return fi.exists() && fi.isFile() && fi.isReadable();
-}
+    Q_OBJECT
 
-void ShowInEditorTaskHandler::handle(const ProjectExplorer::Task &task)
-{
-    QFileInfo fi(task.file);
-    TextEditor::BaseTextEditor::openEditorAt(fi.canonicalFilePath(), task.line);
-    Core::EditorManager::instance()->ensureEditorManagerVisible();
-}
+public:
+    TaskListManager(QObject *parent = 0);
+    ~TaskListManager();
 
-QAction *ShowInEditorTaskHandler::createAction(QObject *parent)
-{
-    QAction *showAction = new QAction(tr("&Show in editor"), parent);
-    showAction->setToolTip(tr("Show task location in an editor"));
-    return showAction;
-}
+public slots:
+    void setTaskFile(const QString &name);
+
+private:
+    void parseTaskFile(const QString &name);
+    QStringList parseRawLine(const QByteArray &raw);
+    QString unescape(const QString &input) const;
+
+    ProjectExplorer::TaskHub *m_hub;
+};
+
+} // namespace Internal
+} // namespace TaskList
+
+#endif // TASKLISTMANAGER_H

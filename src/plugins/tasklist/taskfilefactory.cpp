@@ -27,41 +27,39 @@
 **
 **************************************************************************/
 
-#include "showineditortaskhandler.h"
+#include "taskfilefactory.h"
 
-#include "projectexplorerconstants.h"
-#include "task.h"
+#include "tasklistmanager.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <texteditor/basetexteditor.h>
+using namespace TaskList::Internal;
 
-#include <QtGui/QAction>
-#include <QtCore/QFileInfo>
-
-using namespace ProjectExplorer::Internal;
-
-ShowInEditorTaskHandler::ShowInEditorTaskHandler() :
-    ITaskHandler(QLatin1String(Constants::SHOW_TASK_IN_EDITOR))
+TaskFileFactory::TaskFileFactory(TaskListManager *manager) :
+    Core::IFileFactory(0),
+    m_manager(manager),
+    m_mimeTypes(QStringList() << QLatin1String("text/x-tasklist"))
 { }
 
-bool ShowInEditorTaskHandler::canHandle(const ProjectExplorer::Task &task)
+TaskFileFactory::~TaskFileFactory()
+{ }
+
+QStringList TaskFileFactory::mimeTypes() const
 {
-    if (task.file.isEmpty())
-        return false;
-    QFileInfo fi(task.file);
-    return fi.exists() && fi.isFile() && fi.isReadable();
+    return m_mimeTypes;
 }
 
-void ShowInEditorTaskHandler::handle(const ProjectExplorer::Task &task)
+QString TaskFileFactory::id() const
 {
-    QFileInfo fi(task.file);
-    TextEditor::BaseTextEditor::openEditorAt(fi.canonicalFilePath(), task.line);
-    Core::EditorManager::instance()->ensureEditorManagerVisible();
+    return QLatin1String("ProjectExplorer.TaskFileFactory");
 }
 
-QAction *ShowInEditorTaskHandler::createAction(QObject *parent)
+QString TaskFileFactory::displayName() const
 {
-    QAction *showAction = new QAction(tr("&Show in editor"), parent);
-    showAction->setToolTip(tr("Show task location in an editor"));
-    return showAction;
+    return tr("Task file reader");
+}
+
+Core::IFile *TaskFileFactory::open(const QString &fileName)
+{
+    Core::IFile *file = 0;
+    m_manager->setTaskFile(fileName);
+    return file;
 }

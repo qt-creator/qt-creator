@@ -27,41 +27,40 @@
 **
 **************************************************************************/
 
-#include "showineditortaskhandler.h"
+#include "tasklistplugin.h"
 
-#include "projectexplorerconstants.h"
-#include "task.h"
+#include "taskfilefactory.h"
+#include "tasklistmanager.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <texteditor/basetexteditor.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/mimedatabase.h>
 
-#include <QtGui/QAction>
-#include <QtCore/QFileInfo>
+#include <QtCore/QDebug>
+#include <QtCore/QStringList>
+#include <QtCore/QtPlugin>
 
-using namespace ProjectExplorer::Internal;
+using namespace TaskList::Internal;
 
-ShowInEditorTaskHandler::ShowInEditorTaskHandler() :
-    ITaskHandler(QLatin1String(Constants::SHOW_TASK_IN_EDITOR))
+TaskListPlugin::TaskListPlugin()
 { }
 
-bool ShowInEditorTaskHandler::canHandle(const ProjectExplorer::Task &task)
+TaskListPlugin::~TaskListPlugin()
+{ }
+
+bool TaskListPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    if (task.file.isEmpty())
+    Q_UNUSED(arguments)
+
+    Core::ICore *core = Core::ICore::instance();
+    if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":tasklist/TaskList.mimetypes.xml"), errorMessage))
         return false;
-    QFileInfo fi(task.file);
-    return fi.exists() && fi.isFile() && fi.isReadable();
+
+    TaskListManager * manager = new TaskListManager(this);
+    addObject(new TaskFileFactory(manager));
+    return true;
 }
 
-void ShowInEditorTaskHandler::handle(const ProjectExplorer::Task &task)
-{
-    QFileInfo fi(task.file);
-    TextEditor::BaseTextEditor::openEditorAt(fi.canonicalFilePath(), task.line);
-    Core::EditorManager::instance()->ensureEditorManagerVisible();
-}
+void TaskListPlugin::extensionsInitialized()
+{ }
 
-QAction *ShowInEditorTaskHandler::createAction(QObject *parent)
-{
-    QAction *showAction = new QAction(tr("&Show in editor"), parent);
-    showAction->setToolTip(tr("Show task location in an editor"));
-    return showAction;
-}
+Q_EXPORT_PLUGIN(TaskListPlugin)
