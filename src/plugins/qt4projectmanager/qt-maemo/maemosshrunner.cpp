@@ -69,6 +69,8 @@ MaemoSshRunner::MaemoSshRunner(QObject *parent,
         SLOT(handleMounterError(QString)));
     connect(m_mounter, SIGNAL(reportProgress(QString)), this,
         SIGNAL(reportProgress(QString)));
+    connect(m_mounter, SIGNAL(debugOutput(QString)), this,
+        SIGNAL(mountDebugOutput(QString)));
 }
 
 MaemoSshRunner::~MaemoSshRunner() {}

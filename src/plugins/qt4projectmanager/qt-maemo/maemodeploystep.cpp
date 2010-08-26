@@ -110,6 +110,8 @@ void MaemoDeployStep::ctor()
         SLOT(handleMountError(QString)));
     connect(m_mounter, SIGNAL(reportProgress(QString)), this,
         SLOT(handleProgressReport(QString)));
+    connect(m_mounter, SIGNAL(debugOutput(QString)), this,
+        SLOT(handleMountDebugOutput(QString)));
 }
 
 bool MaemoDeployStep::init()
@@ -427,6 +429,12 @@ void MaemoDeployStep::handleMountError(const QString &errorMsg)
         m_canStart = true;
     else
         raiseError(errorMsg);
+}
+
+void MaemoDeployStep::handleMountDebugOutput(const QString &output)
+{
+    if (!m_stopped)
+        writeOutput(output, ErrorOutput);
 }
 
 void MaemoDeployStep::setupMount()

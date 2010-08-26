@@ -94,6 +94,7 @@ private slots:
     void handleMounted();
     void handleUnmounted();
     void handleMountError(const QString &errorMsg);
+    void handleMountDebugOutput(const QString &output);
     void handleProgressReport(const QString &progressMsg);
     void handleCopyProcessFinished(int exitStatus);
     void handleCleanupTimeout();

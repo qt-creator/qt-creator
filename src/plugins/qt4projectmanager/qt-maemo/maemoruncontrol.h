@@ -65,6 +65,7 @@ private slots:
     void handleRemoteOutput(const QByteArray &output);
     void handleRemoteErrorOutput(const QByteArray &output);
     void handleProgressReport(const QString &progressString);
+    void handleMountDebugOutput(const QString &output);
 
 private:
     void setFinished();

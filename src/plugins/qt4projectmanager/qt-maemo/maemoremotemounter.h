@@ -76,6 +76,7 @@ signals:
     void unmounted();
     void error(const QString &reason);
     void reportProgress(const QString &progressOutput);
+    void debugOutput(const QString &output);
 
 private slots:
     void handleUploaderInitialized();
@@ -90,6 +91,7 @@ private slots:
     void handleUtfsServerFinished(int exitCode,
         QProcess::ExitStatus exitStatus);
     void handleUtfsServerTimeout();
+    void handleUtfsServerStderr();
 
 private:
     void deployUtfsClient();

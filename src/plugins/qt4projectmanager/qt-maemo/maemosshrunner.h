@@ -71,6 +71,7 @@ public:
 
 signals:
     void error(const QString &error);
+    void mountDebugOutput(const QString &output);
     void readyForExecution();
     void remoteOutput(const QByteArray &output);
     void remoteErrorOutput(const QByteArray &output);

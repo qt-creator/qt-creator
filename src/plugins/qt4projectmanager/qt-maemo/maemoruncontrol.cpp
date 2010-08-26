@@ -89,6 +89,8 @@ void MaemoRunControl::start()
             SLOT(handleRemoteProcessFinished(int)));
         connect(m_runner, SIGNAL(reportProgress(QString)), this,
             SLOT(handleProgressReport(QString)));
+        connect(m_runner, SIGNAL(mountDebugOutput(QString)), this,
+            SLOT(handleMountDebugOutput(QString)));
         m_runner->start();
     }
 }
@@ -137,6 +139,11 @@ void MaemoRunControl::handleRemoteErrorOutput(const QByteArray &output)
 void MaemoRunControl::handleProgressReport(const QString &progressString)
 {
     emit appendMessage(this, progressString, false);
+}
+
+void MaemoRunControl::handleMountDebugOutput(const QString &output)
+{
+    emit addToOutputWindowInline(this, output, true);
 }
 
 bool MaemoRunControl::isRunning() const

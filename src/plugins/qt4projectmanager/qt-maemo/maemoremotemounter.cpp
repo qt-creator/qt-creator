@@ -300,8 +300,19 @@ void MaemoRemoteMounter::startUtfsServers()
             SLOT(handleUtfsServerFinished(int,QProcess::ExitStatus)));
         connect(utfsServerProc.data(), SIGNAL(error(QProcess::ProcessError)),
             this, SLOT(handleUtfsServerError(QProcess::ProcessError)));
+        connect(utfsServerProc.data(), SIGNAL(readyReadStandardError()), this,
+            SLOT(handleUtfsServerStderr()));
         m_utfsServers << utfsServerProc;
         utfsServerProc->start(utfsServer(), utfsServerArgs);
+    }
+}
+
+void MaemoRemoteMounter::handleUtfsServerStderr()
+{
+    if (!m_stop) {
+        QProcess * const proc = static_cast<QProcess *>(sender());
+        const QByteArray &output = proc->readAllStandardError();
+        emit debugOutput(QString::fromLocal8Bit(output));
     }
 }
 
