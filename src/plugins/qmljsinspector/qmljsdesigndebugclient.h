@@ -51,8 +51,8 @@ class QmlJSDesignDebugClient : public QDeclarativeDebugClient
 {
     Q_OBJECT
 public:
-    QmlJSDesignDebugClient(QDeclarativeDebugConnection *client,
-                                  QObject *parent = 0);
+    explicit QmlJSDesignDebugClient(QDeclarativeDebugConnection *client,
+                                    QObject *parent = 0);
 
     void setSelectedItemsByObjectId(const QList<QDeclarativeDebugObjectReference> &objects);
     void reloadViewer();

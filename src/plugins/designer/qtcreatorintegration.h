@@ -44,7 +44,7 @@ class FormEditorW;
 class QtCreatorIntegration : public qdesigner_internal::QDesignerIntegration {
     Q_OBJECT
 public:
-    QtCreatorIntegration(QDesignerFormEditorInterface *core, FormEditorW *parent = 0);
+    explicit QtCreatorIntegration(QDesignerFormEditorInterface *core, FormEditorW *parent = 0);
 
     QWidget *containerWindow(QWidget *widget) const;
 

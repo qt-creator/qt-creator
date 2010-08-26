@@ -97,7 +97,7 @@ public:
         \param state The state for which this operation was created.
         \param priority The priority for this operation.
      */
-    QmlJSQuickFixOperation(const QmlJSQuickFixState &state, int priority = -1);
+    explicit QmlJSQuickFixOperation(const QmlJSQuickFixState &state, int priority = -1);
     virtual ~QmlJSQuickFixOperation();
 
     virtual void perform();

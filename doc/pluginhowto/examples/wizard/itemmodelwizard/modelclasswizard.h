@@ -9,7 +9,7 @@ class ModelClassWizard : public Core::BaseFileWizard
     Q_OBJECT
 
 public:
-    ModelClassWizard(const Core::BaseFileWizardParameters &parameters, QObject *parent = 0);
+    explicit ModelClassWizard(const Core::BaseFileWizardParameters &parameters, QObject *parent = 0);
     ~ModelClassWizard();
 
     QWizard *createWizardDialog(QWidget *parent,

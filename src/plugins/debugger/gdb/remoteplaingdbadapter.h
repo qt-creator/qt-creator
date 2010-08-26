@@ -42,7 +42,7 @@ class DEBUGGER_EXPORT RemotePlainGdbAdapter : public AbstractPlainGdbAdapter
 
 public:
     friend class RemoteGdbProcess;
-    RemotePlainGdbAdapter(GdbEngine *engine, QObject *parent = 0);
+    explicit RemotePlainGdbAdapter(GdbEngine *engine, QObject *parent = 0);
     void handleSetupDone();
     void handleSetupFailed(const QString &reason);
 

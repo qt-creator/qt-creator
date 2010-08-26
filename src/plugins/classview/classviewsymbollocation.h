@@ -48,7 +48,7 @@ public:
     SymbolLocation();
 
     //! Constructor
-    SymbolLocation(QString file, int lineNumber = 0, int columnNumber = 0);
+    explicit SymbolLocation(QString file, int lineNumber = 0, int columnNumber = 0);
 
     inline const QString &fileName() const { return m_fileName; }
     inline int line() const { return m_line; }

@@ -493,8 +493,8 @@ AST::Node *QmlOutlineModel::nodeForIndex(const QModelIndex &index) const
 
 AST::SourceLocation QmlOutlineModel::sourceLocation(const QModelIndex &index) const
 {
-    QTC_ASSERT(index.isValid() && (index.model() == this), return 0);
     AST::SourceLocation location;
+    QTC_ASSERT(index.isValid() && (index.model() == this), return location);
     AST::Node *node = nodeForIndex(index);
     if (node) {
         if (AST::UiObjectMember *member = node->uiObjectMemberCast())

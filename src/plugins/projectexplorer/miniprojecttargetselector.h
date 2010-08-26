@@ -57,7 +57,7 @@ private:
     ProjectExplorer::Project* m_project;
 
 public:
-    ProjectListWidget(ProjectExplorer::Project *project, QWidget *parent = 0);
+    explicit ProjectListWidget(ProjectExplorer::Project *project, QWidget *parent = 0);
 
     QSize sizeHint() const;
 
@@ -74,7 +74,7 @@ class MiniTargetWidget : public QWidget
 {
     Q_OBJECT
 public:
-    MiniTargetWidget(ProjectExplorer::Target *target, QWidget *parent = 0);
+    explicit MiniTargetWidget(ProjectExplorer::Target *target, QWidget *parent = 0);
     ProjectExplorer::Target *target() const;
 
     bool hasBuildConfiguration() const;
@@ -113,7 +113,7 @@ class MiniProjectTargetSelector : public QWidget
 {
     Q_OBJECT
 public:
-    MiniProjectTargetSelector(QAction *projectAction, QWidget *parent = 0);
+    explicit MiniProjectTargetSelector(QAction *projectAction, QWidget *parent = 0);
     void setVisible(bool visible);
 
 signals:

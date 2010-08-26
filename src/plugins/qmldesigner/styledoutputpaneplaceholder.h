@@ -8,7 +8,7 @@ QT_FORWARD_DECLARE_CLASS(QChildEvent)
 class StyledOutputpanePlaceHolder : public Core::OutputPanePlaceHolder
 {
 public:
-    StyledOutputpanePlaceHolder(Core::IMode *mode, QSplitter *parent = 0);
+    explicit StyledOutputpanePlaceHolder(Core::IMode *mode, QSplitter *parent = 0);
 
 protected:
     void childEvent(QChildEvent *event);

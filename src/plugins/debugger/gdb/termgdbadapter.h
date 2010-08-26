@@ -50,7 +50,7 @@ class TermGdbAdapter : public AbstractGdbAdapter
     Q_OBJECT
 
 public:
-    TermGdbAdapter(GdbEngine *engine, QObject *parent = 0);
+    explicit TermGdbAdapter(GdbEngine *engine, QObject *parent = 0);
     ~TermGdbAdapter();
 
 private:

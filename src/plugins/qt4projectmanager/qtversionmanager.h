@@ -53,7 +53,7 @@ public:
     QtVersion(const QString &name, const QString &qmakeCommand,
               bool isAutodetected = false, const QString &autodetectionSource = QString());
 
-    QtVersion(const QString &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
+    explicit QtVersion(const QString &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
 
     QtVersion(const QString &name, const QString &qmakeCommand, int id,
               bool isAutodetected = false, const QString &autodetectionSource = QString());

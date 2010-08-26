@@ -42,7 +42,7 @@ class MyMain : public QWidget
     Q_OBJECT
 
 public:
-    MyMain(QWidget *parent = 0, Qt::WFlags flags = 0);
+    explicit MyMain(QWidget *parent = 0, Qt::WFlags flags = 0);
     ~MyMain();
 
     void add(IComboEntry *obj);

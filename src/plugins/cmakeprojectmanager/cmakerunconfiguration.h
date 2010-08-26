@@ -128,7 +128,7 @@ class CMakeRunConfigurationWidget : public QWidget
 {
     Q_OBJECT
 public:
-    CMakeRunConfigurationWidget(CMakeRunConfiguration *cmakeRunConfiguration, QWidget *parent = 0);
+    explicit CMakeRunConfigurationWidget(CMakeRunConfiguration *cmakeRunConfiguration, QWidget *parent = 0);
 
 private slots:
     void setArguments(const QString &args);

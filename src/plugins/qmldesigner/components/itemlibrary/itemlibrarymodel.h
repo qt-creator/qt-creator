@@ -126,7 +126,7 @@ class ItemLibraryModel: public ItemLibrarySortedModel<ItemLibrarySectionModel> {
     Q_PROPERTY(QString searchText READ searchText WRITE setSearchText NOTIFY searchTextChanged)
 
 public:
-    ItemLibraryModel(QScriptEngine *scriptEngine, QObject *parent = 0);
+    explicit ItemLibraryModel(QScriptEngine *scriptEngine, QObject *parent = 0);
     ~ItemLibraryModel();
 
     QString searchText() const;

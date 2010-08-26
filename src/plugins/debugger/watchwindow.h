@@ -49,7 +49,7 @@ class WatchWindow : public QTreeView
 public:
     enum Type { ReturnType, LocalsType, TooltipType, WatchersType };
 
-    WatchWindow(Type type, QWidget *parent = 0);
+    explicit WatchWindow(Type type, QWidget *parent = 0);
     Type type() const { return m_type; }
 
 public slots:

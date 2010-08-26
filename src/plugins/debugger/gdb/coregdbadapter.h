@@ -49,7 +49,7 @@ class CoreGdbAdapter : public AbstractGdbAdapter
     Q_OBJECT
 
 public:
-    CoreGdbAdapter(GdbEngine *engine, QObject *parent = 0);
+    explicit CoreGdbAdapter(GdbEngine *engine, QObject *parent = 0);
 
 private:
     DumperHandling dumperHandling() const { return DumperNotAvailable; }

@@ -57,7 +57,7 @@ public:
         UnCollapseAll = 4
     };
 
-    TextEditorActionHandler(const char *context, uint optionalActions = None);
+    explicit TextEditorActionHandler(const char *context, uint optionalActions = None);
     void setupActions(BaseTextEditor *editor);
 
     void initializeActions();

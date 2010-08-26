@@ -42,7 +42,7 @@ class ProjectLoadWizard : public QWizard
 {
     Q_OBJECT
 public:
-    ProjectLoadWizard(Qt4Project *project, QWidget * parent = 0, Qt::WindowFlags flags = 0);
+    explicit ProjectLoadWizard(Qt4Project *project, QWidget * parent = 0, Qt::WindowFlags flags = 0);
     virtual ~ProjectLoadWizard();
     virtual void done(int result);
     void execDialog();

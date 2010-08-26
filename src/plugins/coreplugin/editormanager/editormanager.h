@@ -81,7 +81,7 @@ class CORE_EXPORT EditorManagerPlaceHolder : public QWidget
 {
     Q_OBJECT
 public:
-    EditorManagerPlaceHolder(Core::IMode *mode, QWidget *parent = 0);
+    explicit EditorManagerPlaceHolder(Core::IMode *mode, QWidget *parent = 0);
     ~EditorManagerPlaceHolder();
     static EditorManagerPlaceHolder* current();
 private slots:

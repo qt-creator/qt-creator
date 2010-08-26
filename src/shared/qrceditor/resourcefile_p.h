@@ -192,7 +192,7 @@ class ResourceModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    ResourceModel(const ResourceFile &resource_file, QObject *parent = 0);
+    explicit ResourceModel(const ResourceFile &resource_file, QObject *parent = 0);
 
     QModelIndex index(int row, int column,
                         const QModelIndex &parent = QModelIndex()) const;

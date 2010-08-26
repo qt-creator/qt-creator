@@ -69,7 +69,7 @@ class QDeclarativeEngineDebug : public QObject
 {
 Q_OBJECT
 public:
-    QDeclarativeEngineDebug(QDeclarativeDebugConnection *, QObject * = 0);
+    explicit QDeclarativeEngineDebug(QDeclarativeDebugConnection *, QObject * = 0);
     ~QDeclarativeEngineDebug();
 
     QDeclarativeDebugPropertyWatch *addWatch(const QDeclarativeDebugPropertyReference &,

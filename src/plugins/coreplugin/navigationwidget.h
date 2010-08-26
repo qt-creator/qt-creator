@@ -56,7 +56,7 @@ class CORE_EXPORT NavigationWidgetPlaceHolder : public QWidget
     friend class Core::NavigationWidget;
     Q_OBJECT
 public:
-    NavigationWidgetPlaceHolder(Core::IMode *mode, QWidget *parent = 0);
+    explicit NavigationWidgetPlaceHolder(Core::IMode *mode, QWidget *parent = 0);
     ~NavigationWidgetPlaceHolder();
     static NavigationWidgetPlaceHolder* current();
     void applyStoredSize(int width);

@@ -47,8 +47,8 @@ class CheckoutProgressWizardPage;
 class CheckoutWizardDialog : public Utils::Wizard {
     Q_OBJECT
 public:
-    CheckoutWizardDialog(const QList<QWizardPage *> &parameterPages,
-                         QWidget *parent = 0);
+    explicit CheckoutWizardDialog(const QList<QWizardPage *> &parameterPages,
+                                  QWidget *parent = 0);
 
     void start(const QSharedPointer<AbstractCheckoutJob> &job);
 

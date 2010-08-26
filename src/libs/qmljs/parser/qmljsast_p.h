@@ -272,7 +272,7 @@ class QML_PARSER_EXPORT UiFormal: public Node
 public:
     QMLJS_DECLARE_AST_NODE(UiFormal)
 
-    UiFormal(NameId *name, NameId *alias = 0)
+    explicit UiFormal(NameId *name, NameId *alias = 0)
       : name(name), alias(alias)
     { }
 
@@ -1762,7 +1762,7 @@ class QML_PARSER_EXPORT CaseBlock: public Node
 public:
     QMLJS_DECLARE_AST_NODE(CaseBlock)
 
-    CaseBlock(CaseClauses *c, DefaultClause *d = 0, CaseClauses *r = 0):
+    explicit CaseBlock(CaseClauses *c, DefaultClause *d = 0, CaseClauses *r = 0):
         clauses (c), defaultClause (d), moreClauses (r)
         { kind = K; }
 

@@ -9,7 +9,7 @@ class LoggerModeWidget : public QWidget
     Q_OBJECT
 
 public:
-    LoggerModeWidget(const QString projectName, QWidget* parent = 0);
+    explicit LoggerModeWidget(const QString projectName, QWidget* parent = 0);
     ~LoggerModeWidget();
 
 public slots:

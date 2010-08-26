@@ -73,7 +73,7 @@ class RemoteFilterOptions : public QDialog
     friend class RemoteHelpFilter;
 
 public:
-    RemoteFilterOptions(RemoteHelpFilter *filter, QWidget *parent = 0);
+    explicit RemoteFilterOptions(RemoteHelpFilter *filter, QWidget *parent = 0);
 
 private slots:
     void addNewItem();

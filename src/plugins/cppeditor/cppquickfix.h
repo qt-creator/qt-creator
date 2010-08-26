@@ -88,7 +88,7 @@ class CPPEDITOR_EXPORT CppQuickFixOperation: public TextEditor::QuickFixOperatio
     Q_DISABLE_COPY(CppQuickFixOperation)
 
 public:
-    CppQuickFixOperation(const CppQuickFixState &state, int priority = -1);
+    explicit CppQuickFixOperation(const CppQuickFixState &state, int priority = -1);
     virtual ~CppQuickFixOperation();
 
     virtual void perform();

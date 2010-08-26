@@ -83,7 +83,7 @@ public:
         LanguageProperty
     };
 
-    ResourceView(QUndoStack *history, QWidget *parent = 0);
+    explicit ResourceView(QUndoStack *history, QWidget *parent = 0);
     ~ResourceView();
 
     bool load(const QString &fileName);

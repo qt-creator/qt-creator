@@ -80,7 +80,7 @@ class MacroExpander
     const QByteArray *resolve_formal(const QByteArray &name);
 
 public:
-    MacroExpander(Environment *env, pp_frame *frame = 0, Client *client = 0, unsigned start_offset = 0);
+    explicit MacroExpander(Environment *env, pp_frame *frame = 0, Client *client = 0, unsigned start_offset = 0);
 
     const char *operator()(const char *first, const char *last,
                              QByteArray *result);

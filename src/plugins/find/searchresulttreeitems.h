@@ -43,8 +43,8 @@ namespace Internal {
 class SearchResultTreeItem
 {
 public:
-    SearchResultTreeItem(const SearchResultItem &item = SearchResultItem(),
-                         SearchResultTreeItem *parent = NULL);
+    explicit SearchResultTreeItem(const SearchResultItem &item = SearchResultItem(),
+                                  SearchResultTreeItem *parent = NULL);
     virtual ~SearchResultTreeItem();
 
     bool isLeaf() const;

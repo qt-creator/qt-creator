@@ -94,8 +94,8 @@ class S60EmulatorRunConfigurationWidget : public QWidget
 {
     Q_OBJECT
 public:
-    S60EmulatorRunConfigurationWidget(S60EmulatorRunConfiguration *runConfiguration,
-                                      QWidget *parent = 0);
+    explicit S60EmulatorRunConfigurationWidget(S60EmulatorRunConfiguration *runConfiguration,
+                                               QWidget *parent = 0);
 
 private slots:
     void updateTargetInformation();

@@ -109,8 +109,8 @@ class BookmarkWidget : public QWidget
     Q_OBJECT
 
 public:
-    BookmarkWidget(BookmarkManager *manager, QWidget *parent = 0,
-        bool showButtons = true);
+    explicit BookmarkWidget(BookmarkManager *manager, QWidget *parent = 0,
+                            bool showButtons = true);
     ~BookmarkWidget();
 
 signals:

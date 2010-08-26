@@ -60,7 +60,7 @@ class HelpViewer : public QTextBrowser
     Q_DISABLE_COPY(HelpViewer)
 
 public:
-    HelpViewer(qreal zoom, QWidget *parent = 0);
+    explicit HelpViewer(qreal zoom, QWidget *parent = 0);
     ~HelpViewer();
 
     QFont viewerFont() const;

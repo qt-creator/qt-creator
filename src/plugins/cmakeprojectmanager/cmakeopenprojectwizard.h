@@ -108,7 +108,7 @@ class ShadowBuildPage : public QWizardPage
 {
     Q_OBJECT
 public:
-    ShadowBuildPage(CMakeOpenProjectWizard *cmakeWizard, bool change = false);
+    explicit ShadowBuildPage(CMakeOpenProjectWizard *cmakeWizard, bool change = false);
 private slots:
     void buildDirectoryChanged();
 private:
@@ -121,7 +121,7 @@ class CMakeRunPage : public QWizardPage
     Q_OBJECT
 public:
     enum Mode { Initial, Update, Recreate, Change };
-    CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard, Mode mode = Initial, const QString &buildDirectory = QString());
+    explicit CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard, Mode mode = Initial, const QString &buildDirectory = QString());
 
     virtual void initializePage();
     virtual void cleanupPage();

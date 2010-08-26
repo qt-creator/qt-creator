@@ -42,8 +42,8 @@ class SubversionSubmitEditor : public VCSBase::VCSBaseSubmitEditor
 {
     Q_OBJECT
 public:
-    SubversionSubmitEditor(const VCSBase::VCSBaseSubmitEditorParameters *parameters,
-                           QWidget *parentWidget = 0);
+    explicit SubversionSubmitEditor(const VCSBase::VCSBaseSubmitEditorParameters *parameters,
+                                    QWidget *parentWidget = 0);
 
     static QString fileFromStatusLine(const QString &statusLine);
 

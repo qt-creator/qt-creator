@@ -78,7 +78,7 @@ class FakeVimHandler : public QObject
     Q_OBJECT
 
 public:
-    FakeVimHandler(QWidget *widget, QObject *parent = 0);
+    explicit FakeVimHandler(QWidget *widget, QObject *parent = 0);
     ~FakeVimHandler();
 
     QWidget *widget();

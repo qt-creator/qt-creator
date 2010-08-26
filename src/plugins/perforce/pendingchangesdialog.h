@@ -42,7 +42,7 @@ class PendingChangesDialog : public QDialog
     Q_OBJECT
 
 public:
-    PendingChangesDialog(const QString &data, QWidget *parent = 0);
+    explicit PendingChangesDialog(const QString &data, QWidget *parent = 0);
     int changeNumber() const;
 
 private:

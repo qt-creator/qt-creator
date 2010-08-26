@@ -60,7 +60,7 @@ class CORE_EXPORT OutputPanePlaceHolder : public QWidget
     friend class Core::Internal::OutputPaneManager; // needs to set m_visible and thus access m_current
     Q_OBJECT
 public:
-    OutputPanePlaceHolder(Core::IMode *mode, QSplitter *parent = 0);
+    explicit OutputPanePlaceHolder(Core::IMode *mode, QSplitter *parent = 0);
     ~OutputPanePlaceHolder();
     void setCloseable(bool b);
     bool closeable();

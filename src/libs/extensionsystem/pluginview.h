@@ -58,7 +58,7 @@ class EXTENSIONSYSTEM_EXPORT PluginView : public QWidget
     Q_OBJECT
 
 public:
-    PluginView(PluginManager *manager, QWidget *parent = 0);
+    explicit PluginView(PluginManager *manager, QWidget *parent = 0);
     ~PluginView();
 
     PluginSpec *currentPlugin() const;

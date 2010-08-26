@@ -45,7 +45,7 @@ class DeployConfigurationModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    DeployConfigurationModel(Target *target, QObject *parent = 0);
+    explicit DeployConfigurationModel(Target *target, QObject *parent = 0);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;

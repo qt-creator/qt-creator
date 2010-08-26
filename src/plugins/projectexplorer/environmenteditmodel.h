@@ -96,7 +96,7 @@ class PROJECTEXPLORER_EXPORT EnvironmentWidget : public QWidget
 {
     Q_OBJECT
 public:
-    EnvironmentWidget(QWidget *parent, QWidget *additionalDetailsWidget = 0);
+    explicit EnvironmentWidget(QWidget *parent, QWidget *additionalDetailsWidget = 0);
     ~EnvironmentWidget();
 
     void setBaseEnvironmentText(const QString &text);

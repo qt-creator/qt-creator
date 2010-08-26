@@ -58,7 +58,7 @@ class CodeCompletion: public TextEditor::ICompletionCollector
     Q_OBJECT
 
 public:
-    CodeCompletion(QmlJS::ModelManagerInterface *modelManager, QObject *parent = 0);
+    explicit CodeCompletion(QmlJS::ModelManagerInterface *modelManager, QObject *parent = 0);
     virtual ~CodeCompletion();
 
     virtual TextEditor::ITextEditable *editor() const;

@@ -48,7 +48,7 @@ class CPLUSPLUS_EXPORT MacroArgumentReference
   unsigned _length;
 
 public:
-  MacroArgumentReference(unsigned position = 0, unsigned length = 0)
+  explicit MacroArgumentReference(unsigned position = 0, unsigned length = 0)
     : _position(position), _length(length)
   { }
 

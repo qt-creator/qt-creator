@@ -46,8 +46,8 @@ public:
     // A list of state indicators and file names.
     typedef QPair<State, QString> StateFilePair;
 
-    CVSSubmitEditor(const VCSBase::VCSBaseSubmitEditorParameters *parameters,
-                           QWidget *parentWidget = 0);
+    explicit CVSSubmitEditor(const VCSBase::VCSBaseSubmitEditorParameters *parameters,
+                             QWidget *parentWidget = 0);
 
     void setStateList(const QList<StateFilePair> &statusOutput);
 

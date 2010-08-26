@@ -58,7 +58,7 @@ public:
         DumperLoadedByGdb
     };
 
-    AbstractGdbAdapter(GdbEngine *engine, QObject *parent = 0);
+    explicit AbstractGdbAdapter(GdbEngine *engine, QObject *parent = 0);
     virtual ~AbstractGdbAdapter();
 
     virtual void write(const QByteArray &data);

@@ -41,8 +41,8 @@ class QmlFileWizard: public Core::StandardFileWizard
 public:
     typedef Core::BaseFileWizardParameters BaseFileWizardParameters;
 
-    QmlFileWizard(const BaseFileWizardParameters &parameters,
-                  QObject *parent = 0);
+    explicit QmlFileWizard(const BaseFileWizardParameters &parameters,
+                           QObject *parent = 0);
 
 protected:
     QString fileContents(const QString &baseName) const;

@@ -56,7 +56,7 @@ class OpenPagesWidget : public QTreeView
     Q_OBJECT
 
 public:
-    OpenPagesWidget(OpenPagesModel *model, QWidget *parent = 0);
+    explicit OpenPagesWidget(OpenPagesModel *model, QWidget *parent = 0);
     ~OpenPagesWidget();
 
     void selectCurrentPage();

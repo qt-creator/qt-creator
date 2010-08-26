@@ -67,7 +67,7 @@ class NameId;
 class QML_PARSER_EXPORT Lexer
 {
 public:
-    Lexer(Engine *eng, bool tokenizeComments = false);
+    explicit Lexer(Engine *eng, bool tokenizeComments = false);
     ~Lexer();
 
     void setCode(const QString &c, int lineno);
