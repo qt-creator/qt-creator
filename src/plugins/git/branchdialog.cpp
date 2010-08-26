@@ -160,16 +160,15 @@ void BranchDialog::slotEnableButtons(const QItemSelection &selected)
     }
 
     // We can switch to or delete branches that are not current.
-    const bool hasRepository = !m_repository.isEmpty();
     const int selectedLocalRow = selectedLocalBranchIndex();
-    const int currentLocalBranch = m_localModel->currentBranch();
+    const bool hasRepository = !m_repository.isEmpty();
+    const bool hasLocalSelection = selectedLocalRow != -1 && !m_localModel->isNewBranchRow(selectedLocalRow);
+    const bool otherLocalSelected = hasLocalSelection && selectedLocalRow != m_localModel->currentBranch();
+    const bool branchSelected = hasLocalSelection || selectedRemoteBranchIndex() != -1;
 
-    const bool hasSelection = selectedLocalRow != -1 && !m_localModel->isNewBranchRow(selectedLocalRow);
-    const bool currentIsNotSelected = hasSelection && selectedLocalRow != currentLocalBranch;
-
-    m_checkoutButton->setEnabled(currentIsNotSelected);
-    m_diffButton->setEnabled(currentIsNotSelected);
-    m_deleteButton->setEnabled(currentIsNotSelected);
+    m_checkoutButton->setEnabled(otherLocalSelected);
+    m_diffButton->setEnabled(branchSelected);
+    m_deleteButton->setEnabled(otherLocalSelected);
     m_refreshButton->setEnabled(hasRepository);
     // Also disable <New Branch> entry of list view
     m_ui->localBranchListView->setEnabled(hasRepository);
@@ -249,10 +248,14 @@ void BranchDialog::slotLocalBranchActivated()
 
 void BranchDialog::slotDiffSelected()
 {
-    const int idx = selectedLocalBranchIndex();
-    if (idx == -1)
+    int idx = selectedLocalBranchIndex();
+    if (idx != -1) {
+        gitClient()->diffBranch(m_repository, QStringList(), m_localModel->branchName(idx));
         return;
-    gitClient()->diffBranch(m_repository, QStringList(), m_localModel->branchName(idx));
+    }
+    idx = selectedRemoteBranchIndex();
+    if (idx != -1)
+        gitClient()->diffBranch(m_repository, QStringList(), m_remoteModel->branchName(idx));
 }
 
 /* Ask to stash away changes and then close dialog and do an asynchronous
