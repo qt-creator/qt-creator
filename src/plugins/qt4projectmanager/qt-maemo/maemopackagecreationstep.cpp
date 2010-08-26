@@ -346,6 +346,19 @@ bool MaemoPackageCreationStep::packagingNeeded() const
             return true;
     }
 
+    const ProjectExplorer::Project * const project = target()->project();
+    const MaemoTemplatesManager * const templatesManager
+        = MaemoTemplatesManager::instance();
+    const QString debianPath = templatesManager->debianDirPath(project);
+    if (packageInfo.lastModified() <= QFileInfo(debianPath).lastModified())
+        return true;
+    const QStringList debianFiles = templatesManager->debianFiles(project);
+    foreach (const QString &debianFile, debianFiles) {
+        const QString absFilePath = debianPath + QLatin1Char('/') + debianFile;
+        if (packageInfo.lastModified() <= QFileInfo(absFilePath).lastModified())
+            return true;
+    }
+
     return false;
 }
 
