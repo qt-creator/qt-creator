@@ -190,7 +190,9 @@ def catchCliOutput(command):
     gdb.execute("set logging off")
     gdb.execute("set logging redirect off")
     if len(msg):
-        warn("CLI ERROR: %s " % msg)
+        # Having that might confuse result handlers in the gdbengine.
+        #warn("CLI ERROR: %s " % msg)
+        return "CLI ERROR: %s " % msg
     temp = open(filename, "r")
     lines = []
     for line in temp:

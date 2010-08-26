@@ -424,8 +424,8 @@ def qdump__QList(d, item):
                     d.putItem(Item(pp, item.iname, i))
                 p += 1
 
-def qdump__QImage():
-    return "Normal,Displayed";
+def qform__QImage():
+    return "Normal,Displayed"
 
 def qdump__QImage(d, item):
     painters = item.value["painters"]
@@ -1518,7 +1518,7 @@ def qdump__QStack(d, item):
     qdump__QVector(d, item)
 
 def qform__QString():
-    return "Inline,Separate Window";
+    return "Inline,Separate Window"
 
 def qdump__QString(d, item):
     d.putStringValue(item.value)
