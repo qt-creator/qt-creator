@@ -955,8 +955,6 @@ void QmlJSTextEditor::updateOutlineIndexNow()
 
         m_outlineCombo->blockSignals(blocked);
     }
-
-    updateUses();
 }
 
 static UiQualifiedId *qualifiedTypeNameId(UiObjectMember *m)
