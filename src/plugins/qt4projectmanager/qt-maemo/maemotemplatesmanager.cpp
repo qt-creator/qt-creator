@@ -240,6 +240,19 @@ bool MaemoTemplatesManager::adaptControlFile(const Project *project)
 
     adaptControlFileField(controlContents, "Section", "user/hidden");
     adaptControlFileField(controlContents, "Priority", "optional");
+    const int buildDependsOffset = controlContents.indexOf("Build-Depends:");
+    if (buildDependsOffset == -1) {
+        qWarning("Weird: no Build-Depends field in debian/control file.");
+    } else {
+        int buildDependsNewlineOffset
+            = controlContents.indexOf('\n', buildDependsOffset);
+        if (buildDependsNewlineOffset == -1) {
+            controlContents += '\n';
+            buildDependsNewlineOffset = controlContents.length() - 1;
+        }
+        controlContents.insert(buildDependsNewlineOffset,
+            ", libqt4-dev (>= 4.6.2)");
+    }
 
     controlFile.resize(0);
     controlFile.write(controlContents);
