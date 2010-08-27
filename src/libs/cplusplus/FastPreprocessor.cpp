@@ -46,6 +46,7 @@ QByteArray FastPreprocessor::run(QString fileName, const QString &source)
     if (Document::Ptr doc = _snapshot.document(fileName)) {
         _merged.insert(fileName);
 
+        mergeEnvironment(QLatin1String("<configuration>"));
         foreach (const Document::Include &i, doc->includes())
             mergeEnvironment(i.fileName());
     }
