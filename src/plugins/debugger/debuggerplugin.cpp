@@ -2766,6 +2766,11 @@ bool DebuggerPlugin::isRegisterViewVisible() const
     return d->m_registerDock->toggleViewAction()->isChecked();
 }
 
+bool DebuggerPlugin::hasSnapsnots() const
+{
+    return d->m_snapshotHandler->size();
+}
+
 static inline bool canShutDown(DebuggerState s)
 {
     switch (s) {

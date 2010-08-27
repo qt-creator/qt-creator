@@ -94,6 +94,7 @@ public:
     // called when all dependent plugins have loaded
     void initialize();
 
+    void aboutToStartDebugger();
     void aboutToShutdown();
 
     // most common debugger windows

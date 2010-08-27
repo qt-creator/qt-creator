@@ -32,6 +32,7 @@
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
 #include "debuggerrunner.h"
+#include "debuggerplugin.h"
 #include "savedaction.h"
 
 #include <utils/savedaction.h>
@@ -305,23 +306,20 @@ void DebuggerUISwitcher::modeChanged(Core::IMode *mode)
     d->m_mainWindow->setDockActionsVisible(d->m_inDebugMode);
     hideInactiveWidgets();
 
-    if (mode->id() != Constants::MODE_DEBUG)
+    if (mode->id() != Constants::MODE_DEBUG || DebuggerPlugin::instance()->hasSnapsnots())
        return;
 
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
-    if (editorManager->currentEditor()) {
-        DebuggerLanguages activeLangs;
-        if (isCurrentProjectCppBased())
-            activeLangs |= CppLanguage;
+    DebuggerLanguages activeLangs;
+    if (isCurrentProjectCppBased())
+        activeLangs |= CppLanguage;
 
-        if (isCurrentProjectQmlCppBased())
-            activeLangs |= QmlLanguage;
+    if (isCurrentProjectQmlCppBased())
+        activeLangs |= QmlLanguage;
 
-        if (d->m_activateCppAction)
-            d->m_activateCppAction->setChecked(activeLangs & CppLanguage);
-        if (d->m_activateQmlAction)
-            d->m_activateQmlAction->setChecked(activeLangs & QmlLanguage);
-    }
+    if (d->m_activateCppAction)
+        d->m_activateCppAction->setChecked(activeLangs & CppLanguage);
+    if (d->m_activateQmlAction)
+        d->m_activateQmlAction->setChecked(activeLangs & QmlLanguage);
 
     updateActiveLanguages();
 }
@@ -632,6 +630,12 @@ QWidget *DebuggerUISwitcher::createContents(Core::BaseMode *mode)
     splitter->setStretchFactor(0, 0);
     splitter->setStretchFactor(1, 1);
     return splitter;
+}
+
+void DebuggerUISwitcher::aboutToStartDebugger()
+{
+    if (!DebuggerPlugin::instance()->hasSnapsnots())
+        updateActiveLanguages();
 }
 
 void DebuggerUISwitcher::aboutToShutdown()

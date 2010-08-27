@@ -87,6 +87,7 @@ public:
 
     const CPlusPlus::Snapshot &cppCodeModelSnapshot() const;
     bool isRegisterViewVisible() const;
+    bool hasSnapsnots() const;
 
     void openTextEditor(const QString &titlePattern, const QString &contents);
 

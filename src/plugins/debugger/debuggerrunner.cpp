@@ -151,7 +151,8 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
     sp.dumperLibrary = rc->dumperLibrary();
     sp.dumperLibraryLocations = rc->dumperLibraryLocations();
 
-    if (DebuggerRunControl::isQmlProject(runConfiguration)) {
+    DebuggerLanguages activeLangs = DebuggerUISwitcher::instance()->activeDebugLanguages();
+    if (activeLangs & QmlLanguage) {
         sp.qmlServerAddress = QLatin1String("127.0.0.1");
         sp.qmlServerPort = rc->environment().value("QML_DEBUG_SERVER_PORT").toUInt();
         if (sp.qmlServerPort == 0)
@@ -380,7 +381,7 @@ void DebuggerRunControl::createEngine(const DebuggerStartParameters &startParams
     if (!engineType)
         engineType = engineForMode(sp.startMode);
 
-    if (engineType != QmlEngineType && sp.m_isQmlProject && (activeLangs & QmlLanguage)) {
+    if (engineType != QmlEngineType && (activeLangs & QmlLanguage)) {
         if (activeLangs & CppLanguage) {
             sp.cppEngineType = engineType;
             engineType = QmlCppEngineType;
@@ -497,14 +498,16 @@ void DebuggerRunControl::start()
         return;
     }
 
-    plugin()->activateDebugMode();    
+    DebuggerUISwitcher::instance()->aboutToStartDebugger();
 
     const QString message = tr("Starting debugger '%1' for tool chain '%2'...").
                   arg(m_engine->objectName(), toolChainName(sp.toolChainType));
     plugin()->showMessage(message, StatusBar);
     plugin()->showMessage(DebuggerSettings::instance()->dump(), LogDebug);
-
     plugin()->runControlStarted(this);
+
+    plugin()->activateDebugMode();
+
     engine()->startDebugger(this);
     m_running = true;
     emit started();
