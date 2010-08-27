@@ -715,10 +715,10 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     m_updateOutlineIndexTimer->setSingleShot(true);
     connect(m_updateOutlineIndexTimer, SIGNAL(timeout()), this, SLOT(updateOutlineIndexNow()));
 
-    m_curserPositionTimer  = new QTimer(this);
-    m_curserPositionTimer->setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
-    m_curserPositionTimer->setSingleShot(true);
-    connect(m_curserPositionTimer, SIGNAL(timeout()), this, SLOT(updateCursorPositionNow()));
+    m_cursorPositionTimer  = new QTimer(this);
+    m_cursorPositionTimer->setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
+    m_cursorPositionTimer->setSingleShot(true);
+    connect(m_cursorPositionTimer, SIGNAL(timeout()), this, SLOT(updateCursorPositionNow()));
 
     baseTextDocument()->setSyntaxHighlighter(new Highlighter(document()));
 
@@ -1749,7 +1749,7 @@ void QmlJSTextEditor::onRefactorMarkerClicked(const TextEditor::Internal::Refact
 
 void QmlJSTextEditor::onCursorPositionChanged()
 {
-    m_curserPositionTimer->start();
+    m_cursorPositionTimer->start();
 }
 
 QModelIndex QmlJSTextEditor::indexForPosition(unsigned cursorPosition, const QModelIndex &rootIndex) const

@@ -307,7 +307,7 @@ private:
     QTimer *m_semanticRehighlightTimer;
     QTimer *m_updateOutlineTimer;
     QTimer *m_updateOutlineIndexTimer;
-    QTimer *m_curserPositionTimer;
+    QTimer *m_cursorPositionTimer;
     QComboBox *m_outlineCombo;
     QmlOutlineModel *m_outlineModel;
     QModelIndex m_outlineModelIndex;
