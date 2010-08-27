@@ -1451,35 +1451,15 @@ void QtVersion::updateToolChainAndMkspec() const
         else if (value == "build_all")
             m_defaultConfigIsDebugAndRelease = true;
     }
+    // Is this actually a simulator Qt?
+    if (configValues.contains(QLatin1String("simulator"))) {
+        m_targetIds.clear();
+        m_targetIds.insert(QLatin1String(Constants::QT_SIMULATOR_TARGET_ID));
+    }
 
     delete reader;
     ProFileCacheManager::instance()->decRefCount();
     m_toolChainUpToDate = true;
-
-    // Check qconfig.h for QT_SIMULATOR define on desktop builds and switch the
-    // Qt version to Qt simulator target:
-    if (m_targetIds.contains(Constants::DESKTOP_TARGET_ID)) {
-        QString path(headerInstallPath());
-        path.append(QLatin1String("/Qt/qconfig.h"));
-        QFile qconfig(path);
-        if (!qconfig.exists())
-            return;
-        qconfig.open(QIODevice::ReadOnly);
-        QTextStream stream(&qconfig);
-        QString line;
-        bool isSimulator = false;
-        while (!(line = stream.readLine()).isNull()) {
-            if (line.startsWith(QLatin1String("#define QT_SIMULATOR"))) {
-                isSimulator = true;
-                break;
-            }
-        }
-        qconfig.close();
-        if (isSimulator) {
-            m_targetIds.remove(QLatin1String(Constants::DESKTOP_TARGET_ID));
-            m_targetIds.insert(QLatin1String(Constants::QT_SIMULATOR_TARGET_ID));
-        }
-    }
 }
 
 QString QtVersion::mwcDirectory() const
