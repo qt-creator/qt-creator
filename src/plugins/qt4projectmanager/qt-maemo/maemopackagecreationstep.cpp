@@ -126,7 +126,20 @@ bool MaemoPackageCreationStep::fromMap(const QVariantMap &map)
 
 void MaemoPackageCreationStep::run(QFutureInterface<bool> &fi)
 {
-    fi.reportResult(m_packagingEnabled ? createPackage() : true);
+    bool success;
+    if (m_packagingEnabled) {
+        QProcess * const buildProc = new QProcess;
+        connect(buildProc, SIGNAL(readyReadStandardOutput()), this,
+            SLOT(handleBuildOutput()));
+        connect(buildProc, SIGNAL(readyReadStandardError()), this,
+            SLOT(handleBuildOutput()));
+        success = createPackage(buildProc);
+        disconnect(buildProc, 0, this, 0);
+        buildProc->deleteLater();
+    } else  {
+        success = true;
+    }
+    fi.reportResult(success);
 }
 
 BuildStepConfigWidget *MaemoPackageCreationStep::createConfigWidget()
@@ -134,25 +147,21 @@ BuildStepConfigWidget *MaemoPackageCreationStep::createConfigWidget()
     return new MaemoPackageCreationWidget(this);
 }
 
-bool MaemoPackageCreationStep::createPackage()
+bool MaemoPackageCreationStep::createPackage(QProcess *buildProc)
 {
-    if (!packagingNeeded())
+    if (!packagingNeeded()) {
+        emit addOutput(tr("Package up to date."), MessageOutput);
         return true;
+    }
 
-    emit addOutput(tr("Creating package file ..."), BuildStep::MessageOutput);
+    emit addOutput(tr("Creating package file ..."), MessageOutput);
     checkProjectName();
-    m_buildProc.reset(new QProcess);
     QString error;
-    if (!preparePackagingProcess(m_buildProc.data(), maemoToolChain(),
-        buildDirectory(), &error)) {
+    if (!preparePackagingProcess(buildProc, maemoToolChain(), buildDirectory(),
+        &error)) {
         raiseError(error);
         return false;
     }
-
-    connect(m_buildProc.data(), SIGNAL(readyReadStandardOutput()), this,
-        SLOT(handleBuildOutput()));
-    connect(m_buildProc.data(), SIGNAL(readyReadStandardError()), this,
-        SLOT(handleBuildOutput()));
 
     const QString projectDir
         = buildConfiguration()->target()->project()->projectDirectory();
@@ -161,7 +170,7 @@ bool MaemoPackageCreationStep::createPackage()
     if (!inSourceBuild && !copyDebianFiles())
         return false;
 
-    if (!runCommand(QLatin1String("dpkg-buildpackage -nc -uc -us")))
+    if (!runCommand(buildProc, QLatin1String("dpkg-buildpackage -nc -uc -us")))
         return false;
 
     // Workaround for non-working dh_builddeb --destdir=.
@@ -196,9 +205,9 @@ bool MaemoPackageCreationStep::createPackage()
     emit addOutput(tr("Package created."), BuildStep::MessageOutput);
     deployStep()->deployables()->setUnmodified();
     if (inSourceBuild) {
-        m_buildProc->start(packagingCommand(maemoToolChain(),
+        buildProc->start(packagingCommand(maemoToolChain(),
             QLatin1String("dh_clean")));
-        m_buildProc->waitForFinished();
+        buildProc->waitForFinished();
     }
     return true;
 }
@@ -259,24 +268,26 @@ bool MaemoPackageCreationStep::removeDirectory(const QString &dirPath)
     return dir.rmdir(dirPath);
 }
 
-bool MaemoPackageCreationStep::runCommand(const QString &command)
+bool MaemoPackageCreationStep::runCommand(QProcess *buildProc,
+    const QString &command)
 {
     emit addOutput(tr("Package Creation: Running command '%1'.").arg(command), BuildStep::MessageOutput);
-    m_buildProc->start(packagingCommand(maemoToolChain(), command));
-    if (!m_buildProc->waitForStarted()) {
+    buildProc->start(packagingCommand(maemoToolChain(), command));
+    if (!buildProc->waitForStarted()) {
         raiseError(tr("Packaging failed."),
             tr("Packaging error: Could not start command '%1'. Reason: %2")
-            .arg(command).arg(m_buildProc->errorString()));
+            .arg(command).arg(buildProc->errorString()));
         return false;
     }
-    m_buildProc->waitForFinished(-1);
-    if (m_buildProc->error() != QProcess::UnknownError || m_buildProc->exitCode() != 0) {
+    buildProc->waitForFinished(-1);
+    if (buildProc->error() != QProcess::UnknownError
+        || buildProc->exitCode() != 0) {
         QString mainMessage = tr("Packaging Error: Command '%1' failed.")
             .arg(command);
-        if (m_buildProc->error() != QProcess::UnknownError)
-            mainMessage += tr(" Reason: %1").arg(m_buildProc->errorString());
+        if (buildProc->error() != QProcess::UnknownError)
+            mainMessage += tr(" Reason: %1").arg(buildProc->errorString());
         else
-            mainMessage += tr("Exit code: %1").arg(m_buildProc->exitCode());
+            mainMessage += tr("Exit code: %1").arg(buildProc->exitCode());
         raiseError(mainMessage);
         return false;
     }
@@ -285,10 +296,12 @@ bool MaemoPackageCreationStep::runCommand(const QString &command)
 
 void MaemoPackageCreationStep::handleBuildOutput()
 {
-    const QByteArray &stdOut = m_buildProc->readAllStandardOutput();
+    QProcess * const buildProc = qobject_cast<QProcess *>(sender());
+    Q_ASSERT(buildProc);
+    const QByteArray &stdOut = buildProc->readAllStandardOutput();
     if (!stdOut.isEmpty())
         emit addOutput(QString::fromLocal8Bit(stdOut), BuildStep::NormalOutput);
-    const QByteArray &errorOut = m_buildProc->readAllStandardError();
+    const QByteArray &errorOut = buildProc->readAllStandardError();
     if (!errorOut.isEmpty()) {
         emit addOutput(QString::fromLocal8Bit(errorOut), BuildStep::ErrorOutput);
     }

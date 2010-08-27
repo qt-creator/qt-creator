@@ -44,8 +44,6 @@
 
 #include <projectexplorer/buildstep.h>
 
-#include <QtCore/QScopedPointer>
-
 QT_BEGIN_NAMESPACE
 class QFile;
 class QProcess;
@@ -106,10 +104,10 @@ private:
     virtual QVariantMap toMap() const;
     virtual bool fromMap(const QVariantMap &map);
 
-    bool createPackage();
+    bool createPackage(QProcess *buildProc);
     bool copyDebianFiles();
     bool removeDirectory(const QString &dirPath);
-    bool runCommand(const QString &command);
+    bool runCommand(QProcess *buildProc, const QString &command);
     QString maddeRoot() const;
     QString targetRoot() const;
     static QString nativePath(const QFile &file);
@@ -125,7 +123,6 @@ private:
     static const QLatin1String CreatePackageId;
 
     bool m_packagingEnabled;
-    QScopedPointer<QProcess> m_buildProc;
     const Qt4BuildConfiguration *m_lastBuildConfig;
 };
 
