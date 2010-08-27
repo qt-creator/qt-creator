@@ -750,7 +750,7 @@ QList<ProjectNode::ProjectAction> Qt4PriFileNode::supportedActions(Node *node) c
             }
         }
 
-        addExistingFiles = addExistingFiles && deploysFolder(node->path());
+        addExistingFiles = addExistingFiles && !deploysFolder(node->path());
 
         if (addExistingFiles)
             actions << AddExistingFile;
