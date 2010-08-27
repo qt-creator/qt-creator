@@ -3008,7 +3008,7 @@ bool Parser::parseCondition(ExpressionAST *&node)
     SpecifierListAST *type_specifier = 0;
     if (parseTypeSpecifier(type_specifier)) {
         DeclaratorAST *declarator = 0;
-        if (parseInitDeclarator(declarator, type_specifier, /*declaringClass=*/false)) {
+        if (parseInitDeclarator(declarator, type_specifier, /*declaringClass=*/ 0)) {
             if (declarator->initializer && declarator->equal_token) {
                 ConditionAST *ast = new (_pool) ConditionAST;
                 ast->type_specifier_list = type_specifier;
