@@ -199,16 +199,16 @@ void CppElementEvaluator::handleLookupItemMatch(const Snapshot &snapshot,
 }
 
 // CppElement
-CppElement::CppElement() : m_helpCategory(CppHoverHandler::HelpCandidate::Unknown)
+CppElement::CppElement() : m_helpCategory(TextEditor::HelpItem::Unknown)
 {}
 
 CppElement::~CppElement()
 {}
 
-void CppElement::setHelpCategory(const CppHoverHandler::HelpCandidate::Category &cat)
+void CppElement::setHelpCategory(const TextEditor::HelpItem::Category &cat)
 { m_helpCategory = cat; }
 
-const CppHoverHandler::HelpCandidate::Category &CppElement::helpCategory() const
+const TextEditor::HelpItem::Category &CppElement::helpCategory() const
 { return m_helpCategory; }
 
 void CppElement::setHelpIdCandidates(const QStringList &candidates)
@@ -273,7 +273,7 @@ CppInclude::CppInclude(const Document::Include &includeFile) :
     m_path(QDir::toNativeSeparators(includeFile.fileName())),
     m_fileName(QFileInfo(includeFile.fileName()).fileName())
 {
-    setHelpCategory(CppHoverHandler::HelpCandidate::Brief);
+    setHelpCategory(TextEditor::HelpItem::Brief);
     setHelpIdCandidates(QStringList(m_fileName));
     setHelpMark(m_fileName);
     setLink(CPPEditor::Link(m_path));
@@ -289,7 +289,7 @@ const QString &CppInclude::fileName() const
 // CppMacro
 CppMacro::CppMacro(const Macro &macro) : CppElement()
 {
-    setHelpCategory(CppHoverHandler::HelpCandidate::Macro);
+    setHelpCategory(TextEditor::HelpItem::Macro);
     setHelpIdCandidates(QStringList(macro.name()));
     setHelpMark(macro.name());
     setLink(CPPEditor::Link(macro.fileName(), macro.line()));
@@ -366,7 +366,7 @@ const QIcon &CppDeclarableElement::icon() const
 // CppNamespace
 CppNamespace::CppNamespace(Symbol *declaration) : CppDeclarableElement(declaration)
 {
-    setHelpCategory(CppHoverHandler::HelpCandidate::ClassOrNamespace);
+    setHelpCategory(TextEditor::HelpItem::ClassOrNamespace);
 }
 
 CppNamespace::~CppNamespace()
@@ -375,7 +375,7 @@ CppNamespace::~CppNamespace()
 // CppClass
 CppClass::CppClass(Symbol *declaration) : CppDeclarableElement(declaration)
 {
-    setHelpCategory(CppHoverHandler::HelpCandidate::ClassOrNamespace);
+    setHelpCategory(TextEditor::HelpItem::ClassOrNamespace);
 }
 
 CppClass::~CppClass()
@@ -418,7 +418,7 @@ const QList<CppClass> &CppClass::bases() const
 // CppFunction
 CppFunction::CppFunction(Symbol *declaration) : CppDeclarableElement(declaration)
 {
-    setHelpCategory(CppHoverHandler::HelpCandidate::Function);
+    setHelpCategory(TextEditor::HelpItem::Function);
 
     const FullySpecifiedType &type = declaration->type();
 
@@ -438,7 +438,7 @@ CppFunction::~CppFunction()
 // CppEnum
 CppEnum::CppEnum(Symbol *declaration) : CppDeclarableElement(declaration)
 {
-    setHelpCategory(CppHoverHandler::HelpCandidate::Enum);
+    setHelpCategory(TextEditor::HelpItem::Enum);
 
     if (declaration->enclosingScope()->isEnum()) {
         Symbol *enumSymbol = declaration->enclosingScope()->asEnum();
@@ -455,7 +455,7 @@ CppEnum::~CppEnum()
 CppTypedef::CppTypedef(Symbol *declaration) :
     CppDeclarableElement(declaration)
 {
-    setHelpCategory(CppHoverHandler::HelpCandidate::Typedef);
+    setHelpCategory(TextEditor::HelpItem::Typedef);
 }
 
 CppTypedef::~CppTypedef()
@@ -488,7 +488,7 @@ CppVariable::CppVariable(Symbol *declaration, const LookupContext &context, Scop
                 const QString &name =
                     overview.prettyName(LookupContext::fullyQualifiedName(symbol));
                 setTooltip(name);
-                setHelpCategory(CppHoverHandler::HelpCandidate::ClassOrNamespace);
+                setHelpCategory(TextEditor::HelpItem::ClassOrNamespace);
                 setHelpMark(name);
                 setHelpIdCandidates(QStringList(name));
             }

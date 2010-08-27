@@ -45,8 +45,7 @@
 using namespace TextEditor;
 using namespace Core;
 
-BaseHoverHandler::BaseHoverHandler(QObject *parent) :
-    QObject(parent), m_matchingHelpCandidate(-1)
+BaseHoverHandler::BaseHoverHandler(QObject *parent) : QObject(parent)
 {
     // Listen for editor opened events in order to connect to tooltip/helpid requests
     connect(ICore::instance()->editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
@@ -102,13 +101,13 @@ void BaseHoverHandler::updateContextHelpId(TextEditor::ITextEditor *editor, int 
 
     // If the tooltip is visible and there is a help match, this match is used to update
     // the help id. Otherwise, let the identification process happen.
-    if (!ToolTip::instance()->isVisible() || m_matchingHelpCandidate == -1)
+    if (!ToolTip::instance()->isVisible() || !lastHelpItemIdentified().isValid())
         process(editor, pos);
 
-    if (m_matchingHelpCandidate != -1)
-        editor->setContextHelpId(m_helpCandidates.at(m_matchingHelpCandidate).m_helpId);
+    if (lastHelpItemIdentified().isValid())
+        editor->setContextHelpId(lastHelpItemIdentified().helpId());
     else
-        editor->setContextHelpId(QString());
+        editor->setContextHelpId(QString()); // Make sure it's an empty string.
 }
 
 void BaseHoverHandler::setToolTip(const QString &tooltip)
@@ -127,126 +126,51 @@ void BaseHoverHandler::addF1ToToolTip()
                                       "</tr></table>")).arg(m_toolTip);
 }
 
-void BaseHoverHandler::reset()
-{
-    m_matchingHelpCandidate = -1;
-    m_helpCandidates.clear();
-    m_toolTip.clear();
+void BaseHoverHandler::setLastHelpItemIdentified(const HelpItem &help)
+{ m_lastHelpItemIdentified = help; }
 
-    resetExtras();
+const HelpItem &BaseHoverHandler::lastHelpItemIdentified() const
+{ return m_lastHelpItemIdentified; }
+
+void BaseHoverHandler::clear()
+{
+    m_toolTip.clear();
+    m_lastHelpItemIdentified = HelpItem();
 }
 
 void BaseHoverHandler::process(ITextEditor *editor, int pos)
 {
-    reset();
+    clear();
     identifyMatch(editor, pos);
-    evaluateHelpCandidates();
     decorateToolTip(editor);
 }
 
-void BaseHoverHandler::resetExtras()
-{}
-
-void BaseHoverHandler::evaluateHelpCandidates()
+void BaseHoverHandler::decorateToolTip(ITextEditor *editor)
 {
-    for (int i = 0; i < m_helpCandidates.size(); ++i) {
-        if (helpIdExists(m_helpCandidates.at(i).m_helpId)) {
-            m_matchingHelpCandidate = i;
-            return;
+    BaseTextEditor *baseEditor = baseTextEditor(editor);
+    if (!baseEditor)
+        return;
+
+    if (lastHelpItemIdentified().isValid()) {
+        const QString &contents = lastHelpItemIdentified().extractContent(extendToolTips(editor));
+        if (!contents.isEmpty()) {
+            appendToolTip(contents);
+        } else {
+            QString tip = Qt::escape(toolTip());
+            tip.prepend(QLatin1String("<nobr>"));
+            tip.append(QLatin1String("</nobr>"));
+            setToolTip(tip);
         }
+        addF1ToToolTip();
     }
 }
-
-void BaseHoverHandler::decorateToolTip(ITextEditor *)
-{}
 
 void BaseHoverHandler::operateTooltip(ITextEditor *editor, const QPoint &point)
 {
-    if (m_toolTip.isEmpty()) {
-        TextEditor::ToolTip::instance()->hide();
-    } else {
-        if (m_matchingHelpCandidate != -1)
-            addF1ToToolTip();
-
-        ToolTip::instance()->show(point, TextContent(m_toolTip), editor->widget());
-    }
-}
-
-bool BaseHoverHandler::helpIdExists(const QString &helpId) const
-{
-    if (!Core::HelpManager::instance()->linksForIdentifier(helpId).isEmpty())
-        return true;
-    return false;
-}
-
-void BaseHoverHandler::addHelpCandidate(const HelpCandidate &helpCandidate)
-{ m_helpCandidates.append(helpCandidate); }
-
-void BaseHoverHandler::setHelpCandidate(const HelpCandidate &helpCandidate, int index)
-{ m_helpCandidates[index] = helpCandidate; }
-
-const QList<BaseHoverHandler::HelpCandidate> &BaseHoverHandler::helpCandidates() const
-{ return m_helpCandidates; }
-
-const BaseHoverHandler::HelpCandidate &BaseHoverHandler::helpCandidate(int index) const
-{ return m_helpCandidates.at(index); }
-
-void BaseHoverHandler::setMatchingHelpCandidate(int index)
-{ m_matchingHelpCandidate = index; }
-
-int BaseHoverHandler::matchingHelpCandidate() const
-{ return m_matchingHelpCandidate; }
-
-QString BaseHoverHandler::getDocContents(const bool extended)
-{
-    Q_ASSERT(m_matchingHelpCandidate >= 0);
-
-    return getDocContents(m_helpCandidates.at(m_matchingHelpCandidate), extended);
-}
-
-QString BaseHoverHandler::getDocContents(const HelpCandidate &help, const bool extended)
-{
-    if (extended)
-        m_htmlDocExtractor.extractExtendedContents(1500, true);
+    if (m_toolTip.isEmpty())
+        ToolTip::instance()->hide();
     else
-        m_htmlDocExtractor.extractFirstParagraphOnly();
-
-    QString contents;
-    QMap<QString, QUrl> helpLinks =
-        Core::HelpManager::instance()->linksForIdentifier(help.m_helpId);
-    foreach (const QUrl &url, helpLinks) {
-        const QByteArray &html = Core::HelpManager::instance()->fileData(url);
-        switch (help.m_category) {
-        case HelpCandidate::Brief:
-            contents = m_htmlDocExtractor.getClassOrNamespaceBrief(html, help.m_docMark);
-            break;
-        case HelpCandidate::ClassOrNamespace:
-            contents = m_htmlDocExtractor.getClassOrNamespaceDescription(html, help.m_docMark);
-            break;
-        case HelpCandidate::Function:
-            contents = m_htmlDocExtractor.getFunctionDescription(html, help.m_docMark);
-            break;
-        case HelpCandidate::Enum:
-            contents = m_htmlDocExtractor.getEnumDescription(html, help.m_docMark);
-            break;
-        case HelpCandidate::Typedef:
-            contents = m_htmlDocExtractor.getTypedefDescription(html, help.m_docMark);
-            break;
-        case HelpCandidate::Macro:
-            contents = m_htmlDocExtractor.getMacroDescription(html, help.m_docMark);
-            break;
-        case HelpCandidate::QML:
-            contents = m_htmlDocExtractor.getQMLItemDescription(html, help.m_docMark);
-            break;
-
-        default:
-            break;
-        }
-
-        if (!contents.isEmpty())
-            break;
-    }
-    return contents;
+        ToolTip::instance()->show(point, TextContent(m_toolTip), editor->widget());
 }
 
 BaseTextEditor *BaseHoverHandler::baseTextEditor(ITextEditor *editor)

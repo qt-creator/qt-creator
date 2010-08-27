@@ -27,38 +27,53 @@
 **
 **************************************************************************/
 
-#ifndef CPPHOVERHANDLER_H
-#define CPPHOVERHANDLER_H
+#ifndef TEXTEDITORHELPITEM_H
+#define TEXTEDITORHELPITEM_H
 
-#include <texteditor/basehoverhandler.h>
+#include "texteditor_global.h"
 
-#include <QtCore/QObject>
-
-namespace Core {
-class IEditor;
-}
+#include <QtCore/QString>
 
 namespace TextEditor {
-class ITextEditor;
-}
 
-namespace CppEditor {
-namespace Internal {
-
-class CppHoverHandler : public TextEditor::BaseHoverHandler
+class TEXTEDITOR_EXPORT HelpItem
 {
-    Q_OBJECT
 public:
-    CppHoverHandler(QObject *parent = 0);
-    virtual ~CppHoverHandler();
+    enum Category {
+        ClassOrNamespace,
+        Enum,
+        Typedef,
+        Macro,
+        Brief,
+        Function,
+        QML,
+        Unknown
+    };
+
+    HelpItem();
+    HelpItem(const QString &helpId, Category category);
+    HelpItem(const QString &helpId, const QString &docMark, Category category);
+    ~HelpItem();
+
+    void setHelpId(const QString &id);
+    const QString &helpId() const;
+
+    void setDocMark(const QString &mark);
+    const QString &docMark() const;
+
+    void setCategory(Category cat);
+    Category category() const;
+
+    bool isValid() const;
+
+    QString extractContent(bool extended) const;
 
 private:
-    virtual bool acceptEditor(Core::IEditor *editor);
-    virtual void identifyMatch(TextEditor::ITextEditor *editor, int pos);
-    virtual void decorateToolTip(TextEditor::ITextEditor *editor);
+    QString m_helpId;
+    QString m_docMark;
+    Category m_category;
 };
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace TextEditor
 
-#endif // CPPHOVERHANDLER_H
+#endif // TEXTEDITORHELPITEM_H

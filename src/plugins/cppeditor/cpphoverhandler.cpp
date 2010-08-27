@@ -33,10 +33,12 @@
 
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/helpmanager.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
+#include <texteditor/helpitem.h>
 
 #include <QtGui/QTextCursor>
 
@@ -84,27 +86,21 @@ void CppHoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
         QSharedPointer<CppElement> cppElement = evaluator.identifyCppElement();
         if (!cppElement.isNull()) {
             setToolTip(cppElement->tooltip());
-            foreach (const QString &helpId, cppElement->helpIdCandidates())
-                addHelpCandidate(HelpCandidate(helpId,
-                                               cppElement->helpMark(),
-                                               cppElement->helpCategory()));
-        }
-    }
-}
-
-void CppHoverHandler::evaluateHelpCandidates()
-{
-    for (int i = 0; i < helpCandidates().size() && matchingHelpCandidate() == -1; ++i) {
-        if (helpIdExists(helpCandidates().at(i).m_helpId)) {
-            setMatchingHelpCandidate(i);
-        } else {
-            // There are class help ids with and without qualification.
-            HelpCandidate candidate = helpCandidates().at(i);
-            const QString &helpId = removeClassNameQualification(candidate.m_helpId);
-            if (helpIdExists(helpId)) {
-                candidate.m_helpId = helpId;
-                setHelpCandidate(candidate, i);
-                setMatchingHelpCandidate(i);
+            foreach (QString helpId, cppElement->helpIdCandidates()) {
+                bool found = false;
+                if (!Core::HelpManager::instance()->linksForIdentifier(helpId).isEmpty()) {
+                    found = true;
+                } else {
+                    helpId = removeClassNameQualification(helpId);
+                    if (!Core::HelpManager::instance()->linksForIdentifier(helpId).isEmpty())
+                        found = true;
+                }
+                if (found) {
+                    setLastHelpItemIdentified(TextEditor::HelpItem(helpId,
+                                                                   cppElement->helpMark(),
+                                                                   cppElement->helpCategory()));
+                    break;
+                }
             }
         }
     }
@@ -112,11 +108,15 @@ void CppHoverHandler::evaluateHelpCandidates()
 
 void CppHoverHandler::decorateToolTip(TextEditor::ITextEditor *editor)
 {
-    if (matchingHelpCandidate() != -1) {
-        const QString &contents = getDocContents(extendToolTips(editor));
+    CPPEditor *cppEditor = qobject_cast<CPPEditor *>(editor->widget());
+    if (!cppEditor)
+        return;
+
+    const TextEditor::HelpItem &help = lastHelpItemIdentified();
+    if (help.isValid()) {
+        const QString &contents = help.extractContent(extendToolTips(editor));
         if (!contents.isEmpty()) {
-            HelpCandidate::Category cat = helpCandidate(matchingHelpCandidate()).m_category;
-            if (cat == HelpCandidate::ClassOrNamespace)
+            if (help.category() == TextEditor::HelpItem::ClassOrNamespace)
                 appendToolTip(contents);
             else
                 setToolTip(contents);
@@ -126,5 +126,6 @@ void CppHoverHandler::decorateToolTip(TextEditor::ITextEditor *editor)
             tip.append(QLatin1String("</nobr>"));
             setToolTip(tip);
         }
+        addF1ToToolTip();
     }
 }

@@ -31,7 +31,8 @@
 #define CPPHIGHLEVELMODEL_H
 
 #include "cppeditor.h"
-#include "cpphoverhandler.h"
+
+#include <texteditor/helpitem.h>
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
@@ -88,7 +89,7 @@ class CppElement
 public:
     virtual ~CppElement();
 
-    const CppHoverHandler::HelpCandidate::Category &helpCategory() const;
+    const TextEditor::HelpItem::Category &helpCategory() const;
     const QStringList &helpIdCandidates() const;
     const QString &helpMark() const;
     const CPPEditor::Link &link() const;
@@ -97,7 +98,7 @@ public:
 protected:
     CppElement();
 
-    void setHelpCategory(const CppHoverHandler::HelpCandidate::Category &category);
+    void setHelpCategory(const TextEditor::HelpItem::Category &category);
     void setLink(const CPPEditor::Link &link);
     void setTooltip(const QString &tooltip);
     void setHelpIdCandidates(const QStringList &candidates);
@@ -105,7 +106,7 @@ protected:
     void setHelpMark(const QString &mark);
 
 private:
-    CppHoverHandler::HelpCandidate::Category m_helpCategory;
+    TextEditor::HelpItem::Category m_helpCategory;
     QStringList m_helpIdCandidates;
     QString m_helpMark;
     CPPEditor::Link m_link;

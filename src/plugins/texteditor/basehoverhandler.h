@@ -31,12 +31,10 @@
 #define BASEHOVERHANDLER_H
 
 #include "texteditor_global.h"
-
-#include <utils/htmldocextractor.h>
+#include "helpitem.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
-#include <QtCore/QList>
 
 QT_BEGIN_NAMESPACE
 class QPoint;
@@ -57,30 +55,6 @@ class TEXTEDITOR_EXPORT BaseHoverHandler : public QObject
 public:
     BaseHoverHandler(QObject *parent = 0);
 
-    struct HelpCandidate
-    {
-        enum Category {
-            ClassOrNamespace,
-            Enum,
-            Typedef,
-            Macro,
-            Brief,
-            Function,
-            QML,
-            Unknown
-        };
-
-        HelpCandidate(const QString &helpId, Category category) :
-            m_helpId(helpId), m_docMark(helpId), m_category(category)
-        {}
-        HelpCandidate(const QString &helpId, const QString &docMark, Category category) :
-            m_helpId(helpId), m_docMark(docMark), m_category(category)
-        {}
-        QString m_helpId;
-        QString m_docMark;
-        Category m_category;
-    };
-
 private slots:
     void editorOpened(Core::IEditor *editor);
 
@@ -90,42 +64,28 @@ public slots:
 
 protected:
     void setToolTip(const QString &tooltip);
-    const QString &toolTip() const;
     void appendToolTip(const QString &extension);
+    const QString &toolTip() const;
+
     void addF1ToToolTip();
 
-    void addHelpCandidate(const HelpCandidate &helpCandidate);
-    void setHelpCandidate(const HelpCandidate &helpCandidate, int index);
-    const QList<HelpCandidate> &helpCandidates() const;
-    const HelpCandidate &helpCandidate(int index) const;
-
-    void setMatchingHelpCandidate(int index);
-    int matchingHelpCandidate() const;
-
-    bool helpIdExists(const QString &helpId) const;
-
-    QString getDocContents(const bool extended);
-    QString getDocContents(const HelpCandidate &help, const bool extended);
+    void setLastHelpItemIdentified(const HelpItem &help);
+    const HelpItem &lastHelpItemIdentified() const;
 
     static BaseTextEditor *baseTextEditor(ITextEditor *editor);
     static bool extendToolTips(ITextEditor *editor);
 
 private:
-    void reset();
+    void clear();
     void process(ITextEditor *editor, int pos);
 
     virtual bool acceptEditor(Core::IEditor *editor) = 0;
     virtual void identifyMatch(ITextEditor *editor, int pos) = 0;
-
-    virtual void resetExtras();
-    virtual void evaluateHelpCandidates();
     virtual void decorateToolTip(ITextEditor *editor);
     virtual void operateTooltip(ITextEditor *editor, const QPoint &point);
 
-    int m_matchingHelpCandidate;
-    QList<HelpCandidate> m_helpCandidates;
     QString m_toolTip;
-    Utils::HtmlDocExtractor m_htmlDocExtractor;
+    HelpItem m_lastHelpItemIdentified;
 };
 
 } // namespace TextEditor
