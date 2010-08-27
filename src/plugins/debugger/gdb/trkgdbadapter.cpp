@@ -1578,8 +1578,15 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
            "code segment: 0x%3, data segment: 0x%4.")
              .arg(m_session.pid, 0, 16).arg(m_session.tid, 0, 16)
              .arg(m_session.codeseg, 0, 16).arg(m_session.dataseg, 0, 16);
-
-    logMessage(startMsg);
+    logMessage(startMsg, LogMisc);
+    // 26.8.2010: When paging occurs in S^3, bogus starting ROM addresses
+    // like 0x500000 or 0x40000 are reported. Warn about symbol resolution errors.
+    // Code duplicated in TcfTrkAdapter. @TODO: Hopefully fixed in future TRK versions.
+    if ((m_session.codeseg  & 0xFFFFF) == 0) {
+        const QString warnMessage = tr("The reported code segment address (0x%1) might be invalid. Symbol resolution or setting breakoints may not work.").
+                                    arg(m_session.codeseg, 0, 16);
+        logMessage(warnMessage, LogError);
+    }
 
     const QByteArray symbolFile = m_symbolFile.toLocal8Bit();
     if (symbolFile.isEmpty()) {
