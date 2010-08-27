@@ -56,8 +56,11 @@ namespace Internal {
     struct CustomWizardContext;
 }
 
-// Factory for creating wizard. Can be registered under a name
-// in CustomWizard.
+// Factory for creating custom wizards derived from the base classes
+// The factory can be registered under a name in CustomWizard. The name can
+// be specified in the  <wizard class=''...> attribute in the wizard.xml file
+// and thus allows for specifying a C++ derived wizard class (see Qt4ProjectManager).
+
 class ICustomWizardFactory {
 public:
     virtual CustomWizard *create(const Core::BaseFileWizardParameters& baseFileParameters,
@@ -65,7 +68,7 @@ public:
     virtual ~ICustomWizardFactory() {}
 };
 
-// Convenience template to create wizard classes.
+// Convenience template to create wizard factory classes.
 template <class Wizard> class CustomWizardFactory : public ICustomWizardFactory {
     virtual CustomWizard *create(const Core::BaseFileWizardParameters& baseFileParameters,
                                  QObject *parent = 0) const
@@ -134,8 +137,8 @@ private:
 
 // A custom project wizard presenting CustomProjectWizardDialog
 // (Project intro page and fields page) for wizards of type "project".
-// Overwrites postGenerateFiles() to open the project file which is the
-// last one by convention. Also inserts '%ProjectName%' into the base
+// Overwrites postGenerateFiles() to open the project files according to the
+// file attributes. Also inserts '%ProjectName%' into the base
 // replacement map once the intro page is left to have it available
 // for QLineEdit-type fields' default text.
 

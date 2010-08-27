@@ -194,6 +194,7 @@ private slots:
     void loadProject(const QString &project) { openProject(project); }
     void currentModeChanged(Core::IMode *mode, Core::IMode *oldMode);
     void updateActions();
+    void loadCustomWizards();
 
 #ifdef WITH_TESTS
     void testGccOutputParsers_data();

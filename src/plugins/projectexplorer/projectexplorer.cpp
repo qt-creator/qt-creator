@@ -249,6 +249,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = core->actionManager();
+    connect(core, SIGNAL(newItemsDialogRequested()), this, SLOT(loadCustomWizards()));
 
     d->m_welcomePage = new ProjectWelcomePage;
     connect(d->m_welcomePage, SIGNAL(manageSessions()), this, SLOT(showSessionManager()));
@@ -944,12 +945,19 @@ void ProjectExplorerPlugin::extensionsInitialized()
         d->m_profileMimeTypes += pf->mimeTypes();
         addAutoReleasedObject(pf);
     }
+    d->m_buildManager->extensionsInitialized();
+}
+
+void ProjectExplorerPlugin::loadCustomWizards()
+{
     // Add custom wizards, for which other plugins might have registered
     // class factories
-    foreach(Core::IWizard *cpw, ProjectExplorer::CustomWizard::createWizards())
-        addAutoReleasedObject(cpw);
-
-    d->m_buildManager->extensionsInitialized();
+    static bool firstTime = true;
+    if (firstTime) {
+        firstTime = false;
+        foreach(Core::IWizard *cpw, ProjectExplorer::CustomWizard::createWizards())
+            addAutoReleasedObject(cpw);
+    }
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()

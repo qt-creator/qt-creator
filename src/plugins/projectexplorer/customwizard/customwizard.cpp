@@ -327,13 +327,13 @@ QList<CustomWizard*> CustomWizard::createWizards()
     if (CustomWizardPrivate::verbose)
         verboseLog = QString::fromLatin1("### CustomWizard: Checking '%1'\n").arg(userTemplateDirName);
 
-    QList<QFileInfo> dirs = templateDir.entryInfoList(QDir::Dirs|QDir::Readable|QDir::NoDotAndDotDot,
-                                                            QDir::Name|QDir::IgnoreCase);
+    const QDir::Filters filters = QDir::Dirs|QDir::Readable|QDir::NoDotAndDotDot;
+    const QDir::SortFlags sortflags = QDir::Name|QDir::IgnoreCase;
+    QList<QFileInfo> dirs = templateDir.entryInfoList(filters, sortflags);
     if (userTemplateDir.exists()) {
         if (CustomWizardPrivate::verbose)
             verboseLog = QString::fromLatin1("### CustomWizard: userTemplateDir '%1' found, adding\n").arg(userTemplateDirName);
-        dirs += userTemplateDir.entryInfoList(QDir::Dirs|QDir::Readable|QDir::NoDotAndDotDot,
-                                              QDir::Name|QDir::IgnoreCase);
+        dirs += userTemplateDir.entryInfoList(filters, sortflags);
     }
 
     const QString configFile = QLatin1String(configFileC);

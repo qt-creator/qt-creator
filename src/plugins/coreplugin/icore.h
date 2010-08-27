@@ -123,6 +123,7 @@ public:
 signals:
     void coreAboutToOpen();
     void coreOpened();
+    void newItemsDialogRequested();
     void saveSettingsRequested();
     void optionsDialogRequested();
     void coreAboutToClose();
