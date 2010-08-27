@@ -969,7 +969,8 @@ static UiQualifiedId *qualifiedTypeNameId(UiObjectMember *m)
 void QmlJSTextEditor::updateCursorPositionNow()
 {
     if (m_contextPane && document() && !semanticInfo().document.isNull() &&
-        document()->revision() == semanticInfo().document->editorRevision()) {
+        document()->revision() == semanticInfo().document->editorRevision())
+    {
         Node *oldNode = m_semanticInfo.declaringMemberNoProperties(m_oldCursorPosition);
         Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
         if (oldNode != newNode && m_oldCursorPosition != -1)
@@ -997,6 +998,8 @@ void QmlJSTextEditor::updateCursorPositionNow()
             setRefactorMarkers(markers);
         }
         m_oldCursorPosition = position();
+
+        setSelectedElements();
     }
 }
 
@@ -1044,8 +1047,6 @@ void QmlJSTextEditor::updateUsesNow()
     }
 
     setExtraSelections(CodeSemanticsSelection, selections);
-
-    setSelectedElements();
 }
 
 class SelectedElement: protected Visitor
