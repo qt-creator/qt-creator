@@ -68,7 +68,8 @@ private slots:
     void processSshOutput(const QByteArray &output);
     void handleConnected();
     void handleConnectionError();
-    void handleProcessFinished(int exitStatus);
+    void handleInfoProcessFinished(int exitStatus);
+    void handleMadDeveloperTestProcessFinished(int exitStatus);
 
 private:
     void startConfigTest();
@@ -79,7 +80,8 @@ private:
 
     const MaemoDeviceConfig &m_config;
     QSharedPointer<Core::SshConnection> m_connection;
-    QSharedPointer<Core::SshRemoteProcess> m_testProcess;
+    QSharedPointer<Core::SshRemoteProcess> m_infoProcess;
+    QSharedPointer<Core::SshRemoteProcess> m_madDeveloperTestProcess;
     QString m_deviceTestOutput;
     bool m_qtVersionOk;
 };

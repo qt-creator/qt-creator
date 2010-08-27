@@ -36,10 +36,12 @@
 #include "ui_maemoconfigtestdialog.h"
 
 #include "maemodeviceconfigurations.h"
+#include "maemoglobal.h"
 
 #include <coreplugin/ssh/sshconnection.h>
 #include <coreplugin/ssh/sshremoteprocess.h>
 
+#include <QtGui/QPalette>
 #include <QtGui/QPushButton>
 
 using namespace Core;
@@ -69,7 +71,7 @@ MaemoConfigTestDialog::~MaemoConfigTestDialog()
 
 void MaemoConfigTestDialog::startConfigTest()
 {
-    if (m_testProcess)
+    if (m_infoProcess)
         return;
 
     m_ui->testResultEdit->setPlainText(tr("Testing configuration..."));
@@ -91,12 +93,12 @@ void MaemoConfigTestDialog::handleConnected()
         "|sed 's/[[:space:]][[:space:]]*/ /g' "
         "|cut -d ' ' -f 2,3 |sed 's/~.*//g'");
     QString command(sysInfoCmd + " && " + qtInfoCmd);
-    m_testProcess = m_connection->createRemoteProcess(command.toUtf8());
-    connect(m_testProcess.data(), SIGNAL(closed(int)), this,
-        SLOT(handleProcessFinished(int)));
-    connect(m_testProcess.data(), SIGNAL(outputAvailable(QByteArray)), this,
+    m_infoProcess = m_connection->createRemoteProcess(command.toUtf8());
+    connect(m_infoProcess.data(), SIGNAL(closed(int)), this,
+        SLOT(handleInfoProcessFinished(int)));
+    connect(m_infoProcess.data(), SIGNAL(outputAvailable(QByteArray)), this,
         SLOT(processSshOutput(QByteArray)));
-    m_testProcess->start();
+    m_infoProcess->start();
 }
 
 void MaemoConfigTestDialog::handleConnectionError()
@@ -111,19 +113,22 @@ void MaemoConfigTestDialog::handleConnectionError()
     stopConfigTest();
 }
 
-void MaemoConfigTestDialog::handleProcessFinished(int exitStatus)
+void MaemoConfigTestDialog::handleInfoProcessFinished(int exitStatus)
 {
+    if (!m_connection)
+        return;
+
     Q_ASSERT(exitStatus == SshRemoteProcess::FailedToStart
         || exitStatus == SshRemoteProcess::KilledBySignal
         || exitStatus == SshRemoteProcess::ExitedNormally);
 
-    if (!m_testProcess)
+    if (!m_infoProcess)
         return;
 
     if (exitStatus != SshRemoteProcess::ExitedNormally
-        || m_testProcess->exitCode() != 0) {
+        || m_infoProcess->exitCode() != 0) {
         m_ui->testResultEdit->setPlainText(tr("Remote process failed: %1")
-            .arg(m_testProcess->errorString()));
+            .arg(m_infoProcess->errorString()));
     } else {
         const QString &output = parseTestOutput();
         if (!m_qtVersionOk) {
@@ -132,13 +137,47 @@ void MaemoConfigTestDialog::handleProcessFinished(int exitStatus)
         }
         m_ui->testResultEdit->setPlainText(output);
     }
+
+    const QByteArray command = "test -x " + MaemoGlobal::remoteSudo().toUtf8();
+    m_madDeveloperTestProcess = m_connection->createRemoteProcess(command);
+    connect(m_madDeveloperTestProcess.data(), SIGNAL(closed(int)), this,
+        SLOT(handleMadDeveloperTestProcessFinished(int)));
+    m_madDeveloperTestProcess->start();
+}
+
+void MaemoConfigTestDialog::handleMadDeveloperTestProcessFinished(int exitStatus)
+{
+    if (!m_connection)
+        return;
+
+    Q_ASSERT(exitStatus == SshRemoteProcess::FailedToStart
+        || exitStatus == SshRemoteProcess::KilledBySignal
+        || exitStatus == SshRemoteProcess::ExitedNormally);
+
+    if (exitStatus != SshRemoteProcess::ExitedNormally) {
+        m_ui->testResultEdit->setPlainText(tr("Remote process failed: %1")
+            .arg(m_madDeveloperTestProcess->errorString()));
+    } else if (m_madDeveloperTestProcess->exitCode() != 0) {
+        m_ui->errorLabel->setText(m_ui->errorLabel->text()
+            + QLatin1String("<br>") + tr("Mad Developer is not installed.<br>"
+                  "You will not be able to deploy to this device!"));
+    }
+    if (m_ui->errorLabel->text().isEmpty()) {
+        QPalette palette = m_ui->errorLabel->palette();
+        palette.setColor(m_ui->errorLabel->foregroundRole(),
+            QColor(QLatin1String("blue")));
+        m_ui->errorLabel->setPalette(palette);
+        m_ui->errorLabel->setText(tr("Device configuration okay."));
+    }
     stopConfigTest();
 }
 
 void MaemoConfigTestDialog::stopConfigTest()
 {
-    if (m_testProcess)
-        disconnect(m_testProcess.data(), 0, this, 0);
+    if (m_infoProcess)
+        disconnect(m_infoProcess.data(), 0, this, 0);
+    if (m_madDeveloperTestProcess)
+        disconnect(m_madDeveloperTestProcess.data(), 0, this, 0);
     if (m_connection)
         disconnect(m_connection.data(), 0, this, 0);
 
@@ -166,7 +205,6 @@ QString MaemoConfigTestDialog::parseTestOutput()
 
     output = tr("Hardware architecture: %1\n").arg(unamePattern.cap(2));
     output.append(tr("Kernel version: %1\n").arg(unamePattern.cap(1)));
-    output.prepend(tr("Device configuration successful.\n"));
     const QRegExp dkpgPattern(QLatin1String("libqt\\S+ (\\d)\\.(\\d)\\.(\\d)"));
     index = dkpgPattern.indexIn(m_deviceTestOutput);
     if (index == -1) {
