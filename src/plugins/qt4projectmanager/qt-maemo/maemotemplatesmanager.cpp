@@ -204,6 +204,13 @@ bool MaemoTemplatesManager::adaptRulesFile(const Project *project)
     rulesContents.replace("DESTDIR", "INSTALL_ROOT");
     rulesContents.replace("dh_shlibdeps", "# dh_shlibdeps");
     rulesContents.replace("dh_strip", "# dh_strip");
+    rulesContents.replace("$(MAKE) clean", "# $(MAKE) clean");
+    const Qt4Project * const qt4Project
+        = static_cast<const Qt4Project *>(project);
+    const QString proFileName
+        = QFileInfo(qt4Project->rootProjectNode()->path()).fileName();
+    rulesContents.replace("# Add here commands to configure the package.",
+        "qmake " + proFileName.toLocal8Bit());
 
     // Would be the right solution, but does not work (on Windows),
     // because dpkg-genchanges doesn't know about it (and can't be told).
@@ -228,20 +235,12 @@ bool MaemoTemplatesManager::adaptControlFile(const Project *project)
                    .arg(QDir::toNativeSeparators(controlFilePath(project))));
         return false;
     }
-    QByteArray sectionLine = "Section: user/hidden";
+
     QByteArray controlContents = controlFile.readAll();
-    const int sectionOffset = controlContents.indexOf("Section:");
-    if (sectionOffset == -1) {
-        controlContents.append(sectionLine).append('\n');
-    } else {
-        int sectionNewlineOffset = controlContents.indexOf('\n', sectionOffset);
-        if (sectionNewlineOffset == -1) {
-            sectionNewlineOffset = controlContents.length();
-            sectionLine += '\n';
-        }
-        controlContents.replace(sectionOffset,
-            sectionNewlineOffset - sectionOffset, sectionLine);
-    }
+
+    adaptControlFileField(controlContents, "Section", "user/hidden");
+    adaptControlFileField(controlContents, "Priority", "optional");
+
     controlFile.resize(0);
     controlFile.write(controlContents);
     controlFile.close();
@@ -251,6 +250,23 @@ bool MaemoTemplatesManager::adaptControlFile(const Project *project)
         return false;
     }
     return true;
+}
+
+void MaemoTemplatesManager::adaptControlFileField(QByteArray &document,
+    const QByteArray &fieldName, const QByteArray &newFieldValue)
+{
+    QByteArray adaptedLine = fieldName + ": " + newFieldValue;
+    const int lineOffset = document.indexOf(fieldName + ":");
+    if (lineOffset == -1) {
+        document.append(adaptedLine).append('\n');
+    } else {
+        int newlineOffset = document.indexOf('\n', lineOffset);
+        if (newlineOffset == -1) {
+            newlineOffset = document.length();
+            adaptedLine += '\n';
+        }
+        document.replace(lineOffset, newlineOffset - lineOffset, adaptedLine);
+    }
 }
 
 bool MaemoTemplatesManager::updateDesktopFiles(const Qt4Target *target)

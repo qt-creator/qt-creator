@@ -98,6 +98,8 @@ private:
         int &lineEndPos, int &valuePos);
     bool adaptRulesFile(const ProjectExplorer::Project *project);
     bool adaptControlFile(const ProjectExplorer::Project *project);
+    void adaptControlFileField(QByteArray &document, const QByteArray &fieldName,
+        const QByteArray &newFieldValue);
     QSharedPointer<QFile> openFile(const QString &filePath,
         QIODevice::OpenMode mode, QString *error) const;
 
