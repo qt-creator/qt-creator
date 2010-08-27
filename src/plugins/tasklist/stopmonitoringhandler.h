@@ -27,40 +27,26 @@
 **
 **************************************************************************/
 
-#ifndef TASKLISTMANAGER_H
-#define TASKLISTMANAGER_H
+#ifndef STOPMONITORINGHANDLER_H
+#define STOPMONITORINGHANDLER_H
 
-#include <QtCore/QByteArray>
-#include <QtCore/QObject>
-#include <QtCore/QStringList>
-
-namespace ProjectExplorer {
-class TaskHub;
-} // namespace ProjectExplorer
+#include <projectexplorer/itaskhandler.h>
 
 namespace TaskList {
 namespace Internal {
 
-class TaskListManager : public QObject
+class StopMonitoringHandler : public ProjectExplorer::ITaskHandler
 {
-    Q_OBJECT
-
 public:
-    TaskListManager(QObject *parent = 0);
-    ~TaskListManager();
+    StopMonitoringHandler();
+    ~StopMonitoringHandler();
 
-public slots:
-    void setTaskFile(const QString &name);
-
-private:
-    void parseTaskFile(const QString &name);
-    QStringList parseRawLine(const QByteArray &raw);
-    QString unescape(const QString &input) const;
-
-    ProjectExplorer::TaskHub *m_hub;
+    bool canHandle(const ProjectExplorer::Task &);
+    void handle(const ProjectExplorer::Task &);
+    QAction *createAction(QObject *parent = 0);
 };
 
 } // namespace Internal
 } // namespace TaskList
 
-#endif // TASKLISTMANAGER_H
+#endif // STOPMONITORINGHANDLER_H

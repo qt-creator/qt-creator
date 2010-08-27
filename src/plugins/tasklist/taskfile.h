@@ -27,14 +27,10 @@
 **
 **************************************************************************/
 
-#ifndef TASKFILEFACTORY_H
-#define TASKFILEFACTORY_H
-
-#include <coreplugin/ifilefactory.h>
+#ifndef TASKFILE_H
+#define TASKFILE_H
 
 #include <coreplugin/ifile.h>
-
-#include <QtCore/QStringList>
 
 namespace ProjectExplorer {
 class Project;
@@ -43,29 +39,38 @@ class Project;
 namespace TaskList {
 namespace Internal {
 
-class TaskFileFactory : public Core::IFileFactory
+class TaskFile : public Core::IFile
 {
-    Q_OBJECT
 public:
-    TaskFileFactory(QObject *parent = 0);
-    ~TaskFileFactory();
+    TaskFile(QObject *parent);
+    ~TaskFile();
 
-    QStringList mimeTypes() const;
+    bool save(const QString &fileName = QString());
+    QString fileName() const;
 
-    QString id() const;
-    QString displayName() const;
+    QString defaultPath() const;
+    QString suggestedFileName() const;
+    QString mimeType() const;
 
-    Core::IFile *open(const QString &fileName);
-    Core::IFile *open(ProjectExplorer::Project *context, const QString &fileName);
+    bool isModified() const;
+    bool isReadOnly() const;
+    bool isSaveAsAllowed() const;
 
-    void closeAllFiles();
+    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
+    void reload(ReloadFlag flag, ChangeType type);
+    void rename(const QString &newName);
+
+    bool open(const QString &fileName);
+
+    ProjectExplorer::Project *context() const;
+    void setContext(ProjectExplorer::Project *context);
 
 private:
-    QStringList m_mimeTypes;
-    QList<Core::IFile *> m_openFiles;
+    QString m_fileName;
+    ProjectExplorer::Project *m_context;
 };
 
 } // namespace Internal
 } // namespace TaskList
 
-#endif // TASKFILEFACTORY_H
+#endif // TASKFILE_H

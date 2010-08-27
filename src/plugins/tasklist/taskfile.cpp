@@ -27,71 +27,102 @@
 **
 **************************************************************************/
 
-#include "taskfilefactory.h"
-
 #include "taskfile.h"
 
-#include <projectexplorer/projectexplorer.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/filemanager.h>
+#include "tasklistplugin.h"
 
+using namespace TaskList;
 using namespace TaskList::Internal;
 
 // --------------------------------------------------------------------------
-// TaskFileFactory
+// TaskFile
 // --------------------------------------------------------------------------
 
-TaskFileFactory::TaskFileFactory(QObject * parent) :
-    Core::IFileFactory(parent),
-    m_mimeTypes(QStringList() << QLatin1String("text/x-tasklist"))
+TaskFile::TaskFile(QObject *parent) : Core::IFile(parent),
+    m_context(0)
 { }
 
-TaskFileFactory::~TaskFileFactory()
+TaskFile::~TaskFile()
 { }
 
-QStringList TaskFileFactory::mimeTypes() const
+bool TaskFile::save(const QString &fileName)
 {
-    return m_mimeTypes;
+    Q_UNUSED(fileName);
+    return false;
 }
 
-QString TaskFileFactory::id() const
+QString TaskFile::fileName() const
 {
-    return QLatin1String("ProjectExplorer.TaskFileFactory");
+    return m_fileName;
 }
 
-QString TaskFileFactory::displayName() const
+QString TaskFile::defaultPath() const
 {
-    return tr("Task file reader");
+    return QString();
 }
 
-Core::IFile *TaskFileFactory::open(const QString &fileName)
+QString TaskFile::suggestedFileName() const
 {
-    ProjectExplorer::Project * context =
-        ProjectExplorer::ProjectExplorerPlugin::instance()->currentProject();
-    return open(context, fileName);
+    return QString();
 }
 
-Core::IFile *TaskFileFactory::open(ProjectExplorer::Project *context, const QString &fileName)
+QString TaskFile::mimeType() const
 {
-    TaskFile *file = new TaskFile(this);
-    file->setContext(context);
-
-    if (!file->open(fileName)) {
-        delete file;
-        return 0;
-    }
-
-    m_openFiles.append(file);
-
-    // Register with filemanager:
-    Core::ICore::instance()->fileManager()->addFile(file);
-
-    return file;
+    return QString();
 }
 
-void TaskFileFactory::closeAllFiles()
+bool TaskFile::isModified() const
 {
-    foreach(Core::IFile *file, m_openFiles)
-        file->deleteLater();
-    m_openFiles.clear();
+    return false;
 }
+
+bool TaskFile::isReadOnly() const
+{
+    return true;
+}
+
+bool TaskFile::isSaveAsAllowed() const
+{
+    return false;
+}
+
+Core::IFile::ReloadBehavior TaskFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
+{
+    Q_UNUSED(state);
+    if (type != TypePermissions)
+        return BehaviorSilent;
+    return BehaviorAsk;
+}
+
+void TaskFile::reload(ReloadFlag flag, ChangeType type)
+{
+    Q_UNUSED(flag);
+
+    if (type == TypePermissions)
+        return;
+    open(m_fileName);
+    if (type == TypeRemoved)
+        deleteLater();
+}
+
+void TaskFile::rename(const QString &newName)
+{
+    Q_UNUSED(newName);
+}
+
+bool TaskFile::open(const QString &fileName)
+{
+    m_fileName = fileName;
+    return TaskList::TaskListPlugin::instance()->loadFile(m_context, m_fileName);
+}
+
+ProjectExplorer::Project *TaskFile::context() const
+{
+    return m_context;
+}
+
+void TaskFile::setContext(ProjectExplorer::Project *context)
+{
+    m_context = context;
+}
+

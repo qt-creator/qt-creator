@@ -27,45 +27,15 @@
 **
 **************************************************************************/
 
-#ifndef TASKFILEFACTORY_H
-#define TASKFILEFACTORY_H
+#ifndef TASKLIST_TASKLIST_EXPORT_H
+#define TASKLIST_TASKLIST_EXPORT_H
 
-#include <coreplugin/ifilefactory.h>
+#include <QtCore/qglobal.h>
 
-#include <coreplugin/ifile.h>
+#if defined(TASKLIST_LIBRARY)
+#  define TASKLIST_EXPORT Q_DECL_EXPORT
+#else
+#  define TASKLIST_EXPORT Q_DECL_IMPORT
+#endif
 
-#include <QtCore/QStringList>
-
-namespace ProjectExplorer {
-class Project;
-} // namespace ProjectExplorer
-
-namespace TaskList {
-namespace Internal {
-
-class TaskFileFactory : public Core::IFileFactory
-{
-    Q_OBJECT
-public:
-    TaskFileFactory(QObject *parent = 0);
-    ~TaskFileFactory();
-
-    QStringList mimeTypes() const;
-
-    QString id() const;
-    QString displayName() const;
-
-    Core::IFile *open(const QString &fileName);
-    Core::IFile *open(ProjectExplorer::Project *context, const QString &fileName);
-
-    void closeAllFiles();
-
-private:
-    QStringList m_mimeTypes;
-    QList<Core::IFile *> m_openFiles;
-};
-
-} // namespace Internal
-} // namespace TaskList
-
-#endif // TASKFILEFACTORY_H
+#endif // TASKLIST_TASKLIST_EXPORT_H

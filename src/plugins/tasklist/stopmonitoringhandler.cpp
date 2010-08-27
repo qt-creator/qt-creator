@@ -27,45 +27,43 @@
 **
 **************************************************************************/
 
-#ifndef TASKFILEFACTORY_H
-#define TASKFILEFACTORY_H
+#include "stopmonitoringhandler.h"
 
-#include <coreplugin/ifilefactory.h>
+#include "tasklistconstants.h"
+#include "tasklistplugin.h"
 
-#include <coreplugin/ifile.h>
+#include <projectexplorer/task.h>
 
-#include <QtCore/QStringList>
+#include <QtGui/QAction>
 
-namespace ProjectExplorer {
-class Project;
-} // namespace ProjectExplorer
+using namespace TaskList;
+using namespace TaskList::Internal;
 
-namespace TaskList {
-namespace Internal {
+// --------------------------------------------------------------------------
+// StopMonitoringHandler
+// --------------------------------------------------------------------------
 
-class TaskFileFactory : public Core::IFileFactory
+StopMonitoringHandler::StopMonitoringHandler() :
+    ProjectExplorer::ITaskHandler(QLatin1String("TaskList.StopMonitoringHandler"))
+{ }
+
+StopMonitoringHandler::~StopMonitoringHandler()
+{ }
+
+bool StopMonitoringHandler::canHandle(const ProjectExplorer::Task &task)
 {
-    Q_OBJECT
-public:
-    TaskFileFactory(QObject *parent = 0);
-    ~TaskFileFactory();
+    return task.category == QLatin1String(Constants::TASKLISTTASK_ID);
+}
 
-    QStringList mimeTypes() const;
+void StopMonitoringHandler::handle(const ProjectExplorer::Task &task)
+{
+    Q_ASSERT(canHandle(task));
+    TaskList::TaskListPlugin::instance()->stopMonitoring();
+}
 
-    QString id() const;
-    QString displayName() const;
-
-    Core::IFile *open(const QString &fileName);
-    Core::IFile *open(ProjectExplorer::Project *context, const QString &fileName);
-
-    void closeAllFiles();
-
-private:
-    QStringList m_mimeTypes;
-    QList<Core::IFile *> m_openFiles;
-};
-
-} // namespace Internal
-} // namespace TaskList
-
-#endif // TASKFILEFACTORY_H
+QAction *StopMonitoringHandler::createAction(QObject *parent)
+{
+    QAction *stopMonitoringAction = new QAction(tr("Stop monitoring"), parent);
+    stopMonitoringAction->setToolTip(tr("Stop monitoring task files."));
+    return stopMonitoringAction;
+}

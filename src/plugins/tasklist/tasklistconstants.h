@@ -27,45 +27,15 @@
 **
 **************************************************************************/
 
-#ifndef TASKFILEFACTORY_H
-#define TASKFILEFACTORY_H
-
-#include <coreplugin/ifilefactory.h>
-
-#include <coreplugin/ifile.h>
-
-#include <QtCore/QStringList>
-
-namespace ProjectExplorer {
-class Project;
-} // namespace ProjectExplorer
+#ifndef TASKLIST_TASKLISTCONSTANTS_H
+#define TASKLIST_TASKLISTCONSTANTS_H
 
 namespace TaskList {
-namespace Internal {
+namespace Constants {
 
-class TaskFileFactory : public Core::IFileFactory
-{
-    Q_OBJECT
-public:
-    TaskFileFactory(QObject *parent = 0);
-    ~TaskFileFactory();
+const char * const TASKLISTTASK_ID = "TaskList.TaskListTaskId";
 
-    QStringList mimeTypes() const;
-
-    QString id() const;
-    QString displayName() const;
-
-    Core::IFile *open(const QString &fileName);
-    Core::IFile *open(ProjectExplorer::Project *context, const QString &fileName);
-
-    void closeAllFiles();
-
-private:
-    QStringList m_mimeTypes;
-    QList<Core::IFile *> m_openFiles;
-};
-
-} // namespace Internal
+} // namespace Constants
 } // namespace TaskList
 
-#endif // TASKFILEFACTORY_H
+#endif // TASKLIST_TASKLISTCONSTANTS_H

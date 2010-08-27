@@ -32,8 +32,14 @@
 
 #include <extensionsystem/iplugin.h>
 
+namespace ProjectExplorer {
+class Project;
+} // namespace ProjectExplorer
+
 namespace TaskList {
 namespace Internal {
+class TaskListPluginPrivate;
+} // namespace
 
 class TaskListPlugin : public ExtensionSystem::IPlugin
 {
@@ -43,12 +49,23 @@ public:
     TaskListPlugin();
     ~TaskListPlugin();
 
+    static TaskListPlugin *instance();
+
     bool initialize(const QStringList &arguments, QString *errorMessage);
 
     void extensionsInitialized();
+
+    bool loadFile(ProjectExplorer::Project *context, const QString &fileName);
+    bool monitorFile(ProjectExplorer::Project *context, const QString &fileName);
+
+    void stopMonitoring();
+    void clearTasks();
+
+private:
+    static TaskListPlugin *m_instance;
+    Internal::TaskListPluginPrivate * const d;
 };
 
-} // namespace Internal
 } // namespace TaskList
 
 #endif // TASKLISTPLUGIN_H
