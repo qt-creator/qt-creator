@@ -166,8 +166,8 @@ public:
 
     // Complete parse of "query" (protocol 1) response from debuggee buffer.
     // 'data' excludes the leading indicator character.
-    bool parseQuery(const char *data, Debugger debugger);
-    bool parseQuery(const GdbMi &data, Debugger debugger);
+    bool parseQuery(const char *data);
+    bool parseQuery(const GdbMi &data);
     // Sizes can be added as the debugger determines them
     void addSize(const QString &name, int size);
 
@@ -191,14 +191,12 @@ private:
     typedef QMap<QString, int> SizeCache;
 
     // Look up a simple (namespace) type
-    static Type specialType(QString s);
     QString evaluationSizeofTypeExpression(const QString &typeName, Debugger d) const;
-    void parseQueryTypes(const QStringList &l, Debugger debugger);
     QString qMapNodeValueOffsetExpression(const QString &type,
                                           const QString &addressIn,
                                           Debugger debugger) const;
 
-    inline QString lookupCdbDummyAddressExpression(const QString &expr, const QString &address) const;
+    QString lookupCdbDummyAddressExpression(const QString &expr, const QString &address) const;
 
     NameTypeMap m_nameTypeMap;
     SizeCache m_sizeCache;

@@ -489,7 +489,7 @@ bool CdbDumperHelper::initKnownTypes(QString *errorMessage)
     if (callDumper(callCmd, QByteArray(), &outData, false, errorMessage) != CallOk) {
         return false;
     }
-    if (!m_helper.parseQuery(outData, QtDumperHelper::CdbDebugger)) {
+    if (!m_helper.parseQuery(outData)) {
      *errorMessage = QString::fromLatin1("Unable to parse the dumper output: '%1'").arg(QString::fromAscii(output));
     }
     if (m_helper.dumperVersion() < dumperVersionRequired) {

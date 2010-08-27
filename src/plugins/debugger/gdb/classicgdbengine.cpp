@@ -713,7 +713,7 @@ void GdbEngine::handleQueryDebuggingHelperClassic(const GdbResponse &response)
 
     GdbMi contents;
     QTC_ASSERT(parseConsoleStream(response, &contents), qDebug() << response.toString());
-    const bool ok = m_dumperHelper.parseQuery(contents, QtDumperHelper::GdbDebugger)
+    const bool ok = m_dumperHelper.parseQuery(contents)
         && m_dumperHelper.typeCount();
     if (ok) {
         // Get version and sizes from dumpers. Expression cache

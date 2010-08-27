@@ -838,7 +838,8 @@ QString QtDumperHelper::toString(bool debug) const
             str << "    " << it.key() << ' ' << it.value() << '\n';
         return rc;
     }
-    const QString nameSpace = m_qtNamespace.isEmpty() ? QCoreApplication::translate("QtDumperHelper", "<none>") : m_qtNamespace;
+    const QString nameSpace = m_qtNamespace.isEmpty()
+        ? QCoreApplication::translate("QtDumperHelper", "<none>") : m_qtNamespace;
     return QCoreApplication::translate("QtDumperHelper",
        "%n known types, Qt version: %1, Qt namespace: %2 Dumper version: %3",
        0, QCoreApplication::CodecForTr,
@@ -866,60 +867,62 @@ int QtDumperHelper::typeCount() const
 }
 
 // Look up unnamespaced 'std' types.
-static inline QtDumperHelper::Type stdType(const QString &s)
+static QtDumperHelper::Type stdType(const QByteArray &type)
 {
-    if (s == QLatin1String("vector"))
+    if (type == "vector")
         return QtDumperHelper::StdVectorType;
-    if (s == QLatin1String("deque"))
+    if (type == "deque")
         return QtDumperHelper::StdDequeType;
-    if (s == QLatin1String("set"))
+    if (type == "set")
         return QtDumperHelper::StdSetType;
-    if (s == QLatin1String("stack"))
+    if (type == "stack")
         return QtDumperHelper::StdStackType;
-    if (s == QLatin1String("map"))
+    if (type == "map")
         return QtDumperHelper::StdMapType;
-    if (s == QLatin1String("basic_string"))
+    if (type == "basic_string")
         return QtDumperHelper::StdStringType;
     return QtDumperHelper::UnknownType;
 }
 
-QtDumperHelper::Type QtDumperHelper::specialType(QString s)
+static QtDumperHelper::Type specialType(QByteArray type)
 {
     // Std classes.
-    if (s.startsWith(QLatin1String("std::")))
-        return stdType(s.mid(5));
+    if (type.startsWith("std::"))
+        return stdType(type.mid(5));
+
     // Strip namespace
     // FIXME: that's not a good idea as it makes all namespaces equal.
-    const int namespaceIndex = s.lastIndexOf(QLatin1String("::"));
+    const int namespaceIndex = type.lastIndexOf("::");
     if (namespaceIndex == -1) {
         // None ... check for std..
-        const Type sType = stdType(s);
-        if (sType != UnknownType)
+        const QtDumperHelper::Type sType = stdType(type);
+        if (sType != QtDumperHelper::UnknownType)
             return sType;
     } else {
-        s = s.mid(namespaceIndex + 2);
+        type = type.mid(namespaceIndex + 2);
     }
-    if (s == QLatin1String("QAbstractItem"))
-        return QAbstractItemType;
-    if (s == QLatin1String("QMap"))
-        return QMapType;
-    if (s == QLatin1String("QMapNode"))
-        return QMapNodeType;
-    if (s == QLatin1String("QMultiMap"))
-        return QMultiMapType;
-    if (s == QLatin1String("QObject"))
-        return QObjectType;
-    if (s == QLatin1String("QObjectSignal"))
-        return QObjectSignalType;
-    if (s == QLatin1String("QObjectSlot"))
-        return QObjectSlotType;
-    if (s == QLatin1String("QStack"))
-        return QStackType;
-    if (s == QLatin1String("QVector"))
-        return QVectorType;
-    if (s == QLatin1String("QWidget"))
-        return QWidgetType;
-    return UnknownType;
+
+    if (type == "QAbstractItem")
+        return QtDumperHelper::QAbstractItemType;
+    if (type == "QMap")
+        return QtDumperHelper::QMapType;
+    if (type == "QMapNode")
+        return QtDumperHelper::QMapNodeType;
+    if (type == "QMultiMap")
+        return QtDumperHelper::QMultiMapType;
+    if (type == "QObject")
+        return QtDumperHelper::QObjectType;
+    if (type == "QObjectSignal")
+        return QtDumperHelper::QObjectSignalType;
+    if (type == "QObjectSlot")
+        return QtDumperHelper::QObjectSlotType;
+    if (type == "QStack")
+        return QtDumperHelper::QStackType;
+    if (type == "QVector")
+        return QtDumperHelper::QVectorType;
+    if (type == "QWidget")
+        return QtDumperHelper::QWidgetType;
+    return QtDumperHelper::UnknownType;
 }
 
 QString QtDumperHelper::qtVersionString() const
@@ -931,15 +934,7 @@ QString QtDumperHelper::qtVersionString() const
 }
 
 // Parse a list of types.
-void QtDumperHelper::parseQueryTypes(const QStringList &l, Debugger  /* debugger */)
-{
-    m_nameTypeMap.clear();
-    const int count = l.count();
-    for (int i = 0; i < count; i++) {
-        const Type t = specialType(l.at(i));
-        m_nameTypeMap.insert(l.at(i), t != UnknownType ? t : SupportedType);
-    }
-}
+typedef QList<QByteArray> QByteArrayList;
 
 static inline QString qClassName(const QString &qtNamespace, const char *className)
 {
@@ -976,7 +971,7 @@ static inline double getDumperVersion(const GdbMi &contents)
     return 1.0;
 }
 
-bool QtDumperHelper::parseQuery(const GdbMi &contents, Debugger debugger)
+bool QtDumperHelper::parseQuery(const GdbMi &contents)
 {
     clear();
     if (debug > 1)
@@ -993,10 +988,17 @@ bool QtDumperHelper::parseQuery(const GdbMi &contents, Debugger debugger)
     }
     m_qtVersion = qtv;
     // Get list of helpers
-    QStringList availableSimpleDebuggingHelpers;
+    QByteArrayList availableSimpleDebuggingHelpers;
     foreach (const GdbMi &item, contents.findChild("dumpers").children())
-        availableSimpleDebuggingHelpers.append(QLatin1String(item.data()));
-    parseQueryTypes(availableSimpleDebuggingHelpers, debugger);
+        availableSimpleDebuggingHelpers.append(item.data());
+
+    // Parse types
+    m_nameTypeMap.clear();
+    foreach (const QByteArray &type, availableSimpleDebuggingHelpers) {
+        const Type t = specialType(type);
+        m_nameTypeMap.insert(type, t != UnknownType ? t : SupportedType);
+    }
+
     m_dumperVersion = getDumperVersion(contents);
     // Parse sizes
     foreach (const GdbMi &sizesList, contents.findChild("sizes").children()) {
@@ -1016,13 +1018,13 @@ bool QtDumperHelper::parseQuery(const GdbMi &contents, Debugger debugger)
 }
 
 // parse a query
-bool QtDumperHelper::parseQuery(const char *data, Debugger debugger)
+bool QtDumperHelper::parseQuery(const char *data)
 {
     GdbMi root;
     root.fromStringMultiple(QByteArray(data));
     if (!root.isValid())
         return false;
-    return parseQuery(root, debugger);
+    return parseQuery(root);
 }
 
 void QtDumperHelper::addSize(const QString &name, int size)
