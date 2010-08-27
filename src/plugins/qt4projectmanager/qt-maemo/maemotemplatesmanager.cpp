@@ -62,7 +62,6 @@ namespace Internal {
 
 namespace {
 const QByteArray IconFieldName("XB-Maemo-Icon-26:");
-const QString PackagingDirName = ("maemopackaging");
 } // anonymous namespace
 
 
@@ -139,15 +138,8 @@ bool MaemoTemplatesManager::createDebianTemplatesIfNecessary(const ProjectExplor
 {
     Project * const project = target->project();
     QDir projectDir(project->projectDirectory());
-    if (projectDir.exists(PackagingDirName))
+    if (projectDir.exists(QLatin1String("debian")))
         return true;
-    const QString packagingTemplatesDir
-        = projectDir.path() + QLatin1Char('/') + PackagingDirName;
-    if (!projectDir.mkpath(PackagingDirName)) {
-        raiseError(tr("Could not create directory '%1'.")
-            .arg(QDir::toNativeSeparators(packagingTemplatesDir)));
-        return false;
-    }
 
     QProcess dh_makeProc;
     QString error;
@@ -157,7 +149,7 @@ bool MaemoTemplatesManager::createDebianTemplatesIfNecessary(const ProjectExplor
         = dynamic_cast<MaemoToolChain *>(qt4Target->activeBuildConfiguration()->toolChain());
     Q_ASSERT_X(tc, Q_FUNC_INFO, "Maemo target has no maemo toolchain.");
     if (!MaemoPackageCreationStep::preparePackagingProcess(&dh_makeProc, tc,
-        packagingTemplatesDir, &error)) {
+        projectDir.path(), &error)) {
         raiseError(error);
         return false;
     }
@@ -527,7 +519,7 @@ QStringList MaemoTemplatesManager::debianFiles(const Project *project) const
 QString MaemoTemplatesManager::debianDirPath(const Project *project) const
 {
     return project->projectDirectory() + QLatin1Char('/')
-        + PackagingDirName + QLatin1String("/debian");
+        + QLatin1String("/debian");
 }
 
 QString MaemoTemplatesManager::changeLogFilePath(const Project *project) const

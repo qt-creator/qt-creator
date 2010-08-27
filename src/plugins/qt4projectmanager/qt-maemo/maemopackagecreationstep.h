@@ -107,6 +107,7 @@ private:
     virtual bool fromMap(const QVariantMap &map);
 
     bool createPackage();
+    bool copyDebianFiles();
     bool removeDirectory(const QString &dirPath);
     bool runCommand(const QString &command);
     QString maddeRoot() const;

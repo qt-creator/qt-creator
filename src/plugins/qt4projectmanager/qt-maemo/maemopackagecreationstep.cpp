@@ -154,34 +154,12 @@ bool MaemoPackageCreationStep::createPackage()
     connect(m_buildProc.data(), SIGNAL(readyReadStandardError()), this,
         SLOT(handleBuildOutput()));
 
-    const QString debianDirPath = buildDirectory() + QLatin1String("/debian");
-    if (!removeDirectory(debianDirPath)) {
-        raiseError(tr("Packaging failed."),
-            tr("Could not remove directory '%1'.").arg(debianDirPath));
+    const QString projectDir
+        = buildConfiguration()->target()->project()->projectDirectory();
+    const bool inSourceBuild
+        = QFileInfo(buildDirectory()) == QFileInfo(projectDir);
+    if (!inSourceBuild && !copyDebianFiles())
         return false;
-    }
-    QDir buildDir(buildDirectory());
-    if (!buildDir.mkdir("debian")) {
-        raiseError(tr("Could not create debian directory '%1'.")
-                   .arg(debianDirPath));
-        return false;
-    }
-    const QString templatesDirPath = MaemoTemplatesManager::instance()
-        ->debianDirPath(buildConfiguration()->target()->project());
-    QDir templatesDir(templatesDirPath);
-    const QStringList &files = templatesDir.entryList(QDir::Files);
-    foreach (const QString &fileName, files) {
-        const QString srcFile
-                = templatesDirPath + QLatin1Char('/') + fileName;
-        const QString destFile
-                = debianDirPath + QLatin1Char('/') + fileName;
-        if (!QFile::copy(srcFile, destFile)) {
-            raiseError(tr("Could not copy file '%1' to '%2'")
-                       .arg(QDir::toNativeSeparators(srcFile),
-                            QDir::toNativeSeparators(destFile)));
-            return false;
-        }
-    }
 
     if (!runCommand(QLatin1String("dpkg-buildpackage -nc -uc -us")))
         return false;
@@ -217,6 +195,44 @@ bool MaemoPackageCreationStep::createPackage()
 
     emit addOutput(tr("Package created."), BuildStep::MessageOutput);
     deployStep()->deployables()->setUnmodified();
+    if (inSourceBuild) {
+        m_buildProc->start(packagingCommand(maemoToolChain(),
+            QLatin1String("dh_clean")));
+        m_buildProc->waitForFinished();
+    }
+    return true;
+}
+
+bool MaemoPackageCreationStep::copyDebianFiles()
+{
+    const QString debianDirPath = buildDirectory() + QLatin1String("/debian");
+    if (!removeDirectory(debianDirPath)) {
+        raiseError(tr("Packaging failed."),
+            tr("Could not remove directory '%1'.").arg(debianDirPath));
+        return false;
+    }
+    QDir buildDir(buildDirectory());
+    if (!buildDir.mkdir("debian")) {
+        raiseError(tr("Could not create debian directory '%1'.")
+                   .arg(debianDirPath));
+        return false;
+    }
+    const QString templatesDirPath = MaemoTemplatesManager::instance()
+        ->debianDirPath(buildConfiguration()->target()->project());
+    QDir templatesDir(templatesDirPath);
+    const QStringList &files = templatesDir.entryList(QDir::Files);
+    foreach (const QString &fileName, files) {
+        const QString srcFile
+                = templatesDirPath + QLatin1Char('/') + fileName;
+        const QString destFile
+                = debianDirPath + QLatin1Char('/') + fileName;
+        if (!QFile::copy(srcFile, destFile)) {
+            raiseError(tr("Could not copy file '%1' to '%2'")
+                       .arg(QDir::toNativeSeparators(srcFile),
+                            QDir::toNativeSeparators(destFile)));
+            return false;
+        }
+    }
     return true;
 }
 
