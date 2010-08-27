@@ -648,5 +648,22 @@ QList<GeneratedFileInfo> QmlStandaloneApp::fileUpdates(const QString &mainProFil
     return result;
 }
 
+bool QmlStandaloneApp::updateFiles(const QList<GeneratedFileInfo> &list, QString &error)
+{
+    error.clear();
+    const QmlStandaloneApp app;
+    foreach (const GeneratedFileInfo &info, list) {
+        const QByteArray data = app.generateFile(info.file, &error);
+        if (!error.isEmpty())
+            return false;
+        QFile file(info.fileInfo.absoluteFilePath());
+        if (!file.open(QIODevice::WriteOnly) || file.write(data) == -1) {
+            error = tr("Could not write file '%1'.").arg(QDir::toNativeSeparators(info.fileInfo.canonicalFilePath()));
+            return false;
+        }
+    }
+    return true;
+}
+
 } // namespace Internal
 } // namespace Qt4ProjectManager

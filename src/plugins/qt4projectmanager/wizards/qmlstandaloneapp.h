@@ -170,6 +170,7 @@ public:
     QByteArray generateFile(GeneratedFileInfo::File file, const QString *errorMessage) const;
     static int stubVersion();
     static QList<GeneratedFileInfo> fileUpdates(const QString &mainProFile);
+    static bool updateFiles(const QList<GeneratedFileInfo> &list, QString &error);
 
 private:
     QByteArray generateMainCpp(const QString *errorMessage) const;
