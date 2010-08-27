@@ -163,6 +163,7 @@ struct ProjectExplorerPluginPrivate {
     QAction *m_addNewFileAction;
     QAction *m_addExistingFilesAction;
     QAction *m_removeFileAction;
+    QAction *m_removeProjectAction;
     QAction *m_deleteFileAction;
     QAction *m_renameFileAction;
     QAction *m_openFileAction;
@@ -725,6 +726,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                        globalcontext);
     mfilec->addAction(cmd, Constants::G_FILE_OTHER);
 
+    // remove project action
+    d->m_removeProjectAction = new QAction(tr("Remove Project"), this);
+    cmd = am->registerAction(d->m_removeProjectAction, ProjectExplorer::Constants::REMOVEPROJECT,
+                       globalcontext);
+    msubProject->addAction(cmd, Constants::G_PROJECT_FILES);
+
     // delete file action
     d->m_deleteFileAction = new QAction(tr("Delete File..."), this);
     cmd = am->registerAction(d->m_deleteFileAction, ProjectExplorer::Constants::DELETEFILE,
@@ -826,6 +833,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(d->m_clearSession, SIGNAL(triggered()), this, SLOT(clearSession()));
     connect(d->m_addNewFileAction, SIGNAL(triggered()), this, SLOT(addNewFile()));
     connect(d->m_addExistingFilesAction, SIGNAL(triggered()), this, SLOT(addExistingFiles()));
+    connect(d->m_removeProjectAction, SIGNAL(triggered()), this, SLOT(removeProject()));
     connect(d->m_openFileAction, SIGNAL(triggered()), this, SLOT(openFile()));
     connect(d->m_showInGraphicalShell, SIGNAL(triggered()), this, SLOT(showInGraphicalShell()));
     connect(d->m_openTerminalHere, SIGNAL(triggered()), this, SLOT(openTerminalHere()));
@@ -2086,6 +2094,19 @@ void ProjectExplorerPlugin::addExistingFiles()
                 }
             }
         }
+}
+
+void ProjectExplorerPlugin::removeProject()
+{
+    ProjectNode *subProjectNode = qobject_cast<ProjectNode*>(d->m_currentNode->projectNode());
+    ProjectNode *projectNode = qobject_cast<ProjectNode *>(subProjectNode->parentFolderNode());
+    if (projectNode) {
+        Core::ICore *core = Core::ICore::instance();
+        RemoveFileDialog removeFileDialog(subProjectNode->path(), core->mainWindow());
+        removeFileDialog.setDeleteFileVisible(false);
+        if (removeFileDialog.exec() == QDialog::Accepted)
+            projectNode->removeSubProjects(QStringList() << subProjectNode->path());
+    }
 }
 
 void ProjectExplorerPlugin::openFile()

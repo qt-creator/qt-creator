@@ -50,6 +50,11 @@ RemoveFileDialog::~RemoveFileDialog()
     delete m_ui;
 }
 
+void RemoveFileDialog::setDeleteFileVisible(bool visible)
+{
+    m_ui->deleteFileCheckBox->setVisible(visible);
+}
+
 bool RemoveFileDialog::isDeleteFileChecked() const
 {
     return m_ui->deleteFileCheckBox->isChecked();

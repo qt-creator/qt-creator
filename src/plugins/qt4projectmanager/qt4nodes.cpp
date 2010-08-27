@@ -780,6 +780,18 @@ bool Qt4PriFileNode::canAddSubProject(const QString &proFilePath) const
     return false;
 }
 
+static QString simplifyProFilePath(const QString &proFilePath)
+{
+    // if proFilePath is like: _path_/projectName/projectName.pro
+    // we simplify it to: _path_/projectName
+    QFileInfo fi(proFilePath);
+    const QString parentPath = fi.absolutePath();
+    QFileInfo parentFi(parentPath);
+    if (parentFi.fileName() == fi.completeBaseName())
+        return parentPath;
+    return proFilePath;
+}
+
 bool Qt4PriFileNode::addSubProjects(const QStringList &proFilePaths)
 {
     ProjectExplorer::FindAllFilesVisitor visitor;
@@ -787,18 +799,9 @@ bool Qt4PriFileNode::addSubProjects(const QStringList &proFilePaths)
     const QStringList &allFiles = visitor.filePaths();
 
     QStringList uniqueProFilePaths;
-    foreach (const QString &proFile, proFilePaths) {
-        if (!allFiles.contains(proFile)) {
-            // if proFilePath is like: _path_/projectName/projectName.pro
-            // we simplify it to: _path_/projectName
-            QString proFilePath = proFile;
-            QFileInfo fi(proFile);
-            QFileInfo parentFi(fi.absolutePath());
-            if (parentFi.fileName() == fi.baseName())
-                proFilePath = parentFi.absoluteFilePath();
-            uniqueProFilePaths.append(proFilePath);
-        }
-    }
+    foreach (const QString &proFile, proFilePaths)
+        if (!allFiles.contains(proFile))
+            uniqueProFilePaths.append(simplifyProFilePath(proFile));
 
     QStringList failedFiles;
     changeFiles(ProjectExplorer::ProjectFileType, uniqueProFilePaths, &failedFiles, AddToProFile);
@@ -808,8 +811,17 @@ bool Qt4PriFileNode::addSubProjects(const QStringList &proFilePaths)
 
 bool Qt4PriFileNode::removeSubProjects(const QStringList &proFilePaths)
 {
-    Q_UNUSED(proFilePaths)
-    return false; //changeIncludes(m_includeFile, proFilePaths, RemoveFromProFile);
+    QStringList failedOriginalFiles;
+    changeFiles(ProjectExplorer::ProjectFileType, proFilePaths, &failedOriginalFiles, RemoveFromProFile);
+
+    QStringList simplifiedProFiles;
+    foreach (const QString &proFile, failedOriginalFiles)
+        simplifiedProFiles.append(simplifyProFilePath(proFile));
+
+    QStringList failedSimplifiedFiles;
+    changeFiles(ProjectExplorer::ProjectFileType, simplifiedProFiles, &failedSimplifiedFiles, RemoveFromProFile);
+
+    return failedSimplifiedFiles.isEmpty();
 }
 
 bool Qt4PriFileNode::addFiles(const FileType fileType, const QStringList &filePaths,

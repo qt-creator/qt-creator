@@ -74,6 +74,7 @@ const char * const FINDINALLPROJECTS    = "ProjectExplorer.FindInAllProjects";
 const char * const SHOWPROPERTIES       = "ProjectExplorer.ShowProperties";
 const char * const ADDNEWFILE           = "ProjectExplorer.AddNewFile";
 const char * const ADDEXISTINGFILES     = "ProjectExplorer.AddExistingFiles";
+const char * const REMOVEPROJECT        = "ProjectExplorer.RemoveProject";
 const char * const OPENFILE             = "ProjectExplorer.OpenFile";
 const char * const SHOWINGRAPHICALSHELL = "ProjectExplorer.ShowInGraphicalShell";
 const char * const OPENTERMIANLHERE     = "ProjectExplorer.OpenTerminalHere";

@@ -47,6 +47,7 @@ public:
     explicit RemoveFileDialog(const QString &filePath, QWidget *parent = 0);
     virtual ~RemoveFileDialog();
 
+    void setDeleteFileVisible(bool visible);
     bool isDeleteFileChecked() const;
 
 protected:
