@@ -510,11 +510,14 @@ void DebuggerRunControl::start()
 
     engine()->startDebugger(this);
     m_running = true;
+    emit addToOutputWindowInline(this, tr("Debugging starts"), false);
+    emit addToOutputWindowInline(this, "\n", false);
     emit started();
 }
 
 void DebuggerRunControl::startFailed()
 {
+    emit addToOutputWindowInline(this, tr("Debugging has failed"), false);
     m_running = false;
     emit finished();
     engine()->handleStartFailed();
@@ -522,6 +525,7 @@ void DebuggerRunControl::startFailed()
 
 void DebuggerRunControl::handleFinished()
 {
+    emit addToOutputWindowInline(this, tr("Debugging has finished"), false);
     engine()->handleFinished();
     plugin()->runControlFinished(this);
 }
