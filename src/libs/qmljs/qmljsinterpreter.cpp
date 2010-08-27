@@ -1392,15 +1392,17 @@ void ScopeChain::update()
 
     // the root scope in js files doesn't see instantiating components
     if (jsScopes.count() != 1 || !qmlScopeObjects.isEmpty()) {
-        foreach (QmlComponentChain *parent, qmlComponentScope.instantiatingComponents)
-            parent->add(&_all);
+        if (qmlComponentScope) {
+            foreach (QmlComponentChain *parent, qmlComponentScope->instantiatingComponents)
+                parent->add(&_all);
+        }
     }
 
     ObjectValue *root = 0;
     ObjectValue *ids = 0;
-    if (qmlComponentScope.document) {
-        root = qmlComponentScope.document->bind()->rootObjectValue();
-        ids = qmlComponentScope.document->bind()->idEnvironment();
+    if (qmlComponentScope && qmlComponentScope->document) {
+        root = qmlComponentScope->document->bind()->rootObjectValue();
+        ids = qmlComponentScope->document->bind()->idEnvironment();
     }
 
     if (root && !qmlScopeObjects.contains(root))

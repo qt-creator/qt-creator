@@ -242,8 +242,10 @@ class QMLJS_EXPORT ScopeChain
 public:
     ScopeChain();
 
-    struct QmlComponentChain
+    class QmlComponentChain
     {
+        Q_DISABLE_COPY(QmlComponentChain)
+    public:
         QmlComponentChain();
         ~QmlComponentChain();
 
@@ -255,7 +257,7 @@ public:
     };
 
     const ObjectValue *globalScope;
-    QmlComponentChain qmlComponentScope;
+    QSharedPointer<QmlComponentChain> qmlComponentScope;
     QList<const ObjectValue *> qmlScopeObjects;
     const ObjectValue *qmlTypes;
     QList<const ObjectValue *> jsScopes;
