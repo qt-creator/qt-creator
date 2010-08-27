@@ -99,8 +99,22 @@ GeneratedFileInfo::GeneratedFileInfo()
     , version(-1)
     , dataChecksum(0)
     , statedChecksum(0)
-    , updateReason(Undefined)
 {
+}
+
+bool GeneratedFileInfo::isUpToDate() const
+{
+    return !isOutdated() && !wasModified();
+}
+
+bool GeneratedFileInfo::isOutdated() const
+{
+    return version < QmlStandaloneApp::stubVersion();
+}
+
+bool GeneratedFileInfo::wasModified() const
+{
+    return dataChecksum != statedChecksum;
 }
 
 QmlStandaloneApp::QmlStandaloneApp()
@@ -635,15 +649,8 @@ QList<GeneratedFileInfo> QmlStandaloneApp::fileUpdates(const QString &mainProFil
         data.replace('\x0D', "");
         data.replace('\x0A', "");
         newFile.dataChecksum = qChecksum(data.constData(), data.length());
-        if (newFile.version < stubVersion())
-            newFile.updateReason = GeneratedFileInfo::HasOutdatedVersion;
-        else if (newFile.version > stubVersion())
-            newFile.updateReason = GeneratedFileInfo::HasFutureVersion;
-        else if (newFile.dataChecksum != newFile.statedChecksum)
-            newFile.updateReason = GeneratedFileInfo::ContentChanged;
-        else
-            newFile.updateReason = GeneratedFileInfo::IsUpToDate;
-        result.append(newFile);
+        if (!newFile.isUpToDate())
+            result.append(newFile);
     }
     return result;
 }

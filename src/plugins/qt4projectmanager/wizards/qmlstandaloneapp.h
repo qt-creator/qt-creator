@@ -88,22 +88,17 @@ struct GeneratedFileInfo
         SymbianSvgIconFile
     };
 
-    enum UpdateReason {
-        Undefined,
-        IsUpToDate,
-        HasOutdatedVersion,
-        HasFutureVersion,
-        ContentChanged
-    };
-
     GeneratedFileInfo();
+
+    bool isUpToDate() const;
+    bool isOutdated() const;
+    bool wasModified() const;
 
     File file;
     QFileInfo fileInfo;
     int version;
     quint16 dataChecksum;
     quint16 statedChecksum;
-    UpdateReason updateReason;
 };
 
 class QmlStandaloneApp: public QObject
