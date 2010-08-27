@@ -2719,11 +2719,6 @@ void DebuggerPlugin::updateState(DebuggerEngine *engine)
     d->updateState(engine);
 }
 
-void DebuggerPlugin::activatePreviousMode()
-{
-    d->activatePreviousMode();
-}
-
 void DebuggerPlugin::activateDebugMode()
 {
     d->activateDebugMode();
@@ -2752,6 +2747,8 @@ void DebuggerPlugin::runControlFinished(DebuggerRunControl *runControl)
     Q_UNUSED(runControl);
     d->m_snapshotHandler->removeSnapshot(runControl);
     d->disconnectEngine();
+    if (d->m_snapshotHandler->size() == 0)
+        d->activatePreviousMode();
 }
 
 DebuggerLanguages DebuggerPlugin::activeLanguages() const

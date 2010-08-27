@@ -104,7 +104,6 @@ private:
 
     void resetLocation();
     void gotoLocation(const QString &fileName, int lineNumber, bool setMarker);
-    void activatePreviousMode();
     void readSettings();
     void writeSettings() const;
 
