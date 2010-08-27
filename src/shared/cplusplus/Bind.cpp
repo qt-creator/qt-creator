@@ -2063,7 +2063,7 @@ bool Bind::visit(TemplateDeclarationAST *ast)
 {
     Template *templ = control()->newTemplate(ast->firstToken(), 0);
     templ->setStartOffset(tokenAt(ast->firstToken()).begin());
-    templ->setStartOffset(tokenAt(ast->lastToken() - 1).end());
+    templ->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     ast->symbol = templ;
     Scope *previousScope = switchScope(templ);
 
