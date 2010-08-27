@@ -706,29 +706,22 @@ QString decodeData(const QByteArray &ba, int encoding)
 // Editor tooltip support
 bool isCppEditor(Core::IEditor *editor)
 {
-    static QStringList cppMimeTypes;
-    if (cppMimeTypes.empty()) {
-        cppMimeTypes << QLatin1String(CppTools::Constants::C_SOURCE_MIMETYPE)
-                << QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)
-                << QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)
-                << QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE);
-    }
-    if (const Core::IFile *file = editor->file())
-        return cppMimeTypes.contains(file->mimeType());
-    return  false;
+    using namespace CppTools::Constants;
+    const Core::IFile *file = editor->file();
+    if (!file)
+        return false;
+    const QByteArray mimeType = file->mimeType().toLatin1();
+    return mimeType == C_SOURCE_MIMETYPE
+        || mimeType == CPP_SOURCE_MIMETYPE
+        || mimeType == CPP_HEADER_MIMETYPE
+        || mimeType == OBJECTIVE_CPP_SOURCE_MIMETYPE;
 }
-
-// Find the function the cursor is in to use a scope.
-
-
-
-
 
 // Return the Cpp expression, and, if desired, the function
 QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
                         int *line, int *column, QString *function /* = 0 */)
 {
-
+    using namespace CppTools;
     *line = *column = 0;
     if (function)
         function->clear();
@@ -738,7 +731,9 @@ QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
         return QString();
 
     QString expr = plaintext->textCursor().selectedText();
-    CppTools::CppModelManagerInterface *modelManager = ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
+    CppModelManagerInterface *modelManager =
+        ExtensionSystem::PluginManager::instance()->
+            getObject<CppTools::CppModelManagerInterface>();
     if (expr.isEmpty() && modelManager) {
         QTextCursor tc(plaintext->document());
         tc.setPosition(pos);
@@ -761,10 +756,12 @@ QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
     if (function && !expr.isEmpty())
         if (const Core::IFile *file = editor->file())
             if (modelManager)
-                *function = CppTools::AbstractEditorSupport::functionAt(modelManager, file->fileName(), *line, *column);
+                *function = AbstractEditorSupport::functionAt(modelManager,
+                    file->fileName(), *line, *column);
 
     return expr;
 }
+
 
 // ----------------- QtDumperHelper::TypeData
 QtDumperHelper::TypeData::TypeData() :
