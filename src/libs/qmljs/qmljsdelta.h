@@ -50,20 +50,20 @@ public:
 private:
     void insert(AST::UiObjectMember *member, AST::UiObjectMember *parentMember,
                 const QList<DebugId> &debugReferences, const Document::Ptr &doc);
-    void update(AST::UiObjectDefinition* oldObject, const QmlJS::Document::Ptr& oldDoc,
-                AST::UiObjectDefinition* newObject, const QmlJS::Document::Ptr& newDoc,
+    void update(AST::UiObjectMember* oldObject, const QmlJS::Document::Ptr& oldDoc,
+                AST::UiObjectMember* newObject, const QmlJS::Document::Ptr& newDoc,
                 const QList<DebugId>& debugReferences);
     void remove(const QList<DebugId> &debugReferences);
     void reparent(const QList <DebugId> &member, const QList<DebugId> &newParent);
 
 protected:
     virtual void updateScriptBinding(DebugId objectReference,
-                             AST::UiObjectDefinition *parentObject,
+                             AST::UiObjectMember *parentObject,
                              AST::UiScriptBinding *scriptBinding,
                              const QString &propertyName,
                              const QString &scriptCode);
     virtual void updateMethodBody(DebugId objectReference,
-                            AST::UiObjectDefinition *parentObject,
+                            AST::UiObjectMember *parentObject,
                             AST::UiScriptBinding *scriptBinding,
                             const QString &methodName,
                             const QString &methodBody);

@@ -310,7 +310,7 @@ static UiObjectMemberList *objectMembers(UiObjectMember *object)
 }
 
 
-static QHash<QString, UiObjectMember*> extractProperties(UiObjectDefinition *object)
+static QHash<QString, UiObjectMember*> extractProperties(UiObjectMember *object)
 {
     QHash<QString, UiObjectMember*> result;
     for (UiObjectMemberList *objectMemberIt = objectMembers(object); objectMemberIt; objectMemberIt = objectMemberIt->next) {
@@ -371,8 +371,8 @@ void Delta::insert(UiObjectMember *member, UiObjectMember *parentMember, const Q
 }
 
 
-void Delta::update(UiObjectDefinition* oldObject, const QmlJS::Document::Ptr& oldDoc,
-                   UiObjectDefinition* newObject, const QmlJS::Document::Ptr& newDoc,
+void Delta::update(UiObjectMember* oldObject, const QmlJS::Document::Ptr& oldDoc,
+                   UiObjectMember* newObject, const QmlJS::Document::Ptr& newDoc,
                    const QList<DebugId>& debugReferences)
 {
     Q_ASSERT (oldObject && newObject);
@@ -462,7 +462,7 @@ Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::P
         UiObjectMember *y = todo.takeFirst();
         todo += children(y);
 
-        if (!cast<UiObjectDefinition *>(y))
+        if (!cast<UiObjectDefinition *>(y) && !cast<UiObjectBinding *>(y))
             continue;
 
         if (!M.way2.contains(y)) {
@@ -474,12 +474,12 @@ Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::P
             continue;
         }
         UiObjectMember *x = M.way2[y];
-        Q_ASSERT(cast<UiObjectDefinition *>(x));
+        Q_ASSERT(cast<UiObjectDefinition *>(x) || cast<UiObjectBinding *>(x) );
 
         if (debugIds.contains(x)) {
             QList<DebugId> ids = debugIds[x];
             newDebuggIds[y] = ids;
-            update(cast<UiObjectDefinition *>(x), doc1, cast<UiObjectDefinition *>(y), doc2, ids);
+            update(x, doc1, y, doc2, ids);
         }
         //qDebug() << "Delta::operator():  match "<< label(x, doc1) << "with parent " << label(parents1.parent.value(x), doc1)
         //     << " to "<< label(y, doc2) << "with parent " << label(parents2.parent.value(y), doc2);
@@ -527,10 +527,10 @@ void Delta::reparentObject(int, int)
 {}
 void Delta::resetBindingForObject(int, const QString &)
 {}
-void Delta::updateMethodBody(DebugId, UiObjectDefinition *, UiScriptBinding *, const QString &, const QString &)
+void Delta::updateMethodBody(DebugId, UiObjectMember *, UiScriptBinding *, const QString &, const QString &)
 {}
 
-void Delta::updateScriptBinding(DebugId, UiObjectDefinition *, UiScriptBinding *, const QString &, const QString &)
+void Delta::updateScriptBinding(DebugId, UiObjectMember *, UiScriptBinding *, const QString &, const QString &)
 {}
 
 } //namespace QmlJs

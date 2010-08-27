@@ -463,7 +463,7 @@ private:
 
 protected:
     virtual void updateMethodBody(DebugId debugId,
-                                  UiObjectDefinition *parentDefinition, UiScriptBinding* scriptBinding,
+                                  UiObjectMember *parentDefinition, UiScriptBinding* scriptBinding,
                                   const QString& methodName, const QString& methodBody)
     {
         Q_UNUSED(scriptBinding);
@@ -473,7 +473,7 @@ protected:
     }
 
     virtual void updateScriptBinding(DebugId debugId,
-                                     UiObjectDefinition *parentDefinition, UiScriptBinding* scriptBinding,
+                                     UiObjectMember *parentDefinition, UiScriptBinding* scriptBinding,
                                      const QString& propertyName, const QString& scriptCode)
     {
         if (unsyncronizableChanges == QmlJSLiveTextPreview::NoUnsyncronizableChanges) {
@@ -520,9 +520,11 @@ protected:
         m_clientProxy->reparentQmlObject(debugId, newParent);
     }
 
-    void checkUnsyncronizableElementChanges(UiObjectDefinition *parentDefinition)
+    void checkUnsyncronizableElementChanges(UiObjectMember *parent)
     {
-        if (unsyncronizableChanges == QmlJSLiveTextPreview::NoUnsyncronizableChanges) {
+        UiObjectDefinition *parentDefinition = cast<UiObjectDefinition *>(parent);
+        if (parentDefinition &&
+            unsyncronizableChanges == QmlJSLiveTextPreview::NoUnsyncronizableChanges) {
 
             if (parentDefinition->qualifiedTypeNameId
                        && parentDefinition->qualifiedTypeNameId->name)
