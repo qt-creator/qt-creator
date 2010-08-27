@@ -166,9 +166,10 @@ void QmlEngine::connectionStartupFailed()
     notifyEngineRunFailed();
 }
 
-void QmlEngine::connectionError()
+void QmlEngine::connectionError(QAbstractSocket::SocketError socketError)
 {
-    // do nothing for now - only exit the debugger when inferior exits.
+    if (socketError ==QAbstractSocket::RemoteHostClosedError)
+        plugin()->showMessage(tr("QML Debugger: Remote host closed connection."), StatusBar);
 }
 
 void QmlEngine::runEngine()
@@ -251,13 +252,15 @@ void QmlEngine::shutdownEngine()
     shutdownEngineAsSlave();
 
     notifyEngineShutdownOk();
+    plugin()->showMessage(QString(), StatusBar);
 }
 
 void QmlEngine::setupEngine()
 {
     m_adapter->setMaxConnectionAttempts(MaxConnectionAttempts);
     m_adapter->setConnectionAttemptInterval(ConnectionAttemptDefaultInterval);
-    connect(m_adapter, SIGNAL(connectionError()), SLOT(connectionError()));
+    connect(m_adapter, SIGNAL(connectionError(QAbstractSocket::SocketError)),
+            SLOT(connectionError(QAbstractSocket::SocketError)));
     connect(m_adapter, SIGNAL(connected()), SLOT(connectionEstablished()));
     connect(m_adapter, SIGNAL(connectionStartupFailed()), SLOT(connectionStartupFailed()));
 

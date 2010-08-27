@@ -122,7 +122,7 @@ signals:
 private slots:
     void connectionEstablished();
     void connectionStartupFailed();
-    void connectionError();
+    void connectionError(QAbstractSocket::SocketError error);
 
     void slotMessage(QString, bool);
     void slotAddToOutputWindow(QString, bool);

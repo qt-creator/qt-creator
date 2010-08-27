@@ -99,7 +99,7 @@ bool QmlAdapter::connectToViewer()
     connect(m_conn, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
             SLOT(connectionStateChanged()));
     connect(m_conn, SIGNAL(error(QAbstractSocket::SocketError)),
-            SLOT(connectionErrorOccurred()));
+            SLOT(connectionErrorOccurred(QAbstractSocket::SocketError)));
 
     QString address = m_engine.data()->startParameters().qmlServerAddress;
     QString port = QString::number(m_engine.data()->startParameters().qmlServerPort);
@@ -114,14 +114,14 @@ bool QmlAdapter::connectToViewer()
     return true;
 }
 
-void QmlAdapter::connectionErrorOccurred()
+void QmlAdapter::connectionErrorOccurred(QAbstractSocket::SocketError socketError)
 {
     showConnectionErrorMessage(tr("Error: (%1) %2", "%1=error code, %2=error message")
                                 .arg(m_conn->error()).arg(m_conn->errorString()));
 
     // this is only an error if we are already connected and something goes wrong.
     if (isConnected())
-        emit connectionError();
+        emit connectionError(socketError);
 }
 
 void QmlAdapter::connectionStateChanged()

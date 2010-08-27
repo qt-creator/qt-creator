@@ -67,10 +67,10 @@ signals:
     void connected();
     void disconnected();
     void connectionStartupFailed();
-    void connectionError();
+    void connectionError(QAbstractSocket::SocketError socketError);
 
 private slots:
-    void connectionErrorOccurred();
+    void connectionErrorOccurred(QAbstractSocket::SocketError socketError);
     void connectionStateChanged();
     void pollInferior();
 
