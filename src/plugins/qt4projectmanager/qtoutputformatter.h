@@ -62,6 +62,7 @@ private:
     QRegExp m_qmlError;
     QRegExp m_qtError;
     QRegExp m_qtAssert;
+    QRegExp m_qtTestFail;
     QWeakPointer<Qt4Project> m_project;
     QTextCharFormat m_linkFormat;
     QString m_lastLine;

@@ -44,6 +44,7 @@ QtOutputFormatter::QtOutputFormatter(Qt4Project *project)
     , m_qmlError(QLatin1String("(file:///.+:\\d+:\\d+):"))
     , m_qtError(QLatin1String("Object::.*in (.*:\\d+)"))
     , m_qtAssert(QLatin1String("^ASSERT: .* in file (.+, line \\d+)$"))
+    , m_qtTestFail(QLatin1String("^   Loc: \\[(.*)\\]$"))
     , m_project(project)
 {
 }
@@ -64,6 +65,10 @@ LinkResult QtOutputFormatter::matchLine(const QString &line) const
     } else if (m_qtAssert.indexIn(line) != -1) {
         lr.href = m_qtAssert.cap(1);
         lr.start = m_qtAssert.pos(1);
+        lr.end = lr.start + lr.href.length();
+    } else if (m_qtTestFail.indexIn(line) != -1) {
+        lr.href = m_qtTestFail.cap(1);
+        lr.start = m_qtTestFail.pos(1);
         lr.end = lr.start + lr.href.length();
     }
     return lr;
@@ -176,6 +181,12 @@ void QtOutputFormatter::handleLink(const QString &href)
         if (qtAssertLink.indexIn(href) != -1) {
             fileName = qtAssertLink.cap(1);
             line = qtAssertLink.cap(2).toInt();
+        }
+
+        QRegExp qtTestFailLink(QLatin1String("^(.*)\\((\\d+)\\)$"));
+        if (qtTestFailLink.indexIn(href) != -1) {
+            fileName = qtTestFailLink.cap(1);
+            line = qtTestFailLink.cap(2).toInt();
         }
 
         if (!fileName.isEmpty()) {
