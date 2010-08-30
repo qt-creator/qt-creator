@@ -1445,6 +1445,12 @@ class Dumper:
                 self.putType(item.value.type)
                 self.putPointerValue(value.address)
                 self.putNumChild(1)
+                if self.isExpanded(item):
+                    with Children(self):
+                        with SubItem(self):
+                            self.putItemHelper(Item(item.value.dereference(),
+                                item.iname, "*", "*"))
+                            self.putAddress(item.value)
                 return
 
             if format == 1 or format == 2:
