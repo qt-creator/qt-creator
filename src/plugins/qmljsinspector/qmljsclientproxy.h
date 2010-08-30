@@ -67,8 +67,8 @@ public:
     bool resetBindingForObject(int objectDebugId, const QString &propertyName);
     void clearComponentCache();
 
-    // returns the object references for the given url.
-    QList<QDeclarativeDebugObjectReference> objectReferences(const QUrl &url = QUrl()) const;
+    // returns the object references
+    QList<QDeclarativeDebugObjectReference> objectReferences() const;
     QDeclarativeDebugObjectReference objectReferenceForId(int debugId) const;
     QList<QDeclarativeDebugObjectReference> rootObjectReference() const;
     DebugIdHash debugIdHash() const { return m_debugIdHash; };
@@ -137,7 +137,7 @@ private:
     bool isDesignClientConnected() const;
     void reloadEngines();
 
-    QList<QDeclarativeDebugObjectReference> objectReferences(const QUrl &url, const QDeclarativeDebugObjectReference &objectRef) const;
+    QList<QDeclarativeDebugObjectReference> objectReferences(const QDeclarativeDebugObjectReference &objectRef) const;
     QDeclarativeDebugObjectReference objectReferenceForId(int debugId, const QDeclarativeDebugObjectReference &ref) const;
 
 private:

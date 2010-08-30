@@ -43,7 +43,6 @@
 #include <QUrl>
 #include <QAbstractSocket>
 #include <QDebug>
-#include <QFileInfo>
 
 using namespace QmlJSInspector::Internal;
 
@@ -199,24 +198,22 @@ QDeclarativeDebugObjectReference ClientProxy::objectReferenceForId(int debugId,
     return QDeclarativeDebugObjectReference();
 }
 
-QList<QDeclarativeDebugObjectReference> ClientProxy::objectReferences(const QUrl &url) const
+QList<QDeclarativeDebugObjectReference> ClientProxy::objectReferences() const
 {
     QList<QDeclarativeDebugObjectReference> result;
     foreach(const QDeclarativeDebugObjectReference &it, m_rootObjects) {
-        result.append(objectReferences(url, it));
+        result.append(objectReferences(it));
     }
     return result;
 }
 
-QList<QDeclarativeDebugObjectReference> ClientProxy::objectReferences(const QUrl &url,
-                                                                      const QDeclarativeDebugObjectReference &objectRef) const
+QList<QDeclarativeDebugObjectReference> ClientProxy::objectReferences(const QDeclarativeDebugObjectReference &objectRef) const
 {
     QList<QDeclarativeDebugObjectReference> result;
-    if (objectRef.source().url() == url || url.isEmpty())
-        result.append(objectRef);
+    result.append(objectRef);
 
     foreach(const QDeclarativeDebugObjectReference &child, objectRef.children()) {
-        result.append(objectReferences(url, child));
+        result.append(objectReferences(child));
     }
 
     return result;
@@ -353,6 +350,8 @@ void ClientProxy::buildDebugIdHashRecursive(const QDeclarativeDebugObjectReferen
     int lineNum = ref.source().lineNumber();
     int colNum = ref.source().columnNumber();
     int rev = 0;
+
+    // handle the case where the url contains the revision number encoded. (for object created by the debugger)
     static QRegExp rx("^(.*)_(\\d+):(\\d+)$");
     if (rx.exactMatch(filename)) {
         filename = rx.cap(1);
@@ -365,13 +364,13 @@ void ClientProxy::buildDebugIdHashRecursive(const QDeclarativeDebugObjectReferen
     if (isShadowBuild && rev == 0) {
         QString shadowBuildDir = InspectorUi::instance()->debugProjectBuildDirectory();
 
-        //QFileInfo objectFileInfo(filename);
         if (filename.startsWith(shadowBuildDir)) {
             ProjectExplorer::Project *debugProject = InspectorUi::instance()->debugProject();
             filename = debugProject->projectDirectory() + filename.mid(shadowBuildDir.length());
         }
     }
 
+    // append the debug ids in the hash
     m_debugIdHash[qMakePair<QString, int>(filename, rev)][qMakePair<int, int>(lineNum, colNum)].append(ref.debugId());
 
     foreach(const QDeclarativeDebugObjectReference &it, ref.children())
