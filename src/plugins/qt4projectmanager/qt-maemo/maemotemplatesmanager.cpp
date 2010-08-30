@@ -340,6 +340,10 @@ bool MaemoTemplatesManager::updateDesktopFile(const Qt4Target *target,
     findLine("Name=", desktopFileContents, nameNewLinePos, nameValuePos);
     if (nameNewLinePos == nameValuePos)
         desktopFileContents.insert(nameValuePos, appName.toUtf8());
+    int iconNewLinePos, iconValuePos;
+    findLine("Icon=", desktopFileContents, iconNewLinePos, iconValuePos);
+    if (iconNewLinePos == iconValuePos)
+        desktopFileContents.insert(iconValuePos, appName.toUtf8());
 
     desktopFile.resize(0);
     desktopFile.write(desktopFileContents);
