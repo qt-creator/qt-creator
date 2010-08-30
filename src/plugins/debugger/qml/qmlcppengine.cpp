@@ -175,9 +175,9 @@ unsigned QmlCppEngine::debuggerCapabilities() const
     return m_cppEngine->debuggerCapabilities();
 }
 
-bool QmlCppEngine::isSynchroneous() const
+bool QmlCppEngine::isSynchronous() const
 {
-    return m_activeEngine->isSynchroneous();
+    return m_activeEngine->isSynchronous();
 }
 
 QString QmlCppEngine::qtNamespace() const

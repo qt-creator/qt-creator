@@ -995,7 +995,7 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
         interruptInferiorTemporarily();
 
     // Continue only if there are no commands wire anymore, so this will
-    // be fully synchroneous.
+    // be fully synchronous.
     // This is somewhat inefficient, as it makes the last command synchronous.
     // An optimization would be requesting the continue immediately when the
     // event loop is entered, and let individual commands have a flag to suppress
@@ -1340,7 +1340,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
                 || name != CROSS_STOP_SIGNAL))
             initHelpers = false;
     }
-    if (isSynchroneous())
+    if (isSynchronous())
         initHelpers = false;
     if (initHelpers) {
         tryLoadDebuggingHelpersClassic();
@@ -3243,7 +3243,7 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos,
     }
 */
 
-    if (isSynchroneous()) {
+    if (isSynchronous()) {
         updateLocals(QVariant());
         return;
     }
@@ -3295,7 +3295,7 @@ bool GdbEngine::hasDebuggingHelperForType(const QString &type) const
 
 void GdbEngine::updateWatchData(const WatchData &data)
 {
-    if (isSynchroneous()) {
+    if (isSynchronous()) {
         // This should only be called for fresh expanded items, not for
         // items that had their children retrieved earlier.
         //qDebug() << "\nUPDATE WATCH DATA: " << data.toString() << "\n";
@@ -3361,7 +3361,7 @@ void GdbEngine::rebuildWatchModel()
 {
     static int count = 0;
     ++count;
-    if (!isSynchroneous())
+    if (!isSynchronous())
         m_processedNames.clear();
     PENDING_DEBUG("REBUILDING MODEL" << count);
     if (theDebuggerBoolSetting(LogTimeStamps))
@@ -3515,7 +3515,7 @@ WatchData GdbEngine::localVariable(const GdbMi &item,
         data.setError(WatchData::msgNotInScope());
         return data;
     }
-    if (isSynchroneous()) {
+    if (isSynchronous()) {
         setWatchDataValue(data, item);
         // We know that the complete list of children is
         // somewhere in the response.

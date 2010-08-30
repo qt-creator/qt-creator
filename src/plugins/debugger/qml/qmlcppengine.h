@@ -45,7 +45,7 @@ public:
     virtual void setRegisterValue(int regnr, const QString &value);
     virtual unsigned debuggerCapabilities() const;
 
-    virtual bool isSynchroneous() const;
+    virtual bool isSynchronous() const;
     virtual QString qtNamespace() const;
 
     virtual void createSnapshot();

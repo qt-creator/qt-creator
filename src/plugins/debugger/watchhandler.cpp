@@ -1182,13 +1182,13 @@ void WatchHandler::insertData(const WatchData &data)
 
     if (data.isSomethingNeeded() && data.iname.contains('.')) {
         MODEL_DEBUG("SOMETHING NEEDED: " << data.toString());
-        if (!m_engine->isSynchroneous()) {
+        if (!m_engine->isSynchronous()) {
             m_engine->updateWatchData(data);
         } else {
             qDebug() << "ENDLESS LOOP: SOMETHING NEEDED: " << data.toString();
             WatchData data1 = data;
             data1.setAllUnneeded();
-            data1.setValue(QLatin1String("<unavailable synchroneous data>"));
+            data1.setValue(QLatin1String("<unavailable synchronous data>"));
             data1.setHasChildren(false);
             WatchModel *model = modelForIName(data.iname);
             QTC_ASSERT(model, return);
@@ -1267,7 +1267,7 @@ void WatchHandler::watchExpression(const QString &exp)
     if (exp.isEmpty())
         data.setAllUnneeded();
     data.iname = watcherName(data.exp);
-    if (m_engine->isSynchroneous() && !m_engine->isSessionEngine())
+    if (m_engine->isSynchronous() && !m_engine->isSessionEngine())
         m_engine->updateWatchData(data);
     else
         insertData(data);

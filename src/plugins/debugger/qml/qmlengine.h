@@ -74,7 +74,7 @@ public slots:
 
 private:
     // DebuggerEngine implementation
-    bool isSynchroneous() const { return false; }
+    bool isSynchronous() const { return false; }
     void executeStep();
     void executeStepOut();
     void executeNext();

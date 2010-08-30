@@ -165,7 +165,7 @@ public:
     virtual void addOptionPages(QList<Core::IOptionsPage*> *) const {}
     virtual unsigned debuggerCapabilities() const { return 0; }
 
-    virtual bool isSynchroneous() const { return false; }
+    virtual bool isSynchronous() const { return false; }
     virtual QString qtNamespace() const { return QString(); }
 
     virtual void createSnapshot() {}

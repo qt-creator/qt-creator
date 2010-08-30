@@ -290,7 +290,7 @@ private: ////////// Gdb Output, State & Capability Handling //////////
     StackFrame parseStackFrame(const GdbMi &mi, int level);
     void resetCommandQueue();
 
-    bool isSynchroneous() const { return hasPython(); }
+    bool isSynchronous() const { return hasPython(); }
     virtual bool hasPython() const;
     bool supportsThreads() const;
 

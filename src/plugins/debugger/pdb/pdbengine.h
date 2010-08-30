@@ -102,7 +102,7 @@ private:
     void reloadFullStack() {}
 
     bool supportsThreads() const { return true; }
-    bool isSynchroneous() const { return true; }
+    bool isSynchronous() const { return true; }
     void updateWatchData(const WatchData &data);
 
 signals:
