@@ -440,9 +440,17 @@ void MiniProjectTargetSelector::addProject(ProjectExplorer::Project* project)
     ProjectListWidget *targetList = new ProjectListWidget(project);
     targetList->setStyleSheet(QString::fromLatin1("QListWidget { background: %1; border: none; }")
                               .arg(QColor(70, 70, 70).name()));
-    int pos = m_widgetStack->addWidget(targetList);
 
-    m_projectsBox->addItem(project->displayName(), QVariant::fromValue(project));
+    m_ignoreIndexChange = true;
+
+    int pos = 0;
+    for (int i=0; i < m_projectsBox->count(); ++i)
+        if (m_projectsBox->itemText(i) > project->displayName())
+            pos = i;
+
+    m_widgetStack->insertWidget(pos, targetList);
+
+    m_projectsBox->insertItem(pos, project->displayName(), QVariant::fromValue(project));
 
     connect(project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
             SLOT(updateAction()));
@@ -458,6 +466,8 @@ void MiniProjectTargetSelector::addProject(ProjectExplorer::Project* project)
         m_projectsBox->setCurrentIndex(pos);
         m_widgetStack->setCurrentIndex(pos);
     }
+
+    m_ignoreIndexChange = false;
 
     foreach (Target *t, project->targets())
         addTarget(t, t == project->activeTarget());
