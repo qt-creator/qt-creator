@@ -2363,6 +2363,8 @@ void DebuggerPluginPrivate::onModeChanged(IMode *mode)
      //        different then the debugger mode. E.g. Welcome and Help mode and
      //        also on shutdown.
 
+    m_uiSwitcher->onModeChanged(mode);
+
     if (mode != m_debugMode)
         return;
 

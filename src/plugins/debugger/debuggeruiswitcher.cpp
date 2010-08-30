@@ -171,19 +171,17 @@ DebuggerUISwitcher::DebuggerUISwitcher(Core::BaseMode *mode, QObject* parent) :
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = core->actionManager();
 
-    ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
+    ProjectExplorer::ProjectExplorerPlugin *pe =
+        ProjectExplorer::ProjectExplorerPlugin::instance();
     connect(pe->session(), SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
-            SLOT(updateUiForProject(ProjectExplorer::Project*)));
-    connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
-            SLOT(modeChanged(Core::IMode*)));
-    connect(d->m_resizeEventFilter, SIGNAL(widgetResized()), SLOT(updateDockWidgetSettings()));
+        SLOT(updateUiForProject(ProjectExplorer::Project*)));
+    connect(d->m_resizeEventFilter, SIGNAL(widgetResized()),
+        SLOT(updateDockWidgetSettings()));
 
     d->m_debugMenu = am->actionContainer(ProjectExplorer::Constants::M_DEBUG);
-
     d->m_viewsMenu = am->actionContainer(QLatin1String(Core::Constants::M_WINDOW_VIEWS));
     QTC_ASSERT(d->m_viewsMenu, return)
-
-    d->m_debuggerLanguageMenu = am->createMenu(Debugger::Constants::M_DEBUG_DEBUGGING_LANGUAGES);
+    d->m_debuggerLanguageMenu = am->createMenu(Constants::M_DEBUG_DEBUGGING_LANGUAGES);
 
     DebuggerUISwitcherPrivate::m_instance = this;
 }
@@ -209,25 +207,27 @@ void DebuggerUISwitcher::updateUiForProject(ProjectExplorer::Project *project)
                        this, SLOT(updateUiForTarget(ProjectExplorer::Target*)));
         }
         d->m_previousProject = project;
-        connect(project, SIGNAL(fileListChanged()), SLOT(updateUiOnFileListChange()));
+        connect(project, SIGNAL(fileListChanged()),
+            SLOT(updateUiOnFileListChange()));
         connect(project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
-                this, SLOT(updateUiForTarget(ProjectExplorer::Target*)));
+            SLOT(updateUiForTarget(ProjectExplorer::Target*)));
         updateUiForTarget(project->activeTarget());
     }
 }
 
 void DebuggerUISwitcher::updateUiForTarget(ProjectExplorer::Target *target)
 {
-    if (target) {
-        if (d->m_previousTarget) {
-            disconnect(target, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
-                       this, SLOT(updateUiForRunConfiguration(ProjectExplorer::RunConfiguration*)));
-        }
-        d->m_previousTarget = target;
-        connect(target, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
-                this, SLOT(updateUiForRunConfiguration(ProjectExplorer::RunConfiguration*)));
-        updateUiForRunConfiguration(target->activeRunConfiguration());
+    if (!target)
+        return;
+
+    if (d->m_previousTarget) {
+        disconnect(target, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
+            this, SLOT(updateUiForRunConfiguration(ProjectExplorer::RunConfiguration*)));
     }
+    d->m_previousTarget = target;
+    connect(target, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
+        SLOT(updateUiForRunConfiguration(ProjectExplorer::RunConfiguration*)));
+    updateUiForRunConfiguration(target->activeRunConfiguration());
 }
 
 static bool isQmlProjectType(ProjectExplorer::RunConfiguration *rc)
@@ -296,8 +296,8 @@ DebuggerLanguages DebuggerUISwitcher::supportedLanguages() const
     return d->m_supportedLanguages;
 }
 
-void DebuggerUISwitcher::addMenuAction(Core::Command *command, const DebuggerLanguage &language,
-                                       const QString &group)
+void DebuggerUISwitcher::addMenuAction(Core::Command *command,
+    const DebuggerLanguage &language, const QString &group)
 {
     d->m_debugMenu->addAction(command, group);
     d->m_menuCommands.insert(language, command);
@@ -308,7 +308,7 @@ DebuggerLanguages DebuggerUISwitcher::activeDebugLanguages() const
     return d->m_activeDebugLanguages;
 }
 
-void DebuggerUISwitcher::modeChanged(Core::IMode *mode)
+void DebuggerUISwitcher::onModeChanged(Core::IMode *mode)
 {
     d->m_inDebugMode = (mode->id() == Constants::MODE_DEBUG);
     d->m_mainWindow->setDockActionsVisible(d->m_inDebugMode);
@@ -480,8 +480,9 @@ QWidget *DebuggerUISwitcher::createMainWindow(Core::BaseMode *mode)
     d->m_mainWindow->setDocumentMode(true);
     d->m_mainWindow->setDockNestingEnabled(true);
     connect(d->m_mainWindow, SIGNAL(resetLayout()),
-            this, SLOT(resetDebuggerLayout()));
-    connect(d->m_mainWindow->toggleLockedAction(), SIGNAL(triggered()), SLOT(updateDockWidgetSettings()));
+        SLOT(resetDebuggerLayout()));
+    connect(d->m_mainWindow->toggleLockedAction(), SIGNAL(triggered()),
+        SLOT(updateDockWidgetSettings()));
 
     QBoxLayout *editorHolderLayout = new QVBoxLayout;
     editorHolderLayout->setMargin(0);
@@ -586,9 +587,8 @@ QDockWidget *DebuggerUISwitcher::createDockWidget(const DebuggerLanguage &langua
     d->m_mainWindow->addDockWidget(area, dockWidget);
     d->m_dockWidgets.append(dockWidget);
 
-    if (!(d->m_activeDebugLanguages & language)) {
+    if (!(d->m_activeDebugLanguages & language))
         dockWidget->hide();
-    }
 
     Core::Context globalContext(Core::Constants::C_GLOBAL);
 
@@ -603,9 +603,12 @@ QDockWidget *DebuggerUISwitcher::createDockWidget(const DebuggerLanguage &langua
 
     dockWidget->installEventFilter(d->m_resizeEventFilter);
 
-    connect(dockWidget->toggleViewAction(), SIGNAL(triggered(bool)), SLOT(updateDockWidgetSettings()));
-    connect(dockWidget, SIGNAL(topLevelChanged(bool)), SLOT(updateDockWidgetSettings()));
-    connect(dockWidget, SIGNAL(dockLocationChanged(Qt::DockWidgetArea)), SLOT(updateDockWidgetSettings()));
+    connect(dockWidget->toggleViewAction(), SIGNAL(triggered(bool)),
+        SLOT(updateDockWidgetSettings()));
+    connect(dockWidget, SIGNAL(topLevelChanged(bool)),
+        SLOT(updateDockWidgetSettings()));
+    connect(dockWidget, SIGNAL(dockLocationChanged(Qt::DockWidgetArea)),
+        SLOT(updateDockWidgetSettings()));
 
     return dockWidget;
 }

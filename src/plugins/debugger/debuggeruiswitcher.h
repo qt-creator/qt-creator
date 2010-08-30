@@ -36,8 +36,10 @@
 #include <QtCore/QObject>
 #include <QtCore/QMultiHash>
 
-QT_FORWARD_DECLARE_CLASS(QEvent)
-QT_FORWARD_DECLARE_CLASS(QDockWidget)
+QT_BEGIN_NAMESPACE
+class QEvent;
+class QDockWidget;
+QT_END_NAMESPACE
 
 namespace Core {
     class ActionContainer;
@@ -68,6 +70,7 @@ namespace Internal {
 class DEBUGGER_EXPORT DebuggerUISwitcher : public QObject
 {
     Q_OBJECT
+
 public:
     explicit DebuggerUISwitcher(Core::BaseMode *mode, QObject *parent = 0);
     virtual ~DebuggerUISwitcher();
@@ -96,6 +99,7 @@ public:
 
     void aboutToStartDebugger();
     void aboutToShutdown();
+    void onModeChanged(Core::IMode *mode);
 
     // most common debugger windows
     QDockWidget *breakWindow() const;
@@ -122,7 +126,6 @@ signals:
     void dockResetRequested(const Debugger::DebuggerLanguages &activeLanguages);
 
 private slots:
-    void modeChanged(Core::IMode *mode);
     void updateUi();
     void resetDebuggerLayout();
 
