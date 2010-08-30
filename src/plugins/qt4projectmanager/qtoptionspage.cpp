@@ -748,7 +748,12 @@ void QtOptionsPageWidget::updateCurrentGcceDirectory()
 
 QList<QSharedPointerQtVersion> QtOptionsPageWidget::versions() const
 {
-    return m_versions;
+    QList<QSharedPointerQtVersion> result;
+    for (int i = 0; i < m_versions.count(); ++i) {
+        if (m_versions.at(i)->qmakeCommand() != m_specifyPathString)
+            result.append(m_versions.at(i));
+    }
+    return result;
 }
 
 QString QtOptionsPageWidget::searchKeywords() const
