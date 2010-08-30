@@ -484,6 +484,15 @@ bool Qt4BuildConfiguration::compareToImportFrom(const QString &workingDirectory)
     return false;
 }
 
+QStringList Qt4BuildConfiguration::removeQMLInspectorFromArgumentList(const QStringList &old)
+{
+    QStringList result;
+    foreach (const QString &str, old)
+        if (!str.startsWith(QLatin1String(Constants::QMAKEVAR_QMLINSPECTOR_PATH)))
+            result << str;
+    return result;
+}
+
 // We match -spec and -platfrom separetly
 // We ignore -cache, because qmake contained a bug that it didn't
 // mention the -cache in the Makefile

@@ -101,6 +101,7 @@ public:
     QString defaultMakeTarget() const;
 
     bool compareToImportFrom(const QString &workingDirectory);
+    static QStringList removeQMLInspectorFromArgumentList(const QStringList &old);
     static QStringList removeSpecFromArgumentList(const QStringList &old);
     static QString extractSpecFromArgumentList(const QStringList &list, QString directory, QtVersion *version);
 

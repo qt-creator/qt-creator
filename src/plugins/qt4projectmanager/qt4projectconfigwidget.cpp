@@ -402,6 +402,8 @@ void Qt4ProjectConfigWidget::importLabelClicked()
                 additionalArguments.prepend("-spec");
             }
 
+            additionalArguments = Qt4BuildConfiguration::removeQMLInspectorFromArgumentList(additionalArguments);
+
             // So we got all the information now apply it...
             m_buildConfiguration->setQtVersion(version);
 
