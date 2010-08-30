@@ -596,12 +596,6 @@ void QtOptionsPageWidget::onQtBrowsed()
         return;
 
     updateCurrentQMakeLocation();
-    if (m_ui->nameEdit->text().isEmpty() || m_ui->nameEdit->text() == m_specifyNameString) {
-        QString name = ProjectExplorer::DebuggingHelperLibrary::qtVersionForQMake(QDir::cleanPath(dir));
-        if (!name.isEmpty())
-            m_ui->nameEdit->setText(name);
-        updateCurrentQtName();
-    }
     updateState();
 }
 
@@ -676,9 +670,10 @@ void QtOptionsPageWidget::updateCurrentQMakeLocation()
     if (currentItemIndex < 0)
         return;
     QtVersion *version = m_versions.at(currentItemIndex).data();
-    if (version->qmakeCommand() == m_ui->qmakePath->path())
+    QFileInfo fi(m_ui->qmakePath->path());
+    if (!fi.exists() || !fi.isFile() || version->qmakeCommand() == fi.absoluteFilePath())
         return;
-    version->setQMakeCommand(m_ui->qmakePath->path());
+    version->setQMakeCommand(fi.absoluteFilePath());
     currentItem->setText(1, QDir::toNativeSeparators(version->qmakeCommand()));
     showEnvironmentPage(currentItem);
 
@@ -692,6 +687,13 @@ void QtOptionsPageWidget::updateCurrentQMakeLocation()
         m_ui->rebuildButton->setEnabled(false);
     }
     updateDebuggingHelperStateLabel(version);
+
+    if (m_ui->nameEdit->text().isEmpty() || m_ui->nameEdit->text() == m_specifyNameString) {
+        QString name = ProjectExplorer::DebuggingHelperLibrary::qtVersionForQMake(version->qmakeCommand());
+        if (!name.isEmpty())
+            m_ui->nameEdit->setText(name);
+        updateCurrentQtName();
+    }
 }
 
 void QtOptionsPageWidget::updateCurrentMingwDirectory()
