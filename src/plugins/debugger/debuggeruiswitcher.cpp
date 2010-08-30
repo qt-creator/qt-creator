@@ -306,7 +306,8 @@ void DebuggerUISwitcher::modeChanged(Core::IMode *mode)
     d->m_mainWindow->setDockActionsVisible(d->m_inDebugMode);
     hideInactiveWidgets();
 
-    if (mode->id() != Constants::MODE_DEBUG || DebuggerPlugin::instance()->hasSnapsnots())
+    if (mode->id() != Constants::MODE_DEBUG)
+        //|| DebuggerPlugin::instance()->hasSnapsnots())
        return;
 
     DebuggerLanguages activeLangs;
