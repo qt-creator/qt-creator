@@ -130,6 +130,7 @@ void QmlJSLiveTextPreview::associateEditor(Core::IEditor *editor)
     if (editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
         QmlJSEditor::Internal::QmlJSTextEditor* qmljsEditor = qobject_cast<QmlJSEditor::Internal::QmlJSTextEditor*>(editor->widget());
         if (qmljsEditor && !m_editors.contains(qmljsEditor)) {
+            qmljsEditor->setUpdateSelectedElements(true);
             m_editors << qmljsEditor;
             connect(qmljsEditor,
                     SIGNAL(selectedElementsChanged(QList<int>,QString)),
