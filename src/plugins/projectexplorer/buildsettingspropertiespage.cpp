@@ -47,6 +47,7 @@
 #include <QtGui/QInputDialog>
 #include <QtGui/QLabel>
 #include <QtGui/QMenu>
+#include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
 #include <QtGui/QVBoxLayout>
 
@@ -316,6 +317,14 @@ void BuildSettingsWidget::cloneConfiguration()
 
 void BuildSettingsWidget::deleteConfiguration()
 {
+    QMessageBox msgBox(QMessageBox::Question, tr("Remove Build Configuration?"),
+                       tr("Do you really want to delete build configuration %1.").arg(m_buildConfiguration->displayName()),
+                       QMessageBox::Yes|QMessageBox::No, this);
+    msgBox.setDefaultButton(QMessageBox::No);
+    msgBox.setEscapeButton(QMessageBox::No);
+    if (!this || msgBox.exec() == QMessageBox::No)
+        return;
+
     deleteConfiguration(m_buildConfiguration);
 }
 

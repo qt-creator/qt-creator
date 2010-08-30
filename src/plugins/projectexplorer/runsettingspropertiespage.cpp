@@ -46,6 +46,7 @@
 #include <QtCore/QPair>
 #include <QtGui/QInputDialog>
 #include <QtGui/QMenu>
+#include <QtGui/QMessageBox>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -254,6 +255,14 @@ void RunSettingsWidget::addRunConfiguration()
 void RunSettingsWidget::removeRunConfiguration()
 {
     RunConfiguration *rc = m_target->activeRunConfiguration();
+    QMessageBox msgBox(QMessageBox::Question, tr("Remove Run Configuration?"),
+                       tr("Do you really want to delete deploy configuration %1.").arg(rc->displayName()),
+                       QMessageBox::Yes|QMessageBox::No, this);
+    msgBox.setDefaultButton(QMessageBox::No);
+    msgBox.setEscapeButton(QMessageBox::No);
+    if (!this || msgBox.exec() == QMessageBox::No)
+        return;
+
     m_target->removeRunConfiguration(rc);
     m_ui->removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);
     m_ui->renameRunButton->setEnabled(m_target->activeRunConfiguration());
@@ -356,6 +365,14 @@ void RunSettingsWidget::addDeployConfiguration()
 void RunSettingsWidget::removeDeployConfiguration()
 {
     DeployConfiguration *dc = m_target->activeDeployConfiguration();
+    QMessageBox msgBox(QMessageBox::Question, tr("Remove Deploy Configuration?"),
+                       tr("Do you really want to delete deploy configuration %1.").arg(dc->displayName()),
+                       QMessageBox::Yes|QMessageBox::No, this);
+    msgBox.setDefaultButton(QMessageBox::No);
+    msgBox.setEscapeButton(QMessageBox::No);
+    if (!this || msgBox.exec() == QMessageBox::No)
+        return;
+
     m_target->removeDeployConfiguration(dc);
     m_ui->removeDeployToolButton->setEnabled(m_target->deployConfigurations().size() > 1);
 }
