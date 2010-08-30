@@ -468,6 +468,22 @@ bool Qt4BuildConfiguration::compareToImportFrom(const QString &workingDirectory)
                     qDebug()<<"Parsed spec:"<<parsedSpec;
                 }
 
+                // Comparing the sorted list is obviously wrong
+                // Though haven written a more complete version
+                // that managed had around 200 lines and yet faild
+                // to be actually foolproof at all, I think it's
+                // not feasible without actually taking the qmake
+                // command line parsing code
+
+                // Things, sorting gets wrong:
+                // parameters to positional parameters matter
+                //  e.g. -o -spec is different from -spec -o
+                //       -o 1 -spec 2 is diffrent from -spec 1 -o 2
+                // variable assignment order matters
+                // variable assignment vs -after
+                // -norecursive vs. recursive
+                actualArgs.sort();
+                parsedArgs.sort();
                 if (actualArgs == parsedArgs) {
                     // Specs match exactly
                     if (actualSpec == parsedSpec)
