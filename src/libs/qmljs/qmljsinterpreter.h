@@ -249,15 +249,15 @@ public:
         QmlComponentChain();
         ~QmlComponentChain();
 
-        QList<QmlComponentChain *> instantiatingComponents;
+        QList<const QmlComponentChain *> instantiatingComponents;
         Document::Ptr document;
 
-        void add(QList<const ObjectValue *> *list) const;
+        void collect(QList<const ObjectValue *> *list) const;
         void clear();
     };
 
     const ObjectValue *globalScope;
-    QSharedPointer<QmlComponentChain> qmlComponentScope;
+    QSharedPointer<const QmlComponentChain> qmlComponentScope;
     QList<const ObjectValue *> qmlScopeObjects;
     const ObjectValue *qmlTypes;
     QList<const ObjectValue *> jsScopes;

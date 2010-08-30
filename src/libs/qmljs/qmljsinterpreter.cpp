@@ -1370,10 +1370,10 @@ void ScopeChain::QmlComponentChain::clear()
     document = Document::Ptr(0);
 }
 
-void ScopeChain::QmlComponentChain::add(QList<const ObjectValue *> *list) const
+void ScopeChain::QmlComponentChain::collect(QList<const ObjectValue *> *list) const
 {
-    foreach (QmlComponentChain *parent, instantiatingComponents)
-        parent->add(list);
+    foreach (const QmlComponentChain *parent, instantiatingComponents)
+        parent->collect(list);
 
     if (!document)
         return;
@@ -1393,8 +1393,8 @@ void ScopeChain::update()
     // the root scope in js files doesn't see instantiating components
     if (jsScopes.count() != 1 || !qmlScopeObjects.isEmpty()) {
         if (qmlComponentScope) {
-            foreach (QmlComponentChain *parent, qmlComponentScope->instantiatingComponents)
-                parent->add(&_all);
+            foreach (const QmlComponentChain *parent, qmlComponentScope->instantiatingComponents)
+                parent->collect(&_all);
         }
     }
 

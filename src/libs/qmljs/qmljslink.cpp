@@ -83,10 +83,11 @@ void Link::initializeScopeChain()
     Bind *bind = _doc->bind();
     QHash<Document *, ScopeChain::QmlComponentChain *> componentScopes;
 
-    scopeChain.qmlComponentScope = QSharedPointer<ScopeChain::QmlComponentChain>(new ScopeChain::QmlComponentChain());
+    ScopeChain::QmlComponentChain *chain = new ScopeChain::QmlComponentChain;
+    scopeChain.qmlComponentScope = QSharedPointer<const ScopeChain::QmlComponentChain>(chain);
     if (_doc->qmlProgram()) {
-        componentScopes.insert(_doc.data(), scopeChain.qmlComponentScope.data());
-        makeComponentChain(_doc, scopeChain.qmlComponentScope.data(), &componentScopes);
+        componentScopes.insert(_doc.data(), chain);
+        makeComponentChain(_doc, chain, &componentScopes);
 
         if (const ObjectValue *typeEnvironment = _context->typeEnvironment(_doc.data()))
             scopeChain.qmlTypes = typeEnvironment;
@@ -97,7 +98,7 @@ void Link::initializeScopeChain()
                 if (_doc->fileName() == fileImport.name) {
                     ScopeChain::QmlComponentChain *component = new ScopeChain::QmlComponentChain;
                     componentScopes.insert(otherDoc.data(), component);
-                    scopeChain.qmlComponentScope->instantiatingComponents += component;
+                    chain->instantiatingComponents += component;
                     makeComponentChain(otherDoc, component, &componentScopes);
                 }
             }
