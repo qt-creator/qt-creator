@@ -42,6 +42,10 @@ class QmlAdapter;
 }
 
 namespace QmlJSInspector {
+
+//map <filename, editorRevision> -> <lineNumber, columnNumber> -> debugIds
+typedef QHash<QPair<QString, int>, QHash<QPair<int, int>, QList<int> > > DebugIdHash;
+
 namespace Internal {
 
 class InspectorPlugin;
@@ -67,6 +71,7 @@ public:
     QList<QDeclarativeDebugObjectReference> objectReferences(const QUrl &url = QUrl()) const;
     QDeclarativeDebugObjectReference objectReferenceForId(int debugId) const;
     QList<QDeclarativeDebugObjectReference> rootObjectReference() const;
+    DebugIdHash debugIdHash() const { return m_debugIdHash; };
 
     bool isConnected() const;
 
@@ -137,6 +142,7 @@ private:
 
 private:
     Q_DISABLE_COPY(ClientProxy);
+    void buildDebugIdHashRecursive(const QDeclarativeDebugObjectReference &ref);
 
     Debugger::Internal::QmlAdapter *m_adapter;
     QDeclarativeEngineDebug *m_client;
@@ -149,6 +155,7 @@ private:
     QList<QDeclarativeDebugObjectReference> m_rootObjects;
     QList<QDeclarativeDebugEngineReference> m_engines;
     QTimer m_requestObjectsTimer;
+    DebugIdHash m_debugIdHash;
 };
 
 } // namespace Internal

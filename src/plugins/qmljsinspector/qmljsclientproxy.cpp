@@ -30,6 +30,7 @@
 #include "qmljsclientproxy.h"
 #include "qmljsprivateapi.h"
 #include "qmljsdesigndebugclient.h"
+#include "qmljsinspector.h"
 
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunner.h>
@@ -37,10 +38,12 @@
 #include <debugger/qml/qmladapter.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
+#include <projectexplorer/project.h>
 
 #include <QUrl>
 #include <QAbstractSocket>
 #include <QDebug>
+#include <QFileInfo>
 
 using namespace QmlJSInspector::Internal;
 
@@ -328,6 +331,11 @@ void ClientProxy::objectTreeFetched(QDeclarativeDebugQuery::State state)
     delete query;
 
     if (m_objectTreeQuery.isEmpty()) {
+        int old_count = m_debugIdHash.count();
+        m_debugIdHash.clear();
+        m_debugIdHash.reserve(old_count + 1);
+        foreach(const QDeclarativeDebugObjectReference &it, m_rootObjects)
+            buildDebugIdHashRecursive(it);
         emit objectTreeUpdated();
 
         if (isDesignClientConnected()) {
@@ -338,6 +346,38 @@ void ClientProxy::objectTreeFetched(QDeclarativeDebugQuery::State state)
         }
     }
 }
+
+void ClientProxy::buildDebugIdHashRecursive(const QDeclarativeDebugObjectReference& ref)
+{
+    QString filename = ref.source().url().toLocalFile();
+    int lineNum = ref.source().lineNumber();
+    int colNum = ref.source().columnNumber();
+    int rev = 0;
+    static QRegExp rx("^(.*)_(\\d+):(\\d+)$");
+    if (rx.exactMatch(filename)) {
+        filename = rx.cap(1);
+        rev = rx.cap(2).toInt();
+        lineNum += rx.cap(3).toInt() - 1;
+    }
+
+    //convert the filename to a canonical filename in case of febug build.
+    bool isShadowBuild = InspectorUi::instance()->isShadowBuildProject();
+    if (isShadowBuild && rev == 0) {
+        QString shadowBuildDir = InspectorUi::instance()->debugProjectBuildDirectory();
+
+        //QFileInfo objectFileInfo(filename);
+        if (filename.startsWith(shadowBuildDir)) {
+            ProjectExplorer::Project *debugProject = InspectorUi::instance()->debugProject();
+            filename = debugProject->projectDirectory() + filename.mid(shadowBuildDir.length());
+        }
+    }
+
+    m_debugIdHash[qMakePair<QString, int>(filename, rev)][qMakePair<int, int>(lineNum, colNum)].append(ref.debugId());
+
+    foreach(const QDeclarativeDebugObjectReference &it, ref.children())
+        buildDebugIdHashRecursive(it);
+}
+
 
 void ClientProxy::reloadQmlViewer()
 {

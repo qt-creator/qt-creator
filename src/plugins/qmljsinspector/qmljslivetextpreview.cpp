@@ -71,16 +71,15 @@ class MapObjectWithDebugReference : public Visitor
         virtual bool visit(UiObjectDefinition *ast) ;
         virtual bool visit(UiObjectBinding *ast) ;
 
-        QList<QDeclarativeDebugObjectReference> root;
+        QHash<QPair<int, int>, DebugIdList> ids;
         QString filename;
         QHash<UiObjectMember *, DebugIdList> result;
-        QSet<QmlJS::AST::UiObjectMember *> lookupObjects;
-        Document::Ptr doc;
+        QSet<UiObjectMember *> lookupObjects;
+
     private:
-        bool filenamesMatch(const QString &objectFileName, const QString &buildFilename) const;
+        void process(UiObjectMember *ast);
     private:
         int activated;
-        void processRecursive(const QDeclarativeDebugObjectReference &object, UiObjectMember *ast);
 };
 
 bool MapObjectWithDebugReference::visit(UiObjectDefinition* ast)
@@ -99,66 +98,25 @@ bool MapObjectWithDebugReference::visit(UiObjectBinding* ast)
 
 void MapObjectWithDebugReference::endVisit(UiObjectDefinition* ast)
 {
-    if (lookupObjects.isEmpty() || activated) {
-        foreach(const QDeclarativeDebugObjectReference& it, root)
-            processRecursive(it, ast);
-    }
-
+    process(ast);
     if (lookupObjects.contains(ast))
         activated--;
 }
 
 void MapObjectWithDebugReference::endVisit(UiObjectBinding* ast)
 {
-    if (lookupObjects.isEmpty() || activated) {
-        foreach(const QDeclarativeDebugObjectReference& it, root)
-            processRecursive(it, ast);
-    }
-
+    process(ast);
     if (lookupObjects.contains(ast))
         activated--;
 }
 
-bool MapObjectWithDebugReference::filenamesMatch(const QString &objectFileName, const QString &buildFilename) const
+void MapObjectWithDebugReference::process(UiObjectMember* ast)
 {
-    bool isShadowBuild = InspectorUi::instance()->isShadowBuildProject();
-    ProjectExplorer::Project *debugProject = InspectorUi::instance()->debugProject();
-
-    if (!isShadowBuild) {
-        return (objectFileName == buildFilename);
-    } else {
-        QString projectDir = debugProject->projectDirectory();
-        QString shadowBuildDir = InspectorUi::instance()->debugProjectBuildDirectory();
-
-        QFileInfo objectFileInfo(objectFileName);
-        QFileInfo buildFileInfo(buildFilename);
-        QString objectRelativePath = objectFileInfo.absoluteFilePath().mid(shadowBuildDir.length());
-        QString buildRelativePath = buildFileInfo.absoluteFilePath().mid(projectDir.length());
-
-        return (objectRelativePath == buildRelativePath);
-    }
-}
-
-void MapObjectWithDebugReference::processRecursive(const QDeclarativeDebugObjectReference& object, UiObjectMember* ast)
-{
-    // If this is too slow, it can be speed up by indexing
-    // the QDeclarativeDebugObjectReference by filename/loc in a fist pass
-
-    SourceLocation loc = ast->firstSourceLocation();
-    if (object.source().columnNumber() == int(loc.startColumn)) {
-        QString objectFileName = object.source().url().toLocalFile();
-        if (!doc && object.source().lineNumber() == int(loc.startLine) && filenamesMatch(objectFileName, filename)) {
-            result[ast] += object.debugId();
-        } else if (doc && objectFileName.startsWith(filename + QLatin1Char('_') + QString::number(doc->editorRevision()) + QLatin1Char(':'))) {
-            bool ok;
-            int line = objectFileName.mid(objectFileName.lastIndexOf(':') + 1).toInt(&ok);
-            if (ok && int(loc.startLine) == line + object.source().lineNumber() - 1)
-                result[ast] += object.debugId();
-        }
-    }
-
-    foreach (const QDeclarativeDebugObjectReference &it, object.children()) {
-        processRecursive(it, ast);
+    if (lookupObjects.isEmpty() || activated) {
+        SourceLocation loc = ast->firstSourceLocation();
+        QHash<QPair<int, int>, DebugIdList>::const_iterator it = ids.constFind(qMakePair<int, int>(loc.startLine, loc.startColumn));
+        if (it != ids.constEnd())
+            result[ast].append(*it);
     }
 }
 
@@ -314,10 +272,13 @@ void QmlJSLiveTextPreview::updateDebugIds()
     if (!clientProxy)
         return;
 
-    { // Map all the object that comes from the document as it has been loaded by the server.
+    DebugIdHash::const_iterator it = clientProxy->debugIdHash().constFind(qMakePair<QString, int>(m_initialDoc->fileName(), 0));
+    if (it != clientProxy->debugIdHash().constEnd()) {
+        // Map all the object that comes from the document as it has been loaded by the server.
         const QmlJS::Document::Ptr &doc = m_initialDoc;
+
         MapObjectWithDebugReference visitor;
-        visitor.root = clientProxy->rootObjectReference();
+        visitor.ids = (*it);
         visitor.filename = doc->fileName();
         doc->qmlProgram()->accept(&visitor);
 
@@ -347,11 +308,16 @@ void QmlJSLiveTextPreview::updateDebugIds()
         it != m_createdObjects.constEnd(); ++it) {
 
         const QmlJS::Document::Ptr &doc = it.key();
+
+        DebugIdHash::const_iterator id_it = clientProxy->debugIdHash().constFind(
+            qMakePair<QString, int>(doc->fileName(), doc->editorRevision()));
+        if (id_it == clientProxy->debugIdHash().constEnd())
+            continue;
+
         MapObjectWithDebugReference visitor;
-        visitor.root = clientProxy->rootObjectReference();
+        visitor.ids = *id_it;
         visitor.filename = doc->fileName();
         visitor.lookupObjects = it.value();
-        visitor.doc = doc;
         doc->qmlProgram()->accept(&visitor);
 
         Delta::DebugIdMap debugIds = visitor.result;
