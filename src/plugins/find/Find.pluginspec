@@ -1,4 +1,4 @@
-<plugin name="Find" version="2.1.80" compatVersion="2.1.80">
+<plugin name="Find" version="2.0.90" compatVersion="2.0.90">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2010 Nokia Corporation</copyright>
     <license>
@@ -14,6 +14,6 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <description>Provides the find widget and the hooks for find implementations.</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="Core" version="2.1.80"/>
+        <dependency name="Core" version="2.0.90"/>
     </dependencyList>
 </plugin>

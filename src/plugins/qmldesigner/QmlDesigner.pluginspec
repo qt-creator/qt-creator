@@ -1,4 +1,4 @@
-<plugin name="QmlDesigner" version="2.1.80" compatVersion="2.1.80" experimental="true">
+<plugin name="QmlDesigner" version="2.0.90" compatVersion="2.0.90" experimental="true">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2010 Nokia Corporation</copyright>
     <license>
@@ -20,8 +20,8 @@ will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
     <description>Visual Designer for QML files.</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="Core" version="2.1.80"/>
-        <dependency name="TextEditor" version="2.1.80"/>
-        <dependency name="QmlJSEditor" version="2.1.80"/>
+        <dependency name="Core" version="2.0.90"/>
+        <dependency name="TextEditor" version="2.0.90"/>
+        <dependency name="QmlJSEditor" version="2.0.90"/>
     </dependencyList>
 </plugin>
