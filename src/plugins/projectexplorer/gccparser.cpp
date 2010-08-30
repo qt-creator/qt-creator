@@ -574,6 +574,16 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                         Constants::TASK_CATEGORY_COMPILE))
             << QString();
 
+    QTest::newRow("QTCREATORBUG-2206")
+            << QString::fromLatin1("../../../src/XmlUg/targetdelete.c: At top level:")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << ( QList<ProjectExplorer::Task>()
+                 << Task(Task::Unknown,
+                         QLatin1String("At top level:"),
+                         QLatin1String("../../../src/XmlUg/targetdelete.c"), -1,
+                         Constants::TASK_CATEGORY_COMPILE))
+            << QString();
 }
 
 void ProjectExplorerPlugin::testGccOutputParsers()

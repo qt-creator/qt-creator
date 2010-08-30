@@ -97,6 +97,7 @@ void LdParser::stdError(const QString &line)
                   Constants::TASK_CATEGORY_COMPILE);
         if (m_regExpInFunction.indexIn(description) > -1 ||
             description.startsWith(QLatin1String("At global scope")) ||
+            description.startsWith(QLatin1String("At top level")) ||
             description.startsWith(QLatin1String("instantiated from ")) ||
             description.startsWith(QLatin1String("In ")))
             task.type = Task::Unknown;
