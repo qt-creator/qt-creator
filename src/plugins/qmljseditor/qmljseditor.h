@@ -114,6 +114,8 @@ public: // attributes
     QTextCursor end;
 };
 
+class SemanticHighlighter;
+
 class SemanticInfo
 {
 public:
@@ -145,8 +147,9 @@ public: // attributes
     QList<QmlJS::DiagnosticMessage> semanticMessages;
 
 private:
-    // created lazily
-    mutable QSharedPointer<const QmlJS::Interpreter::Context> m_context;
+    QSharedPointer<const QmlJS::Interpreter::Context> m_context;
+
+    friend class SemanticHighlighter;
 };
 
 class SemanticHighlighter: public QThread

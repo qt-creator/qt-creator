@@ -556,13 +556,6 @@ QList<AST::Node *> SemanticInfo::astPath(int cursorPosition) const
 
 LookupContext::Ptr SemanticInfo::lookupContext(const QList<QmlJS::AST::Node *> &path) const
 {
-    // create and link context if necessary
-    if (!m_context) {
-        Interpreter::Context *ctx = new Interpreter::Context;
-        Link link(ctx, document, snapshot, ModelManagerInterface::instance()->importPaths());
-        m_context = QSharedPointer<const QmlJS::Interpreter::Context>(ctx);
-    }
-
     return LookupContext::create(document, snapshot, *m_context, path);
 }
 
@@ -1895,6 +1888,10 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     SemanticInfo semanticInfo;
     semanticInfo.snapshot = snapshot;
     semanticInfo.document = doc;
+
+    Interpreter::Context *ctx = new Interpreter::Context;
+    Link link(ctx, doc, snapshot, ModelManagerInterface::instance()->importPaths());
+    semanticInfo.m_context = QSharedPointer<const QmlJS::Interpreter::Context>(ctx);
 
     QStringList importPaths;
     if (m_modelManager)
