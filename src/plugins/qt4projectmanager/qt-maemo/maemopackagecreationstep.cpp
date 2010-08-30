@@ -297,7 +297,8 @@ bool MaemoPackageCreationStep::runCommand(QProcess *buildProc,
 void MaemoPackageCreationStep::handleBuildOutput()
 {
     QProcess * const buildProc = qobject_cast<QProcess *>(sender());
-    Q_ASSERT(buildProc);
+    if (!buildProc)
+        return;
     const QByteArray &stdOut = buildProc->readAllStandardOutput();
     if (!stdOut.isEmpty())
         emit addOutput(QString::fromLocal8Bit(stdOut), BuildStep::NormalOutput);
