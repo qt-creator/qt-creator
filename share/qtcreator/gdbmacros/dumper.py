@@ -863,11 +863,18 @@ class Item:
 #
 #######################################################################
 
-# This is a mapping from 'type name' to 'display alternatives'.
-
+# This is a cache mapping from 'type name' to 'display alternatives'.
 qqFormats = {}
+
+# This is a cache of all known dumpers.
 qqDumpers = {}
+
+# This is a cache of the namespace of the currently used Qt version.
+# FIXME: This is not available on 'bbsetup' time, only at 'bb' time.
 qqNs = ""
+
+# This is a cache of typenames->bool saying whether we are QObject
+# derived.
 qqQObjectCache = {}
 
 
