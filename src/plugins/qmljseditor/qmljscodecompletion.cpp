@@ -681,6 +681,9 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     const QmlJS::Snapshot snapshot = semanticInfo.snapshot;
     const Document::Ptr document = semanticInfo.document;
 
+    if (!document)
+        return -1;
+
     const QFileInfo currentFileInfo(fileName);
 
     bool isQmlFile = false;
