@@ -1492,10 +1492,12 @@ void TrkGdbAdapter::startAdapter()
     m_remoteExecutable = parameters.executable;
     m_remoteArguments = parameters.processArgs;
     m_symbolFile = parameters.symbolFileName;
+    QString remoteChannel = parameters.remoteChannel;
     // FIXME: testing hack, remove!
-    if (parameters.processArgs.size() == 3 && parameters.processArgs.at(0) == _("@sym@")) {
-        m_remoteExecutable = parameters.processArgs.at(1);
-        m_symbolFile = parameters.processArgs.at(2);
+    if (parameters.processArgs.size() >= 4 && parameters.processArgs.at(0) == _("@sym@")) {
+        remoteChannel = parameters.processArgs.at(1);
+        m_remoteExecutable = parameters.processArgs.at(2);
+        m_symbolFile = parameters.processArgs.at(3);
         m_remoteArguments.clear();
     }
     // Unixish gdbs accept only forward slashes
@@ -1507,7 +1509,7 @@ void TrkGdbAdapter::startAdapter()
 
     // Prompt the user to start communication
     QString message;
-    if (!initializeDevice(parameters.remoteChannel, &message)) {
+    if (!initializeDevice(remoteChannel, &message)) {
         if (message.isEmpty()) {
             m_engine->handleAdapterStartFailed(QString(), QString());
         } else {
