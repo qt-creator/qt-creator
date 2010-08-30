@@ -703,7 +703,9 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     connect(m_semanticRehighlightTimer, SIGNAL(timeout()), this, SLOT(forceSemanticRehighlight()));
 
     connect(this, SIGNAL(textChanged()), this, SLOT(updateDocument()));
+
     connect(this, SIGNAL(textChanged()), this, SLOT(updateUses()));
+    connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateUses()));
 
     m_updateOutlineTimer = new QTimer(this);
     m_updateOutlineTimer->setInterval(UPDATE_OUTLINE_INTERVAL);
