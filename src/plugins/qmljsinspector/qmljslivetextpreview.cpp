@@ -555,12 +555,6 @@ void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
     if (!core->hasContext(dbgcontext))
         return;
 
-    if (ProjectExplorer::Project *debugProject = InspectorUi::instance()->debugProject()) {
-        QStringList files = debugProject->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
-        if (!files.contains(doc->fileName()))
-            return;
-    }
-
     bool experimentalWarningShown = false;
 
     if (m_applyChangesToQmlObserver) {
