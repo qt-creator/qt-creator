@@ -196,6 +196,7 @@ void BuildConfiguration::cloneSteps(BuildConfiguration *source)
     m_stepLists.clear();
     foreach (BuildStepList *bsl, source->m_stepLists) {
         BuildStepList *newBsl = new BuildStepList(this, bsl);
+        newBsl->cloneSteps(bsl);
         m_stepLists.append(newBsl);
     }
 }

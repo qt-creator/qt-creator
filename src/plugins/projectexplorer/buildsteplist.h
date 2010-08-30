@@ -65,6 +65,7 @@ public:
     Target *target() const;
 
     virtual QVariantMap toMap() const;
+    void cloneSteps(BuildStepList *source);
 
 signals:
     void stepInserted(int position);
@@ -73,8 +74,6 @@ signals:
     void stepMoved(int from, int to);
 
 protected:
-    void cloneSteps(BuildStepList *source);
-
     virtual bool fromMap(const QVariantMap &map);
 
 private:

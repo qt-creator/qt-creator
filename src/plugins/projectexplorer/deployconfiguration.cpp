@@ -129,6 +129,7 @@ void DeployConfiguration::cloneSteps(DeployConfiguration *source)
         return;
     delete m_stepList;
     m_stepList = new BuildStepList(this, source->stepList());
+    m_stepList->cloneSteps(source->stepList());
 }
 
 ///
