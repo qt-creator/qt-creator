@@ -352,7 +352,7 @@ bool MiniTargetWidget::hasBuildConfiguration() const
 }
 
 MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorAction, QWidget *parent) :
-    QWidget(parent), m_projectAction(targetSelectorAction)
+    QWidget(parent), m_projectAction(targetSelectorAction), m_ignoreIndexChange(false)
 {
     setProperty("panelwidget", true);
     setContentsMargins(QMargins(0, 1, 1, 8));
@@ -471,9 +471,14 @@ void MiniProjectTargetSelector::removeProject(ProjectExplorer::Project* project)
     if (index < 0)
         return;
     ProjectListWidget *plw = qobject_cast<ProjectListWidget*>(m_widgetStack->widget(index));
+
+    // We don't want to emit a startUpProject changed, even if we remove the current startup project
+    // The ProjectExplorer takes care of setting a new startup project.
+    m_ignoreIndexChange = true;
     m_projectsBox->removeItem(index);
     m_projectsBox->setEnabled(m_projectsBox->count() > 1);
     delete plw;
+    m_ignoreIndexChange = false;
 }
 
 void MiniProjectTargetSelector::addTarget(ProjectExplorer::Target *target, bool activeTarget)
@@ -617,6 +622,8 @@ int MiniProjectTargetSelector::indexFor(ProjectExplorer::Project *project) const
 
 void MiniProjectTargetSelector::emitStartupProjectChanged(int index)
 {
+    if (m_ignoreIndexChange)
+        return;
     Project *project = m_projectsBox->itemData(index).value<Project*>();
     QTC_ASSERT(project, return;)
     emit startupProjectChanged(project);

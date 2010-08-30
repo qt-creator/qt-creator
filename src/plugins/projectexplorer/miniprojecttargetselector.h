@@ -137,6 +137,7 @@ private:
     QAction *m_projectAction;
     QComboBox *m_projectsBox;
     QStackedWidget *m_widgetStack;
+    bool m_ignoreIndexChange;
 };
 
 } // namespace Internal
