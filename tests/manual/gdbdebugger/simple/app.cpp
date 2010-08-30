@@ -1811,6 +1811,21 @@ FooVector fooVector()
 namespace ns {
     typedef unsigned long long vl;
     typedef vl verylong;
+}
+
+void testTypedef()
+{
+    typedef quint32 myType1;
+    typedef unsigned int myType2;
+    myType1 t1 = 0;
+    myType2 t2 = 0;
+    ns::vl j = 1000;
+    ns::verylong k = 1000;
+
+    ++j;
+    ++k;
+    ++t1;
+    ++t2;
 };
 
 void testStuff()
@@ -1843,12 +1858,6 @@ void testStuff()
     str[0] = 'A';
     str[0] = 'A';
     str[0] = 'A';
-    /*
-    ns::vl j = 1000;
-    ns::verylong k = 1000;
-    ++j;
-    ++k;
-    */
 }
 
 void testPassByReferenceHelper(Foo &f)
@@ -1922,6 +1931,7 @@ int main(int argc, char *argv[])
     testQLocale();
     testColor();
     testQRegion();
+    testTypedef();
     testStuff();
     testPeekAndPoke3();
     testFunctionPointer();
