@@ -251,7 +251,7 @@ bool MaemoTemplatesManager::adaptControlFile(const Project *project)
             buildDependsNewlineOffset = controlContents.length() - 1;
         }
         controlContents.insert(buildDependsNewlineOffset,
-            ", libqt4-dev (>= 4.6.2)");
+            ", libqt4-dev");
     }
 
     controlFile.resize(0);
