@@ -256,7 +256,8 @@ public:
         bool isAttachedProperty = false;
         if (! propertyName.isEmpty() && propertyName[0].isUpper()) {
             isAttachedProperty = true;
-            scopeObjects += m_context->scopeChain().qmlTypes;
+            if (const Interpreter::ObjectValue *qmlTypes = m_context->scopeChain().qmlTypes)
+                scopeObjects += qmlTypes;
         }
 
         if (scopeObjects.isEmpty())

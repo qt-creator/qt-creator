@@ -730,7 +730,8 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             m_completions.append(idPropertyCompletion);
 
             addCompletionsPropertyLhs(enumerateProperties(qmlScopeType), symbolIcon, PropertyOrder);
-            addCompletions(enumerateProperties(context->scopeChain().qmlTypes), symbolIcon, TypeOrder);
+            if (const Interpreter::ObjectValue *qmlTypes = context->scopeChain().qmlTypes)
+                addCompletions(enumerateProperties(qmlTypes), symbolIcon, TypeOrder);
 
             if (ScopeBuilder::isPropertyChangesObject(context, qmlScopeType)
                     && context->scopeChain().qmlScopeObjects.size() == 2) {

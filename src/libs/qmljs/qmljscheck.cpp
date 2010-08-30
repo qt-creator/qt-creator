@@ -309,7 +309,8 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
     bool isAttachedProperty = false;
     if (! propertyName.isEmpty() && propertyName[0].isUpper()) {
         isAttachedProperty = true;
-        scopeObjects += _context.scopeChain().qmlTypes;
+        if (const ObjectValue *qmlTypes = _context.scopeChain().qmlTypes)
+            scopeObjects += qmlTypes;
     }
 
     if (scopeObjects.isEmpty())
