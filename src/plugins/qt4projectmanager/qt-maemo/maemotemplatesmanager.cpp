@@ -204,13 +204,13 @@ bool MaemoTemplatesManager::adaptRulesFile(const Project *project)
     rulesContents.replace("DESTDIR", "INSTALL_ROOT");
     rulesContents.replace("dh_shlibdeps", "# dh_shlibdeps");
     rulesContents.replace("dh_strip", "# dh_strip");
-    rulesContents.replace("$(MAKE) clean", "# $(MAKE) clean");
-    const Qt4Project * const qt4Project
-        = static_cast<const Qt4Project *>(project);
-    const QString proFileName
-        = QFileInfo(qt4Project->rootProjectNode()->path()).fileName();
-    rulesContents.replace("# Add here commands to configure the package.",
-        "qmake " + proFileName.toLocal8Bit());
+//    rulesContents.replace("$(MAKE) clean", "# $(MAKE) clean");
+//    const Qt4Project * const qt4Project
+//        = static_cast<const Qt4Project *>(project);
+//    const QString proFileName
+//        = QFileInfo(qt4Project->rootProjectNode()->path()).fileName();
+//    rulesContents.replace("# Add here commands to configure the package.",
+//        "qmake " + proFileName.toLocal8Bit());
 
     // Would be the right solution, but does not work (on Windows),
     // because dpkg-genchanges doesn't know about it (and can't be told).
