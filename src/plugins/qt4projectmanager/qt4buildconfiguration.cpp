@@ -478,7 +478,11 @@ bool Qt4BuildConfiguration::compareToImportFrom(const QString &workingDirectory)
                         && (parsedSpec == version->mkspec() || parsedSpec == "default" || parsedSpec.isEmpty()))
                         return true;
                 }
+            } else if (debug) {
+                qDebug()<<"different qmake buildconfigurations buildconfiguration:"<<qmakeBuildConfiguration()<<" Makefile:"<<result.first;
             }
+        } else if (debug) {
+            qDebug()<<"diffrent qt versions, buildconfiguration:"<<version->qmakeCommand()<<" Makefile:"<<qmakePath;
         }
     }
     return false;
