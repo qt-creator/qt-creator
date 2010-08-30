@@ -81,7 +81,7 @@
        \endlist
        \o \l{Building and Running Applications}
             \list
-                \o \l{Building for Multiple Targets}
+                \o \l{Building for and Running on Multiple Targets}
                 \o \l{Specifying Build Settings}
                 \o \l{Specifying Run Settings}
                 \o \l{Specifying Editor Settings}
@@ -1553,7 +1553,7 @@
     .pro.user, and object files. Other approaches are possible,
     but we recommend that you do not use network resources, for example.
 
-    Qt Creator allows you to specify separate \l{Building for Multiple Targets} {build settings}
+    Qt Creator allows you to specify separate \l{Building for and Running on Multiple Targets} {build settings}
     for each development platform. By default, \l{glossary-shadow-build}{shadow builds} are used to
     keep the build specific files separate from the source.
 
@@ -2143,7 +2143,7 @@
 
     The project pane consists of the following tabs:
     \list
-       \o \l{Building for Multiple Targets}{Targets}
+       \o \l{Building for and Running on Multiple Targets}{Targets}
        \note If you have installed only one tool chain, the \gui Targets
        tab is replaced by a \gui {Build and Run} tab.
        \o \l{Specifying Editor Settings}{Editor Settings}
@@ -2166,13 +2166,16 @@
     \page creator-building-targets.html
     \nextpage creator-build-settings.html
 
-    \title Building for Multiple Targets
+    \title Building for and Running on Multiple Targets
 
-    Different build configurations allow you to quickly switch between
-    different build settings. By default, Qt Creator creates \bold debug
-    and \bold release build configurations.
+    You can build your application for multiple targets and run and debug it
+    on the desktop and mobile devices. When you run the application on the
+    \gui{Maemo} or \gui {Symbian Devices} target, Qt Creator copies the necessary
+    files to the device that is connected to the deveopment PC. In addition, Qt
+    Creator generates an installation package in the build directory. You can
+    specify settings for deploying the files and creating the installation package.
 
-    \section1 Building for Desktop
+    \section1 Building for and Running on Desktop
 
     \list 1
 
@@ -2182,7 +2185,7 @@
 
     \endlist
 
-    \section1 Building for Qt Simulator
+    \section1 Building for and Running on Qt Simulator
 
     You can use the Qt Simulator to test Qt applications that are intended
     for mobile devices in an environment similar to that of the device. You
@@ -2200,11 +2203,11 @@
     For more information about using the Qt Simulator, see the
     \l{http://doc.qt.nokia.com/qt-simulator-beta/index.html}{Qt Simulator Manual}.
 
-    \section1 Building for Maemo
+    \section1 Building for and Running on Maemo
 
     \list 1
 
-        \o Build and run the application for \l{Building for Qt Simulator}{Qt Simulator}.
+        \o Build and run the application for \l{Building for and Running on Qt Simulator}{Qt Simulator}.
 
         \o Build and run the application for \l{Using the Maemo Emulator}{Maemo Emulator}.
 
@@ -2233,38 +2236,17 @@
         Command-line
         output is visible in the Qt Creator \gui {Application Output} view.
 
+        Choose \gui {Projects > Maemo Run} to view the settings for deploying the
+        application on the connected device and creating the installation package.
+        For more information, see \l{Specifying Run Settings for Maemo Devices}.
+
         Debugging also works transparently.
 
-        \section2 Creating Installation Packages
-
-        When you build the application for the \gui{Maemo} target, Qt
-        Creator generates a debian installation package
-        in the project folder by default. You can deliver the installation package to
-        users for installation on Maemo devices.
-
-        The name of the installation package is displayed in the \gui {Create Package}
-        field. You can change the version number in the \gui {Version number} field.
-
-        When you test your application on a device or the Maemo emulator, you can
-        save some time by installing the built files directly on the connected device
-        without packaging. Select the \gui {Skip packaging step} check box in the
-        \gui {Create Package} step in the \gui {Build Settings}.
-
-        You can add other files to the installed files in the
-        \gui {Create Package} step, the \gui {Package contents} field. In
-        \gui {Local File Path},
-        specify the location of the file on the development PC. In
-        \gui {Remote File Path}, specify the folder to install the file on
-        the device.
-
-        \image qtcreator-maemo-deb-package.png "Create installation package"
-
-
-    \section1 Building for Symbian
+    \section1 Building for and Running on Symbian
 
     \list 1
 
-        \o Build and run the application for \l{Building for Qt Simulator}{Qt Simulator}.
+        \o Build and run the application for \l{Building for and Running on Qt Simulator}{Qt Simulator}.
 
         \o If no problems are found, build and run the application for a device.
 
@@ -2304,102 +2286,14 @@
     In the details of the run configuration for the \gui{Symbian Device} target,
     select the device to run your application on.
 
-    \section3 Creating Installation Packages
-
     When you build the application for the \gui{Symbian Device} target, Qt
     Creator automatically generates a Symbian installation system (SIS) file
     in the project folder. You can deliver the installation file to users for
     installation on Symbian devices.
 
-    Only installation files signed with a certificate and private key are
-    allowed to be installed onto Symbian devices. By default, Qt Creator
-    self-signs the installation file. This self-signing allows you to install
-    the application on a mobile  device but places limits on what you can do
-    with the installation file, including:
-    \list
-       \o  Self-signed applications cannot access the more sensitive
-           \l{Capabilities and Signing}{capabilities} of the mobile device.
-       \o  Security warnings will be displayed when you install the self-signed
-           application on a mobile device.
-       \o  Self-signed applications cannot be distributed commercially on Ovi
-           Store.
-    \endlist
-
-    To get around these limitations, you need to go through the Symbian Signed
-    process. The Symbian Signed organisation manages a public key
-    infrastructure to provide public authentication of the information in the
-    application signing certificates. Their security partner can validate your
-    certificate and give you a Publisher ID. Then, when you sign an
-    application, other people can be confident that the information in your
-    certificate is correct and that the application does actually come from you.
-
-    There are also options that do not require you to get a Publisher ID. For
-    more detail about how the Symbian Signed process works, see
-    \l{http://developer.symbian.org/wiki/index.php/Complete_Guide_To_Symbian_Signed}
-    {Complete Guide to Symbian Signed}.
-
-    When you have your own certificate and private key, you can specify them in
-    the \gui{Create SIS Package} step in your build configuration.
-
-    \image qtcreator-qt4-symbian-signing.png
-
-    \section3 Capabilities and Signing
-
-    Capabilities allow the Symbian platform to control access by applications to
-    the functionality provided by the platform APIs. Access to capabilities is
-    determined by the device configuration and how the application has been signed.
-
-    Symbian Signed offers the following signing options depending on the
-    capabilities that the application accesses:
-
-    \list
-
-        \o \bold{Express signed} for applications that access only user and system
-        capabilities.
-
-        \o \bold{Certified signed} for applications that access also restricted or
-        device manufacturer capabilities.
-
-        \note You need to request the rights to access device manufacturer
-        capabilities from the manufacturer.
-
-    \endlist
-
-    For more information about how to choose the appropriate signing option, see
-    \l{http://developer.symbian.org/wiki/index.php/Symbian_Signed_For_Distributing_Your_Application}{Symbian Signed For Distributing Your Application}.
-
-    If you select a signing option that does not allow the application to access
-    the defined capabilities, installing the application on mobile devices
-    fails. To avoid problems, only define capabilities and link libraries to a project
-    if you really need them.
-
-    For more information about capabilities and how you can check which ones you
-    need, see
-    \l{http://developer.symbian.org/wiki/index.php/Capabilities_(Symbian_Signed)}{Capabilities (Symbian Signed)}
-    and
-    \l{http://doc.qt.nokia.com/4.7-snapshot/platform-notes-symbian.html#required-capabilities}{Required Capabilities for Qt Applications}.
-
-    For more information on how to define capabilities for a project, see
-    \l{http://doc.qt.nokia.com/4.7-snapshot/qmake-platform-notes.html#capabilities}{Capabilities}.
-
-    \section3 Application UID
-
-    A UID is a globally unique identifier that is used to
-    uniquely identify, for example, an object or file type. In Symbian development,
-    objects are identified by compound identifiers that are constructed from three
-    UIDs, namely UID1, UID2, and UID3. UID1 and UID2 specify the category of an
-    object, whereas UID3 identifies a particular object, such as an application.
-
-    When you create a \gui {Mobile Qt Application}, Qt Creator adds a UID3 suitable for
-    development and debugging automatically to the application .pro file. However, to
-    distribute your application and get it Symbian signed, you must apply for a UID
-    from Symbian, who manages the allocation of UIDs. You can request UIDs either one
-    at a time or as preallocated blocks on the \l{https://www.symbiansigned.com/app/page}{Symbian Signed}
-    web site.
-
-    Replace the testing UID with the distribution UID in the .pro file before you
-    build the final installation package. For more information, see
-    \l{http://doc.qt.nokia.com/4.7-snapshot/qmake-platform-notes.html#unique-identifiers}{Unique Identifiers}.
+    When your application is ready for delivery to users, specify run settings
+    for creating the final SIS installation packages. For more information,
+    see \l{Creating SIS Installation Packages}.
 
     \section2 Building and Running for Symbian Emulator
 
@@ -2505,6 +2399,10 @@
     \nextpage creator-run-settings.html
 
     \title Specifying Build Settings
+
+    Different build configurations allow you to quickly switch between
+    different build settings. By default, Qt Creator creates \bold debug
+    and \bold release build configurations.
 
     You specify build settings in the \gui Projects mode.
 
@@ -2635,6 +2533,138 @@
 
     \image qtcreator-symbian-run-settings.png "Run settings for Symbian devices"
 
+    \section3 Creating SIS Installation Packages
+
+    When you build the application for the \gui{Symbian Device} target, Qt
+    Creator automatically generates a Symbian installation system (SIS) file
+    in the project folder. You can deliver the installation file to users for
+    installation on Symbian devices.
+
+    The name of the installation file is displayed in the \gui {Installation file}
+    field. In the \gui {Installation drive} field, select the drive on the device
+    to install the application to. To suppress notifications on the device during the
+    installation, select the \gui {Silent installation} check box. If the silent
+    installation fails, Qt Creator attempts installation again, this time displaying
+    notifications and error messages.
+
+    Only installation files signed with a certificate and private key are
+    allowed to be installed onto Symbian devices. By default, Qt Creator
+    self-signs the installation file. This self-signing allows you to install
+    the application on a mobile  device but places limits on what you can do
+    with the installation file, including:
+    \list
+       \o  Self-signed applications cannot access the more sensitive
+           \l{Capabilities and Signing}{capabilities} of the mobile device.
+       \o  Security warnings will be displayed when you install the self-signed
+           application on a mobile device.
+       \o  Self-signed applications cannot be distributed commercially on Ovi
+           Store.
+    \endlist
+
+    To get around these limitations, you need to go through the Symbian Signed
+    process. The Symbian Signed organisation manages a public key
+    infrastructure to provide public authentication of the information in the
+    application signing certificates. Their security partner can validate your
+    certificate and give you a Publisher ID. Then, when you sign an
+    application, other people can be confident that the information in your
+    certificate is correct and that the application does actually come from you.
+
+    There are also options that do not require you to get a Publisher ID. For
+    more detail about how the Symbian Signed process works, see
+    \l{http://developer.symbian.org/wiki/index.php/Complete_Guide_To_Symbian_Signed}
+    {Complete Guide to Symbian Signed}.
+
+    When you have your own certificate and private key, you can specify them in
+    the \gui{Create SIS Package} step in the run settings.
+
+    \image qtcreator-qt4-symbian-signing.png
+
+
+    If your private key is protected by a passphrase, Qt Creator asks you for the
+    passphrase when the package is signed and offers to store it. However, storing
+    passphrases in Qt Creator presents a security risk. To make Qt Creator forget
+    all saved passphrases, click \gui {Reset Passphrases}.
+
+    \section3 Capabilities and Signing
+
+    Capabilities allow the Symbian platform to control access by applications to
+    the functionality provided by the platform APIs. Access to capabilities is
+    determined by the device configuration and how the application has been signed.
+
+    Symbian Signed offers the following signing options depending on the
+    capabilities that the application accesses:
+
+    \list
+
+        \o \bold{Express signed} for applications that access only user and system
+        capabilities.
+
+        \o \bold{Certified signed} for applications that access also restricted or
+        device manufacturer capabilities.
+
+        \note You need to request the rights to access device manufacturer
+        capabilities from the manufacturer.
+
+    \endlist
+
+    For more information about how to choose the appropriate signing option, see
+    \l{http://developer.symbian.org/wiki/index.php/Symbian_Signed_For_Distributing_Your_Application}{Symbian Signed For Distributing Your Application}.
+
+    If you select a signing option that does not allow the application to access
+    the defined capabilities, installing the application on mobile devices
+    fails. To avoid problems, only define capabilities and link libraries to a project
+    if you really need them.
+
+    For more information about capabilities and how you can check which ones you
+    need, see
+    \l{http://developer.symbian.org/wiki/index.php/Capabilities_(Symbian_Signed)}{Capabilities (Symbian Signed)}
+    and
+    \l{http://doc.qt.nokia.com/4.7-snapshot/platform-notes-symbian.html#required-capabilities}{Required Capabilities for Qt Applications}.
+
+    For more information on how to define capabilities for a project, see
+    \l{http://doc.qt.nokia.com/4.7-snapshot/qmake-platform-notes.html#capabilities}{Capabilities}.
+
+    \section3 Creating Smart Installer for Symbian Packages
+
+    To deploy Qt applications on Symbian devices, you must install the software that Qt applications
+    require, typically Qt, QtWebkit, and Open C. Nokia Smart Installer for Symbian makes it easier
+    for users to install Qt applications to Symbian phones by checking whether the device contains
+    the necessary software and by installing the missing pieces.
+
+    For this to work, the Nokia Smart Installer must be packaged with the Qt application. The
+    application SIS file must first be Symbian Signed. The capabilities used in the applications
+    determine, which signing option must be selected. The wrapper package must be signed using
+    either the same option or a more extensive option than the application SIS.
+
+    To package Nokia Smart Installer with the application, select the \gui {Create Smart Installer
+    package} check box. This ensures that up-to-date and appropriate versions of Qt and its
+    dependencies are installed on devices. Further, it reduces the file size of the application you
+    publish, because you do not have to deliver the required applications.
+
+    For more information about the Nokia Smart Installer, see the \e {Nokia Smart Installer for
+    Symbian Manual}.
+
+    Note: Nokia Smart Installer for Symbian is only available on Windows.
+
+    \section3 Application UID
+
+    A UID is a globally unique identifier that is used to
+    uniquely identify, for example, an object or file type. In Symbian development,
+    objects are identified by compound identifiers that are constructed from three
+    UIDs, namely UID1, UID2, and UID3. UID1 and UID2 specify the category of an
+    object, whereas UID3 identifies a particular object, such as an application.
+
+    When you create a \gui {Mobile Qt Application}, Qt Creator adds a UID3 suitable for
+    development and debugging automatically to the application .pro file. However, to
+    distribute your application and get it Symbian signed, you must apply for a UID
+    from Symbian Signed, which manages the allocation of UIDs. You can request UIDs either one
+    at a time or as preallocated blocks on the \l{https://www.symbiansigned.com/app/page}{Symbian Signed}
+    web site.
+
+    Replace the testing UID with the distribution UID in the .pro file before you
+    build the final installation package. For more information, see
+    \l{http://doc.qt.nokia.com/4.7-snapshot/qmake-platform-notes.html#unique-identifiers}{Unique Identifiers}.
+
     \section2 Specifying Run Settings for Maemo Devices
 
     To run an application on a Maemo device, create and select
@@ -2642,6 +2672,53 @@
     You can also pass command line arguments to your application.
 
     \image qtcreator-screenshot-run-settings.png "Run settings for Maemo devices"
+
+    \section3 Deploying Applications to Maemo Devices
+
+    You can specify settings for deploying applications to Maemo devices in the
+    project .pro file. You can view the settings in the \gui {Run Settings}.
+
+    When you test your application on a device or the Maemo emulator, you can
+    save some time by installing the built files directly on the connected device
+    without packaging. Select the \gui {Skip packaging step} check box in the
+    \gui {Create Package} step. However, this is not recommended and is only supported
+    for simple application projects.
+
+    The files to be installed are listed in the
+    \gui {Deploy to Device} step, the \gui {Files to install} field. The
+    \gui {Local File Path} field displays the location of the file on the development
+    PC. The \gui {Remote Directory} field displays the folder where the file is installed on
+    the device.
+
+    \image qtcreator-maemo-deployment.png "Deploy to device"
+
+    If you develop your own libraries, Qt Creator needs to be able to access them
+    during compilation. When you install MADDE, an instance of the device file
+    system, called sysroot, is installed to the development PC. Libraries are copied to
+    sysroot if the \gui {Also deploy to sysroot} check box is selected.
+
+    \section3 Creating Debian Installation Packages
+
+    When you run the application on the \gui{Maemo} target, Qt Creator generates
+    a debian installation package in the build directory by default. You can deliver
+    the installation package to users for installation on Maemo devices that are of
+    the same type and run the same firmware as the connected device.
+
+    \image qtcreator-maemo-deb-package.png "Create installation package"
+
+    The name of the installation package is displayed in the \gui {Create Package}
+    field in the \gui {Run Settings}. You can change the version number in the \gui {Version number} field.
+
+    Qt Creator provides templates for a set of files that must be included
+    in debian packages. To edit the files, select a file in \gui {Adapt debian
+    file} and click \gui Edit. The file opens in the text editor.
+
+    The debian control file contains an application icon in encoded form. To add the
+    application icon to the file, select it in the \gui {Package manager icon} field.
+    For more information about icon files and adding them manually, see
+    \l{ http://wiki.maemo.org/Packaging#Displaying_an_icon_in_the_Application_Manager_next_to_your_package}{Displaying an icon in the Application Manager next to your package}.
+
+    \note Qt Creator automates this process for you.
 
     \section1 Specifying a Custom Executable to Run
 
