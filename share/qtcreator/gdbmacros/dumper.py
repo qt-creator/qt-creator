@@ -1419,63 +1419,71 @@ class Dumper:
             else:
                 qqDumpers[nsStrippedType](self, item)
             #warn(" RESULT: %s " % self.output)
+            return
 
-        elif typedefStrippedType.code == gdb.TYPE_CODE_PTR:
+        if typedefStrippedType.code == gdb.TYPE_CODE_PTR:
             #warn("POINTER: %s" % format)
-            isHandled = False
             target = stripTypedefs(type.target())
 
-            if (not isHandled) and isNull(value):
+            if isNull(value):
                 #warn("NULL POINTER")
                 self.putType(item.value.type)
                 self.putValue("0x0")
                 self.putNumChild(0)
-                isHandled = True
+                return
 
-            if (not isHandled) and target.code == gdb.TYPE_CODE_VOID:
+            if target.code == gdb.TYPE_CODE_VOID:
                 #warn("VOID POINTER: %s" % format)
                 self.putType(item.value.type)
                 self.putValue(str(value))
                 self.putNumChild(0)
-                isHandled = True
+                return
 
-            if (not isHandled) and (not format is None):
-                #warn("SPECIAL FORMAT POINTER: %s" % format)
+            if format == 0:
+                # Explicitly requested bald pointer.
                 self.putAddress(value.address)
                 self.putType(item.value.type)
-                isHandled = True
-                if format == 0:
-                    # Bald pointer.
-                    self.putPointerValue(value.address)
-                    self.putNumChild(1)
-                elif format == 1 or format == 2:
-                    # Latin1 or UTF-8
-                    f = select(format == 1, Hex2EncodedLatin1, Hex2EncodedUtf8)
-                    self.putValue(encodeCharArray(value, 100), f)
-                    self.putNumChild(0)
-                elif format == 3:
-                    # UTF-16.
-                    self.putValue(encodeChar2Array(value, 100), Hex4EncodedBigEndian)
-                    self.putNumChild(0)
-                elif format == 4:
-                    # UCS-4:
-                    self.putValue(encodeChar4Array(value, 100), Hex8EncodedBigEndian)
-                    self.putNumChild(0)
+                self.putPointerValue(value.address)
+                self.putNumChild(1)
+                return
 
-            if (not isHandled) and (str(typedefStrippedType)
+            if format == 1 or format == 2:
+                # Explicityly requested Latin1 or UTF-8 formatting.
+                f = select(format == 1, Hex2EncodedLatin1, Hex2EncodedUtf8)
+                self.putAddress(value.address)
+                self.putType(item.value.type)
+                self.putValue(encodeCharArray(value, 100), f)
+                self.putNumChild(0)
+                return
+
+            if format == 3:
+                # Explitly requested UTF-16 formatting.
+                self.putAddress(value.address)
+                self.putType(item.value.type)
+                self.putValue(encodeChar2Array(value, 100), Hex4EncodedBigEndian)
+                self.putNumChild(0)
+                return
+
+            if format == 4:
+                # Explitly requested UCS-4 formatting.
+                self.putAddress(value.address)
+                self.putType(item.value.type)
+                self.putValue(encodeChar4Array(value, 100), Hex8EncodedBigEndian)
+                self.putNumChild(0)
+                return
+
+            if (str(typedefStrippedType)
                     .replace("(anonymous namespace)", "").find("(") != -1):
-                    # A function pointer.
-                    self.putValue(str(item.value))
-                    self.putAddress(value.address)
-                    self.putType(item.value.type)
-                    self.putNumChild(0)
-                    isHandled = True
+                # A function pointer with format None.
+                self.putValue(str(item.value))
+                self.putAddress(value.address)
+                self.putType(item.value.type)
+                self.putNumChild(0)
+                return
 
             #warn("AUTODEREF: %s" % self.autoDerefPointers)
-            #warn("IS HANDLED: %s" % isHandled)
-            #warn("RES: %s" % (self.autoDerefPointers and not isHandled))
-            if (not isHandled) and (self.autoDerefPointers or name == "this"):
-                ## Generic pointer type.
+            if self.autoDerefPointers or name == "this":
+                ## Generic pointer type with format None
                 #warn("GENERIC AUTODEREF POINTER: %s" % value.address)
                 innerType = item.value.type.target()
                 self.putType(innerType)
@@ -1485,23 +1493,23 @@ class Dumper:
                     Item(item.value.dereference(), item.iname, None, None))
                 self.currentChildType = savedCurrentChildType
                 self.putPointerValue(value.address)
-                isHandled = True
+                return
 
             # Fall back to plain pointer printing.
-            if not isHandled:
-                #warn("GENERIC PLAIN POINTER: %s" % value.type)
-                self.putType(item.value.type)
-                self.putAddress(value.address)
-                self.putNumChild(1)
-                if self.isExpanded(item):
-                    with Children(self):
-                        with SubItem(self):
-                            self.putItemHelper(Item(item.value.dereference(),
-                                item.iname, "*", "*"))
-                            self.putAddress(item.value)
-                self.putPointerValue(value.address)
+            #warn("GENERIC PLAIN POINTER: %s" % value.type)
+            self.putType(item.value.type)
+            self.putAddress(value.address)
+            self.putNumChild(1)
+            if self.isExpanded(item):
+                with Children(self):
+                    with SubItem(self):
+                        self.putItemHelper(Item(item.value.dereference(),
+                            item.iname, "*", "*"))
+                        self.putAddress(item.value)
+            self.putPointerValue(value.address)
+            return
 
-        elif str(typedefStrippedType).startswith("<anon"):
+        if str(typedefStrippedType).startswith("<anon"):
             # Anonymous union. We need a dummy name to distinguish
             # multiple anonymous unions in the struct.
             self.putType(item.value.type)
@@ -1509,46 +1517,46 @@ class Dumper:
             self.anonNumber += 1
             with Children(self, 1):
                 self.listAnonymous(item, "#%d" % self.anonNumber, type)
+            return
 
+        #warn("GENERIC STRUCT: %s" % item.value.type)
+        #warn("INAME: %s " % item.iname)
+        #warn("INAMES: %s " % self.expandedINames)
+        #warn("EXPANDED: %s " % (item.iname in self.expandedINames))
+        fields = extractFields(type)
+
+        self.putType(item.value.type)
+        try:
+            self.putAddress(item.value.address)
+        except:
+            pass
+        self.putValue("{...}")
+
+        if False:
+            numfields = 0
+            for field in fields:
+                bitpos = getattr(field, "bitpos", None)
+                if not bitpos is None:
+                    ++numfields
         else:
-            #warn("GENERIC STRUCT: %s" % item.value.type)
-            #warn("INAME: %s " % item.iname)
-            #warn("INAMES: %s " % self.expandedINames)
-            #warn("EXPANDED: %s " % (item.iname in self.expandedINames))
-            fields = extractFields(type)
+            numfields = len(fields)
+        self.putNumChild(numfields)
 
-            self.putType(item.value.type)
-            try:
-                self.putAddress(item.value.address)
-            except:
-                pass
-            self.putValue("{...}")
+        if self.isExpanded(item):
+            if value.type.code == gdb.TYPE_CODE_ARRAY:
+                baseptr = value.cast(value.type.target().pointer())
+                charptr = lookupType("unsigned char").pointer()
+                addr1 = (baseptr+1).cast(charptr)
+                addr0 = baseptr.cast(charptr)
+                self.put('addrbase="%s",' % cleanAddress(addr0))
+                self.put('addrstep="%s",' % (addr1 - addr0))
 
-            if False:
-                numfields = 0
-                for field in fields:
-                    bitpos = getattr(field, "bitpos", None)
-                    if not bitpos is None:
-                        ++numfields
-            else:
-                numfields = len(fields)
-            self.putNumChild(numfields)
-
-            if self.isExpanded(item):
-                if value.type.code == gdb.TYPE_CODE_ARRAY:
-                    baseptr = value.cast(value.type.target().pointer())
-                    charptr = lookupType("unsigned char").pointer()
-                    addr1 = (baseptr+1).cast(charptr)
-                    addr0 = baseptr.cast(charptr)
-                    self.put('addrbase="%s",' % cleanAddress(addr0))
-                    self.put('addrstep="%s",' % (addr1 - addr0))
-
-                innerType = None
-                if len(fields) == 1 and fields[0].name is None:
-                    innerType = value.type.target()
-                with Children(self, 1, innerType):
-                    child = Item(value, item.iname, None, item.name)
-                    self.putFields(child)
+            innerType = None
+            if len(fields) == 1 and fields[0].name is None:
+                innerType = value.type.target()
+            with Children(self, 1, innerType):
+                child = Item(value, item.iname, None, item.name)
+                self.putFields(child)
 
     def putFields(self, item, innerType = None):
             value = item.value
