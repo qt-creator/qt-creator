@@ -197,6 +197,7 @@ void SessionDialog::createNew()
         QStringList sessions = m_sessionManager->sessions();
         m_ui.sessionList->addItems(sessions);
         m_ui.sessionList->setCurrentRow(sessions.indexOf(newSession));
+        markItems();
     }
 }
 
@@ -213,6 +214,7 @@ void SessionDialog::clone()
             QStringList sessions = m_sessionManager->sessions();
             m_ui.sessionList->addItems(sessions);
             m_ui.sessionList->setCurrentRow(sessions.indexOf(newSession));
+            markItems();
         }
     }
 }
