@@ -265,6 +265,8 @@ void DebuggerUISwitcher::updateUiForRunConfiguration(ProjectExplorer::RunConfigu
 
 void DebuggerUISwitcher::updateActiveLanguages()
 {
+    DebuggerLanguages prevLanguages = d->m_activeDebugLanguages;
+
     d->m_activeDebugLanguages = AnyLanguage;
 
     if (d->m_activateCppAction->isChecked())
@@ -274,8 +276,15 @@ void DebuggerUISwitcher::updateActiveLanguages()
         d->m_activeDebugLanguages |= QmlLanguage;
 
     if (d->m_activeDebugLanguages == AnyLanguage) {
-        d->m_activateCppAction->setChecked(true);
-        d->m_activeDebugLanguages = CppLanguage;
+        // do mutual exclusive selection if qml is enabled. Otherwise, just keep
+        // cpp language selected.
+        if (prevLanguages & CppLanguage && d->m_qmlEnabled) {
+            d->m_activeDebugLanguages = QmlLanguage;
+            d->m_activateQmlAction->setChecked(true);
+        } else {
+            d->m_activateCppAction->setChecked(true);
+            d->m_activeDebugLanguages = CppLanguage;
+        }
     }
 
     emit activeLanguagesChanged(d->m_activeDebugLanguages);
