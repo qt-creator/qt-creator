@@ -73,7 +73,6 @@ protected:
     const HelpItem &lastHelpItemIdentified() const;
 
     static BaseTextEditor *baseTextEditor(ITextEditor *editor);
-    static bool extendToolTips(ITextEditor *editor);
 
 private:
     void clear();

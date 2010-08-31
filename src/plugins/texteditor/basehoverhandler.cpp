@@ -152,7 +152,7 @@ void BaseHoverHandler::decorateToolTip(ITextEditor *editor)
         return;
 
     if (lastHelpItemIdentified().isValid()) {
-        const QString &contents = lastHelpItemIdentified().extractContent(extendToolTips(editor));
+        const QString &contents = lastHelpItemIdentified().extractContent(false);
         if (!contents.isEmpty()) {
             appendToolTip(contents);
         } else {
@@ -178,12 +178,4 @@ BaseTextEditor *BaseHoverHandler::baseTextEditor(ITextEditor *editor)
     if (!editor)
         return 0;
     return qobject_cast<BaseTextEditor *>(editor->widget());
-}
-
-bool BaseHoverHandler::extendToolTips(ITextEditor *editor)
-{
-    BaseTextEditor *baseEditor = baseTextEditor(editor);
-    if (baseEditor && baseEditor->displaySettings().m_extendTooltips)
-        return true;
-    return false;
 }

@@ -44,7 +44,6 @@ static const char * const animateMatchingParenthesesKey= "AnimateMatchingParenth
 static const char * const markTextChangesKey = "MarkTextChanges";
 static const char * const autoFoldFirstCommentKey = "AutoFoldFirstComment";
 static const char * const centerCursorOnScrollKey = "CenterCursorOnScroll";
-static const char * const extendTooltips = "ExtendTooltips";
 static const char * const groupPostfix = "DisplaySettings";
 
 namespace TextEditor {
@@ -61,8 +60,7 @@ DisplaySettings::DisplaySettings() :
     m_animateMatchingParentheses(true),
     m_markTextChanges(true),
     m_autoFoldFirstComment(true),
-    m_centerCursorOnScroll(false),
-    m_extendTooltips(false)
+    m_centerCursorOnScroll(false)
 {
 }
 
@@ -84,7 +82,6 @@ void DisplaySettings::toSettings(const QString &category, QSettings *s) const
     s->setValue(QLatin1String(markTextChangesKey), m_markTextChanges);
     s->setValue(QLatin1String(autoFoldFirstCommentKey), m_autoFoldFirstComment);
     s->setValue(QLatin1String(centerCursorOnScrollKey), m_centerCursorOnScroll);
-    s->setValue(QLatin1String(extendTooltips), m_extendTooltips);
     s->endGroup();
 }
 
@@ -109,7 +106,6 @@ void DisplaySettings::fromSettings(const QString &category, const QSettings *s)
     m_markTextChanges = s->value(group + QLatin1String(markTextChangesKey), m_markTextChanges).toBool();
     m_autoFoldFirstComment = s->value(group + QLatin1String(autoFoldFirstCommentKey), m_autoFoldFirstComment).toBool();
     m_centerCursorOnScroll = s->value(group + QLatin1String(centerCursorOnScrollKey), m_centerCursorOnScroll).toBool();
-    m_extendTooltips = s->value(group + QLatin1String(extendTooltips), m_extendTooltips).toBool();
 }
 
 bool DisplaySettings::equals(const DisplaySettings &ds) const
@@ -126,7 +122,6 @@ bool DisplaySettings::equals(const DisplaySettings &ds) const
         && m_markTextChanges == ds.m_markTextChanges
         && m_autoFoldFirstComment== ds.m_autoFoldFirstComment
         && m_centerCursorOnScroll == ds.m_centerCursorOnScroll
-        && m_extendTooltips == ds.m_extendTooltips
         ;
 }
 

@@ -114,7 +114,7 @@ void CppHoverHandler::decorateToolTip(TextEditor::ITextEditor *editor)
 
     const TextEditor::HelpItem &help = lastHelpItemIdentified();
     if (help.isValid()) {
-        const QString &contents = help.extractContent(extendToolTips(editor));
+        const QString &contents = help.extractContent(false);
         if (!contents.isEmpty()) {
             if (help.category() == TextEditor::HelpItem::ClassOrNamespace)
                 appendToolTip(contents);
