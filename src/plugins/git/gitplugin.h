@@ -127,6 +127,7 @@ private slots:
     void stashSnapshot();
     void branchList();
     void stashList();
+    void fetch();
     void pull();
     void push();
 

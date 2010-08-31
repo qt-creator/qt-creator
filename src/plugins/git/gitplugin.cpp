@@ -438,6 +438,10 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     actionCommand.first->setToolTip(tr("Saves the current state of your work and resets the repository."));
 
     createRepositoryAction(actionManager, gitContainer,
+                           tr("Fetch"), QLatin1String("Git.Fetch"),
+                           globalcontext, true, SLOT(fetch()));
+
+    createRepositoryAction(actionManager, gitContainer,
                            tr("Pull"), QLatin1String("Git.Pull"),
                            globalcontext, true, SLOT(pull()));
 
@@ -758,6 +762,11 @@ bool GitPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEdi
     if (closeEditor)
         cleanCommitMessageFile();
     return closeEditor;
+}
+
+void GitPlugin::fetch()
+{
+    m_gitClient->synchronousFetch(currentState().topLevel());
 }
 
 void GitPlugin::pull()

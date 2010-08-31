@@ -158,6 +158,7 @@ public:
     unsigned gitVersion(bool silent, QString *errorMessage = 0);
     QString gitVersionString(bool silent, QString *errorMessage = 0);
 
+    bool synchronousFetch(const QString &workingDirectory);
     bool synchronousPull(const QString &workingDirectory);
     bool synchronousPush(const QString &workingDirectory);
 
