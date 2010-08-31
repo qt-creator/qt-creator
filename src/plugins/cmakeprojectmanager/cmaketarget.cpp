@@ -107,9 +107,14 @@ void CMakeTarget::updateRunConfigurations()
 {
     // *Update* runconfigurations:
     QMultiMap<QString, CMakeRunConfiguration*> existingRunConfigurations;
-    foreach(ProjectExplorer::RunConfiguration* cmakeRunConfiguration, runConfigurations()) {
-        if (CMakeRunConfiguration* rc = qobject_cast<CMakeRunConfiguration *>(cmakeRunConfiguration))
-            existingRunConfigurations.insert(rc->title(), rc);
+    QList<ProjectExplorer::RunConfiguration *> toRemove;
+    foreach(ProjectExplorer::RunConfiguration* rc, runConfigurations()) {
+        if (CMakeRunConfiguration* cmakeRC = qobject_cast<CMakeRunConfiguration *>(rc))
+            existingRunConfigurations.insert(cmakeRC->title(), cmakeRC);
+        ProjectExplorer::CustomExecutableRunConfiguration *ceRC =
+                qobject_cast<ProjectExplorer::CustomExecutableRunConfiguration *>(rc);
+        if (ceRC && !ceRC->isConfigured())
+            toRemove << rc;
     }
 
     foreach(const CMakeBuildTarget &ct, cmakeProject()->buildTargets()) {
@@ -142,6 +147,10 @@ void CMakeTarget::updateRunConfigurations()
         rc->setEnabled(false);
         // removeRunConfiguration(rc);
     }
+
+    foreach (ProjectExplorer::RunConfiguration *rc, toRemove)
+        removeRunConfiguration(rc);
+
     if (runConfigurations().isEmpty()) {
         // Oh no, no run configuration,
         // create a custom executable run configuration
