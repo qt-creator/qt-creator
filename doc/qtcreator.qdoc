@@ -5942,6 +5942,9 @@
        battery power. Optimize power consumption to keep the total consumption at an acceptable
        level and to prevent users from running out of battery time.
 
+       For more information and code examples on how to minimize power consumption, see
+       \l{http://developer.symbian.org/wiki/index.php/Creating_Energy_Efficient_Apps_Using_Qt}{Creating Energy Efficient Apps Using Qt}.
+
        \o Consider network issues
 
        If users do not have a flat-rate data plan or WLAN support, mobile
