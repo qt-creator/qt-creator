@@ -1008,6 +1008,9 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
     const int tokenPosition = column(tk.begin());
     const bool firstToken = (tokenIndex() == 0);
     const bool lastToken = (tokenIndex() == tokenCount() - 1);
+    int nextTokenStart = 0;
+    if (!lastToken)
+        nextTokenStart = column(tokenAt(tokenIndex() + 1).begin());
 
     switch (newState) {
     case namespace_start:
@@ -1136,10 +1139,14 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
         break;
 
     case brace_list_open:
-        if (parentState.type != initializer)
-            *indentDepth = parentState.savedIndentDepth + m_indentSize;
-        else if (lastToken) {
-            *savedIndentDepth = state(1).savedIndentDepth;
+        if (!lastToken) {
+            if (parentState.type == initializer)
+                *savedIndentDepth = tokenPosition;
+            *indentDepth = nextTokenStart;
+        } else {
+            // avoid existing continuation indents
+            if (parentState.type == initializer)
+                *savedIndentDepth = state(1).savedIndentDepth;
             *indentDepth = *savedIndentDepth + m_indentSize;
         }
         break;
@@ -1256,6 +1263,7 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
         } else if (topState.type != defun_open
                 && topState.type != block_open
                 && topState.type != substatement_open
+                && topState.type != brace_list_open
                 && !topWasMaybeElse) {
             *indentDepth = topState.savedIndentDepth;
         }

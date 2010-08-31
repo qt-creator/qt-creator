@@ -46,6 +46,7 @@ private Q_SLOTS:
     void functionReturnType();
     void streamOp();
     void blockStmtInIf();
+    void nestedInitializer();
 };
 
 struct Line {
@@ -613,9 +614,9 @@ void tst_CodeFormatter::braceList()
          << Line("           b = 4")
          << Line("         };")
          << Line("void foo () {")
-         << Line("    int[] a = { foo, bar, ")
-         << Line("            car };")
-         << Line("    int[] a = {")
+         << Line("    int a[] = { foo, bar, ")
+         << Line("                car };")
+         << Line("    int a[] = {")
          << Line("        a, b,")
          << Line("        c")
          << Line("    };")
@@ -833,6 +834,36 @@ void tst_CodeFormatter::blockStmtInIf()
          << Line("        {")
          << Line("            foo;")
          << Line("        }")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::nestedInitializer()
+{
+    QList<Line> data;
+    data
+         << Line("SomeStruct v[] = {")
+         << Line("    {2}, {3},")
+         << Line("    {4}, {5},")
+         << Line("};")
+         << Line("S v[] = {{1}, {2},")
+         << Line("         {3}, {4},")
+         << Line("        };")
+         << Line("SomeStruct v[] = {")
+         << Line("    {")
+         << Line("        {2, 3,")
+         << Line("         4, 5},")
+         << Line("        {1},")
+         << Line("    }")
+         << Line("};")
+         << Line("SomeStruct v[] = {{{2, 3},")
+         << Line("                   {4, 5}")
+         << Line("                  },")
+         << Line("                  {{2, 3},")
+         << Line("                   {4, 5},")
+         << Line("                  }")
+         << Line("                 };")
+         << Line("int i;")
          ;
     checkIndent(data);
 }
