@@ -35,6 +35,7 @@
 #include <QtGui/QDesktopServices>
 #include <QtGui/QFileDialog>
 #include <QtGui/QFileDialog>
+#include <QtGui/QMessageBox>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -167,6 +168,7 @@ class QmlStandaloneAppWizardOptionsPagePrivate
 {
     Ui::QmlStandaloneAppWizardOptionPage ui;
     QString symbianSvgIcon;
+    QString maemoPngIcon;
     friend class QmlStandaloneAppWizardOptionsPage;
 };
 
@@ -179,6 +181,8 @@ QmlStandaloneAppWizardOptionsPage::QmlStandaloneAppWizardOptionsPage(QWidget *pa
     const QIcon open = QApplication::style()->standardIcon(QStyle::SP_DirOpenIcon);
     m_d->ui.symbianAppIconLoadToolButton->setIcon(open);
     connect(m_d->ui.symbianAppIconLoadToolButton, SIGNAL(clicked()), SLOT(openSymbianSvgIcon()));
+    connect(m_d->ui.maemoPngIconButton, SIGNAL(clicked()), this,
+        SLOT(openMaemoPngIcon()));
 
     m_d->ui.orientationBehaviorComboBox->addItem(tr("Auto rotate orientation"),
                                                    QmlStandaloneApp::Auto);
@@ -226,6 +230,27 @@ void QmlStandaloneAppWizardOptionsPage::setSymbianSvgIcon(const QString &icon)
     }
 }
 
+QString QmlStandaloneAppWizardOptionsPage::maemoPngIcon() const
+{
+    return m_d->maemoPngIcon;
+}
+
+void QmlStandaloneAppWizardOptionsPage::setMaemoPngIcon(const QString &icon)
+{
+    QString error;
+    QPixmap iconPixmap(icon);
+    if (iconPixmap.isNull())
+        error = tr("The file is not a valid image.");
+    else if (iconPixmap.size() != QSize(64, 64))
+        error = tr("The icon has an invalid size.");
+    if (!error.isEmpty()) {
+        QMessageBox::warning(this, tr("Icon unusable"), error);
+    } else {
+        m_d->ui.maemoPngIconButton->setIcon(iconPixmap);
+        m_d->maemoPngIcon = icon;
+    }
+}
+
 QString QmlStandaloneAppWizardOptionsPage::symbianUid() const
 {
     return m_d->ui.symbianTargetUid3LineEdit->text();
@@ -265,6 +290,15 @@ void QmlStandaloneAppWizardOptionsPage::openSymbianSvgIcon()
             QLatin1String("*.svg"));
     if (!svgIcon.isEmpty())
         setSymbianSvgIcon(svgIcon);
+}
+
+void QmlStandaloneAppWizardOptionsPage::openMaemoPngIcon()
+{
+    const QString iconPath = QFileDialog::getOpenFileName(this,
+        m_d->ui.maemoAppIconLabel->text(), m_d->maemoPngIcon,
+        QLatin1String("*.png"));
+    if (!iconPath.isEmpty())
+        setMaemoPngIcon(iconPath);
 }
 
 } // namespace Internal

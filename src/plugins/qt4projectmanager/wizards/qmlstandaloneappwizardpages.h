@@ -79,6 +79,8 @@ public:
     QmlStandaloneApp::Orientation orientation() const;
     QString symbianSvgIcon() const;
     void setSymbianSvgIcon(const QString &icon);
+    QString maemoPngIcon() const;
+    void setMaemoPngIcon(const QString &icon);
     QString symbianUid() const;
     void setLoadDummyData(bool loadIt);
     bool loadDummyData() const;
@@ -88,6 +90,7 @@ public:
 
 private slots:
     void openSymbianSvgIcon(); // Via file open dialog
+    void openMaemoPngIcon();
 
 private:
     class QmlStandaloneAppWizardOptionsPagePrivate *m_d;

@@ -57,10 +57,12 @@ symbian {
         $$itempath = /opt/share/$$eval($${deploymentfolder}.target)
         INSTALLS += $$item
     }
+    icon.files = $${TARGET}.png
+    icon.path = /usr/share/icons/hicolor/scalable/hildon
     desktopfile.files = $${TARGET}.desktop
     desktopfile.path = /usr/share/applications/hildon
     target.path = /opt/bin
-    INSTALLS += desktopfile target
+    INSTALLS += desktopfile icon target
 } else:macx {
     !isEqual(PWD,$$OUT_PWD) {
         copyCommand = @echo Copying application data...

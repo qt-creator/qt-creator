@@ -185,6 +185,16 @@ QString QmlStandaloneApp::symbianSvgIcon() const
     return path(SymbianSvgIconOrigin);
 }
 
+void QmlStandaloneApp::setMaemoPngIcon(const QString &icon)
+{
+    m_maemoPngIcon = icon;
+}
+
+QString QmlStandaloneApp::maemoPngIcon() const
+{
+    return path(MaemoPngIconOrigin);
+}
+
 void QmlStandaloneApp::setSymbianTargetUid(const QString &uid)
 {
     m_symbianTargetUid = uid;
@@ -287,6 +297,9 @@ QString QmlStandaloneApp::path(Path path) const
         case SymbianSvgIcon:                return pathBase + symbianIconFileName;
         case SymbianSvgIconOrigin:          return !m_symbianSvgIcon.isEmpty() ? m_symbianSvgIcon
                                                 : originsRoot + symbianIconFileName;
+        case MaemoPngIcon:                  return pathBase + projectName() +  QLatin1String(".png");
+        case MaemoPngIconOrigin:            return !m_maemoPngIcon.isEmpty() ? m_maemoPngIcon
+                                                : originsRoot + QLatin1String("maemoicon.png");
         case QmlDir:                        return pathBase + qmlSubDir;
         case QmlDirProFileRelative:         return useExistingMainQml() ? appProFilePath.relativeFilePath(m_mainQmlFile.canonicalPath())
                                                 : QString(qmlSubDir).remove(qmlSubDir.length() - 1, 1);
@@ -516,6 +529,7 @@ Core::GeneratedFiles QmlStandaloneApp::generateFiles(QString *errorMessage) cons
     files.last().setAttributes(Core::GeneratedFile::OpenProjectAttribute);
     files.append(file(generateFile(GeneratedFileInfo::MainCppFile, errorMessage), path(MainCpp)));
     files.append(file(generateFile(GeneratedFileInfo::SymbianSvgIconFile, errorMessage), path(SymbianSvgIcon)));
+    files.append(file(generateFile(GeneratedFileInfo::MaemoPngIconFile, errorMessage), path(MaemoPngIcon)));
 
     files.append(file(generateFile(GeneratedFileInfo::AppViewerPriFile, errorMessage), path(AppViewerPri)));
     files.append(file(generateFile(GeneratedFileInfo::AppViewerCppFile, errorMessage), path(AppViewerCpp)));
@@ -565,6 +579,9 @@ QByteArray QmlStandaloneApp::generateFile(GeneratedFileInfo::File file,
             break;
         case GeneratedFileInfo::SymbianSvgIconFile:
             data = readBlob(path(SymbianSvgIconOrigin));
+            break;
+        case GeneratedFileInfo::MaemoPngIconFile:
+            data = readBlob(path(MaemoPngIconOrigin));
             break;
         case GeneratedFileInfo::AppProFile:
             data = generateProFile(errorMessage);

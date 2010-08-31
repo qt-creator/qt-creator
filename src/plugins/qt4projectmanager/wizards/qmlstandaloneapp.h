@@ -85,7 +85,8 @@ struct GeneratedFileInfo
         AppViewerPriFile,
         AppViewerCppFile,
         AppViewerHFile,
-        SymbianSvgIconFile
+        SymbianSvgIconFile,
+        MaemoPngIconFile
     };
 
     GeneratedFileInfo();
@@ -127,6 +128,8 @@ public:
         AppViewerHOrigin,
         SymbianSvgIcon,
         SymbianSvgIconOrigin,
+        MaemoPngIcon,
+        MaemoPngIconOrigin,
         QmlDir,
         QmlDirProFileRelative,
         ModulesDir
@@ -144,6 +147,8 @@ public:
     void setProjectPath(const QString &path);
     void setSymbianSvgIcon(const QString &icon);
     QString symbianSvgIcon() const;
+    void setMaemoPngIcon(const QString &icon);
+    QString maemoPngIcon() const;
     void setSymbianTargetUid(const QString &uid);
     QString symbianTargetUid() const;
     void setLoadDummyData(bool loadIt);
@@ -180,6 +185,7 @@ private:
     QString m_projectName;
     QFileInfo m_projectPath;
     QString m_symbianSvgIcon;
+    QString m_maemoPngIcon;
     QString m_symbianTargetUid;
     bool m_loadDummyData;
     Orientation m_orientation;

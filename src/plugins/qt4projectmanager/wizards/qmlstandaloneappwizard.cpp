@@ -149,6 +149,7 @@ QWizard *QmlStandaloneAppWizard::createWizardDialog(QWidget *parent,
     m_d->wizardDialog->setPath(defaultPath);
     m_d->wizardDialog->setProjectName(QmlStandaloneAppWizardDialog::uniqueProjectName(defaultPath));
     m_d->wizardDialog->m_qmlOptionsPage->setSymbianSvgIcon(m_d->standaloneApp->symbianSvgIcon());
+    m_d->wizardDialog->m_qmlOptionsPage->setMaemoPngIcon(m_d->standaloneApp->maemoPngIcon());
     m_d->wizardDialog->m_qmlOptionsPage->setOrientation(m_d->standaloneApp->orientation());
     m_d->wizardDialog->m_qmlOptionsPage->setNetworkEnabled(m_d->standaloneApp->networkEnabled());
     m_d->wizardDialog->m_qmlOptionsPage->setLoadDummyData(m_d->standaloneApp->loadDummyData());
