@@ -270,8 +270,43 @@
 //            EngineShutdownOk  EngineShutdownFailed                         
 //                         *       *
 //                     DebuggerFinished
-//
+/* Here is a matching graph as a GraphViz graph. View it using
+ * \code
+grep "^sg1:" debuggerplugin.cpp | cut -c5- | dot -osg1.ps -Tps && gv sg1.ps
 
+sg1: digraph DebuggerStates {
+sg1:   DebuggerNotReady -> EngineSetupRequested
+sg1:   EngineSetupRequested -> EngineSetupOk [ label="notifyEngineSetupOk", style="dashed" ];
+sg1:   EngineSetupRequested -> EngineSetupFailed [ label= "notifyEngineSetupFailed", style="dashed"];
+sg1:   EngineSetupFailed -> DebuggerFinished [ label= "RunControl::StartFailed" ];
+sg1:   EngineSetupOk -> InferiorSetupRequested [ label= "RunControl::StartSuccessful" ];
+sg1:   InferiorSetupRequested -> InferiorSetupFailed [ label="notifyInferiorFailed", style="dashed" ];
+sg1:   InferiorSetupRequested -> EngineRunRequested [ label="notifyInferiorSetupOk", style="dashed" ];
+sg1:   InferiorSetupFailed -> EngineShutdownRequested
+sg1:   EngineRunRequested -> InferiorUnrunnable [ label="notifyInferiorUnrunnable", style="dashed" ];
+sg1:   EngineRunRequested -> InferiorStopOk [ label="notifyEngineRunAndInferiorStopOk", style="dashed" ];
+sg1:   EngineRunRequested -> InferiorRunOk [ label="notifyEngineRunAndInferiorRunOk", style="dashed" ];
+sg1:   EngineRunRequested -> EngineRunFailed [ label="notifyEngineRunFailed", style="dashed" ];
+sg1:   EngineRunFailed -> EngineShutdownRequested
+sg1:   InferiorRunOk -> InferiorStopOk [ label="SpontaneousStop\nnotifyInferiorSpontaneousStop", style="dashed" ];
+sg1:   InferiorRunOk -> InferiorStopRequested [ label="User stop\nEngine::interruptInferior", style="dashed"];
+sg1:   InferiorStopRequested -> InferiorStopOk [ label="notifyInferiorStopOk", style="dashed" ];
+sg1:   InferiorStopRequested -> InferiorShutdownRequested  [ label="notifyInferiorStopFailed", style="dashed" ];
+sg1:   InferiorStopOk -> InferiorRunRequested [ label="User\nEngine::continueInferior" ];
+sg1:   InferiorRunRequested -> InferiorRunOk [ label="notifyInferiorRunOk", style="dashed"];
+sg1:   InferiorRunRequested -> InferiorRunFailed [ label="notifyInferiorRunFailed", style="dashed"];
+sg1:   InferiorRunFailed -> InferiorStopOk
+sg1:   InferiorShutdownRequested -> InferiorShutdownOk [ label= "Engine::shutdownInferior\nnotifyInferiorShutdownOk", style="dashed" ];
+sg1:   InferiorShutdownRequested -> InferiorShutdownFailed [ label="Engine::shutdownInferior\nnotifyInferiorShutdownFailed", style="dashed" ];
+sg1:   InferiorExited -> InferiorShutdownOk [ label="notifyInferiorExited", style="dashed"];
+sg1:   InferiorShutdownOk -> EngineShutdownRequested
+sg1:   InferiorShutdownFailed -> EngineShutdownRequested
+sg1:   EngineShutdownRequested -> EngineShutdownOk [ label="Engine::shutdownEngine\nnotifyEngineShutdownOk", style="dashed" ];
+sg1:   EngineShutdownRequested -> EngineShutdownFailed  [ label="Engine::shutdownEngine\nnotifyEngineShutdownFailed", style="dashed" ];
+sg1:   EngineShutdownOk -> DebuggerFinished  [ style = "dotted" ];
+sg1:   EngineShutdownFailed  -> DebuggerFinished [ style = "dotted" ];
+sg1: }
+* \endcode */
 // Additional signalling:    {notifyInferiorIll}   {notifyEngineIll}
 
 
