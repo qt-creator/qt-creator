@@ -319,18 +319,6 @@ void DebuggerUISwitcher::modeChanged(Core::IMode *mode)
         //|| DebuggerPlugin::instance()->hasSnapsnots())
        return;
 
-    DebuggerLanguages activeLangs;
-    if (isCurrentProjectCppBased())
-        activeLangs |= CppLanguage;
-
-    if (isCurrentProjectQmlCppBased())
-        activeLangs |= QmlLanguage;
-
-    if (d->m_activateCppAction)
-        d->m_activateCppAction->setChecked(activeLangs & CppLanguage);
-    if (d->m_activateQmlAction)
-        d->m_activateQmlAction->setChecked(activeLangs & QmlLanguage);
-
     updateActiveLanguages();
 }
 

@@ -498,6 +498,7 @@ void DebuggerRunControl::start()
         return;
     }
 
+    plugin()->activateDebugMode();
     DebuggerUISwitcher::instance()->aboutToStartDebugger();
 
     const QString message = tr("Starting debugger '%1' for tool chain '%2'...").
@@ -505,8 +506,6 @@ void DebuggerRunControl::start()
     plugin()->showMessage(message, StatusBar);
     plugin()->showMessage(DebuggerSettings::instance()->dump(), LogDebug);
     plugin()->runControlStarted(this);
-
-    plugin()->activateDebugMode();
 
     engine()->startDebugger(this);
     m_running = true;
