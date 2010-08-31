@@ -232,7 +232,6 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
 {
     connect(this, SIGNAL(finished()), this, SLOT(handleFinished()));
     DebuggerStartParameters startParams = sp;
-    startParams.m_isQmlProject = isQmlProject(runConfiguration);
     createEngine(startParams);
 }
 

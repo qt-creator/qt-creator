@@ -118,8 +118,6 @@ public:
                                  QString *settingsCategory = 0,
                                  QString *settingsPage = 0);
 
-    static bool isQmlProject(RunConfiguration *config);
-
 private slots:
     void handleFinished();
 

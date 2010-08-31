@@ -244,13 +244,12 @@ void DebuggerUISwitcher::updateUiForRunConfiguration(ProjectExplorer::RunConfigu
     bool isDotQmlProjectType = isQmlProjectType(rc);
     if (rc) {
         d->m_languageActionGroup->setDisabled(false);
-        if (DebuggerRunControl::isQmlProject(rc) && d->m_qmlEnabled) {
+        if (d->m_qmlEnabled) {
             d->m_activateCppAction->setChecked(!isDotQmlProjectType);
-            d->m_activateQmlAction->setChecked(true);
+            d->m_activateQmlAction->setChecked(isDotQmlProjectType);
         } else {
-            if (d->m_activateQmlAction) {
+            if (d->m_activateQmlAction)
                 d->m_activateQmlAction->setChecked(false);
-            }
         }
     } else {
         if (d->m_activateCppAction)
