@@ -30,6 +30,8 @@ public:
     QVariant data(int role = Qt::UserRole + 1) const;
     int type() const;
 
+    void setItemData(const QMap<int, QVariant> &roles);
+
 private:
     QString prettyPrint(const QmlJS::Interpreter::Value *value, const QmlJS::Interpreter::Context *context) const;
 
@@ -88,7 +90,7 @@ private:
     void leavePublicMember();
 
 private:
-    QmlOutlineItem *enterNode(QMap<int, QVariant> data);
+    QmlOutlineItem *enterNode(QMap<int, QVariant> data, QmlJS::AST::Node *node, QmlJS::AST::UiQualifiedId *idNode, const QIcon &icon);
     void leaveNode();
 
     void reparentNodes(QmlOutlineItem *targetItem, int targetRow, QList<QmlOutlineItem*> itemsToMove);

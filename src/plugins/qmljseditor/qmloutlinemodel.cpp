@@ -60,6 +60,15 @@ int QmlOutlineItem::type() const
     return UserType;
 }
 
+void QmlOutlineItem::setItemData(const QMap<int, QVariant> &roles)
+{
+    QMap<int,QVariant>::const_iterator iter(roles.constBegin());
+    while (iter != roles.constEnd()) {
+        setData(iter.value(), iter.key());
+        iter++;
+    }
+}
+
 QString QmlOutlineItem::prettyPrint(const Interpreter::Value *value, const Interpreter::Context *context) const
 {
     if (! value)
@@ -350,29 +359,28 @@ QModelIndex QmlOutlineModel::enterObjectDefinition(AST::UiObjectDefinition *objD
     const QString typeName = asString(objDef->qualifiedTypeNameId);
 
     QMap<int, QVariant> data;
+    AST::UiQualifiedId *idNode = 0;
+    QIcon icon;
 
     if (typeName.at(0).isUpper()) {
         data.insert(ItemTypeRole, ElementType);
-    } else {
-        // it's a grouped propery like 'anchors'
-        data.insert(ItemTypeRole, NonElementBindingType);
-    }
-
-    data.insert(Qt::DisplayRole, typeName);
-
-    QmlOutlineItem *item = enterNode(data);
-
-    m_itemToNode.insert(item, objDef);
-    if (typeName.at(0).isUpper()) {
         if (!m_typeToIcon.contains(typeName)) {
             m_typeToIcon.insert(typeName, getIcon(objDef->qualifiedTypeNameId));
         }
 
-        m_itemToIdNode.insert(item, objDef->qualifiedTypeNameId);
-        m_itemToIcon.insert(item, m_typeToIcon.value(typeName));
+        icon = m_typeToIcon.value(typeName);
+        idNode = objDef->qualifiedTypeNameId;
     } else {
-        m_itemToIcon.insert(item, m_icons->scriptBindingIcon());
+        // it's a grouped propery like 'anchors'
+        data.insert(ItemTypeRole, NonElementBindingType);
+
+        icon = m_icons->scriptBindingIcon();
     }
+
+    data.insert(Qt::DisplayRole, typeName);
+
+
+    QmlOutlineItem *item = enterNode(data, objDef, idNode, icon);
 
     return item->index();
 }
@@ -389,10 +397,7 @@ QModelIndex QmlOutlineModel::enterObjectBinding(AST::UiObjectBinding *objBinding
     bindingData.insert(Qt::DisplayRole, asString(objBinding->qualifiedId));
     bindingData.insert(ItemTypeRole, ElementBindingType);
 
-    QmlOutlineItem *bindingItem = enterNode(bindingData);
-    m_itemToNode.insert(bindingItem, objBinding);
-    m_itemToIdNode.insert(bindingItem, objBinding->qualifiedId);
-    m_itemToIcon.insert(bindingItem, m_icons->scriptBindingIcon());
+    QmlOutlineItem *bindingItem = enterNode(bindingData, objBinding, objBinding->qualifiedId, m_icons->scriptBindingIcon());
 
     const QString typeName = asString(objBinding->qualifiedTypeNameId);
     if (!m_typeToIcon.contains(typeName)) {
@@ -404,10 +409,7 @@ QModelIndex QmlOutlineModel::enterObjectBinding(AST::UiObjectBinding *objBinding
     objectData.insert(AnnotationRole, getAnnotation(objBinding->initializer));
     objectData.insert(ItemTypeRole, ElementType);
 
-    QmlOutlineItem *objectItem = enterNode(objectData);
-    m_itemToNode.insert(objectItem, objBinding);
-    m_itemToIdNode.insert(objectItem, objBinding->qualifiedTypeNameId);
-    m_itemToIcon.insert(objectItem, m_typeToIcon.value(typeName));
+    enterNode(objectData, objBinding, objBinding->qualifiedTypeNameId, m_typeToIcon.value(typeName));
 
     return bindingItem->index();
 }
@@ -425,10 +427,7 @@ QModelIndex QmlOutlineModel::enterArrayBinding(AST::UiArrayBinding *arrayBinding
     bindingData.insert(Qt::DisplayRole, asString(arrayBinding->qualifiedId));
     bindingData.insert(ItemTypeRole, ElementBindingType);
 
-    QmlOutlineItem *item = enterNode(bindingData);
-    m_itemToNode.insert(item, arrayBinding);
-    m_itemToIdNode.insert(item, arrayBinding->qualifiedId);
-    m_itemToIcon.insert(item, m_icons->scriptBindingIcon());
+    QmlOutlineItem *item = enterNode(bindingData, arrayBinding, arrayBinding->qualifiedId, m_icons->scriptBindingIcon());
 
     return item->index();
 }
@@ -446,10 +445,7 @@ QModelIndex QmlOutlineModel::enterScriptBinding(AST::UiScriptBinding *scriptBind
     objectData.insert(AnnotationRole, getAnnotation(scriptBinding->statement));
     objectData.insert(ItemTypeRole, NonElementBindingType);
 
-    QmlOutlineItem *item = enterNode(objectData);
-    m_itemToNode.insert(item, scriptBinding);
-    m_itemToIdNode.insert(item, scriptBinding->qualifiedId);
-    m_itemToIcon.insert(item, m_icons->scriptBindingIcon());
+    QmlOutlineItem *item = enterNode(objectData, scriptBinding, scriptBinding->qualifiedId, m_icons->scriptBindingIcon());
 
     return item->index();
 }
@@ -468,9 +464,7 @@ QModelIndex QmlOutlineModel::enterPublicMember(AST::UiPublicMember *publicMember
     objectData.insert(AnnotationRole, getAnnotation(publicMember->expression));
     objectData.insert(ItemTypeRole, NonElementBindingType);
 
-    QmlOutlineItem *item = enterNode(objectData);
-    m_itemToNode.insert(item, publicMember);
-    m_itemToIcon.insert(item, m_icons->publicMemberIcon());
+    QmlOutlineItem *item = enterNode(objectData, publicMember, 0, m_icons->publicMemberIcon());
 
     return item->index();
 }
@@ -517,7 +511,7 @@ QIcon QmlOutlineModel::icon(const QModelIndex &index) const
     return m_itemToIcon.value(item);
 }
 
-QmlOutlineItem *QmlOutlineModel::enterNode(QMap<int, QVariant> data)
+QmlOutlineItem *QmlOutlineModel::enterNode(QMap<int, QVariant> data, AST::Node *node, AST::UiQualifiedId *idNode, const QIcon &icon)
 {
     int siblingIndex = m_treePos.last();
     if (siblingIndex == 0) {
@@ -527,12 +521,22 @@ QmlOutlineItem *QmlOutlineModel::enterNode(QMap<int, QVariant> data)
                 qDebug() << "QmlOutlineModel - Adding" << "element to" << m_currentItem->text();
 
             QmlOutlineItem *newItem = new QmlOutlineItem(this);
-            newItem->setEditable(false);
-            m_currentItem->appendRow(newItem);
 
+            m_itemToNode.insert(newItem, node);
+            m_itemToIdNode.insert(newItem, idNode);
+            m_itemToIcon.insert(newItem, icon);
+            newItem->setItemData(data);
+
+            m_currentItem->appendRow(newItem);
             m_currentItem = newItem;
         } else {
             m_currentItem = m_currentItem->child(0);
+            QmlOutlineItem *item = static_cast<QmlOutlineItem*>(m_currentItem);
+
+            m_itemToNode.insert(item, node);
+            m_itemToIdNode.insert(item, idNode);
+            m_itemToIcon.insert(item, icon);
+            item->setItemData(data);
         }
     } else {
         // sibling
@@ -541,15 +545,26 @@ QmlOutlineItem *QmlOutlineModel::enterNode(QMap<int, QVariant> data)
                 qDebug() << "QmlOutlineModel - Adding" << "element to" << m_currentItem->text();
 
             QmlOutlineItem *newItem = new QmlOutlineItem(this);
-            newItem->setEditable(false);
+
+            m_itemToNode.insert(newItem, node);
+            m_itemToIdNode.insert(newItem, idNode);
+            m_itemToIcon.insert(newItem, icon);
+            newItem->setItemData(data);
+
             m_currentItem->appendRow(newItem);
             m_currentItem = newItem;
         } else {
             m_currentItem = m_currentItem->child(siblingIndex);
+            QmlOutlineItem *item = static_cast<QmlOutlineItem*>(m_currentItem);
+
+            m_itemToNode.insert(item, node);
+            m_itemToIdNode.insert(item, idNode);
+            m_itemToIcon.insert(item, icon);
+            item->setItemData(data);
         }
     }
 
-    setItemData(m_currentItem->index(), data);
+
     m_treePos.append(0);
 
     return static_cast<QmlOutlineItem*>(m_currentItem);
