@@ -885,7 +885,6 @@ QStringList MainWindow::showNewItemDialog(const QString &title,
                                           const QList<IWizard *> &wizards,
                                           const QString &defaultLocation)
 {
-    emit m_coreImpl->newItemsDialogRequested();
     // Scan for wizards matching the filter and pick one. Don't show
     // dialog if there is only one.
     IWizard *wizard = 0;

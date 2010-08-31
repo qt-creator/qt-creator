@@ -90,6 +90,8 @@ public:
 
     void openFiles(const QStringList &fileNames);
 
+    void emitNewItemsDialogRequested();
+
 private:
     MainWindow *m_mainwindow;
     friend class MainWindow;

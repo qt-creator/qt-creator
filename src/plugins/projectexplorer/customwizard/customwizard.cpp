@@ -42,6 +42,7 @@
 #include <QtCore/QFile>
 #include <QtCore/QMap>
 #include <QtCore/QDir>
+#include <QtCore/QTextStream>
 #include <QtCore/QFileInfo>
 #include <QtCore/QCoreApplication>
 
@@ -350,9 +351,17 @@ QList<CustomWizard*> CustomWizard::createWizards()
             case Internal::CustomWizardParameters::ParseOk:
                 parameters->directory = dir.absolutePath();
                 if (CustomWizardPrivate::verbose)
-                    verboseLog += parameters->toString();
-                if (CustomWizard *w = createWizard(parameters, baseFileParameters))
+                    QTextStream(&verboseLog)
+                            << "\n### Adding: " << baseFileParameters.id() << " / " << baseFileParameters.displayName() << '\n'
+                            << baseFileParameters.category() << " / " <<baseFileParameters.displayCategory() << '\n'
+                            << "  (" <<   baseFileParameters.description() << ")\n"
+                            << parameters->toString();
+                if (CustomWizard *w = createWizard(parameters, baseFileParameters)) {
                     rc.push_back(w);
+                } else {
+                    qWarning("Custom wizard factory function failed for %s", qPrintable(baseFileParameters.id()));
+                }
+                break;
             case Internal::CustomWizardParameters::ParseDisabled:
                 if (CustomWizardPrivate::verbose)
                     qWarning("Ignoring disabled wizard %s...", qPrintable(dir.absolutePath()));
@@ -360,6 +369,7 @@ QList<CustomWizard*> CustomWizard::createWizards()
             case Internal::CustomWizardParameters::ParseFailed:
                 qWarning("Failed to initialize custom project wizard in %s: %s",
                          qPrintable(dir.absolutePath()), qPrintable(errorMessage));
+                break;
             }
         } else {
             if (CustomWizardPrivate::verbose)
