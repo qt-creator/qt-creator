@@ -114,9 +114,6 @@ public:
 
     Utils::FancyMainWindow *mainWindow() const;
 
-    static bool isCurrentProjectQmlCppBased();
-    static bool isCurrentProjectCppBased();
-
 signals:
     // emit when user changes active languages from the menu.
     // Both UI and debugger startup are affected.

@@ -589,18 +589,4 @@ Internal::DebuggerEngine *DebuggerRunControl::engine()
     return m_engine;
 }
 
-bool DebuggerRunControl::isQmlProject(RunConfiguration *config)
-{
-    if (!config || !config->target() || !config->target()->project())
-        return false;
-
-    QStringList projectFiles = config->target()->project()->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
-    foreach(const QString &filename, projectFiles) {
-        if (filename.endsWith(".qml"))
-            return true;
-    }
-
-    return false;
-}
-
 } // namespace Debugger

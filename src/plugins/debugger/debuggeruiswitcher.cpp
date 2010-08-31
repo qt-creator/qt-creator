@@ -750,29 +750,4 @@ QList<QDockWidget* > DebuggerUISwitcher::i_mw_dockWidgets() const
     return d->m_dockWidgets;
 }
 
-bool DebuggerUISwitcher::isCurrentProjectQmlCppBased()
-{
-    ProjectExplorer::Project *startupProject = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
-    if (!startupProject)
-        return false;
-
-    if (!startupProject->activeTarget())
-        return false;
-
-    ProjectExplorer::RunConfiguration *rc = startupProject->activeTarget()->activeRunConfiguration();
-
-    return DebuggerRunControl::isQmlProject(rc);
-}
-
-bool DebuggerUISwitcher::isCurrentProjectCppBased()
-{
-    ProjectExplorer::Project *startupProject = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
-    if (!startupProject)
-        return false;
-    const QString id = startupProject->id();
-    return id == QLatin1String("GenericProjectManager.GenericProject")
-        || id == QLatin1String("CMakeProjectManager.CMakeProject")
-        || id == QLatin1String("Qt4ProjectManager.Qt4Project");
-}
-
 } // namespace Debugger
