@@ -346,7 +346,6 @@ sg1: }
 
 
 using namespace Core;
-using namespace Debugger;
 using namespace Debugger::Constants;
 using namespace Debugger::Internal;
 using namespace ProjectExplorer;
@@ -421,9 +420,9 @@ const char * const SNAPSHOT_KEY             = "Ctrl+D,Ctrl+S";
 
 
 
-static ProjectExplorer::SessionManager *sessionManager()
+static SessionManager *sessionManager()
 {
-    return ProjectExplorer::ProjectExplorerPlugin::instance()->session();
+    return ProjectExplorerPlugin::instance()->session();
 }
 
 static QSettings *settings()
@@ -935,8 +934,8 @@ public slots:
         { return settings()->value(name); }
 
     DebuggerRunControl *createDebugger(const DebuggerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *rc = 0);
-    void startDebugger(ProjectExplorer::RunControl *runControl);
+        RunConfiguration *rc = 0);
+    void startDebugger(RunControl *runControl);
     void displayDebugger(DebuggerEngine *engine, bool updateEngine = true);
 
     void dumpLog();
@@ -959,10 +958,7 @@ public slots:
     void aboutToSaveSession();
 
     void executeDebuggerCommand();
-
-    QList<DebuggerRunControl *> runControls() const { return m_snapshotHandler->runControls(); }
-
-    void scriptExpressionEntered(const QString&);
+    void scriptExpressionEntered(const QString &expression);
 
 public:
     DebuggerState m_state;
@@ -1027,12 +1023,9 @@ public:
     QTimer m_statusTimer;
     QString m_lastPermanentStatusMessage;
 
-    //SessionData m_sessionData;
-
     CPlusPlus::Snapshot m_codeModelSnapshot;
     DebuggerPlugin *m_plugin;
 
-    QList<QPointer<DebuggerRunControl> > m_allRunControls;
     SnapshotHandler *m_snapshotHandler;
 };
 
@@ -1132,7 +1125,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_commandWindow = new QTreeView;
     m_scriptConsoleWindow = new ScriptConsole;
     m_scriptConsoleWindow->setWindowTitle(tr("QML Script Console"));
-    connect(m_scriptConsoleWindow, SIGNAL(expressionEntered(QString)), this, SLOT(scriptExpressionEntered(QString)));
+    connect(m_scriptConsoleWindow, SIGNAL(expressionEntered(QString)),
+        SLOT(scriptExpressionEntered(QString)));
 
     // Session related data
     m_sessionEngine = new SessionEngine;
@@ -1310,7 +1304,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_watchDock = m_uiSwitcher->createDockWidget(CppLanguage, localsAndWatchers);
     m_watchDock->setObjectName(QString(DOCKWIDGET_WATCHERS));
 
-    m_scriptConsoleDock = m_uiSwitcher->createDockWidget(QmlLanguage, m_scriptConsoleWindow);
+    m_scriptConsoleDock =
+        m_uiSwitcher->createDockWidget(QmlLanguage, m_scriptConsoleWindow);
     m_scriptConsoleDock->setObjectName(QString(DOCKWIDGET_QML_SCRIPTCONSOLE));
 
     // Do not fail the whole plugin if something goes wrong here.
@@ -1337,12 +1332,12 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_startExternalAction = new QAction(this);
     m_startExternalAction->setText(tr("Start and Debug External Application..."));
     connect(m_startExternalAction, SIGNAL(triggered()),
-        this, SLOT(startExternalApplication()));
+       SLOT(startExternalApplication()));
 
     m_attachExternalAction = new QAction(this);
     m_attachExternalAction->setText(tr("Attach to Running External Application..."));
     connect(m_attachExternalAction, SIGNAL(triggered()),
-        this, SLOT(attachExternalApplication()));
+        SLOT(attachExternalApplication()));
 
     m_attachCoreAction = new QAction(this);
     m_attachCoreAction->setText(tr("Attach to Core..."));
@@ -1352,13 +1347,12 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     m_attachTcfAction->setText(tr("Attach to Running Tcf Agent..."));
     m_attachTcfAction->setToolTip(tr("This attaches to a running "
         "'Target Communication Framework' agent."));
-    connect(m_attachTcfAction, SIGNAL(triggered()),
-        this, SLOT(attachRemoteTcf()));
+    connect(m_attachTcfAction, SIGNAL(triggered()), SLOT(attachRemoteTcf()));
 
     m_startRemoteAction = new QAction(this);
     m_startRemoteAction->setText(tr("Start and Attach to Remote Application..."));
     connect(m_startRemoteAction, SIGNAL(triggered()),
-        this, SLOT(startRemoteApplication()));
+        SLOT(startRemoteApplication()));
 
     m_detachAction = new QAction(this);
     m_detachAction->setText(tr("Detach Debugger"));
@@ -1590,26 +1584,26 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     // TextEditor
     connect(TextEditorSettings::instance(),
         SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
-        this, SLOT(fontSettingsChanged(TextEditor::FontSettings)));
+        SLOT(fontSettingsChanged(TextEditor::FontSettings)));
 
     // ProjectExplorer
     connect(sessionManager(), SIGNAL(sessionLoaded()),
-       this, SLOT(sessionLoaded()));
+        SLOT(sessionLoaded()));
     connect(sessionManager(), SIGNAL(aboutToSaveSession()),
-       this, SLOT(aboutToSaveSession()));
+        SLOT(aboutToSaveSession()));
     connect(sessionManager(), SIGNAL(aboutToUnloadSession()),
-       this, SLOT(aboutToUnloadSession()));
+        SLOT(aboutToUnloadSession()));
 
     // EditorManager
     QObject *editorManager = core->editorManager();
     connect(editorManager, SIGNAL(editorAboutToClose(Core::IEditor*)),
-        this, SLOT(editorAboutToClose(Core::IEditor*)));
+        SLOT(editorAboutToClose(Core::IEditor*)));
     connect(editorManager, SIGNAL(editorOpened(Core::IEditor*)),
-        this, SLOT(editorOpened(Core::IEditor*)));
+        SLOT(editorOpened(Core::IEditor*)));
 
     // Application interaction
     connect(theDebuggerAction(SettingsDialog), SIGNAL(triggered()),
-        this, SLOT(showSettingsDialog()));
+        SLOT(showSettingsDialog()));
 
     // Toolbar
     QWidget *toolbarContainer = new QWidget;
@@ -1641,31 +1635,34 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
     hbox->addWidget(m_statusLabel, 10);
 
     m_uiSwitcher->setToolbar(CppLanguage, toolbarContainer);
-    connect(m_uiSwitcher, SIGNAL(dockResetRequested(Debugger::DebuggerLanguages)),
-        this, SLOT(setSimpleDockWidgetArrangement(Debugger::DebuggerLanguages)));
+    connect(m_uiSwitcher,
+        SIGNAL(dockResetRequested(Debugger::DebuggerLanguages)),
+        SLOT(setSimpleDockWidgetArrangement(Debugger::DebuggerLanguages)));
 
-    connect(theDebuggerAction(EnableReverseDebugging), SIGNAL(valueChanged(QVariant)),
-        this, SLOT(enableReverseDebuggingTriggered(QVariant)));
+    connect(theDebuggerAction(EnableReverseDebugging),
+        SIGNAL(valueChanged(QVariant)),
+        SLOT(enableReverseDebuggingTriggered(QVariant)));
 
     // UI Switcher
-    connect(m_uiSwitcher, SIGNAL(activeLanguagesChanged(Debugger::DebuggerLanguages)),
-            this, SLOT(languagesChanged(Debugger::DebuggerLanguages)));
+    connect(m_uiSwitcher,
+        SIGNAL(activeLanguagesChanged(Debugger::DebuggerLanguages)),
+        SLOT(languagesChanged(Debugger::DebuggerLanguages)));
 
     setInitialState();
     connectEngine(m_sessionEngine, false);
 
     connect(sessionManager(),
-            SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
-            SLOT(onCurrentProjectChanged(ProjectExplorer::Project*)));
+        SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
+        SLOT(onCurrentProjectChanged(ProjectExplorer::Project*)));
 
     return true;
 }
 
-void DebuggerPluginPrivate::onCurrentProjectChanged(ProjectExplorer::Project *project)
+void DebuggerPluginPrivate::onCurrentProjectChanged(Project *project)
 {
-    ProjectExplorer::RunConfiguration *activeRc = 0;
+    RunConfiguration *activeRc = 0;
     if (project) {
-        ProjectExplorer::Target *target = project->activeTarget();
+        Target *target = project->activeTarget();
         QTC_ASSERT(target, return);
         activeRc = target->activeRunConfiguration();
         QTC_ASSERT(activeRc, /**/);
@@ -1696,7 +1693,7 @@ void DebuggerPluginPrivate::onAction()
     notifyCurrentEngine(role);
 }
 
-void DebuggerPluginPrivate::languagesChanged(const Debugger::DebuggerLanguages &languages)
+void DebuggerPluginPrivate::languagesChanged(const DebuggerLanguages &languages)
 {
     const bool debuggerIsCPP = (languages & CppLanguage);
     //qDebug() << "DEBUGGER IS CPP: " << debuggerIsCPP;
@@ -1736,7 +1733,7 @@ void DebuggerPluginPrivate::startExternalApplication()
     // Fixme: 1 of 3 testing hacks.
     if (!sp.processArgs.isEmpty()
         && (sp.processArgs.front() == _("@tcf@") || sp.processArgs.front() == _("@sym@")))
-        sp.toolChainType = ProjectExplorer::ToolChain::RVCT_ARMV5;
+        sp.toolChainType = ToolChain::RVCT_ARMV5;
 
     startDebugger(m_debuggerRunControlFactory->create(sp));
 }
@@ -1845,7 +1842,7 @@ void DebuggerPluginPrivate::startRemoteApplication()
     sp.displayName = dlg.localExecutable();
     sp.debuggerCommand = dlg.debugger(); // Override toolchain-detection.
     if (!sp.debuggerCommand.isEmpty())
-        sp.toolChainType = ProjectExplorer::ToolChain::INVALID;
+        sp.toolChainType = ToolChain::INVALID;
     sp.startMode = AttachToRemote;
     if (dlg.useServerStartScript())
         sp.serverStartScript = dlg.serverStartScript();
@@ -1999,7 +1996,7 @@ void DebuggerPluginPrivate::showToolTip(ITextEditor *editor, const QPoint &point
 
 DebuggerRunControl *
 DebuggerPluginPrivate::createDebugger(const DebuggerStartParameters &sp,
-    ProjectExplorer::RunConfiguration *rc)
+    RunConfiguration *rc)
 {
     return m_debuggerRunControlFactory->create(sp, rc);
 }
@@ -2014,7 +2011,7 @@ void DebuggerPluginPrivate::displayDebugger(DebuggerEngine *engine, bool updateE
     updateState(engine);
 }
 
-void DebuggerPluginPrivate::startDebugger(ProjectExplorer::RunControl *rc)
+void DebuggerPluginPrivate::startDebugger(RunControl *rc)
 {
     QTC_ASSERT(rc, return);
     ProjectExplorerPlugin::instance()->startRunControl(rc, PE::DEBUGMODE);
@@ -2114,7 +2111,8 @@ void DebuggerPluginPrivate::setBusyCursor(bool busy)
     m_scriptConsoleWindow->setCursor(cursor);
 }
 
-void DebuggerPluginPrivate::setSimpleDockWidgetArrangement(const Debugger::DebuggerLanguages &activeLanguages)
+void DebuggerPluginPrivate::setSimpleDockWidgetArrangement
+    (const DebuggerLanguages &activeLanguages)
 {
     Debugger::DebuggerUISwitcher *uiSwitcher = DebuggerUISwitcher::instance();
     DebuggerMainWindow *mw = mainWindow();
@@ -2135,9 +2133,10 @@ void DebuggerPluginPrivate::setSimpleDockWidgetArrangement(const Debugger::Debug
         dockWidget->hide();
     }
 
-    if ((activeLanguages.testFlag(CppLanguage) && !activeLanguages.testFlag(QmlLanguage))
-        || activeLanguages == AnyLanguage
-        || !uiSwitcher->qmlInspectorWindow()) {
+    if ((activeLanguages.testFlag(CppLanguage)
+                && !activeLanguages.testFlag(QmlLanguage))
+            || activeLanguages == AnyLanguage
+            || !uiSwitcher->qmlInspectorWindow()) {
         m_stackDock->show();
         m_breakDock->show();
         m_watchDock->show();
@@ -2482,7 +2481,7 @@ void DebuggerPluginPrivate::showStatusMessage(const QString &msg0, int timeout)
     }
 }
 
-void DebuggerPluginPrivate::scriptExpressionEntered(const QString& expression)
+void DebuggerPluginPrivate::scriptExpressionEntered(const QString &expression)
 {
     notifyCurrentEngine(RequestExecuteCommandRole, expression);
 }
@@ -2626,7 +2625,8 @@ void DebuggerPlugin::clearCppCodeModelSnapshot()
 
 ExtensionSystem::IPlugin::ShutdownFlag DebuggerPlugin::aboutToShutdown()
 {
-    disconnect(sessionManager(), SIGNAL(startupProjectChanged(ProjectExplorer::Project*)), d, 0);
+    disconnect(sessionManager(),
+        SIGNAL(startupProjectChanged(ProjectExplorer::Project*)), d, 0);
     writeSettings();
     if (d->m_uiSwitcher)
         d->m_uiSwitcher->aboutToShutdown();
@@ -2717,17 +2717,17 @@ QWidget *DebuggerPlugin::mainWindow() const
 
 DebuggerRunControl *
 DebuggerPlugin::createDebugger(const DebuggerStartParameters &sp,
-    ProjectExplorer::RunConfiguration *rc)
+    RunConfiguration *rc)
 {
     return instance()->d->createDebugger(sp, rc);
 }
 
-void DebuggerPlugin::startDebugger(ProjectExplorer::RunControl *runControl)
+void DebuggerPlugin::startDebugger(RunControl *runControl)
 {
     instance()->d->startDebugger(runControl);
 }
 
-void DebuggerPlugin::displayDebugger(ProjectExplorer::RunControl *runControl)
+void DebuggerPlugin::displayDebugger(RunControl *runControl)
 {
     DebuggerRunControl *rc = qobject_cast<DebuggerRunControl *>(runControl);
     QTC_ASSERT(rc, return);
@@ -2797,37 +2797,6 @@ bool DebuggerPlugin::hasSnapsnots() const
     return d->m_snapshotHandler->size();
 }
 
-static inline bool canShutDown(DebuggerState s)
-{
-    switch (s) {
-     case DebuggerNotReady:
-     case DebuggerFinished:
-     case InferiorUnrunnable:
-        return true;
-     case EngineSetupRequested:
-     case EngineSetupOk:
-     case EngineSetupFailed:
-     case EngineRunRequested:
-     case InferiorSetupFailed:
-     case InferiorShutdownOk:
-     case InferiorShutdownFailed:
-     case EngineShutdownRequested:
-     case EngineRunFailed:
-     case EngineShutdownOk:
-     case EngineShutdownFailed:
-     case InferiorSetupRequested:
-     case InferiorRunRequested:
-     case InferiorRunOk:
-     case InferiorStopRequested:
-     case InferiorStopOk:
-     case InferiorStopFailed:
-     case InferiorShutdownRequested:
-     case InferiorRunFailed:
-        break;
-     }
-    return false;
-}
-
 //////////////////////////////////////////////////////////////////////
 //
 // Testing
@@ -2849,4 +2818,4 @@ void DebuggerPlugin::runTest(const QString &fileName)
 
 #include "debuggerplugin.moc"
 
-Q_EXPORT_PLUGIN(DebuggerPlugin)
+Q_EXPORT_PLUGIN(Debugger::DebuggerPlugin)
