@@ -627,6 +627,54 @@
            \gui Help mode, select \gui Tools > \gui Options... > \gui Help.
     \endlist
 
+    \section1 Finding Information in Qt Documentation
+
+    Qt Creator, Qt SDK, Nokia Qt SDK and other Qt deliverables contain documentation
+    as .qch files. All the documentation is accessible in the \gui Help mode.
+
+    To find information in the documentation, select:
+
+    \list
+
+        \o \gui Bookmarks to view a list of pages on which you have added bookmarks.
+
+        \o \gui Contents to see all the documentation installed on the development
+        PC and to browse the documentation contents.
+
+        \o \gui Index to find information based on a list of keywords in all the
+        installed documents.
+
+        \o \gui {Open Pages} to view a list of currently open documentation pages.
+
+        \o \gui Search to search from all the installed documents.
+
+    \endlist
+
+    \section2 Adding Bookmarks to Help Pages
+
+    You can add bookmarks to useful help pages to easily find them later
+    in the \gui Bookmarks view. You can either use the page title as the
+    bookmark or change it to any text. You can organize the bookmarks in
+    folders in the view.
+
+    \image qtcreator-help-add-bookmark-dlg.png "Add Bookmark dialog"
+
+    To add a bookmark to an open help page:
+
+    \list 1
+
+        \o Click the
+        \inlineimage qtcreator-help-add-bookmark.png
+        (\gui {Add Bookmark}) button on the toolbar.
+
+        \o In the \gui {Add Bookmark} dialog, click \gui OK to save the
+        page title as a bookmark in the \gui Bookmarks folder.
+
+    \endlist
+
+    To import and export bookmarks, select \gui {Tools > Options... > Help >
+    General Settings > Import} or \gui Export.
+
     \section1 Adding External Documentation
 
     You can display external documentation in the \gui Help mode.
@@ -640,6 +688,21 @@
         \o To add the .qch file to Qt Creator, select \gui Tools >
            \gui Options... > \gui Help > \gui Documentation > \gui Add.
     \endlist
+
+    \section1 Detaching the Help Window
+
+    By default, context-sensitive help is opened in a window next to the
+    code editor when you press \key F1. If there is not enough vertical
+    space, the help opens in the full-screen help mode.
+
+    You can specify that the help always opens in full-screen mode or
+    is detached to an external window. Select \gui {Tools > Options... > Help >
+    General Settings} and specify settings for displaying context-sensitive help
+    in the \gui {On context help} field. To detach the help window, select
+    \gui {Always Show Help in External Window}.
+
+    You can select the help page to open upon startup in the \gui {Home Page}
+    field.
 
     \section1 Using Documentation Filters
 
