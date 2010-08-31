@@ -1005,8 +1005,6 @@ public:
     QDockWidget *m_watchDock;
     QDockWidget* m_scriptConsoleDock;
 
-    QList<QDockWidget *> m_dockWidgets;
-
     DebuggerActions m_actions;
 
     BreakWindow *m_breakWindow;
@@ -1314,11 +1312,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *er
 
     m_scriptConsoleDock = m_uiSwitcher->createDockWidget(QmlLanguage, m_scriptConsoleWindow);
     m_scriptConsoleDock->setObjectName(QString(DOCKWIDGET_QML_SCRIPTCONSOLE));
-
-    m_dockWidgets << m_breakDock << m_modulesDock << m_registerDock
-                  << m_outputDock << m_snapshotDock << m_stackDock
-                  << m_sourceFilesDock << m_threadsDock << m_watchDock
-                  << m_scriptConsoleDock;
 
     // Do not fail the whole plugin if something goes wrong here.
     uint cmdLineEnabledEngines = AllEngineTypes;
@@ -2143,9 +2136,8 @@ void DebuggerPluginPrivate::setSimpleDockWidgetArrangement(const Debugger::Debug
     }
 
     if ((activeLanguages.testFlag(CppLanguage) && !activeLanguages.testFlag(QmlLanguage))
-      || activeLanguages == AnyLanguage
-      || !uiSwitcher->qmlInspectorWindow())
-    {
+        || activeLanguages == AnyLanguage
+        || !uiSwitcher->qmlInspectorWindow()) {
         m_stackDock->show();
         m_breakDock->show();
         m_watchDock->show();
@@ -2155,12 +2147,9 @@ void DebuggerPluginPrivate::setSimpleDockWidgetArrangement(const Debugger::Debug
         m_stackDock->show();
         m_breakDock->show();
         m_watchDock->show();
-        m_threadsDock->show();
-        m_snapshotDock->show();
-        uiSwitcher->qmlInspectorWindow()->show();
         m_scriptConsoleDock->show();
+        uiSwitcher->qmlInspectorWindow()->show();
     }
-
     mw->splitDockWidget(mw->toolBarDockWidget(), m_stackDock, Qt::Vertical);
     mw->splitDockWidget(m_stackDock, m_watchDock, Qt::Horizontal);
     mw->tabifyDockWidget(m_watchDock, m_breakDock);
@@ -2170,9 +2159,9 @@ void DebuggerPluginPrivate::setSimpleDockWidgetArrangement(const Debugger::Debug
     mw->tabifyDockWidget(m_watchDock, m_sourceFilesDock);
     mw->tabifyDockWidget(m_watchDock, m_snapshotDock);
     mw->tabifyDockWidget(m_watchDock, m_snapshotDock);
+    mw->tabifyDockWidget(m_watchDock, m_scriptConsoleDock);
     if (uiSwitcher->qmlInspectorWindow())
         mw->tabifyDockWidget(m_watchDock, uiSwitcher->qmlInspectorWindow());
-    mw->tabifyDockWidget(m_watchDock, m_scriptConsoleDock);
 
     mw->setTrackingEnabled(true);
 }
