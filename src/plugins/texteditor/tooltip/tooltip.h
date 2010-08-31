@@ -49,13 +49,13 @@
 QT_BEGIN_NAMESPACE
 class QPoint;
 class QWidget;
-class QTipLabel;
 QT_END_NAMESPACE
 
 namespace TextEditor {
 
 namespace Internal {
 class TipFactory;
+class QTipLabel;
 }
 
 class TipContent;
@@ -93,7 +93,7 @@ private:
     void hideTipWithDelay();
 
     Internal::TipFactory *m_tipFactory;
-    QTipLabel *m_tip;
+    Internal::QTipLabel *m_tip;
     QWidget *m_widget;
     QRect m_rect;
     QTimer m_showTimer;

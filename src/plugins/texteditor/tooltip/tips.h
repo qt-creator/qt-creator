@@ -38,7 +38,10 @@ namespace TextEditor {
 class TipContent;
 }
 
-QT_BEGIN_NAMESPACE
+#ifndef Q_MOC_RUN
+namespace TextEditor {
+namespace Internal {
+#endif
 
 // Please do not change the name of this class. Detailed comments in tooltip.h.
 class QTipLabel : public QLabel
@@ -59,11 +62,6 @@ public:
 private:
     TextEditor::TipContent *m_tipContent;
 };
-
-QT_END_NAMESPACE
-
-namespace TextEditor {
-namespace Internal {
 
 class ColorTip : public QTipLabel
 {
@@ -96,7 +94,9 @@ private:
     virtual void resizeEvent(QResizeEvent *event);
 };
 
+#ifndef Q_MOC_RUN
 } // namespace Internal
 } // namespace TextEditor
+#endif
 
 #endif // TIPS_H

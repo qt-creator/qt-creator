@@ -40,7 +40,7 @@ TipFactory::TipFactory()
 TipFactory::~TipFactory()
 {}
 
-QTipLabel *TipFactory::createTip(const TipContent &content, QWidget *w)
+Internal::QTipLabel *TipFactory::createTip(const TipContent &content, QWidget *w)
 {
     QTipLabel *tip = 0;
     if (content.typeId() == TextContent::TEXT_CONTENT_ID)

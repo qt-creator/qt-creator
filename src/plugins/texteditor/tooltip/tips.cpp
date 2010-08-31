@@ -41,8 +41,8 @@
 #include <QtGui/QStylePainter>
 #include <QtGui/QStyleOptionFrame>
 
-using namespace TextEditor;
-using namespace Internal;
+namespace TextEditor {
+    namespace Internal {
 
 namespace {
     // @todo: Reuse...
@@ -58,8 +58,6 @@ namespace {
         return tilePixmap;
     }
 }
-
-QT_BEGIN_NAMESPACE
 
 QTipLabel::QTipLabel(QWidget *parent) :
     QLabel(parent, Qt::ToolTip | Qt::BypassGraphicsProxyWidget),
@@ -82,8 +80,6 @@ void QTipLabel::setContent(const TipContent &content)
 
 const TipContent &QTipLabel::content() const
 { return *m_tipContent; }
-
-QT_END_NAMESPACE
 
 ColorTip::ColorTip(QWidget *parent) : QTipLabel(parent)
 {
@@ -183,3 +179,9 @@ void TextTip::resizeEvent(QResizeEvent *event)
 
     QLabel::resizeEvent(event);
 }
+
+// need to include it here to force it to be inside the namespaces
+#include "moc_tips.cpp"
+
+} // namespace Internal
+} // namespace TextEditor
