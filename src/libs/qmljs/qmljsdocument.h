@@ -146,7 +146,7 @@ class QMLJS_EXPORT Snapshot
 {
     typedef QHash<QString, Document::Ptr> _Base;
     QHash<QString, Document::Ptr> _documents;
-    QMultiHash<QString, Document::Ptr> _documentsByPath;
+    QHash<QString, QList<Document::Ptr> > _documentsByPath;
     QHash<QString, LibraryInfo> _libraries;
 
 public:

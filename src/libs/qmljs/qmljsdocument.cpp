@@ -339,7 +339,7 @@ void Snapshot::insert(const Document::Ptr &document)
         const QString path = document->path();
 
         remove(fileName);
-        _documentsByPath.insert(path, document);
+        _documentsByPath[path].append(document);
         _documents.insert(fileName, document);
     }
 }
@@ -353,7 +353,12 @@ void Snapshot::remove(const QString &fileName)
 {
     Document::Ptr doc = _documents.value(fileName);
     if (!doc.isNull()) {
-        _documentsByPath.remove(doc->path(), doc);
+        const QString &path = doc->path();
+
+        QList<Document::Ptr> docs = _documentsByPath.value(path);
+        docs.removeAll(doc);
+        _documentsByPath[path] = docs;
+
         _documents.remove(fileName);
     }
 }
@@ -378,7 +383,7 @@ Document::Ptr Snapshot::document(const QString &fileName) const
 
 QList<Document::Ptr> Snapshot::documentsInDirectory(const QString &path) const
 {
-    return _documentsByPath.values(QDir::cleanPath(path));
+    return _documentsByPath.value(QDir::cleanPath(path));
 }
 
 LibraryInfo Snapshot::libraryInfo(const QString &path) const
