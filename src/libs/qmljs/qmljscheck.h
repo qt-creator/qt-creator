@@ -32,7 +32,6 @@
 
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsinterpreter.h>
-#include <qmljs/qmljslink.h>
 #include <qmljs/qmljsscopebuilder.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 
@@ -46,7 +45,7 @@ class QMLJS_EXPORT Check: protected AST::Visitor
     Q_DECLARE_TR_FUNCTIONS(QmlJS::Check)
 
 public:
-    Check(Document::Ptr doc, const Snapshot &snapshot, const QStringList &importPaths);
+    Check(Document::Ptr doc, const Snapshot &snapshot, const Interpreter::Context *linkedContextNoScope);
     virtual ~Check();
 
     QList<DiagnosticMessage> operator()();
@@ -72,7 +71,6 @@ private:
     Snapshot _snapshot;
 
     Interpreter::Context _context;
-    Link _link;
     ScopeBuilder _scopeBuilder;
 
     QList<DiagnosticMessage> _messages;

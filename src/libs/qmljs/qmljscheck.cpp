@@ -154,10 +154,10 @@ public:
 } // end of anonymous namespace
 
 
-Check::Check(Document::Ptr doc, const Snapshot &snapshot, const QStringList &importPaths)
+Check::Check(Document::Ptr doc, const Snapshot &snapshot, const Context *linkedContextNoScope)
     : _doc(doc)
     , _snapshot(snapshot)
-    , _link(&_context, doc, snapshot, importPaths)
+    , _context(*linkedContextNoScope)
     , _scopeBuilder(doc, &_context)
     , _ignoreTypeErrors(false)
 {
@@ -171,7 +171,6 @@ QList<DiagnosticMessage> Check::operator()()
 {
     _messages.clear();
     Node::accept(_doc->ast(), this);
-    _messages.append(_link.diagnosticMessages());
     return _messages;
 }
 

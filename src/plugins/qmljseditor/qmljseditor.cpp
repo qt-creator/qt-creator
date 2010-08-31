@@ -1892,12 +1892,13 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     Interpreter::Context *ctx = new Interpreter::Context;
     Link link(ctx, doc, snapshot, ModelManagerInterface::instance()->importPaths());
     semanticInfo.m_context = QSharedPointer<const QmlJS::Interpreter::Context>(ctx);
+    semanticInfo.semanticMessages = link.diagnosticMessages();
 
     QStringList importPaths;
     if (m_modelManager)
         importPaths = m_modelManager->importPaths();
-    Check checker(doc, snapshot, importPaths);
-    semanticInfo.semanticMessages = checker();
+    Check checker(doc, snapshot, ctx);
+    semanticInfo.semanticMessages.append(checker());
 
     return semanticInfo;
 }
