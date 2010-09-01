@@ -1700,8 +1700,7 @@ bool GitClient::synchronousPull(const QString &workingDirectory, bool rebase)
     if (rebase)
         arguments << QLatin1String("--rebase");
     // Disable UNIX terminals to suppress SSH prompting.
-    const unsigned flags = VCSBase::VCSBasePlugin::SshPasswordPrompt|VCSBase::VCSBasePlugin::ShowStdOutInLogWindow
-                           |VCSBase::VCSBasePlugin::ShowSuccessMessage;
+    const unsigned flags = VCSBase::VCSBasePlugin::SshPasswordPrompt|VCSBase::VCSBasePlugin::ShowStdOutInLogWindow;
     const Utils::SynchronousProcessResponse resp = synchronousGit(workingDirectory, arguments, flags);
     // Notify about changed files or abort the rebase.
     const bool ok = resp.result == Utils::SynchronousProcessResponse::Finished;
