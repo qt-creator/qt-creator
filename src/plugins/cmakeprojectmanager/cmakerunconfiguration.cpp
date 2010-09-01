@@ -38,6 +38,7 @@
 #include <projectexplorer/environment.h>
 #include <projectexplorer/debugginghelper.h>
 #include <utils/qtcassert.h>
+#include <utils/debuggerlanguagechooser.h>
 #include <QtGui/QFormLayout>
 #include <QtGui/QLineEdit>
 #include <QtGui/QGroupBox>
@@ -346,6 +347,13 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
 
     fl->addRow(tr("Working Directory:"), boxlayout);
 
+    QLabel *debuggerLabel = new QLabel(tr("Debugger:"), this);
+    m_debuggerLanguageChooser = new Utils::DebuggerLanguageChooser(this);
+    fl->addRow(debuggerLabel, m_debuggerLanguageChooser);
+
+    m_debuggerLanguageChooser->setCppChecked(m_cmakeRunConfiguration->useCppDebugger());
+    m_debuggerLanguageChooser->setQmlChecked(m_cmakeRunConfiguration->useQmlDebugger());
+
     m_detailsContainer = new Utils::DetailsWidget(this);
     m_detailsContainer->setState(Utils::DetailsWidget::NoSummary);
 
@@ -394,6 +402,11 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     connect(resetButton, SIGNAL(clicked()),
             this, SLOT(resetWorkingDirectory()));
 
+    connect(m_debuggerLanguageChooser, SIGNAL(cppLanguageToggled(bool)),
+            this, SLOT(useCppDebuggerToggled(bool)));
+    connect(m_debuggerLanguageChooser, SIGNAL(qmlLanguageToggled(bool)),
+            this, SLOT(useQmlDebuggerToggled(bool)));
+
     connect(m_environmentWidget, SIGNAL(userChangesChanged()),
             this, SLOT(userChangesChanged()));
 
@@ -426,6 +439,16 @@ void CMakeRunConfigurationWidget::resetWorkingDirectory()
     // This emits a signal connected to workingDirectoryChanged()
     // that sets the m_workingDirectoryEdit
     m_cmakeRunConfiguration->setUserWorkingDirectory("");
+}
+
+void CMakeRunConfigurationWidget::useCppDebuggerToggled(bool toggled)
+{
+    m_cmakeRunConfiguration->setUseCppDebugger(toggled);
+}
+
+void CMakeRunConfigurationWidget::useQmlDebuggerToggled(bool toggled)
+{
+    m_cmakeRunConfiguration->setUseQmlDebugger(toggled);
 }
 
 void CMakeRunConfigurationWidget::userChangesChanged()

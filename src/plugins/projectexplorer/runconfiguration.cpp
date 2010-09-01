@@ -52,6 +52,9 @@ using namespace ProjectExplorer;
 namespace {
 // Function objects:
 
+const char * const USE_CPP_DEBUGGER_KEY("RunConfiguration.UseCppDebugger");
+const char * const USE_QML_DEBUGGER_KEY("RunConfiguration.UseQmlDebugger");
+
 class RunConfigurationFactoryMatcher
 {
 public:
@@ -141,7 +144,9 @@ IRunConfigurationFactory * findRunConfigurationFactory(RunConfigurationFactoryMa
 
 // RunConfiguration
 RunConfiguration::RunConfiguration(Target *target, const QString &id) :
-    ProjectConfiguration(target, id)
+    ProjectConfiguration(target, id),
+    m_useCppDebugger(true),
+    m_useQmlDebugger(false)
 {
     Q_ASSERT(target);
 }
@@ -180,6 +185,43 @@ BuildConfiguration *RunConfiguration::activeBuildConfiguration() const
 Target *RunConfiguration::target() const
 {
     return static_cast<Target *>(parent());
+}
+
+void RunConfiguration::setUseQmlDebugger(bool value)
+{
+    m_useQmlDebugger = value;
+    emit debuggersChanged();
+}
+
+void RunConfiguration::setUseCppDebugger(bool value)
+{
+    m_useCppDebugger = value;
+    emit debuggersChanged();
+}
+
+bool RunConfiguration::useCppDebugger() const
+{
+    return m_useCppDebugger;
+}
+
+bool RunConfiguration::useQmlDebugger() const
+{
+    return m_useQmlDebugger;
+}
+
+QVariantMap RunConfiguration::toMap() const
+{
+    QVariantMap map(ProjectConfiguration::toMap());
+    map.insert(QLatin1String(USE_CPP_DEBUGGER_KEY), m_useCppDebugger);
+    map.insert(QLatin1String(USE_QML_DEBUGGER_KEY), m_useQmlDebugger);
+    return map;
+}
+
+bool RunConfiguration::fromMap(const QVariantMap &map)
+{
+    m_useCppDebugger = map.value(QLatin1String(USE_CPP_DEBUGGER_KEY), true).toBool();
+    m_useQmlDebugger = map.value(QLatin1String(USE_QML_DEBUGGER_KEY), false).toBool();
+    return ProjectConfiguration::fromMap(map);
 }
 
 ProjectExplorer::OutputFormatter *RunConfiguration::createOutputFormatter() const

@@ -87,8 +87,15 @@ public:
 
     virtual ProjectExplorer::OutputFormatter *createOutputFormatter() const;
 
+    void setUseQmlDebugger(bool value);
+    void setUseCppDebugger(bool value);
+    bool useQmlDebugger() const;
+    bool useCppDebugger() const;
+    virtual QVariantMap toMap() const;
+
 signals:
     void isEnabledChanged(bool value);
+    void debuggersChanged();
 
 protected:
     RunConfiguration(Target *parent, const QString &id);
@@ -96,6 +103,12 @@ protected:
 
     /// convenience method to get current build configuration.
     BuildConfiguration *activeBuildConfiguration() const;
+
+    virtual bool fromMap(const QVariantMap &map);
+
+private:
+    bool m_useCppDebugger;
+    bool m_useQmlDebugger;
 };
 
 /**

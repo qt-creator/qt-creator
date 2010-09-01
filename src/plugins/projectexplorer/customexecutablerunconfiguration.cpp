@@ -37,6 +37,7 @@
 #include <projectexplorer/target.h>
 #include <utils/detailswidget.h>
 #include <utils/pathchooser.h>
+#include <utils/debuggerlanguagechooser.h>
 
 #include <QtCore/QDir>
 #include <QtGui/QCheckBox>
@@ -102,6 +103,13 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     m_useTerminalCheck = new QCheckBox(tr("Run in &Terminal"), this);
     layout->addRow(QString(), m_useTerminalCheck);
 
+    QLabel *debuggerLabel = new QLabel(tr("Debugger:"), this);
+    m_debuggerLanguageChooser = new Utils::DebuggerLanguageChooser(this);
+    layout->addRow(debuggerLabel, m_debuggerLanguageChooser);
+
+    m_debuggerLanguageChooser->setCppChecked(m_runConfiguration->useCppDebugger());
+    m_debuggerLanguageChooser->setQmlChecked(m_runConfiguration->useQmlDebugger());
+
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setMargin(0);
 
@@ -154,6 +162,11 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     connect(m_useTerminalCheck, SIGNAL(toggled(bool)),
             this, SLOT(termToggled(bool)));
 
+    connect(m_debuggerLanguageChooser, SIGNAL(cppLanguageToggled(bool)),
+            this, SLOT(useCppDebuggerToggled(bool)));
+    connect(m_debuggerLanguageChooser, SIGNAL(qmlLanguageToggled(bool)),
+            this, SLOT(useQmlDebuggerToggled(bool)));
+
     connect(m_runConfiguration, SIGNAL(changed()), this, SLOT(changed()));
 
     connect(m_environmentWidget, SIGNAL(userChangesChanged()),
@@ -178,6 +191,16 @@ void CustomExecutableConfigurationWidget::baseEnvironmentSelected(int index)
     m_environmentWidget->setBaseEnvironment(m_runConfiguration->baseEnvironment());
     m_environmentWidget->setBaseEnvironmentText(m_runConfiguration->baseEnvironmentText());
     m_ignoreChange = false;
+}
+
+void CustomExecutableConfigurationWidget::useCppDebuggerToggled(bool toggled)
+{
+    m_runConfiguration->setUseCppDebugger(toggled);
+}
+
+void CustomExecutableConfigurationWidget::useQmlDebuggerToggled(bool toggled)
+{
+    m_runConfiguration->setUseQmlDebugger(toggled);
 }
 
 void CustomExecutableConfigurationWidget::baseEnvironmentChanged()
@@ -279,6 +302,7 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *paren
     ctor();
 }
 
+// Note: Qt4Project deletes all empty customexecrunconfigs for which isConfigured() == false.
 CustomExecutableRunConfiguration::~CustomExecutableRunConfiguration()
 {
 }
@@ -466,7 +490,7 @@ bool CustomExecutableRunConfiguration::fromMap(const QVariantMap &map)
     m_baseEnvironmentBase = static_cast<BaseEnvironmentBase>(map.value(QLatin1String(BASE_ENVIRONMENT_BASE_KEY), static_cast<int>(CustomExecutableRunConfiguration::BuildEnvironmentBase)).toInt());
 
     setDefaultDisplayName(defaultDisplayName());
-    return RunConfiguration::fromMap(map);
+    return LocalApplicationRunConfiguration::fromMap(map);
 }
 
 void CustomExecutableRunConfiguration::setExecutable(const QString &executable)

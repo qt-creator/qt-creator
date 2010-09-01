@@ -41,6 +41,7 @@
 #include <coreplugin/ifile.h>
 #include <utils/synchronousprocess.h>
 #include <utils/pathchooser.h>
+#include <utils/debuggerlanguagechooser.h>
 #include <qt4projectmanager/qtversionmanager.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 
@@ -92,6 +93,10 @@ bool QmlProjectRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *
 
 void QmlProjectRunConfiguration::ctor()
 {
+    // reset default settings in constructor
+    setUseCppDebugger(false);
+    setUseQmlDebugger(true);
+
     Core::EditorManager *em = Core::EditorManager::instance();
     connect(em, SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(changeCurrentFile(Core::IEditor*)));
@@ -202,7 +207,19 @@ QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
     form->addRow(tr("Debugging Address:"), debugServer);
     form->addRow(tr("Debugging Port:"), debugPort);
 
+    QLabel *debuggerLabel = new QLabel(tr("Debugger:"), config);
+    Utils::DebuggerLanguageChooser *debuggerLanguageChooser = new Utils::DebuggerLanguageChooser(config);
+
     form->addRow(tr("Main QML File:"), m_fileListCombo.data());
+    form->addRow(debuggerLabel, debuggerLanguageChooser);
+
+    debuggerLanguageChooser->setCppChecked(useCppDebugger());
+    debuggerLanguageChooser->setQmlChecked(useQmlDebugger());
+
+    connect(debuggerLanguageChooser, SIGNAL(cppLanguageToggled(bool)),
+            this, SLOT(useCppDebuggerToggled(bool)));
+    connect(debuggerLanguageChooser, SIGNAL(qmlLanguageToggled(bool)),
+            this, SLOT(useQmlDebuggerToggled(bool)));
 
     return config;
 }
@@ -297,6 +314,17 @@ void QmlProjectRunConfiguration::onDebugServerPortChanged()
         m_debugData.serverPort = spinBox->value();
     }
 }
+
+void QmlProjectRunConfiguration::useCppDebuggerToggled(bool toggled)
+{
+    setUseCppDebugger(toggled);
+}
+
+void QmlProjectRunConfiguration::useQmlDebuggerToggled(bool toggled)
+{
+    setUseQmlDebugger(toggled);
+}
+
 
 QVariantMap QmlProjectRunConfiguration::toMap() const
 {

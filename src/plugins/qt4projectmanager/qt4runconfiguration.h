@@ -43,6 +43,7 @@ QT_END_NAMESPACE
 
 namespace Utils {
 class PathChooser;
+class DebuggerLanguageChooser;
 class DetailsWidget;
 }
 
@@ -172,6 +173,8 @@ private slots:
     void usingDyldImageSuffixToggled(bool);
     void usingDyldImageSuffixChanged(bool);
     void baseEnvironmentSelected(int index);
+    void useCppDebuggerToggled(bool toggled);
+    void useQmlDebuggerToggled(bool toggled);
 
 private:
     Qt4RunConfiguration *m_qt4RunConfiguration;
@@ -184,7 +187,7 @@ private:
 
     QComboBox *m_baseEnvironmentComboBox;
     Utils::DetailsWidget *m_detailsContainer;
-
+    Utils::DebuggerLanguageChooser *m_debuggerLanguageChooser;
     ProjectExplorer::EnvironmentWidget *m_environmentWidget;
     bool m_isShown;
 };

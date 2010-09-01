@@ -99,6 +99,8 @@ private slots:
     void onViewerArgsChanged();
     void onDebugServerAddressChanged();
     void onDebugServerPortChanged();
+    void useCppDebuggerToggled(bool toggled);
+    void useQmlDebuggerToggled(bool toggled);
 
 protected:
     QString viewerDefaultPath() const;

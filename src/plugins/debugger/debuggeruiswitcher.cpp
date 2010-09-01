@@ -134,6 +134,7 @@ struct DebuggerUISwitcherPrivate
 
     QWeakPointer<ProjectExplorer::Project> m_previousProject;
     QWeakPointer<ProjectExplorer::Target> m_previousTarget;
+    QWeakPointer<ProjectExplorer::RunConfiguration> m_previousRunConfiguration;
 
     bool m_initialized;
 
@@ -221,7 +222,8 @@ void DebuggerUISwitcher::updateUiForTarget(ProjectExplorer::Target *target)
         return;
 
     if (d->m_previousTarget) {
-        disconnect(target, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
+            disconnect(d->m_previousTarget.data(),
+                       SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
             this, SLOT(updateUiForRunConfiguration(ProjectExplorer::RunConfiguration*)));
     }
     d->m_previousTarget = target;
@@ -230,33 +232,33 @@ void DebuggerUISwitcher::updateUiForTarget(ProjectExplorer::Target *target)
     updateUiForRunConfiguration(target->activeRunConfiguration());
 }
 
-static bool isQmlProjectType(ProjectExplorer::RunConfiguration *rc)
-{
-    if (rc && rc->target() && rc->target()->project()) {
-        return (rc->target()->project()->id() == QLatin1String("QmlProjectManager.QmlProject"));
-    }
-    return false;
-}
-
 // updates default debug language settings per run config.
 void DebuggerUISwitcher::updateUiForRunConfiguration(ProjectExplorer::RunConfiguration *rc)
 {
-    bool isDotQmlProjectType = isQmlProjectType(rc);
     if (rc) {
-        d->m_languageActionGroup->setDisabled(false);
-        if (d->m_qmlEnabled) {
-            d->m_activateCppAction->setChecked(!isDotQmlProjectType);
-            d->m_activateQmlAction->setChecked(isDotQmlProjectType);
-        } else {
-            if (d->m_activateQmlAction)
-                d->m_activateQmlAction->setChecked(false);
+        if (d->m_previousRunConfiguration) {
+            disconnect(d->m_previousRunConfiguration.data(),
+                       SIGNAL(debuggersChanged()),
+                       this, SLOT(updateUiForCurrentRunConfiguration()));
         }
-    } else {
+        d->m_previousRunConfiguration = rc;
+        connect(d->m_previousRunConfiguration.data(),
+                   SIGNAL(debuggersChanged()),
+                   this, SLOT(updateUiForCurrentRunConfiguration()));
+
+        updateUiForCurrentRunConfiguration();
+    }
+}
+
+void DebuggerUISwitcher::updateUiForCurrentRunConfiguration()
+{
+    if (d->m_previousRunConfiguration) {
+        ProjectExplorer::RunConfiguration *rc = d->m_previousRunConfiguration.data();
+
         if (d->m_activateCppAction)
-            d->m_activateCppAction->setChecked(true);
+            d->m_activateCppAction->setChecked(rc->useCppDebugger());
         if (d->m_activateQmlAction)
-            d->m_activateQmlAction->setChecked(false);
-        d->m_languageActionGroup->setDisabled(true);
+            d->m_activateQmlAction->setChecked(rc->useQmlDebugger());
     }
 
     updateActiveLanguages();

@@ -45,7 +45,9 @@ SOURCES += $$PWD/reloadpromptutils.cpp \
     $$PWD/faketooltip.cpp \
     $$PWD/htmldocextractor.cpp \
     $$PWD/navigationtreeview.cpp \
-    $$PWD/crumblepath.cpp
+    $$PWD/crumblepath.cpp \
+    $$PWD/debuggerlanguagechooser.cpp
+
 win32 {
     SOURCES += $$PWD/abstractprocess_win.cpp \
         $$PWD/consoleprocess_win.cpp \
@@ -101,7 +103,9 @@ HEADERS += $$PWD/utils_global.h \
     $$PWD/faketooltip.h \
     $$PWD/htmldocextractor.h \
     $$PWD/navigationtreeview.h \
-    $$PWD/crumblepath.h
+    $$PWD/crumblepath.h \
+    $$PWD/debuggerlanguagechooser.h
+
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \
     $$PWD/newclasswidget.ui \

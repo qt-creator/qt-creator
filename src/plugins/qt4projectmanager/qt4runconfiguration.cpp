@@ -49,6 +49,7 @@
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
 #include <utils/detailswidget.h>
+#include <utils/debuggerlanguagechooser.h>
 
 #include <QtGui/QFormLayout>
 #include <QtGui/QInputDialog>
@@ -223,6 +224,13 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     m_useTerminalCheck->setChecked(m_qt4RunConfiguration->runMode() == ProjectExplorer::LocalApplicationRunConfiguration::Console);
     toplayout->addRow(QString(), m_useTerminalCheck);
 
+    QLabel *debuggerLabel = new QLabel(tr("Debugger:"), this);
+    m_debuggerLanguageChooser = new Utils::DebuggerLanguageChooser(this);
+    toplayout->addRow(debuggerLabel, m_debuggerLanguageChooser);
+
+    m_debuggerLanguageChooser->setCppChecked(m_qt4RunConfiguration->useCppDebugger());
+    m_debuggerLanguageChooser->setQmlChecked(m_qt4RunConfiguration->useQmlDebugger());
+
 #ifdef Q_OS_MAC
     m_usingDyldImageSuffix = new QCheckBox(tr("Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)"), this);
     m_usingDyldImageSuffix->setChecked(m_qt4RunConfiguration->isUsingDyldImageSuffix());
@@ -273,6 +281,11 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     connect(m_useTerminalCheck, SIGNAL(toggled(bool)),
             this, SLOT(termToggled(bool)));
 
+    connect(m_debuggerLanguageChooser, SIGNAL(cppLanguageToggled(bool)),
+            this, SLOT(useCppDebuggerToggled(bool)));
+    connect(m_debuggerLanguageChooser, SIGNAL(qmlLanguageToggled(bool)),
+            this, SLOT(useQmlDebuggerToggled(bool)));
+
     connect(m_environmentWidget, SIGNAL(userChangesChanged()),
             this, SLOT(userChangesEdited()));
 
@@ -297,6 +310,16 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
 
 Qt4RunConfigurationWidget::~Qt4RunConfigurationWidget()
 {
+}
+
+void Qt4RunConfigurationWidget::useCppDebuggerToggled(bool toggled)
+{
+    m_qt4RunConfiguration->setUseCppDebugger(toggled);
+}
+
+void Qt4RunConfigurationWidget::useQmlDebuggerToggled(bool toggled)
+{
+    m_qt4RunConfiguration->setUseQmlDebugger(toggled);
 }
 
 void Qt4RunConfigurationWidget::baseEnvironmentSelected(int index)

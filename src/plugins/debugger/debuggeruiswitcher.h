@@ -132,6 +132,7 @@ private slots:
     void updateUiForProject(ProjectExplorer::Project *project);
     void updateUiForTarget(ProjectExplorer::Target *target);
     void updateUiForRunConfiguration(ProjectExplorer::RunConfiguration *rc);
+    void updateUiForCurrentRunConfiguration();
     void updateUiOnFileListChange();
 
     void updateActiveLanguages();
