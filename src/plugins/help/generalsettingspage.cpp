@@ -220,7 +220,7 @@ void GeneralSettingsPage::importBookmarks()
 {
     m_ui.errorLabel->setVisible(false);
 
-    QString fileName = QFileDialog::getOpenFileName(0, tr("Open Image"),
+    QString fileName = QFileDialog::getOpenFileName(0, tr("Import Bookmarks"),
         QDir::currentPath(), tr("Files (*.xbel)"));
 
     if (fileName.isEmpty())

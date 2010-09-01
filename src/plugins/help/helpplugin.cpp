@@ -275,7 +275,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
 
     if (Core::ActionContainer *windowMenu = am->actionContainer(M_WINDOW)) {
         // reuse EditorManager constants to avoid a second pair of menu actions
-        action = new QAction(QApplication::tr("EditorManager",
+        action = new QAction(QApplication::translate("EditorManager",
             "Next Open Document in History"), this);
         Core::Command *ctrlTab = am->registerAction(action, GOTOPREVINHISTORY,
             modecontext);   // Goto Previous In History Action
@@ -283,7 +283,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
         connect(action, SIGNAL(triggered()), &OpenPagesManager::instance(),
             SLOT(gotoPreviousPage()));
 
-        action = new QAction(QApplication::tr("EditorManager",
+        action = new QAction(QApplication::translate("EditorManager",
             "Previous Open Document in History"), this);
         Core::Command *ctrlShiftTab = am->registerAction(action, GOTONEXTINHISTORY,
             modecontext);   // Goto Next In History Action
