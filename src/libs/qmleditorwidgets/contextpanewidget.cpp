@@ -178,7 +178,7 @@ ContextPaneWidget::ContextPaneWidget(QWidget *parent) : DragWidget(parent), m_cu
     m_toolButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
     m_toolButton->setFixedSize(16, 16);
 
-    m_toolButton->setToolTip(tr("Hides this toolbar. This toolbar can be permantly disabled in the options or in the context menu."));
+    m_toolButton->setToolTip(tr("Hides this toolbar."));
     connect(m_toolButton, SIGNAL(clicked()), this, SLOT(onTogglePane()));
     layout->addWidget(m_toolButton, 0, 0, 1, 1);
     colorDialog();
@@ -198,12 +198,12 @@ ContextPaneWidget::ContextPaneWidget(QWidget *parent) : DragWidget(parent), m_cu
     setAutoFillBackground(true);
     setContextMenuPolicy(Qt::ActionsContextMenu);
 
-    m_resetAction = new QAction(tr("Pin toolbar"), this);
+    m_resetAction = new QAction(tr("Pin Toolbar"), this);
     m_resetAction->setCheckable(true);
     addAction(m_resetAction.data());
     connect(m_resetAction.data(), SIGNAL(triggered(bool)), this, SLOT(onResetPosition(bool)));
 
-    m_disableAction = new QAction(tr("Show depending on context"), this);
+    m_disableAction = new QAction(tr("Show Always"), this);
     addAction(m_disableAction.data());
     m_disableAction->setCheckable(true);
     connect(m_disableAction.data(), SIGNAL(toggled(bool)), this, SLOT(onDisable(bool)));
@@ -476,7 +476,7 @@ void ContextPaneWidget::setPinButton()
     m_toolButton->setIcon(QPixmap::fromImage(QImage(pin_xpm)));
     m_toolButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
     m_toolButton->setFixedSize(20, 20);
-    m_toolButton->setToolTip(tr("Unpins the toolbar. The toolbar will be moved to its default position."));
+    m_toolButton->setToolTip(tr("Unpins the toolbar and moves it to the default position."));
 
     pinnedChanged(true);
     if (m_resetAction) {

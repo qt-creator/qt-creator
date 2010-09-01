@@ -982,7 +982,7 @@ void QmlJSTextEditor::updateCursorPositionNow()
                         QTextCursor tc(document());
                         tc.setPosition(end);
                         marker.cursor = tc;
-                        marker.tooltip = tr("Show Qt Quick Helper");
+                        marker.tooltip = tr("Show Qt Quick ToolBar");
                         markers.append(marker);
                     }
                 }

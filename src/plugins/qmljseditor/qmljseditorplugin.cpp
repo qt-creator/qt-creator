@@ -145,7 +145,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     connect(followSymbolUnderCursorAction, SIGNAL(triggered()), this, SLOT(followSymbolUnderCursor()));
     contextMenu->addAction(cmd);
 
-    QAction *showQuickToolbar = new QAction(tr("Show Qt Quick helper"), this);
+    QAction *showQuickToolbar = new QAction(tr("Show Qt Quick Toolbar"), this);
     cmd = am->registerAction(showQuickToolbar, Constants::SHOW_QT_QUICK_HELPER, context);
     cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Space));
     connect(showQuickToolbar, SIGNAL(triggered()), this, SLOT(showContextPane()));
