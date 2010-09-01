@@ -988,7 +988,7 @@ void QmlJSTextEditor::updateCursorPositionNow()
                 }
             }
             setRefactorMarkers(markers);
-        } else {
+        } else if (oldNode != newNode) {
             QList<TextEditor::Internal::RefactorMarker> markers;
             setRefactorMarkers(markers);
         }
