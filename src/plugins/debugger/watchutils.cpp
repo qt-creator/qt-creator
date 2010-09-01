@@ -542,6 +542,8 @@ QString extractTypeFromPTypeOutput(const QString &str)
 
 bool isIntType(const QByteArray &type)
 {
+    if (type.isEmpty())
+        return false;
     switch (type.at(0)) {
         case 'b':
             return type == "bool";
