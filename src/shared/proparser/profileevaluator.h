@@ -112,7 +112,7 @@ public:
 
     // -nocache, -cache, -spec, QMAKESPEC
     // -set persistent value
-    void setConfigCommandLineArguments(const QStringList &addUserConfigCmdArgs, const QStringList &removeUserConfigCmdArgs);
+    void setCommandLineArguments(const QStringList &args);
 
     enum LoadFlag {
         LoadProOnly = 0,

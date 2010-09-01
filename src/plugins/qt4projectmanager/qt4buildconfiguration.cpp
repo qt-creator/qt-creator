@@ -363,6 +363,11 @@ void Qt4BuildConfiguration::setQMakeBuildConfiguration(QtVersion::QmakeBuildConf
     emit qmakeBuildConfigurationChanged();
 }
 
+void Qt4BuildConfiguration::emitProFileEvaluteNeeded()
+{
+    emit proFileEvaluateNeeded(this);
+}
+
 void Qt4BuildConfiguration::emitQMakeBuildConfigurationChanged()
 {
     emit qmakeBuildConfigurationChanged();
@@ -379,26 +384,25 @@ void Qt4BuildConfiguration::emitS60CreatesSmartInstallerChanged()
 }
 
 
-void Qt4BuildConfiguration::getConfigCommandLineArguments(QStringList *addedUserConfigs, QStringList *removedUserConfigs) const
+QStringList Qt4BuildConfiguration::configCommandLineArguments() const
 {
+    QStringList result;
     QtVersion::QmakeBuildConfigs defaultBuildConfiguration = qtVersion()->defaultBuildConfig();
     QtVersion::QmakeBuildConfigs userBuildConfiguration = m_qmakeBuildConfiguration;
-    if (removedUserConfigs) {
-        if ((defaultBuildConfiguration & QtVersion::BuildAll) && !(userBuildConfiguration & QtVersion::BuildAll))
-            (*removedUserConfigs) << "debug_and_release";
-    }
-    if (addedUserConfigs) {
-        if (!(defaultBuildConfiguration & QtVersion::BuildAll) && (userBuildConfiguration & QtVersion::BuildAll))
-            (*addedUserConfigs) << "debug_and_release";
-        if ((defaultBuildConfiguration & QtVersion::DebugBuild)
-             && !(userBuildConfiguration & QtVersion::DebugBuild)
-             && !(userBuildConfiguration & QtVersion::BuildAll))
-            (*addedUserConfigs) << "release";
-        if (!(defaultBuildConfiguration & QtVersion::DebugBuild)
+    if ((defaultBuildConfiguration & QtVersion::BuildAll) && !(userBuildConfiguration & QtVersion::BuildAll))
+        result << "CONFIG-=debug_and_release";
+
+    if (!(defaultBuildConfiguration & QtVersion::BuildAll) && (userBuildConfiguration & QtVersion::BuildAll))
+        result << "CONFIG+=debug_and_release";
+    if ((defaultBuildConfiguration & QtVersion::DebugBuild)
+            && !(userBuildConfiguration & QtVersion::DebugBuild)
+            && !(userBuildConfiguration & QtVersion::BuildAll))
+        result << "CONFIG+=release";
+    if (!(defaultBuildConfiguration & QtVersion::DebugBuild)
             && (userBuildConfiguration & QtVersion::DebugBuild)
             && !(userBuildConfiguration & QtVersion::BuildAll))
-            (*addedUserConfigs) << "debug";
-    }
+        result << "CONFIG+=debug";
+    return result;
 }
 
 QMakeStep *Qt4BuildConfiguration::qmakeStep() const

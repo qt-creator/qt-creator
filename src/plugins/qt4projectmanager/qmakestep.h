@@ -88,6 +88,7 @@ public:
     // TODO clean up those functions
     QStringList allArguments();
     QStringList moreArguments();
+    QStringList parserArguments();
     QStringList userArguments();
     void setUserArguments(const QStringList &arguments);
 

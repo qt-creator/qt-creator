@@ -224,8 +224,7 @@ public:
     QHash<const ProFile*, QHash<ProString, ProStringList> > m_filevaluemap; // Variables per include file
     QString m_tmp1, m_tmp2, m_tmp3, m_tmp[2]; // Temporaries for efficient toQString
 
-    QStringList m_addUserConfigCmdArgs;
-    QStringList m_removeUserConfigCmdArgs;
+    QStringList m_cmdArgs;
 
     ProFileOption *m_option;
     ProFileParser *m_parser;
@@ -1274,11 +1273,13 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
             if (tgt.isEmpty())
                 tgt.append(ProString(QFileInfo(pro->fileName()).baseName(), NoHash));
 
-            ProStringList &tmp = m_valuemapStack.top()[ProString("CONFIG")];
-            foreach (const QString &add, m_addUserConfigCmdArgs)
-                tmp.append(ProString(add, NoHash));
-            foreach (const QString &remove, m_removeUserConfigCmdArgs)
-                removeAll(&tmp, ProString(remove, NoHash));
+            if (ProFile *pro = m_parser->parsedProFile(
+                    fL1S("(command line)"), false, m_cmdArgs.join(fL1S("\n")))) {
+                m_locationStack.push(m_current);
+                visitProBlock(pro, pro->tokPtr());
+                m_current = m_locationStack.pop();
+                pro->deref();
+            }
     }
 
     visitProBlock(pro, pro->tokPtr());
@@ -3217,10 +3218,9 @@ void ProFileEvaluator::setOutputDir(const QString &dir)
     d->m_outputDir = dir;
 }
 
-void ProFileEvaluator::setConfigCommandLineArguments(const QStringList &addUserConfigCmdArgs, const QStringList &removeUserConfigCmdArgs)
+void ProFileEvaluator::setCommandLineArguments(const QStringList &args)
 {
-    d->m_addUserConfigCmdArgs = addUserConfigCmdArgs;
-    d->m_removeUserConfigCmdArgs = removeUserConfigCmdArgs;
+    d->m_cmdArgs = args;
 }
 
 QT_END_NAMESPACE

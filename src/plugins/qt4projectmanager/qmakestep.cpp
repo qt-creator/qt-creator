@@ -115,18 +115,7 @@ QStringList QMakeStep::allArguments()
         arguments << "-spec" << bc->qtVersion()->mkspec();
 
     // Find out what flags we pass on to qmake
-    QStringList addedUserConfigArguments;
-    QStringList removedUserConfigArguments;
-    bc->getConfigCommandLineArguments(&addedUserConfigArguments, &removedUserConfigArguments);
-    if (!removedUserConfigArguments.isEmpty()) {
-        foreach (const QString &removedConfig, removedUserConfigArguments)
-            arguments.append("CONFIG-=" + removedConfig);
-    }
-    if (!addedUserConfigArguments.isEmpty()) {
-        foreach (const QString &addedConfig, addedUserConfigArguments)
-            arguments.append("CONFIG+=" + addedConfig);
-    }
-
+    arguments << bc->configCommandLineArguments();
     arguments << moreArguments();
 
     if (!additonalArguments.isEmpty())
@@ -286,6 +275,17 @@ void QMakeStep::setUserArguments(const QStringList &arguments)
     emit userArgumentsChanged();
 
     qt4BuildConfiguration()->emitQMakeBuildConfigurationChanged();
+    qt4BuildConfiguration()->emitProFileEvaluteNeeded();
+}
+
+QStringList QMakeStep::parserArguments()
+{
+    QStringList result;
+    foreach (const QString &str, allArguments()) {
+        if (str.contains("="))
+            result << str;
+    }
+    return result;
 }
 
 QStringList QMakeStep::userArguments()

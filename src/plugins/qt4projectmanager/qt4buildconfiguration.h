@@ -76,6 +76,9 @@ public:
 
     QtVersion::QmakeBuildConfigs qmakeBuildConfiguration() const;
     void setQMakeBuildConfiguration(QtVersion::QmakeBuildConfigs config);
+
+    /// \internal for qmakestep
+    void emitProFileEvaluteNeeded();
     // used by qmake step to notify that the qmake args have changed
     // not really nice, the build configuration should save the arguments
     // since they are needed for reevaluation
@@ -87,7 +90,7 @@ public:
     // not really nice
     void emitS60CreatesSmartInstallerChanged();
 
-    void getConfigCommandLineArguments(QStringList *addedUserConfigs, QStringList *removedUserConfigs) const;
+    QStringList configCommandLineArguments() const;
 
     // Those functions are used in a few places.
     // The drawback is that we shouldn't actually depend on them being always there

@@ -35,6 +35,7 @@
 #include "qt4projectmanagerconstants.h"
 #include "qtuicodemodelsupport.h"
 #include "qt4buildconfiguration.h"
+#include "qmakestep.h"
 
 #include <projectexplorer/nodesvisitor.h>
 
@@ -1311,12 +1312,13 @@ void Qt4ProFileNode::setupReader()
     m_readerCumulative = m_project->createProFileReader(this);
 
     // Find out what flags we pass on to qmake
-    QStringList addedUserConfigArguments;
-    QStringList removedUserConfigArguments;
-    m_project->activeTarget()->activeBuildConfiguration()->getConfigCommandLineArguments(&addedUserConfigArguments, &removedUserConfigArguments);
-
-    m_readerExact->setConfigCommandLineArguments(addedUserConfigArguments, removedUserConfigArguments);
-    m_readerCumulative->setConfigCommandLineArguments(addedUserConfigArguments, removedUserConfigArguments);
+    QStringList args;
+    if (QMakeStep *qs = m_project->activeTarget()->activeBuildConfiguration()->qmakeStep())
+        args = qs->parserArguments();
+    else
+        args = m_project->activeTarget()->activeBuildConfiguration()->configCommandLineArguments();
+    m_readerExact->setCommandLineArguments(args);
+    m_readerCumulative->setCommandLineArguments(args);
 }
 
 bool Qt4ProFileNode::evaluate()
