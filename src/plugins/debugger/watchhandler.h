@@ -119,7 +119,7 @@ signals:
     void enableUpdates(bool);
 
 private:
-    QString niceType(const QString &typeIn) const;
+    QByteArray niceType(const QByteArray &typeIn) const;
     void formatRequests(QByteArray *out, const WatchItem *item) const;
     DebuggerEngine *engine() const;
 
@@ -173,7 +173,7 @@ public:
 
     int format(const QByteArray &iname) const;
 
-    void addTypeFormats(const QString &type, const QStringList &formats);
+    void addTypeFormats(const QByteArray &type, const QStringList &formats);
 
     QByteArray watcherName(const QByteArray &exp);
 
@@ -185,7 +185,7 @@ private:
 
     void loadTypeFormats();
     void saveTypeFormats();
-    void setFormat(const QString &type, int format);
+    void setFormat(const QByteArray &type, int format);
     void updateWatchersWindow();
 
     bool m_inChange;
@@ -195,7 +195,7 @@ private:
     EditHandlers m_editHandlers;
 
     QHash<QByteArray, int> m_watcherNames;
-    QHash<QString, int> m_typeFormats;
+    QHash<QByteArray, int> m_typeFormats;
     QHash<QByteArray, int> m_individualFormats; // Indexed by iname.
     QHash<QString, QStringList> m_reportedTypeFormats;
 

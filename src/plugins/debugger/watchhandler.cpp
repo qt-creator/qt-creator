@@ -251,13 +251,13 @@ static QByteArray parentName(const QByteArray &iname)
 static QString chopConst(QString type)
 {
    while (1) {
-        if (type.startsWith("const"))
+        if (type.startsWith(QLatin1String("const")))
             type = type.mid(5);
-        else if (type.startsWith(' '))
+        else if (type.startsWith(QLatin1Char(' ')))
             type = type.mid(1);
-        else if (type.endsWith("const"))
+        else if (type.endsWith(QLatin1String("const")))
             type.chop(5);
-        else if (type.endsWith(' '))
+        else if (type.endsWith(QLatin1Char(' ')))
             type.chop(1);
         else
             break;
@@ -279,14 +279,14 @@ static inline QRegExp stdStringRegExp(const QString &charType)
     return re;
 }
 
-static QString niceTypeHelper(const QString typeIn)
+static QByteArray niceTypeHelper(const QByteArray typeIn)
 {
-    static QMap<QString, QString> cache;
-    const QMap<QString, QString>::const_iterator it = cache.constFind(typeIn);
+    static QMap<QByteArray, QByteArray> cache;
+    const QMap<QByteArray, QByteArray>::const_iterator it = cache.constFind(typeIn);
     if (it != cache.constEnd())
         return it.value();
 
-    QString type = typeIn;
+    QString type = QString::fromUtf8(typeIn);
     type.replace(QLatin1Char('*'), QLatin1Char('@'));
 
     for (int i = 0; i < 10; ++i) {
@@ -375,19 +375,20 @@ static QString niceTypeHelper(const QString typeIn)
             }
         }
     }
-    type.replace(QLatin1Char('@'), QLatin1Char('*'));
-    type.replace(QLatin1String(" >"), QString(QLatin1Char('>')));
-    cache.insert(typeIn, type); // For simplicity, also cache unmodified types
-    return type;
+    QByteArray typeOut = type.toUtf8();
+    typeOut.replace('@', '*');
+    typeOut.replace(" >", ">");
+    cache.insert(typeIn, typeOut); // For simplicity, also cache unmodified types
+    return typeOut;
 }
 
-QString WatchModel::niceType(const QString &typeIn) const
+QByteArray WatchModel::niceType(const QByteArray &typeIn) const
 {
-    QString type = niceTypeHelper(typeIn);
+    QByteArray type = niceTypeHelper(typeIn);
     if (!theDebuggerBoolSetting(ShowStdNamespace))
-        type = type.remove("std::");
+        type.replace("std::", "");
     if (!theDebuggerBoolSetting(ShowQtNamespace))
-        type = type.remove(engine()->qtNamespace());
+        type.replace(engine()->qtNamespace(), "");
     return type;
 }
 
@@ -626,7 +627,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
                 case 2: {
                     if (!data.displayedType.isEmpty())
                         return data.displayedType;
-                    return niceType(data.type);
+                    return QString::fromUtf8(niceType(data.type));
                 }
                 default: break;
             }
@@ -1443,14 +1444,14 @@ void WatchHandler::loadTypeFormats()
     while (it.hasNext()) {
         it.next();
         if (!it.key().isEmpty())
-            m_typeFormats.insert(it.key(), it.value().toInt());
+            m_typeFormats.insert(it.key().toUtf8(), it.value().toInt());
     }
 }
 
 void WatchHandler::saveTypeFormats()
 {
     QMap<QString, QVariant> typeFormats;
-    QHashIterator<QString, int> it(m_typeFormats);
+    QHashIterator<QByteArray, int> it(m_typeFormats);
     while (it.hasNext()) {
         it.next();
         const int format = it.value();
@@ -1535,7 +1536,7 @@ WatchData *WatchHandler::findItem(const QByteArray &iname) const
     return model->findItem(iname, model->m_root);
 }
 
-void WatchHandler::setFormat(const QString &type, int format)
+void WatchHandler::setFormat(const QByteArray &type, int format)
 {
     if (format == -1)
         m_typeFormats.remove(type);
@@ -1580,10 +1581,10 @@ QByteArray WatchHandler::typeFormatRequests() const
 {
     QByteArray ba;
     if (!m_typeFormats.isEmpty()) {
-        QHashIterator<QString, int> it(m_typeFormats);
+        QHashIterator<QByteArray, int> it(m_typeFormats);
         while (it.hasNext()) {
             it.next();
-            ba.append(it.key().toLatin1().toHex());
+            ba.append(it.key().toHex());
             ba.append('=');
             ba.append(QByteArray::number(it.value()));
             ba.append(',');
@@ -1610,7 +1611,7 @@ QByteArray WatchHandler::individualFormatRequests() const
     return ba;
 }
 
-void WatchHandler::addTypeFormats(const QString &type, const QStringList &formats)
+void WatchHandler::addTypeFormats(const QByteArray &type, const QStringList &formats)
 {
     m_reportedTypeFormats.insert(type, formats);
 }

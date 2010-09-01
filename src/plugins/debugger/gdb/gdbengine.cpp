@@ -1520,7 +1520,7 @@ void GdbEngine::handleHasPython(const GdbResponse &response)
         data.fromStringMultiple(contents.data());
         const GdbMi dumpers = data.findChild("dumpers");
         foreach (const GdbMi &dumper, dumpers.children()) {
-            QString type = _(dumper.findChild("type").data());
+            QByteArray type = dumper.findChild("type").data();
             QStringList formats(tr("Raw structure"));
             QString reported = _(dumper.findChild("formats").data());
             formats.append(reported.split(_(","), QString::SkipEmptyParts));
