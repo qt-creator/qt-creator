@@ -1380,7 +1380,11 @@ class Dumper:
         #    warn("REAL VALUE: <unprintable>")
 
         value = item.value
-        type = value.type
+        try:
+            realtype = value.dynamic_type
+        except:
+            realtype = value.type
+        type = realtype;
         format = self.itemFormat(item)
 
         if type.code == gdb.TYPE_CODE_REF:
@@ -1399,7 +1403,7 @@ class Dumper:
         if isSimpleType(typedefStrippedType):
             #warn("IS SIMPLE: %s " % type)
             #self.putAddress(value.address)
-            self.putType(item.value.type)
+            self.putType(realtype)
             self.putValue(value)
             self.putNumChild(0)
             return
@@ -1418,7 +1422,7 @@ class Dumper:
                 and ((nsStrippedType in qqDumpers) or isQObjectDerived):
             #warn("IS DUMPABLE: %s " % type)
             #self.putAddress(value.address)
-            self.putType(item.value.type)
+            self.putType(realtype)
             if isQObjectDerived:
                 # value has references stripped off item.value.
                 item1 = Item(value, item.iname)
@@ -1434,14 +1438,14 @@ class Dumper:
 
             if isNull(value):
                 #warn("NULL POINTER")
-                self.putType(item.value.type)
+                self.putType(realtype)
                 self.putValue("0x0")
                 self.putNumChild(0)
                 return
 
             if target.code == gdb.TYPE_CODE_VOID:
                 #warn("VOID POINTER: %s" % format)
-                self.putType(item.value.type)
+                self.putType(realtype)
                 self.putValue(str(value))
                 self.putNumChild(0)
                 return
@@ -1449,7 +1453,7 @@ class Dumper:
             if format == 0:
                 # Explicitly requested bald pointer.
                 self.putAddress(value.address)
-                self.putType(item.value.type)
+                self.putType(realtype)
                 self.putPointerValue(value.address)
                 self.putNumChild(1)
                 if self.isExpanded(item):
@@ -1464,7 +1468,7 @@ class Dumper:
                 # Explicityly requested Latin1 or UTF-8 formatting.
                 f = select(format == 1, Hex2EncodedLatin1, Hex2EncodedUtf8)
                 self.putAddress(value.address)
-                self.putType(item.value.type)
+                self.putType(realtype)
                 self.putValue(encodeCharArray(value, 100), f)
                 self.putNumChild(0)
                 return
@@ -1472,7 +1476,7 @@ class Dumper:
             if format == 3:
                 # Explitly requested UTF-16 formatting.
                 self.putAddress(value.address)
-                self.putType(item.value.type)
+                self.putType(realtype)
                 self.putValue(encodeChar2Array(value, 100), Hex4EncodedBigEndian)
                 self.putNumChild(0)
                 return
@@ -1480,7 +1484,7 @@ class Dumper:
             if format == 4:
                 # Explitly requested UCS-4 formatting.
                 self.putAddress(value.address)
-                self.putType(item.value.type)
+                self.putType(realtype)
                 self.putValue(encodeChar4Array(value, 100), Hex8EncodedBigEndian)
                 self.putNumChild(0)
                 return
@@ -1490,7 +1494,7 @@ class Dumper:
                 # A function pointer with format None.
                 self.putValue(str(item.value))
                 self.putAddress(value.address)
-                self.putType(item.value.type)
+                self.putType(realtype)
                 self.putNumChild(0)
                 return
 
@@ -1498,7 +1502,7 @@ class Dumper:
             if self.autoDerefPointers or name == "this":
                 ## Generic pointer type with format None
                 #warn("GENERIC AUTODEREF POINTER: %s" % value.address)
-                innerType = item.value.type.target()
+                innerType = realtype.target()
                 self.putType(innerType)
                 savedCurrentChildType = self.currentChildType
                 self.currentChildType = stripClassTag(str(innerType))
@@ -1510,7 +1514,7 @@ class Dumper:
 
             # Fall back to plain pointer printing.
             #warn("GENERIC PLAIN POINTER: %s" % value.type)
-            self.putType(item.value.type)
+            self.putType(realtype)
             self.putAddress(value.address)
             self.putNumChild(1)
             if self.isExpanded(item):
@@ -1525,14 +1529,14 @@ class Dumper:
         if str(typedefStrippedType).startswith("<anon"):
             # Anonymous union. We need a dummy name to distinguish
             # multiple anonymous unions in the struct.
-            self.putType(item.value.type)
+            self.putType(realtype)
             self.putValue("{...}")
             self.anonNumber += 1
             with Children(self, 1):
                 self.listAnonymous(item, "#%d" % self.anonNumber, type)
             return
 
-        #warn("GENERIC STRUCT: %s" % item.value.type)
+        #warn("GENERIC STRUCT: %s" % realtype)
         #warn("INAME: %s " % item.iname)
         #warn("INAMES: %s " % self.expandedINames)
         #warn("EXPANDED: %s " % (item.iname in self.expandedINames))

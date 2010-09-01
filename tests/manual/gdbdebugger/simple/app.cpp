@@ -155,7 +155,7 @@ public:
         a += 1;
     }
 
-    ~Foo()
+    virtual ~Foo()
     {
         a = 5;
     }
