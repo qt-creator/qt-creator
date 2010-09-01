@@ -97,8 +97,6 @@ signals:
 
 private slots:
     void setArguments(const QString &newText);
-    void useCppDebuggerToggled(bool toggled);
-    void useQmlDebuggerToggled(bool toggled);
 
 protected:
     CMakeRunConfiguration(CMakeTarget *parent, CMakeRunConfiguration *source);
