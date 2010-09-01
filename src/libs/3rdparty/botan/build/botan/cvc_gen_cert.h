@@ -15,6 +15,7 @@
 #include <botan/pubkey.h>
 #include <botan/ecdsa_sig.h>
 #include <string>
+#include <memory>
 #include <assert.h>
 
 namespace Botan {

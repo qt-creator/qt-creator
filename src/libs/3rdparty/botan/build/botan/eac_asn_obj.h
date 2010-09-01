@@ -115,7 +115,7 @@ class BOTAN_DLL ASN1_Ced : public EAC_Time
       * @param str a string in the format "yyyy mm dd",
       * e.g. "2007 08 01"
       */
-      ASN1_Ced(std::string const& str = "");
+      ASN1_Ced(std::string const& str = std::string());
 
       /**
       * Construct a CED from a timer value.
@@ -146,7 +146,7 @@ class BOTAN_DLL ASN1_Cex : public EAC_Time
       * @param str a string in the format "yyyy mm dd",
       * e.g. "2007 08 01"
       */
-      ASN1_Cex(std::string const& str="");
+      ASN1_Cex(std::string const& str=std::string());
 
       /**
       * Construct a CED from a timer value.
@@ -207,7 +207,7 @@ class BOTAN_DLL ASN1_Car : public ASN1_EAC_String
       * Create a CAR with the specified content.
       * @param str the CAR value
       */
-      ASN1_Car(std::string const& str = "");
+      ASN1_Car(std::string const& str = std::string());
    };
 
 /**
@@ -220,7 +220,7 @@ class BOTAN_DLL ASN1_Chr : public ASN1_EAC_String
       * Create a CHR with the specified content.
       * @param str the CHR value
       */
-      ASN1_Chr(std::string const& str = "");
+      ASN1_Chr(std::string const& str = std::string());
    };
 
 /*
