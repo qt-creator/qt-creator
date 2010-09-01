@@ -3110,13 +3110,10 @@ void GdbEngine::handleRegisterListValues(const GdbResponse &response)
                     handled = true;
                 }
             }
-            const QString value = _(handled ? ba : val.data());
-            reg.changed = (value != reg.value);
-            if (reg.changed)
-                reg.value = value;
+            reg.value = _(handled ? ba : val.data());
         }
     }
-    registerHandler()->setRegisters(registers);
+    registerHandler()->setAndMarkRegisters(registers);
 }
 
 

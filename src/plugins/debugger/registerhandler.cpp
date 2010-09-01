@@ -187,6 +187,15 @@ void RegisterHandler::setRegisters(const Registers &registers)
     reset();
 }
 
+void RegisterHandler::setAndMarkRegisters(const Registers &registers)
+{
+    const Registers old = m_registers;
+    m_registers = registers;
+    for (int i = qMin(m_registers.size(), old.size()); --i >= 0; )
+        m_registers[i].changed = m_registers[i].value != old[i].value;
+    reset();
+}
+
 Registers RegisterHandler::registers() const
 {
     return m_registers;

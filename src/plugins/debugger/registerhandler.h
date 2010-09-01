@@ -63,6 +63,7 @@ public:
 
     bool isEmpty() const; // nothing known so far?
     void setRegisters(const Registers &registers);
+    void setAndMarkRegisters(const Registers &registers);
     Registers registers() const;
     void removeAll();
     Q_SLOT void setNumberBase(int base);

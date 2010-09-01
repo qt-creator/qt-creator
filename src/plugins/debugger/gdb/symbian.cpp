@@ -482,19 +482,12 @@ void Snapshot::syncRegisters(uint threadId, RegisterHandler *handler) const
     QTC_ASSERT(debuggerRegisters.size() >= RegisterPSGdb,
         qDebug() << "HAVE: " << debuggerRegisters.size(); return);
 
-    bool changed = false;
     for (int i = 0; i < RegisterCount; ++i) {
         const int gdbIndex = i == RegisterPSTrk ? int(RegisterPSGdb) : i;
         Register &reg = debuggerRegisters[gdbIndex];
-        const QString value = trk::hexxNumber(thread.registers[i]);
-        reg.changed = (value != reg.value);
-        if (reg.changed) {
-            reg.value = value;
-            changed = true;
-        }
+        reg.value = trk::hexxNumber(thread.registers[i]);
     }
-    if (changed)
-        handler->setRegisters(debuggerRegisters);
+    handler->setAndMarkRegisters(debuggerRegisters);
 }
 
 void Snapshot::parseGdbStepRange(const QByteArray &cmd, bool so)
