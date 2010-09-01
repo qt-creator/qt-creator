@@ -46,12 +46,14 @@ public:
     MsvcParser();
 
     virtual void stdOutput(const QString &line);
+    virtual void stdError(const QString &line);
 
 private:
     Task::TaskType toType(int number);
     QRegExp m_compileRegExp;
     QRegExp m_additionalInfoRegExp;
     QRegExp m_linkRegExp;
+    QRegExp m_nonFileRegExp;
 };
 
 } // namespace ProjectExplorer

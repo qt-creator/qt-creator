@@ -44,6 +44,8 @@ MsvcParser::MsvcParser()
     m_additionalInfoRegExp.setMinimal(true);
     m_linkRegExp.setPattern(QString::fromLatin1("^") + QLatin1String(FILE_POS_PATTERN) + QLatin1String("[^:\\d]+(\\d+):(.*)$"));
     m_linkRegExp.setMinimal(true);
+    m_nonFileRegExp.setPattern(QLatin1String("(^LINK|cl) : .*(error|warning) (.*)$"));
+    m_nonFileRegExp.setMinimal(true);
 }
 
 void MsvcParser::stdOutput(const QString &line)
@@ -84,7 +86,32 @@ void MsvcParser::stdOutput(const QString &line)
                           Constants::TASK_CATEGORY_COMPILE));
         return;
     }
+    if (m_nonFileRegExp.indexIn(lne) > -1) {
+        Task::TaskType type = Task::Unknown;
+        if (m_nonFileRegExp.cap(2) == QLatin1String("warning"))
+            type = Task::Warning;
+        if (m_nonFileRegExp.cap(2) == QLatin1String("error"))
+            type = Task::Error;
+        emit addTask(Task(type, m_nonFileRegExp.cap(3) /* description */,
+                          QString(), -1, Constants::TASK_CATEGORY_COMPILE));
+        return;
+    }
     IOutputParser::stdOutput(line);
+}
+
+void MsvcParser::stdError(const QString &line)
+{
+    if (m_nonFileRegExp.indexIn(line) > -1) {
+        Task::TaskType type = Task::Unknown;
+        if (m_nonFileRegExp.cap(2) == QLatin1String("warning"))
+            type = Task::Warning;
+        if (m_nonFileRegExp.cap(2) == QLatin1String("error"))
+            type = Task::Error;
+        emit addTask(Task(type, m_nonFileRegExp.cap(3) /* description */,
+                          QString(), -1, Constants::TASK_CATEGORY_COMPILE));
+        return;
+    }
+    IOutputParser::stdError(line);
 }
 
 Task::TaskType MsvcParser::toType(int number)
@@ -165,6 +192,28 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
                         QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
             << QString();
 
+    QTest::newRow("fatal linker error")
+            << QString::fromLatin1("LINK : fatal error LNK1146: no argument specified with option '/LIBPATH:'")
+            << OutputParserTester::STDOUT
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Error,
+                        QLatin1String("LNK1146: no argument specified with option '/LIBPATH:'"),
+                        QString(), -1,
+                        QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
+            << QString();
+
+    // This actually comes through stderr!
+    QTest::newRow("command line warning")
+            << QString::fromLatin1("cl : Command line warning D9002 : ignoring unknown option '-fopenmp'")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Warning,
+                        QLatin1String("D9002 : ignoring unknown option '-fopenmp'"),
+                        QString(), -1,
+                        QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
+            << QString();
 }
 
 void ProjectExplorerPlugin::testMsvcOutputParsers()
