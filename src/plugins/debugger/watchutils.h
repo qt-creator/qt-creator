@@ -74,7 +74,7 @@ bool isPointerType(const QByteArray &type);
 bool isCharPointerType(const QByteArray &type);
 bool startsWithDigit(const QString &str);
 QByteArray stripPointerType(QByteArray type);
-QString gdbQuoteTypes(const QString &type);
+QByteArray gdbQuoteTypes(const QByteArray &type);
 bool extractTemplate(const QString &type, QString *tmplate, QString *inner);
 QString extractTypeFromPTypeOutput(const QString &str);
 bool isIntOrFloatType(const QByteArray &type);

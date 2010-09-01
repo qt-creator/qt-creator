@@ -139,7 +139,9 @@ static inline bool fixDumperType(WatchData *wd, const WatchData *source = 0)
 {
     const bool missing = wd->isTypeNeeded() || wd->type.isEmpty();
     if (missing) {
-        static const QString unknownType = QCoreApplication::translate("CdbSymbolGroupContext", "<Unknown Type>");
+        static const QByteArray unknownType =
+                QCoreApplication::translate("CdbSymbolGroupContext", "<Unknown Type>")
+                        .toUtf8();
         wd->setType(source ? source->type : unknownType, false);
     }
     return missing;
@@ -231,7 +233,7 @@ bool WatchHandleDumperInserter::expandPointerToDumpable(const WatchData &wd, QSt
         const QString hexAddrS = wd.value.mid(0, classPos);
         if (m_hexNullPattern.exactMatch(hexAddrS))
             break;
-        const QString type = stripPointerType(wd.type);
+        const QByteArray type = stripPointerType(wd.type);
         WatchData derefedWd;
         derefedWd.setType(type);
         derefedWd.setAddress(hexAddrS.toLatin1());
@@ -343,7 +345,7 @@ CdbSymbolGroupContext *CdbSymbolGroupContext::create(const QString &prefix,
 // Fix display values: Pass through strings, convert unsigned integers
 // to decimal ('0x5454`fedf'), remove inner templates from
 // "0x4343 class list<>".
-static inline QString fixValue(const QString &value, const QLatin1String &type)
+static inline QString fixValue(const QString &value, const QByteArray &type)
 {
     // Pass through strings
     if (value.endsWith(QLatin1Char('"')))
@@ -368,12 +370,12 @@ unsigned CdbSymbolGroupContext::watchDataAt(unsigned long index, WatchData *wd)
     const unsigned rc = dumpValue(index, &iname, &(wd->name), &address,
                                   &typeId, &type, &value);
     wd->exp = wd->iname = iname.toLatin1();
-    wd->setAddress(("0x") + QByteArray::number(address, 16));
-    wd->setType(type, false);
+    wd->setAddress("0x" + QByteArray::number(address, 16));
+    wd->setType(type.toUtf8(), false);
     if (rc & OutOfScope) {
         wd->setError(WatchData::msgNotInScope());
     } else {
-        wd->setValue(fixValue(value, type));
+        wd->setValue(fixValue(value, type.toUtf8()));
 
         const bool hasChildren = rc & HasChildren;
         wd->setHasChildren(hasChildren);
@@ -445,7 +447,10 @@ bool CdbSymbolGroupContext::completeData(const WatchData &incompleteLocal,
             fixDumperResult(incompleteLocal, &dumperResult, suppressGrandChildren);
             wh->insertBulkData(dumperResult);
         } else {
-            const QString msg = QString::fromLatin1("Unable to further expand dumper watch data: '%1' (%2): %3/%4").arg(incompleteLocal.name, incompleteLocal.type).arg(int(dr)).arg(*errorMessage);
+            const QString msg = QString::fromLatin1("Unable to further expand dumper watch data: '%1' (%2): %3/%4")
+                .arg(incompleteLocal.name)
+                .arg(QString::fromUtf8(incompleteLocal.type))
+                .arg(int(dr)).arg(*errorMessage);
             qWarning("%s", qPrintable(msg));
             WatchData wd = incompleteLocal;
             if (wd.isValueNeeded())

@@ -126,8 +126,8 @@ private:
     inline DumpResult dumpTypeI(const WatchData &d, bool dumpChildren,
                                 QList<WatchData> *result, QString *errorMessage);
 
-    bool getTypeSize(const QString &typeName, int *size, QString *errorMessage);
-    bool runTypeSizeQuery(const QString &typeName, int *size, QString *errorMessage);
+    bool getTypeSize(const QByteArray &typeName, int *size, QString *errorMessage);
+    bool runTypeSizeQuery(const QByteArray &typeName, int *size, QString *errorMessage);
     enum CallResult { CallOk, CallSyntaxError, CallFailed };
     CallResult callDumper(const QString &call, const QByteArray &inBuffer, const char **outputPtr,
                           bool ignoreAccessViolation, QString *errorMessage);

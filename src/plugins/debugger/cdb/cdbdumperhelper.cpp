@@ -624,7 +624,8 @@ CdbDumperHelper::DumpResult CdbDumperHelper::dumpTypeI(const WatchData &wd, bool
         return DumpNotHandled;
     }
     if (wd.addr.isEmpty()) {
-        *errorMessage = QString::fromLatin1("Address is missing for '%1' (%2).").arg(wd.exp, wd.type);
+        *errorMessage = QString::fromLatin1("Address is missing for '%1' (%2).")
+            .arg(QString::fromUtf8(wd.exp)).arg(QString::fromUtf8(wd.type));
         return DumpNotHandled;
     }
 
@@ -684,14 +685,14 @@ CdbDumperHelper::DumpExecuteResult
                                 QList<WatchData> *result, QString *errorMessage)
 {
     QByteArray inBuffer;
-    QStringList extraParameters;
+    QList<QByteArray> extraParameters;
     // Build parameter list.
     m_helper.evaluationParameters(wd, td, QtDumperHelper::CdbDebugger, &inBuffer, &extraParameters);
     QString callCmd;
     QTextStream str(&callCmd);
     str << ".call " << m_dumpObjectSymbol << "(2,0," << wd.addr << ',' << (dumpChildren ? 1 : 0);
-    foreach(const QString &e, extraParameters)
-        str << ',' << e;
+    foreach(const QByteArray &e, extraParameters)
+        str << ',' << QString::fromUtf8(e);
     str << ')';
     if (dumpDebug)
         qDebug() << "Query: " << wd.toString() << "\nwith: " << callCmd << '\n';
@@ -718,18 +719,18 @@ CdbDumperHelper::DumpExecuteResult
 }
 
 // Simplify some types for sizeof expressions
-static inline void simplifySizeExpression(QString *typeName)
+static void simplifySizeExpression(QByteArray *typeName)
 {
-    typeName->replace(QLatin1String("std::basic_string<char,std::char_traits<char>,std::allocator<char>>"),
-                      QLatin1String("std::string"));
+    typeName->replace("std::basic_string<char,std::char_traits<char>,std::allocator<char>>",
+                      "std::string");
 }
 
-bool CdbDumperHelper::getTypeSize(const QString &typeNameIn, int *size, QString *errorMessage)
+bool CdbDumperHelper::getTypeSize(const QByteArray &typeNameIn, int *size, QString *errorMessage)
 {
     if (loadDebug > 1)
         qDebug() << Q_FUNC_INFO << typeNameIn;
     // Look up cache
-    QString typeName = typeNameIn;
+    QByteArray typeName = typeNameIn;
     simplifySizeExpression(&typeName);
     // "std::" types sometimes only work without namespace.
     // If it fails, try again with stripped namespace
@@ -740,10 +741,9 @@ bool CdbDumperHelper::getTypeSize(const QString &typeNameIn, int *size, QString 
             success = true;
             break;
         }
-        const QString stdNameSpace = QLatin1String("std::");
-        if (!typeName.contains(stdNameSpace))
+        if (!typeName.contains("std::"))
             break;
-        typeName.remove(stdNameSpace);
+        typeName.replace("std::", "");
         errorMessage->clear();
         if (!runTypeSizeQuery(typeName, size, errorMessage))
             break;
@@ -755,14 +755,13 @@ bool CdbDumperHelper::getTypeSize(const QString &typeNameIn, int *size, QString 
     return success;
 }
 
-bool CdbDumperHelper::runTypeSizeQuery(const QString &typeName, int *size, QString *errorMessage)
+bool CdbDumperHelper::runTypeSizeQuery
+        (const QByteArray &typeName, int *size, QString *errorMessage)
 {
     // Retrieve by C++ expression. If we knew the module, we could make use
     // of the TypeId query mechanism provided by the IDebugSymbolGroup.
     DEBUG_VALUE sizeValue;
-    QString expression = QLatin1String("sizeof(");
-    expression += typeName;
-    expression += QLatin1Char(')');
+    QByteArray expression = "sizeof(" + typeName + ')';
     if (!m_coreEngine->evaluateExpression(expression, &sizeValue, errorMessage))
         return false;
     qint64 size64;

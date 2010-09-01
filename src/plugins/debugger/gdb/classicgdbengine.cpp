@@ -220,7 +220,7 @@ void GdbEngine::createGdbVariableClassic(const WatchData &data)
     postCommand("-var-delete \"" + data.iname + '"', WatchUpdate);
     QByteArray exp = data.exp;
     if (exp.isEmpty() && data.addr.startsWith("0x"))
-        exp = "*(" + gdbQuoteTypes(data.type).toLatin1() + "*)" + data.addr;
+        exp = "*(" + gdbQuoteTypes(data.type) + "*)" + data.addr;
     QVariant val = QVariant::fromValue<WatchData>(data);
     postCommand("-var-create \"" + data.iname + "\" * \"" + exp + '"',
         WatchUpdate, CB(handleVarCreate), val);
@@ -475,7 +475,7 @@ void GdbEngine::handleDebuggingHelperValue3Classic(const GdbResponse &response)
                     data1.type = data.type.left(data.type.size() - 4);
                     data1.iname = data.iname + '.' + QByteArray::number(i);
                     data1.addr = list.at(i);
-                    data1.exp = "((" + gdbQuoteTypes(data1.type).toLatin1() + "*)" + data1.addr + ')';
+                    data1.exp = "((" + gdbQuoteTypes(data1.type) + "*)" + data1.addr + ')';
                     data1.setHasChildren(false);
                     data1.setValueNeeded();
                     QByteArray cmd = "qdumpqstring (" + data1.exp + ')';
