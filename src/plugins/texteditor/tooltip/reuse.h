@@ -27,25 +27,36 @@
 **
 **************************************************************************/
 
-#include "tipfactory.h"
-#include "tipcontents.h"
-#include "tips.h"
+#ifndef TOOLTIPREUSE_H
+#define TOOLTIPREUSE_H
 
-using namespace TextEditor;
-using namespace Internal;
+#include <QtCore/QPoint>
+#include <QtCore/QRect>
+#include <QtGui/QWidget>
+#include <QtGui/QApplication>
+#include <QtGui/QDesktopWidget>
 
-TipFactory::TipFactory()
-{}
+namespace TextEditor {
+namespace Internal {
 
-TipFactory::~TipFactory()
-{}
-
-Internal::QTipLabel *TipFactory::createTip(const TipContent &content, QWidget *w)
+inline int screenNumber(const QPoint &pos, QWidget *w)
 {
-    QTipLabel *tip = 0;
-    if (content.typeId() == TextContent::TEXT_CONTENT_ID)
-        tip = new TextTip(w);
-    else if (content.typeId() == ColorContent::COLOR_CONTENT_ID)
-        tip = new ColorTip(w);
-    return tip;
+    if (QApplication::desktop()->isVirtualDesktop())
+        return QApplication::desktop()->screenNumber(pos);
+    else
+        return QApplication::desktop()->screenNumber(w);
 }
+
+inline QRect screenGeometry(const QPoint &pos, QWidget *w)
+{
+#ifdef Q_WS_MAC
+    return QApplication::desktop()->availableGeometry(screenNumber(pos, w));
+#else
+    return QApplication::desktop()->screenGeometry(screenNumber(pos, w));
+#endif
+}
+
+} // namespace Internal
+} // namespace TextEditor
+
+#endif // TOOLTIPREUSE_H

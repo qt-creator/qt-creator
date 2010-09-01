@@ -142,25 +142,18 @@ void BaseHoverHandler::process(ITextEditor *editor, int pos)
 {
     clear();
     identifyMatch(editor, pos);
-    decorateToolTip(editor);
+    decorateToolTip();
 }
 
-void BaseHoverHandler::decorateToolTip(ITextEditor *editor)
+void BaseHoverHandler::decorateToolTip()
 {
-    BaseTextEditor *baseEditor = baseTextEditor(editor);
-    if (!baseEditor)
-        return;
+    if (Qt::mightBeRichText(toolTip()))
+        setToolTip(Qt::escape(toolTip()));
 
     if (lastHelpItemIdentified().isValid()) {
         const QString &contents = lastHelpItemIdentified().extractContent(false);
-        if (!contents.isEmpty()) {
+        if (!contents.isEmpty())
             appendToolTip(contents);
-        } else {
-            QString tip = Qt::escape(toolTip());
-            tip.prepend(QLatin1String("<nobr>"));
-            tip.append(QLatin1String("</nobr>"));
-            setToolTip(tip);
-        }
         addF1ToToolTip();
     }
 }

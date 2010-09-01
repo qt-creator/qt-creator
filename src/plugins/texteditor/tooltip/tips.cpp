@@ -29,6 +29,7 @@
 
 #include "tips.h"
 #include "tipcontents.h"
+#include "reuse.h"
 
 #include <QtCore/QRect>
 #include <QtGui/QColor>
@@ -40,6 +41,8 @@
 #include <QtGui/QTextDocument>
 #include <QtGui/QStylePainter>
 #include <QtGui/QStyleOptionFrame>
+#include <QtGui/QResizeEvent>
+#include <QtGui/QPaintEvent>
 
 namespace TextEditor {
     namespace Internal {
@@ -75,7 +78,6 @@ void QTipLabel::setContent(const TipContent &content)
     if (m_tipContent)
         delete m_tipContent;
     m_tipContent = content.clone();
-    configure();
 }
 
 const TipContent &QTipLabel::content() const
@@ -90,8 +92,11 @@ ColorTip::ColorTip(QWidget *parent) : QTipLabel(parent)
 ColorTip::~ColorTip()
 {}
 
-void ColorTip::configure()
+void ColorTip::configure(const QPoint &pos, QWidget *w)
 {
+    Q_UNUSED(pos)
+    Q_UNUSED(w)
+
     update();
 }
 
@@ -138,17 +143,32 @@ TextTip::TextTip(QWidget *parent) : QTipLabel(parent)
 TextTip::~TextTip()
 {}
 
-void TextTip::configure()
+void TextTip::configure(const QPoint &pos, QWidget *w)
 {
     const QString &text = static_cast<const TextContent &>(content()).text();
-    setWordWrap(Qt::mightBeRichText(text));
     setText(text);
-    QFontMetrics fm(font());
-    QSize extra(1, 0);
+
     // Make it look good with the default ToolTip font on Mac, which has a small descent.
+    QFontMetrics fm(font());
+    int extraHeight = 0;
     if (fm.descent() == 2 && fm.ascent() >= 11)
-        ++extra.rheight();
-    resize(sizeHint() + extra);
+        ++extraHeight;
+
+    // Try to find a nice width without unnecessary wrapping.
+    setWordWrap(false);
+    int tipWidth = sizeHint().width();
+    const int screenWidth = screenGeometry(pos, w).width();
+    const int maxDesiredWidth = int(screenWidth * .5);
+    if (tipWidth > maxDesiredWidth) {
+        setWordWrap(true);
+        tipWidth = sizeHint().width();
+        // If the width is still too large (maybe due to some extremely long word which prevents
+        // wrapping), the tip is truncated according to the screen.
+        if (tipWidth > screenWidth)
+            tipWidth = screenWidth - 10;
+    }
+
+    resize(tipWidth, heightForWidth(tipWidth) + extraHeight);
 }
 
 bool TextTip::handleContentReplacement(const TipContent &content) const

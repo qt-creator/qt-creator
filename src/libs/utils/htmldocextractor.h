@@ -41,9 +41,12 @@ class QTCREATOR_UTILS_EXPORT HtmlDocExtractor
 public:
     HtmlDocExtractor();
 
-    void extractFirstParagraphOnly();
-    void extractExtendedContents(const int lengthReference, const bool truncateAtParagraph);
+    enum Mode {
+        FirstParagraph,
+        Extended
+    };
 
+    void setMode(Mode mode);
     void applyFormatting(const bool format);
 
     QString getClassOrNamespaceBrief(const QString &html, const QString &mark) const;
@@ -80,10 +83,8 @@ private:
     static void replaceTablesForSimpleLines(QString *html);
     static void replaceListsForSimpleLines(QString *html);
 
-    int m_lengthReference;
-    bool m_truncateAtParagraph;
     bool m_formatContents;
-    bool m_extendedExtraction;
+    Mode m_mode;
 };
 
 } // namespace Utils

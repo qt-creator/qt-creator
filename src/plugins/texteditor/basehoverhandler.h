@@ -80,7 +80,7 @@ private:
 
     virtual bool acceptEditor(Core::IEditor *editor) = 0;
     virtual void identifyMatch(ITextEditor *editor, int pos) = 0;
-    virtual void decorateToolTip(ITextEditor *editor);
+    virtual void decorateToolTip();
     virtual void operateTooltip(ITextEditor *editor, const QPoint &point);
 
     QString m_toolTip;

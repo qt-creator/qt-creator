@@ -45,21 +45,12 @@ namespace {
 }
 
 HtmlDocExtractor::HtmlDocExtractor() :
-    m_lengthReference(-1),
-    m_truncateAtParagraph(false),
     m_formatContents(true),
-    m_extendedExtraction(false)
+    m_mode(FirstParagraph)
 {}
 
-void HtmlDocExtractor::extractFirstParagraphOnly()
-{ m_extendedExtraction = false; }
-
-void HtmlDocExtractor::extractExtendedContents(const int length, const bool truncateAtParagraph)
-{
-    m_lengthReference = length;
-    m_truncateAtParagraph = truncateAtParagraph;
-    m_extendedExtraction = true;
-}
+void HtmlDocExtractor::setMode(Mode mode)
+{ m_mode = mode; }
 
 void HtmlDocExtractor::applyFormatting(const bool format)
 { m_formatContents = format; }
@@ -67,11 +58,8 @@ void HtmlDocExtractor::applyFormatting(const bool format)
 QString HtmlDocExtractor::getClassOrNamespaceBrief(const QString &html, const QString &mark) const
 {
     QString contents = getContentsByMarks(html, mark + QLatin1String("-brief"), mark);
-    if (!contents.isEmpty() && m_formatContents) {
+    if (!contents.isEmpty() && m_formatContents)
         contents.remove(QLatin1String("<a href=\"#details\">More...</a>"));
-        contents.prepend(QLatin1String("<nobr>"));
-        contents.append(QLatin1String("</nobr>"));
-    }
     processOutput(&contents);
 
     return contents;
@@ -80,7 +68,7 @@ QString HtmlDocExtractor::getClassOrNamespaceBrief(const QString &html, const QS
 QString HtmlDocExtractor::getClassOrNamespaceDescription(const QString &html,
                                                          const QString &mark) const
 {
-    if (!m_extendedExtraction)
+    if (m_mode == FirstParagraph)
         return getClassOrNamespaceBrief(html, mark);
 
     QString contents = getContentsByMarks(html, mark + QLatin1String("-description"), mark);
@@ -191,11 +179,20 @@ void HtmlDocExtractor::processOutput(QString *html) const
     if (html->isEmpty())
         return;
 
-    if (!m_extendedExtraction) {
-        int paragraph = html->indexOf(QLatin1String("</p>"));
-        if (paragraph != -1) {
-            paragraph += 4;
-            html->truncate(paragraph);
+    if (m_mode == FirstParagraph) {
+        int index = html->indexOf(QLatin1String("</p>"));
+        if (index > 0) {
+            if (html->at(index - 1) == QLatin1Char('.')) {
+                index += 4;
+                html->truncate(index);
+            } else {
+                // <p>Paragraphs similar to this. Example:</p>
+                index = html->lastIndexOf(QLatin1Char('.'), index);
+                if (index > 0) {
+                    html->truncate(index);
+                    html->append(QLatin1String(".</p>"));
+                }
+            }
         } else {
             // Some enumerations don't have paragraphs and just a table with the items. In such
             // cases the the html is cleared to avoid showing more that desired.
@@ -216,45 +213,6 @@ void HtmlDocExtractor::processOutput(QString *html) const
         stripHeadings(html);
         stripImagens(html);
         stripEmptyParagraphs(html);
-
-        if (!html->startsWith(QLatin1String("<nobr>"))) {
-            if (!m_extendedExtraction) {
-                if (!html->endsWith(QLatin1String(".</p>"))) {
-                    // <p>For paragraphs similar to this. Example:</p>
-                    const int lastDot = html->lastIndexOf(QLatin1Char('.'));
-                    if (lastDot != -1) {
-                        html->truncate(lastDot);
-                        html->append(QLatin1String(".</p>"));
-                    }
-                }
-            }
-
-            const int noBreakLimit = 140;
-            const int paragraph = html->indexOf(QLatin1String("<p>"));
-            if (paragraph > 0 && paragraph <= noBreakLimit) {
-                html->insert(paragraph, QLatin1String("</nobr>"));
-                html->prepend(QLatin1String("<nobr>"));
-            }
-        }
-    }
-
-    if (m_extendedExtraction && m_lengthReference > -1 && html->length() > m_lengthReference) {
-        if (m_truncateAtParagraph) {
-            const int nextBegin = html->indexOf(QLatin1String("<p>"), m_lengthReference);
-            QRegExp exp = createMinimalExp(QLatin1String("</p>|<br />"));
-            const int previousEnd = html->lastIndexOf(exp, m_lengthReference);
-            if (nextBegin != -1 && previousEnd != -1)
-                html->truncate(qMin(nextBegin, previousEnd + exp.matchedLength()));
-            else if (nextBegin != -1 || previousEnd != -1)
-                html->truncate((nextBegin != -1? nextBegin : previousEnd + exp.matchedLength()));
-        } else {
-            html->truncate(m_lengthReference);
-        }
-        if (m_formatContents) {
-            if (html->endsWith(QLatin1String("<br />")))
-                html->chop(6);
-            html->append(QLatin1String("<p>...</p>"));
-        }
     }
 }
 

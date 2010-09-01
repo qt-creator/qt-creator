@@ -106,11 +106,10 @@ void CppHoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
     }
 }
 
-void CppHoverHandler::decorateToolTip(TextEditor::ITextEditor *editor)
+void CppHoverHandler::decorateToolTip()
 {
-    CPPEditor *cppEditor = qobject_cast<CPPEditor *>(editor->widget());
-    if (!cppEditor)
-        return;
+    if (Qt::mightBeRichText(toolTip()))
+        setToolTip(Qt::escape(toolTip()));
 
     const TextEditor::HelpItem &help = lastHelpItemIdentified();
     if (help.isValid()) {
@@ -120,11 +119,6 @@ void CppHoverHandler::decorateToolTip(TextEditor::ITextEditor *editor)
                 appendToolTip(contents);
             else
                 setToolTip(contents);
-        } else {
-            QString tip = Qt::escape(toolTip());
-            tip.prepend(QLatin1String("<nobr>"));
-            tip.append(QLatin1String("</nobr>"));
-            setToolTip(tip);
         }
         addF1ToToolTip();
     }

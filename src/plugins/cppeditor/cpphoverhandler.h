@@ -55,7 +55,7 @@ public:
 private:
     virtual bool acceptEditor(Core::IEditor *editor);
     virtual void identifyMatch(TextEditor::ITextEditor *editor, int pos);
-    virtual void decorateToolTip(TextEditor::ITextEditor *editor);
+    virtual void decorateToolTip();
 };
 
 } // namespace Internal

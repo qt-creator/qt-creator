@@ -36,6 +36,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QTimer>
 #include <QtCore/QRect>
+#include <QtGui/QFont>
 
 /*
  * In its current form QToolTip is not extensible. So this is an attempt to provide a more
@@ -76,6 +77,9 @@ public:
     void hide();
     bool isVisible() const;
 
+    QFont font() const;
+    void setFont(const QFont &font);
+
     virtual bool eventFilter(QObject *o, QEvent *event);
 
 private slots:
@@ -88,7 +92,6 @@ private:
     bool tipChanged(const QPoint &pos, const TipContent &content, QWidget *w) const;
     void setTipRect(QWidget *w, const QRect &rect);
     void placeTip(const QPoint &pos, QWidget *w);
-    int tipScreen(const QPoint &pos, QWidget *w) const;
     void showTip();
     void hideTipWithDelay();
 

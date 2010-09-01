@@ -67,8 +67,8 @@ SOURCES += texteditorplugin.cpp \
     tooltip/tooltip.cpp \
     tooltip/tips.cpp \
     tooltip/tipcontents.cpp \
-    basehoverhandler.cpp \
     tooltip/tipfactory.cpp \
+    basehoverhandler.cpp \
     helpitem.cpp
 
 HEADERS += texteditorplugin.h \
@@ -138,9 +138,10 @@ HEADERS += texteditorplugin.h \
     tooltip/tooltip.h \
     tooltip/tips.h \
     tooltip/tipcontents.h \
-    basehoverhandler.h \
+    tooltip/reuse.h \
     tooltip/effects.h \
     tooltip/tipfactory.h \
+    basehoverhandler.h \
     helpitem.h
 
 FORMS += behaviorsettingspage.ui \

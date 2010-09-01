@@ -32,11 +32,11 @@
 #include "tipcontents.h"
 #include "tipfactory.h"
 #include "effects.h"
+#include "reuse.h"
 
 #include <QtCore/QString>
 #include <QtGui/QColor>
 #include <QtGui/QApplication>
-#include <QtGui/QDesktopWidget>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QMouseEvent>
 
@@ -67,7 +67,8 @@ void ToolTip::show(const QPoint &pos, const TipContent &content, QWidget *w, con
 #ifndef Q_WS_WIN
         m_tip = m_tipFactory->createTip(content, w);
 #else
-        m_tip = m_tipFactory->createTip(content, QApplication::desktop()->screen(tipScreen(pos,w)));
+        m_tip = m_tipFactory->createTip(
+            content, QApplication::desktop()->screen(Internal::screenNumber(pos, w)));
 #endif
         setUp(pos, content, w, rect);
         qApp->installEventFilter(this);
@@ -96,7 +97,6 @@ bool ToolTip::acceptShow(const TipContent &content,
                 localPos = w->mapFromGlobal(pos);
             if (tipChanged(localPos, content, w)) {
                 setUp(pos, content, w, rect);
-                m_tip->setContent(content);
             }
             return false;
         }
@@ -117,8 +117,12 @@ bool ToolTip::validateContent(const TipContent &content)
 
 void ToolTip::setUp(const QPoint &pos, const TipContent &content, QWidget *w, const QRect &rect)
 {
+    m_tip->setContent(content);
+    m_tip->configure(pos, w);
+
     placeTip(pos, w);
     setTipRect(w, rect);
+
     if (m_hideDelayTimer.isActive())
         m_hideDelayTimer.stop();
     m_showTimer.start(content.showTime());
@@ -187,12 +191,7 @@ void ToolTip::hideTipImmediately()
 
 void ToolTip::placeTip(const QPoint &pos, QWidget *w)
 {
-#ifdef Q_WS_MAC
-    QRect screen = QApplication::desktop()->availableGeometry(tipScreen(pos, w));
-#else
-    QRect screen = QApplication::desktop()->screenGeometry(tipScreen(pos, w));
-#endif
-
+    QRect screen = Internal::screenGeometry(pos, w);
     QPoint p = pos;
     p += QPoint(2,
 #ifdef Q_WS_WIN
@@ -216,14 +215,6 @@ void ToolTip::placeTip(const QPoint &pos, QWidget *w)
         p.setY(screen.y() + screen.height() - m_tip->height());
 
     m_tip->move(p);
-}
-
-int ToolTip::tipScreen(const QPoint &pos, QWidget *w) const
-{
-    if (QApplication::desktop()->isVirtualDesktop())
-        return QApplication::desktop()->screenNumber(pos);
-    else
-        return QApplication::desktop()->screenNumber(w);
 }
 
 bool ToolTip::eventFilter(QObject *o, QEvent *event)
@@ -265,4 +256,14 @@ bool ToolTip::eventFilter(QObject *o, QEvent *event)
         break;
     }
     return false;
+}
+
+QFont ToolTip::font() const
+{
+    return QApplication::font("QTipLabel");
+}
+
+void ToolTip::setFont(const QFont &font)
+{
+    QApplication::setFont(font, "QTipLabel");
 }

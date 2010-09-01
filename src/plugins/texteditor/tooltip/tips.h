@@ -56,7 +56,7 @@ public:
     void setContent(const TextEditor::TipContent &content);
     const TextEditor::TipContent &content() const;
 
-    virtual void configure() = 0;
+    virtual void configure(const QPoint &pos, QWidget *w) = 0;
     virtual bool handleContentReplacement(const TextEditor::TipContent &content) const = 0;
 
 private:
@@ -70,7 +70,7 @@ public:
     ColorTip(QWidget *parent);
     virtual ~ColorTip();
 
-    virtual void configure();
+    virtual void configure(const QPoint &pos, QWidget *w);
     virtual bool handleContentReplacement(const TipContent &content) const;
 
 private:
@@ -86,7 +86,7 @@ public:
     TextTip(QWidget *parent);
     virtual ~TextTip();
 
-    virtual void configure();
+    virtual void configure(const QPoint &pos, QWidget *w);
     virtual bool handleContentReplacement(const TipContent &content) const;
 
 private:

@@ -81,9 +81,9 @@ QString HelpItem::extractContent(bool extended) const
 {
     Utils::HtmlDocExtractor htmlExtractor;
     if (extended)
-        htmlExtractor.extractExtendedContents(1500, true);
+        htmlExtractor.setMode(Utils::HtmlDocExtractor::Extended);
     else
-        htmlExtractor.extractFirstParagraphOnly();
+        htmlExtractor.setMode(Utils::HtmlDocExtractor::FirstParagraph);
 
     QString contents;
     QMap<QString, QUrl> helpLinks = Core::HelpManager::instance()->linksForIdentifier(m_helpId);
