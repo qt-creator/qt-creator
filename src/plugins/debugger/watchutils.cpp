@@ -547,7 +547,11 @@ bool isIntType(const QString &type)
         << QLatin1String("long long")  << QLatin1String("unsigned long long")
         << QLatin1String("qint16") << QLatin1String("quint16")
         << QLatin1String("qint32") << QLatin1String("quint32")
-        << QLatin1String("qint64") << QLatin1String("quint64");
+        << QLatin1String("qint64") << QLatin1String("quint64")
+        << QLatin1String("size_t")
+        << QLatin1String("ptrdiff_t")
+        << QLatin1String("std::size_t")
+        << QLatin1String("std::ptrdiff_t");
     return type.endsWith(QLatin1String(" int"))
             || type.endsWith(QLatin1String(" int64"))
             || types.contains(type);
