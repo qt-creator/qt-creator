@@ -63,7 +63,7 @@ public:
     };
 
     void setValue(const QString &);
-    void setType(const QString &, bool guessChildrenFromType = true);
+    void setType(const QByteArray &, bool guessChildrenFromType = true);
     void setValueToolTip(const QString &);
     void setError(const QString &);
     void setAddress(const QByteArray &);
@@ -116,7 +116,7 @@ public:
     int editformat;       // Format of displayed value
     QString valuetooltip; // Tooltip in value column
     QString typeFormats;  // Selection of formats of displayed value
-    QString type;         // Type for further processing
+    QByteArray type;         // Type for further processing
     QString displayedType;// Displayed type (optional)
     QByteArray variable;  // Name of internal Gdb variable if created
     QByteArray addr;      // Displayed address

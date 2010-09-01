@@ -46,7 +46,7 @@ public:
     virtual unsigned debuggerCapabilities() const;
 
     virtual bool isSynchronous() const;
-    virtual QString qtNamespace() const;
+    virtual QByteArray qtNamespace() const;
 
     virtual void createSnapshot();
     virtual void updateAll();

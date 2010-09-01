@@ -683,7 +683,7 @@ void CdbEngine::evaluateWatcher(WatchData *wd)
         exp.remove(0, 6);
     if (m_d->evaluateExpression(exp, &value, &type, &errorMessage)) {
         wd->setValue(value);
-        wd->setType(type);
+        wd->setType(type.toUtf8());
     } else {
         wd->setValue(errorMessage);
         wd->setTypeUnneeded();

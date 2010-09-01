@@ -68,7 +68,7 @@ void WatchData::setValue(const QString &value0)
         hasChildren = true; // at least one...
     }
     // strip off quoted characters for chars.
-    if (value.endsWith(QLatin1Char('\'')) && type.endsWith(QLatin1String("char"))) {
+    if (value.endsWith(QLatin1Char('\'')) && type.endsWith("char")) {
         const int blankPos = value.indexOf(QLatin1Char(' '));
         if (blankPos != -1)
             value.truncate(blankPos);
@@ -105,26 +105,26 @@ void WatchData::setValueToolTip(const QString &tooltip)
     valuetooltip = tooltip;
 }
 
-void WatchData::setType(const QString &str, bool guessChildrenFromType)
+void WatchData::setType(const QByteArray &str, bool guessChildrenFromType)
 {
     type = str.trimmed();
     bool changed = true;
     while (changed) {
-        if (type.endsWith(QLatin1String("const")))
+        if (type.endsWith("const"))
             type.chop(5);
-        else if (type.endsWith(QLatin1Char(' ')))
+        else if (type.endsWith(' '))
             type.chop(1);
-        else if (type.endsWith(QLatin1Char('&')))
+        else if (type.endsWith('&'))
             type.chop(1);
-        else if (type.startsWith(QLatin1String("const ")))
+        else if (type.startsWith("const "))
             type = type.mid(6);
-        else if (type.startsWith(QLatin1String("volatile ")))
+        else if (type.startsWith("volatile "))
             type = type.mid(9);
-        else if (type.startsWith(QLatin1String("class ")))
+        else if (type.startsWith("class "))
             type = type.mid(6);
-        else if (type.startsWith(QLatin1String("struct ")))
+        else if (type.startsWith("struct "))
             type = type.mid(6);
-        else if (type.startsWith(QLatin1Char(' ')))
+        else if (type.startsWith(' '))
             type = type.mid(1);
         else
             changed = false;

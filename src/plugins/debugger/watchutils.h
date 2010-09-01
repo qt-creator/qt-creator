@@ -70,19 +70,19 @@ inline bool isNameChar(char c)
 bool hasLetterOrNumber(const QString &exp);
 bool hasSideEffects(const QString &exp);
 bool isKeyWord(const QString &exp);
-bool isPointerType(const QString &type);
-bool isCharPointerType(const QString &type);
+bool isPointerType(const QByteArray &type);
+bool isCharPointerType(const QByteArray &type);
 bool startsWithDigit(const QString &str);
-QString stripPointerType(QString type);
+QByteArray stripPointerType(QByteArray type);
 QString gdbQuoteTypes(const QString &type);
 bool extractTemplate(const QString &type, QString *tmplate, QString *inner);
 QString extractTypeFromPTypeOutput(const QString &str);
-bool isIntOrFloatType(const QString &type);
-bool isIntType(const QString &type);
-bool isSymbianIntType(const QString &type);
+bool isIntOrFloatType(const QByteArray &type);
+bool isIntType(const QByteArray &type);
+bool isSymbianIntType(const QByteArray &type);
 
 enum GuessChildrenResult { HasChildren, HasNoChildren, HasPossiblyChildren };
-GuessChildrenResult guessChildren(const QString &type);
+GuessChildrenResult guessChildren(const QByteArray &type);
 
 QString quoteUnprintableLatin1(const QByteArray &ba);
 
@@ -144,8 +144,8 @@ public:
 
         Type type;
         bool isTemplate;
-        QString tmplate;
-        QString inner;
+        QByteArray tmplate;
+        QByteArray inner;
     };
 
     QtDumperHelper();
@@ -155,28 +155,28 @@ public:
 
     int typeCount() const;
     // Look up a simple, non-template  type
-    Type simpleType(const QString &simpleType) const;
+    Type simpleType(const QByteArray &simpleType) const;
     // Look up a (potentially) template type and fill parameter struct
-    TypeData typeData(const QString &typeName) const;
-    Type type(const QString &typeName) const;
+    TypeData typeData(const QByteArray &typeName) const;
+    Type type(const QByteArray &typeName) const;
 
     int qtVersion() const;
-    QString qtVersionString() const;
-    QString qtNamespace() const;
+    QByteArray qtVersionString() const;
+    QByteArray qtNamespace() const;
 
     // Complete parse of "query" (protocol 1) response from debuggee buffer.
     // 'data' excludes the leading indicator character.
     bool parseQuery(const char *data);
     bool parseQuery(const GdbMi &data);
     // Sizes can be added as the debugger determines them
-    void addSize(const QString &name, int size);
+    void addSize(const QByteArray &type, int size);
 
     // Determine the parameters required for an "evaluate" (protocol 2) call
     void evaluationParameters(const WatchData &data,
                               const TypeData &td,
                               Debugger debugger,
                               QByteArray *inBuffer,
-                              QStringList *extraParameters) const;
+                              QList<QByteArray> *extraParameters) const;
 
     // Parse the value response (protocol 2) from debuggee buffer.
     // 'data' excludes the leading indicator character.
@@ -188,15 +188,15 @@ public:
 
 private:
     typedef QMap<QString, Type> NameTypeMap;
-    typedef QMap<QString, int> SizeCache;
+    typedef QMap<QByteArray, int> SizeCache;
 
     // Look up a simple (namespace) type
-    QString evaluationSizeofTypeExpression(const QString &typeName, Debugger d) const;
-    QString qMapNodeValueOffsetExpression(const QString &type,
-                                          const QString &addressIn,
-                                          Debugger debugger) const;
+    QByteArray evaluationSizeofTypeExpression(const QByteArray &typeName, Debugger d) const;
+    QByteArray qMapNodeValueOffsetExpression(const QByteArray &type,
+        const QByteArray &addressIn, Debugger debugger) const;
 
-    QString lookupCdbDummyAddressExpression(const QString &expr, const QString &address) const;
+    QByteArray lookupCdbDummyAddressExpression
+        (const QByteArray &expr, const QByteArray &address) const;
 
     NameTypeMap m_nameTypeMap;
     SizeCache m_sizeCache;
@@ -211,25 +211,26 @@ private:
                            SpecialSizeCount };
 
     // Resolve name to enumeration or SpecialSizeCount (invalid)
-    SpecialSizeType specialSizeType(const QString &t) const;
+    SpecialSizeType specialSizeType(const QByteArray &type) const;
 
     int m_specialSizes[SpecialSizeCount];
 
-    QMap<QString, QString> m_expressionCache;
+    typedef QMap<QByteArray, QByteArray> ExpressionCache;
+    ExpressionCache m_expressionCache;
     int m_qtVersion;
     double m_dumperVersion;
-    QString m_qtNamespace;
+    QByteArray m_qtNamespace;
 
-    void setQClassPrefixes(const QString &qNamespace);
+    void setQClassPrefixes(const QByteArray &qNamespace);
 
-    QString m_qPointerPrefix;
-    QString m_qSharedPointerPrefix;
-    QString m_qSharedDataPointerPrefix;
-    QString m_qWeakPointerPrefix;
-    QString m_qListPrefix;
-    QString m_qLinkedListPrefix;
-    QString m_qVectorPrefix;
-    QString m_qQueuePrefix;
+    QByteArray m_qPointerPrefix;
+    QByteArray m_qSharedPointerPrefix;
+    QByteArray m_qSharedDataPointerPrefix;
+    QByteArray m_qWeakPointerPrefix;
+    QByteArray m_qListPrefix;
+    QByteArray m_qLinkedListPrefix;
+    QByteArray m_qVectorPrefix;
+    QByteArray m_qQueuePrefix;
 };
 
 QDebug operator<<(QDebug in, const QtDumperHelper::TypeData &d);

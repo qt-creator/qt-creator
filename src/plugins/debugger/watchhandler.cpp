@@ -435,7 +435,7 @@ static inline QString formattedValue(const WatchData &data, int format)
         if (!firstChar.isDigit() && firstChar != QLatin1Char('-'))
             return data.value;
         // Append quoted, printable character also for decimal.
-        if (data.type.endsWith(QLatin1String("char"))) {
+        if (data.type.endsWith("char")) {
             bool ok;
             const int code = data.value.toInt(&ok);
             return ok ? reformatCharacter(code, format) : data.value;
@@ -444,7 +444,7 @@ static inline QString formattedValue(const WatchData &data, int format)
         if (format <= 0)
             return data.value;
         // Evil hack, covers 'unsigned' as well as quint64.
-        if (data.type.contains(QLatin1Char('u')))
+        if (data.type.contains('u'))
             return reformatInteger(data.value.toULongLong(), format);
         return reformatInteger(data.value.toLongLong(), format);
     }
@@ -653,7 +653,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
                 bool ok;
                 const quint64 addr = data.addr.toULongLong(&ok, 16);
                 if (ok && addr)
-                    return QString("*(%1*)%2").arg(data.type).arg(addr);
+                    return QString("*(%1*)%2").arg(QLatin1String(data.type)).arg(addr);
             }
             WatchItem *parent = item->parent;
             if (parent && !parent->exp.isEmpty())
@@ -669,10 +669,10 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             return m_handler->m_expandedINames.contains(data.iname);
 
         case LocalsTypeFormatListRole: {
-            if (isIntType(data.type) && data.type != QLatin1String("bool"))
+            if (isIntType(data.type) && data.type != "bool")
                 return QStringList() << tr("decimal") << tr("hexadecimal")
                     << tr("binary") << tr("octal");
-            if (data.type.endsWith(QLatin1Char('*')))
+            if (data.type.endsWith('*'))
                 return QStringList()
                     << tr("Raw pointer")
                     << tr("Latin1 string")

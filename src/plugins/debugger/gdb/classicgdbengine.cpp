@@ -134,7 +134,7 @@ static inline QString msgRetrievingWatchData(int pending)
 void GdbEngine::runDirectDebuggingHelperClassic(const WatchData &data, bool dumpChildren)
 {
     Q_UNUSED(dumpChildren)
-    QByteArray type = data.type.toLatin1();
+    QByteArray type = data.type;
     QByteArray cmd;
 
     if (type == "QString" || type.endsWith("::QString"))
@@ -172,7 +172,7 @@ void GdbEngine::runDebuggingHelperClassic(const WatchData &data0, bool dumpChild
     m_processedNames.insert(processedName);
 
     QByteArray params;
-    QStringList extraArgs;
+    QList<QByteArray> extraArgs;
     const QtDumperHelper::TypeData td = m_dumperHelper.typeData(data0.type);
     m_dumperHelper.evaluationParameters(data, td, QtDumperHelper::GdbDebugger, &params, &extraArgs);
 
@@ -185,18 +185,23 @@ void GdbEngine::runDebuggingHelperClassic(const WatchData &data0, bool dumpChild
     if (data.addr.startsWith("0x"))
         addr = "(void*)" + data.addr;
     else if (data.exp.isEmpty()) // happens e.g. for QAbstractItem
-        addr =  QByteArray (1, '0');
+        addr = QByteArray(1, '0');
     else
         addr = "&(" + data.exp + ')';
 
     sendWatchParameters(params);
 
-    QString cmd;
-    QTextStream(&cmd) << "call " << "(void*)qDumpObjectData440(" <<
-            protocol << ",0," <<  addr << ',' << (dumpChildren ? '1' : '0')
-            << ',' << extraArgs.join(QString(_c(','))) <<  ')';
+    QByteArray cmd = "call (void*)qDumpObjectData440("
+        + QByteArray::number(protocol)
+        + ",0,"
+        + addr
+        + ','
+        + (dumpChildren ? '1' : '0');
+    foreach (const QByteArray &ex, extraArgs)
+        cmd + ',' + ex;
+    cmd += ')';
 
-    postCommand(cmd.toLatin1(), WatchUpdate | NonCriticalResponse);
+    postCommand(cmd, WatchUpdate | NonCriticalResponse);
 
     showStatusMessage(msgRetrievingWatchData(m_pendingWatchRequests + 1), 10000);
 
@@ -269,7 +274,7 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
         if (theDebuggerBoolSetting(AutoDerefPointers)) {
             // Try automatic dereferentiation
             data.exp = "(*(" + data.exp + "))";
-            data.type = data.type + _("."); // FIXME: fragile HACK to avoid recursion
+            data.type = data.type + "."; // FIXME: fragile HACK to avoid recursion
             insertData(data);
         } else {
             data.setChildrenUnneeded();
@@ -439,8 +444,8 @@ void GdbEngine::handleDebuggingHelperValue3Classic(const GdbResponse &response)
             data.setError(WatchData::msgNotInScope());
             data.setAllUnneeded();
             insertData(data);
-        } else if (data.type == __("QString")
-                || data.type.endsWith(__("::QString"))) {
+        } else if (data.type == "QString"
+                || data.type.endsWith("::QString")) {
             QList<QByteArray> list = out.split(' ');
             QString str;
             int l = out.isEmpty() ? 0 : list.size();
@@ -450,8 +455,8 @@ void GdbEngine::handleDebuggingHelperValue3Classic(const GdbResponse &response)
             data.setHasChildren(false);
             data.setAllUnneeded();
             insertData(data);
-        } else if (data.type == __("QStringList")
-                || data.type.endsWith(__("::QStringList"))) {
+        } else if (data.type == "QStringList"
+                || data.type.endsWith("::QStringList")) {
             if (out.isEmpty()) {
                 data.setValue(tr("<0 items>"));
                 data.setHasChildren(false);
@@ -731,7 +736,7 @@ void GdbEngine::handleQueryDebuggingHelperClassic(const GdbResponse &response)
         showStatusMessage(successMsg);
 
         // Sanity check for Qt version of dumpers and debuggee.
-        QByteArray ns = m_dumperHelper.qtNamespace().toLatin1();
+        QByteArray ns = m_dumperHelper.qtNamespace();
         postCommand("-var-create A@ * '" + ns + "qVersion'()",
             CB(handleDebuggingHelperVersionCheckClassic));
         postCommand("-var-delete A@");
@@ -855,7 +860,7 @@ void GdbEngine::handleVarListChildrenHelperClassic(const GdbMi &item,
             data.exp = parent.exp;
             data.name = tr("<n/a>");
             data.iname = parent.iname + ".@";
-            data.type = tr("<anonymous union>");
+            data.type = tr("<anonymous union>").toUtf8();
         } else {
             // A structure. Hope there's nothing else...
             data.exp = '(' + parent.exp + ")." + data.name.toLatin1();

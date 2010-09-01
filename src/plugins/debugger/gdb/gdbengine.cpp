@@ -3267,15 +3267,15 @@ void GdbEngine::setAutoDerefPointers(const QVariant &on)
     updateLocals();
 }
 
-bool GdbEngine::hasDebuggingHelperForType(const QString &type) const
+bool GdbEngine::hasDebuggingHelperForType(const QByteArray &type) const
 {
     if (!theDebuggerBoolSetting(UseDebuggingHelpers))
         return false;
 
     if (m_gdbAdapter->dumperHandling() == AbstractGdbAdapter::DumperNotAvailable) {
         // "call" is not possible in gdb when looking at core files
-        return type == __("QString") || type.endsWith(__("::QString"))
-            || type == __("QStringList") || type.endsWith(__("::QStringList"));
+        return type == "QString" || type.endsWith("::QString")
+            || type == "QStringList" || type.endsWith("::QStringList");
     }
 
     if (theDebuggerBoolSetting(DebugDebuggingHelpers)
@@ -3429,7 +3429,7 @@ void GdbEngine::handleVarCreate(const GdbResponse &response)
         data.setError(QString::fromLocal8Bit(response.data.findChild("msg").data()));
         if (data.isWatcher()) {
             data.value = WatchData::msgNotInScope();
-            data.type = _(" ");
+            data.type = " ";
             data.setAllUnneeded();
             data.setHasChildren(false);
             data.valueEnabled = false;
@@ -3496,7 +3496,7 @@ WatchData GdbEngine::localVariable(const GdbMi &item,
         //: Type of local variable or parameter shadowed by another
         //: variable of the same name in a nested block.
         setWatchDataValue(data, item);
-        data.setType(GdbEngine::tr("<shadowed>"));
+        data.setType(GdbEngine::tr("<shadowed>").toUtf8());
         data.setHasChildren(false);
         return data;
     }
@@ -3576,9 +3576,9 @@ void GdbEngine::handleWatchPoint(const GdbResponse &response)
         QString str = _(parsePlainConsoleStream(response));
         // "(void *) 0xbfa7ebfc"
         QString addr = str.mid(9);
-        QString ns = m_dumperHelper.qtNamespace();
-        QString type = ns.isEmpty() ? _("QWidget*") : _("'%1QWidget'*").arg(ns);
-        QString exp = _("(*(%1)%2)").arg(type).arg(addr);
+        QByteArray ns = m_dumperHelper.qtNamespace();
+        QByteArray type = ns.isEmpty() ? "QWidget*" : ("'" + ns + "QWidget'*");
+        QString exp = _("(*(%1)%2)").arg(_(type)).arg(addr);
         watchHandler()->watchExpression(exp);
     }
 }

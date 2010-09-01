@@ -343,14 +343,14 @@ CdbSymbolGroupContext *CdbSymbolGroupContext::create(const QString &prefix,
 // Fix display values: Pass through strings, convert unsigned integers
 // to decimal ('0x5454`fedf'), remove inner templates from
 // "0x4343 class list<>".
-static inline QString fixValue(const QString &value, const QString &type)
+static inline QString fixValue(const QString &value, const QLatin1String &type)
 {
     // Pass through strings
     if (value.endsWith(QLatin1Char('"')))
         return value;
     const int size = value.size();
     // Real Integer numbers Unsigned hex numbers (0x)/decimal numbers (0n)
-    if (type != QLatin1String("bool") && isIntType(type)) {
+    if (type != "bool" && isIntType(type)) {
         const QVariant intValue = CdbCore::SymbolGroupContext::getIntValue(value);
         if (intValue.isValid())
             return intValue.toString();

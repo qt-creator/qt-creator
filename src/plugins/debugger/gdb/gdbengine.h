@@ -116,7 +116,7 @@ private: ////////// General Interface //////////
     virtual void notifyInferiorSetupFailed();
 
     virtual void executeDebuggerCommand(const QString &command);
-    virtual QString qtNamespace() const { return m_dumperHelper.qtNamespace(); }
+    virtual QByteArray qtNamespace() const { return m_dumperHelper.qtNamespace(); }
 
 private: ////////// General State //////////
 
@@ -471,7 +471,7 @@ private: ////////// View & Data Stuff //////////
 
     void runDebuggingHelperClassic(const WatchData &data, bool dumpChildren);
     void runDirectDebuggingHelperClassic(const WatchData &data, bool dumpChildren);
-    bool hasDebuggingHelperForType(const QString &type) const;
+    bool hasDebuggingHelperForType(const QByteArray &type) const;
 
     void handleVarListChildrenClassic(const GdbResponse &response);
     void handleVarListChildrenHelperClassic(const GdbMi &child,

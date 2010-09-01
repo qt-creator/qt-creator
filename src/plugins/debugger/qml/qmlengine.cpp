@@ -88,7 +88,7 @@ QDataStream& operator>>(QDataStream& s, WatchData &data)
     QString type;
     bool hasChildren;
     s >> data.exp >> data.name >> value >> type >> hasChildren >> data.objectId;
-    data.setType(type, false);
+    data.setType(type.toUtf8(), false);
     data.setValue(value);
     data.setHasChildren(hasChildren);
     data.setAllUnneeded();

@@ -165,7 +165,7 @@ public:
     virtual unsigned debuggerCapabilities() const { return 0; }
 
     virtual bool isSynchronous() const { return false; }
-    virtual QString qtNamespace() const { return QString(); }
+    virtual QByteArray qtNamespace() const { return QByteArray(); }
 
     virtual void createSnapshot() {}
     virtual void updateAll() {}

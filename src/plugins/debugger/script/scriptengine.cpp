@@ -746,55 +746,55 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
     if (data.isTypeNeeded() || data.isValueNeeded()) {
         const QScriptValue &ob = data.scriptValue;
         if (ob.isArray()) {
-            data.setType(QLatin1String("Array"), false);
+            data.setType("Array", false);
             data.setValue(QString(QLatin1Char(' ')));
         } else if (ob.isBool()) {
-            data.setType(QLatin1String("Bool"), false);
+            data.setType("Bool", false);
             data.setValue(ob.toBool() ? QLatin1String("true") : QLatin1String("false"));
             data.setHasChildren(false);
         } else if (ob.isDate()) {
-            data.setType(QLatin1String("Date"), false);
+            data.setType("Date", false);
             data.setValue(ob.toDateTime().toString());
             data.setHasChildren(false);
         } else if (ob.isError()) {
-            data.setType(QLatin1String("Error"), false);
+            data.setType("Error", false);
             data.setValue(QString(QLatin1Char(' ')));
         } else if (ob.isFunction()) {
-            data.setType(QLatin1String("Function"), false);
+            data.setType("Function", false);
             data.setValue(QString(QLatin1Char(' ')));
         } else if (ob.isNull()) {
             const QString nullValue = QLatin1String("<null>");
-            data.setType(nullValue, false);
+            data.setType("<null>", false);
             data.setValue(nullValue);
         } else if (ob.isNumber()) {
-            data.setType(QLatin1String("Number"), false);
+            data.setType("Number", false);
             data.setValue(QString::number(ob.toNumber()));
             data.setHasChildren(false);
         } else if (ob.isObject()) {
-            data.setType(QLatin1String("Object"), false);
+            data.setType("Object", false);
             data.setValue(QString(QLatin1Char(' ')));
         } else if (ob.isQMetaObject()) {
-            data.setType(QLatin1String("QMetaObject"), false);
+            data.setType("QMetaObject", false);
             data.setValue(QString(QLatin1Char(' ')));
         } else if (ob.isQObject()) {
-            data.setType(QLatin1String("QObject"), false);
+            data.setType("QObject", false);
             data.setValue(QString(QLatin1Char(' ')));
         } else if (ob.isRegExp()) {
-            data.setType(QLatin1String("RegExp"), false);
+            data.setType("RegExp", false);
             data.setValue(ob.toRegExp().pattern());
         } else if (ob.isString()) {
-            data.setType(QLatin1String("String"), false);
+            data.setType("String", false);
             data.setValue(ob.toString());
         } else if (ob.isVariant()) {
-            data.setType(QLatin1String("Variant"), false);
+            data.setType("Variant", false);
             data.setValue(QString(QLatin1Char(' ')));
         } else if (ob.isUndefined()) {
-            data.setType(QLatin1String("<undefined>"), false);
+            data.setType("<undefined>", false);
             data.setValue(QLatin1String("<unknown>"));
             data.setHasChildren(false);
         } else {
             const QString unknown = QLatin1String("<unknown>");
-            data.setType(unknown, false);
+            data.setType("<unknown>", false);
             data.setValue(unknown);
             data.setHasChildren(false);
         }

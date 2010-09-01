@@ -180,7 +180,7 @@ bool QmlCppEngine::isSynchronous() const
     return m_activeEngine->isSynchronous();
 }
 
-QString QmlCppEngine::qtNamespace() const
+QByteArray QmlCppEngine::qtNamespace() const
 {
     return m_cppEngine->qtNamespace();
 }
