@@ -169,6 +169,7 @@ struct ProjectExplorerPluginPrivate {
     QAction *m_openFileAction;
     QAction *m_showInGraphicalShell;
     QAction *m_openTerminalHere;
+    QAction *m_setStartupProjectAction;
     QAction *m_projectSelectorAction;
     QAction *m_projectSelectorActionMenu;
 
@@ -394,15 +395,14 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msessionContextMenu->appendGroup(Constants::G_SESSION_OTHER);
     msessionContextMenu->appendGroup(Constants::G_SESSION_CONFIG);
 
-    mproject->appendGroup(Constants::G_PROJECT_OPEN);
-    mproject->appendGroup(Constants::G_PROJECT_NEW);
+    mproject->appendGroup(Constants::G_PROJECT_FIRST);
     mproject->appendGroup(Constants::G_PROJECT_BUILD);
     mproject->appendGroup(Constants::G_PROJECT_RUN);
     mproject->appendGroup(Constants::G_PROJECT_FILES);
     mproject->appendGroup(Constants::G_PROJECT_OTHER);
     mproject->appendGroup(Constants::G_PROJECT_CONFIG);
 
-    msubProject->appendGroup(Constants::G_PROJECT_OPEN);
+    msubProject->appendGroup(Constants::G_PROJECT_FIRST);
     msubProject->appendGroup(Constants::G_PROJECT_BUILD);
     msubProject->appendGroup(Constants::G_PROJECT_FILES);
     msubProject->appendGroup(Constants::G_PROJECT_OTHER);
@@ -444,11 +444,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_FILES);
     mproject->addAction(cmd, Constants::G_PROJECT_FILES);
     msubProject->addAction(cmd, Constants::G_PROJECT_FILES);
-
-    sep = new QAction(this);
-    sep->setSeparator(true);
-    cmd = am->registerAction(sep, QLatin1String("ProjectExplorer.New.Sep"), globalcontext);
-    mproject->addAction(cmd, Constants::G_PROJECT_NEW);
 
     sep = new QAction(this);
     sep->setSeparator(true);
@@ -748,6 +743,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 //    msubProject->addAction(cmd, Constants::G_FOLDER_FILES);
 //    mproject->addAction(cmd, Constants::G_FOLDER_FILES);
 
+    // set startup project action
+    d->m_setStartupProjectAction = new QAction(tr("Set as Startup Project"), this);
+    cmd = am->registerAction(d->m_setStartupProjectAction, ProjectExplorer::Constants::SETSTARTUP,
+                             globalcontext);
+    mproject->addAction(cmd, Constants::G_PROJECT_FIRST);
+
     // target selector
     d->m_projectSelectorAction = new QAction(this);
     d->m_projectSelectorAction->setCheckable(true);
@@ -840,6 +841,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(d->m_removeFileAction, SIGNAL(triggered()), this, SLOT(removeFile()));
     connect(d->m_deleteFileAction, SIGNAL(triggered()), this, SLOT(deleteFile()));
     connect(d->m_renameFileAction, SIGNAL(triggered()), this, SLOT(renameFile()));
+    connect(d->m_setStartupProjectAction, SIGNAL(triggered()), this, SLOT(setStartupProject()));
 
     updateActions();
 
@@ -2239,6 +2241,11 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &to)
         projectNode->renameFile(fileNode->fileType(), orgFilePath, newFilePath);
         // TODO emit a signal?
     }
+}
+
+void ProjectExplorerPlugin::setStartupProject()
+{
+    setStartupProject(d->m_currentProject);
 }
 
 void ProjectExplorerPlugin::populateOpenWithMenu(QMenu *menu, const QString &fileName)

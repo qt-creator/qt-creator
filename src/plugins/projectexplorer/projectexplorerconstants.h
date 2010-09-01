@@ -81,6 +81,7 @@ const char * const OPENTERMIANLHERE     = "ProjectExplorer.OpenTerminalHere";
 const char * const REMOVEFILE           = "ProjectExplorer.RemoveFile";
 const char * const DELETEFILE           = "ProjectExplorer.DeleteFile";
 const char * const RENAMEFILE           = "ProjectExplorer.RenameFile";
+const char * const SETSTARTUP           = "ProjectExplorer.SetStartup";
 
 const char * const SHOW_TASK_IN_EDITOR  = "ProjectExplorer.ShowTaskInEditor";
 const char * const VCS_ANNOTATE_TASK    = "ProjectExplorer.VcsAnnotateTask";
@@ -141,8 +142,7 @@ const char * const G_SESSION_FILES      = "Session.Group.Files";
 const char * const G_SESSION_OTHER      = "Session.Group.Other";
 const char * const G_SESSION_CONFIG     = "Session.Group.Config";
 
-const char * const G_PROJECT_OPEN       = "Project.Group.Open";
-const char * const G_PROJECT_NEW        = "Project.Group.New";
+const char * const G_PROJECT_FIRST      = "Project.Group.Open";
 const char * const G_PROJECT_FILES      = "Project.Group.Files";
 const char * const G_PROJECT_BUILD      = "Project.Group.Build";
 const char * const G_PROJECT_OTHER      = "Project.Group.Other";
