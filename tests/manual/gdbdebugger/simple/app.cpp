@@ -1840,9 +1840,12 @@ void testTypedef()
 void testStuff()
 {
     Foo *f1 = new Foo(1);
-    Foo *f2 = new X();
-    Foo *f3 = new XX();
-    Foo *f4 = new Y();
+    X *x = new X();
+    Foo *f2 = x;
+    XX *xx = new XX();
+    Foo *f3 = xx;
+    Y *y = new Y();
+    Foo *f4 = y;
     //Foo *f5 = new D();
     qDebug() << f1 << f2 << f3 << f4;
 }
