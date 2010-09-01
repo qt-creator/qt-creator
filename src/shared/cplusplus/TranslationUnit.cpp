@@ -203,7 +203,7 @@ void TranslationUnit::tokenize()
         lex(&tk);
 
       _Lrecognize:
-        if (tk.is(T_POUND)) {
+        if (tk.is(T_POUND) && tk.newline()) {
             unsigned offset = tk.offset;
             lex(&tk);
 
