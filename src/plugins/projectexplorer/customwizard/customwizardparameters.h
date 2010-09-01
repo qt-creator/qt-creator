@@ -81,9 +81,12 @@ public:
                       Core::BaseFileWizardParameters *bp, QString *errorMessage);
     QString toString() const;
 
+    QString filesGeneratorScriptFullPath() const;
+
     QString directory;
     QString klass;
     QList<CustomWizardFile> files;
+    QString filesGeneratorScript;
     QString fieldPageTitle;
     QList<CustomWizardField> fields;
     int firstPageId;
@@ -110,7 +113,15 @@ struct CustomWizardContext {
     static QString processFile(const FieldReplacementMap &fm, QString in);
 
     FieldReplacementMap baseReplacements;
+    FieldReplacementMap replacements;
+    // Where files should be created, that is, choosen path for simple wizards
+    // or "path/project" for project wizards.
+    QString targetPath;
+    QString projectFilePath;
 };
+
+extern const char customWizardFileOpenEditorAttributeC[];
+extern const char customWizardFileOpenProjectAttributeC[];
 
 } // namespace Internal
 } // namespace ProjectExplorer

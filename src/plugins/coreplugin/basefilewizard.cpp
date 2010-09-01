@@ -552,12 +552,11 @@ QStringList BaseFileWizard::runWizard(const QString &path, QWidget *parent)
     }
 
     // Write
-    foreach (const GeneratedFile &generatedFile, files) {
-        if (!generatedFile.write(&errorMessage)) {
-            QMessageBox::critical(parent, tr("File Generation Failure"), errorMessage);
-            return QStringList();
-        }
+    if (!writeFiles(files, &errorMessage)) {
+        QMessageBox::critical(parent, tr("File Generation Failure"), errorMessage);
+        return QStringList();
     }
+
     bool removeOpenProjectAttribute = false;
     // Run the extensions
     foreach (IFileWizardExtension *ex, extensions) {
@@ -584,6 +583,17 @@ QStringList BaseFileWizard::runWizard(const QString &path, QWidget *parent)
 
     return result;
 }
+
+// Write
+bool BaseFileWizard::writeFiles(const GeneratedFiles &files, QString *errorMessage)
+{
+    foreach (const GeneratedFile &generatedFile, files)
+        if (!(generatedFile.attributes() & GeneratedFile::CustomGeneratorAttribute))
+            if (!generatedFile.write(errorMessage))
+                return false;
+    return true;
+}
+
 
 void BaseFileWizard::setupWizard(QWizard *w)
 {

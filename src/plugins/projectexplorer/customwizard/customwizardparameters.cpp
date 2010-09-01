@@ -70,12 +70,10 @@ static const char fieldMandatoryAttributeC[] = "mandatory";
 static const char fieldControlElementC[] = "fieldcontrol";
 
 static const char filesElementC[] = "files";
+static const char filesGeneratorScriptAttributeC[] = "generatorscript";
 static const char fileElementC[] = "file";
-static const char fileNameSourceAttributeC[] = "source";
-static const char fileNameTargetAttributeC[] = "target";
-static const char fileNameOpenEditorAttributeC[] = "openeditor";
-static const char fileNameOpenProjectAttributeC[] = "openproject";
-
+static const char fileSourceAttributeC[] = "source";
+static const char fileTargetAttributeC[] = "target";
 
 enum ParseState {
     ParseBeginning,
@@ -94,6 +92,9 @@ enum ParseState {
 
 namespace ProjectExplorer {
 namespace Internal {
+
+const char customWizardFileOpenEditorAttributeC[] = "openeditor";
+const char customWizardFileOpenProjectAttributeC[] = "openproject";
 
 CustomWizardField::CustomWizardField() :
     mandatory(false)
@@ -134,6 +135,7 @@ void CustomWizardParameters::clear()
     directory.clear();
     files.clear();
     fields.clear();
+    filesGeneratorScript.clear();
     firstPageId = -1;
 }
 
@@ -496,12 +498,15 @@ CustomWizardParameters::ParseResult
                         state = ParseWithinComboEntry;
                 }
                      break;
+                case ParseWithinFiles:
+                    filesGeneratorScript = attributeValue(reader, filesGeneratorScriptAttributeC);
+                    break;
                 case ParseWithinFile: { // file attribute
                         CustomWizardFile file;
-                        file.source = attributeValue(reader, fileNameSourceAttributeC);
-                        file.target = attributeValue(reader, fileNameTargetAttributeC);
-                        file.openEditor = booleanAttributeValue(reader, fileNameOpenEditorAttributeC, false);
-                        file.openProject = booleanAttributeValue(reader, fileNameOpenProjectAttributeC, false);
+                        file.source = attributeValue(reader, fileSourceAttributeC);
+                        file.target = attributeValue(reader, fileTargetAttributeC);
+                        file.openEditor = booleanAttributeValue(reader, customWizardFileOpenEditorAttributeC, false);
+                        file.openProject = booleanAttributeValue(reader, customWizardFileOpenProjectAttributeC, false);
                         if (file.target.isEmpty())
                             file.target = file.source;
                         if (file.source.isEmpty()) {
@@ -554,11 +559,23 @@ CustomWizardParameters::ParseResult
     return parse(configFile, configFileFullPath, bp, errorMessage);
 }
 
+QString CustomWizardParameters::filesGeneratorScriptFullPath() const
+{
+    if (filesGeneratorScript.isEmpty())
+        return QString();
+    QString rc = directory;
+    rc += QLatin1Char('/');
+    rc += filesGeneratorScript;
+    return rc;
+}
+
 QString CustomWizardParameters::toString() const
 {
     QString rc;
     QTextStream str(&rc);
     str << "Directory: " << directory << " Klass: '" << klass << "'\n";
+    if (!filesGeneratorScript.isEmpty())
+        str << "Script: '" <<  filesGeneratorScript << "'\n";
     foreach(const CustomWizardFile &f, files) {
         str << "  File source: " << f.source << " Target: " << f.target;
         if (f.openEditor)
@@ -652,6 +669,9 @@ void CustomWizardContext::reset()
                             mdb->preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)));
     baseReplacements.insert(QLatin1String("CppHeaderSuffix"),
                             mdb->preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)));
+    replacements.clear();
+    targetPath.clear();
+    projectFilePath.clear();
 }
 
 QString CustomWizardContext::processFile(const FieldReplacementMap &fm, QString in)
