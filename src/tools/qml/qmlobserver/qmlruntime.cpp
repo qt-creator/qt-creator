@@ -590,6 +590,7 @@ QDeclarativeViewer::QDeclarativeViewer(QWidget *parent, Qt::WindowFlags flags)
         addToolBar(Qt::TopToolBarArea, canvas->toolbar());
         canvas->toolbar()->setFloatable(false);
         canvas->toolbar()->setMovable(false);
+
         m_crumblePathWidget = new Utils::CrumblePath(this);
 #ifndef Q_WS_MAC
         QFile file(":/toolbarstyle.css");
@@ -715,10 +716,43 @@ void QDeclarativeViewer::createMenu()
     QAction *recordOptions = new QAction(tr("Video &Options..."), this);
     connect(recordOptions, SIGNAL(triggered()), this, SLOT(chooseRecordingOptions()));
 
-    QAction *slowAction = new QAction(tr("&Slow Down Animations"), this);
-    slowAction->setShortcut(QKeySequence("Ctrl+."));
-    slowAction->setCheckable(true);
-    connect(slowAction, SIGNAL(triggered(bool)), this, SLOT(setSlowMode(bool)));
+    QMenu *playSpeedMenu = new QMenu(tr("Animation Speed"), this);
+    QActionGroup *playSpeedMenuActions = new QActionGroup(this);
+    playSpeedMenuActions->setExclusive(true);
+
+    QAction *speedAction = playSpeedMenu->addAction(tr("1x"), this, SLOT(changeAnimationSpeed()));
+    speedAction->setCheckable(true);
+    speedAction->setChecked(true);
+    animationSpeed = 1.0f;
+    speedAction->setData(1.0f);
+    playSpeedMenuActions->addAction(speedAction);
+
+    speedAction = playSpeedMenu->addAction(tr("0.5x"), this, SLOT(changeAnimationSpeed()));
+    speedAction->setCheckable(true);
+    speedAction->setData(2.0f);
+    playSpeedMenuActions->addAction(speedAction);
+
+    speedAction = playSpeedMenu->addAction(tr("0.25x"), this, SLOT(changeAnimationSpeed()));
+    speedAction->setCheckable(true);
+    speedAction->setData(4.0f);
+    playSpeedMenuActions->addAction(speedAction);
+
+    speedAction = playSpeedMenu->addAction(tr("0.125x"), this, SLOT(changeAnimationSpeed()));
+    speedAction->setCheckable(true);
+    speedAction->setData(8.0f);
+    playSpeedMenuActions->addAction(speedAction);
+
+    speedAction = playSpeedMenu->addAction(tr("0.1x"), this, SLOT(changeAnimationSpeed()));
+    speedAction->setCheckable(true);
+    speedAction->setData(10.0f);
+    playSpeedMenuActions->addAction(speedAction);
+
+    pauseAnimationsAction = playSpeedMenu->addAction(tr("Pause"), this, SLOT(pauseAnimations(bool)));
+    pauseAnimationsAction->setCheckable(true);
+    pauseAnimationsAction->setShortcut(QKeySequence("Ctrl+."));
+
+    QAction *playSpeedAction = new QAction(tr("Animations"), this);
+    playSpeedAction->setMenu(playSpeedMenu);
 
     showWarningsWindow = new QAction(tr("Show Warnings"), this);
     showWarningsWindow->setCheckable((true));
@@ -777,7 +811,7 @@ void QDeclarativeViewer::createMenu()
     menu->addAction(recordOptions);
     menu->addAction(proxyAction);
 
-    menu->addAction(slowAction);
+    menu->addAction(playSpeedMenu);
     menu->addAction(showWarningsWindow);
 
     orientation->addAction(landscapeAction);
@@ -799,7 +833,7 @@ void QDeclarativeViewer::createMenu()
     recordMenu->addAction(recordAction);
 
     QMenu *debugMenu = menu->addMenu(tr("&Debugging"));
-    debugMenu->addAction(slowAction);
+    debugMenu->addAction(playSpeedAction);
     debugMenu->addAction(showWarningsWindow);
     debugMenu->addAction(designModeBehaviorAction);
 #endif // ! Q_OS_SYMBIAN
@@ -943,9 +977,24 @@ void QDeclarativeViewer::toggleRecording()
     setRecording(recording);
 }
 
-void QDeclarativeViewer::setSlowMode(bool enable)
+void QDeclarativeViewer::pauseAnimations(bool enable)
 {
-    QUnifiedTimer::instance()->setSlowModeEnabled(enable);
+    if (enable) {
+        setAnimationSpeed(0.0);
+    } else {
+        setAnimationSpeed(animationSpeed);
+    }
+}
+
+void QDeclarativeViewer::changeAnimationSpeed()
+{
+    QAction *action = qobject_cast<QAction*>(sender());
+    if (action) {
+        float f = action->data().toFloat();
+        animationSpeed = f;
+        if (!pauseAnimationsAction->isChecked())
+            setAnimationSpeed(animationSpeed);
+    }
 }
 
 void QDeclarativeViewer::addLibraryPath(const QString& lib)
@@ -1422,6 +1471,12 @@ void QDeclarativeViewer::setSizeToView(bool sizeToView)
         canvas->setResizeMode(resizeMode);
         updateSizeHints();
     }
+}
+
+void QDeclarativeViewer::setAnimationSpeed(float f)
+{
+    QUnifiedTimer::instance()->setSlowdownFactor(f);
+    QUnifiedTimer::instance()->setSlowModeEnabled(f != 1.0);
 }
 
 void QDeclarativeViewer::updateSizeHints(bool initial)

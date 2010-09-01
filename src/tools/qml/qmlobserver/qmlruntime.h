@@ -131,7 +131,8 @@ public slots:
     void proxySettingsChanged ();
     void rotateOrientation();
     void statusChanged();
-    void setSlowMode(bool);
+    void pauseAnimations(bool);
+    void changeAnimationSpeed();
     void launch(const QString &);
 
 protected:
@@ -155,13 +156,14 @@ private slots:
     void warningsWidgetOpened();
     void warningsWidgetClosed();
 
-
 private:
+    void setAnimationSpeed(float f);
     void updateSizeHints(bool initial = false);
 
     QString getVideoFileName();
 
     LoggerWidget *loggerWindow;
+
     QmlViewer::QDeclarativeDesignView *canvas;
     QSize initialSize;
     QString currentFileOrUrl;
@@ -189,6 +191,9 @@ private:
     QWidget *ffmpegHelpWindow;
     bool ffmpegAvailable;
     bool convertAvailable;
+
+    float animationSpeed;
+    QAction *pauseAnimationsAction;
 
     QActionGroup *orientation;
     QAction *showWarningsWindow;
