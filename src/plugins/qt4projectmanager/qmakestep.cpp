@@ -93,6 +93,13 @@ Qt4BuildConfiguration *QMakeStep::qt4BuildConfiguration() const
     return static_cast<Qt4BuildConfiguration *>(buildConfiguration());
 }
 
+///
+/// Returns all arguments
+/// That is: possbile subpath
+/// spec
+/// config arguemnts
+/// moreArguments
+/// user arguments
 QStringList QMakeStep::allArguments()
 {
     QStringList additonalArguments = m_userArgs;
@@ -128,6 +135,11 @@ QStringList QMakeStep::allArguments()
     return arguments;
 }
 
+///
+/// moreArguments,
+/// -unix for Maemo
+/// -after OBJECTS_DIR, MOC_DIR, UI_DIR, RCC_DIR
+/// QMKAE_VAR_QMLINSPECTOR_PATH
 QStringList QMakeStep::moreArguments()
 {
     Qt4BuildConfiguration *bc = qt4BuildConfiguration();

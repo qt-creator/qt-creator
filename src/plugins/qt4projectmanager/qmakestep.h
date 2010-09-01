@@ -85,6 +85,7 @@ public:
     void setForced(bool b);
     bool forced();
 
+    // TODO clean up those functions
     QStringList allArguments();
     QStringList moreArguments();
     QStringList userArguments();
