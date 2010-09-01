@@ -29,7 +29,6 @@
 
 //#include <complex>
 
-
 //template <typename T> class B;  B foo() {}
 
 #include <QtCore/QDebug>
@@ -76,6 +75,7 @@
 
 #if defined(__GNUC__) && !defined(__llvm__) && !defined(Q_OS_MAC)
 #    define USE_GCC_EXT 1
+#    undef __DEPRECATED
 #    include <hash_set>
 #endif
 
@@ -220,12 +220,16 @@ void testArray()
     X x;
     XX xx;
     D diamond;
+    Q_UNUSED(diamond);
     Foo *f = &xx;
+    Q_UNUSED(f);
     Foo ff;
+    Q_UNUSED(ff);
     double d[3][3];
     for (int i = 0; i != 3; ++i)
         for (int j = 0; j != 3; ++j)
             d[i][j] = i + j;
+    Q_UNUSED(d);
 #endif
 
 #if 1
@@ -234,6 +238,7 @@ void testArray()
     c[1] = 'b';
     c[2] = 'c';
     c[3] = 'd';
+    Q_UNUSED(c);
 #endif
 
 #if 1
@@ -242,6 +247,7 @@ void testArray()
     s[1] = "b";
     s[2] = "c";
     s[3] = "d";
+    Q_UNUSED(s);
 #endif
 
 #if 1
@@ -250,6 +256,7 @@ void testArray()
     b[1] = "b";
     b[2] = "c";
     b[3] = "d";
+    Q_UNUSED(b);
 #endif
 
 #if 1
@@ -286,6 +293,7 @@ void testPeekAndPoke3()
         a.i = 1; // Break here. Expand a. Step.
         a.i = 2; // Change a.i in Locals view to 0. This changes f, d but expectedly not b. Step.
         a.i = 3; // Continue.
+        Q_UNUSED(a);
 #endif
     }
 
@@ -298,6 +306,7 @@ void testPeekAndPoke3()
             // Type    ['s[%d].a' % i for i in range(5)]
             // Expand it, continue stepping.
         }
+        Q_UNUSED(s);
     }
 
     // QImage display
@@ -346,9 +355,11 @@ void testAnonymous()
     a.i = 1;
     a.i = 2;
     a.i = 3;
+    Q_UNUSED(a);
 
     Something s;
     s.foo();
+    Q_UNUSED(s);
 #endif
 }
 
@@ -589,7 +600,7 @@ void testQLocale()
     //QString s = loc.name();
     //QVariant v = loc;
     QLocale::MeasurementSystem m = loc.measurementSystem();
-    int i = 1;
+    Q_UNUSED(m);
 }
 
 void testQList()
@@ -759,7 +770,7 @@ public:
     {
         m_ui = new Ui;
         m_ui->w = new QWidget;
-        int i = 0;
+        Q_UNUSED(parent);
     }
 
     Q_PROPERTY(QString myProp1 READ myProp1 WRITE setMyProp1)
@@ -788,7 +799,7 @@ void testQObject(int &argc, char *argv[])
     test.setMyProp2("WORLD");
     QString s = test.myProp1();
     s += test.myProp2();
-    int i = 1;
+    Q_UNUSED(s);
 #endif
 
 #if 0
@@ -1543,9 +1554,7 @@ void testNoArgumentName(int i, int, int k)
     list2.append(Goo("Hello", 1));
     list2.append(Goo("World", 2));
 
-    i = 1000;
-    k = 2000;
-    ++k;
+    ++i;
     ++k;
 }
 
@@ -1830,6 +1839,16 @@ void testTypedef()
 
 void testStuff()
 {
+    Foo *f1 = new Foo(1);
+    Foo *f2 = new X();
+    Foo *f3 = new XX();
+    Foo *f4 = new Y();
+    //Foo *f5 = new D();
+    qDebug() << f1 << f2 << f3 << f4;
+}
+
+void testStuff2()
+{
     QList<QList<int> > list1;
     QList<QList<int> > list2;
     list1.append(QList<int>() << 1);
@@ -1855,6 +1874,7 @@ void testStuff()
     str[0] = 'A';
     QString foo = "foo";
     wchar *f = (wchar*)foo.utf16();
+    Q_UNUSED(f);
     str[0] = 'A';
     str[0] = 'A';
     str[0] = 'A';
