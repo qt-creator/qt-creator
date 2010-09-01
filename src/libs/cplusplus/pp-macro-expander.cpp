@@ -159,8 +159,9 @@ const char *MacroExpander::expand(const char *__first, const char *__last,
 
                 __result->append('\"');
             }
-            else
-                __result->append('#'); // ### warning message?
+            else {
+                // ### warning message?
+            }
         }
         else if (*__first == '\"')
         {
@@ -211,6 +212,17 @@ const char *MacroExpander::expand(const char *__first, const char *__last,
             // search for the paste token
             const char *next = skip_blanks (__first, __last);
             bool paste = false;
+
+            bool need_comma = false;
+            if (next != __last && *next == ',') {
+                const char *x = skip_blanks(__first + 1, __last);
+                if (x != __last && *x == '#' && (x + 1) != __last && x[1] == '#') {
+                    need_comma = true;
+                    paste = true;
+                    __first = skip_blanks(x + 2, __last);
+                }
+            }
+
             if (next != __last && *next == '#')
             {
                 paste = true;
@@ -220,8 +232,8 @@ const char *MacroExpander::expand(const char *__first, const char *__last,
             }
 
             const QByteArray fast_name(name_begin, name_end - name_begin);
-
-            if (const QByteArray *actual = resolve_formal (fast_name))
+            const QByteArray *actual = resolve_formal (fast_name);
+            if (actual)
             {
                 const char *begin = actual->constData ();
                 const char *end = begin + actual->size ();
@@ -233,6 +245,8 @@ const char *MacroExpander::expand(const char *__first, const char *__last,
                     ++end;
                 }
                 __result->append(begin, end - begin);
+                if (need_comma)
+                    __result->append(',');
                 continue;
             }
 
