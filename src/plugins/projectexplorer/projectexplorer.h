@@ -111,7 +111,6 @@ public:
     void renameFile(Node *node, const QString &to);
     static QStringList projectFilePatterns();
     bool coreAboutToClose();
-    void setStartupProject(ProjectExplorer::Project *project);
 
 signals:
     void aboutToShowContextMenu(ProjectExplorer::Project *project,
@@ -177,6 +176,7 @@ private slots:
     void deleteFile();
     void renameFile();
     void setStartupProject();
+    void setStartupProject(ProjectExplorer::Project *project);
 
     void updateRecentProjectMenu();
     void openRecentProject();
