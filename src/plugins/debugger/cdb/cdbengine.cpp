@@ -1274,9 +1274,15 @@ void CdbEngine::reloadRegisters()
         qDebug() << Q_FUNC_INFO << intBase;
 
     QString errorMessage;
-    const Registers registers = getRegisters(m_d->interfaces().debugControl, m_d->interfaces().debugRegisters, &errorMessage, intBase);
+    const Registers oldRegisters = registerHandler()->registers();
+    Registers registers = getRegisters(m_d->interfaces().debugControl,
+        m_d->interfaces().debugRegisters, &errorMessage, intBase);
     if (registers.isEmpty() && !errorMessage.isEmpty())
         warning(msgFunctionFailed("reloadRegisters" , errorMessage));
+    for (int i = qMin(registers.size(), oldRegisters.size()); --i >= 0; ) {
+        Register &reg = registers[i];
+        reg.changed = (reg.value != oldRegisters.at(i).value);
+    }
     registerHandler()->setRegisters(registers);
 }
 
