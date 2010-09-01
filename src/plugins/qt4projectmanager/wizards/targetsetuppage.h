@@ -42,6 +42,7 @@
 
 QT_BEGIN_NAMESPACE
 class QLabel;
+class QMenu;
 class QPushButton;
 class QTreeWidget;
 class QTreeWidgetItem;
@@ -118,12 +119,18 @@ public:
 
 public slots:
     void setProFilePath(const QString &dir);
+    void checkAll(bool checked);
+    void checkOne(bool, QTreeWidgetItem *);
 
 private slots:
     void itemWasChanged();
+    void checkAllButtonClicked();
+    void checkAllTriggered();
+    void uncheckAllTriggered();
+    void checkOneTriggered();
     void addShadowBuildLocation();
-    void toggleAll();
     void handleDoubleClicks(QTreeWidgetItem *, int);
+    void contextMenuRequested(const QPoint & pos);
 
 private:
     void resetInfos();
@@ -137,6 +144,8 @@ private:
     QString m_defaultShadowBuildLocation;
 
     Ui::TargetSetupPage *m_ui;
+
+    QMenu *m_contextMenu;
 };
 
 } // namespace Internal

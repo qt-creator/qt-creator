@@ -41,10 +41,12 @@
 #include <projectexplorer/taskhub.h>
 #include <utils/qtcassert.h>
 
+#include <QtGui/QAction>
 #include <QtGui/QFileDialog>
 #include <QtGui/QHeaderView>
 #include <QtGui/QLabel>
 #include <QtGui/QLayout>
+#include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
 #include <QtGui/QTreeWidget>
@@ -63,18 +65,24 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
     QWizardPage(parent),
     m_preferMobile(false),
     m_toggleWillCheck(false),
-    m_ui(new Ui::TargetSetupPage)
+    m_ui(new Ui::TargetSetupPage),
+    m_contextMenu(0)
 {
     m_ui->setupUi(this);
     m_ui->versionTree->header()->setResizeMode(0, QHeaderView::ResizeToContents);
     m_ui->versionTree->header()->setResizeMode(1, QHeaderView::ResizeToContents);
 
+    m_ui->versionTree->setContextMenuPolicy(Qt::CustomContextMenu);
+    m_contextMenu = new QMenu(this);
+
     connect(m_ui->importButton, SIGNAL(clicked()),
             this, SLOT(addShadowBuildLocation()));
     connect(m_ui->uncheckButton, SIGNAL(clicked()),
-            this, SLOT(toggleAll()));
+            this, SLOT(checkAllButtonClicked()));
     connect(m_ui->versionTree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),
             this, SLOT(handleDoubleClicks(QTreeWidgetItem*,int)));
+    connect(m_ui->versionTree, SIGNAL(customContextMenuRequested(QPoint)),
+            this, SLOT(contextMenuRequested(QPoint)));
 }
 
 TargetSetupPage::~TargetSetupPage()
@@ -443,19 +451,54 @@ void TargetSetupPage::addShadowBuildLocation()
     setImportInfos(tmp);
 }
 
-void TargetSetupPage::toggleAll()
+void TargetSetupPage::checkAll(bool checked)
 {
     for (int i = 0; i < m_ui->versionTree->topLevelItemCount(); ++i) {
         QTreeWidgetItem *current = m_ui->versionTree->topLevelItem(i);
-        for (int j = 0; j < current->childCount(); ++j) {
-            QTreeWidgetItem *child = current->child(j);
-            child->setCheckState(0, m_toggleWillCheck ? Qt::Checked : Qt::Unchecked);
-        }
+        for (int j = 0; j < current->childCount(); ++j)
+            checkOne(checked, current->child(j));
     }
+}
+
+void TargetSetupPage::checkOne(bool checked, QTreeWidgetItem *item)
+{
+    Q_ASSERT(item->parent()); // we are a version item
+    item->setCheckState(0, checked ? Qt::Checked : Qt::Unchecked);
+}
+
+void TargetSetupPage::checkAllButtonClicked()
+{
+    checkAll(m_toggleWillCheck);
+
     m_toggleWillCheck = !m_toggleWillCheck;
     m_ui->uncheckButton->setText(m_toggleWillCheck ? tr("Check all") : tr("Uncheck all"));
     m_ui->uncheckButton->setToolTip(m_toggleWillCheck
                                     ? tr("Check all Qt versions") : tr("Uncheck all Qt versions"));
+}
+
+void TargetSetupPage::checkAllTriggered()
+{
+    m_toggleWillCheck = true;
+    checkAllButtonClicked();
+}
+
+void TargetSetupPage::uncheckAllTriggered()
+{
+    m_toggleWillCheck = false;
+    checkAllButtonClicked();
+}
+
+void TargetSetupPage::checkOneTriggered()
+{
+    QAction * action = qobject_cast<QAction *>(sender());
+    if (!action)
+        return;
+    QTreeWidgetItem *item = static_cast<QTreeWidgetItem *>(action->data().value<void *>());
+    if (!item || !item->parent())
+        return;
+
+    checkAll(false);
+    checkOne(true, item);
 }
 
 void TargetSetupPage::handleDoubleClicks(QTreeWidgetItem *item, int column)
@@ -467,6 +510,31 @@ void TargetSetupPage::handleDoubleClicks(QTreeWidgetItem *item, int column)
         m_infos[idx].isShadowBuild = !m_infos[idx].isShadowBuild;
         updateVersionItem(item, idx);
     }
+}
+
+void TargetSetupPage::contextMenuRequested(const QPoint & position)
+{
+    m_contextMenu->clear();
+
+    QTreeWidgetItem *item = m_ui->versionTree->itemAt(position);
+    m_contextMenu = new QMenu(this);
+    if (item->parent()) {
+        // Qt version item
+        QAction *onlyThisAction = new QAction(tr("Check only this version"), m_contextMenu);
+        connect(onlyThisAction, SIGNAL(triggered()), this, SLOT(checkOneTriggered()));
+        onlyThisAction->setData(QVariant::fromValue(static_cast<void *>(item)));
+        m_contextMenu->addAction(onlyThisAction);
+
+        QAction *checkAllAction = new QAction(tr("Check all versions"), m_contextMenu);
+        connect(checkAllAction, SIGNAL(triggered()), this, SLOT(checkAllTriggered()));
+        m_contextMenu->addAction(checkAllAction);
+
+        QAction *uncheckAllAction = new QAction(tr("Uncheck all versions"), m_contextMenu);
+        connect(uncheckAllAction, SIGNAL(triggered()), this, SLOT(uncheckAllTriggered()));
+        m_contextMenu->addAction(uncheckAllAction);
+    }
+    if (!m_contextMenu->isEmpty())
+        m_contextMenu->popup(m_ui->versionTree->mapToGlobal(position));
 }
 
 void TargetSetupPage::resetInfos()
