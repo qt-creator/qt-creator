@@ -3,7 +3,7 @@
 
 #ifdef QMLINSPECTOR
 #include <qdeclarativedesignview.h>
-class QmlApplicationView : public QmlViewer::QDeclarativeDesignView
+class QmlApplicationViewer : public QmlViewer::QDeclarativeDesignView
 #else // QMLINSPECTOR
 #include <QtDeclarative/QDeclarativeView>
 class QmlApplicationViewer : public QDeclarativeView
