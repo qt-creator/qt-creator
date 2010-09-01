@@ -66,9 +66,9 @@ public:
 public:
     LiteralTable()
        : _literals(0),
+         _buckets(0),
          _allocatedLiterals(0),
          _literalCount(-1),
-         _buckets(0),
          _allocatedBuckets(0)
     { }
 
@@ -127,17 +127,13 @@ public:
         _Literal *literal = new _Literal(chars, size);
 
         if (++_literalCount == _allocatedLiterals) {
-            _allocatedLiterals <<= 1;
-
-            if (! _allocatedLiterals)
-                _allocatedLiterals = 256;
-
+            _allocatedLiterals += 32;
             _literals = (_Literal **) std::realloc(_literals, sizeof(_Literal *) * _allocatedLiterals);
         }
 
         _literals[_literalCount] = literal;
 
-        if (! _buckets || _literalCount >= _allocatedBuckets * .6)
+        if (! _buckets || _literalCount * 5 >= _allocatedBuckets * 3)
             rehash();
         else {
             unsigned h = literal->hashCode() % _allocatedBuckets;
@@ -154,11 +150,7 @@ protected:
        if (_buckets)
            std::free(_buckets);
 
-       _allocatedBuckets <<= 1;
-
-       if (! _allocatedBuckets)
-           _allocatedBuckets = 256;
-
+       _allocatedBuckets += 32;
        _buckets = (_Literal **) std::calloc(_allocatedBuckets, sizeof(_Literal *));
 
        _Literal **lastLiteral = _literals + (_literalCount + 1);
@@ -174,10 +166,9 @@ protected:
 
 protected:
     _Literal **_literals;
+    _Literal **_buckets;
     int _allocatedLiterals;
     int _literalCount;
-
-    _Literal **_buckets;
     int _allocatedBuckets;
 };
 
