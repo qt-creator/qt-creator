@@ -60,7 +60,8 @@ class QMLJSDEBUGGER_EXPORT QDeclarativeDesignDebugServer : public QDeclarativeDe
 {
     Q_OBJECT
 public:
-    QDeclarativeDesignDebugServer(QObject *parent = 0);
+    QDeclarativeDesignDebugServer();
+    static QDeclarativeDesignDebugServer *instance();
 
     void setDesignModeBehavior(bool inDesignMode);
     void setCurrentObjects(QList<QObject*> items);
@@ -99,7 +100,6 @@ protected:
 
 private:
     QHash<int, QString> m_stringIdForObjectId;
-
 };
 
 QT_END_NAMESPACE

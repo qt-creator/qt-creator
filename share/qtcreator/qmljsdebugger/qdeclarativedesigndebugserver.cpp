@@ -46,9 +46,16 @@
 
 #include <QDebug>
 
-QDeclarativeDesignDebugServer::QDeclarativeDesignDebugServer(QObject *parent)
-    : QDeclarativeDebugService(QLatin1String("QDeclarativeDesignMode"), parent)
+Q_GLOBAL_STATIC(QDeclarativeDesignDebugServer, qmlDesignDebugServer)
+
+QDeclarativeDesignDebugServer::QDeclarativeDesignDebugServer()
+    : QDeclarativeDebugService(QLatin1String("QDeclarativeDesignMode"))
 {
+}
+
+QDeclarativeDesignDebugServer *QDeclarativeDesignDebugServer::instance()
+{
+    return qmlDesignDebugServer();
 }
 
 void QDeclarativeDesignDebugServer::messageReceived(const QByteArray &message)
