@@ -19,7 +19,7 @@ HEADERS += cppplugin.h \
     cppchecksymbols.h \
     cppsemanticinfo.h \
     cppoutline.h \
-    cppdeclfromdef.h \
+    cppinsertdecldef.h \
     cpplocalsymbols.h \
     cpptypehierarchy.h \
     cppelementevaluator.h
@@ -35,7 +35,7 @@ SOURCES += cppplugin.cpp \
     cppchecksymbols.cpp \
     cppsemanticinfo.cpp \
     cppoutline.cpp \
-    cppdeclfromdef.cpp \
+    cppinsertdecldef.cpp \
     cpplocalsymbols.cpp \
     cpptypehierarchy.cpp \
     cppelementevaluator.cpp

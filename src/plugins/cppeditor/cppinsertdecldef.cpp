@@ -27,10 +27,7 @@
 **
 **************************************************************************/
 
-#include "cppdeclfromdef.h"
-
-#include <Literals.h> //### remove
-#include <QDebug> //###remove
+#include "cppinsertdecldef.h"
 
 #include <AST.h>
 #include <ASTVisitor.h>

@@ -29,7 +29,7 @@
 
 #include "cppeditor.h"
 #include "cppquickfix.h"
-#include "cppdeclfromdef.h"
+#include "cppinsertdecldef.h"
 
 #include <ASTVisitor.h>
 #include <AST.h>

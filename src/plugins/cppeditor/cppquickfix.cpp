@@ -29,7 +29,6 @@
 
 #include "cppquickfix.h"
 #include "cppeditor.h"
-#include "cppdeclfromdef.h"
 
 #include <AST.h>
 #include <TranslationUnit.h>

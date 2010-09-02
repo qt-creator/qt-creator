@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef CPPDECLFROMDEF_H
-#define CPPDECLFROMDEF_H
+#ifndef CPPINSERTDECLDEF_H
+#define CPPINSERTDECLDEF_H
 
 #include "cppquickfix.h"
 
@@ -56,4 +56,4 @@ protected:
 } // namespace Internal
 } // namespace CppEditor
 
-#endif // CPPDECLFROMDEF_H
+#endif // CPPINSERTDECLDEF_H
