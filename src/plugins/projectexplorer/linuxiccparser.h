@@ -42,7 +42,9 @@ class LinuxIccParser : public ProjectExplorer::IOutputParser
 
 public:
     LinuxIccParser();
-    virtual void stdError(const QString &line);
+    ~LinuxIccParser();
+
+    void stdError(const QString &line);
 
 private:
     QRegExp m_firstLine;

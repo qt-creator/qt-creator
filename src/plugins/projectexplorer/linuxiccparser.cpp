@@ -36,7 +36,7 @@
 using namespace ProjectExplorer;
 
 LinuxIccParser::LinuxIccParser()
-    : m_expectFirstLine(true), m_indent(0)
+    : m_expectFirstLine(true), m_indent(0), m_temporary(Task())
 {
     // main.cpp(53): error #308: function \"AClass::privatefunc\" (declared at line 4 of \"main.h\") is inaccessible
 
@@ -59,22 +59,24 @@ LinuxIccParser::LinuxIccParser()
     appendOutputParser(new LdParser);
 }
 
+LinuxIccParser::~LinuxIccParser()
+{
+    if (!m_temporary.isNull())
+        addTask(m_temporary);
+}
+
 void LinuxIccParser::stdError(const QString &line)
 {
     if (m_expectFirstLine  && m_firstLine.indexIn(line) != -1) {
         // Clear out old task
-        m_temporary = ProjectExplorer::Task();
-        m_temporary.file = m_firstLine.cap(1);
-        m_temporary.line = m_firstLine.cap(2).toInt();
+        m_temporary = ProjectExplorer::Task(Task::Unknown, m_firstLine.cap(6).trimmed(),
+                                            m_firstLine.cap(1), m_firstLine.cap(2).toInt(),
+                                            QLatin1String(Constants::TASK_CATEGORY_COMPILE));
         QString category = m_firstLine.cap(4);
         if (category == QLatin1String("error"))
             m_temporary.type = Task::Error;
         else if (category == QLatin1String("warning"))
             m_temporary.type = Task::Warning;
-        else
-            m_temporary.type = Task::Unknown;
-        m_temporary.category = Constants::TASK_CATEGORY_COMPILE;
-        m_temporary.description = m_firstLine.cap(6).trimmed();
 
         m_expectFirstLine = false;
     } else if (!m_expectFirstLine && m_caretLine.indexIn(line) != -1) {
@@ -93,6 +95,7 @@ void LinuxIccParser::stdError(const QString &line)
     } else if (!m_expectFirstLine && line.trimmed().isEmpty()) { // last Line
         m_expectFirstLine = true;
         emit addTask(m_temporary);
+        m_temporary = Task();
     } else if (!m_expectFirstLine && m_continuationLines.indexIn(line) != -1) {
         m_temporary.description.append("\n");
         m_indent = 0;
