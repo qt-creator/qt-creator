@@ -135,7 +135,7 @@ void FindUsages::reportResult(unsigned tokenIndex, const Name *name, Scope *scop
 
 void FindUsages::reportResult(unsigned tokenIndex, const Identifier *id, Scope *scope)
 {
-    reportResult(tokenIndex, id, scope);
+    reportResult(tokenIndex, static_cast<const Name *>(id), scope);
 }
 
 void FindUsages::reportResult(unsigned tokenIndex, const QList<LookupItem> &candidates)
