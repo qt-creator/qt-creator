@@ -1226,8 +1226,6 @@ void CentralizedFolderWatcher::folderChanged(const QString &folder)
         qDebug()<<"CFW::folderChanged"<<folder;
     // Figure out whom to inform
 
-    qDebug()<<"start";
-
     QString dir = folder;
     while (true) {
         if (!dir.endsWith('/'))
