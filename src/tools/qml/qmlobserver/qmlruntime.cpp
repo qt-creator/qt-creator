@@ -528,6 +528,32 @@ QNetworkAccessManager *NetworkAccessManagerFactory::create(QObject *parent)
     return manager;
 }
 
+//
+// Event filter that ensures the crumble path width is always the canvas width
+//
+class CrumblePathResizer : public QObject
+{
+    Q_OBJECT
+public:
+    CrumblePathResizer(Utils::CrumblePath *crumblePathWidget, QObject *parent = 0) :
+        QObject(parent),
+        m_crumblePathWidget(crumblePathWidget)
+    {
+    }
+
+    bool eventFilter(QObject *obj, QEvent *event)
+    {
+        if (event->type() == QEvent::Resize) {
+            QResizeEvent *resizeEvent = static_cast<QResizeEvent *>(event);
+            m_crumblePathWidget->resize(resizeEvent->size().width(), m_crumblePathWidget->height());
+        }
+        return QObject::eventFilter(obj, event);
+    }
+
+private:
+    QWidget *m_crumblePathWidget;
+};
+
 QString QDeclarativeViewer::getVideoFileName()
 {
     QString title = convertAvailable || ffmpegAvailable ? tr("Save Video File") : tr("Save PNG Frames");
@@ -587,27 +613,22 @@ QDeclarativeViewer::QDeclarativeViewer(QWidget *parent, Qt::WindowFlags flags)
 
     canvas = new QmlViewer::QDeclarativeDesignView(this);
     if (!(flags & Qt::FramelessWindowHint)) {
-        addToolBar(Qt::TopToolBarArea, canvas->toolbar());
-        canvas->toolbar()->setFloatable(false);
-        canvas->toolbar()->setMovable(false);
-
-        m_crumblePathWidget = new Utils::CrumblePath(this);
+        m_crumblePathWidget = new Utils::CrumblePath(canvas);
 #ifndef Q_WS_MAC
-        QFile file(":/toolbarstyle.css");
-        file.open(QFile::ReadOnly);
-        QString toolbarStylesheet = QLatin1String(file.readAll());
-        canvas->toolbar()->setStyleSheet(toolbarStylesheet);
         m_crumblePathWidget->setStyleSheet("QWidget { border-bottom: 1px solid black; }");
 #endif
-    }
+        m_crumblePathWidget->setVisible(canvas->designModeBehavior());
 
+        // CrumblePath is not in a layout, so that it overlays the central widget
+        // The event filter ensures that its width stays in sync nevertheless
+        CrumblePathResizer *resizer = new CrumblePathResizer(m_crumblePathWidget, m_crumblePathWidget);
+        canvas->installEventFilter(resizer);
+    }
 
     m_centralWidget = new QWidget(this);
     QVBoxLayout *layout = new QVBoxLayout(m_centralWidget);
     layout->setMargin(0);
     layout->setSpacing(0);
-    if (m_crumblePathWidget)
-        layout->addWidget(m_crumblePathWidget);
 
 
     layout->addWidget(canvas);
@@ -626,6 +647,7 @@ QDeclarativeViewer::QDeclarativeViewer(QWidget *parent, Qt::WindowFlags flags)
         QObject::connect(canvas, SIGNAL(inspectorContextPushed(QString)), m_crumblePathWidget, SLOT(pushElement(QString)));
         QObject::connect(canvas, SIGNAL(inspectorContextPopped()), m_crumblePathWidget, SLOT(popElement()));
         QObject::connect(m_crumblePathWidget, SIGNAL(elementClicked(int)), canvas, SLOT(setInspectorContext(int)));
+        QObject::connect(canvas, SIGNAL(designModeBehaviorChanged(bool)), m_crumblePathWidget, SLOT(setVisible(bool)));
     }
     QObject::connect(canvas->engine(), SIGNAL(quit()), QCoreApplication::instance (), SLOT(quit()));
 
