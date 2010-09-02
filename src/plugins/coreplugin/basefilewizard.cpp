@@ -530,7 +530,7 @@ QStringList BaseFileWizard::runWizard(const QString &path, QWidget *parent)
         }
         if (firstExtensionPageHit)
             foreach (IFileWizardExtension *ex, extensions)
-                ex->firstExtensionPageShown(files, generatedProjectFilePath(wizard.data()));
+                ex->firstExtensionPageShown(files);
         if (accepted)
             break;
     }
@@ -561,7 +561,7 @@ QStringList BaseFileWizard::runWizard(const QString &path, QWidget *parent)
     // Run the extensions
     foreach (IFileWizardExtension *ex, extensions) {
         bool remove;
-        if (!ex->process(files, generatedProjectFilePath(wizard.data()), &remove, &errorMessage)) {
+        if (!ex->process(files, &remove, &errorMessage)) {
             QMessageBox::critical(parent, tr("File Generation Failure"), errorMessage);
             return QStringList();
         }
@@ -615,12 +615,6 @@ void BaseFileWizard::applyExtensionPageShortTitle(Utils::Wizard *wizard, int pag
     const QString shortTitle = p->property("shortTitle").toString();
     if (!shortTitle.isEmpty())
       item->setTitle(shortTitle);
-}
-
-QString BaseFileWizard::generatedProjectFilePath(const QWizard *wizard) const
-{
-    Q_UNUSED(wizard)
-    return QString();
 }
 
 bool BaseFileWizard::postGenerateFiles(const QWizard *, const GeneratedFiles &l, QString *errorMessage)

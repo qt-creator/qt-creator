@@ -184,14 +184,5 @@ Core::GeneratedFiles TestWizard::generateFiles(const QWizard *w, QString *errorM
     return Core::GeneratedFiles() <<  source << profile;
 }
 
-QString TestWizard::generatedProjectFilePath(const QWizard *w) const
-{
-    const TestWizardDialog *wizardDialog = qobject_cast<const TestWizardDialog *>(w);
-    const QtProjectParameters projectParams = wizardDialog->projectParameters();
-    const QString projectPath = projectParams.projectPath();
-
-    return buildFileName(projectPath, projectParams.fileName, profileSuffix());
-}
-
 } // namespace Internal
 } // namespace Qt4ProjectManager

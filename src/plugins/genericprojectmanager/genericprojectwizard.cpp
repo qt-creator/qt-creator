@@ -231,17 +231,6 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
     return files;
 }
 
-QString GenericProjectWizard::generatedProjectFilePath(const QWizard *w) const
-{
-    const GenericProjectWizardDialog *wizard = qobject_cast<const GenericProjectWizardDialog *>(w);
-    const QString projectPath = wizard->path();
-    const QDir dir(projectPath);
-    const QString projectName = wizard->projectName();
-    const QString creatorFileName = QFileInfo(dir, projectName + QLatin1String(".creator")).absoluteFilePath();
-
-    return creatorFileName;
-}
-
 bool GenericProjectWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage)
 {
     Q_UNUSED(w);

@@ -75,16 +75,5 @@ Core::GeneratedFiles CustomWidgetWizard::generateFiles(const QWizard *w,
     return PluginGenerator::generatePlugin(p, *(cw->pluginOptions()), errorMessage);
 }
 
-QString CustomWidgetWizard::generatedProjectFilePath(const QWizard *w) const
-{
-    const CustomWidgetWizardDialog *cw = qobject_cast<const CustomWidgetWizardDialog *>(w);
-    const QChar slash = QLatin1Char('/');
-    QString baseDir = cw->path();
-    baseDir += slash;
-    baseDir += cw->projectName();
-    baseDir += slash;
-    return baseDir + cw->projectName() + QLatin1String(".pro");
-}
-
 } // namespace Internal
 } // namespace Qt4ProjectManager

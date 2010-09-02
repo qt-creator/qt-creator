@@ -237,15 +237,6 @@ Core::GeneratedFiles GuiAppWizard::generateFiles(const QWizard *w,
     return rc;
 }
 
-QString GuiAppWizard::generatedProjectFilePath(const QWizard *w) const
-{
-    const GuiAppWizardDialog *dialog = qobject_cast<const GuiAppWizardDialog *>(w);
-    const QtProjectParameters projectParams = dialog->projectParameters();
-    const QString projectPath = projectParams.projectPath();
-
-    return buildFileName(projectPath, projectParams.fileName, profileSuffix());
-}
-
 bool GuiAppWizard::parametrizeTemplate(const QString &templatePath, const QString &templateName,
                                        const GuiAppParameters &params,
                                        QString *target, QString *errorMessage)

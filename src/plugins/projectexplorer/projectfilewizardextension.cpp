@@ -224,11 +224,18 @@ static int findMatchingProject(const QList<ProjectEntry> &projects,
     return bestMatch;
 }
 
-void ProjectFileWizardExtension::firstExtensionPageShown(
-        const QList<Core::GeneratedFile> &files,
-        const QString &generatedProjectFilePath)
+static QString generatedProjectFilePath(const QList<Core::GeneratedFile> &files)
 {
-    initProjectChoices(generatedProjectFilePath);
+    foreach (const Core::GeneratedFile file, files)
+        if (file.attributes() & Core::GeneratedFile::OpenProjectAttribute)
+            return file.path();
+    return QString();
+}
+
+void ProjectFileWizardExtension::firstExtensionPageShown(
+        const QList<Core::GeneratedFile> &files)
+{
+    initProjectChoices(generatedProjectFilePath(files));
 
     if (debugExtension)
         qDebug() << Q_FUNC_INFO << files.size();
@@ -357,23 +364,22 @@ void ProjectFileWizardExtension::initProjectChoices(const QString &generatedProj
 
 bool ProjectFileWizardExtension::process(
         const QList<Core::GeneratedFile> &files,
-        const QString &generatedProjectFilePath,
         bool *removeOpenProjectAttribute, QString *errorMessage)
 {
-    return processProject(files, generatedProjectFilePath,
-                          removeOpenProjectAttribute, errorMessage) &&
+    return processProject(files, removeOpenProjectAttribute, errorMessage) &&
            processVersionControl(files, errorMessage);
 }
 
 // Add files to project && version control
 bool ProjectFileWizardExtension::processProject(
         const QList<Core::GeneratedFile> &files,
-        const QString &generatedProjectFilePath,
         bool *removeOpenProjectAttribute, QString *errorMessage)
 {
     typedef QMultiMap<FileType, QString> TypeFileMap;
 
     *removeOpenProjectAttribute = false;
+
+    QString generatedProject = generatedProjectFilePath(files);
 
     // Add files to  project (Entry at 0 is 'None').
     const int projectIndex = m_context->page->currentProjectIndex() - 1;
@@ -381,9 +387,9 @@ bool ProjectFileWizardExtension::processProject(
         return true;
     ProjectNode *project = m_context->projects.at(projectIndex).node;
     if (m_context->wizard->kind() == Core::IWizard::ProjectWizard) {
-        if (!project->addSubProjects(QStringList(generatedProjectFilePath))) {
+        if (!project->addSubProjects(QStringList(generatedProject))) {
             *errorMessage = tr("Failed to add subproject '%1'\nto project '%2'.")
-                            .arg(generatedProjectFilePath).arg(project->path());
+                            .arg(generatedProject).arg(project->path());
             return false;
         }
         *removeOpenProjectAttribute = true;

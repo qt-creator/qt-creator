@@ -137,15 +137,5 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
     return rc;
 }
 
-QString LibraryWizard::generatedProjectFilePath(const QWizard *w) const
-{
-    const LibraryWizardDialog *dialog = qobject_cast<const LibraryWizardDialog *>(w);
-    const QtProjectParameters projectParams = dialog->parameters();
-    const QString projectPath = projectParams.projectPath();
-
-    return buildFileName(projectPath, projectParams.fileName, profileSuffix());
-}
-
-
 } // namespace Internal
 } // namespace Qt4ProjectManager

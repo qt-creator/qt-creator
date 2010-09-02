@@ -74,13 +74,5 @@ Core::GeneratedFiles
     return Core::GeneratedFiles() << profile;
 }
 
-QString EmptyProjectWizard::generatedProjectFilePath(const QWizard *w) const
-{
-    const EmptyProjectWizardDialog *wizard = qobject_cast< const EmptyProjectWizardDialog *>(w);
-    const QtProjectParameters params = wizard->parameters();
-    const QString projectPath = params.projectPath();
-    return Core::BaseFileWizard::buildFileName(projectPath, params.fileName, profileSuffix());
-}
-
 } // namespace Internal
 } // namespace Qt4ProjectManager

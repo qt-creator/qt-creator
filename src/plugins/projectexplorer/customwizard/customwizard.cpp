@@ -521,13 +521,6 @@ bool CustomProjectWizard::postGenerateOpen(const Core::GeneratedFiles &l, QStrin
     return BaseFileWizard::postGenerateOpenEditors(l, errorMessage);
 }
 
-QString CustomProjectWizard::generatedProjectFilePath(const QWizard *) const
-{
-    if (CustomWizardPrivate::verbose)
-        qDebug("CustomProjectWizard::generatedProjectFilePath: '%s'", qPrintable(context()->projectFilePath));
-    return context()->projectFilePath;
-}
-
 bool CustomProjectWizard::postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l, QString *errorMessage)
 {
     if (CustomWizardPrivate::verbose)
