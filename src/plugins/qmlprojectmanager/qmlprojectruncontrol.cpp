@@ -114,11 +114,6 @@ void QmlRunControl::slotError(const QString &err, bool isError)
 
 void QmlRunControl::slotAddToOutputWindow(const QString &line, bool onStdErr)
 {
-    if (runMode() == ProjectExplorer::Constants::DEBUGMODE && line.startsWith("QDeclarativeDebugServer: Waiting for connection")) {
-        Core::ICore *core = Core::ICore::instance();
-        core->modeManager()->activateMode(Debugger::Constants::MODE_DEBUG);
-    }
-
     emit addToOutputWindowInline(this, line, onStdErr);
 }
 
