@@ -64,6 +64,19 @@ void OutputParserTester::testParsing(const QString &lines,
         else
             childParser()->stdError(input);
     }
+     // first disconnect ourselves from the end of the parser chain again
+    IOutputParser * parser = this;
+    while (parser = parser->childParser()) {
+        if (parser->childParser() == this) {
+            childParser()->takeOutputParserChain();
+            break;
+        }
+    }
+    parser = 0;
+    emit aboutToDeleteParser();
+
+    // then delete the parser(s) to test
+    setChildParser(0);
 
     QCOMPARE(m_receivedOutput, outputLines);
     QCOMPARE(m_receivedStdErrChildLine, childStdErrLines);

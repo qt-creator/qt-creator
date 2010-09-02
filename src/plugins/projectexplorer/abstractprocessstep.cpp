@@ -204,6 +204,12 @@ void AbstractProcessStep::processStarted()
 
 void AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus status)
 {
+    // Clean up output parsers
+    if (m_outputParserChain) {
+        delete m_outputParserChain;
+        m_outputParserChain = 0;
+    }
+
     if (status == QProcess::NormalExit && exitCode == 0) {
         emit addOutput(tr("The process \"%1\" exited normally.")
                        .arg(QDir::toNativeSeparators(m_command)),

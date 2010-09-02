@@ -60,9 +60,9 @@ IOutputParser *IOutputParser::takeOutputParserChain()
 {
     IOutputParser *parser = m_parser;
     disconnect(parser, SIGNAL(addOutput(QString,ProjectExplorer::BuildStep::OutputFormat)),
-            this, SLOT(outputAdded(QString,ProjectExplorer::BuildStep::OutputFormat)));
+               this, SLOT(outputAdded(QString,ProjectExplorer::BuildStep::OutputFormat)));
     disconnect(parser, SIGNAL(addTask(ProjectExplorer::Task)),
-            this, SLOT(taskAdded(ProjectExplorer::Task)));
+               this, SLOT(taskAdded(ProjectExplorer::Task)));
     m_parser = 0;
     return parser;
 }
@@ -70,6 +70,13 @@ IOutputParser *IOutputParser::takeOutputParserChain()
 IOutputParser *IOutputParser::childParser() const
 {
     return m_parser;
+}
+
+void IOutputParser::setChildParser(IOutputParser *parser)
+{
+    if (m_parser != parser)
+        delete m_parser;
+    m_parser = parser;
 }
 
 void IOutputParser::stdOutput(const QString &line)

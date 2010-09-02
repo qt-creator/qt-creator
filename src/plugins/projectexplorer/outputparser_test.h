@@ -70,6 +70,9 @@ public:
 
     void appendOutputParser(IOutputParser *parser);
 
+signals:
+    void aboutToDeleteParser();
+
 private slots:
     void outputAdded(const QString &line, const QTextCharFormat &textCharFormat);
     void taskAdded(const ProjectExplorer::Task &task);

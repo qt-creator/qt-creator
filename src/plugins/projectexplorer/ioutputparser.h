@@ -57,6 +57,7 @@ public:
     /// Return the head of this parsers output parser children
     /// IOutputParser keeps ownership!
     IOutputParser *childParser() const;
+    void setChildParser(IOutputParser *parser);
 
     /// Called once for each line if standard output to parse.
     virtual void stdOutput(const QString &line);
