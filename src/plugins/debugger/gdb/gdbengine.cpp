@@ -3179,6 +3179,25 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos,
     m_toolTipPos = mousePos;
     int line, column;
     QString exp = cppExpressionAt(editor, cursorPos, &line, &column);
+
+    // Extract the first identifier, everything else is considered
+    // too dangerous.
+    int pos1 = 0, pos2 = exp.size();
+    bool inId = false;
+    for (int i = 0; i != exp.size(); ++i) {
+        const QChar c = exp.at(i);
+        const bool isIdChar = c.isLetterOrNumber() || c.unicode() == '_';
+        if (inId && !isIdChar) {
+            pos2 = i;
+            break;
+        }
+        if (!inId && isIdChar) {
+            inId = true;
+            pos1 = i;
+        }
+    }
+    exp = exp.mid(pos1, pos2 - pos1);
+
     if (!exp.isEmpty() && exp == m_toolTipExpression) {
         showToolTip();
         return;
