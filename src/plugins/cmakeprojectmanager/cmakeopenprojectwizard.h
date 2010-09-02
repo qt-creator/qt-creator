@@ -62,14 +62,18 @@ public:
     enum Mode {
         Nothing,
         NeedToCreate,
-        NeedToUpdate
+        NeedToUpdate,
+        WantToUpdate
     };
 
     // used at importing a project without a .user file
     CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const ProjectExplorer::Environment &env);
-    // used to update if we have already a .user file
+    /// used to update if we have already a .user file
+    /// recreates or updates the cbp file
     CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const QString &buildDirectory, Mode mode, const ProjectExplorer::Environment &env);
-    // used to change the build directory of one buildconfiguration
+    /// used to change the build directory of one buildconfiguration
+    /// shows a page for selecting a directory
+    /// then the run cmake page
     CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const QString &oldBuildDirectory, const ProjectExplorer::Environment &env);
 
     virtual int nextId() const;
@@ -120,7 +124,7 @@ class CMakeRunPage : public QWizardPage
 {
     Q_OBJECT
 public:
-    enum Mode { Initial, Update, Recreate, Change };
+    enum Mode { Initial, NeedToUpdate, Recreate, ChangeDirectory, WantToUpdate };
     explicit CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard, Mode mode = Initial, const QString &buildDirectory = QString());
 
     virtual void initializePage();

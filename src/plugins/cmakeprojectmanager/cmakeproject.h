@@ -215,6 +215,7 @@ public:
     virtual void init(ProjectExplorer::BuildConfiguration *bc);
 private slots:
     void openChangeBuildDirectoryDialog();
+    void runCMake();
 private:
     CMakeProject *m_project;
     QLineEdit *m_pathLineEdit;

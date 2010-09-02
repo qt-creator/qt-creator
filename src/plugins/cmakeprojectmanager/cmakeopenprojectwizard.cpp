@@ -105,10 +105,15 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
       m_creatingCbpFiles(true),
       m_environment(env)
 {
+
+    CMakeRunPage::Mode rmode;
     if (mode == CMakeOpenProjectWizard::NeedToCreate)
-        addPage(new CMakeRunPage(this, CMakeRunPage::Recreate, buildDirectory));
+        rmode = CMakeRunPage::Recreate;
+    else if (mode == CMakeOpenProjectWizard::WantToUpdate)
+        rmode = CMakeRunPage::WantToUpdate;
     else
-        addPage(new CMakeRunPage(this, CMakeRunPage::Update, buildDirectory));
+        rmode = CMakeRunPage::NeedToUpdate;
+    addPage(new CMakeRunPage(this, rmode, buildDirectory));
     init();
 }
 
@@ -122,7 +127,7 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
 {
     m_buildDirectory = oldBuildDirectory;
     addPage(new ShadowBuildPage(this, true));
-    addPage(new CMakeRunPage(this, CMakeRunPage::Change));
+    addPage(new CMakeRunPage(this, CMakeRunPage::ChangeDirectory));
     init();
 }
 
@@ -342,7 +347,7 @@ void CMakeRunPage::initializePage()
                     tr("The directory %1 does not contain a cbp file. Qt Creator needs to create this file by running cmake. "
                        "Some projects require command line arguments to the initial cmake call.").arg(m_buildDirectory));
         }
-    } else if (m_mode == CMakeRunPage::Update) {
+    } else if (m_mode == CMakeRunPage::NeedToUpdate) {
         m_descriptionLabel->setText(tr("The directory %1 contains an outdated .cbp file. Qt "
                                        "Creator needs to update this file by running cmake. "
                                        "If you want to add additional command line arguments, "
@@ -355,11 +360,13 @@ void CMakeRunPage::initializePage()
                                        "Some projects require command line arguments to "
                                        "the initial cmake call. Note that cmake remembers command "
                                        "line arguments from the previous runs.").arg(m_buildDirectory));
-    } else if(m_mode == CMakeRunPage::Change) {
+    } else if(m_mode == CMakeRunPage::ChangeDirectory) {
         m_buildDirectory = m_cmakeWizard->buildDirectory();
         m_descriptionLabel->setText(tr("Qt Creator needs to run cmake in the new build directory. "
                                        "Some projects require command line arguments to the "
                                        "initial cmake call."));
+    } else if (m_mode == CMakeRunPage::WantToUpdate) {
+        m_descriptionLabel->setText(tr("Refreshing cbp file in %1.").arg(m_buildDirectory));
     }
     if (m_cmakeWizard->cmakeManager()->hasCodeBlocksMsvcGenerator()) {
         m_generatorComboBox->setVisible(true);

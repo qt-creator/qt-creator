@@ -623,6 +623,13 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeProject *project)
     fl->setContentsMargins(20, -1, 0, -1);
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     setLayout(fl);
+
+    // TODO add action to Build menu?
+    QPushButton *runCmakeButton = new QPushButton("Run cmake");
+    connect(runCmakeButton, SIGNAL(clicked()),
+            this, SLOT(runCMake()));
+    fl->addRow(tr("Reconfigure project:"), runCmakeButton);
+
     m_pathLineEdit = new QLineEdit(this);
     m_pathLineEdit->setReadOnly(true);
 
@@ -661,6 +668,19 @@ void CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog()
     if (copw.exec() == QDialog::Accepted) {
         m_project->changeBuildDirectory(m_buildConfiguration, copw.buildDirectory());
         m_pathLineEdit->setText(m_buildConfiguration->buildDirectory());
+    }
+}
+
+void CMakeBuildSettingsWidget::runCMake()
+{
+    // TODO skip build directory
+    CMakeOpenProjectWizard copw(m_project->projectManager(),
+                                m_project->projectDirectory(),
+                                m_buildConfiguration->buildDirectory(),
+                                CMakeOpenProjectWizard::WantToUpdate,
+                                m_buildConfiguration->environment());
+    if (copw.exec() == QDialog::Accepted) {
+        m_project->parseCMakeLists();
     }
 }
 
