@@ -45,7 +45,8 @@ FindToolWindow::FindToolWindow(FindPlugin *plugin)
     : QDialog(Core::ICore::instance()->mainWindow()),
     m_plugin(plugin),
     m_findCompleter(new QCompleter(this)),
-    m_currentFilter(0)
+    m_currentFilter(0),
+    m_configWidget(0)
 {
     m_ui.setupUi(this);
     connect(m_ui.closeButton, SIGNAL(clicked()), this, SLOT(reject()));
@@ -84,11 +85,21 @@ bool FindToolWindow::eventFilter(QObject *obj, QEvent *event)
 
 void FindToolWindow::updateButtonStates()
 {
-    bool enabled = !m_ui.searchTerm->text().isEmpty()
-                   && m_currentFilter && m_currentFilter->isEnabled();
+    bool filterEnabled = m_currentFilter && m_currentFilter->isEnabled();
+    bool enabled = !m_ui.searchTerm->text().isEmpty() && filterEnabled;
     m_ui.searchButton->setEnabled(enabled);
     m_ui.replaceButton->setEnabled(m_currentFilter
                                    && m_currentFilter->isReplaceSupported() && enabled);
+    if (m_configWidget)
+        m_configWidget->setEnabled(filterEnabled);
+
+    m_ui.matchCase->setEnabled(filterEnabled
+                               && (m_currentFilter->supportedFindFlags() & Find::FindCaseSensitively));
+    m_ui.wholeWords->setEnabled(filterEnabled
+                                && (m_currentFilter->supportedFindFlags() & Find::FindWholeWords));
+    m_ui.regExp->setEnabled(filterEnabled
+                            && (m_currentFilter->supportedFindFlags() & Find::FindRegularExpression));
+    m_ui.searchTerm->setEnabled(filterEnabled);
 }
 
 void FindToolWindow::setFindFilters(const QList<IFindFilter *> &filters)
@@ -135,19 +146,14 @@ void FindToolWindow::setCurrentFilter(int index)
     for (int i = 0; i < m_configWidgets.size(); ++i) {
         QWidget *configWidget = m_configWidgets.at(i);
         if (i == index) {
+            m_configWidget = configWidget;
+            if (m_currentFilter)
+                disconnect(m_currentFilter, SIGNAL(changed()), this, SLOT(updateButtonStates()));
             m_currentFilter = m_filters.at(i);
-            bool enabled = m_currentFilter->isEnabled();
-            m_ui.matchCase->setEnabled(enabled
-                && (m_currentFilter->supportedFindFlags() & Find::FindCaseSensitively));
-            m_ui.wholeWords->setEnabled(enabled
-                && (m_currentFilter->supportedFindFlags() & Find::FindWholeWords));
-            m_ui.regExp->setEnabled(enabled
-                && (m_currentFilter->supportedFindFlags() & Find::FindRegularExpression));
-            m_ui.searchTerm->setEnabled(enabled);
+            connect(m_currentFilter, SIGNAL(changed()), this, SLOT(updateButtonStates()));
             updateButtonStates();
-            if (configWidget) {
-                configWidget->setEnabled(enabled);
-                m_ui.configWidget->layout()->addWidget(configWidget);
+            if (m_configWidget) {
+                m_ui.configWidget->layout()->addWidget(m_configWidget);
             }
         } else {
             if (configWidget)
