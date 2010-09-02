@@ -149,6 +149,7 @@ private slots:
     void testInstancesStates();
     void testInstancesIdResolution();
     void testInstancesNotInScene();
+    void testInstancesBindingsInStates();
 
     //
     // integration tests

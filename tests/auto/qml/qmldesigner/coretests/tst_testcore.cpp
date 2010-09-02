@@ -4720,7 +4720,110 @@ void tst_TestCore::testInstancesNotInScene()
     node1.destroy();
 }
 
-void tst_TestCore::testQmlModelStatesInvalidForRemovedNodes()
+void TestCore::testInstancesBindingsInStatesStress()
+{
+    //This is a stress test to provoke a crash
+    for (int j=0;j<20;j++) {
+        QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
+        QVERIFY(model.data());
+        QScopedPointer<TestView> view(new TestView);
+        QVERIFY(view.data());
+        model->attachView(view.data());
+
+        ModelNode node1 = view->createModelNode("Qt/Item", 4, 7);
+        node1.setId("node1");
+
+        view->rootModelNode().nodeListProperty("children").reparentHere(node1);
+
+        ModelNode node2 = view->createModelNode("Qt/Rectangle", 4, 7);
+        node2.setId("node2");
+
+        ModelNode node3 = view->createModelNode("Qt/Rectangle", 4, 7);
+        node3.setId("node3");
+
+        node1.nodeListProperty("children").reparentHere(node2);
+        node1.nodeListProperty("children").reparentHere(node3);
+
+        QmlItemNode(node1).states().addState("state1");
+        QmlItemNode(node1).states().addState("state2");
+
+        QmlItemNode(node1).setVariantProperty("x", "100");
+        QmlItemNode(node1).setVariantProperty("y", "100");
+
+
+        for (int i=0;i<4;i++) {
+            view->setCurrentState(view->baseState());
+
+            QmlItemNode(node2).setBindingProperty("x", "parent.x + 10");
+            QCOMPARE(QmlItemNode(node2).instanceValue("x").toInt(), 110);
+            view->setCurrentState(QmlItemNode(node1).states().state("state1"));
+            QmlItemNode(node2).setBindingProperty("x", "parent.x + 20");
+            QCOMPARE(QmlItemNode(node2).instanceValue("x").toInt(), 120);
+            QmlItemNode(node2).setBindingProperty("y", "parent.x + 20");
+            QCOMPARE(QmlItemNode(node2).instanceValue("y").toInt(), 120);
+
+            view->setCurrentState(QmlItemNode(node1).states().state("state2"));
+            QmlItemNode(node2).setBindingProperty("x", "parent.x + 30");
+            QCOMPARE(QmlItemNode(node2).instanceValue("x").toInt(), 130);
+            QmlItemNode(node2).setBindingProperty("y", "parent.x + 30");
+            QCOMPARE(QmlItemNode(node2).instanceValue("y").toInt(), 130);
+            QmlItemNode(node2).setBindingProperty("height", "this.is.no.proper.expression / 12 + 4");
+            QmlItemNode(node2).setVariantProperty("height", 0);
+
+
+            for (int c=0;c<10;c++) {
+                view->setCurrentState(QmlItemNode(node1).states().state("state1"));
+                QmlItemNode(node2).setBindingProperty("x", "parent.x + 20");
+                QmlItemNode(node2).setVariantProperty("x", "90");
+                QCOMPARE(QmlItemNode(node2).instanceValue("x").toInt(), 90);
+                QmlItemNode(node2).setBindingProperty("y", "parent.x + 20");
+                QmlItemNode(node2).setVariantProperty("y", "90");
+                view->setCurrentState(QmlItemNode(node1).states().state("state2"));
+                view->setCurrentState(view->baseState());
+                view->setCurrentState(QmlItemNode(node1).states().state("state1"));
+                QCOMPARE(QmlItemNode(node2).instanceValue("y").toInt(), 90);
+                QmlItemNode(node2).setBindingProperty("width", "parent.x + 30");
+                QCOMPARE(QmlItemNode(node2).instanceValue("width").toInt(), 130);
+                QmlItemNode(node2).setVariantProperty("width", "0");
+                view->setCurrentState(QmlItemNode(node1).states().state("state2"));
+                view->setCurrentState(view->baseState());
+                QmlItemNode(node1).setVariantProperty("x", "80");
+                QmlItemNode(node1).setVariantProperty("y", "80");
+                QmlItemNode(node1).setVariantProperty("x", "100");
+                QmlItemNode(node1).setVariantProperty("y", "100");
+            }
+
+            QmlItemNode(node3).setBindingProperty("width", "parent.x + 30");
+            QCOMPARE(QmlItemNode(node3).instanceValue("width").toInt(), 130);
+
+            view->setCurrentState(view->baseState());
+            QmlItemNode(node1).setVariantProperty("x", "80");
+            QmlItemNode(node1).setVariantProperty("y", "80");
+
+            view->setCurrentState(QmlItemNode(node1).states().state("state2"));
+
+            view->setCurrentState(QmlItemNode(node1).states().state("state1"));
+            QmlItemNode(node3).setVariantProperty("width", "90");
+
+            view->setCurrentState(QmlItemNode(node1).states().state(""));
+            view->setCurrentState(view->baseState());
+            QVERIFY(view->currentState().isBaseState());
+
+            QmlItemNode(node1).setVariantProperty("x", "100");
+            QmlItemNode(node1).setVariantProperty("y", "100");
+
+            QCOMPARE(QmlItemNode(node2).instanceValue("x").toInt(), 110);
+            QmlItemNode(node2).setBindingProperty("x", "parent.x + 20");
+            QCOMPARE(QmlItemNode(node2).instanceValue("x").toInt(), 120);
+            QmlItemNode(node2).setVariantProperty("x", "80");
+            QCOMPARE(QmlItemNode(node2).instanceValue("x").toInt(), 80);
+            view->setCurrentState(QmlItemNode(node1).states().state("state1"));
+            QCOMPARE(QmlItemNode(node2).instanceValue("x").toInt(), 90);
+        }
+    }
+}
+
+void TestCore::testQmlModelStatesInvalidForRemovedNodes()
 {
     QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
     QVERIFY(model.data());
