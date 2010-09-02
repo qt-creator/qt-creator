@@ -91,11 +91,16 @@ public:
     void setUseCppDebugger(bool value);
     bool useQmlDebugger() const;
     bool useCppDebugger() const;
+
+    uint qmlDebugServerPort() const;
+    void setQmlDebugServerPort(uint port);
+
     virtual QVariantMap toMap() const;
 
 signals:
     void isEnabledChanged(bool value);
     void debuggersChanged();
+    void qmlDebugServerPortChanged(uint port);
 
 protected:
     RunConfiguration(Target *parent, const QString &id);
@@ -109,6 +114,7 @@ protected:
 private:
     bool m_useCppDebugger;
     bool m_useQmlDebugger;
+    uint m_qmlDebugServerPort;
 };
 
 /**

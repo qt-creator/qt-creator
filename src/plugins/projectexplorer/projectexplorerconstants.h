@@ -217,6 +217,9 @@ const char * const BUILDSTEPS_DEPLOY = "ProjectExplorer.BuildSteps.Deploy";
 // Deploy Configuration id:
 const char * const DEFAULT_DEPLOYCONFIGURATION_ID = "ProjectExplorer.DefaultDeployConfiguration";
 
+// Run Configuration defaults:
+const int QML_DEFAULT_DEBUG_SERVER_PORT = 3768;
+
 } // namespace Constants
 } // namespace ProjectExplorer
 

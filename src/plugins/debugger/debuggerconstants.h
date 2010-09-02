@@ -62,7 +62,6 @@ const char * const DEBUGGER_SETTINGS_TR_CATEGORY =
 const char * const DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON =
     ":/core/images/category_debug.png";
 
-const int QML_DEFAULT_DEBUG_SERVER_PORT = 3768;
 const char * const E_QML_DEBUG_SERVER_PORT = "QML_DEBUG_SERVER_PORT";
 
 // dock widget names

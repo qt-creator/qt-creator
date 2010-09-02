@@ -88,6 +88,7 @@ public:
 
     bool isUsingDyldImageSuffix() const;
     void setUsingDyldImageSuffix(bool state);
+
     QString proFilePath() const;
 
     // TODO detectQtShadowBuild() ? how did this work ?
@@ -175,6 +176,7 @@ private slots:
     void baseEnvironmentSelected(int index);
     void useCppDebuggerToggled(bool toggled);
     void useQmlDebuggerToggled(bool toggled);
+    void qmlDebugServerPortChanged(uint port);
 
 private:
     Qt4RunConfiguration *m_qt4RunConfiguration;
@@ -184,6 +186,7 @@ private:
     QLineEdit *m_argumentsLineEdit;
     QCheckBox *m_useTerminalCheck;
     QCheckBox *m_usingDyldImageSuffix;
+    QLineEdit *m_qmlDebugPort;
 
     QComboBox *m_baseEnvironmentComboBox;
     Utils::DetailsWidget *m_detailsContainer;

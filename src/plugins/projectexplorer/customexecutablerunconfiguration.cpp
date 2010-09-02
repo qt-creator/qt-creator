@@ -109,6 +109,7 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
 
     m_debuggerLanguageChooser->setCppChecked(m_runConfiguration->useCppDebugger());
     m_debuggerLanguageChooser->setQmlChecked(m_runConfiguration->useQmlDebugger());
+    m_debuggerLanguageChooser->setQmlDebugServerPort(m_runConfiguration->qmlDebugServerPort());
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setMargin(0);
@@ -166,6 +167,8 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
             this, SLOT(useCppDebuggerToggled(bool)));
     connect(m_debuggerLanguageChooser, SIGNAL(qmlLanguageToggled(bool)),
             this, SLOT(useQmlDebuggerToggled(bool)));
+    connect(m_debuggerLanguageChooser, SIGNAL(qmlDebugServerPortChanged(uint)),
+            this, SLOT(qmlDebugServerPortChanged(uint)));
 
     connect(m_runConfiguration, SIGNAL(changed()), this, SLOT(changed()));
 
@@ -201,6 +204,11 @@ void CustomExecutableConfigurationWidget::useCppDebuggerToggled(bool toggled)
 void CustomExecutableConfigurationWidget::useQmlDebuggerToggled(bool toggled)
 {
     m_runConfiguration->setUseQmlDebugger(toggled);
+}
+
+void CustomExecutableConfigurationWidget::qmlDebugServerPortChanged(uint port)
+{
+    m_runConfiguration->setQmlDebugServerPort(port);
 }
 
 void CustomExecutableConfigurationWidget::baseEnvironmentChanged()

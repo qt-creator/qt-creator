@@ -187,6 +187,7 @@ private slots:
     void baseEnvironmentSelected(int index);
     void useCppDebuggerToggled(bool toggled);
     void useQmlDebuggerToggled(bool toggled);
+    void qmlDebugServerPortChanged(uint port);
 
 private:
     bool m_ignoreChange;

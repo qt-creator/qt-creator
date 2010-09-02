@@ -154,9 +154,7 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
     DebuggerLanguages activeLangs = DebuggerUISwitcher::instance()->activeDebugLanguages();
     if (activeLangs & QmlLanguage) {
         sp.qmlServerAddress = QLatin1String("127.0.0.1");
-        sp.qmlServerPort = rc->environment().value("QML_DEBUG_SERVER_PORT").toUInt();
-        if (sp.qmlServerPort == 0)
-            sp.qmlServerPort = Constants::QML_DEFAULT_DEBUG_SERVER_PORT;
+        sp.qmlServerPort = runConfiguration->qmlDebugServerPort();
 
         sp.environment << QString(Constants::E_QML_DEBUG_SERVER_PORT)
                         + QLatin1Char('=') + QString::number(sp.qmlServerPort);

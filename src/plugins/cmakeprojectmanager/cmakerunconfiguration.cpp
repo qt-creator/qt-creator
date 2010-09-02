@@ -353,6 +353,7 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
 
     m_debuggerLanguageChooser->setCppChecked(m_cmakeRunConfiguration->useCppDebugger());
     m_debuggerLanguageChooser->setQmlChecked(m_cmakeRunConfiguration->useQmlDebugger());
+    m_debuggerLanguageChooser->setQmlDebugServerPort(m_cmakeRunConfiguration->qmlDebugServerPort());
 
     m_detailsContainer = new Utils::DetailsWidget(this);
     m_detailsContainer->setState(Utils::DetailsWidget::NoSummary);
@@ -406,6 +407,8 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
             this, SLOT(useCppDebuggerToggled(bool)));
     connect(m_debuggerLanguageChooser, SIGNAL(qmlLanguageToggled(bool)),
             this, SLOT(useQmlDebuggerToggled(bool)));
+    connect(m_debuggerLanguageChooser, SIGNAL(qmlDebugServerPortChanged(uint)),
+            this, SLOT(qmlDebugServerPortChanged(uint)));
 
     connect(m_environmentWidget, SIGNAL(userChangesChanged()),
             this, SLOT(userChangesChanged()));
@@ -449,6 +452,11 @@ void CMakeRunConfigurationWidget::useCppDebuggerToggled(bool toggled)
 void CMakeRunConfigurationWidget::useQmlDebuggerToggled(bool toggled)
 {
     m_cmakeRunConfiguration->setUseQmlDebugger(toggled);
+}
+
+void CMakeRunConfigurationWidget::qmlDebugServerPortChanged(uint port)
+{
+    m_cmakeRunConfiguration->setQmlDebugServerPort(port);
 }
 
 void CMakeRunConfigurationWidget::userChangesChanged()

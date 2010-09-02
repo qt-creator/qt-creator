@@ -54,13 +54,6 @@ const char * const CURRENT_FILE  = QT_TRANSLATE_NOOP("QmlManager", "<Current Fil
 const char * const M_CURRENT_FILE  = "CurrentFile";
 
 
-class QMLPROJECTMANAGER_EXPORT QmlProjectRunConfigurationDebugData {
-public:
-    QmlProjectRunConfigurationDebugData();
-    QString serverAddress;
-    quint16 serverPort;
-};
-
 class QMLPROJECTMANAGER_EXPORT QmlProjectRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
@@ -77,8 +70,6 @@ public:
     QString viewerPath() const;
     QStringList viewerArguments() const;
     QString workingDirectory() const;
-    QString debugServerAddress() const;
-    uint debugServerPort() const;
 
     // RunConfiguration
     virtual QWidget *createConfigurationWidget();
@@ -97,10 +88,9 @@ private slots:
 
     void onViewerChanged();
     void onViewerArgsChanged();
-    void onDebugServerAddressChanged();
-    void onDebugServerPortChanged();
     void useCppDebuggerToggled(bool toggled);
     void useQmlDebuggerToggled(bool toggled);
+    void qmlDebugServerPortChanged(uint port);
 
 protected:
     QString viewerDefaultPath() const;
@@ -119,7 +109,6 @@ private:
     QString m_scriptFile;
     QString m_qmlViewerCustomPath;
     QString m_qmlViewerArgs;
-    QmlProjectRunConfigurationDebugData m_debugData;
 
     QStringListModel *m_fileListModel;
     // weakpointer is used to make sure we don't try to manipulate

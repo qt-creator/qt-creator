@@ -33,6 +33,7 @@
 #include "project.h"
 #include "target.h"
 #include "buildconfiguration.h"
+#include "projectexplorerconstants.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
@@ -54,6 +55,7 @@ namespace {
 
 const char * const USE_CPP_DEBUGGER_KEY("RunConfiguration.UseCppDebugger");
 const char * const USE_QML_DEBUGGER_KEY("RunConfiguration.UseQmlDebugger");
+const char * const QML_DEBUG_SERVER_PORT_KEY("RunConfiguration.QmlDebugServerPort");
 
 class RunConfigurationFactoryMatcher
 {
@@ -146,7 +148,8 @@ IRunConfigurationFactory * findRunConfigurationFactory(RunConfigurationFactoryMa
 RunConfiguration::RunConfiguration(Target *target, const QString &id) :
     ProjectConfiguration(target, id),
     m_useCppDebugger(true),
-    m_useQmlDebugger(false)
+    m_useQmlDebugger(false),
+    m_qmlDebugServerPort(Constants::QML_DEFAULT_DEBUG_SERVER_PORT)
 {
     Q_ASSERT(target);
 }
@@ -209,11 +212,23 @@ bool RunConfiguration::useQmlDebugger() const
     return m_useQmlDebugger;
 }
 
+uint RunConfiguration::qmlDebugServerPort() const
+{
+    return m_qmlDebugServerPort;
+}
+
+void RunConfiguration::setQmlDebugServerPort(uint port)
+{
+    m_qmlDebugServerPort = port;
+    emit qmlDebugServerPortChanged(port);
+}
+
 QVariantMap RunConfiguration::toMap() const
 {
     QVariantMap map(ProjectConfiguration::toMap());
     map.insert(QLatin1String(USE_CPP_DEBUGGER_KEY), m_useCppDebugger);
     map.insert(QLatin1String(USE_QML_DEBUGGER_KEY), m_useQmlDebugger);
+    map.insert(QLatin1String(QML_DEBUG_SERVER_PORT_KEY), m_qmlDebugServerPort);
     return map;
 }
 
@@ -221,6 +236,7 @@ bool RunConfiguration::fromMap(const QVariantMap &map)
 {
     m_useCppDebugger = map.value(QLatin1String(USE_CPP_DEBUGGER_KEY), true).toBool();
     m_useQmlDebugger = map.value(QLatin1String(USE_QML_DEBUGGER_KEY), false).toBool();
+    m_qmlDebugServerPort = map.value(QLatin1String(QML_DEBUG_SERVER_PORT_KEY), Constants::QML_DEFAULT_DEBUG_SERVER_PORT).toUInt();
     return ProjectConfiguration::fromMap(map);
 }
 

@@ -143,6 +143,7 @@ private slots:
     void resetWorkingDirectory();
     void useCppDebuggerToggled(bool toggled);
     void useQmlDebuggerToggled(bool toggled);
+    void qmlDebugServerPortChanged(uint port);
 
 private slots:
     void baseEnvironmentComboBoxChanged(int index);

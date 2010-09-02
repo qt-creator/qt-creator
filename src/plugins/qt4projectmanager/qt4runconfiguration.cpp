@@ -230,6 +230,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
 
     m_debuggerLanguageChooser->setCppChecked(m_qt4RunConfiguration->useCppDebugger());
     m_debuggerLanguageChooser->setQmlChecked(m_qt4RunConfiguration->useQmlDebugger());
+    m_debuggerLanguageChooser->setQmlDebugServerPort(m_qt4RunConfiguration->qmlDebugServerPort());
 
 #ifdef Q_OS_MAC
     m_usingDyldImageSuffix = new QCheckBox(tr("Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)"), this);
@@ -285,6 +286,8 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
             this, SLOT(useCppDebuggerToggled(bool)));
     connect(m_debuggerLanguageChooser, SIGNAL(qmlLanguageToggled(bool)),
             this, SLOT(useQmlDebuggerToggled(bool)));
+    connect(m_debuggerLanguageChooser, SIGNAL(qmlDebugServerPortChanged(uint)),
+            this, SLOT(qmlDebugServerPortChanged(uint)));
 
     connect(m_environmentWidget, SIGNAL(userChangesChanged()),
             this, SLOT(userChangesEdited()));
@@ -320,6 +323,11 @@ void Qt4RunConfigurationWidget::useCppDebuggerToggled(bool toggled)
 void Qt4RunConfigurationWidget::useQmlDebuggerToggled(bool toggled)
 {
     m_qt4RunConfiguration->setUseQmlDebugger(toggled);
+}
+
+void Qt4RunConfigurationWidget::qmlDebugServerPortChanged(uint port)
+{
+    m_qt4RunConfiguration->setQmlDebugServerPort(port);
 }
 
 void Qt4RunConfigurationWidget::baseEnvironmentSelected(int index)
