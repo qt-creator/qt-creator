@@ -105,7 +105,7 @@ private:
     void rehash();
 
 private:
-    enum { DefaultInitialSize = 11 };
+    enum { DefaultInitialSize = 4 };
 
     Scope *_owner;
     Symbol **_symbols;
@@ -147,7 +147,7 @@ void SymbolTable::enterSymbol(Symbol *symbol)
     symbol->_scope = _owner;
     _symbols[_symbolCount] = symbol;
 
-    if (_symbolCount >= _hashSize * 0.6)
+    if (_symbolCount * 5 >= _hashSize * 3)
         rehash();
     else {
         const unsigned h = hashValue(symbol);

@@ -138,7 +138,11 @@ public:
         _Literal *literal = new _Literal(chars, size);
 
         if (++_literalCount == _allocatedLiterals) {
-            _allocatedLiterals += 32;
+            if (! _allocatedLiterals)
+                _allocatedLiterals = 4;
+            else
+                _allocatedLiterals <<= 1;
+
             _literals = (_Literal **) std::realloc(_literals, sizeof(_Literal *) * _allocatedLiterals);
         }
 
@@ -161,7 +165,11 @@ protected:
        if (_buckets)
            std::free(_buckets);
 
-       _allocatedBuckets += 32;
+       if (! _allocatedBuckets)
+           _allocatedBuckets = 4;
+       else
+           _allocatedBuckets <<= 1;
+
        _buckets = (_Literal **) std::calloc(_allocatedBuckets, sizeof(_Literal *));
 
        _Literal **lastLiteral = _literals + (_literalCount + 1);
