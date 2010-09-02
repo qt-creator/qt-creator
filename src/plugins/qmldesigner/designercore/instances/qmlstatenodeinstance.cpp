@@ -127,42 +127,17 @@ void QmlStateNodeInstance::setPropertyBinding(const QString &name, const QString
 
 bool QmlStateNodeInstance::updateStateVariant(const NodeInstance &target, const QString &propertyName, const QVariant &value)
 {
-    // iterate over propertychange object and update values
-    QDeclarativeListReference listReference(stateObject(), "changes");
-    for (int i = 0; i < listReference.count(); i++) {
-        //We also have parent and anchor changes
-        QmlPropertyChangesObject *changeObject  = qobject_cast<QmlPropertyChangesObject*>(listReference.at(i));
-        if (changeObject && target.isWrappingThisObject(changeObject->targetObject()))
-                return changeObject->updateStateVariant(propertyName, value);
-    }
-
-    return false;
+    return stateObject()->changeValueInRevertList(target.internalObject(), propertyName.toLatin1(), value);
 }
 
 bool QmlStateNodeInstance::updateStateBinding(const NodeInstance &target, const QString &propertyName, const QString &expression)
 {
-    // iterate over propertychange object and update binding
-    QDeclarativeListReference listReference(stateObject(), "changes");
-    for (int i = 0; i < listReference.count(); i++) {
-        QmlPropertyChangesObject *changeObject  = qobject_cast<QmlPropertyChangesObject*>(listReference.at(i));
-        if (changeObject && target.isWrappingThisObject(changeObject->targetObject()))
-                return changeObject->updateStateBinding(propertyName, expression);
-    }
-
-    return false;
+    return stateObject()->changeValueInRevertList(target.internalObject(), propertyName.toLatin1(), expression);
 }
 
 bool QmlStateNodeInstance::resetStateProperty(const NodeInstance &target, const QString &propertyName, const QVariant &resetValue)
 {
-    // iterate over propertychange object and reset propertry
-    QDeclarativeListReference listReference(stateObject(), "changes");
-    for (int i = 0; i < listReference.count(); i++) {
-        QmlPropertyChangesObject *changeObject  = qobject_cast<QmlPropertyChangesObject*>(listReference.at(i));
-        if (changeObject && target.isWrappingThisObject(changeObject->targetObject()))
-                return changeObject->resetStateProperty(propertyName, resetValue);
-    }
-
-    return false;
+    return stateObject()->removeEntryInRevertList(target.internalObject(), propertyName.toLatin1());
 }
 
 } // namespace Internal

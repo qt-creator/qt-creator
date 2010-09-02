@@ -32,6 +32,7 @@
 
 #include "objectnodeinstance.h"
 #include <private/qdeclarativestateoperations_p.h>
+#include <private/qdeclarativepropertychanges_p.h>
 
 #include <QPair>
 #include <QWeakPointer>
@@ -48,74 +49,74 @@ class QmlPropertyChangesNodeInstance;
 
 // Original QmlPropertyChanges class requires a custom parser
 // work around this by writing a replacement class
-class QmlPropertyChangesObject : public QDeclarativeStateOperation
-{
-    Q_OBJECT
-    Q_PROPERTY(QObject *target READ targetObject WRITE setTargetObject)
-    Q_PROPERTY(bool restoreEntryValues READ restoreEntryValues WRITE setRestoreEntryValues)
-    Q_PROPERTY(bool explicit READ isExplicit WRITE setIsExplicit)
+//class QmlPropertyChangesObject : public QDeclarativeStateOperation
+//{
+//    Q_OBJECT
+//    Q_PROPERTY(QObject *target READ targetObject WRITE setTargetObject)
+//    Q_PROPERTY(bool restoreEntryValues READ restoreEntryValues WRITE setRestoreEntryValues)
+//    Q_PROPERTY(bool explicit READ isExplicit WRITE setIsExplicit)
 
-    typedef QPair<QString, QWeakPointer<QDeclarativeBinding> >  ExpressionPair;
-public:
-    ~QmlPropertyChangesObject();
-    QObject *targetObject() const;
-    void setTargetObject(QObject *object);
+//    typedef QPair<QString, QWeakPointer<QDeclarativeBinding> >  ExpressionPair;
+//public:
+//    ~QmlPropertyChangesObject();
+//    QObject *targetObject() const;
+//    void setTargetObject(QObject *object);
 
-    bool restoreEntryValues() const;
-    void setRestoreEntryValues(bool restore);
+//    bool restoreEntryValues() const;
+//    void setRestoreEntryValues(bool restore);
 
-    bool isExplicit() const;
-    void setIsExplicit(bool isExplicit);
+//    bool isExplicit() const;
+//    void setIsExplicit(bool isExplicit);
 
-    virtual ActionList actions();
+//    virtual ActionList actions();
 
-    void setVariantValue(const QString &name, const QVariant & value);
-    void setExpression(const QString &name, const QString &expression);
-    void removeVariantValue(const QString &name);
-    void removeExpression(const QString &name);
+//    void setVariantValue(const QString &name, const QVariant & value);
+//    void setExpression(const QString &name, const QString &expression);
+//    void removeVariantValue(const QString &name);
+//    void removeExpression(const QString &name);
 
-    void resetProperty(const QString &name);
+//    void resetProperty(const QString &name);
 
-    QVariant variantValue(const QString &name) const;
-    QString expression(const QString &name) const;
+//    QVariant variantValue(const QString &name) const;
+//    QString expression(const QString &name) const;
 
-    bool hasVariantValue(const QString &name) const;
-    bool hasExpression(const QString &name) const;
+//    bool hasVariantValue(const QString &name) const;
+//    bool hasExpression(const QString &name) const;
 
-    QmlPropertyChangesObject();
+//    QmlPropertyChangesObject();
 
-    bool updateStateVariant(const QString &propertyName, const QVariant &value);
-    bool updateStateBinding(const QString &propertyName, const QString &expression);
-    bool resetStateProperty(const QString &propertyName, const QVariant &resetValue);
+//    bool updateStateVariant(const QString &propertyName, const QVariant &value);
+//    bool updateStateBinding(const QString &propertyName, const QString &expression);
+//    bool resetStateProperty(const QString &propertyName, const QVariant &resetValue);
 
-    QDeclarativeState *state() const;
-    void updateRevertValueAndBinding(const QString &name);
+//    QDeclarativeState *state() const;
+//    void updateRevertValueAndBinding(const QString &name);
 
-    void removeFromStateRevertList();
-    void addToStateRevertList();
+//    void removeFromStateRevertList();
+//    void addToStateRevertList();
 
-private: // functions
-    bool isActive() const;
+//private: // functions
+//    bool isActive() const;
 
-    QDeclarativeStatePrivate *statePrivate() const;
+//    QDeclarativeStatePrivate *statePrivate() const;
 
-    QDeclarativeStateGroup *stateGroup() const;
-    QDeclarativeProperty createMetaProperty(const QString &property);
+//    QDeclarativeStateGroup *stateGroup() const;
+//    QDeclarativeProperty createMetaProperty(const QString &property);
 
-    QDeclarativeAction &qmlActionForProperty(const QString &propertyName) const;
-    bool hasActionForProperty(const QString &propertyName) const;
-    void removeActionForProperty(const QString &propertyName);
+//    QDeclarativeAction &qmlActionForProperty(const QString &propertyName) const;
+//    bool hasActionForProperty(const QString &propertyName) const;
+//    void removeActionForProperty(const QString &propertyName);
 
-    QDeclarativeAction createQDeclarativeAction(const QString &propertyName);
+//    QDeclarativeAction createQDeclarativeAction(const QString &propertyName);
 
-private: // variables
-    QWeakPointer<QObject> m_targetObject;
-    bool m_restoreEntryValues;
-    bool m_isExplicit;
+//private: // variables
+//    QWeakPointer<QObject> m_targetObject;
+//    bool m_restoreEntryValues;
+//    bool m_isExplicit;
 
-    mutable ActionList m_qmlActionList;
-    QHash<QString, ExpressionPair> m_expressionHash;
-};
+//    mutable ActionList m_qmlActionList;
+//    QHash<QString, ExpressionPair> m_expressionHash;
+//};
 
 class QmlPropertyChangesNodeInstance : public ObjectNodeInstance
 {
@@ -133,13 +134,13 @@ public:
     void reparent(const NodeInstance &oldParentInstance, const QString &oldParentProperty, const NodeInstance &newParentInstance, const QString &newParentProperty);
 
 protected:
-    QmlPropertyChangesNodeInstance(QmlPropertyChangesObject *object);
-    QmlPropertyChangesObject *changesObject() const;
+    QmlPropertyChangesNodeInstance(QDeclarativePropertyChanges *object);
+    QDeclarativePropertyChanges *changesObject() const;
 };
 
 } // namespace Internal
 } // namespace QmlDesigner
 
-QML_DECLARE_TYPE(QmlDesigner::Internal::QmlPropertyChangesObject)
+//QML_DECLARE_TYPE(QmlDesigner::Internal::QmlPropertyChangesObject)
 
 #endif // QMLPROPERTYCHANGESNODEINSTANCE_H

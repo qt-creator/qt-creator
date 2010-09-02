@@ -186,7 +186,7 @@ void NodeInstanceView::resetInstanceProperty(const AbstractProperty &property)
         NodeInstance instance = instanceForNode(property.parentModelNode());
         Q_ASSERT(instance.isValid());
         const QString name = property.name();
-        if (activeStateInstance().isValid()) {
+        if (activeStateInstance().isValid() && !property.parentModelNode().metaInfo().isSubclassOf("PropertyChange", 4, 7)) {
             bool statePropertyWasReseted = activeStateInstance().resetStateProperty(instance, name, instance.resetVariant(name));
             if (!statePropertyWasReseted)
                 instance.resetProperty(name);
@@ -204,7 +204,7 @@ void NodeInstanceView::setInstancePropertyBinding(const BindingProperty &propert
     const QString expression = property.expression();
 
 
-    if (activeStateInstance().isValid()) {
+    if (activeStateInstance().isValid() && !property.parentModelNode().metaInfo().isSubclassOf("PropertyChange", 4, 7)) {
         bool stateBindingWasUpdated = activeStateInstance().updateStateBinding(instance, name, expression);
         if (!stateBindingWasUpdated) {
             if (property.isDynamic())
@@ -240,7 +240,7 @@ void NodeInstanceView::setInstancePropertyVariant(const VariantProperty &propert
     const QVariant value = property.value();
 
 
-    if (activeStateInstance().isValid()) {
+    if (activeStateInstance().isValid() && !property.parentModelNode().metaInfo().isSubclassOf("PropertyChange", 4, 7)) {
         bool stateValueWasUpdated = activeStateInstance().updateStateVariant(instance, name, value);
         if (!stateValueWasUpdated) {
             if (property.isDynamic())

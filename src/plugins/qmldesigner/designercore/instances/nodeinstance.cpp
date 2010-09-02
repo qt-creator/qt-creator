@@ -632,7 +632,7 @@ bool NodeInstance::resetStateProperty(const NodeInstance &target, const QString 
 */
 void NodeInstance::registerDeclarativeTypes()
 {
-    qmlRegisterType<QmlDesigner::Internal::QmlPropertyChangesObject>();
+//    qmlRegisterType<QmlDesigner::Internal::QmlPropertyChangesObject>();
 }
 
 #ifdef QTCREATOR_TEST
