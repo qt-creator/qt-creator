@@ -74,6 +74,11 @@ public:
 
     ~LiteralTable()
     {
+        reset();
+    }
+
+    void reset()
+    {
         if (_literals) {
             _Literal **lastLiteral = _literals + _literalCount + 1;
             for (_Literal **it = _literals; it != lastLiteral; ++it)
@@ -82,6 +87,12 @@ public:
         }
         if (_buckets)
             std::free(_buckets);
+
+        _literals = 0;
+        _buckets = 0;
+        _allocatedLiterals = 0;
+        _literalCount = -1;
+        _allocatedBuckets = 0;
     }
 
     bool empty() const

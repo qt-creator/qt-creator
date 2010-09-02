@@ -287,6 +287,9 @@ public:
         _doc->check(_mode);
         _doc->releaseTranslationUnit();
 
+        if (_mode == Document::FastCheck)
+            _doc->control()->squeeze();
+
         if (_modelManager)
             _modelManager->emitDocumentUpdated(_doc); // ### TODO: compress
     }

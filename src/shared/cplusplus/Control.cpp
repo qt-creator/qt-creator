@@ -754,3 +754,8 @@ bool Control::hasSymbol(Symbol *symbol) const
 {
     return std::find(d->symbols.begin(), d->symbols.end(), symbol) != d->symbols.end();
 }
+
+void Control::squeeze()
+{
+    d->numericLiterals.reset();
+}
