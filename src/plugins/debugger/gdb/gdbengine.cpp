@@ -947,7 +947,8 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
     if (!isExpectedResult) {
 #ifdef Q_OS_WIN
         // Ignore spurious 'running' responses to 'attach'
-        const bool warning = !(startParameters().startMode == AttachExternal
+        const bool warning = !((startParameters().startMode == AttachExternal
+                               || startParameters().useTerminal)
                                && cmd.command.startsWith("attach"));
 #else
         const bool warning = true;
@@ -1368,14 +1369,15 @@ void GdbEngine::handleStop1(const GdbMi &data)
 
     QByteArray reason = data.findChild("reason").data();
 
-    if (0 && m_gdbAdapter->isTrkAdapter()
-            && reason == "signal-received"
-            && data.findChild("signal-name").data() == "SIGTRAP") {
-        // Caused by "library load" message.
-        showMessage(_("INTERNAL CONTINUE"));
+#ifdef Q_OS_WIN
+    if (startParameters().useTerminal && reason == "signal-received"
+        && data.findChild("signal-name").data() == "SIGTRAP") {
+        // Command line start up trap
+        showMessage(_("INTERNAL CONTINUE"), LogMisc);
         continueInferiorInternal();
         return;
     }
+#endif
 
     // This is for display only.
     if (m_modulesListOutdated)

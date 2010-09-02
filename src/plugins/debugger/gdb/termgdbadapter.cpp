@@ -38,6 +38,11 @@
 
 #include <QtGui/QMessageBox>
 
+#ifdef Q_OS_WIN
+#    include <windows.h>
+#    include <utils/winutils.h>
+#endif
+
 namespace Debugger {
 namespace Internal {
 
@@ -119,23 +124,69 @@ void TermGdbAdapter::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     const qint64 attachedPID = m_stubProc.applicationPID();
+#ifdef Q_OS_WIN
+    const qint64 attachedMainThreadID = m_stubProc.applicationMainThreadID();
+    showMessage(QString::fromLatin1("Attaching to %1 (%2)").arg(attachedPID).arg(attachedMainThreadID), LogMisc);
+#else
+    showMessage(QString::fromLatin1("Attaching to %1").arg(attachedPID), LogMisc);
+#endif
     m_engine->notifyInferiorPid(attachedPID);
     m_engine->postCommand("attach " + QByteArray::number(attachedPID),
         CB(handleStubAttached));
 }
 
+#ifdef Q_OS_WIN
+static bool resumeThread(DWORD dwThreadId)
+{
+    bool ok = false;
+    HANDLE handle = NULL;
+    do {
+        if (!dwThreadId)
+            break;
+
+        handle = OpenThread(SYNCHRONIZE |THREAD_QUERY_INFORMATION |THREAD_SUSPEND_RESUME,
+                            FALSE, dwThreadId);
+        if (handle==NULL)
+            break;
+
+        ok = ResumeThread(handle) != DWORD(-1);
+    } while (false);
+    if (handle != NULL)
+        CloseHandle(handle);
+    return ok;
+}
+#endif // Q_OS_WIN
+
 void TermGdbAdapter::handleStubAttached(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-    if (response.resultClass == GdbResultDone) {
+    switch (response.resultClass) {
+    case GdbResultDone:
+    case GdbResultRunning:
+#ifdef Q_OS_WIN
+        // Resume thread that was suspended by console stub process (see stub code).
+        if (resumeThread(m_stubProc.applicationMainThreadID())) {
+            showMessage(QString::fromLatin1("Inferior attached, thread %1 resumed").
+                        arg(m_stubProc.applicationMainThreadID()), LogMisc);
+        } else {
+            showMessage(QString::fromLatin1("Inferior attached, unable to resume thread %1: %2").
+                        arg(m_stubProc.applicationMainThreadID()).arg(Utils::winErrorMessage(GetLastError())),
+                        LogWarning);
+        }
+#else
         showMessage(_("INFERIOR ATTACHED"));
+#endif // Q_OS_WIN
         m_engine->handleInferiorPrepared();
 #ifdef Q_OS_LINUX
         m_engine->postCommand("-stack-list-frames 0 0", CB(handleEntryPoint));
 #endif
-    } else if (response.resultClass == GdbResultError) {
-        QString msg = QString::fromLocal8Bit(response.data.findChild("msg").data());
-        m_engine->notifyInferiorSetupFailed(msg);
+        break;
+    case GdbResultError:
+        m_engine->notifyInferiorSetupFailed(QString::fromLocal8Bit(response.data.findChild("msg").data()));
+        break;
+    default:
+        m_engine->notifyInferiorSetupFailed(QString::fromLatin1("Invalid response %1").arg(response.resultClass));
+        break;
     }
 }
 
