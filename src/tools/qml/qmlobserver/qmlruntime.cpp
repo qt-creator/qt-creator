@@ -55,6 +55,7 @@
 #endif
 
 #include <qdeclarativedesignview.h>
+#include <qdeclarativedesigndebugserver.h>
 #include <utils/crumblepath.h>
 
 #include "qmlruntime.h"
@@ -785,8 +786,10 @@ void QDeclarativeViewer::createMenu()
     designModeBehaviorAction->setShortcut(QKeySequence("Ctrl+D"));
     designModeBehaviorAction->setCheckable(true);
     designModeBehaviorAction->setChecked(canvas->designModeBehavior());
+    designModeBehaviorAction->setEnabled(QDeclarativeDesignDebugServer::hasDebuggingClient());
     connect(designModeBehaviorAction, SIGNAL(triggered(bool)), this, SLOT(setDesignModeBehavior(bool)));
     connect(canvas, SIGNAL(designModeBehaviorChanged(bool)), designModeBehaviorAction, SLOT(setChecked(bool)));
+    connect(QDeclarativeDesignDebugServer::instance(), SIGNAL(debuggingClientChanged(bool)), designModeBehaviorAction, SLOT(setEnabled(bool)));
 
     QAction *proxyAction = new QAction(tr("HTTP &Proxy..."), this);
     connect(proxyAction, SIGNAL(triggered()), this, SLOT(showProxySettings()));

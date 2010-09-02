@@ -75,6 +75,8 @@ public Q_SLOTS:
     void contextPathUpdated(const QStringList &contextPath);
 
 Q_SIGNALS:
+    void debuggingClientChanged(bool hasDebuggingClient);
+
     void currentObjectsChanged(const QList<QObject*> &objects);
     void designModeBehaviorChanged(bool inDesignMode);
     void reloadRequested();
@@ -96,6 +98,7 @@ Q_SIGNALS:
     void clearComponentCacheRequested();
 
 protected:
+    virtual void enabledChanged(bool enabled);
     virtual void messageReceived(const QByteArray &);
 
 private:

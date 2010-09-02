@@ -58,6 +58,11 @@ QDeclarativeDesignDebugServer *QDeclarativeDesignDebugServer::instance()
     return qmlDesignDebugServer();
 }
 
+void QDeclarativeDesignDebugServer::enabledChanged(bool enabled)
+{
+    emit debuggingClientChanged(enabled);
+}
+
 void QDeclarativeDesignDebugServer::messageReceived(const QByteArray &message)
 {
     QDataStream ds(message);
