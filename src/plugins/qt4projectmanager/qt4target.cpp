@@ -221,7 +221,7 @@ Qt4Target *Qt4TargetFactory::restore(ProjectExplorer::Project *parent, const QVa
     if (!canRestore(parent, map))
         return 0;
 
-    Qt4Project * qt4project(static_cast<Qt4Project *>(parent));
+    Qt4Project *qt4project(static_cast<Qt4Project *>(parent));
     Qt4Target *t(new Qt4Target(qt4project, QLatin1String("transient ID")));
     if (t->fromMap(map))
         return t;
@@ -406,6 +406,7 @@ bool Qt4Target::fromMap(const QVariantMap &map)
 {
     bool success = Target::fromMap(map);
     setIcon(iconForId(id()));
+    setDefaultDisplayName(displayNameForId(id()));
     return success;
 }
 
