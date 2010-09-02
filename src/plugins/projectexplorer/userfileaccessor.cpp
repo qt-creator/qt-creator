@@ -493,7 +493,6 @@ QVariantMap Version0Handler::convertBuildConfigurations(Project *project, const 
         qWarning() << "Unknown BuildConfiguration Key found:" << i.key() << i.value();
         qWarning() << "BuildConfiguration Id is:" << id;
     }
-
     return result;
 }
 
@@ -919,9 +918,13 @@ QVariantMap Version1Handler::update(Project *project, const QVariantMap &map)
         targetMap.insert(QLatin1String("ProjectExplorer.Target.BuildConfigurationCount"), count);
         for (int i = 0; i < count; ++i) {
             QString key(QString::fromLatin1("ProjectExplorer.Project.BuildConfiguration.") + QString::number(i));
-            if (map.contains(key))
+            if (map.contains(key)) {
+                QVariantMap bcMap = map.value(key).toMap();
+                if (!bcMap.contains(QLatin1String("Qt4ProjectManager.Qt4BuildConfiguration.UseShadowBuild")))
+                    bcMap.insert(QLatin1String("Qt4ProjectManager.Qt4BuildConfiguration.UseShadowBuild"), false);
                 targetMap.insert(QString::fromLatin1("ProjectExplorer.Target.BuildConfiguration.") + QString::number(i),
-                                 map.value(key));
+                                 bcMap);
+            }
         }
 
         count = map.value(QLatin1String("ProjectExplorer.Project.RunConfigurationCount")).toInt();
