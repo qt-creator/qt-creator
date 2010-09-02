@@ -62,6 +62,8 @@ public:
     explicit BaseFileFind(Find::SearchResultWindow *resultWindow);
 
     bool isEnabled() const;
+    bool canCancel() const;
+    void cancel();
     bool isReplaceSupported() const { return true; }
     void findAll(const QString &txt, Find::FindFlags findFlags);
     void replaceAll(const QString &txt, Find::FindFlags findFlags);

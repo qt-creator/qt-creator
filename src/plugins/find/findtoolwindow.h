@@ -63,6 +63,7 @@ protected:
 private slots:
     void search();
     void replace();
+    void cancelSearch();
     void setCurrentFilter(int index);
     void updateButtonStates();
 

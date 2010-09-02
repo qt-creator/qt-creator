@@ -52,11 +52,13 @@ FindToolWindow::FindToolWindow(FindPlugin *plugin)
     connect(m_ui.closeButton, SIGNAL(clicked()), this, SLOT(reject()));
     connect(m_ui.searchButton, SIGNAL(clicked()), this, SLOT(search()));
     connect(m_ui.replaceButton, SIGNAL(clicked()), this, SLOT(replace()));
+    connect(m_ui.cancelButton, SIGNAL(clicked()), this, SLOT(cancelSearch()));
     connect(m_ui.matchCase, SIGNAL(toggled(bool)), m_plugin, SLOT(setCaseSensitive(bool)));
     connect(m_ui.wholeWords, SIGNAL(toggled(bool)), m_plugin, SLOT(setWholeWord(bool)));
     connect(m_ui.regExp, SIGNAL(toggled(bool)), m_plugin, SLOT(setRegularExpression(bool)));
     connect(m_ui.filterList, SIGNAL(activated(int)), this, SLOT(setCurrentFilter(int)));
     connect(m_ui.searchTerm, SIGNAL(textChanged(QString)), this, SLOT(updateButtonStates()));
+
     m_findCompleter->setModel(m_plugin->findCompletionModel());
     m_ui.searchTerm->setCompleter(m_findCompleter);
     m_ui.searchTerm->installEventFilter(this);
@@ -100,6 +102,7 @@ void FindToolWindow::updateButtonStates()
     m_ui.regExp->setEnabled(filterEnabled
                             && (m_currentFilter->supportedFindFlags() & Find::FindRegularExpression));
     m_ui.searchTerm->setEnabled(filterEnabled);
+    m_ui.cancelButton->setEnabled(m_currentFilter && m_currentFilter->canCancel());
 }
 
 void FindToolWindow::setFindFilters(const QList<IFindFilter *> &filters)
@@ -193,6 +196,12 @@ void FindToolWindow::replace()
     IFindFilter *filter;
     acceptAndGetParameters(&term, &filter);
     filter->replaceAll(term, m_plugin->findFlags());
+}
+
+void FindToolWindow::cancelSearch()
+{
+    if (m_currentFilter)
+        m_currentFilter->cancel();
 }
 
 void FindToolWindow::writeSettings()

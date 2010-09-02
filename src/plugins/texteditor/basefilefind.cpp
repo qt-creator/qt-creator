@@ -70,6 +70,16 @@ bool BaseFileFind::isEnabled() const
     return !m_isSearching;
 }
 
+bool BaseFileFind::canCancel() const
+{
+    return m_isSearching;
+}
+
+void BaseFileFind::cancel()
+{
+    m_watcher.cancel();
+}
+
 QStringList BaseFileFind::fileNameFilters() const
 {
     QStringList filters;

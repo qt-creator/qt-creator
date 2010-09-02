@@ -60,6 +60,8 @@ public:
     QString id() const;
     QString displayName() const;
     bool isEnabled() const;
+    bool canCancel() const;
+    void cancel();
     Find::FindFlags supportedFindFlags() const;
 
     void findAll(const QString &txt, Find::FindFlags findFlags);

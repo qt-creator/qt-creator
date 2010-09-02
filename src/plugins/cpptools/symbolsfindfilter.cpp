@@ -131,6 +131,16 @@ bool SymbolsFindFilter::isEnabled() const
     return !m_isRunning && m_enabled;
 }
 
+bool SymbolsFindFilter::canCancel() const
+{
+    return m_isRunning;
+}
+
+void SymbolsFindFilter::cancel()
+{
+    m_watcher.cancel();
+}
+
 Find::FindFlags SymbolsFindFilter::supportedFindFlags() const
 {
     return Find::FindCaseSensitively | Find::FindRegularExpression | Find::FindWholeWords;
