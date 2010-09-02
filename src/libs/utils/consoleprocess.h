@@ -36,22 +36,14 @@
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QProcess>
-
-#include <QtNetwork/QLocalServer>
-
-#ifdef Q_OS_WIN
-#include <windows.h>
-QT_BEGIN_NAMESPACE
-class QWinEventNotifier;
-QT_END_NAMESPACE
-#endif
+#include <QtCore/QScopedPointer>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
-class QTemporaryFile;
 QT_END_NAMESPACE
 
 namespace Utils {
+struct ConsoleProcessPrivate;
 
 class QTCREATOR_UTILS_EXPORT ConsoleProcess : public QObject, public AbstractProcess
 {
@@ -65,16 +57,21 @@ public:
     bool start(const QString &program, const QStringList &args);
     void stop();
 
-    void setMode(Mode m) { m_mode = m; }
-    Mode mode() const { return m_mode; }
+    void setMode(Mode m);
+    Mode mode() const;
 
     bool isRunning() const; // This reflects the state of the console+stub
-    qint64 applicationPID() const { return m_appPid; }
-    int exitCode() const { return m_appCode; } // This will be the signal number if exitStatus == CrashExit
-    QProcess::ExitStatus exitStatus() const { return m_appStatus; }
+    qint64 applicationPID() const;
+
+#ifdef Q_OS_WIN
+    qint64 applicationMainThreadID() const;
+#endif
+
+    int exitCode() const;
+    QProcess::ExitStatus exitStatus() const;
 
 #ifdef Q_OS_UNIX
-    void setSettings(QSettings *settings) { m_settings = settings; }
+    void setSettings(QSettings *settings);
     static QString defaultTerminalEmulator();
     static QString terminalEmulator(const QSettings *settings);
     static void setTerminalEmulator(QSettings *settings, const QString &term);
@@ -104,7 +101,7 @@ private:
     static QString msgPromptToClose();
     static QString msgCannotCreateTempFile(const QString &why);
     static QString msgCannotCreateTempDir(const QString & dir, const QString &why);
-    static QString msgUnexpectedOutput();
+    static QString msgUnexpectedOutput(const QByteArray &what);
     static QString msgCannotChangeToWorkDir(const QString & dir, const QString &why);
     static QString msgCannotExecute(const QString & p, const QString &why);
 
@@ -115,25 +112,7 @@ private:
     void cleanupInferior();
 #endif
 
-    Mode m_mode;
-    qint64 m_appPid;
-    int m_appCode;
-    QString m_executable;
-    QProcess::ExitStatus m_appStatus;
-    QLocalServer m_stubServer;
-    QLocalSocket *m_stubSocket;
-    QTemporaryFile *m_tempFile;
-#ifdef Q_OS_WIN
-    PROCESS_INFORMATION *m_pid;
-    HANDLE m_hInferior;
-    QWinEventNotifier *inferiorFinishedNotifier;
-    QWinEventNotifier *processFinishedNotifier;
-#else
-    QProcess m_process;
-    QByteArray m_stubServerDir;
-    QSettings *m_settings;
-#endif
-
+    QScopedPointer<ConsoleProcessPrivate> d;
 };
 
 } //namespace Utils

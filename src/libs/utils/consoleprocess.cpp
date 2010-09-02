@@ -66,9 +66,9 @@ QString ConsoleProcess::msgCannotCreateTempDir(const QString & dir, const QStrin
     return tr("Cannot create temporary directory '%1': %2").arg(dir, why);
 }
 
-QString ConsoleProcess::msgUnexpectedOutput()
+QString ConsoleProcess::msgUnexpectedOutput(const QByteArray &what)
 {
-    return tr("Unexpected output from helper program.");
+    return tr("Unexpected output from helper program (%1).").arg(QString::fromAscii(what));
 }
 
 QString ConsoleProcess::msgCannotChangeToWorkDir(const QString & dir, const QString &why)

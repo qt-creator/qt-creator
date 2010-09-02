@@ -208,6 +208,7 @@ int main()
 
     SetConsoleCtrlHandler(ctrlHandler, TRUE);
 
+    sendMsg("thread %d\n", pi.dwThreadId);
     sendMsg("pid %d\n", pi.dwProcessId);
 
     if (WaitForSingleObject(pi.hProcess, INFINITE) == WAIT_FAILED)
