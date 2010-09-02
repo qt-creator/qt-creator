@@ -669,11 +669,12 @@ def qdump__QObject(d, item):
             d.putNumChild(propertyCount)
 
             if d.isExpandedIName(item.iname + ".properties"):
-                with Children(d, [propertyCount, 500]):
-                    # FIXME: Make this global. Don't leak.
-                    gdb.execute("set $d = (QVariant*)malloc(sizeof(QVariant))")
-                    gdb.execute("set $d.d.is_shared = 0")
+                # FIXME: Make this global. Don't leak.
+                variant = "'%sQVariant'" % d.ns
+                gdb.execute("set $d = (%s*)malloc(sizeof(%s))" % (variant, variant))
+                gdb.execute("set $d.d.is_shared = 0")
 
+                with Children(d, [propertyCount, 500]):
                     # Dynamic properties.
                     if dynamicPropertyCount != 0:
                         dummyType = lookupType("void").pointer().pointer()
@@ -692,8 +693,8 @@ def qdump__QObject(d, item):
                                 qq = q.cast(valuesType.pointer().pointer())
                                 qq = qq.dereference();
                                 d.putField("addr", cleanAddress(qq))
-                                d.putField("exp", "*('%sQVariant'*)%s"
-                                     % (d.ns, cleanAddress(qq)))
+                                d.putField("exp", "*(%s*)%s"
+                                     % (variant, cleanAddress(qq)))
                                 name = "%s.properties.%d" % (item.iname, i)
                                 t = qdump__QVariant(d, Item(qq, name))
                                 # Override the "QVariant (foo)" output
