@@ -32,6 +32,8 @@
 #include "cdbengine_p.h"
 #include "cdbcom.h"
 
+#include <QtCore/QDebug>
+
 namespace Debugger {
 namespace Internal {
 
