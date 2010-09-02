@@ -15,6 +15,7 @@
 #include <Symbols.h>
 #include <Overview.h>
 
+//TESTED_COMPONENT=src/libs/cplusplus
 using namespace CPlusPlus;
 
 class CollectNames: public ASTVisitor

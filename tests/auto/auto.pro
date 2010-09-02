@@ -5,11 +5,13 @@ SUBDIRS += \
     debugger \
     fakevim \
 #    profilereader \
+#    profilewriter \
     aggregation \
     changeset \
 #    icheckbuild \
     generichighlighter \
-    utils_stringutils
+    utils_stringutils \
+    qml
 
 contains (QT_CONFIG, declarative) {
 SUBDIRS += qml

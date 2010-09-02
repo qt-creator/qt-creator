@@ -49,6 +49,8 @@ Q_DECLARE_METATYPE(HighlightSequence)
 Q_DECLARE_METATYPE(QList<int>)
 Q_DECLARE_METATYPE(QList<HighlightSequence>)
 
+//TESTED_COMPONENT=src/plugins/texteditor/generichighlighter
+
 class tst_HighlighterEngine : public QObject
 {
     Q_OBJECT

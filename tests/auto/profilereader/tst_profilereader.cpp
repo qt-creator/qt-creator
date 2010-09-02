@@ -27,9 +27,7 @@
 **
 **************************************************************************/
 
-#include "profilereader.h"
 #include "profilecache.h"
-#include "proitems.h"
 
 #include <QtTest/QtTest>
 #include <QtCore/QSet>
@@ -73,4 +71,4 @@ void tst_ProFileReader::conditionalScopes()
 }
 
 QTEST_MAIN(tst_ProFileReader)
-#include "main.moc"
+#include "tst_profilereader.moc"

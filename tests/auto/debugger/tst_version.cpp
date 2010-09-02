@@ -3,6 +3,7 @@
 
 #include <QtTest>
 
+//TESTED_COMPONENT=src/plugins/debugger/gdb
 
 class tst_Version : public QObject
 {

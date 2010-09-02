@@ -15,6 +15,8 @@
 #include <QtTest/QtTest>
 //#include <QtTest/qtest_gui.h>
 
+//TESTED_COMPONENT=src/plugins/debugger/gdb
+
 static const char *pointerPrintFormat()
 {
     return sizeof(quintptr) == sizeof(long) ? "0x%lx" : "0x%llx";
@@ -110,12 +112,12 @@ struct QString3 {
     QString s1, s2, s3;
 };
 
-class tst_Debugger : public QObject
+class tst_Dumpers : public QObject
 {
     Q_OBJECT
 
 public:
-    tst_Debugger() {}
+    tst_Dumpers() {}
 
     void testMi(const char* input)
     {
@@ -213,7 +215,7 @@ private:
     void dumpQTextCodecHelper(QTextCodec *codec);
 };
 
-void tst_Debugger::infoBreak()
+void tst_Dumpers::infoBreak()
 {
     // This tests the regular expression used in GdbEngine::extractDataFromInfoBreak
     // to discover breakpoints in constructors.
@@ -358,7 +360,7 @@ QString niceType(QString type)
     return type;
 }
 
-void tst_Debugger::niceType()
+void tst_Dumpers::niceType()
 {
     // cf. watchutils.cpp
     QFETCH(QString, input);
@@ -366,7 +368,7 @@ void tst_Debugger::niceType()
     QCOMPARE(::niceType(input), simplified);
 }
 
-void tst_Debugger::niceType_data()
+void tst_Dumpers::niceType_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<QString>("simplified");
@@ -450,7 +452,7 @@ static const void *deref(const void *p)
     return *reinterpret_cast<const char* const*>(p);
 }
 
-void tst_Debugger::dumperCompatibility()
+void tst_Dumpers::dumperCompatibility()
 {
     // Ensure that no arbitrary padding is introduced by QVectorTypedData.
     const size_t qVectorDataSize = 16;
@@ -618,7 +620,7 @@ void getMapNodeParams(size_t &nodeSize, size_t &valOffset)
 #endif
 }
 
-void tst_Debugger::dumpQAbstractItemHelper(QModelIndex &index)
+void tst_Dumpers::dumpQAbstractItemHelper(QModelIndex &index)
 {
     const QAbstractItemModel *model = index.model();
     const QString &rowStr = N(index.row());
@@ -657,7 +659,7 @@ void tst_Debugger::dumpQAbstractItemHelper(QModelIndex &index)
     testDumper(expected, &index, NS"QAbstractItem", true, indexSpecValue);
 }
 
-void tst_Debugger::dumpQAbstractItemAndModelIndex()
+void tst_Dumpers::dumpQAbstractItemAndModelIndex()
 {
     class PseudoTreeItemModel : public QAbstractItemModel
     {
@@ -805,7 +807,7 @@ void tst_Debugger::dumpQAbstractItemAndModelIndex()
         &index4, NS"QModelIndex", true);
 }
 
-void tst_Debugger::dumpQAbstractItemModelHelper(QAbstractItemModel &m)
+void tst_Dumpers::dumpQAbstractItemModelHelper(QAbstractItemModel &m)
 {
     QByteArray address = ptrToBa(&m);
     QByteArray expected = QByteArray("tiname='iname',addr='%',"
@@ -839,7 +841,7 @@ void tst_Debugger::dumpQAbstractItemModelHelper(QAbstractItemModel &m)
     testDumper(expected, &m, NS"QAbstractItemModel", true);
 }
 
-void tst_Debugger::dumpQAbstractItemModel()
+void tst_Dumpers::dumpQAbstractItemModel()
 {
     // Case 1: No rows, one column.
     QStringList strList;
@@ -873,7 +875,7 @@ void tst_Debugger::dumpQAbstractItemModel()
     dumpQAbstractItemModelHelper(model);
 }
 
-void tst_Debugger::dumpQByteArray()
+void tst_Dumpers::dumpQByteArray()
 {
     // Case 1: Empty object.
     QByteArray ba;
@@ -919,7 +921,7 @@ void tst_Debugger::dumpQByteArray()
         &ba, NS"QByteArray", true);
 }
 
-void tst_Debugger::dumpQChar()
+void tst_Dumpers::dumpQChar()
 {
     // Case 1: Printable ASCII character.
     QChar c('X');
@@ -947,7 +949,7 @@ void tst_Debugger::dumpQChar()
         &c, NS"QChar", false);
 }
 
-void tst_Debugger::dumpQDateTimeHelper(const QDateTime &d, bool isNull)
+void tst_Dumpers::dumpQDateTimeHelper(const QDateTime &d, bool isNull)
 {
     QByteArray value;
     if (d.isNull())
@@ -973,7 +975,7 @@ void tst_Debugger::dumpQDateTimeHelper(const QDateTime &d, bool isNull)
     testDumper(expected, &d, NS"QDateTime", true);
 }
 
-void tst_Debugger::dumpQDateTime()
+void tst_Dumpers::dumpQDateTime()
 {
     // Case 1: Null object.
     QDateTime d;
@@ -984,7 +986,7 @@ void tst_Debugger::dumpQDateTime()
     dumpQDateTimeHelper(d, false);
 }
 
-void tst_Debugger::dumpQDir()
+void tst_Dumpers::dumpQDir()
 {
     // Case 1: Current working directory.
     QDir dir = QDir::current();
@@ -1006,7 +1008,7 @@ void tst_Debugger::dumpQDir()
 }
 
 
-void tst_Debugger::dumpQFile()
+void tst_Dumpers::dumpQFile()
 {
     // Case 1: Empty file name => Does not exist.
     QFile file1("");
@@ -1036,7 +1038,7 @@ void tst_Debugger::dumpQFile()
         &file3, NS"QFile", true);
 }
 
-void tst_Debugger::dumpQFileInfo()
+void tst_Dumpers::dumpQFileInfo()
 {
     QFileInfo fi(".");
     QByteArray expected("value='%',valueencoded='2',type='$T',numchild='3',"
@@ -1138,7 +1140,7 @@ void tst_Debugger::dumpQFileInfo()
     testDumper(expected, &fi, NS"QFileInfo", true);
 }
 
-void tst_Debugger::dumpQHash()
+void tst_Dumpers::dumpQHash()
 {
     QHash<QString, QList<int> > hash;
     hash.insert("Hallo", QList<int>());
@@ -1148,7 +1150,7 @@ void tst_Debugger::dumpQHash()
 }
 
 template <typename K, typename V>
-void tst_Debugger::dumpQHashNodeHelper(QHash<K, V> &hash)
+void tst_Dumpers::dumpQHashNodeHelper(QHash<K, V> &hash)
 {
     typename QHash<K, V>::iterator it = hash.begin();
     typedef QHashNode<K, V> HashNode;
@@ -1169,7 +1171,7 @@ void tst_Debugger::dumpQHashNodeHelper(QHash<K, V> &hash)
         getMapType<K, V>(), "", sizeof(it.key()), sizeof(it.value()));
 }
 
-void tst_Debugger::dumpQHashNode()
+void tst_Dumpers::dumpQHashNode()
 {
     // Case 1: simple type -> simple type.
     QHash<int, int> hash1;
@@ -1192,7 +1194,7 @@ void tst_Debugger::dumpQHashNode()
     dumpQHashNodeHelper(hash4);
 }
 
-void tst_Debugger::dumpQImageHelper(const QImage &img)
+void tst_Dumpers::dumpQImageHelper(const QImage &img)
 {
     QByteArray expected = "value='(%x%)',type='"NS"QImage',numchild='1',"
         "children=[{name='data',type='"NS"QImageData',addr='%'}]"
@@ -1202,7 +1204,7 @@ void tst_Debugger::dumpQImageHelper(const QImage &img)
     testDumper(expected, &img, NS"QImage", true);
 }
 
-void tst_Debugger::dumpQImage()
+void tst_Dumpers::dumpQImage()
 {
     // Case 1: Null image.
     QImage img;
@@ -1217,7 +1219,7 @@ void tst_Debugger::dumpQImage()
     dumpQImageHelper(img);
 }
 
-void tst_Debugger::dumpQImageDataHelper(QImage &img)
+void tst_Dumpers::dumpQImageDataHelper(QImage &img)
 {
     const QByteArray ba(QByteArray::fromRawData((const char*) img.bits(), img.numBytes()));
     QByteArray expected = QByteArray("tiname='$I',addr='$A',type='"NS"QImageData',").
@@ -1227,7 +1229,7 @@ void tst_Debugger::dumpQImageDataHelper(QImage &img)
     testDumper(expected, &img, NS"QImageData", false);
 }
 
-void tst_Debugger::dumpQImageData()
+void tst_Dumpers::dumpQImageData()
 {
     // Case 1: Null image.
     QImage img;
@@ -1243,7 +1245,7 @@ void tst_Debugger::dumpQImageData()
 }
 
 template <typename T>
-        void tst_Debugger::dumpQLinkedListHelper(QLinkedList<T> &l)
+        void tst_Dumpers::dumpQLinkedListHelper(QLinkedList<T> &l)
 {
     const int size = qMin(l.size(), 1000);
     const QString &sizeStr = N(size);
@@ -1281,7 +1283,7 @@ template <typename T>
     testDumper(expected, &l, NS"QLinkedList", true, elemTypeStr);
 }
 
-void tst_Debugger::dumpQLinkedList()
+void tst_Dumpers::dumpQLinkedList()
 {
     // Case 1: Simple element type.
     QLinkedList<int> l;
@@ -1404,7 +1406,7 @@ void tst_Debugger::dumpQLinkedList()
     }
 #    endif
 
-void tst_Debugger::dumpQList_int()
+void tst_Dumpers::dumpQList_int()
 {
     QList<int> ilist;
     testDumper("value='<0 items>',valueeditable='false',numchild='0',"
@@ -1419,7 +1421,7 @@ void tst_Debugger::dumpQList_int()
         &ilist, NS"QList", true, "int");
 }
 
-void tst_Debugger::dumpQList_int_star()
+void tst_Dumpers::dumpQList_int_star()
 {
     QList<int *> ilist;
     testDumper("value='<0 items>',valueeditable='false',numchild='0',"
@@ -1435,7 +1437,7 @@ void tst_Debugger::dumpQList_int_star()
         &ilist, NS"QList", true, "int*");
 }
 
-void tst_Debugger::dumpQList_char()
+void tst_Dumpers::dumpQList_char()
 {
     QList<char> clist;
     testDumper("value='<0 items>',valueeditable='false',numchild='0',"
@@ -1450,7 +1452,7 @@ void tst_Debugger::dumpQList_char()
         &clist, NS"QList", true, "char");
 }
 
-void tst_Debugger::dumpQList_QString()
+void tst_Dumpers::dumpQList_QString()
 {
     QList<QString> slist;
     testDumper("value='<0 items>',valueeditable='false',numchild='0',"
@@ -1465,7 +1467,7 @@ void tst_Debugger::dumpQList_QString()
         &slist, NS"QList", true, NS"QString");
 }
 
-void tst_Debugger::dumpQList_Int3()
+void tst_Dumpers::dumpQList_Int3()
 {
     QList<Int3> i3list;
     testDumper("value='<0 items>',valueeditable='false',numchild='0',"
@@ -1480,7 +1482,7 @@ void tst_Debugger::dumpQList_Int3()
         &i3list, NS"QList", true, "Int3");
 }
 
-void tst_Debugger::dumpQList_QString3()
+void tst_Dumpers::dumpQList_QString3()
 {
     QList<QString3> s3list;
     testDumper("value='<0 items>',valueeditable='false',numchild='0',"
@@ -1495,7 +1497,7 @@ void tst_Debugger::dumpQList_QString3()
         &s3list, NS"QList", true, "QString3");
 }
 
-void tst_Debugger::dumpQLocaleHelper(QLocale &loc)
+void tst_Dumpers::dumpQLocaleHelper(QLocale &loc)
 {
     QByteArray expected = QByteArray("value='%',type='$T',numchild='8',"
             "children=[{name='country',%},"
@@ -1526,7 +1528,7 @@ void tst_Debugger::dumpQLocaleHelper(QLocale &loc)
     testDumper(expected, &loc, NS"QLocale", true);
 }
 
-void tst_Debugger::dumpQLocale()
+void tst_Dumpers::dumpQLocale()
 {
     QLocale english(QLocale::English);
     dumpQLocaleHelper(english);
@@ -1542,7 +1544,7 @@ void tst_Debugger::dumpQLocale()
 }
 
 template <typename K, typename V>
-        void tst_Debugger::dumpQMapHelper(QMap<K, V> &map)
+        void tst_Dumpers::dumpQMapHelper(QMap<K, V> &map)
 {
     QByteArray sizeStr(valToString(map.size()));
     size_t nodeSize;
@@ -1595,7 +1597,7 @@ template <typename K, typename V>
                true, getMapType<K,V>(), "", 0, 0, nodeSize, valOff);
 }
 
-void tst_Debugger::dumpQMap()
+void tst_Dumpers::dumpQMap()
 {
     qDebug() << "QMap<int, int>";
     // Case 1: Simple type -> simple type.
@@ -1662,7 +1664,7 @@ void tst_Debugger::dumpQMap()
 }
 
 template <typename K, typename V>
-        void tst_Debugger::dumpQMapNodeHelper(QMap<K, V> &m)
+        void tst_Dumpers::dumpQMapNodeHelper(QMap<K, V> &m)
 {
     typename QMap<K, V>::iterator it = m.begin();
     const K &key = it.key();
@@ -1682,7 +1684,7 @@ template <typename K, typename V>
                true, getMapType<K,V>(), "", 0, 0, nodeSize, valOffset);
 }
 
-void tst_Debugger::dumpQMapNode()
+void tst_Dumpers::dumpQMapNode()
 {
     // Case 1: simple type -> simple type.
     QMap<int, int> map;
@@ -1705,7 +1707,7 @@ void tst_Debugger::dumpQMapNode()
     dumpQMapNodeHelper(map4);
 }
 
-void tst_Debugger::dumpQObject()
+void tst_Dumpers::dumpQObject()
 {
     QObject parent;
     testDumper("value='',valueencoded='2',type='$T',displayedtype='QObject',"
@@ -1764,7 +1766,7 @@ void tst_Debugger::dumpQObject()
         &child, NS"QObject", false);
 }
 
-void tst_Debugger::dumpQObjectChildListHelper(QObject &o)
+void tst_Dumpers::dumpQObjectChildListHelper(QObject &o)
 {
     const QObjectList children = o.children();
     const int size = children.size();
@@ -1784,7 +1786,7 @@ void tst_Debugger::dumpQObjectChildListHelper(QObject &o)
     testDumper(expected, &o, NS"QObjectChildList", true);
 }
 
-void tst_Debugger::dumpQObjectChildList()
+void tst_Dumpers::dumpQObjectChildList()
 {
     // Case 1: Object with no children.
     QObject o;
@@ -1799,7 +1801,7 @@ void tst_Debugger::dumpQObjectChildList()
     dumpQObjectChildListHelper(o);
 }
 
-void tst_Debugger::dumpQObjectMethodList()
+void tst_Dumpers::dumpQObjectMethodList()
 {
     QStringListModel m;
     testDumper("addr='<synthetic>',type='$T',numchild='24',"
@@ -1831,7 +1833,7 @@ void tst_Debugger::dumpQObjectMethodList()
     &m, NS"QObjectMethodList", true);
 }
 
-void tst_Debugger::dumpQObjectPropertyList()
+void tst_Dumpers::dumpQObjectPropertyList()
 {
     // Case 1: Model without a parent.
     QStringListModel m(QStringList() << "Test1" << "Test2");
@@ -1884,7 +1886,7 @@ public:
 
 typedef QVector<QObjectPrivate::ConnectionList> ConnLists;
 
-void tst_Debugger::dumpQObjectSignalHelper(QObject &o, int sigNum)
+void tst_Dumpers::dumpQObjectSignalHelper(QObject &o, int sigNum)
 {
     //qDebug() << o.objectName() << sigNum;
     QByteArray expected("addr='<synthetic>',numchild='1',type='"NS"QObjectSignal'");
@@ -1929,7 +1931,7 @@ void tst_Debugger::dumpQObjectSignalHelper(QObject &o, int sigNum)
     testDumper(expected, &o, NS"QObjectSignal", true, "", "", sigNum);
 }
 
-void tst_Debugger::dumpQObjectSignal()
+void tst_Dumpers::dumpQObjectSignal()
 {
     // Case 1: Simple QObject.
     QObject o;
@@ -1964,7 +1966,7 @@ void tst_Debugger::dumpQObjectSignal()
         dumpQObjectSignalHelper(m, signalIndex);
 }
 
-void tst_Debugger::dumpQObjectSignalList()
+void tst_Dumpers::dumpQObjectSignalList()
 {
     // Case 1: Simple QObject.
     QObject o;
@@ -2063,7 +2065,7 @@ QByteArray slotIndexList(const QObject *ob)
     return slotIndices;
 }
 
-void tst_Debugger::dumpQObjectSlot()
+void tst_Dumpers::dumpQObjectSlot()
 {
     // Case 1: Simple QObject.
     QObject o;
@@ -2119,7 +2121,7 @@ void tst_Debugger::dumpQObjectSlot()
 
 }
 
-void tst_Debugger::dumpQObjectSlotList()
+void tst_Dumpers::dumpQObjectSlotList()
 {
     // Case 1: Simple QObject.
     QObject o;
@@ -2170,7 +2172,7 @@ void tst_Debugger::dumpQObjectSlotList()
         &m, NS"QObjectSlotList", true);
 }
 
-void tst_Debugger::dumpQPixmap()
+void tst_Dumpers::dumpQPixmap()
 {
     // Case 1: Null Pixmap.
     QPixmap p;
@@ -2198,7 +2200,7 @@ void tst_Debugger::dumpQPixmap()
 
 #if QT_VERSION >= 0x040500
 template<typename T>
-void tst_Debugger::dumpQSharedPointerHelper(QSharedPointer<T> &ptr)
+void tst_Dumpers::dumpQSharedPointerHelper(QSharedPointer<T> &ptr)
 {
     struct Cheater : public QSharedPointer<T>
     {
@@ -2237,7 +2239,7 @@ void tst_Debugger::dumpQSharedPointerHelper(QSharedPointer<T> &ptr)
 }
 #endif
 
-void tst_Debugger::dumpQSharedPointer()
+void tst_Dumpers::dumpQSharedPointer()
 {
 #if QT_VERSION >= 0x040500
     // Case 1: Simple type.
@@ -2277,7 +2279,7 @@ void tst_Debugger::dumpQSharedPointer()
 #endif
 }
 
-void tst_Debugger::dumpQString()
+void tst_Dumpers::dumpQString()
 {
     QString s;
     testDumper("value='IiIgKG51bGwp',valueencoded='5',type='$T',numchild='0'",
@@ -2287,14 +2289,14 @@ void tst_Debugger::dumpQString()
         &s, NS"QString", false);
 }
 
-void tst_Debugger::dumpQVariant_invalid()
+void tst_Dumpers::dumpQVariant_invalid()
 {
     QVariant v;
     testDumper("value='(invalid)',type='$T',numchild='0'",
         &v, NS"QVariant", false);
 }
 
-void tst_Debugger::dumpQVariant_QString()
+void tst_Dumpers::dumpQVariant_QString()
 {
     QVariant v = "abc";
     testDumper("value='KFFTdHJpbmcpICJhYmMi',valueencoded='5',type='$T',"
@@ -2309,7 +2311,7 @@ void tst_Debugger::dumpQVariant_QString()
 */
 }
 
-void tst_Debugger::dumpQVariant_QStringList()
+void tst_Dumpers::dumpQVariant_QStringList()
 {
     QVariant v = QStringList() << "Hi";
     testDumper("value='(QStringList) ',type='$T',numchild='1',"
@@ -2319,7 +2321,7 @@ void tst_Debugger::dumpQVariant_QStringList()
         &v, NS"QVariant", true);
 }
 
-void tst_Debugger::dumpStdVector()
+void tst_Dumpers::dumpStdVector()
 {
     std::vector<std::list<int> *> vector;
     QByteArray inner = "std::list<int> *";
@@ -2344,7 +2346,7 @@ void tst_Debugger::dumpStdVector()
     vector.push_back(0);
 }
 
-void tst_Debugger::dumpQTextCodecHelper(QTextCodec *codec)
+void tst_Dumpers::dumpQTextCodecHelper(QTextCodec *codec)
 {
     const QByteArray name = codec->name().toBase64();
     QByteArray expected = QByteArray("value='%',valueencoded='1',type='$T',"
@@ -2354,7 +2356,7 @@ void tst_Debugger::dumpQTextCodecHelper(QTextCodec *codec)
     testDumper(expected, codec, NS"QTextCodec", true);
 }
 
-void tst_Debugger::dumpQTextCodec()
+void tst_Dumpers::dumpQTextCodec()
 {
     const QList<QByteArray> &codecNames = QTextCodec::availableCodecs();
     foreach (const QByteArray &codecName, codecNames)
@@ -2370,7 +2372,7 @@ template <typename T1, typename T2>
 }
 
 template <typename T>
-void tst_Debugger::dumpQWeakPointerHelper(QWeakPointer<T> &ptr)
+void tst_Dumpers::dumpQWeakPointerHelper(QWeakPointer<T> &ptr)
 {
     typedef QtSharedPointer::ExternalRefCountData Data;
     const size_t dataOffset = 0;
@@ -2394,7 +2396,7 @@ void tst_Debugger::dumpQWeakPointerHelper(QWeakPointer<T> &ptr)
 }
 #endif
 
-void tst_Debugger::dumpQWeakPointer()
+void tst_Dumpers::dumpQWeakPointer()
 {
 #if QT_VERSION >= 0x040500
     // Case 1: Simple type.
@@ -2433,7 +2435,7 @@ do {                                                      \
 } while (0)
 
 
-void tst_Debugger::initTestCase()
+void tst_Dumpers::initTestCase()
 {
     QVERIFY(sizeof(QWeakPointer<int>) == 2*sizeof(void *));
     QVERIFY(sizeof(QSharedPointer<int>) == 2*sizeof(void *));
@@ -2468,7 +2470,7 @@ void tst_Debugger::initTestCase()
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    tst_Debugger test;
+    tst_Dumpers test;
     return QTest::qExec(&test, argc, argv);
 }
 

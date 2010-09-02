@@ -5,9 +5,9 @@ PLUGINSDIR = ../../../../src/plugins
 GENERICHIGHLIGHTERDIR = $$PLUGINSDIR/texteditor/generichighlighter
 
 SOURCES += \
-    $$PWD/tst_highlighterengine.cpp \
-    $$PWD/highlightermock.cpp \
-    $$PWD/formats.cpp \
+    tst_highlighterengine.cpp \
+    highlightermock.cpp \
+    formats.cpp \
     $$GENERICHIGHLIGHTERDIR/highlighter.cpp \
     $$GENERICHIGHLIGHTERDIR/context.cpp \
     $$GENERICHIGHLIGHTERDIR/dynamicrule.cpp \
@@ -19,11 +19,11 @@ SOURCES += \
     $$GENERICHIGHLIGHTERDIR/itemdata.cpp
 
 HEADERS += \
-    $$PWD/highlightermock.h \
-    $$PWD/basetextdocumentlayout.h \
-    $$PWD/formats.h \
-    $$PWD/tabsettings.h \
-    $$PWD/syntaxhighlighter.h \
+    highlightermock.h \
+    basetextdocumentlayout.h \
+    formats.h \
+    tabsettings.h \
+    syntaxhighlighter.h \
     $$GENERICHIGHLIGHTERDIR/highlighter.h \
     $$GENERICHIGHLIGHTERDIR/context.h \
     $$GENERICHIGHLIGHTERDIR/dynamicrule.h \
@@ -35,5 +35,3 @@ HEADERS += \
     $$GENERICHIGHLIGHTERDIR/itemdata.h
 
 INCLUDEPATH += $$GENERICHIGHLIGHTERDIR $$PWD
-
-TARGET=tst_$$TARGET

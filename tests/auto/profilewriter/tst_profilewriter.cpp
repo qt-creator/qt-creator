@@ -296,4 +296,4 @@ void tst_ProFileWriter::multiVar()
 }
 
 QTEST_MAIN(tst_ProFileWriter)
-#include "main.moc"
+#include "tst_profilewriter.moc"

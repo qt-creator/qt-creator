@@ -13,6 +13,8 @@
 #include <QtDebug>
 #include <QTextDocument>
 
+//TESTED_COMPONENT=src/libs/cplusplus
+
 /*!
     Tests for various parts of the code generation. Well, okay, currently it only
     tests the InsertionPointLocator.

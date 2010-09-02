@@ -31,6 +31,8 @@
 
 #include <QtTest/QtTest>
 
+//TESTED_COMPONENT=src/utils/changeset
+
 class tst_ChangeSet : public QObject
 {
     Q_OBJECT

@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "testcore.h"
+#include "tst_testcore.h"
 
 #include <QScopedPointer>
 #include <QLatin1String>
@@ -83,12 +83,12 @@ static void initializeMetaTypeSystem(const QString &resourcePath)
         qWarning() << qPrintable(error);
 }
 
-TestCore::TestCore()
+tst_TestCore::tst_TestCore()
     : QObject()
 {
 }
 
-void TestCore::initTestCase()
+void tst_TestCore::initTestCase()
 {
 #ifndef QDEBUG_IN_TESTS
     qInstallMsgHandler(testMessageOutput);
@@ -111,12 +111,12 @@ void TestCore::initTestCase()
     MetaInfo::setPluginPaths(QStringList() << pluginPath);
 }
 
-void TestCore::cleanupTestCase()
+void tst_TestCore::cleanupTestCase()
 {
     MetaInfo::clearGlobal();
 }
 
-void TestCore::testModelCreateCoreModel()
+void tst_TestCore::testModelCreateCoreModel()
 {
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -132,7 +132,7 @@ void TestCore::testModelCreateCoreModel()
 }
 
 // TODO: this need to e updated for states
-void TestCore::loadEmptyCoreModel()
+void tst_TestCore::loadEmptyCoreModel()
 {
     QFile file(":/fx/empty.qml");
     QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
@@ -160,7 +160,7 @@ void TestCore::loadEmptyCoreModel()
     QVERIFY(compareTree(testRewriterView1->rootModelNode(), testRewriterView2->rootModelNode()));
 }
 
-void TestCore::testRewriterView()
+void tst_TestCore::testRewriterView()
 {
     try {
         QPlainTextEdit textEdit;
@@ -231,7 +231,7 @@ void TestCore::testRewriterView()
     }
 }
 
-void TestCore::testRewriterErrors()
+void tst_TestCore::testRewriterErrors()
 {
     QPlainTextEdit textEdit;
     textEdit.setPlainText("import Qt 4.7;\n\nItem {\n}\n");
@@ -258,7 +258,7 @@ void TestCore::testRewriterErrors()
     QVERIFY(testRewriterView->errors().isEmpty());
 }
 
-void TestCore::saveEmptyCoreModel()
+void tst_TestCore::saveEmptyCoreModel()
 {
     QList<QDeclarativeError> errors;
     QFile file(":/fx/empty.qml");
@@ -293,7 +293,7 @@ void TestCore::saveEmptyCoreModel()
 
 }
 
-void TestCore::loadAttributesInCoreModel()
+void tst_TestCore::loadAttributesInCoreModel()
 {
     QList<QDeclarativeError> errors;
     QFile file(":/fx/attributes.qml");
@@ -329,7 +329,7 @@ void TestCore::loadAttributesInCoreModel()
     QVERIFY(compareTree(testRewriterView1->rootModelNode(), testRewriterView2->rootModelNode()));
 }
 
-void TestCore::saveAttributesInCoreModel()
+void tst_TestCore::saveAttributesInCoreModel()
 {
     QFile file(":/fx/attributes.qml");
     QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
@@ -365,7 +365,7 @@ void TestCore::saveAttributesInCoreModel()
     QVERIFY(compareTree(testRewriterView1->rootModelNode(), testRewriterView2->rootModelNode()));
 }
 
-void TestCore::testModelCreateRect()
+void tst_TestCore::testModelCreateRect()
 {
      try {
 
@@ -402,7 +402,7 @@ void TestCore::testModelCreateRect()
 
 }
 
-void TestCore::testRewriterDynamicProperties()
+void tst_TestCore::testRewriterDynamicProperties()
 {
     const QLatin1String qmlString("\n"
                                   "import Qt 4.7\n"
@@ -536,7 +536,7 @@ void TestCore::testRewriterDynamicProperties()
 //    QVERIFY(compareTree(testRewriterView1->rootModelNode(), testRewriterView2->rootModelNode()));
 }
 
-void TestCore::testRewriterGroupedProperties()
+void tst_TestCore::testRewriterGroupedProperties()
 {
     const QLatin1String qmlString("\n"
                                   "import Qt 4.7\n"
@@ -584,7 +584,7 @@ void TestCore::testRewriterGroupedProperties()
     QCOMPARE(textEdit.toPlainText(), expected);
 }
 
-void TestCore::testRewriterPreserveOrder()
+void tst_TestCore::testRewriterPreserveOrder()
 {
     const QLatin1String qmlString1("\n"
         "import Qt 4.7\n"
@@ -700,7 +700,7 @@ void TestCore::testRewriterPreserveOrder()
     }
 }
 
-void TestCore::testRewriterActionCompression()
+void tst_TestCore::testRewriterActionCompression()
 {
     const QLatin1String qmlString("\n"
                                   "import Qt 4.7\n"
@@ -767,7 +767,7 @@ void TestCore::testRewriterActionCompression()
     QCOMPARE(textEdit.toPlainText(), expected);
 }
 
-void TestCore::testRewriterImports()
+void tst_TestCore::testRewriterImports()
 {
     QString fileName = QString(QTCREATORDIR) + "/tests/auto/qml/qmldesigner/data/fx/imports.qml";
     QFile file(fileName);
@@ -813,7 +813,7 @@ void TestCore::testRewriterImports()
     QCOMPARE(import.alias(), QString("Web"));
 }
 
-void TestCore::testRewriterChangeImports()
+void tst_TestCore::testRewriterChangeImports()
 {
     const QLatin1String qmlString("\n"
                                   "import Qt 4.7\n"
@@ -892,7 +892,7 @@ void TestCore::testRewriterChangeImports()
     QCOMPARE(model->imports().first(), Import::createLibraryImport("Qt", "4.7"));
 }
 
-void TestCore::testRewriterForGradientMagic()
+void tst_TestCore::testRewriterForGradientMagic()
 {
     const QLatin1String qmlString("\n"
                                   "import Qt 4.7\n"
@@ -974,7 +974,7 @@ void TestCore::testRewriterForGradientMagic()
     transaction.commit();
 }
 
-void TestCore::loadSubItems()
+void tst_TestCore::loadSubItems()
 {
     QFile file(QString(QTCREATORDIR) + "/tests/auto/qml/qmldesigner/data/fx/topitem.qml");
     QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
@@ -990,7 +990,7 @@ void TestCore::loadSubItems()
     model1->attachView(testRewriterView1.data());
 }
 
-void TestCore::createInvalidCoreModel()
+void tst_TestCore::createInvalidCoreModel()
 {
     QScopedPointer<Model> invalidModel(Model::create("ItemSUX"));
     //QVERIFY(!invalidModel.data()); //#no direct ype checking in model atm
@@ -999,7 +999,7 @@ void TestCore::createInvalidCoreModel()
     //QVERIFY(!invalidModel2.data());
 }
 
-void TestCore::testModelCreateSubNode()
+void tst_TestCore::testModelCreateSubNode()
 {
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -1045,7 +1045,7 @@ void TestCore::testModelCreateSubNode()
 }
 
 
-void TestCore::testTypicalRewriterOperations()
+void tst_TestCore::testTypicalRewriterOperations()
 {
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -1094,7 +1094,7 @@ void TestCore::testTypicalRewriterOperations()
 
 }
 
-void TestCore::testBasicStates()
+void tst_TestCore::testBasicStates()
 {
     char qmlString[] = "import Qt 4.7\n"
                        "Rectangle {\n"
@@ -1245,7 +1245,7 @@ void TestCore::testBasicStates()
     QCOMPARE(rect2Instance.property("x").toInt(), 0);
 }
 
-void TestCore::testModelBasicOperations()
+void tst_TestCore::testModelBasicOperations()
 {
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -1305,7 +1305,7 @@ void TestCore::testModelBasicOperations()
     QVERIFY(!childNode1.isValid());
 }
 
-void TestCore::testModelResolveIds()
+void tst_TestCore::testModelResolveIds()
 {
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -1360,7 +1360,7 @@ void TestCore::testModelResolveIds()
     QCOMPARE(childNode2.bindingProperty("test").resolveToProperty().toBindingProperty().expression(), QString("childNode3.parent.test"));
 }
 
-void TestCore::testModelNodeListProperty()
+void tst_TestCore::testModelNodeListProperty()
 {
     //
     // Test NodeListProperty API
@@ -1420,7 +1420,7 @@ void TestCore::testModelNodeListProperty()
     QVERIFY(!rectChildren.isValid());
 }
 
-void TestCore::testBasicOperationsWithView()
+void tst_TestCore::testBasicOperationsWithView()
 {
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -1530,7 +1530,7 @@ void TestCore::testBasicOperationsWithView()
     model->detachView(nodeInstanceView);
 }
 
-void TestCore::testQmlModelView()
+void tst_TestCore::testQmlModelView()
 {
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -1652,7 +1652,7 @@ void TestCore::testQmlModelView()
 
 }
 
-void TestCore::testModelRemoveNode()
+void tst_TestCore::testModelRemoveNode()
 {
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -1716,7 +1716,7 @@ void TestCore::testModelRemoveNode()
     model->detachView(nodeInstanceView);
 }
 
-void TestCore::reparentingNode()
+void tst_TestCore::reparentingNode()
 {
     QScopedPointer<Model> model(Model::create("Qt/Item"));
 
@@ -1783,7 +1783,7 @@ void TestCore::reparentingNode()
     model->detachView(nodeInstanceView);
 }
 
-void TestCore::reparentingNodeLikeDragAndDrop()
+void tst_TestCore::reparentingNodeLikeDragAndDrop()
 {
     QPlainTextEdit textEdit;
     textEdit.setPlainText("import Qt 4.7;\n\nItem {\n}\n");
@@ -1900,7 +1900,7 @@ void TestCore::reparentingNodeLikeDragAndDrop()
     model->detachView(nodeInstanceView);
 }
 
-void TestCore::testModelReorderSiblings()
+void tst_TestCore::testModelReorderSiblings()
 {
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -1951,7 +1951,7 @@ void TestCore::testModelReorderSiblings()
     model->detachView(nodeInstanceView);
 }
 
-void TestCore::testModelRootNode()
+void tst_TestCore::testModelRootNode()
 {
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -1982,7 +1982,7 @@ void TestCore::testModelRootNode()
     }
 }
 
-void TestCore::reparentingNodeInModificationGroup()
+void tst_TestCore::reparentingNodeInModificationGroup()
 {
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -2032,7 +2032,7 @@ void TestCore::reparentingNodeInModificationGroup()
     QVERIFY(view->rootModelNode().allDirectSubModelNodes().contains(childNode2));
 }
 
-void TestCore::testModelAddAndRemoveProperty()
+void tst_TestCore::testModelAddAndRemoveProperty()
 {
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -2073,7 +2073,7 @@ void TestCore::testModelAddAndRemoveProperty()
     model->detachView(nodeInstanceView);
 }
 
-void TestCore::testModelViewNotification()
+void tst_TestCore::testModelViewNotification()
 {
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -2145,7 +2145,7 @@ void TestCore::testModelViewNotification()
 }
 
 
-void TestCore::testRewriterTransaction()
+void tst_TestCore::testRewriterTransaction()
 {
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -2192,7 +2192,7 @@ void TestCore::testRewriterTransaction()
     QVERIFY(!transaction.isValid());
 }
 
-void TestCore::testRewriterId()
+void tst_TestCore::testRewriterId()
 {
     char qmlString[] = "import Qt 4.7\n"
                        "Rectangle {\n"
@@ -2236,7 +2236,7 @@ void TestCore::testRewriterId()
     QCOMPARE(textEdit.toPlainText(), expected);
 }
 
-void TestCore::testRewriterNodeReparentingTransaction1()
+void tst_TestCore::testRewriterNodeReparentingTransaction1()
 {
      char qmlString[] = "import Qt 4.7\n"
                        "Rectangle {\n"
@@ -2281,7 +2281,7 @@ void TestCore::testRewriterNodeReparentingTransaction1()
     rewriterTransaction.commit();
 }
 
-void TestCore::testRewriterNodeReparentingTransaction2()
+void tst_TestCore::testRewriterNodeReparentingTransaction2()
 {
      char qmlString[] = "import Qt 4.7\n"
                        "Rectangle {\n"
@@ -2347,7 +2347,7 @@ void TestCore::testRewriterNodeReparentingTransaction2()
     rewriterTransaction.commit();
 }
 
-void TestCore::testRewriterNodeReparentingTransaction3()
+void tst_TestCore::testRewriterNodeReparentingTransaction3()
 {
     char qmlString[] = "import Qt 4.7\n"
                       "Rectangle {\n"
@@ -2397,7 +2397,7 @@ void TestCore::testRewriterNodeReparentingTransaction3()
    rewriterTransaction.commit();
 }
 
-void TestCore::testRewriterNodeReparentingTransaction4()
+void tst_TestCore::testRewriterNodeReparentingTransaction4()
 {
     char qmlString[] = "import Qt 4.7\n"
                       "Rectangle {\n"
@@ -2448,7 +2448,7 @@ void TestCore::testRewriterNodeReparentingTransaction4()
    rewriterTransaction.commit();
 }
 
-void TestCore::testRewriterAddNodeTransaction()
+void tst_TestCore::testRewriterAddNodeTransaction()
 {
     char qmlString[] = "import Qt 4.7\n"
                        "Rectangle {\n"
@@ -2490,7 +2490,7 @@ void TestCore::testRewriterAddNodeTransaction()
     rewriterTransaction.commit();
 }
 
-void TestCore::testRewriterComponentId()
+void tst_TestCore::testRewriterComponentId()
 {
     char qmlString[] = "import Qt 4.7\n"
         "Rectangle {\n"
@@ -2526,7 +2526,7 @@ void TestCore::testRewriterComponentId()
     QCOMPARE(component.id(), QString("testComponent"));
 }
 
-void TestCore::testRewriterTransactionRewriter()
+void tst_TestCore::testRewriterTransactionRewriter()
 {
     char qmlString[] = "import Qt 4.7\n"
                        "Rectangle {\n"
@@ -2578,7 +2578,7 @@ void TestCore::testRewriterTransactionRewriter()
     QVERIFY(childNode1.isValid());
 }
 
-void TestCore::testRewriterPropertyDeclarations()
+void tst_TestCore::testRewriterPropertyDeclarations()
 {
     // Work in progress. See task https://qtrequirements.europe.nokia.com/browse/BAUHAUS-170"
 
@@ -2649,7 +2649,7 @@ void TestCore::testRewriterPropertyDeclarations()
     QCOMPARE(urlProperty.value(), QVariant(QUrl()));
 }
 
-void TestCore::testRewriterPropertyAliases()
+void tst_TestCore::testRewriterPropertyAliases()
 {
     //
     // test property aliases defined in qml, i.e.
@@ -2689,7 +2689,7 @@ void TestCore::testRewriterPropertyAliases()
     QCOMPARE(properties.size(), 0); // TODO: How to represent alias properties? As Bindings?
 }
 
-void TestCore::testRewriterPositionAndOffset()
+void tst_TestCore::testRewriterPositionAndOffset()
 {
     const QLatin1String qmlString("\n"
                                   "import Qt 4.7\n"
@@ -2807,7 +2807,7 @@ void TestCore::testRewriterPositionAndOffset()
     QCOMPARE(string, qmlExpected2);
 }
 
-void TestCore::testRewriterComponentTextModifier()
+void tst_TestCore::testRewriterComponentTextModifier()
 {
     const QString qmlString("import Qt 4.7\n"
                             "Rectangle {\n"
@@ -2887,7 +2887,7 @@ void TestCore::testRewriterComponentTextModifier()
     QCOMPARE(componentrootNode.type(), QLatin1String("Qt/Component"));
 }
 
-void TestCore::testRewriterPreserveType()
+void tst_TestCore::testRewriterPreserveType()
 {
     const QString qmlString("import Qt 4.7\n"
                             "Rectangle {\n"
@@ -2933,7 +2933,7 @@ void TestCore::testRewriterPreserveType()
     QCOMPARE(QVariant::Double, newTextNode.variantProperty("font.pointSize").value().type());
 }
 
-void TestCore::testRewriterForArrayMagic()
+void tst_TestCore::testRewriterForArrayMagic()
 {
     try {
         const QLatin1String qmlString("import Qt 4.7\n"
@@ -2988,7 +2988,7 @@ void TestCore::testRewriterForArrayMagic()
     }
 }
 
-void TestCore::testRewriterWithSignals()
+void tst_TestCore::testRewriterWithSignals()
 {
     const QLatin1String qmlString("import Qt 4.7\n"
                                   "\n"
@@ -3020,7 +3020,7 @@ void TestCore::testRewriterWithSignals()
     QCOMPARE(rootNode.properties().count(), 0);
 }
 
-void TestCore::testRewriterNodeSliding()
+void tst_TestCore::testRewriterNodeSliding()
 {
     const QLatin1String qmlString("import Qt 4.7\n"
                                   "Rectangle {\n"
@@ -3072,7 +3072,7 @@ void TestCore::testRewriterNodeSliding()
     QCOMPARE(rootNode.nodeListProperty(QLatin1String("data")).toModelNodeList().at(1).id(), QLatin1String("rectangle2"));
 }
 
-void TestCore::testRewriterExceptionHandling()
+void tst_TestCore::testRewriterExceptionHandling()
 {
     const QLatin1String qmlString("import Qt 4.7\n"
                                   "Text {\n"
@@ -3112,7 +3112,7 @@ void TestCore::testRewriterExceptionHandling()
     }
 }
 
-void TestCore::testRewriterFirstDefinitionInside()
+void tst_TestCore::testRewriterFirstDefinitionInside()
 {
     const QString qmlString("import Qt 4.7\n"
                             "Rectangle {\n"
@@ -3167,7 +3167,7 @@ void TestCore::testRewriterFirstDefinitionInside()
 
 }
 
-void TestCore::testCopyModelRewriter1()
+void tst_TestCore::testCopyModelRewriter1()
 {
     const QLatin1String qmlString("\n"
                                   "import Qt 4.7\n"
@@ -3337,7 +3337,7 @@ void TestCore::testCopyModelRewriter1()
     QCOMPARE(textEdit1.toPlainText(), expected);
 }
 
-void TestCore::testCopyModelRewriter2()
+void tst_TestCore::testCopyModelRewriter2()
 {
    const QLatin1String qmlString1("\n"
                                   "import Qt 4.7\n"
@@ -3437,7 +3437,7 @@ void TestCore::testCopyModelRewriter2()
     QCOMPARE(textEdit2.toPlainText(), qmlString1);
 }
 
-void TestCore::testSubComponentManager()
+void tst_TestCore::testSubComponentManager()
 {
     QString fileName = QString(QTCREATORDIR) + "/tests/auto/qml/qmldesigner/data/fx/usingmybutton.qml";
     QFile file(fileName);
@@ -3470,7 +3470,7 @@ void TestCore::testSubComponentManager()
     QVERIFY(myButtonMetaInfo.property("border.width", true).isValid());
 }
 
-void TestCore::testAnchorsAndRewriting()
+void tst_TestCore::testAnchorsAndRewriting()
 {
         const QString qmlString("import Qt 4.7\n"
                             "Rectangle {\n"
@@ -3531,7 +3531,7 @@ void TestCore::testAnchorsAndRewriting()
     }
 }
 
-void TestCore::testAnchorsAndRewritingCenter()
+void tst_TestCore::testAnchorsAndRewritingCenter()
 {
       const QString qmlString("import Qt 4.7\n"
                             "Rectangle {\n"
@@ -3581,7 +3581,7 @@ void TestCore::testAnchorsAndRewritingCenter()
     childNode.anchors().setAnchor(AnchorLine::HorizontalCenter, rootItemNode, AnchorLine::HorizontalCenter);
 }
 
-void TestCore::loadQml()
+void tst_TestCore::loadQml()
 {
 char qmlString[] = "import Qt 4.7\n"
                        "Rectangle {\n"
@@ -3700,7 +3700,7 @@ char qmlString[] = "import Qt 4.7\n"
     QCOMPARE(textNode2.variantProperty("text").value().toString(), QString("text"));
 }
 
-void TestCore::testMetaInfo()
+void tst_TestCore::testMetaInfo()
 {
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -3716,7 +3716,7 @@ void TestCore::testMetaInfo()
     QVERIFY(model->metaInfo().hasNodeMetaInfo("QGraphicsObject", 1, 0)); // webkit 1.0 namespace
 }
 
-void TestCore::testMetaInfoSimpleType()
+void tst_TestCore::testMetaInfoSimpleType()
 {
     //
     // Test type registered with qmlRegisterType:
@@ -3759,7 +3759,7 @@ void TestCore::testMetaInfoSimpleType()
     QVERIFY(!itemMetaInfo.availableInVersion(3, 7));
 }
 
-void TestCore::testMetaInfoUncreatableType()
+void tst_TestCore::testMetaInfoUncreatableType()
 {
     // Test type registered with qmlRegisterUncreatableType or qmlRegisterTypeNotAvailable:
     //
@@ -3786,7 +3786,7 @@ void TestCore::testMetaInfoUncreatableType()
     QCOMPARE(animationTypeInfo.superClasses().size(), 1);
 }
 
-void TestCore::testMetaInfoExtendedType()
+void tst_TestCore::testMetaInfoExtendedType()
 {
     // Test type registered with qmlRegisterExtendedType
     //
@@ -3811,7 +3811,7 @@ void TestCore::testMetaInfoExtendedType()
     QCOMPARE(graphicsWidgetTypeInfo.superClasses().size(), 2);
 }
 
-void TestCore::testMetaInfoInterface()
+void tst_TestCore::testMetaInfoInterface()
 {
     // Test type registered with qmlRegisterInterface
     //
@@ -3819,7 +3819,7 @@ void TestCore::testMetaInfoInterface()
     QSKIP("TODO: Test not implemented yet", SkipAll);
 }
 
-void TestCore::testMetaInfoCustomType()
+void tst_TestCore::testMetaInfoCustomType()
 {
     // Test type registered with qmlRegisterCustomType:
     //
@@ -3846,7 +3846,7 @@ void TestCore::testMetaInfoCustomType()
     QCOMPARE(propertyChangesInfo.properties().size() - stateOperationInfo.properties().size(), 3);
 }
 
-void TestCore::testMetaInfoEnums()
+void tst_TestCore::testMetaInfoEnums()
 {
     QScopedPointer<Model> model(Model::create("Qt/Text"));
     QVERIFY(model.data());
@@ -3870,7 +3870,7 @@ void TestCore::testMetaInfoEnums()
     QVERIFY(view->rootModelNode().metaInfo().property("horizontalAlignment").enumerator().elementNames().contains(QLatin1String("AlignRight")));
 }
 
-void TestCore::testMetaInfoProperties()
+void tst_TestCore::testMetaInfoProperties()
 {
     QScopedPointer<Model> model(Model::create("Qt/Text"));
     QVERIFY(model.data());
@@ -3890,7 +3890,7 @@ void TestCore::testMetaInfoProperties()
     QVERIFY(textNodeMetaInfo.property("x").isWriteable());
 }
 
-void TestCore::testMetaInfoDotProperties()
+void tst_TestCore::testMetaInfoDotProperties()
 {
     QScopedPointer<Model> model(Model::create("Qt/Text"));
     QVERIFY(model.data());
@@ -3932,7 +3932,7 @@ void TestCore::testMetaInfoDotProperties()
     QVERIFY(rectNode.metaInfo().property("anchors.topMargin", true).isValid());
 }
 
-void TestCore::testMetaInfoListProperties()
+void tst_TestCore::testMetaInfoListProperties()
 {
      QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -3963,7 +3963,7 @@ void TestCore::testMetaInfoListProperties()
     QVERIFY(!view->rootModelNode().metaInfo().property("parent").isListProperty());
 }
 
-void TestCore::testStatesRewriter()
+void tst_TestCore::testStatesRewriter()
 {
     QPlainTextEdit textEdit;
     textEdit.setPlainText("import Qt 4.7; Item {}\n");
@@ -4010,7 +4010,7 @@ void TestCore::testStatesRewriter()
 }
 
 
-void TestCore::testGradientsRewriter()
+void tst_TestCore::testGradientsRewriter()
 {
     QPlainTextEdit textEdit;
     textEdit.setPlainText("\nimport Qt 4.7\n\nItem {\n}\n");
@@ -4168,7 +4168,7 @@ void TestCore::testGradientsRewriter()
     stops.reparentHere(gradientStop1);
 }
 
-void TestCore::testQmlModelStates()
+void tst_TestCore::testQmlModelStates()
 {
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -4200,7 +4200,7 @@ void TestCore::testQmlModelStates()
 
 }
 
-void TestCore::testInstancesStates()
+void tst_TestCore::testInstancesStates()
 {
 //
 //    import Qt 4.7
@@ -4440,7 +4440,7 @@ void TestCore::testInstancesStates()
 
 }
 
-void TestCore::testStates()
+void tst_TestCore::testStates()
 {
 //
 //    import Qt 4.7
@@ -4536,7 +4536,7 @@ void TestCore::testStates()
     QCOMPARE(textNode.variantProperty("text").value(), QVariant("base state"));
 }
 
-void TestCore::testStatesBaseState()
+void tst_TestCore::testStatesBaseState()
 {
 //
 //    import Qt 4.7
@@ -4613,7 +4613,7 @@ void TestCore::testStatesBaseState()
 }
 
 
-void TestCore::testInstancesIdResolution()
+void tst_TestCore::testInstancesIdResolution()
 {
     QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
     QVERIFY(model.data());
@@ -4696,7 +4696,7 @@ void TestCore::testInstancesIdResolution()
 }
 
 
-void TestCore::testInstancesNotInScene()
+void tst_TestCore::testInstancesNotInScene()
 {
     //
     // test whether deleting an instance which is not in the scene crashes
@@ -4719,7 +4719,7 @@ void TestCore::testInstancesNotInScene()
     node1.destroy();
 }
 
-void TestCore::testQmlModelStatesInvalidForRemovedNodes()
+void tst_TestCore::testQmlModelStatesInvalidForRemovedNodes()
 {
     QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
     QVERIFY(model.data());
@@ -4756,7 +4756,7 @@ void TestCore::testQmlModelStatesInvalidForRemovedNodes()
     QVERIFY(!changeSet.isValid());
 }
 
-void TestCore::testInstancesAttachToExistingModel()
+void tst_TestCore::testInstancesAttachToExistingModel()
 {
     //
     // Test attaching nodeinstanceview to an existing model
@@ -4793,7 +4793,7 @@ void TestCore::testInstancesAttachToExistingModel()
     QCOMPARE(rootInstance.testHandle(), qobject_cast<QGraphicsObject*>(rectangleInstance.testHandle())->parentItem()->toGraphicsObject());
 }
 
-void TestCore::testQmlModelAddMultipleStates()
+void tst_TestCore::testQmlModelAddMultipleStates()
 {
     QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
     QVERIFY(model.data());
@@ -4824,7 +4824,7 @@ void TestCore::testQmlModelAddMultipleStates()
     QCOMPARE(QmlItemNode(rootModelNode).states().allStates().count(), 3);
 }
 
-void TestCore::testQmlModelRemoveStates()
+void tst_TestCore::testQmlModelRemoveStates()
 {
     QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
 
@@ -4853,7 +4853,7 @@ void TestCore::testQmlModelRemoveStates()
     QCOMPARE(QmlItemNode(rootModelNode).states().allStates().count(), 0);
 }
 
-void TestCore::testQmlModelStateWithName()
+void tst_TestCore::testQmlModelStateWithName()
 {
     QPlainTextEdit textEdit1;
     textEdit1.setPlainText("import Qt 4.7; Rectangle { id: theRect; width: 100; states: [ State { name: \"a\"; PropertyChanges { target: theRect; width: 200; } } ] }\n");
@@ -4898,7 +4898,7 @@ void TestCore::testQmlModelStateWithName()
     QCOMPARE(rootNode.states().allStates().size(), 0);
 }
 
-void TestCore::testRewriterAutomaticSemicolonAfterChangedProperty()
+void tst_TestCore::testRewriterAutomaticSemicolonAfterChangedProperty()
 {
     QPlainTextEdit textEdit1;
     textEdit1.setPlainText("import Qt 4.7; Rectangle {\n    width: 640\n    height: 480\n}\n");
@@ -4919,7 +4919,7 @@ void TestCore::testRewriterAutomaticSemicolonAfterChangedProperty()
     QVERIFY(testRewriterView1->errors().isEmpty());
 }
 
-void TestCore::defaultPropertyValues()
+void tst_TestCore::defaultPropertyValues()
 {
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -4942,7 +4942,7 @@ void TestCore::defaultPropertyValues()
     QCOMPARE(imageNode.variantProperty("width").value().toDouble(), 0.0);
 }
 
-void TestCore::testModelPropertyValueTypes()
+void tst_TestCore::testModelPropertyValueTypes()
 {
     QPlainTextEdit textEdit1;
     textEdit1.setPlainText("import Qt 4.7; Rectangle { width: 100; radius: 1.5; color: \"red\"; }");
@@ -4964,7 +4964,7 @@ void TestCore::testModelPropertyValueTypes()
     QCOMPARE(rootModelNode.variantProperty("color").value().type(), QVariant::Color);
 }
 
-void TestCore::testModelNodeInHierarchy()
+void tst_TestCore::testModelNodeInHierarchy()
 {
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -4985,7 +4985,7 @@ void TestCore::testModelNodeInHierarchy()
     QVERIFY(node2.isInHierarchy());
 }
 
-void TestCore::testModelNodeIsAncestorOf()
+void tst_TestCore::testModelNodeIsAncestorOf()
 {
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -5024,7 +5024,7 @@ void TestCore::testModelNodeIsAncestorOf()
     QVERIFY(item3.isAncestorOf(item4));
 }
 
-void TestCore::testModelDefaultProperties()
+void tst_TestCore::testModelDefaultProperties()
 {
     QScopedPointer<Model> model(Model::create("Qt/Rectangle"));
     QVERIFY(model.data());
@@ -5039,7 +5039,7 @@ void TestCore::testModelDefaultProperties()
     QCOMPARE(rootModelNode.metaInfo().defaultProperty(), QString("data"));
 }
 
-void TestCore::loadAnchors()
+void tst_TestCore::loadAnchors()
 {
     QPlainTextEdit textEdit1;
     textEdit1.setPlainText("import Qt 4.7; Item { width: 100; height: 100; Rectangle { anchors.left: parent.left; anchors.horizontalCenter: parent.horizontalCenter; anchors.rightMargin: 20; }}");
@@ -5078,7 +5078,7 @@ void TestCore::loadAnchors()
     model->detachView(testView);
 }
 
-void TestCore::changeAnchors()
+void tst_TestCore::changeAnchors()
 {
     QPlainTextEdit textEdit1;
     textEdit1.setPlainText("import Qt 4.7; Item { width: 100; height: 100; Rectangle { anchors.left: parent.left; anchors.horizontalCenter: parent.horizontalCenter; anchors.rightMargin: 20; }}");
@@ -5139,7 +5139,7 @@ void TestCore::changeAnchors()
     model->detachView(testView);
 }
 
-void TestCore::anchorToSibling()
+void tst_TestCore::anchorToSibling()
 {
     QPlainTextEdit textEdit1;
     textEdit1.setPlainText("import Qt 4.7; Item { Rectangle {} Rectangle { id: secondChild } }");
@@ -5183,7 +5183,7 @@ void TestCore::anchorToSibling()
     QVERIFY(secondChild.anchors().possibleAnchorLines(AnchorLine::Left, firstChild) == AnchorLine::HorizontalMask);
 }
 
-void TestCore::removeFillAnchorByDetaching()
+void tst_TestCore::removeFillAnchorByDetaching()
 {
     QPlainTextEdit textEdit1;
     textEdit1.setPlainText("import Qt 4.7; Item { width: 100; height: 100; Rectangle { id: child; anchors.fill: parent } }");
@@ -5263,7 +5263,7 @@ void TestCore::removeFillAnchorByDetaching()
     model->detachView(testView);
 }
 
-void TestCore::removeFillAnchorByChanging()
+void tst_TestCore::removeFillAnchorByChanging()
 {
     QPlainTextEdit textEdit1;
     textEdit1.setPlainText("import Qt 4.7; Item { width: 100; height: 100; Rectangle { id: child; anchors.fill: parent } }");
@@ -5344,7 +5344,7 @@ void TestCore::removeFillAnchorByChanging()
     model->detachView(testView);
 }
 
-void TestCore::testModelBindings()
+void tst_TestCore::testModelBindings()
 {
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
     QVERIFY(model.data());
@@ -5402,7 +5402,7 @@ void TestCore::testModelBindings()
     QCOMPARE(childInstance.size().width(), 200.0);
 }
 
-void TestCore::testModelDynamicProperties()
+void tst_TestCore::testModelDynamicProperties()
 {
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
     QVERIFY(model.data());
@@ -5446,7 +5446,7 @@ void TestCore::testModelDynamicProperties()
     QCOMPARE(rootModelNode.bindingProperty("myBindingColor").expression(), QString("myColor"));
 }
 
-void TestCore::testModelSliding()
+void tst_TestCore::testModelSliding()
 {
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -5514,7 +5514,7 @@ void TestCore::testModelSliding()
     QCOMPARE(rect00, nodeList.at(3));
 }
 
-void TestCore::testRewriterChangeId()
+void tst_TestCore::testRewriterChangeId()
 {
     const char* qmlString = "import Qt 4.7\nRectangle { }";
 
@@ -5551,7 +5551,7 @@ void TestCore::testRewriterChangeId()
     node.setId("myId");
 }
 
-void TestCore::testRewriterRemoveId()
+void tst_TestCore::testRewriterRemoveId()
 {
     const char* qmlString = "import Qt 4.7\nRectangle { id: rect }";
 
@@ -5583,7 +5583,7 @@ void TestCore::testRewriterRemoveId()
     QCOMPARE(rootModelNode.id(), QString());
 }
 
-void TestCore::testRewriterChangeValueProperty()
+void tst_TestCore::testRewriterChangeValueProperty()
 {
     const char* qmlString = "import Qt 4.7\nRectangle { x: 10; y: 10 }";
 
@@ -5618,7 +5618,7 @@ void TestCore::testRewriterChangeValueProperty()
     node.variantProperty("x").setValue(20);
 }
 
-void TestCore::testRewriterRemoveValueProperty()
+void tst_TestCore::testRewriterRemoveValueProperty()
 {
     const QLatin1String qmlString("\n"
                                   "import Qt 4.7\n"
@@ -5665,7 +5665,7 @@ void TestCore::testRewriterRemoveValueProperty()
     node.removeProperty("x");
 }
 
-void TestCore::testRewriterSignalProperty()
+void tst_TestCore::testRewriterSignalProperty()
 {
     const char* qmlString = "import Qt 4.7\nRectangle { onColorChanged: {} }";
 
@@ -5691,7 +5691,7 @@ void TestCore::testRewriterSignalProperty()
     QCOMPARE(rootModelNode.properties().size(), 0);
 }
 
-void TestCore::testRewriterObjectTypeProperty()
+void tst_TestCore::testRewriterObjectTypeProperty()
 {
     const char* qmlString = "import Qt 4.7\nRectangle { x: 10; y: 10 }";
 
@@ -5720,7 +5720,7 @@ void TestCore::testRewriterObjectTypeProperty()
     QCOMPARE(rootModelNode.type(), QLatin1String("Qt/Text"));
 }
 
-void TestCore::testRewriterPropertyChanges()
+void tst_TestCore::testRewriterPropertyChanges()
 {
     try {
         // PropertyChanges uses a custom parser
@@ -5792,7 +5792,7 @@ void TestCore::testRewriterPropertyChanges()
     }
 }
 
-void TestCore::testRewriterListModel()
+void tst_TestCore::testRewriterListModel()
 {
     QSKIP("See BAUHAUS-157", SkipAll);
 
@@ -5830,7 +5830,7 @@ void TestCore::testRewriterListModel()
     }
 }
 
-void TestCore::testRewriterAddProperty()
+void tst_TestCore::testRewriterAddProperty()
 {
     const QLatin1String qmlString("\n"
                                   "import Qt 4.7\n"
@@ -5871,7 +5871,7 @@ void TestCore::testRewriterAddProperty()
     QCOMPARE(textEdit.toPlainText(), expected);
 }
 
-void TestCore::testRewriterAddPropertyInNestedObject()
+void tst_TestCore::testRewriterAddPropertyInNestedObject()
 {
     const QLatin1String qmlString("\n"
                                   "import Qt 4.7\n"
@@ -5921,7 +5921,7 @@ void TestCore::testRewriterAddPropertyInNestedObject()
     QCOMPARE(textEdit.toPlainText(), expected);
 }
 
-void TestCore::testRewriterAddObjectDefinition()
+void tst_TestCore::testRewriterAddObjectDefinition()
 {
     const QLatin1String qmlString("import Qt 4.7\n"
                                   "\n"
@@ -5954,7 +5954,7 @@ void TestCore::testRewriterAddObjectDefinition()
     QCOMPARE(childNode.type(), QString(QLatin1String("Qt/MouseArea")));
 }
 
-void TestCore::testRewriterAddStatesArray()
+void tst_TestCore::testRewriterAddStatesArray()
 {
     const QLatin1String qmlString("\n"
                                   "import Qt 4.7\n"
@@ -6010,7 +6010,7 @@ void TestCore::testRewriterAddStatesArray()
     QCOMPARE(textEdit.toPlainText(), expected2);
 }
 
-void TestCore::testRewriterRemoveStates()
+void tst_TestCore::testRewriterRemoveStates()
 {
     const QLatin1String qmlString("\n"
                                   "import Qt 4.7\n"
@@ -6070,7 +6070,7 @@ void TestCore::testRewriterRemoveStates()
     QCOMPARE(textEdit.toPlainText(), expected2);
 }
 
-void TestCore::testRewriterRemoveObjectDefinition()
+void tst_TestCore::testRewriterRemoveObjectDefinition()
 {
     const QLatin1String qmlString("\n"
                                   "import Qt 4.7\n"
@@ -6131,7 +6131,7 @@ void TestCore::testRewriterRemoveObjectDefinition()
     node1.destroy();
 }
 
-void TestCore::testRewriterRemoveScriptBinding()
+void tst_TestCore::testRewriterRemoveScriptBinding()
 {
     const QLatin1String qmlString("\n"
                                   "import Qt 4.7\n"
@@ -6182,7 +6182,7 @@ void TestCore::testRewriterRemoveScriptBinding()
     QCOMPARE(textEdit.toPlainText(), expected);
 }
 
-void TestCore::testRewriterNodeReparenting()
+void tst_TestCore::testRewriterNodeReparenting()
 {
     const QLatin1String qmlString("\n"
                                   "import Qt 4.7\n"
@@ -6285,7 +6285,7 @@ void TestCore::testRewriterNodeReparenting()
     QCOMPARE(textEdit.toPlainText(), expected);
 }
 
-void TestCore::testRewriterNodeReparentingWithTransaction()
+void tst_TestCore::testRewriterNodeReparentingWithTransaction()
 {
     const QLatin1String qmlString("\n"
                                   "import Qt 4.7\n"
@@ -6355,7 +6355,7 @@ void TestCore::testRewriterNodeReparentingWithTransaction()
                                  "}");
     QCOMPARE(textEdit.toPlainText(), expected);
 }
-void TestCore::testRewriterMovingInOut()
+void tst_TestCore::testRewriterMovingInOut()
 {
     const QLatin1String qmlString("\n"
                                   "import Qt 4.7\n"
@@ -6411,7 +6411,7 @@ void TestCore::testRewriterMovingInOut()
     QCOMPARE(textEdit.toPlainText(), expected2);
 }
 
-void TestCore::testRewriterMovingInOutWithTransaction()
+void tst_TestCore::testRewriterMovingInOutWithTransaction()
 {
     const QLatin1String qmlString("\n"
                                   "import Qt 4.7\n"
@@ -6462,7 +6462,7 @@ void TestCore::testRewriterMovingInOutWithTransaction()
     QCOMPARE(textEdit.toPlainText(), expected2);
 }
 
-void TestCore::testRewriterComplexMovingInOut()
+void tst_TestCore::testRewriterComplexMovingInOut()
 {
     const QLatin1String qmlString("\n"
                                   "import Qt 4.7\n"
@@ -6560,7 +6560,7 @@ void TestCore::testRewriterComplexMovingInOut()
     QCOMPARE(textEdit.toPlainText(), expected4);
 }
 
-void TestCore::removeCenteredInAnchorByDetaching()
+void tst_TestCore::removeCenteredInAnchorByDetaching()
 {
     QPlainTextEdit textEdit1;
     textEdit1.setPlainText("import Qt 4.7; Item { Rectangle { id: child; anchors.centerIn: parent } }");
@@ -6614,7 +6614,7 @@ void TestCore::removeCenteredInAnchorByDetaching()
 }
 
 
-void TestCore::changePropertyBinding()
+void tst_TestCore::changePropertyBinding()
 {
 
     QScopedPointer<Model> model(Model::create("Qt/Item"));
@@ -6656,7 +6656,7 @@ void TestCore::changePropertyBinding()
 }
 
 
-void TestCore::loadTestFiles()
+void tst_TestCore::loadTestFiles()
 {
     { //empty.qml
         QFile file(":/fx/empty.qml");
@@ -6799,7 +6799,7 @@ static QString rectWithGradient = "import Qt 4.7\n"
                                   "    }\n"
                                   "}";
 
-void TestCore::loadGradient()
+void tst_TestCore::loadGradient()
 {
     QPlainTextEdit textEdit;
     textEdit.setPlainText(rectWithGradient);
@@ -6894,7 +6894,7 @@ void TestCore::loadGradient()
     }
 }
 
-void TestCore::changeGradientId()
+void tst_TestCore::changeGradientId()
 {
     try {
         QPlainTextEdit textEdit;
@@ -6953,4 +6953,4 @@ void TestCore::changeGradientId()
 }
 
 
-QTEST_MAIN(TestCore);
+QTEST_MAIN(tst_TestCore);

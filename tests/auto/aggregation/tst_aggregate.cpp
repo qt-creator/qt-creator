@@ -31,6 +31,8 @@
 
 #include <QtTest/QtTest>
 
+//TESTED_COMPONENT=src/libs/aggregation
+
 class tst_Aggregate : public QObject
 {
     Q_OBJECT

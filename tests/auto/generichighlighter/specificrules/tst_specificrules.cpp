@@ -34,6 +34,7 @@
 
 #include <QtTest/QtTest>
 
+//TESTED_COMPONENT=src/plugins/texteditor/generichighlighter
 using namespace TextEditor;
 using namespace Internal;
 

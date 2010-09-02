@@ -7,13 +7,13 @@ FAKEVIMDIR = ../../../src/plugins/fakevim
 UTILSDIR = ../../../src/libs
 
 SOURCES += \
-	main.cpp \
 	$$FAKEVIMDIR/fakevimhandler.cpp \
 	$$FAKEVIMDIR/fakevimactions.cpp \
 	$$FAKEVIMDIR/fakevimsyntax.cpp \
 	$$UTILSDIR/utils/savedaction.cpp \
 	$$UTILSDIR/utils/pathchooser.cpp \
 	$$UTILSDIR/utils/basevalidatinglineedit.cpp \
+        tst_fakevim.cpp
 
 HEADERS += \
 	$$FAKEVIMDIR/fakevimhandler.h \
@@ -24,5 +24,3 @@ HEADERS += \
 	$$UTILSDIR/utils/basevalidatinglineedit.h \
 
 INCLUDEPATH += $$FAKEVIMDIR $$UTILSDIR
-
-TARGET=tst_$$TARGET

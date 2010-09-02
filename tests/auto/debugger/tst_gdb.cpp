@@ -6,6 +6,7 @@
 //bool checkUninitialized = true;
 bool checkUninitialized = false;
 //#define DO_DEBUG 1
+//TESTED_COMPONENT=src/plugins/debugger/gdb
 
 #include "gdb/gdbmi.h"
 

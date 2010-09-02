@@ -5,7 +5,9 @@
 TARGET = gui
 CONFIG+=console
 TEMPLATE = app
-SOURCES += main.cpp \
-    mainwindow.cpp
+SOURCES += \
+    mainwindow.cpp \
+    tst_gui.cpp
+
 HEADERS += mainwindow.h
 FORMS += mainwindow.ui

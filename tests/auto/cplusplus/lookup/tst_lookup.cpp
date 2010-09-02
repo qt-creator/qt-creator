@@ -13,6 +13,7 @@
 #include <Symbols.h>
 #include <Overview.h>
 
+//TESTED_COMPONENT=src/libs/cplusplus
 using namespace CPlusPlus;
 
 template <template <typename, typename> class _Map, typename _T1, typename _T2>

@@ -1,17 +1,12 @@
-load(qttest_p4)
+TEMPLATE = app
+CONFIG += qt warn_on console depend_includepath
+CONFIG += qtestlib testcase
 
 SOURCES += \
-    proitems.cpp \
-    profileevaluator.cpp \
-    profilereader.cpp \
-    main.cpp
+    tst_profilereader.cpp
 
 HEADERS += \
-    profileevaluator.h \
-    proparserutils.h \
-    proitems.h \
-    abstractproitemvisitor.h \
-    profilereader.h \
     profilecache.h \
     qtversionmanager.h
+
 TARGET=tst_$$TARGET

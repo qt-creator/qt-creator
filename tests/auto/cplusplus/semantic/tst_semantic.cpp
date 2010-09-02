@@ -20,6 +20,7 @@
 #include <ExpressionUnderCursor.h>
 #include <Names.h>
 
+//TESTED_COMPONENT=src/libs/cplusplus
 using namespace CPlusPlus;
 
 class tst_Semantic: public QObject

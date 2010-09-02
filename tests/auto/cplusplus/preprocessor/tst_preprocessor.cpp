@@ -1,6 +1,7 @@
 #include <QtTest>
 #include <pp.h>
 
+//TESTED_COMPONENT=src/libs/cplusplus
 using namespace CPlusPlus;
 
 class tst_Preprocessor: public QObject

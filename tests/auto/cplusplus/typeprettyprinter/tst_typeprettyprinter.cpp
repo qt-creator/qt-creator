@@ -15,6 +15,7 @@
 #include <Scope.h>
 #include <TypePrettyPrinter.h>
 
+//TESTED_COMPONENT=src/libs/cplusplus
 using namespace CPlusPlus;
 
 class tst_TypePrettyPrinter: public QObject

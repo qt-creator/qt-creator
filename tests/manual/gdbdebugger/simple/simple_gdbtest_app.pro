@@ -1,11 +1,12 @@
 TEMPLATE = app
-TARGET = debuggertest
+TARGET = simple_gdbtest_app
 DEPENDPATH += .
 INCLUDEPATH += .
 DESTDIR = .
 
 # Input
-SOURCES += app.cpp
+SOURCES += \
+    simple_gdbtest_app.cpp
 
 # SOURCES += ../../../share/qtcreator/gdbmacros/gdbmacros.cpp
 QT += network

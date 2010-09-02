@@ -35,11 +35,11 @@
 #include <QtTest>
 
 
-class TestCore : public QObject
+class tst_TestCore : public QObject
 {
     Q_OBJECT
 public:
-    TestCore();
+    tst_TestCore();
 
 private slots:
     void initTestCase();

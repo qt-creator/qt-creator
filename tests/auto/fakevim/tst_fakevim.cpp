@@ -36,6 +36,7 @@
 
 #include <QtTest/QtTest>
 
+//TESTED_COMPONENT=src/plugins/fakevim
 using namespace FakeVim;
 using namespace FakeVim::Internal;
 
@@ -863,10 +864,10 @@ int main(int argc, char *argv[])
 //
 //////////////////////////////////////////////////////////////////////////
 
-int main(int argc, char *argv[]) \
+int main(int argc, char *argv[])
 {
     int res = 0;
-    QApplication app(argc, argv); \
+    QApplication app(argc, argv);
 
     // Test with QPlainTextEdit.
     tst_FakeVim plaintextedit(true);
@@ -881,5 +882,4 @@ int main(int argc, char *argv[]) \
     return res;
 }
 
-
-#include "main.moc"
+#include "tst_fakevim.moc"

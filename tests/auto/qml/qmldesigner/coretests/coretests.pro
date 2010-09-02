@@ -24,10 +24,12 @@ TARGET = tst_qmldesigner_core
 CONFIG += console
 CONFIG -= app_bundle
 TEMPLATE = app
-SOURCES += testcore.cpp \
+SOURCES += \
     ../testview.cpp \
-    testrewriterview.cpp
-HEADERS += testcore.h \
+    testrewriterview.cpp \
+    tst_testcore.cpp
+HEADERS += \
     ../testview.h \
-    testrewriterview.h
+    testrewriterview.h \
+    tst_testcore.h
 RESOURCES += ../data/testfiles.qrc

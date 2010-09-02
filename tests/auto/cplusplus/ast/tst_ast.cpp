@@ -7,6 +7,7 @@
 #include <Parser.h>
 #include <AST.h>
 
+//TESTED_COMPONENT=src/libs/cplusplus
 using namespace CPlusPlus;
 
 class tst_AST: public QObject

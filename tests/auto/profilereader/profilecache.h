@@ -30,7 +30,7 @@
 #ifndef PROFILECACHE_H
 #define PROFILECACHE_H
 
-#include "proitems.h"
+#include <proitems.h>
 #include <QString>
 
 namespace Qt4ProjectManager {
