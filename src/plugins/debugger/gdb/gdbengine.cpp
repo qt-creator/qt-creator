@@ -4070,6 +4070,8 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
             "dyld \".*CarbonDataFormatters.*\" all");
     }
 
+    loadPythonDumpers();
+
     QString scriptFileName = theDebuggerStringSetting(GdbScriptFile);
     if (!scriptFileName.isEmpty()) {
         if (QFileInfo(scriptFileName).isReadable()) {
@@ -4083,7 +4085,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
               ).arg(scriptFileName));
         }
     }
-    loadPythonDumpers();
+
     return true;
 }
 
