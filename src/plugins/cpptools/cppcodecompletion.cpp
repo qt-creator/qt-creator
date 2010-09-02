@@ -181,7 +181,7 @@ protected:
         return item;
     }
 
-    virtual void visit(const NameId *name)
+    virtual void visit(const Identifier *name)
     { _item = newCompletionItem(name); }
 
     virtual void visit(const TemplateNameId *name)

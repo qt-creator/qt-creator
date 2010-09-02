@@ -68,7 +68,7 @@ public:
     virtual bool preVisit(const Name *) { return true; }
     virtual void postVisit(const Name *) {}
 
-    virtual void visit(const NameId *) {}
+    virtual void visit(const Identifier *) {}
     virtual void visit(const TemplateNameId *) {}
     virtual void visit(const DestructorNameId *) {}
     virtual void visit(const OperatorNameId *) {}

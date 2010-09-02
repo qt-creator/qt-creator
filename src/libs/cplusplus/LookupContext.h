@@ -80,9 +80,9 @@ private:
     QList<LookupItem> lookup_helper(const Name *name, bool searchInEnclosingScope);
 
     void lookup_helper(const Name *name, ClassOrNamespace *binding,
-                            QList<LookupItem> *result,
-                            QSet<ClassOrNamespace *> *processed,
-                            const TemplateNameId *templateId);
+                       QList<LookupItem> *result,
+                       QSet<ClassOrNamespace *> *processed,
+                       const TemplateNameId *templateId);
 
     ClassOrNamespace *lookupType_helper(const Name *name, QSet<ClassOrNamespace *> *processed,
                                         bool searchInEnclosingScope);

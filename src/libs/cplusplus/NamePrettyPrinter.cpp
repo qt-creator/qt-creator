@@ -62,7 +62,7 @@ QString NamePrettyPrinter::switchName(const QString &name)
     return previousName;
 }
 
-void NamePrettyPrinter::visit(const NameId *name)
+void NamePrettyPrinter::visit(const Identifier *name)
 {
     const Identifier *id = name->identifier();
     if (id)

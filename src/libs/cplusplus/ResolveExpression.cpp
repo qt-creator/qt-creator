@@ -231,8 +231,8 @@ bool ResolveExpression::visit(NewExpressionAST *ast)
 
 bool ResolveExpression::visit(TypeidExpressionAST *)
 {
-    const Name *stdName = control()->nameId(control()->identifier("std"));
-    const Name *tiName = control()->nameId(control()->identifier("type_info"));
+    const Name *stdName = control()->identifier("std");
+    const Name *tiName = control()->identifier("type_info");
     const Name *q = control()->qualifiedNameId(control()->qualifiedNameId(/* :: */ 0, stdName), tiName);
 
     FullySpecifiedType ty(control()->namedType(q));

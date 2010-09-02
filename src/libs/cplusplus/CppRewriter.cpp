@@ -242,9 +242,9 @@ public:
             temps.append(control()->qualifiedNameId(base, n));
         }
 
-        virtual void visit(const NameId *name)
+        virtual void visit(const Identifier *name)
         {
-            temps.append(control()->nameId(identifier(name->identifier())));
+            temps.append(control()->identifier(name->chars(), name->size()));
         }
 
         virtual void visit(const TemplateNameId *name)

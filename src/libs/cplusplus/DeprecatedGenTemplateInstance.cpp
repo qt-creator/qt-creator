@@ -231,7 +231,7 @@ private:
             return previousType;
         }
 
-        virtual void visit(const NameId *name)
+        virtual void visit(const Identifier *name)
         {
             int index = findSubstitution(name->identifier());
 
@@ -261,10 +261,9 @@ private:
             if (! name)
                 return name;
 
-            else if (const Name *nameId = name->asNameId()) {
-                const Identifier *id = control()->identifier(nameId->identifier()->chars(),
-                                                                         nameId->identifier()->size());
-                return control()->nameId(id);
+            else if (const Identifier *nameId = name->asNameId()) {
+                const Identifier *id = control()->identifier(nameId->chars(), nameId->size());
+                return id;
 
             } else if (const TemplateNameId *templId = name->asTemplateNameId()) {
                 QVarLengthArray<FullySpecifiedType, 8> arguments(templId->templateArgumentCount());

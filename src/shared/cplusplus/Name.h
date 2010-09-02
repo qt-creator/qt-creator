@@ -70,7 +70,7 @@ public:
     bool isQualifiedNameId() const;
     bool isSelectorNameId() const;
 
-    virtual const NameId *asNameId() const { return 0; }
+    virtual const Identifier *asNameId() const { return 0; }
     virtual const TemplateNameId *asTemplateNameId() const { return 0; }
     virtual const DestructorNameId *asDestructorNameId() const { return 0; }
     virtual const OperatorNameId *asOperatorNameId() const { return 0; }

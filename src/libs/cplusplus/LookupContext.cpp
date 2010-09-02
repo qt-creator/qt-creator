@@ -854,7 +854,7 @@ bool CreateBindings::visit(Declaration *decl)
                     qDebug() << "found entity not found for" << oo(namedTy->name());
                 }
             } else if (Class *klass = ty->asClassType()) {
-                if (const NameId *nameId = decl->name()->asNameId()) {
+                if (const Identifier *nameId = decl->name()->asNameId()) {
                     ClassOrNamespace *binding = _currentClassOrNamespace->findOrCreateType(nameId);
                     binding->addSymbol(klass);
                 }
@@ -885,7 +885,7 @@ bool CreateBindings::visit(UsingDeclaration *u)
 {
     if (u->name()) {
         if (const QualifiedNameId *q = u->name()->asQualifiedNameId()) {
-            if (const NameId *unqualifiedId = q->name()->asNameId()) {
+            if (const Identifier *unqualifiedId = q->name()->asNameId()) {
                 if (ClassOrNamespace *delegate = _currentClassOrNamespace->lookupType(q)) {
                     ClassOrNamespace *b = _currentClassOrNamespace->findOrCreateType(unqualifiedId);
                     b->addUsing(delegate);

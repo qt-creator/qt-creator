@@ -83,7 +83,7 @@ class SymbolTable;
 // names
 class NameVisitor;
 class Name;
-class NameId;
+class Identifier;
 class TemplateNameId;
 class DestructorNameId;
 class OperatorNameId;

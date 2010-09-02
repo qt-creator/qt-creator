@@ -49,7 +49,7 @@ public:
 protected:
     QString switchName(const QString &name = QString());
 
-    virtual void visit(const NameId *name);
+    virtual void visit(const Identifier *name);
     virtual void visit(const TemplateNameId *name);
     virtual void visit(const DestructorNameId *name);
     virtual void visit(const OperatorNameId *name);

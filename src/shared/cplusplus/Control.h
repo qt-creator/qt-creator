@@ -65,9 +65,6 @@ public:
     DiagnosticClient *diagnosticClient() const;
     void setDiagnosticClient(DiagnosticClient *diagnosticClient);
 
-    /// Returns the canonical name id.
-    const NameId *nameId(const Identifier *id);
-
     /// Returns the canonical template name id.
     const TemplateNameId *templateNameId(const Identifier *id,
                                          const FullySpecifiedType *const args = 0,

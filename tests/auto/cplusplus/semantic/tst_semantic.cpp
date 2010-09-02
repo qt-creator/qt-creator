@@ -179,7 +179,7 @@ void tst_Semantic::function_declaration_2()
     QVERIFY(! arg->hasInitializer());
 
     // check the argument's name.
-    const NameId *argNameId = arg->name()->asNameId();
+    const Identifier *argNameId = arg->name()->asNameId();
     QVERIFY(argNameId);
 
     const Identifier *argId = argNameId->identifier();
@@ -243,7 +243,7 @@ void tst_Semantic::nested_class_1()
     Class *classObject = doc->globals->memberAt(0)->asClass();
     QVERIFY(classObject);
     QVERIFY(classObject->name());
-    const NameId *classObjectNameId = classObject->name()->asNameId();
+    const Identifier *classObjectNameId = classObject->name()->asNameId();
     QVERIFY(classObjectNameId);
     const Identifier *objectId = classObjectNameId->identifier();
     QCOMPARE(QByteArray(objectId->chars(), objectId->size()), QByteArray("Object"));

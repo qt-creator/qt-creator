@@ -303,7 +303,7 @@ const Name *Bind::objCSelectorArgument(ObjCSelectorArgumentAST *ast, bool *hasAr
     if (ast->colon_token)
         *hasArg = true;
 
-    return control()->nameId(identifier(ast->name_token));
+    return identifier(ast->name_token);
 }
 
 bool Bind::visit(AttributeAST *ast)
@@ -468,7 +468,7 @@ void Bind::enumerator(EnumeratorAST *ast, Enum *symbol)
     ExpressionTy expression = this->expression(ast->expression);
 
     if (ast->identifier_token) {
-        const Name *name = control()->nameId(identifier(ast->identifier_token));
+        const Name *name = identifier(ast->identifier_token);
         Declaration *e = control()->newDeclaration(ast->identifier_token, name);
         e->setType(control()->integerType(IntegerType::Int)); // ### introduce IntegerType::Enumerator
         symbol->addMember(e);
@@ -1143,20 +1143,20 @@ bool Bind::visit(QtMemberDeclarationAST *ast)
     const Name *name = 0;
 
     if (tokenKind(ast->q_token) == T_Q_D)
-        name = control()->nameId(control()->identifier("d"));
+        name = control()->identifier("d");
     else
-        name = control()->nameId(control()->identifier("q"));
+        name = control()->identifier("q");
 
     FullySpecifiedType declTy = this->expression(ast->type_id);
 
     if (tokenKind(ast->q_token) == T_Q_D) {
         if (NamedType *namedTy = declTy->asNamedType()) {
-            if (const NameId *nameId = namedTy->name()->asNameId()) {
+            if (const Identifier *nameId = namedTy->name()->asNameId()) {
                 std::string privateClass;
                 privateClass += nameId->identifier()->chars();
                 privateClass += "Private";
 
-                const Name *privName = control()->nameId(control()->identifier(privateClass.c_str(), privateClass.size()));
+                const Name *privName = control()->identifier(privateClass.c_str(), privateClass.size());
                 declTy.setType(control()->namedType(privName));
             }
         }
@@ -1987,7 +1987,7 @@ bool Bind::visit(NamespaceAST *ast)
     const Name *namespaceName = 0;
     if (ast->identifier_token) {
         sourceLocation = ast->identifier_token;
-        namespaceName = control()->nameId(identifier(ast->identifier_token));
+        namespaceName = identifier(ast->identifier_token);
     }
 
     Namespace *ns = control()->newNamespace(sourceLocation, namespaceName);
@@ -2008,7 +2008,7 @@ bool Bind::visit(NamespaceAliasDefinitionAST *ast)
     const Name *name = 0;
     if (ast->namespace_name_token) {
         sourceLocation = ast->namespace_name_token;
-        name = control()->nameId(identifier(ast->namespace_name_token));
+        name = identifier(ast->namespace_name_token);
     }
 
     NamespaceAlias *namespaceAlias = control()->newNamespaceAlias(sourceLocation, name);
@@ -2444,14 +2444,16 @@ bool Bind::visit(ConversionFunctionIdAST *ast)
 bool Bind::visit(SimpleNameAST *ast)
 {
     const Identifier *id = identifier(ast->identifier_token);
-    ast->name = _name = control()->nameId(id);
+    _name = id;
+    ast->name = _name;
     return false;
 }
 
 bool Bind::visit(DestructorNameAST *ast)
 {
     const Identifier *id = identifier(ast->identifier_token);
-    ast->name = _name = control()->destructorNameId(id);
+    _name = control()->destructorNameId(id);
+    ast->name = _name;
     return false;
 }
 

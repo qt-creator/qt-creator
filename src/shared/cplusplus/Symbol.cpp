@@ -85,7 +85,7 @@ protected:
         return previousValue;
     }
 
-    virtual void visit(const NameId *name)
+    virtual void visit(const Identifier *name)
     { _value = name->identifier()->hashCode(); }
 
     virtual void visit(const TemplateNameId *name)

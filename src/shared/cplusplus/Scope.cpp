@@ -94,7 +94,6 @@ public:
     /// Returns the last Symbol in the scope.
     iterator lastSymbol() const;
 
-    Symbol *lookat(const Name *name) const;
     Symbol *lookat(const Identifier *id) const;
     Symbol *lookat(int operatorId) const;
 
@@ -157,21 +156,6 @@ void SymbolTable::enterSymbol(Symbol *symbol)
     }
 }
 
-Symbol *SymbolTable::lookat(const Name *name) const
-{
-    if (! name)
-        return 0;
-
-    else if (const OperatorNameId *opId = name->asOperatorNameId())
-        return lookat(opId->kind());
-
-    else if (const Identifier *id = name->identifier())
-        return lookat(id);
-
-    else
-        return 0;
-}
-
 Symbol *SymbolTable::lookat(const Identifier *id) const
 {
     if (! _hash || ! id)
@@ -183,7 +167,7 @@ Symbol *SymbolTable::lookat(const Identifier *id) const
         const Name *identity = symbol->unqualifiedName();
         if (! identity) {
             continue;
-        } else if (const NameId *nameId = identity->asNameId()) {
+        } else if (const Identifier *nameId = identity->asNameId()) {
             if (nameId->identifier()->isEqualTo(id))
                 break;
         } else if (const TemplateNameId *t = identity->asTemplateNameId()) {
@@ -302,9 +286,6 @@ Scope::iterator Scope::firstMember() const
 /// Returns the last Symbol in the scope.
 Scope::iterator Scope::lastMember() const
 { return _members ? _members->lastSymbol() : 0; }
-
-Symbol *Scope::find(const Name *name) const
-{ return _members ? _members->lookat(name) : 0; }
 
 Symbol *Scope::find(const Identifier *id) const
 { return _members ? _members->lookat(id) : 0; }

@@ -31,8 +31,8 @@ Q_DECLARE_METATYPE(CPlusPlus::FullySpecifiedType);
 
 TranslationUnit *unit;
 
-NameId *nameId(const QString &name)
-{ return new NameId(new Identifier(name.toLatin1().constData(), name.toLatin1().size())); }
+const Identifier *nameId(const QString &name)
+{ return new Identifier(name.toLatin1().constData(), name.toLatin1().size()); }
 
 Argument *arg(const QString &name, const FullySpecifiedType &ty)
 {

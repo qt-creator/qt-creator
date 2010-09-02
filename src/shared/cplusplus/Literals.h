@@ -51,7 +51,7 @@
 
 #include "CPlusPlusForwardDeclarations.h"
 #include "Token.h"
-
+#include "Name.h"
 
 namespace CPlusPlus {
 
@@ -78,7 +78,7 @@ public:
     unsigned hashCode() const;
     static unsigned hashCode(const char *chars, unsigned size);
 
-    bool isEqualTo(const Literal *other) const;
+    bool equalTo(const Literal *other) const;
 
 private:
     char *_chars;
@@ -126,11 +126,21 @@ private:
     };
 };
 
-class CPLUSPLUS_EXPORT Identifier: public Literal
+class CPLUSPLUS_EXPORT Identifier: public Literal, public Name
 {
 public:
     Identifier(const char *chars, unsigned size);
     virtual ~Identifier();
+
+    virtual const Identifier *identifier() const { return this; }
+
+    virtual bool isEqualTo(const Name *other) const;
+
+    virtual const Identifier *asNameId() const
+    { return this; }
+
+protected:
+    virtual void accept0(NameVisitor *visitor) const;
 };
 
 } // end of namespace CPlusPlus

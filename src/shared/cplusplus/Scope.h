@@ -80,7 +80,6 @@ public:
     /// Returns the last Symbol in the scope.
     iterator lastMember() const;
 
-    Symbol *find(const Name *name) const;
     Symbol *find(const Identifier *id) const;
     Symbol *find(int operatorId) const;
 

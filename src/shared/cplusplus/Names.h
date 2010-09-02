@@ -82,26 +82,6 @@ private:
     const Name *_name;
 };
 
-class CPLUSPLUS_EXPORT NameId: public Name
-{
-public:
-    NameId(const Identifier *identifier);
-    virtual ~NameId();
-
-    virtual const Identifier *identifier() const;
-
-    virtual bool isEqualTo(const Name *other) const;
-
-    virtual const NameId *asNameId() const
-    { return this; }
-
-protected:
-    virtual void accept0(NameVisitor *visitor) const;
-
-private:
-    const Identifier *_identifier;
-};
-
 class CPLUSPLUS_EXPORT DestructorNameId: public Name
 {
 public:

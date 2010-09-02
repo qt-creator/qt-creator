@@ -47,6 +47,7 @@
 // THE SOFTWARE.
 
 #include "Literals.h"
+#include "NameVisitor.h"
 #include <cstring>
 #include <algorithm>
 #include <iostream>
@@ -69,7 +70,7 @@ Literal::Literal(const char *chars, unsigned size)
 Literal::~Literal()
 { delete[] _chars; }
 
-bool Literal::isEqualTo(const Literal *other) const
+bool Literal::equalTo(const Literal *other) const
 {
     if (! other)
         return false;
@@ -212,3 +213,18 @@ Identifier::Identifier(const char *chars, unsigned size)
 Identifier::~Identifier()
 { }
 
+void Identifier::accept0(NameVisitor *visitor) const
+{ visitor->visit(this); }
+
+bool Identifier::isEqualTo(const Name *other) const
+{
+    if (this == other)
+        return true;
+
+    else if (other) {
+        if (const Identifier *nameId = other->asNameId()) {
+            return equalTo(nameId);
+        }
+    }
+    return false;
+}

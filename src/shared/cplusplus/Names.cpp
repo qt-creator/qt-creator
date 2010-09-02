@@ -90,32 +90,6 @@ bool QualifiedNameId::isEqualTo(const Name *other) const
     return false;
 }
 
-NameId::NameId(const Identifier *identifier)
-    : _identifier(identifier)
-{ }
-
-NameId::~NameId()
-{ }
-
-void NameId::accept0(NameVisitor *visitor) const
-{ visitor->visit(this); }
-
-const Identifier *NameId::identifier() const
-{ return _identifier; }
-
-bool NameId::isEqualTo(const Name *other) const
-{
-    if (other) {
-        const NameId *nameId = other->asNameId();
-        if (! nameId)
-            return false;
-        const Identifier *l = identifier();
-        const Identifier *r = nameId->identifier();
-        return l->isEqualTo(r);
-    }
-    return false;
-}
-
 DestructorNameId::DestructorNameId(const Identifier *identifier)
     : _identifier(identifier)
 { }

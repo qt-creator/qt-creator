@@ -129,14 +129,6 @@ template <> struct Compare<ArrayType>
     }
 };
 
-template <> struct Compare<NameId>
-{
-    bool operator()(const NameId &name, const NameId &otherName) const
-    {
-        return name.identifier() < otherName.identifier();
-    }
-};
-
 template <> struct Compare<DestructorNameId>
 {
     bool operator()(const DestructorNameId &name, const DestructorNameId &otherName) const
@@ -254,14 +246,6 @@ public:
     {
         // symbols
         delete_array_entries(symbols);
-    }
-
-    const NameId *findOrInsertNameId(const Identifier *id)
-    {
-        if (! id)
-            return 0;
-
-        return nameIds.intern(NameId(id));
     }
 
     template <typename _Iterator>
@@ -498,7 +482,6 @@ public:
     // ### replace std::map with lookup tables. ASAP!
 
     // names
-    Table<NameId> nameIds;
     Table<DestructorNameId> destructorNameIds;
     Table<OperatorNameId> operatorNameIds;
     Table<ConversionNameId> conversionNameIds;
@@ -615,9 +598,6 @@ const NumericLiteral *Control::numericLiteral(const char *chars)
     unsigned length = std::strlen(chars);
     return numericLiteral(chars, length);
 }
-
-const NameId *Control::nameId(const Identifier *id)
-{ return d->findOrInsertNameId(id); }
 
 const TemplateNameId *Control::templateNameId(const Identifier *id,
                                               const FullySpecifiedType *const args,
