@@ -44,16 +44,22 @@ class MsvcParser :  public ProjectExplorer::IOutputParser
 
 public:
     MsvcParser();
+    ~MsvcParser();
 
-    virtual void stdOutput(const QString &line);
-    virtual void stdError(const QString &line);
+    void stdOutput(const QString &line);
+    void stdError(const QString &line);
+    void flush();
 
 private:
+    void sendQueuedTask();
     Task::TaskType toType(int number);
+
     QRegExp m_compileRegExp;
     QRegExp m_additionalInfoRegExp;
     QRegExp m_linkRegExp;
     QRegExp m_nonFileRegExp;
+
+    Task m_lastTask;
 };
 
 } // namespace ProjectExplorer

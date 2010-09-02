@@ -48,52 +48,82 @@ MsvcParser::MsvcParser()
     m_nonFileRegExp.setMinimal(true);
 }
 
+MsvcParser::~MsvcParser()
+{
+    sendQueuedTask();
+}
+
 void MsvcParser::stdOutput(const QString &line)
 {
-    QString lne = line.trimmed();
-    if (m_compileRegExp.indexIn(lne) > -1 && m_compileRegExp.numCaptures() == 5) {
-        Task task(Task::Unknown,
-                  m_compileRegExp.cap(4) /* description */,
-                  m_compileRegExp.cap(1) /* filename */,
-                  m_compileRegExp.cap(2).toInt() /* linenumber */,
-                  Constants::TASK_CATEGORY_COMPILE);
+    if (line.startsWith(QLatin1String("        ")) && m_additionalInfoRegExp.indexIn(line) < 0) {
+        if (m_lastTask.isNull())
+            return;
+
+        m_lastTask.description.append(QChar('\n'));
+        m_lastTask.description.append(line.mid(8));
+        // trim trailing spaces:
+        int i = 0;
+        for (i = m_lastTask.description.length() - 1; i >= 0; --i) {
+            if (!m_lastTask.description.at(i).isSpace())
+                break;
+        }
+        m_lastTask.description.truncate(i + 1);
+
+        if (m_lastTask.formats.isEmpty()) {
+            QTextLayout::FormatRange fr;
+            fr.start = m_lastTask.description.indexOf('\n') + 1;
+            fr.length = m_lastTask.description.length() - fr.start;
+            fr.format.setFontItalic(true);
+            m_lastTask.formats.append(fr);
+        } else {
+            m_lastTask.formats[0].length = m_lastTask.description.length() - m_lastTask.formats[0].start;
+        }
+        return;
+    }
+    sendQueuedTask();
+
+    if (m_compileRegExp.indexIn(line) > -1 && m_compileRegExp.numCaptures() == 5) {
+        m_lastTask = Task(Task::Unknown,
+                          m_compileRegExp.cap(4).trimmed() /* description */,
+                          m_compileRegExp.cap(1) /* filename */,
+                          m_compileRegExp.cap(2).toInt() /* linenumber */,
+                          Constants::TASK_CATEGORY_COMPILE);
         if (m_compileRegExp.cap(3) == QLatin1String(" warning"))
-            task.type = Task::Warning;
+            m_lastTask.type = Task::Warning;
         else if (m_compileRegExp.cap(3) == QLatin1String(" error"))
-            task.type = Task::Error;
+            m_lastTask.type = Task::Error;
         else
-            task.type = toType(m_compileRegExp.cap(5).toInt());
-        addTask(task);
+            m_lastTask.type = toType(m_compileRegExp.cap(5).toInt());
         return;
     }
     if (m_additionalInfoRegExp.indexIn(line) > -1 && m_additionalInfoRegExp.numCaptures() == 3) {
-        addTask(Task(Task::Unknown,
-                     m_additionalInfoRegExp.cap(3),
-                     m_additionalInfoRegExp.cap(1),
-                     m_additionalInfoRegExp.cap(2).toInt(),
-                     Constants::TASK_CATEGORY_COMPILE));
+        m_lastTask = Task(Task::Unknown,
+                          m_additionalInfoRegExp.cap(3).trimmed(),
+                          m_additionalInfoRegExp.cap(1),
+                          m_additionalInfoRegExp.cap(2).toInt(),
+                          Constants::TASK_CATEGORY_COMPILE);
         return;
     }
-    if (m_linkRegExp.indexIn(lne) > -1 && m_linkRegExp.numCaptures() == 3) {
+    if (m_linkRegExp.indexIn(line) > -1 && m_linkRegExp.numCaptures() == 3) {
         QString fileName = m_linkRegExp.cap(1);
         if (fileName.contains(QLatin1String("LINK"), Qt::CaseSensitive))
             fileName.clear();
 
-        emit addTask(Task(toType(m_linkRegExp.cap(2).toInt()) /* task type */,
-                          m_linkRegExp.cap(3) /* description */,
+        m_lastTask = Task(toType(m_linkRegExp.cap(2).toInt()) /* task type */,
+                          m_linkRegExp.cap(3).trimmed() /* description */,
                           fileName /* filename */,
                           -1 /* line number */,
-                          Constants::TASK_CATEGORY_COMPILE));
+                          Constants::TASK_CATEGORY_COMPILE);
         return;
     }
-    if (m_nonFileRegExp.indexIn(lne) > -1) {
+    if (m_nonFileRegExp.indexIn(line) > -1) {
         Task::TaskType type = Task::Unknown;
         if (m_nonFileRegExp.cap(2) == QLatin1String("warning"))
             type = Task::Warning;
         if (m_nonFileRegExp.cap(2) == QLatin1String("error"))
             type = Task::Error;
-        emit addTask(Task(type, m_nonFileRegExp.cap(3) /* description */,
-                          QString(), -1, Constants::TASK_CATEGORY_COMPILE));
+        m_lastTask = Task(type, m_nonFileRegExp.cap(3).trimmed() /* description */,
+                          QString(), -1, Constants::TASK_CATEGORY_COMPILE);
         return;
     }
     IOutputParser::stdOutput(line);
@@ -101,6 +131,8 @@ void MsvcParser::stdOutput(const QString &line)
 
 void MsvcParser::stdError(const QString &line)
 {
+    sendQueuedTask();
+
     if (m_nonFileRegExp.indexIn(line) > -1) {
         Task::TaskType type = Task::Unknown;
         if (m_nonFileRegExp.cap(2) == QLatin1String("warning"))
@@ -112,6 +144,15 @@ void MsvcParser::stdError(const QString &line)
         return;
     }
     IOutputParser::stdError(line);
+}
+
+void MsvcParser::sendQueuedTask()
+{
+    if (m_lastTask.isNull())
+        return;
+
+    addTask(m_lastTask);
+    m_lastTask = Task();
 }
 
 Task::TaskType MsvcParser::toType(int number)
@@ -212,6 +253,26 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
                 << Task(Task::Warning,
                         QLatin1String("D9002 : ignoring unknown option '-fopenmp'"),
                         QString(), -1,
+                        QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
+            << QString();
+    QTest::newRow("complex error")
+            << QString::fromLatin1("..\\untitled\\main.cpp(19) : error C2440: 'initializing' : cannot convert from 'int' to 'std::_Tree<_Traits>::iterator'\n"
+                                   "        with\n"
+                                   "        [\n"
+                                   "            _Traits=std::_Tmap_traits<int,double,std::less<int>,std::allocator<std::pair<const int,double>>,false>\n"
+                                   "        ]\n"
+                                   "        No constructor could take the source type, or constructor overload resolution was ambiguous")
+            << OutputParserTester::STDOUT
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Error,
+                        QLatin1String("C2440: 'initializing' : cannot convert from 'int' to 'std::_Tree<_Traits>::iterator'\n"
+                                      "with\n"
+                                      "[\n"
+                                      "    _Traits=std::_Tmap_traits<int,double,std::less<int>,std::allocator<std::pair<const int,double>>,false>\n"
+                                      "]\n"
+                                      "No constructor could take the source type, or constructor overload resolution was ambiguous"),
+                        QLatin1String("..\\untitled\\main.cpp"), 19,
                         QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
             << QString();
 }
