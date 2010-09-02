@@ -124,7 +124,7 @@ ProFileParser::ProFileParser(ProFileCache *cache, ProFileParserHandler *handler)
     initialize();
 }
 
-ProFile *ProFileParser::parsedProFile(const QString &fileName, bool cache, const QString &contents)
+ProFile *ProFileParser::parsedProFile(const QString &fileName, bool cache, const QString *contents)
 {
     ProFile *pro;
     if (cache && m_cache) {
@@ -156,7 +156,7 @@ ProFile *ProFileParser::parsedProFile(const QString &fileName, bool cache, const
             locker.unlock();
 #endif
             pro = new ProFile(fileName);
-            if (!(contents.isNull() ? read(pro) : read(pro, contents))) {
+            if (!(!contents ? read(pro) : read(pro, *contents))) {
                 delete pro;
                 pro = 0;
             } else {
@@ -176,7 +176,7 @@ ProFile *ProFileParser::parsedProFile(const QString &fileName, bool cache, const
         }
     } else {
         pro = new ProFile(fileName);
-        if (!(contents.isNull() ? read(pro) : read(pro, contents))) {
+        if (!(!contents ? read(pro) : read(pro, *contents))) {
             delete pro;
             pro = 0;
         }

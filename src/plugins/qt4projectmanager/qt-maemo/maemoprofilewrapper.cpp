@@ -227,7 +227,7 @@ void MaemoProFileWrapper::parseProFile(ParseType type) const
     m_proFileReader->setCumulative(false);
     // TODO: Set output dir to build dir?
     if (type == ParseFromLines) {
-        m_proFile = m_proFileReader->parsedProFile(m_proFileName, false,
+        m_proFile = m_proFileReader->parsedProBlock(m_proFileName,
             m_proFileContents.join("\n"));
     } else {
         m_proFileContents.clear();

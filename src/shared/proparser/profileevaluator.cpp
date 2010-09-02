@@ -1274,8 +1274,8 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
                 tgt.append(ProString(QFileInfo(pro->fileName()).baseName(), NoHash));
 
         if (!m_cmdArgs.isEmpty()) {
-            if (ProFile *pro = m_parser->parsedProFile(
-                    fL1S("(command line)"), false, m_cmdArgs.join(fL1S("\n")))) {
+            if (ProFile *pro = m_parser->parsedProBlock(
+                    fL1S("(command line)"), m_cmdArgs.join(fL1S("\n")))) {
                 m_locationStack.push(m_current);
                 visitProBlock(pro, pro->tokPtr());
                 m_current = m_locationStack.pop();
@@ -2420,8 +2420,8 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
         case T_REQUIRES:
 #endif
         case T_EVAL: {
-                ProFile *pro = m_parser->parsedProFile(fL1S("(eval)"), false,
-                                                       args.join(statics.field_sep));
+                ProFile *pro = m_parser->parsedProBlock(fL1S("(eval)"),
+                                                        args.join(statics.field_sep));
                 if (!pro)
                     return ReturnFalse;
                 m_locationStack.push(m_current);

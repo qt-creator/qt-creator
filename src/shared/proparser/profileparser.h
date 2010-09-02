@@ -70,7 +70,9 @@ public:
     // fileName is expected to be absolute and cleanPath()ed.
     // If contents is non-null, it will be used instead of the file's actual content
     ProFile *parsedProFile(const QString &fileName, bool cache = false,
-                           const QString &contents = QString());
+                           const QString *contents = 0);
+    ProFile *parsedProBlock(const QString &name, const QString &contents)
+        { return parsedProFile(name, false, &contents); }
 
 private:
     struct BlockScope {

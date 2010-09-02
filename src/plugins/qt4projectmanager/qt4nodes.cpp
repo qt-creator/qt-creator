@@ -1050,7 +1050,7 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
 
         ProMessageHandler handler;
         ProFileParser parser(0, &handler);
-        includeFile = parser.parsedProFile(m_projectFilePath, false, contents);
+        includeFile = parser.parsedProBlock(m_projectFilePath, contents);
     }
 
     const QStringList vars = varNames(fileType);
