@@ -39,9 +39,12 @@
 #include <QtGui/QMessageBox>
 
 #ifdef Q_OS_WIN
+#    ifdef __GNUC__  // Required for OpenThread under MinGW
+#        define _WIN32_WINNT 0x0502
+#    endif // __GNUC__
 #    include <windows.h>
 #    include <utils/winutils.h>
-#endif
+#endif // Q_OS_WIN
 
 namespace Debugger {
 namespace Internal {
