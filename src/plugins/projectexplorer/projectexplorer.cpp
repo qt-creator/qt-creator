@@ -2116,7 +2116,6 @@ void ProjectExplorerPlugin::openFile()
     QTC_ASSERT(d->m_currentNode, return)
     Core::EditorManager *em = Core::EditorManager::instance();
     em->openEditor(d->m_currentNode->path());
-    em->ensureEditorManagerVisible();
 }
 
 void ProjectExplorerPlugin::showInGraphicalShell()
@@ -2312,7 +2311,6 @@ void ProjectExplorerPlugin::openEditorFromAction(QAction *action, const QString 
         }
 
         em->openEditor(fileName, factory->id());
-        em->ensureEditorManagerVisible();
         return;
     }
     if (qVariantCanConvert<Core::IExternalEditor *>(data)) {

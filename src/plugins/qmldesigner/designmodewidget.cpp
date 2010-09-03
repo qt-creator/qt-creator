@@ -130,7 +130,7 @@ void DocumentWarningWidget::setError(const RewriterView::Error &error)
 void DocumentWarningWidget::goToError()
 {
     m_designModeWidget->textEditor()->gotoLine(m_error.line(), m_error.column());
-    Core::EditorManager::instance()->ensureEditorManagerVisible();
+    Core::ModeManager::instance()->activateMode(Core::Constants::MODE_EDIT);
 }
 
 // ---------- DesignModeWidget

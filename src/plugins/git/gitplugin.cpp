@@ -679,7 +679,6 @@ Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const Commit
     Core::IEditor *editor = m_core->editorManager()->openEditor(fileName, QLatin1String(Constants::GITSUBMITEDITOR_ID));
     if (Git::Constants::debug)
         qDebug() << Q_FUNC_INFO << fileName << editor;
-    m_core->editorManager()->ensureEditorManagerVisible();
     GitSubmitEditor *submitEditor = qobject_cast<GitSubmitEditor*>(editor);
     QTC_ASSERT(submitEditor, return 0);
     // The actions are for some reason enabled by the context switching

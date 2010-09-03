@@ -170,10 +170,8 @@ void CppToolsPlugin::switchHeaderSource()
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     Core::IEditor *editor = editorManager->currentEditor();
     QString otherFile = correspondingHeaderOrSource(editor->file()->fileName());
-    if (!otherFile.isEmpty()) {
+    if (!otherFile.isEmpty())
         editorManager->openEditor(otherFile);
-        editorManager->ensureEditorManagerVisible();
-    }
 }
 
 QFileInfo CppToolsPlugin::findFile(const QDir &dir, const QString &name,

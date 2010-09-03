@@ -103,7 +103,6 @@ void FileSystemFilter::accept(FilterEntry selection) const
         return;
     }
     m_editorManager->openEditor(selection.internalData.toString());
-    m_editorManager->ensureEditorManagerVisible();
 }
 
 bool FileSystemFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)

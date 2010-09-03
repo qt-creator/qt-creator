@@ -56,7 +56,6 @@ void ShowInEditorTaskHandler::handle(const ProjectExplorer::Task &task)
 {
     QFileInfo fi(task.file);
     TextEditor::BaseTextEditor::openEditorAt(fi.canonicalFilePath(), task.line);
-    Core::EditorManager::instance()->ensureEditorManagerVisible();
 }
 
 QAction *ShowInEditorTaskHandler::createAction(QObject *parent)

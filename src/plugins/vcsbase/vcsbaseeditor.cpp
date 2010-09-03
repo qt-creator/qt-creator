@@ -36,6 +36,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/ifile.h>
 #include <coreplugin/iversioncontrol.h>
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/modemanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
@@ -634,7 +636,7 @@ void VCSBaseEditor::jumpToChangeFromDiff(QTextCursor cursor)
 
     Core::EditorManager *em = Core::EditorManager::instance();
     Core::IEditor *ed = em->openEditor(fileName);
-    em->ensureEditorManagerVisible();
+    Core::ModeManager::instance()->activateMode(Core::Constants::MODE_EDIT);
     if (TextEditor::ITextEditor *editor = qobject_cast<TextEditor::ITextEditor *>(ed))
         editor->gotoLine(chunkStart + lineCount);
 }

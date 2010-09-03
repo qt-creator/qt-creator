@@ -971,12 +971,7 @@ Core::IEditor *EditorManager::activateEditor(Core::Internal::EditorView *view, C
     if (!(flags & NoActivate)) {
         setCurrentEditor(editor, (flags & IgnoreNavigationHistory));
         if (!(flags & NoModeSwitch)) {
-            const QString preferredMode = editor->preferredMode();
-            if (preferredMode.isEmpty() || preferredMode == Core::Constants::MODE_EDIT) {
-                ensureEditorManagerVisible();
-            } else {
-                ModeManager::instance()->activateMode(preferredMode);
-            }
+            switchToPreferedMode();
         }
         if (isVisible())
             editor->widget()->setFocus();
@@ -1255,10 +1250,22 @@ QStringList EditorManager::getOpenFileNames() const
                                                               QString(), &m_d->selectedFilter);
 }
 
-void EditorManager::ensureEditorManagerVisible()
+
+/// Empty mode == figure out the correct mode from the editor
+/// forcePrefered = true, switch to the mode even if the editor is visible in another mode
+/// forcePrefered = false, only switch if it is not visible
+void EditorManager::switchToPreferedMode()
 {
-    if (!isVisible())
-        m_d->m_core->modeManager()->activateMode(Constants::MODE_EDIT);
+    QString preferedMode;
+    // Figure out prefered mode for editor
+    if (m_d->m_currentEditor)
+        preferedMode = m_d->m_currentEditor->preferredMode();
+
+    if (preferedMode.isEmpty())
+        preferedMode = Constants::MODE_EDIT;
+
+    if (m_d->m_core->modeManager()->currentMode()->id() != preferedMode)
+        m_d->m_core->modeManager()->activateMode(preferedMode);
 }
 
 IEditor *EditorManager::openEditorWithContents(const QString &editorId,
@@ -1613,7 +1620,6 @@ void EditorManager::goBackInNavigationHistory()
 {
     currentEditorView()->goBackInNavigationHistory();
     updateActions();
-    ensureEditorManagerVisible();
     return;
 }
 
@@ -1621,7 +1627,6 @@ void EditorManager::goForwardInNavigationHistory()
 {
     currentEditorView()->goForwardInNavigationHistory();
     updateActions();
-    ensureEditorManagerVisible();
 }
 
 OpenEditorsWindow *EditorManager::windowPopup() const
@@ -1717,7 +1722,6 @@ bool EditorManager::restoreState(const QByteArray &state)
     m_d->m_splitter->restoreState(splitterstates);
 
     // splitting and stuff results in focus trouble, that's why we set the focus again after restoration
-    ensureEditorManagerVisible();
     if (m_d->m_currentEditor) {
         m_d->m_currentEditor->widget()->setFocus();
     } else if (Core::Internal::SplitterOrView *view = currentSplitterOrView()) {
