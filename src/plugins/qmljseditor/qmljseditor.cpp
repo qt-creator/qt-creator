@@ -647,8 +647,9 @@ static bool openInDesignMode()
 QString QmlJSEditorEditable::preferredMode() const
 {
     Core::ModeManager *modeManager = Core::ModeManager::instance();
-    if (modeManager->currentMode()->id() == Core::Constants::MODE_DESIGN
-        || modeManager->currentMode()->id() == Core::Constants::MODE_EDIT)
+    if (modeManager->currentMode()
+            && (modeManager->currentMode()->id() == Core::Constants::MODE_DESIGN
+                || modeManager->currentMode()->id() == Core::Constants::MODE_EDIT))
     {
         return modeManager->currentMode()->id();
     }
