@@ -471,7 +471,7 @@ void TargetSetupPage::checkAllButtonClicked()
     checkAll(m_toggleWillCheck);
 
     m_toggleWillCheck = !m_toggleWillCheck;
-    m_ui->uncheckButton->setText(m_toggleWillCheck ? tr("Check all") : tr("Uncheck all"));
+    m_ui->uncheckButton->setText(m_toggleWillCheck ? tr("Check All") : tr("Uncheck All"));
     m_ui->uncheckButton->setToolTip(m_toggleWillCheck
                                     ? tr("Check all Qt versions") : tr("Uncheck all Qt versions"));
 }

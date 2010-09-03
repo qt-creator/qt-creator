@@ -57,7 +57,7 @@
         <string>Uncheck all Qt versions</string>
        </property>
        <property name="text">
-        <string>Uncheck all</string>
+        <string>Uncheck All</string>
        </property>
       </widget>
      </item>
