@@ -190,6 +190,7 @@ void QmlJSOutlineWidget::setShowBindings(bool showBindings)
 {
     m_filterModel->setFilterBindings(!showBindings);
     modelUpdated();
+    updateSelectionInTree(m_editor->outlineModelIndex());
 }
 
 bool QmlJSOutlineWidget::syncCursor()
