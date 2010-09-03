@@ -170,6 +170,16 @@ QStringList GnuMakeParser::searchDirectories() const
 
 #   include "metatypedeclarations.h"
 
+GnuMakeParserTester::GnuMakeParserTester(GnuMakeParser *p, QObject *parent) :
+    QObject(parent),
+    parser(p)
+{ }
+
+void GnuMakeParserTester::parserIsAboutToBeDeleted()
+{
+    directories = parser->searchDirectories();
+}
+
 void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
 {
     QTest::addColumn<QStringList>("extraSearchDirs");
@@ -304,6 +314,10 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing()
 {
     OutputParserTester testbench;
     GnuMakeParser *childParser = new GnuMakeParser;
+    GnuMakeParserTester *tester = new GnuMakeParserTester(childParser);
+    connect(&testbench, SIGNAL(aboutToDeleteParser()),
+            tester, SLOT(parserIsAboutToBeDeleted()));
+
     testbench.appendOutputParser(childParser);
     QFETCH(QStringList, extraSearchDirs);
     QFETCH(QString, input);
@@ -325,7 +339,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing()
                           outputLines);
 
     // make sure we still have all the original dirs
-    QStringList newSearchDirs = childParser->searchDirectories();
+    QStringList newSearchDirs = tester->directories;
     foreach (const QString &dir, searchDirs) {
         QVERIFY(newSearchDirs.contains(dir));
         newSearchDirs.removeOne(dir);
@@ -338,6 +352,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing()
     }
     // make sure we have no extra cruft:
     QVERIFY(newSearchDirs.isEmpty());
+    delete tester;
 }
 
 void ProjectExplorerPlugin::testGnuMakeParserTaskMangling_data()

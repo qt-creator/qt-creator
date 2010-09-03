@@ -72,6 +72,22 @@ private:
     int m_fatalErrorCount;
 };
 
+#if defined WITH_TESTS
+class GnuMakeParserTester : public QObject
+{
+    Q_OBJECT
+
+public:
+    GnuMakeParserTester(GnuMakeParser *parser, QObject *parent = 0);
+
+    QStringList directories;
+    GnuMakeParser *parser;
+
+public slots:
+    void parserIsAboutToBeDeleted();
+};
+#endif
+
 } // namespace ProjectExplorer
 
 #endif // GNUMAKEPARSER_H
