@@ -52,6 +52,7 @@
                 \o \l{Setting Up Development Environment for Maemo}
                 \o \l{Setting Up Development Environment for Symbian}
                 \o \l{Managing Sessions}
+                \o \l{Adding New Custom Wizards}
             \endlist
        \o \l{Using the Editor}
             \list
@@ -1709,7 +1710,7 @@
     \contentspage index.html
     \previouspage creator-project-managing.html
     \page creator-project-creating.html
-    \nextpage creator-project-qmake.html
+    \nextpage creator-project-wizards.html
 
     \title Creating a Project
 
@@ -1771,6 +1772,9 @@
            \image qtcreator-new-project-summary.png
     \endlist
 
+    You can create your own project and class wizards. For more information,
+    see \l{Adding New Custom Wizards}.
+
     \section1 Displaying Additional File Types in Projects Pane
 
     Qt Creator determines whether to display files from the project folder
@@ -1790,20 +1794,28 @@
 
     This also makes the files available in the \gui Locator.
 
-    \section1 Adding New Project Wizards
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-project-creating.html
+    \page creator-project-wizards.html
+    \nextpage creator-project-qmake.html
+
+    \title Adding New Custom Wizards
 
     If you have a team working on a large application or several applications,
     you might want to standardize the way the team members create projects
     and classes.
 
-    You can use the wizard templates in the \c {share/qtcreator/templates/wizards}
-    folder to create your own project and class wizards. Qt Creator looks in the
-    folder and adds all wizards defined in wizard.xml files to the \gui New dialog
-    that opens when you select \gui {File > New File or Project}.
+    You can copy the wizard templates in the template folders
+    to create your own project and class wizards. They are displayed in the
+    \gui New dialog that opens when you choose \gui {File > New File or Project}.
 
     In a project wizard, you can specify the files needed in a project.
     You can add wizard pages to allow developers to specify settings for the
-    projcet.
+    project.
 
     In a class wizard, you can allow developers to specify the class name, base
     class, and header and source files for the class.
@@ -1814,7 +1826,45 @@
 
     \image qtcreator-custom-project-wizards.png "The New dialog with custom projects and classes"
 
-    \section2 Creating Project Wizards
+    \section1 Overview of Custom Wizards
+
+    A custom wizard defines the user interface of a wizard page. The values the user enters
+    in the wizard are assigned field names. Field name and value pairs are then passed to
+    the file creation process. File creation can happen in the following ways:
+
+    \list 1
+
+        \o Template-based, where source files that contain placeholders for
+        the field names are provided. During processing, the placeholders are replaced
+        by the values from the wizard page. Optionally, modifier
+        characters are applied. For more information, see \l{Processing Template Files}.
+
+        \o Generator script, where a script is called to create the files.
+
+        \note This option mainly exists to accommodate existing generator scripts or
+        cases where complicated algorithmic logic is required when generating files. Writing
+        cross-platform scripts is inherently difficult, and therefore, it is not recommended
+        for new wizards. For more information, see \l{Using Generator Scripts}.
+
+    \endlist
+
+    Custom wizards are located in subdirectories of the following directories:
+
+    \list
+
+        \o \c{share/qtcreator/templates/wizards}
+
+        \o the local user's configuration folder,
+        \c{$HOME/.config/Nokia/qtcreator/templates/wizards}
+
+        \o \c{%APPDATA%\Nokia\qtcreator\templates\wizards}
+
+    \endlist
+
+    They contain an XML configuration file called wizard.xml, the
+    template source files, and optionally, the generator script.
+
+    \section1 Creating Project Wizards
 
     To create a project wizard:
 
@@ -1891,31 +1941,59 @@
 
         \endlist
 
-        \o The following code specifies the files to add to the project:
+        \o Files to be added to the project:
 
-        \code
-
+        \list
+            \o Template-based: The following code specifies the files to add to the project:
+            \code
         <files>
             <file source="main.cpp" openeditor="true" />
             <file source="project.pro" target="%ProjectName%.pro" openproject="true" />
-
         \endcode
+            \list
 
-        \list
+                \o \c source specifies the file to copy to the project. The files must be
+                located in the wizard folder.
 
-            \o \c source specifies the file to copy to the project. The files must be
-            located in the wizard folder.
+                \o \c openeditor indicates that the file is to be opened in an editor after
+                the wizard has finished.
 
-            \o \c target specifies the new filename for the file. The \c {%ProjectName%}
-            variable is replaced with the string that users specify in the \gui Name
-            field on the first page of the wizard.
+                \o \c target specifies the new filename for the file. The \c {%ProjectName%}
+                variable is replaced with the string that users specify in the \gui Name
+                field on the first page of the wizard.
 
-            \o \c openproject indicates that the file is a project file which is to be opened
-            after the wizard has finished.
+                \o \c openproject indicates that the file is a project file which is to be opened
+                after the wizard has finished.
 
-            \o \c openeditor indicates that the file is to be opened in an editor after
-            the wizard has finished.
+            \endlist
 
+            See also \l{Processing Template Files}.
+
+            \o Generator-script: The following code specifies that the script \c generate.pl is to be used
+               to create the files:
+            \code
+            <generatorscript binary="generate.pl">
+                <argument value="--class-name=%ClassName%"/>
+                <argument value="--project-name=%ProjectName%"/>
+                <argument value="--header-suffix=%CppHeaderSuffix%" omit-empty="true"/>
+                <argument value="--source-suffix=%CppSourceSuffix%" omit-empty="true"/>
+                <argument value="--description=%Description%" omit-empty="true" write-file="true"/>
+            </generatorscript>
+            \endcode
+            In each argument, the field placeholders are replaced by the field
+            values. There are additional boolean attributes which give fine-grained control:
+
+            \list
+            \o \c omit-empty specifies that complete argument is to be omitted when all
+               placeholders expand to empty values. In the above example,
+               the option \c --source-suffix will not be passed to the script if the value is empty.
+
+             \o \c write-file indicates that instead of the expanded value,
+                the value will be written to a temporary file and its file name will be
+                passed to the script instead. This is useful for multi-line text fields.
+            \endlist
+
+             See also \l{Using Generator Scripts}.
         \endlist
 
         \o The following code creates a page that specifies settings for the project:
@@ -1958,7 +2036,7 @@
 
     \endlist
 
-    \section2 Creating Class Wizards
+    \section1 Creating Class Wizards
 
     The widget.xml file for a class wizard is very similar to that for a project
     wizard. The differences are discussed below.
@@ -2012,6 +2090,7 @@
         For example, if users enter \bold MyClass, the filename becomes myclass.cpp
         when the project is created.
 
+
         \o \c {%CppHeaderSuffix%} is replaced by the default header suffix, which
         is also defined in \gui {File Naming}. Here, the filename would
         become myclass.h.
@@ -2052,12 +2131,81 @@
 
     \endlist
 
+    \section1 Processing Template Files
+
+    When processing a template source file, placeholders specifying the field names
+    in the format \c{%FIELDNAME%} are replaced by the values entered by the user.
+    In addition, modifier characters are supported. For example, \c{%FIELDNAME:u%}
+    specifies that the value is converted to upper case. This enables generating header
+    guards for C++ header files.
+
+    The following modifier characters are supported:
+
+    \list
+    \o \c{l} for lower case.
+    \o \c{u} for upper case.
+    \o \c{c} for upper case initial letter ("project" > "Project").
+    \endlist
+
+    You can use conditions to add sections of the file depending on field values.
+    Use a syntax that is similar to C++ preprocessing, as demonstrated in
+    the profile of the \c{helloworld} example:
+
+    \code
+
+    @if "%SCRIPT%" == "true"
+    QT += script
+    @endif
+
+    \endcode
+
+    The value of the Boolean (QCheckBox) field labeled \c{SCRIPT} determines
+    whether the script module is added. The expressions must expand to valid
+    Javascript expressions after field replacement.
+
+    \section1 Using Generator Scripts
+
+    The values entered in the wizard page are passed to the script
+    as command line arguments as defined by the wizard configuration file.
+
+    In addition, the script must implement a \c{--dry-run} command line option.
+
+    Qt Creator needs to know the file names before the files are created to check
+    whether files with identical names already exist, for example. Therefore,
+    script file generation is a two-step process:
+
+    \list 1
+
+    \o  Determine file names and attributes: The script is called with the command line
+        \c{--dry-run} option and the field values. It then prints the relative path
+        names of the files it intends to create, followed by comma-separated attributes
+        matching those of the \c{<file>} element, for example:
+
+        \code
+        myclass.cpp,openeditor
+        myclass.h,openeditor
+        myproject.pro,openproject
+        \endcode
+
+    \o Create files: The script is called with the parameters only in the working directory.
+       It then actually creates the files. If directories are needed, the script
+       should create them, too.
+
+   \endlist
+
+   The \c{scriptgeneratedproject} sample wizard illustrates the usage.
+   A typical script invocation for this example (obtained by running Qt Creator with
+   \c{--customwizard-verbose}) looks as follows:
+
+   \code
+   generate.pl --class-name=TestClass --project-name=TestProject --header-suffix=h --source-suffix=cpp --description=/tmp/qtcreatorj26629.txt
+   \endcode
 */
 
 
 /*!
     \contentspage index.html
-    \previouspage creator-project-creating.html
+    \previouspage creator-project-wizards.html
     \page creator-project-qmake.html
     \nextpage creator-project-cmake.html
 
