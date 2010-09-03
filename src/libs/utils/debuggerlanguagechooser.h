@@ -32,6 +32,7 @@ signals:
 private slots:
     void useCppDebuggerToggled(bool toggled);
     void useQmlDebuggerToggled(bool toggled);
+    void onDebugServerPortChanged(int port);
 
 private:
     QCheckBox *m_useCppDebugger;

@@ -27,7 +27,7 @@ DebuggerLanguageChooser::DebuggerLanguageChooser(QWidget *parent) :
 
     connect(m_useQmlDebugger, SIGNAL(toggled(bool)), m_debugServerPort, SLOT(setEnabled(bool)));
     connect(m_useQmlDebugger, SIGNAL(toggled(bool)), m_debugServerPortLabel, SLOT(setEnabled(bool)));
-    connect(m_debugServerPort, SIGNAL(valueChanged(int)), this, SIGNAL(qmlDebugServerPortChanged(uint)));
+    connect(m_debugServerPort, SIGNAL(valueChanged(int)), this, SLOT(onDebugServerPortChanged(int)));
 
     QHBoxLayout *qmlLayout = new QHBoxLayout;
     qmlLayout->setMargin(0);
@@ -88,6 +88,11 @@ void DebuggerLanguageChooser::useQmlDebuggerToggled(bool toggled)
     emit qmlLanguageToggled(toggled);
     if (!toggled && !m_useCppDebugger->isChecked())
         m_useCppDebugger->setChecked(true);
+}
+
+void DebuggerLanguageChooser::onDebugServerPortChanged(int port)
+{
+    emit qmlDebugServerPortChanged((uint)port);
 }
 
 } // namespace Utils
