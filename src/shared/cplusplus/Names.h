@@ -193,10 +193,10 @@ public:
     };
 
 public:
-    OperatorNameId(int kind);
+    OperatorNameId(Kind kind);
     virtual ~OperatorNameId();
 
-    int kind() const;
+    Kind kind() const;
 
     virtual const Identifier *identifier() const;
     virtual bool isEqualTo(const Name *other) const;
@@ -208,7 +208,7 @@ protected:
     virtual void accept0(NameVisitor *visitor) const;
 
 private:
-    int _kind;
+    Kind _kind;
 };
 
 class CPLUSPLUS_EXPORT ConversionNameId: public Name

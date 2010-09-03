@@ -171,8 +171,8 @@ protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
 
 private:
-    FullySpecifiedType _type;
     const StringLiteral *_initializer;
+    FullySpecifiedType _type;
 };
 
 class CPLUSPLUS_EXPORT TypenameArgument: public Symbol
@@ -531,8 +531,6 @@ public:
 
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
-
-private:
 };
 
 class CPLUSPLUS_EXPORT ObjCBaseProtocol: public Symbol
@@ -552,8 +550,6 @@ public:
 
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
-
-private:
 };
 
 class CPLUSPLUS_EXPORT ObjCForwardProtocolDeclaration: public Symbol, public Type
@@ -647,8 +643,6 @@ protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
     virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
-
-private:
 };
 
 class CPLUSPLUS_EXPORT ObjCClass: public Scope, public Type
@@ -695,10 +689,10 @@ protected:
     virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
 
 private:
-    bool _isInterface;
     const Name *_categoryName;
     ObjCBaseClass * _baseClass;
     std::vector<ObjCBaseProtocol *> _protocols;
+    bool _isInterface;
 };
 
 class CPLUSPLUS_EXPORT ObjCMethod: public Scope, public Type
@@ -808,10 +802,10 @@ protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
 
 private:
-    FullySpecifiedType _type;
-    int _propertyAttributes;
     const Name *_getterName;
     const Name *_setterName;
+    FullySpecifiedType _type;
+    int _propertyAttributes;
 };
 
 } // end of namespace CPlusPlus

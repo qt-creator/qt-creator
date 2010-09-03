@@ -51,6 +51,7 @@
 
 #include "ASTVisitor.h"
 #include "FullySpecifiedType.h"
+#include "Names.h"
 
 namespace CPlusPlus {
 
@@ -117,7 +118,7 @@ protected:
     FullySpecifiedType newArrayDeclarator(NewArrayDeclaratorAST *ast, const FullySpecifiedType &init);
     void newInitializer(NewInitializerAST *ast);
     FullySpecifiedType newTypeId(NewTypeIdAST *ast);
-    int cppOperator(OperatorAST *ast);
+    OperatorNameId::Kind cppOperator(OperatorAST *ast);
     void parameterDeclarationClause(ParameterDeclarationClauseAST *ast, unsigned lparen_token, Function *fun);
     void translationUnit(TranslationUnitAST *ast);
     void objCProtocolRefs(ObjCProtocolRefsAST *ast, Symbol *objcClassOrProtocol);

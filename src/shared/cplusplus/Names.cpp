@@ -153,7 +153,7 @@ bool TemplateNameId::isEqualTo(const Name *other) const
     return true;
 }
 
-OperatorNameId::OperatorNameId(int kind)
+OperatorNameId::OperatorNameId(Kind kind)
     : _kind(kind)
 { }
 
@@ -163,7 +163,7 @@ OperatorNameId::~OperatorNameId()
 void OperatorNameId::accept0(NameVisitor *visitor) const
 { visitor->visit(this); }
 
-int OperatorNameId::kind() const
+OperatorNameId::Kind OperatorNameId::kind() const
 { return _kind; }
 
 const Identifier *OperatorNameId::identifier() const

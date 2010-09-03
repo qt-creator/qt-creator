@@ -112,12 +112,16 @@ private:
 
 Symbol::Symbol(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : _name(0),
+      _scope(0),
+      _next(0),
+      _fileId(0),
+      _sourceLocation(0),
       _hashCode(0),
       _storage(Symbol::NoStorage),
       _visibility(Symbol::Public),
-      _scope(0),
       _index(0),
-      _next(0),
+      _line(0),
+      _column(0),
       _isGenerated(false),
       _isDeprecated(false),
       _isUnavailable(false)

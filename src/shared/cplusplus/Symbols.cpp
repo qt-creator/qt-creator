@@ -681,10 +681,10 @@ void ObjCBaseProtocol::visitSymbol0(SymbolVisitor *visitor)
 { visitor->visit(this); }
 
 ObjCClass::ObjCClass(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name):
-        Scope(translationUnit, sourceLocation, name),
-        _isInterface(false),
-        _categoryName(0),
-        _baseClass(0)
+    Scope(translationUnit, sourceLocation, name),
+    _categoryName(0),
+    _baseClass(0),
+    _isInterface(false)
 {
 }
 
@@ -992,9 +992,9 @@ ObjCPropertyDeclaration::ObjCPropertyDeclaration(TranslationUnit *translationUni
                                                  unsigned sourceLocation,
                                                  const Name *name):
     Symbol(translationUnit, sourceLocation, name),
-    _propertyAttributes(None),
     _getterName(0),
-    _setterName(0)
+    _setterName(0),
+    _propertyAttributes(None)
 {}
 
 ObjCPropertyDeclaration::~ObjCPropertyDeclaration()

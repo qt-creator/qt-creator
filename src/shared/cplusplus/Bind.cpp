@@ -626,7 +626,7 @@ bool Bind::visit(OperatorAST *ast)
     return false;
 }
 
-int Bind::cppOperator(OperatorAST *ast)
+OperatorNameId::Kind Bind::cppOperator(OperatorAST *ast)
 {
     OperatorNameId::Kind kind = OperatorNameId::InvalidOp;
 
@@ -2423,7 +2423,7 @@ bool Bind::visit(QualifiedNameAST *ast)
 
 bool Bind::visit(OperatorFunctionIdAST *ast)
 {
-    const int op = this->cppOperator(ast->op);
+    const OperatorNameId::Kind op = this->cppOperator(ast->op);
     ast->name = _name = control()->operatorNameId(op);
     return false;
 }

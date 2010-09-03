@@ -319,15 +319,15 @@ protected:
     virtual void visitSymbol0(SymbolVisitor *visitor) = 0;
 
 private:
-    unsigned _sourceLocation;
     const Name *_name;
+    Scope *_scope;
+    Symbol *_next;
+    const StringLiteral *_fileId;
+    unsigned _sourceLocation;
     unsigned _hashCode;
     int _storage;
     int _visibility;
-    Scope *_scope;
     unsigned _index;
-    Symbol *_next;
-    const StringLiteral *_fileId;
     unsigned _line;
     unsigned _column;
 

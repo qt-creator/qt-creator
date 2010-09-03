@@ -56,7 +56,7 @@ using namespace CPlusPlus;
 
 ////////////////////////////////////////////////////////////////////////////////
 Literal::Literal(const char *chars, unsigned size)
-    : _index(0), _next(0)
+    : _next(0), _index(0)
 {
     _chars = new char[size + 1];
 

@@ -259,7 +259,7 @@ public:
         return destructorNameIds.intern(DestructorNameId(id));
     }
 
-    const OperatorNameId *findOrInsertOperatorNameId(int kind)
+    const OperatorNameId *findOrInsertOperatorNameId(OperatorNameId::Kind kind)
     {
         return operatorNameIds.intern(OperatorNameId(kind));
     }
@@ -609,7 +609,7 @@ const TemplateNameId *Control::templateNameId(const Identifier *id,
 const DestructorNameId *Control::destructorNameId(const Identifier *id)
 { return d->findOrInsertDestructorNameId(id); }
 
-const OperatorNameId *Control::operatorNameId(int kind)
+const OperatorNameId *Control::operatorNameId(OperatorNameId::Kind kind)
 { return d->findOrInsertOperatorNameId(kind); }
 
 const ConversionNameId *Control::conversionNameId(const FullySpecifiedType &type)

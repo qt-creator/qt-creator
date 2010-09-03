@@ -50,6 +50,7 @@
 #define CPLUSPLUS_CONTROL_H
 
 #include "CPlusPlusForwardDeclarations.h"
+#include "Names.h"
 
 namespace CPlusPlus {
 
@@ -74,7 +75,7 @@ public:
     const DestructorNameId *destructorNameId(const Identifier *id);
 
     /// Returns the canonical operator name id.
-    const OperatorNameId *operatorNameId(int operatorId);
+    const OperatorNameId *operatorNameId(OperatorNameId::Kind operatorId);
 
     /// Returns the canonical conversion name id.
     const ConversionNameId *conversionNameId(const FullySpecifiedType &type);

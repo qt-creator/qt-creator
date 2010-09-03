@@ -80,15 +80,15 @@ public:
 
     bool equalTo(const Literal *other) const;
 
+    Literal *_next; // ## private
+
 private:
     char *_chars;
     unsigned _size;
     unsigned _hashCode;
 
 public:
-    // ### private
-    unsigned _index;
-    Literal *_next;
+    unsigned _index;     // ### private
 };
 
 class CPLUSPLUS_EXPORT StringLiteral: public Literal

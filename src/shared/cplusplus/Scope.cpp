@@ -95,7 +95,7 @@ public:
     iterator lastSymbol() const;
 
     Symbol *lookat(const Identifier *id) const;
-    Symbol *lookat(int operatorId) const;
+    Symbol *lookat(OperatorNameId::Kind operatorId) const;
 
 private:
     /// Returns the hash value for the given Symbol.
@@ -186,7 +186,7 @@ Symbol *SymbolTable::lookat(const Identifier *id) const
     return symbol;
 }
 
-Symbol *SymbolTable::lookat(int operatorId) const
+Symbol *SymbolTable::lookat(OperatorNameId::Kind operatorId) const
 {
     if (! _hash)
         return 0;
@@ -290,7 +290,7 @@ Scope::iterator Scope::lastMember() const
 Symbol *Scope::find(const Identifier *id) const
 { return _members ? _members->lookat(id) : 0; }
 
-Symbol *Scope::find(int operatorId) const
+Symbol *Scope::find(OperatorNameId::Kind operatorId) const
 { return _members ? _members->lookat(operatorId) : 0; }
 
 /// Set the start offset of the scope

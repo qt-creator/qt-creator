@@ -51,6 +51,7 @@
 
 #include "CPlusPlusForwardDeclarations.h"
 #include "Symbol.h"
+#include "Names.h"
 
 namespace CPlusPlus {
 
@@ -81,7 +82,7 @@ public:
     iterator lastMember() const;
 
     Symbol *find(const Identifier *id) const;
-    Symbol *find(int operatorId) const;
+    Symbol *find(OperatorNameId::Kind operatorId) const;
 
     /// Set the start offset of the scope
     unsigned startOffset() const;
