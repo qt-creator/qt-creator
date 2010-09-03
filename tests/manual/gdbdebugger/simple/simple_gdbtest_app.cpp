@@ -908,17 +908,17 @@ void testPlugin()
 {
     QString dir = QDir::currentPath();
 #ifdef Q_OS_LINUX
-    QLibrary lib(dir + "/libplugin.so");
+    QLibrary lib(dir + "/libsimple_gdbtest_plugin.so");
 #endif
 #ifdef Q_OS_MAC
     dir = QFileInfo(dir + "/../..").canonicalPath();
-    QLibrary lib(dir + "/libplugin.dylib");
+    QLibrary lib(dir + "/libsimple_gdbtest_plugin.dylib");
 #endif
 #ifdef Q_OS_WIN
-    QLibrary lib(dir + "/plugin.dll");
+    QLibrary lib(dir + "/libsimple_gdbtest_plugin.dll");
 #endif
 #ifdef Q_OS_SYMBIAN
-    QLibrary lib(dir + "/plugin.dll");
+    QLibrary lib(dir + "/libsimple_gdbtest_plugin.dll");
 #endif
     int (*foo)() = (int(*)()) lib.resolve("pluginTest");
     qDebug() << "library resolve: " << foo;
@@ -2045,4 +2045,4 @@ int main(int argc, char *argv[])
 QT_BEGIN_NAMESPACE
 QT_END_NAMESPACE
 
-#include "app.moc"
+#include "simple_gdbtest_app.moc"
