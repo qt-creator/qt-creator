@@ -2075,20 +2075,57 @@
     is already in the \c{PATH} and correctly set up for command line use, you do
     not need to manually configure your Qt version.
 
-
-    \section2 Windows
+    \section2 Compiling Projects with MinGW in Windows
 
     To add a Qt version for \bold MinGW:
     \list 1
         \o Select \gui Tools > \gui Options... > \gui Qt4 >
            \gui{Qt Versions}.
         \o Click \inlineimage qtcreator-windows-add.png
-           and enter the name of the version in \gui{Version Name} field.
-        \o Enter the qmake binary path in the \gui{qmake Location}.
-        \o Enter the MinGW installation path in the \gui{MinGW Directory}.
+           and enter the name of the version in the \gui{Version name} field.
+        \o Enter the qmake binary path in the \gui{qmake location} field.
+        \o Enter the MinGW installation path in the \gui{MinGW directory} field.
 
            \image qtcreator-qt4-qtversions-win-mingw.png
     \endlist
+
+    \section3 Troubleshooting MinGW Compilation Errors
+
+    If error messages displayed in the \gui {Compile Output} pane contain
+    paths where slashes are missing (for example, C:NokiaQtSDK),
+    check your PATH variable. At the command line, enter the following commands:
+
+    \code
+        where sh.exe
+        where make.exe
+        where mingw32-make.exe
+    \endcode
+
+    If these commands show paths, they have been added to the global PATH variable
+    during the installation of a toolkit based on Cygwin or MinGW, even though
+    this is against Windows conventions.
+
+    To keep working with the third-party toolkit, create a new shell link
+    that adds the required paths (as Visual Studio and Qt do). The shell link
+    must point to cmd.exe, as illustrated by the following example:
+
+    \c {C:\Windows\System32\cmd.exe /K C:\path_to\myenv.bat}
+
+    where the /K parameter carries out the command specified in the bat file.
+
+    Create the myenv.bat file at \e path_to, which should be in a convenient location.
+    In the file, specify the paths to the toolkits. For example,
+
+    \c  {set PATH=C:\path1;C:\path2;%PATH%}
+
+    where \e path1 and \e path2 are paths to the toolkits.
+
+    Finally, remove the paths from the global PATH, reboot the computer, and
+    run the \c where commands again to verify that the global PATH is now clean.
+
+    You can use the shell link to run the tools in the third-party toolkits.
+
+    \section2 Compiling Projects with Microsoft Visual C++
 
     To add a Qt version for a \bold{Microsoft Visual C++} compiler:
     \list 1
@@ -2099,7 +2136,13 @@
            Microsoft Visual C++ tool chain in the \gui Toolchain list.
 
            \image qtcreator-qt4-qtversions-win-msvc.png
+
+        \o If the \gui {Debugging helper} is not in use, click \gui Rebuild
+        to take it to use. For more information, see \l{Using Debugging Helpers}.
+
     \endlist
+
+    \section2 Compiling Qt for Symbian Projects
 
     If you are using \bold{Qt for Symbian} and your Symbian SDK is registered
     with devices.exe, Qt Creator automatically detects the Qt version. To add a
@@ -2111,7 +2154,7 @@
 
            \image qtcreator-qt4-qtversions-win-symbian.png
         \o To build an application for your device using GCCE, enter the path
-           to the \bold{CSL ARM Toolchain} directory in
+           to the CSL ARM toolchain directory in
            \gui{CSL\\GCCE Directory}.
 
            You do not need to specify this path if the compiler is included in
@@ -2148,7 +2191,7 @@
         \o Select \gui{Qt Creator} > \gui Preferences... > \gui{Qt Versions}.
         \o Click \inlineimage qtcreator-macosx-add.png
            and enter the name of the version in \gui{Version Name}.
-        \o Enter the path to the qmake binary in \gui{Path to qmake}.
+        \o Enter the path to the qmake binary in \gui{Path to Qmake}.
 
            \image qtcreator-qt4-qtversions.png
     \endlist
@@ -6819,7 +6862,7 @@
 
     \title Known Issues
 
-    This section lists known issues in Qt Creator version 2.0.0.
+    This section lists known issues in Qt Creator version 2.1.0.
     The development team is aware of them, and therefore, you do not need to
     report them as bugs.
 
@@ -6851,23 +6894,28 @@
     \section1 Projects
 
     \list
-        \o Paths or file names containing spaces or special characters, e.g.,
-           colons, dollar signs, hash marks etc. may cause problems. This
+        \o Paths or file names containing spaces or special characters
+           (such as colons, dollar signs, and hash marks) may cause problems. This
            is because some of the tools Qt Creator uses in the background have
            restrictions on the characters allowed in file and directory names.
            To be on the safe side, we recommend creating projects and project
            items with names consisting of plain characters, numbers,
            underscores, and hyphens.
 
-        \o There is no IDE support for adding/removing sub-projects. Project
+        \o There is no IDE support for adding or removing sub-projects. Project
            hierarchies (SUBDIRS template) have to be created manually.
 
-        \o Creating new \c CMake projects with Qt Creator is not supported.
+        \o Creating new CMake projects with Qt Creator is not supported.
 
         \o Building and packaging sub-projects is not supported for Maemo devices.
 
         \o You must create projects for Maemo targets on the same partition where
         you installed Nokia Qt SDK, Qt Creator, and MADDE.
+
+        \o If error messages displayed in the \gui {Compile Output} pane contain
+        paths where slashes are missing (for example, C:NokiaQtSDK),
+        check your PATH variable. For more information, see
+        \l{Troubleshooting MinGW Compilation Errors}.
 
     \endlist
 
