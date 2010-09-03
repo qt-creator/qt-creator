@@ -39,7 +39,7 @@ const char * const INFO_READ_ONLY = "DesignerXmlEditor.ReadOnly";
 const char * const K_DESIGNER_XML_EDITOR_ID = "FormEditor.DesignerXmlEditor";
 const char * const C_DESIGNER_XML_EDITOR = "Designer Xml Editor";
 const char * const DESIGNER_XML_EDITOR_ID ="DesignerXmlEditor";
-const char * const C_DESIGNER_XML_DISPLAY_NAME  = QT_TRANSLATE_NOOP("Designer", "Xml Editor");
+const char * const C_DESIGNER_XML_DISPLAY_NAME  = QT_TRANSLATE_NOOP("Designer", "Form Editor");
 
 const char * const SETTINGS_CATEGORY = "P.Designer";
 const char * const SETTINGS_CATEGORY_ICON = ":/core/images/category_design.png";

@@ -1269,13 +1269,10 @@ void MainWindow::aboutToShowRecentFiles()
 
 void MainWindow::openRecentFile()
 {
-    QAction *action = qobject_cast<QAction*>(sender());
-    if (!action)
-        return;
-    QString fileName = action->data().toString();
-    if (!fileName.isEmpty()) {
-        editorManager()->openEditor(fileName);
-        editorManager()->ensureEditorManagerVisible();
+    if (const QAction *action = qobject_cast<const QAction*>(sender())) {
+        const QString fileName = action->data().toString();
+        if (!fileName.isEmpty())
+            editorManager()->openEditor(fileName);
     }
 }
 
