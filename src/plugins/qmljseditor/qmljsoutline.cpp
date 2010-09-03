@@ -145,8 +145,16 @@ void QmlJSOutlineWidget::updateSelectionInTree(const QModelIndex &index)
         return;
 
     m_blockCursorSync = true;
-    m_treeView->selectionModel()->select(m_filterModel->mapFromSource(index), QItemSelectionModel::ClearAndSelect);
-    m_treeView->scrollTo(m_filterModel->mapFromSource(index));
+
+    QModelIndex baseIndex = index;
+    QModelIndex filterIndex = m_filterModel->mapFromSource(baseIndex);
+    while (baseIndex.isValid() && !filterIndex.isValid()) { // Search for ancestor index actually shown
+        baseIndex = baseIndex.parent();
+        filterIndex = m_filterModel->mapFromSource(baseIndex);
+    }
+
+    m_treeView->selectionModel()->select(filterIndex, QItemSelectionModel::ClearAndSelect);
+    m_treeView->scrollTo(filterIndex);
     m_blockCursorSync = false;
 }
 
