@@ -364,6 +364,7 @@ QModelIndex QmlOutlineModel::enterObjectDefinition(AST::UiObjectDefinition *objD
 
     if (typeName.at(0).isUpper()) {
         data.insert(ItemTypeRole, ElementType);
+        data.insert(AnnotationRole, getAnnotation(objDef->initializer));
         if (!m_typeToIcon.contains(typeName)) {
             m_typeToIcon.insert(typeName, getIcon(objDef->qualifiedTypeNameId));
         }
@@ -805,7 +806,6 @@ QString QmlOutlineModel::getAnnotation(AST::UiObjectInitializer *objectInitializ
 
     if (bindings.contains("target"))
         return bindings.value("target");
-
 
     return QString();
 }
