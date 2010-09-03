@@ -34,8 +34,6 @@ Custom class wizard example configuration file. -->
     <description>Creates a simple project using a generator script</description>
     <displayname>Simple Script-Generated Project</displayname>;
     <displaycategory>Custom Projects</displaycategory>
-    <!-- Specify the generator script -->
-    <files generatorscript="generate.pl"/>
     <!-- Create parameter wizard page -->
     <fieldpagetitle>Simple Script-Generated Project Parameters</fieldpagetitle>
     <fields>
@@ -43,5 +41,19 @@ Custom class wizard example configuration file. -->
             <fieldcontrol class="QLineEdit" validator="^[a-zA-Z0-9_]+$" defaulttext="MyClass" />
             <fielddescription>Class name:</fielddescription>
         </field>
+	<!-- Description will be inserted as a multi-line C++-comment -->
+        <field name="Description">
+            <fieldcontrol class="QTextEdit" defaulttext="Enter description" />
+            <fielddescription>Description:</fielddescription>
+        </field>
     </fields>
+    <!-- Specify the generator script -->
+    <generatorscript binary="generate.pl">
+        <argument value="--class-name=%ClassName%"/>
+        <argument value="--project-name=%ProjectName%"/>
+        <argument value="--header-suffix=%CppHeaderSuffix%" omit-empty="true"/>
+        <argument value="--source-suffix=%CppSourceSuffix%" omit-empty="true"/>
+	 <!-- Multi-line description passed as temporary file unless empty -->
+        <argument value="--description=%Description%" omit-empty="true" write-file="true"/>
+    </generatorscript>
 </wizard>

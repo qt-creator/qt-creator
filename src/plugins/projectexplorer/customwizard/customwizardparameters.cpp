@@ -29,18 +29,24 @@
 
 #include "customwizardparameters.h"
 #include "customwizardpreprocessor.h"
+#include "customwizardscriptgenerator.h"
 
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/icore.h>
 #include <cpptools/cpptoolsconstants.h>
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QLocale>
 #include <QtCore/QFile>
+#include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QXmlStreamReader>
 #include <QtCore/QXmlStreamAttribute>
+#include <QtCore/QTemporaryFile>
+
 #include <QtGui/QIcon>
 
 enum { debug = 0 };
@@ -63,6 +69,13 @@ static const char fieldElementC[] = "field";
 static const char comboEntriesElementC[] = "comboentries";
 static const char comboEntryElementC[] = "comboentry";
 static const char comboEntryTextElementC[] = "comboentrytext";
+
+static const char generatorScriptElementC[] = "generatorscript";
+static const char generatorScriptBinaryAttributeC[] = "binary";
+static const char generatorScriptArgumentElementC[] = "argument";
+static const char generatorScriptArgumentValueAttributeC[] = "value";
+static const char generatorScriptArgumentOmitEmptyAttributeC[] = "omit-empty";
+static const char generatorScriptArgumentWriteFileAttributeC[] = "write-file";
 
 static const char fieldDescriptionElementC[] = "fielddescription";
 static const char fieldNameAttributeC[] = "name";
@@ -87,6 +100,8 @@ enum ParseState {
     ParseWithinComboEntryText,
     ParseWithinFiles,
     ParseWithinFile,
+    ParseWithinScript,
+    ParseWithinScriptArguments,
     ParseError
 };
 
@@ -136,6 +151,7 @@ void CustomWizardParameters::clear()
     files.clear();
     fields.clear();
     filesGeneratorScript.clear();
+    filesGeneratorScriptArguments.clear();
     firstPageId = -1;
 }
 
@@ -276,6 +292,8 @@ static ParseState nextOpeningState(ParseState in, const QStringRef &name)
             return ParseWithinFields;
         if (name == QLatin1String(filesElementC))
             return ParseWithinFiles;
+        if (name == QLatin1String(generatorScriptElementC))
+            return ParseWithinScript;
         break;
     case ParseWithinFields:
         if (name == QLatin1String(fieldElementC))
@@ -303,10 +321,15 @@ static ParseState nextOpeningState(ParseState in, const QStringRef &name)
         if (name == QLatin1String(fileElementC))
             return ParseWithinFile;
         break;
+    case ParseWithinScript:
+        if (name == QLatin1String(generatorScriptArgumentElementC))
+            return ParseWithinScriptArguments;
+        break;
     case ParseWithinFieldDescription: // No subelements
     case ParseWithinComboEntryText:
     case ParseWithinFile:
     case ParseError:
+    case ParseWithinScriptArguments:
         break;
     }
     return ParseError;
@@ -357,6 +380,14 @@ static ParseState nextClosingState(ParseState in, const QStringRef &name)
     case ParseWithinComboEntryText:
         if (name == QLatin1String(comboEntryTextElementC))
             return ParseWithinComboEntry;
+        break;
+    case ParseWithinScript:
+        if (name == QLatin1String(generatorScriptElementC))
+            return ParseWithinWizard;
+        break;
+    case ParseWithinScriptArguments:
+        if (name == QLatin1String(generatorScriptArgumentElementC))
+            return ParseWithinScript;
         break;
     case ParseError:
         break;
@@ -425,6 +456,11 @@ static inline QString localeLanguage()
     if (name.compare(QLatin1String("C"), Qt::CaseInsensitive) == 0)
         name.clear();
     return name;
+}
+
+GeneratorScriptArgument::GeneratorScriptArgument(const QString &v) :
+    value(v), flags(0)
+{
 }
 
 // Main parsing routine
@@ -499,7 +535,6 @@ CustomWizardParameters::ParseResult
                 }
                      break;
                 case ParseWithinFiles:
-                    filesGeneratorScript = attributeValue(reader, filesGeneratorScriptAttributeC);
                     break;
                 case ParseWithinFile: { // file attribute
                         CustomWizardFile file;
@@ -515,6 +550,26 @@ CustomWizardParameters::ParseResult
                             files.push_back(file);
                         }
                     }
+                    break;
+                case ParseWithinScript:
+                    filesGeneratorScript = fixGeneratorScript(configFileFullPath, attributeValue(reader, generatorScriptBinaryAttributeC));
+                    if (filesGeneratorScript.isEmpty()) {
+                        *errorMessage = QString::fromLatin1("No binary specified for generator script.");
+                        return ParseFailed;
+                    }
+                    break;
+                case ParseWithinScriptArguments: {
+                    GeneratorScriptArgument argument(attributeValue(reader, generatorScriptArgumentValueAttributeC));
+                    if (argument.value.isEmpty()) {
+                        *errorMessage = QString::fromLatin1("No value specified for generator script argument.");
+                        return ParseFailed;
+                    }
+                    if (booleanAttributeValue(reader, generatorScriptArgumentOmitEmptyAttributeC, false))
+                        argument.flags |= GeneratorScriptArgument::OmitEmpty;
+                    if (booleanAttributeValue(reader, generatorScriptArgumentWriteFileAttributeC, false))
+                        argument.flags |= GeneratorScriptArgument::WriteFile;
+                    filesGeneratorScriptArguments.push_back(argument);
+                }
                     break;
                 default:
                     break;
@@ -559,23 +614,26 @@ CustomWizardParameters::ParseResult
     return parse(configFile, configFileFullPath, bp, errorMessage);
 }
 
-QString CustomWizardParameters::filesGeneratorScriptFullPath() const
-{
-    if (filesGeneratorScript.isEmpty())
-        return QString();
-    QString rc = directory;
-    rc += QLatin1Char('/');
-    rc += filesGeneratorScript;
-    return rc;
-}
-
 QString CustomWizardParameters::toString() const
 {
     QString rc;
     QTextStream str(&rc);
     str << "Directory: " << directory << " Klass: '" << klass << "'\n";
-    if (!filesGeneratorScript.isEmpty())
-        str << "Script: '" <<  filesGeneratorScript << "'\n";
+    if (!filesGeneratorScriptArguments.isEmpty()) {
+        str << "Script:";
+        foreach(const QString &a, filesGeneratorScript)
+            str << " '" << a << '\'';
+        str << "\nArguments: ";
+        foreach(const GeneratorScriptArgument &a, filesGeneratorScriptArguments) {
+            str << " '" << a.value  << '\'';
+            if (a.flags & GeneratorScriptArgument::OmitEmpty)
+                str << " [omit empty]";
+            if (a.flags & GeneratorScriptArgument::WriteFile)
+                str << " [write file]";
+            str << ',';
+        }
+        str << '\n';
+    }
     foreach(const CustomWizardFile &f, files) {
         str << "  File source: " << f.source << " Target: " << f.target;
         if (f.openEditor)
@@ -603,8 +661,16 @@ QString CustomWizardParameters::toString() const
 
 // ------------ CustomWizardContext
 
-void CustomWizardContext::replaceFields(const FieldReplacementMap &fm, QString *s)
+static inline QString passThrough(const QString &in) { return in; }
+
+// Do field replacements applying modifiers and string transformation
+// for the value
+template <class ValueStringTransformation>
+bool replaceFieldHelper(ValueStringTransformation transform,
+                        const CustomWizardContext::FieldReplacementMap &fm,
+                        QString *s)
 {
+    bool nonEmptyReplacements = false;
     if (debug) {
         qDebug().nospace() << "CustomWizardContext::replaceFields with " <<
                 fm << *s;
@@ -633,7 +699,7 @@ void CustomWizardContext::replaceFields(const FieldReplacementMap &fm, QString *
             modifier = fieldSpec.at(fieldSpecSize - 1).toLatin1();
             fieldSpec.truncate(fieldSpecSize - 2);
         }
-        const FieldReplacementMap::const_iterator it = fm.constFind(fieldSpec);
+        const CustomWizardContext::FieldReplacementMap::const_iterator it = fm.constFind(fieldSpec);
         if (it == fm.constEnd()) {
             pos = nextPos; // Not found, skip
             continue;
@@ -655,9 +721,64 @@ void CustomWizardContext::replaceFields(const FieldReplacementMap &fm, QString *
         default:
             break;
         }
-        s->replace(pos, nextPos - pos, replacement);
+        if (!replacement.isEmpty())
+            nonEmptyReplacements = true;
+        // Apply transformation to empty values as well.
+        s->replace(pos, nextPos - pos, transform(replacement));
+        nonEmptyReplacements = true;
         pos += replacement.size();
     }
+    return nonEmptyReplacements;
+}
+
+bool CustomWizardContext::replaceFields(const FieldReplacementMap &fm, QString *s)
+{
+    return replaceFieldHelper(passThrough, fm, s);
+}
+
+// Transformation to be passed to replaceFieldHelper(). Writes the
+// value to a text file and returns the file name to be inserted
+// instead of the expanded field in the parsed template,
+// used for the arguments of a generator script.
+class TemporaryFileTransform {
+public:
+    typedef CustomWizardContext::TemporaryFilePtr TemporaryFilePtr;
+    typedef CustomWizardContext::TemporaryFilePtrList TemporaryFilePtrList;
+
+    explicit TemporaryFileTransform(TemporaryFilePtrList *f);
+
+    QString operator()(const QString &) const;
+
+private:
+    TemporaryFilePtrList *m_files;
+    QString m_pattern;
+};
+
+TemporaryFileTransform::TemporaryFileTransform(TemporaryFilePtrList *f) :
+    m_files(f), m_pattern(QDir::tempPath())
+{
+    if (!m_pattern.endsWith(QLatin1Char('/')))
+        m_pattern += QLatin1Char('/');
+    m_pattern += QLatin1String("qtcreatorXXXXXX.txt");
+}
+
+QString TemporaryFileTransform::operator()(const QString &value) const
+{
+    TemporaryFilePtr temporaryFile(new QTemporaryFile(m_pattern));
+    QTC_ASSERT(temporaryFile->open(), return QString(); )
+
+    temporaryFile->write(value.toLocal8Bit());
+    const QString name = temporaryFile->fileName();
+    temporaryFile->flush();
+    temporaryFile->close();
+    m_files->push_back(temporaryFile);
+    return name;
+}
+
+bool CustomWizardContext::replaceFields(const FieldReplacementMap &fm, QString *s,
+                                        TemporaryFilePtrList *files)
+{
+    return replaceFieldHelper(TemporaryFileTransform(files), fm, s);
 }
 
 void CustomWizardContext::reset()

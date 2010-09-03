@@ -32,12 +32,14 @@
 
 #include <coreplugin/basefilewizard.h>
 
-#include <QtCore/QList>
+#include <QtCore/QStringList>
 #include <QtCore/QMap>
+#include <QtCore/QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QIODevice;
 class QDebug;
+class QTemporaryFile;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -68,6 +70,23 @@ struct CustomWizardFile {
     bool openProject;
 };
 
+// Argument to the generator script containing placeholders to
+// be replaced by field values or file names
+// as in '--class-name=%ClassName%' or '--description=%Description%'.
+struct GeneratorScriptArgument {
+    enum Flags {
+        // Omit this arguments if all field placeholders expanded to empty strings.
+        OmitEmpty = 0x1,
+        // Do use the actual field value, but write it to a temporary
+        // text file and inserts its file name (suitable for multiline texts).
+        WriteFile = 0x2 };
+
+    explicit GeneratorScriptArgument(const QString &value = QString());
+
+    QString value;
+    unsigned flags;
+};
+
 struct CustomWizardParameters
 {
 public:
@@ -81,12 +100,12 @@ public:
                       Core::BaseFileWizardParameters *bp, QString *errorMessage);
     QString toString() const;
 
-    QString filesGeneratorScriptFullPath() const;
-
     QString directory;
     QString klass;
     QList<CustomWizardFile> files;
-    QString filesGeneratorScript;
+    QStringList filesGeneratorScript; // Complete binary, such as 'cmd /c myscript.pl'.
+    QList<GeneratorScriptArgument> filesGeneratorScriptArguments;
+
     QString fieldPageTitle;
     QList<CustomWizardField> fields;
     int firstPageId;
@@ -102,14 +121,24 @@ public:
 
 struct CustomWizardContext {
     typedef QMap<QString, QString> FieldReplacementMap;
+    typedef QSharedPointer<QTemporaryFile> TemporaryFilePtr;
+    typedef QList<TemporaryFilePtr> TemporaryFilePtrList;
 
     void reset();
 
     // Replace field values delimited by '%' with special modifiers:
     // %Field% -> simple replacement
     // %Field:l% -> lower case replacement, 'u' upper case,
-    // 'c' capitalize first letter.
-    static void replaceFields(const FieldReplacementMap &fm, QString *s);
+    // 'c' capitalize first letter. Return value indicates whether non-empty
+    // replacements where encountered
+    static bool replaceFields(const FieldReplacementMap &fm, QString *s);
+
+    // Special replaceFields() overload used for the arguments of a generator
+    // script: Write the expanded field values out to temporary files and
+    // inserts file names instead of the expanded fields in string 's'.
+    static bool replaceFields(const FieldReplacementMap &fm, QString *s,
+                              TemporaryFilePtrList *files);
+
     static QString processFile(const FieldReplacementMap &fm, QString in);
 
     FieldReplacementMap baseReplacements;

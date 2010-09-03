@@ -29,7 +29,9 @@
 
 #include "customwizardscriptgenerator.h"
 #include "customwizard.h"
-#include "customwizardparameters.h" // XML attributes
+#include "customwizardparameters.h"
+
+#include <utils/qtcassert.h>
 
 #include <QtCore/QProcess>
 #include <QtCore/QDir>
@@ -41,84 +43,74 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-typedef QSharedPointer<QTemporaryFile> TemporaryFilePtr;
-
-// Format pattern for temporary files
-static inline QString tempFilePattern()
+// Parse helper: Determine the correct binary to run:
+// Expand to full wizard path if it is relative and located
+// in the wizard directory, else assume it can be found in path.
+// On Windows, run non-exe files with 'cmd /c'.
+QStringList fixGeneratorScript(const QString &configFile, QString binary)
 {
-    QString tempPattern = QDir::tempPath();
-    if (!tempPattern.endsWith(QLatin1Char('/')))
-        tempPattern += QLatin1Char('/');
-    tempPattern += QLatin1String("qtcreatorXXXXXX.txt");
-    return tempPattern;
-}
-
-// Create a temporary file with content
-static inline TemporaryFilePtr writeTemporaryFile(const QString &content)
-{
-    TemporaryFilePtr temporaryFile(new QTemporaryFile(tempFilePattern()));
-    if (!temporaryFile->open())
-        return TemporaryFilePtr();
-    temporaryFile->write(content.toLocal8Bit());
-    temporaryFile->close();
-    return temporaryFile;
+    if (binary.isEmpty())
+        return QStringList();
+    // Expand to full path if it is relative and in the wizard
+    // directory, else assume it can be found in path.
+    QFileInfo binaryInfo(binary);
+    if (!binaryInfo.isAbsolute()) {
+        QString fullPath = QFileInfo(configFile).absolutePath();
+        fullPath += QLatin1Char('/');
+        fullPath += binary;
+        const QFileInfo fullPathInfo(fullPath);
+        if (fullPathInfo.isFile()) {
+            binary = fullPathInfo.absoluteFilePath();
+            binaryInfo = fullPathInfo;
+        }
+    } // not absolute
+    QStringList rc(binary);
+#ifdef Q_OS_WIN // Windows: Cannot run scripts by QProcess, do 'cmd /c'
+    const QString extension = binaryInfo.suffix();
+    if (!extension.isEmpty() && extension.compare(QLatin1String("exe"), Qt::CaseInsensitive) != 0) {
+        rc.push_front(QLatin1String("/C"));
+        rc.push_front(QString::fromLocal8Bit(qgetenv("COMSPEC")));
+        if (rc.front().isEmpty())
+            rc.front() = QLatin1String("cmd.exe");
+    }
+#endif
+    return rc;
 }
 
 // Helper for running the optional generation script.
 static bool
     runGenerationScriptHelper(const QString &workingDirectory,
-                              QString binary, bool dryRun,
+                              const QStringList &script,
+                              const QList<GeneratorScriptArgument> &argumentsIn,
+                              bool dryRun,
                               const QMap<QString, QString> &fieldMap,
                               QString *stdOut /* = 0 */, QString *errorMessage)
 {
     typedef QSharedPointer<QTemporaryFile> TemporaryFilePtr;
     typedef QList<TemporaryFilePtr> TemporaryFilePtrList;
-    typedef QMap<QString, QString>::const_iterator FieldConstIterator;
 
     QProcess process;
+    const QString binary = script.front();
     QStringList arguments;
-    // Check on the process
-    const QFileInfo binaryInfo(binary);
-    if (!binaryInfo.isFile()) {
-        *errorMessage = QString::fromLatin1("The Generator script %1 does not exist").arg(binary);
-        return false;
-    }
-#ifdef Q_OS_WIN // Windows: Cannot run scripts by QProcess, do 'cmd /c'
-    const QString extension = binaryInfo.suffix();
-    if (!extension.isEmpty() && extension.compare(QLatin1String("exe"), Qt::CaseInsensitive) != 0) {
-        arguments.push_back(QLatin1String("/C"));
-        arguments.push_back(binary);
-        binary = QString::fromLocal8Bit(qgetenv("COMSPEC"));
-        if (binary.isEmpty())
-            binary = QLatin1String("cmd.exe");
-    }
-#endif // Q_OS_WIN
-    // Arguments
-    if (dryRun)
-        arguments << QLatin1String("--dry-run");
-    // Turn the field replacement map into a list of arguments "key=value".
-    // Pass on free-format-texts as a temporary files indicated by a colon
-    // separator "key:filename"
-    TemporaryFilePtrList temporaryFiles;
+    const int binarySize = script.size();
+    for (int i = 1; i < binarySize; i++)
+        arguments.push_back(script.at(i));
 
-    const FieldConstIterator cend = fieldMap.constEnd();
-    for (FieldConstIterator it = fieldMap.constBegin(); it != cend; ++it) {
-        const QString &value = it.value();
-        // Is a temporary file required?
-        const bool passAsTemporaryFile = value.contains(QLatin1Char('\n'));
-        if (passAsTemporaryFile) {
-            // Create a file and pass on as "key:filename"
-            TemporaryFilePtr temporaryFile = writeTemporaryFile(value);
-            if (temporaryFile.isNull()) {
-                *errorMessage = QString::fromLatin1("Cannot create temporary file");
-                return false;
-            }
-            temporaryFiles.push_back(temporaryFile);
-            arguments << (it.key() + QLatin1Char(':') + QDir::toNativeSeparators(temporaryFile->fileName()));
-        } else {
-            // Normal value "key=value"
-            arguments << (it.key() + QLatin1Char('=') + value);
-        }
+    // Arguments: Prepend 'dryrun' and do field replacement
+    if (dryRun)
+        arguments.push_back(QLatin1String("--dry-run"));
+
+    // Arguments: Prepend 'dryrun'. Do field replacement to actual
+    // argument value to expand via temporary file if specified
+    CustomWizardContext::TemporaryFilePtrList temporaryFiles;
+    foreach (const GeneratorScriptArgument &argument, argumentsIn) {
+        QString value = argument.value;
+        const bool nonEmptyReplacements
+                = argument.flags & GeneratorScriptArgument::WriteFile ?
+                    CustomWizardContext::replaceFields(fieldMap, &value, &temporaryFiles) :
+                    CustomWizardContext::replaceFields(fieldMap, &value);
+        if (nonEmptyReplacements || !(argument.flags & GeneratorScriptArgument::OmitEmpty))
+            arguments.push_back(value);
     }
     process.setWorkingDirectory(workingDirectory);
     if (CustomWizard::verbose())
@@ -157,13 +149,14 @@ static bool
 // Do a dry run of the generation script to get a list of files
 Core::GeneratedFiles
     dryRunCustomWizardGeneratorScript(const QString &targetPath,
-                                      const QString &script,
+                                      const QStringList &script,
+                                      const QList<GeneratorScriptArgument> &arguments,
                                       const QMap<QString, QString> &fieldMap,
                                       QString *errorMessage)
 {
     // Run in temporary directory as the target path may not exist yet.
     QString stdOut;
-    if (!runGenerationScriptHelper(QDir::tempPath(), script, true,
+    if (!runGenerationScriptHelper(QDir::tempPath(), script, arguments, true,
                              fieldMap, &stdOut, errorMessage))
         return Core::GeneratedFiles();
     Core::GeneratedFiles files;
@@ -199,10 +192,14 @@ Core::GeneratedFiles
     return files;
 }
 
-bool runCustomWizardGeneratorScript(const QString &targetPath, const QString &script,
-                                    const QMap<QString, QString> &fieldMap, QString *errorMessage)
+bool runCustomWizardGeneratorScript(const QString &targetPath,
+                                    const QStringList &script,
+                                    const QList<GeneratorScriptArgument> &arguments,
+                                    const QMap<QString, QString> &fieldMap,
+                                    QString *errorMessage)
 {
-    return runGenerationScriptHelper(targetPath, script, false, fieldMap,
+    return runGenerationScriptHelper(targetPath, script, arguments,
+                                     false, fieldMap,
                                      0, errorMessage);
 }
 

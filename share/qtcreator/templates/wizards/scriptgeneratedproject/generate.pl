@@ -34,45 +34,59 @@ use Getopt::Long;
 use IO::File;
 
 my $optDryRun = 0;
-my $fieldClassName = 'MyClass';
-my $standardFieldProjectName = 'MyProject';
-my $standardFieldCppHeaderSuffix = 'h';
-my $standardFieldCppSourceSuffix = 'cpp';
+my $optHelp = 0;
+my $optClassName = 'MyClass';
+my $optProjectName = 'MyProject';
+my $optCppHeaderSuffix = 'h';
+my $optCppSourceSuffix = 'cpp';
+my $optDescription = '';
+
+# -- Read in a file and return its lines
+sub readFile
+{
+    my ($fileName) = @_;
+    my @rc = ();
+    my $fh = new IO::File('<' . $fileName) or die ('Unable to open for reading ' .  $fileName . ' :' . $!);
+    while (my $line = <$fh>) {
+	chomp($line);
+        push (@rc, $line);
+    }
+    $fh->close();
+    return @rc;
+}
 
 my $USAGE=<<EOF;
-Usage: generate.pl [--dry-run] <parameter-mappings>
+Usage: generate.pl [--help] | [--dry-run]
+                   [--class-name=<class name>]
+                   [--project-name=<project name>]
+                   [--header-suffix=<header suffix>]
+                   [--source-suffix=<source suffix>]
+                   [--description=<description-file>]
 
 Custom wizard project generation example script.
 
-Known parameters: ClassName=<value>
 EOF
 
-if (!GetOptions("dry-run" => \$optDryRun)) {
+my $argCount = scalar(@ARGV);
+if ($argCount == 0
+    || !GetOptions("help" => \$optHelp,
+                   "dry-run" => \$optDryRun,
+                   "class-name:s" => \$optClassName,
+                   "project-name:s" => \$optProjectName,
+                   "header-suffix:s" => \$optCppHeaderSuffix,
+                   "source-suffix:s" => \$optCppSourceSuffix,
+                   "description:s" => \$optDescription)
+    || $optHelp != 0) {
     print $USAGE;
     exit (1);
-}
-
-if (scalar(@ARGV) == 0) {
-    print $USAGE;
-    exit (1);
-}
-
-# -- Parse the 'field=value' pairs
-foreach my $arg (@ARGV) {
-    my ($key, $value) = split('=', $arg);
-    $fieldClassName = $value if ($key eq 'ClassName');
-#   -- Standard fields defined by the custom project wizard
-    $standardFieldProjectName = $value if ($key eq 'ProjectName');
-    $standardFieldCppHeaderSuffix = $value if ($key eq 'CppHeaderSuffix');
-    $standardFieldCppSourceSuffix = $value if ($key eq 'CppSourceSuffix');
 }
 
 # -- Determine file names
-my $baseFileName = lc($fieldClassName);
-my $sourceFileName = $baseFileName . '.' . $standardFieldCppSourceSuffix;
-my $headerFileName = $baseFileName . '.' . $standardFieldCppHeaderSuffix;
-my $mainSourceFileName = 'main.' . $standardFieldCppSourceSuffix;
-my $projectFileName = lc($standardFieldProjectName) . '.pro';
+my $baseFileName = lc($optClassName);
+my $sourceFileName = $baseFileName . '.' . $optCppSourceSuffix;
+my $headerFileName = $baseFileName . '.' . $optCppHeaderSuffix;
+my $mainSourceFileName = 'main.' . $optCppSourceSuffix;
+my $projectFileName = lc($optProjectName) . '.pro';
 
 if ($optDryRun) {
 #   -- Step 1) Dry run: Print file names along with attributes
@@ -85,23 +99,29 @@ if ($optDryRun) {
     print 'Generating ',  $headerFileName, ' ', $sourceFileName, ' ',
           $mainSourceFileName, ' ', $projectFileName, "\n";
     my $headerFile = new IO::File('>' . $headerFileName) or die ('Unable to open ' . $headerFileName . ' :' . $!);
-    print $headerFile '#ifndef ', uc($fieldClassName), "_H\n#define ", uc($fieldClassName), "_H\n\n",
-          'class ', $fieldClassName, "{\npublic:\n    ", $fieldClassName, "();\n\n};\n\n#endif\n";
+    print $headerFile '#ifndef ', uc($optClassName), "_H\n#define ", uc($optClassName), "_H\n\n",
+          'class ', $optClassName, "{\npublic:\n    ", $optClassName, "();\n\n};\n\n#endif\n";
     $headerFile->close();
 
     my $sourceFile = new IO::File('>' . $sourceFileName) or die ('Unable to open ' . $sourceFileName . ' :' . $!);
     print $sourceFile  '#include "', $headerFileName ,"\"\n\n",
-            $fieldClassName,'::', $fieldClassName, "()\n{\n}\n";
+            $optClassName,'::', $optClassName, "()\n{\n}\n";
     $sourceFile->close();
 
     my $mainSourceFile = new IO::File('>' . $mainSourceFileName) or die ('Unable to open ' . $mainSourceFileName . ' :' . $!);
-    print $mainSourceFile  '#include "', $headerFileName ,"\"\n\n",
-          "int main(int argc, char *argv[])\n{\n    ", $fieldClassName,' ', lc($fieldClassName),
+    print $mainSourceFile  '#include "', $headerFileName ,"\"\n\n";
+#   -- Write out description comments
+    if ($optDescription ne '') {
+        foreach my $description (readFile($optDescription)) {
+	    print $mainSourceFile  '// ', $description, "\n";
+	}
+    }
+    print $mainSourceFile "int main(int argc, char *argv[])\n{\n    ", $optClassName,' ', lc($optClassName),
           ";\n    return 0;\n}\n";
     $mainSourceFile->close();
 
     my $projectFile = new IO::File('>' . $projectFileName) or die ('Unable to open ' . $projectFileName . ' :' . $!);
-    print $projectFile "TEMPLATE = app\nQT -= core\nCONFIG += console\nTARGET = ", $standardFieldProjectName,
+    print $projectFile "TEMPLATE = app\nQT -= core\nCONFIG += console\nTARGET = ", $optProjectName,
           "\nSOURCES += ", $sourceFileName, ' ',$headerFileName, ' ', $mainSourceFileName,
           "\nHEADERS += ", $headerFileName,"\n";
     $projectFile->close();
