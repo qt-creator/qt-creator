@@ -1340,15 +1340,18 @@ protected:
                                                            scope);
         foreach (LookupItem result, results) {
             FullySpecifiedType fst = result.type();
+            if (! result.declaration())
+                continue;
             if (Enum *e = result.declaration()->type()->asEnumType())
                 return e;
             if (NamedType *namedType = fst->asNamedType()) {
                 QList<LookupItem> candidates =
                         typeOfExpression.context().lookup(namedType->name(), scope);
                 foreach (const LookupItem &r, candidates) {
-                    Symbol *candidate = r.declaration();
-                    if (Enum *e = candidate->asEnum()) {
-                        return e;
+                    if (Symbol *candidate = r.declaration()) {
+                        if (Enum *e = candidate->asEnum()) {
+                            return e;
+                        }
                     }
                 }
             }
