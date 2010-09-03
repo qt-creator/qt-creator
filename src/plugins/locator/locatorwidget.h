@@ -66,9 +66,11 @@ public:
 
 private slots:
     void showPopup();
+    void showPopupNow();
     void acceptCurrentEntry();
     void filterSelected();
     void showConfigureDialog();
+    void updateEntries();
 
 private:
     bool eventFilter(QObject *obj, QEvent *event);
@@ -87,6 +89,8 @@ private:
     QAction *m_refreshAction;
     QAction *m_configureAction;
     Utils::FilterLineEdit *m_fileLineEdit;
+    QTimer *m_showPopupTimer;
+    QFutureWatcher<FilterEntry> *m_entriesWatcher;
 };
 
 } // namespace Internal

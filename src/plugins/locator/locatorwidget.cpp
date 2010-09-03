@@ -48,7 +48,9 @@ QT_END_NAMESPACE
 #include <coreplugin/fileiconprovider.h>
 #include <utils/filterlineedit.h>
 #include <utils/qtcassert.h>
+#include <qtconcurrent/runextensions.h>
 
+#include <QtCore/QtConcurrentRun>
 #include <QtCore/QFileInfo>
 #include <QtCore/QFile>
 #include <QtCore/QTimer>
@@ -315,6 +317,14 @@ LocatorWidget::LocatorWidget(LocatorPlugin *qop) :
         this, SLOT(showPopup()));
     connect(m_completionList, SIGNAL(activated(QModelIndex)),
             this, SLOT(acceptCurrentEntry()));
+
+    m_entriesWatcher = new QFutureWatcher<FilterEntry>(this);
+    connect(m_entriesWatcher, SIGNAL(finished()), SLOT(updateEntries()));
+
+    m_showPopupTimer = new QTimer(this);
+    m_showPopupTimer->setInterval(100);
+    m_showPopupTimer->setSingleShot(true);
+    connect(m_showPopupTimer, SIGNAL(timeout()), SLOT(showPopupNow()));
 }
 
 void LocatorWidget::updateFilterList()
@@ -384,6 +394,12 @@ void LocatorWidget::showCompletionList()
 
 void LocatorWidget::showPopup()
 {
+    m_showPopupTimer->start();
+}
+
+void LocatorWidget::showPopupNow()
+{
+    m_showPopupTimer->stop();
     updateCompletionList(m_fileLineEdit->text());
     showCompletionList();
 }
@@ -412,22 +428,41 @@ QList<ILocatorFilter*> LocatorWidget::filtersFor(const QString &text, QString &s
     return activeFilters;
 }
 
-void LocatorWidget::updateCompletionList(const QString &text)
+static void filter_helper(QFutureInterface<FilterEntry> &entries, QList<ILocatorFilter *> filters, QString searchText)
 {
-    QString searchText;
-    const QList<ILocatorFilter*> filters = filtersFor(text, searchText);
     QSet<FilterEntry> alreadyAdded;
     const bool checkDuplicates = (filters.size() > 1);
-    QList<FilterEntry> entries;
     foreach (ILocatorFilter *filter, filters) {
+        if (entries.isCanceled())
+            break;
+
         foreach (const FilterEntry &entry, filter->matchesFor(searchText)) {
             if (checkDuplicates && alreadyAdded.contains(entry))
                 continue;
-            entries.append(entry);
+            //entries.append(entry);
+            entries.reportResult(entry);
             if (checkDuplicates)
                 alreadyAdded.insert(entry);
         }
     }
+}
+
+void LocatorWidget::updateCompletionList(const QString &text)
+{
+    QString searchText;
+    const QList<ILocatorFilter*> filters = filtersFor(text, searchText);
+
+    QFuture<FilterEntry> future = QtConcurrent::run(filter_helper, filters, searchText);
+    m_entriesWatcher->future().cancel();
+    m_entriesWatcher->setFuture(future);
+}
+
+void LocatorWidget::updateEntries()
+{
+    if (m_entriesWatcher->future().isCanceled())
+        return;
+
+    const QList<FilterEntry> entries = m_entriesWatcher->future().results();
     m_locatorModel->setEntries(entries);
     if (m_locatorModel->rowCount() > 0) {
         m_completionList->setCurrentIndex(m_locatorModel->index(0, 0));
