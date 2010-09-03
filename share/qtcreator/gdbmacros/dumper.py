@@ -1171,6 +1171,9 @@ class Dumper:
             qqQObjectCache[name] = False
             return False
         base = fields[0].type.strip_typedefs()
+        # Prevent infinite recursion in Qt 3.3.8
+        if str(base) == name:
+            return False
         result = self.checkForQObjectBase(base)
         qqQObjectCache[name] = result
         return result
