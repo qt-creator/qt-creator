@@ -1684,8 +1684,15 @@ static bool shouldInsertNewline(const QTextCursor &tc)
 
 QString QmlJSTextEditor::insertParagraphSeparator(const QTextCursor &tc) const
 {
-    if (shouldInsertNewline(tc))
+    if (shouldInsertNewline(tc)) {
+        QTextCursor cursor = tc;
+        cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+        if (! cursor.selectedText().trimmed().isEmpty())
+            return QString();
+
         return QLatin1String("}\n");
+    }
+
     return QLatin1String("}");
 }
 
