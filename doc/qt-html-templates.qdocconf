@@ -121,7 +121,6 @@ HTML.footer             = "        <!-- /div -->\n" \
 			  "      <span></span>\n" \
 			  "    </div>\n" \
 			  "  </div> \n" \
-
 			  "  <div class=\"footer\">\n" \
 			  "    <p>\n" \
 			  "      <acronym title=\"Copyright\">&copy;</acronym> 2008-2010 Nokia Corporation and/or its\n" \
@@ -142,7 +141,6 @@ HTML.footer             = "        <!-- /div -->\n" \
 			  "  </div>\n" \
 			  "  <div id=\"blurpage\">\n" \
 			  "  </div>\n" \
-
 			  "<script type=\"text/javascript\">\n" \
 			  "  var _gaq = _gaq || [];\n" \
 			  "  _gaq.push([\'_setAccount\', \'UA-4457116-5\']);\n" \
