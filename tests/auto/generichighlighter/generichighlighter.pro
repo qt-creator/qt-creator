@@ -1,2 +1,2 @@
 TEMPLATE = subdirs
-SUBDIRS += specificrules highlighterengine
+SUBDIRS += highlighterengine specificrules

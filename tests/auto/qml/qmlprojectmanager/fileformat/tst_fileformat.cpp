@@ -6,13 +6,15 @@
 #include <QDeclarativeEngine>
 #include <QtTest>
 
+//TESTED_COMPONENT=src/plugins/qmlprojectmanager/fileformat
+
 using namespace QmlProjectManager;
 
-class TestProject : public QObject
+class tst_FileFormat : public QObject
 {
     Q_OBJECT
 public:
-    TestProject();
+    tst_FileFormat();
 
 private slots:
     void testFileFilter();
@@ -20,14 +22,14 @@ private slots:
     void testLibraryPaths();
 };
 
-TestProject::TestProject()
+tst_FileFormat::tst_FileFormat()
 {
     QmlProjectFileFormat::registerDeclarativeTypes();
 }
 
 QString testDataDir = QLatin1String(SRCDIR "/data");
 
-void TestProject::testFileFilter()
+void tst_FileFormat::testFileFilter()
 {
     //
     // Search for qml files in directory + subdirectories
@@ -208,7 +210,7 @@ void TestProject::testFileFilter()
     }
 }
 
-void TestProject::testMatchesFile()
+void tst_FileFormat::testMatchesFile()
 {
     //
     // search for qml files in local directory
@@ -243,7 +245,7 @@ void TestProject::testMatchesFile()
     QVERIFY(!project->matchesFile(testDataDir + "/script.css"));
 }
 
-void TestProject::testLibraryPaths()
+void tst_FileFormat::testLibraryPaths()
 {
     //
     // search for qml files in local directory
@@ -274,5 +276,5 @@ void TestProject::testLibraryPaths()
 }
 
 
-QTEST_MAIN(TestProject);
+QTEST_MAIN(tst_FileFormat);
 #include "tst_fileformat.moc"

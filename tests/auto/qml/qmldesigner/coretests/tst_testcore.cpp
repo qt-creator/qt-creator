@@ -65,6 +65,7 @@
 #include <private/qdeclarativestate_p.h>
 #include <private/qdeclarativemetatype_p.h>
 
+//TESTED_COMPONENT=src/plugins/qmldesigner/designercore
 
 using namespace QmlDesigner;
 #include <cstdio>

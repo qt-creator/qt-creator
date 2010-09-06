@@ -31,6 +31,8 @@
 
 #include <QtTest/QtTest>
 
+//TESTED_COMPONENT=src/libs/utils
+
 class tst_StringUtils : public QObject
 {
     Q_OBJECT

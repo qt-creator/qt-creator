@@ -3,10 +3,10 @@ CONFIG += ordered
 
 SUBDIRS = \
     ast \
-    semantic \
+    codeformatter \
+    codegen \
+    findusages \
     lookup \
     preprocessor \
-    findusages \
-    typeprettyprinter \
-    codeformatter \
-    codegen
+    semantic \
+    typeprettyprinter

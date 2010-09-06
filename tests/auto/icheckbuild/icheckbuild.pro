@@ -1,3 +1,5 @@
+CONFIG += qtestlib testcase
+
 include(../../../qtcreator.pri)
 include($$IDE_SOURCE_TREE/src/libs/cplusplus/cplusplus.pri)
 include($$IDE_SOURCE_TREE/src/plugins/cpptools/cpptools.pri)
@@ -9,8 +11,6 @@ DEFINES += ICHECK_BUILD ICHECK_APP_BUILD
 INCLUDEPATH += $$IDE_SOURCE_TREE/src/libs/cplusplus
 INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins
 LIBS += $$IDE_SOURCE_TREE/lib/qtcreator/plugins
-
-TARGET=tst_$$TARGET
 
 HEADERS += ichecklib.h \
            ichecklib_global.h \
