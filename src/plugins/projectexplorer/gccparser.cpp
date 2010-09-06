@@ -36,7 +36,7 @@ using namespace ProjectExplorer;
 
 namespace {
     // opt. drive letter + filename: (2 brackets)
-    const char * const FILE_PATTERN = "(([A-Za-z]:)?[^:]+\\.[^:]+):";
+    const char * const FILE_PATTERN = "(<command line>|([A-Za-z]:)?[^:]+\\.[^:]+):";
     const char * const COMMAND_PATTERN = "^(.*[\\\\/])?([a-z0-9]+-[a-z0-9]+-[a-z0-9]+-)?(gcc|g\\+\\+)(-[0-9\\.]+)?(\\.exe)?: ";
 }
 
@@ -584,6 +584,28 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                          QLatin1String("../../../src/XmlUg/targetdelete.c"), -1,
                          Constants::TASK_CATEGORY_COMPILE))
             << QString();
+
+    QTest::newRow("GCCE 4: commandline, includes")
+            << QString::fromLatin1("In file included from /Symbian/SDK/EPOC32/INCLUDE/GCCE/GCCE.h:15,\n"
+                                   "                 from <command line>:26:\n"
+                                   "/Symbian/SDK/epoc32/include/variant/Symbian_OS.hrh:1134:26: warning: no newline at end of file")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << ( QList<ProjectExplorer::Task>()
+                 << Task(Task::Unknown,
+                         QLatin1String("In file included from /Symbian/SDK/EPOC32/INCLUDE/GCCE/GCCE.h:15,"),
+                         QLatin1String("/Symbian/SDK/EPOC32/INCLUDE/GCCE/GCCE.h"), 15,
+                         Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Unknown,
+                        QLatin1String("from <command line>:26:"),
+                        QLatin1String("<command line>"), 26,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Warning,
+                        QLatin1String("no newline at end of file"),
+                        QLatin1String("/Symbian/SDK/epoc32/include/variant/Symbian_OS.hrh"), 1134,
+                        Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+
 }
 
 void ProjectExplorerPlugin::testGccOutputParsers()
