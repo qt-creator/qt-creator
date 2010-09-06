@@ -88,6 +88,10 @@ void RemoteGdbServerAdapter::startAdapter()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("TRYING TO START ADAPTER"));
+    if (!startParameters().useServerStartScript) {
+        handleSetupDone();
+        return;
+    }
     if (startParameters().serverStartScript.isEmpty()) {
         showMessage(_("No server start script given. "), StatusBar);
         emit requestSetup();
