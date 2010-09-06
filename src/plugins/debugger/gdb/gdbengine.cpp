@@ -802,6 +802,9 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
 
     m_gdbAdapter->write(cmd.command + "\r\n");
 
+    // Start Watchdog.
+    if (m_commandTimer->interval() <= 20000)
+        m_commandTimer->setInterval(commandTimeoutTime());
     m_commandTimer->start();
 
     //if (cmd.flags & LosesChild)
@@ -4019,8 +4022,6 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
     }
 
     showMessage(_("GDB STARTED, INITIALIZING IT"));
-    m_commandTimer->setInterval(commandTimeoutTime());
-
     postCommand("show version", CB(handleShowVersion));
 
     //postCommand("-enable-timings");
