@@ -84,8 +84,8 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     if (success) {
         EditorManager *editorManager = m_mainWindow->editorManager();
         m_editMode = new EditMode(editorManager);
-        m_mainWindow->modeManager()->activateMode(m_editMode->id());
         addObject(m_editMode);
+        m_mainWindow->modeManager()->activateMode(m_editMode->id());
 
         m_designMode = new DesignMode(editorManager);
         addObject(m_designMode);
