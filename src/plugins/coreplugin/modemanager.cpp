@@ -73,6 +73,7 @@ struct ModeManagerPrivate
     QSignalMapper *m_signalMapper;
     Context m_addedContexts;
     int m_oldCurrent;
+    bool m_switchedToMode;
 };
 
 ModeManager *ModeManagerPrivate::m_instance = 0;
@@ -152,7 +153,7 @@ IMode *ModeManager::mode(const QString &id) const
 
 void ModeManager::activateMode(const QString &id)
 {
-    m_switchedToMode = true;
+    d->m_switchedToMode = true;
     const int index = indexOf(id);
     if (index >= 0)
         d->m_modeStack->setCurrentIndex(index);
@@ -313,7 +314,7 @@ void ModeManager::setFocusToCurrentMode()
 
 void ModeManager::switchToDefaultMode()
 {
-    if (!m_switchedToMode)
+    if (!d->m_switchedToMode)
         d->m_modeStack->setCurrentIndex(0);
 }
 
