@@ -135,9 +135,7 @@ struct ProjectExplorerPluginPrivate {
     QMultiMap<int, QObject*> m_actionMap;
     QAction *m_sessionManagerAction;
     QAction *m_newAction;
-#if 0
     QAction *m_loadAction;
-#endif
     Utils::ParameterAction *m_unloadAction;
     QAction *m_clearSession;
     QAction *m_buildProjectOnlyAction;
@@ -491,14 +489,11 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+N")));
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_FILES);
 
-#if 0
     // open action
     d->m_loadAction = new QAction(tr("Load Project..."), this);
     cmd = am->registerAction(d->m_loadAction, Constants::LOAD, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+O")));
-    mfile->addAction(cmd, Core::Constants::G_FILE_PROJECT);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_FILES);
-#endif
 
     // Default open action
     d->m_openFileAction = new QAction(tr("Open File"), this);
@@ -807,9 +802,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     connect(d->m_sessionManagerAction, SIGNAL(triggered()), this, SLOT(showSessionManager()));
     connect(d->m_newAction, SIGNAL(triggered()), this, SLOT(newProject()));
-#if 0
     connect(d->m_loadAction, SIGNAL(triggered()), this, SLOT(loadAction()));
-#endif
     connect(d->m_buildProjectOnlyAction, SIGNAL(triggered()), this, SLOT(buildProjectOnly()));
     connect(d->m_buildAction, SIGNAL(triggered()), this, SLOT(buildProject()));
     connect(d->m_buildActionContextMenu, SIGNAL(triggered()), this, SLOT(buildProjectContextMenu()));
