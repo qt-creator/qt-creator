@@ -1,4 +1,4 @@
-<plugin name="HelloWorld" version="2.0.90" compatVersion="2.0.90">
+<plugin name="HelloWorld" version="2.0.90" compatVersion="2.0.90" experimental="true">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2010 Nokia Corporation</copyright>
     <license>

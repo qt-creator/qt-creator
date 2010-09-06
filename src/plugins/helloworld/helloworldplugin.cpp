@@ -30,6 +30,7 @@
 #include "helloworldplugin.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/basemode.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
@@ -77,9 +78,7 @@ bool HelloWorldPlugin::initialize(const QStringList &arguments, QString *error_m
 
     // Create a unique context id for our own view, that will be used for the
     // menu entry later.
-    QList<int> context = QList<int>()
-        << core->uniqueIDManager()->uniqueIdentifier(
-                QLatin1String("HelloWorld.MainView"));
+    Core::Context context("HelloWorld.MainView");
 
     // Create an action to be triggered by a menu entry
     QAction *helloWorldAction = new QAction(tr("Say \"&Hello World!\""), this);
