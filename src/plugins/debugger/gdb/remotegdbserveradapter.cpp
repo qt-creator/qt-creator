@@ -164,6 +164,11 @@ void RemoteGdbServerAdapter::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
 
+    QString fileName;
+    if (!startParameters().executable.isEmpty()) {
+        QFileInfo fi(startParameters().executable);
+        fileName = fi.absoluteFilePath();
+    }
     m_engine->postCommand("set architecture "
         + startParameters().remoteArchitecture.toLatin1());
     m_engine->postCommand("set sysroot "
@@ -177,8 +182,13 @@ void RemoteGdbServerAdapter::setupInferior()
     }
 
     m_engine->postCommand("set target-async on", CB(handleSetTargetAsync));
-    QFileInfo fi(startParameters().executable);
-    QString fileName = fi.absoluteFilePath();
+
+    if (fileName.isEmpty()) {
+        showMessage(tr("No symbol file given."), StatusBar);
+        callTargetRemote();
+        return;
+    }
+
     m_engine->postCommand("-file-exec-and-symbols \""
         + fileName.toLocal8Bit() + '"',
         CB(handleFileExecAndSymbols));
@@ -195,20 +205,25 @@ void RemoteGdbServerAdapter::handleFileExecAndSymbols(const GdbResponse &respons
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
-        //m_breakHandler->clearBreakMarkers();
-
-        // "target remote" does three things:
-        //     (1) connects to the gdb server
-        //     (2) starts the remote application
-        //     (3) stops the remote application (early, e.g. in the dynamic linker)
-        QString channel = startParameters().remoteChannel;
-        m_engine->postCommand("target remote " + channel.toLatin1(),
-            CB(handleTargetRemote));
+        callTargetRemote();
     } else {
-        QString msg = tr("Starting remote executable failed:\n");
+        QString msg = tr("Reading debug information failed:\n");
         msg += QString::fromLocal8Bit(response.data.findChild("msg").data());
         m_engine->notifyInferiorSetupFailed(msg);
     }
+}
+
+void RemoteGdbServerAdapter::callTargetRemote()
+{
+    //m_breakHandler->clearBreakMarkers();
+
+    // "target remote" does three things:
+    //     (1) connects to the gdb server
+    //     (2) starts the remote application
+    //     (3) stops the remote application (early, e.g. in the dynamic linker)
+    QString channel = startParameters().remoteChannel;
+    m_engine->postCommand("target remote " + channel.toLatin1(),
+        CB(handleTargetRemote));
 }
 
 void RemoteGdbServerAdapter::handleTargetRemote(const GdbResponse &record)

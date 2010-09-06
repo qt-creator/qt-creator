@@ -4015,8 +4015,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
     gdbProc()->start(m_gdb, gdbArgs);
 
     if (!gdbProc()->waitForStarted()) {
-        const QString msg = tr("Unable to start gdb '%1': %2")
-            .arg(m_gdb, gdbProc()->errorString());
+        const QString msg = errorMessage(QProcess::FailedToStart);
         handleAdapterStartFailed(msg, settingsIdHint);
         return false;
     }
@@ -4129,19 +4128,23 @@ bool GdbEngine::checkDebuggingHelpers()
 
 void GdbEngine::handleGdbError(QProcess::ProcessError error)
 {
-    showMessage(_("HANDLE GDB ERROR: ") + errorMessage(error));
+    const QString msg = errorMessage(error);
+    showMessage(_("HANDLE GDB ERROR: ") + msg);
+    // Show a message box for asynchroneously reported issues.
     switch (error) {
+    case QProcess::FailedToStart:
+        // This should be handled by the code trying to start the process.
+        break;
     case QProcess::Crashed:
-        break; // will get a processExited() as well
-    // impossible case QProcess::FailedToStart:
+        // This will get a processExited() as well.
+        break;
     case QProcess::ReadError:
     case QProcess::WriteError:
     case QProcess::Timedout:
     default:
         //gdbProc()->kill();
         //setState(EngineShutdownRequested, true);
-        showMessageBox(QMessageBox::Critical, tr("Gdb I/O Error"),
-                       errorMessage(error));
+        showMessageBox(QMessageBox::Critical, tr("Gdb I/O Error"), msg);
         break;
     }
 }
