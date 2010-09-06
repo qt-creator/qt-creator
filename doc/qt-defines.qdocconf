@@ -22,48 +22,40 @@ codeindent              = 1
 # See also qhp.Qt.extraFiles
 extraimages.HTML        = qt-logo \
                           trolltech-logo \
-                          api_examples.png \
-                          api_lookup.png \
-                          arrow_down.png \
-                          bg_ll.png \
-                          bg_l.png \
-                          bg_lr.png \
-                          bg_r.png \
-                          bg_ul_blank.png \
-                          bg_ll_blank.png \
-                          bg_l_blank.png \
-                          breadcrumb.png \
-                          bullet_up.png \
-                          bullet_dn.png \
-                          bullet_gt.png \
-                          bullet_sq.png \
-                          box_bg.png \
-                          feedbackground.png \
-                          horBar.png \
-                          page_bg.png \
-                          page.png \
-                          sprites-combined.png \
-                          qtcreator-screenshots.png
+						 bg_l.png \
+						 bg_l_blank.png \
+						 bg_ll_blank.png \
+						 bg_ul_blank.png \
+						 header_bg.png \
+						 bg_r.png \
+						 box_bg.png \
+						 breadcrumb.png \
+						 bullet_gt.png \
+						 bullet_dn.png \
+						 bullet_sq.png \
+						 bullet_up.png \
+						 arrow_down.png \
+						 feedbackground.png \
+						 horBar.png \
+						 page.png \
+						 page_bg.png \
+						 sprites-combined.png \
+						 spinner.gif \
+						 qtcreator-screenshots.png
 
 # This stuff is used by the new doc format.
 scriptdirs              = $SRCDIR/templates/scripts
 styledirs               = $SRCDIR/templates/style
 
 scripts.HTML		= functions.js \
-			  shBrushCpp.js \
-			  shCore.js \
-			  shLegacy.js \
 			  narrow.js \
 			  superfish.js \
 			  jquery.js
 
 styles.HTML		= style.css \
-			  shCore.css \
-			  shThemeDefault.css \
 			  narrow.css \
 			  superfish.css \
 			  superfish_skin.css \
-			  OfflineStyle.css \
 			  style_ie6.css \
 			  style_ie7.css \
 			  style_ie8.css

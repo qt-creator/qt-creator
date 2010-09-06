@@ -11,27 +11,58 @@ HTML.postheader         = " <div class=\"header\" id=\"qtdocheader\">\n" \
 			  "    <a href=\"index.html\" class=\"qtref\"><span>Qt Creator Documentation</span></a>\n" \
 			  "		<div id=\"narrowsearch\"><form onsubmit=\"return false;\" action=\"\" id=\"qtdocsearch\">\n" \
 			  "		<fieldset>\n" \
-              "		<input type=\"text\" value=\"\" id=\"pageType\" name=\"searchstring\">\n" \
+              "		<input type=\"text\" value=\"\" id=\"pageType2\" name=\"searchstring\">\n" \
 			  "		 </fieldset>\n" \
 			  "		</form></div>\n" \
 			  "    <div id=\"nav-topright\">\n" \
 			  "      <ul>\n" \
 			  "        <li class=\"nav-topright-home\"><a href=\"http://qt.nokia.com/\">Qt HOME</a></li>\n" \
-			  "        <li class=\"nav-topright-dev\"><a href=\"http://qt.nokia.com/developer\">DEV</a></li>\n" \
+			  "        <li class=\"nav-topright-dev\"><a href=\"http://developer.qt.nokia.com/\">DEV</a></li>\n" \
 			  "        <li class=\"nav-topright-labs\"><a href=\"http://labs.qt.nokia.com/blogs/\">LABS</a></li>\n" \
 			  "        <li class=\"nav-topright-doc nav-topright-doc-active\"><a href=\"http://doc.qt.nokia.com/\">\n" \
 			  "          DOC</a></li>\n" \
 			  "        <li class=\"nav-topright-blog\"><a href=\"http://blog.qt.nokia.com/\">BLOG</a></li>\n" \
-			  "        <li class=\"nav-topright-shop\"><a title=\"SHOP\" href=\"http://shop.qt.nokia.com\">SHOP</a></li>\n" \
+			  "        <li class=\"nav-topright-dev\"><a href=\"http://developer.qt.nokia.com/\">DEV</a></li>\n" \
 			  "      </ul>\n" \
 			  "    </div>\n" \
 			  "    <div id=\"shortCut\">\n" \
 			  "      <ul>\n" \
 			  "        <li class=\"shortCut-topleft-inactive\"><span><a href=\"index.html\">Qt Creator 2.0.90 </a></span></li>\n" \
-			  "        <li class=\"shortCut-topleft-active\"><a href=\"http://qt.nokia.com/doc/\">ALL VERSIONS" \
+			  "        <li class=\"shortCut-topleft-active\"><a href=\"http://doc.qt.nokia.com\">ALL VERSIONS" \
 			  "        </a></li>\n" \
 			  "      </ul>\n" \
 			  "     </div>\n" \
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 			  "    </div>\n" \
 			  "  </div>\n" \
 			  "  <div class=\"wrapper\">\n" \
@@ -58,7 +89,7 @@ HTML.postheader         = " <div class=\"header\" id=\"qtdocheader\">\n" \
 			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/functions.html\">Function index</a></li>\n" \
 			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/modules.html\">Modules</a></li>\n" \
 			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/namespaces.html\">Namespaces</a></li>\n" \
-			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/qtglobal.html\">Global stuff</a></li>\n" \
+			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/qtglobal.html\">Global Declarations</a></li>\n" \
 			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/qdeclarativeelements.html\">QML elements</a></li>\n" \
 			  "            </ul> \n" \
 			  "          </div>\n" \
@@ -68,10 +99,13 @@ HTML.postheader         = " <div class=\"header\" id=\"qtdocheader\">\n" \
 			  "            Qt Topics</h2>\n" \
 			  "          <div id=\"list002\" class=\"list\">\n" \
 			  "            <ul id=\"ul002\" >\n" \
-			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/qt-basic-concepts.html\">Basic Qt architecture</a></li>\n" \
-			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/declarativeui.html\">Device UI's &amp; Qt Quick</a></li>\n" \
-			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/qt-gui-concepts.html\">Desktop UI components</a></li>\n" \
-			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/platform-specific.html\">Platform-specific info</a></li>\n" \
+			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/qt-basic-concepts.html\">Programming with Qt</a></li> \n" \
+			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/qtquick.html\">Device UI's &amp; Qt Quick</a></li> \n" \
+			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/qt-gui-concepts.html\">UI Design with Qt</a></li> \n" \
+			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/developing-with-qt.html\">Cross-platform and Platform-specific</a></li> \n" \
+			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/platform-specific.html\">Platform-specific info</a></li> \n" \
+			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/technology-apis.html\">Qt and Key Technologies</a></li> \n" \
+			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/best-practices.html\">How-To's and Best Practices</a></li> \n" \
 			  "            </ul>  \n" \
 			  "          </div>\n" \
 			  "        </div>\n" \
@@ -84,7 +118,6 @@ HTML.postheader         = " <div class=\"header\" id=\"qtdocheader\">\n" \
 			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/tutorials.html\">Tutorials</a></li>\n" \
 			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/demos.html\">Demos</a></li>\n" \
 			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/qdeclarativeexamples.html\">QML Examples</a></li>\n" \
-			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/qdeclarativeexamples.html#Demos\">QML Demos</a></li>\n" \
 			  "            </ul> \n" \
 			  "          </div>\n" \
 			  "        </div>\n" \
@@ -119,6 +152,7 @@ HTML.footer             = "        <!-- /div -->\n" \
 			  "      <span></span>\n" \
 			  "    </div>\n" \
 			  "  </div> \n" \
+
 			  "  <div class=\"footer\">\n" \
 			  "    <p>\n" \
 			  "      <acronym title=\"Copyright\">&copy;</acronym> 2008-2010 Nokia Corporation and/or its\n" \
@@ -131,12 +165,15 @@ HTML.footer             = "        <!-- /div -->\n" \
 			  "  <div id=\"feedbackBox\">\n" \
 			  "      <div id=\"feedcloseX\" class=\"feedclose t_button\">X</div>\n" \
 			  "    <form id=\"feedform\" action=\"http://doc.qt.nokia.com/docFeedbck/feedback.php\" method=\"get\">\n" \
-			  "      <p><textarea id=\"feedbox\" name=\"feedText\" rows=\"5\" cols=\"40\">Please submit you feedback...</textarea></p>\n" \
+			  "      <p id=\"noteHead\">Thank you for giving your feedback. <div class=\"note\">Make sure it is related to this specific page. For more general bugs and \n" \
+			  "      requests, please use the <a href=\"http://bugreports.qt.nokia.com/secure/Dashboard.jspa\">Qt Bug Tracker</a>.</div></p>\n" \
+			  "      <p><textarea id=\"feedbox\" name=\"feedText\" rows=\"5\" cols=\"40\"></textarea></p>\n" \
 			  "      <p><input id=\"feedsubmit\" class=\"feedclose\" type=\"submit\" name=\"feedback\" /></p>\n" \
 			  "    </form>\n" \
 			  "  </div>\n" \
 			  "  <div id=\"blurpage\">\n" \
 			  "  </div>\n" \
+
 			  "<script type=\"text/javascript\">\n" \
 			  "  var _gaq = _gaq || [];\n" \
 			  "  _gaq.push([\'_setAccount\', \'UA-4457116-5\']);\n" \

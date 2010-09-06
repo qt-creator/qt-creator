@@ -1,3 +1,4 @@
+
 # Run qdoc from the directory that contains this file.
 include(qt-html-templates.qdocconf)
 
@@ -26,34 +27,27 @@ qhp.QtCreator.filterAttributes = qtcreator 2.0.90
 qhp.QtCreator.customFilters.QtCreator.name = Qt Creator 2.0.90
 qhp.QtCreator.customFilters.QtCreator.filterAttributes = qtcreator 2.0.90
 qhp.QtCreator.indexRoot        =
-qhp.QtCreator.extraFiles       = \
-                          style/style.css \
+qhp.QtCreator.extraFiles       = style/style.css \
                           style/style_ie6.css \
                           style/style_ie7.css \
                           style/style_ie8.css \
-                          style/OfflineStyle.css \
-                          style/narrow.css \
-                          style/OfflineStyle.css \
-                          style/superfish.css \
-                          style/superfish_skin.css \
-                          images/qt-logo.png \
-                          images/qtcreator-screenshots.png \
                           scripts/functions.js \
                           scripts/jquery.js \
-                          scripts/narrow.js \
-                          scripts/superfish.js \
-                          images/api_examples.png \
-                          images/api_lookup.png \
+						  scripts/narrow.js \
+						  scripts/superfish.js \
+						  style/narrow.css \
+						  style/superfish.css \
+                          images/qtcreator-screenshots.png \
                           images/arrow_down.png \
-                          images/bg_ll.png \
+						  images/header_bg.png \
                           images/bg_l.png \
-                          images/bg_lr.png \
                           images/bg_r.png \
                           images/bg_ul_blank.png \
                           images/bg_ll_blank.png \
                           images/bg_l_blank.png \
                           images/breadcrumb.png \
                           images/bullet_dn.png \
+						  images/bullet_up.png \
                           images/bullet_gt.png \
                           images/bullet_sq.png \
                           images/box_bg.png \
@@ -62,8 +56,8 @@ qhp.QtCreator.extraFiles       = \
                           images/page_bg.png \
                           images/page.png \
                           images/qt-logo.png \
-                          images/sprites-combined.png \
-                          images/bullet_up.png
+						  images/spinner.gif \
+                          images/sprites-combined.png
 
 qhp.QtCreator.subprojects = manual
 qhp.QtCreator.subprojects.manual.title = Qt Creator Manual

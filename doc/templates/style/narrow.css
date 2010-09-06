@@ -203,6 +203,9 @@
       *border: 1px solid #fff;
       *height: 17px;
       _height: 18px;
+	  /* to be fixed */
+	  display: none;
+	  /* to be fixed */
     }
 
     .narrow .indexbox .indexIcon {

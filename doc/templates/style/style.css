@@ -388,9 +388,9 @@
     .shortCut-topleft-inactive
     {
         padding-left: 3px;
+        padding-right: 3px;
         background: transparent url( ../images/sprites-combined.png) no-repeat 0px -58px;
         height: 20px;
-        width: 47px;
     }
     .shortCut-topleft-inactive span
     {
@@ -1521,6 +1521,10 @@
 	.creator .toc {
 	margin:10px 20px 10px 10px;
 	}	
+	
+	.creator #narrowsearch, .creator #narrowmenu{
+		display:none;
+	}
 /* end of creator spec*/
 	
 }
