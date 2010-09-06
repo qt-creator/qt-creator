@@ -791,8 +791,8 @@ void CustomWizardContext::reset()
     baseReplacements.insert(QLatin1String("CppHeaderSuffix"),
                             mdb->preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)));
     replacements.clear();
+    path.clear();
     targetPath.clear();
-    projectFilePath.clear();
 }
 
 QString CustomWizardContext::processFile(const FieldReplacementMap &fm, QString in)

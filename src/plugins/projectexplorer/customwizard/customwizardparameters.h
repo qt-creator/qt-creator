@@ -143,10 +143,11 @@ struct CustomWizardContext {
 
     FieldReplacementMap baseReplacements;
     FieldReplacementMap replacements;
-    // Where files should be created, that is, choosen path for simple wizards
-    // or "path/project" for project wizards.
+
+    QString path;
+    // Where files should be created, that is, 'path' for simple wizards
+    // or "path + project" for project wizards.
     QString targetPath;
-    QString projectFilePath;
 };
 
 extern const char customWizardFileOpenEditorAttributeC[];
