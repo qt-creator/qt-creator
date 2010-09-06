@@ -309,6 +309,11 @@ void ModeManager::setFocusToCurrentMode()
     }
 }
 
+void ModeManager::switchToDefaultMode()
+{
+    d->m_modeStack->setCurrentIndex(0);
+}
+
 ModeManager *ModeManager::instance()
 {
     return ModeManagerPrivate::m_instance;

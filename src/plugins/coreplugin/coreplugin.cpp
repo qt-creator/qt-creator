@@ -84,6 +84,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     if (success) {
         EditorManager *editorManager = m_mainWindow->editorManager();
         m_editMode = new EditMode(editorManager);
+        m_mainWindow->modeManager()->activateMode(m_editMode->id());
         addObject(m_editMode);
 
         m_designMode = new DesignMode(editorManager);
@@ -95,6 +96,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 void CorePlugin::extensionsInitialized()
 {
     m_mainWindow->extensionsInitialized();
+    m_mainWindow->modeManager()->switchToDefaultMode();
 }
 
 void CorePlugin::remoteCommand(const QStringList & /* options */, const QStringList &args)
