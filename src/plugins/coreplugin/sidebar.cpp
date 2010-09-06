@@ -325,22 +325,21 @@ SideBarWidget::SideBarWidget(SideBar *sideBar, const QString &id)
     m_toolbar->setContentsMargins(0, 0, 0, 0);
     m_toolbar->addWidget(m_comboBox);
 
-    m_splitButton = new QToolButton;
-    m_splitButton->setIcon(QIcon(QLatin1String(Constants::ICON_SPLIT_HORIZONTAL)));
-    m_splitButton->setToolTip(tr("Split"));
-    connect(m_splitButton, SIGNAL(clicked(bool)), this, SIGNAL(splitMe()));
-
-    m_closeButton = new QToolButton;
-    m_closeButton->setIcon(QIcon(QLatin1String(Constants::ICON_CLOSE)));
-    m_closeButton->setToolTip(tr("Close"));
-
-    connect(m_closeButton, SIGNAL(clicked(bool)), this, SIGNAL(closeMe()));
-
     QWidget *spacerItem = new QWidget(this);
     spacerItem->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     m_toolbar->addWidget(spacerItem);
-    m_splitAction = m_toolbar->addWidget(m_splitButton);
-    m_toolbar->addWidget(m_closeButton);
+
+    m_splitAction = new QAction(tr("Split"), m_toolbar);
+    m_splitAction->setToolTip(tr("Split"));
+    m_splitAction->setIcon(QIcon(QLatin1String(Constants::ICON_SPLIT_HORIZONTAL)));
+    connect(m_splitAction, SIGNAL(triggered()), this, SIGNAL(splitMe()));
+    m_toolbar->addAction(m_splitAction);
+
+    QAction *closeAction = new QAction(tr("Close"), m_toolbar);
+    closeAction->setToolTip(tr("Close"));
+    closeAction->setIcon(QIcon(QLatin1String(Constants::ICON_CLOSE)));
+    connect(closeAction, SIGNAL(triggered()), this, SIGNAL(closeMe()));
+    m_toolbar->addAction(closeAction);
 
     QVBoxLayout *lay = new QVBoxLayout();
     lay->setMargin(0);
@@ -427,7 +426,7 @@ void SideBarWidget::updateAvailableItems()
         idx = 0;
 
     m_comboBox->setCurrentIndex(idx);
-    m_splitButton->setEnabled(titleList.count() > 1);
+    m_splitAction->setEnabled(titleList.count() > 1);
     m_comboBox->blockSignals(blocked);
 }
 
