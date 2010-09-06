@@ -189,7 +189,7 @@ Core::GeneratedFiles CustomWizard::generateFiles(const QWizard *dialog, QString 
     QTC_ASSERT(cwp, return Core::GeneratedFiles())
 
     CustomWizardContextPtr ctx = context();
-    ctx->targetPath = cwp->path();
+    ctx->path = ctx->targetPath = cwp->path();
     ctx->replacements = replacementMap(dialog);
     if (CustomWizardPrivate::verbose) {
         QString logText;
@@ -493,19 +493,14 @@ Core::GeneratedFiles CustomProjectWizard::generateFiles(const QWizard *w, QStrin
     QTC_ASSERT(dialog, return Core::GeneratedFiles())
     // Add project name as macro. Path is here under project directory
     CustomWizardContextPtr ctx = context();
-    ctx->targetPath = dialog->path() + QLatin1Char('/') + dialog->projectName();
+    ctx->path = dialog->path();
+    ctx->targetPath = ctx->path + QLatin1Char('/') + dialog->projectName();
     FieldReplacementMap fieldReplacementMap = replacementMap(dialog);
     fieldReplacementMap.insert(QLatin1String("ProjectName"), dialog->projectName());
     ctx->replacements = fieldReplacementMap;
     if (CustomWizardPrivate::verbose)
         qDebug() << "CustomProjectWizard::generateFiles" << dialog << ctx->targetPath << ctx->replacements;
     const Core::GeneratedFiles generatedFiles = generateWizardFiles(errorMessage);
-    // Find the project file and store in context
-    foreach(const Core::GeneratedFile &f, generatedFiles)
-        if (f.attributes() & Core::GeneratedFile::OpenProjectAttribute) {
-            ctx->projectFilePath = f.path();
-            break;
-        }
     return generatedFiles;
 }
 

@@ -802,7 +802,15 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
 
     m_gdbAdapter->write(cmd.command + "\r\n");
 
-    m_commandTimer->start();
+    // Start Watchdog.
+    if (m_commandTimer->interval() <= 20000)
+        m_commandTimer->setInterval(commandTimeoutTime());
+    // The process can die for external reason between the "-gdb-exit" was
+    // sent and a response could be retrieved. We don't want the watchdog
+    // to bark in that case since the only possible outcome is a dead
+    // process anyway.
+    if (cmd.command != "-gdb-exit")
+        m_commandTimer->start();
 
     //if (cmd.flags & LosesChild)
     //    setState(InferiorShutdownRequested);
@@ -4012,15 +4020,12 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
     gdbProc()->start(m_gdb, gdbArgs);
 
     if (!gdbProc()->waitForStarted()) {
-        const QString msg = tr("Unable to start gdb '%1': %2")
-            .arg(m_gdb, gdbProc()->errorString());
+        const QString msg = errorMessage(QProcess::FailedToStart);
         handleAdapterStartFailed(msg, settingsIdHint);
         return false;
     }
 
     showMessage(_("GDB STARTED, INITIALIZING IT"));
-    m_commandTimer->setInterval(commandTimeoutTime());
-
     postCommand("show version", CB(handleShowVersion));
 
     //postCommand("-enable-timings");
@@ -4128,19 +4133,23 @@ bool GdbEngine::checkDebuggingHelpers()
 
 void GdbEngine::handleGdbError(QProcess::ProcessError error)
 {
-    showMessage(_("HANDLE GDB ERROR: ") + errorMessage(error));
+    const QString msg = errorMessage(error);
+    showMessage(_("HANDLE GDB ERROR: ") + msg);
+    // Show a message box for asynchroneously reported issues.
     switch (error) {
+    case QProcess::FailedToStart:
+        // This should be handled by the code trying to start the process.
+        break;
     case QProcess::Crashed:
-        break; // will get a processExited() as well
-    // impossible case QProcess::FailedToStart:
+        // This will get a processExited() as well.
+        break;
     case QProcess::ReadError:
     case QProcess::WriteError:
     case QProcess::Timedout:
     default:
         //gdbProc()->kill();
         //setState(EngineShutdownRequested, true);
-        showMessageBox(QMessageBox::Critical, tr("Gdb I/O Error"),
-                       errorMessage(error));
+        showMessageBox(QMessageBox::Critical, tr("Gdb I/O Error"), msg);
         break;
     }
 }

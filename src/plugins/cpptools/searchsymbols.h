@@ -40,6 +40,7 @@
 #include <QMetaType>
 #include <QString>
 #include <QSet>
+#include <QHash>
 
 #include <functional>
 
@@ -66,33 +67,33 @@ struct ModelItemInfo
                   const QIcon &icon)
         : symbolName(symbolName),
           symbolType(symbolType),
-          type(type),
           fullyQualifiedName(fullyQualifiedName),
           fileName(fileName),
+          icon(icon),
+          type(type),
           line(line),
-          column(column),
-          icon(icon)
+          column(column)
     { }
 
     ModelItemInfo(const ModelItemInfo &otherInfo)
         : symbolName(otherInfo.symbolName),
           symbolType(otherInfo.symbolType),
-          type(otherInfo.type),
           fullyQualifiedName(otherInfo.fullyQualifiedName),
           fileName(otherInfo.fileName),
+          icon(otherInfo.icon),
+          type(otherInfo.type),
           line(otherInfo.line),
-          column(otherInfo.column),
-          icon(otherInfo.icon)
+          column(otherInfo.column)
     {  }
 
     QString symbolName;
     QString symbolType;
-    ItemType type;
     QStringList fullyQualifiedName;
     QString fileName;
+    QIcon icon;
+    ItemType type;
     int line;
     int column;
-    QIcon icon;
 };
 
 class SearchSymbols: public std::unary_function<CPlusPlus::Document::Ptr, QList<ModelItemInfo> >,
@@ -152,6 +153,7 @@ private:
     CPlusPlus::Icons icons;
     QList<ModelItemInfo> items;
     SymbolTypes symbolsToSearchFor;
+    QHash<const CPlusPlus::StringLiteral *, QString> m_paths;
     bool separateScope;
 };
 

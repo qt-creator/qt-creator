@@ -66,6 +66,8 @@ public:
     void addProjectSelector(QAction *action);
     void addWidget(QWidget *widget);
 
+    void switchToDefaultMode();
+
 signals:
     void currentModeAboutToChange(Core::IMode *mode);
 

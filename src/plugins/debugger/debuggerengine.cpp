@@ -111,6 +111,7 @@ DebuggerStartParameters::DebuggerStartParameters()
     breakAtMain(false),
     qmlServerAddress("127.0.0.1"),
     qmlServerPort(0),
+    useServerStartScript(false),
     toolChainType(ToolChain::UNKNOWN),
     startMode(NoStartMode),
     executableUid(0)
@@ -144,6 +145,7 @@ QDebug operator<<(QDebug str, const DebuggerStartParameters &sp)
             << " remoteChannel=" << sp.remoteChannel
             << " remoteArchitecture=" << sp.remoteArchitecture
             << " symbolFileName=" << sp.symbolFileName
+            << " useServerStartScript=" << sp.useServerStartScript
             << " serverStartScript=" << sp.serverStartScript
             << " toolchain=" << sp.toolChainType << '\n';
     return str;

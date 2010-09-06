@@ -179,8 +179,6 @@ private:
     QAction *m_splitAction;
     QList<QAction *> m_addedToolBarActions;
     SideBar *m_sideBar;
-    QToolButton *m_splitButton;
-    QToolButton *m_closeButton;
 };
 
 class ComboBox : public QComboBox

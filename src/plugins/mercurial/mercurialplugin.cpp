@@ -599,8 +599,6 @@ void MercurialPlugin::showCommitWidget(const QList<QPair<QString, QString> > &st
         return;
     }
 
-    core->editorManager()->ensureEditorManagerVisible();
-
     CommitEditor *commitEditor = qobject_cast<CommitEditor *>(editor);
 
     if (!commitEditor) {

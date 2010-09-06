@@ -23,7 +23,7 @@ SUBDIRS   = plugin_coreplugin \
             plugin_locator \
             plugin_debugger \
 #            plugin_qtestlib \ # this seems to be dead
-#            plugin_helloworld \ # sample plugin
+            plugin_helloworld \ # sample plugin
             plugin_help \
 #            plugin_regexp \ # don't know what to do with this
             plugin_cpaster \

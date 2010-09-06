@@ -48,11 +48,11 @@ struct GeneratorScriptArgument;
  * attribute of the <files> element) which actually creates files.
  * The command line of the script must follow the convention
  *
- * script [--dry-run] [Field1=Value1 [Field2=Value2] [Field3:Filename3]]]...
+ * script [--dry-run] [options]
  *
- * Multiline texts will be passed on as temporary files using the colon
- * separator.
- * The parameters are the field values from the UI.
+ * Options containing field placeholders are configured in the XML files
+ * and will be passed with them replaced by their values.
+ *
  * As Qt Creator needs to know the file names before actually creates them to
  * do overwrite checking etc., this is  2-step process:
  * 1) Determine file names and attributes: The script is called with the

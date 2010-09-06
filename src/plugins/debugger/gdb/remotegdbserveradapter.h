@@ -75,6 +75,7 @@ private:
 
     void handleSetTargetAsync(const GdbResponse &response);
     void handleFileExecAndSymbols(const GdbResponse &response);
+    void callTargetRemote();
     void handleTargetRemote(const GdbResponse &response);
 
     const int m_toolChainType;

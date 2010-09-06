@@ -56,7 +56,7 @@ CppLocatorFilter::~CppLocatorFilter()
 
 void CppLocatorFilter::onDocumentUpdated(CPlusPlus::Document::Ptr doc)
 {
-    m_searchList[doc->fileName()] = Info(doc);
+    m_searchList[doc->fileName()] = search(doc);
 }
 
 void CppLocatorFilter::onAboutToRemoveFiles(const QStringList &files)
@@ -88,20 +88,12 @@ QList<Locator::FilterEntry> CppLocatorFilter::matchesFor(const QString &origEntr
         return goodEntries;
     bool hasWildcard = (entry.contains(asterisk) || entry.contains('?'));
 
-    QMutableMapIterator<QString, Info> it(m_searchList);
+    QHashIterator<QString, QList<ModelItemInfo> > it(m_searchList);
     while (it.hasNext()) {
         it.next();
 
-        Info info = it.value();
-        if (info.dirty) {
-            info.dirty = false;
-            info.items = search(info.doc);
-            it.setValue(info);
-        }
-
-        QList<ModelItemInfo> items = info.items;
-
-        foreach (ModelItemInfo info, items) {
+        const QList<ModelItemInfo> items = it.value();
+        foreach (const ModelItemInfo &info, items) {
             if ((hasWildcard && regexp.exactMatch(info.symbolName))
                     || (!hasWildcard && matcher.indexIn(info.symbolName) != -1)) {
 

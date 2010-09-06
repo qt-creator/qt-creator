@@ -76,7 +76,6 @@ bool WelcomePlugin::initialize(const QStringList & /* arguments */, QString * /*
 void WelcomePlugin::extensionsInitialized()
 {
     m_welcomeMode->initPlugins();
-    Core::ModeManager::instance()->activateMode(m_welcomeMode->id());
 }
 
 Q_EXPORT_PLUGIN(WelcomePlugin)

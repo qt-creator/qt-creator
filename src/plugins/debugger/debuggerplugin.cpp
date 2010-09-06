@@ -1764,7 +1764,7 @@ void DebuggerPluginPrivate::attachExternalApplication
     sp.displayName = tr("Process %1").arg(pid);
     sp.executable = binary;
     sp.crashParameter = crashParameter;
-    sp.startMode = crashParameter.isEmpty() ? AttachExternal:AttachCrashedExternal;
+    sp.startMode = crashParameter.isEmpty() ? AttachExternal : AttachCrashedExternal;
     DebuggerRunControl *rc = createDebugger(sp);
     startDebugger(rc);
 }
@@ -1844,8 +1844,8 @@ void DebuggerPluginPrivate::startRemoteApplication()
     if (!sp.debuggerCommand.isEmpty())
         sp.toolChainType = ToolChain::INVALID;
     sp.startMode = AttachToRemote;
-    if (dlg.useServerStartScript())
-        sp.serverStartScript = dlg.serverStartScript();
+    sp.useServerStartScript = dlg.useServerStartScript();
+    sp.serverStartScript = dlg.serverStartScript();
     sp.sysRoot = dlg.sysRoot();
     startDebugger(createDebugger(sp));
 }

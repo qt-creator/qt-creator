@@ -85,6 +85,7 @@ public:
     QString remoteChannel;
     QString remoteArchitecture;
     QString symbolFileName;
+    bool useServerStartScript;
     QString serverStartScript;
     QString sysRoot;
     QByteArray remoteDumperLib;

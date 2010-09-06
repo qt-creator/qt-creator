@@ -31,6 +31,8 @@
 #include "itexteditor.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/modemanager.h>
 
 #include <QtCore/QVariant>
 
@@ -61,10 +63,10 @@ void LineNumberFilter::accept(FilterEntry selection) const
     ITextEditor *editor = currentTextEditor();
     if (editor) {
         Core::EditorManager *editorManager = Core::EditorManager::instance();
-        editorManager->ensureEditorManagerVisible();
         editorManager->addCurrentPositionToNavigationHistory();
         editor->gotoLine(selection.internalData.toInt());
         editor->widget()->setFocus();
+        Core::ModeManager::instance()->activateMode(Core::Constants::MODE_EDIT);
     }
 }
 
