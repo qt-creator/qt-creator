@@ -67,6 +67,7 @@ QList<ModelItemInfo> SearchSymbols::operator()(Document::Ptr doc, const QString 
         accept(doc->globalSymbolAt(i));
     }
     (void) switchScope(previousScope);
+    strings.clear();
     return items;
 }
 
@@ -216,10 +217,17 @@ void SearchSymbols::appendItem(const QString &name,
     QStringList fullyQualifiedName;
     foreach (const Name *name, LookupContext::fullyQualifiedName(symbol))
         fullyQualifiedName.append(overview.prettyName(name));
+
+    QString path = m_paths.value(symbol->fileId(), QString());
+    if (path.isEmpty()) {
+        path = QString::fromUtf8(symbol->fileName(), symbol->fileNameLength());
+        m_paths.insert(symbol->fileId(), path);
+    }
+
     const QIcon icon = icons.iconForSymbol(symbol);
     items.append(ModelItemInfo(name, info, type,
                                fullyQualifiedName,
-                               QString::fromUtf8(symbol->fileName(), symbol->fileNameLength()),
+                               path,
                                symbol->line(),
                                symbol->column() - 1, // 1-based vs 0-based column
                                icon));

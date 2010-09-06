@@ -31,7 +31,6 @@
 #define CPPLOCATORFILTER_H
 
 #include "searchsymbols.h"
-
 #include <locator/ilocatorfilter.h>
 
 namespace CppTools {
@@ -63,16 +62,7 @@ private slots:
 private:
     CppModelManager *m_manager;
 
-    struct Info {
-        Info(): dirty(true) {}
-        Info(CPlusPlus::Document::Ptr doc): doc(doc), dirty(true) {}
-
-        CPlusPlus::Document::Ptr doc;
-        QList<ModelItemInfo> items;
-        bool dirty;
-    };
-
-    QMap<QString, Info> m_searchList;
+    QHash<QString, QList<ModelItemInfo> > m_searchList;
     QList<ModelItemInfo> m_previousResults;
     bool m_forceNewSearchList;
     QString m_previousEntry;

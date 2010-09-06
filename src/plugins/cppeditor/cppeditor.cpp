@@ -375,6 +375,9 @@ struct CanonicalSymbol
 
 };
 
+
+int numberOfClosedEditors = 0;
+
 } // end of anonymous namespace
 
 CPPEditorEditable::CPPEditorEditable(CPPEditor *editor)
@@ -428,6 +431,12 @@ CPPEditor::~CPPEditor()
 
     m_semanticHighlighter->abort();
     m_semanticHighlighter->wait();
+
+    ++numberOfClosedEditors;
+    if (numberOfClosedEditors == 5) {
+        m_modelManager->GC();
+        numberOfClosedEditors = 0;
+    }
 }
 
 TextEditor::BaseTextEditorEditable *CPPEditor::createEditableInterface()

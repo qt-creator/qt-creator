@@ -439,7 +439,6 @@ static void filter_helper(QFutureInterface<FilterEntry> &entries, QList<ILocator
         foreach (const FilterEntry &entry, filter->matchesFor(searchText)) {
             if (checkDuplicates && alreadyAdded.contains(entry))
                 continue;
-            //entries.append(entry);
             entries.reportResult(entry);
             if (checkDuplicates)
                 alreadyAdded.insert(entry);
@@ -457,7 +456,6 @@ void LocatorWidget::updateCompletionList(const QString &text)
 
     QFuture<FilterEntry> future = QtConcurrent::run(filter_helper, filters, searchText);
     m_entriesWatcher->setFuture(future);
-    future.waitForFinished();
 }
 
 void LocatorWidget::updateEntries()
