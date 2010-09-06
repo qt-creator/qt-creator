@@ -805,7 +805,12 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
     // Start Watchdog.
     if (m_commandTimer->interval() <= 20000)
         m_commandTimer->setInterval(commandTimeoutTime());
-    m_commandTimer->start();
+    // The process can die for external reason between the "-gdb-exit" was
+    // sent and a response could be retrieved. We don't want the watchdog
+    // to bark in that case since the only possible outcome is a dead
+    // process anyway.
+    if (cmd.command != "-gdb-exit")
+        m_commandTimer->start();
 
     //if (cmd.flags & LosesChild)
     //    setState(InferiorShutdownRequested);
