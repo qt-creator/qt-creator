@@ -176,6 +176,8 @@ public:
 
     friend QDebug operator<<(QDebug d, const MimeType &mt);
 
+    static QString formatFilterString(const QString &description, const QList<QRegExp> &globs);
+
 private:
     explicit MimeType(const MimeTypeData &d);
     unsigned matchesFileBySuffix(Internal::FileMatchContext &c) const;

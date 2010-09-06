@@ -455,7 +455,7 @@ bool MimeType::setPreferredSuffix(const QString &s)
     return true;
 }
 
-static QString formatFilterString(const QString &description, const QList<QRegExp> &globs)
+QString MimeType::formatFilterString(const QString &description, const QList<QRegExp> &globs)
 {
     QString rc;
     if (globs.empty())  // Binary files

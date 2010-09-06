@@ -87,6 +87,8 @@ QList<ProjectFileFactory *> ProjectFileFactory::createFactories(QString *filterS
     QList<IProjectManager*> projectManagers =
         ExtensionSystem::PluginManager::instance()->getObjects<IProjectManager>();
 
+    QList<QRegExp> allGlobPatterns;
+
     const QString filterSeparator = QLatin1String(";;");
     filterString->clear();
     foreach (IProjectManager *manager, projectManagers) {
@@ -94,8 +96,13 @@ QList<ProjectFileFactory *> ProjectFileFactory::createFactories(QString *filterS
         if (!filterString->isEmpty())
             *filterString += filterSeparator;
         const QString mimeType = manager->mimeType();
-        const QString pFilterString = Core::ICore::instance()->mimeDatabase()->findByType(mimeType).filterString();
+        Core::MimeType mime = Core::ICore::instance()->mimeDatabase()->findByType(mimeType);
+        const QString pFilterString = mime.filterString();
+        allGlobPatterns.append(mime.globPatterns());
         *filterString += pFilterString;
     }
+    QString allProjectFilter = Core::MimeType::formatFilterString(tr("All Projects"), allGlobPatterns);
+    allProjectFilter.append(filterSeparator);
+    filterString->prepend(allProjectFilter);
     return rc;
 }
