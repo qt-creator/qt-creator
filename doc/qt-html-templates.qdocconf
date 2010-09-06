@@ -32,37 +32,6 @@ HTML.postheader         = " <div class=\"header\" id=\"qtdocheader\">\n" \
 			  "        </a></li>\n" \
 			  "      </ul>\n" \
 			  "     </div>\n" \
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 			  "    </div>\n" \
 			  "  </div>\n" \
 			  "  <div class=\"wrapper\">\n" \
