@@ -201,7 +201,8 @@ bool CMakeProject::parseCMakeLists()
     } else {
         // Manually add the CMakeLists.txt file
         QString cmakeListTxt = projectDirectory() + "/CMakeLists.txt";
-        fileList.append(new ProjectExplorer::FileNode(cmakeListTxt, ProjectExplorer::ProjectFileType, false));
+        bool generated = false;
+        fileList.append(new ProjectExplorer::FileNode(cmakeListTxt, ProjectExplorer::ProjectFileType, generated));
         projectFiles.insert(cmakeListTxt);
     }
 
@@ -911,10 +912,17 @@ void CMakeCbpParser::parseUnit()
                 if (m_parsingCmakeUnit) {
                     m_cmakeFileList.append( new ProjectExplorer::FileNode(fileName, ProjectExplorer::ProjectFileType, false));
                 } else {
+                    bool generated = false;
+                    QString onlyFileName = QFileInfo(fileName).fileName();
+                    if (   (onlyFileName.startsWith("moc_") && onlyFileName.endsWith(".cxx"))
+                        || (onlyFileName.startsWith("ui_") && onlyFileName.endsWith(".h"))
+                        || (onlyFileName.startsWith("qrc_") && onlyFileName.endsWith(".cxx")))
+                        generated = true;
+
                     if (fileName.endsWith(QLatin1String(".qrc")))
-                        m_fileList.append( new ProjectExplorer::FileNode(fileName, ProjectExplorer::ResourceType, false));
+                        m_fileList.append( new ProjectExplorer::FileNode(fileName, ProjectExplorer::ResourceType, generated));
                     else
-                        m_fileList.append( new ProjectExplorer::FileNode(fileName, ProjectExplorer::SourceType, false));
+                        m_fileList.append( new ProjectExplorer::FileNode(fileName, ProjectExplorer::SourceType, generated));
                 }
                 m_processedUnits.insert(fileName);
             }
