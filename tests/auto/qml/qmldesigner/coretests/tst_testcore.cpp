@@ -4720,7 +4720,7 @@ void tst_TestCore::testInstancesNotInScene()
     node1.destroy();
 }
 
-void TestCore::testInstancesBindingsInStatesStress()
+void tst_TestCore::testInstancesBindingsInStatesStress()
 {
     //This is a stress test to provoke a crash
     for (int j=0;j<20;j++) {
@@ -4823,7 +4823,7 @@ void TestCore::testInstancesBindingsInStatesStress()
     }
 }
 
-void TestCore::testQmlModelStatesInvalidForRemovedNodes()
+void tst_TestCore::testQmlModelStatesInvalidForRemovedNodes()
 {
     QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
     QVERIFY(model.data());
