@@ -48,7 +48,7 @@ private:
     void compressImports(QList<RewriteAction *> &actions) const;
 
     void compressRereparentActions(QList<RewriteAction *> &actions) const;
-    void compressReparentIntoSameParentActions(QList<RewriteAction *> &actions) const;
+    void compressReparentIntoSamePropertyActions(QList<RewriteAction *> &actions) const;
     void compressAddEditRemoveNodeActions(QList<RewriteAction *> &actions) const;
     void compressPropertyActions(QList<RewriteAction *> &actions) const;
     void compressAddEditActions(QList<RewriteAction *> &actions) const;

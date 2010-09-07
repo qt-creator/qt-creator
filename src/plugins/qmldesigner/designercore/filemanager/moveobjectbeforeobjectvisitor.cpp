@@ -41,18 +41,22 @@ using namespace QmlDesigner::Internal;
 using namespace QmlDesigner;
 
 MoveObjectBeforeObjectVisitor::MoveObjectBeforeObjectVisitor(TextModifier &modifier,
-                                                             quint32 movingObjectLocation):
+                                                             quint32 movingObjectLocation,
+                                                             bool inDefaultProperty):
     QMLRewriter(modifier),
     movingObjectLocation(movingObjectLocation),
+    inDefaultProperty(inDefaultProperty),
     toEnd(true),
     beforeObjectLocation(0)
 {}
 
 MoveObjectBeforeObjectVisitor::MoveObjectBeforeObjectVisitor(TextModifier &modifier,
                                                              quint32 movingObjectLocation,
-                                                             quint32 beforeObjectLocation):
+                                                             quint32 beforeObjectLocation,
+                                                             bool inDefaultProperty):
     QMLRewriter(modifier),
     movingObjectLocation(movingObjectLocation),
+    inDefaultProperty(inDefaultProperty),
     toEnd(false),
     beforeObjectLocation(beforeObjectLocation)
 {}
@@ -108,12 +112,41 @@ void MoveObjectBeforeObjectVisitor::doMove()
     Q_ASSERT(!movingObjectParents.isEmpty());
 
     TextModifier::MoveInfo moveInfo;
+    Node *parent = movingObjectParent();
+    UiArrayMemberList *arrayMember = 0, *otherArrayMember;
+    QString separator;
 
-    int start = movingObject->firstSourceLocation().offset;
-    int end = movingObject->lastSourceLocation().end();
+    if (!inDefaultProperty) {
+        UiArrayBinding *initializer = cast<UiArrayBinding*>(parent);
+        Q_ASSERT(initializer);
 
-    moveInfo.objectStart = start;
-    moveInfo.objectEnd = end;
+        otherArrayMember = 0;
+        for (UiArrayMemberList *cur = initializer->members; cur; cur = cur->next) {
+            if (cur->member == movingObject) {
+                arrayMember = cur;
+                if (cur->next)
+                    otherArrayMember = cur->next;
+                break;
+            }
+            otherArrayMember = cur;
+        }
+        Q_ASSERT(arrayMember && otherArrayMember);
+        separator = QLatin1String(",");
+    }
+
+    moveInfo.objectStart = movingObject->firstSourceLocation().offset;
+    moveInfo.objectEnd = movingObject->lastSourceLocation().end();
+
+    int start = moveInfo.objectStart;
+    int end = moveInfo.objectEnd;
+    if (!inDefaultProperty) {
+        if (arrayMember->commaToken.isValid()) {
+            start = arrayMember->commaToken.begin();
+        }
+        else {
+            end = otherArrayMember->commaToken.end();
+        }
+    }
 
     includeSurroundingWhitespace(start, end);
     moveInfo.leadingCharsToRemove = moveInfo.objectStart - start;
@@ -125,7 +158,7 @@ void MoveObjectBeforeObjectVisitor::doMove()
         includeSurroundingWhitespace(moveInfo.destination, dummy);
 
         moveInfo.prefixToInsert = QString(moveInfo.leadingCharsToRemove, QLatin1Char(' '));
-        moveInfo.suffixToInsert = QLatin1String("\n\n");
+        moveInfo.suffixToInsert = separator + QLatin1String("\n\n");
     } else {
         const SourceLocation insertionPoint = lastParentLocation();
         Q_ASSERT(insertionPoint.isValid());
@@ -133,7 +166,7 @@ void MoveObjectBeforeObjectVisitor::doMove()
         int dummy = -1;
         includeSurroundingWhitespace(moveInfo.destination, dummy);
 
-        moveInfo.prefixToInsert = QString(moveInfo.leadingCharsToRemove, QLatin1Char(' '));
+        moveInfo.prefixToInsert = separator + QString(moveInfo.leadingCharsToRemove, QLatin1Char(' '));
         moveInfo.suffixToInsert = QLatin1String("\n");
     }
 
@@ -141,18 +174,23 @@ void MoveObjectBeforeObjectVisitor::doMove()
     setDidRewriting(true);
 }
 
+Node *MoveObjectBeforeObjectVisitor::movingObjectParent() const
+{
+    if (movingObjectParents.size() > 1)
+        return movingObjectParents.at(movingObjectParents.size() - 2);
+    else
+        return 0;
+}
+
 SourceLocation MoveObjectBeforeObjectVisitor::lastParentLocation() const
 {
     dump(movingObjectParents);
 
-    Node *parent;
-    if (movingObjectParents.size() > 1)
-        parent = movingObjectParents.at(movingObjectParents.size() - 2);
-    else
-        parent = 0;
-
+    Node *parent = movingObjectParent();
     if (UiObjectInitializer *initializer = cast<UiObjectInitializer*>(parent))
         return initializer->rbraceToken;
+    else if (UiArrayBinding *initializer = cast<UiArrayBinding*>(parent))
+        return initializer->rbracketToken;
     else
         return SourceLocation();
 }

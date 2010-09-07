@@ -41,10 +41,12 @@ class MoveObjectBeforeObjectVisitor: public QMLRewriter
 {
 public:
     MoveObjectBeforeObjectVisitor(QmlDesigner::TextModifier &modifier,
-                                  quint32 movingObjectLocation);
+                                  quint32 movingObjectLocation,
+                                  bool inDefaultProperty);
     MoveObjectBeforeObjectVisitor(QmlDesigner::TextModifier &modifier,
                                   quint32 movingObjectLocation,
-                                  quint32 beforeObjectLocation);
+                                  quint32 beforeObjectLocation,
+                                  bool inDefaultProperty);
 
     bool operator ()(QmlJS::AST::UiProgram *ast);
 
@@ -60,11 +62,13 @@ private:
 
     void doMove();
 
+    QmlJS::AST::Node *movingObjectParent() const;
     QmlJS::AST::SourceLocation lastParentLocation() const;
 
 private:
     QStack<QmlJS::AST::Node *> parents;
     quint32 movingObjectLocation;
+    bool inDefaultProperty;
     bool toEnd;
     quint32 beforeObjectLocation;
 

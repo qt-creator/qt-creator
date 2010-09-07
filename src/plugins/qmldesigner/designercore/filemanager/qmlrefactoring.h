@@ -65,7 +65,7 @@ public:
     bool changeObjectType(int nodeLocation, const QString &newType);
 
     bool moveObject(int objectLocation, const QString &targetPropertyName, bool targetIsArray, int targetParentObjectLocation);
-    bool moveObjectBeforeObject(int movingObjectLocation, int beforeObjectLocation);
+    bool moveObjectBeforeObject(int movingObjectLocation, int beforeObjectLocation, bool inDefaultProperty);
 
     bool removeObject(int nodeLocation);
     bool removeProperty(int parentLocation, const QString &name);

@@ -128,6 +128,8 @@ private:
                 moveInfo.destination = ast->lbraceToken.end();
             }
 
+            move(moveInfo);
+
             setDidRewriting(true);
         }
     }
@@ -145,7 +147,8 @@ private:
             Q_ASSERT(!"Invalid QML: empty array found.");
 
         moveInfo.destination = lastMember->lastSourceLocation().end();
-        moveInfo.suffixToInsert = QLatin1String(",\n");
+        moveInfo.prefixToInsert = QLatin1String(",\n");
+        moveInfo.suffixToInsert = QLatin1String("\n");
         move(moveInfo);
     }
 
@@ -195,6 +198,7 @@ bool MoveObjectVisitor::visit(UiArrayBinding *ast)
 
     if (currentMember) {
         TextModifier::MoveInfo moveInfo;
+        moveInfo.objectStart = currentMember->member->firstSourceLocation().begin();
         moveInfo.objectEnd = currentMember->member->lastSourceLocation().end();
 
         if (currentMember == ast->members && !currentMember->next) {
@@ -237,6 +241,7 @@ bool MoveObjectVisitor::visit(UiObjectBinding *ast)
 
     if (ast->qualifiedTypeNameId->identifierToken.offset == objectLocation) {
         TextModifier::MoveInfo moveInfo;
+        moveInfo.objectStart = objectLocation;
         moveInfo.objectEnd = ast->lastSourceLocation().end();
 
         // remove leading indentation and property name:

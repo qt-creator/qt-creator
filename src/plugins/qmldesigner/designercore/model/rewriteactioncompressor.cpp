@@ -58,7 +58,7 @@ void RewriteActionCompressor::operator()(QList<RewriteAction *> &actions) const
 {
     compressImports(actions);
     compressRereparentActions(actions);
-    compressReparentIntoSameParentActions(actions);
+    compressReparentIntoSamePropertyActions(actions);
     compressPropertyActions(actions);
     compressAddEditRemoveNodeActions(actions);
     compressAddEditActions(actions);
@@ -126,7 +126,7 @@ void RewriteActionCompressor::compressRereparentActions(QList<RewriteAction *> &
             const ModelNode reparentedNode = reparentAction->reparentedNode();
 
             if (ReparentNodeRewriteAction *otherAction = reparentedNodes.value(reparentedNode, 0)) {
-                otherAction->setOldParent(reparentAction->oldParent());
+                otherAction->setOldParentProperty(reparentAction->oldParentProperty());
                 actionsToRemove.append(action);
             } else {
                 reparentedNodes.insert(reparentedNode, reparentAction);
@@ -140,7 +140,7 @@ void RewriteActionCompressor::compressRereparentActions(QList<RewriteAction *> &
     }
 }
 
-void RewriteActionCompressor::compressReparentIntoSameParentActions(QList<RewriteAction *> &actions) const
+void RewriteActionCompressor::compressReparentIntoSamePropertyActions(QList<RewriteAction *> &actions) const
 {
     QList<RewriteAction *> actionsToRemove;
     QMutableListIterator<RewriteAction *> iter(actions);
@@ -149,9 +149,7 @@ void RewriteActionCompressor::compressReparentIntoSameParentActions(QList<Rewrit
         RewriteAction *action = iter.previous();
 
         if (ReparentNodeRewriteAction *reparentAction = action->asReparentNodeRewriteAction()) {
-            const ModelNode targetNode = reparentAction->targetProperty().parentModelNode();
-            const ModelNode oldParent = reparentAction->oldParent();
-            if (targetNode == oldParent)
+            if (reparentAction->targetProperty() == reparentAction->oldParentProperty())
                 actionsToRemove.append(action);
         }
     }

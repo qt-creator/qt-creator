@@ -32,6 +32,7 @@
 #include <QDeclarativeView>
 #include "qmlchangeset.h"
 #include "variantproperty.h"
+#include "nodeproperty.h"
 #include "nodelistproperty.h"
 #include "nodeinstance.h"
 #include "qmlanchors.h"
@@ -122,6 +123,36 @@ QList<QmlObjectNode> QmlItemNode::resources() const
             if (modelNode().property("data").isNodeListProperty())
                 modelNodeList.append(modelNode().nodeListProperty("data").toModelNodeList());
         }
+
+        foreach (const ModelNode &node, modelNodeList) {
+            if (!QmlObjectNode(node).isValid()) //if ModelNode is no FxItem
+                returnList.append(node);
+        }
+    }
+    return returnList;
+}
+
+QList<QmlObjectNode> QmlItemNode::defaultPropertyChildren() const
+{
+    QList<QmlObjectNode> returnList;
+    if (isValid()) {
+        QList<ModelNode> modelNodeList;
+        if (modelNode().property(defaultProperty()).isNodeListProperty())
+            modelNodeList.append(modelNode().nodeListProperty(defaultProperty()).toModelNodeList());
+
+        foreach (const ModelNode &node, modelNodeList) {
+            if (!QmlObjectNode(node).isValid()) //if ModelNode is no FxItem
+                returnList.append(node);
+        }
+    }
+    return returnList;
+}
+
+QList<QmlObjectNode> QmlItemNode::allDirectSubNodes() const
+{
+    QList<QmlObjectNode> returnList;
+    if (isValid()) {
+        QList<ModelNode> modelNodeList = modelNode().allDirectSubModelNodes();
 
         foreach (const ModelNode &node, modelNodeList) {
             if (!QmlItemNode(node).isValid()) //if ModelNode is no FxItem

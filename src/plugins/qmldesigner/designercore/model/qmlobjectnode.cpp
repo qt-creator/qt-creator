@@ -37,6 +37,7 @@
 #include "qmlmodelview.h"
 #include "nodeinstanceview.h"
 #include "nodeinstance.h"
+#include "nodemetainfo.h"
 
 namespace QmlDesigner {
 
@@ -432,10 +433,21 @@ QString QmlObjectNode::validId()
     return modelNode().validId();
 }
 
+bool QmlObjectNode::hasDefaultProperty() const
+{
+    return modelNode().metaInfo().hasDefaultProperty();
+}
+
+QString QmlObjectNode::defaultProperty() const
+{
+    return modelNode().metaInfo().defaultProperty();
+}
+
 void QmlObjectNode::setParent(QmlObjectNode newParent)
 {
-    newParent.modelNode().nodeListProperty("data").reparentHere(modelNode());
-    //TODO use metasystem for default Property
+    if (newParent.hasDefaultProperty()) {
+        newParent.modelNode().nodeAbstractProperty(newParent.defaultProperty()).reparentHere(modelNode());
+    }
 }
 
 QmlItemNode QmlObjectNode::toQmlItemNode() const

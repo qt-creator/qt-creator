@@ -218,8 +218,8 @@ private:
 class ReparentNodeRewriteAction: public RewriteAction
 {
 public:
-    ReparentNodeRewriteAction(const ModelNode &node, const ModelNode &oldParent, const AbstractProperty &targetProperty, QmlDesigner::QmlRefactoring::PropertyType propertyType):
-            m_node(node), m_oldParent(oldParent), m_targetProperty(targetProperty), m_propertyType(propertyType)
+    ReparentNodeRewriteAction(const ModelNode &node, const AbstractProperty &oldParentProperty, const AbstractProperty &targetProperty, QmlDesigner::QmlRefactoring::PropertyType propertyType):
+            m_node(node), m_oldParentProperty(oldParentProperty), m_targetProperty(targetProperty), m_propertyType(propertyType)
     {}
 
     virtual bool execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore);
@@ -230,11 +230,11 @@ public:
     ModelNode reparentedNode() const
     { return m_node; }
 
-    ModelNode oldParent() const
-    { return m_oldParent; }
+    void setOldParentProperty(const AbstractProperty &oldParentProperty)
+    { m_oldParentProperty = oldParentProperty; }
 
-    void setOldParent(const ModelNode &oldParent)
-    { m_oldParent = oldParent; }
+    AbstractProperty oldParentProperty() const
+    { return m_oldParentProperty; }
 
     AbstractProperty targetProperty() const
     { return m_targetProperty; }
@@ -244,7 +244,7 @@ public:
 
 private:
     ModelNode m_node;
-    ModelNode m_oldParent;
+    AbstractProperty m_oldParentProperty;
     AbstractProperty m_targetProperty;
     QmlDesigner::QmlRefactoring::PropertyType m_propertyType;
 };

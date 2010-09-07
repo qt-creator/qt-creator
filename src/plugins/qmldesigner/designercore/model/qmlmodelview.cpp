@@ -196,7 +196,9 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
             propertyPairList.append(qMakePair(property.name(), property.value()));
 
         newNode = createQmlItemNode(itemLibraryEntry.typeName(), itemLibraryEntry.majorVersion(), itemLibraryEntry.minorVersion(), propertyPairList);
-        parentNode.nodeAbstractProperty("data").reparentHere(newNode);
+        if (parentNode.hasDefaultProperty()) {
+            parentNode.nodeAbstractProperty(parentNode.defaultProperty()).reparentHere(newNode);
+        }
 
         Q_ASSERT(newNode.isValid());
 

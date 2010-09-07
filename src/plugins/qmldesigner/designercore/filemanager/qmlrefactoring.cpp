@@ -138,16 +138,16 @@ bool QmlRefactoring::moveObject(int objectLocation, const QString &targetPropert
     return visit(qmlDocument->qmlProgram());
 }
 
-bool QmlRefactoring::moveObjectBeforeObject(int movingObjectLocation, int beforeObjectLocation)
+bool QmlRefactoring::moveObjectBeforeObject(int movingObjectLocation, int beforeObjectLocation, bool inDefaultProperty)
 {
     if (movingObjectLocation < 0 || beforeObjectLocation < -1)
         return false;
 
     if (beforeObjectLocation == -1) {
-        MoveObjectBeforeObjectVisitor visit(*textModifier, movingObjectLocation);
+        MoveObjectBeforeObjectVisitor visit(*textModifier, movingObjectLocation, inDefaultProperty);
         return visit(qmlDocument->qmlProgram());
     } else {
-        MoveObjectBeforeObjectVisitor visit(*textModifier, movingObjectLocation, beforeObjectLocation);
+        MoveObjectBeforeObjectVisitor visit(*textModifier, movingObjectLocation, beforeObjectLocation, inDefaultProperty);
         return visit(qmlDocument->qmlProgram());
     }
     return false;

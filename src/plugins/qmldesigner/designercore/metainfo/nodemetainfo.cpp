@@ -503,7 +503,7 @@ bool NodeMetaInfo::hasDefaultProperty() const
         return false;
     }
 
-    return m_data->defaultProperty.isNull();
+    return !m_data->defaultProperty.isNull();
 }
 
 QString NodeMetaInfo::defaultProperty() const

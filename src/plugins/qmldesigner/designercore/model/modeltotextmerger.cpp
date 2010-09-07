@@ -150,7 +150,7 @@ void ModelToTextMerger::nodeReparented(const ModelNode &node, const NodeAbstract
 {
     if (isInHierarchy(oldPropertyParent) && isInHierarchy(newPropertyParent)) { // the node is moved
         schedule(new ReparentNodeRewriteAction(node,
-                                               oldPropertyParent.parentModelNode(),
+                                               oldPropertyParent,
                                                newPropertyParent,
                                                propertyType(newPropertyParent)));
     } else if (isInHierarchy(oldPropertyParent) && !isInHierarchy(newPropertyParent)) { // the node is removed from hierarchy
