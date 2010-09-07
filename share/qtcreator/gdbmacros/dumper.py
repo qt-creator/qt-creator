@@ -1053,6 +1053,7 @@ class Dumper:
         #warn("NAMESPACE: '%s'" % self.ns)
         #warn("VARIABLES: %s" % varList)
         #warn("EXPANDED INAMES: %s" % self.expandedINames)
+        #warn("WATCHERS: %s" % watchers)
         module = sys.modules[__name__]
 
         #
@@ -1228,7 +1229,11 @@ class Dumper:
                         self.putAddress(value.address)
                     self.putItemHelper(item)
                 except RuntimeError:
-                    pass
+                    self.currentType = " "
+                    self.currentValue = "<no such value>"
+                    self.currentChildNumChild = -1
+                    self.currentNumChilds = 0
+                    self.putNumChild(0)
 
 
     def put(self, value):
