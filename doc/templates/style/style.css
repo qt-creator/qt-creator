@@ -35,6 +35,10 @@
     {
         list-style: none;
     }
+    ol li
+    {
+        list-style: decimal;
+    }	
     caption, th
     {
         text-align: left;
