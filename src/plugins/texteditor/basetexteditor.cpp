@@ -1041,6 +1041,23 @@ void BaseTextEditor::moveLineUpDown(bool up)
         move.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
     }
     QString text = move.selectedText();
+
+    RefactorMarkers affectedMarkers;
+    RefactorMarkers nonAffectedMarkers;
+    QList<int> markerOffsets;
+
+    foreach (const RefactorMarker &marker, d->m_refactorOverlay->markers()) {
+        //test if marker is part of the selection to be moved
+        if ((move.selectionStart() <= marker.cursor.position()) && (move.selectionEnd() >= marker.cursor.position())) {
+            affectedMarkers.append(marker);
+            //remember the offset of markers in text
+            int offset = marker.cursor.position() - move.selectionStart();
+            markerOffsets.append(offset);
+        } else {
+            nonAffectedMarkers.append(marker);
+        }
+    }
+
     move.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
     move.removeSelectedText();
 
@@ -1068,6 +1085,13 @@ void BaseTextEditor::moveLineUpDown(bool up)
         move.setPosition(start);
         move.setPosition(end, QTextCursor::KeepAnchor);
     }
+
+    //update positions of affectedMarkers
+    for (int i=0;i < affectedMarkers.count(); i++) {
+        int newPosition = start + markerOffsets.at(i);
+        affectedMarkers[i].cursor.setPosition(newPosition);
+    }
+    d->m_refactorOverlay->setMarkers(nonAffectedMarkers + affectedMarkers);
 
     reindent(document(), move);
     move.endEditBlock();
