@@ -45,14 +45,18 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 
+#include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QList>
 #include <QtCore/QSet>
 #include <QtCore/QStringBuilder>
 #include <QtCore/QTextStream>
 
-#include <QtGui/QMessageBox>
 #include <QtGui/QAction>
+#include <QtGui/QDesktopServices>
+#include <QtGui/QMessageBox>
+
+#include <QtXml/QXmlStreamReader>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
@@ -663,32 +667,56 @@ QString MaemoQemuManager::runtimeForQtVersion(const QString &qmakeCommand) const
     const QString &target = targetRoot(qmakeCommand);
     const QString &madRoot = maddeRoot(qmakeCommand);
 
-    QFile file(madRoot + QLatin1String("/cache/madde.conf"));
-    if (file.exists() && file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QTextStream stream(&file);
-        while (!stream.atEnd()) {
-            QString line = stream.readLine().trimmed();
-            if (!line.startsWith(QLatin1String("target")))
-                continue;
+    QString madCommand = madRoot + QLatin1String("/bin/mad");
+    if (!QFileInfo(madCommand).exists())
+        return QString();
 
-            const QStringList &list = line.split(QLatin1Char(' '));
-            if (list.count() <= 1 || list.at(1) != target)
-                continue;
+    QProcess madProc;
+    QStringList arguments(QLatin1String("info"));
 
-            line = stream.readLine().trimmed();
-            while (!stream.atEnd() && line != QLatin1String("end")) {
-                if (line.startsWith(QLatin1String("runtime"))) {
-                    const QStringList &list = line.split(QLatin1Char(' '));
-                    if (list.count() > 1) {
-                        return QDir::fromNativeSeparators(madRoot
-                            + QLatin1String("/runtimes/") + list.at(1).trimmed());
+#ifdef Q_OS_WIN
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    env.insert("HOME",
+        QDesktopServices::storageLocation(QDesktopServices::HomeLocation));
+    madProc.setProcessEnvironment(env);
+
+    arguments.prepend(madCommand);
+    madCommand = madRoot + QLatin1String("/bin/sh.exe");
+#endif
+
+    madProc.start(madCommand, arguments);
+    if (!madProc.waitForStarted() || !madProc.waitForFinished())
+        return QString();
+
+    QStringList installedRuntimes;
+    QString targetRuntime;
+    QXmlStreamReader infoReader(madProc.readAllStandardOutput());
+    while (!infoReader.atEnd() && !installedRuntimes.contains(targetRuntime)) {
+        if (infoReader.readNext() == QXmlStreamReader::StartElement) {
+            if (targetRuntime.isEmpty()
+                && infoReader.name() == QLatin1String("target")) {
+                const QXmlStreamAttributes &attrs = infoReader.attributes();
+                if (attrs.value(QLatin1String("target_id")) == target)
+                    targetRuntime = attrs.value("runtime_id").toString();
+            } else if (infoReader.name() == QLatin1String("runtime")) {
+                const QXmlStreamAttributes attrs = infoReader.attributes();
+                while (!infoReader.atEnd()) {
+                    if (infoReader.readNext() == QXmlStreamReader::EndElement
+                         && infoReader.name() == QLatin1String("runtime"))
+                        break;
+                    if (infoReader.tokenType() == QXmlStreamReader::StartElement
+                        && infoReader.name() == QLatin1String("installed")) {
+                        if (infoReader.readNext() == QXmlStreamReader::Characters
+                            && infoReader.text() == QLatin1String("true"))
+                        installedRuntimes << attrs.value(QLatin1String("runtime_id")).toString();
+                        break;
                     }
-                    break;
                 }
-                line = stream.readLine().trimmed();
             }
         }
     }
+    if (installedRuntimes.contains(targetRuntime))
+        return madRoot + QLatin1String("/runtimes/") + targetRuntime;
     return QString();
 }
 

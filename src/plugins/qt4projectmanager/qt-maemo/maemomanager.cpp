@@ -98,22 +98,30 @@ MaemoManager &MaemoManager::instance()
 bool MaemoManager::isValidMaemoQtVersion(const QtVersion *version) const
 {
     QString path = QDir::cleanPath(version->qmakeCommand());
-    path = path.remove(QLatin1String("/bin/qmake" EXEC_SUFFIX));
-
+    path.remove(QLatin1String("/bin/qmake" EXEC_SUFFIX));
     QDir dir(path);
+    const QByteArray target = dir.dirName().toAscii();
     dir.cdUp(); dir.cdUp();
+    QString madAdminCommand(dir.absolutePath() + QLatin1String("/bin/mad-admin"));
+    if (!QFileInfo(madAdminCommand).exists())
+        return false;
 
-    QFile file(dir.absolutePath() + QLatin1String("/cache/madde.conf"));
-    if (file.exists() && file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        const QString &target = path.mid(path.lastIndexOf(QLatin1Char('/')) + 1);
-        QTextStream stream(&file);
-        while (!stream.atEnd()) {
-            const QString &line = stream.readLine().trimmed();
-            if (line.startsWith(QLatin1String("target"))
-                && line.endsWith(target)) {
-                    return true;
-            }
-        }
+    QStringList arguments(QLatin1String("list"));
+#ifdef Q_OS_WIN
+    arguments.prepend(madAdminCommand);
+    madAdminCommand = dir.absolutePath() + QLatin1String("/bin/sh.exe");
+#endif
+
+    QProcess madAdminProc;
+    madAdminProc.start(madAdminCommand, arguments);
+    if (!madAdminProc.waitForStarted() || !madAdminProc.waitForFinished())
+        return false;
+
+    madAdminProc.setReadChannel(QProcess::StandardOutput);
+    while (madAdminProc.canReadLine()) {
+        const QByteArray &line = madAdminProc.readLine();
+        if (line.contains(target) && line.contains("(installed)"))
+            return true;
     }
     return false;
 }
