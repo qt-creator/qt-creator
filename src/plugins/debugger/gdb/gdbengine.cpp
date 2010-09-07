@@ -791,6 +791,8 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
         return;
     }
 
+    QTC_ASSERT(gdbProc()->state() == QProcess::Running, /**/);
+
     ++currentToken();
     GdbCommand cmd = cmd0;
     cmd.postTime = QTime::currentTime();
@@ -809,7 +811,7 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
     // sent and a response could be retrieved. We don't want the watchdog
     // to bark in that case since the only possible outcome is a dead
     // process anyway.
-    if (cmd.command != "-gdb-exit")
+    if (!cmd.command.endsWith("-gdb-exit"))
         m_commandTimer->start();
 
     //if (cmd.flags & LosesChild)
@@ -1665,7 +1667,13 @@ void GdbEngine::notifyAdapterShutdownOk()
     showMessage(_("INITIATE GDBENGINE SHUTDOWN IN STATE %1, PROC: %2")
         .arg(lastGoodState()).arg(gdbProc()->state()));
     m_commandsDoneCallback = 0;
-    postCommand("-gdb-exit", GdbEngine::ExitRequest, CB(handleGdbExit));
+    if (gdbProc()->state() == QProcess::Running) {
+        postCommand("-gdb-exit", GdbEngine::ExitRequest, CB(handleGdbExit));
+    } else {
+        showMessage(_("GDB NOT REALLY RUNNING; KILLING IT"));
+        gdbProc()->kill();
+        notifyEngineShutdownFailed();
+    }
 }
 
 void GdbEngine::handleGdbExit(const GdbResponse &response)
