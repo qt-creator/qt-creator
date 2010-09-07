@@ -104,6 +104,7 @@ public:
     QString klass;
     QList<CustomWizardFile> files;
     QStringList filesGeneratorScript; // Complete binary, such as 'cmd /c myscript.pl'.
+    QString filesGeneratorScriptWorkingDirectory;
     QList<GeneratorScriptArgument> filesGeneratorScriptArguments;
 
     QString fieldPageTitle;

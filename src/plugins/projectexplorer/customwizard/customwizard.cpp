@@ -182,6 +182,18 @@ template <class WizardPage>
     return 0;
 }
 
+// Determine where to run the generator script. The user may specify
+// an expression subject to field replacement, default is the target path.
+static inline QString scriptWorkingDirectory(const QSharedPointer<Internal::CustomWizardContext> &ctx,
+                                             const QSharedPointer<Internal::CustomWizardParameters> &p)
+{
+    if (p->filesGeneratorScriptWorkingDirectory.isEmpty())
+        return ctx->targetPath;
+    QString path = p->filesGeneratorScriptWorkingDirectory;
+    Internal::CustomWizardContext::replaceFields(ctx->replacements, &path);
+    return path;
+}
+
 Core::GeneratedFiles CustomWizard::generateFiles(const QWizard *dialog, QString *errorMessage) const
 {
     // Look for the Custom field page to find the path
@@ -215,17 +227,18 @@ bool CustomWizard::writeFiles(const Core::GeneratedFiles &files, QString *errorM
     // project wizard that is entirely created by a script,
     // the target project directory might not exist.
     const CustomWizardContextPtr ctx = context();
-    QDir targetPathDir(ctx->targetPath);
-    if (!targetPathDir.exists()) {
+    const QString scriptWorkingDir = scriptWorkingDirectory(ctx, d->m_parameters);
+    const QDir scriptWorkingDirDir(scriptWorkingDir);
+    if (!scriptWorkingDirDir.exists()) {
         if (CustomWizardPrivate::verbose)
-            qDebug("Creating directory %s", qPrintable(ctx->targetPath));
-        if (!targetPathDir.mkpath(ctx->targetPath)) {
-            *errorMessage = QString::fromLatin1("Unable to create the target directory '%1'").arg(ctx->targetPath);
+            qDebug("Creating directory %s", qPrintable(scriptWorkingDir));
+        if (!scriptWorkingDirDir.mkpath(scriptWorkingDir)) {
+            *errorMessage = QString::fromLatin1("Unable to create the target directory '%1'").arg(scriptWorkingDir);
             return false;
         }
     }
     // Run the custom script to actually generate the files.
-    if (!Internal::runCustomWizardGeneratorScript(ctx->targetPath,
+    if (!Internal::runCustomWizardGeneratorScript(scriptWorkingDir,
                                                   d->m_parameters->filesGeneratorScript,
                                                   d->m_parameters->filesGeneratorScriptArguments,
                                                   ctx->replacements, errorMessage))
@@ -254,10 +267,11 @@ Core::GeneratedFiles CustomWizard::generateWizardFiles(QString *errorMessage) co
 
     // If generator script is non-empty, do a dry run to get it's files.
     if (!d->m_parameters->filesGeneratorScript.isEmpty()) {
-        rc += Internal::dryRunCustomWizardGeneratorScript(ctx->targetPath,
+        rc += Internal::dryRunCustomWizardGeneratorScript(scriptWorkingDirectory(ctx, d->m_parameters),
                                                           d->m_parameters->filesGeneratorScript,
                                                           d->m_parameters->filesGeneratorScriptArguments,
-                                                          ctx->replacements, errorMessage);
+                                                          ctx->replacements,
+                                                          errorMessage);
         if (rc.isEmpty())
             return rc;
     }
@@ -276,6 +290,9 @@ CustomWizard::FieldReplacementMap CustomWizard::replacementMap(const QWizard *w)
         const QString value = w->field(field.name).toString();
         fieldReplacementMap.insert(field.name, value);
     }
+    // Insert paths for generator scripts.
+    fieldReplacementMap.insert(QLatin1String("Path"), QDir::toNativeSeparators(context()->path));
+    fieldReplacementMap.insert(QLatin1String("TargetPath"), QDir::toNativeSeparators(context()->targetPath));
     return fieldReplacementMap;
 }
 
