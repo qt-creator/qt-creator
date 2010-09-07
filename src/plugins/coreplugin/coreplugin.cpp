@@ -96,7 +96,6 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 void CorePlugin::extensionsInitialized()
 {
     m_mainWindow->extensionsInitialized();
-    m_mainWindow->modeManager()->switchToDefaultMode();
 }
 
 void CorePlugin::remoteCommand(const QStringList & /* options */, const QStringList &args)
