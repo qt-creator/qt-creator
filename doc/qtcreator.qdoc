@@ -2112,20 +2112,10 @@
         The modifier \c l converts the string to lower case, to observe Qt
         conventions.
 
-        \o \c {%CppSourceSuffix%} is replaced by the default source suffix, which
-        is defined in Qt Creator in \gui {Tools > Options... > C++ > File Naming}.
-        For example, if users enter \bold MyClass, the filename becomes myclass.cpp
-        when the project is created.
-
-
-        \o \c {%CppHeaderSuffix%} is replaced by the default header suffix, which
-        is also defined in \gui {File Naming}. Here, the filename would
-        become myclass.h.
+        \o \c {%CppSourceSuffix%} and \c {%CppHeaderSuffix%} are pre-defined.
+        For more information, see \l{Pre-defined Standard Variables}.
 
         \endlist
-
-        \o The following code creates a page that allows users to select the class
-        name, base class, and header and source files for the class:
 
         \code
 
@@ -2190,6 +2180,35 @@
     whether the script module is added. The expressions must expand to valid
     Javascript expressions after field replacement.
 
+    \section1 Pre-defined Standard Variables
+
+    In addition to the field values entered by the user, you can use
+    the following pre-defined standard values:
+
+    \list
+
+    \o \c {%ProjectName%} is replaced by the name of the project in the case
+    of project wizards.
+
+    \o \c {%Path%} is replaced by the path to the target directory.
+    For classes, this is the directory, where the files
+    are created. For project wizards, an additional subdirectory
+    named after the project is created.
+
+    \o \c {%TargetPath%} is replaced by the path to the directory where the actual files
+    are created. For non-project wizards, it is identical to \c %Path%.
+    For project wizards, it is \c %Path%/%ProjectName%.
+
+    \o \c {%CppSourceSuffix%} is replaced by the default source suffix, which
+    is defined in Qt Creator in \gui {Tools > Options... > C++ > File Naming}.
+    For example, if users enter \bold MyClass, the filename becomes myclass.cpp
+    when the project is created.
+
+    \o \c {%CppHeaderSuffix%} is replaced by the default header suffix, which
+    is also defined in \gui {File Naming}.
+
+    \endlist
+
     \section1 Using Generator Scripts
 
     The values entered in the wizard page are passed to the script
@@ -2227,6 +2246,15 @@
    \code
    generate.pl --class-name=TestClass --project-name=TestProject --header-suffix=h --source-suffix=cpp --description=/tmp/qtcreatorj26629.txt
    \endcode
+
+   By default, the scripts are run in the directory corresponding to
+   \c %TargetPath%. This can be overriden by specifying the
+   attribute \c workingdirectory on the element \c generatorscript.
+   For example, if the script creates the project directory by itself,
+   %Path% can be specified. In that case, \c --dry-run should output
+   the correct relative paths or absolute paths constructed using the value of
+   \c %Path%.
+
 */
 
 
