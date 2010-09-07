@@ -98,6 +98,7 @@
 #include <QMutexLocker>
 #include "proxysettings.h"
 #include "deviceorientation.h"
+#include <QInputDialog>
 
 #ifdef GL_SUPPORTED
 #include <QGLWidget>
@@ -770,9 +771,15 @@ void QDeclarativeViewer::createMenu()
     speedAction->setData(10.0f);
     playSpeedMenuActions->addAction(speedAction);
 
-    pauseAnimationsAction = playSpeedMenu->addAction(tr("Pause"), this, SLOT(pauseAnimations(bool)));
+    pauseAnimationsAction = playSpeedMenu->addAction(tr("Pause"), this, SLOT(setAnimationsPaused(bool)));
     pauseAnimationsAction->setCheckable(true);
     pauseAnimationsAction->setShortcut(QKeySequence("Ctrl+."));
+
+    animationStepAction = playSpeedMenu->addAction(tr("Pause and step"), this, SLOT(stepAnimations()));
+    animationStepAction->setShortcut(QKeySequence("Ctrl+,"));
+
+    animationSetStepAction = playSpeedMenu->addAction(tr("Set step"), this, SLOT(setAnimationStep()));
+    m_stepSize = 40;
 
     QAction *playSpeedAction = new QAction(tr("Animations"), this);
     playSpeedAction->setMenu(playSpeedMenu);
@@ -1002,13 +1009,32 @@ void QDeclarativeViewer::toggleRecording()
     setRecording(recording);
 }
 
-void QDeclarativeViewer::pauseAnimations(bool enable)
+void QDeclarativeViewer::setAnimationsPaused(bool enable)
 {
     if (enable) {
         setAnimationSpeed(0.0);
     } else {
         setAnimationSpeed(animationSpeed);
     }
+}
+
+void QDeclarativeViewer::pauseAnimations() {
+    pauseAnimationsAction->setChecked(true);
+    setAnimationsPaused(true);
+}
+
+void QDeclarativeViewer::stepAnimations()
+{
+    setAnimationSpeed(1.0);
+    QTimer::singleShot(m_stepSize, this, SLOT(pauseAnimations()));
+}
+
+void QDeclarativeViewer::setAnimationStep()
+{
+    bool ok;
+    int stepSize = QInputDialog::getInt(this, tr("Set animation step duration"),
+                                              tr("Step duration (ms):"), m_stepSize, 20, 10000, 1, &ok);
+    if (ok) m_stepSize = stepSize;
 }
 
 void QDeclarativeViewer::changeAnimationSpeed()

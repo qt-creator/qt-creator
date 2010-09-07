@@ -131,7 +131,10 @@ public slots:
     void proxySettingsChanged ();
     void rotateOrientation();
     void statusChanged();
-    void pauseAnimations(bool);
+    void setAnimationsPaused(bool);
+    void pauseAnimations();
+    void stepAnimations();
+    void setAnimationStep();
     void changeAnimationSpeed();
     void launch(const QString &);
 
@@ -193,7 +196,10 @@ private:
     bool convertAvailable;
 
     float animationSpeed;
+    int m_stepSize;
     QAction *pauseAnimationsAction;
+    QAction *animationStepAction;
+    QAction *animationSetStepAction;
 
     QActionGroup *orientation;
     QAction *showWarningsWindow;
