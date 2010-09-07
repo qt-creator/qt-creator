@@ -333,12 +333,13 @@ void PropertyEditorNodeWrapper::setup()
             delete object;
 
         foreach (const QString &propertyName, m_modelNode.metaInfo().properties().keys()) {
-            PropertyEditorValue *valueObject = new PropertyEditorValue(&m_valuesPropertyMap);
-            valueObject->setName(propertyName);
-            valueObject->setValue(fxObjectNode.instanceValue(propertyName));
-
-            connect(valueObject, SIGNAL(valueChanged(QString, const QVariant&)), &m_valuesPropertyMap, SIGNAL(valueChanged(QString, const QVariant&)));
-            m_valuesPropertyMap.insert(propertyName, QVariant::fromValue(valueObject));
+            if (fxObjectNode.isValid()) {
+                PropertyEditorValue *valueObject = new PropertyEditorValue(&m_valuesPropertyMap);
+                valueObject->setName(propertyName);
+                valueObject->setValue(fxObjectNode.instanceValue(propertyName));
+                connect(valueObject, SIGNAL(valueChanged(QString, const QVariant&)), &m_valuesPropertyMap, SIGNAL(valueChanged(QString, const QVariant&)));
+                m_valuesPropertyMap.insert(propertyName, QVariant::fromValue(valueObject));
+            }
         }
     }
     connect(&m_valuesPropertyMap, SIGNAL(valueChanged(const QString &, const QVariant&)), this, SLOT(changeValue(const QString&)));
