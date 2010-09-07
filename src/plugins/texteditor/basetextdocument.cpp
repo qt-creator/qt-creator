@@ -165,8 +165,8 @@ bool BaseTextDocument::save(const QString &fileName)
     // When saving the current editor, make sure to maintain the cursor position for undo
     Core::IEditor *currentEditor = Core::EditorManager::instance()->currentEditor();
     if (BaseTextEditorEditable *editable = qobject_cast<BaseTextEditorEditable*>(currentEditor)) {
-        if (editable->file() == this)
-            cursor = editable->editor()->textCursor();
+        if (editable->file() == this) 
+            cursor.setPosition(editable->editor()->textCursor().position());
     }
 
     cursor.beginEditBlock();
@@ -373,6 +373,7 @@ void BaseTextDocument::cleanWhitespace(const QTextCursor &cursor)
 {
     bool hasSelection = cursor.hasSelection();
     QTextCursor copyCursor = cursor;
+    copyCursor.setVisualNavigation(false);
     copyCursor.beginEditBlock();
     cleanWhitespace(copyCursor, true, true);
     if (!hasSelection)
@@ -383,6 +384,7 @@ void BaseTextDocument::cleanWhitespace(const QTextCursor &cursor)
 void BaseTextDocument::cleanWhitespace(QTextCursor &cursor, bool cleanIndentation, bool inEntireDocument)
 {
     BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(m_document->documentLayout());
+    Q_ASSERT(cursor.visualNavigation() == false);
 
     QTextBlock block = m_document->findBlock(cursor.selectionStart());
     QTextBlock end;

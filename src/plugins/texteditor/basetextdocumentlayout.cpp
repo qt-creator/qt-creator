@@ -175,6 +175,9 @@ void TextBlockUserData::doCollapse(const QTextBlock& block, bool visible)
         return;
     }
 
+    if (!visible && !cursor.block().next().isValid())
+        return; // WORKAROUND for a QPlainTextEdit bug, we cannot collapse at the very end, would crash
+
     QTextBlock b = block.next();
     while (b < cursor.block()) {
         b.setVisible(visible);
