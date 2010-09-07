@@ -21,5 +21,6 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     </dependencyList>
     <argumentList>
         <argument name="-customwizard-verbose">Verbose loading of custom wizards</argument>
+        <argument name="-lastsession">Restore the last session</argument>
     </argumentList>
 </plugin>

@@ -260,6 +260,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     d->m_session = new SessionManager(this);
 
+    if (arguments.contains("-lastsession"))
+        d->m_sessionToRestoreAtStartup = d->m_session->lastSession();
+
     connect(d->m_session, SIGNAL(projectAdded(ProjectExplorer::Project *)),
             this, SIGNAL(fileListChanged()));
     connect(d->m_session, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project *)),
@@ -1195,7 +1198,6 @@ void ProjectExplorerPlugin::determineSessionToRestoreAtStartup()
     // We have command line arguments, try to find a session in them
     QStringList arguments = ExtensionSystem::PluginManager::instance()->arguments();
     // Default to no session loading
-    d->m_sessionToRestoreAtStartup.clear();
     foreach (const QString &arg, arguments) {
         if (sessions.contains(arg)) {
             // Session argument
@@ -1203,6 +1205,7 @@ void ProjectExplorerPlugin::determineSessionToRestoreAtStartup()
             break;
         }
     }
+
     if (!d->m_sessionToRestoreAtStartup.isNull())
         Core::ICore::instance()->modeManager()->activateMode(Core::Constants::MODE_EDIT);
 }
