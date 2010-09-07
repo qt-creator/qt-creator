@@ -1104,7 +1104,7 @@ static bool isAllowedTransition(DebuggerState from, DebuggerState to)
         return to == EngineShutdownRequested;
 
     case EngineShutdownRequested:
-        return to == EngineShutdownOk;
+        return to == EngineShutdownOk || to == EngineShutdownFailed;
     case EngineShutdownOk:
         return to == DebuggerFinished;
     case EngineShutdownFailed:

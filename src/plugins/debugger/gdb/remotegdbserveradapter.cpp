@@ -169,17 +169,20 @@ void RemoteGdbServerAdapter::setupInferior()
         QFileInfo fi(startParameters().executable);
         fileName = fi.absoluteFilePath();
     }
-    m_engine->postCommand("set architecture "
-        + startParameters().remoteArchitecture.toLatin1());
-    m_engine->postCommand("set sysroot "
-        + startParameters().sysRoot.toLocal8Bit());
-    m_engine->postCommand("set solib-search-path "
-        + QFileInfo(startParameters().dumperLibrary).path().toLocal8Bit());
+    const QByteArray sysRoot = startParameters().sysRoot.toLocal8Bit();
+    const QByteArray remoteArch = startParameters().remoteArchitecture.toLatin1();
+    const QByteArray solibPath =
+         QFileInfo(startParameters().dumperLibrary).path().toLocal8Bit();
+    const QString args = startParameters().processArgs.join(_(" "));
 
-    if (!startParameters().processArgs.isEmpty()) {
-        QString args = startParameters().processArgs.join(_(" "));
+    if (!remoteArch.isEmpty())
+        m_engine->postCommand("set architecture " + remoteArch);
+    if (!sysRoot.isEmpty())
+        m_engine->postCommand("set sysroot " + sysRoot);
+    if (!solibPath.isEmpty())
+        m_engine->postCommand("set solib-search-path " + solibPath);
+    if (!args.isEmpty())
         m_engine->postCommand("-exec-arguments " + args.toLocal8Bit());
-    }
 
     m_engine->postCommand("set target-async on", CB(handleSetTargetAsync));
 
