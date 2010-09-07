@@ -33,6 +33,7 @@
 #include <Scope.h>
 #include <Names.h>
 #include <cplusplus/LookupContext.h>
+#include <QDebug>
 
 using namespace CPlusPlus;
 using namespace CppTools::Internal;
@@ -67,8 +68,11 @@ QList<ModelItemInfo> SearchSymbols::operator()(Document::Ptr doc, const QString 
         accept(doc->globalSymbolAt(i));
     }
     (void) switchScope(previousScope);
+    QList<ModelItemInfo> result = items;
     strings.clear();
-    return items;
+    items.clear();
+    m_paths.clear();
+    return result;
 }
 
 QString SearchSymbols::switchScope(const QString &scope)
@@ -124,7 +128,7 @@ bool SearchSymbols::visit(Function *symbol)
 
 bool SearchSymbols::visit(Namespace *symbol)
 {
-    QString name = findOrInsert(scopedSymbolName(symbol));
+    QString name = scopedSymbolName(symbol);
     QString previousScope = switchScope(name);
     for (unsigned i = 0; i < symbol->memberCount(); ++i) {
         accept(symbol->memberAt(i));
@@ -216,7 +220,7 @@ void SearchSymbols::appendItem(const QString &name,
 
     QStringList fullyQualifiedName;
     foreach (const Name *name, LookupContext::fullyQualifiedName(symbol))
-        fullyQualifiedName.append(overview.prettyName(name));
+        fullyQualifiedName.append(findOrInsert(overview.prettyName(name)));
 
     QString path = m_paths.value(symbol->fileId(), QString());
     if (path.isEmpty()) {
@@ -225,7 +229,7 @@ void SearchSymbols::appendItem(const QString &name,
     }
 
     const QIcon icon = icons.iconForSymbol(symbol);
-    items.append(ModelItemInfo(name, info, type,
+    items.append(ModelItemInfo(findOrInsert(name), findOrInsert(info), type,
                                fullyQualifiedName,
                                path,
                                symbol->line(),

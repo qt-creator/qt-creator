@@ -129,3 +129,11 @@ void CppLocatorFilter::accept(Locator::FilterEntry selection) const
     ModelItemInfo info = qvariant_cast<CppTools::Internal::ModelItemInfo>(selection.internalData);
     TextEditor::BaseTextEditor::openEditorAt(info.fileName, info.line, info.column);
 }
+
+void CppLocatorFilter::reset()
+{
+    m_searchList.clear();
+    m_previousResults.clear();
+    m_previousEntry.clear();
+    m_forceNewSearchList = true;
+}

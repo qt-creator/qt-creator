@@ -52,6 +52,8 @@ public:
     void accept(Locator::FilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);
 
+    void reset();
+
 protected:
     SearchSymbols search;
 
@@ -64,8 +66,8 @@ private:
 
     QHash<QString, QList<ModelItemInfo> > m_searchList;
     QList<ModelItemInfo> m_previousResults;
-    bool m_forceNewSearchList;
     QString m_previousEntry;
+    bool m_forceNewSearchList;
 };
 
 } // namespace Internal
