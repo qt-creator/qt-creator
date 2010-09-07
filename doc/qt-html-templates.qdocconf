@@ -54,12 +54,12 @@ HTML.postheader         = " <div class=\"header\" id=\"qtdocheader\">\n" \
 			  "            API Lookup</h2>\n" \
 			  "          <div  id=\"list001\" class=\"list\">\n" \
 			  "          <ul id=\"ul001\" >\n" \
-			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/classes.html\">Class index</a></li>\n" \
-			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/functions.html\">Function index</a></li>\n" \
-			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/modules.html\">Modules</a></li>\n" \
-			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/namespaces.html\">Namespaces</a></li>\n" \
-			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/qtglobal.html\">Global Declarations</a></li>\n" \
-			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/qdeclarativeelements.html\">QML elements</a></li>\n" \
+			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/4.7-snapshot/classes.html\">Class index</a></li>\n" \
+			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/4.7-snapshot/functions.html\">Function index</a></li>\n" \
+			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/4.7-snapshot/modules.html\">Modules</a></li>\n" \
+			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/4.7-snapshot/namespaces.html\">Namespaces</a></li>\n" \
+			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/4.7-snapshot/qtglobal.html\">Global Declarations</a></li>\n" \
+			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/4.7-snapshot/qmlelements.html\">QML elements</a></li>\n" \
 			  "            </ul> \n" \
 			  "          </div>\n" \
 			  "        </div>\n" \
@@ -68,13 +68,13 @@ HTML.postheader         = " <div class=\"header\" id=\"qtdocheader\">\n" \
 			  "            Qt Topics</h2>\n" \
 			  "          <div id=\"list002\" class=\"list\">\n" \
 			  "            <ul id=\"ul002\" >\n" \
-			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/qt-basic-concepts.html\">Programming with Qt</a></li> \n" \
-			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/qtquick.html\">Device UI's &amp; Qt Quick</a></li> \n" \
-			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/qt-gui-concepts.html\">UI Design with Qt</a></li> \n" \
-			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/developing-with-qt.html\">Cross-platform and Platform-specific</a></li> \n" \
-			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/platform-specific.html\">Platform-specific info</a></li> \n" \
-			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/technology-apis.html\">Qt and Key Technologies</a></li> \n" \
-			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/best-practices.html\">How-To's and Best Practices</a></li> \n" \
+			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/4.7-snapshot/qt-basic-concepts.html\">Programming with Qt</a></li> \n" \
+			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/4.7-snapshot/qtquick.html\">Device UI's &amp; Qt Quick</a></li> \n" \
+			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/4.7-snapshot/qt-gui-concepts.html\">UI Design with Qt</a></li> \n" \
+			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/4.7-snapshot/developing-with-qt.html\">Cross-platform and Platform-specific</a></li> \n" \
+			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/4.7-snapshot/platform-specific.html\">Platform-specific info</a></li> \n" \
+			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/4.7-snapshot/technology-apis.html\">Qt and Key Technologies</a></li> \n" \
+			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/4.7-snapshot/best-practices.html\">How-To's and Best Practices</a></li> \n" \
 			  "            </ul>  \n" \
 			  "          </div>\n" \
 			  "        </div>\n" \
@@ -83,10 +83,10 @@ HTML.postheader         = " <div class=\"header\" id=\"qtdocheader\">\n" \
 			  "            Examples</h2>\n" \
 			  "          <div id=\"list003\" class=\"list\">\n" \
 			  "        <ul id=\"ul003\">\n" \
-			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/all-examples.html\">Examples</a></li>\n" \
-			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/tutorials.html\">Tutorials</a></li>\n" \
-			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/demos.html\">Demos</a></li>\n" \
-			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/latest/qdeclarativeexamples.html\">QML Examples</a></li>\n" \
+			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/4.7-snapshot/all-examples.html\">Examples</a></li>\n" \
+			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/4.7-snapshot/tutorials.html\">Tutorials</a></li>\n" \
+			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/4.7-snapshot/demos.html\">Demos</a></li>\n" \
+			  "              <li class=\"defaultLink\"><a href=\"http://doc.qt.nokia.com/4.7-snapshot/qdeclarativeexamples.html\">QML Examples</a></li>\n" \
 			  "            </ul> \n" \
 			  "          </div>\n" \
 			  "        </div>\n" \
