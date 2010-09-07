@@ -140,18 +140,16 @@ protected:
 } // namespace Internal
 } // namespace TextEditor
 
-
-ITextEditor *BaseTextEditor::openEditorAt(const QString &fileName,
-                                          int line,
-                                          int column,
-                                          const QString &editorKind,
-                                          bool *newEditor)
+ITextEditor *BaseTextEditor::openEditorAt(const QString &fileName, int line, int column,
+                                 const QString &editorKind,
+                                 Core::EditorManager::OpenEditorFlags flags,
+                                 bool *newEditor)
 {
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     editorManager->cutForwardNavigationHistory();
     editorManager->addCurrentPositionToNavigationHistory();
     Core::IEditor *editor = editorManager->openEditor(fileName, editorKind,
-            Core::EditorManager::IgnoreNavigationHistory, newEditor);
+            flags, newEditor);
     TextEditor::ITextEditor *texteditor = qobject_cast<TextEditor::ITextEditor *>(editor);
     if (texteditor) {
         texteditor->gotoLine(line, column);

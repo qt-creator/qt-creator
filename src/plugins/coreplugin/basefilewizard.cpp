@@ -48,6 +48,7 @@
 #include <QtCore/QSharedData>
 #include <QtCore/QEventLoop>
 #include <QtCore/QSharedPointer>
+#include <QtCore/QScopedPointer>
 
 #include <QtGui/QMessageBox>
 #include <QtGui/QWizard>
@@ -506,7 +507,9 @@ QStringList BaseFileWizard::runWizard(const QString &path, QWidget *parent)
     // Create dialog and run it. Ensure that the dialog is deleted when
     // leaving the func, but not before the IFileWizardExtension::process
     // has been called
-    const QSharedPointer<QWizard> wizard(createWizardDialog(parent, path, allExtensionPages));
+    const QScopedPointer<QWizard> wizard(createWizardDialog(parent, path, allExtensionPages));
+    QTC_ASSERT(!wizard.isNull(), return QStringList())
+
     GeneratedFiles files;
     // Run the wizard: Call generate files on switching to the first extension
     // page is OR after 'Accepted' if there are no extension pages

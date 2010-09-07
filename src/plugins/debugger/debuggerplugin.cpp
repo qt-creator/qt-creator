@@ -2345,7 +2345,9 @@ void DebuggerPluginPrivate::gotoLocation(const QString &file, int line, bool set
 {
     bool newEditor = false;
     ITextEditor *editor =
-        BaseTextEditor::openEditorAt(file, line, 0, QString(), &newEditor);
+        BaseTextEditor::openEditorAt(file, line, 0, QString(),
+                                     Core::EditorManager::IgnoreNavigationHistory,
+                                     &newEditor);
     if (!editor)
         return;
     if (newEditor)
@@ -2575,7 +2577,9 @@ void DebuggerPlugin::gotoLocation(const QString &file, int line, bool setMarker)
 {
     bool newEditor = false;
     ITextEditor *editor =
-        BaseTextEditor::openEditorAt(file, line, 0, QString(), &newEditor);
+        BaseTextEditor::openEditorAt(file, line, 0, QString(),
+                                     Core::EditorManager::IgnoreNavigationHistory|Core::EditorManager::NoModeSwitch,
+                                     &newEditor);
     if (!editor)
         return;
     if (newEditor)

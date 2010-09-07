@@ -123,7 +123,7 @@ void MemoryViewAgent::createBinEditor(quint64 addr)
         connect(editor->widget(), SIGNAL(endOfFileRequested(Core::IEditor *)),
             this, SLOT(handleEndOfFileRequested(Core::IEditor*)));
         m_editors << editor;
-        editorManager->activateEditor(editor);
+        editorManager->activateEditor(editor, Core::EditorManager::NoModeSwitch);
         QMetaObject::invokeMethod(editor->widget(), "setNewWindowRequestAllowed");
         QMetaObject::invokeMethod(editor->widget(), "setLazyData",
             Q_ARG(quint64, addr), Q_ARG(int, DataRange), Q_ARG(int, BinBlockSize));
@@ -147,7 +147,7 @@ void MemoryViewAgent::addLazyData(QObject *editorToken, quint64 addr,
 {
     Core::IEditor *editor = qobject_cast<Core::IEditor *>(editorToken);
     if (editor && editor->widget()) {
-        Core::EditorManager::instance()->activateEditor(editor);
+        Core::EditorManager::instance()->activateEditor(editor, Core::EditorManager::NoModeSwitch);
         QMetaObject::invokeMethod(editor->widget(), "addLazyData",
             Q_ARG(quint64, addr / BinBlockSize), Q_ARG(QByteArray, ba));
     }
@@ -343,7 +343,7 @@ void DisassemblerViewAgent::setContents(const QString &contents)
         d->configureMimeType();
     }
 
-    editorManager->activateEditor(d->editor);
+    editorManager->activateEditor(d->editor, Core::EditorManager::NoModeSwitch);
 
     plainTextEdit = qobject_cast<QPlainTextEdit *>(d->editor->widget());
     if (plainTextEdit) {
