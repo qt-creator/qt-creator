@@ -31,13 +31,20 @@
 
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
+#include <nodeproperty.h>
+#include <metainfo.h>
+#include <propertymetainfo.h>
+#include <qgraphicswidget.h>
 #include <abstractview.h>
 #include <invalididexception.h>
 
 #include <QMimeData>
 #include <QMessageBox>
+#include <QApplication>
 
 namespace QmlDesigner {
+
+const int NavigatorTreeModel::NavigatorRole = Qt::UserRole;
 
 NavigatorTreeModel::NavigatorTreeModel(QObject *parent)
     : QStandardItemModel(parent),
@@ -90,7 +97,7 @@ QMimeData *NavigatorTreeModel::mimeData(const QModelIndexList &indexList) const
              continue;
 
          rowAlreadyUsedSet.insert(idIndex);
-         stream << idIndex.data(Qt::UserRole).toUInt();
+         stream << idIndex.data(NavigatorRole).toUInt();
      }
 
      mimeData->setData("application/vnd.modelnode.list", encodedData);
@@ -98,21 +105,11 @@ QMimeData *NavigatorTreeModel::mimeData(const QModelIndexList &indexList) const
      return mimeData;
 }
 
-static bool isAnchestorInList(const ModelNode &node, const QList<ModelNode> &nodeList)
-{
-    foreach (const ModelNode &nodeInList, nodeList) {
-        if (nodeInList.isAncestorOf(node))
-            return true;
-    }
-
-    return false;
-}
-
 bool NavigatorTreeModel::dropMimeData(const QMimeData *data,
                   Qt::DropAction action,
                   int row,
                   int column,
-                  const QModelIndex &parentIndex)
+                  const QModelIndex &dropIndex)
 {
     if (action == Qt::IgnoreAction)
         return true;
@@ -122,59 +119,57 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *data,
         return false;
     if (column > 1)
         return false;
-    if (parentIndex.model() != this)
+    if (dropIndex.model() != this)
         return false;
 
+    QModelIndex parentIndex, parentItemIndex;
+    QString parentPropertyName;
+    int targetIndex;
 
-    QModelIndex parentIdIndex = parentIndex;
-    parentIdIndex = parentIdIndex.sibling(parentIdIndex.row(), 0);
+    parentIndex = dropIndex.sibling(dropIndex.row(), 0);
+    targetIndex = (row > -1)? row : rowCount(parentIndex);
 
-    Q_ASSERT(parentIdIndex.isValid());
-
-    int targetIndex = 0;
-    if (row > -1) {
-        targetIndex = row;
-    } else {
-        targetIndex = rowCount(parentIdIndex);
+    if (this->data(parentIndex, NavigatorRole).isValid()) {
+        parentItemIndex = parentIndex;
+        ModelNode parentNode = nodeForIndex(parentItemIndex);
+        if (!parentNode.metaInfo().hasDefaultProperty())
+            return false;
+        targetIndex -= visibleProperties(parentNode).count();
+        parentPropertyName = parentNode.metaInfo().defaultProperty();
     }
+    else {
+        parentItemIndex = parentIndex.parent();
+        parentPropertyName = parentIndex.data(Qt::DisplayRole).toString();
+    }
+
+    // Disallow dropping items between properties, which are listed first.
+    if (targetIndex < 0)
+        return false;
+
+    Q_ASSERT(parentItemIndex.isValid());
 
     QByteArray encodedData = data->data("application/vnd.modelnode.list");
     QDataStream stream(&encodedData, QIODevice::ReadOnly);
 
-    ModelNode parentNode(nodeForIndex(parentIdIndex));
-
     QList<ModelNode> nodeList;
-
     while (!stream.atEnd()) {
         uint nodeHash;
         stream >> nodeHash;
-        ModelNode node(nodeForHash(nodeHash));
-        if (!node.isValid() || (parentNode == node) || node.isAncestorOf(parentNode))
-            continue;
-        nodeList.append(node);
-    }
-
-    RewriterTransaction transaction = m_view->beginRewriterTransaction();
-    foreach (const ModelNode &node, nodeList) {
-        if (!isAnchestorInList(node, nodeList)) {
-            if (node.parentProperty().parentModelNode() != parentNode) {
-                if (node != parentNode) {
-                    reparentModelNode(parentNode, node);
-                }
-            }
-
-            if (node.parentProperty().isNodeListProperty()) {
-                int index = node.parentProperty().toNodeListProperty().toModelNodeList().indexOf(node);
-                if (index < targetIndex) { // item is first removed from oldIndex, then inserted at new index
-                    --targetIndex;
-                }
-                if (index != targetIndex) {
-                    node.parentProperty().toNodeListProperty().slide(index, targetIndex);
-                }
-            }
+        if (containsNodeHash(nodeHash)) {
+            ModelNode node(nodeForHash(nodeHash));
+            nodeList.append(node);
         }
     }
 
+    ModelNode parentNode(nodeForIndex(parentItemIndex));
+    NodeAbstractProperty parentProperty = parentNode.nodeAbstractProperty(parentPropertyName);
+
+    if (parentProperty.isNodeProperty() &&
+        nodeList.count() > 1) {
+        return false;
+    }
+
+    moveNodesInteractive(parentProperty, nodeList, targetIndex);
     propagateInvisible(parentNode, isNodeInvisible(parentNode));
 
     return false; // don't let the view do drag&drop on its own
@@ -192,7 +187,7 @@ NavigatorTreeModel::ItemRow NavigatorTreeModel::createItemRow(const ModelNode &n
     idItem->setDragEnabled(true);
     idItem->setDropEnabled(dropEnabled);
     idItem->setEditable(true);
-    idItem->setData(hash, Qt::UserRole);
+    idItem->setData(hash, NavigatorRole);
 
 #    ifdef _LOCK_ITEMS_
     QStandardItem *lockItem = new QStandardItem;
@@ -200,28 +195,40 @@ NavigatorTreeModel::ItemRow NavigatorTreeModel::createItemRow(const ModelNode &n
     lockItem->setDropEnabled(dropEnabled);
     lockItem->setEditable(false);
     lockItem->setCheckable(true);
-    lockItem->setData(hash, Qt::UserRole);
+    lockItem->setData(hash, NavigatorRole);
 #    endif
 
     QStandardItem *visibilityItem = new QStandardItem;
     visibilityItem->setDropEnabled(dropEnabled);
     visibilityItem->setCheckable(true);
     visibilityItem->setEditable(false);
-    visibilityItem->setData(hash, Qt::UserRole);
+    visibilityItem->setData(hash, NavigatorRole);
     if (node.isRootNode()) {
         visibilityItem->setCheckable(false);
     }
 
-#    ifdef _LOCK_ITEMS_
-    return ItemRow(idItem, lockItem, visibilityItem);
-#    else
-    return ItemRow(idItem, visibilityItem);
-#    endif
+    QMap<QString, QStandardItem *> propertyItems;
+    foreach (QString propertyName, visibleProperties(node)) {
+        QStandardItem *propertyItem = new QStandardItem;
+        propertyItem->setSelectable(false);
+        propertyItem->setDragEnabled(false);
+        propertyItem->setDropEnabled(dropEnabled);
+        propertyItem->setEditable(false);
+        propertyItem->setData(propertyName, Qt::DisplayRole);
+        propertyItems.insert(propertyName, propertyItem);
+        idItem->appendRow(propertyItem);
+    }
+
+#   ifdef _LOCK_ITEMS_
+    return ItemRow(idItem, lockItem, visibilityItem, propertyItems);
+#   else
+    return ItemRow(idItem, visibilityItem, propertyItems);
+#   endif
 }
 
 void NavigatorTreeModel::updateItemRow(const ModelNode &node, ItemRow items)
 {
-    bool blockSignal = blockItemChangedSignal(true);
+    bool blockSignal = blockItemChangedSignal(true);    
 
     items.idItem->setText(node.id());
     items.visibilityItem->setCheckState(node.auxiliaryData("invisible").toBool() ? Qt::Unchecked : Qt::Checked);
@@ -243,20 +250,34 @@ void NavigatorTreeModel::updateItemRow(const ModelNode &node)
 /**
   Updates the sibling position of the item, depending on the position in the model.
   */
-void NavigatorTreeModel::updateItemRowOrder(const ModelNode &node)
+void NavigatorTreeModel::updateItemRowOrder(const NodeListProperty &listProperty, const ModelNode &node, int oldIndex)
 {
+    Q_UNUSED(oldIndex);
+
     if (!containsNode(node))
         return;
 
     ItemRow itemRow = itemRowForNode(node);
     int currentRow = itemRow.idItem->row();
-    int newRow = currentRow;
-    if (node.parentProperty().parentModelNode().isValid())
-        newRow = modelNodeChildren(node.parentProperty().parentModelNode()).indexOf(node);
+    int newRow = listProperty.toModelNodeList().indexOf(node);
+
     Q_ASSERT(newRow >= 0);
 
+    QStandardItem *parentIdItem = 0;
+    if (containsNode(listProperty.parentModelNode())) {
+        ItemRow parentRow = itemRowForNode(listProperty.parentModelNode());
+        parentIdItem = parentRow.propertyItems.value(listProperty.name());
+        if (!parentIdItem) {
+            parentIdItem = parentRow.idItem;
+            newRow += visibleProperties(listProperty.parentModelNode()).count();
+        }
+    }
+    else {
+        parentIdItem = itemRow.idItem->parent();
+    }
+    Q_ASSERT(parentIdItem);
+
     if (currentRow != newRow) {
-        QStandardItem *parentIdItem = itemRow.idItem->parent();
         QList<QStandardItem*> items = parentIdItem->takeRow(currentRow);
         parentIdItem->insertRow(newRow, items);
     }
@@ -266,8 +287,10 @@ void NavigatorTreeModel::handleChangedItem(QStandardItem *item)
 {
     if (m_blockItemChangedSignal)
         return;
+    if (!data(item->index(), NavigatorRole).isValid())
+        return;
 
-    uint nodeHash = item->data(Qt::UserRole).toUInt();
+    uint nodeHash = item->data(NavigatorRole).toUInt();
     Q_ASSERT(nodeHash && containsNodeHash(nodeHash));
     ModelNode node = nodeForHash(nodeHash);
 
@@ -323,7 +346,12 @@ NavigatorTreeModel::ItemRow NavigatorTreeModel::itemRowForNode(const ModelNode &
 void NavigatorTreeModel::setView(AbstractView *view)
 {
     m_view = view;
-    addSubTree(view->rootModelNode());
+    m_hiddenProperties.clear();
+    if (view) {
+        ModelNode sampleItemNode(m_view->createModelNode("Qt/Item", 4, 7));
+        m_hiddenProperties << visibleProperties(sampleItemNode);
+        addSubTree(view->rootModelNode());
+    }
 }
 
 void NavigatorTreeModel::clearView()
@@ -346,7 +374,7 @@ QModelIndex NavigatorTreeModel::indexForNode(const ModelNode &node) const
 ModelNode NavigatorTreeModel::nodeForIndex(const QModelIndex &index) const
 {
     Q_ASSERT(index.isValid());
-    uint hash = index.data(Qt::UserRole).toUInt();
+    uint hash = index.data(NavigatorRole).toUInt();
     Q_ASSERT(hash);
     Q_ASSERT(containsNodeHash(hash));
     return nodeForHash(hash);
@@ -380,6 +408,8 @@ void NavigatorTreeModel::addSubTree(const ModelNode &node)
     Q_ASSERT(node.isValid());
     Q_ASSERT(!containsNodeHash(qHash(node)));
 
+    //updateItemRow(node, newRow);
+
     // only add items that are in the modelNodeChildren list (that means, visible in the editor)
     if (!node.isRootNode()
         && !modelNodeChildren(node.parentProperty().parentModelNode()).contains(node)) {
@@ -397,9 +427,16 @@ void NavigatorTreeModel::addSubTree(const ModelNode &node)
 
     // We assume that the node is always added to the _end_ of the property list.
     if (node.hasParentProperty()) {
-        ItemRow parentRow = itemRowForNode(node.parentProperty().parentModelNode());
-        if (parentRow.idItem)
-            parentRow.idItem->appendRow(newRow.toList());
+        AbstractProperty property(node.parentProperty());
+        ItemRow parentRow = itemRowForNode(property.parentModelNode());
+        QStandardItem *parentItem = parentRow.propertyItems.value(property.name());
+        if (!parentItem) {
+            // Child nodes in the default property are added directly under the
+            // parent.
+            parentItem = parentRow.idItem;
+        }
+        if (parentItem)
+            parentItem->appendRow(newRow.toList());
     } else {
         appendRow(newRow.toList());
     }
@@ -431,24 +468,109 @@ void NavigatorTreeModel::removeSubTree(const ModelNode &node)
     m_nodeItemHash.remove(node);
 }
 
-void NavigatorTreeModel::reparentModelNode(const ModelNode &parentNode, const ModelNode &node)
+void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty parentProperty, const QList<ModelNode> &modelNodes, int targetIndex)
 {
-    parentNode.nodeListProperty("data").reparentHere(node);
+    QString propertyQmlType = qmlTypeInQtContainer(parentProperty.metaInfo().type());
+
+    RewriterTransaction transaction = m_view->beginRewriterTransaction();
+    foreach (const ModelNode &node, modelNodes) {
+        if (!node.isValid())
+            continue;
+
+        if (node != parentProperty.parentModelNode() &&
+            !node.isAncestorOf(parentProperty.parentModelNode()) &&
+            node.metaInfo().isSubclassOf(propertyQmlType, -1, -1)) {
+
+            if (node.parentProperty() != parentProperty) {
+
+                if (parentProperty.isNodeProperty()) {
+                    ModelNode propertyNode = parentProperty.toNodeProperty().modelNode();
+                    // Destruction of ancestors is not allowed
+                    if (propertyNode.isAncestorOf(node)) {
+                        continue;
+                    }
+                    if (propertyNode.isValid()) {
+                        QApplication::setOverrideCursor(Qt::ArrowCursor);
+                        if (QMessageBox::warning(0, tr("Warning"), tr("Reparenting the component %1 here will cause the component %2 to be deleted. Do you want to proceed?").arg(node.id(), propertyNode.id()), QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Cancel) {
+                            QApplication::restoreOverrideCursor();
+                            continue;
+                        }
+                        QApplication::restoreOverrideCursor();
+                        propertyNode.destroy();
+                    }
+                }
+
+                parentProperty.reparentHere(node);
+            }
+
+            if (parentProperty.isNodeListProperty()) {
+                int index = parentProperty.toNodeListProperty().toModelNodeList().indexOf(node);
+                if (index < targetIndex) { // item is first removed from oldIndex, then inserted at new index
+                    --targetIndex;
+                }
+                if (index != targetIndex) {
+                    parentProperty.toNodeListProperty().slide(index, targetIndex);
+                }
+            }
+        }
+    }
 }
 
 QList<ModelNode> NavigatorTreeModel::modelNodeChildren(const ModelNode &parentNode)
 {
     QList<ModelNode> children;
+    QStringList properties;
 
-    if (parentNode.hasProperty("children")) {
-        children.append(parentNode.nodeListProperty("children").toModelNodeList());
-    }
+    if (parentNode.metaInfo().hasDefaultProperty())
+        properties << parentNode.metaInfo().defaultProperty();
 
-    if (parentNode.hasProperty("data")) {
-        children.append(parentNode.nodeListProperty("data").toModelNodeList());
+    properties << visibleProperties(parentNode);
+
+    foreach (QString propertyName, properties) {
+        AbstractProperty property(parentNode.property(propertyName));
+        if (property.isNodeProperty())
+            children << property.toNodeProperty().modelNode();
+        else if (property.isNodeListProperty())
+            children << property.toNodeListProperty().toModelNodeList();
     }
 
     return children;
+}
+
+QString NavigatorTreeModel::qmlTypeInQtContainer(const QString &qtContainerType) const
+{
+    QString typeName(qtContainerType);
+    if (typeName.startsWith("QDeclarativeListProperty<") &&
+        typeName.endsWith(">")) {
+        typeName.remove(0, 25);
+        typeName.chop(1);
+    }
+    if (typeName.endsWith('*'))
+        typeName.chop(1);
+
+    return m_view->model()->metaInfo().fromQtTypes(typeName);
+}
+
+
+QStringList NavigatorTreeModel::visibleProperties(const ModelNode &node) const
+{
+    QStringList propertyList;
+
+    foreach (PropertyMetaInfo propertyMetaInfo, node.metaInfo().properties().values()) {
+        if (!m_hiddenProperties.contains(propertyMetaInfo.name()) &&
+            propertyMetaInfo.name() != node.metaInfo().defaultProperty() &&
+            propertyMetaInfo.isReadable() &&
+            propertyMetaInfo.isWriteable()) {
+
+            QString qmlType = qmlTypeInQtContainer(propertyMetaInfo.type());
+            if (node.metaInfo().metaInfo().hasNodeMetaInfo(qmlType) &&
+                node.metaInfo().metaInfo().nodeMetaInfo(qmlType).isSubclassOf("QGraphicsObject", -1, -1)) {
+                propertyList << propertyMetaInfo.name();
+            }
+        }
+    }    
+
+    return propertyList;
 }
 
 // along the lines of QObject::blockSignals

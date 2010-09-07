@@ -49,7 +49,7 @@ NavigatorView::NavigatorView(QObject* parent) :
     connect(treeWidget()->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(changeSelection(QItemSelection,QItemSelection)));
     treeWidget()->setIndentation(treeWidget()->indentation() * 0.5);
 
-    IdItemDelegate *idDelegate = new IdItemDelegate(this,m_treeModel.data());
+    NameItemDelegate *idDelegate = new NameItemDelegate(this,m_treeModel.data());
     IconCheckboxItemDelegate *showDelegate = new IconCheckboxItemDelegate(this,":/qmldesigner/images/eye_open.png",
                                                           ":/qmldesigner/images/placeholder.png",m_treeModel.data());
 
@@ -191,10 +191,10 @@ void NavigatorView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStr
 }
 
 
-void NavigatorView::nodeOrderChanged(const NodeListProperty &/*listProperty*/, const ModelNode &node, int /*oldIndex*/)
+void NavigatorView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &node, int oldIndex)
 {
     if (m_treeModel->isInTree(node))
-        m_treeModel->updateItemRowOrder(node);
+        m_treeModel->updateItemRowOrder(listProperty, node, oldIndex);
 }
 
 void NavigatorView::changeSelection(const QItemSelection & /*newSelection*/, const QItemSelection &/*deselected*/)
@@ -203,7 +203,8 @@ void NavigatorView::changeSelection(const QItemSelection & /*newSelection*/, con
         return;
     QSet<ModelNode> nodeSet;
     foreach (const QModelIndex &index, treeWidget()->selectionModel()->selectedIndexes()) {
-        nodeSet.insert(m_treeModel->nodeForIndex(index));
+        if (m_treeModel->data(index, Qt::UserRole).isValid())
+            nodeSet.insert(m_treeModel->nodeForIndex(index));
     }
 
     bool blocked = blockSelectionChangedSignal(true);

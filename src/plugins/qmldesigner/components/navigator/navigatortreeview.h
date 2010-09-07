@@ -70,10 +70,10 @@ class IconCheckboxItemDelegate : public QStyledItemDelegate
 
 };
 
-class IdItemDelegate : public QStyledItemDelegate
+class NameItemDelegate : public QStyledItemDelegate
 {
     public:
-    explicit IdItemDelegate(QObject *parent=0, NavigatorTreeModel *treeModel=NULL) : QStyledItemDelegate(parent),m_TreeModel(treeModel) {}
+    explicit NameItemDelegate(QObject *parent=0, NavigatorTreeModel *treeModel=NULL) : QStyledItemDelegate(parent),m_TreeModel(treeModel) {}
 
     void paint(QPainter *painter,
                const QStyleOptionViewItem &option, const QModelIndex &index) const;

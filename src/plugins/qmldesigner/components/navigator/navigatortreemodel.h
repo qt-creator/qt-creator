@@ -50,8 +50,8 @@ class NavigatorTreeModel : public QStandardItemModel
     struct ItemRow {
         ItemRow()
             : idItem(0), lockItem(0), visibilityItem(0) {}
-        ItemRow(QStandardItem *id, QStandardItem *lock, QStandardItem *visibility)
-            : idItem(id), lockItem(lock), visibilityItem(visibility) {}
+        ItemRow(QStandardItem *id, QStandardItem *lock, QStandardItem *visibility, const PropertyItemMap &properties)
+            : idItem(id), lockItem(lock), visibilityItem(visibility), propertyItems(properties) {}
 
         QList<QStandardItem*> toList() const {
             return QList<QStandardItem*>() << idItem << lockItem << visibilityItem;
@@ -60,13 +60,14 @@ class NavigatorTreeModel : public QStandardItemModel
         QStandardItem *idItem;
         QStandardItem *lockItem;
         QStandardItem *visibilityItem;
+        QMap<QString, QStandardItem *> propertyItems;
     };
 #else
     struct ItemRow {
         ItemRow()
             : idItem(0), visibilityItem(0) {}
-        ItemRow(QStandardItem *id, QStandardItem *visibility)
-            : idItem(id), visibilityItem(visibility) {}
+        ItemRow(QStandardItem *id, QStandardItem *visibility, const QMap<QString, QStandardItem *> &properties)
+            : idItem(id), visibilityItem(visibility), propertyItems(properties) {}
 
         QList<QStandardItem*> toList() const {
             return QList<QStandardItem*>() << idItem << visibilityItem;
@@ -74,8 +75,11 @@ class NavigatorTreeModel : public QStandardItemModel
 
         QStandardItem *idItem;
         QStandardItem *visibilityItem;
+        QMap<QString, QStandardItem *> propertyItems;
     };
 #endif
+
+    static const int NavigatorRole;
 
 public:
     NavigatorTreeModel(QObject *parent = 0);
@@ -105,7 +109,7 @@ public:
     void addSubTree(const ModelNode &node);
     void removeSubTree(const ModelNode &node);
     void updateItemRow(const ModelNode &node);
-    void updateItemRowOrder(const ModelNode &node);
+    void updateItemRowOrder(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex);
 
     void setId(const QModelIndex &index, const QString &id);
     void setVisible(const QModelIndex &index, bool visible);
@@ -123,8 +127,12 @@ private:
     ItemRow createItemRow(const ModelNode &node);
     void updateItemRow(const ModelNode &node, ItemRow row);
 
-    void reparentModelNode(const ModelNode &parentNode, const ModelNode &node);
+    void moveNodesInteractive(NodeAbstractProperty parentProperty, const QList<ModelNode> &modelNodes, int targetIndex);
+
     QList<ModelNode> modelNodeChildren(const ModelNode &parentNode);
+
+    QString qmlTypeInQtContainer(const QString &qtContainerType) const;
+    QStringList visibleProperties(const ModelNode &node) const;
 
     bool blockItemChangedSignal(bool block);
 
@@ -134,6 +142,8 @@ private:
     QWeakPointer<AbstractView> m_view;
 
     bool m_blockItemChangedSignal;
+
+    QStringList m_hiddenProperties;
 };
 
 } // namespace QmlDesigner

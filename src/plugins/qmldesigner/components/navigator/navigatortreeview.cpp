@@ -127,12 +127,19 @@ QSize IconCheckboxItemDelegate::sizeHint(const QStyleOptionViewItem &option,
 {
     Q_UNUSED(option);
     Q_UNUSED(index);
-    return QSize(15,20);
+
+    if (!index.data(Qt::UserRole).isValid())
+        return QSize();
+
+    return QSize(15, 20);
 }
 
 void IconCheckboxItemDelegate::paint(QPainter *painter,
                                      const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
+    if (!index.data(Qt::UserRole).isValid())
+        return;
+
     painter->save();
     if (option.state & QStyle::State_Selected)
         drawSelectionBackground(painter, option);
@@ -152,70 +159,84 @@ void IconCheckboxItemDelegate::paint(QPainter *painter,
     painter->restore();
 }
 
-void IdItemDelegate::paint(QPainter *painter,
+void NameItemDelegate::paint(QPainter *painter,
                const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     if (option.state & QStyle::State_Selected)
         drawSelectionBackground(painter, option);
 
+    QString displayString;
+    QPoint displayStringOffset;
+
     painter->save();
 
-    if (m_TreeModel->isNodeInvisible( index ))
-        painter->setOpacity(0.5);
+    if (index.data(Qt::UserRole).isValid()) {
 
-    ModelNode node = m_TreeModel->nodeForIndex(index);
+        int pixmapSide = 16;
 
-    QIcon icon;
-    if (node.metaInfo().isValid()) {
-        icon=node.metaInfo().icon();
-        if (icon.isNull())
-        {
-            // if node has no own icon, search for it in the itemlibrary
-            const NodeMetaInfo typeInfo = node.metaInfo();
-            const ItemLibraryInfo *libraryInfo = node.metaInfo().metaInfo().itemLibraryInfo();
-            QList <ItemLibraryEntry> infoList = libraryInfo->entriesForType(typeInfo.typeName(),
-                                                                            typeInfo.majorVersion(),
-                                                                            typeInfo.minorVersion());
-            foreach (const ItemLibraryEntry &entry, infoList) {
-                if (!icon.isNull()) {
-                    icon = entry.icon();
-                    break;
+        if (m_TreeModel->isNodeInvisible( index ))
+            painter->setOpacity(0.5);
+
+        ModelNode node = m_TreeModel->nodeForIndex(index);
+
+        QIcon icon;
+        if (node.metaInfo().isValid()) {
+            icon=node.metaInfo().icon();
+            if (icon.isNull())
+            {
+                // if node has no own icon, search for it in the itemlibrary
+                const NodeMetaInfo typeInfo = node.metaInfo();
+                const ItemLibraryInfo *libraryInfo = node.metaInfo().metaInfo().itemLibraryInfo();
+                QList <ItemLibraryEntry> infoList = libraryInfo->entriesForType(typeInfo.typeName(),
+                                                                                typeInfo.majorVersion(),
+                                                                                typeInfo.minorVersion());
+                foreach (const ItemLibraryEntry &entry, infoList) {
+                    if (!icon.isNull()) {
+                        icon = entry.icon();
+                        break;
+                    }
                 }
             }
         }
-    }
 
     // if the library was also empty, use the default icon
     if (icon.isNull())
         icon = QIcon(QLatin1String(":/ItemLibrary/images/item-default-icon.png"));
 
-    // If no icon is present, leave an empty space of 24 pixels anyway
-    int pixmapSide = 16;
-    QPixmap pixmap = icon.pixmap(pixmapSide, pixmapSide);
-    painter->drawPixmap(option.rect.x()+1,option.rect.y()+2,pixmap);
+        // If no icon is present, leave an empty space of 24 pixels anyway
+        QPixmap pixmap = icon.pixmap(pixmapSide, pixmapSide);
+        painter->drawPixmap(option.rect.x()+1,option.rect.y()+2,pixmap);
 
-    QString myString = node.id();
-    if (myString.isEmpty())
-        myString = node.simplifiedTypeName();
+        displayString = node.id();
+        if (displayString.isEmpty())
+            displayString = node.simplifiedTypeName();
 
-    // Check text length does not exceed available space
-    int extraSpace=12+pixmapSide;
-    QFontMetrics fm(option.font);
-    myString = fm.elidedText(myString,Qt::ElideMiddle,option.rect.width()-extraSpace);
+        // Check text length does not exceed available space
+        int extraSpace=12+pixmapSide;
+        QFontMetrics fm(option.font);
+        displayString = fm.elidedText(displayString,Qt::ElideMiddle,option.rect.width()-extraSpace);
+        displayStringOffset = QPoint(5+pixmapSide,-5);
+    }
+    else {
+        displayString = index.data(Qt::DisplayRole).toString();
+        displayStringOffset = QPoint(0, -2);
+    }
 
-    painter->drawText(option.rect.bottomLeft()+QPoint(5+pixmapSide,-5),myString);
+    painter->drawText(option.rect.bottomLeft()+displayStringOffset,displayString);
 
     painter->restore();
 }
 
-QWidget *IdItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+QWidget *NameItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     Q_UNUSED(option);
-    Q_UNUSED(index);
+    if (!index.data(Qt::UserRole).isValid())
+        return 0;
+
     return new QLineEdit(parent);
 }
 
-void IdItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+void NameItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
     ModelNode node = m_TreeModel->nodeForIndex(index);
     QString value = node.id();
@@ -224,7 +245,7 @@ void IdItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) co
     lineEdit->setText(value);
 }
 
-void IdItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
+void NameItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
     Q_UNUSED(model);
     QLineEdit *lineEdit = static_cast<QLineEdit*>(editor);
@@ -232,7 +253,7 @@ void IdItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, co
     lineEdit->clearFocus();
 }
 
-void IdItemDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
+void NameItemDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     Q_UNUSED(index);
     QLineEdit *lineEdit = static_cast<QLineEdit*>(editor);
