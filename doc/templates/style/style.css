@@ -794,13 +794,12 @@
 		padding-left:12px;
     }
 
-
-
-
-
-
-
-
+    .wrap .content ol li
+    {
+	background:none;
+    margin-bottom: 10px; 
+	padding-left:0px;
+    }
 
     .content li:hover  {}
 
