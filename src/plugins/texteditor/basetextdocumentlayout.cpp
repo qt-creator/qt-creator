@@ -527,7 +527,7 @@ void BaseTextDocumentLayout::doFoldOrUnfold(const QTextBlock& block, bool unfold
     QTextBlock b = block.next();
 
     int indent = foldingIndent(block);
-    while (b.isValid() && foldingIndent(b) > indent && b.next().isValid()) {
+    while (b.isValid() && foldingIndent(b) > indent && (unfold || b.next().isValid())) {
         b.setVisible(unfold);
         b.setLineCount(unfold? qMax(1, b.layout()->lineCount()) : 0);
         if (unfold) { // do not unfold folded sub-blocks

@@ -3431,7 +3431,7 @@ void BaseTextEditor::updateCurrentLineHighlight()
         if (block.isValid())
             d->m_extraArea->update(blockBoundingGeometry(block).translated(offset).toAlignedRect());
         block = document()->findBlockByNumber(cursorBlockNumber);
-        if (block.isValid())
+        if (block.isValid() && block.isVisible())
             d->m_extraArea->update(blockBoundingGeometry(block).translated(offset).toAlignedRect());
         d->m_cursorBlockNumber = cursorBlockNumber;
     }
