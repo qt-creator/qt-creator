@@ -40,7 +40,7 @@
         <property name="childrenCollapsible">
          <bool>false</bool>
         </property>
-        <widget class="QWidget" name="layoutWidget">
+        <widget class="QWidget" name="layoutWidget1">
          <layout class="QGridLayout" name="gridLayout">
           <item row="1" column="0" rowspan="3">
            <widget class="QListWidget" name="urisListWidget"/>
@@ -84,7 +84,7 @@
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="layoutWidget">
+        <widget class="QWidget" name="layoutWidget2">
          <layout class="QGridLayout" name="gridLayout_2">
           <item row="1" column="0" rowspan="3">
            <widget class="QListWidget" name="importPathsListWidget"/>
