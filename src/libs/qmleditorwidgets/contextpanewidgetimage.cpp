@@ -129,6 +129,22 @@ ContextPaneWidgetImage::~ContextPaneWidgetImage()
 void ContextPaneWidgetImage::setProperties(QmlJS::PropertyReader *propertyReader)
 {
     if (m_borderImage) {
+
+        int leftBorder = 0;
+        int rightBorder = 0;
+        int topBorder = 0;
+        int bottomBorder = 0;
+
+        if (propertyReader->hasProperty(QLatin1String("border.left")))
+            leftBorder =propertyReader->readProperty(QLatin1String("border.left")).toInt();
+        if (propertyReader->hasProperty(QLatin1String("border.right")))
+            rightBorder =propertyReader->readProperty(QLatin1String("border.right")).toInt();
+        if (propertyReader->hasProperty(QLatin1String("border.top")))
+            topBorder =propertyReader->readProperty(QLatin1String("border.top")).toInt();
+        if (propertyReader->hasProperty(QLatin1String("border.bottom")))
+            bottomBorder =propertyReader->readProperty(QLatin1String("border.bottom")).toInt();
+        previewDialog()->previewLabel()->setMargins(leftBorder, topBorder, rightBorder, bottomBorder);
+
         if (propertyReader->hasProperty(QLatin1String("horizontalTileMode"))) {
             QString fillMode = propertyReader->readProperty(QLatin1String("horizontalTileMode")).toString();
             if (fillMode.contains("BorderImage."))
@@ -707,25 +723,25 @@ void PreviewLabel::mouseMoveEvent(QMouseEvent * event)
 
     QPoint p = event->pos();
     if (m_dragging_left) {
-        m_left += limit(p.x() - m_startPos.x(), m_zoom);
+        m_left = p.x() / m_zoom;
         m_left = limitPositive(m_left);
         event->accept();
         m_hooverInfo->setText("Left " + QString::number(m_left));
         update();
     } else if (m_dragging_top) {
-        m_top += limit(p.y() - m_startPos.y(), m_zoom);
+        m_top = p.y() / m_zoom;
         m_top = limitPositive(m_top);
         event->accept();
         m_hooverInfo->setText("Top " + QString::number(m_top));
         update();
     }  else if (m_dragging_right) {
-        m_right += limit(m_startPos.x() - p.x(), m_zoom);
+        m_right = (width() - p.x()) / m_zoom;
         m_right = limitPositive(m_right);
         event->accept();
         m_hooverInfo->setText("Right " + QString::number(m_right));
         update();
     } else if (m_dragging_bottom) {
-        m_bottom += limit(m_startPos.y() - p.y(), m_zoom);
+        m_bottom = (height() - p.y()) / m_zoom;
         m_bottom = limitPositive(m_bottom);
         event->accept();
         m_hooverInfo->setText("Bottom " + QString::number(m_bottom));
