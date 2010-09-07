@@ -105,10 +105,10 @@ using namespace TextEditor;
 //
 ///////////////////////////////////////////////////////////////////////
 
-DebuggerStartParameters::DebuggerStartParameters()
-  : attachPID(-1),
-    useTerminal(false),
+DebuggerStartParameters::DebuggerStartParameters() :
     isSnapshot(false),
+    attachPID(-1),
+    useTerminal(false),
     breakAtMain(false),
     qmlServerAddress("127.0.0.1"),
     qmlServerPort(0),

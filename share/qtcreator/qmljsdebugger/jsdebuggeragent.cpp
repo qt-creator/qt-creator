@@ -302,6 +302,8 @@ void JSDebuggerAgent::exceptionThrow(qint64 scriptId,
                                    bool hasHandler)
 {
     Q_UNUSED(scriptId);
+    Q_UNUSED(exception);
+    Q_UNUSED(hasHandler);
 //    qDebug() << Q_FUNC_INFO << exception.toString() << hasHandler;
 #if 0 //sometimes, we get exceptions that we should just ignore.
     if (!hasHandler && state != Stopped)

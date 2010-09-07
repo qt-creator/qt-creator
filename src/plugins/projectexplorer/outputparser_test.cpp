@@ -66,7 +66,7 @@ void OutputParserTester::testParsing(const QString &lines,
     }
      // first disconnect ourselves from the end of the parser chain again
     IOutputParser * parser = this;
-    while (parser = parser->childParser()) {
+    while ( (parser = parser->childParser()) ) {
         if (parser->childParser() == this) {
             childParser()->takeOutputParserChain();
             break;

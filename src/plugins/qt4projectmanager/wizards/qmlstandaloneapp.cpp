@@ -634,7 +634,8 @@ static QList<GeneratedFileInfo> updateableFiles(const QString &mainProFile)
         {GeneratedFileInfo::AppViewerCppFile, appViewerHFileName}
     };
     const QFileInfo mainProFileInfo(mainProFile);
-    for (int i = 0; i < sizeof files / sizeof files[0]; ++i) {
+    const int size = sizeof(files) / sizeof(files[0]);
+    for (int i = 0; i < size; ++i) {
         const QString fileName = mainProFileInfo.dir().absolutePath()
                 + QLatin1Char('/') + appViewerOriginsSubDir + files[i].fileName;
         if (!QFile::exists(fileName))

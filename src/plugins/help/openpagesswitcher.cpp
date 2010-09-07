@@ -124,10 +124,10 @@ bool OpenPagesSwitcher::eventFilter(QObject *object, QEvent *event)
                 emit setCurrentPage(m_openPagesWidget->currentIndex());
                 return true;
             }
-
-            Qt::KeyboardModifier modifier = Qt::ControlModifier;
 #ifdef Q_WS_MAC
-            modifier = Qt::AltModifier;
+            const Qt::KeyboardModifier modifier = Qt::AltModifier;
+#else
+            const Qt::KeyboardModifier modifier = Qt::ControlModifier;
 #endif
             if (key == Qt::Key_Backtab
                 && (ke->modifiers() == (modifier | Qt::ShiftModifier)))

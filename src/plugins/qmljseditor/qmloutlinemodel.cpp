@@ -727,7 +727,7 @@ void QmlOutlineModel::moveObjectMember(AST::UiObjectMember *toMove,
         } else {
             *addedRange = rewriter.addObject(arrayBinding, strToMove);
         }
-    } else if (AST::UiObjectBinding *objectBinding = AST::cast<AST::UiObjectBinding*>(newParent)) {
+    } else if (AST::cast<AST::UiObjectBinding*>(newParent)) {
         qDebug() << "TODO: Reparent to UiObjectBinding";
         return;
         // target is a property
