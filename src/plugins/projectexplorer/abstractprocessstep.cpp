@@ -188,6 +188,12 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
     processFinished(m_process->exitCode(), m_process->exitStatus());
     bool returnValue = processSucceeded(m_process->exitCode(), m_process->exitStatus()) || m_ignoreReturnValue;
 
+    // Clean up output parsers
+    if (m_outputParserChain) {
+        delete m_outputParserChain;
+        m_outputParserChain = 0;
+    }
+
     delete m_process;
     m_process = 0;
     delete m_eventLoop;
@@ -204,12 +210,6 @@ void AbstractProcessStep::processStarted()
 
 void AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus status)
 {
-    // Clean up output parsers
-    if (m_outputParserChain) {
-        delete m_outputParserChain;
-        m_outputParserChain = 0;
-    }
-
     if (status == QProcess::NormalExit && exitCode == 0) {
         emit addOutput(tr("The process \"%1\" exited normally.")
                        .arg(QDir::toNativeSeparators(m_command)),
