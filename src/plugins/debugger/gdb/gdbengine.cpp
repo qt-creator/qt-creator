@@ -3022,6 +3022,7 @@ void GdbEngine::handleMakeSnapshot(const GdbResponse &response)
             function = frame.function + _(":") + QString::number(frame.line);
         }
         sp.displayName = function + _(": ") + QDateTime::currentDateTime().toString();
+        sp.isSnapshot = true;
         DebuggerRunControl *rc = DebuggerPlugin::createDebugger(sp);
         DebuggerPlugin::startDebugger(rc);
     } else {

@@ -127,9 +127,9 @@ SnapshotHandler::~SnapshotHandler()
 {
     for (int i = m_snapshots.size(); --i >= 0; ) {
         if (DebuggerEngine *engine = engineAt(i)) {
-            QString fileName = engine->startParameters().coreFile;
-            if (!fileName.isEmpty())
-                QFile::remove(fileName);
+            const DebuggerStartParameters & sp = engine->startParameters();
+            if (sp.isSnapshot && !sp.coreFile.isEmpty())
+                QFile::remove(sp.coreFile);
         }
     }
 }
@@ -270,8 +270,8 @@ void SnapshotHandler::removeSnapshot(int index)
     const DebuggerEngine *engine = engineAt(index);
     QTC_ASSERT(engine, return);
     QString fileName = engine->startParameters().coreFile;
-    if (!fileName.isEmpty())
-        QFile::remove(fileName);
+    //if (!fileName.isEmpty())
+    //    QFile::remove(fileName);
     m_snapshots.removeAt(index);
     if (index == m_currentIndex)
         m_currentIndex = -1;

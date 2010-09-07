@@ -68,6 +68,7 @@ public:
     QString executable;
     QString displayName;
     QString coreFile;
+    bool isSnapshot; // set if created internally
     QStringList processArgs;
     QStringList environment;
     QString workingDirectory;
