@@ -77,6 +77,8 @@
 #include <QtGui/QSplitter>
 #include <QtGui/QStackedLayout>
 
+#include <algorithm>
+
 Q_DECLARE_METATYPE(Core::IEditor*)
 
 enum { debugEditorManager=0 };
@@ -207,9 +209,6 @@ struct EditorManagerPrivate {
 
     QMap<QString, QVariant> m_editorStates;
     Internal::OpenEditorsViewFactory *m_openEditorsFactory;
-
-    QString fileFilters;
-    QString selectedFilter;
 
     OpenEditorsModel *m_editorModel;
     QString m_externalEditor;
@@ -1152,33 +1151,28 @@ QString EditorManager::getOpenWithEditorId(const QString &fileName,
     return selectedId;
 }
 
-static QString formatFileFilters(const Core::ICore *core, QString *selectedFilter)
+static QString formatFileFilters(const Core::ICore *core, QString *selectedFilter = 0)
 {
-    QString rc;
+    if (selectedFilter)
+        selectedFilter->clear();
 
-    // Compile list of filter strings
+    // Compile list of filter strings, sort, and remove duplicates (different mime types might
+    // generate the same filter).
     QStringList filters = core->mimeDatabase()->filterStrings();
-    filters.sort();
-    selectedFilter->clear();
     if (filters.empty())
-        return rc;
+        return QString();
+    filters.sort();
+    filters.erase(std::unique(filters.begin(), filters.end()), filters.end());
 
-    const QString filterSeparator = QLatin1String(";;");
-    foreach (const QString &filterString, filters) {
-        if (!rc.isEmpty())
-            rc += filterSeparator;
-        rc += filterString;
-    }
+    static const QString allFilesFilter =
+        QCoreApplication::translate("Core", Constants::ALL_FILES_FILTER);
+    if (selectedFilter)
+        *selectedFilter = allFilesFilter;
 
-    // prepend all files filter
-    // prepending instead of appending to work around a bug in Qt/Mac
-    QString allFilesFilter = EditorManager::tr("All Files (*)");
-    if (!rc.isEmpty())
-        allFilesFilter += filterSeparator;
-    rc.prepend(allFilesFilter);
-    *selectedFilter = allFilesFilter;
+    // Prepend all files filter (instead of appending to work around a bug in Qt/Mac).
+    filters.prepend(allFilesFilter);
 
-    return rc;
+    return filters.join(QLatin1String(";;"));
 }
 
 IEditor *EditorManager::openEditor(const QString &fileName, const QString &editorId,
@@ -1244,10 +1238,10 @@ bool EditorManager::openExternalEditor(const QString &fileName, const QString &e
 
 QStringList EditorManager::getOpenFileNames() const
 {
-    if (m_d->fileFilters.isEmpty())
-        m_d->fileFilters = formatFileFilters(m_d->m_core, &m_d->selectedFilter);
-    return ICore::instance()->fileManager()->getOpenFileNames(m_d->fileFilters,
-                                                              QString(), &m_d->selectedFilter);
+    QString selectedFilter;
+    const QString &fileFilters = formatFileFilters(m_d->m_core, &selectedFilter);
+    return ICore::instance()->fileManager()->getOpenFileNames(fileFilters,
+                                                              QString(), &selectedFilter);
 }
 
 
@@ -1475,23 +1469,35 @@ bool EditorManager::saveFileAs(IEditor *editor)
     if (!editor)
         return false;
 
-    QString absoluteFilePath = m_d->m_core->fileManager()->getSaveAsFileName(editor->file());
+    IFile *file = editor->file();
+    const QString &filter = formatFileFilters(m_d->m_core);
+    QString selectedFilter =
+        m_d->m_core->mimeDatabase()->findByFile(QFileInfo(file->fileName())).filterString();
+    const QString &absoluteFilePath =
+        m_d->m_core->fileManager()->getSaveAsFileName(file, filter, &selectedFilter);
+
     if (absoluteFilePath.isEmpty())
         return false;
-    if (absoluteFilePath != editor->file()->fileName()) {
+    if (absoluteFilePath != file->fileName()) {
         const QList<IEditor *> existList = editorsForFileName(absoluteFilePath);
         if (!existList.isEmpty()) {
             closeEditors(existList, false);
         }
     }
 
-    m_d->m_core->fileManager()->blockFileChange(editor->file());
-    const bool success = editor->file()->save(absoluteFilePath);
-    m_d->m_core->fileManager()->unblockFileChange(editor->file());
-    editor->file()->checkPermissions();
+    m_d->m_core->fileManager()->blockFileChange(file);
+    const bool success = file->save(absoluteFilePath);
+    m_d->m_core->fileManager()->unblockFileChange(file);
+    file->checkPermissions();
+
+    // @todo: There is an issue to be treated here. The new file might be of a different mime
+    // type than the original and thus require a different editor. An alternative strategy
+    // would be to close the current editor and open a new appropriate one, but this is not
+    // a good way out either (also the undo stack would be lost). Perhaps the best is to
+    // re-think part of the editors design.
 
     if (success && !editor->isTemporary())
-        m_d->m_core->fileManager()->addToRecentFiles(editor->file()->fileName());
+        m_d->m_core->fileManager()->addToRecentFiles(file->fileName());
 
     updateActions();
     return success;
