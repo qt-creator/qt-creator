@@ -57,6 +57,14 @@ SessionValidator::SessionValidator(QObject *parent, QStringList sessions)
 QValidator::State SessionValidator::validate(QString &input, int &pos) const
 {
     Q_UNUSED(pos)
+
+    if (input.contains('/')
+            || input.contains(':')
+            || input.contains('\\')
+            || input.contains('?')
+            || input.contains('*'))
+        return QValidator::Invalid;
+
     if (m_sessions.contains(input))
         return QValidator::Intermediate;
     else
