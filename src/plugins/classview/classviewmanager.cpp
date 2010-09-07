@@ -297,7 +297,9 @@ void Manager::onDocumentUpdated(CPlusPlus::Document::Ptr doc)
 void Manager::gotoLocation(const QString &fileName, int line, int column)
 {
     bool newEditor = false;
-    TextEditor::BaseTextEditor::openEditorAt(fileName, line, column, QString(), &newEditor);
+    TextEditor::BaseTextEditor::openEditorAt(fileName, line, column, QString(),
+                                             Core::EditorManager::IgnoreNavigationHistory,
+                                             &newEditor);
 }
 
 void Manager::gotoLocations(const QList<QVariant> &list)

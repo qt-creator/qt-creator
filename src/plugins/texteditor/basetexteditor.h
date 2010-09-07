@@ -34,6 +34,8 @@
 
 #include <find/ifindsupport.h>
 
+#include <coreplugin/editormanager/editormanager.h>
+
 #include <QtGui/QPlainTextEdit>
 
 QT_BEGIN_NAMESPACE
@@ -141,7 +143,8 @@ public:
     ~BaseTextEditor();
 
     static ITextEditor *openEditorAt(const QString &fileName, int line, int column = 0,
-                                     const QString &editorId = QString(),
+                                     const QString &editorId =  QString(),
+                                     Core::EditorManager::OpenEditorFlags flags = Core::EditorManager::IgnoreNavigationHistory,
                                      bool *newEditor = 0);
 
     const Utils::ChangeSet &changeSet() const;
