@@ -836,6 +836,8 @@ def extractFields(type):
     type0 = lookupType(str(type))
     if not type0 is None:
         type = type0
+    if type.code == gdb.TYPE_CODE_FUNC:
+        return []
     #warn("TYPE 2: %s" % type)
     fields = type.fields()
     #warn("FIELDS: %s" % fields)
