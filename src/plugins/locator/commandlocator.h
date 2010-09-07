@@ -64,7 +64,7 @@ public:
     virtual QString displayName() const;
     virtual QString id() const;
     virtual Priority priority() const;
-    virtual QList<FilterEntry> matchesFor(const QString &entry);
+    virtual QList<FilterEntry> matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry);
     virtual void accept(FilterEntry selection) const;
     virtual void refresh(QFutureInterface<void> &future);
 

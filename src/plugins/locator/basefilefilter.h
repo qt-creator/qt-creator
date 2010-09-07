@@ -43,7 +43,7 @@ class LOCATOR_EXPORT BaseFileFilter : public Locator::ILocatorFilter
 
 public:
     BaseFileFilter();
-    QList<Locator::FilterEntry> matchesFor(const QString &entry);
+    QList<Locator::FilterEntry> matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry);
     void accept(Locator::FilterEntry selection) const;
 
 protected:

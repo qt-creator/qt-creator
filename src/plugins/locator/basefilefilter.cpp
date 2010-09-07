@@ -42,7 +42,7 @@ BaseFileFilter::BaseFileFilter()
 {
 }
 
-QList<FilterEntry> BaseFileFilter::matchesFor(const QString &origEntry)
+QList<FilterEntry> BaseFileFilter::matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &origEntry)
 {
     updateFiles();
     QList<FilterEntry> matches;
@@ -70,6 +70,9 @@ QList<FilterEntry> BaseFileFilter::matchesFor(const QString &origEntry)
     QStringListIterator paths(searchListPaths);
     QStringListIterator names(searchListNames);
     while (paths.hasNext() && names.hasNext()) {
+        if (future.isCanceled())
+            break;
+
         QString path = paths.next();
         QString name = names.next();
         if ((hasWildcard && regexp.exactMatch(name))

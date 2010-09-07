@@ -58,7 +58,7 @@ CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppModelManager *manager, Cor
             this,          SLOT(onEditorAboutToClose(Core::IEditor*)));
 }
 
-QList<Locator::FilterEntry> CppCurrentDocumentFilter::matchesFor(const QString & origEntry)
+QList<Locator::FilterEntry> CppCurrentDocumentFilter::matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString & origEntry)
 {
     QString entry = trimWildcards(origEntry);
     QList<Locator::FilterEntry> goodEntries;
@@ -82,6 +82,9 @@ QList<Locator::FilterEntry> CppCurrentDocumentFilter::matchesFor(const QString &
 
     foreach (const ModelItemInfo & info, m_itemsOfCurrentDoc)
     {
+        if (future.isCanceled())
+            break;
+
         if ((hasWildcard && regexp.exactMatch(info.symbolName))
             || (!hasWildcard && matcher.indexIn(info.symbolName) != -1))
         {

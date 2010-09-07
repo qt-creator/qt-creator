@@ -49,7 +49,7 @@ OpenDocumentsFilter::OpenDocumentsFilter(EditorManager *editorManager) :
     setIncludedByDefault(true);
 }
 
-QList<FilterEntry> OpenDocumentsFilter::matchesFor(const QString &entry)
+QList<FilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry)
 {
     QList<FilterEntry> value;
     const QChar asterisk = QLatin1Char('*');
@@ -60,6 +60,8 @@ QList<FilterEntry> OpenDocumentsFilter::matchesFor(const QString &entry)
     if (!regexp.isValid())
         return value;
     foreach (const OpenEditorsModel::Entry &editorEntry, m_editors) {
+        if (future.isCanceled())
+            break;
         QString fileName = editorEntry.fileName();
         QString displayName = editorEntry.displayName();
         if (regexp.exactMatch(displayName)) {

@@ -63,11 +63,13 @@ ILocatorFilter::Priority LocatorFiltersFilter::priority() const
     return High;
 }
 
-QList<FilterEntry> LocatorFiltersFilter::matchesFor(const QString &entry)
+QList<FilterEntry> LocatorFiltersFilter::matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry)
 {
     QList<FilterEntry> entries;
     if (entry.isEmpty()) {
         foreach (ILocatorFilter *filter, m_plugin->filters()) {
+            if (future.isCanceled())
+                break;
             if (!filter->shortcutString().isEmpty() && !filter->isHidden()) {
                 FilterEntry filterEntry(this,
                                   filter->shortcutString(),

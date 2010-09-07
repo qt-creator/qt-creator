@@ -55,7 +55,7 @@ public:
     QString displayName() const { return tr("Open documents"); }
     QString id() const { return "Open documents"; }
     Locator::ILocatorFilter::Priority priority() const { return Locator::ILocatorFilter::Medium; }
-    QList<Locator::FilterEntry> matchesFor(const QString &entry);
+    QList<Locator::FilterEntry> matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry);
     void accept(Locator::FilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);
 

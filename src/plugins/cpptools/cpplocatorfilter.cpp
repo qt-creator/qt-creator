@@ -76,7 +76,7 @@ static bool compareLexigraphically(const Locator::FilterEntry &a,
     return a.displayName < b.displayName;
 }
 
-QList<Locator::FilterEntry> CppLocatorFilter::matchesFor(const QString &origEntry)
+QList<Locator::FilterEntry> CppLocatorFilter::matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &origEntry)
 {
     QString entry = trimWildcards(origEntry);
     QList<Locator::FilterEntry> goodEntries;
@@ -90,6 +90,9 @@ QList<Locator::FilterEntry> CppLocatorFilter::matchesFor(const QString &origEntr
 
     QHashIterator<QString, QList<ModelItemInfo> > it(m_searchList);
     while (it.hasNext()) {
+        if (future.isCanceled())
+            break;
+
         it.next();
 
         const QList<ModelItemInfo> items = it.value();
