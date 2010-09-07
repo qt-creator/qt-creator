@@ -199,10 +199,7 @@ Core::GeneratedFiles CppClassWizard::generateFiles(const QWizard *w, QString *er
     const QString headerFileName = Core::BaseFileWizard::buildFileName(params.path, params.headerFile, headerSuffix());
 
     Core::GeneratedFile sourceFile(sourceFileName);
-    sourceFile.setEditorId(QLatin1String(Constants::CPPEDITOR_ID));
-
     Core::GeneratedFile headerFile(headerFileName);
-    headerFile.setEditorId(QLatin1String(Constants::CPPEDITOR_ID));
 
     QString header, source;
     if (!generateHeaderAndSource(params, &header, &source)) {

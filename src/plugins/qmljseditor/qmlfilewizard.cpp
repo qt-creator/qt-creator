@@ -50,7 +50,6 @@ Core::GeneratedFiles QmlFileWizard::generateFilesFromPath(const QString &path,
     const QString fileName = Core::BaseFileWizard::buildFileName(path, name, preferredSuffix(mimeType));
 
     Core::GeneratedFile file(fileName);
-    file.setEditorId(QLatin1String(Constants::C_QMLJSEDITOR_ID));
     file.setContents(fileContents(fileName));
     file.setAttributes(Core::GeneratedFile::OpenEditorAttribute);
     return Core::GeneratedFiles() << file;

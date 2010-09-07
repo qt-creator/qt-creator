@@ -60,7 +60,6 @@ Core::GeneratedFiles CppFileWizard::generateFilesFromPath(const QString &path,
     const QString fileName = Core::BaseFileWizard::buildFileName(path, name, preferredSuffix(mimeType));
 
     Core::GeneratedFile file(fileName);
-    file.setEditorId(QLatin1String(Constants::CPPEDITOR_ID));
     file.setContents(fileContents(m_type, fileName));
     file.setAttributes(Core::GeneratedFile::OpenEditorAttribute);
     return Core::GeneratedFiles() << file;
