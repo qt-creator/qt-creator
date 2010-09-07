@@ -45,7 +45,7 @@ FileSystemFilter::FileSystemFilter(EditorManager *editorManager, LocatorWidget *
     setIncludedByDefault(false);
 }
 
-QList<FilterEntry> FileSystemFilter::matchesFor(const QString &entry)
+QList<FilterEntry> FileSystemFilter::matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry)
 {
     QList<FilterEntry> value;
     QFileInfo entryInfo(entry);
@@ -75,6 +75,8 @@ QList<FilterEntry> FileSystemFilter::matchesFor(const QString &entry)
     QStringList files = dirInfo.entryList(fileFilter,
                                       QDir::Name|QDir::IgnoreCase|QDir::LocaleAware);
     foreach (const QString &dir, dirs) {
+        if (future.isCanceled())
+            break;
         if (dir != QLatin1String(".") && (name.isEmpty() || dir.startsWith(name, Qt::CaseInsensitive))) {
             FilterEntry filterEntry(this, dir, dirInfo.filePath(dir));
             filterEntry.resolveFileIcon = true;
@@ -82,6 +84,8 @@ QList<FilterEntry> FileSystemFilter::matchesFor(const QString &entry)
         }
     }
     foreach (const QString &file, files) {
+        if (future.isCanceled())
+            break;
         if (name.isEmpty() || file.startsWith(name, Qt::CaseInsensitive)) {
             const QString fullPath = dirInfo.filePath(file);
             FilterEntry filterEntry(this, file, fullPath);

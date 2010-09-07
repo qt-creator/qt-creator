@@ -178,7 +178,12 @@ Core::GeneratedFiles
                             attributes |= Core::GeneratedFile::OpenProjectAttribute;
                 } else {
                     // Token 0 is file name. Wizard wants native names.
-                    const QString fullPath = targetPath + QLatin1Char('/') + token;
+                    // Expand to full path if relative
+                    const QFileInfo fileInfo(token);
+                    const QString fullPath =
+                            fileInfo.isAbsolute() ?
+                            token :
+                            (targetPath + QLatin1Char('/') + token);
                     file.setPath(QDir::toNativeSeparators(fullPath));
                 }
             }
@@ -186,9 +191,12 @@ Core::GeneratedFiles
             files.push_back(file);
         }
     }
-    if (CustomWizard::verbose())
+    if (CustomWizard::verbose()) {
+        QDebug nospace = qDebug().nospace();
+        nospace << script << " generated:\n";
         foreach(const Core::GeneratedFile &f, files)
-            qDebug() << script << " generated: " << f.path() << f.attributes();
+            nospace << ' ' << f.path() << f.attributes() << '\n';
+    }
     return files;
 }
 

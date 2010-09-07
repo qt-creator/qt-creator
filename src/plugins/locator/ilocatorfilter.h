@@ -100,7 +100,7 @@ public:
     QString shortcutString() const;
 
     /* List of matches for the given user entry. */
-    virtual QList<FilterEntry> matchesFor(const QString &entry) = 0;
+    virtual QList<FilterEntry> matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry) = 0;
 
     /* User has selected the given entry that belongs to this filter. */
     virtual void accept(FilterEntry selection) const = 0;

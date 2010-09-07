@@ -56,7 +56,7 @@ public:
     QString displayName() const;
     QString id() const;
     Priority priority() const;
-    QList<FilterEntry> matchesFor(const QString &entry);
+    QList<FilterEntry> matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry);
     void accept(FilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);
     bool isConfigurable() const;

@@ -100,10 +100,13 @@ Locator::ILocatorFilter::Priority RemoteHelpFilter::priority() const
     return Medium;
 }
 
-QList<Locator::FilterEntry> RemoteHelpFilter::matchesFor(const QString &pattern)
+QList<Locator::FilterEntry> RemoteHelpFilter::matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &pattern)
 {
     QList<Locator::FilterEntry> entries;
     foreach (const QString &url, m_remoteUrls) {
+        if (future.isCanceled())
+            break;
+
         entries.append(Locator::FilterEntry(this, url.arg(pattern), QVariant(),
             m_icon));
     }

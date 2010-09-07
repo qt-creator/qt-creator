@@ -87,10 +87,12 @@ public:
     QStringList getOpenFileNames(const QString &filters,
                                  const QString path = QString(),
                                  QString *selectedFilter = 0);
-
-    QString getSaveFileNameWithExtension(const QString &title, const QString &path,
-                                    const QString &fileFilter, const QString &extension);
-    QString getSaveAsFileName(IFile *file);
+    QString getSaveFileName(const QString &title, const QString &pathIn,
+                            const QString &filter = QString(), QString *selectedFilter = 0);
+    QString getSaveFileNameWithExtension(const QString &title, const QString &pathIn,
+                                         const QString &filter);
+    QString getSaveAsFileName(IFile *file, const QString &filter = QString(),
+                              QString *selectedFilter = 0);
 
     QList<IFile *> saveModifiedFilesSilently(const QList<IFile *> &files);
     QList<IFile *> saveModifiedFiles(const QList<IFile *> &files,

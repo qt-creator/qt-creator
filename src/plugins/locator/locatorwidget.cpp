@@ -428,7 +428,7 @@ QList<ILocatorFilter*> LocatorWidget::filtersFor(const QString &text, QString &s
     return activeFilters;
 }
 
-static void filter_helper(QFutureInterface<FilterEntry> &entries, QList<ILocatorFilter *> filters, QString searchText)
+static void filter_helper(QFutureInterface<Locator::FilterEntry> &entries, QList<ILocatorFilter *> filters, QString searchText)
 {
     QSet<FilterEntry> alreadyAdded;
     const bool checkDuplicates = (filters.size() > 1);
@@ -436,7 +436,7 @@ static void filter_helper(QFutureInterface<FilterEntry> &entries, QList<ILocator
         if (entries.isCanceled())
             break;
 
-        foreach (const FilterEntry &entry, filter->matchesFor(searchText)) {
+        foreach (const FilterEntry &entry, filter->matchesFor(entries, searchText)) {
             if (checkDuplicates && alreadyAdded.contains(entry))
                 continue;
             entries.reportResult(entry);
@@ -453,6 +453,7 @@ void LocatorWidget::updateCompletionList(const QString &text)
 
     // cancel the old future
     m_entriesWatcher->future().cancel();
+    m_entriesWatcher->future().waitForFinished();
 
     QFuture<FilterEntry> future = QtConcurrent::run(filter_helper, filters, searchText);
     m_entriesWatcher->setFuture(future);

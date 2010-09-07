@@ -70,7 +70,7 @@ ILocatorFilter::Priority HelpIndexFilter::priority() const
     return Medium;
 }
 
-QList<FilterEntry> HelpIndexFilter::matchesFor(const QString &entry)
+QList<FilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry)
 {
     QStringList keywords;
     if (entry.length() < 2)
@@ -79,8 +79,11 @@ QList<FilterEntry> HelpIndexFilter::matchesFor(const QString &entry)
         keywords = Core::HelpManager::instance()->findKeywords(entry);
 
     QList<FilterEntry> entries;
-    foreach (const QString &keyword, keywords)
+    foreach (const QString &keyword, keywords) {
+        if (future.isCanceled())
+            break;
         entries.append(FilterEntry(this, keyword, QVariant(), m_icon));
+    }
 
     return entries;
 }

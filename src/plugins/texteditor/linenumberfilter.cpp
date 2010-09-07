@@ -48,7 +48,7 @@ LineNumberFilter::LineNumberFilter(QObject *parent)
     setIncludedByDefault(true);
 }
 
-QList<FilterEntry> LineNumberFilter::matchesFor(const QString &entry)
+QList<FilterEntry> LineNumberFilter::matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry)
 {
     bool ok;
     QList<FilterEntry> value;

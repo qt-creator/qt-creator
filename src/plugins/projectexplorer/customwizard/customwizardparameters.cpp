@@ -72,6 +72,7 @@ static const char comboEntryTextElementC[] = "comboentrytext";
 
 static const char generatorScriptElementC[] = "generatorscript";
 static const char generatorScriptBinaryAttributeC[] = "binary";
+static const char generatorScriptWorkingDirectoryAttributeC[] = "workingdirectory";
 static const char generatorScriptArgumentElementC[] = "argument";
 static const char generatorScriptArgumentValueAttributeC[] = "value";
 static const char generatorScriptArgumentOmitEmptyAttributeC[] = "omit-empty";
@@ -557,6 +558,7 @@ CustomWizardParameters::ParseResult
                         *errorMessage = QString::fromLatin1("No binary specified for generator script.");
                         return ParseFailed;
                     }
+                    filesGeneratorScriptWorkingDirectory = attributeValue(reader, generatorScriptWorkingDirectoryAttributeC);
                     break;
                 case ParseWithinScriptArguments: {
                     GeneratorScriptArgument argument(attributeValue(reader, generatorScriptArgumentValueAttributeC));
@@ -623,6 +625,8 @@ QString CustomWizardParameters::toString() const
         str << "Script:";
         foreach(const QString &a, filesGeneratorScript)
             str << " '" << a << '\'';
+        if (!filesGeneratorScriptWorkingDirectory.isEmpty())
+            str << "\nrun in '" <<  filesGeneratorScriptWorkingDirectory << '\'';
         str << "\nArguments: ";
         foreach(const GeneratorScriptArgument &a, filesGeneratorScriptArguments) {
             str << " '" << a.value  << '\'';

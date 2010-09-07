@@ -84,7 +84,7 @@ ILocatorFilter::Priority CommandLocator::priority() const
     return Medium;
 }
 
-QList<Locator::FilterEntry> CommandLocator::matchesFor(const QString &entry)
+QList<Locator::FilterEntry> CommandLocator::matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry)
 {
     QList<FilterEntry> filters;
     // Get active, enabled actions matching text, store in list.
@@ -92,6 +92,8 @@ QList<Locator::FilterEntry> CommandLocator::matchesFor(const QString &entry)
     const QChar ampersand = QLatin1Char('&');
     const int count = d->commands.size();
     for (int i = 0; i  < count; i++) {
+        if (future.isCanceled())
+            break;
         if (d->commands.at(i)->isActive()) {
             if (QAction *action = d->commands.at(i)->action())
                 if (action->isEnabled()) {

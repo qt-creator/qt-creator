@@ -140,7 +140,7 @@ QVariantMap S60CreatePackageStep::toMap() const
 
 bool S60CreatePackageStep::fromMap(const QVariantMap &map)
 {
-    m_signingMode = (SigningMode)map.value(QLatin1String(SIGNMODE_KEY)).toInt();
+    m_signingMode = static_cast<SigningMode>(map.value(QLatin1String(SIGNMODE_KEY), static_cast<int>(SignSelf)).toInt());
     m_customSignaturePath = map.value(QLatin1String(CERTIFICATE_KEY)).toString();
     setCustomKeyPath(map.value(QLatin1String(KEYFILE_KEY)).toString());
     m_createSmartInstaller = map.value(QLatin1String(SMART_INSTALLER_KEY), false).toBool();
