@@ -1034,7 +1034,7 @@ QVariantMap Version3Handler::update(Project *, const QVariantMap &map)
         // first iteration: search run configurations, get signing info, remove old signing keys
         QString customKeyPath;
         QString customSignaturePath;
-        int signingMode;
+        int signingMode = 0; // SelfSign
         QMapIterator<QString, QVariant> targetIt(originalTarget);
         while (targetIt.hasNext()) {
             targetIt.next();
