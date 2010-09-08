@@ -150,6 +150,8 @@ private slots:
     void testInstancesIdResolution();
     void testInstancesNotInScene();
     void testInstancesBindingsInStatesStress();
+    void testInstancesPropertyChangeTargets();
+    void testInstancesDeletePropertyChanges();
 
     //
     // integration tests
