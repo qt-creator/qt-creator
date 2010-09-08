@@ -830,9 +830,10 @@ bool PluginSpecPrivate::resolveDependencies(const QList<PluginSpec *> &specs)
 
 void PluginSpecPrivate::disableIndirectlyIfDependencyDisabled()
 {
-    disabledIndirectly = false;
-
     if (!enabled)
+        return;
+
+    if (disabledIndirectly)
         return;
 
     foreach (PluginSpec *dependencySpec, dependencySpecs) {
