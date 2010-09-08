@@ -113,7 +113,7 @@ void MoveObjectBeforeObjectVisitor::doMove()
 
     TextModifier::MoveInfo moveInfo;
     Node *parent = movingObjectParent();
-    UiArrayMemberList *arrayMember = 0, *otherArrayMember;
+    UiArrayMemberList *arrayMember = 0, *otherArrayMember = 0;
     QString separator;
 
     if (!inDefaultProperty) {

@@ -143,9 +143,9 @@ void QuickToolBar::apply(TextEditor::BaseTextEditorEditable *editor, LookupConte
         UiObjectBinding *objectBinding = cast<UiObjectBinding*>(node);
 
         QString name;
-        quint32 offset;
-        quint32 end;
-        UiObjectInitializer *initializer;
+        quint32 offset = 0;
+        quint32 end = 0;
+        UiObjectInitializer *initializer = 0;
         if (objectDefinition) {
             name = objectDefinition->qualifiedTypeNameId->name->asString();
             initializer = objectDefinition->initializer;
