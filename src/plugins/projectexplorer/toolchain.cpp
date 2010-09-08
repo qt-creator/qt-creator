@@ -35,6 +35,9 @@
 #include "msvcparser.h"
 #include "linuxiccparser.h"
 
+
+#include <utils/synchronousprocess.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
 #include <QtCore/QProcess>
@@ -175,94 +178,123 @@ ToolChain::ToolChainType GccToolChain::type() const
     return ToolChain::GCC;
 }
 
+static QByteArray gccPredefinedMacros(const QString &gcc, const QStringList &env)
+{
+    QStringList arguments;
+    arguments << QLatin1String("-xc++")
+              << QLatin1String("-E")
+              << QLatin1String("-dM")
+              << QLatin1String("-");
+
+    QProcess cpp;
+    cpp.setEnvironment(env);
+    cpp.start(gcc, arguments);
+    if (!cpp.waitForStarted()) {
+        qWarning("Cannot start '%s': %s", qPrintable(gcc), qPrintable(cpp.errorString()));
+        return QByteArray();
+    }
+    cpp.closeWriteChannel();
+    if (!cpp.waitForFinished()) {
+        Utils::SynchronousProcess::stopProcess(cpp);
+        qWarning("Timeout running '%s'.", qPrintable(gcc));
+        return QByteArray();
+    }
+
+    QByteArray predefinedMacros = cpp.readAllStandardOutput();
+#ifdef Q_OS_MAC
+    // Turn off flag indicating Apple's blocks support
+    const QByteArray blocksDefine("#define __BLOCKS__ 1");
+    const QByteArray blocksUndefine("#undef __BLOCKS__");
+    const int idx = predefinedMacros.indexOf(blocksDefine);
+    if (idx != -1) {
+        predefinedMacros.replace(idx, blocksDefine.length(), blocksUndefine);
+    }
+
+    // Define __strong and __weak (used for Apple's GC extension of C) to be empty
+    predefinedMacros.append("#define __strong\n");
+    predefinedMacros.append("#define __weak\n");
+#endif // Q_OS_MAC
+    return predefinedMacros;
+}
+
 QByteArray GccToolChain::predefinedMacros()
 {
     if (m_predefinedMacros.isEmpty()) {
-        QStringList arguments;
-        arguments << QLatin1String("-xc++")
-                  << QLatin1String("-E")
-                  << QLatin1String("-dM")
-                  << QLatin1String("-");
-
-        QProcess cpp;
         ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
         addToEnvironment(env);
-        cpp.setEnvironment(env.toStringList());
-        cpp.start(m_gcc, arguments);
-        cpp.closeWriteChannel();
-        cpp.waitForFinished();
-        m_predefinedMacros = cpp.readAllStandardOutput();
-
-#ifdef Q_OS_MAC
-        // Turn off flag indicating Apple's blocks support
-        const QByteArray blocksDefine("#define __BLOCKS__ 1");
-        const QByteArray blocksUndefine("#undef __BLOCKS__");
-        int idx = m_predefinedMacros.indexOf(blocksDefine);
-        if (idx != -1) {
-            m_predefinedMacros.replace(idx, blocksDefine.length(), blocksUndefine);
-        }
-
-        // Define __strong and __weak (used for Apple's GC extension of C) to be empty
-        m_predefinedMacros.append("#define __strong\n");
-        m_predefinedMacros.append("#define __weak\n");
-#endif // Q_OS_MAC
+        m_predefinedMacros = gccPredefinedMacros(m_gcc, env.toStringList());
     }
     return m_predefinedMacros;
+}
+
+static QList<HeaderPath> gccSystemHeaderPaths(const QString &gcc, ProjectExplorer::Environment env)
+{
+    QList<HeaderPath> systemHeaderPaths;
+    QStringList arguments;
+    arguments << QLatin1String("-xc++")
+              << QLatin1String("-E")
+              << QLatin1String("-v")
+              << QLatin1String("-");
+
+    QProcess cpp;
+    env.set(QLatin1String("LC_ALL"), QLatin1String("C"));   //override current locale settings
+    cpp.setEnvironment(env.toStringList());
+    cpp.setReadChannelMode(QProcess::MergedChannels);
+    cpp.start(gcc, arguments);
+    if (!cpp.waitForStarted()) {
+        qWarning("Cannot start '%s': %s", qPrintable(gcc), qPrintable(cpp.errorString()));
+        return systemHeaderPaths;
+    }
+    cpp.closeWriteChannel();
+    if (!cpp.waitForFinished()) {
+        Utils::SynchronousProcess::stopProcess(cpp);
+        qWarning("Timeout running '%s'.", qPrintable(gcc));
+        return systemHeaderPaths;
+    }
+
+    QByteArray line;
+    while (cpp.canReadLine()) {
+        line = cpp.readLine();
+        if (line.startsWith("#include"))
+            break;
+    }
+
+    if (! line.isEmpty() && line.startsWith("#include")) {
+        HeaderPath::Kind kind = HeaderPath::UserHeaderPath;
+        while (cpp.canReadLine()) {
+            line = cpp.readLine();
+            if (line.startsWith("#include")) {
+                kind = HeaderPath::GlobalHeaderPath;
+            } else if (! line.isEmpty() && QChar(line.at(0)).isSpace()) {
+                HeaderPath::Kind thisHeaderKind = kind;
+
+                line = line.trimmed();
+                if (line.endsWith('\n'))
+                    line.chop(1);
+
+                const int index = line.indexOf(" (framework directory)");
+                if (index != -1) {
+                    line.truncate(index);
+                    thisHeaderKind = HeaderPath::FrameworkHeaderPath;
+                }
+
+                systemHeaderPaths.append(HeaderPath(QFile::decodeName(line), thisHeaderKind));
+            } else if (line.startsWith("End of search list.")) {
+                break;
+            } else {
+                qWarning() << "ignore line:" << line;
+            }
+        }
+    }
+    return systemHeaderPaths;
 }
 
 QList<HeaderPath> GccToolChain::systemHeaderPaths()
 {
     if (m_systemHeaderPaths.isEmpty()) {
-        QStringList arguments;
-        arguments << QLatin1String("-xc++")
-                  << QLatin1String("-E")
-                  << QLatin1String("-v")
-                  << QLatin1String("-");
-
-        QProcess cpp;
         ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
         addToEnvironment(env);
-        env.set(QLatin1String("LC_ALL"), QLatin1String("C"));   //override current locale settings
-        cpp.setEnvironment(env.toStringList());
-        cpp.setReadChannelMode(QProcess::MergedChannels);
-        cpp.start(m_gcc, arguments);
-        cpp.closeWriteChannel();
-        cpp.waitForFinished();
-
-        QByteArray line;
-        while (cpp.canReadLine()) {
-            line = cpp.readLine();
-            if (line.startsWith("#include"))
-                break;
-        }
-
-        if (! line.isEmpty() && line.startsWith("#include")) {
-            HeaderPath::Kind kind = HeaderPath::UserHeaderPath;
-            while (cpp.canReadLine()) {
-                line = cpp.readLine();
-                if (line.startsWith("#include")) {
-                    kind = HeaderPath::GlobalHeaderPath;
-                } else if (! line.isEmpty() && QChar(line.at(0)).isSpace()) {
-                    HeaderPath::Kind thisHeaderKind = kind;
-
-                    line = line.trimmed();
-                    if (line.endsWith('\n'))
-                        line.chop(1);
-
-                    int index = line.indexOf(" (framework directory)");
-                    if (index != -1) {
-                        line = line.left(index);
-                        thisHeaderKind = HeaderPath::FrameworkHeaderPath;
-                    }
-
-                    m_systemHeaderPaths.append(HeaderPath(QFile::decodeName(line), thisHeaderKind));
-                } else if (line.startsWith("End of search list.")) {
-                    break;
-                } else {
-                    qWarning() << "ignore line:" << line;
-                }
-            }
-        }
+        m_systemHeaderPaths = gccSystemHeaderPaths(m_gcc, env);
     }
     return m_systemHeaderPaths;
 }
@@ -587,53 +619,72 @@ QByteArray msvcCompilationFile() {
     return file;
 }
 
+// Run MSVC 'cl' compiler to obtain #defines.
+static QByteArray msvcPredefinedMacros(const QStringList &env)
+{
+    QByteArray predefinedMacros = "#define __MSVCRT__\n"
+                      "#define __w64\n"
+                      "#define __int64 long long\n"
+                      "#define __int32 long\n"
+                      "#define __int16 short\n"
+                      "#define __int8 char\n"
+                      "#define __ptr32\n"
+                      "#define __ptr64\n";
+
+    QString tmpFilePath;
+    {
+        // QTemporaryFile is buggy and will not unlock the file for cl.exe
+        QTemporaryFile tmpFile(QDir::tempPath()+"/envtestXXXXXX.cpp");
+        tmpFile.setAutoRemove(false);
+        if (!tmpFile.open())
+            return predefinedMacros;
+        tmpFilePath = QFileInfo(tmpFile).canonicalFilePath();
+        tmpFile.write(msvcCompilationFile());
+        tmpFile.close();
+    }
+    QProcess cpp;
+    cpp.setEnvironment(env);
+    cpp.setWorkingDirectory(QDir::tempPath());
+    QStringList arguments;
+    const QString binary = QLatin1String("cl.exe");
+    arguments << QLatin1String("/EP") << QDir::toNativeSeparators(tmpFilePath);
+    cpp.start(QLatin1String("cl.exe"), arguments);
+    if (!cpp.waitForStarted()) {
+        qWarning("Cannot start '%s': %s", qPrintable(binary), qPrintable(cpp.errorString()));
+        return predefinedMacros;
+    }
+    cpp.closeWriteChannel();
+    if (!cpp.waitForFinished()) {
+        Utils::SynchronousProcess::stopProcess(cpp);
+        qWarning("Timeout running '%s'.", qPrintable(binary));
+        return predefinedMacros;
+    }
+    const QList<QByteArray> output = cpp.readAllStandardOutput().split('\n');
+    foreach (const QByteArray& line, output) {
+        if (line.startsWith('V')) {
+            QList<QByteArray> split = line.split('=');
+            const QByteArray key = split.at(0).mid(1);
+            QByteArray value = split.at(1);
+            if (!value.isEmpty()) {
+                value.chop(1); //remove '\n'
+            }
+            predefinedMacros += "#define ";
+            predefinedMacros += key;
+            predefinedMacros += ' ';
+            predefinedMacros += value;
+            predefinedMacros += '\n';
+        }
+    }
+    QFile::remove(tmpFilePath);
+    return predefinedMacros;
+}
+
 QByteArray MSVCToolChain::predefinedMacros()
 {
     if (m_predefinedMacros.isEmpty()) {
-        m_predefinedMacros += "#define __MSVCRT__\n"
-                              "#define __w64\n"
-                              "#define __int64 long long\n"
-                              "#define __int32 long\n"
-                              "#define __int16 short\n"
-                              "#define __int8 char\n"
-                              "#define __ptr32\n"
-                              "#define __ptr64\n";
-
-        QString tmpFilePath;
-        {
-            // QTemporaryFile is buggy and will not unlock the file for cl.exe
-            QTemporaryFile tmpFile(QDir::tempPath()+"/envtestXXXXXX.cpp");
-            tmpFile.setAutoRemove(false);
-            if (!tmpFile.open())
-                return m_predefinedMacros;
-            tmpFilePath = QFileInfo(tmpFile).canonicalFilePath();
-            tmpFile.write(msvcCompilationFile());
-            tmpFile.close();
-        }
         ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
         addToEnvironment(env);
-        QProcess cpp;
-        cpp.setEnvironment(env.toStringList());
-        cpp.setWorkingDirectory(QDir::tempPath());
-        QStringList arguments;
-        arguments << "/EP" << QDir::toNativeSeparators(tmpFilePath);
-        cpp.start(QLatin1String("cl.exe"), arguments);
-        cpp.closeWriteChannel();
-        cpp.waitForFinished();
-        QList<QByteArray> output = cpp.readAllStandardOutput().split('\n');
-        foreach (const QByteArray& line, output) {
-            if (line.startsWith('V')) {
-                QList<QByteArray> split = line.split('=');
-                QByteArray key = split.at(0).mid(1);
-                QByteArray value = split.at(1);
-                if (!value.isEmpty()) {
-                    value.chop(1); //remove '\n'
-                }
-                QByteArray newDefine = "#define " + key + ' ' + value + '\n';
-                m_predefinedMacros.append(newDefine);
-            }
-        }
-        QFile::remove(tmpFilePath);
+        m_predefinedMacros = msvcPredefinedMacros(env.toStringList());
     }
     return m_predefinedMacros;
 }
@@ -712,17 +763,24 @@ MSVCToolChain::StringStringPairList MSVCToolChain::readEnvironmentSettingI(const
     }
     call += "\r\n";
     tf.write(call);
-    QString redirect = "set > \"" + tempOutputFileName + "\"\r\n";
-    tf.write(redirect.toLocal8Bit());
+    const QByteArray redirect = "set > \"" + QDir::toNativeSeparators(tempOutputFileName).toLocal8Bit() + "\"\r\n";
+    tf.write(redirect);
     tf.flush();
     tf.waitForBytesWritten(30000);
 
     QProcess run;
     run.setEnvironment(env.toStringList());
     const QString cmdPath = QString::fromLocal8Bit(qgetenv("COMSPEC"));
-    run.start(cmdPath, QStringList()<< QLatin1String("/c")<<filename);
-    if (!run.waitForStarted() || !run.waitForFinished())
+    run.start(cmdPath, QStringList()<< QLatin1String("/c")<<QDir::toNativeSeparators(filename));
+    if (!run.waitForStarted()) {
+        qWarning("Unable to run '%s': %s", qPrintable(varsBat), qPrintable(run.errorString()));
         return StringStringPairList();
+    }
+    if (!run.waitForFinished()) {
+        qWarning("Timeout running '%s'", qPrintable(varsBat));
+        Utils::SynchronousProcess::stopProcess(run);
+        return StringStringPairList();
+    }
     tf.close();
 
     QFile varsFile(tempOutputFileName);

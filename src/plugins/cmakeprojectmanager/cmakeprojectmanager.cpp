@@ -31,6 +31,8 @@
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
 
+#include <utils/synchronousprocess.h>
+
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -139,8 +141,15 @@ QString CMakeManager::qtVersionForQMake(const QString &qmakePath)
 {
     QProcess qmake;
     qmake.start(qmakePath, QStringList(QLatin1String("--version")));
-    if (!qmake.waitForFinished())
+    if (!qmake.waitForStarted()) {
+        qWarning("Cannot start '%s': %s", qPrintable(qmakePath), qPrintable(qmake.errorString()));
         return QString();
+    }
+    if (!qmake.waitForFinished())      {
+        Utils::SynchronousProcess::stopProcess(qmake);
+        qWarning("Timeout running '%s'.", qPrintable(qmakePath));
+        return QString();
+    }
     QString output = qmake.readAllStandardOutput();
     QRegExp regexp(QLatin1String("(QMake version|Qmake version:)[\\s]*([\\d.]*)"));
     regexp.indexIn(output);

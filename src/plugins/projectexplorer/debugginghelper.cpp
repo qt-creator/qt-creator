@@ -37,6 +37,8 @@
 #include <QtCore/QDir>
 #include <QtCore/QDateTime>
 
+#include <utils/synchronousprocess.h>
+
 #include <QtGui/QDesktopServices>
 
 using namespace ProjectExplorer;
@@ -242,17 +244,28 @@ QString DebuggingHelperLibrary::buildDebuggingHelperLibrary(const QString &direc
 
 QString DebuggingHelperLibrary::qtVersionForQMake(const QString &qmakePath)
 {
+    if (qmakePath.isEmpty())
+        return QString();
+
     QProcess qmake;
     qmake.start(qmakePath, QStringList(QLatin1String("--version")));
-    if (!qmake.waitForFinished())
+    if (!qmake.waitForStarted()) {
+        qWarning("Cannot start '%s': %s", qPrintable(qmakePath), qPrintable(qmake.errorString()));
         return QString();
-    QString output = qmake.readAllStandardOutput();
+    }
+    if (!qmake.waitForFinished())      {
+        Utils::SynchronousProcess::stopProcess(qmake);
+        qWarning("Timeout running '%s'.", qPrintable(qmakePath));
+        return QString();
+    }
+    const QString output = QString::fromLocal8Bit(qmake.readAllStandardOutput());
     QRegExp regexp(QLatin1String("(QMake version|QMake version:)[\\s]*([\\d.]*)"), Qt::CaseInsensitive);
     regexp.indexIn(output);
     if (regexp.cap(2).startsWith(QLatin1String("2."))) {
         QRegExp regexp2(QLatin1String("Using Qt version[\\s]*([\\d\\.]*)"), Qt::CaseInsensitive);
         regexp2.indexIn(output);
-        return regexp2.cap(1);
+        const QString version = regexp2.cap(1);
+        return version;
     }
     return QString();
 }

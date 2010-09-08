@@ -41,6 +41,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/cesdkhandler.h>
+#include <utils/synchronousprocess.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
@@ -1060,21 +1061,13 @@ QtVersion::QmakeBuildConfigs QtVersionManager::qmakeBuildConfigFromCmdArgs(QList
     return result;
 }
 
-void QtVersion::updateVersionInfo() const
+static bool queryQMakeVariables(const QString &binary, QHash<QString, QString> *versionInfo)
 {
-    if (m_versionInfoUpToDate)
-        return;
-
-    // extract data from qmake executable
-    m_versionInfo.clear();
-    m_notInstalled = false;
-    m_hasExamples = false;
-    m_hasDocumentation = false;
-    m_hasDebuggingHelper = false;
-
-    QFileInfo qmake(qmakeCommand());
-    if (qmake.exists() && qmake.isExecutable()) {
-        static const char * const variables[] = {
+    const int timeOutMS = 30000; // Might be slow on some machines.
+    QFileInfo qmake(binary);
+    if (!qmake.exists() || !qmake.isExecutable())
+        return false;
+    static const char * const variables[] = {
              "QT_VERSION",
              "QT_INSTALL_DATA",
              "QT_INSTALL_LIBS",
@@ -1089,59 +1082,82 @@ void QtVersion::updateVersionInfo() const
              "QT_INSTALL_PREFIX",
              "QMAKEFEATURES"
         };
-        QStringList args;
-        for (uint i = 0; i < sizeof variables / sizeof variables[0]; ++i)
-            args << "-query" << variables[i];
-        QProcess process;
-        process.start(qmake.absoluteFilePath(), args, QIODevice::ReadOnly);
-        if (process.waitForFinished(10000)) {
-            QByteArray output = process.readAllStandardOutput();
-            QTextStream stream(&output);
-            while (!stream.atEnd()) {
-                const QString line = stream.readLine();
-                const int index = line.indexOf(QLatin1Char(':'));
-                if (index != -1) {
-                    QString value = QDir::fromNativeSeparators(line.mid(index+1));
-                    if (value != "**Unknown**")
-                        m_versionInfo.insert(line.left(index), value);
-                }
-            }
+    QStringList args;
+    for (uint i = 0; i < sizeof variables / sizeof variables[0]; ++i)
+        args << "-query" << variables[i];
+    QProcess process;
+    process.start(qmake.absoluteFilePath(), args, QIODevice::ReadOnly);
+    if (!process.waitForStarted()) {
+        qWarning("Cannot start '%s': %s", qPrintable(binary), qPrintable(process.errorString()));
+        return false;
+    }
+    if (!process.waitForFinished(timeOutMS)) {
+        Utils::SynchronousProcess::stopProcess(process);
+        qWarning("Timeout running '%s' (%dms).", qPrintable(binary), timeOutMS);
+        return false;
+    }
+    QByteArray output = process.readAllStandardOutput();
+    QTextStream stream(&output);
+    while (!stream.atEnd()) {
+        const QString line = stream.readLine();
+        const int index = line.indexOf(QLatin1Char(':'));
+        if (index != -1) {
+            const QString value = QDir::fromNativeSeparators(line.mid(index+1));
+            if (value != "**Unknown**")
+                versionInfo->insert(line.left(index), value);
         }
+    }
+    return true;
+}
 
-        if (m_versionInfo.contains("QT_INSTALL_DATA")) {
-            QString qtInstallData = m_versionInfo.value("QT_INSTALL_DATA");
-            m_versionInfo.insert("QMAKE_MKSPECS", QDir::cleanPath(qtInstallData+"/mkspecs"));
+void QtVersion::updateVersionInfo() const
+{
+    if (m_versionInfoUpToDate)
+        return;
 
-            if (!qtInstallData.isEmpty())
-                m_hasDebuggingHelper = !DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData).isEmpty();
-        }
+    // extract data from qmake executable
+    m_versionInfo.clear();
+    m_notInstalled = false;
+    m_hasExamples = false;
+    m_hasDocumentation = false;
+    m_hasDebuggingHelper = false;
 
-        // Now check for a qt that is configured with a prefix but not installed
-        if (m_versionInfo.contains("QT_INSTALL_BINS")) {
-            QFileInfo fi(m_versionInfo.value("QT_INSTALL_BINS"));
-            if (!fi.exists())
-                m_notInstalled = true;
-        }
-        if (m_versionInfo.contains("QT_INSTALL_HEADERS")){
-            QFileInfo fi(m_versionInfo.value("QT_INSTALL_HEADERS"));
-            if (!fi.exists())
-                m_notInstalled = true;
-        }
-        if (m_versionInfo.contains("QT_INSTALL_DOCS")){
-            QFileInfo fi(m_versionInfo.value("QT_INSTALL_DOCS"));
-            if (fi.exists())
-                m_hasDocumentation = true;
-        }
-        if (m_versionInfo.contains("QT_INSTALL_EXAMPLES")){
-            QFileInfo fi(m_versionInfo.value("QT_INSTALL_EXAMPLES"));
-            if (fi.exists())
-                m_hasExamples = true;
-        }
-        if (m_versionInfo.contains("QT_INSTALL_DEMOS")){
-            QFileInfo fi(m_versionInfo.value("QT_INSTALL_DEMOS"));
-            if (fi.exists())
-                m_hasDemos = true;
-        }
+    if (!queryQMakeVariables(qmakeCommand(), &m_versionInfo))
+        return;
+
+    if (m_versionInfo.contains("QT_INSTALL_DATA")) {
+        QString qtInstallData = m_versionInfo.value("QT_INSTALL_DATA");
+        m_versionInfo.insert("QMAKE_MKSPECS", QDir::cleanPath(qtInstallData+"/mkspecs"));
+
+        if (!qtInstallData.isEmpty())
+            m_hasDebuggingHelper = !DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData).isEmpty();
+    }
+
+    // Now check for a qt that is configured with a prefix but not installed
+    if (m_versionInfo.contains("QT_INSTALL_BINS")) {
+        QFileInfo fi(m_versionInfo.value("QT_INSTALL_BINS"));
+        if (!fi.exists())
+            m_notInstalled = true;
+    }
+    if (m_versionInfo.contains("QT_INSTALL_HEADERS")){
+        QFileInfo fi(m_versionInfo.value("QT_INSTALL_HEADERS"));
+        if (!fi.exists())
+            m_notInstalled = true;
+    }
+    if (m_versionInfo.contains("QT_INSTALL_DOCS")){
+        QFileInfo fi(m_versionInfo.value("QT_INSTALL_DOCS"));
+        if (fi.exists())
+            m_hasDocumentation = true;
+    }
+    if (m_versionInfo.contains("QT_INSTALL_EXAMPLES")){
+        QFileInfo fi(m_versionInfo.value("QT_INSTALL_EXAMPLES"));
+        if (fi.exists())
+            m_hasExamples = true;
+    }
+    if (m_versionInfo.contains("QT_INSTALL_DEMOS")){
+        QFileInfo fi(m_versionInfo.value("QT_INSTALL_DEMOS"));
+        if (fi.exists())
+            m_hasDemos = true;
     }
 
     m_versionInfoUpToDate = true;
