@@ -951,7 +951,8 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
         // Happens with some incarnations of gdb 6.8 for "run to line"
         || (response->resultClass == GdbResultDone && cmd.command == "continue")
         // Happens with some incarnations of gdb 6.8 for "jump to line"
-        || (response->resultClass == GdbResultDone && cmd.command.startsWith("jump"));
+        || (response->resultClass == GdbResultDone && cmd.command.startsWith("jump"))
+        || (response->resultClass == GdbResultDone && cmd.command.startsWith("detach"));
 
     if (!isExpectedResult) {
 #ifdef Q_OS_WIN
