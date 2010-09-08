@@ -506,12 +506,14 @@ void ModelManager::onLoadPluginTypes(const QString &libraryPath, const QString &
 
 void ModelManager::updateImportPaths()
 {
+    m_allImportPaths.clear();
     QMapIterator<ProjectExplorer::Project *, ProjectInfo> it(m_projects);
     while (it.hasNext()) {
         it.next();
         m_allImportPaths += it.value().importPaths;
     }
     m_allImportPaths += m_defaultImportPaths;
+    m_allImportPaths.removeDuplicates();
 
     // check if any file in the snapshot imports something new in the new paths
     Snapshot snapshot = _snapshot;
