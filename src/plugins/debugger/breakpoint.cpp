@@ -304,19 +304,11 @@ QString BreakpointData::toString() const
     return rc;
 }
 
-bool BreakpointData::isLocatedAt(const QString &fileName_, int lineNumber_) const
+bool BreakpointData::isLocatedAt(const QString &fileName_, int lineNumber_, 
+    bool useMarkerPosition) const
 {
-    /*
-    if (lineNumber != QString::number(lineNumber_))
-        return false;
-    if (fileName == fileName_)
-        return true;
-    if (fileName_.endsWith(fileName))
-        return true;
-    return false;
-    */
-    return lineNumber_ == m_markerLineNumber
-        && fileNameMatch(fileName_, m_markerFileName);
+    int line = useMarkerPosition ? m_markerLineNumber : lineNumber.toInt();
+    return lineNumber_ == line && fileNameMatch(fileName_, m_markerFileName);
 }
 
 bool BreakpointData::isSimilarTo(const BreakpointData *needle) const

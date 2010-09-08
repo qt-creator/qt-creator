@@ -93,7 +93,8 @@ public:
     void storeToTemplate(BreakHandler *other);
     void toggleBreakpoint(const QString &fileName, int lineNumber);
     void toggleBreakpointEnabled(const QString &fileName, int lineNumber);
-    BreakpointData *findBreakpoint(const QString &fileName, int lineNumber);
+    BreakpointData *findBreakpoint(const QString &fileName, int lineNumber,
+        bool useMarkerPosition = true);
 
 public slots:
     void appendBreakpoint(BreakpointData *data);

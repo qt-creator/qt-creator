@@ -58,7 +58,8 @@ public:
     QString toString() const;
     BreakHandler *handler() { return m_handler; }
 
-    bool isLocatedAt(const QString &fileName, int lineNumber) const;
+    bool isLocatedAt(const QString &fileName, int lineNumber,
+        bool useMarkerPosition) const;
     bool isSimilarTo(const BreakpointData *needle) const;
     bool conditionsMatch() const;
 

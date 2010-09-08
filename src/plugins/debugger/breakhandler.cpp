@@ -571,17 +571,20 @@ void BreakHandler::removeAllBreakpoints()
     updateMarkers();
 }
 
-BreakpointData *BreakHandler::findBreakpoint(const QString &fileName, int lineNumber)
+BreakpointData *BreakHandler::findBreakpoint(const QString &fileName,
+    int lineNumber, bool useMarkerPosition)
 {
     foreach (BreakpointData *data, m_bp)
-        if (data->isLocatedAt(fileName, lineNumber))
+        if (data->isLocatedAt(fileName, lineNumber, useMarkerPosition))
             return data;
     return 0;
 }
 
 void BreakHandler::toggleBreakpoint(const QString &fileName, int lineNumber)
 {
-    BreakpointData *data = findBreakpoint(fileName, lineNumber);
+    BreakpointData *data = findBreakpoint(fileName, lineNumber, true);
+    if (!data)
+        data = findBreakpoint(fileName, lineNumber, false);
     if (data) {
         removeBreakpoint(data);
     } else {
