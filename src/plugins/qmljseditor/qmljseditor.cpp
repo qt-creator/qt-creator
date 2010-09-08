@@ -725,7 +725,7 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     connect(m_updateOutlineIndexTimer, SIGNAL(timeout()), this, SLOT(updateOutlineIndexNow()));
 
     m_cursorPositionTimer  = new QTimer(this);
-    m_cursorPositionTimer->setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
+    m_cursorPositionTimer->setInterval(UPDATE_OUTLINE_INTERVAL);
     m_cursorPositionTimer->setSingleShot(true);
     connect(m_cursorPositionTimer, SIGNAL(timeout()), this, SLOT(updateCursorPositionNow()));
 
@@ -984,20 +984,25 @@ void QmlJSTextEditor::updateCursorPositionNow()
         Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
         if (oldNode != newNode && m_oldCursorPosition != -1)
             m_contextPane->apply(editableInterface(), m_semanticInfo.lookupContext(), newNode, false);
-        if (oldNode != newNode &&
-            m_contextPane->isAvailable(editableInterface(), m_semanticInfo.lookupContext(), newNode) &&
+        if (m_contextPane->isAvailable(editableInterface(), m_semanticInfo.lookupContext(), newNode) &&
             !m_contextPane->widget()->isVisible()) {
             QList<TextEditor::Internal::RefactorMarker> markers;
             if (UiObjectMember *m = newNode->uiObjectMemberCast()) {
+                const int start = qualifiedTypeNameId(m)->identifierToken.begin();
                 for (UiQualifiedId *q = qualifiedTypeNameId(m); q; q = q->next) {
                     if (! q->next) {
                         const int end = q->identifierToken.end();
-                        TextEditor::Internal::RefactorMarker marker;
-                        QTextCursor tc(document());
-                        tc.setPosition(end);
-                        marker.cursor = tc;
-                        marker.tooltip = tr("Show Qt Quick ToolBar");
-                        markers.append(marker);
+                        if (position() >= start && position() <= end) {
+                            TextEditor::Internal::RefactorMarker marker;
+                            QTextCursor tc(document());
+                            tc.setPosition(end);
+                            marker.cursor = tc;
+                            marker.tooltip = tr("Show Qt Quick ToolBar");
+                            markers.append(marker);
+                        } else {
+                             QList<TextEditor::Internal::RefactorMarker> markers;
+                             setRefactorMarkers(markers);
+                        }
                     }
                 }
             }
@@ -1748,7 +1753,7 @@ void QmlJSTextEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
         Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
         if (newNode) {
             m_contextPane->apply(editableInterface(), m_semanticInfo.lookupContext(), newNode, true);
-            showTextMarker();
+            m_cursorPositionTimer->start(); //update text marker
         }
     }
 
