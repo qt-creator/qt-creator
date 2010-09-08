@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = ClassView
-
+include(../../qtcreatorplugin.pri)
 include(classview_dependencies.pri)
 
 HEADERS += \

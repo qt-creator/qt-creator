@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = BinEditor
-
+include(../../qtcreatorplugin.pri)
 include(bineditor_dependencies.pri)
 
 HEADERS += bineditorplugin.h \
