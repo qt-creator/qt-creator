@@ -509,9 +509,8 @@ public:
     QMenu *m_contextMenu;
     QModelIndex m_contextMenuIndex;
     ITaskHandler *m_defaultHandler;
-    QToolButton *m_filterWarningsButton;
-    QToolButton *m_categoriesButton;
-    QMenu *m_categoriesMenu;
+    QToolButton *m_filterButton;
+    QMenu *m_filterMenu;
     TaskHub *m_taskHub;
 };
 
@@ -569,20 +568,16 @@ TaskWindow::TaskWindow(TaskHub *taskhub) : d(new TaskWindowPrivate)
     connect(d->m_listview, SIGNAL(customContextMenuRequested(QPoint)),
             this, SLOT(showContextMenu(QPoint)));
 
-    d->m_filterWarningsButton = createFilterButton(d->m_model->taskTypeIcon(Task::Warning),
-                                                   tr("Show Warnings"),
-                                                   this, SLOT(setShowWarnings(bool)));
+    d->m_filterMenu = new QMenu;
+    connect(d->m_filterMenu, SIGNAL(aboutToShow()), this, SLOT(updateCategoriesMenu()));
+    connect(d->m_filterMenu, SIGNAL(triggered(QAction*)), this, SLOT(filterMenuTriggered(QAction*)));
 
-    d->m_categoriesMenu = new QMenu;
-    connect(d->m_categoriesMenu, SIGNAL(aboutToShow()), this, SLOT(updateCategoriesMenu()));
-    connect(d->m_categoriesMenu, SIGNAL(triggered(QAction*)), this, SLOT(filterCategoryTriggered(QAction*)));
-
-    d->m_categoriesButton = new QToolButton;
-    d->m_categoriesButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));
-    d->m_categoriesButton->setToolTip(tr("Filter by categories"));
-    d->m_categoriesButton->setAutoRaise(true);
-    d->m_categoriesButton->setPopupMode(QToolButton::InstantPopup);
-    d->m_categoriesButton->setMenu(d->m_categoriesMenu);
+    d->m_filterButton = new QToolButton;
+    d->m_filterButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));
+    d->m_filterButton->setToolTip(tr("Filter by categories"));
+    d->m_filterButton->setAutoRaise(true);
+    d->m_filterButton->setPopupMode(QToolButton::InstantPopup);
+    d->m_filterButton->setMenu(d->m_filterMenu);
 
     connect(d->m_taskHub, SIGNAL(categoryAdded(QString, QString)),
             this, SLOT(addCategory(QString, QString)));
@@ -598,7 +593,6 @@ TaskWindow::~TaskWindow()
 {
     Core::ICore::instance()->removeContextObject(d->m_taskWindowContext);
     cleanContextMenu();
-    delete d->m_filterWarningsButton;
     delete d->m_listview;
     delete d->m_filter;
     delete d->m_model;
@@ -607,7 +601,7 @@ TaskWindow::~TaskWindow()
 
 QList<QWidget*> TaskWindow::toolBarWidgets() const
 {
-    return QList<QWidget*>() << d->m_filterWarningsButton << d->m_categoriesButton;
+    return QList<QWidget*>() << d->m_filterButton;
 }
 
 QWidget *TaskWindow::outputWidget(QWidget *)
@@ -731,38 +725,80 @@ void TaskWindow::setShowWarnings(bool show)
 
 void TaskWindow::updateCategoriesMenu()
 {
-    d->m_categoriesMenu->clear();
+    d->m_filterMenu->clear();
 
     const QStringList filteredCategories = d->m_filter->filteredCategories();
 
     foreach (const QString &categoryId, d->m_model->categoryIds()) {
         const QString categoryName = d->m_model->categoryDisplayName(categoryId);
 
-        QAction *action = new QAction(d->m_categoriesMenu);
+        QAction *action = new QAction(d->m_filterMenu);
         action->setCheckable(true);
         action->setText(categoryName);
         action->setData(categoryId);
         action->setChecked(!filteredCategories.contains(categoryId));
 
-        d->m_categoriesMenu->addAction(action);
+        d->m_filterMenu->addAction(action);
     }
+
+    d->m_filterMenu->addSeparator();
+
+    QAction *unknownType = new QAction(d->m_model->taskTypeIcon(Task::Unknown),
+                                       tr("Informational"), d->m_filterMenu);
+    unknownType->setCheckable(true);
+    unknownType->setData(Task::Unknown);
+    unknownType->setChecked(d->m_filter->filterIncludesUnknowns());
+    d->m_filterMenu->addAction(unknownType);
+
+    QAction *warningType = new QAction(d->m_model->taskTypeIcon(Task::Warning),
+                                       tr("Warnings"), d->m_filterMenu);
+    warningType->setCheckable(true);
+    warningType->setData(Task::Warning);
+    warningType->setChecked(d->m_filter->filterIncludesUnknowns());
+    d->m_filterMenu->addAction(warningType);
+
+    QAction *errorType = new QAction(d->m_model->taskTypeIcon(Task::Error),
+                                     tr("Errors"), d->m_filterMenu);
+    errorType->setCheckable(true);
+    errorType->setData(Task::Error);
+    errorType->setChecked(d->m_filter->filterIncludesUnknowns());
+    d->m_filterMenu->addAction(errorType);
 }
 
-void TaskWindow::filterCategoryTriggered(QAction *action)
+void TaskWindow::filterMenuTriggered(QAction *action)
 {
-    QString categoryId = action->data().toString();
-    Q_ASSERT(!categoryId.isEmpty());
+    if (action->data().type() == QVariant::String) {
+        QString categoryId = action->data().toString();
+        Q_ASSERT(!categoryId.isEmpty());
 
-    QStringList categories = d->m_filter->filteredCategories();
-    Q_ASSERT(d->m_filter->filteredCategories().contains(categoryId) == action->isChecked());
+        QStringList categories = d->m_filter->filteredCategories();
+        Q_ASSERT(d->m_filter->filteredCategories().contains(categoryId) == action->isChecked());
 
-    if (action->isChecked()) {
-        categories.removeOne(categoryId);
+        if (action->isChecked()) {
+            categories.removeOne(categoryId);
+        } else {
+            categories.append(categoryId);
+        }
+
+        d->m_filter->setFilteredCategories(categories);
     } else {
-        categories.append(categoryId);
-    }
+        bool ok;
+        Task::TaskType type = static_cast<Task::TaskType>(action->data().toInt(&ok));
+        Q_ASSERT(ok);
 
-    d->m_filter->setFilteredCategories(categories);
+        switch (type) {
+        case ProjectExplorer::Task::Unknown:
+            d->m_filter->setFilterIncludesUnknowns(action->isChecked());
+            break;
+        case ProjectExplorer::Task::Error:
+            d->m_filter->setFilterIncludesErrors(action->isChecked());
+            break;
+        case ProjectExplorer::Task::Warning:
+            d->m_filter->setFilterIncludesWarnings(action->isChecked());
+            break;
+
+        }
+    }
 }
 
 int TaskWindow::taskCount() const

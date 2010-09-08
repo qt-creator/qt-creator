@@ -91,7 +91,7 @@ private slots:
     void contextMenuEntryTriggered(QAction *);
     void setShowWarnings(bool);
     void updateCategoriesMenu();
-    void filterCategoryTriggered(QAction *action);
+    void filterMenuTriggered(QAction *action);
 
 private:
     void cleanContextMenu();

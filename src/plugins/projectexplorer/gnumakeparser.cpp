@@ -49,7 +49,7 @@ GnuMakeParser::GnuMakeParser(const QString &dir) :
     m_makeDir.setPattern(QLatin1String(MAKE_PATTERN) +
                          QLatin1String("(\\w+) directory .(.+).$"));
     m_makeDir.setMinimal(true);
-    m_makeLine.setPattern(QLatin1String(MAKE_PATTERN) + QLatin1String("\\*\\*\\*\\s(.*)$"));
+    m_makeLine.setPattern(QLatin1String(MAKE_PATTERN) + QLatin1String("(\\*\\*\\*\\s)?(.*)$"));
     m_makeLine.setMinimal(true);
     m_makefileError.setPattern(QLatin1String("^(.*):(\\d+):\\s\\*\\*\\*\\s(.*)$"));
     m_makefileError.setMinimal(true);
@@ -93,11 +93,12 @@ void GnuMakeParser::stdError(const QString &line)
         return;
     }
     if (m_makeLine.indexIn(lne) > -1) {
-        ++m_fatalErrorCount;
+        if (!m_makeLine.cap(7).isEmpty())
+            ++m_fatalErrorCount;
         if (!m_suppressIssues) {
             m_suppressIssues = true;
             addTask(Task(Task::Error,
-                         m_makeLine.cap(7),
+                         m_makeLine.cap(8),
                          QString() /* filename */,
                          -1, /* line */
                          Constants::TASK_CATEGORY_BUILDSYSTEM));
@@ -304,6 +305,18 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
             << (QList<Task>()
                 << Task(Task::Error,
                         QString::fromLatin1("[sis] Error 2"),
+                        QString(), -1,
+                        Constants::TASK_CATEGORY_BUILDSYSTEM))
+            << QString()
+            << QStringList();
+    QTest::newRow("missing g++")
+            << QStringList()
+            << QString::fromLatin1("make: g++: Command not found")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<Task>()
+                << Task(Task::Error,
+                        QString::fromLatin1("g++: Command not found"),
                         QString(), -1,
                         Constants::TASK_CATEGORY_BUILDSYSTEM))
             << QString()
