@@ -328,7 +328,7 @@ QWidget *FakeVimExCommandsPage::createPage(QWidget *parent)
 
 void FakeVimExCommandsPage::initialize()
 {
-    Core::ActionManager *am = Core::ICore::instance()->actionManager();
+    ActionManager *am = ICore::instance()->actionManager();
     QTC_ASSERT(am, return);
     UniqueIDManager *uidm = UniqueIDManager::instance();
     QTC_ASSERT(uidm, return);
@@ -525,8 +525,12 @@ private:
     FakeVimOptionPage *m_fakeVimOptionsPage;
     FakeVimExCommandsPage *m_fakeVimExCommandsPage;
     QHash<Core::IEditor *, FakeVimHandler *> m_editorToHandler;
-    QPointer<EditorManager> m_editorManager;
+    QPointer<Core::ICore> m_core;
+    QPointer<Core::EditorManager> m_editorManager;
+    QPointer<Core::ActionManager> m_actionManager;
+    ICore *core() const { return m_core; }
     EditorManager *editorManager() const { return m_editorManager; }
+    ActionManager *actionManager() const { return m_actionManager; }
 
     void triggerAction(const QString &code);
     void setActionChecked(const QString &code, bool check);
@@ -576,33 +580,34 @@ FakeVimPluginPrivate::~FakeVimPluginPrivate()
 
 void FakeVimPluginPrivate::aboutToShutdown()
 {
-    theFakeVimSettings()->writeSettings(Core::ICore::instance()->settings());
-    writeSettings(Core::ICore::instance()->settings());
+    theFakeVimSettings()->writeSettings(ICore::instance()->settings());
+    writeSettings(ICore::instance()->settings());
 }
 
 bool FakeVimPluginPrivate::initialize()
 {
-    m_editorManager = Core::ICore::instance()->editorManager();
-    Core::ActionManager *actionManager = Core::ICore::instance()->actionManager();
-    QTC_ASSERT(actionManager, return false);
+    m_core = Core::ICore::instance();
+    m_editorManager = core()->editorManager();
+    m_actionManager = core()->actionManager();
+    QTC_ASSERT(actionManager(), return false);
 
-    Core::Context globalcontext(Core::Constants::C_GLOBAL);
+    Context globalcontext(Core::Constants::C_GLOBAL);
 
     m_fakeVimOptionsPage = new FakeVimOptionPage;
     q->addObject(m_fakeVimOptionsPage);
-    theFakeVimSettings()->readSettings(Core::ICore::instance()->settings());
+    theFakeVimSettings()->readSettings(ICore::instance()->settings());
 
     m_fakeVimExCommandsPage = new FakeVimExCommandsPage(this);
     q->addObject(m_fakeVimExCommandsPage);
-    readSettings(Core::ICore::instance()->settings());
+    readSettings(core()->settings());
 
     Core::Command *cmd = 0;
-    cmd = actionManager->registerAction(theFakeVimSetting(ConfigUseFakeVim),
+    cmd = actionManager()->registerAction(theFakeVimSetting(ConfigUseFakeVim),
         Constants::INSTALL_HANDLER, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::INSTALL_KEY));
 
     ActionContainer *advancedMenu =
-        actionManager->actionContainer(Core::Constants::M_EDIT_ADVANCED);
+        actionManager()->actionContainer(Core::Constants::M_EDIT_ADVANCED);
     advancedMenu->addAction(cmd, Core::Constants::G_EDIT_EDITOR);
 
     // EditorManager
@@ -683,20 +688,20 @@ void FakeVimPluginPrivate::maybeReadVimRc()
     QPlainTextEdit editor;
     FakeVimHandler handler(&editor);
     handler.handleCommand("source " + fileName);
-    theFakeVimSettings()->writeSettings(Core::ICore::instance()->settings());
+    theFakeVimSettings()->writeSettings(core()->settings());
     //qDebug() << theFakeVimSetting(ConfigShiftWidth)->value();
 }
 
 void FakeVimPluginPrivate::showSettingsDialog()
 {
-    Core::ICore::instance()->showOptionsDialog(
+    core()->showOptionsDialog(
         _(Constants::SETTINGS_CATEGORY),
         _(Constants::SETTINGS_ID));
 }
 
 void FakeVimPluginPrivate::triggerAction(const QString &code)
 {
-    Core::ActionManager *am = Core::ICore::instance()->actionManager();
+    Core::ActionManager *am = actionManager();
     QTC_ASSERT(am, return);
     Core::Command *cmd = am->command(code);
     QTC_ASSERT(cmd, qDebug() << "UNKNOW CODE: " << code; return);
@@ -707,7 +712,7 @@ void FakeVimPluginPrivate::triggerAction(const QString &code)
 
 void FakeVimPluginPrivate::setActionChecked(const QString &code, bool check)
 {
-    Core::ActionManager *am = Core::ICore::instance()->actionManager();
+    Core::ActionManager *am = actionManager();
     QTC_ASSERT(am, return);
     Core::Command *cmd = am->command(code);
     QTC_ASSERT(cmd, return);
@@ -1004,12 +1009,12 @@ void FakeVimPluginPrivate::handleDelayedQuit(bool forced, Core::IEditor *editor)
 {
     QList<Core::IEditor *> editors;
     editors.append(editor);
-    Core::EditorManager::instance()->closeEditors(editors, !forced);
+    editorManager()->closeEditors(editors, !forced);
 }
 
 void FakeVimPluginPrivate::handleDelayedQuitAll(bool forced)
 {
-    Core::EditorManager::instance()->closeAllEditors(!forced);
+    editorManager()->closeAllEditors(!forced);
 }
 
 void FakeVimPluginPrivate::moveToMatchingParenthesis(bool *moved, bool *forward,
