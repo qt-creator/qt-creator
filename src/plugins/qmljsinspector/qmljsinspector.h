@@ -47,12 +47,22 @@ namespace ProjectExplorer {
     class Environment;
 }
 
+namespace TextEditor {
+    class ITextEditor;
+}
+
 namespace Core {
     class IContext;
 }
 
 namespace QmlJS {
     class ModelManagerInterface;
+}
+
+namespace Debugger {
+namespace Internal {
+    class QmlEngine;
+}
 }
 
 QT_FORWARD_DECLARE_CLASS(QDockWidget)
@@ -97,6 +107,8 @@ public:
     void setupUi();
     void connected(ClientProxy *clientProxy);
     void disconnected();
+    void setDebuggerEngine(Debugger::Internal::QmlEngine *qmlEngine);
+    Debugger::Internal::QmlEngine *debuggerEngine() const;
 
 signals:
     void statusMessage(const QString &text);
@@ -125,6 +137,8 @@ private slots:
 
     void currentDebugProjectRemoved();
     void updatePendingPreviewDocuments(QmlJS::Document::Ptr doc);
+    void showDebuggerTooltip(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
+    void debugQueryUpdated(QDeclarativeDebugQuery::State);
 
 private:
     bool addQuotesForData(const QVariant &value) const;
@@ -146,6 +160,8 @@ private:
 
     InspectorSettings *m_settings;
     ClientProxy *m_clientProxy;
+    Debugger::Internal::QmlEngine *m_qmlEngine;
+    QDeclarativeDebugExpressionQuery *m_debugQuery;
 
     // Qml/JS integration
     QHash<QString, QmlJSLiveTextPreview *> m_textPreviews;

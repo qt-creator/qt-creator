@@ -116,7 +116,7 @@ public: // attributes
 
 class SemanticHighlighter;
 
-class SemanticInfo
+class QMLJSEDITOR_EXPORT SemanticInfo
 {
 public:
     SemanticInfo() {}

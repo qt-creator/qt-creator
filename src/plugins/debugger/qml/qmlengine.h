@@ -46,6 +46,10 @@
 
 #include <projectexplorer/applicationlauncher.h>
 
+namespace Core {
+    class TextEditor;
+}
+
 namespace Debugger {
 namespace Internal {
 
@@ -120,6 +124,7 @@ private:
 
 signals:
     void sendMessage(const QByteArray &msg);
+    void tooltipRequested(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
 
 private slots:
     void connectionEstablished();

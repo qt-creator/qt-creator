@@ -65,11 +65,14 @@ public:
 
     bool setMethodBodyForObject(int objectDebugId, const QString &methodName, const QString &methodBody);
     bool resetBindingForObject(int objectDebugId, const QString &propertyName);
+    QDeclarativeDebugExpressionQuery *queryExpressionResult(int objectDebugId, const QString &expr, QObject *parent=0);
     void clearComponentCache();
 
     // returns the object references
     QList<QDeclarativeDebugObjectReference> objectReferences() const;
     QDeclarativeDebugObjectReference objectReferenceForId(int debugId) const;
+    QDeclarativeDebugObjectReference objectReferenceForId(const QString &objectId) const;
+    QDeclarativeDebugObjectReference objectReferenceForLocation(const int line, const int column) const;
     QList<QDeclarativeDebugObjectReference> rootObjectReference() const;
     DebugIdHash debugIdHash() const { return m_debugIdHash; };
 

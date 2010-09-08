@@ -198,6 +198,29 @@ QDeclarativeDebugObjectReference ClientProxy::objectReferenceForId(int debugId,
     return QDeclarativeDebugObjectReference();
 }
 
+QDeclarativeDebugObjectReference ClientProxy::objectReferenceForId(const QString &objectId) const
+{
+    if (!objectId.isEmpty() && objectId[0].isLower()) {
+        const QList<QDeclarativeDebugObjectReference> refs = objectReferences();
+        foreach (const QDeclarativeDebugObjectReference &ref, refs) {
+            if (ref.idString() == objectId)
+                return ref;
+        }
+    }
+    return QDeclarativeDebugObjectReference();
+}
+
+QDeclarativeDebugObjectReference ClientProxy::objectReferenceForLocation(const int line, const int column) const
+{
+    const QList<QDeclarativeDebugObjectReference> refs = objectReferences();
+    foreach (const QDeclarativeDebugObjectReference &ref, refs) {
+        if (ref.source().lineNumber() == line && ref.source().columnNumber() == column)
+            return ref;
+    }
+
+    return QDeclarativeDebugObjectReference();
+}
+
 QList<QDeclarativeDebugObjectReference> ClientProxy::objectReferences() const
 {
     QList<QDeclarativeDebugObjectReference> result;
@@ -251,6 +274,13 @@ bool ClientProxy::resetBindingForObject(int objectDebugId, const QString& proper
         return false;
     //    if (propertyName == QLatin1String("id"))  return false;
     return m_client->resetBindingForObject(objectDebugId, propertyName);
+}
+
+QDeclarativeDebugExpressionQuery *ClientProxy::queryExpressionResult(int objectDebugId, const QString &expr, QObject *parent)
+{
+    if (objectDebugId != -1)
+        return m_client->queryExpressionResult(objectDebugId,expr,parent);
+    return 0;
 }
 
 void ClientProxy::clearComponentCache()

@@ -30,6 +30,7 @@
 #include "qmlengine.h"
 #include "qmladapter.h"
 
+#include "debuggertooltip.h"
 #include "debuggerconstants.h"
 #include "debuggerplugin.h"
 #include "debuggerdialogs.h"
@@ -170,6 +171,7 @@ void QmlEngine::connectionEstablished()
 
     ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
     pluginManager->addObject(m_adapter);
+    pluginManager->addObject(this);
     m_addedAdapterToObjectPool = true;
 
     plugin()->showMessage(tr("QML Debugger connected."), StatusBar);
@@ -233,6 +235,7 @@ void QmlEngine::shutdownEngineAsSlave()
     if (m_addedAdapterToObjectPool) {
         ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
         pluginManager->removeObject(m_adapter);
+        pluginManager->removeObject(this);
     }
 
     if (m_attachToRunningExternalApp) {
@@ -445,9 +448,8 @@ static QHash<QString, WatchData> m_toolTipCache;
 
 void QmlEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos)
 {
-    Q_UNUSED(mousePos)
-    Q_UNUSED(editor)
-    Q_UNUSED(cursorPos)
+    // this is processed by QML inspector, which has deps to qml js editor. Makes life easier.
+    emit tooltipRequested(mousePos, editor, cursorPos);
 }
 
 //////////////////////////////////////////////////////////////////////

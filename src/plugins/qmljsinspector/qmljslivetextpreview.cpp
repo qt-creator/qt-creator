@@ -206,15 +206,7 @@ void QmlJSLiveTextPreview::changeSelectedElements(QList<int> offsets, const QStr
         return;
 
     QDeclarativeDebugObjectReference objectRefUnderCursor;
-    if (!wordAtCursor.isEmpty() && wordAtCursor[0].isLower()) {
-        QList<QDeclarativeDebugObjectReference> refs = m_clientProxy.data()->objectReferences();
-        foreach (const QDeclarativeDebugObjectReference &ref, refs) {
-            if (ref.idString() == wordAtCursor) {
-                objectRefUnderCursor = ref;
-                break;
-            }
-        }
-    }
+    objectRefUnderCursor = m_clientProxy.data()->objectReferenceForId(wordAtCursor);
 
     QList<int> selectedReferences;
     bool containsReferenceUnderCursor = false;

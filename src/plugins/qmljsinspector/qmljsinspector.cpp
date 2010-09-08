@@ -38,9 +38,11 @@
 
 #include <qmljseditor/qmljseditorconstants.h>
 
+#include <qmljseditor/qmljseditor.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsdocument.h>
 
+#include <qmljs/parser/qmljsast_p.h>
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggerengine.h>
@@ -49,6 +51,7 @@
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggeruiswitcher.h>
 #include <debugger/debuggerconstants.h>
+#include <debugger/qml/qmlengine.h>
 
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
@@ -100,6 +103,8 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QTextBlock>
 
+#include <QtGui/QToolTip>
+#include <QtGui/QCursor>
 #include <QtNetwork/QHostAddress>
 
 using namespace QmlJS;
@@ -131,6 +136,8 @@ InspectorUi::InspectorUi(QObject *parent)
     , m_inspectorDockWidget(0)
     , m_settings(new InspectorSettings(this))
     , m_clientProxy(0)
+    , m_qmlEngine(0)
+    , m_debugQuery(0)
     , m_debugProject(0)
 {
     m_instance = this;
@@ -155,6 +162,103 @@ void InspectorUi::saveSettings() const
 void InspectorUi::restoreSettings()
 {
     m_settings->restoreSettings(Core::ICore::instance()->settings());
+}
+
+void InspectorUi::setDebuggerEngine(Debugger::Internal::QmlEngine *qmlEngine)
+{
+    if (m_qmlEngine && !qmlEngine) {
+        disconnect(m_qmlEngine, SIGNAL(tooltipRequested(QPoint, TextEditor::ITextEditor*, int)),
+                   this, SLOT(showDebuggerTooltip(QPoint, TextEditor::ITextEditor*, int)));
+    }
+
+    m_qmlEngine = qmlEngine;
+    if (m_qmlEngine) {
+        connect(m_qmlEngine, SIGNAL(tooltipRequested(QPoint, TextEditor::ITextEditor*, int)),
+                this, SLOT(showDebuggerTooltip(QPoint, TextEditor::ITextEditor*, int)));
+    }
+}
+
+Debugger::Internal::QmlEngine *InspectorUi::debuggerEngine() const
+{
+    return m_qmlEngine;
+}
+
+void InspectorUi::showDebuggerTooltip(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos)
+{
+    Q_UNUSED(mousePos);
+    if (editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
+        QmlJSEditor::Internal::QmlJSTextEditor *qmlEditor = static_cast<QmlJSEditor::Internal::QmlJSTextEditor*>(editor->widget());
+
+        QTextCursor tc(qmlEditor->document());
+        tc.setPosition(cursorPos);
+        tc.movePosition(QTextCursor::StartOfWord);
+        tc.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+
+        QString wordAtCursor = tc.selectedText();
+        QString query;
+        QLatin1Char doubleQuote('"');
+
+        QmlJS::AST::Node *qmlNode = qmlEditor->semanticInfo().nodeUnderCursor(cursorPos);
+        if (!qmlNode)
+            return;
+        QmlJS::AST::Node *node = qmlEditor->semanticInfo().declaringMemberNoProperties(cursorPos);
+        if (!node)
+            return;
+        QDeclarativeDebugObjectReference ref = m_clientProxy->objectReferenceForLocation(node->uiObjectMemberCast()->firstSourceLocation().startLine, node->uiObjectMemberCast()->firstSourceLocation().startColumn);
+
+        if (ref.debugId() == -1)
+            return;
+
+        if (wordAtCursor == QString("id")) {
+            query = QString("\"id:") + ref.idString() + doubleQuote;
+        } else {
+            if ((qmlNode->kind == QmlJS::AST::Node::Kind_IdentifierExpression) ||
+                (qmlNode->kind == QmlJS::AST::Node::Kind_FieldMemberExpression)) {
+                tc.setPosition(qmlNode->expressionCast()->firstSourceLocation().begin());
+                tc.setPosition(qmlNode->expressionCast()->lastSourceLocation().end(),QTextCursor::KeepAnchor);
+                QString refToLook = tc.selectedText();
+                if ((qmlNode->kind == QmlJS::AST::Node::Kind_IdentifierExpression) &&
+                    (m_clientProxy->objectReferenceForId(refToLook).debugId() == -1)) {
+                    query = doubleQuote + QString("local: ") + refToLook + doubleQuote;
+                    foreach(QDeclarativeDebugPropertyReference property, ref.properties()) {
+                        if (property.name() == wordAtCursor && !property.valueTypeName().isEmpty()) {
+                            query =  doubleQuote + property.name() + QLatin1Char(':') + doubleQuote + QLatin1Char('+') + property.name();
+                            break;
+                        }
+                    }
+                }
+                else
+                    query =doubleQuote + refToLook + QLatin1Char(':') + doubleQuote + QLatin1Char('+') + refToLook;
+            } else {
+                // show properties
+                foreach(QDeclarativeDebugPropertyReference property, ref.properties()) {
+                    if (property.name() == wordAtCursor && !property.valueTypeName().isEmpty()) {
+                        query =  doubleQuote + property.name() + QLatin1Char(':') + doubleQuote + QLatin1Char('+') + property.name();
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!query.isEmpty()) {
+            m_debugQuery = m_clientProxy->queryExpressionResult(ref.debugId(),query);
+            connect(m_debugQuery,SIGNAL(stateChanged(QDeclarativeDebugQuery::State)),this,SLOT(debugQueryUpdated(QDeclarativeDebugQuery::State)));
+        }
+    }
+}
+
+void InspectorUi::debugQueryUpdated(QDeclarativeDebugQuery::State newState)
+{
+    if (newState != QDeclarativeDebugExpressionQuery::Completed)
+        return;
+    if (!m_debugQuery)
+        return;
+
+    QString text = m_debugQuery->result().toString();
+    if (!text.isEmpty())
+        QToolTip::showText(QCursor::pos(), text);
+
+    disconnect(m_debugQuery,SIGNAL(stateChanged(QDeclarativeDebugQuery::State)),this,SLOT(debugQueryUpdated(QDeclarativeDebugQuery::State)));
 }
 
 void InspectorUi::connected(ClientProxy *clientProxy)
@@ -203,6 +307,7 @@ void InspectorUi::disconnected()
                m_crumblePath, SLOT(updateContextPath(QStringList)));
 
     m_debugProject = 0;
+    m_qmlEngine = 0;
     resetViews();
 
     setupToolbar(false);

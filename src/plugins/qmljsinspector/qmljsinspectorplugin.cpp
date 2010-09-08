@@ -36,6 +36,7 @@
 #include <debugger/debuggeruiswitcher.h>
 #include <debugger/debuggerconstants.h>
 #include <debugger/qml/qmladapter.h>
+#include <debugger/qml/qmlengine.h>
 
 #include <qmlprojectmanager/qmlproject.h>
 #include <qmljseditor/qmljseditorconstants.h>
@@ -130,6 +131,12 @@ void InspectorPlugin::objectAdded(QObject *object)
     if (adapter) {
         m_clientProxy = new ClientProxy(adapter);
         m_inspectorUi->connected(m_clientProxy);
+        return;
+    }
+
+    Debugger::Internal::QmlEngine *engine = qobject_cast<Debugger::Internal::QmlEngine*>(object);
+    if (engine) {
+        m_inspectorUi->setDebuggerEngine(engine);
     }
 }
 
@@ -139,6 +146,10 @@ void InspectorPlugin::aboutToRemoveObject(QObject *obj)
         m_inspectorUi->disconnected();
         delete m_clientProxy;
         m_clientProxy = 0;
+    }
+
+    if (m_inspectorUi->debuggerEngine() == obj) {
+        m_inspectorUi->setDebuggerEngine(0);
     }
 }
 
