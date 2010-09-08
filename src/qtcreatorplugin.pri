@@ -23,7 +23,6 @@ copy2build.name = COPY ${QMAKE_FILE_IN}
 copy2build.CONFIG += no_link
 QMAKE_EXTRA_COMPILERS += copy2build
 
-TARGET = $$qtLibraryTarget($$TARGET)
 
 macx {
         QMAKE_LFLAGS_SONAME = -Wl,-install_name,@executable_path/../PlugIns/$${PROVIDER}/
@@ -48,3 +47,6 @@ CONFIG += plugin plugin_with_soname
     pluginspec.path = /$$IDE_LIBRARY_BASENAME/qtcreator/plugins/$$PROVIDER
     INSTALLS += target pluginspec
 }
+
+TARGET = $$qtLibraryTarget($$TARGET)
+
