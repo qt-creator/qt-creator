@@ -2578,8 +2578,8 @@ void DebuggerPlugin::gotoLocation(const QString &file, int line, bool setMarker)
     bool newEditor = false;
     ITextEditor *editor =
         BaseTextEditor::openEditorAt(file, line, 0, QString(),
-                                     Core::EditorManager::IgnoreNavigationHistory|Core::EditorManager::NoModeSwitch,
-                                     &newEditor);
+            EditorManager::IgnoreNavigationHistory | EditorManager::NoModeSwitch,
+            &newEditor);
     if (!editor)
         return;
     if (newEditor)
@@ -2596,10 +2596,11 @@ void DebuggerPlugin::openTextEditor(const QString &titlePattern0,
     QString titlePattern = titlePattern0;
     EditorManager *editorManager = EditorManager::instance();
     QTC_ASSERT(editorManager, return);
-    Core::IEditor *editor = editorManager->openEditorWithContents(
+    IEditor *editor = editorManager->openEditorWithContents(
         Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &titlePattern, contents);
     QTC_ASSERT(editor, return);
-    editorManager->activateEditor(editor);
+    editorManager->activateEditor(editor,
+        EditorManager::IgnoreNavigationHistory|EditorManager::NoModeSwitch);
 }
 
 void DebuggerPlugin::writeSettings() const
