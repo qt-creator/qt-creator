@@ -451,6 +451,21 @@ static inline QString formattedValue(const WatchData &data, int format)
     }
     QString result = data.value;
     result.replace(QLatin1Char('\n'), QLatin1String("\\n"));
+    if (result.startsWith(QLatin1Char('<'))) {
+        if (result == QLatin1String("<Edit>"))
+            result = WatchHandler::tr("<Edit>");
+        else if (result == QLatin1String("<empty>"))
+            result = WatchHandler::tr("<empty>");
+        else if (result == QLatin1String("<uninitialized>"))
+            result = WatchHandler::tr("<uninitialized>");
+        else if (result == QLatin1String("<invalid>"))
+            result = WatchHandler::tr("<invalid>");
+        else if (result == QLatin1String("<not accessible>"))
+            result = WatchHandler::tr("<not accessible>");
+        else if (result.endsWith(" items>"))
+            result = WatchHandler::tr("<%1 items>")
+                .arg(result.mid(1, result.indexOf(' ') - 1));
+    }
     return result;
 }
 
