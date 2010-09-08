@@ -1494,13 +1494,21 @@ bool CPPEditor::isInComment(const QTextCursor &cursor) const
 void CPPEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar)
 {
     Q_UNUSED(doc)
-    Q_UNUSED(typedChar)
 
     const TabSettings &ts = tabSettings();
     CppTools::QtStyleCodeFormatter codeFormatter(ts);
 
     codeFormatter.updateStateUntil(block);
     const int depth = codeFormatter.indentFor(block);
+
+    // only reindent the current line when typing electric characters if the
+    // indent is the same it would be if the line were empty
+    if (isElectricCharacter(typedChar)) {
+        const int newlineIndent = codeFormatter.indentForNewLineAfter(block.previous());
+        if (ts.indentationColumn(block.text()) != newlineIndent)
+            return;
+    }
+
     ts.indentLine(block, depth);
 }
 

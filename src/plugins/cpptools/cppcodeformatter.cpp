@@ -470,6 +470,12 @@ int CodeFormatter::indentFor(const QTextBlock &block)
     return m_indentDepth;
 }
 
+int CodeFormatter::indentForNewLineAfter(const QTextBlock &block)
+{
+    restoreCurrentState(block);
+    return m_indentDepth;
+}
+
 void CodeFormatter::updateStateUntil(const QTextBlock &endBlock)
 {
     QStack<State> previousState = initialState();

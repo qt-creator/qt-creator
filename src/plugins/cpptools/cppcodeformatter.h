@@ -69,6 +69,7 @@ public:
     void updateLineStateChange(const QTextBlock &block);
 
     int indentFor(const QTextBlock &block);
+    int indentForNewLineAfter(const QTextBlock &block);
 
     void setTabSize(int tabSize);
 
