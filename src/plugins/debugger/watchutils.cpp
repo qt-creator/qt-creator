@@ -1156,10 +1156,8 @@ static inline bool isInteger(const QString &n)
 }
 
 void QtDumperHelper::evaluationParameters(const WatchData &data,
-                                          const TypeData &td,
-                                          Debugger debugger,
-                                          QByteArray *inBuffer,
-                                          QByteArrayList *extraArgsIn) const
+    const TypeData &td, Debugger debugger,
+    QByteArray *inBuffer, QByteArrayList *extraArgsIn) const
 {
     enum { maxExtraArgCount = 4 };
 
@@ -1189,10 +1187,9 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
         for (int i = 0; i < count; i++)
             extraArgs.push_back(evaluationSizeofTypeExpression(inners.at(i), debugger));
     }
-    int extraArgCount = extraArgs.size();
+
     // Pad with zeros
-    const int extraPad = maxExtraArgCount - extraArgCount;
-    for (int i = 0; i < extraPad; i++)
+    while (extraArgs.size() < maxExtraArgCount)
         extraArgs.push_back("0");
 
     // in rare cases we need more or less:

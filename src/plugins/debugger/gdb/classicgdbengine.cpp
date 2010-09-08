@@ -174,7 +174,8 @@ void GdbEngine::runDebuggingHelperClassic(const WatchData &data0, bool dumpChild
     QByteArray params;
     QList<QByteArray> extraArgs;
     const QtDumperHelper::TypeData td = m_dumperHelper.typeData(data0.type);
-    m_dumperHelper.evaluationParameters(data, td, QtDumperHelper::GdbDebugger, &params, &extraArgs);
+    m_dumperHelper.evaluationParameters(data, td, QtDumperHelper::GdbDebugger,
+        &params, &extraArgs);
 
     //int protocol = (data.iname.startsWith("watch") && data.type == "QImage") ? 3 : 2;
     //int protocol = data.iname.startsWith("watch") ? 3 : 2;
@@ -198,7 +199,7 @@ void GdbEngine::runDebuggingHelperClassic(const WatchData &data0, bool dumpChild
         + ','
         + (dumpChildren ? '1' : '0');
     foreach (const QByteArray &ex, extraArgs)
-        cmd + ',' + ex;
+        cmd += ',' + ex;
     cmd += ')';
 
     postCommand(cmd, WatchUpdate | NonCriticalResponse);
