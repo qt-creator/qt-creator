@@ -198,7 +198,7 @@ QString MaemoDeployableListModel::localExecutableFilePath() const
         return QString();
 
     const bool isLib = m_proFileNode->projectType() == LibraryTemplate;
-    bool isStatic;
+    bool isStatic = false; // Nonsense init for stupid compilers.
     QString fileName;
     if (isLib) {
         fileName += QLatin1String("lib");
