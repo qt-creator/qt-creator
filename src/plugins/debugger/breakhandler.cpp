@@ -443,28 +443,6 @@ bool BreakHandler::setData(const QModelIndex &index, const QVariant &value, int 
             }
             return true;
 
-        /*
-            QString val = value.toString();
-            if (data->funcName != val) {
-                data->funcName = val;
-                emit layoutChanged();
-            }
-            return true;
-
-            QString val = value.toString();
-            if (data->fileName != val) {
-                data->fileName = val;
-                emit layoutChanged();
-            }
-            return true;
-
-            QByteArray val = value.toString().toLatin1();
-            if (data->lineNumber != val) {
-                data->lineNumber = val;
-                emit layoutChanged();
-            }
-            return true;
-        */
         case BreakpointConditionRole: {
                 QByteArray val = value.toString().toLatin1();
                 if (val != data->condition) {
