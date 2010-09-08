@@ -850,24 +850,15 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     return true;
 }
 
-// Find a factory by file mime type in a sequence of factories
-template <class Factory, class Iterator>
-    Factory *findFactory(const QString &mimeType, Iterator i1, Iterator i2)
-{
-    for ( ; i1 != i2; ++i2) {
-        Factory *f = *i1;
-        if (f->mimeTypes().contains(mimeType))
-            return f;
-    }
-    return 0;
-}
-
-ProjectFileFactory * ProjectExplorerPlugin::findProjectFileFactory(const QString &filename) const
+ProjectFileFactory *ProjectExplorerPlugin::findProjectFileFactory(const QString &filename) const
 {
     // Find factory
-    if (const Core::MimeType mt = Core::ICore::instance()->mimeDatabase()->findByFile(QFileInfo(filename)))
-        if (ProjectFileFactory *pf = findFactory<ProjectFileFactory>(mt.type(), d->m_fileFactories.constBegin(), d->m_fileFactories.constEnd()))
-            return pf;
+    if (const Core::MimeType mt = Core::ICore::instance()->mimeDatabase()->findByFile(QFileInfo(filename))) {
+        const QString mimeType = mt.type();
+        foreach (ProjectFileFactory *f, d->m_fileFactories)
+            if (f->mimeTypes().contains(mimeType))
+                return f;
+    }
     qWarning("Unable to find project file factory for '%s'", filename.toUtf8().constData());
     return 0;
 }
