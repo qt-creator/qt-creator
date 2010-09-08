@@ -67,6 +67,8 @@ public:
     void shutdownInferiorAsSlave();
     void shutdownEngineAsSlave();
     void pauseConnection();
+    void gotoLocation(const QString &fileName, int lineNumber, bool setMarker);
+    void gotoLocation(const StackFrame &frame, bool setMarker);
 
 public slots:
     void messageReceived(const QByteArray &message);
@@ -129,6 +131,12 @@ private slots:
 private:
     void expandObject(const QByteArray &iname, quint64 objectId);
     void sendPing();
+
+    bool isShadowBuildProject() const;
+    QString fromShadowBuildFilename(const QString &filename) const;
+    QString mangleFilenamePaths(const QString &filename, const QString &oldBasePath, const QString &newBasePath) const;
+    QString toShadowBuildFilename(const QString &filename) const;
+    QString qmlImportPath() const;
 
 private:
     friend class QmlCppEngine;

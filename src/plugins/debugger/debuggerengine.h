@@ -80,7 +80,10 @@ public:
     // for qml debugging
     QString qmlServerAddress;
     quint16 qmlServerPort;
-    DebuggerEngineType cppEngineType; // for cpp+qml debugging
+    QString projectBuildDir;
+    QString projectDir;
+    // for cpp+qml debugging
+    DebuggerEngineType cppEngineType;
 
     // for remote debugging
     QString remoteChannel;
@@ -274,8 +277,8 @@ public:
 
     void resetLocation();
     void openFile(const QString &fileName, int lineNumber = -1);
-    void gotoLocation(const QString &fileName, int lineNumber, bool setMarker);
-    void gotoLocation(const StackFrame &frame, bool setMarker);
+    virtual void gotoLocation(const QString &fileName, int lineNumber, bool setMarker);
+    virtual void gotoLocation(const StackFrame &frame, bool setMarker);
     virtual void quitDebugger(); // called by DebuggerRunControl
 
 signals:

@@ -156,6 +156,10 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
         sp.qmlServerAddress = QLatin1String("127.0.0.1");
         sp.qmlServerPort = runConfiguration->qmlDebugServerPort();
 
+        sp.projectDir = runConfiguration->target()->project()->projectDirectory();
+        if (runConfiguration->target()->activeBuildConfiguration())
+            sp.projectBuildDir = runConfiguration->target()->activeBuildConfiguration()->buildDirectory();
+
         sp.environment << QString(Constants::E_QML_DEBUG_SERVER_PORT)
                         + QLatin1Char('=') + QString::number(sp.qmlServerPort);
     }

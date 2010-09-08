@@ -126,6 +126,25 @@ void QmlEngine::pauseConnection()
     m_adapter->pauseConnection();
 }
 
+void QmlEngine::gotoLocation(const QString &fileName, int lineNumber, bool setMarker)
+{
+    QString processedFilename = fileName;
+
+    if (isShadowBuildProject())
+        processedFilename = fromShadowBuildFilename(fileName);
+
+    DebuggerEngine::gotoLocation(processedFilename, lineNumber, setMarker);
+}
+
+void QmlEngine::gotoLocation(const StackFrame &frame, bool setMarker)
+{
+    StackFrame adjustedFrame = frame;
+    if (isShadowBuildProject())
+        adjustedFrame.file = fromShadowBuildFilename(frame.file);
+
+    DebuggerEngine::gotoLocation(adjustedFrame, setMarker);
+}
+
 void QmlEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
@@ -380,7 +399,10 @@ void QmlEngine::attemptBreakpointSynchronization()
     QSet< QPair<QString, qint32> > breakList;
     for (int index = 0; index != handler->size(); ++index) {
         BreakpointData *data = handler->at(index);
-        breakList << qMakePair(data->fileName, data->lineNumber.toInt());
+        QString processedFilename = data->fileName;
+        if (isShadowBuildProject())
+            processedFilename = toShadowBuildFilename(data->fileName);
+        breakList << qMakePair(processedFilename, data->lineNumber.toInt());
     }
 
     {
@@ -677,6 +699,73 @@ void QmlEngine::executeDebuggerCommand(const QString& command)
     sendMessage(reply);
 }
 
+bool QmlEngine::isShadowBuildProject() const
+{
+    if (!startParameters().projectBuildDir.isEmpty()
+        && (startParameters().projectDir != startParameters().projectBuildDir))
+    {
+        return true;
+    }
+    return false;
+}
+
+QString QmlEngine::qmlImportPath() const
+{
+    QString result;
+    const QString qmlImportPathPrefix("QML_IMPORT_PATH=");
+    QStringList env = startParameters().environment;
+    foreach(const QString &envStr, env) {
+        if (envStr.startsWith(qmlImportPathPrefix)) {
+            result = envStr.mid(qmlImportPathPrefix.length());
+            break;
+        }
+    }
+    return result;
+}
+
+QString QmlEngine::toShadowBuildFilename(const QString &filename) const
+{
+    QString newFilename = filename;
+    QString importPath = qmlImportPath();
+
+    newFilename = mangleFilenamePaths(filename, startParameters().projectDir, startParameters().projectBuildDir);
+    if (newFilename == filename && !importPath.isEmpty()) {
+        newFilename = mangleFilenamePaths(filename, startParameters().projectDir, importPath);
+    }
+
+    return newFilename;
+}
+
+QString QmlEngine::mangleFilenamePaths(const QString &filename, const QString &oldBasePath, const QString &newBasePath) const
+{
+    QDir oldBaseDir(oldBasePath);
+    QDir newBaseDir(newBasePath);
+    QFileInfo fileInfo(filename);
+
+    if (oldBaseDir.exists() && newBaseDir.exists() && fileInfo.exists()) {
+        if (fileInfo.absoluteFilePath().startsWith(oldBaseDir.canonicalPath())) {
+            QString fileRelativePath = fileInfo.canonicalFilePath().mid(oldBasePath.length());
+            QFileInfo projectFile(newBaseDir.canonicalPath() + QLatin1Char('/') + fileRelativePath);
+
+            if (projectFile.exists())
+                return projectFile.canonicalFilePath();
+        }
+    }
+    return filename;
+}
+
+QString QmlEngine::fromShadowBuildFilename(const QString &filename) const
+{
+    QString newFilename = filename;
+    QString importPath = qmlImportPath();
+
+    newFilename = mangleFilenamePaths(filename, startParameters().projectBuildDir, startParameters().projectDir);
+    if (newFilename == filename && !importPath.isEmpty()) {
+        newFilename = mangleFilenamePaths(filename, startParameters().projectBuildDir, importPath);
+    }
+
+    return newFilename;
+}
 
 } // namespace Internal
 } // namespace Debugger
