@@ -155,7 +155,9 @@ RunConfiguration::RunConfiguration(Target *target, const QString &id) :
 }
 
 RunConfiguration::RunConfiguration(Target *target, RunConfiguration *source) :
-    ProjectConfiguration(target, source)
+    ProjectConfiguration(target, source),
+    m_useCppDebugger(source->useCppDebugger()),
+    m_useQmlDebugger(source->useQmlDebugger())
 {
     Q_ASSERT(target);
 }
