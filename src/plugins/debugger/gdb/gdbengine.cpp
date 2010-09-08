@@ -835,8 +835,7 @@ void GdbEngine::commandTimeout()
             killIt = true;
         QByteArray msg = QByteArray::number(key);
         msg += ": " + cmd.command + " => ";
-        QTC_ASSERT(cmd.callbackName, /**/);
-        msg += cmd.callbackName;
+        msg += cmd.callbackName ? cmd.callbackName : "<unnamed callback>";
         showMessage(_(msg));
     }
     if (killIt) {
