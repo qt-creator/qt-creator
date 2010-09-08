@@ -48,7 +48,27 @@ symbian {
         first.depends = $(first) copydeploymentfolders
         QMAKE_EXTRA_TARGETS += first copydeploymentfolders
     }
-} else:if(maemo5|maemo6) {
+} else:unix {
+    maemo5 {
+        desktopfile.path = /usr/share/applications/hildon       
+    } else {
+        desktopfile.path = /usr/share/applications
+        !isEqual(PWD,$$OUT_PWD) {
+            copyCommand = @echo Copying application data...
+            for(deploymentfolder, DEPLOYMENTFOLDERS) {
+                macx {
+                    target = $$OUT_PWD/$${TARGET}.app/Contents/Resources/$$eval($${deploymentfolder}.target)
+                } else {
+                    target = $$OUT_PWD/$$eval($${deploymentfolder}.target)
+                }
+                copyCommand += && $(MKDIR) $$target
+                copyCommand += && $(COPY_DIR) $$MAINPROFILEPWD/$$eval($${deploymentfolder}.source) $$target
+            }
+            copydeploymentfolders.commands = $$copyCommand
+            first.depends = $(first) copydeploymentfolders
+            QMAKE_EXTRA_TARGETS += first copydeploymentfolders
+        }
+    }
     for(deploymentfolder, DEPLOYMENTFOLDERS) {
         item = item$${deploymentfolder}
         itemfiles = $${item}.files
@@ -58,33 +78,8 @@ symbian {
         INSTALLS += $$item
     }
     icon.files = $${TARGET}.png
-    icon.path = /usr/share/icons/hicolor/scalable/hildon
+    icon.path = /usr/share/icons/hicolor/64x64
     desktopfile.files = $${TARGET}.desktop
-    desktopfile.path = /usr/share/applications/hildon
     target.path = /opt/bin
     INSTALLS += desktopfile icon target
-} else:macx {
-    !isEqual(PWD,$$OUT_PWD) {
-        copyCommand = @echo Copying application data...
-        for(deploymentfolder, DEPLOYMENTFOLDERS) {
-            target = $$OUT_PWD/$${TARGET}.app/Contents/Resources/$$eval($${deploymentfolder}.target)
-            copyCommand += && $(MKDIR) $$target
-            copyCommand += && $(COPY_DIR) $$MAINPROFILEPWD/$$eval($${deploymentfolder}.source) $$target
-        }
-        copydeploymentfolders.commands = $$copyCommand
-        first.depends = $(first) copydeploymentfolders
-        QMAKE_EXTRA_TARGETS += first copydeploymentfolders
-    }
-} else { #linux
-    !isEqual(PWD,$$OUT_PWD) {
-        copyCommand = @echo Copying application data...
-        for(deploymentfolder, DEPLOYMENTFOLDERS) {
-            target = $$OUT_PWD/$$eval($${deploymentfolder}.target)
-            copyCommand += && $(MKDIR) $$target
-            copyCommand += && $(COPY_DIR) $$MAINPROFILEPWD/$$eval($${deploymentfolder}.source) $$target
-        }
-        copydeploymentfolders.commands = $$copyCommand
-        first.depends = $(first) copydeploymentfolders
-        QMAKE_EXTRA_TARGETS += first copydeploymentfolders
-    }
 }
