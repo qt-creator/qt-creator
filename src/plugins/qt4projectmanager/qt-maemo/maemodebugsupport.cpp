@@ -84,6 +84,7 @@ RunControl *MaemoDebugSupport::createDebugRunControl(MaemoRunConfiguration *runC
         params.debuggerCommand = runConfig->gdbCmd();
         params.remoteChannel = devConf.server.host + QLatin1Char(':')
             + QString::number(gdbServerPort(runConfig));
+        params.useServerStartScript = true;
         params.remoteArchitecture = QLatin1String("arm");
     }
     params.processArgs = runConfig->arguments();
