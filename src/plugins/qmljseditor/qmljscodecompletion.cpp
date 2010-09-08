@@ -588,6 +588,10 @@ bool CodeCompletion::isDelimiter(QChar ch) const
     case ':':
     case ';':
     case ',':
+    case '+':
+    case '-':
+    case '*':
+    case '/':
         return true;
 
     default:
