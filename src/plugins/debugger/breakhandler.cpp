@@ -432,10 +432,8 @@ bool BreakHandler::setData(const QModelIndex &index, const QVariant &value, int 
 
     switch (role) {
         case BreakpointEnabledRole:
-            if (data->enabled != value.toBool()) {
+            if (data->enabled != value.toBool())
                 toggleBreakpointEnabled(data);
-                emit layoutChanged();
-            }
             return true;
 
         case BreakpointUseFullPathRole:
@@ -568,7 +566,15 @@ void BreakHandler::toggleBreakpointEnabled(BreakpointData *data)
         m_enabled.removeAll(data);
         m_disabled.append(data);
     }
-    updateMarkers();
+    data->updateMarker();
+    emit layoutChanged();
+    m_engine->attemptBreakpointSynchronization();
+}
+
+void BreakHandler::toggleBreakpointEnabled(const QString &fileName, int lineNumber)
+{
+    BreakpointData *data = findBreakpoint(fileName, lineNumber);
+    toggleBreakpointEnabled(data);
 }
 
 void BreakHandler::appendBreakpoint(BreakpointData *data)
@@ -609,15 +615,6 @@ void BreakHandler::toggleBreakpoint(const QString &fileName, int lineNumber)
         data->setMarkerLineNumber(lineNumber);
         appendBreakpoint(data);
     }
-    m_engine->attemptBreakpointSynchronization();
-}
-
-void BreakHandler::toggleBreakpointEnabled(const QString &fileName, int lineNumber)
-{
-    BreakpointData *data = findBreakpoint(fileName, lineNumber);
-    QTC_ASSERT(data, return);
-    data->enabled = !data->enabled;
-    data->updateMarker();
     m_engine->attemptBreakpointSynchronization();
 }
 
