@@ -81,7 +81,7 @@ QWidget {
 
                     step: 1;
                     minimumValue: 0;
-                    maximumValue: 2000;
+                    maximumValue: backendValues.sourceSize_width.value;
                 }
 
                 IntEditor {
@@ -91,7 +91,7 @@ QWidget {
 
                     step: 1;
                     minimumValue: 0;
-                    maximumValue: 2000;
+                    maximumValue: backendValues.sourceSize_width.value;
                 }
 
                 IntEditor {
@@ -101,7 +101,7 @@ QWidget {
 
                     step: 1;
                     minimumValue: 0;
-                    maximumValue: 2000;
+                    maximumValue: backendValues.sourceSize_height.value;
                 }
 
                 IntEditor {
@@ -111,7 +111,7 @@ QWidget {
 
                     step: 1;
                     minimumValue: 0;
-                    maximumValue: 2000;
+                    maximumValue: backendValues.sourceSize_height.value;
                 }
             }
         }
